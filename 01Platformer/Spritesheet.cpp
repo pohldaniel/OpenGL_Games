@@ -1,0 +1,59 @@
+#include "Spritesheet.h"
+#include "stb\stb_image.h"
+#include "Extension.h"
+
+Spritesheet::Spritesheet(std::string pictureFile, unsigned short tileWidth, unsigned short tileHeight, bool reverse, bool flipVertical) {
+
+	stbi_set_flip_vertically_on_load(flipVertical);
+	int width, height, numCompontents;
+	unsigned char* imageData = stbi_load(pictureFile.c_str(), &width, &height, &numCompontents, NULL);
+
+	unsigned short tileCountX = width / tileWidth;
+	unsigned short tileCountY = height / tileHeight;
+	unsigned short totalFrames = tileCountX * tileCountY;
+
+	glGenTextures(1, &m_texture);
+	glBindTexture(GL_TEXTURE_2D_ARRAY, m_texture);
+	//glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_RGBA8, tileWidth, tileHeight, totalFrames, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+	glTexStorage3D(GL_TEXTURE_2D_ARRAY, 1, GL_RGBA8, tileWidth, tileHeight, totalFrames);
+
+	unsigned short image = 0;
+	unsigned short posX = 0;
+	unsigned short posY = reverse ? tileCountY - 1 : 0;
+
+	while (image < totalFrames) {
+		if (image % tileCountX == 0 && image > 0) {
+			if (reverse) posY--; else posY++;
+			posX = 0;
+		}
+		unsigned char* subImage = (unsigned char*)malloc(tileWidth * numCompontents * tileHeight);
+		unsigned int subImageSize = tileWidth * numCompontents * tileHeight;
+		unsigned int count = 0, row = 0;
+		unsigned int x = width * numCompontents * tileHeight * posY + posX * tileWidth * numCompontents;
+
+		while (count < subImageSize) {
+			if (count % (tileWidth * numCompontents) == 0 && count > 0) {
+				row = row + width * numCompontents;
+				x = row + width * numCompontents * tileHeight * posY + posX * tileWidth * numCompontents;
+			}
+			subImage[count] = imageData[x];
+			x++;
+			count++;
+		}		
+		glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, image, tileWidth, tileHeight, 1, GL_RGBA, GL_UNSIGNED_BYTE, subImage);
+		posX++;
+		image++;
+		free(subImage);
+	}
+	glTexParameterf(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glTexParameterf(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
+
+	stbi_image_free(imageData);
+}
+
+unsigned int Spritesheet::getAtlas() {
+	return m_texture;
+}
