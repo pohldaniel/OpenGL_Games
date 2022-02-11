@@ -1,15 +1,17 @@
 #include "Quad.h"
 
-Quad::Quad(float size, float sizeTex) {
+Quad::Quad(float sizeX, float sizeY, float sizeTex) {
 	m_quadShader = new Shader("shader/quad.vs", "shader/quad.fs");
-	m_size = size;
+	m_sizeX = sizeX;
+	m_sizeY = sizeY;
 	m_sizeTex = sizeTex;
 	createBuffer();
 }
 
-Quad::Quad(std::string vertex, std::string fragment, float size, float sizeTex) {
+Quad::Quad(std::string vertex, std::string fragment, float sizeX, float sizeY, float sizeTex) {
 	m_quadShader = new Shader(vertex, fragment);
-	m_size = size;
+	m_sizeX = sizeX;
+	m_sizeY = sizeY;
 	m_sizeTex = sizeTex;
 	createBuffer();
 }
@@ -19,10 +21,10 @@ Quad::~Quad() {
 }
 
 void Quad::createBuffer() {
-	m_vertex.push_back(-1.0 * m_size); m_vertex.push_back(-1.0 * m_size); m_vertex.push_back(0.0 * m_size); m_vertex.push_back(0.0 * m_sizeTex); m_vertex.push_back(0.0 * m_sizeTex);
-	m_vertex.push_back(-1.0 * m_size); m_vertex.push_back(1.0 * m_size); m_vertex.push_back(0.0 * m_size); m_vertex.push_back(0.0 * m_sizeTex); m_vertex.push_back(1.0 * m_sizeTex);
-	m_vertex.push_back(1.0 * m_size); m_vertex.push_back(1.0 * m_size); m_vertex.push_back(0.0 * m_size); m_vertex.push_back(1.0 * m_sizeTex); m_vertex.push_back(1.0 * m_sizeTex);
-	m_vertex.push_back(1.0 * m_size); m_vertex.push_back(-1.0 * m_size); m_vertex.push_back(0.0 * m_size); m_vertex.push_back(1.0 * m_sizeTex); m_vertex.push_back(0.0 * m_sizeTex);
+	m_vertex.push_back(-1.0 * m_sizeX); m_vertex.push_back(-1.0 * m_sizeY); m_vertex.push_back(0.0); m_vertex.push_back(0.0 * m_sizeTex); m_vertex.push_back(0.0 * m_sizeTex);
+	m_vertex.push_back(-1.0 * m_sizeX); m_vertex.push_back(1.0 * m_sizeY); m_vertex.push_back(0.0); m_vertex.push_back(0.0 * m_sizeTex); m_vertex.push_back(1.0 * m_sizeTex);
+	m_vertex.push_back(1.0 * m_sizeX); m_vertex.push_back(1.0 * m_sizeY); m_vertex.push_back(0.0); m_vertex.push_back(1.0 * m_sizeTex); m_vertex.push_back(1.0 * m_sizeTex);
+	m_vertex.push_back(1.0 * m_sizeX); m_vertex.push_back(-1.0 * m_sizeY); m_vertex.push_back(0.0); m_vertex.push_back(1.0 * m_sizeTex); m_vertex.push_back(0.0 * m_sizeTex);
 
 	static const GLushort index[] = {
 		0, 1, 2,
@@ -64,7 +66,7 @@ void Quad::render(unsigned int texture) {
 	glDrawElements(GL_TRIANGLES, 2 * 3, GL_UNSIGNED_SHORT, 0);
 	glBindVertexArray(0);
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, 0);	
+	glBindTexture(GL_TEXTURE_2D, 0);
 	glUseProgram(0);
 }
 
@@ -81,7 +83,7 @@ void Quad::render2(unsigned int texture) {
 }
 
 void Quad::render(unsigned int texture, int layer) {
-	
+
 	glUseProgram(m_quadShader->m_program);
 	m_quadShader->loadInt("layer", layer);
 	glActiveTexture(GL_TEXTURE0);
