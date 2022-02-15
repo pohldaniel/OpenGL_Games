@@ -1,15 +1,6 @@
 #include "Quad.h"
 
 Quad::Quad(float sizeX, float sizeY, float sizeTex) {
-	m_quadShader = new Shader("shader/quad.vs", "shader/quad.fs");
-	m_sizeX = sizeX;
-	m_sizeY = sizeY;
-	m_sizeTex = sizeTex;
-	createBuffer();
-}
-
-Quad::Quad(std::string vertex, std::string fragment, float sizeX, float sizeY, float sizeTex) {
-	m_quadShader = new Shader(vertex, fragment);
 	m_sizeX = sizeX;
 	m_sizeY = sizeY;
 	m_sizeTex = sizeTex;
@@ -54,12 +45,10 @@ void Quad::createBuffer() {
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(index), index, GL_STATIC_DRAW);
 
 	glBindVertexArray(0);
-
 }
 
 void Quad::render(unsigned int texture) {
 
-	glUseProgram(m_quadShader->m_program);
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, texture);
 	glBindVertexArray(m_vao);
@@ -67,35 +56,4 @@ void Quad::render(unsigned int texture) {
 	glBindVertexArray(0);
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, 0);
-	glUseProgram(0);
-}
-
-void Quad::render2(unsigned int texture) {
-
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, texture);
-	glBindVertexArray(m_vao);
-	glDrawElements(GL_TRIANGLES, 2 * 3, GL_UNSIGNED_SHORT, 0);
-	glBindVertexArray(0);
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, 0);
-
-}
-
-void Quad::render(unsigned int texture, int layer) {
-
-	glUseProgram(m_quadShader->m_program);
-	m_quadShader->loadInt("layer", layer);
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D_ARRAY, texture);
-	glBindVertexArray(m_vao);
-	glDrawElements(GL_TRIANGLES, 2 * 3, GL_UNSIGNED_SHORT, 0);
-	glBindVertexArray(0);
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
-	glUseProgram(0);
-}
-
-Shader*  Quad::getShader() const {
-	return m_quadShader;
 }

@@ -2,32 +2,18 @@
 #define __characterH__
 #include <vector>
 
+#include "Constants.h"
+#include "Quad.h"
+#include "Spritesheet_old.h"
 #include "Shader.h"
 #include "Vector.h"
 
-#define CHARACTER_WIDTH 50
-#define CHARACTER_HEIGHT 66
-#define CHARACTER_TILE_HEIGHT 100
-#define LEVEL_WIDTH 100
-#define LEVEL_HEIGHT 12
-#define TILE_SIZE 50
-
-#define WIDTH 800
-#define HEIGHT 600
-#define RESOLUTION_X 800
-#define RESOLUTION_Y 600
 
 
-#define MAP_TILE_DIM_X 50
-#define MAP_TILE_DIM_Y 100
-#define TILE_SIZE_X 50
-#define TILE_SIZE_Y 100
 
-#define CHARACTER_TILE_HEIGHT 100
-
-class Character 
-{
+class Character {
 public:
+
 	Character();
 
 	void draw();
@@ -39,7 +25,7 @@ public:
 	void Die();
 	bool IsDead();
 	void Reset();
-	void render2();
+	void render();
 	Shader* getShader() const;
 
 	void update(float elapsedTime);
@@ -51,9 +37,10 @@ public:
 
 private:
 
-	const float WIDTH1PX = 2.0f / (float)(WIDTH);
-	const float HEIGHT1PX = 2.0f / (float)(HEIGHT);
-
+	Quad *m_quad;
+	Shader *m_shader;
+	SpritesheetOld *m_spriteSheet;
+	
 	Vector2f speed;
 	Vector2f prevPosition;
 	Vector2f position;
@@ -61,25 +48,13 @@ private:
 	bool forward = true;
 	bool dead;
 
-	void createBuffer();
-	void loadTileset();
-	Matrix4f calcTileFrameTransform(int id);
-	unsigned int m_vao;
-	float m_sizeX = 1;
-	float m_sizeY = 1;
-	float m_sizeTex = 1;
-	std::vector<float> m_vertex;
-
-	Shader *m_quadShader;
-
-	int tileCountX, tileCountY;
-	double tileScaleX, tileScaleY;
-	int totalFrames;
-	std::vector<Matrix4f> tileFrameTransforms;
-	GLuint m_texture;
-
 	int tileIndex = 59;
 	int step = 1;
+
+	float xScale = CHARACTER_TILE_WIDTH / (float)(WIDTH);
+	float xTrans = xScale * 2.0f;
+	float yScale = CHARACTER_TILE_HEIGHT / (float)(HEIGHT);
+	float yTrans = yScale * 2.0f;
 	
 };
 

@@ -1,5 +1,5 @@
-#include "Spritesheet_old.h"
 #include "stb\stb_image.h"
+#include "Spritesheet_old.h"
 #include "Extension.h"
 
 SpritesheetOld::SpritesheetOld(std::string pictureFile, unsigned short tileWidth, unsigned short tileHeight, bool reverse, bool flipVertical) {

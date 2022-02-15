@@ -1,5 +1,5 @@
-#include "Spritesheet.h"
 #include "stb\stb_image.h"
+#include "Spritesheet.h"
 #include "Extension.h"
 
 Spritesheet::Spritesheet(std::string pictureFile, unsigned short tileWidth, unsigned short tileHeight, bool reverse, bool flipVertical) {
