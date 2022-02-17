@@ -22,6 +22,8 @@ public:
 	void render() override;
 	
 	CollisionDistances characterCollides(Character *character);
+	int pickUpCollectibles(Character* character);
+	bool levelExit(Character* character);
 
 private:
 
@@ -32,9 +34,12 @@ private:
 	Spritesheet *m_spriteSheet;
 	int levelMatrix[LEVEL_HEIGHT][LEVEL_WIDTH];
 	int levelSolids[LEVEL_HEIGHT][LEVEL_WIDTH];
+	int levelCollectible[LEVEL_HEIGHT][LEVEL_WIDTH];
 	bool tileIsSolid(int tileNo);
+	bool tileIsCollectible(int tileNo);
 
 	int solids[34] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17, 18, 19, 20, 24, 25, 26, 27, 31, 32, 33, 34, 41, 42, 43, 44, 49, 50 };
+	int collectibles[8] = { 54, 55, 56, 57, 61, 62, 63, 64 };
 
 	const float xScale = MAP_TILE_WIDTH / (float)(WIDTH);
 	const float xTrans = xScale * 2.0f;

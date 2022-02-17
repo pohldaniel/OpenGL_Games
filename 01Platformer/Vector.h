@@ -158,6 +158,8 @@ public:
 	void fromHeadPitchRoll(float headDegrees, float pitchDegrees, float rollDegrees);
 	void toHeadPitchRoll(float &headDegrees, float &pitchDegrees, float &rollDegrees) const;
 
+	void print();
+
 	static Matrix4f &GetNormalMatrix(const Matrix4f &modelViewMatrix);
 	static Matrix4f &Scale(float x, float y, float z);
 	static Matrix4f &Translate(const float dx, const float dy, const float dz);

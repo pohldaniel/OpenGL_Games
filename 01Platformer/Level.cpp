@@ -14,11 +14,16 @@ void Level::render() {
 	glUseProgram(m_shader->m_program);
 	for (int y = 0; y < LEVEL_HEIGHT; y++) {
 		for (int x = 0; x < LEVEL_WIDTH; x++) {
-			if (levelMatrix[y][x] != -1) {
-				m_shader->loadMatrix("u_transform", Matrix4f::Translate(m_transform, (x + 0.5f) * xTrans - 1.0f, 1.0f - yTrans * (y + 0.5f), 0.0f));
-				m_shader->loadInt("u_layer", levelMatrix[y][x]);
-				m_quad->render(m_spriteSheet->getAtlas());
-			}
+
+			//if ((x + 1) * TILE_WIDTH >= offset && x * TILE_WIDTH < offset + WIDTH){
+
+				if (levelMatrix[y][x] != -1) {
+					m_shader->loadMatrix("u_transform", Matrix4f::Translate(m_transform, (x + 0.5f - (offset / CHARACTER_TILE_WIDTH)) * xTrans - 1.0f, 1.0f - yTrans * (y + 0.5f), 0.0f));
+					m_shader->loadInt("u_layer", levelMatrix[y][x]);
+					m_quad->render(m_spriteSheet->getAtlas());
+				}
+
+			//}
 
 		}
 	}
@@ -32,6 +37,7 @@ void Level::loadLevel() {
 		for (int i = 0; i < LEVEL_WIDTH; i++){
 			levelMatrix[j][i] = -1;
 			levelSolids[j][i] = false;
+			levelCollectible[j][i] = false;
 		}
 	}
 
@@ -45,14 +51,26 @@ void Level::loadLevel() {
 				levelMatrix[j][i] = tmp;
 
 				levelSolids[j][i] = tileIsSolid(levelMatrix[j][i]);
+				levelCollectible[j][i] = tileIsCollectible(levelMatrix[j][i]);
 			}
 		}
 	}
 }
 
 bool Level::tileIsSolid(int tileNo){
+
 	for (int i = 0; i < 34; i++){
 		if (solids[i] == tileNo){
+			return true;
+		}
+	}
+	return false;
+}
+
+bool Level::tileIsCollectible(int tileNo){
+
+	for (int i = 0; i < 8; i++){
+		if (collectibles[i] == tileNo){
 			return true;
 		}
 	}
@@ -159,4 +177,90 @@ CollisionDistances Level::characterCollides(Character *character) {
 	}
 
 	return cummulatedCollision;
+}
+
+int Level::pickUpCollectibles(Character* character) {
+	// this method checks for collisions with coins and returns the number
+	int noCollisions = 0;
+
+	double charTop = character->getPosition()[1] - CHARACTER_HEIGHT;
+	double charBottom = character->getPosition()[1];
+	double charLeft = character->getPosition()[0] - CHARACTER_WIDTH / 2 + 3;
+	double charRight = character->getPosition()[0] + CHARACTER_WIDTH / 2 - 4;
+
+	int startX = (int)(charLeft / TILE_WIDTH);
+	if (startX < 0)
+		startX = 0;
+	int startY = (int)(charTop / TILE_WIDTH);
+	if (startY < 0)
+		startY = 0;
+	int endX = (int)(charRight / TILE_WIDTH);
+	if (endX > LEVEL_WIDTH - 1)
+		endX = LEVEL_WIDTH - 1;
+	int endY = (int)(charBottom / TILE_WIDTH);
+	if (endY > LEVEL_HEIGHT - 1)
+		endY = LEVEL_HEIGHT - 1;
+
+	for (int i = startY; i <= endY; i++){
+		for (int j = startX; j <= endX; j++){
+
+			if (levelCollectible[i][j]){
+				double tileTop = i * TILE_WIDTH;
+				double tileBottom = (i + 1) * TILE_WIDTH - 1;
+				double tileLeft = j * TILE_WIDTH;
+				double tileRight = (j + 1) * TILE_WIDTH - 1;
+
+				// If it's a collision
+				if (charTop < tileBottom && charBottom > tileTop && charRight > tileLeft && charLeft < tileRight){
+					noCollisions++;
+					levelMatrix[i][j] = -1; // remove the coin by resetting the tile position
+					levelCollectible[i][j] = false;
+				}
+			}
+		}
+	}
+
+	return noCollisions;
+}
+
+bool Level::levelExit(Character* character)
+{
+	// returns true if the character collides with the level exit portal
+	int noCollisions = 0;
+
+	double charTop = character->getPosition()[1] - CHARACTER_HEIGHT;
+	double charBottom = character->getPosition()[1];
+	double charLeft = character->getPosition()[0] - CHARACTER_WIDTH / 2 + 3;
+	double charRight = character->getPosition()[0] + CHARACTER_WIDTH / 2 - 4;
+
+	int startX = (int)(charLeft / TILE_WIDTH);
+	if (startX < 0)
+		startX = 0;
+	int startY = (int)(charTop / TILE_WIDTH);
+	if (startY < 0)
+		startY = 0;
+	int endX = (int)(charRight / TILE_WIDTH);
+	if (endX > LEVEL_WIDTH - 1)
+		endX = LEVEL_WIDTH - 1;
+	int endY = (int)(charBottom / TILE_WIDTH);
+	if (endY > LEVEL_HEIGHT - 1)
+		endY = LEVEL_HEIGHT - 1;
+
+	for (int i = startY; i <= endY; i++){
+		for (int j = startX; j <= endX; j++){
+			if (levelMatrix[i][j] == 11){
+				double tileTop = i * TILE_WIDTH;
+				double tileBottom = (i + 1) * TILE_WIDTH - 1;
+				double tileLeft = j * TILE_WIDTH;
+				double tileRight = (j + 1) * TILE_WIDTH - 1;
+
+				// If it's a collision
+				if (charTop < tileBottom && charBottom > tileTop&& charRight > tileLeft&& charLeft < tileRight){
+					return true;
+				}
+			}
+		}
+	}
+
+	return false;
 }

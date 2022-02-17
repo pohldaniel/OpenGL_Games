@@ -971,6 +971,15 @@ Vector4f operator^(const Vector4f &lhs, const Matrix4f &rhs) {
 		(lhs[0] * rhs.mtx[0][3]) + (lhs[1] * rhs.mtx[1][3]) + (lhs[2] * rhs.mtx[2][3]) + (lhs[3] * rhs.mtx[3][3])
 	);
 }
+
+void Matrix4f::print() {
+	std::cout << mtx[0][0] << "  " << mtx[0][1] << "  " << mtx[0][2] << "  " << mtx[0][3] << std::endl;
+	std::cout << mtx[1][0] << "  " << mtx[1][1] << "  " << mtx[1][2] << "  " << mtx[1][3] << std::endl;
+	std::cout << mtx[2][0] << "  " << mtx[2][1] << "  " << mtx[2][2] << "  " << mtx[2][3] << std::endl;
+	std::cout << mtx[3][0] << "  " << mtx[3][1] << "  " << mtx[3][2] << "  " << mtx[3][3] << std::endl;
+	std::cout << "-------------------" << std::endl;
+}
+
 //////////////////////////////////////////////////////////////////////
 Vector2f::Vector2f() {
 

@@ -57,3 +57,11 @@ Spritesheet::Spritesheet(std::string pictureFile, unsigned short tileWidth, unsi
 unsigned int Spritesheet::getAtlas() {
 	return m_texture;
 }
+
+unsigned short Spritesheet::getTileCountX() {
+	return tileCountX;
+}
+
+unsigned short Spritesheet::getTileCountY() {
+	return tileCountX;
+}

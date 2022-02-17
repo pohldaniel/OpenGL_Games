@@ -14,10 +14,9 @@
 #include "Camera.h"
 #include "Level.h"
 #include "Character.h"
+#include "Enemy.h"
 
-
-#define WIDTH 800
-#define HEIGHT 600
+extern double offset = 0.0;
 
 POINT g_OldCursorPos;
 bool g_enableVerticalSync;
@@ -36,7 +35,8 @@ enum DIRECTION {
 
 Character* character;
 Level* level;
-
+Enemy* enemies[10];
+int noEnemies;
 //prototype funktions
 LRESULT CALLBACK winProc(HWND hWnd, UINT message, WPARAM wParma, LPARAM lParam);
 void setCursortoMiddle(HWND hwnd);
@@ -57,7 +57,6 @@ double framesTime = 0;
 void addGameObject(GameObject* gameObj);
 void removeGameObject(GameObject* gameObj);
 std::list<GameObject*> objectList;
-
 boolean leftPressed;
 boolean rightPressed;
 boolean spacePressed;
@@ -71,6 +70,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	SetConsoleTitle("Debug console");
 
 	MoveWindow(GetConsoleWindow(), 1300, 0, 550, 300, true);
+	std::cout << "arrow keys        : move character" << std::endl;
+	std::cout << "space             : jump" << std::endl;
 	std::cout << "v                 : toggle vsync" << std::endl;
 	std::cout << "z                 : toggle wireframe" << std::endl;
 
@@ -79,7 +80,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	MSG				msg;				// message
 	HDC				hdc;				// device context handle
 
-	// fill out the window class structure
+										// fill out the window class structure
 	windowClass.cbSize = sizeof(WNDCLASSEX);
 	windowClass.style = CS_HREDRAW | CS_VREDRAW;
 	windowClass.lpfnWndProc = winProc;
@@ -136,7 +137,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	initApp(hwnd);
 
-
 	// main message loop
 	while (true) {
 
@@ -145,7 +145,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		begin = end;
 				
 		// Display FPS
-		/*framesTime += elapsed_secs;
+		framesTime += elapsed_secs;
 		frames++;
 		if (framesTime > 1) {
 			_TCHAR fpsText[32];
@@ -153,80 +153,114 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 			SetWindowText(hwnd, fpsText);
 			frames = 0;
 			framesTime = 0;
-		}*/
+		}
 
+		if (elapsed_secs > 0.1){
+			elapsed_secs = 0.1; // safety so it doesn't go wild
+		}
 		
 		// Did we recieve a message, or are we idling ?
 		if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
-			// test if this is a quit
-			if (msg.message == WM_QUIT) break;
 			// translate and dispatch message
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
-		}else {
+			// test if this is a quit
+			if (msg.message == WM_QUIT) break;				
+		}
 
-			glClearColor(0.0f, 0.60f, 0.86f, 1.0f);
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			processInput(hwnd);
-			///////////////////////////////////////////////////////////////////////////
-			std::list<GameObject*>::iterator iter;
+		glClearColor(0.0f, 0.60f, 0.86f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		processInput(hwnd);
+		//////////////////////Simulation/////////////////////////////////
+		std::list<GameObject*>::iterator iter;
 
-			for (iter = objectList.begin(); iter != objectList.end(); iter++)
-				(*iter)->update(elapsed_secs);
+		for (iter = objectList.begin(); iter != objectList.end(); iter++)
+			(*iter)->update(elapsed_secs);
 
+		///////////////////////Correct Simulation///////////////////////////////////////
+		if (!character->isDead()) {
 			
-			for (iter = objectList.begin(); iter != objectList.end(); iter++)
-				(*iter)->render();
-
-			///////////////////////////////////////////////////////////////////////////
 			character->goesLeft = leftPressed;
 			character->goesRight = rightPressed;
 			
-			if (!character->isDead()) {
-				CollisionDistances cd = level->characterCollides(character);
+			level->pickUpCollectibles(character);
+			
+			CollisionDistances cd = level->characterCollides(character);
+			if (cd.bottom > 0){
+				// if it's a bottom collision, we stop the character from falling
+				character->stopFalling(cd.bottom);
+				if (spacePressed){ // if the user pressed the jump key, the character jumps
+					character->jump(true);
+					spacePressed = false;
+				}
+			}
+
+			if (cd.left > 0){
+				// if it's a left collision
+				character->stopMovingLeft(cd.left);
+			}
+
+			if (cd.right > 0){
+				// if it's a right collision
+				character->stopMovingRight(cd.right);
+			}
+
+			if (cd.top > 0){
+				// if it's a top collision
+				character->bounceTop();
+			}
+
+			for (int i = 0; i < noEnemies; i++){ 
+				// check for collisions with enemies
+				CollisionDistances cd = enemies[i]->characterCollides(character);
 				if (cd.bottom > 0){
-					// if it's a bottom collision, we stop the character from falling
-					character->stopFalling(cd.bottom);
-					if (spacePressed){ // if the user pressed the jump key, the character jumps
-						character->jump(true);
-						spacePressed = false;
+
+					// if we hit the enemy from above, remove enemy
+					Enemy* enemy = enemies[i];
+					for (int k = i; k < noEnemies - 1; k++){
+						enemies[k] = enemies[k + 1];
 					}
-				}
+					enemies[noEnemies - 1] = NULL;
+					removeGameObject(enemy);
+					delete enemy;
+					noEnemies--;
+					character->jump(false);
 
-				if (cd.left > 0){
-					// if it's a left collision
-					character->stopMovingLeft(cd.left);
-				}
-
-				if (cd.right > 0){
-					// if it's a right collision
-					character->stopMovingRight(cd.right);
-				}
-
-				if (cd.top > 0){
-					// if it's a top collision
-					character->bounceTop();
-				}
-
-				if (character->getPosition()[1] > HEIGHT){
-					// If the character falls below the level, it dies
+				}else if (cd.left > 0 || cd.right > 0 || cd.top > 0){
+					// if we hit the enemy from any other direction, die
 					character->die();
 				}
-				
-				// Change the display offset based on character position, but clamp it to the limits
-				offset = character->getPosition()[0] - WIDTH/ 2;
-				if (offset < 0)
-					offset = 0;
-				if (offset > LEVEL_WIDTH* TILE_WIDTH - WIDTH)
-					offset = LEVEL_WIDTH * TILE_WIDTH - WIDTH;
 			}
-			///////////////////////////////////////////////////////////////////////////
 
-			
-			hdc = GetDC(hwnd);
-			SwapBuffers(hdc);
-			ReleaseDC(hwnd, hdc);
+			if (character->getPosition()[1] > HEIGHT){
+				// If the character falls below the level, it dies
+				character->die();
+			}
+
+			if (level->levelExit(character)){
+				// if the character hit the exit point of the level, game over, you win
+				std::cout << "Level Finished" << std::endl;
+			}
+				
+			// Change the display offset based on character position, but clamp it to the limits
+			offset = character->getPosition()[0] - WIDTH/ 2;
+			if (offset < 0)
+				offset = 0;
+			if (offset > LEVEL_WIDTH* TILE_WIDTH - WIDTH)
+				offset = LEVEL_WIDTH * TILE_WIDTH - WIDTH;
+		}else{
+			// if the character is dead (floating up) and it hits the top of the screen, we can reset (if we still have lives)
+			if (character->getPosition()[1] < 0){
+				character->reset();
+			}
 		}
+		////////////////////////Rendering////////////////////////////////////////
+		for (iter = objectList.begin(); iter != objectList.end(); iter++)
+			(*iter)->render();
+			
+		hdc = GetDC(hwnd);
+		SwapBuffers(hdc);
+		ReleaseDC(hwnd, hdc);
 	} // end while
 	return msg.wParam;
 }
@@ -360,15 +394,22 @@ void initApp(HWND hWnd) {
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	character = new Character();
-	level = new Level();
-
 	level = new Level();
 	addGameObject(level);
 
 	// Initialize character
 	character = new Character();
 	addGameObject(character);
+
+	noEnemies = 3;
+	enemies[0] = new Enemy(425, 350, 625, 0);
+	addGameObject(enemies[0]);
+
+	enemies[1] = new Enemy(1475, 150, 1525, 7);
+	addGameObject(enemies[1]);
+
+	enemies[2] = new Enemy(3275, 300, 3475, 11);
+	addGameObject(enemies[2]);
 }
 
 void setCursortoMiddle(HWND hwnd) {
@@ -406,7 +447,6 @@ void enableWireframe(bool enableWireframe) {
 }
 
 void processInput(HWND hWnd) {
-
 	static UCHAR pKeyBuffer[256];
 	ULONG        Direction = 0;
 	POINT        CursorPos;

@@ -23,7 +23,8 @@ void Character::update(float elapsedTime) {
 	if (!dead) // We do all this logic only if it's not dead
 	{
 		// save previous position
-		m_prevPosition = m_position;
+		m_prevPosition[0] = m_position[0];
+		m_prevPosition[1] = m_position[1];
 
 		// update x position based on speed, but make sure we don't go outside the level
 		m_position[0] += m_speed[0] * elapsedTime;
@@ -85,11 +86,15 @@ void Character::update(float elapsedTime) {
 }
 
 void Character::stopFalling(double collisionSize){
+
+	//std::cout << collisionSize << "  " << m_position[1] << std::endl;
 	// this is called when we have a bottom collision and we need to stop falling
-	if (!dead){
+	//if (!dead){
 		m_speed[1] = 0;
 		m_position[1] -= collisionSize;
-	}
+	//}
+
+	//std::cout << m_prevPosition[1] << "  " << m_position[1] << std::endl;
 }
 
 void Character::jump(bool fullJump){
@@ -152,31 +157,34 @@ void Character::reset(){
 
 void Character::render() {
 
+	// default animation
+	int step = forward ? 3 : 4;
+
+	// if the character is in the middle of the jump
+	if (m_position[1] != m_prevPosition[1]) {
+		
+		step = forward ? 17 : 19;
+
 	// if the character moves on ground
-	if (m_position[0] != m_prevPosition[0]) {
+	}else if (m_position[0] != m_prevPosition[0]) {
 		step = (int)m_position[0] % 100 / 25;
+		step = (forward ? step : 7 - step);
+	}
+
+	// if it's dead
+	if (dead) {
+		step = forward ? 28 : 29;
 	}
 	
-	//Matrix4f transform = Matrix4f::Translate((position[0] / CHARACTER_TILE_WIDTH) * xTrans - 1.0f, -1.0f + yTrans * ((HEIGHT - position[1]) / CHARACTER_TILE_HEIGHT + 0.5f), 0.0f);
+	//Matrix4f transform = Matrix4f::Translate((m_position[0] / CHARACTER_TILE_WIDTH) * xTrans - 1.0f, -1.0f + yTrans * ((HEIGHT - m_position[1]) / CHARACTER_TILE_HEIGHT + 0.5f), 0.0f);
+	//transform.print();
 
-	/*std::cout << transform[0][0] << "  " << transform[0][1] << "  " << transform[0][2] << "  " << transform[0][3] << std::endl;
-	std::cout << transform[1][0] << "  " << transform[1][1] << "  " << transform[1][2] << "  " << transform[1][3] << std::endl;
-	std::cout << transform[2][0] << "  " << transform[2][1] << "  " << transform[2][2] << "  " << transform[2][3] << std::endl;
-	std::cout << transform[3][0] << "  " << transform[3][1] << "  " << transform[3][2] << "  " << transform[3][3] << std::endl;
-	std::cout << "-------------------" << std::endl;*/
-
-	//Matrix4f m_transform = Matrix4f::Translate(m_transform, (position[0] / CHARACTER_TILE_WIDTH) * xTrans - 1.0f, -1.0f + yTrans * ((HEIGHT - position[1]) / CHARACTER_TILE_HEIGHT + 0.5f), 0.0f);
-	//m_transform.translate((position[0] / CHARACTER_TILE_WIDTH) * xTrans - 1.0f, -1.0f + yTrans * ((HEIGHT - position[1]) / CHARACTER_TILE_HEIGHT + 0.5f), 0.0f);
-
-	/*std::cout << m_transform[0][0] << "  " << m_transform[0][1] << "  " << m_transform[0][2] << "  " << m_transform[0][3] << std::endl;
-	std::cout << m_transform[1][0] << "  " << m_transform[1][1] << "  " << m_transform[1][2] << "  " << m_transform[1][3] << std::endl;
-	std::cout << m_transform[2][0] << "  " << m_transform[2][1] << "  " << m_transform[2][2] << "  " << m_transform[2][3] << std::endl;
-	std::cout << m_transform[3][0] << "  " << m_transform[3][1] << "  " << m_transform[3][2] << "  " << m_transform[3][3] << std::endl;
-	std::cout << "-------------------" << std::endl;*/
-	//std::cout << "Offstet: " << offset << std::endl;
+	//Matrix4f m_transform = Matrix4f::Translate(m_transform, (m_position[0] / CHARACTER_TILE_WIDTH) * xTrans - 1.0f, -1.0f + yTrans * ((HEIGHT - m_position[1]) / CHARACTER_TILE_HEIGHT + 0.5f), 0.0f);
+	///m_transform.translate((m_position[0] / CHARACTER_TILE_WIDTH) * xTrans - 1.0f, -1.0f + yTrans * ((HEIGHT - m_position[1]) / CHARACTER_TILE_HEIGHT + 0.5f), 0.0f);
+	//m_transform.print();
 
 	glUseProgram(m_shader->m_program);
-	m_shader->loadMatrix("u_transform", Matrix4f::Translate(m_transform, (m_position[0] / CHARACTER_TILE_WIDTH) * xTrans - 1.0f, -1.0f + yTrans * ((HEIGHT - m_position[1]) / CHARACTER_TILE_HEIGHT + 0.5f), 0.0f));
+	m_shader->loadMatrix("u_transform", Matrix4f::Translate(m_transform, ((m_position[0] - offset) / CHARACTER_TILE_WIDTH) * xTrans - 1.0f, -1.0f + yTrans * ((HEIGHT - m_position[1]) / CHARACTER_TILE_HEIGHT + 0.5f), 0.0f));
 	m_shader->loadMatrix("u_frame", m_spriteSheet->getFrameTransform(step));
 	 
 	m_quad->render(m_spriteSheet->getTexture());

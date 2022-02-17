@@ -18,6 +18,14 @@
 #define CHARACTER_TILE_WIDTH 50
 #define CHARACTER_TILE_HEIGHT 100
 
-static double offset = 0;
+//Enemy
+#define ENEMY_WIDTH 50
+#define ENEMY_HEIGHT 50
+#define ENEMY_TILE_WIDTH 50
+#define ENEMY_TILE_HEIGHT 50
+
+
+extern double offset;
+
 
 #endif

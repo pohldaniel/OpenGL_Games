@@ -8,8 +8,8 @@ SpritesheetOld::SpritesheetOld(std::string pictureFile, unsigned short tileWidth
 	int width, height, numCompontents;
 	unsigned char* imageData = stbi_load(pictureFile.c_str(), &width, &height, &numCompontents, NULL);
 
-	unsigned short tileCountX = width / tileWidth;
-	unsigned short tileCountY = height / tileHeight;
+	tileCountX = width / tileWidth;
+	tileCountY = height / tileHeight;
 	unsigned short totalFrames = tileCountX * tileCountY;
 	float tileScaleX = 1.0 / (float)(tileCountX);
 	float tileScaleY = 1.0 / (float)(tileCountY);
@@ -51,4 +51,12 @@ unsigned int SpritesheetOld::getTexture() {
 
 const Matrix4f &SpritesheetOld::getFrameTransform(unsigned short index) const {
 	return tileFrameTransforms[index];
+}
+
+unsigned short SpritesheetOld::getTileCountX() {
+	return tileCountX;
+}
+
+unsigned short SpritesheetOld::getTileCountY() {
+	return tileCountX;
 }
