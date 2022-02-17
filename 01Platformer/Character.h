@@ -3,47 +3,40 @@
 #include <vector>
 
 #include "Constants.h"
+#include "GameObject.h"
 #include "Quad.h"
 #include "Spritesheet_old.h"
 #include "Shader.h"
-#include "Vector.h"
 
 
-
-
-class Character {
+class Character : public GameObject{
 public:
 
 	Character();
+	void update(float elapsedTime) override;
+	void render() override;
 
-	void draw();
-	void StopFalling(double collisionSize);
-	void Jump(bool fullJump);
-	void BounceTop();
-	void StopMovingLeft(double collisionSize);
-	void StopMovingRight(double collisionSize);
-	void Die();
-	bool IsDead();
-	void Reset();
-	void render();
-	Shader* getShader() const;
 
-	void update(float elapsedTime);
-	bool GoesLeft;
-	bool GoesRight;
-
-	Matrix4f transform;
-	Matrix4f frame;
+	void stopFalling(double collisionSize);
+	void jump(bool fullJump);
+	void bounceTop();
+	void stopMovingLeft(double collisionSize);
+	void stopMovingRight(double collisionSize);
+	bool isDead();
+	void die();	
+	void reset();
+	
+	bool goesLeft;
+	bool goesRight;
 
 private:
 
 	Quad *m_quad;
 	Shader *m_shader;
 	SpritesheetOld *m_spriteSheet;
-	
-	Vector2f speed;
-	Vector2f prevPosition;
-	Vector2f position;
+
+	Vector2f m_speed;
+	Vector2f m_prevPosition;
 
 	bool forward = true;
 	bool dead;

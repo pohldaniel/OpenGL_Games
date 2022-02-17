@@ -495,11 +495,34 @@ void Matrix4f::toHeadPitchRoll(float &headDegrees, float &pitchDegrees, float &r
 }
 
 Matrix4f &Matrix4f::Translate(const float dx, const float dy, const float dz) {
-
 	return Matrix4f(1.0f, 0.0f, 0.0f, dx,
 		0.0f, 1.0f, 0.0f, dy,
 		0.0f, 0.0f, 1.0f, dz,
 		0.0f, 0.0f, 0.0f, 1.0);
+}
+
+Matrix4f &Matrix4f::Translate(Matrix4f &mtx, const float dx, const float dy, const float dz) {
+	mtx[0][0] = 1.0f;
+	mtx[1][0] = 0.0f;
+	mtx[2][0] = 0.0f;
+	mtx[3][0] = 0.0f;
+
+	mtx[0][1] = 0.0f;
+	mtx[1][1] = 1.0f;
+	mtx[2][1] = 0.0f;
+	mtx[3][1] = 0.0f;
+
+	mtx[0][2] = 0.0f;
+	mtx[1][2] = 0.0f;
+	mtx[2][2] = 1.0f;
+	mtx[3][2] = 0.0f;
+
+	mtx[0][3] = dx;
+	mtx[1][3] = dy;
+	mtx[2][3] = dz;
+	mtx[3][3] = 1.0f;
+
+	return mtx;
 }
 
 Matrix4f &Matrix4f::Scale(float x, float y, float z) {

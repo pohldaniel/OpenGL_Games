@@ -6,8 +6,10 @@
 #include <sstream>
 #include <chrono>
 #include <tchar.h>
+#include <list>
 #include "stb\stb_image.h"
 
+#include "GameObject.h"
 #include "Extension.h"
 #include "Camera.h"
 #include "Level.h"
@@ -28,7 +30,7 @@ enum DIRECTION {
 	DIR_RIGHT = 8,
 	DIR_UP = 16,
 	DIR_DOWN = 32,
-
+	
 	DIR_FORCE_32BIT = 0x7FFFFFFF
 };
 
@@ -51,6 +53,15 @@ float elapsed_secs = 0.0f;
 int frames = 0;
 double framesTime = 0;
 
+
+void addGameObject(GameObject* gameObj);
+void removeGameObject(GameObject* gameObj);
+std::list<GameObject*> objectList;
+
+boolean leftPressed;
+boolean rightPressed;
+boolean spacePressed;
+
 // the main windows entry point
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd) {
 
@@ -60,9 +71,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	SetConsoleTitle("Debug console");
 
 	MoveWindow(GetConsoleWindow(), 1300, 0, 550, 300, true);
-	std::cout << "w, a, s, d, mouse : move camera" << std::endl;
-	std::cout << "arrow keys        : move sphere" << std::endl;
-	std::cout << "space             : release capture" << std::endl;
 	std::cout << "v                 : toggle vsync" << std::endl;
 	std::cout << "z                 : toggle wireframe" << std::endl;
 
@@ -71,7 +79,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	MSG				msg;				// message
 	HDC				hdc;				// device context handle
 
-										// fill out the window class structure
+	// fill out the window class structure
 	windowClass.cbSize = sizeof(WNDCLASSEX);
 	windowClass.style = CS_HREDRAW | CS_VREDRAW;
 	windowClass.lpfnWndProc = winProc;
@@ -159,13 +167,62 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 			glClearColor(0.0f, 0.60f, 0.86f, 1.0f);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			
-			character->update(elapsed_secs);
-
-			level->render();
-			character->render();
-
 			processInput(hwnd);
+			///////////////////////////////////////////////////////////////////////////
+			std::list<GameObject*>::iterator iter;
+
+			for (iter = objectList.begin(); iter != objectList.end(); iter++)
+				(*iter)->update(elapsed_secs);
+
+			
+			for (iter = objectList.begin(); iter != objectList.end(); iter++)
+				(*iter)->render();
+
+			///////////////////////////////////////////////////////////////////////////
+			character->goesLeft = leftPressed;
+			character->goesRight = rightPressed;
+			
+			if (!character->isDead()) {
+				CollisionDistances cd = level->characterCollides(character);
+				if (cd.bottom > 0){
+					// if it's a bottom collision, we stop the character from falling
+					character->stopFalling(cd.bottom);
+					if (spacePressed){ // if the user pressed the jump key, the character jumps
+						character->jump(true);
+						spacePressed = false;
+					}
+				}
+
+				if (cd.left > 0){
+					// if it's a left collision
+					character->stopMovingLeft(cd.left);
+				}
+
+				if (cd.right > 0){
+					// if it's a right collision
+					character->stopMovingRight(cd.right);
+				}
+
+				if (cd.top > 0){
+					// if it's a top collision
+					character->bounceTop();
+				}
+
+				if (character->getPosition()[1] > HEIGHT){
+					// If the character falls below the level, it dies
+					character->die();
+				}
+				
+				// Change the display offset based on character position, but clamp it to the limits
+				offset = character->getPosition()[0] - WIDTH/ 2;
+				if (offset < 0)
+					offset = 0;
+				if (offset > LEVEL_WIDTH* TILE_WIDTH - WIDTH)
+					offset = LEVEL_WIDTH * TILE_WIDTH - WIDTH;
+			}
+			///////////////////////////////////////////////////////////////////////////
+
+			
 			hdc = GetDC(hwnd);
 			SwapBuffers(hdc);
 			ReleaseDC(hwnd, hdc);
@@ -297,14 +354,21 @@ void initApp(HWND hWnd) {
 	wglMakeCurrent(hDC, hRC);
 	enableVerticalSync(true);
 
-	glEnable(GL_DEPTH_TEST);					// hidden surface removal
-	//glEnable(GL_CULL_FACE);					// do not calculate inside of poly's
+	glEnable(GL_DEPTH_TEST);					
+	glDepthFunc(GL_LEQUAL);
 
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	character = new Character();
 	level = new Level();
+
+	level = new Level();
+	addGameObject(level);
+
+	// Initialize character
+	character = new Character();
+	addGameObject(character);
 }
 
 void setCursortoMiddle(HWND hwnd) {
@@ -352,16 +416,20 @@ void processInput(HWND hWnd) {
 	if (!GetKeyboardState(pKeyBuffer)) return;
 
 	// Check the relevant keys
-	if (pKeyBuffer[VK_UP] & 0xF0) Direction |= DIR_FORWARD;
-	if (pKeyBuffer[VK_DOWN] & 0xF0) Direction |= DIR_BACKWARD;
 	if (pKeyBuffer[VK_LEFT] & 0xF0) Direction |= DIR_LEFT;
 	if (pKeyBuffer[VK_RIGHT] & 0xF0) Direction |= DIR_RIGHT;
-		//if (Direction & DIR_RIGHT) {
-			character->GoesRight = Direction & DIR_RIGHT;
+	if (pKeyBuffer[VK_UP] & 0xF0) Direction |= DIR_UP;
+	if (pKeyBuffer[VK_SPACE] & 0xF0) Direction |= DIR_UP;
 
-		//}		
-	
-		//if (Direction & DIR_LEFT) {
-			character->GoesLeft = Direction & DIR_LEFT;
-		//}
+	rightPressed = Direction & DIR_RIGHT;
+	leftPressed = Direction & DIR_LEFT;
+	spacePressed = Direction & DIR_UP;
+}
+
+void addGameObject(GameObject* gameObj) {
+	objectList.push_back(gameObj);
+}
+
+void removeGameObject(GameObject* gameObj) {
+	objectList.remove(gameObj);
 }

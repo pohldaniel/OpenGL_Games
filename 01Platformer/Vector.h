@@ -161,6 +161,7 @@ public:
 	static Matrix4f &GetNormalMatrix(const Matrix4f &modelViewMatrix);
 	static Matrix4f &Scale(float x, float y, float z);
 	static Matrix4f &Translate(const float dx, const float dy, const float dz);
+	static Matrix4f &Translate(Matrix4f &mtx, const float dx, const float dy, const float dz);
 	static Matrix4f &GetPerspective(float fovx, float aspect, float znear, float zfar);
 	static Matrix4f &GetInvPerspective(float fovx, float aspect, float znear, float zfar);
 	static Matrix4f &GetOrthographic(float left, float right, float bottom, float top, float znear, float zfar);

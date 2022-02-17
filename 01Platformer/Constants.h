@@ -1,3 +1,6 @@
+#ifndef __constantsH__
+#define __constantsH__
+
 #define WIDTH 800
 #define HEIGHT 600
 
@@ -14,3 +17,7 @@
 #define CHARACTER_HEIGHT 66
 #define CHARACTER_TILE_WIDTH 50
 #define CHARACTER_TILE_HEIGHT 100
+
+static double offset = 0;
+
+#endif
