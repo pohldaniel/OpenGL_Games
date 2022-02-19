@@ -69,7 +69,7 @@ void Enemy::render() {
 	int step = enemyType * m_tileCountX + (int)m_position[0] % 20 / 10 + (forward ? 2 : 0);
 
 	glUseProgram(m_shader->m_program);
-	m_shader->loadMatrix("u_transform", Matrix4f::Translate(m_transform, ((m_position[0] - offset) / ENEMY_TILE_WIDTH) * xTrans - 1.0f, -1.0f + yTrans * ((HEIGHT - m_position[1]) / ENEMY_TILE_HEIGHT + 0.5f), 0.0f));
+	m_shader->loadMatrix("u_transform", Matrix4f::Translate(m_transform, ((m_position[0] - Globals::offset) / ENEMY_TILE_WIDTH) * xTrans - 1.0f, -1.0f + yTrans * ((HEIGHT - m_position[1]) / ENEMY_TILE_HEIGHT + 0.5f), 0.0f));
 	m_shader->loadMatrix("u_frame", m_spriteSheet->getFrameTransform(step));
 
 	m_quad->render(m_spriteSheet->getTexture());

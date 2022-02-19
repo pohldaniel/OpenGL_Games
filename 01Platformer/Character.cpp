@@ -183,10 +183,12 @@ void Character::render() {
 	///m_transform.translate((m_position[0] / CHARACTER_TILE_WIDTH) * xTrans - 1.0f, -1.0f + yTrans * ((HEIGHT - m_position[1]) / CHARACTER_TILE_HEIGHT + 0.5f), 0.0f);
 	//m_transform.print();
 
+	glEnable(GL_BLEND);
 	glUseProgram(m_shader->m_program);
-	m_shader->loadMatrix("u_transform", Matrix4f::Translate(m_transform, ((m_position[0] - offset) / CHARACTER_TILE_WIDTH) * xTrans - 1.0f, -1.0f + yTrans * ((HEIGHT - m_position[1]) / CHARACTER_TILE_HEIGHT + 0.5f), 0.0f));
+	m_shader->loadMatrix("u_transform", Matrix4f::Translate(m_transform, ((m_position[0] - Globals::offset) / CHARACTER_TILE_WIDTH) * xTrans - 1.0f, -1.0f + yTrans * ((HEIGHT - m_position[1]) / CHARACTER_TILE_HEIGHT + 0.5f), 0.0f));
 	m_shader->loadMatrix("u_frame", m_spriteSheet->getFrameTransform(step));
-	 
+	m_shader->loadFloat("u_alpha", dead ? 0.6f : 1.0f);
 	m_quad->render(m_spriteSheet->getTexture());
 	glUseProgram(0);
+	glDisable(GL_BLEND);
 }

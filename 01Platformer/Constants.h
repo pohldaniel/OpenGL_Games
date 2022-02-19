@@ -10,7 +10,7 @@
 #define TILE_WIDTH 50
 #define LEVEL_WIDTH 100
 #define LEVEL_HEIGHT 12
-
+#define WIDTH2 2 * WIDTH
 
 //Charackter
 #define CHARACTER_WIDTH 50
@@ -24,8 +24,8 @@
 #define ENEMY_TILE_WIDTH 50
 #define ENEMY_TILE_HEIGHT 50
 
-
-extern double offset;
-
+namespace Globals{
+	extern float offset;
+}
 
 #endif

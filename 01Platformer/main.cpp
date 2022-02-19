@@ -11,12 +11,11 @@
 
 #include "GameObject.h"
 #include "Extension.h"
-#include "Camera.h"
 #include "Level.h"
 #include "Character.h"
 #include "Enemy.h"
 
-extern double offset = 0.0;
+extern float Globals::offset = 0.0f;
 
 POINT g_OldCursorPos;
 bool g_enableVerticalSync;
@@ -37,6 +36,7 @@ Character* character;
 Level* level;
 Enemy* enemies[10];
 int noEnemies;
+
 //prototype funktions
 LRESULT CALLBACK winProc(HWND hWnd, UINT message, WPARAM wParma, LPARAM lParam);
 void setCursortoMiddle(HWND hwnd);
@@ -243,11 +243,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 			}
 				
 			// Change the display offset based on character position, but clamp it to the limits
-			offset = character->getPosition()[0] - WIDTH/ 2;
-			if (offset < 0)
-				offset = 0;
-			if (offset > LEVEL_WIDTH* TILE_WIDTH - WIDTH)
-				offset = LEVEL_WIDTH * TILE_WIDTH - WIDTH;
+			Globals::offset = character->getPosition()[0] - WIDTH/ 2;
+			if (Globals::offset < 0)
+				Globals::offset = 0;
+			if (Globals::offset > LEVEL_WIDTH* TILE_WIDTH - WIDTH)
+				Globals::offset = LEVEL_WIDTH * TILE_WIDTH - WIDTH;
 		}else{
 			// if the character is dead (floating up) and it hits the top of the screen, we can reset (if we still have lives)
 			if (character->getPosition()[1] < 0){
@@ -390,8 +390,12 @@ void initApp(HWND hWnd) {
 
 	glEnable(GL_DEPTH_TEST);					
 	glDepthFunc(GL_LEQUAL);
+	
+	//alpha test for cutting border of the quads
+	glEnable(GL_ALPHA_TEST);
+	glAlphaFunc(GL_GREATER, 0.0);
 
-	glEnable(GL_BLEND);
+	//blending for tranperancy after dead see Character::render()  
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	level = new Level();

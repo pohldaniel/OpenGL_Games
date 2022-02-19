@@ -8,6 +8,7 @@
 #include "CollisionDistances.h"
 #include "Quad.h"
 #include "Spritesheet.h"
+#include "Texture.h"
 #include "Shader.h"
 
 class Character;
@@ -29,9 +30,14 @@ private:
 
 	void loadLevel();
 
-	Quad *m_quad;
-	Shader *m_shader;
+	Quad *m_levelQuad;
+	Shader *m_levelShader;
 	Spritesheet *m_spriteSheet;
+
+	Texture *m_clouds;
+	Shader *m_cloudShader;
+	Quad *m_cloudQuad;
+
 	int levelMatrix[LEVEL_HEIGHT][LEVEL_WIDTH];
 	int levelSolids[LEVEL_HEIGHT][LEVEL_WIDTH];
 	int levelCollectible[LEVEL_HEIGHT][LEVEL_WIDTH];

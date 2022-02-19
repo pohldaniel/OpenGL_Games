@@ -2,25 +2,42 @@
 #include "Character.h"
 
 Level::Level() {
-	m_shader = new Shader("shader/quad_array.vs", "shader/quad_array.fs");
+	m_levelShader = new Shader("shader/quad_array.vs", "shader/quad_array.fs");
 	m_spriteSheet = new Spritesheet("tileset.png", MAP_TILE_WIDTH, MAP_TILE_HEIGHT, true, true);
-	m_quad = new Quad(xScale, yScale);
+	m_levelQuad = new Quad(xScale, yScale);
+
+	m_clouds = new Texture("clouds.png", true);
+	m_cloudShader = new Shader("shader/quad.vs", "shader/quad.fs");
+	m_cloudQuad = new Quad(1.0f , 1.0f);
 
 	loadLevel();
 }
 
 void Level::render() {
 
-	glUseProgram(m_shader->m_program);
+	double start_x = Globals::offset;
+	while (start_x > WIDTH2) {
+		start_x -= WIDTH2;
+	}
+
+	glUseProgram(m_cloudShader->m_program);	
+	m_cloudShader->loadMatrix("u_transform", Matrix4f::Translate(m_transform,  - (start_x / WIDTH), 0.0f, 0.0f) );
+	m_cloudQuad->render(m_clouds->getTexture());	
+
+	m_cloudShader->loadMatrix("u_transform", Matrix4f::Translate(m_transform, 2.0f - (start_x / WIDTH), 0.0f, 0.0f));
+	m_cloudQuad->render(m_clouds->getTexture());
+	glUseProgram(0);
+
+	glUseProgram(m_levelShader->m_program);
 	for (int y = 0; y < LEVEL_HEIGHT; y++) {
 		for (int x = 0; x < LEVEL_WIDTH; x++) {
 
 			//if ((x + 1) * TILE_WIDTH >= offset && x * TILE_WIDTH < offset + WIDTH){
 
 				if (levelMatrix[y][x] != -1) {
-					m_shader->loadMatrix("u_transform", Matrix4f::Translate(m_transform, (x + 0.5f - (offset / CHARACTER_TILE_WIDTH)) * xTrans - 1.0f, 1.0f - yTrans * (y + 0.5f), 0.0f));
-					m_shader->loadInt("u_layer", levelMatrix[y][x]);
-					m_quad->render(m_spriteSheet->getAtlas());
+					m_levelShader->loadMatrix("u_transform", Matrix4f::Translate(m_transform, (x + 0.5f - (Globals::offset / CHARACTER_TILE_WIDTH)) * xTrans - 1.0f, 1.0f - yTrans * (y + 0.5f), 0.0f));
+					m_levelShader->loadInt("u_layer", levelMatrix[y][x]);
+					m_levelQuad->render(m_spriteSheet->getAtlas());
 				}
 
 			//}

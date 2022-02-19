@@ -154,7 +154,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Camera.h" />
     <ClInclude Include="Character.h" />
     <ClInclude Include="CollisionDistances.h" />
     <ClInclude Include="Constants.h" />
@@ -167,10 +166,10 @@
     <ClInclude Include="Spritesheet.h" />
     <ClInclude Include="Spritesheet_old.h" />
     <ClInclude Include="stb\stb_image.h" />
+    <ClInclude Include="Texture.h" />
     <ClInclude Include="Vector.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Character.cpp" />
     <ClCompile Include="Enemy.cpp" />
     <ClCompile Include="Extension.cpp" />
@@ -181,6 +180,7 @@
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="Spritesheet.cpp" />
     <ClCompile Include="Spritesheet_old.cpp" />
+    <ClCompile Include="Texture.cpp" />
     <ClCompile Include="Vector.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
