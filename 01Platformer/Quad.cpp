@@ -8,14 +8,16 @@ Quad::Quad(float sizeX, float sizeY, float sizeTex) {
 }
 
 Quad::~Quad() {
-
+	glDeleteVertexArrays(1, &m_vao);	
 }
 
 void Quad::createBuffer() {
-	m_vertex.push_back(-1.0 * m_sizeX); m_vertex.push_back(-1.0 * m_sizeY); m_vertex.push_back(0.0); m_vertex.push_back(0.0 * m_sizeTex); m_vertex.push_back(0.0 * m_sizeTex);
-	m_vertex.push_back(-1.0 * m_sizeX); m_vertex.push_back(1.0 * m_sizeY); m_vertex.push_back(0.0); m_vertex.push_back(0.0 * m_sizeTex); m_vertex.push_back(1.0 * m_sizeTex);
-	m_vertex.push_back(1.0 * m_sizeX); m_vertex.push_back(1.0 * m_sizeY); m_vertex.push_back(0.0); m_vertex.push_back(1.0 * m_sizeTex); m_vertex.push_back(1.0 * m_sizeTex);
-	m_vertex.push_back(1.0 * m_sizeX); m_vertex.push_back(-1.0 * m_sizeY); m_vertex.push_back(0.0); m_vertex.push_back(1.0 * m_sizeTex); m_vertex.push_back(0.0 * m_sizeTex);
+
+	std::vector<float> vertex;
+	vertex.push_back(-1.0 * m_sizeX); vertex.push_back(-1.0 * m_sizeY); vertex.push_back(0.0); vertex.push_back(0.0 * m_sizeTex); vertex.push_back(0.0 * m_sizeTex);
+	vertex.push_back(-1.0 * m_sizeX); vertex.push_back(1.0 * m_sizeY); vertex.push_back(0.0); vertex.push_back(0.0 * m_sizeTex); vertex.push_back(1.0 * m_sizeTex);
+	vertex.push_back(1.0 * m_sizeX); vertex.push_back(1.0 * m_sizeY); vertex.push_back(0.0); vertex.push_back(1.0 * m_sizeTex); vertex.push_back(1.0 * m_sizeTex);
+	vertex.push_back(1.0 * m_sizeX); vertex.push_back(-1.0 * m_sizeY); vertex.push_back(0.0); vertex.push_back(1.0 * m_sizeTex); vertex.push_back(0.0 * m_sizeTex);
 
 	static const GLushort index[] = {
 		0, 1, 2,
@@ -29,7 +31,7 @@ void Quad::createBuffer() {
 
 	glGenBuffers(1, &quadVBO);
 	glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
-	glBufferData(GL_ARRAY_BUFFER, m_vertex.size() * sizeof(float), &m_vertex[0], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, vertex.size() * sizeof(float), &vertex[0], GL_STATIC_DRAW);
 
 	//Position
 	glEnableVertexAttribArray(0);
@@ -45,6 +47,12 @@ void Quad::createBuffer() {
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(index), index, GL_STATIC_DRAW);
 
 	glBindVertexArray(0);
+
+	glDeleteBuffers(1, &quadVBO);
+	glDeleteBuffers(1, &indexQuad);
+
+	vertex.clear();
+	vertex.shrink_to_fit();
 }
 
 void Quad::render(unsigned int texture) {

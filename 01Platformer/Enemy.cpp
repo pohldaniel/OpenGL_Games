@@ -75,3 +75,9 @@ void Enemy::render() {
 	m_quad->render(m_spriteSheet->getTexture());
 	glUseProgram(0);
 }
+
+Enemy::~Enemy() {
+	delete m_quad;
+	delete m_shader;
+	delete m_spriteSheet;
+}

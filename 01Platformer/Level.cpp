@@ -281,3 +281,13 @@ bool Level::levelExit(Character* character)
 
 	return false;
 }
+
+Level::~Level() {
+	delete m_levelQuad;
+	delete m_levelShader;
+	delete m_spriteSheet;
+
+	delete m_clouds;
+	delete m_cloudShader;
+	delete m_cloudQuad;
+}

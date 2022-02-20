@@ -1,3 +1,4 @@
+#include <iostream>
 #include "GameObject.h"
 
 const Vector2f &GameObject::getPosition() {

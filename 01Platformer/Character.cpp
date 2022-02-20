@@ -192,3 +192,9 @@ void Character::render() {
 	glUseProgram(0);
 	glDisable(GL_BLEND);
 }
+
+Character::~Character() {
+	delete m_quad;
+	delete m_shader;
+	delete m_spriteSheet;
+}

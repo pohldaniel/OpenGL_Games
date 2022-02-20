@@ -11,6 +11,7 @@ class Enemy : public GameObject {
 
 public:
 	Enemy(float initialX, float initialY, float maxX, int type);
+	~Enemy();
 
 	void update(float elapsedTime) override;
 	void render() override;

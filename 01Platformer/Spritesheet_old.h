@@ -10,6 +10,8 @@ class SpritesheetOld {
 
 public:
 	SpritesheetOld(std::string pictureFile, unsigned short tileWidth, unsigned short tileHeight, bool reverse = false, bool flipVertical = false);
+	~SpritesheetOld();
+	
 	unsigned int getTexture();
 	const Matrix4f &getFrameTransform(unsigned short index) const;
 

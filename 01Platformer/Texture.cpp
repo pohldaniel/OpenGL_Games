@@ -23,3 +23,10 @@ Texture::Texture(std::string pictureFile, bool flipVertical) {
 unsigned int Texture::getTexture() {
 	return m_texture;
 }
+
+Texture::~Texture() {
+	if (m_texture) {
+		glDeleteTextures(1, &m_texture);
+		m_texture = 0;
+	}
+}

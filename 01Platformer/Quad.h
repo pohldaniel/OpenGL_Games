@@ -20,6 +20,5 @@ private:
 	float m_sizeX = 1;
 	float m_sizeY = 1;
 	float m_sizeTex = 1;
-	std::vector<float> m_vertex;
 };
 #endif // __quadH__

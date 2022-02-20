@@ -161,13 +161,26 @@ public:
 	void print();
 
 	static Matrix4f &GetNormalMatrix(const Matrix4f &modelViewMatrix);
+	static Matrix4f &GetNormalMatrix(Matrix4f &mtx, const Matrix4f &modelViewMatrix);
+
 	static Matrix4f &Scale(float x, float y, float z);
+	static Matrix4f &Scale(Matrix4f &mtx, float x, float y, float z);
+
 	static Matrix4f &Translate(const float dx, const float dy, const float dz);
 	static Matrix4f &Translate(Matrix4f &mtx, const float dx, const float dy, const float dz);
+
 	static Matrix4f &GetPerspective(float fovx, float aspect, float znear, float zfar);
+	static Matrix4f &GetPerspective(Matrix4f &mtx, float fovx, float aspect, float znear, float zfar);
+
 	static Matrix4f &GetInvPerspective(float fovx, float aspect, float znear, float zfar);
+	static Matrix4f &GetInvPerspective(Matrix4f &mtx, float fovx, float aspect, float znear, float zfar);
+
 	static Matrix4f &GetOrthographic(float left, float right, float bottom, float top, float znear, float zfar);
-	static Matrix4f &Matrix4f::GetInvOrthographic(float left, float right, float bottom, float top, float znear, float zfar);
+	static Matrix4f &GetOrthographic(Matrix4f &mtx, float left, float right, float bottom, float top, float znear, float zfar);
+
+	static Matrix4f &GetInvOrthographic(float left, float right, float bottom, float top, float znear, float zfar);
+	static Matrix4f &GetInvOrthographic(Matrix4f &mtx, float left, float right, float bottom, float top, float znear, float zfar);
+
 	static void Transpose(Matrix4f &p);
 
 private:
@@ -224,6 +237,7 @@ public:
 	void toHeadPitchRoll(float &headDegrees, float &pitchDegrees, float &rollDegrees) const;
 
 	static Quaternion &FromMatrix(const Matrix4f &m);
+	static Quaternion &FromMatrix(Quaternion &quat, const Matrix4f &m);
 	static void Normalize(Quaternion &p);
 private:
 	float quat[4];

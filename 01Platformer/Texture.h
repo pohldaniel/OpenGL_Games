@@ -7,6 +7,8 @@ class Texture{
 
 public:
 	Texture(std::string pictureFile, bool flipVertical = false);
+	~Texture();
+
 	unsigned int getTexture();
 
 private:

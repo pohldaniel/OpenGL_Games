@@ -9,6 +9,7 @@ public:
 	
 	virtual void update(float elapsedTime) = 0;
 	virtual void render() = 0;
+	virtual ~GameObject() {};
 
 	const Vector2f &getPosition();
 	const Matrix4f &getTransform();

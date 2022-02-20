@@ -16,7 +16,7 @@ public:
 
 	Shader(std::string vertex, std::string fragment);
 	Shader(Shader* shader);
-	virtual ~Shader();
+	~Shader();
 
 	GLuint m_program;
 

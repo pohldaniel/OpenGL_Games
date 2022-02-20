@@ -13,9 +13,10 @@ class Character : public GameObject{
 public:
 
 	Character();
+	~Character();
+
 	void update(float elapsedTime) override;
 	void render() override;
-
 
 	void stopFalling(double collisionSize);
 	void jump(bool fullJump);

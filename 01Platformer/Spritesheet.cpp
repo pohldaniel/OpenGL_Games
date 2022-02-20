@@ -65,3 +65,10 @@ unsigned short Spritesheet::getTileCountX() {
 unsigned short Spritesheet::getTileCountY() {
 	return tileCountX;
 }
+
+Spritesheet::~Spritesheet(){
+	if (m_texture) {
+		glDeleteTextures(1, &m_texture);
+		m_texture = 0;
+	}
+}

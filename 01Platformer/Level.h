@@ -18,6 +18,7 @@ class Level : public GameObject {
 public:
 
 	Level();
+	~Level();
 
 	void update(float elapsedTime) override {}
 	void render() override;

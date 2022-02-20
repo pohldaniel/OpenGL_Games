@@ -45,7 +45,7 @@ void enableVerticalSync(bool enableVerticalSync);
 
 void initApp(HWND hWnd);
 void processInput(HWND hWnd);
-
+void cleanup();
 
 std::chrono::steady_clock::time_point end = std::chrono::high_resolution_clock::now();
 std::chrono::steady_clock::time_point begin = end;
@@ -262,6 +262,15 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		SwapBuffers(hdc);
 		ReleaseDC(hwnd, hdc);
 	} // end while
+
+	cleanup();
+
+	hdc = GetDC(hwnd);
+	wglMakeCurrent(hdc, 0);
+	wglDeleteContext(wglGetCurrentContext());
+	ReleaseDC(hwnd, hdc);
+	UnregisterClass(windowClass.lpszClassName, hInstance);
+
 	return msg.wParam;
 }
 
@@ -276,13 +285,11 @@ LRESULT CALLBACK winProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 	switch (message) {
 
 	case WM_DESTROY: {
-
 		PostQuitMessage(0);
 		return 0;
 	}
 
 	case WM_CREATE: {
-
 		GetClientRect(hWnd, &rect);
 		g_OldCursorPos.x = rect.right / 2;
 		g_OldCursorPos.y = rect.bottom / 2;
@@ -476,4 +483,12 @@ void addGameObject(GameObject* gameObj) {
 
 void removeGameObject(GameObject* gameObj) {
 	objectList.remove(gameObj);
+}
+
+void cleanup() {
+	std::list<GameObject*>::iterator iter;
+	for (iter = objectList.begin(); iter != objectList.end(); iter++)
+		delete (*iter);
+
+	objectList.clear();
 }
