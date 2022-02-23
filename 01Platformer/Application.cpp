@@ -210,10 +210,24 @@ HWND Application::getWindow() {
 }
 
 bool Application::isRunning() {
+	processInput();
 	while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
 		if (msg.message == WM_QUIT) return false;
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
 	}
 	return true;
+}
+
+void Application::processInput() {
+	Globals::CONTROLLS = 0;
+
+	// Retrieve keyboard state
+	if (!GetKeyboardState(Globals::pKeyBuffer)) return;
+	// Check the relevant keys
+	
+	if (Globals::pKeyBuffer[VK_LEFT] & 0xF0) Globals::CONTROLLS |= Globals::KEY_LEFT;
+	if (Globals::pKeyBuffer[VK_RIGHT] & 0xF0) Globals::CONTROLLS |= Globals::KEY_RIGHT;
+	if (Globals::pKeyBuffer[VK_UP] & 0xF0) Globals::CONTROLLS |= Globals::KEY_UP;
+	if (Globals::pKeyBuffer[VK_SPACE] & 0xF0) Globals::CONTROLLS |= Globals::KEY_UP;	
 }

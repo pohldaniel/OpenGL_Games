@@ -25,7 +25,17 @@
 #define ENEMY_TILE_HEIGHT 50
 
 namespace Globals{
+	enum Controlls {
+		KEY_LEFT = 1,
+		KEY_RIGHT = 2,
+		KEY_UP = 4,
+		KEY_DOWN = 8,
+		DIR_FORCE_32BIT = 0x7FFFFFFF
+	};
+
 	extern float offset;
+	extern unsigned char pKeyBuffer[256];
+	extern unsigned long CONTROLLS;
 }
 
 #endif

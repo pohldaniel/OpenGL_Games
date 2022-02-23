@@ -18,17 +18,8 @@
 #include "Enemy.h"
 
 extern float Globals::offset = 0.0f;
-
-enum DIRECTION {
-	DIR_FORWARD = 1,
-	DIR_BACKWARD = 2,
-	DIR_LEFT = 4,
-	DIR_RIGHT = 8,
-	DIR_UP = 16,
-	DIR_DOWN = 32,
-
-	DIR_FORCE_32BIT = 0x7FFFFFFF
-};
+extern unsigned long Globals::CONTROLLS = 0;
+extern unsigned char Globals::pKeyBuffer[256] = { 0 };
 
 Character* character;
 Level* level;
@@ -37,7 +28,6 @@ int noEnemies;
 
 //prototype funktions
 void initApp();
-void processInput(HWND hWnd);
 void cleanup();
 
 float elapsed_secs = 0.0f;
@@ -47,9 +37,7 @@ double framesTime = 0;
 void addGameObject(GameObject* gameObj);
 void removeGameObject(GameObject* gameObj);
 std::list<GameObject*> objectList;
-boolean leftPressed;
-boolean rightPressed;
-boolean spacePressed;
+
 // the main windows entry point
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd) {
 
@@ -73,8 +61,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	// main message loop
 	while (application.isRunning()) {
 
-
-		elapsed_secs = deltaClock.restartSec();
+		
+		elapsed_secs = deltaClock.restartSec();		
 		// Display FPS
 		framesTime += elapsed_secs;
 		frames++;
@@ -86,13 +74,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 			framesTime = 0;
 		}
 
-		if (elapsed_secs > 0.1) {
+		if (elapsed_secs > 0.1){
 			elapsed_secs = 0.1; // safety so it doesn't go wild
 		}
-
+		
 		glClearColor(0.0f, 0.60f, 0.86f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		processInput(hwnd);
 		//////////////////////Simulation/////////////////////////////////
 		std::list<GameObject*>::iterator iter;
 
@@ -101,45 +88,44 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 		///////////////////////Correct Simulation///////////////////////////////////////
 		if (!character->isDead()) {
-
-			character->goesLeft = leftPressed;
-			character->goesRight = rightPressed;
-
+			
+			character->goesLeft = Globals::CONTROLLS & Globals::KEY_LEFT;
+			character->goesRight = Globals::CONTROLLS & Globals::KEY_RIGHT;
+			
 			level->pickUpCollectibles(character);
-
+			
 			CollisionDistances cd = level->characterCollides(character);
-			if (cd.bottom > 0) {
+			if (cd.bottom > 0){
 				// if it's a bottom collision, we stop the character from falling
 				character->stopFalling(cd.bottom);
-				if (spacePressed) { // if the user pressed the jump key, the character jumps
+				if (Globals::CONTROLLS & Globals::KEY_UP){ // if the user pressed the jump key, the character jumps
 					character->jump(true);
-					spacePressed = false;
 				}
 			}
 
-			if (cd.left > 0) {
+			if (cd.left > 0){
 				// if it's a left collision
 				character->stopMovingLeft(cd.left);
 			}
 
-			if (cd.right > 0) {
+			if (cd.right > 0){
 				// if it's a right collision
 				character->stopMovingRight(cd.right);
 			}
 
-			if (cd.top > 0) {
+			if (cd.top > 0){
 				// if it's a top collision
 				character->bounceTop();
 			}
 
-			for (int i = 0; i < noEnemies; i++) {
+			for (int i = 0; i < noEnemies; i++){ 
 				// check for collisions with enemies
 				CollisionDistances cd = enemies[i]->characterCollides(character);
-				if (cd.bottom > 0) {
+				if (cd.bottom > 0){
 
 					// if we hit the enemy from above, remove enemy
 					Enemy* enemy = enemies[i];
-					for (int k = i; k < noEnemies - 1; k++) {
+					for (int k = i; k < noEnemies - 1; k++){
 						enemies[k] = enemies[k + 1];
 					}
 					enemies[noEnemies - 1] = NULL;
@@ -148,40 +134,38 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 					noEnemies--;
 					character->jump(false);
 
-				}
-				else if (cd.left > 0 || cd.right > 0 || cd.top > 0) {
+				}else if (cd.left > 0 || cd.right > 0 || cd.top > 0){
 					// if we hit the enemy from any other direction, die
 					character->die();
 				}
 			}
 
-			if (character->getPosition()[1] > HEIGHT) {
+			if (character->getPosition()[1] > HEIGHT){
 				// If the character falls below the level, it dies
 				character->die();
 			}
 
-			if (level->levelExit(character)) {
+			if (level->levelExit(character)){
 				// if the character hit the exit point of the level, game over, you win
 				std::cout << "Level Finished" << std::endl;
 			}
-
+				
 			// Change the display offset based on character position, but clamp it to the limits
-			Globals::offset = character->getPosition()[0] - WIDTH / 2;
+			Globals::offset = character->getPosition()[0] - WIDTH/ 2;
 			if (Globals::offset < 0)
 				Globals::offset = 0;
 			if (Globals::offset > LEVEL_WIDTH* TILE_WIDTH - WIDTH)
 				Globals::offset = LEVEL_WIDTH * TILE_WIDTH - WIDTH;
-		}
-		else {
+		}else{
 			// if the character is dead (floating up) and it hits the top of the screen, we can reset (if we still have lives)
-			if (character->getPosition()[1] < 0) {
+			if (character->getPosition()[1] < 0){
 				character->reset();
 			}
 		}
 		////////////////////////Rendering////////////////////////////////////////
 		for (iter = objectList.begin(); iter != objectList.end(); iter++)
 			(*iter)->render();
-
+			
 		hdc = GetDC(hwnd);
 		SwapBuffers(hdc);
 		ReleaseDC(hwnd, hdc);
@@ -215,26 +199,6 @@ void initApp() {
 
 	enemies[2] = new Enemy(3275, 300, 3475, 11);
 	addGameObject(enemies[2]);
-}
-
-void processInput(HWND hWnd) {
-	static UCHAR pKeyBuffer[256];
-	ULONG        Direction = 0;
-	POINT        CursorPos;
-	float        X = 0.0f, Y = 0.0f;
-
-	// Retrieve keyboard state
-	if (!GetKeyboardState(pKeyBuffer)) return;
-
-	// Check the relevant keys
-	if (pKeyBuffer[VK_LEFT] & 0xF0) Direction |= DIR_LEFT;
-	if (pKeyBuffer[VK_RIGHT] & 0xF0) Direction |= DIR_RIGHT;
-	if (pKeyBuffer[VK_UP] & 0xF0) Direction |= DIR_UP;
-	if (pKeyBuffer[VK_SPACE] & 0xF0) Direction |= DIR_UP;
-
-	rightPressed = Direction & DIR_RIGHT;
-	leftPressed = Direction & DIR_LEFT;
-	spacePressed = Direction & DIR_UP;
 }
 
 void addGameObject(GameObject* gameObj) {

@@ -1,5 +1,6 @@
 #ifndef __characterH__
 #define __characterH__
+
 #include <vector>
 
 #include "Constants.h"
@@ -52,4 +53,4 @@ private:
 	
 };
 
-#endif // __cameraH__
+#endif // __characterH__

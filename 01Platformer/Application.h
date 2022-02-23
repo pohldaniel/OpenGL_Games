@@ -23,6 +23,7 @@ private:
 	void enableWireframe(bool enableWireframe);
 	void enableVerticalSync(bool enableVerticalSync);
 	void setCursortoMiddle(HWND hWnd);
+	void processInput();
 
 	POINT m_oldCursorPos;
 	bool m_enableVerticalSync;
