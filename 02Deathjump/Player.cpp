@@ -4,13 +4,25 @@
 
 //#include "Key Check.hpp"
 
-Player::Player(const float& dt, const float& fdt) : Entity(dt, fdt){
-
-	//i_texture = texture;
-	InitBody();
-	InitCollider();
+Player::Player(const float& dt, const float& fdt, Texture *texture) : Entity(dt, fdt){
+	
 	InitAnimations();
 	
+	InitBody();
+	InitCollider();
+	
+	m_texture = texture;
+
+
+	//m_spriteSheetOld = new SpritesheetOld("res/textures/player.png", 96, 84, true, true);
+	//m_spriteSheet = new Spritesheet("res/textures/player.png", 96, 84, true, true);
+
+	//m_spriteSheet = new Spritesheet("res/textures/player.png", 96, 84, 1, 6, true, true);
+
+	m_shaderTrans = new Shader("shader/quad_trans.vs", "shader/quad_trans.fs");
+	m_shaderArray = new Shader("shader/quad_array.vs", "shader/quad_array.fs");
+	m_quad = new Quad();
+
 }
 
 Player::~Player() {
@@ -130,45 +142,7 @@ void Player::UpdateTimer() {
 }
 
 void Player::Animate() {
-	if (!m_movable) {
-		m_Animations["takedamage"].Update(i_dt);
-		if (m_Animations["takedamage"].GetCurrentFrame() == m_Animations["takedamage"].GetFrameCount() - 1) {
-			m_Animations["takedamage"].SetFrame(0);
-			m_movable = true;
-			m_torque = 0.85f;
-		}
-		return;
-	}
-
-	if (m_grabbing) {
-		m_Animations["grab"].Update(i_dt);
-		return;
-	}
-
-	if (m_crouching) {
-		m_Animations["crouch"].Update(i_dt);
-		return;
-	}
-
-	if (m_velocity[1] == 0.0f) { // NOT JUMPING
-		if (m_velocity[0] < 0) {
-			m_Animations["move"].Update(i_dt);
-		}
-		else if (m_velocity[0] > 0) {
-			m_Animations["move"].Update(i_dt);
-		}
-		else if (m_velocity[0] == 0) {
-			m_Animations["idle"].Update(i_dt);
-		}
-	}else {
-		if (m_velocity[1] < 0) {
-			if (m_Animations["jump"].GetCurrentFrame() != m_Animations["jump"].GetFrameCount() - 1)
-				m_Animations["jump"].Update(i_dt);
-		}
-		if (m_velocity[1] > 0) {
-			m_Animations["fall"].Update(i_dt);
-		}
-	}
+	m_Animations["idle"].update(i_dt);
 }
 
 void Player::KeepInBorders() {
@@ -254,6 +228,8 @@ void Player::UpdateVelocity() {
 }
 
 void Player::InitAnimations() {
+
+	m_Animations["idle"].create(6, 0, 0.08f, 1);
 	/*auto sprite = reinterpret_cast<sf::Sprite*>(i_drawable);
 
 	m_Animations["move"].Create(8, 0, 0.08f, m_playerSize, *sprite, 3);
@@ -281,6 +257,11 @@ void Player::InitCollider() {
 	i_collider.size = size;*/
 }
 
-void Player::draw() const {	
+void Player::draw() {	
 	//target.draw(*i_drawable, i_shader);
+	glUseProgram(m_shaderArray->m_program);
+	m_shaderArray->loadMatrix("u_transform", Matrix4f::IDENTITY);
+	m_shaderArray->loadInt("u_layer", m_Animations["idle"].getCurrentFrame());	
+	m_quad->render(m_Animations["idle"].getAtlas(), true);
+	glUseProgram(0);
 }

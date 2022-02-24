@@ -5,21 +5,31 @@
 #include "Entity.h"
 #include "Wall.h"
 #include "Animator.h"
-
-//#include "Timer.hpp"
+#include "Spritesheet_old.h"
+#include "Spritesheet.h"
 
 class Player : public Entity {
 public:
-	Player(const float& dt, const float& fdt);
+	Player(const float& dt, const float& fdt, Texture *texture);
 	~Player();
 
 	virtual void FixedUpdate();
 	virtual void Update();
+	virtual void draw() ;
 
 	void ResolveCollision(Entity* entity);
 	void ResolveCollision(std::vector<Wall>& walls);
 
 	bool IsAlive() const;
+
+	//unsigned int m_frame;
+	Quad *m_quad;
+	Shader *m_shaderTrans;
+	Shader *m_shaderArray;
+	SpritesheetOld *m_spriteSheetOld;
+
+	Spritesheet *m_spriteSheet;
+
 private:
 	Vector2f m_velocity;
 
@@ -62,5 +72,5 @@ private:
 	void InitBody();
 	void InitCollider();
 
-	virtual void draw() const;
+	
 };

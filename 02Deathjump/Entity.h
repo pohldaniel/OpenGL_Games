@@ -1,5 +1,8 @@
 #pragma once
 #include "Collision.h"
+#include "Texture.h"
+#include "Quad.h"
+#include "Shader.h"
 
 class Entity {
 public:
@@ -8,6 +11,8 @@ public:
 
 	virtual void FixedUpdate() = 0;
 	virtual void Update() = 0;
+	virtual void render() const;
+
 
 	Collision GetCollider();
 protected:
@@ -20,5 +25,5 @@ protected:
 	const float& i_fdt;
 	const float& i_dt;
 
-	virtual void draw() const;
+	Texture* m_texture = nullptr;
 };

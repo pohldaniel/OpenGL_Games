@@ -37,7 +37,7 @@ void Level::render() {
 				if (levelMatrix[y][x] != -1) {
 					m_levelShader->loadMatrix("u_transform", Matrix4f::Translate(m_transform, (x + 0.5f - (Globals::offset / CHARACTER_TILE_WIDTH)) * xTrans - 1.0f, 1.0f - yTrans * (y + 0.5f), 0.0f));
 					m_levelShader->loadInt("u_layer", levelMatrix[y][x]);
-					m_levelQuad->render(m_spriteSheet->getAtlas());
+					m_levelQuad->render(m_spriteSheet->getAtlas(), true);
 				}
 
 			//}

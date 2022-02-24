@@ -50,7 +50,7 @@ Spritesheet::Spritesheet(std::string pictureFile, unsigned short tileWidth, unsi
 	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
-
+	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
 	stbi_image_free(imageData);
 }
 

@@ -124,17 +124,6 @@ LRESULT Application::DisplayWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 				}
 			}
 			break;
-		}case WM_KEYUP: {
-			switch (wParam) {
-				case VK_ESCAPE: {
-					PostQuitMessage(0);
-					break;
-				}case 'q': case 'Q': {
-					//Globals::holdKey = false;
-					break;
-				}
-			}
-			break;		
 		}case WM_SIZE: {
 
 			int _height = HIWORD(lParam);		// retrieve width and height
@@ -143,6 +132,7 @@ LRESULT Application::DisplayWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 			if (_height == 0) {					// avoid divide by zero
 				_height = 1;
 			}
+			std::cout << _width << "  " << _height << std::endl;
 			glViewport(0, 0, _width, _height);
 			break;
 		}
@@ -261,14 +251,10 @@ void Application::processInput() {
 	// Retrieve keyboard state
 	if (!GetKeyboardState(Globals::pKeyBuffer)) return;
 	// Check the relevant keys
-	Globals::holdKey =  ((Globals::pKeyBuffer['Q'] & 0xF0) && (Globals::CONTROLLSHOLD & Globals::KEY_Q)) ||
-						((Globals::pKeyBuffer['W'] & 0xF0) && (Globals::CONTROLLSHOLD & Globals::KEY_W));
+	bool holdKey =  ((Globals::pKeyBuffer['Q'] & 0xF0) && (Globals::CONTROLLSHOLD & Globals::KEY_Q)) ||
+					((Globals::pKeyBuffer['W'] & 0xF0) && (Globals::CONTROLLSHOLD & Globals::KEY_W));
 
-	if (!Globals::holdKey) {
-		if (Globals::pKeyBuffer[VK_LEFT] & 0xF0) Globals::CONTROLLS |= Globals::KEY_LEFT;
-		if (Globals::pKeyBuffer[VK_RIGHT] & 0xF0) Globals::CONTROLLS |= Globals::KEY_RIGHT;
-		if (Globals::pKeyBuffer[VK_UP] & 0xF0) Globals::CONTROLLS |= Globals::KEY_UP;
-		if (Globals::pKeyBuffer[VK_SPACE] & 0xF0) Globals::CONTROLLS |= Globals::KEY_UP;
+	if (!holdKey) {	
 		if (Globals::pKeyBuffer['Q'] & 0xF0) Globals::CONTROLLS |= Globals::KEY_Q;
 		if (Globals::pKeyBuffer['W'] & 0xF0) Globals::CONTROLLS |= Globals::KEY_W;
 		if (Globals::pKeyBuffer['E'] & 0xF0) Globals::CONTROLLS |= Globals::KEY_E;

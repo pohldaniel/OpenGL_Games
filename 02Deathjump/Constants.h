@@ -29,13 +29,9 @@
 
 namespace Globals{
 	enum Controlls {
-		KEY_LEFT = 1,
-		KEY_RIGHT = 2,
-		KEY_UP = 4,
-		KEY_DOWN = 8,
-		KEY_Q = 16,
-		KEY_W = 32,
-		KEY_E = 64,
+		KEY_Q = 1,
+		KEY_W = 2,
+		KEY_E = 4,
 		DIR_FORCE_32BIT = 0x7FFFFFFF
 	};
 
@@ -43,7 +39,6 @@ namespace Globals{
 	extern unsigned char pKeyBuffer[256];
 	extern unsigned long CONTROLLS;
 	extern unsigned long CONTROLLSHOLD;
-	extern bool holdKey;
 }
 
 #endif

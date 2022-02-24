@@ -21,7 +21,6 @@ extern float Globals::offset = 0.0f;
 extern unsigned long Globals::CONTROLLS = 0;
 extern unsigned long Globals::CONTROLLSHOLD = 0;
 extern unsigned char Globals::pKeyBuffer[256] = {0};
-extern bool Globals::holdKey = false;
 
 Character* character;
 Level* level;
@@ -43,6 +42,10 @@ double framesTime = 0;
 void addGameObject(GameObject* gameObj);
 void removeGameObject(GameObject* gameObj);
 std::list<GameObject*> objectList;
+boolean leftPressed;
+boolean rightPressed;
+boolean spacePressed;
+
 // the main windows entry point
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd) {
 
@@ -87,26 +90,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		application.render();
 
 		deltaTime = deltaClock.restartSec();
-		elapsed_secs = deltaClock.restartSec();
-
 		/*elapsed_secs = deltaClock.restartSec();
-		// Display FPS
-		framesTime += elapsed_secs;
-		frames++;
-		if (framesTime > 1) {
-			_TCHAR fpsText[32];
-			_sntprintf(fpsText, 32, "Game: %d FPS", frames);
-			SetWindowText(hwnd, fpsText);
-			frames = 0;
-			framesTime = 0;
-		}
-
-		if (elapsed_secs > 0.1) {
-			elapsed_secs = 0.1; // safety so it doesn't go wild
-		}
 
 		glClearColor(0.0f, 0.60f, 0.86f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		processInput(hwnd);
 		//////////////////////Simulation/////////////////////////////////
 		std::list<GameObject*>::iterator iter;
 
@@ -116,8 +104,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		///////////////////////Correct Simulation///////////////////////////////////////
 		if (!character->isDead()) {
 
-			character->goesLeft = Globals::CONTROLLS & Globals::KEY_LEFT;
-			character->goesRight = Globals::CONTROLLS & Globals::KEY_RIGHT;
+			character->goesLeft = leftPressed;
+			character->goesRight = rightPressed;
 
 			level->pickUpCollectibles(character);
 
@@ -125,8 +113,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 			if (cd.bottom > 0) {
 				// if it's a bottom collision, we stop the character from falling
 				character->stopFalling(cd.bottom);
-				if (Globals::CONTROLLS & Globals::KEY_UP) { // if the user pressed the jump key, the character jumps
+				if (spacePressed) { // if the user pressed the jump key, the character jumps
 					character->jump(true);
+					spacePressed = false;
 				}
 			}
 
@@ -211,8 +200,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 }
 
 void initApp() {
-	level = new Level();
-	addGameObject(level);
+	//level = new Level();
+	/*addGameObject(level);
 
 	// Initialize character
 	character = new Character();
@@ -226,7 +215,7 @@ void initApp() {
 	addGameObject(enemies[1]);
 
 	enemies[2] = new Enemy(3275, 300, 3475, 11);
-	addGameObject(enemies[2]);
+	addGameObject(enemies[2]);*/
 }
 
 void addGameObject(GameObject* gameObj) {

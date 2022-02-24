@@ -28,14 +28,14 @@ void Game::FixedUpdate() {
 }
 
 void Game::Update() {
-	//if (m_player->IsAlive()) {
-		//UpdateEntities();
+	if (m_player->IsAlive()) {
+		UpdateEntities();
 		//m_bestTime = m_timeClock.getElapsedTime().asSeconds();
-	//}
+	}
 	
 	//UpdateCountdown();
 
-	if (Globals::CONTROLLS & Globals::KEY_Q) {
+	if ((Globals::CONTROLLS & Globals::KEY_Q) || (Globals::CONTROLLS & Globals::KEY_W)) {
 		i_machine.AddStateAtTop(new Pause(i_machine));
 	}
 }
@@ -46,9 +46,14 @@ void Game::Render(unsigned int &frameBuffer) {
 	glUseProgram(m_shader->m_program);
 	m_shader->loadMatrix("u_transform", Matrix4f::IDENTITY);
 	m_quad->render(m_Sprites["background"]);
-
-	m_quad->render(m_Sprites["foreground"]);
 	glUseProgram(0);
+	
+	m_player->draw();
+
+	/*glUseProgram(m_shader->m_program);
+	m_shader->loadMatrix("u_transform", Matrix4f::IDENTITY);
+	m_quad->render(m_Sprites["foreground"]);
+	glUseProgram(0);*/
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 
@@ -84,15 +89,7 @@ void Game::UpdateEntities() {
 }
 
 void Game::InitEntities() {
-	//PLAYER//
-	{
-		m_player = new Player(i_dt, i_fdt);
-	}
-
-	//FOG//
-	{
-		//m_fog.setSize(sf::Vector2f(WINDOW_WIDTH, WINDOW_HEIGHT));
-	}
+	m_player = new Player(i_dt, i_fdt, &m_TextureManager.Get("player"));
 }
 
 void Game::UpdateTimers() {
@@ -145,7 +142,7 @@ void Game::InitSprites() {
 	sb.setTexture(m_TextureManager.Get("background"));
 	sb.setScale(sf::Vector2f(6.0f, 6.0f));
 	sb.setPosition(sf::Vector2f(0.0f, 4.0f));*/
-	
+	m_Sprites["player"] = m_TextureManager.Get("player").getTexture();
 }
 
 void Game::InitWalls() {

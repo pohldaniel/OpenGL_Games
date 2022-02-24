@@ -16,7 +16,7 @@ Texture::Texture(std::string pictureFile, bool flipVertical) {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, imageData);
 	glGenerateMipmap(GL_TEXTURE_2D);
-
+	glBindTexture(GL_TEXTURE_2D, 0);
 	stbi_image_free(imageData);
 }
 

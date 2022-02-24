@@ -11,7 +11,7 @@ public:
 	Quad(float sizeX = 1.0f, float sizeY = 1.0f, float sizeTex = 1.0f);
 	~Quad();
 
-	void render(unsigned int texture);
+	void render(unsigned int texture, bool array = false);
 
 private:
 

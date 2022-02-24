@@ -1,82 +1,51 @@
 #include "Animator.h"
 
-Animator::Animator(unsigned framesX, unsigned framesY, float time, unsigned YStart) {
-	unsigned frameCount = framesX * (framesY > 0 ? framesY : 1);
-
+Animator::Animator(unsigned framesX, unsigned framesY, float time, unsigned yStart) {
+	
+	unsigned frameCount = (framesX + 1) * (framesY > 0 ? framesY : 1);
 	m_updateTime = time;
-
-	//m_sprite = &sprite;
-	//m_frames = new sf::IntRect[frameCount];
-
-	frameCount = frameCount;
-
-	CutFrames(framesX, framesY, YStart);
+	m_frameCount = frameCount;
+	m_spriteSheet = new Spritesheet("res/textures/player.png", 96, 84, true, true, yStart, framesX);
 }
 
-void Animator::Create(unsigned framesX, unsigned framesY, float time, unsigned YStart) {
+Animator::~Animator() {}
+
+void Animator::create(unsigned framesX, unsigned framesY, float time, unsigned yStart) {
 	if (m_frameCount > 0)
 		return;
 
-	unsigned frameCount = framesX * (framesY > 0 ? framesY : 1);
-
+	unsigned frameCount = (framesX + 1) * (framesY > 0 ? framesY : 1);
 	m_updateTime = time;
-
-	//m_sprite = &sprite;
-	//m_frames = new sf::IntRect[frameCount];
-
 	m_frameCount = frameCount;
-
-	CutFrames(framesX, framesY, YStart);
+	m_spriteSheet = new Spritesheet("res/textures/player.png", 96, 84, true, true, yStart, framesX);
+	m_textureAtlas = m_spriteSheet->getAtlas();
 }
 
-void Animator::Update(const float deltaTime) {
+void Animator::update(const float deltaTime) {
 	m_elapsedTime += deltaTime;
 	while (m_elapsedTime >= m_updateTime) {
 		m_elapsedTime -= m_updateTime;
-		UpdateAnimation();
+		updateAnimation();
 	}
 }
 
-unsigned Animator::GetCurrentFrame() const {
+void Animator::updateAnimation() {
+	if (++m_currentFrame > m_frameCount - 1)
+		m_currentFrame = 0;
+}
+
+unsigned Animator::getCurrentFrame() const {
 	return m_currentFrame;
 }
 
-unsigned Animator::GetFrameCount() const {
+unsigned Animator::getFrameCount() const {
 	return m_frameCount;
 }
 
-void Animator::SetFrame(const unsigned& frame) {
+void Animator::setFrame(const unsigned& frame) {
 	m_currentFrame = frame;
-	//m_sprite->setTextureRect(m_frames[m_currentFrame]);
 }
 
-void Animator::SetUpdateTime(const float& time) {
-	m_updateTime = time;
-}
-
-Animator::~Animator() {
-	//delete[] m_frames;
-}
-
-void Animator::UpdateAnimation() {
-	if (++m_currentFrame > m_frameCount - 1)
-		m_currentFrame = 0;
-	//m_sprite->setTextureRect(m_frames[m_currentFrame]);
-}
-
-void Animator::CutFrames(const unsigned& framesX, const unsigned& framesY, const unsigned& YStart) {
-	if (framesY > 0) {
-		unsigned iterator = 0;
-		for (unsigned y = YStart; y < YStart + framesY; y++) {
-			for (unsigned x = 0; x < framesX; x++) {
-				//m_frames[iterator] = sf::IntRect(x * frameSize.x, y * frameSize.y, frameSize.x, frameSize.y);
-				iterator++;
-			}
-		}
-	}
-	else {
-		for (unsigned i = 0; i < framesX; i++) {
-			//m_frames[i] = sf::IntRect(i * frameSize.x, YStart * frameSize.y, frameSize.x, frameSize.y);
-		}
-	}
+unsigned int Animator::getAtlas() {
+	return m_textureAtlas;
 }

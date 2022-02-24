@@ -10,6 +10,6 @@ Entity::~Entity() {
 
 Collision Entity::GetCollider() { return i_collider; }
 
-void Entity::draw() const { 
+void Entity::render() const { 
 	//target.draw(*i_drawable, i_shader); 
 }

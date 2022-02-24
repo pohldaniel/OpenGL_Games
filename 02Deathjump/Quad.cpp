@@ -55,13 +55,11 @@ void Quad::createBuffer() {
 	vertex.shrink_to_fit();
 }
 
-void Quad::render(unsigned int texture) {
-
+void Quad::render(unsigned int texture, bool array) {
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, texture);
+	glBindTexture(array ? GL_TEXTURE_2D_ARRAY : GL_TEXTURE_2D, texture);
 	glBindVertexArray(m_vao);
 	glDrawElements(GL_TRIANGLES, 2 * 3, GL_UNSIGNED_SHORT, 0);
 	glBindVertexArray(0);
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, 0);
+	glBindTexture(array ? GL_TEXTURE_2D_ARRAY : GL_TEXTURE_2D, 0);
 }
