@@ -82,11 +82,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 			if (fixedDeltaTime > PHYSICS_STEP * 5.0f)
 				fixedDeltaTime = PHYSICS_STEP;
 
-			//application.FixedUpdate();
+			application.fixedUpdate();
 			physicsElapsedTime -= PHYSICS_STEP;
 		}
 
-		application.Update();
+		application.update();
 		application.render();
 
 		deltaTime = deltaClock.restartSec();
@@ -94,7 +94,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 		glClearColor(0.0f, 0.60f, 0.86f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		processInput(hwnd);
 		//////////////////////Simulation/////////////////////////////////
 		std::list<GameObject*>::iterator iter;
 
@@ -201,10 +200,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 void initApp() {
 	//level = new Level();
-	/*addGameObject(level);
+	//addGameObject(level);
 
-	// Initialize character
-	character = new Character();
+	/*character = new Character();
 	addGameObject(character);
 
 	noEnemies = 3;

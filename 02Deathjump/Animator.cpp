@@ -1,24 +1,32 @@
 #include "Animator.h"
+#include <iostream>
 
-Animator::Animator(unsigned framesX, unsigned framesY, float time, unsigned yStart) {
+Animator::Animator(std::string pictureFile, unsigned yStart, unsigned xLength, float time, unsigned int& textureAtlas, unsigned int& currentFrame) {
 	
-	unsigned frameCount = (framesX + 1) * (framesY > 0 ? framesY : 1);
+	unsigned frameCount = xLength + 1;
 	m_updateTime = time;
 	m_frameCount = frameCount;
-	m_spriteSheet = new Spritesheet("res/textures/player.png", 96, 84, true, true, yStart, framesX);
+	m_spriteSheet = new Spritesheet(pictureFile, 96, 84, true, true, yStart, frameCount);
+	m_textureAtlas = m_spriteSheet->getAtlas();
+
+	i_textureAtlas = &textureAtlas;
+	i_currentFrame = &currentFrame;
 }
 
 Animator::~Animator() {}
 
-void Animator::create(unsigned framesX, unsigned framesY, float time, unsigned yStart) {
+void Animator::create(std::string pictureFile, unsigned yStart, unsigned xLength, float time, unsigned int& textureAtlas, unsigned int& currentFrame) {
 	if (m_frameCount > 0)
 		return;
 
-	unsigned frameCount = (framesX + 1) * (framesY > 0 ? framesY : 1);
+	unsigned frameCount = xLength + 1;
 	m_updateTime = time;
 	m_frameCount = frameCount;
-	m_spriteSheet = new Spritesheet("res/textures/player.png", 96, 84, true, true, yStart, framesX);
+	m_spriteSheet = new Spritesheet(pictureFile, 96, 84, true, true, yStart, frameCount);
 	m_textureAtlas = m_spriteSheet->getAtlas();
+
+	i_textureAtlas = &textureAtlas;
+	i_currentFrame = &currentFrame;
 }
 
 void Animator::update(const float deltaTime) {
@@ -32,20 +40,28 @@ void Animator::update(const float deltaTime) {
 void Animator::updateAnimation() {
 	if (++m_currentFrame > m_frameCount - 1)
 		m_currentFrame = 0;
+	*i_textureAtlas = m_textureAtlas;
+	*i_currentFrame = m_currentFrame;
 }
 
-unsigned Animator::getCurrentFrame() const {
+unsigned int Animator::getCurrentFrame() const {
 	return m_currentFrame;
 }
 
-unsigned Animator::getFrameCount() const {
+unsigned int Animator::getFrameCount() const {
 	return m_frameCount;
 }
 
-void Animator::setFrame(const unsigned& frame) {
+void Animator::setCurrentFrame(const unsigned int& frame) {
 	m_currentFrame = frame;
+	*i_currentFrame = m_currentFrame;
 }
 
-unsigned int Animator::getAtlas() {
+void Animator::setTextureAtlas(const unsigned int& atlas) {
+	m_textureAtlas = atlas;
+}
+
+unsigned int Animator::getTextureAtlas() const {
 	return m_textureAtlas;
 }
+

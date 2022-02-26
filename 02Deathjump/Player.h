@@ -5,12 +5,12 @@
 #include "Entity.h"
 #include "Wall.h"
 #include "Animator.h"
-#include "Spritesheet_old.h"
 #include "Spritesheet.h"
+
 
 class Player : public Entity {
 public:
-	Player(const float& dt, const float& fdt, Texture *texture);
+	Player(const float& dt, const float& fdt);
 	~Player();
 
 	virtual void FixedUpdate();
@@ -24,10 +24,8 @@ public:
 
 	//unsigned int m_frame;
 	Quad *m_quad;
-	Shader *m_shaderTrans;
+	Quad *m_quadFlipped;
 	Shader *m_shaderArray;
-	SpritesheetOld *m_spriteSheetOld;
-
 	Spritesheet *m_spriteSheet;
 
 private:
@@ -53,6 +51,10 @@ private:
 
 	const Vector2f m_playerSize = Vector2f(96, 84);
 	std::unordered_map<std::string, Animator> m_Animations;
+	
+
+	unsigned int *m_textureAtlas;
+	unsigned int *m_currentFrame;
 
 
 	//sf::Clock m_hitTimer;
@@ -73,4 +75,6 @@ private:
 	void InitCollider();
 
 	
+	const float xScale = 96 / (float)(WIDTH);
+	const float yScale = 84 / (float)(HEIGHT);
 };

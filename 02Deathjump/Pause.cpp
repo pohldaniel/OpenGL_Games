@@ -13,7 +13,7 @@ Pause::~Pause() {}
 void Pause::FixedUpdate() {}
 
 void Pause::Update() {
-	if ((Globals::CONTROLLS & Globals::KEY_Q) || (Globals::CONTROLLS & Globals::KEY_W)) {
+	if ((Globals::CONTROLLS & Globals::KEY_Q)) {
 		i_isRunning = false;
 	}
 }

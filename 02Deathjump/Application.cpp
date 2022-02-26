@@ -132,7 +132,6 @@ LRESULT Application::DisplayWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 			if (_height == 0) {					// avoid divide by zero
 				_height = 1;
 			}
-			std::cout << _width << "  " << _height << std::endl;
 			glViewport(0, 0, _width, _height);
 			break;
 		}
@@ -236,8 +235,12 @@ void Application::render() {
 	m_machine->Render();
 }
 
-void Application::Update() {
+void Application::update() {
 	m_machine->Update();
+}
+
+void Application::fixedUpdate() {
+	m_machine->FixedUpdate();
 }
 
 void Application::initStates() {
@@ -251,13 +254,14 @@ void Application::processInput() {
 	// Retrieve keyboard state
 	if (!GetKeyboardState(Globals::pKeyBuffer)) return;
 	// Check the relevant keys
-	bool holdKey =  ((Globals::pKeyBuffer['Q'] & 0xF0) && (Globals::CONTROLLSHOLD & Globals::KEY_Q)) ||
-					((Globals::pKeyBuffer['W'] & 0xF0) && (Globals::CONTROLLSHOLD & Globals::KEY_W));
+	bool holdKey =  ((Globals::pKeyBuffer['Q'] & 0xF0) && (Globals::CONTROLLSHOLD & Globals::KEY_Q)) ;
 
 	if (!holdKey) {	
 		if (Globals::pKeyBuffer['Q'] & 0xF0) Globals::CONTROLLS |= Globals::KEY_Q;
 		if (Globals::pKeyBuffer['W'] & 0xF0) Globals::CONTROLLS |= Globals::KEY_W;
 		if (Globals::pKeyBuffer['E'] & 0xF0) Globals::CONTROLLS |= Globals::KEY_E;
+		if (Globals::pKeyBuffer['A'] & 0xF0) Globals::CONTROLLS |= Globals::KEY_A;
+		if (Globals::pKeyBuffer['D'] & 0xF0) Globals::CONTROLLS |= Globals::KEY_D;
 		Globals::CONTROLLSHOLD = Globals::CONTROLLS;	
 	}
 

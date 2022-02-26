@@ -4,29 +4,21 @@
 
 //#include "Key Check.hpp"
 
-Player::Player(const float& dt, const float& fdt, Texture *texture) : Entity(dt, fdt){
+Player::Player(const float& dt, const float& fdt) : Entity(dt, fdt){
 	
 	InitAnimations();
 	
 	InitBody();
 	InitCollider();
 	
-	m_texture = texture;
-
-
-	//m_spriteSheetOld = new SpritesheetOld("res/textures/player.png", 96, 84, true, true);
-	//m_spriteSheet = new Spritesheet("res/textures/player.png", 96, 84, true, true);
-
-	//m_spriteSheet = new Spritesheet("res/textures/player.png", 96, 84, 1, 6, true, true);
-
-	m_shaderTrans = new Shader("shader/quad_trans.vs", "shader/quad_trans.fs");
 	m_shaderArray = new Shader("shader/quad_array.vs", "shader/quad_array.fs");
-	m_quad = new Quad();
+	m_quad = new Quad(true, xScale * 2.0f, yScale * 2.0f, 1.0, 1.0);
 
 }
 
 Player::~Player() {
-
+	delete m_textureAtlas;
+	delete m_currentFrame;
 }
 
 void Player::FixedUpdate() {
@@ -142,7 +134,23 @@ void Player::UpdateTimer() {
 }
 
 void Player::Animate() {
-	m_Animations["idle"].update(i_dt);
+
+	if (m_velocity[1] == 0.0f) { // NOT JUMPING
+		if (m_velocity[0] < 0) {
+			m_Animations["move"].update(i_dt);
+		}else if (m_velocity[0] > 0) {
+			m_Animations["move"].update(i_dt);
+		}else if (m_velocity[0] == 0) {
+			m_Animations["idle"].update(i_dt);
+		}
+	}else {
+		if (m_velocity[1] < 0) {
+			if (m_Animations["jump"].getCurrentFrame() != m_Animations["jump"].getFrameCount() - 1)
+				m_Animations["jump"].update(i_dt);
+		}if (m_velocity[1] > 0) {
+			m_Animations["fall"].update(i_dt);
+		}
+	}
 }
 
 void Player::KeepInBorders() {
@@ -173,10 +181,10 @@ void Player::Crouch() {
 }
 
 void Player::Move() {
-	if (!m_grabbing)
-		m_velocity[1] += m_gravity * i_fdt;
+	//if (!m_grabbing)
+		//m_velocity[1] += m_gravity * i_fdt;
 	m_velocity[0] *= m_torque;
-	i_collider.position += m_velocity * i_fdt;
+	//i_collider.position += m_velocity * i_fdt;
 
 	float vel = abs(m_velocity[0]);
 	m_velocity[0] = (vel < 8.0f ? 0.0f : m_velocity[0]);
@@ -195,20 +203,16 @@ void Player::UpdateVelocity() {
 	if (m_crouching || !m_movable)
 		return;
 
-	/*if (
-		m_grounded &&
-		sf::Keyboard::isKeyPressed(sf::Keyboard::W) &&
-		KeyCheck::Key('W') ||
-		m_grabbing &&
-		sf::Keyboard::isKeyPressed(sf::Keyboard::W) &&
-		KeyCheck::Key('W')
-		)
-	{
-		m_grounded = false;
-		m_grabbing = false;
+
+
+	if ((m_grounded && Globals::CONTROLLS & Globals::KEY_W) ){
+		//m_grounded = false;
+		//m_grabbing = false;
 		m_velocity[1] = m_jumpVelocity;
-		m_Animations["jump"].SetFrame(0);
-	}*/
+		m_Animations["jump"].setCurrentFrame(0);
+
+		std::cout << m_velocity[1] << std::endl;
+	}
 
 	/*if (m_grabbing && !sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
 		m_grabbing = false;*/
@@ -216,29 +220,33 @@ void Player::UpdateVelocity() {
 	if (m_grabbing)
 		return;
 
-	/*if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)) {
+	if (Globals::CONTROLLS & Globals::KEY_A) {
 		m_velocity[0] = -m_movementSpeed;
-		reinterpret_cast<sf::Sprite*>(i_drawable)->setScale(sf::Vector2f(-2.0f, 2.0f));
+		m_quad->setFlipped(true);
+		//reinterpret_cast<sf::Sprite*>(i_drawable)->setScale(sf::Vector2f(-2.0f, 2.0f));
 	}
 
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::D)) {
+	if (Globals::CONTROLLS & Globals::KEY_D) {
 		m_velocity[0] = m_movementSpeed;
-		reinterpret_cast<sf::Sprite*>(i_drawable)->setScale(sf::Vector2f(2.0f, 2.0f));
-	}*/
+		m_quad->setFlipped(false);
+		//reinterpret_cast<sf::Sprite*>(i_drawable)->setScale(sf::Vector2f(2.0f, 2.0f));
+	}
+
 }
 
 void Player::InitAnimations() {
+	//todo multiple time load texture
+	m_textureAtlas = new unsigned int();
+	m_currentFrame = new unsigned int();
 
-	m_Animations["idle"].create(6, 0, 0.08f, 1);
-	/*auto sprite = reinterpret_cast<sf::Sprite*>(i_drawable);
+	m_Animations["idle"].create("res/textures/player.png", 1, 6, 0.08f, *m_textureAtlas, *m_currentFrame);
+	m_Animations["move"].create("res/textures/player.png", 3, 7, 0.08f, *m_textureAtlas, *m_currentFrame);
+	m_Animations["jump"].create("res/textures/player.png", 4, 1, 0.125f, *m_textureAtlas, *m_currentFrame);
+	m_Animations["fall"].create("res/textures/player.png", 6, 0, 0.1f, *m_textureAtlas, *m_currentFrame);
+	m_Animations["crouch"].create("res/textures/player.png", 9, 5, 0.06f, *m_textureAtlas, *m_currentFrame);
+	m_Animations["grab"].create("res/textures/player.png", 15, 0, 0.1f, *m_textureAtlas, *m_currentFrame);
+	m_Animations["takedamage"].create("res/textures/player.png", 17, 5, 0.08f, *m_textureAtlas, *m_currentFrame);
 
-	m_Animations["move"].Create(8, 0, 0.08f, m_playerSize, *sprite, 3);
-	m_Animations["idle"].Create(7, 0, 0.08f, m_playerSize, *sprite, 1);
-	m_Animations["jump"].Create(2, 0, 0.125f, m_playerSize, *sprite, 4);
-	m_Animations["fall"].Create(1, 0, 0.1f, m_playerSize, *sprite, 6);
-	m_Animations["crouch"].Create(6, 0, 0.06f, m_playerSize, *sprite, 9);
-	m_Animations["grab"].Create(1, 0, 0.1f, m_playerSize, *sprite, 15);
-	m_Animations["takedamage"].Create(7, 0, 0.08f, m_playerSize, *sprite, 17);*/
 }
 
 void Player::InitBody() {
@@ -258,10 +266,10 @@ void Player::InitCollider() {
 }
 
 void Player::draw() {	
-	//target.draw(*i_drawable, i_shader);
 	glUseProgram(m_shaderArray->m_program);
 	m_shaderArray->loadMatrix("u_transform", Matrix4f::IDENTITY);
-	m_shaderArray->loadInt("u_layer", m_Animations["idle"].getCurrentFrame());	
-	m_quad->render(m_Animations["idle"].getAtlas(), true);
+	m_shaderArray->loadInt("u_layer", *m_currentFrame);
+	m_quad->render(*m_textureAtlas, true);
 	glUseProgram(0);
+
 }

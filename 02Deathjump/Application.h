@@ -11,8 +11,8 @@ public:
 	Application(const float& dt, const float& fdt);
 	~Application();
 
-	void Update();
-	/*void FixedUpdate();*/
+	void update();
+	void fixedUpdate();
 	void render();
 	bool isRunning();
 	HWND getWindow();

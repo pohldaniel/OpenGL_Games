@@ -35,7 +35,7 @@ void Game::Update() {
 	
 	//UpdateCountdown();
 
-	if ((Globals::CONTROLLS & Globals::KEY_Q) || (Globals::CONTROLLS & Globals::KEY_W)) {
+	if ((Globals::CONTROLLS & Globals::KEY_Q)) {
 		i_machine.AddStateAtTop(new Pause(i_machine));
 	}
 }
@@ -47,7 +47,6 @@ void Game::Render(unsigned int &frameBuffer) {
 	m_shader->loadMatrix("u_transform", Matrix4f::IDENTITY);
 	m_quad->render(m_Sprites["background"]);
 	glUseProgram(0);
-	
 	m_player->draw();
 
 	/*glUseProgram(m_shader->m_program);
@@ -83,13 +82,13 @@ void Game::FixedUpdateEntities() {
 }
 
 void Game::UpdateEntities() {
-	m_player->ResolveCollision(m_walls);
+	//m_player->ResolveCollision(m_walls);
 	m_player->Update();
 	UpdateTimers();
 }
 
 void Game::InitEntities() {
-	m_player = new Player(i_dt, i_fdt, &m_TextureManager.Get("player"));
+	m_player = new Player(i_dt, i_fdt);
 }
 
 void Game::UpdateTimers() {

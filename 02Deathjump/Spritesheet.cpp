@@ -4,6 +4,7 @@
 #include "stb\stb_image.h"
 
 Spritesheet::Spritesheet(std::string pictureFile, unsigned short tileWidth, unsigned short tileHeight, bool reverse, bool flipVertical, int row, int maxColumn) {
+
 	stbi_set_flip_vertically_on_load(flipVertical);
 	int width, height, numCompontents;
 	unsigned char* imageData = stbi_load(pictureFile.c_str(), &width, &height, &numCompontents, NULL);

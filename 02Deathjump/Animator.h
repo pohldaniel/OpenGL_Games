@@ -4,28 +4,32 @@
 class Animator {
 public:
 	Animator() = default;
-	Animator(unsigned framesX, unsigned framesY, float time, unsigned YStart = 0);
+	Animator(std::string pictureFile, unsigned YStart, unsigned xLength, float time, unsigned int& textureAtlas, unsigned int& currentFrame);
 	~Animator();
 
-	void create(unsigned framesX, unsigned framesY, float time, unsigned YStart = 0);
+	void create(std::string pictureFile, unsigned YStart, unsigned xLength, float time, unsigned int& textureAtlas, unsigned int& currentFrame);
 	void update(const float deltaTime);
 
 	// Accessors
-	unsigned getCurrentFrame() const;
-	unsigned getFrameCount() const;
-	void setFrame(const unsigned& frame);
-	unsigned int getAtlas();
+	unsigned int getCurrentFrame() const;
+	unsigned int getFrameCount() const;
+	unsigned int getTextureAtlas() const;
+	void setCurrentFrame(const unsigned int& frame);
+	void setTextureAtlas(const unsigned int& atlas);
 
-	
 private:
+
 	Spritesheet *m_spriteSheet;
-
-	unsigned m_currentFrame = 0;
+	
 	unsigned m_frameCount = 0;
-	unsigned int m_textureAtlas;
-
 	float m_elapsedTime = 0.f;
 	float m_updateTime = 0.f;
+
+	unsigned int m_textureAtlas;
+	unsigned int m_currentFrame = 0;
+
+	unsigned int* i_textureAtlas;
+	unsigned int* i_currentFrame;
 
 	void updateAnimation();
 };
