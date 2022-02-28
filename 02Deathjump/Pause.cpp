@@ -10,15 +10,15 @@ Pause::Pause(StateMachine& machine) : State(machine) {
 
 Pause::~Pause() {}
 
-void Pause::FixedUpdate() {}
+void Pause::fixedUpdate() {}
 
-void Pause::Update() {
+void Pause::update() {
 	if ((Globals::CONTROLLS & Globals::KEY_Q)) {
 		i_isRunning = false;
 	}
 }
 
-void Pause::Render(unsigned int &frameBuffer) {
+void Pause::render(unsigned int &frameBuffer) {
 	glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
 	glUseProgram(m_shader->m_program);
 	m_shader->loadMatrix("u_transform", Matrix4f::IDENTITY);

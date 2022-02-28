@@ -16,19 +16,22 @@ Game::Game(StateMachine& machine) : State(machine){
 
 	m_shader = new Shader("shader/quad.vs", "shader/quad.fs");
 	m_quad = new Quad();
+
+	m_quadBackground = new Quad(false, 1.0f, 1.2f, 1.0f, 1.0f);
+	m_transBackground = Matrix4f::Translate(0.0, -0.2, 0.0);
 }
 
 Game::~Game() {
 	delete m_player;
 }
 
-void Game::FixedUpdate() {
-	if (m_player->IsAlive())
+void Game::fixedUpdate() {
+	if (m_player->isAlive())
 		FixedUpdateEntities();
 }
 
-void Game::Update() {
-	if (m_player->IsAlive()) {
+void Game::update() {
+	if (m_player->isAlive()) {
 		UpdateEntities();
 		//m_bestTime = m_timeClock.getElapsedTime().asSeconds();
 	}
@@ -36,23 +39,24 @@ void Game::Update() {
 	//UpdateCountdown();
 
 	if ((Globals::CONTROLLS & Globals::KEY_Q)) {
-		i_machine.AddStateAtTop(new Pause(i_machine));
+		i_machine.addStateAtTop(new Pause(i_machine));
 	}
 }
 
-void Game::Render(unsigned int &frameBuffer) {
+void Game::render(unsigned int &frameBuffer) {
 
+	
 	glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
 	glUseProgram(m_shader->m_program);
-	m_shader->loadMatrix("u_transform", Matrix4f::IDENTITY);
-	m_quad->render(m_Sprites["background"]);
+	m_shader->loadMatrix("u_transform", m_transBackground);
+	m_quadBackground->render(m_Sprites["background"]);
 	glUseProgram(0);
-	m_player->draw();
+	m_player->render();
 
-	/*glUseProgram(m_shader->m_program);
+	glUseProgram(m_shader->m_program);
 	m_shader->loadMatrix("u_transform", Matrix4f::IDENTITY);
 	m_quad->render(m_Sprites["foreground"]);
-	glUseProgram(0);*/
+	glUseProgram(0);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 
@@ -73,17 +77,13 @@ void Game::Render(unsigned int &frameBuffer) {
 	//target.draw(m_fog, &fog);
 }
 
-void Game::SpawnHeart() {
-	
-}
-
 void Game::FixedUpdateEntities() {
-	m_player->FixedUpdate();
+	m_player->fixedUpdate();
 }
 
 void Game::UpdateEntities() {
-	//m_player->ResolveCollision(m_walls);
-	m_player->Update();
+	m_player->resolveCollision(m_walls);
+	m_player->update();
 	UpdateTimers();
 }
 

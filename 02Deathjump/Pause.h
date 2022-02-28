@@ -8,9 +8,9 @@ public:
 	Pause(StateMachine& machine);
 	~Pause();
 
-	virtual void FixedUpdate() override;
-	virtual void Update() override;
-	virtual void Render(unsigned int &m_frameBuffer) override;
+	virtual void fixedUpdate() override;
+	virtual void update() override;
+	virtual void render(unsigned int &m_frameBuffer) override;
 
 private:
 	std::unordered_map<std::string, unsigned int> m_Sprites;

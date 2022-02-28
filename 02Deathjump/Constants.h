@@ -28,12 +28,14 @@
 #define ENEMY_TILE_HEIGHT 50
 
 namespace Globals{
-	enum Controlls {
-		KEY_Q = 1,
-		KEY_W = 2,
-		KEY_E = 4,
-		KEY_A = 8,
-		KEY_D = 16,
+	enum Controlls {		
+		KEY_W = 1,
+		KEY_A = 2,
+		KEY_S = 4,
+		KEY_D = 8,
+		KEY_Q = 16,
+		KEY_E = 32,
+		KEY_SPACE = 64,
 		DIR_FORCE_32BIT = 0x7FFFFFFF
 	};
 

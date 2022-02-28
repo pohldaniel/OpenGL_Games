@@ -5,13 +5,9 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 	initWindow();
 	initOpenGL();
 	initStates();
-	//KeyCheck::Init();
 
 	m_enableVerticalSync = true;
-	m_enableWireframe = false;
-
-
-	
+	m_enableWireframe = false;	
 }
 
 Application::~Application() {
@@ -232,20 +228,20 @@ bool Application::isRunning(){
 }
 
 void Application::render() {
-	m_machine->Render();
+	m_machine->render();
 }
 
 void Application::update() {
-	m_machine->Update();
+	m_machine->update();
 }
 
 void Application::fixedUpdate() {
-	m_machine->FixedUpdate();
+	m_machine->fixedUpdate();
 }
 
 void Application::initStates() {
 	m_machine = new StateMachine(m_dt, m_fdt);
-	m_machine->AddStateAtTop(new Game(*m_machine));
+	m_machine->addStateAtTop(new Game(*m_machine));
 }
 
 void Application::processInput() {
@@ -254,7 +250,7 @@ void Application::processInput() {
 	// Retrieve keyboard state
 	if (!GetKeyboardState(Globals::pKeyBuffer)) return;
 	// Check the relevant keys
-	bool holdKey =  ((Globals::pKeyBuffer['Q'] & 0xF0) && (Globals::CONTROLLSHOLD & Globals::KEY_Q)) ;
+	bool holdKey =  ((Globals::pKeyBuffer['Q'] & 0xF0) && (Globals::CONTROLLSHOLD & Globals::KEY_Q) ) ;
 
 	if (!holdKey) {	
 		if (Globals::pKeyBuffer['Q'] & 0xF0) Globals::CONTROLLS |= Globals::KEY_Q;
@@ -262,6 +258,9 @@ void Application::processInput() {
 		if (Globals::pKeyBuffer['E'] & 0xF0) Globals::CONTROLLS |= Globals::KEY_E;
 		if (Globals::pKeyBuffer['A'] & 0xF0) Globals::CONTROLLS |= Globals::KEY_A;
 		if (Globals::pKeyBuffer['D'] & 0xF0) Globals::CONTROLLS |= Globals::KEY_D;
+		if (Globals::pKeyBuffer['S'] & 0xF0) Globals::CONTROLLS |= Globals::KEY_S;
+		if (Globals::pKeyBuffer[VK_SPACE] & 0xF0) Globals::CONTROLLS |= Globals::KEY_SPACE;
+
 		Globals::CONTROLLSHOLD = Globals::CONTROLLS;	
 	}
 

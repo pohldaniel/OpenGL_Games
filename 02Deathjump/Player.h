@@ -7,28 +7,36 @@
 #include "Animator.h"
 #include "Spritesheet.h"
 
-
 class Player : public Entity {
 public:
 	Player(const float& dt, const float& fdt);
 	~Player();
 
-	virtual void FixedUpdate();
-	virtual void Update();
-	virtual void draw() ;
+	virtual void fixedUpdate();
+	virtual void update();
+	virtual void render() const;
 
-	void ResolveCollision(Entity* entity);
-	void ResolveCollision(std::vector<Wall>& walls);
+	void resolveCollision(Entity* entity);
+	void resolveCollision(std::vector<Wall>& walls);
 
-	bool IsAlive() const;
+	bool isAlive() const;
 
-	//unsigned int m_frame;
 	Quad *m_quad;
-	Quad *m_quadFlipped;
 	Shader *m_shaderArray;
 	Spritesheet *m_spriteSheet;
 
 private:
+
+	void initAnimations();
+	void initBody();
+	void initCollider();
+
+	void animate();
+	void keepInBorders();
+	void crouch();
+	void move();
+	void updateVelocity();
+
 	Vector2f m_velocity;
 
 	bool m_alive = true;
@@ -37,44 +45,13 @@ private:
 	float m_torque = 0.85f;
 	const float m_gravity = 4605.0f;
 	const float m_jumpVelocity = -1200.0f;
-
 	bool m_grounded = true;
 	bool m_crouching = false;
 	bool m_grabbing = false;
-
 	bool m_hit = true;
 	bool m_movable = true;
-
 	bool m_wasGrounded = false;
-
 	unsigned m_currentHitTake = 10;
 
-	const Vector2f m_playerSize = Vector2f(96, 84);
-	std::unordered_map<std::string, Animator> m_Animations;
-	
-
-	unsigned int *m_textureAtlas;
-	unsigned int *m_currentFrame;
-
-
-	//sf::Clock m_hitTimer;
-
-	void UpdateTimer();
-
-	void Animate();
-
-	void KeepInBorders();
-
-	void Crouch();
-
-	void Move();
-	void UpdateVelocity();
-
-	void InitAnimations();
-	void InitBody();
-	void InitCollider();
-
-	
-	const float xScale = 96 / (float)(WIDTH);
-	const float yScale = 84 / (float)(HEIGHT);
+	std::unordered_map<std::string, Animator> m_Animations;	
 };

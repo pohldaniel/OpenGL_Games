@@ -32,33 +32,33 @@ StateMachine::StateMachine(const float& dt, const float& fdt) : m_dt(dt), m_fdt(
 }
 
 StateMachine::~StateMachine() {
-	ClearStates();
+	clearStates();
 }
 
-void StateMachine::AddStateAtTop(State* state) {
+void StateMachine::addStateAtTop(State* state) {
 	m_states.push(state);
 }
 
-void StateMachine::AddStateAtBottom(State* state) {
+void StateMachine::addStateAtBottom(State* state) {
 	if (m_states.empty()) {
 		m_states.push(state);
 	}else {
 		State* temp = m_states.top();
 		m_states.pop();
-		AddStateAtBottom(state);
+		addStateAtBottom(state);
 		m_states.push(temp);
 	}
 }
 
-void StateMachine::FixedUpdate() {
+void StateMachine::fixedUpdate() {
 	if (!m_states.empty())
-		m_states.top()->FixedUpdate();
+		m_states.top()->fixedUpdate();
 }
 
-void StateMachine::Update() {
+void StateMachine::update() {
 	if (!m_states.empty()) {
-		m_states.top()->Update();
-		if (!m_states.top()->IsRunning()) {
+		m_states.top()->update();
+		if (!m_states.top()->isRunning()) {
 			delete m_states.top();
 			m_states.pop();
 		}
@@ -67,10 +67,10 @@ void StateMachine::Update() {
 	}
 }
 
-void StateMachine::Render() {
+void StateMachine::render() {
 
 	if (!m_states.empty())
-		m_states.top()->Render(m_frameBuffer);
+		m_states.top()->render(m_frameBuffer);
 
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -93,12 +93,12 @@ void StateMachine::Render() {
 
 }
 
-void StateMachine::ClearAndPush(State* state) {
-	ClearStates();
+void StateMachine::clearAndPush(State* state) {
+	clearStates();
 	m_states.push(state);
 }
 
-void StateMachine::ClearStates() {
+void StateMachine::clearStates() {
 	while (!m_states.empty()) {
 		delete m_states.top();
 		m_states.pop();
@@ -113,7 +113,7 @@ State::~State() {
 
 }
 
-const bool State::IsRunning() const {
+const bool State::isRunning() const {
 	return i_isRunning;
 }
 

@@ -21,12 +21,17 @@ class Vector2f {
 public:
 	Vector2f();
 	Vector2f(float x_, float y_);
+	Vector2f(const Vector2f &rhs);
 	~Vector2f();
 
 	float &operator[](int index);
 	const float operator[](int index) const;
 
 	const float* getVec()const;
+
+	//Vector2f &operator^(const Vector2f &rhs);
+	Vector2f& operator= (const Vector2f& rhs);
+	
 
 	Vector2f &operator+=(const Vector2f &rhs);
 	Vector2f &operator-=(const Vector2f &rhs);

@@ -1146,11 +1146,15 @@ Vector2f::Vector2f() {
 }
 Vector2f::~Vector2f() {}
 
-Vector2f::Vector2f(float x_, float y_)
-{
+Vector2f::Vector2f(float x_, float y_){
 	vec[0] = x_;
 	vec[1] = y_;
 
+}
+
+Vector2f::Vector2f(const Vector2f &rhs) {
+	vec[0] = rhs.vec[0];
+	vec[1] = rhs.vec[1];
 }
 
 float &Vector2f::operator[](int index) {
@@ -1166,45 +1170,43 @@ const float* Vector2f::getVec()const {
 	return vec;
 }
 
-Vector2f &Vector2f::operator-=(const Vector2f &rhs) {
+Vector2f &Vector2f::operator=(const Vector2f &rhs) {
+	vec[0] = rhs.vec[0], vec[1] = rhs.vec[1];
+	return *this;
+}
 
+Vector2f &Vector2f::operator-=(const Vector2f &rhs) {
 	vec[0] -= rhs.vec[0], vec[1] -= rhs.vec[1];
 	return *this;
 }
 
 Vector2f &Vector2f::operator+=(const Vector2f &rhs) {
-
 	vec[0] += rhs.vec[0], vec[1] += rhs.vec[1];
 	return *this;
 }
 
 
 Vector2f Vector2f::operator+(const Vector2f &rhs) const {
-
 	Vector2f tmp(*this);
 	tmp += rhs;
 	return tmp;
 }
 
 Vector2f Vector2f::operator-(const Vector2f &rhs) const {
-
 	Vector2f tmp(*this);
 	tmp -= rhs;
 	return tmp;
 }
 
 Vector2f Vector2f::operator*(float scalar) const {
-
 	return Vector2f(vec[0] * scalar, vec[1] * scalar);
 }
 
 Vector2f Vector2f::operator/(float scalar) const {
-
 	return Vector2f(vec[0] / scalar, vec[1] / scalar);
 }
 
 Vector2f operator-(const Vector2f &v) {
-
 	return Vector2f(-v.vec[0], -v.vec[1]);
 }
 //////////////////////////////////////////////////////////////////////
