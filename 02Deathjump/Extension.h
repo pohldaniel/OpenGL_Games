@@ -7,6 +7,7 @@
 
 extern "C" {
 #define GL_TEXTURE_2D_ARRAY 0x8C1A
+#define GL_DYNAMIC_DRAW 0x88E8
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // OpenGL 1.2
 //
@@ -178,6 +179,8 @@ typedef char GLchar;
 
 	extern void glTexSubImage3D(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLsizei width, GLsizei height, GLsizei depth, GLenum format, GLenum type, const void * pixels);
 	extern void glTexStorage3D(GLenum target, GLsizei levels, GLenum internalformat, GLsizei width, GLsizei height, GLsizei depth);
+
+	extern void glBufferSubData(GLenum target, GLintptr offset, GLsizeiptr size, const void * data);
 
 } // extern "C"
 #endif

@@ -20,15 +20,14 @@ StateMachine::StateMachine(const float& dt, const float& fdt) : m_dt(dt), m_fdt(
 	glGenFramebuffers(1, &m_frameBuffer);
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_frameBuffer);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_frameTexture, 0);
-	// buffer for depth
-	/*unsigned int rbDepth;
-	glGenRenderbuffers(1, &rbDepth);
-	glBindRenderbuffer(GL_RENDERBUFFER, rbDepth);
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, WIDTH, HEIGHT);
-	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rbDepth);*/
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
 	
+	// buffer for depth and stencil
+	unsigned int rbDepthStencil;
+	glGenRenderbuffers(1, &rbDepthStencil);
+	glBindRenderbuffer(GL_RENDERBUFFER, rbDepthStencil);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, WIDTH, HEIGHT);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbDepthStencil);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 StateMachine::~StateMachine() {
@@ -68,6 +67,7 @@ void StateMachine::update() {
 }
 
 void StateMachine::render() {
+	
 
 	if (!m_states.empty())
 		m_states.top()->render(m_frameBuffer);
@@ -75,11 +75,10 @@ void StateMachine::render() {
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glUseProgram(m_shader->m_program);
-	m_shader->loadMatrix("u_transform", Matrix4f::IDENTITY);	
+	m_shader->loadMatrix("u_transform", Matrix4f::IDENTITY);
 	m_quad->render(m_frameTexture);
 	glUseProgram(0);
-	
-	
+
 	//m_frame.clear();
 
 	//if (!m_states.empty())

@@ -156,8 +156,8 @@ void Application::initOpenGL() {
 		0,								// ignore shift bit
 		0,								// no accumulation buffer
 		0, 0, 0, 0,						// ignore accumulation bits
-		16,								// 16 bit z-buffer size
-		0,								// no stencil buffer
+		24,								// 16 bit z-buffer size
+		8,								// no stencil buffer
 		0,								// no auxiliary buffer
 		PFD_MAIN_PLANE,					// main drawing plane
 		0,								// reserved
@@ -178,8 +178,11 @@ void Application::initOpenGL() {
 	glEnable(GL_ALPHA_TEST);
 	glAlphaFunc(GL_GREATER, 0.0);
 
-	//blending for tranperancy after dead see Character::render()  
+	//button transparency  
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	//button outline
+	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 }
 
 void Application::enableVerticalSync(bool enableVerticalSync) {

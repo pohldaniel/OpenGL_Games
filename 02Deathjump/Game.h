@@ -8,6 +8,8 @@
 #include "Wall.h"
 #include "Timer.h"
 
+#include "Button.h"
+
 class Game : public State {
 public:
 	Game(StateMachine& machine);
@@ -17,7 +19,7 @@ public:
 	virtual void update() override;
 	virtual void render(unsigned int &m_frameBuffer) override;
 
-	
+	Button* m_button;
 
 private:
 

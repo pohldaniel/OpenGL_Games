@@ -1,5 +1,4 @@
 #include "Player.h"
-#include "Camera.h"
 
 Player::Player(const float& dt, const float& fdt) : Entity(dt, fdt){	
 	initAnimations();	
@@ -30,7 +29,7 @@ void Player::resolveCollision(Entity* entity) {
 
 	if (!GetCollider().CheckCollision(entity->GetCollider(), MTV) || m_hit)
 		return;
-	Camera::Get().Shake(1.75f);
+	//Camera::Get().Shake(1.75f);
 
 	m_hit = true;
 	m_grabbing = false;

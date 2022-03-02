@@ -3,6 +3,9 @@
 #include "StateMachine.h"
 #include "AssetManger.h"
 
+#include "Button.h"
+#include "Text.h"
+
 class Pause : public State {
 public:
 	Pause(StateMachine& machine);
@@ -21,4 +24,7 @@ private:
 
 	void InitSprites();
 	void InitAssets();
+
+	Button* m_button;
+	Text* m_text;
 };

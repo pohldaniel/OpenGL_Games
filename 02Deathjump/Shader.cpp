@@ -21,6 +21,10 @@ void Shader::loadMatrixArray(const char* location, const std::vector<Matrix4f> m
 	glUniformMatrix4fv(glGetUniformLocation(m_program, location), count, GL_FALSE, matrixArray[0][0]);
 }
 
+void Shader::loadVector(const char* location, Vector4f vector) {
+	glUniform4fv(glGetUniformLocation(m_program, location), 1, &vector[0]);
+}
+
 void Shader::loadVector(const char* location, Vector3f vector) {
 	glUniform3fv(glGetUniformLocation(m_program, location), 1, &vector[0]);
 }

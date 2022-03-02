@@ -554,3 +554,10 @@ void glTexStorage3D(GLenum target, GLsizei levels, GLenum internalformat, GLsize
 	LOAD_ENTRYPOINT("glTexStorage3D", glTexStorage3D, PFNGLTEXSTORAGE3DPROC);
 	glTexStorage3D(target, levels, internalformat, width, height, depth);
 }
+
+void glBufferSubData(GLenum target, GLintptr offset, GLsizeiptr size, const void * data) {
+	typedef void(APIENTRY * PFNGLBUFFERSUBDATAPROC)(GLenum target, GLintptr offset, GLsizeiptr size, const void * data);
+	static PFNGLBUFFERSUBDATAPROC  glBufferSubData = 0;
+	LOAD_ENTRYPOINT("glBufferSubData", glBufferSubData, PFNGLBUFFERSUBDATAPROC);
+	glBufferSubData(target, offset, size, data);
+}

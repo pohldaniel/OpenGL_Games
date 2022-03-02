@@ -1,8 +1,8 @@
 #include "Game.h"
 
-#include "Camera.h"
 #include "Random.h"
 #include "Pause.h"
+
 
 //#include "Key Check.hpp"
 
@@ -45,12 +45,13 @@ void Game::update() {
 
 void Game::render(unsigned int &frameBuffer) {
 
-	
 	glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glUseProgram(m_shader->m_program);
 	m_shader->loadMatrix("u_transform", m_transBackground);
 	m_quadBackground->render(m_Sprites["background"]);
 	glUseProgram(0);
+	
 	m_player->render();
 
 	glUseProgram(m_shader->m_program);
@@ -59,22 +60,6 @@ void Game::render(unsigned int &frameBuffer) {
 	glUseProgram(0);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-
-	//target.draw(m_Sprites["background"]);
-
-	//target.draw(*m_player);
-
-	/*auto& fog = ShaderLibrary::Get().GetShader("fog");
-	fog.setUniform("u_time", m_clock.getElapsedTime().asSeconds());
-
-	target.draw(m_Sprites["foreground"]);
-
-	auto& light = ShaderLibrary::Get().GetShader("light");
-	light.setUniform("u_time", m_clock.getElapsedTime().asSeconds());
-
-	light.setUniform("color", sf::Glsl::Vec4(0.75, 0.42, 0.28, 0.72));*/
-	
-	//target.draw(m_fog, &fog);
 }
 
 void Game::FixedUpdateEntities() {

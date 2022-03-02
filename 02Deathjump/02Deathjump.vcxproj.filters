@@ -43,6 +43,15 @@
     <Filter Include="Engine\Animations">
       <UniqueIdentifier>{f37ce9b3-7319-48bb-832e-f5c3325efd7f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\UI">
+      <UniqueIdentifier>{6f1bdc9b-1376-4b64-9fa4-5106c989625d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="freetype">
+      <UniqueIdentifier>{5e51c2a3-5d6e-4e9d-8a24-841513ce2030}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="freetype\FT_MODULES">
+      <UniqueIdentifier>{f08ef2b5-a3dc-458c-924f-4d1dfac7b5a7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Constants.h">
@@ -74,9 +83,6 @@
     </ClInclude>
     <ClInclude Include="Animator.h">
       <Filter>Engine\Animations</Filter>
-    </ClInclude>
-    <ClInclude Include="Camera.h">
-      <Filter>Source Files\Effects</Filter>
     </ClInclude>
     <ClInclude Include="Pause.h">
       <Filter>Source Files\States\State</Filter>
@@ -117,6 +123,12 @@
     <ClInclude Include="Application.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Button.h">
+      <Filter>Source Files\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="Text.h">
+      <Filter>Source Files\UI</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -142,9 +154,6 @@
     </ClCompile>
     <ClCompile Include="Animator.cpp">
       <Filter>Engine\Animations</Filter>
-    </ClCompile>
-    <ClCompile Include="Camera.cpp">
-      <Filter>Source Files\Effects</Filter>
     </ClCompile>
     <ClCompile Include="Application.cpp">
       <Filter>Source Files</Filter>
@@ -178,6 +187,135 @@
     </ClCompile>
     <ClCompile Include="Random.cpp">
       <Filter>Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="Button.cpp">
+      <Filter>Source Files\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="Text.cpp">
+      <Filter>Source Files\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="freetype_2.11.1\src\autofit\autofit.c">
+      <Filter>freetype</Filter>
+    </ClCompile>
+    <ClCompile Include="freetype_2.11.1\src\bdf\bdf.c">
+      <Filter>freetype</Filter>
+    </ClCompile>
+    <ClCompile Include="freetype_2.11.1\src\cff\cff.c">
+      <Filter>freetype</Filter>
+    </ClCompile>
+    <ClCompile Include="freetype_2.11.1\src\dlg\dlgwrap.c">
+      <Filter>freetype</Filter>
+    </ClCompile>
+    <ClCompile Include="freetype_2.11.1\src\base\ftbase.c">
+      <Filter>freetype</Filter>
+    </ClCompile>
+    <ClCompile Include="freetype_2.11.1\src\cache\ftcache.c">
+      <Filter>freetype</Filter>
+    </ClCompile>
+    <ClCompile Include="freetype_2.11.1\ftdebug.c">
+      <Filter>freetype</Filter>
+    </ClCompile>
+    <ClCompile Include="freetype_2.11.1\src\gzip\ftgzip.c">
+      <Filter>freetype</Filter>
+    </ClCompile>
+    <ClCompile Include="freetype_2.11.1\src\base\ftinit.c">
+      <Filter>freetype</Filter>
+    </ClCompile>
+    <ClCompile Include="freetype_2.11.1\src\lzw\ftlzw.c">
+      <Filter>freetype</Filter>
+    </ClCompile>
+    <ClCompile Include="freetype_2.11.1\src\base\ftsystem.c">
+      <Filter>freetype</Filter>
+    </ClCompile>
+    <ClCompile Include="freetype_2.11.1\src\pcf\pcf.c">
+      <Filter>freetype</Filter>
+    </ClCompile>
+    <ClCompile Include="freetype_2.11.1\src\pfr\pfr.c">
+      <Filter>freetype</Filter>
+    </ClCompile>
+    <ClCompile Include="freetype_2.11.1\src\psaux\psaux.c">
+      <Filter>freetype</Filter>
+    </ClCompile>
+    <ClCompile Include="freetype_2.11.1\src\pshinter\pshinter.c">
+      <Filter>freetype</Filter>
+    </ClCompile>
+    <ClCompile Include="freetype_2.11.1\src\psnames\psmodule.c">
+      <Filter>freetype</Filter>
+    </ClCompile>
+    <ClCompile Include="freetype_2.11.1\src\raster\raster.c">
+      <Filter>freetype</Filter>
+    </ClCompile>
+    <ClCompile Include="freetype_2.11.1\src\sdf\sdf.c">
+      <Filter>freetype</Filter>
+    </ClCompile>
+    <ClCompile Include="freetype_2.11.1\src\sfnt\sfnt.c">
+      <Filter>freetype</Filter>
+    </ClCompile>
+    <ClCompile Include="freetype_2.11.1\src\smooth\smooth.c">
+      <Filter>freetype</Filter>
+    </ClCompile>
+    <ClCompile Include="freetype_2.11.1\src\truetype\truetype.c">
+      <Filter>freetype</Filter>
+    </ClCompile>
+    <ClCompile Include="freetype_2.11.1\src\type1\type1.c">
+      <Filter>freetype</Filter>
+    </ClCompile>
+    <ClCompile Include="freetype_2.11.1\src\cid\type1cid.c">
+      <Filter>freetype</Filter>
+    </ClCompile>
+    <ClCompile Include="freetype_2.11.1\src\type42\type42.c">
+      <Filter>freetype</Filter>
+    </ClCompile>
+    <ClCompile Include="freetype_2.11.1\src\winfonts\winfnt.c">
+      <Filter>freetype</Filter>
+    </ClCompile>
+    <ClCompile Include="freetype_2.11.1\src\base\ftbbox.c">
+      <Filter>freetype\FT_MODULES</Filter>
+    </ClCompile>
+    <ClCompile Include="freetype_2.11.1\src\base\ftbdf.c">
+      <Filter>freetype\FT_MODULES</Filter>
+    </ClCompile>
+    <ClCompile Include="freetype_2.11.1\src\base\ftbitmap.c">
+      <Filter>freetype\FT_MODULES</Filter>
+    </ClCompile>
+    <ClCompile Include="freetype_2.11.1\src\base\ftcid.c">
+      <Filter>freetype\FT_MODULES</Filter>
+    </ClCompile>
+    <ClCompile Include="freetype_2.11.1\src\base\ftfstype.c">
+      <Filter>freetype\FT_MODULES</Filter>
+    </ClCompile>
+    <ClCompile Include="freetype_2.11.1\src\base\ftgasp.c">
+      <Filter>freetype\FT_MODULES</Filter>
+    </ClCompile>
+    <ClCompile Include="freetype_2.11.1\src\base\ftglyph.c">
+      <Filter>freetype\FT_MODULES</Filter>
+    </ClCompile>
+    <ClCompile Include="freetype_2.11.1\src\base\ftgxval.c">
+      <Filter>freetype\FT_MODULES</Filter>
+    </ClCompile>
+    <ClCompile Include="freetype_2.11.1\src\base\ftmm.c">
+      <Filter>freetype\FT_MODULES</Filter>
+    </ClCompile>
+    <ClCompile Include="freetype_2.11.1\src\base\ftotval.c">
+      <Filter>freetype\FT_MODULES</Filter>
+    </ClCompile>
+    <ClCompile Include="freetype_2.11.1\src\base\ftpatent.c">
+      <Filter>freetype\FT_MODULES</Filter>
+    </ClCompile>
+    <ClCompile Include="freetype_2.11.1\src\base\ftpfr.c">
+      <Filter>freetype\FT_MODULES</Filter>
+    </ClCompile>
+    <ClCompile Include="freetype_2.11.1\src\base\ftstroke.c">
+      <Filter>freetype\FT_MODULES</Filter>
+    </ClCompile>
+    <ClCompile Include="freetype_2.11.1\src\base\ftsynth.c">
+      <Filter>freetype\FT_MODULES</Filter>
+    </ClCompile>
+    <ClCompile Include="freetype_2.11.1\src\base\fttype1.c">
+      <Filter>freetype\FT_MODULES</Filter>
+    </ClCompile>
+    <ClCompile Include="freetype_2.11.1\src\base\ftwinfnt.c">
+      <Filter>freetype\FT_MODULES</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

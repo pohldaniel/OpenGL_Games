@@ -22,6 +22,7 @@ public:
 
 	void loadMatrix(const char* location, const Matrix4f matrix);
 	void loadMatrixArray(const char* location, const std::vector<Matrix4f> matrixArray, const short count);
+	void loadVector(const char* location, Vector4f vector);
 	void loadVector(const char* location, Vector3f vector);
 	void loadVector(const char* location, Vector2f vector);
 	void loadFloat2(const char* location, float value[2]);
