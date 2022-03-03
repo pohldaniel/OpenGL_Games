@@ -21,10 +21,13 @@ private:
 	AssetManager<Texture> m_TextureManager;
 	Quad *m_quad;
 	Shader *m_shader;
+	Shader *m_shaderBlur;
 
 	void InitSprites();
 	void InitAssets();
 
-	Button* m_button;
-	
+	Button* m_button1;
+	Button* m_button2;
+	Button* m_button3;
+	Text* m_text;
 };

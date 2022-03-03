@@ -270,9 +270,12 @@ void Application::processInput() {
 	//std::cout << Globals::cursorPosScreen.x << "  " << Globals::cursorPosScreen.y <<  std::endl;
 
 	/*Globals::cursorPosNDC = { (2.0f * m_cursorPosScreenSpace.x) / (float)WIDTH - 1.0f, 1.0f - (2.0f * m_cursorPosScreenSpace.y) / (float)HEIGHT, 0.0f};
-	std::cout << Globals::cursorPosNDC.x << "  " << Globals::cursorPosNDC.y << "  " << Globals::cursorPosNDC.z << std::endl;
-
-	m_cursorPosEye = Globals::invProjection * Vector4f(Globals::cursorPosNDC.x, Globals::cursorPosNDC.y, -1.0f, 0.0f);
+	//std::cout << Globals::cursorPosNDC.x << "  " << Globals::cursorPosNDC.y << "  " << Globals::cursorPosNDC.z << std::endl;
+	
+	//near
+	m_cursorPosEye = Globals::invProjection * Vector4f(Globals::cursorPosNDC.x, Globals::cursorPosNDC.y, -1.0f, 1.0f);
+	//far
+	m_cursorPosEye = Globals::invProjection * Vector4f(Globals::cursorPosNDC.x, Globals::cursorPosNDC.y, 1.0f, 1.0f);
 	Globals::cursorPosEye = { m_cursorPosEye[0] , m_cursorPosEye[1] , m_cursorPosEye[2] };
 	std::cout << Globals::cursorPosEye.x << "  " << Globals::cursorPosEye.y << "  " << Globals::cursorPosEye.z << std::endl;*/
 

@@ -6,7 +6,7 @@
 
 class Button {
 public:
-	Button(float sizeX = 1.0f, float sizeY = 1.0f, const Vector4f& color = Vector4f(1.0, 1.0, 1.0, 1.0));
+	Button(std::string label, float sizeX = 1.0f, float sizeY = 1.0f, const Vector4f& color = Vector4f(1.0, 1.0, 1.0, 1.0));
 	~Button();
 
 	void render();
@@ -15,7 +15,6 @@ public:
 	void setOutlineColor(const Vector4f &color);
 	void setPosition(const Vector2f &position);
 	void setOutlineThickness(float thickness);
-	void setOrigin(const Vector2f &origin);
 
 	const Vector2f &getPosition() const;
 	const Vector2f &getSize() const;
@@ -31,7 +30,7 @@ private:
 	unsigned int m_quadVBO = 0;
 
 	Matrix4f m_transform = Matrix4f::IDENTITY;
-	Matrix4f m_scaleOutline = Matrix4f::IDENTITY;
+	Matrix4f m_transformOutline = Matrix4f::IDENTITY;
 
 	Vector4f m_outlineColor = Vector4f(1.0f, 1.0f, 1.0f, 1.0f);
 	Vector4f m_outlineColorDefault = Vector4f(1.0f, 1.0f, 1.0f, 1.0f);

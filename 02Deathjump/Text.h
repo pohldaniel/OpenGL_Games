@@ -24,14 +24,13 @@ struct CharacterSet {
 
 class Text {
 public:
-	Text(std::string label);
+	Text(std::string label, float scale = 1.0f);
 	~Text();	
-	void render(float scale, Vector4f color);
-	void render(std::string text, float scale, Vector4f color);
+	void render(Vector4f color);
+	void render(std::string text, Vector4f color);
 	void setPosition(const Vector2f &position);
 	const Vector2f &getPosition() const;
 	const Vector2f &getSize() const;
-
 private:
 	
 	static CharacterSet characterSet;
@@ -47,6 +46,6 @@ private:
 	Vector2f m_size;
 
 	std::string m_label;
-
+	float m_scale;
 	void calcSize();
 };

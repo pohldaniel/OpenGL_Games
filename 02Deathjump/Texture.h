@@ -7,11 +7,11 @@ class Texture{
 
 public:
 	Texture(){}
-	Texture(std::string pictureFile, bool flipVertical = false);
+	Texture(std::string pictureFile, const bool flipVertical = false);
 	~Texture();
 
 	unsigned int getTexture();
-	void loadFromFile(std::string pictureFile, bool flipVertical = false);
+	void loadFromFile(std::string pictureFile, const bool flipVertical = false, const bool linear = false);
 private:
 	unsigned int m_texture;
 

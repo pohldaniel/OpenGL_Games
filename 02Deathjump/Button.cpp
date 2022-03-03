@@ -1,8 +1,8 @@
 #include "Button.h"
 
 
-Button::Button(float sizeX, float sizeY, const Vector4f& color) {
-	m_text = new Text("RESUME");
+Button::Button(std::string label, float sizeX, float sizeY, const Vector4f& color) {
+	m_text = new Text(label);
 	
 	m_size[0] = sizeX;
 	m_size[1] = sizeY;
@@ -11,10 +11,10 @@ Button::Button(float sizeX, float sizeY, const Vector4f& color) {
 	m_shaderSingle = new Shader("shader/quad_color_single.vs", "shader/quad_color_single.fs");
 
 	float vertices[] = {
-		-0.5f * sizeX, -0.5f * sizeY,  0.0f,  color[0], color[1], color[2], color[3],
-		-0.5f * sizeX,  0.5f * sizeY,  0.0f,  color[0], color[1], color[2], color[3],
-		 0.5f * sizeX,  0.5f * sizeY,  0.0f,  color[0], color[1], color[2], color[3],
-		 0.5f * sizeX, -0.5f * sizeY,  0.0f,  color[0], color[1], color[2], color[3]
+		 0.0f        ,  -1.0f  * sizeY      ,  0.0f,  color[0], color[1], color[2], color[3],
+		 0.0f        ,   0.0f          ,  0.0f,  color[0], color[1], color[2], color[3],
+		 1.0f * sizeX,   0.0f          ,  0.0f,  color[0], color[1], color[2], color[3],
+		 1.0f * sizeX,  -1.0f  * sizeY      ,  0.0f,  color[0], color[1], color[2], color[3]
 	};
 
 	static const GLushort index[] = {
@@ -72,7 +72,7 @@ void Button::render() {
 	glStencilMask(0x00);
 
 	glUseProgram(m_shaderSingle->m_program);
-	m_shaderSingle->loadMatrix("u_transform", m_scaleOutline * m_transform * Globals::projection);
+	m_shaderSingle->loadMatrix("u_transform", m_transformOutline * m_transform * Globals::projection);
 	m_shaderSingle->loadVector("u_color", m_outlineColor);
 	glBindVertexArray(m_vao);
 	glDrawElements(GL_TRIANGLES, 2 * 3, GL_UNSIGNED_SHORT, 0);
@@ -82,7 +82,7 @@ void Button::render() {
 	glDisable(GL_STENCIL_TEST);
 	glDisable(GL_BLEND);
 
-	m_text->render(1.0f, m_outlineColor);
+	m_text->render(m_outlineColor);
 }
 
 void Button::setOutlineColor(const Vector4f &color) {
@@ -93,34 +93,29 @@ void Button::setPosition(const Vector2f &position) {
 	m_position = position;
 	m_transform.translate((m_position[0] + m_origin[0]), (HEIGHT - m_position[1] - m_origin[1]), 0.0f);
 
-	m_text->setPosition(m_position + m_origin - m_text->getSize() * 0.5f);
-}
-
-void Button::setOrigin(const Vector2f &origin) {
-	m_origin = origin;
-	m_transform.translate((m_position[0] + m_origin[0]), (HEIGHT - m_position[1] - m_origin[1]), 0.0f);
-
-	m_text->setPosition(m_position + m_origin - m_text->getSize() * 0.5f);
+	m_text->setPosition(m_position + (m_size - m_text->getSize()) * 0.5f);		
 }
 
 void Button::setOutlineThickness(float thickness) {
 	m_thickness = thickness * 2.0f;
 	xScaleOutline = (m_thickness) / m_size[0];
 	yScaleOutline = (m_thickness) / m_size[1];
-	m_scaleOutline.scale(1.0f + xScaleOutline, 1.0f + yScaleOutline, 1.0f);
+	m_transformOutline.scale(1.0f + xScaleOutline, 1.0f + yScaleOutline, 1.0f);
+	
+	m_transformOutline = m_transformOutline * Matrix4f::Translate(-thickness, thickness, 0.0f);
+	m_text->setPosition(m_position + (m_size - m_text->getSize()) * 0.5f);
 
-	m_text->setPosition(m_position + m_origin - m_text->getSize() * 0.5f);
+	m_position = m_position - Vector2f(m_thickness, m_thickness) * 0.5f;
+	m_size = m_size + Vector2f(m_thickness, m_thickness);
 }
 
 void Button::update() {
-
-	if ((Globals::cursorPosScreen.x > m_position[0] &&
-		 Globals::cursorPosScreen.x < m_position[0] + m_size[0] + m_thickness) &&
-		(Globals::cursorPosScreen.y > m_position[1] &&
-		 Globals::cursorPosScreen.y < m_position[1] + m_size[1] + m_thickness)) {
+	if ((Globals::cursorPosScreen.x > (m_position[0]) &&
+		 Globals::cursorPosScreen.x < (m_position[0]) + m_size[0]) &&
+		(Globals::cursorPosScreen.y > (m_position[1]) &&
+		 Globals::cursorPosScreen.y < (m_position[1]) + m_size[1])) {
 		m_outlineColor = m_outlineColorHover;
 		m_isPressed = Globals::lMouseButton;
-
 	}else {
 		m_outlineColor = m_outlineColorDefault;
 	}

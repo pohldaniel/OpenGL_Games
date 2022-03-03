@@ -56,7 +56,7 @@
 
 CharacterSet Text::characterSet = CharacterSet();
 
-Text::Text(std::string label) {
+Text::Text(std::string label, float scale) {
 	Text::characterSet.load("res/fonts/upheavtt.ttf");
 	m_characters = characterSet.characters;
 	
@@ -64,6 +64,7 @@ Text::Text(std::string label) {
 	m_shaderText = new Shader("shader/text.vs", "shader/text.fs");
 
 	m_label = label;
+	m_scale = scale;
 	calcSize();
 	static const GLushort index[] = {
 		0, 1, 2,
@@ -93,7 +94,7 @@ Text::Text(std::string label) {
 
 Text::~Text() {}
 
-void Text::render(float scale, Vector4f color) {
+void Text::render(Vector4f color) {
 
 	glUseProgram(m_shaderText->m_program);
 	m_shaderText->loadMatrix("projection", Globals::projection);
@@ -109,12 +110,12 @@ void Text::render(float scale, Vector4f color) {
 	for (c = m_label.begin(); c != m_label.end(); c++) {
 		Character ch = m_characters[*c];
 
-		float w = ch.size[0] * scale;
-		float h = ch.size[1] * scale;
+		float w = ch.size[0] * m_scale;
+		float h = ch.size[1] * m_scale;
 
 
 		float xpos = x;
-		float ypos = (HEIGHT - characterSet.m_characterSize * 0.5f) - (y + (ch.size[1] - ch.bearing[1]) * scale);
+		float ypos = (HEIGHT - characterSet.m_characterSize * 0.5f) - (y + (ch.size[1] - ch.bearing[1]) * m_scale);
 
 		// update vbo for each character
 		float vertices[] = {
@@ -132,13 +133,13 @@ void Text::render(float scale, Vector4f color) {
 
 		glDrawElements(GL_TRIANGLES, 2 * 3, GL_UNSIGNED_SHORT, 0);
 		// now advance cursors for next glyph (note that advance is number of 1/64 pixels)
-		x += (ch.advance >> 6) * scale; // bitshift by 6 to get value in pixels (2^6 = 64 (divide amount of 1/64th pixels by 64 to get amount of pixels))
+		x += (ch.advance >> 6) * m_scale; // bitshift by 6 to get value in pixels (2^6 = 64 (divide amount of 1/64th pixels by 64 to get amount of pixels))
 	}
 	glBindVertexArray(0);
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-void Text::render(std::string text, float scale, Vector4f color) {
+void Text::render(std::string text, Vector4f color) {
 
 	glUseProgram(m_shaderText->m_program);
 	m_shaderText->loadMatrix("projection", Globals::projection);
@@ -154,12 +155,12 @@ void Text::render(std::string text, float scale, Vector4f color) {
 	for (c = text.begin(); c != text.end(); c++){
 		Character ch = m_characters[*c];
 
-		float w = ch.size[0] * scale;
-		float h = ch.size[1] * scale;
+		float w = ch.size[0] * m_scale;
+		float h = ch.size[1] * m_scale;
 
 
 		float xpos = x ;
-		float ypos = (HEIGHT - characterSet.m_characterSize * 0.5f) - (y + (ch.size[1] - ch.bearing[1]) * scale);
+		float ypos = (HEIGHT - characterSet.m_characterSize * 0.5f) - (y + (ch.size[1] - ch.bearing[1]) * m_scale);
 	
 		// update vbo for each character
 		float vertices[] = {
@@ -177,7 +178,7 @@ void Text::render(std::string text, float scale, Vector4f color) {
 
 		glDrawElements(GL_TRIANGLES, 2 * 3, GL_UNSIGNED_SHORT, 0);
 		// now advance cursors for next glyph (note that advance is number of 1/64 pixels)
-		x += (ch.advance >> 6) * scale; // bitshift by 6 to get value in pixels (2^6 = 64 (divide amount of 1/64th pixels by 64 to get amount of pixels))
+		x += (ch.advance >> 6) * m_scale; // bitshift by 6 to get value in pixels (2^6 = 64 (divide amount of 1/64th pixels by 64 to get amount of pixels))
 	}
 	glBindVertexArray(0);
 	glBindTexture(GL_TEXTURE_2D, 0);
@@ -204,8 +205,8 @@ void Text::calcSize() {
 	for (c = m_label.begin(); c != m_label.end(); c++) {
 		ch = m_characters[*c];
 
-		sizeX = sizeX + (ch.advance >> 6);
+		sizeX = sizeX + ((ch.advance >> 6) * m_scale);
 	}
 
-	m_size = Vector2f(sizeX - ch.bearing[0], ch.size[1]);
+	m_size = Vector2f(sizeX, ch.size[1]);
 }

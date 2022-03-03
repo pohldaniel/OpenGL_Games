@@ -151,6 +151,6 @@ void Game::InitWalls() {
 
 void Game::InitAssets() {
 	m_TextureManager.Load("player", "res/textures/player.png");
-	m_TextureManager.Load("background", "res/textures/background.png");
+	m_TextureManager.Load("background", "res/textures/background.png", true, false);
 	m_TextureManager.Load("foreground", "res/textures/map.png");		
 }

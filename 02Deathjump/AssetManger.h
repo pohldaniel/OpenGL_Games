@@ -5,7 +5,7 @@
 template<typename T>
 class AssetManager {
 public:
-	void Load(const std::string& name, const std::string& path) { m_assets[name].loadFromFile(path, true); }
+	void Load(const std::string& name, const std::string& path, const bool flipVertical = true, const bool linear = false) { m_assets[name].loadFromFile(path, flipVertical, linear); }
 	T& Get(const std::string& name) { return m_assets[name]; }
 private:
 	std::unordered_map<std::string, T> m_assets;
