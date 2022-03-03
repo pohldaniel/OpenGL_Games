@@ -86,19 +86,7 @@ LRESULT Application::DisplayWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 	
 	switch (message) {
 
-		case WM_CREATE: {
-			POINT pt;
-			RECT rect;
-			GetClientRect(hWnd, &rect);
-			m_oldCursorPos.x = rect.right / 2;
-			m_oldCursorPos.y = rect.bottom / 2;
-			pt.x = rect.right / 2;
-			pt.y = rect.bottom / 2;
-			//SetCursorPos(pt.x, pt.y);
-			// set the cursor to the middle of the window and capture the window via "SendMessage"
-			SendMessage(hWnd, WM_LBUTTONDOWN, MK_LBUTTON, MAKELPARAM(pt.x, pt.y));
-			break;
-		}case WM_LBUTTONDOWN: { 
+		case WM_LBUTTONDOWN: { 
 			//setCursortoMiddle(hWnd);
 			//SetCapture(hWnd);
 			break;
@@ -129,6 +117,8 @@ LRESULT Application::DisplayWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 				_height = 1;
 			}
 			glViewport(0, 0, _width, _height);
+			Globals::projection = Matrix4f::GetOrthographic(Globals::projection, 0.f, static_cast<float>(_width), 0.0f, static_cast<float>(_height), -1.0f, 1.0f);
+			Globals::invProjection = Matrix4f::GetInvOrthographic(Globals::invProjection, 0.f, static_cast<float>(_width), 0.0f, static_cast<float>(_height), -1.0f, 1.0f);
 			break;
 		}
 	}
@@ -245,6 +235,8 @@ void Application::fixedUpdate() {
 void Application::initStates() {
 	m_machine = new StateMachine(m_dt, m_fdt);
 	m_machine->addStateAtTop(new Game(*m_machine));
+
+	m_machine->addStateAtTop(new Pause(*m_machine));
 }
 
 void Application::processInput() {
@@ -270,4 +262,19 @@ void Application::processInput() {
 	if (Globals::CONTROLLS & Globals::KEY_E) {
 		std::cout << "-------" << std::endl;
 	}
+
+	GetCursorPos(&m_cursorPosScreenSpace);
+	ScreenToClient(m_window, &m_cursorPosScreenSpace);
+	Globals::cursorPosScreen = { m_cursorPosScreenSpace.x, m_cursorPosScreenSpace.y};
+
+	//std::cout << Globals::cursorPosScreen.x << "  " << Globals::cursorPosScreen.y <<  std::endl;
+
+	/*Globals::cursorPosNDC = { (2.0f * m_cursorPosScreenSpace.x) / (float)WIDTH - 1.0f, 1.0f - (2.0f * m_cursorPosScreenSpace.y) / (float)HEIGHT, 0.0f};
+	std::cout << Globals::cursorPosNDC.x << "  " << Globals::cursorPosNDC.y << "  " << Globals::cursorPosNDC.z << std::endl;
+
+	m_cursorPosEye = Globals::invProjection * Vector4f(Globals::cursorPosNDC.x, Globals::cursorPosNDC.y, -1.0f, 0.0f);
+	Globals::cursorPosEye = { m_cursorPosEye[0] , m_cursorPosEye[1] , m_cursorPosEye[2] };
+	std::cout << Globals::cursorPosEye.x << "  " << Globals::cursorPosEye.y << "  " << Globals::cursorPosEye.z << std::endl;*/
+
+	Globals::lMouseButton = (GetKeyState(VK_LBUTTON) & 0x8000) != 0;
 }

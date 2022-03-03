@@ -1,6 +1,6 @@
 #ifndef __constantsH__
 #define __constantsH__
-
+#include "Vector.h"
 
 #define PHYSICS_STEP	0.01f
 
@@ -43,6 +43,19 @@ namespace Globals{
 	extern unsigned char pKeyBuffer[256];
 	extern unsigned long CONTROLLS;
 	extern unsigned long CONTROLLSHOLD;
+
+	typedef struct { long x; long y;} POINT;
+	extern POINT cursorPosScreen;
+
+	typedef struct { float x; float y; float z; } POINTF;
+
+	extern POINTF cursorPosNDC;
+	extern POINTF cursorPosEye;
+
+	extern bool lMouseButton;
+
+	extern Matrix4f projection;
+	extern Matrix4f invProjection;
 }
 
 #endif

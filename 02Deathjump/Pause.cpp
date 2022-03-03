@@ -7,12 +7,13 @@ Pause::Pause(StateMachine& machine) : State(machine) {
 	m_shader = new Shader("shader/quad.vs", "shader/quad.fs");
 	m_quad = new Quad();
 
-	m_button = new Button(290.0f, 65.0f, Vector4f(	100.0f / 255.0f, 100.0f / 255.0f, 100.0f / 255.0f, 80.0f / 255.0f));
+	float thikness = 4.0f;
+	m_button = new Button(364.0f, 65.0f, Vector4f(100.0f / 255.0f, 100.0f / 255.0f, 100.0f / 255.0f, 80.0f / 255.0f));
 	m_button->setPosition(Vector2f(WIDTH / 2.0f, 400));
-	m_button->setOrigin(Vector2f(0.0f, 65.0f) * 0.5f);
-	m_button->setOutlineThickness(4.0f);
+	m_button->setOutlineThickness(thikness);
 
-	m_text = new Text();
+	//neccesary to fit the cursorPosScreen coordinates
+	m_button->setOrigin( (Vector2f(364.0f, 65.0f) * 0.5f) + Vector2f(thikness, thikness));
 }
 
 Pause::~Pause() {}
@@ -20,7 +21,10 @@ Pause::~Pause() {}
 void Pause::fixedUpdate() {}
 
 void Pause::update() {
-	if ((Globals::CONTROLLS & Globals::KEY_Q)) {
+
+	m_button->update();
+
+	if ((Globals::CONTROLLS & Globals::KEY_Q || m_button->pressed())) {
 		i_isRunning = false;
 	}
 }
@@ -34,7 +38,7 @@ void Pause::render(unsigned int &frameBuffer) {
 	m_quad->render(m_Sprites["background"]);
 	glUseProgram(0);
 	m_button->render();
-	m_text->renderText("This is sample text", 25.0f, 25.0f, 1.0f, Vector3f(0.5, 0.8f, 0.2f));
+	
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 

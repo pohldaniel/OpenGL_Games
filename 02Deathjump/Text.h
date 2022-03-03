@@ -1,12 +1,12 @@
 #pragma once
 #pragma once
-#include <iostream>
 #include <map>
+#include <ft2build.h>
+#include FT_FREETYPE_H
 #include "Constants.h"
 #include "Shader.h"
 
-#include <ft2build.h>
-#include FT_FREETYPE_H
+
 
 struct Character {
 	unsigned int textureID; // ID handle of the glyph texture
@@ -15,18 +15,38 @@ struct Character {
 	unsigned int advance;   // Horizontal offset to advance to next glyph
 };
 
+struct CharacterSet {	
+	std::map<GLchar, Character> characters;
+	float m_characterSize = 90.0f;
+	bool init = false;	
+	void load(std::string path);
+};
+
 class Text {
 public:
-	Text();
+	Text(std::string label);
 	~Text();	
-	void renderText(std::string text, float x, float y, float scale, Vector3f color);
+	void render(float scale, Vector4f color);
+	void render(std::string text, float scale, Vector4f color);
+	void setPosition(const Vector2f &position);
+	const Vector2f &getPosition() const;
+	const Vector2f &getSize() const;
+
 private:
+	
+	static CharacterSet characterSet;
 
 	Shader *m_shaderText;
-	std::map<GLchar, Character> Characters;
+	std::map<GLchar, Character> m_characters;
 
 	unsigned int m_vao = 0;
 	unsigned int m_vbo = 0;
 	Matrix4f m_transform = Matrix4f::IDENTITY;
-	Matrix4f projection = Matrix4f::IDENTITY;
+
+	Vector2f m_position;
+	Vector2f m_size;
+
+	std::string m_label;
+
+	void calcSize();
 };

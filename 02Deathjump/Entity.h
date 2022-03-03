@@ -22,8 +22,8 @@ public:
 	void setPosition(float x, float y);
 	void setPosition(const Vector2f &position);
 
-	const Vector2f &Entity::getPosition() const;
-	const Vector2f &Entity::getSize() const;
+	const Vector2f &getPosition() const;
+	const Vector2f &getSize() const;
 
 protected:
 	Collider i_collider;

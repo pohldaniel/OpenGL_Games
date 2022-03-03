@@ -2,7 +2,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <windows.h>			
 #include "stb\stb_image.h"
-
+#include "Constants.h"
 #include "Clock.h"
 #include "Application.h"
 
@@ -11,9 +11,15 @@ extern float Globals::offset = 0.0f;
 extern unsigned long Globals::CONTROLLS = 0;
 extern unsigned long Globals::CONTROLLSHOLD = 0;
 extern unsigned char Globals::pKeyBuffer[256] = {0};
+extern Globals::POINT Globals::cursorPosScreen = {0, 0};
+extern Globals::POINTF Globals::cursorPosNDC = {0.0f, 0.0f, 0.0f};
+extern Globals::POINTF Globals::cursorPosEye = {0.0f, 0.0f, 0.0f };
+extern bool Globals::lMouseButton = false;
+extern Matrix4f Globals::projection = Matrix4f::IDENTITY;
+extern Matrix4f Globals::invProjection = Matrix4f::IDENTITY;
+
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd) {
-
 	AllocConsole();
 	AttachConsole(GetCurrentProcessId());
 	freopen("CON", "w", stdout);

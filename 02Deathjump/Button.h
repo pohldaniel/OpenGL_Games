@@ -2,6 +2,7 @@
 #include <iostream>
 #include "Constants.h"
 #include "Shader.h"
+#include "Text.h"
 
 class Button {
 public:
@@ -9,11 +10,17 @@ public:
 	~Button();
 
 	void render();
-	
+	void update();
+
 	void setOutlineColor(const Vector4f &color);
 	void setPosition(const Vector2f &position);
 	void setOutlineThickness(float thickness);
 	void setOrigin(const Vector2f &origin);
+
+	const Vector2f &getPosition() const;
+	const Vector2f &getSize() const;
+
+	const bool pressed();
 
 private:
 	
@@ -24,20 +31,22 @@ private:
 	unsigned int m_quadVBO = 0;
 
 	Matrix4f m_transform = Matrix4f::IDENTITY;
-	Matrix4f projection = Matrix4f::IDENTITY;
-
 	Matrix4f m_scaleOutline = Matrix4f::IDENTITY;
+
 	Vector4f m_outlineColor = Vector4f(1.0f, 1.0f, 1.0f, 1.0f);
+	Vector4f m_outlineColorDefault = Vector4f(1.0f, 1.0f, 1.0f, 1.0f);
+	Vector4f m_outlineColorHover = Vector4f(100.0f / 255.0f, 100.0f / 255.0f, 100.0f / 255.0f, 255.0f / 255.0f);
+
 	Vector2f m_position;
 	Vector2f m_size;
 	Vector2f m_origin;
 
-	float m_thickness = 1.0f;
+	float m_thickness = 0.0f;
 
 	float xScaleOutline;
 	float yScaleOutline;
 
-	const float xTrans = 2.0f / (float)(WIDTH);
-	const float yTrans = 2.0f / (float)(HEIGHT);
+	bool m_isPressed = false;
 
+	Text* m_text;
 };

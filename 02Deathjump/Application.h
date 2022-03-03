@@ -5,6 +5,7 @@
 #include "Constants.h"
 #include "StateMachine.h"
 #include "Game.h"
+#include "Pause.h"
 
 class Application {
 public:
@@ -31,7 +32,7 @@ private:
 	void setCursortoMiddle(HWND hWnd);
 	void processInput();
 
-	POINT m_oldCursorPos;
+	POINT m_cursorPosScreenSpace;
 	bool m_enableVerticalSync;
 	bool m_enableWireframe;
 	HWND m_window;
@@ -43,5 +44,7 @@ private:
 	bool m_windowGrabbed = false;
 
 	StateMachine* m_machine;
+
 	
+	Vector4f m_cursorPosEye;
 };

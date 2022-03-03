@@ -4,7 +4,7 @@
 #include "AssetManger.h"
 
 #include "Button.h"
-#include "Text.h"
+
 
 class Pause : public State {
 public:
@@ -26,5 +26,5 @@ private:
 	void InitAssets();
 
 	Button* m_button;
-	Text* m_text;
+	
 };
