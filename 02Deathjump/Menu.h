@@ -4,13 +4,15 @@
 #include "AssetManger.h"
 
 #include "Transition.h"
+#include "Game.h"
 #include "Settings.h"
 #include "Button.h"
 
-class Pause : public State {
+
+class Menu : public State {
 public:
-	Pause(StateMachine& machine);
-	~Pause();
+	Menu(StateMachine& machine);
+	~Menu();
 
 	virtual void fixedUpdate() override;
 	virtual void update() override;
@@ -22,7 +24,6 @@ private:
 	AssetManager<Texture> m_TextureManager;
 	Quad *m_quad;
 	Shader *m_shader;
-	Shader *m_shaderBlur;
 
 	void initSprites();
 	void initAssets();

@@ -129,6 +129,18 @@
     <ClInclude Include="Text.h">
       <Filter>Source Files\UI</Filter>
     </ClInclude>
+    <ClInclude Include="Light.h">
+      <Filter>Source Files\Effects</Filter>
+    </ClInclude>
+    <ClInclude Include="Transition.h">
+      <Filter>Source Files\Effects</Filter>
+    </ClInclude>
+    <ClInclude Include="Menu.h">
+      <Filter>Source Files\States\State</Filter>
+    </ClInclude>
+    <ClInclude Include="Settings.h">
+      <Filter>Source Files\States\State</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -316,6 +328,18 @@
     </ClCompile>
     <ClCompile Include="freetype_2.11.1\src\base\ftwinfnt.c">
       <Filter>freetype\FT_MODULES</Filter>
+    </ClCompile>
+    <ClCompile Include="Light.cpp">
+      <Filter>Source Files\Effects</Filter>
+    </ClCompile>
+    <ClCompile Include="Transition.cpp">
+      <Filter>Source Files\Effects</Filter>
+    </ClCompile>
+    <ClCompile Include="Menu.cpp">
+      <Filter>Source Files\States\State</Filter>
+    </ClCompile>
+    <ClCompile Include="Settings.cpp">
+      <Filter>Source Files\States\State</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

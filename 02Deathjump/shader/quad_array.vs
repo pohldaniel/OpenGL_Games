@@ -6,7 +6,7 @@ layout(location = 1) in vec2 i_texCoord;
 flat out int layer;
 out vec2 texCoord;
 
-uniform mat4 u_transform;
+uniform mat4 u_transform = mat4(1.0);
 uniform int u_layer;
 
 void main(void) {

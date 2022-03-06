@@ -6,9 +6,9 @@ public:
 	Collision(Collider& body);
 	~Collision();
 
-	bool CheckCollision(const Collision& other, Vector2f& MTV) const;
+	bool checkCollision(const Collision& other, Vector2f& MTV) const;
 
-	const Collider GetBody();
+	const Collider getBody();
 private:
 	Collider& body;
 

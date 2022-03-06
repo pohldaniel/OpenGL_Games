@@ -8,6 +8,8 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 
 	m_enableVerticalSync = true;
 	m_enableWireframe = false;	
+
+	Transition::get().init();
 }
 
 Application::~Application() {
@@ -168,7 +170,7 @@ void Application::initOpenGL() {
 	glEnable(GL_ALPHA_TEST);
 	glAlphaFunc(GL_GREATER, 0.0);
 
-	//button transparency  
+	//button transparency, fog and light
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	//button outline
@@ -226,6 +228,7 @@ void Application::render() {
 
 void Application::update() {
 	m_machine->update();
+	Transition::get().update(m_dt);
 }
 
 void Application::fixedUpdate() {
@@ -234,9 +237,9 @@ void Application::fixedUpdate() {
 
 void Application::initStates() {
 	m_machine = new StateMachine(m_dt, m_fdt);
-	m_machine->addStateAtTop(new Game(*m_machine));
-
-	m_machine->addStateAtTop(new Pause(*m_machine));
+	//m_machine->addStateAtTop(new Game(*m_machine));
+	//m_machine->addStateAtTop(new Pause(*m_machine));
+	m_machine->addStateAtTop(new Menu(*m_machine));
 }
 
 void Application::processInput() {

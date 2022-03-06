@@ -6,7 +6,7 @@ Player::Player(const float& dt, const float& fdt) : Entity(dt, fdt){
 	initCollider();
 	
 	m_shaderArray = new Shader("shader/quad_array.vs", "shader/quad_array.fs");
-	m_quad = new Quad(true, xScale * 2.0f, yScale * 2.0f, 1.0, 1.0);
+	m_quad = new Quad(true, 0.0f, 0.0f, xScale * 2.0f, yScale * 2.0f, 1.0, 1.0);
 }
 
 Player::~Player() {
@@ -27,7 +27,7 @@ void Player::update() {
 void Player::resolveCollision(Entity* entity) {
 	Vector2f MTV;
 
-	if (!GetCollider().CheckCollision(entity->GetCollider(), MTV) || m_hit)
+	if (!getCollider().checkCollision(entity->getCollider(), MTV) || m_hit)
 		return;
 	//Camera::Get().Shake(1.75f);
 
@@ -45,7 +45,7 @@ void Player::resolveCollision(std::vector<Wall>& walls) {
 	m_grounded = false;
 
 	for (auto& o : walls) {
-		if (!GetCollider().CheckCollision(o.GetCollider(), MTV))
+		if (!getCollider().checkCollision(o.getCollider(), MTV))
 			continue;
 
 		if (MTV[1] < 0.0f && m_velocity[1] >= 0.0f) {
@@ -57,12 +57,12 @@ void Player::resolveCollision(std::vector<Wall>& walls) {
 			m_velocity[1] = 0.0f;
 		}
 	 
-		i_collider.position += MTV;
+		m_collider.position += MTV;
 
-		this->setPosition(i_collider.position);
+		this->setPosition(m_collider.position);
 
 		if (MTV[0] != 0.0f && m_velocity[1] > 0.0f && m_movable) {
-			bool diffY = i_collider.position[1] - i_collider.size[1] / 2.0f > o.GetCollider().GetBody().position[1] - o.GetCollider().GetBody().size[1];
+			bool diffY = m_collider.position[1] - m_collider.size[1] / 2.0f > o.getCollider().getBody().position[1] - o.getCollider().getBody().size[1];
 
 			if (!diffY)
 				return;
@@ -71,12 +71,12 @@ void Player::resolveCollision(std::vector<Wall>& walls) {
 			m_velocity[1] = 0.0f;
 			m_velocity[0] = 0.0f;
 
-			bool diffX = this->getPosition()[0] > o.GetCollider().GetBody().position[0] + o.GetCollider().GetBody().size[0] / 2.0f;
+			bool diffX = this->getPosition()[0] > o.getCollider().getBody().position[0] + o.getCollider().getBody().size[0] / 2.0f;
 
 			const int mulit = (diffX) ? -1 : 1;
 
 			//body->setScale(Vector2f(2.0f * mulit, 2.0f));
-			i_collider.position[1] += -(i_collider.position[1] - i_collider.size[1] / 2.0f - o.GetCollider().GetBody().position[1] + o.GetCollider().GetBody().size[1] / 2.0f);
+			m_collider.position[1] += -(m_collider.position[1] - m_collider.size[1] / 2.0f - o.getCollider().getBody().position[1] + o.getCollider().getBody().size[1] / 2.0f);
 		}
 
 		MTV = Vector2f();
@@ -131,10 +131,10 @@ void Player::animate() {
 }
 
 void Player::keepInBorders() {
-	if (i_collider.position[0] < 0.0f)
-		i_collider.position[0] = 0.0f;
-	else if (i_collider.position[0] > WIDTH)
-		i_collider.position[0] = WIDTH;
+	if (m_collider.position[0] < 0.0f)
+		m_collider.position[0] = 0.0f;
+	else if (m_collider.position[0] > WIDTH)
+		m_collider.position[0] = WIDTH;
 }
 
 void Player::crouch() {
@@ -143,14 +143,14 @@ void Player::crouch() {
 
 	if (m_crouching) {
 		m_velocity[0] = 0.0f;
-		i_collider.size[1] = 40.0f;
+		m_collider.size[1] = 40.0f;
 
 		if (!wasCrouching)
-			i_collider.position[1] += 20.0f;
+			m_collider.position[1] += 20.0f;
 	}else {
-		i_collider.size[1] = 80.0f;
+		m_collider.size[1] = 80.0f;
 		if (wasCrouching)
-			i_collider.position[1] -= 20.0f;
+			m_collider.position[1] -= 20.0f;
 	}
 }
 
@@ -158,12 +158,12 @@ void Player::move() {
 	if (!m_grabbing)
 		m_velocity[1] += m_gravity * i_fdt;
 	m_velocity[0] *= m_torque;
-	i_collider.position += m_velocity * i_fdt;
+	m_collider.position += m_velocity * i_fdt;
 
 	float vel = abs(m_velocity[0]);
 	m_velocity[0] = (vel < 8.0f ? 0.0f : m_velocity[0]);
 
-	this->setPosition(m_grabbing ? Vector2f(i_collider.position[0] + 5.0f * 2.0f * 0.5f, i_collider.position[1]) : i_collider.position);
+	this->setPosition(m_grabbing ? Vector2f(m_collider.position[0] + 5.0f * 2.0f * 0.5f, m_collider.position[1]) : m_collider.position);
 }
 
 void Player::updateVelocity() {
@@ -218,8 +218,8 @@ void Player::initBody() {
 
 void Player::initCollider() {
 	const Vector2f size = Vector2f(40.0f, 80.0f);
-	i_collider.position = Vector2f(WIDTH, HEIGHT) / 2.0f;
-	i_collider.size = size;
+	m_collider.position = Vector2f(WIDTH, HEIGHT) / 2.0f;
+	m_collider.size = size;
 }
 
 void Player::render() const{	
@@ -228,5 +228,4 @@ void Player::render() const{
 	m_shaderArray->loadInt("u_layer", *m_currentFrame);
 	m_quad->render(*m_textureAtlas, true);
 	glUseProgram(0);
-
 }

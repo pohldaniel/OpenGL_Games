@@ -15,7 +15,7 @@ public:
 	virtual void render() const = 0;
 
 
-	Collision GetCollider();
+	Collision getCollider();
 
 	void setSize(float x, float y);
 	void setSize(const Vector2f &size);
@@ -26,7 +26,7 @@ public:
 	const Vector2f &getSize() const;
 
 protected:
-	Collider i_collider;
+	Collider m_collider;
 
 	unsigned int *m_textureAtlas;
 	unsigned int *m_currentFrame;

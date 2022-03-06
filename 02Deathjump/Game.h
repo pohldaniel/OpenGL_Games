@@ -1,5 +1,6 @@
 #pragma once
 #include <sstream>
+#include "Clock.h"
 
 #include "Constants.h"
 #include "AssetManger.h"
@@ -7,7 +8,7 @@
 #include "Player.h"
 #include "Wall.h"
 #include "Timer.h"
-
+#include "Light.h"
 #include "Button.h"
 
 class Game : public State {
@@ -27,6 +28,7 @@ private:
 	void InitSprites();
 	void InitWalls();
 	void InitAssets();
+	void InitLights();
 
 	Player* m_player;
 
@@ -35,10 +37,16 @@ private:
 	AssetManager<Texture> m_TextureManager;
 
 	std::vector<Wall> m_walls;
+	std::vector<Light> m_lights;
 
 	Quad *m_quad;
 	Quad *m_quadBackground;
 	Shader *m_shader;
+
+	Quad *m_fog;
+	Shader *m_shaderFog;
+	Clock m_clock;
+
 	Texture *m_texture;
 	Texture *m_background;
 

@@ -40,7 +40,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	HWND hwnd = application.getWindow();
 	HDC hdc;
 
-	typedef std::chrono::milliseconds ms;
 	Clock deltaClock;
 	Clock fixedDeltaClock;
 

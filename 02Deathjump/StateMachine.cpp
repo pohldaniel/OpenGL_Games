@@ -1,4 +1,5 @@
 #include "StateMachine.h"
+#include "Transition.h"
 
 StateMachine::StateMachine(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fdt){
 	//m_frame.create(WINDOW_WIDTH, WINDOW_HEIGHT);
@@ -73,23 +74,15 @@ void StateMachine::render() {
 		m_states.top()->render(m_frameBuffer);
 
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glUseProgram(m_shader->m_program);
-	m_shader->loadMatrix("u_transform", Matrix4f::IDENTITY);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+	
+	/*glUseProgram(m_shader->m_program);
+	m_quad->render(m_frameTexture);
+	glUseProgram(0);*/
+
+	glUseProgram(*&Transition::get().getShader().m_program);
 	m_quad->render(m_frameTexture);
 	glUseProgram(0);
-
-	//m_frame.clear();
-
-	//if (!m_states.empty())
-		//m_states.top()->Render(m_frame);
-
-	//m_frame.display();
-
-	//m_frameSprite.setTexture(m_frame.getTexture());
-
-	//m_window.draw(m_frameSprite, &Transition::Get().GetShader());
-
 }
 
 void StateMachine::clearAndPush(State* state) {

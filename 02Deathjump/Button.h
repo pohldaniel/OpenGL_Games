@@ -1,5 +1,6 @@
 #pragma once
 #include <iostream>
+#include <functional>
 #include "Constants.h"
 #include "Shader.h"
 #include "Text.h"
@@ -15,11 +16,14 @@ public:
 	void setOutlineColor(const Vector4f &color);
 	void setPosition(const Vector2f &position);
 	void setOutlineThickness(float thickness);
+	void setOrigin(const Vector2f &origin);
 
 	const Vector2f &getPosition() const;
 	const Vector2f &getSize() const;
 
 	const bool pressed();
+
+	void setFunction(std::function<void()> fun);
 
 private:
 	
@@ -48,4 +52,6 @@ private:
 	bool m_isPressed = false;
 
 	Text* m_text;
+
+	std::function<void()> m_fun = 0;
 };

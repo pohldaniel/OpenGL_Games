@@ -104,7 +104,6 @@ void Text::render(Vector4f color) {
 
 	float x = m_position[0];
 	float y = m_position[1];
-
 	// iterate through all characters
 	std::string::const_iterator c;
 	for (c = m_label.begin(); c != m_label.end(); c++) {
@@ -149,7 +148,6 @@ void Text::render(std::string text, Vector4f color) {
 	
 	float x = m_position[0];
 	float y = m_position[1];
-
 	// iterate through all characters
 	std::string::const_iterator c;
 	for (c = text.begin(); c != text.end(); c++){
@@ -186,6 +184,10 @@ void Text::render(std::string text, Vector4f color) {
 
 void Text::setPosition(const Vector2f &position) {
 	m_position = position;
+}
+
+void Text::setOrigin(const Vector2f &origin) {
+	m_origin = origin;
 }
 
 const Vector2f &Text::getPosition() const {

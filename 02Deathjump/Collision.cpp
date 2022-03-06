@@ -7,7 +7,7 @@ Collision::~Collision() {
 
 }
 
-bool Collision::CheckCollision(const Collision& other, Vector2f& MTV) const {
+bool Collision::checkCollision(const Collision& other, Vector2f& MTV) const {
 	const Vector2f otherPosition = other.body.position;
 	const Vector2f otherSize = other.body.size / 2.0f;
 
@@ -35,6 +35,6 @@ const Vector2f Collision::abs(Vector2f v) {
 	return v;
 }
 
-const Collider Collision::GetBody() {
+const Collider Collision::getBody() {
 	return body;
 }

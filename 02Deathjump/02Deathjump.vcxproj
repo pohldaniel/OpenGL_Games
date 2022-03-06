@@ -165,10 +165,13 @@
     <ClInclude Include="Entity.h" />
     <ClInclude Include="Extension.h" />
     <ClInclude Include="Game.h" />
+    <ClInclude Include="Light.h" />
+    <ClInclude Include="Menu.h" />
     <ClInclude Include="Pause.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="Quad.h" />
     <ClInclude Include="Random.h" />
+    <ClInclude Include="Settings.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="Spritesheet.h" />
     <ClInclude Include="Spritesheet_old.h" />
@@ -177,6 +180,7 @@
     <ClInclude Include="Text.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="Timer.h" />
+    <ClInclude Include="Transition.h" />
     <ClInclude Include="Vector.h" />
     <ClInclude Include="Wall.h" />
   </ItemGroup>
@@ -229,11 +233,14 @@
     <ClCompile Include="freetype_2.11.1\src\type42\type42.c" />
     <ClCompile Include="freetype_2.11.1\src\winfonts\winfnt.c" />
     <ClCompile Include="Game.cpp" />
+    <ClCompile Include="Light.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Menu.cpp" />
     <ClCompile Include="Pause.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="Quad.cpp" />
     <ClCompile Include="Random.cpp" />
+    <ClCompile Include="Settings.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="Spritesheet.cpp" />
     <ClCompile Include="Spritesheet_old.cpp" />
@@ -241,6 +248,7 @@
     <ClCompile Include="Text.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="Timer.cpp" />
+    <ClCompile Include="Transition.cpp" />
     <ClCompile Include="Vector.cpp" />
     <ClCompile Include="Wall.cpp" />
   </ItemGroup>

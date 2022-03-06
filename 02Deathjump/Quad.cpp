@@ -1,15 +1,15 @@
 #include "Quad.h"
 
-Quad::Quad(bool flippable, float sizeX, float sizeY, float sizeTexX, float sizeTexY) {
+Quad::Quad(bool flippable, float shiftX, float shiftY, float sizeX, float sizeY, float sizeTexX, float sizeTexY, short x, short y) {
 	
 	m_flippable = flippable;
 
 	if (flippable) {
-		createBuffer(m_vao, true, sizeX, sizeY, sizeTexX, sizeTexY, 0, 0);
+		createBuffer(m_vao, true, shiftX, shiftY, sizeX, sizeY, sizeTexX, sizeTexY, x, y);
 		//createBuffer(m_vaoFlipped, false, sizeX, sizeY, sizeTexX, sizeTexY, 1, 0);
 		//createBuffer(m_vao, false, sizeX, sizeY, sizeTexX, sizeTexY, 0, 0);
 	}else {
-		createBuffer(m_vao, false, sizeX, sizeY, sizeTexX, sizeTexY);
+		createBuffer(m_vao, false, shiftX, shiftY, sizeX, sizeY, sizeTexX, sizeTexY, x, y);
 	}
 }
 
@@ -23,19 +23,19 @@ Quad::~Quad() {
 	}
 }
 
-void Quad::createBuffer(unsigned int& vao, bool flippable, float sizeX, float sizeY, float sizeTexX, float sizeTexY, short x, short y) {
+void Quad::createBuffer(unsigned int& vao, bool flippable, float shiftX, float shiftY, float sizeX, float sizeY, float sizeTexX, float sizeTexY, short x, short y) {
 	std::vector<float> vertex;
 
 	if (flippable) {
-		vertex.push_back(-1.0 * sizeX); vertex.push_back(-1.0 * sizeY); vertex.push_back(0.0); vertex.push_back(x * sizeTexX); vertex.push_back(y * sizeTexY); vertex.push_back((1 - x) * sizeTexX); vertex.push_back(y * sizeTexY);
-		vertex.push_back(-1.0 * sizeX); vertex.push_back(1.0 * sizeY); vertex.push_back(0.0); vertex.push_back(x * sizeTexX); vertex.push_back((1 - y) * sizeTexY); vertex.push_back((1 - x) * sizeTexX); vertex.push_back((1 - y) * sizeTexY);
-		vertex.push_back(1.0 * sizeX); vertex.push_back(1.0 * sizeY); vertex.push_back(0.0); vertex.push_back((1 - x) * sizeTexX); vertex.push_back((1 - y) * sizeTexY); vertex.push_back(x * sizeTexX); vertex.push_back((1 - y) * sizeTexY);
-		vertex.push_back(1.0 * sizeX); vertex.push_back(-1.0 * sizeY); vertex.push_back(0.0); vertex.push_back((1 - x) * sizeTexX); vertex.push_back(y * sizeTexY); vertex.push_back(x * sizeTexX); vertex.push_back(y * sizeTexY);
+		vertex.push_back((-1.0 + shiftX) * sizeX); vertex.push_back((-1.0 + shiftY) * sizeY); vertex.push_back(0.0); vertex.push_back(x * sizeTexX); vertex.push_back(y * sizeTexY); vertex.push_back((1 - x) * sizeTexX); vertex.push_back(y * sizeTexY);
+		vertex.push_back((-1.0 + shiftX) * sizeX); vertex.push_back((1.0 + shiftY) * sizeY); vertex.push_back(0.0); vertex.push_back(x * sizeTexX); vertex.push_back((1 - y) * sizeTexY); vertex.push_back((1 - x) * sizeTexX); vertex.push_back((1 - y) * sizeTexY);
+		vertex.push_back((1.0 + shiftX) * sizeX); vertex.push_back((1.0 + shiftY) * sizeY); vertex.push_back(0.0); vertex.push_back((1 - x) * sizeTexX); vertex.push_back((1 - y) * sizeTexY); vertex.push_back(x * sizeTexX); vertex.push_back((1 - y) * sizeTexY);
+		vertex.push_back((1.0 + shiftX) * sizeX); vertex.push_back((-1.0 + shiftY) * sizeY); vertex.push_back(0.0); vertex.push_back((1 - x) * sizeTexX); vertex.push_back(y * sizeTexY); vertex.push_back(x * sizeTexX); vertex.push_back(y * sizeTexY);
 	}else {
-		vertex.push_back(-1.0 * sizeX); vertex.push_back(-1.0 * sizeY); vertex.push_back(0.0); vertex.push_back(x * sizeTexX); vertex.push_back(y * sizeTexY);
-		vertex.push_back(-1.0 * sizeX); vertex.push_back(1.0 * sizeY); vertex.push_back(0.0); vertex.push_back(x * sizeTexX); vertex.push_back((1 - y) * sizeTexY);
-		vertex.push_back(1.0 * sizeX); vertex.push_back(1.0 * sizeY); vertex.push_back(0.0); vertex.push_back((1 - x) * sizeTexX); vertex.push_back((1 - y) * sizeTexY);
-		vertex.push_back(1.0 * sizeX); vertex.push_back(-1.0 * sizeY); vertex.push_back(0.0); vertex.push_back((1 - x) * sizeTexX); vertex.push_back(y * sizeTexY);
+		vertex.push_back((-1.0 + shiftX) * sizeX); vertex.push_back((-1.0 + shiftY) * sizeY); vertex.push_back(0.0); vertex.push_back(x * sizeTexX); vertex.push_back(y * sizeTexY);
+		vertex.push_back((-1.0 + shiftX) * sizeX); vertex.push_back((1.0 + shiftY) * sizeY); vertex.push_back(0.0); vertex.push_back(x * sizeTexX); vertex.push_back((1 - y) * sizeTexY);
+		vertex.push_back((1.0 + shiftX) * sizeX); vertex.push_back((1.0 + shiftY) * sizeY); vertex.push_back(0.0); vertex.push_back((1 - x) * sizeTexX); vertex.push_back((1 - y) * sizeTexY);
+		vertex.push_back((1.0 + shiftX) * sizeX); vertex.push_back((-1.0 + shiftY) * sizeY); vertex.push_back(0.0); vertex.push_back((1 - x) * sizeTexX); vertex.push_back(y * sizeTexY);
 	}
 	static const GLushort index[] = {
 		0, 1, 2,
@@ -85,6 +85,12 @@ void Quad::render(unsigned int texture, bool array) {
 	glDrawElements(GL_TRIANGLES, 2 * 3, GL_UNSIGNED_SHORT, 0);
 	glBindVertexArray(0);
 	glBindTexture(array ? GL_TEXTURE_2D_ARRAY : GL_TEXTURE_2D, 0);
+}
+
+void Quad::render() {
+	glBindVertexArray(m_vao);
+	glDrawElements(GL_TRIANGLES, 2 * 3, GL_UNSIGNED_SHORT, 0);
+	glBindVertexArray(0);
 }
 
 void Quad::setFlipped(bool flipped) { 

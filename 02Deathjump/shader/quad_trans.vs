@@ -6,7 +6,7 @@ layout(location = 1) in vec2 i_texCoord;
 flat out float alpha;
 out vec2 texCoord;
 
-uniform mat4 u_transform;
+uniform mat4 u_transform = mat4(1.0);
 uniform mat4 u_frame;
 uniform float u_alpha = 1.0f;
 

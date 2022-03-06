@@ -4,13 +4,12 @@
 #include "AssetManger.h"
 
 #include "Transition.h"
-#include "Settings.h"
 #include "Button.h"
 
-class Pause : public State {
+class Settings : public State {
 public:
-	Pause(StateMachine& machine);
-	~Pause();
+	Settings(StateMachine& machine);
+	~Settings();
 
 	virtual void fixedUpdate() override;
 	virtual void update() override;
@@ -28,7 +27,5 @@ private:
 	void initAssets();
 
 	Button* m_button1;
-	Button* m_button2;
-	Button* m_button3;
 	Text* m_text;
 };

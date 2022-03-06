@@ -7,10 +7,10 @@ public:
 	Wall(Vector2f position, Vector2f size);
 	~Wall();
 
-	Collision GetCollider();
+	Collision getCollider();
 
 private:
 	Collider m_collider;
 
-	void InitCollider(const Vector2f& position, const Vector2f& size);
+	void initCollider(const Vector2f& position, const Vector2f& size);
 };

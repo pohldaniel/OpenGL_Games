@@ -4,8 +4,14 @@
 #include "Extension.h"
 #include "Constants.h"
 #include "StateMachine.h"
-#include "Game.h"
+
+#include "Transition.h"
+
+#include "Menu.h"
 #include "Pause.h"
+#include "Settings.h"
+
+
 
 class Application {
 public:

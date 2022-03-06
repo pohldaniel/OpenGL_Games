@@ -1,8 +1,8 @@
 #include "Game.h"
 
 #include "Random.h"
+#include "Menu.h"
 #include "Pause.h"
-
 
 //#include "Key Check.hpp"
 
@@ -11,14 +11,19 @@ Game::Game(StateMachine& machine) : State(machine){
 	InitEntities();
 	InitWalls();
 	InitSprites();
+	InitLights();
 	InitCountdown();
 	InitTimers();
 
 	m_shader = new Shader("shader/quad.vs", "shader/quad.fs");
 	m_quad = new Quad();
 
-	m_quadBackground = new Quad(false, 1.0f, 1.2f, 1.0f, 1.0f);
-	m_transBackground = Matrix4f::Translate(0.0, -0.2, 0.0);
+	m_quadBackground = new Quad(false, 0.0f, 0.0f, 1.0f, 1.2f, 1.0f, 1.0f);
+	//m_transBackground = Matrix4f::Translate(0.0, -0.2, 0.0);
+	m_transBackground = Matrix4f::Translate(m_transBackground, 0.0, -0.2, 0.0);
+
+	m_fog = new Quad();
+	m_shaderFog = new Shader("shader/fog.vs", "shader/fog.fs");
 }
 
 Game::~Game() {
@@ -44,9 +49,8 @@ void Game::update() {
 }
 
 void Game::render(unsigned int &frameBuffer) {
-
 	glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	glUseProgram(m_shader->m_program);
 	m_shader->loadMatrix("u_transform", m_transBackground);
 	m_quadBackground->render(m_Sprites["background"]);
@@ -58,6 +62,24 @@ void Game::render(unsigned int &frameBuffer) {
 	m_shader->loadMatrix("u_transform", Matrix4f::IDENTITY);
 	m_quad->render(m_Sprites["foreground"]);
 	glUseProgram(0);
+
+	glEnable(GL_BLEND);
+	glUseProgram(m_shaderFog->m_program);
+	m_shaderFog->loadVector("u_resolution", Vector2f(WIDTH, HEIGHT));
+	m_shaderFog->loadFloat("u_time", m_clock.getElapsedTimeSec());
+	m_quad->render();
+	glUseProgram(0);
+	
+	float time = m_clock.getElapsedTimeSec();
+	for (const auto& l : m_lights) {
+		glUseProgram(l.getShader().m_program);
+		l.getShader().loadVector("u_color", Vector4f(0.65, 0.50, 0.28, 0.8));
+		l.getShader().loadFloat("u_time", time);
+		glUseProgram(0);
+		l.render();
+
+	}
+	glDisable(GL_BLEND);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 }
@@ -107,6 +129,14 @@ void Game::UpdateCountdown() {
 void Game::InitCountdown() {
 	
 }
+
+void Game::InitLights() {
+	m_lights.push_back(Light(Vector2f(460.0f, 490.0f), 275.0f));
+	m_lights.push_back(Light(Vector2f(210.0f, 200.0f), 275.0f));
+	m_lights.push_back(Light(Vector2f(1125.0f, 395.0f), 275.0f));
+	m_lights.push_back(Light(Vector2f(1350.0f, 780.0f), 275.0f));
+}
+
 
 void Game::InitSprites() {
 	

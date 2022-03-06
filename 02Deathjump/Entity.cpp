@@ -5,8 +5,8 @@ Entity::Entity(const float& dt, const float& fdt) : i_dt(dt), i_fdt(fdt){}
 Entity::~Entity() {
 }
 
-Collision Entity::GetCollider() { 
-	return i_collider;
+Collision Entity::getCollider() { 
+	return m_collider;
 }
 
 void Entity::setSize(float x, float y) {

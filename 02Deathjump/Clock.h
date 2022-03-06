@@ -21,11 +21,11 @@ public:
 	}
 
 	inline float getElapsedTimeSec() const {
-		return std::chrono::duration_cast<std::chrono::duration<float>>(begin - std::chrono::high_resolution_clock::now()).count();
+		return std::chrono::duration_cast<std::chrono::duration<float>>(std::chrono::high_resolution_clock::now() - begin).count();
 	}
 
 	inline int getElapsedTimeMicro() const {
-		return std::chrono::duration_cast<std::chrono::microseconds>(begin - std::chrono::high_resolution_clock::now()).count();
+		return std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - begin).count();
 	}
 	
 private:
