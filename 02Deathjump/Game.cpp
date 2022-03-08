@@ -40,7 +40,7 @@ void Game::update() {
 		UpdateEntities();
 		//m_bestTime = m_timeClock.getElapsedTime().asSeconds();
 	}
-	
+
 	//UpdateCountdown();
 
 	if ((Globals::CONTROLLS & Globals::KEY_Q)) {

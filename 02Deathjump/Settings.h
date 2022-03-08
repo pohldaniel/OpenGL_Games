@@ -5,6 +5,7 @@
 
 #include "Transition.h"
 #include "Button.h"
+#include "ParticleEmitter.h"
 
 class Settings : public State {
 public:
@@ -28,4 +29,6 @@ private:
 
 	Button* m_button1;
 	Text* m_text;
+
+	ParticleEmitter* m_emitter;
 };

@@ -17,7 +17,7 @@
 class Vector2f {
 
 	friend Vector2f operator-(const Vector2f &v);
-
+	friend bool operator ==(Vector2f lhs, Vector2f rhs);
 public:
 	Vector2f();
 	Vector2f(float x_, float y_);
@@ -94,6 +94,7 @@ private:
 
 class Vector4f {
 
+	friend Vector4f operator*(float lhs, const Vector4f &rhs);
 public:
 	Vector4f();
 	Vector4f(float x_, float y_, float z_, float w_);
@@ -102,6 +103,9 @@ public:
 
 	float &operator[](int index);
 	const float operator[](int index) const;
+
+	Vector4f &operator+=(const Vector4f &rhs);
+	Vector4f &operator+(const Vector4f &rhs) const;
 
 private:
 

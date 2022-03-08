@@ -27,6 +27,12 @@ Settings::Settings(StateMachine& machine) : State(machine) {
 		transition.start(Mode::Veil);
 	});
 
+	m_emitter = new ParticleEmitter(Vector4f(1.0f, 1.0f, 0.0f, 1.0f), Vector4f(1.0f, 0.0f, 1.0f, 0.0f), 75);
+	m_emitter->SetLifeTimeRange(3.5f, 8.5f);
+	m_emitter->SetDirection(Vector2f(1, 0));
+	m_emitter->SetPosition(Vector2f(725.0f, 750.0f));
+	m_emitter->SetParticleMax(100);
+
 }
 
 Settings::~Settings() {}
@@ -36,6 +42,9 @@ void Settings::fixedUpdate() {}
 void Settings::update() {
 
 	m_button1->update();
+
+	m_emitter->AddParticles();
+	m_emitter->Update(i_dt);
 }
 
 void Settings::render(unsigned int &frameBuffer) {
@@ -48,6 +57,9 @@ void Settings::render(unsigned int &frameBuffer) {
 
 	//m_text->render(Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
 	m_button1->render();
+	glEnable(GL_BLEND);
+	m_emitter->render();
+	glDisable(GL_BLEND);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }

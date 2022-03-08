@@ -157,6 +157,7 @@
     <ClInclude Include="Animator.h" />
     <ClInclude Include="Application.h" />
     <ClInclude Include="AssetManger.h" />
+    <ClInclude Include="Batchrenderer.h" />
     <ClInclude Include="Button.h" />
     <ClInclude Include="Clock.h" />
     <ClInclude Include="Collider.h" />
@@ -167,6 +168,7 @@
     <ClInclude Include="Game.h" />
     <ClInclude Include="Light.h" />
     <ClInclude Include="Menu.h" />
+    <ClInclude Include="ParticleEmitter.h" />
     <ClInclude Include="Pause.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="Quad.h" />
@@ -187,6 +189,7 @@
   <ItemGroup>
     <ClCompile Include="Animator.cpp" />
     <ClCompile Include="Application.cpp" />
+    <ClCompile Include="Batchrenderer.cpp" />
     <ClCompile Include="Button.cpp" />
     <ClCompile Include="Collision.cpp" />
     <ClCompile Include="Entity.cpp" />
@@ -236,6 +239,7 @@
     <ClCompile Include="Light.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Menu.cpp" />
+    <ClCompile Include="ParticleEmitter.cpp" />
     <ClCompile Include="Pause.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="Quad.cpp" />

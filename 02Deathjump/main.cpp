@@ -1,6 +1,7 @@
 #define NOMINMAX
 #define STB_IMAGE_IMPLEMENTATION
-#include <windows.h>			
+#include <windows.h>	
+#include <tchar.h>
 #include "stb\stb_image.h"
 #include "Constants.h"
 #include "Clock.h"
@@ -43,6 +44,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	Clock deltaClock;
 	Clock fixedDeltaClock;
 
+	int frames = 0;
+	double framesTime = 0;
+
 	// main message loop
 	while (application.isRunning()) {
 
@@ -57,10 +61,21 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 			physicsElapsedTime -= PHYSICS_STEP;
 		}
 
-		application.update();		application.render();
+		application.update();		
+		application.render();
 
 		deltaTime = deltaClock.restartSec();
 		
+		framesTime += deltaTime;
+		frames++;
+		if (framesTime > 1) {
+			_TCHAR fpsText[32];
+			_sntprintf(fpsText, 32, "Game: %d FPS", frames);
+			SetWindowText(hwnd, fpsText);
+			frames = 0;
+			framesTime = 0;
+		}
+
 		hdc = GetDC(hwnd);
 		SwapBuffers(hdc);
 		ReleaseDC(hwnd, hdc);		

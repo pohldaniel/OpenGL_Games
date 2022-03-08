@@ -141,6 +141,12 @@
     <ClInclude Include="Settings.h">
       <Filter>Source Files\States\State</Filter>
     </ClInclude>
+    <ClInclude Include="Batchrenderer.h">
+      <Filter>Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="ParticleEmitter.h">
+      <Filter>Source Files\Effects</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -340,6 +346,12 @@
     </ClCompile>
     <ClCompile Include="Settings.cpp">
       <Filter>Source Files\States\State</Filter>
+    </ClCompile>
+    <ClCompile Include="Batchrenderer.cpp">
+      <Filter>Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="ParticleEmitter.cpp">
+      <Filter>Source Files\Effects</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

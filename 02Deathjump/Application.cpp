@@ -39,7 +39,7 @@ bool Application::initWindow() {
 	m_window = CreateWindowEx(
 		NULL,								
 		"WINDOWCLASS",					
-		"Platfromer",				
+		"Deathjump",				
 		WS_OVERLAPPEDWINDOW,
 		CW_USEDEFAULT, CW_USEDEFAULT,									
 		WIDTH,
@@ -240,6 +240,7 @@ void Application::initStates() {
 	//m_machine->addStateAtTop(new Game(*m_machine));
 	//m_machine->addStateAtTop(new Pause(*m_machine));
 	m_machine->addStateAtTop(new Menu(*m_machine));
+	//m_machine->addStateAtTop(new Settings(*m_machine));
 }
 
 void Application::processInput() {

@@ -11,6 +11,8 @@
 #include "Light.h"
 #include "Button.h"
 
+#include "ParticleEmitter.h"
+
 class Game : public State {
 public:
 	Game(StateMachine& machine);
@@ -66,6 +68,5 @@ private:
 	void UpdateTimers();
 	void InitTimers();
 
-	void UpdateCountdown();
-	
+	void UpdateCountdown();	
 };

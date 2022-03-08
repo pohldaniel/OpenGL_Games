@@ -1209,6 +1209,12 @@ Vector2f Vector2f::operator/(float scalar) const {
 Vector2f operator-(const Vector2f &v) {
 	return Vector2f(-v.vec[0], -v.vec[1]);
 }
+
+//friend operator
+bool operator ==(Vector2f lhs, Vector2f rhs) {
+	float epsilon = 0.000001;
+	return fabs(lhs[0] - rhs[0]) <= epsilon && fabs(lhs[1] - rhs[1]) <= epsilon;
+}
 //////////////////////////////////////////////////////////////////////
 Vector3f::Vector3f() {
 	vec[0] = 0.0f;
@@ -1328,7 +1334,6 @@ const float* Vector3f::getVec()const {
 
 //friend operator
 Vector3f operator-(const Vector3f &v) {
-
 	return Vector3f(-v.vec[0], -v.vec[1], -v.vec[2]);
 }
 
@@ -1373,6 +1378,21 @@ float &Vector4f::operator[](int index) {
 
 const float Vector4f::operator[](int index) const {
 	return vec[index];
+}
+
+Vector4f &Vector4f::operator+=(const Vector4f &rhs) {
+	vec[0] += rhs.vec[0], vec[1] += rhs.vec[1], vec[2] += rhs.vec[2], vec[3] += rhs.vec[3];
+	return *this;
+}
+
+Vector4f &Vector4f::operator+(const Vector4f &rhs) const {
+	Vector4f tmp(*this);
+	tmp += rhs;
+	return tmp;
+}
+//friend operator
+Vector4f operator*(float lhs, const Vector4f &rhs) {
+	return Vector4f(lhs * rhs[0], lhs * rhs[1], lhs * rhs[2], lhs * rhs[3]);
 }
 //////////////////////////////////////////////////////////////////////
 const Quaternion Quaternion::IDENTITY(0.0f, 0.0f, 0.0f, 1.0f);
