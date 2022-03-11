@@ -6,6 +6,7 @@
 #include "Wall.h"
 #include "Animator.h"
 #include "Spritesheet.h"
+#include "ParticleEmitter.h"
 
 class Player : public Entity {
 public:
@@ -30,6 +31,8 @@ private:
 	void initAnimations();
 	void initBody();
 	void initCollider();
+	void updateEmitters();
+	void initEmitters();
 
 	void animate();
 	void keepInBorders();
@@ -38,7 +41,7 @@ private:
 	void updateVelocity();
 
 	Vector2f m_velocity;
-
+	Vector2f m_playerSize = Vector2f(96.0f, 84.0f);
 	bool m_alive = true;
 
 	const float m_movementSpeed = 420.0f;
@@ -54,4 +57,7 @@ private:
 	unsigned m_currentHitTake = 10;
 
 	std::unordered_map<std::string, Animator> m_Animations;	
+
+	ParticleEmitter* m_emitter;
+	ParticleEmitter* m_fallEmitter;
 };

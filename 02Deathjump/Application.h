@@ -31,7 +31,7 @@ private:
 
 	bool initWindow();
 	void initOpenGL();
-	
+	void loadTextures();
 
 	void enableWireframe(bool enableWireframe);
 	void enableVerticalSync(bool enableVerticalSync);
@@ -53,4 +53,6 @@ private:
 
 	
 	Vector4f m_cursorPosEye;
+
+	Menu* menu;
 };

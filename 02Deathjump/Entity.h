@@ -21,6 +21,7 @@ public:
 	void setSize(const Vector2f &size);
 	void setPosition(float x, float y);
 	void setPosition(const Vector2f &position);
+	void setOrigin(const Vector2f &origin);
 
 	const Vector2f &getPosition() const;
 	const Vector2f &getSize() const;
@@ -33,14 +34,11 @@ protected:
 
 	Vector2f m_position;
 	Vector2f m_size;
+	Vector2f m_origin;
 	Matrix4f m_transform = Matrix4f::IDENTITY;
 
 	const float& i_fdt;
 	const float& i_dt;
 
-	const float xTrans = 2.0f / (float)(WIDTH);
-	const float yTrans = 2.0f / (float)(HEIGHT);
-
-	float xScale;
-	float yScale;
+	
 };

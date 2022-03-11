@@ -147,6 +147,9 @@
     <ClInclude Include="ParticleEmitter.h">
       <Filter>Source Files\Effects</Filter>
     </ClInclude>
+    <ClInclude Include="CharacterSet.h">
+      <Filter>Engine</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -352,6 +355,9 @@
     </ClCompile>
     <ClCompile Include="ParticleEmitter.cpp">
       <Filter>Source Files\Effects</Filter>
+    </ClCompile>
+    <ClCompile Include="CharacterSet.cpp">
+      <Filter>Engine</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

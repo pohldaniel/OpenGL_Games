@@ -6,7 +6,7 @@ Batchrenderer::~Batchrenderer() {
 
 void Batchrenderer::init() {
 
-	m_shader = new Shader("shader/quad_color.vs", "shader/quad_color.fs");
+	m_shader = Globals::shaderManager.getAssetPointer("quad_color");
 	buffer = new Vertex[max_quad_vert_count];
 	//_buffer.resize(max_quad_vert_count);
 

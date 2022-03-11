@@ -19,25 +19,25 @@ public:
 	ParticleEmitter(const Vector4f& birthColor, const Vector4f& deathColor, unsigned size);
 	~ParticleEmitter();
 
-	void Update(const float& dt);
-	void AddParticles();
+	void update(const float& dt);
+	void addParticles();
 
-	void SetPosition(const Vector2f& pos);
-	void SetDirection(const Vector2f& dir);
+	void setPosition(const Vector2f& pos);
+	void setDirection(const Vector2f& dir);
 
-	void SetLifeTimeRange(const float& min, const float& max);
+	void setLifeTimeRange(const float& min, const float& max);
 
-	void SetSpeed(const float& speed);
+	void setSpeed(const float& speed);
 
-	void SetBirthColor(Vector4f& color);
-	void SetDeathColor(Vector4f& color);
+	void setBirthColor(Vector4f& color);
+	void setDeathColor(Vector4f& color);
 
-	void SetParticleMax(unsigned max);
-	void SetSpread(float spred);
+	void setParticleMax(unsigned max);
+	void setSpread(float spred);
 
-	void SetSize(unsigned size);
+	void setSize(unsigned size);
 
-	void Clear();
+	void clear();
 	void render();
 	void render2();
 private:
@@ -64,17 +64,17 @@ private:
 
 	Batchrenderer* m_batchrenderer;
 
-	void UpdateParticles();
+	void updateParticles();
 
-	void AddQuad(const Vector2f& pos);
-	void DeleteQuad(unsigned index);
-	void SetQuadColor(unsigned index, const Vector4f& color);
-	void SetQuadScale(unsigned index, const float& scale);
-	void SetQuadRotation(unsigned index, const float& angle);
-	void MoveQuad(unsigned index, const Vector2f& dir);
+	void addQuad(const Vector2f& pos);
+	void deleteQuad(unsigned index);
+	void setQuadColor(unsigned index, const Vector4f& color);
+	void setQuadScale(unsigned index, const float& scale);
+	void setQuadRotation(unsigned index, const float& angle);
+	void moveQuad(unsigned index, const Vector2f& dir);
 
-	Vector4f Lerp(const Vector4f& x, const Vector4f& y, const float& t);
-	float Lerp(const float& x, const float& y, const float& t);
+	Vector4f lerp(const Vector4f& x, const Vector4f& y, const float& t);
+	float lerp(const float& x, const float& y, const float& t);
 
 	void rotatePoint(float angle, float cx, float cy, float& x, float& y);
 	void scalePoint(float scale, float cx, float cy, float& x, float& y);

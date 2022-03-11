@@ -14,12 +14,17 @@ Quad::Quad(bool flippable, float shiftX, float shiftY, float sizeX, float sizeY,
 }
 
 Quad::~Quad() {
+	if (m_quadVBO) {
+		glDeleteBuffers(1, &m_quadVBO);
+	}
 
-	glDeleteBuffers(1, &m_quadVBO);
-	glDeleteVertexArrays(1, &m_vao);
+	if (m_vao) {
+		glDeleteVertexArrays(1, &m_vao);
+	}
 
 	if (m_vaoFlipped) {
 		glDeleteVertexArrays(1, &m_vaoFlipped);
+		m_vaoFlipped = 0;
 	}
 }
 
@@ -37,6 +42,7 @@ void Quad::createBuffer(unsigned int& vao, bool flippable, float shiftX, float s
 		vertex.push_back((1.0 + shiftX) * sizeX); vertex.push_back((1.0 + shiftY) * sizeY); vertex.push_back(0.0); vertex.push_back((1 - x) * sizeTexX); vertex.push_back((1 - y) * sizeTexY);
 		vertex.push_back((1.0 + shiftX) * sizeX); vertex.push_back((-1.0 + shiftY) * sizeY); vertex.push_back(0.0); vertex.push_back((1 - x) * sizeTexX); vertex.push_back(y * sizeTexY);
 	}
+
 	static const GLushort index[] = {
 		0, 1, 2,
 		0, 2, 3
@@ -44,6 +50,9 @@ void Quad::createBuffer(unsigned int& vao, bool flippable, float shiftX, float s
 
 	short stride = flippable ? 7 : 5;
 	short offset = 3;
+
+	m_scale[0] = (vertex[stride * 2] - vertex[0]) / sizeX;
+	m_scale[1] = (vertex[stride + 1] - vertex[1]) / sizeY;
 
 	unsigned int indexQuad;
 
@@ -118,3 +127,7 @@ void Quad::setFlipped(bool flipped) {
 	if (m_flipped == flipped) return;
 	m_flipped = flipped;
 }*/
+
+const Vector2f &Quad::getScale() const {
+	return m_scale;
+}

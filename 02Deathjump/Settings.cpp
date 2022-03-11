@@ -1,25 +1,23 @@
 #include "Settings.h"
 
 Settings::Settings(StateMachine& machine) : State(machine) {
-	initAssets();
 	initSprites();
 
 	m_text = new Text("SETTINGS", 200.0f / 90.0f);
 	m_text->setPosition(Vector2f(WIDTH * 0.5f, 120.0f) - m_text->getSize() * 0.5f);
 
-	m_shader = new Shader("shader/quad.vs", "shader/quad.fs");
-	m_shaderBlur = new Shader("shader/blur.vs", "shader/blur.fs");
-	m_quad = new Quad();
+	m_shader = Globals::shaderManager.getAssetPointer("quad");
+	m_shaderBlur = Globals::shaderManager.getAssetPointer("blur");
+	m_quad = new Quad(false);
 
-	float thikness = 4.0f;
-	m_button1 = new Button("BACK", 249.0f, 65.0f, Vector4f(100.0f / 255.0f, 100.0f / 255.0f, 100.0f / 255.0f, 80.0f / 255.0f));
-	m_button1->setPosition(Vector2f(180.0f, 80.0f));
-	m_button1->setOrigin(m_button1->getSize() * 0.5f);
-	m_button1->setOutlineThickness(thikness);
+	m_button = Button("BACK", Vector4f(100.0f / 255.0f, 100.0f / 255.0f, 100.0f / 255.0f, 80.0f / 255.0f));
+	m_button.setPosition(Vector2f(180.0f, 80.0f));
+	m_button.setOrigin(m_button.getSize() * 0.5f);
+	m_button.setOutlineThickness(4.0f);
 
 	Transition& transition = Transition::get();
 
-	m_button1->setFunction([&]() {
+	m_button.setFunction([&]() {
 		transition.setFunction([&]() {
 			i_isRunning = false;
 			transition.start(Mode::Unveil);
@@ -28,23 +26,22 @@ Settings::Settings(StateMachine& machine) : State(machine) {
 	});
 
 	m_emitter = new ParticleEmitter(Vector4f(1.0f, 1.0f, 0.0f, 1.0f), Vector4f(1.0f, 0.0f, 1.0f, 0.0f), 75);
-	m_emitter->SetLifeTimeRange(3.5f, 8.5f);
-	m_emitter->SetDirection(Vector2f(1, 0));
-	m_emitter->SetPosition(Vector2f(725.0f, 750.0f));
-	m_emitter->SetParticleMax(100);
-
+	m_emitter->setLifeTimeRange(3.5f, 8.5f);
+	m_emitter->setDirection(Vector2f(1, 0));
+	m_emitter->setPosition(Vector2f(725.0f, 750.0f));
+	m_emitter->setParticleMax(100);
 }
 
-Settings::~Settings() {}
+Settings::~Settings() {
+	m_button.~Button();
+}
 
 void Settings::fixedUpdate() {}
 
 void Settings::update() {
-
-	m_button1->update();
-
-	m_emitter->AddParticles();
-	m_emitter->Update(i_dt);
+	m_button.update();
+	m_emitter->addParticles();
+	m_emitter->update(i_dt);
 }
 
 void Settings::render(unsigned int &frameBuffer) {
@@ -52,11 +49,11 @@ void Settings::render(unsigned int &frameBuffer) {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	glUseProgram(m_shaderBlur->m_program);
 	m_shaderBlur->loadFloat("u_blur_radius", 0.008f);
-	m_quad->render(m_Sprites["background"]);
+	m_quad->render(m_sprites["background"]);
 	glUseProgram(0);
 
 	//m_text->render(Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
-	m_button1->render();
+	m_button.render();
 	glEnable(GL_BLEND);
 	m_emitter->render();
 	glDisable(GL_BLEND);
@@ -65,9 +62,5 @@ void Settings::render(unsigned int &frameBuffer) {
 }
 
 void Settings::initSprites() {
-	m_Sprites["background"] = m_TextureManager.Get("background").getTexture();
-}
-
-void Settings::initAssets() {
-	m_TextureManager.Load("background", "res/textures/menu.png", true, false);
+	m_sprites["background"] = Globals::textureManager.get("menu").getTexture();
 }

@@ -2,68 +2,59 @@
 
 
 Menu::Menu(StateMachine& machine) : State(machine) {
-	initAssets();
 	initSprites();
 
 	m_text = new Text("DEATHJUMP!", 200.0f / 90.0f);
 	m_text->setPosition(Vector2f(WIDTH * 0.5f, 120.0f) - m_text->getSize() * 0.5f);
 
-	m_shader = new Shader("shader/quad.vs", "shader/quad.fs");
-	m_quad = new Quad();
-	
-	float thikness = 4.0f;
-	m_button1 = new Button("START", 290.0f, 65.0f, Vector4f(100.0f / 255.0f, 100.0f / 255.0f, 100.0f / 255.0f, 80.0f / 255.0f));
-	m_button1->setPosition(Vector2f(WIDTH, HEIGHT) * 0.5f);
-	m_button1->setOrigin(m_button1->getSize() * 0.5f);
-	m_button1->setOutlineThickness(thikness);
+	m_shader = Globals::shaderManager.getAssetPointer("quad");
+	m_quad = new Quad(false);
+
+	std::initializer_list<std::pair<const std::string, Button>> init =
+	{
+		{ "start",	  Button("START"   , Vector2f(WIDTH, HEIGHT) * 0.5f, Vector4f(100.0f / 255.0f, 100.0f / 255.0f, 100.0f / 255.0f, 80.0f / 255.0f)) },
+		{ "settings", Button("SETTINGS", Vector2f(WIDTH * 0.5f, 550)   , Vector4f(100.0f / 255.0f, 100.0f / 255.0f, 100.0f / 255.0f, 80.0f / 255.0f)) },
+		{ "exit",	  Button("EXIT"    , Vector2f(WIDTH * 0.5f, 650)   , Vector4f(100.0f / 255.0f, 100.0f / 255.0f, 100.0f / 255.0f, 80.0f / 255.0f)) },
+	};
+
+	m_buttons = init;
 
 	Transition& transition = Transition::get();
 
-	m_button1->setFunction([&]() {
+	m_buttons["start"].setFunction([&]() {
 		transition.setFunction([&]() {
 			i_isRunning = false;
 			i_machine.addStateAtBottom(new Game(i_machine));
-
 			transition.start(Mode::Unveil);
 		});
-
 		transition.start(Mode::Veil);
 	});
 
-	m_button2 = new Button("SETTINGS", 450.0f, 65.0f, Vector4f(100.0f / 255.0f, 100.0f / 255.0f, 100.0f / 255.0f, 80.0f / 255.0f));
-	m_button2->setPosition(Vector2f(WIDTH * 0.5f, 550));
-	m_button2->setOrigin(m_button2->getSize() * 0.5f);
-	m_button2->setOutlineThickness(thikness);
-
-	m_button2->setFunction([&]() {
+	m_buttons["settings"].setFunction([&]() {
 		transition.setFunction([&]() {
 			i_machine.addStateAtTop(new Settings(i_machine));
 			transition.start(Mode::Unveil);
 		});
-
 		transition.start(Mode::Veil);
 	});
 
-	m_button3 = new Button("EXIT", 235.0f, 65.0f, Vector4f(100.0f / 255.0f, 100.0f / 255.0f, 100.0f / 255.0f, 80.0f / 255.0f));
-	m_button3->setPosition(Vector2f(WIDTH * 0.5f, 650));
-	m_button3->setOrigin(m_button3->getSize() * 0.5f);
-	m_button3->setOutlineThickness(thikness);
 
-	m_button3->setFunction([&]() {
+	m_buttons["exit"].setFunction([&]() {
 		transition.setFunction([&]() { i_isRunning = false; });
 		transition.start(Mode::Veil);
 	});
 }
 
-Menu::~Menu() {}
+Menu::~Menu() {
+	for (auto& b : m_buttons)
+		b.second.~Button();
+}
 
 void Menu::fixedUpdate() {}
 
 void Menu::update() {
-
-	m_button1->update();
-	m_button2->update();
-	m_button3->update();	
+	for (auto& b : m_buttons)
+		b.second.update();
 }
 
 void Menu::render(unsigned int &frameBuffer) {
@@ -72,21 +63,17 @@ void Menu::render(unsigned int &frameBuffer) {
 
 	glUseProgram(m_shader->m_program);
 	m_shader->loadFloat("u_blur_radius", 0.008f);
-	m_quad->render(m_Sprites["background"]);
+	m_quad->render(m_sprites["background"]);
 	glUseProgram(0);
 
 	m_text->render(Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
-	m_button1->render();
-	m_button2->render();
-	m_button3->render();
+
+	for (auto& b : m_buttons)
+		b.second.render();
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void Menu::initSprites() {
-	m_Sprites["background"] = m_TextureManager.Get("background").getTexture();
-}
-
-void Menu::initAssets() {
-	m_TextureManager.Load("background", "res/textures/menu.png", true, false);
+	m_sprites["background"] = Globals::textureManager.get("menu").getTexture();
 }

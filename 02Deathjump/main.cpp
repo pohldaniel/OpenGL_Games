@@ -7,7 +7,6 @@
 #include "Clock.h"
 #include "Application.h"
 
-
 extern float Globals::offset = 0.0f;
 extern unsigned long Globals::CONTROLLS = 0;
 extern unsigned long Globals::CONTROLLSHOLD = 0;
@@ -18,7 +17,9 @@ extern Globals::POINTF Globals::cursorPosEye = {0.0f, 0.0f, 0.0f };
 extern bool Globals::lMouseButton = false;
 extern Matrix4f Globals::projection = Matrix4f::IDENTITY;
 extern Matrix4f Globals::invProjection = Matrix4f::IDENTITY;
-
+extern AssetManagerStatic<Texture> Globals::textureManager = AssetManagerStatic<Texture>();
+extern AssetManager<Shader> Globals::shaderManager = AssetManager<Shader>();
+extern AssetManager<CharacterSet> Globals::fontManager = AssetManager<CharacterSet>();
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd) {
 	AllocConsole();
@@ -36,8 +37,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	float fixedDeltaTime = 0.0f;
 	double physicsElapsedTime = 0.0;
 
-	Application application(deltaTime, fixedDeltaTime);	
-
+	Application application(deltaTime, fixedDeltaTime);
+		
 	HWND hwnd = application.getWindow();
 	HDC hdc;
 
@@ -61,7 +62,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 			physicsElapsedTime -= PHYSICS_STEP;
 		}
 
-		application.update();		
+		application.update();
 		application.render();
 
 		deltaTime = deltaClock.restartSec();
@@ -81,10 +82,18 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		ReleaseDC(hwnd, hdc);		
 	} // end while
 
+	application.~Application();
+
 	hdc = GetDC(hwnd);
 	wglMakeCurrent(hdc, 0);
 	wglDeleteContext(wglGetCurrentContext());
 	ReleaseDC(hwnd, hdc);
+
+	//simple workaround for holding the console at the end 
+	while (true)
+	{
+
+	}
 
 	return 0;
 }

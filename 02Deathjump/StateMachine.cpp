@@ -3,14 +3,14 @@
 
 StateMachine::StateMachine(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fdt){
 	//m_frame.create(WINDOW_WIDTH, WINDOW_HEIGHT);
-	m_shader = new Shader("shader/quad.vs", "shader/quad.fs");
-	m_quad = new Quad();
+	m_shader = Globals::shaderManager.getAssetPointer("quad");
+	m_quad = new Quad(false);
 	
 	
 	glGenTextures(1, &m_frameTexture);
 	glBindTexture(GL_TEXTURE_2D, m_frameTexture);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	//glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, WIDTH, HEIGHT, 0, GL_RGBA, GL_FLOAT, NULL);

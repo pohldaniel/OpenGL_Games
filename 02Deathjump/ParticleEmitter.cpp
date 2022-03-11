@@ -23,15 +23,15 @@ ParticleEmitter::ParticleEmitter(const Vector4f& birthColor, const Vector4f& dea
 
 ParticleEmitter::~ParticleEmitter() {}
 
-void ParticleEmitter::Update(const float& dt) {
+void ParticleEmitter::update(const float& dt) {
 	m_elapsedTime += dt;
 	while (m_elapsedTime >= m_updateTime) {
 		m_elapsedTime -= m_updateTime;
-		UpdateParticles();
+		updateParticles();
 	}
 }
 
-void ParticleEmitter::AddParticles() {
+void ParticleEmitter::addParticles() {
 
 	for (int i = m_particles.size(); i < m_max; i++) {
 		float randX = Random::RandFloat(-m_spread, m_spread);
@@ -49,13 +49,13 @@ void ParticleEmitter::AddParticles() {
 		);
 
 		m_particles.push_back(Particle(Random::RandFloat(m_lifeTimeMin, m_lifeTimeMax), dir));
-		AddQuad(m_position);
-		SetQuadRotation(i, Random::RandInt(0, 180));
+		addQuad(m_position);
+		setQuadRotation(i, Random::RandInt(0, 180));
 	}
 }
 
 
-void ParticleEmitter::AddQuad(const Vector2f& pos) {
+void ParticleEmitter::addQuad(const Vector2f& pos) {
 	std::array<Vertex, 4> vertices;
 
 	vertices[0].posTex = Vector4f(pos[0]         , (float)HEIGHT -  pos[1]          , 0.0f, 0.0f);
@@ -69,32 +69,32 @@ void ParticleEmitter::AddQuad(const Vector2f& pos) {
 	}
 }
 
-void ParticleEmitter::UpdateParticles() {
+void ParticleEmitter::updateParticles() {
 	for (int i = 0; i < m_particles.size(); i++) {
 		auto& particle = m_particles[i];
 
 		particle.lifeTime -= 0.1f;
 
 		if (particle.lifeTime <= 0.0f) {
-			DeleteQuad(i);
+			deleteQuad(i);
 			continue;
 		}
 
 		float life = particle.lifeTime / particle.constLifeTime;
 
-		Vector4f color = Lerp(m_deathColor, m_birthColor, life);
+		Vector4f color = lerp(m_deathColor, m_birthColor, life);
 		//SetQuadColor(i, Vector4f(color[0], color[1], color[2], life));
-		SetQuadColor(i, color);
-		float scale = Lerp((96.0f * m_size) / 100.0f, m_size, life);
+		setQuadColor(i, color);
+		float scale = lerp((96.0f * m_size) / 100.0f, m_size, life);
 
-		SetQuadScale(i, scale / m_size);
+		setQuadScale(i, scale / m_size);
 
-		MoveQuad(i, particle.direction);
+		moveQuad(i, particle.direction);
 	}
 }
 
 
-void ParticleEmitter::DeleteQuad(unsigned index) {
+void ParticleEmitter::deleteQuad(unsigned index) {
 	m_particles.erase(m_particles.begin() + index);
 
 	index *= 4;
@@ -102,14 +102,14 @@ void ParticleEmitter::DeleteQuad(unsigned index) {
 		m_vertices.erase(m_vertices.begin() + index);
 }
 
-void ParticleEmitter::SetQuadColor(unsigned index, const Vector4f& color) {
+void ParticleEmitter::setQuadColor(unsigned index, const Vector4f& color) {
 	index *= 4;
 
 	for (int i = index; i < index + 4; i++)
 		m_vertices[i].color = color;
 }
 
-void ParticleEmitter::SetQuadScale(unsigned index, const float& scale) {
+void ParticleEmitter::setQuadScale(unsigned index, const float& scale) {
 	index *= 4;
 
 	float sizeX = (m_vertices[index].posTex[0] - m_vertices[index + 1].posTex[0]) / 2.0f;
@@ -123,7 +123,7 @@ void ParticleEmitter::SetQuadScale(unsigned index, const float& scale) {
 	}	
 }
 
-void ParticleEmitter::SetQuadRotation(unsigned index, const float& angle) {
+void ParticleEmitter::setQuadRotation(unsigned index, const float& angle) {
 	index *= 4;
 
 	float sizeX = (m_vertices[index].posTex[0] - m_vertices[index + 1].posTex[0]) / 2.0f;
@@ -137,7 +137,7 @@ void ParticleEmitter::SetQuadRotation(unsigned index, const float& angle) {
 	}
 }
 
-void ParticleEmitter::MoveQuad(unsigned index, const Vector2f& dir) {
+void ParticleEmitter::moveQuad(unsigned index, const Vector2f& dir) {
 	index *= 4;
 
 	const Vector2f velocity = Vector2f(m_movementSpeed * dir[0], m_movementSpeed * dir[1]);
@@ -222,51 +222,51 @@ void ParticleEmitter::render2() {
 	m_vertices.resize(0);
 }
 
-void ParticleEmitter::SetPosition(const Vector2f& pos) {
+void ParticleEmitter::setPosition(const Vector2f& pos) {
 	m_position = pos;
 }
 
-void ParticleEmitter::SetDirection(const Vector2f& dir) {
+void ParticleEmitter::setDirection(const Vector2f& dir) {
 	m_direction = dir;
 }
 
-void ParticleEmitter::SetLifeTimeRange(const float& min, const float& max) {
+void ParticleEmitter::setLifeTimeRange(const float& min, const float& max) {
 	m_lifeTimeMin = min;
 	m_lifeTimeMax = max;
 }
 
-void ParticleEmitter::SetSpeed(const float& speed) {
+void ParticleEmitter::setSpeed(const float& speed) {
 	m_movementSpeed = speed;
 }
-void ParticleEmitter::SetBirthColor(Vector4f& color) {
+void ParticleEmitter::setBirthColor(Vector4f& color) {
 	m_birthColor = color;
 }
-void ParticleEmitter::SetDeathColor(Vector4f& color) {
+void ParticleEmitter::setDeathColor(Vector4f& color) {
 	m_deathColor = color;
 }
 
-void ParticleEmitter::SetParticleMax(unsigned max) {
+void ParticleEmitter::setParticleMax(unsigned max) {
 	m_max = max;
 }
 
-void ParticleEmitter::SetSpread(float spraed) {
+void ParticleEmitter::setSpread(float spraed) {
 	m_spread = spraed;
 }
 
-void ParticleEmitter::SetSize(unsigned size) {
+void ParticleEmitter::setSize(unsigned size) {
 	m_size = size;
 }
 
-void ParticleEmitter::Clear() {
+void ParticleEmitter::clear() {
 	m_particles.clear();
 	//m_vertices.clear();
 }
 
-Vector4f ParticleEmitter::Lerp(const Vector4f& x, const Vector4f& y, const float& t) {
+Vector4f ParticleEmitter::lerp(const Vector4f& x, const Vector4f& y, const float& t) {
 	return ((1.f - t) * x) + (t * y);
 }
 
-float ParticleEmitter::Lerp(const float& x, const float& y, const float& t) {
+float ParticleEmitter::lerp(const float& x, const float& y, const float& t) {
 	return x * (1.f - t) + y * t;
 }
 

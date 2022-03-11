@@ -4,8 +4,9 @@
 Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fdt) {
 	initWindow();
 	initOpenGL();
+	loadTextures();
 	initStates();
-
+	
 	m_enableVerticalSync = true;
 	m_enableWireframe = false;	
 
@@ -13,6 +14,12 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 }
 
 Application::~Application() {
+
+	delete m_machine;
+	Globals::shaderManager.clear();
+	Globals::textureManager.clear();
+	Globals::fontManager.clear();
+	AssetManagerStatic<Texture>::get().clear();	
 	UnregisterClass("WINDOWCLASS", (HINSTANCE)GetModuleHandle(NULL));
 }
 
@@ -284,4 +291,27 @@ void Application::processInput() {
 	std::cout << Globals::cursorPosEye.x << "  " << Globals::cursorPosEye.y << "  " << Globals::cursorPosEye.z << std::endl;*/
 
 	Globals::lMouseButton = (GetKeyState(VK_LBUTTON) & 0x8000) != 0;
+}
+
+void Application::loadTextures() {
+	
+	Globals::textureManager.loadTexture("player", "res/textures/player.png");
+	//Globals::textureManager.loadTexture("background", "res/textures/background.png");
+	Globals::textureManager.loadTexture("foreground", "res/textures/map.png");
+	Globals::textureManager.loadTexture("menu", "res/textures/menu.png");	
+	AssetManagerStatic<Texture>::get().loadTexture("background", "res/textures/background.png");
+
+	//becarful with the uniforms some shader are used at multiple places
+	Globals::shaderManager.loadShader("fog", "shader/fog.vs", "shader/fog.fs");
+	Globals::shaderManager.loadShader("quad", "shader/quad.vs", "shader/quad.fs");
+	Globals::shaderManager.loadShader("quad_color", "shader/quad_color.vs", "shader/quad_color.fs");
+	Globals::shaderManager.loadShader("quad_color_single", "shader/quad_color_single.vs", "shader/quad_color_single.fs");
+	Globals::shaderManager.loadShader("quad_array", "shader/quad_array.vs", "shader/quad_array.fs");
+	Globals::shaderManager.loadShader("light", "shader/light.vs", "shader/light.fs");
+	Globals::shaderManager.loadShader("transition", "shader/transition.vs", "shader/transition.fs");
+	Globals::shaderManager.loadShader("blur", "shader/blur.vs", "shader/blur.fs");
+	Globals::shaderManager.loadShader("text", "shader/text.vs", "shader/text.fs");
+
+
+	Globals::fontManager.loadCharacterSet("font_90", "res/fonts/upheavtt.ttf", 90.0f);
 }

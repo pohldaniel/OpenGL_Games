@@ -6,7 +6,7 @@
 class Texture{
 
 public:
-	Texture(){}
+	Texture() = default;
 	Texture(std::string pictureFile, const bool flipVertical = false);
 	~Texture();
 

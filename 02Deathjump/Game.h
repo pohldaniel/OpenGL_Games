@@ -26,17 +26,13 @@ public:
 
 private:
 
-	void InitCountdown();
-	void InitSprites();
-	void InitWalls();
-	void InitAssets();
-	void InitLights();
+	void initSprites();
+	void initWalls();
+	void initLights();
 
 	Player* m_player;
 
-	std::unordered_map<std::string, unsigned int> m_Sprites;
-
-	AssetManager<Texture> m_TextureManager;
+	std::unordered_map<std::string, unsigned int> m_sprites;
 
 	std::vector<Wall> m_walls;
 	std::vector<Light> m_lights;
@@ -67,6 +63,7 @@ private:
 
 	void UpdateTimers();
 	void InitTimers();
+	void InitCountdown();
 
 	void UpdateCountdown();	
 };

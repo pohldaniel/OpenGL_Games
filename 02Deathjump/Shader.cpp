@@ -12,6 +12,15 @@ Shader::~Shader() {
 	cleanup();
 }
 
+void Shader::loadFromFile(std::string vertex, std::string fragment) {
+	m_program = createProgram(vertex, fragment);
+}
+
+
+Shader& Shader::get() {
+	return *this;
+}
+
 //OpenGL specifies matrices as column-major to get row-major just transpose it
 void Shader::loadMatrix(const char* location, const Matrix4f matrix) {
 	glUniformMatrix4fv(glGetUniformLocation(m_program, location), 1, true, &matrix[0][0]);
@@ -105,7 +114,6 @@ GLuint Shader::compileShader(GLenum type, const char *pszSource) {
 	}
 	return shader;
 }
-
 
 GLuint Shader::linkShaders(GLuint vertShader, GLuint fragShader) {
 

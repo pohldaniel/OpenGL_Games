@@ -3,27 +3,24 @@
 #include "Random.h"
 #include "Menu.h"
 #include "Pause.h"
-
-//#include "Key Check.hpp"
-
-Game::Game(StateMachine& machine) : State(machine){
-	InitAssets();
+#include "AssetManger.h"
+Game::Game(StateMachine& machine) : State(machine){	
 	InitEntities();
-	InitWalls();
-	InitSprites();
-	InitLights();
+	initWalls();
+	initSprites();
+	initLights();
 	InitCountdown();
 	InitTimers();
 
-	m_shader = new Shader("shader/quad.vs", "shader/quad.fs");
-	m_quad = new Quad();
+	m_shader = Globals::shaderManager.getAssetPointer("quad");
+	m_quad = new Quad(false);
 
 	m_quadBackground = new Quad(false, 0.0f, 0.0f, 1.0f, 1.2f, 1.0f, 1.0f);
 	//m_transBackground = Matrix4f::Translate(0.0, -0.2, 0.0);
 	m_transBackground = Matrix4f::Translate(m_transBackground, 0.0, -0.2, 0.0);
-
-	m_fog = new Quad();
-	m_shaderFog = new Shader("shader/fog.vs", "shader/fog.fs");
+	
+	m_fog = new Quad(false);
+	m_shaderFog = Globals::shaderManager.getAssetPointer("fog");
 }
 
 Game::~Game() {
@@ -53,14 +50,14 @@ void Game::render(unsigned int &frameBuffer) {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	glUseProgram(m_shader->m_program);
 	m_shader->loadMatrix("u_transform", m_transBackground);
-	m_quadBackground->render(m_Sprites["background"]);
+	m_quadBackground->render(m_sprites["background"]);
 	glUseProgram(0);
 	
 	m_player->render();
 
 	glUseProgram(m_shader->m_program);
 	m_shader->loadMatrix("u_transform", Matrix4f::IDENTITY);
-	m_quad->render(m_Sprites["foreground"]);
+	m_quad->render(m_sprites["foreground"]);
 	glUseProgram(0);
 
 	glEnable(GL_BLEND);
@@ -130,7 +127,7 @@ void Game::InitCountdown() {
 	
 }
 
-void Game::InitLights() {
+void Game::initLights() {
 	m_lights.push_back(Light(Vector2f(460.0f, 490.0f), 275.0f));
 	m_lights.push_back(Light(Vector2f(210.0f, 200.0f), 275.0f));
 	m_lights.push_back(Light(Vector2f(1125.0f, 395.0f), 275.0f));
@@ -138,28 +135,14 @@ void Game::InitLights() {
 }
 
 
-void Game::InitSprites() {
-	
-	m_Sprites["foreground"] = m_TextureManager.Get("foreground").getTexture();
-
-	/*auto& sf = m_Sprites["foreground"];
-	sf = m_TextureManager.Get("foreground").getTexture();
-	sf.setTexture(m_TextureManager.Get("foreground"));
-	sf.setScale(sf::Vector2f(2.0f, 2.0f));
-	sf.setPosition(sf::Vector2f(0.0f, 4.0f));*/
-	
-	m_Sprites["background"] = m_TextureManager.Get("background").getTexture();
-	
-	/*auto& sb = m_Sprites["background"];
-	sb = m_TextureManager.Get("background").getTexture();
-
-	sb.setTexture(m_TextureManager.Get("background"));
-	sb.setScale(sf::Vector2f(6.0f, 6.0f));
-	sb.setPosition(sf::Vector2f(0.0f, 4.0f));*/
-	m_Sprites["player"] = m_TextureManager.Get("player").getTexture();
+void Game::initSprites() {
+	m_sprites["foreground"] = Globals::textureManager.get("foreground").getTexture();
+	//m_Sprites["background"] = Globals::textureManager.get("background").getTexture();
+	m_sprites["background"] = AssetManagerStatic<Texture>::get().get("background").getTexture();
+	m_sprites["player"] = Globals::textureManager.get("player").getTexture();
 }
 
-void Game::InitWalls() {
+void Game::initWalls() {
 	m_walls.push_back(Wall(Vector2f(WIDTH / 2.0f, 855.0f), Vector2f(WIDTH, 100.0f)));
 	m_walls.push_back(Wall(Vector2f(800.0f, 772.0f), Vector2f(64.0f, 64.0f)));
 	m_walls.push_back(Wall(Vector2f(640.0f, 660.0f), Vector2f(128.0f, 32.0f)));
@@ -177,10 +160,4 @@ void Game::InitWalls() {
 	m_walls.push_back(Wall(Vector2f(960.0f, 244.0f), Vector2f(192.0f, 32.0f)));
 	m_walls.push_back(Wall(Vector2f(1230.0f, 180.0f), Vector2f(160.0f, 32.0f)));
 	m_walls.push_back(Wall(Vector2f(1490.0f, 116.0f), Vector2f(160.0f, 32.0f)));
-}
-
-void Game::InitAssets() {
-	m_TextureManager.Load("player", "res/textures/player.png");
-	m_TextureManager.Load("background", "res/textures/background.png", true, false);
-	m_TextureManager.Load("foreground", "res/textures/map.png");		
 }

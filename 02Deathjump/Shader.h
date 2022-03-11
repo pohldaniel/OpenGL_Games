@@ -13,12 +13,13 @@
 class Shader {
 
 public:
-
+	Shader() = default;
 	Shader(std::string vertex, std::string fragment);
 	Shader(Shader* shader);
 	~Shader();
 
-	GLuint m_program;
+	void loadFromFile(std::string vertex, std::string fragment);
+	Shader& get();
 
 	void loadMatrix(const char* location, const Matrix4f matrix);
 	void loadMatrixArray(const char* location, const std::vector<Matrix4f> matrixArray, const short count);
@@ -29,6 +30,8 @@ public:
 	void loadFloat(const char* location, float value);
 	void loadBool(const char* location, bool value);
 	void loadInt(const char* location, int value);
+
+	GLuint m_program;
 
 protected:
 

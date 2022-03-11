@@ -1,12 +1,14 @@
 #include "Player.h"
 
-Player::Player(const float& dt, const float& fdt) : Entity(dt, fdt){	
-	initAnimations();	
+Player::Player(const float& dt, const float& fdt) : Entity(dt, fdt){		
+	
+	m_shaderArray = Globals::shaderManager.getAssetPointer("quad_array");
+	m_quad = new Quad(true, 1.0f, -1.0f, m_playerSize[0], m_playerSize[1]);
+
 	initBody();
 	initCollider();
-	
-	m_shaderArray = new Shader("shader/quad_array.vs", "shader/quad_array.fs");
-	m_quad = new Quad(true, 0.0f, 0.0f, xScale * 2.0f, yScale * 2.0f, 1.0, 1.0);
+	initAnimations();
+	initEmitters();
 }
 
 Player::~Player() {
@@ -21,6 +23,7 @@ void Player::fixedUpdate() {
 void Player::update() {
 	animate();
 	updateVelocity();
+	updateEmitters();
 	keepInBorders();
 }
 
@@ -59,7 +62,7 @@ void Player::resolveCollision(std::vector<Wall>& walls) {
 	 
 		m_collider.position += MTV;
 
-		this->setPosition(m_collider.position);
+		setPosition(m_collider.position);
 
 		if (MTV[0] != 0.0f && m_velocity[1] > 0.0f && m_movable) {
 			bool diffY = m_collider.position[1] - m_collider.size[1] / 2.0f > o.getCollider().getBody().position[1] - o.getCollider().getBody().size[1];
@@ -145,12 +148,19 @@ void Player::crouch() {
 		m_velocity[0] = 0.0f;
 		m_collider.size[1] = 40.0f;
 
-		if (!wasCrouching)
+		if (!wasCrouching) {
 			m_collider.position[1] += 20.0f;
+			//setOrigin(Vector2f(m_size[0] * 0.5, m_size[1] - 20.0f));
+			setOrigin(Vector2f(m_playerSize[0], m_size[1] - 20.0f));
+		}
+		
 	}else {
 		m_collider.size[1] = 80.0f;
-		if (wasCrouching)
+		if (wasCrouching) {
 			m_collider.position[1] -= 20.0f;
+			//setOrigin(Vector2f(m_size[0] * 0.5, m_size[1] - 40.0f));
+			setOrigin(Vector2f(m_playerSize[0], m_size[1] - 40.0f));
+		}
 	}
 }
 
@@ -163,7 +173,7 @@ void Player::move() {
 	float vel = abs(m_velocity[0]);
 	m_velocity[0] = (vel < 8.0f ? 0.0f : m_velocity[0]);
 
-	this->setPosition(m_grabbing ? Vector2f(m_collider.position[0] + 5.0f * 2.0f * 0.5f, m_collider.position[1]) : m_collider.position);
+	setPosition(m_grabbing ? Vector2f(m_collider.position[0] + 5.0f * 2.0f * 0.5f, m_collider.position[1]) : m_collider.position);
 }
 
 void Player::updateVelocity() {
@@ -193,7 +203,22 @@ void Player::updateVelocity() {
 		m_velocity[0] = m_movementSpeed;
 		m_quad->setFlipped(false);
 	}
+}
 
+void Player::updateEmitters() {
+	m_emitter->setDirection(Vector2f((m_velocity[0] < 0.0f ? 1.0f : -1.0f), 0.0f));
+
+	m_emitter->setPosition(Vector2f(m_collider.position[0], m_collider.position[1] - 10.0f));
+	if (m_velocity[0] != 0.0f)
+		m_emitter->addParticles();
+	m_emitter->update(i_dt);
+
+	m_fallEmitter->setPosition(Vector2f(m_collider.position[0] - 10.0f, m_collider.position[1] + 22.0f));
+	if (!m_wasGrounded && m_grounded) {
+		m_fallEmitter->addParticles();
+		m_wasGrounded = true;
+	}
+	m_fallEmitter->update(i_dt);
 }
 
 void Player::initAnimations() {
@@ -208,12 +233,12 @@ void Player::initAnimations() {
 	m_Animations["crouch"].create("res/textures/player.png", 9, 5, 0.06f, *m_textureAtlas, *m_currentFrame);
 	m_Animations["grab"].create("res/textures/player.png", 15, 0, 0.1f, *m_textureAtlas, *m_currentFrame);
 	m_Animations["takedamage"].create("res/textures/player.png", 17, 5, 0.08f, *m_textureAtlas, *m_currentFrame);
-
 }
 
-void Player::initBody() {
-	this->setSize(Vector2f(96.0f, 84.0f));
-	this->setPosition(Vector2f(WIDTH, HEIGHT) / 2.0f);
+void Player::initBody() {	
+	setPosition(Vector2f(WIDTH, HEIGHT) / 2.0f);
+	setSize(Vector2f(m_quad->getScale()[0] * m_playerSize[0], m_quad->getScale()[0] * m_playerSize[1]));
+	setOrigin(Vector2f(m_size[0] * 0.5f, m_size[1] / 1.315f));
 }
 
 void Player::initCollider() {
@@ -222,9 +247,28 @@ void Player::initCollider() {
 	m_collider.size = size;
 }
 
+void Player::initEmitters() {
+
+	m_emitter = new ParticleEmitter(Vector4f(1.0f, 0.0f, 0.0f, 1.0f), Vector4f(1.0f, 1.0f, 1.0f, 0.0f), 15);
+	m_emitter->setLifeTimeRange(0.5f, 2.0f);
+	m_emitter->setSpeed(1.5f);
+
+	m_fallEmitter = new ParticleEmitter(Vector4f(0.31f, 0.18f, 0.1f, 1.0f), Vector4f(0.08f, 0.19f, 0.071, 0.0f), 13);
+	m_fallEmitter->setLifeTimeRange(0.5f, 1.5f);
+	m_fallEmitter->setDirection(Vector2f(0, -1));
+	m_fallEmitter->setSpread(4.59f);
+	m_fallEmitter->setSpeed(1.1f);
+	m_fallEmitter->setParticleMax(35);
+}
+
 void Player::render() const{	
+	glEnable(GL_BLEND);
+	m_emitter->render();
+	m_fallEmitter->render();
+	glDisable(GL_BLEND);
+
 	glUseProgram(m_shaderArray->m_program);
-	m_shaderArray->loadMatrix("u_transform", m_transform);
+	m_shaderArray->loadMatrix("u_transform", m_transform * Globals::projection);
 	m_shaderArray->loadInt("u_layer", *m_currentFrame);
 	m_quad->render(*m_textureAtlas, true);
 	glUseProgram(0);

@@ -12,16 +12,12 @@ Collision Entity::getCollider() {
 void Entity::setSize(float x, float y) {
 	m_size[0] = x;
 	m_size[1] = y;
-
-	xScale = x / (float)(WIDTH);
-	yScale = y / (float)(HEIGHT);	
 }
 
 void Entity::setSize(const Vector2f &size) {
 	m_size = size;
 
-	xScale = size[0] / (float)(WIDTH);
-	yScale = size[1] / (float)(HEIGHT);
+	
 }
 
 void Entity::setPosition(float x, float y) {
@@ -29,14 +25,23 @@ void Entity::setPosition(float x, float y) {
 	m_position[1] = y;
 
 	//m_transform.translate(x  * xTrans - 1.0f, yTrans * (HEIGHT - y) - 1.0f, 0.0f);
-	m_transform.translate(x * xTrans - 1.0f, yTrans * (HEIGHT - y + 0.5f * m_size[1]) - 1.0f, 0.0f);
+	//m_transform.translate(x * xTrans - 1.0f, yTrans * (HEIGHT - y + 0.5f * m_size[1]) - 1.0f, 0.0f);
+
+	m_transform.translate((m_position[0] - m_origin[0]), (HEIGHT - m_position[1] + m_origin[1]), 0.0f);
 }
 
 void Entity::setPosition(const Vector2f &position) {
 	m_position = position;
 
 	//m_transform.translate(position[0]  * xTrans - 1.0f, yTrans * (HEIGHT - position[1]) - 1.0f, 0.0f);
-	m_transform.translate(position[0] * xTrans - 1.0f, yTrans * (HEIGHT - position[1] + 0.5f * m_size[1]) - 1.0f, 0.0f);
+	//m_transform.translate(position[0] * xTrans - 1.0f, yTrans * (HEIGHT - position[1] + 0.5f * m_size[1]) - 1.0f, 0.0f);
+
+	m_transform.translate((m_position[0] - m_origin[0]), (HEIGHT - m_position[1] + m_origin[1]), 0.0f);
+}
+
+void Entity::setOrigin(const Vector2f &origin) {
+	m_origin = origin;
+	m_transform.translate((m_position[0] - m_origin[0]), (HEIGHT - m_position[1] + m_origin[1]), 0.0f);
 }
 
 const Vector2f &Entity::getPosition() const{

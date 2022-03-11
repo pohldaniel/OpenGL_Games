@@ -7,7 +7,7 @@ Transition& Transition::get() {
 }
 
 void Transition::init() {
-	m_shader = new Shader("shader/transition.vs", "shader/transition.fs");
+	m_shader = Globals::shaderManager.getAssetPointer("transition");
 
 	glUseProgram(m_shader->m_program);
 	m_shader->loadVector("u_resolution", Vector2f(WIDTH, HEIGHT));

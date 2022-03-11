@@ -1,6 +1,10 @@
 #ifndef __constantsH__
 #define __constantsH__
 #include "Vector.h"
+#include "AssetManger.h"
+#include "Texture.h"
+#include "Shader.h"
+#include "CharacterSet.h"
 
 #define PHYSICS_STEP	0.01f
 
@@ -56,6 +60,11 @@ namespace Globals{
 
 	extern Matrix4f projection;
 	extern Matrix4f invProjection;
+
+	extern AssetManagerStatic<Texture> textureManager;
+	extern AssetManager<Shader> shaderManager;
+	extern AssetManager<CharacterSet> fontManager;
+	//extern AssetManager<Font> fontManager;
 }
 
 #endif
