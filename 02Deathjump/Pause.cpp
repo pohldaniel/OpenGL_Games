@@ -43,7 +43,12 @@ Pause::Pause(StateMachine& machine) : State(machine) {
 	});
 }
 
-Pause::~Pause() {}
+Pause::~Pause() {
+	delete m_quad;
+	delete m_text;
+	for (auto& b : m_buttons)
+		b.second.~Button();
+}
 
 void Pause::fixedUpdate() {}
 

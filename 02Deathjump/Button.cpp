@@ -18,24 +18,24 @@ Button::Button(std::string label, const Vector2f &position, const Vector4f& colo
 
 //copy constructor is necessary for putting the button inside a stl container at Menu.cpp
 //https://stackoverflow.com/questions/8897239/stdpair-and-class-destructors
-Button::Button(Button const& other) {
-	m_position = other.m_position;
-	m_origin = other.m_origin;
-	m_thickness = other.m_thickness;
-	m_size = other.m_size;
-	m_transform = other.m_transform;
-	m_transformOutline = other.m_transformOutline;
-	m_fillColor = other.m_fillColor;
+Button::Button(Button const& rhs) {
+	m_position = rhs.m_position;
+	m_origin = rhs.m_origin;
+	m_thickness = rhs.m_thickness;
+	m_size = rhs.m_size;
+	m_transform = rhs.m_transform;
+	m_transformOutline = rhs.m_transformOutline;
+	m_fillColor = rhs.m_fillColor;
 	
 	//just pass over the shader but destruct them in the shaderManager once
 	m_shader = new Shader();
-	*m_shader = *other.m_shader;
+	*m_shader = *rhs.m_shader;
 
 	m_quad = new Quad();
-	std::swap(*m_quad, *other.m_quad);
+	std::swap(*m_quad, *rhs.m_quad);
 
 	m_text = new Text();
-	std::swap(*m_text, *other.m_text);
+	std::swap(*m_text, *rhs.m_text);
 }
 
 //copy assignment operators is necessary for initialize the button at Settings.cpp

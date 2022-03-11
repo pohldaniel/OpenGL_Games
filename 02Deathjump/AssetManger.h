@@ -81,14 +81,12 @@ public:
 		}
 	}
 	
-	
 	AssetManagerStatic() {}
 	~AssetManagerStatic() {}
 	
 private:
 	std::unordered_map<std::string, T> m_assets;
 	std::unordered_map<std::string, T*> m_assetPointer;
-
 	static AssetManagerStatic s_instance;
 };
 

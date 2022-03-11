@@ -33,7 +33,10 @@ Settings::Settings(StateMachine& machine) : State(machine) {
 }
 
 Settings::~Settings() {
-	m_button.~Button();
+	delete m_quad;
+	delete m_text;
+	delete m_emitter;
+	m_button.~Button();	
 }
 
 void Settings::fixedUpdate() {}

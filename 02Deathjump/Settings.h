@@ -17,18 +17,17 @@ public:
 	virtual void render(unsigned int &m_frameBuffer) override;
 
 private:
-	std::unordered_map<std::string, unsigned int> m_sprites;
-
-	Quad *m_quad;
+	
 	Shader *m_shader;
 	Shader *m_shaderBlur;
 
-	void initSprites();
-
-
-
-	Button m_button;
+	Quad *m_quad;	
 	Text* m_text;
-
 	ParticleEmitter* m_emitter;
+
+	std::unordered_map<std::string, unsigned int> m_sprites;
+	Button m_button;
+
+	void initSprites();
+	
 };

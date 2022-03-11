@@ -1,7 +1,8 @@
 #include "Batchrenderer.h"
 #include <algorithm>
-Batchrenderer::~Batchrenderer() {
 
+Batchrenderer::~Batchrenderer() {
+	shutdown();
 }
 
 void Batchrenderer::init() {
@@ -10,11 +11,11 @@ void Batchrenderer::init() {
 	buffer = new Vertex[max_quad_vert_count];
 	//_buffer.resize(max_quad_vert_count);
 
-	glGenVertexArrays(1, &VAO);
-	glBindVertexArray(VAO);
+	glGenVertexArrays(1, &m_vao);
+	glBindVertexArray(m_vao);
 
-	glGenBuffers(1, &VBO);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glGenBuffers(1, &m_vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
 	glBufferData(GL_ARRAY_BUFFER, max_quad_vert_count * sizeof(Vertex), nullptr, GL_DYNAMIC_DRAW); // dynamic
 
 	glEnableVertexAttribArray(0);
@@ -24,7 +25,6 @@ void Batchrenderer::init() {
 	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const void*)(4 * sizeof(float)));
 
 	
-
 	uint32_t indices[max_quad_index_count];
 	uint32_t index_offset = 0;
 	for (int i = 0; i < max_quad_index_count; i += 6) {
@@ -39,13 +39,15 @@ void Batchrenderer::init() {
 		index_offset += 4;
 	}
 
-	glGenBuffers(1, &EBO);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	glGenBuffers(1, &m_indexbuffer);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_indexbuffer);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
 	// unbind vbo and vao
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
+
+	glDeleteBuffers(1, &m_indexbuffer);
 }
 
 void Batchrenderer::resetStats() {
@@ -54,18 +56,20 @@ void Batchrenderer::resetStats() {
 }
 
 void Batchrenderer::shutdown(){
-	glDeleteVertexArrays(1, &VAO);
-	glDeleteBuffers(1, &VBO);
-	glDeleteBuffers(1, &EBO);
+	glDeleteBuffers(1, &m_vbo);
+	glDeleteVertexArrays(1, &m_vao);
 
 	delete[] buffer;
+
+	_buffer.clear();
+	_buffer.shrink_to_fit();
 }
 
 void Batchrenderer::endBatch(){
 	GLsizeiptr size = (uint8_t*)buffer_ptr - (uint8_t*)buffer;
 
 	// Set dynamic vertex buffer & upload data
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
 	// glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(Vertex), vertices.data());
 	glBufferSubData(GL_ARRAY_BUFFER, 0, size, buffer);
 }
@@ -75,7 +79,7 @@ void Batchrenderer::flush(){
 
 	glUseProgram(m_shader->m_program);
 	m_shader->loadMatrix("u_transform", Globals::projection);
-	glBindVertexArray(VAO);
+	glBindVertexArray(m_vao);
 	glDrawElements(GL_TRIANGLES, index_count, GL_UNSIGNED_INT, nullptr);
 
 	draw_calls += 1;
@@ -104,8 +108,6 @@ void Batchrenderer::addQuad(Vector2f position, Vector2f size, Vector4f color){
   float w = size[0];
   float h = size[1];
 
-
-
   buffer_ptr->posTex = { xpos, ypos, 0.0f, 0.0f};
   buffer_ptr->color = color;
   buffer_ptr++;
@@ -124,8 +126,6 @@ void Batchrenderer::addQuad(Vector2f position, Vector2f size, Vector4f color){
 
   index_count += 6;
   quad_vertex += 4;
-
-  std::cout << index_count << std::endl;
 }
 
 void Batchrenderer::addVertex(Vector2f position, Vector4f color) {
@@ -134,10 +134,10 @@ void Batchrenderer::addVertex(Vector2f position, Vector4f color) {
 		flush();
 		beginBatch();
 	}
+
 	float xpos = position[0];
 	float ypos = position[1];
 	
-
 	buffer_ptr->posTex = { xpos, ypos, 0.0f, 0.0f };
 	buffer_ptr->color = color;
 	buffer_ptr++;
@@ -164,7 +164,7 @@ void Batchrenderer::addQuad(std::vector<Vertex> particles) {
 
 void Batchrenderer::endBatch2() {
 	// Set dynamic vertex buffer & upload data
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
 	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vertex) * _buffer.size(), &_buffer[0]);
 }
 void Batchrenderer::beginBatch2() {
@@ -174,7 +174,7 @@ void Batchrenderer::beginBatch2() {
 void Batchrenderer::flush2() {
 	glUseProgram(m_shader->m_program);
 	m_shader->loadMatrix("u_transform", Globals::projection);
-	glBindVertexArray(VAO);
+	glBindVertexArray(m_vao);
 	glDrawElements(GL_TRIANGLES, index_count, GL_UNSIGNED_INT, nullptr);
 
 	draw_calls += 1;
@@ -185,7 +185,7 @@ void Batchrenderer::flush2() {
 	glBindVertexArray(0);
 	glUseProgram(0);
 
-	std::cout << "Draw Calls: " << draw_calls << std::endl;
+	//std::cout << "Draw Calls: " << draw_calls << std::endl;
 }
 
 void Batchrenderer::resetStats2() {

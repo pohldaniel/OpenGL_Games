@@ -12,8 +12,9 @@ Player::Player(const float& dt, const float& fdt) : Entity(dt, fdt){
 }
 
 Player::~Player() {
-	delete m_textureAtlas;
-	delete m_currentFrame;
+	delete m_quad;
+	delete m_emitter;
+	delete m_fallEmitter;
 }
 
 void Player::fixedUpdate() {

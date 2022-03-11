@@ -19,8 +19,15 @@ Application::~Application() {
 	Globals::shaderManager.clear();
 	Globals::textureManager.clear();
 	Globals::fontManager.clear();
+
 	AssetManagerStatic<Texture>::get().clear();	
 	UnregisterClass("WINDOWCLASS", (HINSTANCE)GetModuleHandle(NULL));
+
+	//release OpenGL context
+	wglMakeCurrent(GetDC(m_window), 0);
+	wglDeleteContext(wglGetCurrentContext());
+	ReleaseDC(m_window, GetDC(m_window));
+
 }
 
 bool Application::initWindow() {

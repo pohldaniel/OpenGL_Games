@@ -1,12 +1,10 @@
 #include "Random.h"
 #include "Light.h"
 
-Light::Light(const Vector2f &position, float radius) {
+Light::Light(const Vector2f &position, float radius) : Light() {
 	m_position = position;
-	m_radius = radius;
 	m_shader = Globals::shaderManager.getAssetPointer("light");
 	m_quad = new Quad(false, 1.0f, -1.0f, radius  * 0.5, radius * 0.5 , 1.0, 1.0, 0, 1);
-
 
 	setOrigin(Vector2f(radius, radius) / 2.0f);
 
@@ -16,7 +14,22 @@ Light::Light(const Vector2f &position, float radius) {
 	m_move = (float)r1 / (float)r2;
 }
 
-Light::~Light() {}
+Light::Light(Light const& rhs) {
+	m_position = rhs.m_position;
+	m_origin = rhs.m_origin;
+	m_move = rhs.m_move;
+	m_transform = rhs.m_transform;
+
+	m_shader = new Shader();
+	*m_shader = *rhs.m_shader;
+
+	m_quad = new Quad();
+	std::swap(*m_quad, *rhs.m_quad);
+}
+
+Light::~Light() {
+	delete m_quad;
+}
 
 void Light::setPosition(const Vector2f &position) {
 	m_position = position;

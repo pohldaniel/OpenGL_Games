@@ -21,7 +21,9 @@ ParticleEmitter::ParticleEmitter(const Vector4f& birthColor, const Vector4f& dea
 	m_deathColor = deathColor;
 }
 
-ParticleEmitter::~ParticleEmitter() {}
+ParticleEmitter::~ParticleEmitter() {
+	delete m_batchrenderer;
+}
 
 void ParticleEmitter::update(const float& dt) {
 	m_elapsedTime += dt;

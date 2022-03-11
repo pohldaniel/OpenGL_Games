@@ -17,14 +17,16 @@ public:
 
 	Collision getCollider();
 
-	void setSize(float x, float y);
+	void setSize(const float x, const float y);
 	void setSize(const Vector2f &size);
-	void setPosition(float x, float y);
+	void setPosition(const float x, const float y);
 	void setPosition(const Vector2f &position);
+	void setOrigin(const float x, const float y);
 	void setOrigin(const Vector2f &origin);
 
 	const Vector2f &getPosition() const;
 	const Vector2f &getSize() const;
+	const Vector2f &getOrigin() const;
 
 protected:
 	Collider m_collider;
@@ -38,7 +40,5 @@ protected:
 	Matrix4f m_transform = Matrix4f::IDENTITY;
 
 	const float& i_fdt;
-	const float& i_dt;
-
-	
+	const float& i_dt;	
 };

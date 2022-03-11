@@ -3,39 +3,37 @@
 Entity::Entity(const float& dt, const float& fdt) : i_dt(dt), i_fdt(fdt){}
 
 Entity::~Entity() {
+	delete m_textureAtlas;
+	delete m_currentFrame;
 }
 
 Collision Entity::getCollider() { 
 	return m_collider;
 }
 
-void Entity::setSize(float x, float y) {
+void Entity::setSize(const float x, const float y) {
 	m_size[0] = x;
 	m_size[1] = y;
 }
 
 void Entity::setSize(const Vector2f &size) {
-	m_size = size;
-
-	
+	m_size = size;	
 }
 
-void Entity::setPosition(float x, float y) {
+void Entity::setPosition(const float x, const float y) {
 	m_position[0] = x;
 	m_position[1] = y;
-
-	//m_transform.translate(x  * xTrans - 1.0f, yTrans * (HEIGHT - y) - 1.0f, 0.0f);
-	//m_transform.translate(x * xTrans - 1.0f, yTrans * (HEIGHT - y + 0.5f * m_size[1]) - 1.0f, 0.0f);
-
 	m_transform.translate((m_position[0] - m_origin[0]), (HEIGHT - m_position[1] + m_origin[1]), 0.0f);
 }
 
 void Entity::setPosition(const Vector2f &position) {
 	m_position = position;
+	m_transform.translate((m_position[0] - m_origin[0]), (HEIGHT - m_position[1] + m_origin[1]), 0.0f);
+}
 
-	//m_transform.translate(position[0]  * xTrans - 1.0f, yTrans * (HEIGHT - position[1]) - 1.0f, 0.0f);
-	//m_transform.translate(position[0] * xTrans - 1.0f, yTrans * (HEIGHT - position[1] + 0.5f * m_size[1]) - 1.0f, 0.0f);
-
+void Entity::setOrigin(const float x, const float y) {
+	m_origin[0] = x;
+	m_origin[1] = y;
 	m_transform.translate((m_position[0] - m_origin[0]), (HEIGHT - m_position[1] + m_origin[1]), 0.0f);
 }
 
@@ -50,4 +48,8 @@ const Vector2f &Entity::getPosition() const{
 
 const Vector2f &Entity::getSize() const {
 	return m_size;
+}
+
+const Vector2f &Entity::getOrigin() const {
+	return m_origin;
 }

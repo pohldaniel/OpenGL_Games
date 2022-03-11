@@ -21,9 +21,9 @@ public:
 	Batchrenderer() = default;
 	~Batchrenderer();
 
-	unsigned int VAO = 0;
-	unsigned int VBO = 0;
-	unsigned int EBO = 0;
+	unsigned int m_vao = 0;
+	unsigned int m_vbo = 0;
+	unsigned int m_indexbuffer = 0;
 
 	uint32_t index_count = 0;
 

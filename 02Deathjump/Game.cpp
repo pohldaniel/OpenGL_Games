@@ -25,6 +25,9 @@ Game::Game(StateMachine& machine) : State(machine){
 
 Game::~Game() {
 	delete m_player;
+	delete m_fog;
+	delete m_quad;
+	delete m_quadBackground;
 }
 
 void Game::fixedUpdate() {

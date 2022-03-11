@@ -10,7 +10,7 @@
 class Button {
 public:
 	Button() = default;
-	Button(Button const& other);
+	Button(Button const& rhs);
 	Button& operator=(const Button& rhs);
 	Button(std::string label, const Vector4f& color);
 	Button(std::string label, const Vector2f &position, const Vector4f& color);

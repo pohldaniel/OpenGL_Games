@@ -22,8 +22,6 @@ public:
 	virtual void update() override;
 	virtual void render(unsigned int &m_frameBuffer) override;
 
-	Button* m_button;
-
 private:
 
 	void initSprites();
@@ -37,16 +35,13 @@ private:
 	std::vector<Wall> m_walls;
 	std::vector<Light> m_lights;
 
+	Shader *m_shader;
+	Shader *m_shaderFog;
+	Quad *m_fog;
 	Quad *m_quad;
 	Quad *m_quadBackground;
-	Shader *m_shader;
-
-	Quad *m_fog;
-	Shader *m_shaderFog;
+	
 	Clock m_clock;
-
-	Texture *m_texture;
-	Texture *m_background;
 
 	Timer m_enemySpawnTimer;
 	Timer m_ghostSpawnTimer;

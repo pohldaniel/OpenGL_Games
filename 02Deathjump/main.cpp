@@ -84,16 +84,5 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	application.~Application();
 
-	hdc = GetDC(hwnd);
-	wglMakeCurrent(hdc, 0);
-	wglDeleteContext(wglGetCurrentContext());
-	ReleaseDC(hwnd, hdc);
-
-	//simple workaround for holding the console at the end 
-	while (true)
-	{
-
-	}
-
 	return 0;
 }

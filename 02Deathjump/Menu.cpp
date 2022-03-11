@@ -46,6 +46,8 @@ Menu::Menu(StateMachine& machine) : State(machine) {
 }
 
 Menu::~Menu() {
+	delete m_quad;
+	delete m_text;
 	for (auto& b : m_buttons)
 		b.second.~Button();
 }

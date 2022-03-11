@@ -6,6 +6,8 @@
 
 class Light {
 public:
+	Light() = default;
+	Light(Light const& rhs);
 	Light(const Vector2f &position, float radius);
 	~Light();
 	void render() const;
@@ -14,7 +16,6 @@ public:
 
 	Shader& getShader() const;
 private:
-	float m_radius = 0.0f;
 	Vector2f m_position;
 	Vector2f m_origin;
 
@@ -23,9 +24,5 @@ private:
 
 	Matrix4f m_transform = Matrix4f::IDENTITY;
 
-	float m_move = 0.0f;
-
-	
-
-	
+	float m_move = 0.0f;	
 };
