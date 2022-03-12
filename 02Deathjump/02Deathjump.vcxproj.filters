@@ -52,6 +52,9 @@
     <Filter Include="freetype\FT_MODULES">
       <UniqueIdentifier>{f08ef2b5-a3dc-458c-924f-4d1dfac7b5a7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\Sound">
+      <UniqueIdentifier>{8f45506c-93ee-47fd-a821-4131a112e3f7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Constants.h">
@@ -149,6 +152,15 @@
     </ClInclude>
     <ClInclude Include="CharacterSet.h">
       <Filter>Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="SoundBuffer.h">
+      <Filter>Engine\Sound</Filter>
+    </ClInclude>
+    <ClInclude Include="SoundDevice.h">
+      <Filter>Engine\Sound</Filter>
+    </ClInclude>
+    <ClInclude Include="SoundSource.h">
+      <Filter>Engine\Sound</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -358,6 +370,15 @@
     </ClCompile>
     <ClCompile Include="CharacterSet.cpp">
       <Filter>Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="SoundBuffer.cpp">
+      <Filter>Engine\Sound</Filter>
+    </ClCompile>
+    <ClCompile Include="SoundDevice.cpp">
+      <Filter>Engine\Sound</Filter>
+    </ClCompile>
+    <ClCompile Include="SoundSource.cpp">
+      <Filter>Engine\Sound</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

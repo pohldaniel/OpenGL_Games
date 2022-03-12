@@ -1,0 +1,266 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\sndfile\src\aiff.c" />
+    <ClCompile Include="..\sndfile\src\alac.c" />
+    <ClCompile Include="..\sndfile\src\ALAC\ag_dec.c" />
+    <ClCompile Include="..\sndfile\src\ALAC\ag_enc.c" />
+    <ClCompile Include="..\sndfile\src\ALAC\ALACBitUtilities.c" />
+    <ClCompile Include="..\sndfile\src\ALAC\alac_decoder.c" />
+    <ClCompile Include="..\sndfile\src\ALAC\alac_encoder.c" />
+    <ClCompile Include="..\sndfile\src\ALAC\dp_dec.c" />
+    <ClCompile Include="..\sndfile\src\ALAC\dp_enc.c" />
+    <ClCompile Include="..\sndfile\src\ALAC\matrix_dec.c" />
+    <ClCompile Include="..\sndfile\src\ALAC\matrix_enc.c" />
+    <ClCompile Include="..\sndfile\src\alaw.c" />
+    <ClCompile Include="..\sndfile\src\au.c" />
+    <ClCompile Include="..\sndfile\src\audio_detect.c" />
+    <ClCompile Include="..\sndfile\src\avr.c" />
+    <ClCompile Include="..\sndfile\src\broadcast.c" />
+    <ClCompile Include="..\sndfile\src\caf.c" />
+    <ClCompile Include="..\sndfile\src\cart.c" />
+    <ClCompile Include="..\sndfile\src\chanmap.c" />
+    <ClCompile Include="..\sndfile\src\chunk.c" />
+    <ClCompile Include="..\sndfile\src\command.c" />
+    <ClCompile Include="..\sndfile\src\common.c" />
+    <ClCompile Include="..\sndfile\src\dither.c" />
+    <ClCompile Include="..\sndfile\src\double64.c" />
+    <ClCompile Include="..\sndfile\src\dwd.c" />
+    <ClCompile Include="..\sndfile\src\dwvw.c" />
+    <ClCompile Include="..\sndfile\src\file_io.c" />
+    <ClCompile Include="..\sndfile\src\flac.c" />
+    <ClCompile Include="..\sndfile\src\float32.c" />
+    <ClCompile Include="..\sndfile\src\g72x.c" />
+    <ClCompile Include="..\sndfile\src\G72x\g721.c" />
+    <ClCompile Include="..\sndfile\src\G72x\g723_16.c" />
+    <ClCompile Include="..\sndfile\src\G72x\g723_24.c" />
+    <ClCompile Include="..\sndfile\src\G72x\g723_40.c" />
+    <ClCompile Include="..\sndfile\src\G72x\_g72x.c" />
+    <ClCompile Include="..\sndfile\src\gsm610.c" />
+    <ClCompile Include="..\sndfile\src\GSM610\add.c" />
+    <ClCompile Include="..\sndfile\src\GSM610\code.c" />
+    <ClCompile Include="..\sndfile\src\GSM610\decode.c" />
+    <ClCompile Include="..\sndfile\src\GSM610\gsm_create.c" />
+    <ClCompile Include="..\sndfile\src\GSM610\gsm_decode.c" />
+    <ClCompile Include="..\sndfile\src\GSM610\gsm_destroy.c" />
+    <ClCompile Include="..\sndfile\src\GSM610\gsm_encode.c" />
+    <ClCompile Include="..\sndfile\src\GSM610\gsm_option.c" />
+    <ClCompile Include="..\sndfile\src\GSM610\long_term.c" />
+    <ClCompile Include="..\sndfile\src\GSM610\lpc.c" />
+    <ClCompile Include="..\sndfile\src\GSM610\preprocess.c" />
+    <ClCompile Include="..\sndfile\src\GSM610\rpe.c" />
+    <ClCompile Include="..\sndfile\src\GSM610\short_term.c" />
+    <ClCompile Include="..\sndfile\src\GSM610\table.c" />
+    <ClCompile Include="..\sndfile\src\htk.c" />
+    <ClCompile Include="..\sndfile\src\id3.c" />
+    <ClCompile Include="..\sndfile\src\ima_adpcm.c" />
+    <ClCompile Include="..\sndfile\src\ima_oki_adpcm.c" />
+    <ClCompile Include="..\sndfile\src\interleave.c" />
+    <ClCompile Include="..\sndfile\src\ircam.c" />
+    <ClCompile Include="..\sndfile\src\macos.c" />
+    <ClCompile Include="..\sndfile\src\mat4.c" />
+    <ClCompile Include="..\sndfile\src\mat5.c" />
+    <ClCompile Include="..\sndfile\src\mpc2k.c" />
+    <ClCompile Include="..\sndfile\src\ms_adpcm.c" />
+    <ClCompile Include="..\sndfile\src\nist.c" />
+    <ClCompile Include="..\sndfile\src\nms_adpcm.c" />
+    <ClCompile Include="..\sndfile\src\ogg.c" />
+    <ClCompile Include="..\sndfile\src\ogg_opus.c" />
+    <ClCompile Include="..\sndfile\src\ogg_pcm.c" />
+    <ClCompile Include="..\sndfile\src\ogg_speex.c" />
+    <ClCompile Include="..\sndfile\src\ogg_vcomment.c" />
+    <ClCompile Include="..\sndfile\src\ogg_vorbis.c" />
+    <ClCompile Include="..\sndfile\src\paf.c" />
+    <ClCompile Include="..\sndfile\src\pcm.c" />
+    <ClCompile Include="..\sndfile\src\pvf.c" />
+    <ClCompile Include="..\sndfile\src\raw.c" />
+    <ClCompile Include="..\sndfile\src\rf64.c" />
+    <ClCompile Include="..\sndfile\src\rx2.c" />
+    <ClCompile Include="..\sndfile\src\sd2.c" />
+    <ClCompile Include="..\sndfile\src\sds.c" />
+    <ClCompile Include="..\sndfile\src\sndfile.c" />
+    <ClCompile Include="..\sndfile\src\strings.c" />
+    <ClCompile Include="..\sndfile\src\svx.c" />
+    <ClCompile Include="..\sndfile\src\txw.c" />
+    <ClCompile Include="..\sndfile\src\ulaw.c" />
+    <ClCompile Include="..\sndfile\src\voc.c" />
+    <ClCompile Include="..\sndfile\src\vox_adpcm.c" />
+    <ClCompile Include="..\sndfile\src\w64.c" />
+    <ClCompile Include="..\sndfile\src\wav.c" />
+    <ClCompile Include="..\sndfile\src\wavlike.c" />
+    <ClCompile Include="..\sndfile\src\windows.c" />
+    <ClCompile Include="..\sndfile\src\wve.c" />
+    <ClCompile Include="..\sndfile\src\xi.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="config.h" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{A4AAC14A-246B-43A7-B9A1-EB17B0045117}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>libsdnfile</RootNamespace>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>..\lib\x86\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>..\lib\x86\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>..\lib\x64\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>..\lib\x64\</OutDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;FLAC__NO_DLL;HAVE_CONFIG_H;_CRT_SECURE_NO_WARNINGS;_USE_MATH_DEFINES</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>.\;..\sndfile\src;..\sndfile\include;..\flac\include;..\opus\include;..\vorbis\include;..\ogg\include;</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+    </Link>
+    <Lib>
+      <AdditionalDependencies>libopus.lib;libvorbis.lib;libogg.lib;libflac.lib</AdditionalDependencies>
+    </Lib>
+    <Lib>
+      <AdditionalLibraryDirectories>..\lib\x86;..\lib\x86;..\lib\x86;..\lib\x86;</AdditionalLibraryDirectories>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_WINDOWS</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>.\;..\sndfile\src;..\sndfile\include;..\flac\include;..\opus\include;..\vorbis\include;..\ogg\include;</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+    </Link>
+    <Lib>
+      <AdditionalDependencies>libopus.lib;libvorbis.lib;libogg.lib;libflac.lib</AdditionalDependencies>
+    </Lib>
+    <Lib>
+      <AdditionalLibraryDirectories>..\lib\x64;..\lib\x64;..\lib\x64;..\lib\x64;</AdditionalLibraryDirectories>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;FLAC__NO_DLL;HAVE_CONFIG_H;_CRT_SECURE_NO_WARNINGS;_USE_MATH_DEFINES</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>.\;..\sndfile\src;..\sndfile\include;..\flac\include;..\opus\include;..\vorbis\include;..\ogg\include;</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+    <Lib>
+      <AdditionalDependencies>libopus.lib;libvorbis.lib;libogg.lib;libflac.lib</AdditionalDependencies>
+    </Lib>
+    <Lib>
+      <AdditionalLibraryDirectories>..\lib\x86;</AdditionalLibraryDirectories>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;_WINDOWS</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>.\;..\sndfile\src;..\sndfile\include;..\flac\include;..\opus\include;..\vorbis\include;..\ogg\include;</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+    <Lib>
+      <AdditionalDependencies>libopus.lib;libvorbis.lib;libogg.lib;libflac.lib</AdditionalDependencies>
+    </Lib>
+    <Lib>
+      <AdditionalLibraryDirectories>..\lib\x64;</AdditionalLibraryDirectories>
+    </Lib>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
