@@ -225,13 +225,13 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <OutDir>..\lib\x86\</OutDir>
+    <OutDir>..\libd\x86\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>..\lib\x86\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <OutDir>..\lib\x64\</OutDir>
+    <OutDir>..\libd\x64\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>..\lib\x64\</OutDir>
@@ -272,6 +272,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;OPUS_BUILD;ENABLE_HARDENING;USE_ALLOCA;OPUS_HAVE_RTCD;HAVE_CONFIG_H</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>..\opus\include\opus;..\opus\src;..\opus\src\celt;..\opus\src\silk;..\opus\src\silk\float;..\opus;</AdditionalIncludeDirectories>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -289,6 +290,8 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;OPUS_BUILD;ENABLE_HARDENING;USE_ALLOCA;OPUS_HAVE_RTCD;HAVE_CONFIG_H</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>..\opus\include\opus;..\opus\src;..\opus\src\celt;..\opus\src\silk;..\opus\src\silk\float;..\opus;</AdditionalIncludeDirectories>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

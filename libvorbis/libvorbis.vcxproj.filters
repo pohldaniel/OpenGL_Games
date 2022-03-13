@@ -15,9 +15,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\vorbis\src\analysis.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\vorbis\src\bitrate.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -48,9 +45,6 @@
     <ClCompile Include="..\vorbis\src\mapping0.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\vorbis\src\mdct.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\vorbis\src\psy.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -76,6 +70,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\vorbis\src\_lpc.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\vorbis\src\_analysis.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\vorbis\src\_mdct.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

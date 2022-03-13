@@ -72,13 +72,13 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <OutDir>..\lib\x86\</OutDir>
+    <OutDir>..\libd\x86\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>..\lib\x86\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <OutDir>..\lib\x64\</OutDir>
+    <OutDir>..\libd\x64\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>..\lib\x64\</OutDir>
@@ -94,12 +94,15 @@
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
-      <AdditionalLibraryDirectories>..\lib\x86;</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\libd\x86;</AdditionalLibraryDirectories>
       <AdditionalDependencies>ogg.lib</AdditionalDependencies>
     </Link>
     <Lib>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
+    <PostBuildEvent>
+      <Command>move ..\libd\x86\flac.dll ..\02Deathjump</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -112,12 +115,15 @@
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
-      <AdditionalLibraryDirectories>..\lib\x64;</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\libd\x64;</AdditionalLibraryDirectories>
       <AdditionalDependencies>ogg.lib</AdditionalDependencies>
     </Link>
     <Lib>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
+    <PostBuildEvent>
+      <Command>move ..\libd\x64\flac.dll ..\02Deathjump</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>

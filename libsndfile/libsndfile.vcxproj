@@ -138,6 +138,7 @@
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v140</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
@@ -168,10 +169,10 @@
     <OutDir>..\lib\x86\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <OutDir>..\lib\x86\</OutDir>
+    <OutDir>..\libd\x86\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <OutDir>..\lib\x64\</OutDir>
+    <OutDir>..\libd\x64\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>..\lib\x64\</OutDir>
@@ -189,10 +190,10 @@
       <SubSystem>Windows</SubSystem>
     </Link>
     <Lib>
-      <AdditionalDependencies>libopus.lib;libvorbis.lib;libogg.lib;libflac.lib</AdditionalDependencies>
+      <AdditionalDependencies>libopus.lib;libvorbis.lib;libogg.lib</AdditionalDependencies>
     </Lib>
     <Lib>
-      <AdditionalLibraryDirectories>..\lib\x86;..\lib\x86;..\lib\x86;..\lib\x86;</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\libd\x86</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -201,17 +202,22 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_WINDOWS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_NDEBUG;FLAC__NO_DLL;HAVE_CONFIG_H;_CRT_SECURE_NO_WARNINGS;_USE_MATH_DEFINES</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\;..\sndfile\src;..\sndfile\include;..\flac\include;..\opus\include;..\vorbis\include;..\ogg\include;</AdditionalIncludeDirectories>
+      <IntrinsicFunctions>false</IntrinsicFunctions>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <MinimalRebuild>true</MinimalRebuild>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
     </Link>
     <Lib>
-      <AdditionalDependencies>libopus.lib;libvorbis.lib;libogg.lib;libflac.lib</AdditionalDependencies>
+      <AdditionalDependencies>libopus.lib;libvorbis.lib;libogg.lib;</AdditionalDependencies>
     </Lib>
     <Lib>
-      <AdditionalLibraryDirectories>..\lib\x64;..\lib\x64;..\lib\x64;..\lib\x64;</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\libd\x64</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -224,6 +230,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;FLAC__NO_DLL;HAVE_CONFIG_H;_CRT_SECURE_NO_WARNINGS;_USE_MATH_DEFINES</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\;..\sndfile\src;..\sndfile\include;..\flac\include;..\opus\include;..\vorbis\include;..\ogg\include;</AdditionalIncludeDirectories>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -231,10 +238,10 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <Lib>
-      <AdditionalDependencies>libopus.lib;libvorbis.lib;libogg.lib;libflac.lib</AdditionalDependencies>
+      <AdditionalDependencies>libopus.lib;libvorbis.lib;libogg.lib</AdditionalDependencies>
     </Lib>
     <Lib>
-      <AdditionalLibraryDirectories>..\lib\x86;</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\lib\x86</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -245,8 +252,11 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;_WINDOWS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;FLAC__NO_DLL;HAVE_CONFIG_H;_CRT_SECURE_NO_WARNINGS;_USE_MATH_DEFINES</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\;..\sndfile\src;..\sndfile\include;..\flac\include;..\opus\include;..\vorbis\include;..\ogg\include;</AdditionalIncludeDirectories>
+      <CompileAs>Default</CompileAs>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -254,10 +264,10 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <Lib>
-      <AdditionalDependencies>libopus.lib;libvorbis.lib;libogg.lib;libflac.lib</AdditionalDependencies>
+      <AdditionalDependencies>libopus.lib;libvorbis.lib;libogg.lib;</AdditionalDependencies>
     </Lib>
     <Lib>
-      <AdditionalLibraryDirectories>..\lib\x64;</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\lib\x64</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

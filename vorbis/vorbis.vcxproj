@@ -19,7 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\analysis.c" />
+    <ClCompile Include="src\_analysis.c" />
     <ClCompile Include="src\bitrate.c" />
     <ClCompile Include="src\block.c" />
     <ClCompile Include="src\codebook.c" />
@@ -30,7 +30,7 @@
     <ClCompile Include="src\lookup.c" />
     <ClCompile Include="src\lsp.c" />
     <ClCompile Include="src\mapping0.c" />
-    <ClCompile Include="src\mdct.c" />
+    <ClCompile Include="src\_mdct.c" />
     <ClCompile Include="src\psy.c" />
     <ClCompile Include="src\registry.c" />
     <ClCompile Include="src\res0.c" />
@@ -95,11 +95,11 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>..\lib\x86\</OutDir>
+    <OutDir>..\libd\x86\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>..\lib\x64\</OutDir>
+    <OutDir>..\libd\x64\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -121,10 +121,13 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>..\lib\x86;</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\libd\x86;</AdditionalLibraryDirectories>
       <AdditionalDependencies>ogg.lib;</AdditionalDependencies>
       <ModuleDefinitionFile>vorbis.def</ModuleDefinitionFile>
     </Link>
+    <PostBuildEvent>
+      <Command>move ..\libd\x86\vorbis.dll ..\02Deathjump</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -138,10 +141,13 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>..\lib\x64;</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\libd\x64;</AdditionalLibraryDirectories>
       <AdditionalDependencies>ogg.lib;</AdditionalDependencies>
       <ModuleDefinitionFile>vorbis.def</ModuleDefinitionFile>
     </Link>
+    <PostBuildEvent>
+      <Command>move ..\libd\x64\vorbis.dll ..\02Deathjump</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
