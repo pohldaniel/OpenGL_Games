@@ -7,6 +7,10 @@
 #include "Clock.h"
 #include "Application.h"
 
+#include "SoundDevice.h"
+#include "SoundBuffer.h"
+#include "SoundSource.h"
+
 extern float Globals::offset = 0.0f;
 extern unsigned long Globals::CONTROLLS = 0;
 extern unsigned long Globals::CONTROLLSHOLD = 0;
@@ -47,7 +51,16 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	int frames = 0;
 	double framesTime = 0;
+	//SoundDevice * mysounddevice = SoundDevice::get();
 
+	//uint32_t /*ALuint*/ sound1 = SoundBuffer::get()->addSoundEffect("res/music/menu.ogg");
+	//uint32_t /*ALuint*/ sound1 = SoundBuffer::get()->addSoundEffect("res/sounds/button.wav");
+	//uint32_t /*ALuint*/ sound2 = SoundBuffer::get()->addSoundEffect("../res/spellsounds/magicfail.ogg");
+
+	//SoundSource mySpeaker;
+
+	//mySpeaker.Play(sound1);
+	//mySpeaker.Play(sound2);
 	// main message loop
 	while (application.isRunning()) {
 
@@ -83,6 +96,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	} // end while
 
 	application.~Application();
+
+	
+	//simple workaround for holding the console at the end 
+	while (true)
+	{
+
+	}
 
 	return 0;
 }

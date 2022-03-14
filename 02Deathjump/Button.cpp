@@ -124,11 +124,12 @@ void Button::setOrigin(const Vector2f &origin) {
 }
 
 void Button::setOutlineThickness(float thickness) {
+	Matrix4f trans;
 	m_thickness = thickness * 2.0f;
 	xScaleOutline = (m_thickness) / m_size[0];
 	yScaleOutline = (m_thickness) / m_size[1];
 	m_transformOutline.scale(1.0f + xScaleOutline, 1.0f + yScaleOutline, 1.0f);
-	m_transformOutline = m_transformOutline * Matrix4f::Translate(-thickness, thickness, 0.0f);
+	m_transformOutline = m_transformOutline * Matrix4f::Translate(trans, -thickness, thickness, 0.0f);
 
 	//m_position = m_position - Vector2f(m_thickness, m_thickness) * 0.5f;
 	//m_size = m_size + Vector2f(m_thickness, m_thickness);

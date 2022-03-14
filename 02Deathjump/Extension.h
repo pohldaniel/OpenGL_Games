@@ -2,7 +2,7 @@
 #define EXTENSION_H
 
 #include <windows.h>
-#include <GL/gl.h>
+#include "GL.H"
 
 
 extern "C" {
