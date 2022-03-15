@@ -55,8 +55,8 @@ Menu::~Menu() {
 void Menu::fixedUpdate() {}
 
 void Menu::update() {
-	for (auto& b : m_buttons)
-		b.second.update();
+	for (auto& b : m_buttons) 
+		b.second.update();			
 }
 
 void Menu::render(unsigned int &frameBuffer) {

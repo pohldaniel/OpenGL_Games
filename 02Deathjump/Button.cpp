@@ -1,6 +1,7 @@
 #include "Button.h"
 
-Button::Button(std::string label, const Vector4f& color) : Button() {
+Button::Button(std::string label, const Vector4f& color, const bool _clickSafe) : Button() {
+	m_clickSafe = _clickSafe;
 	m_text = new Text(label);
 	m_size = m_text->getSize() + Vector2f(30.0f, 20.0f);
 
@@ -10,9 +11,11 @@ Button::Button(std::string label, const Vector4f& color) : Button() {
 	m_fillColor = color;
 	setOrigin(m_size * 0.5f);
 	setOutlineThickness(4.0f);
+	
+	update = m_clickSafe ? std::function<void()>{[&]() {clickSafe();}} : std::function<void()>{ [&]() {click();}};
 }
 
-Button::Button(std::string label, const Vector2f &position, const Vector4f& color) : Button(label, color) {
+Button::Button(std::string label, const Vector2f &position, const Vector4f& color, const bool clickSafe) : Button(label, color, clickSafe) {
 	setPosition(position);
 }
 
@@ -26,7 +29,8 @@ Button::Button(Button const& rhs) {
 	m_transform = rhs.m_transform;
 	m_transformOutline = rhs.m_transformOutline;
 	m_fillColor = rhs.m_fillColor;
-	
+	m_clickSafe = rhs.m_clickSafe;
+
 	//just pass over the shader but destruct them in the shaderManager once
 	m_shader = new Shader();
 	*m_shader = *rhs.m_shader;
@@ -36,6 +40,8 @@ Button::Button(Button const& rhs) {
 
 	m_text = new Text();
 	std::swap(*m_text, *rhs.m_text);
+
+	update = m_clickSafe ? std::function<void()>{[&]() {clickSafe();}} : std::function<void()>{ [&]() {click();}};
 }
 
 //copy assignment operators is necessary for initialize the button at Settings.cpp
@@ -47,6 +53,7 @@ Button &Button::operator=(const Button &rhs) {
 	m_transform = rhs.m_transform;
 	m_transformOutline = rhs.m_transformOutline;
 	m_fillColor = rhs.m_fillColor;
+	m_clickSafe = rhs.m_clickSafe;
 
 	//just pass over the shader but destruct them in the shaderManager once
 	m_shader = new Shader();
@@ -57,6 +64,9 @@ Button &Button::operator=(const Button &rhs) {
 
 	m_text = new Text();
 	std::swap(*m_text, *rhs.m_text);
+	
+	//alternatively to lambada
+	update = m_clickSafe ? std::bind(&Button::clickSafe, this) : std::bind(&Button::click, this);
 	return *this;
 }
 
@@ -92,7 +102,7 @@ void Button::render() {
 
 	glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
 	glStencilMask(0x00);
-
+	
 	m_shader->loadMatrix("u_transform", m_transformOutline * m_transform * Globals::projection);
 	m_shader->loadVector("u_color", m_outlineColor);
 	m_quad->render();
@@ -137,20 +147,45 @@ void Button::setOutlineThickness(float thickness) {
 	m_text->setPosition((m_position - m_origin) + (m_size - m_text->getSize()) * 0.5f);
 }
 
-void Button::update() {
+void Button::click() {
+	
 	if ((Globals::cursorPosScreen.x > (m_position[0] - m_origin[0] - m_thickness * 0.5f) &&
-		Globals::cursorPosScreen.x < (m_position[0] - m_origin[0]) + m_size[0] + m_thickness * 0.5f) &&
+		 Globals::cursorPosScreen.x < (m_position[0] - m_origin[0]) + m_size[0] + m_thickness * 0.5f) &&
 		(Globals::cursorPosScreen.y >(m_position[1] - m_origin[1] - m_thickness * 0.5f) &&
-			Globals::cursorPosScreen.y < (m_position[1] - m_origin[1]) + m_size[1] + m_thickness * 0.5f)) {
+		 Globals::cursorPosScreen.y < (m_position[1] - m_origin[1]) + m_size[1] + m_thickness * 0.5f)) {
 		m_outlineColor = m_outlineColorHover;
 		m_isPressed = Globals::lMouseButton;
+	}else {
+		m_outlineColor = m_outlineColorDefault;
 	}
-	else {
+	
+	if (m_isPressed && m_fun) {
+		Globals::effectsPlayer.Play(Globals::soundManager.get("button").getBuffer());
+		m_fun();
+	}
+}
+
+void Button::clickSafe() {
+	if ((Globals::cursorPosScreen.x > (m_position[0] - m_origin[0] - m_thickness * 0.5f) &&
+		 Globals::cursorPosScreen.x < (m_position[0] - m_origin[0]) + m_size[0] + m_thickness * 0.5f) &&
+		(Globals::cursorPosScreen.y >(m_position[1] - m_origin[1] - m_thickness * 0.5f) &&
+		 Globals::cursorPosScreen.y < (m_position[1] - m_origin[1]) + m_size[1] + m_thickness * 0.5f)) {
+		m_outlineColor = m_outlineColorHover;
+		m_isPressed = Globals::lMouseButton && m_guard;
+	}else {
 		m_outlineColor = m_outlineColorDefault;
 	}
 
 	if (m_isPressed && m_fun) {
+		if (m_clickSafe) {
+			m_guard = false;
+		}
+		Globals::effectsPlayer.Play(Globals::soundManager.get("button").getBuffer());
 		m_fun();
+	}else {
+		if (m_clickSafe) {
+			m_guard = !Globals::lMouseButton;
+		}
 	}
 }
 

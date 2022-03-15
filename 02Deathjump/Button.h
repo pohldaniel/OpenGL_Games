@@ -12,12 +12,12 @@ public:
 	Button() = default;
 	Button(Button const& rhs);
 	Button& operator=(const Button& rhs);
-	Button(std::string label, const Vector4f& color);
-	Button(std::string label, const Vector2f &position, const Vector4f& color);
+	Button(std::string label, const Vector4f& color, const bool clickSafe = true);
+	Button(std::string label, const Vector2f &position, const Vector4f& color, const bool clickSafe = true);
 	~Button();
 
 	void render();
-	void update();
+	std::function<void()> update = 0;
 
 	void setOutlineColor(const Vector4f &color);
 	void setPosition(const Vector2f &position);
@@ -58,7 +58,11 @@ private:
 	float yScaleOutline;
 
 	bool m_isPressed = false;
-
+	bool m_clickSafe = false;
+	bool m_guard = true;
 
 	std::function<void()> m_fun = 0;
+	
+	void click();
+	void clickSafe();	
 };

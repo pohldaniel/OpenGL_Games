@@ -5,6 +5,10 @@
 #include "Texture.h"
 #include "Shader.h"
 #include "CharacterSet.h"
+#include "SoundDevice.h"
+#include "SoundBuffer.h"
+#include "MusicBuffer.h"
+#include "SoundEffectsPlayer.h"
 
 #define PHYSICS_STEP	0.01f
 
@@ -64,7 +68,11 @@ namespace Globals{
 	extern AssetManagerStatic<Texture> textureManager;
 	extern AssetManager<Shader> shaderManager;
 	extern AssetManager<CharacterSet> fontManager;
-	//extern AssetManager<Font> fontManager;
+
+	extern AssetManager<SoundBuffer> soundManager;
+	extern AssetManager<MusicBuffer> musicManager;
+
+	extern SoundEffectsPlayer effectsPlayer;
 }
 
 #endif

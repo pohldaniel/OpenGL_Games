@@ -7,9 +7,10 @@
 #include "Clock.h"
 #include "Application.h"
 
-#include "SoundDevice.h"
+
+#include "SoundEffectsPlayer.h"
 #include "SoundBuffer.h"
-#include "SoundSource.h"
+#include "MusicBuffer.h"
 
 extern float Globals::offset = 0.0f;
 extern unsigned long Globals::CONTROLLS = 0;
@@ -21,9 +22,15 @@ extern Globals::POINTF Globals::cursorPosEye = {0.0f, 0.0f, 0.0f };
 extern bool Globals::lMouseButton = false;
 extern Matrix4f Globals::projection = Matrix4f::IDENTITY;
 extern Matrix4f Globals::invProjection = Matrix4f::IDENTITY;
-extern AssetManagerStatic<Texture> Globals::textureManager = AssetManagerStatic<Texture>();
 extern AssetManager<Shader> Globals::shaderManager = AssetManager<Shader>();
 extern AssetManager<CharacterSet> Globals::fontManager = AssetManager<CharacterSet>();
+extern AssetManager<SoundBuffer> Globals::soundManager = AssetManager<SoundBuffer>();
+extern AssetManager<MusicBuffer> Globals::musicManager = AssetManager<MusicBuffer>();
+//becareful never combine extern and static it's just for playing around with the templates
+extern AssetManagerStatic<Texture> Globals::textureManager = AssetManagerStatic<Texture>::get();
+
+extern SoundEffectsPlayer Globals::effectsPlayer = SoundEffectsPlayer();
+
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd) {
 	AllocConsole();
@@ -41,6 +48,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	float fixedDeltaTime = 0.0f;
 	double physicsElapsedTime = 0.0;
 
+	SoundDevice::Init();
+
 	Application application(deltaTime, fixedDeltaTime);
 		
 	HWND hwnd = application.getWindow();
@@ -51,17 +60,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	int frames = 0;
 	double framesTime = 0;
-	//SoundDevice * mysounddevice = SoundDevice::get();
-
-	//uint32_t /*ALuint*/ sound1 = SoundBuffer::get()->addSoundEffect("res/music/menu.ogg");
-	//uint32_t /*ALuint*/ sound1 = SoundBuffer::get()->addSoundEffect("res/sounds/button.wav");
-	//uint32_t /*ALuint*/ sound2 = SoundBuffer::get()->addSoundEffect("../res/spellsounds/magicfail.ogg");
-
-	//SoundSource mySpeaker;
-
-	//mySpeaker.Play(sound1);
-	//mySpeaker.Play(sound2);
-	// main message loop
+	
+	//Globals::musicManager.get("menu").Play();
 	while (application.isRunning()) {
 
 
@@ -77,6 +77,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 		application.update();
 		application.render();
+
+		//Globals::musicManager.get("menu").UpdateBufferStream();
 
 		deltaTime = deltaClock.restartSec();
 		
@@ -97,10 +99,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	application.~Application();
 
-	
+	SoundDevice::ShutDown();
 	//simple workaround for holding the console at the end 
-	while (true)
-	{
+	while (true){
 
 	}
 

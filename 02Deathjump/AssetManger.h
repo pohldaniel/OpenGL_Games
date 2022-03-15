@@ -19,6 +19,14 @@ public:
 		m_assetPointer[name] = new T(vertex, fragment);
 	}
 
+	void loadSoundEffect(const std::string& name, const std::string& path) {
+		m_assets[name].loadFromFile(path);
+	}
+
+	void loadMusic(const std::string& name, const std::string& path) {
+		m_assets[name].loadFromFile(path);
+	}
+
 	T& get(const std::string& name) { 
 		return m_assets[name]; 
 	}
@@ -47,9 +55,11 @@ private:
 template<typename T>
 class AssetManagerStatic {
 public:
-	//AssetManagerStatic(const AssetManagerStatic&) = delete;
 
 	static AssetManagerStatic& get() {
+		if (!s_instance.init) {
+			s_instance = AssetManagerStatic();			
+		}
 		return s_instance;
 	}
 
@@ -59,6 +69,14 @@ public:
 	
 	void loadShader(const std::string& name, const std::string& vertex, const std::string& fragment) {
 		m_assetPointer[name] = new T(vertex, fragment);;
+	}
+
+	void loadSoundEffect(const std::string& name, const std::string& path) {
+		m_assets[name].loadFromFile(path);
+	}
+
+	void loadMusic(const std::string& name, const std::string& path) {
+		m_assets[name].loadFromFile(path);
 	}
 
 	T& get(const std::string& name) {
@@ -80,15 +98,18 @@ public:
 			s.second.~T();
 		}
 	}
-	
-	AssetManagerStatic() {}
+		
 	~AssetManagerStatic() {}
-	
 private:
+	AssetManagerStatic() {
+		init = true;
+	}
+	
 	std::unordered_map<std::string, T> m_assets;
 	std::unordered_map<std::string, T*> m_assetPointer;
+	bool init = false;
 	static AssetManagerStatic s_instance;
 };
 
-template<typename T> AssetManagerStatic<T> AssetManagerStatic<T>::s_instance = AssetManagerStatic<T>();
+template<typename T> AssetManagerStatic<T> AssetManagerStatic<T>::s_instance;
 

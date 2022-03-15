@@ -321,4 +321,10 @@ void Application::loadTextures() {
 
 
 	Globals::fontManager.loadCharacterSet("font_90", "res/fonts/upheavtt.ttf", 90.0f);
+
+	Globals::soundManager.loadSoundEffect("blowup", "res/sounds/blowup.wav");
+	Globals::soundManager.loadSoundEffect("ghost", "res/sounds/ghost.wav");
+	Globals::soundManager.loadSoundEffect("button", "res/sounds/button.wav");
+
+	Globals::effectsPlayer.init();
 }

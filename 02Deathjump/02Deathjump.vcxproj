@@ -175,6 +175,8 @@
     <ClInclude Include="Game.h" />
     <ClInclude Include="Light.h" />
     <ClInclude Include="Menu.h" />
+    <ClInclude Include="MusicBuffer.h" />
+    <ClInclude Include="MusicPlayer.h" />
     <ClInclude Include="ParticleEmitter.h" />
     <ClInclude Include="Pause.h" />
     <ClInclude Include="Player.h" />
@@ -184,7 +186,7 @@
     <ClInclude Include="Shader.h" />
     <ClInclude Include="SoundBuffer.h" />
     <ClInclude Include="SoundDevice.h" />
-    <ClInclude Include="SoundSource.h" />
+    <ClInclude Include="SoundEffectsPlayer.h" />
     <ClInclude Include="Spritesheet.h" />
     <ClInclude Include="Spritesheet_old.h" />
     <ClInclude Include="StateMachine.h" />
@@ -250,6 +252,8 @@
     <ClCompile Include="Light.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Menu.cpp" />
+    <ClCompile Include="MusicBuffer.cpp" />
+    <ClCompile Include="MusicPlayer.cpp" />
     <ClCompile Include="ParticleEmitter.cpp" />
     <ClCompile Include="Pause.cpp" />
     <ClCompile Include="Player.cpp" />
@@ -259,7 +263,7 @@
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="SoundBuffer.cpp" />
     <ClCompile Include="SoundDevice.cpp" />
-    <ClCompile Include="SoundSource.cpp" />
+    <ClCompile Include="SoundEffectsPlayer.cpp" />
     <ClCompile Include="Spritesheet.cpp" />
     <ClCompile Include="Spritesheet_old.cpp" />
     <ClCompile Include="StateMachine.cpp" />
