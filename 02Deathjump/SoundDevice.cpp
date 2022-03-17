@@ -8,6 +8,7 @@ static SoundDevice* _instance = nullptr;
 
 SoundDevice* SoundDevice::Get(){
 	Init();
+	std::cout << _instance << std::endl;
 	return _instance;
 }
 
@@ -121,7 +122,6 @@ SoundDevice::SoundDevice()
 }
 
 SoundDevice::~SoundDevice(){
-	std::cout << "Destructor SoundDevcie" << std::endl;
 	alcMakeContextCurrent(nullptr);
 	alcDestroyContext(p_ALCContext);
 	alcCloseDevice(p_ALCDevice);

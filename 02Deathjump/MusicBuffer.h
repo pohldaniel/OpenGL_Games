@@ -31,7 +31,7 @@ private:
 	SF_INFO p_Sfinfo;
 	short* p_Membuf;
 	ALenum p_Format;
-
+	bool  m_loop = false;;
 	
 };
 

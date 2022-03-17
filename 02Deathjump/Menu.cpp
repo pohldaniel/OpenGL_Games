@@ -46,7 +46,7 @@ Menu::Menu(StateMachine& machine) : State(machine) {
 	});
 
 	Globals::musicManager.get("menu").Play();
-	//Globals::musicManager.get("menu").SetLooping(true);
+	Globals::musicManager.get("menu").SetLooping(true);
 }
 
 Menu::~Menu() {

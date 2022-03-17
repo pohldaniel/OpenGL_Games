@@ -97,7 +97,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	application.~Application();
 
-	SoundDevice::ShutDown();
 	//simple workaround for holding the console at the end 
 	while (true){
 

@@ -165,9 +165,6 @@
     <ClInclude Include="MusicBuffer.h">
       <Filter>Engine\Sound</Filter>
     </ClInclude>
-    <ClInclude Include="MusicPlayer.h">
-      <Filter>Engine\Sound</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -387,9 +384,6 @@
       <Filter>Engine\Sound</Filter>
     </ClCompile>
     <ClCompile Include="MusicBuffer.cpp">
-      <Filter>Engine\Sound</Filter>
-    </ClCompile>
-    <ClCompile Include="MusicPlayer.cpp">
       <Filter>Engine\Sound</Filter>
     </ClCompile>
   </ItemGroup>

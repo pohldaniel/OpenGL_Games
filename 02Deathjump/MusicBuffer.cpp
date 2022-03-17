@@ -72,8 +72,18 @@ void MusicBuffer::UpdateBufferStream(){
 		/* Read the next chunk of data, refill the buffer, and queue it
 		 * back on the source */
 		slen = sf_readf_short(p_SndFile, p_Membuf, BUFFER_SAMPLES);
-		if (slen > 0){
-			
+		if (slen > 0){		
+			slen *= p_Sfinfo.channels * (sf_count_t)sizeof(short);
+
+			alBufferData(bufid, p_Format, p_Membuf, (ALsizei)slen, p_Sfinfo.samplerate);
+			alSourceQueueBuffers(p_Source, 1, &bufid);
+
+			if (slen < BUFFER_SAMPLES && m_loop) {
+				sf_seek(p_SndFile, 0, SF_SEEK_SET);
+			}
+		}else if(m_loop){
+			sf_seek(p_SndFile, 0, SF_SEEK_SET);
+			slen = sf_readf_short(p_SndFile, p_Membuf, BUFFER_SAMPLES);
 
 			slen *= p_Sfinfo.channels * (sf_count_t)sizeof(short);
 
@@ -112,7 +122,8 @@ bool MusicBuffer::isPlaying(){
 }
 
 void  MusicBuffer::SetLooping(const bool& loop) {
-	alSourcei(p_Source, AL_LOOPING, (ALint)loop);
+	//alSourcei(p_Source, AL_LOOPING, (ALint)loop);
+	m_loop = loop;
 }
 
 MusicBuffer::~MusicBuffer(){

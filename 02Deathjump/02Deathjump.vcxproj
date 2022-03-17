@@ -176,7 +176,6 @@
     <ClInclude Include="Light.h" />
     <ClInclude Include="Menu.h" />
     <ClInclude Include="MusicBuffer.h" />
-    <ClInclude Include="MusicPlayer.h" />
     <ClInclude Include="ParticleEmitter.h" />
     <ClInclude Include="Pause.h" />
     <ClInclude Include="Player.h" />
@@ -253,7 +252,6 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Menu.cpp" />
     <ClCompile Include="MusicBuffer.cpp" />
-    <ClCompile Include="MusicPlayer.cpp" />
     <ClCompile Include="ParticleEmitter.cpp" />
     <ClCompile Include="Pause.cpp" />
     <ClCompile Include="Player.cpp" />
