@@ -31,7 +31,8 @@ private:
 
 	bool initWindow();
 	void initOpenGL();
-	void loadTextures();
+	void initOpenAL();
+	void loadAssets();
 
 	void enableWireframe(bool enableWireframe);
 	void enableVerticalSync(bool enableVerticalSync);

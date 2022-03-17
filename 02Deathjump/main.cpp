@@ -48,7 +48,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	float fixedDeltaTime = 0.0f;
 	double physicsElapsedTime = 0.0;
 
-	SoundDevice::Init();
+	
 
 	Application application(deltaTime, fixedDeltaTime);
 		
@@ -61,9 +61,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	int frames = 0;
 	double framesTime = 0;
 	
-	//Globals::musicManager.get("menu").Play();
 	while (application.isRunning()) {
-
 
 		physicsElapsedTime += deltaTime;
 		while (physicsElapsedTime > PHYSICS_STEP) {
@@ -78,7 +76,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		application.update();
 		application.render();
 
-		//Globals::musicManager.get("menu").UpdateBufferStream();
+		Globals::musicManager.get("menu").UpdateBufferStream();
 
 		deltaTime = deltaClock.restartSec();
 		

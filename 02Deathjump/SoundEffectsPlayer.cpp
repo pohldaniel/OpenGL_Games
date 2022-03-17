@@ -10,15 +10,15 @@ SoundEffectsPlayer::~SoundEffectsPlayer(){
 }
 
 void SoundEffectsPlayer::Play(const ALuint& buffer_to_play){
-	alGetSourcei(p_Source, AL_SOURCE_STATE, &state);
-
+	
 	if (buffer_to_play != p_Buffer){
 		p_Buffer = buffer_to_play;
-		alSourcei(p_Source, AL_BUFFER, (ALint)buffer_to_play);
-		alSourcePlay(p_Source);
+		alSourcei(p_Source, AL_BUFFER, (ALint)p_Buffer);
 	}
-	
-	/*if (state != AL_PLAYING) {
+	alSourcePlay(p_Source);
+
+	/*alGetSourcei(p_Source, AL_SOURCE_STATE, &state);
+	if (state != AL_PLAYING) {
 		p_Buffer = 0;
 	}*/	
 }

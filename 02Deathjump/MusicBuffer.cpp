@@ -2,9 +2,9 @@
 #include <cstddef>
 #include <AL\alext.h>
 #include <malloc.h>
-
+#include <iostream>
 void MusicBuffer::Play(){
-	ALsizei i;
+	std::cout << "Play" << std::endl;
 
 	// clear any al errors
 	alGetError();
@@ -14,7 +14,7 @@ void MusicBuffer::Play(){
 	alSourcei(p_Source, AL_BUFFER, 0);
 
 	/* Fill the buffer queue */
-	for (i = 0; i < NUM_BUFFERS; i++){
+	for (ALsizei i = 0; i < NUM_BUFFERS; i++){
 		/* Get some data to give it to the buffer */
 		sf_count_t slen = sf_readf_short(p_SndFile, p_Membuf, BUFFER_SAMPLES);
 		if (slen < 1) break;
@@ -22,25 +22,28 @@ void MusicBuffer::Play(){
 		slen *= p_Sfinfo.channels * (sf_count_t)sizeof(short);
 		alBufferData(p_Buffers[i], p_Format, p_Membuf, (ALsizei)slen, p_Sfinfo.samplerate);
 	}
+
 	if (alGetError() != AL_NO_ERROR){
 		throw("Error buffering for playback");
 	}
 
 	/* Now queue and start playback! */
-	alSourceQueueBuffers(p_Source, i, p_Buffers);
+	alSourceQueueBuffers(p_Source, NUM_BUFFERS, p_Buffers);
 	alSourcePlay(p_Source);
 	if (alGetError() != AL_NO_ERROR){
 		throw("Error starting playback");
 	}
-
 }
 
 void MusicBuffer::Pause(){
+	std::cout << "Pause" << std::endl;
 	alSourcePause(p_Source);
 }
 
 void MusicBuffer::Stop(){
+	std::cout << "Stop" << std::endl;
 	alSourceStop(p_Source);
+	sf_seek(p_SndFile, 0, SF_SEEK_SET);
 }
 
 void MusicBuffer::Resume(){
@@ -60,10 +63,9 @@ void MusicBuffer::UpdateBufferStream(){
 	}
 
 	/* Unqueue and handle each processed buffer */
-	while (processed > 0){
+	while (processed > 0 && state != AL_STOPPED){
 		ALuint bufid;
 		sf_count_t slen;
-
 		alSourceUnqueueBuffers(p_Source, 1, &bufid);
 		processed--;
 
@@ -71,9 +73,11 @@ void MusicBuffer::UpdateBufferStream(){
 		 * back on the source */
 		slen = sf_readf_short(p_SndFile, p_Membuf, BUFFER_SAMPLES);
 		if (slen > 0){
+			
+
 			slen *= p_Sfinfo.channels * (sf_count_t)sizeof(short);
-			alBufferData(bufid, p_Format, p_Membuf, (ALsizei)slen,
-				p_Sfinfo.samplerate);
+
+			alBufferData(bufid, p_Format, p_Membuf, (ALsizei)slen, p_Sfinfo.samplerate);
 			alSourceQueueBuffers(p_Source, 1, &bufid);
 		}
 		if (alGetError() != AL_NO_ERROR){
@@ -82,9 +86,8 @@ void MusicBuffer::UpdateBufferStream(){
 	}
 
 	/* Make sure the source hasn't underrun */
-	if (state != AL_PLAYING && state != AL_PAUSED){
+	if (state != AL_PLAYING && state != AL_PAUSED && state != AL_STOPPED){
 		ALint queued;
-
 		/* If no buffers are queued, playback is finished */
 		alGetSourcei(p_Source, AL_BUFFERS_QUEUED, &queued);
 		if (queued == 0)
@@ -123,14 +126,11 @@ MusicBuffer::~MusicBuffer(){
 	free(p_Membuf);
 
 	alDeleteBuffers(NUM_BUFFERS, p_Buffers);
-
 }
 
 void MusicBuffer::loadFromFile(const std::string& path) {
 	alGenSources(1, &p_Source);
 	alGenBuffers(NUM_BUFFERS, p_Buffers);
-
-	std::size_t frame_size;
 
 	p_SndFile = sf_open(path.c_str(), SFM_READ, &p_Sfinfo);
 	if (!p_SndFile){
@@ -156,6 +156,6 @@ void MusicBuffer::loadFromFile(const std::string& path) {
 		throw("Unsupported channel count from file");
 	}
 
-	frame_size = ((size_t)BUFFER_SAMPLES * (size_t)p_Sfinfo.channels) * sizeof(short);
+	std::size_t frame_size = ((size_t)BUFFER_SAMPLES * (size_t)p_Sfinfo.channels) * sizeof(short);
 	p_Membuf = static_cast<short*>(malloc(frame_size));
 }

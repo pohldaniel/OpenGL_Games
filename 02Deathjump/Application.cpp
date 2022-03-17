@@ -4,7 +4,8 @@
 Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fdt) {
 	initWindow();
 	initOpenGL();
-	loadTextures();
+	initOpenAL();
+	loadAssets();
 	initStates();
 	
 	m_enableVerticalSync = true;
@@ -19,15 +20,18 @@ Application::~Application() {
 	Globals::shaderManager.clear();
 	Globals::textureManager.clear();
 	Globals::fontManager.clear();
-
+	Globals::soundManager.clear();
+	Globals::musicManager.clear();
 	AssetManagerStatic<Texture>::get().clear();	
+
 	UnregisterClass("WINDOWCLASS", (HINSTANCE)GetModuleHandle(NULL));
 
 	//release OpenGL context
 	wglMakeCurrent(GetDC(m_window), 0);
 	wglDeleteContext(wglGetCurrentContext());
 	ReleaseDC(m_window, GetDC(m_window));
-
+	//release OpenAL context
+	SoundDevice::ShutDown();
 }
 
 bool Application::initWindow() {
@@ -216,6 +220,10 @@ void Application::enableWireframe(bool enableWireframe) {
 	}
 }
 
+void Application::initOpenAL(){
+	SoundDevice::Init();
+}
+
 void Application::setCursortoMiddle(HWND hWnd) {
 	RECT rect;
 	GetClientRect(hWnd, &rect);
@@ -263,7 +271,7 @@ void Application::processInput() {
 	// Retrieve keyboard state
 	if (!GetKeyboardState(Globals::pKeyBuffer)) return;
 	// Check the relevant keys
-	bool holdKey =  ((Globals::pKeyBuffer['Q'] & 0xF0) && (Globals::CONTROLLSHOLD & Globals::KEY_Q) ) ;
+	bool holdKey =  ((Globals::pKeyBuffer['Q'] & 0xF0) && (Globals::CONTROLLSHOLD & Globals::KEY_Q) || (Globals::pKeyBuffer['E'] & 0xF0) && (Globals::CONTROLLSHOLD & Globals::KEY_E)) ;
 
 	if (!holdKey) {	
 		if (Globals::pKeyBuffer['Q'] & 0xF0) Globals::CONTROLLS |= Globals::KEY_Q;
@@ -300,7 +308,7 @@ void Application::processInput() {
 	Globals::lMouseButton = (GetKeyState(VK_LBUTTON) & 0x8000) != 0;
 }
 
-void Application::loadTextures() {
+void Application::loadAssets() {
 	
 	Globals::textureManager.loadTexture("player", "res/textures/player.png");
 	//Globals::textureManager.loadTexture("background", "res/textures/background.png");
@@ -325,6 +333,10 @@ void Application::loadTextures() {
 	Globals::soundManager.loadSoundEffect("blowup", "res/sounds/blowup.wav");
 	Globals::soundManager.loadSoundEffect("ghost", "res/sounds/ghost.wav");
 	Globals::soundManager.loadSoundEffect("button", "res/sounds/button.wav");
+
+	Globals::musicManager.loadMusic("main", "res/music/main.ogg");
+	Globals::musicManager.loadMusic("menu", "res/music/menu.ogg");
+	Globals::musicManager.loadMusic("pause", "res/music/pause.ogg");
 
 	Globals::effectsPlayer.init();
 }

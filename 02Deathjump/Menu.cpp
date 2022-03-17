@@ -25,6 +25,7 @@ Menu::Menu(StateMachine& machine) : State(machine) {
 		transition.setFunction([&]() {
 			i_isRunning = false;
 			i_machine.addStateAtBottom(new Game(i_machine));
+			Globals::musicManager.get("menu").Stop();
 			transition.start(Mode::Unveil);
 		});
 		transition.start(Mode::Veil);
@@ -43,6 +44,9 @@ Menu::Menu(StateMachine& machine) : State(machine) {
 		transition.setFunction([&]() { i_isRunning = false; });
 		transition.start(Mode::Veil);
 	});
+
+	Globals::musicManager.get("menu").Play();
+	//Globals::musicManager.get("menu").SetLooping(true);
 }
 
 Menu::~Menu() {
@@ -56,7 +60,19 @@ void Menu::fixedUpdate() {}
 
 void Menu::update() {
 	for (auto& b : m_buttons) 
-		b.second.update();			
+		b.second.update();
+
+	/*if ((Globals::CONTROLLS & Globals::KEY_E)) {
+		if (m_toggle) {
+			Globals::musicManager.get("menu").Play();
+		}else {
+			Globals::musicManager.get("menu").Stop();
+			//Globals::musicManager.get("menu").Pause();
+			
+		}
+
+		m_toggle = !m_toggle;
+	}*/
 }
 
 void Menu::render(unsigned int &frameBuffer) {

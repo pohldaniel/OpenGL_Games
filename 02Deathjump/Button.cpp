@@ -180,6 +180,7 @@ void Button::clickSafe() {
 		if (m_clickSafe) {
 			m_guard = false;
 		}
+		std::cout << "############" << std::endl;
 		Globals::effectsPlayer.Play(Globals::soundManager.get("button").getBuffer());
 		m_fun();
 	}else {
