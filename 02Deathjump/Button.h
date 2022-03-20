@@ -27,7 +27,7 @@ public:
 	const Vector2f &getPosition() const;
 	const Vector2f &getSize() const;
 
-	const bool pressed();
+	const bool isPressed();
 
 	void setFunction(std::function<void()> fun);
 

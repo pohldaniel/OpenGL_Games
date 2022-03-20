@@ -5,6 +5,7 @@
 
 #include "Transition.h"
 #include "Button.h"
+#include "SeekerBar.h"
 #include "ParticleEmitter.h"
 
 class Settings : public State {
@@ -27,6 +28,7 @@ private:
 
 	std::unordered_map<std::string, unsigned int> m_sprites;
 	Button m_button;
+	SeekerBar* m_seekerBar;
 
 	void initSprites();
 	

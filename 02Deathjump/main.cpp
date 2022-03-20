@@ -28,7 +28,7 @@ extern AssetManager<SoundBuffer> Globals::soundManager = AssetManager<SoundBuffe
 extern AssetManager<MusicBuffer> Globals::musicManager = AssetManager<MusicBuffer>();
 //becareful never combine extern and static it's just for playing around with the templates
 extern AssetManagerStatic<Texture> Globals::textureManager = AssetManagerStatic<Texture>::get();
-
+extern AssetManager<Spritesheet> Globals::spritesheetManager = AssetManager<Spritesheet>();
 extern SoundEffectsPlayer Globals::effectsPlayer = SoundEffectsPlayer();
 
 

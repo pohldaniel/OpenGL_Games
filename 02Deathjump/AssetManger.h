@@ -19,6 +19,10 @@ public:
 		m_assetPointer[name] = new T(vertex, fragment);
 	}
 
+	void loadSpritesheet(const std::string& name, const std::string& path, unsigned short tileWidth, unsigned short tileHeight, unsigned int yStart, unsigned int xLength) {
+		m_assetPointer[name] = new T(path, tileWidth, tileHeight, true, true, yStart, xLength + 1);
+	}
+
 	void loadSoundEffect(const std::string& name, const std::string& path) {
 		m_assets[name].loadFromFile(path);
 	}

@@ -121,16 +121,20 @@ void Button::setOutlineColor(const Vector4f &color) {
 
 void Button::setPosition(const Vector2f &position) {
 	m_position = position;
-	m_transform.translate((position[0] - m_origin[0]), (HEIGHT - position[1] + m_origin[1]), 0.0f);
+	m_transform.translate((position[0] - m_origin[0]), (position[1] + m_origin[1]), 0.0f);
 
-	m_text->setPosition((m_position - m_origin) + (m_size - m_text->getSize()) * 0.5f);
+	float x = (m_position[0] - m_origin[0]) + (m_size[0] - m_text->getSize()[0]) * 0.5f;
+	float y = (HEIGHT - m_position[1] - m_origin[1]) + (m_size[1] - m_text->getSize()[1]) * 0.5f;
+	m_text->setPosition(Vector2f(x, y));
 }
 
 void Button::setOrigin(const Vector2f &origin) {
 	m_origin = origin;
-	m_transform.translate((m_position[0] - m_origin[0]), (HEIGHT - m_position[1] + m_origin[1]), 0.0f);
+	m_transform.translate((m_position[0] - m_origin[0]), (m_position[1] + m_origin[1]), 0.0f);
 
-	m_text->setPosition((m_position - m_origin) + (m_size - m_text->getSize()) * 0.5f);
+	float x = (m_position[0] - m_origin[0]) + (m_size[0] - m_text->getSize()[0]) * 0.5f;
+	float y = (HEIGHT - m_position[1] - m_origin[1]) + (m_size[1] - m_text->getSize()[1]) * 0.5f;
+	m_text->setPosition(Vector2f(x, y));
 }
 
 void Button::setOutlineThickness(float thickness) {
@@ -144,15 +148,17 @@ void Button::setOutlineThickness(float thickness) {
 	//m_position = m_position - Vector2f(m_thickness, m_thickness) * 0.5f;
 	//m_size = m_size + Vector2f(m_thickness, m_thickness);
 
-	m_text->setPosition((m_position - m_origin) + (m_size - m_text->getSize()) * 0.5f);
+	float x = (m_position[0] - m_origin[0]) + (m_size[0] - m_text->getSize()[0]) * 0.5f;
+	float y = (HEIGHT - m_position[1] - m_origin[1]) + (m_size[1] - m_text->getSize()[1]) * 0.5f;
+	m_text->setPosition(Vector2f(x, y));
 }
 
 void Button::click() {
 	
-	if ((Globals::cursorPosScreen.x > (m_position[0] - m_origin[0] - m_thickness * 0.5f) &&
-		 Globals::cursorPosScreen.x < (m_position[0] - m_origin[0]) + m_size[0] + m_thickness * 0.5f) &&
-		(Globals::cursorPosScreen.y >(m_position[1] - m_origin[1] - m_thickness * 0.5f) &&
-		 Globals::cursorPosScreen.y < (m_position[1] - m_origin[1]) + m_size[1] + m_thickness * 0.5f)) {
+	if ((Globals::cursorPosEye.x > (m_position[0] - m_origin[0] - m_thickness * 0.5f) &&
+		 Globals::cursorPosEye.x < (m_position[0] - m_origin[0]) + m_size[0] + m_thickness * 0.5f) &&
+		(Globals::cursorPosEye.y >(m_position[1] - m_origin[1] - m_thickness * 0.5f) &&
+		 Globals::cursorPosEye.y < (m_position[1] - m_origin[1]) + m_size[1] + m_thickness * 0.5f)) {
 		m_outlineColor = m_outlineColorHover;
 		m_isPressed = Globals::lMouseButton;
 	}else {
@@ -166,10 +172,10 @@ void Button::click() {
 }
 
 void Button::clickSafe() {
-	if ((Globals::cursorPosScreen.x > (m_position[0] - m_origin[0] - m_thickness * 0.5f) &&
-		 Globals::cursorPosScreen.x < (m_position[0] - m_origin[0]) + m_size[0] + m_thickness * 0.5f) &&
-		(Globals::cursorPosScreen.y >(m_position[1] - m_origin[1] - m_thickness * 0.5f) &&
-		 Globals::cursorPosScreen.y < (m_position[1] - m_origin[1]) + m_size[1] + m_thickness * 0.5f)) {
+	if ((Globals::cursorPosEye.x > (m_position[0] - m_origin[0] - m_thickness * 0.5f) &&
+		 Globals::cursorPosEye.x < (m_position[0] - m_origin[0]) + m_size[0] + m_thickness * 0.5f) &&
+		(Globals::cursorPosEye.y >(m_position[1] - m_origin[1] - m_thickness * 0.5f) &&
+		 Globals::cursorPosEye.y < (m_position[1] - m_origin[1]) + m_size[1] + m_thickness * 0.5f)) {
 		m_outlineColor = m_outlineColorHover;
 		m_isPressed = Globals::lMouseButton && m_guard;
 	}else {
@@ -180,7 +186,7 @@ void Button::clickSafe() {
 		if (m_clickSafe) {
 			m_guard = false;
 		}
-		std::cout << "############" << std::endl;
+
 		Globals::effectsPlayer.Play(Globals::soundManager.get("button").getBuffer());
 		m_fun();
 	}else {
@@ -190,7 +196,7 @@ void Button::clickSafe() {
 	}
 }
 
-const bool Button::pressed() {
+const bool Button::isPressed() {
 	return m_isPressed;
 }
 

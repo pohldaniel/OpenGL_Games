@@ -4,6 +4,7 @@
 #include "Constants.h"
 #include "Entity.h"
 #include "Wall.h"
+#include "Ghost.h"
 #include "Animator.h"
 #include "Spritesheet.h"
 #include "ParticleEmitter.h"
@@ -19,12 +20,11 @@ public:
 
 	void resolveCollision(Entity* entity);
 	void resolveCollision(std::vector<Wall>& walls);
+	void resolveCollision(Ghost* entity, std::vector<Ghost*>& ghosts);
 
 	bool isAlive() const;
 
-	Quad *m_quad;
-	Shader *m_shaderArray;
-	Spritesheet *m_spriteSheet;
+	
 
 private:
 
@@ -35,11 +35,15 @@ private:
 	void initEmitters();
 
 	void animate();
+	void updateTimer();
 	void keepInBorders();
 	void crouch();
 	void move();
 	void updateVelocity();
 
+	Quad *m_quad;
+	Shader *m_shaderArray;
+	Spritesheet *m_spriteSheet;
 	Vector2f m_velocity;
 	Vector2f m_playerSize = Vector2f(96.0f, 84.0f);
 	bool m_alive = true;
@@ -60,4 +64,6 @@ private:
 
 	ParticleEmitter* m_emitter;
 	ParticleEmitter* m_fallEmitter;
+
+	Clock m_hitTimer;
 };

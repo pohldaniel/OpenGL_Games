@@ -10,7 +10,7 @@ Game::Game(StateMachine& machine) : State(machine){
 	initSprites();
 	initLights();
 	InitCountdown();
-	InitTimers();
+	initTimers();
 
 	m_shader = Globals::shaderManager.getAssetPointer("quad");
 	m_quad = new Quad(false);
@@ -21,6 +21,9 @@ Game::Game(StateMachine& machine) : State(machine){
 	
 	m_fog = new Quad(false);
 	m_shaderFog = Globals::shaderManager.getAssetPointer("fog");
+
+	m_healthBar = new HealthBar();
+	m_healthBar->setPosition(Vector2f(0.0f, HEIGHT));
 }
 
 Game::~Game() {
@@ -51,12 +54,21 @@ void Game::update() {
 void Game::render(unsigned int &frameBuffer) {
 	glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
 	glUseProgram(m_shader->m_program);
 	m_shader->loadMatrix("u_transform", m_transBackground);
 	m_quadBackground->render(m_sprites["background"]);
 	glUseProgram(0);
 	
 	m_player->render();
+	m_healthBar->render();
+
+	for (const auto& g : m_ghosts)
+		g->render();
+
+	for (const auto& f : m_fireballs) {
+		f->render();
+	}
 
 	glUseProgram(m_shader->m_program);
 	m_shader->loadMatrix("u_transform", Matrix4f::IDENTITY);
@@ -86,30 +98,73 @@ void Game::render(unsigned int &frameBuffer) {
 
 void Game::FixedUpdateEntities() {
 	m_player->fixedUpdate();
+
+	for(auto& g : m_ghosts)
+		g->fixedUpdate();
+
+	for(auto& f : m_fireballs)
+		f->fixedUpdate();
 }
 
 void Game::UpdateEntities() {
 	m_player->resolveCollision(m_walls);
 	m_player->update();
-	UpdateTimers();
+	updateTimers();
+
+
+	// Fireballs
+	for (int i = 0; i < m_fireballs.size(); i++) {
+		auto& fireball = m_fireballs[i];
+		if (!fireball->isAlive()) {
+			delete fireball;
+			m_fireballs.erase(m_fireballs.begin() + i);
+			
+			continue;
+		}
+		
+		m_player->resolveCollision(fireball);
+
+		fireball->update();
+	}
+	// Ghosts
+	for (int i = 0; i < m_ghosts.size(); i++) {
+		auto& ghost = m_ghosts[i];
+
+		if (!ghost->m_isAlive) {
+			delete ghost;
+			m_ghosts.erase(m_ghosts.begin() + i);
+
+			continue;
+		}
+
+		m_player->resolveCollision(ghost, m_ghosts);
+
+		ghost->update(m_player->getCollider().getBody());
+	}
 }
 
 void Game::InitEntities() {
 	m_player = new Player(i_dt, i_fdt);
 }
 
-void Game::UpdateTimers() {
+void Game::updateTimers() {
 	m_enemySpawnTimer.Update(i_dt);
 	m_ghostSpawnTimer.Update(i_dt);
 	m_gameSpeedTimer.Update(i_dt);
 }
 
-void Game::InitTimers() {
-	m_enemySpawnTimer.SetFunction(1.0f, [&]() {		
+void Game::initTimers() {
+	m_enemySpawnTimer.SetFunction(1.0f, [&]() {
+		if (m_fireballs.size() > 8)
+			return;
+
 		const float velocity = 450.0f * Random::RandFloat(1.01f, 1.82f);
+
+		m_fireballs.push_back(new Fireball(i_dt, i_fdt, velocity,Random::RandInt(0, 1)));
+
 	});
 
-	m_gameSpeedTimer.SetFunction(5.5f, [&]() {
+	/*m_gameSpeedTimer.SetFunction(5.5f, [&]() {
 		const float sub = Random::RandFloat(0.085f, 0.125f);
 		const float uTime = m_enemySpawnTimer.GetUpdateTime() - sub;
 
@@ -120,6 +175,13 @@ void Game::InitTimers() {
 
 		m_ghostSpawnTimer.SetUpdateTime(m_ghostSpawnTimer.GetUpdateTime() - sub < 7.185f ? 7.185f : m_ghostSpawnTimer.GetUpdateTime() - sub);
 	});
+
+	m_ghostSpawnTimer.SetFunction(8.5f, [&]() {
+		if (m_ghosts.size() > 2)
+			return;
+
+		m_ghosts.push_back(new Ghost(i_dt, i_fdt));
+	});*/
 }
 
 void Game::UpdateCountdown() {

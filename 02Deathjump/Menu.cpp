@@ -12,9 +12,9 @@ Menu::Menu(StateMachine& machine) : State(machine) {
 
 	std::initializer_list<std::pair<const std::string, Button>> init =
 	{
-		{ "start",	  Button("START"   , Vector2f(WIDTH, HEIGHT) * 0.5f, Vector4f(100.0f / 255.0f, 100.0f / 255.0f, 100.0f / 255.0f, 80.0f / 255.0f)) },
-		{ "settings", Button("SETTINGS", Vector2f(WIDTH * 0.5f, 550)   , Vector4f(100.0f / 255.0f, 100.0f / 255.0f, 100.0f / 255.0f, 80.0f / 255.0f)) },
-		{ "exit",	  Button("EXIT"    , Vector2f(WIDTH * 0.5f, 650)   , Vector4f(100.0f / 255.0f, 100.0f / 255.0f, 100.0f / 255.0f, 80.0f / 255.0f)) },
+		{ "start",	  Button("START"   , Vector2f(WIDTH * 0.5f, HEIGHT - HEIGHT * 0.5f), Vector4f(100.0f / 255.0f, 100.0f / 255.0f, 100.0f / 255.0f, 80.0f / 255.0f)) },
+		{ "settings", Button("SETTINGS", Vector2f(WIDTH * 0.5f, HEIGHT - 550)   , Vector4f(100.0f / 255.0f, 100.0f / 255.0f, 100.0f / 255.0f, 80.0f / 255.0f)) },
+		{ "exit",	  Button("EXIT"    , Vector2f(WIDTH * 0.5f, HEIGHT - 650)   , Vector4f(100.0f / 255.0f, 100.0f / 255.0f, 100.0f / 255.0f, 80.0f / 255.0f)) },
 	};
 
 	m_buttons = init;

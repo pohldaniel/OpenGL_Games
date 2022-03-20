@@ -1,14 +1,18 @@
 #pragma once
 #include <chrono>
-
+#include <iostream>
 class Clock {
 public:
 	
+	inline void restart() {
+		std::chrono::steady_clock::time_point end = std::chrono::high_resolution_clock::now();
+		std::chrono::steady_clock::time_point begin = end;
+	}
+
 	inline float restartSec() {
 		end = std::chrono::high_resolution_clock::now();
 		float elapsed_secs = std::chrono::duration_cast<std::chrono::duration<float>>(end - begin).count();
 		begin = end;
-
 		return elapsed_secs;
 	}
 

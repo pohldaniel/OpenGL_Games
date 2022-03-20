@@ -13,9 +13,9 @@ Pause::Pause(StateMachine& machine) : State(machine) {
 
 	std::initializer_list<std::pair<const std::string, Button>> init =
 	{
-		{ "resume",		  Button("RESUME"      , Vector2f(WIDTH * 0.5f, 400), Vector4f(100.0f / 255.0f, 100.0f / 255.0f, 100.0f / 255.0f, 80.0f / 255.0f)) },
-		{ "settings",	  Button("SETTINGS"    , Vector2f(WIDTH * 0.5f, 500), Vector4f(100.0f / 255.0f, 100.0f / 255.0f, 100.0f / 255.0f, 80.0f / 255.0f)) },
-		{ "exit_to_menu", Button("EXIT TO MENU", Vector2f(WIDTH * 0.5f, 600), Vector4f(100.0f / 255.0f, 100.0f / 255.0f, 100.0f / 255.0f, 80.0f / 255.0f)) },
+		{ "resume",		  Button("RESUME"      , Vector2f(WIDTH * 0.5f, HEIGHT - 400), Vector4f(100.0f / 255.0f, 100.0f / 255.0f, 100.0f / 255.0f, 80.0f / 255.0f)) },
+		{ "settings",	  Button("SETTINGS"    , Vector2f(WIDTH * 0.5f, HEIGHT - 500), Vector4f(100.0f / 255.0f, 100.0f / 255.0f, 100.0f / 255.0f, 80.0f / 255.0f)) },
+		{ "exit_to_menu", Button("EXIT TO MENU", Vector2f(WIDTH * 0.5f, HEIGHT - 600), Vector4f(100.0f / 255.0f, 100.0f / 255.0f, 100.0f / 255.0f, 80.0f / 255.0f)) },
 	};
 
 	m_buttons = init;

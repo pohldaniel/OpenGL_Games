@@ -1,32 +1,47 @@
 #include "Animator.h"
 #include <iostream>
 
-Animator::Animator(std::string pictureFile, unsigned yStart, unsigned xLength, float time, unsigned int& textureAtlas, unsigned int& currentFrame) {
+Animator::Animator(std::string pictureFile, unsigned short tileWidth, unsigned short tileHeight, unsigned yStart, unsigned xLength, float time, unsigned int& textureAtlas, unsigned int& currentFrame) {
 	
-	unsigned frameCount = xLength + 1;
 	m_updateTime = time;
-	m_frameCount = frameCount;
-	m_spriteSheet = new Spritesheet(pictureFile, 96, 84, true, true, yStart, frameCount);
+	m_frameCount = xLength + 1;
+	m_spriteSheet = new Spritesheet(pictureFile, tileWidth, tileHeight, true, true, yStart, m_frameCount);
 	m_textureAtlas = m_spriteSheet->getAtlas();
 
 	i_textureAtlas = &textureAtlas;
 	i_currentFrame = &currentFrame;
+
+	*i_textureAtlas = m_textureAtlas;
 }
 
 Animator::~Animator() {}
 
-void Animator::create(std::string pictureFile, unsigned yStart, unsigned xLength, float time, unsigned int& textureAtlas, unsigned int& currentFrame) {
+void Animator::create(std::string pictureFile, unsigned short tileWidth, unsigned short tileHeight, unsigned yStart, unsigned xLength, float time, unsigned int& textureAtlas, unsigned int& currentFrame) {
 	if (m_frameCount > 0)
 		return;
 
-	unsigned frameCount = xLength + 1;
+	m_frameCount = xLength + 1;
 	m_updateTime = time;
-	m_frameCount = frameCount;
-	m_spriteSheet = new Spritesheet(pictureFile, 96, 84, true, true, yStart, frameCount);
+	m_spriteSheet = new Spritesheet(pictureFile, tileWidth, tileHeight, true, true, yStart, m_frameCount);
 	m_textureAtlas = m_spriteSheet->getAtlas();
 
 	i_textureAtlas = &textureAtlas;
 	i_currentFrame = &currentFrame;
+
+	*i_textureAtlas = m_textureAtlas;
+}
+
+void Animator::create(Spritesheet* spriteSheet, float time, unsigned int& textureAtlas, unsigned int& currentFrame) {
+	m_spriteSheet = spriteSheet;
+	m_updateTime = time;
+	m_frameCount = spriteSheet->getTotalFrames();
+
+	m_textureAtlas = spriteSheet->getAtlas();
+
+	i_textureAtlas = &textureAtlas;
+	i_currentFrame = &currentFrame;
+
+	*i_textureAtlas = m_textureAtlas;
 }
 
 void Animator::update(const float deltaTime) {
@@ -55,6 +70,10 @@ unsigned int Animator::getFrameCount() const {
 void Animator::setCurrentFrame(const unsigned int& frame) {
 	m_currentFrame = frame;
 	*i_currentFrame = m_currentFrame;
+}
+
+void Animator::setUpdateTime(const float& time) {
+	m_updateTime = time;
 }
 
 void Animator::setTextureAtlas(const unsigned int& atlas) {

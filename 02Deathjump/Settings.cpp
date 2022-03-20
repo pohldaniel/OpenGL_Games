@@ -11,7 +11,7 @@ Settings::Settings(StateMachine& machine) : State(machine) {
 	m_quad = new Quad(false);
 
 	m_button = Button("BACK", Vector4f(100.0f / 255.0f, 100.0f / 255.0f, 100.0f / 255.0f, 80.0f / 255.0f));
-	m_button.setPosition(Vector2f(180.0f, 80.0f));
+	m_button.setPosition(Vector2f(180.0f, HEIGHT - 80.0f));
 	m_button.setOrigin(m_button.getSize() * 0.5f);
 	m_button.setOutlineThickness(4.0f);
 
@@ -30,6 +30,9 @@ Settings::Settings(StateMachine& machine) : State(machine) {
 	m_emitter->setDirection(Vector2f(1, 0));
 	m_emitter->setPosition(Vector2f(725.0f, 750.0f));
 	m_emitter->setParticleMax(100);
+
+
+	m_seekerBar = new SeekerBar(Vector2f(350.0f, HEIGHT - 180.0f), 10, 5);
 }
 
 Settings::~Settings() {
@@ -43,6 +46,8 @@ void Settings::fixedUpdate() {}
 
 void Settings::update() {
 	m_button.update();
+	m_seekerBar->update();
+
 	m_emitter->addParticles();
 	m_emitter->update(i_dt);
 }
@@ -57,6 +62,8 @@ void Settings::render(unsigned int &frameBuffer) {
 
 	//m_text->render(Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
 	m_button.render();
+	m_seekerBar->render();
+
 	glEnable(GL_BLEND);
 	m_emitter->render();
 	glDisable(GL_BLEND);

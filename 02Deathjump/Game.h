@@ -10,8 +10,10 @@
 #include "Timer.h"
 #include "Light.h"
 #include "Button.h"
-
+#include "HealthBar.h"
 #include "ParticleEmitter.h"
+#include "Ghost.h"
+#include "Fireball.h"
 
 class Game : public State {
 public:
@@ -29,6 +31,8 @@ private:
 	void initLights();
 
 	Player* m_player;
+	std::vector<Ghost*> m_ghosts;
+	std::vector<Fireball*> m_fireballs;
 
 	std::unordered_map<std::string, unsigned int> m_sprites;
 
@@ -40,7 +44,8 @@ private:
 	Quad *m_fog;
 	Quad *m_quad;
 	Quad *m_quadBackground;
-	
+	HealthBar *m_healthBar;
+
 	Clock m_clock;
 
 	Timer m_enemySpawnTimer;
@@ -51,13 +56,14 @@ private:
 
 	Matrix4f m_transBackground = Matrix4f::IDENTITY;
 
+	void updateTimers();
+	void initTimers();
 
 	void FixedUpdateEntities();
 	void UpdateEntities();
 	void InitEntities();
 
-	void UpdateTimers();
-	void InitTimers();
+	
 	void InitCountdown();
 
 	void UpdateCountdown();	

@@ -8,7 +8,6 @@ static SoundDevice* _instance = nullptr;
 
 SoundDevice* SoundDevice::Get(){
 	Init();
-	std::cout << _instance << std::endl;
 	return _instance;
 }
 

@@ -1,4 +1,5 @@
 #include "Player.h"
+#include "Fireball.h"
 
 Player::Player(const float& dt, const float& fdt) : Entity(dt, fdt){		
 	
@@ -26,6 +27,7 @@ void Player::update() {
 	updateVelocity();
 	updateEmitters();
 	keepInBorders();
+	updateTimer();
 }
 
 void Player::resolveCollision(Entity* entity) {
@@ -33,6 +35,18 @@ void Player::resolveCollision(Entity* entity) {
 
 	if (!getCollider().checkCollision(entity->getCollider(), MTV) || m_hit)
 		return;
+	
+	
+	auto fireball = reinterpret_cast<Fireball*>(entity);
+	fireball->m_blowUp = true;
+	/*fireball->m_emitter->Clear();
+	fireball->m_emitter->SetDirection(sf::Vector2f(0, 0));
+	fireball->m_emitter->SetSpeed(5.4f);
+	fireball->m_emitter->SetParticleMax(80);
+	fireball->m_emitter->SetSize(25);
+	fireball->m_emitter->SetLifeTimeRange(1.5f, 3.2f);
+	fireball->m_emitter->AddParticles();*/
+
 	//Camera::Get().Shake(1.75f);
 
 	m_hit = true;
@@ -42,6 +56,74 @@ void Player::resolveCollision(Entity* entity) {
 	m_velocity[1] = -950.0f;
 	int multi = 1;
 	m_velocity[0] = multi * 1200.0f;
+}
+
+void Player::resolveCollision(Ghost* entity, std::vector<Ghost*>& ghosts) {
+	Vector2f MTV;
+
+	if (!getCollider().checkCollision(entity->getCollider(), MTV) || m_hit || entity->m_blowUp)
+		return;
+
+	//m_ghost.setVolume(Extern::sound_volume);
+	//m_ghost.play();
+
+	if (MTV[1] < 0.0f && m_velocity[1] != 0.0f) {
+		// i know do not scream
+		entity->m_blowUp = true;
+		/*entity->m_emitter->Clear();
+		entity->m_emitter->SetDirection(sf::Vector2f(0, 0));
+		entity->m_emitter->SetSpeed(5.4f);
+		entity->m_emitter->SetParticleMax(80);
+		entity->m_emitter->SetSize(25);
+		entity->m_emitter->SetLifeTimeRange(1.5f, 3.2f);
+		entity->m_emitter->AddParticles();*/
+
+		entity->m_animator.setCurrentFrame(0);
+		//entity->m_animator.setUpdateTime(0.1f);
+
+		//MusicController::Get().GetSound("ghost").play();
+
+		m_velocity[1] = m_jumpVelocity + 400.0f;
+		m_Animations["jump"].setCurrentFrame(0);
+
+		//MusicController::Get().GetSound("player_jump").play();
+		return;
+	}
+
+
+	// i know do not scream
+	for (auto& g : ghosts) {
+		g->m_blowUp = true;
+		/*g->m_emitter->Clear();
+		g->m_emitter->SetDirection(sf::Vector2f(0, 0));
+		g->m_emitter->SetSpeed(5.4f);
+		g->m_emitter->SetParticleMax(80);
+		g->m_emitter->SetSize(25);
+		g->m_emitter->SetLifeTimeRange(1.5f, 3.2f);
+		g->m_emitter->AddParticles();*/
+
+		g->m_animator.setCurrentFrame(0);
+		//g->m_animator.SetUpdateTime(0.1f);
+	}
+
+	//m_healthBar.Change(true);
+
+	//MusicController::Get().GetSound("blow_up").play();
+	//MusicController::Get().GetSound("ghost").play();
+	//Camera::Get().Shake(1.75f);
+
+	m_hit = true;
+	m_grabbing = false;
+	m_movable = false;
+	m_torque = 0.925f;
+
+	//m_Animations["takedamage"].SetFrame(0);
+
+	m_velocity[1] = -950.0f;
+	int multi = entity->m_left ? 1 : -1;
+	m_velocity[0] = multi * 1200.0f;
+
+	//reinterpret_cast<sf::Sprite*>(i_drawable)->setScale(sf::Vector2f(2.0f * -multi, 2.0f));
 }
 
 void Player::resolveCollision(std::vector<Wall>& walls) {
@@ -88,6 +170,28 @@ void Player::resolveCollision(std::vector<Wall>& walls) {
 
 	if (m_velocity[1] > 0.0f)
 		m_wasGrounded = false;
+}
+
+void Player::updateTimer(){
+	if (m_hit) {
+		if (m_currentHitTake > 9) {
+			m_currentHitTake = 0;
+			m_hit = false;
+			return;
+		}
+
+		unsigned alpha[2] = {60, 255};
+
+		/*auto body = reinterpret_cast<sf::Sprite*>(i_drawable);
+
+		Vector4f c = body->getColor();
+
+		body->setColor(Vector4f(c[0], c[1], c[2], alpha[(!(m_currentHitTake % 2) ? 0 : 1)]));*/
+		if (m_hitTimer.getElapsedTimeSec() > 0.175f) {		
+			m_currentHitTake++;
+			m_hitTimer.restart();
+		}
+	}
 }
 
 bool Player::isAlive() const {
@@ -226,14 +330,15 @@ void Player::initAnimations() {
 	//todo multiple time load texture
 	m_textureAtlas = new unsigned int();
 	m_currentFrame = new unsigned int();
+	
+	m_Animations["move"].create("res/textures/player.png", 96, 84, 3, 7, 0.08f, *m_textureAtlas, *m_currentFrame);
+	m_Animations["jump"].create("res/textures/player.png", 96, 84, 4, 1, 0.125f, *m_textureAtlas, *m_currentFrame);
+	m_Animations["fall"].create("res/textures/player.png", 96, 84, 6, 0, 0.1f, *m_textureAtlas, *m_currentFrame);
+	m_Animations["crouch"].create("res/textures/player.png", 96, 84, 9, 5, 0.06f, *m_textureAtlas, *m_currentFrame);
+	m_Animations["grab"].create("res/textures/player.png", 96, 84, 15, 0, 0.1f, *m_textureAtlas, *m_currentFrame);
+	m_Animations["takedamage"].create("res/textures/player.png", 96, 84, 17, 5, 0.08f, *m_textureAtlas, *m_currentFrame);
 
-	m_Animations["idle"].create("res/textures/player.png", 1, 6, 0.08f, *m_textureAtlas, *m_currentFrame);
-	m_Animations["move"].create("res/textures/player.png", 3, 7, 0.08f, *m_textureAtlas, *m_currentFrame);
-	m_Animations["jump"].create("res/textures/player.png", 4, 1, 0.125f, *m_textureAtlas, *m_currentFrame);
-	m_Animations["fall"].create("res/textures/player.png", 6, 0, 0.1f, *m_textureAtlas, *m_currentFrame);
-	m_Animations["crouch"].create("res/textures/player.png", 9, 5, 0.06f, *m_textureAtlas, *m_currentFrame);
-	m_Animations["grab"].create("res/textures/player.png", 15, 0, 0.1f, *m_textureAtlas, *m_currentFrame);
-	m_Animations["takedamage"].create("res/textures/player.png", 17, 5, 0.08f, *m_textureAtlas, *m_currentFrame);
+	m_Animations["idle"].create("res/textures/player.png", 96, 84, 1, 6, 0.08f, *m_textureAtlas, *m_currentFrame);
 }
 
 void Player::initBody() {	
@@ -267,7 +372,6 @@ void Player::render() const{
 	m_emitter->render();
 	m_fallEmitter->render();
 	glDisable(GL_BLEND);
-
 	glUseProgram(m_shaderArray->m_program);
 	m_shaderArray->loadMatrix("u_transform", m_transform * Globals::projection);
 	m_shaderArray->loadInt("u_layer", *m_currentFrame);

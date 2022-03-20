@@ -172,7 +172,10 @@
     <ClInclude Include="Constants.h" />
     <ClInclude Include="Entity.h" />
     <ClInclude Include="Extension.h" />
+    <ClInclude Include="Fireball.h" />
     <ClInclude Include="Game.h" />
+    <ClInclude Include="Ghost.h" />
+    <ClInclude Include="HealthBar.h" />
     <ClInclude Include="Light.h" />
     <ClInclude Include="Menu.h" />
     <ClInclude Include="MusicBuffer.h" />
@@ -181,6 +184,7 @@
     <ClInclude Include="Player.h" />
     <ClInclude Include="Quad.h" />
     <ClInclude Include="Random.h" />
+    <ClInclude Include="SeekerBar.h" />
     <ClInclude Include="Settings.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="SoundBuffer.h" />
@@ -206,6 +210,7 @@
     <ClCompile Include="Collision.cpp" />
     <ClCompile Include="Entity.cpp" />
     <ClCompile Include="Extension.cpp" />
+    <ClCompile Include="Fireball.cpp" />
     <ClCompile Include="freetype_2.11.1\ftdebug.c" />
     <ClCompile Include="freetype_2.11.1\src\autofit\autofit.c" />
     <ClCompile Include="freetype_2.11.1\src\base\ftbase.c" />
@@ -248,6 +253,8 @@
     <ClCompile Include="freetype_2.11.1\src\type42\type42.c" />
     <ClCompile Include="freetype_2.11.1\src\winfonts\winfnt.c" />
     <ClCompile Include="Game.cpp" />
+    <ClCompile Include="Ghost.cpp" />
+    <ClCompile Include="HealthBar.cpp" />
     <ClCompile Include="Light.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Menu.cpp" />
@@ -257,6 +264,7 @@
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="Quad.cpp" />
     <ClCompile Include="Random.cpp" />
+    <ClCompile Include="SeekerBar.cpp" />
     <ClCompile Include="Settings.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="SoundBuffer.cpp" />

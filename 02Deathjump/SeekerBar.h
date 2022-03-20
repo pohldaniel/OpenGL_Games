@@ -1,0 +1,34 @@
+#pragma once
+#include "Vector.h"
+#include "Button.h"
+
+class SeekerBar{
+public:
+	SeekerBar() = default;
+	SeekerBar(Vector2f position, const unsigned blocks, const unsigned currentBlock);
+	~SeekerBar();
+
+	void render();
+	void update();
+
+private:
+
+	Shader *m_shader;
+
+	unsigned int m_blocks = 10;
+
+	unsigned int m_currentBlock = 10;
+
+	Vector2f m_size = Vector2f(73, 73);
+	std::vector<float> m_vertices;
+
+	Button* m_buttonLeft = nullptr;
+	Button* m_buttonRight = nullptr;
+
+	void addQuad(const Vector2f& pos);
+	void setQuadColor(Vector4f& color1, Vector4f& color2);
+	void setQuadColor(unsigned int currentBlock, Vector4f& color);
+
+	unsigned int m_vao = 0;
+	unsigned int m_vbo = 0;
+};

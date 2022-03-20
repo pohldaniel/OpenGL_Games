@@ -9,22 +9,22 @@ Spritesheet::Spritesheet(std::string pictureFile, unsigned short tileWidth, unsi
 	int width, height, numCompontents;
 	unsigned char* imageData = stbi_load(pictureFile.c_str(), &width, &height, &numCompontents, NULL);
 
-	unsigned short tileCountX = width / tileWidth;
-	unsigned short tileCountY = height / tileHeight;
-	unsigned short totalFrames = maxColumn > -1 ? maxColumn : tileCountX * tileCountY;
+	m_tileCountX = width / tileWidth;
+	m_tileCountY = height / tileHeight;
+	m_totalFrames = maxColumn > -1 ? maxColumn : m_tileCountX * m_tileCountY;
 
 	glGenTextures(1, &m_texture);
 	glBindTexture(GL_TEXTURE_2D_ARRAY, m_texture);
 	//glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_RGBA8, tileWidth, tileHeight, totalFrames, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-	glTexStorage3D(GL_TEXTURE_2D_ARRAY, 1, GL_RGBA8, tileWidth, tileHeight, totalFrames);
+	glTexStorage3D(GL_TEXTURE_2D_ARRAY, 1, GL_RGBA8, tileWidth, tileHeight, m_totalFrames);
 
 	//default row = 0
 	unsigned short image = 0;
 	unsigned short posX = 0;
-	unsigned short posY = reverse ? (tileCountY - 1) - row : row;
+	unsigned short posY = reverse ? (m_tileCountY - 1) - row : row;
 
-	while (image < totalFrames) {
-		if (image % tileCountX == 0 && image > 0) {
+	while (image < m_totalFrames) {
+		if (image % m_tileCountX == 0 && image > 0) {
 			if (reverse) posY--; else posY++;
 			posX = 0;
 		}
@@ -64,11 +64,15 @@ unsigned int Spritesheet::getAtlas() {
 }
 
 unsigned short Spritesheet::getTileCountX() {
-	return tileCountX;
+	return m_tileCountX;
 }
 
 unsigned short Spritesheet::getTileCountY() {
-	return tileCountX;
+	return m_tileCountX;
+}
+
+unsigned short Spritesheet::getTotalFrames() {
+	return m_totalFrames;
 }
 
 Spritesheet::~Spritesheet(){

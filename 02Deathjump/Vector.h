@@ -95,6 +95,7 @@ private:
 class Vector4f {
 
 	friend Vector4f operator*(float lhs, const Vector4f &rhs);
+	friend Vector4f operator*(const Vector4f &lhs, float rhs);
 public:
 	Vector4f();
 	Vector4f(float x_, float y_, float z_, float w_);

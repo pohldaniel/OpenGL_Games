@@ -295,15 +295,17 @@ void Application::processInput() {
 
 	//std::cout << Globals::cursorPosScreen.x << "  " << Globals::cursorPosScreen.y <<  std::endl;
 
-	/*Globals::cursorPosNDC = { (2.0f * m_cursorPosScreenSpace.x) / (float)WIDTH - 1.0f, 1.0f - (2.0f * m_cursorPosScreenSpace.y) / (float)HEIGHT, 0.0f};
+	Globals::cursorPosNDC = { (2.0f * m_cursorPosScreenSpace.x) / (float)WIDTH - 1.0f, 1.0f - (2.0f * m_cursorPosScreenSpace.y) / (float)HEIGHT, 0.0f};
 	//std::cout << Globals::cursorPosNDC.x << "  " << Globals::cursorPosNDC.y << "  " << Globals::cursorPosNDC.z << std::endl;
-	
+
 	//near
 	m_cursorPosEye = Globals::invProjection * Vector4f(Globals::cursorPosNDC.x, Globals::cursorPosNDC.y, -1.0f, 1.0f);
-	//far
-	m_cursorPosEye = Globals::invProjection * Vector4f(Globals::cursorPosNDC.x, Globals::cursorPosNDC.y, 1.0f, 1.0f);
 	Globals::cursorPosEye = { m_cursorPosEye[0] , m_cursorPosEye[1] , m_cursorPosEye[2] };
-	std::cout << Globals::cursorPosEye.x << "  " << Globals::cursorPosEye.y << "  " << Globals::cursorPosEye.z << std::endl;*/
+	//far
+	/*m_cursorPosEye = Globals::invProjection * Vector4f(Globals::cursorPosNDC.x, Globals::cursorPosNDC.y, 1.0f, 1.0f);
+	
+	std::cout << Globals::cursorPosEye.x << "  " << Globals::cursorPosEye.y << "  " << Globals::cursorPosEye.z << std::endl;
+	std::cout << "-------" << std::endl;*/
 
 	Globals::lMouseButton = (GetKeyState(VK_LBUTTON) & 0x8000) != 0;
 }
@@ -315,6 +317,10 @@ void Application::loadAssets() {
 	Globals::textureManager.loadTexture("foreground", "res/textures/map.png");
 	Globals::textureManager.loadTexture("menu", "res/textures/menu.png");	
 	AssetManagerStatic<Texture>::get().loadTexture("background", "res/textures/background.png");
+	Globals::textureManager.loadTexture("fireball", "res/textures/fireball.png");
+
+	Globals::spritesheetManager.loadSpritesheet("blow_up", "res/textures/explo.png", 512, 512, 0, 11);
+	Globals::spritesheetManager.loadSpritesheet("ghost", "res/textures/ghost.png", 64, 64, 0, 3);
 
 	//becarful with the uniforms some shader are used at multiple places
 	Globals::shaderManager.loadShader("fog", "shader/fog.vs", "shader/fog.fs");
@@ -326,7 +332,6 @@ void Application::loadAssets() {
 	Globals::shaderManager.loadShader("transition", "shader/transition.vs", "shader/transition.fs");
 	Globals::shaderManager.loadShader("blur", "shader/blur.vs", "shader/blur.fs");
 	Globals::shaderManager.loadShader("text", "shader/text.vs", "shader/text.fs");
-
 
 	Globals::fontManager.loadCharacterSet("font_90", "res/fonts/upheavtt.ttf", 90.0f);
 
