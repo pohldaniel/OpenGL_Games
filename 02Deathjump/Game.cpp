@@ -55,34 +55,41 @@ void Game::render(unsigned int &frameBuffer) {
 	glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
+	#if !DEBUGCOLLISION
 	glUseProgram(m_shader->m_program);
 	m_shader->loadMatrix("u_transform", m_transBackground);
 	m_quadBackground->render(m_sprites["background"]);
 	glUseProgram(0);
-	
+
+	m_healthBar->render();	
+		
+	#else
+	for (auto& o : m_walls)
+		o.render();
+	#endif
 	m_player->render();
-	m_healthBar->render();
 
 	for (const auto& g : m_ghosts)
 		g->render();
-
-	for (const auto& f : m_fireballs) {
-		f->render();
-	}
 
 	glUseProgram(m_shader->m_program);
 	m_shader->loadMatrix("u_transform", Matrix4f::IDENTITY);
 	m_quad->render(m_sprites["foreground"]);
 	glUseProgram(0);
 
+	float time = m_clock.getElapsedTimeSec();
+	for (const auto& f : m_fireballs) {
+		f->render(time);
+	}
+
+	#if !DEBUGCOLLISION
 	glEnable(GL_BLEND);
 	glUseProgram(m_shaderFog->m_program);
 	m_shaderFog->loadVector("u_resolution", Vector2f(WIDTH, HEIGHT));
 	m_shaderFog->loadFloat("u_time", m_clock.getElapsedTimeSec());
 	m_quad->render();
 	glUseProgram(0);
-	
-	float time = m_clock.getElapsedTimeSec();
+
 	for (const auto& l : m_lights) {
 		glUseProgram(l.getShader().m_program);
 		l.getShader().loadVector("u_color", Vector4f(0.65, 0.50, 0.28, 0.8));
@@ -91,6 +98,7 @@ void Game::render(unsigned int &frameBuffer) {
 		l.render();
 
 	}
+	#endif
 	glDisable(GL_BLEND);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -154,17 +162,18 @@ void Game::updateTimers() {
 }
 
 void Game::initTimers() {
+
 	m_enemySpawnTimer.SetFunction(1.0f, [&]() {
 		if (m_fireballs.size() > 8)
 			return;
 
 		const float velocity = 450.0f * Random::RandFloat(1.01f, 1.82f);
 
-		m_fireballs.push_back(new Fireball(i_dt, i_fdt, velocity,Random::RandInt(0, 1)));
+		m_fireballs.push_back(new Fireball(i_dt, i_fdt, velocity, Random::RandInt(0, 1)));
 
 	});
 
-	/*m_gameSpeedTimer.SetFunction(5.5f, [&]() {
+	m_gameSpeedTimer.SetFunction(5.5f, [&]() {
 		const float sub = Random::RandFloat(0.085f, 0.125f);
 		const float uTime = m_enemySpawnTimer.GetUpdateTime() - sub;
 
@@ -181,7 +190,7 @@ void Game::initTimers() {
 			return;
 
 		m_ghosts.push_back(new Ghost(i_dt, i_fdt));
-	});*/
+	});
 }
 
 void Game::UpdateCountdown() {
@@ -208,21 +217,22 @@ void Game::initSprites() {
 }
 
 void Game::initWalls() {
-	m_walls.push_back(Wall(Vector2f(WIDTH / 2.0f, 855.0f), Vector2f(WIDTH, 100.0f)));
-	m_walls.push_back(Wall(Vector2f(800.0f, 772.0f), Vector2f(64.0f, 64.0f)));
-	m_walls.push_back(Wall(Vector2f(640.0f, 660.0f), Vector2f(128.0f, 32.0f)));
-	m_walls.push_back(Wall(Vector2f(1072.0f, 660.0f), Vector2f(96.0f, 32.0f)));
-	m_walls.push_back(Wall(Vector2f(192.0f, 596.0f), Vector2f(192.0f, 32.0f)));
-	m_walls.push_back(Wall(Vector2f(435.0f, 530.0f), Vector2f(160.0f, 32.0f)));
-	m_walls.push_back(Wall(Vector2f(880.0f, 530.0f), Vector2f(224.0f, 32.0f)));
-	m_walls.push_back(Wall(Vector2f(658.0f, 436.0f), Vector2f(96.0f, 32.0f)));
-	m_walls.push_back(Wall(Vector2f(80.0f, 466.0f), Vector2f(96.0f, 32.0f)));
-	m_walls.push_back(Wall(Vector2f(1182.0f, 436.0f), Vector2f(192.0f, 32.0f)));
-	m_walls.push_back(Wall(Vector2f(398.0f, 340.0f), Vector2f(224.0f, 32.0f)));
-	m_walls.push_back(Wall(Vector2f(815.0f, 340.0f), Vector2f(96.0f, 32.0f)));
-	m_walls.push_back(Wall(Vector2f(1377.0f, 340.0f), Vector2f(128.0f, 32.0f)));
-	m_walls.push_back(Wall(Vector2f(176.0f, 244.0f), Vector2f(160.0f, 32.0f)));
-	m_walls.push_back(Wall(Vector2f(960.0f, 244.0f), Vector2f(192.0f, 32.0f)));
-	m_walls.push_back(Wall(Vector2f(1230.0f, 180.0f), Vector2f(160.0f, 32.0f)));
-	m_walls.push_back(Wall(Vector2f(1490.0f, 116.0f), Vector2f(160.0f, 32.0f)));
+	//m_walls.push_back(Wall(Vector2f(0.0f, 0.0f), Vector2f(192.0f, 32.0f)));
+	m_walls.push_back(Wall(Vector2f(WIDTH / 2.0f, 855.0f) - Vector2f(WIDTH, 100.0f) * 0.5f, Vector2f(WIDTH, 100.0f)));
+	m_walls.push_back(Wall(Vector2f(800.0f, 772.0f)  - Vector2f(64.0f, 64.0f)  * 0.5f, Vector2f(64.0f, 64.0f)));
+	m_walls.push_back(Wall(Vector2f(640.0f, 660.0f)  - Vector2f(128.0f, 32.0f) * 0.5f, Vector2f(128.0f, 32.0f)));
+	m_walls.push_back(Wall(Vector2f(1072.0f, 660.0f) - Vector2f(96.0f, 32.0f)  * 0.5f, Vector2f(96.0f, 32.0f)));
+	m_walls.push_back(Wall(Vector2f(192.0f, 596.0f)  - Vector2f(192.0f, 32.0f) * 0.5f, Vector2f(192.0f, 32.0f)));
+	m_walls.push_back(Wall(Vector2f(435.0f, 530.0f)  - Vector2f(160.0f, 32.0f) * 0.5f, Vector2f(160.0f, 32.0f)));
+	m_walls.push_back(Wall(Vector2f(880.0f, 530.0f)  - Vector2f(224.0f, 32.0f) * 0.5f, Vector2f(224.0f, 32.0f)));
+	m_walls.push_back(Wall(Vector2f(658.0f, 436.0f)  - Vector2f(96.0f, 32.0f)  * 0.5f, Vector2f(96.0f, 32.0f)));
+	m_walls.push_back(Wall(Vector2f(80.0f, 466.0f)   - Vector2f(96.0f, 32.0f)  * 0.5f, Vector2f(96.0f, 32.0f)));
+	m_walls.push_back(Wall(Vector2f(1182.0f, 436.0f) - Vector2f(192.0f, 32.0f) * 0.5f, Vector2f(192.0f, 32.0f)));
+	m_walls.push_back(Wall(Vector2f(398.0f, 340.0f)  - Vector2f(224.0f, 32.0f) * 0.5f, Vector2f(224.0f, 32.0f)));
+	m_walls.push_back(Wall(Vector2f(815.0f, 340.0f)  - Vector2f(96.0f, 32.0f)  * 0.5f, Vector2f(96.0f, 32.0f)));
+	m_walls.push_back(Wall(Vector2f(1377.0f, 340.0f) - Vector2f(128.0f, 32.0f) * 0.5f, Vector2f(128.0f, 32.0f)));
+	m_walls.push_back(Wall(Vector2f(176.0f, 244.0f)  - Vector2f(160.0f, 32.0f) * 0.5f, Vector2f(160.0f, 32.0f)));
+	m_walls.push_back(Wall(Vector2f(960.0f, 244.0f)  - Vector2f(192.0f, 32.0f) * 0.5f, Vector2f(192.0f, 32.0f)));
+	m_walls.push_back(Wall(Vector2f(1230.0f, 180.0f) - Vector2f(160.0f, 32.0f) * 0.5f, Vector2f(160.0f, 32.0f)));
+	m_walls.push_back(Wall(Vector2f(1490.0f, 116.0f) - Vector2f(160.0f, 32.0f) * 0.5f, Vector2f(160.0f, 32.0f)));
 }

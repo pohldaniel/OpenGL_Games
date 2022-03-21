@@ -4,7 +4,8 @@
 Player::Player(const float& dt, const float& fdt) : Entity(dt, fdt){		
 	
 	m_shaderArray = Globals::shaderManager.getAssetPointer("quad_array");
-	m_quad = new Quad(true, 1.0f, -1.0f, m_playerSize[0], m_playerSize[1]);
+	//m_quad = new Quad(true, 1.0f, -1.0f, m_playerSize[0], m_playerSize[1]);
+	m_quad = new Quad(true, 1.0f, 0.0f, m_playerSize[0], m_playerSize[1], 1.0f, 1.0f, 0, 0, 0.0f, -1.0f);
 
 	initBody();
 	initCollider();
@@ -33,19 +34,18 @@ void Player::update() {
 void Player::resolveCollision(Entity* entity) {
 	Vector2f MTV;
 
-	if (!getCollider().checkCollision(entity->getCollider(), MTV) || m_hit)
+	if (!getCollider().checkCollision(entity->getCollider()) || m_hit)
 		return;
-	
-	
+		
 	auto fireball = reinterpret_cast<Fireball*>(entity);
 	fireball->m_blowUp = true;
-	/*fireball->m_emitter->Clear();
-	fireball->m_emitter->SetDirection(sf::Vector2f(0, 0));
-	fireball->m_emitter->SetSpeed(5.4f);
-	fireball->m_emitter->SetParticleMax(80);
-	fireball->m_emitter->SetSize(25);
-	fireball->m_emitter->SetLifeTimeRange(1.5f, 3.2f);
-	fireball->m_emitter->AddParticles();*/
+	fireball->m_emitter->clear();
+	fireball->m_emitter->setDirection(Vector2f(0, 0));
+	fireball->m_emitter->setSpeed(5.4f);
+	fireball->m_emitter->setParticleMax(80);
+	fireball->m_emitter->setSize(25);
+	fireball->m_emitter->setLifeTimeRange(1.5f, 3.2f);
+	fireball->m_emitter->addParticles();
 
 	//Camera::Get().Shake(1.75f);
 
@@ -54,13 +54,13 @@ void Player::resolveCollision(Entity* entity) {
 	m_movable = false;
 	m_torque = 0.925f;
 	m_velocity[1] = -950.0f;
-	int multi = 1;
+	int multi = (reinterpret_cast<Fireball*>(entity)->m_left ? 1 : -1);
 	m_velocity[0] = multi * 1200.0f;
 }
 
 void Player::resolveCollision(Ghost* entity, std::vector<Ghost*>& ghosts) {
 	Vector2f MTV;
-
+	
 	if (!getCollider().checkCollision(entity->getCollider(), MTV) || m_hit || entity->m_blowUp)
 		return;
 
@@ -79,10 +79,10 @@ void Player::resolveCollision(Ghost* entity, std::vector<Ghost*>& ghosts) {
 		entity->m_emitter->AddParticles();*/
 
 		entity->m_animator.setCurrentFrame(0);
-		//entity->m_animator.setUpdateTime(0.1f);
+		entity->m_animator.setUpdateTime(0.1f);
 
 		//MusicController::Get().GetSound("ghost").play();
-
+		
 		m_velocity[1] = m_jumpVelocity + 400.0f;
 		m_Animations["jump"].setCurrentFrame(0);
 
@@ -103,7 +103,7 @@ void Player::resolveCollision(Ghost* entity, std::vector<Ghost*>& ghosts) {
 		g->m_emitter->AddParticles();*/
 
 		g->m_animator.setCurrentFrame(0);
-		//g->m_animator.SetUpdateTime(0.1f);
+		g->m_animator.setUpdateTime(0.1f);
 	}
 
 	//m_healthBar.Change(true);
@@ -127,28 +127,26 @@ void Player::resolveCollision(Ghost* entity, std::vector<Ghost*>& ghosts) {
 }
 
 void Player::resolveCollision(std::vector<Wall>& walls) {
-	Vector2f MTV;
+	
+	Vector2f MTV = m_collider.position;
 	m_grounded = false;
 
 	for (auto& o : walls) {
 		if (!getCollider().checkCollision(o.getCollider(), MTV))
 			continue;
-
+		
 		if (MTV[1] < 0.0f && m_velocity[1] >= 0.0f) {
 			m_grounded = true;
 			m_velocity[1] = 0.0f;
 			crouch();
-
 		}else if (MTV[1] > 0.0f && m_velocity[1] < 0.0f) {
 			m_velocity[1] = 0.0f;
 		}
-	 
+
 		m_collider.position += MTV;
 
-		setPosition(m_collider.position);
-
 		if (MTV[0] != 0.0f && m_velocity[1] > 0.0f && m_movable) {
-			bool diffY = m_collider.position[1] - m_collider.size[1] / 2.0f > o.getCollider().getBody().position[1] - o.getCollider().getBody().size[1];
+			bool diffY = abs(o.getCollider().getBody().position[1] - m_collider.position[1]) < 5.0f;
 
 			if (!diffY)
 				return;
@@ -157,15 +155,10 @@ void Player::resolveCollision(std::vector<Wall>& walls) {
 			m_velocity[1] = 0.0f;
 			m_velocity[0] = 0.0f;
 
-			bool diffX = this->getPosition()[0] > o.getCollider().getBody().position[0] + o.getCollider().getBody().size[0] / 2.0f;
-
-			const int mulit = (diffX) ? -1 : 1;
-
-			//body->setScale(Vector2f(2.0f * mulit, 2.0f));
-			m_collider.position[1] += -(m_collider.position[1] - m_collider.size[1] / 2.0f - o.getCollider().getBody().position[1] + o.getCollider().getBody().size[1] / 2.0f);
+			m_collider.position[1] = o.getCollider().getBody().position[1];
 		}
+		setPosition(m_collider.position);
 
-		MTV = Vector2f();
 	}
 
 	if (m_velocity[1] > 0.0f)
@@ -225,7 +218,7 @@ void Player::animate() {
 			m_Animations["move"].update(i_dt);
 		}else if (m_velocity[0] > 0) {
 			m_Animations["move"].update(i_dt);
-		}else if (m_velocity[0] == 0) {
+		}else if (m_grounded && m_velocity[0] == 0) {
 			m_Animations["idle"].update(i_dt);
 		}
 	}else {
@@ -241,8 +234,8 @@ void Player::animate() {
 void Player::keepInBorders() {
 	if (m_collider.position[0] < 0.0f)
 		m_collider.position[0] = 0.0f;
-	else if (m_collider.position[0] > WIDTH)
-		m_collider.position[0] = WIDTH;
+	else if (m_collider.position[0] > WIDTH - m_collider.size[0])
+		m_collider.position[0] = WIDTH - m_collider.size[0];
 }
 
 void Player::crouch() {
@@ -254,17 +247,15 @@ void Player::crouch() {
 		m_collider.size[1] = 40.0f;
 
 		if (!wasCrouching) {
-			m_collider.position[1] += 20.0f;
-			//setOrigin(Vector2f(m_size[0] * 0.5, m_size[1] - 20.0f));
-			setOrigin(Vector2f(m_playerSize[0], m_size[1] - 20.0f));
+			m_collider.position[1] += 40.0f;
+			setOrigin(m_origin[0], m_origin[1] + 40.0f);			
 		}
 		
 	}else {
 		m_collider.size[1] = 80.0f;
 		if (wasCrouching) {
-			m_collider.position[1] -= 20.0f;
-			//setOrigin(Vector2f(m_size[0] * 0.5, m_size[1] - 40.0f));
-			setOrigin(Vector2f(m_playerSize[0], m_size[1] - 40.0f));
+			m_collider.position[1] -= 40.0f;
+			setOrigin(m_origin[0], m_origin[1] - 40.0f);			
 		}
 	}
 }
@@ -312,13 +303,12 @@ void Player::updateVelocity() {
 
 void Player::updateEmitters() {
 	m_emitter->setDirection(Vector2f((m_velocity[0] < 0.0f ? 1.0f : -1.0f), 0.0f));
-
-	m_emitter->setPosition(Vector2f(m_collider.position[0], m_collider.position[1] - 10.0f));
+	m_emitter->setPosition(m_collider.position + m_collider.size * 0.25f);
 	if (m_velocity[0] != 0.0f)
 		m_emitter->addParticles();
 	m_emitter->update(i_dt);
 
-	m_fallEmitter->setPosition(Vector2f(m_collider.position[0] - 10.0f, m_collider.position[1] + 22.0f));
+	m_fallEmitter->setPosition(Vector2f(m_collider.position[0] +  m_collider.size[1] * 0.25f, m_collider.position[1] + m_collider.size[1] * 0.7f));
 	if (!m_wasGrounded && m_grounded) {
 		m_fallEmitter->addParticles();
 		m_wasGrounded = true;
@@ -342,19 +332,21 @@ void Player::initAnimations() {
 }
 
 void Player::initBody() {	
-	setPosition(Vector2f(WIDTH, HEIGHT) / 2.0f);
+	//setPosition(Vector2f(WIDTH, HEIGHT) / 2.0f);
 	setSize(Vector2f(m_quad->getScale()[0] * m_playerSize[0], m_quad->getScale()[0] * m_playerSize[1]));
-	setOrigin(Vector2f(m_size[0] * 0.5f, m_size[1] / 1.315f));
+	//setOrigin(Vector2f(m_size[0] * 0.5f, m_size[1] * 0.5f));
 }
 
 void Player::initCollider() {
 	const Vector2f size = Vector2f(40.0f, 80.0f);
-	m_collider.position = Vector2f(WIDTH, HEIGHT) / 2.0f;
+	m_collider.position = Vector2f(WIDTH, HEIGHT) * 0.5f;
 	m_collider.size = size;
+
+	setPosition(m_collider.position);
+	setOrigin(Vector2f((m_size[0] - size[0]) * 0.5f, m_size[1] - size[1]));
 }
 
 void Player::initEmitters() {
-
 	m_emitter = new ParticleEmitter(Vector4f(1.0f, 0.0f, 0.0f, 1.0f), Vector4f(1.0f, 1.0f, 1.0f, 0.0f), 15);
 	m_emitter->setLifeTimeRange(0.5f, 2.0f);
 	m_emitter->setSpeed(1.5f);
@@ -367,7 +359,7 @@ void Player::initEmitters() {
 	m_fallEmitter->setParticleMax(35);
 }
 
-void Player::render() const{	
+void Player::render(){	
 	glEnable(GL_BLEND);
 	m_emitter->render();
 	m_fallEmitter->render();
@@ -377,4 +369,27 @@ void Player::render() const{
 	m_shaderArray->loadInt("u_layer", *m_currentFrame);
 	m_quad->render(*m_textureAtlas, true);
 	glUseProgram(0);
+
+	//Debug colider
+	#if DEBUGCOLLISION
+	Matrix4f transProj = Globals::projection.transpose();
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();	
+	glLoadMatrixf(&transProj[0][0]);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	glBegin(GL_QUADS);
+	glColor3f(1, 1, 0);
+
+	float xpos = m_collider.position[0];
+	float ypos = m_collider.position[1];
+	float w = m_collider.size[0];
+	float h = m_collider.size[1];
+
+	glVertex3f(xpos, HEIGHT - ypos, 0.0f);
+	glVertex3f(xpos, HEIGHT - (ypos + h), 0.0f);
+	glVertex3f(xpos + w, HEIGHT - (ypos + h), 0.0f);
+	glVertex3f(xpos + w, HEIGHT - ypos, 0.0f);
+	glEnd();
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	#endif
 }

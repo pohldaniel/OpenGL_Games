@@ -12,7 +12,7 @@ public:
 
 	virtual void fixedUpdate() = 0;
 	virtual void update() = 0;
-	virtual void render() const = 0;
+	virtual void render() = 0;
 
 
 	Collision getCollider();
@@ -21,8 +21,15 @@ public:
 	void setSize(const Vector2f &size);
 	void setPosition(const float x, const float y);
 	void setPosition(const Vector2f &position);
+
+	void setPosition2(const float x, const float y);
+	void setPosition2(const Vector2f &position);
+
 	void setOrigin(const float x, const float y);
 	void setOrigin(const Vector2f &origin);
+
+	void setOrigin2(const float x, const float y);
+	void setOrigin2(const Vector2f &origin);
 
 	const Vector2f &getPosition() const;
 	const Vector2f &getSize() const;

@@ -4,7 +4,7 @@
 Ghost::Ghost(const float& dt, const float& fdt) : Entity(dt, fdt) {
 
 	m_shaderArray = Globals::shaderManager.getAssetPointer("quad_array");
-	m_quad = new Quad(true, 1.0f, -1.0f, m_size[0], m_size[1]);
+	m_quad = new Quad(true, 1.0f, 0.0f, m_sizeGhost[0], m_sizeGhost[1], 1.0f, 1.0f, 0, 0, 0.0f, -1.0f);
 
 	initBody();
 	initCollider();
@@ -86,9 +86,11 @@ void Ghost::initAnimations() {
 }
 
 void Ghost::initBody() {
-	setPosition(Vector2f(WIDTH, HEIGHT) / 2.0f);
-	setSize(Vector2f(m_quad->getScale()[0] * m_size[0], m_quad->getScale()[0] * m_size[1]));
-	setOrigin(Vector2f(m_size[0] * 0.5f, m_size[1] / 1.315f));
+	//setPosition(Vector2f(WIDTH, HEIGHT) * 0.5f);
+
+	//setPosition2(0.0f, HEIGHT - 0.0f);
+	setSize(Vector2f(m_quad->getScale()[0] * m_sizeGhost[0], m_quad->getScale()[0] * m_sizeGhost[1]));
+	setOrigin(Vector2f(m_size[0] * 0.25f, m_size[1] * 0.25f));
 }
 
 void Ghost::initCollider() {
@@ -96,13 +98,38 @@ void Ghost::initCollider() {
 	float posY = Random::RandInt(90, HEIGHT - 90);
 
 	m_collider.position = Vector2f(posX, posY);
-	m_collider.size = Vector2f(10.0f, 13.0f) * 2.75f;
+	//m_collider.size = Vector2f(10.0f, 13.0f) * 2.75f;
+	m_collider.size = Vector2f(64.0f, 64.0f);
+	setPosition(Vector2f(posX, posY));
 }
 
-void Ghost::render() const {
+void Ghost::render(){
 	glUseProgram(m_shaderArray->m_program);
 	m_shaderArray->loadMatrix("u_transform", m_transform * Globals::projection);
 	m_shaderArray->loadInt("u_layer", *m_currentFrame);
 	m_quad->render(*m_textureAtlas, true);
 	glUseProgram(0);
+
+	//Debug colider
+	#if DEBUGCOLLISION
+	Matrix4f transProj = Globals::projection.transpose();
+	glMatrixMode(GL_PROJECTION);										
+	glLoadIdentity();														
+	glLoadMatrixf(&transProj[0][0]);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	glBegin(GL_QUADS);
+	glColor3f(1, 1, 0); 
+
+	float xpos = m_collider.position[0];
+	float ypos = m_collider.position[1];
+	float w = m_collider.size[0];
+	float h = m_collider.size[1];
+
+	glVertex3f(xpos,     HEIGHT - ypos,     0.0f);
+	glVertex3f(xpos,     HEIGHT - (ypos + h), 0.0f);
+	glVertex3f(xpos + w, HEIGHT - (ypos + h), 0.0f);
+	glVertex3f(xpos + w, HEIGHT - ypos,     0.0f);
+	glEnd();
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	#endif
 }

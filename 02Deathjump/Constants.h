@@ -11,7 +11,9 @@
 #include "SoundEffectsPlayer.h"
 #include "Spritesheet.h"
 
-#define PHYSICS_STEP	0.01f
+#define DEBUGCOLLISION 0
+
+#define PHYSICS_STEP 0.01f
 
 #define WIDTH 1600
 #define HEIGHT 900

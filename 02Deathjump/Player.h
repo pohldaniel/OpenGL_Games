@@ -16,7 +16,7 @@ public:
 
 	virtual void fixedUpdate();
 	virtual void update();
-	virtual void render() const;
+	virtual void render();
 
 	void resolveCollision(Entity* entity);
 	void resolveCollision(std::vector<Wall>& walls);
@@ -45,12 +45,12 @@ private:
 	Shader *m_shaderArray;
 	Spritesheet *m_spriteSheet;
 	Vector2f m_velocity;
-	Vector2f m_playerSize = Vector2f(96.0f, 84.0f);
+	Vector2f m_playerSize = Vector2f(96.0f * 2.0f, 84.0f * 2.0f);
 	bool m_alive = true;
 
 	const float m_movementSpeed = 420.0f;
 	float m_torque = 0.85f;
-	const float m_gravity = 4605.0f;
+	float m_gravity = 4605.0f;
 	const float m_jumpVelocity = -1200.0f;
 	bool m_grounded = true;
 	bool m_crouching = false;

@@ -12,7 +12,7 @@ public:
 
 	void fixedUpdate() override;
 	void update() override {};	
-	void render() const override;
+	void render() override;
 	void update(Collider obj);
 
 	// i should die for that too ;)
@@ -31,7 +31,7 @@ private:
 	Shader *m_shaderArray;
 	Spritesheet *m_spriteSheet;
 	Vector2f m_direction;
-	Vector2f m_size = Vector2f(64.0f, 64.0f);
+	Vector2f m_sizeGhost = Vector2f(128.0f, 128.0f);
 
 	Clock m_clock;
 	//std::unordered_map<std::string, Animator> m_Animations;

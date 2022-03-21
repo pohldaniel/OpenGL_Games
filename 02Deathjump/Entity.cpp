@@ -26,9 +26,20 @@ void Entity::setPosition(const float x, const float y) {
 	m_transform.translate((m_position[0] - m_origin[0]), (HEIGHT - m_position[1] + m_origin[1]), 0.0f);
 }
 
+void Entity::setPosition2(const float x, const float y) {
+	m_position[0] = x;
+	m_position[1] = y;
+	m_transform.translate((m_position[0] - m_origin[0]), (m_position[1] + m_origin[1]), 0.0f);
+}
+
 void Entity::setPosition(const Vector2f &position) {
 	m_position = position;
 	m_transform.translate((m_position[0] - m_origin[0]), (HEIGHT - m_position[1] + m_origin[1]), 0.0f);
+}
+
+void Entity::setPosition2(const Vector2f &position) {
+	m_position = position;
+	m_transform.translate((m_position[0] - m_origin[0]), (m_position[1] + m_origin[1]), 0.0f);
 }
 
 void Entity::setOrigin(const float x, const float y) {
@@ -37,10 +48,22 @@ void Entity::setOrigin(const float x, const float y) {
 	m_transform.translate((m_position[0] - m_origin[0]), (HEIGHT - m_position[1] + m_origin[1]), 0.0f);
 }
 
+void Entity::setOrigin2(const float x, const float y) {
+	m_origin[0] = x;
+	m_origin[1] = y;
+	m_transform.translate((m_position[0] - m_origin[0]), (m_position[1] + m_origin[1]), 0.0f);
+}
+
 void Entity::setOrigin(const Vector2f &origin) {
 	m_origin = origin;
 	m_transform.translate((m_position[0] - m_origin[0]), (HEIGHT - m_position[1] + m_origin[1]), 0.0f);
 }
+
+void Entity::setOrigin2(const Vector2f &origin) {
+	m_origin = origin;
+	m_transform.translate((m_position[0] - m_origin[0]), (m_position[1] + m_origin[1]), 0.0f);
+}
+
 
 const Vector2f &Entity::getPosition() const{
 	return m_position;

@@ -1,17 +1,19 @@
 #include "Fireball.h"
 #include "Random.h"
 
-Fireball::Fireball(const float& dt, const float& fdt, float velocity, bool left) : Entity(dt, fdt), m_velocity(velocity), m_dt(dt), m_fdt(fdt) {
+Fireball::Fireball(const float& dt, const float& fdt, float velocity, bool left) : Entity(dt, fdt), m_velocity(velocity) {
 	m_shaderArray = Globals::shaderManager.getAssetPointer("quad_array");
 	m_shader = Globals::shaderManager.getAssetPointer("quad");
-	m_quad = new Quad(true, 1.0f, -1.0f, m_size[0], m_size[1]);
-	m_quadBlow = new Quad(true, 1.0f, -1.0f, 512.f * 0.30f, 512.f * 0.30f);
 
-	m_left = left;
-	initSprites();
+	m_quad = new Quad(true, 1.0f, 0.0f, m_fireballSize[0], m_fireballSize[1], 1.0f, 1.0f, 0, 0, 0.0f, -1.0f);
+	m_quadBlow = new Quad(true, 1.0f, -1.0f, m_blowSize[0], m_blowSize[1]);
+
+	m_left = left;	
 	initCollider(Vector2f(left ? -100.f : WIDTH + 100.f, m_positions[Random::RandInt(0, 12)]));
+	initSprites();
 	initAnimations();
-	//initEmitters();
+	initEmitter();
+	initLight();
 }
 
 Fireball::~Fireball() {
@@ -24,6 +26,8 @@ void Fireball::fixedUpdate() {
 }
 
 void Fireball::update() {	
+	updateLight();
+	updateEmitter();
 	animate();
 
 	if (m_collider.position[0] > WIDTH + 300.0f || m_collider.position[0] < -300.0f)
@@ -37,17 +41,17 @@ bool Fireball::isAlive() const {
 void Fireball::move() {
 	int multi = (m_left ? 1 : -1);
 
-	m_collider.position += Vector2f(m_velocity * multi * m_fdt, 0.0f);
+	m_collider.position += Vector2f(m_velocity * multi * i_fdt, 0.0f);
 	setPosition(m_collider.position);
 }
 
-/*void Fireball::UpdateLight() {
-	m_light->SetPosition(i_collider.position);
+void Fireball::updateLight() {
+	m_light->setPosition(m_collider.position);
 }
 
-void Fireball::InitLight() {
-	m_light = new Light(i_collider.position, 290.0f);
-}*/
+void Fireball::initLight() {
+	m_light = new Light(m_collider.position, 290.0f);
+}
 
 void Fireball::animate() {
 	if (m_blowUp) {
@@ -56,7 +60,7 @@ void Fireball::animate() {
 			return;
 		}
 		setPosition(m_collider.position);
-		m_Animations["blow_up"].update(m_dt);
+		m_Animations["blow_up"].update(i_dt);
 	}
 }
 
@@ -67,48 +71,83 @@ void Fireball::initAnimations() {
 }
 
 void Fireball::initSprites() {
-	{
-		/*m_fireballSprite.setTexture(*i_texture);
-		m_fireballSprite.setOrigin(sf::Vector2f(m_size.x, m_size.y) / 2.0f);
-		m_fireballSprite.setScale(sf::Vector2f(m_left ? 2.f : -2.f, 2.f));
-		m_fireballSprite.setPosition(i_collider.position);*/
-
-		m_sprites["fireball"] = Globals::textureManager.get("fireball").getTexture();
-		setSize(Vector2f(m_quad->getScale()[0] * m_size[0], m_quad->getScale()[0] * m_size[1]));
-		setOrigin(Vector2f(m_size[0], m_size[1]) * 0.5f);
-		m_quad->setFlipped(m_left);
-		setPosition(m_collider.position);
-	}
-
-	/*{
-		Vector2f size = Vector2f(512.f, 512.f);
-
-		m_blowUpSprite.setTexture(*m_blowTexture);
-		m_blowUpSprite.setTextureRect(sf::IntRect(0, 0, size.x, size.y));
-		m_blowUpSprite.setOrigin(size / 2.f);
-		m_blowUpSprite.setScale(sf::Vector2f(0.30f, 0.30f));
-	}*/
-
-	
+	m_sprites["fireball"] = Globals::textureManager.get("fireball").getTexture();		
+	setSize(Vector2f(m_quad->getScale()[0] * m_fireballSize[0], m_quad->getScale()[0] * m_fireballSize[1]));
+	m_quad->setFlipped(m_left);	
+	originBlow = Vector2f(m_blowSize[0] * m_quadBlow->getScale()[0], m_blowSize[1] * m_quadBlow->getScale()[1]) * 0.5;
 }
 
 void Fireball::initCollider(Vector2f position) {
-	const Vector2f size = Vector2f(32.f, 32.f);
+	const Vector2f size = Vector2f(64.f, 64.f);
 	m_collider.size = size;
 	m_collider.position = position;
+
+	setPosition(m_collider.position);
 }
 
-void Fireball::render() const{	
-	if (!m_blowUp) {		
+
+void Fireball::updateEmitter() {
+	if (!m_blowUp)
+		m_emitter->addParticles();
+	m_emitter->update(i_dt);
+	m_emitter->setPosition(m_collider.position + m_size * 0.5f);
+}
+
+void Fireball::initEmitter() {
+	m_emitter = new ParticleEmitter(Vector4f(1.0f, 1.0f, 0.0f, 1.0f), Vector4f(1.0f, 0.0f, 0.0f, 0.0f), 20);
+	m_emitter->setDirection(Vector2f(m_left ? -1 : 1, 0.0f));
+	m_emitter->setLifeTimeRange(0.8f, 2.0f);
+	m_emitter->setSpeed(4.1f);
+	m_emitter->setPosition(m_collider.position + m_size * 0.5f);
+}
+
+void Fireball::render(float deltaTime) {
+	glEnable(GL_BLEND);
+	m_emitter->render();
+	glDisable(GL_BLEND);
+
+	if (!m_blowUp) {
 		glUseProgram(m_shader->m_program);
 		m_shader->loadMatrix("u_transform", m_transform * Globals::projection);
 		m_quad->render(m_sprites.at("fireball"));
-		glUseProgram(0);		
-	}else {		
+		glUseProgram(0);
+	}else {
+		m_blowTrans.translate((m_collider.position[0] - originBlow[0]), (HEIGHT - m_collider.position[1] + originBlow[1]), 0.0f);
 		glUseProgram(m_shaderArray->m_program);
-		m_shaderArray->loadMatrix("u_transform", m_transform * Globals::projection);
+		m_shaderArray->loadMatrix("u_transform", m_blowTrans * Globals::projection);
 		m_shaderArray->loadInt("u_layer", *m_currentFrame);
 		m_quadBlow->render(*m_textureAtlas, true);
-		glUseProgram(0);		
-	}	
+		glUseProgram(0);
+	}
+
+	glEnable(GL_BLEND);
+	glUseProgram(m_light->getShader().m_program);
+	m_light->getShader().loadVector("u_color", Vector4f(0.75, 0.42, 0.28, 0.72));
+	m_light->getShader().loadFloat("u_time", deltaTime);
+	m_light->render();
+	glUseProgram(0);
+	glDisable(GL_BLEND);
+
+	//Debug colider
+	#if DEBUGCOLLISION
+	Matrix4f transProj = Globals::projection.transpose();
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	glLoadMatrixf(&transProj[0][0]);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	glBegin(GL_QUADS);
+	glColor3f(1, 1, 0);
+
+	float xpos = m_collider.position[0];
+	float ypos = m_collider.position[1];
+	float w = m_collider.size[0];
+	float h = m_collider.size[1];
+
+	glVertex3f(xpos, HEIGHT - ypos, 0.0f);
+	glVertex3f(xpos, HEIGHT - (ypos + h), 0.0f);
+	glVertex3f(xpos + w, HEIGHT - (ypos + h), 0.0f);
+	glVertex3f(xpos + w, HEIGHT - ypos, 0.0f);
+	glEnd();
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	#endif
 }
