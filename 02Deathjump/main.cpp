@@ -63,6 +63,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	
 	while (application.isRunning()) {
 
+		
+
 		physicsElapsedTime += deltaTime;
 		while (physicsElapsedTime > PHYSICS_STEP) {
 			fixedDeltaTime = fixedDeltaClock.restartSec();

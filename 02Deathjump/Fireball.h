@@ -13,7 +13,7 @@ public:
 
 	void fixedUpdate() override;
 	void update() override;
-	void render() override {}
+	void render() override {};
 	void render(float deltaTime);
 
 	ParticleEmitter* m_emitter;

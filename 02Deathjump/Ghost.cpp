@@ -9,12 +9,11 @@ Ghost::Ghost(const float& dt, const float& fdt) : Entity(dt, fdt) {
 	initBody();
 	initCollider();
 	initAnimations();
-	//initEmitters();
+	initEmitter();
+	initLight();
 }
 
-Ghost::~Ghost() {
-
-}
+Ghost::~Ghost() {}
 
 void Ghost::fixedUpdate() {
 	const float velocity = 165.0f;
@@ -22,27 +21,23 @@ void Ghost::fixedUpdate() {
 	m_collider.position += m_direction * velocity * i_fdt;
 	m_collider.position[1] += 80.0f * (sinf(4 * m_clock.getElapsedTimeSec())) * i_fdt;
 	setPosition(m_collider.position);
-
-	//m_sprite->setPosition(i_collider.position);
-
-	//LOG(i_collider.position.x, '\n');
 }
 
 void Ghost::update(Collider obj) {
-	//UpdateLight();
+	updateLight();
 
-	//m_emitter->Update(i_dt);
-	//m_emitter->SetPosition(i_collider.position);
+	m_emitter->update(i_dt);
+	m_emitter->setPosition(m_collider.position + m_size * 0.5f);
 
-	if (m_blowUp) {
+	if (m_blowUp) {		
+		m_emitter->addParticles();
 		m_animator.update(i_dt);
 
 		if (m_animator.getCurrentFrame() == m_animator.getFrameCount() - 1)
 			m_isAlive = false;
 
 		return;
-	}else
-		//m_emitter->AddParticles();
+	}
 
 	m_lifeTime -= i_dt;
 
@@ -71,13 +66,29 @@ void Ghost::update(Collider obj) {
 	m_animator.update(i_dt);
 	m_quad->setFlipped(m_left);
 
-	//m_sprite->setScale(m_left ? sf::Vector2f(-2.75f, 2.75f) : sf::Vector2f(2.75f, 2.75f));
+	//setOrigin(Vector2f(m_left ? m_size[0] * 0.25f : m_size[0] * 0.35f, m_size[1] * 0.32f));
+	setOrigin(Vector2f(m_left ? m_collider.size[0] * 0.55f : m_collider.size[0] * 0.8f, m_collider.size[1] * 0.9));
 }
 
 float Ghost::lerp(const float& x, const float& y, const float& t) {
 	return x * (1.f - t) + y * t;
 }
 
+void Ghost::updateLight() {
+	m_light->setPosition(m_collider.position);
+}
+
+void Ghost::initLight() {
+	m_light = new Light(m_collider.position, 290.0f);
+	m_light->setOrigin(Vector2f(m_collider.size[0] * 1.5f, m_collider.size[1] * 1.8f));
+}
+
+void Ghost::initEmitter() {
+	m_emitter = new ParticleEmitter(Vector4f(1.0f, 1.0f, 1.0f, 1.0f), Vector4f(0.0f, 0.0f, 0.0f, 0.0f), 25);
+	m_emitter->setLifeTimeRange(0.8f, 2.0f);
+	m_emitter->setSpeed(4.1f);
+	m_emitter->setPosition(m_collider.position + m_size * 0.5f);
+}
 
 void Ghost::initAnimations() {
 	m_textureAtlas = new unsigned int();
@@ -86,11 +97,7 @@ void Ghost::initAnimations() {
 }
 
 void Ghost::initBody() {
-	//setPosition(Vector2f(WIDTH, HEIGHT) * 0.5f);
-
-	//setPosition2(0.0f, HEIGHT - 0.0f);
-	setSize(Vector2f(m_quad->getScale()[0] * m_sizeGhost[0], m_quad->getScale()[0] * m_sizeGhost[1]));
-	setOrigin(Vector2f(m_size[0] * 0.25f, m_size[1] * 0.25f));
+	setSize(Vector2f(m_quad->getScale()[0] * m_sizeGhost[0], m_quad->getScale()[0] * m_sizeGhost[1]));	
 }
 
 void Ghost::initCollider() {
@@ -98,17 +105,28 @@ void Ghost::initCollider() {
 	float posY = Random::RandInt(90, HEIGHT - 90);
 
 	m_collider.position = Vector2f(posX, posY);
-	//m_collider.size = Vector2f(10.0f, 13.0f) * 2.75f;
-	m_collider.size = Vector2f(64.0f, 64.0f);
+	m_collider.size = Vector2f(75.0f, 60.0f);
 	setPosition(Vector2f(posX, posY));
 }
 
-void Ghost::render(){
-	glUseProgram(m_shaderArray->m_program);
-	m_shaderArray->loadMatrix("u_transform", m_transform * Globals::projection);
-	m_shaderArray->loadInt("u_layer", *m_currentFrame);
-	m_quad->render(*m_textureAtlas, true);
+void Ghost::render(float deltaTime){
+	if (!m_blowUp) {
+		glUseProgram(m_shaderArray->m_program);
+		m_shaderArray->loadMatrix("u_transform", m_transform * Globals::projection);
+		m_shaderArray->loadInt("u_layer", *m_currentFrame);
+		m_quad->render(*m_textureAtlas, true);
+		glUseProgram(0);
+	}
+
+	glEnable(GL_BLEND);
+	m_emitter->render();
+	
+	glUseProgram(m_light->getShader().m_program);
+	m_light->getShader().loadVector("u_color", Vector4f(0.9, 0.9, 0.9, m_lightVal));
+	m_light->getShader().loadFloat("u_time", deltaTime);
+	m_light->render();
 	glUseProgram(0);
+	glDisable(GL_BLEND);
 
 	//Debug colider
 	#if DEBUGCOLLISION

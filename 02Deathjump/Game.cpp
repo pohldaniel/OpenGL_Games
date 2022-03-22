@@ -61,26 +61,27 @@ void Game::render(unsigned int &frameBuffer) {
 	m_quadBackground->render(m_sprites["background"]);
 	glUseProgram(0);
 
-	m_healthBar->render();	
-		
-	#else
-	for (auto& o : m_walls)
-		o.render();
+	m_healthBar->render();		
 	#endif
 	m_player->render();
-
-	for (const auto& g : m_ghosts)
-		g->render();
 
 	glUseProgram(m_shader->m_program);
 	m_shader->loadMatrix("u_transform", Matrix4f::IDENTITY);
 	m_quad->render(m_sprites["foreground"]);
 	glUseProgram(0);
 
+	#if DEBUGCOLLISION
+	for (auto& o : m_walls)
+	o.render();
+	#endif
+
 	float time = m_clock.getElapsedTimeSec();
 	for (const auto& f : m_fireballs) {
 		f->render(time);
 	}
+
+	for (const auto& g : m_ghosts)
+		g->render(time);
 
 	#if !DEBUGCOLLISION
 	glEnable(GL_BLEND);
@@ -119,7 +120,6 @@ void Game::UpdateEntities() {
 	m_player->update();
 	updateTimers();
 
-
 	// Fireballs
 	for (int i = 0; i < m_fireballs.size(); i++) {
 		auto& fireball = m_fireballs[i];
@@ -134,6 +134,7 @@ void Game::UpdateEntities() {
 
 		fireball->update();
 	}
+
 	// Ghosts
 	for (int i = 0; i < m_ghosts.size(); i++) {
 		auto& ghost = m_ghosts[i];
@@ -163,7 +164,7 @@ void Game::updateTimers() {
 
 void Game::initTimers() {
 
-	m_enemySpawnTimer.SetFunction(1.0f, [&]() {
+	/*m_enemySpawnTimer.SetFunction(1.0f, [&]() {
 		if (m_fireballs.size() > 8)
 			return;
 
@@ -171,7 +172,7 @@ void Game::initTimers() {
 
 		m_fireballs.push_back(new Fireball(i_dt, i_fdt, velocity, Random::RandInt(0, 1)));
 
-	});
+	});*/
 
 	m_gameSpeedTimer.SetFunction(5.5f, [&]() {
 		const float sub = Random::RandFloat(0.085f, 0.125f);
@@ -185,7 +186,7 @@ void Game::initTimers() {
 		m_ghostSpawnTimer.SetUpdateTime(m_ghostSpawnTimer.GetUpdateTime() - sub < 7.185f ? 7.185f : m_ghostSpawnTimer.GetUpdateTime() - sub);
 	});
 
-	m_ghostSpawnTimer.SetFunction(8.5f, [&]() {
+	m_ghostSpawnTimer.SetFunction(1.0f, [&]() {
 		if (m_ghosts.size() > 2)
 			return;
 

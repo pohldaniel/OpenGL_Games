@@ -70,13 +70,13 @@ void Player::resolveCollision(Ghost* entity, std::vector<Ghost*>& ghosts) {
 	if (MTV[1] < 0.0f && m_velocity[1] != 0.0f) {
 		// i know do not scream
 		entity->m_blowUp = true;
-		/*entity->m_emitter->Clear();
-		entity->m_emitter->SetDirection(sf::Vector2f(0, 0));
-		entity->m_emitter->SetSpeed(5.4f);
-		entity->m_emitter->SetParticleMax(80);
-		entity->m_emitter->SetSize(25);
-		entity->m_emitter->SetLifeTimeRange(1.5f, 3.2f);
-		entity->m_emitter->AddParticles();*/
+		entity->m_emitter->clear();
+		entity->m_emitter->setDirection(Vector2f(0.0f, 0.0));
+		entity->m_emitter->setSpeed(5.4f);
+		entity->m_emitter->setParticleMax(80);
+		entity->m_emitter->setSize(25);
+		entity->m_emitter->setLifeTimeRange(1.5f, 3.2f);
+		entity->m_emitter->addParticles();
 
 		entity->m_animator.setCurrentFrame(0);
 		entity->m_animator.setUpdateTime(0.1f);
@@ -94,13 +94,13 @@ void Player::resolveCollision(Ghost* entity, std::vector<Ghost*>& ghosts) {
 	// i know do not scream
 	for (auto& g : ghosts) {
 		g->m_blowUp = true;
-		/*g->m_emitter->Clear();
-		g->m_emitter->SetDirection(sf::Vector2f(0, 0));
-		g->m_emitter->SetSpeed(5.4f);
-		g->m_emitter->SetParticleMax(80);
-		g->m_emitter->SetSize(25);
-		g->m_emitter->SetLifeTimeRange(1.5f, 3.2f);
-		g->m_emitter->AddParticles();*/
+		g->m_emitter->clear();
+		g->m_emitter->setDirection(Vector2f(0.0f, 0.0));
+		g->m_emitter->setSpeed(5.4f);
+		g->m_emitter->setParticleMax(80);
+		g->m_emitter->setSize(25);
+		g->m_emitter->setLifeTimeRange(1.5f, 3.2f);
+		g->m_emitter->addParticles();
 
 		g->m_animator.setCurrentFrame(0);
 		g->m_animator.setUpdateTime(0.1f);
@@ -158,7 +158,6 @@ void Player::resolveCollision(std::vector<Wall>& walls) {
 			m_collider.position[1] = o.getCollider().getBody().position[1];
 		}
 		setPosition(m_collider.position);
-
 	}
 
 	if (m_velocity[1] > 0.0f)
@@ -332,14 +331,12 @@ void Player::initAnimations() {
 }
 
 void Player::initBody() {	
-	//setPosition(Vector2f(WIDTH, HEIGHT) / 2.0f);
 	setSize(Vector2f(m_quad->getScale()[0] * m_playerSize[0], m_quad->getScale()[0] * m_playerSize[1]));
-	//setOrigin(Vector2f(m_size[0] * 0.5f, m_size[1] * 0.5f));
 }
 
 void Player::initCollider() {
 	const Vector2f size = Vector2f(40.0f, 80.0f);
-	m_collider.position = Vector2f(WIDTH, HEIGHT) * 0.5f;
+	m_collider.position = Vector2f(WIDTH - 40.0f, HEIGHT) * 0.5f;
 	m_collider.size = size;
 
 	setPosition(m_collider.position);

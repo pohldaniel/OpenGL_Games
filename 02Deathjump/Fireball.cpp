@@ -51,6 +51,7 @@ void Fireball::updateLight() {
 
 void Fireball::initLight() {
 	m_light = new Light(m_collider.position, 290.0f);
+	m_light->setOrigin(m_collider.size * 1.75f);
 }
 
 void Fireball::animate() {
