@@ -23,6 +23,7 @@ extern bool Globals::lMouseButton = false;
 extern Matrix4f Globals::projection = Matrix4f::IDENTITY;
 extern Matrix4f Globals::invProjection = Matrix4f::IDENTITY;
 extern AssetManager<Shader> Globals::shaderManager = AssetManager<Shader>();
+extern AssetManager<CharacterSetOld> Globals::fontManagerOld = AssetManager<CharacterSetOld>();
 extern AssetManager<CharacterSet> Globals::fontManager = AssetManager<CharacterSet>();
 extern AssetManager<SoundBuffer> Globals::soundManager = AssetManager<SoundBuffer>();
 extern AssetManager<MusicBuffer> Globals::musicManager = AssetManager<MusicBuffer>();
@@ -30,8 +31,8 @@ extern AssetManager<MusicBuffer> Globals::musicManager = AssetManager<MusicBuffe
 extern AssetManagerStatic<Texture> Globals::textureManager = AssetManagerStatic<Texture>::get();
 extern AssetManager<Spritesheet> Globals::spritesheetManager = AssetManager<Spritesheet>();
 extern SoundEffectsPlayer Globals::effectsPlayer = SoundEffectsPlayer();
-
-
+extern float Globals::bestTime = 0.0f;
+extern float Globals::soundVolumen = 0.1f;
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd) {
 	AllocConsole();
 	AttachConsole(GetCurrentProcessId());

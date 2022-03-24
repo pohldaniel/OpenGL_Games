@@ -7,7 +7,7 @@
 #include "Game.h"
 #include "Settings.h"
 #include "Button.h"
-
+#include "Text.h"
 
 class Menu : public State {
 public:
@@ -30,4 +30,7 @@ private:
 	void initSprites();
 
 	bool m_toggle = true;
+
+	
+
 };

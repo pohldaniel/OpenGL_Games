@@ -9,13 +9,15 @@ Game::Game(StateMachine& machine) : State(machine){
 	initWalls();
 	initSprites();
 	initLights();
-	InitCountdown();
+	initCountdown();
+	initText();
 	initTimers();
+	
 
 	m_shader = Globals::shaderManager.getAssetPointer("quad");
 	m_quad = new Quad(false);
 
-	m_quadBackground = new Quad(false, 0.0f, 0.0f, 1.0f, 1.2f, 1.0f, 1.0f);
+	m_quadBackground = new Quad(false, -1.0f, 1.0f, -1.0f, 1.0f, 1.0f, 1.2f);
 	//m_transBackground = Matrix4f::Translate(0.0, -0.2, 0.0);
 	m_transBackground = Matrix4f::Translate(m_transBackground, 0.0, -0.2, 0.0);
 	
@@ -44,7 +46,7 @@ void Game::update() {
 		//m_bestTime = m_timeClock.getElapsedTime().asSeconds();
 	}
 
-	//UpdateCountdown();
+	updateCountdown();
 
 	if ((Globals::CONTROLLS & Globals::KEY_Q)) {
 		i_machine.addStateAtTop(new Pause(i_machine));
@@ -74,6 +76,11 @@ void Game::render(unsigned int &frameBuffer) {
 	for (auto& o : m_walls)
 	o.render();
 	#endif
+
+	m_countdown->render();
+
+	if (m_countdown->currentFrame() >= 4)
+		m_text->render(m_timer);
 
 	float time = m_clock.getElapsedTimeSec();
 	for (const auto& f : m_fireballs) {
@@ -164,7 +171,7 @@ void Game::updateTimers() {
 
 void Game::initTimers() {
 
-	/*m_enemySpawnTimer.SetFunction(1.0f, [&]() {
+	m_enemySpawnTimer.SetFunction(1.0f, [&]() {
 		if (m_fireballs.size() > 8)
 			return;
 
@@ -172,7 +179,7 @@ void Game::initTimers() {
 
 		m_fireballs.push_back(new Fireball(i_dt, i_fdt, velocity, Random::RandInt(0, 1)));
 
-	});*/
+	});
 
 	m_gameSpeedTimer.SetFunction(5.5f, [&]() {
 		const float sub = Random::RandFloat(0.085f, 0.125f);
@@ -186,7 +193,7 @@ void Game::initTimers() {
 		m_ghostSpawnTimer.SetUpdateTime(m_ghostSpawnTimer.GetUpdateTime() - sub < 7.185f ? 7.185f : m_ghostSpawnTimer.GetUpdateTime() - sub);
 	});
 
-	m_ghostSpawnTimer.SetFunction(1.0f, [&]() {
+	m_ghostSpawnTimer.SetFunction(8.5f, [&]() {
 		if (m_ghosts.size() > 2)
 			return;
 
@@ -194,12 +201,29 @@ void Game::initTimers() {
 	});
 }
 
-void Game::UpdateCountdown() {
-	//m_timeClock.restart();
+void Game::updateCountdown() {
+	if (m_countdown->currentFrame() < 4) {
+		m_countdown->update();
+		m_timeClock.restart();
+		//m_timer = "0.00";
+	}else {
+		updateText();
+	}
 }
 
-void Game::InitCountdown() {
-	
+void Game::initCountdown() {
+	m_countdown = new Countdown();
+}
+
+void Game::initText() {
+	m_text = new Text(30, 1.0f);
+	m_text->setPosition(WIDTH * 0.5f, HEIGHT - 60.0f);
+	m_text->setOrigin(100.0f, m_text->getSize()[1]);
+	//m_timer = "0.00";
+}
+
+void Game::updateText() {
+	m_timer = Text::floatToString(m_timeClock.getElapsedTimeSec(), 2);
 }
 
 void Game::initLights() {

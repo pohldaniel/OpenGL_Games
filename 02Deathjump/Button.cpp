@@ -3,13 +3,14 @@
 Button::Button(std::string label, const Vector4f& color, const bool _clickSafe) : Button() {
 	m_clickSafe = _clickSafe;
 	m_text = new Text(label);
+
 	m_size = m_text->getSize() + Vector2f(30.0f, 20.0f);
 
-	m_quad = new Quad(false, 1.0f, -1.0f, m_size[0] * 0.5, m_size[1] * 0.5);
+	m_quad = new Quad(false, 0.0f, 2.0f, 0.0f, 2.0f, m_size[0] * 0.5, m_size[1] * 0.5);
 	m_shader = Globals::shaderManager.getAssetPointer("quad_color_single");
 
 	m_fillColor = color;
-	setOrigin(m_size * 0.5f);
+	setOrigin(Vector2f(m_size[0] * 0.5f, m_size[1] * 0.5f));
 	setOutlineThickness(4.0f);
 	
 	update = m_clickSafe ? std::function<void()>{[&]() {clickSafe();}} : std::function<void()>{ [&]() {click();}};
@@ -61,10 +62,10 @@ Button &Button::operator=(const Button &rhs) {
 
 	m_quad = new Quad();
 	std::swap(*m_quad, *rhs.m_quad);
-
+	
 	m_text = new Text();
 	std::swap(*m_text, *rhs.m_text);
-	
+
 	//alternatively to lambada
 	update = m_clickSafe ? std::bind(&Button::clickSafe, this) : std::bind(&Button::click, this);
 	return *this;
@@ -121,20 +122,16 @@ void Button::setOutlineColor(const Vector4f &color) {
 
 void Button::setPosition(const Vector2f &position) {
 	m_position = position;
-	m_transform.translate((position[0] - m_origin[0]), (position[1] + m_origin[1]), 0.0f);
+	m_transform.translate((position[0] - m_origin[0]), (position[1] - m_origin[1]), 0.0f);
 
-	float x = (m_position[0] - m_origin[0]) + (m_size[0] - m_text->getSize()[0]) * 0.5f;
-	float y = (HEIGHT - m_position[1] - m_origin[1]) + (m_size[1] - m_text->getSize()[1]) * 0.5f;
-	m_text->setPosition(Vector2f(x, y));
+	m_text->setPosition(m_position - m_origin + (m_size - m_text->getSize()) * 0.5);
 }
 
 void Button::setOrigin(const Vector2f &origin) {
 	m_origin = origin;
-	m_transform.translate((m_position[0] - m_origin[0]), (m_position[1] + m_origin[1]), 0.0f);
+	m_transform.translate((m_position[0] - m_origin[0]), (m_position[1] - m_origin[1]), 0.0f);
 
-	float x = (m_position[0] - m_origin[0]) + (m_size[0] - m_text->getSize()[0]) * 0.5f;
-	float y = (HEIGHT - m_position[1] - m_origin[1]) + (m_size[1] - m_text->getSize()[1]) * 0.5f;
-	m_text->setPosition(Vector2f(x, y));
+	m_text->setPosition(m_position - m_origin + (m_size - m_text->getSize()) * 0.5);
 }
 
 void Button::setOutlineThickness(float thickness) {
@@ -143,14 +140,12 @@ void Button::setOutlineThickness(float thickness) {
 	xScaleOutline = (m_thickness) / m_size[0];
 	yScaleOutline = (m_thickness) / m_size[1];
 	m_transformOutline.scale(1.0f + xScaleOutline, 1.0f + yScaleOutline, 1.0f);
-	m_transformOutline = m_transformOutline * Matrix4f::Translate(trans, -thickness, thickness, 0.0f);
+	m_transformOutline = m_transformOutline * Matrix4f::Translate(trans, -thickness, -thickness, 0.0f);
 
 	//m_position = m_position - Vector2f(m_thickness, m_thickness) * 0.5f;
 	//m_size = m_size + Vector2f(m_thickness, m_thickness);
 
-	float x = (m_position[0] - m_origin[0]) + (m_size[0] - m_text->getSize()[0]) * 0.5f;
-	float y = (HEIGHT - m_position[1] - m_origin[1]) + (m_size[1] - m_text->getSize()[1]) * 0.5f;
-	m_text->setPosition(Vector2f(x, y));
+	m_text->setPosition(m_position - m_origin + (m_size - m_text->getSize()) * 0.5);
 }
 
 void Button::click() {

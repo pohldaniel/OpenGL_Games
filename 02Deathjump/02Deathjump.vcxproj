@@ -170,6 +170,7 @@
     <ClInclude Include="Collider.h" />
     <ClInclude Include="Collision.h" />
     <ClInclude Include="Constants.h" />
+    <ClInclude Include="Countdown.h" />
     <ClInclude Include="Entity.h" />
     <ClInclude Include="Extension.h" />
     <ClInclude Include="Fireball.h" />
@@ -184,6 +185,7 @@
     <ClInclude Include="Player.h" />
     <ClInclude Include="Quad.h" />
     <ClInclude Include="Random.h" />
+    <ClInclude Include="SaveFile.h" />
     <ClInclude Include="SeekerBar.h" />
     <ClInclude Include="Settings.h" />
     <ClInclude Include="Shader.h" />
@@ -196,6 +198,7 @@
     <ClInclude Include="stb\stb_image.h" />
     <ClInclude Include="Text.h" />
     <ClInclude Include="Texture.h" />
+    <ClInclude Include="Text_old.h" />
     <ClInclude Include="Timer.h" />
     <ClInclude Include="Transition.h" />
     <ClInclude Include="Vector.h" />
@@ -208,6 +211,7 @@
     <ClCompile Include="Button.cpp" />
     <ClCompile Include="CharacterSet.cpp" />
     <ClCompile Include="Collision.cpp" />
+    <ClCompile Include="Countdown.cpp" />
     <ClCompile Include="Entity.cpp" />
     <ClCompile Include="Extension.cpp" />
     <ClCompile Include="Fireball.cpp" />
@@ -264,6 +268,7 @@
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="Quad.cpp" />
     <ClCompile Include="Random.cpp" />
+    <ClCompile Include="SaveFile.cpp" />
     <ClCompile Include="SeekerBar.cpp" />
     <ClCompile Include="Settings.cpp" />
     <ClCompile Include="Shader.cpp" />
@@ -275,6 +280,7 @@
     <ClCompile Include="StateMachine.cpp" />
     <ClCompile Include="Text.cpp" />
     <ClCompile Include="Texture.cpp" />
+    <ClCompile Include="Text_old.cpp" />
     <ClCompile Include="Timer.cpp" />
     <ClCompile Include="Transition.cpp" />
     <ClCompile Include="Vector.cpp" />

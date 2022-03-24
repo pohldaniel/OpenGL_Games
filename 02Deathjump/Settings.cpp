@@ -4,7 +4,8 @@ Settings::Settings(StateMachine& machine) : State(machine) {
 	initSprites();
 
 	m_text = new Text("SETTINGS", 200.0f / 90.0f);
-	m_text->setPosition(Vector2f(WIDTH * 0.5f, 120.0f) - m_text->getSize() * 0.5f);
+	m_text->setColor(Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+	m_text->setPosition(Vector2f(WIDTH * 0.5f, HEIGHT - 120.0f) - m_text->getSize() * 0.5f);
 
 	m_shader = Globals::shaderManager.getAssetPointer("quad");
 	m_shaderBlur = Globals::shaderManager.getAssetPointer("blur");
@@ -12,7 +13,7 @@ Settings::Settings(StateMachine& machine) : State(machine) {
 
 	m_button = Button("BACK", Vector4f(100.0f / 255.0f, 100.0f / 255.0f, 100.0f / 255.0f, 80.0f / 255.0f));
 	m_button.setPosition(Vector2f(180.0f, HEIGHT - 80.0f));
-	m_button.setOrigin(m_button.getSize() * 0.5f);
+	//m_button.setOrigin(m_button.getSize() * 0.5f);
 	m_button.setOutlineThickness(4.0f);
 
 	Transition& transition = Transition::get();
@@ -60,7 +61,7 @@ void Settings::render(unsigned int &frameBuffer) {
 	m_quad->render(m_sprites["background"]);
 	glUseProgram(0);
 
-	//m_text->render(Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+	m_text->render();
 	m_button.render();
 	m_seekerBar->render();
 

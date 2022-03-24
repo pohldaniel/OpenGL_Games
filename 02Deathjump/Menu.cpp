@@ -5,7 +5,8 @@ Menu::Menu(StateMachine& machine) : State(machine) {
 	initSprites();
 
 	m_text = new Text("DEATHJUMP!", 200.0f / 90.0f);
-	m_text->setPosition(Vector2f(WIDTH * 0.5f, 120.0f) - m_text->getSize() * 0.5f);
+	m_text->setColor(Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+	m_text->setPosition(Vector2f(WIDTH * 0.5f, HEIGHT - 120.0f) - m_text->getSize() * 0.5f);
 
 	m_shader = Globals::shaderManager.getAssetPointer("quad");
 	m_quad = new Quad(false);
@@ -77,14 +78,15 @@ void Menu::update() {
 
 void Menu::render(unsigned int &frameBuffer) {
 	glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+	
 	glUseProgram(m_shader->m_program);
 	m_shader->loadFloat("u_blur_radius", 0.008f);
 	m_quad->render(m_sprites["background"]);
 	glUseProgram(0);
 
-	m_text->render(Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+	m_text->render();
 
 	for (auto& b : m_buttons)
 		b.second.render();

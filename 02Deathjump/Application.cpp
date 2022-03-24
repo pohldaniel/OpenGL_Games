@@ -19,6 +19,7 @@ Application::~Application() {
 	delete m_machine;
 	Globals::shaderManager.clear();
 	Globals::textureManager.clear();
+	Globals::fontManagerOld.clear();
 	Globals::fontManager.clear();
 	Globals::soundManager.clear();
 	Globals::musicManager.clear();
@@ -32,6 +33,8 @@ Application::~Application() {
 	ReleaseDC(m_window, GetDC(m_window));
 	//release OpenAL context
 	SoundDevice::ShutDown();
+
+	SaveFile::save("res/save");
 }
 
 bool Application::initWindow() {
@@ -259,9 +262,9 @@ void Application::fixedUpdate() {
 
 void Application::initStates() {
 	m_machine = new StateMachine(m_dt, m_fdt);
-	m_machine->addStateAtTop(new Game(*m_machine));
+	//m_machine->addStateAtTop(new Game(*m_machine));
 	//m_machine->addStateAtTop(new Pause(*m_machine));
-	//m_machine->addStateAtTop(new Menu(*m_machine));
+	m_machine->addStateAtTop(new Menu(*m_machine));
 	//m_machine->addStateAtTop(new Settings(*m_machine));
 }
 
@@ -333,15 +336,23 @@ void Application::loadAssets() {
 	Globals::shaderManager.loadShader("blur", "shader/blur.vs", "shader/blur.fs");
 	Globals::shaderManager.loadShader("text", "shader/text.vs", "shader/text.fs");
 
+	Globals::fontManagerOld.loadCharacterSet("font_90", "res/fonts/upheavtt.ttf", 90.0f);
 	Globals::fontManager.loadCharacterSet("font_90", "res/fonts/upheavtt.ttf", 90.0f);
+
 
 	Globals::soundManager.loadSoundEffect("blowup", "res/sounds/blowup.wav");
 	Globals::soundManager.loadSoundEffect("ghost", "res/sounds/ghost.wav");
 	Globals::soundManager.loadSoundEffect("button", "res/sounds/button.wav");
+	Globals::soundManager.loadSoundEffect("3", "res/sounds/3.wav");
+	Globals::soundManager.loadSoundEffect("2", "res/sounds/2.wav");
+	Globals::soundManager.loadSoundEffect("1", "res/sounds/1.wav");
+	Globals::soundManager.loadSoundEffect("go", "res/sounds/go.wav");
 
 	Globals::musicManager.loadMusic("main", "res/music/main.ogg");
 	Globals::musicManager.loadMusic("menu", "res/music/menu.ogg");
 	Globals::musicManager.loadMusic("pause", "res/music/pause.ogg");
 
 	Globals::effectsPlayer.init();
+
+	SaveFile::load("res/save");
 }

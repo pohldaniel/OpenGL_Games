@@ -11,7 +11,7 @@
 #include "SoundEffectsPlayer.h"
 #include "Spritesheet.h"
 
-#define DEBUGCOLLISION 1
+#define DEBUGCOLLISION 0
 #define PHYSICS_STEP 0.01f
 #define WIDTH 1600
 #define HEIGHT 900
@@ -49,13 +49,16 @@ namespace Globals{
 	extern AssetManagerStatic<Texture> textureManager;
 	extern AssetManager<Shader> shaderManager;
 	extern AssetManager<Spritesheet> spritesheetManager;
+	extern AssetManager<CharacterSetOld> fontManagerOld;
 	extern AssetManager<CharacterSet> fontManager;
-
 
 	extern AssetManager<SoundBuffer> soundManager;
 	extern AssetManager<MusicBuffer> musicManager;
 
 	extern SoundEffectsPlayer effectsPlayer;
+
+	extern float bestTime;
+	extern float soundVolumen;
 }
 
 #endif

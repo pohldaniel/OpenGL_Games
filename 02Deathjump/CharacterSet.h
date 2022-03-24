@@ -1,25 +1,46 @@
 #ifndef __CHARACTERSETH__
 #define __CHARACTERSETH__
-
+#define NOMINMAX
 #include <iostream>
 #include <map>
+#include <algorithm>
 #include <ft2build.h>
 #include FT_FREETYPE_H
 #include "Extension.h"
 
-struct Character {
+#define MAXWIDTH 1024
+
+struct CharacterOld {
 	unsigned int textureID;
 	int size[2];
 	int bearing[2];
 	unsigned int advance;
 };
 
-struct CharacterSet {	
+struct CharacterSetOld {	
+	~CharacterSetOld();
+	void loadFromFile(const std::string& path, const float characterSize = 100.0f);
+	std::map<GLchar, CharacterOld> characters;
+	float characterSize;
+};
 
+struct Character {
+	int bearing[2];
+	int size[2];
+	float textureOffset[2];
+	float textureSize[2];
+	unsigned int advance[2];
+	
+};
+
+struct CharacterSet {
 	~CharacterSet();
 	void loadFromFile(const std::string& path, const float characterSize = 100.0f);
 	std::map<GLchar, Character> characters;
-	float characterSize;
+	unsigned int spriteSheet;
+	unsigned int maxWidth;
+	unsigned int maxHeight;
+	unsigned int lineHeight;
 };
 
 #endif

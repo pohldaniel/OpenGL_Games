@@ -55,6 +55,9 @@
     <Filter Include="Engine\Sound">
       <UniqueIdentifier>{8f45506c-93ee-47fd-a821-4131a112e3f7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Utils">
+      <UniqueIdentifier>{daae7750-f587-4bb7-bcac-cac1dcdce819}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Constants.h">
@@ -175,6 +178,15 @@
       <Filter>Source Files\UI</Filter>
     </ClInclude>
     <ClInclude Include="SeekerBar.h">
+      <Filter>Source Files\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="SaveFile.h">
+      <Filter>Source Files\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Countdown.h">
+      <Filter>Source Files\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="Text_old.h">
       <Filter>Source Files\UI</Filter>
     </ClInclude>
   </ItemGroup>
@@ -408,6 +420,15 @@
       <Filter>Source Files\UI</Filter>
     </ClCompile>
     <ClCompile Include="SeekerBar.cpp">
+      <Filter>Source Files\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="SaveFile.cpp">
+      <Filter>Source Files\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="Countdown.cpp">
+      <Filter>Source Files\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="Text_old.cpp">
       <Filter>Source Files\UI</Filter>
     </ClCompile>
   </ItemGroup>

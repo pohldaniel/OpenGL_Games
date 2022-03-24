@@ -13,7 +13,7 @@ public:
 
 	//void SetBufferToPlay(const ALuint& buffer_to_play);
 	void SetLooping(const bool& loop);
-
+	void setVolume(float volume);
 	bool isPlaying();
 
 private:

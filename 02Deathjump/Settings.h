@@ -7,7 +7,7 @@
 #include "Button.h"
 #include "SeekerBar.h"
 #include "ParticleEmitter.h"
-
+#include "Text_old.h"
 class Settings : public State {
 public:
 	Settings(StateMachine& machine);

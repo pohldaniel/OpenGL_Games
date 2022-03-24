@@ -1,6 +1,6 @@
 #if !defined(EXTENSION_H)
 #define EXTENSION_H
-
+#define NOMINMAX
 #include <windows.h>
 #include "GL.H"
 

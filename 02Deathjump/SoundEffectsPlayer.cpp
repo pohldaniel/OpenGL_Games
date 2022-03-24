@@ -23,6 +23,10 @@ void SoundEffectsPlayer::Play(const ALuint& buffer_to_play){
 	}*/	
 }
 
+void SoundEffectsPlayer::setVolume(float volume) {
+	alSourcef(p_Source, AL_GAIN, volume);
+}
+
 void SoundEffectsPlayer::Stop(){
 	alSourceStop(p_Source);
 }

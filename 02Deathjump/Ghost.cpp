@@ -4,7 +4,7 @@
 Ghost::Ghost(const float& dt, const float& fdt) : Entity(dt, fdt) {
 
 	m_shaderArray = Globals::shaderManager.getAssetPointer("quad_array");
-	m_quad = new Quad(true, 1.0f, 0.0f, m_sizeGhost[0], m_sizeGhost[1], 1.0f, 1.0f, 0, 0, 0.0f, -1.0f);
+	m_quad = new Quad(true, 0.0f, 1.0f, 0.0f, 1.0f, m_sizeGhost[0], m_sizeGhost[1], 1.0f, 1.0f, 0, 0);
 
 	initBody();
 	initCollider();
@@ -67,7 +67,7 @@ void Ghost::update(Collider obj) {
 	m_quad->setFlipped(m_left);
 
 	//setOrigin(Vector2f(m_left ? m_size[0] * 0.25f : m_size[0] * 0.35f, m_size[1] * 0.32f));
-	setOrigin(Vector2f(m_left ? m_collider.size[0] * 0.55f : m_collider.size[0] * 0.8f, m_collider.size[1] * 0.9));
+	setOrigin(Vector2f(m_left ? m_collider.size[0] * 0.55f : m_collider.size[0] * 0.8f, m_collider.size[1] * 0.9 - m_size[1]));
 }
 
 float Ghost::lerp(const float& x, const float& y, const float& t) {
@@ -97,7 +97,7 @@ void Ghost::initAnimations() {
 }
 
 void Ghost::initBody() {
-	setSize(Vector2f(m_quad->getScale()[0] * m_sizeGhost[0], m_quad->getScale()[0] * m_sizeGhost[1]));	
+	setSize(Vector2f(m_quad->getScale()[0] * m_sizeGhost[0], m_quad->getScale()[1] * m_sizeGhost[1]));	
 }
 
 void Ghost::initCollider() {

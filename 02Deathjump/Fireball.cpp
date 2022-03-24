@@ -5,12 +5,12 @@ Fireball::Fireball(const float& dt, const float& fdt, float velocity, bool left)
 	m_shaderArray = Globals::shaderManager.getAssetPointer("quad_array");
 	m_shader = Globals::shaderManager.getAssetPointer("quad");
 
-	m_quad = new Quad(true, 1.0f, 0.0f, m_fireballSize[0], m_fireballSize[1], 1.0f, 1.0f, 0, 0, 0.0f, -1.0f);
-	m_quadBlow = new Quad(true, 1.0f, -1.0f, m_blowSize[0], m_blowSize[1]);
+	m_quad = new Quad(true, 0.0f, 1.0f, 0.0f, 1.0f, m_fireballSize[0], m_fireballSize[1]);
+	m_quadBlow = new Quad(true, 0.0f, 2.0f, 0.0f, 2.0f, m_blowSize[0], m_blowSize[1]);
 
 	m_left = left;	
-	initCollider(Vector2f(left ? -100.f : WIDTH + 100.f, m_positions[Random::RandInt(0, 12)]));
 	initSprites();
+	initCollider(Vector2f(left ? -100.f : WIDTH + 100.f, m_positions[Random::RandInt(0, 12)]));	
 	initAnimations();
 	initEmitter();
 	initLight();
@@ -73,17 +73,18 @@ void Fireball::initAnimations() {
 
 void Fireball::initSprites() {
 	m_sprites["fireball"] = Globals::textureManager.get("fireball").getTexture();		
-	setSize(Vector2f(m_quad->getScale()[0] * m_fireballSize[0], m_quad->getScale()[0] * m_fireballSize[1]));
+	setSize(Vector2f(m_quad->getScale()[0] * m_fireballSize[0], m_quad->getScale()[1] * m_fireballSize[1]));
 	m_quad->setFlipped(m_left);	
-	originBlow = Vector2f(m_blowSize[0] * m_quadBlow->getScale()[0], m_blowSize[1] * m_quadBlow->getScale()[1]) * 0.5;
+	originBlow = Vector2f(m_blowSize[0] * m_quadBlow->getScale()[0], -m_blowSize[1] * m_quadBlow->getScale()[1]) * 0.5;
 }
 
 void Fireball::initCollider(Vector2f position) {
 	const Vector2f size = Vector2f(64.f, 64.f);
 	m_collider.size = size;
 	m_collider.position = position;
-
+	
 	setPosition(m_collider.position);
+	setOrigin(0.0f, -m_size[1]);
 }
 
 

@@ -5,7 +5,8 @@ Pause::Pause(StateMachine& machine) : State(machine) {
 	initSprites();
 
 	m_text = new Text("PAUSED", 200.0f / 90.0f);
-	m_text->setPosition(Vector2f(WIDTH * 0.5f, 120.0f) - m_text->getSize() * 0.5f);
+	m_text->setColor(Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+	m_text->setPosition(Vector2f(WIDTH * 0.5f, HEIGHT - 120.0f) - m_text->getSize() * 0.5f);
 
 	m_shader = Globals::shaderManager.getAssetPointer("quad");
 	m_shaderBlur = Globals::shaderManager.getAssetPointer("blur");
@@ -65,7 +66,7 @@ void Pause::render(unsigned int &frameBuffer) {
 	m_quad->render(m_sprites["background"]);
 	glUseProgram(0);
 	
-	m_text->render(Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+	m_text->render();
 
 	for (auto& b : m_buttons)
 		b.second.render();

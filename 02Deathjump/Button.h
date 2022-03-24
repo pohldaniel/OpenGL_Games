@@ -4,7 +4,6 @@
 #include "Constants.h"
 #include "Shader.h"
 #include "Quad.h"
-#include  <algorithm>
 #include "Text.h"
 
 class Button {
@@ -46,7 +45,7 @@ private:
 	Vector4f m_fillColor = Vector4f(1.0f, 1.0f, 1.0f, 1.0f);
 	Vector4f m_outlineColor = Vector4f(1.0f, 1.0f, 1.0f, 1.0f);
 	Vector4f m_outlineColorDefault = Vector4f(1.0f, 1.0f, 1.0f, 1.0f);
-	Vector4f m_outlineColorHover = Vector4f(100.0f / 255.0f, 100.0f / 255.0f, 100.0f / 255.0f, 255.0f / 255.0f);
+	Vector4f m_outlineColorHover = Vector4f(100.0f / 255.0f, 100.0f / 255.0f, 100.0f / 255.0f, 1.0f);
 
 	Vector2f m_position;
 	Vector2f m_size;

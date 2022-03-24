@@ -5,7 +5,7 @@ Player::Player(const float& dt, const float& fdt) : Entity(dt, fdt){
 	
 	m_shaderArray = Globals::shaderManager.getAssetPointer("quad_array");
 	//m_quad = new Quad(true, 1.0f, -1.0f, m_playerSize[0], m_playerSize[1]);
-	m_quad = new Quad(true, 1.0f, 0.0f, m_playerSize[0], m_playerSize[1], 1.0f, 1.0f, 0, 0, 0.0f, -1.0f);
+	m_quad = new Quad(true, 0.0f, 1.0f, 0.0f, 1.0f, m_playerSize[0], m_playerSize[1], 1.0f, 1.0f, 0, 0);
 
 	initBody();
 	initCollider();
@@ -340,7 +340,7 @@ void Player::initCollider() {
 	m_collider.size = size;
 
 	setPosition(m_collider.position);
-	setOrigin(Vector2f((m_size[0] - size[0]) * 0.5f, m_size[1] - size[1]));
+	setOrigin(Vector2f((m_size[0] - size[0]) * 0.5f, -size[1]));
 }
 
 void Player::initEmitters() {

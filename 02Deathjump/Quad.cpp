@@ -1,18 +1,15 @@
 #include "Quad.h"
 
-Quad::Quad(bool flippable, float shiftX_1, float shiftY_1, float sizeX, float sizeY, float sizeTexX, float sizeTexY, short x, short y, float shiftX_2, float shiftY_2) {
+Quad::Quad(bool flippable, float leftEdge, float rightEdge, float bottomEdge, float topEdge, float sizeX, float sizeY, float sizeTexX, float sizeTexY, short x, short y) {
 	
-	if (shiftX_2 == 2.0f) shiftX_2 = shiftX_1;
-	if (shiftY_2 == 2.0f) shiftY_2 = shiftY_1;
-
 	m_flippable = flippable;
 
 	if (flippable) {
-		createBuffer(m_vao, true, shiftX_1, shiftY_1, sizeX, sizeY, sizeTexX, sizeTexY, x, y, shiftX_2, shiftY_2);
-		//createBuffer(m_vaoFlipped, false, sizeX, sizeY, sizeTexX, sizeTexY, 1, 0);
-		//createBuffer(m_vao, false, sizeX, sizeY, sizeTexX, sizeTexY, 0, 0);
+		createBuffer(m_vao, true, leftEdge, rightEdge, bottomEdge, topEdge, sizeX, sizeY, sizeTexX, sizeTexY, x, y);
+		//createBuffer(m_vaoFlipped, false, shiftX_1, shiftY_1, shiftX_2, shiftY_2, sizeX, sizeY, sizeTexX, sizeTexY, 1, 0);
+		//createBuffer(m_vao, false, shiftX_1, shiftY_1, shiftX_2, shiftY_2, sizeX, sizeY, sizeTexX, sizeTexY, 0, 0);
 	}else {
-		createBuffer(m_vao, false, shiftX_1, shiftY_1, sizeX, sizeY, sizeTexX, sizeTexY, x, y, shiftX_2, shiftY_2);
+		createBuffer(m_vao, false, leftEdge, rightEdge, bottomEdge, topEdge, sizeX, sizeY, sizeTexX, sizeTexY, x, y);
 	}
 }
 
@@ -31,19 +28,19 @@ Quad::~Quad() {
 	}
 }
 
-void Quad::createBuffer(unsigned int& vao, bool flippable, float shiftX_1, float shiftY_1, float sizeX, float sizeY, float sizeTexX, float sizeTexY, short x, short y, float shiftX_2, float shiftY_2) {
+void Quad::createBuffer(unsigned int& vao, bool flippable, float leftEdge, float rightEdge, float bottomEdge, float topEdge, float sizeX, float sizeY, float sizeTexX, float sizeTexY, short x, short y) {
 	std::vector<float> vertex;
 
 	if (flippable) {
-		vertex.push_back((-1.0 + shiftX_1) * sizeX); vertex.push_back((-1.0 + shiftY_1) * sizeY); vertex.push_back(0.0); vertex.push_back(x * sizeTexX); vertex.push_back(y * sizeTexY); vertex.push_back((1 - x) * sizeTexX); vertex.push_back(y * sizeTexY);
-		vertex.push_back((-1.0 + shiftX_1) * sizeX); vertex.push_back((1.0 + shiftY_2) * sizeY); vertex.push_back(0.0); vertex.push_back(x * sizeTexX); vertex.push_back((1 - y) * sizeTexY); vertex.push_back((1 - x) * sizeTexX); vertex.push_back((1 - y) * sizeTexY);
-		vertex.push_back((1.0 + shiftX_2) * sizeX); vertex.push_back((1.0 + shiftY_2) * sizeY); vertex.push_back(0.0); vertex.push_back((1 - x) * sizeTexX); vertex.push_back((1 - y) * sizeTexY); vertex.push_back(x * sizeTexX); vertex.push_back((1 - y) * sizeTexY);
-		vertex.push_back((1.0 + shiftX_2) * sizeX); vertex.push_back((-1.0 + shiftY_1) * sizeY); vertex.push_back(0.0); vertex.push_back((1 - x) * sizeTexX); vertex.push_back(y * sizeTexY); vertex.push_back(x * sizeTexX); vertex.push_back(y * sizeTexY);
+		vertex.push_back(leftEdge * sizeX); vertex.push_back(bottomEdge * sizeY); vertex.push_back(0.0); vertex.push_back(x * sizeTexX); vertex.push_back(y * sizeTexY); vertex.push_back((1 - x) * sizeTexX); vertex.push_back(y * sizeTexY);
+		vertex.push_back(leftEdge * sizeX); vertex.push_back((topEdge) * sizeY); vertex.push_back(0.0); vertex.push_back(x * sizeTexX); vertex.push_back((1 - y) * sizeTexY); vertex.push_back((1 - x) * sizeTexX); vertex.push_back((1 - y) * sizeTexY);
+		vertex.push_back(rightEdge * sizeX); vertex.push_back((topEdge) * sizeY); vertex.push_back(0.0); vertex.push_back((1 - x) * sizeTexX); vertex.push_back((1 - y) * sizeTexY); vertex.push_back(x * sizeTexX); vertex.push_back((1 - y) * sizeTexY);
+		vertex.push_back(rightEdge * sizeX); vertex.push_back(bottomEdge * sizeY); vertex.push_back(0.0); vertex.push_back((1 - x) * sizeTexX); vertex.push_back(y * sizeTexY); vertex.push_back(x * sizeTexX); vertex.push_back(y * sizeTexY);
 	}else {
-		vertex.push_back((-1.0 + shiftX_1) * sizeX); vertex.push_back((-1.0 + shiftY_1) * sizeY); vertex.push_back(0.0); vertex.push_back(x * sizeTexX); vertex.push_back(y * sizeTexY);
-		vertex.push_back((-1.0 + shiftX_1) * sizeX); vertex.push_back((1.0 + shiftY_2) * sizeY); vertex.push_back(0.0); vertex.push_back(x * sizeTexX); vertex.push_back((1 - y) * sizeTexY);
-		vertex.push_back((1.0 + shiftX_2) * sizeX); vertex.push_back((1.0 + shiftY_2) * sizeY); vertex.push_back(0.0); vertex.push_back((1 - x) * sizeTexX); vertex.push_back((1 - y) * sizeTexY);
-		vertex.push_back((1.0 + shiftX_2) * sizeX); vertex.push_back((-1.0 + shiftY_1) * sizeY); vertex.push_back(0.0); vertex.push_back((1 - x) * sizeTexX); vertex.push_back(y * sizeTexY);
+		vertex.push_back(leftEdge * sizeX); vertex.push_back(bottomEdge * sizeY); vertex.push_back(0.0); vertex.push_back(x * sizeTexX); vertex.push_back(y * sizeTexY);
+		vertex.push_back(leftEdge * sizeX); vertex.push_back((topEdge) * sizeY); vertex.push_back(0.0); vertex.push_back(x * sizeTexX); vertex.push_back((1 - y) * sizeTexY);
+		vertex.push_back(rightEdge * sizeX); vertex.push_back((topEdge) * sizeY); vertex.push_back(0.0); vertex.push_back((1 - x) * sizeTexX); vertex.push_back((1 - y) * sizeTexY);
+		vertex.push_back(rightEdge * sizeX); vertex.push_back(bottomEdge * sizeY); vertex.push_back(0.0); vertex.push_back((1 - x) * sizeTexX); vertex.push_back(y * sizeTexY);
 	}
 
 	static const GLushort index[] = {

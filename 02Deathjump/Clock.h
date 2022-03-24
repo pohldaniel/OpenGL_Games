@@ -5,8 +5,8 @@ class Clock {
 public:
 	
 	inline void restart() {
-		std::chrono::steady_clock::time_point end = std::chrono::high_resolution_clock::now();
-		std::chrono::steady_clock::time_point begin = end;
+		end = std::chrono::high_resolution_clock::now();
+		begin = end;
 	}
 
 	inline float restartSec() {
