@@ -63,7 +63,7 @@ Text::Text(std::string label, float scale) {
 Text::Text(size_t maxChar, float scale) {
 
 	m_characters = Globals::fontManager.get("font_90").characters;
-	m_shaderText = new Shader("shader/text3.vs", "shader/text3.fs");
+	m_shaderText = Globals::shaderManager.getAssetPointer("text");
 	m_scale = scale;
 	m_maxChar = maxChar;
 	setMaxChar(m_maxChar);
