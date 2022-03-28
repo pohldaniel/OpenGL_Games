@@ -78,6 +78,7 @@ Button::~Button() {
 	}
 
 	if (m_text) {
+		
 		delete m_text;
 		m_text = NULL;
 	}

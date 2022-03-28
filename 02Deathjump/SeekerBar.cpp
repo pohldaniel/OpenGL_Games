@@ -45,7 +45,15 @@ SeekerBar::SeekerBar(Vector2f position, const unsigned blocks, const unsigned cu
 }
 
 SeekerBar::~SeekerBar() {
+	if (m_buttonLeft) {
+		delete m_buttonLeft;
+		m_buttonLeft = NULL;
+	}
 
+	if (m_buttonRight) {
+		delete m_buttonRight;
+		m_buttonRight = NULL;
+	}
 }
 
 

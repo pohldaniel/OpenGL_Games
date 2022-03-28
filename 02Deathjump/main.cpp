@@ -98,12 +98,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		ReleaseDC(hwnd, hdc);		
 	} // end while
 
-	application.~Application();
-
 	//simple workaround for holding the console at the end 
+	/*application.~Application();
 	while (true){
 
-	}
-
+	}*/
+	
 	return 0;
 }

@@ -1,7 +1,10 @@
 #include "Shader.h"
 
-Shader::Shader(std::string vertex, std::string fragment) {
-	m_program = createProgram(vertex, fragment);
+Shader::Shader(std::string vertex, std::string fragment, bool fromFile) {
+	if (fromFile) 
+		m_program = createProgramFromFile(vertex, fragment);
+	else 
+		m_program = createProgram(vertex, fragment);		
 }
 
 Shader::Shader(Shader* shader) {
@@ -13,6 +16,10 @@ Shader::~Shader() {
 }
 
 void Shader::loadFromFile(std::string vertex, std::string fragment) {
+	m_program = createProgramFromFile(vertex, fragment);
+}
+
+void Shader::loadFromResource(std::string vertex, std::string fragment) {
 	m_program = createProgram(vertex, fragment);
 }
 
@@ -58,11 +65,19 @@ void Shader::loadBool(const char* location, bool value) {
 	glUniform1i(glGetUniformLocation(m_program, location), value);
 }
 
-GLuint Shader::createProgram(std::string vertex, std::string fragment) {
+GLuint Shader::createProgramFromFile(std::string vertex, std::string fragment) {
 	GLuint vshader = loadShaderProgram(GL_VERTEX_SHADER, vertex.c_str());
 	GLuint fshader = loadShaderProgram(GL_FRAGMENT_SHADER, fragment.c_str());
 	return linkShaders(vshader, fshader);
 }
+
+GLuint Shader::createProgram(std::string vertex, std::string fragment) {
+	GLuint vshader = loadShaderProgram(GL_VERTEX_SHADER, vertex);
+	GLuint fshader = loadShaderProgram(GL_FRAGMENT_SHADER, fragment);
+	return linkShaders(vshader, fshader);
+}
+
+
 
 void Shader::readTextFile(const char *pszFilename, std::string &buffer) {
 	std::ifstream file(pszFilename, std::ios::binary);
@@ -77,7 +92,16 @@ void Shader::readTextFile(const char *pszFilename, std::string &buffer) {
 	}
 }
 
-GLuint Shader::loadShaderProgram(GLenum type, const char *pszFilename) {
+GLuint Shader::loadShaderProgram(GLenum type, std::string buffer) {
+	GLuint shader = 0;
+	if (buffer.length() > 0) {
+		shader = compileShader(type, reinterpret_cast<const char *>(&buffer[0]));
+	}
+
+	return shader;
+}
+
+GLuint Shader::loadShaderProgram(GLenum type, const char *pszFilename){
 
 	GLuint shader = 0;
 	std::string buffer;
@@ -91,7 +115,6 @@ GLuint Shader::loadShaderProgram(GLenum type, const char *pszFilename) {
 }
 
 GLuint Shader::compileShader(GLenum type, const char *pszSource) {
-
 	GLuint shader = glCreateShader(type);
 
 	if (shader) {
@@ -160,5 +183,4 @@ void Shader::cleanup() {
 		glDeleteProgram(m_program);
 		m_program = 0;
 	}
-
 }

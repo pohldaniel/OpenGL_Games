@@ -8,7 +8,9 @@ Countdown::Countdown() {
 	m_effectsPlayer.Play(Globals::soundManager.get("3").getBuffer());
 }
 
-Countdown::~Countdown() {}
+Countdown::~Countdown() {
+	delete m_counter;
+}
 
 void Countdown::update() {
 	

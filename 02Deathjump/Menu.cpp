@@ -64,10 +64,11 @@ Menu::Menu(StateMachine& machine) : State(machine) {
 }
 
 Menu::~Menu() {
-	delete m_quad;
-	delete m_title;
-	for (auto& b : m_buttons)
-		b.second.~Button();
+	//delete m_quad;
+	//delete m_title;
+	//delete m_bestTime;
+	//for (auto& b : m_buttons)
+		//b.second.~Button();
 }
 
 void Menu::fixedUpdate() {}

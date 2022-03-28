@@ -29,6 +29,8 @@ Game::~Game() {
 	delete m_fog;
 	delete m_quad;
 	delete m_quadBackground;
+	delete m_text;
+	delete m_countdown;
 }
 
 void Game::fixedUpdate() {

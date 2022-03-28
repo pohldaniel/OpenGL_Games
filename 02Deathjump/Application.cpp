@@ -15,26 +15,27 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 }
 
 Application::~Application() {
-
 	delete m_machine;
+	
 	Globals::shaderManager.clear();
 	Globals::textureManager.clear();
-	Globals::fontManagerOld.clear();
-	Globals::fontManager.clear();
+
+	//Globals::fontManager.clear();
 	Globals::soundManager.clear();
-	Globals::musicManager.clear();
-	AssetManagerStatic<Texture>::get().clear();	
-
-	UnregisterClass("WINDOWCLASS", (HINSTANCE)GetModuleHandle(NULL));
-
+	//Globals::musicManager.clear();
+	AssetManagerStatic<Texture>::get().clear();
+	
 	//release OpenGL context
+	HDC hdc = GetDC(m_window);
 	wglMakeCurrent(GetDC(m_window), 0);
 	wglDeleteContext(wglGetCurrentContext());
-	ReleaseDC(m_window, GetDC(m_window));
+	ReleaseDC(m_window, hdc);
 	//release OpenAL context
 	SoundDevice::ShutDown();
 
 	SaveFile::save("res/save");
+
+	UnregisterClass("WINDOWCLASS", (HINSTANCE)GetModuleHandle(NULL));
 }
 
 bool Application::initWindow() {
@@ -347,7 +348,7 @@ void Application::loadAssets() {
 	Globals::shaderManager.loadShader("light", "shader/light.vs", "shader/light.fs");
 	Globals::shaderManager.loadShader("transition", "shader/transition.vs", "shader/transition.fs");
 	Globals::shaderManager.loadShader("blur", "shader/blur.vs", "shader/blur.fs");
-	Globals::shaderManager.loadShader("text", "shader/text.vs", "shader/text.fs");
+	//Globals::shaderManager.loadShader("text", "shader/text.vs", "shader/text.fs");
 
 	Globals::fontManagerOld.loadCharacterSet("font_90", "res/fonts/upheavtt.ttf", 90.0f);
 	Globals::fontManager.loadCharacterSet("font_90", "res/fonts/upheavtt.ttf", 90.0f);

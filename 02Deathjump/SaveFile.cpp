@@ -56,7 +56,6 @@ void SaveFile::save(const std::string path) {
 	s_file << (int)Extern::particle_birth_color.r << ' ' << (int)Extern::particle_birth_color.g << ' ' << (int)Extern::particle_birth_color.b << ' ' << '\n';
 	s_file << (int)Extern::particle_death_color.r << ' ' << (int)Extern::particle_death_color.g << ' ' << (int)Extern::particle_death_color.b << ' ' << '\n';*/
 	s_file << Globals::bestTime << '\n';
-	std::cout << Globals::bestTime << std::endl;
 	s_file.close();
 }
 

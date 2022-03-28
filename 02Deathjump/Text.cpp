@@ -1,11 +1,22 @@
 #include <cstring>
 #include "Text.h"
 
-Text::Text(std::string label, float scale) {
-	m_characters = Globals::fontManager.get("font_90").characters;
-	m_shaderText = Globals::shaderManager.getAssetPointer("text");
-	//m_shaderText = new Shader("shader/text.vs", "shader/text.fs");
+std::unique_ptr<Shader> Text::s_shaderText = nullptr;
+unsigned short Text::s_total = 0;
 
+std::unique_ptr<Shader> Text::s_shaderText2 = std::unique_ptr<Shader>(new Shader());
+
+Text::Text() {
+	s_total++;
+}
+
+Text::Text(std::string label, float scale) : Text() {
+	if (!s_shaderText) {
+		s_shaderText = std::unique_ptr<Shader>(new Shader(TEXT_VERTEX, TEXT_FRGAMENT, false));
+	}
+
+	m_characters = Globals::fontManager.get("font_90").characters;
+	
 	m_label = label;
 	m_scale = scale;
 	calcSize();
@@ -61,14 +72,52 @@ Text::Text(std::string label, float scale) {
 	indices.shrink_to_fit();
 }
 
-Text::Text(size_t maxChar, float scale) {
+Text::Text(size_t maxChar, float scale) : Text() {
+
+	if (!s_shaderText) {
+		s_shaderText = std::unique_ptr<Shader>(new Shader(TEXT_VERTEX, TEXT_FRGAMENT, false));
+	}
 
 	m_characters = Globals::fontManager.get("font_90").characters;
-	m_shaderText = Globals::shaderManager.getAssetPointer("text");
+	
 	m_scale = scale;
 	m_maxChar = maxChar;
 	setMaxChar(m_maxChar);
 	calcSize();
+}
+
+Text::Text(Text const& rhs) : Text() {
+	m_label = rhs.m_label;
+	m_scale = rhs.m_scale;
+	
+	m_transform = rhs.m_transform;
+	m_position = rhs.m_position;
+	m_size = rhs.m_size;
+	m_origin = rhs.m_origin;
+	m_color = rhs.m_color;
+
+	m_vao = rhs.m_vao;
+	m_vbo = rhs.m_vbo;
+	m_ibo = rhs.m_ibo;
+	m_indexCount = rhs.m_indexCount;	
+}
+
+Text& Text::operator=(const Text& rhs) {	
+	m_label = rhs.m_label;
+	m_scale = rhs.m_scale;
+	
+	m_transform = rhs.m_transform;
+	m_position = rhs.m_position;
+	m_size = rhs.m_size;
+	m_origin = rhs.m_origin;
+	m_color = rhs.m_color;
+
+	m_vao = rhs.m_vao;
+	m_vbo = rhs.m_vbo;
+	m_ibo = rhs.m_ibo;
+	m_indexCount = rhs.m_indexCount;
+
+	return *this;
 }
 
 Text::~Text(){
@@ -86,10 +135,10 @@ Text::~Text(){
 		glDeleteVertexArrays(1, &m_vao);
 		m_vao = 0;
 	}
-
-	/*if (m_shaderText) {
-		delete m_shaderText;
-		m_shaderText = NULL;
+	
+	s_total--;
+	/*if (s_total == 0) {
+		s_shaderText.reset();
 	}*/
 }
 
@@ -117,9 +166,9 @@ void Text::addChar(const Vector2f& pos, unsigned int _c, std::vector<float>& ver
 }
 
 void Text::render() {
-	glUseProgram(m_shaderText->m_program);
-	m_shaderText->loadMatrix("u_transform", m_transform * Globals::projection);
-	m_shaderText->loadVector("textColor", m_color);
+	glUseProgram(s_shaderText->m_program);
+	s_shaderText->loadMatrix("u_transform", m_transform * Globals::projection);
+	s_shaderText->loadVector("textColor", m_color);
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, Globals::fontManager.get("font_90").spriteSheet);
 
@@ -160,9 +209,9 @@ void Text::render(std::string label, float x, float y, float sx, float sy) {
 	glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, indices.size() * sizeof(unsigned int), &indices[0]);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-	glUseProgram(m_shaderText->m_program);
-	m_shaderText->loadMatrix("u_transform", Globals::projection);
-	m_shaderText->loadVector("textColor", m_color);
+	glUseProgram(s_shaderText->m_program);
+	s_shaderText->loadMatrix("u_transform", Globals::projection);
+	s_shaderText->loadVector("textColor", m_color);
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, Globals::fontManager.get("font_90").spriteSheet);
 
@@ -205,9 +254,9 @@ void Text::render(std::string label) {
 	glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, indices.size() * sizeof(unsigned int), &indices[0]);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-	glUseProgram(m_shaderText->m_program);
-	m_shaderText->loadMatrix("u_transform", m_transform * Globals::projection);
-	m_shaderText->loadVector("textColor", m_color);
+	glUseProgram(s_shaderText->m_program);
+	s_shaderText->loadMatrix("u_transform", m_transform * Globals::projection);
+	s_shaderText->loadVector("textColor", m_color);
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, Globals::fontManager.get("font_90").spriteSheet);
 

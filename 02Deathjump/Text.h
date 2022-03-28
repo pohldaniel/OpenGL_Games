@@ -1,15 +1,43 @@
 #pragma once
+#include <memory>
 #include "Constants.h"
 #include "Shader.h"
 #include "CharacterSet.h"
 
+#define TEXT_VERTEX		"#version 330 core									\n \
+																			\n \
+						layout(location = 0) in vec3 i_position;			\n \
+						layout(location = 1) in vec2 i_texCoord;			\n \
+																			\n \
+						out vec2 texCoord;									\n \
+						uniform mat4 u_transform = mat4(1.0);				\n \
+																			\n \
+						void main() {										\n \
+						gl_Position = u_transform * vec4(i_position, 1.0);	\n \
+						texCoord = i_texCoord;								\n \
+						}"
+
+
+#define TEXT_FRGAMENT	"#version 330 core													\n \
+																							\n \
+						in vec2 texCoord;													\n \
+						out vec4 color;														\n \
+																							\n \
+						uniform sampler2D tex;												\n \
+						uniform vec4 textColor;;											\n \
+																							\n \
+						void main() {														\n \
+						color = vec4(1.0, 1.0, 1.0, texture(tex, texCoord).r) * textColor;	\n \
+						}"    
+
 class Text {
 public:
 
-	Text() = default;
+	Text();
 	Text(std::string label, float scale = 1.0f);
 	Text(size_t maxChar, float scale = 1.0f);
-
+	Text(Text const& rhs);
+	Text& operator=(const Text& rhs);
 	~Text();
 	void render();
 	void render(Vector4f color);
@@ -33,9 +61,9 @@ public:
 	void calcSize(std::string label);
 
 	static std::string floatToString(float val, int precision);
+	static std::unique_ptr<Shader> s_shaderText2;
 private:
-
-	Shader *m_shaderText;
+	
 	std::map<GLchar, Character> m_characters;
 
 	std::vector<float> m_vertices;
@@ -56,6 +84,8 @@ private:
 	void calcSize();
 	void addChar(const Vector2f& pos, unsigned int _c, std::vector<float>& vertices, std::vector<unsigned int>& indices);
 	
-	
 	size_t m_maxChar = 5;
+
+	static unsigned short s_total;
+	static std::unique_ptr<Shader> s_shaderText;
 };
