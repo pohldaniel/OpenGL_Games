@@ -4,7 +4,7 @@
 Light::Light(const Vector2f &position, float radius) : Light() {
 	m_position = position;
 	m_shader = Globals::shaderManager.getAssetPointer("light");
-	m_quad = new Quad(false, 1.0f, -1.0f, radius  * 0.5, radius * 0.5 , 1.0, 1.0, 0, 1);
+	m_quad = new Quad(false, 0.0f, 2.0f, -2.0f, 0.0f, radius  * 0.5, radius * 0.5);
 
 	setOrigin(Vector2f(radius, radius) / 2.0f);
 

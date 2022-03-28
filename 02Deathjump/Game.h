@@ -11,11 +11,11 @@
 #include "Timer.h"
 #include "Light.h"
 #include "Button.h"
-#include "HealthBar.h"
 #include "ParticleEmitter.h"
 #include "Ghost.h"
 #include "Fireball.h"
 #include "Countdown.h"
+#include "Heart.h"
 
 class Game : public State {
 public:
@@ -33,7 +33,8 @@ private:
 	void initLights();
 
 	Player* m_player;
-	
+	Heart* m_heart = nullptr;
+
 	std::unordered_map<std::string, unsigned int> m_sprites;
 
 	std::vector<Wall> m_walls;
@@ -46,14 +47,15 @@ private:
 	Quad *m_fog;
 	Quad *m_quad;
 	Quad *m_quadBackground;
-	HealthBar *m_healthBar;
+	
 	Text* m_text;
 	std::string m_timer;
 
 	Clock m_clock;
 	Clock m_timeClock;
+	Clock m_heartSpawnClock;
 
-	Timer m_enemySpawnTimer;
+	Timer m_fireballSpawnTimer;
 	Timer m_ghostSpawnTimer;
 	Timer m_gameSpeedTimer;
 
@@ -74,5 +76,6 @@ private:
 
 	void initText();
 	void updateText();
-	
+
+	void spawnHeart();
 };

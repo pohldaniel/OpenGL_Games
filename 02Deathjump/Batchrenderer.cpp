@@ -11,10 +11,11 @@ void Batchrenderer::init() {
 	buffer = new Vertex[max_quad_vert_count];
 	//_buffer.resize(max_quad_vert_count);
 
+	glGenBuffers(1, &m_vbo);
+
 	glGenVertexArrays(1, &m_vao);
 	glBindVertexArray(m_vao);
-
-	glGenBuffers(1, &m_vbo);
+	
 	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
 	glBufferData(GL_ARRAY_BUFFER, max_quad_vert_count * sizeof(Vertex), nullptr, GL_DYNAMIC_DRAW); // dynamic
 

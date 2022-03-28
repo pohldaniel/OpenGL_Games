@@ -24,6 +24,7 @@ public:
 	void render();
 
 	void clearAndPush(State* state);
+	const bool isRunning() const;
 
 	const float& m_fdt;
 	const float& m_dt;
@@ -38,6 +39,7 @@ private:
 
 	unsigned int m_frameTexture;
 	unsigned int m_frameBuffer;
+	bool m_isRunning = true;
 };
 
 class State {

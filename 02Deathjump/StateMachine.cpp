@@ -63,7 +63,7 @@ void StateMachine::update() {
 			m_states.pop();
 		}
 	}else {
-		//m_window.close();
+		m_isRunning = false;
 	}
 }
 
@@ -95,6 +95,10 @@ void StateMachine::clearStates() {
 		delete m_states.top();
 		m_states.pop();
 	}
+}
+
+const bool StateMachine::isRunning() const {
+	return m_isRunning;
 }
 
 State::State(StateMachine& machine) : i_machine(machine), i_dt(machine.m_dt), i_fdt(machine.m_fdt){

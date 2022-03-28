@@ -15,7 +15,8 @@ void SaveFile::load(const std::string path) {
 		std::getline(s_file, lines[i]);
 	}
 
-	Globals::bestTime = atoi(lines[0].c_str());
+	Globals::bestTime = atof(lines[0].c_str());
+
 	/*Extern::sound_volume = atoi(lines[1].c_str());
 
 	sf::Color colors[2];
@@ -55,7 +56,7 @@ void SaveFile::save(const std::string path) {
 	s_file << (int)Extern::particle_birth_color.r << ' ' << (int)Extern::particle_birth_color.g << ' ' << (int)Extern::particle_birth_color.b << ' ' << '\n';
 	s_file << (int)Extern::particle_death_color.r << ' ' << (int)Extern::particle_death_color.g << ' ' << (int)Extern::particle_death_color.b << ' ' << '\n';*/
 	s_file << Globals::bestTime << '\n';
-
+	std::cout << Globals::bestTime << std::endl;
 	s_file.close();
 }
 

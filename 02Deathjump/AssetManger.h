@@ -20,7 +20,7 @@ public:
 	}
 
 	void loadSpritesheet(const std::string& name, const std::string& path, unsigned short tileWidth, unsigned short tileHeight, unsigned int yStart, unsigned int xLength) {
-		m_assetPointer[name] = new T(path, tileWidth, tileHeight, true, true, yStart, xLength + 1);
+		m_assetPointer[name] = new T(path, tileWidth, tileHeight, true, true, yStart, xLength);
 	}
 
 	void loadSoundEffect(const std::string& name, const std::string& path) {

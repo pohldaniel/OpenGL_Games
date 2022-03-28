@@ -11,6 +11,9 @@ Player::Player(const float& dt, const float& fdt) : Entity(dt, fdt){
 	initCollider();
 	initAnimations();
 	initEmitters();
+
+	m_healthBar = new HealthBar();
+	m_healthBar->setPosition(Vector2f(0.0f, HEIGHT));
 }
 
 Player::~Player() {
@@ -29,15 +32,27 @@ void Player::update() {
 	updateEmitters();
 	keepInBorders();
 	updateTimer();
+
+	if (m_healthBar->getHealthState() <= 0)
+		m_isAlive = false;
 }
 
-void Player::resolveCollision(Entity* entity) {
+void Player::resolveCollision(Heart* heart) {
 	Vector2f MTV;
 
-	if (!getCollider().checkCollision(entity->getCollider()) || m_hit)
+	if (getCollider().checkCollision(heart->getCollider(), MTV) && m_healthBar->getHealthState() != 3) {
+		m_healthBar->update(false);
+		//MusicController::Get().GetSound("pick_up").play();
+		heart->_IsAlive = false;
+	}
+}
+
+void Player::resolveCollision(Fireball* fireball) {
+	Vector2f MTV;
+
+	if (!getCollider().checkCollision(fireball->getCollider()) || m_hit)
 		return;
 		
-	auto fireball = reinterpret_cast<Fireball*>(entity);
 	fireball->m_blowUp = true;
 	fireball->m_emitter->clear();
 	fireball->m_emitter->setDirection(Vector2f(0, 0));
@@ -47,6 +62,7 @@ void Player::resolveCollision(Entity* entity) {
 	fireball->m_emitter->setLifeTimeRange(1.5f, 3.2f);
 	fireball->m_emitter->addParticles();
 
+	m_healthBar->update(true);
 	//Camera::Get().Shake(1.75f);
 
 	m_hit = true;
@@ -54,7 +70,7 @@ void Player::resolveCollision(Entity* entity) {
 	m_movable = false;
 	m_torque = 0.925f;
 	m_velocity[1] = -950.0f;
-	int multi = (reinterpret_cast<Fireball*>(entity)->m_left ? 1 : -1);
+	int multi = (fireball->m_left ? 1 : -1);
 	m_velocity[0] = multi * 1200.0f;
 }
 
@@ -90,8 +106,6 @@ void Player::resolveCollision(Ghost* entity, std::vector<Ghost*>& ghosts) {
 		return;
 	}
 
-
-	// i know do not scream
 	for (auto& g : ghosts) {
 		g->m_blowUp = true;
 		g->m_emitter->clear();
@@ -106,7 +120,7 @@ void Player::resolveCollision(Ghost* entity, std::vector<Ghost*>& ghosts) {
 		g->m_animator.setUpdateTime(0.1f);
 	}
 
-	//m_healthBar.Change(true);
+	m_healthBar->update(true);
 
 	//MusicController::Get().GetSound("blow_up").play();
 	//MusicController::Get().GetSound("ghost").play();
@@ -117,13 +131,11 @@ void Player::resolveCollision(Ghost* entity, std::vector<Ghost*>& ghosts) {
 	m_movable = false;
 	m_torque = 0.925f;
 
-	//m_Animations["takedamage"].SetFrame(0);
+	m_Animations["takedamage"].setCurrentFrame(0);
 
 	m_velocity[1] = -950.0f;
 	int multi = entity->m_left ? 1 : -1;
 	m_velocity[0] = multi * 1200.0f;
-
-	//reinterpret_cast<sf::Sprite*>(i_drawable)->setScale(sf::Vector2f(2.0f * -multi, 2.0f));
 }
 
 void Player::resolveCollision(std::vector<Wall>& walls) {
@@ -172,13 +184,8 @@ void Player::updateTimer(){
 			return;
 		}
 
-		unsigned alpha[2] = {60, 255};
-
-		/*auto body = reinterpret_cast<sf::Sprite*>(i_drawable);
-
-		Vector4f c = body->getColor();
-
-		body->setColor(Vector4f(c[0], c[1], c[2], alpha[(!(m_currentHitTake % 2) ? 0 : 1)]));*/
+		float alpha[2] = {60.0f/ 255.0f, 1.0f};
+		m_blendColor = Vector4f(1.0f, 1.0f, 1.0f, alpha[(!(m_currentHitTake % 2) ? 0 : 1)]);
 		if (m_hitTimer.getElapsedTimeSec() > 0.175f) {		
 			m_currentHitTake++;
 			m_hitTimer.restart();
@@ -187,7 +194,7 @@ void Player::updateTimer(){
 }
 
 bool Player::isAlive() const {
-	return m_alive;
+	return m_isAlive;
 }
 
 void Player::animate() {
@@ -222,8 +229,9 @@ void Player::animate() {
 		}
 	}else {
 		if (m_velocity[1] < 0) {
-			if (m_Animations["jump"].getCurrentFrame() != m_Animations["jump"].getFrameCount() - 1)
+			if (m_Animations["jump"].getCurrentFrame() != m_Animations["jump"].getFrameCount() - 1) {
 				m_Animations["jump"].update(i_dt);
+			}
 		}if (m_velocity[1] > 0) {
 			m_Animations["fall"].update(i_dt);
 		}
@@ -320,14 +328,21 @@ void Player::initAnimations() {
 	m_textureAtlas = new unsigned int();
 	m_currentFrame = new unsigned int();
 	
-	m_Animations["move"].create("res/textures/player.png", 96, 84, 3, 7, 0.08f, *m_textureAtlas, *m_currentFrame);
+	m_Animations["move"].create(Globals::spritesheetManager.getAssetPointer("player_move"), 0.08f, *m_textureAtlas, *m_currentFrame);
+	m_Animations["jump"].create(Globals::spritesheetManager.getAssetPointer("player_jump"), 0.125f, *m_textureAtlas, *m_currentFrame);
+	m_Animations["fall"].create(Globals::spritesheetManager.getAssetPointer("player_fall"), 0.1f, *m_textureAtlas, *m_currentFrame);
+	m_Animations["crouch"].create(Globals::spritesheetManager.getAssetPointer("player_crouch"), 0.06f, *m_textureAtlas, *m_currentFrame);
+	m_Animations["grab"].create(Globals::spritesheetManager.getAssetPointer("player_grap"), 0.1, *m_textureAtlas, *m_currentFrame);
+	m_Animations["takedamage"].create(Globals::spritesheetManager.getAssetPointer("player_takedamage"), 0.08f, *m_textureAtlas, *m_currentFrame);
+	m_Animations["idle"].create(Globals::spritesheetManager.getAssetPointer("player_idle"), 0.08f, *m_textureAtlas, *m_currentFrame);
+
+	/*m_Animations["move"].create("res/textures/player.png", 96, 84, 3, 7, 0.08f, *m_textureAtlas, *m_currentFrame);
 	m_Animations["jump"].create("res/textures/player.png", 96, 84, 4, 1, 0.125f, *m_textureAtlas, *m_currentFrame);
 	m_Animations["fall"].create("res/textures/player.png", 96, 84, 6, 0, 0.1f, *m_textureAtlas, *m_currentFrame);
 	m_Animations["crouch"].create("res/textures/player.png", 96, 84, 9, 5, 0.06f, *m_textureAtlas, *m_currentFrame);
 	m_Animations["grab"].create("res/textures/player.png", 96, 84, 15, 0, 0.1f, *m_textureAtlas, *m_currentFrame);
 	m_Animations["takedamage"].create("res/textures/player.png", 96, 84, 17, 5, 0.08f, *m_textureAtlas, *m_currentFrame);
-
-	m_Animations["idle"].create("res/textures/player.png", 96, 84, 1, 6, 0.08f, *m_textureAtlas, *m_currentFrame);
+	m_Animations["idle"].create("res/textures/player.png", 96, 84, 1, 6, 0.08f, *m_textureAtlas, *m_currentFrame);*/
 }
 
 void Player::initBody() {	
@@ -359,13 +374,15 @@ void Player::initEmitters() {
 void Player::render(){	
 	glEnable(GL_BLEND);
 	m_emitter->render();
-	m_fallEmitter->render();
-	glDisable(GL_BLEND);
+	m_fallEmitter->render();	
 	glUseProgram(m_shaderArray->m_program);
 	m_shaderArray->loadMatrix("u_transform", m_transform * Globals::projection);
 	m_shaderArray->loadInt("u_layer", *m_currentFrame);
+	m_shaderArray->loadVector("u_blendColor", m_blendColor);
 	m_quad->render(*m_textureAtlas, true);
 	glUseProgram(0);
+	glDisable(GL_BLEND);
+	m_healthBar->render();
 
 	//Debug colider
 	#if DEBUGCOLLISION

@@ -254,6 +254,9 @@ void Application::render() {
 void Application::update() {
 	m_machine->update();
 	Transition::get().update(m_dt);
+	if (!m_machine->isRunning()) {
+		SendMessage(m_window, WM_DESTROY, NULL, NULL);
+	}
 }
 
 void Application::fixedUpdate() {
@@ -324,6 +327,16 @@ void Application::loadAssets() {
 
 	Globals::spritesheetManager.loadSpritesheet("blow_up", "res/textures/explo.png", 512, 512, 0, 11);
 	Globals::spritesheetManager.loadSpritesheet("ghost", "res/textures/ghost.png", 64, 64, 0, 3);
+	Globals::spritesheetManager.loadSpritesheet("health_bar", "res/textures/health.png", 96, 32, 0, -1);
+	Globals::spritesheetManager.loadSpritesheet("heart", "res/textures/heart.png", 32, 32, 0, 3);
+
+	Globals::spritesheetManager.loadSpritesheet("player_move", "res/textures/player.png", 96, 84, 3, 7);
+	Globals::spritesheetManager.loadSpritesheet("player_jump", "res/textures/player.png", 96, 84, 4, 1);
+	Globals::spritesheetManager.loadSpritesheet("player_fall", "res/textures/player.png", 96, 84, 6, 0);
+	Globals::spritesheetManager.loadSpritesheet("player_crouch", "res/textures/player.png", 96, 84, 9, 5);
+	Globals::spritesheetManager.loadSpritesheet("player_grap", "res/textures/player.png", 96, 84, 15, 0);
+	Globals::spritesheetManager.loadSpritesheet("player_takedamage", "res/textures/player.png", 96, 84, 17, 5);
+	Globals::spritesheetManager.loadSpritesheet("player_idle", "res/textures/player.png", 96, 84, 1, 6);
 
 	//becarful with the uniforms some shader are used at multiple places
 	Globals::shaderManager.loadShader("fog", "shader/fog.vs", "shader/fog.fs");

@@ -13,7 +13,6 @@ Game::Game(StateMachine& machine) : State(machine){
 	initText();
 	initTimers();
 	
-
 	m_shader = Globals::shaderManager.getAssetPointer("quad");
 	m_quad = new Quad(false);
 
@@ -23,9 +22,6 @@ Game::Game(StateMachine& machine) : State(machine){
 	
 	m_fog = new Quad(false);
 	m_shaderFog = Globals::shaderManager.getAssetPointer("fog");
-
-	m_healthBar = new HealthBar();
-	m_healthBar->setPosition(Vector2f(0.0f, HEIGHT));
 }
 
 Game::~Game() {
@@ -43,7 +39,21 @@ void Game::fixedUpdate() {
 void Game::update() {
 	if (m_player->isAlive()) {
 		UpdateEntities();
-		//m_bestTime = m_timeClock.getElapsedTime().asSeconds();
+		m_bestTime = m_timeClock.getElapsedTimeSec();
+	}else {
+		Transition::get().setFunction([&]() {
+			if (m_bestTime > Globals::bestTime) {
+				std::stringstream ss;
+				ss << std::fixed << std::setprecision(2) << m_bestTime;
+				Globals::bestTime = std::stof(ss.str());
+			}
+			i_machine.clearAndPush(new Menu(i_machine));
+
+			//MusicController::Get().GetMusic("main_track").stop();
+
+			Transition::get().start(Mode::Unveil);
+		});
+		Transition::get().start(Mode::Veil);
 	}
 
 	updateCountdown();
@@ -62,8 +72,6 @@ void Game::render(unsigned int &frameBuffer) {
 	m_shader->loadMatrix("u_transform", m_transBackground);
 	m_quadBackground->render(m_sprites["background"]);
 	glUseProgram(0);
-
-	m_healthBar->render();		
 	#endif
 	m_player->render();
 
@@ -90,6 +98,9 @@ void Game::render(unsigned int &frameBuffer) {
 	for (const auto& g : m_ghosts)
 		g->render(time);
 
+	if (m_heart)
+		m_heart->render(time);
+
 	#if !DEBUGCOLLISION
 	glEnable(GL_BLEND);
 	glUseProgram(m_shaderFog->m_program);
@@ -97,7 +108,7 @@ void Game::render(unsigned int &frameBuffer) {
 	m_shaderFog->loadFloat("u_time", m_clock.getElapsedTimeSec());
 	m_quad->render();
 	glUseProgram(0);
-
+	
 	for (const auto& l : m_lights) {
 		glUseProgram(l.getShader().m_program);
 		l.getShader().loadVector("u_color", Vector4f(0.65, 0.50, 0.28, 0.8));
@@ -106,14 +117,24 @@ void Game::render(unsigned int &frameBuffer) {
 		l.render();
 
 	}
-	#endif
+	
 	glDisable(GL_BLEND);
+	#endif
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 }
 
+void Game::spawnHeart() {
+	if (m_heartSpawnClock.getElapsedTimeSec() > 27.5f) {
+		m_heart = new Heart(i_dt, i_fdt);
+	}
+}
+
 void Game::FixedUpdateEntities() {
 	m_player->fixedUpdate();
+
+	if (m_heart)
+		m_heart->fixedUpdate();
 
 	for(auto& g : m_ghosts)
 		g->fixedUpdate();
@@ -124,8 +145,22 @@ void Game::FixedUpdateEntities() {
 
 void Game::UpdateEntities() {
 	m_player->resolveCollision(m_walls);
+	if (m_heart)
+		m_player->resolveCollision(m_heart);
 	m_player->update();
-	updateTimers();
+	
+	if (m_heart) {
+		if (!m_heart->_IsAlive) {
+			delete m_heart;
+			m_heart = nullptr;
+		}else {
+			m_heart->update();
+			m_heart->resolveCollision(m_walls);
+			m_heartSpawnClock.restart();
+		}
+	}else {
+		spawnHeart();
+	}
 
 	// Fireballs
 	for (int i = 0; i < m_fireballs.size(); i++) {
@@ -157,6 +192,9 @@ void Game::UpdateEntities() {
 
 		ghost->update(m_player->getCollider().getBody());
 	}
+
+	if (m_countdown->currentFrame() >= 4)
+		updateTimers();
 }
 
 void Game::InitEntities() {
@@ -164,14 +202,22 @@ void Game::InitEntities() {
 }
 
 void Game::updateTimers() {
-	m_enemySpawnTimer.Update(i_dt);
+	m_fireballSpawnTimer.Update(i_dt);
 	m_ghostSpawnTimer.Update(i_dt);
 	m_gameSpeedTimer.Update(i_dt);
 }
 
 void Game::initTimers() {
 
-	m_enemySpawnTimer.SetFunction(1.0f, [&]() {
+	m_gameSpeedTimer.SetFunction(5.5f, [&]() {
+		const float sub = Random::RandFloat(0.085f, 0.125f);
+		const float uTime = m_fireballSpawnTimer.GetUpdateTime() - sub;
+
+		m_fireballSpawnTimer.SetUpdateTime(uTime < 0.285f ? 0.285f : uTime);
+		m_ghostSpawnTimer.SetUpdateTime(m_ghostSpawnTimer.GetUpdateTime() - sub < 7.185f ? 7.185f : m_ghostSpawnTimer.GetUpdateTime() - sub);
+	});
+
+	m_fireballSpawnTimer.SetFunction(1.0f, [&]() {
 		if (m_fireballs.size() > 8)
 			return;
 
@@ -179,18 +225,6 @@ void Game::initTimers() {
 
 		m_fireballs.push_back(new Fireball(i_dt, i_fdt, velocity, Random::RandInt(0, 1)));
 
-	});
-
-	m_gameSpeedTimer.SetFunction(5.5f, [&]() {
-		const float sub = Random::RandFloat(0.085f, 0.125f);
-		const float uTime = m_enemySpawnTimer.GetUpdateTime() - sub;
-
-		m_enemySpawnTimer.SetUpdateTime
-		(
-			uTime < 0.285f ? 0.285f : uTime
-		);
-
-		m_ghostSpawnTimer.SetUpdateTime(m_ghostSpawnTimer.GetUpdateTime() - sub < 7.185f ? 7.185f : m_ghostSpawnTimer.GetUpdateTime() - sub);
 	});
 
 	m_ghostSpawnTimer.SetFunction(8.5f, [&]() {

@@ -14,8 +14,9 @@ public:
 	void render();
 	void render(Vector4f color);
 	void render(std::string label, float x, float y, float sx, float sy);
+	
 	void render(std::string label);
-
+	void render(std::string label, Vector4f color);
 
 	void setPosition(const float x, const float y);
 	void setPosition(const Vector2f &position);

@@ -4,9 +4,9 @@
 Animator::Animator(std::string pictureFile, unsigned short tileWidth, unsigned short tileHeight, unsigned yStart, unsigned xLength, float time, unsigned int& textureAtlas, unsigned int& currentFrame) {
 	
 	m_updateTime = time;
-	m_frameCount = xLength + 1;
-	m_spriteSheet = new Spritesheet(pictureFile, tileWidth, tileHeight, true, true, yStart, m_frameCount);
+	m_spriteSheet = new Spritesheet(pictureFile, tileWidth, tileHeight, true, true, yStart, xLength);
 	m_textureAtlas = m_spriteSheet->getAtlas();
+	m_frameCount = m_spriteSheet->getTotalFrames();
 
 	i_textureAtlas = &textureAtlas;
 	i_currentFrame = &currentFrame;
@@ -20,10 +20,10 @@ void Animator::create(std::string pictureFile, unsigned short tileWidth, unsigne
 	if (m_frameCount > 0)
 		return;
 
-	m_frameCount = xLength + 1;
 	m_updateTime = time;
-	m_spriteSheet = new Spritesheet(pictureFile, tileWidth, tileHeight, true, true, yStart, m_frameCount);
+	m_spriteSheet = new Spritesheet(pictureFile, tileWidth, tileHeight, true, true, yStart, xLength);
 	m_textureAtlas = m_spriteSheet->getAtlas();
+	m_frameCount = m_spriteSheet->getTotalFrames();
 
 	i_textureAtlas = &textureAtlas;
 	i_currentFrame = &currentFrame;
@@ -32,10 +32,10 @@ void Animator::create(std::string pictureFile, unsigned short tileWidth, unsigne
 }
 
 void Animator::create(Spritesheet* spriteSheet, float time, unsigned int& textureAtlas, unsigned int& currentFrame) {
-	m_spriteSheet = spriteSheet;
+	
 	m_updateTime = time;
+	m_spriteSheet = spriteSheet;
 	m_frameCount = spriteSheet->getTotalFrames();
-
 	m_textureAtlas = spriteSheet->getAtlas();
 
 	i_textureAtlas = &textureAtlas;
@@ -69,6 +69,7 @@ unsigned int Animator::getFrameCount() const {
 
 void Animator::setCurrentFrame(const unsigned int& frame) {
 	m_currentFrame = frame;
+	*i_textureAtlas = m_textureAtlas;
 	*i_currentFrame = m_currentFrame;
 }
 

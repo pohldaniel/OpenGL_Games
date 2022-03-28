@@ -5,9 +5,12 @@
 #include "Entity.h"
 #include "Wall.h"
 #include "Ghost.h"
+#include "Heart.h"
+#include "Fireball.h"
 #include "Animator.h"
 #include "Spritesheet.h"
 #include "ParticleEmitter.h"
+#include "HealthBar.h"
 
 class Player : public Entity {
 public:
@@ -18,7 +21,8 @@ public:
 	virtual void update();
 	virtual void render();
 
-	void resolveCollision(Entity* entity);
+	void resolveCollision(Heart* heart);
+	void resolveCollision(Fireball* fireball);
 	void resolveCollision(std::vector<Wall>& walls);
 	void resolveCollision(Ghost* entity, std::vector<Ghost*>& ghosts);
 
@@ -43,10 +47,10 @@ private:
 
 	Quad *m_quad;
 	Shader *m_shaderArray;
-	Spritesheet *m_spriteSheet;
+
 	Vector2f m_velocity;
 	Vector2f m_playerSize = Vector2f(96.0f * 2.0f, 84.0f * 2.0f);
-	bool m_alive = true;
+	bool m_isAlive = true;
 
 	const float m_movementSpeed = 420.0f;
 	float m_torque = 0.85f;
@@ -59,11 +63,13 @@ private:
 	bool m_movable = true;
 	bool m_wasGrounded = false;
 	unsigned m_currentHitTake = 10;
+	Vector4f m_blendColor = Vector4f(1.0f, 1.0f, 1.0f, 1.0f);
 
 	std::unordered_map<std::string, Animator> m_Animations;	
 
 	ParticleEmitter* m_emitter;
 	ParticleEmitter* m_fallEmitter;
+	HealthBar *m_healthBar;
 
 	Clock m_hitTimer;
 };

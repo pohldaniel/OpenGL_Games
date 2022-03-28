@@ -11,7 +11,7 @@ public:
 
 	void update(bool x); 
 	void render();
-	//int getHealthState() const;
+	int getHealthState() const;
 	void setPosition(const Vector2f &position);
 	void setOrigin(const Vector2f &origin);
 private:
@@ -26,7 +26,4 @@ private:
 	Vector2f m_size = Vector2f(96.0f, 32.0f);
 
 	void initSprites();
-
-
-
 };

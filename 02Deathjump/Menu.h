@@ -7,7 +7,7 @@
 #include "Game.h"
 #include "Settings.h"
 #include "Button.h"
-#include "Text.h"
+#include "TextField.h"
 
 class Menu : public State {
 public:
@@ -22,7 +22,8 @@ private:
 	Shader *m_shader;
 
 	Quad *m_quad;
-	Text* m_text;
+	Text* m_title;
+	TextField* m_bestTime;
 	
 	std::unordered_map<std::string, unsigned int> m_sprites;
 	std::unordered_map<std::string, Button> m_buttons;

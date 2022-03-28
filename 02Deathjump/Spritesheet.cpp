@@ -11,7 +11,7 @@ Spritesheet::Spritesheet(std::string pictureFile, unsigned short tileWidth, unsi
 
 	m_tileCountX = width / tileWidth;
 	m_tileCountY = height / tileHeight;
-	m_totalFrames = maxColumn > -1 ? maxColumn : m_tileCountX * m_tileCountY;
+	m_totalFrames = maxColumn > -1 ? (maxColumn + 1) : m_tileCountX * m_tileCountY;
 
 	glGenTextures(1, &m_texture);
 	glBindTexture(GL_TEXTURE_2D_ARRAY, m_texture);

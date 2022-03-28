@@ -8,9 +8,7 @@ HealthBar::HealthBar() {
 	setOrigin(Vector2f(0.0f, m_size[1] * m_quad->getScale()[1]));
 }
 
-HealthBar::~HealthBar() {
-
-}
+HealthBar::~HealthBar() {}
 
 void HealthBar::update(bool x) {
 	if (x && m_currentFrame < 3)
@@ -19,9 +17,8 @@ void HealthBar::update(bool x) {
 		m_currentFrame--;
 }
 
-
 void HealthBar::initSprites() {
-	m_spriteSheet = new Spritesheet("res/textures/health.png", 96, 32, true, true);
+	m_spriteSheet = Globals::spritesheetManager.getAssetPointer("health_bar");
 	m_textureAtlas = m_spriteSheet->getAtlas();
 }
 
@@ -41,4 +38,8 @@ void HealthBar::setPosition(const Vector2f &position) {
 void HealthBar::setOrigin(const Vector2f &origin) {
 	m_origin = origin;
 	m_transform.translate(m_position[0] - m_origin[0], m_position[1] - m_origin[1], 0.0f);
+}
+
+int HealthBar::getHealthState() const {
+	return 3 - m_currentFrame;
 }

@@ -7,11 +7,10 @@ SeekerBar::SeekerBar(Vector2f position, const unsigned blocks, const unsigned cu
 	}
 
 	short stride = 7, offset = 3;
+	glGenBuffers(1, &m_vbo);
 
 	glGenVertexArrays(1, &m_vao);
-	glBindVertexArray(m_vao);
-
-	glGenBuffers(1, &m_vbo);
+	glBindVertexArray(m_vao);	
 	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
 	glBufferData(GL_ARRAY_BUFFER, m_vertices.size() * sizeof(float), NULL, GL_DYNAMIC_DRAW);
 	

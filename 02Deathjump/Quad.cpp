@@ -14,8 +14,8 @@ Quad::Quad(bool flippable, float leftEdge, float rightEdge, float bottomEdge, fl
 }
 
 Quad::~Quad() {
-	if (m_quadVBO) {
-		glDeleteBuffers(1, &m_quadVBO);
+	if (m_vbo) {
+		glDeleteBuffers(1, &m_vbo);
 	}
 
 	if (m_vao) {
@@ -33,13 +33,13 @@ void Quad::createBuffer(unsigned int& vao, bool flippable, float leftEdge, float
 
 	if (flippable) {
 		vertex.push_back(leftEdge * sizeX); vertex.push_back(bottomEdge * sizeY); vertex.push_back(0.0); vertex.push_back(x * sizeTexX); vertex.push_back(y * sizeTexY); vertex.push_back((1 - x) * sizeTexX); vertex.push_back(y * sizeTexY);
-		vertex.push_back(leftEdge * sizeX); vertex.push_back((topEdge) * sizeY); vertex.push_back(0.0); vertex.push_back(x * sizeTexX); vertex.push_back((1 - y) * sizeTexY); vertex.push_back((1 - x) * sizeTexX); vertex.push_back((1 - y) * sizeTexY);
-		vertex.push_back(rightEdge * sizeX); vertex.push_back((topEdge) * sizeY); vertex.push_back(0.0); vertex.push_back((1 - x) * sizeTexX); vertex.push_back((1 - y) * sizeTexY); vertex.push_back(x * sizeTexX); vertex.push_back((1 - y) * sizeTexY);
+		vertex.push_back(leftEdge * sizeX); vertex.push_back(topEdge * sizeY); vertex.push_back(0.0); vertex.push_back(x * sizeTexX); vertex.push_back((1 - y) * sizeTexY); vertex.push_back((1 - x) * sizeTexX); vertex.push_back((1 - y) * sizeTexY);
+		vertex.push_back(rightEdge * sizeX); vertex.push_back(topEdge * sizeY); vertex.push_back(0.0); vertex.push_back((1 - x) * sizeTexX); vertex.push_back((1 - y) * sizeTexY); vertex.push_back(x * sizeTexX); vertex.push_back((1 - y) * sizeTexY);
 		vertex.push_back(rightEdge * sizeX); vertex.push_back(bottomEdge * sizeY); vertex.push_back(0.0); vertex.push_back((1 - x) * sizeTexX); vertex.push_back(y * sizeTexY); vertex.push_back(x * sizeTexX); vertex.push_back(y * sizeTexY);
 	}else {
 		vertex.push_back(leftEdge * sizeX); vertex.push_back(bottomEdge * sizeY); vertex.push_back(0.0); vertex.push_back(x * sizeTexX); vertex.push_back(y * sizeTexY);
-		vertex.push_back(leftEdge * sizeX); vertex.push_back((topEdge) * sizeY); vertex.push_back(0.0); vertex.push_back(x * sizeTexX); vertex.push_back((1 - y) * sizeTexY);
-		vertex.push_back(rightEdge * sizeX); vertex.push_back((topEdge) * sizeY); vertex.push_back(0.0); vertex.push_back((1 - x) * sizeTexX); vertex.push_back((1 - y) * sizeTexY);
+		vertex.push_back(leftEdge * sizeX); vertex.push_back(topEdge * sizeY); vertex.push_back(0.0); vertex.push_back(x * sizeTexX); vertex.push_back((1 - y) * sizeTexY);
+		vertex.push_back(rightEdge * sizeX); vertex.push_back(topEdge * sizeY); vertex.push_back(0.0); vertex.push_back((1 - x) * sizeTexX); vertex.push_back((1 - y) * sizeTexY);
 		vertex.push_back(rightEdge * sizeX); vertex.push_back(bottomEdge * sizeY); vertex.push_back(0.0); vertex.push_back((1 - x) * sizeTexX); vertex.push_back(y * sizeTexY);
 	}
 
@@ -54,13 +54,14 @@ void Quad::createBuffer(unsigned int& vao, bool flippable, float leftEdge, float
 	m_scale[0] = (vertex[stride * 2] - vertex[0]) / sizeX;
 	m_scale[1] = (vertex[stride + 1] - vertex[1]) / sizeY;
 
-	unsigned int indexQuad;
-
+	unsigned int ibo;
+	glGenBuffers(1, &ibo);
+	glGenBuffers(1, &m_vbo);
+	
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
-
-	glGenBuffers(1, &m_quadVBO);
-	glBindBuffer(GL_ARRAY_BUFFER, m_quadVBO);
+	
+	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
 	glBufferData(GL_ARRAY_BUFFER, vertex.size() * sizeof(float), &vertex[0], GL_STATIC_DRAW);
 
 	//Position
@@ -76,12 +77,12 @@ void Quad::createBuffer(unsigned int& vao, bool flippable, float leftEdge, float
 		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)(offset * sizeof(float)));
 	}
 	//Indices
-	glGenBuffers(1, &indexQuad);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexQuad);
+	
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(index), index, GL_STATIC_DRAW);
 
 	glBindVertexArray(0);
-	glDeleteBuffers(1, &indexQuad);
+	glDeleteBuffers(1, &ibo);
 
 	vertex.clear();
 	vertex.shrink_to_fit();
@@ -107,7 +108,7 @@ void Quad::setFlipped(bool flipped) {
 	m_flipped = flipped; 
 
 	glBindVertexArray(m_vao);
-	glBindBuffer(GL_ARRAY_BUFFER, m_quadVBO);
+	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
 	glEnableVertexAttribArray(1);
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, (m_flippable ? 7 : 5) * sizeof(float), (void*)((m_flipped ? 5 : 3) * sizeof(float)));
 	glBindBuffer(GL_ARRAY_BUFFER, 0);

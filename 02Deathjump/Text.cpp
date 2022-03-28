@@ -28,12 +28,12 @@ Text::Text(std::string label, float scale) {
 
 	short stride = 5, offset = 3;
 
+	unsigned int ibo;
+	glGenBuffers(1, &ibo);
 	glGenBuffers(1, &m_vbo);
-	glGenBuffers(1, &m_ibo);
-
+	
 	glGenVertexArrays(1, &m_vao);
 	glBindVertexArray(m_vao);	
-
 	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
 	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), &vertices[0], GL_STATIC_DRAW);
 
@@ -46,13 +46,14 @@ Text::Text(std::string label, float scale) {
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)(offset * sizeof(float)));
 
 	//indices
-	glGenBuffers(1, &m_ibo);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ibo);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 	
+	glDeleteBuffers(1, &ibo);
+
 	vertices.clear();
 	vertices.shrink_to_fit();
 
@@ -223,6 +224,11 @@ void Text::render(std::string label) {
 	indices.shrink_to_fit();*/
 }
 
+void Text::render(std::string label, Vector4f color) {
+	m_color = color;
+	render(label);
+}
+
 void Text::setMaxChar(const size_t maxChar){
 	m_maxChar = maxChar;
 
@@ -317,6 +323,10 @@ void Text::calcSize(std::string label) {
 	m_size = Vector2f(sizeX, sizeY * m_scale);
 }
 
+void Text::setColor(const Vector4f &color) {
+	m_color = color;
+}
+
 std::string Text::floatToString(float val, int precision) {
 	static const int bufSize = 100;
 	static char buffer[bufSize];
@@ -324,8 +334,4 @@ std::string Text::floatToString(float val, int precision) {
 	std::snprintf(buffer, bufSize, "%.*f", precision, val);
 
 	return std::string(buffer);
-}
-
-void Text::setColor(const Vector4f &color) {
-	m_color = color;
 }

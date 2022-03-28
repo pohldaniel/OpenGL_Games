@@ -4,9 +4,22 @@
 Menu::Menu(StateMachine& machine) : State(machine) {
 	initSprites();
 
-	m_text = new Text("DEATHJUMP!", 200.0f / 90.0f);
-	m_text->setColor(Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
-	m_text->setPosition(Vector2f(WIDTH * 0.5f, HEIGHT - 120.0f) - m_text->getSize() * 0.5f);
+	m_title = new Text("DEATHJUMP!", 200.0f / 90.0f);
+	m_title->setColor(Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+	m_title->setPosition(Vector2f(WIDTH * 0.5f, HEIGHT - 120.0f) - m_title->getSize() * 0.5f);
+
+
+	m_bestTime = new TextField("BEST TIME: " + Text::floatToString(Globals::bestTime, 2));
+	m_bestTime->setPosition(Vector2f(WIDTH / 2.0f, HEIGHT - 325.0f));
+	m_bestTime->setOrigin(m_bestTime->getSize() * 0.5f);
+	m_bestTime->setFillColor(Vector4f(224.0f / 255.0f, 165.0f / 255.0f, 0.0f, 70.0f / 255.0f));
+	m_bestTime->setOutlineColor(Vector4f(224.0f / 255.0f, 165.0f / 255.0f, 0.0f, 1.0f));
+	m_bestTime->setOutlineThickness(4.0f);
+	m_bestTime->setTextColor(Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+	
+	/*m_bestTime = new TextField(30, Vector4f(224.0f / 255.0f, 165.0f / 255.0f, 0.0f, 70.0f / 255.0f));
+	m_bestTime->setPosition(Vector2f(WIDTH / 2.0f, HEIGHT - 325.0f));
+	m_bestTime->setOutlineColor(Vector4f(224.0f / 255.0f, 165.0f / 255.0f, 0.0f, 1.0f));*/
 
 	m_shader = Globals::shaderManager.getAssetPointer("quad");
 	m_quad = new Quad(false);
@@ -52,7 +65,7 @@ Menu::Menu(StateMachine& machine) : State(machine) {
 
 Menu::~Menu() {
 	delete m_quad;
-	delete m_text;
+	delete m_title;
 	for (auto& b : m_buttons)
 		b.second.~Button();
 }
@@ -82,11 +95,12 @@ void Menu::render(unsigned int &frameBuffer) {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	
 	glUseProgram(m_shader->m_program);
-	m_shader->loadFloat("u_blur_radius", 0.008f);
+	m_shader->loadMatrix("u_transform", Matrix4f::IDENTITY);
 	m_quad->render(m_sprites["background"]);
 	glUseProgram(0);
 
-	m_text->render();
+	m_title->render();
+	m_bestTime->render();
 
 	for (auto& b : m_buttons)
 		b.second.render();

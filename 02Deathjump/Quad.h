@@ -23,7 +23,7 @@ private:
 	
 	unsigned int m_vao = 0;
 	unsigned int m_vaoFlipped = 0;
-	unsigned int m_quadVBO = 0;
+	unsigned int m_vbo = 0;
 
 	bool m_flippable = false;
 	bool m_flipped = false;
