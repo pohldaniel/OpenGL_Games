@@ -8,6 +8,7 @@
 #include "SeekerBar.h"
 #include "ParticleEmitter.h"
 #include "Text_old.h"
+
 class Settings : public State {
 public:
 	Settings(StateMachine& machine);
@@ -23,13 +24,16 @@ private:
 	Shader *m_shaderBlur;
 
 	Quad *m_quad;	
-	Text* m_text;
 	ParticleEmitter* m_emitter;
 
-	std::unordered_map<std::string, unsigned int> m_sprites;
 	Button m_button;
-	SeekerBar* m_seekerBar;
-
+	std::unordered_map<std::string, unsigned int> m_sprites;
+	std::unordered_map<std::string, SeekerBar*> m_seekerBars;
+	std::unordered_map<std::string, Text> m_texts;
 	void initSprites();
-	
+	void initTexts();
+
+	void updateSeekerBars();
+	void initSeekerBars();
+
 };

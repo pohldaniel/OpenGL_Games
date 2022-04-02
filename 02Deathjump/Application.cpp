@@ -18,12 +18,13 @@ Application::~Application() {
 	delete m_machine;
 	
 	Globals::shaderManager.clear();
-	Globals::textureManager.clear();
+	Globals::spritesheetManager.clear();
 
+	//Globals::textureManager.clear();
 	//Globals::fontManager.clear();
-	Globals::soundManager.clear();
+	//Globals::soundManager.clear();
 	//Globals::musicManager.clear();
-	AssetManagerStatic<Texture>::get().clear();
+	//AssetManagerStatic<Texture>::get().clear();
 	
 	//release OpenGL context
 	HDC hdc = GetDC(m_window);
@@ -258,6 +259,15 @@ void Application::update() {
 	if (!m_machine->isRunning()) {
 		SendMessage(m_window, WM_DESTROY, NULL, NULL);
 	}
+
+	Globals::musicManager.get("menu").setVolume(Globals::musicVolume);
+	Globals::musicManager.get("main").setVolume(Globals::musicVolume);
+	Globals::musicManager.get("pause").setVolume(Globals::musicVolume);
+
+	Globals::musicManager.get("menu").UpdateBufferStream();
+	Globals::musicManager.get("main").UpdateBufferStream();
+	Globals::musicManager.get("pause").UpdateBufferStream();
+
 }
 
 void Application::fixedUpdate() {
@@ -350,9 +360,8 @@ void Application::loadAssets() {
 	Globals::shaderManager.loadShader("blur", "shader/blur.vs", "shader/blur.fs");
 	//Globals::shaderManager.loadShader("text", "shader/text.vs", "shader/text.fs");
 
-	Globals::fontManagerOld.loadCharacterSet("font_90", "res/fonts/upheavtt.ttf", 90.0f);
+	//Globals::fontManagerOld.loadCharacterSet("font_90", "res/fonts/upheavtt.ttf", 90.0f);
 	Globals::fontManager.loadCharacterSet("font_90", "res/fonts/upheavtt.ttf", 90.0f);
-
 
 	Globals::soundManager.loadSoundEffect("blowup", "res/sounds/blowup.wav");
 	Globals::soundManager.loadSoundEffect("ghost", "res/sounds/ghost.wav");
@@ -362,11 +371,13 @@ void Application::loadAssets() {
 	Globals::soundManager.loadSoundEffect("1", "res/sounds/1.wav");
 	Globals::soundManager.loadSoundEffect("go", "res/sounds/go.wav");
 
+	SaveFile::load("res/save");
+
 	Globals::musicManager.loadMusic("main", "res/music/main.ogg");
 	Globals::musicManager.loadMusic("menu", "res/music/menu.ogg");
 	Globals::musicManager.loadMusic("pause", "res/music/pause.ogg");
 
-	Globals::effectsPlayer.init();
-
-	SaveFile::load("res/save");
+	Globals::musicManager.get("menu").setVolume(Globals::musicVolume);
+	Globals::musicManager.get("main").setVolume(Globals::musicVolume);
+	Globals::musicManager.get("pause").setVolume(Globals::musicVolume);
 }

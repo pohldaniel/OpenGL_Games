@@ -1,5 +1,10 @@
 #include "Button.h"
 
+Button::Button() {
+	m_effectsPlayer.init();
+	m_effectsPlayer.setVolume(Globals::soundVolume * 10.0f);
+}
+
 Button::Button(std::string label, const Vector4f& color, const bool _clickSafe) : Button() {
 	m_clickSafe = _clickSafe;
 	m_text = new Text(label);
@@ -32,6 +37,9 @@ Button::Button(Button const& rhs) {
 	m_fillColor = rhs.m_fillColor;
 	m_clickSafe = rhs.m_clickSafe;
 
+	m_effectsPlayer.init();
+	m_effectsPlayer.setVolume(Globals::soundVolume * 10.0f);
+
 	//just pass over the shader but destruct them in the shaderManager once
 	m_shader = new Shader();
 	*m_shader = *rhs.m_shader;
@@ -55,6 +63,9 @@ Button &Button::operator=(const Button &rhs) {
 	m_transformOutline = rhs.m_transformOutline;
 	m_fillColor = rhs.m_fillColor;
 	m_clickSafe = rhs.m_clickSafe;
+
+	m_effectsPlayer.init();
+	m_effectsPlayer.setVolume(Globals::soundVolume * 10.0f);
 
 	//just pass over the shader but destruct them in the shaderManager once
 	m_shader = new Shader();
@@ -150,7 +161,7 @@ void Button::setOutlineThickness(float thickness) {
 }
 
 void Button::click() {
-	
+	m_effectsPlayer.setVolume(Globals::soundVolume);
 	if ((Globals::cursorPosEye.x > (m_position[0] - m_origin[0] - m_thickness * 0.5f) &&
 		 Globals::cursorPosEye.x < (m_position[0] - m_origin[0]) + m_size[0] + m_thickness * 0.5f) &&
 		(Globals::cursorPosEye.y >(m_position[1] - m_origin[1] - m_thickness * 0.5f) &&
@@ -162,12 +173,13 @@ void Button::click() {
 	}
 	
 	if (m_isPressed && m_fun) {
-		Globals::effectsPlayer.Play(Globals::soundManager.get("button").getBuffer());
+		m_effectsPlayer.Play(Globals::soundManager.get("button").getBuffer());
 		m_fun();
 	}
 }
 
 void Button::clickSafe() {
+	m_effectsPlayer.setVolume(Globals::soundVolume);
 	if ((Globals::cursorPosEye.x > (m_position[0] - m_origin[0] - m_thickness * 0.5f) &&
 		 Globals::cursorPosEye.x < (m_position[0] - m_origin[0]) + m_size[0] + m_thickness * 0.5f) &&
 		(Globals::cursorPosEye.y >(m_position[1] - m_origin[1] - m_thickness * 0.5f) &&
@@ -183,7 +195,7 @@ void Button::clickSafe() {
 			m_guard = false;
 		}
 
-		Globals::effectsPlayer.Play(Globals::soundManager.get("button").getBuffer());
+		m_effectsPlayer.Play(Globals::soundManager.get("button").getBuffer());
 		m_fun();
 	}else {
 		if (m_clickSafe) {

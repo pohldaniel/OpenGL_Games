@@ -22,6 +22,9 @@ Game::Game(StateMachine& machine) : State(machine){
 	
 	m_fog = new Quad(false);
 	m_shaderFog = Globals::shaderManager.getAssetPointer("fog");
+
+	Globals::musicManager.get("main").Play();
+	Globals::musicManager.get("main").SetLooping(true);
 }
 
 Game::~Game() {
@@ -51,7 +54,7 @@ void Game::update() {
 			}
 			i_machine.clearAndPush(new Menu(i_machine));
 
-			//MusicController::Get().GetMusic("main_track").stop();
+			Globals::musicManager.get("main").Stop();
 
 			Transition::get().start(Mode::Unveil);
 		});
@@ -62,6 +65,7 @@ void Game::update() {
 
 	if ((Globals::CONTROLLS & Globals::KEY_Q)) {
 		i_machine.addStateAtTop(new Pause(i_machine));
+		Globals::musicManager.get("main").Stop();
 	}
 }
 

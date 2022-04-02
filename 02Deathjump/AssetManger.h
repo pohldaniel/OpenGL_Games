@@ -11,6 +11,7 @@ public:
 	}
 
 	void loadCharacterSet(const std::string& name, const std::string& path, const float characterSize) {
+		m_assets.insert(std::pair<std::string, T>(name, T()));
 		m_assets[name].loadFromFile(path, characterSize);
 	}
 
@@ -28,6 +29,7 @@ public:
 	}
 
 	void loadMusic(const std::string& name, const std::string& path) {
+		m_assets.insert(std::pair<std::string, T>(name, T()));
 		m_assets[name].loadFromFile(path);
 	}
 
@@ -40,15 +42,16 @@ public:
 	}
 
 	void clear() {
-		for (auto& s : m_assetPointer)
+		for (auto& s : m_assetPointer) {
 			if (s.second) {
 				delete s.second;
 				s.second = NULL;
 			}
+		}
 
-		for (const auto& s : m_assets) {
+		/*for (const auto& s : m_assets) {
 			s.second.~T();
-		}			
+		}*/			
 	}
 
 private:
@@ -92,14 +95,11 @@ public:
 	}
 
 	void clear() {
-		for (auto& s : m_assetPointer)
+		for (auto& s : m_assetPointer) {
 			if (s.second) {
 				delete s.second;
 				s.second = NULL;
 			}
-
-		for (const auto& s : m_assets) {
-			s.second.~T();
 		}
 	}
 		

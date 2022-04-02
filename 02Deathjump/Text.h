@@ -57,13 +57,14 @@ public:
 	const Vector2f &getPosition() const;
 	const Vector2f &getSize() const;
 
-	void setMaxChar(const size_t maxChar);
+	void setLabel(std::string label, float scale = 1.0f);
+	void setMaxChar(const size_t maxChar, float scale = 1.0f);
 	void calcSize(std::string label);
 
 	static std::string floatToString(float val, int precision);
-	static std::unique_ptr<Shader> s_shaderText2;
+
 private:
-	
+
 	std::map<GLchar, Character> m_characters;
 
 	std::vector<float> m_vertices;

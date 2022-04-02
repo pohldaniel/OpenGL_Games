@@ -11,6 +11,9 @@ public:
 	void render();
 	void update();
 
+	void setLeftFunction(std::function<void()> fun);
+	void setRightFunction(std::function<void()> fun);
+
 private:
 
 	Shader *m_shader;

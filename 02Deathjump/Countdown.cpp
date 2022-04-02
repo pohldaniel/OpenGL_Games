@@ -4,7 +4,7 @@
 Countdown::Countdown() {
 	initCounter();
 	m_effectsPlayer.init();
-	m_effectsPlayer.setVolume(Globals::soundVolumen);
+	m_effectsPlayer.setVolume(Globals::soundVolume);
 	m_effectsPlayer.Play(Globals::soundManager.get("3").getBuffer());
 }
 
@@ -13,7 +13,7 @@ Countdown::~Countdown() {
 }
 
 void Countdown::update() {
-	
+	m_effectsPlayer.setVolume(Globals::soundVolume);
 	if (m_currentFrame > 4)
 		return;
 	if (clock.getElapsedTimeSec() > 1.0f) {

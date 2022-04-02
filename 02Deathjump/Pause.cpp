@@ -25,6 +25,9 @@ Pause::Pause(StateMachine& machine) : State(machine) {
 
 	m_buttons["resume"].setFunction([&]() {
 		i_isRunning = false;
+		Globals::musicManager.get("pause").Stop();
+		Globals::musicManager.get("main").Play();
+		Globals::musicManager.get("main").SetLooping(true);
 	});
 
 	m_buttons["settings"].setFunction([&]() {
@@ -37,18 +40,20 @@ Pause::Pause(StateMachine& machine) : State(machine) {
 
 	m_buttons["exit_to_menu"].setFunction([&]() {
 		transition.setFunction([&]() {
+			Globals::musicManager.get("pause").Stop();
 			i_machine.clearAndPush(new Menu(i_machine));
 			transition.start(Mode::Unveil);
 		});
 		transition.start(Mode::Veil);
 	});
+
+	Globals::musicManager.get("pause").Play();
+	Globals::musicManager.get("pause").SetLooping(true);
 }
 
 Pause::~Pause() {
 	delete m_quad;
 	delete m_text;
-	for (auto& b : m_buttons)
-		b.second.~Button();
 }
 
 void Pause::fixedUpdate() {}

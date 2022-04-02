@@ -2,8 +2,8 @@
 
 TextOld::TextOld(std::string label, float scale) {
 
-	m_characterSize = Globals::fontManagerOld.get("font_90").characterSize;
-	m_characters = Globals::fontManagerOld.get("font_90").characters;
+	//m_characterSize = Globals::fontManagerOld.get("font_90").characterSize;
+	//m_characters = Globals::fontManagerOld.get("font_90").characters;
 	//m_shaderText = Globals::shaderManager.getAssetPointer("text");
 
 	m_shaderText = new Shader("shader/text_old.vs", "shader/text_old.fs");

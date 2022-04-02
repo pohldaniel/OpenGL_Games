@@ -200,7 +200,6 @@
     <ClInclude Include="Text.h" />
     <ClInclude Include="TextField.h" />
     <ClInclude Include="Texture.h" />
-    <ClInclude Include="Text_old.h" />
     <ClInclude Include="Timer.h" />
     <ClInclude Include="Transition.h" />
     <ClInclude Include="Vector.h" />
@@ -284,7 +283,6 @@
     <ClCompile Include="Text.cpp" />
     <ClCompile Include="TextField.cpp" />
     <ClCompile Include="Texture.cpp" />
-    <ClCompile Include="Text_old.cpp" />
     <ClCompile Include="Timer.cpp" />
     <ClCompile Include="Transition.cpp" />
     <ClCompile Include="Vector.cpp" />

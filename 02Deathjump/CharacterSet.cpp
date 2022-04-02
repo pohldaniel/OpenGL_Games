@@ -61,8 +61,26 @@ void CharacterSetOld::loadFromFile(const std::string& path, const float _charact
 	FT_Done_FreeType(ft);
 }
 
-CharacterSet::~CharacterSet() {
+CharacterSet::CharacterSet(CharacterSet const& rhs) {
+	characters = rhs.characters;
+	maxWidth = rhs.maxWidth;
+	maxHeight = rhs.maxHeight;
+	lineHeight = rhs.lineHeight;
+}
 
+CharacterSet& CharacterSet::operator=(const CharacterSet& rhs) {
+	characters = rhs.characters;
+	maxWidth = rhs.maxWidth;
+	maxHeight = rhs.maxHeight;
+	lineHeight = rhs.lineHeight;
+	return *this;
+}
+
+CharacterSet::~CharacterSet() {
+	if (spriteSheet) {
+		glDeleteTextures(1, &spriteSheet);
+		spriteSheet = 0;
+	}
 }
 
 void CharacterSet::loadFromFile(const std::string& path, const float characterSize) {
@@ -86,7 +104,7 @@ void CharacterSet::loadFromFile(const std::string& path, const float characterSi
 		lineHeight = 0;
 
 
-		/* Find minimum size for a texture holding all visible ASCII characters */
+		// Find minimum size for a texture holding all visible ASCII characters
 		for (int i = 0; i < 128; i++) {
 			if (FT_Load_Char(face, i, FT_LOAD_RENDER)) {
 				fprintf(stderr, "Loading character %c failed!\n", i);
@@ -107,7 +125,7 @@ void CharacterSet::loadFromFile(const std::string& path, const float characterSi
 		maxWidth = (std::max)(maxWidth, roww);
 		maxHeight += rowh;
 
-		/* Create a texture that will be used to hold all ASCII glyphs */
+		// Create a texture that will be used to hold all ASCII glyphs
 		//glActiveTexture(GL_TEXTURE0);
 		glGenTextures(1, &spriteSheet);
 		glBindTexture(GL_TEXTURE_2D, spriteSheet);
@@ -115,18 +133,18 @@ void CharacterSet::loadFromFile(const std::string& path, const float characterSi
 
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, maxWidth, maxHeight, 0, GL_RED, GL_UNSIGNED_BYTE, 0);
 
-		/* We require 1 byte alignment when uploading texture data */
+		// We require 1 byte alignment when uploading texture data 
 		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-		/* Clamping to edges is important to prevent artifacts when scaling */
+		// Clamping to edges is important to prevent artifacts when scaling 
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-		/* Linear filtering usually looks best for text */
+		// Linear filtering usually looks best for text 
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-		/* Paste all glyph bitmaps into the texture, remembering the offset */
+		// Paste all glyph bitmaps into the texture, remembering the offset 
 		int ox = 0;
 		int oy = 0;
 
@@ -162,6 +180,4 @@ void CharacterSet::loadFromFile(const std::string& path, const float characterSi
 		glBindTexture(GL_TEXTURE_2D, 0);
 		fprintf(stderr, "Generated a %d x %d (%d kb) texture atlas\n", maxWidth, maxHeight, maxWidth * maxHeight / 1024);
 	}
-	
-
 }

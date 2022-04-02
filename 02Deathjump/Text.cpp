@@ -4,107 +4,52 @@
 std::unique_ptr<Shader> Text::s_shaderText = nullptr;
 unsigned short Text::s_total = 0;
 
-std::unique_ptr<Shader> Text::s_shaderText2 = std::unique_ptr<Shader>(new Shader());
-
 Text::Text() {
 	s_total++;
+
+	if (!s_shaderText) {
+		s_shaderText = std::unique_ptr<Shader>(new Shader(TEXT_VERTEX, TEXT_FRGAMENT, false));
+	}
+
+	m_characters = Globals::fontManager.get("font_90").characters;
 }
 
 Text::Text(std::string label, float scale) : Text() {
-	if (!s_shaderText) {
-		s_shaderText = std::unique_ptr<Shader>(new Shader(TEXT_VERTEX, TEXT_FRGAMENT, false));
-	}
-
-	m_characters = Globals::fontManager.get("font_90").characters;
-	
-	m_label = label;
-	m_scale = scale;
-	calcSize();
-
-	std::vector<float> vertices;
-	std::vector<unsigned int> indices;
-
-	float x2 = 0.0f;
-	float y2 = 0.0f;
-	std::string::const_iterator c;
-	for (c = m_label.begin(); c != m_label.end(); c++) {
-		Character ch = m_characters[*c];
-		Vector2f pos = Vector2f(x2 + ch.bearing[0] * m_scale, y2 + ch.bearing[1] * m_scale);
-		addChar(pos, *c, vertices, indices);
-		x2 += ch.advance[0] * m_scale;
-		y2 += ch.advance[1] * m_scale;
-	}
-
-	m_indexCount = indices.size();
-
-	short stride = 5, offset = 3;
-
-	unsigned int ibo;
-	glGenBuffers(1, &ibo);
-	glGenBuffers(1, &m_vbo);
-	
-	glGenVertexArrays(1, &m_vao);
-	glBindVertexArray(m_vao);	
-	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), &vertices[0], GL_STATIC_DRAW);
-
-	//positions
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)0);
-
-	//texcoords
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)(offset * sizeof(float)));
-
-	//indices
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW);
-
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
-	
-	glDeleteBuffers(1, &ibo);
-
-	vertices.clear();
-	vertices.shrink_to_fit();
-
-	indices.clear();
-	indices.shrink_to_fit();
+	setLabel(label, scale);
 }
 
-Text::Text(size_t maxChar, float scale) : Text() {
-
-	if (!s_shaderText) {
-		s_shaderText = std::unique_ptr<Shader>(new Shader(TEXT_VERTEX, TEXT_FRGAMENT, false));
-	}
-
-	m_characters = Globals::fontManager.get("font_90").characters;
-	
-	m_scale = scale;
-	m_maxChar = maxChar;
-	setMaxChar(m_maxChar);
-	calcSize();
+Text::Text(size_t maxChar, float scale) : Text() {	
+	setMaxChar(m_maxChar, scale);
 }
 
 Text::Text(Text const& rhs) : Text() {
+	
 	m_label = rhs.m_label;
 	m_scale = rhs.m_scale;
-	
+	m_maxChar = rhs.m_maxChar;
+
 	m_transform = rhs.m_transform;
 	m_position = rhs.m_position;
 	m_size = rhs.m_size;
 	m_origin = rhs.m_origin;
 	m_color = rhs.m_color;
 
-	m_vao = rhs.m_vao;
-	m_vbo = rhs.m_vbo;
-	m_ibo = rhs.m_ibo;
-	m_indexCount = rhs.m_indexCount;	
+	//the call of the destructor will invalid this members
+	//m_vao = rhs.m_vao;
+	//m_vbo = rhs.m_vbo;
+	//m_ibo = rhs.m_ibo;
+	//m_indexCount = rhs.m_indexCount;
+	if (!m_label.empty())
+		setLabel(m_label, m_scale);
+	else
+		setMaxChar(m_maxChar, m_scale);
 }
 
 Text& Text::operator=(const Text& rhs) {	
+
 	m_label = rhs.m_label;
 	m_scale = rhs.m_scale;
+	m_maxChar = rhs.m_maxChar;
 	
 	m_transform = rhs.m_transform;
 	m_position = rhs.m_position;
@@ -112,10 +57,16 @@ Text& Text::operator=(const Text& rhs) {
 	m_origin = rhs.m_origin;
 	m_color = rhs.m_color;
 
-	m_vao = rhs.m_vao;
-	m_vbo = rhs.m_vbo;
-	m_ibo = rhs.m_ibo;
-	m_indexCount = rhs.m_indexCount;
+	//the call of the destructor will invalid this members
+	//m_vao = rhs.m_vao;
+	//m_vbo = rhs.m_vbo;
+	//m_ibo = rhs.m_ibo;
+	//m_indexCount = rhs.m_indexCount;
+
+	if (!m_label.empty())
+		setLabel(m_label, m_scale);
+	else
+		setMaxChar(m_maxChar, m_scale);
 
 	return *this;
 }
@@ -140,6 +91,64 @@ Text::~Text(){
 	/*if (s_total == 0) {
 		s_shaderText.reset();
 	}*/
+}
+
+void Text::setLabel(std::string label, float scale) {
+
+	m_label = label;
+	m_scale = scale;
+	
+
+	std::vector<float> vertices;
+	std::vector<unsigned int> indices;
+
+	float x2 = 0.0f;
+	float y2 = 0.0f;
+	std::string::const_iterator c;
+	for (c = m_label.begin(); c != m_label.end(); c++) {
+		Character ch = m_characters[*c];
+		Vector2f pos = Vector2f(x2 + ch.bearing[0] * m_scale, y2 + ch.bearing[1] * m_scale);
+		addChar(pos, *c, vertices, indices);
+		x2 += ch.advance[0] * m_scale;
+		y2 += ch.advance[1] * m_scale;
+	}
+
+	m_indexCount = indices.size();
+
+	short stride = 5, offset = 3;
+
+	unsigned int ibo;
+	glGenBuffers(1, &ibo);
+	glGenBuffers(1, &m_vbo);
+
+	glGenVertexArrays(1, &m_vao);
+	glBindVertexArray(m_vao);
+	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), &vertices[0], GL_STATIC_DRAW);
+
+	//positions
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)0);
+
+	//texcoords
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)(offset * sizeof(float)));
+
+	//indices
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW);
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+
+	glDeleteBuffers(1, &ibo);
+
+	vertices.clear();
+	vertices.shrink_to_fit();
+
+	indices.clear();
+	indices.shrink_to_fit();
+	calcSize();
 }
 
 void Text::addChar(const Vector2f& pos, unsigned int _c, std::vector<float>& vertices, std::vector<unsigned int>& indices){
@@ -171,7 +180,6 @@ void Text::render() {
 	s_shaderText->loadVector("textColor", m_color);
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, Globals::fontManager.get("font_90").spriteSheet);
-
 	glBindVertexArray(m_vao);
 	glDrawElements(GL_TRIANGLES, m_indexCount, GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
@@ -278,7 +286,8 @@ void Text::render(std::string label, Vector4f color) {
 	render(label);
 }
 
-void Text::setMaxChar(const size_t maxChar){
+void Text::setMaxChar(const size_t maxChar, float scale){
+	m_scale = scale;
 	m_maxChar = maxChar;
 
 	short stride = 5, offset = 3;
@@ -306,6 +315,8 @@ void Text::setMaxChar(const size_t maxChar){
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
+
+	calcSize();
 }
 
 void Text::setPosition(const Vector2f &position) {

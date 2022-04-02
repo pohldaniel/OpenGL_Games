@@ -49,16 +49,15 @@ namespace Globals{
 	extern AssetManagerStatic<Texture> textureManager;
 	extern AssetManager<Shader> shaderManager;
 	extern AssetManager<Spritesheet> spritesheetManager;
-	extern AssetManager<CharacterSetOld> fontManagerOld;
+	//extern AssetManager<CharacterSetOld> fontManagerOld;
 	extern AssetManager<CharacterSet> fontManager;
 
 	extern AssetManager<SoundBuffer> soundManager;
 	extern AssetManager<MusicBuffer> musicManager;
 
-	extern SoundEffectsPlayer effectsPlayer;
-
 	extern float bestTime;
-	extern float soundVolumen;
+	extern float musicVolume;
+	extern float soundVolume;
 }
 
 #endif

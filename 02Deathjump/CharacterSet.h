@@ -3,6 +3,7 @@
 #define NOMINMAX
 #include <iostream>
 #include <map>
+#include <unordered_map>
 #include <algorithm>
 #include <ft2build.h>
 #include FT_FREETYPE_H
@@ -29,12 +30,15 @@ struct Character {
 	int size[2];
 	float textureOffset[2];
 	float textureSize[2];
-	unsigned int advance[2];
-	
+	unsigned int advance[2];	
 };
 
 struct CharacterSet {
+	CharacterSet() = default;
+	CharacterSet(CharacterSet const& rhs);
+	CharacterSet& operator=(const CharacterSet& rhs);
 	~CharacterSet();
+
 	void loadFromFile(const std::string& path, const float characterSize = 100.0f);
 	std::map<GLchar, Character> characters;
 	unsigned int spriteSheet;

@@ -8,7 +8,7 @@
 
 class Button {
 public:
-	Button() = default;
+	Button();
 	Button(Button const& rhs);
 	Button& operator=(const Button& rhs);
 	Button(std::string label, const Vector4f& color, const bool clickSafe = true);
@@ -64,4 +64,6 @@ private:
 	
 	void click();
 	void clickSafe();	
+
+	SoundEffectsPlayer m_effectsPlayer;
 };

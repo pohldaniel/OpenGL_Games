@@ -29,9 +29,4 @@ private:
 	std::unordered_map<std::string, Button> m_buttons;
 	
 	void initSprites();
-
-	bool m_toggle = true;
-
-	
-
 };
