@@ -91,7 +91,7 @@ void SeekerBar::setQuadColor(Vector4f& color1, Vector4f& color2) {
 void SeekerBar::setQuadColor(unsigned int currentBlock, Vector4f& color) {
 	short stride = 7;
 
-	for (unsigned int i = currentBlock * stride * 4; i <= (currentBlock + 1) * stride * 4; i = i + stride * 4) {
+	for (unsigned int i = currentBlock * stride * 4; i < (currentBlock + 1) * stride * 4; i = i + stride * 4) {
 		for (unsigned int vert = 0; vert < 4; vert++) {
 			for (unsigned int j = i + (3 + vert * stride), k = 0; k < 4; j++, k++) {
 				m_vertices[j] = color[k];
@@ -125,8 +125,7 @@ void SeekerBar::render() {
 	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
 	glBufferSubData(GL_ARRAY_BUFFER, 0, m_vertices.size() * sizeof(float), &m_vertices[0]);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-	glEnable(GL_BLEND);
+	
 	m_buttonLeft->render();
 	glUseProgram(m_shader->m_program);
 	m_shader->loadMatrix("projection", Globals::projection);
@@ -134,8 +133,7 @@ void SeekerBar::render() {
 	glDrawArrays(GL_QUADS, 0, 4 * m_blocks);
 	glBindVertexArray(0);
 	glUseProgram(0);
-	m_buttonRight->render();
-	glDisable(GL_BLEND);
+	m_buttonRight->render();	
 }
 
 void SeekerBar::setLeftFunction(std::function<void()> fun) {

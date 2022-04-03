@@ -1,17 +1,61 @@
 #include "Pause.h"
 #include "Menu.h"
 
-Pause::Pause(StateMachine& machine) : State(machine) {	
+Pause::Pause(StateMachine& machine) : State(machine), m_text(Text(Globals::fontManager.get("font_200"))) {
 	initSprites();
-
-	m_text = new Text("PAUSED", 200.0f / 90.0f);
-	m_text->setColor(Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
-	m_text->setPosition(Vector2f(WIDTH * 0.5f, HEIGHT - 120.0f) - m_text->getSize() * 0.5f);
+	initText();
+	initButtons();
+	initTimer();
 
 	m_shader = Globals::shaderManager.getAssetPointer("quad");
 	m_shaderBlur = Globals::shaderManager.getAssetPointer("blur");
 	m_quad = new Quad(false);
+	
+	Globals::musicManager.get("pause").Play();
+	Globals::musicManager.get("pause").SetLooping(true);
+}
 
+Pause::~Pause() {
+	delete m_quad;
+}
+
+void Pause::fixedUpdate() {}
+
+void Pause::update() {
+	for (auto& b : m_buttons)
+		b.second.update();
+
+	animateText();
+}
+
+void Pause::render(unsigned int &frameBuffer) {
+	glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+	glUseProgram(m_shaderBlur->m_program);
+	m_shaderBlur->loadFloat("u_blur_radius", 0.008f);
+	m_quad->render(m_sprites["background"]);
+	glUseProgram(0);
+	
+	glEnable(GL_BLEND);
+	m_text.render();
+
+	for (auto& b : m_buttons)
+		b.second.render();
+	glDisable(GL_BLEND);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+void Pause::initSprites() {
+	m_sprites["background"] = Globals::textureManager.get("menu").getTexture();
+}
+
+void Pause::initText() {
+	m_text.setLabel("PAUSED");
+	m_text.setPosition(Vector2f(WIDTH * 0.5f, HEIGHT - 120.0f));
+	m_text.setOrigin(m_text.getSize() * 0.5f);
+}
+
+void Pause::initButtons() {
 	std::initializer_list<std::pair<const std::string, Button>> init =
 	{
 		{ "resume",		  Button("RESUME"      , Vector2f(WIDTH * 0.5f, HEIGHT - 400), Vector4f(100.0f / 255.0f, 100.0f / 255.0f, 100.0f / 255.0f, 80.0f / 255.0f)) },
@@ -46,39 +90,31 @@ Pause::Pause(StateMachine& machine) : State(machine) {
 		});
 		transition.start(Mode::Veil);
 	});
-
-	Globals::musicManager.get("pause").Play();
-	Globals::musicManager.get("pause").SetLooping(true);
 }
 
-Pause::~Pause() {
-	delete m_quad;
-	delete m_text;
+void Pause::initTimer() {
+	m_textAnimTimer.SetFunction(0.20f, [&]() {
+		constexpr float pos[10] =
+		{
+			100.0f,
+			110.0f,
+			120.0f,
+			130.0f,
+			140.0f,
+			130.0f,
+			120.0f,
+			110.0f,
+			100.0f,
+			90.0f,
+		};
+		m_text.setPosition(Vector2f(WIDTH / 2.0f, HEIGHT - pos[m_iterator]));
+
+		m_iterator++;
+		if (m_iterator > 9)
+			m_iterator = 0;
+	});
 }
 
-void Pause::fixedUpdate() {}
-
-void Pause::update() {
-	for (auto& b : m_buttons)
-		b.second.update();
-}
-
-void Pause::render(unsigned int &frameBuffer) {
-	glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-	glUseProgram(m_shaderBlur->m_program);
-	m_shaderBlur->loadFloat("u_blur_radius", 0.008f);
-	m_quad->render(m_sprites["background"]);
-	glUseProgram(0);
-	
-	m_text->render();
-
-	for (auto& b : m_buttons)
-		b.second.render();
-	
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-}
-
-void Pause::initSprites() {
-	m_sprites["background"] = Globals::textureManager.get("menu").getTexture();
+void Pause::animateText() {
+	m_textAnimTimer.Update(i_dt);
 }

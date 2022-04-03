@@ -7,6 +7,7 @@
 #include "Text.h"
 
 class Button {
+
 public:
 	Button();
 	Button(Button const& rhs);
@@ -30,6 +31,7 @@ public:
 
 	void setFunction(std::function<void()> fun);
 
+	SoundEffectsPlayer m_effectsPlayer;
 private:
 
 	Shader *m_shader;
@@ -53,9 +55,6 @@ private:
 
 	float m_thickness = 0.0f;
 
-	float xScaleOutline;
-	float yScaleOutline;
-
 	bool m_isPressed = false;
 	bool m_clickSafe = false;
 	bool m_guard = true;
@@ -65,5 +64,5 @@ private:
 	void click();
 	void clickSafe();	
 
-	SoundEffectsPlayer m_effectsPlayer;
+	
 };

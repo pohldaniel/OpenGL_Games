@@ -9,7 +9,7 @@
 #include FT_FREETYPE_H
 #include "Extension.h"
 
-#define MAXWIDTH 1024
+#define MAXWIDTH 4096
 
 struct CharacterOld {
 	unsigned int textureID;

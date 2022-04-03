@@ -91,10 +91,11 @@ void Game::render(unsigned int &frameBuffer) {
 	o.render();
 	#endif
 
-	m_countdown->render();
-
+	glEnable(GL_BLEND);
+	m_countdown->render();	
 	if (m_countdown->currentFrame() >= 4)
 		m_text->render(m_timer);
+	glDisable(GL_BLEND);
 
 	float time = m_clock.getElapsedTimeSec();
 	for (const auto& f : m_fireballs) {
@@ -223,7 +224,7 @@ void Game::initTimers() {
 		m_ghostSpawnTimer.SetUpdateTime(m_ghostSpawnTimer.GetUpdateTime() - sub < 7.185f ? 7.185f : m_ghostSpawnTimer.GetUpdateTime() - sub);
 	});
 
-	m_fireballSpawnTimer.SetFunction(1.0f, [&]() {
+	/*m_fireballSpawnTimer.SetFunction(1.0f, [&]() {
 		if (m_fireballs.size() > 8)
 			return;
 
@@ -231,7 +232,7 @@ void Game::initTimers() {
 
 		m_fireballs.push_back(new Fireball(i_dt, i_fdt, velocity, Random::RandInt(0, 1)));
 
-	});
+	});*/
 
 	m_ghostSpawnTimer.SetFunction(8.5f, [&]() {
 		if (m_ghosts.size() > 2)
@@ -256,7 +257,7 @@ void Game::initCountdown() {
 }
 
 void Game::initText() {
-	m_text = new Text(30, 1.0f);
+	m_text = new Text(30, Globals::fontManager.get("font_200"), 90.0f / 200.0f);
 	m_text->setPosition(WIDTH * 0.5f, HEIGHT - 60.0f);
 	m_text->setOrigin(100.0f, m_text->getSize()[1]);
 	//m_timer = "0.00";

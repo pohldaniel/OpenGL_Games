@@ -561,3 +561,10 @@ void glBufferSubData(GLenum target, GLintptr offset, GLsizeiptr size, const void
 	LOAD_ENTRYPOINT("glBufferSubData", glBufferSubData, PFNGLBUFFERSUBDATAPROC);
 	glBufferSubData(target, offset, size, data);
 }
+
+void glBlendFuncSeparate(GLenum srcRGB, GLenum dstRGB, GLenum srcAlpha, GLenum dstAlpha) {
+	typedef void(APIENTRY * PFNGLBLENDFUNCSEPARATEPROC)(GLenum srcRGB, GLenum dstRGB, GLenum srcAlpha, GLenum dstAlpha);
+	static PFNGLBLENDFUNCSEPARATEPROC  glBlendFuncSeparate = 0;
+	LOAD_ENTRYPOINT("glBlendFuncSeparate", glBlendFuncSeparate, PFNGLBLENDFUNCSEPARATEPROC);
+	glBlendFuncSeparate(srcRGB, dstRGB, srcAlpha, dstAlpha);
+}

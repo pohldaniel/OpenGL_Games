@@ -20,13 +20,20 @@ public:
 
 private:
 	Shader *m_shader;
-
 	Quad *m_quad;
-	Text* m_title;
-	TextField* m_bestTime;
 	
+	Timer m_textAnimTimer;
+	int m_iterator = 0;
+
 	std::unordered_map<std::string, unsigned int> m_sprites;
 	std::unordered_map<std::string, Button> m_buttons;
-	
+	Text m_text;
+	TextField m_bestTime;
+
 	void initSprites();
+	void initText();
+	void initButtons();
+	void initTextField();
+	void initTimer();
+	void animateText();	
 };

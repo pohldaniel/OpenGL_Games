@@ -2,12 +2,12 @@
 
 Button::Button() {
 	m_effectsPlayer.init();
-	m_effectsPlayer.setVolume(Globals::soundVolume * 10.0f);
+	m_effectsPlayer.setVolume(Globals::soundVolume);
 }
 
 Button::Button(std::string label, const Vector4f& color, const bool _clickSafe) : Button() {
 	m_clickSafe = _clickSafe;
-	m_text = new Text(label);
+	m_text = new Text(label, Globals::fontManager.get("font_200"), 90.0f / 200.0f);
 
 	m_size = m_text->getSize() + Vector2f(30.0f, 20.0f);
 
@@ -38,7 +38,7 @@ Button::Button(Button const& rhs) {
 	m_clickSafe = rhs.m_clickSafe;
 
 	m_effectsPlayer.init();
-	m_effectsPlayer.setVolume(Globals::soundVolume * 10.0f);
+	m_effectsPlayer.setVolume(Globals::soundVolume);
 
 	//just pass over the shader but destruct them in the shaderManager once
 	m_shader = new Shader();
@@ -47,7 +47,7 @@ Button::Button(Button const& rhs) {
 	m_quad = new Quad();
 	std::swap(*m_quad, *rhs.m_quad);
 
-	m_text = new Text();
+	m_text = new Text(rhs.m_text->m_charset);
 	std::swap(*m_text, *rhs.m_text);
 
 	update = m_clickSafe ? std::function<void()>{[&]() {clickSafe();}} : std::function<void()>{ [&]() {click();}};
@@ -65,7 +65,7 @@ Button &Button::operator=(const Button &rhs) {
 	m_clickSafe = rhs.m_clickSafe;
 
 	m_effectsPlayer.init();
-	m_effectsPlayer.setVolume(Globals::soundVolume * 10.0f);
+	m_effectsPlayer.setVolume(Globals::soundVolume);
 
 	//just pass over the shader but destruct them in the shaderManager once
 	m_shader = new Shader();
@@ -74,7 +74,7 @@ Button &Button::operator=(const Button &rhs) {
 	m_quad = new Quad();
 	std::swap(*m_quad, *rhs.m_quad);
 	
-	m_text = new Text();
+	m_text = new Text(rhs.m_text->m_charset);
 	std::swap(*m_text, *rhs.m_text);
 
 	//alternatively to lambada
@@ -101,8 +101,7 @@ Button::~Button() {
 	}*/
 }
 
-void Button::render() {
-	glEnable(GL_BLEND);
+void Button::render() {	
 	glEnable(GL_STENCIL_TEST);
 
 	glStencilFunc(GL_ALWAYS, 1, 0xFF);
@@ -122,9 +121,7 @@ void Button::render() {
 	glUseProgram(0);
 
 	glStencilMask(0xFF);
-	glDisable(GL_STENCIL_TEST);
-	glDisable(GL_BLEND);
-
+	glDisable(GL_STENCIL_TEST);	
 	m_text->render(m_outlineColor);
 }
 
@@ -149,8 +146,8 @@ void Button::setOrigin(const Vector2f &origin) {
 void Button::setOutlineThickness(float thickness) {
 	Matrix4f trans;
 	m_thickness = thickness * 2.0f;
-	xScaleOutline = (m_thickness) / m_size[0];
-	yScaleOutline = (m_thickness) / m_size[1];
+	float xScaleOutline = (m_thickness) / m_size[0];
+	float yScaleOutline = (m_thickness) / m_size[1];
 	m_transformOutline.scale(1.0f + xScaleOutline, 1.0f + yScaleOutline, 1.0f);
 	m_transformOutline = m_transformOutline * Matrix4f::Translate(trans, -thickness, -thickness, 0.0f);
 
@@ -161,7 +158,6 @@ void Button::setOutlineThickness(float thickness) {
 }
 
 void Button::click() {
-	m_effectsPlayer.setVolume(Globals::soundVolume);
 	if ((Globals::cursorPosEye.x > (m_position[0] - m_origin[0] - m_thickness * 0.5f) &&
 		 Globals::cursorPosEye.x < (m_position[0] - m_origin[0]) + m_size[0] + m_thickness * 0.5f) &&
 		(Globals::cursorPosEye.y >(m_position[1] - m_origin[1] - m_thickness * 0.5f) &&
@@ -179,7 +175,6 @@ void Button::click() {
 }
 
 void Button::clickSafe() {
-	m_effectsPlayer.setVolume(Globals::soundVolume);
 	if ((Globals::cursorPosEye.x > (m_position[0] - m_origin[0] - m_thickness * 0.5f) &&
 		 Globals::cursorPosEye.x < (m_position[0] - m_origin[0]) + m_size[0] + m_thickness * 0.5f) &&
 		(Globals::cursorPosEye.y >(m_position[1] - m_origin[1] - m_thickness * 0.5f) &&

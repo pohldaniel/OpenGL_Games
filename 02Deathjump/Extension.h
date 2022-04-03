@@ -181,6 +181,7 @@ typedef char GLchar;
 	extern void glTexStorage3D(GLenum target, GLsizei levels, GLenum internalformat, GLsizei width, GLsizei height, GLsizei depth);
 
 	extern void glBufferSubData(GLenum target, GLintptr offset, GLsizeiptr size, const void * data);
+	extern void glBlendFuncSeparate(GLenum srcRGB, GLenum dstRGB, GLenum srcAlpha, GLenum dstAlpha);
 
 } // extern "C"
 #endif

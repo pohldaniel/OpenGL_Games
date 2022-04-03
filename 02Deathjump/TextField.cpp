@@ -1,14 +1,10 @@
 #include "TextField.h"
 
 TextField::TextField(size_t maxChar) : TextField() {
-	m_text = new Text(maxChar);
-	//m_size = Vector2f(400.0f, 120.0f);
+	m_text = new Text(maxChar, Globals::fontManager.get("font_200"), 90.0f / 200.0f);
 	m_quad = new Quad(false, 0.0f, 2.0f, 0.0f, 2.0f, m_size[0] * 0.5, m_size[1] * 0.5);
 	m_shader = Globals::shaderManager.getAssetPointer("quad_color_single");
-
-	//setOrigin(Vector2f(m_size[0] * 0.5f, m_size[1] * 0.5f));
 	setOutlineThickness(4.0f);
-
 }
 
 TextField::TextField(size_t maxChar, const Vector4f& color) : TextField(maxChar) {
@@ -21,18 +17,57 @@ TextField::TextField(size_t maxChar, const Vector4f& color, const Vector2f &posi
 
 TextField::TextField(std::string label) : TextField() {
 	m_label = true;
-	m_text = new Text(label);
+	m_text = new Text(label, Globals::fontManager.get("font_200"), 90.0f / 200.0f);
 	m_size = m_text->getSize() + Vector2f(30.0f, 20.0f);
 
 	m_quad = new Quad(false, 0.0f, 2.0f, 0.0f, 2.0f, m_size[0] * 0.5, m_size[1] * 0.5);
 	m_shader = Globals::shaderManager.getAssetPointer("quad_color_single");
-
-	//setOrigin(Vector2f(m_size[0] * 0.5f, m_size[1] * 0.5f));
 	setOutlineThickness(4.0f);
 }
 
 TextField::TextField(std::string label, const Vector4f& color) : TextField(label) {
 	m_fillColor = color;
+}
+
+TextField::TextField(TextField const& rhs) {
+	m_position = rhs.m_position;
+	m_origin = rhs.m_origin;
+	m_thickness = rhs.m_thickness;
+	m_size = rhs.m_size;
+	m_transform = rhs.m_transform;
+	m_transformOutline = rhs.m_transformOutline;
+	m_fillColor = rhs.m_fillColor;
+	m_label = rhs.m_label;
+
+	m_shader = new Shader();
+	*m_shader = *rhs.m_shader;
+
+	m_quad = new Quad();
+	std::swap(*m_quad, *rhs.m_quad);
+
+	m_text = new Text(rhs.m_text->m_charset);
+	std::swap(*m_text, *rhs.m_text);
+}
+
+TextField& TextField::operator=(const TextField& rhs) {
+	m_position = rhs.m_position;
+	m_origin = rhs.m_origin;
+	m_thickness = rhs.m_thickness;
+	m_size = rhs.m_size;
+	m_transform = rhs.m_transform;
+	m_transformOutline = rhs.m_transformOutline;
+	m_fillColor = rhs.m_fillColor;
+	m_label = rhs.m_label;
+
+	m_shader = new Shader();
+	*m_shader = *rhs.m_shader;
+
+	m_quad = new Quad();
+	std::swap(*m_quad, *rhs.m_quad);
+
+	m_text = new Text(rhs.m_text->m_charset);
+	std::swap(*m_text, *rhs.m_text);
+	return *this;
 }
 
 TextField::TextField(std::string label, const Vector4f& color, const Vector2f &position) : TextField(label, color) {
@@ -58,7 +93,6 @@ TextField::~TextField() {
 }
 
 void TextField::render() {
-	glEnable(GL_BLEND);
 	glEnable(GL_STENCIL_TEST);
 
 	glStencilFunc(GL_ALWAYS, 1, 0xFF);
@@ -79,7 +113,6 @@ void TextField::render() {
 
 	glStencilMask(0xFF);
 	glDisable(GL_STENCIL_TEST);
-	glDisable(GL_BLEND);
 
 	m_text->render(m_textColor);
 }
@@ -153,8 +186,8 @@ void TextField::setOrigin(const Vector2f &origin) {
 void TextField::setOutlineThickness(float thickness) {
 	Matrix4f trans;
 	m_thickness = thickness * 2.0f;
-	xScaleOutline = (m_thickness) / m_size[0];
-	yScaleOutline = (m_thickness) / m_size[1];
+	float xScaleOutline = (m_thickness) / m_size[0];
+	float yScaleOutline = (m_thickness) / m_size[1];
 	m_transformOutline.scale(1.0f + xScaleOutline, 1.0f + yScaleOutline, 1.0f);
 	m_transformOutline = m_transformOutline * Matrix4f::Translate(trans, -thickness, -thickness, 0.0f);
 

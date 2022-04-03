@@ -80,9 +80,11 @@ void StateMachine::render() {
 	m_quad->render(m_frameTexture);
 	glUseProgram(0);*/
 
+	glEnable(GL_BLEND);
 	glUseProgram(*&Transition::get().getShader().m_program);
 	m_quad->render(m_frameTexture);
 	glUseProgram(0);
+	glDisable(GL_BLEND);
 }
 
 void StateMachine::clearAndPush(State* state) {

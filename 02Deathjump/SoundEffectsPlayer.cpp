@@ -10,17 +10,9 @@ SoundEffectsPlayer::~SoundEffectsPlayer(){
 }
 
 void SoundEffectsPlayer::Play(const ALuint& buffer_to_play){
-	
-	if (buffer_to_play != p_Buffer){
-		p_Buffer = buffer_to_play;
-		alSourcei(p_Source, AL_BUFFER, (ALint)p_Buffer);
-	}
+	p_Buffer = buffer_to_play;
+	alSourcei(p_Source, AL_BUFFER, (ALint)p_Buffer);
 	alSourcePlay(p_Source);
-
-	/*alGetSourcei(p_Source, AL_SOURCE_STATE, &state);
-	if (state != AL_PLAYING) {
-		p_Buffer = 0;
-	}*/	
 }
 
 void SoundEffectsPlayer::setVolume(float volume) {

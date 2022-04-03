@@ -26,6 +26,7 @@ void HealthBar::render() {
 	glUseProgram(m_shaderArray->m_program);
 	m_shaderArray->loadMatrix("u_transform", m_transform * Globals::projection);
 	m_shaderArray->loadInt("u_layer", m_currentFrame);
+	m_shaderArray->loadVector("u_blendColor", Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
 	m_quad->render(m_textureAtlas, true);
 	glUseProgram(0);
 }

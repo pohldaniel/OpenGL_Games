@@ -7,7 +7,7 @@
 #include "Button.h"
 #include "SeekerBar.h"
 #include "ParticleEmitter.h"
-#include "Text_old.h"
+#include "Timer.h"
 
 class Settings : public State {
 public:
@@ -26,14 +26,18 @@ private:
 	Quad *m_quad;	
 	ParticleEmitter* m_emitter;
 
+	Timer m_textAnimTimer;
+	int m_iterator = 0;
+
 	Button m_button;
 	std::unordered_map<std::string, unsigned int> m_sprites;
 	std::unordered_map<std::string, SeekerBar*> m_seekerBars;
 	std::unordered_map<std::string, Text> m_texts;
+	
 	void initSprites();
 	void initTexts();
-
-	void updateSeekerBars();
+	void initButton();
 	void initSeekerBars();
-
+	void initTimer();
+	void animateText();
 };

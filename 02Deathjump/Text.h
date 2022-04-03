@@ -24,7 +24,7 @@
 						out vec4 color;														\n \
 																							\n \
 						uniform sampler2D tex;												\n \
-						uniform vec4 textColor;;											\n \
+						uniform vec4 textColor;												\n \
 																							\n \
 						void main() {														\n \
 						color = vec4(1.0, 1.0, 1.0, texture(tex, texCoord).r) * textColor;	\n \
@@ -33,11 +33,12 @@
 class Text {
 public:
 
-	Text();
-	Text(std::string label, float scale = 1.0f);
-	Text(size_t maxChar, float scale = 1.0f);
+	Text(CharacterSet &charset);
+	Text(std::string label, CharacterSet &charset, float scale = 1.0f);
+	Text(size_t maxChar, CharacterSet &charset, float scale = 1.0f);
 	Text(Text const& rhs);
 	Text& operator=(const Text& rhs);
+
 	~Text();
 	void render();
 	void render(Vector4f color);
@@ -62,9 +63,9 @@ public:
 	void calcSize(std::string label);
 
 	static std::string floatToString(float val, int precision);
-
+	CharacterSet &m_charset;
 private:
-
+	
 	std::map<GLchar, Character> m_characters;
 
 	std::vector<float> m_vertices;

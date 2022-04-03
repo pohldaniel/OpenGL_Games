@@ -4,26 +4,26 @@
 std::unique_ptr<Shader> Text::s_shaderText = nullptr;
 unsigned short Text::s_total = 0;
 
-Text::Text() {
+Text::Text(CharacterSet &charset) : m_charset(charset) {
 	s_total++;
 
 	if (!s_shaderText) {
 		s_shaderText = std::unique_ptr<Shader>(new Shader(TEXT_VERTEX, TEXT_FRGAMENT, false));
 	}
-
-	m_characters = Globals::fontManager.get("font_90").characters;
+	m_charset = charset;
+	m_characters = charset.characters;
 }
 
-Text::Text(std::string label, float scale) : Text() {
+Text::Text(std::string label, CharacterSet &charset, float scale) : Text(charset) {
 	setLabel(label, scale);
 }
 
-Text::Text(size_t maxChar, float scale) : Text() {	
+Text::Text(size_t maxChar, CharacterSet &charset, float scale) : Text(charset) {
 	setMaxChar(m_maxChar, scale);
 }
 
-Text::Text(Text const& rhs) : Text() {
-	
+Text::Text(Text const& rhs) : Text(rhs.m_charset) {
+
 	m_label = rhs.m_label;
 	m_scale = rhs.m_scale;
 	m_maxChar = rhs.m_maxChar;
@@ -45,18 +45,18 @@ Text::Text(Text const& rhs) : Text() {
 		setMaxChar(m_maxChar, m_scale);
 }
 
-Text& Text::operator=(const Text& rhs) {	
+Text& Text::operator=(const Text& rhs) {
 
 	m_label = rhs.m_label;
 	m_scale = rhs.m_scale;
 	m_maxChar = rhs.m_maxChar;
-	
+
 	m_transform = rhs.m_transform;
 	m_position = rhs.m_position;
 	m_size = rhs.m_size;
 	m_origin = rhs.m_origin;
 	m_color = rhs.m_color;
-
+	m_charset = rhs.m_charset;
 	//the call of the destructor will invalid this members
 	//m_vao = rhs.m_vao;
 	//m_vbo = rhs.m_vbo;
@@ -97,7 +97,6 @@ void Text::setLabel(std::string label, float scale) {
 
 	m_label = label;
 	m_scale = scale;
-	
 
 	std::vector<float> vertices;
 	std::vector<unsigned int> indices;
@@ -175,15 +174,17 @@ void Text::addChar(const Vector2f& pos, unsigned int _c, std::vector<float>& ver
 }
 
 void Text::render() {
+	
 	glUseProgram(s_shaderText->m_program);
 	s_shaderText->loadMatrix("u_transform", m_transform * Globals::projection);
 	s_shaderText->loadVector("textColor", m_color);
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, Globals::fontManager.get("font_90").spriteSheet);
+	glBindTexture(GL_TEXTURE_2D, m_charset.spriteSheet);
 	glBindVertexArray(m_vao);
 	glDrawElements(GL_TRIANGLES, m_indexCount, GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
 	glBindTexture(GL_TEXTURE_2D, 0);
+	
 }
 
 void Text::render(Vector4f color) {
@@ -216,18 +217,20 @@ void Text::render(std::string label, float x, float y, float sx, float sy) {
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ibo);
 	glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, indices.size() * sizeof(unsigned int), &indices[0]);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+	
 
 	glUseProgram(s_shaderText->m_program);
 	s_shaderText->loadMatrix("u_transform", Globals::projection);
 	s_shaderText->loadVector("textColor", m_color);
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, Globals::fontManager.get("font_90").spriteSheet);
+	glBindTexture(GL_TEXTURE_2D, m_charset.spriteSheet);
 
 	glBindVertexArray(m_vao);
 	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
 	glBindTexture(GL_TEXTURE_2D, 0);
 	glUseProgram(0);
+	
 
 	/*vertices.clear();
 	vertices.shrink_to_fit();
@@ -262,11 +265,12 @@ void Text::render(std::string label) {
 	glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, indices.size() * sizeof(unsigned int), &indices[0]);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
+
 	glUseProgram(s_shaderText->m_program);
 	s_shaderText->loadMatrix("u_transform", m_transform * Globals::projection);
 	s_shaderText->loadVector("textColor", m_color);
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, Globals::fontManager.get("font_90").spriteSheet);
+	glBindTexture(GL_TEXTURE_2D, m_charset.spriteSheet);
 
 	glBindVertexArray(m_vao);
 	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
@@ -352,7 +356,7 @@ const Vector2f &Text::getSize() const {
 void Text::calcSize() {
 
 	if (m_label.empty()) {
-		m_size = Vector2f(0.0f, Globals::fontManager.get("font_90").lineHeight * m_scale);
+		m_size = Vector2f(0.0f, m_charset.lineHeight * m_scale);
 	}else {
 
 		int sizeX = 0, sizeY = 0;

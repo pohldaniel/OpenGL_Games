@@ -6,8 +6,8 @@
 class TextField {
 public:
 	TextField() = default;
-	//TextField(TextField const& rhs);
-	//TextField& operator=(const TextField& rhs);
+	TextField(TextField const& rhs);
+	TextField& operator=(const TextField& rhs);
 	TextField(size_t maxChar);
 	TextField(size_t maxChar, const Vector4f& color);
 	TextField(size_t maxChar, const Vector4f& color, const Vector2f &position);
@@ -49,7 +49,5 @@ private:
 
 	float m_thickness = 0.0f;
 
-	float xScaleOutline;
-	float yScaleOutline;
 	bool m_label = false;
 };

@@ -72,4 +72,6 @@ private:
 	HealthBar *m_healthBar;
 
 	Clock m_hitTimer;
+	SoundEffectsPlayer m_effectsPlayer;
+	SoundEffectsPlayer m_ghotsEffectsPlayer;
 };

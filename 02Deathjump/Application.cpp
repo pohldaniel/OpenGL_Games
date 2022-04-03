@@ -194,8 +194,9 @@ void Application::initOpenGL() {
 	glAlphaFunc(GL_GREATER, 0.0);
 
 	//button transparency, fog and light
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
+	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+	glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 	//button outline
 	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 }
@@ -358,10 +359,9 @@ void Application::loadAssets() {
 	Globals::shaderManager.loadShader("light", "shader/light.vs", "shader/light.fs");
 	Globals::shaderManager.loadShader("transition", "shader/transition.vs", "shader/transition.fs");
 	Globals::shaderManager.loadShader("blur", "shader/blur.vs", "shader/blur.fs");
-	//Globals::shaderManager.loadShader("text", "shader/text.vs", "shader/text.fs");
 
-	//Globals::fontManagerOld.loadCharacterSet("font_90", "res/fonts/upheavtt.ttf", 90.0f);
-	Globals::fontManager.loadCharacterSet("font_90", "res/fonts/upheavtt.ttf", 90.0f);
+	//to solve some blending issues just scaling down 
+	Globals::fontManager.loadCharacterSet("font_200", "res/fonts/upheavtt.ttf", 200.0f);
 
 	Globals::soundManager.loadSoundEffect("blowup", "res/sounds/blowup.wav");
 	Globals::soundManager.loadSoundEffect("ghost", "res/sounds/ghost.wav");
@@ -370,13 +370,15 @@ void Application::loadAssets() {
 	Globals::soundManager.loadSoundEffect("2", "res/sounds/2.wav");
 	Globals::soundManager.loadSoundEffect("1", "res/sounds/1.wav");
 	Globals::soundManager.loadSoundEffect("go", "res/sounds/go.wav");
-
-	SaveFile::load("res/save");
-
+	Globals::soundManager.loadSoundEffect("player_jump", "res/sounds/playerJump.wav");
+	Globals::soundManager.loadSoundEffect("player_crouch", "res/sounds/playerCrouch.wav");
+	Globals::soundManager.loadSoundEffect("pickup", "res/sounds/pickUp.wav");
+	
 	Globals::musicManager.loadMusic("main", "res/music/main.ogg");
 	Globals::musicManager.loadMusic("menu", "res/music/menu.ogg");
 	Globals::musicManager.loadMusic("pause", "res/music/pause.ogg");
 
+	SaveFile::load("res/save");
 	Globals::musicManager.get("menu").setVolume(Globals::musicVolume);
 	Globals::musicManager.get("main").setVolume(Globals::musicVolume);
 	Globals::musicManager.get("pause").setVolume(Globals::musicVolume);

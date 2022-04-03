@@ -4,7 +4,7 @@
 Countdown::Countdown() {
 	initCounter();
 	m_effectsPlayer.init();
-	m_effectsPlayer.setVolume(Globals::soundVolume);
+	m_effectsPlayer.setVolume(Globals::soundVolume * 0.3f);
 	m_effectsPlayer.Play(Globals::soundManager.get("3").getBuffer());
 }
 
@@ -13,7 +13,6 @@ Countdown::~Countdown() {
 }
 
 void Countdown::update() {
-	m_effectsPlayer.setVolume(Globals::soundVolume);
 	if (m_currentFrame > 4)
 		return;
 	if (clock.getElapsedTimeSec() > 1.0f) {
@@ -43,7 +42,7 @@ unsigned Countdown::currentFrame() const {
 
 void Countdown::initCounter() {
 	clock.restart();
-	m_counter = new Text(3, 140.0f/90.0f);
+	m_counter = new Text(3, Globals::fontManager.get("font_200"), 140.0f / 200.0f);
 	m_counter->setPosition(WIDTH * 0.5f, HEIGHT - 35.0f);
 
 	m_counter->calcSize(str[m_currentFrame]);

@@ -14,6 +14,12 @@ Player::Player(const float& dt, const float& fdt) : Entity(dt, fdt){
 
 	m_healthBar = new HealthBar();
 	m_healthBar->setPosition(Vector2f(0.0f, HEIGHT));
+
+	m_effectsPlayer.init();
+	m_effectsPlayer.setVolume(Globals::soundVolume);
+
+	m_ghotsEffectsPlayer.init();
+	m_ghotsEffectsPlayer.setVolume(Globals::soundVolume);
 }
 
 Player::~Player() {
@@ -42,7 +48,7 @@ void Player::resolveCollision(Heart* heart) {
 
 	if (getCollider().checkCollision(heart->getCollider(), MTV) && m_healthBar->getHealthState() != 3) {
 		m_healthBar->update(false);
-		//MusicController::Get().GetSound("pick_up").play();
+		m_effectsPlayer.Play(Globals::soundManager.get("pickup").getBuffer());
 		heart->_IsAlive = false;
 	}
 }
@@ -63,6 +69,7 @@ void Player::resolveCollision(Fireball* fireball) {
 	fireball->m_emitter->addParticles();
 
 	m_healthBar->update(true);
+	m_effectsPlayer.Play(Globals::soundManager.get("blowup").getBuffer());
 	//Camera::Get().Shake(1.75f);
 
 	m_hit = true;
@@ -74,35 +81,32 @@ void Player::resolveCollision(Fireball* fireball) {
 	m_velocity[0] = multi * 1200.0f;
 }
 
-void Player::resolveCollision(Ghost* entity, std::vector<Ghost*>& ghosts) {
+void Player::resolveCollision(Ghost* ghost, std::vector<Ghost*>& ghosts) {
 	Vector2f MTV;
 	
-	if (!getCollider().checkCollision(entity->getCollider(), MTV) || m_hit || entity->m_blowUp)
+	if (!getCollider().checkCollision(ghost->getCollider(), MTV) || m_hit || ghost->m_blowUp)
 		return;
 
-	//m_ghost.setVolume(Extern::sound_volume);
-	//m_ghost.play();
-
+	m_ghotsEffectsPlayer.Play(Globals::soundManager.get("ghost").getBuffer());
 	if (MTV[1] < 0.0f && m_velocity[1] != 0.0f) {
 		// i know do not scream
-		entity->m_blowUp = true;
-		entity->m_emitter->clear();
-		entity->m_emitter->setDirection(Vector2f(0.0f, 0.0));
-		entity->m_emitter->setSpeed(5.4f);
-		entity->m_emitter->setParticleMax(80);
-		entity->m_emitter->setSize(25);
-		entity->m_emitter->setLifeTimeRange(1.5f, 3.2f);
-		entity->m_emitter->addParticles();
+		ghost->m_blowUp = true;
+		ghost->m_emitter->clear();
+		ghost->m_emitter->setDirection(Vector2f(0.0f, 0.0));
+		ghost->m_emitter->setSpeed(5.4f);
+		ghost->m_emitter->setParticleMax(80);
+		ghost->m_emitter->setSize(25);
+		ghost->m_emitter->setLifeTimeRange(1.5f, 3.2f);
+		ghost->m_emitter->addParticles();
 
-		entity->m_animator.setCurrentFrame(0);
-		entity->m_animator.setUpdateTime(0.1f);
+		ghost->m_animator.setCurrentFrame(0);
+		ghost->m_animator.setUpdateTime(0.1f);
 
-		//MusicController::Get().GetSound("ghost").play();
-		
+		//m_effectsPlayer.Play(Globals::soundManager.get("ghost").getBuffer());
 		m_velocity[1] = m_jumpVelocity + 400.0f;
 		m_Animations["jump"].setCurrentFrame(0);
 
-		//MusicController::Get().GetSound("player_jump").play();
+		m_effectsPlayer.Play(Globals::soundManager.get("player_jump").getBuffer());
 		return;
 	}
 
@@ -121,9 +125,8 @@ void Player::resolveCollision(Ghost* entity, std::vector<Ghost*>& ghosts) {
 	}
 
 	m_healthBar->update(true);
-
-	//MusicController::Get().GetSound("blow_up").play();
-	//MusicController::Get().GetSound("ghost").play();
+	m_effectsPlayer.Play(Globals::soundManager.get("blowup").getBuffer());
+	//m_effectsPlayer.Play(Globals::soundManager.get("ghost").getBuffer());
 	//Camera::Get().Shake(1.75f);
 
 	m_hit = true;
@@ -134,7 +137,7 @@ void Player::resolveCollision(Ghost* entity, std::vector<Ghost*>& ghosts) {
 	m_Animations["takedamage"].setCurrentFrame(0);
 
 	m_velocity[1] = -950.0f;
-	int multi = entity->m_left ? 1 : -1;
+	int multi = ghost->m_left ? 1 : -1;
 	m_velocity[0] = multi * 1200.0f;
 }
 
@@ -265,6 +268,8 @@ void Player::crouch() {
 			setOrigin(m_origin[0], m_origin[1] - 40.0f);			
 		}
 	}
+	if (wasCrouching != m_crouching && m_crouching)
+		m_effectsPlayer.Play(Globals::soundManager.get("player_crouch").getBuffer());
 }
 
 void Player::move() {
@@ -288,6 +293,7 @@ void Player::updateVelocity() {
 		m_grabbing = false;
 		m_velocity[1] = m_jumpVelocity;
 		m_Animations["jump"].setCurrentFrame(0);
+		m_effectsPlayer.Play(Globals::soundManager.get("player_jump").getBuffer());
 	}
 
 	if (m_grabbing && (Globals::CONTROLLS & Globals::KEY_S)) {
