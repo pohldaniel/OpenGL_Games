@@ -1,5 +1,6 @@
 #include <iostream>
 #include "Application.h"
+#include "ViewEffect.h"
 
 Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fdt) {
 	initWindow();
@@ -12,6 +13,7 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 	m_enableWireframe = false;	
 
 	Transition::get().init();
+	ViewEffect::get().init();
 }
 
 Application::~Application() {
@@ -20,28 +22,21 @@ Application::~Application() {
 	Globals::shaderManager.clear();
 	Globals::spritesheetManager.clear();
 
-	//Globals::textureManager.clear();
-	//Globals::fontManager.clear();
-	//Globals::soundManager.clear();
-	//Globals::musicManager.clear();
-	//AssetManagerStatic<Texture>::get().clear();
-	
 	//release OpenGL context
 	HDC hdc = GetDC(m_window);
 	wglMakeCurrent(GetDC(m_window), 0);
 	wglDeleteContext(wglGetCurrentContext());
 	ReleaseDC(m_window, hdc);
 	//release OpenAL context
-	SoundDevice::ShutDown();
+	SoundDevice::shutDown();
 
 	SaveFile::save("res/save");
-
 	UnregisterClass("WINDOWCLASS", (HINSTANCE)GetModuleHandle(NULL));
 }
 
 bool Application::initWindow() {
 
-	WNDCLASSEX		windowClass;		
+	WNDCLASSEX windowClass;		
 
 	windowClass.cbSize = sizeof(WNDCLASSEX);
 	windowClass.style = CS_HREDRAW | CS_VREDRAW;
@@ -121,8 +116,10 @@ LRESULT Application::DisplayWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 		}case WM_KEYDOWN: {
 
 			switch (wParam) {
-				case VK_ESCAPE: {
-					PostQuitMessage(0);
+				case VK_ESCAPE: {					
+					if (m_machine->m_states.top()->m_currentState == CurrentState::MENU) {
+						PostQuitMessage(0);
+					}
 					break;
 				}case 'v': case 'V': {
 					enableVerticalSync(!m_enableVerticalSync);
@@ -227,7 +224,7 @@ void Application::enableWireframe(bool enableWireframe) {
 }
 
 void Application::initOpenAL(){
-	SoundDevice::Init();
+	SoundDevice::init();
 }
 
 void Application::setCursortoMiddle(HWND hWnd) {
@@ -257,6 +254,7 @@ void Application::render() {
 void Application::update() {
 	m_machine->update();
 	Transition::get().update(m_dt);
+	ViewEffect::get().update(m_dt);
 	if (!m_machine->isRunning()) {
 		SendMessage(m_window, WM_DESTROY, NULL, NULL);
 	}
@@ -265,10 +263,9 @@ void Application::update() {
 	Globals::musicManager.get("main").setVolume(Globals::musicVolume);
 	Globals::musicManager.get("pause").setVolume(Globals::musicVolume);
 
-	Globals::musicManager.get("menu").UpdateBufferStream();
-	Globals::musicManager.get("main").UpdateBufferStream();
-	Globals::musicManager.get("pause").UpdateBufferStream();
-
+	Globals::musicManager.get("menu").updateBufferStream();
+	Globals::musicManager.get("main").updateBufferStream();
+	Globals::musicManager.get("pause").updateBufferStream();	
 }
 
 void Application::fixedUpdate() {
@@ -279,7 +276,7 @@ void Application::initStates() {
 	m_machine = new StateMachine(m_dt, m_fdt);
 	//m_machine->addStateAtTop(new Game(*m_machine));
 	//m_machine->addStateAtTop(new Pause(*m_machine));
-	m_machine->addStateAtTop(new Menu(*m_machine));
+	m_machine->addStateAtTop(new Menu(*m_machine), "menu");
 	//m_machine->addStateAtTop(new Settings(*m_machine));
 }
 
@@ -289,42 +286,30 @@ void Application::processInput() {
 	// Retrieve keyboard state
 	if (!GetKeyboardState(Globals::pKeyBuffer)) return;
 	// Check the relevant keys
-	bool holdKey =  ((Globals::pKeyBuffer['Q'] & 0xF0) && (Globals::CONTROLLSHOLD & Globals::KEY_Q) || (Globals::pKeyBuffer['E'] & 0xF0) && (Globals::CONTROLLSHOLD & Globals::KEY_E)) ;
+	bool holdKey = (Globals::pKeyBuffer[VK_ESCAPE] & 0xF0) && (Globals::CONTROLLSHOLD & Globals::KEY_ESCAPE);
 
-	if (!holdKey) {	
-		if (Globals::pKeyBuffer['Q'] & 0xF0) Globals::CONTROLLS |= Globals::KEY_Q;
+	if (!holdKey) {
 		if (Globals::pKeyBuffer['W'] & 0xF0) Globals::CONTROLLS |= Globals::KEY_W;
-		if (Globals::pKeyBuffer['E'] & 0xF0) Globals::CONTROLLS |= Globals::KEY_E;
 		if (Globals::pKeyBuffer['A'] & 0xF0) Globals::CONTROLLS |= Globals::KEY_A;
 		if (Globals::pKeyBuffer['D'] & 0xF0) Globals::CONTROLLS |= Globals::KEY_D;
 		if (Globals::pKeyBuffer['S'] & 0xF0) Globals::CONTROLLS |= Globals::KEY_S;
 		if (Globals::pKeyBuffer[VK_SPACE] & 0xF0) Globals::CONTROLLS |= Globals::KEY_SPACE;
+		if (Globals::pKeyBuffer[VK_ESCAPE] & 0xF0) Globals::CONTROLLS |= Globals::KEY_ESCAPE;
 
-		Globals::CONTROLLSHOLD = Globals::CONTROLLS;	
-	}
-
-	if (Globals::CONTROLLS & Globals::KEY_E) {
-		std::cout << "-------" << std::endl;
+		Globals::CONTROLLSHOLD = Globals::CONTROLLS;
 	}
 
 	GetCursorPos(&m_cursorPosScreenSpace);
 	ScreenToClient(m_window, &m_cursorPosScreenSpace);
 	Globals::cursorPosScreen = { m_cursorPosScreenSpace.x, m_cursorPosScreenSpace.y};
-
-	//std::cout << Globals::cursorPosScreen.x << "  " << Globals::cursorPosScreen.y <<  std::endl;
-
 	Globals::cursorPosNDC = { (2.0f * m_cursorPosScreenSpace.x) / (float)WIDTH - 1.0f, 1.0f - (2.0f * m_cursorPosScreenSpace.y) / (float)HEIGHT, 0.0f};
-	//std::cout << Globals::cursorPosNDC.x << "  " << Globals::cursorPosNDC.y << "  " << Globals::cursorPosNDC.z << std::endl;
 
 	//near
 	m_cursorPosEye = Globals::invProjection * Vector4f(Globals::cursorPosNDC.x, Globals::cursorPosNDC.y, -1.0f, 1.0f);
 	Globals::cursorPosEye = { m_cursorPosEye[0] , m_cursorPosEye[1] , m_cursorPosEye[2] };
-	//far
-	/*m_cursorPosEye = Globals::invProjection * Vector4f(Globals::cursorPosNDC.x, Globals::cursorPosNDC.y, 1.0f, 1.0f);
-	
-	std::cout << Globals::cursorPosEye.x << "  " << Globals::cursorPosEye.y << "  " << Globals::cursorPosEye.z << std::endl;
-	std::cout << "-------" << std::endl;*/
 
+	//far
+	//m_cursorPosEye = Globals::invProjection * Vector4f(Globals::cursorPosNDC.x, Globals::cursorPosNDC.y, 1.0f, 1.0f);
 	Globals::lMouseButton = (GetKeyState(VK_LBUTTON) & 0x8000) != 0;
 }
 
@@ -342,23 +327,23 @@ void Application::loadAssets() {
 	Globals::spritesheetManager.loadSpritesheet("health_bar", "res/textures/health.png", 96, 32, 0, -1);
 	Globals::spritesheetManager.loadSpritesheet("heart", "res/textures/heart.png", 32, 32, 0, 3);
 
-	Globals::spritesheetManager.loadSpritesheet("player_move", "res/textures/player.png", 96, 84, 3, 7);
-	Globals::spritesheetManager.loadSpritesheet("player_jump", "res/textures/player.png", 96, 84, 4, 1);
-	Globals::spritesheetManager.loadSpritesheet("player_fall", "res/textures/player.png", 96, 84, 6, 0);
-	Globals::spritesheetManager.loadSpritesheet("player_crouch", "res/textures/player.png", 96, 84, 9, 5);
-	Globals::spritesheetManager.loadSpritesheet("player_grap", "res/textures/player.png", 96, 84, 15, 0);
-	Globals::spritesheetManager.loadSpritesheet("player_takedamage", "res/textures/player.png", 96, 84, 17, 5);
-	Globals::spritesheetManager.loadSpritesheet("player_idle", "res/textures/player.png", 96, 84, 1, 6);
+	Globals::spritesheetManager.loadSpritesheet("player_move", "res/textures/player.png", 96, 84, 3, 7, GL_SRGB8_ALPHA8);
+	Globals::spritesheetManager.loadSpritesheet("player_jump", "res/textures/player.png", 96, 84, 4, 1, GL_SRGB8_ALPHA8);
+	Globals::spritesheetManager.loadSpritesheet("player_fall", "res/textures/player.png", 96, 84, 6, 0, GL_SRGB8_ALPHA8);
+	Globals::spritesheetManager.loadSpritesheet("player_crouch", "res/textures/player.png", 96, 84, 9, 5, GL_SRGB8_ALPHA8);
+	Globals::spritesheetManager.loadSpritesheet("player_grap", "res/textures/player.png", 96, 84, 15, 0, GL_SRGB8_ALPHA8);
+	Globals::spritesheetManager.loadSpritesheet("player_takedamage", "res/textures/player.png", 96, 84, 17, 5, GL_SRGB8_ALPHA8);
+	Globals::spritesheetManager.loadSpritesheet("player_idle", "res/textures/player.png", 96, 84, 1, 6, GL_SRGB8_ALPHA8);
 
 	//becarful with the uniforms some shader are used at multiple places
-	Globals::shaderManager.loadShader("fog", "shader/fog.vs", "shader/fog.fs");
-	Globals::shaderManager.loadShader("quad", "shader/quad.vs", "shader/quad.fs");
-	Globals::shaderManager.loadShader("quad_color", "shader/quad_color.vs", "shader/quad_color.fs");
-	Globals::shaderManager.loadShader("quad_color_single", "shader/quad_color_single.vs", "shader/quad_color_single.fs");
-	Globals::shaderManager.loadShader("quad_array", "shader/quad_array.vs", "shader/quad_array.fs");
-	Globals::shaderManager.loadShader("light", "shader/light.vs", "shader/light.fs");
-	Globals::shaderManager.loadShader("transition", "shader/transition.vs", "shader/transition.fs");
-	Globals::shaderManager.loadShader("blur", "shader/blur.vs", "shader/blur.fs");
+	Globals::shaderManager.loadShader("fog", "res/shader/fog.vs", "res/shader/fog.fs");
+	Globals::shaderManager.loadShader("quad", "res/shader/quad.vs", "res/shader/quad.fs");
+	Globals::shaderManager.loadShader("quad_color", "res/shader/quad_color.vs", "res/shader/quad_color.fs");
+	Globals::shaderManager.loadShader("quad_color_uniform", "res/shader/quad_color_uniform.vs", "res/shader/quad_color_uniform.fs");
+	Globals::shaderManager.loadShader("quad_array", "res/shader/quad_array.vs", "res/shader/quad_array.fs");
+	Globals::shaderManager.loadShader("light", "res/shader/light.vs", "res/shader/light.fs");
+	Globals::shaderManager.loadShader("transition", "res/shader/transition.vs", "res/shader/transition.fs");
+	Globals::shaderManager.loadShader("blur", "res/shader/blur.vs", "res/shader/blur.fs");
 
 	//to solve some blending issues just scaling down 
 	Globals::fontManager.loadCharacterSet("font_200", "res/fonts/upheavtt.ttf", 200.0f);

@@ -41,7 +41,6 @@ private:
 	bool m_isAlive = true;
 	bool m_blowUp = false;
 	const float m_velocity = 150.0f;
-
 	
 	void move();
 	void initCollider(Vector2f position);

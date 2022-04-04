@@ -203,6 +203,7 @@
     <ClInclude Include="Timer.h" />
     <ClInclude Include="Transition.h" />
     <ClInclude Include="Vector.h" />
+    <ClInclude Include="ViewEffect.h" />
     <ClInclude Include="Wall.h" />
   </ItemGroup>
   <ItemGroup>
@@ -286,6 +287,7 @@
     <ClCompile Include="Timer.cpp" />
     <ClCompile Include="Transition.cpp" />
     <ClCompile Include="Vector.cpp" />
+    <ClCompile Include="ViewEffect.cpp" />
     <ClCompile Include="Wall.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

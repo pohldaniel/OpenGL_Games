@@ -4,8 +4,8 @@
 #include "Menu.h"
 #include "Pause.h"
 #include "AssetManger.h"
-Game::Game(StateMachine& machine) : State(machine){	
-	InitEntities();
+Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME){
+	initEntities();
 	initWalls();
 	initSprites();
 	initLights();
@@ -17,14 +17,13 @@ Game::Game(StateMachine& machine) : State(machine){
 	m_quad = new Quad(false);
 
 	m_quadBackground = new Quad(false, -1.0f, 1.0f, -1.0f, 1.0f, 1.0f, 1.2f);
-	//m_transBackground = Matrix4f::Translate(0.0, -0.2, 0.0);
 	m_transBackground = Matrix4f::Translate(m_transBackground, 0.0, -0.2, 0.0);
 	
 	m_fog = new Quad(false);
 	m_shaderFog = Globals::shaderManager.getAssetPointer("fog");
 
-	Globals::musicManager.get("main").Play();
-	Globals::musicManager.get("main").SetLooping(true);
+	Globals::musicManager.get("main").play();
+	Globals::musicManager.get("main").setLooping(true);
 }
 
 Game::~Game() {
@@ -38,12 +37,12 @@ Game::~Game() {
 
 void Game::fixedUpdate() {
 	if (m_player->isAlive())
-		FixedUpdateEntities();
+		fixedUpdateEntities();
 }
 
 void Game::update() {
 	if (m_player->isAlive()) {
-		UpdateEntities();
+		updateEntities();
 		m_bestTime = m_timeClock.getElapsedTimeSec();
 	}else {
 		Transition::get().setFunction([&]() {
@@ -52,9 +51,9 @@ void Game::update() {
 				ss << std::fixed << std::setprecision(2) << m_bestTime;
 				Globals::bestTime = std::stof(ss.str());
 			}
-			i_machine.clearAndPush(new Menu(i_machine));
+			m_machine.clearAndPush(new Menu(m_machine));
 
-			Globals::musicManager.get("main").Stop();
+			Globals::musicManager.get("main").stop();
 
 			Transition::get().start(Mode::Unveil);
 		});
@@ -63,9 +62,9 @@ void Game::update() {
 
 	updateCountdown();
 
-	if ((Globals::CONTROLLS & Globals::KEY_Q)) {
-		i_machine.addStateAtTop(new Pause(i_machine));
-		Globals::musicManager.get("main").Stop();
+	if((Globals::CONTROLLS & Globals::KEY_ESCAPE)) {
+		m_machine.addStateAtTop(new Pause(m_machine), "Pause");
+		Globals::musicManager.get("main").stop();
 	}
 }
 
@@ -111,7 +110,6 @@ void Game::render(unsigned int &frameBuffer) {
 	#if !DEBUGCOLLISION
 	glEnable(GL_BLEND);
 	glUseProgram(m_shaderFog->m_program);
-	m_shaderFog->loadVector("u_resolution", Vector2f(WIDTH, HEIGHT));
 	m_shaderFog->loadFloat("u_time", m_clock.getElapsedTimeSec());
 	m_quad->render();
 	glUseProgram(0);
@@ -133,11 +131,11 @@ void Game::render(unsigned int &frameBuffer) {
 
 void Game::spawnHeart() {
 	if (m_heartSpawnClock.getElapsedTimeSec() > 27.5f) {
-		m_heart = new Heart(i_dt, i_fdt);
+		m_heart = new Heart(m_dt, m_fdt);
 	}
 }
 
-void Game::FixedUpdateEntities() {
+void Game::fixedUpdateEntities() {
 	m_player->fixedUpdate();
 
 	if (m_heart)
@@ -150,14 +148,14 @@ void Game::FixedUpdateEntities() {
 		f->fixedUpdate();
 }
 
-void Game::UpdateEntities() {
+void Game::updateEntities() {
 	m_player->resolveCollision(m_walls);
 	if (m_heart)
 		m_player->resolveCollision(m_heart);
 	m_player->update();
 	
 	if (m_heart) {
-		if (!m_heart->_IsAlive) {
+		if (!m_heart->isAlive) {
 			delete m_heart;
 			m_heart = nullptr;
 		}else {
@@ -204,41 +202,41 @@ void Game::UpdateEntities() {
 		updateTimers();
 }
 
-void Game::InitEntities() {
-	m_player = new Player(i_dt, i_fdt);
+void Game::initEntities() {
+	m_player = new Player(m_dt, m_fdt);
 }
 
 void Game::updateTimers() {
-	m_fireballSpawnTimer.Update(i_dt);
-	m_ghostSpawnTimer.Update(i_dt);
-	m_gameSpeedTimer.Update(i_dt);
+	m_fireballSpawnTimer.update(m_dt);
+	m_ghostSpawnTimer.update(m_dt);
+	m_gameSpeedTimer.update(m_dt);
 }
 
 void Game::initTimers() {
 
-	m_gameSpeedTimer.SetFunction(5.5f, [&]() {
+	m_gameSpeedTimer.setFunction(5.5f, [&]() {
 		const float sub = Random::RandFloat(0.085f, 0.125f);
-		const float uTime = m_fireballSpawnTimer.GetUpdateTime() - sub;
+		const float uTime = m_fireballSpawnTimer.getUpdateTime() - sub;
 
-		m_fireballSpawnTimer.SetUpdateTime(uTime < 0.285f ? 0.285f : uTime);
-		m_ghostSpawnTimer.SetUpdateTime(m_ghostSpawnTimer.GetUpdateTime() - sub < 7.185f ? 7.185f : m_ghostSpawnTimer.GetUpdateTime() - sub);
+		m_fireballSpawnTimer.setUpdateTime(uTime < 0.285f ? 0.285f : uTime);
+		m_ghostSpawnTimer.setUpdateTime(m_ghostSpawnTimer.getUpdateTime() - sub < 7.185f ? 7.185f : m_ghostSpawnTimer.getUpdateTime() - sub);
 	});
 
-	/*m_fireballSpawnTimer.SetFunction(1.0f, [&]() {
+	m_fireballSpawnTimer.setFunction(1.0f, [&]() {
 		if (m_fireballs.size() > 8)
 			return;
 
 		const float velocity = 450.0f * Random::RandFloat(1.01f, 1.82f);
 
-		m_fireballs.push_back(new Fireball(i_dt, i_fdt, velocity, Random::RandInt(0, 1)));
+		m_fireballs.push_back(new Fireball(m_dt, m_fdt, velocity, Random::RandInt(0, 1)));
 
-	});*/
+	});
 
-	m_ghostSpawnTimer.SetFunction(8.5f, [&]() {
+	m_ghostSpawnTimer.setFunction(8.5f, [&]() {
 		if (m_ghosts.size() > 2)
 			return;
 
-		m_ghosts.push_back(new Ghost(i_dt, i_fdt));
+		m_ghosts.push_back(new Ghost(m_dt, m_fdt));
 	});
 }
 

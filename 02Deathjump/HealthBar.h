@@ -21,7 +21,7 @@ private:
 	unsigned int m_textureAtlas;
 	unsigned int m_currentFrame = 0;
 	Matrix4f m_transform = Matrix4f::IDENTITY;	
-	Vector2f m_position;
+	Vector2f m_position = Vector2f(0.0f, 0.0f);
 	Vector2f m_origin = Vector2f(0.0f, 0.0f);
 	Vector2f m_size = Vector2f(96.0f, 32.0f);
 

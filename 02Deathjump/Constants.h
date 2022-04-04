@@ -12,6 +12,8 @@
 #include "Spritesheet.h"
 
 #define DEBUGCOLLISION 0
+#define DEBUG 0
+
 #define PHYSICS_STEP 0.01f
 #define WIDTH 1600
 #define HEIGHT 900
@@ -21,10 +23,9 @@ namespace Globals{
 		KEY_W = 1,
 		KEY_A = 2,
 		KEY_S = 4,
-		KEY_D = 8,
-		KEY_Q = 16,
-		KEY_E = 32,
-		KEY_SPACE = 64,
+		KEY_D = 8,		
+		KEY_SPACE = 16,
+		KEY_ESCAPE = 32,
 		DIR_FORCE_32BIT = 0x7FFFFFFF
 	};
 

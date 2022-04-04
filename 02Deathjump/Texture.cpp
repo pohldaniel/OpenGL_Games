@@ -1,9 +1,10 @@
 #include "Texture.h"
 #include "Extension.h"
 #include "stb\stb_image.h"
-#include <iostream>
 
-Texture::Texture(std::string pictureFile, const bool flipVertical) {
+Texture::Texture(std::string pictureFile, const bool flipVertical, unsigned int _format) {
+	unsigned format = _format == -1 ? GL_RGBA8 : _format;
+	
 	stbi_set_flip_vertically_on_load(flipVertical);
 	int width, height, numCompontents;
 	unsigned char* imageData = stbi_load(pictureFile.c_str(), &width, &height, &numCompontents, NULL);
@@ -16,7 +17,7 @@ Texture::Texture(std::string pictureFile, const bool flipVertical) {
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, imageData);
+	glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, imageData);
 	//glGenerateMipmap(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, 0);
 
@@ -34,7 +35,9 @@ Texture::~Texture() {
 	}
 }
 
-void Texture::loadFromFile(std::string pictureFile, const bool flipVertical, const bool linear) {
+void Texture::loadFromFile(std::string pictureFile, const bool flipVertical, const bool linear, unsigned int _format) {
+	unsigned format = _format == -1 ? GL_RGBA8 : _format;
+	
 	stbi_set_flip_vertically_on_load(flipVertical);
 	int width, height, numCompontents;
 	unsigned char* imageData = stbi_load(pictureFile.c_str(), &width, &height, &numCompontents, NULL);
@@ -45,7 +48,7 @@ void Texture::loadFromFile(std::string pictureFile, const bool flipVertical, con
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, linear ? GL_LINEAR : GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, imageData);
+	glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, imageData);
 	if (linear) glGenerateMipmap(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, 0);
 

@@ -31,7 +31,7 @@ private:
 
 	Button m_button;
 	std::unordered_map<std::string, unsigned int> m_sprites;
-	std::unordered_map<std::string, SeekerBar*> m_seekerBars;
+	std::unordered_map<std::string, SeekerBar> m_seekerBars;
 	std::unordered_map<std::string, Text> m_texts;
 	
 	void initSprites();

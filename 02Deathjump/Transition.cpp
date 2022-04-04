@@ -8,10 +8,6 @@ Transition& Transition::get() {
 
 void Transition::init() {
 	m_shader = Globals::shaderManager.getAssetPointer("transition");
-
-	glUseProgram(m_shader->m_program);
-	m_shader->loadVector("u_resolution", Vector2f(WIDTH, HEIGHT));
-	glUseProgram(0);
 }
 
 void Transition::setFunction(std::function<void()> fun) { 

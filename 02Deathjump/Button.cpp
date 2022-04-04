@@ -12,7 +12,7 @@ Button::Button(std::string label, const Vector4f& color, const bool _clickSafe) 
 	m_size = m_text->getSize() + Vector2f(30.0f, 20.0f);
 
 	m_quad = new Quad(false, 0.0f, 2.0f, 0.0f, 2.0f, m_size[0] * 0.5, m_size[1] * 0.5);
-	m_shader = Globals::shaderManager.getAssetPointer("quad_color_single");
+	m_shader = Globals::shaderManager.getAssetPointer("quad_color_uniform");
 
 	m_fillColor = color;
 	setOrigin(Vector2f(m_size[0] * 0.5f, m_size[1] * 0.5f));
@@ -41,16 +41,21 @@ Button::Button(Button const& rhs) {
 	m_effectsPlayer.setVolume(Globals::soundVolume);
 
 	//just pass over the shader but destruct them in the shaderManager once
-	m_shader = new Shader();
-	*m_shader = *rhs.m_shader;
+	if (rhs.m_shader) {
+		m_shader = new Shader();
+		*m_shader = *rhs.m_shader;
+	}
 
-	m_quad = new Quad();
-	std::swap(*m_quad, *rhs.m_quad);
+	if (rhs.m_quad) {
+		m_quad = new Quad();
+		std::swap(*m_quad, *rhs.m_quad);
+	}
 
-	m_text = new Text(rhs.m_text->m_charset);
-	std::swap(*m_text, *rhs.m_text);
-
-	update = m_clickSafe ? std::function<void()>{[&]() {clickSafe();}} : std::function<void()>{ [&]() {click();}};
+	if (rhs.m_text) {
+		m_text = new Text(rhs.m_text->m_charset);
+		std::swap(*m_text, *rhs.m_text);
+	}
+	update = m_clickSafe ? std::function<void()>{[&]() {clickSafe();}} : std::function<void()>{[&]() {click();}};
 }
 
 //copy assignment operators is necessary for initialize the button at Settings.cpp
@@ -68,14 +73,20 @@ Button &Button::operator=(const Button &rhs) {
 	m_effectsPlayer.setVolume(Globals::soundVolume);
 
 	//just pass over the shader but destruct them in the shaderManager once
-	m_shader = new Shader();
-	*m_shader = *rhs.m_shader;
+	if (rhs.m_shader) {
+		m_shader = new Shader();
+		*m_shader = *rhs.m_shader;
+	}
 
-	m_quad = new Quad();
-	std::swap(*m_quad, *rhs.m_quad);
-	
-	m_text = new Text(rhs.m_text->m_charset);
-	std::swap(*m_text, *rhs.m_text);
+	if (rhs.m_quad) {
+		m_quad = new Quad();
+		std::swap(*m_quad, *rhs.m_quad);
+	}
+
+	if (rhs.m_text) {
+		m_text = new Text(rhs.m_text->m_charset);
+		std::swap(*m_text, *rhs.m_text);
+	}
 
 	//alternatively to lambada
 	update = m_clickSafe ? std::bind(&Button::clickSafe, this) : std::bind(&Button::click, this);
@@ -88,8 +99,7 @@ Button::~Button() {
 		m_quad = NULL;
 	}
 
-	if (m_text) {
-		
+	if (m_text) {		
 		delete m_text;
 		m_text = NULL;
 	}
@@ -169,7 +179,7 @@ void Button::click() {
 	}
 	
 	if (m_isPressed && m_fun) {
-		m_effectsPlayer.Play(Globals::soundManager.get("button").getBuffer());
+		m_effectsPlayer.play(Globals::soundManager.get("button").getBuffer());
 		m_fun();
 	}
 }
@@ -190,7 +200,7 @@ void Button::clickSafe() {
 			m_guard = false;
 		}
 
-		m_effectsPlayer.Play(Globals::soundManager.get("button").getBuffer());
+		m_effectsPlayer.play(Globals::soundManager.get("button").getBuffer());
 		m_fun();
 	}else {
 		if (m_clickSafe) {

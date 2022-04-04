@@ -1,12 +1,10 @@
 #include "StateMachine.h"
 #include "Transition.h"
+#include "ViewEffect.h"
 
 StateMachine::StateMachine(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fdt){
-	//m_frame.create(WINDOW_WIDTH, WINDOW_HEIGHT);
-	m_shader = Globals::shaderManager.getAssetPointer("quad");
 	m_quad = new Quad(false);
-	
-	
+		
 	glGenTextures(1, &m_frameTexture);
 	glBindTexture(GL_TEXTURE_2D, m_frameTexture);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -33,13 +31,19 @@ StateMachine::StateMachine(const float& dt, const float& fdt) : m_dt(dt), m_fdt(
 
 StateMachine::~StateMachine() {
 	clearStates();
+	delete m_quad;
 }
 
-void StateMachine::addStateAtTop(State* state) {
+/*void StateMachine::addStateAtTop(State* state) {
 	m_states.push(state);
+}*/
+
+void StateMachine::addStateAtTop(State* state, std::string currentState) {
+	m_states.push(state);
+	//std::cout << currentState << std::endl;
 }
 
-void StateMachine::addStateAtBottom(State* state) {
+/*void StateMachine::addStateAtBottom(State* state) {
 	if (m_states.empty()) {
 		m_states.push(state);
 	}else {
@@ -48,6 +52,20 @@ void StateMachine::addStateAtBottom(State* state) {
 		addStateAtBottom(state);
 		m_states.push(temp);
 	}
+}*/
+
+void StateMachine::addStateAtBottom(State* state, std::string currentState) {
+	if (m_states.empty()) {
+		m_states.push(state);
+	}
+	else {
+		State* temp = m_states.top();
+		m_states.pop();
+		addStateAtBottom(state, currentState);
+		m_states.push(temp);
+	}
+
+	//std::cout << currentState << std::endl;
 }
 
 void StateMachine::fixedUpdate() {
@@ -72,16 +90,12 @@ void StateMachine::render() {
 	if (!m_states.empty())
 		m_states.top()->render(m_frameBuffer);
 
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	
-	/*glUseProgram(m_shader->m_program);
-	m_shader->loadMatrix("u_transform", Matrix4f::IDENTITY);
-	m_quad->render(m_frameTexture);
-	glUseProgram(0);*/
-
+	//maybe a second post process will be the better approach over combining transition ans shake in one shader
 	glEnable(GL_BLEND);
 	glUseProgram(*&Transition::get().getShader().m_program);
+	Transition::get().getShader().loadMatrix("u_transform", ViewEffect::get().getView());
 	m_quad->render(m_frameTexture);
 	glUseProgram(0);
 	glDisable(GL_BLEND);
@@ -103,15 +117,14 @@ const bool StateMachine::isRunning() const {
 	return m_isRunning;
 }
 
-State::State(StateMachine& machine) : i_machine(machine), i_dt(machine.m_dt), i_fdt(machine.m_fdt){
-
+State::State(StateMachine& machine, CurrentState currentState) : m_machine(machine), m_dt(machine.m_dt), m_fdt(machine.m_fdt){
+	m_currentState = currentState;
 }
 
 State::~State() {
-
 }
 
 const bool State::isRunning() const {
-	return i_isRunning;
+	return m_isRunning;
 }
 

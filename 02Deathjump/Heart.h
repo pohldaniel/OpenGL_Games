@@ -18,8 +18,7 @@ public:
 
 	void resolveCollision(std::vector<Wall>& walls);
 
-	//bool IsAlive() const;
-	bool _IsAlive = true; // i should die for that
+	bool isAlive = true;
 private:
 
 	Quad *m_quad;
@@ -43,8 +42,7 @@ private:
 
 	unsigned m_currentColor = 0;
 
-	const Vector4f m_colors[4] =
-	{
+	const Vector4f m_colors[4] ={
 		Vector4f(1.0f, 1.0f, 1.0f, 80.0f / 255.0f),
 		Vector4f(1.0f, 1.0f, 1.0f, 1.0f),
 		Vector4f(1.0f, 1.0f, 1.0f, 80.0f / 255.0f),
@@ -54,9 +52,7 @@ private:
 
 	void updateLight();
 	void initLight();
-
 	void initAnimations();
 	void initBody();
-
 	void animateDisappear();
 };

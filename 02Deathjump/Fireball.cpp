@@ -17,7 +17,10 @@ Fireball::Fireball(const float& dt, const float& fdt, float velocity, bool left)
 }
 
 Fireball::~Fireball() {
-
+	delete m_quad;
+	delete m_quadBlow;
+	delete m_light;
+	delete m_emitter;
 }
 
 void Fireball::fixedUpdate() {
@@ -41,7 +44,7 @@ bool Fireball::isAlive() const {
 void Fireball::move() {
 	int multi = (m_left ? 1 : -1);
 
-	m_collider.position += Vector2f(m_velocity * multi * i_fdt, 0.0f);
+	m_collider.position += Vector2f(m_velocity * multi * m_fdt, 0.0f);
 	setPosition(m_collider.position);
 }
 
@@ -61,7 +64,7 @@ void Fireball::animate() {
 			return;
 		}
 		setPosition(m_collider.position);
-		m_Animations["blow_up"].update(i_dt);
+		m_Animations["blow_up"].update(m_dt);
 	}
 }
 
@@ -91,7 +94,7 @@ void Fireball::initCollider(Vector2f position) {
 void Fireball::updateEmitter() {
 	if (!m_blowUp)
 		m_emitter->addParticles();
-	m_emitter->update(i_dt);
+	m_emitter->update(m_dt);
 	m_emitter->setPosition(m_collider.position + m_size * 0.5f);
 }
 
@@ -106,7 +109,7 @@ void Fireball::initEmitter() {
 void Fireball::render(float deltaTime) {
 	glEnable(GL_BLEND);
 	m_emitter->render();
-	glDisable(GL_BLEND);
+	
 
 	if (!m_blowUp) {
 		glUseProgram(m_shader->m_program);
@@ -118,11 +121,12 @@ void Fireball::render(float deltaTime) {
 		glUseProgram(m_shaderArray->m_program);
 		m_shaderArray->loadMatrix("u_transform", m_blowTrans * Globals::projection);
 		m_shaderArray->loadInt("u_layer", *m_currentFrame);
+		m_shaderArray->loadVector("u_blendColor", Vector4f(1.0f, 1.0f, 1.0f, 0.6f));
 		m_quadBlow->render(*m_textureAtlas, true);
 		glUseProgram(0);
 	}
 
-	glEnable(GL_BLEND);
+
 	glUseProgram(m_light->getShader().m_program);
 	m_light->getShader().loadVector("u_color", Vector4f(0.75, 0.42, 0.28, 0.72));
 	m_light->getShader().loadFloat("u_time", deltaTime);

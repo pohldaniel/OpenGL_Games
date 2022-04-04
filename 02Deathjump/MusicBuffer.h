@@ -4,8 +4,7 @@
 #include <string>
 #include <iostream>
 
-class MusicBuffer
-{
+class MusicBuffer{
 public:
 
 	MusicBuffer() =default;
@@ -14,30 +13,29 @@ public:
 
 	~MusicBuffer();
 
-	void Play();
-	void Pause();
-	void Stop();
-	void Resume();
+	void play();
+	void pause();
+	void stop();
+	void resume();
 
-	void UpdateBufferStream();
+	void updateBufferStream();
 
 	ALint getSource();
 
 	bool isPlaying();
-	void SetLooping(const bool& loop);
+	void setLooping(const bool& loop);
 	void loadFromFile(const std::string& path);
 	void setVolume(float volume);
 private:
-	ALuint p_Source;
+	ALuint m_source;
 	static const int BUFFER_SAMPLES = 8192;
 	static const int NUM_BUFFERS = 4;
-	ALuint p_Buffers[NUM_BUFFERS];
-	SNDFILE* p_SndFile = nullptr;
-	SF_INFO p_Sfinfo;
-	short* p_Membuf = nullptr;
+	ALuint m_buffers[NUM_BUFFERS];
+	SNDFILE* m_sndFile = nullptr;
+	SF_INFO m_sfinfo;
+	short* m_membuf = nullptr;
 	std::size_t m_frameSize = 0;
-	ALenum p_Format;
-	bool  m_loop = false;;
-	
+	ALenum m_format;
+	bool  m_loop = false;;	
 };
 

@@ -8,16 +8,24 @@
 #include "Shader.h"
 #include "Quad.h"
 
+enum CurrentState {
+	GAME,
+	SETTINGS,
+	PAUSE,
+	MENU
+};
+
 //base for holding the Framebuffer
 class State;
 
 class StateMachine {
+	friend class Application;
 public:
 	StateMachine(const float& dt, const float& fdt);
 	~StateMachine();
 
-	void addStateAtTop(State* state);
-	void addStateAtBottom(State* state);
+	void addStateAtTop(State* state, std::string currentState);
+	void addStateAtBottom(State* state, std::string currentState);
 
 	void fixedUpdate();
 	void update();
@@ -30,12 +38,10 @@ public:
 	const float& m_dt;
 
 private:
-
 	void clearStates();
 
 	std::stack<State*> m_states;
 	Quad *m_quad;
-	Shader *m_shader;
 
 	unsigned int m_frameTexture;
 	unsigned int m_frameBuffer;
@@ -44,7 +50,7 @@ private:
 
 class State {
 public:
-	State(StateMachine& machine);
+	State(StateMachine& machine, CurrentState currentState);
 	virtual ~State();
 
 	virtual void fixedUpdate() = 0;
@@ -52,10 +58,10 @@ public:
 	virtual void render(unsigned int &m_frameBuffer) = 0;
 
 	const bool isRunning() const;
-
+	CurrentState m_currentState;
 protected:
-	StateMachine& i_machine;
-	const float& i_fdt;
-	const float& i_dt;
-	bool i_isRunning = true;
+	StateMachine& m_machine;
+	const float& m_fdt;
+	const float& m_dt;
+	bool m_isRunning = true;
 };

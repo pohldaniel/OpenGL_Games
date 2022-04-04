@@ -13,25 +13,29 @@ Ghost::Ghost(const float& dt, const float& fdt) : Entity(dt, fdt) {
 	initLight();
 }
 
-Ghost::~Ghost() {}
+Ghost::~Ghost() {
+	delete m_quad;
+	delete m_emitter;
+	delete m_light;
+}
 
 void Ghost::fixedUpdate() {
 	const float velocity = 165.0f;
 
-	m_collider.position += m_direction * velocity * i_fdt;
-	m_collider.position[1] += 80.0f * (sinf(4 * m_clock.getElapsedTimeSec())) * i_fdt;
+	m_collider.position += m_direction * velocity * m_fdt;
+	m_collider.position[1] += 80.0f * (sinf(4 * m_clock.getElapsedTimeSec())) * m_fdt;
 	setPosition(m_collider.position);
 }
 
 void Ghost::update(Collider obj) {
 	updateLight();
 
-	m_emitter->update(i_dt);
+	m_emitter->update(m_dt);
 	m_emitter->setPosition(m_collider.position + m_size * 0.5f);
 
 	if (m_blowUp) {		
 		m_emitter->addParticles();
-		m_animator.update(i_dt);
+		m_animator.update(m_dt);
 
 		if (m_animator.getCurrentFrame() == m_animator.getFrameCount() - 1)
 			m_isAlive = false;
@@ -39,7 +43,7 @@ void Ghost::update(Collider obj) {
 		return;
 	}
 
-	m_lifeTime -= i_dt;
+	m_lifeTime -= m_dt;
 
 	if (m_lifeTime < 2.0f) {
 		float life = m_lifeTime / 2.0f;
@@ -51,22 +55,18 @@ void Ghost::update(Collider obj) {
 		if (alpha < 0.55f)
 			m_lightVal = alpha;
 
-		//m_sprite->setColor(sf::Color(255, 255, 255, alpha * 255));
+		m_blendColor = Vector4f(1.0f, 1.0f, 1.0f, alpha);
 	}
 	obj.position[1] += 35.0f;
 
 	Vector2f diff = obj.position - m_collider.position;
 
 	float magnitude = sqrt(diff[0] * diff[0] + diff[1] * diff[1]);
-
 	m_direction = diff / magnitude;
-
 	m_left = obj.position[0] > m_collider.position[0];
-
-	m_animator.update(i_dt);
+	m_animator.update(m_dt);
 	m_quad->setFlipped(m_left);
 
-	//setOrigin(Vector2f(m_left ? m_size[0] * 0.25f : m_size[0] * 0.35f, m_size[1] * 0.32f));
 	setOrigin(Vector2f(m_left ? m_collider.size[0] * 0.55f : m_collider.size[0] * 0.8f, m_collider.size[1] * 0.9 - m_size[1]));
 }
 
@@ -110,17 +110,16 @@ void Ghost::initCollider() {
 }
 
 void Ghost::render(float deltaTime){
+	glEnable(GL_BLEND);
 	if (!m_blowUp) {
 		glUseProgram(m_shaderArray->m_program);
 		m_shaderArray->loadMatrix("u_transform", m_transform * Globals::projection);
 		m_shaderArray->loadInt("u_layer", *m_currentFrame);
+		m_shaderArray->loadVector("u_blendColor", m_blendColor);
 		m_quad->render(*m_textureAtlas, true);
 		glUseProgram(0);
-	}
-
-	glEnable(GL_BLEND);
-	m_emitter->render();
-	
+	}	
+	m_emitter->render();	
 	glUseProgram(m_light->getShader().m_program);
 	m_light->getShader().loadVector("u_color", Vector4f(0.9, 0.9, 0.9, m_lightVal));
 	m_light->getShader().loadFloat("u_time", deltaTime);

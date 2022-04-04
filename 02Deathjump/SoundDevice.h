@@ -1,37 +1,31 @@
 #pragma once
 #include <AL\alc.h>
 
-/// <summary>
-/// Singleton class that initilizes our sound hardware device and allows
-/// us to change our listener values.
-/// </summary>
+#define SD_INIT SoundDevice::init();
+#define LISTENER SoundDevice::get()
 
-#define SD_INIT SoundDevice::Init();
-#define LISTENER SoundDevice::Get()
+class SoundDevice{
 
-class SoundDevice
-{
 public:
-	static SoundDevice* Get();
-	static void Init();
-	static void ShutDown();
+	static SoundDevice* get();
+	static void init();
+	static void shutDown();
 
-	void GetLocation(float &x, float& y, float& z);
-	void GetOrientation(float &ori);
-	float GetGain();
+	void getLocation(float &x, float& y, float& z);
+	void getOrientation(float &ori);
+	float getGain();
 
-	void SetLocation(const float& x, const float& y, const float& z);
-	void SetOrientation(
+	void setLocation(const float& x, const float& y, const float& z);
+	void setOrientation(
 		const float& atx, const float& aty, const float& atz,
 		const float& upx, const float& upy, const float& upz);
-	void SetGain(const float& val);
+	void setGain(const float& val);
 
 private:
 	SoundDevice();
 	~SoundDevice();
 
-	ALCdevice* p_ALCDevice;
-	ALCcontext* p_ALCContext;
-
+	ALCdevice* m_alCDevice;
+	ALCcontext* m_alCContext;
 };
 

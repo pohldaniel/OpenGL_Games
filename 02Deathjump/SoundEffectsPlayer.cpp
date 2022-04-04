@@ -2,49 +2,41 @@
 #include <iostream>
 
 void SoundEffectsPlayer::init() {
-	alGenSources(1, &p_Source);
+	alGenSources(1, &m_source);
 }
 
 SoundEffectsPlayer::~SoundEffectsPlayer(){
-	alDeleteSources(1, &p_Source);
+	alDeleteSources(1, &m_source);
 }
 
-void SoundEffectsPlayer::Play(const ALuint& buffer_to_play){
-	p_Buffer = buffer_to_play;
-	alSourcei(p_Source, AL_BUFFER, (ALint)p_Buffer);
-	alSourcePlay(p_Source);
+void SoundEffectsPlayer::play(const ALuint& buffer_to_play){
+	m_buffer = buffer_to_play;
+	alSourcei(m_source, AL_BUFFER, (ALint)m_buffer);
+	alSourcePlay(m_source);
 }
 
 void SoundEffectsPlayer::setVolume(float volume) {
-	alSourcef(p_Source, AL_GAIN, volume);
+	alSourcef(m_source, AL_GAIN, volume);
 }
 
-void SoundEffectsPlayer::Stop(){
-	alSourceStop(p_Source);
+void SoundEffectsPlayer::stop(){
+	alSourceStop(m_source);
 }
 
-void SoundEffectsPlayer::Pause(){
-	alSourcePause(p_Source);
+void SoundEffectsPlayer::pause(){
+	alSourcePause(m_source);
 }
 
-void SoundEffectsPlayer::Resume(){
-	alSourcePlay(p_Source);
+void SoundEffectsPlayer::resume(){
+	alSourcePlay(m_source);
 }
 
-/*void SoundEffectsPlayer::SetBufferToPlay(const ALuint& buffer_to_play){
-	if (buffer_to_play != p_Buffer)
-	{
-		p_Buffer = buffer_to_play;
-		alSourcei(p_Source, AL_BUFFER, (ALint)p_Buffer);
-	}
-}*/
-
-void SoundEffectsPlayer::SetLooping(const bool& loop){
-	alSourcei(p_Source, AL_LOOPING, (ALint)loop);
+void SoundEffectsPlayer::setLooping(const bool& loop){
+	alSourcei(m_source, AL_LOOPING, (ALint)loop);
 }
 
 bool SoundEffectsPlayer::isPlaying(){	
 	ALint playState;
-	alGetSourcei(p_Source, AL_SOURCE_STATE, &playState);
+	alGetSourcei(m_source, AL_SOURCE_STATE, &playState);
 	return (playState == AL_PLAYING);
 }

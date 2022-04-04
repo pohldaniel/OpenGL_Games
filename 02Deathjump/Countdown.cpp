@@ -5,7 +5,7 @@ Countdown::Countdown() {
 	initCounter();
 	m_effectsPlayer.init();
 	m_effectsPlayer.setVolume(Globals::soundVolume * 0.3f);
-	m_effectsPlayer.Play(Globals::soundManager.get("3").getBuffer());
+	m_effectsPlayer.play(Globals::soundManager.get("3").getBuffer());
 }
 
 Countdown::~Countdown() {
@@ -22,13 +22,13 @@ void Countdown::update() {
 			m_counter->setOrigin(m_counter->getSize()[0] * 0.5f, m_counter->getSize()[1]);
 			switch (m_currentFrame){
 			case 1:
-				m_effectsPlayer.Play(Globals::soundManager.get("2").getBuffer());				
+				m_effectsPlayer.play(Globals::soundManager.get("2").getBuffer());				
 				break;
 			case 2:
-				m_effectsPlayer.Play(Globals::soundManager.get("1").getBuffer());				
+				m_effectsPlayer.play(Globals::soundManager.get("1").getBuffer());				
 				break;
 			case 3:
-				m_effectsPlayer.Play(Globals::soundManager.get("go").getBuffer());				
+				m_effectsPlayer.play(Globals::soundManager.get("go").getBuffer());				
 				break;
 			}
 		}	

@@ -1,9 +1,11 @@
 #include <iostream>
-#include "Spritesheet.h"
 #include "Extension.h"
+#include "Spritesheet.h"
+
 #include "stb\stb_image.h"
 
-Spritesheet::Spritesheet(std::string pictureFile, unsigned short tileWidth, unsigned short tileHeight, bool reverse, bool flipVertical, int row, int maxColumn) {
+Spritesheet::Spritesheet(std::string pictureFile, unsigned short tileWidth, unsigned short tileHeight, bool reverse, bool flipVertical, int row, int maxColumn, unsigned int _format) {
+	unsigned format = _format == -1 ? GL_RGBA8 : _format;
 
 	stbi_set_flip_vertically_on_load(flipVertical);
 	int width, height, numCompontents;
@@ -16,8 +18,8 @@ Spritesheet::Spritesheet(std::string pictureFile, unsigned short tileWidth, unsi
 	glGenTextures(1, &m_texture);
 	glBindTexture(GL_TEXTURE_2D_ARRAY, m_texture);
 	//glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_RGBA8, tileWidth, tileHeight, totalFrames, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-	glTexStorage3D(GL_TEXTURE_2D_ARRAY, 1, GL_RGBA8, tileWidth, tileHeight, m_totalFrames);
-
+	glTexStorage3D(GL_TEXTURE_2D_ARRAY, 1, format, tileWidth, tileHeight, m_totalFrames);
+	//glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB8_ALPHA8, tileWidth, tileHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 	//default row = 0
 	unsigned short image = 0;
 	unsigned short posX = 0;

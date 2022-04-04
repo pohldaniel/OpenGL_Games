@@ -3,7 +3,7 @@
 TextField::TextField(size_t maxChar) : TextField() {
 	m_text = new Text(maxChar, Globals::fontManager.get("font_200"), 90.0f / 200.0f);
 	m_quad = new Quad(false, 0.0f, 2.0f, 0.0f, 2.0f, m_size[0] * 0.5, m_size[1] * 0.5);
-	m_shader = Globals::shaderManager.getAssetPointer("quad_color_single");
+	m_shader = Globals::shaderManager.getAssetPointer("quad_color_uniform");
 	setOutlineThickness(4.0f);
 }
 
@@ -21,7 +21,7 @@ TextField::TextField(std::string label) : TextField() {
 	m_size = m_text->getSize() + Vector2f(30.0f, 20.0f);
 
 	m_quad = new Quad(false, 0.0f, 2.0f, 0.0f, 2.0f, m_size[0] * 0.5, m_size[1] * 0.5);
-	m_shader = Globals::shaderManager.getAssetPointer("quad_color_single");
+	m_shader = Globals::shaderManager.getAssetPointer("quad_color_uniform");
 	setOutlineThickness(4.0f);
 }
 
@@ -39,14 +39,20 @@ TextField::TextField(TextField const& rhs) {
 	m_fillColor = rhs.m_fillColor;
 	m_label = rhs.m_label;
 
-	m_shader = new Shader();
-	*m_shader = *rhs.m_shader;
+	if (rhs.m_shader) {
+		m_shader = new Shader();
+		*m_shader = *rhs.m_shader;
+	}
 
-	m_quad = new Quad();
-	std::swap(*m_quad, *rhs.m_quad);
+	if (rhs.m_quad) {
+		m_quad = new Quad();
+		std::swap(*m_quad, *rhs.m_quad);
+	}
 
-	m_text = new Text(rhs.m_text->m_charset);
-	std::swap(*m_text, *rhs.m_text);
+	if (rhs.m_text) {
+		m_text = new Text(rhs.m_text->m_charset);
+		std::swap(*m_text, *rhs.m_text);
+	}
 }
 
 TextField& TextField::operator=(const TextField& rhs) {
@@ -59,14 +65,20 @@ TextField& TextField::operator=(const TextField& rhs) {
 	m_fillColor = rhs.m_fillColor;
 	m_label = rhs.m_label;
 
-	m_shader = new Shader();
-	*m_shader = *rhs.m_shader;
+	if (rhs.m_shader) {
+		m_shader = new Shader();
+		*m_shader = *rhs.m_shader;
+	}
 
-	m_quad = new Quad();
-	std::swap(*m_quad, *rhs.m_quad);
+	if (rhs.m_quad) {
+		m_quad = new Quad();
+		std::swap(*m_quad, *rhs.m_quad);
+	}
 
-	m_text = new Text(rhs.m_text->m_charset);
-	std::swap(*m_text, *rhs.m_text);
+	if (rhs.m_text) {
+		m_text = new Text(rhs.m_text->m_charset);
+		std::swap(*m_text, *rhs.m_text);
+	}
 	return *this;
 }
 

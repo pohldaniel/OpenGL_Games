@@ -14,7 +14,6 @@ public:
 	virtual void update() = 0;
 	virtual void render() = 0;
 
-
 	Collision getCollider();
 
 	void setSize(const float x, const float y);
@@ -46,6 +45,6 @@ protected:
 	Vector2f m_origin;
 	Matrix4f m_transform = Matrix4f::IDENTITY;
 
-	const float& i_fdt;
-	const float& i_dt;	
+	const float& m_fdt;
+	const float& m_dt;	
 };

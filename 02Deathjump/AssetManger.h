@@ -20,8 +20,8 @@ public:
 		m_assetPointer[name] = new T(vertex, fragment);
 	}
 
-	void loadSpritesheet(const std::string& name, const std::string& path, unsigned short tileWidth, unsigned short tileHeight, unsigned int yStart, unsigned int xLength) {
-		m_assetPointer[name] = new T(path, tileWidth, tileHeight, true, true, yStart, xLength);
+	void loadSpritesheet(const std::string& name, const std::string& path, unsigned short tileWidth, unsigned short tileHeight, unsigned int yStart, unsigned int xLength, unsigned int format = -1) {
+		m_assetPointer[name] = new T(path, tileWidth, tileHeight, true, true, yStart, xLength, format);
 	}
 
 	void loadSoundEffect(const std::string& name, const std::string& path) {
@@ -73,9 +73,18 @@ public:
 	void loadTexture(const std::string& name, const std::string& path, const bool flipVertical = true, const bool linear = false) {
 		m_assets[name].loadFromFile(path, flipVertical, linear);
 	}
-	
+
+	void loadCharacterSet(const std::string& name, const std::string& path, const float characterSize) {
+		m_assets.insert(std::pair<std::string, T>(name, T()));
+		m_assets[name].loadFromFile(path, characterSize);
+	}
+
 	void loadShader(const std::string& name, const std::string& vertex, const std::string& fragment) {
-		m_assetPointer[name] = new T(vertex, fragment);;
+		m_assetPointer[name] = new T(vertex, fragment);
+	}
+
+	void loadSpritesheet(const std::string& name, const std::string& path, unsigned short tileWidth, unsigned short tileHeight, unsigned int yStart, unsigned int xLength, unsigned int format = -1) {
+		m_assetPointer[name] = new T(path, tileWidth, tileHeight, true, true, yStart, xLength, format);
 	}
 
 	void loadSoundEffect(const std::string& name, const std::string& path) {
@@ -83,6 +92,7 @@ public:
 	}
 
 	void loadMusic(const std::string& name, const std::string& path) {
+		m_assets.insert(std::pair<std::string, T>(name, T()));
 		m_assets[name].loadFromFile(path);
 	}
 

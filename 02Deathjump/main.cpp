@@ -3,11 +3,10 @@
 #include <windows.h>	
 #include <tchar.h>
 #include "stb\stb_image.h"
+
 #include "Constants.h"
 #include "Clock.h"
 #include "Application.h"
-
-
 #include "SoundEffectsPlayer.h"
 #include "SoundBuffer.h"
 #include "MusicBuffer.h"
@@ -23,7 +22,6 @@ extern bool Globals::lMouseButton = false;
 extern Matrix4f Globals::projection = Matrix4f::IDENTITY;
 extern Matrix4f Globals::invProjection = Matrix4f::IDENTITY;
 extern AssetManager<Shader> Globals::shaderManager = AssetManager<Shader>();
-//extern AssetManager<CharacterSetOld> Globals::fontManagerOld = AssetManager<CharacterSetOld>();
 extern AssetManager<CharacterSet> Globals::fontManager = AssetManager<CharacterSet>();
 extern AssetManager<SoundBuffer> Globals::soundManager = AssetManager<SoundBuffer>();
 extern AssetManager<MusicBuffer> Globals::musicManager = AssetManager<MusicBuffer>();
@@ -36,6 +34,8 @@ extern float Globals::musicVolume = 0.1f;
 extern float Globals::soundVolume = 0.3f;
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd) {
+	
+	#if DEBUGCOLLISION
 	AllocConsole();
 	AttachConsole(GetCurrentProcessId());
 	freopen("CON", "w", stdout);
@@ -46,6 +46,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	std::cout << "q             : change state" << std::endl;
 	std::cout << "v             : toggle vsync" << std::endl;
 	std::cout << "z             : toggle wireframe" << std::endl;
+	#endif
 
 	float deltaTime = 0.0f;
 	float fixedDeltaTime = 0.0f;
@@ -78,26 +79,20 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		application.render();
 		deltaTime = deltaClock.restartSec();
 		
+		#if DEBUGCOLLISION
 		framesTime += deltaTime;
 		frames++;
 		if (framesTime > 1) {
 			_TCHAR fpsText[32];
-			_sntprintf(fpsText, 32, "Game: %d FPS", frames);
+			_sntprintf(fpsText, 32, "FPS: %d FPS", frames);
 			SetWindowText(hwnd, fpsText);
 			frames = 0;
 			framesTime = 0;
 		}
-
+		#endif
 		hdc = GetDC(hwnd);
 		SwapBuffers(hdc);
 		ReleaseDC(hwnd, hdc);		
-	} // end while
-
-	//simple workaround for holding the console at the end 
-	/*application.~Application();
-	while (true){
-
-	}*/
-	
+	} 
 	return 0;
 }

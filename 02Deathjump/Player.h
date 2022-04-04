@@ -28,8 +28,6 @@ public:
 
 	bool isAlive() const;
 
-	
-
 private:
 
 	void initAnimations();

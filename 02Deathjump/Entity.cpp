@@ -1,6 +1,6 @@
 #include "Entity.h"
 
-Entity::Entity(const float& dt, const float& fdt) : i_dt(dt), i_fdt(fdt){}
+Entity::Entity(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fdt){}
 
 Entity::~Entity() {
 	delete m_textureAtlas;

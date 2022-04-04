@@ -6,15 +6,10 @@ in vec2 texCoord;
 out vec4 outColor;
 
 uniform sampler2D u_texture;
-
-uniform vec2 u_resolution;
 uniform float u_progress;
 
 void main(void) {
-	vec2 uv = gl_FragCoord.xy / u_resolution.xy;
-	//vec2 uv = texCoord;
-
-	uv *= 1.0 - uv.yx;
+	vec2 uv = texCoord * (vec2(1.0, 1.0) - texCoord);
 
     float vig = uv.x * uv.y * 50.0;
 
@@ -22,8 +17,8 @@ void main(void) {
 
     vec4 pixel = texture(u_texture, texCoord);
 
-    float UVx = gl_FragCoord.x / u_resolution.x;
-    float UVy = gl_FragCoord.y / u_resolution.y;
+    float UVx = texCoord.x;
+    float UVy = texCoord.y;
 
     float xFraction = fract(gl_FragCoord.x / diamondPixelSize);
     float yFraction = fract(gl_FragCoord.y / diamondPixelSize);
@@ -35,5 +30,5 @@ void main(void) {
         discard;
     }
 
-	outColor = pixel * vig;
+	outColor = vig * pixel;
 }

@@ -1,6 +1,6 @@
 #include "Timer.h"
 
-void Timer::Update(const float& dt) {
+void Timer::update(const float& dt) {
 	m_elapsedTime += dt;
 	while (m_elapsedTime > m_updateTime) {
 		m_fun();
@@ -8,15 +8,15 @@ void Timer::Update(const float& dt) {
 	}
 }
 
-void Timer::SetFunction(float time, std::function<void()> fun) {
+void Timer::setFunction(float time, std::function<void()> fun) {
 	m_updateTime = time;
 	m_fun = fun;
 }
 
-void Timer::SetUpdateTime(float time) {
+void Timer::setUpdateTime(float time) {
 	m_updateTime = time;
 }
 
-float Timer::GetUpdateTime() const {
+float Timer::getUpdateTime() const {
 	return m_updateTime;
 }

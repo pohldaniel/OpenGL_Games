@@ -66,16 +66,15 @@ private:
 
 	void updateTimers();
 	void initTimers();
-
-	void FixedUpdateEntities();
-	void UpdateEntities();
-	void InitEntities();
 	
+	void initEntities();	
 	void initCountdown();
 	void updateCountdown();	
-
 	void initText();
+
 	void updateText();
+	void fixedUpdateEntities();
+	void updateEntities();
 
 	void spawnHeart();
 };

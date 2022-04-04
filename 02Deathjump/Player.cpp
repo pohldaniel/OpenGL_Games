@@ -1,10 +1,10 @@
 #include "Player.h"
 #include "Fireball.h"
+#include "ViewEffect.h"
 
 Player::Player(const float& dt, const float& fdt) : Entity(dt, fdt){		
 	
 	m_shaderArray = Globals::shaderManager.getAssetPointer("quad_array");
-	//m_quad = new Quad(true, 1.0f, -1.0f, m_playerSize[0], m_playerSize[1]);
 	m_quad = new Quad(true, 0.0f, 1.0f, 0.0f, 1.0f, m_playerSize[0], m_playerSize[1], 1.0f, 1.0f, 0, 0);
 
 	initBody();
@@ -13,7 +13,7 @@ Player::Player(const float& dt, const float& fdt) : Entity(dt, fdt){
 	initEmitters();
 
 	m_healthBar = new HealthBar();
-	m_healthBar->setPosition(Vector2f(0.0f, HEIGHT));
+	m_healthBar->setPosition(Vector2f(65.0f, HEIGHT - 35.0f));
 
 	m_effectsPlayer.init();
 	m_effectsPlayer.setVolume(Globals::soundVolume);
@@ -48,8 +48,8 @@ void Player::resolveCollision(Heart* heart) {
 
 	if (getCollider().checkCollision(heart->getCollider(), MTV) && m_healthBar->getHealthState() != 3) {
 		m_healthBar->update(false);
-		m_effectsPlayer.Play(Globals::soundManager.get("pickup").getBuffer());
-		heart->_IsAlive = false;
+		m_effectsPlayer.play(Globals::soundManager.get("pickup").getBuffer());
+		heart->isAlive = false;
 	}
 }
 
@@ -69,8 +69,8 @@ void Player::resolveCollision(Fireball* fireball) {
 	fireball->m_emitter->addParticles();
 
 	m_healthBar->update(true);
-	m_effectsPlayer.Play(Globals::soundManager.get("blowup").getBuffer());
-	//Camera::Get().Shake(1.75f);
+	m_effectsPlayer.play(Globals::soundManager.get("blowup").getBuffer());
+	ViewEffect::get().shake(1.75f);
 
 	m_hit = true;
 	m_grabbing = false;
@@ -87,9 +87,9 @@ void Player::resolveCollision(Ghost* ghost, std::vector<Ghost*>& ghosts) {
 	if (!getCollider().checkCollision(ghost->getCollider(), MTV) || m_hit || ghost->m_blowUp)
 		return;
 
-	m_ghotsEffectsPlayer.Play(Globals::soundManager.get("ghost").getBuffer());
+	m_ghotsEffectsPlayer.play(Globals::soundManager.get("ghost").getBuffer());
 	if (MTV[1] < 0.0f && m_velocity[1] != 0.0f) {
-		// i know do not scream
+
 		ghost->m_blowUp = true;
 		ghost->m_emitter->clear();
 		ghost->m_emitter->setDirection(Vector2f(0.0f, 0.0));
@@ -102,11 +102,10 @@ void Player::resolveCollision(Ghost* ghost, std::vector<Ghost*>& ghosts) {
 		ghost->m_animator.setCurrentFrame(0);
 		ghost->m_animator.setUpdateTime(0.1f);
 
-		//m_effectsPlayer.Play(Globals::soundManager.get("ghost").getBuffer());
 		m_velocity[1] = m_jumpVelocity + 400.0f;
 		m_Animations["jump"].setCurrentFrame(0);
 
-		m_effectsPlayer.Play(Globals::soundManager.get("player_jump").getBuffer());
+		m_effectsPlayer.play(Globals::soundManager.get("player_jump").getBuffer());
 		return;
 	}
 
@@ -125,9 +124,8 @@ void Player::resolveCollision(Ghost* ghost, std::vector<Ghost*>& ghosts) {
 	}
 
 	m_healthBar->update(true);
-	m_effectsPlayer.Play(Globals::soundManager.get("blowup").getBuffer());
-	//m_effectsPlayer.Play(Globals::soundManager.get("ghost").getBuffer());
-	//Camera::Get().Shake(1.75f);
+	m_effectsPlayer.play(Globals::soundManager.get("blowup").getBuffer());
+	ViewEffect::get().shake(1.75f);
 
 	m_hit = true;
 	m_grabbing = false;
@@ -203,7 +201,7 @@ bool Player::isAlive() const {
 void Player::animate() {
 
 	if (!m_movable) {
-		m_Animations["takedamage"].update(i_dt);
+		m_Animations["takedamage"].update(m_dt);
 		if (m_Animations["takedamage"].getCurrentFrame() == m_Animations["takedamage"].getFrameCount() - 1) {
 			m_Animations["takedamage"].setCurrentFrame(0);
 			m_movable = true;
@@ -213,30 +211,30 @@ void Player::animate() {
 	}
 
 	if (m_grabbing) {
-		m_Animations["grab"].update(i_dt);
+		m_Animations["grab"].update(m_dt);
 		return;
 	}
 
 	if (m_crouching) {
-		m_Animations["crouch"].update(i_dt);
+		m_Animations["crouch"].update(m_dt);
 		return;
 	}
 
 	if (m_velocity[1] == 0.0f) { // NOT JUMPING
 		if (m_velocity[0] < 0) {
-			m_Animations["move"].update(i_dt);
+			m_Animations["move"].update(m_dt);
 		}else if (m_velocity[0] > 0) {
-			m_Animations["move"].update(i_dt);
+			m_Animations["move"].update(m_dt);
 		}else if (m_grounded && m_velocity[0] == 0) {
-			m_Animations["idle"].update(i_dt);
+			m_Animations["idle"].update(m_dt);
 		}
 	}else {
 		if (m_velocity[1] < 0) {
 			if (m_Animations["jump"].getCurrentFrame() != m_Animations["jump"].getFrameCount() - 1) {
-				m_Animations["jump"].update(i_dt);
+				m_Animations["jump"].update(m_dt);
 			}
 		}if (m_velocity[1] > 0) {
-			m_Animations["fall"].update(i_dt);
+			m_Animations["fall"].update(m_dt);
 		}
 	}
 }
@@ -269,14 +267,14 @@ void Player::crouch() {
 		}
 	}
 	if (wasCrouching != m_crouching && m_crouching)
-		m_effectsPlayer.Play(Globals::soundManager.get("player_crouch").getBuffer());
+		m_effectsPlayer.play(Globals::soundManager.get("player_crouch").getBuffer());
 }
 
 void Player::move() {
 	if (!m_grabbing)
-		m_velocity[1] += m_gravity * i_fdt;
+		m_velocity[1] += m_gravity * m_fdt;
 	m_velocity[0] *= m_torque;
-	m_collider.position += m_velocity * i_fdt;
+	m_collider.position += m_velocity * m_fdt;
 
 	float vel = abs(m_velocity[0]);
 	m_velocity[0] = (vel < 8.0f ? 0.0f : m_velocity[0]);
@@ -293,7 +291,7 @@ void Player::updateVelocity() {
 		m_grabbing = false;
 		m_velocity[1] = m_jumpVelocity;
 		m_Animations["jump"].setCurrentFrame(0);
-		m_effectsPlayer.Play(Globals::soundManager.get("player_jump").getBuffer());
+		m_effectsPlayer.play(Globals::soundManager.get("player_jump").getBuffer());
 	}
 
 	if (m_grabbing && (Globals::CONTROLLS & Globals::KEY_S)) {
@@ -319,18 +317,17 @@ void Player::updateEmitters() {
 	m_emitter->setPosition(m_collider.position + m_collider.size * 0.25f);
 	if (m_velocity[0] != 0.0f)
 		m_emitter->addParticles();
-	m_emitter->update(i_dt);
+	m_emitter->update(m_dt);
 
 	m_fallEmitter->setPosition(Vector2f(m_collider.position[0] +  m_collider.size[1] * 0.25f, m_collider.position[1] + m_collider.size[1] * 0.7f));
 	if (!m_wasGrounded && m_grounded) {
 		m_fallEmitter->addParticles();
 		m_wasGrounded = true;
 	}
-	m_fallEmitter->update(i_dt);
+	m_fallEmitter->update(m_dt);
 }
 
 void Player::initAnimations() {
-	//todo multiple time load texture
 	m_textureAtlas = new unsigned int();
 	m_currentFrame = new unsigned int();
 	
@@ -341,14 +338,6 @@ void Player::initAnimations() {
 	m_Animations["grab"].create(Globals::spritesheetManager.getAssetPointer("player_grap"), 0.1, *m_textureAtlas, *m_currentFrame);
 	m_Animations["takedamage"].create(Globals::spritesheetManager.getAssetPointer("player_takedamage"), 0.08f, *m_textureAtlas, *m_currentFrame);
 	m_Animations["idle"].create(Globals::spritesheetManager.getAssetPointer("player_idle"), 0.08f, *m_textureAtlas, *m_currentFrame);
-
-	/*m_Animations["move"].create("res/textures/player.png", 96, 84, 3, 7, 0.08f, *m_textureAtlas, *m_currentFrame);
-	m_Animations["jump"].create("res/textures/player.png", 96, 84, 4, 1, 0.125f, *m_textureAtlas, *m_currentFrame);
-	m_Animations["fall"].create("res/textures/player.png", 96, 84, 6, 0, 0.1f, *m_textureAtlas, *m_currentFrame);
-	m_Animations["crouch"].create("res/textures/player.png", 96, 84, 9, 5, 0.06f, *m_textureAtlas, *m_currentFrame);
-	m_Animations["grab"].create("res/textures/player.png", 96, 84, 15, 0, 0.1f, *m_textureAtlas, *m_currentFrame);
-	m_Animations["takedamage"].create("res/textures/player.png", 96, 84, 17, 5, 0.08f, *m_textureAtlas, *m_currentFrame);
-	m_Animations["idle"].create("res/textures/player.png", 96, 84, 1, 6, 0.08f, *m_textureAtlas, *m_currentFrame);*/
 }
 
 void Player::initBody() {	

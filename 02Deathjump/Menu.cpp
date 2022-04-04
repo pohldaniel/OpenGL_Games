@@ -1,7 +1,7 @@
 #include "Menu.h"
 
 
-Menu::Menu(StateMachine& machine) : State(machine), m_text(Text(Globals::fontManager.get("font_200"))) {
+Menu::Menu(StateMachine& machine) : State(machine, CurrentState::MENU), m_text(Text(Globals::fontManager.get("font_200"))) {
 	initSprites();
 	initText();
 	initButtons();
@@ -11,8 +11,8 @@ Menu::Menu(StateMachine& machine) : State(machine), m_text(Text(Globals::fontMan
 	m_shader = Globals::shaderManager.getAssetPointer("quad");
 	m_quad = new Quad(false);
 
-	Globals::musicManager.get("menu").Play();
-	Globals::musicManager.get("menu").SetLooping(true);
+	Globals::musicManager.get("menu").play();
+	Globals::musicManager.get("menu").setLooping(true);
 }
 
 Menu::~Menu() {
@@ -56,7 +56,7 @@ void  Menu::initText() {
 
 void Menu::initButtons() {
 	std::initializer_list<std::pair<const std::string, Button>> init = {
-		{ "start",	  Button("START"   , Vector2f(WIDTH * 0.5f, HEIGHT - HEIGHT * 0.5f), Vector4f(100.0f / 255.0f, 100.0f / 255.0f, 100.0f / 255.0f, 80.0f / 255.0f)) },
+		{ "start",	  Button("START"   , Vector2f(WIDTH, HEIGHT) * 0.5f, Vector4f(100.0f / 255.0f, 100.0f / 255.0f, 100.0f / 255.0f, 80.0f / 255.0f)) },
 		{ "settings", Button("SETTINGS", Vector2f(WIDTH * 0.5f, HEIGHT - 550)   , Vector4f(100.0f / 255.0f, 100.0f / 255.0f, 100.0f / 255.0f, 80.0f / 255.0f)) },
 		{ "exit",	  Button("EXIT"    , Vector2f(WIDTH * 0.5f, HEIGHT - 650)   , Vector4f(100.0f / 255.0f, 100.0f / 255.0f, 100.0f / 255.0f, 80.0f / 255.0f)) },
 	};
@@ -67,9 +67,9 @@ void Menu::initButtons() {
 
 	m_buttons["start"].setFunction([&]() {
 		transition.setFunction([&]() {
-			i_isRunning = false;
-			i_machine.addStateAtBottom(new Game(i_machine));
-			Globals::musicManager.get("menu").Stop();
+			m_isRunning = false;
+			m_machine.addStateAtBottom(new Game(m_machine), "Game");
+			Globals::musicManager.get("menu").stop();
 			transition.start(Mode::Unveil);
 		});
 		transition.start(Mode::Veil);
@@ -77,7 +77,7 @@ void Menu::initButtons() {
 
 	m_buttons["settings"].setFunction([&]() {
 		transition.setFunction([&]() {
-			i_machine.addStateAtTop(new Settings(i_machine));
+			m_machine.addStateAtTop(new Settings(m_machine), "settings");
 			transition.start(Mode::Unveil);
 		});
 		transition.start(Mode::Veil);
@@ -85,7 +85,7 @@ void Menu::initButtons() {
 
 
 	m_buttons["exit"].setFunction([&]() {
-		transition.setFunction([&]() { i_isRunning = false; });
+		transition.setFunction([&]() { m_isRunning = false; });
 		transition.start(Mode::Veil);
 	});
 }
@@ -101,7 +101,7 @@ void Menu::initTextField() {
 }
 
 void Menu::initTimer() {
-	m_textAnimTimer.SetFunction(0.20f, [&]() {
+	m_textAnimTimer.setFunction(0.20f, [&]() {
 		constexpr float pos[10] =
 		{
 			100.0f,
@@ -124,5 +124,5 @@ void Menu::initTimer() {
 }
 
 void Menu::animateText() {
-	m_textAnimTimer.Update(i_dt);
+	m_textAnimTimer.update(m_dt);
 }

@@ -195,6 +195,9 @@
     <ClInclude Include="Text.h">
       <Filter>Engine\UI</Filter>
     </ClInclude>
+    <ClInclude Include="ViewEffect.h">
+      <Filter>Source Files\Effects</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -439,6 +442,9 @@
     </ClCompile>
     <ClCompile Include="Text.cpp">
       <Filter>Engine\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="ViewEffect.cpp">
+      <Filter>Source Files\Effects</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

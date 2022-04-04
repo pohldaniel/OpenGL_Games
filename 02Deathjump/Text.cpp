@@ -57,12 +57,7 @@ Text& Text::operator=(const Text& rhs) {
 	m_origin = rhs.m_origin;
 	m_color = rhs.m_color;
 	m_charset = rhs.m_charset;
-	//the call of the destructor will invalid this members
-	//m_vao = rhs.m_vao;
-	//m_vbo = rhs.m_vbo;
-	//m_ibo = rhs.m_ibo;
-	//m_indexCount = rhs.m_indexCount;
-
+	
 	if (!m_label.empty())
 		setLabel(m_label, m_scale);
 	else

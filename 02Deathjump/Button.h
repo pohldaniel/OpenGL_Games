@@ -34,9 +34,9 @@ public:
 	SoundEffectsPlayer m_effectsPlayer;
 private:
 
-	Shader *m_shader;
-	Quad *m_quad;
-	Text* m_text;
+	Shader *m_shader = nullptr;
+	Quad *m_quad = nullptr;
+	Text* m_text = nullptr;
 
 	unsigned int m_vao = 0;
 	unsigned int m_quadVBO = 0;

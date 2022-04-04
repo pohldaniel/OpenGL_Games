@@ -18,7 +18,7 @@ void Heart::fixedUpdate() {
 	constexpr float gravity = 300.0f;
 
 	if (!m_grounded)
-		m_collider.position[1] += gravity * i_fdt;
+		m_collider.position[1] += gravity * m_fdt;
 
 	setPosition(m_collider.position);
 }
@@ -53,11 +53,11 @@ void Heart::updateLight() {
 }
 
 void Heart::update() {
-	m_animation.update(i_dt);
+	m_animation.update(m_dt);
 	updateLight();
 
 	if (m_realDeSpawnClock.getElapsedTimeSec() > m_deSpawnTime * 3.f)
-		_IsAlive = false;
+		isAlive = false;
 
 
 	if (m_deSpawnClock.getElapsedTimeSec() > m_deSpawnTime) {

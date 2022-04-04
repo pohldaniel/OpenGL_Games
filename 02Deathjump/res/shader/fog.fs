@@ -1,5 +1,9 @@
+#version 330
+
+in vec2 texCoord;
+out vec4 outColor;
+
 uniform float u_time;
-uniform vec2 u_resolution;
 
 #define PI 3.1415
 
@@ -44,18 +48,15 @@ float parabola(float x, float k) {
 	return pow(cos(PI * x / 2.0), k);
 }
 
-
-void main()
-{
-	vec2 UV = gl_FragCoord.xy / u_resolution.xy;
-
+void main(void) {
+	vec2 UV = texCoord;
+	
 	vec2 coord = UV * noise_scale;
 	vec2 motion = vec2(fbm(coord + vec2(u_time * -0.2, u_time * 0.2)));
 	float final = fbm(coord + motion);
 	
 	float y = parabola(UV.y, 8.0);
-	vec3 parabolaColor = vec3(y);
+	float alpha = min(y, pow(final, alpha_power)) * color.a;
 
-
-    gl_FragColor = vec4(color.rgb, min(parabolaColor, pow(final, alpha_power)) * color.a);
+    outColor = color * vec4(color.rgb, alpha);
 }

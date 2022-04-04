@@ -1,7 +1,7 @@
 #include "Pause.h"
 #include "Menu.h"
 
-Pause::Pause(StateMachine& machine) : State(machine), m_text(Text(Globals::fontManager.get("font_200"))) {
+Pause::Pause(StateMachine& machine) : State(machine, CurrentState::PAUSE), m_text(Text(Globals::fontManager.get("font_200"))) {
 	initSprites();
 	initText();
 	initButtons();
@@ -11,8 +11,8 @@ Pause::Pause(StateMachine& machine) : State(machine), m_text(Text(Globals::fontM
 	m_shaderBlur = Globals::shaderManager.getAssetPointer("blur");
 	m_quad = new Quad(false);
 	
-	Globals::musicManager.get("pause").Play();
-	Globals::musicManager.get("pause").SetLooping(true);
+	Globals::musicManager.get("pause").play();
+	Globals::musicManager.get("pause").setLooping(true);
 }
 
 Pause::~Pause() {
@@ -26,6 +26,13 @@ void Pause::update() {
 		b.second.update();
 
 	animateText();
+
+	if((Globals::CONTROLLS & Globals::KEY_ESCAPE)) {
+		m_isRunning = false;
+		Globals::musicManager.get("pause").stop();
+		Globals::musicManager.get("main").play();
+		Globals::musicManager.get("main").setLooping(true);
+	}
 }
 
 void Pause::render(unsigned int &frameBuffer) {
@@ -68,15 +75,15 @@ void Pause::initButtons() {
 	Transition& transition = Transition::get();
 
 	m_buttons["resume"].setFunction([&]() {
-		i_isRunning = false;
-		Globals::musicManager.get("pause").Stop();
-		Globals::musicManager.get("main").Play();
-		Globals::musicManager.get("main").SetLooping(true);
+		m_isRunning = false;
+		Globals::musicManager.get("pause").stop();
+		Globals::musicManager.get("main").play();
+		Globals::musicManager.get("main").setLooping(true);
 	});
 
 	m_buttons["settings"].setFunction([&]() {
 		transition.setFunction([&]() {
-			i_machine.addStateAtTop(new Settings(i_machine));
+			m_machine.addStateAtTop(new Settings(m_machine), "settings");
 			transition.start(Mode::Unveil);
 		});
 		transition.start(Mode::Veil);
@@ -84,8 +91,8 @@ void Pause::initButtons() {
 
 	m_buttons["exit_to_menu"].setFunction([&]() {
 		transition.setFunction([&]() {
-			Globals::musicManager.get("pause").Stop();
-			i_machine.clearAndPush(new Menu(i_machine));
+			Globals::musicManager.get("pause").stop();
+			m_machine.clearAndPush(new Menu(m_machine));
 			transition.start(Mode::Unveil);
 		});
 		transition.start(Mode::Veil);
@@ -93,7 +100,7 @@ void Pause::initButtons() {
 }
 
 void Pause::initTimer() {
-	m_textAnimTimer.SetFunction(0.20f, [&]() {
+	m_textAnimTimer.setFunction(0.20f, [&]() {
 		constexpr float pos[10] =
 		{
 			100.0f,
@@ -116,5 +123,5 @@ void Pause::initTimer() {
 }
 
 void Pause::animateText() {
-	m_textAnimTimer.Update(i_dt);
+	m_textAnimTimer.update(m_dt);
 }
