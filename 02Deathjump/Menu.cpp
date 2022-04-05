@@ -68,7 +68,7 @@ void Menu::initButtons() {
 	m_buttons["start"].setFunction([&]() {
 		transition.setFunction([&]() {
 			m_isRunning = false;
-			m_machine.addStateAtBottom(new Game(m_machine), "Game");
+			m_machine.addStateAtBottom(new Game(m_machine));
 			Globals::musicManager.get("menu").stop();
 			transition.start(Mode::Unveil);
 		});
@@ -77,7 +77,7 @@ void Menu::initButtons() {
 
 	m_buttons["settings"].setFunction([&]() {
 		transition.setFunction([&]() {
-			m_machine.addStateAtTop(new Settings(m_machine), "settings");
+			m_machine.addStateAtTop(new Settings(m_machine));
 			transition.start(Mode::Unveil);
 		});
 		transition.start(Mode::Veil);

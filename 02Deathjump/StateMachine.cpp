@@ -34,16 +34,11 @@ StateMachine::~StateMachine() {
 	delete m_quad;
 }
 
-/*void StateMachine::addStateAtTop(State* state) {
+void StateMachine::addStateAtTop(State* state) {
 	m_states.push(state);
-}*/
-
-void StateMachine::addStateAtTop(State* state, std::string currentState) {
-	m_states.push(state);
-	//std::cout << currentState << std::endl;
 }
 
-/*void StateMachine::addStateAtBottom(State* state) {
+void StateMachine::addStateAtBottom(State* state) {
 	if (m_states.empty()) {
 		m_states.push(state);
 	}else {
@@ -52,20 +47,6 @@ void StateMachine::addStateAtTop(State* state, std::string currentState) {
 		addStateAtBottom(state);
 		m_states.push(temp);
 	}
-}*/
-
-void StateMachine::addStateAtBottom(State* state, std::string currentState) {
-	if (m_states.empty()) {
-		m_states.push(state);
-	}
-	else {
-		State* temp = m_states.top();
-		m_states.pop();
-		addStateAtBottom(state, currentState);
-		m_states.push(temp);
-	}
-
-	//std::cout << currentState << std::endl;
 }
 
 void StateMachine::fixedUpdate() {

@@ -63,7 +63,7 @@ void Game::update() {
 	updateCountdown();
 
 	if((Globals::CONTROLLS & Globals::KEY_ESCAPE)) {
-		m_machine.addStateAtTop(new Pause(m_machine), "Pause");
+		m_machine.addStateAtTop(new Pause(m_machine));
 		Globals::musicManager.get("main").stop();
 	}
 }

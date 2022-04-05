@@ -24,8 +24,8 @@ public:
 	StateMachine(const float& dt, const float& fdt);
 	~StateMachine();
 
-	void addStateAtTop(State* state, std::string currentState);
-	void addStateAtBottom(State* state, std::string currentState);
+	void addStateAtTop(State* state);
+	void addStateAtBottom(State* state);
 
 	void fixedUpdate();
 	void update();

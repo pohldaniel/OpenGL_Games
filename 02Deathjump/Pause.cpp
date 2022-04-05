@@ -83,7 +83,7 @@ void Pause::initButtons() {
 
 	m_buttons["settings"].setFunction([&]() {
 		transition.setFunction([&]() {
-			m_machine.addStateAtTop(new Settings(m_machine), "settings");
+			m_machine.addStateAtTop(new Settings(m_machine));
 			transition.start(Mode::Unveil);
 		});
 		transition.start(Mode::Veil);
