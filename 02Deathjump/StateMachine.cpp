@@ -17,21 +17,31 @@ StateMachine::StateMachine(const float& dt, const float& fdt) : m_dt(dt), m_fdt(
 	glBindTexture(GL_TEXTURE_2D, 0);
 
 	glGenFramebuffers(1, &m_frameBuffer);
-	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_frameBuffer);
+	glBindFramebuffer(GL_FRAMEBUFFER, m_frameBuffer);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_frameTexture, 0);
 	
 	// buffer for depth and stencil
-	unsigned int rbDepthStencil;
-	glGenRenderbuffers(1, &rbDepthStencil);
-	glBindRenderbuffer(GL_RENDERBUFFER, rbDepthStencil);
+	glGenRenderbuffers(1, &m_rbDepthStencil);
+	glBindRenderbuffer(GL_RENDERBUFFER, m_rbDepthStencil);
 	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, WIDTH, HEIGHT);
-	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbDepthStencil);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_rbDepthStencil);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 StateMachine::~StateMachine() {
 	clearStates();
 	delete m_quad;
+}
+
+void StateMachine::resize(unsigned int width, unsigned int height) {
+	
+	glBindTexture(GL_TEXTURE_2D, m_frameTexture);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	glBindRenderbuffer(GL_RENDERBUFFER, m_rbDepthStencil);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
+	glBindRenderbuffer(GL_RENDERBUFFER, m_rbDepthStencil);
 }
 
 void StateMachine::addStateAtTop(State* state) {

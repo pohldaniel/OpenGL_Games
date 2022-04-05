@@ -32,10 +32,9 @@ extern AssetManager<Spritesheet> Globals::spritesheetManager = AssetManager<Spri
 extern float Globals::bestTime = 0.0f;
 extern float Globals::musicVolume = 0.1f;
 extern float Globals::soundVolume = 0.3f;
-
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd) {
 	
-	#if DEBUGCOLLISION
+	#if DEBUG
 	AllocConsole();
 	AttachConsole(GetCurrentProcessId());
 	freopen("CON", "w", stdout);
@@ -79,7 +78,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		application.render();
 		deltaTime = deltaClock.restartSec();
 		
-		#if DEBUGCOLLISION
+		#if DEBUG
 		framesTime += deltaTime;
 		frames++;
 		if (framesTime > 1) {

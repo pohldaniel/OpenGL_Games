@@ -30,6 +30,7 @@ public:
 	void fixedUpdate();
 	void update();
 	void render();
+	void resize(unsigned int width, unsigned int height);
 
 	void clearAndPush(State* state);
 	const bool isRunning() const;
@@ -45,6 +46,7 @@ private:
 
 	unsigned int m_frameTexture;
 	unsigned int m_frameBuffer;
+	unsigned int m_rbDepthStencil;
 	bool m_isRunning = true;
 };
 

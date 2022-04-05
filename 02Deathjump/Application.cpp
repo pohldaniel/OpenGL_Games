@@ -58,7 +58,7 @@ bool Application::initWindow() {
 		NULL,								
 		"WINDOWCLASS",					
 		"Deathjump",				
-		WS_OVERLAPPEDWINDOW,
+		WS_OVERLAPPEDWINDOW^(WS_THICKFRAME | WS_MAXIMIZEBOX),
 		CW_USEDEFAULT, CW_USEDEFAULT,									
 		WIDTH,
 		HEIGHT,									
@@ -80,6 +80,8 @@ bool Application::initWindow() {
 
 	ShowWindow(m_window, SW_SHOW);
 	UpdateWindow(m_window);
+
+	m_init = true;
 }
 
 LRESULT CALLBACK Application::StaticWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
@@ -138,9 +140,16 @@ LRESULT Application::DisplayWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 			if (_height == 0) {					// avoid divide by zero
 				_height = 1;
 			}
+			
 			glViewport(0, 0, _width, _height);
 			Globals::projection = Matrix4f::GetOrthographic(Globals::projection, 0.f, static_cast<float>(_width), 0.0f, static_cast<float>(_height), -1.0f, 1.0f);
 			Globals::invProjection = Matrix4f::GetInvOrthographic(Globals::invProjection, 0.f, static_cast<float>(_width), 0.0f, static_cast<float>(_height), -1.0f, 1.0f);
+
+			
+			if(m_init) 
+				m_machine->resize(_width, _height);
+				//todo resizeable ui elements
+				//m_machine->m_states.top()->resize(_width, _height)
 			break;
 		}
 	}

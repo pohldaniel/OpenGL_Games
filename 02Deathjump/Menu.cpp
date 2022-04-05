@@ -102,20 +102,8 @@ void Menu::initTextField() {
 
 void Menu::initTimer() {
 	m_textAnimTimer.setFunction(0.20f, [&]() {
-		constexpr float pos[10] =
-		{
-			100.0f,
-			110.0f,
-			120.0f,
-			130.0f,
-			140.0f,
-			130.0f,
-			120.0f,
-			110.0f,
-			100.0f,
-			90.0f,
-		};
-		m_text.setPosition(Vector2f(WIDTH / 2.0f, HEIGHT - pos[m_iterator]));
+		
+		m_text.setPosition(Vector2f(WIDTH / 2.0f, HEIGHT - m_pos[m_iterator]));
 
 		m_iterator++;
 		if (m_iterator > 9)

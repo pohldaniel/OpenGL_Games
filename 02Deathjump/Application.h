@@ -48,7 +48,7 @@ private:
 	const float& m_fdt;
 	const float& m_dt;
 	bool m_windowGrabbed = false;
-
+	bool m_init = false;
 	StateMachine* m_machine;
 
 	

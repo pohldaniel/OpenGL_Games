@@ -36,4 +36,17 @@ private:
 	void initTextField();
 	void initTimer();
 	void animateText();	
+
+	const float m_pos[10] ={
+		100.0f,
+		110.0f,
+		120.0f,
+		130.0f,
+		140.0f,
+		130.0f,
+		120.0f,
+		110.0f,
+		100.0f,
+		90.0f,
+	};
 };
