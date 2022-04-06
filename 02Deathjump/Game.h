@@ -1,14 +1,15 @@
 #pragma once
 #include <sstream>
 #include <iomanip>
-#include "Clock.h"
+#include "engine/AssetManger.h"
+#include "engine/Clock.h"
+#include "engine/Timer.h"
+#include "engine/Random.h"
 
 #include "Constants.h"
-#include "AssetManger.h"
 #include "StateMachine.h"
 #include "Player.h"
 #include "Wall.h"
-#include "Timer.h"
 #include "Light.h"
 #include "Button.h"
 #include "ParticleEmitter.h"

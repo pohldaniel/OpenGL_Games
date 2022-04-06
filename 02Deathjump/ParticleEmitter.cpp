@@ -1,5 +1,4 @@
 #include "ParticleEmitter.h"
-#include "Random.h"
 
 ParticleEmitter::ParticleEmitter() {
 	m_batchrenderer = new Batchrenderer();
@@ -39,7 +38,6 @@ void ParticleEmitter::addParticles() {
 		float randX = Random::RandFloat(-m_spread, m_spread);
 		float randY = Random::RandFloat(-m_spread, m_spread);
 
-		// god please
 		if (m_direction == Vector2f()) {
 			randX = Random::RandInt(0, 1) ? Random::RandFloat(-1.15f, -0.15f) : Random::RandFloat(0.15f, 1.15f);
 			randY = Random::RandInt(0, 1) ? Random::RandFloat(-1.15f, -0.15f) : Random::RandFloat(0.15f, 1.15f);
@@ -85,7 +83,6 @@ void ParticleEmitter::updateParticles() {
 		float life = particle.lifeTime / particle.constLifeTime;
 
 		Vector4f color = lerp(m_deathColor, m_birthColor, life);
-		//SetQuadColor(i, Vector4f(color[0], color[1], color[2], life));
 		setQuadColor(i, color);
 		float scale = lerp((96.0f * m_size) / 100.0f, m_size, life);
 
@@ -94,7 +91,6 @@ void ParticleEmitter::updateParticles() {
 		moveQuad(i, particle.direction);
 	}
 }
-
 
 void ParticleEmitter::deleteQuad(unsigned index) {
 	m_particles.erase(m_particles.begin() + index);

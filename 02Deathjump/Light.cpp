@@ -1,4 +1,3 @@
-#include "Random.h"
 #include "Light.h"
 
 Light::Light(const Vector2f &position, float radius) : Light() {

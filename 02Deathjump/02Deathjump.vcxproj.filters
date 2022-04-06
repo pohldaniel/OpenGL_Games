@@ -34,15 +34,6 @@
     <Filter Include="Source Files\Effects">
       <UniqueIdentifier>{5c47e880-b57d-48fb-886a-74908d31c8aa}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Engine">
-      <UniqueIdentifier>{777cf87b-ddbd-432c-83cf-9b5467efd7e9}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Engine\Collision">
-      <UniqueIdentifier>{ff3dfd86-3a4a-4ef6-b66c-cd038ad078d4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Engine\Animations">
-      <UniqueIdentifier>{f37ce9b3-7319-48bb-832e-f5c3325efd7f}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\UI">
       <UniqueIdentifier>{6f1bdc9b-1376-4b64-9fa4-5106c989625d}</UniqueIdentifier>
     </Filter>
@@ -52,13 +43,22 @@
     <Filter Include="freetype\FT_MODULES">
       <UniqueIdentifier>{f08ef2b5-a3dc-458c-924f-4d1dfac7b5a7}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Engine\Sound">
-      <UniqueIdentifier>{8f45506c-93ee-47fd-a821-4131a112e3f7}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\Utils">
       <UniqueIdentifier>{daae7750-f587-4bb7-bcac-cac1dcdce819}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Engine\UI">
+    <Filter Include="engine">
+      <UniqueIdentifier>{777cf87b-ddbd-432c-83cf-9b5467efd7e9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="engine\animations">
+      <UniqueIdentifier>{f37ce9b3-7319-48bb-832e-f5c3325efd7f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="engine\collision">
+      <UniqueIdentifier>{ff3dfd86-3a4a-4ef6-b66c-cd038ad078d4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="engine\sound">
+      <UniqueIdentifier>{8f45506c-93ee-47fd-a821-4131a112e3f7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="engine\ui">
       <UniqueIdentifier>{ee034dee-e81b-49a1-a321-b471319aee1e}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -84,50 +84,8 @@
     <ClInclude Include="Wall.h">
       <Filter>Source Files\Objects</Filter>
     </ClInclude>
-    <ClInclude Include="Collider.h">
-      <Filter>Engine\Collision</Filter>
-    </ClInclude>
-    <ClInclude Include="Collision.h">
-      <Filter>Engine\Collision</Filter>
-    </ClInclude>
-    <ClInclude Include="Animator.h">
-      <Filter>Engine\Animations</Filter>
-    </ClInclude>
     <ClInclude Include="Pause.h">
       <Filter>Source Files\States\State</Filter>
-    </ClInclude>
-    <ClInclude Include="Timer.h">
-      <Filter>Engine</Filter>
-    </ClInclude>
-    <ClInclude Include="Extension.h">
-      <Filter>Engine</Filter>
-    </ClInclude>
-    <ClInclude Include="Quad.h">
-      <Filter>Engine</Filter>
-    </ClInclude>
-    <ClInclude Include="Shader.h">
-      <Filter>Engine</Filter>
-    </ClInclude>
-    <ClInclude Include="Spritesheet.h">
-      <Filter>Engine</Filter>
-    </ClInclude>
-    <ClInclude Include="Spritesheet_old.h">
-      <Filter>Engine</Filter>
-    </ClInclude>
-    <ClInclude Include="Texture.h">
-      <Filter>Engine</Filter>
-    </ClInclude>
-    <ClInclude Include="Vector.h">
-      <Filter>Engine</Filter>
-    </ClInclude>
-    <ClInclude Include="Random.h">
-      <Filter>Engine</Filter>
-    </ClInclude>
-    <ClInclude Include="AssetManger.h">
-      <Filter>Engine</Filter>
-    </ClInclude>
-    <ClInclude Include="Clock.h">
-      <Filter>Engine</Filter>
     </ClInclude>
     <ClInclude Include="Application.h">
       <Filter>Header Files</Filter>
@@ -147,26 +105,8 @@
     <ClInclude Include="Settings.h">
       <Filter>Source Files\States\State</Filter>
     </ClInclude>
-    <ClInclude Include="Batchrenderer.h">
-      <Filter>Engine</Filter>
-    </ClInclude>
     <ClInclude Include="ParticleEmitter.h">
       <Filter>Source Files\Effects</Filter>
-    </ClInclude>
-    <ClInclude Include="CharacterSet.h">
-      <Filter>Engine</Filter>
-    </ClInclude>
-    <ClInclude Include="SoundBuffer.h">
-      <Filter>Engine\Sound</Filter>
-    </ClInclude>
-    <ClInclude Include="SoundDevice.h">
-      <Filter>Engine\Sound</Filter>
-    </ClInclude>
-    <ClInclude Include="SoundEffectsPlayer.h">
-      <Filter>Engine\Sound</Filter>
-    </ClInclude>
-    <ClInclude Include="MusicBuffer.h">
-      <Filter>Engine\Sound</Filter>
     </ClInclude>
     <ClInclude Include="Fireball.h">
       <Filter>Source Files\Entities</Filter>
@@ -192,11 +132,71 @@
     <ClInclude Include="Heart.h">
       <Filter>Source Files\Entities</Filter>
     </ClInclude>
-    <ClInclude Include="Text.h">
-      <Filter>Engine\UI</Filter>
-    </ClInclude>
     <ClInclude Include="ViewEffect.h">
       <Filter>Source Files\Effects</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\animation\Animator.h">
+      <Filter>engine\animations</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\collision\Collider.h">
+      <Filter>engine\collision</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\collision\Collision.h">
+      <Filter>engine\collision</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\sound\MusicBuffer.h">
+      <Filter>engine\sound</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\sound\SoundBuffer.h">
+      <Filter>engine\sound</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\sound\SoundDevice.h">
+      <Filter>engine\sound</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\sound\SoundEffectsPlayer.h">
+      <Filter>engine\sound</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\ui\Text.h">
+      <Filter>engine\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\AssetManger.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\Batchrenderer.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\CharacterSet.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\Clock.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\Extension.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\Quad.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\Random.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\Shader.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\Spritesheet.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\Spritesheet_old.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\Texture.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\Timer.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\Vector.h">
+      <Filter>engine</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -218,44 +218,11 @@
     <ClCompile Include="Wall.cpp">
       <Filter>Source Files\Objects</Filter>
     </ClCompile>
-    <ClCompile Include="Collision.cpp">
-      <Filter>Engine\Collision</Filter>
-    </ClCompile>
-    <ClCompile Include="Animator.cpp">
-      <Filter>Engine\Animations</Filter>
-    </ClCompile>
     <ClCompile Include="Application.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Pause.cpp">
       <Filter>Source Files\States\State</Filter>
-    </ClCompile>
-    <ClCompile Include="Vector.cpp">
-      <Filter>Engine</Filter>
-    </ClCompile>
-    <ClCompile Include="Timer.cpp">
-      <Filter>Engine</Filter>
-    </ClCompile>
-    <ClCompile Include="Texture.cpp">
-      <Filter>Engine</Filter>
-    </ClCompile>
-    <ClCompile Include="Spritesheet_old.cpp">
-      <Filter>Engine</Filter>
-    </ClCompile>
-    <ClCompile Include="Spritesheet.cpp">
-      <Filter>Engine</Filter>
-    </ClCompile>
-    <ClCompile Include="Shader.cpp">
-      <Filter>Engine</Filter>
-    </ClCompile>
-    <ClCompile Include="Quad.cpp">
-      <Filter>Engine</Filter>
-    </ClCompile>
-    <ClCompile Include="Extension.cpp">
-      <Filter>Engine</Filter>
-    </ClCompile>
-    <ClCompile Include="Random.cpp">
-      <Filter>Engine</Filter>
     </ClCompile>
     <ClCompile Include="Button.cpp">
       <Filter>Source Files\UI</Filter>
@@ -395,26 +362,8 @@
     <ClCompile Include="Settings.cpp">
       <Filter>Source Files\States\State</Filter>
     </ClCompile>
-    <ClCompile Include="Batchrenderer.cpp">
-      <Filter>Engine</Filter>
-    </ClCompile>
     <ClCompile Include="ParticleEmitter.cpp">
       <Filter>Source Files\Effects</Filter>
-    </ClCompile>
-    <ClCompile Include="CharacterSet.cpp">
-      <Filter>Engine</Filter>
-    </ClCompile>
-    <ClCompile Include="SoundBuffer.cpp">
-      <Filter>Engine\Sound</Filter>
-    </ClCompile>
-    <ClCompile Include="SoundDevice.cpp">
-      <Filter>Engine\Sound</Filter>
-    </ClCompile>
-    <ClCompile Include="SoundEffectsPlayer.cpp">
-      <Filter>Engine\Sound</Filter>
-    </ClCompile>
-    <ClCompile Include="MusicBuffer.cpp">
-      <Filter>Engine\Sound</Filter>
     </ClCompile>
     <ClCompile Include="Fireball.cpp">
       <Filter>Source Files\Entities</Filter>
@@ -440,11 +389,62 @@
     <ClCompile Include="Heart.cpp">
       <Filter>Source Files\Entities</Filter>
     </ClCompile>
-    <ClCompile Include="Text.cpp">
-      <Filter>Engine\UI</Filter>
-    </ClCompile>
     <ClCompile Include="ViewEffect.cpp">
       <Filter>Source Files\Effects</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\animation\Animator.cpp">
+      <Filter>engine\animations</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\collision\Collision.cpp">
+      <Filter>engine\collision</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\sound\MusicBuffer.cpp">
+      <Filter>engine\sound</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\sound\SoundBuffer.cpp">
+      <Filter>engine\sound</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\sound\SoundDevice.cpp">
+      <Filter>engine\sound</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\sound\SoundEffectsPlayer.cpp">
+      <Filter>engine\sound</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\ui\Text.cpp">
+      <Filter>engine\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\Batchrenderer.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\CharacterSet.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\Extension.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\Quad.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\Random.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\Shader.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\Spritesheet.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\Spritesheet_old.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\Texture.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\Timer.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\Vector.cpp">
+      <Filter>engine</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

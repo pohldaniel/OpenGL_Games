@@ -6,21 +6,15 @@ Settings::Settings(StateMachine& machine) : State(machine, CurrentState::SETTING
 	initSeekerBars();
 	initButton();
 	initTimer();
+	initTextFields();
 
 	m_shader = Globals::shaderManager.getAssetPointer("quad");
 	m_shaderBlur = Globals::shaderManager.getAssetPointer("blur");
 	m_quad = new Quad(false);
-
-	m_emitter = new ParticleEmitter(Vector4f(1.0f, 1.0f, 0.0f, 1.0f), Vector4f(1.0f, 0.0f, 1.0f, 0.0f), 75);
-	m_emitter->setLifeTimeRange(3.5f, 8.5f);
-	m_emitter->setDirection(Vector2f(1, 0));
-	m_emitter->setPosition(Vector2f(725.0f, 750.0f));
-	m_emitter->setParticleMax(100);
 }
 
 Settings::~Settings() {
 	delete m_quad;
-	delete m_emitter;
 }
 
 void Settings::fixedUpdate() {}
@@ -29,8 +23,6 @@ void Settings::update() {
 	m_button.update();
 	for (auto& s : m_seekerBars)
 		s.second.update();
-	m_emitter->addParticles();
-	m_emitter->update(m_dt);
 	animateText();
 }
 
@@ -50,7 +42,9 @@ void Settings::render(unsigned int &frameBuffer) {
 	for (auto& s : m_seekerBars)
 		s.second.render();
 
-	m_emitter->render();
+	for (auto& tf : m_textFields)
+		tf.second.render();
+
 	glDisable(GL_BLEND);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -64,19 +58,20 @@ void Settings::initTexts() {
 	m_texts.insert(std::pair<std::string, Text>("title", Text("SETTINGS", Globals::fontManager.get("font_200"))));	
 	m_texts.insert(std::pair<std::string, Text>("sound", Text("SOUND VOLUME", Globals::fontManager.get("font_200"), 90.0f / 200.0f)));
 	m_texts.insert(std::pair<std::string, Text>("music", Text("MUSIC VOLUME", Globals::fontManager.get("font_200"), 90.0f / 200.0f)));
-	
+	m_texts.insert(std::pair<std::string, Text>("controls", Text("CONTROLS", Globals::fontManager.get("font_200"), 90.0f / 200.0f)));
+
 	m_texts.at("title").setPosition(Vector2f(WIDTH * 0.5f, HEIGHT - 120.0f) - m_texts.at("title").getSize() * 0.5f);
 	m_texts.at("title").setOrigin(m_texts.at("title").getSize() * 0.5f);
-	m_texts.at("sound").setPosition(Vector2f(WIDTH * 0.5f, HEIGHT - 300.0f) - m_texts.at("sound").getSize() * 0.5f);
-	m_texts.at("music").setPosition(Vector2f(WIDTH * 0.5f, HEIGHT - 520.0f) - m_texts.at("music").getSize() * 0.5f);
+	m_texts.at("sound").setPosition(Vector2f(WIDTH * 0.5f, HEIGHT - 260.0f) - m_texts.at("sound").getSize() * 0.5f);
+	m_texts.at("music").setPosition(Vector2f(WIDTH * 0.5f, HEIGHT - 460.0f) - m_texts.at("music").getSize() * 0.5f);
+	m_texts.at("controls").setPosition(Vector2f(WIDTH * 0.5f, HEIGHT - 650.0f) - m_texts.at("music").getSize() * 0.5f);
 }
 
 void Settings::initSeekerBars() {
 	
-	std::initializer_list<std::pair<const std::string, SeekerBar>> init =
-	{
-		{ "sound", SeekerBar(Vector2f(350.0f, HEIGHT - 380.0f), 10, Globals::soundVolume * 10) },
-		{ "music", SeekerBar(Vector2f(350.0f, HEIGHT - 600.0f), 10, Globals::musicVolume * 10) },
+	std::initializer_list<std::pair<const std::string, SeekerBar>> init ={
+		{ "sound", SeekerBar(Vector2f(350.0f, HEIGHT - 340.0f), 10, Globals::soundVolume * 10) },
+		{ "music", SeekerBar(Vector2f(350.0f, HEIGHT - 540.0f), 10, Globals::musicVolume * 10) },
 	};
 
 	m_seekerBars = init;
@@ -116,6 +111,46 @@ void Settings::initSeekerBars() {
 	});
 }
 
+void Settings::initTextFields() {
+
+	std::initializer_list<std::pair<const std::string, TextField>> init ={
+		{ "w", TextField("W") },
+		{ "a", TextField("A") },
+		{ "s", TextField("S") },
+		{ "d", TextField("D") }
+	};
+
+	m_textFields = init;
+
+	m_textFields["w"].setPosition(Vector2f(WIDTH * 0.5 - 260.0f, 150.0f));
+	m_textFields["w"].setOrigin(m_textFields["w"].getSize() * 0.5f);
+	m_textFields["w"].setFillColor(Vector4f(224.0f / 255.0f, 165.0f / 255.0f, 0.0f, 70.0f / 255.0f));
+	m_textFields["w"].setOutlineColor(Vector4f(224.0f / 255.0f, 165.0f / 255.0f, 0.0f, 1.0f));
+	m_textFields["w"].setOutlineThickness(4.0f);
+	m_textFields["w"].setTextColor(Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+
+	m_textFields["a"].setPosition(Vector2f(WIDTH * 0.5 - 155, 150.0f));
+	m_textFields["a"].setOrigin(m_textFields["a"].getSize() * 0.5f);
+	m_textFields["a"].setFillColor(Vector4f(224.0f / 255.0f, 165.0f / 255.0f, 0.0f, 70.0f / 255.0f));
+	m_textFields["a"].setOutlineColor(Vector4f(224.0f / 255.0f, 165.0f / 255.0f, 0.0f, 1.0f));
+	m_textFields["a"].setOutlineThickness(4.0f);
+	m_textFields["a"].setTextColor(Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+
+	m_textFields["s"].setPosition(Vector2f(WIDTH * 0.5 - 55.0f, 150.0f));
+	m_textFields["s"].setOrigin(m_textFields["s"].getSize() * 0.5f);
+	m_textFields["s"].setFillColor(Vector4f(224.0f / 255.0f, 165.0f / 255.0f, 0.0f, 70.0f / 255.0f));
+	m_textFields["s"].setOutlineColor(Vector4f(224.0f / 255.0f, 165.0f / 255.0f, 0.0f, 1.0f));
+	m_textFields["s"].setOutlineThickness(4.0f);
+	m_textFields["s"].setTextColor(Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+
+	m_textFields["d"].setPosition(Vector2f(WIDTH * 0.5 + 45.0f, 150.0f));
+	m_textFields["d"].setOrigin(m_textFields["d"].getSize() * 0.5f);
+	m_textFields["d"].setFillColor(Vector4f(224.0f / 255.0f, 165.0f / 255.0f, 0.0f, 70.0f / 255.0f));
+	m_textFields["d"].setOutlineColor(Vector4f(224.0f / 255.0f, 165.0f / 255.0f, 0.0f, 1.0f));
+	m_textFields["d"].setOutlineThickness(4.0f);
+	m_textFields["d"].setTextColor(Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+}
+
 void Settings::initButton() {
 	m_button = Button("BACK", Vector4f(100.0f / 255.0f, 100.0f / 255.0f, 100.0f / 255.0f, 80.0f / 255.0f));
 	m_button.setPosition(Vector2f(180.0f, 80.0f));
@@ -135,8 +170,7 @@ void Settings::initButton() {
 
 void Settings::initTimer() {
 	m_textAnimTimer.setFunction(0.20f, [&]() {
-		constexpr float pos[10] =
-		{
+		constexpr float pos[10] ={
 			100.0f,
 			110.0f,
 			120.0f,

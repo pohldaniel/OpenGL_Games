@@ -1,10 +1,10 @@
 #pragma once
 #include <iostream>
 #include <functional>
+#include "engine/Shader.h"
+#include "engine/Quad.h"
+#include "engine/ui/Text.h"
 #include "Constants.h"
-#include "Shader.h"
-#include "Quad.h"
-#include "Text.h"
 
 class Button {
 
@@ -62,7 +62,5 @@ private:
 	std::function<void()> m_fun = 0;
 	
 	void click();
-	void clickSafe();	
-
-	
+	void clickSafe();		
 };

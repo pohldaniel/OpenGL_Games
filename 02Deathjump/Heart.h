@@ -1,10 +1,12 @@
 #pragma once
+#include "engine/animation/Animator.h"
+#include "engine/Clock.h"
+#include "engine/Random.h"
+
 #include "Constants.h"
 #include "Entity.h"
 #include "Wall.h"
 #include "Light.h"
-#include "Animator.h"
-#include "Clock.h"
 
 class Heart : public Entity {
 public:

@@ -1,5 +1,4 @@
 #include "Ghost.h"
-#include "Random.h"
 
 Ghost::Ghost(const float& dt, const float& fdt) : Entity(dt, fdt) {
 

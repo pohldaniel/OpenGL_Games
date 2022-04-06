@@ -144,8 +144,7 @@ LRESULT Application::DisplayWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 			glViewport(0, 0, _width, _height);
 			Globals::projection = Matrix4f::GetOrthographic(Globals::projection, 0.f, static_cast<float>(_width), 0.0f, static_cast<float>(_height), -1.0f, 1.0f);
 			Globals::invProjection = Matrix4f::GetInvOrthographic(Globals::invProjection, 0.f, static_cast<float>(_width), 0.0f, static_cast<float>(_height), -1.0f, 1.0f);
-
-			
+		
 			if(m_init) 
 				m_machine->resize(_width, _height);
 				//todo resizeable ui elements
@@ -177,8 +176,8 @@ void Application::initOpenGL() {
 		0,								// ignore shift bit
 		0,								// no accumulation buffer
 		0, 0, 0, 0,						// ignore accumulation bits
-		24,								// 16 bit z-buffer size
-		8,								// no stencil buffer
+		24,								// 24 bit z-buffer size
+		8,								// 8 bit stencil buffer
 		0,								// no auxiliary buffer
 		PFD_MAIN_PLANE,					// main drawing plane
 		0,								// reserved
@@ -201,6 +200,8 @@ void Application::initOpenGL() {
 
 	//button transparency, fog and light
 	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	//https://stackoverflow.com/questions/2171085/opengl-blending-with-previous-contents-of-framebuffer
 	glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 	glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 	//button outline
@@ -261,20 +262,20 @@ void Application::render() {
 }
 
 void Application::update() {
-	m_machine->update();
-	Transition::get().update(m_dt);
-	ViewEffect::get().update(m_dt);
-	if (!m_machine->isRunning()) {
-		SendMessage(m_window, WM_DESTROY, NULL, NULL);
-	}
-
 	Globals::musicManager.get("menu").setVolume(Globals::musicVolume);
 	Globals::musicManager.get("main").setVolume(Globals::musicVolume);
 	Globals::musicManager.get("pause").setVolume(Globals::musicVolume);
 
 	Globals::musicManager.get("menu").updateBufferStream();
 	Globals::musicManager.get("main").updateBufferStream();
-	Globals::musicManager.get("pause").updateBufferStream();	
+	Globals::musicManager.get("pause").updateBufferStream();
+
+	m_machine->update();
+	Transition::get().update(m_dt);
+	ViewEffect::get().update(m_dt);
+	if (!m_machine->isRunning()) {
+		SendMessage(m_window, WM_DESTROY, NULL, NULL);
+	}	
 }
 
 void Application::fixedUpdate() {

@@ -1,8 +1,8 @@
 #pragma once
-
+#include "engine/Random.h"
+#include "engine/Shader.h"
+#include "engine/Quad.h"
 #include "Constants.h"
-#include "Shader.h"
-#include "Quad.h"
 
 class Light {
 public:

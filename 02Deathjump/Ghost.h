@@ -1,10 +1,12 @@
 #pragma once
+#include "engine/animation/Animator.h"
+#include "engine/Spritesheet.h"
+#include "engine/Clock.h"
+#include "engine/Random.h"
+
 #include "Entity.h"
-#include "Animator.h"
-#include "Spritesheet.h"
 #include "ParticleEmitter.h"
 #include "Light.h"
-#include "Clock.h"
 
 class Ghost : public Entity {
 public:

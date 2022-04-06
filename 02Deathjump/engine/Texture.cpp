@@ -1,6 +1,6 @@
 #include "Texture.h"
 #include "Extension.h"
-#include "stb\stb_image.h"
+#include "..\stb\stb_image.h"
 
 Texture::Texture(std::string pictureFile, const bool flipVertical, unsigned int _format) {
 	unsigned format = _format == -1 ? GL_RGBA8 : _format;

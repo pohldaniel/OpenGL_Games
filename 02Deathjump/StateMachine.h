@@ -1,12 +1,12 @@
 #pragma once
 #include <stack>
-
+#include "engine/Extension.h"
+#include "engine/Vector.h"
+#include "engine/Texture.h"
+#include "engine/Shader.h"
+#include "engine/Quad.h"
 #include "Constants.h"
-#include "Extension.h"
-#include "Vector.h"
-#include "Texture.h"
-#include "Shader.h"
-#include "Quad.h"
+
 
 enum CurrentState {
 	GAME,

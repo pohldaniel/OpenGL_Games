@@ -1,14 +1,15 @@
 #pragma once
 #include <unordered_map>
 #include <vector>
+#include "engine/animation/Animator.h"
+#include "engine/Spritesheet.h"
+
 #include "Constants.h"
 #include "Entity.h"
 #include "Wall.h"
 #include "Ghost.h"
 #include "Heart.h"
 #include "Fireball.h"
-#include "Animator.h"
-#include "Spritesheet.h"
 #include "ParticleEmitter.h"
 #include "HealthBar.h"
 

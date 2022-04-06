@@ -1,9 +1,9 @@
 #pragma once
+#include "engine/collision/Collision.h"
+#include "engine/Texture.h"
+#include "engine/Quad.h"
+#include "engine/Shader.h"
 #include "Constants.h"
-#include "Collision.h"
-#include "Texture.h"
-#include "Quad.h"
-#include "Shader.h"
 
 class Entity {
 public:

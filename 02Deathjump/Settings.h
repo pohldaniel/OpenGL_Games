@@ -1,13 +1,14 @@
 #pragma once
+#include "engine/Timer.h"
+#include "engine/AssetManger.h"
 
 #include "StateMachine.h"
-#include "AssetManger.h"
-
 #include "Transition.h"
 #include "Button.h"
 #include "SeekerBar.h"
+#include "TextField.h"
 #include "ParticleEmitter.h"
-#include "Timer.h"
+
 
 class Settings : public State {
 public:
@@ -24,7 +25,6 @@ private:
 	Shader *m_shaderBlur;
 
 	Quad *m_quad;	
-	ParticleEmitter* m_emitter;
 
 	Timer m_textAnimTimer;
 	int m_iterator = 0;
@@ -33,9 +33,11 @@ private:
 	std::unordered_map<std::string, unsigned int> m_sprites;
 	std::unordered_map<std::string, SeekerBar> m_seekerBars;
 	std::unordered_map<std::string, Text> m_texts;
-	
+	std::unordered_map<std::string, TextField> m_textFields;
+
 	void initSprites();
 	void initTexts();
+	void initTextFields();
 	void initButton();
 	void initSeekerBars();
 	void initTimer();

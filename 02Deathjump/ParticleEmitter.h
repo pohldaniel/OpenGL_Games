@@ -1,8 +1,9 @@
 #pragma once
 #include <array>
 #include <vector>
-#include "Vector.h"
-#include "Batchrenderer.h"
+#include "engine/Vector.h"
+#include "engine/Batchrenderer.h"
+#include "engine/Random.h"
 
 struct Particle {
 

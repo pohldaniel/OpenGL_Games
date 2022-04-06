@@ -1,4 +1,4 @@
-#include "stb\stb_image.h"
+#include "..\stb\stb_image.h"
 #include "Spritesheet_old.h"
 #include "Extension.h"
 

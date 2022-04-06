@@ -2,7 +2,7 @@
 #include "Extension.h"
 #include "Spritesheet.h"
 
-#include "stb\stb_image.h"
+#include "..\stb\stb_image.h"
 
 Spritesheet::Spritesheet(std::string pictureFile, unsigned short tileWidth, unsigned short tileHeight, bool reverse, bool flipVertical, int row, int maxColumn, unsigned int _format) {
 	unsigned format = _format == -1 ? GL_RGBA8 : _format;

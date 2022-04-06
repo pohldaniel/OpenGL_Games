@@ -1,5 +1,5 @@
 #pragma once
-#include "Spritesheet.h"
+#include "../Spritesheet.h"
 
 class Animator {
 public:

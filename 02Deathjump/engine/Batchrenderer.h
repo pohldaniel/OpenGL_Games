@@ -1,7 +1,7 @@
 #ifndef _BATCHRENDERER_H
 #define _BATCHRENDERER_H
 
-#include "Constants.h"
+#include "../Constants.h"
 #include "Extension.h"
 #include "Vector.h"
 #include "Shader.h"

@@ -1,9 +1,10 @@
 #pragma once
+#include "engine/Spritesheet.h"
+#include "engine/Shader.h"
+#include "engine/Quad.h"
 
 #include "Constants.h"
-#include "Spritesheet.h"
-#include "Shader.h"
-#include "Quad.h"
+
 class HealthBar{
 public:
 	HealthBar();

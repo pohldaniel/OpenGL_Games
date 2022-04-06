@@ -1,7 +1,7 @@
 #pragma once
-#include "Shader.h"
-#include "Quad.h"
-#include "Text.h"
+#include "engine/Shader.h"
+#include "engine/Quad.h"
+#include "engine/ui/Text.h"
 
 class TextField {
 public:

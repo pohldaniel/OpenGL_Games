@@ -1,9 +1,7 @@
 #include "Game.h"
-
-#include "Random.h"
 #include "Menu.h"
 #include "Pause.h"
-#include "AssetManger.h"
+
 Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME){
 	initEntities();
 	initWalls();
@@ -126,7 +124,6 @@ void Game::render(unsigned int &frameBuffer) {
 	glDisable(GL_BLEND);
 	#endif
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
 }
 
 void Game::spawnHeart() {
@@ -244,7 +241,6 @@ void Game::updateCountdown() {
 	if (m_countdown->currentFrame() < 4) {
 		m_countdown->update();
 		m_timeClock.restart();
-		//m_timer = "0.00";
 	}else {
 		updateText();
 	}
@@ -258,7 +254,6 @@ void Game::initText() {
 	m_text = new Text(30, Globals::fontManager.get("font_200"), 90.0f / 200.0f);
 	m_text->setPosition(WIDTH * 0.5f, HEIGHT - 60.0f);
 	m_text->setOrigin(100.0f, m_text->getSize()[1]);
-	//m_timer = "0.00";
 }
 
 void Game::updateText() {
@@ -281,7 +276,6 @@ void Game::initSprites() {
 }
 
 void Game::initWalls() {
-	//m_walls.push_back(Wall(Vector2f(0.0f, 0.0f), Vector2f(192.0f, 32.0f)));
 	m_walls.push_back(Wall(Vector2f(WIDTH / 2.0f, 855.0f) - Vector2f(WIDTH, 100.0f) * 0.5f, Vector2f(WIDTH, 100.0f)));
 	m_walls.push_back(Wall(Vector2f(800.0f, 772.0f)  - Vector2f(64.0f, 64.0f)  * 0.5f, Vector2f(64.0f, 64.0f)));
 	m_walls.push_back(Wall(Vector2f(640.0f, 660.0f)  - Vector2f(128.0f, 32.0f) * 0.5f, Vector2f(128.0f, 32.0f)));

@@ -177,12 +177,12 @@ void SeekerBar::render() {
 	
 	m_buttonLeft->render();
 	glUseProgram(m_shader->m_program);
-	m_shader->loadMatrix("projection", Globals::projection);
+	m_shader->loadMatrix("u_transform", Globals::projection);
 	glBindVertexArray(m_vao);
 	glDrawArrays(GL_QUADS, 0, 4 * m_blocks);
 	glBindVertexArray(0);
 	glUseProgram(0);
-	m_buttonRight->render();	
+	m_buttonRight->render();
 }
 
 void SeekerBar::setLeftFunction(std::function<void()> fun) {

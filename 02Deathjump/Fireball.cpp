@@ -1,5 +1,4 @@
 #include "Fireball.h"
-#include "Random.h"
 
 Fireball::Fireball(const float& dt, const float& fdt, float velocity, bool left) : Entity(dt, fdt), m_velocity(velocity) {
 	m_shaderArray = Globals::shaderManager.getAssetPointer("quad_array");
@@ -90,7 +89,6 @@ void Fireball::initCollider(Vector2f position) {
 	setOrigin(0.0f, -m_size[1]);
 }
 
-
 void Fireball::updateEmitter() {
 	if (!m_blowUp)
 		m_emitter->addParticles();
@@ -125,7 +123,6 @@ void Fireball::render(float deltaTime) {
 		m_quadBlow->render(*m_textureAtlas, true);
 		glUseProgram(0);
 	}
-
 
 	glUseProgram(m_light->getShader().m_program);
 	m_light->getShader().loadVector("u_color", Vector4f(0.75, 0.42, 0.28, 0.72));

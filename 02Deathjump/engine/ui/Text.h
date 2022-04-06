@@ -1,8 +1,9 @@
 #pragma once
 #include <memory>
-#include "Constants.h"
-#include "Shader.h"
-#include "CharacterSet.h"
+
+#include "../CharacterSet.h"
+#include "../Shader.h"
+#include "../../Constants.h"
 
 #define TEXT_VERTEX		"#version 330 core									\n \
 																			\n \

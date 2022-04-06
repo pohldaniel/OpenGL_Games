@@ -1,12 +1,12 @@
 #pragma once
 
 #include <windows.h>
-#include "Extension.h"
+#include "engine/Extension.h"
+#include "engine/sound/SoundDevice.h"
+
 #include "Constants.h"
 #include "StateMachine.h"
-
 #include "Transition.h"
-
 #include "Menu.h"
 #include "Pause.h"
 #include "Settings.h"

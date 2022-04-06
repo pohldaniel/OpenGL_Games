@@ -1,5 +1,5 @@
 #include "Wall.h"
-#include <iostream>
+
 Wall::Wall(Vector2f position, Vector2f size) {
 	initCollider(position, size);
 }
@@ -15,8 +15,6 @@ Collision Wall::getCollider() {
 void Wall::initCollider(const Vector2f& position, const Vector2f& size) {
 	m_collider.size = size;
 	m_collider.position = position;
-
-	//std::cout << "dd" << m_collider.position[0] << "  " << m_collider.position[1] << std::endl;
 }
 
 void Wall::render() {

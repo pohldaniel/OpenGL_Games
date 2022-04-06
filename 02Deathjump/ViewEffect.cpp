@@ -1,5 +1,4 @@
 #include "ViewEffect.h"
-#include "Random.h"
 
 ViewEffect ViewEffect::s_instance;
 
@@ -48,7 +47,6 @@ void ViewEffect::applayEffect() {
 		m_view.lookAt(Vector3f(0.0f, 0.0f, 1.0f), Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
 	}
 }
-
 
 void ViewEffect::init() {
 	m_view.lookAt(Vector3f(0.0f, 0.0f, 1.0f), Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));

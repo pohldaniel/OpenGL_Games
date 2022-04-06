@@ -1,15 +1,14 @@
 #ifndef __constantsH__
 #define __constantsH__
-#include "Vector.h"
-#include "AssetManger.h"
-#include "Texture.h"
-#include "Shader.h"
-#include "CharacterSet.h"
-#include "SoundDevice.h"
-#include "SoundBuffer.h"
-#include "MusicBuffer.h"
-#include "SoundEffectsPlayer.h"
-#include "Spritesheet.h"
+#include "engine\Vector.h"
+#include "engine\AssetManger.h"
+#include "engine\Texture.h"
+#include "engine\Shader.h"
+#include "engine\CharacterSet.h"
+#include "engine\sound\SoundBuffer.h"
+#include "engine\sound\MusicBuffer.h"
+#include "engine\sound\SoundEffectsPlayer.h"
+#include "engine\Spritesheet.h"
 
 #define DEBUGCOLLISION 0
 #define DEBUG 0

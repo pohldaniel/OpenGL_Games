@@ -1,5 +1,6 @@
 #pragma once
-#include "Vector.h"
+#include "engine/Vector.h"
+#include "engine/Random.h"
 
 class ViewEffect {
 public:
@@ -8,9 +9,9 @@ public:
 	const Matrix4f& getView();
 
 	void update(const float& dt);
-
 	void shake(const float& duration);
 	void init();
+
 private:
 	ViewEffect() { }
 	~ViewEffect() {}

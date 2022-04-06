@@ -1,5 +1,4 @@
 #include "Heart.h"
-#include "Random.h"
 
 Heart::Heart(const float& dt, const float& fdt) : Entity(dt, fdt){
 	m_shaderArray = Globals::shaderManager.getAssetPointer("quad_array");

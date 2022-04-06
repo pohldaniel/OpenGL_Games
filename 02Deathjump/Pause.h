@@ -1,12 +1,12 @@
 #pragma once
+#include "engine/Timer.h"
+#include "engine/AssetManger.h"
 
 #include "StateMachine.h"
-#include "AssetManger.h"
-
 #include "Transition.h"
 #include "Settings.h"
 #include "Button.h"
-#include "Timer.h"
+
 
 class Pause : public State {
 public:

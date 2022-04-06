@@ -5,11 +5,8 @@
 #include "stb\stb_image.h"
 
 #include "Constants.h"
-#include "Clock.h"
+#include "engine\Clock.h"
 #include "Application.h"
-#include "SoundEffectsPlayer.h"
-#include "SoundBuffer.h"
-#include "MusicBuffer.h"
 
 extern float Globals::offset = 0.0f;
 extern unsigned long Globals::CONTROLLS = 0;
