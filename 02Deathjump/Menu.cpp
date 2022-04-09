@@ -91,7 +91,7 @@ void Menu::initButtons() {
 }
 
 void Menu::initTextField() {
-	m_bestTime = TextField("BEST TIME: " + Text::floatToString(Globals::bestTime, 2));
+	m_bestTime = TextField("BEST TIME: " + Text::FloatToString(Globals::bestTime, 2));
 	m_bestTime.setPosition(Vector2f(WIDTH * 0.5, HEIGHT - 325.0f));
 	m_bestTime.setOrigin(m_bestTime.getSize() * 0.5f);
 	m_bestTime.setFillColor(Vector4f(224.0f / 255.0f, 165.0f / 255.0f, 0.0f, 70.0f / 255.0f));

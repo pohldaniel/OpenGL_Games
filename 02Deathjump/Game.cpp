@@ -257,7 +257,7 @@ void Game::initText() {
 }
 
 void Game::updateText() {
-	m_timer = Text::floatToString(m_timeClock.getElapsedTimeSec(), 2);
+	m_timer = Text::FloatToString(m_timeClock.getElapsedTimeSec(), 2);
 }
 
 void Game::initLights() {
