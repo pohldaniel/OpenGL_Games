@@ -20,8 +20,8 @@ public:
 		m_assetPointer[name] = new T(vertex, fragment);
 	}
 
-	void loadSpritesheet(const std::string& name, const std::string& path, unsigned short tileWidth, unsigned short tileHeight, unsigned int yStart, unsigned int xLength, unsigned int format = -1) {
-		m_assetPointer[name] = new T(path, tileWidth, tileHeight, true, true, yStart, xLength, format);
+	void loadSpritesheet(const std::string& name, const std::string& path, unsigned short tileWidth, unsigned short tileHeight, unsigned short spacing, unsigned int yStart, unsigned int xLength, unsigned int format = -1) {
+		m_assetPointer[name] = new T(path, tileWidth, tileHeight, spacing, true, true, yStart, xLength, format);
 	}
 
 	void loadSoundEffect(const std::string& name, const std::string& path) {
@@ -83,8 +83,8 @@ public:
 		m_assetPointer[name] = new T(vertex, fragment);
 	}
 
-	void loadSpritesheet(const std::string& name, const std::string& path, unsigned short tileWidth, unsigned short tileHeight, unsigned int yStart, unsigned int xLength, unsigned int format = -1) {
-		m_assetPointer[name] = new T(path, tileWidth, tileHeight, true, true, yStart, xLength, format);
+	void loadSpritesheet(const std::string& name, const std::string& path, unsigned short tileWidth, unsigned short tileHeight, unsigned short spacing, unsigned int yStart, unsigned int xLength, unsigned int format = -1) {
+		m_assetPointer[name] = new T(path, tileWidth, tileHeight, spacing, true, true, yStart, xLength, format);
 	}
 
 	void loadSoundEffect(const std::string& name, const std::string& path) {

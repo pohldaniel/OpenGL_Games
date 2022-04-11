@@ -310,19 +310,20 @@ void Application::loadAssets() {
 	AssetManagerStatic<Texture>::get().loadTexture("background", "res/textures/background.png");
 	Globals::textureManager.loadTexture("fireball", "res/textures/fireball.png");
 
-	Globals::spritesheetManager.loadSpritesheet("blow_up", "res/textures/explo.png", 512, 512, 0, 11);
-	Globals::spritesheetManager.loadSpritesheet("ghost", "res/textures/ghost.png", 64, 64, 0, 3);
-	Globals::spritesheetManager.loadSpritesheet("health_bar", "res/textures/health.png", 96, 32, 0, -1);
-	Globals::spritesheetManager.loadSpritesheet("heart", "res/textures/heart.png", 32, 32, 0, 3);
+	/*Globals::spritesheetManager.loadSpritesheet("blow_up", "res/textures/explo.png", 512, 512, 0, 0, 11);
+	Globals::spritesheetManager.loadSpritesheet("ghost", "res/textures/ghost.png", 64, 64, 0, 0, 3);
+	Globals::spritesheetManager.loadSpritesheet("health_bar", "res/textures/health.png", 96, 32, 0, 0, -1);
+	Globals::spritesheetManager.loadSpritesheet("heart", "res/textures/heart.png", 32, 32, 0, 0, 3);
 
-	Globals::spritesheetManager.loadSpritesheet("player_move", "res/textures/player.png", 96, 84, 3, 7, GL_SRGB8_ALPHA8);
-	Globals::spritesheetManager.loadSpritesheet("player_jump", "res/textures/player.png", 96, 84, 4, 1, GL_SRGB8_ALPHA8);
-	Globals::spritesheetManager.loadSpritesheet("player_fall", "res/textures/player.png", 96, 84, 6, 0, GL_SRGB8_ALPHA8);
-	Globals::spritesheetManager.loadSpritesheet("player_crouch", "res/textures/player.png", 96, 84, 9, 5, GL_SRGB8_ALPHA8);
-	Globals::spritesheetManager.loadSpritesheet("player_grap", "res/textures/player.png", 96, 84, 15, 0, GL_SRGB8_ALPHA8);
-	Globals::spritesheetManager.loadSpritesheet("player_takedamage", "res/textures/player.png", 96, 84, 17, 5, GL_SRGB8_ALPHA8);
-	Globals::spritesheetManager.loadSpritesheet("player_idle", "res/textures/player.png", 96, 84, 1, 6, GL_SRGB8_ALPHA8);
+	Globals::spritesheetManager.loadSpritesheet("player_move", "res/textures/player.png", 96, 84, 0, 3, 7, GL_SRGB8_ALPHA8);
+	Globals::spritesheetManager.loadSpritesheet("player_jump", "res/textures/player.png", 96, 84, 0, 4, 1, GL_SRGB8_ALPHA8);
+	Globals::spritesheetManager.loadSpritesheet("player_fall", "res/textures/player.png", 96, 84, 0, 6, 0, GL_SRGB8_ALPHA8);
+	Globals::spritesheetManager.loadSpritesheet("player_crouch", "res/textures/player.png", 96, 84, 0, 9, 5, GL_SRGB8_ALPHA8);
+	Globals::spritesheetManager.loadSpritesheet("player_grap", "res/textures/player.png", 96, 84, 0, 15, 0, GL_SRGB8_ALPHA8);
+	Globals::spritesheetManager.loadSpritesheet("player_takedamage", "res/textures/player.png", 96, 84, 0, 17, 5, GL_SRGB8_ALPHA8);
+	Globals::spritesheetManager.loadSpritesheet("player_idle", "res/textures/player.png", 96, 84, 0, 1, 6, GL_SRGB8_ALPHA8);*/
 
+	Globals::spritesheetManager.loadSpritesheet("base", "Resources/Textures/Tileset/base_tiles_spritesheet.png", 70, 70, 2, 0, -1);
 	//becarful with the uniforms some shader are used at multiple places
 	Globals::shaderManager.loadShader("fog", "res/shader/fog.vs", "res/shader/fog.fs");
 	Globals::shaderManager.loadShader("quad", "res/shader/quad.vs", "res/shader/quad.fs");
@@ -332,6 +333,8 @@ void Application::loadAssets() {
 	Globals::shaderManager.loadShader("light", "res/shader/light.vs", "res/shader/light.fs");
 	Globals::shaderManager.loadShader("transition", "res/shader/transition.vs", "res/shader/transition.fs");
 	Globals::shaderManager.loadShader("blur", "res/shader/blur.vs", "res/shader/blur.fs");
+
+	Globals::shaderManager.loadShader("level", "res/shader/level.vs", "res/shader/level.fs");
 
 	//to solve some blending issues just scaling down 
 	Globals::fontManager.loadCharacterSet("font_200", "res/fonts/upheavtt.ttf", 200.0f);

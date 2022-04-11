@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" width="30" height="40" tilewidth="70" tileheight="70">
+ <tileset firstgid="1" name="BaseTiles" tilewidth="70" tileheight="70" spacing="2">
+  <image source="../Textures/Tileset/base_tiles_spritesheet.png" width="936" height="936"/>
+ </tileset>
+ <tileset firstgid="170" name="Items" tilewidth="70" tileheight="70" spacing="2">
+  <image source="../Textures/Tileset/items_spritesheet.png" width="576" height="576"/>
+ </tileset>
+ <layer name="Background" width="30" height="40">
+  <data encoding="base64" compression="zlib">
+   eJzt1KENACAMRFH2FzAArIJhBCaiCagaUC1N/ksuQVScKE0J2KqkeZd4lCXFu8RFhI7Ab8bDTIRbxf/3N70LKOxEDBHuCwBb/US/AdhbB/IMog==
+  </data>
+ </layer>
+ <layer name="Platforms" width="30" height="40">
+  <data encoding="base64" compression="zlib">
+   eJzt1LENwCAMBVHXTJMF0lIwTZZKwZZAT2PLYAnuS9f6da4iUoPaPVxc3LvdFORadrObA9zSeyc9i93dw12/FOSKg2v5kR6udbi4uLgW91M2m/bG6FfmcYPotBrY8NAN
+  </data>
+ </layer>
+ <objectgroup name="Spawns" width="30" height="40">
+  <object name="Player" type="Player" x="700" y="2170" width="70" height="70"/>
+  <object name="GrassBlock" type="GrassBlock" x="980" y="1890" width="70" height="70">
+   <properties>
+    <property name="jumpHeight" value="10"/>
+   </properties>
+  </object>
+  <object name="GrassBlock" type="GrassBlock" x="1050" y="1400" width="70" height="70">
+   <properties>
+    <property name="jumpHeight" value="8"/>
+   </properties>
+  </object>
+  <object name="SnakeSlime" type="SnakeSlime" x="350" y="980" width="70" height="70"/>
+  <object name="SnakeSlime" type="SnakeSlime" x="420" y="980" width="70" height="70"/>
+  <object name="GrassBlock" type="GrassBlock" x="1120" y="630" width="70" height="70">
+   <properties>
+    <property name="jumpHeight" value="5"/>
+   </properties>
+  </object>
+  <object name="SnakeSlime" type="SnakeSlime" x="490" y="980" width="70" height="70"/>
+ </objectgroup>
+ <objectgroup name="Objects" width="30" height="40">
+  <object name="Gem" type="Gem" gid="204" x="1960" y="1330"/>
+  <object name="Exit" type="Exit" gid="65" x="140" y="1050"/>
+ </objectgroup>
+</map>

@@ -1,0 +1,425 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" width="40" height="40" tilewidth="70" tileheight="70">
+ <tileset firstgid="1" name="BaseTiles" tilewidth="70" tileheight="70" spacing="2">
+  <image source="../Textures/Tileset/base_tiles_spritesheet.png" width="936" height="936"/>
+ </tileset>
+ <tileset firstgid="170" name="Items" tilewidth="70" tileheight="70" spacing="2">
+  <image source="../Textures/Tileset/items_spritesheet.png" width="576" height="576"/>
+ </tileset>
+ <layer name="Background2" width="40" height="40">
+  <data encoding="base64" compression="zlib">
+   eJzt09ENgCAMhGGmczwdQAdwTHkkBIxIK4f5L+nr8aWkIcydc8Dgw1fzWcfDZ7knfPgsfK09+Oqde5xN2PekB1+5s/S3Sr40a5xD2HfXg29e3zLY9yZf+SwHHz4FX/6OUnr35x18ffmbz/NeW+4aHz58+Lx9F328SAM=
+  </data>
+ </layer>
+ <layer name="Background" width="40" height="40">
+  <data encoding="base64" compression="zlib">
+   eJzt0zEKwDAIBdDc/1jpllyqQ8lQl5BSKqTvLR8HQUFLgf0c2QO8ZOzRQg2r6qSecXtkcHdA1ELurGcPwG/1kE/7v+4FLv4I4O4E54cMdA==
+  </data>
+ </layer>
+ <layer name="Platforms" width="40" height="40">
+  <data encoding="base64" compression="zlib">
+   eJztl2EKgDAIRv3tabvU7hlRgow2Zmpzww+kElwvaeoKAJSFbYaSL/lafIexWfNZ5vRaC597fpXyIYu35mv5o+Qv+W593QckZObB18urNEbChyyOvi0Sn/Zdq/Px/y4iX8u/E5+2f0TIn4av7sHR+N78O/NJZ7w/+SxF9Q9AN/958rX8ybcPn6b+WZ/XRvd1FEs+nfG5D0Be/6Llb5ZG5+cI2p2vPm9rn635vJV8OvX4PPutpC+TnXTBqDY=
+  </data>
+ </layer>
+ <objectgroup name="Spawns" width="40" height="40">
+  <object name="Player" type="Player" x="350" y="2660" width="70" height="70"/>
+  <object name="GrassPlatform" type="GrassPlatform" x="560" y="2590" width="70" height="70">
+   <properties>
+    <property name="velocity" value="4.5"/>
+    <property name="waypoints" value="[{&quot;x&quot;:8,&quot;y&quot;:37},{&quot;x&quot;:34,&quot;y&quot;:37},{&quot;x&quot;:34,&quot;y&quot;:50}]"/>
+   </properties>
+  </object>
+  <object name="Barnacle" type="Barnacle" x="1190" y="2380" width="70" height="70"/>
+  <object name="Barnacle" type="Barnacle" x="910" y="2380" width="70" height="70"/>
+  <object name="Barnacle" type="Barnacle" x="1470" y="2380" width="70" height="70"/>
+  <object name="Barnacle" type="Barnacle" x="1750" y="2380" width="70" height="70"/>
+  <object name="Barnacle" type="Barnacle" x="2030" y="2380" width="70" height="70"/>
+  <object name="GrassPlatform" type="GrassPlatform" x="2380" y="2660" width="70" height="70">
+   <properties>
+    <property name="velocity" value="5"/>
+    <property name="waypoints" value="[{&quot;x&quot;:34,&quot;y&quot;:4}]"/>
+   </properties>
+  </object>
+  <object name="Barnacle" type="Barnacle" x="2380" y="2310" width="70" height="70">
+   <properties>
+    <property name="flipped" value="true"/>
+   </properties>
+  </object>
+  <object name="Barnacle" type="Barnacle" x="2240" y="2170" width="70" height="70">
+   <properties>
+    <property name="flipped" value="true"/>
+   </properties>
+  </object>
+  <object name="Barnacle" type="Barnacle" x="2520" y="2170" width="70" height="70">
+   <properties>
+    <property name="flipped" value="true"/>
+   </properties>
+  </object>
+  <object name="Barnacle" type="Barnacle" x="2310" y="1890" width="70" height="70">
+   <properties>
+    <property name="flipped" value="true"/>
+   </properties>
+  </object>
+  <object name="Barnacle" type="Barnacle" x="2450" y="1890" width="70" height="70">
+   <properties>
+    <property name="flipped" value="true"/>
+   </properties>
+  </object>
+  <object name="Barnacle" type="Barnacle" x="2380" y="1610" width="70" height="70">
+   <properties>
+    <property name="flipped" value="true"/>
+   </properties>
+  </object>
+  <object name="Barnacle" type="Barnacle" x="2240" y="1610" width="70" height="70">
+   <properties>
+    <property name="flipped" value="true"/>
+   </properties>
+  </object>
+  <object name="Barnacle" type="Barnacle" x="2520" y="1610" width="70" height="70">
+   <properties>
+    <property name="flipped" value="true"/>
+   </properties>
+  </object>
+  <object name="Barnacle" type="Barnacle" x="2450" y="1330" width="70" height="70">
+   <properties>
+    <property name="flipped" value="true"/>
+   </properties>
+  </object>
+  <object name="Barnacle" type="Barnacle" x="2310" y="1330" width="70" height="70">
+   <properties>
+    <property name="flipped" value="true"/>
+   </properties>
+  </object>
+  <object name="Barnacle" type="Barnacle" x="2240" y="1050" width="70" height="70">
+   <properties>
+    <property name="flipped" value="true"/>
+   </properties>
+  </object>
+  <object name="Slime" type="Slime" x="2100" y="280" width="70" height="70">
+   <properties>
+    <property name="jumpHeight" value="2"/>
+   </properties>
+  </object>
+  <object name="Slime" type="Slime" x="2030" y="263" width="70" height="70">
+   <properties>
+    <property name="jumpHeight" value="2"/>
+   </properties>
+  </object>
+  <object name="Slime" type="Slime" x="1960" y="245" width="70" height="70">
+   <properties>
+    <property name="jumpHeight" value="2"/>
+   </properties>
+  </object>
+  <object name="Slime" type="Slime" x="1890" y="228" width="70" height="70">
+   <properties>
+    <property name="jumpHeight" value="2"/>
+   </properties>
+  </object>
+  <object name="Slime" type="Slime" x="1680" y="210" width="70" height="70">
+   <properties>
+    <property name="jumpHeight" value="2"/>
+   </properties>
+  </object>
+  <object name="Slime" type="Slime" x="1400" y="280" width="70" height="70">
+   <properties>
+    <property name="jumpHeight" value="2"/>
+   </properties>
+  </object>
+  <object name="Slime" type="Slime" x="1330" y="280" width="70" height="70">
+   <properties>
+    <property name="jumpHeight" value="2"/>
+   </properties>
+  </object>
+  <object name="Slime" type="Slime" x="1190" y="210" width="70" height="70">
+   <properties>
+    <property name="jumpHeight" value="2"/>
+   </properties>
+  </object>
+  <object name="Slime" type="Slime" x="1120" y="210" width="70" height="70">
+   <properties>
+    <property name="jumpHeight" value="2"/>
+   </properties>
+  </object>
+  <object name="Slime" type="Slime" x="980" y="280" width="70" height="70">
+   <properties>
+    <property name="jumpHeight" value="2"/>
+   </properties>
+  </object>
+  <object name="Slime" type="Slime" x="910" y="280" width="70" height="70">
+   <properties>
+    <property name="jumpHeight" value="2"/>
+   </properties>
+  </object>
+  <object name="Slime" type="Slime" x="1610" y="140" width="70" height="70">
+   <properties>
+    <property name="jumpHeight" value="2"/>
+   </properties>
+  </object>
+  <object name="Barnacle" type="Barnacle" x="700" y="420" width="70" height="70"/>
+  <object name="Barnacle" type="Barnacle" x="630" y="420" width="70" height="70"/>
+  <object name="Barnacle" type="Barnacle" x="560" y="770" width="70" height="70"/>
+  <object name="Barnacle" type="Barnacle" x="770" y="770" width="70" height="70"/>
+  <object name="Barnacle" type="Barnacle" x="700" y="1120" width="70" height="70"/>
+  <object name="Barnacle" type="Barnacle" x="630" y="1120" width="70" height="70"/>
+  <object name="GrassBlock" type="GrassBlock" x="840" y="1820" width="70" height="70">
+   <properties>
+    <property name="jumpHeight" value="4"/>
+   </properties>
+  </object>
+  <object name="GrassBlock" type="GrassBlock" x="980" y="1540" width="70" height="70">
+   <properties>
+    <property name="jumpHeight" value="4"/>
+   </properties>
+  </object>
+  <object name="GrassBlock" type="GrassBlock" x="1120" y="1820" width="70" height="70">
+   <properties>
+    <property name="jumpHeight" value="4"/>
+   </properties>
+  </object>
+  <object name="GrassBlock" type="GrassBlock" x="1260" y="1540" width="70" height="70">
+   <properties>
+    <property name="jumpHeight" value="4"/>
+   </properties>
+  </object>
+  <object name="GrassBlock" type="GrassBlock" x="1400" y="1820" width="70" height="70">
+   <properties>
+    <property name="jumpHeight" value="4"/>
+   </properties>
+  </object>
+  <object name="GrassBlock" type="GrassBlock" x="1540" y="1540" width="70" height="70">
+   <properties>
+    <property name="jumpHeight" value="4"/>
+   </properties>
+  </object>
+  <object name="GrassBlock" type="GrassBlock" x="1890" y="1820" width="70" height="70">
+   <properties>
+    <property name="jumpHeight" value="16"/>
+   </properties>
+  </object>
+  <object name="GrassBlock" type="GrassBlock" x="2030" y="1820" width="70" height="70">
+   <properties>
+    <property name="jumpHeight" value="16"/>
+   </properties>
+  </object>
+  <object name="SnakeSlime" type="SnakeSlime" x="910" y="2660" width="70" height="70"/>
+  <object name="SnakeSlime" type="SnakeSlime" x="1190" y="2660" width="70" height="70"/>
+  <object name="SnakeSlime" type="SnakeSlime" x="1470" y="2660" width="70" height="70"/>
+  <object name="SnakeSlime" type="SnakeSlime" x="1750" y="2660" width="70" height="70"/>
+  <object name="SnakeSlime" type="SnakeSlime" x="2030" y="2660" width="70" height="70"/>
+  <object name="Barnacle" type="Barnacle" x="2520" y="70" width="70" height="70">
+   <properties>
+    <property name="flipped" value="true"/>
+   </properties>
+  </object>
+  <object name="Barnacle" type="Barnacle" x="2450" y="70" width="70" height="70">
+   <properties>
+    <property name="flipped" value="true"/>
+   </properties>
+  </object>
+  <object name="Barnacle" type="Barnacle" x="2380" y="70" width="70" height="70">
+   <properties>
+    <property name="flipped" value="true"/>
+   </properties>
+  </object>
+  <object name="Barnacle" type="Barnacle" x="2310" y="70" width="70" height="70">
+   <properties>
+    <property name="flipped" value="true"/>
+   </properties>
+  </object>
+  <object name="Barnacle" type="Barnacle" x="2240" y="70" width="70" height="70">
+   <properties>
+    <property name="flipped" value="true"/>
+   </properties>
+  </object>
+  <object name="Barnacle" type="Barnacle" x="2170" y="70" width="70" height="70">
+   <properties>
+    <property name="flipped" value="true"/>
+   </properties>
+  </object>
+  <object name="Barnacle" type="Barnacle" x="2100" y="70" width="70" height="70">
+   <properties>
+    <property name="flipped" value="true"/>
+   </properties>
+  </object>
+  <object name="Barnacle" type="Barnacle" x="2030" y="70" width="70" height="70">
+   <properties>
+    <property name="flipped" value="true"/>
+   </properties>
+  </object>
+  <object name="Barnacle" type="Barnacle" x="1960" y="70" width="70" height="70">
+   <properties>
+    <property name="flipped" value="true"/>
+   </properties>
+  </object>
+  <object name="Barnacle" type="Barnacle" x="1890" y="70" width="70" height="70">
+   <properties>
+    <property name="flipped" value="true"/>
+   </properties>
+  </object>
+  <object name="Barnacle" type="Barnacle" x="1820" y="70" width="70" height="70">
+   <properties>
+    <property name="flipped" value="true"/>
+   </properties>
+  </object>
+  <object name="Barnacle" type="Barnacle" x="1750" y="70" width="70" height="70">
+   <properties>
+    <property name="flipped" value="true"/>
+   </properties>
+  </object>
+  <object name="Barnacle" type="Barnacle" x="1680" y="70" width="70" height="70">
+   <properties>
+    <property name="flipped" value="true"/>
+   </properties>
+  </object>
+  <object name="Barnacle" type="Barnacle" x="1680" y="70" width="70" height="70">
+   <properties>
+    <property name="flipped" value="true"/>
+   </properties>
+  </object>
+  <object name="Barnacle" type="Barnacle" x="1610" y="70" width="70" height="70">
+   <properties>
+    <property name="flipped" value="true"/>
+   </properties>
+  </object>
+  <object name="Barnacle" type="Barnacle" x="1540" y="70" width="70" height="70">
+   <properties>
+    <property name="flipped" value="true"/>
+   </properties>
+  </object>
+  <object name="Barnacle" type="Barnacle" x="1470" y="70" width="70" height="70">
+   <properties>
+    <property name="flipped" value="true"/>
+   </properties>
+  </object>
+  <object name="Barnacle" type="Barnacle" x="1400" y="70" width="70" height="70">
+   <properties>
+    <property name="flipped" value="true"/>
+   </properties>
+  </object>
+  <object name="Barnacle" type="Barnacle" x="1330" y="70" width="70" height="70">
+   <properties>
+    <property name="flipped" value="true"/>
+   </properties>
+  </object>
+  <object name="Barnacle" type="Barnacle" x="1260" y="70" width="70" height="70">
+   <properties>
+    <property name="flipped" value="true"/>
+   </properties>
+  </object>
+  <object name="Barnacle" type="Barnacle" x="1190" y="70" width="70" height="70">
+   <properties>
+    <property name="flipped" value="true"/>
+   </properties>
+  </object>
+  <object name="Barnacle" type="Barnacle" x="1120" y="70" width="70" height="70">
+   <properties>
+    <property name="flipped" value="true"/>
+   </properties>
+  </object>
+  <object name="Barnacle" type="Barnacle" x="1050" y="70" width="70" height="70">
+   <properties>
+    <property name="flipped" value="true"/>
+   </properties>
+  </object>
+  <object name="Barnacle" type="Barnacle" x="980" y="70" width="70" height="70">
+   <properties>
+    <property name="flipped" value="true"/>
+   </properties>
+  </object>
+  <object name="Barnacle" type="Barnacle" x="910" y="70" width="70" height="70">
+   <properties>
+    <property name="flipped" value="true"/>
+   </properties>
+  </object>
+  <object name="Barnacle" type="Barnacle" x="840" y="70" width="70" height="70">
+   <properties>
+    <property name="flipped" value="true"/>
+   </properties>
+  </object>
+  <object name="Barnacle" type="Barnacle" x="770" y="70" width="70" height="70">
+   <properties>
+    <property name="flipped" value="true"/>
+   </properties>
+  </object>
+  <object name="Barnacle" type="Barnacle" x="700" y="70" width="70" height="70">
+   <properties>
+    <property name="flipped" value="true"/>
+   </properties>
+  </object>
+  <object name="Barnacle" type="Barnacle" x="700" y="70" width="70" height="70">
+   <properties>
+    <property name="flipped" value="true"/>
+   </properties>
+  </object>
+  <object name="Barnacle" type="Barnacle" x="630" y="70" width="70" height="70">
+   <properties>
+    <property name="flipped" value="true"/>
+   </properties>
+  </object>
+  <object name="Barnacle" type="Barnacle" x="560" y="70" width="70" height="70">
+   <properties>
+    <property name="flipped" value="true"/>
+   </properties>
+  </object>
+  <object name="GrassPlatform" type="GrassPlatform" x="700" y="350" width="70" height="70">
+   <properties>
+    <property name="velocity" value="6"/>
+    <property name="waypoints" value="[{&quot;x&quot;:10,&quot;y&quot;:5},{&quot;x&quot;:10,&quot;y&quot;:26}]"/>
+   </properties>
+  </object>
+  <object name="GrassBlock" type="GrassBlock" x="1750" y="1820" width="70" height="70">
+   <properties>
+    <property name="jumpHeight" value="4"/>
+   </properties>
+  </object>
+  <object name="Barnacle" type="Barnacle" x="2450" y="1330" width="70" height="70">
+   <properties>
+    <property name="flipped" value="true"/>
+   </properties>
+  </object>
+  <object name="Barnacle" type="Barnacle" x="2310" y="1050" width="70" height="70">
+   <properties>
+    <property name="flipped" value="true"/>
+   </properties>
+  </object>
+  <object name="Barnacle" type="Barnacle" x="2380" y="1050" width="70" height="70">
+   <properties>
+    <property name="flipped" value="true"/>
+   </properties>
+  </object>
+  <object name="Barnacle" type="Barnacle" x="2520" y="770" width="70" height="70">
+   <properties>
+    <property name="flipped" value="true"/>
+   </properties>
+  </object>
+  <object name="Barnacle" type="Barnacle" x="2450" y="770" width="70" height="70">
+   <properties>
+    <property name="flipped" value="true"/>
+   </properties>
+  </object>
+  <object name="Barnacle" type="Barnacle" x="2380" y="770" width="70" height="70">
+   <properties>
+    <property name="flipped" value="true"/>
+   </properties>
+  </object>
+  <object name="Barnacle" type="Barnacle" x="2240" y="490" width="70" height="70">
+   <properties>
+    <property name="flipped" value="true"/>
+   </properties>
+  </object>
+  <object name="Barnacle" type="Barnacle" x="2380" y="490" width="70" height="70">
+   <properties>
+    <property name="flipped" value="true"/>
+   </properties>
+  </object>
+  <object name="Barnacle" type="Barnacle" x="2520" y="490" width="70" height="70">
+   <properties>
+    <property name="flipped" value="true"/>
+   </properties>
+  </object>
+ </objectgroup>
+ <objectgroup name="Objects" width="40" height="40">
+  <object name="Exit" type="Exit" gid="65" x="1470" y="1470"/>
+  <object name="Gem" type="Gem" gid="204" x="2450" y="1470"/>
+ </objectgroup>
+</map>

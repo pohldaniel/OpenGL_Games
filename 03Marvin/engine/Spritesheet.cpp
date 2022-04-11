@@ -4,15 +4,15 @@
 
 #include "..\stb\stb_image.h"
 
-Spritesheet::Spritesheet(std::string pictureFile, unsigned short tileWidth, unsigned short tileHeight, bool reverse, bool flipVertical, int row, int maxColumn, unsigned int _format) {
+Spritesheet::Spritesheet(std::string pictureFile, unsigned short tileWidth, unsigned short tileHeight, unsigned short spacing, bool reverse, bool flipVertical, int row, int maxColumn, unsigned int _format) {
 	unsigned format = _format == -1 ? GL_RGBA8 : _format;
 
 	stbi_set_flip_vertically_on_load(flipVertical);
 	int width, height, numCompontents;
 	unsigned char* imageData = stbi_load(pictureFile.c_str(), &width, &height, &numCompontents, NULL);
 
-	m_tileCountX = width / tileWidth;
-	m_tileCountY = height / tileHeight;
+	m_tileCountX = width / (tileWidth + spacing);
+	m_tileCountY = height / (tileHeight + spacing);
 	m_totalFrames = maxColumn > -1 ? (maxColumn + 1) : m_tileCountX * m_tileCountY;
 
 	glGenTextures(1, &m_texture);
@@ -30,16 +30,17 @@ Spritesheet::Spritesheet(std::string pictureFile, unsigned short tileWidth, unsi
 			if (reverse) posY--; else posY++;
 			posX = 0;
 		}
-		unsigned char* subImage = (unsigned char*)malloc(tileWidth * numCompontents * tileHeight);
-		unsigned int subImageSize = tileWidth * numCompontents * tileHeight;
+		unsigned char* subImage = (unsigned char*)malloc((tileWidth ) * numCompontents * (tileHeight));
+		unsigned int subImageSize = (tileWidth ) * numCompontents * tileHeight;
 		unsigned int count = 0, row = 0;
-		unsigned int x = width * numCompontents * tileHeight * posY + posX * tileWidth * numCompontents;
+		unsigned int x = width * numCompontents * (tileHeight + spacing) * posY + width * numCompontents * spacing + posX * (tileWidth + spacing) * numCompontents;
 
 		while (count < subImageSize) {
 			if (count % (tileWidth * numCompontents) == 0 && count > 0) {
 				row = row + width * numCompontents;
-				x = row + width * numCompontents * tileHeight * posY + posX * tileWidth * numCompontents;
-			}
+				x = row + width * numCompontents * (tileHeight + spacing) * posY + width * numCompontents * spacing + posX * (tileWidth + spacing) * numCompontents;
+
+			}			
 			subImage[count] = imageData[x];
 			x++;
 			count++;

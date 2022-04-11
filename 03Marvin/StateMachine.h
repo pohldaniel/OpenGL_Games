@@ -6,7 +6,7 @@
 #include "engine/Shader.h"
 #include "engine/Quad.h"
 #include "Constants.h"
-
+#include "Level.h"
 
 enum CurrentState {
 	GAME,
@@ -44,6 +44,7 @@ private:
 	std::stack<State*> m_states;
 	Quad *m_quad;
 	Shader *m_shader;
+	Level* m_level;
 
 	unsigned int m_frameTexture;
 	unsigned int m_frameBuffer;

@@ -15,7 +15,7 @@
 
 #define PHYSICS_STEP 0.01f
 #define WIDTH 1600
-#define HEIGHT 900
+#define HEIGHT 1500
 
 namespace Globals{
 	enum Controlls {		

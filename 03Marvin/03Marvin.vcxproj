@@ -173,6 +173,7 @@
     <ClCompile Include="engine\Timer.cpp" />
     <ClCompile Include="engine\ui\Text.cpp" />
     <ClCompile Include="engine\Vector.cpp" />
+    <ClCompile Include="Level.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="StateMachine.cpp" />
   </ItemGroup>
@@ -200,6 +201,8 @@
     <ClInclude Include="engine\Timer.h" />
     <ClInclude Include="engine\ui\Text.h" />
     <ClInclude Include="engine\Vector.h" />
+    <ClInclude Include="Level.h" />
+    <ClInclude Include="nlohmann\json.hpp" />
     <ClInclude Include="StateMachine.h" />
     <ClInclude Include="stb\stb_image.h" />
   </ItemGroup>

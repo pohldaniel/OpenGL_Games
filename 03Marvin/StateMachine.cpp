@@ -1,8 +1,10 @@
 #include "StateMachine.h"
 
 StateMachine::StateMachine(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fdt){
-	m_quad = new Quad(false);
+	m_quad = new Quad(false, -1.0f, 1.0f, -1.0f, 1.0f);
 	m_shader = Globals::shaderManager.getAssetPointer("quad");
+	m_level = new Level();
+
 	glGenTextures(1, &m_frameTexture);
 	glBindTexture(GL_TEXTURE_2D, m_frameTexture);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -24,6 +26,8 @@ StateMachine::StateMachine(const float& dt, const float& fdt) : m_dt(dt), m_fdt(
 	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, WIDTH, HEIGHT);
 	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_rbDepthStencil);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	////////////////////////////////////////////////////////////////////////////////////
 }
 
 StateMachine::~StateMachine() {
@@ -75,18 +79,37 @@ void StateMachine::update() {
 
 void StateMachine::render() {
 		
-	if (!m_states.empty())
-		m_states.top()->render(m_frameBuffer);
+	//if (!m_states.empty())
+		//m_states.top()->render(m_frameBuffer);
+
+	glBindFramebuffer(GL_FRAMEBUFFER, m_frameBuffer);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+	m_level->render();
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-	
-	//maybe a second post process will be the better approach over combining transition ans shake in one shader
-	glEnable(GL_BLEND);
+	//glEnable(GL_BLEND);
 	glUseProgram(m_shader->m_program);
-	//m_shader->loadMatrix("u_transform", Globals::projection);
 	m_quad->render(m_frameTexture);
 	glUseProgram(0);
-	glDisable(GL_BLEND);
+	//glDisable(GL_BLEND);
+
+	/*glUseProgram(m_shaderArray->m_program);
+	//m_shaderArray->loadMatrix("u_transform", m_transform * Globals::projection);
+	m_shaderArray->loadInt("u_layer", 0);
+	m_quad->render(m_spriteSheet->getAtlas(), true);
+	glUseProgram(0);*/
+
+	/*glUseProgram(m_shaderArray->m_program);
+	m_shaderArray->loadMatrix("u_transform", Globals::projection);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D_ARRAY, m_spriteSheet->getAtlas());
+	glBindVertexArray(m_vao);
+	glDrawElements(GL_TRIANGLES, m_indexBuffer.size(), GL_UNSIGNED_INT, 0);
+	glBindVertexArray(0);
+	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);*/
+
 }
 
 void StateMachine::clearAndPush(State* state) {

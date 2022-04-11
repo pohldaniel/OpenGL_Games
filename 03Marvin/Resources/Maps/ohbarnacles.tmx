@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" width="30" height="40" tilewidth="70" tileheight="70">
+ <tileset firstgid="1" name="BaseTiles" tilewidth="70" tileheight="70" spacing="2">
+  <image source="../Textures/Tileset/base_tiles_spritesheet.png" width="936" height="936"/>
+ </tileset>
+ <tileset firstgid="170" name="Items" tilewidth="70" tileheight="70" spacing="2">
+  <image source="../Textures/Tileset/items_spritesheet.png" width="576" height="576"/>
+ </tileset>
+ <layer name="Background" width="30" height="40">
+  <data encoding="base64" compression="zlib">
+   eJxjYBgFo4D2oA+I+wfaEUMUjIbd0AazgXjOQDtiFJAERuNsZAK3gXYAATCaLokHo/UmZWA0/IY2GKplBT53j6bJUTAUgAoaFscihgvjU0vInJEGAJPlD/w=
+  </data>
+ </layer>
+ <layer name="Background2" width="30" height="40">
+  <data encoding="base64" compression="zlib">
+   eJzt06ENACAQA8DffycMIzARFgUIEiB/J1tT0wjIq94e8Ih2ewBwjD/Dv/wX/uW/jMpmNstXXUYdR7sG/w==
+  </data>
+ </layer>
+ <layer name="Platforms" width="30" height="40">
+  <data encoding="base64" compression="zlib">
+   eJztl0EKADEIAz33tf1UD/3lXqUsC3XVgCYQPA4xFOoWkQ1ytsglF8mdampHc9cx/8qTO0DcG0Vyv/JXzIvics85XO7Zxp0ArkUe/XqL3HdZ/hjd+9X5O+Ttxq3eb/X3G3EveAvJPW/LLC+QHzhmejU=
+  </data>
+ </layer>
+ <objectgroup name="Spawns" width="30" height="40">
+  <object name="Player" type="Player" x="140" y="2590" width="70" height="70"/>
+  <object name="SnakeSlime" type="SnakeSlime" x="350" y="2590" width="70" height="70"/>
+  <object name="SnakeSlime" type="SnakeSlime" x="420" y="2590" width="70" height="70"/>
+  <object name="SnakeSlime" type="SnakeSlime" x="490" y="2590" width="70" height="70"/>
+  <object name="SnakeSlime" type="SnakeSlime" x="700" y="2590" width="70" height="70"/>
+  <object name="SnakeSlime" type="SnakeSlime" x="840" y="2590" width="70" height="70"/>
+  <object name="SnakeSlime" type="SnakeSlime" x="770" y="2590" width="70" height="70"/>
+  <object name="Barnacle" type="Barnacle" x="770" y="1680" width="70" height="70"/>
+  <object name="Barnacle" type="Barnacle" x="630" y="1680" width="70" height="70"/>
+  <object name="Barnacle" type="Barnacle" x="630" y="1470" width="70" height="70">
+   <properties>
+    <property name="flipped" value="true"/>
+   </properties>
+  </object>
+  <object name="Barnacle" type="Barnacle" x="700" y="1470" width="70" height="70">
+   <properties>
+    <property name="flipped" value="true"/>
+   </properties>
+  </object>
+  <object name="Barnacle" type="Barnacle" x="770" y="1470" width="70" height="70">
+   <properties>
+    <property name="flipped" value="true"/>
+   </properties>
+  </object>
+  <object name="GrassPlatform" type="GrassPlatform" x="1190" y="1750" width="70" height="70">
+   <properties>
+    <property name="velocity" value="20"/>
+    <property name="waypoints" value="[{&quot;x&quot;:17,&quot;y&quot;:25},{&quot;x&quot;:14,&quot;y&quot;:25},{&quot;x&quot;:14,&quot;y&quot;:100}]"/>
+   </properties>
+  </object>
+  <object name="SnakeSlime" type="SnakeSlime" x="630" y="420" width="70" height="70"/>
+  <object name="SnakeSlime" type="SnakeSlime" x="770" y="420" width="70" height="70"/>
+ </objectgroup>
+ <objectgroup name="Objects" width="30" height="40">
+  <object name="Gem" type="Gem" gid="204" x="700" y="1750"/>
+  <object name="Exit" type="Exit" gid="65" x="700" y="1400"/>
+ </objectgroup>
+</map>

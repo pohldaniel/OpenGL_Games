@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" width="30" height="30" tilewidth="70" tileheight="70">
+ <tileset firstgid="1" name="Tiles" tilewidth="70" tileheight="70" spacing="2">
+  <image source="../Textures/Tileset/base_tiles_spritesheet.png" width="936" height="936"/>
+ </tileset>
+ <tileset firstgid="170" name="Items" tilewidth="70" tileheight="70" spacing="2">
+  <image source="../Textures/Tileset/items_spritesheet.png" width="576" height="576"/>
+ </tileset>
+ <layer name="Background" width="30" height="30">
+  <data encoding="base64" compression="zlib">
+   eJxjYBgFo2AUjIJRMApGLhAHYhUSMLJ6bACfehUCegc70MeCR+0dBaNgFIyCoQ0Auu8GHw==
+  </data>
+ </layer>
+ <layer name="Background2" width="30" height="30">
+  <data encoding="base64" compression="zlib">
+   eJxjYBgFo2DwgT4g7h/E5g03MBuI5wy0I0gAtI5PSsJjMKc1SuN5KKQTHTL17UWjiVFLirpLQOwGpUfBKBgFo2AUjILBBAAX4g5b
+  </data>
+ </layer>
+ <layer name="Tilemap" width="30" height="30">
+  <data encoding="base64" compression="zlib">
+   eJztzbENADAIA0HXTJulUrBlFqCIYgWat/QlXErKobqHi4uLi4v7w40HdxlVu73dRtWcf7hERPMdypUkWQ==
+  </data>
+ </layer>
+ <objectgroup name="Spawns" width="30" height="30">
+  <object name="Barnacle1" type="Barnacle" x="910" y="1050" width="70" height="70"/>
+  <object name="Barnacle2" type="Barnacle" x="980" y="1050" width="70" height="70"/>
+  <object name="Barnacle4" type="Barnacle" x="1400" y="1050" width="70" height="70"/>
+  <object name="Barnacle5" type="Barnacle" x="1470" y="1050" width="70" height="70"/>
+  <object name="Player" type="Player" x="140" y="1050" width="70" height="70"/>
+  <object name="BossSlime" type="BossSlime" x="560" y="1050" width="70" height="70">
+   <properties>
+    <property name="velocity" value="3"/>
+   </properties>
+  </object>
+ </objectgroup>
+ <objectgroup name="Objects" width="30" height="30">
+  <object name="Exit" type="Exit" gid="65" x="1820" y="1120"/>
+  <object name="Gem" type="Gem" gid="204" x="980" y="980"/>
+  <object type="Water" gid="111" x="1330" y="1190"/>
+  <object type="Water" gid="111" x="1260" y="1190"/>
+  <object type="Water" gid="111" x="1190" y="1190"/>
+  <object type="Water" gid="111" x="1120" y="1190"/>
+  <object type="Water" gid="111" x="1050" y="1190"/>
+ </objectgroup>
+</map>

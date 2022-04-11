@@ -1,0 +1,408 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" width="100" height="30" tilewidth="70" tileheight="70">
+ <tileset firstgid="1" name="Tiles" tilewidth="70" tileheight="70" spacing="2">
+  <image source="../Textures/Tileset/base_tiles_spritesheet.png" width="936" height="936"/>
+ </tileset>
+ <tileset firstgid="170" name="Items" tilewidth="70" tileheight="70" spacing="2">
+  <image source="../Textures/Tileset/items_spritesheet.png" width="576" height="576"/>
+ </tileset>
+ <layer name="Background" width="100" height="30">
+  <data encoding="base64" compression="zlib">
+   eJzt0V0KgCAQAGFv0QU8fMeM2BeR/gi0WZoPlhDEFqYU6V/Wh6M57MFiDzZbsNiDhdLj6/9T2IPFHiz2YLEHiz1Y7MFiDxZqj9rMbjn5tmo3R3foqD3o745iDxZ7sNiDhdhj1GRA2dsegbK3PQJlb3uELHv3e92ds7KH3rAHiz0kXdkAMnXE6Q==
+  </data>
+ </layer>
+ <layer name="Background2" width="100" height="30">
+  <data encoding="base64" compression="zlib">
+   eJzt2UsOwiAQgOGezuPhAepV3Nid7jyRNakJmVAeBaQD/5cQQlE6yIBNOk1AP8xarq2DyNTDHLSa13IrOJ7Z6r31dK11yRhix5Kfe4paeuQENQCNe7h07iNNrZyR66opN+1Y31ap4Z/5L+dQa05H76cpR85s1N+x1F5aGt8/Ru1zqTUj2vNWt3pW0PScoinWmL3mO8963wfIo2kvAGdw9/Qtjv7QGe4bb6/Pvi7Hl205RmpbXnf1++YAAAAAoI3fO2L7HbLrffIr0A59H0j1zc1L6yAAHBb635BtAGP5AFKzP/A=
+  </data>
+ </layer>
+ <layer name="Tilemap" width="100" height="30">
+  <data encoding="base64" compression="zlib">
+   eJztmVEKwzAIhvu8uw6yc+wce+gtxxiFVjQxJla7/T9IUNJo/Nqm0HVZljWBvRqjFJudz2tvWvvMz6BXY5Ris/NFCjzAQ1IUD8mPUCYeGmW6l3t0JybNAY9zRM/s2hzw8FdGHqXha5Sdx3P57utB4hl5tM5PDa+ZPGbcH1RSz6N5cPdJi4fkFyZm4UFr8vi+yspjW9/iF+Jz9Vt7x307W9bUvJek+NV4cCN9l0Tz0PRdiv8CD2vvbpXrNGuOPAdS3JOHVO+2vsWXeMw6b7X17HNb+i7FvZ+P2voWX+Ixgwl49Ps1HtZzg8uZlUcZNGkNGudq5OZzI31GqO2lrVXKT2Nc3pF4i8eZ5pU/el8j9UbW7ZU/el/gAR5edcxWdK/B46joXoPHUdG9Bo+jont9JR70PzL3X7nH5yy611fioamzx4eBxz8ZeMBgsJq9ARLj8zY=
+  </data>
+ </layer>
+ <objectgroup name="Spawns" width="100" height="30">
+  <object name="Player" type="Player" x="630" y="1050" width="70" height="70"/>
+  <object name="BossSlime" type="BossSlime" x="210" y="980" width="70" height="70">
+   <properties>
+    <property name="velocity" value="6.25"/>
+   </properties>
+  </object>
+  <object name="BossSlime" type="BossSlime" x="210" y="770" width="70" height="70">
+   <properties>
+    <property name="velocity" value="6.25"/>
+   </properties>
+  </object>
+  <object name="BossSlime" type="BossSlime" x="210" y="560" width="70" height="70">
+   <properties>
+    <property name="velocity" value="6.25"/>
+   </properties>
+  </object>
+  <object name="BossSlime" type="BossSlime" x="210" y="350" width="70" height="70">
+   <properties>
+    <property name="velocity" value="6.25"/>
+   </properties>
+  </object>
+  <object name="BossSlime" type="BossSlime" x="210" y="140" width="70" height="70">
+   <properties>
+    <property name="velocity" value="6.25"/>
+   </properties>
+  </object>
+  <object name="BossSlime" type="BossSlime" x="210" y="1190" width="70" height="70">
+   <properties>
+    <property name="velocity" value="6.25"/>
+   </properties>
+  </object>
+  <object name="BossSlime" type="BossSlime" x="210" y="1400" width="70" height="70">
+   <properties>
+    <property name="velocity" value="6.25"/>
+   </properties>
+  </object>
+  <object name="BossSlime" type="BossSlime" x="210" y="1610" width="70" height="70">
+   <properties>
+    <property name="velocity" value="6.25"/>
+   </properties>
+  </object>
+  <object name="BossSlime" type="BossSlime" x="210" y="1820" width="70" height="70">
+   <properties>
+    <property name="velocity" value="6.25"/>
+   </properties>
+  </object>
+  <object name="BossSlime" type="BossSlime" x="210" y="2030" width="70" height="70">
+   <properties>
+    <property name="velocity" value="6.25"/>
+   </properties>
+  </object>
+  <object name="GrassPlatform" type="GrassPlatform" x="3500" y="1610" width="70" height="70">
+   <properties>
+    <property name="velocity" value="10"/>
+    <property name="waypoints" value="[{&quot;x&quot;:50,&quot;y&quot;:14}]"/>
+   </properties>
+  </object>
+  <object name="Barnacle" type="Barnacle" x="2380" y="1610" width="70" height="70"/>
+  <object name="Barnacle" type="Barnacle" x="2520" y="1610" width="70" height="70"/>
+  <object name="Barnacle" type="Barnacle" x="2380" y="1400" width="70" height="70">
+   <properties>
+    <property name="flipped" value="true"/>
+   </properties>
+  </object>
+  <object name="Barnacle" type="Barnacle" x="2520" y="1400" width="70" height="70">
+   <properties>
+    <property name="flipped" value="true"/>
+   </properties>
+  </object>
+  <object name="Barnacle" type="Barnacle" x="3080" y="1610" width="70" height="70"/>
+  <object name="Barnacle" type="Barnacle" x="2940" y="1610" width="70" height="70"/>
+  <object name="Barnacle" type="Barnacle" x="2940" y="1400" width="70" height="70">
+   <properties>
+    <property name="flipped" value="true"/>
+   </properties>
+  </object>
+  <object name="Barnacle" type="Barnacle" x="3080" y="1400" width="70" height="70">
+   <properties>
+    <property name="flipped" value="true"/>
+   </properties>
+  </object>
+  <object name="Barnacle" type="Barnacle" x="3010" y="700" width="70" height="70">
+   <properties>
+    <property name="flipped" value="true"/>
+   </properties>
+  </object>
+  <object name="Barnacle" type="Barnacle" x="3150" y="910" width="70" height="70">
+   <properties>
+    <property name="flipped" value="true"/>
+   </properties>
+  </object>
+  <object name="SnakeSlime" type="SnakeSlime" x="4130" y="560" width="70" height="70"/>
+  <object name="Barnacle" type="Barnacle" x="4340" y="280" width="70" height="70">
+   <properties>
+    <property name="flipped" value="true"/>
+   </properties>
+  </object>
+  <object name="Barnacle" type="Barnacle" x="4480" y="210" width="70" height="70">
+   <properties>
+    <property name="flipped" value="true"/>
+   </properties>
+  </object>
+  <object name="Barnacle" type="Barnacle" x="4620" y="280" width="70" height="70">
+   <properties>
+    <property name="flipped" value="true"/>
+   </properties>
+  </object>
+  <object name="Barnacle" type="Barnacle" x="2800" y="280" width="70" height="70">
+   <properties>
+    <property name="flipped" value="true"/>
+   </properties>
+  </object>
+  <object name="Slime" type="Slime" x="3010" y="1890" width="70" height="70">
+   <properties>
+    <property name="jumpHeight" value="2.75"/>
+   </properties>
+  </object>
+  <object name="Slime" type="Slime" x="2730" y="1890" width="70" height="70">
+   <properties>
+    <property name="jumpHeight" value="2.75"/>
+   </properties>
+  </object>
+  <object name="Slime" type="Slime" x="2450" y="1890" width="70" height="70">
+   <properties>
+    <property name="jumpHeight" value="2.75"/>
+   </properties>
+  </object>
+  <object name="Barnacle" type="Barnacle" x="2660" y="280" width="70" height="70">
+   <properties>
+    <property name="flipped" value="true"/>
+   </properties>
+  </object>
+  <object name="Barnacle" type="Barnacle" x="2520" y="280" width="70" height="70">
+   <properties>
+    <property name="flipped" value="true"/>
+   </properties>
+  </object>
+  <object name="Barnacle" type="Barnacle" x="2380" y="280" width="70" height="70">
+   <properties>
+    <property name="flipped" value="true"/>
+   </properties>
+  </object>
+  <object name="Barnacle" type="Barnacle" x="2800" y="560" width="70" height="70"/>
+  <object name="SnakeSlime" type="SnakeSlime" x="2870" y="700" width="70" height="70"/>
+  <object name="Barnacle" type="Barnacle" x="1820" y="420" width="70" height="70"/>
+  <object name="Bee" type="Bee" x="4970" y="770" width="70" height="70">
+   <properties>
+    <property name="velocity" value="3"/>
+    <property name="waypoints" value="[{&quot;x&quot;:71, &quot;y&quot;:11},{&quot;x&quot;:73,&quot;y&quot;:11}]"/>
+   </properties>
+  </object>
+  <object name="Bee" type="Bee" x="5530" y="630" width="70" height="70">
+   <properties>
+    <property name="velocity" value="3"/>
+    <property name="waypoints" value="[{&quot;x&quot;:79, &quot;y&quot;:9},{&quot;x&quot;:77,&quot;y&quot;:9}]"/>
+   </properties>
+  </object>
+  <object name="Bee" type="Bee" x="5880" y="420" width="70" height="70">
+   <properties>
+    <property name="velocity" value="3"/>
+    <property name="waypoints" value="[{&quot;x&quot;:83, &quot;y&quot;:6},{&quot;x&quot;:85,&quot;y&quot;:6}]"/>
+   </properties>
+  </object>
+  <object name="Bee" type="Bee" x="6510" y="350" width="70" height="70">
+   <properties>
+    <property name="velocity" value="0"/>
+   </properties>
+  </object>
+  <object name="Bee" type="Bee" x="6790" y="350" width="70" height="70">
+   <properties>
+    <property name="velocity" value="0"/>
+   </properties>
+  </object>
+  <object name="Bee" type="Bee" x="6510" y="420" width="70" height="70">
+   <properties>
+    <property name="velocity" value="0"/>
+   </properties>
+  </object>
+  <object name="Bee" type="Bee" x="6790" y="420" width="70" height="70">
+   <properties>
+    <property name="velocity" value="0"/>
+   </properties>
+  </object>
+  <object name="Bee" type="Bee" x="6510" y="490" width="70" height="70">
+   <properties>
+    <property name="velocity" value="0"/>
+   </properties>
+  </object>
+  <object name="Bee" type="Bee" x="6580" y="490" width="70" height="70">
+   <properties>
+    <property name="velocity" value="0"/>
+   </properties>
+  </object>
+  <object name="Bee" type="Bee" x="6790" y="490" width="70" height="70">
+   <properties>
+    <property name="velocity" value="0"/>
+   </properties>
+  </object>
+  <object name="Bee" type="Bee" x="6720" y="840" width="70" height="70">
+   <properties>
+    <property name="velocity" value="0"/>
+   </properties>
+  </object>
+  <object name="Bee" type="Bee" x="6790" y="560" width="70" height="70">
+   <properties>
+    <property name="velocity" value="0"/>
+   </properties>
+  </object>
+  <object name="Bee" type="Bee" x="6510" y="560" width="70" height="70">
+   <properties>
+    <property name="velocity" value="0"/>
+   </properties>
+  </object>
+  <object name="Bee" type="Bee" x="6580" y="1190" width="70" height="70">
+   <properties>
+    <property name="velocity" value="0"/>
+   </properties>
+  </object>
+  <object name="Bee" type="Bee" x="6510" y="630" width="70" height="70">
+   <properties>
+    <property name="velocity" value="0"/>
+   </properties>
+  </object>
+  <object name="Bee" type="Bee" x="6790" y="630" width="70" height="70">
+   <properties>
+    <property name="velocity" value="0"/>
+   </properties>
+  </object>
+  <object name="Bee" type="Bee" x="6790" y="700" width="70" height="70">
+   <properties>
+    <property name="velocity" value="0"/>
+   </properties>
+  </object>
+  <object name="Bee" type="Bee" x="6510" y="700" width="70" height="70">
+   <properties>
+    <property name="velocity" value="0"/>
+   </properties>
+  </object>
+  <object name="Bee" type="Bee" x="6790" y="770" width="70" height="70">
+   <properties>
+    <property name="velocity" value="0"/>
+   </properties>
+  </object>
+  <object name="Bee" type="Bee" x="6510" y="770" width="70" height="70">
+   <properties>
+    <property name="velocity" value="0"/>
+   </properties>
+  </object>
+  <object name="Bee" type="Bee" x="6510" y="840" width="70" height="70">
+   <properties>
+    <property name="velocity" value="0"/>
+   </properties>
+  </object>
+  <object name="Bee" type="Bee" x="6790" y="840" width="70" height="70">
+   <properties>
+    <property name="velocity" value="0"/>
+   </properties>
+  </object>
+  <object name="Bee" type="Bee" x="6510" y="910" width="70" height="70">
+   <properties>
+    <property name="velocity" value="0"/>
+   </properties>
+  </object>
+  <object name="Bee" type="Bee" x="6510" y="1330" width="70" height="70">
+   <properties>
+    <property name="velocity" value="0"/>
+   </properties>
+  </object>
+  <object name="Bee" type="Bee" x="6790" y="980" width="70" height="70">
+   <properties>
+    <property name="velocity" value="0"/>
+   </properties>
+  </object>
+  <object name="Bee" type="Bee" x="6790" y="910" width="70" height="70">
+   <properties>
+    <property name="velocity" value="0"/>
+   </properties>
+  </object>
+  <object name="Bee" type="Bee" x="6510" y="980" width="70" height="70">
+   <properties>
+    <property name="velocity" value="0"/>
+   </properties>
+  </object>
+  <object name="Bee" type="Bee" x="6510" y="1120" width="70" height="70">
+   <properties>
+    <property name="velocity" value="0"/>
+   </properties>
+  </object>
+  <object name="Bee" type="Bee" x="6510" y="1050" width="70" height="70">
+   <properties>
+    <property name="velocity" value="0"/>
+   </properties>
+  </object>
+  <object name="Bee" type="Bee" x="6790" y="1120" width="70" height="70">
+   <properties>
+    <property name="velocity" value="0"/>
+   </properties>
+  </object>
+  <object name="Bee" type="Bee" x="6790" y="1190" width="70" height="70">
+   <properties>
+    <property name="velocity" value="0"/>
+   </properties>
+  </object>
+  <object name="Bee" type="Bee" x="6510" y="1190" width="70" height="70">
+   <properties>
+    <property name="velocity" value="0"/>
+   </properties>
+  </object>
+  <object name="Bee" type="Bee" x="6510" y="1260" width="70" height="70">
+   <properties>
+    <property name="velocity" value="0"/>
+   </properties>
+  </object>
+  <object name="Bee" type="Bee" x="6790" y="1260" width="70" height="70">
+   <properties>
+    <property name="velocity" value="0"/>
+   </properties>
+  </object>
+  <object name="Bee" type="Bee" x="6790" y="1330" width="70" height="70">
+   <properties>
+    <property name="velocity" value="0"/>
+   </properties>
+  </object>
+  <object name="Bee" type="Bee" x="6510" y="1400" width="70" height="70">
+   <properties>
+    <property name="velocity" value="0"/>
+   </properties>
+  </object>
+  <object name="Bee" type="Bee" x="6790" y="1400" width="70" height="70">
+   <properties>
+    <property name="velocity" value="0"/>
+   </properties>
+  </object>
+  <object name="Bee" type="Bee" x="6510" y="1470" width="70" height="70">
+   <properties>
+    <property name="velocity" value="0"/>
+   </properties>
+  </object>
+  <object name="Bee" type="Bee" x="6790" y="1470" width="70" height="70">
+   <properties>
+    <property name="velocity" value="0"/>
+   </properties>
+  </object>
+  <object name="Bee" type="Bee" x="6510" y="1540" width="70" height="70">
+   <properties>
+    <property name="velocity" value="0"/>
+   </properties>
+  </object>
+  <object name="Bee" type="Bee" x="6790" y="1540" width="70" height="70">
+   <properties>
+    <property name="velocity" value="0"/>
+   </properties>
+  </object>
+  <object name="Bee" type="Bee" x="6510" y="1610" width="70" height="70">
+   <properties>
+    <property name="velocity" value="0"/>
+   </properties>
+  </object>
+  <object name="Bee" type="Bee" x="6790" y="1610" width="70" height="70">
+   <properties>
+    <property name="velocity" value="0"/>
+   </properties>
+  </object>
+  <object name="Bee" type="Bee" x="6790" y="1680" width="70" height="70">
+   <properties>
+    <property name="velocity" value="0"/>
+   </properties>
+  </object>
+  <object name="Bee" type="Bee" x="6510" y="1680" width="70" height="70">
+   <properties>
+    <property name="velocity" value="0"/>
+   </properties>
+  </object>
+  <object name="Bee" type="Bee" x="6790" y="1050" width="70" height="70">
+   <properties>
+    <property name="velocity" value="0"/>
+   </properties>
+  </object>
+ </objectgroup>
+ <objectgroup name="Objects" width="100" height="30">
+  <object name="Exit" type="Exit" gid="65" x="6650" y="1750"/>
+  <object name="Gem" type="Gem" gid="204" x="2730" y="1540"/>
+ </objectgroup>
+</map>

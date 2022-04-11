@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" width="31" height="40" tilewidth="70" tileheight="70">
+ <tileset firstgid="1" name="BaseTiles" tilewidth="70" tileheight="70" spacing="2">
+  <image source="../Textures/Tileset/base_tiles_spritesheet.png" width="936" height="936"/>
+ </tileset>
+ <tileset firstgid="170" name="Items" tilewidth="70" tileheight="70" spacing="2">
+  <image source="../Textures/Tileset/items_spritesheet.png" width="576" height="576"/>
+ </tileset>
+ <layer name="Background" width="31" height="40">
+  <data encoding="base64" compression="zlib">
+   eJztkrENACAIBNl/EpZwN1sLjaAogn/Jd4RL4IkAsKUIZrjJbX51z2DDZHNr5ka74da5I/77V3f0rnm60fM47uhd83Sj5+s337kl3GvuHnDn/ffpwC3jdbdmrgIZfML9
+  </data>
+ </layer>
+ <layer name="Background2" width="31" height="40">
+  <data encoding="base64" compression="zlib">
+   eJxjYBgFxIDZQDyHDH19QNxPJ3eQ60ZqA7eBdgABoIlG4wLYwpOY+KR2nI+CUUAOIDadD1awaKAdMAqGBBhN56NgJIDRdD4KRho4jQWPglFATXAKSo+mtcEDbuFh38KjFht/IAEApPgZfA==
+  </data>
+ </layer>
+ <layer name="Platforms" width="31" height="40">
+  <data encoding="base64" compression="zlib">
+   eJzt1EsOgCAMBNAemUsRwi1dmbgQpx+ENnSSWdnkoVUrEVXQLih3Hpl3JeHOp73fHl2z2OXR1fbXnBd71LdntsqW3H9EG50rbXs87ftUG50rbXs87ftUG50rbXs87dvLu6ZN2no74jcW3dZmp83NH/+WiHYDnZkmtGf3An+dI5o=
+  </data>
+ </layer>
+ <objectgroup name="Spawns" width="31" height="40">
+  <object name="Player" type="Player" x="700" y="490" width="70" height="70"/>
+  <object name="GrassPlatformLarge" type="GrassPlatformLarge" x="1050" y="560" width="70" height="70">
+   <properties>
+    <property name="velocity" value="2.5"/>
+    <property name="waypoints" value="[{&quot;x&quot;:15,&quot;y&quot;:8},{&quot;x&quot;:15,&quot;y&quot;:37},{&quot;x&quot;:25,&quot;y&quot;:37},{&quot;x&quot;:25,&quot;y&quot;:8}]"/>
+   </properties>
+  </object>
+  <object name="Bee" type="Bee" x="1890" y="1330" width="70" height="70">
+   <properties>
+    <property name="steering" value="50"/>
+    <property name="velocity" value="20"/>
+   </properties>
+  </object>
+  <object name="Bee" type="Bee" x="140" y="70" width="70" height="70">
+   <properties>
+    <property name="steering" value="20"/>
+    <property name="velocity" value="10"/>
+   </properties>
+  </object>
+  <object name="Bee" type="Bee" x="2030" y="140" width="70" height="70">
+   <properties>
+    <property name="steering" value="12"/>
+    <property name="velocity" value="10"/>
+   </properties>
+  </object>
+  <object name="Bee" type="Bee" x="70" y="1400" width="70" height="70">
+   <properties>
+    <property name="steering" value="47"/>
+    <property name="velocity" value="18"/>
+   </properties>
+  </object>
+  <object name="Bee" type="Bee" x="1330" y="1050" width="70" height="70">
+   <properties>
+    <property name="velocity" value="3"/>
+    <property name="waypoints" value="[{&quot;x&quot;:11,&quot;y&quot;:15},{&quot;x&quot;:19,&quot;y&quot;:15}]"/>
+   </properties>
+  </object>
+  <object name="Bee" type="Bee" x="770" y="1750" width="70" height="70">
+   <properties>
+    <property name="velocity" value="5"/>
+    <property name="waypoints" value="[{&quot;x&quot;:11,&quot;y&quot;:25},{&quot;x&quot;:19,&quot;y&quot;:25}]"/>
+   </properties>
+  </object>
+  <object name="Bee" type="Bee" x="1750" y="560" width="70" height="70">
+   <properties>
+    <property name="velocity" value="3"/>
+    <property name="waypoints" value="[{&quot;x&quot;:21,&quot;y&quot;:8},{&quot;x&quot;:29,&quot;y&quot;:8}]"/>
+   </properties>
+  </object>
+  <object name="Slime" type="Slime" x="280" y="490" width="70" height="70">
+   <properties>
+    <property name="jumpHeight" value="0.25"/>
+   </properties>
+  </object>
+  <object name="Slime" type="Slime" x="280" y="910" width="70" height="70">
+   <properties>
+    <property name="jumpHeight" value="0.5"/>
+   </properties>
+  </object>
+  <object name="Slime" type="Slime" x="280" y="1750" width="70" height="70">
+   <properties>
+    <property name="jumpHeight" value="1"/>
+   </properties>
+  </object>
+  <object name="Slime" type="Slime" x="280" y="1330" width="70" height="70">
+   <properties>
+    <property name="jumpHeight" value="0.75"/>
+   </properties>
+  </object>
+ </objectgroup>
+ <objectgroup name="Objects" width="31" height="40">
+  <object name="Gem" type="Gem" gid="204" x="210" y="2520"/>
+  <object name="Exit" type="Exit" gid="65" x="1750" y="315"/>
+  <object type="Water" gid="150" x="770" y="2730"/>
+  <object type="Water" gid="150" x="840" y="2730"/>
+  <object type="Water" gid="150" x="910" y="2730"/>
+  <object type="Water" gid="150" x="980" y="2730"/>
+  <object type="Water" gid="150" x="1050" y="2730"/>
+  <object type="Water" gid="150" x="1120" y="2730"/>
+  <object type="Water" gid="150" x="1190" y="2730"/>
+  <object type="Water" gid="150" x="1260" y="2730"/>
+  <object type="Water" gid="150" x="1330" y="2730"/>
+  <object type="Water" gid="150" x="1400" y="2730"/>
+  <object type="Water" gid="150" x="1470" y="2730"/>
+  <object type="Water" gid="150" x="1540" y="2730"/>
+  <object type="Water" gid="150" x="1610" y="2730"/>
+  <object type="Water" gid="150" x="1680" y="2730"/>
+  <object type="Water" gid="150" x="1750" y="2730"/>
+  <object type="Water" gid="150" x="1820" y="2730"/>
+  <object type="Water" gid="150" x="1890" y="2730"/>
+  <object type="Water" gid="150" x="1960" y="2730"/>
+  <object type="Water" gid="150" x="2030" y="2730"/>
+ </objectgroup>
+</map>
