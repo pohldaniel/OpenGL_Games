@@ -335,7 +335,6 @@ void Application::loadAssets() {
 	Globals::shaderManager.loadShader("blur", "res/shader/blur.vs", "res/shader/blur.fs");
 
 	Globals::shaderManager.loadShader("level", "res/shader/level.vs", "res/shader/level.fs");
-
 	//to solve some blending issues just scaling down 
 	Globals::fontManager.loadCharacterSet("font_200", "res/fonts/upheavtt.ttf", 200.0f);
 

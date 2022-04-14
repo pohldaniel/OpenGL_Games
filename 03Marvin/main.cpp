@@ -29,6 +29,9 @@ extern AssetManager<Spritesheet> Globals::spritesheetManager = AssetManager<Spri
 extern float Globals::bestTime = 0.0f;
 extern float Globals::musicVolume = 0.1f;
 extern float Globals::soundVolume = 0.3f;
+
+extern b2World* Globals::world = NULL;
+
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd) {
 	
 	#if DEBUG
@@ -47,6 +50,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	float deltaTime = 0.0f;
 	float fixedDeltaTime = 0.0f;
 	double physicsElapsedTime = 0.0;
+
+	float gravityVal = -1 * ((2 * MAX_JUMP_HEIGHT) / powf(JUMP_APEX_TIME, 2.f));
+	b2Vec2 gravity(0.0f, gravityVal);
+	Globals::world = new b2World(gravity);
 
 	Application application(deltaTime, fixedDeltaTime);
 		

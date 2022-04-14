@@ -1,5 +1,7 @@
 #ifndef __constantsH__
 #define __constantsH__
+#include <Box2D\Box2D.h>
+
 #include "engine\Vector.h"
 #include "engine\AssetManger.h"
 #include "engine\Texture.h"
@@ -10,12 +12,15 @@
 #include "engine\sound\SoundEffectsPlayer.h"
 #include "engine\Spritesheet.h"
 
-#define DEBUGCOLLISION 0
+#define DEBUGCOLLISION 1
 #define DEBUG 1
 
 #define PHYSICS_STEP 0.01f
 #define WIDTH 1600
 #define HEIGHT 1500
+
+#define MAX_JUMP_HEIGHT	5.f
+#define JUMP_APEX_TIME	0.5f
 
 namespace Globals{
 	enum Controlls {		
@@ -58,6 +63,8 @@ namespace Globals{
 	extern float bestTime;
 	extern float musicVolume;
 	extern float soundVolume;
+
+	extern b2World * world;
 }
 
 #endif

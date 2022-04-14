@@ -88,7 +88,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\freetype\include;..\sndfile\include;..\OpenAL\include;..\OpenGL\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>box2d-2.4.1\src;box2d-2.4.1\include;..\freetype\include;..\sndfile\include;..\OpenAL\include;..\OpenGL\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -104,7 +104,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\freetype\include;..\sndfile\include;..\OpenAL\include;..\OpenGL\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>box2d-2.4.1\src;box2d-2.4.1\include;..\freetype\include;..\sndfile\include;..\OpenAL\include;..\OpenGL\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -122,7 +122,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\freetype\include;..\sndfile\include;..\OpenAL\include;..\OpenGL\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>box2d-2.4.1\src;box2d-2.4.1\include;..\freetype\include;..\sndfile\include;..\OpenAL\include;..\OpenGL\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -142,7 +142,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\freetype\include;..\sndfile\include;..\OpenAL\include;..\OpenGL\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>box2d-2.4.1\src;box2d-2.4.1\include;..\freetype\include;..\sndfile\include;..\OpenAL\include;..\OpenGL\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -155,6 +155,51 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Application.cpp" />
+    <ClCompile Include="box2d-2.4.1\src\collision\b2_broad_phase.cpp" />
+    <ClCompile Include="box2d-2.4.1\src\collision\b2_chain_shape.cpp" />
+    <ClCompile Include="box2d-2.4.1\src\collision\b2_circle_shape.cpp" />
+    <ClCompile Include="box2d-2.4.1\src\collision\b2_collide_circle.cpp" />
+    <ClCompile Include="box2d-2.4.1\src\collision\b2_collide_edge.cpp" />
+    <ClCompile Include="box2d-2.4.1\src\collision\b2_collide_polygon.cpp" />
+    <ClCompile Include="box2d-2.4.1\src\collision\b2_collision.cpp" />
+    <ClCompile Include="box2d-2.4.1\src\collision\b2_distance.cpp" />
+    <ClCompile Include="box2d-2.4.1\src\collision\b2_dynamic_tree.cpp" />
+    <ClCompile Include="box2d-2.4.1\src\collision\b2_edge_shape.cpp" />
+    <ClCompile Include="box2d-2.4.1\src\collision\b2_polygon_shape.cpp" />
+    <ClCompile Include="box2d-2.4.1\src\collision\b2_time_of_impact.cpp" />
+    <ClCompile Include="box2d-2.4.1\src\common\b2_block_allocator.cpp" />
+    <ClCompile Include="box2d-2.4.1\src\common\b2_draw.cpp" />
+    <ClCompile Include="box2d-2.4.1\src\common\b2_math.cpp" />
+    <ClCompile Include="box2d-2.4.1\src\common\b2_settings.cpp" />
+    <ClCompile Include="box2d-2.4.1\src\common\b2_stack_allocator.cpp" />
+    <ClCompile Include="box2d-2.4.1\src\common\b2_timer.cpp" />
+    <ClCompile Include="box2d-2.4.1\src\dynamics\b2_body.cpp" />
+    <ClCompile Include="box2d-2.4.1\src\dynamics\b2_chain_circle_contact.cpp" />
+    <ClCompile Include="box2d-2.4.1\src\dynamics\b2_chain_polygon_contact.cpp" />
+    <ClCompile Include="box2d-2.4.1\src\dynamics\b2_circle_contact.cpp" />
+    <ClCompile Include="box2d-2.4.1\src\dynamics\b2_contact.cpp" />
+    <ClCompile Include="box2d-2.4.1\src\dynamics\b2_contact_manager.cpp" />
+    <ClCompile Include="box2d-2.4.1\src\dynamics\b2_contact_solver.cpp" />
+    <ClCompile Include="box2d-2.4.1\src\dynamics\b2_distance_joint.cpp" />
+    <ClCompile Include="box2d-2.4.1\src\dynamics\b2_edge_circle_contact.cpp" />
+    <ClCompile Include="box2d-2.4.1\src\dynamics\b2_edge_polygon_contact.cpp" />
+    <ClCompile Include="box2d-2.4.1\src\dynamics\b2_fixture.cpp" />
+    <ClCompile Include="box2d-2.4.1\src\dynamics\b2_friction_joint.cpp" />
+    <ClCompile Include="box2d-2.4.1\src\dynamics\b2_gear_joint.cpp" />
+    <ClCompile Include="box2d-2.4.1\src\dynamics\b2_island.cpp" />
+    <ClCompile Include="box2d-2.4.1\src\dynamics\b2_joint.cpp" />
+    <ClCompile Include="box2d-2.4.1\src\dynamics\b2_motor_joint.cpp" />
+    <ClCompile Include="box2d-2.4.1\src\dynamics\b2_mouse_joint.cpp" />
+    <ClCompile Include="box2d-2.4.1\src\dynamics\b2_polygon_circle_contact.cpp" />
+    <ClCompile Include="box2d-2.4.1\src\dynamics\b2_polygon_contact.cpp" />
+    <ClCompile Include="box2d-2.4.1\src\dynamics\b2_prismatic_joint.cpp" />
+    <ClCompile Include="box2d-2.4.1\src\dynamics\b2_pulley_joint.cpp" />
+    <ClCompile Include="box2d-2.4.1\src\dynamics\b2_revolute_joint.cpp" />
+    <ClCompile Include="box2d-2.4.1\src\dynamics\b2_weld_joint.cpp" />
+    <ClCompile Include="box2d-2.4.1\src\dynamics\b2_wheel_joint.cpp" />
+    <ClCompile Include="box2d-2.4.1\src\dynamics\b2_world.cpp" />
+    <ClCompile Include="box2d-2.4.1\src\dynamics\b2_world_callbacks.cpp" />
+    <ClCompile Include="box2d-2.4.1\src\rope\b2_rope.cpp" />
     <ClCompile Include="engine\animation\Animator.cpp" />
     <ClCompile Include="engine\Batchrenderer.cpp" />
     <ClCompile Include="engine\CharacterSet.cpp" />
@@ -175,10 +220,20 @@
     <ClCompile Include="engine\Vector.cpp" />
     <ClCompile Include="Level.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Player.cpp" />
     <ClCompile Include="StateMachine.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h" />
+    <ClInclude Include="box2d-2.4.1\src\dynamics\b2_chain_circle_contact.h" />
+    <ClInclude Include="box2d-2.4.1\src\dynamics\b2_chain_polygon_contact.h" />
+    <ClInclude Include="box2d-2.4.1\src\dynamics\b2_circle_contact.h" />
+    <ClInclude Include="box2d-2.4.1\src\dynamics\b2_contact_solver.h" />
+    <ClInclude Include="box2d-2.4.1\src\dynamics\b2_edge_circle_contact.h" />
+    <ClInclude Include="box2d-2.4.1\src\dynamics\b2_edge_polygon_contact.h" />
+    <ClInclude Include="box2d-2.4.1\src\dynamics\b2_island.h" />
+    <ClInclude Include="box2d-2.4.1\src\dynamics\b2_polygon_circle_contact.h" />
+    <ClInclude Include="box2d-2.4.1\src\dynamics\b2_polygon_contact.h" />
     <ClInclude Include="Constants.h" />
     <ClInclude Include="engine\animation\Animator.h" />
     <ClInclude Include="engine\AssetManger.h" />
@@ -203,6 +258,7 @@
     <ClInclude Include="engine\Vector.h" />
     <ClInclude Include="Level.h" />
     <ClInclude Include="nlohmann\json.hpp" />
+    <ClInclude Include="Player.h" />
     <ClInclude Include="StateMachine.h" />
     <ClInclude Include="stb\stb_image.h" />
   </ItemGroup>
