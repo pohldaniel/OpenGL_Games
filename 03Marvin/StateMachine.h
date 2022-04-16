@@ -7,7 +7,7 @@
 #include "engine/Quad.h"
 #include "Constants.h"
 #include "Level.h"
-#include "Player.h"
+#include "CharacterController.h"
 
 enum CurrentState {
 	GAME,
@@ -46,8 +46,7 @@ private:
 	Quad *m_quad;
 	Shader *m_shader;
 	Level* m_level;
-	Player* m_player;
-
+	CharacterController* m_characterController;
 
 	unsigned int m_frameTexture;
 	unsigned int m_frameBuffer;

@@ -379,7 +379,7 @@ void Level::addTile(const Tile tile, std::vector<float>& vertices, std::vector<u
 
 void Level::render() {
 	
-	glUseProgram(m_shaderArray->m_program);
+	/*glUseProgram(m_shaderArray->m_program);
 	m_shaderArray->loadMatrix("u_transform", Globals::projection);
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D_ARRAY, m_spriteSheet->getAtlas());
@@ -387,7 +387,7 @@ void Level::render() {
 	glDrawElements(GL_TRIANGLES, m_indexBuffer.size(), GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
 	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
-	glUseProgram(0);
+	glUseProgram(0);*/
 
 
 	#if DEBUGCOLLISION

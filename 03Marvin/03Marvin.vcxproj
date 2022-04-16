@@ -220,7 +220,6 @@
     <ClCompile Include="engine\Vector.cpp" />
     <ClCompile Include="Level.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="Player.cpp" />
     <ClCompile Include="StateMachine.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -258,7 +257,6 @@
     <ClInclude Include="engine\Vector.h" />
     <ClInclude Include="Level.h" />
     <ClInclude Include="nlohmann\json.hpp" />
-    <ClInclude Include="Player.h" />
     <ClInclude Include="StateMachine.h" />
     <ClInclude Include="stb\stb_image.h" />
   </ItemGroup>

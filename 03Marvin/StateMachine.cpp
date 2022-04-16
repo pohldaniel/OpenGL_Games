@@ -5,8 +5,8 @@ StateMachine::StateMachine(const float& dt, const float& fdt) : m_dt(dt), m_fdt(
 	m_shader = Globals::shaderManager.getAssetPointer("quad");
 	m_level = new Level();
 
-	m_player = new Player();
-
+	m_characterController = new CharacterController(dt, fdt);
+	
 	glGenTextures(1, &m_frameTexture);
 	glBindTexture(GL_TEXTURE_2D, m_frameTexture);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -63,13 +63,18 @@ void StateMachine::addStateAtBottom(State* state) {
 }
 
 void StateMachine::fixedUpdate() {
+
+	m_characterController->fixedUpdate();
+
 	if (!m_states.empty())
 		m_states.top()->fixedUpdate();
 }
 
 void StateMachine::update() {
-
+	
 	Globals::world->Step(m_dt, 6, 2);
+
+	m_characterController->update();
 
 	if (!m_states.empty()) {
 		m_states.top()->update();
@@ -90,7 +95,7 @@ void StateMachine::render() {
 	glBindFramebuffer(GL_FRAMEBUFFER, m_frameBuffer);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	m_level->render();
-	m_player->render();
+	m_characterController->render();
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 
