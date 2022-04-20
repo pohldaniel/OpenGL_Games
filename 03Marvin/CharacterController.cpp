@@ -65,7 +65,7 @@ void CharacterController::render() {
 	b2Vec2 v4 = boxShape->m_vertices[3];
 
 	glBegin(GL_QUADS);
-	glColor3f(1, 1, 0);
+	glColor3f(1, 0, 0);
 
 	//left bottom corner
 	float xpos = position.x + v1.x;
@@ -83,7 +83,7 @@ void CharacterController::render() {
 	#endif
 }
 
-void CharacterController::fixedUpdate() {
+void CharacterController::update() {
 	
 }
 
@@ -238,12 +238,9 @@ void CharacterController::descendSlope(b2Vec2& velocity) {
 }
 
 ///////////////////////////////////////
-void CharacterController::update() {
-	
-
-	updateVelocity();
-	
-	move(m_dt * m_velocity);
+void CharacterController::fixedUpdate() {
+	updateVelocity();	
+	move(m_fdt * m_velocity);
 }
 
 void CharacterController::updateVelocity() {
@@ -251,10 +248,8 @@ void CharacterController::updateVelocity() {
 	if (collisions.above || collisions.below) {
 		m_velocity.y = 0.0f;
 	}else {
-		m_velocity.y -= m_gravity * m_dt;
+		m_velocity.y -= m_gravity * m_fdt;
 	}
-
-	
 
 	if (Globals::CONTROLLS & Globals::KEY_A || Globals::CONTROLLS & Globals::KEY_D) {
 		if (Globals::CONTROLLS & Globals::KEY_A) {

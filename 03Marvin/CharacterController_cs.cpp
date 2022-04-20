@@ -12,6 +12,9 @@ CharacterControllerCS::CharacterControllerCS(const float& dt, const float& fdt) 
 
 	b2PolygonShape boundingBox;
 	boundingBox.SetAsBox(15.0f, 15.0f);
+
+	//boundingBox.RayCast
+
 	b2FixtureDef playerFixture;
 	playerFixture.shape = &boundingBox;
 	playerFixture.friction = 0.0f;
@@ -83,7 +86,7 @@ void CharacterControllerCS::render() {
 #endif
 }
 
-void CharacterControllerCS::fixedUpdate() {
+void CharacterControllerCS::update() {
 
 }
 
@@ -165,8 +168,12 @@ b2Vec2 CharacterControllerCS::moveHorizontal(b2Vec2 position, b2Vec2 direction, 
 		currentDirection.Normalize();
 		currentPosition = distance > m_skinWidth ? currentPosition + (distance -  m_skinWidth) * currentDirection : currentPosition;
 
-		targetPosition = applyCollisionResponse ? collisionResponse(currentPosition, targetPosition, normal, 0, 0) : currentPosition;
+		targetPosition = applyCollisionResponse ? collisionResponse(currentPosition, targetPosition, normal, 0, 0.0) : currentPosition;
 		currentDirection = targetPosition - currentPosition;
+
+		if (currentDirection.LengthSquared() < 0.0001f) {
+			break;
+		}
 
 		position = currentPosition;
 		i++;
@@ -236,18 +243,24 @@ b2Vec2 CharacterControllerCS::moveVertical(b2Vec2 position, b2Vec2 direction, un
 			}			
 		}
 
-		//if (iterations == 0) {
-			if (currentDirection.y < 0.0f && !(collisions.flags & CollisionInfoCS::CollisionFlags::Bottom) && !(collisions.flags & CollisionInfoCS::CollisionFlags::SteepPoly)) {
-				collisions.flags |= CollisionInfoCS::CollisionFlags::Jumping;
-			}
-				
-		//}
+		/*if (collisions.applyCollisionResponse) {
+			collisions.applyCollisionResponse = false;
+			applyCollisionResponse = true;
+		}*/
 
+		if (currentDirection.y < 0.0f && !(collisions.flags & CollisionInfoCS::CollisionFlags::Bottom) && !(collisions.flags & CollisionInfoCS::CollisionFlags::SteepPoly)) {
+			collisions.flags |= CollisionInfoCS::CollisionFlags::Jumping;
+		}
+				
 		currentDirection.Normalize();
 		currentPosition = distance > m_skinWidth ? currentPosition + (distance - m_skinWidth) * currentDirection : currentPosition;
 
-		targetPosition = applyCollisionResponse ? collisionResponse(currentPosition, targetPosition, normal, 0, 0) : currentPosition;
+		targetPosition = applyCollisionResponse ? collisionResponse(currentPosition, targetPosition, normal, 0.0, 0.0) : currentPosition;
 		currentDirection = targetPosition - currentPosition;
+
+		if (currentDirection.LengthSquared() < 0.0001f){
+			break;
+		}
 
 		position = currentPosition;
 		iterations++;
@@ -278,16 +291,16 @@ void CharacterControllerCS::move(b2Vec2 velocity) {
 }
 
 ///////////////////////////////////////
-void CharacterControllerCS::update() {
+void CharacterControllerCS::fixedUpdate() {
 	updateVelocity();
 	collisions.reset();
 
-	move(m_dt * m_velocity);
+	move(m_fdt * m_velocity);
 }
 
 void CharacterControllerCS::updateVelocity() {
 
-	if (Globals::CONTROLLS & Globals::KEY_A || Globals::CONTROLLS & Globals::KEY_D) {
+	if ((Globals::CONTROLLS & Globals::KEY_A || Globals::CONTROLLS & Globals::KEY_D)) {
 		if (Globals::CONTROLLS & Globals::KEY_A) {
 			m_velocity.x = -m_movementSpeed;
 		}
@@ -305,7 +318,7 @@ void CharacterControllerCS::updateVelocity() {
 			collisions.flags &= ~CollisionInfoCS::CollisionFlags::SlightPoly;
 		}else {
 			if (collisions.slopeAngle > 45.0f) {
-				m_velocity.y = -(std::tanf(collisions.slopeAngle * PI_ON_180))* m_movementSpeed * 0.7f;				
+				m_velocity.y = -(std::tanf(collisions.slopeAngle * PI_ON_180))* m_movementSpeed;
 			}else {
 				m_velocity.y = -m_movementSpeed;
 			}	
@@ -317,14 +330,16 @@ void CharacterControllerCS::updateVelocity() {
 			if (collisions.wasJumping) {
 				m_velocity.y = 0.0f;
 			}
-			m_velocity.y -= m_gravity * m_dt;
+			m_velocity.y -= m_gravity * m_fdt;
 		}
 		m_velocity.x = 0.0f;
 	}else{	
-		if (collisions.wasSlight) {
-			m_velocity.y = 0.0f;
+		//no poly and the last hit was a slight poly means the raycasting misses the ground.
+		//to hold the line invert the velocity
+		if (collisions.wasSlight && !isGrounded()) {
+			m_velocity.x = -m_velocity.x;			
 		}
-
+		
 		if (isGrounded()) {
 			m_velocity.y = 0.0f;
 
@@ -333,7 +348,7 @@ void CharacterControllerCS::updateVelocity() {
 			}
 
 		}else {
-			m_velocity.y -= m_gravity * m_dt;
+			m_velocity.y -= m_gravity * m_fdt;
 		}
 	}
 }

@@ -1,6 +1,6 @@
 #pragma once
 #include <Box2D\Box2D.h>
-#include <cmath>
+#include <algorithm>
 #include "Constants.h"
 
 class RayCastClosestCallbackCS : public b2RayCastCallback {
@@ -65,16 +65,16 @@ struct CollisionInfoCS{
 		Jumping = 64,
 		DIR_FORCE_32BIT = 0x7FFFFFFF
 	};
-
+	
 	unsigned long flags;
 	float slopeAngle, slopeAngleOld;
 	bool wasSlight;
 	bool wasJumping;
+	bool applyCollisionResponse;
 	void reset() {	
-		//std::cout << "Reset: " << std::endl;
 		wasSlight = flags & CollisionFlags::SlightPoly;
 		wasJumping = flags & CollisionFlags::Jumping;
-
+		
 		slopeAngleOld = slopeAngle;
 		slopeAngle = 0.0f;
 
@@ -125,17 +125,15 @@ public:
 
 	const float m_jumpHeight = 10 * 30.0f;
 	const float m_timeToJumpApex = 0.5f;
-	const float m_movementSpeed = 200.0f;
-	const float m_maxClimbAngle = 30.0f;
+	const float m_movementSpeed = 300.0f;
+	const float m_maxClimbAngle = 80.0f;
 
 	float m_gravity = 0.0f;
 	float m_jumpVelocity = 0.0;
 
-	bool m_grounded = false;
-
 	float m_skinWidth = 0.1f;
-	int m_horizontalRayCount = 128;
-	int m_verticalRayCount = 128;
+	int m_horizontalRayCount = 64;
+	int m_verticalRayCount = 64;
 	float m_horizontalRaySpacing = 0.0f;
 	float m_verticalRaySpacing = 0.0f;
 
@@ -145,7 +143,6 @@ public:
 	RaycastOriginsCS raycastOrigins;
 	CollisionInfoCS collisions;
 	
-
 	inline int sgn(float x) {
 		if (x == 0)
 			return 0;

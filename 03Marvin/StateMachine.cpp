@@ -66,7 +66,7 @@ void StateMachine::addStateAtBottom(State* state) {
 void StateMachine::fixedUpdate() {
 
 	//m_characterController->fixedUpdate();
-
+	m_characterControllerCS->fixedUpdate();
 	if (!m_states.empty())
 		m_states.top()->fixedUpdate();
 }
@@ -75,8 +75,6 @@ void StateMachine::update() {
 	
 	Globals::world->Step(m_dt, 6, 2);
 
-	//m_characterController->update();
-	m_characterControllerCS->update();
 	if (!m_states.empty()) {
 		m_states.top()->update();
 		if (!m_states.top()->isRunning()) {

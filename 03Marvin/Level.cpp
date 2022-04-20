@@ -43,7 +43,7 @@ Level::Level(){
 
 	// Create block shape
 	b2PolygonShape slopShape;
-	slopShape.SetAsBox(200.0f, 150.0f);
+	slopShape.SetAsBox(200.0f, 170.0f);
 	// Create shape definition and add to body
 	b2FixtureDef slopShapeDef;
 	slopShapeDef.shape = &slopShape;

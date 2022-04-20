@@ -90,7 +90,7 @@ public:
 	b2Vec2 m_postionD;
 	b2Vec2 m_targetD;
 	
-	const float m_jumpHeight = 6 * 30.0f;
+	const float m_jumpHeight = 10 * 30.0f;
 	const float m_timeToJumpApex = 0.5f;
 	const float m_movementSpeed = 300.0f;
 	const float m_maxClimbAngle = 80.0f;
@@ -102,8 +102,8 @@ public:
 	bool m_grounded = false;
 
 	float m_skinWidth = 0.2f;
-	int m_horizontalRayCount = 2;
-	int m_verticalRayCount = 2;
+	int m_horizontalRayCount = 64;
+	int m_verticalRayCount = 64;
 	float m_horizontalRaySpacing = 0.0f;
 	float m_verticalRaySpacing = 0.0f;
 
