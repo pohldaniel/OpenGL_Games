@@ -6,7 +6,8 @@ StateMachine::StateMachine(const float& dt, const float& fdt) : m_dt(dt), m_fdt(
 	m_level = new Level();
 
 	m_characterController = new CharacterController(dt, fdt);
-	
+	m_characterControllerCS = new CharacterControllerCS(dt, fdt);
+
 	glGenTextures(1, &m_frameTexture);
 	glBindTexture(GL_TEXTURE_2D, m_frameTexture);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -64,7 +65,7 @@ void StateMachine::addStateAtBottom(State* state) {
 
 void StateMachine::fixedUpdate() {
 
-	m_characterController->fixedUpdate();
+	//m_characterController->fixedUpdate();
 
 	if (!m_states.empty())
 		m_states.top()->fixedUpdate();
@@ -74,8 +75,8 @@ void StateMachine::update() {
 	
 	Globals::world->Step(m_dt, 6, 2);
 
-	m_characterController->update();
-
+	//m_characterController->update();
+	m_characterControllerCS->update();
 	if (!m_states.empty()) {
 		m_states.top()->update();
 		if (!m_states.top()->isRunning()) {
@@ -95,7 +96,8 @@ void StateMachine::render() {
 	glBindFramebuffer(GL_FRAMEBUFFER, m_frameBuffer);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	m_level->render();
-	m_characterController->render();
+	//m_characterController->render();
+	m_characterControllerCS->render();
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 

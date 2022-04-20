@@ -53,6 +53,9 @@ public:
 
 	std::vector<b2ChainShape> m_chain;
 	std::vector<b2Body*> m_contours;
+	b2Body *slopeBody;
+	float slopeAngel = 20.0f;
+	b2Vec2 slopePosition = b2Vec2(500.0f, 500.0f);
 private:
 	Shader *m_shaderArray;
 	Spritesheet *m_spriteSheet;

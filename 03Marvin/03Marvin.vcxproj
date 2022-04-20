@@ -200,6 +200,8 @@
     <ClCompile Include="box2d-2.4.1\src\dynamics\b2_world.cpp" />
     <ClCompile Include="box2d-2.4.1\src\dynamics\b2_world_callbacks.cpp" />
     <ClCompile Include="box2d-2.4.1\src\rope\b2_rope.cpp" />
+    <ClCompile Include="CharacterController.cpp" />
+    <ClCompile Include="CharacterController_cs.cpp" />
     <ClCompile Include="engine\animation\Animator.cpp" />
     <ClCompile Include="engine\Batchrenderer.cpp" />
     <ClCompile Include="engine\CharacterSet.cpp" />
@@ -233,6 +235,8 @@
     <ClInclude Include="box2d-2.4.1\src\dynamics\b2_island.h" />
     <ClInclude Include="box2d-2.4.1\src\dynamics\b2_polygon_circle_contact.h" />
     <ClInclude Include="box2d-2.4.1\src\dynamics\b2_polygon_contact.h" />
+    <ClInclude Include="CharacterController.h" />
+    <ClInclude Include="CharacterController_cs.h" />
     <ClInclude Include="Constants.h" />
     <ClInclude Include="engine\animation\Animator.h" />
     <ClInclude Include="engine\AssetManger.h" />

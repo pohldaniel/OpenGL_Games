@@ -252,6 +252,12 @@
     <ClCompile Include="box2d-2.4.1\src\rope\b2_rope.cpp">
       <Filter>box2d\rope</Filter>
     </ClCompile>
+    <ClCompile Include="CharacterController.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CharacterController_cs.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stb\stb_image.h">
@@ -361,6 +367,12 @@
     </ClInclude>
     <ClInclude Include="box2d-2.4.1\src\dynamics\b2_polygon_contact.h">
       <Filter>box2d\dynamics</Filter>
+    </ClInclude>
+    <ClInclude Include="CharacterController.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CharacterController_cs.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

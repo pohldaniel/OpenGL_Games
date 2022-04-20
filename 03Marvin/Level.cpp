@@ -34,6 +34,24 @@ Level::Level(){
 		std::cout << std::endl;
 	}*/
 
+	b2BodyDef slopeBodyDef;
+	slopeBodyDef.type = b2_staticBody;   //b2_dynamicBody
+	slopeBodyDef.position.Set(slopePosition.x, slopePosition.y);
+	slopeBodyDef.angle = slopeAngel * PI / 180;
+	//blockBodyDef.userData = block;
+	slopeBody = Globals::world->CreateBody(&slopeBodyDef);
+
+	// Create block shape
+	b2PolygonShape slopShape;
+	slopShape.SetAsBox(200.0f, 150.0f);
+	// Create shape definition and add to body
+	b2FixtureDef slopShapeDef;
+	slopShapeDef.shape = &slopShape;
+	slopShapeDef.density = 10.0;
+	slopShapeDef.friction = 0.0;
+	slopShapeDef.restitution = 0.1f;
+	slopeBody->CreateFixture(&slopShapeDef);
+
 	short stride = 5, offset = 3;
 
 	glGenBuffers(1, &m_ibo);
@@ -416,5 +434,45 @@ void Level::render() {
 			}
 		}
 	}
+
+	Matrix4f rot;
+	rot.rotate(Vector3f(0.0f, 0.0f, 1.0f), slopeAngel);
+	rot.transpose();
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	glPushMatrix();
+	glTranslatef(slopePosition.x, slopePosition.y, 0.0);
+	glRotatef(slopeAngel, 0.0f, 0.0f, 1.0f); // rotate the robot on its y-axis
+	glTranslatef(-slopePosition.x, -slopePosition.y, 0.0);
+	//glTranslatef(xpos, ypos, 0.0f);
+	//glLoadMatrixf(&rot[0][0]);
+
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+	b2Vec2 position = slopeBody->GetPosition();
+	b2PolygonShape *boxShape = static_cast<b2PolygonShape*>(slopeBody->GetFixtureList()->GetShape());
+
+	b2Vec2 v1 = boxShape->m_vertices[0];
+	b2Vec2 v2 = boxShape->m_vertices[1];
+	b2Vec2 v3 = boxShape->m_vertices[2];
+	b2Vec2 v4 = boxShape->m_vertices[3];
+
+	glBegin(GL_QUADS);
+	glColor3f(1, 1, 0);
+
+	//left bottom corner
+	float xpos = position.x + v1.x;
+	float ypos = position.y + v1.y;
+	float w = v2.x - v1.x;
+	float h = v4.y - v1.y;
+
+	glVertex3f(xpos, ypos, 0.0f);
+	glVertex3f(xpos, (ypos + h), 0.0f);
+	glVertex3f(xpos + w, (ypos + h), 0.0f);
+	glVertex3f(xpos + w, ypos, 0.0f);
+	glEnd();
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	glPopMatrix();
+	glLoadIdentity();
 	#endif
 }
