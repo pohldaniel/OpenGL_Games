@@ -34,6 +34,13 @@ public:
 			m_body = fixture->GetBody();
 		}
 
+		if (index == 3) {
+			m_platform = true;
+			m_velocity = fixture->GetBody()->GetLinearVelocity();
+			m_position = fixture->GetBody()->GetPosition();
+			m_body = fixture->GetBody();
+		}
+
 		m_hit = true;
 		m_point = point;
 		m_normal = normal;
@@ -77,6 +84,7 @@ struct CollisionInfoCS{
 		SlightPoly = 32,
 		Jumping = 64,
 		Platform = 128,
+		Platform2 = 256,
 		DIR_FORCE_32BIT = 0x7FFFFFFF
 	};
 	
@@ -86,12 +94,15 @@ struct CollisionInfoCS{
 	bool wasJumping;
 	bool applyCollisionResponse;
 	bool wasPlatform;
+	bool wasSlope;
+	bool wasSteep;
 
 	void reset() {	
 		wasSlight = flags & CollisionFlags::SlightPoly;
 		wasJumping = flags & CollisionFlags::Jumping;
 		wasPlatform = flags & CollisionFlags::Platform;
-		
+		wasSlope = (flags & CollisionFlags::SlightPoly) | (flags & CollisionFlags::SteepPoly);
+		wasSteep = flags & CollisionFlags::SteepPoly;
 		slopeAngleOld = slopeAngle;
 		slopeAngle = 0.0f;
 
@@ -156,7 +167,7 @@ public:
 	const float m_jumpHeight = 10 * 30.0f;
 	const float m_timeToJumpApex = 0.5f;
 	const float m_movementSpeed = 300.0f;
-	const float m_maxClimbAngle = 60.0f;
+	const float m_maxClimbAngle = 45.0f;
 
 	float m_gravity = 0.0f;
 	float m_jumpVelocity = 0.0;
@@ -166,6 +177,8 @@ public:
 	int m_verticalRayCount = 32;
 	float m_horizontalRaySpacing = 0.0f;
 	float m_verticalRaySpacing = 0.0f;
+	bool _moveVertical = true;
+	float velocityParent = 0.0f;
 
 	const float& m_fdt;
 	const float& m_dt;
