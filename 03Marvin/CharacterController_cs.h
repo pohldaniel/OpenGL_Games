@@ -84,7 +84,8 @@ struct CollisionInfoCS{
 		SlightPoly = 32,
 		Jumping = 64,
 		Platform = 128,
-		Platform2 = 256,
+		PlatformTop = 256,
+		PlatformBottom= 512,
 		DIR_FORCE_32BIT = 0x7FFFFFFF
 	};
 	
@@ -96,6 +97,8 @@ struct CollisionInfoCS{
 	bool wasPlatform;
 	bool wasSlope;
 	bool wasSteep;
+	bool wasPlatformTop;
+	bool wasPlatformBottom;
 
 	void reset() {	
 		wasSlight = flags & CollisionFlags::SlightPoly;
@@ -103,7 +106,9 @@ struct CollisionInfoCS{
 		wasPlatform = flags & CollisionFlags::Platform;
 		wasSlope = (flags & CollisionFlags::SlightPoly) | (flags & CollisionFlags::SteepPoly);
 		wasSteep = flags & CollisionFlags::SteepPoly;
-		slopeAngleOld = slopeAngle;
+		wasSteep = flags & CollisionFlags::SteepPoly;
+		wasPlatformTop = flags & CollisionFlags::PlatformTop;
+		wasPlatformBottom = flags & CollisionFlags::PlatformBottom;
 		slopeAngle = 0.0f;
 
 		flags |= CollisionFlags::None;
@@ -115,6 +120,8 @@ struct CollisionInfoCS{
 		flags &= ~CollisionFlags::SlightPoly;
 		flags &= ~CollisionFlags::Jumping;
 		flags &= ~CollisionFlags::Platform;
+		flags &= ~CollisionFlags::PlatformTop;
+		flags &= ~CollisionFlags::PlatformBottom;
 	}
 
 	void printFlags() {
@@ -148,7 +155,7 @@ public:
 	void updateVelocity();
 	
 	b2Vec2 moveHorizontal(b2Vec2 position, b2Vec2 direction, unsigned int maxIterations);
-	b2Vec2 moveVertical(b2Vec2 position, b2Vec2 direction, unsigned int maxIterations);
+	b2Vec2 moveVertical(b2Vec2 position, b2Vec2 direction, unsigned int maxIterations, bool reverse = false);
 	b2Vec2 collisionResponse(b2Vec2 currentPosition, b2Vec2 initialTarget, b2Vec2 hitNormal, float friction, float bounciness);
 	void updateRaycastOrigins(b2Vec2 position);
 
@@ -172,13 +179,13 @@ public:
 	float m_gravity = 0.0f;
 	float m_jumpVelocity = 0.0;
 
-	float m_skinWidth = 0.1f;
+	float m_skinWidth = 0.4f;
 	int m_horizontalRayCount = 32;
 	int m_verticalRayCount = 32;
 	float m_horizontalRaySpacing = 0.0f;
 	float m_verticalRaySpacing = 0.0f;
 	bool _moveVertical = true;
-	float velocityParent = 0.0f;
+	float m_parentVelocity = 0.0f;
 
 	const float& m_fdt;
 	const float& m_dt;

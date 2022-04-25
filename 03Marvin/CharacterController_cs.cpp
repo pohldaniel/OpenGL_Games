@@ -142,7 +142,7 @@ b2Vec2 CharacterControllerCS::moveHorizontal(b2Vec2 position, b2Vec2 direction, 
 				float adjustedDistance = m_callback.m_fraction * distance;
 				if (adjustedDistance < distance) {
 					distance = adjustedDistance;
-					normal = m_callback.m_normal;
+					normal = m_callback.m_normal;					
 					hit = true;
 				}
 			}
@@ -190,7 +190,7 @@ b2Vec2 CharacterControllerCS::moveHorizontal(b2Vec2 position, b2Vec2 direction, 
 	return currentPosition;
 }
 
-b2Vec2 CharacterControllerCS::moveVertical(b2Vec2 position, b2Vec2 direction, unsigned int maxIterations) {
+b2Vec2 CharacterControllerCS::moveVertical(b2Vec2 position, b2Vec2 direction, unsigned int maxIterations, bool reverse) {
 
 	b2Vec2 currentPosition = position;
 	b2Vec2 currentDirection = direction;
@@ -223,7 +223,13 @@ b2Vec2 CharacterControllerCS::moveVertical(b2Vec2 position, b2Vec2 direction, un
 					distance = adjustedDistance;
 					normal = m_callback.m_normal;
 					m_parentBody = m_callback.m_body;
-					if (m_callback.m_platform) {;
+					if (m_callback.m_platform) {
+						float normalDotUp = b2Dot(m_callback.m_normal, b2Vec2(0.0f, 1.0f));
+						if (normalDotUp > 0.0) {
+							collisions.flags |= CollisionInfoCS::CollisionFlags::PlatformTop;
+						}else {
+							collisions.flags |= CollisionInfoCS::CollisionFlags::PlatformBottom;
+						}
 						collisions.flags |= CollisionInfoCS::CollisionFlags::Platform;
 						m_parentBody = m_callback.m_body;
 					}
@@ -234,10 +240,9 @@ b2Vec2 CharacterControllerCS::moveVertical(b2Vec2 position, b2Vec2 direction, un
 		
 		if (!hit) {;
 			if (!collisions.wasPlatform)
-				m_parentBody = nullptr;
-
+			m_parentBody = nullptr;
 			currentDirection.Normalize();
-			currentPosition = distance > m_skinWidth ? currentPosition + (distance - m_skinWidth) * currentDirection : currentPosition;
+			currentPosition = distance > m_skinWidth ? currentPosition + (distance - m_skinWidth) * currentDirection : currentPosition;			
 			break;	
 		}
 
@@ -274,9 +279,10 @@ b2Vec2 CharacterControllerCS::moveVertical(b2Vec2 position, b2Vec2 direction, un
 			collisions.flags |= CollisionInfoCS::CollisionFlags::Jumping;
 		}
 
+	
 		currentDirection.Normalize();
 		currentPosition = distance > m_skinWidth ? currentPosition + (distance - m_skinWidth) * currentDirection : currentPosition;
-
+		
 		targetPosition = applyCollisionResponse ? collisionResponse(currentPosition, targetPosition, normal, 0.0, 0.0) : currentPosition;
 		currentDirection = targetPosition - currentPosition;
 
@@ -284,10 +290,13 @@ b2Vec2 CharacterControllerCS::moveVertical(b2Vec2 position, b2Vec2 direction, un
 			break;
 		}
 		
+		
 		position = currentPosition;
+		
 		iterations++;
 	}
-	position = currentPosition;
+
+	position = currentPosition;	
 	return currentPosition;
 }
 
@@ -303,14 +312,19 @@ void CharacterControllerCS::updateRaycastOrigins(b2Vec2 position) {
 void CharacterControllerCS::move(b2Vec2 velocity) {
 	b2Vec2 vertVector = b2Dot(b2Vec2(0.0f, 1.0f), velocity) * b2Vec2(0.0f, 1.0f);
 	b2Vec2 sideVector = (velocity - vertVector);
+	
 
 	if (m_parentBody != NULL) {
+		
 		b2Vec2 positionHor = m_postion;
 		b2Vec2 positionVer = m_postion;
 		b2Vec2 position = m_postion;
+
 		//during the collision passes this pointer is maybe set to null
 		b2Vec2 _velocity = m_fdt * m_parentBody->GetLinearVelocity();
-
+		b2Vec2 _position = m_parentBody->GetPosition();
+		float posY = m_parentBody->GetFixtureList()->GetAABB(0).upperBound.y;
+		
 		//first get the collision flags from the platform
 		position = moveHorizontal(position, b2Vec2(sideVector.x + _velocity.x, 0.0f), 5);
 		position = moveVertical(position, b2Vec2(0.0f, _velocity.y + vertVector.y), 5);
@@ -320,38 +334,43 @@ void CharacterControllerCS::move(b2Vec2 velocity) {
 			if (((collisions.flags & CollisionInfoCS::CollisionFlags::Back) && sideVector.x > 0.0f) || ((collisions.flags & CollisionInfoCS::CollisionFlags::Front) && sideVector.x < 0.0f)) {
 				m_postion = positionHor;
 			}
-
-			//positionVer  = moveVertical(m_postion, vertVector, 5);
-			//if (((collisions.flags & CollisionInfoCS::CollisionFlags::Bottom) && vertVector.x > 0.0f) || ((collisions.flags & CollisionInfoCS::CollisionFlags::Top) && vertVector.x < 0.0f)) {
-			//	m_postion = positionVer;
-			//}
 			m_postion = moveVertical(m_postion, vertVector, 5);
-
 		}else {
 			if (sgn(_velocity.y) > 0.0f) {
-
-				moveVertical(b2Vec2(m_postion.x, m_postion.y + _velocity.y), b2Vec2(0.0f, -(_velocity.y + 10.0f)), 6);
-
+				moveVertical(b2Vec2(m_postion.x, m_postion.y + 5), b2Vec2(0.0f, -10.0f), 6);
+			
 				if (Globals::CONTROLLS & Globals::KEY_W) {
-					m_postion = moveVertical(m_postion, vertVector, 5);
+					m_postion = moveVertical(m_postion, vertVector, 5);					
 				}else if ((collisions.flags & CollisionInfoCS::CollisionFlags::Platform)) {
-					m_postion.y += _velocity.y;
+					m_postion.y += _velocity.y;	
+					m_postion.x += _velocity.x;
 				}
 				m_postion = moveHorizontal(m_postion, sideVector, 5);
-			}else {
-				m_postion.y += _velocity.y;
+			}else {	
+				
+				if (Globals::CONTROLLS & Globals::KEY_W) {
+					if (collisions.wasPlatformTop) {
+						m_postion = moveVertical(m_postion, vertVector, 5);
+					}/*else {					
+						m_postion.y += _velocity.y;
+					}*/
+					
+				}else {
+					moveVertical(b2Vec2(m_postion.x, m_postion.y + 5), b2Vec2(0.0f, -10.0f), 6);
+					if (collisions.wasPlatformTop) {
+						m_postion.y = 15.0f + posY;
+
+					}/*else {
+						m_postion.y += _velocity.y;
+					}*/
+				}
 				m_postion = moveHorizontal(m_postion, sideVector, 5);
-				m_postion = moveVertical(m_postion, vertVector, 5);
 				m_postion.x += _velocity.x;
-
-			}
-
-		}
+			}			
+		}		
 	}else {
-		
 		m_postion = moveHorizontal(m_postion, sideVector, 5);
 		m_postion = moveVertical(m_postion, vertVector, 5);
-
 	}
 	m_body->SetTransform(m_postion, 0.0f);
 }
@@ -359,15 +378,8 @@ void CharacterControllerCS::move(b2Vec2 velocity) {
 ///////////////////////////////////////
 void CharacterControllerCS::fixedUpdate() {
 	updateVelocity();
-	
-
 	collisions.reset();
-
 	move(m_fdt * m_velocity);
-
-	
-
-	//collisions.printFlags();
 }
 
 void CharacterControllerCS::updateVelocity() {
@@ -409,9 +421,7 @@ void CharacterControllerCS::updateVelocity() {
 
 		if (!(collisions.flags & CollisionInfoCS::CollisionFlags::Bottom))
 			m_velocity.x = 0.0f;
-
 	}else {
-		
 		if (isGrounded()) {
 			m_velocity.y = 0.0f;
 

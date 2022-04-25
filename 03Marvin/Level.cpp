@@ -1,6 +1,6 @@
 #include "Level.h"
 
-Level::Level(){
+Level::Level(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fdt) {
 	m_shaderArray = Globals::shaderManager.getAssetPointer("level");
 	m_spriteSheet = Globals::spritesheetManager.getAssetPointer("base");
 
@@ -35,7 +35,7 @@ Level::Level(){
 	}*/
 
 	b2BodyDef slopeBodyDef;
-	slopeBodyDef.type = b2_staticBody;   //b2_dynamicBody
+	slopeBodyDef.type = b2_staticBody; 
 	slopeBodyDef.position.Set(slopePosition.x, slopePosition.y);
 	slopeBodyDef.angle = slopeAngel * PI / 180;
 	//blockBodyDef.userData = block;
@@ -43,7 +43,7 @@ Level::Level(){
 
 	// Create block shape
 	b2PolygonShape slopShape;
-	slopShape.SetAsBox(200.0f, 170.0f);
+	slopShape.SetAsBox(200.0f, 50.0f);
 	// Create shape definition and add to body
 	b2FixtureDef slopShapeDef;
 	slopShapeDef.shape = &slopShape;
@@ -51,6 +51,66 @@ Level::Level(){
 	slopShapeDef.friction = 0.0;
 	slopShapeDef.restitution = 0.1f;
 	slopeBody->CreateFixture(&slopShapeDef);
+
+	b2BodyDef slopeBodyDef2;
+	slopeBodyDef2.type = b2_staticBody;
+	slopeBodyDef2.position.Set(slopePosition2.x, slopePosition2.y);
+	slopeBodyDef2.angle = (slopeAngel + 90.0f) * PI / 180;
+	//blockBodyDef.userData = block;
+	slopeBody2 = Globals::world->CreateBody(&slopeBodyDef2);
+
+	b2PolygonShape slopShape2;
+	slopShape2.SetAsBox(200.0f, 50.0f);
+	// Create shape definition and add to body
+	b2FixtureDef slopShapeDef2;
+	slopShapeDef2.shape = &slopShape2;
+	slopShapeDef2.density = 10.0;
+	slopShapeDef2.friction = 0.0;
+	slopShapeDef2.restitution = 0.1f;
+	slopeBody2->CreateFixture(&slopShapeDef2);
+
+
+	b2BodyDef platformBodyDef;
+	platformBodyDef.type = b2_kinematicBody;
+	platformBodyDef.position.Set(platformPosition.x, platformPosition.y);
+	platformBodyDef.angle = 0.0f * PI / 180;
+	//blockBodyDef.userData = block;
+	platformBody = Globals::world->CreateBody(&platformBodyDef);
+
+	// Create block shape
+	b2PolygonShape platformShape;
+	platformShape.SetAsBox(200.0f, 5.0f);
+	// Create shape definition and add to body
+	b2FixtureDef platformShapeDef;
+	platformShapeDef.shape = &platformShape;
+	platformShapeDef.density = 10.0;
+	platformShapeDef.friction = 0.0;
+	platformShapeDef.restitution = 0.1f;
+	platformShapeDef.userData.pointer = 2;
+	platformBody->CreateFixture(&platformShapeDef);
+
+	b2BodyDef platformBodyDef2;
+	platformBodyDef2.type = b2_kinematicBody;
+	platformBodyDef2.position.Set(platformPosition2.x, platformPosition2.y);
+	platformBodyDef2.angle = 0.0f * PI / 180;
+	//blockBodyDef.userData = block;
+	platformBody2 = Globals::world->CreateBody(&platformBodyDef2);
+
+	// Create block shape
+	b2PolygonShape platformShape2;
+	platformShape2.SetAsBox(50.0f, 5.0f);
+	// Create shape definition and add to body
+	b2FixtureDef platformShapeDef2;
+	platformShapeDef2.shape = &platformShape2;
+	platformShapeDef2.density = 10.0;
+	platformShapeDef2.friction = 0.0;
+	platformShapeDef2.restitution = 0.1f;
+	platformShapeDef2.userData.pointer = 3;
+	platformBody2->CreateFixture(&platformShapeDef2);
+
+
+	directionToFinish_ = (finishPosition_ - initialPosition_);
+	directionToFinish_.Normalize();
 
 	short stride = 5, offset = 3;
 
@@ -474,5 +534,182 @@ void Level::render() {
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	glPopMatrix();
 	glLoadIdentity();
+
+
+	
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	glPushMatrix();
+	glTranslatef(slopePosition2.x, slopePosition2.y, 0.0);
+	glRotatef(slopeAngel + 90.0f, 0.0f, 0.0f, 1.0f); // rotate the robot on its y-axis
+	glTranslatef(-slopePosition2.x, -slopePosition2.y, 0.0);
+	//glTranslatef(xpos, ypos, 0.0f);
+	//glLoadMatrixf(&rot[0][0]);
+
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+	b2Vec2 position2 = slopeBody2->GetPosition();
+	b2PolygonShape *boxShape2 = static_cast<b2PolygonShape*>(slopeBody2->GetFixtureList()->GetShape());
+
+	b2Vec2 v12 = boxShape2->m_vertices[0];
+	b2Vec2 v22 = boxShape2->m_vertices[1];
+	b2Vec2 v32 = boxShape2->m_vertices[2];
+	b2Vec2 v42 = boxShape2->m_vertices[3];
+
+	glBegin(GL_QUADS);
+	glColor3f(1, 1, 0);
+
+	//left bottom corner
+	float xpos2 = position2.x + v12.x;
+	float ypos2 = position2.y + v12.y;
+	float w2 = v22.x - v12.x;
+	float h2 = v42.y - v12.y;
+
+	glVertex3f(xpos2, ypos2, 0.0f);
+	glVertex3f(xpos2, (ypos2 + h2), 0.0f);
+	glVertex3f(xpos2 + w2, (ypos2 + h2), 0.0f);
+	glVertex3f(xpos2 + w2, ypos2, 0.0f);
+	glEnd();
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	glPopMatrix();
+	glLoadIdentity();
+
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	glPushMatrix();
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+	b2Vec2 position3 = platformBody->GetPosition();
+	b2PolygonShape *boxShape3 = static_cast<b2PolygonShape*>(platformBody->GetFixtureList()->GetShape());
+
+	b2Vec2 v13 = boxShape3->m_vertices[0];
+	b2Vec2 v23 = boxShape3->m_vertices[1];
+	b2Vec2 v33 = boxShape3->m_vertices[2];
+	b2Vec2 v43 = boxShape3->m_vertices[3];
+
+	glBegin(GL_QUADS);
+	glColor3f(1, 1, 1);
+
+	//left bottom corner
+	float xpos3 = position3.x + v13.x;
+	float ypos3 = position3.y + v13.y;
+	float w3 = v23.x - v13.x;
+	float h3 = v43.y - v13.y;
+
+	glVertex3f(xpos3, ypos3, 0.0f);
+	glVertex3f(xpos3, (ypos3 + h3), 0.0f);
+	glVertex3f(xpos3 + w3, (ypos3 + h3), 0.0f);
+	glVertex3f(xpos3 + w3, ypos3, 0.0f);
+	glEnd();
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	glPopMatrix();
+	glLoadIdentity();
+
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	glPushMatrix();
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+	b2Vec2 position4 = platformBody2->GetPosition();
+	b2PolygonShape *boxShape4 = static_cast<b2PolygonShape*>(platformBody2->GetFixtureList()->GetShape());
+
+	b2Vec2 v14 = boxShape4->m_vertices[0];
+	b2Vec2 v24 = boxShape4->m_vertices[1];
+	b2Vec2 v34 = boxShape4->m_vertices[2];
+	b2Vec2 v44 = boxShape4->m_vertices[3];
+
+	glBegin(GL_QUADS);
+	glColor3f(1, 1, 1);
+
+	//left bottom corner
+	float xpos4 = position4.x + v14.x;
+	float ypos4 = position4.y + v14.y;
+	float w4 = v24.x - v14.x;
+	float h4 = v44.y - v14.y;
+
+	glVertex3f(xpos4, ypos4, 0.0f);
+	glVertex3f(xpos4, (ypos4 + h4), 0.0f);
+	glVertex3f(xpos4 + w4, (ypos4 + h4), 0.0f);
+	glVertex3f(xpos4 + w4, ypos4, 0.0f);
+	glEnd();
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	glPopMatrix();
+	glLoadIdentity();
+
 	#endif
+}
+
+void Level::update() {
+	
+	
+	
+}
+
+void Level::fixedUpdate() {
+	float posX = platformBody->GetTransform().p.x;
+	if (right & posX > 300.0f) {
+		velX = -1.0f * m_speed;
+		right = false;
+	}
+
+	if (!right & posX < 50.0f) {
+		velX = 1.0f * m_speed;
+		right = true;
+	}
+
+	platformBody->SetLinearVelocity(b2Vec2(velX, 0.0f));
+
+
+	b2Vec2 platformPos = platformBody2->GetTransform().p;
+	b2Vec2 newPos = platformPos;
+
+	// move platform
+	if (platformState_ == PLATFORM_STATE_MOVETO_FINISH){
+		b2Vec2 curDistance = finishPosition_ - platformPos;
+		b2Vec2 curDirection = (1.0f / curDistance.Length()) * curDistance;
+
+		float dist = curDistance.Length();
+		float dotd = b2Dot(directionToFinish_, curDirection);
+
+		
+		if (dotd > 0.0f){
+			// slow down near the end
+			if (dist < 1.0f){
+				curLiftSpeed_ *= 0.01f;
+			}
+			curLiftSpeed_ = Clamp(curLiftSpeed_, minLiftSpeed_, maxLiftSpeed_);			
+			newPos +=   curLiftSpeed_ * curDirection;
+			platformBody2->SetLinearVelocity(m_speed2 * curLiftSpeed_ * curDirection);
+
+		}else {
+			newPos = finishPosition_;
+			curLiftSpeed_ = maxLiftSpeed_;
+			platformState_ = PLATFORM_STATE_MOVETO_START;
+			platformBody2->SetLinearVelocity(b2Vec2(0.0f, 0.0f));
+		}
+
+	}else if (platformState_ == PLATFORM_STATE_MOVETO_START){
+		b2Vec2 curDistance = initialPosition_ - platformPos;
+		b2Vec2 curDirection = (1.0f / curDistance.Length()) * curDistance;
+		float dist = curDistance.Length();
+		float dotd = b2Dot(directionToFinish_, curDirection);
+
+		if (dotd < 0.0f)
+		{
+			// slow down near the end
+			if (dist < 1.0f){				
+				curLiftSpeed_ *= 0.01f;
+			}
+			
+			curLiftSpeed_ = Clamp(curLiftSpeed_, minLiftSpeed_, maxLiftSpeed_);
+			newPos +=  curLiftSpeed_ * curDirection;
+
+			platformBody2->SetLinearVelocity(m_speed2 * curLiftSpeed_ * curDirection);
+		}else{
+			newPos = initialPosition_;
+			curLiftSpeed_ = maxLiftSpeed_;
+			platformState_ = PLATFORM_STATE_MOVETO_FINISH;
+			platformBody2->SetLinearVelocity(b2Vec2(0.0f, 0.0f));
+		}
+	}
 }
