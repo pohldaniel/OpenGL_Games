@@ -100,7 +100,7 @@ struct CollisionInfoCS{
 	bool wasSlight;
 	bool wasSteep;
 	bool wasJumping;
-	bool applyCollisionResponse;
+	bool applyCollisionResponse = true;
 	bool wasPlatform;
 	bool wasPlatformHor;
 	bool wasPlatformVer;
@@ -224,8 +224,9 @@ public:
 		NONE = 0,
 		PLATFORM_TO_SLIGHT_SLOPE = 1,
 		PLATFORM_TO_STEEP_SLOPE = 2,
-		SLIGHT_SLOPE_TO_PLATFORM = 4,
-		STEEP_SLOPE_TO_PLATFORM = 8,
+		PLATFORM_UP_TO_STEEP_SLOPE = 4,
+		SLIGHT_SLOPE_TO_PLATFORM = 8,
+		STEEP_SLOPE_TO_PLATFORM = 16,
 		DIR_FORCE_32BIT = 0x7FFFFFFF
 	};
 
@@ -242,6 +243,7 @@ public:
 		transitions |= CharacterTransition::NONE;
 		transitions &= ~CharacterTransition::PLATFORM_TO_SLIGHT_SLOPE;
 		transitions &= ~CharacterTransition::PLATFORM_TO_STEEP_SLOPE;
+		transitions &= ~CharacterTransition::PLATFORM_UP_TO_STEEP_SLOPE;
 		transitions &= ~CharacterTransition::SLIGHT_SLOPE_TO_PLATFORM;
 		transitions &= ~CharacterTransition::STEEP_SLOPE_TO_PLATFORM;
 	}
