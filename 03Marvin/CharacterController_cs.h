@@ -1,13 +1,19 @@
 #pragma once
 #include <Box2D\Box2D.h>
-#include <algorithm>
+#include <cmath>
 #include "Constants.h"
 
 class RayCastClosestCallbackCS : public b2RayCastCallback {
 
 public:
+	enum{
+		e_maxCount = 2
+	};
+
+
 	RayCastClosestCallbackCS() {
 		m_hit = false;
+		m_count = 0;
 	}
 
 	void reset() {
@@ -19,6 +25,7 @@ public:
 		m_platformHor = false;
 		m_platformVer = false;
 		//m_body = nullptr;
+		m_count = 0;
 	}
 
 	void resetBody() {
@@ -31,25 +38,40 @@ public:
 			return -1.0f;
 		}
 
-		if (index == 2) {
-			m_platformHor = true;
-			m_position = fixture->GetBody()->GetPosition();
-			m_body = fixture->GetBody();
-		}
-
+	
 		if (index == 3) {
 			m_platformVer = true;
 			m_position = fixture->GetBody()->GetPosition();
 			m_body = fixture->GetBody();
 		}
+		
+		
 
 		m_hit = true;
-
 		m_fraction = fraction;
 		m_normal = normal;
 		m_point = point;
 
+		/*m_points[m_count] = point;
+		m_normals[m_count] = normal;
+		m_fractions[m_count] = fraction;
+		m_count++;*/
+		
+
+		/*if (m_count == e_maxCount){			
+			//m_fraction = std::max(m_fractions[0], m_fractions[1]);
+			m_fraction = m_fractions[0] > m_fractions[1] ? m_fractions[0] : m_fractions[1];
+			m_normal = m_fractions[0] > m_fractions[1] ? m_normals[1] : m_normals[0];
+			return 0.0f;
+		}*/
+
+		
+
+		
+
 		return fraction;
+
+		//return 1.0f;
 	}
 
 	bool m_hit;
@@ -60,6 +82,10 @@ public:
 	bool m_platformHor;
 	bool m_platformVer;
 	b2Body* m_body = nullptr;
+	int32 m_count;
+	b2Vec2 m_points[e_maxCount];
+	b2Vec2 m_normals[e_maxCount];
+	float m_fractions[e_maxCount];
 };
 
 struct RaycastOriginsCS {
@@ -227,6 +253,7 @@ public:
 		PLATFORM_UP_TO_STEEP_SLOPE = 4,
 		SLIGHT_SLOPE_TO_PLATFORM = 8,
 		STEEP_SLOPE_TO_PLATFORM = 16,
+		JUMP_FROM_PLATFORM = 32,
 		DIR_FORCE_32BIT = 0x7FFFFFFF
 	};
 
@@ -246,6 +273,7 @@ public:
 		transitions &= ~CharacterTransition::PLATFORM_UP_TO_STEEP_SLOPE;
 		transitions &= ~CharacterTransition::SLIGHT_SLOPE_TO_PLATFORM;
 		transitions &= ~CharacterTransition::STEEP_SLOPE_TO_PLATFORM;
+		transitions &= ~CharacterTransition::JUMP_FROM_PLATFORM;
 	}
 
 	inline int sgn(float x) {
