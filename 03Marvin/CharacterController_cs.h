@@ -138,6 +138,7 @@ struct CollisionInfoCS{
 	unsigned short guardSlight = 0;
 	unsigned short guardSteep = 0;
 	unsigned short guardPlatform = 0;
+	unsigned short platformToSlight = 0;
 
 	short platformCount = 0;
 
@@ -147,6 +148,8 @@ struct CollisionInfoCS{
 		guardSlight = guardSlight ? guardSlight - 1 : 0;
 		guardSteep = guardSteep ? guardSteep - 1 : 0;
 		guardPlatform = guardPlatform ? guardPlatform - 1 : 0;
+
+		platformToSlight = platformToSlight ? platformToSlight - 1 : 0;
 
 		wasJumping = flags & CollisionFlags::Jumping;
 		wasSlope = (flags & CollisionFlags::SlightPoly) | (flags & CollisionFlags::SteepPoly);
@@ -231,7 +234,7 @@ public:
 	float m_gravity = 0.0f;
 	float m_jumpVelocity = 0.0;
 
-	float m_skinWidth = 0.1f;
+	float m_skinWidth = 0.23f;
 	int m_horizontalRayCount = 32;
 	int m_verticalRayCount = 32;
 	float m_horizontalRaySpacing = 0.0f;
