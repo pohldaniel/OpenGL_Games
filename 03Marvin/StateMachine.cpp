@@ -1,9 +1,11 @@
 #include "StateMachine.h"
 
-StateMachine::StateMachine(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fdt){
+StateMachine::StateMachine(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fdt), m_collisionHandler(CollisionHandler(*Globals::world)) {
 	m_quad = new Quad(false, -1.0f, 1.0f, -1.0f, 1.0f);
 	m_shader = Globals::shaderManager.getAssetPointer("quad");
-	m_level = new Level();
+	m_level = new Level(dt, fdt);
+
+	Globals::world->SetContactListener(&m_collisionHandler);
 
 	m_characterController = new CharacterController(dt, fdt);
 	m_characterControllerCS = new CharacterControllerCS(dt, fdt);
@@ -66,15 +68,21 @@ void StateMachine::addStateAtBottom(State* state) {
 void StateMachine::fixedUpdate() {
 
 	//m_characterController->fixedUpdate();
+	m_level->fixedUpdate();
+	Globals::world->Step(m_fdt, 6, 2);
 	m_characterControllerCS->fixedUpdate();
+	
+	
+
 	if (!m_states.empty())
 		m_states.top()->fixedUpdate();
 }
 
 void StateMachine::update() {
 	
-	Globals::world->Step(m_dt, 6, 2);
-
+	
+	
+	//m_level->update();
 	if (!m_states.empty()) {
 		m_states.top()->update();
 		if (!m_states.top()->isRunning()) {

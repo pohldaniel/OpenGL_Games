@@ -54,6 +54,8 @@ private:
 	unsigned int m_frameBuffer;
 	unsigned int m_rbDepthStencil;
 	bool m_isRunning = true;
+
+	CollisionHandler m_collisionHandler;
 };
 
 class State {

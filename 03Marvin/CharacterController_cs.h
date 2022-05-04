@@ -1,15 +1,16 @@
 #pragma once
 #include <Box2D\Box2D.h>
 #include <cmath>
+#include <vector>
+#include <iterator>
 #include "Constants.h"
+
+#define SHAPE_BOX 1
+#define SHAPE_CIRCLE 0
 
 class RayCastClosestCallbackCS : public b2RayCastCallback {
 
 public:
-	enum{
-		e_maxCount = 2
-	};
-
 
 	RayCastClosestCallbackCS() {
 		m_hit = false;
@@ -38,40 +39,19 @@ public:
 			return -1.0f;
 		}
 
-	
+
 		if (index == 3) {
 			m_platformVer = true;
 			m_position = fixture->GetBody()->GetPosition();
 			m_body = fixture->GetBody();
 		}
-		
-		
 
 		m_hit = true;
 		m_fraction = fraction;
 		m_normal = normal;
 		m_point = point;
 
-		/*m_points[m_count] = point;
-		m_normals[m_count] = normal;
-		m_fractions[m_count] = fraction;
-		m_count++;*/
-		
-
-		/*if (m_count == e_maxCount){			
-			//m_fraction = std::max(m_fractions[0], m_fractions[1]);
-			m_fraction = m_fractions[0] > m_fractions[1] ? m_fractions[0] : m_fractions[1];
-			m_normal = m_fractions[0] > m_fractions[1] ? m_normals[1] : m_normals[0];
-			return 0.0f;
-		}*/
-
-		
-
-		
-
 		return fraction;
-
-		//return 1.0f;
 	}
 
 	bool m_hit;
@@ -83,9 +63,6 @@ public:
 	bool m_platformVer;
 	b2Body* m_body = nullptr;
 	int32 m_count;
-	b2Vec2 m_points[e_maxCount];
-	b2Vec2 m_normals[e_maxCount];
-	float m_fractions[e_maxCount];
 };
 
 struct RaycastOriginsCS {
@@ -103,7 +80,7 @@ struct CastResultCS {
 	}
 };
 
-struct CollisionInfoCS{
+struct CollisionInfoCS {
 	enum CollisionFlags {
 		None = 0,
 		Front = 1,
@@ -112,53 +89,29 @@ struct CollisionInfoCS{
 		Top = 8,
 		SteepPoly = 16,
 		SlightPoly = 32,
-		Jumping = 64,
-		PlatformHor = 128,
-		PlatformVer = 256,
-		PlatformTop = 512,
-		PlatformBottom= 1024,
+		Platform = 64,
+		PlatformTop = 128,
+		PlatformBottom = 512,
 		DIR_FORCE_32BIT = 0x7FFFFFFF
 	};
-	
+
 	unsigned long flags;
-	float slopeAngle, slopeAngleOld;
+	float slopeAngle;
 
 	bool wasSlight;
 	bool wasSteep;
-	bool wasJumping;
-	bool applyCollisionResponse = true;
-	bool wasPlatform;
-	bool wasPlatformHor;
-	bool wasPlatformVer;
 	bool wasSlope;
-	bool wasPlatformTop;
-	bool wasPlatformBottom;
-	bool moveUp;
 
-	unsigned short guardSlight = 0;
-	unsigned short guardSteep = 0;
 	unsigned short guardPlatform = 0;
 	unsigned short platformToSlight = 0;
 
-	short platformCount = 0;
-
-	void reset() {	
-		
-
-		guardSlight = guardSlight ? guardSlight - 1 : 0;
-		guardSteep = guardSteep ? guardSteep - 1 : 0;
+	void reset() {		
 		guardPlatform = guardPlatform ? guardPlatform - 1 : 0;
-
 		platformToSlight = platformToSlight ? platformToSlight - 1 : 0;
-
-		wasJumping = flags & CollisionFlags::Jumping;
+		
 		wasSlope = (flags & CollisionFlags::SlightPoly) | (flags & CollisionFlags::SteepPoly);
-		wasPlatformHor = flags & CollisionFlags::PlatformHor;
-		wasPlatformVer = flags & CollisionFlags::PlatformVer;
 		wasSlight = flags & CollisionFlags::SlightPoly;
 		wasSteep = flags & CollisionFlags::SteepPoly;
-		wasPlatformTop = flags & CollisionFlags::PlatformTop;
-		wasPlatformBottom = flags & CollisionFlags::PlatformBottom;
 		slopeAngle = 0.0f;
 
 		flags |= CollisionFlags::None;
@@ -168,8 +121,6 @@ struct CollisionInfoCS{
 		flags &= ~CollisionFlags::Front;
 		flags &= ~CollisionFlags::SteepPoly;
 		flags &= ~CollisionFlags::SlightPoly;
-		flags &= ~CollisionFlags::Jumping;
-		flags &= ~CollisionFlags::PlatformHor;
 		flags &= ~CollisionFlags::PlatformTop;
 		flags &= ~CollisionFlags::PlatformBottom;
 	}
@@ -182,9 +133,7 @@ struct CollisionInfoCS{
 		std::cout << "Front: " << (flags & CollisionFlags::Front) << std::endl;
 		std::cout << "SteepPoly: " << (flags & CollisionFlags::SteepPoly) << std::endl;
 		std::cout << "SlightPoly: " << (flags & CollisionFlags::SlightPoly) << std::endl;
-		std::cout << "Jumping: " << (flags & CollisionFlags::Jumping) << std::endl;
-		std::cout << "PlatformHor: " << (flags & CollisionFlags::PlatformHor) << std::endl;
-		std::cout << "PlatformVer: " << (flags & CollisionFlags::PlatformVer) << std::endl;
+		std::cout << "PlatformVer: " << (flags & CollisionFlags::Platform) << std::endl;
 		std::cout << "PlatformTop: " << (flags & CollisionFlags::PlatformTop) << std::endl;
 		std::cout << "PlatformBottom: " << (flags & CollisionFlags::PlatformBottom) << std::endl;
 		std::cout << "################" << std::endl;
@@ -209,7 +158,7 @@ public:
 	void updateVelocity();
 
 	b2Vec2 moveHorizontal(b2Vec2 position, b2Vec2 direction, unsigned int maxIterations);
-	b2Vec2 moveVertical(b2Vec2 position, b2Vec2 direction, unsigned int maxIterations, bool reverse = false);
+	b2Vec2 moveVertical(b2Vec2 position, b2Vec2 direction, unsigned int maxIterations, bool reset = true);
 	b2Vec2 collisionResponse(b2Vec2 currentPosition, b2Vec2 initialTarget, b2Vec2 hitNormal, float friction, float bounciness);
 	void updateRaycastOrigins(b2Vec2 position);
 
@@ -226,6 +175,11 @@ public:
 	b2Vec2 m_postionD;
 	b2Vec2 m_targetD;
 
+	std::vector<b2Vec2> positionsLeft;
+	std::vector<b2Vec2> positionsRight;
+	std::vector<b2Vec2> positionsBottom;
+	std::vector<b2Vec2> positionsTop;
+
 	const float m_jumpHeight = 10 * 30.0f;
 	const float m_timeToJumpApex = 0.5f;
 	const float m_movementSpeed = 300.0f;
@@ -234,13 +188,11 @@ public:
 	float m_gravity = 0.0f;
 	float m_jumpVelocity = 0.0;
 
-	float m_skinWidth = 0.23f;
+	float m_skinWidth = 0.1f;
 	int m_horizontalRayCount = 32;
 	int m_verticalRayCount = 32;
 	float m_horizontalRaySpacing = 0.0f;
 	float m_verticalRaySpacing = 0.0f;
-	bool _moveVertical = true;
-	float m_parentVelocity = 0.0f;
 
 	const float& m_fdt;
 	const float& m_dt;

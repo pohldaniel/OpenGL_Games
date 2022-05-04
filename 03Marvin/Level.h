@@ -7,7 +7,9 @@
 #include "engine\Shader.h"
 #include "engine\Spritesheet.h"
 
+#include "CollisionHandler.h"
 #include "Constants.h"
+#include "MovingPlatform.h"
 
 struct Tile {
 	Vector2f position;
@@ -65,14 +67,15 @@ public:
 	b2Body *platformBody;
 	b2Vec2 platformPosition = b2Vec2(50.0f, 500.0f);
 
-	b2Body *platformBody2;
-	b2Vec2 platformPosition2 = b2Vec2(800.0f, 500.0f);
+	MovingPlatform *m_movingPlatform;
 
 private:
 	Shader *m_shaderArray;
 	Spritesheet *m_spriteSheet;
 	TileLayer m_layer;
 	//b2World * m_world;
+
+	
 
 	std::vector<float> m_vertices;
 	std::vector<unsigned int> m_indexBuffer;
@@ -97,7 +100,7 @@ private:
 	bool tmp = false;
 
 
-	b2Vec2 initialPosition_ = b2Vec2(800.0f, 500.0f);
+	b2Vec2 initialPosition_ = b2Vec2(700.0f, 500.0f);
 	b2Vec2 finishPosition_ = b2Vec2(700.0f, 700.0f);
 	b2Vec2 directionToFinish_;
 	float maxLiftSpeed_ = 1.0f;

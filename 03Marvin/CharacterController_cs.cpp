@@ -13,20 +13,86 @@ CharacterControllerCS::CharacterControllerCS(const float& dt, const float& fdt) 
 	b2PolygonShape boundingBox;
 	boundingBox.SetAsBox(15.0f, 15.0f);
 
-	//boundingBox.RayCast
-
 	b2FixtureDef playerFixture;
 	playerFixture.shape = &boundingBox;
 	playerFixture.friction = 0.0f;
 	playerFixture.density = 1.0f;
 	playerFixture.userData.pointer = 1;
+
 	m_body->CreateFixture(&playerFixture);
+	//m_body->SetUserData(this);
 
 	m_horizontalRaySpacing = (30.0f - m_skinWidth * 2) / (m_horizontalRayCount - 1);
 	m_verticalRaySpacing = (30.0f - m_skinWidth * 2) / (m_verticalRayCount - 1);
 
 	m_gravity = (2 * m_jumpHeight) / (m_timeToJumpApex * m_timeToJumpApex);
 	m_jumpVelocity = m_gravity * m_timeToJumpApex;
+
+#if SHAPE_BOX
+
+	for (int i = 0; i < m_horizontalRayCount; i++) {
+		positionsLeft.push_back(b2Vec2(m_skinWidth - 15.0f, m_skinWidth - 15.0f) + (i * m_horizontalRaySpacing) * b2Vec2(0.0f, 1.0f));
+		positionsRight.push_back(b2Vec2(15.0f - m_skinWidth, m_skinWidth - 15.0f) + (i * m_horizontalRaySpacing) * b2Vec2(0.0f, 1.0f));
+	}
+
+	for (int i = 0; i < m_verticalRayCount; i++) {
+		positionsBottom.push_back(b2Vec2(m_skinWidth - 15.0f, m_skinWidth - 15.0f) + (i * m_verticalRaySpacing) * b2Vec2(1.0f, 0.0f));
+		positionsTop.push_back(b2Vec2(m_skinWidth - 15.0f, 15.0f - m_skinWidth) + (i * m_verticalRaySpacing) * b2Vec2(1.0f, 0.0f));
+	}
+
+	for (int i = 0; i < m_verticalRayCount * 0.5; i++) {
+		{
+			float theta = PI * float(i) / float(m_verticalRayCount* 0.5);
+			float x = 15 * cosf(theta);
+			float y = 15 * sinf(theta);
+			positionsTop.push_back(b2Vec2(x, y));
+		}
+
+		{
+			float theta = PI * (float(i) / float(m_verticalRayCount* 0.5) + 1.0f);
+
+			float x = 15 * cosf(theta);
+			float y = 15 * sinf(theta);
+			positionsBottom.push_back(b2Vec2(x, y));
+		}
+
+	}
+
+#elif SHAPE_CIRCLE
+	for (int i = 0; i < m_horizontalRayCount; i++) {
+		{
+			float theta = PI * (float(i) / float(m_horizontalRayCount) + 0.5f);
+			float x = 15 * cosf(theta);
+			float y = 15 * sinf(theta);
+			positionsLeft.push_back(b2Vec2(x, y));
+		}
+
+		{
+			float theta = PI * float(i) / float(m_horizontalRayCount) + PI;
+
+			float x = 15 * cosf(theta);
+			float y = 15 * sinf(theta);
+			positionsRight.push_back(b2Vec2(x, y));
+		}
+	}
+
+	for (int i = 0; i < m_verticalRayCount; i++) {
+		{
+			float theta = PI * float(i) / float(m_verticalRayCount);
+			float x = 15 * cosf(theta);
+			float y = 15 * sinf(theta);
+			positionsTop.push_back(b2Vec2(x, y));
+		}
+
+		{
+			float theta = PI * (float(i) / float(m_verticalRayCount) + 1.0f);
+
+			float x = 15 * cosf(theta);
+			float y = 15 * sinf(theta);
+			positionsBottom.push_back(b2Vec2(x, y));
+		}
+	}
+#endif
 }
 
 CharacterControllerCS::~CharacterControllerCS() {
@@ -47,18 +113,18 @@ void CharacterControllerCS::render() {
 	glColor3f(0, 1, 0);
 	glVertex3f(m_postionD.x, m_postionD.y, 0.0f);
 	glVertex3f(m_targetD.x, m_targetD.y, 0.0f);
-	glEnd();*/
+	glEnd();
 
-	//}else {
+	}else {
 	glBegin(GL_LINES);
 	glColor3f(1, 0, 0);
 	glVertex3f(m_postionD.x, m_postionD.y, 0.0f);
 	glVertex3f(m_targetD.x, m_targetD.y, 0.0f);
 	glEnd();
-	//}
+	}*/
 
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
+#if SHAPE_BOX
 	b2Vec2 position = m_body->GetPosition();
 	b2PolygonShape *boxShape = static_cast<b2PolygonShape*>(m_body->GetFixtureList()->GetShape());
 
@@ -68,9 +134,8 @@ void CharacterControllerCS::render() {
 	b2Vec2 v4 = boxShape->m_vertices[3];
 
 	glBegin(GL_QUADS);
-	glColor3f(1, 1, 0);
+	glColor3f(1, 0, 0);
 
-	//left bottom corner
 	float xpos = position.x + v1.x;
 	float ypos = position.y + v1.y;
 	float w = v2.x - v1.x;
@@ -81,6 +146,32 @@ void CharacterControllerCS::render() {
 	glVertex3f(xpos + w, (ypos + h), 0.0f);
 	glVertex3f(xpos + w, ypos, 0.0f);
 	glEnd();
+
+#elif SHAPE_CIRCLE
+	int segments = m_verticalRayCount;
+
+	glBegin(GL_LINE_LOOP);
+	glColor3f(1, 0, 0);
+	for (int ii = 0; ii < segments; ii++)
+	{
+		float theta = 2 * PI * (float(ii) / float(segments));//get the current angle
+
+		float x = 15 * cosf(theta);//calculate the x component
+		float y = 15 * sinf(theta);//calculate the y component
+
+		glVertex2f(x + position.x, y + position.y);//output vertex
+
+	}
+
+	/*float theta = PI * float(segments + 0.5) / float(segments);//get the current angle
+
+	float x = 15 * cosf(theta);//calculate the x component
+	float y = 15 * sinf(theta);//calculate the y component
+
+	glVertex2f(x + position.x, y + position.y);//output */
+
+	glEnd();
+#endif
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 #endif
@@ -130,10 +221,16 @@ b2Vec2 CharacterControllerCS::moveHorizontal(b2Vec2 position, b2Vec2 direction, 
 		float distance = currentDirection.Length();
 		b2Vec2 direction = distance == 0.0f ? b2Vec2(0.0f, 0.0f) : (1.0f / distance) * currentDirection;
 
+		std::vector<b2Vec2> rayOrigins;
+
+		if ((directionX == -1)) {
+			std::transform(positionsLeft.cbegin(), positionsLeft.cend(), std::back_inserter(rayOrigins), [&position](const b2Vec2& v){ return v + position; });
+		}else {
+			std::transform(positionsRight.cbegin(), positionsRight.cend(), std::back_inserter(rayOrigins), [&position](const b2Vec2& v) -> b2Vec2 {  return v + position; });
+		}
 
 		for (int i = 0; i < m_horizontalRayCount; i++) {
-			b2Vec2 rayOrigin = (directionX == -1) ? raycastOrigins.bottomLeft : raycastOrigins.bottomRight;
-			rayOrigin += (i * m_horizontalRaySpacing) * b2Vec2(0.0f, 1.0f);
+			b2Vec2 rayOrigin = rayOrigins[i];
 			b2Vec2 target = rayOrigin + ((distance + m_skinWidth) *  direction);
 
 			m_callback.reset();
@@ -143,7 +240,7 @@ b2Vec2 CharacterControllerCS::moveHorizontal(b2Vec2 position, b2Vec2 direction, 
 				if (adjustedDistance < distance) {
 					distance = adjustedDistance;
 					normal = m_callback.m_normal;
-					hit = true;
+					hit = true;					
 				}
 			}
 		}
@@ -169,8 +266,7 @@ b2Vec2 CharacterControllerCS::moveHorizontal(b2Vec2 position, b2Vec2 direction, 
 
 		if (b2Dot(b2Vec2(1.0f, 0.0f), normal) < 0) {
 			collisions.flags |= CollisionInfoCS::CollisionFlags::Front;
-		}
-		else {
+		}else {
 			collisions.flags |= CollisionInfoCS::CollisionFlags::Back;
 		}
 
@@ -191,7 +287,7 @@ b2Vec2 CharacterControllerCS::moveHorizontal(b2Vec2 position, b2Vec2 direction, 
 	return currentPosition;
 }
 
-b2Vec2 CharacterControllerCS::moveVertical(b2Vec2 position, b2Vec2 direction, unsigned int maxIterations, bool reverse) {
+b2Vec2 CharacterControllerCS::moveVertical(b2Vec2 position, b2Vec2 direction, unsigned int maxIterations, bool reset) {
 
 	b2Vec2 currentPosition = position;
 	b2Vec2 currentDirection = direction;
@@ -210,9 +306,16 @@ b2Vec2 CharacterControllerCS::moveVertical(b2Vec2 position, b2Vec2 direction, un
 		float distance = currentDirection.Length();
 		b2Vec2 direction = distance == 0.0f ? b2Vec2(0.0f, 0.0f) : (1.0f / distance) * currentDirection;
 
+		std::vector<b2Vec2> rayOrigins;
+
+		if ((directionY == -1)) {
+			std::transform(positionsBottom.cbegin(), positionsBottom.cend(), std::back_inserter(rayOrigins), [&position](const b2Vec2& v) { return v + position; });
+		}else {
+			std::transform(positionsTop.cbegin(), positionsTop.cend(), std::back_inserter(rayOrigins), [&position](const b2Vec2& v) -> b2Vec2 {  return v + position; });
+		}
+
 		for (int i = 0; i < m_verticalRayCount; i++) {
-			b2Vec2 rayOrigin = (directionY == -1) ? raycastOrigins.bottomLeft : raycastOrigins.topLeft;
-			rayOrigin += (i * m_verticalRaySpacing) * b2Vec2(1.0f, 0.0f);
+			b2Vec2 rayOrigin = rayOrigins[i];
 			b2Vec2 target = rayOrigin + (distance + m_skinWidth) * direction;
 
 			m_callback.reset();
@@ -226,18 +329,23 @@ b2Vec2 CharacterControllerCS::moveVertical(b2Vec2 position, b2Vec2 direction, un
 					
 					if (m_callback.m_platformVer) {
 						if (abs((m_postion.y - 15.0f) - m_callback.m_body->GetFixtureList()->GetAABB(0).upperBound.y) > 0.5f && m_callback.m_body->GetLinearVelocity().y > 0.0f && m_velocity.x == 0.0f) {
-							currentPosition.y = m_callback.m_body->GetFixtureList()->GetAABB(0).upperBound.y + 17.0f;
+							currentPosition.y = m_callback.m_body->GetFixtureList()->GetAABB(0).upperBound.y + 15.0f;
 							currentDirection.SetZero();
+						}
+
+						if (abs(m_callback.m_body->GetFixtureList()->GetAABB(0).lowerBound.y - (m_postion.y + 15.0f)) > 0.0f && m_callback.m_body->GetLinearVelocity().y != 0.0f && m_velocity.y > 0.0f) {
+							currentPosition.y = m_callback.m_body->GetFixtureList()->GetAABB(0).lowerBound.y - 15.0f;
+							currentDirection.SetZero();
+							m_velocityParent = m_callback.m_body->GetLinearVelocity();
 						}
 
 						float normalDotUp = b2Dot(m_callback.m_normal, b2Vec2(0.0f, 1.0f));
 						if (normalDotUp > 0.0) {
 							collisions.flags |= CollisionInfoCS::CollisionFlags::PlatformTop;
-						}
-						else {
+						}else {
 							collisions.flags |= CollisionInfoCS::CollisionFlags::PlatformBottom;
 						}
-						collisions.flags |= CollisionInfoCS::CollisionFlags::PlatformVer;
+						collisions.flags |= CollisionInfoCS::CollisionFlags::Platform;
 						m_parentBody = m_callback.m_body;
 					}
 					hit = true;
@@ -251,7 +359,7 @@ b2Vec2 CharacterControllerCS::moveVertical(b2Vec2 position, b2Vec2 direction, un
 	
 		if (!hit) {
 			if ( !collisions.guardPlatform) {
-				m_parentBody = !reverse ? nullptr : m_parentBody;
+				m_parentBody = reset ? nullptr : m_parentBody;
 			}
 
 			currentDirection.Normalize();
@@ -267,8 +375,7 @@ b2Vec2 CharacterControllerCS::moveVertical(b2Vec2 position, b2Vec2 direction, un
 
 		if (normalDotUp == 1.0f) {
 			collisions.flags |= CollisionInfoCS::CollisionFlags::Bottom;
-		}
-		else if (normalDotUp >= 0) {
+		}else if (normalDotUp >= 0) {
 
 			if (slopeAngle > m_maxClimbAngle) {
 				applyCollisionResponse = true;
@@ -279,28 +386,9 @@ b2Vec2 CharacterControllerCS::moveVertical(b2Vec2 position, b2Vec2 direction, un
 				collisions.slopeAngle = slopeAngle;
 			}
 
-
-
-		}
-		else {
-			//if (slopeAngle > m_maxClimbAngle){				
-			//applyCollisionResponse = true;				
-			//}			
+		}else {				
 			collisions.flags |= CollisionInfoCS::CollisionFlags::Top;
 		}
-
-		if (!collisions.applyCollisionResponse) {
-			applyCollisionResponse = false;
-		}
-
-		if (currentDirection.y < 0.0f &&
-			!(collisions.flags & CollisionInfoCS::CollisionFlags::Bottom) &&
-			!(collisions.flags & CollisionInfoCS::CollisionFlags::SteepPoly) &&
-			!(collisions.flags & CollisionInfoCS::CollisionFlags::SlightPoly)) {
-
-			collisions.flags |= CollisionInfoCS::CollisionFlags::Jumping;
-		}
-
 
 		currentDirection.Normalize();
 		currentPosition = distance > m_skinWidth ? currentPosition + (distance - m_skinWidth) * currentDirection : currentPosition;
@@ -312,9 +400,7 @@ b2Vec2 CharacterControllerCS::moveVertical(b2Vec2 position, b2Vec2 direction, un
 			break;
 		}
 
-
 		position = currentPosition;
-
 		iterations++;
 	}
 
@@ -333,11 +419,9 @@ void CharacterControllerCS::updateRaycastOrigins(b2Vec2 position) {
 void CharacterControllerCS::move(b2Vec2 velocity) {
 	b2Vec2 vertVector = b2Dot(b2Vec2(0.0f, 1.0f), velocity) * b2Vec2(0.0f, 1.0f);
 	b2Vec2 sideVector = (velocity - vertVector);
-	std::cout << m_parentBody << std::endl;
-
-	
 
 	if (m_parentBody != NULL) {
+
 		b2Vec2 positionHor = m_postion;
 		b2Vec2 positionVer = m_postion;
 		b2Vec2 position = m_postion;
@@ -345,82 +429,85 @@ void CharacterControllerCS::move(b2Vec2 velocity) {
 		//during the collision passes this pointer is maybe set to null
 		b2Vec2 _velocity = m_fdt * m_parentBody->GetLinearVelocity();
 		b2Vec2 _position = m_parentBody->GetPosition();
+		float top = m_parentBody->GetFixtureList()->GetAABB(0).upperBound.y;
 		float left = m_parentBody->GetFixtureList()->GetAABB(0).lowerBound.x;
 		float right = m_parentBody->GetFixtureList()->GetAABB(0).upperBound.x;
-		float top = m_parentBody->GetFixtureList()->GetAABB(0).upperBound.y;
-		
+
 		//first get the collision flags from the platform
 		position = moveHorizontal(position, b2Vec2(sideVector.x + _velocity.x, 0.0f), 5);
-		
+
 		if (_velocity.y < 0.0f) {
-			position = moveVertical(position, b2Vec2(0.0f, _velocity.y), 5, true);	
+			position = moveVertical(position, b2Vec2(0.0f, _velocity.y), 5, false);
 		}
 
-		//positionHor = moveHorizontal(m_postion, sideVector, 5);
 		if (sideVector.x != 0) {
 			positionHor = moveHorizontal(m_postion, b2Vec2(sideVector.x + _velocity.x, 0.0f), 5);
 		}
+
 		if ((collisions.flags & CollisionInfoCS::CollisionFlags::Back) || (collisions.flags & CollisionInfoCS::CollisionFlags::Front)) {
+
+
 			m_postion = positionHor;
-			if ((collisions.flags & CollisionInfoCS::CollisionFlags::SlightPoly)) {								
+			if ((collisions.flags & CollisionInfoCS::CollisionFlags::SlightPoly)) {
 
 				m_callback.resetBody();
 				m_parentBody = nullptr;
 				collisions.guardPlatform = 0;
-				collisions.flags &= ~CollisionInfoCS::CollisionFlags::PlatformVer;
-				
-			}else {				
+				collisions.flags &= ~CollisionInfoCS::CollisionFlags::Platform;
+
+			}else {
+
 				if (!collisions.wasSlope) {
 					m_postion.y += _velocity.y;
 				}else {
 					m_postion = moveVertical(m_postion, vertVector, 5);
 				}
 			}
-		}else if ((collisions.flags & CollisionInfoCS::CollisionFlags::PlatformVer)) {
-				collisions.guardPlatform = 1;
-				
-				 m_postion.y += _velocity.y;
-				 m_postion.x += _velocity.x;
+		}else {
+			collisions.guardPlatform = 1;
+			m_postion.y += _velocity.y;
+			m_postion.x += _velocity.x;
 
-				if (((m_postion.x + 15.0f) < left)
-					|| ((m_postion.x - 15.0f) > right)) {
-					collisions.flags &= ~CollisionInfoCS::CollisionFlags::PlatformVer;
-					m_callback.resetBody();
-					m_parentBody = nullptr;
-					collisions.guardPlatform = 0;					
-				}
+			if (((m_postion.x + 15.0f) < left)
+				|| ((m_postion.x - 15.0f) > right)) {
+				collisions.flags &= ~CollisionInfoCS::CollisionFlags::Platform;
+				m_callback.resetBody();
+				m_parentBody = nullptr;
+				collisions.guardPlatform = 0;
+			}
 
-				if ((collisions.flags & CollisionInfoCS::CollisionFlags::SlightPoly)) {					
-					m_callback.resetBody();
-					m_parentBody = nullptr;
-					collisions.guardPlatform = 0;
-					collisions.flags &= ~CollisionInfoCS::CollisionFlags::PlatformVer;
-					collisions.platformToSlight = 5;
-					transitions |= CharacterTransition::PLATFORM_TO_SLIGHT_SLOPE;
-				}
+			if ((collisions.flags & CollisionInfoCS::CollisionFlags::SlightPoly)) {
+				m_callback.resetBody();
+				m_parentBody = nullptr;
+				collisions.guardPlatform = 0;
+				collisions.flags &= ~CollisionInfoCS::CollisionFlags::Platform;
+				collisions.platformToSlight = 30;
+				transitions |= CharacterTransition::PLATFORM_TO_SLIGHT_SLOPE;
+			}
 
-				if ((collisions.flags & CollisionInfoCS::CollisionFlags::SteepPoly)) {
-					m_callback.resetBody();
-					m_parentBody = nullptr;
-					collisions.guardPlatform = 0;
-					collisions.flags &= ~CollisionInfoCS::CollisionFlags::PlatformVer;				
-					transitions |= CharacterTransition::PLATFORM_TO_STEEP_SLOPE;
-				}
+			if ((collisions.flags & CollisionInfoCS::CollisionFlags::SteepPoly)) {
+				m_callback.resetBody();
+				m_parentBody = nullptr;
+				collisions.guardPlatform = 0;
+				collisions.flags &= ~CollisionInfoCS::CollisionFlags::Platform;
+				transitions |= CharacterTransition::PLATFORM_TO_STEEP_SLOPE;
+			}
 
-				m_postion = moveHorizontal(m_postion, sideVector, 5);
-		}	
+			m_postion = moveHorizontal(m_postion, sideVector, 5);
+		}
 	}else {
 
 		if (!collisions.guardPlatform) {
 			m_callback.resetBody();
 			m_parentBody = nullptr;
 			collisions.guardPlatform = 0;
-			collisions.flags &= ~CollisionInfoCS::CollisionFlags::PlatformVer;
+			collisions.flags &= ~CollisionInfoCS::CollisionFlags::Platform;
 		}
 
 		m_postion = moveHorizontal(m_postion, sideVector, 5);
 		m_postion = moveVertical(m_postion, vertVector, 5);
 	}
+
 	m_body->SetTransform(m_postion, 0.0f);
 }
 
@@ -447,9 +534,17 @@ void CharacterControllerCS::updateVelocity() {
 		m_velocity.x = 0.0f;
 	}
 
-	if (collisions.flags & CollisionInfoCS::CollisionFlags::PlatformVer) {
+	if (collisions.flags & CollisionInfoCS::CollisionFlags::PlatformBottom) {
+		m_callback.resetBody();
+		m_parentBody = nullptr;
+		collisions.guardPlatform = 0;
+
+		m_velocity.y = 0.0f;
+		m_velocity.y += -abs(m_velocityParent.y);
+
+	}else if (collisions.flags & CollisionInfoCS::CollisionFlags::Platform) {
 		if (Globals::CONTROLLS & Globals::KEY_W) {
-			collisions.flags &= ~CollisionInfoCS::CollisionFlags::PlatformVer;
+			collisions.flags &= ~CollisionInfoCS::CollisionFlags::Platform;
 			m_callback.resetBody();
 			m_parentBody = nullptr;
 			collisions.guardPlatform = 0;
@@ -460,7 +555,6 @@ void CharacterControllerCS::updateVelocity() {
 
 	}else if (collisions.flags & CollisionInfoCS::CollisionFlags::SlightPoly) {
 
-
 		if (Globals::CONTROLLS & Globals::KEY_W) {
 			m_velocity.y = m_jumpVelocity;
 			collisions.flags &= ~CollisionInfoCS::CollisionFlags::SlightPoly;
@@ -468,8 +562,7 @@ void CharacterControllerCS::updateVelocity() {
 		}else {
 			if (collisions.slopeAngle > 45.0f) {
 				m_velocity.y = -(std::tanf(collisions.slopeAngle * PI_ON_180)) * m_movementSpeed;
-			}
-			else {
+			}else {
 				m_velocity.y = -m_movementSpeed;
 			}
 			
@@ -480,7 +573,7 @@ void CharacterControllerCS::updateVelocity() {
 			m_velocity.y = m_jumpVelocity;
 			collisions.flags &= ~CollisionInfoCS::CollisionFlags::SteepPoly;
 		}else {
-			if (collisions.wasJumping) {
+			if (!collisions.wasSteep) {
 				m_velocity.y = 0.0f;
 			}
 			m_velocity.y -= m_gravity * m_fdt;
@@ -489,7 +582,6 @@ void CharacterControllerCS::updateVelocity() {
 		if (!(collisions.flags & CollisionInfoCS::CollisionFlags::Bottom))
 			m_velocity.x = 0.0f;
 	}else {
-		
 		if (isGrounded()) {
 			m_velocity.y = 0.0f;
 			if (Globals::CONTROLLS & Globals::KEY_W) {

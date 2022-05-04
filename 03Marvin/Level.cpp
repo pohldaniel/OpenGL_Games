@@ -1,6 +1,9 @@
 #include "Level.h"
 
 Level::Level(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fdt) {
+	
+	m_movingPlatform = new MovingPlatform(dt, fdt);
+
 	m_shaderArray = Globals::shaderManager.getAssetPointer("level");
 	m_spriteSheet = Globals::spritesheetManager.getAssetPointer("base");
 
@@ -86,31 +89,8 @@ Level::Level(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fdt) {
 	platformShapeDef.density = 10.0;
 	platformShapeDef.friction = 0.0;
 	platformShapeDef.restitution = 0.1f;
-	platformShapeDef.userData.pointer = 2;
+	platformShapeDef.userData.pointer = 3;
 	platformBody->CreateFixture(&platformShapeDef);
-
-	b2BodyDef platformBodyDef2;
-	platformBodyDef2.type = b2_kinematicBody;
-	platformBodyDef2.position.Set(platformPosition2.x, platformPosition2.y);
-	platformBodyDef2.angle = 0.0f * PI / 180;
-	//blockBodyDef.userData = block;
-	platformBody2 = Globals::world->CreateBody(&platformBodyDef2);
-
-	// Create block shape
-	b2PolygonShape platformShape2;
-	platformShape2.SetAsBox(50.0f, 5.0f);
-	// Create shape definition and add to body
-	b2FixtureDef platformShapeDef2;
-	platformShapeDef2.shape = &platformShape2;
-	platformShapeDef2.density = 10.0;
-	platformShapeDef2.friction = 0.0;
-	platformShapeDef2.restitution = 0.1f;
-	platformShapeDef2.userData.pointer = 3;
-	platformBody2->CreateFixture(&platformShapeDef2);
-
-
-	directionToFinish_ = (finishPosition_ - initialPosition_);
-	directionToFinish_.Normalize();
 
 	short stride = 5, offset = 3;
 
@@ -610,31 +590,7 @@ void Level::render() {
 	glPushMatrix();
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-	b2Vec2 position4 = platformBody2->GetPosition();
-	b2PolygonShape *boxShape4 = static_cast<b2PolygonShape*>(platformBody2->GetFixtureList()->GetShape());
-
-	b2Vec2 v14 = boxShape4->m_vertices[0];
-	b2Vec2 v24 = boxShape4->m_vertices[1];
-	b2Vec2 v34 = boxShape4->m_vertices[2];
-	b2Vec2 v44 = boxShape4->m_vertices[3];
-
-	glBegin(GL_QUADS);
-	glColor3f(1, 1, 1);
-
-	//left bottom corner
-	float xpos4 = position4.x + v14.x;
-	float ypos4 = position4.y + v14.y;
-	float w4 = v24.x - v14.x;
-	float h4 = v44.y - v14.y;
-
-	glVertex3f(xpos4, ypos4, 0.0f);
-	glVertex3f(xpos4, (ypos4 + h4), 0.0f);
-	glVertex3f(xpos4 + w4, (ypos4 + h4), 0.0f);
-	glVertex3f(xpos4 + w4, ypos4, 0.0f);
-	glEnd();
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	glPopMatrix();
-	glLoadIdentity();
+	m_movingPlatform->render();
 
 	#endif
 }
@@ -659,57 +615,5 @@ void Level::fixedUpdate() {
 
 	platformBody->SetLinearVelocity(b2Vec2(velX, 0.0f));
 
-
-	b2Vec2 platformPos = platformBody2->GetTransform().p;
-	b2Vec2 newPos = platformPos;
-
-	// move platform
-	if (platformState_ == PLATFORM_STATE_MOVETO_FINISH){
-		b2Vec2 curDistance = finishPosition_ - platformPos;
-		b2Vec2 curDirection = (1.0f / curDistance.Length()) * curDistance;
-
-		float dist = curDistance.Length();
-		float dotd = b2Dot(directionToFinish_, curDirection);
-
-		
-		if (dotd > 0.0f){
-			// slow down near the end
-			if (dist < 1.0f){
-				curLiftSpeed_ *= 0.01f;
-			}
-			curLiftSpeed_ = Clamp(curLiftSpeed_, minLiftSpeed_, maxLiftSpeed_);			
-			newPos +=   curLiftSpeed_ * curDirection;
-			platformBody2->SetLinearVelocity(m_speed2 * curLiftSpeed_ * curDirection);
-
-		}else {
-			newPos = finishPosition_;
-			curLiftSpeed_ = maxLiftSpeed_;
-			platformState_ = PLATFORM_STATE_MOVETO_START;
-			platformBody2->SetLinearVelocity(b2Vec2(0.0f, 0.0f));
-		}
-
-	}else if (platformState_ == PLATFORM_STATE_MOVETO_START){
-		b2Vec2 curDistance = initialPosition_ - platformPos;
-		b2Vec2 curDirection = (1.0f / curDistance.Length()) * curDistance;
-		float dist = curDistance.Length();
-		float dotd = b2Dot(directionToFinish_, curDirection);
-
-		if (dotd < 0.0f)
-		{
-			// slow down near the end
-			if (dist < 1.0f){				
-				curLiftSpeed_ *= 0.01f;
-			}
-			
-			curLiftSpeed_ = Clamp(curLiftSpeed_, minLiftSpeed_, maxLiftSpeed_);
-			newPos +=  curLiftSpeed_ * curDirection;
-
-			platformBody2->SetLinearVelocity(m_speed2 * curLiftSpeed_ * curDirection);
-		}else{
-			newPos = initialPosition_;
-			curLiftSpeed_ = maxLiftSpeed_;
-			platformState_ = PLATFORM_STATE_MOVETO_FINISH;
-			platformBody2->SetLinearVelocity(b2Vec2(0.0f, 0.0f));
-		}
-	}
+	m_movingPlatform->fixedUpdate();
 }
