@@ -40,16 +40,16 @@ CharacterControllerCS::CharacterControllerCS(const float& dt, const float& fdt) 
 		positionsTop.push_back(b2Vec2(m_skinWidth - 15.0f, 15.0f - m_skinWidth) + (i * m_verticalRaySpacing) * b2Vec2(1.0f, 0.0f));
 	}
 
-	for (int i = 0; i < m_verticalRayCount * 0.5; i++) {
+	for (int i = 0; i < m_verticalRayCount * 0.25; i++) {
 		{
-			float theta = PI * float(i) / float(m_verticalRayCount* 0.5);
+			float theta = PI * float(i) / float(m_verticalRayCount * 0.25);
 			float x = 15 * cosf(theta);
 			float y = 15 * sinf(theta);
 			positionsTop.push_back(b2Vec2(x, y));
 		}
 
 		{
-			float theta = PI * (float(i) / float(m_verticalRayCount* 0.5) + 1.0f);
+			float theta = PI * (float(i) / float(m_verticalRayCount * 0.25) + 1.0f);
 
 			float x = 15 * cosf(theta);
 			float y = 15 * sinf(theta);
@@ -124,54 +124,53 @@ void CharacterControllerCS::render() {
 	}*/
 
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-#if SHAPE_BOX
-	b2Vec2 position = m_body->GetPosition();
-	b2PolygonShape *boxShape = static_cast<b2PolygonShape*>(m_body->GetFixtureList()->GetShape());
+	#if SHAPE_BOX
+		b2Vec2 position = m_body->GetPosition();
+		b2PolygonShape *boxShape = static_cast<b2PolygonShape*>(m_body->GetFixtureList()->GetShape());
 
-	b2Vec2 v1 = boxShape->m_vertices[0];
-	b2Vec2 v2 = boxShape->m_vertices[1];
-	b2Vec2 v3 = boxShape->m_vertices[2];
-	b2Vec2 v4 = boxShape->m_vertices[3];
+		b2Vec2 v1 = boxShape->m_vertices[0];
+		b2Vec2 v2 = boxShape->m_vertices[1];
+		b2Vec2 v3 = boxShape->m_vertices[2];
+		b2Vec2 v4 = boxShape->m_vertices[3];
 
-	glBegin(GL_QUADS);
-	glColor3f(1, 0, 0);
+		glBegin(GL_QUADS);
+		glColor3f(1, 0, 0);
 
-	float xpos = position.x + v1.x;
-	float ypos = position.y + v1.y;
-	float w = v2.x - v1.x;
-	float h = v4.y - v1.y;
+		float xpos = position.x + v1.x;
+		float ypos = position.y + v1.y;
+		float w = v2.x - v1.x;
+		float h = v4.y - v1.y;
 
-	glVertex3f(xpos, ypos, 0.0f);
-	glVertex3f(xpos, (ypos + h), 0.0f);
-	glVertex3f(xpos + w, (ypos + h), 0.0f);
-	glVertex3f(xpos + w, ypos, 0.0f);
-	glEnd();
+		glVertex3f(xpos, ypos, 0.0f);
+		glVertex3f(xpos, (ypos + h), 0.0f);
+		glVertex3f(xpos + w, (ypos + h), 0.0f);
+		glVertex3f(xpos + w, ypos, 0.0f);
+		glEnd();
 
-#elif SHAPE_CIRCLE
-	int segments = m_verticalRayCount;
+	#elif SHAPE_CIRCLE
+		b2Vec2 position = m_body->GetPosition();
+		int segments = m_verticalRayCount;
 
-	glBegin(GL_LINE_LOOP);
-	glColor3f(1, 0, 0);
-	for (int ii = 0; ii < segments; ii++)
-	{
-		float theta = 2 * PI * (float(ii) / float(segments));//get the current angle
+		glBegin(GL_LINE_LOOP);
+		glColor3f(1, 0, 0);
+		for (int ii = 0; ii < segments; ii++){
+			float theta = 2 * PI * (float(ii) / float(segments));
+
+			float x = 15 * cosf(theta);
+			float y = 15 * sinf(theta);
+
+			glVertex2f(x + position.x, y + position.y);//output vertex
+		}
+
+		/*float theta = PI * float(segments + 0.5) / float(segments);//get the current angle
 
 		float x = 15 * cosf(theta);//calculate the x component
 		float y = 15 * sinf(theta);//calculate the y component
 
-		glVertex2f(x + position.x, y + position.y);//output vertex
+		glVertex2f(x + position.x, y + position.y);//output */
 
-	}
-
-	/*float theta = PI * float(segments + 0.5) / float(segments);//get the current angle
-
-	float x = 15 * cosf(theta);//calculate the x component
-	float y = 15 * sinf(theta);//calculate the y component
-
-	glVertex2f(x + position.x, y + position.y);//output */
-
-	glEnd();
-#endif
+		glEnd();
+	#endif
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 #endif
@@ -180,7 +179,6 @@ void CharacterControllerCS::render() {
 void CharacterControllerCS::update() {
 
 }
-
 
 b2Vec2 CharacterControllerCS::collisionResponse(b2Vec2 currentPosition, b2Vec2 initialTarget, b2Vec2 hitNormal, float friction, float bounciness) {
 
@@ -229,7 +227,7 @@ b2Vec2 CharacterControllerCS::moveHorizontal(b2Vec2 position, b2Vec2 direction, 
 			std::transform(positionsRight.cbegin(), positionsRight.cend(), std::back_inserter(rayOrigins), [&position](const b2Vec2& v) -> b2Vec2 {  return v + position; });
 		}
 
-		for (int i = 0; i < m_horizontalRayCount; i++) {
+		for (int i = 0; i <rayOrigins.size(); i++) {
 			b2Vec2 rayOrigin = rayOrigins[i];
 			b2Vec2 target = rayOrigin + ((distance + m_skinWidth) *  direction);
 
@@ -314,7 +312,7 @@ b2Vec2 CharacterControllerCS::moveVertical(b2Vec2 position, b2Vec2 direction, un
 			std::transform(positionsTop.cbegin(), positionsTop.cend(), std::back_inserter(rayOrigins), [&position](const b2Vec2& v) -> b2Vec2 {  return v + position; });
 		}
 
-		for (int i = 0; i < m_verticalRayCount; i++) {
+		for (int i = 0; i < rayOrigins.size(); i++) {
 			b2Vec2 rayOrigin = rayOrigins[i];
 			b2Vec2 target = rayOrigin + (distance + m_skinWidth) * direction;
 

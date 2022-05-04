@@ -18,7 +18,7 @@ public:
 	float maxLiftSpeed_ = 1.0f;
 	float minLiftSpeed_ = 0.1f;
 	float curLiftSpeed_ = 1.0f;
-	float m_speed = 100.0f;
+	float m_speed = 300.0f;
 	const float& m_fdt;
 	const float& m_dt;
 
