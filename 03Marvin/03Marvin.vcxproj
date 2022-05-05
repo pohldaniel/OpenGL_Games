@@ -202,6 +202,7 @@
     <ClCompile Include="box2d-2.4.1\src\rope\b2_rope.cpp" />
     <ClCompile Include="CharacterController.cpp" />
     <ClCompile Include="CharacterController_cs.cpp" />
+    <ClCompile Include="CollisionHandler.cpp" />
     <ClCompile Include="engine\animation\Animator.cpp" />
     <ClCompile Include="engine\Batchrenderer.cpp" />
     <ClCompile Include="engine\CharacterSet.cpp" />
@@ -222,6 +223,7 @@
     <ClCompile Include="engine\Vector.cpp" />
     <ClCompile Include="Level.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="MovingPlatform.cpp" />
     <ClCompile Include="StateMachine.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -237,6 +239,7 @@
     <ClInclude Include="box2d-2.4.1\src\dynamics\b2_polygon_contact.h" />
     <ClInclude Include="CharacterController.h" />
     <ClInclude Include="CharacterController_cs.h" />
+    <ClInclude Include="CollisionHandler.h" />
     <ClInclude Include="Constants.h" />
     <ClInclude Include="engine\animation\Animator.h" />
     <ClInclude Include="engine\AssetManger.h" />
@@ -260,6 +263,7 @@
     <ClInclude Include="engine\ui\Text.h" />
     <ClInclude Include="engine\Vector.h" />
     <ClInclude Include="Level.h" />
+    <ClInclude Include="MovingPlatform.h" />
     <ClInclude Include="nlohmann\json.hpp" />
     <ClInclude Include="StateMachine.h" />
     <ClInclude Include="stb\stb_image.h" />

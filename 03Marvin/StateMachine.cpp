@@ -102,7 +102,6 @@ void StateMachine::render() {
 	glBindFramebuffer(GL_FRAMEBUFFER, m_frameBuffer);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	m_level->render();
-	//m_characterController->render();
 	m_characterControllerCS->render();
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 

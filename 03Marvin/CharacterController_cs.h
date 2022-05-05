@@ -154,20 +154,18 @@ public:
 	void fixedUpdate();
 
 	void move(b2Vec2 velocity);
-
 	void updateVelocity();
 
 	b2Vec2 moveHorizontal(b2Vec2 position, b2Vec2 direction, unsigned int maxIterations);
 	b2Vec2 moveVertical(b2Vec2 position, b2Vec2 direction, unsigned int maxIterations, bool reset = true);
 	b2Vec2 collisionResponse(b2Vec2 currentPosition, b2Vec2 initialTarget, b2Vec2 hitNormal, float friction, float bounciness);
-	void updateRaycastOrigins(b2Vec2 position);
-
-	float m_degrees = 0.0f;
+	
 
 	RayCastClosestCallbackCS m_callback;
 	b2Body* m_body;
 
-	b2Vec2 m_postion;
+	b2Vec2 m_position;
+	b2Vec2 m_size = b2Vec2(30.0f, 60.0f);
 	b2Vec2 m_target;
 	b2Vec2 m_velocity;
 	b2Vec2 m_velocityParent;
@@ -183,14 +181,15 @@ public:
 	const float m_jumpHeight = 10 * 30.0f;
 	const float m_timeToJumpApex = 0.5f;
 	const float m_movementSpeed = 300.0f;
-	const float m_maxClimbAngle = 50.0f;
+	const float m_maxClimbAngle = 80.0f;
 
 	float m_gravity = 0.0f;
 	float m_jumpVelocity = 0.0;
 
 	float m_skinWidth = 0.1f;
-	int m_horizontalRayCount = 32;
-	int m_verticalRayCount = 32;
+	int m_horizontalRayCount = static_cast<int>(m_size.y) + 2;
+	int m_verticalRayCount = static_cast<int>(m_size.x) + 10;
+	//int m_verticalRayCount = 64;
 	float m_horizontalRaySpacing = 0.0f;
 	float m_verticalRaySpacing = 0.0f;
 

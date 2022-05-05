@@ -12,13 +12,13 @@ public:
 	b2Body *platformBody;
 	b2Vec2 platformPosition = b2Vec2(800.0f, 500.0f);
 
-	b2Vec2 initialPosition_ = b2Vec2(800.0f, 500.0f);
-	b2Vec2 finishPosition_ = b2Vec2(800.0f, 700.0f);
+	b2Vec2 initialPosition_ = b2Vec2(700.0f, 500.0f);
+	b2Vec2 finishPosition_ = b2Vec2(700.0f, 700.0f);
 	b2Vec2 directionToFinish_;
 	float maxLiftSpeed_ = 1.0f;
 	float minLiftSpeed_ = 0.1f;
 	float curLiftSpeed_ = 1.0f;
-	float m_speed = 300.0f;
+	float m_speed = 100.0f;
 	const float& m_fdt;
 	const float& m_dt;
 
