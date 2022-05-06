@@ -165,7 +165,7 @@ public:
 	b2Body* m_body;
 
 	b2Vec2 m_position;
-	b2Vec2 m_size = b2Vec2(30.0f, 60.0f);
+	b2Vec2 m_size = b2Vec2(26.0f, 26.0f);
 	b2Vec2 m_target;
 	b2Vec2 m_velocity;
 	b2Vec2 m_velocityParent;
@@ -178,9 +178,9 @@ public:
 	std::vector<b2Vec2> positionsBottom;
 	std::vector<b2Vec2> positionsTop;
 
-	const float m_jumpHeight = 10 * 30.0f;
-	const float m_timeToJumpApex = 0.5f;
-	const float m_movementSpeed = 300.0f;
+	const float m_jumpHeight = 6 * 30.0f;
+	const float m_timeToJumpApex = 0.4f;
+	const float m_movementSpeed = 270.0f;
 	const float m_maxClimbAngle = 80.0f;
 
 	float m_gravity = 0.0f;

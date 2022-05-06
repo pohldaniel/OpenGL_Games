@@ -9,6 +9,7 @@
 #include "Level.h"
 #include "CharacterController.h"
 #include "CharacterController_cs.h"
+#include "Marvin.h"
 
 enum CurrentState {
 	GAME,
@@ -48,7 +49,7 @@ private:
 	Shader *m_shader;
 	Level* m_level;
 	CharacterController* m_characterController;
-	CharacterControllerCS* m_characterControllerCS;
+	Marvin* m_marvin;
 
 	unsigned int m_frameTexture;
 	unsigned int m_frameBuffer;

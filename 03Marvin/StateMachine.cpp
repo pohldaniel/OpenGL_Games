@@ -8,7 +8,7 @@ StateMachine::StateMachine(const float& dt, const float& fdt) : m_dt(dt), m_fdt(
 	Globals::world->SetContactListener(&m_collisionHandler);
 
 	m_characterController = new CharacterController(dt, fdt);
-	m_characterControllerCS = new CharacterControllerCS(dt, fdt);
+	m_marvin = new Marvin(dt, fdt);
 
 	glGenTextures(1, &m_frameTexture);
 	glBindTexture(GL_TEXTURE_2D, m_frameTexture);
@@ -67,11 +67,12 @@ void StateMachine::addStateAtBottom(State* state) {
 
 void StateMachine::fixedUpdate() {
 
-	//m_characterController->fixedUpdate();
+	
 	m_level->fixedUpdate();
 	Globals::world->Step(m_fdt, 6, 2);
-	m_characterControllerCS->fixedUpdate();
 	
+	//m_characterController->fixedUpdate();
+	m_marvin->fixedUpdate();
 	
 
 	if (!m_states.empty())
@@ -80,7 +81,7 @@ void StateMachine::fixedUpdate() {
 
 void StateMachine::update() {
 	
-	
+	m_marvin->update();
 	
 	//m_level->update();
 	if (!m_states.empty()) {
@@ -102,7 +103,7 @@ void StateMachine::render() {
 	glBindFramebuffer(GL_FRAMEBUFFER, m_frameBuffer);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	m_level->render();
-	m_characterControllerCS->render();
+	m_marvin->render();
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 

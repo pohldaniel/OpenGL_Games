@@ -2,8 +2,6 @@
 
 Level::Level(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fdt) {
 	
-	m_movingPlatform = new MovingPlatform(dt, fdt);
-
 	m_shaderArray = Globals::shaderManager.getAssetPointer("level");
 	m_spriteSheet = Globals::spritesheetManager.getAssetPointer("base");
 
@@ -22,75 +20,6 @@ Level::Level(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fdt) {
 	while (tracing) {
 		tracing = contourTrace(m_layer.tilesCol, m_bitVector);
 	}
-
-	/*for (unsigned int row = 0; row < m_layer.height; row++) {
-		for (unsigned int col = 0; col < m_layer.width; col++) {
-			std::cout << m_layer.tilesCol[row * m_layer.width + col].gid << "  ";
-		}
-		std::cout << std::endl;
-	}
-
-	for (unsigned int row = 0; row < m_layer.height; row++) {
-		for (unsigned int col = 0; col < m_layer.width; col++) {
-			std::cout << m_bitVector[row * m_layer.width + col] << "  ";
-		}
-		std::cout << std::endl;
-	}*/
-
-	b2BodyDef slopeBodyDef;
-	slopeBodyDef.type = b2_staticBody; 
-	slopeBodyDef.position.Set(slopePosition.x, slopePosition.y);
-	slopeBodyDef.angle = slopeAngel * PI / 180;
-	//blockBodyDef.userData = block;
-	slopeBody = Globals::world->CreateBody(&slopeBodyDef);
-
-	// Create block shape
-	b2PolygonShape slopShape;
-	slopShape.SetAsBox(200.0f, 50.0f);
-	// Create shape definition and add to body
-	b2FixtureDef slopShapeDef;
-	slopShapeDef.shape = &slopShape;
-	slopShapeDef.density = 10.0;
-	slopShapeDef.friction = 0.0;
-	slopShapeDef.restitution = 0.1f;
-	slopeBody->CreateFixture(&slopShapeDef);
-
-	b2BodyDef slopeBodyDef2;
-	slopeBodyDef2.type = b2_staticBody;
-	slopeBodyDef2.position.Set(slopePosition2.x, slopePosition2.y);
-	slopeBodyDef2.angle = (slopeAngel + 90.0f) * PI / 180;
-	//blockBodyDef.userData = block;
-	slopeBody2 = Globals::world->CreateBody(&slopeBodyDef2);
-
-	b2PolygonShape slopShape2;
-	slopShape2.SetAsBox(200.0f, 50.0f);
-	// Create shape definition and add to body
-	b2FixtureDef slopShapeDef2;
-	slopShapeDef2.shape = &slopShape2;
-	slopShapeDef2.density = 10.0;
-	slopShapeDef2.friction = 0.0;
-	slopShapeDef2.restitution = 0.1f;
-	slopeBody2->CreateFixture(&slopShapeDef2);
-
-
-	b2BodyDef platformBodyDef;
-	platformBodyDef.type = b2_kinematicBody;
-	platformBodyDef.position.Set(platformPosition.x, platformPosition.y);
-	platformBodyDef.angle = 0.0f * PI / 180;
-	//blockBodyDef.userData = block;
-	platformBody = Globals::world->CreateBody(&platformBodyDef);
-
-	// Create block shape
-	b2PolygonShape platformShape;
-	platformShape.SetAsBox(200.0f, 5.0f);
-	// Create shape definition and add to body
-	b2FixtureDef platformShapeDef;
-	platformShapeDef.shape = &platformShape;
-	platformShapeDef.density = 10.0;
-	platformShapeDef.friction = 0.0;
-	platformShapeDef.restitution = 0.1f;
-	platformShapeDef.userData.pointer = 3;
-	platformBody->CreateFixture(&platformShapeDef);
 
 	short stride = 5, offset = 3;
 
@@ -113,7 +42,7 @@ Level::Level(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fdt) {
 
 	//map indices
 	glBindBuffer(GL_ARRAY_BUFFER, m_vboMap);
-	glBufferData(GL_ARRAY_BUFFER, m_map.size() * sizeof(m_map[0]), &m_map[0], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, m_indexMap.size() * sizeof(m_indexMap[0]), &m_indexMap[0], GL_STATIC_DRAW);
 	glEnableVertexAttribArray(2);
 	glVertexAttribIPointer(2, 1, GL_UNSIGNED_INT, 1 * sizeof(unsigned int), 0);
 
@@ -220,7 +149,7 @@ void Level::contourTraceComponent(int startX, int startY, int startBacktrackX, i
 
 			//Handle single tile
 			if (numVisited == 9) {
-				//createStaticBody(chainVertices);
+				createStaticBody(chainVertices);
 				return;
 			}
 
@@ -260,16 +189,24 @@ void Level::createStaticBody(std::vector<Vector2f> &chainVertices) {
 
 	std::vector<b2Vec2> vertices;
 
-	for (int i = numVertices - 1; i >= 0; i--) {
-		vertices.push_back(b2Vec2(chainVertices[i][0] * 30.0f, chainVertices[i][1] * 30.0f));	
+	if (numVertices == 2) {
+		vertices.push_back(b2Vec2(chainVertices[0][0] * 30.0f, chainVertices[0][1] * 30.0f));
+		vertices.push_back(b2Vec2(chainVertices[1][0] * 30.0f, chainVertices[1][1] * 30.0f));
+
+		vertices.push_back(b2Vec2(chainVertices[1][0] * 30.0f, (chainVertices[1][1] - 1) * 30.0f));
+		vertices.push_back(b2Vec2((chainVertices[1][0] - 1) * 30.0f, (chainVertices[1][1] - 1) * 30.0f));
+	}else {
+		for (int i = numVertices - 1; i >= 0; i--) {
+			vertices.push_back(b2Vec2(chainVertices[i][0] * 30.0f, chainVertices[i][1] * 30.0f));
+		}
 	}
 
 	b2ChainShape chain;
-	chain.CreateLoop(&vertices[0], numVertices);
+	//chain.CreateChain(&vertices[0], numVertices, vertices[0], vertices[numVertices - 1]);
+	chain.CreateLoop(&vertices[0], vertices.size());
+
 	b2Fixture *contourFixture = platform->CreateFixture(&chain, 0);
 	contourFixture->SetFriction(1.f);
-
-	//m_chain.push_back(chain);
 	m_contours.push_back(platform);
 }
 
@@ -422,7 +359,7 @@ void Level::addTile(const Tile tile, std::vector<float>& vertices, std::vector<u
 	vertices.push_back(pos[0] + w); vertices.push_back(pos[1] + h); vertices.push_back(0.0f); vertices.push_back(1.0f); vertices.push_back(1.0f);
 	vertices.push_back(pos[0] + w); vertices.push_back(pos[1]); vertices.push_back(0.0f); vertices.push_back(1.0f); vertices.push_back(0.0f);
 
-	m_map.push_back(tile.gid); m_map.push_back(tile.gid); m_map.push_back(tile.gid); m_map.push_back(tile.gid);
+	m_indexMap.push_back(tile.gid); m_indexMap.push_back(tile.gid); m_indexMap.push_back(tile.gid); m_indexMap.push_back(tile.gid);
 
 	unsigned int currentOffset = (vertices.size() / 5) - 4;
 
@@ -437,7 +374,7 @@ void Level::addTile(const Tile tile, std::vector<float>& vertices, std::vector<u
 
 void Level::render() {
 	
-	/*glUseProgram(m_shaderArray->m_program);
+	glUseProgram(m_shaderArray->m_program);
 	m_shaderArray->loadMatrix("u_transform", Globals::projection);
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D_ARRAY, m_spriteSheet->getAtlas());
@@ -445,7 +382,7 @@ void Level::render() {
 	glDrawElements(GL_TRIANGLES, m_indexBuffer.size(), GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
 	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
-	glUseProgram(0);*/
+	glUseProgram(0);
 
 
 	#if DEBUGCOLLISION
@@ -460,12 +397,13 @@ void Level::render() {
 
 			//We know it's a chain shape
 			b2ChainShape *chain = static_cast<b2ChainShape*>(fixture->GetShape());
+
 			for (int i = 0; i < chain->GetChildCount(); ++i) {
 				b2EdgeShape edge;
 				chain->GetChildEdge(&edge, i);
 				b2Vec2 v1 = edge.m_vertex1;
 				b2Vec2 v2 = edge.m_vertex2;
-
+				
 				glBegin(GL_LINES);
 				glColor3f(1, 1, 1);
 				glVertex3f(v1.x, v1.y, 0.0f);
@@ -474,146 +412,12 @@ void Level::render() {
 			}
 		}
 	}
-
-	Matrix4f rot;
-	rot.rotate(Vector3f(0.0f, 0.0f, 1.0f), slopeAngel);
-	rot.transpose();
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-	glPushMatrix();
-	glTranslatef(slopePosition.x, slopePosition.y, 0.0);
-	glRotatef(slopeAngel, 0.0f, 0.0f, 1.0f); // rotate the robot on its y-axis
-	glTranslatef(-slopePosition.x, -slopePosition.y, 0.0);
-	//glTranslatef(xpos, ypos, 0.0f);
-	//glLoadMatrixf(&rot[0][0]);
-
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
-	b2Vec2 position = slopeBody->GetPosition();
-	b2PolygonShape *boxShape = static_cast<b2PolygonShape*>(slopeBody->GetFixtureList()->GetShape());
-
-	b2Vec2 v1 = boxShape->m_vertices[0];
-	b2Vec2 v2 = boxShape->m_vertices[1];
-	b2Vec2 v3 = boxShape->m_vertices[2];
-	b2Vec2 v4 = boxShape->m_vertices[3];
-
-	glBegin(GL_QUADS);
-	glColor3f(1, 1, 0);
-
-	//left bottom corner
-	float xpos = position.x + v1.x;
-	float ypos = position.y + v1.y;
-	float w = v2.x - v1.x;
-	float h = v4.y - v1.y;
-
-	glVertex3f(xpos, ypos, 0.0f);
-	glVertex3f(xpos, (ypos + h), 0.0f);
-	glVertex3f(xpos + w, (ypos + h), 0.0f);
-	glVertex3f(xpos + w, ypos, 0.0f);
-	glEnd();
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	glPopMatrix();
-	glLoadIdentity();
-
-
-	
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-	glPushMatrix();
-	glTranslatef(slopePosition2.x, slopePosition2.y, 0.0);
-	glRotatef(slopeAngel + 90.0f, 0.0f, 0.0f, 1.0f); // rotate the robot on its y-axis
-	glTranslatef(-slopePosition2.x, -slopePosition2.y, 0.0);
-	//glTranslatef(xpos, ypos, 0.0f);
-	//glLoadMatrixf(&rot[0][0]);
-
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
-	b2Vec2 position2 = slopeBody2->GetPosition();
-	b2PolygonShape *boxShape2 = static_cast<b2PolygonShape*>(slopeBody2->GetFixtureList()->GetShape());
-
-	b2Vec2 v12 = boxShape2->m_vertices[0];
-	b2Vec2 v22 = boxShape2->m_vertices[1];
-	b2Vec2 v32 = boxShape2->m_vertices[2];
-	b2Vec2 v42 = boxShape2->m_vertices[3];
-
-	glBegin(GL_QUADS);
-	glColor3f(1, 1, 0);
-
-	//left bottom corner
-	float xpos2 = position2.x + v12.x;
-	float ypos2 = position2.y + v12.y;
-	float w2 = v22.x - v12.x;
-	float h2 = v42.y - v12.y;
-
-	glVertex3f(xpos2, ypos2, 0.0f);
-	glVertex3f(xpos2, (ypos2 + h2), 0.0f);
-	glVertex3f(xpos2 + w2, (ypos2 + h2), 0.0f);
-	glVertex3f(xpos2 + w2, ypos2, 0.0f);
-	glEnd();
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	glPopMatrix();
-	glLoadIdentity();
-
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-	glPushMatrix();
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
-	b2Vec2 position3 = platformBody->GetPosition();
-	b2PolygonShape *boxShape3 = static_cast<b2PolygonShape*>(platformBody->GetFixtureList()->GetShape());
-
-	b2Vec2 v13 = boxShape3->m_vertices[0];
-	b2Vec2 v23 = boxShape3->m_vertices[1];
-	b2Vec2 v33 = boxShape3->m_vertices[2];
-	b2Vec2 v43 = boxShape3->m_vertices[3];
-
-	glBegin(GL_QUADS);
-	glColor3f(1, 1, 1);
-
-	//left bottom corner
-	float xpos3 = position3.x + v13.x;
-	float ypos3 = position3.y + v13.y;
-	float w3 = v23.x - v13.x;
-	float h3 = v43.y - v13.y;
-
-	glVertex3f(xpos3, ypos3, 0.0f);
-	glVertex3f(xpos3, (ypos3 + h3), 0.0f);
-	glVertex3f(xpos3 + w3, (ypos3 + h3), 0.0f);
-	glVertex3f(xpos3 + w3, ypos3, 0.0f);
-	glEnd();
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	glPopMatrix();
-	glLoadIdentity();
-
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-	glPushMatrix();
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
-	m_movingPlatform->render();
-
 	#endif
 }
 
 void Level::update() {
-	
-	
-	
 }
 
 void Level::fixedUpdate() {
-	float posX = platformBody->GetTransform().p.x;
-	if (right & posX > 300.0f) {
-		velX = -1.0f * m_speed;
-		right = false;
-	}
 
-	if (!right & posX < 50.0f) {
-		velX = 1.0f * m_speed;
-		right = true;
-	}
-
-	platformBody->SetLinearVelocity(b2Vec2(velX, 0.0f));
-
-	m_movingPlatform->fixedUpdate();
 }

@@ -17,7 +17,7 @@
 
 #define PHYSICS_STEP 0.01f
 #define WIDTH 1600
-#define HEIGHT 1500
+#define HEIGHT 900
 
 #define MAX_JUMP_HEIGHT	5.f
 #define JUMP_APEX_TIME	0.5f
