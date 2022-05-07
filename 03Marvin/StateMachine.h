@@ -10,6 +10,7 @@
 #include "CharacterController.h"
 #include "CharacterController_cs.h"
 #include "Marvin.h"
+#include "ViewEffect.h"
 
 enum CurrentState {
 	GAME,

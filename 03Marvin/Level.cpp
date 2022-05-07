@@ -375,7 +375,7 @@ void Level::addTile(const Tile tile, std::vector<float>& vertices, std::vector<u
 void Level::render() {
 	
 	glUseProgram(m_shaderArray->m_program);
-	m_shaderArray->loadMatrix("u_transform", Globals::projection);
+	m_shaderArray->loadMatrix("u_transform", ViewEffect::get().getView() * Globals::projection);
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D_ARRAY, m_spriteSheet->getAtlas());
 	glBindVertexArray(m_vao);
@@ -392,6 +392,12 @@ void Level::render() {
 	glLoadIdentity();
 	glLoadMatrixf(&transProj[0][0]);
 
+	Matrix4f transView = ViewEffect::get().getView();
+	transView = transView.transpose();
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	glLoadMatrixf(&transView[0][0]);
+	
 	for (const auto& b : m_contours) {
 		for (b2Fixture *fixture = b->GetFixtureList(); fixture; fixture = fixture->GetNext()) {
 

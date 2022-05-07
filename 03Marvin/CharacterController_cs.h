@@ -4,7 +4,7 @@
 #include <vector>
 #include <iterator>
 #include "Constants.h"
-
+#include "ViewEffect.h"
 #define SHAPE_BOX 1
 #define SHAPE_CIRCLE 0
 

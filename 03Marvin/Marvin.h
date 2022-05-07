@@ -6,6 +6,7 @@
 
 #include "Constants.h"
 #include "CharacterController_cs.h"
+#include "ViewEffect.h"
 
 class Marvin  {
 public:

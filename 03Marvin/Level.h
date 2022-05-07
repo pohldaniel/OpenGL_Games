@@ -10,6 +10,7 @@
 #include "CollisionHandler.h"
 #include "Constants.h"
 #include "MovingPlatform.h"
+#include "ViewEffect.h"
 
 struct Tile {
 	Vector2f position;

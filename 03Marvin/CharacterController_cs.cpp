@@ -107,6 +107,12 @@ void CharacterControllerCS::render() {
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	glLoadMatrixf(&transProj[0][0]);
+	Matrix4f transView = ViewEffect::get().getView();
+	transView = transView.transpose();
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	glLoadMatrixf(&transView[0][0]);
+
 	//if (m_callback.m_hit){
 	/*m_target = m_callback.m_point;
 	glBegin(GL_LINES);

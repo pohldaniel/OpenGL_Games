@@ -10,6 +10,8 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 	
 	m_enableVerticalSync = true;
 	m_enableWireframe = false;	
+
+	ViewEffect::get().init();
 }
 
 Application::~Application() {
@@ -137,7 +139,7 @@ LRESULT Application::DisplayWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 			}
 			
 			glViewport(0, 0, _width, _height);
-			Globals::projection = Matrix4f::GetOrthographic(Globals::projection, 0.f, static_cast<float>(_width), 0.0f, static_cast<float>(_height), -1.0f, 1.0f);
+			Globals::projection = Matrix4f::GetOrthographic(Globals::projection, 0.f, static_cast<float>(_width) * 0.5, 0.0f, static_cast<float>(_height)* 0.5, -1.0f, 1.0f);
 			Globals::invProjection = Matrix4f::GetInvOrthographic(Globals::invProjection, 0.f, static_cast<float>(_width), 0.0f, static_cast<float>(_height), -1.0f, 1.0f);
 		
 			if(m_init) 
@@ -310,20 +312,25 @@ void Application::loadAssets() {
 	AssetManagerStatic<Texture>::get().loadTexture("background", "res/textures/background.png");
 	Globals::textureManager.loadTexture("fireball", "res/textures/fireball.png");
 
-	Globals::spritesheetManager.loadSpritesheet("blow_up", "res/textures/explo.png", 512, 512, 0, 0, 11);
-	Globals::spritesheetManager.loadSpritesheet("ghost", "res/textures/ghost.png", 64, 64, 0, 0, 3);
-	Globals::spritesheetManager.loadSpritesheet("health_bar", "res/textures/health.png", 96, 32, 0, 0, -1);
-	Globals::spritesheetManager.loadSpritesheet("heart", "res/textures/heart.png", 32, 32, 0, 0, 3);
+	Globals::spritesheetManager.loadSpritesheet("blow_up", "res/textures/explo.png", 512, 512, 0, 0, 0, 11);
+	Globals::spritesheetManager.loadSpritesheet("ghost", "res/textures/ghost.png", 64, 64, 0, 0, 0, 3);
+	Globals::spritesheetManager.loadSpritesheet("health_bar", "res/textures/health.png", 96, 32, 0, 0, 0, -1);
+	Globals::spritesheetManager.loadSpritesheet("heart", "res/textures/heart.png", 32, 32, 0, 0, 0, 3);
 
-	Globals::spritesheetManager.loadSpritesheet("player_move", "res/textures/player.png", 96, 84, 0, 3, 7, GL_SRGB8_ALPHA8);
-	Globals::spritesheetManager.loadSpritesheet("player_jump", "res/textures/player.png", 96, 84, 0, 4, 1, GL_SRGB8_ALPHA8);
-	Globals::spritesheetManager.loadSpritesheet("player_fall", "res/textures/player.png", 96, 84, 0, 6, 0, GL_SRGB8_ALPHA8);
-	Globals::spritesheetManager.loadSpritesheet("player_crouch", "res/textures/player.png", 96, 84, 0, 9, 5, GL_SRGB8_ALPHA8);
-	Globals::spritesheetManager.loadSpritesheet("player_grap", "res/textures/player.png", 96, 84, 0, 15, 0, GL_SRGB8_ALPHA8);
-	Globals::spritesheetManager.loadSpritesheet("player_takedamage", "res/textures/player.png", 96, 84, 0, 17, 5, GL_SRGB8_ALPHA8);
-	Globals::spritesheetManager.loadSpritesheet("player_idle", "res/textures/player.png", 96, 84, 0, 1, 6, GL_SRGB8_ALPHA8);
+	Globals::spritesheetManager.loadSpritesheet("player_move", "res/textures/player.png", 96, 84, 0, 3, 0, 7, GL_SRGB8_ALPHA8);
+	Globals::spritesheetManager.loadSpritesheet("player_jump", "res/textures/player.png", 96, 84, 0, 4, 0, 1, GL_SRGB8_ALPHA8);
+	Globals::spritesheetManager.loadSpritesheet("player_fall", "res/textures/player.png", 96, 84, 0, 6, 0, 0, GL_SRGB8_ALPHA8);
+	Globals::spritesheetManager.loadSpritesheet("player_crouch", "res/textures/player.png", 96, 84, 0, 9, 0, 5, GL_SRGB8_ALPHA8);
+	Globals::spritesheetManager.loadSpritesheet("player_grap", "res/textures/player.png", 96, 84, 0, 15, 0, 0, GL_SRGB8_ALPHA8);
+	Globals::spritesheetManager.loadSpritesheet("player_takedamage", "res/textures/player.png", 96, 84, 0, 17, 0, 5, GL_SRGB8_ALPHA8);
+	Globals::spritesheetManager.loadSpritesheet("player_idle", "res/textures/player.png", 96, 84, 0, 1, 0, 6, GL_SRGB8_ALPHA8);
 
-	Globals::spritesheetManager.loadSpritesheet("base", "Resources/Textures/Tileset/base_tiles_spritesheet.png", 70, 70, 2, 0, -1);
+	Globals::spritesheetManager.loadSpritesheet("marvin_move", "Resources/Textures/Player/player_spritesheet.png", 70, 100, 0, 1, 1, 3);
+	Globals::spritesheetManager.loadSpritesheet("marvin_jump", "Resources/Textures/Player/player_spritesheet.png", 70, 100, 0, 1, 4, 4);
+	Globals::spritesheetManager.loadSpritesheet("marvin_fall", "Resources/Textures/Player/player_spritesheet.png", 70, 100, 0, 1, 5, 5);
+	Globals::spritesheetManager.loadSpritesheet("marvin_idle", "Resources/Textures/Player/player_spritesheet.png", 70, 100, 0, 1, 1, 1);
+
+	Globals::spritesheetManager.loadSpritesheet("base", "Resources/Textures/Tileset/base_tiles_spritesheet.png", 70, 70, 2, 0, 0, -1);
 	//becarful with the uniforms some shader are used at multiple places
 	Globals::shaderManager.loadShader("fog", "res/shader/fog.vs", "res/shader/fog.fs");
 	Globals::shaderManager.loadShader("quad", "res/shader/quad.vs", "res/shader/quad.fs");

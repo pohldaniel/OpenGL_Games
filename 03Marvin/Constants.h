@@ -16,8 +16,8 @@
 #define DEBUG 1
 
 #define PHYSICS_STEP 0.01f
-#define WIDTH 1600
-#define HEIGHT 900
+#define WIDTH 1024
+#define HEIGHT 768
 
 #define MAX_JUMP_HEIGHT	5.f
 #define JUMP_APEX_TIME	0.5f
