@@ -1,11 +1,15 @@
 #include "Level.h"
 
 Level::Level(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fdt) {
-	
+	m_shader = Globals::shaderManager.getAssetPointer("quad");
 	m_shaderArray = Globals::shaderManager.getAssetPointer("level");
 	m_spriteSheet = Globals::spritesheetManager.getAssetPointer("base");
-
+	m_quadBackground = new Quad(false, -1.0f, 1.0f, -1.0f, 1.0f);
 	loadFile("Resources/Maps/easypeasy.json");
+
+	m_sprites["background"] = Globals::textureManager.get("background").getTexture();
+
+
 
 	for (const Tile& tile : m_layer.tiles) {
 		addTile(tile, m_vertices, m_indexBuffer);
@@ -374,8 +378,13 @@ void Level::addTile(const Tile tile, std::vector<float>& vertices, std::vector<u
 
 void Level::render() {
 	
+	glUseProgram(m_shader->m_program);
+	//m_shader->loadMatrix("u_transform", m_transBackground);
+	m_quadBackground->render(m_sprites["background"]);
+	glUseProgram(0);
+
 	glUseProgram(m_shaderArray->m_program);
-	m_shaderArray->loadMatrix("u_transform", ViewEffect::get().getView() * Globals::projection);
+	m_shaderArray->loadMatrix("u_transform", ViewEffect::get().getView() *  Globals::projection);
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D_ARRAY, m_spriteSheet->getAtlas());
 	glBindVertexArray(m_vao);

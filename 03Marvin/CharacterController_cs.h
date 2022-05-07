@@ -101,6 +101,7 @@ struct CollisionInfoCS {
 	bool wasSlight;
 	bool wasSteep;
 	bool wasSlope;
+	bool wasGrounded;
 
 	unsigned short guardPlatform = 0;
 	unsigned short platformToSlight = 0;
@@ -112,6 +113,7 @@ struct CollisionInfoCS {
 		wasSlope = (flags & CollisionFlags::SlightPoly) | (flags & CollisionFlags::SteepPoly);
 		wasSlight = flags & CollisionFlags::SlightPoly;
 		wasSteep = flags & CollisionFlags::SteepPoly;
+		wasGrounded = flags & CollisionFlags::Bottom;
 		slopeAngle = 0.0f;
 
 		flags |= CollisionFlags::None;
@@ -242,6 +244,6 @@ public:
 	}
 
 	bool isGrounded() {
-		return (collisions.flags & CollisionInfoCS::CollisionFlags::Bottom);
+		return (collisions.flags & CollisionInfoCS::CollisionFlags::Bottom) | collisions.wasGrounded;
 	}
 };

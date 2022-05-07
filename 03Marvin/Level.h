@@ -6,6 +6,7 @@
 #include "engine\Vector.h"
 #include "engine\Shader.h"
 #include "engine\Spritesheet.h"
+#include "engine\Quad.h"
 
 #include "CollisionHandler.h"
 #include "Constants.h"
@@ -56,10 +57,13 @@ public:
 	std::vector<b2Body*> m_contours;
 	
 private:
+	Shader *m_shader;
+	Quad *m_quadBackground;
 	Shader *m_shaderArray;
 	Spritesheet *m_spriteSheet;
 	TileLayer m_layer;
-	
+	std::unordered_map<std::string, unsigned int> m_sprites;
+
 	std::vector<float> m_vertices;
 	std::vector<unsigned int> m_indexBuffer;
 	std::vector<unsigned int> m_indexMap;

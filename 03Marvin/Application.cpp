@@ -325,6 +325,7 @@ void Application::loadAssets() {
 	Globals::spritesheetManager.loadSpritesheet("player_takedamage", "res/textures/player.png", 96, 84, 0, 17, 0, 5, GL_SRGB8_ALPHA8);
 	Globals::spritesheetManager.loadSpritesheet("player_idle", "res/textures/player.png", 96, 84, 0, 1, 0, 6, GL_SRGB8_ALPHA8);
 
+	Globals::textureManager.loadTexture("background", "Resources/Textures/Background/bg.png");
 	Globals::spritesheetManager.loadSpritesheet("marvin_move", "Resources/Textures/Player/player_spritesheet.png", 70, 100, 0, 1, 1, 3);
 	Globals::spritesheetManager.loadSpritesheet("marvin_jump", "Resources/Textures/Player/player_spritesheet.png", 70, 100, 0, 1, 4, 4);
 	Globals::spritesheetManager.loadSpritesheet("marvin_fall", "Resources/Textures/Player/player_spritesheet.png", 70, 100, 0, 1, 5, 5);

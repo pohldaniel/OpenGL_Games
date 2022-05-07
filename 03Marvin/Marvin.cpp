@@ -38,16 +38,17 @@ void  Marvin::fixedUpdate() {
 
 void  Marvin::update() {
 
+	if (m_characterControllerCS->m_velocity.x < 0) {
+		m_quad->setFlipped(false);
+	}else if (m_characterControllerCS->m_velocity.x > 0) {
+		m_quad->setFlipped(true);
+	}
+
 	if (m_characterControllerCS->isGrounded()) { // NOT JUMPING
-		if (m_characterControllerCS->m_velocity.x < 0) {
-			m_quad->setFlipped(false);
+		if (m_characterControllerCS->m_velocity.x != 0) {
+			
 			m_Animations["move"].update(m_dt);
-		}
-		else if (m_characterControllerCS->m_velocity.x > 0) {
-			m_quad->setFlipped(true);
-			m_Animations["move"].update(m_dt);
-		}
-		else if (m_characterControllerCS->m_velocity.x == 0) {
+		} else {
 			m_Animations["idle"].update(m_dt);
 		}
 	}else {
@@ -62,13 +63,13 @@ void  Marvin::update() {
 void  Marvin::render() {
 	
 
-	glEnable(GL_BLEND);	
+	//glEnable(GL_BLEND);	
 	glUseProgram(m_shaderArray->m_program);
 	m_shaderArray->loadMatrix("u_transform", m_transform * ViewEffect::get().getView() * Globals::projection);
 	m_shaderArray->loadInt("u_layer", *m_currentFrame);
 	m_quad->render(*m_textureAtlas, true);
 	glUseProgram(0);
-	glDisable(GL_BLEND);
+	//glDisable(GL_BLEND);
 	//m_characterControllerCS->render();
 }
 
