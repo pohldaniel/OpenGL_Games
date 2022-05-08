@@ -331,7 +331,10 @@ void Application::loadAssets() {
 	Globals::spritesheetManager.loadSpritesheet("marvin_fall", "Resources/Textures/Player/player_spritesheet.png", 70, 100, 0, 1, 5, 5);
 	Globals::spritesheetManager.loadSpritesheet("marvin_idle", "Resources/Textures/Player/player_spritesheet.png", 70, 100, 0, 1, 1, 1);
 
+	//Globals::spritesheetManager.loadSpritesheet("base", "Resources/Textures/Tileset/items_spritesheet.png", 70, 70, 2, 0, 0, -1);
 	Globals::spritesheetManager.loadSpritesheet("base", "Resources/Textures/Tileset/base_tiles_spritesheet.png", 70, 70, 2, 0, 0, -1);
+	Globals::spritesheetManager.getAssetPointer("base")->addToSpritesheet("Resources/Textures/Tileset/items_spritesheet.png", 70, 70, 2, true, true, 0, 0, -1);
+
 	//becarful with the uniforms some shader are used at multiple places
 	Globals::shaderManager.loadShader("fog", "res/shader/fog.vs", "res/shader/fog.fs");
 	Globals::shaderManager.loadShader("quad", "res/shader/quad.vs", "res/shader/quad.fs");

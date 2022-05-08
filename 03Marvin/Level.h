@@ -30,6 +30,7 @@ public:
 	double opacity;
 	unsigned int width;
 	unsigned int height;
+	bool collisionLayer = false;
 };
 
 class Level {
@@ -46,11 +47,11 @@ public:
 	void fixedUpdate();
 	void update();
 
-	bool contourTrace(const std::vector<Tile> &grid, std::vector<bool> &visited);
-	void contourTraceComponent(int startX, int startY, int startBacktrackX, int startBacktrackY, const std::vector<Tile> &grid, std::vector<bool> &visited);
-	std::vector<std::pair<int, int>> getMooreNeighborhood(int startX, int startY);
+	bool contourTrace(const std::vector<Tile> &grid, std::vector<bool> &visited, const TileLayer& layer);
+	void contourTraceComponent(int startX, int startY, int startBacktrackX, int startBacktrackY, const std::vector<Tile> &grid, std::vector<bool> &visited, const TileLayer& layer);
+	std::vector<std::pair<int, int>> getMooreNeighborhood(int startX, int startY, const TileLayer& layer);
 	int getMooreIndex(int boundaryX, int boundaryY, int neighborX, int neighborY);
-	void addChainVertex(int startX, int startY, int previousX, int previousY, std::vector<Vector2f> &chainVertices);
+	void addChainVertex(int startX, int startY, int previousX, int previousY, std::vector<Vector2f> &chainVertices, const TileLayer& layer);
 	void createStaticBody(std::vector<Vector2f> &chainVertices);
 
 	std::vector<bool> m_bitVector;
@@ -61,7 +62,7 @@ private:
 	Quad *m_quadBackground;
 	Shader *m_shaderArray;
 	Spritesheet *m_spriteSheet;
-	TileLayer m_layer;
+	std::vector<TileLayer> m_layers;
 	std::unordered_map<std::string, unsigned int> m_sprites;
 
 	std::vector<float> m_vertices;

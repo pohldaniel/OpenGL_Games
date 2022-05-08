@@ -5,13 +5,31 @@ Level::Level(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fdt) {
 	m_shaderArray = Globals::shaderManager.getAssetPointer("level");
 	m_spriteSheet = Globals::spritesheetManager.getAssetPointer("base");
 	m_quadBackground = new Quad(false, -1.0f, 1.0f, -1.0f, 1.0f);
-	loadFile("Resources/Maps/easypeasy.json");
-
 	m_sprites["background"] = Globals::textureManager.get("background").getTexture();
 
+	
+	
+	loadFile("Resources/Maps/easypeasy.json");
+
+	for (const TileLayer& layer : m_layers) {
+		for (const Tile& tile : layer.tiles) {
+			addTile(tile, m_vertices, m_indexBuffer);
+		}
+		if (layer.collisionLayer) {
+			for (unsigned int count = 0; count < layer.height * layer.width; count++) {
+				m_bitVector.push_back(false);
+			}
+
+			bool tracing = true;
+
+			while (tracing) {
+				tracing = contourTrace(layer.tilesCol, m_bitVector, layer);
+			}
+		}
+	}
 
 
-	for (const Tile& tile : m_layer.tiles) {
+	/*for (const Tile& tile : m_layer.tiles) {
 		addTile(tile, m_vertices, m_indexBuffer);
 	}
 
@@ -23,7 +41,7 @@ Level::Level(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fdt) {
 
 	while (tracing) {
 		tracing = contourTrace(m_layer.tilesCol, m_bitVector);
-	}
+	}*/
 
 	short stride = 5, offset = 3;
 
@@ -59,22 +77,22 @@ Level::Level(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fdt) {
 }
 
 
-bool Level::contourTrace(const std::vector<Tile> &grid, std::vector<bool> &visited) {
-	for (int row = 0; row < m_layer.height; ++row) {
-		for (int col = 0; col < m_layer.width; ++col) {
-			if (!visited[row * m_layer.width + col] && grid[row * m_layer.width + col].gid) {
+bool Level::contourTrace(const std::vector<Tile> &grid, std::vector<bool> &visited, const TileLayer& layer) {
+	for (int row = 0; row < layer.height; ++row) {
+		for (int col = 0; col < layer.width; ++col) {
+			if (!visited[row * layer.width + col] && grid[row * layer.width + col].gid) {
 
-				if ((row > 0) && (!grid[(row - 1) * m_layer.width + col].gid)) {
-					contourTraceComponent(col, row, col, row - 1, grid, visited);
+				if ((row > 0) && (!grid[(row - 1) * layer.width + col].gid)) {
+					contourTraceComponent(col, row, col, row - 1, grid, visited, layer);
 					return true;
-				}else if ((row < m_layer.height - 1) && (!grid[(row + 1) * m_layer.width + col].gid)) {
-					contourTraceComponent(col, row, col, row + 1, grid, visited);
+				}else if ((row < layer.height - 1) && (!grid[(row + 1) * layer.width + col].gid)) {
+					contourTraceComponent(col, row, col, row + 1, grid, visited, layer);
 					return true;
-				}else if ((col > 0) && (!grid[row * m_layer.width + (col - 1)].gid)) {
-					contourTraceComponent(col, row, col - 1, row, grid, visited);
+				}else if ((col > 0) && (!grid[row * layer.width + (col - 1)].gid)) {
+					contourTraceComponent(col, row, col - 1, row, grid, visited, layer);
 					return true;
-				}else if ((col < m_layer.width - 1) && (!grid[row * m_layer.width + (col + 1)].gid)) {
-					contourTraceComponent(col, row, col + 1, row, grid, visited);
+				}else if ((col < layer.width - 1) && (!grid[row * layer.width + (col + 1)].gid)) {
+					contourTraceComponent(col, row, col + 1, row, grid, visited, layer);
 					return true;
 				}
 			}
@@ -83,13 +101,13 @@ bool Level::contourTrace(const std::vector<Tile> &grid, std::vector<bool> &visit
 	return false;
 }
 
-void Level::contourTraceComponent(int startX, int startY, int startBacktrackX, int startBacktrackY, const std::vector<Tile> &grid, std::vector<bool> &visited) {
-	visited[startY * m_layer.width + startX] = true;
+void Level::contourTraceComponent(int startX, int startY, int startBacktrackX, int startBacktrackY, const std::vector<Tile> &grid, std::vector<bool> &visited, const TileLayer& layer) {
+	visited[startY * layer.width + startX] = true;
 	std::vector<Vector2f> chainVertices;
 	
 
 	//Set up our initial chain edge    
-	auto neighborhoodCoords = getMooreNeighborhood(startX, startY);
+	auto neighborhoodCoords = getMooreNeighborhood(startX, startY, layer);
 	int i = getMooreIndex(startX, startY, startBacktrackX, startBacktrackY);
 	int cClockwiseIndex = (i == 0 ? 6 : i - 2);
 
@@ -98,13 +116,13 @@ void Level::contourTraceComponent(int startX, int startY, int startBacktrackX, i
 		startY,
 		neighborhoodCoords[cClockwiseIndex].first,
 		neighborhoodCoords[cClockwiseIndex].second,
-		chainVertices);
+		chainVertices, layer);
 	addChainVertex(
 		startX,
 		startY,
 		neighborhoodCoords[i].first,
 		neighborhoodCoords[i].second,
-		chainVertices);
+		chainVertices, layer);
 
 	//Begin Moore-Neighbor Tracing
 	int boundaryX = startX;
@@ -129,12 +147,12 @@ void Level::contourTraceComponent(int startX, int startY, int startBacktrackX, i
 			++numStartVisits;
 		}
 
-		auto neighborhoodCoords = getMooreNeighborhood(boundaryX, boundaryY);
+		auto neighborhoodCoords = getMooreNeighborhood(boundaryX, boundaryY, layer);
 		int i = getMooreIndex(boundaryX, boundaryY, currentX, currentY);
 		int numVisited = 0;
 		auto invalidPair = std::make_pair(-1, -1);
 
-		while (!grid[currentY * m_layer.width + currentX].gid) {
+		while (!grid[currentY * layer.width + currentX].gid) {
 
 			backtrackX = currentX;
 			backtrackY = currentY;
@@ -168,12 +186,12 @@ void Level::contourTraceComponent(int startX, int startY, int startBacktrackX, i
 					chainVertices);
 			}*/
 		}
-		visited[currentY * m_layer.width + currentX] = true;
+		visited[currentY * layer.width + currentX] = true;
 		boundaryX = currentX;
 		boundaryY = currentY;
 		currentX = backtrackX;
 		currentY = backtrackY;
-		addChainVertex(boundaryX, boundaryY, backtrackX, backtrackY, chainVertices);
+		addChainVertex(boundaryX, boundaryY, backtrackX, backtrackY, chainVertices, layer);
 	}
 
 	createStaticBody(chainVertices);
@@ -214,7 +232,7 @@ void Level::createStaticBody(std::vector<Vector2f> &chainVertices) {
 	m_contours.push_back(platform);
 }
 
-void Level::addChainVertex(int startX, int startY, int previousX, int previousY, std::vector<Vector2f> &chainVertices) {
+void Level::addChainVertex(int startX, int startY, int previousX, int previousY, std::vector<Vector2f> &chainVertices, const TileLayer& layer) {
 
 	Vector2f v1;
 
@@ -222,30 +240,30 @@ void Level::addChainVertex(int startX, int startY, int previousX, int previousY,
 	if (startY - previousY == -1) {
 		v1 = Vector2f(
 			static_cast<float>(startX),
-			static_cast<float>(m_layer.height - (startY + 1)));
+			static_cast<float>(layer.height - (startY + 1)));
 	}
 	//Visited from above
 	else if (startY - previousY == 1) {
 		v1 = Vector2f(
 			static_cast<float>(startX + 1),
-			static_cast<float>(m_layer.height - (startY)));
+			static_cast<float>(layer.height - (startY)));
 	}
 	//Visited from the left
 	else if (startX - previousX == 1) {
 		v1 = Vector2f(
 			static_cast<float>(startX),
-			static_cast<float>(m_layer.height - (startY)));
+			static_cast<float>(layer.height - (startY)));
 	}
 	//Visited from the right
 	else {
 		v1 = Vector2f(
 			static_cast<float>(startX + 1),
-			static_cast<float>(m_layer.height - (startY + 1)));
+			static_cast<float>(layer.height - (startY + 1)));
 	}
 	chainVertices.push_back(v1);
 }
 
-std::vector<std::pair<int, int>> Level::getMooreNeighborhood(int startX, int startY) {
+std::vector<std::pair<int, int>> Level::getMooreNeighborhood(int startX, int startY, const TileLayer& layer) {
 
 	std::vector<std::pair<int, int>> neighborhood;
 
@@ -263,23 +281,23 @@ std::vector<std::pair<int, int>> Level::getMooreNeighborhood(int startX, int sta
 	neighborhood.push_back(
 		std::make_pair(exists ? startX : -1, exists ? startY - 1 : -1));
 
-	exists = (startX < m_layer.width - 1 && startY > 0);
+	exists = (startX < layer.width - 1 && startY > 0);
 	neighborhood.push_back(
 		std::make_pair(exists ? startX + 1 : -1, exists ? startY - 1 : -1));
 
-	exists = (startX < m_layer.width - 1);
+	exists = (startX < layer.width - 1);
 	neighborhood.push_back(
 		std::make_pair(exists ? startX + 1 : -1, exists ? startY : -1));
 
-	exists = (startX < m_layer.width - 1 && startY < m_layer.height - 1);
+	exists = (startX < layer.width - 1 && startY < layer.height - 1);
 	neighborhood.push_back(
 		std::make_pair(exists ? startX + 1 : -1, exists ? startY + 1 : -1));
 
-	exists = (startY < m_layer.height - 1);
+	exists = (startY < layer.height - 1);
 	neighborhood.push_back(
 		std::make_pair(exists ? startX : -1, exists ? startY + 1 : -1));
 
-	exists = (startX > 0 && startY < m_layer.height - 1);
+	exists = (startX > 0 && startY < layer.height - 1);
 	neighborhood.push_back(
 		std::make_pair(exists ? startX - 1 : -1, exists ? startY + 1 : -1));
 	return neighborhood;
@@ -320,8 +338,23 @@ void Level::loadLayers(nlohmann::json &map) {
 	nlohmann::json layers = map["layers"];
 	for (auto &layer : layers) {
 		std::string type = layer["type"].get<std::string>();
-		if (type.compare("tilelayer") == 0 && (layer["name"].get<std::string>().compare("Tilemap") == 0))
-			loadTileLayer(layer, m_layer);
+		if (type.compare("tilelayer") == 0 && (layer["name"].get<std::string>().compare("Tilemap") == 0)) {
+			TileLayer _layer = TileLayer();
+			_layer.collisionLayer = true;			
+			loadTileLayer(layer, _layer);
+			m_layers.push_back(_layer);
+		}else if (type.compare("tilelayer") == 0 && (layer["name"].get<std::string>().compare("Background2") == 0)) {
+			TileLayer _layer = TileLayer();
+			_layer.collisionLayer = false;
+			loadTileLayer(layer, _layer);
+			m_layers.push_back(_layer);
+		}else if (type.compare("tilelayer") == 0 && (layer["name"].get<std::string>().compare("Background") == 0)) {
+			TileLayer _layer = TileLayer();
+			_layer.collisionLayer = false;
+			loadTileLayer(layer, _layer);
+			m_layers.push_back(_layer);
+		}
+			
 	}
 }
 
