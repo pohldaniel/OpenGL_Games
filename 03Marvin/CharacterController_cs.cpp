@@ -7,6 +7,8 @@ CharacterControllerCS::CharacterControllerCS(const float& dt, const float& fdt) 
 	playerDef.fixedRotation = true;
 	playerDef.type = b2_kinematicBody;
 	playerDef.position = m_position;
+	playerDef.awake = true;
+	playerDef.allowSleep = false;
 
 	m_body = Globals::world->CreateBody(&playerDef);
 
@@ -16,12 +18,14 @@ CharacterControllerCS::CharacterControllerCS(const float& dt, const float& fdt) 
 	b2FixtureDef playerFixture;
 	playerFixture.shape = &boundingBox;
 	playerFixture.friction = 0.0f;
-	playerFixture.density = 1.0f;
+	playerFixture.density = 10.0f;
 	playerFixture.userData.pointer = 1;
+	playerFixture.filter.categoryBits = 1;
+	playerFixture.filter.maskBits = 1;
+	//playerFixture.isSensor = true;
 
 	m_body->CreateFixture(&playerFixture);
-	//m_body->SetUserData(this);
-
+	m_body->GetUserData().pointer = reinterpret_cast<std::uintptr_t>(new GameObject(Category::Type::Player));
 	m_horizontalRaySpacing = (m_size.y - m_skinWidth * 2) / (m_horizontalRayCount - 1);
 	m_verticalRaySpacing = (m_size.x - m_skinWidth * 2) / (m_verticalRayCount - 1);
 

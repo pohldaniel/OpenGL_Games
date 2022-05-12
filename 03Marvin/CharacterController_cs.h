@@ -5,6 +5,9 @@
 #include <iterator>
 #include "Constants.h"
 #include "ViewEffect.h"
+#include "CollisionHandler.h"
+#include "GameObject.h"
+
 #define SHAPE_BOX 1
 #define SHAPE_CIRCLE 0
 
@@ -35,12 +38,12 @@ public:
 
 	float ReportFixture(b2Fixture* fixture, const b2Vec2& point, const b2Vec2& normal, float fraction) override {
 		uintptr_t index = fixture->GetUserData().pointer;
-		if (index == 1) {
+		if (index == 1 || index == 3) {
 			return -1.0f;
 		}
 
 
-		if (index == 3) {
+		if (index == 2) {
 			m_platformVer = true;
 			m_position = fixture->GetBody()->GetPosition();
 			m_body = fixture->GetBody();

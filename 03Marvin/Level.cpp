@@ -7,8 +7,6 @@ Level::Level(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fdt) {
 	m_quadBackground = new Quad(false, -1.0f, 1.0f, -1.0f, 1.0f);
 	m_sprites["background"] = Globals::textureManager.get("background").getTexture();
 
-	
-	
 	loadFile("Resources/Maps/easypeasy.json");
 
 	for (const TileLayer& layer : m_layers) {
@@ -27,21 +25,6 @@ Level::Level(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fdt) {
 			}
 		}
 	}
-
-
-	/*for (const Tile& tile : m_layer.tiles) {
-		addTile(tile, m_vertices, m_indexBuffer);
-	}
-
-	for (unsigned int count = 0; count < m_layer.height * m_layer.width; count++) {
-		m_bitVector.push_back(false);
-	}
-
-	bool tracing = true;
-
-	while (tracing) {
-		tracing = contourTrace(m_layer.tilesCol, m_bitVector);
-	}*/
 
 	short stride = 5, offset = 3;
 
@@ -76,6 +59,150 @@ Level::Level(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fdt) {
 	glBindVertexArray(0);
 }
 
+void Level::loadFile(const std::string &_file) {
+	nlohmann::json model;
+	std::ifstream file(_file);
+	file >> model;
+	file.close();
+	loadLayers(model);
+	loadObjects(model);
+}
+
+void Level::loadLayers(nlohmann::json &map) {
+
+	nlohmann::json layers = map["layers"];
+	for (auto &layer : layers) {
+		std::string type = layer["type"].get<std::string>();
+		if (type.compare("tilelayer") == 0 && (layer["name"].get<std::string>().compare("Tilemap") == 0)) {
+			TileLayer _layer = TileLayer();
+			_layer.collisionLayer = true;
+			loadTileLayer(layer, _layer);
+			m_layers.push_back(_layer);
+		}else if (type.compare("tilelayer") == 0 && (layer["name"].get<std::string>().compare("Background2") == 0)) {
+			TileLayer _layer = TileLayer();
+			_layer.collisionLayer = false;
+			loadTileLayer(layer, _layer);
+			m_layers.push_back(_layer);
+		}else if (type.compare("tilelayer") == 0 && (layer["name"].get<std::string>().compare("Background") == 0)) {
+			TileLayer _layer = TileLayer();
+			_layer.collisionLayer = false;
+			loadTileLayer(layer, _layer);
+			m_layers.push_back(_layer);
+		}
+	}
+}
+
+void Level::loadObjects(nlohmann::json &map) {
+	nlohmann::json layers = map["layers"];
+	for (auto &layer : layers) {
+		if (layer["name"].get<std::string>().compare("Objects") == 0) {
+			nlohmann::json data = layer["objects"];
+			for (auto &object : data) {
+
+				m_objects.push_back({
+					object["type"].get<std::string>(),
+					object["name"].get<std::string>(),
+					Vector2f(object["x"].get<unsigned int>(), object["y"].get<unsigned int>()),
+					object["x"].get<unsigned int>(),
+					object["y"].get<unsigned int>()
+				});
+				m_phyObjects.push_back(createPhysicsBody(m_objects.back()));
+				
+			}
+		}
+	}
+}
+
+b2Body* Level::createPhysicsBody(Object &object) {
+
+	GameObject *newObject;
+
+	if (object.type.compare("Exit") == 0) {
+		newObject = new GameObject(Category::Type::Exit);
+	}else if (object.type.compare("Water") == 0) {
+		newObject = new GameObject(Category::Type::Seeker);
+	}else if (object.type.compare("Gem") == 0) {
+		newObject = new GameObject(Category::Type::Gem);
+	}
+
+	b2Vec2 position = b2Vec2(15.0f + object.position[0] * (30.0f / 70.0f), 905.0f - object.position[1] * (30.0f / 70.0f));
+	b2BodyDef bodyDef;
+	bodyDef.type = b2_dynamicBody;
+	//bodyDef.allowSleep = false;
+	//bodyDef.awake = true;
+	bodyDef.position = position;
+	b2Body *objectBody = Globals::world->CreateBody(&bodyDef);
+
+	b2PolygonShape boundingBox;
+	boundingBox.SetAsBox(15.0f, 2.0f);
+
+	b2FixtureDef objectFixture;
+	objectFixture.shape = &boundingBox;
+	objectFixture.friction = 0.0f;
+	objectFixture.density = 0.0f;
+	objectFixture.userData.pointer = 3;
+	objectFixture.filter.categoryBits = 1;
+	objectFixture.filter.maskBits = 1;
+	//objectFixture;
+	objectFixture.isSensor = true;
+	objectBody->CreateFixture(&objectFixture);
+
+	//objectBody->SetUserData(newObject);
+	objectBody->GetUserData().pointer = reinterpret_cast<std::uintptr_t>(newObject);
+
+	return objectBody;
+}
+
+void Level::loadTileLayer(nlohmann::json &layer_in, TileLayer &layer_out, bool reverse) {
+	layer_out.name = layer_in["name"].get<std::string>();
+	layer_out.visible = layer_in["visible"].get<bool>();
+	layer_out.opacity = layer_in["opacity"].get<float>();
+	layer_out.width = layer_in["width"].get<unsigned int>();
+	layer_out.height = layer_in["height"].get<unsigned int>();
+
+	nlohmann::json data = layer_in["data"];
+
+	unsigned short count = 0;
+	unsigned short posX = 0;
+	unsigned short posY = reverse ? layer_out.height - 1 : 0;
+
+	for (auto &tile : data) {
+		if (count % layer_out.width == 0 && count > 0) {
+			if (reverse) posY--; else posY++;
+			posX = 0;
+		}
+		if (tile.get<unsigned int>() != 0) {
+			layer_out.tiles.push_back({ Vector2f(30.0f * posX, 30.0f * posY), Vector2f(30.0f, 30.0f), tile.get<unsigned int>() - 1 });
+		}
+		layer_out.tilesCol.push_back({ Vector2f(30.0f * posX, 30.0f * posY), Vector2f(30.0f, 30.0f), tile.get<unsigned int>() });
+
+		posX++;
+		count++;
+	}
+}
+
+void Level::addTile(const Tile tile, std::vector<float>& vertices, std::vector<unsigned int>& indices) {
+	Vector2f pos = tile.position;
+	float w = tile.size[0];
+	float h = tile.size[1];
+
+	vertices.push_back(pos[0]); vertices.push_back(pos[1]); vertices.push_back(0.0f); vertices.push_back(0.0f); vertices.push_back(0.0f);
+	vertices.push_back(pos[0]); vertices.push_back(pos[1] + h); vertices.push_back(0.0f); vertices.push_back(0.0f); vertices.push_back(1.0f);
+	vertices.push_back(pos[0] + w); vertices.push_back(pos[1] + h); vertices.push_back(0.0f); vertices.push_back(1.0f); vertices.push_back(1.0f);
+	vertices.push_back(pos[0] + w); vertices.push_back(pos[1]); vertices.push_back(0.0f); vertices.push_back(1.0f); vertices.push_back(0.0f);
+
+	m_indexMap.push_back(tile.gid); m_indexMap.push_back(tile.gid); m_indexMap.push_back(tile.gid); m_indexMap.push_back(tile.gid);
+
+	unsigned int currentOffset = (vertices.size() / 5) - 4;
+
+	indices.push_back(currentOffset + 0);
+	indices.push_back(currentOffset + 1);
+	indices.push_back(currentOffset + 2);
+
+	indices.push_back(currentOffset + 0);
+	indices.push_back(currentOffset + 2);
+	indices.push_back(currentOffset + 3);
+}
 
 bool Level::contourTrace(const std::vector<Tile> &grid, std::vector<bool> &visited, const TileLayer& layer) {
 	for (int row = 0; row < layer.height; ++row) {
@@ -324,91 +451,6 @@ int Level::getMooreIndex(int boundaryX, int boundaryY, int neighborX, int neighb
 	return -1;
 }
 
-
-void Level::loadFile(const std::string &_file) {
-	nlohmann::json model;
-	std::ifstream file(_file);
-	file >> model;
-	file.close();
-	loadLayers(model);
-}
-
-void Level::loadLayers(nlohmann::json &map) {
-
-	nlohmann::json layers = map["layers"];
-	for (auto &layer : layers) {
-		std::string type = layer["type"].get<std::string>();
-		if (type.compare("tilelayer") == 0 && (layer["name"].get<std::string>().compare("Tilemap") == 0)) {
-			TileLayer _layer = TileLayer();
-			_layer.collisionLayer = true;			
-			loadTileLayer(layer, _layer);
-			m_layers.push_back(_layer);
-		}else if (type.compare("tilelayer") == 0 && (layer["name"].get<std::string>().compare("Background2") == 0)) {
-			TileLayer _layer = TileLayer();
-			_layer.collisionLayer = false;
-			loadTileLayer(layer, _layer);
-			m_layers.push_back(_layer);
-		}else if (type.compare("tilelayer") == 0 && (layer["name"].get<std::string>().compare("Background") == 0)) {
-			TileLayer _layer = TileLayer();
-			_layer.collisionLayer = false;
-			loadTileLayer(layer, _layer);
-			m_layers.push_back(_layer);
-		}
-			
-	}
-}
-
-void Level::loadTileLayer(nlohmann::json &layer_in, TileLayer &layer_out, bool reverse) {
-	layer_out.name = layer_in["name"].get<std::string>();
-	layer_out.visible = layer_in["visible"].get<bool>();
-	layer_out.opacity = layer_in["opacity"].get<float>();
-	layer_out.width = layer_in["width"].get<unsigned int>();
-	layer_out.height = layer_in["height"].get<unsigned int>();
-
-	nlohmann::json data = layer_in["data"];
-
-	unsigned short count = 0;
-	unsigned short posX = 0;
-	unsigned short posY = reverse ? layer_out.height - 1 : 0;
-
-	for (auto &tile : data) {
-		if (count % layer_out.width == 0 && count > 0) {
-			if (reverse) posY--; else posY++;
-			posX = 0;
-		}
-		if (tile.get<unsigned int>() != 0) {
-			layer_out.tiles.push_back({ Vector2f(30.0f * posX, 30.0f * posY), Vector2f(30.0f, 30.0f), tile.get<unsigned int>() - 1 });
-		}
-		layer_out.tilesCol.push_back({ Vector2f(30.0f * posX, 30.0f * posY), Vector2f(30.0f, 30.0f), tile.get<unsigned int>()});
-
-		posX++;
-		count++;
-	}
-}
-
-void Level::addTile(const Tile tile, std::vector<float>& vertices, std::vector<unsigned int>& indices) {
-	Vector2f pos = tile.position;
-	float w = tile.size[0];
-	float h = tile.size[1];
-
-	vertices.push_back(pos[0]); vertices.push_back(pos[1]); vertices.push_back(0.0f); vertices.push_back(0.0f); vertices.push_back(0.0f);
-	vertices.push_back(pos[0]); vertices.push_back(pos[1] + h); vertices.push_back(0.0f); vertices.push_back(0.0f); vertices.push_back(1.0f);
-	vertices.push_back(pos[0] + w); vertices.push_back(pos[1] + h); vertices.push_back(0.0f); vertices.push_back(1.0f); vertices.push_back(1.0f);
-	vertices.push_back(pos[0] + w); vertices.push_back(pos[1]); vertices.push_back(0.0f); vertices.push_back(1.0f); vertices.push_back(0.0f);
-
-	m_indexMap.push_back(tile.gid); m_indexMap.push_back(tile.gid); m_indexMap.push_back(tile.gid); m_indexMap.push_back(tile.gid);
-
-	unsigned int currentOffset = (vertices.size() / 5) - 4;
-
-	indices.push_back(currentOffset + 0);
-	indices.push_back(currentOffset + 1);
-	indices.push_back(currentOffset + 2);
-
-	indices.push_back(currentOffset + 0);
-	indices.push_back(currentOffset + 2);
-	indices.push_back(currentOffset + 3);
-}
-
 void Level::render() {
 	
 	glUseProgram(m_shader->m_program);
@@ -459,6 +501,33 @@ void Level::render() {
 				glEnd();
 			}
 		}
+	}
+	for (const auto& body : m_phyObjects) {
+		
+		b2Vec2 position = body->GetPosition();
+		b2PolygonShape *boxShape = static_cast<b2PolygonShape*>(body->GetFixtureList()->GetShape());
+
+		b2Vec2 v1 = boxShape->m_vertices[0];
+		b2Vec2 v2 = boxShape->m_vertices[1];
+		b2Vec2 v3 = boxShape->m_vertices[2];
+		b2Vec2 v4 = boxShape->m_vertices[3];
+		//std::cout << position.x << "  " << position.y << std::endl;
+		
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		glBegin(GL_QUADS);
+		glColor3f(1, 0, 0);
+
+		float xpos = position.x + v1.x;
+		float ypos = position.y + v1.y;
+		float w = v2.x - v1.x;
+		float h = v4.y - v1.y;
+
+		glVertex3f(xpos, ypos, 0.0f);
+		glVertex3f(xpos, (ypos + h), 0.0f);
+		glVertex3f(xpos + w, (ypos + h), 0.0f);
+		glVertex3f(xpos + w, ypos, 0.0f);
+		glEnd();
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	}
 	#endif
 }

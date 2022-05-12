@@ -19,7 +19,7 @@ private:
 	ViewEffect() { }
 	~ViewEffect() {}
 
-	Matrix4f m_view;
+	Matrix4f m_view = Matrix4f::IDENTITY;
 	
 
 	static ViewEffect s_instance;

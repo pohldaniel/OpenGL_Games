@@ -11,6 +11,7 @@
 #include "CharacterController_cs.h"
 #include "Marvin.h"
 #include "ViewEffect.h"
+#include "ContactFilter.h"
 
 enum CurrentState {
 	GAME,

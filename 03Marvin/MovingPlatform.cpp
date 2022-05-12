@@ -19,7 +19,7 @@ MovingPlatform::MovingPlatform(const float& dt, const float& fdt) : m_dt(dt), m_
 	platformShapeDef.density = 10.0;
 	platformShapeDef.friction = 0.0;
 	platformShapeDef.restitution = 0.1f;
-	platformShapeDef.userData.pointer = 3;
+	platformShapeDef.userData.pointer = 2;
 	platformBody->CreateFixture(&platformShapeDef);
 
 	directionToFinish_ = (finishPosition_ - initialPosition_);

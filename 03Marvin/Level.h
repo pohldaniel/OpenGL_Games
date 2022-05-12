@@ -9,6 +9,7 @@
 #include "engine\Quad.h"
 
 #include "CollisionHandler.h"
+#include "GameObject.h"
 #include "Constants.h"
 #include "MovingPlatform.h"
 #include "ViewEffect.h"
@@ -33,6 +34,14 @@ public:
 	bool collisionLayer = false;
 };
 
+struct Object {
+	std::string type;
+	std::string name;
+	Vector2f position;
+	unsigned int posX;
+	unsigned int posY;
+};
+
 class Level {
 	
 public:
@@ -41,6 +50,7 @@ public:
 
 	void loadFile(const std::string &file);
 	void loadLayers(nlohmann::json &map);
+	void loadObjects(nlohmann::json &map);
 	void loadTileLayer(nlohmann::json &layer_in, TileLayer &layer_out, bool reverse = true);
 	void addTile(const Tile tile, std::vector<float>& vertices, std::vector<unsigned int>& indices);
 	void render();
@@ -56,7 +66,8 @@ public:
 
 	std::vector<bool> m_bitVector;
 	std::vector<b2Body*> m_contours;
-	
+	std::vector<b2Body*> m_phyObjects;
+
 private:
 	Shader *m_shader;
 	Quad *m_quadBackground;
@@ -64,6 +75,8 @@ private:
 	Spritesheet *m_spriteSheet;
 	std::vector<TileLayer> m_layers;
 	std::unordered_map<std::string, unsigned int> m_sprites;
+
+	std::vector<Object> m_objects;
 
 	std::vector<float> m_vertices;
 	std::vector<unsigned int> m_indexBuffer;
@@ -75,4 +88,7 @@ private:
 
 	const float& m_fdt;
 	const float& m_dt;
+
+
+	b2Body* createPhysicsBody(Object &object);
 };

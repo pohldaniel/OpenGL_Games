@@ -6,7 +6,7 @@ StateMachine::StateMachine(const float& dt, const float& fdt) : m_dt(dt), m_fdt(
 	m_level = new Level(dt, fdt);
 
 	Globals::world->SetContactListener(&m_collisionHandler);
-
+	//Globals::world->SetContactFilter(new ContactFilter());
 	m_characterController = new CharacterController(dt, fdt);
 	m_marvin = new Marvin(dt, fdt);
 
