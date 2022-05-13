@@ -98,16 +98,16 @@ void Level::loadObjects(nlohmann::json &map) {
 		if (layer["name"].get<std::string>().compare("Objects") == 0) {
 			nlohmann::json data = layer["objects"];
 			for (auto &object : data) {
-				if (object["type"].get<std::string>().compare("Gem") == 0) {
-					m_objects.push_back({
-						object["type"].get<std::string>(),
-						object["name"].get<std::string>(),
-						Vector2f(object["x"].get<unsigned int>(), object["y"].get<unsigned int>()),
-						object["x"].get<unsigned int>(),
-						object["y"].get<unsigned int>()
-					});
-					m_phyObjects.push_back(createPhysicsBody(m_objects.back()));
-				}
+
+				m_objects.push_back({
+					object["type"].get<std::string>(),
+					object["name"].get<std::string>(),
+					Vector2f(object["x"].get<unsigned int>(), object["y"].get<unsigned int>()),
+					object["x"].get<unsigned int>(),
+					object["y"].get<unsigned int>()
+				});
+				m_phyObjects.push_back(createPhysicsBody(m_objects.back()));
+
 			}
 		}
 	}
@@ -128,9 +128,6 @@ b2Body* Level::createPhysicsBody(Object &object) {
 	b2Vec2 position = b2Vec2(15.0f + object.position[0] * (30.0f / 70.0f), 905.0f - object.position[1] * (30.0f / 70.0f));
 	b2BodyDef bodyDef;
 	bodyDef.type = b2_kinematicBody;
-	bodyDef.allowSleep = false;
-	bodyDef.awake = true;
-	bodyDef.enabled = true;
 	bodyDef.position = position;
 	b2Body *objectBody = Globals::world->CreateBody(&bodyDef);
 

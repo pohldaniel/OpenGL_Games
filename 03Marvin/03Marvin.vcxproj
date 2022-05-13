@@ -222,6 +222,7 @@
     <ClCompile Include="engine\Timer.cpp" />
     <ClCompile Include="engine\ui\Text.cpp" />
     <ClCompile Include="engine\Vector.cpp" />
+    <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="Level.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Marvin.cpp" />
@@ -245,6 +246,7 @@
     <ClInclude Include="CharacterController_old.h" />
     <ClInclude Include="CollisionHandler.h" />
     <ClInclude Include="Constants.h" />
+    <ClInclude Include="ContactFilter.h" />
     <ClInclude Include="engine\animation\Animator.h" />
     <ClInclude Include="engine\AssetManger.h" />
     <ClInclude Include="engine\Batchrenderer.h" />
@@ -266,6 +268,7 @@
     <ClInclude Include="engine\Timer.h" />
     <ClInclude Include="engine\ui\Text.h" />
     <ClInclude Include="engine\Vector.h" />
+    <ClInclude Include="GameObject.h" />
     <ClInclude Include="Level.h" />
     <ClInclude Include="Marvin.h" />
     <ClInclude Include="MovingPlatform.h" />
