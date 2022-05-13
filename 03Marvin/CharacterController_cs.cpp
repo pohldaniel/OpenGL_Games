@@ -11,7 +11,7 @@ CharacterControllerCS::CharacterControllerCS(const float& dt, const float& fdt) 
 	playerDef.allowSleep = false;
 
 	m_body = Globals::world->CreateBody(&playerDef);
-
+	
 	b2PolygonShape boundingBox;
 	boundingBox.SetAsBox(m_size.x * 0.5 , m_size.y * 0.5);
 
@@ -26,6 +26,7 @@ CharacterControllerCS::CharacterControllerCS(const float& dt, const float& fdt) 
 
 	m_body->CreateFixture(&playerFixture);
 	m_body->GetUserData().pointer = reinterpret_cast<std::uintptr_t>(new GameObject(Category::Type::Player));
+	m_body->SetCollide(true);
 	m_horizontalRaySpacing = (m_size.y - m_skinWidth * 2) / (m_horizontalRayCount - 1);
 	m_verticalRaySpacing = (m_size.x - m_skinWidth * 2) / (m_verticalRayCount - 1);
 
@@ -607,4 +608,5 @@ void CharacterControllerCS::updateVelocity() {
 			m_velocity.y -= m_gravity * m_fdt;			
 		}		
 	}
+	//std::cout << m_body << std::endl;
 }

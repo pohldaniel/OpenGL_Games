@@ -329,6 +329,7 @@ public:
 	/// @param flag set to true to wake the body, false to put it to sleep.
 	void SetAwake(bool flag);
 
+	void SetCollide(bool flag);
 	/// Get the sleeping state of this body.
 	/// @return true if the body is awake.
 	bool IsAwake() const;
@@ -417,7 +418,8 @@ private:
 		e_bulletFlag		= 0x0008,
 		e_fixedRotationFlag	= 0x0010,
 		e_enabledFlag		= 0x0020,
-		e_toiFlag			= 0x0040
+		e_toiFlag			= 0x0040,
+		e_collideFlag       = 0X0080
 	};
 
 	b2Body(const b2BodyDef* bd, b2World* world);
@@ -656,6 +658,10 @@ inline void b2Body::SetAwake(bool flag)
 		m_force.SetZero();
 		m_torque = 0.0f;
 	}
+}
+
+inline void b2Body::SetCollide(bool flag) {
+	m_flags |= e_collideFlag;
 }
 
 inline bool b2Body::IsAwake() const
