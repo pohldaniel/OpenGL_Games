@@ -9,7 +9,8 @@
 #include "engine\Quad.h"
 
 #include "CollisionHandler.h"
-#include "GameObject.h"
+#include "Object.h"
+#include "Entity.h"
 #include "Constants.h"
 #include "MovingPlatform.h"
 #include "ViewEffect.h"
@@ -34,7 +35,7 @@ public:
 	bool collisionLayer = false;
 };
 
-struct Object {
+struct JSONObject {
 	std::string type;
 	std::string name;
 	Vector2f position;
@@ -76,7 +77,7 @@ private:
 	std::vector<TileLayer> m_layers;
 	std::unordered_map<std::string, unsigned int> m_sprites;
 
-	std::vector<Object> m_objects;
+	std::vector<JSONObject> m_objects;
 
 	std::vector<float> m_vertices;
 	std::vector<unsigned int> m_indexBuffer;
@@ -90,5 +91,5 @@ private:
 	const float& m_dt;
 
 
-	b2Body* createPhysicsBody(Object &object);
+	b2Body* createPhysicsBody(JSONObject &object);
 };

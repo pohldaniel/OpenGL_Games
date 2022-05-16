@@ -113,16 +113,16 @@ void Level::loadObjects(nlohmann::json &map) {
 	}
 }
 
-b2Body* Level::createPhysicsBody(Object &object) {
+b2Body* Level::createPhysicsBody(JSONObject &object) {
 
-	GameObject *newObject;
+	Object *newObject;
 
 	if (object.type.compare("Exit") == 0) {
-		newObject = new GameObject(Category::Type::Exit);
+		newObject = new Object(Category::Type::Exit);
 	}else if (object.type.compare("Water") == 0) {
-		newObject = new GameObject(Category::Type::Seeker);
+		newObject = new Object(Category::Type::Seeker);
 	}else if (object.type.compare("Gem") == 0) {
-		newObject = new GameObject(Category::Type::Gem);
+		newObject = new Object(Category::Type::Gem);
 	}
 
 	b2Vec2 position = b2Vec2(15.0f + object.position[0] * (30.0f / 70.0f), 905.0f - object.position[1] * (30.0f / 70.0f));
@@ -335,22 +335,24 @@ void Level::createStaticBody(std::vector<Vector2f> &chainVertices) {
 	b2Body *platform = Globals::world->CreateBody(&bodyDef);
 
 	std::vector<b2Vec2> vertices;
-
+	b2ChainShape chain;
 	if (numVertices == 2) {
 		vertices.push_back(b2Vec2(chainVertices[0][0] * 30.0f, chainVertices[0][1] * 30.0f));
 		vertices.push_back(b2Vec2(chainVertices[1][0] * 30.0f, chainVertices[1][1] * 30.0f));
 
 		vertices.push_back(b2Vec2(chainVertices[1][0] * 30.0f, (chainVertices[1][1] - 1) * 30.0f));
 		vertices.push_back(b2Vec2((chainVertices[1][0] - 1) * 30.0f, (chainVertices[1][1] - 1) * 30.0f));
+		chain.CreateLoop(&vertices[0], vertices.size());
 	}else {
 		for (int i = numVertices - 1; i >= 0; i--) {
 			vertices.push_back(b2Vec2(chainVertices[i][0] * 30.0f, chainVertices[i][1] * 30.0f));
 		}
+		chain.CreateLoop(&vertices[0], vertices.size() - 1);
 	}
 
-	b2ChainShape chain;
+	
 	//chain.CreateChain(&vertices[0], numVertices, vertices[0], vertices[numVertices - 1]);
-	chain.CreateLoop(&vertices[0], vertices.size());
+	
 
 	b2Fixture *contourFixture = platform->CreateFixture(&chain, 0);
 	contourFixture->SetFriction(1.f);

@@ -25,7 +25,7 @@ CharacterControllerCS::CharacterControllerCS(const float& dt, const float& fdt) 
 	//playerFixture.isSensor = true;
 
 	m_body->CreateFixture(&playerFixture);
-	m_body->GetUserData().pointer = reinterpret_cast<std::uintptr_t>(new GameObject(Category::Type::Player));
+	m_body->GetUserData().pointer = reinterpret_cast<std::uintptr_t>(new Object(Category::Type::Player));
 	m_body->SetCollide(true);
 	m_horizontalRaySpacing = (m_size.y - m_skinWidth * 2) / (m_horizontalRayCount - 1);
 	m_verticalRaySpacing = (m_size.x - m_skinWidth * 2) / (m_verticalRayCount - 1);
@@ -226,8 +226,10 @@ b2Vec2 CharacterControllerCS::moveHorizontal(b2Vec2 position, b2Vec2 direction, 
 
 		float directionX = sgn(currentDirection.x);
 		float distance = currentDirection.Length();
+		if (distance == 0.0f) {
+			break;
+		}
 		b2Vec2 direction = distance == 0.0f ? b2Vec2(0.0f, 0.0f) : (1.0f / distance) * currentDirection;
-
 		std::vector<b2Vec2> rayOrigins;
 
 		if ((directionX == -1)) {
@@ -309,6 +311,10 @@ b2Vec2 CharacterControllerCS::moveVertical(b2Vec2 position, b2Vec2 direction, un
 
 		float directionY = sgn(currentDirection.y);
 		float distance = currentDirection.Length();
+		if (distance == 0.0f) {
+			break;
+		}
+
 		b2Vec2 direction = distance == 0.0f ? b2Vec2(0.0f, 0.0f) : (1.0f / distance) * currentDirection;
 
 		std::vector<b2Vec2> rayOrigins;

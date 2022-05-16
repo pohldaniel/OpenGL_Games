@@ -5,12 +5,12 @@ CollisionHandler::CollisionHandler(b2World &world) : mWorld(world) {}
 
 void CollisionHandler::BeginContact(b2Contact *contact) {
 
-	GameObject*  firstNode = (GameObject*)(contact->GetFixtureA()->GetBody()->GetUserData().pointer);
-	GameObject*  secondNode = (GameObject*)(contact->GetFixtureB()->GetBody()->GetUserData().pointer);
+	Object*  firstNode = reinterpret_cast<Object*>(contact->GetFixtureA()->GetBody()->GetUserData().pointer);
+	Object*  secondNode = reinterpret_cast<Object*>(contact->GetFixtureB()->GetBody()->GetUserData().pointer);
 	
 	if (!firstNode || !secondNode) return;
 
-	std::pair<GameObject*, GameObject*> collisionPair(firstNode, secondNode);
+	std::pair<Object*, Object*> collisionPair(firstNode, secondNode);
 	if (matchesCategories(collisionPair, Category::Type::Player, Category::Type::Exit)) {
 		//mWorld.requestCompletion();
 		std::cout << "Exit" << std::endl;
@@ -30,7 +30,7 @@ void CollisionHandler::EndContact(b2Contact *contact) {
 }
 
 
-bool CollisionHandler::matchesCategories(std::pair<GameObject*, GameObject*> &nodes, unsigned int type1, unsigned int type2) {
+bool CollisionHandler::matchesCategories(std::pair<Object*, Object*> &nodes, unsigned int type1, unsigned int type2) {
 
 	unsigned int cat1 = nodes.first->getCategory();
 	unsigned int cat2 = nodes.second->getCategory();

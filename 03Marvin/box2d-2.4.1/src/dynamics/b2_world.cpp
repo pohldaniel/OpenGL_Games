@@ -646,7 +646,7 @@ void b2World::SolveTOI(const b2TimeStep& step)
 
 				b2BodyType typeA = bA->m_type;
 				b2BodyType typeB = bB->m_type;
-				b2Assert(typeA == b2_dynamicBody || typeB == b2_dynamicBody);
+				b2Assert(typeA == b2_dynamicBody || typeB == b2_dynamicBody || !(bA->m_flags & bA->e_collideFlag && bB->m_flags & bB->e_collideFlag));
 
 				bool activeA = bA->IsAwake() && typeA != b2_staticBody;
 				bool activeB = bB->IsAwake() && typeB != b2_staticBody;

@@ -6,7 +6,7 @@
 #include "Constants.h"
 #include "ViewEffect.h"
 #include "CollisionHandler.h"
-#include "GameObject.h"
+#include "Object.h"
 
 #define SHAPE_BOX 1
 #define SHAPE_CIRCLE 0

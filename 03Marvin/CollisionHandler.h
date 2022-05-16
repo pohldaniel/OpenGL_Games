@@ -1,23 +1,8 @@
 #pragma once
 #include <iostream>
 #include <Box2D\Box2D.h>
-#include "GameObject.h"
-
-namespace Category {
-	enum Type {
-		None = 0, //Unclassified
-		Walkable = 1 << 0, //Platforms, tops of boxes, etc
-		Player = 1 << 1, //Player
-		Enemy = 1 << 2, //Enemy
-		GrassBlock = 1 << 3, //GrassBlock entity
-		GrassPlatform = 1 << 4, //GrassPlatform entity
-		Seeker = 1 << 5, //For following player
-		Gem = 1 << 6, //Level gem
-		Exit = 1 << 7, //End of level
-		Damager = 1 << 8, //Spikes, lava, etc
-		SoundEffect = 1 << 9 //Effects
-	};
-}
+#include "Object.h"
+#include "Entity.h"
 
 class World;
 
@@ -31,7 +16,7 @@ public:
 	
 
 private:
-	bool matchesCategories(std::pair<GameObject*, GameObject*> &nodes, unsigned int type1, unsigned int type2);
+	bool matchesCategories(std::pair<Object*, Object*> &nodes, unsigned int type1, unsigned int type2);
 
 private:
 	b2World &mWorld;
