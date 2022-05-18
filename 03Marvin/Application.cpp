@@ -283,6 +283,7 @@ void Application::processInput() {
 		if (Globals::pKeyBuffer['A'] & 0xF0) Globals::CONTROLLS |= Globals::KEY_A;
 		if (Globals::pKeyBuffer['D'] & 0xF0) Globals::CONTROLLS |= Globals::KEY_D;
 		if (Globals::pKeyBuffer['S'] & 0xF0) Globals::CONTROLLS |= Globals::KEY_S;
+		if (Globals::pKeyBuffer['Q'] & 0xF0) Globals::CONTROLLS |= Globals::KEY_Q;
 		if (Globals::pKeyBuffer[VK_SPACE] & 0xF0) Globals::CONTROLLS |= Globals::KEY_SPACE;
 		if (Globals::pKeyBuffer[VK_ESCAPE] & 0xF0) Globals::CONTROLLS |= Globals::KEY_ESCAPE;
 
@@ -326,10 +327,14 @@ void Application::loadAssets() {
 	Globals::spritesheetManager.loadSpritesheet("player_idle", "res/textures/player.png", 96, 84, 0, 1, 0, 6, GL_SRGB8_ALPHA8);
 
 	Globals::textureManager.loadTexture("background", "Resources/Textures/Background/bg.png");
+	Globals::textureManager.loadTexture("gem", "Resources/Textures/Tileset/items_spritesheet.png", 70, 70, 2, 4, 2, -1, false);
+	
 	Globals::spritesheetManager.loadSpritesheet("marvin_move", "Resources/Textures/Player/player_spritesheet.png", 70, 100, 0, 1, 1, 3);
 	Globals::spritesheetManager.loadSpritesheet("marvin_jump", "Resources/Textures/Player/player_spritesheet.png", 70, 100, 0, 1, 4, 4);
 	Globals::spritesheetManager.loadSpritesheet("marvin_fall", "Resources/Textures/Player/player_spritesheet.png", 70, 100, 0, 1, 5, 5);
 	Globals::spritesheetManager.loadSpritesheet("marvin_idle", "Resources/Textures/Player/player_spritesheet.png", 70, 100, 0, 1, 1, 1);
+
+	Globals::spritesheetManager.loadSpritesheet("barnacle", "Resources/Textures/Enemy/barnacle.png", 51, 58, 0, 0, 0, 1);
 
 	//Globals::spritesheetManager.loadSpritesheet("base", "Resources/Textures/Tileset/items_spritesheet.png", 70, 70, 2, 0, 0, -1);
 	Globals::spritesheetManager.loadSpritesheet("base", "Resources/Textures/Tileset/base_tiles_spritesheet.png", 70, 70, 2, 0, 0, -1);
@@ -367,4 +372,9 @@ void Application::loadAssets() {
 	Globals::musicManager.get("menu").setVolume(Globals::musicVolume);
 	Globals::musicManager.get("main").setVolume(Globals::musicVolume);
 	Globals::musicManager.get("pause").setVolume(Globals::musicVolume);
+
+
+	//Texture::CutSubimage("Resources/Textures/Enemy/enemies_spritesheet.png","Resources/Textures/Enemy/0.png", 318, 239, 51, 58);
+	//Texture::CutSubimage("Resources/Textures/Enemy/enemies_spritesheet.png", "Resources/Textures/Enemy/1.png", 528, 220, 51, 58);
+	//Texture::AddHorizontally("Resources/Textures/Enemy/0.png", "Resources/Textures/Enemy/1.png", "Resources/Textures/Enemy/barnacle.png");
 }

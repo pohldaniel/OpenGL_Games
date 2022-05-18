@@ -1,9 +1,10 @@
 #define NOMINMAX
 #define STB_IMAGE_IMPLEMENTATION
+#define STB_IMAGE_WRITE_IMPLEMENTATION
 #include <windows.h>	
 #include <tchar.h>
 #include "stb\stb_image.h"
-
+#include "stb\stb_image_write.h"
 #include "Constants.h"
 #include "engine\Clock.h"
 #include "Application.h"

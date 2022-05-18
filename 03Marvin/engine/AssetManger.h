@@ -10,6 +10,14 @@ public:
 		m_assets[name].loadFromFile(path, flipVertical, linear); 
 	}
 
+	void loadTexture(const std::string& name, const std::string& path, unsigned short tileWidth, unsigned short tileHeight, unsigned short spacing, unsigned int row, unsigned int column, unsigned int format = -1, const bool linear = false) {
+		m_assets[name].loadFromFile(path, tileWidth, tileHeight, spacing, row, column, true, true, format, linear);
+	}
+
+	void loadTexture(const std::string& name, const std::string& path, unsigned int offsetX, unsigned int offsetY, unsigned int width, unsigned int height, unsigned int format = -1, const bool linear = false) {
+		m_assets[name].loadFromFile(path, offsetX, offsetY, width, height, true, format, linear);
+	}
+
 	void loadCharacterSet(const std::string& name, const std::string& path, const float characterSize) {
 		m_assets.insert(std::pair<std::string, T>(name, T()));
 		m_assets[name].loadFromFile(path, characterSize);
@@ -20,8 +28,8 @@ public:
 		m_assetPointer[name] = new T(vertex, fragment);
 	}
 
-	void loadSpritesheet(const std::string& name, const std::string& path, unsigned short tileWidth, unsigned short tileHeight, unsigned short spacing, unsigned int yStart, unsigned int xLength, unsigned int format = -1) {
-		m_assetPointer[name] = new T(path, tileWidth, tileHeight, spacing, true, true, yStart, xLength, format);
+	void loadSpritesheet(const std::string& name, const std::string& path, unsigned short tileWidth, unsigned short tileHeight, unsigned short spacing, unsigned int yStart, unsigned int xStart, unsigned int xLength, unsigned int format = -1) {
+		m_assetPointer[name] = new T(path, tileWidth, tileHeight, spacing, true, true, yStart, xStart, xLength, format);
 	}
 
 	void loadSoundEffect(const std::string& name, const std::string& path) {
@@ -72,6 +80,14 @@ public:
 
 	void loadTexture(const std::string& name, const std::string& path, const bool flipVertical = true, const bool linear = false) {
 		m_assets[name].loadFromFile(path, flipVertical, linear);
+	}
+
+	void loadTexture(const std::string& name, const std::string& path, unsigned short tileWidth, unsigned short tileHeight, unsigned short spacing, unsigned int row, unsigned int column, unsigned int format = -1, const bool linear = false) {
+		m_assets[name].loadFromFile(path, tileWidth, tileHeight, spacing, row, column, true, true, format, linear);
+	}
+
+	void loadTexture(const std::string& name, const std::string& path, unsigned int offsetX, unsigned int offsetY, unsigned int width, unsigned int height, unsigned int format = -1, const bool linear = false) {
+		m_assets[name].loadFromFile(path, offsetX, offsetY, width, height, true, format, linear);
 	}
 
 	void loadCharacterSet(const std::string& name, const std::string& path, const float characterSize) {

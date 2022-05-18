@@ -9,7 +9,7 @@
 #include "Level.h"
 #include "CharacterController.h"
 #include "CharacterController_cs.h"
-#include "Marvin.h"
+#include "Player.h"
 #include "ViewEffect.h"
 #include "ContactFilter.h"
 
@@ -51,14 +51,13 @@ private:
 	Shader *m_shader;
 	Level* m_level;
 	CharacterController* m_characterController;
-	Marvin* m_marvin;
+	Player* m_player;
 
 	unsigned int m_frameTexture;
 	unsigned int m_frameBuffer;
 	unsigned int m_rbDepthStencil;
 	bool m_isRunning = true;
 
-	CollisionHandler m_collisionHandler;
 };
 
 class State {

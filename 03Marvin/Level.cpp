@@ -7,7 +7,7 @@ Level::Level(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fdt) {
 	m_quadBackground = new Quad(false, -1.0f, 1.0f, -1.0f, 1.0f);
 	m_sprites["background"] = Globals::textureManager.get("background").getTexture();
 
-	loadFile("Resources/Maps/easypeasy.json");
+	loadFile("Resources/Maps/easypeasy2.json");
 
 	for (const TileLayer& layer : m_layers) {
 		for (const Tile& tile : layer.tiles) {
@@ -83,7 +83,7 @@ void Level::loadLayers(nlohmann::json &map) {
 			_layer.collisionLayer = false;
 			loadTileLayer(layer, _layer);
 			m_layers.push_back(_layer);
-		}else if (type.compare("tilelayer") == 0 && (layer["name"].get<std::string>().compare("Background") == 0)) {
+		}else if(type.compare("tilelayer") == 0 && (layer["name"].get<std::string>().compare("Background") == 0)) {
 			TileLayer _layer = TileLayer();
 			_layer.collisionLayer = false;
 			loadTileLayer(layer, _layer);
@@ -106,49 +106,120 @@ void Level::loadObjects(nlohmann::json &map) {
 					object["x"].get<unsigned int>(),
 					object["y"].get<unsigned int>()
 				});
-				m_phyObjects.push_back(createPhysicsBody(m_objects.back()));
+				createPhysicsBody(m_objects.back());
+			}
+		}else if (layer["name"].get<std::string>().compare("Spawns") == 0) {
+			nlohmann::json data = layer["objects"];
+			for (auto &object : data) {
 
+				if (object["type"].get<std::string>().compare("Player") == 0) {
+					m_playerPosition = Vector2f(15.0f + object["x"].get<unsigned int>() * (30.0f / 70.0f), 883.0f - object["y"].get<unsigned int>() * (30.0f / 70.0f));
+				}else {
+					m_entities.push_back({
+								   object["type"].get<std::string>(),
+								   object["name"].get<std::string>(),
+								   Vector2f(object["x"].get<unsigned int>(), object["y"].get<unsigned int>()),
+								   object["x"].get<unsigned int>(),
+								   object["y"].get<unsigned int>()
+					});
+					createEntity(m_entities.back());
+				}
 			}
 		}
 	}
 }
 
-b2Body* Level::createPhysicsBody(JSONObject &object) {
-
+void Level::createPhysicsBody(JSONObject &object) {
 	Object *newObject;
+	b2FixtureDef objectFixture;
+	b2PolygonShape boundingBox;
+	b2Vec2 position;
+	b2BodyDef bodyDef;
 
 	if (object.type.compare("Exit") == 0) {
+		objectFixture.filter.categoryBits = Category::Type::Exit;
+		objectFixture.filter.maskBits = Category::Type::Player;
+
+		position = b2Vec2(15.0f + object.position[0] * (30.0f / 70.0f), 903.0f - object.position[1] * (30.0f / 70.0f));		
+		boundingBox.SetAsBox(15.0f, 2.0f);
+
+		bodyDef.type = b2_kinematicBody;
+		bodyDef.position = position;
+
 		newObject = new Object(Category::Type::Exit);
+
 	}else if (object.type.compare("Water") == 0) {
+		objectFixture.filter.categoryBits = Category::Type::Seeker;
+		objectFixture.filter.maskBits = Category::Type::Player;
+
+		position = b2Vec2(15.0f + object.position[0] * (30.0f / 70.0f), 905.0f - object.position[1] * (30.0f / 70.0f));		
+		boundingBox.SetAsBox(15.0f, 9.0f);
+
+		bodyDef.type = b2_kinematicBody;
+		bodyDef.position = position;
+
 		newObject = new Object(Category::Type::Seeker);
-	}else if (object.type.compare("Gem") == 0) {
-		newObject = new Object(Category::Type::Gem);
+
+	}else if (object.type.compare("Gem") == 0) {		
+		objectFixture.filter.categoryBits = Category::Type::Gem;
+		objectFixture.filter.maskBits = Category::Type::Player;
+
+		position = b2Vec2(15.0f + object.position[0] * (30.0f / 70.0f), 905.0f - object.position[1] * (30.0f / 70.0f));		
+		boundingBox.SetAsBox(8.0f, 5.0f);
+
+		bodyDef.type = b2_kinematicBody;
+		bodyDef.position = position;
+
+		newObject = new RenderableObject(Category::Type::Gem);
+		newObject->setPosition(position.x, position.y);
+		newObject->setSize(30.0f, 30.0f);
+		newObject->setOrigin(newObject->getSize() * 0.5);
+		m_renObjects.push_back(dynamic_cast<RenderableObject*>(newObject));
 	}
 
-	b2Vec2 position = b2Vec2(15.0f + object.position[0] * (30.0f / 70.0f), 905.0f - object.position[1] * (30.0f / 70.0f));
-	b2BodyDef bodyDef;
-	bodyDef.type = b2_kinematicBody;
-	bodyDef.position = position;
 	b2Body *objectBody = Globals::world->CreateBody(&bodyDef);
-
-	b2PolygonShape boundingBox;
-	boundingBox.SetAsBox(15.0f, 2.0f);
-
-	b2FixtureDef objectFixture;
+	
 	objectFixture.shape = &boundingBox;
 	objectFixture.friction = 0.0f;
 	objectFixture.density = 0.0f;
 	objectFixture.userData.pointer = 3;
-	objectFixture.filter.categoryBits = 1;
-	objectFixture.filter.maskBits = 1;
-	//objectFixture;
-	objectFixture.isSensor = true;
-	objectBody->CreateFixture(&objectFixture);
 
-	//objectBody->SetUserData(newObject);
+	objectBody->CreateFixture(&objectFixture);
 	objectBody->GetUserData().pointer = reinterpret_cast<std::uintptr_t>(newObject);
 
-	return objectBody;
+	m_phyObjects.push_back(objectBody);
+}
+
+void Level::createEntity(JSONObject &object) {
+	Object *newObject;
+	b2FixtureDef objectFixture;
+	b2PolygonShape boundingBox;
+	boundingBox.SetAsBox(15.0f, 15.0f);
+	b2Vec2 position = b2Vec2(15.0f + object.position[0] * (30.0f / 70.0f), 885.0f - object.position[1] * (30.0f / 70.0f));
+	b2BodyDef bodyDef;
+	bodyDef.position = position;
+	bodyDef.type = b2_kinematicBody;
+
+	if (object.type.compare("Barnacle") == 0) {
+	
+		newObject = new Barnacle(Category::Type::Gem, m_dt, m_fdt);
+		newObject->setPosition(position.x, position.y);
+		newObject->setSize(30.0f, 30.0f);
+		newObject->setOrigin(newObject->getSize() * 0.5);
+		m_entities2.push_back(dynamic_cast<Barnacle*>(newObject));
+	}
+
+	b2Body *objectBody = Globals::world->CreateBody(&bodyDef);
+
+	objectFixture.shape = &boundingBox;
+	objectFixture.friction = 0.0f;
+	objectFixture.density = 0.0f;
+	objectFixture.userData.pointer = 3;
+
+	objectBody->CreateFixture(&objectFixture);
+	objectBody->GetUserData().pointer = reinterpret_cast<std::uintptr_t>(newObject);
+
+	m_phyObjects.push_back(objectBody);
 }
 
 void Level::loadTileLayer(nlohmann::json &layer_in, TileLayer &layer_out, bool reverse) {
@@ -468,6 +539,17 @@ void Level::render() {
 	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
 	glUseProgram(0);
 
+	for (RenderableObject* object : m_renObjects) {
+		if (!object->isDisabled()) {
+			object->render();
+		}
+	}
+
+	for (Entity* object : m_entities2) {
+		if (!object->isDisabled()) {
+			object->render();
+		}
+	}
 
 	#if DEBUGCOLLISION
 	int index = 0;
@@ -533,8 +615,37 @@ void Level::render() {
 }
 
 void Level::update() {
+	//remove();
+
+	for (Entity* object : m_entities2) {
+		if (!object->isDisabled()) {
+			object->update();
+		}
+	}
+
+	if (Globals::CONTROLLS & Globals::KEY_Q) {
+		reset();
+	}
 }
 
 void Level::fixedUpdate() {
 
+}
+
+void Level::remove() {
+	m_renObjects.erase(std::remove_if(m_renObjects.begin(), m_renObjects.end(), std::mem_fn(&RenderableObject::isDisabled)) , m_renObjects.end());
+}
+
+void Level::reset() {
+	for (b2Body* object : m_phyObjects) {
+
+		for (b2Fixture *fixture = object->GetFixtureList(); fixture; fixture = fixture->GetNext()) {
+			b2Filter filter = fixture->GetFilterData();
+			filter.categoryBits &= ~Category::Type::None;
+			fixture->SetFilterData(filter);
+		}		
+	}
+
+	//std::transform(m_renObjects.begin(), m_renObjects.end(), m_renObjects.begin(), [](RenderableObject* c) -> RenderableObject* { c->m_flaggedForRemoval = false; return  c; });
+	std::for_each(m_renObjects.begin(), m_renObjects.end(), [](RenderableObject* c) { c->setDisabled(false); });
 }

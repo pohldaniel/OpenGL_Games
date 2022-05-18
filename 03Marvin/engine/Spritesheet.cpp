@@ -33,13 +33,14 @@ Spritesheet::Spritesheet(std::string pictureFile, unsigned short tileWidth, unsi
 		}
 		unsigned char* subImage = (unsigned char*)malloc((tileWidth ) * numCompontents * (tileHeight));
 		unsigned int subImageSize = (tileWidth ) * numCompontents * tileHeight;
-		unsigned int count = 0, row = 0;
-		unsigned int x = width * numCompontents * (tileHeight + spacing) * posY + width * numCompontents * spacing + posX * (tileWidth + spacing) * numCompontents;
+		unsigned int count = 0, row = 0;		
+		unsigned int offset = width * numCompontents * ((tileHeight + spacing) * posY +  spacing ) + posX * (tileWidth + spacing) * numCompontents;
+		unsigned int x = offset;
 
 		while (count < subImageSize) {
 			if (count % (tileWidth * numCompontents) == 0 && count > 0) {
 				row = row + width * numCompontents;
-				x = row + width * numCompontents * (tileHeight + spacing) * posY + width * numCompontents * spacing + posX * (tileWidth + spacing) * numCompontents;
+				x = row + offset;
 
 			}			
 			subImage[count] = imageData[x];
@@ -105,12 +106,13 @@ void Spritesheet::addToSpritesheet(std::string pictureFile, unsigned short tileW
 		unsigned char* subImage = (unsigned char*)malloc((tileWidth)* numCompontents * (tileHeight));
 		unsigned int subImageSize = (tileWidth)* numCompontents * tileHeight;
 		unsigned int count = 0, row = 0;
-		unsigned int x = width * numCompontents * (tileHeight + spacing) * posY + width * numCompontents * spacing + posX * (tileWidth + spacing) * numCompontents;
+		unsigned int offset = width * numCompontents * ((tileHeight + spacing) * posY + spacing) + posX * (tileWidth + spacing) * numCompontents;
+		unsigned int x = offset;
 
 		while (count < subImageSize) {
 			if (count % (tileWidth * numCompontents) == 0 && count > 0) {
 				row = row + width * numCompontents;
-				x = row + width * numCompontents * (tileHeight + spacing) * posY + width * numCompontents * spacing + posX * (tileWidth + spacing) * numCompontents;
+				x = row + offset;
 
 			}
 			subImage[count] = imageData[x];

@@ -1,20 +1,25 @@
-#include "Marvin.h"
+#include "Player.h"
+#include "CharacterController_cs.h"
+Player::Player(const float& dt, const float& fdt) : Entity(Category::Type::Player, dt, fdt) {
 
-Marvin::Marvin(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fdt) {
+	m_size = Vector2f(26.0f, 26.0f);
+	m_position = Vector2f(200.0f, 600.0f);
 
 	m_shaderArray = Globals::shaderManager.getAssetPointer("quad_array");
-	m_quad = new Quad(true, 0.0f, 1.0f, 0.0f, 1.0f, m_playerSize[0], m_playerSize[1], 0.0f, 0.0f, 1.0f, 1.0f, 0, 0);
+	m_quad = new Quad(true, 0.0f, 1.0f, 0.0f, 1.0f, m_size[0], m_size[1], 0.0f, 0.0f, 1.0f, 1.0f, 0, 0);
 	m_quad->setFlipped(true);
 	m_characterControllerCS = new CharacterControllerCS(dt, fdt);
+	m_characterControllerCS->setUserPointer(reinterpret_cast<std::uintptr_t>(this));
 
+	setPosition(m_position);
 	initAnimations();
 }
 
-Marvin::~Marvin() {
+Player::~Player() {
 	delete m_quad;
 }
 
-void Marvin::initAnimations() {
+void Player::initAnimations() {
 	m_textureAtlas = new unsigned int();
 	m_currentFrame = new unsigned int();
 
@@ -24,19 +29,19 @@ void Marvin::initAnimations() {
 
 	m_Animations["idle"].create(Globals::spritesheetManager.getAssetPointer("marvin_idle"), 0.08f, *m_textureAtlas, *m_currentFrame);
 
-	setPosition(Vector2f(m_characterControllerCS->m_position.x, m_characterControllerCS->m_position.y));
+	updatePosition(Vector2f(m_characterControllerCS->m_position.x, m_characterControllerCS->m_position.y));
 	setOrigin(Vector2f(13.0f, 13.0f));
 }
 
-void  Marvin::fixedUpdate() {
+void  Player::fixedUpdate() {
 	m_characterControllerCS->fixedUpdate();
 
-	setPosition(Vector2f(m_characterControllerCS->m_position.x, m_characterControllerCS->m_position.y));
+	updatePosition(Vector2f(m_characterControllerCS->m_position.x, m_characterControllerCS->m_position.y));
 
 	ViewEffect::get().setPosition(m_position);
 }
 
-void  Marvin::update() {
+void  Player::update() {
 
 	if (m_characterControllerCS->m_velocity.x < 0) {
 		m_quad->setFlipped(false);
@@ -60,7 +65,7 @@ void  Marvin::update() {
 	}	
 }
 
-void  Marvin::render() {
+void Player::render() {
 	
 
 	//glEnable(GL_BLEND);	
@@ -70,15 +75,25 @@ void  Marvin::render() {
 	m_quad->render(*m_textureAtlas, true);
 	glUseProgram(0);
 	//glDisable(GL_BLEND);
-	//m_characterControllerCS->render();
+	m_characterControllerCS->render();
 }
 
-void Marvin::setPosition(const Vector2f &position) {
+void Player::updatePosition(const Vector2f &position) {
+	m_position = position;
+	m_transform.translate((position[0] - m_origin[0]), (position[1] - m_origin[1]), 0.0f);	
+}
+
+void Player::setPosition(const Vector2f &position) {
 	m_position = position;
 	m_transform.translate((position[0] - m_origin[0]), (position[1] - m_origin[1]), 0.0f);
+
+	m_characterControllerCS->setPosition(position[0], position[1]);
 }
 
-void Marvin::setOrigin(const Vector2f &origin) {
-	m_origin = origin;
+void Player::setPosition(const float x, const float y) {
+	m_position[0] = x;
+	m_position[1] = y;
+
 	m_transform.translate((m_position[0] - m_origin[0]), (m_position[1] - m_origin[1]), 0.0f);
+	m_characterControllerCS->setPosition(m_position[0], m_position[1]);
 }

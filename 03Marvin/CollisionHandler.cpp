@@ -1,6 +1,7 @@
 #include "CollisionHandler.h"
+#include "Level.h"
 
-CollisionHandler::CollisionHandler(b2World &world) : mWorld(world) {}
+CollisionHandler::CollisionHandler(b2World &world, Level &level) : mWorld(world), m_level(level) {}
 
 
 void CollisionHandler::BeginContact(b2Contact *contact) {
@@ -11,13 +12,41 @@ void CollisionHandler::BeginContact(b2Contact *contact) {
 	if (!firstNode || !secondNode) return;
 
 	std::pair<Object*, Object*> collisionPair(firstNode, secondNode);
-	if (matchesCategories(collisionPair, Category::Type::Player, Category::Type::Exit)) {
-		//mWorld.requestCompletion();
-		std::cout << "Exit" << std::endl;
+	if (matchesCategories(collisionPair, Category::Type::Player, Category::Type::Exit)) {		
+		m_level.reset();
+		if (firstNode->getCategory() & Category::Type::Player) {
+			dynamic_cast<Player*>(firstNode)->setPosition(m_level.m_playerPosition);
+		}
+
+		if (secondNode->getCategory() & Category::Type::Player) {
+			dynamic_cast<Player*>(secondNode)->setPosition(m_level.m_playerPosition);
+		}
+
 	}else if (matchesCategories(collisionPair, Category::Type::Player, Category::Type::Seeker)) {
-		std::cout << "Seeker" << std::endl;
+		m_level.reset();
+		if (firstNode->getCategory() & Category::Type::Player) {
+			dynamic_cast<Player*>(firstNode)->setPosition(m_level.m_playerPosition);
+		}
+
+		if (secondNode->getCategory() & Category::Type::Player) {
+			dynamic_cast<Player*>(secondNode)->setPosition(m_level.m_playerPosition);
+		}
+
 	}else if (matchesCategories(collisionPair, Category::Type::Player, Category::Type::Gem)) {
-		std::cout << "Gem" << std::endl;
+
+		b2Filter filter;
+		if (firstNode->getCategory() & Category::Type::Gem) {
+			dynamic_cast<RenderableObject*>(firstNode)->setDisabled(true);
+			filter = contact->GetFixtureA()->GetFilterData();
+			filter.categoryBits = filter.categoryBits | Category::Type::None;
+			contact->GetFixtureA()->SetFilterData(filter);			
+		}
+		if (secondNode->getCategory() & Category::Type::Gem) {
+			dynamic_cast<RenderableObject*>(secondNode)->setDisabled(true);
+			filter = contact->GetFixtureB()->GetFilterData();			
+			filter.categoryBits = filter.categoryBits | Category::Type::None;
+			contact->GetFixtureB()->SetFilterData(filter);				
+		}
 	}
 }
 

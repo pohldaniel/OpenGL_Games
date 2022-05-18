@@ -568,3 +568,17 @@ void glBlendFuncSeparate(GLenum srcRGB, GLenum dstRGB, GLenum srcAlpha, GLenum d
 	LOAD_ENTRYPOINT("glBlendFuncSeparate", glBlendFuncSeparate, PFNGLBLENDFUNCSEPARATEPROC);
 	glBlendFuncSeparate(srcRGB, dstRGB, srcAlpha, dstAlpha);
 }
+
+void glCopyTexSubImage3D(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLint x, GLint y, GLsizei width, GLsizei height) {
+	typedef void(APIENTRY * PFNGLCOPYTEXSUBIMAGE3DPROC)(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLint x, GLint y, GLsizei width, GLsizei height);
+	static PFNGLCOPYTEXSUBIMAGE3DPROC  glCopyTexSubImage3D = 0;
+	LOAD_ENTRYPOINT("glCopyTexSubImage3D", glCopyTexSubImage3D, PFNGLCOPYTEXSUBIMAGE3DPROC);
+	glCopyTexSubImage3D(target, level, xoffset, yoffset, zoffset, x, y, width, height);
+}
+
+void glDeleteFramebuffers(GLsizei n, const GLuint * framebuffers) {
+	typedef void(APIENTRY * PFNGLDELETEFRAMEBUFFERSPROC)(GLsizei n, const GLuint * framebuffers);
+	static PFNGLDELETEFRAMEBUFFERSPROC  glDeleteFramebuffers = 0;
+	LOAD_ENTRYPOINT("glDeleteFramebuffers", glDeleteFramebuffers, PFNGLDELETEFRAMEBUFFERSPROC);
+	glDeleteFramebuffers(n, framebuffers);
+}

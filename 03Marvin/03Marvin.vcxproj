@@ -155,6 +155,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Application.cpp" />
+    <ClCompile Include="Barnacle.cpp" />
     <ClCompile Include="box2d-2.4.1\src\collision\b2_broad_phase.cpp" />
     <ClCompile Include="box2d-2.4.1\src\collision\b2_chain_shape.cpp" />
     <ClCompile Include="box2d-2.4.1\src\collision\b2_circle_shape.cpp" />
@@ -225,15 +226,16 @@
     <ClCompile Include="Entity.cpp" />
     <ClCompile Include="Level.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="Marvin.cpp" />
     <ClCompile Include="MovingPlatform.cpp" />
     <ClCompile Include="Object.cpp" />
+    <ClCompile Include="Player.cpp" />
     <ClCompile Include="RenderableObject.cpp" />
     <ClCompile Include="StateMachine.cpp" />
     <ClCompile Include="ViewEffect.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h" />
+    <ClInclude Include="Barnacle.h" />
     <ClInclude Include="box2d-2.4.1\src\dynamics\b2_chain_circle_contact.h" />
     <ClInclude Include="box2d-2.4.1\src\dynamics\b2_chain_polygon_contact.h" />
     <ClInclude Include="box2d-2.4.1\src\dynamics\b2_circle_contact.h" />
@@ -272,13 +274,14 @@
     <ClInclude Include="engine\Vector.h" />
     <ClInclude Include="Entity.h" />
     <ClInclude Include="Level.h" />
-    <ClInclude Include="Marvin.h" />
     <ClInclude Include="MovingPlatform.h" />
     <ClInclude Include="nlohmann\json.hpp" />
     <ClInclude Include="Object.h" />
+    <ClInclude Include="Player.h" />
     <ClInclude Include="RenderableObject.h" />
     <ClInclude Include="StateMachine.h" />
     <ClInclude Include="stb\stb_image.h" />
+    <ClInclude Include="stb\stb_image_write.h" />
     <ClInclude Include="ViewEffect.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

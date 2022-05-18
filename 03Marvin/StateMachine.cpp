@@ -1,14 +1,17 @@
 #include "StateMachine.h"
 
-StateMachine::StateMachine(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fdt), m_collisionHandler(CollisionHandler(*Globals::world)) {
+StateMachine::StateMachine(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fdt) {
 	m_quad = new Quad(false, -1.0f, 1.0f, -1.0f, 1.0f);
 	m_shader = Globals::shaderManager.getAssetPointer("quad");
 	m_level = new Level(dt, fdt);
 
-	Globals::world->SetContactListener(&m_collisionHandler);
-	//Globals::world->SetContactFilter(new ContactFilter());
+	
 	m_characterController = new CharacterController(dt, fdt);
-	m_marvin = new Marvin(dt, fdt);
+	m_player = new Player(dt, fdt);
+	m_player->setPosition(m_level->m_playerPosition);
+
+	Globals::world->SetContactListener(new CollisionHandler(*Globals::world, *m_level));
+	Globals::world->SetContactFilter(new ContactFilter());
 
 	glGenTextures(1, &m_frameTexture);
 	glBindTexture(GL_TEXTURE_2D, m_frameTexture);
@@ -72,7 +75,7 @@ void StateMachine::fixedUpdate() {
 	Globals::world->Step(m_fdt, 6, 2);
 	
 	//m_characterController->fixedUpdate();
-	m_marvin->fixedUpdate();
+	m_player->fixedUpdate();
 	
 
 	if (!m_states.empty())
@@ -81,8 +84,8 @@ void StateMachine::fixedUpdate() {
 
 void StateMachine::update() {
 	
-	m_marvin->update();
-	
+	m_player->update();
+	m_level->update();
 	//ViewEffect::get().update();
 
 	//m_level->update();
@@ -105,7 +108,7 @@ void StateMachine::render() {
 	glBindFramebuffer(GL_FRAMEBUFFER, m_frameBuffer);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	m_level->render();
-	m_marvin->render();
+	m_player->render();
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 

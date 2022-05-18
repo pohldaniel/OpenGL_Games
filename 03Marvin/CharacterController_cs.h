@@ -68,21 +68,6 @@ public:
 	int32 m_count;
 };
 
-struct RaycastOriginsCS {
-	b2Vec2 topLeft, topRight;
-	b2Vec2 bottomLeft, bottomRight;
-};
-
-struct CastResultCS {
-	b2Vec2 normal;
-	float distance;
-
-	void reset() {
-		normal.SetZero();
-		distance = 0.0f;
-	}
-};
-
 struct CollisionInfoCS {
 	enum CollisionFlags {
 		None = 0,
@@ -158,6 +143,9 @@ public:
 	void update();
 	void fixedUpdate();
 
+	void setPosition(const float x, const float y);
+	void setUserPointer(std::uintptr_t pointer);
+
 	void move(b2Vec2 velocity);
 	void updateVelocity();
 
@@ -201,7 +189,6 @@ public:
 	const float& m_fdt;
 	const float& m_dt;
 
-	RaycastOriginsCS raycastOrigins;
 	CollisionInfoCS collisions;
 
 	unsigned long transitions;

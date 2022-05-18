@@ -1,5 +1,8 @@
 #pragma once
-#include "engine/Vector.h"
+#include "engine/animation/Animator.h"
+#include "engine/Spritesheet.h"
+#include "engine/Quad.h"
+#include "engine/Shader.h"
 
 #include "RenderableObject.h"
 
@@ -12,8 +15,18 @@ public:
 	virtual void fixedUpdate() = 0;
 	virtual void update() = 0;
 	
-private:
+protected:
 	
 	const float& m_fdt;
 	const float& m_dt;
+
+	unsigned int *m_textureAtlas;
+	unsigned int *m_currentFrame;
+	std::unordered_map<std::string, Animator> m_Animations;
+
+	Quad *m_quad;
+	Shader *m_shaderArray;
+
+private:
+	virtual void initAnimations() = 0;	
 };

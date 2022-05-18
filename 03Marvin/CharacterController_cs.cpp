@@ -1,7 +1,7 @@
 #include "CharacterController_cs.h"
 
 CharacterControllerCS::CharacterControllerCS(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fdt) {
-	m_position = b2Vec2(200.0f, 600.0f);
+	
 
 	b2BodyDef playerDef;
 	playerDef.fixedRotation = true;
@@ -20,13 +20,12 @@ CharacterControllerCS::CharacterControllerCS(const float& dt, const float& fdt) 
 	playerFixture.friction = 0.0f;
 	playerFixture.density = 10.0f;
 	playerFixture.userData.pointer = 1;
-	playerFixture.filter.categoryBits = 1;
-	playerFixture.filter.maskBits = 1;
-	//playerFixture.isSensor = true;
+	playerFixture.filter.categoryBits = Category::Type::Player;
+	playerFixture.filter.maskBits = Category::Type::Exit | Category::Type::Seeker | Category::Type::Gem;
 
 	m_body->CreateFixture(&playerFixture);
-	m_body->GetUserData().pointer = reinterpret_cast<std::uintptr_t>(new Object(Category::Type::Player));
 	m_body->SetCollide(true);
+
 	m_horizontalRaySpacing = (m_size.y - m_skinWidth * 2) / (m_horizontalRayCount - 1);
 	m_verticalRaySpacing = (m_size.x - m_skinWidth * 2) / (m_verticalRayCount - 1);
 
@@ -614,5 +613,13 @@ void CharacterControllerCS::updateVelocity() {
 			m_velocity.y -= m_gravity * m_fdt;			
 		}		
 	}
-	//std::cout << m_body << std::endl;
+}
+
+void CharacterControllerCS::setPosition(const float x, const float y) {
+	m_position.x = x;
+	m_position.y = y;
+}
+
+void CharacterControllerCS::setUserPointer(std::uintptr_t pointer) {
+	m_body->GetUserData().pointer = pointer;
 }

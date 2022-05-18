@@ -24,23 +24,23 @@ void Object::setSize(const Vector2f &size) {
 void Object::setPosition(const float x, const float y) {
 	m_position[0] = x;
 	m_position[1] = y;
-	m_transform.translate((m_position[0] - m_origin[0]), (m_position[1] + m_origin[1]), 0.0f);
+	m_transform.translate((m_position[0] - m_origin[0]), (m_position[1] - m_origin[1]), 0.0f);
 }
 
 void Object::setPosition(const Vector2f &position) {
 	m_position = position;
-	m_transform.translate((m_position[0] - m_origin[0]), (m_position[1] + m_origin[1]), 0.0f);
+	m_transform.translate((m_position[0] - m_origin[0]), (m_position[1] - m_origin[1]), 0.0f);
 }
 
 void Object::setOrigin(const float x, const float y) {
 	m_origin[0] = x;
 	m_origin[1] = y;
-	m_transform.translate((m_position[0] - m_origin[0]), (m_position[1] + m_origin[1]), 0.0f);
+	m_transform.translate((m_position[0] - m_origin[0]), (m_position[1] - m_origin[1]), 0.0f);
 }
 
 void Object::setOrigin(const Vector2f &origin) {
 	m_origin = origin;
-	m_transform.translate((m_position[0] - m_origin[0]), (m_position[1] + m_origin[1]), 0.0f);
+	m_transform.translate((m_position[0] - m_origin[0]), (m_position[1] - m_origin[1]), 0.0f);
 }
 
 const Vector2f &Object::getPosition() const {

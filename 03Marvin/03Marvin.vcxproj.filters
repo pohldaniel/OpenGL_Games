@@ -279,9 +279,6 @@
     <ClCompile Include="CharacterController_old.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Marvin.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Entity.cpp">
       <Filter>Source Files\Entities</Filter>
     </ClCompile>
@@ -290,6 +287,12 @@
     </ClCompile>
     <ClCompile Include="RenderableObject.cpp">
       <Filter>Source Files\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="Barnacle.cpp">
+      <Filter>Source Files\Entities</Filter>
+    </ClCompile>
+    <ClCompile Include="Player.cpp">
+      <Filter>Source Files\Entities</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -419,9 +422,6 @@
     <ClInclude Include="CharacterController_old.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Marvin.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ContactFilter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -433,6 +433,15 @@
     </ClInclude>
     <ClInclude Include="RenderableObject.h">
       <Filter>Source Files\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="stb\stb_image_write.h">
+      <Filter>stb</Filter>
+    </ClInclude>
+    <ClInclude Include="Barnacle.h">
+      <Filter>Source Files\Entities</Filter>
+    </ClInclude>
+    <ClInclude Include="Player.h">
+      <Filter>Source Files\Entities</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

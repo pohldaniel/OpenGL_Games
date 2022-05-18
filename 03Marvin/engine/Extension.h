@@ -183,5 +183,10 @@ typedef char GLchar;
 	extern void glBufferSubData(GLenum target, GLintptr offset, GLsizeiptr size, const void * data);
 	extern void glBlendFuncSeparate(GLenum srcRGB, GLenum dstRGB, GLenum srcAlpha, GLenum dstAlpha);
 
+	extern void glCopyTexSubImage3D(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLint x, GLint y, GLsizei width, GLsizei height);
+
+	extern void glDeleteFramebuffers(GLsizei n, const GLuint * framebuffers);
+
+
 } // extern "C"
 #endif

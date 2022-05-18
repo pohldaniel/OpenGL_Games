@@ -11,6 +11,7 @@
 #include "CollisionHandler.h"
 #include "Object.h"
 #include "Entity.h"
+#include "Barnacle.h"
 #include "Constants.h"
 #include "MovingPlatform.h"
 #include "ViewEffect.h"
@@ -64,10 +65,16 @@ public:
 	int getMooreIndex(int boundaryX, int boundaryY, int neighborX, int neighborY);
 	void addChainVertex(int startX, int startY, int previousX, int previousY, std::vector<Vector2f> &chainVertices, const TileLayer& layer);
 	void createStaticBody(std::vector<Vector2f> &chainVertices);
+	void remove();
+	void reset();
 
 	std::vector<bool> m_bitVector;
 	std::vector<b2Body*> m_contours;
 	std::vector<b2Body*> m_phyObjects;
+	std::vector<RenderableObject*> m_renObjects;
+	std::vector<Entity*> m_entities2;
+
+	Vector2f m_playerPosition;
 
 private:
 	Shader *m_shader;
@@ -78,6 +85,7 @@ private:
 	std::unordered_map<std::string, unsigned int> m_sprites;
 
 	std::vector<JSONObject> m_objects;
+	std::vector<JSONObject> m_entities;
 
 	std::vector<float> m_vertices;
 	std::vector<unsigned int> m_indexBuffer;
@@ -91,5 +99,6 @@ private:
 	const float& m_dt;
 
 
-	b2Body* createPhysicsBody(JSONObject &object);
+	void createPhysicsBody(JSONObject &object);
+	void createEntity(JSONObject &object);
 };
