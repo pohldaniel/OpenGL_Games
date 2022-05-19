@@ -334,7 +334,7 @@ void Application::loadAssets() {
 	Globals::spritesheetManager.loadSpritesheet("marvin_fall", "Resources/Textures/Player/player_spritesheet.png", 70, 100, 0, 1, 5, 5);
 	Globals::spritesheetManager.loadSpritesheet("marvin_idle", "Resources/Textures/Player/player_spritesheet.png", 70, 100, 0, 1, 1, 1);
 
-	Globals::spritesheetManager.loadSpritesheet("barnacle", "Resources/Textures/Enemy/barnacle.png", 51, 58, 0, 0, 0, 1);
+	Globals::spritesheetManager.loadSpritesheet("barnacle", "Resources/Textures/Enemy/barnacle.png", 51, 57, 0, 0, 0, 1);
 
 	//Globals::spritesheetManager.loadSpritesheet("base", "Resources/Textures/Tileset/items_spritesheet.png", 70, 70, 2, 0, 0, -1);
 	Globals::spritesheetManager.loadSpritesheet("base", "Resources/Textures/Tileset/base_tiles_spritesheet.png", 70, 70, 2, 0, 0, -1);
@@ -374,7 +374,9 @@ void Application::loadAssets() {
 	Globals::musicManager.get("pause").setVolume(Globals::musicVolume);
 
 
-	//Texture::CutSubimage("Resources/Textures/Enemy/enemies_spritesheet.png","Resources/Textures/Enemy/0.png", 318, 239, 51, 58);
-	//Texture::CutSubimage("Resources/Textures/Enemy/enemies_spritesheet.png", "Resources/Textures/Enemy/1.png", 528, 220, 51, 58);
+	//Texture::CutSubimage("Resources/Textures/Enemy/enemies_spritesheet.png","Resources/Textures/Enemy/0.png", 318, 239, 51, 57);
+	//Texture::CutSubimage("Resources/Textures/Enemy/enemies_spritesheet.png", "Resources/Textures/Enemy/1.png", 528, 220, 51, 57);
+	//Texture::CutSubimage("Resources/Textures/Enemy/enemies_spritesheet.png", "Resources/Textures/Enemy/2.png", 477, 220, 51, 57);
 	//Texture::AddHorizontally("Resources/Textures/Enemy/0.png", "Resources/Textures/Enemy/1.png", "Resources/Textures/Enemy/barnacle.png");
+	//Texture::AddHorizontally("Resources/Textures/Enemy/barnacle.png", "Resources/Textures/Enemy/2.png", "Resources/Textures/Enemy/barnacle2.png");
 }

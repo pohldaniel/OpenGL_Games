@@ -177,16 +177,23 @@ void Texture::AddHorizontally(std::string fileIn1, std::string fileIn2, std::str
 	unsigned char* imageData2 = stbi_load(fileIn2.c_str(), &width2, &height2, &numCompontents2, NULL);
 
 	unsigned char* image = (unsigned char*)malloc((width1 + width2) * numCompontents1 * height1);
-	unsigned int imageSize = (width1 ) * numCompontents1 * (height1 + height2);
+	unsigned int imageSize = (width1 + width2 ) * numCompontents1 * (height1);
 
 	unsigned char imageData;
-	unsigned int count = 0, x = 0, y = 0;
+	unsigned int count = 0, x = 0, y = 0, row = 0;
+	unsigned int rowWidth = (width1 + width2) * numCompontents1;
 	bool toggle = false;
 
 	while (count < imageSize) {
 	
-		if (count % (width1 * numCompontents1) == 0 && count > 0) {
-			toggle = !toggle;
+		if (row == rowWidth) {
+			row = 0;
+		}
+		
+		if (row < width1 * numCompontents1) {
+			toggle = false;
+		}else {
+			toggle = true;
 		}
 
 		if (!toggle) {
@@ -198,6 +205,7 @@ void Texture::AddHorizontally(std::string fileIn1, std::string fileIn2, std::str
 		}
 		image[count] = imageData;
 		count++;
+		row++;
 	}
 
 	stbi_write_png(fileOut.c_str(), width1 + width2, height1, numCompontents1, image, (width1 + width2 ) * numCompontents1);
