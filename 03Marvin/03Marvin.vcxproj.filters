@@ -58,6 +58,15 @@
     <Filter Include="Source Files\Objects">
       <UniqueIdentifier>{9abf56bd-619e-43e5-8258-0f5a179dbaaa}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\States">
+      <UniqueIdentifier>{4e0ac0a0-c1b1-415c-bfc0-750b62370b6b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\States\Machine">
+      <UniqueIdentifier>{639f0bb5-4f82-4fa1-9c96-177c9a79cbb0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\States\State">
+      <UniqueIdentifier>{9d4133de-44e0-45f0-9821-1f29aa76551f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine\animation\Animator.cpp">
@@ -118,9 +127,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="StateMachine.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Level.cpp">
@@ -294,6 +300,15 @@
     <ClCompile Include="Player.cpp">
       <Filter>Source Files\Entities</Filter>
     </ClCompile>
+    <ClCompile Include="StateMachine.cpp">
+      <Filter>Source Files\States\Machine</Filter>
+    </ClCompile>
+    <ClCompile Include="Game.cpp">
+      <Filter>Source Files\States\State</Filter>
+    </ClCompile>
+    <ClCompile Include="Menu.cpp">
+      <Filter>Source Files\States\State</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stb\stb_image.h">
@@ -363,9 +378,6 @@
       <Filter>engine</Filter>
     </ClInclude>
     <ClInclude Include="Constants.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="StateMachine.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Application.h">
@@ -442,6 +454,15 @@
     </ClInclude>
     <ClInclude Include="Player.h">
       <Filter>Source Files\Entities</Filter>
+    </ClInclude>
+    <ClInclude Include="StateMachine.h">
+      <Filter>Source Files\States\Machine</Filter>
+    </ClInclude>
+    <ClInclude Include="Game.h">
+      <Filter>Source Files\States\State</Filter>
+    </ClInclude>
+    <ClInclude Include="Menu.h">
+      <Filter>Source Files\States\State</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

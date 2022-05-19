@@ -6,6 +6,8 @@
 
 #include "Constants.h"
 #include "StateMachine.h"
+#include "Game.h"
+#include "Menu.h"
 
 class Application {
 public:

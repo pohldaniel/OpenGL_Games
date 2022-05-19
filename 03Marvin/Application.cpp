@@ -116,9 +116,9 @@ LRESULT Application::DisplayWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 
 			switch (wParam) {
 				case VK_ESCAPE: {					
-					if (m_machine->m_states.top()->m_currentState == CurrentState::MENU) {
+					/*if (m_machine->m_states.top()->m_currentState == CurrentState::MENU) {
 						PostQuitMessage(0);
-					}
+					}*/
 					break;
 				}case 'v': case 'V': {
 					enableVerticalSync(!m_enableVerticalSync);
@@ -268,6 +268,8 @@ void Application::fixedUpdate() {
 
 void Application::initStates() {
 	m_machine = new StateMachine(m_dt, m_fdt);
+	//m_machine->addStateAtTop(new Game(*m_machine));
+	m_machine->addStateAtTop(new Menu(*m_machine));
 }
 
 void Application::processInput() {
@@ -276,7 +278,7 @@ void Application::processInput() {
 	// Retrieve keyboard state
 	if (!GetKeyboardState(Globals::pKeyBuffer)) return;
 	// Check the relevant keys
-	bool holdKey = (Globals::pKeyBuffer[VK_ESCAPE] & 0xF0) && (Globals::CONTROLLSHOLD & Globals::KEY_ESCAPE);
+	bool holdKey = ((Globals::pKeyBuffer[VK_ESCAPE] & 0xF0) && (Globals::CONTROLLSHOLD & Globals::KEY_ESCAPE)) || (Globals::pKeyBuffer['Q'] & 0xF0) && (Globals::CONTROLLSHOLD & Globals::KEY_Q);
 
 	if (!holdKey) {
 		if (Globals::pKeyBuffer['W'] & 0xF0) Globals::CONTROLLS |= Globals::KEY_W;
@@ -305,78 +307,30 @@ void Application::processInput() {
 }
 
 void Application::loadAssets() {
+	Globals::textureManager.loadTexture("background", "res/Textures/Background/bg.png");
+	Globals::textureManager.loadTexture("gem", "res/Textures/Tileset/items_spritesheet.png", 70, 70, 2, 4, 2, -1, false);
 	
-	Globals::textureManager.loadTexture("player", "res/textures/player.png");
-	//Globals::textureManager.loadTexture("background", "res/textures/background.png");
-	Globals::textureManager.loadTexture("foreground", "res/textures/map.png");
-	Globals::textureManager.loadTexture("menu", "res/textures/menu.png");	
-	AssetManagerStatic<Texture>::get().loadTexture("background", "res/textures/background.png");
-	Globals::textureManager.loadTexture("fireball", "res/textures/fireball.png");
+	Globals::spritesheetManager.loadSpritesheet("marvin_move", "res/Textures/Player/player_spritesheet.png", 70, 100, 0, 1, 1, 3);
+	Globals::spritesheetManager.loadSpritesheet("marvin_jump", "res/Textures/Player/player_spritesheet.png", 70, 100, 0, 1, 4, 4);
+	Globals::spritesheetManager.loadSpritesheet("marvin_fall", "res/Textures/Player/player_spritesheet.png", 70, 100, 0, 1, 5, 5);
+	Globals::spritesheetManager.loadSpritesheet("marvin_idle", "res/Textures/Player/player_spritesheet.png", 70, 100, 0, 1, 1, 1);
+	Globals::spritesheetManager.loadSpritesheet("marvin_fade", "res/Textures/Player/player_spritesheet.png", 70, 100, 0, 2, 1, 5);
 
-	Globals::spritesheetManager.loadSpritesheet("blow_up", "res/textures/explo.png", 512, 512, 0, 0, 0, 11);
-	Globals::spritesheetManager.loadSpritesheet("ghost", "res/textures/ghost.png", 64, 64, 0, 0, 0, 3);
-	Globals::spritesheetManager.loadSpritesheet("health_bar", "res/textures/health.png", 96, 32, 0, 0, 0, -1);
-	Globals::spritesheetManager.loadSpritesheet("heart", "res/textures/heart.png", 32, 32, 0, 0, 0, 3);
-
-	Globals::spritesheetManager.loadSpritesheet("player_move", "res/textures/player.png", 96, 84, 0, 3, 0, 7, GL_SRGB8_ALPHA8);
-	Globals::spritesheetManager.loadSpritesheet("player_jump", "res/textures/player.png", 96, 84, 0, 4, 0, 1, GL_SRGB8_ALPHA8);
-	Globals::spritesheetManager.loadSpritesheet("player_fall", "res/textures/player.png", 96, 84, 0, 6, 0, 0, GL_SRGB8_ALPHA8);
-	Globals::spritesheetManager.loadSpritesheet("player_crouch", "res/textures/player.png", 96, 84, 0, 9, 0, 5, GL_SRGB8_ALPHA8);
-	Globals::spritesheetManager.loadSpritesheet("player_grap", "res/textures/player.png", 96, 84, 0, 15, 0, 0, GL_SRGB8_ALPHA8);
-	Globals::spritesheetManager.loadSpritesheet("player_takedamage", "res/textures/player.png", 96, 84, 0, 17, 0, 5, GL_SRGB8_ALPHA8);
-	Globals::spritesheetManager.loadSpritesheet("player_idle", "res/textures/player.png", 96, 84, 0, 1, 0, 6, GL_SRGB8_ALPHA8);
-
-	Globals::textureManager.loadTexture("background", "Resources/Textures/Background/bg.png");
-	Globals::textureManager.loadTexture("gem", "Resources/Textures/Tileset/items_spritesheet.png", 70, 70, 2, 4, 2, -1, false);
-	
-	Globals::spritesheetManager.loadSpritesheet("marvin_move", "Resources/Textures/Player/player_spritesheet.png", 70, 100, 0, 1, 1, 3);
-	Globals::spritesheetManager.loadSpritesheet("marvin_jump", "Resources/Textures/Player/player_spritesheet.png", 70, 100, 0, 1, 4, 4);
-	Globals::spritesheetManager.loadSpritesheet("marvin_fall", "Resources/Textures/Player/player_spritesheet.png", 70, 100, 0, 1, 5, 5);
-	Globals::spritesheetManager.loadSpritesheet("marvin_idle", "Resources/Textures/Player/player_spritesheet.png", 70, 100, 0, 1, 1, 1);
-
-	Globals::spritesheetManager.loadSpritesheet("barnacle", "Resources/Textures/Enemy/barnacle.png", 51, 57, 0, 0, 0, 1);
-
-	//Globals::spritesheetManager.loadSpritesheet("base", "Resources/Textures/Tileset/items_spritesheet.png", 70, 70, 2, 0, 0, -1);
-	Globals::spritesheetManager.loadSpritesheet("base", "Resources/Textures/Tileset/base_tiles_spritesheet.png", 70, 70, 2, 0, 0, -1);
+	Globals::spritesheetManager.loadSpritesheet("barnacle", "res/Textures/Enemy/barnacle.png", 51, 57, 0, 0, 0, 1);
+	Globals::spritesheetManager.loadSpritesheet("base", "res/Textures/Tileset/base_tiles_spritesheet.png", 70, 70, 2, 0, 0, -1);
 	Globals::spritesheetManager.getAssetPointer("base")->addToSpritesheet("Resources/Textures/Tileset/items_spritesheet.png", 70, 70, 2, true, true, 0, 0, -1);
 
-	//becarful with the uniforms some shader are used at multiple places
-	Globals::shaderManager.loadShader("fog", "res/shader/fog.vs", "res/shader/fog.fs");
+	//becarful with the uniforms some shader are used at multiple places	
 	Globals::shaderManager.loadShader("quad", "res/shader/quad.vs", "res/shader/quad.fs");
 	Globals::shaderManager.loadShader("quad_color", "res/shader/quad_color.vs", "res/shader/quad_color.fs");
 	Globals::shaderManager.loadShader("quad_color_uniform", "res/shader/quad_color_uniform.vs", "res/shader/quad_color_uniform.fs");
 	Globals::shaderManager.loadShader("quad_array", "res/shader/quad_array.vs", "res/shader/quad_array.fs");
-	Globals::shaderManager.loadShader("light", "res/shader/light.vs", "res/shader/light.fs");
-	Globals::shaderManager.loadShader("transition", "res/shader/transition.vs", "res/shader/transition.fs");
-	Globals::shaderManager.loadShader("blur", "res/shader/blur.vs", "res/shader/blur.fs");
-
 	Globals::shaderManager.loadShader("level", "res/shader/level.vs", "res/shader/level.fs");
-	//to solve some blending issues just scaling down 
-	Globals::fontManager.loadCharacterSet("font_200", "res/fonts/upheavtt.ttf", 200.0f);
-
-	Globals::soundManager.loadSoundEffect("blowup", "res/sounds/blowup.wav");
-	Globals::soundManager.loadSoundEffect("ghost", "res/sounds/ghost.wav");
-	Globals::soundManager.loadSoundEffect("button", "res/sounds/button.wav");
-	Globals::soundManager.loadSoundEffect("3", "res/sounds/3.wav");
-	Globals::soundManager.loadSoundEffect("2", "res/sounds/2.wav");
-	Globals::soundManager.loadSoundEffect("1", "res/sounds/1.wav");
-	Globals::soundManager.loadSoundEffect("go", "res/sounds/go.wav");
-	Globals::soundManager.loadSoundEffect("player_jump", "res/sounds/playerJump.wav");
-	Globals::soundManager.loadSoundEffect("player_crouch", "res/sounds/playerCrouch.wav");
-	Globals::soundManager.loadSoundEffect("pickup", "res/sounds/pickUp.wav");
 	
-	Globals::musicManager.loadMusic("main", "res/music/main.ogg");
-	Globals::musicManager.loadMusic("menu", "res/music/menu.ogg");
-	Globals::musicManager.loadMusic("pause", "res/music/pause.ogg");
-
-	Globals::musicManager.get("menu").setVolume(Globals::musicVolume);
-	Globals::musicManager.get("main").setVolume(Globals::musicVolume);
-	Globals::musicManager.get("pause").setVolume(Globals::musicVolume);
-
-
 	//Texture::CutSubimage("Resources/Textures/Enemy/enemies_spritesheet.png","Resources/Textures/Enemy/0.png", 318, 239, 51, 57);
 	//Texture::CutSubimage("Resources/Textures/Enemy/enemies_spritesheet.png", "Resources/Textures/Enemy/1.png", 528, 220, 51, 57);
 	//Texture::CutSubimage("Resources/Textures/Enemy/enemies_spritesheet.png", "Resources/Textures/Enemy/2.png", 477, 220, 51, 57);
 	//Texture::AddHorizontally("Resources/Textures/Enemy/0.png", "Resources/Textures/Enemy/1.png", "Resources/Textures/Enemy/barnacle.png");
 	//Texture::AddHorizontally("Resources/Textures/Enemy/barnacle.png", "Resources/Textures/Enemy/2.png", "Resources/Textures/Enemy/barnacle2.png");
+
 }

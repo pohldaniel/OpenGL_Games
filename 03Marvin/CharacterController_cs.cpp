@@ -21,7 +21,7 @@ CharacterControllerCS::CharacterControllerCS(const float& dt, const float& fdt) 
 	playerFixture.density = 10.0f;
 	playerFixture.userData.pointer = 1;
 	playerFixture.filter.categoryBits = Category::Type::Player;
-	playerFixture.filter.maskBits = Category::Type::Exit | Category::Type::Seeker | Category::Type::Gem;
+	playerFixture.filter.maskBits = Category::Type::Exit | Category::Type::Seeker | Category::Type::Gem | Category::Type::Enemy;
 
 	m_body->CreateFixture(&playerFixture);
 	m_body->SetCollide(true);

@@ -1,7 +1,7 @@
 #pragma once
 #include <unordered_map>
 #include <string>
-
+#include <iostream>
 template<typename T>
 class AssetManager {
 public:

@@ -18,7 +18,7 @@ public:
 
 	void setPosition(const Vector2f &position) override;
 	void setPosition(const float x, const float y) override;
-
+	void setFade(bool fade);
 private:
 	void initAnimations();
 
@@ -35,4 +35,5 @@ private:
 	
 	CharacterControllerCS* m_characterControllerCS;
 	void updatePosition(const Vector2f &position);	
+	bool m_fade = false;
 };

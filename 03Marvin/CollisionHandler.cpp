@@ -13,13 +13,13 @@ void CollisionHandler::BeginContact(b2Contact *contact) {
 
 	std::pair<Object*, Object*> collisionPair(firstNode, secondNode);
 	if (matchesCategories(collisionPair, Category::Type::Player, Category::Type::Exit)) {		
-		m_level.reset();
+		//m_level.reset();
 		if (firstNode->getCategory() & Category::Type::Player) {
-			dynamic_cast<Player*>(firstNode)->setPosition(m_level.m_playerPosition);
+			dynamic_cast<Player*>(firstNode)->setFade(true);
 		}
 
-		if (secondNode->getCategory() & Category::Type::Player) {
-			dynamic_cast<Player*>(secondNode)->setPosition(m_level.m_playerPosition);
+		if (secondNode->getCategory() & Category::Type::Player) {			
+			dynamic_cast<Player*>(secondNode)->setFade(true);
 		}
 
 	}else if (matchesCategories(collisionPair, Category::Type::Player, Category::Type::Seeker)) {
@@ -32,8 +32,18 @@ void CollisionHandler::BeginContact(b2Contact *contact) {
 			dynamic_cast<Player*>(secondNode)->setPosition(m_level.m_playerPosition);
 		}
 
-	}else if (matchesCategories(collisionPair, Category::Type::Player, Category::Type::Gem)) {
+	}else if (matchesCategories(collisionPair, Category::Type::Player, Category::Type::Enemy)) {
+		m_level.reset();
+		if (firstNode->getCategory() & Category::Type::Player) {
+			dynamic_cast<Player*>(firstNode)->setPosition(m_level.m_playerPosition);
+		}
 
+		if (secondNode->getCategory() & Category::Type::Player) {
+			dynamic_cast<Player*>(secondNode)->setPosition(m_level.m_playerPosition);
+		}
+
+	}else if (matchesCategories(collisionPair, Category::Type::Player, Category::Type::Gem)) {
+		
 		b2Filter filter;
 		if (firstNode->getCategory() & Category::Type::Gem) {
 			dynamic_cast<RenderableObject*>(firstNode)->setDisabled(true);

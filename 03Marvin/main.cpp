@@ -23,8 +23,7 @@ extern AssetManager<Shader> Globals::shaderManager = AssetManager<Shader>();
 extern AssetManager<CharacterSet> Globals::fontManager = AssetManager<CharacterSet>();
 extern AssetManager<SoundBuffer> Globals::soundManager = AssetManager<SoundBuffer>();
 extern AssetManager<MusicBuffer> Globals::musicManager = AssetManager<MusicBuffer>();
-//becareful never combine extern and static it's just for playing around with the templates
-extern AssetManagerStatic<Texture> Globals::textureManager = AssetManagerStatic<Texture>::get();
+extern AssetManager<Texture> Globals::textureManager = AssetManager<Texture>();
 extern AssetManager<Spritesheet> Globals::spritesheetManager = AssetManager<Spritesheet>();
 
 extern float Globals::bestTime = 0.0f;
@@ -35,6 +34,8 @@ extern b2World* Globals::world = NULL;
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd) {
 	
+	
+
 	#if DEBUG
 	AllocConsole();
 	AttachConsole(GetCurrentProcessId());
@@ -43,7 +44,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	MoveWindow(GetConsoleWindow(), 1300, 0, 550, 300, true);
 	std::cout << "w, a, s, d    : move character" << std::endl;
-	std::cout << "q             : change state" << std::endl;
+	std::cout << "q             : reset level" << std::endl;
+	std::cout << "ESC           : change state" << std::endl;
 	std::cout << "v             : toggle vsync" << std::endl;
 	std::cout << "z             : toggle wireframe" << std::endl;
 	#endif
@@ -55,9 +57,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	float gravityVal = -1 * ((2 * MAX_JUMP_HEIGHT) / powf(JUMP_APEX_TIME, 2.f));
 	b2Vec2 gravity(0.0f, gravityVal);
 	Globals::world = new b2World(gravity);
-
+	
 	Application application(deltaTime, fixedDeltaTime);
-		
+	
 	HWND hwnd = application.getWindow();
 	HDC hdc;
 
@@ -97,6 +99,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		hdc = GetDC(hwnd);
 		SwapBuffers(hdc);
 		ReleaseDC(hwnd, hdc);		
-	} 
+	}
 	return 0;
 }

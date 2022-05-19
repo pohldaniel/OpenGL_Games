@@ -52,7 +52,7 @@ namespace Globals{
 	extern Matrix4f projection;
 	extern Matrix4f invProjection;
 
-	extern AssetManagerStatic<Texture> textureManager;
+	extern AssetManager<Texture> textureManager;
 	extern AssetManager<Shader> shaderManager;
 	extern AssetManager<Spritesheet> spritesheetManager;
 	//extern AssetManager<CharacterSetOld> fontManagerOld;

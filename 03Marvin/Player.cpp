@@ -26,6 +26,7 @@ void Player::initAnimations() {
 	m_Animations["move"].create(Globals::spritesheetManager.getAssetPointer("marvin_move"), 0.08f, *m_textureAtlas, *m_currentFrame);
 	m_Animations["jump"].create(Globals::spritesheetManager.getAssetPointer("marvin_jump"), 0.08f, *m_textureAtlas, *m_currentFrame);
 	m_Animations["fall"].create(Globals::spritesheetManager.getAssetPointer("marvin_fall"), 0.08f, *m_textureAtlas, *m_currentFrame);
+	m_Animations["fade"].create(Globals::spritesheetManager.getAssetPointer("marvin_fade"), 0.08f, *m_textureAtlas, *m_currentFrame);
 
 	m_Animations["idle"].create(Globals::spritesheetManager.getAssetPointer("marvin_idle"), 0.08f, *m_textureAtlas, *m_currentFrame);
 
@@ -34,35 +35,43 @@ void Player::initAnimations() {
 }
 
 void  Player::fixedUpdate() {
-	m_characterControllerCS->fixedUpdate();
+	if (!m_fade) {
+		m_characterControllerCS->fixedUpdate();
 
-	updatePosition(Vector2f(m_characterControllerCS->m_position.x, m_characterControllerCS->m_position.y));
+		updatePosition(Vector2f(m_characterControllerCS->m_position.x, m_characterControllerCS->m_position.y));
 
-	ViewEffect::get().setPosition(m_position);
+		ViewEffect::get().setPosition(m_position);
+	}
 }
 
 void  Player::update() {
+	if (!m_fade) {
+		if (m_characterControllerCS->m_velocity.x < 0) {
+			m_quad->setFlipped(false);
+		}
+		else if (m_characterControllerCS->m_velocity.x > 0) {
+			m_quad->setFlipped(true);
+		}
 
-	if (m_characterControllerCS->m_velocity.x < 0) {
-		m_quad->setFlipped(false);
-	}else if (m_characterControllerCS->m_velocity.x > 0) {
-		m_quad->setFlipped(true);
+		if (m_characterControllerCS->isGrounded()) { // NOT JUMPING
+			if (m_characterControllerCS->m_velocity.x != 0) {
+
+				m_Animations["move"].update(m_dt);
+			}
+			else {
+				m_Animations["idle"].update(m_dt);
+			}
+		}
+		else {
+			if (m_characterControllerCS->m_velocity.y > 0) {
+				m_Animations["jump"].update(m_dt);
+			}if (m_characterControllerCS->m_velocity.y < 0) {
+				m_Animations["fall"].update(m_dt);
+			}
+		}
+	}else{
+		m_Animations["fade"].update(m_dt);
 	}
-
-	if (m_characterControllerCS->isGrounded()) { // NOT JUMPING
-		if (m_characterControllerCS->m_velocity.x != 0) {
-			
-			m_Animations["move"].update(m_dt);
-		} else {
-			m_Animations["idle"].update(m_dt);
-		}
-	}else {
-		if (m_characterControllerCS->m_velocity.y > 0) {
-			m_Animations["jump"].update(m_dt);
-		}if (m_characterControllerCS->m_velocity.y < 0) {
-			m_Animations["fall"].update(m_dt);
-		}
-	}	
 }
 
 void Player::render() {
@@ -96,4 +105,8 @@ void Player::setPosition(const float x, const float y) {
 
 	m_transform.translate((m_position[0] - m_origin[0]), (m_position[1] - m_origin[1]), 0.0f);
 	m_characterControllerCS->setPosition(m_position[0], m_position[1]);
+}
+
+void Player::setFade(bool fade) {
+	m_fade = fade;
 }

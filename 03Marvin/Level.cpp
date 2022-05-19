@@ -201,8 +201,10 @@ void Level::createEntity(JSONObject &object) {
 	bodyDef.type = b2_kinematicBody;
 
 	if (object.type.compare("Barnacle") == 0) {
-	
-		newObject = new Barnacle(Category::Type::Gem, m_dt, m_fdt);
+		objectFixture.filter.categoryBits = Category::Type::Enemy;
+		objectFixture.filter.maskBits = Category::Type::Player;
+
+		newObject = new Barnacle(Category::Type::Enemy, m_dt, m_fdt);
 		newObject->setPosition(position.x, position.y);
 		newObject->setSize(30.0f, 30.0f);
 		newObject->setOrigin(newObject->getSize() * 0.5);

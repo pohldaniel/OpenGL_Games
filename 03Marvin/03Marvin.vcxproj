@@ -224,8 +224,10 @@
     <ClCompile Include="engine\ui\Text.cpp" />
     <ClCompile Include="engine\Vector.cpp" />
     <ClCompile Include="Entity.cpp" />
+    <ClCompile Include="Game.cpp" />
     <ClCompile Include="Level.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Menu.cpp" />
     <ClCompile Include="MovingPlatform.cpp" />
     <ClCompile Include="Object.cpp" />
     <ClCompile Include="Player.cpp" />
@@ -273,7 +275,9 @@
     <ClInclude Include="engine\ui\Text.h" />
     <ClInclude Include="engine\Vector.h" />
     <ClInclude Include="Entity.h" />
+    <ClInclude Include="Game.h" />
     <ClInclude Include="Level.h" />
+    <ClInclude Include="Menu.h" />
     <ClInclude Include="MovingPlatform.h" />
     <ClInclude Include="nlohmann\json.hpp" />
     <ClInclude Include="Object.h" />
