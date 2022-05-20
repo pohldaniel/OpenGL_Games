@@ -12,6 +12,7 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 	m_enableWireframe = false;	
 
 	ViewEffect::get().init();
+	MapLoader::get().setDelta(dt, fdt);
 }
 
 Application::~Application() {
@@ -290,6 +291,8 @@ void Application::processInput() {
 		if (Globals::pKeyBuffer[VK_SPACE] & 0xF0) Globals::CONTROLLS |= Globals::KEY_SPACE;
 		if (Globals::pKeyBuffer[VK_ESCAPE] & 0xF0) Globals::CONTROLLS |= Globals::KEY_ESCAPE;
 		if (Globals::pKeyBuffer[VK_RETURN] & 0xF0) Globals::CONTROLLS |= Globals::KEY_RETURN;
+		if (Globals::pKeyBuffer[VK_UP] & 0xF0) Globals::CONTROLLS |= Globals::KEY_UP;
+		if (Globals::pKeyBuffer[VK_DOWN] & 0xF0) Globals::CONTROLLS |= Globals::KEY_DOWN;
 
 		Globals::CONTROLLSHOLD = Globals::CONTROLLS;
 	}
@@ -311,7 +314,8 @@ void Application::processInput() {
 void Application::loadAssets() {
 	Globals::textureManager.loadTexture("background", "res/Textures/Background/bg.png");
 	Globals::textureManager.loadTexture("gem", "res/Textures/Tileset/items_spritesheet.png", 70, 70, 2, 4, 2, -1, false);
-	
+	Globals::textureManager.loadTexture("pointer", "res/Textures/GUI/pointer.png");
+
 	Globals::spritesheetManager.loadSpritesheet("marvin_move", "res/Textures/Player/player_spritesheet.png", 70, 100, 0, 1, 1, 3);
 	Globals::spritesheetManager.loadSpritesheet("marvin_jump", "res/Textures/Player/player_spritesheet.png", 70, 100, 0, 1, 4, 4);
 	Globals::spritesheetManager.loadSpritesheet("marvin_fall", "res/Textures/Player/player_spritesheet.png", 70, 100, 0, 1, 5, 5);
@@ -322,8 +326,8 @@ void Application::loadAssets() {
 	Globals::spritesheetManager.loadSpritesheet("base", "res/Textures/Tileset/base_tiles_spritesheet.png", 70, 70, 2, 0, 0, -1);
 	Globals::spritesheetManager.getAssetPointer("base")->addToSpritesheet("Resources/Textures/Tileset/items_spritesheet.png", 70, 70, 2, true, true, 0, 0, -1);
 
-	Globals::spritesheetManager.loadSpritesheet("button", "res/Textures/GUI/button.png", 229, 49, 0, 1, 1, 3);
-
+	Globals::spritesheetManager.loadSpritesheet("button_menu", "res/Textures/GUI/button_menu.png", 229, 49, 0, 1, 1, 3);
+	Globals::spritesheetManager.loadSpritesheet("button_ls", "res/Textures/GUI/button_ls.png", 725, 75, 0, 1, 1, 2);
 
 	//becarful with the uniforms some shader are used at multiple places	
 	Globals::shaderManager.loadShader("quad", "res/shader/quad.vs", "res/shader/quad.fs");
@@ -342,6 +346,11 @@ void Application::loadAssets() {
 	//Texture::CutSubimage("res/Textures/GUI/gui_spritesheet.png", "res/Textures/GUI/1.png", 1, 51, 229, 49);
 	//Texture::CutSubimage("res/Textures/GUI/gui_spritesheet.png", "res/Textures/GUI/2.png", 1, 101, 229, 49);
 	//Texture::AddHorizontally("res/Textures/GUI/0.png", "res/Textures/GUI/1.png", "res/Textures/GUI/_button.png");
-	//Texture::AddHorizontally("res/Textures/GUI/_button.png", "res/Textures/GUI/2.png", "res/Textures/GUI/button.png");
+	//Texture::AddHorizontally("res/Textures/GUI/_button.png", "res/Textures/GUI/2.png", "res/Textures/GUI/button_menu.png");
 
+	//Texture::CutSubimage("res/Textures/GUI/gui_spritesheet.png", "res/Textures/GUI/0.png", 0, 150, 725, 75);
+	//Texture::CutSubimage("res/Textures/GUI/gui_spritesheet.png", "res/Textures/GUI/1.png", 0, 225, 725, 75);
+	//Texture::AddHorizontally("res/Textures/GUI/0.png", "res/Textures/GUI/1.png", "res/Textures/GUI/button_ls.png");
+
+	//Texture::CutSubimage("res/Textures/GUI/gui_spritesheet.png", "res/Textures/GUI/pointer.png", 231, 1, 39, 31);
 }

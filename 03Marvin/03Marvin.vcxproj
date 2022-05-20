@@ -202,6 +202,7 @@
     <ClCompile Include="box2d-2.4.1\src\dynamics\b2_world_callbacks.cpp" />
     <ClCompile Include="box2d-2.4.1\src\rope\b2_rope.cpp" />
     <ClCompile Include="Button.cpp" />
+    <ClCompile Include="Button_ls.cpp" />
     <ClCompile Include="CharacterController.cpp" />
     <ClCompile Include="CharacterController_cs.cpp" />
     <ClCompile Include="CharacterController_old.cpp" />
@@ -229,6 +230,7 @@
     <ClCompile Include="Level.cpp" />
     <ClCompile Include="LevelSelect.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="MapLoader.cpp" />
     <ClCompile Include="Menu.cpp" />
     <ClCompile Include="MovingPlatform.cpp" />
     <ClCompile Include="Object.cpp" />
@@ -250,6 +252,7 @@
     <ClInclude Include="box2d-2.4.1\src\dynamics\b2_polygon_circle_contact.h" />
     <ClInclude Include="box2d-2.4.1\src\dynamics\b2_polygon_contact.h" />
     <ClInclude Include="Button.h" />
+    <ClInclude Include="Button_ls.h" />
     <ClInclude Include="CharacterController.h" />
     <ClInclude Include="CharacterController_cs.h" />
     <ClInclude Include="CharacterController_old.h" />
@@ -281,6 +284,7 @@
     <ClInclude Include="Game.h" />
     <ClInclude Include="Level.h" />
     <ClInclude Include="LevelSelect.h" />
+    <ClInclude Include="MapLoader.h" />
     <ClInclude Include="Menu.h" />
     <ClInclude Include="MovingPlatform.h" />
     <ClInclude Include="nlohmann\json.hpp" />

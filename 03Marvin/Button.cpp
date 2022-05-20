@@ -5,7 +5,7 @@ Button::Button(){
 	m_shaderArray = Globals::shaderManager.getAssetPointer("quad_array");
 	m_quad = new Quad(false, 0.0f, 0.5f, 0.0f, 0.5f, m_size[0], m_size[1]);
 
-	m_spriteSheet = Globals::spritesheetManager.getAssetPointer("button");
+	m_spriteSheet = Globals::spritesheetManager.getAssetPointer("button_menu");
 	m_textureAtlas = m_spriteSheet->getAtlas();
 }
 

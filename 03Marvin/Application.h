@@ -9,6 +9,7 @@
 #include "Game.h"
 #include "Menu.h"
 #include "LevelSelect.h"
+#include "MapLoader.h"
 
 class Application {
 public:

@@ -1,8 +1,8 @@
 #pragma once
 
 #include "StateMachine.h"
-#include "Button.h"
-
+#include "Button_ls.h"
+#include "MapLoader.h"
 
 class LevelSelect : public State {
 public:
@@ -19,10 +19,12 @@ private:
 	
 	std::unordered_map<std::string, unsigned int> m_sprites;
 	unsigned long m_guard;
-	std::vector<Button*> m_buttons;
+	std::vector<ButtonLS*> m_buttons;
 
 	void initSprites();
 	
 	unsigned int m_blocks;
 	unsigned int m_currentBlock = 0;
+
+	MapLoader& m_mapLoader;
 };

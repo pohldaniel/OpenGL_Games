@@ -1,29 +1,31 @@
 #include "LevelSelect.h"
 #include "Game.h"
 
-LevelSelect::LevelSelect(StateMachine& machine) : State(machine, CurrentState::LEVELSELECT) {
+LevelSelect::LevelSelect(StateMachine& machine) : State(machine, CurrentState::LEVELSELECT), m_mapLoader(MapLoader::get()) {
 	initSprites();
 
 	m_shader = Globals::shaderManager.getAssetPointer("quad");
 	m_quadBackground = new Quad(false, -1.0f, 1.0f, -1.0f, 1.0f);
 
-	Button* button = new Button();
-	button->setPosition(Vector2f(200.0f, 325.0f));
-	button->setState(Button::State::SELECTED);
+	ButtonLS* button = new ButtonLS();
+	button->setPosition(Vector2f(100.0f, 325.0f));
+	button->setState(ButtonLS::State::SELECTED);
 	button->setLevel("res/Maps/easypeasy2.json");
 	m_buttons.push_back(button);
 
-	button = new Button();
-	button->setPosition(Vector2f(200.0f, 300.0f));
+	button = new ButtonLS();
+	button->setPosition(Vector2f(100.0f, 280.0f));
 	button->setLevel("res/Maps/grasslands.json");
 	m_buttons.push_back(button);
 
-	button = new Button();
-	button->setPosition(Vector2f(200.0f, 275.0f));
+	button = new ButtonLS();
+	button->setPosition(Vector2f(100.0f, 235.0f));
+	button->setLevel("res/Maps/theclimb.json");
 	m_buttons.push_back(button);
 
-	button = new Button();
-	button->setPosition(Vector2f(200.0f, 250.0f));
+	button = new ButtonLS();
+	button->setPosition(Vector2f(100.0f, 190.0f));
+	button->setLevel("res/Maps/boing.json");
 	m_buttons.push_back(button);
 
 	m_blocks = m_buttons.size() - 1;
@@ -50,6 +52,17 @@ void LevelSelect::update() {
 		m_guard = !(Globals::CONTROLLS & Globals::KEY_S) ? m_guard & ~Globals::KEY_S : m_guard;
 	}
 
+	if (Globals::CONTROLLS & Globals::KEY_DOWN && !(m_guard & Globals::KEY_DOWN)) {
+
+		if (m_currentBlock < m_blocks) {
+			m_currentBlock++;
+		}
+
+		m_guard |= Globals::KEY_DOWN;
+	}else {
+		m_guard = !(Globals::CONTROLLS & Globals::KEY_DOWN) ? m_guard & ~Globals::KEY_DOWN : m_guard;
+	}
+
 	if (Globals::CONTROLLS & Globals::KEY_W && !(m_guard & Globals::KEY_W)) {
 		
 		if (m_currentBlock > 0) {
@@ -61,14 +74,25 @@ void LevelSelect::update() {
 		m_guard = !(Globals::CONTROLLS & Globals::KEY_W) ? m_guard & ~Globals::KEY_W : m_guard;
 	}
 
+	if (Globals::CONTROLLS & Globals::KEY_UP && !(m_guard & Globals::KEY_UP)) {
+
+		if (m_currentBlock > 0) {
+			m_currentBlock--;
+		}
+
+		m_guard |= Globals::KEY_UP;
+	}else {
+		m_guard = !(Globals::CONTROLLS & Globals::KEY_UP) ? m_guard & ~Globals::KEY_UP : m_guard;
+	}
+
 	if (oldBlock != m_currentBlock) {
-		m_buttons[oldBlock]->setState(Button::State::ACTIVE);
-		m_buttons[m_currentBlock]->setState(Button::State::SELECTED);
+		m_buttons[oldBlock]->setState(ButtonLS::State::ACTIVE);
+		m_buttons[m_currentBlock]->setState(ButtonLS::State::SELECTED);
 	}
 
 	if (Globals::CONTROLLS & Globals::KEY_RETURN && !(m_guard & Globals::KEY_RETURN)) {
 
-		//...->loadLevel(m_buttons[m_currentBlock]->getLevel());
+		m_mapLoader.loadLevel(m_buttons[m_currentBlock]->getLevel());
 
 		m_isRunning = false;
 		m_machine.addStateAtBottom(new Game(m_machine));

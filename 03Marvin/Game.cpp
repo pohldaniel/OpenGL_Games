@@ -1,5 +1,5 @@
 #include "Game.h"
-#include "Menu.h"
+#include "LevelSelect.h"
 Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 
 	m_level = new Level(m_dt, m_fdt);
@@ -28,7 +28,7 @@ void Game::update() {
 
 	if (Globals::CONTROLLS & Globals::KEY_ESCAPE) {
 		m_isRunning = false;
-		m_machine.addStateAtBottom(new Menu(m_machine));
+		m_machine.addStateAtBottom(new LevelSelect(m_machine));
 	}
 }
 
