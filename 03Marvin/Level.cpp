@@ -7,7 +7,7 @@ Level::Level(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fdt) {
 	m_quadBackground = new Quad(false, -1.0f, 1.0f, -1.0f, 1.0f);
 	m_sprites["background"] = Globals::textureManager.get("background").getTexture();
 
-	loadFile("Resources/Maps/easypeasy2.json");
+	loadFile("res/Maps/easypeasy2.json");
 
 	for (const TileLayer& layer : m_layers) {
 		for (const Tile& tile : layer.tiles) {

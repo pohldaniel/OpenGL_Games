@@ -12,7 +12,8 @@ enum CurrentState {
 	GAME,
 	SETTINGS,
 	PAUSE,
-	MENU
+	MENU,
+	LEVELSELECT
 };
 
 //base for holding the Framebuffer

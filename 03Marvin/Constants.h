@@ -31,6 +31,7 @@ namespace Globals{
 		KEY_SPACE = 16,
 		KEY_ESCAPE = 32,
 		KEY_Q = 64,
+		KEY_RETURN = 128,
 		DIR_FORCE_32BIT = 0x7FFFFFFF
 	};
 

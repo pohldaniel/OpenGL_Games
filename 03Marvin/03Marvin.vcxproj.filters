@@ -67,6 +67,9 @@
     <Filter Include="Source Files\States\State">
       <UniqueIdentifier>{9d4133de-44e0-45f0-9821-1f29aa76551f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\UI">
+      <UniqueIdentifier>{8947ee8f-f620-4c5d-8067-9609a5e35436}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine\animation\Animator.cpp">
@@ -309,6 +312,12 @@
     <ClCompile Include="Menu.cpp">
       <Filter>Source Files\States\State</Filter>
     </ClCompile>
+    <ClCompile Include="LevelSelect.cpp">
+      <Filter>Source Files\States\State</Filter>
+    </ClCompile>
+    <ClCompile Include="Button.cpp">
+      <Filter>Source Files\UI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stb\stb_image.h">
@@ -463,6 +472,12 @@
     </ClInclude>
     <ClInclude Include="Menu.h">
       <Filter>Source Files\States\State</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelSelect.h">
+      <Filter>Source Files\States\State</Filter>
+    </ClInclude>
+    <ClInclude Include="Button.h">
+      <Filter>Source Files\UI</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

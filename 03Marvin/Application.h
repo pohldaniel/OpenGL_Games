@@ -8,6 +8,7 @@
 #include "StateMachine.h"
 #include "Game.h"
 #include "Menu.h"
+#include "LevelSelect.h"
 
 class Application {
 public:

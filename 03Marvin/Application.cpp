@@ -269,7 +269,8 @@ void Application::fixedUpdate() {
 void Application::initStates() {
 	m_machine = new StateMachine(m_dt, m_fdt);
 	//m_machine->addStateAtTop(new Game(*m_machine));
-	m_machine->addStateAtTop(new Menu(*m_machine));
+	//m_machine->addStateAtTop(new Menu(*m_machine));
+	m_machine->addStateAtTop(new LevelSelect(*m_machine));
 }
 
 void Application::processInput() {
@@ -288,6 +289,7 @@ void Application::processInput() {
 		if (Globals::pKeyBuffer['Q'] & 0xF0) Globals::CONTROLLS |= Globals::KEY_Q;
 		if (Globals::pKeyBuffer[VK_SPACE] & 0xF0) Globals::CONTROLLS |= Globals::KEY_SPACE;
 		if (Globals::pKeyBuffer[VK_ESCAPE] & 0xF0) Globals::CONTROLLS |= Globals::KEY_ESCAPE;
+		if (Globals::pKeyBuffer[VK_RETURN] & 0xF0) Globals::CONTROLLS |= Globals::KEY_RETURN;
 
 		Globals::CONTROLLSHOLD = Globals::CONTROLLS;
 	}
@@ -320,6 +322,9 @@ void Application::loadAssets() {
 	Globals::spritesheetManager.loadSpritesheet("base", "res/Textures/Tileset/base_tiles_spritesheet.png", 70, 70, 2, 0, 0, -1);
 	Globals::spritesheetManager.getAssetPointer("base")->addToSpritesheet("Resources/Textures/Tileset/items_spritesheet.png", 70, 70, 2, true, true, 0, 0, -1);
 
+	Globals::spritesheetManager.loadSpritesheet("button", "res/Textures/GUI/button.png", 229, 49, 0, 1, 1, 3);
+
+
 	//becarful with the uniforms some shader are used at multiple places	
 	Globals::shaderManager.loadShader("quad", "res/shader/quad.vs", "res/shader/quad.fs");
 	Globals::shaderManager.loadShader("quad_color", "res/shader/quad_color.vs", "res/shader/quad_color.fs");
@@ -327,10 +332,16 @@ void Application::loadAssets() {
 	Globals::shaderManager.loadShader("quad_array", "res/shader/quad_array.vs", "res/shader/quad_array.fs");
 	Globals::shaderManager.loadShader("level", "res/shader/level.vs", "res/shader/level.fs");
 	
-	//Texture::CutSubimage("Resources/Textures/Enemy/enemies_spritesheet.png","Resources/Textures/Enemy/0.png", 318, 239, 51, 57);
-	//Texture::CutSubimage("Resources/Textures/Enemy/enemies_spritesheet.png", "Resources/Textures/Enemy/1.png", 528, 220, 51, 57);
-	//Texture::CutSubimage("Resources/Textures/Enemy/enemies_spritesheet.png", "Resources/Textures/Enemy/2.png", 477, 220, 51, 57);
-	//Texture::AddHorizontally("Resources/Textures/Enemy/0.png", "Resources/Textures/Enemy/1.png", "Resources/Textures/Enemy/barnacle.png");
-	//Texture::AddHorizontally("Resources/Textures/Enemy/barnacle.png", "Resources/Textures/Enemy/2.png", "Resources/Textures/Enemy/barnacle2.png");
+	//Texture::CutSubimage("res/Textures/Enemy/enemies_spritesheet.png","Resources/Textures/Enemy/0.png", 318, 239, 51, 57);
+	//Texture::CutSubimage("res/Textures/Enemy/enemies_spritesheet.png", "Resources/Textures/Enemy/1.png", 528, 220, 51, 57);
+	//Texture::CutSubimage("res/Textures/Enemy/enemies_spritesheet.png", "Resources/Textures/Enemy/2.png", 477, 220, 51, 57);
+	//Texture::AddHorizontally("res/Textures/Enemy/0.png", "Resources/Textures/Enemy/1.png", "Resources/Textures/Enemy/barnacle.png");
+	//Texture::AddHorizontally("res/Textures/Enemy/barnacle.png", "Resources/Textures/Enemy/2.png", "Resources/Textures/Enemy/barnacle2.png");
+
+	//Texture::CutSubimage("res/Textures/GUI/gui_spritesheet.png", "res/Textures/GUI/0.png", 1, 1, 229, 49);
+	//Texture::CutSubimage("res/Textures/GUI/gui_spritesheet.png", "res/Textures/GUI/1.png", 1, 51, 229, 49);
+	//Texture::CutSubimage("res/Textures/GUI/gui_spritesheet.png", "res/Textures/GUI/2.png", 1, 101, 229, 49);
+	//Texture::AddHorizontally("res/Textures/GUI/0.png", "res/Textures/GUI/1.png", "res/Textures/GUI/_button.png");
+	//Texture::AddHorizontally("res/Textures/GUI/_button.png", "res/Textures/GUI/2.png", "res/Textures/GUI/button.png");
 
 }
