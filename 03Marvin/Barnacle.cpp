@@ -5,8 +5,7 @@ Barnacle::Barnacle(unsigned int category, const float& dt, const float& fdt) : E
 	m_position = Vector2f(200.0f, 600.0f);
 
 	m_shaderArray = Globals::shaderManager.getAssetPointer("quad_array");
-	m_quad = new Quad(true, 0.0f, 1.0f, 0.0f, 1.0f, m_size[0], m_size[1], 0.0f, 0.0f, 1.0f, 1.0f, 0, 0);
-	m_quad->setFlipped(true);
+	m_quad = new Quad(false, 0.0f, 1.0f, 0.0f, 1.0f, m_size[0], m_size[1], 0.0f, 0.0f, 1.0f, 1.0f, 0, 0);
 	initAnimations();
 }
 

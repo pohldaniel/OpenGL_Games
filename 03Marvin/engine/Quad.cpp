@@ -105,7 +105,7 @@ void Quad::render() {
 }
 
 void Quad::setFlipped(bool flipped) { 
-	if (m_flipped == flipped) return;
+	if (m_flipped == flipped || !m_flippable) return;
 	m_flipped = flipped; 
 
 	glBindVertexArray(m_vao);

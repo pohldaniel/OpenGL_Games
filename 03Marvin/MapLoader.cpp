@@ -45,8 +45,8 @@ void MapLoader::loadLevel(const std::string &_file) {
 	for (const TileLayer& layer : m_layers) {
 		for (const Tile& tile : layer.tiles) {
 			addTile(tile, m_vertices, m_indexBuffer, m_indexMap);
-		}
-		if (layer.collisionLayer) {
+
+		}if (layer.collisionLayer) {
 			for (unsigned int count = 0; count < layer.height * layer.width; count++) {
 				m_bitVector.push_back(false);
 			}
@@ -61,6 +61,8 @@ void MapLoader::loadLevel(const std::string &_file) {
 }
 
 void MapLoader::loadLayers(nlohmann::json &map) {
+	m_width = map["width"].get<unsigned int>();
+	m_height = map["height"].get<unsigned int>();
 
 	nlohmann::json layers = map["layers"];
 	for (auto &layer : layers) {
@@ -80,11 +82,17 @@ void MapLoader::loadLayers(nlohmann::json &map) {
 			_layer.collisionLayer = false;
 			loadTileLayer(layer, _layer);
 			m_layers.push_back(_layer);
+		}else if (type.compare("tilelayer") == 0 && (layer["name"].get<std::string>().compare("Platforms") == 0)) {			
+			TileLayer _layer = TileLayer();
+			_layer.collisionLayer = true;
+			loadTileLayer(layer, _layer);
+			m_layers.push_back(_layer);
 		}
 	}
 }
 
 void MapLoader::loadObjects(nlohmann::json &map) {
+
 	nlohmann::json layers = map["layers"];
 	for (auto &layer : layers) {
 		if (layer["name"].get<std::string>().compare("Objects") == 0) {
@@ -105,9 +113,8 @@ void MapLoader::loadObjects(nlohmann::json &map) {
 			for (auto &object : data) {
 
 				if (object["type"].get<std::string>().compare("Player") == 0) {
-					m_playerPosition = Vector2f(15.0f + object["x"].get<unsigned int>() * (30.0f / 70.0f), 883.0f - object["y"].get<unsigned int>() * (30.0f / 70.0f));
-				}
-				else {
+					m_playerPosition = Vector2f(15.0f + object["x"].get<unsigned int>() * (30.0f / 70.0f), (m_width * m_height) - ( 17.0f + object["y"].get<unsigned int>() * (30.0f / 70.0f)));
+				}else {
 					m_entities.push_back({
 						object["type"].get<std::string>(),
 						object["name"].get<std::string>(),
@@ -133,7 +140,7 @@ void MapLoader::createPhysicsBody(JSONObject &object) {
 		objectFixture.filter.categoryBits = Category::Type::Exit;
 		objectFixture.filter.maskBits = Category::Type::Player;
 
-		position = b2Vec2(15.0f + object.position[0] * (30.0f / 70.0f), 903.0f - object.position[1] * (30.0f / 70.0f));
+		position = b2Vec2(15.0f + object.position[0] * (30.0f / 70.0f), (m_width * m_height) + 3.0f - object.position[1] * (30.0f / 70.0f));
 		boundingBox.SetAsBox(15.0f, 2.0f);
 
 		bodyDef.type = b2_kinematicBody;
@@ -145,7 +152,7 @@ void MapLoader::createPhysicsBody(JSONObject &object) {
 		objectFixture.filter.categoryBits = Category::Type::Seeker;
 		objectFixture.filter.maskBits = Category::Type::Player;
 
-		position = b2Vec2(15.0f + object.position[0] * (30.0f / 70.0f), 905.0f - object.position[1] * (30.0f / 70.0f));
+		position = b2Vec2(15.0f + object.position[0] * (30.0f / 70.0f), (m_width * m_height) + 5.0f - object.position[1] * (30.0f / 70.0f));
 		boundingBox.SetAsBox(15.0f, 9.0f);
 
 		bodyDef.type = b2_kinematicBody;
@@ -157,7 +164,7 @@ void MapLoader::createPhysicsBody(JSONObject &object) {
 		objectFixture.filter.categoryBits = Category::Type::Gem;
 		objectFixture.filter.maskBits = Category::Type::Player;
 
-		position = b2Vec2(15.0f + object.position[0] * (30.0f / 70.0f), 905.0f - object.position[1] * (30.0f / 70.0f));
+		position = b2Vec2(15.0f + object.position[0] * (30.0f / 70.0f), (m_width * m_height) + 5.0f - object.position[1] * (30.0f / 70.0f));
 		boundingBox.SetAsBox(8.0f, 5.0f);
 
 		bodyDef.type = b2_kinematicBody;
@@ -188,7 +195,7 @@ void MapLoader::createEntity(JSONObject &object) {
 	b2FixtureDef objectFixture;
 	b2PolygonShape boundingBox;
 	boundingBox.SetAsBox(15.0f, 15.0f);
-	b2Vec2 position = b2Vec2(15.0f + object.position[0] * (30.0f / 70.0f), 885.0f - object.position[1] * (30.0f / 70.0f));
+	b2Vec2 position = b2Vec2(15.0f + object.position[0] * (30.0f / 70.0f), (m_width * m_height) - (15.0f + object.position[1] * (30.0f / 70.0f)));
 	b2BodyDef bodyDef;
 	bodyDef.position = position;
 	bodyDef.type = b2_kinematicBody;
@@ -202,6 +209,42 @@ void MapLoader::createEntity(JSONObject &object) {
 		newObject->setSize(30.0f, 30.0f);
 		newObject->setOrigin(newObject->getSize() * 0.5);
 		m_entities2.push_back(dynamic_cast<Barnacle*>(newObject));
+	}else if (object.type.compare("Bee") == 0) {
+		objectFixture.filter.categoryBits = Category::Type::Enemy;
+		objectFixture.filter.maskBits = Category::Type::Player;
+
+		newObject = new Bee(Category::Type::Enemy, *m_dt, *m_fdt);
+		newObject->setPosition(position.x, position.y);
+		newObject->setSize(30.0f, 30.0f);
+		newObject->setOrigin(newObject->getSize() * 0.5);
+		m_entities2.push_back(dynamic_cast<Bee*>(newObject));
+	}else if (object.type.compare("Slime") == 0) {
+		objectFixture.filter.categoryBits = Category::Type::Enemy;
+		objectFixture.filter.maskBits = Category::Type::Player;
+
+		newObject = new Slime(Category::Type::Enemy, *m_dt, *m_fdt);
+		newObject->setPosition(position.x, position.y);
+		newObject->setSize(30.0f, 30.0f);
+		newObject->setOrigin(newObject->getSize() * 0.5);
+		m_entities2.push_back(dynamic_cast<Slime*>(newObject));
+	}else if (object.type.compare("GrassBlock") == 0) {
+		objectFixture.filter.categoryBits = Category::Type::Enemy;
+		objectFixture.filter.maskBits = Category::Type::Player;
+
+		newObject = new GrassBlock(Category::Type::Enemy, *m_dt, *m_fdt);
+		newObject->setPosition(position.x, position.y);
+		newObject->setSize(30.0f, 30.0f);
+		newObject->setOrigin(newObject->getSize() * 0.5);
+		m_entities2.push_back(dynamic_cast<GrassBlock*>(newObject));
+	}else if (object.type.compare("SnakeSlime") == 0) {
+		objectFixture.filter.categoryBits = Category::Type::Enemy;
+		objectFixture.filter.maskBits = Category::Type::Player;
+
+		newObject = new SnakeSlime(Category::Type::Enemy, *m_dt, *m_fdt);
+		newObject->setPosition(position.x, position.y);
+		newObject->setSize(30.0f, 30.0f);
+		newObject->setOrigin(newObject->getSize() * 0.5);
+		m_entities2.push_back(dynamic_cast<SnakeSlime*>(newObject));
 	}
 
 	b2Body *objectBody = Globals::world->CreateBody(&bodyDef);

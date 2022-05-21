@@ -20,7 +20,7 @@ LevelSelect::LevelSelect(StateMachine& machine) : State(machine, CurrentState::L
 
 	button = new ButtonLS();
 	button->setPosition(Vector2f(100.0f, 235.0f));
-	button->setLevel("res/Maps/theclimb.json");
+	button->setLevel("res/Maps/theclimb2.json");
 	m_buttons.push_back(button);
 
 	button = new ButtonLS();

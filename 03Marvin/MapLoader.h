@@ -12,6 +12,10 @@
 #include "Object.h"
 #include "Entity.h"
 #include "Barnacle.h"
+#include "Bee.h"
+#include "Slime.h"
+#include "GrassBlock.h"
+#include "SnakeSlime.h"
 
 struct Tile {
 	Vector2f position;
@@ -86,4 +90,6 @@ private:
 	const float* m_fdt;
 	const float* m_dt;
 
+	unsigned int m_width;
+	unsigned int m_height;
 };

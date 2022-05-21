@@ -156,6 +156,7 @@
   <ItemGroup>
     <ClCompile Include="Application.cpp" />
     <ClCompile Include="Barnacle.cpp" />
+    <ClCompile Include="Bee.cpp" />
     <ClCompile Include="box2d-2.4.1\src\collision\b2_broad_phase.cpp" />
     <ClCompile Include="box2d-2.4.1\src\collision\b2_chain_shape.cpp" />
     <ClCompile Include="box2d-2.4.1\src\collision\b2_circle_shape.cpp" />
@@ -227,6 +228,7 @@
     <ClCompile Include="engine\Vector.cpp" />
     <ClCompile Include="Entity.cpp" />
     <ClCompile Include="Game.cpp" />
+    <ClCompile Include="GrassBlock.cpp" />
     <ClCompile Include="Level.cpp" />
     <ClCompile Include="LevelSelect.cpp" />
     <ClCompile Include="main.cpp" />
@@ -236,12 +238,15 @@
     <ClCompile Include="Object.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="RenderableObject.cpp" />
+    <ClCompile Include="Slime.cpp" />
+    <ClCompile Include="SnakeSlime.cpp" />
     <ClCompile Include="StateMachine.cpp" />
     <ClCompile Include="ViewEffect.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h" />
     <ClInclude Include="Barnacle.h" />
+    <ClInclude Include="Bee.h" />
     <ClInclude Include="box2d-2.4.1\src\dynamics\b2_chain_circle_contact.h" />
     <ClInclude Include="box2d-2.4.1\src\dynamics\b2_chain_polygon_contact.h" />
     <ClInclude Include="box2d-2.4.1\src\dynamics\b2_circle_contact.h" />
@@ -282,6 +287,7 @@
     <ClInclude Include="engine\Vector.h" />
     <ClInclude Include="Entity.h" />
     <ClInclude Include="Game.h" />
+    <ClInclude Include="GrassBlock.h" />
     <ClInclude Include="Level.h" />
     <ClInclude Include="LevelSelect.h" />
     <ClInclude Include="MapLoader.h" />
@@ -291,6 +297,8 @@
     <ClInclude Include="Object.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="RenderableObject.h" />
+    <ClInclude Include="Slime.h" />
+    <ClInclude Include="SnakeSlime.h" />
     <ClInclude Include="StateMachine.h" />
     <ClInclude Include="stb\stb_image.h" />
     <ClInclude Include="stb\stb_image_write.h" />
