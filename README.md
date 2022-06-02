@@ -11,4 +11,6 @@ The project 03Marvin will be a refactoring of https://github.com/TylerSandman/Ma
 -> at line 332 in b2_body.h add the function "void SetCollide(bool flag);"  
 -> at line 422 in b2_body.h add the "e_collideFlag" to the enum  
 -> at line 663 in b2_body.h  define the function "void SetCollide(bool flag){m_flags |= e_collideFlag;}"  
--> at line 397 in b2_body.cpp change the "return false" to "return (m_flags & b2Body::e_collideFlag)"  
+-> at line 397 in b2_body.cpp change the "return false" to "return (m_flags & b2Body::e_collideFlag)"
+
+The project 04Virtueror will be a refactoring of https://github.com/vivaladav/iso-rts
