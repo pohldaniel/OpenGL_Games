@@ -73,6 +73,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CharacterController", "Char
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Isometric", "Isometric\Isometric.vcxproj", "{F6B63F9C-48F4-45CE-B77B-EB9B47E5DA83}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "04Virtueror", "04Virtueror\04Virtueror.vcxproj", "{FFAD9F74-A93E-410B-A724-BBE9058329AA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -249,6 +251,14 @@ Global
 		{F6B63F9C-48F4-45CE-B77B-EB9B47E5DA83}.Release|x64.Build.0 = Release|x64
 		{F6B63F9C-48F4-45CE-B77B-EB9B47E5DA83}.Release|x86.ActiveCfg = Release|Win32
 		{F6B63F9C-48F4-45CE-B77B-EB9B47E5DA83}.Release|x86.Build.0 = Release|Win32
+		{FFAD9F74-A93E-410B-A724-BBE9058329AA}.Debug|x64.ActiveCfg = Debug|x64
+		{FFAD9F74-A93E-410B-A724-BBE9058329AA}.Debug|x64.Build.0 = Debug|x64
+		{FFAD9F74-A93E-410B-A724-BBE9058329AA}.Debug|x86.ActiveCfg = Debug|Win32
+		{FFAD9F74-A93E-410B-A724-BBE9058329AA}.Debug|x86.Build.0 = Debug|Win32
+		{FFAD9F74-A93E-410B-A724-BBE9058329AA}.Release|x64.ActiveCfg = Release|x64
+		{FFAD9F74-A93E-410B-A724-BBE9058329AA}.Release|x64.Build.0 = Release|x64
+		{FFAD9F74-A93E-410B-A724-BBE9058329AA}.Release|x86.ActiveCfg = Release|Win32
+		{FFAD9F74-A93E-410B-A724-BBE9058329AA}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
