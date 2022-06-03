@@ -161,8 +161,10 @@
     <ClInclude Include="engine\Clock.h" />
     <ClInclude Include="engine\Extension.h" />
     <ClInclude Include="engine\input\Event.h" />
+    <ClInclude Include="engine\input\EventDispatcher.h" />
     <ClInclude Include="engine\input\KeyBorad.h" />
     <ClInclude Include="engine\input\Mouse.h" />
+    <ClInclude Include="engine\input\MouseEventListener.h" />
     <ClInclude Include="engine\Quad.h" />
     <ClInclude Include="engine\Random.h" />
     <ClInclude Include="engine\Shader.h" />
@@ -179,8 +181,10 @@
     <ClCompile Include="Application.cpp" />
     <ClCompile Include="engine\Batchrenderer.cpp" />
     <ClCompile Include="engine\Extension.cpp" />
+    <ClCompile Include="engine\input\EventDispatcher.cpp" />
     <ClCompile Include="engine\input\KeyBoard.cpp" />
     <ClCompile Include="engine\input\Mouse.cpp" />
+    <ClCompile Include="engine\input\MouseEventListener.cpp" />
     <ClCompile Include="engine\Quad.cpp" />
     <ClCompile Include="engine\Random.cpp" />
     <ClCompile Include="engine\Shader.cpp" />

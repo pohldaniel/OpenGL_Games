@@ -5,6 +5,8 @@
 
 #include "engine/Extension.h"
 #include "engine/input/Event.h"
+#include "engine/input/EventDispatcher.h"
+#include "engine/input/MouseEventListener.h"
 #include "engine/input/Mouse.h"
 #include "engine/input/KeyBorad.h"
 
@@ -22,6 +24,8 @@ public:
 	bool isRunning();
 	HWND getWindow();
 	void initStates();
+
+	void AddMouseListener(MouseEventListener * el);
 
 private:
 	static LRESULT CALLBACK StaticWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
@@ -47,15 +51,6 @@ private:
 	bool m_init = false;
 	StateMachine* m_machine;
 
-	std::queue<Event> m_events;
-
-	void pushEvent(const Event& event){
-		m_events.push(event);
-	}
-
-	void processEvents();
+	EventDispatcher * m_eventDispatcher = nullptr;
 	void processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
-	bool popEvent(Event& event);
-	bool pollEvent(Event& event);
-	Event m_event;
 };

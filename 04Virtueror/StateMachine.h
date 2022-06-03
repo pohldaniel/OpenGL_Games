@@ -7,9 +7,10 @@
 #include "engine/Vector.h"
 #include "engine/Texture.h"
 #include "engine/Shader.h"
+#include "engine/input/MouseEventListener.h"
 #include "engine/Quad.h"
-#include "Constants.h"
 
+#include "Constants.h"
 #include "MapLoader.h"
 
 enum CurrentState {
@@ -23,7 +24,7 @@ enum CurrentState {
 //base for holding the Framebuffer
 class State;
 
-class StateMachine {
+class StateMachine : public MouseEventListener {
 	friend class Application;
 public:
 	StateMachine(const float& dt, const float& fdt);
@@ -47,18 +48,13 @@ public:
 
 private:
 	void clearStates();
+	void OnMouseMotion(Event::MouseMoveEvent& event) override;
 
 	std::stack<State*> m_states;
 	Quad *m_quad;
-	Quad *m_quad2;
-	std::vector<Quad*> m_quads;
-	std::vector<Quad*> m_quads2;
-
+	
 	std::vector<Matrix4f> m_transforms;
-
 	Spritesheet *m_spriteSheet;
-	Spritesheet *m_spriteSheet2;
-	std::unordered_map<std::string, unsigned int> m_sprites;
 
 	Shader *m_shader;
 	Shader *m_shaderArray;

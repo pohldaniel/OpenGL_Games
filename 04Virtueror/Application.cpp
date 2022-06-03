@@ -1,7 +1,7 @@
 #include <iostream>
 #include "Application.h"
 
-Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fdt) {
+Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fdt), m_eventDispatcher(new EventDispatcher()) {
 	initWindow();
 	initOpenGL();
 
@@ -12,6 +12,13 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 	m_enableWireframe = false;
 
 	Mouse::instance().smoothMouse(true);
+
+	m_eventDispatcher->setProcessOSEvents([&]() {
+		while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
+		}
+	});
 }
 
 Application::~Application() {
@@ -224,34 +231,15 @@ HWND Application::getWindow() {
 	return m_window;
 }
 
-bool Application::isRunning(){
-	
+bool Application::isRunning() {
+
 	Keyboard::instance().update();
 	Mouse::instance().update();
 	if (Keyboard::instance().keyDown(Keyboard::KEY_ESCAPE)) {
 		return false;
 	}
 
-	//processEvents();
-	while (pollEvent(m_event)) {
-		switch (m_event.type) {
-			case Event::CLOSED:
-				return false;
-			case Event::MOUSEMOTION: {
-				Mouse::instance().handleEvent(m_event);					
-				return true;
-			}
-		}
-	}
-
-	return true;
-}
-
-void Application::processEvents() {
-	while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
-		TranslateMessage(&msg);
-		DispatchMessage(&msg);
-	}
+	return m_eventDispatcher->update();
 }
 
 void Application::render() {
@@ -264,6 +252,7 @@ void Application::update() {
 
 void Application::fixedUpdate() {
 	m_machine->fixedUpdate();
+	AddMouseListener(m_machine);
 }
 
 void Application::initStates() {
@@ -275,14 +264,14 @@ void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 		case WM_CLOSE: case WM_QUIT: {
 			Event event;
 			event.type = Event::CLOSED;
-			pushEvent(event);
+			m_eventDispatcher->pushEvent(event);
 			break;
 		}case WM_MOUSEMOVE: {
 			Event event;
 			event.type = Event::MOUSEMOTION;
 			event.mouseMove.x = static_cast<int>(static_cast<short>(LOWORD(lParam)));
 			event.mouseMove.y = static_cast<int>(static_cast<short>(HIWORD(lParam)));
-			pushEvent(event);
+			m_eventDispatcher->pushEvent(event);
 			break;
 		}case WM_INPUT: {	
 			Mouse::instance().handleMsg(hWnd, message, wParam, lParam);			
@@ -300,25 +289,8 @@ void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 	}
 }
 
-bool Application::popEvent(Event& event) {
-	if (m_events.empty()) {
-		processEvents();
-	}
-
-	if (!m_events.empty()){
-		event = m_events.front();
-		m_events.pop();
-		return true;
-	}
-	return false;
-}
-
-bool Application::pollEvent(Event& event) {
-	if (popEvent(event)){
-		return true;
-	}else{
-		return false;
-	}
+void Application::AddMouseListener(MouseEventListener * el) {
+	m_eventDispatcher->AddMouseListener(el);
 }
 
 void Application::loadAssets() {
@@ -328,7 +300,6 @@ void Application::loadAssets() {
 	Globals::shaderManager.loadShader("quad_array", "res/shader/quad_array.vs", "res/shader/quad_array.fs");
 	Globals::shaderManager.loadShader("level", "res/shader/level.vs", "res/shader/level.fs");
 
-	Globals::spritesheetManager.loadSpritesheet("tiles", "res/isotiles.png", 64, 80, 0, 0, 0, -1);
-	Globals::spritesheetManager.loadSpritesheet("tiles2", "res/img/tiles.png", 96, 48, 0, 0, 0, -1);
-	Globals::textureManager.loadTexture("tile", "res/tile.png");
+	Globals::spritesheetManager.loadSpritesheet("tiles", "res/img/tiles.png", 96, 48, 0, 0, 0, -1);
+
 }

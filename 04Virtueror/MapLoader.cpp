@@ -2,7 +2,7 @@
 
 bool MapLoader::loadLevel(const std::string & filename) {
 
-	m_spriteSheet = Globals::spritesheetManager.getAssetPointer("tiles2");
+	m_spriteSheet = Globals::spritesheetManager.getAssetPointer("tiles");
 
 	std::fstream fs(filename);
 	if (!fs.is_open())

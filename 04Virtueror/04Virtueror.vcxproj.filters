@@ -84,6 +84,12 @@
     <ClInclude Include="stb\stb_image_write.h">
       <Filter>stb</Filter>
     </ClInclude>
+    <ClInclude Include="engine\input\EventDispatcher.h">
+      <Filter>engine\input</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\input\MouseEventListener.h">
+      <Filter>engine\input</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine\input\KeyBoard.cpp">
@@ -130,6 +136,12 @@
     </ClCompile>
     <ClCompile Include="MapLoader.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\input\EventDispatcher.cpp">
+      <Filter>engine\input</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\input\MouseEventListener.cpp">
+      <Filter>engine\input</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
