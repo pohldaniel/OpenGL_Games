@@ -252,11 +252,13 @@ void Application::update() {
 
 void Application::fixedUpdate() {
 	m_machine->fixedUpdate();
-	AddMouseListener(m_machine);
 }
 
 void Application::initStates() {
 	m_machine = new StateMachine(m_dt, m_fdt);
+	Game* game = dynamic_cast<Game*>(m_machine->addStateAtTop(new Game(*m_machine)));
+
+	AddMouseListener(game);
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
