@@ -274,11 +274,33 @@ void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 			event.mouseMove.x = static_cast<int>(static_cast<short>(LOWORD(lParam)));
 			event.mouseMove.y = static_cast<int>(static_cast<short>(HIWORD(lParam)));
 			m_eventDispatcher->pushEvent(event);
+			if (!m_mouseTracking) {
+				TRACKMOUSEEVENT trackMouseEvent;
+				trackMouseEvent.cbSize = sizeof(TRACKMOUSEEVENT);
+				trackMouseEvent.dwFlags = TME_LEAVE;
+				trackMouseEvent.hwndTrack = hWnd;
+				TrackMouseEvent(&trackMouseEvent);
+				m_mouseTracking = true;
+			}
 			break;
 		}case WM_INPUT: {	
 			Mouse::instance().handleMsg(hWnd, message, wParam, lParam);			
 			break;
-		}/*case WM_KEYDOWN: {
+		}case WM_MOUSELEAVE: {
+			m_mouseTracking = false;
+
+			POINT cursor;
+			GetCursorPos(&cursor);
+			ScreenToClient(hWnd, &cursor);
+
+			Event event;
+			event.type = Event::MOUSEMOTION;
+			event.mouseMove.x = cursor.x;
+			event.mouseMove.y = cursor.y;
+			m_eventDispatcher->pushEvent(event);
+			break;
+		}
+		/*case WM_KEYDOWN: {
 			switch (wParam) {
 				case VK_ESCAPE: {
 					Event event;

@@ -8,7 +8,7 @@
 #include "StateMachine.h"
 
 #include "MapLoader.h"
-
+#include "CameraMapController.h"
 
 class Game : public State, public MouseEventListener {
 public:
@@ -21,6 +21,7 @@ public:
 
 private:
 	MapLoader m_mapLoader;
+	CameraMapController * m_camController = nullptr;
 
 	Spritesheet *m_spriteSheet;
 	Shader *m_shaderLevel;
@@ -36,5 +37,6 @@ private:
 	unsigned int m_vboMap = 0;
 	unsigned int m_ibo = 0;
 
-	void Game::OnMouseMotion(Event::MouseMoveEvent& event);
+	void OnMouseMotion(Event::MouseMoveEvent& event);
+	void CenterCameraOverCell(int row, int col);
 };
