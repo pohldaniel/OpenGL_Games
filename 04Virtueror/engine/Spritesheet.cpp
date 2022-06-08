@@ -31,10 +31,10 @@ Spritesheet::Spritesheet(std::string pictureFile, unsigned short tileWidth, unsi
 			if (reverse) posY--; else posY++;
 			posX = minColumn > 0 ? minColumn - 1 : 0;
 		}
-		unsigned char* subImage = (unsigned char*)malloc((tileWidth ) * numCompontents * (tileHeight));
-		unsigned int subImageSize = (tileWidth ) * numCompontents * tileHeight;
-		unsigned int count = 0, row = 0;		
-		unsigned int offset = width * numCompontents * ((tileHeight + spacing) * posY +  spacing ) + posX * (tileWidth + spacing) * numCompontents;
+		unsigned char* subImage = (unsigned char*)malloc((tileWidth)* numCompontents * (tileHeight));
+		unsigned int subImageSize = (tileWidth)* numCompontents * tileHeight;
+		unsigned int count = 0, row = 0;
+		unsigned int offset = width * numCompontents * ((tileHeight + spacing) * posY + spacing) + posX * (tileWidth + spacing) * numCompontents;
 		unsigned int x = offset;
 
 		while (count < subImageSize) {
@@ -42,7 +42,7 @@ Spritesheet::Spritesheet(std::string pictureFile, unsigned short tileWidth, unsi
 				row = row + width * numCompontents;
 				x = row + offset;
 
-			}			
+			}
 			subImage[count] = imageData[x];
 			x++;
 			count++;
@@ -50,7 +50,7 @@ Spritesheet::Spritesheet(std::string pictureFile, unsigned short tileWidth, unsi
 
 		glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, image, tileWidth, tileHeight, 1, GL_RGBA, GL_UNSIGNED_BYTE, subImage);
 		posX++;
-		image++;		
+		image++;
 		free(subImage);
 	}
 	//glTexParameterf(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
@@ -61,7 +61,7 @@ Spritesheet::Spritesheet(std::string pictureFile, unsigned short tileWidth, unsi
 	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP);
 	//glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
 	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
-	stbi_image_free(imageData);	
+	stbi_image_free(imageData);
 }
 
 //https://stackoverflow.com/questions/34239049/how-to-grow-a-gl-texture-2d-array
@@ -139,6 +139,58 @@ void Spritesheet::addToSpritesheet(std::string pictureFile, unsigned short tileW
 	m_texture = texture_new;
 }
 
+void Spritesheet::createSpritesheet(unsigned int texture, unsigned int width, unsigned int height, unsigned int _format) {
+	unsigned format = _format == -1 ? GL_RGBA8 : _format;
+	m_totalFrames++;
+
+	glGenTextures(1, &m_texture);
+	glBindTexture(GL_TEXTURE_2D_ARRAY, m_texture);
+
+	glTexStorage3D(GL_TEXTURE_2D_ARRAY, 1, format, width, height, m_totalFrames);
+	glCopyImageSubData(texture, GL_TEXTURE_2D, 0, 0, 0, 0, m_texture, GL_TEXTURE_2D_ARRAY, 0, 0, 0, m_totalFrames - 1, width, height, 1);
+
+	glTexParameterf(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameterf(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	//glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
+	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
+}
+
+void Spritesheet::addToSpritesheet(unsigned int texture, unsigned int width, unsigned int height, unsigned int _format) {
+	unsigned format = _format == -1 ? GL_RGBA8 : _format;
+	m_totalFrames++;
+
+	unsigned int fbo = 0;
+	glGenFramebuffers(1, &fbo);
+	glBindFramebuffer(GL_READ_FRAMEBUFFER, fbo);
+
+	unsigned int texture_new;
+	glGenTextures(1, &texture_new);
+	glBindTexture(GL_TEXTURE_2D_ARRAY, texture_new);
+	glTexStorage3D(GL_TEXTURE_2D_ARRAY, 1, format, width, height, m_totalFrames);
+
+	for (int layer = 0; layer < m_totalFrames - 1; ++layer) {
+		glFramebufferTextureLayer(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, m_texture, 0, layer);
+		glCopyTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, layer, 0, 0, width, height);
+	}
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glDeleteFramebuffers(1, &fbo);
+
+	glCopyImageSubData(texture, GL_TEXTURE_2D, 0, 0, 0, 0, texture_new, GL_TEXTURE_2D_ARRAY, 0, 0, 0, m_totalFrames - 1, width, height, 1);
+
+	glTexParameterf(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameterf(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	//glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
+	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
+
+	glDeleteTextures(1, &m_texture);
+	m_texture = texture_new;
+}
+
 
 unsigned int Spritesheet::getAtlas() {
 	return m_texture;
@@ -156,7 +208,7 @@ unsigned short Spritesheet::getTotalFrames() {
 	return m_totalFrames;
 }
 
-Spritesheet::~Spritesheet(){
+Spritesheet::~Spritesheet() {
 	if (m_texture) {
 		glDeleteTextures(1, &m_texture);
 		m_texture = 0;

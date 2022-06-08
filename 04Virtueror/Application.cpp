@@ -137,7 +137,7 @@ LRESULT Application::DisplayWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 			
 			glViewport(0, 0, _width, _height);
 			Globals::projection = Matrix4f::GetOrthographic(Globals::projection, 0.0f, static_cast<float>(_width), 0.0f, static_cast<float>(_height), -1.0f, 1.0f);			
-			Globals::invProjection = Matrix4f::GetInvOrthographic(Globals::projection, 0.f, static_cast<float>(_width), 0.0f, static_cast<float>(_height), -1.0f, 1.0f);
+			Globals::invProjection = Matrix4f::GetInvOrthographic(Globals::invProjection, 0.f, static_cast<float>(_width), 0.0f, static_cast<float>(_height), -1.0f, 1.0f);
 
 			if(m_init) 
 				m_machine->resize(_width, _height);
@@ -325,5 +325,13 @@ void Application::loadAssets() {
 	Globals::shaderManager.loadShader("level", "res/shader/level.vs", "res/shader/level.fs");
 
 	Globals::spritesheetManager.loadSpritesheet("tiles", "res/img/tiles.png", 96, 48, 0, 0, 0, -1);
+
+	Globals::spritesheetManager.loadSpritesheet("structures", "res/img/structures.png", 288, 163, 0, 0, 0, 3);
+
+	Globals::textureManager.loadTexture("structures", "res/img/structures.png", 0, 0, 288, 163);
+	Globals::spritesheetManager.loadSpritesheet("structures", (&Globals::textureManager.get("structures"))->getTexture(), 288, 163);
+
+	Globals::textureManager.loadTexture("structures", "res/img/structures.png", 288, 0, 288, 163);
+	Globals::spritesheetManager.getAssetPointer("structures")->addToSpritesheet((&Globals::textureManager.get("structures"))->getTexture(), 288, 163);
 
 }

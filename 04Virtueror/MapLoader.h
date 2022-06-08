@@ -3,11 +3,13 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
+#include <unordered_set>
 
 #include "engine/Vector.h"
 #include "engine/Spritesheet.h"
 
 #include "Constants.h"
+#include "IsoLayer.h"
 struct Tile {
 	Vector2f position;
 	Vector2f size;
@@ -30,9 +32,16 @@ public:
 
 	bool loadLevel(const std::string & filename);
 	//void readBaseData(std::fstream & fs);
+	bool ReadObjectsData(const std::string & filename);
+	void CreateObjectFromFile(unsigned int layerId, unsigned int objId, unsigned int r0, unsigned int c0, unsigned int rows, unsigned int cols);
+	void CreateObject(unsigned int layerId, unsigned int objId, unsigned int r0, unsigned int c0, unsigned int rows, unsigned int cols);
 
 	std::vector<unsigned int> mMap;
 	//std::vector<Vector2f> mTilePositions;
+
+	std::vector<IsoLayer *> mLayers;
+	std::unordered_map<unsigned int, IsoLayer *> mLayersMap;
+	std::vector<IsoLayer *> mLayersRenderList;
 
 	std::vector<Tile> tiles;
 	std::vector<float> m_vertices;
@@ -51,6 +60,9 @@ public:
 	unsigned int m_rows = 0;
 	unsigned int m_cols = 0;
 
+	IsoLayer * CreateLayer(unsigned int layerId);
+	IsoLayer * GetLayer(unsigned int layerId) const;
+
 };
 
 inline Vector2f MapLoader::GetCellPosition(unsigned int r, unsigned int c) const {
@@ -68,3 +80,12 @@ inline unsigned int MapLoader::GetNumRows() const { return m_rows; }
 
 inline unsigned int MapLoader::GetTileWidth() const { return TILE_WIDTH; }
 inline unsigned int MapLoader::GetTileHeight() const { return TILE_HEIGHT; }
+
+inline IsoLayer * MapLoader::GetLayer(unsigned int layerId) const {
+	auto res = mLayersMap.find(layerId);
+
+	if (res != mLayersMap.end())
+		return res->second;
+	else
+		return nullptr;
+}

@@ -6,8 +6,8 @@ template<typename T>
 class AssetManager {
 public:
 
-	void loadTexture(const std::string& name, const std::string& path, const bool flipVertical = true, const bool linear = false) { 
-		m_assets[name].loadFromFile(path, flipVertical, linear); 
+	void loadTexture(const std::string& name, const std::string& path, const bool flipVertical = true, const bool linear = false) {
+		m_assets[name].loadFromFile(path, flipVertical, linear);
 	}
 
 	void loadTexture(const std::string& name, const std::string& path, unsigned short tileWidth, unsigned short tileHeight, unsigned short spacing, unsigned int row, unsigned int column, unsigned int format = -1, const bool linear = false) {
@@ -32,6 +32,11 @@ public:
 		m_assetPointer[name] = new T(path, tileWidth, tileHeight, spacing, true, true, yStart, xStart, xLength, format);
 	}
 
+	void loadSpritesheet(const std::string& name, unsigned int texture, unsigned int width, unsigned int height, unsigned int format = -1) {
+		m_assetPointer[name] = new T();
+		m_assetPointer[name]->createSpritesheet(texture, width, height, format);
+	}
+
 	void loadSoundEffect(const std::string& name, const std::string& path) {
 		m_assets[name].loadFromFile(path);
 	}
@@ -41,8 +46,8 @@ public:
 		m_assets[name].loadFromFile(path);
 	}
 
-	T& get(const std::string& name) { 
-		return m_assets[name]; 
+	T& get(const std::string& name) {
+		return m_assets[name];
 	}
 
 	T* getAssetPointer(const std::string& name) {
@@ -58,8 +63,8 @@ public:
 		}
 
 		/*for (const auto& s : m_assets) {
-			s.second.~T();
-		}*/			
+		s.second.~T();
+		}*/
 	}
 
 private:
@@ -73,7 +78,7 @@ public:
 
 	static AssetManagerStatic& get() {
 		if (!s_instance.init) {
-			s_instance = AssetManagerStatic();			
+			s_instance = AssetManagerStatic();
 		}
 		return s_instance;
 	}
@@ -128,13 +133,13 @@ public:
 			}
 		}
 	}
-		
+
 	~AssetManagerStatic() {}
 private:
 	AssetManagerStatic() {
 		init = true;
 	}
-	
+
 	std::unordered_map<std::string, T> m_assets;
 	std::unordered_map<std::string, T*> m_assetPointer;
 	bool init = false;

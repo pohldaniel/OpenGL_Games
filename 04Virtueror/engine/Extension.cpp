@@ -582,3 +582,10 @@ void glDeleteFramebuffers(GLsizei n, const GLuint * framebuffers) {
 	LOAD_ENTRYPOINT("glDeleteFramebuffers", glDeleteFramebuffers, PFNGLDELETEFRAMEBUFFERSPROC);
 	glDeleteFramebuffers(n, framebuffers);
 }
+
+void glCopyImageSubData(GLuint srcName, GLenum srcTarget, GLint srcLevel, GLint srcX, GLint srcY, GLint srcZ, GLuint dstName, GLenum dstTarget, GLint dstLevel, GLint dstX, GLint dstY, GLint dstZ, GLsizei srcWidth, GLsizei srcHeight, GLsizei srcDepth) {
+	typedef void(APIENTRY * PFNGLCOPYIMAGESUBDATAPROC)(GLuint srcName, GLenum srcTarget, GLint srcLevel, GLint srcX, GLint srcY, GLint srcZ, GLuint dstName, GLenum dstTarget, GLint dstLevel, GLint dstX, GLint dstY, GLint dstZ, GLsizei srcWidth, GLsizei srcHeight, GLsizei srcDepth);
+	static PFNGLCOPYIMAGESUBDATAPROC  glCopyImageSubData = 0;
+	LOAD_ENTRYPOINT("glCopyImageSubData", glCopyImageSubData, PFNGLCOPYIMAGESUBDATAPROC);
+	glCopyImageSubData(srcName, srcTarget, srcLevel, srcX, srcY, srcZ, dstName, dstTarget, dstLevel, dstX, dstY, dstZ, srcWidth, srcHeight, srcDepth);
+}

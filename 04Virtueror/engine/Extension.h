@@ -187,6 +187,8 @@ typedef char GLchar;
 
 	extern void glDeleteFramebuffers(GLsizei n, const GLuint * framebuffers);
 
+	extern void glCopyImageSubData(GLuint srcName, GLenum srcTarget, GLint srcLevel, GLint srcX, GLint srcY, GLint srcZ, GLuint dstName, GLenum dstTarget, GLint dstLevel, GLint dstX, GLint dstY, GLint dstZ, GLsizei srcWidth, GLsizei srcHeight, GLsizei srcDepth);
+
 
 } // extern "C"
 #endif

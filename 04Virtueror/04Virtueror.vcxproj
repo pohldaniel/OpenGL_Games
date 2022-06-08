@@ -175,6 +175,8 @@
     <ClInclude Include="engine\Timer.h" />
     <ClInclude Include="engine\Vector.h" />
     <ClInclude Include="Game.h" />
+    <ClInclude Include="IsoLayer.h" />
+    <ClInclude Include="IsoObject.h" />
     <ClInclude Include="MapLoader.h" />
     <ClInclude Include="StateMachine.h" />
     <ClInclude Include="stb\stb_image.h" />
@@ -198,6 +200,8 @@
     <ClCompile Include="engine\Timer.cpp" />
     <ClCompile Include="engine\Vector.cpp" />
     <ClCompile Include="Game.cpp" />
+    <ClCompile Include="IsoLayer.cpp" />
+    <ClCompile Include="IsoObject.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MapLoader.cpp" />
     <ClCompile Include="StateMachine.cpp" />

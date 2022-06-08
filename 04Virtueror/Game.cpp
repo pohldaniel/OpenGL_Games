@@ -16,6 +16,8 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	const int mapH = m_mapLoader.GetHeight();
 	m_mapLoader.setOrigin(rendW * 0.5, (rendH - mapH) * 0.5);
 
+	IsoLayer * layer = m_mapLoader.GetLayer(3);
+
 	const Vector2f p0 = m_mapLoader.GetCellPosition(0, 0);
 	const Vector2f p1 = m_mapLoader.GetCellPosition(m_mapLoader.GetNumRows() - 1, 0);
 	const Vector2f p2 = m_mapLoader.GetCellPosition(m_mapLoader.GetNumRows() - 1, m_mapLoader.GetNumCols() - 1);
@@ -70,7 +72,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	m_spriteSheet = Globals::spritesheetManager.getAssetPointer("tiles");
 	m_shaderLevel = Globals::shaderManager.getAssetPointer("level");
 
-	m_projection = Matrix4f::GetOrthographic(m_projection, 0.0f, static_cast<float>(WIDTH) * 1.0f, 0.0f, static_cast<float>(HEIGHT) * 1.0f, -1000.0f, 1000.0f);
+	m_projection = Matrix4f::GetOrthographic(m_projection, 0.0f, static_cast<float>(WIDTH), 0.0f, static_cast<float>(HEIGHT), -1.0f, 1.0f);
 }
 
 Game::~Game() {
@@ -134,13 +136,14 @@ void Game::render(unsigned int &frameBuffer) {
 	glBindVertexArray(0);
 	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
 	glUseProgram(0);
+	
+
+	m_mapLoader.GetLayer(3)->Render(m_transform);
 	glEnable(0);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void Game::OnMouseMotion(Event::MouseMoveEvent& event) {
-	//std::cout << "Game: " << event.x << "  " << event.y << std::endl;
-
 	m_camController->HandleMouseMotion(event);
 
 	const Camera * cam = m_camController->GetCamera();

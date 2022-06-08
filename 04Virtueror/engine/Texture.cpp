@@ -129,11 +129,7 @@ void Texture::loadFromFile(std::string pictureFile, unsigned int _offsetX, unsig
 	if (linear) glGenerateMipmap(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, 0);
 
-
-	stbi_write_png("sky.png", _width, _height, numCompontents, subImage, _width * numCompontents);
-
 	free(subImage);
-
 	stbi_image_free(imageData);
 }
 

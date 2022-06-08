@@ -102,6 +102,12 @@
     <ClInclude Include="CameraMapController.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="IsoLayer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="IsoObject.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine\input\KeyBoard.cpp">
@@ -162,6 +168,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CameraMapController.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="IsoObject.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="IsoLayer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
