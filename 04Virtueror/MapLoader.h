@@ -9,16 +9,19 @@
 #include "engine/Spritesheet.h"
 
 #include "Constants.h"
+#include "IsoMap.h"
 #include "IsoLayer.h"
-struct Tile {
-	Vector2f position;
-	Vector2f size;
-	unsigned int gid;
-};
+
+class IsoMap;
+class GameMap;
 
 struct MapLoader {
 
 public:
+
+	MapLoader();
+
+	void setMaps(GameMap * gm, IsoMap * im);
 
 	unsigned int GetWidth() const;
 	unsigned int GetHeight() const;
@@ -31,22 +34,10 @@ public:
 	Vector2f GetCellPosition(unsigned int index) const;
 
 	bool loadLevel(const std::string & filename);
-	//void readBaseData(std::fstream & fs);
-	bool ReadObjectsData(const std::string & filename);
-	void CreateObjectFromFile(unsigned int layerId, unsigned int objId, unsigned int r0, unsigned int c0, unsigned int rows, unsigned int cols);
-	void CreateObject(unsigned int layerId, unsigned int objId, unsigned int r0, unsigned int c0, unsigned int rows, unsigned int cols);
-
+	void readBaseData(std::fstream & fs);
+	bool readObjectsData(std::fstream & fs);
 	std::vector<unsigned int> mMap;
 	//std::vector<Vector2f> mTilePositions;
-
-	std::vector<IsoLayer *> mLayers;
-	std::unordered_map<unsigned int, IsoLayer *> mLayersMap;
-	std::vector<IsoLayer *> mLayersRenderList;
-
-	std::vector<Tile> tiles;
-	std::vector<float> m_vertices;
-	std::vector<unsigned int> m_indexBuffer;
-	std::vector<unsigned int> m_indexMap;
 
 	void addTile(const Tile tile, std::vector<float>& vertices, std::vector<unsigned int>& indices, std::vector<unsigned int>& mapIndices);
 
@@ -60,8 +51,9 @@ public:
 	unsigned int m_rows = 0;
 	unsigned int m_cols = 0;
 
-	IsoLayer * CreateLayer(unsigned int layerId);
-	IsoLayer * GetLayer(unsigned int layerId) const;
+private:
+	GameMap * mGameMap = nullptr;
+	IsoMap * mIsoMap = nullptr;
 
 };
 
@@ -80,12 +72,3 @@ inline unsigned int MapLoader::GetNumRows() const { return m_rows; }
 
 inline unsigned int MapLoader::GetTileWidth() const { return TILE_WIDTH; }
 inline unsigned int MapLoader::GetTileHeight() const { return TILE_HEIGHT; }
-
-inline IsoLayer * MapLoader::GetLayer(unsigned int layerId) const {
-	auto res = mLayersMap.find(layerId);
-
-	if (res != mLayersMap.end())
-		return res->second;
-	else
-		return nullptr;
-}

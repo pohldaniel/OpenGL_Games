@@ -1,6 +1,11 @@
 #include "Game.h"
 
 Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
+	mIsoMap = new IsoMap();
+	mGameMap = new GameMap(mIsoMap);
+
+	m_mapLoader.setMaps(mGameMap, mIsoMap);
+	
 	const int rendW = 1600;
 	const int rendH = 900;
 
@@ -15,8 +20,6 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	m_mapLoader.loadLevel("res/maps/40x40-01.map");
 	const int mapH = m_mapLoader.GetHeight();
 	m_mapLoader.setOrigin(rendW * 0.5, (rendH - mapH) * 0.5);
-
-	IsoLayer * layer = m_mapLoader.GetLayer(3);
 
 	const Vector2f p0 = m_mapLoader.GetCellPosition(0, 0);
 	const Vector2f p1 = m_mapLoader.GetCellPosition(m_mapLoader.GetNumRows() - 1, 0);
@@ -45,7 +48,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	glGenVertexArrays(1, &m_vao);
 	glBindVertexArray(m_vao);
 	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-	glBufferData(GL_ARRAY_BUFFER, m_mapLoader.m_vertices.size() * sizeof(float), &m_mapLoader.m_vertices[0], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, mIsoMap->m_vertices.size() * sizeof(float), &mIsoMap->m_vertices[0], GL_STATIC_DRAW);
 
 	//positions
 	glEnableVertexAttribArray(0);
@@ -57,13 +60,13 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 
 	//map indices
 	glBindBuffer(GL_ARRAY_BUFFER, m_vboMap);
-	glBufferData(GL_ARRAY_BUFFER, m_mapLoader.m_indexMap.size() * sizeof(m_mapLoader.m_indexMap[0]), &m_mapLoader.m_indexMap[0], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, mIsoMap->m_indexMap.size() * sizeof(mIsoMap->m_indexMap[0]), &mIsoMap->m_indexMap[0], GL_STATIC_DRAW);
 	glEnableVertexAttribArray(2);
 	glVertexAttribIPointer(2, 1, GL_UNSIGNED_INT, 1 * sizeof(unsigned int), 0);
 
 	//indices
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ibo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_mapLoader.m_indexBuffer.size() * sizeof(unsigned int), &m_mapLoader.m_indexBuffer[0], GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, mIsoMap->m_indexBuffer.size() * sizeof(unsigned int), &mIsoMap->m_indexBuffer[0], GL_STATIC_DRAW);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
@@ -82,40 +85,6 @@ void Game::fixedUpdate() {
 }
 
 void Game::update() {
-
-	Keyboard &keyboard = Keyboard::instance();
-	if (keyboard.keyDown(Keyboard::KEY_A)) {
-		m_offsetX = m_offsetX + 0.1f;
-
-		Matrix4f trans;
-		trans.translate(m_offsetX * TILE_WIDTH, m_offsetY * TILE_HEIGHT, 0.0f);
-		m_transform = trans;
-	}
-
-	if (keyboard.keyDown(Keyboard::KEY_D)) {
-		m_offsetX = m_offsetX - 0.1f;
-
-		Matrix4f trans;
-		trans.translate(m_offsetX * TILE_WIDTH, m_offsetY * TILE_HEIGHT, 0.0f);
-		m_transform = trans;
-	}
-
-	if (keyboard.keyDown(Keyboard::KEY_W)) {
-		m_offsetY = m_offsetY - 0.2f;
-
-		Matrix4f trans;
-		trans.translate(m_offsetX * TILE_WIDTH, m_offsetY * TILE_HEIGHT, 0.0f);
-		m_transform = trans;
-	}
-
-	if (keyboard.keyDown(Keyboard::KEY_S)) {
-		m_offsetY = m_offsetY + 0.2f;
-
-		Matrix4f trans;
-		trans.translate(m_offsetX * TILE_WIDTH, m_offsetY * TILE_HEIGHT, 0.0f);
-		m_transform = trans;
-	}
-
 	m_camController->Update(m_dt);
 }
 
@@ -132,13 +101,13 @@ void Game::render(unsigned int &frameBuffer) {
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D_ARRAY, m_spriteSheet->getAtlas());
 	glBindVertexArray(m_vao);
-	glDrawElements(GL_TRIANGLES, m_mapLoader.m_indexBuffer.size(), GL_UNSIGNED_INT, 0);
+	glDrawElements(GL_TRIANGLES, mIsoMap->m_indexBuffer.size(), GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
 	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
 	glUseProgram(0);
 	
+	mIsoMap->GetLayer(3)->Render(m_transform);
 
-	m_mapLoader.GetLayer(3)->Render(m_transform);
 	glEnable(0);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }

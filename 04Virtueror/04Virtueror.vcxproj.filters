@@ -111,6 +111,12 @@
     <ClInclude Include="engine\input\KeyboardEventListener.h">
       <Filter>engine\input</Filter>
     </ClInclude>
+    <ClInclude Include="IsoMap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GameMap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine\input\KeyBoard.cpp">
@@ -181,6 +187,12 @@
     </ClCompile>
     <ClCompile Include="engine\input\KeyboardEventListener.cpp">
       <Filter>engine\input</Filter>
+    </ClCompile>
+    <ClCompile Include="IsoMap.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GameMap.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

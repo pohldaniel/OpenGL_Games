@@ -10,6 +10,8 @@
 
 #include "MapLoader.h"
 #include "CameraMapController.h"
+#include "IsoMap.h"
+#include "GameMap.h"
 
 class Game : public State, public MouseEventListener, public KeyboardEventListener {
 public:
@@ -42,4 +44,7 @@ private:
 	void OnKeyDown(Event::KeyboardEvent & event) override;
 	void OnKeyUp(Event::KeyboardEvent & event) override;
 	void CenterCameraOverCell(int row, int col);
+
+	IsoMap * mIsoMap = nullptr;
+	GameMap * mGameMap = nullptr;
 };

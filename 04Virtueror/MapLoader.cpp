@@ -1,12 +1,29 @@
 #include "MapLoader.h"
 #include "IsoObject.h"
+#include "GameMap.h"
+
+MapLoader::MapLoader() {
+
+}
+
+void MapLoader::setMaps(GameMap * gm, IsoMap * im) {
+	mGameMap = gm;
+	mIsoMap = im;
+}
 
 bool MapLoader::loadLevel(const std::string & filename) {
+	mIsoMap->CreateLayer(3);
 
 	std::fstream fs(filename);
 	if (!fs.is_open())
 		return false;
 
+	readBaseData(fs);
+	readObjectsData(fs);
+	fs.close();
+}
+
+void MapLoader::readBaseData(std::fstream & fs) {
 	std::string line;
 	std::istringstream ss;
 
@@ -18,6 +35,9 @@ bool MapLoader::loadLevel(const std::string & filename) {
 	unsigned int cols = 0;
 	ss >> rows >> cols;
 
+	mGameMap->m_rows = rows;
+	mGameMap->m_cols = cols;
+
 	const int mapSize = rows * cols;
 	m_cols = cols;
 	m_rows = rows;
@@ -25,8 +45,8 @@ bool MapLoader::loadLevel(const std::string & filename) {
 	mMap.reserve(mapSize);
 	mMap.assign(mapSize, 0);
 
-	tiles.reserve(mapSize);
-	tiles.assign(mapSize, { Vector2f(),Vector2f(), 0 });
+	mIsoMap->tiles.reserve(mapSize);
+	mIsoMap->tiles.assign(mapSize, { Vector2f(),Vector2f(), 0 });
 
 	float pointX;
 	float pointY;
@@ -53,6 +73,7 @@ bool MapLoader::loadLevel(const std::string & filename) {
 			const unsigned int index = ind0 + c;
 			//mIsoMap->SetCellType(index, type);
 
+
 			mMap[index] = type;
 
 			pointX = c * (float)(TILE_WIDTH) * 0.5f;
@@ -60,15 +81,42 @@ bool MapLoader::loadLevel(const std::string & filename) {
 			pointXTrans = (pointX - pointY);
 			pointYTrans = (pointX + pointY) * 0.5f;
 
-			tiles[index] = { Vector2f(pointXTrans, pointYTrans),Vector2f(TILE_WIDTH, TILE_HEIGHT), type };
+			//tiles[index] = { Vector2f(pointXTrans + 752, pointYTrans - 510),Vector2f(TILE_WIDTH, TILE_HEIGHT), type };
+
+
+			mIsoMap->tiles[index] = { Vector2f(pointXTrans, pointYTrans),Vector2f(TILE_WIDTH, TILE_HEIGHT), type };
 
 		}
 	}
+}
+
+bool MapLoader::readObjectsData(std::fstream & fs) {
+	std::string line;
+	std::istringstream ss;
+
+	// READ OBJECTS
+	while (std::getline(fs, line)) {
+		// skip comments
+		if (!line.empty() && '#' == line[0])
+			continue;
+
+		ss.clear();
+		ss.str(line);
+
+		unsigned int layerId;
+		unsigned int objId;
+		unsigned int r0;
+		unsigned int c0;
+		unsigned int rows;
+		unsigned int cols;
+
+		ss >> layerId >> objId >> r0 >> c0 >> rows >> cols;
+
+
+		mGameMap->CreateObjectFromFile(layerId, objId, r0, c0, rows, cols);
+	}
 
 	fs.close();
-
-	CreateLayer(3);
-	ReadObjectsData(filename);
 }
 
 void MapLoader::addTile(const Tile tile, std::vector<float>& vertices, std::vector<unsigned int>& indices, std::vector<unsigned int>& mapIndices) {
@@ -94,67 +142,11 @@ void MapLoader::addTile(const Tile tile, std::vector<float>& vertices, std::vect
 	indices.push_back(currentOffset + 3);
 }
 
-bool MapLoader::ReadObjectsData(const std::string & filename) {
-	std::fstream fs(filename);
-	if (!fs.is_open())
-		return false;
-
-	std::string line;
-	std::istringstream ss;
-
-	// READ OBJECTS
-	while (std::getline(fs, line)){
-		// skip comments
-		if (!line.empty() && '#' == line[0])
-			continue;
-
-		ss.clear();
-		ss.str(line);
-
-		unsigned int layerId;
-		unsigned int objId;
-		unsigned int r0;
-		unsigned int c0;
-		unsigned int rows;
-		unsigned int cols;
-
-		ss >> layerId >> objId >> r0 >> c0 >> rows >> cols;
-
-		
-		CreateObjectFromFile(layerId, objId, r0, c0, rows, cols);
-	}
-
-	fs.close();
-}
-
-void MapLoader::CreateObjectFromFile(unsigned int layerId, unsigned int objId, unsigned int r0, unsigned int c0, unsigned int rows, unsigned int cols) {
-
-	if (objId >= 1000 && objId <= 2000) {
-		CreateObject(layerId, 03, r0, c0, rows, cols);
-	}
-}
-
-void MapLoader::CreateObject(unsigned int layerId, unsigned int objId, unsigned int r0, unsigned int c0, unsigned int rows, unsigned int cols) {
-	// object origin is out of map
-	if (r0 >= m_rows || c0 >= m_cols)
-		return ;
-
-	// full size is out of map
-	const unsigned int r1 = 1 + r0 - rows;
-	const unsigned int c1 = 1 + c0 - cols;
-
-	if (r1 >= m_rows || c1 >= m_cols)
-		return ;
-
-	const unsigned int ind0 = r0 * m_cols + c0;
-
-	GetLayer(layerId)->AddObject(new IsoObject(rows, cols), r0, c0);
-}
 
 Vector2f MapLoader::GetCellPosition(unsigned int index) const {
 
-	if (index < tiles.size())
-		return tiles[index].position;
+	if (index < mIsoMap->tiles.size())
+		return mIsoMap->tiles[index].position;
 	else {
 		const Vector2f p(-1, -1);
 		return p;
@@ -175,30 +167,15 @@ void MapLoader::setOrigin(const Vector2f &origin) {
 
 void MapLoader::updateTilePositions() {
 
-	m_vertices.clear();
-	m_indexBuffer.clear();
-	m_indexMap.clear();
+	mIsoMap->m_vertices.clear();
+	mIsoMap->m_indexBuffer.clear();
+	mIsoMap->m_indexMap.clear();
 
-	for (Tile& tile : tiles) {
-		tile.position[0] += m_origin[0];
-		tile.position[1] += m_origin[1];
-		addTile(tile, m_vertices, m_indexBuffer, m_indexMap);
+	for (int i = 0; i < mIsoMap->tiles.size(); i++) {
+		mIsoMap->tiles[i].position[0] += m_origin[0];
+		mIsoMap->tiles[i].position[1] += m_origin[1];
+		addTile(mIsoMap->tiles[i], mIsoMap->m_vertices, mIsoMap->m_indexBuffer, mIsoMap->m_indexMap);
+
+
 	}
-}
-
-IsoLayer * MapLoader::CreateLayer(unsigned int layerId){
-	// check layer has not been created yet
-	IsoLayer * layer = GetLayer(layerId);
-
-	if (layer != nullptr)
-		return layer;
-
-	// create and store new layer
-	layer = new IsoLayer();
-
-	mLayers.emplace_back(layer);
-	mLayersMap.insert({ layerId, layer });
-	mLayersRenderList.emplace_back(layer);
-
-	return layer;
 }
