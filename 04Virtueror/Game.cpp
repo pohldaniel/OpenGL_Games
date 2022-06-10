@@ -143,13 +143,6 @@ void Game::render(unsigned int &frameBuffer) {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void Game::OnMouseMotion(Event::MouseMoveEvent& event) {
-	m_camController->HandleMouseMotion(event);
-
-	const Camera * cam = m_camController->GetCamera();
-	const int worldX = cam->GetScreenToWorldX(event.x);
-	const int worldY = cam->GetScreenToWorldY(event.y);
-}
 
 void Game::CenterCameraOverCell(int row, int col) {
 	const Vector2f pos = m_mapLoader.GetCellPosition(row, col);
@@ -162,4 +155,20 @@ void Game::CenterCameraOverCell(int row, int col) {
 	const Camera * cam = m_camController->GetCamera();
 
 	m_transform.translate(cam->GetX(), cam->GetY(), 0.0f);
+}
+
+void Game::OnMouseMotion(Event::MouseMoveEvent& event) {
+	m_camController->HandleMouseMotion(event);
+
+	const Camera * cam = m_camController->GetCamera();
+	const int worldX = cam->GetScreenToWorldX(event.x);
+	const int worldY = cam->GetScreenToWorldY(event.y);
+}
+
+void Game::OnKeyDown(Event::KeyboardEvent & event) {
+	m_camController->HandleKeyDown();
+}
+
+void Game::OnKeyUp(Event::KeyboardEvent & event) {
+	m_camController->HandleKeyUp();
 }

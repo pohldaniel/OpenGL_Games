@@ -3,6 +3,7 @@
 #include "engine/input/Mouse.h"
 #include "engine/input/KeyBorad.h"
 #include "engine/input/MouseEventListener.h"
+#include "engine/input/KeyboardEventListener.h"
 
 #include "Constants.h"
 #include "StateMachine.h"
@@ -10,7 +11,7 @@
 #include "MapLoader.h"
 #include "CameraMapController.h"
 
-class Game : public State, public MouseEventListener {
+class Game : public State, public MouseEventListener, public KeyboardEventListener {
 public:
 	Game(StateMachine& machine);
 	~Game();
@@ -37,6 +38,8 @@ private:
 	unsigned int m_vboMap = 0;
 	unsigned int m_ibo = 0;
 
-	void OnMouseMotion(Event::MouseMoveEvent& event);
+	void OnMouseMotion(Event::MouseMoveEvent& event) override;
+	void OnKeyDown(Event::KeyboardEvent & event) override;
+	void OnKeyUp(Event::KeyboardEvent & event) override;
 	void CenterCameraOverCell(int row, int col);
 };

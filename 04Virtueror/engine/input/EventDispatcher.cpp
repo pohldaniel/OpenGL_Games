@@ -2,6 +2,7 @@
 
 #include "EventDispatcher.h"
 #include "MouseEventListener.h"
+#include "KeyboardEventListener.h"
 
 void EventDispatcher::AddMouseListener(MouseEventListener * el){
 	// do not add NULL
@@ -11,10 +12,23 @@ void EventDispatcher::AddMouseListener(MouseEventListener * el){
 	auto it = std::find(mMouseListeners.begin(), mMouseListeners.end(), el);
 
 	// listener not found -> add it
-	if (mMouseListeners.end() == it)
-	{
+	if (mMouseListeners.end() == it){
 		el->mDispatcher = this;
 		mMouseListeners.emplace_back(el);
+	}
+}
+
+void EventDispatcher::AddKeyboardListener(KeyboardEventListener * el) {
+	// do not add NULL
+	if (!el)
+		return;
+
+	auto it = std::find(mKeyboardListeners.begin(), mKeyboardListeners.end(), el);
+
+	// listener not found -> add it
+	if (mKeyboardListeners.end() == it) {
+		el->mDispatcher = this;
+		mKeyboardListeners.emplace_back(el);
 	}
 }
 
@@ -26,6 +40,14 @@ void EventDispatcher::RemoveMouseListener(MouseEventListener * el){
 		mMouseListeners.erase(it);
 }
 
+void EventDispatcher::RemoveKeyboardListener(KeyboardEventListener * el) {
+	auto it = std::find(mKeyboardListeners.begin(), mKeyboardListeners.end(), el);
+
+	// listener found -> remove it
+	if (it != mKeyboardListeners.end())
+		mKeyboardListeners.erase(it);
+}
+
 bool EventDispatcher::update() {
 
 	while (pollEvent(m_event)) {
@@ -34,9 +56,21 @@ bool EventDispatcher::update() {
 				return false;
 			case Event::MOUSEMOTION: {
 				Mouse::instance().handleEvent(m_event);
+
 				for (MouseEventListener * el : mMouseListeners){
 					el->OnMouseMotion(m_event.mouseMove);
 				}
+				return true;
+			}case Event::KEYDOWN: {
+				for (KeyboardEventListener * el : mKeyboardListeners) {
+					el->OnKeyDown(m_event.keyboard);
+				}
+				return true;
+			}case Event::KEYUP: {
+				for (KeyboardEventListener * el : mKeyboardListeners) {
+					el->OnKeyUp(m_event.keyboard);
+				}
+				return true;
 			}
 		}
 	}

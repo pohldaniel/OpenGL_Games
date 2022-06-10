@@ -39,6 +39,39 @@ void CameraMapController::CenterCameraToPoint(int x, int y){
 	mCamera->CenterToPoint(x, y);
 }
 
+void CameraMapController::HandleKeyDown() {
+	Keyboard &keyboard = Keyboard::instance();
+
+	if (keyboard.keyDown(Keyboard::KEY_A) || keyboard.keyDown(Keyboard::KEY_LEFT)) {
+		if (!mMouseScrollX) {
+			mDirX = SCROLL_R;
+			mKeyScrollX = true;
+		}
+	}else if (keyboard.keyDown(Keyboard::KEY_D) || keyboard.keyDown(Keyboard::KEY_RIGHT)) {
+		if (!mMouseScrollX) {
+			mDirX = SCROLL_L;
+			mKeyScrollX = true;
+		}
+	}else if (keyboard.keyDown(Keyboard::KEY_W) || keyboard.keyDown(Keyboard::KEY_UP)) {
+		if (!mMouseScrollY) {
+			mDirY = SCROLL_U;
+			mKeyScrollY = true;
+		}
+	}else if (keyboard.keyDown(Keyboard::KEY_S) || keyboard.keyDown(Keyboard::KEY_DOWN)) {
+		if (!mMouseScrollY) {
+			mDirY = SCROLL_D;
+			mKeyScrollY = true;
+		}
+	}
+}
+
+void CameraMapController::HandleKeyUp() {
+	mDirX = NO_SCROLL;
+	mDirY = NO_SCROLL;
+	mKeyScrollX = false;
+	mKeyScrollY = false;
+}
+
 void CameraMapController::HandleMouseMotion(Event::MouseMoveEvent& event) {
 	const int screenX = event.x;
 	const int screenY = event.y;
@@ -46,39 +79,31 @@ void CameraMapController::HandleMouseMotion(Event::MouseMoveEvent& event) {
 	const int scrollingMargin = 5;
 
 	if (screenX < scrollingMargin) {
-		if (!mKeyScrollX)
-		{
+		if (!mKeyScrollX){
 			mDirX = SCROLL_R;
 			mMouseScrollX = true;
 		}
-	}
-	else if (screenX >(mCamera->GetWidth() - scrollingMargin)) {
-		if (!mKeyScrollX)
-		{
+	}else if (screenX >(mCamera->GetWidth() - scrollingMargin)) {
+		if (!mKeyScrollX){
 			mDirX = SCROLL_L;
 			mMouseScrollX = true;
 		}
-	}
-	else if (!mKeyScrollX) {
+	}else if (!mKeyScrollX) {
 		mDirX = NO_SCROLL;
 		mMouseScrollX = false;
 	}
 
 	if (screenY < scrollingMargin) {
-		if (!mKeyScrollY)
-		{
+		if (!mKeyScrollY){
 			mDirY = SCROLL_U;
 			mMouseScrollY = true;
 		}
-	}
-	else if (screenY >(mCamera->GetHeight() - scrollingMargin)) {
-		if (!mKeyScrollY)
-		{
+	}else if (screenY >(mCamera->GetHeight() - scrollingMargin)) {
+		if (!mKeyScrollY){
 			mDirY = SCROLL_D;
 			mMouseScrollY = true;
 		}
-	}
-	else if (!mKeyScrollY) {
+	}else if (!mKeyScrollY) {
 		mDirY = NO_SCROLL;
 		mMouseScrollY = false;
 	}
@@ -95,9 +120,7 @@ void CameraMapController::Update(float delta){
 			mCamera->SetX(mLimitL);
 		else
 			mCamera->MoveX(movX);
-	}
-	else if (mDirX > 0)
-	{
+	}else if (mDirX > 0){
 		const int newX = static_cast<int>(movX + 0.5f) + mCamera->GetX();
 
 		if (newX > mLimitR)
@@ -109,17 +132,14 @@ void CameraMapController::Update(float delta){
 	// VERTICAL
 	const float movY = mDirY * mSpeed * delta;
 
-	if (mDirY < 0)
-	{
+	if (mDirY < 0){
 		const int newY = static_cast<int>(movY - 0.5f) + mCamera->GetY();
 
 		if (newY < mLimitT)
 			mCamera->SetY(mLimitT);
 		else
 			mCamera->MoveY(movY);
-	}
-	else if (mDirY > 0)
-	{
+	}else if (mDirY > 0){
 		const int newY = static_cast<int>(movY + 0.5f) + mCamera->GetY();
 
 		if (newY > mLimitB)

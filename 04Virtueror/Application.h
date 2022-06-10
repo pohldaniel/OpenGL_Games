@@ -24,6 +24,7 @@ public:
 	void initStates();
 
 	void AddMouseListener(MouseEventListener * el);
+	void AddKeyboardListener(KeyboardEventListener * el);
 
 private:
 	static LRESULT CALLBACK StaticWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);

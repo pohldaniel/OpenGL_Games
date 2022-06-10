@@ -164,6 +164,7 @@
     <ClInclude Include="engine\Extension.h" />
     <ClInclude Include="engine\input\Event.h" />
     <ClInclude Include="engine\input\EventDispatcher.h" />
+    <ClInclude Include="engine\input\KeyboardEventListener.h" />
     <ClInclude Include="engine\input\KeyBorad.h" />
     <ClInclude Include="engine\input\Mouse.h" />
     <ClInclude Include="engine\input\MouseEventListener.h" />
@@ -190,6 +191,7 @@
     <ClCompile Include="engine\Extension.cpp" />
     <ClCompile Include="engine\input\EventDispatcher.cpp" />
     <ClCompile Include="engine\input\KeyBoard.cpp" />
+    <ClCompile Include="engine\input\KeyboardEventListener.cpp" />
     <ClCompile Include="engine\input\Mouse.cpp" />
     <ClCompile Include="engine\input\MouseEventListener.cpp" />
     <ClCompile Include="engine\Quad.cpp" />

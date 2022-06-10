@@ -1,5 +1,7 @@
 #pragma once
+#define NOMINMAX
 #include "engine/input/Event.h"
+#include "engine/input/KeyBorad.h"
 #include "Camera.h"
 
 class CameraMapController {
@@ -14,8 +16,8 @@ public:
 
 	void CenterCameraToPoint(int x, int y);
 
-	//void HandleKeyDown(sgl::core::KeyboardEvent & event);
-	//void HandleKeyUp(sgl::core::KeyboardEvent & event);
+	void HandleKeyDown();
+	void HandleKeyUp();
 	void HandleMouseMotion(Event::MouseMoveEvent& event);
 
 	void Update(float delta);

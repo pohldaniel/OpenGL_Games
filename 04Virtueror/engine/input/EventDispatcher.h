@@ -6,16 +6,17 @@
 #include "Mouse.h"
 
 class MouseEventListener;
+class KeyboardEventListener;
 
 class EventDispatcher{
 
 public:
 	//void AddApplicationListener(ApplicationEventListener * el);
-	//void AddKeyboardListener(KeyboardEventListener * el);
+	void AddKeyboardListener(KeyboardEventListener * el);
 	void AddMouseListener(MouseEventListener * el);
 
 	//void RemoveApplicationListener(ApplicationEventListener * el);
-	//void RemoveKeyboardListener(KeyboardEventListener * el);
+	void RemoveKeyboardListener(KeyboardEventListener * el);
 	void RemoveMouseListener(MouseEventListener * el);
 
 	bool update();
@@ -34,4 +35,5 @@ private:
 	std::function<void()> processOSEvents = 0;
 
 	std::vector<MouseEventListener *> mMouseListeners;
+	std::vector<KeyboardEventListener *> mKeyboardListeners;
 };

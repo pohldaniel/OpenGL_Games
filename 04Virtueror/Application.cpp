@@ -259,6 +259,7 @@ void Application::initStates() {
 	Game* game = dynamic_cast<Game*>(m_machine->addStateAtTop(new Game(*m_machine)));
 
 	AddMouseListener(game);
+	AddKeyboardListener(game);
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
@@ -283,9 +284,6 @@ void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 				m_mouseTracking = true;
 			}
 			break;
-		}case WM_INPUT: {	
-			Mouse::instance().handleMsg(hWnd, message, wParam, lParam);			
-			break;
 		}case WM_MOUSELEAVE: {
 			m_mouseTracking = false;
 
@@ -299,22 +297,21 @@ void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 			event.mouseMove.y = cursor.y;
 			m_eventDispatcher->pushEvent(event);
 			break;
+		}case WM_KEYDOWN: {
+			Event event;
+			event.type = Event::KEYDOWN;
+			m_eventDispatcher->pushEvent(event);
+			break;
+		}case WM_KEYUP: {
+			Event event;
+			event.type = Event::KEYUP;
+			m_eventDispatcher->pushEvent(event);
+			break;
+		}case WM_INPUT: {
+			Mouse::instance().handleMsg(hWnd, message, wParam, lParam);
+			break;
 		}
-		/*case WM_KEYDOWN: {
-			switch (wParam) {
-				case VK_ESCAPE: {
-					Event event;
-					event.type = Event::CLOSED;
-					pushEvent(event);
-					break;
-				}
-			}
-		}*/
 	}
-}
-
-void Application::AddMouseListener(MouseEventListener * el) {
-	m_eventDispatcher->AddMouseListener(el);
 }
 
 void Application::loadAssets() {
@@ -333,5 +330,12 @@ void Application::loadAssets() {
 
 	Globals::textureManager.loadTexture("structures", "res/img/structures.png", 288, 0, 288, 163);
 	Globals::spritesheetManager.getAssetPointer("structures")->addToSpritesheet((&Globals::textureManager.get("structures"))->getTexture(), 288, 163);
+}
 
+void Application::AddMouseListener(MouseEventListener * el) {
+	m_eventDispatcher->AddMouseListener(el);
+}
+
+void Application::AddKeyboardListener(KeyboardEventListener * el) {
+	m_eventDispatcher->AddKeyboardListener(el);
 }

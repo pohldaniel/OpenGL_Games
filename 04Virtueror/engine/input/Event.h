@@ -1,16 +1,21 @@
 #pragma once
-class Event
-{
+class Event{
 public:
 	struct MouseMoveEvent{
 		int x; 
 		int y;
 	};
 
+	struct KeyboardEvent {
+
+	};
+
 	enum EventType{
 		CLOSED,                
 		RESIZED,               
 		MOUSEMOTION,
+		KEYDOWN,
+		KEYUP,
 		COUNT                  
 	};
 
@@ -18,5 +23,6 @@ public:
 
 	union{
 		MouseMoveEvent mouseMove;
+		KeyboardEvent keyboard;
 	};
 };
