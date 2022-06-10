@@ -26,19 +26,7 @@ private:
 	MapLoader m_mapLoader;
 	CameraMapController * m_camController = nullptr;
 
-	Spritesheet *m_spriteSheet;
-	Shader *m_shaderLevel;
-
 	Matrix4f m_transform = Matrix4f::IDENTITY;
-	Matrix4f m_projection = Matrix4f::IDENTITY;
-
-	float m_offsetX = 0.0f;
-	float m_offsetY = -20.0f;
-
-	unsigned int m_vao = 0;
-	unsigned int m_vbo = 0;
-	unsigned int m_vboMap = 0;
-	unsigned int m_ibo = 0;
 
 	void OnMouseMotion(Event::MouseMoveEvent& event) override;
 	void OnKeyDown(Event::KeyboardEvent & event) override;

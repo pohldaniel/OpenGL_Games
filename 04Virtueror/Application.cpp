@@ -61,7 +61,7 @@ bool Application::initWindow() {
 	m_window = CreateWindowEx(
 		NULL,								
 		"WINDOWCLASS",					
-		"Deathjump",				
+		"Virtueror",				
 		WS_OVERLAPPEDWINDOW^(WS_THICKFRAME | WS_MAXIMIZEBOX),
 		CW_USEDEFAULT, CW_USEDEFAULT,									
 		WIDTH,
@@ -86,6 +86,8 @@ bool Application::initWindow() {
 	UpdateWindow(m_window);
 
 	m_init = true;
+
+	return true;
 }
 
 LRESULT CALLBACK Application::StaticWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
