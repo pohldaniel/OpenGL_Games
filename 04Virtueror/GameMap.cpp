@@ -18,17 +18,21 @@ void GameMap::CreateObjectFromFile(unsigned int layerId, unsigned int objId, uns
 
 void GameMap::CreateObject(unsigned int layerId, unsigned int objId, unsigned int r0, unsigned int c0, unsigned int rows, unsigned int cols) {
 	// object origin is out of map
-	if (r0 >= m_rows || c0 >= m_cols)
-		return;
+	//if (r0 >= m_rows || c0 >= m_cols)
+		//return;
 
 	// full size is out of map
 	const unsigned int r1 = 1 + r0 - rows;
 	const unsigned int c1 = 1 + c0 - cols;
 
-	if (r1 >= m_rows || c1 >= m_cols)
-		return;
+	//if (r1 >= m_rows || c1 >= m_cols)
+		//return;
+
+	IsoObject* isoObj = new IsoObject(rows, cols);
 
 	const unsigned int ind0 = r0 * m_cols + c0;
-	mIsoMap->GetLayer(layerId)->AddObject(new IsoObject(rows, cols), r0, c0);
+	mIsoMap->GetLayer(layerId)->AddObject(isoObj, r0, c0);
+
+	isoObj->SetPosition();
 }
 

@@ -13,6 +13,12 @@ Quad::Quad(bool flippable, float leftEdge, float rightEdge, float bottomEdge, fl
 	}
 }
 
+Quad::Quad(Vector2f& position, Vector2f size) {
+	m_position = position - size * 0.5f;
+	m_size = size;
+	createBuffer();
+}
+
 Quad::~Quad() {
 	if (m_vbo) {
 		glDeleteBuffers(1, &m_vbo);
@@ -89,6 +95,54 @@ void Quad::createBuffer(unsigned int& vao, bool flippable, float leftEdge, float
 	vertex.shrink_to_fit();
 }
 
+void Quad::createBuffer() {
+	std::vector<float> vertex;
+
+	Vector2f pos = m_position;
+	float w = m_size[0];
+	float h = m_size[1];
+	
+	vertex.push_back(pos[0]); vertex.push_back(pos[1]); vertex.push_back(0.0f); vertex.push_back(0.0f); vertex.push_back(0.0f);
+	vertex.push_back(pos[0]); vertex.push_back(pos[1] + h); vertex.push_back(0.0f); vertex.push_back(0.0f); vertex.push_back(1.0f);
+	vertex.push_back(pos[0] + w); vertex.push_back(pos[1] + h); vertex.push_back(0.0f); vertex.push_back(1.0f); vertex.push_back(1.0f);
+	vertex.push_back(pos[0] + w); vertex.push_back(pos[1]); vertex.push_back(0.0f); vertex.push_back(1.0f); vertex.push_back(0.0f);
+
+	static const GLushort index[] = {
+		0, 1, 2,
+		0, 2, 3
+	};
+
+	short stride = 5;
+	short offset = 3;
+
+	unsigned int ibo;
+	glGenBuffers(1, &ibo);
+	glGenBuffers(1, &m_vbo);
+
+	glGenVertexArrays(1, &m_vao);
+	glBindVertexArray(m_vao);
+
+	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+	glBufferData(GL_ARRAY_BUFFER, vertex.size() * sizeof(float), &vertex[0], GL_STATIC_DRAW);
+
+	//Position
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)0);
+
+	//Texture Coordinates
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)(offset * sizeof(float)));
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(index), index, GL_STATIC_DRAW);
+
+	glBindVertexArray(0);
+	glDeleteBuffers(1, &ibo);
+
+	vertex.clear();
+	vertex.shrink_to_fit();
+}
+
 void Quad::render(unsigned int texture, bool array) {
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(array ? GL_TEXTURE_2D_ARRAY : GL_TEXTURE_2D, texture);
@@ -132,4 +186,9 @@ void Quad::setFlipped(bool flipped) {
 
 const Vector2f &Quad::getScale() const {
 	return m_scale;
+}
+
+void Quad::setPosition(const Vector2f &position) {
+	m_position = position;
+	createBuffer();
 }

@@ -35,6 +35,8 @@ public:
 	int GetCols() const;
 
 	void SetPosition(int x, int y);
+	void SetPosition();
+
 	int GetX() const;
 	void SetX(int x);
 	int GetY() const;

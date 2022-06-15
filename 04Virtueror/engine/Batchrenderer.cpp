@@ -90,8 +90,6 @@ void Batchrenderer::flush(){
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 	glUseProgram(0);
-
-	//std::cout << "Draw Calls: " << draw_calls << std::endl;
 }
 
 void Batchrenderer::beginBatch(){
@@ -185,8 +183,6 @@ void Batchrenderer::flush2() {
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 	glUseProgram(0);
-
-	//std::cout << "Draw Calls: " << draw_calls << std::endl;
 }
 
 void Batchrenderer::resetStats2() {

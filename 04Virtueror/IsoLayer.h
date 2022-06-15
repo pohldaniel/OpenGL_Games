@@ -5,11 +5,12 @@
 
 #include "engine/Vector.h"
 
+class IsoMap;
 class IsoObject;
 class IsoLayer{
 
 public:
-	IsoLayer();
+	IsoLayer(const IsoMap * map);
 
 	void UpdateSize();
 
@@ -33,7 +34,9 @@ public:
 	void MoveObjectsPosition(int deltaX, int deltaY);
 
 	void RepositionObject(IsoObject * obj);
+	Vector2f GetObjectPosition(const IsoObject * obj, int r, int c) const;
 
+	void PositionObject(IsoObject * obj, unsigned int r, unsigned int c);
 	void ClearObject(unsigned int index);
 
 	void RemoveObjectFromList(IsoObject * obj);
@@ -56,6 +59,7 @@ public:
 	unsigned int mRenderingC1 = 0;
 
 	bool mVisible = true;
+	const IsoMap * mMap = nullptr;
 };
 
 inline bool IsoLayer::IsVisible() const { return mVisible; }

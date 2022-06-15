@@ -13,10 +13,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), mIsoMap(
 
 	m_mapLoader.setMaps(mGameMap, mIsoMap);
 	m_mapLoader.loadLevel("res/maps/40x40-01.map");
-	const int mapH = mIsoMap->GetHeight();
-
-	mIsoMap->setOrigin(rendW * 0.5, (rendH - mapH) * 0.5);
-
+	
 	const Vector2f p0 = mIsoMap->GetCellPosition(0, 0);
 	const Vector2f p1 = mIsoMap->GetCellPosition(mIsoMap->GetNumRows() - 1, 0);
 	const Vector2f p2 = mIsoMap->GetCellPosition(mIsoMap->GetNumRows() - 1, mIsoMap->GetNumCols() - 1);
@@ -29,7 +26,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), mIsoMap(
 	const int cameraL = p1[0] - marginCameraH;
 	const int cameraR = p3[0] + tileW + marginCameraH - rendW;
 	const int cameraT = p0[1] - marginCameraV;
-	const int cameraB = p2[1] + tileH + marginCameraV - rendH;
+	const int cameraB = -p2[1] + marginCameraV;
 
 	m_camController->SetLimits(cameraL, cameraR, cameraT, cameraB);
 	CenterCameraOverCell(19, 19);
@@ -62,9 +59,9 @@ void Game::render(unsigned int &frameBuffer) {
 void Game::OnMouseMotion(Event::MouseMoveEvent& event) {
 	m_camController->HandleMouseMotion(event);
 
-	const Camera * cam = m_camController->GetCamera();
-	const int worldX = cam->GetScreenToWorldX(event.x);
-	const int worldY = cam->GetScreenToWorldY(event.y);
+	//const Camera * cam = m_camController->GetCamera();
+	//const int worldX = cam->GetScreenToWorldX(event.x);
+	//const int worldY = cam->GetScreenToWorldY(event.y);
 }
 
 void Game::OnKeyDown(Event::KeyboardEvent & event) {
@@ -82,8 +79,8 @@ void Game::CenterCameraOverCell(int row, int col) {
 	const int cY = pos[1] + mIsoMap->GetTileHeight() * 0.5f;
 
 	m_camController->CenterCameraToPoint(cX, cY);
-
-	const Camera * cam = m_camController->GetCamera();
+	
+	const Camera * cam = m_camController->GetCamera();	
 
 	m_transform.translate(cam->GetX(), cam->GetY(), 0.0f);
 }

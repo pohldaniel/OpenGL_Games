@@ -14,6 +14,9 @@ void MapLoader::setMaps(GameMap * gm, IsoMap * im) {
 }
 
 bool MapLoader::loadLevel(const std::string & filename) {
+	const int rendW = 1600;
+	const int rendH = 900;
+	
 	mIsoMap->CreateLayer(3);
 
 	std::fstream fs(filename);
@@ -21,6 +24,10 @@ bool MapLoader::loadLevel(const std::string & filename) {
 		return false;
 
 	readBaseData(fs);
+
+	const int mapH = mIsoMap->GetHeight();
+	mIsoMap->setOrigin(rendW * 0.5f - (float)TILE_WIDTH * 0.5f, rendH *  0.5f - (float)TILE_HEIGHT * 0.5f);
+
 	readObjectsData(fs);
 	fs.close();
 }
@@ -51,24 +58,21 @@ void MapLoader::readBaseData(std::fstream & fs) {
 		ss.clear();
 		ss.str(line);
 
-		//const unsigned int row = r;
-		const unsigned int row = rows - 1 - r;
+		const unsigned int row = r;
 		const unsigned int ind0 = row * cols;
 
-		for (int c = cols - 1; c >= 0; --c) {
-			//for (int c = 0; c < cols; ++c) {
+		for (int c = 0; c < cols; ++c) {
 			unsigned int type;
 
 			ss >> type;
 
 			const unsigned int index = ind0 + c;
-
 			pointX = c * (float)(TILE_WIDTH) * 0.5f;
 			pointY = row * (float)(TILE_WIDTH) * 0.5f;
 			pointXTrans = (pointX - pointY);
 			pointYTrans = (pointX + pointY) * 0.5f;
-			mIsoMap->tiles[index] = { Vector2f(pointXTrans, pointYTrans),Vector2f(TILE_WIDTH, TILE_HEIGHT), type };
 
+			mIsoMap->tiles[index] = { Vector2f(pointXTrans, -pointYTrans),Vector2f(TILE_WIDTH, TILE_HEIGHT), type };
 		}
 	}
 }
@@ -99,4 +103,6 @@ bool MapLoader::readObjectsData(std::fstream & fs) {
 		mGameMap->CreateObjectFromFile(layerId, objId, r0, c0, rows, cols);
 	}
 	fs.close();
+
+	return true;
 }

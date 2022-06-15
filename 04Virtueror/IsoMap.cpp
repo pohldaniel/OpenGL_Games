@@ -50,7 +50,7 @@ IsoLayer * IsoMap::CreateLayer(unsigned int layerId) {
 		return layer;
 
 	// create and store new layer
-	layer = new IsoLayer();
+	layer = new IsoLayer(this);
 
 	mLayers.emplace_back(layer);
 	mLayersMap.insert({ layerId, layer });
@@ -81,14 +81,14 @@ void IsoMap::setSize(unsigned int rows, unsigned int cols) {
 }
 
 void IsoMap::setOrigin(const float x, const float y) {
-	m_origin[0] = x - TILE_HEIGHT;
+	m_origin[0] = x;
 	m_origin[1] = y;
 	updateTilePositions();
 }
 
 void IsoMap::setOrigin(const Vector2f &origin) {
 	m_origin = origin;
-	m_origin[0] = origin[0] - TILE_HEIGHT;
+	m_origin[0] = origin[0];
 	updateTilePositions();
 }
 
@@ -105,6 +105,16 @@ void IsoMap::updateTilePositions() {
 	}
 
 	updateBuffer();
+}
+
+Vector2f IsoMap::GetCellPosition(unsigned int index) const {
+
+	if (index < tiles.size())
+		return tiles[index].position;
+	else {
+		const Vector2f p(-1, -1);
+		return p;
+	}
 }
 
 void IsoMap::updateBuffer() {
@@ -141,12 +151,3 @@ void IsoMap::updateBuffer() {
 	glBindVertexArray(0);
 }
 
-Vector2f IsoMap::GetCellPosition(unsigned int index) const {
-
-	if (index < tiles.size())
-		return tiles[index].position;
-	else {
-		const Vector2f p(-1, -1);
-		return p;
-	}
-}

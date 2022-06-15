@@ -1,5 +1,5 @@
 #include <limits>
-
+#include <iostream>
 #include "CameraMapController.h"
 
 constexpr float DEF_SPEED = 400.f;
@@ -24,18 +24,20 @@ void CameraMapController::CenterCameraToPoint(int x, int y){
 	const int hw = mCamera->GetWidth() * 0.5f;
 	const int hh = mCamera->GetHeight() * 0.5f;
 	const int cameraX0 = x - hw;
-	const int cameraY0 = y - hh;
+	const int cameraY0 = hh - y;
+
 	// clamp X
 	if (cameraX0 < mLimitL)
 		x = mLimitL + hw;
 	else if (cameraX0 > mLimitR)
 		x = mLimitR + hw;
-
+	
 	// clamp Y
-	if (cameraY0 < mLimitT)
-		y = mLimitT + hh;
-	else if (cameraY0 > mLimitB)
-		y = mLimitB + hh;
+	if (cameraY0 < mLimitT) 
+		y = hh - mLimitT;
+	else if (cameraY0 > mLimitB) 
+		y = hh - mLimitB;
+		
 	mCamera->CenterToPoint(x, y);
 }
 

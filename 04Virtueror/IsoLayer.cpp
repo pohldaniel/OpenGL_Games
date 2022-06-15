@@ -1,12 +1,14 @@
 #include <iostream>
 
+#include "IsoMap.h"
+
 #include "IsoLayer.h"
 #include "IsoObject.h"
 
 #include <algorithm>
 
 
-IsoLayer::IsoLayer() {
+IsoLayer::IsoLayer(const IsoMap * map) : mMap(map) {
 
 	const int size = 40 * 40;
 
@@ -72,12 +74,12 @@ bool IsoLayer::AddObject(IsoObject * obj, unsigned int r, unsigned int c)
 	const unsigned int r1 = 1 + r - obj->GetRows();
 	const unsigned int c1 = 1 + c - obj->GetCols();
 
-	if (r1 >= mapRows || c1 >= mapCols)
-		return false;
+	//if (r1 >= mapRows || c1 >= mapCols)
+		//return false;
 
 	// object already added
-	if (std::find(mObjectsList.begin(), mObjectsList.end(), obj) != mObjectsList.end())
-		return false;
+	//if (std::find(mObjectsList.begin(), mObjectsList.end(), obj) != mObjectsList.end())
+		//return false;
 
 	// link layer and object
 	obj->SetLayer(this);
@@ -240,33 +242,39 @@ void IsoLayer::MoveObjectsPosition(int deltaX, int deltaY)
 	}
 }
 
-void IsoLayer::RepositionObject(IsoObject * obj)
-{
-	//PositionObject(obj, obj->GetRow(), obj->GetCol());
+void IsoLayer::RepositionObject(IsoObject * obj){
+	PositionObject(obj, obj->GetRow(), obj->GetCol());
 }
 
-/*sgl::core::Pointd2D IsoLayer::GetObjectPosition(const IsoObject * obj, unsigned int r, unsigned int c) const
-{
-const sgl::core::Pointd2D cellPos = mMap->GetCellPosition(r, c);
-const int cellH = mMap->GetTileHeight();
+Vector2f IsoLayer::GetObjectPosition(const IsoObject * obj, int r,  int c) const{
+	const Vector2f cellPos = mMap->GetCellPosition((40 -3) - r, (40 - 3) - c);
+	
+	const int cellH = mMap->GetTileHeight();
 
-const int x0 = cellPos.x + cellH;
-const int y0 = cellPos.y + cellH;
+	const int x0 = cellPos[0] + cellH + 800;
+	const int y0 = cellPos[1] + cellH - 510;
 
-const int imgW0 = obj->GetCols() * cellH;
-const int imgH = obj->GetHeight();
+	const int imgW0 = obj->GetCols() * cellH;
+	const int imgH = obj->GetHeight();
 
-return sgl::core::Pointd2D(x0 - imgW0, y0 - imgH);
-}*/
+	float pointX, pointY;
+	float pointXTrans, pointYTrans;
+
+	pointX = (r) * (float)(TILE_WIDTH) * 0.5f;
+	pointY = (c ) * (float)(TILE_WIDTH) * 0.5f;
+	pointXTrans = (pointX - pointY);
+	pointYTrans = (pointX + pointY) * 0.5f;
+
+	return Vector2f(cellPos[0] - TILE_WIDTH, cellPos[1]);
+}
 
 // ==================== PRIVATE METHODS ====================
 
-/*void IsoLayer::PositionObject(IsoObject * obj, unsigned int r, unsigned int c)
-{
-const sgl::core::Pointd2D pos = GetObjectPosition(obj, r, c);
+void IsoLayer::PositionObject(IsoObject * obj, unsigned int r, unsigned int c){
 
-obj->SetPosition(pos.x, pos.y);
-}*/
+	const Vector2f pos = GetObjectPosition(obj, r, c);
+	obj->SetPosition(pos[0], pos[1]);
+}
 
 /**
 * @brief Removes an object from a cell. Object is not deleted.
@@ -311,7 +319,6 @@ void IsoLayer::UpdateRenderList()
 			IsoObject * obj = mObjectsMap[ind];
 
 			if (obj != nullptr && obj->GetRow() == r && obj->GetCol() == c) {
-				std::cout << ind << std::endl;
 				mRenderList.push_back(obj);
 
 			}

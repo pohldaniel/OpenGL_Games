@@ -3,7 +3,9 @@
 
 IsoObject::IsoObject(int rows, int cols) : mRows(rows), mCols(cols) {
 	Vector2f m_size = Vector2f(288.0f, 163.0f);
-	m_quad = new Quad(false, 0.0f, 1.0f, 0.0f, 1.0f, m_size[0], m_size[1], 0.0f, 0.0f, 1.0f, 1.0f, 0, 0);
+	Vector2f position = Vector2f(0.0f, 0.0f);
+	//m_quad = new Quad(false, 0.0f, 1.0f, 0.0f, 1.0f, m_size[0], m_size[1], 0.0f, 0.0f, 1.0f, 1.0f, 0, 0);
+	m_quad = new Quad(position, m_size);
 
 	m_shaderArray = Globals::shaderManager.getAssetPointer("quad_array");
 	m_shader = Globals::shaderManager.getAssetPointer("quad");
@@ -11,12 +13,20 @@ IsoObject::IsoObject(int rows, int cols) : mRows(rows), mCols(cols) {
 
 	m_spriteSheet = Globals::spritesheetManager.getAssetPointer("structures");
 	m_texture = &Globals::textureManager.get("structures");
+
+
 }
 
 IsoObject::~IsoObject() {
 }
 
 void IsoObject::SetPosition(int x, int y) {
+	m_quad->setPosition(Vector2f(x, y));
+}
+
+void IsoObject::SetPosition() {
+	if (mLayer)
+		mLayer->RepositionObject(this);
 }
 
 int IsoObject::GetX() const { return 0; }
