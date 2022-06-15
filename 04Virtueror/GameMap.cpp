@@ -31,7 +31,7 @@ void GameMap::CreateObject(unsigned int layerId, unsigned int objId, unsigned in
 	IsoObject* isoObj = new IsoObject(rows, cols);
 
 	const unsigned int ind0 = r0 * m_cols + c0;
-	mIsoMap->GetLayer(layerId)->AddObject(isoObj, r0, c0);
+	mIsoMap->GetLayer(layerId)->AddObject(isoObj, r0 , c0 );
 
 	isoObj->SetPosition();
 }

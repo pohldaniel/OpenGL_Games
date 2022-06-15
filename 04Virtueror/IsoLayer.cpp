@@ -247,24 +247,19 @@ void IsoLayer::RepositionObject(IsoObject * obj){
 }
 
 Vector2f IsoLayer::GetObjectPosition(const IsoObject * obj, int r,  int c) const{
-	const Vector2f cellPos = mMap->GetCellPosition((40 -3) - r, (40 - 3) - c);
+	//const Vector2f cellPos = mMap->GetCellPosition(r, c);
+
+	//const int cellH = mMap->GetTileHeight();
+
+	//const int x0 = cellPos[0] + cellH;
+	//const int y0 = cellPos[1] + cellH * 1.5f;
+
+	//const int imgW0 = obj->GetCols() * cellH;
+	//const int imgH = obj->GetHeight();
 	
-	const int cellH = mMap->GetTileHeight();
+	//return Vector2f(x0 - imgW0, y0 - imgH);
 
-	const int x0 = cellPos[0] + cellH + 800;
-	const int y0 = cellPos[1] + cellH - 510;
-
-	const int imgW0 = obj->GetCols() * cellH;
-	const int imgH = obj->GetHeight();
-
-	float pointX, pointY;
-	float pointXTrans, pointYTrans;
-
-	pointX = (r) * (float)(TILE_WIDTH) * 0.5f;
-	pointY = (c ) * (float)(TILE_WIDTH) * 0.5f;
-	pointXTrans = (pointX - pointY);
-	pointYTrans = (pointX + pointY) * 0.5f;
-
+	const Vector2f cellPos = mMap->GetCellPosition(r + (obj->GetRows() - 1), c + (obj->GetCols() - 1));
 	return Vector2f(cellPos[0] - TILE_WIDTH, cellPos[1]);
 }
 

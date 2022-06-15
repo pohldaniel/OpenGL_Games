@@ -54,6 +54,9 @@ public:
 
 	virtual void Render(Matrix4f& transform);
 
+	Vector2f m_size = Vector2f(288.0f, 163.0f);
+	Vector2f position = Vector2f(0.0f, 0.0f);
+
 private:
 	virtual void OnPositionChanged();
 
