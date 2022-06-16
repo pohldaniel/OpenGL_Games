@@ -589,3 +589,18 @@ void glCopyImageSubData(GLuint srcName, GLenum srcTarget, GLint srcLevel, GLint 
 	LOAD_ENTRYPOINT("glCopyImageSubData", glCopyImageSubData, PFNGLCOPYIMAGESUBDATAPROC);
 	glCopyImageSubData(srcName, srcTarget, srcLevel, srcX, srcY, srcZ, dstName, dstTarget, dstLevel, dstX, dstY, dstZ, srcWidth, srcHeight, srcDepth);
 }
+
+void *glMapBuffer(GLenum target, GLenum access) {
+	typedef void*(APIENTRY * PFNGLMAPBUFFERPROC)(GLenum target, GLenum access);
+	static PFNGLMAPBUFFERPROC  glMapBuffer = 0;
+	LOAD_ENTRYPOINT("glMapBuffer", glMapBuffer, PFNGLMAPBUFFERPROC);
+	return glMapBuffer(target, access);
+}
+
+GLboolean glUnmapBuffer(GLenum target) {
+	typedef GLboolean(APIENTRY * PFNGLUNMAPBUFFERPROC)(GLenum target);
+	static PFNGLUNMAPBUFFERPROC  glUnmapBuffer = 0;
+	LOAD_ENTRYPOINT("glUnmapBuffer", glUnmapBuffer, PFNGLUNMAPBUFFERPROC);
+
+	return glUnmapBuffer(target);
+}

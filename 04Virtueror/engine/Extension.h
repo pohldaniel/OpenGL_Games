@@ -172,6 +172,7 @@ typedef char GLchar;
 #define GL_TEXTURE1_ARB 0x84C1
 #define GL_TEXTURE_MAX_ANISOTROPY_EXT 0x84FE
 #define GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT 0x84FF
+#define GL_WRITE_ONLY   0x88B9
 
 	extern void glActiveTextureARB(GLenum texture);
 	extern void glMultiTexCoord2fARB(GLenum target, GLfloat s, GLfloat t);
@@ -189,6 +190,7 @@ typedef char GLchar;
 
 	extern void glCopyImageSubData(GLuint srcName, GLenum srcTarget, GLint srcLevel, GLint srcX, GLint srcY, GLint srcZ, GLuint dstName, GLenum dstTarget, GLint dstLevel, GLint dstX, GLint dstY, GLint dstZ, GLsizei srcWidth, GLsizei srcHeight, GLsizei srcDepth);
 
-
+	extern void *glMapBuffer(GLenum target, GLenum access);
+	extern GLboolean glUnmapBuffer(GLenum target);
 } // extern "C"
 #endif

@@ -14,6 +14,8 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), mIsoMap(
 	m_mapLoader.setMaps(mGameMap, mIsoMap);
 	m_mapLoader.loadLevel("res/maps/40x40-01.map");
 	
+
+
 	const Vector2f p0 = mIsoMap->GetCellPosition(0, 0);
 	const Vector2f p1 = mIsoMap->GetCellPosition(mIsoMap->GetNumRows() - 1, 0);
 	const Vector2f p2 = mIsoMap->GetCellPosition(mIsoMap->GetNumRows() - 1, mIsoMap->GetNumCols() - 1);

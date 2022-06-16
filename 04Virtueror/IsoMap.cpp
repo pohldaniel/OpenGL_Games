@@ -104,7 +104,7 @@ void IsoMap::updateTilePositions() {
 		addTile(tiles[i], m_vertices, m_indexBuffer, m_indexMap);
 	}
 
-	updateBuffer();
+	createBuffer();
 }
 
 Vector2f IsoMap::GetCellPosition(unsigned int index) const {
@@ -117,7 +117,7 @@ Vector2f IsoMap::GetCellPosition(unsigned int index) const {
 	}
 }
 
-void IsoMap::updateBuffer() {
+void IsoMap::createBuffer() {
 	short stride = 5, offset = 3;
 
 	glGenBuffers(1, &m_ibo);
@@ -149,5 +149,27 @@ void IsoMap::updateBuffer() {
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
+}
+
+void IsoMap::SetCellType(unsigned int ind, unsigned int cellType, bool _mapBuffer) {
+	const unsigned int index = ind * 4;
+
+	m_indexMap[index] = cellType;
+	m_indexMap[index + 1] = cellType;
+	m_indexMap[index + 2] = cellType;
+	m_indexMap[index + 3] = cellType;
+	if(_mapBuffer)
+		mapBuffer();
+}
+
+void IsoMap::mapBuffer() {
+	glBindBuffer(GL_ARRAY_BUFFER, m_vboMap);
+	glBufferData(GL_ARRAY_BUFFER, m_indexMap.size() * sizeof(m_indexMap[0]), NULL, GL_STATIC_DRAW);
+
+	void *ptr = glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
+	if (ptr) {
+		memcpy(ptr, m_indexMap.data(), m_indexMap.size() * sizeof(m_indexMap[0]));
+		glUnmapBuffer(GL_ARRAY_BUFFER);
+	}
 }
 

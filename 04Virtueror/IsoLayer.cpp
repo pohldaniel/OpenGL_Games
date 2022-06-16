@@ -259,7 +259,8 @@ Vector2f IsoLayer::GetObjectPosition(const IsoObject * obj, int r,  int c) const
 	
 	//return Vector2f(x0 - imgW0, y0 - imgH);
 
-	const Vector2f cellPos = mMap->GetCellPosition(r + (obj->GetRows() - 1), c + (obj->GetCols() - 1));
+	//const Vector2f cellPos = mMap->GetCellPosition(r + (obj->GetRows() - 1), c + (obj->GetCols() - 1));
+	const Vector2f cellPos = mMap->GetCellPosition(r, c);
 	return Vector2f(cellPos[0] - TILE_WIDTH, cellPos[1]);
 }
 

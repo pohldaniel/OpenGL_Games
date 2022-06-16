@@ -33,6 +33,8 @@ private:
 	void OnKeyUp(Event::KeyboardEvent & event) override;
 	void CenterCameraOverCell(int row, int col);
 
+	//void HandleUnitMoveOnMouseUp(Unit * unit, const Cell2D & clickCell);
+
 	IsoMap * mIsoMap = nullptr;
 	GameMap * mGameMap = nullptr;
 };

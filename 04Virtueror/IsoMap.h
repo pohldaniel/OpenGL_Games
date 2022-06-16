@@ -23,7 +23,7 @@ public:
 	void setOrigin(const float x, const float y);
 	void setOrigin(const Vector2f &origin);
 	void setSize(unsigned int rows, unsigned int cols);
-	void updateBuffer();
+	void createBuffer();
 
 	unsigned int GetWidth() const;
 	unsigned int GetHeight() const;
@@ -38,6 +38,9 @@ public:
 
 	IsoLayer * CreateLayer(unsigned int layerId);
 	IsoLayer * GetLayer(unsigned int layerId) const;
+
+	void SetCellType(unsigned int ind, unsigned int cellType, bool mapBuffer = true);
+	void IsoMap::mapBuffer();
 
 	std::vector<Tile> tiles;
 	std::vector<float> m_vertices;

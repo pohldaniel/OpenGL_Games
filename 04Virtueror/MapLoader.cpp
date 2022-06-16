@@ -75,6 +75,11 @@ void MapLoader::readBaseData(std::fstream & fs) {
 			mIsoMap->tiles[index] = { Vector2f(pointXTrans, -pointYTrans),Vector2f(TILE_WIDTH, TILE_HEIGHT), type };
 		}
 	}
+
+	if (mGameMap){
+		mGameMap->SetSize(rows, cols);
+		//mGameMap->SyncMapCells();
+	}
 }
 
 bool MapLoader::readObjectsData(std::fstream & fs) {

@@ -176,7 +176,9 @@
     <ClInclude Include="engine\Timer.h" />
     <ClInclude Include="engine\Vector.h" />
     <ClInclude Include="Game.h" />
+    <ClInclude Include="GameConstants.h" />
     <ClInclude Include="GameMap.h" />
+    <ClInclude Include="GameMapCell.h" />
     <ClInclude Include="IsoLayer.h" />
     <ClInclude Include="IsoMap.h" />
     <ClInclude Include="IsoObject.h" />
@@ -205,6 +207,7 @@
     <ClCompile Include="engine\Vector.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="GameMap.cpp" />
+    <ClCompile Include="GameMapCell.cpp" />
     <ClCompile Include="IsoLayer.cpp" />
     <ClCompile Include="IsoMap.cpp" />
     <ClCompile Include="IsoObject.cpp" />

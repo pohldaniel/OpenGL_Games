@@ -1,5 +1,5 @@
 #include "Quad.h"
-
+#include <iostream>
 Quad::Quad(bool flippable, float leftEdge, float rightEdge, float bottomEdge, float topEdge, float sizeX, float sizeY, float offsetX, float offsetY, float sizeTexX, float sizeTexY, short x, short y) {
 	
 	m_flippable = flippable;
@@ -143,6 +143,24 @@ void Quad::createBuffer() {
 	vertex.shrink_to_fit();
 }
 
+void Quad::mapBuffer() {
+	float data[] = {
+		m_position[0], m_position[1],						  0.0f, 0.0f, 0.0f,
+		m_position[0], m_position[1] + m_size[1],			  0.0f, 0.0f, 1.0f,
+		m_position[0] + m_size[0], m_position[1] + m_size[1], 0.0f, 1.0f, 1.0f,
+		m_position[0] + m_size[0], m_position[1],			  0.0f, 1.0f, 0.0f
+	};
+
+	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(data), NULL, GL_STATIC_DRAW);
+
+	void *ptr = glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
+	if (ptr){
+		memcpy(ptr, data, sizeof(data));
+		glUnmapBuffer(GL_ARRAY_BUFFER); 
+	}
+}
+
 void Quad::render(unsigned int texture, bool array) {
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(array ? GL_TEXTURE_2D_ARRAY : GL_TEXTURE_2D, texture);
@@ -190,5 +208,5 @@ const Vector2f &Quad::getScale() const {
 
 void Quad::setPosition(const Vector2f &position) {
 	m_position = position;
-	createBuffer();
+	mapBuffer();
 }
