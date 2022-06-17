@@ -73,9 +73,10 @@ void MapLoader::readBaseData(std::fstream & fs) {
 			pointYTrans = (pointX + pointY) * 0.5f;
 
 			mIsoMap->tiles[index] = { Vector2f(pointXTrans, -pointYTrans),Vector2f(TILE_WIDTH, TILE_HEIGHT), type };
+			//std::cout << row << "  " << c << "  " << pointXTrans << "  " << -pointYTrans << std::endl;
 		}
 	}
-
+	
 	if (mGameMap){
 		mGameMap->SetSize(rows, cols);
 		//mGameMap->SyncMapCells();

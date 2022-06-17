@@ -12,6 +12,8 @@
 #include "CameraMapController.h"
 #include "IsoMap.h"
 #include "GameMap.h"
+#include "IsometricMouse.h"
+
 
 class Game : public State, public MouseEventListener, public KeyboardEventListener {
 public:
@@ -25,16 +27,29 @@ public:
 private:
 	MapLoader m_mapLoader;
 	CameraMapController * m_camController = nullptr;
+	IsometricMouse* m_isometricMouse = nullptr;
 
 	Matrix4f m_transform = Matrix4f::IDENTITY;
 
 	void OnMouseMotion(Event::MouseMoveEvent& event) override;
 	void OnKeyDown(Event::KeyboardEvent & event) override;
 	void OnKeyUp(Event::KeyboardEvent & event) override;
+	void OnMouseButtonDown(Event::MouseButtonEvent& event) override;
+	void OnMouseButtonUp(Event::MouseButtonEvent& event) override;
+
+	void HandleSelectionClick(Event::MouseButtonEvent& event);
+
 	void CenterCameraOverCell(int row, int col);
+	void SelectObject(GameObject * obj);
+	void ClearSelection();
 
 	//void HandleUnitMoveOnMouseUp(Unit * unit, const Cell2D & clickCell);
 
 	IsoMap * mIsoMap = nullptr;
 	GameMap * mGameMap = nullptr;
+
+	float mouseX = 0.0f;
+	float mouseY = 0.0f;
+
+	GameObject* selectedObj = nullptr;
 };

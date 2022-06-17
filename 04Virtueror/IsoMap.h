@@ -3,6 +3,7 @@
 #include "engine/Vector.h"
 #include "Constants.h"
 #include "IsoLayer.h"
+#include "Cell2D.h"
 
 struct Tile {
 	Vector2f position;
@@ -34,7 +35,8 @@ public:
 
 	Vector2f GetCellPosition(unsigned int r, unsigned int c) const;
 	Vector2f GetCellPosition(unsigned int index) const;
-
+	Cell2D CellFromScreenPoint(int x, int y) const;
+	bool IsCellInside(const Cell2D & cell) const;
 
 	IsoLayer * CreateLayer(unsigned int layerId);
 	IsoLayer * GetLayer(unsigned int layerId) const;
@@ -62,6 +64,9 @@ public:
 
 	unsigned int m_rows = 0;
 	unsigned int m_cols = 0;
+
+	int mX0 = 0;
+	int mY0 = 0;
 };
 
 inline Vector2f IsoMap::GetCellPosition(unsigned int r, unsigned int c) const {

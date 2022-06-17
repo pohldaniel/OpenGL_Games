@@ -2,18 +2,9 @@
 #include <iostream>
 
 IsoObject::IsoObject(int rows, int cols) : mRows(rows), mCols(cols) {
-	
-	//m_quad = new Quad(false, 0.0f, 1.0f, 0.0f, 1.0f, m_size[0], m_size[1], 0.0f, 0.0f, 1.0f, 1.0f, 0, 0);
-	m_quad = new Quad(position, m_size);
-
+	m_quad = new Quad(m_position, m_size);
 	m_shaderArray = Globals::shaderManager.getAssetPointer("quad_array");
-	m_shader = Globals::shaderManager.getAssetPointer("quad");
-
-
 	m_spriteSheet = Globals::spritesheetManager.getAssetPointer("structures");
-	m_texture = &Globals::textureManager.get("structures");
-
-
 }
 
 IsoObject::~IsoObject() {
@@ -50,10 +41,9 @@ void IsoObject::SetAlpha(unsigned char alpha) {  }
 void IsoObject::SetColor(unsigned int color) {  }
 
 void IsoObject::Render(Matrix4f& transform) {
-
 	glUseProgram(m_shaderArray->m_program);
 	m_shaderArray->loadMatrix("u_transform", transform * Globals::projection);
-	m_shaderArray->loadInt("u_layer", 1);
+	m_shaderArray->loadInt("u_layer", m_currentFrame);
 	m_quad->render(m_spriteSheet->getAtlas(), true);
 	glUseProgram(0);
 }

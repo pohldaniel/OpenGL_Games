@@ -155,8 +155,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Application.h" />
+    <ClInclude Include="Base.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="CameraMapController.h" />
+    <ClInclude Include="Cell2D.h" />
     <ClInclude Include="Constants.h" />
     <ClInclude Include="engine\AssetManger.h" />
     <ClInclude Include="engine\Batchrenderer.h" />
@@ -179,16 +181,22 @@
     <ClInclude Include="GameConstants.h" />
     <ClInclude Include="GameMap.h" />
     <ClInclude Include="GameMapCell.h" />
+    <ClInclude Include="GameObject.h" />
     <ClInclude Include="IsoLayer.h" />
     <ClInclude Include="IsoMap.h" />
+    <ClInclude Include="IsometricMouse.h" />
     <ClInclude Include="IsoObject.h" />
     <ClInclude Include="MapLoader.h" />
+    <ClInclude Include="ObjectData.h" />
     <ClInclude Include="StateMachine.h" />
     <ClInclude Include="stb\stb_image.h" />
     <ClInclude Include="stb\stb_image_write.h" />
+    <ClInclude Include="Structure.h" />
+    <ClInclude Include="Unit.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Application.cpp" />
+    <ClCompile Include="Base.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="CameraMapController.cpp" />
     <ClCompile Include="engine\Batchrenderer.cpp" />
@@ -208,12 +216,17 @@
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="GameMap.cpp" />
     <ClCompile Include="GameMapCell.cpp" />
+    <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="IsoLayer.cpp" />
     <ClCompile Include="IsoMap.cpp" />
+    <ClCompile Include="IsometricMouse.cpp" />
     <ClCompile Include="IsoObject.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MapLoader.cpp" />
+    <ClCompile Include="ObjectData.cpp" />
     <ClCompile Include="StateMachine.cpp" />
+    <ClCompile Include="Structure.cpp" />
+    <ClCompile Include="Unit.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

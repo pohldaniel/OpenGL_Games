@@ -139,7 +139,7 @@ LRESULT Application::DisplayWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 			
 			glViewport(0, 0, _width, _height);
 			Globals::projection = Matrix4f::GetOrthographic(Globals::projection, 0.0f, static_cast<float>(_width), 0.0f, static_cast<float>(_height), -1.0f, 1.0f);			
-			Globals::invProjection = Matrix4f::GetInvOrthographic(Globals::invProjection, 0.f, static_cast<float>(_width), 0.0f, static_cast<float>(_height), -1.0f, 1.0f);
+			Globals::invProjection = Matrix4f::GetInvOrthographic(Globals::invProjection, 0.0f, static_cast<float>(_width), 0.0f, static_cast<float>(_height), -1.0f, 1.0f);
 
 			if(m_init) 
 				m_machine->resize(_width, _height);
@@ -311,6 +311,20 @@ void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 			break;
 		}case WM_INPUT: {
 			Mouse::instance().handleMsg(hWnd, message, wParam, lParam);
+			break;
+		}case WM_LBUTTONDOWN: {
+			Event event;
+			event.type = Event::MOUSEBUTTONDOWN;
+			event.mouseButton.x = LOWORD(lParam);
+			event.mouseButton.y = HIWORD(lParam);
+			m_eventDispatcher->pushEvent(event);
+			break;
+		}case WM_LBUTTONUP: {
+			Event event;
+			event.type = Event::MOUSEBUTTONUP;
+			event.mouseButton.x = LOWORD(lParam);
+			event.mouseButton.y = HIWORD(lParam);
+			m_eventDispatcher->pushEvent(event);
 			break;
 		}
 	}

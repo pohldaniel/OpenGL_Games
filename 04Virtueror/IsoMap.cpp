@@ -173,3 +173,37 @@ void IsoMap::mapBuffer() {
 	}
 }
 
+Cell2D IsoMap::CellFromScreenPoint(int x, int y) const{
+	const float w = TILE_WIDTH;
+	const float h = TILE_HEIGHT;
+	const float xf = x - (m_origin[0] + h);
+	const float yf = y - (m_origin[1] + h * 0.5f);
+	
+	/*float col = (2. * yf + xf) / w;
+	float row = col - (xf / h);
+
+	// negative cells need special handling
+	if (row < 0.f)
+		row -= 1.f;
+
+	if (col < 0.f)
+		col -= 1.f;
+
+	const Cell2D cell(static_cast<int>(row), static_cast<int>(col));
+	return cell;*/
+
+	float pointX = xf - 2.0f * yf;
+
+	float col = (xf - 2.0f * yf) / w;
+	float row = col - (xf / h);
+
+	const Cell2D cell(std::round(row), std::round(col));
+	return cell;
+}
+
+bool IsoMap::IsCellInside(const Cell2D & cell) const{
+	const unsigned int cr = static_cast<unsigned int>(cell.row);
+	const unsigned int cc = static_cast<unsigned int>(cell.col);
+	return  cr < m_rows && cc < m_cols;
+}
+

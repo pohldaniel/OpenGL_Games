@@ -9,7 +9,8 @@ public:
 
 private:
 	virtual void OnMouseMotion(Event::MouseMoveEvent& event) {}
-
+	virtual void OnMouseButtonDown(Event::MouseButtonEvent& event) {};
+	virtual void OnMouseButtonUp(Event::MouseButtonEvent& event) {};
 private:
 	EventDispatcher * mDispatcher = nullptr;
 

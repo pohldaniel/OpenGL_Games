@@ -71,6 +71,16 @@ bool EventDispatcher::update() {
 					el->OnKeyUp(m_event.keyboard);
 				}
 				return true;
+			}case Event::MOUSEBUTTONDOWN: {
+				for (MouseEventListener * el : mMouseListeners) {
+					el->OnMouseButtonDown(m_event.mouseButton);
+				}
+				return true;
+			}case Event::MOUSEBUTTONUP: {
+				for (MouseEventListener * el : mMouseListeners) {
+					el->OnMouseButtonUp(m_event.mouseButton);
+				}
+				return true;
 			}
 		}
 	}

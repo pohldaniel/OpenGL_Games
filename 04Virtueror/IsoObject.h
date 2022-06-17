@@ -15,10 +15,8 @@ class IsoObject {
 public:
 	Quad *m_quad;
 	Shader *m_shaderArray;
-	Shader *m_shader;
 	Matrix4f m_transform = Matrix4f::IDENTITY;
 	Spritesheet *m_spriteSheet;
-	Texture *m_texture;
 
 	IsoObject(int rows, int cols);
 	virtual ~IsoObject();
@@ -55,7 +53,9 @@ public:
 	virtual void Render(Matrix4f& transform);
 
 	Vector2f m_size = Vector2f(288.0f, 163.0f);
-	Vector2f position = Vector2f(0.0f, 0.0f);
+	Vector2f m_position = Vector2f(0.0f, 0.0f);
+
+	unsigned int m_currentFrame = 0;
 
 private:
 	virtual void OnPositionChanged();

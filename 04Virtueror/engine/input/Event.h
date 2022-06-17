@@ -6,6 +6,11 @@ public:
 		int y;
 	};
 
+	struct MouseButtonEvent {
+		int x;
+		int y;
+	};
+
 	struct KeyboardEvent {
 
 	};
@@ -14,6 +19,8 @@ public:
 		CLOSED,                
 		RESIZED,               
 		MOUSEMOTION,
+		MOUSEBUTTONDOWN,
+		MOUSEBUTTONUP,
 		KEYDOWN,
 		KEYUP,
 		COUNT                  
@@ -23,6 +30,7 @@ public:
 
 	union{
 		MouseMoveEvent mouseMove;
+		MouseButtonEvent mouseButton;
 		KeyboardEvent keyboard;
 	};
 };

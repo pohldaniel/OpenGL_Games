@@ -1,8 +1,9 @@
 #include "GameMap.h"
 #include "IsoMap.h"
 #include "IsoObject.h"
-#include "GameMapCell.h"
 #include "GameConstants.h"
+
+#include "Base.h"
 
 #include <iostream>
 
@@ -70,8 +71,21 @@ void GameMap::CreateObject(unsigned int layerId, unsigned int objId, unsigned in
 		//return nullptr;
 
 	// create game object
-	IsoObject* isoObj = new IsoObject(rows, cols);
-	
+	//IsoObject* isoObj = new IsoObject(rows, cols);
+	GameObject* obj = nullptr;
+
+	obj = new Base(rows, cols);
+
+	// set object properties
+	obj->SetCell(&mCells[ind0]);
+	obj->SetSize(rows, cols);
+
+	// links to other objects
+	obj->SetGameMap(this);
+
+	mObjects.push_back(obj);
+	mObjectsSet.insert(obj);
+
 	// generic cells update
 	for (unsigned int r = r1; r <= r0; ++r) {
 		const unsigned int indBase = r * m_cols;
@@ -83,14 +97,17 @@ void GameMap::CreateObject(unsigned int layerId, unsigned int objId, unsigned in
 			GameMapCell& cell = mCells[ind];
 
 			cell.linked = true;
+			cell.walkable = false;
+			cell.objTop = obj;
+
 			UpdateCellType(ind, cell, false);
 		}
 	}
 
 	mIsoMap->mapBuffer();
 
-	mIsoMap->GetLayer(layerId)->AddObject(isoObj, r0, c0);
-	isoObj->SetPosition();
+	mIsoMap->GetLayer(layerId)->AddObject(obj->GetIsoObject(), r0, c0);
+	obj->GetIsoObject()->SetPosition();
 }
 
 void GameMap::UpdateCellType(unsigned int ind, const GameMapCell & cell, bool mapBuffer){

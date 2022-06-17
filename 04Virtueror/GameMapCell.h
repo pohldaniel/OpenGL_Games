@@ -32,6 +32,8 @@ enum CellTypes : int{
 	NUM_CELL_TYPES
 };
 
+class GameObject;
+
 struct GameMapCell{
 	GameMapCell();
 
@@ -40,6 +42,9 @@ struct GameMapCell{
 
 	std::unordered_map<int, bool> influencers;
 	
+	GameObject * objBottom = nullptr;
+	GameObject * objTop = nullptr;
+
 	CellTypes currType = EMPTY;
 	CellTypes basicType = EMPTY;
 

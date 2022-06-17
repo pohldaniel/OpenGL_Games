@@ -1,6 +1,10 @@
 #include "Game.h"
 
+
+
 Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), mIsoMap(new IsoMap()), mGameMap(new GameMap(mIsoMap)) {
+	m_isometricMouse = new IsometricMouse();
+	
 	const int rendW = 1600;
 	const int rendH = 900;
 
@@ -31,7 +35,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), mIsoMap(
 	const int cameraB = -p2[1] + marginCameraV;
 
 	m_camController->SetLimits(cameraL, cameraR, cameraT, cameraB);
-	CenterCameraOverCell(19, 19);
+	CenterCameraOverCell(0, 0);
 }
 
 Game::~Game() {
@@ -54,24 +58,30 @@ void Game::render(unsigned int &frameBuffer) {
 	glEnable(GL_BLEND);
 	mIsoMap->render(m_transform);
 	mIsoMap->GetLayer(3)->Render(m_transform);
+	//m_isometricMouse->Render(mouseX, mouseY);
 	glEnable(0);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void Game::OnMouseMotion(Event::MouseMoveEvent& event) {
 	m_camController->HandleMouseMotion(event);
-
-	//const Camera * cam = m_camController->GetCamera();
-	//const int worldX = cam->GetScreenToWorldX(event.x);
-	//const int worldY = cam->GetScreenToWorldY(event.y);
 }
 
 void Game::OnKeyDown(Event::KeyboardEvent & event) {
 	m_camController->HandleKeyDown();
+
 }
 
 void Game::OnKeyUp(Event::KeyboardEvent & event) {
 	m_camController->HandleKeyUp();
+}
+
+void Game::OnMouseButtonDown(Event::MouseButtonEvent& event) {
+	HandleSelectionClick(event);
+}
+
+void Game::OnMouseButtonUp(Event::MouseButtonEvent& event) {
+	//HandleSelectionClick(event);
 }
 
 void Game::CenterCameraOverCell(int row, int col) {
@@ -85,4 +95,58 @@ void Game::CenterCameraOverCell(int row, int col) {
 	const Camera * cam = m_camController->GetCamera();	
 
 	m_transform.translate(cam->GetX(), cam->GetY(), 0.0f);
+}
+
+void Game::HandleSelectionClick(Event::MouseButtonEvent& event) {
+	float cursorPosNDCX = (2.0f * event.x) / (float)WIDTH - 1.0f;
+	float cursorPosNDCY = 1.0f - (2.0f * event.y) / (float)HEIGHT;
+	Vector4f m_cursorPosEye = Globals::invProjection * Vector4f(cursorPosNDCX, cursorPosNDCY, -1.0f, 1.0f);
+
+	const Camera * cam = m_camController->GetCamera();
+	const int worldX = cam->GetScreenToWorldX(m_cursorPosEye[0]);
+	const int worldY = cam->GetScreenToWorldY(m_cursorPosEye[1]);
+
+	const Cell2D clickCell = mIsoMap->CellFromScreenPoint(worldX, worldY);
+	
+	// clicked outside the map -> clear current selection
+	if (!mIsoMap->IsCellInside(clickCell)){
+		ClearSelection();
+		return;
+	}
+
+	const GameMapCell & clickGameCell = mGameMap->GetCell(clickCell.row, clickCell.col);
+	GameObject * clickObj = clickGameCell.objTop ? clickGameCell.objTop : clickGameCell.objBottom;
+	const bool isClickObjOwn = clickObj != nullptr;
+	
+	// clicked non-own or no object -> nothing to do
+	if (!isClickObjOwn) {
+		ClearSelection();
+		return;
+	}
+	
+
+	/*GameObject * currSel = player->GetSelectedObject();*/
+
+	// clicked selected object -> deselect it
+	if (clickObj != selectedObj){
+		ClearSelection();
+
+	}
+
+	// normal selection -> clear current selection and select clicked object
+	//ClearSelection();
+	SelectObject(clickObj);
+}
+
+void Game::ClearSelection() {
+	if (nullptr == selectedObj)
+		return;
+
+	selectedObj->SetSelected(false);
+	selectedObj = nullptr;
+}
+
+void Game::SelectObject(GameObject * obj) {
+	obj->SetSelected(true);
+	selectedObj = obj;
 }

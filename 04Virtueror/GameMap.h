@@ -1,8 +1,12 @@
 #pragma once
 #include <vector>
+#include <unordered_set>
+
+#include "GameObject.h"
+#include "GameMapCell.h"
 
 class IsoMap;
-struct GameMapCell;
+
 
 class GameMap {
 public:
@@ -15,11 +19,35 @@ public:
 
 	int DefineCellType(unsigned int ind, const GameMapCell& cell);
 	void SetSize(unsigned int rows, unsigned int cols);
+	const GameMapCell & GetCell(unsigned int r, unsigned int c) const;
 
 	unsigned int m_rows = 0;
 	unsigned int m_cols = 0;
+
 	std::vector<GameMapCell> mCells;
+	std::vector<GameObject *> mObjects;
+	std::unordered_set<GameObject *> mObjectsSet;
+
 	IsoMap * mIsoMap = nullptr;
+
+	bool HasObject(unsigned int r, unsigned int c) const;
+	bool HasObject(GameObject * obj) const;
 
 	
 };
+
+inline bool GameMap::HasObject(unsigned int r, unsigned int c) const{
+	const unsigned int ind = r * m_cols + c;
+
+	//return ind < mCells.size() && mCells[ind].objTop != nullptr;
+
+	return true;
+}
+
+inline bool GameMap::HasObject(GameObject * obj) const{
+	return mObjectsSet.find(obj) != mObjectsSet.end();
+}
+
+inline const GameMapCell & GameMap::GetCell(unsigned int r, unsigned int c) const{
+	return mCells[r * m_cols + c];
+}

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <functional>
-
+#include <iostream>
 
 class Camera{
 public:
@@ -75,8 +75,8 @@ inline void Camera::SetFunctionOnMove(const std::function<void()> & f){
 	mFuncOnMove = f;
 }
 
-inline int Camera::GetScreenToWorldX(int x) const { return x + mXd; }
-inline int Camera::GetScreenToWorldY(int y) const { return y + mYd; }
+inline int Camera::GetScreenToWorldX(int x) const { return x - mXd; }
+inline int Camera::GetScreenToWorldY(int y) const { return y - mYd; }
 
 inline Camera * Camera::GetDefaultCamera() { return mDefault; }
 
