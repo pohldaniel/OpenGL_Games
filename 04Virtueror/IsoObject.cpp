@@ -14,6 +14,14 @@ void IsoObject::SetPosition(int x, int y) {
 	m_quad->setPosition(Vector2f(x, y));
 }
 
+void IsoObject::setSize(const Vector2f &size) {
+	m_quad->setSize(size);
+}
+
+void IsoObject::setOrigin(const Vector2f &origin) {
+	m_quad->setOrigin(origin);
+}
+
 void IsoObject::SetPosition() {
 	if (mLayer)
 		mLayer->RepositionObject(this);

@@ -3,6 +3,7 @@
 #include "Structure.h"
 #include "GameConstants.h"
 #include "GameMap.h"
+#include "IsoObject.h"
 
 const char * Unit::TITLES[NUM_UNIT_TYPES] = {
 	"WORKER",
@@ -30,19 +31,15 @@ const float ACTION_COSTS[NUM_OBJ_ACTIONS] ={
 	0.f     // TOGGLE_GATE
 };
 
-Unit::Unit(const ObjectData & data, int rows, int cols)
-	: GameObject(GameObjectType::OBJ_UNIT, rows, cols)
-	, mUnitType(static_cast<UnitType>(data.objType))
-	, mStructToBuild(STRUCT_NULL)
-{
+Unit::Unit(const ObjectData & data, int rows, int cols): GameObject(GameObjectType::OBJ_UNIT, rows, cols), mUnitType(static_cast<UnitType>(data.objType)), mStructToBuild(STRUCT_NULL){
 	// SET STATS values in range [1-10]
 	mStats.resize(NUM_UNIT_STATS);
-	mStats = data.stats;
+	//mStats = data.stats;
 
 	// set attack range converting attribute
 	const int maxAttVal = 11;
 	const int attRanges[maxAttVal] = { 0, 2, 3, 4, 5, 6, 8, 9, 10, 11, 13 };
-	mAttackRange = attRanges[mStats[OSTAT_FIRE_RANGE]];
+	mAttackRange = attRanges[2];
 
 	// TODO translate stats into actual values, ex.: speed = 5 -> SetSpeed(2.f)
 
@@ -51,10 +48,15 @@ Unit::Unit(const ObjectData & data, int rows, int cols)
 
 	// set actual speed
 	const float maxSpeed = 10.f;
-	const float speed = maxSpeed * static_cast<float>(mStats[OSTAT_SPEED]) / maxStatVal;
-	SetSpeed(speed);
+	//const float speed = maxSpeed * static_cast<float>(mStats[OSTAT_SPEED]) / maxStatVal;
+	SetSpeed(maxSpeed);
 
 	SetVisibilityLevel(1);
+
+	IsoObject * isoObj = GetIsoObject();
+	isoObj->setSize(Vector2f(96.0f, 58.0f));
+	isoObj->m_spriteSheet = Globals::spritesheetManager.getAssetPointer("units");
+
 }
 
 void Unit::IncreaseUnitLevel(){
@@ -65,8 +67,8 @@ void Unit::IncreaseUnitLevel(){
 	SetImage();
 }
 
-bool Unit::SetAttackTarget(GameObject * obj)
-{
+bool Unit::SetAttackTarget(GameObject * obj){
+
 	if (nullptr == obj || !IsTargetInRange(obj) || !obj->IsVisible() || obj == this)
 		return false;
 
@@ -109,27 +111,25 @@ void Unit::Update(float delta)
 	}
 }
 
-void Unit::ClearStructureToBuild() { mStructToBuild = STRUCT_NULL; }
+void Unit::ClearStructureToBuild() { 
+	mStructToBuild = STRUCT_NULL; 
+}
 
-void Unit::ConsumeEnergy(GameObjectActionId action)
-{
+void Unit::ConsumeEnergy(GameObjectActionId action){
 	if (action < NUM_OBJ_ACTIONS)
 		SumEnergy(-ACTION_COSTS[action]);
 }
 
-bool Unit::HasEnergyForAction(GameObjectActionId action)
-{
-	if (action < NUM_OBJ_ACTIONS)
-	{
+bool Unit::HasEnergyForAction(GameObjectActionId action){
+
+	if (action < NUM_OBJ_ACTIONS){
 		const float diff = GetEnergy() - ACTION_COSTS[action];
 		return diff >= 0.f;
-	}
-	else
+	}else
 		return false;
 }
 
-void Unit::UpdateGraphics()
-{
+void Unit::UpdateGraphics(){
 	SetImage();
 
 	SetDefaultColors();
@@ -147,7 +147,8 @@ bool Unit::IsTargetInRange(GameObject * obj) const{
 }
 
 void Unit::SetImage(){
-	
+	IsoObject * isoObj = GetIsoObject();
+	isoObj->m_currentFrame = 0;
 }
 
 void Unit::Shoot() {

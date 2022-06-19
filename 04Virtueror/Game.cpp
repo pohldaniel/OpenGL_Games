@@ -1,6 +1,6 @@
 #include "Game.h"
-
-
+#include "Unit.h"
+#include "ObjectData.h"
 
 Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), mIsoMap(new IsoMap()), mGameMap(new GameMap(mIsoMap)) {
 	m_isometricMouse = new IsometricMouse();
@@ -18,8 +18,6 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), mIsoMap(
 	m_mapLoader.setMaps(mGameMap, mIsoMap);
 	m_mapLoader.loadLevel("res/maps/40x40-01.map");
 	
-
-
 	const Vector2f p0 = mIsoMap->GetCellPosition(0, 0);
 	const Vector2f p1 = mIsoMap->GetCellPosition(mIsoMap->GetNumRows() - 1, 0);
 	const Vector2f p2 = mIsoMap->GetCellPosition(mIsoMap->GetNumRows() - 1, mIsoMap->GetNumCols() - 1);
@@ -35,7 +33,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), mIsoMap(
 	const int cameraB = -p2[1] + marginCameraV;
 
 	m_camController->SetLimits(cameraL, cameraR, cameraT, cameraB);
-	CenterCameraOverCell(0, 0);
+	CenterCameraOverCell(19, 19);	
 }
 
 Game::~Game() {
@@ -136,6 +134,9 @@ void Game::HandleSelectionClick(Event::MouseButtonEvent& event) {
 	// normal selection -> clear current selection and select clicked object
 	//ClearSelection();
 	SelectObject(clickObj);
+
+	const auto type = UnitType::UNIT_1;
+	SetupNewUnit(type, clickObj);
 }
 
 void Game::ClearSelection() {
@@ -149,4 +150,67 @@ void Game::ClearSelection() {
 void Game::SelectObject(GameObject * obj) {
 	obj->SetSelected(true);
 	selectedObj = obj;
+}
+
+bool Game::SetupNewUnit(UnitType type, GameObject * gen) {
+
+	const ObjectData & data = ObjectData::NullObj;
+
+	// check if create is possible
+	//if (!mGameMap->CanCreateUnit(data, gen, player))
+		//return false;
+
+	Cell2D cell = mGameMap->GetNewUnitDestination(gen);
+	
+
+	if (-1 == cell.row || -1 == cell.col){
+		std::cerr << "GameMap::GetNewUnitDestination FAILED" << std::endl;
+		return false;
+	}
+
+	// start create
+	mGameMap->StartCreateUnit(data, gen, cell);
+
+	gen->SetActiveAction(GameObjectActionId::IDLE);
+	gen->SetCurrentAction(GameObjectActionId::BUILD_UNIT);
+
+	// store active action
+	mActiveObjActions.emplace_back(gen, GameObjectActionId::BUILD_UNIT, cell);
+
+	gen->SetActiveAction(GameObjectActionId::IDLE);
+	gen->SetCurrentAction(GameObjectActionId::BUILD_UNIT);
+
+	// disable actions panel
+	//mPanelObjActions->SetActionsEnabled(false);
+
+	gen->SetCurrentAction(GameObjectActionId::IDLE);
+	mGameMap->CreateUnit(data, gen, cell);
+	SetObjectActionCompleted(gen);
+
+	return true;
+}
+
+void Game::SetObjectActionCompleted(GameObject * obj) {
+
+	auto it = mActiveObjActions.begin();
+
+	// search selected object in active actions
+	while (it != mActiveObjActions.end()){
+		if (it->obj == obj){
+			// remove pending action
+			mActiveObjActions.erase(it);
+
+			// re-enable actions panel
+			//mPanelObjActions->SetActionsEnabled(true);
+
+			// reset object's active action to default
+			obj->SetActiveActionToDefault();
+			// reset current action to idle
+			obj->SetCurrentAction(IDLE);
+
+			return;
+		}
+
+		++it;
+	}
 }

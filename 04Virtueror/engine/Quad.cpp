@@ -145,10 +145,10 @@ void Quad::createBuffer() {
 
 void Quad::mapBuffer() {
 	float data[] = {
-		m_position[0], m_position[1],						  0.0f, 0.0f, 0.0f,
-		m_position[0], m_position[1] + m_size[1],			  0.0f, 0.0f, 1.0f,
-		m_position[0] + m_size[0], m_position[1] + m_size[1], 0.0f, 1.0f, 1.0f,
-		m_position[0] + m_size[0], m_position[1],			  0.0f, 1.0f, 0.0f
+		m_position[0] - m_origin[0], m_position[1] - m_origin[1],						  0.0f, 0.0f, 0.0f,
+		m_position[0] - m_origin[0], m_position[1] - m_origin[1] + m_size[1],			  0.0f, 0.0f, 1.0f,
+		m_position[0] - m_origin[0] + m_size[0], m_position[1] - m_origin[1] + m_size[1], 0.0f, 1.0f, 1.0f,
+		m_position[0] - m_origin[0] + m_size[0], m_position[1] - m_origin[1],			  0.0f, 1.0f, 0.0f
 	};
 
 	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
@@ -208,5 +208,15 @@ const Vector2f &Quad::getScale() const {
 
 void Quad::setPosition(const Vector2f &position) {
 	m_position = position;
+	mapBuffer();
+}
+
+void Quad::setSize(const Vector2f &size) {
+	m_size = size;
+	mapBuffer();
+}
+
+void Quad::setOrigin(const Vector2f &origin) {
+	m_origin = origin;
 	mapBuffer();
 }

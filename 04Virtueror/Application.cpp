@@ -339,13 +339,19 @@ void Application::loadAssets() {
 
 	Globals::spritesheetManager.loadSpritesheet("tiles", "res/img/tiles.png", 96, 48, 0, 0, 0, -1);
 
-	Globals::spritesheetManager.loadSpritesheet("structures", "res/img/structures.png", 288, 163, 0, 0, 0, 3);
+	//Globals::spritesheetManager.loadSpritesheet("structures", "res/img/structures.png", 288, 163, 0, 0, 0, 3);
 
 	Globals::textureManager.loadTexture("structures", "res/img/structures.png", 0, 0, 288, 163);
 	Globals::spritesheetManager.loadSpritesheet("structures", (&Globals::textureManager.get("structures"))->getTexture(), 288, 163);
 
 	Globals::textureManager.loadTexture("structures", "res/img/structures.png", 288, 0, 288, 163);
 	Globals::spritesheetManager.getAssetPointer("structures")->addToSpritesheet((&Globals::textureManager.get("structures"))->getTexture(), 288, 163);
+
+	Globals::textureManager.loadTexture("units", "res/img/units.png", 0, 0, 96, 58);
+	Globals::spritesheetManager.loadSpritesheet("units", (&Globals::textureManager.get("units"))->getTexture(), 96, 58);
+
+	Globals::textureManager.loadTexture("units", "res/img/structures.png", 97, 0, 96, 58);
+	Globals::spritesheetManager.getAssetPointer("units")->addToSpritesheet((&Globals::textureManager.get("units"))->getTexture(), 96, 58);
 }
 
 void Application::AddMouseListener(MouseEventListener * el) {

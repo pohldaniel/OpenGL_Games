@@ -5,8 +5,11 @@
 #include "GameObject.h"
 #include "GameMapCell.h"
 
-class IsoMap;
+struct Cell2D;
+struct ObjectData;
 
+class IsoMap;
+class Unit;
 
 class GameMap {
 public:
@@ -20,6 +23,13 @@ public:
 	int DefineCellType(unsigned int ind, const GameMapCell& cell);
 	void SetSize(unsigned int rows, unsigned int cols);
 	const GameMapCell & GetCell(unsigned int r, unsigned int c) const;
+
+	// unit create
+	Cell2D GetNewUnitDestination(GameObject * gen);
+	//void StartCreateUnit(const ObjectData & data, GameObject * gen, const Cell2D & dest, Player * player);
+	void StartCreateUnit(const ObjectData & data, GameObject * gen, const Cell2D & dest);
+	//void CreateUnit(const ObjectData & data, GameObject * gen, const Cell2D & dest, Player * player);
+	void CreateUnit(const ObjectData & data, GameObject * gen, const Cell2D & dest);
 
 	unsigned int m_rows = 0;
 	unsigned int m_cols = 0;

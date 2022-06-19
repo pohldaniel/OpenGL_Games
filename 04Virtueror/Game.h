@@ -8,12 +8,16 @@
 #include "Constants.h"
 #include "StateMachine.h"
 
+#include "GameObjectAction.h"
 #include "MapLoader.h"
 #include "CameraMapController.h"
 #include "IsoMap.h"
 #include "GameMap.h"
 #include "IsometricMouse.h"
 
+enum UnitType : unsigned int;
+
+struct ObjectData;
 
 class Game : public State, public MouseEventListener, public KeyboardEventListener {
 public:
@@ -43,6 +47,8 @@ private:
 	void SelectObject(GameObject * obj);
 	void ClearSelection();
 
+	bool SetupNewUnit(UnitType type, GameObject * gen);
+	
 	//void HandleUnitMoveOnMouseUp(Unit * unit, const Cell2D & clickCell);
 
 	IsoMap * mIsoMap = nullptr;
@@ -52,4 +58,7 @@ private:
 	float mouseY = 0.0f;
 
 	GameObject* selectedObj = nullptr;
+
+	std::vector<GameObjectAction> mActiveObjActions;
+	void SetObjectActionCompleted(GameObject * obj);
 };

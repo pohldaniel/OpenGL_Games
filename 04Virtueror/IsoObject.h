@@ -35,6 +35,9 @@ public:
 	void SetPosition(int x, int y);
 	void SetPosition();
 
+	void setSize(const Vector2f &size);
+	void setOrigin(const Vector2f &origin);
+
 	int GetX() const;
 	void SetX(int x);
 	int GetY() const;

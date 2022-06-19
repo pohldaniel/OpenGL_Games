@@ -147,6 +147,9 @@
     <ClInclude Include="Base.h">
       <Filter>Source Files\Objects</Filter>
     </ClInclude>
+    <ClInclude Include="GameObjectAction.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine\input\KeyBoard.cpp">

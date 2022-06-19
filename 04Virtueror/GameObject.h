@@ -196,9 +196,9 @@ public:
 	void SetCurrentAction(GameObjectActionId action);
 
 	virtual void Update(float delta);
-
-protected:
 	virtual void UpdateGraphics() = 0;
+protected:
+	
 
 	virtual void OnLinkedChanged();
 

@@ -182,6 +182,7 @@
     <ClInclude Include="GameMap.h" />
     <ClInclude Include="GameMapCell.h" />
     <ClInclude Include="GameObject.h" />
+    <ClInclude Include="GameObjectAction.h" />
     <ClInclude Include="IsoLayer.h" />
     <ClInclude Include="IsoMap.h" />
     <ClInclude Include="IsometricMouse.h" />

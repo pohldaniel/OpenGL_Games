@@ -67,8 +67,8 @@ bool IsoLayer::AddObject(IsoObject * obj, unsigned int r, unsigned int c)
 	const unsigned int mapCols = 40;
 
 	// object origin is out of map
-	if (r >= mapRows || c >= mapCols)
-		return false;
+	//if (r >= mapRows || c >= mapCols)
+		//return false;
 
 	// full size is out of map
 	const unsigned int r1 = 1 + r - obj->GetRows();
@@ -91,7 +91,7 @@ bool IsoLayer::AddObject(IsoObject * obj, unsigned int r, unsigned int c)
 	mObjectsList.emplace_back(obj);
 
 	// position it in a cell
-	//PositionObject(obj, r, c);
+	PositionObject(obj, r, c);
 
 	// store object
 	InsertObjectInMap(obj);
@@ -258,10 +258,9 @@ Vector2f IsoLayer::GetObjectPosition(const IsoObject * obj, int r,  int c) const
 	//const int imgH = obj->GetHeight();
 	
 	//return Vector2f(x0 - imgW0, y0 - imgH);
-
 	//const Vector2f cellPos = mMap->GetCellPosition(r + (obj->GetRows() - 1), c + (obj->GetCols() - 1));
 	const Vector2f cellPos = mMap->GetCellPosition(r, c);
-	return Vector2f(cellPos[0] - TILE_WIDTH, cellPos[1]);
+	return Vector2f(cellPos[0], cellPos[1]);
 }
 
 // ==================== PRIVATE METHODS ====================

@@ -3,7 +3,11 @@
 #include "IsoObject.h"
 #include "GameConstants.h"
 
+#include "Cell2D.h"
+#include "ObjectData.h"
+
 #include "Base.h"
+#include "Unit.h"
 
 #include <iostream>
 
@@ -83,6 +87,8 @@ void GameMap::CreateObject(unsigned int layerId, unsigned int objId, unsigned in
 	// links to other objects
 	obj->SetGameMap(this);
 
+	obj->UpdateGraphics();
+
 	mObjects.push_back(obj);
 	mObjectsSet.insert(obj);
 
@@ -107,6 +113,7 @@ void GameMap::CreateObject(unsigned int layerId, unsigned int objId, unsigned in
 	mIsoMap->mapBuffer();
 
 	mIsoMap->GetLayer(layerId)->AddObject(obj->GetIsoObject(), r0, c0);
+
 	obj->GetIsoObject()->SetPosition();
 }
 
@@ -167,4 +174,201 @@ int GameMap::DefineCellType(unsigned int ind, const GameMapCell & cell){
 	}
 
 	return type;
+}
+
+Cell2D GameMap::GetNewUnitDestination(GameObject * gen) {
+
+	const int r1 = gen->GetRow1() > 0 ? gen->GetRow1() - 1 : 0;
+	const int c1 = gen->GetCol1() > 0 ? gen->GetCol1() - 1 : 0;
+	const int r0 = gen->GetRow0() < static_cast<int>(m_rows - 1) ? gen->GetRow0() + 1 : m_rows - 1;
+	const int c0 = gen->GetCol0() < static_cast<int>(m_cols - 1) ? gen->GetCol0() + 1 : m_cols - 1;
+
+	const int indBaseTop = r1 * m_cols;
+	const int indBaseBottom = r0 * m_cols;
+
+	const int halfRows = m_rows / 2;
+	const int halfCols = m_cols / 2;
+
+	// NOTE for simplicity corner cells are overlapping and sometimes checked twice.
+	// This can be optimized, but it's probably not worth it for now.
+
+
+	// BOTTOM of the map
+	if (r0 > halfRows)
+	{
+		// LEFT of the map
+		if (c0 < halfCols)
+		{
+			// check right (top to bottom)
+			for (int r = r1; r <= r0; ++r)
+			{
+				if (mCells[r * m_cols + c0].walkable)
+					return Cell2D(r, c0);
+			}
+
+			// check top (right to left)
+			for (int c = c0; c >= c1; --c)
+			{
+				if (mCells[indBaseTop + c].walkable)
+					return Cell2D(r1, c);
+			}
+
+			// check bottom (right to left)
+			for (int c = c0; c >= c1; --c)
+			{
+				if (mCells[indBaseBottom + c].walkable)
+					return Cell2D(r0, c);
+			}
+
+			// check left (top to bottom)
+			for (int r = r1; r <= r0; ++r)
+			{
+				if (mCells[r * m_cols + c1].walkable)
+					return Cell2D(r, c1);
+			}
+		}
+		// RIGHT of the map
+		else
+		{
+			// check left (top to bottom)
+			for (int r = r1; r <= r0; ++r)
+			{
+				if (mCells[r * m_cols + c1].walkable)
+					return Cell2D(r, c1);
+			}
+
+			// check top (left to right)
+			for (int c = c1; c <= c0; ++c)
+			{
+				if (mCells[indBaseTop + c].walkable)
+					return Cell2D(r1, c);
+			}
+
+			// check right (top to bottom)
+			for (int r = r1; r <= r0; ++r)
+			{
+				if (mCells[r * m_cols + c0].walkable)
+					return Cell2D(r, c0);
+			}
+
+			// check bottom (left to right)
+			for (int c = c1; c <= c0; ++c)
+			{
+				if (mCells[indBaseBottom + c].walkable)
+					return Cell2D(r0, c);
+			}
+		}
+	}
+	// TOP of the map
+	else
+	{
+		// LEFT of the map
+		if (c0 < halfCols)
+		{
+			// check right (bottom to top)
+			for (int r = r0; r >= r1; --r)
+			{
+				if (mCells[r * m_cols + c0].walkable)
+					return Cell2D(r, c0);
+			}
+
+			// check bottom (right to left)
+			for (int c = c0; c >= c1; --c)
+			{
+				if (mCells[indBaseBottom + c].walkable)
+					return Cell2D(r0, c);
+			}
+
+			// check top (right to left)
+			for (int c = c0; c >= c1; --c)
+			{
+				if (mCells[indBaseTop + c].walkable)
+					return Cell2D(r1, c);
+			}
+
+			// check left (bottom to top)
+			for (int r = r0; r >= r1; --r)
+			{
+				if (mCells[r * m_cols + c1].walkable)
+					return Cell2D(r, c1);
+			}
+		}
+		// RIGHT of the map
+		else
+		{
+			// check left (bottom to top)
+			for (int r = r0; r >= r1; --r)
+			{
+				if (mCells[r * m_cols + c1].walkable)
+					return Cell2D(r, c1);
+			}
+
+			// check bottom (left to right)
+			for (int c = c1; c <= c0; ++c)
+			{
+				if (mCells[indBaseBottom + c].walkable)
+					return Cell2D(r0, c);
+			}
+
+			// check top (left to right)
+			for (int c = c1; c <= c0; ++c)
+			{
+				if (mCells[indBaseTop + c].walkable)
+					return Cell2D(r1, c);
+			}
+
+			// check right (bottom to top)
+			for (int r = r0; r >= r1; --r)
+			{
+				if (mCells[r * m_cols + c0].walkable)
+					return Cell2D(r, c0);
+			}
+		}
+	}
+
+	// failed to find a spot
+	return Cell2D(-1, -1);
+}
+
+void GameMap::StartCreateUnit(const ObjectData & data, GameObject * gen, const Cell2D & dest) {
+	const int ind = dest.row * m_cols + dest.col;
+	GameMapCell & gcell = mCells[ind];
+
+	// mark cell as changing
+	gcell.changing = true;
+
+	// mark generator as busy
+	gen->SetBusy(true);
+}
+
+void GameMap::CreateUnit(const ObjectData & data, GameObject * gen, const Cell2D & dest) {
+	const unsigned int r = static_cast<unsigned int>(dest.row);
+	const unsigned int c = static_cast<unsigned int>(dest.col);
+
+	const int ind = r * m_cols + c;
+	GameMapCell & gcell = mCells[ind];
+
+	Unit * unit = new Unit(data, 1, 1);
+	unit->UpdateGraphics();
+	//unit->SetOwner(player); # calls UpdateGraphics || calls RepositionObject
+	unit->SetCell(&mCells[ind]);
+
+	// links to other objects
+	unit->SetGameMap(this);
+	//unit->SetScreen(mScreenGame);
+
+	// update cell
+	gcell.objTop = unit;
+	gcell.walkable = false;
+	gcell.changing = false;
+
+	mIsoMap->GetLayer(3)->AddObject(unit->GetIsoObject(), r, c);
+
+	// store unit in map list and in registry
+	mObjects.push_back(unit);
+	mObjectsSet.insert(unit);
+
+	// update generator, if any
+	if (gen)
+		gen->SetBusy(false);
 }

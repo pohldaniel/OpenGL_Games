@@ -43,12 +43,14 @@ public:
 	bool HasEnergyForAction(GameObjectActionId action);
 	void ConsumeEnergy(GameObjectActionId action);
 
+	void UpdateGraphics() override;
+
 public:
 	static const char * TITLES[NUM_UNIT_TYPES];
 	static const char * DESCRIPTIONS[NUM_UNIT_TYPES];
 
 private:
-	void UpdateGraphics() override;
+	
 
 	bool IsTargetInRange(GameObject * obj) const;
 

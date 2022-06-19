@@ -10,6 +10,11 @@ void Base::UpdateGraphics(){
 	
 	SetImage();
 	//SetDefaultColors();
+
+	IsoObject * isoObj = GetIsoObject();
+	isoObj->setSize(Vector2f(288.0f, 163.0f));
+	isoObj->setOrigin(Vector2f(TILE_WIDTH, 0.0f));
+	isoObj->m_spriteSheet = Globals::spritesheetManager.getAssetPointer("structures");
 }
 
 void Base::SetImage(){
