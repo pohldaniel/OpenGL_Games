@@ -1,8 +1,10 @@
 #include "Game.h"
 #include "Unit.h"
 #include "ObjectData.h"
+#include "Pathfinder.h"
+#include "ObjectPath.h"
 
-Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), mIsoMap(new IsoMap()), mGameMap(new GameMap(mIsoMap)) {
+Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), mIsoMap(new IsoMap()), mGameMap(new GameMap(mIsoMap)), mPathfinder(new Pathfinder()) {
 	m_isometricMouse = new IsometricMouse();
 	
 	const int rendW = 1600;
@@ -33,7 +35,10 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), mIsoMap(
 	const int cameraB = -p2[1] + marginCameraV;
 
 	m_camController->SetLimits(cameraL, cameraR, cameraT, cameraB);
-	CenterCameraOverCell(19, 19);	
+	CenterCameraOverCell(19, 19);
+
+	// init pathfinder
+	mPathfinder->SetMap(mGameMap, mGameMap->GetNumRows(), mGameMap->GetNumCols());
 }
 
 Game::~Game() {
@@ -44,6 +49,7 @@ void Game::fixedUpdate() {
 
 void Game::update() {
 	m_camController->Update(m_dt);
+	mGameMap->update(m_dt);
 }
 
 void Game::render(unsigned int &frameBuffer) {
@@ -80,6 +86,9 @@ void Game::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 
 void Game::OnMouseButtonUp(Event::MouseButtonEvent& event) {
 	//HandleSelectionClick(event);
+	if (event.button == Event::MouseButtonEvent::BUTTON_RIGHT) {
+		HandleActionClick(event);
+	}
 }
 
 void Game::CenterCameraOverCell(int row, int col) {
@@ -135,8 +144,53 @@ void Game::HandleSelectionClick(Event::MouseButtonEvent& event) {
 	//ClearSelection();
 	SelectObject(clickObj);
 
-	const auto type = UnitType::UNIT_1;
-	SetupNewUnit(type, clickObj);
+	if (clickObj->GetObjectType() == OBJ_BASE) {
+		const auto type = UnitType::UNIT_1;
+		SetupNewUnit(type, clickObj);
+	}
+}
+
+void Game::HandleActionClick(Event::MouseButtonEvent& event){
+	//Player * player = GetGame()->GetLocalPlayer();
+
+	// no object selected -> nothing to do
+	//if (!player->HasSelectedObject())
+		//return;
+
+	
+	float cursorPosNDCX = (2.0f * event.x) / (float)WIDTH - 1.0f;
+	float cursorPosNDCY = 1.0f - (2.0f * event.y) / (float)HEIGHT;
+	Vector4f m_cursorPosEye = Globals::invProjection * Vector4f(cursorPosNDCX, cursorPosNDCY, -1.0f, 1.0f);
+
+	const Camera * cam = m_camController->GetCamera();
+	const int worldX = cam->GetScreenToWorldX(m_cursorPosEye[0]);
+	const int worldY = cam->GetScreenToWorldY(m_cursorPosEye[1]);
+
+	const Cell2D clickCell = mIsoMap->CellFromScreenPoint(worldX, worldY);
+
+	// clicked outside the map -> nothing to do
+	if (!mIsoMap->IsCellInside(clickCell))
+		return;
+
+	GameObject * selObj = selectedObj;
+	const Cell2D selCell(selObj->GetRow0(), selObj->GetCol0());
+
+	// check if there's a lower object when top is empty
+	const GameMapCell & clickGameCell = mGameMap->GetCell(clickCell.row, clickCell.col);
+	GameObject * clickObj = clickGameCell.objTop ? clickGameCell.objTop : clickGameCell.objBottom;
+
+	// selected object is a unit
+	if (selObj->GetObjectType() == OBJ_UNIT){
+		Unit * selUnit = static_cast<Unit *>(selObj);
+
+		const GameObjectActionId action = selUnit->GetActiveAction();
+
+		const bool diffClick = selCell != clickCell;
+
+		// try to move only if clicked on a different cell
+		if (diffClick)
+			HandleUnitMoveOnMouseUp(selUnit, clickCell);
+	}
 }
 
 void Game::ClearSelection() {
@@ -213,4 +267,113 @@ void Game::SetObjectActionCompleted(GameObject * obj) {
 
 		++it;
 	}
+}
+
+void Game::HandleUnitMoveOnMouseUp(Unit * unit, const Cell2D & clickCell){
+	
+	const Cell2D selCell(unit->GetRow0(), unit->GetCol0());
+
+	const bool clickWalkable = mGameMap->IsCellWalkable(clickCell.row, clickCell.col);
+
+	// destination is walkable -> try to generate a path and move
+	if (clickWalkable){
+		SetupUnitMove(unit, selCell, clickCell);
+		return;
+	}
+	
+	//Player * player = GetGame()->GetLocalPlayer();
+
+	const GameMapCell & clickGameCell = mGameMap->GetCell(clickCell.row, clickCell.col);
+	const GameObject * clickObj = clickGameCell.objTop;
+	const bool clickVisited = clickObj && clickObj->IsVisited();
+
+	// destination never visited (hence not visible as well) -> try to move close
+	if (!clickVisited){
+		Cell2D target = mGameMap->GetCloseMoveTarget(selCell, clickCell);
+
+		// failed to find a suitable target
+		if (-1 == target.row || -1 == target.col)
+			return;
+
+		SetupUnitMove(unit, selCell, target);
+		return;
+	}
+
+	// check if destination obj is visible
+	const bool clickVisible = clickObj && clickObj->IsVisible();
+
+	// visited, but not visible object -> exit
+	if (!clickVisible)
+		return;
+
+	// visible, but it can't be conquered -> exit
+	if (!clickObj->CanBeConquered())
+		return;
+
+	// object is adjacent -> try to interact
+	if (mGameMap->AreObjectsAdjacent(unit, clickObj))
+		SetupStructureConquest(unit, selCell, clickCell);
+	// object is far -> move close and then try to interact
+	else{
+		Cell2D target = mGameMap->GetAdjacentMoveTarget(selCell, clickObj);
+
+		// failed to find a suitable target
+		if (-1 == target.row || -1 == target.col)
+			return;
+
+		SetupUnitMove(unit, selCell, target, [this, unit, clickCell]
+		{
+			const Cell2D currCell(unit->GetRow0(), unit->GetCol0());
+
+			SetupStructureConquest(unit, currCell, clickCell);
+		});
+	}
+}
+
+void Game::SetupUnitMove(Unit * unit, const Cell2D & start, const Cell2D & end, const std::function<void()> & onCompleted){
+
+	const auto path = mPathfinder->MakePath(start.row, start.col, end.row, end.col, Pathfinder::ALL_OPTIONS);
+
+	// empty path -> exit
+	if (path.empty())
+		return;
+
+	auto op = new ObjectPath(unit, mIsoMap, mGameMap, this);
+	op->SetPathCells(path);
+	op->SetOnCompleted(onCompleted);
+
+	const bool res = mGameMap->MoveUnit(op);
+
+	// movement failed
+	if (!res)
+		return;
+
+	ClearCellOverlays();
+
+	//mPanelObjActions->SetActionsEnabled(false);
+
+	// store active action
+	mActiveObjActions.emplace_back(unit, GameObjectActionId::MOVE);
+
+	unit->SetActiveAction(GameObjectActionId::IDLE);
+	unit->SetCurrentAction(GameObjectActionId::MOVE);
+}
+
+void Game::ClearCellOverlays(){
+	/*IsoLayer * layer = mIsoMap->GetLayer(MapLayers::CELL_OVERLAYS2);
+	layer->ClearObjects();
+
+	layer = mIsoMap->GetLayer(MapLayers::CELL_OVERLAYS3);
+	layer->ClearObjects();
+
+	layer = mIsoMap->GetLayer(MapLayers::CELL_OVERLAYS4);
+	layer->ClearObjects();
+
+	// delete move indicator
+	delete mMoveInd;
+	mMoveInd = nullptr;*/
+}
+
+bool Game::SetupStructureConquest(Unit * unit, const Cell2D & start, const Cell2D & end) {
+	return false;
 }

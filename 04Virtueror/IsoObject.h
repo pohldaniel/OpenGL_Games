@@ -32,9 +32,10 @@ public:
 	int GetRows() const;
 	int GetCols() const;
 
-	void SetPosition(int x, int y);
+	void SetPosition(int x, int y, bool mapBuffer = false);
 	void SetPosition();
 
+	void setPosition(const Vector2f &position);
 	void setSize(const Vector2f &size);
 	void setOrigin(const Vector2f &origin);
 
@@ -55,16 +56,14 @@ public:
 
 	virtual void Render(Matrix4f& transform);
 
-	Vector2f m_size = Vector2f(288.0f, 163.0f);
-	Vector2f m_position = Vector2f(0.0f, 0.0f);
-
+	int m_posX;
+	int m_posY;
 	unsigned int m_currentFrame = 0;
 
 private:
 	virtual void OnPositionChanged();
 
 private:
-	//sgl::graphic::Image * mImg = nullptr;
 
 	IsoLayer * mLayer = nullptr;
 

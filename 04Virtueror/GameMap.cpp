@@ -8,6 +8,7 @@
 
 #include "Base.h"
 #include "Unit.h"
+#include "ObjectPath.h"
 
 #include <iostream>
 
@@ -355,6 +356,7 @@ void GameMap::CreateUnit(const ObjectData & data, GameObject * gen, const Cell2D
 
 	// links to other objects
 	unit->SetGameMap(this);
+	
 	//unit->SetScreen(mScreenGame);
 
 	// update cell
@@ -364,6 +366,7 @@ void GameMap::CreateUnit(const ObjectData & data, GameObject * gen, const Cell2D
 
 	mIsoMap->GetLayer(3)->AddObject(unit->GetIsoObject(), r, c);
 
+	
 	// store unit in map list and in registry
 	mObjects.push_back(unit);
 	mObjectsSet.insert(unit);
@@ -371,4 +374,183 @@ void GameMap::CreateUnit(const ObjectData & data, GameObject * gen, const Cell2D
 	// update generator, if any
 	if (gen)
 		gen->SetBusy(false);
+}
+
+bool GameMap::IsCellWalkable(unsigned int r, unsigned int c) const{
+	const unsigned int ind = r * m_cols + c;
+
+	return mCells[ind].walkable;
+}
+
+bool GameMap::MoveUnit(ObjectPath * path){
+	GameObject * obj = path->GetObject();
+
+	const int ind = obj->GetRow0() * m_cols + obj->GetCol0();
+
+	// object is not in its cell !?
+	if (mCells[ind].objTop != obj)
+		return false;
+
+	// start path
+	path->Start();
+	const bool started = path->GetState() == ObjectPath::RUNNING;
+
+	if (started)
+		mPaths.emplace_back(path);
+
+	return started;
+}
+
+Cell2D GameMap::GetCloseMoveTarget(const Cell2D & start, const Cell2D & end) const{
+	// get all walkable cells around end
+	const int rowTL = end.row - 1 > 0 ? end.row - 1 : 0;
+	const int colTL = end.col - 1 > 0 ? end.col - 1 : 0;
+	const int rowBR = end.row + 1 < static_cast<int>(m_rows - 1) ? end.row + 1 : m_rows - 1;
+	const int colBR = end.col + 1 < static_cast<int>(m_cols - 1) ? end.col + 1 : m_cols - 1;
+
+	std::vector<Cell2D> walkalbes;
+	const int maxWalkables = 8;
+	walkalbes.reserve(maxWalkables);
+
+	for (int r = rowTL; r <= rowBR; ++r){
+		const int indBase = r * m_cols;
+
+		for (int c = colTL; c <= colBR; ++c){
+			const int ind = indBase + c;
+
+			if (mCells[ind].walkable)
+				walkalbes.emplace_back(r, c);
+		}
+	}
+
+	return GetClosestCell(start, walkalbes);
+}
+
+Cell2D GameMap::GetClosestCell(const Cell2D & start, const std::vector<Cell2D> targets) const{
+	// failed to find any walkable
+	if (targets.empty())
+		return Cell2D(-1, -1);
+
+	// get closest cell
+	int minInd = 0;
+	int minDist = std::abs(start.row - targets[minInd].row) +
+		std::abs(start.col - targets[minInd].col);
+
+	for (unsigned int i = 1; i < targets.size(); ++i){
+		const int dist = std::abs(start.row - targets[i].row) +
+			std::abs(start.col - targets[i].col);
+
+		if (dist < minDist){
+			minDist = dist;
+			minInd = i;
+		}
+	}
+
+	return targets[minInd];
+}
+
+bool GameMap::AreObjectsAdjacent(const GameObject * obj1, const GameObject * obj2) const{
+	// expand obj1 area by 1
+	const int expRowTL = obj1->GetRow1() - 1;
+	const int expColTL = obj1->GetCol1() - 1;
+	const int expRowBR = obj1->GetRow0() + 1;
+	const int expColBR = obj1->GetCol0() + 1;
+
+	// check if expanded area and obj2 intersect
+	return expRowTL <= obj2->GetRow0() &&
+		obj2->GetRow1() <= expRowBR &&
+		expColTL <= obj2->GetCol0() &&
+		obj2->GetCol1() <= expColBR;
+}
+
+Cell2D GameMap::GetAdjacentMoveTarget(const Cell2D & start, const GameObject * target) const{
+	const Cell2D tl(target->GetRow1(), target->GetCol1());
+	const Cell2D br(target->GetRow0(), target->GetCol0());
+
+	return GetAdjacentMoveTarget(start, tl, br);
+}
+
+Cell2D GameMap::GetAdjacentMoveTarget(const Cell2D & start, const Cell2D & targetTL, const Cell2D & targetBR) const{
+	// get all walkable cells around target
+	const int tRows = targetBR.row - targetTL.row + 1;
+	const int tCols = targetBR.col - targetTL.col + 1;
+
+	const int rowTL = targetTL.row - 1 > 0 ? targetTL.row - 1 : 0;
+	const int colTL = targetTL.col - 1 > 0 ? targetTL.col - 1 : 0;
+	const int rowBR = targetBR.row + 1 < static_cast<int>(m_rows - 1) ? targetBR.row + 1 : m_rows - 1;
+	const int colBR = targetBR.col + 1 < static_cast<int>(m_cols - 1) ? targetBR.col + 1 : m_cols - 1;
+
+	std::vector<Cell2D> walkalbes;
+	const int maxWalkables = (tCols + 2) * 2 + tRows;
+	walkalbes.reserve(maxWalkables);
+
+	for (int r = rowTL; r <= rowBR; ++r){
+		const int indBase = r * m_cols;
+
+		for (int c = colTL; c <= colBR; ++c){
+			const int ind = indBase + c;
+
+			if (mCells[ind].walkable)
+				walkalbes.emplace_back(r, c);
+		}
+	}
+
+	return GetClosestCell(start, walkalbes);
+}
+
+void GameMap::update(float delta){
+	// -- game objects --
+	auto itObj = mObjects.begin();
+
+	while (itObj != mObjects.end()){
+		GameObject * obj = *itObj;
+
+		obj->Update(delta);
+
+		if (obj->IsDestroyed()){
+			GameObject * obj = *itObj;
+
+			// erase object from vector and set
+			itObj = mObjects.erase(itObj);
+			mObjectsSet.erase(obj);
+
+			//DestroyObject(obj);
+		}
+		else
+			++itObj;
+	}
+
+	//for (CollectableGenerator * dg : mCollGen)
+		//dg->Update(delta);
+
+	// paths
+	UpdateObjectPaths(delta);
+
+	// conquer paths
+	//UpdateConquerPaths(delta);
+
+	// wall building paths
+	//UpdateWallBuildPaths(delta);
+}
+
+void GameMap::UpdateObjectPaths(float delta){
+	auto itPath = mPaths.begin();
+
+	while (itPath != mPaths.end()){
+		ObjectPath * path = *itPath;
+
+		path->Update(delta);
+
+		const ObjectPath::PathState state = path->GetState();
+
+		if (state == ObjectPath::PathState::COMPLETED || state == ObjectPath::PathState::ABORTED){
+			delete path;
+			itPath = mPaths.erase(itPath);
+		}else if (state == ObjectPath::PathState::FAILED){
+			// TODO try to recover from failed path
+			delete path;
+			itPath = mPaths.erase(itPath);
+		}else
+			++itPath;
+	}
 }

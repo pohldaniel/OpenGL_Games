@@ -7,7 +7,7 @@
 class Quad {
 
 public:
-	Quad() = default;
+	Quad();
 	Quad(Vector2f& position, Vector2f size);
 	Quad(bool flippable, float leftEdge = -1.0f, float rightEdge = 1.0f, float bottomEdge = -1.0f, float topEdge = 1.0f, float sizeX = 1.0f, float sizeY = 1.0f, float offsetX = 0.0f, float offsetY = 0.0f, float sizeTexX = 1.0f, float sizeTexY = 1.0f,  short x = 0, short y = 0);
 	~Quad();
@@ -20,6 +20,10 @@ public:
 	void setPosition(const Vector2f &position);
 	void setSize(const Vector2f &size);
 	void setOrigin(const Vector2f &origin);
+
+	const Vector2f &getPosition() const;
+	const Vector2f &getSize() const;
+	const Vector2f &getOrigin() const;
 
 private:
 

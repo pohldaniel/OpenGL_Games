@@ -79,16 +79,14 @@ bool Unit::SetAttackTarget(GameObject * obj){
 
 void Unit::SetActiveActionToDefault() { SetActiveAction(MOVE); }
 
-void Unit::Update(float delta)
-{
+void Unit::Update(float delta){
 	// UPDATE ENERGY
 	// TODO recover energy based on attributes
 	if (GetEnergy() < GetMaxEnergy())
 		SumEnergy(0.1f);
 
 	// ATTACKING OTHER OBJECTS
-	if (mTarget)
-	{
+	if (mTarget){
 		mTimerAttack -= delta;
 
 		// time to shoot!
@@ -148,7 +146,7 @@ bool Unit::IsTargetInRange(GameObject * obj) const{
 
 void Unit::SetImage(){
 	IsoObject * isoObj = GetIsoObject();
-	isoObj->m_currentFrame = 0;
+	isoObj->m_currentFrame = static_cast<int>(IsSelected());
 }
 
 void Unit::Shoot() {

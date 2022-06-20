@@ -18,6 +18,7 @@
 enum UnitType : unsigned int;
 
 struct ObjectData;
+class Pathfinder;
 
 class Game : public State, public MouseEventListener, public KeyboardEventListener {
 public:
@@ -27,6 +28,8 @@ public:
 	virtual void fixedUpdate() override;
 	virtual void update() override;
 	virtual void render(unsigned int &frameBuffer) override;
+
+	void SetObjectActionCompleted(GameObject * obj);
 
 private:
 	MapLoader m_mapLoader;
@@ -42,17 +45,22 @@ private:
 	void OnMouseButtonUp(Event::MouseButtonEvent& event) override;
 
 	void HandleSelectionClick(Event::MouseButtonEvent& event);
+	void HandleActionClick(Event::MouseButtonEvent& event);
 
 	void CenterCameraOverCell(int row, int col);
 	void SelectObject(GameObject * obj);
 	void ClearSelection();
 
 	bool SetupNewUnit(UnitType type, GameObject * gen);
-	
-	//void HandleUnitMoveOnMouseUp(Unit * unit, const Cell2D & clickCell);
+	bool SetupStructureConquest(Unit * unit, const Cell2D & start, const Cell2D & end);
+
+	void HandleUnitMoveOnMouseUp(Unit * unit, const Cell2D & clickCell);
+	void SetupUnitMove(Unit * unit, const Cell2D & start, const Cell2D & end, const std::function<void()> & onCompleted = [] {});
+	void ClearCellOverlays();
 
 	IsoMap * mIsoMap = nullptr;
 	GameMap * mGameMap = nullptr;
+	Pathfinder * mPathfinder = nullptr;
 
 	float mouseX = 0.0f;
 	float mouseY = 0.0f;
@@ -60,5 +68,5 @@ private:
 	GameObject* selectedObj = nullptr;
 
 	std::vector<GameObjectAction> mActiveObjActions;
-	void SetObjectActionCompleted(GameObject * obj);
+	
 };

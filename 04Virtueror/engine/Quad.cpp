@@ -1,5 +1,10 @@
 #include "Quad.h"
 #include <iostream>
+
+Quad::Quad() {
+	createBuffer();
+}
+
 Quad::Quad(bool flippable, float leftEdge, float rightEdge, float bottomEdge, float topEdge, float sizeX, float sizeY, float offsetX, float offsetY, float sizeTexX, float sizeTexY, short x, short y) {
 	
 	m_flippable = flippable;
@@ -219,4 +224,16 @@ void Quad::setSize(const Vector2f &size) {
 void Quad::setOrigin(const Vector2f &origin) {
 	m_origin = origin;
 	mapBuffer();
+}
+
+const Vector2f &Quad::getPosition() const {
+	return m_position;
+}
+
+const Vector2f &Quad::getSize() const {
+	return m_size;
+}
+
+const Vector2f &Quad::getOrigin() const {
+	return m_origin;
 }

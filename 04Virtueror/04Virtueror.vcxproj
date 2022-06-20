@@ -183,12 +183,16 @@
     <ClInclude Include="GameMapCell.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="GameObjectAction.h" />
+    <ClInclude Include="IPathMap.h" />
     <ClInclude Include="IsoLayer.h" />
     <ClInclude Include="IsoMap.h" />
     <ClInclude Include="IsometricMouse.h" />
     <ClInclude Include="IsoObject.h" />
     <ClInclude Include="MapLoader.h" />
     <ClInclude Include="ObjectData.h" />
+    <ClInclude Include="ObjectPath.h" />
+    <ClInclude Include="Pathfinder.h" />
+    <ClInclude Include="PathNode.h" />
     <ClInclude Include="StateMachine.h" />
     <ClInclude Include="stb\stb_image.h" />
     <ClInclude Include="stb\stb_image_write.h" />
@@ -225,6 +229,8 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MapLoader.cpp" />
     <ClCompile Include="ObjectData.cpp" />
+    <ClCompile Include="ObjectPath.cpp" />
+    <ClCompile Include="Pathfinder.cpp" />
     <ClCompile Include="StateMachine.cpp" />
     <ClCompile Include="Structure.cpp" />
     <ClCompile Include="Unit.cpp" />

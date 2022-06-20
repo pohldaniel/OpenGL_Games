@@ -28,6 +28,9 @@
     <Filter Include="Source Files\Objects">
       <UniqueIdentifier>{55b24c36-0035-4e3b-9bb9-f4266adc63ee}</UniqueIdentifier>
     </Filter>
+    <Filter Include="engine\ai">
+      <UniqueIdentifier>{b492ddde-01e5-4226-aabe-2cf7384f8c57}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine\input\Event.h">
@@ -150,6 +153,18 @@
     <ClInclude Include="GameObjectAction.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="IPathMap.h">
+      <Filter>engine\ai</Filter>
+    </ClInclude>
+    <ClInclude Include="Pathfinder.h">
+      <Filter>engine\ai</Filter>
+    </ClInclude>
+    <ClInclude Include="PathNode.h">
+      <Filter>engine\ai</Filter>
+    </ClInclude>
+    <ClInclude Include="ObjectPath.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine\input\KeyBoard.cpp">
@@ -247,6 +262,12 @@
     </ClCompile>
     <ClCompile Include="Base.cpp">
       <Filter>Source Files\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="Pathfinder.cpp">
+      <Filter>engine\ai</Filter>
+    </ClCompile>
+    <ClCompile Include="ObjectPath.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

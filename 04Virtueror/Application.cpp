@@ -324,6 +324,15 @@ void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 			event.type = Event::MOUSEBUTTONUP;
 			event.mouseButton.x = LOWORD(lParam);
 			event.mouseButton.y = HIWORD(lParam);
+			event.mouseButton.button = Event::MouseButtonEvent::BUTTON_LEFT;
+			m_eventDispatcher->pushEvent(event);
+			break;
+		}case WM_RBUTTONUP: {
+			Event event;
+			event.type = Event::MOUSEBUTTONUP;
+			event.mouseButton.x = LOWORD(lParam);
+			event.mouseButton.y = HIWORD(lParam);
+			event.mouseButton.button = Event::MouseButtonEvent::BUTTON_RIGHT;
 			m_eventDispatcher->pushEvent(event);
 			break;
 		}
@@ -350,7 +359,7 @@ void Application::loadAssets() {
 	Globals::textureManager.loadTexture("units", "res/img/units.png", 0, 0, 96, 58);
 	Globals::spritesheetManager.loadSpritesheet("units", (&Globals::textureManager.get("units"))->getTexture(), 96, 58);
 
-	Globals::textureManager.loadTexture("units", "res/img/structures.png", 97, 0, 96, 58);
+	Globals::textureManager.loadTexture("units", "res/img/units.png", 97, 0, 96, 58);
 	Globals::spritesheetManager.getAssetPointer("units")->addToSpritesheet((&Globals::textureManager.get("units"))->getTexture(), 96, 58);
 }
 

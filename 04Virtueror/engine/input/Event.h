@@ -7,8 +7,15 @@ public:
 	};
 
 	struct MouseButtonEvent {
+		enum MouseButton {
+			BUTTON_LEFT = 0,
+			BUTTON_RIGHT = 1,
+			BUTTON_MIDDLE = 2
+		};
+
 		int x;
 		int y;
+		MouseButton button;
 	};
 
 	struct KeyboardEvent {

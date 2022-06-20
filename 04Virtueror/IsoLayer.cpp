@@ -60,8 +60,7 @@ bool IsoLayer::ContainsObject(unsigned int r, unsigned int c) const
 	return mObjectsMap[index] != nullptr;
 }
 
-bool IsoLayer::AddObject(IsoObject * obj, unsigned int r, unsigned int c)
-{
+bool IsoLayer::AddObject(IsoObject * obj, unsigned int r, unsigned int c){
 
 	const unsigned int mapRows = 40;
 	const unsigned int mapCols = 40;
@@ -266,9 +265,10 @@ Vector2f IsoLayer::GetObjectPosition(const IsoObject * obj, int r,  int c) const
 // ==================== PRIVATE METHODS ====================
 
 void IsoLayer::PositionObject(IsoObject * obj, unsigned int r, unsigned int c){
-
-	const Vector2f pos = GetObjectPosition(obj, r, c);
-	obj->SetPosition(pos[0], pos[1]);
+	Vector2f pos = GetObjectPosition(obj, r, c);
+	obj->setPosition(GetObjectPosition(obj, r, c));
+	obj->SetX(pos[0]);
+	obj->SetY(pos[1]);
 }
 
 /**
