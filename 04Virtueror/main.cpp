@@ -50,7 +50,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	int frames = 0;
 	float framesTime = 0;
 	
-	
 	while (application.isRunning()) {
 		#if FIXEDUPDATE
 		float timeToSleep = UPDATE_STEP - deltaTime;	

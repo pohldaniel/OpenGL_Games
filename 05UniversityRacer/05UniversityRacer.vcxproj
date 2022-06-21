@@ -154,7 +154,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Bitmap.h" />
+    <ClInclude Include="Application.h" />
     <ClInclude Include="Bullet\BulletCollision\BroadphaseCollision\btAxisSweep3.h" />
     <ClInclude Include="Bullet\BulletCollision\BroadphaseCollision\btAxisSweep3Internal.h" />
     <ClInclude Include="Bullet\BulletCollision\BroadphaseCollision\btBroadphaseInterface.h" />
@@ -388,24 +388,27 @@
     <ClInclude Include="Bullet\LinearMath\TaskScheduler\btThreadSupportInterface.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Camera2.h" />
-    <ClInclude Include="Extension.h" />
-    <ClInclude Include="MeshObject\MeshCube.h" />
-    <ClInclude Include="MeshObject\MeshQuad.h" />
-    <ClInclude Include="MeshObject\MeshSphere.h" />
-    <ClInclude Include="MeshObject\MeshSpiral.h" />
-    <ClInclude Include="MeshObject\MeshTorus.h" />
+    <ClInclude Include="Constants.h" />
+    <ClInclude Include="engine\AssetManger.h" />
+    <ClInclude Include="engine\Clock.h" />
+    <ClInclude Include="engine\Extension.h" />
+    <ClInclude Include="engine\input\KeyBorad.h" />
+    <ClInclude Include="engine\input\Mouse.h" />
+    <ClInclude Include="engine\Quad.h" />
+    <ClInclude Include="engine\Shader.h" />
+    <ClInclude Include="engine\Vector.h" />
+    <ClInclude Include="Game.h" />
     <ClInclude Include="ObjModel.h" />
     <ClInclude Include="Physics.h" />
     <ClInclude Include="PhysicsCar.h" />
     <ClInclude Include="PhysicsCarConfig.h" />
     <ClInclude Include="PhysicsUtils.h" />
-    <ClInclude Include="Shader.h" />
+    <ClInclude Include="StateMachine.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="Third\deps\stb_image.h" />
-    <ClInclude Include="Vector.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Bitmap.cpp" />
+    <ClCompile Include="Application.cpp" />
     <ClCompile Include="Bullet\BulletCollision\BroadphaseCollision\btAxisSweep3.cpp" />
     <ClCompile Include="Bullet\BulletCollision\BroadphaseCollision\btBroadphaseProxy.cpp" />
     <ClCompile Include="Bullet\BulletCollision\BroadphaseCollision\btCollisionAlgorithm.cpp" />
@@ -560,21 +563,21 @@
     <ClCompile Include="Bullet\LinearMath\TaskScheduler\btThreadSupportWin32.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Camera2.cpp" />
-    <ClCompile Include="Extension.cpp" />
+    <ClCompile Include="engine\Extension.cpp" />
+    <ClCompile Include="engine\input\KeyBoard.cpp" />
+    <ClCompile Include="engine\input\Mouse.cpp" />
+    <ClCompile Include="engine\Quad.cpp" />
+    <ClCompile Include="engine\Shader.cpp" />
+    <ClCompile Include="engine\Vector.cpp" />
+    <ClCompile Include="Game.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="MeshObject\MeshCube.cpp" />
-    <ClCompile Include="MeshObject\MeshQuad.cpp" />
-    <ClCompile Include="MeshObject\MeshSphere.cpp" />
-    <ClCompile Include="MeshObject\MeshSpiral.cpp" />
-    <ClCompile Include="MeshObject\MeshTorus.cpp" />
     <ClCompile Include="ObjModel.cpp" />
     <ClCompile Include="Physics.cpp" />
     <ClCompile Include="PhysicsCar.cpp" />
     <ClCompile Include="PhysicsUtils.cpp" />
-    <ClCompile Include="Shader.cpp" />
+    <ClCompile Include="StateMachine.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="Third\deps\stb_image.c" />
-    <ClCompile Include="Vector.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

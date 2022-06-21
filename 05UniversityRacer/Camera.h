@@ -1,7 +1,7 @@
 #ifndef __cameraH__
 #define __cameraH__
 
-#include "Vector.h"
+#include "engine\Vector.h"
 
 class Camera {
 

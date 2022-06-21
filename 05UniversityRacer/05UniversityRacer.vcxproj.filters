@@ -13,9 +13,6 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="MeshObject">
-      <UniqueIdentifier>{e95180d7-e227-4846-95b0-09915d609d20}</UniqueIdentifier>
-    </Filter>
     <Filter Include="stb">
       <UniqueIdentifier>{e6f4bf0b-5566-45bc-97f1-cb95685eb228}</UniqueIdentifier>
     </Filter>
@@ -67,21 +64,21 @@
     <Filter Include="bullet\LinearMath\TaskScheduler">
       <UniqueIdentifier>{8ddbfe6a-f986-444f-adc9-7d7e0850c21e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="engine">
+      <UniqueIdentifier>{06e60d0a-6312-4a9e-8179-5a24469b142c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\States">
+      <UniqueIdentifier>{cca0c868-fe28-4caf-8530-90cb5aea1b7f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="engine\input">
+      <UniqueIdentifier>{9d8c1211-6490-41ce-a624-95d3b0364a36}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Bitmap.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Camera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Camera2.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Extension.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ObjModel.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Physics.h">
@@ -95,30 +92,6 @@
     </ClInclude>
     <ClInclude Include="PhysicsUtils.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Shader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Texture.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Vector.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="MeshObject\MeshCube.h">
-      <Filter>MeshObject</Filter>
-    </ClInclude>
-    <ClInclude Include="MeshObject\MeshQuad.h">
-      <Filter>MeshObject</Filter>
-    </ClInclude>
-    <ClInclude Include="MeshObject\MeshSphere.h">
-      <Filter>MeshObject</Filter>
-    </ClInclude>
-    <ClInclude Include="MeshObject\MeshSpiral.h">
-      <Filter>MeshObject</Filter>
-    </ClInclude>
-    <ClInclude Include="MeshObject\MeshTorus.h">
-      <Filter>MeshObject</Filter>
     </ClInclude>
     <ClInclude Include="Bullet\BulletCollision\BroadphaseCollision\btAxisSweep3.h">
       <Filter>bullet\BulletCollision\BroadphaseCollision</Filter>
@@ -816,24 +789,57 @@
     <ClInclude Include="Third\deps\stb_image.h">
       <Filter>stb</Filter>
     </ClInclude>
+    <ClInclude Include="ObjModel.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Application.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Constants.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="StateMachine.h">
+      <Filter>Source Files\States</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\AssetManger.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\Clock.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\Extension.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\Quad.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\Shader.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\Vector.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\input\KeyBorad.h">
+      <Filter>engine\input</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\input\Mouse.h">
+      <Filter>engine\input</Filter>
+    </ClInclude>
+    <ClInclude Include="Game.h">
+      <Filter>Source Files\States</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Bitmap.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Camera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Camera2.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Extension.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ObjModel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Physics.cpp">
@@ -844,30 +850,6 @@
     </ClCompile>
     <ClCompile Include="PhysicsUtils.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Shader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Texture.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Vector.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="MeshObject\MeshCube.cpp">
-      <Filter>MeshObject</Filter>
-    </ClCompile>
-    <ClCompile Include="MeshObject\MeshQuad.cpp">
-      <Filter>MeshObject</Filter>
-    </ClCompile>
-    <ClCompile Include="MeshObject\MeshSphere.cpp">
-      <Filter>MeshObject</Filter>
-    </ClCompile>
-    <ClCompile Include="MeshObject\MeshSpiral.cpp">
-      <Filter>MeshObject</Filter>
-    </ClCompile>
-    <ClCompile Include="MeshObject\MeshTorus.cpp">
-      <Filter>MeshObject</Filter>
     </ClCompile>
     <ClCompile Include="Bullet\BulletCollision\BroadphaseCollision\btAxisSweep3.cpp">
       <Filter>bullet\BulletCollision\BroadphaseCollision</Filter>
@@ -1327,6 +1309,39 @@
     </ClCompile>
     <ClCompile Include="Third\deps\stb_image.c">
       <Filter>stb</Filter>
+    </ClCompile>
+    <ClCompile Include="ObjModel.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="Texture.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="Application.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="StateMachine.cpp">
+      <Filter>Source Files\States</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\Extension.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\Quad.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\Shader.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\Vector.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\input\KeyBoard.cpp">
+      <Filter>engine\input</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\input\Mouse.cpp">
+      <Filter>engine\input</Filter>
+    </ClCompile>
+    <ClCompile Include="Game.cpp">
+      <Filter>Source Files\States</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

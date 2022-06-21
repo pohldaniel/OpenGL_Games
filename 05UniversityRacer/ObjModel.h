@@ -11,9 +11,9 @@
 #include <algorithm>
 #include <memory>
 
-#include "Vector.h"
-#include "Extension.h"
-#include "Shader.h"
+#include "engine\Vector.h"
+#include "engine\Extension.h"
+#include "engine\Shader.h"
 #include "Texture.h"
 #include "Camera.h"
 
