@@ -27,8 +27,15 @@ public:
 	void loadVector(const char* location, Vector4f vector);
 	void loadVector(const char* location, Vector3f vector);
 	void loadVector(const char* location, Vector2f vector);
+	void loadFloat4(const char* location, float value[4]);
+	void loadFloat3(const char* location, float value[3]);
 	void loadFloat2(const char* location, float value[2]);
+	void loadFloat1(const char* location, float value[1]);
 	void loadFloat(const char* location, float value);
+	//void loadFloat(const char* location, float value[2]);
+	//void loadFloat(const char* location, float value[3]);
+	void loadFloat(const char* location, float value[4]);
+
 	void loadBool(const char* location, bool value);
 	void loadInt(const char* location, int value);
 

@@ -25,10 +25,126 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	room = new Model();
 	room->loadObject("res/room/room.obj", Vector3f(0.0, 0.0, 1.0), 0.0, Vector3f(0.0, 0.0, 0.0), 0.05f);
 
+	chairs = new Model();
+	chairs->loadObject("res/chairs/chairs.obj", Vector3f(0.0, 0.0, 1.0), 0.0, Vector3f(0, 0, 0), 0.05f);
 
-	Globals::physics->AddCar(PhysicsUtils::btTransFrom(btVector3(0.2f, 18.95f, 0.7f), btQuaternion(btVector3(0, 1, 0), -PI / 2.f))); // 0,2,5
+	middesk = new Model();
+	middesk->loadObject("res/desk-mid/desk-mid.obj", Vector3f(0.0, 0.0, 1.0), 0.0, Vector3f(0, 0, 0), 0.05f);
 
-	Globals::physics->AddStaticModel(Physics::CreateStaticCollisionShapes2(room, 1), PhysicsUtils::btTransFrom(btVector3(0, 0, 0)), false, btVector3(1, 1, 1));
+	sidedesk = new Model();
+	sidedesk->loadObject("res/desk-side/desk-side.obj", Vector3f(0.0, 0.0, 1.0), 0.0, Vector3f(0, 0, 0), 0.05f);
+
+	Globals::physics->AddCar(PhysicsUtils::btTransFrom(btVector3(36.2f, 8.95f, -21.7f), btQuaternion(btVector3(0, 1, 0), -PI / 2.f))); // 0,2,5
+	Globals::physics->AddStaticModel(Physics::CreateStaticCollisionShapes2(room, 1.0f), PhysicsUtils::btTransFrom(btVector3(0, 0, 0)), false, btVector3(1, 1, 1));
+
+	glm::mat4 rows[] = {
+		glm::translate(glm::mat4(1.0), glm::vec3(-740, 19, -70)),
+		glm::translate(glm::mat4(1.0), glm::vec3(-740, 39, -170)),
+		glm::translate(glm::mat4(1.0), glm::vec3(-740, 59, -270)),
+		glm::translate(glm::mat4(1.0), glm::vec3(-740, 79, -370)),
+		glm::translate(glm::mat4(1.0), glm::vec3(-740, 99, -470))
+	};
+
+	std::vector<btCollisionShape*> chairShapes = Physics::CreateStaticCollisionShapes2(chairs, 1.0f);
+
+	for (unsigned int rowI = 0; rowI < 5; rowI++){
+		int offsetX = 0; // posunuti zidle na radku
+
+		for (unsigned int i = 0; i < 13; i++){
+			if (i == 3 || i == 10)
+				offsetX += 100;
+
+			glm::mat4 col = glm::translate(rows[rowI], glm::vec3(offsetX, 0, 0));
+			col[3][0] = col[3][0] * 0.05f;
+			col[3][1] = col[3][1] * 0.05f;
+			col[3][2] = col[3][2] * 0.05f;
+
+			cols.push_back(Matrix4f(col[0][0], col[0][1], col[0][2], col[0][3],
+									col[1][0], col[1][1], col[1][2], col[1][3], 
+									col[2][0], col[2][1], col[2][2], col[2][3], 
+									col[3][0], col[3][1], col[3][2], col[3][3]));
+
+			//container->queueDraw(chairs, col); // jen testovaci; ulozi se index na posledni pridanou zidli
+			offsetX += 105;
+
+			Globals::physics->AddStaticModel(chairShapes, PhysicsUtils::btTransFrom(col), false);
+		}
+	}
+
+	
+	glm::mat4 rows2[] = {
+		glm::translate(glm::mat4(1.0), glm::vec3(-365, 13, -43)),
+		glm::translate(glm::mat4(1.0), glm::vec3(-365, 33, -143)),
+		glm::translate(glm::mat4(1.0), glm::vec3(-365, 53, -243)),
+		glm::translate(glm::mat4(1.0), glm::vec3(-365, 73, -343)),
+		glm::translate(glm::mat4(1.0), glm::vec3(-365, 93, -443))
+	};
+
+	std::vector<btCollisionShape*> middeskShapes = Physics::CreateStaticCollisionShapes2(middesk, 1.0f);
+
+	for (unsigned int rowI = 0; rowI < 5; rowI++)
+	{
+		glm::mat4 col = glm::translate(rows2[rowI], glm::vec3(0, 0, 0));
+		col[3][0] = col[3][0] * 0.05f;
+		col[3][1] = col[3][1] * 0.05f;
+		col[3][2] = col[3][2] * 0.05f;
+
+		middesks.push_back(Matrix4f(col[0][0], col[0][1], col[0][2], col[0][3],
+									col[1][0], col[1][1], col[1][2], col[1][3],
+									col[2][0], col[2][1], col[2][2], col[2][3],
+									col[3][0], col[3][1], col[3][2], col[3][3]));
+
+		Globals::physics->AddStaticModel(middeskShapes, PhysicsUtils::btTransFrom(col), false);
+
+		//container->queueDraw(middesk, col);
+		//shadowVolumes->addModel(middesk, col);
+	}
+
+	
+	glm::mat4 rows3[] = {
+		glm::translate(glm::mat4(1.0), glm::vec3(-785,  20, -15)),
+		glm::translate(glm::mat4(1.0), glm::vec3(-785,  40, -115)),
+		glm::translate(glm::mat4(1.0), glm::vec3(-785,  60, -215)),
+		glm::translate(glm::mat4(1.0), glm::vec3(-785,  80, -315)),
+		glm::translate(glm::mat4(1.0), glm::vec3(-785, 100, -415))
+	};
+
+	std::vector<btCollisionShape*> sidedeskShapes = Physics::CreateStaticCollisionShapes2(sidedesk, 1.0f);
+
+	glm::vec3 otherside(1250 * 0.05f, 0, 0);
+
+	for (unsigned int rowI = 0; rowI < 5; rowI++)
+	{
+		// leva strana (z pohledu z katedry)
+		glm::mat4 col = glm::translate(rows3[rowI], glm::vec3(0, 0, 0));
+		col[3][0] = col[3][0] * 0.05f;
+		col[3][1] = col[3][1] * 0.05f;
+		col[3][2] = col[3][2] * 0.05f;
+
+		sidedesks.push_back(Matrix4f(col[0][0], col[0][1], col[0][2], col[0][3],
+			col[1][0], col[1][1], col[1][2], col[1][3],
+			col[2][0], col[2][1], col[2][2], col[2][3],
+			col[3][0], col[3][1], col[3][2], col[3][3]));
+
+
+		//container->queueDraw(sidedesk, col);
+
+		Globals::physics->AddStaticModel(sidedeskShapes, PhysicsUtils::btTransFrom(col), false);
+
+		// prava strana
+		glm::mat4 mat = glm::translate(col, otherside);
+		sidedesks.push_back(Matrix4f(
+			mat[0][0], mat[0][1], mat[0][2], mat[0][3],
+			mat[1][0], mat[1][1], mat[1][2], mat[1][3],
+			mat[2][0], mat[2][1], mat[2][2], mat[2][3],
+			mat[3][0], mat[3][1], mat[3][2], mat[3][3]));
+
+
+		//container->queueDraw(sidedesk, mat);
+		//shadowVolumes->addModel(sidedesk, mat);
+
+		Globals::physics->AddStaticModel(sidedeskShapes, PhysicsUtils::btTransFrom(mat), false);
+	}
 }
 
 Game::~Game() {}
@@ -59,6 +175,7 @@ void Game::update() {
 
 void Game::render(unsigned int &frameBuffer) {
 	glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
+	glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	
 	glm::mat4 carMatrix = glm::scale(PhysicsUtils::glmMat4From(Globals::physics->GetCar()->GetWorldTransform()), glm::vec3(CAR_SCALE));
@@ -141,12 +258,25 @@ void Game::render(unsigned int &frameBuffer) {
 		wheelMatrix[2][0], wheelMatrix[2][1], wheelMatrix[2][2], wheelMatrix[2][3],
 		wheelMatrix[3][0], wheelMatrix[3][1], wheelMatrix[3][2], wheelMatrix[3][3]));
 
-	car->draw(camera);
 	room->draw(camera);
+	car->draw(camera);
+	
 	wheel[0]->draw(camera);
 	wheel[1]->draw(camera);
 	wheel[2]->draw(camera);
 	wheel[3]->draw(camera);
+
+	for (const auto& col : cols) {
+		chairs->draw(camera, col);
+	}
+
+	for (const auto& col : middesks) {
+		middesk->draw(camera, col);
+	}
+
+	for (const auto& col : sidedesks) {
+		sidedesk->draw(camera, col);
+	}
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }

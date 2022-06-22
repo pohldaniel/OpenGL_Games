@@ -18,7 +18,6 @@ void Texture::setTexture(const std::string & fileName){
 	unsigned char* imageData = stbi_load(fileName.c_str(), &width, &height, &numCompontents, 4);
 
 	if (imageData == NULL) {
-		//std::cout << "----------------" << std::endl;
 		std::cout << "Unable to load texture: " << fileName << std::endl;
 		return;
 	}
@@ -49,5 +48,5 @@ Texture::~Texture(){
 void Texture::bind(unsigned int unit){
 	assert(unit >= 0 && unit <= 31);		
 	glActiveTexture(GL_TEXTURE0 + unit);
-	glBindTexture(GL_TEXTURE_2D, m_texture);
+	//glBindTexture(GL_TEXTURE_2D, m_texture);
 }

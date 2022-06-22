@@ -273,16 +273,6 @@ void glUniform4f(GLint location, GLfloat v0, GLfloat v1, GLfloat v2, GLfloat v3)
 	pfnUniform4f(location, v0, v1, v2, v3);
 }
 
-
-void glUniform1fv(GLint location, GLsizei count, const GLfloat *value)
-{
-	typedef void (APIENTRY * PFNGLUNIFORM1FVPROC) (GLint location, GLsizei count, const GLfloat *value);
-	static PFNGLUNIFORM1FVPROC pfnUniform1fv = 0;
-	LOAD_ENTRYPOINT("glUniform1fv", pfnUniform1fv, PFNGLUNIFORM1FVPROC);
-	pfnUniform1fv(location, count, value);
-
-}
-
 void glEnableVertexAttribArray(GLuint index)
 {
 	typedef void (APIENTRY * PFNGLENABLEVERTEXATTRIBARRAYPROC) (GLuint index);
@@ -333,6 +323,15 @@ void glUniformMatrix4fv(GLint location, GLsizei count, GLboolean transpose, cons
 	LOAD_ENTRYPOINT("glUniformMatrix4fv", pfnUniformMatrix4fv, PFNGLUNIFORMMATRIX4FVPROC);
 	pfnUniformMatrix4fv(location, count, transpose, value);
 }
+
+void glUniform1fv(GLint location, GLsizei count, const GLfloat *value){
+	typedef void (APIENTRY * PFNGLUNIFORM1FVPROC) (GLint location, GLsizei count, const GLfloat *value);
+	static PFNGLUNIFORM1FVPROC pfnUniform1fv = 0;
+	LOAD_ENTRYPOINT("glUniform1fv", pfnUniform1fv, PFNGLUNIFORM1FVPROC);
+	pfnUniform1fv(location, count, value);
+
+}
+
 
 void glUniform2fv(GLint location, GLsizei count, const GLfloat *value){
 	typedef void (APIENTRY * PFNGLUNIFORM2FVPROC) (GLint location, GLsizei count, const GLfloat *value);

@@ -247,4 +247,9 @@ void Application::initStates() {
 
 void Application::loadAssets() {
 	Globals::shaderManager.loadShader("quad", "res/shader/quad.vs", "res/shader/quad.fs");
+
+	Globals::shaderManager.loadShader("glossy", "res/materials/_glossy.vert", "res/materials/_glossy.frag");
+	Globals::shaderManager.loadShader("diffuse", "res/materials/_diffuse.vert", "res/materials/_diffuse.frag");
+	Globals::shaderManager.loadShader("diffuse_texture", "res/materials/diffuse_texture.vert", "res/materials/diffuse_texture.frag");
+	Globals::shaderManager.loadShader("glossy_texture", "res/materials/diffuse_texture.vert", "res/materials/diffuse_texture.frag");
 }

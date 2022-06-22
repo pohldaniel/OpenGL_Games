@@ -1,5 +1,4 @@
-#ifndef __OBJMODELH__
-#define  __OBJMODELH__
+#pragma once
 
 #include <iostream>
 #include <ctime>
@@ -11,11 +10,14 @@
 #include <algorithm>
 #include <memory>
 
+
 #include "engine\Vector.h"
 #include "engine\Extension.h"
 #include "engine\Shader.h"
 #include "Texture.h"
 #include "Camera.h"
+
+#include "Constants.h"
 
 struct IndexBufferCreator {
 
@@ -46,6 +48,7 @@ public:
 	const Vector3f &getCenter() const;
 
 	void draw(const Camera camera);
+	void draw(const Camera camera, const Matrix4f &model);
 
 	//size values
 	unsigned int m_size, m_numVertices, m_numIndices, m_stride, m_offset, m_numberOfBytes;
@@ -90,14 +93,26 @@ class Mesh {
 public:
 	///////////////////////////////geometry content
 	struct Material {
+		enum MaterialID {
+			NONE = 0,
+			GLOSSY = 1,
+			DIFFUSE = 2,
+			NONE_TEXTURE = 4,
+			GLOSSY_TEXTURE = 8,
+			DIFFUSE_TEXTURE = 16,
+		};
 
-		float ambient[3];
-		float diffuse[3];
-		float specular[3];
-		float shinies;
+
+
+		float ambient[4];
+		float diffuse[4];
+		float specular[4];
+		float shininess;
 		std::string diffuseTexPath;
 		std::string bumpMapPath;
 		std::string displacementMapPath;
+		Shader * shader;
+		MaterialID materialID = MaterialID::NONE;
 	};
 
 	Mesh(std::string mltName, int numberTriangles, Model* model);
@@ -105,6 +120,7 @@ public:
 	~Mesh();
 
 	void draw(const Camera camera);
+	void draw(const Camera camera, const Matrix4f &model);
 
 	void setMaterial(const Vector3f &ambient, const Vector3f &diffuse, const Vector3f &specular, float shinies);
 	Material getMaterial();
@@ -120,7 +136,7 @@ public:
 	///////////////////////////////////////OpenGL content////////////////// to do seperate it 
 
 	void createBuffer();
-	void createTextureAndShader();
+	void createShader();
 
 	short m_numBuffers;
 	unsigned int m_vao;
@@ -137,5 +153,3 @@ public:
 	std::vector<Vector2f> m_texels;
 	std::vector<Vector3f> m_normals;
 };
-
-#endif

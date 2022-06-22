@@ -8,7 +8,7 @@
 // +------------------------------------------------------------+
 
 #include "Physics.h"
-
+#include "ObjModel.h"
 
 Physics::Physics(void): m_car(NULL)
 {

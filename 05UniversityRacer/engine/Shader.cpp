@@ -49,12 +49,36 @@ void Shader::loadVector(const char* location, Vector2f vector) {
 	glUniform2fv(glGetUniformLocation(m_program, location), 1, &vector[0]);
 }
 
+void Shader::loadFloat4(const char* location, float value[4]) {
+	glUniform1fv(glGetUniformLocation(m_program, location), 4, value);
+}
+
+void Shader::loadFloat3(const char* location, float value[3]) {
+	glUniform1fv(glGetUniformLocation(m_program, location), 3, value);
+}
+
 void Shader::loadFloat2(const char* location, float value[2]) {
 	glUniform1fv(glGetUniformLocation(m_program, location), 2, value);
 }
 
+void Shader::loadFloat1(const char* location, float value[1]) {
+	glUniform1fv(glGetUniformLocation(m_program, location), 1, value);
+}
+
 void Shader::loadFloat(const char* location, float value) {
 	glUniform1f(glGetUniformLocation(m_program, location), value);
+}
+
+/*void Shader::loadFloat(const char* location, float value[2]) {
+	glUniform2f(glGetUniformLocation(m_program, location), value[0], value[1]);
+}
+
+void Shader::loadFloat(const char* location, float value[3]) {
+	glUniform3f(glGetUniformLocation(m_program, location), value[0], value[1], value[2]);
+}*/
+
+void Shader::loadFloat(const char* location, float value[4]) {
+	glUniform4f(glGetUniformLocation(m_program, location), value[0], value[1], value[2], value[3]);
 }
 
 void Shader::loadInt(const char* location, int value) {

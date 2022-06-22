@@ -10,12 +10,13 @@
 #ifndef PHYSICS_H
 #define PHYSICS_H
 
+#include <vector>
 #include <btBulletDynamicsCommon.h>
 #include <glm/gtc/type_ptr.hpp>
 
 #include "PhysicsUtils.h"
 #include "PhysicsCar.h"
-#include "ObjModel.h"
+
 
 #define FIXED_SIMULATION_TIMESTEP 1/120.f  /// pevny simulacni krok
 #define MAX_SIMULATION_SUBSTEPS   10       /// maximum simulacnich podkroku
@@ -26,6 +27,10 @@
  * Oboji lze nalezt v archivu http://code.google.com/p/bullet/downloads/detail?name=bullet-2.79-rev2440.zip
  * Dale vyuzity stranky knihovny, konkretne wiki a fora.
  */
+
+class Mesh;
+class Model;
+
 class Physics
 {
 public:

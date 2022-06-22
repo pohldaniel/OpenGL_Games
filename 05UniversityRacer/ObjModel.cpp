@@ -68,7 +68,7 @@ bool Model::loadObject(const char* a_filename, Vector3f& rotate, float degree, V
 
 	if (!in.is_open()) {
 
-		std::cout << "File not found" << std::endl;
+		std::cout << "OBJ File not found" << std::endl;
 		return false;
 	}
 
@@ -234,7 +234,7 @@ bool Model::loadObject(const char* a_filename, Vector3f& rotate, float degree, V
 		if (m_hasMaterial) {
 			m_mesh[j]->readMaterial();
 		}
-		m_mesh[j]->createTextureAndShader();
+		//m_mesh[j]->createShader();
 		m_mesh[j]->createBuffer();
 
 		indexBufferCreator.indexBufferOut.clear();
@@ -261,8 +261,7 @@ int Model::addVertex(int hash, float *pVertex, int stride) {
 		index = static_cast<int>(m_vertexBuffer.size() / stride);
 		m_vertexBuffer.insert(m_vertexBuffer.end(), pVertex, pVertex + stride);
 		m_vertexCache.insert(std::make_pair(hash, std::vector<int>(1, index)));
-	}
-	else {
+	}else {
 		// One or more vertices have been hashed to this entry in the cache.
 		const std::vector<int> &vertices = iter->second;
 		const float *pCachedVertex = 0;
@@ -292,8 +291,25 @@ int Model::getNumberOfIndices() const {
 }
 
 void Model::draw(const Camera camera) {
+
+	
+	if (m_modelDirectory.find("res/car") != std::string::npos) {
+		
+		for (int j = 0; j < m_numberOfMeshes; j++) {
+			m_mesh[j]->draw(camera);
+		}
+			/*m_mesh[3]->draw(camera);
+		m_mesh[5]->draw(camera);*/
+	}else {
+		for (int j = 0; j < m_numberOfMeshes; j++) {
+			m_mesh[j]->draw(camera);
+		}
+	}
+}
+
+void Model::draw(const Camera camera, const Matrix4f &model) {
 	for (int j = 0; j < m_numberOfMeshes; j++) {
-		m_mesh[j]->draw(camera);
+		m_mesh[j]->draw(camera, model);
 	}
 }
 
@@ -338,7 +354,7 @@ Mesh::Material Mesh::getMaterial() {
 	return m_material;
 }
 
-void Mesh::setMaterial(const Vector3f &ambient, const Vector3f &diffuse, const Vector3f &specular, float shinies) {
+void Mesh::setMaterial(const Vector3f &ambient, const Vector3f &diffuse, const Vector3f &specular, float shininess) {
 	m_material.ambient[0] = ambient[0];
 	m_material.ambient[1] = ambient[1];
 	m_material.ambient[2] = ambient[2];
@@ -351,7 +367,7 @@ void Mesh::setMaterial(const Vector3f &ambient, const Vector3f &diffuse, const V
 	m_material.specular[1] = specular[1];
 	m_material.specular[2] = specular[2];
 
-	m_material.shinies = shinies;
+	m_material.shininess = shininess;
 }
 
 bool Mesh::readMaterial() {
@@ -376,7 +392,6 @@ bool Mesh::readMaterial() {
 	for (int i = 0; i < lines.size(); i++) {
 
 		if (strcmp((*lines[i]).c_str(), m_mltName.c_str()) == 0) {
-
 			start = i;
 			continue;
 		}
@@ -390,6 +405,18 @@ bool Mesh::readMaterial() {
 
 	}
 
+	if (m_mltName.find("glossy_") != std::string::npos) {
+		m_material.shader = Globals::shaderManager.getAssetPointer("glossy");
+		m_material.materialID = Material::MaterialID::GLOSSY;
+	}else if (m_mltName.find("diffuse_") != std::string::npos) {
+		m_material.shader = Globals::shaderManager.getAssetPointer("diffuse");
+		m_material.materialID = Material::MaterialID::DIFFUSE;
+	}else {
+
+		m_material.shader = Globals::shaderManager.getAssetPointer("diffuse");
+		m_material.materialID = Material::MaterialID::NONE;
+	}
+
 	if (start < 0 || end < 0) return false;
 
 	for (int i = start; i < end; i++) {
@@ -401,7 +428,7 @@ bool Mesh::readMaterial() {
 		}else if ((*lines[i])[0] == 'N' && (*lines[i])[1] == 's') {
 			int tmp;
 			sscanf(lines[i]->c_str(), "Ns %i", &tmp);
-			m_material.shinies = tmp;
+			m_material.shininess = tmp;
 
 		}else if ((*lines[i])[0] == 'K' && (*lines[i])[1] == 'a') {
 			float tmpx, tmpy, tmpz;
@@ -410,6 +437,7 @@ bool Mesh::readMaterial() {
 			m_material.ambient[0] = tmpx;
 			m_material.ambient[1] = tmpy;
 			m_material.ambient[2] = tmpz;
+			m_material.ambient[3] = 0.0f;
 
 		}else if ((*lines[i])[0] == 'K' && (*lines[i])[1] == 'd') {
 			float tmpx, tmpy, tmpz;
@@ -418,6 +446,7 @@ bool Mesh::readMaterial() {
 			m_material.diffuse[0] = tmpx;
 			m_material.diffuse[1] = tmpy;
 			m_material.diffuse[2] = tmpz;
+			m_material.diffuse[3] = 0.0f;
 
 		}else if ((*lines[i])[0] == 'K' && (*lines[i])[1] == 's') {
 			float tmpx, tmpy, tmpz;
@@ -426,6 +455,7 @@ bool Mesh::readMaterial() {
 			m_material.specular[0] = tmpx;
 			m_material.specular[1] = tmpy;
 			m_material.specular[2] = tmpz;
+			m_material.specular[3] = 0.0f;
 
 		}else if ((*lines[i])[0] == 'm') {
 
@@ -434,6 +464,20 @@ bool Mesh::readMaterial() {
 
 			if (strstr(identifierBuffer, "map_Kd") != 0) {
 				m_material.diffuseTexPath = valueBuffer;
+				m_material.materialID = static_cast<Material::MaterialID>(m_material.materialID << 3);
+
+				if (m_material.materialID == Material::MaterialID::DIFFUSE_TEXTURE) {
+					m_material.shader = Globals::shaderManager.getAssetPointer("diffuse_texture");
+				}else if (m_material.materialID == Material::MaterialID::GLOSSY_TEXTURE) {
+					m_material.shader = Globals::shaderManager.getAssetPointer("glossy_texture");
+				}else if (m_material.materialID == Material::MaterialID::NONE) {
+					m_material.materialID = Material::MaterialID::NONE_TEXTURE;
+					m_material.shader = Globals::shaderManager.getAssetPointer("diffuse_texture");
+				}
+
+				
+				m_texture = std::make_shared<Texture>(m_model->getModelDirectory() + "/" + m_material.diffuseTexPath);
+
 			}else if (strstr(identifierBuffer, "map_bump") != 0) {
 				m_material.bumpMapPath = valueBuffer;
 
@@ -448,8 +492,7 @@ bool Mesh::readMaterial() {
 	}
 }
 
-void Mesh::createTextureAndShader() {
-	m_texture = std::make_shared<Texture>(m_model->getModelDirectory() + "/" + m_material.diffuseTexPath);
+void Mesh::createShader() {
 	m_shader = std::make_shared<Shader>("shader/texture.vert", "shader/texture.frag");
 }
 
@@ -528,21 +571,274 @@ void Mesh::createBuffer() {
 }
 
 void Mesh::draw(const Camera camera) {
-	glUseProgram(m_shader->m_program);
 
-	m_texture->bind(0);
-	//m_shader->loadMatrix("u_modelView", m_model->m_modelMatrix * camera.getViewMatrix(), true);
-	//m_shader->loadMatrix("u_projection", camera.getProjectionMatrix(), true);
+	if (m_material.materialID == Material::MaterialID::NONE) {
 
-	m_shader->loadMatrix("u_modelView", camera.getViewMatrix() * m_model->m_modelMatrix, false);
-	m_shader->loadMatrix("u_projection", camera.getProjectionMatrix(), false);
+		glUseProgram(m_material.shader->m_program);
 
+		m_material.shader->loadFloat("material.ambient", m_material.ambient);
+		m_material.shader->loadFloat("material.diffuse", m_material.diffuse);
+		m_material.shader->loadFloat("material.specular", m_material.specular);
+		m_material.shader->loadFloat("material.shininess", m_material.shininess);
 
-	glBindVertexArray(m_vao);
-	glDrawElements(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0);
-	glBindVertexArray(0);
+		m_material.shader->loadMatrix("u_modelView", camera.getViewMatrix() * m_model->m_modelMatrix, false);
+		m_material.shader->loadMatrix("u_projection", camera.getProjectionMatrix(), false);
 
-	glUseProgram(0);
+		glBindVertexArray(m_vao);
+		glDrawElements(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0);
+		glBindVertexArray(0);
+
+		glUseProgram(0);
+
+	}else if (m_material.materialID == Material::MaterialID::GLOSSY) {
+		
+		glUseProgram(m_material.shader->m_program);
+
+		m_material.shader->loadFloat("material.ambient", m_material.ambient);
+		m_material.shader->loadFloat("material.diffuse", m_material.diffuse);
+		m_material.shader->loadFloat("material.specular", m_material.specular);
+		m_material.shader->loadFloat("material.shininess", m_material.shininess);
+
+		//m_material.shader->loadFloat("diffuse", m_material.diffuse);
+		//m_material.shader->loadVector("diffuse", Vector4f(m_material.diffuse[0], m_material.diffuse[1], m_material.diffuse[2], m_material.diffuse[3]));
+
+		m_material.shader->loadMatrix("u_modelView", camera.getViewMatrix() * m_model->m_modelMatrix, false);
+		m_material.shader->loadMatrix("u_projection", camera.getProjectionMatrix(), false);
+
+		glBindVertexArray(m_vao);
+		glDrawElements(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0);
+		glBindVertexArray(0);
+
+		glUseProgram(0);
+
+	}else if (m_material.materialID == Material::MaterialID::DIFFUSE) {
+		glUseProgram(m_material.shader->m_program);
+
+		m_material.shader->loadFloat("material.ambient", m_material.ambient);
+		m_material.shader->loadFloat("material.diffuse", m_material.diffuse);
+		m_material.shader->loadFloat("material.specular", m_material.specular);
+		m_material.shader->loadFloat("material.shininess", m_material.shininess);
+
+		m_material.shader->loadMatrix("u_modelView", camera.getViewMatrix() * m_model->m_modelMatrix, false);
+		m_material.shader->loadMatrix("u_projection", camera.getProjectionMatrix(), false);
+
+		glBindVertexArray(m_vao);
+		glDrawElements(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0);
+		glBindVertexArray(0);
+
+		glUseProgram(0);
+	}else if (m_material.materialID == Material::MaterialID::NONE_TEXTURE) {
+		glUseProgram(m_material.shader->m_program);
+
+		m_material.shader->loadFloat("material.ambient", m_material.ambient);
+		m_material.shader->loadFloat("material.diffuse", m_material.diffuse);
+		m_material.shader->loadFloat("material.specular", m_material.specular);
+		m_material.shader->loadFloat("material.shininess", m_material.shininess);
+
+		m_material.shader->loadMatrix("u_modelView", camera.getViewMatrix() * m_model->m_modelMatrix, false);
+		m_material.shader->loadMatrix("u_projection", camera.getProjectionMatrix(), false);
+		m_material.shader->loadInt("u_texture", 1);
+
+		m_texture->bind(1);
+		glBindTexture(GL_TEXTURE_2D, m_texture->m_texture);
+		glBindVertexArray(m_vao);
+		glDrawElements(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0);
+		glBindVertexArray(0);
+		glBindTexture(GL_TEXTURE_2D, 0);
+		m_texture->bind(0);
+		m_material.shader->loadInt("u_texture", 0);
+		glUseProgram(0);
+	}else if (m_material.materialID == Material::MaterialID::GLOSSY_TEXTURE) {
+		glUseProgram(m_material.shader->m_program);
+
+		m_material.shader->loadFloat("material.ambient", m_material.ambient);
+		m_material.shader->loadFloat("material.diffuse", m_material.diffuse);
+		m_material.shader->loadFloat("material.specular", m_material.specular);
+		m_material.shader->loadFloat("material.shininess", m_material.shininess);
+
+		m_material.shader->loadMatrix("u_modelView", camera.getViewMatrix() * m_model->m_modelMatrix, false);
+		m_material.shader->loadMatrix("u_projection", camera.getProjectionMatrix(), false);
+		m_material.shader->loadInt("u_texture", 1);
+
+		m_texture->bind(1);
+		glBindTexture(GL_TEXTURE_2D, m_texture->m_texture);
+		glBindVertexArray(m_vao);
+		glDrawElements(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0);
+		glBindVertexArray(0);
+		glBindTexture(GL_TEXTURE_2D, 0);
+		m_texture->bind(0);
+		m_material.shader->loadInt("u_texture", 0);
+		glUseProgram(0);
+	}else if (m_material.materialID == Material::MaterialID::DIFFUSE_TEXTURE) {
+		glUseProgram(m_material.shader->m_program);
+
+		m_material.shader->loadFloat("material.ambient", m_material.ambient);
+		m_material.shader->loadFloat("material.diffuse", m_material.diffuse);
+		m_material.shader->loadFloat("material.specular", m_material.specular);
+		m_material.shader->loadFloat("material.shininess", m_material.shininess);
+		
+		m_material.shader->loadMatrix("u_modelView", camera.getViewMatrix() * m_model->m_modelMatrix, false);
+		m_material.shader->loadMatrix("u_projection", camera.getProjectionMatrix(), false);
+		m_material.shader->loadInt("u_texture", 1);
+
+		m_texture->bind(1);
+		glBindTexture(GL_TEXTURE_2D, m_texture->m_texture);
+		glBindVertexArray(m_vao);
+		glDrawElements(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0);
+		glBindVertexArray(0);
+		glBindTexture(GL_TEXTURE_2D, 0);
+		m_texture->bind(0);
+		m_material.shader->loadInt("u_texture", 0);
+		glUseProgram(0);
+	}else {
+		glUseProgram(m_shader->m_program);
+
+		m_shader->loadMatrix("u_modelView", camera.getViewMatrix() * m_model->m_modelMatrix, false);
+		m_shader->loadMatrix("u_projection", camera.getProjectionMatrix(), false);
+
+		glBindTexture(GL_TEXTURE_2D, m_texture->m_texture);
+		glBindVertexArray(m_vao);
+		glDrawElements(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0);
+		glBindVertexArray(0);
+		glBindTexture(GL_TEXTURE_2D, 0);
+		glUseProgram(0);
+	}
+}
+
+void Mesh::draw(const Camera camera, const Matrix4f &model) {
+	
+	if (m_material.materialID == Material::MaterialID::NONE) {
+		glUseProgram(m_material.shader->m_program);
+
+		m_material.shader->loadFloat("material.ambient", m_material.ambient);
+		m_material.shader->loadFloat("material.diffuse", m_material.diffuse);
+		m_material.shader->loadFloat("material.specular", m_material.specular);
+		m_material.shader->loadFloat("material.shininess", m_material.shininess);
+
+		m_material.shader->loadMatrix("u_modelView", camera.getViewMatrix() * model, false);
+		m_material.shader->loadMatrix("u_projection", camera.getProjectionMatrix(), false);
+
+		glBindVertexArray(m_vao);
+		glDrawElements(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0);
+		glBindVertexArray(0);
+
+		glUseProgram(0);
+
+	}else if (m_material.materialID == Material::MaterialID::GLOSSY) {
+		glUseProgram(m_material.shader->m_program);
+
+		m_material.shader->loadFloat("material.ambient", m_material.ambient);
+		m_material.shader->loadFloat("material.diffuse", m_material.diffuse);
+		m_material.shader->loadFloat("material.specular", m_material.specular);
+		m_material.shader->loadFloat("material.shininess", m_material.shininess);
+
+		//m_material.shader->loadFloat("diffuse", m_material.diffuse);
+		//m_material.shader->loadVector("diffuse", Vector4f(m_material.diffuse[0], m_material.diffuse[1], m_material.diffuse[2], m_material.diffuse[3]));
+
+		m_material.shader->loadMatrix("u_modelView", camera.getViewMatrix() * model, false);
+		m_material.shader->loadMatrix("u_projection", camera.getProjectionMatrix(), false);
+
+		glBindVertexArray(m_vao);
+		glDrawElements(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0);
+		glBindVertexArray(0);
+
+		glUseProgram(0);
+
+	}else if (m_material.materialID == Material::MaterialID::DIFFUSE) {
+		glUseProgram(m_material.shader->m_program);
+
+		m_material.shader->loadFloat("material.ambient", m_material.ambient);
+		m_material.shader->loadFloat("material.diffuse", m_material.diffuse);
+		m_material.shader->loadFloat("material.specular", m_material.specular);
+		m_material.shader->loadFloat("material.shininess", m_material.shininess);
+
+		m_material.shader->loadMatrix("u_modelView", camera.getViewMatrix() * model, false);
+		m_material.shader->loadMatrix("u_projection", camera.getProjectionMatrix(), false);
+
+		glBindVertexArray(m_vao);
+		glDrawElements(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0);
+		glBindVertexArray(0);
+
+		glUseProgram(0);
+
+	}else if (m_material.materialID == Material::MaterialID::NONE_TEXTURE) {
+		glUseProgram(m_material.shader->m_program);
+
+		m_material.shader->loadFloat("material.ambient", m_material.ambient);
+		m_material.shader->loadFloat("material.diffuse", m_material.diffuse);
+		m_material.shader->loadFloat("material.specular", m_material.specular);
+		m_material.shader->loadFloat("material.shininess", m_material.shininess);
+
+		m_material.shader->loadMatrix("u_modelView", camera.getViewMatrix() * model, false);
+		m_material.shader->loadMatrix("u_projection", camera.getProjectionMatrix(), false);
+		m_material.shader->loadInt("u_texture", 1);
+
+		m_texture->bind(1);
+		glBindTexture(GL_TEXTURE_2D, m_texture->m_texture);
+		glBindVertexArray(m_vao);
+		glDrawElements(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0);
+		glBindVertexArray(0);
+		glBindTexture(GL_TEXTURE_2D, 0);
+		m_texture->bind(0);
+		m_material.shader->loadInt("u_texture", 0);
+		glUseProgram(0);
+
+	}else if (m_material.materialID == Material::MaterialID::GLOSSY_TEXTURE) {
+		glUseProgram(m_material.shader->m_program);
+
+		m_material.shader->loadFloat("material.ambient", m_material.ambient);
+		m_material.shader->loadFloat("material.diffuse", m_material.diffuse);
+		m_material.shader->loadFloat("material.specular", m_material.specular);
+		m_material.shader->loadFloat("material.shininess", m_material.shininess);
+
+		m_material.shader->loadMatrix("u_modelView", camera.getViewMatrix() * model, false);
+		m_material.shader->loadMatrix("u_projection", camera.getProjectionMatrix(), false);
+		m_material.shader->loadInt("u_texture", 1);
+
+		m_texture->bind(1);
+		glBindTexture(GL_TEXTURE_2D, m_texture->m_texture);
+		glBindVertexArray(m_vao);
+		glDrawElements(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0);
+		glBindVertexArray(0);
+		glBindTexture(GL_TEXTURE_2D, 0);
+		m_texture->bind(0);
+		m_material.shader->loadInt("u_texture", 0);
+		glUseProgram(0);
+	}else if (m_material.materialID == Material::MaterialID::DIFFUSE_TEXTURE) {
+		glUseProgram(m_material.shader->m_program);
+
+		m_material.shader->loadFloat("material.ambient", m_material.ambient);
+		m_material.shader->loadFloat("material.diffuse", m_material.diffuse);
+		m_material.shader->loadFloat("material.specular", m_material.specular);
+		m_material.shader->loadFloat("material.shininess", m_material.shininess);
+
+		m_material.shader->loadMatrix("u_modelView", camera.getViewMatrix() * model, false);
+		m_material.shader->loadMatrix("u_projection", camera.getProjectionMatrix(), false);
+		m_material.shader->loadInt("u_texture", 1);
+
+		m_texture->bind(1);
+		glBindTexture(GL_TEXTURE_2D, m_texture->m_texture);
+		glBindVertexArray(m_vao);
+		glDrawElements(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0);
+		glBindVertexArray(0);
+		glBindTexture(GL_TEXTURE_2D, 0);
+		m_texture->bind(0);
+		m_material.shader->loadInt("u_texture", 0);
+		glUseProgram(0);
+	}else {
+
+		glUseProgram(m_shader->m_program);
+
+		m_shader->loadMatrix("u_modelView", camera.getViewMatrix() * model, false);
+		m_shader->loadMatrix("u_projection", camera.getProjectionMatrix(), false);
+
+		//glBindTexture(GL_TEXTURE_2D, m_texture->m_texture);
+		glBindVertexArray(m_vao);
+		glDrawElements(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0);
+		glBindVertexArray(0);
+		//glBindTexture(GL_TEXTURE_2D, 0);
+		glUseProgram(0);
+	}
 }
 
 Mesh::~Mesh() {}
