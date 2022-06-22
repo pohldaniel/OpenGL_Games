@@ -249,7 +249,14 @@ void Application::loadAssets() {
 	Globals::shaderManager.loadShader("quad", "res/shader/quad.vs", "res/shader/quad.fs");
 
 	Globals::shaderManager.loadShader("glossy", "res/materials/_glossy.vert", "res/materials/_glossy.frag");
+	Globals::shaderManager.loadShader("glossy_texture", "res/materials/glossy_texture.vert", "res/materials/glossy_texture.frag");
+	Globals::shaderManager.loadShader("glossy_instance", "res/materials/glossy_instance.vert", "res/materials/glossy_instance.frag");
+	Globals::shaderManager.loadShader("glossy_instance_texture", "res/materials/glossy_instance_texture.vert", "res/materials/glossy_instance_texture.frag");
+
 	Globals::shaderManager.loadShader("diffuse", "res/materials/_diffuse.vert", "res/materials/_diffuse.frag");
 	Globals::shaderManager.loadShader("diffuse_texture", "res/materials/diffuse_texture.vert", "res/materials/diffuse_texture.frag");
-	Globals::shaderManager.loadShader("glossy_texture", "res/materials/diffuse_texture.vert", "res/materials/diffuse_texture.frag");
+	Globals::shaderManager.loadShader("diffuse_instance", "res/materials/diffuse_instance.vert", "res/materials/diffuse_instance.frag");
+	Globals::shaderManager.loadShader("diffuse_instance_texture", "res/materials/diffuse_instance_texture.vert", "res/materials/diffuse_instance_texture.frag");
+
+	
 }

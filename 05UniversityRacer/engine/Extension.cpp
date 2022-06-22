@@ -603,3 +603,17 @@ GLboolean glUnmapBuffer(GLenum target) {
 
 	return glUnmapBuffer(target);
 }
+
+void glVertexAttribDivisor(GLuint index, GLuint divisor) {
+	typedef void(APIENTRY * PFNGLVERTEXATTRIBDIVISORPROC)(GLuint index, GLuint divisor);
+	static PFNGLVERTEXATTRIBDIVISORPROC  glVertexAttribDivisor = 0;
+	LOAD_ENTRYPOINT("glVertexAttribDivisor", glVertexAttribDivisor, PFNGLVERTEXATTRIBDIVISORPROC);
+	glVertexAttribDivisor(index, divisor);
+}
+
+void glDrawElementsInstanced(GLenum mode, GLsizei count, GLenum type, const void * indices, GLsizei instancecount) {
+	typedef void(APIENTRY * PFNGLDRAWELEMENTSINSTANCEDPROC)(GLenum mode, GLsizei count, GLenum type, const void * indices, GLsizei instancecount);
+	static PFNGLDRAWELEMENTSINSTANCEDPROC  glDrawElementsInstanced = 0;
+	LOAD_ENTRYPOINT("glDrawElementsInstanced", glDrawElementsInstanced, PFNGLDRAWELEMENTSINSTANCEDPROC);
+	glDrawElementsInstanced(mode, count, type, indices, instancecount);
+}

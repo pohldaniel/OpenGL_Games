@@ -48,7 +48,7 @@ public:
 	const Vector3f &getCenter() const;
 
 	void draw(const Camera camera);
-	void draw(const Camera camera, const Matrix4f &model);
+	void drawInstanced(const Camera camera);
 
 	//size values
 	unsigned int m_size, m_numVertices, m_numIndices, m_stride, m_offset, m_numberOfBytes;
@@ -63,7 +63,8 @@ public:
 	std::string getModelDirectory();
 
 	void setShader(const char* vertex, const char* fragment);
-	void Model::setModelMatrix(Matrix4f &modelMatrix) { m_modelMatrix = modelMatrix;}
+	void setModelMatrix(Matrix4f &modelMatrix) { m_modelMatrix = modelMatrix;}
+	void createInstances(std::vector<Matrix4f> modelMTX);
 
 	bool m_hasTextureCoords;
 	bool m_hasNormals;
@@ -120,7 +121,7 @@ public:
 	~Mesh();
 
 	void draw(const Camera camera);
-	void draw(const Camera camera, const Matrix4f &model);
+	void drawInstanced(const Camera camera);
 
 	void setMaterial(const Vector3f &ambient, const Vector3f &diffuse, const Vector3f &specular, float shinies);
 	Material getMaterial();
@@ -136,13 +137,16 @@ public:
 	///////////////////////////////////////OpenGL content////////////////// to do seperate it 
 
 	void createBuffer();
+	void createInstances(std::vector<Matrix4f> modelMTX);
 	void createShader();
 
 	short m_numBuffers;
 	unsigned int m_vao;
 	unsigned int m_vbo[4];
-	unsigned int m_drawCount;
+	unsigned int m_vbo2;
 
+	unsigned int m_drawCount;
+	unsigned int m_instanceCount = 0;
 	std::shared_ptr<Shader> m_shader;
 	std::shared_ptr<Texture> m_texture;
 

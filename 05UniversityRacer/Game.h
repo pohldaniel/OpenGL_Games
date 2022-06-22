@@ -20,10 +20,10 @@ public:
 
 	Camera camera;
 	Camera2 camera2;
-	Model *room, *car, *wheel[4], *chairs, *middesk, *sidedesk;
+	Model *room, *car, *wheel[4], *chair, *middesk, *sidedesk;
 	bool followCamera = true;
 
-	std::vector<Matrix4f> cols;
+	std::vector<Matrix4f> chairs;
 	std::vector<Matrix4f> middesks;
 	std::vector<Matrix4f> sidedesks;
 };

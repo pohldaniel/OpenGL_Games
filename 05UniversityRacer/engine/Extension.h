@@ -192,5 +192,9 @@ typedef char GLchar;
 
 	extern void *glMapBuffer(GLenum target, GLenum access);
 	extern GLboolean glUnmapBuffer(GLenum target);
+
+	extern void glVertexAttribDivisor(GLuint index, GLuint divisor);
+	extern void glDrawElementsInstanced(GLenum mode, GLsizei count, GLenum type, const void * indices, GLsizei instancecount);
+
 } // extern "C"
 #endif

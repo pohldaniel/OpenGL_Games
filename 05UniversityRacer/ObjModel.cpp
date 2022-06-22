@@ -307,15 +307,21 @@ void Model::draw(const Camera camera) {
 	}
 }
 
-void Model::draw(const Camera camera, const Matrix4f &model) {
+void Model::drawInstanced(const Camera camera) {
 	for (int j = 0; j < m_numberOfMeshes; j++) {
-		m_mesh[j]->draw(camera, model);
+		m_mesh[j]->drawInstanced(camera);
 	}
 }
 
 void Model::setShader(const char* vertex, const char* fragment) {
 	for (int j = 0; j < m_numberOfMeshes; j++) {
 		m_mesh[j]->m_shader.reset(new Shader(vertex, fragment));
+	}
+}
+
+void Model::createInstances(std::vector<Matrix4f> modelMTX) {
+	for (int j = 0; j < m_numberOfMeshes; j++) {
+		m_mesh[j]->createInstances(modelMTX);
 	}
 }
 
@@ -570,6 +576,57 @@ void Mesh::createBuffer() {
 	glBindVertexArray(0);
 }
 
+void Mesh::createInstances(std::vector<Matrix4f> modelMTX){
+	m_instanceCount = modelMTX.size();
+	
+	switch (m_material.materialID) {
+		case Material::MaterialID::GLOSSY:
+			m_material.shader = Globals::shaderManager.getAssetPointer("glossy_instance");
+			break;
+		case Material::MaterialID::GLOSSY_TEXTURE:
+			m_material.shader = Globals::shaderManager.getAssetPointer("glossy_instance_texture");
+			break;
+		case Material::MaterialID::DIFFUSE:
+			m_material.shader = Globals::shaderManager.getAssetPointer("diffuse_instance");
+			break;
+		case Material::MaterialID::DIFFUSE_TEXTURE:
+			m_material.shader = Globals::shaderManager.getAssetPointer("diffuse_instance_texture");
+			break;
+		case Material::MaterialID::NONE:
+			m_material.shader = Globals::shaderManager.getAssetPointer("diffuse_instance");
+			break;
+		case Material::MaterialID::NONE_TEXTURE:
+			m_material.shader = Globals::shaderManager.getAssetPointer("diffuse_instance_texture");
+			break;
+	}
+
+	glGenBuffers(1, &m_vbo2);
+
+	glBindVertexArray(m_vao);
+	
+	glBindBuffer(GL_ARRAY_BUFFER, m_vbo2);
+	glBufferData(GL_ARRAY_BUFFER, modelMTX.size() * sizeof(GLfloat) * 4 * 4, modelMTX[0][0], GL_STATIC_DRAW);
+	//glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	
+	glEnableVertexAttribArray(3);
+	glEnableVertexAttribArray(4);
+	glEnableVertexAttribArray(5);
+	glEnableVertexAttribArray(6);
+	glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 4 * 4, (void*)(0));
+	glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 4 * 4, (void*)(sizeof(float) * 4));
+	glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 4 * 4, (void*)(sizeof(float) * 8));
+	glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 4 * 4, (void*)(sizeof(float) * 12));
+
+	glVertexAttribDivisor(3, 1);
+	glVertexAttribDivisor(4, 1);
+	glVertexAttribDivisor(5, 1);
+	glVertexAttribDivisor(6, 1);
+
+
+	glBindVertexArray(0);
+}
+
 void Mesh::draw(const Camera camera) {
 
 	if (m_material.materialID == Material::MaterialID::NONE) {
@@ -590,7 +647,7 @@ void Mesh::draw(const Camera camera) {
 
 		glUseProgram(0);
 
-	}else if (m_material.materialID == Material::MaterialID::GLOSSY) {
+	}else if(m_material.materialID == Material::MaterialID::GLOSSY) {
 		
 		glUseProgram(m_material.shader->m_program);
 
@@ -705,9 +762,9 @@ void Mesh::draw(const Camera camera) {
 	}
 }
 
-void Mesh::draw(const Camera camera, const Matrix4f &model) {
-	
+void Mesh::drawInstanced(const Camera camera) {
 	if (m_material.materialID == Material::MaterialID::NONE) {
+
 		glUseProgram(m_material.shader->m_program);
 
 		m_material.shader->loadFloat("material.ambient", m_material.ambient);
@@ -715,11 +772,11 @@ void Mesh::draw(const Camera camera, const Matrix4f &model) {
 		m_material.shader->loadFloat("material.specular", m_material.specular);
 		m_material.shader->loadFloat("material.shininess", m_material.shininess);
 
-		m_material.shader->loadMatrix("u_modelView", camera.getViewMatrix() * model, false);
+		m_material.shader->loadMatrix("u_modelView", camera.getViewMatrix(), false);
 		m_material.shader->loadMatrix("u_projection", camera.getProjectionMatrix(), false);
 
 		glBindVertexArray(m_vao);
-		glDrawElements(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0);
+		glDrawElementsInstanced(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0, m_instanceCount);
 		glBindVertexArray(0);
 
 		glUseProgram(0);
@@ -732,14 +789,11 @@ void Mesh::draw(const Camera camera, const Matrix4f &model) {
 		m_material.shader->loadFloat("material.specular", m_material.specular);
 		m_material.shader->loadFloat("material.shininess", m_material.shininess);
 
-		//m_material.shader->loadFloat("diffuse", m_material.diffuse);
-		//m_material.shader->loadVector("diffuse", Vector4f(m_material.diffuse[0], m_material.diffuse[1], m_material.diffuse[2], m_material.diffuse[3]));
-
-		m_material.shader->loadMatrix("u_modelView", camera.getViewMatrix() * model, false);
+		m_material.shader->loadMatrix("u_modelView", camera.getViewMatrix(), false);
 		m_material.shader->loadMatrix("u_projection", camera.getProjectionMatrix(), false);
 
 		glBindVertexArray(m_vao);
-		glDrawElements(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0);
+		glDrawElementsInstanced(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0, m_instanceCount);
 		glBindVertexArray(0);
 
 		glUseProgram(0);
@@ -752,11 +806,11 @@ void Mesh::draw(const Camera camera, const Matrix4f &model) {
 		m_material.shader->loadFloat("material.specular", m_material.specular);
 		m_material.shader->loadFloat("material.shininess", m_material.shininess);
 
-		m_material.shader->loadMatrix("u_modelView", camera.getViewMatrix() * model, false);
+		m_material.shader->loadMatrix("u_modelView", camera.getViewMatrix(), false);
 		m_material.shader->loadMatrix("u_projection", camera.getProjectionMatrix(), false);
 
 		glBindVertexArray(m_vao);
-		glDrawElements(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0);
+		glDrawElementsInstanced(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0, m_instanceCount);
 		glBindVertexArray(0);
 
 		glUseProgram(0);
@@ -769,20 +823,16 @@ void Mesh::draw(const Camera camera, const Matrix4f &model) {
 		m_material.shader->loadFloat("material.specular", m_material.specular);
 		m_material.shader->loadFloat("material.shininess", m_material.shininess);
 
-		m_material.shader->loadMatrix("u_modelView", camera.getViewMatrix() * model, false);
+		m_material.shader->loadMatrix("u_modelView", camera.getViewMatrix(), false);
 		m_material.shader->loadMatrix("u_projection", camera.getProjectionMatrix(), false);
-		m_material.shader->loadInt("u_texture", 1);
 
-		m_texture->bind(1);
 		glBindTexture(GL_TEXTURE_2D, m_texture->m_texture);
 		glBindVertexArray(m_vao);
-		glDrawElements(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0);
+		glDrawElementsInstanced(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0, m_instanceCount);
 		glBindVertexArray(0);
 		glBindTexture(GL_TEXTURE_2D, 0);
-		m_texture->bind(0);
-		m_material.shader->loadInt("u_texture", 0);
-		glUseProgram(0);
 
+		glUseProgram(0);
 	}else if (m_material.materialID == Material::MaterialID::GLOSSY_TEXTURE) {
 		glUseProgram(m_material.shader->m_program);
 
@@ -791,19 +841,17 @@ void Mesh::draw(const Camera camera, const Matrix4f &model) {
 		m_material.shader->loadFloat("material.specular", m_material.specular);
 		m_material.shader->loadFloat("material.shininess", m_material.shininess);
 
-		m_material.shader->loadMatrix("u_modelView", camera.getViewMatrix() * model, false);
+		m_material.shader->loadMatrix("u_modelView", camera.getViewMatrix(), false);
 		m_material.shader->loadMatrix("u_projection", camera.getProjectionMatrix(), false);
-		m_material.shader->loadInt("u_texture", 1);
-
-		m_texture->bind(1);
+		
 		glBindTexture(GL_TEXTURE_2D, m_texture->m_texture);
 		glBindVertexArray(m_vao);
-		glDrawElements(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0);
+		glDrawElementsInstanced(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0, m_instanceCount);
 		glBindVertexArray(0);
 		glBindTexture(GL_TEXTURE_2D, 0);
-		m_texture->bind(0);
-		m_material.shader->loadInt("u_texture", 0);
+		
 		glUseProgram(0);
+
 	}else if (m_material.materialID == Material::MaterialID::DIFFUSE_TEXTURE) {
 		glUseProgram(m_material.shader->m_program);
 
@@ -812,32 +860,18 @@ void Mesh::draw(const Camera camera, const Matrix4f &model) {
 		m_material.shader->loadFloat("material.specular", m_material.specular);
 		m_material.shader->loadFloat("material.shininess", m_material.shininess);
 
-		m_material.shader->loadMatrix("u_modelView", camera.getViewMatrix() * model, false);
+		m_material.shader->loadMatrix("u_modelView", camera.getViewMatrix(), false);
 		m_material.shader->loadMatrix("u_projection", camera.getProjectionMatrix(), false);
-		m_material.shader->loadInt("u_texture", 1);
 
-		m_texture->bind(1);
 		glBindTexture(GL_TEXTURE_2D, m_texture->m_texture);
 		glBindVertexArray(m_vao);
-		glDrawElements(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0);
+		glDrawElementsInstanced(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0, m_instanceCount);
 		glBindVertexArray(0);
 		glBindTexture(GL_TEXTURE_2D, 0);
-		m_texture->bind(0);
-		m_material.shader->loadInt("u_texture", 0);
+
 		glUseProgram(0);
 	}else {
-
-		glUseProgram(m_shader->m_program);
-
-		m_shader->loadMatrix("u_modelView", camera.getViewMatrix() * model, false);
-		m_shader->loadMatrix("u_projection", camera.getProjectionMatrix(), false);
-
-		//glBindTexture(GL_TEXTURE_2D, m_texture->m_texture);
-		glBindVertexArray(m_vao);
-		glDrawElements(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0);
-		glBindVertexArray(0);
-		//glBindTexture(GL_TEXTURE_2D, 0);
-		glUseProgram(0);
+		std::cout << "-------------" << std::endl;
 	}
 }
 

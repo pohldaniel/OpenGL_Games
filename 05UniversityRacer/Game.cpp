@@ -25,8 +25,8 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	room = new Model();
 	room->loadObject("res/room/room.obj", Vector3f(0.0, 0.0, 1.0), 0.0, Vector3f(0.0, 0.0, 0.0), 0.05f);
 
-	chairs = new Model();
-	chairs->loadObject("res/chairs/chairs.obj", Vector3f(0.0, 0.0, 1.0), 0.0, Vector3f(0, 0, 0), 0.05f);
+	chair = new Model();
+	chair->loadObject("res/chairs/chairs.obj", Vector3f(0.0, 0.0, 1.0), 0.0, Vector3f(0, 0, 0), 0.05f);
 
 	middesk = new Model();
 	middesk->loadObject("res/desk-mid/desk-mid.obj", Vector3f(0.0, 0.0, 1.0), 0.0, Vector3f(0, 0, 0), 0.05f);
@@ -45,7 +45,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 		glm::translate(glm::mat4(1.0), glm::vec3(-740, 99, -470))
 	};
 
-	std::vector<btCollisionShape*> chairShapes = Physics::CreateStaticCollisionShapes2(chairs, 1.0f);
+	std::vector<btCollisionShape*> chairShapes = Physics::CreateStaticCollisionShapes2(chair, 1.0f);
 
 	for (unsigned int rowI = 0; rowI < 5; rowI++){
 		int offsetX = 0; // posunuti zidle na radku
@@ -59,7 +59,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 			col[3][1] = col[3][1] * 0.05f;
 			col[3][2] = col[3][2] * 0.05f;
 
-			cols.push_back(Matrix4f(col[0][0], col[0][1], col[0][2], col[0][3],
+			chairs.push_back(Matrix4f(col[0][0], col[0][1], col[0][2], col[0][3],
 									col[1][0], col[1][1], col[1][2], col[1][3], 
 									col[2][0], col[2][1], col[2][2], col[2][3], 
 									col[3][0], col[3][1], col[3][2], col[3][3]));
@@ -70,7 +70,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 			Globals::physics->AddStaticModel(chairShapes, PhysicsUtils::btTransFrom(col), false);
 		}
 	}
-
+	chair->createInstances(chairs);
 	
 	glm::mat4 rows2[] = {
 		glm::translate(glm::mat4(1.0), glm::vec3(-365, 13, -43)),
@@ -99,8 +99,8 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 		//container->queueDraw(middesk, col);
 		//shadowVolumes->addModel(middesk, col);
 	}
+	middesk->createInstances(middesks);
 
-	
 	glm::mat4 rows3[] = {
 		glm::translate(glm::mat4(1.0), glm::vec3(-785,  20, -15)),
 		glm::translate(glm::mat4(1.0), glm::vec3(-785,  40, -115)),
@@ -113,8 +113,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 
 	glm::vec3 otherside(1250 * 0.05f, 0, 0);
 
-	for (unsigned int rowI = 0; rowI < 5; rowI++)
-	{
+	for (unsigned int rowI = 0; rowI < 5; rowI++){
 		// leva strana (z pohledu z katedry)
 		glm::mat4 col = glm::translate(rows3[rowI], glm::vec3(0, 0, 0));
 		col[3][0] = col[3][0] * 0.05f;
@@ -145,6 +144,8 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 
 		Globals::physics->AddStaticModel(sidedeskShapes, PhysicsUtils::btTransFrom(mat), false);
 	}
+
+	sidedesk->createInstances(sidedesks);
 }
 
 Game::~Game() {}
@@ -266,17 +267,10 @@ void Game::render(unsigned int &frameBuffer) {
 	wheel[2]->draw(camera);
 	wheel[3]->draw(camera);
 
-	for (const auto& col : cols) {
-		chairs->draw(camera, col);
-	}
-
-	for (const auto& col : middesks) {
-		middesk->draw(camera, col);
-	}
-
-	for (const auto& col : sidedesks) {
-		sidedesk->draw(camera, col);
-	}
+	chair->drawInstanced(camera);
+	middesk->drawInstanced(camera);
+	sidedesk->drawInstanced(camera);
+	
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
