@@ -82,8 +82,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 
 	std::vector<btCollisionShape*> middeskShapes = Physics::CreateStaticCollisionShapes2(middesk, 1.0f);
 
-	for (unsigned int rowI = 0; rowI < 5; rowI++)
-	{
+	for (unsigned int rowI = 0; rowI < 5; rowI++){
 		glm::mat4 col = glm::translate(rows2[rowI], glm::vec3(0, 0, 0));
 		col[3][0] = col[3][0] * 0.05f;
 		col[3][1] = col[3][1] * 0.05f;

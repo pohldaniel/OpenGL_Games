@@ -137,7 +137,7 @@ void Physics::AddStaticModel(std::vector<btCollisionShape *> & collisionShapes, 
 
 btCollisionShape * Physics::CreateStaticCollisionShape2(Mesh * mesh, const btVector3 & scale) {
 	
-	btTriangleMesh* tiva = new btTriangleMesh();
+	/*btTriangleMesh* tiva = new btTriangleMesh();
 	for (int i = 0; i < mesh->m_numberOfTriangles; i++){
 		Vector3f v1 = mesh->m_positions[mesh->m_indexBuffer[i*3]];
 		Vector3f v2 = mesh->m_positions[mesh->m_indexBuffer[i*3 + 1]];
@@ -151,35 +151,14 @@ btCollisionShape * Physics::CreateStaticCollisionShape2(Mesh * mesh, const btVec
 	}
 
 	btCollisionShape* shape = new btBvhTriangleMeshShape(tiva, true);
-	shape->setLocalScaling(btVector3(1.0, 1.0, 1.0));
-		
-	/*std::vector<std::array<int, 3>> faces;
-	//std::vector<int> faces;
-	std::vector<Vector3f> vertices;
-
-	for (int i = 0; i < mesh->m_numberOfTriangles; i++) {
-		faces.push_back({ mesh->m_indexBuffer[i * 3 + 0],  mesh->m_indexBuffer[i * 3 + 1],  mesh->m_indexBuffer[i * 3 + 2] });
-		//faces.push_back(mesh->m_indexBuffer[i * 3 + 0]);
-		//faces.push_back(mesh->m_indexBuffer[i * 3 + 1]);
-		//faces.push_back(mesh->m_indexBuffer[i * 3 + 2]);
-	}
-
-	for (int i = 0; i < mesh->m_positions.size(); i++) {
-		vertices.push_back(Vector3f(mesh->m_positions[i][0], mesh->m_positions[i][1], mesh->m_positions[i][2]));
-	}
-
+	shape->setLocalScaling(btVector3(1.0, 1.0, 1.0)); */
 	
-	int numTriangles = mesh->m_numberOfTriangles;
-	int numVertices = mesh->m_positions.size();
-	
-	int vertStride = sizeof(Vector3f);
 	int indexStride = 3 * sizeof(int);
-	
-	btTriangleIndexVertexArray* tiva = new btTriangleIndexVertexArray(numTriangles, &faces[0], indexStride,
-		numVertices, (btScalar*)(&vertices[0]), vertStride);
+	btTriangleIndexVertexArray* tiva = new btTriangleIndexVertexArray(mesh->m_numberOfTriangles, (int*)(&mesh->m_indexBuffer[0]), indexStride,
+		mesh->m_positions.size(), (btScalar*)(&mesh->m_positions[0]), sizeof(Vector3f));
 
 	btBvhTriangleMeshShape *shape = new btBvhTriangleMeshShape(tiva, true);
-	shape->setLocalScaling(btVector3(1.0, 1.0, 1.0));*/
+	shape->setLocalScaling(btVector3(1.0, 1.0, 1.0));
 
 	return shape;
 }

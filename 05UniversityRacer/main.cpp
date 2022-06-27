@@ -3,7 +3,7 @@
 #include <windows.h>	
 #include <tchar.h>
 #include <iostream>
-
+#include <stdlib.h>
 #include "engine\Clock.h"
 #include "Application.h"
 #include "Constants.h"
