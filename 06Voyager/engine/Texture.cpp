@@ -171,6 +171,23 @@ void Texture::loadFromFile(std::string pictureFile, unsigned int _offsetX, unsig
 	SOIL_free_image_data(imageData);
 }
 
+void Texture::createNullTexture(unsigned int width, unsigned int height) {
+	int pitch = ((width * 32 + 31) & ~31) >> 3; // align to 4-byte boundaries
+	std::vector<unsigned char> pixels(pitch * height, 255);
+	
+	glGenTextures(1, &m_texture);
+	glBindTexture(GL_TEXTURE_2D, m_texture);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_BGRA, GL_UNSIGNED_BYTE, &pixels[0]);
+
+	glBindTexture(GL_TEXTURE_2D, 0);
+}
+
 void Texture::CutSubimage(std::string fileIn, std::string fileOut, unsigned int _offsetX, unsigned int _offsetY, unsigned int _width, unsigned int _height, const bool _flipVertical) {
 
 	int width, height, numCompontents;

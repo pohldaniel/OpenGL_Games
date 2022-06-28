@@ -113,29 +113,27 @@ public:
 
 	static Keyboard &instance();
 
-	int getLastChar() const
-	{
+	int getLastChar() const{
 		return m_lastChar;
 	}
 
-	bool keyDown(Key key) const
-	{
+	bool keyDown(Key key) const{
 		return (m_pCurrKeyStates[key] & 0x80) ? true : false;
 	}
 
-	bool keyUp(Key key) const
-	{
+	bool keyUp(Key key) const{
 		return (m_pCurrKeyStates[key] & 0x80) ? false : true;
 	}
 
-	bool keyPressed(Key key) const
-	{
+	bool keyPressed(Key key) const{
 		return ((m_pCurrKeyStates[key] & 0x80)
 			&& !(m_pPrevKeyStates[key] & 0x80)) ? true : false;
 	}
 
 	void handleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 	void update();
+	void disable();
+	void enable();
 
 private:
 	Keyboard();
@@ -145,4 +143,5 @@ private:
 	BYTE m_keyStates[2][256];
 	BYTE *m_pCurrKeyStates;
 	BYTE *m_pPrevKeyStates;
+	bool m_disabled = false;
 };

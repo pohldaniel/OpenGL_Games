@@ -18,7 +18,8 @@ public:
 	void orthographic(float left, float right, float bottom, float top, float znear, float zfar);
 	void lookAt(const Vector3f &eye, const Vector3f &target, const Vector3f &up);
 	void move(float dx, float dy, float dz);
-	void rotate(float pitch, float yaw, float roll);
+	void rotate(float yaw, float pitch, float roll);
+	void rotateSmoothly(float yaw, float pitch, float roll);
 
 	const Matrix4f &getViewMatrix() const;
 	const Matrix4f &getInvViewMatrix() const;
@@ -34,9 +35,14 @@ public:
 	void setPosition(float x, float y, float z);
 	void setPosition(const Vector3f &position);
 
+	void setAcceleration(const Vector3f &acceleration);
+	void setVelocity(const Vector3f &velocity);
+	void updatePosition(const Vector3f &direction, float m_dt);
+	void setRotationSpeed(float rotationSpeed);
+
 protected:
 
-    void rotateFirstPerson(float pitch, float yaw);
+    void rotateFirstPerson(float yaw, float pitch);
 	void updateViewMatrix(bool orthogonalizeAxes);
 	void updateViewMatrix(const Vector3f &eye, const Vector3f &target, const Vector3f &up);
 
@@ -49,12 +55,16 @@ protected:
     float			m_zfar;
 	float			m_aspectRatio;
 	float			m_accumPitchDegrees;
+	float			m_rotationSpeed;
 
 	Vector3f		m_eye;
 	Vector3f		m_xAxis;
     Vector3f		m_yAxis;
     Vector3f		m_zAxis;
 	Vector3f		m_viewDir;
+	Vector3f		m_currentVelocity;
+	Vector3f		m_acceleration;
+	Vector3f		m_velocity;
 
 	Matrix4f		m_viewMatrix;
 	Matrix4f		m_invViewMatrix;

@@ -75,7 +75,7 @@ void main(void) {
 	
 	vec4 ambient = vec4(1.0f, 1.0f, 1.0f, 1.0f);
     vec4 diffuse = vec4(1.0f, 1.0f, 1.0f, 1.0f) * nDotL;
-    vec4 color = vec4(1.0f, 1.0f, 1.0f, 1.0f) + ambient + diffuse;   
+    vec4 color =  ambient + diffuse;   
 	
-	outColor = GenerateTerrainColor();
+	outColor = color * GenerateTerrainColor();
 }

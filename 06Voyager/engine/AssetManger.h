@@ -18,6 +18,10 @@ public:
 		m_assets[name].loadFromFile(path, offsetX, offsetY, width, height, true, format, linear);
 	}
 
+	void createNullTexture(const std::string& name, unsigned int width = 2, unsigned int height = 2) {
+		m_assets[name].createNullTexture(width, height);
+	}
+
 	void loadCharacterSet(const std::string& name, const std::string& path, const float characterSize) {
 		m_assets.insert(std::pair<std::string, T>(name, T()));
 		m_assets[name].loadFromFile(path, characterSize);
@@ -93,6 +97,10 @@ public:
 
 	void loadTexture(const std::string& name, const std::string& path, unsigned int offsetX, unsigned int offsetY, unsigned int width, unsigned int height, unsigned int format = -1, const bool linear = false) {
 		m_assets[name].loadFromFile(path, offsetX, offsetY, width, height, true, format, linear);
+	}
+
+	void createNullTexture(const std::string& name, unsigned int width = 2, unsigned int height = 2) {
+		m_assets[name].createNullTexture(width, height);
 	}
 
 	void loadCharacterSet(const std::string& name, const std::string& path, const float characterSize) {

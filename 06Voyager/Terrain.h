@@ -117,9 +117,15 @@ public:
 	void draw(const Camera& camera);
 	bool generateUsingDiamondSquareFractal(float roughness);
 	void update(const Vector3f &cameraPos);
+	void setDisableColorMaps(bool flag) {
+		m_disableColorMaps = flag;
+	}
 
-	const HeightMap &getHeightMap() const
-	{
+	void toggleDisableColorMaps() {
+		m_disableColorMaps = !m_disableColorMaps;
+	}
+
+	const HeightMap &getHeightMap() const{
 		return m_heightMap;
 	}
 
@@ -160,7 +166,7 @@ private:
 	int m_totalVertices;
 	int m_totalIndices;
 	HeightMap m_heightMap;
-
+	bool m_disableColorMaps;
 	unsigned int m_vbo, m_ibo, m_vao;
 };
 

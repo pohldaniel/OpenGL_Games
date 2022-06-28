@@ -110,6 +110,7 @@ LRESULT Application::DisplayWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 			break;
 		}case WM_LBUTTONDOWN: { // Capture the mouse
 			Mouse::instance().attach2(hWnd);
+			Keyboard::instance().enable();
 			break;
 		}case WM_KEYDOWN: {
 
@@ -122,6 +123,7 @@ LRESULT Application::DisplayWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 					break;
 				}case VK_SPACE: {
 					Mouse::instance().detach2();
+					Keyboard::instance().disable();
 					break;
 				}
 			}
@@ -270,4 +272,5 @@ void Application::loadAssets() {
 	Globals::textureManager.loadTexture("grass", "res/textures/grass.JPG", true, true);
 	Globals::textureManager.loadTexture("rock", "res/textures/rock.JPG", true, true);
 	Globals::textureManager.loadTexture("snow", "res/textures/snow.JPG", true, true);
+	Globals::textureManager.createNullTexture("null");
 }

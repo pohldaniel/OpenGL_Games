@@ -17,7 +17,11 @@ public:
 	virtual void fixedUpdate() override;
 	virtual void update() override;
 	virtual void render(unsigned int &m_frameBuffer) override;
+	void performCameraCollisionDetection();
 
-	Camera camera;
+	Camera m_camera;
 	Terrain m_terrain;
+
+	Vector3f m_cameraBoundsMax;
+	Vector3f m_cameraBoundsMin;
 };

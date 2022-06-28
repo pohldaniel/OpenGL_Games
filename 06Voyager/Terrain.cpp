@@ -358,6 +358,7 @@ Terrain::Terrain()
 	
 	m_totalVertices = 0;
 	m_totalIndices = 0;
+	m_disableColorMaps = false;
 }
 
 Terrain::~Terrain()
@@ -371,11 +372,13 @@ bool Terrain::create(int size, int gridSpacing, float scale){
 	m_textures["grass"] = &Globals::textureManager.get("grass");
 	m_textures["rock"] = &Globals::textureManager.get("rock");
 	m_textures["snow"] = &Globals::textureManager.get("snow");
-	
+	m_textures["null"] = &Globals::textureManager.get("null");
+
 	m_textures["dirt"]->setRepeat();
 	m_textures["grass"]->setRepeat();
 	m_textures["rock"]->setRepeat();
 	m_textures["snow"]->setRepeat();
+	m_textures["null"]->setRepeat();
 
 	const float HEIGHTMAP_SCALE = 2.0f;
 	m_regions[0].min = 0.0f;
@@ -485,10 +488,19 @@ void Terrain::terrainDraw(const Camera& camera)
 	m_terrainShader->loadInt("region3ColorMap", 2);
 	m_terrainShader->loadInt("region4ColorMap", 3);
 
-	m_textures["dirt"]->bind(0);
-	m_textures["grass"]->bind(1);
-	m_textures["rock"]->bind(2);
-	m_textures["snow"]->bind(3);
+	if (m_disableColorMaps) {
+		m_textures["null"]->bind(0);
+		m_textures["null"]->bind(1);
+		m_textures["null"]->bind(2);
+		m_textures["null"]->bind(3);
+
+	}else {
+		m_textures["dirt"]->bind(0);
+		m_textures["grass"]->bind(1);
+		m_textures["rock"]->bind(2);
+		m_textures["snow"]->bind(3);
+	}
+	
 
 	glBindVertexArray(m_vao);
 	glDrawElements(GL_TRIANGLE_STRIP, m_totalIndices, GL_UNSIGNED_INT, 0);

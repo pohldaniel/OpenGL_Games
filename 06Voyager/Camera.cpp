@@ -24,6 +24,10 @@ Camera::Camera(){
 	m_orthMatrix.identity();
 	
 	updateViewMatrix(false);
+
+	m_acceleration.set(0.0f, 0.0f, 0.0f);
+	m_currentVelocity.set(0.0f, 0.0f, 0.0f);
+	m_velocity.set(0.0f, 0.0f, 0.0f);
 }
 
 Camera::Camera(const Vector3f &eye, const Vector3f &target, const Vector3f &up) {
@@ -250,12 +254,97 @@ void Camera::move(float dx, float dy, float dz){
 	setPosition(eye);
 }
 
+void Camera::updatePosition(const Vector3f &direction, float m_dt) {
+
+	if (m_currentVelocity.lengthSq() != 0.0f) {
+		Vector3f displacement = (m_currentVelocity * m_dt) + (0.5f * m_acceleration * m_dt * m_dt);
+		move(displacement[0], displacement[1], displacement[2]);
+	}
+
+	if (direction[0] != 0.0f){
+		// Camera is moving along the x axis.
+		// Linearly accelerate up to the camera's max speed.
+
+		m_currentVelocity[0] += direction[0] * m_acceleration[0] * m_dt;
+
+		if (m_currentVelocity[0] > m_velocity[0])
+			m_currentVelocity[0] = m_velocity[0];
+		else if (m_currentVelocity[0] < -m_velocity[0])
+			m_currentVelocity[0] = -m_velocity[0];
+	}else{
+		// Camera is no longer moving along the x axis.
+		// Linearly decelerate back to stationary state.
+
+		if (m_currentVelocity[0] > 0.0f){
+			if ((m_currentVelocity[0] -= m_acceleration[0] * m_dt) < 0.0f)
+				m_currentVelocity[0] = 0.0f;
+
+		}else{
+
+			if ((m_currentVelocity[0] += m_acceleration[0] * m_dt) > 0.0f)
+				m_currentVelocity[0] = 0.0f;
+		}
+	}
+
+	if (direction[1] != 0.0f){
+		// Camera is moving along the y axis.
+		// Linearly accelerate up to the camera's max speed.
+		m_currentVelocity[1] += direction[1] * m_acceleration[1] * m_dt;
+
+		if (m_currentVelocity[1] > m_velocity[1])
+			m_currentVelocity[1] = m_velocity[1];
+		else if (m_currentVelocity[1] < -m_velocity[1])
+			m_currentVelocity[1] = -m_velocity[1];
+	}else{
+		// Camera is no longer moving along the y axis.
+		// Linearly decelerate back to stationary state.
+
+		if (m_currentVelocity[1] > 0.0f){
+			if ((m_currentVelocity[1] -= m_acceleration[1] * m_dt) < 0.0f)
+				m_currentVelocity[1] = 0.0f;
+
+		}else{
+			if ((m_currentVelocity[1] += m_acceleration[1] * m_dt) > 0.0f)
+				m_currentVelocity[1] = 0.0f;
+		}
+	}
+
+	if (direction[2] != 0.0f){
+		// Camera is moving along the z axis.
+		// Linearly accelerate up to the camera's max speed.
+
+		m_currentVelocity[2] += direction[2] * m_acceleration[2] * m_dt;
+
+		if (m_currentVelocity[2] > m_velocity[2])
+			m_currentVelocity[2] = m_velocity[2];
+		else if (m_currentVelocity[2] < -m_velocity[2])
+			m_currentVelocity[2] = -m_velocity[2];
+	}else{
+		// Camera is no longer moving along the z axis.
+		// Linearly decelerate back to stationary state.
+
+		if (m_currentVelocity[2] > 0.0f){
+			if ((m_currentVelocity[2] -= m_acceleration[2] * m_dt) < 0.0f)
+				m_currentVelocity[2] = 0.0f;
+
+		}else{
+			if ((m_currentVelocity[2] += m_acceleration[2] * m_dt) > 0.0f)
+				m_currentVelocity[2] = 0.0f;
+		}
+	}
+}
+
 void Camera::rotate(float yaw, float pitch, float roll){
-	rotateFirstPerson(pitch, yaw);
+	rotateFirstPerson(yaw, pitch);
 	updateViewMatrix(true);
 }
 
-void Camera::rotateFirstPerson(float pitch, float yaw){
+void Camera::rotateSmoothly(float yaw, float pitch, float roll) {
+	rotateFirstPerson(yaw * m_rotationSpeed, pitch * m_rotationSpeed);
+	updateViewMatrix(true);
+}
+
+void Camera::rotateFirstPerson(float yaw, float pitch){
 
 	m_accumPitchDegrees += pitch;
 
@@ -284,8 +373,6 @@ void Camera::rotateFirstPerson(float pitch, float yaw){
 		m_yAxis = rotMtx * m_yAxis;
 		m_zAxis = rotMtx * m_zAxis;
 	}
-
-	//std::cout << m_xAxis[0] << "  " << m_xAxis[1] << "  " << m_xAxis[2] << std::endl;
 }
 
 void Camera::setPosition(float x, float y, float z){
@@ -296,6 +383,18 @@ void Camera::setPosition(float x, float y, float z){
 void Camera::setPosition(const Vector3f &position){
 	m_eye = position;
 	updateViewMatrix(false);
+}
+
+void Camera::setAcceleration(const Vector3f &acceleration) {
+	m_acceleration = acceleration;
+}
+
+void Camera::setVelocity(const Vector3f &velocity){
+	m_velocity = velocity;
+}
+
+void Camera::setRotationSpeed(float rotationSpeed){
+	m_rotationSpeed = rotationSpeed;
 }
 
 const Vector3f &Camera::getPosition() const{

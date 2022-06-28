@@ -6,6 +6,9 @@ const float     HEIGHTMAP_TILING_FACTOR = 12.0f;
 const int       HEIGHTMAP_SIZE = 128;
 const int       HEIGHTMAP_GRID_SPACING = 16;
 const float     CAMERA_Y_OFFSET = 25.0f;
+const Vector3f   CAMERA_ACCELERATION(400.0f, 400.0f, 400.0f);
+const Vector3f   CAMERA_VELOCITY(200.0f, 200.0f, 200.0f);
+
 
 Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 
@@ -19,10 +22,23 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	pos[1] = m_terrain.getHeightMap().heightAt(pos[0], pos[2]) + CAMERA_Y_OFFSET;
 
 	//setup the camera.
-	camera = Camera();
-	//camera.lookAt(pos, Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
-	camera.setPosition(pos);
+	m_camera = Camera();
+	m_camera.lookAt(pos, Vector3f(pos[0] + 100.0f, pos[1] + 50.0f, pos[2] + 100.0f), Vector3f(0.0f, 1.0f, 0.0f));
+	//camera.setPosition(pos);
+	m_camera.setAcceleration(CAMERA_ACCELERATION);
+	m_camera.setVelocity(CAMERA_VELOCITY);
+	m_camera.setRotationSpeed(0.1f);
 
+	float upperBounds = (HEIGHTMAP_SIZE * HEIGHTMAP_GRID_SPACING - (2.0f * HEIGHTMAP_GRID_SPACING));
+	float lowerBounds = static_cast<float>(HEIGHTMAP_GRID_SPACING);
+
+	m_cameraBoundsMax[0] = upperBounds;
+	m_cameraBoundsMax[1] = HEIGHTMAP_SIZE * HEIGHTMAP_GRID_SPACING * 2.0f;
+	m_cameraBoundsMax[2] = upperBounds;
+
+	m_cameraBoundsMin[0] = lowerBounds;
+	m_cameraBoundsMin[1] = 0.0f;
+	m_cameraBoundsMin[2] = lowerBounds;
 }
 
 Game::~Game() {}
@@ -68,30 +84,58 @@ void Game::update() {
 		move |= true;
 	}
 
+	if (keyboard.keyPressed(Keyboard::KEY_T) ) {
+		m_terrain.toggleDisableColorMaps();
+	}
+
 	Mouse &mouse = Mouse::instance();
-	dx = mouse.xPosRelative() * 0.1f;
-	dy = mouse.yPosRelative() * 0.1f;
+	dx = mouse.xPosRelative();
+	dy = mouse.yPosRelative();
 
 	if (move || dx != 0.0f || dy != 0.0f) {
 
 		// rotate camera
 		if (dx || dy) {
-			camera.rotate(dx, dy, 0.0f);
+			m_camera.rotateSmoothly(dx, dy, 0.0f);
 			
 		} // end if any rotation
 
 		if (move) {
-			float speed = 1.3f;
-			camera.move(directrion[0] * speed, directrion[1] * speed, directrion[2] * speed);
+			//float speed = 1.3f;
+			m_camera.updatePosition(directrion, m_dt);
 		}
 
 	}// end if any movement
+
+	performCameraCollisionDetection();
 };
 
 void Game::render(unsigned int &frameBuffer) {
 	//glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
 	glClearColor(0.3f, 0.5f, 0.9f, 0.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-	m_terrain.draw(camera);
+	m_terrain.draw(m_camera);
 	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+void Game::performCameraCollisionDetection(){
+
+	const Vector3f &pos = m_camera.getPosition();
+	Vector3f newPos(pos);
+
+	if (pos[0] > m_cameraBoundsMax[0])
+		newPos[0] = m_cameraBoundsMax[0];
+
+	if (pos[0] < m_cameraBoundsMin[0])
+		newPos[0] = m_cameraBoundsMin[0];
+
+	if (pos[2] > m_cameraBoundsMax[2])
+		newPos[2] = m_cameraBoundsMax[2];
+
+	if (pos[2] < m_cameraBoundsMin[2])
+		newPos[2] = m_cameraBoundsMin[2];
+
+	newPos[1] = m_terrain.getHeightMap().heightAt(newPos[0], newPos[2]) + CAMERA_Y_OFFSET;
+
+	m_camera.setPosition(newPos);
 }
