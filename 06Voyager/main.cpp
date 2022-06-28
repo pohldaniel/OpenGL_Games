@@ -26,7 +26,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	std::cout << "ESC           : change state" << std::endl;
 	std::cout << "v             : toggle vsync" << std::endl;
 	std::cout << "z             : toggle wireframe" << std::endl;
-	std::cout << "z             : disable colormaps" << std::endl;
+	std::cout << "t             : disable colormaps" << std::endl;
+	std::cout << "m             : regenerate terrain" << std::endl;
 	#endif
 
 	float deltaTime = 0.0f;

@@ -32,6 +32,9 @@ public:
 	void resize(unsigned int width, unsigned int height);
 
 	void clearAndPush(State* state);
+	void toggleWireframe() {
+		m_enableWireframe = !m_enableWireframe;
+	}
 	const bool isRunning() const;
 
 	const float& m_fdt;
@@ -48,6 +51,7 @@ private:
 	unsigned int m_frameBuffer;
 	unsigned int m_rbDepthStencil;
 	bool m_isRunning = true;
+	bool m_enableWireframe = false;
 };
 
 class State {
@@ -57,7 +61,7 @@ public:
 
 	virtual void fixedUpdate() = 0;
 	virtual void update() = 0;
-	virtual void render(unsigned int &m_frameBuffer) = 0;
+	virtual void render() = 0;
 
 	const bool isRunning() const;
 

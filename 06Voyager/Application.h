@@ -30,11 +30,9 @@ private:
 	void loadAssets();
 	void initStates();
 
-	void enableWireframe(bool enableWireframe);
 	void enableVerticalSync(bool enableVerticalSync);
 
 	bool m_enableVerticalSync;
-	bool m_enableWireframe;
 
 	MSG msg;
 	HWND m_window;

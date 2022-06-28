@@ -8,7 +8,6 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 	initStates();
 
 	m_enableVerticalSync = true;
-	m_enableWireframe = false;
 }
 
 Application::~Application() {
@@ -46,7 +45,7 @@ bool Application::initWindow() {
 	m_window = CreateWindowEx(
 		NULL,
 		"WINDOWCLASS",
-		"UniversityRacer",
+		"Voyager",
 		WS_OVERLAPPEDWINDOW ^ (WS_THICKFRAME | WS_MAXIMIZEBOX),
 		CW_USEDEFAULT, CW_USEDEFAULT,
 		WIDTH,
@@ -81,15 +80,15 @@ LRESULT CALLBACK Application::StaticWndProc(HWND hWnd, UINT message, WPARAM wPar
 	Application* application = nullptr;
 
 	switch (message) {
-	case WM_CREATE: {
-		application = static_cast<Application*>(reinterpret_cast<CREATESTRUCT*>(lParam)->lpCreateParams);
+		case WM_CREATE: {
+			application = static_cast<Application*>(reinterpret_cast<CREATESTRUCT*>(lParam)->lpCreateParams);
 		
-		SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(application));
-		break;
-	}default: {		
-		application = reinterpret_cast<Application*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
-		break;
-	}
+			SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(application));
+			break;
+		}default: {		
+			application = reinterpret_cast<Application*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+			break;
+		}
 	}
 
 	if (application) {
@@ -119,7 +118,7 @@ LRESULT Application::DisplayWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 					enableVerticalSync(!m_enableVerticalSync);
 					break;
 				}case 'z': case 'Z': {
-					enableWireframe(!m_enableWireframe);
+					m_machine->toggleWireframe();
 					break;
 				}case VK_SPACE: {
 					Mouse::instance().detach2();
@@ -213,18 +212,6 @@ void Application::enableVerticalSync(bool enableVerticalSync) {
 	if (wglSwapIntervalEXT) {
 		wglSwapIntervalEXT(enableVerticalSync ? 1 : 0);
 		m_enableVerticalSync = enableVerticalSync;
-	}
-}
-
-void Application::enableWireframe(bool enableWireframe) {
-
-	m_enableWireframe = enableWireframe;
-
-	if (m_enableWireframe) {
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	}
-	else {
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	}
 }
 

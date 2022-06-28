@@ -12,8 +12,9 @@ const Vector3f   CAMERA_VELOCITY(200.0f, 200.0f, 200.0f);
 
 Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 
-	m_terrain.create(HEIGHTMAP_SIZE, HEIGHTMAP_GRID_SPACING, HEIGHTMAP_SCALE);
-	m_terrain.generateUsingDiamondSquareFractal(HEIGHTMAP_ROUGHNESS);
+	m_terrain.create(HEIGHTMAP_SIZE, HEIGHTMAP_GRID_SPACING, HEIGHTMAP_SCALE, HEIGHTMAP_ROUGHNESS);
+	//m_terrain.createProcedural(HEIGHTMAP_SIZE, HEIGHTMAP_GRID_SPACING, HEIGHTMAP_SCALE, HEIGHTMAP_ROUGHNESS);
+
 
 	Vector3f pos;
 
@@ -23,7 +24,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 
 	//setup the camera.
 	m_camera = Camera();
-	m_camera.lookAt(pos, Vector3f(pos[0] + 100.0f, pos[1] + 50.0f, pos[2] + 100.0f), Vector3f(0.0f, 1.0f, 0.0f));
+	m_camera.lookAt(pos, Vector3f(pos[0] + 100.0f, pos[1] + 10.0f, pos[2] + 100.0f), Vector3f(0.0f, 1.0f, 0.0f));
 	//camera.setPosition(pos);
 	m_camera.setAcceleration(CAMERA_ACCELERATION);
 	m_camera.setVelocity(CAMERA_VELOCITY);
@@ -88,6 +89,10 @@ void Game::update() {
 		m_terrain.toggleDisableColorMaps();
 	}
 
+	if (keyboard.keyPressed(Keyboard::KEY_M)) {
+		m_terrain.generateUsingDiamondSquareFractal(HEIGHTMAP_ROUGHNESS);
+	}
+
 	Mouse &mouse = Mouse::instance();
 	dx = mouse.xPosRelative();
 	dy = mouse.yPosRelative();
@@ -110,12 +115,10 @@ void Game::update() {
 	performCameraCollisionDetection();
 };
 
-void Game::render(unsigned int &frameBuffer) {
-	//glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
+void Game::render() {
 	glClearColor(0.3f, 0.5f, 0.9f, 0.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	m_terrain.draw(m_camera);
-	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void Game::performCameraCollisionDetection(){

@@ -80,15 +80,20 @@ void StateMachine::update() {
 
 void StateMachine::render() {
 
-	if (!m_states.empty())
-		m_states.top()->render(m_frameBuffer);
+	if (!m_states.empty()) {
+		glBindFramebuffer(GL_FRAMEBUFFER, m_frameBuffer);
+		glPolygonMode(GL_FRONT_AND_BACK, m_enableWireframe ? GL_LINE : GL_FILL);
+		m_states.top()->render();
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	}
 	
-	/*glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	//glEnable(GL_BLEND);
 	glUseProgram(m_shader->m_program);
 	m_shader->loadMatrix("u_transform", Matrix4f::IDENTITY);
 	m_quad->render(m_frameTexture);
-	glUseProgram(0);*/
+	glUseProgram(0);
 	//glDisable(GL_BLEND);	
 }
 

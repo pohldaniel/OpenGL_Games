@@ -13,23 +13,19 @@ public:
 	HeightMap();
 	~HeightMap();
 
-	float getHeightScale() const
-	{
+	float getHeightScale() const{
 		return m_heightScale;
 	}
 
-	int getSize() const
-	{
+	int getSize() const{
 		return m_size;
 	}
 
-	int getGridSpacing() const
-	{
+	int getGridSpacing() const{
 		return m_gridSpacing;
 	}
 
-	const float *getHeights() const
-	{
+	const float *getHeights() const{
 		return &m_heights[0];
 	}
 
@@ -40,8 +36,8 @@ public:
 
 	float heightAt(float x, float z) const;
 
-	float heightAtPixel(int x, int z) const
-	{
+	float heightAtPixel(int x, int z) const{
+		
 		return m_heights[z * m_size + x];
 	};
 
@@ -104,6 +100,11 @@ private:
 class Terrain
 {
 public:
+	enum Mode {
+		TRIANGLES,
+		TRIANGLE_STRIP,		
+	};
+
 	struct TerrainRegion{
 		float min;
 		float max;
@@ -112,11 +113,13 @@ public:
 	Terrain();
 	virtual ~Terrain();
 
-	bool create(int size, int gridSpacing, float scale);
+	void createProcedural(int size, int gridSpacing, float scale, float roughness);
+	void create(int size, int gridSpacing, float scale, float roughness);
+
 	void destroy();
 	void draw(const Camera& camera);
 	bool generateUsingDiamondSquareFractal(float roughness);
-	void update(const Vector3f &cameraPos);
+
 	void setDisableColorMaps(bool flag) {
 		m_disableColorMaps = flag;
 	}
@@ -129,22 +132,21 @@ public:
 		return m_heightMap;
 	}
 
-	HeightMap &getHeightMap()
-	{
+	HeightMap &getHeightMap(){
 		return m_heightMap;
 	}
 
 	Shader* m_terrainShader;
 	std::unordered_map<std::string, Texture*> m_textures;
 
-	std::vector <float> m_vertexBuffer;
+	std::vector<float> m_vertexBuffer;
 	std::vector<unsigned int> m_indexBuffer;
 
 protected:
 	virtual bool terrainCreate(int size, int gridSpacing, float scale);
+	virtual bool terrainCreateProcedural(int size, int gridSpacing, float scale);
 	virtual void terrainDestroy();
 	virtual void terrainDraw(const Camera& camera);
-	virtual void terrainUpdate(const Vector3f &cameraPos);
 
 private:
 	struct Vertex
@@ -155,18 +157,18 @@ private:
 	};
 
 	bool generateIndices();
+	bool generateIndicesTS();
 	bool generateVertices();
 
-	bool use16BitIndices() const
-	{
-		return m_totalVertices <= 65536;
-	}
-
+	void generateVertices(std::vector<float>& vertexBuffer);
+	void generateIndices(std::vector<unsigned int>& indexBuffer);
+	void generateIndicesTS(std::vector<unsigned int>& indexBuffer);
 
 	int m_totalVertices;
 	int m_totalIndices;
 	HeightMap m_heightMap;
 	bool m_disableColorMaps;
 	unsigned int m_vbo, m_ibo, m_vao;
+	Mode m_mode = Mode::TRIANGLES;
 };
 

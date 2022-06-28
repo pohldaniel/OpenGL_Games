@@ -74,7 +74,7 @@ void HeightMap::generateDiamondSquareFractal(float roughness){
 				mid = heightIndexAt(x + w / 2, z + w / 2);
 
 				m_heights[mid] = HeightMap::random(-dH, dH) + (m_heights[p1] + m_heights[p2] + m_heights[p3] + m_heights[p4]) * 0.25f;
-
+				
 				minH = std::min(minH, m_heights[mid]);
 				maxH = std::max(maxH, m_heights[mid]);
 			}
@@ -353,20 +353,9 @@ void HeightMap::smooth()
 // Terrain.
 //-----------------------------------------------------------------------------
 const float     HEIGHTMAP_TILING_FACTOR = 12.0f;
-Terrain::Terrain()
-{
+Terrain::Terrain(){
 	
-	m_totalVertices = 0;
-	m_totalIndices = 0;
-	m_disableColorMaps = false;
-}
 
-Terrain::~Terrain()
-{
-	destroy();
-}
-
-bool Terrain::create(int size, int gridSpacing, float scale){
 	m_terrainShader = Globals::shaderManager.getAssetPointer("terrain");
 	m_textures["dirt"] = &Globals::textureManager.get("dirt");
 	m_textures["grass"] = &Globals::textureManager.get("grass");
@@ -392,11 +381,26 @@ bool Terrain::create(int size, int gridSpacing, float scale){
 
 	m_regions[3].min = 204.0f * HEIGHTMAP_SCALE;
 	m_regions[3].max = 255.0f * HEIGHTMAP_SCALE;
+	
+	m_totalVertices = 0;
+	m_totalIndices = 0;
+	m_disableColorMaps = false;
+}
 
-	if (!m_heightMap.create(size, gridSpacing, scale))
-		return false;
+Terrain::~Terrain(){
+	destroy();
+}
 
-	return terrainCreate(size, gridSpacing, scale);
+void Terrain::createProcedural(int size, int gridSpacing, float scale, float roughness){
+	m_heightMap.create(size, gridSpacing, scale);	
+	terrainCreateProcedural(size, gridSpacing, scale);
+	generateUsingDiamondSquareFractal(roughness);
+}
+
+void Terrain::create(int size, int gridSpacing, float scale, float roughness) {
+	m_heightMap.create(size, gridSpacing, scale);
+	m_heightMap.generateDiamondSquareFractal(roughness);
+	terrainCreate(size, gridSpacing, scale);
 }
 
 void Terrain::destroy(){
@@ -413,17 +417,60 @@ bool Terrain::generateUsingDiamondSquareFractal(float roughness){
 	return generateVertices();
 }
 
-void Terrain::update(const Vector3f &cameraPos){
-	terrainUpdate(cameraPos);
-}
-
 bool Terrain::terrainCreate(int size, int gridSpacing, float scale){
-	
-	int _gridSpacing = m_heightMap.getGridSpacing();
-	float heightScale = m_heightMap.getHeightScale();
+
+	generateVertices(m_vertexBuffer);
+
+	if(m_mode == Terrain::Mode::TRIANGLE_STRIP)
+		generateIndicesTS(m_indexBuffer);
+	else
+		generateIndices(m_indexBuffer);
 
 	m_totalVertices = size * size;
-	m_totalIndices = (size - 1) * (size * 2 + 1);
+	m_totalIndices = m_mode == Terrain::Mode::TRIANGLE_STRIP ? (size - 1) * (size * 2 + 1) : (size - 1) * (size - 1) * 6;
+
+	short stride = 8;
+
+	glGenBuffers(1, &m_vbo);
+	glGenBuffers(1, &m_ibo);
+
+	glGenVertexArrays(1, &m_vao);
+	glBindVertexArray(m_vao);
+
+	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * m_totalVertices, &m_vertexBuffer[0], GL_STATIC_DRAW);
+
+	//positions
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)0);
+
+	//normal
+	glEnableVertexAttribArray(2);
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)(3 * sizeof(float)));
+
+	//texcoords
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)(6 * sizeof(float)));
+
+	//indices
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ibo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * m_indexBuffer.size(), &m_indexBuffer[0], GL_STATIC_DRAW);
+	glBindVertexArray(0);
+
+	return true;
+}
+
+bool Terrain::terrainCreateProcedural(int size, int gridSpacing, float scale) {
+
+	if (m_mode == Terrain::Mode::TRIANGLE_STRIP)
+		generateIndicesTS(m_indexBuffer);
+	else
+		generateIndices(m_indexBuffer);
+
+	m_totalVertices = size * size;
+	m_totalIndices = m_mode == Terrain::Mode::TRIANGLE_STRIP ? (size - 1) * (size * 2 + 1)  : (size - 1) * (size - 1) * 6;
+
+	//m_vertexBuffer.reserve(m_totalVertices * sizeof(Vertex));
 
 	short stride = 8;
 
@@ -450,20 +497,17 @@ bool Terrain::terrainCreate(int size, int gridSpacing, float scale){
 
 	//indices
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ibo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * m_totalIndices, NULL, GL_STATIC_DRAW);
-
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * m_indexBuffer.size(), &m_indexBuffer[0], GL_STATIC_DRAW);
 	glBindVertexArray(0);
 
-	return generateIndices();
+	return true;
 }
 
-void Terrain::terrainDestroy()
-{
+void Terrain::terrainDestroy(){
 	
 }
 
-void Terrain::terrainDraw(const Camera& camera)
-{
+void Terrain::terrainDraw(const Camera& camera){
 	
 	Vector4f lightDir = Vector4f(0.0f, 1.0f, 0.0f, 0.0f);
 
@@ -501,17 +545,56 @@ void Terrain::terrainDraw(const Camera& camera)
 		m_textures["snow"]->bind(3);
 	}
 	
-
 	glBindVertexArray(m_vao);
-	glDrawElements(GL_TRIANGLE_STRIP, m_totalIndices, GL_UNSIGNED_INT, 0);
+	glDrawElements(m_mode == Terrain::Mode::TRIANGLE_STRIP ? GL_TRIANGLE_STRIP : GL_TRIANGLES, m_totalIndices, GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
 	
 	glUseProgram(0);
-
 }
 
-void Terrain::terrainUpdate(const Vector3f &cameraPos){
+void Terrain::generateIndices(std::vector<unsigned int>& indexBuffer) {
+	int size = m_heightMap.getSize();
 
+	for (int z = 0; z < size - 1; z++) {
+		for (int x = 0; x < size - 1; x++) {
+			// 0 *- 1		0
+			//	\	*		|  *
+			//	 *	|		*	\
+			//      4		3 -* 4
+			m_indexBuffer.push_back(z * size + x);
+			m_indexBuffer.push_back((z + 1) * size + (x + 1));
+			m_indexBuffer.push_back(z * size + (x + 1));
+
+			m_indexBuffer.push_back(z * size + x);
+			m_indexBuffer.push_back((z + 1) * size + x);
+			m_indexBuffer.push_back((z + 1) * size + (x + 1));
+		}
+	}
+}
+
+void Terrain::generateIndicesTS(std::vector<unsigned int>& indexBuffer) {
+	int size = m_heightMap.getSize();
+
+	for (int z = 0; z < size - 1; ++z) {
+		if (z % 2 == 0) {
+
+			for (int x = 0; x < size; ++x) {
+				m_indexBuffer.push_back(x + z * size);
+				m_indexBuffer.push_back(x + (z + 1) * size);
+			}
+
+			// Add degenerate triangles to stitch strips together.
+			m_indexBuffer.push_back((size - 1) + (z + 1) * size);
+		}else {
+			for (int x = size - 1; x >= 0; --x) {
+				m_indexBuffer.push_back(x + z * size);
+				m_indexBuffer.push_back(x + (z + 1) * size);
+			}
+
+			// Add degenerate triangles to stitch strips together.
+			m_indexBuffer.push_back((z + 1) * size);
+		}
+	}
 }
 
 bool Terrain::generateIndices(){
@@ -526,39 +609,84 @@ bool Terrain::generateIndices(){
 		return false;
 	}
 
-	
-		unsigned int *pIndex = static_cast<unsigned int *>(pBuffer);
+	unsigned int *pIndex = static_cast<unsigned int *>(pBuffer);
 
-		for (int z = 0; z < size - 1; ++z)
-		{
-			if (z % 2 == 0)
-			{
-				for (int x = 0; x < size; ++x)
-				{
-					*pIndex++ = x + z * size;
-					*pIndex++ = x + (z + 1) * size;
-				}
+	for (int z = 0; z < size - 1; z++) {
+		for (int x = 0; x < size - 1; x++) {
+		
+			*pIndex++ = z * size + x;
+			*pIndex++ = (z + 1) * size + (x + 1);
+			*pIndex++ = z * size + (x + 1);
 
-				// Add degenerate triangles to stitch strips together.
-				*pIndex++ = (size - 1) + (z + 1) * size;
-			}
-			else
-			{
-				for (int x = size - 1; x >= 0; --x)
-				{
-					*pIndex++ = x + z * size;
-					*pIndex++ = x + (z + 1) * size;
-				}
-
-				// Add degenerate triangles to stitch strips together.
-				*pIndex++ = (z + 1) * size;
-			}
+			*pIndex++ = z * size + x;
+			*pIndex++ = (z + 1) * size + x;
+			*pIndex++ = (z + 1) * size + (x + 1);
 		}
-	
+	}
 
 	glUnmapBuffer(GL_ELEMENT_ARRAY_BUFFER);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	return true;
+}
+
+bool Terrain::generateIndicesTS() {
+	void *pBuffer = 0;
+	int size = m_heightMap.getSize();
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ibo);
+
+	if (!(pBuffer = glMapBuffer(GL_ELEMENT_ARRAY_BUFFER, GL_WRITE_ONLY))) {
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+		return false;
+	}
+
+	unsigned int *pIndex = static_cast<unsigned int *>(pBuffer);
+
+	for (int z = 0; z < size - 1; ++z){
+		if (z % 2 == 0){
+
+			for (int x = 0; x < size; ++x){
+				*pIndex++ = x + z * size;
+				*pIndex++ = x + (z + 1) * size;
+			}
+
+			// Add degenerate triangles to stitch strips together.
+			*pIndex++ = (size - 1) + (z + 1) * size;
+		}else{
+			for (int x = size - 1; x >= 0; --x){
+				*pIndex++ = x + z * size;
+				*pIndex++ = x + (z + 1) * size;
+			}
+
+			// Add degenerate triangles to stitch strips together.
+			*pIndex++ = (z + 1) * size;
+		}
+	}
+
+	glUnmapBuffer(GL_ELEMENT_ARRAY_BUFFER);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+	return true;
+}
+
+void Terrain::generateVertices(std::vector<float>& vertexBuffer) {
+	Vertex *pVertices = 0;
+	Vertex *pVertex = 0;
+	int currVertex = 0;
+	int size = m_heightMap.getSize();
+	int gridSpacing = m_heightMap.getGridSpacing();
+	float heightScale = m_heightMap.getHeightScale();
+	Vector3f normal;
+
+	for (int z = 0; z < size; ++z){
+		for (int x = 0; x < size; ++x){
+			//std::cout << m_heightMap.heightAtPixel(x, z) * heightScale << std::endl;
+			m_heightMap.normalAtPixel(x, z, normal);
+			vertexBuffer.push_back(static_cast<float>(x * gridSpacing)); vertexBuffer.push_back(m_heightMap.heightAtPixel(x, z) * heightScale); vertexBuffer.push_back(static_cast<float>(z * gridSpacing));
+			vertexBuffer.push_back(normal[0]); vertexBuffer.push_back(normal[1]); vertexBuffer.push_back(normal[2]);
+			vertexBuffer.push_back(static_cast<float>(x) / static_cast<float>(size)); vertexBuffer.push_back(static_cast<float>(z) / static_cast<float>(size));
+		}
+	}
+
 }
 
 bool Terrain::generateVertices(){
@@ -579,10 +707,9 @@ bool Terrain::generateVertices(){
 		return false;
 	}
 
-	for (int z = 0; z < size; ++z)
-	{
-		for (int x = 0; x < size; ++x)
-		{
+	for (int z = 0; z < size; ++z){
+		for (int x = 0; x < size; ++x){
+
 			currVertex = z * size + x;
 			pVertex = &pVertices[currVertex];
 
@@ -600,6 +727,9 @@ bool Terrain::generateVertices(){
 		}
 	}
 
+	
+	//std::memcpy(&m_vertexBuffer[0], pVertices, m_totalVertices * sizeof(Vertex));
+	
 	glUnmapBuffer(GL_ARRAY_BUFFER);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
