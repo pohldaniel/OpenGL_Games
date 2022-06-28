@@ -29,6 +29,8 @@ public:
 		return &m_heights[0];
 	}
 
+	void createFromImage(std::string file, int gridSpacing, float scale);
+
 	bool create(int size, int gridSpacing, float scale);
 	void destroy();
 
@@ -85,6 +87,8 @@ public:
 			+ d * (u * v);
 	}
 
+	float getHeight(unsigned int x, unsigned int z, unsigned short numCompontents, unsigned char* data);
+
 private:
 	void blur(float amount);
 	unsigned int heightIndexAt(int x, int z) const;
@@ -115,6 +119,7 @@ public:
 
 	void createProcedural(int size, int gridSpacing, float scale, float roughness);
 	void create(int size, int gridSpacing, float scale, float roughness);
+	void create(std::string file, int gridSpacing, float scale);
 
 	void destroy();
 	void draw(const Camera& camera);

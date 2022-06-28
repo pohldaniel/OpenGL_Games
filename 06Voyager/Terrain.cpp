@@ -3,6 +3,7 @@
 #include <cstdlib>
 #include <ctime>
 
+#include "soil2/SOIL2.h"
 #include "engine/Extension.h"
 #include "terrain.h"
 
@@ -15,6 +16,41 @@ HeightMap::HeightMap() : m_size(0), m_gridSpacing(0), m_heightScale(1.0f){
 
 HeightMap::~HeightMap(){
 	destroy();
+}
+
+void HeightMap::createFromImage(std::string file, int gridSpacing, float scale) {
+	int width, height, numCompontents;
+	unsigned char* imageData = SOIL_load_image(file.c_str(), &width, &height, &numCompontents, SOIL_LOAD_AUTO);
+	Texture::FlipVertical(imageData, numCompontents *  width, height);
+	m_heightScale = scale;
+	m_size = width;
+	m_gridSpacing = gridSpacing;
+
+	m_heights.resize(m_size * m_size);
+	memset(&m_heights[0], 0, m_heights.size());
+
+	float minH = 0.0f, maxH = 0.0f;
+	for (int z = 0; z < m_size; z++) {
+		for (int x = 0; x < m_size; x++) {			
+			m_heights[z * m_size + x] = getHeight(x, z, numCompontents, imageData);
+
+			minH = std::min(minH, m_heights[z * m_size + x]);
+			maxH = std::max(maxH, m_heights[z * m_size + x]);
+		}
+	}
+
+	SOIL_free_image_data(imageData);
+
+	smooth();
+	for (int i = 0; i < m_size * m_size; ++i) {
+		m_heights[i] = 255.0f * (m_heights[i] - minH) / (maxH - minH);
+	}
+}
+
+float HeightMap::getHeight(unsigned int x, unsigned int z, unsigned short numCompontents, unsigned char* data) {
+	float color = (float)(data[z * numCompontents * m_size + x * numCompontents] - 127);
+	color /= 256.0f;	
+	return color;
 }
 
 bool HeightMap::create(int size, int gridSpacing, float scale){
@@ -60,13 +96,11 @@ void HeightMap::generateDiamondSquareFractal(float roughness){
 	float dHFactor = powf(2.0f, -roughness);
 	float minH = 0.0f, maxH = 0.0f;
 
-	for (int w = m_size; w > 0; dH *= dHFactor, w /= 2)
-	{
+	for (int w = m_size; w > 0; dH *= dHFactor, w /= 2){
 		// Diamond Step.
-		for (int z = 0; z < m_size; z += w)
-		{
-			for (int x = 0; x < m_size; x += w)
-			{
+		for (int z = 0; z < m_size; z += w){
+			for (int x = 0; x < m_size; x += w){
+
 				p1 = heightIndexAt(x, z);
 				p2 = heightIndexAt(x + w, z);
 				p3 = heightIndexAt(x + w, z + w);
@@ -81,10 +115,9 @@ void HeightMap::generateDiamondSquareFractal(float roughness){
 		}
 
 		// Square step.
-		for (int z = 0; z < m_size; z += w)
-		{
-			for (int x = 0; x < m_size; x += w)
-			{
+		for (int z = 0; z < m_size; z += w){
+			for (int x = 0; x < m_size; x += w){
+
 				p1 = heightIndexAt(x, z);
 				p2 = heightIndexAt(x + w, z);
 				p3 = heightIndexAt(x + w / 2, z - w / 2);
@@ -352,7 +385,7 @@ void HeightMap::smooth()
 //-----------------------------------------------------------------------------
 // Terrain.
 //-----------------------------------------------------------------------------
-const float     HEIGHTMAP_TILING_FACTOR = 12.0f;
+const float     HEIGHTMAP_TILING_FACTOR = 20.0f;
 Terrain::Terrain(){
 	
 
@@ -369,7 +402,7 @@ Terrain::Terrain(){
 	m_textures["snow"]->setRepeat();
 	m_textures["null"]->setRepeat();
 
-	const float HEIGHTMAP_SCALE = 2.0f;
+	const float HEIGHTMAP_SCALE = 1.1f;
 	m_regions[0].min = 0.0f;
 	m_regions[0].max = 50.0f * HEIGHTMAP_SCALE;
 
@@ -401,6 +434,11 @@ void Terrain::create(int size, int gridSpacing, float scale, float roughness) {
 	m_heightMap.create(size, gridSpacing, scale);
 	m_heightMap.generateDiamondSquareFractal(roughness);
 	terrainCreate(size, gridSpacing, scale);
+}
+
+void Terrain::create(std::string file, int gridSpacing, float scale) {
+	m_heightMap.createFromImage(file, gridSpacing, scale);
+	terrainCreate(m_heightMap.getSize(), gridSpacing, scale);
 }
 
 void Terrain::destroy(){
@@ -676,7 +714,7 @@ void Terrain::generateVertices(std::vector<float>& vertexBuffer) {
 	int gridSpacing = m_heightMap.getGridSpacing();
 	float heightScale = m_heightMap.getHeightScale();
 	Vector3f normal;
-
+	
 	for (int z = 0; z < size; ++z){
 		for (int x = 0; x < size; ++x){
 			//std::cout << m_heightMap.heightAtPixel(x, z) * heightScale << std::endl;
@@ -706,7 +744,7 @@ bool Terrain::generateVertices(){
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		return false;
 	}
-
+	
 	for (int z = 0; z < size; ++z){
 		for (int x = 0; x < size; ++x){
 

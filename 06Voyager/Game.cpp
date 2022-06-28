@@ -1,10 +1,10 @@
 #include "Game.h"
 
 const float     HEIGHTMAP_ROUGHNESS = 1.2f;
-const float     HEIGHTMAP_SCALE = 2.0f;
-const float     HEIGHTMAP_TILING_FACTOR = 12.0f;
-const int       HEIGHTMAP_SIZE = 128;
-const int       HEIGHTMAP_GRID_SPACING = 16;
+const float     HEIGHTMAP_SCALE = 1.0f;
+
+const int       HEIGHTMAP_SIZE = 256;
+const int       HEIGHTMAP_GRID_SPACING = 20;
 const float     CAMERA_Y_OFFSET = 25.0f;
 const Vector3f   CAMERA_ACCELERATION(400.0f, 400.0f, 400.0f);
 const Vector3f   CAMERA_VELOCITY(200.0f, 200.0f, 200.0f);
@@ -12,7 +12,8 @@ const Vector3f   CAMERA_VELOCITY(200.0f, 200.0f, 200.0f);
 
 Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 
-	m_terrain.create(HEIGHTMAP_SIZE, HEIGHTMAP_GRID_SPACING, HEIGHTMAP_SCALE, HEIGHTMAP_ROUGHNESS);
+	m_terrain.create("res/heightmap.png", HEIGHTMAP_GRID_SPACING, HEIGHTMAP_SCALE);
+	//m_terrain.create(HEIGHTMAP_SIZE, HEIGHTMAP_GRID_SPACING, HEIGHTMAP_SCALE, HEIGHTMAP_ROUGHNESS);
 	//m_terrain.createProcedural(HEIGHTMAP_SIZE, HEIGHTMAP_GRID_SPACING, HEIGHTMAP_SCALE, HEIGHTMAP_ROUGHNESS);
 
 
