@@ -1,27 +1,27 @@
 #include "Game.h"
 
-const float     HEIGHTMAP_ROUGHNESS = 1.2f;
-const float     HEIGHTMAP_SCALE = 1.0f;
+const float HEIGHTMAP_ROUGHNESS = 1.2f;
+const float HEIGHTMAP_SCALE = 2.0f;
 
-const int       HEIGHTMAP_SIZE = 256;
-const int       HEIGHTMAP_GRID_SPACING = 20;
-const float     CAMERA_Y_OFFSET = 25.0f;
-const Vector3f   CAMERA_ACCELERATION(400.0f, 400.0f, 400.0f);
-const Vector3f   CAMERA_VELOCITY(200.0f, 200.0f, 200.0f);
+const int HEIGHTMAP_RESOLUTION = 128;
+const int HEIGHTMAP_WIDTH = 8192;
+const float CAMERA_Y_OFFSET = 25.0f;
+const Vector3f CAMERA_ACCELERATION(400.0f, 400.0f, 400.0f);
+const Vector3f CAMERA_VELOCITY(200.0f, 200.0f, 200.0f);
 
 
 Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 
-	m_terrain.create("res/heightmap.png", HEIGHTMAP_GRID_SPACING, HEIGHTMAP_SCALE);
-	//m_terrain.create(HEIGHTMAP_SIZE, HEIGHTMAP_GRID_SPACING, HEIGHTMAP_SCALE, HEIGHTMAP_ROUGHNESS);
-	//m_terrain.createProcedural(HEIGHTMAP_SIZE, HEIGHTMAP_GRID_SPACING, HEIGHTMAP_SCALE, HEIGHTMAP_ROUGHNESS);
-
+	m_terrain.create("res/heightmap.png", HEIGHTMAP_WIDTH, HEIGHTMAP_SCALE);
+	//m_terrain.create(HEIGHTMAP_RESOLUTION, HEIGHTMAP_WIDTH, HEIGHTMAP_SCALE, HEIGHTMAP_ROUGHNESS);
+	//m_terrain.createProcedural(HEIGHTMAP_RESOLUTION, HEIGHTMAP_WIDTH, HEIGHTMAP_SCALE, HEIGHTMAP_ROUGHNESS);
+	m_terrain.scaleRegions(HEIGHTMAP_SCALE);
 
 	Vector3f pos;
 
-	pos[0] = HEIGHTMAP_SIZE * HEIGHTMAP_GRID_SPACING * 0.5f;
-	pos[2] = HEIGHTMAP_SIZE * HEIGHTMAP_GRID_SPACING * 0.5f;
-	pos[1] = m_terrain.getHeightMap().heightAt(pos[0], pos[2]) + CAMERA_Y_OFFSET;
+	pos[0] = HEIGHTMAP_WIDTH * 0.5f;
+	pos[2] = HEIGHTMAP_WIDTH * 0.5f;
+	pos[1] = m_terrain.getHeightMap().heightAt(pos[0], pos[2]) +  CAMERA_Y_OFFSET;
 
 	//setup the camera.
 	m_camera = Camera();
@@ -30,12 +30,12 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	m_camera.setAcceleration(CAMERA_ACCELERATION);
 	m_camera.setVelocity(CAMERA_VELOCITY);
 	m_camera.setRotationSpeed(0.1f);
-
-	float upperBounds = (HEIGHTMAP_SIZE * HEIGHTMAP_GRID_SPACING - (2.0f * HEIGHTMAP_GRID_SPACING));
-	float lowerBounds = static_cast<float>(HEIGHTMAP_GRID_SPACING);
+	float gridSpacing = static_cast<float>(HEIGHTMAP_WIDTH) / static_cast<float>(HEIGHTMAP_RESOLUTION);
+	float upperBounds = HEIGHTMAP_WIDTH - gridSpacing;
+	float lowerBounds = gridSpacing;
 
 	m_cameraBoundsMax[0] = upperBounds;
-	m_cameraBoundsMax[1] = HEIGHTMAP_SIZE * HEIGHTMAP_GRID_SPACING * 2.0f;
+	m_cameraBoundsMax[1] = HEIGHTMAP_WIDTH * 2.0f;
 	m_cameraBoundsMax[2] = upperBounds;
 
 	m_cameraBoundsMin[0] = lowerBounds;
@@ -140,6 +140,6 @@ void Game::performCameraCollisionDetection(){
 		newPos[2] = m_cameraBoundsMin[2];
 
 	newPos[1] = m_terrain.getHeightMap().heightAt(newPos[0], newPos[2]) + CAMERA_Y_OFFSET;
-
+	//std::cout << newPos[1] << std::endl;
 	m_camera.setPosition(newPos);
 }

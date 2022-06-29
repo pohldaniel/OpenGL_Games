@@ -11,55 +11,56 @@
 // HeightMap.
 //-----------------------------------------------------------------------------
 
-HeightMap::HeightMap() : m_size(0), m_gridSpacing(0), m_heightScale(1.0f){
+HeightMap::HeightMap() : m_size(0), m_gridSpacing(0), m_heightScale(1.0f) {
 }
 
-HeightMap::~HeightMap(){
+HeightMap::~HeightMap() {
 	destroy();
 }
 
-void HeightMap::createFromImage(std::string file, int gridSpacing, float scale) {
+void HeightMap::createFromImage(std::string file, int _width, float scale) {
 	int width, height, numCompontents;
 	unsigned char* imageData = SOIL_load_image(file.c_str(), &width, &height, &numCompontents, SOIL_LOAD_AUTO);
 	Texture::FlipVertical(imageData, numCompontents *  width, height);
 	m_heightScale = scale;
+	m_resolution = width - 1;
 	m_size = width;
-	m_gridSpacing = gridSpacing;
-
-	m_heights.resize(m_size * m_size);
+	m_width = _width;
+	m_gridSpacing = static_cast<float>(_width) / static_cast<float>(m_resolution);
+	m_heights.resize(width * width);
 	memset(&m_heights[0], 0, m_heights.size());
 
 	float minH = 0.0f, maxH = 0.0f;
-	for (int z = 0; z < m_size; z++) {
-		for (int x = 0; x < m_size; x++) {			
-			m_heights[z * m_size + x] = getHeight(x, z, numCompontents, imageData);
+	for (int z = 0; z < width; z++) {
+		for (int x = 0; x < width; x++) {
+			m_heights[z * width + x] = getHeight(x, z, width, numCompontents, imageData);
 
-			minH = std::min(minH, m_heights[z * m_size + x]);
-			maxH = std::max(maxH, m_heights[z * m_size + x]);
+			minH = std::min(minH, m_heights[z * width + x]);
+			maxH = std::max(maxH, m_heights[z * width + x]);
 		}
 	}
 
 	SOIL_free_image_data(imageData);
 
 	smooth();
-	for (int i = 0; i < m_size * m_size; ++i) {
+	for (int i = 0; i < width * width; ++i) {
 		m_heights[i] = 255.0f * (m_heights[i] - minH) / (maxH - minH);
 	}
 }
 
-float HeightMap::getHeight(unsigned int x, unsigned int z, unsigned short numCompontents, unsigned char* data) {
-	float color = (float)(data[z * numCompontents * m_size + x * numCompontents] - 127);
-	color /= 256.0f;	
+float HeightMap::getHeight(unsigned int x, unsigned int z, unsigned int width, unsigned short numCompontents, unsigned char* data) {
+	float color = (float)(data[z * numCompontents * width + x * numCompontents] - 127);
+	color /= 256.0f;
 	return color;
 }
 
-bool HeightMap::create(int size, int gridSpacing, float scale){
+bool HeightMap::create(int resolution, int width, float scale) {
 	m_heightScale = scale;
-	m_size = size;
-	m_gridSpacing = gridSpacing;
-
-	try
-	{
+	m_resolution = resolution;
+	m_size = resolution + 1;
+	m_width = width;
+	m_gridSpacing = static_cast<float>(width) / static_cast<float>(m_resolution);
+	try{
 		m_heights.resize(m_size * m_size);
 	}
 	catch (const std::bad_alloc &)
@@ -71,14 +72,14 @@ bool HeightMap::create(int size, int gridSpacing, float scale){
 	return true;
 }
 
-void HeightMap::destroy(){
+void HeightMap::destroy() {
 	m_heightScale = 1.0f;
 	m_size = 0;
 	m_gridSpacing = 0;
 	m_heights.clear();
 }
 
-void HeightMap::generateDiamondSquareFractal(float roughness){
+void HeightMap::generateDiamondSquareFractal(float roughness) {
 	// Generates a fractal height field using the diamond-square (midpoint
 	// displacement) algorithm. Note that only square height fields work with
 	// this algorithm.
@@ -96,11 +97,13 @@ void HeightMap::generateDiamondSquareFractal(float roughness){
 	float dHFactor = powf(2.0f, -roughness);
 	float minH = 0.0f, maxH = 0.0f;
 
-	for (int w = m_size; w > 0; dH *= dHFactor, w /= 2){
+	for (int w = m_size; w > 0; dH *= dHFactor, w /= 2)
+	{
 		// Diamond Step.
-		for (int z = 0; z < m_size; z += w){
-			for (int x = 0; x < m_size; x += w){
-
+		for (int z = 0; z < m_size; z += w)
+		{
+			for (int x = 0; x < m_size; x += w)
+			{
 				p1 = heightIndexAt(x, z);
 				p2 = heightIndexAt(x + w, z);
 				p3 = heightIndexAt(x + w, z + w);
@@ -108,16 +111,17 @@ void HeightMap::generateDiamondSquareFractal(float roughness){
 				mid = heightIndexAt(x + w / 2, z + w / 2);
 
 				m_heights[mid] = HeightMap::random(-dH, dH) + (m_heights[p1] + m_heights[p2] + m_heights[p3] + m_heights[p4]) * 0.25f;
-				
+
 				minH = std::min(minH, m_heights[mid]);
 				maxH = std::max(maxH, m_heights[mid]);
 			}
 		}
 
 		// Square step.
-		for (int z = 0; z < m_size; z += w){
-			for (int x = 0; x < m_size; x += w){
-
+		for (int z = 0; z < m_size; z += w)
+		{
+			for (int x = 0; x < m_size; x += w)
+			{
 				p1 = heightIndexAt(x, z);
 				p2 = heightIndexAt(x + w, z);
 				p3 = heightIndexAt(x + w / 2, z - w / 2);
@@ -150,13 +154,13 @@ void HeightMap::generateDiamondSquareFractal(float roughness){
 		m_heights[i] = 255.0f * (m_heights[i] - minH) / (maxH - minH);
 }
 
-float HeightMap::heightAt(float x, float z) const{
+float HeightMap::heightAt(float x, float z) const {
 	// Given a (x, z) position on the rendered height map this method
 	// calculates the exact height of the height map at that (x, z)
 	// position using bilinear interpolation.
 
-	x /= static_cast<float>(m_gridSpacing);
-	z /= static_cast<float>(m_gridSpacing);
+	x /= m_gridSpacing;
+	z /= m_gridSpacing;
 
 	assert(x >= 0.0f && x < float(m_size));
 	assert(z >= 0.0f && z < float(m_size));
@@ -173,13 +177,13 @@ float HeightMap::heightAt(float x, float z) const{
 	return HeightMap::bilerp(topLeft, topRight, bottomLeft, bottomRight, percentX, percentZ);
 }
 
-void HeightMap::normalAt(float x, float z, Vector3f &n) const{
+void HeightMap::normalAt(float x, float z, Vector3f &n) const {
 	// Given a (x, z) position on the rendered height map this method
 	// calculates the exact normal of the height map at that (x, z) position
 	// using bilinear interpolation.
 
-	x /= static_cast<float>(m_gridSpacing);
-	z /= static_cast<float>(m_gridSpacing);
+	x /= m_gridSpacing;
+	z /= m_gridSpacing;
 
 	assert(x >= 0.0f && x < float(m_size));
 	assert(z >= 0.0f && z < float(m_size));
@@ -205,7 +209,7 @@ void HeightMap::normalAt(float x, float z, Vector3f &n) const{
 	n.normalize();
 }
 
-void HeightMap::normalAtPixel(int x, int z, Vector3f &n) const{
+void HeightMap::normalAtPixel(int x, int z, Vector3f &n) const {
 	// Returns the normal at the specified location on the height map.
 	// The normal is calculated using the properties of the height map.
 	// This approach is much quicker and more elegant than triangulating the
@@ -229,7 +233,7 @@ void HeightMap::normalAtPixel(int x, int z, Vector3f &n) const{
 	n.normalize();
 }
 
-void HeightMap::blur(float amount){
+void HeightMap::blur(float amount) {
 	// Applies a simple FIR (Finite Impulse Response) filter across the height
 	// map to blur it. 'amount' is in range [0,1]. 0 is no blurring, and 1 is
 	// very strong blurring.
@@ -382,12 +386,13 @@ void HeightMap::smooth()
 	}
 }
 
+
 //-----------------------------------------------------------------------------
 // Terrain.
 //-----------------------------------------------------------------------------
-const float     HEIGHTMAP_TILING_FACTOR = 20.0f;
-Terrain::Terrain(){
-	
+
+Terrain::Terrain() {
+
 
 	m_terrainShader = Globals::shaderManager.getAssetPointer("terrain");
 	m_textures["dirt"] = &Globals::textureManager.get("dirt");
@@ -402,7 +407,15 @@ Terrain::Terrain(){
 	m_textures["snow"]->setRepeat();
 	m_textures["null"]->setRepeat();
 
-	const float HEIGHTMAP_SCALE = 1.1f;
+	
+	m_totalVertices = 0;
+	m_totalIndices = 0;
+	m_disableColorMaps = false;
+}
+
+void Terrain::scaleRegions(const float heighScale) {
+
+	const float HEIGHTMAP_SCALE = heighScale;
 	m_regions[0].min = 0.0f;
 	m_regions[0].max = 50.0f * HEIGHTMAP_SCALE;
 
@@ -414,58 +427,57 @@ Terrain::Terrain(){
 
 	m_regions[3].min = 204.0f * HEIGHTMAP_SCALE;
 	m_regions[3].max = 255.0f * HEIGHTMAP_SCALE;
-	
-	m_totalVertices = 0;
-	m_totalIndices = 0;
-	m_disableColorMaps = false;
+
 }
 
-Terrain::~Terrain(){
+Terrain::~Terrain() {
 	destroy();
 }
 
-void Terrain::createProcedural(int size, int gridSpacing, float scale, float roughness){
-	m_heightMap.create(size, gridSpacing, scale);	
-	terrainCreateProcedural(size, gridSpacing, scale);
+void Terrain::createProcedural(int resolution, int width, float scale, float roughness) {
+	m_heightMap.create(resolution, width, scale);
+	terrainCreateProcedural();
 	generateUsingDiamondSquareFractal(roughness);
 }
 
-void Terrain::create(int size, int gridSpacing, float scale, float roughness) {
-	m_heightMap.create(size, gridSpacing, scale);
+void Terrain::create(int resolution, int width, float scale, float roughness) {
+	m_heightMap.create(resolution, width, scale);
 	m_heightMap.generateDiamondSquareFractal(roughness);
-	terrainCreate(size, gridSpacing, scale);
+	terrainCreate();
 }
 
-void Terrain::create(std::string file, int gridSpacing, float scale) {
-	m_heightMap.createFromImage(file, gridSpacing, scale);
-	terrainCreate(m_heightMap.getSize(), gridSpacing, scale);
+void Terrain::create(std::string file, int width, float scale) {
+	m_heightMap.createFromImage(file, width, scale);
+	terrainCreate();
 }
 
-void Terrain::destroy(){
+void Terrain::destroy() {
 	m_heightMap.destroy();
 	terrainDestroy();
 }
 
-void Terrain::draw(const Camera& camera){
+void Terrain::draw(const Camera& camera) {
 	terrainDraw(camera);
 }
 
-bool Terrain::generateUsingDiamondSquareFractal(float roughness){
+bool Terrain::generateUsingDiamondSquareFractal(float roughness) {
 	m_heightMap.generateDiamondSquareFractal(roughness);
 	return generateVertices();
 }
 
-bool Terrain::terrainCreate(int size, int gridSpacing, float scale){
+bool Terrain::terrainCreate() {
 
 	generateVertices(m_vertexBuffer);
 
-	if(m_mode == Terrain::Mode::TRIANGLE_STRIP)
+	if (m_mode == Terrain::Mode::TRIANGLE_STRIP)
 		generateIndicesTS(m_indexBuffer);
 	else
 		generateIndices(m_indexBuffer);
 
-	m_totalVertices = size * size;
-	m_totalIndices = m_mode == Terrain::Mode::TRIANGLE_STRIP ? (size - 1) * (size * 2 + 1) : (size - 1) * (size - 1) * 6;
+	int resolution = m_heightMap.getResolution();
+
+	m_totalIndices = m_mode == Terrain::Mode::TRIANGLE_STRIP ? (resolution) * ((resolution + 1) * 2 + 1) : resolution * resolution * 6;
+	m_totalVertices = (resolution + 1) * (resolution + 1);
 
 	short stride = 8;
 
@@ -498,16 +510,12 @@ bool Terrain::terrainCreate(int size, int gridSpacing, float scale){
 	return true;
 }
 
-bool Terrain::terrainCreateProcedural(int size, int gridSpacing, float scale) {
+bool Terrain::terrainCreateProcedural() {
+	int resolution = m_heightMap.getResolution();
 
-	if (m_mode == Terrain::Mode::TRIANGLE_STRIP)
-		generateIndicesTS(m_indexBuffer);
-	else
-		generateIndices(m_indexBuffer);
-
-	m_totalVertices = size * size;
-	m_totalIndices = m_mode == Terrain::Mode::TRIANGLE_STRIP ? (size - 1) * (size * 2 + 1)  : (size - 1) * (size - 1) * 6;
-
+	m_totalIndices = m_mode == Terrain::Mode::TRIANGLE_STRIP ? (resolution) * ((resolution + 1) * 2 + 1) : resolution * resolution * 6;
+	m_totalVertices = (resolution + 1) * (resolution + 1);
+	
 	//m_vertexBuffer.reserve(m_totalVertices * sizeof(Vertex));
 
 	short stride = 8;
@@ -535,25 +543,30 @@ bool Terrain::terrainCreateProcedural(int size, int gridSpacing, float scale) {
 
 	//indices
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ibo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * m_indexBuffer.size(), &m_indexBuffer[0], GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * m_totalIndices, NULL, GL_STATIC_DRAW);
 	glBindVertexArray(0);
+
+	if (m_mode == Terrain::Mode::TRIANGLE_STRIP)
+		generateIndicesTS();
+	else
+		generateIndices();
 
 	return true;
 }
 
-void Terrain::terrainDestroy(){
-	
+void Terrain::terrainDestroy() {
+
 }
 
-void Terrain::terrainDraw(const Camera& camera){
-	
+void Terrain::terrainDraw(const Camera& camera) {
+
 	Vector4f lightDir = Vector4f(0.0f, 1.0f, 0.0f, 0.0f);
 
 	glUseProgram(m_terrainShader->m_program);
 	m_terrainShader->loadMatrix("u_transform", camera.getViewMatrix() * Globals::projection);
 	m_terrainShader->loadMatrix("u_normal", Matrix4f::GetNormalMatrix(camera.getViewMatrix()));
 
-	m_terrainShader->loadFloat("tilingFactor", HEIGHTMAP_TILING_FACTOR);
+	m_terrainShader->loadFloat("tilingFactor", m_tilingFactor);
 	m_terrainShader->loadFloat("region1.max", m_regions[0].max);
 	m_terrainShader->loadFloat("region1.min", m_regions[0].min);
 	m_terrainShader->loadFloat("region2.max", m_regions[1].max);
@@ -576,100 +589,71 @@ void Terrain::terrainDraw(const Camera& camera){
 		m_textures["null"]->bind(2);
 		m_textures["null"]->bind(3);
 
-	}else {
+	}
+	else {
 		m_textures["dirt"]->bind(0);
 		m_textures["grass"]->bind(1);
 		m_textures["rock"]->bind(2);
 		m_textures["snow"]->bind(3);
 	}
-	
+
 	glBindVertexArray(m_vao);
 	glDrawElements(m_mode == Terrain::Mode::TRIANGLE_STRIP ? GL_TRIANGLE_STRIP : GL_TRIANGLES, m_totalIndices, GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
-	
+
 	glUseProgram(0);
 }
 
 void Terrain::generateIndices(std::vector<unsigned int>& indexBuffer) {
-	int size = m_heightMap.getSize();
+	int resolution = m_heightMap.getResolution();
 
-	for (int z = 0; z < size - 1; z++) {
-		for (int x = 0; x < size - 1; x++) {
+	for (int z = 0; z < resolution; z++) {
+		for (int x = 0; x < resolution; x++) {
+
 			// 0 *- 1		0
 			//	\	*		|  *
 			//	 *	|		*	\
-			//      4		3 -* 4
-			m_indexBuffer.push_back(z * size + x);
-			m_indexBuffer.push_back((z + 1) * size + (x + 1));
-			m_indexBuffer.push_back(z * size + (x + 1));
+			//      3		2 -* 3
+			m_indexBuffer.push_back(z * (resolution + 1) + x);
+			m_indexBuffer.push_back((z + 1) * (resolution + 1) + (x + 1));
+			m_indexBuffer.push_back(z * (resolution + 1) + (x + 1));
 
-			m_indexBuffer.push_back(z * size + x);
-			m_indexBuffer.push_back((z + 1) * size + x);
-			m_indexBuffer.push_back((z + 1) * size + (x + 1));
+			m_indexBuffer.push_back(z * (resolution + 1) + x);
+			m_indexBuffer.push_back((z + 1) * (resolution + 1) + x);
+			m_indexBuffer.push_back((z + 1) * (resolution + 1) + (x + 1));
 		}
 	}
 }
 
 void Terrain::generateIndicesTS(std::vector<unsigned int>& indexBuffer) {
-	int size = m_heightMap.getSize();
+	int resolution = m_heightMap.getResolution();
 
-	for (int z = 0; z < size - 1; ++z) {
+	for (int z = 0; z < resolution; ++z) {
 		if (z % 2 == 0) {
 
-			for (int x = 0; x < size; ++x) {
-				m_indexBuffer.push_back(x + z * size);
-				m_indexBuffer.push_back(x + (z + 1) * size);
+			for (int x = 0; x < (resolution + 1); ++x) {
+				m_indexBuffer.push_back(x + z * (resolution + 1));
+				m_indexBuffer.push_back(x + (z + 1) * (resolution + 1));
 			}
 
 			// Add degenerate triangles to stitch strips together.
-			m_indexBuffer.push_back((size - 1) + (z + 1) * size);
+			m_indexBuffer.push_back(resolution + (z + 1) * (resolution + 1));
 		}else {
-			for (int x = size - 1; x >= 0; --x) {
-				m_indexBuffer.push_back(x + z * size);
-				m_indexBuffer.push_back(x + (z + 1) * size);
+			for (int x = resolution; x >= 0; --x) {
+				m_indexBuffer.push_back(x + z * (resolution + 1));
+				m_indexBuffer.push_back(x + (z + 1) * (resolution + 1));
 			}
 
 			// Add degenerate triangles to stitch strips together.
-			m_indexBuffer.push_back((z + 1) * size);
+			m_indexBuffer.push_back((z + 1) * (resolution + 1));
 		}
 	}
 }
 
-bool Terrain::generateIndices(){
+bool Terrain::generateIndices() {
 
 	void *pBuffer = 0;
-	int size = m_heightMap.getSize();
-
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ibo);
-
-	if (!(pBuffer = glMapBuffer(GL_ELEMENT_ARRAY_BUFFER, GL_WRITE_ONLY))){
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-		return false;
-	}
-
-	unsigned int *pIndex = static_cast<unsigned int *>(pBuffer);
-
-	for (int z = 0; z < size - 1; z++) {
-		for (int x = 0; x < size - 1; x++) {
-		
-			*pIndex++ = z * size + x;
-			*pIndex++ = (z + 1) * size + (x + 1);
-			*pIndex++ = z * size + (x + 1);
-
-			*pIndex++ = z * size + x;
-			*pIndex++ = (z + 1) * size + x;
-			*pIndex++ = (z + 1) * size + (x + 1);
-		}
-	}
-
-	glUnmapBuffer(GL_ELEMENT_ARRAY_BUFFER);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-	return true;
-}
-
-bool Terrain::generateIndicesTS() {
-	void *pBuffer = 0;
-	int size = m_heightMap.getSize();
+	unsigned int resolution = m_heightMap.getResolution();
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ibo);
 
@@ -680,24 +664,54 @@ bool Terrain::generateIndicesTS() {
 
 	unsigned int *pIndex = static_cast<unsigned int *>(pBuffer);
 
-	for (int z = 0; z < size - 1; ++z){
-		if (z % 2 == 0){
+	for (int z = 0; z < resolution; z++) {
+		for (int x = 0; x < resolution; x++) {
 
-			for (int x = 0; x < size; ++x){
-				*pIndex++ = x + z * size;
-				*pIndex++ = x + (z + 1) * size;
+			*pIndex++ = z * (resolution + 1) + x;
+			*pIndex++ = (z + 1) * (resolution + 1) + (x + 1);
+			*pIndex++ = z * (resolution + 1) + (x + 1);
+
+			*pIndex++ = z * (resolution + 1) + x;
+			*pIndex++ = (z + 1) * (resolution + 1) + x;
+			*pIndex++ = (z + 1) * (resolution + 1) + (x + 1);
+		}
+	}
+
+	glUnmapBuffer(GL_ELEMENT_ARRAY_BUFFER);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+	return true;
+}
+
+bool Terrain::generateIndicesTS() {
+	void *pBuffer = 0;
+	int resolution = m_heightMap.getResolution();
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ibo);
+
+	if (!(pBuffer = glMapBuffer(GL_ELEMENT_ARRAY_BUFFER, GL_WRITE_ONLY))) {
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+		return false;
+	}
+
+	unsigned int *pIndex = static_cast<unsigned int *>(pBuffer);
+
+	for (int z = 0; z < resolution; ++z) {
+		if (z % 2 == 0) {
+
+			for (int x = 0; x < (resolution + 1); ++x) {
+				*pIndex++ = x + z * (resolution + 1);
+				*pIndex++ = x + (z + 1) * (resolution + 1);
 			}
 
 			// Add degenerate triangles to stitch strips together.
-			*pIndex++ = (size - 1) + (z + 1) * size;
-		}else{
-			for (int x = size - 1; x >= 0; --x){
-				*pIndex++ = x + z * size;
-				*pIndex++ = x + (z + 1) * size;
+			*pIndex++ = resolution + (z + 1) * (resolution + 1);
+		}else {
+			for (int x = resolution; x >= 0; --x) {
+				*pIndex++ = x + z * (resolution + 1);
+				*pIndex++ = x + (z + 1) * (resolution + 1);
 			}
 
 			// Add degenerate triangles to stitch strips together.
-			*pIndex++ = (z + 1) * size;
+			*pIndex++ = (z + 1) * (resolution + 1);
 		}
 	}
 
@@ -710,45 +724,44 @@ void Terrain::generateVertices(std::vector<float>& vertexBuffer) {
 	Vertex *pVertices = 0;
 	Vertex *pVertex = 0;
 	int currVertex = 0;
-	int size = m_heightMap.getSize();
-	int gridSpacing = m_heightMap.getGridSpacing();
+	int resolution = m_heightMap.getResolution();
+	float gridSpacing = m_heightMap.getGridSpacing();
 	float heightScale = m_heightMap.getHeightScale();
 	Vector3f normal;
-	
-	for (int z = 0; z < size; ++z){
-		for (int x = 0; x < size; ++x){
-			//std::cout << m_heightMap.heightAtPixel(x, z) * heightScale << std::endl;
+
+	for (int z = 0; z <= resolution; ++z) {
+		for (int x = 0; x <= resolution; ++x) {
 			m_heightMap.normalAtPixel(x, z, normal);
 			vertexBuffer.push_back(static_cast<float>(x * gridSpacing)); vertexBuffer.push_back(m_heightMap.heightAtPixel(x, z) * heightScale); vertexBuffer.push_back(static_cast<float>(z * gridSpacing));
 			vertexBuffer.push_back(normal[0]); vertexBuffer.push_back(normal[1]); vertexBuffer.push_back(normal[2]);
-			vertexBuffer.push_back(static_cast<float>(x) / static_cast<float>(size)); vertexBuffer.push_back(static_cast<float>(z) / static_cast<float>(size));
+			vertexBuffer.push_back(static_cast<float>(x) / static_cast<float>(resolution)); vertexBuffer.push_back(static_cast<float>(z) / static_cast<float>(resolution));
 		}
 	}
 
 }
 
-bool Terrain::generateVertices(){
+bool Terrain::generateVertices() {
 
 	Vertex *pVertices = 0;
 	Vertex *pVertex = 0;
 	int currVertex = 0;
-	int size = m_heightMap.getSize();
-	int gridSpacing = m_heightMap.getGridSpacing();
+	int resolution = m_heightMap.getResolution();
+	float gridSpacing = m_heightMap.getGridSpacing();
 	float heightScale = m_heightMap.getHeightScale();
 	Vector3f normal;
 
 	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
 	pVertices = static_cast<Vertex *>(glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY));
 
-	if (!pVertices){
+	if (!pVertices) {
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		return false;
 	}
-	
-	for (int z = 0; z < size; ++z){
-		for (int x = 0; x < size; ++x){
 
-			currVertex = z * size + x;
+	for (int z = 0; z <= resolution; ++z) {
+		for (int x = 0; x <= resolution; ++x) {
+
+			currVertex = z * (resolution + 1) + x;
 			pVertex = &pVertices[currVertex];
 
 			pVertex->x = static_cast<float>(x * gridSpacing);
@@ -760,14 +773,12 @@ bool Terrain::generateVertices(){
 			pVertex->ny = normal[1];
 			pVertex->nz = normal[2];
 
-			pVertex->s = static_cast<float>(x) / static_cast<float>(size);
-			pVertex->t = static_cast<float>(z) / static_cast<float>(size);
+			pVertex->s = static_cast<float>(x) / static_cast<float>(resolution);
+			pVertex->t = static_cast<float>(z) / static_cast<float>(resolution);
 		}
 	}
-
-	
 	//std::memcpy(&m_vertexBuffer[0], pVertices, m_totalVertices * sizeof(Vertex));
-	
+
 	glUnmapBuffer(GL_ARRAY_BUFFER);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 

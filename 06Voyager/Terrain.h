@@ -17,11 +17,11 @@ public:
 		return m_heightScale;
 	}
 
-	int getSize() const{
-		return m_size;
+	int getResolution() const {
+		return m_resolution;
 	}
 
-	int getGridSpacing() const{
+	float getGridSpacing() const{
 		return m_gridSpacing;
 	}
 
@@ -31,7 +31,7 @@ public:
 
 	void createFromImage(std::string file, int gridSpacing, float scale);
 
-	bool create(int size, int gridSpacing, float scale);
+	bool create(int size, int width, float scale);
 	void destroy();
 
 	void generateDiamondSquareFractal(float roughness);
@@ -70,8 +70,7 @@ public:
 	}
 
 	template <typename T>
-	static T bilerp(const T &a, const T &b, const T &c, const T &d, float u, float v)
-	{
+	static T bilerp(const T &a, const T &b, const T &c, const T &d, float u, float v){
 		// Performs a bilinear interpolation.
 		//  P(u,v) = e + v(f - e)
 		//  
@@ -87,7 +86,7 @@ public:
 			+ d * (u * v);
 	}
 
-	float getHeight(unsigned int x, unsigned int z, unsigned short numCompontents, unsigned char* data);
+	float getHeight(unsigned int x, unsigned int z, unsigned int width, unsigned short numCompontents, unsigned char* data);
 
 private:
 	void blur(float amount);
@@ -95,14 +94,16 @@ private:
 	void smooth();
 
 	int m_size;
-	int m_gridSpacing;
+	int m_width;
+	int m_resolution;
+	float m_gridSpacing;
 	float m_heightScale;
 	std::vector<float> m_heights;
 };
 
 
-class Terrain
-{
+class Terrain{
+
 public:
 	enum Mode {
 		TRIANGLES,
@@ -117,14 +118,14 @@ public:
 	Terrain();
 	virtual ~Terrain();
 
-	void createProcedural(int size, int gridSpacing, float scale, float roughness);
-	void create(int size, int gridSpacing, float scale, float roughness);
-	void create(std::string file, int gridSpacing, float scale);
+	void createProcedural(int resolution, int width, float scale, float roughness);
+	void create(int resolution, int width, float scale, float roughness);
+	void create(std::string file, int width, float scale);
 
 	void destroy();
 	void draw(const Camera& camera);
 	bool generateUsingDiamondSquareFractal(float roughness);
-
+	void scaleRegions(const float heighScale);
 	void setDisableColorMaps(bool flag) {
 		m_disableColorMaps = flag;
 	}
@@ -148,14 +149,14 @@ public:
 	std::vector<unsigned int> m_indexBuffer;
 
 protected:
-	virtual bool terrainCreate(int size, int gridSpacing, float scale);
-	virtual bool terrainCreateProcedural(int size, int gridSpacing, float scale);
+	virtual bool terrainCreate();
+	virtual bool terrainCreateProcedural();
 	virtual void terrainDestroy();
 	virtual void terrainDraw(const Camera& camera);
 
 private:
-	struct Vertex
-	{
+
+	struct Vertex{
 		float x, y, z;
 		float nx, ny, nz;
 		float s, t;
@@ -175,5 +176,6 @@ private:
 	bool m_disableColorMaps;
 	unsigned int m_vbo, m_ibo, m_vao;
 	Mode m_mode = Mode::TRIANGLES;
+	float m_tilingFactor = 20.0f;
 };
 
