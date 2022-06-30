@@ -631,3 +631,17 @@ void glDrawElementsInstanced(GLenum mode, GLsizei count, GLenum type, const void
 	LOAD_ENTRYPOINT("glDrawElementsInstanced", glDrawElementsInstanced, PFNGLDRAWELEMENTSINSTANCEDPROC);
 	glDrawElementsInstanced(mode, count, type, indices, instancecount);
 }
+
+void glBindImageTexture(GLuint unit, GLuint texture, GLint level, GLboolean layered, GLint layer, GLenum access, GLenum format) {
+	typedef void(APIENTRY * PFNGLBINDIMAGETEXTUREPROC)(GLuint unit, GLuint texture, GLint level, GLboolean layered, GLint layer, GLenum access, GLenum format);
+	static PFNGLBINDIMAGETEXTUREPROC  glBindImageTexture = 0;
+	LOAD_ENTRYPOINT("glBindImageTexture", glBindImageTexture, PFNGLBINDIMAGETEXTUREPROC);
+	glBindImageTexture(unit, texture, level, layered, layer, access, format);
+}
+
+void glCopyTextureSubImage2D(GLuint texture, GLint level, GLint xoffset, GLint yoffset, GLint x, GLint y, GLsizei width, GLsizei height) {
+	typedef void(APIENTRY * PFNGLCOPYTEXTURESUBIMAGE2DPROC)(GLuint texture, GLint level, GLint xoffset, GLint yoffset, GLint x, GLint y, GLsizei width, GLsizei height);
+	static PFNGLCOPYTEXTURESUBIMAGE2DPROC  glCopyTextureSubImage2D = 0;
+	LOAD_ENTRYPOINT("glCopyTextureSubImage2D", glCopyTextureSubImage2D, PFNGLCOPYTEXTURESUBIMAGE2DPROC);
+	glCopyTextureSubImage2D(texture, level, xoffset, yoffset, x, y, width, height);
+}

@@ -172,7 +172,9 @@ typedef char GLchar;
 #define GL_TEXTURE1_ARB 0x84C1
 #define GL_TEXTURE_MAX_ANISOTROPY_EXT 0x84FE
 #define GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT 0x84FF
-#define GL_WRITE_ONLY   0x88B9
+#define GL_READ_ONLY 0x88B8
+#define GL_WRITE_ONLY 0x88B9
+#define GL_READ_WRITE 0x88BA
 
 	extern void glActiveTextureARB(GLenum texture);
 	extern void glMultiTexCoord2fARB(GLenum target, GLfloat s, GLfloat t);
@@ -198,6 +200,8 @@ typedef char GLchar;
 	extern void glDrawElementsInstanced(GLenum mode, GLsizei count, GLenum type, const void * indices, GLsizei instancecount);
 
 	extern void glFramebufferTexture(GLenum target, GLenum attachment, GLuint texture, GLint level);
+	extern void glBindImageTexture(GLuint unit, GLuint texture, GLint level, GLboolean layered, GLint layer, GLenum access, GLenum format);
+	extern void glCopyTextureSubImage2D(GLuint texture, GLint level, GLint xoffset, GLint yoffset, GLint x, GLint y, GLsizei width, GLsizei height);
 
 } // extern "C"
 #endif

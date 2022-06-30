@@ -94,7 +94,7 @@ void Spritesheet::addToSpritesheet(std::string fileName, unsigned short tileWidt
 		glCopyTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, layer, 0, 0, tileWidth, tileHeight);
 	}
 
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
 	glDeleteFramebuffers(1, &fbo);
 
 	row = row > 0 ? row - 1 : row;
@@ -168,28 +168,31 @@ void Spritesheet::createSpritesheet(unsigned int texture, unsigned int width, un
 	unsigned internalFormat = _format == -1 ? GL_RGBA8 : _format;
 	m_totalFrames++;
 
+	//OpenGL 4.3
 	/*glGenTextures(1, &m_texture);
 	glBindTexture(GL_TEXTURE_2D_ARRAY, m_texture);
 
 	glTexStorage3D(GL_TEXTURE_2D_ARRAY, 8, internalFormat, width, height, m_totalFrames);
 	glCopyImageSubData(texture, GL_TEXTURE_2D, 0, 0, 0, 0, m_texture, GL_TEXTURE_2D_ARRAY, 0, 0, 0, m_totalFrames - 1, width, height, 1);*/
 
+	//OpenGL 3.0
+	glGenTextures(1, &m_texture);
+	glBindTexture(GL_TEXTURE_2D_ARRAY, m_texture);
+	glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, internalFormat, width, height, m_totalFrames, 0, internalFormat == GL_RGBA8 ? GL_RGBA : GL_RGB, GL_UNSIGNED_BYTE, NULL);
+
+
 	unsigned int fbo = 0;
 	glGenFramebuffers(1, &fbo);
 	glBindFramebuffer(GL_READ_FRAMEBUFFER, fbo);
 
-	glGenTextures(1, &m_texture);
-	glBindTexture(GL_TEXTURE_2D_ARRAY, m_texture);
-
-	glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, internalFormat, width, height, m_totalFrames, 0, internalFormat == GL_RGBA8 ? GL_RGBA : GL_RGB, GL_UNSIGNED_BYTE, NULL);
-
-	glFramebufferTexture(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, texture, 0);
+	glFramebufferTexture2D(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture, 0);
 	glReadBuffer(GL_COLOR_ATTACHMENT0);
-	glCopyTextureSubImage3D(m_texture, 0, 0, 0, 0, 0, 0, width, height);
+	glCopyTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, 0, 0, 0, width, height);
+	//glCopyTextureSubImage3D(m_texture, 0, 0, 0, 0, 0, 0, width, height);
 
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
 	glDeleteFramebuffers(1, &fbo);
-	
+
 	glTexParameterf(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameterf(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -206,11 +209,12 @@ void Spritesheet::addToSpritesheet(unsigned int texture, unsigned int width, uns
 	unsigned internalFormat = _format == -1 ? GL_RGBA8 : _format;
 	m_totalFrames++;
 
-	unsigned int fbo = 0;
+	//OpenGL 4.3
+	/*unsigned int fbo = 0;
 	glGenFramebuffers(1, &fbo);
 	glBindFramebuffer(GL_READ_FRAMEBUFFER, fbo);
 
-	/*unsigned int texture_new;
+	unsigned int texture_new;
 	glGenTextures(1, &texture_new);
 	glBindTexture(GL_TEXTURE_2D_ARRAY, texture_new);
 	glTexStorage3D(GL_TEXTURE_2D_ARRAY, 8, internalFormat, width, height, m_totalFrames);
@@ -220,7 +224,14 @@ void Spritesheet::addToSpritesheet(unsigned int texture, unsigned int width, uns
 		glCopyTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, layer, 0, 0, width, height);
 	}
 
+	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
+
 	glCopyImageSubData(texture, GL_TEXTURE_2D, 0, 0, 0, 0, texture_new, GL_TEXTURE_2D_ARRAY, 0, 0, 0, m_totalFrames - 1, width, height, 1);*/
+
+	//OpenGL 3.0
+	unsigned int fbo = 0;
+	glGenFramebuffers(1, &fbo);
+	glBindFramebuffer(GL_READ_FRAMEBUFFER, fbo);
 
 	unsigned int texture_new;
 	glGenTextures(1, &texture_new);
@@ -229,16 +240,44 @@ void Spritesheet::addToSpritesheet(unsigned int texture, unsigned int width, uns
 
 	for (int layer = 0; layer < m_totalFrames - 1; ++layer) {
 		glFramebufferTextureLayer(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, m_texture, 0, layer);
+		glReadBuffer(GL_COLOR_ATTACHMENT0);
 		glCopyTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, layer, 0, 0, width, height);
 	}
 
-	glFramebufferTexture(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, texture, 0);
+	glFramebufferTexture2D(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture, 0);
+	glCopyTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, m_totalFrames - 1, 0, 0, width, height);
 	glReadBuffer(GL_COLOR_ATTACHMENT0);
+	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
+
+	glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+	glDeleteFramebuffers(1, &fbo);
+	
+
+	//OpenGL 4.5
+	/*unsigned int texture_new;
+	glGenTextures(1, &texture_new);
+	glBindTexture(GL_TEXTURE_2D_ARRAY, texture_new);
+	glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, internalFormat, width, height, m_totalFrames, 0, internalFormat == GL_RGBA8 ? GL_RGBA : GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
+
+	unsigned int fbo = 0;
+	glGenFramebuffers(1, &fbo);
+	glBindFramebuffer(GL_READ_FRAMEBUFFER, fbo);
+
+	for (int layer = 0; layer < m_totalFrames - 1; ++layer) {
+		glFramebufferTextureLayer(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, m_texture, 0, layer);
+		glCopyTextureSubImage3D(texture_new, 0, 0, 0, layer, 0, 0, width, height);
+	}
+	
+	//glFramebufferTextureLayer(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, texture, 0, 0);
+	glFramebufferTexture(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, texture, 0);
+	glReadBuffer(GL_COLOR_ATTACHMENT1);
 	glCopyTextureSubImage3D(texture_new, 0, 0, 0, m_totalFrames - 1, 0, 0, width, height);
 
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	glDeleteFramebuffers(1, &fbo);
+	glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+	glDeleteFramebuffers(1, &fbo);*/
 
+	glBindTexture(GL_TEXTURE_2D_ARRAY, texture_new);
 	glTexParameterf(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameterf(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
