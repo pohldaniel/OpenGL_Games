@@ -20,9 +20,9 @@ Spritesheet::Spritesheet(std::string fileName, unsigned short tileWidth, unsigne
 
 	glGenTextures(1, &m_texture);
 	glBindTexture(GL_TEXTURE_2D_ARRAY, m_texture);
-	//glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_RGBA8, tileWidth, tileHeight, totalFrames, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-	glTexStorage3D(GL_TEXTURE_2D_ARRAY, 1, internalFormat, tileWidth, tileHeight, m_totalFrames);
-	//glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB8_ALPHA8, tileWidth, tileHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+	glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, internalFormat, tileWidth, tileHeight, m_totalFrames, 0, numCompontents == 3 ? GL_RGB : GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+	//glTexStorage3D(GL_TEXTURE_2D_ARRAY, 1, internalFormat, tileWidth, tileHeight, m_totalFrames);
+
 	//default row = 0
 	row = row > 0 ? row - 1 : row;
 	unsigned short image = 0;
@@ -87,8 +87,8 @@ void Spritesheet::addToSpritesheet(std::string fileName, unsigned short tileWidt
 	unsigned int texture_new;
 	glGenTextures(1, &texture_new);
 	glBindTexture(GL_TEXTURE_2D_ARRAY, texture_new);
-	glTexStorage3D(GL_TEXTURE_2D_ARRAY, 1, internalFormat, tileWidth, tileHeight, m_totalFrames + totalFrames);
-
+	//glTexStorage3D(GL_TEXTURE_2D_ARRAY, 1, internalFormat, tileWidth, tileHeight, m_totalFrames + totalFrames);
+	glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, internalFormat, tileWidth, tileHeight, m_totalFrames + totalFrames, 0, numCompontents == 3 ? GL_RGB : GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 	for (int layer = 0; layer < m_totalFrames; ++layer) {
 		glFramebufferTextureLayer(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, m_texture, 0, layer);
 		glCopyTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, layer, 0, 0, tileWidth, tileHeight);
@@ -161,21 +161,18 @@ void Spritesheet::createNullSpritesheet(unsigned int width, unsigned int height,
 }
 
 void Spritesheet::createSpritesheet(unsigned int texture, unsigned int width, unsigned int height, unsigned int _format) {
-	
+	//It seems setLinear() isn't working when using glTexStorage3D so I go for glTexImage3D. 
+	//Of curse you can increase the mipmaplevel (level) but it decreases the performance.
+	//Unfortunately I wasn't able to use glCopyImageSubData with glTexImage3D. 
+
 	unsigned internalFormat = _format == -1 ? GL_RGBA8 : _format;
 	m_totalFrames++;
 
 	/*glGenTextures(1, &m_texture);
 	glBindTexture(GL_TEXTURE_2D_ARRAY, m_texture);
 
-	glTexStorage3D(GL_TEXTURE_2D_ARRAY, 1, internalFormat, width, height, m_totalFrames);
-	glCopyImageSubData(texture, GL_TEXTURE_2D, 0, 0, 0, 0, m_texture, GL_TEXTURE_2D_ARRAY, 0, 0, 0, m_totalFrames - 1, width, height, 1);
-
-	glTexParameterf(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameterf(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);*/
+	glTexStorage3D(GL_TEXTURE_2D_ARRAY, 8, internalFormat, width, height, m_totalFrames);
+	glCopyImageSubData(texture, GL_TEXTURE_2D, 0, 0, 0, 0, m_texture, GL_TEXTURE_2D_ARRAY, 0, 0, 0, m_totalFrames - 1, width, height, 1);*/
 
 	unsigned int fbo = 0;
 	glGenFramebuffers(1, &fbo);
@@ -192,7 +189,6 @@ void Spritesheet::createSpritesheet(unsigned int texture, unsigned int width, un
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glDeleteFramebuffers(1, &fbo);
-
 	
 	glTexParameterf(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameterf(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -203,32 +199,28 @@ void Spritesheet::createSpritesheet(unsigned int texture, unsigned int width, un
 }
 
 void Spritesheet::addToSpritesheet(unsigned int texture, unsigned int width, unsigned int height, unsigned int _format) {
+	//It seems setLinear() isn't working when using glTexStorage3D so I go for glTexImage3D. 
+	//Of curse you can increase the mipmaplevel (level) but it decreases the performance.
+	//Unfortunately I wasn't able to use glCopyImageSubData with glTexImage3D. 
 
 	unsigned internalFormat = _format == -1 ? GL_RGBA8 : _format;
 	m_totalFrames++;
 
-	/*unsigned int fbo = 0;
+	unsigned int fbo = 0;
 	glGenFramebuffers(1, &fbo);
 	glBindFramebuffer(GL_READ_FRAMEBUFFER, fbo);
 
-	unsigned int texture_new;
+	/*unsigned int texture_new;
 	glGenTextures(1, &texture_new);
 	glBindTexture(GL_TEXTURE_2D_ARRAY, texture_new);
-	glTexStorage3D(GL_TEXTURE_2D_ARRAY, 1, internalFormat, width, height, m_totalFrames);
+	glTexStorage3D(GL_TEXTURE_2D_ARRAY, 8, internalFormat, width, height, m_totalFrames);
 
 	for (int layer = 0; layer < m_totalFrames - 1; ++layer) {
 		glFramebufferTextureLayer(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, m_texture, 0, layer);
 		glCopyTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, layer, 0, 0, width, height);
 	}
 
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	glDeleteFramebuffers(1, &fbo);
-
 	glCopyImageSubData(texture, GL_TEXTURE_2D, 0, 0, 0, 0, texture_new, GL_TEXTURE_2D_ARRAY, 0, 0, 0, m_totalFrames - 1, width, height, 1);*/
-
-	unsigned int fbo = 0;
-	glGenFramebuffers(1, &fbo);
-	glBindFramebuffer(GL_READ_FRAMEBUFFER, fbo);
 
 	unsigned int texture_new;
 	glGenTextures(1, &texture_new);
