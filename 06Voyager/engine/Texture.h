@@ -5,6 +5,7 @@
 #include <string>
 
 class Texture{
+	friend class Mesh;
 
 public:
 	Texture() = default;
@@ -19,10 +20,12 @@ public:
 	void createNullTexture(unsigned int width, unsigned int height);
 	
 	void setRepeat();
+	void setLinear();
 
 	static void CutSubimage(std::string fileIn, std::string fileOut, unsigned int offsetX, unsigned int offsetY, unsigned int width = 0, unsigned int height = 0, const bool flipVertical = false);
 	static void AddHorizontally(std::string fileIn1, std::string fileIn2, std::string fileOut, const bool flipVertical = false);
 	static void FlipVertical(unsigned char* data, unsigned int padWidth, unsigned int height);
+	static void Unbind();
 private:
 	void flipVertical(unsigned char* data, unsigned int padWidth, unsigned int height);
 	

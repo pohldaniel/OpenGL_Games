@@ -41,6 +41,12 @@ public:
 		m_assetPointer[name]->createSpritesheet(texture, width, height, format);
 	}
 
+	void createNullSpritesheet(const std::string& name, unsigned int width = 2, unsigned int height = 2, unsigned short layer = 4) {
+		m_assetPointer[name] = new T();
+		m_assetPointer[name]->createNullSpritesheet(width, height, layer);
+	}
+
+
 	void loadSoundEffect(const std::string& name, const std::string& path) {
 		m_assets[name].loadFromFile(path);
 	}

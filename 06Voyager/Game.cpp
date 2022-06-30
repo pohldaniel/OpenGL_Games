@@ -17,6 +17,12 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	//m_terrain.createProcedural(HEIGHTMAP_RESOLUTION, HEIGHTMAP_WIDTH, HEIGHTMAP_SCALE, HEIGHTMAP_ROUGHNESS);
 	m_terrain.scaleRegions(HEIGHTMAP_SCALE);
 
+	m_terrain.setGridPosition(0, 0);
+	//m_terrain.setGridPosition(0, 1);
+	//m_terrain.setGridPosition(1, 0);
+	//m_terrain.setGridPosition(1, 1);
+	m_terrain.createInstances();
+
 	Vector3f pos;
 
 	pos[0] = HEIGHTMAP_WIDTH * 0.5f;

@@ -4,24 +4,21 @@
 #include <iostream>
 
 Texture::Texture(std::string fileName, const bool _flipVertical, unsigned int _format) {
-	unsigned format = _format == -1 ? GL_RGBA8 : _format;
 	
 	int width, height, numCompontents;
 	unsigned char* imageData = SOIL_load_image(fileName.c_str(), &width, &height, &numCompontents, SOIL_LOAD_AUTO);
+	unsigned int internalFormat = _format == -1 && numCompontents == 3 ? GL_RGB8 : _format == -1 ? GL_RGBA8 : _format;
 
 	if(_flipVertical)
 		flipVertical(imageData, numCompontents * width, height);
 
 	glGenTextures(1, &m_texture);
 	glBindTexture(GL_TEXTURE_2D, m_texture);
-	//glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-	//glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, imageData);
-	//glGenerateMipmap(GL_TEXTURE_2D);
+	glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, numCompontents == 3 ? GL_RGB : GL_RGBA, GL_UNSIGNED_BYTE, imageData);
 	glBindTexture(GL_TEXTURE_2D, 0);
 
 	SOIL_free_image_data(imageData);
@@ -64,11 +61,11 @@ Texture::~Texture() {
 	}
 }
 
-void Texture::loadFromFile(std::string pictureFile, const bool _flipVertical, const bool linear, unsigned int _format) {
+void Texture::loadFromFile(std::string fileName, const bool _flipVertical, const bool linear, unsigned int _format) {
 	
 	int width, height, numCompontents;
-	unsigned char* imageData = SOIL_load_image(pictureFile.c_str(), &width, &height, &numCompontents, SOIL_LOAD_AUTO);
-	unsigned format = _format == -1 && numCompontents == 3 ? GL_RGB : _format == -1 ? GL_RGBA8 : _format;
+	unsigned char* imageData = SOIL_load_image(fileName.c_str(), &width, &height, &numCompontents, SOIL_LOAD_AUTO);
+	unsigned internalFormat = _format == -1 && numCompontents == 3 ? GL_RGB8 : _format == -1 ? GL_RGBA8 : _format;
 
 	if (_flipVertical)
 		flipVertical(imageData, numCompontents * width, height);
@@ -79,7 +76,7 @@ void Texture::loadFromFile(std::string pictureFile, const bool _flipVertical, co
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, linear ? GL_LINEAR : GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, numCompontents == 3 ? GL_RGB : GL_RGBA, GL_UNSIGNED_BYTE, imageData);
+	glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, numCompontents == 3 ? GL_RGB : GL_RGBA, GL_UNSIGNED_BYTE, imageData);
 	if (linear) glGenerateMipmap(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, 0);
 
@@ -90,7 +87,7 @@ void Texture::loadFromFile(std::string pictureFile, unsigned short tileWidth, un
 	
 	int width, height, numCompontents;
 	unsigned char* imageData = SOIL_load_image(pictureFile.c_str(), &width, &height, &numCompontents, SOIL_LOAD_AUTO);
-	unsigned format = _format == -1 && numCompontents == 3 ? GL_RGB : _format == -1 ? GL_RGBA8 : _format;
+	unsigned internalFormat = _format == -1 && numCompontents == 3 ? GL_RGB8 : _format == -1 ? GL_RGBA8 : _format;
 
 	if (_flipVertical)
 		flipVertical(imageData, numCompontents * width, height);
@@ -121,7 +118,7 @@ void Texture::loadFromFile(std::string pictureFile, unsigned short tileWidth, un
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, linear ? GL_LINEAR : GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexImage2D(GL_TEXTURE_2D, 0, format, tileWidth, tileHeight, 0, numCompontents == 3 ? GL_RGB : GL_RGBA, GL_UNSIGNED_BYTE, subImage);
+	glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, tileWidth, tileHeight, 0, numCompontents == 3 ? GL_RGB : GL_RGBA, GL_UNSIGNED_BYTE, subImage);
 	if (linear) glGenerateMipmap(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, 0);
 
@@ -134,7 +131,7 @@ void Texture::loadFromFile(std::string pictureFile, unsigned int _offsetX, unsig
 
 	int width, height, numCompontents;
 	unsigned char* imageData = SOIL_load_image(pictureFile.c_str(), &width, &height, &numCompontents, SOIL_LOAD_AUTO);
-	unsigned format = _format == -1 && numCompontents == 3 ? GL_RGB : _format == -1 ? GL_RGBA8 : _format;
+	unsigned internalFormat = _format == -1 && numCompontents == 3 ? GL_RGB8 : _format == -1 ? GL_RGBA8 : _format;
 
 	if (_flipVertical)
 		flipVertical(imageData, numCompontents * width, height);
@@ -163,7 +160,7 @@ void Texture::loadFromFile(std::string pictureFile, unsigned int _offsetX, unsig
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, linear ? GL_LINEAR : GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexImage2D(GL_TEXTURE_2D, 0, format, _width, _height, 0, numCompontents == 3 ? GL_RGB : GL_RGBA, GL_UNSIGNED_BYTE, subImage);
+	glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, _width, _height, 0, numCompontents == 3 ? GL_RGB : GL_RGBA, GL_UNSIGNED_BYTE, subImage);
 	if (linear) glGenerateMipmap(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, 0);
 
@@ -285,9 +282,21 @@ void Texture::bind(unsigned int unit){
 	glBindTexture(GL_TEXTURE_2D, m_texture);
 }
 
+void Texture::Unbind() {
+	glBindTexture(GL_TEXTURE_2D, 0);
+}
+
 void Texture::setRepeat() {
 	glBindTexture(GL_TEXTURE_2D, m_texture);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+void Texture::setLinear() {
+	glBindTexture(GL_TEXTURE_2D, m_texture);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glGenerateMipmap(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, 0);
 }

@@ -570,9 +570,23 @@ void glBlendFuncSeparate(GLenum srcRGB, GLenum dstRGB, GLenum srcAlpha, GLenum d
 
 void glCopyTexSubImage3D(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLint x, GLint y, GLsizei width, GLsizei height) {
 	typedef void(APIENTRY * PFNGLCOPYTEXSUBIMAGE3DPROC)(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLint x, GLint y, GLsizei width, GLsizei height);
-	static PFNGLCOPYTEXSUBIMAGE3DPROC  glCopyTexSubImage3D = 0;
+	static PFNGLCOPYTEXSUBIMAGE3DPROC glCopyTexSubImage3D = 0;
 	LOAD_ENTRYPOINT("glCopyTexSubImage3D", glCopyTexSubImage3D, PFNGLCOPYTEXSUBIMAGE3DPROC);
 	glCopyTexSubImage3D(target, level, xoffset, yoffset, zoffset, x, y, width, height);
+}
+
+void glCopyTextureSubImage3D(GLuint texture, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLint x, GLint y, GLsizei width, GLsizei height) {
+	typedef void(APIENTRY * PFNGLCOPYTEXTURESUBIMAGE3DPROC)(GLuint texture, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLint x, GLint y, GLsizei width, GLsizei height);
+	static PFNGLCOPYTEXTURESUBIMAGE3DPROC glCopyTextureSubImage3D = 0;
+	LOAD_ENTRYPOINT("glCopyTextureSubImage3D", glCopyTextureSubImage3D, PFNGLCOPYTEXTURESUBIMAGE3DPROC);
+	glCopyTextureSubImage3D(texture, level, xoffset, yoffset, zoffset, x, y, width, height);
+}
+
+void glFramebufferTexture(GLenum target, GLenum attachment, GLuint texture, GLint level) {
+	typedef void(APIENTRY * PFNGLFRAMEBUFFERTEXTUREPROC)(GLenum target, GLenum attachment, GLuint texture, GLint level);
+	static PFNGLFRAMEBUFFERTEXTUREPROC glFramebufferTexture = 0;
+	LOAD_ENTRYPOINT("glFramebufferTexture", glFramebufferTexture, PFNGLFRAMEBUFFERTEXTUREPROC);
+	glFramebufferTexture(target, attachment, texture, level);
 }
 
 void glDeleteFramebuffers(GLsizei n, const GLuint * framebuffers) {

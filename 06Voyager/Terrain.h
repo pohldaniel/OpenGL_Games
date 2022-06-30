@@ -1,9 +1,11 @@
 #pragma once
 
 #include <vector>
+#include <functional>
 #include "engine/Vector.h"
 #include "engine/Shader.h"
 #include "engine/Texture.h"
+#include "engine/Spritesheet.h"
 
 #include "Constants.h"
 #include "Camera.h"
@@ -19,6 +21,10 @@ public:
 
 	int getResolution() const {
 		return m_resolution;
+	}
+
+	int getWidth() const {
+		return m_width;
 	}
 
 	float getGridSpacing() const{
@@ -53,8 +59,7 @@ public:
 			* (static_cast<float>(rand()) / static_cast<float>(RAND_MAX));
 	}
 
-	static long floatToLong(float f)
-	{
+	static long floatToLong(float f){
 		// Converts a floating point number into an integer.
 		// Fractional values are truncated as in ANSI C.
 		// About 5 to 6 times faster than a standard typecast to an integer.
@@ -114,6 +119,7 @@ public:
 		float min;
 		float max;
 	};
+
 	TerrainRegion m_regions[4];
 	Terrain();
 	virtual ~Terrain();
@@ -123,7 +129,9 @@ public:
 	void create(std::string file, int width, float scale);
 
 	void destroy();
-	void draw(const Camera& camera);
+	std::function<void(const Camera&)> draw = 0;
+	void drawNormal(const Camera& camera);
+	void drawInstanced(const Camera& camera);
 	bool generateUsingDiamondSquareFractal(float roughness);
 	void scaleRegions(const float heighScale);
 	void setDisableColorMaps(bool flag) {
@@ -144,16 +152,27 @@ public:
 
 	Shader* m_terrainShader;
 	std::unordered_map<std::string, Texture*> m_textures;
+	Spritesheet* m_spriteSheet;
+
+	std::unordered_map<std::string, Spritesheet*> m_spritesheets;
 
 	std::vector<float> m_vertexBuffer;
 	std::vector<unsigned int> m_indexBuffer;
+
+	void setPosition(const float x, const float y, const float z);
+	void setPosition(const Vector3f &position);
+
+	void setGridPosition(int x, int z);
+	void createInstances();
 
 protected:
 	virtual bool terrainCreate();
 	virtual bool terrainCreateProcedural();
 	virtual void terrainDestroy();
-	virtual void terrainDraw(const Camera& camera);
 
+	Vector3f m_position;
+	Matrix4f m_transform = Matrix4f::IDENTITY;
+	std::vector<Matrix4f> modelMTX;
 private:
 
 	struct Vertex{
@@ -175,6 +194,8 @@ private:
 	HeightMap m_heightMap;
 	bool m_disableColorMaps;
 	unsigned int m_vbo, m_ibo, m_vao;
+	unsigned int m_vboInstances;
+
 	Mode m_mode = Mode::TRIANGLES;
 	float m_tilingFactor = 20.0f;
 };

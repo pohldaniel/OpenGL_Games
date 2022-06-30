@@ -254,10 +254,23 @@ void Application::initStates() {
 void Application::loadAssets() {
 	Globals::shaderManager.loadShader("quad", "res/shader/quad.vs", "res/shader/quad.fs");
 	Globals::shaderManager.loadShader("terrain", "res/shader/terrain.vs", "res/shader/terrain.fs");	
+	Globals::shaderManager.loadShader("terrain_instance", "res/shader/terrain_instance.vs", "res/shader/terrain_instance.fs");
 
 	Globals::textureManager.loadTexture("dirt", "res/textures/dirt.JPG", true, true);
 	Globals::textureManager.loadTexture("grass", "res/textures/grass.JPG", true, true);
 	Globals::textureManager.loadTexture("rock", "res/textures/rock.JPG", true, true);
 	Globals::textureManager.loadTexture("snow", "res/textures/snow.JPG", true, true);
 	Globals::textureManager.createNullTexture("null");
+
+	Globals::spritesheetManager.loadSpritesheet("terrain", Globals::textureManager.get("dirt").getTexture(), 512, 512, GL_RGB8);
+	Globals::spritesheetManager.getAssetPointer("terrain")->addToSpritesheet((&Globals::textureManager.get("grass"))->getTexture(), 512, 512, GL_RGB8);
+	Globals::spritesheetManager.getAssetPointer("terrain")->addToSpritesheet((&Globals::textureManager.get("rock"))->getTexture(), 512, 512, GL_RGB8);
+	Globals::spritesheetManager.getAssetPointer("terrain")->addToSpritesheet((&Globals::textureManager.get("snow"))->getTexture(), 512, 512, GL_RGB8);
+	
+	Globals::spritesheetManager.getAssetPointer("terrain")->setLinear();
+	Globals::spritesheetManager.getAssetPointer("terrain")->setRepeat();
+
+	Globals::spritesheetManager.createNullSpritesheet("null");
+	Globals::spritesheetManager.getAssetPointer("null")->setLinear();
+	Globals::spritesheetManager.getAssetPointer("null")->setRepeat();
 }

@@ -168,9 +168,14 @@
     <ClInclude Include="engine\input\MouseEventListener.h" />
     <ClInclude Include="engine\Quad.h" />
     <ClInclude Include="engine\Shader.h" />
+    <ClInclude Include="engine\Spritesheet.h" />
     <ClInclude Include="engine\Texture.h" />
     <ClInclude Include="engine\Vector.h" />
+    <ClInclude Include="Entity.h" />
     <ClInclude Include="Game.h" />
+    <ClInclude Include="Object.h" />
+    <ClInclude Include="ObjModel.h" />
+    <ClInclude Include="RenderableObject.h" />
     <ClInclude Include="StateMachine.h" />
     <ClInclude Include="Terrain.h" />
   </ItemGroup>
@@ -185,10 +190,15 @@
     <ClCompile Include="engine\input\MouseEventListener.cpp" />
     <ClCompile Include="engine\Quad.cpp" />
     <ClCompile Include="engine\Shader.cpp" />
+    <ClCompile Include="engine\Spritesheet.cpp" />
     <ClCompile Include="engine\Texture.cpp" />
     <ClCompile Include="engine\Vector.cpp" />
+    <ClCompile Include="Entity.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Object.cpp" />
+    <ClCompile Include="ObjModel.cpp" />
+    <ClCompile Include="RenderableObject.cpp" />
     <ClCompile Include="soil2\image_DXT.c" />
     <ClCompile Include="soil2\image_helper.c" />
     <ClCompile Include="soil2\SOIL2.c" />
