@@ -11,6 +11,7 @@ extern Matrix4f Globals::projection = Matrix4f::IDENTITY;
 extern Matrix4f Globals::invProjection = Matrix4f::IDENTITY;
 extern AssetManager<Shader> Globals::shaderManager = AssetManager<Shader>();
 extern AssetManager<Texture> Globals::textureManager = AssetManager<Texture>();
+extern AssetManager<Spritesheet> Globals::spritesheetManager = AssetManager<Spritesheet>();
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd) {
 
