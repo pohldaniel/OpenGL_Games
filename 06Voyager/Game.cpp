@@ -11,18 +11,17 @@ const Vector3f CAMERA_VELOCITY(200.0f, 200.0f, 200.0f);
 
 Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 
-	//m_terrain.create("res/heightmap.png", HEIGHTMAP_WIDTH, HEIGHTMAP_SCALE);
 	m_terrain.create(Globals::textureManager.get("height_map"), HEIGHTMAP_WIDTH, HEIGHTMAP_SCALE);
 	//m_terrain.create(HEIGHTMAP_RESOLUTION, HEIGHTMAP_WIDTH, HEIGHTMAP_SCALE, HEIGHTMAP_ROUGHNESS);
 	//m_terrain.createProcedural(HEIGHTMAP_RESOLUTION, HEIGHTMAP_WIDTH, HEIGHTMAP_SCALE, HEIGHTMAP_ROUGHNESS);
-	m_terrain.scaleRegions(HEIGHTMAP_SCALE);
+	
 
 	//m_terrain.setGridPosition(0, 0);
 	//m_terrain.setGridPosition(0, 1);
 	//m_terrain.setGridPosition(1, 0);
 	//m_terrain.setGridPosition(1, 1);
 	//m_terrain.createInstances();
-
+	m_terrain.scaleRegions(HEIGHTMAP_SCALE);
 	Vector3f pos;
 
 	pos[0] = HEIGHTMAP_WIDTH * 0.5f;
@@ -91,15 +90,15 @@ void Game::update() {
 		move |= true;
 	}
 
-	if (keyboard.keyPressed(Keyboard::KEY_T) ) {
+	if (keyboard.keyPressed(Keyboard::KEY_1) ) {
 		m_terrain.toggleDisableColorMaps();
 	}
 
-	if (keyboard.keyPressed(Keyboard::KEY_R)) {
+	if (keyboard.keyPressed(Keyboard::KEY_2)) {
 		m_terrain.toggleColorMode();
 	}
 
-	if (keyboard.keyPressed(Keyboard::KEY_M)) {
+	if (keyboard.keyPressed(Keyboard::KEY_3)) {
 		m_terrain.generateUsingDiamondSquareFractal(HEIGHTMAP_ROUGHNESS);
 	}
 
@@ -122,7 +121,7 @@ void Game::update() {
 
 	}// end if any movement
 
-	//performCameraCollisionDetection();
+	performCameraCollisionDetection();
 };
 
 void Game::render(unsigned int &frameBuffer) {

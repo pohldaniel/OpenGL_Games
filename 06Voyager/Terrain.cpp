@@ -4,7 +4,7 @@
 #include <ctime>
 
 #include "soil2/SOIL2.h"
-#include "engine/Extension.h"
+
 #include "terrain.h"
 
 //-----------------------------------------------------------------------------
@@ -102,9 +102,7 @@ bool HeightMap::create(int resolution, int width, float scale) {
 	m_gridSpacing = static_cast<float>(width) / static_cast<float>(m_resolution);
 	try{
 		m_heights.resize(m_size * m_size);
-	}
-	catch (const std::bad_alloc &)
-	{
+	}catch (const std::bad_alloc &){
 		return false;
 	}
 
@@ -137,13 +135,12 @@ void HeightMap::generateDiamondSquareFractal(float roughness) {
 	float dHFactor = powf(2.0f, -roughness);
 	float minH = 0.0f, maxH = 0.0f;
 
-	for (int w = m_size; w > 0; dH *= dHFactor, w /= 2)
-	{
+	for (int w = m_size; w > 0; dH *= dHFactor, w /= 2){
 		// Diamond Step.
-		for (int z = 0; z < m_size; z += w)
-		{
-			for (int x = 0; x < m_size; x += w)
-			{
+		for (int z = 0; z < m_size; z += w){
+
+			for (int x = 0; x < m_size; x += w){
+
 				p1 = heightIndexAt(x, z);
 				p2 = heightIndexAt(x + w, z);
 				p3 = heightIndexAt(x + w, z + w);
@@ -158,10 +155,10 @@ void HeightMap::generateDiamondSquareFractal(float roughness) {
 		}
 
 		// Square step.
-		for (int z = 0; z < m_size; z += w)
-		{
-			for (int x = 0; x < m_size; x += w)
-			{
+		for (int z = 0; z < m_size; z += w){
+
+			for (int x = 0; x < m_size; x += w){
+
 				p1 = heightIndexAt(x, z);
 				p2 = heightIndexAt(x + w, z);
 				p3 = heightIndexAt(x + w / 2, z - w / 2);
@@ -285,13 +282,13 @@ void HeightMap::blur(float amount) {
 	int pitch = m_size;
 
 	// Blur horizontally. Both left-to-right, and right-to-left.
-	for (int i = 0; i < height; ++i)
-	{
+	for (int i = 0; i < height; ++i){
+
 		pPrevPixel = &m_heights[i * pitch];
 
 		// Left-to-right.
-		for (int j = 1; j < width; ++j)
-		{
+		for (int j = 1; j < width; ++j){
+
 			pPixel = &m_heights[(i * pitch) + j];
 			*pPixel = (*pPrevPixel * amount) + (*pPixel * (1.0f - amount));
 			pPrevPixel = pPixel;
@@ -300,8 +297,7 @@ void HeightMap::blur(float amount) {
 		pPrevPixel = &m_heights[(i * pitch) + (width - 1)];
 
 		// Right-to-left.
-		for (int j = width - 2; j >= 0; --j)
-		{
+		for (int j = width - 2; j >= 0; --j){
 			pPixel = &m_heights[(i * pitch) + j];
 			*pPixel = (*pPrevPixel * amount) + (*pPixel * (1.0f - amount));
 			pPrevPixel = pPixel;
@@ -309,13 +305,11 @@ void HeightMap::blur(float amount) {
 	}
 
 	// Blur vertically. Both top-to-bottom, and bottom-to-top.
-	for (int i = 0; i < width; ++i)
-	{
+	for (int i = 0; i < width; ++i){
 		pPrevPixel = &m_heights[i];
 
 		// Top-to-bottom.
-		for (int j = 1; j < height; ++j)
-		{
+		for (int j = 1; j < height; ++j){
 			pPixel = &m_heights[(j * pitch) + i];
 			*pPixel = (*pPrevPixel * amount) + (*pPixel * (1.0f - amount));
 			pPrevPixel = pPixel;
@@ -324,8 +318,7 @@ void HeightMap::blur(float amount) {
 		pPrevPixel = &m_heights[((height - 1) * pitch) + i];
 
 		// Bottom-to-top.
-		for (int j = height - 2; j >= 0; --j)
-		{
+		for (int j = height - 2; j >= 0; --j){
 			pPixel = &m_heights[(j * pitch) + i];
 			*pPixel = (*pPrevPixel * amount) + (*pPixel * (1.0f - amount));
 			pPrevPixel = pPixel;
@@ -333,16 +326,14 @@ void HeightMap::blur(float amount) {
 	}
 }
 
-unsigned int HeightMap::heightIndexAt(int x, int z) const
-{
+unsigned int HeightMap::heightIndexAt(int x, int z) const{
 	// Given a 2D height map coordinate, this method returns the index
 	// into the height map. This method wraps around for coordinates larger
 	// than the height map size.
 	return (((x + m_size) % m_size) + ((z + m_size) % m_size) * m_size);
 }
 
-void HeightMap::smooth()
-{
+void HeightMap::smooth(){
 	// Applies a box filter to the height map to smooth it out.
 
 	std::vector<float> source(m_heights);
@@ -351,16 +342,15 @@ void HeightMap::smooth()
 	int i = 0;
 	int bounds = m_size * m_size;
 
-	for (int y = 0; y < m_size; ++y)
-	{
-		for (int x = 0; x < m_size; ++x)
-		{
+	for (int y = 0; y < m_size; ++y){
+
+		for (int x = 0; x < m_size; ++x){
+
 			value = 0.0f;
 			cellAverage = 0.0f;
 
 			i = (y - 1) * m_size + (x - 1);
-			if (i >= 0 && i < bounds)
-			{
+			if (i >= 0 && i < bounds){
 				value += source[i];
 				cellAverage += 1.0f;
 			}
@@ -426,6 +416,27 @@ void HeightMap::smooth()
 	}
 }
 
+float HeightMap::getHeightScale() const {
+	return m_heightScale;
+}
+
+int HeightMap::getResolution() const {
+	return m_resolution;
+}
+
+int HeightMap::getWidth() const {
+	return m_width;
+}
+
+float HeightMap::getGridSpacing() const {
+	return m_gridSpacing;
+}
+
+const float* HeightMap::getHeights() const {
+	return &m_heights[0];
+}
+
+
 
 //-----------------------------------------------------------------------------
 // Terrain.
@@ -447,23 +458,73 @@ Terrain::Terrain() {
 	m_disableColorMaps = false;
 
 	//draw = [&](const Camera& camera) { this->drawNormal(camera); };	
-	draw = std::function<void(const Camera& camera)>{ [&](const Camera& camera) { drawNormal(camera); } };
+	draw = std::function<void(const Camera& camera)>{ [&](const Camera& camera) { drawNormal(camera); } };	
 }
 
 void Terrain::scaleRegions(const float heighScale) {
 
+	glUniformBlockBinding(m_terrainShader->m_program, glGetUniformBlockIndex(m_terrainShader->m_program, "u_region"), 0);
+	glGenBuffers(1, &m_ubo);
+
+	glBindBuffer(GL_UNIFORM_BUFFER, m_ubo);
+	glBufferData(GL_UNIFORM_BUFFER, 32, NULL, GL_STATIC_DRAW);
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+	glBindBufferRange(GL_UNIFORM_BUFFER, 0, m_ubo, 0, 32);
+
 	const float HEIGHTMAP_SCALE = heighScale;
-	m_regions[0].min = 0.0f;
-	m_regions[0].max = 50.0f * HEIGHTMAP_SCALE;
 
-	m_regions[1].min = 51.0f * HEIGHTMAP_SCALE;
-	m_regions[1].max = 101.0f * HEIGHTMAP_SCALE;
+	Region region12 = { { 0.0f, 50.0f * HEIGHTMAP_SCALE }, { 51.0f * HEIGHTMAP_SCALE, 101.0f * HEIGHTMAP_SCALE } };
+	Region region34 = { { 102.0f * HEIGHTMAP_SCALE, 203.0f * HEIGHTMAP_SCALE },{ 204.0f * HEIGHTMAP_SCALE, 255.0f * HEIGHTMAP_SCALE } };
 
-	m_regions[2].min = 102.0f * HEIGHTMAP_SCALE;
-	m_regions[2].max = 203.0f * HEIGHTMAP_SCALE;
+	glBindBuffer(GL_UNIFORM_BUFFER, m_ubo);
+	glBufferSubData(GL_UNIFORM_BUFFER, 0, 16, &region12);
+	glBufferSubData(GL_UNIFORM_BUFFER, 16, 16, &region34);
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-	m_regions[3].min = 204.0f * HEIGHTMAP_SCALE;
-	m_regions[3].max = 255.0f * HEIGHTMAP_SCALE;
+	/*glUniformBlockBinding(m_terrainShader->m_program, glGetUniformBlockIndex(m_terrainShader->m_program, "u_tearrainRegion"), 1);
+	glGenBuffers(1, &m_ubo);
+
+	glBindBuffer(GL_UNIFORM_BUFFER, m_ubo);
+	glBufferData(GL_UNIFORM_BUFFER, 64, NULL, GL_STATIC_DRAW);
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+	glBindBufferRange(GL_UNIFORM_BUFFER, 1, m_ubo, 0, 64);
+
+	//const float HEIGHTMAP_SCALE = heighScale;
+	
+	TerrainRegion region1[] = { { 0.0f, 50.0f * HEIGHTMAP_SCALE }, 0.0f, 0.0f };
+	TerrainRegion region2[] = { { 51.0f * HEIGHTMAP_SCALE, 101.0f * HEIGHTMAP_SCALE },{ 0.0f, 0.0f } };
+	TerrainRegion region3[] = { { 102.0f * HEIGHTMAP_SCALE, 203.0f * HEIGHTMAP_SCALE },{ 0.0f, 0.0f } };
+	TerrainRegion region4[] = { { 204.0f * HEIGHTMAP_SCALE, 255.0f * HEIGHTMAP_SCALE },{ 0.0f, 0.0f } };
+
+	glBindBuffer(GL_UNIFORM_BUFFER, m_ubo);
+	glBufferSubData(GL_UNIFORM_BUFFER, 0, 16, &region1);
+	glBufferSubData(GL_UNIFORM_BUFFER, 16, 16, &region2);
+	glBufferSubData(GL_UNIFORM_BUFFER, 32, 16, &region3);
+	glBufferSubData(GL_UNIFORM_BUFFER, 48, 16, &region4);
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+
+	glUniformBlockBinding(m_terrainShader->m_program, glGetUniformBlockIndex(m_terrainShader->m_program, "u_regionBorder"), 2);
+	glGenBuffers(1, &m_ubo);
+
+	glBindBuffer(GL_UNIFORM_BUFFER, m_ubo);
+	glBufferData(GL_UNIFORM_BUFFER, 80, NULL, GL_STATIC_DRAW);
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+	glBindBufferRange(GL_UNIFORM_BUFFER, 2, m_ubo, 0, 80);
+
+	//const float HEIGHTMAP_SCALE = heighScale;
+	float regions1[8] = { 0.0f, 0.0f, 0.0f, 0.0f, 50.0f * HEIGHTMAP_SCALE, 0.0f, 0.0f, 0.0f };
+	float regions2[8] = { 51.0f * HEIGHTMAP_SCALE, 0.0f, 0.0f, 0.0f, 101.0f * HEIGHTMAP_SCALE, 0.0f, 0.0f, 0.0f };	
+	Vector4f _region34(102.0f * HEIGHTMAP_SCALE, 203.0f * HEIGHTMAP_SCALE, 204.0f * HEIGHTMAP_SCALE, 255.0f * HEIGHTMAP_SCALE);
+
+	glBindBuffer(GL_UNIFORM_BUFFER, m_ubo);
+	glBufferSubData(GL_UNIFORM_BUFFER, 0, 32 , &regions1);
+	glBufferSubData(GL_UNIFORM_BUFFER, 32, 32, &regions2);
+	glBufferSubData(GL_UNIFORM_BUFFER, 64, 16, &_region34[0]);
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);*/
 
 }
 
@@ -472,23 +533,27 @@ Terrain::~Terrain() {
 }
 
 void Terrain::createProcedural(int resolution, int width, float scale, float roughness) {
+	m_procedural = true;
 	m_heightMap.create(resolution, width, scale);
 	terrainCreateProcedural();
-	generateUsingDiamondSquareFractal(roughness);
+	generateUsingDiamondSquareFractal(roughness);	
 }
 
 void Terrain::create(int resolution, int width, float scale, float roughness) {
+	m_procedural = true;
 	m_heightMap.create(resolution, width, scale);
 	m_heightMap.generateDiamondSquareFractal(roughness);
-	terrainCreate();
+	terrainCreate();	
 }
 
 void Terrain::create(std::string file, int width, float scale) {
+	m_procedural = false;
 	m_heightMap.createFromImage(file, width, scale);
-	terrainCreate();
+	terrainCreate();	
 }
 
 void Terrain::create(Texture texture, int width, float scale) {
+	m_procedural = false;
 	m_heightMap.createFromTexture(texture, width, scale);
 	terrainCreate();
 }
@@ -499,6 +564,7 @@ void Terrain::destroy() {
 }
 
 bool Terrain::generateUsingDiamondSquareFractal(float roughness) {
+	if (!m_procedural) return false;
 	m_heightMap.generateDiamondSquareFractal(roughness);
 	return generateVertices();
 }
@@ -597,23 +663,12 @@ void Terrain::terrainDestroy() {
 }
 
 void Terrain::drawNormal(const Camera& camera) {
-	
 	Vector4f lightDir = Vector4f(0.0f, 1.0f, 0.0f, 0.0f);
 
 	glUseProgram(m_terrainShader->m_program);
 	m_terrainShader->loadMatrix("u_transform", camera.getViewMatrix() * Globals::projection);
 	m_terrainShader->loadMatrix("u_normal", Matrix4f::GetNormalMatrix(camera.getViewMatrix()));
-
-	m_terrainShader->loadFloat("tilingFactor", m_tilingFactor);
-	m_terrainShader->loadFloat("region1.max", m_regions[0].max);
-	m_terrainShader->loadFloat("region1.min", m_regions[0].min);
-	m_terrainShader->loadFloat("region2.max", m_regions[1].max);
-	m_terrainShader->loadFloat("region2.min", m_regions[1].min);
-	m_terrainShader->loadFloat("region3.max", m_regions[2].max);
-	m_terrainShader->loadFloat("region3.min", m_regions[2].min);
-	m_terrainShader->loadFloat("region4.max", m_regions[3].max);
-	m_terrainShader->loadFloat("region4.min", m_regions[3].min);
-
+	m_terrainShader->loadFloat("tilingFactor", m_tilingFactor);	
 	m_terrainShader->loadVector("lightDir", lightDir);
 	m_terrainShader->loadBool("mode", m_colorMode);
 
@@ -651,19 +706,10 @@ void Terrain::drawInstanced(const Camera& camera) {
 	Vector4f lightDir = Vector4f(0.0f, 1.0f, 0.0f, 0.0f);
 
 	glUseProgram(m_terrainShader->m_program);
+
 	m_terrainShader->loadMatrix("u_transform", camera.getViewMatrix() * Globals::projection);
 	m_terrainShader->loadMatrix("u_normal", Matrix4f::GetNormalMatrix(camera.getViewMatrix()));
-
 	m_terrainShader->loadFloat("tilingFactor", m_tilingFactor);
-	m_terrainShader->loadFloat("region1.max", m_regions[0].max);
-	m_terrainShader->loadFloat("region1.min", m_regions[0].min);
-	m_terrainShader->loadFloat("region2.max", m_regions[1].max);
-	m_terrainShader->loadFloat("region2.min", m_regions[1].min);
-	m_terrainShader->loadFloat("region3.max", m_regions[2].max);
-	m_terrainShader->loadFloat("region3.min", m_regions[2].min);
-	m_terrainShader->loadFloat("region4.max", m_regions[3].max);
-	m_terrainShader->loadFloat("region4.min", m_regions[3].min);
-
 	m_terrainShader->loadVector("lightDir", lightDir);
 	m_terrainShader->loadBool("mode", m_colorMode);
 
@@ -925,4 +971,20 @@ void Terrain::createInstances() {
 
 
 	glBindVertexArray(0);
+}
+
+void Terrain::toggleDisableColorMaps() {
+	m_disableColorMaps = !m_disableColorMaps;
+}
+
+void Terrain::toggleColorMode() {
+	m_colorMode = !m_colorMode;
+}
+
+const HeightMap& Terrain::getHeightMap() const {
+	return m_heightMap;
+}
+
+void Terrain::setDisableColorMaps(bool flag) {
+	m_disableColorMaps = flag;
 }

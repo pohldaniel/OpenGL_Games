@@ -652,3 +652,24 @@ void glGetTextureImage(GLuint texture, GLint level, GLenum format, GLenum type, 
 	LOAD_ENTRYPOINT("glGetTextureImage", glGetTextureImage, PFNGLGETTEXTUREIMAGEPROC);
 	glGetTextureImage(texture, level, format, type, bufSize, pixels);
 }
+
+GLuint glGetUniformBlockIndex(GLuint program, const GLchar *uniformBlockName) {
+	typedef GLuint(APIENTRY * PFNGLGETUNIFORMBLOCKINDEXPROC)(GLuint program, const GLchar *uniformBlockName);
+	static PFNGLGETUNIFORMBLOCKINDEXPROC  glGetUniformBlockIndex = 0;
+	LOAD_ENTRYPOINT("glGetUniformBlockIndex", glGetUniformBlockIndex, PFNGLGETUNIFORMBLOCKINDEXPROC);
+	return glGetUniformBlockIndex(program, uniformBlockName);
+}
+
+void glUniformBlockBinding(GLuint program, GLuint uniformBlockIndex, GLuint uniformBlockBinding) {
+	typedef void(APIENTRY * PFNGLUNIFORMBLOCKBINDINGPROC)(GLuint program, GLuint uniformBlockIndex, GLuint uniformBlockBinding);
+	static PFNGLUNIFORMBLOCKBINDINGPROC glUniformBlockBinding = 0;
+	LOAD_ENTRYPOINT("glUniformBlockBinding", glUniformBlockBinding, PFNGLUNIFORMBLOCKBINDINGPROC);
+	glUniformBlockBinding(program, uniformBlockIndex, uniformBlockBinding);
+}
+
+void glBindBufferRange(GLenum target, GLuint index, GLuint buffer, GLintptr offset, GLsizeiptr size) {
+	typedef void(APIENTRY * PFNGLBINDBUFFERRANGEPROC)(GLenum target, GLuint index, GLuint buffer, GLintptr offset, GLsizeiptr size);
+	static PFNGLBINDBUFFERRANGEPROC glBindBufferRange = 0;
+	LOAD_ENTRYPOINT("glBindBufferRange", glBindBufferRange, PFNGLBINDBUFFERRANGEPROC);
+	glBindBufferRange(target, index, buffer, offset, size);
+}

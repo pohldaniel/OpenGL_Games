@@ -6,6 +6,7 @@
 #include "engine/Shader.h"
 #include "engine/Texture.h"
 #include "engine/Spritesheet.h"
+#include "engine/Extension.h"
 
 #include "Constants.h"
 #include "Camera.h"
@@ -15,26 +16,7 @@ public:
 	HeightMap();
 	~HeightMap();
 
-	float getHeightScale() const{
-		return m_heightScale;
-	}
-
-	int getResolution() const {
-		return m_resolution;
-	}
-
-	int getWidth() const {
-		return m_width;
-	}
-
-	float getGridSpacing() const{
-		return m_gridSpacing;
-	}
-
-	const float *getHeights() const{
-		return &m_heights[0];
-	}
-
+	
 	void createFromImage(std::string file, int gridSpacing, float scale);
 	void createFromTexture(Texture texture, int width, float scale);
 	bool create(int size, int width, float scale);
@@ -51,6 +33,15 @@ public:
 
 	void normalAt(float x, float z, Vector3f &n) const;
 	void normalAtPixel(int x, int z, Vector3f &n) const;
+	float getHeightScale() const;
+
+	int getResolution() const;
+	int getWidth() const;
+	float getGridSpacing() const;
+	const float* getHeights() const;
+
+
+
 
 	static float random(float min, float max){
 		// Returns a random number in range [min,max].
@@ -115,12 +106,8 @@ public:
 		TRIANGLE_STRIP,		
 	};
 
-	struct TerrainRegion{
-		float min;
-		float max;
-	};
-
-	TerrainRegion m_regions[4];
+	
+	
 	Terrain();
 	virtual ~Terrain();
 
@@ -135,39 +122,23 @@ public:
 	void drawInstanced(const Camera& camera);
 	bool generateUsingDiamondSquareFractal(float roughness);
 	void scaleRegions(const float heighScale);
-	void setDisableColorMaps(bool flag) {
-		m_disableColorMaps = flag;
-	}
+	void setDisableColorMaps(bool flag);
+	void toggleDisableColorMaps();
+	void toggleColorMode();
+	const HeightMap &getHeightMap() const;
+	void setPosition(const float x, const float y, const float z);
+	void setPosition(const Vector3f &position);
+	void setGridPosition(int x, int z);
+	void createInstances();
 
-	void toggleDisableColorMaps() {
-		m_disableColorMaps = !m_disableColorMaps;
-	}
-
-	void toggleColorMode() {
-		m_colorMode = !m_colorMode;
-	}
-
-	const HeightMap &getHeightMap() const{
-		return m_heightMap;
-	}
-
-	HeightMap &getHeightMap(){
-		return m_heightMap;
-	}
 
 	Shader* m_terrainShader;
 	std::unordered_map<std::string, Texture*> m_textures;
 	std::unordered_map<std::string, Spritesheet*> m_spritesheets;
-
 	std::vector<float> m_vertexBuffer;
 	std::vector<unsigned int> m_indexBuffer;
 
-	void setPosition(const float x, const float y, const float z);
-	void setPosition(const Vector3f &position);
-
-	void setGridPosition(int x, int z);
-	void createInstances();
-
+	
 protected:
 	virtual bool terrainCreate();
 	virtual bool terrainCreateProcedural();
@@ -177,6 +148,17 @@ protected:
 	Matrix4f m_transform = Matrix4f::IDENTITY;
 	std::vector<Matrix4f> modelMTX;
 private:
+	
+	struct Region {
+		struct Border { float min, max; };
+		Border border1;
+		Border border2;
+	};
+
+	struct TerrainRegion {
+		float min;
+		float max;
+	};
 
 	struct Vertex{
 		float x, y, z;
@@ -197,10 +179,13 @@ private:
 	HeightMap m_heightMap;
 	bool m_disableColorMaps;
 	bool m_colorMode = true;
-	unsigned int m_vbo, m_ibo, m_vao;
+	bool m_procedural = false;
+	unsigned int m_vbo, m_ibo, m_vao, m_ubo;
 	unsigned int m_vboInstances;
 
 	Mode m_mode = Mode::TRIANGLES;
-	float m_tilingFactor = 20.0f;
+	TerrainRegion m_regions[4];
+	Region _regions[2];
+	float m_tilingFactor = 10.0f;
 };
 

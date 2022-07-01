@@ -175,6 +175,10 @@ typedef char GLchar;
 #define GL_READ_ONLY 0x88B8
 #define GL_WRITE_ONLY 0x88B9
 #define GL_READ_WRITE 0x88BA
+#define GL_UNIFORM_BUFFER 0x8A11
+#define GL_UNIFORM_BUFFER_BINDING 0x8A28
+#define GL_UNIFORM_BUFFER_START 0x8A29
+#define GL_UNIFORM_BUFFER_SIZE 0x8A2A
 
 	extern void glActiveTextureARB(GLenum texture);
 	extern void glMultiTexCoord2fARB(GLenum target, GLfloat s, GLfloat t);
@@ -204,6 +208,9 @@ typedef char GLchar;
 	extern void glCopyTextureSubImage2D(GLuint texture, GLint level, GLint xoffset, GLint yoffset, GLint x, GLint y, GLsizei width, GLsizei height);
 
 	extern void glGetTextureImage(GLuint texture, GLint level, GLenum format, GLenum type, GLsizei bufSize, void *pixels);
+	extern GLuint glGetUniformBlockIndex(GLuint program, const GLchar *uniformBlockName);
+	extern void glUniformBlockBinding(GLuint program, GLuint uniformBlockIndex, GLuint uniformBlockBinding);
+	extern void glBindBufferRange(GLenum target, GLuint index, GLuint buffer, GLintptr offset, GLsizeiptr size);
 
 } // extern "C"
 #endif
