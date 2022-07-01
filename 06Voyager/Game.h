@@ -16,7 +16,7 @@ public:
 
 	virtual void fixedUpdate() override;
 	virtual void update() override;
-	virtual void render() override;
+	virtual void render(unsigned int &frameBuffer) override;
 	void performCameraCollisionDetection();
 
 	Camera m_camera;

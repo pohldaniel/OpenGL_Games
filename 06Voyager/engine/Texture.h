@@ -13,10 +13,13 @@ public:
 	~Texture();
 
 	unsigned int getTexture();
+	unsigned int getWidth();
+	unsigned int getHeight();
+	unsigned int getChannels();
 	void bind(unsigned int unit);
-	void loadFromFile(std::string pictureFile, const bool flipVertical = false, const bool linear = false, unsigned int format = -1);
-	void loadFromFile(std::string pictureFile, unsigned short tileWidth, unsigned short tileHeight, unsigned short spacing = 0, unsigned int row = 0, unsigned int colummn = 0, const bool flipVertical = false, bool reverse = false, unsigned int format = -1, const bool linear = false);
-	void loadFromFile(std::string pictureFile, unsigned int offsetX, unsigned int offsetY, unsigned int width = 0, unsigned int height = 0, const bool flipVertical = false, unsigned int format = -1, const bool linear = false);
+	void loadFromFile(std::string pictureFile, const bool flipVertical = false, unsigned int format = -1);
+	void loadFromFile(std::string pictureFile, unsigned short tileWidth, unsigned short tileHeight, unsigned short spacing = 0, unsigned int posY = 0, unsigned int posX = 0, const bool flipVertical = false, unsigned int format = -1);
+	void loadFromFile(std::string pictureFile, unsigned int offsetX, unsigned int offsetY, unsigned int width = 0, unsigned int height = 0, const bool flipVertical = false, unsigned int format = -1);
 	void createNullTexture(unsigned int width, unsigned int height);
 	
 	void setRepeat();
@@ -30,7 +33,9 @@ private:
 	void flipVertical(unsigned char* data, unsigned int padWidth, unsigned int height);
 	
 	unsigned int m_texture;
-
+	unsigned int m_width;
+	unsigned int m_height;
+	unsigned short m_channels;
 };
 
 #endif

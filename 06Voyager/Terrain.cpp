@@ -18,6 +18,46 @@ HeightMap::~HeightMap() {
 	destroy();
 }
 
+void HeightMap::createFromTexture(Texture texture, int width, float scale) {
+	m_heightScale = scale;	
+	m_size = texture.getWidth();
+	m_resolution = m_size - 1;
+	m_width = width;
+	m_gridSpacing = static_cast<float>(width) / static_cast<float>(m_resolution);
+	m_heights.resize(m_size * m_size);
+	memset(&m_heights[0], 0, m_heights.size());
+	
+	unsigned int size = texture.getWidth() * texture.getChannels() * texture.getHeight() * sizeof(unsigned char);
+
+	unsigned char* imageData;
+	imageData = (unsigned char*)malloc(size);
+	
+	//OpenGL 2.0
+	glBindTexture(GL_TEXTURE_2D, texture.getTexture());
+	glGetTexImage(GL_TEXTURE_2D, 0, texture.getChannels() == 4 ? GL_RGBA : GL_RGB, GL_UNSIGNED_BYTE, imageData);
+	glBindTexture(GL_TEXTURE_2D, 0);
+	
+	//OpenGL 4.5
+	//glGetTextureImage(texture.getTexture(), 0, texture.getChannels() == 4 ? GL_RGBA : GL_RGB, GL_UNSIGNED_BYTE, size, imageData);
+
+	float minH = 0.0f, maxH = 0.0f;
+	for (int z = 0; z < m_size; z++) {
+		for (int x = 0; x < m_size; x++) {
+			m_heights[z * m_size + x] = getHeight(x, z, m_size, texture.getChannels(), imageData);
+
+			minH = std::min(minH, m_heights[z * m_size + x]);
+			maxH = std::max(maxH, m_heights[z * m_size + x]);
+		}
+	}
+
+	free(imageData);
+
+	smooth();
+	for (int i = 0; i < m_size  * m_size; ++i) {
+		m_heights[i] = 255.0f * (m_heights[i] - minH) / (maxH - minH);
+	}
+}
+
 void HeightMap::createFromImage(std::string file, int _width, float scale) {
 	int width, height, numCompontents;
 	unsigned char* imageData = SOIL_load_image(file.c_str(), &width, &height, &numCompontents, SOIL_LOAD_AUTO);
@@ -393,23 +433,14 @@ void HeightMap::smooth()
 Terrain::Terrain() {
 
 	m_terrainShader = Globals::shaderManager.getAssetPointer("terrain");
-	m_textures["dirt"] = &Globals::textureManager.get("dirt");
-	m_textures["grass"] = &Globals::textureManager.get("grass");
-	m_textures["rock"] = &Globals::textureManager.get("rock");
-	m_textures["snow"] = &Globals::textureManager.get("snow");
-	m_textures["null"] = &Globals::textureManager.get("null");
-
-	m_textures["dirt"]->setRepeat();
-	m_textures["grass"]->setRepeat();
-	m_textures["rock"]->setRepeat();
-	m_textures["snow"]->setRepeat();
-	m_textures["null"]->setRepeat();
-
-
-	m_spriteSheet = Globals::spritesheetManager.getAssetPointer("terrain");
-
+	
 	m_spritesheets["terrain"] = Globals::spritesheetManager.getAssetPointer("terrain");
+	m_spritesheets["blend"] = Globals::spritesheetManager.getAssetPointer("blend");
 	m_spritesheets["null"] = Globals::spritesheetManager.getAssetPointer("null");
+
+	m_textures["path"] = &Globals::textureManager.get("path");
+	m_textures["blend_map"] = &Globals::textureManager.get("blend_map");
+	m_textures["null"] = &Globals::textureManager.get("null");
 
 	m_totalVertices = 0;
 	m_totalIndices = 0;
@@ -454,6 +485,11 @@ void Terrain::create(int resolution, int width, float scale, float roughness) {
 
 void Terrain::create(std::string file, int width, float scale) {
 	m_heightMap.createFromImage(file, width, scale);
+	terrainCreate();
+}
+
+void Terrain::create(Texture texture, int width, float scale) {
+	m_heightMap.createFromTexture(texture, width, scale);
 	terrainCreate();
 }
 
@@ -561,37 +597,7 @@ void Terrain::terrainDestroy() {
 }
 
 void Terrain::drawNormal(const Camera& camera) {
-
-	Vector4f lightDir = Vector4f(0.0f, 1.0f, 0.0f, 0.0f);
-
-	glUseProgram(m_terrainShader->m_program);
-	m_terrainShader->loadMatrix("u_transform", m_transform * camera.getViewMatrix() * Globals::projection);
-	m_terrainShader->loadMatrix("u_normal", Matrix4f::GetNormalMatrix(camera.getViewMatrix()));
-
-	m_terrainShader->loadFloat("tilingFactor", m_tilingFactor);
-	m_terrainShader->loadFloat("region1.max", m_regions[0].max);
-	m_terrainShader->loadFloat("region1.min", m_regions[0].min);
-	m_terrainShader->loadFloat("region2.max", m_regions[1].max);
-	m_terrainShader->loadFloat("region2.min", m_regions[1].min);
-	m_terrainShader->loadFloat("region3.max", m_regions[2].max);
-	m_terrainShader->loadFloat("region3.min", m_regions[2].min);
-	m_terrainShader->loadFloat("region4.max", m_regions[3].max);
-	m_terrainShader->loadFloat("region4.min", m_regions[3].min);
-
-	m_terrainShader->loadVector("lightDir", lightDir);
-	m_terrainShader->loadInt("regions", 4);
-
-	m_disableColorMaps ? m_spritesheets["null"]->bind(4) : m_spritesheets["terrain"]->bind(4);
-
-	glBindVertexArray(m_vao);
-	glDrawElements(m_mode == Terrain::Mode::TRIANGLE_STRIP ? GL_TRIANGLE_STRIP : GL_TRIANGLES, m_totalIndices, GL_UNSIGNED_INT, 0);
-	glBindVertexArray(0);
-
-	Spritesheet::Unbind();
-	glUseProgram(0);
-}
-
-void Terrain::drawInstanced(const Camera& camera) {
+	
 	Vector4f lightDir = Vector4f(0.0f, 1.0f, 0.0f, 0.0f);
 
 	glUseProgram(m_terrainShader->m_program);
@@ -609,18 +615,84 @@ void Terrain::drawInstanced(const Camera& camera) {
 	m_terrainShader->loadFloat("region4.min", m_regions[3].min);
 
 	m_terrainShader->loadVector("lightDir", lightDir);
+	m_terrainShader->loadBool("mode", m_colorMode);
+
+	m_terrainShader->loadInt("regions", 0);
+	m_terrainShader->loadInt("blend", 1);
+	m_terrainShader->loadInt("path", 2);
+	m_terrainShader->loadInt("blendMap", 3);
+
+	if (m_disableColorMaps) {
+		m_spritesheets["null"]->bind(0);
+		m_spritesheets["null"]->bind(1);
+		m_textures["null"]->bind(2);
+		m_textures["null"]->bind(3);
+	}else {
+		m_spritesheets["terrain"]->bind(0);
+		m_spritesheets["blend"]->bind(1);
+		m_textures["path"]->bind(2);
+		m_textures["blend_map"]->bind(3);
+	}
+
+	glBindVertexArray(m_vao);
+	glDrawElements(m_mode == Terrain::Mode::TRIANGLE_STRIP ? GL_TRIANGLE_STRIP : GL_TRIANGLES, m_totalIndices, GL_UNSIGNED_INT, 0);
+	glBindVertexArray(0);
+
+
+	Texture::Unbind();
+	Spritesheet::Unbind();
+
+	glUseProgram(0);
+	
+}
+
+void Terrain::drawInstanced(const Camera& camera) {
+
+	Vector4f lightDir = Vector4f(0.0f, 1.0f, 0.0f, 0.0f);
+
+	glUseProgram(m_terrainShader->m_program);
+	m_terrainShader->loadMatrix("u_transform", camera.getViewMatrix() * Globals::projection);
+	m_terrainShader->loadMatrix("u_normal", Matrix4f::GetNormalMatrix(camera.getViewMatrix()));
+
+	m_terrainShader->loadFloat("tilingFactor", m_tilingFactor);
+	m_terrainShader->loadFloat("region1.max", m_regions[0].max);
+	m_terrainShader->loadFloat("region1.min", m_regions[0].min);
+	m_terrainShader->loadFloat("region2.max", m_regions[1].max);
+	m_terrainShader->loadFloat("region2.min", m_regions[1].min);
+	m_terrainShader->loadFloat("region3.max", m_regions[2].max);
+	m_terrainShader->loadFloat("region3.min", m_regions[2].min);
+	m_terrainShader->loadFloat("region4.max", m_regions[3].max);
+	m_terrainShader->loadFloat("region4.min", m_regions[3].min);
 
 	m_terrainShader->loadVector("lightDir", lightDir);
-	m_terrainShader->loadInt("regions", 4);
+	m_terrainShader->loadBool("mode", m_colorMode);
 
-	m_disableColorMaps ? m_spritesheets["null"]->bind(4) : m_spritesheets["terrain"]->bind(4);
+	m_terrainShader->loadInt("regions", 0);
+	m_terrainShader->loadInt("blend", 1);
+	m_terrainShader->loadInt("path", 2);
+	m_terrainShader->loadInt("blendMap", 3);
+
+	if (m_disableColorMaps) {
+		m_spritesheets["null"]->bind(0);
+		m_spritesheets["null"]->bind(1);
+		m_textures["null"]->bind(2);
+		m_textures["null"]->bind(3);
+	}else {
+		m_spritesheets["terrain"]->bind(0);
+		m_spritesheets["blend"]->bind(1);
+		m_textures["path"]->bind(2);
+		m_textures["blend_map"]->bind(3);
+	}
 
 	glBindVertexArray(m_vao);
 	glDrawElementsInstanced(m_mode == Terrain::Mode::TRIANGLE_STRIP ? GL_TRIANGLE_STRIP : GL_TRIANGLES, m_totalIndices, GL_UNSIGNED_INT, 0, modelMTX.size());
 	glBindVertexArray(0);
 
+	Texture::Unbind();
 	Spritesheet::Unbind();
+
 	glUseProgram(0);
+
 }
 
 void Terrain::generateIndices(std::vector<unsigned int>& indexBuffer) {

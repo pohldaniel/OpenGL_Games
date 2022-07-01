@@ -80,12 +80,10 @@ void StateMachine::update() {
 
 void StateMachine::render() {
 
-	if (!m_states.empty()) {
-		glBindFramebuffer(GL_FRAMEBUFFER, m_frameBuffer);
+	if (!m_states.empty()) {	
 		glPolygonMode(GL_FRONT_AND_BACK, m_enableWireframe ? GL_LINE : GL_FILL);
-		m_states.top()->render();
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		m_states.top()->render(m_frameBuffer);
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);		
 	}
 	
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);

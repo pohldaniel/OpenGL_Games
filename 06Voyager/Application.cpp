@@ -190,7 +190,7 @@ void Application::initOpenGL() {
 	//alpha test for cutting border of the quads
 	glEnable(GL_ALPHA_TEST);
 	glAlphaFunc(GL_GREATER, 0.0);
-
+	//glDisable(GL_ALPHA_TEST);
 	//button transparency, fog and light
 	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -256,21 +256,38 @@ void Application::loadAssets() {
 	Globals::shaderManager.loadShader("terrain", "res/shader/terrain.vs", "res/shader/terrain.fs");	
 	Globals::shaderManager.loadShader("terrain_instance", "res/shader/terrain_instance.vs", "res/shader/terrain_instance.fs");
 
-	Globals::textureManager.loadTexture("dirt", "res/textures/dirt.JPG", true, true);
-	Globals::textureManager.loadTexture("grass", "res/textures/grass.JPG", true, true);
-	Globals::textureManager.loadTexture("rock", "res/textures/rock.JPG", true, true);
-	Globals::textureManager.loadTexture("snow", "res/textures/snow.JPG", true, true);
+	Globals::textureManager.loadTexture("dirt", "res/textures/dirt.JPG", true);
+	Globals::textureManager.loadTexture("grass", "res/textures/grass.JPG", true);
+	Globals::textureManager.loadTexture("rock", "res/textures/rock.JPG", true);
+	Globals::textureManager.loadTexture("snow", "res/textures/snow.JPG", true);
+	Globals::textureManager.loadTexture("height_map", "res/heightmap.png", false);
 	Globals::textureManager.createNullTexture("null");
 
-	Globals::spritesheetManager.loadSpritesheet("terrain", Globals::textureManager.get("dirt").getTexture(), 512, 512, GL_RGB8);
+	Globals::spritesheetManager.createSpritesheet("terrain", Globals::textureManager.get("dirt").getTexture(), 512, 512, GL_RGB8);
 	Globals::spritesheetManager.getAssetPointer("terrain")->addToSpritesheet((&Globals::textureManager.get("grass"))->getTexture(), 512, 512, GL_RGB8);
 	Globals::spritesheetManager.getAssetPointer("terrain")->addToSpritesheet((&Globals::textureManager.get("rock"))->getTexture(), 512, 512, GL_RGB8);
-	Globals::spritesheetManager.getAssetPointer("terrain")->addToSpritesheet((&Globals::textureManager.get("snow"))->getTexture(), 512, 512, GL_RGB8);
-	
+	Globals::spritesheetManager.getAssetPointer("terrain")->addToSpritesheet((&Globals::textureManager.get("snow"))->getTexture(), 512, 512, GL_RGB8);	
 	Globals::spritesheetManager.getAssetPointer("terrain")->setLinear();
 	Globals::spritesheetManager.getAssetPointer("terrain")->setRepeat();
 
 	Globals::spritesheetManager.createNullSpritesheet("null");
 	Globals::spritesheetManager.getAssetPointer("null")->setLinear();
 	Globals::spritesheetManager.getAssetPointer("null")->setRepeat();
+
+	Globals::textureManager.loadTexture("grass2", "res/blend/grass.png", true);
+	Globals::textureManager.loadTexture("mud", "res/blend/mud.png", true);
+	Globals::textureManager.loadTexture("grass_flower", "res/blend/grassFlowers.png", true);
+	Globals::textureManager.loadTexture("path", "res/blend/path.png", true);
+	Globals::textureManager.loadTexture("blend_map", "res/blend/blendMap.png", true);
+	Globals::textureManager.get("path").setLinear();
+	Globals::textureManager.get("path").setRepeat();
+	Globals::textureManager.get("blend_map").setLinear();
+	Globals::textureManager.get("blend_map").setRepeat();
+
+	
+	Globals::spritesheetManager.createSpritesheet("blend", Globals::textureManager.get("grass2").getTexture(), 256, 256, GL_RGBA8);
+	Globals::spritesheetManager.getAssetPointer("blend")->addToSpritesheet((&Globals::textureManager.get("mud"))->getTexture(), 256, 256, GL_RGBA8);
+	Globals::spritesheetManager.getAssetPointer("blend")->addToSpritesheet((&Globals::textureManager.get("grass_flower"))->getTexture(), 256, 256, GL_RGBA8);
+	Globals::spritesheetManager.getAssetPointer("blend")->setLinear();
+	Globals::spritesheetManager.getAssetPointer("blend")->setRepeat();
 }

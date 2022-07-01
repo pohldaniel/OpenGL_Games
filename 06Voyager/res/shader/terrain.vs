@@ -4,6 +4,7 @@ layout(location = 0) in vec3 i_position;
 layout(location = 1) in vec2 i_texCoord;
 layout(location = 2) in vec3 i_normal;
 
+out vec2 texCoordTiled;
 out vec2 texCoord;
 out vec4 normal;
 
@@ -17,5 +18,6 @@ void main(void) {
 	normal = normalize((u_normal * vec4(i_normal, 0.0)));
 	normal.w = i_position.y;
 	
-    texCoord  = i_texCoord * tilingFactor;
+    texCoordTiled  = i_texCoord * tilingFactor;
+	texCoord = i_texCoord;
 }

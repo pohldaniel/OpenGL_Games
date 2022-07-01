@@ -645,3 +645,10 @@ void glCopyTextureSubImage2D(GLuint texture, GLint level, GLint xoffset, GLint y
 	LOAD_ENTRYPOINT("glCopyTextureSubImage2D", glCopyTextureSubImage2D, PFNGLCOPYTEXTURESUBIMAGE2DPROC);
 	glCopyTextureSubImage2D(texture, level, xoffset, yoffset, x, y, width, height);
 }
+
+void glGetTextureImage(GLuint texture, GLint level, GLenum format, GLenum type, GLsizei bufSize, void *pixels) {
+	typedef void(APIENTRY * PFNGLGETTEXTUREIMAGEPROC)(GLuint texture, GLint level, GLenum format, GLenum type, GLsizei bufSize, void *pixels);
+	static PFNGLGETTEXTUREIMAGEPROC glGetTextureImage = 0;
+	LOAD_ENTRYPOINT("glGetTextureImage", glGetTextureImage, PFNGLGETTEXTUREIMAGEPROC);
+	glGetTextureImage(texture, level, format, type, bufSize, pixels);
+}

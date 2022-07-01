@@ -5,6 +5,7 @@ struct TerrainRegion{
     float max;
 };
 
+in vec2 texCoordTiled;
 in vec2 texCoord;
 in vec4 normal;
 
@@ -16,8 +17,14 @@ uniform TerrainRegion region3;
 uniform TerrainRegion region4;
 
 uniform sampler2DArray regions;
+uniform sampler2DArray blend;
+
+uniform sampler2D path;
+uniform sampler2D blendMap;
 
 uniform vec4 lightDir;
+
+uniform bool mode = true;
 
 vec4 GenerateTerrainColor(){
     vec4 terrainColor = vec4(0.0, 0.0, 0.0, 1.0);
@@ -33,7 +40,7 @@ vec4 GenerateTerrainColor(){
     regionRange = regionMax - regionMin;
     regionWeight = (regionRange - abs(height - regionMax)) / regionRange;
     regionWeight = max(0.0, regionWeight);
-	terrainColor += regionWeight * texture(regions, vec3(texCoord, 0));
+	terrainColor += regionWeight * texture(regions, vec3(texCoordTiled, 0));
 
     // Terrain region 2.
     regionMin = region2.min;
@@ -41,7 +48,7 @@ vec4 GenerateTerrainColor(){
     regionRange = regionMax - regionMin;
     regionWeight = (regionRange - abs(height - regionMax)) / regionRange;
     regionWeight = max(0.0, regionWeight);
-	terrainColor += regionWeight * texture(regions, vec3(texCoord, 1));
+	terrainColor += regionWeight * texture(regions, vec3(texCoordTiled, 1));
 
     // Terrain region 3.
     regionMin = region3.min;
@@ -49,7 +56,7 @@ vec4 GenerateTerrainColor(){
     regionRange = regionMax - regionMin;
     regionWeight = (regionRange - abs(height - regionMax)) / regionRange;
     regionWeight = max(0.0, regionWeight);
-	terrainColor += regionWeight * texture(regions, vec3(texCoord, 2));
+	terrainColor += regionWeight * texture(regions, vec3(texCoordTiled, 2));
 
     // Terrain region 4.
     regionMin = region4.min;
@@ -57,9 +64,21 @@ vec4 GenerateTerrainColor(){
     regionRange = regionMax - regionMin;
     regionWeight = (regionRange - abs(height - regionMax)) / regionRange;
     regionWeight = max(0.0, regionWeight);
-	terrainColor += regionWeight * texture(regions, vec3(texCoord, 3));
+	terrainColor += regionWeight * texture(regions, vec3(texCoordTiled, 3));
 
     return terrainColor;
+}
+
+vec4 GenerateTerrainColorBlended(){
+	vec4 blendMapColor = texture(blendMap, texCoord);
+	float backTextureAmount = 1 - (blendMapColor.r + blendMapColor.g + blendMapColor.b);
+	
+	vec4 grassTextureColor = texture(blend, vec3(texCoordTiled, 0)) * backTextureAmount;
+	vec4 mudTextureColor = texture(blend, vec3(texCoordTiled, 1)) * blendMapColor.r;
+	vec4 flowerTextureColor = texture(blend, vec3(texCoordTiled, 2)) * blendMapColor.g;
+	vec4 pathTextureColor = texture(path, texCoordTiled);
+	pathTextureColor.a = 1.0f;
+	return grassTextureColor + mudTextureColor + flowerTextureColor + pathTextureColor * blendMapColor.b;
 }
 
 void main(void) {
@@ -70,6 +89,8 @@ void main(void) {
 	vec4 ambient = vec4(1.0f, 1.0f, 1.0f, 1.0f);
     vec4 diffuse = vec4(1.0f, 1.0f, 1.0f, 1.0f) * nDotL;
     vec4 color =  ambient + diffuse;   
-	
-	outColor = color * GenerateTerrainColor();
+
+	vec4 colorTerrain = mode ? GenerateTerrainColor() : GenerateTerrainColorBlended();
+
+	outColor = color * colorTerrain;
 }

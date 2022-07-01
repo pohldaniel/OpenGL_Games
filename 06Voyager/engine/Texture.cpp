@@ -22,6 +22,10 @@ Texture::Texture(std::string fileName, const bool _flipVertical, unsigned int _f
 	glBindTexture(GL_TEXTURE_2D, 0);
 
 	SOIL_free_image_data(imageData);
+
+	m_width = width;
+	m_height = height;
+	m_channels = numCompontents;
 }
 
 void Texture::flipVertical(unsigned char* data, unsigned int padWidth, unsigned int height) {
@@ -61,7 +65,7 @@ Texture::~Texture() {
 	}
 }
 
-void Texture::loadFromFile(std::string fileName, const bool _flipVertical, const bool linear, unsigned int _format) {
+void Texture::loadFromFile(std::string fileName, const bool _flipVertical, unsigned int _format) {
 	
 	int width, height, numCompontents;
 	unsigned char* imageData = SOIL_load_image(fileName.c_str(), &width, &height, &numCompontents, SOIL_LOAD_AUTO);
@@ -72,18 +76,21 @@ void Texture::loadFromFile(std::string fileName, const bool _flipVertical, const
 
 	glGenTextures(1, &m_texture);
 	glBindTexture(GL_TEXTURE_2D, m_texture);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, linear ? GL_LINEAR_MIPMAP_LINEAR : GL_NEAREST);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, linear ? GL_LINEAR : GL_NEAREST);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, numCompontents == 3 ? GL_RGB : GL_RGBA, GL_UNSIGNED_BYTE, imageData);
-	if (linear) glGenerateMipmap(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, 0);
 
 	SOIL_free_image_data(imageData);
+
+	m_width = width;
+	m_height = height;
+	m_channels = numCompontents;
 }
 
-void Texture::loadFromFile(std::string pictureFile, unsigned short tileWidth, unsigned short tileHeight, unsigned short spacing, unsigned int _row, unsigned int column, const bool _flipVertical, bool reverse, unsigned int _format, const bool linear) {
+void Texture::loadFromFile(std::string pictureFile, unsigned short tileWidth, unsigned short tileHeight, unsigned short spacing, unsigned int _posY, unsigned int _posX, const bool _flipVertical, unsigned int _format) {
 	
 	int width, height, numCompontents;
 	unsigned char* imageData = SOIL_load_image(pictureFile.c_str(), &width, &height, &numCompontents, SOIL_LOAD_AUTO);
@@ -93,8 +100,8 @@ void Texture::loadFromFile(std::string pictureFile, unsigned short tileWidth, un
 		flipVertical(imageData, numCompontents * width, height);
 
 	unsigned short tileCountY = height / (tileHeight + spacing);
-	unsigned short posX = column;
-	unsigned short posY = reverse ? (tileCountY - 1) - _row : _row;
+	unsigned short posX = _posX;
+	unsigned short posY = _flipVertical ? (tileCountY - 1) - _posY : _posY;
 
 	unsigned char* subImage = (unsigned char*)malloc((tileWidth)* numCompontents * (tileHeight));
 	unsigned int subImageSize = (tileWidth)* numCompontents * tileHeight;
@@ -114,20 +121,23 @@ void Texture::loadFromFile(std::string pictureFile, unsigned short tileWidth, un
 
 	glGenTextures(1, &m_texture);
 	glBindTexture(GL_TEXTURE_2D, m_texture);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, linear ? GL_LINEAR_MIPMAP_LINEAR : GL_NEAREST);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, linear ? GL_LINEAR : GL_NEAREST);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, tileWidth, tileHeight, 0, numCompontents == 3 ? GL_RGB : GL_RGBA, GL_UNSIGNED_BYTE, subImage);
-	if (linear) glGenerateMipmap(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, 0);
 
 	free(subImage);
 
 	SOIL_free_image_data(imageData);
+
+	m_width = width;
+	m_height = height;
+	m_channels = numCompontents;
 }
 
-void Texture::loadFromFile(std::string pictureFile, unsigned int _offsetX, unsigned int _offsetY, unsigned int _width, unsigned int _height, const bool _flipVertical, unsigned int _format, const bool linear) {
+void Texture::loadFromFile(std::string pictureFile, unsigned int _offsetX, unsigned int _offsetY, unsigned int _width, unsigned int _height, const bool _flipVertical, unsigned int _format) {
 
 	int width, height, numCompontents;
 	unsigned char* imageData = SOIL_load_image(pictureFile.c_str(), &width, &height, &numCompontents, SOIL_LOAD_AUTO);
@@ -156,16 +166,19 @@ void Texture::loadFromFile(std::string pictureFile, unsigned int _offsetX, unsig
 
 	glGenTextures(1, &m_texture);
 	glBindTexture(GL_TEXTURE_2D, m_texture);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, linear ? GL_LINEAR_MIPMAP_LINEAR : GL_NEAREST);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, linear ? GL_LINEAR : GL_NEAREST);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, _width, _height, 0, numCompontents == 3 ? GL_RGB : GL_RGBA, GL_UNSIGNED_BYTE, subImage);
-	if (linear) glGenerateMipmap(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, 0);
 
 	free(subImage);
 	SOIL_free_image_data(imageData);
+
+	m_width = width;
+	m_height = height;
+	m_channels = numCompontents;
 }
 
 void Texture::createNullTexture(unsigned int width, unsigned int height) {
@@ -183,6 +196,10 @@ void Texture::createNullTexture(unsigned int width, unsigned int height) {
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_BGRA, GL_UNSIGNED_BYTE, &pixels[0]);
 
 	glBindTexture(GL_TEXTURE_2D, 0);
+
+	m_width = width;
+	m_height = height;
+	m_channels = 4;
 }
 
 void Texture::CutSubimage(std::string fileIn, std::string fileOut, unsigned int _offsetX, unsigned int _offsetY, unsigned int _width, unsigned int _height, const bool _flipVertical) {
@@ -275,6 +292,18 @@ void Texture::AddHorizontally(std::string fileIn1, std::string fileIn2, std::str
 
 unsigned int Texture::getTexture(){
 	return m_texture;
+}
+
+unsigned int Texture::getWidth(){
+	return m_width;
+}
+
+unsigned int Texture::getHeight() {
+	return m_height;
+}
+
+unsigned int Texture::getChannels() {
+	return m_channels;
 }
 
 void Texture::bind(unsigned int unit){

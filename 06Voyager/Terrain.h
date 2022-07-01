@@ -36,7 +36,7 @@ public:
 	}
 
 	void createFromImage(std::string file, int gridSpacing, float scale);
-
+	void createFromTexture(Texture texture, int width, float scale);
 	bool create(int size, int width, float scale);
 	void destroy();
 
@@ -127,6 +127,7 @@ public:
 	void createProcedural(int resolution, int width, float scale, float roughness);
 	void create(int resolution, int width, float scale, float roughness);
 	void create(std::string file, int width, float scale);
+	void create(Texture texture, int width, float scale);
 
 	void destroy();
 	std::function<void(const Camera&)> draw = 0;
@@ -142,6 +143,10 @@ public:
 		m_disableColorMaps = !m_disableColorMaps;
 	}
 
+	void toggleColorMode() {
+		m_colorMode = !m_colorMode;
+	}
+
 	const HeightMap &getHeightMap() const{
 		return m_heightMap;
 	}
@@ -152,8 +157,6 @@ public:
 
 	Shader* m_terrainShader;
 	std::unordered_map<std::string, Texture*> m_textures;
-	Spritesheet* m_spriteSheet;
-
 	std::unordered_map<std::string, Spritesheet*> m_spritesheets;
 
 	std::vector<float> m_vertexBuffer;
@@ -193,6 +196,7 @@ private:
 	int m_totalIndices;
 	HeightMap m_heightMap;
 	bool m_disableColorMaps;
+	bool m_colorMode = true;
 	unsigned int m_vbo, m_ibo, m_vao;
 	unsigned int m_vboInstances;
 
