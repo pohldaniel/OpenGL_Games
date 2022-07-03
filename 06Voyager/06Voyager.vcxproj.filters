@@ -105,6 +105,12 @@
     <ClInclude Include="engine\Spritesheet.h">
       <Filter>engine</Filter>
     </ClInclude>
+    <ClInclude Include="Water.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ModelMatrix.h">
+      <Filter>engine</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine\input\EventDispatcher.cpp">
@@ -180,6 +186,12 @@
       <Filter>engine</Filter>
     </ClCompile>
     <ClCompile Include="engine\Spritesheet.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="Water.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ModelMatrix.cpp">
       <Filter>engine</Filter>
     </ClCompile>
   </ItemGroup>

@@ -105,8 +105,6 @@ public:
 		TRIANGLES,
 		TRIANGLE_STRIP,		
 	};
-
-	
 	
 	Terrain();
 	virtual ~Terrain();
@@ -119,6 +117,7 @@ public:
 	void destroy();
 	std::function<void(const Camera&)> draw = 0;
 	void drawNormal(const Camera& camera);
+	void drawNormal(const Matrix4f& view);
 	void drawInstanced(const Camera& camera);
 	bool generateUsingDiamondSquareFractal(float roughness);
 	void scaleRegions(const float heighScale);
@@ -166,9 +165,10 @@ private:
 		float s, t;
 	};
 
+	bool generateVertices();
 	bool generateIndices();
 	bool generateIndicesTS();
-	bool generateVertices();
+
 
 	void generateVertices(std::vector<float>& vertexBuffer);
 	void generateIndices(std::vector<unsigned int>& indexBuffer);

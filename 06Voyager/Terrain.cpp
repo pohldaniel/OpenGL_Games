@@ -474,7 +474,7 @@ void Terrain::scaleRegions(const float heighScale) {
 
 	const float HEIGHTMAP_SCALE = heighScale;
 
-	Region region12 = { { 0.0f, 50.0f * HEIGHTMAP_SCALE }, { 51.0f * HEIGHTMAP_SCALE, 101.0f * HEIGHTMAP_SCALE } };
+	Region region12 = { { 0.0f, 50.0f * HEIGHTMAP_SCALE },{ 51.0f * HEIGHTMAP_SCALE, 101.0f * HEIGHTMAP_SCALE } };
 	Region region34 = { { 102.0f * HEIGHTMAP_SCALE, 203.0f * HEIGHTMAP_SCALE },{ 204.0f * HEIGHTMAP_SCALE, 255.0f * HEIGHTMAP_SCALE } };
 
 	glBindBuffer(GL_UNIFORM_BUFFER, m_ubo);
@@ -492,7 +492,7 @@ void Terrain::scaleRegions(const float heighScale) {
 	glBindBufferRange(GL_UNIFORM_BUFFER, 1, m_ubo, 0, 64);
 
 	//const float HEIGHTMAP_SCALE = heighScale;
-	
+
 	TerrainRegion region1[] = { { 0.0f, 50.0f * HEIGHTMAP_SCALE }, 0.0f, 0.0f };
 	TerrainRegion region2[] = { { 51.0f * HEIGHTMAP_SCALE, 101.0f * HEIGHTMAP_SCALE },{ 0.0f, 0.0f } };
 	TerrainRegion region3[] = { { 102.0f * HEIGHTMAP_SCALE, 203.0f * HEIGHTMAP_SCALE },{ 0.0f, 0.0f } };
@@ -517,7 +517,7 @@ void Terrain::scaleRegions(const float heighScale) {
 
 	//const float HEIGHTMAP_SCALE = heighScale;
 	float regions1[8] = { 0.0f, 0.0f, 0.0f, 0.0f, 50.0f * HEIGHTMAP_SCALE, 0.0f, 0.0f, 0.0f };
-	float regions2[8] = { 51.0f * HEIGHTMAP_SCALE, 0.0f, 0.0f, 0.0f, 101.0f * HEIGHTMAP_SCALE, 0.0f, 0.0f, 0.0f };	
+	float regions2[8] = { 51.0f * HEIGHTMAP_SCALE, 0.0f, 0.0f, 0.0f, 101.0f * HEIGHTMAP_SCALE, 0.0f, 0.0f, 0.0f };
 	Vector4f _region34(102.0f * HEIGHTMAP_SCALE, 203.0f * HEIGHTMAP_SCALE, 204.0f * HEIGHTMAP_SCALE, 255.0f * HEIGHTMAP_SCALE);
 
 	glBindBuffer(GL_UNIFORM_BUFFER, m_ubo);
@@ -536,20 +536,20 @@ void Terrain::createProcedural(int resolution, int width, float scale, float rou
 	m_procedural = true;
 	m_heightMap.create(resolution, width, scale);
 	terrainCreateProcedural();
-	generateUsingDiamondSquareFractal(roughness);	
+	generateUsingDiamondSquareFractal(roughness);
 }
 
 void Terrain::create(int resolution, int width, float scale, float roughness) {
 	m_procedural = true;
 	m_heightMap.create(resolution, width, scale);
 	m_heightMap.generateDiamondSquareFractal(roughness);
-	terrainCreate();	
+	terrainCreate();
 }
 
 void Terrain::create(std::string file, int width, float scale) {
 	m_procedural = false;
 	m_heightMap.createFromImage(file, width, scale);
-	terrainCreate();	
+	terrainCreate();
 }
 
 void Terrain::create(Texture texture, int width, float scale) {
@@ -557,6 +557,7 @@ void Terrain::create(Texture texture, int width, float scale) {
 	m_heightMap.createFromTexture(texture, width, scale);
 	terrainCreate();
 }
+
 
 void Terrain::destroy() {
 	m_heightMap.destroy();
@@ -619,7 +620,7 @@ bool Terrain::terrainCreateProcedural() {
 
 	m_totalIndices = m_mode == Terrain::Mode::TRIANGLE_STRIP ? (resolution) * ((resolution + 1) * 2 + 1) : resolution * resolution * 6;
 	m_totalVertices = (resolution + 1) * (resolution + 1);
-	
+
 	//m_vertexBuffer.reserve(m_totalVertices * sizeof(Vertex));
 
 	short stride = 8;
@@ -657,7 +658,6 @@ bool Terrain::terrainCreateProcedural() {
 
 	return true;
 }
-
 void Terrain::terrainDestroy() {
 
 }
@@ -668,7 +668,7 @@ void Terrain::drawNormal(const Camera& camera) {
 	glUseProgram(m_terrainShader->m_program);
 	m_terrainShader->loadMatrix("u_transform", camera.getViewMatrix() * Globals::projection);
 	m_terrainShader->loadMatrix("u_normal", Matrix4f::GetNormalMatrix(camera.getViewMatrix()));
-	m_terrainShader->loadFloat("tilingFactor", m_tilingFactor);	
+	m_terrainShader->loadFloat("tilingFactor", m_tilingFactor);
 	m_terrainShader->loadVector("lightDir", lightDir);
 	m_terrainShader->loadBool("mode", m_colorMode);
 
@@ -682,7 +682,8 @@ void Terrain::drawNormal(const Camera& camera) {
 		m_spritesheets["null"]->bind(1);
 		m_textures["null"]->bind(2);
 		m_textures["null"]->bind(3);
-	}else {
+	}
+	else {
 		m_spritesheets["terrain"]->bind(0);
 		m_spritesheets["blend"]->bind(1);
 		m_textures["path"]->bind(2);
@@ -698,7 +699,7 @@ void Terrain::drawNormal(const Camera& camera) {
 	Spritesheet::Unbind();
 
 	glUseProgram(0);
-	
+
 }
 
 void Terrain::drawInstanced(const Camera& camera) {
@@ -723,7 +724,8 @@ void Terrain::drawInstanced(const Camera& camera) {
 		m_spritesheets["null"]->bind(1);
 		m_textures["null"]->bind(2);
 		m_textures["null"]->bind(3);
-	}else {
+	}
+	else {
 		m_spritesheets["terrain"]->bind(0);
 		m_spritesheets["blend"]->bind(1);
 		m_textures["path"]->bind(2);
@@ -750,7 +752,7 @@ void Terrain::generateIndices(std::vector<unsigned int>& indexBuffer) {
 			// 0 *- 1		0
 			//	\	*		|  *
 			//	 *	|		*	\
-			//      3		2 -* 3
+						//      3		2 -* 3
 			m_indexBuffer.push_back(z * (resolution + 1) + x);
 			m_indexBuffer.push_back((z + 1) * (resolution + 1) + (x + 1));
 			m_indexBuffer.push_back(z * (resolution + 1) + (x + 1));
@@ -775,7 +777,8 @@ void Terrain::generateIndicesTS(std::vector<unsigned int>& indexBuffer) {
 
 			// Add degenerate triangles to stitch strips together.
 			m_indexBuffer.push_back(resolution + (z + 1) * (resolution + 1));
-		}else {
+		}
+		else {
 			for (int x = resolution; x >= 0; --x) {
 				m_indexBuffer.push_back(x + z * (resolution + 1));
 				m_indexBuffer.push_back(x + (z + 1) * (resolution + 1));
@@ -841,7 +844,8 @@ bool Terrain::generateIndicesTS() {
 
 			// Add degenerate triangles to stitch strips together.
 			*pIndex++ = resolution + (z + 1) * (resolution + 1);
-		}else {
+		}
+		else {
 			for (int x = resolution; x >= 0; --x) {
 				*pIndex++ = x + z * (resolution + 1);
 				*pIndex++ = x + (z + 1) * (resolution + 1);

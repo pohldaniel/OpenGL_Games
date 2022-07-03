@@ -210,6 +210,37 @@ void Matrix4f::lookAt(const Vector3f &eye, const Vector3f &target, const Vector3
 
 }
 
+void Matrix4f::lookAt(const Vector3f &eye, const Vector3f &viewDirection, const Vector3f &up, float distance) {
+	Vector3f zAxis = viewDirection;
+	zAxis[1] = -zAxis[1];
+
+	Vector3f xAxis = Vector3f::Cross(up, zAxis);
+	Vector3f::Normalize(xAxis);
+
+	Vector3f yAxis = Vector3f::Cross(zAxis, xAxis);
+	Vector3f::Normalize(yAxis);
+
+	mtx[0][0] = xAxis[0];
+	mtx[1][0] = yAxis[0];
+	mtx[2][0] = zAxis[0];
+	mtx[3][0] = 0.0f;
+
+	mtx[0][1] = xAxis[1];
+	mtx[1][1] = yAxis[1];
+	mtx[2][1] = zAxis[1];
+	mtx[3][1] = 0.0f;
+
+	mtx[0][2] = xAxis[2];
+	mtx[1][2] = yAxis[2];
+	mtx[2][2] = zAxis[2];
+	mtx[3][2] = 0.0f;
+
+	mtx[0][3] = -Vector3f::Dot(xAxis, eye);
+	mtx[1][3] = -Vector3f::Dot(yAxis, eye);
+	mtx[2][3] = -Vector3f::Dot(zAxis, eye);
+	mtx[3][3] = 1.0f;
+}
+
 void Matrix4f::invLookAt(const Vector3f &eye, const Vector3f &target, const Vector3f &up) {
 
 	Vector3f zAxis = eye - target;

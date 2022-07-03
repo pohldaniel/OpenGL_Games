@@ -233,6 +233,8 @@ bool Model::loadObject(const char* a_filename, Vector3f& rotate, float degree, V
 
 		if (m_hasMaterial) {
 			m_mesh[j]->readMaterial();
+		}else {
+			m_mesh[j]->m_material.shader = Globals::shaderManager.getAssetPointer("texture");
 		}
 		//m_mesh[j]->createShader();
 		m_mesh[j]->createBuffer();
@@ -291,20 +293,11 @@ int Model::getNumberOfIndices() const {
 }
 
 void Model::draw(const Camera camera) {
-
 	
-	if (m_modelDirectory.find("res/car") != std::string::npos) {
-		
-		for (int j = 0; j < m_numberOfMeshes; j++) {
-			m_mesh[j]->draw(camera);
-		}
-			/*m_mesh[3]->draw(camera);
-		m_mesh[5]->draw(camera);*/
-	}else {
-		for (int j = 0; j < m_numberOfMeshes; j++) {
-			m_mesh[j]->draw(camera);
-		}
+	for (int j = 0; j < m_numberOfMeshes; j++) {
+		m_mesh[j]->draw(camera);
 	}
+	
 }
 
 void Model::drawInstanced(const Camera camera) {
@@ -419,7 +412,7 @@ bool Mesh::readMaterial() {
 		m_material.materialID = Material::MaterialID::DIFFUSE;
 	}else {
 
-		m_material.shader = Globals::shaderManager.getAssetPointer("diffuse");
+		m_material.shader = Globals::shaderManager.getAssetPointer("texture");
 		m_material.materialID = Material::MaterialID::NONE;
 	}
 
@@ -630,20 +623,20 @@ void Mesh::createInstances(std::vector<Matrix4f> modelMTX){
 void Mesh::draw(const Camera camera) {
 
 	if (m_material.materialID == Material::MaterialID::NONE) {
-
+		//std::cout << m_material.shader->m_program << std::endl;
 		glUseProgram(m_material.shader->m_program);
 
-		m_material.shader->loadFloat("material.ambient", m_material.ambient);
-		m_material.shader->loadFloat("material.diffuse", m_material.diffuse);
-		m_material.shader->loadFloat("material.specular", m_material.specular);
-		m_material.shader->loadFloat("material.shininess", m_material.shininess);
+		
+		m_material.shader->loadMatrix("u_modelView", camera.getViewMatrix(), true);
+		m_material.shader->loadMatrix("u_projection", Globals::projection, true);
 
-		m_material.shader->loadMatrix("u_modelView", camera.getViewMatrix() * m_model->m_modelMatrix, false);
-		m_material.shader->loadMatrix("u_projection", camera.getProjectionMatrix(), false);
+		(&Globals::textureManager.get("null"))->bind(0);
 
 		glBindVertexArray(m_vao);
 		glDrawElements(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0);
 		glBindVertexArray(0);
+
+		Texture::Unbind();
 
 		glUseProgram(0);
 

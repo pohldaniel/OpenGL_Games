@@ -1,4 +1,4 @@
-#version 330
+#version 330 core
 
 struct Region{
     vec2 border1;
@@ -39,6 +39,19 @@ uniform sampler2D blendMap;
 uniform vec4 lightDir;
 
 uniform bool mode = true;
+
+float getDepthPassSpaceZ(float zWC, float near, float far){
+
+	// Assume standard opengl depth range [0..1]
+    float z_n = 2.0 * zWC - 1.0;
+    float z_e = (2.0 * near * far) / (far + near + z_n * (near - far));	//[near, far]
+
+	//divided by far to get the range [near/far, 1.0] just for visualisation
+	//float z_e = (2.0 * near) / (far + near + z_n * (near - far));	
+
+	return z_e;
+}
+
 
 vec4 GenerateTerrainColor(){
     vec4 terrainColor = vec4(0.0, 0.0, 0.0, 1.0);
@@ -122,5 +135,9 @@ void main(void) {
 
 	vec4 colorTerrain = mode ? GenerateTerrainColor() : GenerateTerrainColorBlended();
 
-	outColor = color * colorTerrain;
+	outColor = color * colorTerrain;	
+	//gl_FragDepth = gl_FragCoord.z;
+
+	//float depth = getDepthPassSpaceZ(gl_FragCoord.z, 1.0, 5000.0) / 5000.0; // divide by far for demonstration
+    //outColor = vec4(1.0, 0.0, 0.0, 1.0);
 }

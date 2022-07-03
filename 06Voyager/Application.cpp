@@ -185,20 +185,23 @@ void Application::initOpenGL() {
 	enableVerticalSync(true);
 
 	glEnable(GL_DEPTH_TEST);
-	glDepthFunc(GL_LEQUAL);
-
+	//glDepthFunc(GL_LEQUAL);
+	//glDepthFunc(GL_LESS);
+	//glDepthFunc(GL_ALWAYS);
 	//alpha test for cutting border of the quads
-	glEnable(GL_ALPHA_TEST);
-	glAlphaFunc(GL_GREATER, 0.0);
+	//glEnable(GL_ALPHA_TEST);
+	//glAlphaFunc(GL_GREATER, 0.0);
 	//glDisable(GL_ALPHA_TEST);
 	//button transparency, fog and light
 	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	//https://stackoverflow.com/questions/2171085/opengl-blending-with-previous-contents-of-framebuffer
 	glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-	glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+	//glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 	//button outline
-	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+	//glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+
+	//glEnable(GL_CLIP_DISTANCE0);
 }
 
 void Application::enableVerticalSync(bool enableVerticalSync) {
@@ -255,6 +258,9 @@ void Application::loadAssets() {
 	Globals::shaderManager.loadShader("quad", "res/shader/quad.vs", "res/shader/quad.fs");
 	Globals::shaderManager.loadShader("terrain", "res/shader/terrain.vs", "res/shader/terrain.fs");	
 	Globals::shaderManager.loadShader("terrain_instance", "res/shader/terrain_instance.vs", "res/shader/terrain_instance.fs");
+	Globals::shaderManager.loadShader("water", "res/shader/water.vs", "res/shader/water.fs");
+	Globals::shaderManager.loadShader("depth", "res/shader/depth.vs", "res/shader/depth.fs");
+	Globals::shaderManager.loadShader("texture", "res/shader/texture.vs", "res/shader/texture.fs");
 
 	Globals::textureManager.loadTexture("dirt", "res/textures/dirt.JPG", true);
 	Globals::textureManager.loadTexture("grass", "res/textures/grass.JPG", true);
@@ -290,4 +296,13 @@ void Application::loadAssets() {
 	Globals::spritesheetManager.getAssetPointer("blend")->addToSpritesheet((&Globals::textureManager.get("grass_flower"))->getTexture(), 256, 256, GL_RGBA8);
 	Globals::spritesheetManager.getAssetPointer("blend")->setLinear();
 	Globals::spritesheetManager.getAssetPointer("blend")->setRepeat();
+
+
+	Globals::textureManager.loadTexture("water_dudv", "res/water/dudv.png", true);
+	Globals::textureManager.loadTexture("water_normal", "res/water/normal.png", true);
+
+	Globals::textureManager.get("water_dudv").setLinear();
+	Globals::textureManager.get("water_dudv").setRepeat();
+	Globals::textureManager.get("water_normal").setLinear();
+	Globals::textureManager.get("water_normal").setRepeat();
 }

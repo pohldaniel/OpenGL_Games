@@ -41,7 +41,6 @@ Camera::Camera(const Vector3f &eye, const Vector3f &target, const Vector3f &up) 
 Camera::~Camera() {}
 
 void Camera::updateViewMatrix(bool orthogonalizeAxes){
-
 	// Regenerate the camera's local axes to orthogonalize them.
 	if (orthogonalizeAxes){
 
@@ -244,6 +243,11 @@ void Camera::lookAt(const Vector3f &eye, const Vector3f &target, const Vector3f 
 	Matrix4f invView;
 	invView.invLookAt(eye, target, up);
 	m_invViewMatrix = invView;
+}
+
+void Camera::pitchReflection(const float distance) {
+	m_viewMatrix[1][1] = -m_viewMatrix[1][1];
+	m_viewMatrix[1][3] = 2 * distance + m_viewMatrix[1][3];
 }
 
 void Camera::move(float dx, float dy, float dz){

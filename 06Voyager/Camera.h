@@ -20,6 +20,7 @@ public:
 	void move(float dx, float dy, float dz);
 	void rotate(float yaw, float pitch, float roll);
 	void rotateSmoothly(float yaw, float pitch, float roll);
+	void pitchReflection(const float distance);
 
 	const Matrix4f &getViewMatrix() const;
 	const Matrix4f &getInvViewMatrix() const;

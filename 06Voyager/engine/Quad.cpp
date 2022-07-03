@@ -19,7 +19,7 @@ Quad::Quad(bool flippable, float leftEdge, float rightEdge, float bottomEdge, fl
 }
 
 Quad::Quad(Vector2f& position, Vector2f size) {
-	m_position = position - size * 0.5f;
+	m_position = position;
 	m_size = size;
 	createBuffer();
 }
