@@ -1,7 +1,7 @@
 #ifndef __cameraH__
 #define __cameraH__
 
-#include "engine/Vector.h"
+#include "Vector.h"
 
 
 class Entity3D;

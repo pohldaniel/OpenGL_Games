@@ -30,6 +30,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	std::cout << "1             : disable colormaps" << std::endl;
 	std::cout << "2             : toggle texturepack" << std::endl;
 	std::cout << "3             : regenerate terrain" << std::endl;
+	std::cout << "t             : debug framebuffer" << std::endl;
 	#endif
 	
 	float deltaTime = 0.0f;

@@ -6,8 +6,8 @@
 #include "engine\Texture.h"
 #include "engine\Spritesheet.h"
 
-#define WIDTH 800
-#define HEIGHT 600
+#define WIDTH 1600
+#define HEIGHT 900
 #define DEBUG 1
 
 #define PHYSICS_STEP 0.0166666f

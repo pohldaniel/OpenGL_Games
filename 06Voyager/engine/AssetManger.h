@@ -22,6 +22,10 @@ public:
 		m_assets[name].createNullTexture(width, height);
 	}
 
+	void createPerlinTexture(const std::string& name, unsigned int width = 2, unsigned int height = 2, unsigned int seed = 0) {
+		m_assets[name].createPerlinTexture(width, height, seed);
+	}
+
 	void loadCharacterSet(const std::string& name, const std::string& path, const float characterSize) {
 		m_assets.insert(std::pair<std::string, T>(name, T()));
 		m_assets[name].loadFromFile(path, characterSize);
@@ -107,6 +111,10 @@ public:
 
 	void createNullTexture(const std::string& name, unsigned int width = 2, unsigned int height = 2) {
 		m_assets[name].createNullTexture(width, height);
+	}
+
+	void createPerlinTexture(const std::string& name, unsigned int width = 2, unsigned int height = 2, unsigned int seed = 0) {
+		m_assets[name].createPerlinTexture(width, height, seed);
 	}
 
 	void loadCharacterSet(const std::string& name, const std::string& path, const float characterSize) {

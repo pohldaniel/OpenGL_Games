@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <string>
+#include "PerlinNoise.h"
 
 class Texture{
 	friend class Mesh;
@@ -21,7 +22,8 @@ public:
 	void loadFromFile(std::string pictureFile, unsigned short tileWidth, unsigned short tileHeight, unsigned short spacing = 0, unsigned int posY = 0, unsigned int posX = 0, const bool flipVertical = false, unsigned int format = -1);
 	void loadFromFile(std::string pictureFile, unsigned int offsetX, unsigned int offsetY, unsigned int width = 0, unsigned int height = 0, const bool flipVertical = false, unsigned int format = -1);
 	void createNullTexture(unsigned int width, unsigned int height);
-	
+	void createPerlinTexture(unsigned int width, unsigned int height, unsigned int seed = 0);
+
 	void setRepeat();
 	void setLinear();
 
@@ -32,10 +34,10 @@ public:
 private:
 	void flipVertical(unsigned char* data, unsigned int padWidth, unsigned int height);
 	
-	unsigned int m_texture;
-	unsigned int m_width;
-	unsigned int m_height;
-	unsigned short m_channels;
+	unsigned int m_texture = 0;
+	unsigned int m_width = 0;
+	unsigned int m_height = 0;
+	unsigned short m_channels = 0;
 };
 
 #endif

@@ -187,7 +187,8 @@ typedef char GLchar;
 #define GL_CLIP_DISTANCE5 GL_CLIP_PLANE5
 #define GL_DEPTH_COMPONENT32 0x81A7
 #define GL_UNSIGNED_INT_24_8 0x84FA
-
+#define GL_STENCIL_ATTACHMENT 0x8D20
+#define GL_STENCIL_INDEX8 0x8D48
 
 	extern void glActiveTextureARB(GLenum texture);
 	extern void glMultiTexCoord2fARB(GLenum target, GLfloat s, GLfloat t);

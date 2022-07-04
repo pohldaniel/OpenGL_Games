@@ -1,20 +1,30 @@
 #include "Water.h"
 #include <iostream>
+#include "Terrain.h"
 
 Water::Water(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fdt) {
 	m_waterShader = Globals::shaderManager.getAssetPointer("water");
 	m_textures["dudv"] = &Globals::textureManager.get("water_dudv");
 	m_textures["normal"] = &Globals::textureManager.get("water_normal");
+
+	m_reflectionBuffer.create(WIDTH, HEIGHT);
+	m_reflectionBuffer.attachTexture(Framebuffer::Attachments::COLOR);
+	m_reflectionBuffer.attachRenderbuffer(Framebuffer::Attachments::DEPTH24);
+
+	m_refractionBuffer.create(WIDTH, HEIGHT);
+	m_refractionBuffer.attachTexture(Framebuffer::Attachments::COLOR);
+	m_refractionBuffer.attachTexture(Framebuffer::Attachments::DEPTH24);
 }
 
 Water::~Water() {
 
 }
 
-void Water::create(unsigned int resolution, unsigned int width) {
+void Water::create(unsigned int resolution, unsigned int width, float waterLevel) {
 	m_resolution = resolution;
 	m_width = width;
 	m_gridSpacing = static_cast<float>(m_width) / static_cast<float>(m_resolution);
+	m_waterLevel = waterLevel;
 
 	generateVertices(m_vertexBuffer);
 	generateIndices(m_indexBuffer);
@@ -47,7 +57,7 @@ void Water::generateVertices(std::vector<float>& vertexBuffer) {
 	
 	for (unsigned int z = 0; z <= m_resolution; ++z) {
 		for (unsigned int x = 0; x <= m_resolution; ++x) {
-			vertexBuffer.push_back(static_cast<float>(x) * m_gridSpacing); vertexBuffer.push_back(200.0f); vertexBuffer.push_back(static_cast<float>(z) * m_gridSpacing);
+			vertexBuffer.push_back(static_cast<float>(x) * m_gridSpacing); vertexBuffer.push_back(m_waterLevel); vertexBuffer.push_back(static_cast<float>(z) * m_gridSpacing);
 			vertexBuffer.push_back(static_cast<float>(x) / static_cast<float>(m_resolution)); vertexBuffer.push_back(static_cast<float>(z) / static_cast<float>(m_resolution));
 			vertexBuffer.push_back(0.0f); vertexBuffer.push_back(1.0f); vertexBuffer.push_back(0.0f);
 		}
@@ -98,14 +108,15 @@ void Water::setGridPosition(int x, int z){
 	modelMTX.push_back(model);
 }
 
-void Water::render(const Camera& camera, unsigned int &reflectionTexture, unsigned int &refractionTexture, unsigned int &refractionDepthTexture) {
+void Water::render(const Camera& camera, const unsigned int &reflectionTexture, const unsigned int &refractionTexture, const unsigned int &refractionDepthTexture) {
+	
+	
 	move += WAVE_SPEED * m_dt;
 	if (move > 1.0f) move = 0.0f;
 	
 	glUseProgram(m_waterShader->m_program);
 	m_waterShader->loadMatrix("u_transform", camera.getViewMatrix() * Globals::projection);
 	m_waterShader->loadMatrix("u_normal", Matrix4f::GetNormalMatrix(camera.getViewMatrix()));
-	m_waterShader->loadMatrix("u_projectionShadowBias", Globals::projection * m_biasMatrix);
 	m_waterShader->loadVector("cameraPos", camera.getPosition());
 
 	m_waterShader->loadVector("lightPosition", Vector3f(9000.0f, 9000.0f, 9000.0f));
@@ -138,4 +149,24 @@ void Water::render(const Camera& camera, unsigned int &reflectionTexture, unsign
 	Texture::Unbind();
 
 	glUseProgram(0);
+}
+
+void Water::bindReflectionBuffer() {
+	m_reflectionBuffer.bind();
+}
+
+void Water::bindRefractionBuffer() {
+	m_refractionBuffer.bind();
+}
+
+Framebuffer Water::getReflectionBuffer() {
+	return m_reflectionBuffer;
+}
+
+Framebuffer Water::getRefractionBuffer() {
+	return m_refractionBuffer;
+}
+
+float Water::getWaterLevel() {
+	return m_waterLevel;
 }

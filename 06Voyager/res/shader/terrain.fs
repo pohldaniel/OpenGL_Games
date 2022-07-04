@@ -14,7 +14,7 @@ in vec2 texCoordTiled;
 in vec2 texCoord;
 in vec4 normal;
 
-out vec4 outColor;
+layout(location = 0) out vec4 outColor;
 
 layout (std140) uniform u_region{
 	Region region[2]; //0  -> 32

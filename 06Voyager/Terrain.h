@@ -7,9 +7,9 @@
 #include "engine/Texture.h"
 #include "engine/Spritesheet.h"
 #include "engine/Extension.h"
+#include "engine/Camera.h"
 
 #include "Constants.h"
-#include "Camera.h"
 
 class HeightMap{
 public:
@@ -18,7 +18,7 @@ public:
 
 	
 	void createFromImage(std::string file, int gridSpacing, float scale);
-	void createFromTexture(Texture texture, int width, float scale);
+	void createFromTexture(Texture &texture, int width, float scale);
 	bool create(int size, int width, float scale);
 	void destroy();
 
@@ -112,12 +112,11 @@ public:
 	void createProcedural(int resolution, int width, float scale, float roughness);
 	void create(int resolution, int width, float scale, float roughness);
 	void create(std::string file, int width, float scale);
-	void create(Texture texture, int width, float scale);
+	void create(Texture &texture, int width, float scale);
 
 	void destroy();
 	std::function<void(const Camera&)> draw = 0;
 	void drawNormal(const Camera& camera);
-	void drawNormal(const Matrix4f& view);
 	void drawInstanced(const Camera& camera);
 	bool generateUsingDiamondSquareFractal(float roughness);
 	void scaleRegions(const float heighScale);

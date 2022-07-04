@@ -164,9 +164,6 @@ public:
 	void invPerspective(float fovx, float aspect, float znear, float zfar);
 	void invOrthographic(float left, float right, float bottom, float top, float znear, float zfar);
 	void lookAt(const Vector3f &eye, const Vector3f &target, const Vector3f &up);
-
-	void lookAt(const Vector3f &eye, const Vector3f &viewDirection, const Vector3f &up, float distance);
-
 	void invLookAt(const Vector3f &eye, const Vector3f &target, const Vector3f &up);
 
 	void fromHeadPitchRoll(float headDegrees, float pitchDegrees, float rollDegrees);

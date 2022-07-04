@@ -259,8 +259,6 @@ void Application::loadAssets() {
 	Globals::shaderManager.loadShader("terrain", "res/shader/terrain.vs", "res/shader/terrain.fs");	
 	Globals::shaderManager.loadShader("terrain_instance", "res/shader/terrain_instance.vs", "res/shader/terrain_instance.fs");
 	Globals::shaderManager.loadShader("water", "res/shader/water.vs", "res/shader/water.fs");
-	Globals::shaderManager.loadShader("depth", "res/shader/depth.vs", "res/shader/depth.fs");
-	Globals::shaderManager.loadShader("texture", "res/shader/texture.vs", "res/shader/texture.fs");
 
 	Globals::textureManager.loadTexture("dirt", "res/textures/dirt.JPG", true);
 	Globals::textureManager.loadTexture("grass", "res/textures/grass.JPG", true);
@@ -305,4 +303,9 @@ void Application::loadAssets() {
 	Globals::textureManager.get("water_dudv").setRepeat();
 	Globals::textureManager.get("water_normal").setLinear();
 	Globals::textureManager.get("water_normal").setRepeat();
+
+
+	Globals::textureManager.createPerlinTexture("perlin", 512, 512, 373);
+	Globals::textureManager.get("perlin").setLinear();
+	Globals::textureManager.get("perlin").setRepeat();
 }

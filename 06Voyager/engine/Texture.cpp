@@ -193,13 +193,57 @@ void Texture::createNullTexture(unsigned int width, unsigned int height) {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_BGRA, GL_UNSIGNED_BYTE, &pixels[0]);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, &pixels[0]);
 
 	glBindTexture(GL_TEXTURE_2D, 0);
 
 	m_width = width;
 	m_height = height;
 	m_channels = 4;
+}
+
+//https://github.com/sol-prog/Perlin_Noise
+void Texture::createPerlinTexture(unsigned int width, unsigned int height, unsigned int seed) {
+	PerlinNoise pn = seed ? PerlinNoise(seed) : PerlinNoise();
+	
+	unsigned short numComponents = 4;
+	unsigned char* pixels = (unsigned char*)malloc(width * numComponents * height);
+
+	for (unsigned int i = 0; i < height; ++i) {     // y
+		for (unsigned int j = 0; j < width; ++j) {  // x
+			double x = (double)j / ((double)width);
+			double y = (double)i / ((double)height);
+
+			// Typical Perlin noise
+			double n = pn.noise(10 * x, 10 * y, 0.8);
+
+			// Wood like structure
+			//n = 20 * pn.noise(x, y, 0.8);
+			//n = n - floor(n);
+		
+			pixels[i * numComponents * width + j * numComponents + 0] = floor(255 * n);
+			pixels[i * numComponents * width + j * numComponents + 1] = floor(255 * n);
+			pixels[i * numComponents * width + j * numComponents + 2] = floor(255 * n);
+			pixels[i * numComponents * width + j * numComponents + 3] = 255;
+		}
+	}
+	glGenTextures(1, &m_texture);
+	glBindTexture(GL_TEXTURE_2D, m_texture);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, &pixels[0]);
+
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	m_width = width;
+	m_height = height;
+	m_channels = 4;
+
+	free(pixels);
 }
 
 void Texture::CutSubimage(std::string fileIn, std::string fileOut, unsigned int _offsetX, unsigned int _offsetY, unsigned int _width, unsigned int _height, const bool _flipVertical) {

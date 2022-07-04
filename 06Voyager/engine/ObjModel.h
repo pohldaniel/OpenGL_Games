@@ -11,13 +11,13 @@
 #include <memory>
 
 
-#include "engine\Vector.h"
-#include "engine\Extension.h"
-#include "engine\Shader.h"
-#include "engine\Texture.h"
+#include "Vector.h"
+#include "Extension.h"
+#include "Shader.h"
+#include "Texture.h"
 #include "Camera.h"
 
-#include "Constants.h"
+#include "..\Constants.h"
 
 struct IndexBufferCreator {
 

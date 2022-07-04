@@ -155,17 +155,21 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Application.h" />
-    <ClInclude Include="Camera.h" />
     <ClInclude Include="Constants.h" />
     <ClInclude Include="engine\AssetManger.h" />
+    <ClInclude Include="engine\Camera.h" />
     <ClInclude Include="engine\Clock.h" />
     <ClInclude Include="engine\Extension.h" />
+    <ClInclude Include="engine\Framebuffer.h" />
     <ClInclude Include="engine\input\Event.h" />
     <ClInclude Include="engine\input\EventDispatcher.h" />
     <ClInclude Include="engine\input\KeyboardEventListener.h" />
     <ClInclude Include="engine\input\KeyBorad.h" />
     <ClInclude Include="engine\input\Mouse.h" />
     <ClInclude Include="engine\input\MouseEventListener.h" />
+    <ClInclude Include="engine\ModelMatrix.h" />
+    <ClInclude Include="engine\ObjModel.h" />
+    <ClInclude Include="engine\PerlinNoise.h" />
     <ClInclude Include="engine\Quad.h" />
     <ClInclude Include="engine\Shader.h" />
     <ClInclude Include="engine\Spritesheet.h" />
@@ -173,9 +177,7 @@
     <ClInclude Include="engine\Vector.h" />
     <ClInclude Include="Entity.h" />
     <ClInclude Include="Game.h" />
-    <ClInclude Include="ModelMatrix.h" />
     <ClInclude Include="Object.h" />
-    <ClInclude Include="ObjModel.h" />
     <ClInclude Include="RenderableObject.h" />
     <ClInclude Include="StateMachine.h" />
     <ClInclude Include="Terrain.h" />
@@ -183,13 +185,17 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Application.cpp" />
-    <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="engine\Camera.cpp" />
     <ClCompile Include="engine\Extension.cpp" />
+    <ClCompile Include="engine\Framebuffer.cpp" />
     <ClCompile Include="engine\input\EventDispatcher.cpp" />
     <ClCompile Include="engine\input\KeyBoard.cpp" />
     <ClCompile Include="engine\input\KeyboardEventListener.cpp" />
     <ClCompile Include="engine\input\Mouse.cpp" />
     <ClCompile Include="engine\input\MouseEventListener.cpp" />
+    <ClCompile Include="engine\ModelMatrix.cpp" />
+    <ClCompile Include="engine\ObjModel.cpp" />
+    <ClCompile Include="engine\PerlinNoise.cpp" />
     <ClCompile Include="engine\Quad.cpp" />
     <ClCompile Include="engine\Shader.cpp" />
     <ClCompile Include="engine\Spritesheet.cpp" />
@@ -198,9 +204,7 @@
     <ClCompile Include="Entity.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="ModelMatrix.cpp" />
     <ClCompile Include="Object.cpp" />
-    <ClCompile Include="ObjModel.cpp" />
     <ClCompile Include="RenderableObject.cpp" />
     <ClCompile Include="soil2\image_DXT.c" />
     <ClCompile Include="soil2\image_helper.c" />

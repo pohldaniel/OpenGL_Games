@@ -1,7 +1,7 @@
 #pragma once
 #include "engine/Vector.h"
 #include "engine/Shader.h"
-#include "ObjModel.h"
+#include "engine/ObjModel.h"
 
 #include "Constants.h"
 #include "Object.h"

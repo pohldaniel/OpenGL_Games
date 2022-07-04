@@ -18,8 +18,8 @@ HeightMap::~HeightMap() {
 	destroy();
 }
 
-void HeightMap::createFromTexture(Texture texture, int width, float scale) {
-	m_heightScale = scale;	
+void HeightMap::createFromTexture(Texture& texture, int width, float scale) {
+	m_heightScale = scale;
 	m_size = texture.getWidth();
 	m_resolution = m_size - 1;
 	m_width = width;
@@ -50,12 +50,14 @@ void HeightMap::createFromTexture(Texture texture, int width, float scale) {
 		}
 	}
 
-	free(imageData);
+	
 
 	smooth();
 	for (int i = 0; i < m_size  * m_size; ++i) {
 		m_heights[i] = 255.0f * (m_heights[i] - minH) / (maxH - minH);
 	}
+
+	free(imageData);
 }
 
 void HeightMap::createFromImage(std::string file, int _width, float scale) {
@@ -552,7 +554,7 @@ void Terrain::create(std::string file, int width, float scale) {
 	terrainCreate();
 }
 
-void Terrain::create(Texture texture, int width, float scale) {
+void Terrain::create(Texture& texture, int width, float scale) {
 	m_procedural = false;
 	m_heightMap.createFromTexture(texture, width, scale);
 	terrainCreate();

@@ -2,11 +2,11 @@
 
 #include "engine/input/KeyBorad.h"
 #include "engine/input/Mouse.h"
+#include "engine/Framebuffer.h"
+#include "engine/Camera.h"
 
 #include "Constants.h"
 #include "StateMachine.h"
-
-#include "Camera.h"
 #include "Terrain.h"
 #include "Water.h"
 
@@ -20,18 +20,18 @@ public:
 	virtual void render(unsigned int &frameBuffer) override;
 	void performCameraCollisionDetection();
 
+	void renderOffscreen();
+
 	Camera m_camera;
 	Terrain m_terrain;
 	Water m_water;
 	Quad *m_reflectionQuad;
 	Quad *m_refractionQuad;
+	Quad *m_perlinQuad;
 
+	Framebuffer m_copyFramebuffer;
 	Shader *m_quadShader;
-
-	unsigned int m_fboCopy, m_frameTextureCopy;
-
-	unsigned int m_fboReflection, m_frameTextureReflection, m_frameTextureReflectionDepth;
-	unsigned int m_fboRefraction, m_frameTextureRefraction, m_frameTextureRefractionDepth;
+	
 
 	Vector3f m_cameraBoundsMax;
 	Vector3f m_cameraBoundsMin;
