@@ -1,3 +1,4 @@
+
 #include "Game.h"
 
 const float HEIGHTMAP_ROUGHNESS = 1.2f;
@@ -15,7 +16,12 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_water(
 	m_copyFramebuffer.attachTexture(Framebuffer::Attachments::COLOR);
 	m_copyFramebuffer.attachRenderbuffer(Framebuffer::Attachments::DEPTH_STENCIL);
 
+	m_dephtFramebuffer.create(WIDTH, HEIGHT);
+	m_dephtFramebuffer.attachTexture(Framebuffer::Attachments::COLOR);
+	m_dephtFramebuffer.attachTexture(Framebuffer::Attachments::DEPTH24);
+
 	m_quadShader = Globals::shaderManager.getAssetPointer("quad");
+	m_quadShader2 = Globals::shaderManager.getAssetPointer("quad2");
 	m_reflectionQuad = new Quad(Vector2f(-1.0f, 1.0f - size[1]), size);
 	m_refractionQuad = new Quad(Vector2f(1.0f - size[0], 1.0f - size[1]), size);
 	m_perlinQuad = new Quad(Vector2f(-1.0f, -1.0f), size);
@@ -44,7 +50,9 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_water(
 
 	//setup the camera.
 	m_camera = Camera();
+	m_camera.perspective(45.0f, static_cast<float>(WIDTH) / static_cast<float>(HEIGHT), 1.0f, 5000.0f);
 	m_camera.lookAt(pos, Vector3f(pos[0] + 100.0f, pos[1] + 10.0f, pos[2] + 100.0f), Vector3f(0.0f, 1.0f, 0.0f));
+
 	m_camera.setAcceleration(CAMERA_ACCELERATION);
 	m_camera.setVelocity(CAMERA_VELOCITY);
 	m_camera.setRotationSpeed(0.1f);
@@ -139,24 +147,33 @@ void Game::update() {
 
 	}// end if any movement
 
-	performCameraCollisionDetection();
+	m_camera.calcLightTransformation(Vector3f(-1.0f, 0.0f, 0.0f));
+	//performCameraCollisionDetection();
 };
 
 void Game::render(unsigned int &frameBuffer) {
-	
+	//glEnable(GL_BLEND);
 	renderOffscreen();
 	
+	m_dephtFramebuffer.bind();
+	glClear(GL_DEPTH_BUFFER_BIT);
+	glUseProgram(Globals::shaderManager.getAssetPointer("depth")->m_program);
+	Globals::shaderManager.getAssetPointer("depth")->loadMatrix("u_projection", m_camera.lightView * m_camera.lightProjection);
+	m_terrain.drawNormal2(m_camera);
+	glUseProgram(0);
+	Framebuffer::Unbind();
+
 	glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
 
 	glClearColor(0.3f, 0.5f, 0.9f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-
+	
 	m_terrain.draw(m_camera);
-	glEnable(GL_BLEND);
+	
 	m_water.render(m_camera, m_water.getReflectionBuffer().getColorTexture(), m_water.getRefractionBuffer().getColorTexture(), m_water.getRefractionBuffer().getDepthTexture());
-	glDisable(GL_BLEND);
+	
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);	
-
+	//glDisable(GL_BLEND);
 	if (m_debug) {
 		glBindFramebuffer(GL_READ_FRAMEBUFFER, frameBuffer);
 		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_copyFramebuffer.getFramebuffer());
@@ -182,9 +199,10 @@ void Game::render(unsigned int &frameBuffer) {
 		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		glUseProgram(m_quadShader->m_program);
-		m_quadShader->loadMatrix("u_transform", Matrix4f::IDENTITY);
-		m_perlinQuad->render(Globals::textureManager.get("perlin").getTexture());
+		glUseProgram(m_quadShader2->m_program);
+		m_quadShader2->loadMatrix("u_transform", Matrix4f::IDENTITY);
+		m_perlinQuad->render(m_dephtFramebuffer.getDepthTexture());
+		//m_perlinQuad->render(m_water.getRefractionBuffer().getDepthTexture());
 		glUseProgram(0);
 
 		glScissor(WIDTH - offsetX, HEIGHT - offsetY, offsetX, offsetY);
@@ -207,14 +225,16 @@ void Game::renderOffscreen() {
 	m_water.bindReflectionBuffer();
 	glClearColor(0.3f, 0.5f, 0.9f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glEnable(GL_CULL_FACE);
 
 	glUseProgram(Globals::shaderManager.getAssetPointer("terrain")->m_program);
 	Globals::shaderManager.getAssetPointer("terrain")->loadVector("u_plane", Vector4f(0.0f, 1.0f, 0.0f, -m_water.getWaterLevel()));
 	glUseProgram(0);
 
-	m_camera.pitchReflection(m_water.getWaterLevel());
-	m_terrain.draw(m_camera);
-	m_camera.pitchReflection(-m_water.getWaterLevel());
+	m_camera.pitchReflection((m_water.getWaterLevel()));
+	m_terrain.drawNormal(m_camera);
+	m_camera.pitchReflection(-(m_water.getWaterLevel()));
+	glDisable(GL_CULL_FACE);
 	Framebuffer::Unbind();
 
 	m_water.bindRefractionBuffer();
@@ -250,4 +270,6 @@ void Game::performCameraCollisionDetection(){
 
 	newPos[1] = m_terrain.getHeightMap().heightAt(newPos[0], newPos[2]) + CAMERA_Y_OFFSET;
 	m_camera.setPosition(newPos);
+
+	m_flag = newPos[1] < m_water.getWaterLevel() + CAMERA_Y_OFFSET;
 }

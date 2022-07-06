@@ -21,6 +21,12 @@ public:
 	void rotate(float yaw, float pitch, float roll);
 	void rotateSmoothly(float yaw, float pitch, float roll);
 	void pitchReflection(const float distance);
+	void calcLightTransformation(Vector3f &direction);
+
+	const float getFar() const;
+	const float getNear() const;
+	const float getFovXDeg() const;
+	const float getFovXRad() const;
 
 	const Matrix4f &getViewMatrix() const;
 	const Matrix4f &getInvViewMatrix() const;
@@ -40,6 +46,9 @@ public:
 	void setVelocity(const Vector3f &velocity);
 	void updatePosition(const Vector3f &direction, float m_dt);
 	void setRotationSpeed(float rotationSpeed);
+
+	Matrix4f lightView;
+	Matrix4f lightProjection;
 
 protected:
 
@@ -72,5 +81,7 @@ protected:
 	Matrix4f		m_projMatrix;
 	Matrix4f		m_invProjMatrix;
 	Matrix4f		m_orthMatrix;
+
+	
 };
 #endif // __cameraH__

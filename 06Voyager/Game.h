@@ -30,8 +30,9 @@ public:
 	Quad *m_perlinQuad;
 
 	Framebuffer m_copyFramebuffer;
+	Framebuffer m_dephtFramebuffer;
 	Shader *m_quadShader;
-	
+	Shader *m_quadShader2;
 
 	Vector3f m_cameraBoundsMax;
 	Vector3f m_cameraBoundsMin;
@@ -39,5 +40,6 @@ public:
 
 	unsigned int offsetX;
 	unsigned int offsetY;
-	bool m_debug = false;
+	bool m_debug = true;
+	bool m_flag;
 };

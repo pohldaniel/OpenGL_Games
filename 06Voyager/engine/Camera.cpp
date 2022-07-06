@@ -1,5 +1,7 @@
 #include <cmath>
 #include <iostream>
+#include <limits>
+
 #include "camera.h"
 
 Camera::Camera(){
@@ -377,6 +379,157 @@ void Camera::rotateFirstPerson(float yaw, float pitch){
 		m_yAxis = rotMtx * m_yAxis;
 		m_zAxis = rotMtx * m_zAxis;
 	}
+}
+
+const float Camera::getFar() const {
+	return m_projMatrix[2][3] / (m_projMatrix[2][2] + 1);
+}
+
+const float Camera::getNear() const {
+	return m_projMatrix[2][3] / (m_projMatrix[2][2] - 1);
+}
+
+const float Camera::getFovXDeg() const {
+	return 2 * atanf(1.0f / m_projMatrix[1][1]) * _180_ON_PI;
+}
+
+const float  Camera::getFovXRad() const {
+	return 2 * atanf(1.0f / m_projMatrix[1][1]);
+}
+
+void Camera::calcLightTransformation(Vector3f &direction) {
+	
+	/*float _near = getNear();
+	float _far = getFar();
+
+	Vector2f boundXFar;
+	boundXFar[0] = tanf(0.5 * getFovXRad()) * _far * m_aspectRatio;
+	boundXFar[1] = -boundXFar[0];
+
+	Vector2f boundYFar;
+	boundYFar[0] = tanf(0.5 * getFovXRad()) * _far;
+	boundYFar[1] = -boundYFar[0];
+
+	Vector2f boundXNear;
+	boundXNear[0] = tanf(0.5 * getFovXRad()) * _near * m_aspectRatio;
+	boundXNear[1] = -boundXNear[0] ;
+
+	Vector2f boundYNear;
+	boundYNear[0] = tanf(0.5 * getFovXRad()) * _near;
+	boundYNear[1] = -boundYNear[0] ;	
+
+	Vector3f _nearTopLeft = Vector3f(boundXNear[1], boundYNear[0], -_near);
+	Vector3f _nearTopRight = Vector3f(boundXNear[0], boundYNear[0], -_near);
+	Vector3f _nearBottomLeft = Vector3f(boundXNear[1], boundYNear[1], -_near);
+	Vector3f _nearBottomRight = Vector3f(boundXNear[0], boundYNear[1], -_near);
+
+	Vector3f _farTopLeft = Vector3f(boundXFar[1], boundYFar[0], -_far);
+	Vector3f _farTopRight = Vector3f(boundXFar[0], boundYFar[0], -_far);
+	Vector3f _farBottomLeft = Vector3f(boundXFar[1], boundYFar[1], -_far);
+	Vector3f _farBottomRight = Vector3f(boundXFar[0], boundYFar[1], -_far);
+
+
+	_nearTopLeft = m_invViewMatrix *  Vector4f(_nearTopLeft);
+	_nearTopRight = m_invViewMatrix *  Vector4f(_nearTopRight);
+	_nearBottomLeft = m_invViewMatrix *  Vector4f(_nearBottomLeft);
+	_nearBottomRight = m_invViewMatrix *   Vector4f(_nearBottomRight);
+
+	_farTopLeft = m_invViewMatrix *   Vector4f(_farTopLeft);
+	_farTopRight = m_invViewMatrix *  Vector4f(_farTopRight);
+	_farBottomLeft = m_invViewMatrix *  Vector4f(_farBottomLeft);
+	_farBottomRight = m_invViewMatrix *   Vector4f(_farBottomRight);*/
+
+	float near = getNear();
+	float far = getFar();
+
+	float heightNear = 2 * tanf(0.5 * getFovXRad()) * near;
+	float widthNear = heightNear * m_aspectRatio;	
+	float heightFar = 2 * tanf(0.5 * getFovXRad()) * far;
+	float widthFar = heightFar  * m_aspectRatio;
+
+	Vector3f centerNear = m_eye + m_viewDir * near;
+	Vector3f centerFar = m_eye + m_viewDir * far;
+	Vector3f center = m_eye + m_viewDir * ((far + near) * 0.5f);
+	
+	
+	Vector3f nearTopLeft = centerNear + m_yAxis * (heightNear * 0.5f) - m_xAxis * (widthNear * 0.5f);
+	Vector3f nearTopRight = centerNear + m_yAxis * (heightNear * 0.5f) + m_xAxis * (widthNear * 0.5f);
+	Vector3f nearBottomLeft = centerNear - m_yAxis * (heightNear * 0.5f) - m_xAxis * (widthNear * 0.5f);
+	Vector3f nearBottomRight = centerNear - m_yAxis * (heightNear * 0.5f) + m_xAxis * (widthNear * 0.5f);
+
+	Vector3f farTopLeft = centerFar + m_yAxis * (heightFar * 0.5f) - m_xAxis * (widthFar * 0.5f);
+	Vector3f farTopRight = centerFar + m_yAxis * (heightFar * 0.5f) + m_xAxis * (widthFar * 0.5f);
+	Vector3f farBottomLeft = centerFar - m_yAxis * (heightFar * 0.5f) - m_xAxis * (widthFar * 0.5f);
+	Vector3f farBottomRight = centerFar - m_yAxis * (heightFar * 0.5f) + m_xAxis * (widthFar * 0.5f);
+
+	//Set up vieMatrix
+	/*Vector3f::Normalize(direction);
+	Vector3f xaxis = Vector3f::Cross(Vector3f(0.0f, 1.0f, 0.0f), direction);
+	Vector3f::Normalize(xaxis);
+	
+	Vector3f yaxis = Vector3f::Cross(direction, xaxis);
+	Vector3f::Normalize(yaxis);
+
+	lightView[0][0] = xaxis[0];
+	lightView[1][0] = yaxis[0];
+	lightView[2][0] = direction[0];
+	lightView[3][0] = 0.0f;
+
+	lightView[0][1] = xaxis[1];
+	lightView[1][1] = yaxis[1];
+	lightView[2][1] = direction[1];
+	lightView[3][1] = 0.0f;
+
+	lightView[0][2] = xaxis[2];
+	lightView[1][2] = yaxis[2];
+	lightView[2][2] = direction[2];
+	lightView[3][2] = 0.0f;
+
+	lightView[0][3] = 0.0f;
+	lightView[1][3] = 0.0f;
+	lightView[2][3] = 0.0f;
+	lightView[3][3] = 1.0f;
+	
+	center = lightView * center;
+
+	lightView[0][3] = -center[0];
+	lightView[1][3] = -center[1];
+	lightView[2][3] = -center[2];*/
+
+	lightView.lookAt(center + direction, center, Vector3f(0.0f, 1.0f, 0.0f));
+
+	Vector3f transforms[] = {
+		lightView * Vector4f(nearTopLeft) ,
+		lightView * Vector4f(nearTopRight) ,
+		lightView * Vector4f(nearBottomLeft) ,
+		lightView * Vector4f(nearBottomRight) ,
+
+		lightView * Vector4f(farTopLeft) ,
+		lightView * Vector4f(farTopRight) ,
+		lightView * Vector4f(farBottomLeft) ,
+		lightView * Vector4f(farBottomRight)
+	};
+
+	float minX, maxX, minY, maxY, minZ, maxZ;
+	for (unsigned short i = 0; i < 8; i++) {
+		if (i == 0) {
+			minX = transforms[i][0];
+			maxX = transforms[i][0];
+			minY = transforms[i][1];
+			maxY = transforms[i][1];
+			minZ = transforms[i][2];
+			maxZ = transforms[i][2];
+		}
+
+		minX = std::min(minX, transforms[i][0]);
+		maxX = std::max(maxX, transforms[i][0]);
+		minY = std::min(minY, transforms[i][1]);
+		maxY = std::max(maxY, transforms[i][1]);
+		minZ = std::min(minZ, transforms[i][2]);
+		maxZ = std::max(maxZ, transforms[i][2]);
+	}
+
+	lightProjection.orthographic(minX, maxX, minY, maxY, minZ, maxZ);
 }
 
 void Camera::setPosition(float x, float y, float z){

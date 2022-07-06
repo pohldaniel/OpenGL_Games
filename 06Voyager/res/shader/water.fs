@@ -15,6 +15,7 @@ uniform sampler2D depthMap;
 
 uniform vec3 lightColor;
 uniform float move;
+uniform float flipReflection;
 
 const float waveStrength = 0.04;
 const float shineDamper = 20.0;
@@ -44,7 +45,7 @@ void main(void) {
 
 	vec2 distortionTexCoords = texture(dudvMap,vec2(texCoord.x + move, texCoord.y)).rg * 0.1;
 	distortionTexCoords = texCoord + vec2(distortionTexCoords.x, distortionTexCoords.y + move);
-	vec2 distortion = (texture(dudvMap,distortionTexCoords).rg * 2.0 - 1.0)  * waveStrength * clamp(waterDepth/20.0, 0.0, 1.0);
+	vec2 distortion = (texture(dudvMap,distortionTexCoords).rg * 2.0 - 1.0)  * waveStrength * clamp(waterDepth/100.0, 0.0, 1.0);
 
 	//vec2 distortion1 = (texture(dudvMap, vec2(texCoord.x + move, texCoord.y)).rg * 2.0 - 1.0) * waveStrength;
 	//vec2 distortion2 = (texture(dudvMap, vec2(-texCoord.x + move, texCoord.y + move)).rg * 2.0 - 1.0) * waveStrength;
@@ -74,7 +75,7 @@ void main(void) {
 	
 	vec3 viewVector = normalize(toCameraVector);
 	float refractiveFactor = dot(viewVector, normal);
-	refractiveFactor = pow(refractiveFactor, 1.0);
+	refractiveFactor = pow(refractiveFactor, 1);
 	
 	
 	
@@ -85,7 +86,7 @@ void main(void) {
 	
 	outColor = mix(reflectionColor, refractionColor, refractiveFactor);
 	outColor = mix(outColor, vec4(0.0, 0.3, 0.5, 1.0), 0.2) + vec4(specularHighlights, 0.0);
-	outColor.a = clamp(waterDepth/5.0, 0.0, 1.0);
+	outColor.a = clamp(waterDepth/50.0, 0.0, 1.0);
 	
 	
 	//outColor = vec4(waterDepth, waterDepth, waterDepth, waterDepth)/500;

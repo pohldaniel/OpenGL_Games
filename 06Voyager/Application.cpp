@@ -186,7 +186,7 @@ void Application::initOpenGL() {
 
 	glEnable(GL_DEPTH_TEST);
 	//glDepthFunc(GL_LEQUAL);
-	//glDepthFunc(GL_LESS);
+	glDepthFunc(GL_LESS);
 	//glDepthFunc(GL_ALWAYS);
 	//alpha test for cutting border of the quads
 	//glEnable(GL_ALPHA_TEST);
@@ -202,6 +202,10 @@ void Application::initOpenGL() {
 	//glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 
 	//glEnable(GL_CLIP_DISTANCE0);
+
+	
+	glCullFace(GL_FRONT);
+	glFrontFace(GL_CCW);
 }
 
 void Application::enableVerticalSync(bool enableVerticalSync) {
@@ -257,8 +261,11 @@ void Application::initStates() {
 void Application::loadAssets() {
 	Globals::shaderManager.loadShader("quad", "res/shader/quad.vs", "res/shader/quad.fs");
 	Globals::shaderManager.loadShader("terrain", "res/shader/terrain.vs", "res/shader/terrain.fs");	
+	Globals::shaderManager.loadShader("terrain2", "res/shader/terrain2.vs", "res/shader/terrain2.fs");
 	Globals::shaderManager.loadShader("terrain_instance", "res/shader/terrain_instance.vs", "res/shader/terrain_instance.fs");
 	Globals::shaderManager.loadShader("water", "res/shader/water.vs", "res/shader/water.fs");
+	Globals::shaderManager.loadShader("depth", "res/shader/depth.vs", "res/shader/depth.fs");
+	Globals::shaderManager.loadShader("quad2", "res/shader/quad2.vs", "res/shader/quad2.fs");
 
 	Globals::textureManager.loadTexture("dirt", "res/textures/dirt.JPG", true);
 	Globals::textureManager.loadTexture("grass", "res/textures/grass.JPG", true);
