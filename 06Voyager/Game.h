@@ -4,6 +4,8 @@
 #include "engine/input/Mouse.h"
 #include "engine/Framebuffer.h"
 #include "engine/Camera.h"
+#include "engine/MeshObject/MeshQuad.h"
+#include "engine/MeshObject/MeshCube.h"
 
 #include "Constants.h"
 #include "StateMachine.h"
@@ -34,12 +36,15 @@ public:
 	Shader *m_quadShader;
 	Shader *m_quadShader2;
 
+	MeshQuad *m_meshQuad;
+	MeshCube *m_meshCube;
+
 	Vector3f m_cameraBoundsMax;
 	Vector3f m_cameraBoundsMin;
 	Vector2f size = Vector2f(0.75f, 0.75f);
 
 	unsigned int offsetX;
 	unsigned int offsetY;
-	bool m_debug = true;
+	bool m_debug = false;
 	bool m_flag;
 };

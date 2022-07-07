@@ -21,7 +21,7 @@ public:
 	void loadFromFile(std::string pictureFile, const bool flipVertical = false, unsigned int format = -1);
 	void loadFromFile(std::string pictureFile, unsigned short tileWidth, unsigned short tileHeight, unsigned short spacing = 0, unsigned int posY = 0, unsigned int posX = 0, const bool flipVertical = false, unsigned int format = -1);
 	void loadFromFile(std::string pictureFile, unsigned int offsetX, unsigned int offsetY, unsigned int width = 0, unsigned int height = 0, const bool flipVertical = false, unsigned int format = -1);
-	void createNullTexture(unsigned int width, unsigned int height);
+	void createNullTexture(unsigned int width, unsigned int height, unsigned int color = 255);
 	void createPerlinTexture(unsigned int width, unsigned int height, unsigned int seed = 0);
 
 	void setRepeat();

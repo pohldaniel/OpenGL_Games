@@ -31,6 +31,9 @@
     <Filter Include="Source Files\Objects">
       <UniqueIdentifier>{c435985b-31a5-4630-b76d-d72d81efa816}</UniqueIdentifier>
     </Filter>
+    <Filter Include="engine\MeshObject">
+      <UniqueIdentifier>{c5f18a53-081b-4114-9ad3-73652de82b8b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine\input\Event.h">
@@ -117,6 +120,12 @@
     <ClInclude Include="engine\Camera.h">
       <Filter>engine</Filter>
     </ClInclude>
+    <ClInclude Include="engine\MeshObject\MeshQuad.h">
+      <Filter>engine\MeshObject</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\MeshObject\MeshCube.h">
+      <Filter>engine\MeshObject</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine\input\EventDispatcher.cpp">
@@ -148,9 +157,6 @@
     </ClCompile>
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Game.cpp">
-      <Filter>Source Files\States</Filter>
     </ClCompile>
     <ClCompile Include="StateMachine.cpp">
       <Filter>Source Files\States</Filter>
@@ -205,6 +211,15 @@
     </ClCompile>
     <ClCompile Include="engine\Camera.cpp">
       <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="Game.cpp">
+      <Filter>Source Files\States</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\MeshObject\MeshQuad.cpp">
+      <Filter>engine\MeshObject</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\MeshObject\MeshCube.cpp">
+      <Filter>engine\MeshObject</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

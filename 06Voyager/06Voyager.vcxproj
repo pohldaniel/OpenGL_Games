@@ -167,6 +167,8 @@
     <ClInclude Include="engine\input\KeyBorad.h" />
     <ClInclude Include="engine\input\Mouse.h" />
     <ClInclude Include="engine\input\MouseEventListener.h" />
+    <ClInclude Include="engine\MeshObject\MeshCube.h" />
+    <ClInclude Include="engine\MeshObject\MeshQuad.h" />
     <ClInclude Include="engine\ModelMatrix.h" />
     <ClInclude Include="engine\ObjModel.h" />
     <ClInclude Include="engine\PerlinNoise.h" />
@@ -193,6 +195,8 @@
     <ClCompile Include="engine\input\KeyboardEventListener.cpp" />
     <ClCompile Include="engine\input\Mouse.cpp" />
     <ClCompile Include="engine\input\MouseEventListener.cpp" />
+    <ClCompile Include="engine\MeshObject\MeshCube.cpp" />
+    <ClCompile Include="engine\MeshObject\MeshQuad.cpp" />
     <ClCompile Include="engine\ModelMatrix.cpp" />
     <ClCompile Include="engine\ObjModel.cpp" />
     <ClCompile Include="engine\PerlinNoise.cpp" />

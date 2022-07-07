@@ -6,7 +6,7 @@ const float HEIGHTMAP_SCALE = 2.0f;
 
 const int HEIGHTMAP_RESOLUTION = 128;
 const int HEIGHTMAP_WIDTH = 8192;
-const float CAMERA_Y_OFFSET = 100.0f;
+const float CAMERA_Y_OFFSET = 200.0f;
 const Vector3f CAMERA_ACCELERATION(400.0f, 400.0f, 400.0f);
 const Vector3f CAMERA_VELOCITY(200.0f, 200.0f, 200.0f);
 
@@ -50,8 +50,9 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_water(
 
 	//setup the camera.
 	m_camera = Camera();
-	m_camera.perspective(45.0f, static_cast<float>(WIDTH) / static_cast<float>(HEIGHT), 1.0f, 5000.0f);
+	m_camera.perspective(45.0f, static_cast<float>(WIDTH) / static_cast<float>(HEIGHT), 1.0f, 1000.0f);
 	m_camera.lookAt(pos, Vector3f(pos[0] + 100.0f, pos[1] + 10.0f, pos[2] + 100.0f), Vector3f(0.0f, 1.0f, 0.0f));
+	//m_camera.lookAt(Vector3f(0.0f, 0.0f, 0.0f), Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
 
 	m_camera.setAcceleration(CAMERA_ACCELERATION);
 	m_camera.setVelocity(CAMERA_VELOCITY);
@@ -67,6 +68,18 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_water(
 	m_cameraBoundsMin[0] = lowerBounds;
 	m_cameraBoundsMin[1] = 0.0f;
 	m_cameraBoundsMin[2] = lowerBounds;
+
+	m_meshQuad = new MeshQuad(8192, 8192, 400);
+	m_meshQuad->setPrecision(1, 1);
+	m_meshQuad->buildMesh();
+	m_meshQuad->setShader(Globals::shaderManager.getAssetPointer("texture"));
+	m_meshQuad->setTexture(&Globals::textureManager.get("grey"));
+
+	m_meshCube = new MeshCube(Vector3f(HEIGHTMAP_WIDTH * 0.5f + 300.0f, 450.01f, HEIGHTMAP_WIDTH * 0.5f + 300.0f), 100, 100, 100);
+	m_meshCube->setPrecision(1, 1);
+	m_meshCube->buildMesh4Q();
+	m_meshCube->setShader(Globals::shaderManager.getAssetPointer("texture"));
+	m_meshCube->setTexture(&Globals::textureManager.get("marbel"));
 }
 
 Game::~Game() {}
@@ -159,7 +172,8 @@ void Game::render(unsigned int &frameBuffer) {
 	glClear(GL_DEPTH_BUFFER_BIT);
 	glUseProgram(Globals::shaderManager.getAssetPointer("depth")->m_program);
 	Globals::shaderManager.getAssetPointer("depth")->loadMatrix("u_projection", m_camera.lightView * m_camera.lightProjection);
-	m_terrain.drawNormal2(m_camera);
+	//m_terrain.drawNormal2(m_camera);
+	m_meshCube->drawShadow(m_camera);
 	glUseProgram(0);
 	Framebuffer::Unbind();
 
@@ -168,12 +182,14 @@ void Game::render(unsigned int &frameBuffer) {
 	glClearColor(0.3f, 0.5f, 0.9f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	
-	m_terrain.draw(m_camera);
-	
+	m_terrain.draw(m_camera);	
 	m_water.render(m_camera, m_water.getReflectionBuffer().getColorTexture(), m_water.getRefractionBuffer().getColorTexture(), m_water.getRefractionBuffer().getDepthTexture());
 	
+	m_meshQuad->draw(m_camera);
+	m_meshCube->draw(m_camera);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);	
 	//glDisable(GL_BLEND);
+
 	if (m_debug) {
 		glBindFramebuffer(GL_READ_FRAMEBUFFER, frameBuffer);
 		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_copyFramebuffer.getFramebuffer());

@@ -18,8 +18,8 @@ public:
 		m_assets[name].loadFromFile(path, offsetX, offsetY, width, height, flipVertical, format);
 	}
 
-	void createNullTexture(const std::string& name, unsigned int width = 2, unsigned int height = 2) {
-		m_assets[name].createNullTexture(width, height);
+	void createNullTexture(const std::string& name, unsigned int width = 2, unsigned int height = 2, unsigned int color = 255) {
+		m_assets[name].createNullTexture(width, height, color);
 	}
 
 	void createPerlinTexture(const std::string& name, unsigned int width = 2, unsigned int height = 2, unsigned int seed = 0) {

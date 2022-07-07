@@ -181,9 +181,9 @@ void Texture::loadFromFile(std::string pictureFile, unsigned int _offsetX, unsig
 	m_channels = numCompontents;
 }
 
-void Texture::createNullTexture(unsigned int width, unsigned int height) {
+void Texture::createNullTexture(unsigned int width, unsigned int height, unsigned int color) {
 	int pitch = ((width * 32 + 31) & ~31) >> 3; // align to 4-byte boundaries
-	std::vector<unsigned char> pixels(pitch * height, 255);
+	std::vector<unsigned char> pixels(pitch * height, color);
 	
 	glGenTextures(1, &m_texture);
 	glBindTexture(GL_TEXTURE_2D, m_texture);
