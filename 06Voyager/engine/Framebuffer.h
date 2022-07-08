@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include "Extension.h"
+#include "../Constants.h"
 
 class Framebuffer {
 

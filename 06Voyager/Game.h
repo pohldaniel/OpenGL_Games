@@ -38,7 +38,7 @@ public:
 
 	MeshQuad *m_meshQuad;
 	MeshCube *m_meshCube;
-
+	std::vector<MeshCube*> m_entities;
 	Vector3f m_cameraBoundsMax;
 	Vector3f m_cameraBoundsMin;
 	Vector2f size = Vector2f(0.75f, 0.75f);

@@ -161,10 +161,12 @@ void Framebuffer::attachRenderbuffer(Attachments attachments) {
 }
 
 void Framebuffer::bind() {
+	glViewport(0, 0, m_width, m_height);
 	glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
 }
 
 void Framebuffer::Unbind() {
+	glViewport(0, 0, WIDTH, HEIGHT);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 

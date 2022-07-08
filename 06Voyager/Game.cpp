@@ -16,7 +16,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_water(
 	m_copyFramebuffer.attachTexture(Framebuffer::Attachments::COLOR);
 	m_copyFramebuffer.attachRenderbuffer(Framebuffer::Attachments::DEPTH_STENCIL);
 
-	m_dephtFramebuffer.create(WIDTH, HEIGHT);
+	m_dephtFramebuffer.create(2048, 2048);
 	m_dephtFramebuffer.attachTexture(Framebuffer::Attachments::COLOR);
 	m_dephtFramebuffer.attachTexture(Framebuffer::Attachments::DEPTH24);
 
@@ -50,7 +50,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_water(
 
 	//setup the camera.
 	m_camera = Camera();
-	m_camera.perspective(45.0f, static_cast<float>(WIDTH) / static_cast<float>(HEIGHT), 1.0f, 1000.0f);
+	m_camera.perspective(45.0f, static_cast<float>(WIDTH) / static_cast<float>(HEIGHT), 1.0f, 1500.0f);
 	m_camera.lookAt(pos, Vector3f(pos[0] + 100.0f, pos[1] + 10.0f, pos[2] + 100.0f), Vector3f(0.0f, 1.0f, 0.0f));
 	//m_camera.lookAt(Vector3f(0.0f, 0.0f, 0.0f), Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
 
@@ -72,14 +72,24 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_water(
 	m_meshQuad = new MeshQuad(8192, 8192, 400);
 	m_meshQuad->setPrecision(1, 1);
 	m_meshQuad->buildMesh();
-	m_meshQuad->setShader(Globals::shaderManager.getAssetPointer("texture"));
-	m_meshQuad->setTexture(&Globals::textureManager.get("grey"));
+	m_meshQuad->setShader(Globals::shaderManager.getAssetPointer("shadowQuad"));
+	m_meshQuad->setTexture(&Globals::textureManager.get("null"));
 
-	m_meshCube = new MeshCube(Vector3f(HEIGHTMAP_WIDTH * 0.5f + 300.0f, 450.01f, HEIGHTMAP_WIDTH * 0.5f + 300.0f), 100, 100, 100);
-	m_meshCube->setPrecision(1, 1);
-	m_meshCube->buildMesh4Q();
-	m_meshCube->setShader(Globals::shaderManager.getAssetPointer("texture"));
-	m_meshCube->setTexture(&Globals::textureManager.get("marbel"));
+	m_entities.push_back(new MeshCube(Vector3f(HEIGHTMAP_WIDTH * 0.5f + 300.0f, 450.1f, HEIGHTMAP_WIDTH * 0.5f + 300.0f), 100, 100, 100));
+	m_entities.push_back(new MeshCube(Vector3f(HEIGHTMAP_WIDTH * 0.5f + 600.0f, 450.1f, HEIGHTMAP_WIDTH * 0.5f + 300.0f), 100, 100, 100));
+	m_entities.push_back(new MeshCube(Vector3f(HEIGHTMAP_WIDTH * 0.5f + 300.0f, 450.1f, HEIGHTMAP_WIDTH * 0.5f + 600.0f), 100, 100, 100));
+	m_entities.push_back(new MeshCube(Vector3f(HEIGHTMAP_WIDTH * 0.5f + 600.0f, 450.1f, HEIGHTMAP_WIDTH * 0.5f + 600.0f), 100, 100, 100));
+	m_entities.push_back(new MeshCube(Vector3f(HEIGHTMAP_WIDTH * 0.5f + 900.0f, 450.1f, HEIGHTMAP_WIDTH * 0.5f + 900.0f), 100, 100, 100));
+	m_entities.push_back(new MeshCube(Vector3f(HEIGHTMAP_WIDTH * 0.5f + 1200.0f, 450.1f, HEIGHTMAP_WIDTH * 0.5f + 1200.0f), 100, 100, 100));
+	m_entities.push_back(new MeshCube(Vector3f(HEIGHTMAP_WIDTH * 0.5f + 1500.0f, 450.1f, HEIGHTMAP_WIDTH * 0.5f + 1500.0f), 100, 100, 100));
+	m_entities.push_back(new MeshCube(Vector3f(HEIGHTMAP_WIDTH * 0.5f + 1800.0f, 450.1f, HEIGHTMAP_WIDTH * 0.5f + 1800.0f), 100, 100, 100));
+
+	for (auto entitie : m_entities) {
+		entitie->setPrecision(1, 1);
+		entitie->buildMesh4Q();
+		entitie->setShader(Globals::shaderManager.getAssetPointer("texture"));
+		entitie->setTexture(&Globals::textureManager.get("marbel"));
+	}
 }
 
 Game::~Game() {}
@@ -160,7 +170,7 @@ void Game::update() {
 
 	}// end if any movement
 
-	m_camera.calcLightTransformation(Vector3f(-1.0f, 0.0f, 0.0f));
+	m_camera.calcLightTransformation(Vector3f(-100.0f, 100.0f, -100.0f));
 	//performCameraCollisionDetection();
 };
 
@@ -173,7 +183,10 @@ void Game::render(unsigned int &frameBuffer) {
 	glUseProgram(Globals::shaderManager.getAssetPointer("depth")->m_program);
 	Globals::shaderManager.getAssetPointer("depth")->loadMatrix("u_projection", m_camera.lightView * m_camera.lightProjection);
 	//m_terrain.drawNormal2(m_camera);
-	m_meshCube->drawShadow(m_camera);
+	for (auto entitie : m_entities) {
+		entitie->drawShadow(m_camera);
+	}
+
 	glUseProgram(0);
 	Framebuffer::Unbind();
 
@@ -184,9 +197,22 @@ void Game::render(unsigned int &frameBuffer) {
 	
 	m_terrain.draw(m_camera);	
 	m_water.render(m_camera, m_water.getReflectionBuffer().getColorTexture(), m_water.getRefractionBuffer().getColorTexture(), m_water.getRefractionBuffer().getDepthTexture());
-	
+	auto shader = Globals::shaderManager.getAssetPointer("shadowQuad");
+	glUseProgram(shader->m_program);
+	shader->loadMatrix("u_projectionShadow", m_camera.lightProjection);
+	shader->loadMatrix("u_viewShadow", m_camera.lightView);
+	shader->loadInt("u_shadowMap", 1);
+
+
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, m_dephtFramebuffer.getDepthTexture());
+
 	m_meshQuad->draw(m_camera);
-	m_meshCube->draw(m_camera);
+
+	for (auto entitie : m_entities) {
+		entitie->draw(m_camera);
+	}
+
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);	
 	//glDisable(GL_BLEND);
 
