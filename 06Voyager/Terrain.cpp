@@ -446,7 +446,6 @@ const float* HeightMap::getHeights() const {
 Terrain::Terrain() {
 
 	m_terrainShader = Globals::shaderManager.getAssetPointer("terrain");
-	m_terrainShader2 = Globals::shaderManager.getAssetPointer("terrain2");
 
 	m_spritesheets["terrain"] = Globals::spritesheetManager.getAssetPointer("terrain");
 	m_spritesheets["blend"] = Globals::spritesheetManager.getAssetPointer("blend");
@@ -705,43 +704,10 @@ void Terrain::drawNormal(const Camera& camera) {
 
 }
 
-void Terrain::drawNormal2(const Camera& camera) {
-	Vector4f lightDir = Vector4f(0.0f, 1.0f, 0.0f, 0.0f);
-
-	/*glUseProgram(m_terrainShader2->m_program);
-	m_terrainShader2->loadMatrix("u_transform", camera.getViewMatrix() * Globals::projection);
-	m_terrainShader2->loadMatrix("u_normal", Matrix4f::GetNormalMatrix(camera.getViewMatrix()));
-	m_terrainShader2->loadFloat("tilingFactor", m_tilingFactor);
-	m_terrainShader2->loadVector("lightDir", lightDir);
-	m_terrainShader2->loadBool("mode", m_colorMode);
-
-	m_terrainShader2->loadInt("regions", 0);
-	m_terrainShader2->loadInt("blend", 1);
-	m_terrainShader2->loadInt("path", 2);
-	m_terrainShader2->loadInt("blendMap", 3);
-
-	if (m_disableColorMaps) {
-		m_spritesheets["null"]->bind(0);
-		m_spritesheets["null"]->bind(1);
-		m_textures["null"]->bind(2);
-		m_textures["null"]->bind(3);
-	}
-	else {
-		m_spritesheets["terrain"]->bind(0);
-		m_spritesheets["blend"]->bind(1);
-		m_textures["path"]->bind(2);
-		m_textures["blend_map"]->bind(3);
-	}*/
-
+void Terrain::drawShadow(const Camera& camera) {	
 	glBindVertexArray(m_vao);
 	glDrawElements(m_mode == Terrain::Mode::TRIANGLE_STRIP ? GL_TRIANGLE_STRIP : GL_TRIANGLES, m_totalIndices, GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
-
-
-	//Texture::Unbind();
-	//Spritesheet::Unbind();
-
-	//glUseProgram(0);
 }
 
 void Terrain::drawInstanced(const Camera& camera) {

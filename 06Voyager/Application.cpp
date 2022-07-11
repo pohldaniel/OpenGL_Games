@@ -261,16 +261,16 @@ void Application::initStates() {
 void Application::loadAssets() {
 
 	Globals::shaderManager.loadShader("quad", "res/shader/quad.vs", "res/shader/quad.fs");
+	Globals::shaderManager.loadShader("quad_shadow", "res/shader/quad_shadow.vs", "res/shader/quad_shadow.fs");
 	Globals::shaderManager.loadShader("quad_array", "res/shader/quad_array.vs", "res/shader/quad_array.fs");
 	Globals::shaderManager.loadShader("quad_array_shadow", "res/shader/quad_array_shadow.vs", "res/shader/quad_array_shadow.fs");
+	Globals::shaderManager.loadShader("texture", "res/shader/texture.vs", "res/shader/texture.fs");
+
 	Globals::shaderManager.loadShader("terrain", "res/shader/terrain.vs", "res/shader/terrain.fs");	
-	Globals::shaderManager.loadShader("terrain2", "res/shader/terrain2.vs", "res/shader/terrain2.fs");
 	Globals::shaderManager.loadShader("terrain_instance", "res/shader/terrain_instance.vs", "res/shader/terrain_instance.fs");
 	Globals::shaderManager.loadShader("water", "res/shader/water.vs", "res/shader/water.fs");
 	Globals::shaderManager.loadShader("depth", "res/shader/depth.vs", "res/shader/depth.fs");
-	Globals::shaderManager.loadShader("depthGS", "res/shader/depthGS.vs", "res/shader/depthGS.fs", "res/shader/depthGS.gs");
-	Globals::shaderManager.loadShader("quad_shadow", "res/shader/quad_shadow.vs", "res/shader/quad_shadow.fs");
-	Globals::shaderManager.loadShader("texture", "res/shader/texture.vs", "res/shader/texture.fs");
+	Globals::shaderManager.loadShader("depthGS", "res/shader/depthGS.vs", "res/shader/depthGS.fs", "res/shader/depthGS.gs");	
 	Globals::shaderManager.loadShader("shadowQuad", "res/shader/shadowQuad.vs", "res/shader/shadowQuad.fs");
 
 	Globals::textureManager.loadTexture("dirt", "res/textures/dirt.JPG", true);

@@ -118,7 +118,7 @@ public:
 	std::function<void(const Camera&)> draw = 0;
 	void drawNormal(const Camera& camera);
 
-	void drawNormal2(const Camera& camera);
+	void drawShadow(const Camera& camera);
 
 	void drawInstanced(const Camera& camera);
 	bool generateUsingDiamondSquareFractal(float roughness);
@@ -134,7 +134,6 @@ public:
 
 
 	Shader* m_terrainShader;
-	Shader* m_terrainShader2;
 	std::unordered_map<std::string, Texture*> m_textures;
 	std::unordered_map<std::string, Spritesheet*> m_spritesheets;
 	std::vector<float> m_vertexBuffer;

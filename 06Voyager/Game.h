@@ -33,9 +33,6 @@ public:
 	Quad *m_shadowQuad;
 
 	Framebuffer m_copyFramebuffer;
-	Framebuffer m_dephtFramebuffer;
-	Framebuffer m_framebuffer;
-	std::vector<Framebuffer> lightFramebuffer;
 
 	Shader *m_quadShader;
 	Shader *m_quadShadow;
@@ -51,7 +48,7 @@ public:
 
 	unsigned int offsetX;
 	unsigned int offsetY;
-	bool m_debug = true;
+	bool m_debug = false;
 	bool m_flag;
 	unsigned short m_debugCount = 0;
 
