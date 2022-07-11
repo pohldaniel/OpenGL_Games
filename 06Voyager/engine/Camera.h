@@ -1,10 +1,8 @@
 #ifndef __cameraH__
 #define __cameraH__
 
+#include <vector>
 #include "Vector.h"
-
-
-class Entity3D;
 
 class Camera{
 
@@ -22,6 +20,12 @@ public:
 	void rotateSmoothly(float yaw, float pitch, float roll);
 	void pitchReflection(const float distance);
 	void calcLightTransformation(Vector3f &direction);
+	void calcLightTransformation2(Vector3f &direction);
+
+	void setUpLightTransformation(float distance);
+
+	
+	void calcLightTransformation(Vector3f &direction, float near, float far, Matrix4f& viewMatrix, Matrix4f& projectionMatrix);
 
 	const float getFar() const;
 	const float getNear() const;
@@ -50,6 +54,11 @@ public:
 	Matrix4f lightView;
 	Matrix4f lightProjection;
 
+	std::vector<Matrix4f> lightViews;
+	std::vector<Matrix4f> lightProjections;
+	std::vector<Vector2f> bounds;
+	short m_numberCascades = 0;
+	float* m_cascadeEndClipSpace;
 protected:
 
     void rotateFirstPerson(float yaw, float pitch);

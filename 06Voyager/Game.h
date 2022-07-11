@@ -30,9 +30,12 @@ public:
 	Quad *m_reflectionQuad;
 	Quad *m_refractionQuad;
 	Quad *m_perlinQuad;
+	Quad *m_shadowQuad;
 
 	Framebuffer m_copyFramebuffer;
 	Framebuffer m_dephtFramebuffer;
+	std::vector<Framebuffer> lightFramebuffer;
+
 	Shader *m_quadShader;
 	Shader *m_quadShader2;
 
@@ -47,4 +50,5 @@ public:
 	unsigned int offsetY;
 	bool m_debug = false;
 	bool m_flag;
+	unsigned short m_debugCount = 0;
 };

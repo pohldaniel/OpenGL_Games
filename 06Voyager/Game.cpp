@@ -25,6 +25,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_water(
 	m_reflectionQuad = new Quad(Vector2f(-1.0f, 1.0f - size[1]), size);
 	m_refractionQuad = new Quad(Vector2f(1.0f - size[0], 1.0f - size[1]), size);
 	m_perlinQuad = new Quad(Vector2f(-1.0f, -1.0f), size);
+	m_shadowQuad = new Quad(Vector2f(1.0f - size[0], -1.0f), size);
 
 	offsetX = WIDTH * size[0] * 0.5f;
 	offsetY = HEIGHT * size[1] * 0.5f;
@@ -50,7 +51,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_water(
 
 	//setup the camera.
 	m_camera = Camera();
-	m_camera.perspective(45.0f, static_cast<float>(WIDTH) / static_cast<float>(HEIGHT), 1.0f, 1500.0f);
+	m_camera.perspective(45.0f, static_cast<float>(WIDTH) / static_cast<float>(HEIGHT), 1.0f, 5000.0f);
 	m_camera.lookAt(pos, Vector3f(pos[0] + 100.0f, pos[1] + 10.0f, pos[2] + 100.0f), Vector3f(0.0f, 1.0f, 0.0f));
 	//m_camera.lookAt(Vector3f(0.0f, 0.0f, 0.0f), Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
 
@@ -73,7 +74,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_water(
 	m_meshQuad->setPrecision(1, 1);
 	m_meshQuad->buildMesh();
 	m_meshQuad->setShader(Globals::shaderManager.getAssetPointer("shadowQuad"));
-	m_meshQuad->setTexture(&Globals::textureManager.get("null"));
+	m_meshQuad->setTexture(&Globals::textureManager.get("gray"));
 
 	m_entities.push_back(new MeshCube(Vector3f(HEIGHTMAP_WIDTH * 0.5f + 300.0f, 450.1f, HEIGHTMAP_WIDTH * 0.5f + 300.0f), 100, 100, 100));
 	m_entities.push_back(new MeshCube(Vector3f(HEIGHTMAP_WIDTH * 0.5f + 600.0f, 450.1f, HEIGHTMAP_WIDTH * 0.5f + 300.0f), 100, 100, 100));
@@ -90,6 +91,19 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_water(
 		entitie->setShader(Globals::shaderManager.getAssetPointer("texture"));
 		entitie->setTexture(&Globals::textureManager.get("marbel"));
 	}
+
+	m_camera.setUpLightTransformation(1500.0f);
+
+	lightFramebuffer.resize(m_camera.m_numberCascades);
+
+	for (unsigned short i = 0; i < m_camera.m_numberCascades; i++) {
+		lightFramebuffer[i].create(2048, 2048);
+		lightFramebuffer[i].attachTexture(Framebuffer::Attachments::COLOR);
+		lightFramebuffer[i].attachTexture(Framebuffer::Attachments::DEPTH24);
+	}
+
+	m_camera.calcLightTransformation(Vector3f(-100.0f, 100.0f, -100.0f));
+	m_camera.calcLightTransformation2(Vector3f(-100.0f, 100.0f, -100.0f));
 }
 
 Game::~Game() {}
@@ -151,6 +165,10 @@ void Game::update() {
 		m_debug = !m_debug;
 	}
 
+	if (keyboard.keyPressed(Keyboard::KEY_R)) {
+		m_debugCount = (m_debugCount < (m_camera.m_numberCascades - 1)) ? m_debugCount + 1 : 0;
+	}
+
 	Mouse &mouse = Mouse::instance();
 	dx = mouse.xPosRelative();
 	dy = mouse.yPosRelative();
@@ -171,6 +189,7 @@ void Game::update() {
 	}// end if any movement
 
 	m_camera.calcLightTransformation(Vector3f(-100.0f, 100.0f, -100.0f));
+	m_camera.calcLightTransformation2(Vector3f(-100.0f, 100.0f, -100.0f));
 	//performCameraCollisionDetection();
 };
 
@@ -178,18 +197,19 @@ void Game::render(unsigned int &frameBuffer) {
 	//glEnable(GL_BLEND);
 	renderOffscreen();
 	
-	m_dephtFramebuffer.bind();
-	glClear(GL_DEPTH_BUFFER_BIT);
 	glUseProgram(Globals::shaderManager.getAssetPointer("depth")->m_program);
-	Globals::shaderManager.getAssetPointer("depth")->loadMatrix("u_projection", m_camera.lightView * m_camera.lightProjection);
-	//m_terrain.drawNormal2(m_camera);
-	for (auto entitie : m_entities) {
-		entitie->drawShadow(m_camera);
+	for (unsigned short i = 0; i < m_camera.m_numberCascades; i++) {
+		lightFramebuffer[i].bind();
+		glClear(GL_DEPTH_BUFFER_BIT);
+		
+		Globals::shaderManager.getAssetPointer("depth")->loadMatrix("u_projection", m_camera.lightViews[i] * m_camera.lightProjections[i]);
+		for (auto entitie : m_entities) {
+			entitie->drawShadow(m_camera);
+		}	
 	}
-
 	glUseProgram(0);
 	Framebuffer::Unbind();
-
+	
 	glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
 
 	glClearColor(0.3f, 0.5f, 0.9f, 1.0f);
@@ -203,9 +223,24 @@ void Game::render(unsigned int &frameBuffer) {
 	shader->loadMatrix("u_viewShadow", m_camera.lightView);
 	shader->loadInt("u_shadowMap", 1);
 
+	shader->loadInt("u_shadowMaps[0]", 2);
+	shader->loadInt("u_shadowMaps[1]", 3);
+	shader->loadInt("u_shadowMaps[2]", 4);
+	shader->loadInt("u_shadowMaps[3]", 5);
 
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, m_dephtFramebuffer.getDepthTexture());
+
+	for (unsigned short i = 0; i < m_camera.m_numberCascades; i++) {
+		glActiveTexture(GL_TEXTURE2 + i);
+		glBindTexture(GL_TEXTURE_2D, lightFramebuffer[i].getDepthTexture());
+	}
+	
+	shader->loadMatrixArray("u_projectionShadows", m_camera.lightProjections, m_camera.m_numberCascades);
+	shader->loadMatrixArray("u_viewShadows", m_camera.lightViews, m_camera.m_numberCascades);
+
+	
+	shader->loadFloat4("u_cascadeEndClipSpace", m_camera.m_cascadeEndClipSpace);
 
 	m_meshQuad->draw(m_camera);
 
@@ -236,17 +271,6 @@ void Game::render(unsigned int &frameBuffer) {
 		m_reflectionQuad->render(m_water.getReflectionBuffer().getColorTexture());
 		glUseProgram(0);
 
-
-		glScissor(0, 0, offsetX, offsetY);
-		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-		glUseProgram(m_quadShader2->m_program);
-		m_quadShader2->loadMatrix("u_transform", Matrix4f::IDENTITY);
-		m_perlinQuad->render(m_dephtFramebuffer.getDepthTexture());
-		//m_perlinQuad->render(m_water.getRefractionBuffer().getDepthTexture());
-		glUseProgram(0);
-
 		glScissor(WIDTH - offsetX, HEIGHT - offsetY, offsetX, offsetY);
 		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -254,6 +278,25 @@ void Game::render(unsigned int &frameBuffer) {
 		glUseProgram(m_quadShader->m_program);
 		m_quadShader->loadMatrix("u_transform", Matrix4f::IDENTITY);
 		m_refractionQuad->render(m_water.getRefractionBuffer().getColorTexture());
+		glUseProgram(0);
+
+
+		glScissor(0, 0, offsetX, offsetY);
+		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		glUseProgram(m_quadShader->m_program);
+		m_quadShader->loadMatrix("u_transform", Matrix4f::IDENTITY);		
+		m_perlinQuad->render(Globals::textureManager.get("perlin").getTexture());
+		glUseProgram(0);
+
+		glScissor(WIDTH - offsetX, 0, offsetX, offsetY);
+		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		glUseProgram(m_quadShader2->m_program);
+		m_quadShader2->loadMatrix("u_transform", Matrix4f::IDENTITY);
+		m_shadowQuad->render(lightFramebuffer[m_debugCount].getDepthTexture());		
 		glUseProgram(0);
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);

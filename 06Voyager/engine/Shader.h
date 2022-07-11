@@ -23,7 +23,7 @@ public:
 	Shader& get();
 
 	void loadMatrix(const char* location, const Matrix4f matrix, bool trans = true);
-	void loadMatrixArray(const char* location, const std::vector<Matrix4f> matrixArray, const short count);
+	void loadMatrixArray(const char* location, const std::vector<Matrix4f> matrixArray, const short count, bool trans = true);
 	void loadVector(const char* location, Vector4f vector);
 	void loadVector(const char* location, Vector3f vector);
 	void loadVector(const char* location, Vector2f vector);
