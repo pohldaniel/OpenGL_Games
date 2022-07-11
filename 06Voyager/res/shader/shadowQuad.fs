@@ -15,9 +15,11 @@ uniform sampler2D u_shadowMap;
 uniform sampler2D u_shadowMaps[NUM_CASCADES];
 uniform float u_cascadeEndClipSpace[NUM_CASCADES];
 
+uniform sampler2DArray u_shadowMaps2;
+
 float CalcShadowFactor(int cascadeIndex, vec4 sc){
     vec3 ndc = (sc.xyz/sc.w);
-	float depth = texture(u_shadowMaps[cascadeIndex], ndc.xy).r;
+	float depth = texture(u_shadowMaps2, vec3(ndc.xy, cascadeIndex)).r;
 
 	return ndc.z > depth  ? 0.0 : 1.0;
 }

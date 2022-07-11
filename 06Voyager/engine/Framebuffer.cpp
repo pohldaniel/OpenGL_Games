@@ -166,8 +166,8 @@ void Framebuffer::bind() {
 }
 
 void Framebuffer::Unbind() {
-	glViewport(0, 0, WIDTH, HEIGHT);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glViewport(0, 0, WIDTH, HEIGHT);
 }
 
 unsigned int Framebuffer::getColorTexture(unsigned short attachment) {

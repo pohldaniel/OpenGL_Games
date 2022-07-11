@@ -7,6 +7,13 @@ Shader::Shader(std::string vertex, std::string fragment, bool fromFile) {
 		m_program = createProgram(vertex, fragment);		
 }
 
+Shader::Shader(std::string vertex, std::string fragment, std::string geometry, bool fromFile) {
+	if (fromFile)
+		m_program = createProgramFromFile(vertex, fragment, geometry);
+	else
+		m_program = createProgram(vertex, fragment, geometry);
+}
+
 Shader::Shader(Shader* shader) {
 	m_program = shader->m_program;
 }
@@ -21,6 +28,14 @@ void Shader::loadFromFile(std::string vertex, std::string fragment) {
 
 void Shader::loadFromResource(std::string vertex, std::string fragment) {
 	m_program = createProgram(vertex, fragment);
+}
+
+void Shader::loadFromFile(std::string vertex, std::string fragment, std::string geometry) {
+	m_program = createProgramFromFile(vertex, fragment, geometry);
+}
+
+void Shader::loadFromResource(std::string vertex, std::string fragment, std::string geometry) {
+	m_program = createProgram(vertex, fragment, geometry);
 }
 
 
@@ -77,6 +92,19 @@ GLuint Shader::createProgram(std::string vertex, std::string fragment) {
 	return linkShaders(vshader, fshader);
 }
 
+GLuint Shader::createProgramFromFile(std::string vertex, std::string fragment, std::string geometry) {
+	GLuint vshader = loadShaderProgram(GL_VERTEX_SHADER, vertex.c_str());
+	GLuint fshader = loadShaderProgram(GL_FRAGMENT_SHADER, fragment.c_str());
+	GLuint gshader = loadShaderProgram(GL_GEOMETRY_SHADER, geometry.c_str());
+	return linkShaders(vshader, fshader, gshader);
+}
+
+GLuint Shader::createProgram(std::string vertex, std::string fragment, std::string geometry) {
+	GLuint vshader = loadShaderProgram(GL_VERTEX_SHADER, vertex);
+	GLuint fshader = loadShaderProgram(GL_FRAGMENT_SHADER, fragment);
+	GLuint gshader = loadShaderProgram(GL_GEOMETRY_SHADER, geometry);
+	return linkShaders(vshader, fshader, gshader);
+}
 
 
 void Shader::readTextFile(const char *pszFilename, std::string &buffer) {
@@ -174,6 +202,55 @@ GLuint Shader::linkShaders(GLuint vertShader, GLuint fragShader) {
 
 		if (fragShader)
 			glDeleteShader(fragShader);
+	}
+	return program;
+}
+
+GLuint Shader::linkShaders(GLuint vertShader, GLuint fragShader, GLuint geoShader) {
+	GLuint program = glCreateProgram();
+
+	if (program) {
+
+		GLint linked = 0;
+
+		if (vertShader)
+			glAttachShader(program, vertShader);
+
+		if (fragShader)
+			glAttachShader(program, fragShader);
+
+		if (geoShader)
+			glAttachShader(program, geoShader);
+
+		glLinkProgram(program);
+
+		glGetProgramiv(program, GL_LINK_STATUS, &linked);
+
+		if (!linked) {
+
+			GLsizei infoLogSize = 0;
+			std::string infoLog;
+
+			glGetShaderiv(program, GL_INFO_LOG_LENGTH, &infoLogSize);
+			infoLog.resize(infoLogSize);
+			glGetShaderInfoLog(program, infoLogSize, &infoLogSize, &infoLog[0]);
+			std::cout << "Compile status: \n" << &infoLog << std::endl;
+		}
+
+		// Mark the three attached shaders for deletion. These three shaders aren't
+		// deleted right now because both are already attached to a shader
+		// program. When the shader program is deleted these three shaders will
+		// be automatically detached and deleted.
+
+		if (vertShader)
+			glDeleteShader(vertShader);
+
+		if (fragShader)
+			glDeleteShader(fragShader);
+
+		if (geoShader)
+			glDeleteShader(geoShader);
+
 	}
 	return program;
 }

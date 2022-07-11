@@ -36,6 +36,10 @@ public:
 		m_assetPointer[name] = new T(vertex, fragment);
 	}
 
+	void loadShader(const std::string& name, const std::string& vertex, const std::string& fragment, const std::string& geometry) {
+		m_assetPointer[name] = new T(vertex, fragment, geometry);
+	}
+
 	void loadSpritesheet(const std::string& name, const std::string& path, unsigned short tileWidth, unsigned short tileHeight, unsigned short spacing, unsigned int yStart, unsigned int xStart, unsigned int xLength, unsigned int format = -1) {
 		m_assetPointer[name] = new T(path, tileWidth, tileHeight, spacing, true, true, yStart, xStart, xLength, format);
 	}
@@ -124,6 +128,10 @@ public:
 
 	void loadShader(const std::string& name, const std::string& vertex, const std::string& fragment) {
 		m_assetPointer[name] = new T(vertex, fragment);
+	}
+
+	void loadShader(const std::string& name, const std::string& vertex, const std::string& fragment, const std::string& geometry) {
+		m_assetPointer[name] = new T(vertex, fragment, geometry);
 	}
 
 	void loadSpritesheet(const std::string& name, const std::string& path, unsigned short tileWidth, unsigned short tileHeight, unsigned short spacing, unsigned int yStart, unsigned int xLength, unsigned int format = -1) {

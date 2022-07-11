@@ -34,10 +34,13 @@ public:
 
 	Framebuffer m_copyFramebuffer;
 	Framebuffer m_dephtFramebuffer;
+	Framebuffer m_framebuffer;
 	std::vector<Framebuffer> lightFramebuffer;
 
 	Shader *m_quadShader;
-	Shader *m_quadShader2;
+	Shader *m_quadShadow;
+	Shader *m_quadArrayShader;
+	Shader *m_quadArrayShadowShader;
 
 	MeshQuad *m_meshQuad;
 	MeshCube *m_meshCube;
@@ -48,7 +51,10 @@ public:
 
 	unsigned int offsetX;
 	unsigned int offsetY;
-	bool m_debug = false;
+	bool m_debug = true;
 	bool m_flag;
 	unsigned short m_debugCount = 0;
+
+	unsigned int m_lightDepthMaps, m_lightMaps;
+	unsigned int m_lightFBO;
 };
