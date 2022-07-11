@@ -9,6 +9,7 @@ const int HEIGHTMAP_WIDTH = 8192;
 const float CAMERA_Y_OFFSET = 200.0f;
 const Vector3f CAMERA_ACCELERATION(400.0f, 400.0f, 400.0f);
 const Vector3f CAMERA_VELOCITY(200.0f, 200.0f, 200.0f);
+Vector3f LIGHT_DIRECTION(-100.0f, 100.0f, -100.0f);
 
 Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_water(Water(m_dt, m_fdt)) {
 	
@@ -96,14 +97,14 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_water(
 
 	lightFramebuffer.resize(m_camera.m_numberCascades);
 
-	for (unsigned short i = 0; i < m_camera.m_numberCascades; i++) {
-		lightFramebuffer[i].create(2048, 2048);
-		lightFramebuffer[i].attachTexture(Framebuffer::Attachments::COLOR);
-		lightFramebuffer[i].attachTexture(Framebuffer::Attachments::DEPTH24);
+	for (auto& framebuffer : lightFramebuffer) {
+		framebuffer.create(2048, 2048);
+		framebuffer.attachTexture(Framebuffer::Attachments::COLOR);
+		framebuffer.attachTexture(Framebuffer::Attachments::DEPTH24);
 	}
 
-	m_camera.calcLightTransformation(Vector3f(-100.0f, 100.0f, -100.0f));
-	m_camera.calcLightTransformation2(Vector3f(-100.0f, 100.0f, -100.0f));
+	m_camera.calcLightTransformation(LIGHT_DIRECTION);
+	m_camera.calcLightTransformation2(LIGHT_DIRECTION);
 }
 
 Game::~Game() {}
@@ -188,14 +189,15 @@ void Game::update() {
 
 	}// end if any movement
 
-	m_camera.calcLightTransformation(Vector3f(-100.0f, 100.0f, -100.0f));
-	m_camera.calcLightTransformation2(Vector3f(-100.0f, 100.0f, -100.0f));
+	m_camera.calcLightTransformation(LIGHT_DIRECTION);
+	m_camera.calcLightTransformation2(LIGHT_DIRECTION);
 	//performCameraCollisionDetection();
 };
 
 void Game::render(unsigned int &frameBuffer) {
 	//glEnable(GL_BLEND);
 	renderOffscreen();
+	
 	
 	glUseProgram(Globals::shaderManager.getAssetPointer("depth")->m_program);
 	for (unsigned short i = 0; i < m_camera.m_numberCascades; i++) {
@@ -240,7 +242,7 @@ void Game::render(unsigned int &frameBuffer) {
 	shader->loadMatrixArray("u_viewShadows", m_camera.lightViews, m_camera.m_numberCascades);
 
 	
-	shader->loadFloat4("u_cascadeEndClipSpace", m_camera.m_cascadeEndClipSpace);
+	shader->loadFloatArray("u_cascadeEndClipSpace", m_camera.m_cascadeEndClipSpace, m_camera.m_numberCascades);
 
 	m_meshQuad->draw(m_camera);
 
