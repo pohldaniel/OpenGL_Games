@@ -20,6 +20,7 @@ public:
 
 	void create(unsigned int width, unsigned int height);
 	void attachTexture(Attachments attachments);
+	void attachLayerdTexture(Attachments attachments, unsigned short layer);
 	void attachRenderbuffer(Attachments attachments);
 	void bind();
 	static void Unbind();

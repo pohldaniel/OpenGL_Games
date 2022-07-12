@@ -96,23 +96,8 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_water(
 	m_camera.calcLightTransformation(LIGHT_DIRECTION);
 	m_camera.calcLightTransformation2(LIGHT_DIRECTION);
 
-
-	glGenTextures(1, &m_lightDepthMaps);
-	glBindTexture(GL_TEXTURE_2D_ARRAY, m_lightDepthMaps);
-	glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_DEPTH_COMPONENT24, 2048, 2048, m_camera.m_numberCascades, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, 0);
-
-	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
-
-	glGenFramebuffers(1, &m_lightFBO);
-	glBindFramebuffer(GL_FRAMEBUFFER, m_lightFBO);
-	glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, m_lightDepthMaps, 0);
-	glDrawBuffer(GL_NONE);
-	glReadBuffer(GL_NONE);
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	m_lightDepthFramebuffer.create(2048, 2048);
+	m_lightDepthFramebuffer.attachLayerdTexture(Framebuffer::Attachments::DEPTH24, m_camera.m_numberCascades);
 }
 
 Game::~Game() {}
@@ -222,7 +207,7 @@ void Game::render(unsigned int &frameBuffer) {
 	shader->loadInt("u_shadowMaps", 1);
 
 	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D_ARRAY, m_lightDepthMaps);
+	glBindTexture(GL_TEXTURE_2D_ARRAY, m_lightDepthFramebuffer.getDepthTexture());
 
 	m_meshQuad->draw(m_camera);
 
@@ -280,7 +265,7 @@ void Game::render(unsigned int &frameBuffer) {
 		glUseProgram(m_quadArrayShadowShader->m_program);
 		m_quadArrayShadowShader->loadMatrix("u_transform", Matrix4f::IDENTITY);
 		m_quadArrayShadowShader->loadInt("u_layer", m_debugCount);
-		m_shadowQuad->render(m_lightDepthMaps, true);
+		m_shadowQuad->render(m_lightDepthFramebuffer.getDepthTexture(), true);
 		glUseProgram(0);
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -302,7 +287,7 @@ void Game::renderOffscreen() {
 
 	m_camera.pitchReflection((m_water.getWaterLevel()));
 	m_terrain.drawNormal(m_camera);
-	m_camera.pitchReflection(-(m_water.getWaterLevel()));
+	m_camera.pitchReflection(-m_water.getWaterLevel());
 	glDisable(GL_CULL_FACE);
 	Framebuffer::Unbind();
 
@@ -319,22 +304,21 @@ void Game::renderOffscreen() {
 
 	glDisable(GL_CLIP_DISTANCE0);
 
-	auto shader = Globals::shaderManager.getAssetPointer("depthGS");
-	glUseProgram(shader->m_program);
-	glViewport(0, 0, 2048, 2048);
-	glBindFramebuffer(GL_FRAMEBUFFER, m_lightFBO);
+
+	m_lightDepthFramebuffer.bind();
 	glClearColor(0.3f, 1.0f, 0.9f, 1.0f);
 	glClear(GL_DEPTH_BUFFER_BIT);
 
+	auto shader = Globals::shaderManager.getAssetPointer("depthGS");
+	glUseProgram(shader->m_program);
 	shader->loadMatrixArray("u_projectionShadows", m_camera.lightProjections, m_camera.m_numberCascades);
 	shader->loadMatrixArray("u_viewShadows", m_camera.lightViews, m_camera.m_numberCascades);
 	for (auto entitie : m_entities) {
 		entitie->drawShadow(m_camera);
 	}
-
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	glViewport(0, 0, WIDTH, HEIGHT);
 	glUseProgram(0);
+
+	Framebuffer::Unbind();
 }
 
 void Game::performCameraCollisionDetection(){
