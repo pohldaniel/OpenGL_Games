@@ -129,6 +129,9 @@
     <ClInclude Include="Tree.h">
       <Filter>Source Files\Objects</Filter>
     </ClInclude>
+    <ClInclude Include="Fern.h">
+      <Filter>Source Files\Objects</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine\input\EventDispatcher.cpp">
@@ -225,6 +228,9 @@
       <Filter>engine\MeshObject</Filter>
     </ClCompile>
     <ClCompile Include="Tree.cpp">
+      <Filter>Source Files\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="Fern.cpp">
       <Filter>Source Files\Objects</Filter>
     </ClCompile>
   </ItemGroup>

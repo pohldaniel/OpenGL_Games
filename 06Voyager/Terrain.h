@@ -185,7 +185,7 @@ private:
 	unsigned int m_vbo, m_ibo, m_vao, m_ubo;
 	unsigned int m_vboInstances;
 
-	Mode m_mode = Mode::TRIANGLES;
+	Mode m_mode = Mode::TRIANGLE_STRIP;
 	TerrainRegion m_regions[4];
 	Region _regions[2];
 	float m_tilingFactor = 10.0f;

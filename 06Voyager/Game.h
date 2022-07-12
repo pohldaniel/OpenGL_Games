@@ -13,6 +13,7 @@
 #include "Terrain.h"
 #include "Water.h"
 #include "Tree.h"
+#include "Fern.h"
 
 class Game : public State {
 public:
@@ -46,6 +47,7 @@ public:
 	MeshCube *m_meshCube;
 	std::vector<MeshCube*> m_entities;
 	Tree *m_tree;
+	Fern *m_fern;
 
 	Vector3f m_cameraBoundsMax;
 	Vector3f m_cameraBoundsMin;

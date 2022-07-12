@@ -761,12 +761,12 @@ void Terrain::generateIndices(std::vector<unsigned int>& indexBuffer) {
 			//	\	*		|  *
 			//	 *	|		*	\
 						//      3		2 -* 3
-			m_indexBuffer.push_back(z * (resolution + 1) + x);
 			m_indexBuffer.push_back((z + 1) * (resolution + 1) + (x + 1));
+			m_indexBuffer.push_back(z * (resolution + 1) + x);		
 			m_indexBuffer.push_back(z * (resolution + 1) + (x + 1));
 
-			m_indexBuffer.push_back(z * (resolution + 1) + x);
 			m_indexBuffer.push_back((z + 1) * (resolution + 1) + x);
+			m_indexBuffer.push_back(z * (resolution + 1) + x);			
 			m_indexBuffer.push_back((z + 1) * (resolution + 1) + (x + 1));
 		}
 	}
@@ -779,17 +779,18 @@ void Terrain::generateIndicesTS(std::vector<unsigned int>& indexBuffer) {
 		if (z % 2 == 0) {
 
 			for (int x = 0; x < (resolution + 1); ++x) {
-				m_indexBuffer.push_back(x + z * (resolution + 1));
 				m_indexBuffer.push_back(x + (z + 1) * (resolution + 1));
+				m_indexBuffer.push_back(x + z * (resolution + 1));
+				
 			}
 
 			// Add degenerate triangles to stitch strips together.
 			m_indexBuffer.push_back(resolution + (z + 1) * (resolution + 1));
-		}
-		else {
+		}else {
 			for (int x = resolution; x >= 0; --x) {
-				m_indexBuffer.push_back(x + z * (resolution + 1));
 				m_indexBuffer.push_back(x + (z + 1) * (resolution + 1));
+				m_indexBuffer.push_back(x + z * (resolution + 1));
+				
 			}
 
 			// Add degenerate triangles to stitch strips together.
@@ -815,12 +816,12 @@ bool Terrain::generateIndices() {
 	for (int z = 0; z < resolution; z++) {
 		for (int x = 0; x < resolution; x++) {
 
-			*pIndex++ = z * (resolution + 1) + x;
 			*pIndex++ = (z + 1) * (resolution + 1) + (x + 1);
+			*pIndex++ = z * (resolution + 1) + x;			
 			*pIndex++ = z * (resolution + 1) + (x + 1);
 
-			*pIndex++ = z * (resolution + 1) + x;
 			*pIndex++ = (z + 1) * (resolution + 1) + x;
+			*pIndex++ = z * (resolution + 1) + x;			
 			*pIndex++ = (z + 1) * (resolution + 1) + (x + 1);
 		}
 	}

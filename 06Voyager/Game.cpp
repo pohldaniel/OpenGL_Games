@@ -97,10 +97,17 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_water(
 	m_camera.calcLightTransformation2(LIGHT_DIRECTION);
 
 	m_lightDepthFramebuffer.create(2048, 2048);
+	//there are two options use a second color attachment and glEnable(GL_ALPHA_TEST) in the renderShadow() function or us if(alpha < 0.5) discard; inside the depthGS.fs shader
+	//m_lightDepthFramebuffer.attachLayerdTexture(Framebuffer::Attachments::COLOR, m_camera.m_numberCascades);
 	m_lightDepthFramebuffer.attachLayerdTexture(Framebuffer::Attachments::DEPTH24, m_camera.m_numberCascades);
+	
 
 	m_tree = new Tree();
 	m_tree->translate(HEIGHTMAP_WIDTH * 0.5f + 300.0f, 400.1f, HEIGHTMAP_WIDTH * 0.5f + 300.0f);
+
+	m_fern = new Fern();
+	m_fern->translate(HEIGHTMAP_WIDTH * 0.5f + 400.0f, 400.1f, HEIGHTMAP_WIDTH * 0.5f + 400.0f);
+	m_fern->scale(10.0f, 10.0f, 10.0f);
 }
 
 Game::~Game() {}
@@ -219,7 +226,7 @@ void Game::render(unsigned int &frameBuffer) {
 	}
 
 	m_tree->render(m_camera);
-
+	m_fern->render(m_camera);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);	
 	//glDisable(GL_BLEND);
 
@@ -329,6 +336,10 @@ void Game::renderOffscreen() {
 
 		shader->loadMatrix("u_model", m_tree->getTransformationMatrix());
 		m_tree->renderShadow(m_camera);
+
+		shader->loadMatrix("u_model", m_fern->getTransformationMatrix());		
+		m_fern->renderShadow(m_camera);
+	
 	}
 	glUseProgram(0);
 

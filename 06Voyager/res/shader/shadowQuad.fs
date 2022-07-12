@@ -18,7 +18,7 @@ float CalcShadowFactor(uint cascadeIndex, vec4 sc){
     vec3 ndc = (sc.xyz/sc.w);
 	float depth = texture(u_shadowMaps, vec3(ndc.xy, cascadeIndex)).r;
 
-	return ndc.z > depth  ? 0.0 : 1.0;
+	return ndc.z > depth  ? 0.1 : 1.0;
 }
 
 void main(void) {

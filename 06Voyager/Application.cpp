@@ -191,6 +191,11 @@ void Application::initOpenGL() {
 	//alpha test for cutting border of the quads
 	//glEnable(GL_ALPHA_TEST);
 	//glAlphaFunc(GL_GREATER, 0.0);
+
+	glAlphaFunc(GL_GEQUAL, 0.5);
+
+	
+
 	//glDisable(GL_ALPHA_TEST);
 	//button transparency, fog and light
 	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -204,7 +209,7 @@ void Application::initOpenGL() {
 	//glEnable(GL_CLIP_DISTANCE0);
 
 	
-	glCullFace(GL_FRONT);
+	glCullFace(GL_BACK);
 	glFrontFace(GL_CCW);
 }
 
@@ -265,6 +270,7 @@ void Application::loadAssets() {
 	Globals::shaderManager.loadShader("quad_array", "res/shader/quad_array.vs", "res/shader/quad_array.fs");
 	Globals::shaderManager.loadShader("quad_array_shadow", "res/shader/quad_array_shadow.vs", "res/shader/quad_array_shadow.fs");
 	Globals::shaderManager.loadShader("texture", "res/shader/texture.vs", "res/shader/texture.fs");
+	Globals::shaderManager.loadShader("transperancy", "res/shader/transperancy.vs", "res/shader/transperancy.fs");
 
 	Globals::shaderManager.loadShader("terrain", "res/shader/terrain.vs", "res/shader/terrain.fs");	
 	Globals::shaderManager.loadShader("terrain_instance", "res/shader/terrain_instance.vs", "res/shader/terrain_instance.fs");
@@ -287,6 +293,9 @@ void Application::loadAssets() {
 
 	Globals::textureManager.loadTexture("tree", "res/lowPolyTree.png", true);
 	Globals::textureManager.get("tree").setLinear();
+
+	Globals::textureManager.loadTexture("fern", "res/fern.png", true);
+	Globals::textureManager.get("fern").setLinear();
 
 	Globals::spritesheetManager.createSpritesheet("terrain", Globals::textureManager.get("dirt").getTexture(), 512, 512, GL_RGB8);
 	Globals::spritesheetManager.getAssetPointer("terrain")->addToSpritesheet((&Globals::textureManager.get("grass"))->getTexture(), 512, 512, GL_RGB8);
