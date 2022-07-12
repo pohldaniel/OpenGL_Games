@@ -1,6 +1,6 @@
 #version 410 core
 
-const int NUM_CASCADES = 4;
+const int NUM_CASCADES = 10;
 
 layout(triangles, invocations = 4 /*NUM_CASCADES*/) in;
 layout(triangle_strip, max_vertices = 3) out;

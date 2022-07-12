@@ -40,6 +40,8 @@ void main(void) {
                 CascadeIndicator = vec4(0.0, 0.0, 1.0, 0.0);
 			else if (i == 3)
                 CascadeIndicator = vec4(0.0, 1.0, 1.0, 0.0);
+			else if (i == 4)
+                CascadeIndicator = vec4(1.0, 1.0, 1.0, 0.0);
             break;
         }
     }

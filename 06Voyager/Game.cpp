@@ -92,7 +92,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_water(
 		entitie->setTexture(&Globals::textureManager.get("marbel"));
 	}
 	
-	m_camera.setUpLightTransformation(std::vector<Vector2f>( {Vector2f(1.0f, 250.0f), Vector2f(250.0f, 1000.0f), Vector2f(1000.0f, 2000.0f), Vector2f(2000.0f, 5000.0f)} ));
+	m_camera.setUpLightTransformation(std::vector<Vector2f>( {Vector2f(1.0f, 250.0f), Vector2f(250.0f, 500.0f), Vector2f(500.0f, 1000.0f), Vector2f(1000.0f, 2500.0f), Vector2f(2500.0f, 5000.0f) } ));
 	m_camera.calcLightTransformation(LIGHT_DIRECTION);
 	m_camera.calcLightTransformation2(LIGHT_DIRECTION);
 
