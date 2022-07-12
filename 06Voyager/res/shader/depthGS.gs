@@ -7,13 +7,18 @@ layout(triangle_strip, max_vertices = 3) out;
 
 uniform mat4 u_viewShadows[NUM_CASCADES];
 uniform mat4 u_projectionShadows[NUM_CASCADES];
+uniform int u_numCascades = 0;
 
 void main(void){
 
-	gl_Layer = gl_InvocationID;
-	for (int i = 0; i < 3; ++i){
-        gl_Position = u_projectionShadows[gl_InvocationID] * u_viewShadows[gl_InvocationID] * gl_in[i].gl_Position;
-        EmitVertex();
-    }
-    EndPrimitive();
+	//gl_Layer = gl_InvocationID;
+	
+	//for(int j = 0; j < NUM_CASCADES; ++j){
+		gl_Layer = u_numCascades;
+		for (int i = 0; i < 3; ++i){
+			gl_Position = u_projectionShadows[u_numCascades] * u_viewShadows[u_numCascades] * gl_in[i].gl_Position;
+			EmitVertex();
+		}
+		EndPrimitive();
+	//}
 }

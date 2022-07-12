@@ -16,6 +16,7 @@
 #include "Shader.h"
 #include "Texture.h"
 #include "Camera.h"
+#include "ModelMatrix.h"
 
 #include "..\Constants.h"
 
@@ -46,6 +47,18 @@ public:
 	~Model();
 
 	const Vector3f &getCenter() const;
+	const Matrix4f &getTransformationMatrix() const;
+	const Matrix4f &getInvTransformationMatrix() const;
+
+	void setRotPos(const Vector3f &axis, float degrees, float dx, float dy, float dz);
+	void setRotXYZPos(const Vector3f &axisX, float degreesX,
+		const Vector3f &axisY, float degreesY,
+		const Vector3f &axisZ, float degreesZ,
+		float dx, float dy, float dz);
+
+	void rotate(const Vector3f &axis, float degrees);
+	void translate(float dx, float dy, float dz);
+	void scale(float a, float b, float c);
 
 	void draw(const Camera camera);
 	void drawInstanced(const Camera camera);
@@ -62,7 +75,7 @@ public:
 	std::string getMltPath();
 	std::string getModelDirectory();
 
-	void setShader(const char* vertex, const char* fragment);
+
 	void setModelMatrix(Matrix4f &modelMatrix) { m_modelMatrix = modelMatrix;}
 	void createInstances(std::vector<Matrix4f> modelMTX);
 
@@ -81,6 +94,7 @@ public:
 	bool m_hasMaterial;
 	Vector3f m_center;
 	Matrix4f m_modelMatrix;
+	ModelMatrix modelMatrix;
 
 	std::vector <float> m_vertexBuffer;
 	std::vector<unsigned int> m_indexBuffer;
@@ -138,7 +152,9 @@ public:
 
 	void createBuffer();
 	void createInstances(std::vector<Matrix4f> modelMTX);
-	void createShader();
+	
+	void setShader(Shader* shader);
+	void setTexture(Texture* texture);
 
 	short m_numBuffers;
 	unsigned int m_vao;

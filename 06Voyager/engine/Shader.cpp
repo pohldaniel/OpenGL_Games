@@ -76,6 +76,10 @@ void Shader::loadInt(const char* location, int value) {
 	glUniform1i(glGetUniformLocation(m_program, location), value);
 }
 
+void Shader::loadUnsignedInt(const char* location, unsigned int value) {
+	glUniform1ui(glGetUniformLocation(m_program, location), value);
+}
+
 void Shader::loadBool(const char* location, bool value) {
 	glUniform1i(glGetUniformLocation(m_program, location), value);
 }

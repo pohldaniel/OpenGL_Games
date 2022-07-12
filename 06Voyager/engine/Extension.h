@@ -97,6 +97,7 @@ typedef char GLchar;
 	extern void glShaderSource(GLuint shader, GLsizei count, const char* *string, const GLint *length);
 	extern void glUseProgram(GLuint program);
 	extern void glUniform1i(GLint location, GLint v0);
+	extern void glUniform1ui(GLint location, GLuint v0);
 	extern void glUniform3f(GLint location, GLfloat v0, GLfloat v1, GLfloat v2);
 	extern void glUniform1f(GLint location, GLfloat v0);
 	extern void glEnableVertexAttribArray(GLuint index);

@@ -6,11 +6,13 @@
 #include "engine/Camera.h"
 #include "engine/MeshObject/MeshQuad.h"
 #include "engine/MeshObject/MeshCube.h"
+#include "engine/ObjModel.h"
 
 #include "Constants.h"
 #include "StateMachine.h"
 #include "Terrain.h"
 #include "Water.h"
+#include "Tree.h"
 
 class Game : public State {
 public:
@@ -43,6 +45,8 @@ public:
 	MeshQuad *m_meshQuad;
 	MeshCube *m_meshCube;
 	std::vector<MeshCube*> m_entities;
+	Tree *m_tree;
+
 	Vector3f m_cameraBoundsMax;
 	Vector3f m_cameraBoundsMin;
 	Vector2f size = Vector2f(0.75f, 0.75f);
@@ -52,4 +56,6 @@ public:
 	bool m_debug = false;
 	bool m_flag;
 	unsigned short m_debugCount = 0;
+
+	//Model* m_tree;
 };

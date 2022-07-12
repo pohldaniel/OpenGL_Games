@@ -1,20 +1,20 @@
-#version 330 core
+#version 410 core
 
-const int NUM_CASCADES = 4;
+const uint NUM_CASCADES = 10;
 
 in vec2 texCoord;
 in vec4 normal;
 in vec4 scs[NUM_CASCADES];
 in float clipSpacePosZ;
+flat in uint numCascades;
 
 layout(location = 0) out vec4 outColor;
 
 uniform sampler2D u_texture;
 uniform sampler2DArray u_shadowMaps;
-
 uniform float u_cascadeEndClipSpace[NUM_CASCADES];
 
-float CalcShadowFactor(int cascadeIndex, vec4 sc){
+float CalcShadowFactor(uint cascadeIndex, vec4 sc){
     vec3 ndc = (sc.xyz/sc.w);
 	float depth = texture(u_shadowMaps, vec3(ndc.xy, cascadeIndex)).r;
 
@@ -28,7 +28,7 @@ void main(void) {
 
 	vec4 color = texture(u_texture, texCoord);
 
-    for (int i = 0 ; i < NUM_CASCADES ; i++) {
+    for(uint i = 0; i < numCascades; i++){
 		if (clipSpacePosZ <= u_cascadeEndClipSpace[i]) {
             ShadowFactor = CalcShadowFactor(i, scs[i]);		
 

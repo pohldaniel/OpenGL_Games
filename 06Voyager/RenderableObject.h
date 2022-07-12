@@ -13,12 +13,15 @@ public:
 	//virtual ~RenderableObject();
 
 	virtual void render(const Camera& camera);
+	virtual void renderShadow(const Camera& camera);
 
 	void setDisabled(bool disabled);
 	bool isDisabled();
 
-private:
+protected:
 	Shader *m_shader;
 	Model *m_model;
+	Texture *m_texture;
+
 	bool m_disabled = false;
 };

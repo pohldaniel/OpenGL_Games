@@ -241,6 +241,13 @@ void glUniform1i(GLint location, GLint v0)
 	pfnUniform1i(location, v0);
 }
 
+void glUniform1ui(GLint location, GLuint v0) {
+	typedef void (APIENTRY * PFNGLUNIFORM1UIPROC) (GLint location, GLint v0);
+	static PFNGLUNIFORM1UIPROC pfnUniform1ui = 0;
+	LOAD_ENTRYPOINT("glUniform1ui", pfnUniform1ui, PFNGLUNIFORM1UIPROC);
+	pfnUniform1ui(location, v0);
+}
+
 void glUniform3f(GLint location, GLfloat v0, GLfloat v1, GLfloat v2)
 {
 	typedef void (APIENTRY * PFNGLUNIFORM3FPROC) (GLint location, GLfloat v0, GLfloat v1, GLfloat v2);

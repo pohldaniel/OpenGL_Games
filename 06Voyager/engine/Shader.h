@@ -34,6 +34,7 @@ public:
 	void loadFloatArray(const char* location, float *value, const unsigned short count);
 	void loadBool(const char* location, bool value);
 	void loadInt(const char* location, int value);
+	void loadUnsignedInt(const char* location, unsigned int value);
 
 	GLuint m_program;
 

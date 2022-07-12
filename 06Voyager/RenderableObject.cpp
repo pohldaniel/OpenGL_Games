@@ -23,3 +23,5 @@ void RenderableObject::render(const Camera& camera) {
 	m_model->draw(camera);
 	glUseProgram(0);
 }
+
+void RenderableObject::renderShadow(const Camera& camera) {}

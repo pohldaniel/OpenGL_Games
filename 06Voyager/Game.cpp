@@ -76,7 +76,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_water(
 	m_meshQuad->setShader(Globals::shaderManager.getAssetPointer("shadowQuad"));
 	m_meshQuad->setTexture(&Globals::textureManager.get("gray"));
 
-	m_entities.push_back(new MeshCube(Vector3f(HEIGHTMAP_WIDTH * 0.5f + 300.0f, 450.1f, HEIGHTMAP_WIDTH * 0.5f + 300.0f), 100, 100, 100));
+	//m_entities.push_back(new MeshCube(Vector3f(HEIGHTMAP_WIDTH * 0.5f + 300.0f, 450.1f, HEIGHTMAP_WIDTH * 0.5f + 300.0f), 100, 100, 100));
 	m_entities.push_back(new MeshCube(Vector3f(HEIGHTMAP_WIDTH * 0.5f + 600.0f, 450.1f, HEIGHTMAP_WIDTH * 0.5f + 300.0f), 100, 100, 100));
 	m_entities.push_back(new MeshCube(Vector3f(HEIGHTMAP_WIDTH * 0.5f + 300.0f, 450.1f, HEIGHTMAP_WIDTH * 0.5f + 600.0f), 100, 100, 100));
 	m_entities.push_back(new MeshCube(Vector3f(HEIGHTMAP_WIDTH * 0.5f + 600.0f, 450.1f, HEIGHTMAP_WIDTH * 0.5f + 600.0f), 100, 100, 100));
@@ -91,13 +91,16 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_water(
 		entitie->setShader(Globals::shaderManager.getAssetPointer("texture"));
 		entitie->setTexture(&Globals::textureManager.get("marbel"));
 	}
-
-	m_camera.setUpLightTransformation(1500.0f);
+	
+	m_camera.setUpLightTransformation(std::vector<Vector2f>( {Vector2f(1.0f, 250.0f), Vector2f(250.0f, 1000.0f), Vector2f(1000.0f, 2000.0f), Vector2f(2000.0f, 5000.0f)} ));
 	m_camera.calcLightTransformation(LIGHT_DIRECTION);
 	m_camera.calcLightTransformation2(LIGHT_DIRECTION);
 
 	m_lightDepthFramebuffer.create(2048, 2048);
 	m_lightDepthFramebuffer.attachLayerdTexture(Framebuffer::Attachments::DEPTH24, m_camera.m_numberCascades);
+
+	m_tree = new Tree();
+	m_tree->translate(HEIGHTMAP_WIDTH * 0.5f + 300.0f, 400.1f, HEIGHTMAP_WIDTH * 0.5f + 300.0f);
 }
 
 Game::~Game() {}
@@ -205,7 +208,7 @@ void Game::render(unsigned int &frameBuffer) {
 	shader->loadMatrixArray("u_viewShadows", m_camera.lightViews, m_camera.m_numberCascades);
 	shader->loadFloatArray("u_cascadeEndClipSpace", m_camera.m_cascadeEndClipSpace, m_camera.m_numberCascades);
 	shader->loadInt("u_shadowMaps", 1);
-
+	shader->loadUnsignedInt("u_numCascades", m_camera.m_numberCascades);
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D_ARRAY, m_lightDepthFramebuffer.getDepthTexture());
 
@@ -214,6 +217,8 @@ void Game::render(unsigned int &frameBuffer) {
 	for (auto entitie : m_entities) {
 		entitie->draw(m_camera);
 	}
+
+	m_tree->render(m_camera);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);	
 	//glDisable(GL_BLEND);
@@ -313,8 +318,17 @@ void Game::renderOffscreen() {
 	glUseProgram(shader->m_program);
 	shader->loadMatrixArray("u_projectionShadows", m_camera.lightProjections, m_camera.m_numberCascades);
 	shader->loadMatrixArray("u_viewShadows", m_camera.lightViews, m_camera.m_numberCascades);
-	for (auto entitie : m_entities) {
-		entitie->drawShadow(m_camera);
+	
+	for (unsigned short j = 0; j < m_camera.m_numberCascades; j++) {
+		shader->loadInt("u_numCascades", j);
+
+		shader->loadMatrix("u_model", Matrix4f::IDENTITY);
+		for (auto entitie : m_entities) {
+			entitie->drawShadow(m_camera);
+		}
+
+		shader->loadMatrix("u_model", m_tree->getTransformationMatrix());
+		m_tree->renderShadow(m_camera);
 	}
 	glUseProgram(0);
 

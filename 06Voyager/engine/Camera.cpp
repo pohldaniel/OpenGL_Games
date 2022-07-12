@@ -599,7 +599,7 @@ void Camera::calcLightTransformation(Vector3f &direction, float near, float far,
 
 void Camera::calcLightTransformation2(Vector3f &direction) {
 	for (unsigned short i = 0; i < m_numberCascades; i++) {	
-		calcLightTransformation(direction, bounds[i][0], bounds[i][1], lightViews[i], lightProjections[i]);
+		calcLightTransformation(direction, m_bounds[i][0], m_bounds[i][1], lightViews[i], lightProjections[i]);
 	}
 }
 
@@ -624,7 +624,7 @@ void Camera::setUpLightTransformation(float distance) {
 	m_cascadeEndClipSpace = new float[m_numberCascades];
 
 	for (unsigned short numberCascades = 0; numberCascades < m_numberCascades; numberCascades++) {		
-		bounds.push_back(Vector2f(_near, _far));
+		m_bounds.push_back(Vector2f(_near, _far));
 
 		Vector4f vClip = m_projMatrix ^ Vector4f(0.0f, 0.0f, -_far, 1.0f);
 
@@ -642,6 +642,21 @@ void Camera::setUpLightTransformation(float distance) {
 			
 		}	
 	}	
+}
+
+void Camera::setUpLightTransformation(std::vector<Vector2f>& bounds) {
+	m_bounds = bounds;
+	m_numberCascades = bounds.size();
+	lightViews.resize(m_numberCascades);
+	lightProjections.resize(m_numberCascades);
+	m_cascadeEndClipSpace = new float[m_numberCascades];
+
+	for (unsigned short numberCascades = 0; numberCascades < m_numberCascades; numberCascades++) {
+		Vector4f vClip = m_projMatrix ^ Vector4f(0.0f, 0.0f, -bounds[numberCascades][1], 1.0f);
+
+		//clipSpace
+		m_cascadeEndClipSpace[numberCascades] = vClip[2];
+	}
 }
 
 void Camera::setPosition(float x, float y, float z){

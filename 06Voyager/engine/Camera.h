@@ -23,7 +23,7 @@ public:
 	void calcLightTransformation2(Vector3f &direction);
 
 	void setUpLightTransformation(float distance);
-
+	void setUpLightTransformation(std::vector<Vector2f>& bounds);
 	
 	void calcLightTransformation(Vector3f &direction, float near, float far, Matrix4f& viewMatrix, Matrix4f& projectionMatrix);
 
@@ -56,7 +56,7 @@ public:
 
 	std::vector<Matrix4f> lightViews;
 	std::vector<Matrix4f> lightProjections;
-	std::vector<Vector2f> bounds;
+	std::vector<Vector2f> m_bounds;
 	short m_numberCascades = 0;
 	float* m_cascadeEndClipSpace;
 protected:

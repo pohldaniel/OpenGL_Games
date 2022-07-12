@@ -285,6 +285,9 @@ void Application::loadAssets() {
 	Globals::textureManager.get("marbel").setLinear();
 	Globals::textureManager.get("marbel").setRepeat();
 
+	Globals::textureManager.loadTexture("tree", "res/lowPolyTree.png", true);
+	Globals::textureManager.get("tree").setLinear();
+
 	Globals::spritesheetManager.createSpritesheet("terrain", Globals::textureManager.get("dirt").getTexture(), 512, 512, GL_RGB8);
 	Globals::spritesheetManager.getAssetPointer("terrain")->addToSpritesheet((&Globals::textureManager.get("grass"))->getTexture(), 512, 512, GL_RGB8);
 	Globals::spritesheetManager.getAssetPointer("terrain")->addToSpritesheet((&Globals::textureManager.get("rock"))->getTexture(), 512, 512, GL_RGB8);

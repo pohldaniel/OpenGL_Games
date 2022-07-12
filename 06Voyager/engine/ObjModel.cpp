@@ -20,7 +20,44 @@ Model::~Model() {
 	m_vertexCache.clear();
 }
 
+void Model::setRotPos(const Vector3f &axis, float degrees, float dx, float dy, float dz) {
+
+	modelMatrix.setRotPos(axis, degrees, dx, dy, dz);
+}
+
+void Model::setRotXYZPos(const Vector3f &axisX, float degreesX,
+	const Vector3f &axisY, float degreesY,
+	const Vector3f &axisZ, float degreesZ,
+	float dx, float dy, float dz) {
+
+	modelMatrix.setRotXYZPos(axisX, degreesX,
+		axisY, degreesY,
+		axisZ, degreesZ,
+		dx, dy, dz);
+}
+
+void Model::rotate(const Vector3f &axis, float degrees) {
+	modelMatrix.rotate(axis, degrees);
+}
+
+void Model::translate(float dx, float dy, float dz) {
+	modelMatrix.translate(dx, dy, dz);
+}
+
+void Model::scale(float a, float b, float c) {
+	modelMatrix.scale(a, b, c);
+}
+
+const Matrix4f &Model::getTransformationMatrix() const {
+	return modelMatrix.getTransformationMatrix();
+}
+
+const Matrix4f &Model::getInvTransformationMatrix() const {
+	return modelMatrix.getInvTransformationMatrix();
+}
+
 const Vector3f &Model::getCenter() const {
+
 	return m_center;
 }
 
@@ -33,7 +70,7 @@ std::string Model::getModelDirectory() {
 }
 
 bool Model::loadObject(const char* filename) {
-	return loadObject(filename, Vector3f(0.0, 0.0, 1.0), 0.0, Vector3f(0.0, 0.0, 0.0), 1.0);
+	return loadObject(filename, Vector3f(0.0, 1.0, 0.0), 0.0, Vector3f(0.0, 0.0, 0.0), 1.0);
 }
 
 bool compare(const std::array<int, 10> &i_lhs, const std::array<int, 10> &i_rhs) {
@@ -41,7 +78,7 @@ bool compare(const std::array<int, 10> &i_lhs, const std::array<int, 10> &i_rhs)
 }
 
 bool Model::loadObject(const char* a_filename, Vector3f& rotate, float degree, Vector3f& translate, float scale) {
-
+	
 	std::string filename(a_filename);
 
 	const size_t index = filename.rfind('/');
@@ -50,124 +87,174 @@ bool Model::loadObject(const char* a_filename, Vector3f& rotate, float degree, V
 		m_modelDirectory = filename.substr(0, index);
 	}
 
-	std::vector<std::string*>coord;
 	std::vector<std::array<int, 10>> face;
 
 	std::vector<float> vertexCoords;
 	std::vector<float> normalCoords;
 	std::vector<float> textureCoords;
 
-	std::ifstream in(a_filename);
-
 	std::map<std::string, int> name;
-
 
 	int countMesh = 0;
 	int assign = 0;
+	int countFacesWithTexture = 0;
+
+	float xmin = FLT_MAX; float ymin = FLT_MAX; float zmin = FLT_MAX;
+	float xmax = -FLT_MAX; float ymax = -FLT_MAX; float zmax = -FLT_MAX;
+
 	char buffer[250];
 
-	if (!in.is_open()) {
-
-		std::cout << "OBJ File not found" << std::endl;
+	FILE * pFile = fopen(a_filename, "r");
+	if (pFile == NULL) {
+		std::cout << "File not found" << std::endl;
 		return false;
 	}
 
-	std::string line;
-	while (getline(in, line)) {
-		coord.push_back(new std::string(line));
+	while (fscanf(pFile, "%s", buffer) != EOF) {
 
-	}
-	in.close();
+		switch (buffer[0]) {
 
-	for (int i = 0; i < coord.size(); i++) {
+		case '#': {
 
-		if ((*coord[i])[0] == '#') {
+			fgets(buffer, sizeof(buffer), pFile);
+			break;
 
-			continue;
+		}case 'm': {
 
-		}else if ((*coord[i])[0] == 'm') {
-
-			sscanf(coord[i]->c_str(), "%s %s", buffer, buffer);
+			fgets(buffer, sizeof(buffer), pFile);
+			sscanf(buffer, "%s %s", buffer, buffer);
 			m_mltPath = buffer;
 
 			m_hasMaterial = true;
+			break;
 
-		}else if ((*coord[i])[0] == 'v' && (*coord[i])[1] == ' ') {
+		}case 'v': {
 
+			switch (buffer[1]) {
 
-			float tmpx, tmpy, tmpz;
-			sscanf(coord[i]->c_str(), "v %f %f %f", &tmpx, &tmpy, &tmpz);
+			case '\0': {
 
-			vertexCoords.push_back((translate.getVec()[0] + tmpx) * scale);
-			vertexCoords.push_back((translate.getVec()[1] + tmpy) * scale);
-			vertexCoords.push_back((translate.getVec()[2] + tmpz) * scale);
+				float tmpx, tmpy, tmpz;
+				fgets(buffer, sizeof(buffer), pFile);
+				sscanf(buffer, "%f %f %f", &tmpx, &tmpy, &tmpz);
 
-			/*vertexCoords.push_back(tmpx);
-			vertexCoords.push_back(tmpy);
-			vertexCoords.push_back(tmpz);*/
+				tmpx = tmpx * scale + translate[0];
+				tmpy = tmpy * scale + translate[1];
+				tmpz = tmpz * scale + translate[2];
 
-		}else if ((*coord[i])[0] == 'v' && (*coord[i])[1] == 't') {
+				vertexCoords.push_back(tmpx);
+				vertexCoords.push_back(tmpy);
+				vertexCoords.push_back(tmpz);
 
-			float tmpu, tmpv;
-			sscanf(coord[i]->c_str(), "vt %f %f", &tmpu, &tmpv);
+				xmin = (std::min)(tmpx, xmin);
+				ymin = (std::min)(tmpy, ymin);
+				zmin = (std::min)(tmpz, zmin);
 
-			textureCoords.push_back( tmpu);
-			textureCoords.push_back(1.0 - tmpv);
+				xmax = (std::max)(tmpx, xmax);
+				ymax = (std::max)(tmpy, ymax);
+				zmax = (std::max)(tmpz, zmax);
+				break;
 
-		}else if ((*coord[i])[0] == 'v' && (*coord[i])[1] == 'n') {
-			float tmpx, tmpy, tmpz;
-			sscanf(coord[i]->c_str(), "vn %f %f %f", &tmpx, &tmpy, &tmpz);
+			}case 't': {
 
-			normalCoords.push_back(tmpx);
-			normalCoords.push_back(tmpy);
-			normalCoords.push_back(tmpz);
+				float tmpu, tmpv;
+				fgets(buffer, sizeof(buffer), pFile);
+				sscanf(buffer, "%f %f", &tmpu, &tmpv);
 
-		}else if ((*coord[i])[0] == 'u' &&  m_hasMaterial) {
+				textureCoords.push_back(tmpu);
+				textureCoords.push_back(tmpv);
+				break;
 
-			sscanf(coord[i]->c_str(), "%s %s", buffer, buffer);
-			std::map<std::string, int >::const_iterator iter = name.find(buffer);
+			}case 'n': {
 
-			if (iter == name.end()) {
-				// mlt name not found
+				float tmpx, tmpy, tmpz;
+				fgets(buffer, sizeof(buffer), pFile);
+				sscanf(buffer, "%f %f %f", &tmpx, &tmpy, &tmpz);
+
+				normalCoords.push_back(tmpx);
+				normalCoords.push_back(tmpy);
+				normalCoords.push_back(tmpz);
+				break;
+
+			}default: {
+
+				break;
+			}
+			}
+			break;
+
+		}case 'u': {
+
+			if (m_hasMaterial) {
+
+				fgets(buffer, sizeof(buffer), pFile);
+				sscanf(buffer, "%s %s", buffer, buffer);
+
+				std::map<std::string, int >::const_iterator iter = name.find(buffer);
+
+				if (iter == name.end()) {
+					// mlt name not found
+					countMesh++;
+					assign = countMesh;
+
+					name[buffer] = countMesh;
+
+				}
+				else {
+					// mlt name found
+					assign = iter->second;
+				}
+			}
+			break;
+
+		}case 'g': {
+			if (!m_hasMaterial) {
+
+				fgets(buffer, sizeof(buffer), pFile);
+				sscanf(buffer, "%s", buffer);
+
 				countMesh++;
 				assign = countMesh;
-
 				name[buffer] = countMesh;
-
-			}else {
-				// mlt name found
-				assign = iter->second;
-
 			}
-		}else if ((*coord[i])[0] == 'g' && !m_hasMaterial) {
+			break;
 
-			sscanf(coord[i]->c_str(), "%s %s", buffer, buffer);
-
-			countMesh++;
-			assign = countMesh;
-			name[buffer] = countMesh;
-
-		}else if ((*coord[i])[0] == 'f') {
+		}case 'f': {
 
 			int a, b, c, n1, n2, n3, t1, t2, t3;
-
+			fgets(buffer, sizeof(buffer), pFile);
 
 			if (!textureCoords.empty() && !normalCoords.empty()) {
-				sscanf(coord[i]->c_str(), "f %d/%d/%d %d/%d/%d %d/%d/%d ", &a, &t1, &n1, &b, &t2, &n2, &c, &t3, &n3);
+				sscanf(buffer, "%d/%d/%d %d/%d/%d %d/%d/%d ", &a, &t1, &n1, &b, &t2, &n2, &c, &t3, &n3);
 				face.push_back({ { a, b, c, t1, t2, t3, n1, n2, n3, assign } });
 
-			}else if (!normalCoords.empty()) {
-				sscanf(coord[i]->c_str(), "f %d//%d %d//%d %d//%d", &a, &n1, &b, &n2, &c, &n3);
+			}
+			else if (!normalCoords.empty()) {
+				sscanf(buffer, "%d//%d %d//%d %d//%d", &a, &n1, &b, &n2, &c, &n3);
 				face.push_back({ { a, b, c, 0, 0, 0, n1, n2, n3, assign } });
-			}else if (!textureCoords.empty()) {
-				sscanf(coord[i]->c_str(), "f %d/%d %d/%d %d/%d", &a, &t1, &b, &t2, &c, &t3);
+
+			}
+			else if (!textureCoords.empty()) {
+				sscanf(buffer, "%d/%d %d/%d %d/%d", &a, &t1, &b, &t2, &c, &t3);
 				face.push_back({ { a, b, c, t1, t2, t3, 0, 0, 0, assign } });
-			}else {
-				sscanf(coord[i]->c_str(), "f %d %d %d", &a, &b, &c);
+
+			}
+			else {
+				sscanf(buffer, "%d %d %d", &a, &b, &c);
 				face.push_back({ { a, b, c, 0, 0, 0, 0, 0, 0, assign } });
 			}
+			break;
+
+		}default: {
+
+			break;
 		}
-	}
+
+		}//end switch
+	}// end while
+	fclose(pFile);
+
+	m_center = Vector3f((xmin + xmax) / 2.0f, (ymin + ymax) / 2.0f, (zmin + zmax) / 2.0f);
 
 	std::sort(face.begin(), face.end(), compare);
 	std::map<int, int> dup;
@@ -188,7 +275,7 @@ bool Model::loadObject(const char* a_filename, Vector3f& rotate, float degree, V
 
 				if (iterDup->first == iterName->second) {
 					m_mesh.push_back(new Mesh("newmtl " + iterName->first, iterDup->second, this));
-					 if (m_mesh.size() > 1) {
+					if (m_mesh.size() > 1) {
 						m_mesh[m_mesh.size() - 1]->m_triangleOffset = m_mesh[m_mesh.size() - 2]->m_numberOfTriangles + m_mesh[m_mesh.size() - 2]->m_triangleOffset;
 					}
 				}
@@ -216,8 +303,6 @@ bool Model::loadObject(const char* a_filename, Vector3f& rotate, float degree, V
 		m_mesh[j]->m_indexBuffer = indexBufferCreator.indexBufferOut;
 		m_mesh[j]->m_vertexBuffer = indexBufferCreator.vertexBufferOut;
 
-		
-		
 		if (!textureCoords.empty() && !normalCoords.empty()) {
 			m_hasTextureCoords = true; m_hasNormals = true;
 			m_mesh[j]->m_stride = 8;
@@ -306,18 +391,11 @@ void Model::drawInstanced(const Camera camera) {
 	}
 }
 
-void Model::setShader(const char* vertex, const char* fragment) {
-	for (int j = 0; j < m_numberOfMeshes; j++) {
-		m_mesh[j]->m_shader.reset(new Shader(vertex, fragment));
-	}
-}
-
 void Model::createInstances(std::vector<Matrix4f> modelMTX) {
 	for (int j = 0; j < m_numberOfMeshes; j++) {
 		m_mesh[j]->createInstances(modelMTX);
 	}
 }
-
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 Mesh::Mesh(std::string mltName, int numberTriangles, Model* model) : m_stride(0), m_triangleOffset(0) {
@@ -491,8 +569,12 @@ bool Mesh::readMaterial() {
 	}
 }
 
-void Mesh::createShader() {
-	m_shader = std::make_shared<Shader>("shader/texture.vert", "shader/texture.frag");
+void Mesh::setShader(Shader* shader) {
+	m_shader = std::make_shared<Shader>(shader);
+}
+
+void Mesh::setTexture(Texture* texture) {
+	m_texture.reset(texture);
 }
 
 void Mesh::createBuffer() {
@@ -621,16 +703,18 @@ void Mesh::createInstances(std::vector<Matrix4f> modelMTX){
 }
 
 void Mesh::draw(const Camera camera) {
-
+	
 	if (m_material.materialID == Material::MaterialID::NONE) {
-		//std::cout << m_material.shader->m_program << std::endl;
-		glUseProgram(m_material.shader->m_program);
+		
+		glUseProgram(m_shader->m_program);
+		
+		
+		m_shader->loadMatrix("u_modelView", m_model->getTransformationMatrix() * camera.getViewMatrix(), true);
+		m_shader->loadMatrix("u_projection", Globals::projection, true);
+
+		m_texture->bind(0);
 
 		
-		m_material.shader->loadMatrix("u_modelView", camera.getViewMatrix(), true);
-		m_material.shader->loadMatrix("u_projection", Globals::projection, true);
-
-		(&Globals::textureManager.get("null"))->bind(0);
 
 		glBindVertexArray(m_vao);
 		glDrawElements(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0);
@@ -741,7 +825,7 @@ void Mesh::draw(const Camera camera) {
 		m_material.shader->loadInt("u_texture", 0);
 		glUseProgram(0);
 	}else {
-		glUseProgram(m_shader->m_program);
+		/*glUseProgram(m_shader->m_program);
 
 		m_shader->loadMatrix("u_modelView", camera.getViewMatrix() * m_model->m_modelMatrix, false);
 		m_shader->loadMatrix("u_projection", camera.getProjectionMatrix(), false);
@@ -751,8 +835,12 @@ void Mesh::draw(const Camera camera) {
 		glDrawElements(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0);
 		glBindVertexArray(0);
 		glBindTexture(GL_TEXTURE_2D, 0);
-		glUseProgram(0);
+		glUseProgram(0);*/
+
+		
 	}
+
+	
 }
 
 void Mesh::drawInstanced(const Camera camera) {
