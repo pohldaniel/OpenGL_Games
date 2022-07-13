@@ -7,6 +7,8 @@
 #include "engine/MeshObject/MeshQuad.h"
 #include "engine/MeshObject/MeshCube.h"
 #include "engine/ObjModel.h"
+#include "CharacterSetBmp.h"
+#include "Text.h"
 
 #include "Constants.h"
 #include "StateMachine.h"
@@ -58,6 +60,7 @@ public:
 	bool m_debug = false;
 	bool m_flag;
 	unsigned short m_debugCount = 0;
-
+	CharacterSetBmp charachterSet;
+	Text* m_text;
 	//Model* m_tree;
 };

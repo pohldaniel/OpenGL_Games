@@ -108,6 +108,11 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_water(
 	m_fern = new Fern();
 	m_fern->translate(HEIGHTMAP_WIDTH * 0.5f + 400.0f, 400.1f, HEIGHTMAP_WIDTH * 0.5f + 400.0f);
 	m_fern->scale(10.0f, 10.0f, 10.0f);
+
+	charachterSet.loadFromFile("res/verdana.fnt");
+
+	m_text = new Text(charachterSet);
+	m_text->setLabel("QQg");
 }
 
 Game::~Game() {}
@@ -198,7 +203,6 @@ void Game::update() {
 };
 
 void Game::render(unsigned int &frameBuffer) {
-	//glEnable(GL_BLEND);
 	renderOffscreen();
 	
 	glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
@@ -206,7 +210,7 @@ void Game::render(unsigned int &frameBuffer) {
 	glClearColor(0.3f, 0.5f, 0.9f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	
-	m_terrain.draw(m_camera);	
+	m_terrain.draw(m_camera);
 	m_water.render(m_camera, m_water.getReflectionBuffer().getColorTexture(), m_water.getRefractionBuffer().getColorTexture(), m_water.getRefractionBuffer().getDepthTexture());
 	auto shader = Globals::shaderManager.getAssetPointer("shadowQuad");
 	glUseProgram(shader->m_program);
@@ -227,8 +231,9 @@ void Game::render(unsigned int &frameBuffer) {
 
 	m_tree->render(m_camera);
 	m_fern->render(m_camera);
+	m_text->render();
+
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);	
-	//glDisable(GL_BLEND);
 
 	if (m_debug) {
 		glBindFramebuffer(GL_READ_FRAMEBUFFER, frameBuffer);
@@ -282,7 +287,7 @@ void Game::render(unsigned int &frameBuffer) {
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glDisable(GL_SCISSOR_TEST);
-	}
+	}	
 }
 
 void Game::renderOffscreen() {
