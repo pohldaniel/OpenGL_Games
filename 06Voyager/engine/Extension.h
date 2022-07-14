@@ -190,6 +190,7 @@ typedef char GLchar;
 #define GL_UNSIGNED_INT_24_8 0x84FA
 #define GL_STENCIL_ATTACHMENT 0x8D20
 #define GL_STENCIL_INDEX8 0x8D48
+#define GL_TEXTURE_SWIZZLE_RGBA 0x8E46
 
 	extern void glActiveTextureARB(GLenum texture);
 	extern void glMultiTexCoord2fARB(GLenum target, GLfloat s, GLfloat t);

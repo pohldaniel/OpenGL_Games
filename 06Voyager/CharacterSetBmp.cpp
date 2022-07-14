@@ -40,9 +40,9 @@ void CharacterSetBmp::loadFromFile(const std::string& path) {
 		unsigned int scaleHeight;
 
 		if (strcmp(buffer, "common") == 0) {
-			char lineHeight[50], base[50], scaleW[50], scaleH[50];
+			char _lineHeight[50], base[50], scaleW[50], scaleH[50];
 			fgets(buffer, sizeof(buffer), pFile);
-			sscanf(buffer, "%s\t %s\t %s\t %s\t", &lineHeight, &base, &scaleW, &scaleH);
+			sscanf(buffer, "%s\t %s\t %s\t %s\t", &_lineHeight, &base, &scaleW, &scaleH);
 
 			char *token = strtok(scaleW, "=");
 			token = strtok(NULL, " ");
@@ -51,6 +51,10 @@ void CharacterSetBmp::loadFromFile(const std::string& path) {
 			token = strtok(scaleH, "=");
 			token = strtok(NULL, " ");
 			scaleHeight = atoi(token);
+
+			token = strtok(_lineHeight, "=");
+			token = strtok(NULL, " ");
+			lineHeight = atoi(token);
 
 		}else if(strcmp(buffer, "char") == 0) {
 
@@ -64,11 +68,11 @@ void CharacterSetBmp::loadFromFile(const std::string& path) {
 			
 			char *token = strtok(x, "=");
 			token = strtok(NULL, " ");
-			character.textureOffset[0] = atof(token) / static_cast<float>(scaleWidth);
+			character.textureOffset[0] = atoi(token) / static_cast<float>(scaleWidth);
 
 			token = strtok(y, "=");
 			token = strtok(NULL, " ");
-			character.textureOffset[1] = 1.0f - atof(token) / static_cast<float>(scaleHeight);
+			character.textureOffset[1] = 1.0f - atoi(token) / static_cast<float>(scaleHeight);
 
 			token = strtok(width, "=");
 			token = strtok(NULL, " ");
@@ -109,8 +113,22 @@ void CharacterSetBmp::loadFromFile(const std::string& path) {
 
 			std::experimental::filesystem::path path = std::experimental::filesystem::current_path();
 
-			Globals::textureManager.loadTexture(fileName, path.u8string() + "/res/" + fileName, true);
-			texture = Globals::textureManager.get(fileName);	
+			unsigned char *imageData = Texture::LoadFromFile(path.u8string() + "/res/" + fileName, true);
+
+		
+			glGenTextures(1, &spriteSheet);
+			glBindTexture(GL_TEXTURE_2D, spriteSheet);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, scaleWidth, scaleHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, imageData);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			glGenerateMipmap(GL_TEXTURE_2D);
+			int swizzleMask[] = { GL_ZERO, GL_ZERO, GL_ZERO, GL_ALPHA };
+			glTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_RGBA, swizzleMask);
+			glBindTexture(GL_TEXTURE_2D, 0);
+
+			free(imageData);
 		}
 
 		

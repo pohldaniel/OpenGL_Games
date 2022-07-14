@@ -140,7 +140,7 @@ LRESULT Application::DisplayWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 			Globals::projection = Matrix4f::GetPerspective(Globals::projection, 45.0f, static_cast<float>(_width) / static_cast<float>(_height), 1.0f, 5000.0f);
 			Globals::invProjection = Matrix4f::GetInvPerspective(Globals::invProjection, 45.0f, static_cast<float>(_width) / static_cast<float>(_height), 1.0f, 5000.0f);
 			//Globals::ortoghraphic = Matrix4f::GetOrthographic(Globals::ortoghraphic, -static_cast<float>(_width) * 0.5f, static_cast<float>(_width)* 0.5f, 0.0f, static_cast<float>(_height), -1.0f, 1.0f);
-			Globals::ortoghraphic = Matrix4f::GetOrthographic(Globals::ortoghraphic, 0.0f, static_cast<float>(_width), 0.0f, static_cast<float>(_height), -1.0f, 1.0f);
+			Globals::orthographic = Matrix4f::GetOrthographic(Globals::orthographic, 0.0f, static_cast<float>(_width), 0.0f, static_cast<float>(_height), -1.0f, 1.0f);
 			break;
 		}default: {
 			//Mouse::instance().handleMsg(hWnd, message, wParam, lParam);
@@ -274,6 +274,7 @@ void Application::loadAssets() {
 	Globals::shaderManager.loadShader("texture", "res/shader/texture.vs", "res/shader/texture.fs");
 	Globals::shaderManager.loadShader("transperancy", "res/shader/transperancy.vs", "res/shader/transperancy.fs");
 	Globals::shaderManager.loadShader("font", "res/shader/font.vs", "res/shader/font.fs");
+	Globals::shaderManager.loadShader("fontDF", "res/shader/fontDF.vs", "res/shader/fontDF.fs");
 
 	Globals::shaderManager.loadShader("terrain", "res/shader/terrain.vs", "res/shader/terrain.fs");	
 	Globals::shaderManager.loadShader("terrain_instance", "res/shader/terrain_instance.vs", "res/shader/terrain_instance.fs");
@@ -300,8 +301,7 @@ void Application::loadAssets() {
 	Globals::textureManager.loadTexture("fern", "res/fern.png", true);
 	Globals::textureManager.get("fern").setLinear();
 
-	Globals::textureManager.loadTexture("verdana", "res/verdana.png", true);
-	Globals::textureManager.get("verdana").setLinear();
+	
 	
 
 	Globals::spritesheetManager.createSpritesheet("terrain", Globals::textureManager.get("dirt").getTexture(), 512, 512, GL_RGB8);

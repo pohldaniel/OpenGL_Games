@@ -112,7 +112,9 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_water(
 	charachterSet.loadFromFile("res/verdana.fnt");
 
 	m_text = new Text(charachterSet);
-	m_text->setLabel("QQg");
+	m_text->setLabel("In Game Text", 2.0f);
+	m_text->setColor(Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
+	//m_text->setPosition(0.0f, 0.0f);
 }
 
 Game::~Game() {}

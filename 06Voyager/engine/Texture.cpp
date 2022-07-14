@@ -334,6 +334,16 @@ void Texture::AddHorizontally(std::string fileIn1, std::string fileIn2, std::str
 	SOIL_free_image_data(imageData2);
 }
 
+unsigned char* Texture::LoadFromFile(std::string pictureFile, const bool _flipVertical) {
+	int width, height, numCompontents;
+	unsigned char* imageData = SOIL_load_image(pictureFile.c_str(), &width, &height, &numCompontents, SOIL_LOAD_AUTO);
+	
+	if (_flipVertical)
+		FlipVertical(imageData, numCompontents * width, height);
+
+	return imageData;
+}
+
 unsigned int Texture::getTexture(){
 	return m_texture;
 }

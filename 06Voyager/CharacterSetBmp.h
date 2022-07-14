@@ -11,7 +11,7 @@ struct CharacterBmp {
 	float textureOffset[2];
 	float textureSize[2];
 	unsigned int xAdvance;
-	
+	unsigned int lineHeight;
 };
 
 struct CharacterSetBmp {
@@ -23,6 +23,7 @@ struct CharacterSetBmp {
 	void loadFromFile(const std::string& path);
 	std::map<char, CharacterBmp> characters;
 	Texture texture;
+	unsigned int spriteSheet;
 	unsigned int maxWidth;
 	unsigned int maxHeight;
 	unsigned int lineHeight;

@@ -2,28 +2,36 @@
 
 Text::Text(CharacterSetBmp &charset) : m_charset(charset) {
 
-	m_fontShader = Globals::shaderManager.getAssetPointer("font");
-	m_texture = &Globals::textureManager.get("verdana");
+	m_fontShader = Globals::shaderManager.getAssetPointer("fontDF");
+	
+
+	m_projection.orthographic(-30.0f , static_cast<float>(WIDTH) - 30.0f, -static_cast<float>(HEIGHT) + 10.0f, 10.0f, -1.0f, 1.0f);
 }
 
 Text::Text(std::string label, CharacterSetBmp &charset) : Text(charset) {
 	setLabel(label);
 }
 
-void Text::setLabel(std::string label) {
+void Text::setLabel(std::string label, float scale) {
 
 	m_label = label;
-	
+	m_scale = scale;
+	calcSize(m_label);
+
 	std::vector<float> vertices;
 	std::vector<unsigned int> indices;
 
 	float x2 = 0.0f;
-	float y2 = 900.0f;
+	float y2 = 0.0f;
 	std::string::const_iterator c;
 	for (c = m_label.begin(); c != m_label.end(); c++) {
 		CharacterBmp ch = m_charset.characters[*c];
-		Vector2f pos = Vector2f(x2 + ch.bearing[0] * m_scale, y2 - ch.bearing[1] * m_scale);
-		addChar(pos, *c, vertices, indices);
+		Vector2f pos = Vector2f(x2 + ch.bearing[0] * m_scale, y2 - ch.bearing[1] * m_scale);		
+
+		//skip whitespace
+		if (*c != 32) {
+			addChar(pos, *c, vertices, indices);
+		}
 		x2 += (ch.xAdvance * m_scale);
 	}
 
@@ -94,15 +102,45 @@ void Text::addChar(const Vector2f& pos, unsigned int _c, std::vector<float>& ver
 }
 
 void Text::render() {
-	
+	glEnable(GL_BLEND);
 	glUseProgram(m_fontShader->m_program);
-	m_fontShader->loadMatrix("u_projection", Globals::ortoghraphic);
+	m_fontShader->loadMatrix("u_projection", m_projection);
+	m_fontShader->loadMatrix("u_model", m_transform);
+	m_fontShader->loadVector("u_blendColor", m_blendColor);
 
-	m_charset.texture.bind(0);
+	glBindTexture(GL_TEXTURE_2D, m_charset.spriteSheet);
 	glBindVertexArray(m_vao);
 	glDrawElements(GL_TRIANGLES, m_indexCount, GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
 	glBindTexture(GL_TEXTURE_2D, 0);
-
+	
 	glUseProgram(0);
+	glDisable(GL_BLEND);
 }
+
+void Text::calcSize(std::string label) {
+	int sizeX = 0, sizeY = 0;
+	CharacterBmp ch;
+
+	std::string::const_iterator c;
+	for (c = label.begin(); c != label.end(); c++) {
+		ch = m_charset.characters[*c];
+
+		sizeX = sizeX + ((ch.xAdvance) * m_scale);
+		sizeY = ch.lineHeight * m_scale;
+	}
+	m_size = Vector2f(sizeX, sizeY * m_scale);
+}
+
+void Text::setColor(const Vector4f &color) {
+	m_blendColor = color;
+}
+
+void Text::setPosition(const Vector2f &position) {
+	m_transform.translate(position[0], -position[1], 0.0f);
+}
+
+void Text::setPosition(const float x, const float y) {
+	m_transform.translate(x, -y, 0.0f);
+}
+

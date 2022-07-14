@@ -16,7 +16,7 @@ namespace Globals {
 
 	extern Matrix4f projection;
 	extern Matrix4f invProjection;
-	extern Matrix4f ortoghraphic;
+	extern Matrix4f orthographic;
 
 	extern AssetManager<Shader> shaderManager;
 	extern AssetManager<Texture> textureManager;

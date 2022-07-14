@@ -31,6 +31,7 @@ public:
 	static void AddHorizontally(std::string fileIn1, std::string fileIn2, std::string fileOut, const bool flipVertical = false);
 	static void FlipVertical(unsigned char* data, unsigned int padWidth, unsigned int height);
 	static void Unbind();
+	static unsigned char* LoadFromFile(std::string pictureFile, const bool flipVertical = false);
 private:
 	void flipVertical(unsigned char* data, unsigned int padWidth, unsigned int height);
 	
