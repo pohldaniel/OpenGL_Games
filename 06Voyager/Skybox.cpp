@@ -1,11 +1,13 @@
 #include "Skybox.h"
 
-SkyBox::SkyBox(const float scale, const Vector3f& position) {
+SkyBox::SkyBox(const float& dt, const float& fdt, const float scale, const Vector3f& position) : m_dt(dt), m_fdt(fdt){
 	m_scale = scale;
 	m_position = position;
 	m_skyboxShader = Globals::shaderManager.getAssetPointer("skybox");
 
-	m_cubemap = &Globals::cubemapManager.get("day");
+	m_cubemapDay = &Globals::cubemapManager.get("day");
+	m_cubemapNight = &Globals::cubemapManager.get("night");
+
 
 	createBuffer();
 }
@@ -15,8 +17,22 @@ SkyBox::~SkyBox() {
 }
 
 void SkyBox::toggleDayNight() {
-	m_day = !m_day;
-	m_cubemap = m_day ? &Globals::cubemapManager.get("day") : &Globals::cubemapManager.get("night");
+	
+	if (m_fadeIn) {
+		m_fadeOut = true;
+		m_fadeIn = false;
+		return;
+	}else {
+		m_fadeIn = true;
+		//return;
+	}
+
+	if (m_fadeOut) {
+		m_fadeIn = true;
+		m_fadeOut = false;
+	}else {
+		m_fadeOut = true;
+	}
 }
 
 void SkyBox::createBuffer() {
@@ -81,14 +97,35 @@ void SkyBox::createBuffer() {
 	m_vertices.shrink_to_fit();
 }
 
+void SkyBox::update() {
+	m_rotation = m_rotation >= 360.0f ? 0 : m_rotation + m_rotationSpeed * m_dt;
+	m_model.rotate(Vector3f(0.0f, 1.0f, 0.0f), m_rotation);
+
+	if (m_fadeIn) {	
+		m_blend = m_blend <= 1.0f ? m_blend + m_transitionSpeed * m_dt : 1.0f;
+		m_fadeIn = m_blend <= 1.0f;
+
+	}
+
+	if (m_fadeOut) {
+		m_blend = m_blend >= 0.0f ? m_blend - m_transitionSpeed * m_dt : 0.0f;
+		m_fadeOut = m_blend >= 0.0f;
+		
+	}	
+}
+
 void SkyBox::render(const Camera& camera) {
 	Matrix4f view = camera.getViewMatrix();
 	view[0][3] = 0.0f; view[1][3] = 0.0f; view[2][3] = 0.0f;
 	
 	glDepthFunc(GL_LEQUAL);
 	glUseProgram(m_skyboxShader->m_program);
-	m_skyboxShader->loadMatrix("u_transform", view * Globals::projection );
-	m_cubemap->bind(0);
+	m_skyboxShader->loadMatrix("u_transform", m_model * view * Globals::projection );
+	m_skyboxShader->loadFloat("u_blendFactor", m_blend);
+	m_skyboxShader->loadInt("u_day", 0);
+	m_skyboxShader->loadInt("u_nigth", 1);
+	m_cubemapDay->bind(0);
+	m_cubemapNight->bind(1);
 
 	glBindVertexArray(m_vao);
 	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);

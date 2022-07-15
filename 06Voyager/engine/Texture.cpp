@@ -367,6 +367,7 @@ void Texture::bind(unsigned int unit){
 
 void Texture::Unbind() {
 	glBindTexture(GL_TEXTURE_2D, 0);
+	glActiveTexture(GL_TEXTURE0);
 }
 
 void Texture::setRepeat() {

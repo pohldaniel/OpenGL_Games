@@ -11,7 +11,7 @@ const Vector3f CAMERA_ACCELERATION(400.0f, 400.0f, 400.0f);
 const Vector3f CAMERA_VELOCITY(200.0f, 200.0f, 200.0f);
 Vector3f LIGHT_DIRECTION(-100.0f, 100.0f, -100.0f);
 
-Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_water(Water(m_dt, m_fdt)) {
+Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_water(Water(m_dt, m_fdt)), m_skybox(SkyBox(m_dt, m_fdt, 2500.0f)) {
 	
 	m_copyFramebuffer.create(WIDTH, HEIGHT);
 	m_copyFramebuffer.attachTexture(Framebuffer::Attachments::COLOR);
@@ -117,7 +117,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_water(
 	m_text->setColor(Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
 	//m_text->setPosition(0.0f, 0.0f);
 
-	m_skybox = new SkyBox(2500.0f);
+
 }
 
 Game::~Game() {}
@@ -176,7 +176,7 @@ void Game::update() {
 	}
 
 	if (keyboard.keyPressed(Keyboard::KEY_4)) {
-		m_skybox->toggleDayNight();
+		m_skybox.toggleDayNight();
 	}
 
 	if (keyboard.keyPressed(Keyboard::KEY_T)) {
@@ -208,6 +208,7 @@ void Game::update() {
 
 	m_camera.calcLightTransformation(LIGHT_DIRECTION);
 	m_camera.calcLightTransformation2(LIGHT_DIRECTION);
+	m_skybox.update();
 	//performCameraCollisionDetection();
 };
 
@@ -242,7 +243,7 @@ void Game::render(unsigned int &frameBuffer) {
 	m_fern->render(m_camera);
 	
 
-	m_skybox->render(m_camera);
+	m_skybox.render(m_camera);
 	m_text->render();
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);	
 

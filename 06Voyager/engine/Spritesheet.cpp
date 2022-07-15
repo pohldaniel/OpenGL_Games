@@ -319,6 +319,7 @@ void Spritesheet::bind(unsigned int unit) {
 
 void Spritesheet::Unbind() {
 	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
+	glActiveTexture(GL_TEXTURE0);
 }
 
 void Spritesheet::setRepeat() {

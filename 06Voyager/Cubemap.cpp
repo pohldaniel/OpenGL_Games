@@ -119,6 +119,7 @@ void Cubemap::bind(unsigned int unit) {
 
 void Cubemap::Unbind() {
 	glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+	glActiveTexture(GL_TEXTURE0);
 }
 
 void Cubemap::setRepeat() {

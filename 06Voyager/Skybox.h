@@ -10,11 +10,12 @@
 class SkyBox {
 
 public:
-
-	SkyBox(const float scale, const Vector3f& position = Vector3f(0.0f, 0.0f, 0.0f));
+	
+	SkyBox(const float& dt, const float& fdt, const float scale, const Vector3f& position = Vector3f(0.0f, 0.0f, 0.0f));
 	~SkyBox();
 
 	void render(const Camera& camera);
+	void update();
 	void toggleDayNight();
 private:
 	void createBuffer();
@@ -26,9 +27,19 @@ private:
 	unsigned int m_vbo, m_vao;
 
 	Shader* m_skyboxShader;
-	Cubemap* m_cubemap;
+	Cubemap* m_cubemapDay;
+	Cubemap* m_cubemapNight;
 
 	Matrix4f m_model;
 
-	bool m_day = true;
+
+	const float& m_fdt;
+	const float& m_dt;
+	const float m_rotationSpeed = 0.3f;
+	float m_rotation = 0.0f;
+
+	const float m_transitionSpeed = 0.5f;
+	float m_blend = 0.0f;
+	bool m_fadeIn = false;
+	bool m_fadeOut = true;
 };

@@ -51,7 +51,7 @@ public:
 	std::vector<MeshCube*> m_entities;
 	Tree *m_tree;
 	Fern *m_fern;
-	SkyBox* m_skybox;
+	SkyBox m_skybox;
 
 	Vector3f m_cameraBoundsMax;
 	Vector3f m_cameraBoundsMin;
