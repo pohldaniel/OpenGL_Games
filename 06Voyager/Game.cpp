@@ -74,7 +74,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_water(
 	m_meshQuad->setPrecision(1, 1);
 	m_meshQuad->buildMesh();
 	m_meshQuad->setShader(Globals::shaderManager.getAssetPointer("shadowQuad"));
-	m_meshQuad->setTexture(&Globals::textureManager.get("grey"));
+	m_meshQuad->setTexture(&Globals::textureManager.get("null"));
 
 	//m_entities.push_back(new MeshCube(Vector3f(HEIGHTMAP_WIDTH * 0.5f + 300.0f, 450.1f, HEIGHTMAP_WIDTH * 0.5f + 300.0f), 100, 100, 100));
 	m_entities.push_back(new MeshCube(Vector3f(HEIGHTMAP_WIDTH * 0.5f + 600.0f, 450.1f, HEIGHTMAP_WIDTH * 0.5f + 300.0f), 100, 100, 100));
@@ -117,7 +117,13 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_water(
 	m_text->setColor(Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
 	//m_text->setPosition(0.0f, 0.0f);
 
+	glUseProgram(Globals::shaderManager.getAssetPointer("terrain")->m_program);
+	Globals::shaderManager.getAssetPointer("terrain")->loadVector("fogColor", Vector4f(0.5f, 0.5f, 0.5f, 1.0f));
+	glUseProgram(0);
 
+	glUseProgram(Globals::shaderManager.getAssetPointer("skybox")->m_program);
+	Globals::shaderManager.getAssetPointer("skybox")->loadVector("fogColor", Vector4f(0.5f, 0.5f, 0.5f, 1.0f));
+	glUseProgram(0);
 }
 
 Game::~Game() {}
@@ -217,7 +223,7 @@ void Game::render(unsigned int &frameBuffer) {
 	
 	glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
 
-	glClearColor(0.3f, 0.5f, 0.9f, 1.0f);
+	glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	
 	m_terrain.draw(m_camera);
@@ -310,7 +316,7 @@ void Game::renderOffscreen() {
 	glEnable(GL_CLIP_DISTANCE0);
 
 	m_water.bindReflectionBuffer();
-	glClearColor(0.3f, 0.5f, 0.9f, 1.0f);
+	glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_CULL_FACE);
 
@@ -325,7 +331,7 @@ void Game::renderOffscreen() {
 	Framebuffer::Unbind();
 
 	m_water.bindRefractionBuffer();
-	glClearColor(0.3f, 0.5f, 0.9f, 1.0f);
+	glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
 	glUseProgram(Globals::shaderManager.getAssetPointer("terrain")->m_program);
@@ -339,7 +345,7 @@ void Game::renderOffscreen() {
 
 
 	m_lightDepthFramebuffer.bind();
-	glClearColor(0.3f, 1.0f, 0.9f, 1.0f);
+	glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
 	glClear(GL_DEPTH_BUFFER_BIT);
 
 	auto shader = Globals::shaderManager.getAssetPointer("depthGS");

@@ -13,6 +13,7 @@ struct TerrainRegion{
 in vec2 texCoordTiled;
 in vec2 texCoord;
 in vec4 normal;
+in float visibility;
 
 layout(location = 0) out vec4 outColor;
 
@@ -37,6 +38,7 @@ uniform sampler2D path;
 uniform sampler2D blendMap;
 
 uniform vec4 lightDir;
+uniform vec4 fogColor;
 
 uniform bool mode = true;
 
@@ -136,6 +138,7 @@ void main(void) {
 	vec4 colorTerrain = mode ? GenerateTerrainColor() : GenerateTerrainColorBlended();
 
 	outColor = color * colorTerrain;	
+	outColor = mix(fogColor, outColor, visibility);
 	//gl_FragDepth = gl_FragCoord.z;
 
 	//float depth = getDepthPassSpaceZ(gl_FragCoord.z, 1.0, 5000.0) / 5000.0; // divide by far for demonstration

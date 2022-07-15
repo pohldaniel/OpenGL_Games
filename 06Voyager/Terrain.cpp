@@ -668,7 +668,8 @@ void Terrain::drawNormal(const Camera& camera) {
 	Vector4f lightDir = Vector4f(0.0f, 1.0f, 0.0f, 0.0f);
 
 	glUseProgram(m_terrainShader->m_program);
-	m_terrainShader->loadMatrix("u_transform", camera.getViewMatrix() * Globals::projection);
+	m_terrainShader->loadMatrix("u_projection", Globals::projection);
+	m_terrainShader->loadMatrix("u_modelView", camera.getViewMatrix());
 	m_terrainShader->loadMatrix("u_normal", Matrix4f::GetNormalMatrix(camera.getViewMatrix()));
 	m_terrainShader->loadFloat("tilingFactor", m_tilingFactor);
 	m_terrainShader->loadVector("lightDir", lightDir);
