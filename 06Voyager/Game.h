@@ -16,6 +16,7 @@
 #include "Water.h"
 #include "Tree.h"
 #include "Fern.h"
+#include "Skybox.h"
 
 class Game : public State {
 public:
@@ -50,6 +51,7 @@ public:
 	std::vector<MeshCube*> m_entities;
 	Tree *m_tree;
 	Fern *m_fern;
+	SkyBox* m_skybox;
 
 	Vector3f m_cameraBoundsMax;
 	Vector3f m_cameraBoundsMin;

@@ -54,6 +54,13 @@ public:
 		m_assetPointer[name]->createNullSpritesheet(width, height, layer);
 	}
 
+	void loadCubeMap(const std::string& name, std::string* textureFiles, const bool flipVertical = true, unsigned int format = -1) {
+		m_assets[name].loadFromFile(textureFiles, flipVertical, format);
+	}
+
+	void createNullCubemap(const std::string& name, unsigned int width = 2, unsigned int height = 2, unsigned int color = 255) {
+		m_assets[name].createNullCubemap(width, height, color);
+	}
 
 	void loadSoundEffect(const std::string& name, const std::string& path) {
 		m_assets[name].loadFromFile(path);

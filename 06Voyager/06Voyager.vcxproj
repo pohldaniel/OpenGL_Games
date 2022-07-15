@@ -157,6 +157,7 @@
     <ClInclude Include="Application.h" />
     <ClInclude Include="CharacterSetBmp.h" />
     <ClInclude Include="Constants.h" />
+    <ClInclude Include="Cubemap.h" />
     <ClInclude Include="engine\AssetManger.h" />
     <ClInclude Include="engine\Camera.h" />
     <ClInclude Include="engine\Clock.h" />
@@ -183,6 +184,7 @@
     <ClInclude Include="Game.h" />
     <ClInclude Include="Object.h" />
     <ClInclude Include="RenderableObject.h" />
+    <ClInclude Include="Skybox.h" />
     <ClInclude Include="StateMachine.h" />
     <ClInclude Include="Terrain.h" />
     <ClInclude Include="Text.h" />
@@ -192,6 +194,7 @@
   <ItemGroup>
     <ClCompile Include="Application.cpp" />
     <ClCompile Include="CharacterSetBmp.cpp" />
+    <ClCompile Include="Cubemap.cpp" />
     <ClCompile Include="engine\Camera.cpp" />
     <ClCompile Include="engine\Extension.cpp" />
     <ClCompile Include="engine\Framebuffer.cpp" />
@@ -216,6 +219,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Object.cpp" />
     <ClCompile Include="RenderableObject.cpp" />
+    <ClCompile Include="Skybox.cpp" />
     <ClCompile Include="soil2\image_DXT.c" />
     <ClCompile Include="soil2\image_helper.c" />
     <ClCompile Include="soil2\SOIL2.c" />

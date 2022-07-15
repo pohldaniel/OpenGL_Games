@@ -5,6 +5,7 @@
 #include "engine\Shader.h"
 #include "engine\Texture.h"
 #include "engine\Spritesheet.h"
+#include "Cubemap.h"
 
 #define WIDTH 1600
 #define HEIGHT 900
@@ -21,4 +22,5 @@ namespace Globals {
 	extern AssetManager<Shader> shaderManager;
 	extern AssetManager<Texture> textureManager;
 	extern AssetManager<Spritesheet> spritesheetManager;
+	extern AssetManager<Cubemap> cubemapManager;
 }

@@ -275,6 +275,7 @@ void Application::loadAssets() {
 	Globals::shaderManager.loadShader("transperancy", "res/shader/transperancy.vs", "res/shader/transperancy.fs");
 	Globals::shaderManager.loadShader("font", "res/shader/font.vs", "res/shader/font.fs");
 	Globals::shaderManager.loadShader("fontDF", "res/shader/fontDF.vs", "res/shader/fontDF.fs");
+	Globals::shaderManager.loadShader("skybox", "res/shader/skybox.vs", "res/shader/skybox.fs");
 
 	Globals::shaderManager.loadShader("terrain", "res/shader/terrain.vs", "res/shader/terrain.fs");	
 	Globals::shaderManager.loadShader("terrain_instance", "res/shader/terrain_instance.vs", "res/shader/terrain_instance.fs");
@@ -346,4 +347,12 @@ void Application::loadAssets() {
 	Globals::textureManager.createPerlinTexture("perlin", 512, 512, 373);
 	Globals::textureManager.get("perlin").setLinear();
 	Globals::textureManager.get("perlin").setRepeat();
+
+	std::string facesDay[] = { "res/cubemap/day/right.png", "res/cubemap/day/left.png", "res/cubemap/day/top.png", "res/cubemap/day/bottom.png", "res/cubemap/day/back.png", "res/cubemap/day/front.png", };
+	Globals::cubemapManager.loadCubeMap("day", facesDay, false);
+
+	std::string facesNight[] = { "res/cubemap/night/right.png", "res/cubemap/night/left.png", "res/cubemap/night/top.png", "res/cubemap/night/bottom.png", "res/cubemap/night/back.png", "res/cubemap/night/front.png", };
+	Globals::cubemapManager.loadCubeMap("night", facesNight, false);
+
+	Globals::cubemapManager.createNullCubemap("null");
 }

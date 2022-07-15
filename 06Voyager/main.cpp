@@ -13,6 +13,7 @@ extern Matrix4f Globals::orthographic = Matrix4f::IDENTITY;
 extern AssetManager<Shader> Globals::shaderManager = AssetManager<Shader>();
 extern AssetManager<Texture> Globals::textureManager = AssetManager<Texture>();
 extern AssetManager<Spritesheet> Globals::spritesheetManager = AssetManager<Spritesheet>();
+extern AssetManager<Cubemap> Globals::cubemapManager = AssetManager<Cubemap>();
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd) {
 
@@ -31,6 +32,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	std::cout << "1             : disable colormaps" << std::endl;
 	std::cout << "2             : toggle texturepack" << std::endl;
 	std::cout << "3             : regenerate terrain" << std::endl;
+	std::cout << "4             : toggle day night" << std::endl;
 	std::cout << "t             : debug framebuffer" << std::endl;
 	std::cout << "r             : switch cascade depthbuffer" << std::endl;
 	#endif

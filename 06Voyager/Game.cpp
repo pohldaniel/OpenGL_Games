@@ -54,7 +54,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_water(
 	m_camera.perspective(45.0f, static_cast<float>(WIDTH) / static_cast<float>(HEIGHT), 1.0f, 5000.0f);
 	m_camera.lookAt(pos, Vector3f(pos[0] + 100.0f, pos[1] + 10.0f, pos[2] + 100.0f), Vector3f(0.0f, 1.0f, 0.0f));
 	//m_camera.lookAt(Vector3f(0.0f, 0.0f, 0.0f), Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
-
+	
 	m_camera.setAcceleration(CAMERA_ACCELERATION);
 	m_camera.setVelocity(CAMERA_VELOCITY);
 	m_camera.setRotationSpeed(0.1f);
@@ -103,7 +103,8 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_water(
 	
 
 	m_tree = new Tree();
-	m_tree->translate(HEIGHTMAP_WIDTH * 0.5f + 300.0f, 400.1f, HEIGHTMAP_WIDTH * 0.5f + 300.0f);
+	m_tree->translate(HEIGHTMAP_WIDTH * 0.5f + 800.0f, 400.1f, HEIGHTMAP_WIDTH * 0.5f + 300.0f);
+	m_tree->scale(10.0f, 10.0f, 10.0f);
 
 	m_fern = new Fern();
 	m_fern->translate(HEIGHTMAP_WIDTH * 0.5f + 400.0f, 400.1f, HEIGHTMAP_WIDTH * 0.5f + 400.0f);
@@ -115,6 +116,8 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_water(
 	m_text->setLabel("In Game Text", 2.0f);
 	m_text->setColor(Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
 	//m_text->setPosition(0.0f, 0.0f);
+
+	m_skybox = new SkyBox(2500.0f);
 }
 
 Game::~Game() {}
@@ -170,6 +173,10 @@ void Game::update() {
 
 	if (keyboard.keyPressed(Keyboard::KEY_3)) {
 		m_terrain.generateUsingDiamondSquareFractal(HEIGHTMAP_ROUGHNESS);
+	}
+
+	if (keyboard.keyPressed(Keyboard::KEY_4)) {
+		m_skybox->toggleDayNight();
 	}
 
 	if (keyboard.keyPressed(Keyboard::KEY_T)) {
@@ -233,8 +240,10 @@ void Game::render(unsigned int &frameBuffer) {
 
 	m_tree->render(m_camera);
 	m_fern->render(m_camera);
-	m_text->render();
+	
 
+	m_skybox->render(m_camera);
+	m_text->render();
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);	
 
 	if (m_debug) {
