@@ -74,7 +74,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_water(
 	m_meshQuad->setPrecision(1, 1);
 	m_meshQuad->buildMesh();
 	m_meshQuad->setShader(Globals::shaderManager.getAssetPointer("shadowQuad"));
-	m_meshQuad->setTexture(&Globals::textureManager.get("gray"));
+	m_meshQuad->setTexture(&Globals::textureManager.get("grey"));
 
 	//m_entities.push_back(new MeshCube(Vector3f(HEIGHTMAP_WIDTH * 0.5f + 300.0f, 450.1f, HEIGHTMAP_WIDTH * 0.5f + 300.0f), 100, 100, 100));
 	m_entities.push_back(new MeshCube(Vector3f(HEIGHTMAP_WIDTH * 0.5f + 600.0f, 450.1f, HEIGHTMAP_WIDTH * 0.5f + 300.0f), 100, 100, 100));
@@ -228,8 +228,12 @@ void Game::render(unsigned int &frameBuffer) {
 	shader->loadMatrixArray("u_projectionShadows", m_camera.lightProjections, m_camera.m_numberCascades);
 	shader->loadMatrixArray("u_viewShadows", m_camera.lightViews, m_camera.m_numberCascades);
 	shader->loadFloatArray("u_cascadeEndClipSpace", m_camera.m_cascadeEndClipSpace, m_camera.m_numberCascades);
+	shader->loadBool("u_debug", m_debug);
+	
+	shader->loadInt("u_texture", 0);
 	shader->loadInt("u_shadowMaps", 1);
 	shader->loadUnsignedInt("u_numCascades", m_camera.m_numberCascades);
+
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D_ARRAY, m_lightDepthFramebuffer.getDepthTexture());
 
@@ -342,7 +346,7 @@ void Game::renderOffscreen() {
 	glUseProgram(shader->m_program);
 	shader->loadMatrixArray("u_projectionShadows", m_camera.lightProjections, m_camera.m_numberCascades);
 	shader->loadMatrixArray("u_viewShadows", m_camera.lightViews, m_camera.m_numberCascades);
-	
+
 	for (unsigned short j = 0; j < m_camera.m_numberCascades; j++) {
 		shader->loadInt("u_numCascades", j);
 

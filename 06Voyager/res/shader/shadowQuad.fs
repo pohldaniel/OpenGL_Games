@@ -13,6 +13,7 @@ layout(location = 0) out vec4 outColor;
 uniform sampler2D u_texture;
 uniform sampler2DArray u_shadowMaps;
 uniform float u_cascadeEndClipSpace[NUM_CASCADES];
+uniform bool u_debug = false;
 
 float CalcShadowFactor(uint cascadeIndex, vec4 sc){
     vec3 ndc = (sc.xyz/sc.w);
@@ -45,6 +46,6 @@ void main(void) {
             break;
         }
     }
-	
+	if(!u_debug) CascadeIndicator = vec4(0.0, 0.0, 0.0, 0.0);
 	outColor = (color  + CascadeIndicator)* ShadowFactor;
 }
