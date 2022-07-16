@@ -1,4 +1,6 @@
-#version 330 core
+#version 410 core
+
+const uint NUM_CASCADES = 10;
 
 struct Region{
     vec2 border1;
@@ -14,6 +16,10 @@ in vec2 texCoordTiled;
 in vec2 texCoord;
 in vec4 normal;
 in float visibility;
+
+in vec4 scs[NUM_CASCADES];
+in float clipSpacePosZ;
+flat in uint numCascades;
 
 layout(location = 0) out vec4 outColor;
 
@@ -33,9 +39,13 @@ layout (std140) uniform u_regionBorder{
 
 uniform sampler2DArray regions;
 uniform sampler2DArray blend;
+uniform sampler2DArray u_shadowMaps;
 
 uniform sampler2D path;
 uniform sampler2D blendMap;
+
+uniform float u_cascadeEndClipSpace[NUM_CASCADES];
+uniform bool u_debug = false;
 
 uniform vec4 lightDir;
 uniform vec4 fogColor;
@@ -126,7 +136,23 @@ vec4 GenerateTerrainColorBlended(){
 	return grassTextureColor + mudTextureColor + flowerTextureColor + pathTextureColor * blendMapColor.b;
 }
 
+float CalcShadowFactor(uint cascadeIndex, vec4 sc){
+    vec3 ndc = (sc.xyz/sc.w);
+	float depth = texture(u_shadowMaps, vec3(ndc.xy, cascadeIndex)).r;
+
+	return ndc.z > depth  ? 0.1 : 1.0;
+}
+
 void main(void) {
+
+	float ShadowFactor = 0.0;
+
+	for(uint i = 0; i < numCascades; i++){
+		if (clipSpacePosZ <= u_cascadeEndClipSpace[i]) {
+            ShadowFactor = CalcShadowFactor(i, scs[i]);	
+			break;
+        }
+    }
 
 	vec3 n = normalize(normal.xyz);
     float nDotL = max(0.0, dot(n, lightDir.xyz));
@@ -137,8 +163,8 @@ void main(void) {
 
 	vec4 colorTerrain = mode ? GenerateTerrainColor() : GenerateTerrainColorBlended();
 
-	outColor = color * colorTerrain;	
-	outColor = mix(fogColor, outColor, visibility);
+	outColor = color * colorTerrain * ShadowFactor;	
+	//outColor = mix(fogColor, outColor, visibility);
 	//gl_FragDepth = gl_FragCoord.z;
 
 	//float depth = getDepthPassSpaceZ(gl_FragCoord.z, 1.0, 5000.0) / 5000.0; // divide by far for demonstration

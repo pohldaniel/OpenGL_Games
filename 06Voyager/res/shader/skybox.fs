@@ -19,6 +19,7 @@ void main(void){
 	
 	float factor = (v_texCoord.y - lowerLimit) / (upperLimit - lowerLimit);
 	factor = clamp(factor, 0.0, 1.0);
-	 
-	color = mix(fogColor, finalColor, factor);	
+	
+	color =	finalColor;
+	//color = mix(fogColor, finalColor, factor);	
 }

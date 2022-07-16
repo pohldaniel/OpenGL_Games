@@ -29,6 +29,7 @@ public:
 	void performCameraCollisionDetection();
 
 	void renderOffscreen();
+	void shadowPass();
 
 	Camera m_camera;
 	Terrain m_terrain;

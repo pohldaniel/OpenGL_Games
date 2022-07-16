@@ -29,11 +29,11 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_water(
 
 	offsetX = WIDTH * size[0] * 0.5f;
 	offsetY = HEIGHT * size[1] * 0.5f;
-	
+
 	m_terrain.create(Globals::textureManager.get("perlin"), HEIGHTMAP_WIDTH, HEIGHTMAP_SCALE);
 	//m_terrain.create(HEIGHTMAP_RESOLUTION, HEIGHTMAP_WIDTH, HEIGHTMAP_SCALE, HEIGHTMAP_ROUGHNESS);
 	//m_terrain.createProcedural(HEIGHTMAP_RESOLUTION, HEIGHTMAP_WIDTH, HEIGHTMAP_SCALE, HEIGHTMAP_ROUGHNESS);
-	
+
 
 	//m_terrain.setGridPosition(0, 0);
 	//m_terrain.setGridPosition(0, 1);
@@ -54,7 +54,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_water(
 	m_camera.perspective(45.0f, static_cast<float>(WIDTH) / static_cast<float>(HEIGHT), 1.0f, 5000.0f);
 	m_camera.lookAt(pos, Vector3f(pos[0] + 100.0f, pos[1] + 10.0f, pos[2] + 100.0f), Vector3f(0.0f, 1.0f, 0.0f));
 	//m_camera.lookAt(Vector3f(0.0f, 0.0f, 0.0f), Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
-	
+
 	m_camera.setAcceleration(CAMERA_ACCELERATION);
 	m_camera.setVelocity(CAMERA_VELOCITY);
 	m_camera.setRotationSpeed(0.1f);
@@ -76,14 +76,16 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_water(
 	m_meshQuad->setShader(Globals::shaderManager.getAssetPointer("shadowQuad"));
 	m_meshQuad->setTexture(&Globals::textureManager.get("null"));
 
+
+
 	//m_entities.push_back(new MeshCube(Vector3f(HEIGHTMAP_WIDTH * 0.5f + 300.0f, 450.1f, HEIGHTMAP_WIDTH * 0.5f + 300.0f), 100, 100, 100));
-	m_entities.push_back(new MeshCube(Vector3f(HEIGHTMAP_WIDTH * 0.5f + 600.0f, 450.1f, HEIGHTMAP_WIDTH * 0.5f + 300.0f), 100, 100, 100));
-	m_entities.push_back(new MeshCube(Vector3f(HEIGHTMAP_WIDTH * 0.5f + 300.0f, 450.1f, HEIGHTMAP_WIDTH * 0.5f + 600.0f), 100, 100, 100));
-	m_entities.push_back(new MeshCube(Vector3f(HEIGHTMAP_WIDTH * 0.5f + 600.0f, 450.1f, HEIGHTMAP_WIDTH * 0.5f + 600.0f), 100, 100, 100));
-	m_entities.push_back(new MeshCube(Vector3f(HEIGHTMAP_WIDTH * 0.5f + 900.0f, 450.1f, HEIGHTMAP_WIDTH * 0.5f + 900.0f), 100, 100, 100));
-	m_entities.push_back(new MeshCube(Vector3f(HEIGHTMAP_WIDTH * 0.5f + 1200.0f, 450.1f, HEIGHTMAP_WIDTH * 0.5f + 1200.0f), 100, 100, 100));
-	m_entities.push_back(new MeshCube(Vector3f(HEIGHTMAP_WIDTH * 0.5f + 1500.0f, 450.1f, HEIGHTMAP_WIDTH * 0.5f + 1500.0f), 100, 100, 100));
-	m_entities.push_back(new MeshCube(Vector3f(HEIGHTMAP_WIDTH * 0.5f + 1800.0f, 450.1f, HEIGHTMAP_WIDTH * 0.5f + 1800.0f), 100, 100, 100));
+	m_entities.push_back(new MeshCube(Vector3f(HEIGHTMAP_WIDTH * 0.5f + 600.0f, m_terrain.getHeightMap().heightAt(HEIGHTMAP_WIDTH * 0.5f + 600.0f, HEIGHTMAP_WIDTH * 0.5f + 300.0f) + 50.0f, HEIGHTMAP_WIDTH * 0.5f + 300.0f), 100, 100, 100));
+	m_entities.push_back(new MeshCube(Vector3f(HEIGHTMAP_WIDTH * 0.5f + 300.0f, m_terrain.getHeightMap().heightAt(HEIGHTMAP_WIDTH * 0.5f + 300.0f, HEIGHTMAP_WIDTH * 0.5f + 600.0f) + 50.0f, HEIGHTMAP_WIDTH * 0.5f + 600.0f), 100, 100, 100));
+	m_entities.push_back(new MeshCube(Vector3f(HEIGHTMAP_WIDTH * 0.5f + 600.0f, m_terrain.getHeightMap().heightAt(HEIGHTMAP_WIDTH * 0.5f + 600.0f, HEIGHTMAP_WIDTH * 0.5f + 600.0f) + 50.0f, HEIGHTMAP_WIDTH * 0.5f + 600.0f), 100, 100, 100));
+	m_entities.push_back(new MeshCube(Vector3f(HEIGHTMAP_WIDTH * 0.5f + 900.0f, m_terrain.getHeightMap().heightAt(HEIGHTMAP_WIDTH * 0.5f + 900.0f, HEIGHTMAP_WIDTH * 0.5f + 900.0f) + 50.0f, HEIGHTMAP_WIDTH * 0.5f + 900.0f), 100, 100, 100));
+	m_entities.push_back(new MeshCube(Vector3f(HEIGHTMAP_WIDTH * 0.5f + 1200.0f, m_terrain.getHeightMap().heightAt(HEIGHTMAP_WIDTH * 0.5f + 1200.0f, HEIGHTMAP_WIDTH * 0.5f + 12000.0f) + 50.0f, HEIGHTMAP_WIDTH * 0.5f + 1200.0f), 100, 100, 100));
+	m_entities.push_back(new MeshCube(Vector3f(HEIGHTMAP_WIDTH * 0.5f + 1500.0f, m_terrain.getHeightMap().heightAt(HEIGHTMAP_WIDTH * 0.5f + 1500.0f, HEIGHTMAP_WIDTH * 0.5f + 1500.0f) + 50.0f, HEIGHTMAP_WIDTH * 0.5f + 1500.0f), 100, 100, 100));
+	m_entities.push_back(new MeshCube(Vector3f(HEIGHTMAP_WIDTH * 0.5f + 1800.0f, m_terrain.getHeightMap().heightAt(HEIGHTMAP_WIDTH * 0.5f + 1800.0f, HEIGHTMAP_WIDTH * 0.5f + 1800.0f) + 50.0f, HEIGHTMAP_WIDTH * 0.5f + 1800.0f), 100, 100, 100));
 
 	for (auto entitie : m_entities) {
 		entitie->setPrecision(1, 1);
@@ -91,8 +93,8 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_water(
 		entitie->setShader(Globals::shaderManager.getAssetPointer("texture"));
 		entitie->setTexture(&Globals::textureManager.get("marbel"));
 	}
-	
-	m_camera.setUpLightTransformation(std::vector<Vector2f>( {Vector2f(1.0f, 250.0f), Vector2f(250.0f, 500.0f), Vector2f(500.0f, 1000.0f), Vector2f(1000.0f, 2500.0f), Vector2f(2500.0f, 5000.0f) } ));
+
+	m_camera.setUpLightTransformation(std::vector<Vector2f>({ Vector2f(1.0f, 250.0f), Vector2f(250.0f, 500.0f), Vector2f(500.0f, 1000.0f), Vector2f(1000.0f, 2500.0f), Vector2f(2500.0f, 5000.0f) }));
 	m_camera.calcLightTransformation(LIGHT_DIRECTION);
 	m_camera.calcLightTransformation2(LIGHT_DIRECTION);
 
@@ -100,14 +102,14 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_water(
 	//there are two options use a second color attachment and glEnable(GL_ALPHA_TEST) in the renderShadow() function or us if(alpha < 0.5) discard; inside the depthGS.fs shader
 	//m_lightDepthFramebuffer.attachLayerdTexture(Framebuffer::Attachments::COLOR, m_camera.m_numberCascades);
 	m_lightDepthFramebuffer.attachLayerdTexture(Framebuffer::Attachments::DEPTH24, m_camera.m_numberCascades);
-	
+
 
 	m_tree = new Tree();
-	m_tree->translate(HEIGHTMAP_WIDTH * 0.5f + 800.0f, 400.1f, HEIGHTMAP_WIDTH * 0.5f + 300.0f);
+	m_tree->translate(HEIGHTMAP_WIDTH * 0.5f + 800.0f, m_terrain.getHeightMap().heightAt(HEIGHTMAP_WIDTH * 0.5f + 800.0f, HEIGHTMAP_WIDTH * 0.5f + 300.0f), HEIGHTMAP_WIDTH * 0.5f + 300.0f);
 	m_tree->scale(10.0f, 10.0f, 10.0f);
 
 	m_fern = new Fern();
-	m_fern->translate(HEIGHTMAP_WIDTH * 0.5f + 400.0f, 400.1f, HEIGHTMAP_WIDTH * 0.5f + 400.0f);
+	m_fern->translate(HEIGHTMAP_WIDTH * 0.5f + 400.0f, m_terrain.getHeightMap().heightAt(HEIGHTMAP_WIDTH * 0.5f + 400.0f, HEIGHTMAP_WIDTH * 0.5f + 400.0f), HEIGHTMAP_WIDTH * 0.5f + 400.0f);
 	m_fern->scale(10.0f, 10.0f, 10.0f);
 
 	charachterSet.loadFromFile("res/verdana.fnt");
@@ -215,20 +217,20 @@ void Game::update() {
 	m_camera.calcLightTransformation(LIGHT_DIRECTION);
 	m_camera.calcLightTransformation2(LIGHT_DIRECTION);
 	m_skybox.update();
-	//performCameraCollisionDetection();
+	performCameraCollisionDetection();
 };
 
 void Game::render(unsigned int &frameBuffer) {
 	renderOffscreen();
-	
+	shadowPass();
+
 	glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
 
-	glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
+	glClearColor(1.0f, 0.5f, 0.5f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	
-	m_terrain.draw(m_camera);
 	m_water.render(m_camera, m_water.getReflectionBuffer().getColorTexture(), m_water.getRefractionBuffer().getColorTexture(), m_water.getRefractionBuffer().getDepthTexture());
-	auto shader = Globals::shaderManager.getAssetPointer("shadowQuad");
+	auto shader = Globals::shaderManager.getAssetPointer("terrain");
 	glUseProgram(shader->m_program);
 
 	shader->loadMatrixArray("u_projectionShadows", m_camera.lightProjections, m_camera.m_numberCascades);
@@ -237,13 +239,14 @@ void Game::render(unsigned int &frameBuffer) {
 	shader->loadBool("u_debug", m_debug);
 	
 	shader->loadInt("u_texture", 0);
-	shader->loadInt("u_shadowMaps", 1);
+	shader->loadInt("u_shadowMaps", 5);
 	shader->loadUnsignedInt("u_numCascades", m_camera.m_numberCascades);
 
-	glActiveTexture(GL_TEXTURE1);
+	glActiveTexture(GL_TEXTURE5);
 	glBindTexture(GL_TEXTURE_2D_ARRAY, m_lightDepthFramebuffer.getDepthTexture());
 
-	m_meshQuad->draw(m_camera);
+	m_terrain.draw(m_camera);
+	glUseProgram(0);
 
 	for (auto entitie : m_entities) {
 		entitie->draw(m_camera);
@@ -318,12 +321,12 @@ void Game::renderOffscreen() {
 	m_water.bindReflectionBuffer();
 	glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glEnable(GL_CULL_FACE);
-
+	
 	glUseProgram(Globals::shaderManager.getAssetPointer("terrain")->m_program);
 	Globals::shaderManager.getAssetPointer("terrain")->loadVector("u_plane", Vector4f(0.0f, 1.0f, 0.0f, -m_water.getWaterLevel()));
 	glUseProgram(0);
-
+	m_skybox.render(m_camera);
+	glEnable(GL_CULL_FACE);
 	m_camera.pitchReflection((m_water.getWaterLevel()));
 	m_terrain.drawNormal(m_camera);
 	m_camera.pitchReflection(-m_water.getWaterLevel());
@@ -337,15 +340,15 @@ void Game::renderOffscreen() {
 	glUseProgram(Globals::shaderManager.getAssetPointer("terrain")->m_program);
 	Globals::shaderManager.getAssetPointer("terrain")->loadVector("u_plane", Vector4f(0.0f, -1.0f, 0.0f, m_water.getWaterLevel()));
 	glUseProgram(0);
-
 	m_terrain.draw(m_camera);
 	Framebuffer::Unbind();
 
 	glDisable(GL_CLIP_DISTANCE0);
+	
+}
 
-
+void Game::shadowPass() {
 	m_lightDepthFramebuffer.bind();
-	glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
 	glClear(GL_DEPTH_BUFFER_BIT);
 
 	auto shader = Globals::shaderManager.getAssetPointer("depthGS");
@@ -364,9 +367,9 @@ void Game::renderOffscreen() {
 		shader->loadMatrix("u_model", m_tree->getTransformationMatrix());
 		m_tree->renderShadow(m_camera);
 
-		shader->loadMatrix("u_model", m_fern->getTransformationMatrix());		
+		shader->loadMatrix("u_model", m_fern->getTransformationMatrix());
 		m_fern->renderShadow(m_camera);
-	
+
 	}
 	glUseProgram(0);
 
