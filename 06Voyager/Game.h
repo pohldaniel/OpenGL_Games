@@ -63,6 +63,7 @@ public:
 	unsigned int offsetX;
 	unsigned int offsetY;
 	bool m_debug = false;
+	bool m_debugNormal = false;
 	bool m_flag;
 	unsigned short m_debugCount = 0;
 	CharacterSetBmp charachterSet;

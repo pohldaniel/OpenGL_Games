@@ -28,7 +28,7 @@ struct IndexBufferCreator {
 	std::vector<float> textureCoordsIn;
 
 	std::vector <float> vertexBufferOut;
-	std::vector<int> indexBufferOut;
+	std::vector<unsigned int> indexBufferOut;
 
 	void createIndexBuffer();
 
@@ -140,14 +140,12 @@ public:
 	void setMaterial(const Vector3f &ambient, const Vector3f &diffuse, const Vector3f &specular, float shinies);
 	Material getMaterial();
 	void generateTangents();
-
+	void generateNormals();
 	bool readMaterial();
 
 	Model* m_model;
 	std::string m_mltName;
-	Material m_material;
-
-	unsigned int m_triangleOffset, m_numberOfTriangles, m_stride;
+	Material m_material;	
 	///////////////////////////////////////OpenGL content////////////////// to do seperate it 
 
 	void createBuffer();
@@ -169,12 +167,13 @@ public:
 
 	std::vector <float> m_vertexBuffer;
 
-	std::vector<int> m_indexBuffer;
+	std::vector<unsigned int> m_indexBuffer;
 	std::vector<Vector3f> m_positions;
 	std::vector<Vector2f> m_texels;
 	std::vector<Vector3f> m_normals;
 	std::vector<Vector3f> m_tangents;
 	std::vector<Vector3f> m_bitangents;
 
-	bool m_hasTextureCoords, m_hasNormals, m_hasTangents = false;
+	bool m_hasTextureCoords, m_hasNormals, m_hasTangents;
+	unsigned int m_triangleOffset, m_numberOfTriangles, m_stride;
 };

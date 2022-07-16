@@ -277,6 +277,7 @@ void Application::loadAssets() {
 	Globals::shaderManager.loadShader("fontDF", "res/shader/fontDF.vs", "res/shader/fontDF.fs");
 	Globals::shaderManager.loadShader("skybox", "res/shader/skybox.vs", "res/shader/skybox.fs");
 	Globals::shaderManager.loadShader("normal", "res/shader/normal.vs", "res/shader/normal.fs");
+	Globals::shaderManager.loadShader("normalGS", "res/shader/normalGS.vs", "res/shader/normalGS.fs", "res/shader/normalGS.gs");
 
 	Globals::shaderManager.loadShader("terrain", "res/shader/terrain.vs", "res/shader/terrain.fs");	
 	Globals::shaderManager.loadShader("terrain_instance", "res/shader/terrain_instance.vs", "res/shader/terrain_instance.fs");

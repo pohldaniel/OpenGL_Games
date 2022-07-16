@@ -5,6 +5,7 @@ Barrel::Barrel(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fdt) {
 
 	m_model = new Model();
 	m_model->loadObject("res/barrel/barrel.obj");
+
 	m_model->m_mesh[0]->generateTangents();
 
 	m_vao = m_model->m_mesh[0]->m_vao;
@@ -75,11 +76,9 @@ void Barrel::toggleLightRotation() {
 
 void Barrel::renderShadow(const Camera& camera) {	
 	glEnable(GL_CULL_FACE);
-	m_texture->bind(0);
 	glBindVertexArray(m_vao);
 	glDrawElements(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
-	Texture::Unbind();
 	glDisable(GL_CULL_FACE);
 	
 }

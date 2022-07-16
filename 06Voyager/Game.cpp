@@ -203,6 +203,10 @@ void Game::update() {
 		m_debugCount = (m_debugCount < (m_camera.m_numberCascades - 1)) ? m_debugCount + 1 : 0;
 	}
 
+	if (keyboard.keyPressed(Keyboard::KEY_N)) {
+		m_debugNormal = !m_debugNormal;
+	}
+
 	Mouse &mouse = Mouse::instance();
 	dx = mouse.xPosRelative();
 	dy = mouse.yPosRelative();
@@ -264,6 +268,16 @@ void Game::render(unsigned int &frameBuffer) {
 	m_tree->render(m_camera);
 	m_fern->render(m_camera);
 	m_barrel.render(m_camera);
+
+	if (m_debugNormal) {
+		auto normalGS = Globals::shaderManager.getAssetPointer("normalGS");
+		glUseProgram(normalGS->m_program);
+		normalGS->loadMatrix("u_projection", Globals::projection);
+		normalGS->loadMatrix("u_modelView", m_barrel.getTransformationMatrix() * m_camera.getViewMatrix());
+		normalGS->loadMatrix("u_normal", Matrix4f::GetNormalMatrix(m_barrel.getTransformationMatrix() * m_camera.getViewMatrix()));
+		m_barrel.renderShadow(m_camera);
+		glUseProgram(0);
+	}
 
 	m_skybox.render(m_camera);
 	m_text->render();
