@@ -155,6 +155,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Application.h" />
+    <ClInclude Include="Barrel.h" />
     <ClInclude Include="CharacterSetBmp.h" />
     <ClInclude Include="Constants.h" />
     <ClInclude Include="Cubemap.h" />
@@ -193,6 +194,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Application.cpp" />
+    <ClCompile Include="Barrel.cpp" />
     <ClCompile Include="CharacterSetBmp.cpp" />
     <ClCompile Include="Cubemap.cpp" />
     <ClCompile Include="engine\Camera.cpp" />

@@ -276,6 +276,7 @@ void Application::loadAssets() {
 	Globals::shaderManager.loadShader("font", "res/shader/font.vs", "res/shader/font.fs");
 	Globals::shaderManager.loadShader("fontDF", "res/shader/fontDF.vs", "res/shader/fontDF.fs");
 	Globals::shaderManager.loadShader("skybox", "res/shader/skybox.vs", "res/shader/skybox.fs");
+	Globals::shaderManager.loadShader("normal", "res/shader/normal.vs", "res/shader/normal.fs");
 
 	Globals::shaderManager.loadShader("terrain", "res/shader/terrain.vs", "res/shader/terrain.fs");	
 	Globals::shaderManager.loadShader("terrain_instance", "res/shader/terrain_instance.vs", "res/shader/terrain_instance.fs");
@@ -302,8 +303,11 @@ void Application::loadAssets() {
 	Globals::textureManager.loadTexture("fern", "res/fern.png", true);
 	Globals::textureManager.get("fern").setLinear();
 
+	Globals::textureManager.loadTexture("barrel", "res/barrel/barrel.png", true);
+	Globals::textureManager.get("barrel").setLinear();
 	
-	
+	Globals::textureManager.loadTexture("barrel_normal", "res/barrel/barrelNormal.png", true);
+	Globals::textureManager.get("barrel_normal").setLinear();
 
 	Globals::spritesheetManager.createSpritesheet("terrain", Globals::textureManager.get("dirt").getTexture(), 512, 512, GL_RGB8);
 	Globals::spritesheetManager.getAssetPointer("terrain")->addToSpritesheet((&Globals::textureManager.get("grass"))->getTexture(), 512, 512, GL_RGB8);

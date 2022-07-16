@@ -139,7 +139,7 @@ public:
 
 	void setMaterial(const Vector3f &ambient, const Vector3f &diffuse, const Vector3f &specular, float shinies);
 	Material getMaterial();
-
+	void generateTangents();
 
 	bool readMaterial();
 
@@ -157,8 +157,9 @@ public:
 	void setTexture(Texture* texture);
 
 	short m_numBuffers;
-	unsigned int m_vao;
-	unsigned int m_vbo[4];
+	unsigned int m_vao = 0;
+	unsigned int m_vbo[5] = { 0 };
+	unsigned int m_ibo = 0;
 	unsigned int m_vbo2;
 
 	unsigned int m_drawCount;
@@ -172,4 +173,8 @@ public:
 	std::vector<Vector3f> m_positions;
 	std::vector<Vector2f> m_texels;
 	std::vector<Vector3f> m_normals;
+	std::vector<Vector3f> m_tangents;
+	std::vector<Vector3f> m_bitangents;
+
+	bool m_hasTextureCoords, m_hasNormals, m_hasTangents = false;
 };

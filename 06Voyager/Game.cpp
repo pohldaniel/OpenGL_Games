@@ -11,7 +11,7 @@ const Vector3f CAMERA_ACCELERATION(400.0f, 400.0f, 400.0f);
 const Vector3f CAMERA_VELOCITY(200.0f, 200.0f, 200.0f);
 Vector3f LIGHT_DIRECTION(-100.0f, 100.0f, -100.0f);
 
-Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_water(Water(m_dt, m_fdt)), m_skybox(SkyBox(m_dt, m_fdt, 2500.0f)) {
+Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_water(Water(m_dt, m_fdt)), m_skybox(SkyBox(m_dt, m_fdt, 2500.0f)), m_barrel(Barrel(m_dt, m_fdt)) {
 	
 	m_copyFramebuffer.create(WIDTH, HEIGHT);
 	m_copyFramebuffer.attachTexture(Framebuffer::Attachments::COLOR);
@@ -112,6 +112,10 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_water(
 	m_fern->translate(HEIGHTMAP_WIDTH * 0.5f + 400.0f, m_terrain.getHeightMap().heightAt(HEIGHTMAP_WIDTH * 0.5f + 400.0f, HEIGHTMAP_WIDTH * 0.5f + 400.0f), HEIGHTMAP_WIDTH * 0.5f + 400.0f);
 	m_fern->scale(10.0f, 10.0f, 10.0f);
 
+	
+	m_barrel.translate(HEIGHTMAP_WIDTH * 0.5f + 200.0f, m_terrain.getHeightMap().heightAt(HEIGHTMAP_WIDTH * 0.5f + 200.0f, HEIGHTMAP_WIDTH * 0.5f + 200.0f) + 50.0f, HEIGHTMAP_WIDTH * 0.5f + 200.0f);
+	m_barrel.scale(10.0f, 10.0f, 10.0f);
+
 	charachterSet.loadFromFile("res/verdana.fnt");
 
 	m_text = new Text(charachterSet);
@@ -187,6 +191,10 @@ void Game::update() {
 		m_skybox.toggleDayNight();
 	}
 
+	if (keyboard.keyPressed(Keyboard::KEY_5)) {
+		m_barrel.toggleLightRotation();
+	}
+
 	if (keyboard.keyPressed(Keyboard::KEY_T)) {
 		m_debug = !m_debug;
 	}
@@ -217,7 +225,8 @@ void Game::update() {
 	m_camera.calcLightTransformation(LIGHT_DIRECTION);
 	m_camera.calcLightTransformation2(LIGHT_DIRECTION);
 	m_skybox.update();
-	performCameraCollisionDetection();
+	m_barrel.update();
+	//performCameraCollisionDetection();
 };
 
 void Game::render(unsigned int &frameBuffer) {
@@ -254,7 +263,7 @@ void Game::render(unsigned int &frameBuffer) {
 
 	m_tree->render(m_camera);
 	m_fern->render(m_camera);
-	
+	m_barrel.render(m_camera);
 
 	m_skybox.render(m_camera);
 	m_text->render();
@@ -369,6 +378,9 @@ void Game::shadowPass() {
 
 		shader->loadMatrix("u_model", m_fern->getTransformationMatrix());
 		m_fern->renderShadow(m_camera);
+		
+		shader->loadMatrix("u_model", m_barrel.getTransformationMatrix());
+		m_barrel.renderShadow(m_camera);
 
 	}
 	glUseProgram(0);

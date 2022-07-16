@@ -159,7 +159,6 @@ void ModelMatrix::rotate(const Vector3f &axis, float degrees){
 		invT = invRotMtx ^ invT;
 
 	}else{
-
 		//T = (translate * invRotMtx * invTranslate) * T
 		float tmp1 = invRotMtx[0][3], tmp2 = invRotMtx[1][3], tmp3 = invRotMtx[2][3], tmp4 = invRotMtx[3][3];
 		invRotMtx[0][3] = startPosition[0] * (tmp4 - invRotMtx[0][0]) + tmp1 + tmp2 + tmp3 - startPosition[1] * invRotMtx[0][1] - startPosition[2] * invRotMtx[0][2];

@@ -17,6 +17,7 @@
 #include "Tree.h"
 #include "Fern.h"
 #include "Skybox.h"
+#include "Barrel.h"
 
 class Game : public State {
 public:
@@ -53,6 +54,7 @@ public:
 	Tree *m_tree;
 	Fern *m_fern;
 	SkyBox m_skybox;
+	Barrel m_barrel;
 
 	Vector3f m_cameraBoundsMax;
 	Vector3f m_cameraBoundsMin;

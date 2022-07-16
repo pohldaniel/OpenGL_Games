@@ -305,12 +305,15 @@ bool Model::loadObject(const char* a_filename, Vector3f& rotate, float degree, V
 
 		if (!textureCoords.empty() && !normalCoords.empty()) {
 			m_hasTextureCoords = true; m_hasNormals = true;
+			m_mesh[j]->m_hasTextureCoords = true; m_mesh[j]->m_hasNormals = true;
 			m_mesh[j]->m_stride = 8;
 		}else if (!normalCoords.empty()) {
 			m_hasNormals = true;
+			m_mesh[j]->m_hasNormals = true;
 			m_mesh[j]->m_stride = 6;
 		}else if (!textureCoords.empty()) {
 			m_hasTextureCoords = true;
+			m_mesh[j]->m_hasTextureCoords = true;
 			m_mesh[j]->m_stride = 5;
 		}else {
 			m_mesh[j]->m_stride = 3;
@@ -407,7 +410,7 @@ Mesh::Mesh(std::string mltName, int numberTriangles, Model* model) : m_stride(0)
 	m_material.bumpMapPath = "";
 	m_material.displacementMapPath = "";
 
-	m_numBuffers = 4;
+	m_numBuffers = 5;
 
 	m_positions.clear();
 	m_vertexBuffer.clear();
@@ -421,7 +424,7 @@ Mesh::Mesh(int numberTriangles, Model* model) : m_stride(0), m_triangleOffset(0)
 	m_material.bumpMapPath = "";
 	m_material.displacementMapPath = "";
 
-	m_numBuffers = 4;
+	m_numBuffers = 5;
 
 	m_positions.clear();
 	m_vertexBuffer.clear();
@@ -578,10 +581,29 @@ void Mesh::setTexture(Texture* texture) {
 }
 
 void Mesh::createBuffer() {
+	m_positions.clear();
+	m_texels.clear();
+	m_normals.clear();
+	m_tangents.clear();
+	m_bitangents.clear();
+
 	if (!m_indexBuffer.empty()) {
 		for (int i = 0; i < m_vertexBuffer.size(); i = i + m_stride) {
 
-			if (m_stride == 8) {
+			if (m_stride == 14) {
+				Vector3f position = Vector3f(m_vertexBuffer[i], m_vertexBuffer[i + 1], m_vertexBuffer[i + 2]);
+				Vector2f texCoord = Vector2f(m_vertexBuffer[i + 3], m_vertexBuffer[i + 4]);
+				Vector3f normal = Vector3f(m_vertexBuffer[i + 5], m_vertexBuffer[i + 6], m_vertexBuffer[i + 7]);
+				Vector3f tangent = Vector3f(m_vertexBuffer[i + 8], m_vertexBuffer[i + 9], m_vertexBuffer[i + 10]);
+				Vector3f bitangent = Vector3f(m_vertexBuffer[i + 11], m_vertexBuffer[i + 12], m_vertexBuffer[i + 13]);
+
+				m_positions.push_back(position);
+				m_texels.push_back(texCoord);
+				m_normals.push_back(normal);
+				m_tangents.push_back(tangent);
+				m_bitangents.push_back(bitangent);
+
+			} else if (m_stride == 8) {
 				Vector3f position = Vector3f(m_vertexBuffer[i], m_vertexBuffer[i + 1], m_vertexBuffer[i + 2]);
 				Vector2f texCoord = Vector2f(m_vertexBuffer[i + 3], m_vertexBuffer[i + 4]);
 				Vector3f normal = Vector3f(m_vertexBuffer[i + 5], m_vertexBuffer[i + 6], m_vertexBuffer[i + 7]);
@@ -614,10 +636,35 @@ void Mesh::createBuffer() {
 
 	m_drawCount = m_indexBuffer.size();
 
+	if(m_vao) 
+		glDeleteVertexArrays(1, &m_vao);
+
+	if(m_vbo[0])
+		glDeleteBuffers(1, &m_vbo[0]);
+
+	if (m_vbo[1])
+		glDeleteBuffers(1, &m_vbo[1]);
+
+	if (m_vbo[2])
+		glDeleteBuffers(1, &m_vbo[2]);
+
+	if (m_vbo[3])
+		glDeleteBuffers(1, &m_vbo[3]);
+
+	if (m_vbo[4])
+		glDeleteBuffers(1, &m_vbo[4]);
+
+	if (m_ibo)
+		glDeleteBuffers(1, &m_ibo);
+
+
+	glGenBuffers(m_numBuffers, m_vbo);
+	glGenBuffers(1, &m_ibo);
+
 	glGenVertexArrays(1, &m_vao);
 	glBindVertexArray(m_vao);
 
-	glGenBuffers(m_numBuffers, m_vbo);
+	
 
 	//Position
 	glBindBuffer(GL_ARRAY_BUFFER, m_vbo[0]);
@@ -644,8 +691,24 @@ void Mesh::createBuffer() {
 		glEnableVertexAttribArray(2);
 		glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, 0);
 	}
+
+	if (m_hasTangents) {
+		glBindBuffer(GL_ARRAY_BUFFER, m_vbo[3]);
+		glBufferData(GL_ARRAY_BUFFER, m_tangents.size() * sizeof(m_tangents[0]), &m_tangents[0], GL_STATIC_DRAW);
+
+		glEnableVertexAttribArray(3);
+		glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+		glBindBuffer(GL_ARRAY_BUFFER, m_vbo[4]);
+		glBufferData(GL_ARRAY_BUFFER, m_bitangents.size() * sizeof(m_bitangents[0]), &m_bitangents[0], GL_STATIC_DRAW);
+
+		glEnableVertexAttribArray(4);
+		glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+	}
+
 	//Indices
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_vbo[3]);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ibo);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_indexBuffer.size() * sizeof(m_indexBuffer[0]), &m_indexBuffer[0], GL_STATIC_DRAW);
 
 	glBindVertexArray(0);
@@ -954,6 +1017,192 @@ void Mesh::drawInstanced(const Camera camera) {
 	}else {
 		std::cout << "-------------" << std::endl;
 	}
+}
+
+void Mesh::generateTangents() {
+
+	if (m_hasTangents) { return; }
+	if (!m_hasTextureCoords) { std::cout << "TextureCoords needed!" << std::endl; return; }
+	/*if (!m_hasNormals) {
+		generateNormals();
+	}*/
+	
+	std::vector<float> tmpVertex;
+	const int *pTriangle = 0;
+	float *pVertex0 = 0;
+	float *pVertex1 = 0;
+	float *pVertex2 = 0;
+	float edge1[3] = { 0.0f, 0.0f, 0.0f };
+	float edge2[3] = { 0.0f, 0.0f, 0.0f };
+	float texEdge1[2] = { 0.0f, 0.0f };
+	float texEdge2[2] = { 0.0f, 0.0f };
+	float tangent[3] = { 0.0f, 0.0f, 0.0f };
+	float bitangent[3] = { 0.0f, 0.0f, 0.0f };
+	float det = 0.0f;
+	float nDotT = 0.0f;
+	float bDotB = 0.0f;
+	float length = 0.0f;
+
+
+	int totalTriangles = m_numberOfTriangles;
+
+	for (int i = 0; i < m_vertexBuffer.size(); i++) {
+
+		tmpVertex.push_back(m_vertexBuffer[i]);
+
+		if ((i + 1) % m_stride == 0) {
+
+			tmpVertex.push_back(0.0);
+			tmpVertex.push_back(0.0);
+			tmpVertex.push_back(0.0);
+			tmpVertex.push_back(0.0);
+			tmpVertex.push_back(0.0);
+			tmpVertex.push_back(0.0);
+		}
+	}	
+
+	// Calculate the vertex tangents and bitangents.
+	for (int i = 0; i < totalTriangles; ++i) {
+
+		pTriangle = &m_indexBuffer[i * 3];
+
+		pVertex0 = &m_vertexBuffer[pTriangle[0] * m_stride];
+		pVertex1 = &m_vertexBuffer[pTriangle[1] * m_stride];
+		pVertex2 = &m_vertexBuffer[pTriangle[2] * m_stride];
+
+		// Calculate the triangle face tangent and bitangent.
+
+		edge1[0] = pVertex1[0] - pVertex0[0];
+		edge1[1] = pVertex1[1] - pVertex0[1];
+		edge1[2] = pVertex1[2] - pVertex0[2];
+
+		edge2[0] = pVertex2[0] - pVertex0[0];
+		edge2[1] = pVertex2[1] - pVertex0[1];
+		edge2[2] = pVertex2[2] - pVertex0[2];
+
+		texEdge1[0] = pVertex1[3] - pVertex0[3];
+		texEdge1[1] = pVertex1[4] - pVertex0[4];
+
+		texEdge2[0] = pVertex2[3] - pVertex0[3];
+		texEdge2[1] = pVertex2[4] - pVertex0[4];
+
+		det = texEdge1[0] * texEdge2[1] - texEdge2[0] * texEdge1[1];
+
+		if (fabs(det) < 1e-6f) {
+
+			tangent[0] = 1.0f;
+			tangent[1] = 0.0f;
+			tangent[2] = 0.0f;
+
+			bitangent[0] = 0.0f;
+			bitangent[1] = 1.0f;
+			bitangent[2] = 0.0f;
+
+		}else {
+
+			det = 1.0f / det;
+
+			tangent[0] = (texEdge2[1] * edge1[0] - texEdge1[1] * edge2[0]) * det;
+			tangent[1] = (texEdge2[1] * edge1[1] - texEdge1[1] * edge2[1]) * det;
+			tangent[2] = (texEdge2[1] * edge1[2] - texEdge1[1] * edge2[2]) * det;
+
+			bitangent[0] = (-texEdge2[0] * edge1[0] + texEdge1[0] * edge2[0]) * det;
+			bitangent[1] = (-texEdge2[0] * edge1[1] + texEdge1[0] * edge2[1]) * det;
+			bitangent[2] = (-texEdge2[0] * edge1[2] + texEdge1[0] * edge2[2]) * det;
+		}
+
+
+		// Accumulate the tangents and bitangents.
+		tmpVertex[pTriangle[0] * 14 + 8] = tmpVertex[pTriangle[0] * 14 + 8] + tangent[0];
+		tmpVertex[pTriangle[0] * 14 + 9] = tmpVertex[pTriangle[0] * 14 + 9] + tangent[1];
+		tmpVertex[pTriangle[0] * 14 + 10] = tmpVertex[pTriangle[0] * 14 + 10] + tangent[2];
+
+		tmpVertex[pTriangle[0] * 14 + 11] = tmpVertex[pTriangle[0] * 14 + 11] + bitangent[0];
+		tmpVertex[pTriangle[0] * 14 + 12] = tmpVertex[pTriangle[0] * 14 + 12] + bitangent[1];
+		tmpVertex[pTriangle[0] * 14 + 13] = tmpVertex[pTriangle[0] * 14 + 13] + bitangent[2];
+
+		tmpVertex[pTriangle[1] * 14 + 8] = tmpVertex[pTriangle[1] * 14 + 8] + tangent[0];
+		tmpVertex[pTriangle[1] * 14 + 9] = tmpVertex[pTriangle[1] * 14 + 9] + tangent[1];
+		tmpVertex[pTriangle[1] * 14 + 10] = tmpVertex[pTriangle[1] * 14 + 10] + tangent[2];
+
+		tmpVertex[pTriangle[1] * 14 + 11] = tmpVertex[pTriangle[1] * 14 + 11] + bitangent[0];
+		tmpVertex[pTriangle[1] * 14 + 12] = tmpVertex[pTriangle[1] * 14 + 12] + bitangent[1];
+		tmpVertex[pTriangle[1] * 14 + 13] = tmpVertex[pTriangle[1] * 14 + 13] + bitangent[2];
+
+		tmpVertex[pTriangle[2] * 14 + 8] = tmpVertex[pTriangle[2] * 14 + 8] + tangent[0];
+		tmpVertex[pTriangle[2] * 14 + 9] = tmpVertex[pTriangle[2] * 14 + 9] + tangent[1];
+		tmpVertex[pTriangle[2] * 14 + 10] = tmpVertex[pTriangle[2] * 14 + 10] + tangent[2];
+
+		tmpVertex[pTriangle[2] * 14 + 11] = tmpVertex[pTriangle[2] * 14 + 11] + bitangent[0];
+		tmpVertex[pTriangle[2] * 14 + 12] = tmpVertex[pTriangle[2] * 14 + 12] + bitangent[1];
+		tmpVertex[pTriangle[2] * 14 + 13] = tmpVertex[pTriangle[2] * 14 + 13] + bitangent[2];
+
+
+	}
+
+	// Orthogonalize and normalize the vertex tangents.
+	for (int i = 0; i < tmpVertex.size(); i = i + 14) {
+
+		pVertex0 = &tmpVertex[i];
+
+		// Gram-Schmidt orthogonalize tangent with normal.
+
+		nDotT = pVertex0[5] * pVertex0[8] +
+			pVertex0[6] * pVertex0[9] +
+			pVertex0[7] * pVertex0[10];
+
+		pVertex0[8] -= pVertex0[5] * nDotT;
+		pVertex0[9] -= pVertex0[6] * nDotT;
+		pVertex0[10] -= pVertex0[7] * nDotT;
+
+		// Normalize the tangent.
+
+		length = 1.0f / sqrtf(pVertex0[8] * pVertex0[8] +
+			pVertex0[9] * pVertex0[9] +
+			pVertex0[10] * pVertex0[10]);
+
+		pVertex0[8] *= length;
+		pVertex0[9] *= length;
+		pVertex0[10] *= length;
+
+		bitangent[0] = (pVertex0[6] * pVertex0[10]) -
+			(pVertex0[7] * pVertex0[9]);
+		bitangent[1] = (pVertex0[7] * pVertex0[8]) -
+			(pVertex0[5] * pVertex0[10]);
+		bitangent[2] = (pVertex0[5] * pVertex0[9]) -
+			(pVertex0[6] * pVertex0[8]);
+
+		bDotB = bitangent[0] * pVertex0[11] +
+			bitangent[1] * pVertex0[12] +
+			bitangent[2] * pVertex0[13];
+
+		// Calculate handedness
+		/*if (bDotB < 0.0f) {
+			pVertex0[11] = -bitangent[0];
+			pVertex0[12] = -bitangent[1];
+			pVertex0[13] = -bitangent[2];
+
+		}
+		else {
+
+			pVertex0[11] = bitangent[0];
+			pVertex0[12] = bitangent[1];
+			pVertex0[13] = bitangent[2];
+		}*/
+
+		pVertex0[11] = bitangent[0];
+		pVertex0[12] = bitangent[1];
+		pVertex0[13] = bitangent[2];
+
+		//std::cout << bitangent[0] << "  " << bitangent[1] << "  " << bitangent[2] << std::endl;
+	}
+
+	m_vertexBuffer.clear();
+	copy(tmpVertex.begin(), tmpVertex.end(), back_inserter(m_vertexBuffer));
+	tmpVertex.clear();
+	m_stride = 14;
+	m_hasTangents = true;
+	createBuffer();
 }
 
 Mesh::~Mesh() {}
