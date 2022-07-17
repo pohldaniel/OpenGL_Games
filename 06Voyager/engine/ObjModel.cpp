@@ -380,15 +380,19 @@ int Model::getNumberOfIndices() const {
 	return static_cast<int>(m_indexBuffer.size());
 }
 
-void Model::draw(const Camera camera) {
-	
+void Model::draw(const Camera& camera) {
 	for (int j = 0; j < m_numberOfMeshes; j++) {
 		m_mesh[j]->draw(camera);
 	}
-	
 }
 
-void Model::drawInstanced(const Camera camera) {
+void Model::drawRaw() {
+	for (int j = 0; j < m_numberOfMeshes; j++) {
+		m_mesh[j]->drawRaw();
+	}
+}
+
+void Model::drawInstanced(const Camera& camera) {
 	for (int j = 0; j < m_numberOfMeshes; j++) {
 		m_mesh[j]->drawInstanced(camera);
 	}
@@ -783,7 +787,13 @@ void Mesh::createInstances(std::vector<Matrix4f> modelMTX){
 	glBindVertexArray(0);
 }
 
-void Mesh::draw(const Camera camera) {
+void Mesh::drawRaw() {
+	glBindVertexArray(m_vao);
+	glDrawElements(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0);
+	glBindVertexArray(0);
+}
+
+void Mesh::draw(const Camera& camera) {
 	
 	if (m_material.materialID == Material::MaterialID::NONE) {
 		
@@ -924,7 +934,7 @@ void Mesh::draw(const Camera camera) {
 	
 }
 
-void Mesh::drawInstanced(const Camera camera) {
+void Mesh::drawInstanced(const Camera& camera) {
 	if (m_material.materialID == Material::MaterialID::NONE) {
 
 		glUseProgram(m_material.shader->m_program);

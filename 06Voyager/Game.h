@@ -51,8 +51,9 @@ public:
 	MeshQuad *m_meshQuad;
 	MeshCube *m_meshCube;
 	std::vector<MeshCube*> m_entities;
+	std::vector<Fern*> m_fernEntities;
+
 	Tree *m_tree;
-	Fern *m_fern;
 	SkyBox m_skybox;
 	Barrel m_barrel;
 

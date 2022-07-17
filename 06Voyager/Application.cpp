@@ -209,10 +209,10 @@ void Application::initOpenGL() {
 	//glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 
 	//glEnable(GL_CLIP_DISTANCE0);
-
 	
 	glCullFace(GL_BACK);
 	glFrontFace(GL_CCW);
+	glEnable(GL_CULL_FACE);
 }
 
 void Application::enableVerticalSync(bool enableVerticalSync) {

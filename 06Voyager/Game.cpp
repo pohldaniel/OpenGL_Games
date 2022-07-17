@@ -108,11 +108,16 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_water(
 	m_tree->translate(HEIGHTMAP_WIDTH * 0.5f + 800.0f, m_terrain.getHeightMap().heightAt(HEIGHTMAP_WIDTH * 0.5f + 800.0f, HEIGHTMAP_WIDTH * 0.5f + 300.0f), HEIGHTMAP_WIDTH * 0.5f + 300.0f);
 	m_tree->scale(10.0f, 10.0f, 10.0f);
 
-	m_fern = new Fern();
-	m_fern->translate(HEIGHTMAP_WIDTH * 0.5f + 400.0f, m_terrain.getHeightMap().heightAt(HEIGHTMAP_WIDTH * 0.5f + 400.0f, HEIGHTMAP_WIDTH * 0.5f + 400.0f), HEIGHTMAP_WIDTH * 0.5f + 400.0f);
-	m_fern->scale(10.0f, 10.0f, 10.0f);
-
+	m_fernEntities.push_back(new Fern());
+	m_fernEntities.back()->translate(HEIGHTMAP_WIDTH * 0.5f + 400.0f, m_terrain.getHeightMap().heightAt(HEIGHTMAP_WIDTH * 0.5f + 400.0f, HEIGHTMAP_WIDTH * 0.5f + 400.0f), HEIGHTMAP_WIDTH * 0.5f + 400.0f);
 	
+	m_fernEntities.push_back(new Fern());
+	m_fernEntities.back()->translate(HEIGHTMAP_WIDTH * 0.5f + 500.0f, m_terrain.getHeightMap().heightAt(HEIGHTMAP_WIDTH * 0.5f + 400.0f, HEIGHTMAP_WIDTH * 0.5f + 400.0f), HEIGHTMAP_WIDTH * 0.5f + 400.0f);
+
+	for (auto entitie : m_fernEntities) {		
+		entitie->scale(10.0f, 10.0f, 10.0f);
+	}
+
 	m_barrel.translate(HEIGHTMAP_WIDTH * 0.5f + 200.0f, m_terrain.getHeightMap().heightAt(HEIGHTMAP_WIDTH * 0.5f + 200.0f, HEIGHTMAP_WIDTH * 0.5f + 200.0f) + 50.0f, HEIGHTMAP_WIDTH * 0.5f + 200.0f);
 	m_barrel.scale(10.0f, 10.0f, 10.0f);
 
@@ -265,9 +270,12 @@ void Game::render(unsigned int &frameBuffer) {
 		entitie->draw(m_camera);
 	}
 
-	m_tree->render(m_camera);
-	m_fern->render(m_camera);
-	m_barrel.render(m_camera);
+	for (auto entitie : m_fernEntities) {
+		entitie->draw(m_camera);
+	}
+
+	m_tree->draw(m_camera);
+	m_barrel.draw(m_camera);
 
 	if (m_debugNormal) {
 		auto normalGS = Globals::shaderManager.getAssetPointer("normalGS");
@@ -275,7 +283,7 @@ void Game::render(unsigned int &frameBuffer) {
 		normalGS->loadMatrix("u_projection", Globals::projection);
 		normalGS->loadMatrix("u_modelView", m_barrel.getTransformationMatrix() * m_camera.getViewMatrix());
 		normalGS->loadMatrix("u_normal", Matrix4f::GetNormalMatrix(m_barrel.getTransformationMatrix() * m_camera.getViewMatrix()));
-		m_barrel.renderShadow(m_camera);
+		m_barrel.drawShadow(m_camera);
 		glUseProgram(0);
 	}
 
@@ -388,13 +396,15 @@ void Game::shadowPass() {
 		}
 
 		shader->loadMatrix("u_model", m_tree->getTransformationMatrix());
-		m_tree->renderShadow(m_camera);
+		m_tree->drawShadow(m_camera);
 
-		shader->loadMatrix("u_model", m_fern->getTransformationMatrix());
-		m_fern->renderShadow(m_camera);
-		
+		for (auto entitie : m_fernEntities) {
+			shader->loadMatrix("u_model", entitie->getTransformationMatrix());
+			entitie->drawShadow(m_camera);
+		}
+
 		shader->loadMatrix("u_model", m_barrel.getTransformationMatrix());
-		m_barrel.renderShadow(m_camera);
+		m_barrel.drawShadow(m_camera);
 
 	}
 	glUseProgram(0);

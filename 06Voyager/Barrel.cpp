@@ -1,15 +1,11 @@
 #include "Barrel.h"
 
 Barrel::Barrel(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fdt) {
-	const int HEIGHTMAP_WIDTH = 8192;
-
+	
 	m_model = new Model();
 	m_model->loadObject("res/barrel/barrel.obj");
 
 	m_model->m_mesh[0]->generateTangents();
-
-	m_vao = m_model->m_mesh[0]->m_vao;
-	m_drawCount = m_model->m_mesh[0]->m_drawCount;
 
 	m_shader = Globals::shaderManager.getAssetPointer("normal");
 	m_texture = &Globals::textureManager.get("barrel");
@@ -34,14 +30,12 @@ Barrel::Barrel(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fdt) {
 	glUseProgram(0);
 }
 
-
 Barrel::~Barrel() {
 
 }
 
-void Barrel::render(const Camera& camera) {
+void Barrel::draw(const Camera& camera) {
 
-	glEnable(GL_CULL_FACE);
 	glUseProgram(m_shader->m_program);
 	m_shader->loadMatrix("u_modelView", m_modelMatrix.getTransformationMatrix() * camera.getViewMatrix());
 	m_shader->loadMatrix("u_projection", Globals::projection);
@@ -54,15 +48,22 @@ void Barrel::render(const Camera& camera) {
 	m_shader->loadInt("u_normalMap", 1);
 	m_normalMap->bind(1);
 
-	glBindVertexArray(m_vao);
-	glDrawElements(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0);
-	glBindVertexArray(0);
+	m_model->drawRaw();
 
+	
 	Texture::Unbind();
 
 	glUseProgram(0);
-	glDisable(GL_CULL_FACE);
 }
+
+void Barrel::drawShadow(const Camera& camera) {
+	drawRaw();
+}
+
+void Barrel::drawRaw() {
+	m_model->drawRaw();
+}
+
 
 void Barrel::update() {
 	if (m_rotateLight) {
@@ -72,33 +73,4 @@ void Barrel::update() {
 
 void Barrel::toggleLightRotation() {
 	m_rotateLight = !m_rotateLight;
-}
-
-void Barrel::renderShadow(const Camera& camera) {	
-	glEnable(GL_CULL_FACE);
-	glBindVertexArray(m_vao);
-	glDrawElements(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0);
-	glBindVertexArray(0);
-	glDisable(GL_CULL_FACE);
-	
-}
-
-void Barrel::rotate(const Vector3f &axis, float degrees) {
-	m_modelMatrix.rotate(axis, degrees);
-}
-
-void Barrel::translate(float dx, float dy, float dz) {
-	m_modelMatrix.translate(dx, dy, dz);
-}
-
-void Barrel::scale(float a, float b, float c) {
-	m_modelMatrix.scale(a, b, c);
-}
-
-const Matrix4f &Barrel::getTransformationMatrix() const {
-	return m_modelMatrix.getTransformationMatrix();
-}
-
-const Matrix4f &Barrel::getInvTransformationMatrix() const {
-	return m_modelMatrix.getInvTransformationMatrix();
 }

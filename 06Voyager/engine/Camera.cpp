@@ -136,6 +136,9 @@ void Camera::updateViewMatrix(const Vector3f &eye, const Vector3f &target, const
 	m_viewMatrix[2][3] = -Vector3f::Dot(m_zAxis, eye);
 	m_viewMatrix[3][3] = 1.0f;
 
+	// Extract the pitch angle from the view matrix.
+	m_accumPitchDegrees = -asinf(m_viewMatrix[1][2])*180.f / PI;
+
 	Matrix4f invView;
 	invView.invLookAt(eye, target, up);
 	m_invViewMatrix = invView;
