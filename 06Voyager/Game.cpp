@@ -90,8 +90,12 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_water(
 	for (auto entitie : m_entities) {
 		entitie->setPrecision(1, 1);
 		entitie->buildMesh4Q();
-		entitie->setShader(Globals::shaderManager.getAssetPointer("texture"));
-		entitie->setTexture(&Globals::textureManager.get("marbel"));
+		entitie->setShader(Globals::shaderManager.getAssetPointer("dissolve"));
+		entitie->setTexture(&Globals::textureManager.get("marble"));
+
+		std::vector<btCollisionShape*> cubeShape = Physics::CreateStaticCollisionShapes(entitie, 1.0f);
+		btRigidBody* body = Globals::physics->addStaticModel(cubeShape, Physics::btTransFrom(), false);
+		body->setUserPointer(reinterpret_cast<void*>(entitie));
 	}
 
 	m_camera.setUpLightTransformation(std::vector<Vector2f>({ Vector2f(1.0f, 250.0f), Vector2f(250.0f, 500.0f), Vector2f(500.0f, 1000.0f), Vector2f(1000.0f, 2500.0f), Vector2f(2500.0f, 5000.0f) }));
@@ -140,7 +144,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_water(
 Game::~Game() {}
 
 void Game::fixedUpdate() {
-	
+	Globals::physics->stepSimulation(m_fdt);
 };
 
 void Game::update() {
@@ -218,8 +222,8 @@ void Game::update() {
 		float mouseXndc = (2.0f * mouse.xPosAbsolute()) / (float)WIDTH - 1.0f;
 		float mouseYndc = 1.0f - (2.0f * mouse.yPosAbsolute()) / (float)HEIGHT;
 
-		Vector4f rayStartEye = Globals::invProjection ^ Vector4f(0.0f, 0.0f, -1.0f, 1.0f);
-		//Vector4f rayStartEye = Globals::invProjection ^ Vector4f(mouseXndc, mouseYndc, -1.0f, 1.0f);
+		//Vector4f rayStartEye = Globals::invProjection ^ Vector4f(0.0f, 0.0f, -1.0f, 1.0f);
+		Vector4f rayStartEye = Globals::invProjection ^ Vector4f(mouseXndc, mouseYndc, -1.0f, 1.0f);
 		Vector4f rayEndEye = Globals::invProjection ^ Vector4f(mouseXndc, mouseYndc, 1.0f, 1.0f);
 		rayEndEye = rayEndEye * (1.0f / rayEndEye[3]);
 
@@ -239,6 +243,22 @@ void Game::update() {
 		//m_ray.update(m_camera.getPosition(), m_camera.getPosition() + rayDirection);
 
 		m_ray.update(Vector3f(rayStartWorld[0], rayStartWorld[1], rayStartWorld[2]), Vector3f(rayEndWorld[0], rayEndWorld[1], rayEndWorld[2]));
+
+		RayResultCallback callback;
+
+		btVector3 origin = btVector3(rayStartWorld[0], rayStartWorld[1], rayStartWorld[2]);
+		//btVector3 direction = origin + btVector3(rayDirection[0], rayDirection[1], rayDirection[2]) * 5000.0f;
+		btVector3 direction = btVector3(rayEndWorld[0], rayEndWorld[1], rayEndWorld[2]);
+
+		Globals::physics->GetDynamicsWorld()->rayTest(origin, direction, callback);
+		if (callback.hasHit()){
+			
+			MeshCube* cube = reinterpret_cast<MeshCube*>(callback.m_collisionObject->getUserPointer());
+			cube->dissolve();
+			
+		}
+		
+
 	}
 
 	if (mouse.buttonDown(Mouse::MouseButton::BUTTON_RIGHT)) {
@@ -268,6 +288,10 @@ void Game::update() {
 	m_camera.calcLightTransformation2(LIGHT_DIRECTION);
 	m_skybox.update();
 	m_barrel.update();
+
+	for (auto entitie : m_entities) {
+		entitie->update(m_dt);
+	}
 
 	//m_ray.update(m_camera.getPosition() + Vector3f(0.1f, 0.0f, 0.0f), m_camera.getPosition() + (m_camera.getViewDirection() * 5.0f));
 	//performCameraCollisionDetection();

@@ -14,6 +14,7 @@ extern AssetManager<Shader> Globals::shaderManager = AssetManager<Shader>();
 extern AssetManager<Texture> Globals::textureManager = AssetManager<Texture>();
 extern AssetManager<Spritesheet> Globals::spritesheetManager = AssetManager<Spritesheet>();
 extern AssetManager<Cubemap> Globals::cubemapManager = AssetManager<Cubemap>();
+extern Physics* Globals::physics = NULL;
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd) {
 
@@ -39,6 +40,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	std::cout << "n             : debug normals" << std::endl;
 	#endif
 	
+	Globals::physics = new Physics(PHYSICS_STEP);
+
 	float deltaTime = 0.0f;
 	float fixedDeltaTime = 0.0f;
 	float physicsElapsedTime = 0.0;

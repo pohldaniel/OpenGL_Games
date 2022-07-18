@@ -18,6 +18,8 @@ MeshCube::MeshCube(const Vector3f &position, float width, float height, float de
 	m_vResolution = 49;
 
 	m_modelMatrix = ModelMatrix();
+
+	m_gradient = &Globals::textureManager.get("perlin");
 }
 
 MeshCube::MeshCube(const Vector3f &position, float width, float height, float depth) : MeshCube(position, width, height, depth, true, true) {}
@@ -315,6 +317,7 @@ void MeshCube::buildMesh() {
 	}
 
 	m_drawCount = m_indexBuffer.size();
+	m_numberOfTriangle = m_drawCount / 3;
 
 	glGenVertexArrays(1, &m_vao);
 	glBindVertexArray(m_vao);
@@ -565,6 +568,7 @@ void MeshCube::buildMesh4Q() {
 	}
 
 	m_drawCount = m_indexBuffer.size();
+	m_numberOfTriangle = m_drawCount / 3;
 
 	glGenVertexArrays(1, &m_vao);
 	glBindVertexArray(m_vao);
@@ -611,11 +615,20 @@ void MeshCube::buildMesh4Q() {
 }
 
 void MeshCube::draw(const Camera camera) {
+	glEnable(GL_ALPHA_TEST);
+	//glEnable(GL_BLEND);
 	glUseProgram(m_shader->m_program);
 
-	m_texture->bind(0);
+	
 	m_shader->loadMatrix("u_modelView", camera.getViewMatrix());
 	m_shader->loadMatrix("u_projection", Globals::projection);
+	m_shader->loadFloat("dissolveAmount", m_dissolveAmount);
+
+	m_shader->loadFloat("u_texture", 0);
+	m_texture->bind(0);
+
+	m_shader->loadInt("u_gradient", 1);
+	m_gradient->bind(1);
 
 	glBindVertexArray(m_vao);
 	glDrawElements(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0);
@@ -623,10 +636,51 @@ void MeshCube::draw(const Camera camera) {
 	Texture::Unbind();
 
 	glUseProgram(0);
+	//glDisable(GL_BLEND);
+	glDisable(GL_ALPHA_TEST);
 }
 
 void MeshCube::drawShadow(const Camera camera) {
 	glBindVertexArray(m_vao);
 	glDrawElements(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
+}
+
+int MeshCube::getNumberOfTriangles() {
+	return m_numberOfTriangle;
+}
+
+void MeshCube::update(float dt) {
+	if (m_fadeIn) {
+		m_dissolveAmount = m_dissolveAmount <= 1.0f ? m_dissolveAmount + m_transitionSpeed * dt : 1.0f;
+		m_fadeIn = m_dissolveAmount <= 1.0f;
+
+	}
+
+	if (m_fadeOut) {
+		m_dissolveAmount = m_dissolveAmount >= 0.0f ? m_dissolveAmount - m_transitionSpeed * dt : 0.0f;
+		m_fadeOut = m_dissolveAmount >= 0.0f;
+
+	}
+}
+
+void MeshCube::dissolve() {
+
+	if (m_fadeIn) {
+		m_fadeOut = true;
+		m_fadeIn = false;
+		return;
+	}
+	else {
+		m_fadeIn = true;
+		//return;
+	}
+
+	if (m_fadeOut) {
+		m_fadeIn = true;
+		m_fadeOut = false;
+	}
+	else {
+		m_fadeOut = true;
+	}
 }

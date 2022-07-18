@@ -20,6 +20,22 @@
 #include "Barrel.h"
 #include "Ray.h"
 
+
+class RayResultCallback : public btCollisionWorld::ClosestRayResultCallback{
+public:
+
+	RayResultCallback() : btCollisionWorld::ClosestRayResultCallback(btVector3(0.0f, 0.0f, 0.0f), btVector3(0.0f, 0.0f, 0.0f)){
+	}
+
+	btScalar addSingleResult(btCollisionWorld::LocalRayResult& rayResult, bool normalInWorldSpace)
+	{
+		//if (rayResult.m_collisionObject == mSelf) return 1.0f;
+		//if (rayResult.m_collisionObject->getInternalType() == btCollisionObject::CO_GHOST_OBJECT) return 1.0f;
+		return ClosestRayResultCallback::addSingleResult(rayResult, normalInWorldSpace);
+	}
+
+};
+
 class Game : public State {
 public:
 	Game(StateMachine& machine);

@@ -26,8 +26,12 @@ public:
 	void buildMesh4Q();
 	void draw(const Camera camera);
 	void drawShadow(const Camera camera);
+	void update(float dt);
+	void dissolve();
+
 	void setShader(Shader* shader);
 	void setTexture(Texture* texture);
+	int getNumberOfTriangles();
 
 	std::vector<unsigned int> m_indexBuffer;
 	std::vector<Vector3f> m_positions;
@@ -59,10 +63,17 @@ private:
 	unsigned int m_vao;
 	unsigned int m_vbo[4];
 	unsigned int m_drawCount;
-
+	unsigned int m_numberOfTriangle;
 	ModelMatrix m_modelMatrix;
 
 	std::shared_ptr<Shader> m_shader;
 	std::shared_ptr<Texture> m_texture;
+
+	Texture* m_gradient;
+
+	const float m_transitionSpeed = 1.5f;
+	bool m_fadeIn = false;
+	bool m_fadeOut = true;
+	float m_dissolveAmount = 0.0f;
 };
 #endif

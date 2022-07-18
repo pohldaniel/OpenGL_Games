@@ -295,6 +295,7 @@ void Application::loadAssets() {
 	Globals::shaderManager.loadShader("depth", "res/shader/depth.vs", "res/shader/depth.fs");
 	Globals::shaderManager.loadShader("depthGS", "res/shader/depthGS.vs", "res/shader/depthGS.fs", "res/shader/depthGS.gs");	
 	Globals::shaderManager.loadShader("shadowQuad", "res/shader/shadowQuad.vs", "res/shader/shadowQuad.fs");
+	Globals::shaderManager.loadShader("dissolve", "res/shader/dissolve.vs", "res/shader/dissolve.fs");
 
 	Globals::textureManager.loadTexture("dirt", "res/textures/dirt.JPG", true);
 	Globals::textureManager.loadTexture("grass", "res/textures/grass.JPG", true);
@@ -303,10 +304,10 @@ void Application::loadAssets() {
 	Globals::textureManager.loadTexture("height_map", "res/heightmap.png", false);
 	Globals::textureManager.createNullTexture("null");
 	Globals::textureManager.createNullTexture("grey", 2, 2, 128);
-	Globals::textureManager.loadTexture("marbel", "res/textures/marble.png", true);
+	Globals::textureManager.loadTexture("marble", "res/textures/marble.png", true);
 
-	Globals::textureManager.get("marbel").setLinear();
-	Globals::textureManager.get("marbel").setRepeat();
+	Globals::textureManager.get("marble").setLinear();
+	Globals::textureManager.get("marble").setRepeat();
 
 	Globals::textureManager.loadTexture("tree", "res/lowPolyTree.png", true);
 	Globals::textureManager.get("tree").setLinear();
@@ -362,6 +363,10 @@ void Application::loadAssets() {
 	Globals::textureManager.createPerlinTexture("perlin", 512, 512, 373);
 	Globals::textureManager.get("perlin").setLinear();
 	Globals::textureManager.get("perlin").setRepeat();
+
+	Globals::textureManager.loadTexture("gradient", "res/gradient.png", true);
+	Globals::textureManager.get("gradient").setLinear();
+	Globals::textureManager.get("gradient").setRepeat();
 
 	std::string facesDay[] = { "res/cubemap/day/right.png", "res/cubemap/day/left.png", "res/cubemap/day/top.png", "res/cubemap/day/bottom.png", "res/cubemap/day/back.png", "res/cubemap/day/front.png", };
 	Globals::cubemapManager.loadCubeMap("day", facesDay, false);
