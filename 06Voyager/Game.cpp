@@ -213,8 +213,41 @@ void Game::update() {
 	}
 
 	Mouse &mouse = Mouse::instance();
-	dx = mouse.xPosRelative();
-	dy = mouse.yPosRelative();
+	if (mouse.buttonPressed(Mouse::MouseButton::BUTTON_LEFT)) {
+		
+		float mouseXndc = (2.0f * mouse.xPosAbsolute()) / (float)WIDTH - 1.0f;
+		float mouseYndc = 1.0f - (2.0f * mouse.yPosAbsolute()) / (float)HEIGHT;
+
+		Vector4f rayStartEye = Globals::invProjection ^ Vector4f(0.0f, 0.0f, -1.0f, 1.0f);
+		//Vector4f rayStartEye = Globals::invProjection ^ Vector4f(mouseXndc, mouseYndc, -1.0f, 1.0f);
+		Vector4f rayEndEye = Globals::invProjection ^ Vector4f(mouseXndc, mouseYndc, 1.0f, 1.0f);
+		rayEndEye = rayEndEye * (1.0f / rayEndEye[3]);
+
+		Vector4f rayStartWorld = m_camera.getInvViewMatrix() * rayStartEye;
+		Vector4f rayEndWorld = m_camera.getInvViewMatrix() * rayEndEye;
+
+
+		Vector3f rayDirection = Vector3f(rayEndWorld[0] - rayStartWorld[0], rayEndWorld[1] - rayStartWorld[1], rayEndWorld[2] - rayStartWorld[2]);
+		Vector3f::Normalize(rayDirection);
+
+		/*std::cout << m_camera.getPosition()[0] << "  " << m_camera.getPosition()[1] << "  " << m_camera.getPosition()[2] << std::endl;
+		std::cout << rayDirection[0] << "  " << rayDirection[1] << "  " << rayDirection[2] << std::endl;
+		std::cout << rayStartWorld[0] << "  " << rayStartWorld[1]<< "  " << rayStartWorld[2]<< std::endl;
+		std::cout << rayEndWorld[0] << "  " << rayEndWorld[1] << "  " << rayEndWorld[2] << std::endl;
+		std::cout << "##############" << std::endl;*/
+	
+		//m_ray.update(m_camera.getPosition(), m_camera.getPosition() + rayDirection);
+
+		m_ray.update(Vector3f(rayStartWorld[0], rayStartWorld[1], rayStartWorld[2]), Vector3f(rayEndWorld[0], rayEndWorld[1], rayEndWorld[2]));
+	}
+
+	if (mouse.buttonDown(Mouse::MouseButton::BUTTON_RIGHT)) {
+		
+		dx = mouse.xPosRelative();
+		dy = mouse.yPosRelative();
+	}
+
+	
 
 	if (move || dx != 0.0f || dy != 0.0f) {
 
@@ -235,6 +268,8 @@ void Game::update() {
 	m_camera.calcLightTransformation2(LIGHT_DIRECTION);
 	m_skybox.update();
 	m_barrel.update();
+
+	//m_ray.update(m_camera.getPosition() + Vector3f(0.1f, 0.0f, 0.0f), m_camera.getPosition() + (m_camera.getViewDirection() * 5.0f));
 	//performCameraCollisionDetection();
 };
 
@@ -288,6 +323,7 @@ void Game::render(unsigned int &frameBuffer) {
 	}
 
 	m_skybox.render(m_camera);
+	m_ray.draw(m_camera);
 	m_text->render();
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);	
 

@@ -270,8 +270,7 @@ void Mouse::update(){
 	if (m_attached) {
 		
 		POINT        CursorPos;
-		GetCursorPos(&CursorPos);
-
+		GetCursorPos(&CursorPos);		
 		m_xPosRelative = (centerX - CursorPos.x);
 		m_yPosRelative = (centerY - CursorPos.y);
 		setCursorToMiddle();
@@ -279,7 +278,13 @@ void Mouse::update(){
 }
 
 void Mouse::attach2(HWND hWnd) {
+	if (m_attached) return;
 	m_hWnd = hWnd;
+
+	POINT        CursorPos;
+	GetCursorPos(&CursorPos);
+	m_xLastPos = CursorPos.x;
+	m_yLastPos = CursorPos.y;
 
 	RECT rectClient, rectWindow;
 	GetWindowRect(m_hWnd, &rectWindow);
@@ -294,9 +299,17 @@ void Mouse::attach2(HWND hWnd) {
 }
 
 void Mouse::detach2() {
+	if (!m_attached) return;
+
+	SetCursorPos(m_xLastPos, m_yLastPos);
 	m_attached = false;
 	hideCursor(false);
 	m_xPosRelative = 0;
 	m_yPosRelative = 0;
 	m_hWnd = 0;
+}
+
+void Mouse::setAbsolute(int x, int y) {
+	m_xPosAbsolute = x;
+	m_yPosAbsolute = y;
 }

@@ -102,16 +102,25 @@ LRESULT Application::DisplayWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 
 	switch (message) {
 		case WM_CREATE: {
-			Mouse::instance().attach2(hWnd);
+			//Mouse::instance().setHwnd(hWnd);
+			Keyboard::instance().enable();
 			break;
 		}case WM_DESTROY: {
 			PostQuitMessage(0);
 			break;
-		}case WM_LBUTTONDOWN: { // Capture the mouse
+		}case WM_LBUTTONDOWN: { // Capture the mouse			
+			Mouse::instance().setAbsolute(LOWORD(lParam), HIWORD(lParam));
+			break;
+		}case WM_RBUTTONDOWN: {
 			Mouse::instance().attach2(hWnd);
 			Keyboard::instance().enable();
 			break;
-		}case WM_KEYDOWN: {
+		}case WM_RBUTTONUP: {
+			Mouse::instance().detach2();
+			break;
+		}
+		
+		case WM_KEYDOWN: {
 
 			switch (wParam) {
 				case 'v': case 'V': {
@@ -121,7 +130,7 @@ LRESULT Application::DisplayWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 					m_machine->toggleWireframe();
 					break;
 				}case VK_SPACE: {
-					Mouse::instance().detach2();
+					//  Mouse::instance().detach2();
 					Keyboard::instance().disable();
 					break;
 				}
@@ -278,6 +287,7 @@ void Application::loadAssets() {
 	Globals::shaderManager.loadShader("skybox", "res/shader/skybox.vs", "res/shader/skybox.fs");
 	Globals::shaderManager.loadShader("normal", "res/shader/normal.vs", "res/shader/normal.fs");
 	Globals::shaderManager.loadShader("normalGS", "res/shader/normalGS.vs", "res/shader/normalGS.fs", "res/shader/normalGS.gs");
+	Globals::shaderManager.loadShader("ray", "res/shader/ray.vs", "res/shader/ray.fs");
 
 	Globals::shaderManager.loadShader("terrain", "res/shader/terrain.vs", "res/shader/terrain.fs");	
 	Globals::shaderManager.loadShader("terrain_instance", "res/shader/terrain_instance.vs", "res/shader/terrain_instance.fs");

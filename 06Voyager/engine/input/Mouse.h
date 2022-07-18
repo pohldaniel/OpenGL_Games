@@ -68,7 +68,7 @@ public:
 	void hideCursor(bool hideCursor);
 	void setPosition(UINT x, UINT y);
 	void setCursorToMiddle();
-	
+	void setAbsolute(int x, int y);
 	void setWeightModifier(float weightModifier);
 	void smoothMouse(bool smooth);
 	void update();

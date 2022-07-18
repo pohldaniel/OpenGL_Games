@@ -184,6 +184,7 @@
     <ClInclude Include="Fern.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="Object.h" />
+    <ClInclude Include="Ray.h" />
     <ClInclude Include="RenderableObject.h" />
     <ClInclude Include="Skybox.h" />
     <ClInclude Include="StateMachine.h" />
@@ -220,6 +221,7 @@
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Object.cpp" />
+    <ClCompile Include="Ray.cpp" />
     <ClCompile Include="RenderableObject.cpp" />
     <ClCompile Include="Skybox.cpp" />
     <ClCompile Include="soil2\image_DXT.c" />

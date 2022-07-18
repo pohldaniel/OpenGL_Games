@@ -221,7 +221,6 @@ void Camera::lookAt(const Vector3f &eye, const Vector3f &target, const Vector3f 
 
 	m_viewDir = -m_zAxis;
 
-
 	m_viewMatrix[0][0] = m_xAxis[0];
 	m_viewMatrix[1][0] = m_yAxis[0];
 	m_viewMatrix[2][0] = m_zAxis[0];

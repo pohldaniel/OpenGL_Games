@@ -18,6 +18,7 @@
 #include "Fern.h"
 #include "Skybox.h"
 #include "Barrel.h"
+#include "Ray.h"
 
 class Game : public State {
 public:
@@ -56,7 +57,7 @@ public:
 	Tree *m_tree;
 	SkyBox m_skybox;
 	Barrel m_barrel;
-
+	Ray m_ray;
 	Vector3f m_cameraBoundsMax;
 	Vector3f m_cameraBoundsMin;
 	Vector2f size = Vector2f(0.75f, 0.75f);

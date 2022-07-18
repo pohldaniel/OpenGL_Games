@@ -25,8 +25,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	MoveWindow(GetConsoleWindow(), 1300, 0, 550, 300, true);
 	std::cout << "w, a, s, d    : move character" << std::endl;
-	std::cout << "q             : reset level" << std::endl;
-	std::cout << "ESC           : change state" << std::endl;
+	std::cout << "right mouse   : rotate" << std::endl;
+	std::cout << "ESC           : quit" << std::endl;
 	std::cout << "v             : toggle vsync" << std::endl;
 	std::cout << "z             : toggle wireframe" << std::endl;
 	std::cout << "1             : disable colormaps" << std::endl;
