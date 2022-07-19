@@ -1,6 +1,7 @@
 #include "Physics.h"
 #include "engine/ObjModel.h"
 #include "engine/MeshObject/MeshCube.h"
+#include "Terrain.h"
 
 Physics::Physics(float physicsStep){
 	m_physicsStep = physicsStep;
@@ -46,15 +47,31 @@ void Physics::stepSimulation(btScalar timeStep){
 	int numSimSteps = m_dynamicsWorld->stepSimulation(timeStep, 1, m_physicsStep);
 }
 
-btRigidBody * Physics::addRigidBody(float mass, const btTransform & startTransform, btCollisionShape * shape){
-	btRigidBody* body = createRigidBody(mass, startTransform, shape);
+btRigidBody * Physics::createRigidBody(btScalar mass, const btTransform & startTransform, btCollisionShape * shape) {
+	btVector3 localInertia(0, 0, 0);
+	if (mass != 0.f)  //rigidbody is dynamic if and only if mass is non zero, otherwise static
+		shape->calculateLocalInertia(mass, localInertia);
 
-	m_dynamicsWorld->addRigidBody(body);
+	//using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects
+	btDefaultMotionState* myMotionState = new btDefaultMotionState(startTransform);
+
+	btRigidBody::btRigidBodyConstructionInfo cInfo(mass, myMotionState, shape, localInertia);
+
+	btRigidBody* body = new btRigidBody(cInfo);
+	//body->setContactProcessingThreshold(0);
+	body->setCollisionFlags(btCollisionObject::CF_KINEMATIC_OBJECT | btCollisionObject::CF_STATIC_OBJECT);
+	return body;
+}
+
+
+btRigidBody* Physics::addRigidBody(float mass, const btTransform & startTransform, btCollisionShape * shape, int collisionFilterGroup, int collisionFilterMask){
+	btRigidBody* body = createRigidBody(mass, startTransform, shape);
+	m_dynamicsWorld->addRigidBody(body, collisionFilterGroup, collisionFilterMask);
 
 	return body;
 }
 
-btRigidBody* Physics::addStaticModel(std::vector<btCollisionShape *> & collisionShapes, const btTransform & trans, bool debugDraw, const btVector3 & scale){
+btRigidBody* Physics::addStaticModel(std::vector<btCollisionShape *> & collisionShapes, const btTransform & trans, bool debugDraw, const btVector3 & scale, int collisionFilterGroup, int collisionFilterMask){
 	btRigidBody *body = nullptr; 
 	
 	for (unsigned int i = 0; i < collisionShapes.size(); i++){
@@ -66,27 +83,11 @@ btRigidBody* Physics::addStaticModel(std::vector<btCollisionShape *> & collision
 			colShape = collisionShapes[i];
 
 
-		body = addRigidBody(0, trans, colShape);
+		body = addRigidBody(0, trans, colShape, collisionFilterGroup, collisionFilterMask);
 
 		if (!debugDraw)
 			body->setCollisionFlags(body->getCollisionFlags() | btCollisionObject::CF_DISABLE_VISUALIZE_OBJECT);
 	}
-
-	return body;
-}
-
-btRigidBody * Physics::createRigidBody(btScalar mass, const btTransform & startTransform, btCollisionShape * shape){
-	btVector3 localInertia(0, 0, 0);
-	if (mass != 0.f)  //rigidbody is dynamic if and only if mass is non zero, otherwise static
-		shape->calculateLocalInertia(mass, localInertia);
-
-	//using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects
-	btDefaultMotionState* myMotionState = new btDefaultMotionState(startTransform);
-
-	btRigidBody::btRigidBodyConstructionInfo cInfo(mass, myMotionState, shape, localInertia);
-
-	btRigidBody* body = new btRigidBody(cInfo);
-	body->setContactProcessingThreshold(0);
 
 	return body;
 }
@@ -132,7 +133,7 @@ btCollisionShape * Physics::CreateStaticCollisionShape(MeshCube * mesh, const bt
 	btTriangleIndexVertexArray* tiva = new btTriangleIndexVertexArray(mesh->getNumberOfTriangles(), (int*)(&mesh->m_indexBuffer[0]), indexStride, mesh->m_positions.size(), (btScalar*)(&mesh->m_positions[0]), sizeof(Vector3f));
 
 	btBvhTriangleMeshShape *shape = new btBvhTriangleMeshShape(tiva, true);
-	shape->setLocalScaling(btVector3(1.0, 1.0, 1.0));
+	shape->setLocalScaling(scale);
 
 	return shape;
 }
@@ -151,5 +152,28 @@ btTransform Physics::btTransFrom() {
 	btTransform ret;
 	ret.setIdentity();
 	
+	return ret;
+}
+
+
+btCollisionShape * Physics::CreateStaticCollisionShape(Terrain* mesh, const btVector3& scale) {
+	int indexStride = 3 * sizeof(int);
+
+	btTriangleIndexVertexArray* tiva = new btTriangleIndexVertexArray(mesh->getNumberOfTriangles(), (int*)(&mesh->m_indexBuffer[0]), indexStride, mesh->m_positions.size(), (btScalar*)(&mesh->m_positions[0]), sizeof(Vector3f));
+
+	btBvhTriangleMeshShape *shape = new btBvhTriangleMeshShape(tiva, true);
+	shape->setLocalScaling(scale);
+
+	return shape;
+}
+
+
+std::vector<btCollisionShape *> Physics::CreateStaticCollisionShapes(Terrain* model, float scale) {
+	std::vector<btCollisionShape *> ret;
+	btCollisionShape *shape = CreateStaticCollisionShape(model, btVector3(scale, scale, scale));
+
+	if (shape) {
+		ret.push_back(shape);
+	}
 	return ret;
 }

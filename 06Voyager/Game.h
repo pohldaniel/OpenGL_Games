@@ -25,13 +25,14 @@
 class RayResultCallback : public btCollisionWorld::ClosestRayResultCallback{
 public:
 
-	RayResultCallback() : btCollisionWorld::ClosestRayResultCallback(btVector3(0.0f, 0.0f, 0.0f), btVector3(0.0f, 0.0f, 0.0f)){
+	RayResultCallback(const btVector3& origin, const btVector3& target, int collisionFilterGroup, int collisionFilterMask) : btCollisionWorld::ClosestRayResultCallback(origin, target){
+		m_collisionFilterGroup = collisionFilterGroup;
+		m_collisionFilterMask = collisionFilterMask;
 	}
 
-	btScalar addSingleResult(btCollisionWorld::LocalRayResult& rayResult, bool normalInWorldSpace)
-	{
-		//if (rayResult.m_collisionObject == mSelf) return 1.0f;
-		//if (rayResult.m_collisionObject->getInternalType() == btCollisionObject::CO_GHOST_OBJECT) return 1.0f;
+	
+
+	btScalar addSingleResult(btCollisionWorld::LocalRayResult& rayResult, bool normalInWorldSpace){
 		return ClosestRayResultCallback::addSingleResult(rayResult, normalInWorldSpace);
 	}
 
@@ -96,4 +97,5 @@ public:
 	unsigned int pboIds[2];
 
 	int pickedID = 0;
+	float terrainHeight = 0;
 };

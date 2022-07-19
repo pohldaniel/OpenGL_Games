@@ -47,6 +47,10 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_water(
 	//m_terrain.createInstances();
 	m_terrain.scaleRegions(HEIGHTMAP_SCALE);
 
+
+	std::vector<btCollisionShape*> terrainShape = Physics::CreateStaticCollisionShapes(&m_terrain, 1.0f);
+	btRigidBody* body = Globals::physics->addStaticModel(terrainShape, Physics::btTransFrom(), false, btVector3(1, 1, 1), Physics::collisiontypes::TERRAIN, Physics::collisiontypes::RAY);
+
 	m_water.create(1, HEIGHTMAP_WIDTH, 200.0f);
 
 	Vector3f pos;
@@ -99,7 +103,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_water(
 		entitie->setTexture(&Globals::textureManager.get("marble"));
 
 		std::vector<btCollisionShape*> cubeShape = Physics::CreateStaticCollisionShapes(entitie, 1.0f);
-		btRigidBody* body = Globals::physics->addStaticModel(cubeShape, Physics::btTransFrom(), false);
+		btRigidBody* body = Globals::physics->addStaticModel(cubeShape, Physics::btTransFrom(), false, btVector3(1, 1, 1), Physics::collisiontypes::RENDERABLE_OBJECT, Physics::collisiontypes::RAY);
 		body->setUserPointer(reinterpret_cast<void*>(entitie));
 	}
 
@@ -249,38 +253,20 @@ void Game::update() {
 		Vector3f rayDirection = rayEndWorld - rayStartWorld;
 		Vector3f::Normalize(rayDirection);
 
-		RayResultCallback callback;
-
 		btVector3 origin = btVector3(rayStartWorld[0], rayStartWorld[1], rayStartWorld[2]);		
 		btVector3 target = btVector3(rayEndWorld[0], rayEndWorld[1], rayEndWorld[2]);
 
+		
+		RayResultCallback callback(origin, target, Physics::collisiontypes::RAY, Physics::collisiontypes::RENDERABLE_OBJECT);
+		callback.m_collisionFilterGroup = Physics::collisiontypes::RAY;
+		callback.m_collisionFilterMask = Physics::collisiontypes::RENDERABLE_OBJECT;
+
 		Globals::physics->GetDynamicsWorld()->rayTest(origin, target, callback);
-		if (callback.hasHit()){
+		if (callback.hasHit()) {
 			MeshCube* cube = reinterpret_cast<MeshCube*>(callback.m_collisionObject->getUserPointer());
 			cube->dissolve();			
 		}
 
-		//std::cout 
-		/*int pickedID = 0;
-
-		static int index = 0;
-		int nextIndex = 0;
-		index = (index + 1) % 2;
-		nextIndex = (index + 1) % 2;
-
-		glBindFramebuffer(GL_READ_FRAMEBUFFER, m_mousePickBuffer.getFramebuffer());
-		glBindBuffer(GL_PIXEL_PACK_BUFFER, pboIds[index]);
-		glReadPixels(mouse.xPosAbsolute(), HEIGHT - mouse.yPosAbsolute(), 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, 0);
-		glBindBuffer(GL_PIXEL_PACK_BUFFER, pboIds[nextIndex]);
-		GLubyte* src = (GLubyte*)glMapBuffer(GL_PIXEL_PACK_BUFFER, GL_READ_ONLY);
-		if (src) {
-			pickedID = src[0] + src[1] * 256 + src[2] * 256 * 256;
-			glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
-		}
-		glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
-		glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
-
-		std::cout << pickedID << std::endl;*/
 	}
 
 	if (mouse.buttonDown(Mouse::MouseButton::BUTTON_RIGHT)) {		
@@ -538,6 +524,33 @@ void Game::OnMouseMotion(Event::MouseMoveEvent& event) {
 	}
 	glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
 	glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+
+	float mouseXndc = (2.0f * event.x) / (float)WIDTH - 1.0f;
+	float mouseYndc = 1.0f - (2.0f * event.y) / (float)HEIGHT;
+
+	Vector4f rayStartEye = Globals::invProjection ^ Vector4f(mouseXndc, mouseYndc, -1.0f, 1.0f);
+	Vector4f rayEndEye = Globals::invProjection ^ Vector4f(mouseXndc, mouseYndc, 1.0f, 1.0f);
+	rayEndEye = rayEndEye * (1.0f / rayEndEye[3]);
+
+
+	Vector3f rayStartWorld = m_camera.getInvViewMatrix() * rayStartEye;
+	Vector3f rayEndWorld = m_camera.getInvViewMatrix() * rayEndEye;
+
+	Vector3f rayDirection = rayEndWorld - rayStartWorld;
+	Vector3f::Normalize(rayDirection);
+
+
+	btVector3 origin = btVector3(rayStartWorld[0], rayStartWorld[1], rayStartWorld[2]);
+	btVector3 target = btVector3(rayEndWorld[0], rayEndWorld[1], rayEndWorld[2]);
+
+	RayResultCallback callback(origin, target, Physics::collisiontypes::RAY, Physics::collisiontypes::TERRAIN);
+	callback.m_collisionFilterGroup = Physics::collisiontypes::RAY;
+	callback.m_collisionFilterMask = Physics::collisiontypes::TERRAIN;
+
+	Globals::physics->GetDynamicsWorld()->rayTest(origin, target, callback);
+	if (callback.hasHit()) {
+		terrainHeight = callback.m_hitPointWorld.getY();
+	}
 }
 
 void Game::performCameraCollisionDetection(){

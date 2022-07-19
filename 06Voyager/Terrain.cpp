@@ -585,6 +585,7 @@ bool Terrain::terrainCreate() {
 
 	m_totalIndices = m_mode == Terrain::Mode::TRIANGLE_STRIP ? (resolution) * ((resolution + 1) * 2 + 1) : resolution * resolution * 6;
 	m_totalVertices = (resolution + 1) * (resolution + 1);
+	m_numberOfTriangles = m_totalIndices / 3;
 
 	short stride = 8;
 
@@ -622,6 +623,7 @@ bool Terrain::terrainCreateProcedural() {
 
 	m_totalIndices = m_mode == Terrain::Mode::TRIANGLE_STRIP ? (resolution) * ((resolution + 1) * 2 + 1) : resolution * resolution * 6;
 	m_totalVertices = (resolution + 1) * (resolution + 1);
+	m_numberOfTriangles = m_totalIndices / 3;
 
 	//m_vertexBuffer.reserve(m_totalVertices * sizeof(Vertex));
 
@@ -886,6 +888,8 @@ void Terrain::generateVertices(std::vector<float>& vertexBuffer) {
 			vertexBuffer.push_back(static_cast<float>(x * gridSpacing)); vertexBuffer.push_back(m_heightMap.heightAtPixel(x, z) * heightScale); vertexBuffer.push_back(static_cast<float>(z * gridSpacing));
 			vertexBuffer.push_back(normal[0]); vertexBuffer.push_back(normal[1]); vertexBuffer.push_back(normal[2]);
 			vertexBuffer.push_back(static_cast<float>(x) / static_cast<float>(resolution)); vertexBuffer.push_back(static_cast<float>(z) / static_cast<float>(resolution));
+
+			m_positions.push_back(Vector3f(static_cast<float>(x * gridSpacing), m_heightMap.heightAtPixel(x, z) * heightScale, static_cast<float>(z * gridSpacing)));
 		}
 	}
 
@@ -1001,4 +1005,8 @@ const HeightMap& Terrain::getHeightMap() const {
 
 void Terrain::setDisableColorMaps(bool flag) {
 	m_disableColorMaps = flag;
+}
+
+unsigned int Terrain::getNumberOfTriangles() {
+	return m_numberOfTriangles;
 }

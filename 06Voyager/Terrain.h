@@ -131,14 +131,14 @@ public:
 	void setPosition(const Vector3f &position);
 	void setGridPosition(int x, int z);
 	void createInstances();
-
+	unsigned int getNumberOfTriangles();
 
 	Shader* m_terrainShader;
 	std::unordered_map<std::string, Texture*> m_textures;
 	std::unordered_map<std::string, Spritesheet*> m_spritesheets;
 	std::vector<float> m_vertexBuffer;
 	std::vector<unsigned int> m_indexBuffer;
-
+	std::vector<Vector3f> m_positions;
 	
 protected:
 	virtual bool terrainCreate();
@@ -184,8 +184,9 @@ private:
 	bool m_procedural = false;
 	unsigned int m_vbo, m_ibo, m_vao, m_ubo;
 	unsigned int m_vboInstances;
+	unsigned int m_numberOfTriangles;
 
-	Mode m_mode = Mode::TRIANGLE_STRIP;
+	Mode m_mode = Mode::TRIANGLES;
 	TerrainRegion m_regions[4];
 	Region _regions[2];
 	float m_tilingFactor = 10.0f;
