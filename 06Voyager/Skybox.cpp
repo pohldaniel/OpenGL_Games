@@ -18,20 +18,12 @@ SkyBox::~SkyBox() {
 
 void SkyBox::toggleDayNight() {
 	
-	if (m_fadeIn) {
-		m_fadeOut = true;
-		m_fadeIn = false;
-		return;
+	if (!m_transitionEnd) {
+		m_fadeOut = m_fadeIn;
+		m_fadeIn = !m_fadeIn;
 	}else {
-		m_fadeIn = true;
-		//return;
-	}
-
-	if (m_fadeOut) {
-		m_fadeIn = true;
-		m_fadeOut = false;
-	}else {
-		m_fadeOut = true;
+		m_fadeIn = m_fadeOut;
+		m_fadeOut = !m_fadeOut;
 	}
 }
 
@@ -104,13 +96,13 @@ void SkyBox::update() {
 	if (m_fadeIn) {	
 		m_blend = m_blend <= 1.0f ? m_blend + m_transitionSpeed * m_dt : 1.0f;
 		m_fadeIn = m_blend <= 1.0f;
-
+		m_transitionEnd = !m_fadeIn;
 	}
 
 	if (m_fadeOut) {
 		m_blend = m_blend >= 0.0f ? m_blend - m_transitionSpeed * m_dt : 0.0f;
 		m_fadeOut = m_blend >= 0.0f;
-		
+		m_transitionEnd = m_fadeOut;
 	}	
 }
 

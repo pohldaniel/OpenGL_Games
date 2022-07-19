@@ -39,7 +39,8 @@ private:
 	float m_rotation = 0.0f;
 
 	const float m_transitionSpeed = 0.5f;
-	float m_blend = 0.0f;
+	bool m_transitionEnd = false;	
 	bool m_fadeIn = false;
 	bool m_fadeOut = true;
+	float m_blend = 0.0f;
 };

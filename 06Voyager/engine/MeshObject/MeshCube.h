@@ -72,7 +72,8 @@ private:
 	Texture* m_gradient;
 
 	const float m_transitionSpeed = 1.5f;
-	bool m_fadeIn = false;
+	bool m_transitionEnd = false;
+	bool m_fadeIn = false;	
 	bool m_fadeOut = true;
 	float m_dissolveAmount = 0.0f;
 };

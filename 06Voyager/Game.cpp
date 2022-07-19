@@ -103,7 +103,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_water(
 	m_camera.calcLightTransformation2(LIGHT_DIRECTION);
 
 	m_lightDepthFramebuffer.create(2048, 2048);
-	//there are two options use a second color attachment and glEnable(GL_ALPHA_TEST) in the renderShadow() function or us if(alpha < 0.5) discard; inside the depthGS.fs shader
+	//there are two options use a second color attachment and glEnable(GL_ALPHA_TEST) in the renderShadow() function or use if(alpha < 0.5) discard; inside the depthGS.fs shader
 	//m_lightDepthFramebuffer.attachLayerdTexture(Framebuffer::Attachments::COLOR, m_camera.m_numberCascades);
 	m_lightDepthFramebuffer.attachLayerdTexture(Framebuffer::Attachments::DEPTH24, m_camera.m_numberCascades);
 
@@ -222,7 +222,6 @@ void Game::update() {
 		float mouseXndc = (2.0f * mouse.xPosAbsolute()) / (float)WIDTH - 1.0f;
 		float mouseYndc = 1.0f - (2.0f * mouse.yPosAbsolute()) / (float)HEIGHT;
 
-		//Vector4f rayStartEye = Globals::invProjection ^ Vector4f(0.0f, 0.0f, -1.0f, 1.0f);
 		Vector4f rayStartEye = Globals::invProjection ^ Vector4f(mouseXndc, mouseYndc, -1.0f, 1.0f);
 		Vector4f rayEndEye = Globals::invProjection ^ Vector4f(mouseXndc, mouseYndc, 1.0f, 1.0f);
 		rayEndEye = rayEndEye * (1.0f / rayEndEye[3]);
@@ -234,35 +233,19 @@ void Game::update() {
 		Vector3f rayDirection = Vector3f(rayEndWorld[0] - rayStartWorld[0], rayEndWorld[1] - rayStartWorld[1], rayEndWorld[2] - rayStartWorld[2]);
 		Vector3f::Normalize(rayDirection);
 
-		/*std::cout << m_camera.getPosition()[0] << "  " << m_camera.getPosition()[1] << "  " << m_camera.getPosition()[2] << std::endl;
-		std::cout << rayDirection[0] << "  " << rayDirection[1] << "  " << rayDirection[2] << std::endl;
-		std::cout << rayStartWorld[0] << "  " << rayStartWorld[1]<< "  " << rayStartWorld[2]<< std::endl;
-		std::cout << rayEndWorld[0] << "  " << rayEndWorld[1] << "  " << rayEndWorld[2] << std::endl;
-		std::cout << "##############" << std::endl;*/
-	
-		//m_ray.update(m_camera.getPosition(), m_camera.getPosition() + rayDirection);
-
-		m_ray.update(Vector3f(rayStartWorld[0], rayStartWorld[1], rayStartWorld[2]), Vector3f(rayEndWorld[0], rayEndWorld[1], rayEndWorld[2]));
-
 		RayResultCallback callback;
 
-		btVector3 origin = btVector3(rayStartWorld[0], rayStartWorld[1], rayStartWorld[2]);
-		//btVector3 direction = origin + btVector3(rayDirection[0], rayDirection[1], rayDirection[2]) * 5000.0f;
-		btVector3 direction = btVector3(rayEndWorld[0], rayEndWorld[1], rayEndWorld[2]);
+		btVector3 origin = btVector3(rayStartWorld[0], rayStartWorld[1], rayStartWorld[2]);		
+		btVector3 target = btVector3(rayEndWorld[0], rayEndWorld[1], rayEndWorld[2]);
 
-		Globals::physics->GetDynamicsWorld()->rayTest(origin, direction, callback);
+		Globals::physics->GetDynamicsWorld()->rayTest(origin, target, callback);
 		if (callback.hasHit()){
-			
 			MeshCube* cube = reinterpret_cast<MeshCube*>(callback.m_collisionObject->getUserPointer());
-			cube->dissolve();
-			
-		}
-		
-
+			cube->dissolve();			
+		}	
 	}
 
-	if (mouse.buttonDown(Mouse::MouseButton::BUTTON_RIGHT)) {
-		
+	if (mouse.buttonDown(Mouse::MouseButton::BUTTON_RIGHT)) {		
 		dx = mouse.xPosRelative();
 		dy = mouse.yPosRelative();
 	}
@@ -293,7 +276,6 @@ void Game::update() {
 		entitie->update(m_dt);
 	}
 
-	//m_ray.update(m_camera.getPosition() + Vector3f(0.1f, 0.0f, 0.0f), m_camera.getPosition() + (m_camera.getViewDirection() * 5.0f));
 	//performCameraCollisionDetection();
 };
 

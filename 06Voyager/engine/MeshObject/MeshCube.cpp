@@ -651,36 +651,28 @@ int MeshCube::getNumberOfTriangles() {
 }
 
 void MeshCube::update(float dt) {
+	
 	if (m_fadeIn) {
-		m_dissolveAmount = m_dissolveAmount <= 1.0f ? m_dissolveAmount + m_transitionSpeed * dt : 1.0f;
-		m_fadeIn = m_dissolveAmount <= 1.0f;
-
+		m_dissolveAmount = m_dissolveAmount < 1.0f ? m_dissolveAmount + m_transitionSpeed * dt : 1.0f;
+		m_fadeIn = m_dissolveAmount < 1.0f;
+		m_transitionEnd = !m_fadeIn;
 	}
 
 	if (m_fadeOut) {
+		
 		m_dissolveAmount = m_dissolveAmount >= 0.0f ? m_dissolveAmount - m_transitionSpeed * dt : 0.0f;
 		m_fadeOut = m_dissolveAmount >= 0.0f;
-
+		m_transitionEnd = m_fadeOut;
 	}
 }
 
 void MeshCube::dissolve() {
 
-	if (m_fadeIn) {
-		m_fadeOut = true;
-		m_fadeIn = false;
-		return;
-	}
-	else {
-		m_fadeIn = true;
-		//return;
-	}
-
-	if (m_fadeOut) {
-		m_fadeIn = true;
-		m_fadeOut = false;
-	}
-	else {
-		m_fadeOut = true;
+	if (!m_transitionEnd) {
+		m_fadeOut = m_fadeIn;
+		m_fadeIn = !m_fadeIn;
+	}else {
+		m_fadeIn = m_fadeOut;
+		m_fadeOut = !m_fadeOut;
 	}
 }
