@@ -1,6 +1,8 @@
 #pragma once
 #include <windows.h>
 
+#include "engine/input/Event.h"
+#include "engine/input/EventDispatcher.h"
 #include "engine/input/KeyBorad.h"
 #include "engine/input/Mouse.h"
 #include "engine/Extension.h"
@@ -20,6 +22,8 @@ public:
 	bool isRunning();
 	HWND getWindow();
 	
+	void AddMouseListener(MouseEventListener * el);
+
 private:
 	static LRESULT CALLBACK StaticWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 	LRESULT DisplayWndProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lParam);
@@ -41,4 +45,8 @@ private:
 	bool m_init = false;
 
 	StateMachine* m_machine;
+
+	EventDispatcher * m_eventDispatcher = nullptr;
+	void processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+	bool m_mouseTracking = false;
 };

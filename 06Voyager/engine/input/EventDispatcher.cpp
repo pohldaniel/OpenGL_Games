@@ -55,7 +55,7 @@ bool EventDispatcher::update() {
 			case Event::CLOSED:
 				return false;
 			case Event::MOUSEMOTION: {
-				Mouse::instance().handleEvent(m_event);
+				//Mouse::instance().handleEvent(m_event);
 
 				for (MouseEventListener * el : mMouseListeners){
 					el->OnMouseMotion(m_event.mouseMove);

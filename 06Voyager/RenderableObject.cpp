@@ -21,7 +21,7 @@ bool RenderableObject::isDisabled() {
 void RenderableObject::draw(const Camera& camera) {};
 void RenderableObject::drawShadow(const Camera& camera) {};
 void RenderableObject::drawRaw() {};
-
+void RenderableObject::drawAABB(const Camera& camera) {};
 
 void RenderableObject::rotate(const Vector3f &axis, float degrees) {
 	m_modelMatrix.rotate(axis, degrees);

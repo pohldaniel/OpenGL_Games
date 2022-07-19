@@ -35,7 +35,7 @@ void Ray::update(const Vector3f& origin, const Vector3f& direction) {
 }
 
 void Ray::createBuffer() {
-	glLineWidth(20.0);
+	//glLineWidth(20.0);
 	
 	unsigned int indices[] = {
 		0, 1

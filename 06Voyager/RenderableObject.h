@@ -14,6 +14,7 @@ public:
 	virtual void draw(const Camera& camera);
 	virtual void drawShadow(const Camera& camera);
 	virtual void drawRaw();
+	virtual void drawAABB(const Camera& camera);
 
 	void setDisabled(bool disabled);
 	bool isDisabled();

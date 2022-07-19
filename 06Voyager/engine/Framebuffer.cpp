@@ -258,8 +258,29 @@ void Framebuffer::bind() {
 	glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
 }
 
+void Framebuffer::bindWrite() {
+	glViewport(0, 0, m_width, m_height);
+	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_fbo);
+}
+
+void Framebuffer::bindRead() {
+	glViewport(0, 0, m_width, m_height);
+	glBindFramebuffer(GL_READ_FRAMEBUFFER, m_fbo);
+}
+
 void Framebuffer::Unbind() {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glViewport(0, 0, WIDTH, HEIGHT);
+}
+
+void Framebuffer::UnbindWrite() {
+	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+	glViewport(0, 0, WIDTH, HEIGHT);
+}
+
+
+void Framebuffer::UnbindRead() {
+	glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
 	glViewport(0, 0, WIDTH, HEIGHT);
 }
 

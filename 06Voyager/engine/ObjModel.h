@@ -20,6 +20,18 @@
 
 #include "..\Constants.h"
 
+struct BoundingBox {
+	void createBuffer(float minX, float maxX, float minY, float maxY, float minZ, float maxZ, unsigned int id);
+	void drawRaw();
+
+	std::vector <float> m_vertexBuffer;
+	std::vector<unsigned int> m_indexBuffer;
+
+	unsigned int m_vao = 0;
+	unsigned int m_vbo = 0;
+	unsigned int m_ibo = 0;
+};
+
 struct IndexBufferCreator {
 
 	std::vector<std::array<int, 10>> face;
@@ -62,6 +74,7 @@ public:
 
 	void draw(const Camera& camera);
 	void drawRaw();
+	void drawAABB();
 	void drawInstanced(const Camera& camera);
 
 	//size values
@@ -100,6 +113,12 @@ public:
 	std::vector <float> m_vertexBuffer;
 	std::vector<unsigned int> m_indexBuffer;
 	std::map<int, std::vector<int>> m_vertexCache;
+
+
+	BoundingBox aabb;
+	unsigned int m_id;
+
+	static unsigned int s_id;
 };
 
 class Mesh {

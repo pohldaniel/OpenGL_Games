@@ -191,6 +191,8 @@ typedef char GLchar;
 #define GL_STENCIL_ATTACHMENT 0x8D20
 #define GL_STENCIL_INDEX8 0x8D48
 #define GL_TEXTURE_SWIZZLE_RGBA 0x8E46
+#define GL_PIXEL_PACK_BUFFER 0x88EB
+#define GL_STREAM_READ 0x88E1
 
 	extern void glActiveTextureARB(GLenum texture);
 	extern void glMultiTexCoord2fARB(GLenum target, GLfloat s, GLfloat t);

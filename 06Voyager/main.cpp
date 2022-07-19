@@ -25,19 +25,20 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	SetConsoleTitle("Debug console");
 
 	MoveWindow(GetConsoleWindow(), 1300, 0, 550, 300, true);
-	std::cout << "w, a, s, d    : move character" << std::endl;
-	std::cout << "right mouse   : rotate" << std::endl;
-	std::cout << "ESC           : quit" << std::endl;
-	std::cout << "v             : toggle vsync" << std::endl;
-	std::cout << "z             : toggle wireframe" << std::endl;
-	std::cout << "1             : disable colormaps" << std::endl;
-	std::cout << "2             : toggle texturepack" << std::endl;
-	std::cout << "3             : regenerate terrain" << std::endl;
-	std::cout << "4             : fade day night" << std::endl;
-	std::cout << "5             : rotate barrel light" << std::endl;
-	std::cout << "t             : debug framebuffer" << std::endl;
-	std::cout << "r             : switch cascade depthbuffer" << std::endl;
-	std::cout << "n             : debug normals" << std::endl;
+	std::cout << "w, a, s, d, q, e : move camera" << std::endl;
+	std::cout << "right mouse      : rotate" << std::endl;
+	std::cout << "left mouse       : dissolve cube" << std::endl;
+	std::cout << "ESC              : quit" << std::endl;
+	std::cout << "v                : toggle vsync" << std::endl;
+	std::cout << "z                : toggle wireframe" << std::endl;
+	std::cout << "1                : disable colormaps" << std::endl;
+	std::cout << "2                : toggle texturepack" << std::endl;
+	std::cout << "3                : regenerate terrain" << std::endl;
+	std::cout << "4                : fade day night" << std::endl;
+	std::cout << "5                : rotate barrel light" << std::endl;
+	std::cout << "t                : debug framebuffer" << std::endl;
+	std::cout << "r                : switch cascade depthbuffer" << std::endl;
+	std::cout << "n                : debug normals" << std::endl;
 	#endif
 	
 	Globals::physics = new Physics(PHYSICS_STEP);

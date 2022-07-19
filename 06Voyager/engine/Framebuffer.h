@@ -23,7 +23,12 @@ public:
 	void attachLayerdTexture(Attachments attachments, unsigned short layer);
 	void attachRenderbuffer(Attachments attachments);
 	void bind();
+	void bindWrite();
+	void bindRead();
 	static void Unbind();
+
+	static void UnbindWrite() ;
+	static void UnbindRead();
 
 	unsigned int getColorTexture(unsigned short attachment);
 	unsigned int getColorTexture() const;

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "engine/input/MouseEventListener.h"
 #include "engine/input/KeyBorad.h"
 #include "engine/input/Mouse.h"
 #include "engine/Framebuffer.h"
@@ -36,7 +37,7 @@ public:
 
 };
 
-class Game : public State {
+class Game : public State, public MouseEventListener {
 public:
 	Game(StateMachine& machine);
 	~Game();
@@ -44,10 +45,12 @@ public:
 	virtual void fixedUpdate() override;
 	virtual void update() override;
 	virtual void render(unsigned int &frameBuffer) override;
+	void OnMouseMotion(Event::MouseMoveEvent& event) override;
 	void performCameraCollisionDetection();
 
 	void renderOffscreen();
 	void shadowPass();
+	void mousePickPass();
 
 	Camera m_camera;
 	Terrain m_terrain;
@@ -59,6 +62,7 @@ public:
 
 	Framebuffer m_copyFramebuffer;
 	Framebuffer m_lightDepthFramebuffer;
+	Framebuffer m_mousePickBuffer;
 
 	Shader *m_quadShader;
 	Shader *m_quadShadow;
@@ -87,4 +91,9 @@ public:
 	CharacterSetBmp charachterSet;
 	Text* m_text;
 	//Model* m_tree;
+
+	const int PBO_COUNT = 2;
+	unsigned int pboIds[2];
+
+	int pickedID = 0;
 };

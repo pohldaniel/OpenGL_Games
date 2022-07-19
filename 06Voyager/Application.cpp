@@ -1,13 +1,20 @@
 #include <iostream>
 #include "Application.h"
 
-Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fdt) {
+Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fdt), m_eventDispatcher(new EventDispatcher()){
 	initWindow();
 	initOpenGL();
 	loadAssets();
 	initStates();
 
 	m_enableVerticalSync = true;
+
+	m_eventDispatcher->setProcessOSEvents([&]() {
+		while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
+		}
+	});
 }
 
 Application::~Application() {
@@ -92,6 +99,7 @@ LRESULT CALLBACK Application::StaticWndProc(HWND hWnd, UINT message, WPARAM wPar
 	}
 
 	if (application) {
+		application->processEvent(hWnd, message, wParam, lParam);
 		return application->DisplayWndProc(hWnd, message, wParam, lParam);
 	}
 
@@ -118,9 +126,7 @@ LRESULT Application::DisplayWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 		}case WM_RBUTTONUP: {
 			Mouse::instance().detach2();
 			break;
-		}
-		
-		case WM_KEYDOWN: {
+		}case WM_KEYDOWN: {
 
 			switch (wParam) {
 				case 'v': case 'V': {
@@ -214,8 +220,8 @@ void Application::initOpenGL() {
 	//https://stackoverflow.com/questions/2171085/opengl-blending-with-previous-contents-of-framebuffer
 	glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 	//glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-	//button outline
-	//glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+	//outline
+	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 
 	//glEnable(GL_CLIP_DISTANCE0);
 	
@@ -243,18 +249,14 @@ HWND Application::getWindow() {
 }
 
 bool Application::isRunning() {
-	Mouse::instance().update();
+
 	Keyboard::instance().update();
+	Mouse::instance().update();
 	if (Keyboard::instance().keyDown(Keyboard::KEY_ESCAPE)) {
 		return false;
 	}
 
-	while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
-		if (msg.message == WM_QUIT) return false;
-		TranslateMessage(&msg);
-		DispatchMessage(&msg);
-	}
-	return true;
+	return m_eventDispatcher->update();
 }
 
 void Application::render() {
@@ -271,7 +273,52 @@ void Application::fixedUpdate() {
 
 void Application::initStates() {
 	m_machine = new StateMachine(m_dt, m_fdt);
-	m_machine->addStateAtTop(new Game(*m_machine));
+	Game* game = dynamic_cast<Game*>(m_machine->addStateAtTop(new Game(*m_machine)));
+
+	AddMouseListener(game);
+}
+
+void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
+	switch (message) {
+		/*case WM_CLOSE: case WM_QUIT: {
+			Event event;
+			event.type = Event::CLOSED;
+			m_eventDispatcher->pushEvent(event);
+			break;
+		}*/case WM_MOUSEMOVE: {
+			Event event;
+			event.type = Event::MOUSEMOTION;
+			event.mouseMove.x = static_cast<int>(static_cast<short>(LOWORD(lParam)));
+			event.mouseMove.y = static_cast<int>(static_cast<short>(HIWORD(lParam)));
+			m_eventDispatcher->pushEvent(event);
+			/*if (!m_mouseTracking) {
+				TRACKMOUSEEVENT trackMouseEvent;
+				trackMouseEvent.cbSize = sizeof(TRACKMOUSEEVENT);
+				trackMouseEvent.dwFlags = TME_LEAVE;
+				trackMouseEvent.hwndTrack = hWnd;
+				TrackMouseEvent(&trackMouseEvent);
+				m_mouseTracking = true;
+			}*/
+			break;
+		}/*case WM_MOUSELEAVE: {
+			m_mouseTracking = false;
+
+			POINT cursor;
+			GetCursorPos(&cursor);
+			ScreenToClient(hWnd, &cursor);
+
+			Event event;
+			event.type = Event::MOUSEMOTION;
+			event.mouseMove.x = cursor.x;
+			event.mouseMove.y = cursor.y;
+			m_eventDispatcher->pushEvent(event);
+			break;
+		}*/
+	}
+}
+
+void Application::AddMouseListener(MouseEventListener * el) {
+	m_eventDispatcher->AddMouseListener(el);
 }
 
 void Application::loadAssets() {
@@ -288,6 +335,8 @@ void Application::loadAssets() {
 	Globals::shaderManager.loadShader("normal", "res/shader/normal.vs", "res/shader/normal.fs");
 	Globals::shaderManager.loadShader("normalGS", "res/shader/normalGS.vs", "res/shader/normalGS.fs", "res/shader/normalGS.gs");
 	Globals::shaderManager.loadShader("ray", "res/shader/ray.vs", "res/shader/ray.fs");
+	Globals::shaderManager.loadShader("aabb", "res/shader/aabb.vs", "res/shader/aabb.fs");
+	Globals::shaderManager.loadShader("color", "res/shader/color.vs", "res/shader/color.fs");
 
 	Globals::shaderManager.loadShader("terrain", "res/shader/terrain.vs", "res/shader/terrain.fs");	
 	Globals::shaderManager.loadShader("terrain_instance", "res/shader/terrain_instance.vs", "res/shader/terrain_instance.fs");

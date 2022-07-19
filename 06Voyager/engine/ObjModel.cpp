@@ -1,5 +1,7 @@
 #include "ObjModel.h"
 
+unsigned int Model::s_id = 0;
+
 Model::Model() : m_size(0), m_stride(0), m_offset(0), m_numberOfBytes(0) {
 	m_numberOfMeshes = 0;
 	m_numberOfTriangles = 0;
@@ -228,18 +230,15 @@ bool Model::loadObject(const char* a_filename, Vector3f& rotate, float degree, V
 				sscanf(buffer, "%d/%d/%d %d/%d/%d %d/%d/%d ", &a, &t1, &n1, &b, &t2, &n2, &c, &t3, &n3);
 				face.push_back({ { a, b, c, t1, t2, t3, n1, n2, n3, assign } });
 
-			}
-			else if (!normalCoords.empty()) {
+			}else if (!normalCoords.empty()) {
 				sscanf(buffer, "%d//%d %d//%d %d//%d", &a, &n1, &b, &n2, &c, &n3);
 				face.push_back({ { a, b, c, 0, 0, 0, n1, n2, n3, assign } });
 
-			}
-			else if (!textureCoords.empty()) {
+			}else if (!textureCoords.empty()) {
 				sscanf(buffer, "%d/%d %d/%d %d/%d", &a, &t1, &b, &t2, &c, &t3);
 				face.push_back({ { a, b, c, t1, t2, t3, 0, 0, 0, assign } });
 
-			}
-			else {
+			}else {
 				sscanf(buffer, "%d %d %d", &a, &b, &c);
 				face.push_back({ { a, b, c, 0, 0, 0, 0, 0, 0, assign } });
 			}
@@ -253,6 +252,10 @@ bool Model::loadObject(const char* a_filename, Vector3f& rotate, float degree, V
 		}//end switch
 	}// end while
 	fclose(pFile);
+	s_id = s_id + 10;
+	m_id = s_id;
+	aabb.createBuffer(xmin, xmax, ymin, ymax, zmin, zmax, s_id);
+	
 
 	m_center = Vector3f((xmin + xmax) / 2.0f, (ymin + ymax) / 2.0f, (zmin + zmax) / 2.0f);
 
@@ -390,6 +393,10 @@ void Model::drawRaw() {
 	for (int j = 0; j < m_numberOfMeshes; j++) {
 		m_mesh[j]->drawRaw();
 	}
+}
+
+void Model::drawAABB() {
+	aabb.drawRaw();
 }
 
 void Model::drawInstanced(const Camera& camera) {
@@ -1428,4 +1435,94 @@ int IndexBufferCreator::addVertex(int hash, const float *pVertex, int stride) {
 		}
 	}
 	return index;
+}
+
+
+
+void BoundingBox::createBuffer(float minX, float maxX, float minY, float maxY, float minZ, float maxZ, unsigned int id) {
+
+	unsigned int r = (id & 0x000000FF) >> 0;
+	unsigned int g = (id & 0x0000FF00) >> 8;
+	unsigned int b = (id & 0x00FF0000) >> 16;
+
+	Vector3f position = Vector3f(minX, minY, minZ);
+	Vector3f size = Vector3f(maxX, maxY, maxZ) - Vector3f(minX, minY, minZ);
+	
+	m_vertexBuffer.push_back(position[0]); m_vertexBuffer.push_back(position[1]); m_vertexBuffer.push_back(position[2]);
+	m_vertexBuffer.push_back(static_cast<float>(r) * (1.0f / 255.0f)); m_vertexBuffer.push_back(static_cast<float>(g) * (1.0f / 255.0f)); m_vertexBuffer.push_back(static_cast<float>(b) * (1.0f / 255.0f)); m_vertexBuffer.push_back(1.0f);
+
+
+	m_vertexBuffer.push_back(position[0] + size[0]); m_vertexBuffer.push_back(position[1]); m_vertexBuffer.push_back(position[2]);
+	m_vertexBuffer.push_back(static_cast<float>(r) * (1.0f / 255.0f)); m_vertexBuffer.push_back(static_cast<float>(g) * (1.0f / 255.0f)); m_vertexBuffer.push_back(static_cast<float>(b) * (1.0f / 255.0f)); m_vertexBuffer.push_back(1.0f);
+
+	m_vertexBuffer.push_back(position[0] + size[0]); m_vertexBuffer.push_back(position[1] + size[1]); m_vertexBuffer.push_back(position[2]);
+	m_vertexBuffer.push_back(static_cast<float>(r) * (1.0f / 255.0f)); m_vertexBuffer.push_back(static_cast<float>(g) * (1.0f / 255.0f)); m_vertexBuffer.push_back(static_cast<float>(b) * (1.0f / 255.0f)); m_vertexBuffer.push_back(1.0f);
+
+	m_vertexBuffer.push_back(position[0]); m_vertexBuffer.push_back(position[1] + size[1]); m_vertexBuffer.push_back(position[2]);
+	m_vertexBuffer.push_back(static_cast<float>(r) * (1.0f / 255.0f)); m_vertexBuffer.push_back(static_cast<float>(g) * (1.0f / 255.0f)); m_vertexBuffer.push_back(static_cast<float>(b) * (1.0f / 255.0f)); m_vertexBuffer.push_back(1.0f);
+
+	m_vertexBuffer.push_back(position[0]); m_vertexBuffer.push_back(position[1]); m_vertexBuffer.push_back(position[2] + size[2]);
+	m_vertexBuffer.push_back(static_cast<float>(r) * (1.0f / 255.0f)); m_vertexBuffer.push_back(static_cast<float>(g) * (1.0f / 255.0f)); m_vertexBuffer.push_back(static_cast<float>(b) * (1.0f / 255.0f)); m_vertexBuffer.push_back(1.0f);
+
+	m_vertexBuffer.push_back(position[0] + size[0]); m_vertexBuffer.push_back(position[1]); m_vertexBuffer.push_back(position[2] + size[2]);
+	m_vertexBuffer.push_back(static_cast<float>(r) * (1.0f / 255.0f)); m_vertexBuffer.push_back(static_cast<float>(g) * (1.0f / 255.0f)); m_vertexBuffer.push_back(static_cast<float>(b) * (1.0f / 255.0f)); m_vertexBuffer.push_back(1.0f);
+
+	m_vertexBuffer.push_back(position[0] + size[0]); m_vertexBuffer.push_back(position[1] + size[1]); m_vertexBuffer.push_back(position[2] + size[2]);
+	m_vertexBuffer.push_back(static_cast<float>(r) * (1.0f / 255.0f)); m_vertexBuffer.push_back(static_cast<float>(g) * (1.0f / 255.0f)); m_vertexBuffer.push_back(static_cast<float>(b) * (1.0f / 255.0f)); m_vertexBuffer.push_back(1.0f);
+
+	m_vertexBuffer.push_back(position[0]); m_vertexBuffer.push_back(position[1] + size[1]); m_vertexBuffer.push_back(position[2] + size[2]);
+	m_vertexBuffer.push_back(static_cast<float>(r) * (1.0f / 255.0f)); m_vertexBuffer.push_back(static_cast<float>(g) * (1.0f / 255.0f)); m_vertexBuffer.push_back(static_cast<float>(b) * (1.0f / 255.0f)); m_vertexBuffer.push_back(1.0f);
+
+
+	m_indexBuffer.push_back(0); m_indexBuffer.push_back(1); m_indexBuffer.push_back(2);
+	m_indexBuffer.push_back(2); m_indexBuffer.push_back(3); m_indexBuffer.push_back(0);
+
+	m_indexBuffer.push_back(1); m_indexBuffer.push_back(5); m_indexBuffer.push_back(6);
+	m_indexBuffer.push_back(6); m_indexBuffer.push_back(2); m_indexBuffer.push_back(1);
+
+	m_indexBuffer.push_back(7); m_indexBuffer.push_back(6); m_indexBuffer.push_back(5);
+	m_indexBuffer.push_back(5); m_indexBuffer.push_back(4); m_indexBuffer.push_back(7);
+
+	m_indexBuffer.push_back(4); m_indexBuffer.push_back(0); m_indexBuffer.push_back(3);
+	m_indexBuffer.push_back(3); m_indexBuffer.push_back(7); m_indexBuffer.push_back(4);
+
+	m_indexBuffer.push_back(4); m_indexBuffer.push_back(5); m_indexBuffer.push_back(1);
+	m_indexBuffer.push_back(1); m_indexBuffer.push_back(0); m_indexBuffer.push_back(4);
+
+	m_indexBuffer.push_back(3); m_indexBuffer.push_back(2); m_indexBuffer.push_back(6);
+	m_indexBuffer.push_back(6); m_indexBuffer.push_back(7); m_indexBuffer.push_back(3);
+
+	short stride = 7; short offset = 3;
+
+	glGenBuffers(1, &m_ibo);
+	glGenBuffers(1, &m_vbo);
+
+	glGenVertexArrays(1, &m_vao);
+	glBindVertexArray(m_vao);
+	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+	glBufferData(GL_ARRAY_BUFFER, m_vertexBuffer.size() * sizeof(float), &m_vertexBuffer[0], GL_STATIC_DRAW);
+
+	//positions
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)0);
+
+	//color
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)(offset * sizeof(float)));
+
+	//indices
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ibo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_indexBuffer.size() * sizeof(unsigned int), &m_indexBuffer[0], GL_STATIC_DRAW);
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+	
+}
+
+void BoundingBox::drawRaw() {
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	glBindVertexArray(m_vao);
+	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+	glBindVertexArray(0);
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
