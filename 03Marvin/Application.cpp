@@ -80,8 +80,6 @@ bool Application::initWindow() {
 	UpdateWindow(m_window);
 
 	m_init = true;
-
-	return true;
 }
 
 LRESULT CALLBACK Application::StaticWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
@@ -314,28 +312,28 @@ void Application::processInput() {
 }
 
 void Application::loadAssets() {
-	Globals::textureManager.loadTexture("background", "res/Textures/Background/bg.png");
-	Globals::textureManager.loadTexture("gem", "res/Textures/Tileset/items_spritesheet.png", 70, 70, 2, 4, 2, -1, false);
-	Globals::textureManager.loadTexture("pointer", "res/Textures/GUI/pointer.png");
+	Globals::textureManager.loadTexture("background", "res/textures/Background/bg.png");
+	Globals::textureManager.loadTexture("gem", "res/textures/Tileset/items_spritesheet.png", 70, 70, 2, 4, 2, -1, false);
+	Globals::textureManager.loadTexture("pointer", "res/textures/GUI/pointer.png");
 
-	Globals::spritesheetManager.loadSpritesheet("marvin_move", "res/Textures/Player/player_spritesheet.png", 70, 100, 0, 1, 1, 3);
-	Globals::spritesheetManager.loadSpritesheet("marvin_jump", "res/Textures/Player/player_spritesheet.png", 70, 100, 0, 1, 4, 4);
-	Globals::spritesheetManager.loadSpritesheet("marvin_fall", "res/Textures/Player/player_spritesheet.png", 70, 100, 0, 1, 5, 5);
-	Globals::spritesheetManager.loadSpritesheet("marvin_idle", "res/Textures/Player/player_spritesheet.png", 70, 100, 0, 1, 1, 1);
-	Globals::spritesheetManager.loadSpritesheet("marvin_fade", "res/Textures/Player/player_spritesheet.png", 70, 100, 0, 2, 1, 5);
+	Globals::spritesheetManager.loadSpritesheet("marvin_move", "res/textures/Player/player_spritesheet.png", 70, 100, 0, 1, 1, 3);
+	Globals::spritesheetManager.loadSpritesheet("marvin_jump", "res/textures/Player/player_spritesheet.png", 70, 100, 0, 1, 4, 4);
+	Globals::spritesheetManager.loadSpritesheet("marvin_fall", "res/textures/Player/player_spritesheet.png", 70, 100, 0, 1, 5, 5);
+	Globals::spritesheetManager.loadSpritesheet("marvin_idle", "res/textures/Player/player_spritesheet.png", 70, 100, 0, 1, 1, 1);
+	Globals::spritesheetManager.loadSpritesheet("marvin_fade", "res/textures/Player/player_spritesheet.png", 70, 100, 0, 2, 1, 5);
 
-	Globals::spritesheetManager.loadSpritesheet("barnacle", "res/Textures/Enemy/barnacle.png", 51, 57, 0, 0, 0, 1);
-	Globals::spritesheetManager.loadSpritesheet("bee", "res/Textures/Enemy/bee.png", 61, 48, 0, 0, 0, 1);
-	Globals::spritesheetManager.loadSpritesheet("slime", "res/Textures/Enemy/slime.png", 57, 34, 0, 0, 1, 4);
-	Globals::spritesheetManager.loadSpritesheet("grass_block", "res/Textures/Enemy/grass_block.png", 71, 70, 0, 1, 1, 2);
-	Globals::spritesheetManager.loadSpritesheet("snake_slime", "res/Textures/Enemy/snake_slime.png", 53, 146, 0, 1, 1, 2);
+	Globals::spritesheetManager.loadSpritesheet("barnacle", "res/textures/Enemy/barnacle.png", 51, 57, 0, 0, 0, 1);
+	Globals::spritesheetManager.loadSpritesheet("bee", "res/textures/Enemy/bee.png", 61, 48, 0, 0, 0, 1);
+	Globals::spritesheetManager.loadSpritesheet("slime", "res/textures/Enemy/slime.png", 57, 34, 0, 0, 1, 4);
+	Globals::spritesheetManager.loadSpritesheet("grass_block", "res/textures/Enemy/grass_block.png", 71, 70, 0, 1, 1, 2);
+	Globals::spritesheetManager.loadSpritesheet("snake_slime", "res/textures/Enemy/snake_slime.png", 53, 146, 0, 1, 1, 2);
 
 
-	Globals::spritesheetManager.loadSpritesheet("base", "res/Textures/Tileset/base_tiles_spritesheet.png", 70, 70, 2, 0, 0, -1);
-	Globals::spritesheetManager.getAssetPointer("base")->addToSpritesheet("Resources/Textures/Tileset/items_spritesheet.png", 70, 70, 2, true, true, 0, 0, -1);
+	Globals::spritesheetManager.loadSpritesheet("base", "res/textures/Tileset/base_tiles_spritesheet.png", 70, 70, 2, 0, 0, -1);
+	Globals::spritesheetManager.getAssetPointer("base")->addToSpritesheet("res/textures/Tileset/items_spritesheet.png", 70, 70, 2, true, true, 0, 0, -1);
 
-	Globals::spritesheetManager.loadSpritesheet("button_menu", "res/Textures/GUI/button_menu.png", 229, 49, 0, 1, 1, 3);
-	Globals::spritesheetManager.loadSpritesheet("button_ls", "res/Textures/GUI/button_ls.png", 725, 75, 0, 1, 1, 2);
+	Globals::spritesheetManager.loadSpritesheet("button_menu", "res/textures/GUI/button_menu.png", 229, 49, 0, 1, 1, 3);
+	Globals::spritesheetManager.loadSpritesheet("button_ls", "res/textures/GUI/button_ls.png", 725, 75, 0, 1, 1, 2);
 
 	//becarful with the uniforms some shader are used at multiple places	
 	Globals::shaderManager.loadShader("quad", "res/shader/quad.vs", "res/shader/quad.fs");
@@ -343,43 +341,43 @@ void Application::loadAssets() {
 	Globals::shaderManager.loadShader("quad_color_uniform", "res/shader/quad_color_uniform.vs", "res/shader/quad_color_uniform.fs");
 	Globals::shaderManager.loadShader("quad_array", "res/shader/quad_array.vs", "res/shader/quad_array.fs");
 	Globals::shaderManager.loadShader("level", "res/shader/level.vs", "res/shader/level.fs");
-	
-	//Texture::CutSubimage("res/Textures/Enemy/enemies_spritesheet.png","res/Textures/Enemy/0.png", 318, 239, 51, 57);
-	//Texture::CutSubimage("res/Textures/Enemy/enemies_spritesheet.png", "res/Textures/Enemy/1.png", 528, 220, 51, 57);
-	//Texture::CutSubimage("res/Textures/Enemy/enemies_spritesheet.png", "res/Textures/Enemy/2.png", 477, 220, 51, 57);
-	//Texture::AddHorizontally("res/Textures/Enemy/0.png", "res/Textures/Enemy/1.png", "res/Textures/Enemy/barnacle.png");
-	//Texture::AddHorizontally("res/Textures/Enemy/barnacle.png", "res/Textures/Enemy/2.png", res/Textures/Enemy/barnacle2.png");
 
-	//Texture::CutSubimage("res/Textures/GUI/gui_spritesheet.png", "res/Textures/GUI/0.png", 1, 1, 229, 49);
-	//Texture::CutSubimage("res/Textures/GUI/gui_spritesheet.png", "res/Textures/GUI/1.png", 1, 51, 229, 49);
-	//Texture::CutSubimage("res/Textures/GUI/gui_spritesheet.png", "res/Textures/GUI/2.png", 1, 101, 229, 49);
-	//Texture::AddHorizontally("res/Textures/GUI/0.png", "res/Textures/GUI/1.png", "res/Textures/GUI/_button.png");
-	//Texture::AddHorizontally("res/Textures/GUI/_button.png", "res/Textures/GUI/2.png", "res/Textures/GUI/button_menu.png");
+	/*Texture::CutSubimage("res/textures/Enemy/enemies_spritesheet.png","res/textures/Enemy/0.png", 318, 239, 51, 57);
+	Texture::CutSubimage("res/textures/Enemy/enemies_spritesheet.png", "res/textures/Enemy/1.png", 528, 220, 51, 57);
+	Texture::CutSubimage("res/textures/Enemy/enemies_spritesheet.png", "res/textures/Enemy/2.png", 477, 220, 51, 57);
+	Texture::AddHorizontally("res/textures/Enemy/0.png", "res/textures/Enemy/1.png", "res/textures/Enemy/barnacle.png");
+	Texture::AddHorizontally("res/textures/Enemy/barnacle.png", "res/textures/Enemy/2.png", "res/textures/Enemy/barnacle2.png");
 
-	//Texture::CutSubimage("res/Textures/GUI/gui_spritesheet.png", "res/Textures/GUI/0.png", 0, 150, 725, 75);
-	//Texture::CutSubimage("res/Textures/GUI/gui_spritesheet.png", "res/Textures/GUI/1.png", 0, 225, 725, 75);
-	//Texture::AddHorizontally("res/Textures/GUI/0.png", "res/Textures/GUI/1.png", "res/Textures/GUI/button_ls.png");
+	Texture::CutSubimage("res/textures/GUI/gui_spritesheet.png", "res/textures/GUI/0.png", 1, 1, 229, 49);
+	Texture::CutSubimage("res/textures/GUI/gui_spritesheet.png", "res/textures/GUI/1.png", 1, 51, 229, 49);
+	Texture::CutSubimage("res/textures/GUI/gui_spritesheet.png", "res/textures/GUI/2.png", 1, 101, 229, 49);
+	Texture::AddHorizontally("res/textures/GUI/0.png", "res/textures/GUI/1.png", "res/textures/GUI/_button.png");
+	Texture::AddHorizontally("res/textures/GUI/_button.png", "res/textures/GUI/2.png", "res/textures/GUI/button_menu.png");
 
-	//Texture::CutSubimage("res/Textures/GUI/gui_spritesheet.png", "res/Textures/GUI/pointer.png", 231, 1, 39, 31);
+	Texture::CutSubimage("res/textures/GUI/gui_spritesheet.png", "res/textures/GUI/0.png", 0, 150, 725, 75);
+	Texture::CutSubimage("res/textures/GUI/gui_spritesheet.png", "res/textures/GUI/1.png", 0, 225, 725, 75);
+	Texture::AddHorizontally("res/textures/GUI/0.png", "res/textures/GUI/1.png", "res/textures/GUI/button_ls.png");
 
-	//Texture::CutSubimage("res/Textures/Enemy/enemies_spritesheet.png", "res/Textures/Enemy/0.png", 315, 353, 56, 48);
-	//Texture::CutSubimage("res/Textures/Enemy/enemies_spritesheet.png", "res/Textures/Enemy/1.png", 140, 23, 61, 42);
-	//Texture::AddHorizontally("res/Textures/Enemy/3.png", "res/Textures/Enemy/2.png", "res/Textures/Enemy/bee.png");
+	Texture::CutSubimage("res/textures/GUI/gui_spritesheet.png", "res/textures/GUI/pointer.png", 231, 1, 39, 31);
 
-	//Texture::CutSubimage("res/Textures/Enemy/enemies_spritesheet.png", "res/Textures/Enemy/0.png", 140, 65, 49, 34);
-	//Texture::CutSubimage("res/Textures/Enemy/enemies_spritesheet.png", "res/Textures/Enemy/1.png", 578, 312, 57, 34);
-	//Texture::CutSubimage("res/Textures/Enemy/enemies_spritesheet.png", "res/Textures/Enemy/2.png", 576, 457, 57, 34);
+	Texture::CutSubimage("res/textures/Enemy/enemies_spritesheet.png", "res/textures/Enemy/0.png", 315, 353, 56, 48);
+	Texture::CutSubimage("res/textures/Enemy/enemies_spritesheet.png", "res/textures/Enemy/1.png", 140, 23, 61, 42);
+	Texture::AddHorizontally("res/textures/Enemy/3.png", "res/textures/Enemy/2.png", "res/textures/Enemy/bee.png");
 
-	//Texture::AddHorizontally("res/Textures/Enemy/0.png", "res/Textures/Enemy/1.png", "res/Textures/Enemy/slime1.png");
-	//Texture::AddHorizontally("res/Textures/Enemy/slime1.png", "res/Textures/Enemy/2.png", "res/Textures/Enemy/slime2.png");
-	//Texture::AddHorizontally("res/Textures/Enemy/slime2.png", "res/Textures/Enemy/1.png", "res/Textures/Enemy/slime.png");
+	Texture::CutSubimage("res/textures/Enemy/enemies_spritesheet.png", "res/textures/Enemy/0.png", 140, 65, 49, 34);
+	Texture::CutSubimage("res/textures/Enemy/enemies_spritesheet.png", "res/textures/Enemy/1.png", 578, 312, 57, 34);
+	Texture::CutSubimage("res/textures/Enemy/enemies_spritesheet.png", "res/textures/Enemy/2.png", 576, 457, 57, 34);
 
-	//Texture::CutSubimage("res/Textures/Enemy/enemies_spritesheet.png", "res/Textures/Enemy/0.png", 0, 141, 71, 70);
-	//Texture::CutSubimage("res/Textures/Enemy/enemies_spritesheet.png", "res/Textures/Enemy/1.png", 0, 211, 71, 70);
-	//Texture::AddHorizontally("res/Textures/Enemy/0.png", "res/Textures/Enemy/1.png", "res/Textures/Enemy/grass_block.png");
+	Texture::AddHorizontally("res/textures/Enemy/0.png", "res/textures/Enemy/1.png", "res/textures/Enemy/slime1.png");
+	Texture::AddHorizontally("res/textures/Enemy/slime1.png", "res/textures/Enemy/2.png", "res/textures/Enemy/slime2.png");
+	Texture::AddHorizontally("res/textures/Enemy/slime2.png", "res/textures/Enemy/1.png", "res/textures/Enemy/slime.png");
 
-	//Texture::CutSubimage("res/Textures/Enemy/enemies_spritesheet.png", "res/Textures/Enemy/0.png", 424, 187, 53, 146);
-	//Texture::CutSubimage("res/Textures/Enemy/enemies_spritesheet.png", "res/Textures/Enemy/1.png", 425, 40, 53, 146);
-	//Texture::AddHorizontally("res/Textures/Enemy/0.png", "res/Textures/Enemy/1.png", "res/Textures/Enemy/snake_slime.png");
+	Texture::CutSubimage("res/textures/Enemy/enemies_spritesheet.png", "res/textures/Enemy/0.png", 0, 141, 71, 70);
+	Texture::CutSubimage("res/textures/Enemy/enemies_spritesheet.png", "res/textures/Enemy/1.png", 0, 211, 71, 70);
+	Texture::AddHorizontally("res/textures/Enemy/0.png", "res/textures/Enemy/1.png", "res/textures/Enemy/grass_block.png");
+
+	Texture::CutSubimage("res/textures/Enemy/enemies_spritesheet.png", "res/textures/Enemy/0.png", 424, 187, 53, 146);
+	Texture::CutSubimage("res/textures/Enemy/enemies_spritesheet.png", "res/textures/Enemy/1.png", 425, 40, 53, 146);
+	Texture::AddHorizontally("res/textures/Enemy/0.png", "res/textures/Enemy/1.png", "res/textures/Enemy/snake_slime.png");*/
 
 }

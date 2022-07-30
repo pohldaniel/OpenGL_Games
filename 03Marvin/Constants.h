@@ -14,7 +14,9 @@
 
 #define DEBUGCOLLISION 1
 #define DEBUG 1
+#define FIXEDUPDATE 0
 
+#define UPDATE_STEP 0.0166666f
 #define PHYSICS_STEP 0.01f
 #define WIDTH 1024
 #define HEIGHT 768

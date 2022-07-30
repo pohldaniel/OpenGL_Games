@@ -8,6 +8,9 @@
 #include "Constants.h"
 #include "engine\Clock.h"
 #include "Application.h"
+#include <chrono>
+#include <thread>
+using namespace std::chrono_literals;
 
 extern float Globals::offset = 0.0f;
 extern unsigned long Globals::CONTROLLS = 0;
@@ -65,12 +68,22 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	Clock deltaClock;
 	Clock fixedDeltaClock;
-
+	
 	int frames = 0;
 	double framesTime = 0;
 	
+	
 	while (application.isRunning()) {
-
+		#if FIXEDUPDATE
+		float timeToSleep = UPDATE_STEP - deltaTime;	
+		if (timeToSleep > 0){	
+			std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<uint32_t>(timeToSleep * 1000.0f)));					
+		}
+		fixedDeltaTime = deltaTime * 0.8f;
+		application.fixedUpdate();
+		application.update();
+		application.render();
+		#else 
 		physicsElapsedTime += deltaTime;
 		while (physicsElapsedTime > PHYSICS_STEP) {
 			fixedDeltaTime = fixedDeltaClock.restartSec();
@@ -83,8 +96,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 		application.update();
 		application.render();
+		#endif
+
 		deltaTime = deltaClock.restartSec();
-		
+
 		#if DEBUG
 		framesTime += deltaTime;
 		frames++;
@@ -94,7 +109,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 			SetWindowText(hwnd, fpsText);
 			frames = 0;
 			framesTime = 0;
+			deltaClock.restart();
 		}
+		
+	
 		#endif
 		hdc = GetDC(hwnd);
 		SwapBuffers(hdc);

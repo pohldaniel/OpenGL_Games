@@ -35,6 +35,8 @@ public:
 	const Vector2f &getOrigin() const;
 	const unsigned int getCategory() const;
 
+	
+
 protected:
 	unsigned int m_category;
 
