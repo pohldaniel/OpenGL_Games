@@ -52,6 +52,7 @@ public:
 	void renderOffscreen();
 	void shadowPass();
 	void mousePickPass();
+	void click();
 
 	Camera m_camera;
 	Terrain m_terrain;
@@ -61,6 +62,7 @@ public:
 	Quad *m_perlinQuad;
 	Quad *m_shadowQuad;
 
+	
 	Framebuffer m_copyFramebuffer;
 	Framebuffer m_lightDepthFramebuffer;
 	Framebuffer m_mousePickBuffer;
@@ -70,7 +72,9 @@ public:
 	Shader *m_quadArrayShader;
 	Shader *m_quadArrayShadowShader;
 
-	MeshQuad *m_meshQuad;
+
+	MeshQuad *m_cursor;
+
 	MeshCube *m_meshCube;
 	std::vector<MeshCube*> m_entities;
 	std::vector<Fern*> m_fernEntities;
@@ -98,4 +102,10 @@ public:
 
 	int pickedID = 0;
 	float terrainHeight = 0;
+
+	const float m_transitionSpeed = 1.5f;
+	bool m_transitionEnd = false;
+	bool m_fadeIn = false;
+	bool m_fadeOut = true;
+	float m_radius = 0.0f;
 };

@@ -47,8 +47,8 @@ void MeshQuad::buildMesh(){
 		for (unsigned int j = 0; j <= m_uResolution; j++) {
 			
 			// Calculate vertex position on the surface of a quad
-			float x = j * uStep;
-			float z = i * vStep;
+			float x = j * uStep - m_width * 0.5f;
+			float z = i * vStep - m_height * 0.5f;
 			float y = m_groundLevel;
 
 			Vector3f position = Vector3f(x, y, z);
@@ -142,9 +142,9 @@ void MeshQuad::buildMesh(){
 void MeshQuad::draw(const Camera camera) {
 
 	glUseProgram(m_shader->m_program);
-
+	
 	m_texture->bind(0);
-	m_shader->loadMatrix("u_modelView", camera.getViewMatrix());
+	m_shader->loadMatrix("u_modelView", _modelMatrix * camera.getViewMatrix());
 	m_shader->loadMatrix("u_projection", Globals::projection);
 
 	glBindVertexArray(m_vao);
@@ -154,4 +154,22 @@ void MeshQuad::draw(const Camera camera) {
 
 	glUseProgram(0);
 
+}
+
+void MeshQuad::rotate(const Vector3f &axis, float degrees) {
+	m_modelMatrix.rotate(axis, degrees);
+}
+
+void MeshQuad::translate(float dx, float dy, float dz) {
+	//m_modelMatrix.translate(dx, dy, dz);
+	_modelMatrix.translate(dx, dy, dz);
+}
+
+void MeshQuad::scale(float a, float b, float c) {
+	//m_modelMatrix.scale(a, b, c);
+	_modelMatrix.scale(a, b, c);
+}
+
+void MeshQuad::setTransformation(const Matrix4f& model){
+	_modelMatrix = model;
 }

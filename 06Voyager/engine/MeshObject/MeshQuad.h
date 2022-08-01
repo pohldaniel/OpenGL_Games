@@ -21,6 +21,11 @@ public:
 	MeshQuad(float width, float height, float groundLevel, bool generateTexels, bool generateNormals);
 	~MeshQuad();
 
+	void rotate(const Vector3f &axis, float degrees);
+	void translate(float dx, float dy, float dz);
+	void scale(float a, float b, float c);
+	void setTransformation(const Matrix4f& model);
+
 	void setPrecision(int uResolution, int vResolution);
 	void buildMesh();
 	void draw(const Camera camera);
@@ -57,6 +62,7 @@ private:
 	unsigned int m_drawCount;
 
 	ModelMatrix m_modelMatrix;
+	Matrix4f _modelMatrix;
 
 	std::shared_ptr<Shader> m_shader;
 	std::shared_ptr<Texture> m_texture;

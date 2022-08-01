@@ -79,13 +79,11 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_water(
 	m_cameraBoundsMin[1] = 0.0f;
 	m_cameraBoundsMin[2] = lowerBounds;
 
-	m_meshQuad = new MeshQuad(8192, 8192, 400);
-	m_meshQuad->setPrecision(1, 1);
-	m_meshQuad->buildMesh();
-	m_meshQuad->setShader(Globals::shaderManager.getAssetPointer("shadowQuad"));
-	m_meshQuad->setTexture(&Globals::textureManager.get("null"));
-
-
+	m_cursor = new MeshQuad(100, 100, 0);
+	m_cursor->setPrecision(1, 1);
+	m_cursor->buildMesh();
+	m_cursor->setTexture(&Globals::textureManager.get("null"));
+	m_cursor->setShader(Globals::shaderManager.getAssetPointer("ring"));
 
 	//m_entities.push_back(new MeshCube(Vector3f(HEIGHTMAP_WIDTH * 0.5f + 300.0f, 450.1f, HEIGHTMAP_WIDTH * 0.5f + 300.0f), 100, 100, 100));
 	m_entities.push_back(new MeshCube(Vector3f(HEIGHTMAP_WIDTH * 0.5f + 600.0f, m_terrain.getHeightMap().heightAt(HEIGHTMAP_WIDTH * 0.5f + 600.0f, HEIGHTMAP_WIDTH * 0.5f + 300.0f) + 50.0f, HEIGHTMAP_WIDTH * 0.5f + 300.0f), 100, 100, 100));
@@ -168,6 +166,19 @@ void Game::fixedUpdate() {
 };
 
 void Game::update() {
+	if (m_fadeIn) {
+		m_radius = m_radius < 0.7f ? m_radius + m_transitionSpeed * m_dt : 0.7f;
+		m_fadeIn = m_radius < 0.7f;
+		m_transitionEnd = !m_fadeIn;
+	}
+
+	if (m_fadeOut) {
+
+		m_radius = m_radius >= 0.0f ? m_radius - m_transitionSpeed * m_dt : 0.0f;
+		m_fadeOut = m_radius >= 0.0f;
+		m_transitionEnd = m_fadeOut;
+	}
+	
 	Keyboard &keyboard = Keyboard::instance();
 	Vector3f directrion = Vector3f();
 
@@ -266,7 +277,7 @@ void Game::update() {
 			MeshCube* cube = reinterpret_cast<MeshCube*>(callback.m_collisionObject->getUserPointer());
 			cube->dissolve();			
 		}
-
+		click();
 	}
 
 	if (mouse.buttonDown(Mouse::MouseButton::BUTTON_RIGHT)) {		
@@ -337,6 +348,16 @@ void Game::render(unsigned int &frameBuffer) {
 	m_terrain.draw(m_camera);
 	glUseProgram(0);
 
+	glDisable(GL_DEPTH_TEST);
+	glEnable(GL_BLEND);
+	shader = Globals::shaderManager.getAssetPointer("ring");
+	glUseProgram(shader->m_program);
+	shader->loadFloat("u_radius", m_radius);
+	glUseProgram(0);
+	m_cursor->draw(m_camera);
+	glDisable(GL_BLEND);
+	glEnable(GL_DEPTH_TEST);
+
 	for (auto entitie : m_entities) {
 		entitie->draw(m_camera);
 	}
@@ -347,6 +368,8 @@ void Game::render(unsigned int &frameBuffer) {
 
 	m_tree->draw(m_camera);
 	m_barrel.draw(m_camera);
+
+	
 
 	if (m_debugNormal) {
 		auto normalGS = Globals::shaderManager.getAssetPointer("normalGS");
@@ -550,6 +573,42 @@ void Game::OnMouseMotion(Event::MouseMoveEvent& event) {
 	Globals::physics->GetDynamicsWorld()->rayTest(origin, target, callback);
 	if (callback.hasHit()) {
 		terrainHeight = callback.m_hitPointWorld.getY();
+
+		Vector3f normal = Vector3f(callback.m_hitNormalWorld[0], callback.m_hitNormalWorld[1], callback.m_hitNormalWorld[2]);
+		Vector3f tangent = Vector3f::Cross(m_camera.getViewDirection(), normal);
+		Vector3f::Normalize(tangent);
+		Vector3f bitangent = Vector3f::Cross(normal, tangent);
+		Vector3f::Normalize(bitangent);
+		
+
+		Matrix4f rotation;
+
+		rotation[0][0] = tangent[0];
+		rotation[0][1] = normal[0];
+		rotation[0][2] = bitangent[0];
+		rotation[0][3] = 0.0f;
+
+		rotation[1][0] = tangent[1];
+		rotation[1][1] = normal[1];
+		rotation[1][2] = bitangent[1];
+		rotation[1][3] = 0.0f;
+
+		rotation[2][0] = tangent[2];
+		rotation[2][1] = normal[2];
+		rotation[2][2] = bitangent[2];
+		rotation[2][3] = 0.0f;
+
+		rotation[3][0] = 0.0f;
+		rotation[3][1] = 0.0f;
+		rotation[3][2] = 0.0f;
+		rotation[3][3] = 1.0f;
+
+		
+		Vector3f position = Vector3f(callback.m_hitPointWorld[0], terrainHeight, callback.m_hitPointWorld[2]);
+
+		Matrix4f trans;		
+		trans.translate(position[0], position[1], position[2]);
+		m_cursor->setTransformation(rotation * trans);
 	}
 }
 
@@ -574,4 +633,14 @@ void Game::performCameraCollisionDetection(){
 	m_camera.setPosition(newPos);
 
 	m_flag = newPos[1] < m_water.getWaterLevel() + CAMERA_Y_OFFSET;
+}
+
+void Game::click() {
+	if (!m_transitionEnd) {
+		m_fadeOut = m_fadeIn;
+		m_fadeIn = !m_fadeIn;
+	}else {
+		m_fadeIn = m_fadeOut;
+		m_fadeOut = !m_fadeOut;
+	}
 }

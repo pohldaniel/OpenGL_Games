@@ -345,6 +345,7 @@ void Application::loadAssets() {
 	Globals::shaderManager.loadShader("depthGS", "res/shader/depthGS.vs", "res/shader/depthGS.fs", "res/shader/depthGS.gs");	
 	Globals::shaderManager.loadShader("shadowQuad", "res/shader/shadowQuad.vs", "res/shader/shadowQuad.fs");
 	Globals::shaderManager.loadShader("dissolve", "res/shader/dissolve.vs", "res/shader/dissolve.fs");
+	Globals::shaderManager.loadShader("ring", "res/shader/ring.vs", "res/shader/ring.fs");
 
 	Globals::textureManager.loadTexture("dirt", "res/textures/dirt.JPG", true);
 	Globals::textureManager.loadTexture("grass", "res/textures/grass.JPG", true);
