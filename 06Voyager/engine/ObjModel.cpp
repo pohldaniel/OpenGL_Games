@@ -258,8 +258,7 @@ bool Model::loadObject(const char* a_filename, Vector3f& rotate, float degree, V
 	aabb.createBuffer(xmin, xmax, ymin, ymax, zmin, zmax, s_id);
 	m_numberOfTriangles = face.size();
 
-	std::cout << a_filename << std::endl;
-
+	
 	float** ap = new float*[m_numberOfTriangles];
 	for (int i = 0; i < m_numberOfTriangles; ++i) {
 		float* p = new float[3];
@@ -268,7 +267,7 @@ bool Model::loadObject(const char* a_filename, Vector3f& rotate, float degree, V
 		}
 		ap[i] = p;
 	}
-	m_center = Vector3f((xmin + xmax) / 2.0f, (ymin + ymax) / 2.0f, (zmin + zmax) / 2.0f);
+	m_center = Vector3f((xmin + xmax) * 0.5f, (ymin + ymax) * 0.5f, (zmin + zmax) * 0.5f);
 
 	Miniball::Miniball<Miniball::CoordAccessor<float* const*, const float*>> mb(3, ap, ap + m_numberOfTriangles);
 
@@ -1561,7 +1560,6 @@ void BoundingBox::drawRaw() {
 }
 
 void BoundingSphere::createBuffer() {
-	std::cout << "########" << std::endl;
 	float uAngleStep = (2.0f * PI) / float(m_uResolution);
 	float vAngleStep = PI / float(m_vResolution);
 
