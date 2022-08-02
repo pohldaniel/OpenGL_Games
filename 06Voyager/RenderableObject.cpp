@@ -42,3 +42,7 @@ const Matrix4f &RenderableObject::getTransformationMatrix() const {
 const Matrix4f &RenderableObject::getInvTransformationMatrix() const {
 	return m_modelMatrix.getInvTransformationMatrix();
 }
+
+const Model* RenderableObject::getModel() const {
+	return m_model;
+}

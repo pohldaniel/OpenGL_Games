@@ -99,7 +99,7 @@ btCollisionShape * Physics::CreateStaticCollisionShape(Mesh * mesh, const btVect
 		mesh->m_positions.size(), (btScalar*)(&mesh->m_positions[0]), sizeof(Vector3f));
 
 	btBvhTriangleMeshShape *shape = new btBvhTriangleMeshShape(tiva, true);
-	shape->setLocalScaling(btVector3(1.0, 1.0, 1.0));
+	shape->setLocalScaling(scale);
 
 	return shape;
 }
@@ -152,6 +152,15 @@ btTransform Physics::btTransFrom() {
 	btTransform ret;
 	ret.setIdentity();
 	
+	return ret;
+}
+
+btTransform Physics::btTransForm(const Vector3f& origin) {
+	btTransform ret;
+	ret.setIdentity();
+
+	ret.setOrigin(btVector3(origin[0], origin[1], origin[2]));
+
 	return ret;
 }
 

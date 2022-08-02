@@ -414,6 +414,7 @@
     <ClInclude Include="Entity.h" />
     <ClInclude Include="Fern.h" />
     <ClInclude Include="Game.h" />
+    <ClInclude Include="MousePicker.h" />
     <ClInclude Include="Object.h" />
     <ClInclude Include="Physics.h" />
     <ClInclude Include="Ray.h" />
@@ -604,6 +605,7 @@
     <ClCompile Include="Fern.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="MousePicker.cpp" />
     <ClCompile Include="Object.cpp" />
     <ClCompile Include="Physics.cpp" />
     <ClCompile Include="Ray.cpp" />

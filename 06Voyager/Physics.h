@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include <btBulletDynamicsCommon.h>
+#include "engine/Vector.h"
 
 class Mesh;
 class Model;
@@ -14,6 +15,7 @@ public:
 		TERRAIN = 1,
 		RENDERABLE_OBJECT = 2,
 		RAY = 4,
+		PICKABLE_OBJECT = 8,
 		COL_FORCE_8BIT = 0xFF
 	};
 
@@ -41,7 +43,7 @@ public:
 	static std::vector<btCollisionShape *> CreateStaticCollisionShapes(Model * model, const btVector3 & scale);
 	static std::vector<btCollisionShape *> CreateStaticCollisionShapes(Model * model, float scale = 1.f);
 	static btTransform btTransFrom();
-
+	static btTransform btTransForm(const Vector3f& origin);
 	
 	btDiscreteDynamicsWorld * GetDynamicsWorld() { return m_dynamicsWorld; }
 	

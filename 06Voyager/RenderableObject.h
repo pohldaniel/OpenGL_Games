@@ -24,6 +24,7 @@ public:
 	void scale(float a, float b, float c);
 	const Matrix4f &getTransformationMatrix() const;
 	const Matrix4f &getInvTransformationMatrix() const;
+	const Model* getModel() const;
 
 protected:
 	Shader *m_shader;

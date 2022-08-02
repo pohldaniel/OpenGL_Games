@@ -79,11 +79,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_water(
 	m_cameraBoundsMin[1] = 0.0f;
 	m_cameraBoundsMin[2] = lowerBounds;
 
-	m_cursor = new MeshQuad(100, 100, 0);
-	m_cursor->setPrecision(1, 1);
-	m_cursor->buildMesh();
-	m_cursor->setTexture(&Globals::textureManager.get("null"));
-	m_cursor->setShader(Globals::shaderManager.getAssetPointer("ring"));
+	m_mousePicker = new MousePicker();
 
 	//m_entities.push_back(new MeshCube(Vector3f(HEIGHTMAP_WIDTH * 0.5f + 300.0f, 450.1f, HEIGHTMAP_WIDTH * 0.5f + 300.0f), 100, 100, 100));
 	m_entities.push_back(new MeshCube(Vector3f(HEIGHTMAP_WIDTH * 0.5f + 600.0f, m_terrain.getHeightMap().heightAt(HEIGHTMAP_WIDTH * 0.5f + 600.0f, HEIGHTMAP_WIDTH * 0.5f + 300.0f) + 50.0f, HEIGHTMAP_WIDTH * 0.5f + 300.0f), 100, 100, 100));
@@ -132,6 +128,11 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_water(
 	m_barrel.translate(HEIGHTMAP_WIDTH * 0.5f + 200.0f, m_terrain.getHeightMap().heightAt(HEIGHTMAP_WIDTH * 0.5f + 200.0f, HEIGHTMAP_WIDTH * 0.5f + 200.0f) + 50.0f, HEIGHTMAP_WIDTH * 0.5f + 200.0f);
 	m_barrel.scale(10.0f, 10.0f, 10.0f);
 
+
+	std::vector<btCollisionShape*> barrelShape = Physics::CreateStaticCollisionShapes(const_cast<Model*>(m_barrel.getModel()), 10.0f);
+	btRigidBody* barrelBody = Globals::physics->addStaticModel(barrelShape, Physics::btTransForm(Vector3f(HEIGHTMAP_WIDTH * 0.5f + 200.0f, m_terrain.getHeightMap().heightAt(HEIGHTMAP_WIDTH * 0.5f + 200.0f, HEIGHTMAP_WIDTH * 0.5f + 200.0f) + 50.0f, HEIGHTMAP_WIDTH * 0.5f + 200.0f)), false, btVector3(1, 1, 1), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::RAY);
+	body->setUserPointer(reinterpret_cast<void*>(&m_barrel));
+
 	charachterSet.loadFromFile("res/verdana.fnt");
 
 	m_text = new Text(charachterSet);
@@ -166,19 +167,6 @@ void Game::fixedUpdate() {
 };
 
 void Game::update() {
-	if (m_fadeIn) {
-		m_radius = m_radius < 0.7f ? m_radius + m_transitionSpeed * m_dt : 0.7f;
-		m_fadeIn = m_radius < 0.7f;
-		m_transitionEnd = !m_fadeIn;
-	}
-
-	if (m_fadeOut) {
-
-		m_radius = m_radius >= 0.0f ? m_radius - m_transitionSpeed * m_dt : 0.0f;
-		m_fadeOut = m_radius >= 0.0f;
-		m_transitionEnd = m_fadeOut;
-	}
-	
 	Keyboard &keyboard = Keyboard::instance();
 	Vector3f directrion = Vector3f();
 
@@ -277,15 +265,13 @@ void Game::update() {
 			MeshCube* cube = reinterpret_cast<MeshCube*>(callback.m_collisionObject->getUserPointer());
 			cube->dissolve();			
 		}
-		click();
+		m_mousePicker->click();
 	}
 
 	if (mouse.buttonDown(Mouse::MouseButton::BUTTON_RIGHT)) {		
 		dx = mouse.xPosRelative();
 		dy = mouse.yPosRelative();
 	}
-
-	
 
 	if (move || dx != 0.0f || dy != 0.0f) {
 
@@ -315,6 +301,8 @@ void Game::update() {
 	for (auto entitie : m_fernEntities) {
 		entitie->setDrawBorder(pickedID == entitie->m_id);
 	}
+
+	m_mousePicker->update(m_dt);
 
 	//performCameraCollisionDetection();
 };
@@ -348,15 +336,10 @@ void Game::render(unsigned int &frameBuffer) {
 	m_terrain.draw(m_camera);
 	glUseProgram(0);
 
-	glDisable(GL_DEPTH_TEST);
-	glEnable(GL_BLEND);
-	shader = Globals::shaderManager.getAssetPointer("ring");
-	glUseProgram(shader->m_program);
-	shader->loadFloat("u_radius", m_radius);
-	glUseProgram(0);
-	m_cursor->draw(m_camera);
-	glDisable(GL_BLEND);
-	glEnable(GL_DEPTH_TEST);
+	m_barrel.draw(m_camera);
+
+	m_mousePicker->draw(m_camera);
+	
 
 	for (auto entitie : m_entities) {
 		entitie->draw(m_camera);
@@ -367,8 +350,6 @@ void Game::render(unsigned int &frameBuffer) {
 	}
 
 	m_tree->draw(m_camera);
-	m_barrel.draw(m_camera);
-
 	
 
 	if (m_debugNormal) {
@@ -548,68 +529,7 @@ void Game::OnMouseMotion(Event::MouseMoveEvent& event) {
 	glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
 	glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
 
-	float mouseXndc = (2.0f * event.x) / (float)WIDTH - 1.0f;
-	float mouseYndc = 1.0f - (2.0f * event.y) / (float)HEIGHT;
-
-	Vector4f rayStartEye = Globals::invProjection ^ Vector4f(mouseXndc, mouseYndc, -1.0f, 1.0f);
-	Vector4f rayEndEye = Globals::invProjection ^ Vector4f(mouseXndc, mouseYndc, 1.0f, 1.0f);
-	rayEndEye = rayEndEye * (1.0f / rayEndEye[3]);
-
-
-	Vector3f rayStartWorld = m_camera.getInvViewMatrix() * rayStartEye;
-	Vector3f rayEndWorld = m_camera.getInvViewMatrix() * rayEndEye;
-
-	Vector3f rayDirection = rayEndWorld - rayStartWorld;
-	Vector3f::Normalize(rayDirection);
-
-
-	btVector3 origin = btVector3(rayStartWorld[0], rayStartWorld[1], rayStartWorld[2]);
-	btVector3 target = btVector3(rayEndWorld[0], rayEndWorld[1], rayEndWorld[2]);
-
-	RayResultCallback callback(origin, target, Physics::collisiontypes::RAY, Physics::collisiontypes::TERRAIN);
-	callback.m_collisionFilterGroup = Physics::collisiontypes::RAY;
-	callback.m_collisionFilterMask = Physics::collisiontypes::TERRAIN;
-
-	Globals::physics->GetDynamicsWorld()->rayTest(origin, target, callback);
-	if (callback.hasHit()) {
-		terrainHeight = callback.m_hitPointWorld.getY();
-
-		Vector3f normal = Vector3f(callback.m_hitNormalWorld[0], callback.m_hitNormalWorld[1], callback.m_hitNormalWorld[2]);
-		Vector3f tangent = Vector3f::Cross(m_camera.getViewDirection(), normal);
-		Vector3f::Normalize(tangent);
-		Vector3f bitangent = Vector3f::Cross(normal, tangent);
-		Vector3f::Normalize(bitangent);
-		
-
-		Matrix4f rotation;
-
-		rotation[0][0] = tangent[0];
-		rotation[0][1] = normal[0];
-		rotation[0][2] = bitangent[0];
-		rotation[0][3] = 0.0f;
-
-		rotation[1][0] = tangent[1];
-		rotation[1][1] = normal[1];
-		rotation[1][2] = bitangent[1];
-		rotation[1][3] = 0.0f;
-
-		rotation[2][0] = tangent[2];
-		rotation[2][1] = normal[2];
-		rotation[2][2] = bitangent[2];
-		rotation[2][3] = 0.0f;
-
-		rotation[3][0] = 0.0f;
-		rotation[3][1] = 0.0f;
-		rotation[3][2] = 0.0f;
-		rotation[3][3] = 1.0f;
-
-		
-		Vector3f position = Vector3f(callback.m_hitPointWorld[0], terrainHeight, callback.m_hitPointWorld[2]);
-
-		Matrix4f trans;		
-		trans.translate(position[0], position[1], position[2]);
-		m_cursor->setTransformation(rotation * trans);
-	}
+	m_mousePicker->updatePosition(event.x, event.y, m_camera);
 }
 
 void Game::performCameraCollisionDetection(){
@@ -633,14 +553,4 @@ void Game::performCameraCollisionDetection(){
 	m_camera.setPosition(newPos);
 
 	m_flag = newPos[1] < m_water.getWaterLevel() + CAMERA_Y_OFFSET;
-}
-
-void Game::click() {
-	if (!m_transitionEnd) {
-		m_fadeOut = m_fadeIn;
-		m_fadeIn = !m_fadeIn;
-	}else {
-		m_fadeIn = m_fadeOut;
-		m_fadeOut = !m_fadeOut;
-	}
 }

@@ -20,7 +20,7 @@
 #include "Skybox.h"
 #include "Barrel.h"
 #include "Ray.h"
-
+#include "MousePicker.h"
 
 class RayResultCallback : public btCollisionWorld::ClosestRayResultCallback{
 public:
@@ -52,7 +52,6 @@ public:
 	void renderOffscreen();
 	void shadowPass();
 	void mousePickPass();
-	void click();
 
 	Camera m_camera;
 	Terrain m_terrain;
@@ -72,8 +71,7 @@ public:
 	Shader *m_quadArrayShader;
 	Shader *m_quadArrayShadowShader;
 
-
-	MeshQuad *m_cursor;
+	MousePicker* m_mousePicker;
 
 	MeshCube *m_meshCube;
 	std::vector<MeshCube*> m_entities;
@@ -101,11 +99,4 @@ public:
 	unsigned int pboIds[2];
 
 	int pickedID = 0;
-	float terrainHeight = 0;
-
-	const float m_transitionSpeed = 1.5f;
-	bool m_transitionEnd = false;
-	bool m_fadeIn = false;
-	bool m_fadeOut = true;
-	float m_radius = 0.0f;
 };
