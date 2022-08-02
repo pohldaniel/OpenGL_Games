@@ -1,6 +1,6 @@
 #include "Barrel.h"
 
-Barrel::Barrel(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fdt) {
+Barrel::Barrel(){
 	
 	m_model = new Model();
 	m_model->loadObject("res/barrel/barrel.obj");
@@ -10,9 +10,11 @@ Barrel::Barrel(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fdt) {
 	m_shader = Globals::shaderManager.getAssetPointer("normal");
 	m_aabbShader = Globals::shaderManager.getAssetPointer("aabb");
 	m_colorShader = Globals::shaderManager.getAssetPointer("color");
+	m_sphereShader = Globals::shaderManager.getAssetPointer("texture");
 
 	m_texture = &Globals::textureManager.get("barrel");
 	m_normalMap = &Globals::textureManager.get("barrel_normal");
+	m_nullTexture = &Globals::textureManager.get("null");
 
 	glUseProgram(m_shader->m_program);
 	m_shader->loadVector("u_lightPos[0]", Vector3f(-600, 10, 0.0));
@@ -92,6 +94,7 @@ void Barrel::draw(const Camera& camera) {
 	}
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	drawAABB(camera);
+	drawSphere(camera);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
 
@@ -118,10 +121,21 @@ void Barrel::drawAABB(const Camera& camera) {
 	glUseProgram(0);
 }
 
+void Barrel::drawSphere(const Camera& camera) {
+	glUseProgram(m_sphereShader->m_program);
 
-void Barrel::update() {
+	m_sphereShader->loadMatrix("u_projection", Globals::projection);
+	m_sphereShader->loadMatrix("u_modelView", m_modelMatrix.getTransformationMatrix() * camera.getViewMatrix());
+	m_nullTexture->bind(0);
+	m_model->drawSphere();
+	Texture::Unbind();
+
+	glUseProgram(0);
+}
+
+void Barrel::update(float dt) {
 	if (m_rotateLight) {
-		modelLight.rotate(Vector3f(0.0, 1.0, 0.0), -60.0 * m_dt);
+		modelLight.rotate(Vector3f(0.0, 1.0, 0.0), -60.0 * dt);
 	}
 }
 

@@ -252,12 +252,41 @@ bool Model::loadObject(const char* a_filename, Vector3f& rotate, float degree, V
 		}//end switch
 	}// end while
 	fclose(pFile);
+
 	s_id = s_id + 10;
 	m_id = s_id;
 	aabb.createBuffer(xmin, xmax, ymin, ymax, zmin, zmax, s_id);
-	
+	m_numberOfTriangles = face.size();
 
+	std::cout << a_filename << std::endl;
+
+	float** ap = new float*[m_numberOfTriangles];
+	for (int i = 0; i < m_numberOfTriangles; ++i) {
+		float* p = new float[3];
+		for (int dim = 0; dim < 3; ++dim) {
+			p[dim] = vertexCoords[i * 3 + dim];
+		}
+		ap[i] = p;
+	}
 	m_center = Vector3f((xmin + xmax) / 2.0f, (ymin + ymax) / 2.0f, (zmin + zmax) / 2.0f);
+
+	Miniball::Miniball<Miniball::CoordAccessor<float* const*, const float*>> mb(3, ap, ap + m_numberOfTriangles);
+
+	//quick and dirty approximation in case Miniball fails
+	if (mb.squared_radius() != mb.squared_radius()) {
+		boundingSphere.m_radius = std::max((xmin + xmax) * 0.5f, std::max((ymin + ymax) * 0.5f, (zmin + zmax) * 0.5f));
+		boundingSphere.m_position = m_center;
+	}else {
+		boundingSphere.m_radius = sqrtf(mb.squared_radius());
+		boundingSphere.m_position = Vector3f(mb.center()[0], mb.center()[1], mb.center()[2]);
+	}
+	boundingSphere.createBuffer();
+
+	for (int i = 0; i<m_numberOfTriangles; ++i)
+		delete[] ap[i];
+	delete[] ap;
+
+	
 
 	std::sort(face.begin(), face.end(), compare);
 	std::map<int, int> dup;
@@ -397,6 +426,10 @@ void Model::drawRaw() {
 
 void Model::drawAABB() {
 	aabb.drawRaw();
+}
+
+void Model::drawSphere() {
+	boundingSphere.drawRaw();
 }
 
 void Model::drawInstanced(const Camera& camera) {
@@ -1525,4 +1558,102 @@ void BoundingBox::drawRaw() {
 	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+}
+
+void BoundingSphere::createBuffer() {
+	std::cout << "########" << std::endl;
+	float uAngleStep = (2.0f * PI) / float(m_uResolution);
+	float vAngleStep = PI / float(m_vResolution);
+
+	float vSegmentAngle;
+	for (unsigned int i = 0; i <= m_vResolution; i++) {
+
+		vSegmentAngle = i * vAngleStep;
+		float cosVSegment = cosf(vSegmentAngle);
+		float sinVSegment = sinf(vSegmentAngle);
+
+		for (int j = 0; j <= m_uResolution; j++) {
+
+			float uSegmentAngle = j * uAngleStep;
+
+			float cosUSegment = cosf(uSegmentAngle);
+			float sinUSegment = sinf(uSegmentAngle);
+
+			// Calculate vertex position on the surface of a sphere
+			float x = m_radius * sinVSegment * cosUSegment + m_position[0];
+			float y = m_radius * cosVSegment + m_position[1];
+			float z = m_radius * sinVSegment * sinUSegment + m_position[2];
+
+
+			m_vertexBuffer.push_back(x); m_vertexBuffer.push_back(y); m_vertexBuffer.push_back(z);
+
+			float u = (float)j / m_uResolution;
+			float v = (float)i / m_vResolution;
+
+			m_vertexBuffer.push_back(u); m_vertexBuffer.push_back(v);
+		}
+	}
+
+	for (unsigned int j = 0; j < m_uResolution; j++) {
+		m_indexBuffer.push_back(0);
+		m_indexBuffer.push_back((m_uResolution + 1) + j + 1);
+		m_indexBuffer.push_back((m_uResolution + 1) + j);
+	}
+
+	for (unsigned int i = 1; i < m_vResolution - 1; i++) {
+
+		int k1 = i * (m_uResolution + 1);
+		int k2 = k1 + (m_uResolution + 1);
+
+		for (unsigned int j = 0; j < m_uResolution; j++) {
+
+			m_indexBuffer.push_back(k1 + j + 1);
+			m_indexBuffer.push_back(k2 + j);
+			m_indexBuffer.push_back(k1 + j);
+
+			m_indexBuffer.push_back(k2 + j + 1);
+			m_indexBuffer.push_back(k2 + j);
+			m_indexBuffer.push_back(k1 + j + 1);
+		}
+	}
+
+	//south pole
+	for (unsigned int j = 0; j < m_uResolution; j++) {
+
+		m_indexBuffer.push_back((m_vResolution - 1) * (m_uResolution + 1) + j);
+		m_indexBuffer.push_back((m_vResolution - 1) * (m_uResolution + 1) + j + 1);
+		m_indexBuffer.push_back(m_vResolution * (m_uResolution + 1));
+
+	}
+
+	short stride = 5; short offset = 3;
+
+	glGenBuffers(1, &m_ibo);
+	glGenBuffers(1, &m_vbo);
+
+	glGenVertexArrays(1, &m_vao);
+	glBindVertexArray(m_vao);
+	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+	glBufferData(GL_ARRAY_BUFFER, m_vertexBuffer.size() * sizeof(float), &m_vertexBuffer[0], GL_STATIC_DRAW);
+
+	//positions
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)0);
+
+	//texcoords
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)(offset * sizeof(float)));
+
+	//indices
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ibo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_indexBuffer.size() * sizeof(unsigned int), &m_indexBuffer[0], GL_STATIC_DRAW);
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+}
+
+void BoundingSphere::drawRaw() {
+	glBindVertexArray(m_vao);
+	glDrawElements(GL_TRIANGLES, m_indexBuffer.size(), GL_UNSIGNED_INT, 0);
+	glBindVertexArray(0);
 }

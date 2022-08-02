@@ -79,7 +79,7 @@ public:
 
 	Tree *m_tree;
 	SkyBox m_skybox;
-	Barrel m_barrel;
+	Barrel* m_barrel;
 	Ray m_ray;
 	Vector3f m_cameraBoundsMax;
 	Vector3f m_cameraBoundsMin;

@@ -8,8 +8,10 @@ Tree::Tree() {
 	m_shader = Globals::shaderManager.getAssetPointer("texture");
 	m_aabbShader = Globals::shaderManager.getAssetPointer("aabb");
 	m_colorShader = Globals::shaderManager.getAssetPointer("color");
+	m_sphereShader = Globals::shaderManager.getAssetPointer("texture");
 
 	m_texture = &Globals::textureManager.get("tree");
+	m_nullTexture = &Globals::textureManager.get("null");
 
 	m_transformOutline.scale(1.01f, 1.01f, 1.01f);
 
@@ -61,6 +63,11 @@ void Tree::draw(const Camera& camera) {
 		glStencilMask(0xFF);
 		glDisable(GL_STENCIL_TEST);
 	}
+
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	drawAABB(camera);
+	drawSphere(camera);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
 
 void Tree::drawShadow(const Camera& camera) {
@@ -85,6 +92,19 @@ void Tree::drawAABB(const Camera& camera) {
 	m_model->drawAABB();
 	glUseProgram(0);
 }
+
+void Tree::drawSphere(const Camera& camera) {
+	glUseProgram(m_sphereShader->m_program);
+
+	m_sphereShader->loadMatrix("u_projection", Globals::projection);
+	m_sphereShader->loadMatrix("u_modelView", m_modelMatrix.getTransformationMatrix() * camera.getViewMatrix());
+	m_nullTexture->bind(0);
+	m_model->drawSphere();
+	Texture::Unbind();
+
+	glUseProgram(0);
+}
+
 
 void Tree::setDrawBorder(bool flag) {
 	m_drawBorder = flag;

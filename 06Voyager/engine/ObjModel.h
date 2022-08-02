@@ -18,6 +18,7 @@
 #include "Camera.h"
 #include "ModelMatrix.h"
 
+#include "..\Miniball\Miniball.h"
 #include "..\Constants.h"
 
 struct BoundingBox {
@@ -30,6 +31,25 @@ struct BoundingBox {
 	unsigned int m_vao = 0;
 	unsigned int m_vbo = 0;
 	unsigned int m_ibo = 0;
+};
+
+struct BoundingSphere {
+	void createBuffer();
+	void drawRaw();
+
+	std::vector <float> m_vertexBuffer;
+	std::vector<unsigned int> m_indexBuffer;
+
+	unsigned int m_vao = 0;
+	unsigned int m_vbo = 0;
+	unsigned int m_ibo = 0;
+
+
+	int m_uResolution = 49;
+	int m_vResolution = 49;
+
+	float m_radius;
+	Vector3f m_position;
 };
 
 struct IndexBufferCreator {
@@ -75,6 +95,7 @@ public:
 	void draw(const Camera& camera);
 	void drawRaw();
 	void drawAABB();
+	void drawSphere();
 	void drawInstanced(const Camera& camera);
 
 	//size values
@@ -116,6 +137,7 @@ public:
 
 
 	BoundingBox aabb;
+	BoundingSphere boundingSphere;
 	unsigned int m_id;
 
 	static unsigned int s_id;

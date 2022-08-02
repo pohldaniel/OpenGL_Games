@@ -4,27 +4,28 @@
 
 class Barrel : public RenderableObject {
 public:
-	Barrel(const float& dt, const float& fdt);
+	Barrel();
 	~Barrel();
 
 	void draw(const Camera& camera) override;
 	void drawShadow(const Camera& camera) override;
 	void drawRaw(const Camera& camera);	
 	void drawAABB(const Camera& camera) override;
+	void drawSphere(const Camera& camera);
 	void drawRaw() override;
 
-	void update();
+	void update(float dt);
 	void toggleLightRotation();
 	void setDrawBorder(bool flag);
 	ModelMatrix modelLight;
 	Texture *m_normalMap;
+	Texture *m_nullTexture;
 
-	const float& m_fdt;
-	const float& m_dt;
 	bool m_rotateLight = false;
 
 	Shader* m_aabbShader;
 	Shader* m_colorShader;
+	Shader* m_sphereShader;
 	Matrix4f m_transformOutline = Matrix4f::IDENTITY;
 	bool m_drawBorder = false;
 	float r, g, b;

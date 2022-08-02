@@ -11,7 +11,7 @@ const Vector3f CAMERA_ACCELERATION(400.0f, 400.0f, 400.0f);
 const Vector3f CAMERA_VELOCITY(200.0f, 200.0f, 200.0f);
 Vector3f LIGHT_DIRECTION(-100.0f, 100.0f, -100.0f);
 
-Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_water(Water(m_dt, m_fdt)), m_skybox(SkyBox(m_dt, m_fdt, 2500.0f)), m_barrel(Barrel(m_dt, m_fdt)) {
+Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_water(Water(m_dt, m_fdt)), m_skybox(SkyBox(m_dt, m_fdt, 2500.0f)) {
 	
 	m_copyFramebuffer.create(WIDTH, HEIGHT);
 	m_copyFramebuffer.attachTexture(Framebuffer::Attachments::COLOR);
@@ -125,13 +125,14 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_water(
 		entitie->scale(10.0f, 10.0f, 10.0f);
 	}
 
-	m_barrel.translate(HEIGHTMAP_WIDTH * 0.5f + 200.0f, m_terrain.getHeightMap().heightAt(HEIGHTMAP_WIDTH * 0.5f + 200.0f, HEIGHTMAP_WIDTH * 0.5f + 200.0f) + 50.0f, HEIGHTMAP_WIDTH * 0.5f + 200.0f);
-	m_barrel.scale(10.0f, 10.0f, 10.0f);
+	m_barrel = new Barrel();
+	m_barrel->translate(HEIGHTMAP_WIDTH * 0.5f + 200.0f, m_terrain.getHeightMap().heightAt(HEIGHTMAP_WIDTH * 0.5f + 200.0f, HEIGHTMAP_WIDTH * 0.5f + 200.0f) + 50.0f, HEIGHTMAP_WIDTH * 0.5f + 200.0f);
+	m_barrel->scale(10.0f, 10.0f, 10.0f);
 
 
-	std::vector<btCollisionShape*> barrelShape = Physics::CreateStaticCollisionShapes(const_cast<Model*>(m_barrel.getModel()), 10.0f);
+	std::vector<btCollisionShape*> barrelShape = Physics::CreateStaticCollisionShapes(const_cast<Model*>(m_barrel->getModel()), 10.0f);
 	btRigidBody* barrelBody = Globals::physics->addStaticModel(barrelShape, Physics::btTransForm(Vector3f(HEIGHTMAP_WIDTH * 0.5f + 200.0f, m_terrain.getHeightMap().heightAt(HEIGHTMAP_WIDTH * 0.5f + 200.0f, HEIGHTMAP_WIDTH * 0.5f + 200.0f) + 50.0f, HEIGHTMAP_WIDTH * 0.5f + 200.0f)), false, btVector3(1, 1, 1), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::RAY);
-	body->setUserPointer(reinterpret_cast<void*>(&m_barrel));
+	body->setUserPointer(reinterpret_cast<void*>(m_barrel));
 
 	charachterSet.loadFromFile("res/verdana.fnt");
 
@@ -220,7 +221,7 @@ void Game::update() {
 	}
 
 	if (keyboard.keyPressed(Keyboard::KEY_5)) {
-		m_barrel.toggleLightRotation();
+		m_barrel->toggleLightRotation();
 	}
 
 	if (keyboard.keyPressed(Keyboard::KEY_T)) {
@@ -291,8 +292,8 @@ void Game::update() {
 	m_camera.calcLightTransformation(LIGHT_DIRECTION);
 	m_camera.calcLightTransformation2(LIGHT_DIRECTION);
 	m_skybox.update();
-	m_barrel.update();
-	m_barrel.setDrawBorder(pickedID == m_barrel.m_id);
+	m_barrel->update(m_dt);
+	m_barrel->setDrawBorder(pickedID == m_barrel->m_id);
 	for (auto entitie : m_entities) {
 		entitie->update(m_dt);
 	}
@@ -336,7 +337,7 @@ void Game::render(unsigned int &frameBuffer) {
 	m_terrain.draw(m_camera);
 	glUseProgram(0);
 
-	m_barrel.draw(m_camera);
+	m_barrel->draw(m_camera);
 
 	m_mousePicker->draw(m_camera);
 	
@@ -356,9 +357,9 @@ void Game::render(unsigned int &frameBuffer) {
 		auto normalGS = Globals::shaderManager.getAssetPointer("normalGS");
 		glUseProgram(normalGS->m_program);
 		normalGS->loadMatrix("u_projection", Globals::projection);
-		normalGS->loadMatrix("u_modelView", m_barrel.getTransformationMatrix() * m_camera.getViewMatrix());
-		normalGS->loadMatrix("u_normal", Matrix4f::GetNormalMatrix(m_barrel.getTransformationMatrix() * m_camera.getViewMatrix()));
-		m_barrel.drawShadow(m_camera);
+		normalGS->loadMatrix("u_modelView", m_barrel->getTransformationMatrix() * m_camera.getViewMatrix());
+		normalGS->loadMatrix("u_normal", Matrix4f::GetNormalMatrix(m_barrel->getTransformationMatrix() * m_camera.getViewMatrix()));
+		m_barrel->drawShadow(m_camera);
 		glUseProgram(0);
 	}
 
@@ -480,8 +481,8 @@ void Game::shadowPass() {
 			entitie->drawShadow(m_camera);
 		}
 
-		shader->loadMatrix("u_model", m_barrel.getTransformationMatrix());
-		m_barrel.drawShadow(m_camera);
+		shader->loadMatrix("u_model", m_barrel->getTransformationMatrix());
+		m_barrel->drawShadow(m_camera);
 
 	}
 	glUseProgram(0);
@@ -496,7 +497,7 @@ void Game::mousePickPass() {
 	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	//m_barrel.drawAABB(m_camera);
-	m_barrel.drawRaw(m_camera);
+	m_barrel->drawRaw(m_camera);
 	/*for (auto entitie : m_fernEntities) {
 		entitie->drawAABB(m_camera);
 	}*/

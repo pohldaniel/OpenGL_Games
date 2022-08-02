@@ -82,6 +82,9 @@
     <Filter Include="bullet\LinearMath\TaskScheduler">
       <UniqueIdentifier>{09161e59-7f0e-4a44-82e7-7b2e604415a8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="miniball">
+      <UniqueIdentifier>{c6538365-9410-495a-b0f2-dea18c52d443}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine\input\Event.h">
@@ -896,6 +899,9 @@
     </ClInclude>
     <ClInclude Include="MousePicker.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Miniball\Miniball.h">
+      <Filter>miniball</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
