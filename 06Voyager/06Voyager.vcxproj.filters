@@ -85,6 +85,9 @@
     <Filter Include="miniball">
       <UniqueIdentifier>{c6538365-9410-495a-b0f2-dea18c52d443}</UniqueIdentifier>
     </Filter>
+    <Filter Include="convhull">
+      <UniqueIdentifier>{1371a72c-34c3-44a8-a506-a830abf194bc}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine\input\Event.h">
@@ -902,6 +905,9 @@
     </ClInclude>
     <ClInclude Include="Miniball\Miniball.h">
       <Filter>miniball</Filter>
+    </ClInclude>
+    <ClInclude Include="convhull\convhull_3d.h">
+      <Filter>convhull</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

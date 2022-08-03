@@ -389,6 +389,7 @@
     <ClInclude Include="Bullet\LinearMath\TaskScheduler\btThreadSupportInterface.h" />
     <ClInclude Include="CharacterSetBmp.h" />
     <ClInclude Include="Constants.h" />
+    <ClInclude Include="convhull\convhull_3d.h" />
     <ClInclude Include="Cubemap.h" />
     <ClInclude Include="engine\AssetManger.h" />
     <ClInclude Include="engine\Camera.h" />

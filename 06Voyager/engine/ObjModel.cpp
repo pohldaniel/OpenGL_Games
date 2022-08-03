@@ -1,3 +1,8 @@
+
+#define CONVHULL_3D_USE_SINGLE_PRECISION
+#define CONVHULL_3D_ENABLE
+#include "..\convhull\convhull_3d.h"
+
 #include "ObjModel.h"
 
 unsigned int Model::s_id = 0;
@@ -257,10 +262,12 @@ bool Model::loadObject(const char* a_filename, Vector3f& rotate, float degree, V
 	m_id = s_id;
 	aabb.createBuffer(xmin, xmax, ymin, ymax, zmin, zmax, s_id);
 	m_numberOfTriangles = face.size();
-
+	int numberOfVertices = vertexCoords.size() / 3;
 	
-	float** ap = new float*[m_numberOfTriangles];
-	for (int i = 0; i < m_numberOfTriangles; ++i) {
+	std::cout << a_filename << std::endl;
+
+	float** ap = new float*[numberOfVertices];
+	for (int i = 0; i < numberOfVertices; ++i) {
 		float* p = new float[3];
 		for (int dim = 0; dim < 3; ++dim) {
 			p[dim] = vertexCoords[i * 3 + dim];
@@ -269,7 +276,7 @@ bool Model::loadObject(const char* a_filename, Vector3f& rotate, float degree, V
 	}
 	m_center = Vector3f((xmin + xmax) * 0.5f, (ymin + ymax) * 0.5f, (zmin + zmax) * 0.5f);
 
-	Miniball::Miniball<Miniball::CoordAccessor<float* const*, const float*>> mb(3, ap, ap + m_numberOfTriangles);
+	Miniball::Miniball<Miniball::CoordAccessor<float* const*, const float*>> mb(3, ap, ap + numberOfVertices);
 
 	//quick and dirty approximation in case Miniball fails
 	if (mb.squared_radius() != mb.squared_radius()) {
@@ -281,11 +288,61 @@ bool Model::loadObject(const char* a_filename, Vector3f& rotate, float degree, V
 	}
 	boundingSphere.createBuffer();
 
-	for (int i = 0; i<m_numberOfTriangles; ++i)
+	for (int i = 0; i < numberOfVertices; ++i)
 		delete[] ap[i];
 	delete[] ap;
 
+	ch_vertex* vertices;
+	vertices = (ch_vertex*)malloc(numberOfVertices * sizeof(ch_vertex));
+	for (unsigned int i = 0; i < numberOfVertices; i++) {	
+		vertices[i].x = vertexCoords[i * 3 + 0];
+		vertices[i].y = vertexCoords[i * 3 + 1];
+		vertices[i].z = vertexCoords[i * 3 + 2];
+	}
+
+	std::cout << numberOfVertices << std::endl;
+
+	int* faceIndices = NULL;
+	int nFaces;
+
+	convhull_3d_build(vertices, numberOfVertices, &faceIndices, &nFaces);
 	
+	std::cout << nFaces << std::endl;
+	/*if (nFaces != 0) {
+		convhull_3d_export_obj(vertices, numberOfVertices, faceIndices, nFaces, 1, "test");
+	}*/
+
+	if (nFaces == 106) {
+		convhull_3d_export_obj(vertices, numberOfVertices, faceIndices, nFaces, 1, "tree");
+	}
+
+	for (int i = 0; i < nFaces; i++) {
+
+		std::cout << faceIndices[i * 3 + 0] << "  " << faceIndices[i * 3 + 1] << "  " << faceIndices[i * 3 + 2] << std::endl;
+
+		//float vertex1[] = { vertices[faceIndices[i * 3 + 0]].x, vertices[faceIndices[i * 3 + 0]].y , vertices[faceIndices[i * 3 + 0]].z };
+
+		convexHull.m_vertexBuffer.push_back(vertices[faceIndices[i * 3 + 0]].x); convexHull.m_vertexBuffer.push_back(vertices[faceIndices[i * 3 + 0]].y); convexHull.m_vertexBuffer.push_back(vertices[faceIndices[i * 3 + 0]].z);
+		convexHull.m_indexBuffer.push_back(i * 3 + 0);
+		//float vertex2[] = { vertices[faceIndices[i * 3 + 1]].x, vertices[faceIndices[i * 3 + 1]].y , vertices[faceIndices[i * 3 + 1]].z };
+
+		convexHull.m_vertexBuffer.push_back(vertices[faceIndices[i * 3 + 1]].x); convexHull.m_vertexBuffer.push_back(vertices[faceIndices[i * 3 + 1]].y); convexHull.m_vertexBuffer.push_back(vertices[faceIndices[i * 3 + 1]].z);
+		convexHull.m_indexBuffer.push_back(i * 3 + 1);
+
+		//float vertex3[] = { vertices[faceIndices[i * 3 + 2]].x, vertices[faceIndices[i * 3 + 2]].y , vertices[faceIndices[i * 3 + 2]].z };
+
+		convexHull.m_vertexBuffer.push_back(vertices[faceIndices[i * 3 + 2]].x); convexHull.m_vertexBuffer.push_back(vertices[faceIndices[i * 3 + 2]].y); convexHull.m_vertexBuffer.push_back(vertices[faceIndices[i * 3 + 2]].z);
+		convexHull.m_indexBuffer.push_back(i * 3 + 2);
+	}
+	convexHull.createBuffer();
+
+	/*for (int i = 0; i < nFaces; i++) {
+
+		float vertex1[] = { vertices[((faceIndices[i])[0] - 1) * 3].x, vertices[((face[i])[0] - 1) * 3].y, vertices[((face[i])[0] - 1) * 3].z };
+		float vertex2[] = { vertices[((face[i])[1] - 1) * 3].x, vertices[((face[i])[1] - 1) * 3].y, vertices[((face[i])[1] - 1) * 3].z };
+		float vertex3[] = { vertices[((face[i])[2] - 1) * 3].x, vertices[((face[i])[2] - 1) * 3].y, vertices[((face[i])[2] - 1) * 3].z };
+		
+	}*/
 
 	std::sort(face.begin(), face.end(), compare);
 	std::map<int, int> dup;
@@ -429,6 +486,10 @@ void Model::drawAABB() {
 
 void Model::drawSphere() {
 	boundingSphere.drawRaw();
+}
+
+void Model::drawHull() {
+	convexHull.drawRaw();
 }
 
 void Model::drawInstanced(const Camera& camera) {
@@ -1651,6 +1712,36 @@ void BoundingSphere::createBuffer() {
 }
 
 void BoundingSphere::drawRaw() {
+	glBindVertexArray(m_vao);
+	glDrawElements(GL_TRIANGLES, m_indexBuffer.size(), GL_UNSIGNED_INT, 0);
+	glBindVertexArray(0);
+}
+
+void ConvexHull::createBuffer() {
+
+	short stride = 3; short offset = 0;
+
+	glGenBuffers(1, &m_ibo);
+	glGenBuffers(1, &m_vbo);
+
+	glGenVertexArrays(1, &m_vao);
+	glBindVertexArray(m_vao);
+	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+	glBufferData(GL_ARRAY_BUFFER, m_vertexBuffer.size() * sizeof(float), &m_vertexBuffer[0], GL_STATIC_DRAW);
+
+	//positions
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)0);
+
+	//indices
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ibo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_indexBuffer.size() * sizeof(unsigned int), &m_indexBuffer[0], GL_STATIC_DRAW);
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+}
+
+void ConvexHull::drawRaw() {
 	glBindVertexArray(m_vao);
 	glDrawElements(GL_TRIANGLES, m_indexBuffer.size(), GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);

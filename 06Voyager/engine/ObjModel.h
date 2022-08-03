@@ -21,6 +21,7 @@
 #include "..\Miniball\Miniball.h"
 #include "..\Constants.h"
 
+
 struct BoundingBox {
 	void createBuffer(float minX, float maxX, float minY, float maxY, float minZ, float maxZ, unsigned int id);
 	void drawRaw();
@@ -50,6 +51,18 @@ struct BoundingSphere {
 
 	float m_radius;
 	Vector3f m_position;
+};
+
+struct ConvexHull {
+	void createBuffer();
+	void drawRaw();
+
+	std::vector <float> m_vertexBuffer;
+	std::vector<unsigned int> m_indexBuffer;
+
+	unsigned int m_vao = 0;
+	unsigned int m_vbo = 0;
+	unsigned int m_ibo = 0;
 };
 
 struct IndexBufferCreator {
@@ -96,6 +109,7 @@ public:
 	void drawRaw();
 	void drawAABB();
 	void drawSphere();
+	void drawHull();
 	void drawInstanced(const Camera& camera);
 
 	//size values
@@ -138,6 +152,8 @@ public:
 
 	BoundingBox aabb;
 	BoundingSphere boundingSphere;
+	ConvexHull convexHull;
+
 	unsigned int m_id;
 
 	static unsigned int s_id;

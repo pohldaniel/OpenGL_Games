@@ -66,10 +66,11 @@ void Fern::draw(const Camera& camera) {
 
 	glDisable(GL_ALPHA_TEST);
 
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	drawAABB(camera);
-	drawSphere(camera);
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	//drawAABB(camera);
+	//drawSphere(camera);
+	drawHull(camera);
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
 
 void Fern::drawShadow(const Camera& camera) {
@@ -107,6 +108,19 @@ void Fern::drawSphere(const Camera& camera) {
 	Texture::Unbind();
 
 	glUseProgram(0);
+}
+
+void Fern::drawHull(const Camera& camera) {
+	glUseProgram(m_sphereShader->m_program);
+
+	m_sphereShader->loadMatrix("u_projection", Globals::projection);
+	m_sphereShader->loadMatrix("u_modelView", m_modelMatrix.getTransformationMatrix() * camera.getViewMatrix());
+	m_nullTexture->bind(0);
+	m_model->drawHull();
+	Texture::Unbind();
+
+	glUseProgram(0);
+
 }
 
 void Fern::setDrawBorder(bool flag) {

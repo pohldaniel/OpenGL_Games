@@ -12,6 +12,7 @@ public:
 	void drawRaw(const Camera& camera);
 	void drawAABB(const Camera& camera) override;
 	void drawSphere(const Camera& camera);
+	void drawHull(const Camera& camera);
 	void drawRaw() override;
 	void setDrawBorder(bool flag);
 
