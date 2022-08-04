@@ -1,20 +1,19 @@
 #include "Barrel.h"
 
 Barrel::Barrel(){
-	
+	m_id = 30;
+
 	m_model = new Model();
 	m_model->loadObject("res/barrel/barrel.obj");
 
 	m_model->m_mesh[0]->generateTangents();
 
 	m_shader = Globals::shaderManager.getAssetPointer("normal");
-	m_aabbShader = Globals::shaderManager.getAssetPointer("aabb");
 	m_colorShader = Globals::shaderManager.getAssetPointer("color");
-	m_sphereShader = Globals::shaderManager.getAssetPointer("texture");
 
 	m_texture = &Globals::textureManager.get("barrel");
 	m_normalMap = &Globals::textureManager.get("barrel_normal");
-	m_nullTexture = &Globals::textureManager.get("null");
+
 
 	glUseProgram(m_shader->m_program);
 	m_shader->loadVector("u_lightPos[0]", Vector3f(-600, 10, 0.0));
@@ -34,19 +33,9 @@ Barrel::Barrel(){
 	m_shader->loadFloat("material.specularShininesse", 1.0f);
 	glUseProgram(0);
 
-	
 	m_transformOutline.scale(1.01f, 1.01f, 1.01f);
 
-	unsigned int _r = (m_model->m_id & 0x000000FF) >> 0;
-	unsigned int _g = (m_model->m_id & 0x0000FF00) >> 8;
-	unsigned int _b = (m_model->m_id & 0x00FF0000) >> 16;
-
-	r = static_cast<float>(_r) * (1.0f / 255.0f);
-	g = static_cast<float>(_g) * (1.0f / 255.0f);
-	b = static_cast<float>(_b) * (1.0f / 255.0f);
-
-	m_id = m_model->m_id;
-
+	m_pickColor = Vector4f(((m_id & 0x000000FF) >> 0)* (1.0f / 255.0f), ((m_id & 0x0000FF00) >> 0)* (1.0f / 255.0f), ((m_id & 0x00FF0000) >> 0)* (1.0f / 255.0f), 1.0f);
 }
 
 Barrel::~Barrel() {
@@ -109,27 +98,24 @@ void Barrel::drawRaw() {
 void Barrel::drawRaw(const Camera& camera) {
 	glUseProgram(m_colorShader->m_program);
 	m_colorShader->loadMatrix("u_transform", m_modelMatrix.getTransformationMatrix() * camera.getViewMatrix() * Globals::projection);
-	m_colorShader->loadVector("u_color", Vector4f(r, g, b, 1.0f));
+	m_colorShader->loadVector("u_color", m_pickColor);
 	m_model->drawRaw();
 	glUseProgram(0);
 }
 
 void Barrel::drawAABB(const Camera& camera) {
-	glUseProgram(m_aabbShader->m_program);
-	m_aabbShader->loadMatrix("u_transform", m_modelMatrix.getTransformationMatrix() * camera.getViewMatrix() * Globals::projection);
+	glUseProgram(m_colorShader->m_program);
+	m_colorShader->loadMatrix("u_transform", m_modelMatrix.getTransformationMatrix() * camera.getViewMatrix() * Globals::projection);
+	m_colorShader->loadVector("u_color", m_pickColor);
 	m_model->drawAABB();
 	glUseProgram(0);
 }
 
 void Barrel::drawSphere(const Camera& camera) {
-	glUseProgram(m_sphereShader->m_program);
-
-	m_sphereShader->loadMatrix("u_projection", Globals::projection);
-	m_sphereShader->loadMatrix("u_modelView", m_modelMatrix.getTransformationMatrix() * camera.getViewMatrix());
-	m_nullTexture->bind(0);
+	glUseProgram(m_colorShader->m_program);
+	m_colorShader->loadMatrix("u_transform", m_modelMatrix.getTransformationMatrix() * camera.getViewMatrix() * Globals::projection);
+	m_colorShader->loadVector("u_color", m_pickColor);
 	m_model->drawSphere();
-	Texture::Unbind();
-
 	glUseProgram(0);
 }
 

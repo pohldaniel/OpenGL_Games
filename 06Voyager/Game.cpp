@@ -496,17 +496,17 @@ void Game::mousePickPass() {
 	
 	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	//m_barrel.drawAABB(m_camera);
+	//m_barrel->drawAABB(m_camera);
 	m_barrel->drawRaw(m_camera);
 	/*for (auto entitie : m_fernEntities) {
 		entitie->drawAABB(m_camera);
 	}*/
 
 	for (auto entitie : m_fernEntities) {
-		entitie->drawRaw(m_camera);
+		entitie->drawHull(m_camera);
 	}
 
-	m_tree->drawRaw(m_camera);
+	m_tree->drawHull(m_camera);
 
 	Framebuffer::UnbindWrite();
 }

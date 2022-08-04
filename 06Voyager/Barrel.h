@@ -19,15 +19,17 @@ public:
 	void setDrawBorder(bool flag);
 	ModelMatrix modelLight;
 	Texture *m_normalMap;
-	Texture *m_nullTexture;
+
 
 	bool m_rotateLight = false;
 
-	Shader* m_aabbShader;
+
 	Shader* m_colorShader;
-	Shader* m_sphereShader;
+
+
 	Matrix4f m_transformOutline = Matrix4f::IDENTITY;
 	bool m_drawBorder = false;
-	float r, g, b;
 	unsigned int m_id;
+
+	Vector4f m_pickColor;
 };

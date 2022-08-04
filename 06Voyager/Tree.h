@@ -16,12 +16,10 @@ public:
 	void drawRaw() override;
 	void setDrawBorder(bool flag);
 
-	Texture *m_nullTexture;
-	Shader* m_aabbShader;
 	Shader* m_colorShader;
-	Shader* m_sphereShader;
+
 	Matrix4f m_transformOutline = Matrix4f::IDENTITY;
 	bool m_drawBorder = false;
-	float r, g, b;
 	unsigned int m_id;
+	Vector4f m_pickColor;
 };

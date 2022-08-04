@@ -23,7 +23,7 @@
 
 
 struct BoundingBox {
-	void createBuffer(float minX, float maxX, float minY, float maxY, float minZ, float maxZ, unsigned int id);
+	void createBuffer();
 	void drawRaw();
 
 	std::vector <float> m_vertexBuffer;
@@ -32,9 +32,15 @@ struct BoundingBox {
 	unsigned int m_vao = 0;
 	unsigned int m_vbo = 0;
 	unsigned int m_ibo = 0;
+
+	Vector3f position;
+	Vector3f size;
 };
 
 struct BoundingSphere {
+
+	//BoundingSphere(std::vector<float>& vertexCoords) : m_vertexCoordsIn(vertexCoords) { }
+
 	void createBuffer();
 	void drawRaw();
 
@@ -51,6 +57,8 @@ struct BoundingSphere {
 
 	float m_radius;
 	Vector3f m_position;
+
+	std::vector<float>* m_vertexCoordsIn;
 };
 
 struct ConvexHull {
@@ -63,6 +71,8 @@ struct ConvexHull {
 	unsigned int m_vao = 0;
 	unsigned int m_vbo = 0;
 	unsigned int m_ibo = 0;
+
+	std::vector<float>* m_vertexCoordsIn;
 };
 
 struct IndexBufferCreator {
@@ -119,8 +129,7 @@ public:
 	bool loadObject(const char* filename);
 	bool loadObject(const char* a_filename, Vector3f &rotate, float degree, Vector3f& translate, float scale);
 
-	int getNumberOfIndices() const;
-
+	
 	std::string getMltPath();
 	std::string getModelDirectory();
 
@@ -135,9 +144,10 @@ public:
 	std::vector<Mesh*> m_mesh;
 
 
-	int addVertex(int hash, float *pVertex, int stride);
+	
 	int m_numberOfMeshes;
 	int m_numberOfTriangles;
+	unsigned int m_numberOfVertices;
 	std::string m_mltPath;
 	std::string m_modelDirectory;
 	bool m_hasMaterial;
@@ -146,17 +156,11 @@ public:
 	ModelMatrix modelMatrix;
 
 	std::vector <float> m_vertexBuffer;
-	std::vector<unsigned int> m_indexBuffer;
-	std::map<int, std::vector<int>> m_vertexCache;
-
+	
 
 	BoundingBox aabb;
 	BoundingSphere boundingSphere;
 	ConvexHull convexHull;
-
-	unsigned int m_id;
-
-	static unsigned int s_id;
 };
 
 class Mesh {

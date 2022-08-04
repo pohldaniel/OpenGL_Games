@@ -5,8 +5,6 @@
 
 #include "ObjModel.h"
 
-unsigned int Model::s_id = 0;
-
 Model::Model() : m_size(0), m_stride(0), m_offset(0), m_numberOfBytes(0) {
 	m_numberOfMeshes = 0;
 	m_numberOfTriangles = 0;
@@ -23,8 +21,6 @@ Model::Model() : m_size(0), m_stride(0), m_offset(0), m_numberOfBytes(0) {
 
 Model::~Model() {
 	m_vertexBuffer.clear();
-	m_indexBuffer.clear();
-	m_vertexCache.clear();
 }
 
 void Model::setRotPos(const Vector3f &axis, float degrees, float dx, float dy, float dz) {
@@ -258,92 +254,16 @@ bool Model::loadObject(const char* a_filename, Vector3f& rotate, float degree, V
 	}// end while
 	fclose(pFile);
 
-	s_id = s_id + 10;
-	m_id = s_id;
-	aabb.createBuffer(xmin, xmax, ymin, ymax, zmin, zmax, s_id);
-	m_numberOfTriangles = face.size();
-	int numberOfVertices = vertexCoords.size() / 3;
-	
-	std::cout << a_filename << std::endl;
+	aabb.position = Vector3f(xmin, ymin, zmin);
+	aabb.size = Vector3f(xmax, ymax, zmax) - Vector3f(xmin, ymin, zmin);
+	boundingSphere.m_vertexCoordsIn = &vertexCoords;
+	convexHull.m_vertexCoordsIn = &vertexCoords;
 
-	float** ap = new float*[numberOfVertices];
-	for (int i = 0; i < numberOfVertices; ++i) {
-		float* p = new float[3];
-		for (int dim = 0; dim < 3; ++dim) {
-			p[dim] = vertexCoords[i * 3 + dim];
-		}
-		ap[i] = p;
-	}
-	m_center = Vector3f((xmin + xmax) * 0.5f, (ymin + ymax) * 0.5f, (zmin + zmax) * 0.5f);
-
-	Miniball::Miniball<Miniball::CoordAccessor<float* const*, const float*>> mb(3, ap, ap + numberOfVertices);
-
-	//quick and dirty approximation in case Miniball fails
-	if (mb.squared_radius() != mb.squared_radius()) {
-		boundingSphere.m_radius = std::max((xmin + xmax) * 0.5f, std::max((ymin + ymax) * 0.5f, (zmin + zmax) * 0.5f));
-		boundingSphere.m_position = m_center;
-	}else {
-		boundingSphere.m_radius = sqrtf(mb.squared_radius());
-		boundingSphere.m_position = Vector3f(mb.center()[0], mb.center()[1], mb.center()[2]);
-	}
+	aabb.createBuffer();
 	boundingSphere.createBuffer();
-
-	for (int i = 0; i < numberOfVertices; ++i)
-		delete[] ap[i];
-	delete[] ap;
-
-	ch_vertex* vertices;
-	vertices = (ch_vertex*)malloc(numberOfVertices * sizeof(ch_vertex));
-	for (unsigned int i = 0; i < numberOfVertices; i++) {	
-		vertices[i].x = vertexCoords[i * 3 + 0];
-		vertices[i].y = vertexCoords[i * 3 + 1];
-		vertices[i].z = vertexCoords[i * 3 + 2];
-	}
-
-	std::cout << numberOfVertices << std::endl;
-
-	int* faceIndices = NULL;
-	int nFaces;
-
-	convhull_3d_build(vertices, numberOfVertices, &faceIndices, &nFaces);
-	
-	std::cout << nFaces << std::endl;
-	/*if (nFaces != 0) {
-		convhull_3d_export_obj(vertices, numberOfVertices, faceIndices, nFaces, 1, "test");
-	}*/
-
-	if (nFaces == 106) {
-		convhull_3d_export_obj(vertices, numberOfVertices, faceIndices, nFaces, 1, "tree");
-	}
-
-	for (int i = 0; i < nFaces; i++) {
-
-		std::cout << faceIndices[i * 3 + 0] << "  " << faceIndices[i * 3 + 1] << "  " << faceIndices[i * 3 + 2] << std::endl;
-
-		//float vertex1[] = { vertices[faceIndices[i * 3 + 0]].x, vertices[faceIndices[i * 3 + 0]].y , vertices[faceIndices[i * 3 + 0]].z };
-
-		convexHull.m_vertexBuffer.push_back(vertices[faceIndices[i * 3 + 0]].x); convexHull.m_vertexBuffer.push_back(vertices[faceIndices[i * 3 + 0]].y); convexHull.m_vertexBuffer.push_back(vertices[faceIndices[i * 3 + 0]].z);
-		convexHull.m_indexBuffer.push_back(i * 3 + 0);
-		//float vertex2[] = { vertices[faceIndices[i * 3 + 1]].x, vertices[faceIndices[i * 3 + 1]].y , vertices[faceIndices[i * 3 + 1]].z };
-
-		convexHull.m_vertexBuffer.push_back(vertices[faceIndices[i * 3 + 1]].x); convexHull.m_vertexBuffer.push_back(vertices[faceIndices[i * 3 + 1]].y); convexHull.m_vertexBuffer.push_back(vertices[faceIndices[i * 3 + 1]].z);
-		convexHull.m_indexBuffer.push_back(i * 3 + 1);
-
-		//float vertex3[] = { vertices[faceIndices[i * 3 + 2]].x, vertices[faceIndices[i * 3 + 2]].y , vertices[faceIndices[i * 3 + 2]].z };
-
-		convexHull.m_vertexBuffer.push_back(vertices[faceIndices[i * 3 + 2]].x); convexHull.m_vertexBuffer.push_back(vertices[faceIndices[i * 3 + 2]].y); convexHull.m_vertexBuffer.push_back(vertices[faceIndices[i * 3 + 2]].z);
-		convexHull.m_indexBuffer.push_back(i * 3 + 2);
-	}
 	convexHull.createBuffer();
-
-	/*for (int i = 0; i < nFaces; i++) {
-
-		float vertex1[] = { vertices[((faceIndices[i])[0] - 1) * 3].x, vertices[((face[i])[0] - 1) * 3].y, vertices[((face[i])[0] - 1) * 3].z };
-		float vertex2[] = { vertices[((face[i])[1] - 1) * 3].x, vertices[((face[i])[1] - 1) * 3].y, vertices[((face[i])[1] - 1) * 3].z };
-		float vertex3[] = { vertices[((face[i])[2] - 1) * 3].x, vertices[((face[i])[2] - 1) * 3].y, vertices[((face[i])[2] - 1) * 3].z };
-		
-	}*/
-
+	
+	
 	std::sort(face.begin(), face.end(), compare);
 	std::map<int, int> dup;
 
@@ -427,45 +347,6 @@ bool Model::loadObject(const char* a_filename, Vector3f& rotate, float degree, V
 	indexBufferCreator.normalCoordsIn.shrink_to_fit();
 	indexBufferCreator.textureCoordsIn.clear();
 	indexBufferCreator.textureCoordsIn.shrink_to_fit();
-}
-
-int Model::addVertex(int hash, float *pVertex, int stride) {
-
-	int index = -1;
-	std::map<int, std::vector<int> >::const_iterator iter = m_vertexCache.find(hash);
-
-	if (iter == m_vertexCache.end()) {
-		// Vertex hash doesn't exist in the cache.
-		index = static_cast<int>(m_vertexBuffer.size() / stride);
-		m_vertexBuffer.insert(m_vertexBuffer.end(), pVertex, pVertex + stride);
-		m_vertexCache.insert(std::make_pair(hash, std::vector<int>(1, index)));
-	}else {
-		// One or more vertices have been hashed to this entry in the cache.
-		const std::vector<int> &vertices = iter->second;
-		const float *pCachedVertex = 0;
-		bool found = false;
-
-		for (std::vector<int>::const_iterator i = vertices.begin(); i != vertices.end(); ++i) {
-			index = *i;
-			pCachedVertex = &m_vertexBuffer[index * 3];
-
-			if (memcmp(pCachedVertex, pVertex, sizeof(float)* stride) == 0) {
-				found = true;
-				break;
-			}
-		}
-
-		if (!found) {
-			index = static_cast<int>(m_vertexBuffer.size() / stride);
-			m_vertexBuffer.insert(m_vertexBuffer.end(), pVertex, pVertex + stride);
-			m_vertexCache[hash].push_back(index);
-		}
-	}
-	return index;
-}
-
-int Model::getNumberOfIndices() const {
-	return static_cast<int>(m_indexBuffer.size());
 }
 
 void Model::draw(const Camera& camera) {
@@ -1532,41 +1413,17 @@ int IndexBufferCreator::addVertex(int hash, const float *pVertex, int stride) {
 
 
 
-void BoundingBox::createBuffer(float minX, float maxX, float minY, float maxY, float minZ, float maxZ, unsigned int id) {
+void BoundingBox::createBuffer() {
 
-	unsigned int r = (id & 0x000000FF) >> 0;
-	unsigned int g = (id & 0x0000FF00) >> 8;
-	unsigned int b = (id & 0x00FF0000) >> 16;
-
-	Vector3f position = Vector3f(minX, minY, minZ);
-	Vector3f size = Vector3f(maxX, maxY, maxZ) - Vector3f(minX, minY, minZ);
-	
-	m_vertexBuffer.push_back(position[0]); m_vertexBuffer.push_back(position[1]); m_vertexBuffer.push_back(position[2]);
-	m_vertexBuffer.push_back(static_cast<float>(r) * (1.0f / 255.0f)); m_vertexBuffer.push_back(static_cast<float>(g) * (1.0f / 255.0f)); m_vertexBuffer.push_back(static_cast<float>(b) * (1.0f / 255.0f)); m_vertexBuffer.push_back(1.0f);
-
-
-	m_vertexBuffer.push_back(position[0] + size[0]); m_vertexBuffer.push_back(position[1]); m_vertexBuffer.push_back(position[2]);
-	m_vertexBuffer.push_back(static_cast<float>(r) * (1.0f / 255.0f)); m_vertexBuffer.push_back(static_cast<float>(g) * (1.0f / 255.0f)); m_vertexBuffer.push_back(static_cast<float>(b) * (1.0f / 255.0f)); m_vertexBuffer.push_back(1.0f);
-
-	m_vertexBuffer.push_back(position[0] + size[0]); m_vertexBuffer.push_back(position[1] + size[1]); m_vertexBuffer.push_back(position[2]);
-	m_vertexBuffer.push_back(static_cast<float>(r) * (1.0f / 255.0f)); m_vertexBuffer.push_back(static_cast<float>(g) * (1.0f / 255.0f)); m_vertexBuffer.push_back(static_cast<float>(b) * (1.0f / 255.0f)); m_vertexBuffer.push_back(1.0f);
-
-	m_vertexBuffer.push_back(position[0]); m_vertexBuffer.push_back(position[1] + size[1]); m_vertexBuffer.push_back(position[2]);
-	m_vertexBuffer.push_back(static_cast<float>(r) * (1.0f / 255.0f)); m_vertexBuffer.push_back(static_cast<float>(g) * (1.0f / 255.0f)); m_vertexBuffer.push_back(static_cast<float>(b) * (1.0f / 255.0f)); m_vertexBuffer.push_back(1.0f);
-
-	m_vertexBuffer.push_back(position[0]); m_vertexBuffer.push_back(position[1]); m_vertexBuffer.push_back(position[2] + size[2]);
-	m_vertexBuffer.push_back(static_cast<float>(r) * (1.0f / 255.0f)); m_vertexBuffer.push_back(static_cast<float>(g) * (1.0f / 255.0f)); m_vertexBuffer.push_back(static_cast<float>(b) * (1.0f / 255.0f)); m_vertexBuffer.push_back(1.0f);
-
-	m_vertexBuffer.push_back(position[0] + size[0]); m_vertexBuffer.push_back(position[1]); m_vertexBuffer.push_back(position[2] + size[2]);
-	m_vertexBuffer.push_back(static_cast<float>(r) * (1.0f / 255.0f)); m_vertexBuffer.push_back(static_cast<float>(g) * (1.0f / 255.0f)); m_vertexBuffer.push_back(static_cast<float>(b) * (1.0f / 255.0f)); m_vertexBuffer.push_back(1.0f);
-
-	m_vertexBuffer.push_back(position[0] + size[0]); m_vertexBuffer.push_back(position[1] + size[1]); m_vertexBuffer.push_back(position[2] + size[2]);
-	m_vertexBuffer.push_back(static_cast<float>(r) * (1.0f / 255.0f)); m_vertexBuffer.push_back(static_cast<float>(g) * (1.0f / 255.0f)); m_vertexBuffer.push_back(static_cast<float>(b) * (1.0f / 255.0f)); m_vertexBuffer.push_back(1.0f);
-
+	m_vertexBuffer.push_back(position[0]); m_vertexBuffer.push_back(position[1]); m_vertexBuffer.push_back(position[2]);	
+	m_vertexBuffer.push_back(position[0] + size[0]); m_vertexBuffer.push_back(position[1]); m_vertexBuffer.push_back(position[2]);	
+	m_vertexBuffer.push_back(position[0] + size[0]); m_vertexBuffer.push_back(position[1] + size[1]); m_vertexBuffer.push_back(position[2]);	
+	m_vertexBuffer.push_back(position[0]); m_vertexBuffer.push_back(position[1] + size[1]); m_vertexBuffer.push_back(position[2]);	
+	m_vertexBuffer.push_back(position[0]); m_vertexBuffer.push_back(position[1]); m_vertexBuffer.push_back(position[2] + size[2]);	
+	m_vertexBuffer.push_back(position[0] + size[0]); m_vertexBuffer.push_back(position[1]); m_vertexBuffer.push_back(position[2] + size[2]);	
+	m_vertexBuffer.push_back(position[0] + size[0]); m_vertexBuffer.push_back(position[1] + size[1]); m_vertexBuffer.push_back(position[2] + size[2]);	
 	m_vertexBuffer.push_back(position[0]); m_vertexBuffer.push_back(position[1] + size[1]); m_vertexBuffer.push_back(position[2] + size[2]);
-	m_vertexBuffer.push_back(static_cast<float>(r) * (1.0f / 255.0f)); m_vertexBuffer.push_back(static_cast<float>(g) * (1.0f / 255.0f)); m_vertexBuffer.push_back(static_cast<float>(b) * (1.0f / 255.0f)); m_vertexBuffer.push_back(1.0f);
-
-
+	
 	m_indexBuffer.push_back(0); m_indexBuffer.push_back(1); m_indexBuffer.push_back(2);
 	m_indexBuffer.push_back(2); m_indexBuffer.push_back(3); m_indexBuffer.push_back(0);
 
@@ -1585,7 +1442,7 @@ void BoundingBox::createBuffer(float minX, float maxX, float minY, float maxY, f
 	m_indexBuffer.push_back(3); m_indexBuffer.push_back(2); m_indexBuffer.push_back(6);
 	m_indexBuffer.push_back(6); m_indexBuffer.push_back(7); m_indexBuffer.push_back(3);
 
-	short stride = 7; short offset = 3;
+	short stride = 3; short offset = 0;
 
 	glGenBuffers(1, &m_ibo);
 	glGenBuffers(1, &m_vbo);
@@ -1598,10 +1455,6 @@ void BoundingBox::createBuffer(float minX, float maxX, float minY, float maxY, f
 	//positions
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)0);
-
-	//color
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)(offset * sizeof(float)));
 
 	//indices
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ibo);
@@ -1621,6 +1474,25 @@ void BoundingBox::drawRaw() {
 }
 
 void BoundingSphere::createBuffer() {
+	int numberOfVertices = (*m_vertexCoordsIn).size() / 3;
+
+	float** ap = new float*[numberOfVertices];
+	for (int i = 0; i < numberOfVertices; ++i) {
+		float* p = new float[3];
+		for (int dim = 0; dim < 3; ++dim) {
+			p[dim] = (*m_vertexCoordsIn)[i * 3 + dim];
+		}
+		ap[i] = p;
+	}
+
+	Miniball::Miniball<Miniball::CoordAccessor<float* const*, const float*>> mb(3, ap, ap + numberOfVertices);
+	m_radius = sqrtf(mb.squared_radius());
+	m_position = Vector3f(mb.center()[0], mb.center()[1], mb.center()[2]);
+	
+	for (int i = 0; i < numberOfVertices; ++i)
+		delete[] ap[i];
+	delete[] ap;
+
 	float uAngleStep = (2.0f * PI) / float(m_uResolution);
 	float vAngleStep = PI / float(m_vResolution);
 
@@ -1646,13 +1518,14 @@ void BoundingSphere::createBuffer() {
 
 			m_vertexBuffer.push_back(x); m_vertexBuffer.push_back(y); m_vertexBuffer.push_back(z);
 
-			float u = (float)j / m_uResolution;
-			float v = (float)i / m_vResolution;
+			//float u = (float)j / m_uResolution;
+			//float v = (float)i / m_vResolution;
 
-			m_vertexBuffer.push_back(u); m_vertexBuffer.push_back(v);
+			//m_vertexBuffer.push_back(u); m_vertexBuffer.push_back(v);
 		}
 	}
 
+	//north pole
 	for (unsigned int j = 0; j < m_uResolution; j++) {
 		m_indexBuffer.push_back(0);
 		m_indexBuffer.push_back((m_uResolution + 1) + j + 1);
@@ -1685,7 +1558,7 @@ void BoundingSphere::createBuffer() {
 
 	}
 
-	short stride = 5; short offset = 3;
+	short stride = 3; short offset = 0;
 
 	glGenBuffers(1, &m_ibo);
 	glGenBuffers(1, &m_vbo);
@@ -1700,8 +1573,8 @@ void BoundingSphere::createBuffer() {
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)0);
 
 	//texcoords
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)(offset * sizeof(float)));
+	//glEnableVertexAttribArray(1);
+	//glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)(offset * sizeof(float)));
 
 	//indices
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ibo);
@@ -1718,6 +1591,34 @@ void BoundingSphere::drawRaw() {
 }
 
 void ConvexHull::createBuffer() {
+	int numberOfVertices = (*m_vertexCoordsIn).size() / 3;
+
+	ch_vertex* vertices;
+	vertices = (ch_vertex*)malloc(numberOfVertices * sizeof(ch_vertex));
+	for (unsigned int i = 0; i < numberOfVertices; i++) {
+		vertices[i].x = (*m_vertexCoordsIn)[i * 3 + 0];
+		vertices[i].y = (*m_vertexCoordsIn)[i * 3 + 1];
+		vertices[i].z = (*m_vertexCoordsIn)[i * 3 + 2];
+	}
+
+	int* faceIndices = NULL;
+	int nFaces;
+
+	convhull_3d_build(vertices, numberOfVertices, &faceIndices, &nFaces);
+
+	for (int i = 0; i < nFaces; i++) {
+		m_vertexBuffer.push_back(vertices[faceIndices[i * 3 + 0]].x); m_vertexBuffer.push_back(vertices[faceIndices[i * 3 + 0]].y); m_vertexBuffer.push_back(vertices[faceIndices[i * 3 + 0]].z);
+		m_indexBuffer.push_back(i * 3 + 0);
+
+		m_vertexBuffer.push_back(vertices[faceIndices[i * 3 + 1]].x); m_vertexBuffer.push_back(vertices[faceIndices[i * 3 + 1]].y); m_vertexBuffer.push_back(vertices[faceIndices[i * 3 + 1]].z);
+		m_indexBuffer.push_back(i * 3 + 1);
+
+		m_vertexBuffer.push_back(vertices[faceIndices[i * 3 + 2]].x); m_vertexBuffer.push_back(vertices[faceIndices[i * 3 + 2]].y); m_vertexBuffer.push_back(vertices[faceIndices[i * 3 + 2]].z);
+		m_indexBuffer.push_back(i * 3 + 2);
+	}
+
+	free(vertices);
+	free(faceIndices);
 
 	short stride = 3; short offset = 0;
 
