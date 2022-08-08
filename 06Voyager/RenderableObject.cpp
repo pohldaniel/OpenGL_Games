@@ -5,6 +5,7 @@ unsigned int RenderableObject::s_id = 0;
 RenderableObject::RenderableObject() {
 	m_colorShader = Globals::shaderManager.getAssetPointer("color");
 	m_id = RenderableObject::s_id++;
+	m_pickColor = Vector4f(((m_id & 0x000000FF) >> 0)* (1.0f / 255.0f), ((m_id & 0x0000FF00) >> 8)* (1.0f / 255.0f), ((m_id & 0x00FF0000) >> 16)* (1.0f / 255.0f), 0.0f);
 }
 
 /*RenderableObject::~RenderableObject() {

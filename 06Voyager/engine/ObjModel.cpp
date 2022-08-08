@@ -17,14 +17,17 @@ Model::Model() : m_size(0), m_stride(0), m_offset(0), m_numberOfBytes(0) {
 	m_hasTextureCoords = false;
 	m_hasNormals = false;
 	m_hasTangents = false;
+
+	m_hasAABB = false;
+	m_hasBoundingSphere = false;
+	m_hasConvexHull = false;
 }
 
 Model::~Model() {
-	m_vertexBuffer.clear();
+	
 }
 
 void Model::setRotPos(const Vector3f &axis, float degrees, float dx, float dy, float dz) {
-
 	modelMatrix.setRotPos(axis, degrees, dx, dy, dz);
 }
 
@@ -60,7 +63,6 @@ const Matrix4f &Model::getInvTransformationMatrix() const {
 }
 
 const Vector3f &Model::getCenter() const {
-
 	return m_center;
 }
 
@@ -72,15 +74,15 @@ std::string Model::getModelDirectory() {
 	return m_modelDirectory;
 }
 
-bool Model::loadObject(const char* filename) {
-	return loadObject(filename, Vector3f(0.0, 1.0, 0.0), 0.0, Vector3f(0.0, 0.0, 0.0), 1.0);
+bool Model::loadObject(const char* filename, bool createHull) {
+	return loadObject(filename, Vector3f(0.0, 1.0, 0.0), 0.0, Vector3f(0.0, 0.0, 0.0), 1.0, createHull);
 }
 
 bool compare(const std::array<int, 10> &i_lhs, const std::array<int, 10> &i_rhs) {
 	return i_lhs[9] < i_rhs[9];
 }
 
-bool Model::loadObject(const char* a_filename, Vector3f& rotate, float degree, Vector3f& translate, float scale) {
+bool Model::loadObject(const char* a_filename, Vector3f& rotate, float degree, Vector3f& translate, float scale, bool createHull) {
 	
 	std::string filename(a_filename);
 
@@ -256,14 +258,14 @@ bool Model::loadObject(const char* a_filename, Vector3f& rotate, float degree, V
 
 	aabb.position = Vector3f(xmin, ymin, zmin);
 	aabb.size = Vector3f(xmax, ymax, zmax) - Vector3f(xmin, ymin, zmin);
-	boundingSphere.m_vertexCoordsIn = &vertexCoords;
-	convexHull.m_vertexCoordsIn = &vertexCoords;
 
-	aabb.createBuffer();
-	boundingSphere.createBuffer();
-	convexHull.createBuffer();
+	//unfortunately convhull_3.h doesn't works with the indexed/reduced vertexbuffer and so I have to go for a flag driven approach
+	if(createHull)
+		convexHull.createBuffer(vertexCoords);
 	
-	
+	if (convexHull.m_vertexBuffer.size() > 0)
+		m_hasConvexHull = true;
+
 	std::sort(face.begin(), face.end(), compare);
 	std::map<int, int> dup;
 
@@ -299,9 +301,8 @@ bool Model::loadObject(const char* a_filename, Vector3f& rotate, float degree, V
 	indexBufferCreator.positionCoordsIn = vertexCoords;
 	indexBufferCreator.normalCoordsIn = normalCoords;
 	indexBufferCreator.textureCoordsIn = textureCoords;
-
+	
 	for (int j = 0; j < m_numberOfMeshes; j++) {
-
 		std::vector<std::array<int, 10>>::const_iterator first = face.begin() + m_mesh[j]->m_triangleOffset;
 		std::vector<std::array<int, 10>>::const_iterator last = face.begin() + (m_mesh[j]->m_triangleOffset + m_mesh[j]->m_numberOfTriangles);
 		std::vector<std::array<int, 10>> subFace(first, last);
@@ -332,7 +333,7 @@ bool Model::loadObject(const char* a_filename, Vector3f& rotate, float degree, V
 		}else {
 			m_mesh[j]->m_material.shader = Globals::shaderManager.getAssetPointer("texture");
 		}
-		//m_mesh[j]->createShader();
+
 		m_mesh[j]->createBuffer();
 
 		indexBufferCreator.indexBufferOut.clear();
@@ -347,12 +348,6 @@ bool Model::loadObject(const char* a_filename, Vector3f& rotate, float degree, V
 	indexBufferCreator.normalCoordsIn.shrink_to_fit();
 	indexBufferCreator.textureCoordsIn.clear();
 	indexBufferCreator.textureCoordsIn.shrink_to_fit();
-}
-
-void Model::draw(const Camera& camera) {
-	for (int j = 0; j < m_numberOfMeshes; j++) {
-		m_mesh[j]->draw(camera);
-	}
 }
 
 void Model::drawRaw() {
@@ -373,10 +368,12 @@ void Model::drawHull() {
 	convexHull.drawRaw();
 }
 
-void Model::drawInstanced(const Camera& camera) {
-	for (int j = 0; j < m_numberOfMeshes; j++) {
-		m_mesh[j]->drawInstanced(camera);
-	}
+void Model::createAABB() {
+	aabb.createBuffer(*this);
+}
+
+void Model::createSphere() {
+	boundingSphere.createBuffer(*this);
 }
 
 void Model::createInstances(std::vector<Matrix4f> modelMTX) {
@@ -488,18 +485,6 @@ bool Mesh::readMaterial() {
 
 	}
 
-	if (m_mltName.find("glossy_") != std::string::npos) {
-		m_material.shader = Globals::shaderManager.getAssetPointer("glossy");
-		m_material.materialID = Material::MaterialID::GLOSSY;
-	}else if (m_mltName.find("diffuse_") != std::string::npos) {
-		m_material.shader = Globals::shaderManager.getAssetPointer("diffuse");
-		m_material.materialID = Material::MaterialID::DIFFUSE;
-	}else {
-
-		m_material.shader = Globals::shaderManager.getAssetPointer("texture");
-		m_material.materialID = Material::MaterialID::NONE;
-	}
-
 	if (start < 0 || end < 0) return false;
 
 	for (int i = start; i < end; i++) {
@@ -547,20 +532,6 @@ bool Mesh::readMaterial() {
 
 			if (strstr(identifierBuffer, "map_Kd") != 0) {
 				m_material.diffuseTexPath = valueBuffer;
-				m_material.materialID = static_cast<Material::MaterialID>(m_material.materialID << 3);
-
-				if (m_material.materialID == Material::MaterialID::DIFFUSE_TEXTURE) {
-					m_material.shader = Globals::shaderManager.getAssetPointer("diffuse_texture");
-				}else if (m_material.materialID == Material::MaterialID::GLOSSY_TEXTURE) {
-					m_material.shader = Globals::shaderManager.getAssetPointer("glossy_texture");
-				}else if (m_material.materialID == Material::MaterialID::NONE) {
-					m_material.materialID = Material::MaterialID::NONE_TEXTURE;
-					m_material.shader = Globals::shaderManager.getAssetPointer("diffuse_texture");
-				}
-
-				
-				m_texture = std::make_shared<Texture>(m_model->getModelDirectory() + "/" + m_material.diffuseTexPath);
-
 			}else if (strstr(identifierBuffer, "map_bump") != 0) {
 				m_material.bumpMapPath = valueBuffer;
 
@@ -573,14 +544,6 @@ bool Mesh::readMaterial() {
 	for (int i = 0; i < lines.size(); i++) {
 		delete lines[i];
 	}
-}
-
-void Mesh::setShader(Shader* shader) {
-	m_shader = std::make_shared<Shader>(shader);
-}
-
-void Mesh::setTexture(Texture* texture) {
-	m_texture.reset(texture);
 }
 
 void Mesh::createBuffer() {
@@ -720,27 +683,6 @@ void Mesh::createBuffer() {
 void Mesh::createInstances(std::vector<Matrix4f> modelMTX){
 	m_instanceCount = modelMTX.size();
 	
-	switch (m_material.materialID) {
-		case Material::MaterialID::GLOSSY:
-			m_material.shader = Globals::shaderManager.getAssetPointer("glossy_instance");
-			break;
-		case Material::MaterialID::GLOSSY_TEXTURE:
-			m_material.shader = Globals::shaderManager.getAssetPointer("glossy_instance_texture");
-			break;
-		case Material::MaterialID::DIFFUSE:
-			m_material.shader = Globals::shaderManager.getAssetPointer("diffuse_instance");
-			break;
-		case Material::MaterialID::DIFFUSE_TEXTURE:
-			m_material.shader = Globals::shaderManager.getAssetPointer("diffuse_instance_texture");
-			break;
-		case Material::MaterialID::NONE:
-			m_material.shader = Globals::shaderManager.getAssetPointer("diffuse_instance");
-			break;
-		case Material::MaterialID::NONE_TEXTURE:
-			m_material.shader = Globals::shaderManager.getAssetPointer("diffuse_instance_texture");
-			break;
-	}
-
 	glGenBuffers(1, &m_vbo2);
 
 	glBindVertexArray(m_vao);
@@ -764,7 +706,6 @@ void Mesh::createInstances(std::vector<Matrix4f> modelMTX){
 	glVertexAttribDivisor(5, 1);
 	glVertexAttribDivisor(6, 1);
 
-
 	glBindVertexArray(0);
 }
 
@@ -772,260 +713,6 @@ void Mesh::drawRaw() {
 	glBindVertexArray(m_vao);
 	glDrawElements(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
-}
-
-void Mesh::draw(const Camera& camera) {
-	
-	if (m_material.materialID == Material::MaterialID::NONE) {
-		
-		glUseProgram(m_shader->m_program);
-		
-		
-		m_shader->loadMatrix("u_modelView", m_model->getTransformationMatrix() * camera.getViewMatrix(), true);
-		m_shader->loadMatrix("u_projection", Globals::projection, true);
-
-		m_texture->bind(0);
-
-		
-
-		glBindVertexArray(m_vao);
-		glDrawElements(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0);
-		glBindVertexArray(0);
-
-		Texture::Unbind();
-
-		glUseProgram(0);
-
-	}else if(m_material.materialID == Material::MaterialID::GLOSSY) {
-		
-		glUseProgram(m_material.shader->m_program);
-
-		m_material.shader->loadFloatArray("material.ambient", m_material.ambient, 4);
-		m_material.shader->loadFloatArray("material.diffuse", m_material.diffuse, 4);
-		m_material.shader->loadFloatArray("material.specular", m_material.specular, 4);
-		m_material.shader->loadFloat("material.shininess", m_material.shininess);
-
-		//m_material.shader->loadFloat("diffuse", m_material.diffuse);
-		//m_material.shader->loadVector("diffuse", Vector4f(m_material.diffuse[0], m_material.diffuse[1], m_material.diffuse[2], m_material.diffuse[3]));
-
-		m_material.shader->loadMatrix("u_modelView", camera.getViewMatrix() * m_model->m_modelMatrix, false);
-		m_material.shader->loadMatrix("u_projection", camera.getProjectionMatrix(), false);
-
-		glBindVertexArray(m_vao);
-		glDrawElements(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0);
-		glBindVertexArray(0);
-
-		glUseProgram(0);
-
-	}else if (m_material.materialID == Material::MaterialID::DIFFUSE) {
-		glUseProgram(m_material.shader->m_program);
-
-		m_material.shader->loadFloatArray("material.ambient", m_material.ambient, 4);
-		m_material.shader->loadFloatArray("material.diffuse", m_material.diffuse, 4);
-		m_material.shader->loadFloatArray("material.specular", m_material.specular, 4);
-		m_material.shader->loadFloat("material.shininess", m_material.shininess);
-
-		m_material.shader->loadMatrix("u_modelView", camera.getViewMatrix() * m_model->m_modelMatrix, false);
-		m_material.shader->loadMatrix("u_projection", camera.getProjectionMatrix(), false);
-
-		glBindVertexArray(m_vao);
-		glDrawElements(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0);
-		glBindVertexArray(0);
-
-		glUseProgram(0);
-	}else if (m_material.materialID == Material::MaterialID::NONE_TEXTURE) {
-		glUseProgram(m_material.shader->m_program);
-
-		m_material.shader->loadFloatArray("material.ambient", m_material.ambient, 4);
-		m_material.shader->loadFloatArray("material.diffuse", m_material.diffuse, 4);
-		m_material.shader->loadFloatArray("material.specular", m_material.specular, 4);
-		m_material.shader->loadFloat("material.shininess", m_material.shininess);
-
-		m_material.shader->loadMatrix("u_modelView", camera.getViewMatrix() * m_model->m_modelMatrix, false);
-		m_material.shader->loadMatrix("u_projection", camera.getProjectionMatrix(), false);
-		m_material.shader->loadInt("u_texture", 1);
-
-		m_texture->bind(1);
-		glBindTexture(GL_TEXTURE_2D, m_texture->m_texture);
-		glBindVertexArray(m_vao);
-		glDrawElements(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0);
-		glBindVertexArray(0);
-		glBindTexture(GL_TEXTURE_2D, 0);
-		m_texture->bind(0);
-		m_material.shader->loadInt("u_texture", 0);
-		glUseProgram(0);
-	}else if (m_material.materialID == Material::MaterialID::GLOSSY_TEXTURE) {
-		glUseProgram(m_material.shader->m_program);
-
-		m_material.shader->loadFloatArray("material.ambient", m_material.ambient, 4);
-		m_material.shader->loadFloatArray("material.diffuse", m_material.diffuse, 4);
-		m_material.shader->loadFloatArray("material.specular", m_material.specular, 4);
-		m_material.shader->loadFloat("material.shininess", m_material.shininess);
-
-		m_material.shader->loadMatrix("u_modelView", camera.getViewMatrix() * m_model->m_modelMatrix, false);
-		m_material.shader->loadMatrix("u_projection", camera.getProjectionMatrix(), false);
-		m_material.shader->loadInt("u_texture", 1);
-
-		m_texture->bind(1);
-		glBindTexture(GL_TEXTURE_2D, m_texture->m_texture);
-		glBindVertexArray(m_vao);
-		glDrawElements(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0);
-		glBindVertexArray(0);
-		glBindTexture(GL_TEXTURE_2D, 0);
-		m_texture->bind(0);
-		m_material.shader->loadInt("u_texture", 0);
-		glUseProgram(0);
-	}else if (m_material.materialID == Material::MaterialID::DIFFUSE_TEXTURE) {
-		glUseProgram(m_material.shader->m_program);
-
-		m_material.shader->loadFloatArray("material.ambient", m_material.ambient, 4);
-		m_material.shader->loadFloatArray("material.diffuse", m_material.diffuse, 4);
-		m_material.shader->loadFloatArray("material.specular", m_material.specular, 4);
-		m_material.shader->loadFloat("material.shininess", m_material.shininess);
-		
-		m_material.shader->loadMatrix("u_modelView", camera.getViewMatrix() * m_model->m_modelMatrix, false);
-		m_material.shader->loadMatrix("u_projection", camera.getProjectionMatrix(), false);
-		m_material.shader->loadInt("u_texture", 1);
-
-		m_texture->bind(1);
-		glBindTexture(GL_TEXTURE_2D, m_texture->m_texture);
-		glBindVertexArray(m_vao);
-		glDrawElements(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0);
-		glBindVertexArray(0);
-		glBindTexture(GL_TEXTURE_2D, 0);
-		m_texture->bind(0);
-		m_material.shader->loadInt("u_texture", 0);
-		glUseProgram(0);
-	}else {
-		/*glUseProgram(m_shader->m_program);
-
-		m_shader->loadMatrix("u_modelView", camera.getViewMatrix() * m_model->m_modelMatrix, false);
-		m_shader->loadMatrix("u_projection", camera.getProjectionMatrix(), false);
-
-		glBindTexture(GL_TEXTURE_2D, m_texture->m_texture);
-		glBindVertexArray(m_vao);
-		glDrawElements(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0);
-		glBindVertexArray(0);
-		glBindTexture(GL_TEXTURE_2D, 0);
-		glUseProgram(0);*/
-
-		
-	}
-
-	
-}
-
-void Mesh::drawInstanced(const Camera& camera) {
-	if (m_material.materialID == Material::MaterialID::NONE) {
-
-		glUseProgram(m_material.shader->m_program);
-
-		m_material.shader->loadFloatArray("material.ambient", m_material.ambient, 4);
-		m_material.shader->loadFloatArray("material.diffuse", m_material.diffuse, 4);
-		m_material.shader->loadFloatArray("material.specular", m_material.specular, 4);
-		m_material.shader->loadFloat("material.shininess", m_material.shininess);
-
-		m_material.shader->loadMatrix("u_modelView", camera.getViewMatrix(), false);
-		m_material.shader->loadMatrix("u_projection", camera.getProjectionMatrix(), false);
-
-		glBindVertexArray(m_vao);
-		glDrawElementsInstanced(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0, m_instanceCount);
-		glBindVertexArray(0);
-
-		glUseProgram(0);
-
-	}else if (m_material.materialID == Material::MaterialID::GLOSSY) {
-		glUseProgram(m_material.shader->m_program);
-
-		m_material.shader->loadFloatArray("material.ambient", m_material.ambient, 4);
-		m_material.shader->loadFloatArray("material.diffuse", m_material.diffuse, 4);
-		m_material.shader->loadFloatArray("material.specular", m_material.specular, 4);
-		m_material.shader->loadFloat("material.shininess", m_material.shininess);
-
-		m_material.shader->loadMatrix("u_modelView", camera.getViewMatrix(), false);
-		m_material.shader->loadMatrix("u_projection", camera.getProjectionMatrix(), false);
-
-		glBindVertexArray(m_vao);
-		glDrawElementsInstanced(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0, m_instanceCount);
-		glBindVertexArray(0);
-
-		glUseProgram(0);
-
-	}else if (m_material.materialID == Material::MaterialID::DIFFUSE) {
-		glUseProgram(m_material.shader->m_program);
-
-		m_material.shader->loadFloatArray("material.ambient", m_material.ambient, 4);
-		m_material.shader->loadFloatArray("material.diffuse", m_material.diffuse, 4);
-		m_material.shader->loadFloatArray("material.specular", m_material.specular, 4);
-		m_material.shader->loadFloat("material.shininess", m_material.shininess);
-
-		m_material.shader->loadMatrix("u_modelView", camera.getViewMatrix(), false);
-		m_material.shader->loadMatrix("u_projection", camera.getProjectionMatrix(), false);
-
-		glBindVertexArray(m_vao);
-		glDrawElementsInstanced(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0, m_instanceCount);
-		glBindVertexArray(0);
-
-		glUseProgram(0);
-
-	}else if (m_material.materialID == Material::MaterialID::NONE_TEXTURE) {
-		glUseProgram(m_material.shader->m_program);
-
-		m_material.shader->loadFloatArray("material.ambient", m_material.ambient, 4);
-		m_material.shader->loadFloatArray("material.diffuse", m_material.diffuse, 4);
-		m_material.shader->loadFloatArray("material.specular", m_material.specular, 4);
-		m_material.shader->loadFloat("material.shininess", m_material.shininess);
-
-		m_material.shader->loadMatrix("u_modelView", camera.getViewMatrix(), false);
-		m_material.shader->loadMatrix("u_projection", camera.getProjectionMatrix(), false);
-
-		glBindTexture(GL_TEXTURE_2D, m_texture->m_texture);
-		glBindVertexArray(m_vao);
-		glDrawElementsInstanced(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0, m_instanceCount);
-		glBindVertexArray(0);
-		glBindTexture(GL_TEXTURE_2D, 0);
-
-		glUseProgram(0);
-	}else if (m_material.materialID == Material::MaterialID::GLOSSY_TEXTURE) {
-		glUseProgram(m_material.shader->m_program);
-
-		m_material.shader->loadFloatArray("material.ambient", m_material.ambient, 4);
-		m_material.shader->loadFloatArray("material.diffuse", m_material.diffuse, 4);
-		m_material.shader->loadFloatArray("material.specular", m_material.specular, 4);
-		m_material.shader->loadFloat("material.shininess", m_material.shininess);
-
-		m_material.shader->loadMatrix("u_modelView", camera.getViewMatrix(), false);
-		m_material.shader->loadMatrix("u_projection", camera.getProjectionMatrix(), false);
-		
-		glBindTexture(GL_TEXTURE_2D, m_texture->m_texture);
-		glBindVertexArray(m_vao);
-		glDrawElementsInstanced(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0, m_instanceCount);
-		glBindVertexArray(0);
-		glBindTexture(GL_TEXTURE_2D, 0);
-		
-		glUseProgram(0);
-
-	}else if (m_material.materialID == Material::MaterialID::DIFFUSE_TEXTURE) {
-		glUseProgram(m_material.shader->m_program);
-
-		m_material.shader->loadFloatArray("material.ambient", m_material.ambient, 4);
-		m_material.shader->loadFloatArray("material.diffuse", m_material.diffuse, 4);
-		m_material.shader->loadFloatArray("material.specular", m_material.specular, 4);
-		m_material.shader->loadFloat("material.shininess", m_material.shininess);
-
-		m_material.shader->loadMatrix("u_modelView", camera.getViewMatrix(), false);
-		m_material.shader->loadMatrix("u_projection", camera.getProjectionMatrix(), false);
-
-		glBindTexture(GL_TEXTURE_2D, m_texture->m_texture);
-		glBindVertexArray(m_vao);
-		glDrawElementsInstanced(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0, m_instanceCount);
-		glBindVertexArray(0);
-		glBindTexture(GL_TEXTURE_2D, 0);
-
-		glUseProgram(0);
-	}else {
-		std::cout << "-------------" << std::endl;
-	}
 }
 
 void Mesh::generateNormals() {
@@ -1231,8 +918,6 @@ void Mesh::generateTangents() {
 		tmpVertex[pTriangle[2] * 14 + 11] = tmpVertex[pTriangle[2] * 14 + 11] + bitangent[0];
 		tmpVertex[pTriangle[2] * 14 + 12] = tmpVertex[pTriangle[2] * 14 + 12] + bitangent[1];
 		tmpVertex[pTriangle[2] * 14 + 13] = tmpVertex[pTriangle[2] * 14 + 13] + bitangent[2];
-
-
 	}
 
 	// Orthogonalize and normalize the vertex tangents.
@@ -1411,9 +1096,7 @@ int IndexBufferCreator::addVertex(int hash, const float *pVertex, int stride) {
 	return index;
 }
 
-
-
-void BoundingBox::createBuffer() {
+void BoundingBox::createBuffer(Model& model) {
 
 	m_vertexBuffer.push_back(position[0]); m_vertexBuffer.push_back(position[1]); m_vertexBuffer.push_back(position[2]);	
 	m_vertexBuffer.push_back(position[0] + size[0]); m_vertexBuffer.push_back(position[1]); m_vertexBuffer.push_back(position[2]);	
@@ -1462,28 +1145,41 @@ void BoundingBox::createBuffer() {
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
+
+	model.m_hasAABB = true;
 	
 }
 
 void BoundingBox::drawRaw() {
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	glBindVertexArray(m_vao);
 	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
 
-void BoundingSphere::createBuffer() {
-	int numberOfVertices = (*m_vertexCoordsIn).size() / 3;
+void BoundingSphere::createBuffer(Model& model) {
+
+	std::vector<float> vertices;
+	for (unsigned int j = 0; j < model.getMeshes().size(); j++) {
+		for (unsigned int i = 0; i < model.getMeshes()[j]->m_vertexBuffer.size(); i = i + model.getMeshes()[j]->m_stride) {
+			vertices.push_back(model.getMeshes()[j]->m_vertexBuffer[i]);
+			vertices.push_back(model.getMeshes()[j]->m_vertexBuffer[i + 1]);
+			vertices.push_back(model.getMeshes()[j]->m_vertexBuffer[i + 2]);
+		}
+	}
+
+	int numberOfVertices = vertices.size() / 3;
 
 	float** ap = new float*[numberOfVertices];
 	for (int i = 0; i < numberOfVertices; ++i) {
 		float* p = new float[3];
 		for (int dim = 0; dim < 3; ++dim) {
-			p[dim] = (*m_vertexCoordsIn)[i * 3 + dim];
+			p[dim] = vertices[i * 3 + dim];
 		}
 		ap[i] = p;
 	}
+
+	vertices.clear();
+	vertices.shrink_to_fit();
 
 	Miniball::Miniball<Miniball::CoordAccessor<float* const*, const float*>> mb(3, ap, ap + numberOfVertices);
 	m_radius = sqrtf(mb.squared_radius());
@@ -1517,11 +1213,6 @@ void BoundingSphere::createBuffer() {
 
 
 			m_vertexBuffer.push_back(x); m_vertexBuffer.push_back(y); m_vertexBuffer.push_back(z);
-
-			//float u = (float)j / m_uResolution;
-			//float v = (float)i / m_vResolution;
-
-			//m_vertexBuffer.push_back(u); m_vertexBuffer.push_back(v);
 		}
 	}
 
@@ -1572,16 +1263,14 @@ void BoundingSphere::createBuffer() {
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)0);
 
-	//texcoords
-	//glEnableVertexAttribArray(1);
-	//glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)(offset * sizeof(float)));
-
 	//indices
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ibo);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_indexBuffer.size() * sizeof(unsigned int), &m_indexBuffer[0], GL_STATIC_DRAW);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
+
+	model.m_hasBoundingSphere = true;
 }
 
 void BoundingSphere::drawRaw() {
@@ -1590,15 +1279,15 @@ void BoundingSphere::drawRaw() {
 	glBindVertexArray(0);
 }
 
-void ConvexHull::createBuffer() {
-	int numberOfVertices = (*m_vertexCoordsIn).size() / 3;
+void ConvexHull::createBuffer(std::vector<float>& vertexBuffer) {
+	int numberOfVertices = vertexBuffer.size() / 3;
 
 	ch_vertex* vertices;
 	vertices = (ch_vertex*)malloc(numberOfVertices * sizeof(ch_vertex));
 	for (unsigned int i = 0; i < numberOfVertices; i++) {
-		vertices[i].x = (*m_vertexCoordsIn)[i * 3 + 0];
-		vertices[i].y = (*m_vertexCoordsIn)[i * 3 + 1];
-		vertices[i].z = (*m_vertexCoordsIn)[i * 3 + 2];
+		vertices[i].x = vertexBuffer[i * 3 + 0];
+		vertices[i].y = vertexBuffer[i * 3 + 1];
+		vertices[i].z = vertexBuffer[i * 3 + 2];
 	}
 
 	int* faceIndices = NULL;

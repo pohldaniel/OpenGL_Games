@@ -108,9 +108,9 @@ btCollisionShape * Physics::CreateStaticCollisionShape(Mesh * mesh, const btVect
 std::vector<btCollisionShape *> Physics::CreateStaticCollisionShapes(Model * model, const btVector3 & scale) {
 	std::vector<btCollisionShape *> ret;
 
-	for (unsigned int i = 0; i < model->m_mesh.size(); i++) {
+	for (unsigned int i = 0; i < model->getMeshes().size(); i++) {
 
-		btCollisionShape *shape = CreateStaticCollisionShape(model->m_mesh[i], scale);
+		btCollisionShape *shape = CreateStaticCollisionShape(model->getMeshes()[i], scale);
 
 		if (shape) {
 

@@ -2,9 +2,10 @@
 
 Barrel::Barrel() : RenderableObject() {
 	m_model = new Model();
-	m_model->loadObject("res/barrel/barrel.obj");
-
-	m_model->m_mesh[0]->generateTangents();
+	m_model->loadObject("res/barrel/barrel.obj", true);
+	m_model->getMeshes()[0]->generateTangents();
+	m_model->createAABB();
+	m_model->createSphere();
 
 	m_shader = Globals::shaderManager.getAssetPointer("normal");
 	
@@ -32,8 +33,6 @@ Barrel::Barrel() : RenderableObject() {
 	glUseProgram(0);
 
 	m_transformOutline.scale(1.01f, 1.01f, 1.01f);
-
-	m_pickColor = Vector4f(((m_id & 0x000000FF) >> 0)* (1.0f / 255.0f), ((m_id & 0x0000FF00) >> 8)* (1.0f / 255.0f), ((m_id & 0x00FF0000) >> 16)* (1.0f / 255.0f), ((m_id & 0xFF000000) >> 24)* (1.0f / 255.0f));
 }
 
 Barrel::~Barrel() {

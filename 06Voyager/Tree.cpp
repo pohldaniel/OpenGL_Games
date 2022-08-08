@@ -3,15 +3,14 @@
 Tree::Tree() : RenderableObject() {
 	m_model = new Model();
 	m_model->loadObject("res/lowPolyTree.obj");
-	
+	m_model->createAABB();
+	m_model->createSphere();
+
 	m_shader = Globals::shaderManager.getAssetPointer("texture");
 	m_texture = &Globals::textureManager.get("tree");
 
-
 	m_transformOutline.scale(1.01f, 1.01f, 1.01f);
-	m_pickColor = Vector4f(((m_id & 0x000000FF) >> 0)* (1.0f / 255.0f), ((m_id & 0x0000FF00) >> 8)* (1.0f / 255.0f), ((m_id & 0x00FF0000) >> 16)* (1.0f / 255.0f), ((m_id & 0xFF000000) >> 24)* (1.0f / 255.0f));
 }
-
 
 Tree::~Tree() {
 

@@ -21,12 +21,12 @@
 #include "..\Miniball\Miniball.h"
 #include "..\Constants.h"
 
-
 struct BoundingBox {
-	void createBuffer();
+
+	void createBuffer(Model& model);
 	void drawRaw();
 
-	std::vector <float> m_vertexBuffer;
+	std::vector<float> m_vertexBuffer;
 	std::vector<unsigned int> m_indexBuffer;
 
 	unsigned int m_vao = 0;
@@ -39,12 +39,10 @@ struct BoundingBox {
 
 struct BoundingSphere {
 
-	//BoundingSphere(std::vector<float>& vertexCoords) : m_vertexCoordsIn(vertexCoords) { }
-
-	void createBuffer();
+	void createBuffer(Model& model);
 	void drawRaw();
 
-	std::vector <float> m_vertexBuffer;
+	std::vector<float> m_vertexBuffer;
 	std::vector<unsigned int> m_indexBuffer;
 
 	unsigned int m_vao = 0;
@@ -57,22 +55,18 @@ struct BoundingSphere {
 
 	float m_radius;
 	Vector3f m_position;
-
-	std::vector<float>* m_vertexCoordsIn;
 };
 
 struct ConvexHull {
-	void createBuffer();
+	void createBuffer(std::vector<float>& vertexBuffer);
 	void drawRaw();
 
-	std::vector <float> m_vertexBuffer;
+	std::vector<float> m_vertexBuffer;
 	std::vector<unsigned int> m_indexBuffer;
 
 	unsigned int m_vao = 0;
 	unsigned int m_vbo = 0;
 	unsigned int m_ibo = 0;
-
-	std::vector<float>* m_vertexCoordsIn;
 };
 
 struct IndexBufferCreator {
@@ -96,6 +90,10 @@ private:
 class Mesh;
 class Model {
 	friend Mesh;
+	friend BoundingBox;
+	friend BoundingSphere;
+	friend ConvexHull;
+
 public:
 
 	Model();
@@ -115,35 +113,38 @@ public:
 	void translate(float dx, float dy, float dz);
 	void scale(float a, float b, float c);
 
-	void draw(const Camera& camera);
 	void drawRaw();
+
+	void createAABB();
+	void createSphere();
+
 	void drawAABB();
 	void drawSphere();
 	void drawHull();
-	void drawInstanced(const Camera& camera);
 
-	//size values
-	unsigned int m_size, m_numVertices, m_numIndices, m_stride, m_offset, m_numberOfBytes;
+	bool loadObject(const char* filename, bool createHull = true);
+	bool loadObject(const char* a_filename, Vector3f &rotate, float degree, Vector3f& translate, float scale, bool createHull = true);
 
 
-	bool loadObject(const char* filename);
-	bool loadObject(const char* a_filename, Vector3f &rotate, float degree, Vector3f& translate, float scale);
-
-	
 	std::string getMltPath();
 	std::string getModelDirectory();
 
 
-	void setModelMatrix(Matrix4f &modelMatrix) { m_modelMatrix = modelMatrix;}
+	void setModelMatrix(Matrix4f &modelMatrix) { m_modelMatrix = modelMatrix; }
 	void createInstances(std::vector<Matrix4f> modelMTX);
 
-	bool m_hasTextureCoords;
-	bool m_hasNormals;
-	bool m_hasTangents;
+	std::vector<Mesh*> getMeshes() {
+		return m_mesh;
+	}
+	
+private:
+	//size values
+	unsigned int m_size, m_numVertices, m_numIndices, m_stride, m_offset, m_numberOfBytes;
+
+	bool m_hasTextureCoords, m_hasNormals, m_hasTangents;
+	bool m_hasAABB, m_hasBoundingSphere, m_hasConvexHull;
 
 	std::vector<Mesh*> m_mesh;
-
-
 	
 	int m_numberOfMeshes;
 	int m_numberOfTriangles;
@@ -154,9 +155,6 @@ public:
 	Vector3f m_center;
 	Matrix4f m_modelMatrix;
 	ModelMatrix modelMatrix;
-
-	std::vector <float> m_vertexBuffer;
-	
 
 	BoundingBox aabb;
 	BoundingSphere boundingSphere;
@@ -169,18 +167,7 @@ class Mesh {
 
 public:
 	///////////////////////////////geometry content
-	struct Material {
-		enum MaterialID {
-			NONE = 0,
-			GLOSSY = 1,
-			DIFFUSE = 2,
-			NONE_TEXTURE = 4,
-			GLOSSY_TEXTURE = 8,
-			DIFFUSE_TEXTURE = 16,
-		};
-
-
-
+	struct Material {		
 		float ambient[4];
 		float diffuse[4];
 		float specular[4];
@@ -189,16 +176,13 @@ public:
 		std::string bumpMapPath;
 		std::string displacementMapPath;
 		Shader * shader;
-		MaterialID materialID = MaterialID::NONE;
 	};
 
 	Mesh(std::string mltName, int numberTriangles, Model* model);
 	Mesh(int numberTriangles, Model* model);
 	~Mesh();
 
-	void draw(const Camera& camera);
 	void drawRaw();
-	void drawInstanced(const Camera& camera);
 
 	void setMaterial(const Vector3f &ambient, const Vector3f &diffuse, const Vector3f &specular, float shinies);
 	Material getMaterial();
@@ -214,9 +198,6 @@ public:
 	void createBuffer();
 	void createInstances(std::vector<Matrix4f> modelMTX);
 	
-	void setShader(Shader* shader);
-	void setTexture(Texture* texture);
-
 	short m_numBuffers;
 	unsigned int m_vao = 0;
 	unsigned int m_vbo[5] = { 0 };
@@ -225,11 +206,8 @@ public:
 
 	unsigned int m_drawCount;
 	unsigned int m_instanceCount = 0;
-	std::shared_ptr<Shader> m_shader;
-	std::shared_ptr<Texture> m_texture;
-
+	
 	std::vector <float> m_vertexBuffer;
-
 	std::vector<unsigned int> m_indexBuffer;
 	std::vector<Vector3f> m_positions;
 	std::vector<Vector2f> m_texels;
