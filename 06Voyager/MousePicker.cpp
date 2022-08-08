@@ -6,11 +6,45 @@ MousePicker::MousePicker() {
 	m_cursor->buildMesh();
 	m_cursor->setTexture(&Globals::textureManager.get("null"));
 	m_cursor->setShader(Globals::shaderManager.getAssetPointer("ring"));
+
+	m_mousePickBuffer.create(WIDTH, HEIGHT);
+	m_mousePickBuffer.attachTexture(Framebuffer::Attachments::COLOR);
+	m_mousePickBuffer.attachRenderbuffer(Framebuffer::Attachments::DEPTH24);
+
+	const int DATA_SIZE = WIDTH * HEIGHT * 4;
+
+	glGenBuffers(PBO_COUNT, pboIds);
+	glBindBuffer(GL_PIXEL_PACK_BUFFER, pboIds[0]);
+	glBufferData(GL_PIXEL_PACK_BUFFER, DATA_SIZE, 0, GL_STREAM_READ);
+	glBindBuffer(GL_PIXEL_PACK_BUFFER, pboIds[1]);
+	glBufferData(GL_PIXEL_PACK_BUFFER, DATA_SIZE, 0, GL_STREAM_READ);
+
+	glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
+}
+
+void MousePicker::updateObjectId(unsigned int posX, unsigned int posY) {
+	
+	index = (index + 1) % 2;
+	nextIndex = (index + 1) % 2;
+
+	glBindFramebuffer(GL_READ_FRAMEBUFFER, m_mousePickBuffer.getFramebuffer());
+	glBindBuffer(GL_PIXEL_PACK_BUFFER, pboIds[index]);
+	glReadPixels(posX, HEIGHT - posY, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+	glBindBuffer(GL_PIXEL_PACK_BUFFER, pboIds[nextIndex]);
+	GLubyte* src = (GLubyte*)glMapBuffer(GL_PIXEL_PACK_BUFFER, GL_READ_ONLY);
+	if (src) {
+		m_pickedId = src[0] + src[1] * 256 + src[2] * 256 * 256 /*+ src[3] * 256 * 256 * 256*/;
+		glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
+	}
+	glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
+	glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+}
+
+unsigned int MousePicker::getPickedId() const {
+	return m_pickedId;
 }
 
 void MousePicker::update(float dt) {
-
-	
 	if (m_fadeIn) {
 		m_radius = m_radius < 0.7f ? m_radius + m_transitionSpeed * dt : 0.7f;
 		m_fadeIn = m_radius < 0.7f;
@@ -82,7 +116,6 @@ void MousePicker::updatePosition(unsigned int posX, unsigned int posY, const Cam
 		trans.translate(callback.m_hitPointWorld[0], callback.m_hitPointWorld[1], callback.m_hitPointWorld[2]);
 		m_cursor->setTransformation(rotation * trans);
 	}
-
 }
 
 void MousePicker::draw(const Camera& camera){
@@ -106,4 +139,8 @@ void MousePicker::click() {
 		m_fadeIn = m_fadeOut;
 		m_fadeOut = !m_fadeOut;
 	}
+}
+
+Framebuffer MousePicker::getBuffer() const {
+	return m_mousePickBuffer;
 }

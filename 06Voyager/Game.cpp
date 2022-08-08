@@ -17,11 +17,6 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_water(
 	m_copyFramebuffer.attachTexture(Framebuffer::Attachments::COLOR);
 	m_copyFramebuffer.attachRenderbuffer(Framebuffer::Attachments::DEPTH_STENCIL);
 
-
-	m_mousePickBuffer.create(WIDTH, HEIGHT);
-	m_mousePickBuffer.attachTexture(Framebuffer::Attachments::COLOR);
-	m_mousePickBuffer.attachRenderbuffer(Framebuffer::Attachments::DEPTH24);
-
 	m_quadShader = Globals::shaderManager.getAssetPointer("quad");
 	m_quadShadow = Globals::shaderManager.getAssetPointer("quad_shadow");
 	m_quadArrayShader = Globals::shaderManager.getAssetPointer("quad_array");
@@ -79,7 +74,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_water(
 	m_cameraBoundsMin[1] = 0.0f;
 	m_cameraBoundsMin[2] = lowerBounds;
 
-	m_mousePicker = new MousePicker();
+
 
 	//m_entities.push_back(new MeshCube(Vector3f(HEIGHTMAP_WIDTH * 0.5f + 300.0f, 450.1f, HEIGHTMAP_WIDTH * 0.5f + 300.0f), 100, 100, 100));
 	m_entities.push_back(new MeshCube(Vector3f(HEIGHTMAP_WIDTH * 0.5f + 600.0f, m_terrain.getHeightMap().heightAt(HEIGHTMAP_WIDTH * 0.5f + 600.0f, HEIGHTMAP_WIDTH * 0.5f + 300.0f) + 50.0f, HEIGHTMAP_WIDTH * 0.5f + 300.0f), 100, 100, 100));
@@ -148,17 +143,6 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_water(
 	glUseProgram(Globals::shaderManager.getAssetPointer("skybox")->m_program);
 	Globals::shaderManager.getAssetPointer("skybox")->loadVector("fogColor", Vector4f(0.5f, 0.5f, 0.5f, 1.0f));
 	glUseProgram(0);
-
-	const int DATA_SIZE = WIDTH * HEIGHT * 4;
-
-	glGenBuffers(PBO_COUNT, pboIds);
-	glBindBuffer(GL_PIXEL_PACK_BUFFER, pboIds[0]);
-	glBufferData(GL_PIXEL_PACK_BUFFER, DATA_SIZE, 0, GL_STREAM_READ);
-	glBindBuffer(GL_PIXEL_PACK_BUFFER, pboIds[1]);
-	glBufferData(GL_PIXEL_PACK_BUFFER, DATA_SIZE, 0, GL_STREAM_READ);
-
-	glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
-
 }
 
 Game::~Game() {}
@@ -266,7 +250,7 @@ void Game::update() {
 			MeshCube* cube = reinterpret_cast<MeshCube*>(callback.m_collisionObject->getUserPointer());
 			cube->dissolve();			
 		}
-		m_mousePicker->click();
+		m_mousePicker.click();
 	}
 
 	if (mouse.buttonDown(Mouse::MouseButton::BUTTON_RIGHT)) {		
@@ -293,17 +277,17 @@ void Game::update() {
 	m_camera.calcLightTransformation2(LIGHT_DIRECTION);
 	m_skybox.update();
 	m_barrel->update(m_dt);
-	m_barrel->setDrawBorder(pickedID == m_barrel->m_id);
+	m_barrel->setDrawBorder(m_mousePicker.getPickedId() == m_barrel->getId());
 	for (auto entitie : m_entities) {
 		entitie->update(m_dt);
 	}
-	m_tree->setDrawBorder(pickedID == m_tree->m_id);
+	m_tree->setDrawBorder(m_mousePicker.getPickedId() == m_tree->getId());
 
 	for (auto entitie : m_fernEntities) {
-		entitie->setDrawBorder(pickedID == entitie->m_id);
+		entitie->setDrawBorder(m_mousePicker.getPickedId() == entitie->getId());
 	}
 
-	m_mousePicker->update(m_dt);
+	m_mousePicker.update(m_dt);
 
 	//performCameraCollisionDetection();
 };
@@ -339,7 +323,7 @@ void Game::render(unsigned int &frameBuffer) {
 
 	m_barrel->draw(m_camera);
 
-	m_mousePicker->draw(m_camera);
+	m_mousePicker.draw(m_camera);
 	
 
 	for (auto entitie : m_entities) {
@@ -405,7 +389,7 @@ void Game::render(unsigned int &frameBuffer) {
 		glUseProgram(m_quadShader->m_program);
 		m_quadShader->loadMatrix("u_transform", Matrix4f::IDENTITY);
 		//m_perlinQuad->render(Globals::textureManager.get("perlin").getTexture());
-		m_perlinQuad->render(m_mousePickBuffer.getColorTexture());
+		m_perlinQuad->render(m_mousePicker.getBuffer().getColorTexture());
 		glUseProgram(0);
 
 		glScissor(WIDTH - offsetX, 0, offsetX, offsetY);
@@ -491,13 +475,13 @@ void Game::shadowPass() {
 }
 
 void Game::mousePickPass() {
-	m_mousePickBuffer.bindWrite();
+	m_mousePicker.getBuffer().bindWrite();
 
 	
 	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	//m_barrel->drawAABB(m_camera);
-	m_barrel->drawRaw(m_camera);
+	m_barrel->drawHull(m_camera);
 	/*for (auto entitie : m_fernEntities) {
 		entitie->drawAABB(m_camera);
 	}*/
@@ -512,25 +496,8 @@ void Game::mousePickPass() {
 }
 
 void Game::OnMouseMotion(Event::MouseMoveEvent& event) {
-	
-	static int index = 0;
-	int nextIndex = 0;
-	index = (index + 1) % 2;
-	nextIndex = (index + 1) % 2;
-
-	glBindFramebuffer(GL_READ_FRAMEBUFFER, m_mousePickBuffer.getFramebuffer());
-	glBindBuffer(GL_PIXEL_PACK_BUFFER, pboIds[index]);
-	glReadPixels(event.x, HEIGHT - event.y, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, 0);
-	glBindBuffer(GL_PIXEL_PACK_BUFFER, pboIds[nextIndex]);
-	GLubyte* src = (GLubyte*)glMapBuffer(GL_PIXEL_PACK_BUFFER, GL_READ_ONLY);
-	if (src) {
-		pickedID = src[0] + src[1] * 256 + src[2] * 256 * 256;
-		glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
-	}
-	glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
-	glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
-
-	m_mousePicker->updatePosition(event.x, event.y, m_camera);
+	m_mousePicker.updateObjectId(event.x, event.y);
+	m_mousePicker.updatePosition(event.x, event.y, m_camera);
 }
 
 void Game::performCameraCollisionDetection(){

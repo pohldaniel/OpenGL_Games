@@ -1,8 +1,10 @@
 #include "RenderableObject.h"
 
+unsigned int RenderableObject::s_id = 0;
+
 RenderableObject::RenderableObject() {
-	m_shader = Globals::shaderManager.getAssetPointer("quad");
-	
+	m_colorShader = Globals::shaderManager.getAssetPointer("color");
+	m_id = RenderableObject::s_id++;
 }
 
 /*RenderableObject::~RenderableObject() {
@@ -17,11 +19,39 @@ bool RenderableObject::isDisabled() {
 	return m_disabled;
 }
 
+void RenderableObject::drawRaw() {
+	m_model->drawRaw();
+};
 
 void RenderableObject::draw(const Camera& camera) {};
-void RenderableObject::drawShadow(const Camera& camera) {};
-void RenderableObject::drawRaw() {};
-void RenderableObject::drawAABB(const Camera& camera) {};
+
+void RenderableObject::drawShadow(const Camera& camera) {
+	drawRaw();
+};
+
+void RenderableObject::drawAABB(const Camera& camera) {
+	glUseProgram(m_colorShader->m_program);
+	m_colorShader->loadMatrix("u_transform", m_modelMatrix.getTransformationMatrix() * camera.getViewMatrix() * Globals::projection);
+	m_colorShader->loadVector("u_color", m_pickColor);
+	m_model->drawAABB();
+	glUseProgram(0);
+};
+
+void RenderableObject::drawSphere(const Camera& camera) {
+	glUseProgram(m_colorShader->m_program);
+	m_colorShader->loadMatrix("u_transform", m_modelMatrix.getTransformationMatrix() * camera.getViewMatrix() * Globals::projection);
+	m_colorShader->loadVector("u_color", m_pickColor);
+	m_model->drawSphere();
+	glUseProgram(0);
+};
+
+void RenderableObject::drawHull(const Camera& camera) {
+	glUseProgram(m_colorShader->m_program);
+	m_colorShader->loadMatrix("u_transform", m_modelMatrix.getTransformationMatrix() * camera.getViewMatrix() * Globals::projection);
+	m_colorShader->loadVector("u_color", m_pickColor);
+	m_model->drawHull();
+	glUseProgram(0);
+};
 
 void RenderableObject::rotate(const Vector3f &axis, float degrees) {
 	m_modelMatrix.rotate(axis, degrees);
@@ -45,4 +75,8 @@ const Matrix4f &RenderableObject::getInvTransformationMatrix() const {
 
 const Model* RenderableObject::getModel() const {
 	return m_model;
+}
+
+unsigned int RenderableObject::getId() const {
+	return m_id;
 }

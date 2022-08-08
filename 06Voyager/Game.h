@@ -60,18 +60,15 @@ public:
 	Quad *m_refractionQuad;
 	Quad *m_perlinQuad;
 	Quad *m_shadowQuad;
-
 	
 	Framebuffer m_copyFramebuffer;
 	Framebuffer m_lightDepthFramebuffer;
-	Framebuffer m_mousePickBuffer;
+
 
 	Shader *m_quadShader;
 	Shader *m_quadShadow;
 	Shader *m_quadArrayShader;
 	Shader *m_quadArrayShadowShader;
-
-	MousePicker* m_mousePicker;
 
 	MeshCube *m_meshCube;
 	std::vector<MeshCube*> m_entities;
@@ -95,8 +92,5 @@ public:
 	Text* m_text;
 	//Model* m_tree;
 
-	const int PBO_COUNT = 2;
-	unsigned int pboIds[2];
-
-	int pickedID = 0;
+	MousePicker m_mousePicker;
 };
