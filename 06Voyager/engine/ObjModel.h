@@ -10,7 +10,6 @@
 #include <algorithm>
 #include <memory>
 
-
 #include "Vector.h"
 #include "Extension.h"
 #include "Shader.h"
@@ -59,6 +58,7 @@ struct BoundingSphere {
 
 struct ConvexHull {
 	void createBuffer(std::vector<float>& vertexBuffer);
+	void createBuffer(const char* filename, Vector3f &rotate, float degree, Vector3f& translate, float scale, bool useConvhull, Model& model);
 	void drawRaw();
 
 	std::vector<float> m_vertexBuffer;
@@ -117,13 +117,15 @@ public:
 
 	void createAABB();
 	void createSphere();
+	void createConvexHull(const char* a_filename, bool useConvhull = true);
+	void createConvexHull(const char* a_filename, Vector3f &rotate, float degree, Vector3f& translate, float scale, bool useConvhull = true);
 
 	void drawAABB();
 	void drawSphere();
 	void drawHull();
 
-	bool loadObject(const char* filename, bool createHull = true);
-	bool loadObject(const char* a_filename, Vector3f &rotate, float degree, Vector3f& translate, float scale, bool createHull = true);
+	bool loadObject(const char* filename);
+	bool loadObject(const char* a_filename, Vector3f &rotate, float degree, Vector3f& translate, float scale);
 
 
 	std::string getMltPath();

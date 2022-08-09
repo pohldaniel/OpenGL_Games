@@ -359,16 +359,16 @@ void Application::loadAssets() {
 	Globals::textureManager.get("marble").setLinear();
 	Globals::textureManager.get("marble").setRepeat();
 
-	Globals::textureManager.loadTexture("tree", "res/lowPolyTree.png", true);
+	Globals::textureManager.loadTexture("tree", "res/models/tree/lowPolyTree.png", true);
 	Globals::textureManager.get("tree").setLinear();
 
-	Globals::textureManager.loadTexture("fern", "res/fern.png", true);
+	Globals::textureManager.loadTexture("fern", "res/models/fern/fern.png", true);
 	Globals::textureManager.get("fern").setLinear();
 
-	Globals::textureManager.loadTexture("barrel", "res/barrel/barrel.png", true);
+	Globals::textureManager.loadTexture("barrel", "res/models/barrel/barrel.png", true);
 	Globals::textureManager.get("barrel").setLinear();
 	
-	Globals::textureManager.loadTexture("barrel_normal", "res/barrel/barrelNormal.png", true);
+	Globals::textureManager.loadTexture("barrel_normal", "res/models/barrel/barrelNormal.png", true);
 	Globals::textureManager.get("barrel_normal").setLinear();
 
 	Globals::spritesheetManager.createSpritesheet("terrain", Globals::textureManager.get("dirt").getTexture(), 512, 512, GL_RGB8);

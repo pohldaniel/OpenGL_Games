@@ -2,9 +2,10 @@
 
 Tree::Tree() : RenderableObject() {
 	m_model = new Model();
-	m_model->loadObject("res/lowPolyTree.obj");
+	m_model->loadObject("res/models/tree/lowPolyTree.obj");
 	m_model->createAABB();
 	m_model->createSphere();
+	m_model->createConvexHull("res/models/tree/lowPolyTree.obj");
 
 	m_shader = Globals::shaderManager.getAssetPointer("texture");
 	m_texture = &Globals::textureManager.get("tree");
@@ -50,8 +51,8 @@ void Tree::draw(const Camera& camera) {
 	}
 
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	drawAABB(camera);
-	drawSphere(camera);
+	//drawAABB(camera);
+	//drawSphere(camera);
 	drawHull(camera);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }

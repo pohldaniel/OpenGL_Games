@@ -2,10 +2,11 @@
 
 Barrel::Barrel() : RenderableObject() {
 	m_model = new Model();
-	m_model->loadObject("res/barrel/barrel.obj", true);
+	m_model->loadObject("res/models/barrel/barrel.obj");
 	m_model->getMeshes()[0]->generateTangents();
 	m_model->createAABB();
 	m_model->createSphere();
+	m_model->createConvexHull("res/models/barrel/barrel_conv.obj", false);
 
 	m_shader = Globals::shaderManager.getAssetPointer("normal");
 	
@@ -79,17 +80,10 @@ void Barrel::draw(const Camera& camera) {
 		glDisable(GL_STENCIL_TEST);
 	}
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	drawAABB(camera);
-	drawSphere(camera);
+	//drawAABB(camera);
+	//drawSphere(camera);
+	drawHull(camera);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-}
-
-void Barrel::drawHull(const Camera& camera) {
-	glUseProgram(m_colorShader->m_program);
-	m_colorShader->loadMatrix("u_transform", m_modelMatrix.getTransformationMatrix() * camera.getViewMatrix() * Globals::projection);
-	m_colorShader->loadVector("u_color", m_pickColor);
-	m_model->drawRaw();
-	glUseProgram(0);
 }
 
 void Barrel::update(float dt) {

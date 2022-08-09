@@ -74,15 +74,15 @@ std::string Model::getModelDirectory() {
 	return m_modelDirectory;
 }
 
-bool Model::loadObject(const char* filename, bool createHull) {
-	return loadObject(filename, Vector3f(0.0, 1.0, 0.0), 0.0, Vector3f(0.0, 0.0, 0.0), 1.0, createHull);
+bool Model::loadObject(const char* filename) {
+	return loadObject(filename, Vector3f(0.0, 1.0, 0.0), 0.0, Vector3f(0.0, 0.0, 0.0), 1.0);
 }
 
 bool compare(const std::array<int, 10> &i_lhs, const std::array<int, 10> &i_rhs) {
 	return i_lhs[9] < i_rhs[9];
 }
 
-bool Model::loadObject(const char* a_filename, Vector3f& rotate, float degree, Vector3f& translate, float scale, bool createHull) {
+bool Model::loadObject(const char* a_filename, Vector3f& rotate, float degree, Vector3f& translate, float scale) {
 	
 	std::string filename(a_filename);
 
@@ -259,13 +259,6 @@ bool Model::loadObject(const char* a_filename, Vector3f& rotate, float degree, V
 	aabb.position = Vector3f(xmin, ymin, zmin);
 	aabb.size = Vector3f(xmax, ymax, zmax) - Vector3f(xmin, ymin, zmin);
 
-	//unfortunately convhull_3.h doesn't works with the indexed/reduced vertexbuffer and so I have to go for a flag driven approach
-	if(createHull)
-		convexHull.createBuffer(vertexCoords);
-	
-	if (convexHull.m_vertexBuffer.size() > 0)
-		m_hasConvexHull = true;
-
 	std::sort(face.begin(), face.end(), compare);
 	std::map<int, int> dup;
 
@@ -374,6 +367,14 @@ void Model::createAABB() {
 
 void Model::createSphere() {
 	boundingSphere.createBuffer(*this);
+}
+
+void Model::createConvexHull(const char* filename, bool useConvhull) {
+	createConvexHull(filename, Vector3f(0.0, 1.0, 0.0), 0.0, Vector3f(0.0, 0.0, 0.0), 1.0, useConvhull);
+}
+
+void Model::createConvexHull(const char* filename, Vector3f &rotate, float degree, Vector3f& translate, float scale, bool useConvhull) {
+	convexHull.createBuffer(filename, rotate, degree, translate, scale, useConvhull, *this);
 }
 
 void Model::createInstances(std::vector<Matrix4f> modelMTX) {
@@ -968,12 +969,6 @@ void Mesh::generateTangents() {
 			pVertex0[12] = bitangent[1];
 			pVertex0[13] = bitangent[2];
 		}
-
-		//pVertex0[11] = bitangent[0];
-		//pVertex0[12] = bitangent[1];
-		//pVertex0[13] = bitangent[2];
-
-		//std::cout << bitangent[0] << "  " << bitangent[1] << "  " << bitangent[2] << std::endl;
 	}
 
 	m_vertexBuffer.clear();
@@ -1043,7 +1038,6 @@ void IndexBufferCreator::createIndexBuffer() {
 		}
 
 	}else {
-
 		for (int i = 0; i < face.size(); i++) {
 
 			float vertex1[] = { positionCoordsIn[((face[i])[0] - 1) * 3], positionCoordsIn[((face[i])[0] - 1) * 3 + 1], positionCoordsIn[((face[i])[0] - 1) * 3 + 2] };
@@ -1329,6 +1323,119 @@ void ConvexHull::createBuffer(std::vector<float>& vertexBuffer) {
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
+}
+
+void ConvexHull::createBuffer(const char* filename, Vector3f &rotate, float degree, Vector3f& translate, float scale, bool useConvhull, Model& model) {
+	std::vector<float> vertexCoords;
+
+	char buffer[250];
+
+	FILE * pFile = fopen(filename, "r");
+	if (pFile == NULL) {
+		std::cout << "File not found" << std::endl;
+		return;
+	}
+
+	while (fscanf(pFile, "%s", buffer) != EOF) {
+
+		switch (buffer[0]) {
+			case 'v': {
+
+				switch (buffer[1]) {
+
+					case '\0': {						
+						float tmpx, tmpy, tmpz;						
+						fgets(buffer, sizeof(buffer), pFile);
+						sscanf(buffer, "%f %f %f", &tmpx, &tmpy, &tmpz);
+
+						tmpx = tmpx * scale + translate[0];
+						tmpy = tmpy * scale + translate[1];
+						tmpz = tmpz * scale + translate[2];
+
+						useConvhull ? vertexCoords.push_back(tmpx) : m_vertexBuffer.push_back(tmpx);
+						useConvhull ? vertexCoords.push_back(tmpy) : m_vertexBuffer.push_back(tmpy);
+						useConvhull ? vertexCoords.push_back(tmpz) : m_vertexBuffer.push_back(tmpz);						
+						break;
+
+					}
+				}
+				break;
+			}case 'f': {
+				if (useConvhull) break;
+			
+				int a, b, c;
+				fgets(buffer, sizeof(buffer), pFile);
+	
+				sscanf(buffer, "%d %d %d", &a, &b, &c);
+				m_indexBuffer.push_back(a - 1); m_indexBuffer.push_back(b - 1); m_indexBuffer.push_back(c - 1);				
+				break;
+			}
+		}
+	}
+	fclose(pFile);
+
+	if (useConvhull) {
+
+		int numberOfVertices = vertexCoords.size() / 3;
+		ch_vertex* vertices;
+		vertices = (ch_vertex*)malloc(numberOfVertices * sizeof(ch_vertex));
+		for (unsigned int i = 0; i < numberOfVertices; i++) {
+			vertices[i].x = vertexCoords[i * 3 + 0];
+			vertices[i].y = vertexCoords[i * 3 + 1];
+			vertices[i].z = vertexCoords[i * 3 + 2];
+		}
+
+		vertexCoords.clear();
+		vertexCoords.shrink_to_fit();
+
+	
+		int* faceIndices = NULL;
+		int nFaces;
+
+		convhull_3d_build(vertices, numberOfVertices, &faceIndices, &nFaces);
+
+		for (int i = 0; i < nFaces; i++) {
+			m_vertexBuffer.push_back(vertices[faceIndices[i * 3 + 0]].x); m_vertexBuffer.push_back(vertices[faceIndices[i * 3 + 0]].y); m_vertexBuffer.push_back(vertices[faceIndices[i * 3 + 0]].z);
+			m_indexBuffer.push_back(i * 3 + 0);
+
+			m_vertexBuffer.push_back(vertices[faceIndices[i * 3 + 1]].x); m_vertexBuffer.push_back(vertices[faceIndices[i * 3 + 1]].y); m_vertexBuffer.push_back(vertices[faceIndices[i * 3 + 1]].z);
+			m_indexBuffer.push_back(i * 3 + 1);
+
+			m_vertexBuffer.push_back(vertices[faceIndices[i * 3 + 2]].x); m_vertexBuffer.push_back(vertices[faceIndices[i * 3 + 2]].y); m_vertexBuffer.push_back(vertices[faceIndices[i * 3 + 2]].z);
+			m_indexBuffer.push_back(i * 3 + 2);
+		}
+
+		free(vertices);
+		free(faceIndices);
+
+		model.m_hasConvexHull = nFaces > 0;
+
+	}else {
+		model.m_hasConvexHull = true;
+	}
+
+	if (model.m_hasConvexHull) {
+		short stride = 3; short offset = 0;
+
+		glGenBuffers(1, &m_ibo);
+		glGenBuffers(1, &m_vbo);
+
+		glGenVertexArrays(1, &m_vao);
+		glBindVertexArray(m_vao);
+		glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+		glBufferData(GL_ARRAY_BUFFER, m_vertexBuffer.size() * sizeof(float), &m_vertexBuffer[0], GL_STATIC_DRAW);
+
+		//positions
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)0);
+
+		//indices
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ibo);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_indexBuffer.size() * sizeof(unsigned int), &m_indexBuffer[0], GL_STATIC_DRAW);
+
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindVertexArray(0);
+	}
 }
 
 void ConvexHull::drawRaw() {

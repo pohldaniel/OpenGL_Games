@@ -8,8 +8,6 @@ public:
 	~Barrel();
 	
 	void draw(const Camera& camera) override;
-	void drawHull(const Camera& camera) override;
-	
 
 	void update(float dt);
 	void toggleLightRotation();

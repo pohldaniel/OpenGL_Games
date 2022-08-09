@@ -2,10 +2,10 @@
 
 Fern::Fern() : RenderableObject() {
 	m_model = new Model();
-	m_model->loadObject("res/fern.obj");
+	m_model->loadObject("res/models/fern/fern.obj");
 	m_model->createAABB();
 	m_model->createSphere();
-
+	m_model->createConvexHull("res/models/fern/fern_conv.obj", false);
 
 	m_shader = Globals::shaderManager.getAssetPointer("transperancy");
 	m_texture = &Globals::textureManager.get("fern");
@@ -55,8 +55,8 @@ void Fern::draw(const Camera& camera) {
 	glDisable(GL_ALPHA_TEST);
 
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	drawAABB(camera);
-	drawSphere(camera);
+	//drawAABB(camera);
+	//drawSphere(camera);
 	drawHull(camera);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
