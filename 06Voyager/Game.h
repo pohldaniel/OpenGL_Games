@@ -90,7 +90,6 @@ public:
 	unsigned short m_debugCount = 0;
 	CharacterSetBmp charachterSet;
 	Text* m_text;
-	//Model* m_tree;
 
 	MousePicker m_mousePicker;
 };

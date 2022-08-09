@@ -57,7 +57,6 @@ struct BoundingSphere {
 };
 
 struct ConvexHull {
-	void createBuffer(std::vector<float>& vertexBuffer);
 	void createBuffer(const char* filename, Vector3f &rotate, float degree, Vector3f& translate, float scale, bool useConvhull, Model& model);
 	void drawRaw();
 
@@ -130,7 +129,9 @@ public:
 
 	std::string getMltPath();
 	std::string getModelDirectory();
-
+	BoundingBox& getAABB();
+	BoundingSphere& getBoundingSphere();
+	ConvexHull& getConvexHull();
 
 	void setModelMatrix(Matrix4f &modelMatrix) { m_modelMatrix = modelMatrix; }
 	void createInstances(std::vector<Matrix4f> modelMTX);

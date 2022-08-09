@@ -377,6 +377,18 @@ void Model::createConvexHull(const char* filename, Vector3f &rotate, float degre
 	convexHull.createBuffer(filename, rotate, degree, translate, scale, useConvhull, *this);
 }
 
+BoundingBox& Model::getAABB() {
+	return aabb;
+}
+
+BoundingSphere& Model::getBoundingSphere() {
+	return boundingSphere;
+}
+
+ConvexHull& Model::getConvexHull() {
+	return convexHull;
+}
+
 void Model::createInstances(std::vector<Matrix4f> modelMTX) {
 	for (int j = 0; j < m_numberOfMeshes; j++) {
 		m_mesh[j]->createInstances(modelMTX);
@@ -1270,58 +1282,6 @@ void BoundingSphere::createBuffer(Model& model) {
 void BoundingSphere::drawRaw() {
 	glBindVertexArray(m_vao);
 	glDrawElements(GL_TRIANGLES, m_indexBuffer.size(), GL_UNSIGNED_INT, 0);
-	glBindVertexArray(0);
-}
-
-void ConvexHull::createBuffer(std::vector<float>& vertexBuffer) {
-	int numberOfVertices = vertexBuffer.size() / 3;
-
-	ch_vertex* vertices;
-	vertices = (ch_vertex*)malloc(numberOfVertices * sizeof(ch_vertex));
-	for (unsigned int i = 0; i < numberOfVertices; i++) {
-		vertices[i].x = vertexBuffer[i * 3 + 0];
-		vertices[i].y = vertexBuffer[i * 3 + 1];
-		vertices[i].z = vertexBuffer[i * 3 + 2];
-	}
-
-	int* faceIndices = NULL;
-	int nFaces;
-
-	convhull_3d_build(vertices, numberOfVertices, &faceIndices, &nFaces);
-
-	for (int i = 0; i < nFaces; i++) {
-		m_vertexBuffer.push_back(vertices[faceIndices[i * 3 + 0]].x); m_vertexBuffer.push_back(vertices[faceIndices[i * 3 + 0]].y); m_vertexBuffer.push_back(vertices[faceIndices[i * 3 + 0]].z);
-		m_indexBuffer.push_back(i * 3 + 0);
-
-		m_vertexBuffer.push_back(vertices[faceIndices[i * 3 + 1]].x); m_vertexBuffer.push_back(vertices[faceIndices[i * 3 + 1]].y); m_vertexBuffer.push_back(vertices[faceIndices[i * 3 + 1]].z);
-		m_indexBuffer.push_back(i * 3 + 1);
-
-		m_vertexBuffer.push_back(vertices[faceIndices[i * 3 + 2]].x); m_vertexBuffer.push_back(vertices[faceIndices[i * 3 + 2]].y); m_vertexBuffer.push_back(vertices[faceIndices[i * 3 + 2]].z);
-		m_indexBuffer.push_back(i * 3 + 2);
-	}
-
-	free(vertices);
-	free(faceIndices);
-
-	short stride = 3; short offset = 0;
-
-	glGenBuffers(1, &m_ibo);
-	glGenBuffers(1, &m_vbo);
-
-	glGenVertexArrays(1, &m_vao);
-	glBindVertexArray(m_vao);
-	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-	glBufferData(GL_ARRAY_BUFFER, m_vertexBuffer.size() * sizeof(float), &m_vertexBuffer[0], GL_STATIC_DRAW);
-
-	//positions
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)0);
-
-	//indices
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ibo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_indexBuffer.size() * sizeof(unsigned int), &m_indexBuffer[0], GL_STATIC_DRAW);
-
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 }
 

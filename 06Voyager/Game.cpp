@@ -92,7 +92,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_water(
 		entitie->setTexture(&Globals::textureManager.get("marble"));
 
 		std::vector<btCollisionShape*> cubeShape = Physics::CreateStaticCollisionShapes(entitie, 1.0f);
-		btRigidBody* body = Globals::physics->addStaticModel(cubeShape, Physics::btTransFrom(), false, btVector3(1, 1, 1), Physics::collisiontypes::RENDERABLE_OBJECT, Physics::collisiontypes::RAY);
+		btRigidBody* body = Globals::physics->addStaticModel(cubeShape, Physics::btTransFrom(), false, btVector3(1, 1, 1), Physics::collisiontypes::RENDERABLE_OBJECT | Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::RAY);
 		body->setUserPointer(reinterpret_cast<void*>(entitie));
 	}
 
@@ -110,24 +110,34 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_water(
 	m_tree->translate(HEIGHTMAP_WIDTH * 0.5f + 800.0f, m_terrain.getHeightMap().heightAt(HEIGHTMAP_WIDTH * 0.5f + 800.0f, HEIGHTMAP_WIDTH * 0.5f + 300.0f), HEIGHTMAP_WIDTH * 0.5f + 300.0f);
 	m_tree->scale(10.0f, 10.0f, 10.0f);
 
+	std::vector<btCollisionShape*> treeShape = Physics::CreateStaticCollisionShapes(m_tree->getConvexHull().m_vertexBuffer, m_tree->getConvexHull().m_indexBuffer, 10.0f);
+	btRigidBody* treeBody = Globals::physics->addStaticModel(treeShape, Physics::btTransForm(Vector3f(HEIGHTMAP_WIDTH * 0.5f + 800.0f, m_terrain.getHeightMap().heightAt(HEIGHTMAP_WIDTH * 0.5f + 800.0f, HEIGHTMAP_WIDTH * 0.5f + 300.0f), HEIGHTMAP_WIDTH * 0.5f + 300.0f)), false, btVector3(1, 1, 1), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::RAY);
+
+
 	m_fernEntities.push_back(new Fern());
 	m_fernEntities.back()->translate(HEIGHTMAP_WIDTH * 0.5f + 400.0f, m_terrain.getHeightMap().heightAt(HEIGHTMAP_WIDTH * 0.5f + 400.0f, HEIGHTMAP_WIDTH * 0.5f + 400.0f), HEIGHTMAP_WIDTH * 0.5f + 400.0f);
-	
+
+	std::vector<btCollisionShape*> fernShape1 = Physics::CreateStaticCollisionShapes(m_fernEntities.back()->getConvexHull().m_vertexBuffer, m_fernEntities.back()->getConvexHull().m_indexBuffer, 10.0f);
+	btRigidBody* fernBody1 = Globals::physics->addStaticModel(fernShape1, Physics::btTransForm(Vector3f(HEIGHTMAP_WIDTH * 0.5f + 400.0f, m_terrain.getHeightMap().heightAt(HEIGHTMAP_WIDTH * 0.5f + 400.0f, HEIGHTMAP_WIDTH * 0.5f + 400.0f), HEIGHTMAP_WIDTH * 0.5f + 400.0f)), false, btVector3(1, 1, 1), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::RAY);
+
 	m_fernEntities.push_back(new Fern());
 	m_fernEntities.back()->translate(HEIGHTMAP_WIDTH * 0.5f + 500.0f, m_terrain.getHeightMap().heightAt(HEIGHTMAP_WIDTH * 0.5f + 400.0f, HEIGHTMAP_WIDTH * 0.5f + 400.0f), HEIGHTMAP_WIDTH * 0.5f + 400.0f);
 
+	std::vector<btCollisionShape*> fernShape2 = Physics::CreateStaticCollisionShapes(m_fernEntities.back()->getConvexHull().m_vertexBuffer, m_fernEntities.back()->getConvexHull().m_indexBuffer, 10.0f);
+	btRigidBody* fernBody2 = Globals::physics->addStaticModel(fernShape2, Physics::btTransForm(Vector3f(HEIGHTMAP_WIDTH * 0.5f + 500.0f, m_terrain.getHeightMap().heightAt(HEIGHTMAP_WIDTH * 0.5f + 400.0f, HEIGHTMAP_WIDTH * 0.5f + 400.0f), HEIGHTMAP_WIDTH * 0.5f + 400.0f)), false, btVector3(1, 1, 1), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::RAY);
+	
 	for (auto entitie : m_fernEntities) {		
 		entitie->scale(10.0f, 10.0f, 10.0f);
 	}
-
+	
 	m_barrel = new Barrel();
 	m_barrel->translate(HEIGHTMAP_WIDTH * 0.5f + 200.0f, m_terrain.getHeightMap().heightAt(HEIGHTMAP_WIDTH * 0.5f + 200.0f, HEIGHTMAP_WIDTH * 0.5f + 200.0f) + 50.0f, HEIGHTMAP_WIDTH * 0.5f + 200.0f);
 	m_barrel->scale(10.0f, 10.0f, 10.0f);
 
 
-	std::vector<btCollisionShape*> barrelShape = Physics::CreateStaticCollisionShapes(const_cast<Model*>(m_barrel->getModel()), 10.0f);
+	std::vector<btCollisionShape*> barrelShape = Physics::CreateStaticCollisionShapes(m_barrel->getConvexHull().m_vertexBuffer, m_barrel->getConvexHull().m_indexBuffer, 10.0f);
 	btRigidBody* barrelBody = Globals::physics->addStaticModel(barrelShape, Physics::btTransForm(Vector3f(HEIGHTMAP_WIDTH * 0.5f + 200.0f, m_terrain.getHeightMap().heightAt(HEIGHTMAP_WIDTH * 0.5f + 200.0f, HEIGHTMAP_WIDTH * 0.5f + 200.0f) + 50.0f, HEIGHTMAP_WIDTH * 0.5f + 200.0f)), false, btVector3(1, 1, 1), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::RAY);
-	body->setUserPointer(reinterpret_cast<void*>(m_barrel));
+	barrelBody->setUserPointer(reinterpret_cast<void*>(m_barrel));
 
 	charachterSet.loadFromFile("res/verdana.fnt");
 
@@ -323,18 +333,22 @@ void Game::render(unsigned int &frameBuffer) {
 
 	m_barrel->draw(m_camera);
 
-	m_mousePicker.draw(m_camera);
+	
+	for (auto entitie : m_fernEntities) {
+		entitie->draw(m_camera);
+	}
+
+	m_tree->draw(m_camera);
+
 	
 
 	for (auto entitie : m_entities) {
 		entitie->draw(m_camera);
 	}
 
-	for (auto entitie : m_fernEntities) {
-		entitie->draw(m_camera);
-	}
+	m_mousePicker.draw(m_camera);
 
-	m_tree->draw(m_camera);
+	
 	
 
 	if (m_debugNormal) {

@@ -96,7 +96,7 @@ btRigidBody* Physics::addStaticModel(std::vector<btCollisionShape *> & collision
 btCollisionShape * Physics::CreateStaticCollisionShape(Mesh * mesh, const btVector3 & scale) {
 	int indexStride = 3 * sizeof(int);
 	btTriangleIndexVertexArray* tiva = new btTriangleIndexVertexArray(mesh->m_numberOfTriangles, (int*)(&mesh->m_indexBuffer[0]), indexStride,
-		mesh->m_positions.size(), (btScalar*)(&mesh->m_positions[0]), sizeof(Vector3f));
+		mesh->m_positions.size(), (btScalar*)(&mesh->m_vertexBuffer[0]), 14 * sizeof(float));
 
 	btBvhTriangleMeshShape *shape = new btBvhTriangleMeshShape(tiva, true);
 	shape->setLocalScaling(scale);
@@ -105,19 +105,17 @@ btCollisionShape * Physics::CreateStaticCollisionShape(Mesh * mesh, const btVect
 }
 
 
-std::vector<btCollisionShape *> Physics::CreateStaticCollisionShapes(Model * model, const btVector3 & scale) {
+std::vector<btCollisionShape *> Physics::CreateStaticCollisionShapes(Model* model, const btVector3 & scale) {
 	std::vector<btCollisionShape *> ret;
-
 	for (unsigned int i = 0; i < model->getMeshes().size(); i++) {
 
-		btCollisionShape *shape = CreateStaticCollisionShape(model->getMeshes()[i], scale);
+		btCollisionShape* shape = CreateStaticCollisionShape(model->getMeshes()[i], scale);
 
 		if (shape) {
 
 			ret.push_back(shape);
 		}
 	}
-
 	return ret;
 }
 
@@ -141,6 +139,30 @@ btCollisionShape * Physics::CreateStaticCollisionShape(MeshCube * mesh, const bt
 std::vector<btCollisionShape *> Physics::CreateStaticCollisionShapes(MeshCube* model, float scale) {
 	std::vector<btCollisionShape *> ret;
 	btCollisionShape *shape = CreateStaticCollisionShape(model, btVector3(scale, scale, scale));
+
+	if (shape) {
+		ret.push_back(shape);
+	}
+	return ret;
+}
+
+btCollisionShape* Physics::CreateStaticCollisionShape(std::vector<float>& vertexBuffer, std::vector<unsigned int>& indexBuffer, const btVector3& scale) {
+	int floatsPerVertex = 3 ;
+	int integerPerFace = 3;
+	int numberOfTriangles = indexBuffer.size() / integerPerFace;
+	int numberOfVertices = vertexBuffer.size() / floatsPerVertex;
+
+	btTriangleIndexVertexArray* tiva = new btTriangleIndexVertexArray(numberOfTriangles, (int*)(&indexBuffer[0]), integerPerFace * sizeof(int), numberOfVertices, (btScalar*)(&vertexBuffer[0]), 3 * sizeof(float));
+
+	btBvhTriangleMeshShape *shape = new btBvhTriangleMeshShape(tiva, true);
+	shape->setLocalScaling(scale);
+
+	return shape;
+}
+
+std::vector<btCollisionShape*> Physics::CreateStaticCollisionShapes(std::vector<float>& vertexBuffer, std::vector<unsigned int>& indexBuffer, float scale) {
+	std::vector<btCollisionShape*> ret;
+	btCollisionShape* shape = CreateStaticCollisionShape(vertexBuffer, indexBuffer, btVector3(scale, scale, scale));
 
 	if (shape) {
 		ret.push_back(shape);

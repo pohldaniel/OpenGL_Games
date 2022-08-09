@@ -54,6 +54,18 @@ void RenderableObject::drawHull(const Camera& camera) {
 	glUseProgram(0);
 };
 
+BoundingBox& RenderableObject::getAABB() {
+	return m_model->getAABB();
+}
+
+BoundingSphere& RenderableObject::getBoundingSphere() {
+	return m_model->getBoundingSphere();
+}
+
+ConvexHull& RenderableObject::getConvexHull() {
+	return m_model->getConvexHull();
+}
+
 void RenderableObject::rotate(const Vector3f &axis, float degrees) {
 	m_modelMatrix.rotate(axis, degrees);
 }

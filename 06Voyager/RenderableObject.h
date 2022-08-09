@@ -17,7 +17,9 @@ public:
 	virtual void drawSphere(const Camera& camera);
 	virtual void drawHull(const Camera& camera);
 
-	
+	virtual BoundingBox& getAABB();
+	virtual BoundingSphere& getBoundingSphere();
+	virtual ConvexHull& getConvexHull();
 
 	void setDisabled(bool disabled);
 	bool isDisabled();

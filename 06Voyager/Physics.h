@@ -32,16 +32,18 @@ public:
 
 	void bebugDrawWorld() { m_dynamicsWorld->debugDrawWorld(); }
 
+	static btCollisionShape* CreateStaticCollisionShape(std::vector<float>& vertexBuffer, std::vector<unsigned int>& indexBuffer, const btVector3& scale = btVector3(1, 1, 1));
+	static std::vector<btCollisionShape*> CreateStaticCollisionShapes(std::vector<float>& vertexBuffer, std::vector<unsigned int>& indexBuffer, float scale = 1.f);
 
-	static btCollisionShape * CreateStaticCollisionShape(MeshCube* mesh, const btVector3 & scale = btVector3(1, 1, 1));
-	static std::vector<btCollisionShape *> CreateStaticCollisionShapes(MeshCube* model, float scale = 1.f);
+	static btCollisionShape* CreateStaticCollisionShape(MeshCube* mesh, const btVector3 & scale = btVector3(1, 1, 1));
+	static std::vector<btCollisionShape*> CreateStaticCollisionShapes(MeshCube* model, float scale = 1.f);
 
 	static btCollisionShape * CreateStaticCollisionShape(Terrain* mesh, const btVector3 & scale = btVector3(1, 1, 1));
 	static std::vector<btCollisionShape *> CreateStaticCollisionShapes(Terrain* model, float scale = 1.f);
 
-	static btCollisionShape * CreateStaticCollisionShape(Mesh * mesh, const btVector3 & scale = btVector3(1, 1, 1));
-	static std::vector<btCollisionShape *> CreateStaticCollisionShapes(Model * model, const btVector3 & scale);
-	static std::vector<btCollisionShape *> CreateStaticCollisionShapes(Model * model, float scale = 1.f);
+	static btCollisionShape* CreateStaticCollisionShape(Mesh* mesh, const btVector3 & scale = btVector3(1, 1, 1));
+	static std::vector<btCollisionShape*> CreateStaticCollisionShapes(Model * model, const btVector3 & scale);
+	static std::vector<btCollisionShape*> CreateStaticCollisionShapes(Model * model, float scale = 1.f);
 	static btTransform btTransFrom();
 	static btTransform btTransForm(const Vector3f& origin);
 	
