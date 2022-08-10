@@ -100,14 +100,7 @@ public:
 
 	const Vector3f &getCenter() const;
 	const Matrix4f &getTransformationMatrix() const;
-	const Matrix4f &getInvTransformationMatrix() const;
-
-	void setRotPos(const Vector3f &axis, float degrees, float dx, float dy, float dz);
-	void setRotPosScale(const Vector3f &axis, float degrees, float dx, float dy, float dz, float a, float b, float c);
-	void setRotXYZPos(const Vector3f &axisX, float degreesX,
-		const Vector3f &axisY, float degreesY,
-		const Vector3f &axisZ, float degreesZ,
-		float dx, float dy, float dz);
+	const Matrix4f &getInvTransformationMatrix();
 
 	void rotate(const Vector3f &axis, float degrees);
 	void translate(float dx, float dy, float dz);

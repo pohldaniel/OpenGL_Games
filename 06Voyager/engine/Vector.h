@@ -7,13 +7,13 @@
 //-----------------------------------------------------------------------------
 // Common math functions and constants.
 //-----------------------------------------------------------------------------
-#define PI  3.1415926535897932384
-#define HALF_PI  1.57079632679
-#define TWO_PI  6.2831853071795864769 
-#define PI_ON_180  0.0174532925199432957
-#define _180_ON_PI  57.2957795131
-#define invPI  0.3183098861837906715
-#define	invTWO_PI  0.1591549430918953358
+#define PI  3.1415926535897932384f
+#define HALF_PI  1.57079632679f
+#define TWO_PI  6.2831853071795864769f 
+#define PI_ON_180  0.0174532925199432957f
+#define _180_ON_PI  57.2957795131f
+#define invPI  0.3183098861837906715f
+#define	invTWO_PI  0.1591549430918953358f
 
 class Vector2f {
 
@@ -80,7 +80,7 @@ public:
 	Vector3f &operator+=(const Vector3f &rhs);
 	Vector3f &operator-=(const Vector3f &rhs);
 
-	Vector3f &operator+(const Vector3f &rhs) const;
+	Vector3f operator+(const Vector3f &rhs) const;
 	Vector3f operator-(const Vector3f &rhs) const;
 
 	Vector3f operator*(float scalar) const;
@@ -174,7 +174,7 @@ public:
 
 	void print();
 
-	static Matrix4f &GetNormalMatrix(const Matrix4f &modelViewMatrix);
+	static Matrix4f GetNormalMatrix(const Matrix4f &modelViewMatrix);
 	static Matrix4f &GetNormalMatrix(Matrix4f &mtx, const Matrix4f &modelViewMatrix);
 
 	static Matrix4f &Scale(float x, float y, float z);

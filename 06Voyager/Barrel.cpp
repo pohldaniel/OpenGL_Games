@@ -16,16 +16,16 @@ Barrel::Barrel() : RenderableObject() {
 
 
 	glUseProgram(m_shader->m_program);
-	m_shader->loadVector("u_lightPos[0]", Vector3f(-600, 10, 0.0));
-	m_shader->loadVector("u_lightPos[1]", Vector3f(600, 10, 0.0));
+	m_shader->loadVector("u_lightPos[0]", Vector3f(-600.0f, 10.0f, 0.0f));
+	m_shader->loadVector("u_lightPos[1]", Vector3f(600.0f, 10.0f, 0.0f));
 
-	m_shader->loadVector("light[0].ambient", Vector3f(0.2, 0.2, 0.2));
-	m_shader->loadVector("light[0].diffuse", Vector3f(0.5, 0.5, 0.5));
-	m_shader->loadVector("light[0].specular", Vector3f(0.2, 0.2, 0.2));
+	m_shader->loadVector("light[0].ambient", Vector3f(0.2f, 0.2f, 0.2f));
+	m_shader->loadVector("light[0].diffuse", Vector3f(0.5f, 0.5f, 0.5f));
+	m_shader->loadVector("light[0].specular", Vector3f(0.2f, 0.2f, 0.2f));
 
-	m_shader->loadVector("light[1].ambient", Vector3f(0.2, 0.2, 0.2));
-	m_shader->loadVector("light[1].diffuse", Vector3f(0.5, 0.5, 0.5));
-	m_shader->loadVector("light[1].specular", Vector3f(0.2, 0.2, 0.2));
+	m_shader->loadVector("light[1].ambient", Vector3f(0.2f, 0.2f, 0.2f));
+	m_shader->loadVector("light[1].diffuse", Vector3f(0.5f, 0.5f, 0.5f));
+	m_shader->loadVector("light[1].specular", Vector3f(0.2f, 0.2f, 0.2f));
 
 	m_shader->loadVector("material.ambient", Vector3f(1.0f, 1.0f, 1.0f));
 	m_shader->loadVector("material.diffuse", Vector3f(1.0f, 1.0f, 1.0f));
@@ -88,7 +88,7 @@ void Barrel::draw(const Camera& camera) {
 
 void Barrel::update(float dt) {
 	if (m_rotateLight) {
-		m_tranformLight.rotate(Vector3f(0.0, 1.0, 0.0), -60.0 * dt);
+		m_tranformLight.rotate(Vector3f(0.0f, 1.0f, 0.0f), -60.0f * dt);
 	}
 }
 

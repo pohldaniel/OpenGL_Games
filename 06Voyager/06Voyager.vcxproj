@@ -405,6 +405,7 @@
     <ClInclude Include="engine\MeshObject\MeshCube.h" />
     <ClInclude Include="engine\MeshObject\MeshQuad.h" />
     <ClInclude Include="engine\Transform.h" />
+    <ClInclude Include="engine\Transform_old.h" />
     <ClInclude Include="engine\ObjModel.h" />
     <ClInclude Include="engine\PerlinNoise.h" />
     <ClInclude Include="engine\Quad.h" />
@@ -596,6 +597,7 @@
     <ClCompile Include="engine\MeshObject\MeshCube.cpp" />
     <ClCompile Include="engine\MeshObject\MeshQuad.cpp" />
     <ClCompile Include="engine\Transform.cpp" />
+    <ClCompile Include="engine\Transform_old.cpp" />
     <ClCompile Include="engine\ObjModel.cpp" />
     <ClCompile Include="engine\PerlinNoise.cpp" />
     <ClCompile Include="engine\Quad.cpp" />

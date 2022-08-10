@@ -906,6 +906,9 @@
     <ClInclude Include="convhull\convhull_3d.h">
       <Filter>convhull</Filter>
     </ClInclude>
+    <ClInclude Include="engine\Transform_old.h">
+      <Filter>engine</Filter>
+    </ClInclude>
     <ClInclude Include="engine\Transform.h">
       <Filter>engine</Filter>
     </ClInclude>
@@ -1486,6 +1489,9 @@
     </ClCompile>
     <ClCompile Include="MousePicker.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\Transform_old.cpp">
+      <Filter>engine</Filter>
     </ClCompile>
     <ClCompile Include="engine\Transform.cpp">
       <Filter>engine</Filter>

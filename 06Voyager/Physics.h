@@ -34,6 +34,7 @@ public:
 
 	static btCollisionShape* CreateStaticCollisionShape(std::vector<float>& vertexBuffer, std::vector<unsigned int>& indexBuffer, const btVector3& scale = btVector3(1, 1, 1));
 	static std::vector<btCollisionShape*> CreateStaticCollisionShapes(std::vector<float>& vertexBuffer, std::vector<unsigned int>& indexBuffer, float scale = 1.f);
+	static std::vector<btCollisionShape*> CreateStaticCollisionShapes(std::vector<float>& vertexBuffer, std::vector<unsigned int>& indexBuffer, const btVector3& scale = btVector3(1, 1, 1));
 
 	static btCollisionShape* CreateStaticCollisionShape(MeshCube* mesh, const btVector3 & scale = btVector3(1, 1, 1));
 	static std::vector<btCollisionShape*> CreateStaticCollisionShapes(MeshCube* model, float scale = 1.f);
@@ -41,12 +42,18 @@ public:
 	static btCollisionShape * CreateStaticCollisionShape(Terrain* mesh, const btVector3 & scale = btVector3(1, 1, 1));
 	static std::vector<btCollisionShape *> CreateStaticCollisionShapes(Terrain* model, float scale = 1.f);
 
-	static btCollisionShape* CreateStaticCollisionShape(Mesh* mesh, const btVector3 & scale = btVector3(1, 1, 1));
+	static btCollisionShape* CreateStaticCollisionShape(Mesh* mesh, const btVector3& scale = btVector3(1, 1, 1));
 	static std::vector<btCollisionShape*> CreateStaticCollisionShapes(Model * model, const btVector3 & scale);
 	static std::vector<btCollisionShape*> CreateStaticCollisionShapes(Model * model, float scale = 1.f);
-	static btTransform btTransFrom();
-	static btTransform btTransForm(const Vector3f& origin);
+	static btTransform BtTransform();
+	static btTransform BtTransform(const Vector3f& origin);
+	static btTransform BtTransform(const Vector3f& axis, float degrees);
+	static btTransform BtTransform(const Vector3f& origin, const Vector3f& axis, float degrees);
+
+	static Matrix4f MatrixFrom(const btTransform& trans, const btVector3& scale = btVector3(1.0f, 1.0f, 1.0f));
+
 	
+
 	btDiscreteDynamicsWorld * GetDynamicsWorld() { return m_dynamicsWorld; }
 	
 

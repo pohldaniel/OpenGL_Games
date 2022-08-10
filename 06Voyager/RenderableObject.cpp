@@ -78,15 +78,11 @@ void RenderableObject::scale(float a, float b, float c) {
 	m_transform.scale(a, b, c);
 }
 
-void RenderableObject::setRotPosScale(const Vector3f &axis, float degrees, float dx, float dy, float dz, float a, float b, float c) {
-	m_transform.setRotPosScale(axis, degrees, dx, dy, dz, a, b, c);
-}
-
 const Matrix4f &RenderableObject::getTransformationMatrix() const {
 	return m_transform.getTransformationMatrix();
 }
 
-const Matrix4f &RenderableObject::getInvTransformationMatrix() const {
+const Matrix4f &RenderableObject::getInvTransformationMatrix() {
 	return m_transform.getInvTransformationMatrix();
 }
 

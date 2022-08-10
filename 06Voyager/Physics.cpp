@@ -170,20 +170,56 @@ std::vector<btCollisionShape*> Physics::CreateStaticCollisionShapes(std::vector<
 	return ret;
 }
 
-btTransform Physics::btTransFrom() {
+std::vector<btCollisionShape*> Physics::CreateStaticCollisionShapes(std::vector<float>& vertexBuffer, std::vector<unsigned int>& indexBuffer, const btVector3& scale) {
+	std::vector<btCollisionShape*> ret;
+	btCollisionShape* shape = CreateStaticCollisionShape(vertexBuffer, indexBuffer, scale);
+
+	if (shape) {
+		ret.push_back(shape);
+	}
+	return ret;
+}
+
+btTransform Physics::BtTransform() {
 	btTransform ret;
 	ret.setIdentity();
 	
 	return ret;
 }
 
-btTransform Physics::btTransForm(const Vector3f& origin) {
+btTransform Physics::BtTransform(const Vector3f& origin) {
 	btTransform ret;
 	ret.setIdentity();
 
 	ret.setOrigin(btVector3(origin[0], origin[1], origin[2]));
 
 	return ret;
+}
+
+btTransform Physics::BtTransform(const Vector3f& axis, float degrees) {
+	btTransform ret;
+	ret.setIdentity();
+	ret.setRotation(btQuaternion(btVector3(axis[0], axis[1], axis[2]), degrees * PI_ON_180));
+	return ret;
+}
+
+btTransform Physics::BtTransform(const Vector3f& origin, const Vector3f& axis, float degrees) {
+	btTransform ret;
+	ret.setIdentity();
+	
+	ret.setOrigin(btVector3(origin[0], origin[1], origin[2]));
+	ret.setRotation(btQuaternion(btVector3(axis[0], axis[1], axis[2]), degrees * PI_ON_180));
+	return ret;
+}
+
+Matrix4f Physics::MatrixFrom(const btTransform& trans, const btVector3& scale){
+	btMatrix3x3 m = trans.getBasis();
+	btVector3 v = trans.getOrigin();
+
+	return Matrix4f(m[0].x() * scale[0], m[0].y() * scale[1], m[0].z() * scale[2], v.x(),
+					m[1].x() * scale[0], m[1].y() * scale[1], m[1].z() * scale[2], v.y(),
+					m[2].x() * scale[0], m[2].y() * scale[1], m[2].z() * scale[2], v.z(),
+					0.0f, 0.0f, 0.0f, 1.0f);
 }
 
 

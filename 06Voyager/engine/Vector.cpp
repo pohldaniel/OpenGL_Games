@@ -27,12 +27,12 @@ const Matrix4f Matrix4f::IDENTITY(1.0f, 0.0f, 0.0f, 0.0f,
 
 void Matrix4f::rotate(const Vector3f &axis, float degrees) {
 
-	float rad = (degrees * PI) / 180.0f;
+	float rad = degrees * PI_ON_180;
 	float magnitude = axis.length();
 
-	float x = axis[0] * (1.0 / magnitude);
-	float y = axis[1] * (1.0 / magnitude);
-	float z = axis[2] * (1.0 / magnitude);
+	float x = axis[0] * (1.0f / magnitude);
+	float y = axis[1] * (1.0f / magnitude);
+	float z = axis[2] * (1.0f / magnitude);
 	float c = cosf(rad);
 	float s = sinf(rad);
 
@@ -59,12 +59,12 @@ void Matrix4f::rotate(const Vector3f &axis, float degrees) {
 
 void Matrix4f::invRotate(const Vector3f &axis, float degrees) {
 
-	float rad = (degrees * PI) / 180.0f;
+	float rad = degrees * PI_ON_180;
 	float magnitude = axis.length();
 
-	float x = axis[0] * (1.0 / magnitude);
-	float y = axis[1] * (1.0 / magnitude);
-	float z = axis[2] * (1.0 / magnitude);
+	float x = axis[0] * (1.0f / magnitude);
+	float y = axis[1] * (1.0f / magnitude);
+	float z = axis[2] * (1.0f / magnitude);
 	float c = cosf(rad);
 	float s = sinf(rad);
 
@@ -261,7 +261,7 @@ void Matrix4f::invLookAt(const Vector3f &eye, const Vector3f &target, const Vect
 
 void Matrix4f::perspective(float fovx, float aspect, float znear, float zfar) {
 
-	float e = tanf(PI*fovx / 360);
+	float e = tanf(PI_ON_180 * fovx * 0.5f);
 	float xScale = 1 / (e * aspect);
 	float yScale = 1 / e;
 
@@ -288,7 +288,7 @@ void Matrix4f::perspective(float fovx, float aspect, float znear, float zfar) {
 
 void Matrix4f::perspectiveD3D(float fovx, float aspect, float znear, float zfar) {
 
-	float e = tanf(PI*fovx / 360);
+	float e = tanf(PI_ON_180 * fovx * 0.5f);
 	float xScale = 1 / (e * aspect);
 	float yScale = 1 / e;
 
@@ -316,7 +316,7 @@ void Matrix4f::perspectiveD3D(float fovx, float aspect, float znear, float zfar)
 
 void Matrix4f::linearPerspectiveD3D(float fovx, float aspect, float znear, float zfar) {
 
-	float e = tanf(PI*fovx / 360);
+	float e = tanf(PI_ON_180 * fovx * 0.5f);
 	float xScale = 1 / (e * aspect);
 	float yScale = 1 / e;
 
@@ -348,7 +348,7 @@ void Matrix4f::linearPerspectiveD3D(float fovx, float aspect, float znear, float
 
 void Matrix4f::invPerspective(float fovx, float aspect, float znear, float zfar) {
 
-	float e = tanf(PI*fovx / 360);
+	float e = tanf(PI_ON_180 * fovx * 0.5f);
 
 	mtx[0][0] = e * aspect;
 	mtx[0][1] = 0.0f;
@@ -396,23 +396,23 @@ void Matrix4f::orthographic(float left, float right, float bottom, float top, fl
 
 void Matrix4f::invOrthographic(float left, float right, float bottom, float top, float znear, float zfar) {
 
-	mtx[0][0] = (right - left) * 0.5;
+	mtx[0][0] = (right - left) * 0.5f;
 	mtx[1][0] = 0.0f;
 	mtx[2][0] = 0.0f;
 	mtx[3][0] = 0.0f;
 
 	mtx[0][1] = 0.0f;
-	mtx[1][1] = (top - bottom) * 0.5;
+	mtx[1][1] = (top - bottom) * 0.5f;
 	mtx[2][1] = 0.0f;
 	mtx[3][1] = 0.0f;
 
 	mtx[0][2] = 0.0f;
 	mtx[1][2] = 0.0f;
-	mtx[2][2] = (znear - zfar) * 0.5;
-	mtx[2][3] = -(zfar + znear) * 0.5;
+	mtx[2][2] = (znear - zfar) * 0.5f;
+	mtx[2][3] = -(zfar + znear) * 0.5f;
 
-	mtx[0][3] = (right + left) * 0.5;
-	mtx[1][3] = (top + bottom) * 0.5;
+	mtx[0][3] = (right + left) * 0.5f;
+	mtx[1][3] = (top + bottom) * 0.5f;
 	mtx[3][2] = 0.0f;
 	mtx[3][3] = 1.0f;
 }
@@ -433,9 +433,9 @@ void Matrix4f::fromHeadPitchRoll(float headDegrees, float pitchDegrees, float ro
 	// I use the popular NASA standard airplane convention of 
 	// heading-pitch-roll (i.e., RzRxRy).
 
-	headDegrees = (headDegrees * PI) / 180.0f;
-	pitchDegrees = (pitchDegrees * PI) / 180.0f;
-	rollDegrees = (rollDegrees * PI) / 180.0f;
+	headDegrees = headDegrees * PI_ON_180;
+	pitchDegrees = pitchDegrees * PI_ON_180;
+	rollDegrees = rollDegrees * PI_ON_180;
 
 	float cosH = cosf(headDegrees);
 	float cosP = cosf(pitchDegrees);
@@ -505,9 +505,9 @@ void Matrix4f::toHeadPitchRoll(float &headDegrees, float &pitchDegrees, float &r
 		thetaY = 0.0f;
 	}
 
-	headDegrees = (thetaY * 180.0f) / PI;
-	pitchDegrees = (thetaX * 180.0f) / PI;
-	rollDegrees = (thetaZ * 180.0f) / PI;
+	headDegrees = thetaY * _180_ON_PI;
+	pitchDegrees = thetaX * _180_ON_PI;
+	rollDegrees = thetaZ * _180_ON_PI;
 }
 
 Matrix4f &Matrix4f::Translate(const float dx, const float dy, const float dz) {
@@ -576,7 +576,7 @@ Matrix4f &Matrix4f::Scale(Matrix4f &mtx, float x, float y, float z) {
 	return mtx;
 }
 
-Matrix4f &Matrix4f::GetNormalMatrix(const Matrix4f &modelViewMatrix) {
+Matrix4f Matrix4f::GetNormalMatrix(const Matrix4f &modelViewMatrix) {
 
 	Matrix4f normalMatrix;
 	float det;
@@ -586,27 +586,27 @@ Matrix4f &Matrix4f::GetNormalMatrix(const Matrix4f &modelViewMatrix) {
 		modelViewMatrix[0][1] * (modelViewMatrix[1][2] * modelViewMatrix[2][0] - modelViewMatrix[2][2] * modelViewMatrix[1][0]) +
 		modelViewMatrix[0][2] * (modelViewMatrix[1][0] * modelViewMatrix[2][1] - modelViewMatrix[1][1] * modelViewMatrix[2][0]);
 
-	invDet = 1.0 / det;
+	invDet = 1.0f / det;
 
 	normalMatrix[0][0] = (modelViewMatrix[1][1] * modelViewMatrix[2][2] - modelViewMatrix[2][1] * modelViewMatrix[1][2]) * invDet;
 	normalMatrix[1][0] = (modelViewMatrix[2][1] * modelViewMatrix[0][2] - modelViewMatrix[2][2] * modelViewMatrix[0][1]) * invDet;
 	normalMatrix[2][0] = (modelViewMatrix[0][1] * modelViewMatrix[1][2] - modelViewMatrix[1][1] * modelViewMatrix[0][2]) * invDet;
-	normalMatrix[3][0] = 0.0;
+	normalMatrix[3][0] = 0.0f;
 
 	normalMatrix[0][1] = (modelViewMatrix[2][0] * modelViewMatrix[1][2] - modelViewMatrix[1][0] * modelViewMatrix[2][2]) * invDet;
 	normalMatrix[1][1] = (modelViewMatrix[0][0] * modelViewMatrix[2][2] - modelViewMatrix[2][0] * modelViewMatrix[0][2]) * invDet;
 	normalMatrix[2][1] = (modelViewMatrix[1][0] * modelViewMatrix[0][2] - modelViewMatrix[1][2] * modelViewMatrix[0][0]) * invDet;
-	normalMatrix[3][1] = 0.0;
+	normalMatrix[3][1] = 0.0f;
 
 	normalMatrix[0][2] = (modelViewMatrix[1][0] * modelViewMatrix[2][1] - modelViewMatrix[1][1] * modelViewMatrix[2][0]) * invDet;
 	normalMatrix[1][2] = (modelViewMatrix[2][0] * modelViewMatrix[0][1] - modelViewMatrix[0][0] * modelViewMatrix[2][1]) * invDet;
 	normalMatrix[2][2] = (modelViewMatrix[0][0] * modelViewMatrix[1][1] - modelViewMatrix[0][1] * modelViewMatrix[1][0]) * invDet;
-	normalMatrix[3][2] = 0.0;
+	normalMatrix[3][2] = 0.0f;
 
-	normalMatrix[0][3] = 0.0;
-	normalMatrix[1][3] = 0.0;
-	normalMatrix[2][3] = 0.0;
-	normalMatrix[3][3] = 1.0;
+	normalMatrix[0][3] = 0.0f;
+	normalMatrix[1][3] = 0.0f;
+	normalMatrix[2][3] = 0.0f;
+	normalMatrix[3][3] = 1.0f;
 
 
 	return normalMatrix;
@@ -620,27 +620,27 @@ Matrix4f &Matrix4f::GetNormalMatrix(Matrix4f &mtx, const Matrix4f &modelViewMatr
 		modelViewMatrix[0][1] * (modelViewMatrix[1][2] * modelViewMatrix[2][0] - modelViewMatrix[2][2] * modelViewMatrix[1][0]) +
 		modelViewMatrix[0][2] * (modelViewMatrix[1][0] * modelViewMatrix[2][1] - modelViewMatrix[1][1] * modelViewMatrix[2][0]);
 
-	invDet = 1.0 / det;
+	invDet = 1.0f / det;
 
 	mtx[0][0] = (modelViewMatrix[1][1] * modelViewMatrix[2][2] - modelViewMatrix[2][1] * modelViewMatrix[1][2]) * invDet;
 	mtx[1][0] = (modelViewMatrix[2][1] * modelViewMatrix[0][2] - modelViewMatrix[2][2] * modelViewMatrix[0][1]) * invDet;
 	mtx[2][0] = (modelViewMatrix[0][1] * modelViewMatrix[1][2] - modelViewMatrix[1][1] * modelViewMatrix[0][2]) * invDet;
-	mtx[3][0] = 0.0;
+	mtx[3][0] = 0.0f;
 
 	mtx[0][1] = (modelViewMatrix[2][0] * modelViewMatrix[1][2] - modelViewMatrix[1][0] * modelViewMatrix[2][2]) * invDet;
 	mtx[1][1] = (modelViewMatrix[0][0] * modelViewMatrix[2][2] - modelViewMatrix[2][0] * modelViewMatrix[0][2]) * invDet;
 	mtx[2][1] = (modelViewMatrix[1][0] * modelViewMatrix[0][2] - modelViewMatrix[1][2] * modelViewMatrix[0][0]) * invDet;
-	mtx[3][1] = 0.0;
+	mtx[3][1] = 0.0f;
 
 	mtx[0][2] = (modelViewMatrix[1][0] * modelViewMatrix[2][1] - modelViewMatrix[1][1] * modelViewMatrix[2][0]) * invDet;
 	mtx[1][2] = (modelViewMatrix[2][0] * modelViewMatrix[0][1] - modelViewMatrix[0][0] * modelViewMatrix[2][1]) * invDet;
 	mtx[2][2] = (modelViewMatrix[0][0] * modelViewMatrix[1][1] - modelViewMatrix[0][1] * modelViewMatrix[1][0]) * invDet;
-	mtx[3][2] = 0.0;
+	mtx[3][2] = 0.0f;
 
-	mtx[0][3] = 0.0;
-	mtx[1][3] = 0.0;
-	mtx[2][3] = 0.0;
-	mtx[3][3] = 1.0;
+	mtx[0][3] = 0.0f;
+	mtx[1][3] = 0.0f;
+	mtx[2][3] = 0.0f;
+	mtx[3][3] = 1.0f;
 
 
 	return mtx;
@@ -649,7 +649,7 @@ Matrix4f &Matrix4f::GetNormalMatrix(Matrix4f &mtx, const Matrix4f &modelViewMatr
 Matrix4f &Matrix4f::GetPerspective(float fovx, float aspect, float znear, float zfar) {
 	Matrix4f perspective;
 
-	float e = tanf(PI*fovx / 360);
+	float e = tanf(PI_ON_180 * fovx * 0.5f);
 	float xScale = 1 / (e * aspect);
 	float yScale = 1 / e;
 
@@ -677,7 +677,7 @@ Matrix4f &Matrix4f::GetPerspective(float fovx, float aspect, float znear, float 
 }
 
 Matrix4f &Matrix4f::GetPerspective(Matrix4f &mtx, float fovx, float aspect, float znear, float zfar) {
-	float e = tanf(PI*fovx / 360);
+	float e = tanf(PI_ON_180 * fovx * 0.5f);
 	float xScale = 1 / (e * aspect);
 	float yScale = 1 / e;
 
@@ -707,7 +707,7 @@ Matrix4f &Matrix4f::GetPerspective(Matrix4f &mtx, float fovx, float aspect, floa
 Matrix4f &Matrix4f::GetInvPerspective(float fovx, float aspect, float znear, float zfar) {
 	Matrix4f invPerspective;
 
-	float e = tanf(PI*fovx / 360);
+	float e = tanf(PI_ON_180 * fovx * 0.5f);
 
 	invPerspective[0][0] = e * aspect;
 	invPerspective[0][1] = 0.0f;
@@ -733,7 +733,7 @@ Matrix4f &Matrix4f::GetInvPerspective(float fovx, float aspect, float znear, flo
 }
 
 Matrix4f &Matrix4f::GetInvPerspective(Matrix4f &mtx, float fovx, float aspect, float znear, float zfar) {
-	float e = tanf(PI*fovx / 360);
+	float e = tanf(PI_ON_180 * fovx * 0.5f);
 
 	mtx[0][0] = e * aspect;
 	mtx[0][1] = 0.0f;
@@ -812,23 +812,23 @@ Matrix4f &Matrix4f::GetOrthographic(Matrix4f &mtx, float left, float right, floa
 Matrix4f &Matrix4f::GetInvOrthographic(float left, float right, float bottom, float top, float znear, float zfar) {
 	Matrix4f invOrtho;
 
-	invOrtho[0][0] = (right - left) * 0.5;
+	invOrtho[0][0] = (right - left) * 0.5f;
 	invOrtho[1][0] = 0.0f;
 	invOrtho[2][0] = 0.0f;
 	invOrtho[3][0] = 0.0f;
 
 	invOrtho[0][1] = 0.0f;
-	invOrtho[1][1] = (top - bottom) * 0.5;
+	invOrtho[1][1] = (top - bottom) * 0.5f;
 	invOrtho[2][1] = 0.0f;
 	invOrtho[3][1] = 0.0f;
 
 	invOrtho[0][2] = 0.0f;
 	invOrtho[1][2] = 0.0f;
-	invOrtho[2][2] = (znear - zfar) * 0.5;
-	invOrtho[2][3] = -(zfar + znear) * 0.5;
+	invOrtho[2][2] = (znear - zfar) * 0.5f;
+	invOrtho[2][3] = -(zfar + znear) * 0.5f;
 
-	invOrtho[0][3] = (right + left) * 0.5;
-	invOrtho[1][3] = (top + bottom) * 0.5;
+	invOrtho[0][3] = (right + left) * 0.5f;
+	invOrtho[1][3] = (top + bottom) * 0.5f;
 	invOrtho[3][2] = 0.0f;
 	invOrtho[3][3] = 1.0f;
 
@@ -836,23 +836,23 @@ Matrix4f &Matrix4f::GetInvOrthographic(float left, float right, float bottom, fl
 }
 
 Matrix4f &Matrix4f::GetInvOrthographic(Matrix4f &mtx, float left, float right, float bottom, float top, float znear, float zfar) {
-	mtx[0][0] = (right - left) * 0.5;
+	mtx[0][0] = (right - left) * 0.5f;
 	mtx[1][0] = 0.0f;
 	mtx[2][0] = 0.0f;
 	mtx[3][0] = 0.0f;
 
 	mtx[0][1] = 0.0f;
-	mtx[1][1] = (top - bottom) * 0.5;
+	mtx[1][1] = (top - bottom) * 0.5f;
 	mtx[2][1] = 0.0f;
 	mtx[3][1] = 0.0f;
 
 	mtx[0][2] = 0.0f;
 	mtx[1][2] = 0.0f;
-	mtx[2][2] = (znear - zfar) * 0.5;
-	mtx[2][3] = -(zfar + znear) * 0.5;
+	mtx[2][2] = (znear - zfar) * 0.5f;
+	mtx[2][3] = -(zfar + znear) * 0.5f;
 
-	mtx[0][3] = (right + left) * 0.5;
-	mtx[1][3] = (top + bottom) * 0.5;
+	mtx[0][3] = (right + left) * 0.5f;
+	mtx[1][3] = (top + bottom) * 0.5f;
 	mtx[3][2] = 0.0f;
 	mtx[3][3] = 1.0f;
 
@@ -1230,7 +1230,7 @@ Vector2f operator-(const Vector2f &v) {
 
 //friend operator
 bool operator ==(Vector2f lhs, Vector2f rhs) {
-	float epsilon = 0.000001;
+	float epsilon = 0.000001f;
 	return fabs(lhs[0] - rhs[0]) <= epsilon && fabs(lhs[1] - rhs[1]) <= epsilon;
 }
 //////////////////////////////////////////////////////////////////////
@@ -1269,7 +1269,7 @@ Vector3f &Vector3f::operator+=(const Vector3f &rhs) {
 	return *this;
 }
 
-Vector3f &Vector3f::operator+(const Vector3f &rhs) const {
+Vector3f Vector3f::operator+(const Vector3f &rhs) const {
 	Vector3f tmp(*this);
 	tmp += rhs;
 	return tmp;
@@ -1357,7 +1357,7 @@ Vector3f operator-(const Vector3f &v) {
 
 //friend operator
 bool operator ==(Vector3f lhs, Vector3f rhs) {
-	float epsilon = 0.000001;
+	float epsilon = 0.000001f;
 	return fabs(lhs[0] - rhs[0]) <= epsilon && fabs(lhs[1] - rhs[1]) <= epsilon && fabs(lhs[2] - rhs[2]) <= epsilon;
 }
 
@@ -1454,7 +1454,7 @@ const float Quaternion::operator[](int index) const {
 }
 
 bool Quaternion::operator==(const Quaternion &rhs) const {
-	float epsilon = 0.000001;
+	float epsilon = 0.000001f;
 	return fabs(quat[0] - rhs[0]) <= epsilon && fabs(quat[1] - rhs[1]) <= epsilon && fabs(quat[2] - rhs[2]) <= epsilon && fabs(quat[3] - rhs[3]) <= epsilon;
 }
 
@@ -1635,7 +1635,7 @@ void Quaternion::toAxisAngle(Vector3f &axis, float &degrees) const {
 		axis[0] = quat[0] * invSinHalfTheta;
 		axis[1] = quat[1] * invSinHalfTheta;
 		axis[2] = quat[2] * invSinHalfTheta;
-		degrees = (acosf(quat[2]) * 360.0f) / PI;
+		degrees = acosf(quat[2]) * _180_ON_PI * 2.0f;
 	}
 }
 
@@ -1717,6 +1717,6 @@ Quaternion operator*(float lhs, const Quaternion &rhs) {
 
 //friend operator
 bool operator ==(const Quaternion &lhs, const Quaternion &rhs) {
-	float epsilon = 0.000001;
+	float epsilon = 0.000001f;
 	return fabs(lhs[0] - rhs[0]) <= epsilon && fabs(lhs[1] - rhs[1]) <= epsilon && fabs(lhs[2] - rhs[2]) <= epsilon && fabs(lhs[3] - rhs[3]) <= epsilon;
 }
