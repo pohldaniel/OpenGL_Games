@@ -17,7 +17,7 @@ MeshCube::MeshCube(const Vector3f &position, float width, float height, float de
 	m_uResolution = 49;
 	m_vResolution = 49;
 
-	m_modelMatrix = ModelMatrix();
+	m_transform = Transform();
 
 	m_gradient = &Globals::textureManager.get("perlin");
 }

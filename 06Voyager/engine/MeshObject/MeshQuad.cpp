@@ -15,7 +15,7 @@ MeshQuad::MeshQuad(float width, float height, float groundLevel, bool generateTe
 	m_uResolution = 49;
 	m_vResolution = 49;
 
-	m_modelMatrix = ModelMatrix();
+	m_transform = Transform();
 }
 
 MeshQuad::MeshQuad(float width, float height, float groundLevel) : MeshQuad(width, height, groundLevel, true, true) {
@@ -157,7 +157,7 @@ void MeshQuad::draw(const Camera camera) {
 }
 
 void MeshQuad::rotate(const Vector3f &axis, float degrees) {
-	m_modelMatrix.rotate(axis, degrees);
+	m_transform.rotate(axis, degrees);
 }
 
 void MeshQuad::translate(float dx, float dy, float dz) {

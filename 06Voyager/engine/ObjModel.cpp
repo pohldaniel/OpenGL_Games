@@ -28,7 +28,11 @@ Model::~Model() {
 }
 
 void Model::setRotPos(const Vector3f &axis, float degrees, float dx, float dy, float dz) {
-	modelMatrix.setRotPos(axis, degrees, dx, dy, dz);
+	m_transform.setRotPos(axis, degrees, dx, dy, dz);
+}
+
+void Model::setRotPosScale(const Vector3f &axis, float degrees, float dx, float dy, float dz, float a, float b, float c) {
+	m_transform.setRotPosScale(axis, degrees, dx, dy, dz, a, b, c);
 }
 
 void Model::setRotXYZPos(const Vector3f &axisX, float degreesX,
@@ -36,30 +40,30 @@ void Model::setRotXYZPos(const Vector3f &axisX, float degreesX,
 	const Vector3f &axisZ, float degreesZ,
 	float dx, float dy, float dz) {
 
-	modelMatrix.setRotXYZPos(axisX, degreesX,
+	m_transform.setRotXYZPos(axisX, degreesX,
 		axisY, degreesY,
 		axisZ, degreesZ,
 		dx, dy, dz);
 }
 
 void Model::rotate(const Vector3f &axis, float degrees) {
-	modelMatrix.rotate(axis, degrees);
+	m_transform.rotate(axis, degrees);
 }
 
 void Model::translate(float dx, float dy, float dz) {
-	modelMatrix.translate(dx, dy, dz);
+	m_transform.translate(dx, dy, dz);
 }
 
 void Model::scale(float a, float b, float c) {
-	modelMatrix.scale(a, b, c);
+	m_transform.scale(a, b, c);
 }
 
 const Matrix4f &Model::getTransformationMatrix() const {
-	return modelMatrix.getTransformationMatrix();
+	return m_transform.getTransformationMatrix();
 }
 
 const Matrix4f &Model::getInvTransformationMatrix() const {
-	return modelMatrix.getInvTransformationMatrix();
+	return m_transform.getInvTransformationMatrix();
 }
 
 const Vector3f &Model::getCenter() const {

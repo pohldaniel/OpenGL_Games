@@ -49,10 +49,10 @@ void Barrel::draw(const Camera& camera) {
 		glStencilMask(0xFF);
 	}
 	glUseProgram(m_shader->m_program);
-	m_shader->loadMatrix("u_modelView", m_modelMatrix.getTransformationMatrix() * camera.getViewMatrix());
+	m_shader->loadMatrix("u_modelView", m_transform.getTransformationMatrix() * camera.getViewMatrix());
 	m_shader->loadMatrix("u_projection", Globals::projection);
-	m_shader->loadMatrix("u_normal", Matrix4f::GetNormalMatrix(m_modelMatrix.getTransformationMatrix() * camera.getViewMatrix()));
-	m_shader->loadMatrix("u_modelViewLight", modelLight.getTransformationMatrix());
+	m_shader->loadMatrix("u_normal", Matrix4f::GetNormalMatrix(m_transform.getTransformationMatrix() * camera.getViewMatrix()));
+	m_shader->loadMatrix("u_modelViewLight", m_tranformLight.getTransformationMatrix());
 
 	m_shader->loadInt("u_texture", 0);
 	m_texture->bind(0);
@@ -71,7 +71,7 @@ void Barrel::draw(const Camera& camera) {
 		glStencilMask(0x00);
 
 		glUseProgram(m_colorShader->m_program);
-		m_colorShader->loadMatrix("u_transform", m_transformOutline * m_modelMatrix.getTransformationMatrix() * camera.getViewMatrix() * Globals::projection);
+		m_colorShader->loadMatrix("u_transform", m_transformOutline * m_transform.getTransformationMatrix() * camera.getViewMatrix() * Globals::projection);
 		m_colorShader->loadVector("u_color", Vector4f(1.0f, 1.0f, 0.0f, 1.0f));
 		m_model->drawRaw();
 		glUseProgram(0);
@@ -88,7 +88,7 @@ void Barrel::draw(const Camera& camera) {
 
 void Barrel::update(float dt) {
 	if (m_rotateLight) {
-		modelLight.rotate(Vector3f(0.0, 1.0, 0.0), -60.0 * dt);
+		m_tranformLight.rotate(Vector3f(0.0, 1.0, 0.0), -60.0 * dt);
 	}
 }
 

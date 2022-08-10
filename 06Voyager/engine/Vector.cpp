@@ -879,34 +879,30 @@ void Matrix4f::identity() {
 }
 
 Matrix4f &Matrix4f::operator+=(const Matrix4f &rhs) {
-
-	Matrix4f tmp;
-
 	// Row 1.
-	tmp.mtx[0][0] = mtx[0][0] + rhs.mtx[0][0];
-	tmp.mtx[0][1] = mtx[0][1] + rhs.mtx[0][1];
-	tmp.mtx[0][2] = mtx[0][2] + rhs.mtx[0][2];
-	tmp.mtx[0][3] = mtx[0][3] + rhs.mtx[0][3];
+	mtx[0][0] = mtx[0][0] + rhs.mtx[0][0];
+	mtx[0][1] = mtx[0][1] + rhs.mtx[0][1];
+	mtx[0][2] = mtx[0][2] + rhs.mtx[0][2];
+	mtx[0][3] = mtx[0][3] + rhs.mtx[0][3];
 
 	// Row 2.
-	tmp.mtx[1][0] = mtx[1][0] + rhs.mtx[1][0];
-	tmp.mtx[1][1] = mtx[1][1] + rhs.mtx[1][1];
-	tmp.mtx[1][2] = mtx[1][2] + rhs.mtx[1][2];
-	tmp.mtx[1][3] = mtx[1][3] + rhs.mtx[1][3];
+	mtx[1][0] = mtx[1][0] + rhs.mtx[1][0];
+	mtx[1][1] = mtx[1][1] + rhs.mtx[1][1];
+	mtx[1][2] = mtx[1][2] + rhs.mtx[1][2];
+	mtx[1][3] = mtx[1][3] + rhs.mtx[1][3];
 
 	// Row 3.
-	tmp.mtx[2][0] = mtx[2][0] + rhs.mtx[2][0];
-	tmp.mtx[2][1] = mtx[2][1] + rhs.mtx[2][1];
-	tmp.mtx[2][2] = mtx[2][2] + rhs.mtx[2][2];
-	tmp.mtx[2][3] = mtx[2][3] + rhs.mtx[2][3];
+	mtx[2][0] = mtx[2][0] + rhs.mtx[2][0];
+	mtx[2][1] = mtx[2][1] + rhs.mtx[2][1];
+	mtx[2][2] = mtx[2][2] + rhs.mtx[2][2];
+	mtx[2][3] = mtx[2][3] + rhs.mtx[2][3];
 
 	// Row 4.
-	tmp.mtx[3][0] = mtx[3][0] + rhs.mtx[3][0];
-	tmp.mtx[3][1] = mtx[3][1] + rhs.mtx[3][1];
-	tmp.mtx[3][2] = mtx[3][2] + rhs.mtx[3][2];
-	tmp.mtx[3][3] = mtx[3][3] + rhs.mtx[3][3];
+	mtx[3][0] = mtx[3][0] + rhs.mtx[3][0];
+	mtx[3][1] = mtx[3][1] + rhs.mtx[3][1];
+	mtx[3][2] = mtx[3][2] + rhs.mtx[3][2];
+	mtx[3][3] = mtx[3][3] + rhs.mtx[3][3];
 
-	*this = tmp;
 	return *this;
 }
 
@@ -1553,18 +1549,19 @@ void Quaternion::set(float x, float y, float z, float w) {
 	quat[0] = x, quat[1] = y, quat[2] = z, quat[3] = w;
 }
 
-Quaternion Quaternion::conjugate() const {
-	Quaternion tmp(-quat[0], -quat[1], -quat[2], quat[3]);
-	return tmp;
+void Quaternion::conjugate() {
+	quat[0] = -quat[0]; quat[1] = -quat[1]; quat[2] = -quat[2]; 
 }
 
-Quaternion Quaternion::inverse() const {
+void Quaternion::inverse() {
 	float invMag = 1.0f / length();
-	return conjugate() * invMag;
+	conjugate();
+
+	quat[0] = quat[0] * invMag; quat[1] = quat[1] * invMag; quat[2] = quat[2] * invMag; quat[3] = quat[3] * invMag;
 }
 
 void Quaternion::fromAxisAngle(const Vector3f &axis, float degrees) {
-	float halfTheta = (degrees * PI) / 180.0f * 0.5f;
+	float halfTheta = degrees * PI_ON_180 * 0.5f;
 	float s = sinf(halfTheta);
 	quat[3] = cosf(halfTheta), quat[0] = axis[0] * s, quat[1] = axis[1] * s, quat[2] = axis[2] * s;
 }
@@ -1607,6 +1604,10 @@ void Quaternion::fromMatrix(const Matrix4f &m) {
 	}
 
 	quat[0] = q[0], quat[1] = q[1], quat[2] = q[2], quat[3] = q[3];
+
+	//for (short i = 0; i < 4; i++) {
+		//memcmp(mtx[i], m[i], sizeof(float) * 4) == 0;
+	//}
 }
 
 
@@ -1638,7 +1639,7 @@ void Quaternion::toAxisAngle(Vector3f &axis, float &degrees) const {
 	}
 }
 
-Matrix4f Quaternion::toMatrix4f() const {
+Matrix4f& Quaternion::toMatrix4f(){
 	// Converts this quaternion to a rotation matrix.
 	//
 	//  | 1 - 2(y^2 + z^2)	2(xy - wz)			2(xz + wy)			0  |
@@ -1659,49 +1660,53 @@ Matrix4f Quaternion::toMatrix4f() const {
 	float wy = quat[3] * y2;
 	float wz = quat[3] * z2;
 
-	Matrix4f m;
+	mtx[0][0] = 1.0f - (yy + zz);
+	mtx[0][1] = xy - wz;
+	mtx[0][2] = xz + wy;
+	mtx[0][3] = 0.0f;
 
-	m[0][0] = 1.0f - (yy + zz);
-	m[0][1] = xy - wz;
-	m[0][2] = xz + wy;
-	m[0][3] = 0.0f;
+	mtx[1][0] = xy + wz;
+	mtx[1][1] = 1.0f - (xx + zz);
+	mtx[1][2] = yz - wx;
+	mtx[1][3] = 0.0f;
 
-	m[1][0] = xy + wz;
-	m[1][1] = 1.0f - (xx + zz);
-	m[1][2] = yz - wx;
-	m[1][3] = 0.0f;
+	mtx[2][0] = xz - wy;
+	mtx[2][1] = yz + wx;
+	mtx[2][2] = 1.0f - (xx + yy);
+	mtx[2][3] = 0.0f;
 
-	m[2][0] = xz - wy;
-	m[2][1] = yz + wx;
-	m[2][2] = 1.0f - (xx + yy);
-	m[2][3] = 0.0f;
+	mtx[3][0] = 0.0f;
+	mtx[3][1] = 0.0f;
+	mtx[3][2] = 0.0f;
+	mtx[3][3] = 1.0f;
 
-	m[3][0] = 0.0f;
-	m[3][1] = 0.0f;
-	m[3][2] = 0.0f;
-	m[3][3] = 1.0f;
-
-	return m;
+	return mtx;
 }
 
 void Quaternion::toHeadPitchRoll(float &headDegrees, float &pitchDegrees, float &rollDegrees) const {
-	Matrix4f m = toMatrix4f();
-	m.toHeadPitchRoll(headDegrees, pitchDegrees, rollDegrees);
+	mtx.toHeadPitchRoll(headDegrees, pitchDegrees, rollDegrees);
 }
 
 void Quaternion::Normalize(Quaternion &q) {
-	float invMag = 1.0f / q.length();
-	q.quat[0] *= invMag; q.quat[1] *= invMag; q.quat[2] *= invMag; q.quat[3] *= invMag;
+	q.normalize();
 }
 
-Quaternion &Quaternion::FromMatrix(const Matrix4f &m) {
-	Quaternion quat;
+Quaternion& Quaternion::FromMatrix(Quaternion &quat, const Matrix4f &m) {
 	quat.fromMatrix(m);
+	//for (short i = 0; i < 4; i++) {
+	//	memcmp(quat.mtx[i], m[i], sizeof(float) * 4) == 0;
+	//}
+
 	return quat;
 }
 
-Quaternion &Quaternion::FromMatrix(Quaternion &quat, const Matrix4f &m) {
-	quat.fromMatrix(m);
+Quaternion& Quaternion::Conjugate(Quaternion &quat) {
+	quat.conjugate();
+	return quat;
+}
+
+Quaternion& Quaternion::Inverse(Quaternion &quat) {
+	quat.inverse();
 	return quat;
 }
 

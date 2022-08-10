@@ -27,7 +27,7 @@ void Tree::draw(const Camera& camera) {
 
 	glUseProgram(m_shader->m_program);
 	glUseProgram(m_shader->m_program);
-	m_shader->loadMatrix("u_modelView", m_modelMatrix.getTransformationMatrix() * camera.getViewMatrix(), true);
+	m_shader->loadMatrix("u_modelView", m_transform.getTransformationMatrix() * camera.getViewMatrix(), true);
 	m_shader->loadMatrix("u_projection", Globals::projection, true);
 	m_texture->bind(0);
 
@@ -41,7 +41,7 @@ void Tree::draw(const Camera& camera) {
 		glStencilMask(0x00);
 
 		glUseProgram(m_colorShader->m_program);
-		m_colorShader->loadMatrix("u_transform", m_transformOutline * m_modelMatrix.getTransformationMatrix() * camera.getViewMatrix() * Globals::projection);
+		m_colorShader->loadMatrix("u_transform", m_transformOutline * m_transform.getTransformationMatrix() * camera.getViewMatrix() * Globals::projection);
 		m_colorShader->loadVector("u_color", Vector4f(1.0f, 1.0f, 0.0f, 1.0f));
 		m_model->drawRaw();
 		glUseProgram(0);

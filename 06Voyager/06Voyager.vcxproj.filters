@@ -162,9 +162,6 @@
     <ClInclude Include="engine\Framebuffer.h">
       <Filter>engine</Filter>
     </ClInclude>
-    <ClInclude Include="engine\ModelMatrix.h">
-      <Filter>engine</Filter>
-    </ClInclude>
     <ClInclude Include="engine\ObjModel.h">
       <Filter>engine</Filter>
     </ClInclude>
@@ -909,6 +906,9 @@
     <ClInclude Include="convhull\convhull_3d.h">
       <Filter>convhull</Filter>
     </ClInclude>
+    <ClInclude Include="engine\Transform.h">
+      <Filter>engine</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine\input\EventDispatcher.cpp">
@@ -981,9 +981,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="engine\Framebuffer.cpp">
-      <Filter>engine</Filter>
-    </ClCompile>
-    <ClCompile Include="engine\ModelMatrix.cpp">
       <Filter>engine</Filter>
     </ClCompile>
     <ClCompile Include="engine\ObjModel.cpp">
@@ -1489,6 +1486,9 @@
     </ClCompile>
     <ClCompile Include="MousePicker.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\Transform.cpp">
+      <Filter>engine</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

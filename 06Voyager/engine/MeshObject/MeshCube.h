@@ -9,7 +9,7 @@
 #include "..\Camera.h"
 #include "..\Shader.h"
 #include "..\Vector.h"
-#include "..\ModelMatrix.h"
+#include "..\Transform.h"
 #include "..\..\Constants.h"
 
 class MeshCube {
@@ -64,7 +64,7 @@ private:
 	unsigned int m_vbo[4];
 	unsigned int m_drawCount;
 	unsigned int m_numberOfTriangle;
-	ModelMatrix m_modelMatrix;
+	Transform m_transform;
 
 	std::shared_ptr<Shader> m_shader;
 	std::shared_ptr<Texture> m_texture;

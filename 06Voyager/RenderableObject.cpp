@@ -32,7 +32,7 @@ void RenderableObject::drawShadow(const Camera& camera) {
 
 void RenderableObject::drawAABB(const Camera& camera) {
 	glUseProgram(m_colorShader->m_program);
-	m_colorShader->loadMatrix("u_transform", m_modelMatrix.getTransformationMatrix() * camera.getViewMatrix() * Globals::projection);
+	m_colorShader->loadMatrix("u_transform", m_transform.getTransformationMatrix() * camera.getViewMatrix() * Globals::projection);
 	m_colorShader->loadVector("u_color", m_pickColor);
 	m_model->drawAABB();
 	glUseProgram(0);
@@ -40,7 +40,7 @@ void RenderableObject::drawAABB(const Camera& camera) {
 
 void RenderableObject::drawSphere(const Camera& camera) {
 	glUseProgram(m_colorShader->m_program);
-	m_colorShader->loadMatrix("u_transform", m_modelMatrix.getTransformationMatrix() * camera.getViewMatrix() * Globals::projection);
+	m_colorShader->loadMatrix("u_transform", m_transform.getTransformationMatrix() * camera.getViewMatrix() * Globals::projection);
 	m_colorShader->loadVector("u_color", m_pickColor);
 	m_model->drawSphere();
 	glUseProgram(0);
@@ -48,7 +48,7 @@ void RenderableObject::drawSphere(const Camera& camera) {
 
 void RenderableObject::drawHull(const Camera& camera) {
 	glUseProgram(m_colorShader->m_program);
-	m_colorShader->loadMatrix("u_transform", m_modelMatrix.getTransformationMatrix() * camera.getViewMatrix() * Globals::projection);
+	m_colorShader->loadMatrix("u_transform", m_transform.getTransformationMatrix() * camera.getViewMatrix() * Globals::projection);
 	m_colorShader->loadVector("u_color", m_pickColor);
 	m_model->drawHull();
 	glUseProgram(0);
@@ -67,23 +67,27 @@ ConvexHull& RenderableObject::getConvexHull() {
 }
 
 void RenderableObject::rotate(const Vector3f &axis, float degrees) {
-	m_modelMatrix.rotate(axis, degrees);
+	m_transform.rotate(axis, degrees);
 }
 
 void RenderableObject::translate(float dx, float dy, float dz) {
-	m_modelMatrix.translate(dx, dy, dz);
+	m_transform.translate(dx, dy, dz);
 }
 
 void RenderableObject::scale(float a, float b, float c) {
-	m_modelMatrix.scale(a, b, c);
+	m_transform.scale(a, b, c);
+}
+
+void RenderableObject::setRotPosScale(const Vector3f &axis, float degrees, float dx, float dy, float dz, float a, float b, float c) {
+	m_transform.setRotPosScale(axis, degrees, dx, dy, dz, a, b, c);
 }
 
 const Matrix4f &RenderableObject::getTransformationMatrix() const {
-	return m_modelMatrix.getTransformationMatrix();
+	return m_transform.getTransformationMatrix();
 }
 
 const Matrix4f &RenderableObject::getInvTransformationMatrix() const {
-	return m_modelMatrix.getInvTransformationMatrix();
+	return m_transform.getInvTransformationMatrix();
 }
 
 const Model* RenderableObject::getModel() const {

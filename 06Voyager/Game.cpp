@@ -131,10 +131,20 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_water(
 	}
 	
 	m_barrel = new Barrel();
-	m_barrel->translate(HEIGHTMAP_WIDTH * 0.5f + 200.0f, m_terrain.getHeightMap().heightAt(HEIGHTMAP_WIDTH * 0.5f + 200.0f, HEIGHTMAP_WIDTH * 0.5f + 200.0f) + 50.0f, HEIGHTMAP_WIDTH * 0.5f + 200.0f);
-	m_barrel->scale(10.0f, 10.0f, 10.0f);
+	m_barrel->setRotPosScale(Vector3f(0.0f, 0.0f, 1.0f), 90.0f, HEIGHTMAP_WIDTH * 0.5f + 200.0f, m_terrain.getHeightMap().heightAt(HEIGHTMAP_WIDTH * 0.5f + 200.0f, HEIGHTMAP_WIDTH * 0.5f + 200.0f) + 50.0f, HEIGHTMAP_WIDTH * 0.5f + 200.0f, 10.0f, 10.0f, 10.0f);
+	//m_barrel->translate(HEIGHTMAP_WIDTH * 0.5f + 200.0f, m_terrain.getHeightMap().heightAt(HEIGHTMAP_WIDTH * 0.5f + 200.0f, HEIGHTMAP_WIDTH * 0.5f + 200.0f) + 50.0f, HEIGHTMAP_WIDTH * 0.5f + 200.0f);
+	//m_barrel->scale(10.0f, 10.0f, 10.0f);
+	Matrix4f rot;
+	rot.rotate(Vector3f(0.0f, 0.0f, 1.0f), 90.0f);
 
+	Matrix4f trans;
+	trans.translate(HEIGHTMAP_WIDTH * 0.5f + 200.0f, m_terrain.getHeightMap().heightAt(HEIGHTMAP_WIDTH * 0.5f + 200.0f, HEIGHTMAP_WIDTH * 0.5f + 200.0f) + 50.0f, HEIGHTMAP_WIDTH * 0.5f + 200.0f);
 
+	Matrix4f scale;
+	scale.scale(10.0f, 10.0f, 10.0f);
+
+	
+	m_barrel->m_transform.fromMatrix(scale * rot * trans, Vector3f(HEIGHTMAP_WIDTH * 0.5f + 200.0f, m_terrain.getHeightMap().heightAt(HEIGHTMAP_WIDTH * 0.5f + 200.0f, HEIGHTMAP_WIDTH * 0.5f + 200.0f) + 50.0f, HEIGHTMAP_WIDTH * 0.5f + 200.0f)); //posRotScale
 	std::vector<btCollisionShape*> barrelShape = Physics::CreateStaticCollisionShapes(m_barrel->getConvexHull().m_vertexBuffer, m_barrel->getConvexHull().m_indexBuffer, 10.0f);
 	btRigidBody* barrelBody = Globals::physics->addStaticModel(barrelShape, Physics::btTransForm(Vector3f(HEIGHTMAP_WIDTH * 0.5f + 200.0f, m_terrain.getHeightMap().heightAt(HEIGHTMAP_WIDTH * 0.5f + 200.0f, HEIGHTMAP_WIDTH * 0.5f + 200.0f) + 50.0f, HEIGHTMAP_WIDTH * 0.5f + 200.0f)), false, btVector3(1, 1, 1), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::RAY);
 	barrelBody->setUserPointer(reinterpret_cast<void*>(m_barrel));
@@ -288,6 +298,31 @@ void Game::update() {
 	m_skybox.update();
 	m_barrel->update(m_dt);
 	m_barrel->setDrawBorder(m_mousePicker.getPickedId() == m_barrel->getId());
+
+	m_barrel->rotate(Vector3f(0.0f, 0.0f, 1.0f), 10.4f * m_dt);
+
+	/*Vector3f scale;
+	m_barrel->m_modelMatrix.getScale(scale);
+
+	Vector3f position;
+	m_barrel->m_modelMatrix.getPosition(position);
+
+	m_barrel->rotate(Vector3f(0.0f, 0.0f, 1.0f), 10.4f * m_dt);
+	//m_barrel->scale(1.0f + m_dt, 1.0f + m_dt, 1.0f + m_dt);
+
+	Matrix4f oriantation1, oriantation2;
+
+	std::cout << scale[0] << "  " << scale[1] << "  " << scale[2] << std::endl;
+	std::cout << position[0] << "  " << position[1] << "  " << position[2] << std::endl;
+	std::cout << m_barrel->m_modelMatrix.getPosition()[0] << "  " << m_barrel->m_modelMatrix.getPosition()[1] << "  " << m_barrel->m_modelMatrix.getPosition()[2] << std::endl;
+	std::cout << "##################" << std::endl;
+
+	m_barrel->m_modelMatrix.getOrientation(oriantation1);
+	m_barrel->m_modelMatrix.getOrientation2(oriantation2);
+
+	oriantation1.print();
+	oriantation2.print();*/
+
 	for (auto entitie : m_entities) {
 		entitie->update(m_dt);
 	}

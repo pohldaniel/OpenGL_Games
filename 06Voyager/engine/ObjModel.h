@@ -15,7 +15,7 @@
 #include "Shader.h"
 #include "Texture.h"
 #include "Camera.h"
-#include "ModelMatrix.h"
+#include "Transform.h"
 
 #include "..\Miniball\Miniball.h"
 #include "..\Constants.h"
@@ -103,6 +103,7 @@ public:
 	const Matrix4f &getInvTransformationMatrix() const;
 
 	void setRotPos(const Vector3f &axis, float degrees, float dx, float dy, float dz);
+	void setRotPosScale(const Vector3f &axis, float degrees, float dx, float dy, float dz, float a, float b, float c);
 	void setRotXYZPos(const Vector3f &axisX, float degreesX,
 		const Vector3f &axisY, float degreesY,
 		const Vector3f &axisZ, float degreesZ,
@@ -157,7 +158,7 @@ private:
 	bool m_hasMaterial;
 	Vector3f m_center;
 	Matrix4f m_modelMatrix;
-	ModelMatrix modelMatrix;
+	Transform m_transform;
 
 	BoundingBox aabb;
 	BoundingSphere boundingSphere;

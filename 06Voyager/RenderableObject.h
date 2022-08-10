@@ -24,18 +24,23 @@ public:
 	void setDisabled(bool disabled);
 	bool isDisabled();
 
+	void setRotPosScale(const Vector3f &axis, float degrees, float dx, float dy, float dz, float a, float b, float c);
 	void rotate(const Vector3f &axis, float degrees);
 	void translate(float dx, float dy, float dz);
 	void scale(float a, float b, float c);
+
 	const Matrix4f &getTransformationMatrix() const;
 	const Matrix4f &getInvTransformationMatrix() const;
 	const Model* getModel() const;
 	unsigned int getId() const;
+
+	Transform m_transform;
+
 protected:
 	Shader *m_shader;
 	Model *m_model;
 	Texture *m_texture;
-	ModelMatrix m_modelMatrix;
+	
 	Vector4f m_pickColor;
 	Shader* m_colorShader;
 

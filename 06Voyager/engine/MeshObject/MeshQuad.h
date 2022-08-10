@@ -9,7 +9,7 @@
 #include "..\Camera.h"
 #include "..\Shader.h"
 #include "..\Vector.h"
-#include "..\ModelMatrix.h"
+#include "..\Transform.h"
 
 #include "..\..\Constants.h"
 
@@ -61,7 +61,7 @@ private:
 	unsigned int m_vbo[4];
 	unsigned int m_drawCount;
 
-	ModelMatrix m_modelMatrix;
+	Transform m_transform;
 	Matrix4f _modelMatrix;
 
 	std::shared_ptr<Shader> m_shader;

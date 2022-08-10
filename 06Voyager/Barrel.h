@@ -12,7 +12,7 @@ public:
 	void update(float dt);
 	void toggleLightRotation();
 	void setDrawBorder(bool flag);
-	ModelMatrix modelLight;
+	Transform m_tranformLight;
 	Texture *m_normalMap;
 
 private:
