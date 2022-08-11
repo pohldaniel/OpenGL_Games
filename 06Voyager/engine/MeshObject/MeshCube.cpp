@@ -20,6 +20,8 @@ MeshCube::MeshCube(const Vector3f &position, float width, float height, float de
 	m_transform = Transform();
 
 	m_gradient = &Globals::textureManager.get("perlin");
+
+	m_offset = Vector3f(m_width * 0.5f, m_height * 0.5f, m_depth * 0.5f);
 }
 
 MeshCube::MeshCube(const Vector3f &position, float width, float height, float depth) : MeshCube(position, width, height, depth, true, true) {}
@@ -54,7 +56,7 @@ void MeshCube::buildMesh() {
 		for (unsigned int j = 0; j < m_uResolution; j++) {
 
 			// Calculate vertex position on the surface of a quad
-			float x = j * uStep - m_width * 0.5f;
+			float x = j * uStep - m_offset[0];
 			float y = i * vStep - m_height * 0.5f;
 			float z = m_depth * 0.5f;
 
@@ -624,7 +626,7 @@ void MeshCube::draw(const Camera camera) {
 	m_shader->loadMatrix("u_projection", Globals::projection);
 	m_shader->loadFloat("dissolveAmount", m_dissolveAmount);
 
-	m_shader->loadFloat("u_texture", 0);
+	m_shader->loadInt("u_texture", 0);
 	m_texture->bind(0);
 
 	m_shader->loadInt("u_gradient", 1);

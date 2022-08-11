@@ -1,7 +1,35 @@
 #include "Physics.h"
 #include "engine/ObjModel.h"
 #include "engine/MeshObject/MeshCube.h"
+#include "engine/MeshObject/MeshQuad.h"
 #include "Terrain.h"
+#include "PhysicsCar.h"
+
+void* btFilteredVehicleRaycaster::castRay(const btVector3& from, const btVector3& to, btVehicleRaycasterResult& result){
+	//	RayResultCallback& resultCallback;
+
+	btCollisionWorld::ClosestRayResultCallback rayCallback(from, to);
+
+
+	rayCallback.m_collisionFilterGroup = m_collisionFilterGroup;
+	rayCallback.m_collisionFilterMask = m_collisionFilterMask;
+
+	m_dynamicsWorld->rayTest(from, to, rayCallback);
+
+	if (rayCallback.hasHit())
+	{
+		const btRigidBody* body = btRigidBody::upcast(rayCallback.m_collisionObject);
+		if (body && body->hasContactResponse())
+		{
+			result.m_hitPointInWorld = rayCallback.m_hitPointWorld;
+			result.m_hitNormalInWorld = rayCallback.m_hitNormalWorld;
+			result.m_hitNormalInWorld.normalize();
+			result.m_distFraction = rayCallback.m_closestHitFraction;
+			return (void*)body;
+		}
+	}
+	return 0;
+}
 
 Physics::Physics(float physicsStep){
 	m_physicsStep = physicsStep;
@@ -146,6 +174,27 @@ std::vector<btCollisionShape *> Physics::CreateStaticCollisionShapes(MeshCube* m
 	return ret;
 }
 
+btCollisionShape* Physics::CreateStaticCollisionShape(MeshQuad* mesh, const btVector3& scale) {
+	int indexStride = 3 * sizeof(int);
+
+	btTriangleIndexVertexArray* tiva = new btTriangleIndexVertexArray(mesh->getNumberOfTriangles(), (int*)(&mesh->m_indexBuffer[0]), indexStride, mesh->m_positions.size(), (btScalar*)(&mesh->m_positions[0]), sizeof(Vector3f));
+
+	btBvhTriangleMeshShape *shape = new btBvhTriangleMeshShape(tiva, true);
+	shape->setLocalScaling(scale);
+
+	return shape;
+} 
+
+std::vector<btCollisionShape*> Physics::CreateStaticCollisionShapes(MeshQuad* model, float scale) {
+	std::vector<btCollisionShape *> ret;
+	btCollisionShape *shape = CreateStaticCollisionShape(model, btVector3(scale, scale, scale));
+
+	if (shape) {
+		ret.push_back(shape);
+	}
+	return ret;
+}
+
 btCollisionShape* Physics::CreateStaticCollisionShape(std::vector<float>& vertexBuffer, std::vector<unsigned int>& indexBuffer, const btVector3& scale) {
 	int floatsPerVertex = 3 ;
 	int integerPerFace = 3;
@@ -243,4 +292,21 @@ std::vector<btCollisionShape *> Physics::CreateStaticCollisionShapes(Terrain* mo
 		ret.push_back(shape);
 	}
 	return ret;
+}
+
+btRigidBody* Physics::CreateRigidBody(btScalar mass, const btTransform & startTransform, btCollisionShape * shape) {
+
+	btVector3 localInertia(0.0f, 0.0f, 0.0f);
+	if (mass != 0.f)  //rigidbody is dynamic if and only if mass is non zero, otherwise static
+		shape->calculateLocalInertia(mass, localInertia);
+
+	//using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects
+	btDefaultMotionState* myMotionState = new btDefaultMotionState(startTransform);
+
+	btRigidBody::btRigidBodyConstructionInfo cInfo(mass, myMotionState, shape, localInertia);
+
+	btRigidBody* body = new btRigidBody(cInfo);
+	body->setContactProcessingThreshold(0);
+
+	return body;
 }

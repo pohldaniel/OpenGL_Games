@@ -16,6 +16,10 @@ MeshQuad::MeshQuad(float width, float height, float groundLevel, bool generateTe
 	m_vResolution = 49;
 
 	m_transform = Transform();
+
+	_modelMatrix = Matrix4f::IDENTITY;
+
+	m_offset = Vector3f(m_width * 0.5, m_height * 0.5, 0.0f);
 }
 
 MeshQuad::MeshQuad(float width, float height, float groundLevel) : MeshQuad(width, height, groundLevel, true, true) {
@@ -39,7 +43,6 @@ void MeshQuad::setPrecision(int uResolution, int vResolution) {
 }
 
 void MeshQuad::buildMesh(){
-	
 	float vStep = (1.0f / m_vResolution) * m_height;
 	float uStep = (1.0f /m_uResolution) * m_width;
 
@@ -47,8 +50,8 @@ void MeshQuad::buildMesh(){
 		for (unsigned int j = 0; j <= m_uResolution; j++) {
 			
 			// Calculate vertex position on the surface of a quad
-			float x = j * uStep - m_width * 0.5f;
-			float z = i * vStep - m_height * 0.5f;
+			float x = j * uStep - m_offset[0];
+			float z = i * vStep - m_offset[1];
 			float y = m_groundLevel;
 
 			Vector3f position = Vector3f(x, y, z);
@@ -94,6 +97,7 @@ void MeshQuad::buildMesh(){
 	}
 
 	m_drawCount = m_indexBuffer.size();
+	m_numberOfTriangle = m_drawCount / 3;
 
 	glGenVertexArrays(1, &m_vao);
 	glBindVertexArray(m_vao);
@@ -154,6 +158,10 @@ void MeshQuad::draw(const Camera camera) {
 
 	glUseProgram(0);
 
+}
+
+int MeshQuad::getNumberOfTriangles() {
+	return m_numberOfTriangle;
 }
 
 void MeshQuad::rotate(const Vector3f &axis, float degrees) {

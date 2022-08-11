@@ -420,6 +420,7 @@
     <ClInclude Include="MousePicker.h" />
     <ClInclude Include="Object.h" />
     <ClInclude Include="Physics.h" />
+    <ClInclude Include="PhysicsCar.h" />
     <ClInclude Include="Ray.h" />
     <ClInclude Include="RenderableObject.h" />
     <ClInclude Include="Skybox.h" />
@@ -612,6 +613,7 @@
     <ClCompile Include="MousePicker.cpp" />
     <ClCompile Include="Object.cpp" />
     <ClCompile Include="Physics.cpp" />
+    <ClCompile Include="PhysicsCar.cpp" />
     <ClCompile Include="Ray.cpp" />
     <ClCompile Include="RenderableObject.cpp" />
     <ClCompile Include="Skybox.cpp" />

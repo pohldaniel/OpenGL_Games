@@ -912,6 +912,9 @@
     <ClInclude Include="engine\Transform.h">
       <Filter>engine</Filter>
     </ClInclude>
+    <ClInclude Include="PhysicsCar.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine\input\EventDispatcher.cpp">
@@ -1495,6 +1498,9 @@
     </ClCompile>
     <ClCompile Include="engine\Transform.cpp">
       <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="PhysicsCar.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

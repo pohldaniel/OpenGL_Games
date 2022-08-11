@@ -31,6 +31,7 @@ public:
 	void loadVector(const char* location, Vector3f vector);
 	void loadVector(const char* location, Vector2f vector);
 	void loadFloat(const char* location, float value);
+	void loadFloat(const char* location, float value[4]);
 	void loadFloatArray(const char* location, float *value, const unsigned short count);
 	void loadBool(const char* location, bool value);
 	void loadInt(const char* location, int value);

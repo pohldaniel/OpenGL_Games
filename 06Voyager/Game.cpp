@@ -44,7 +44,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_water(
 
 
 	std::vector<btCollisionShape*> terrainShape = Physics::CreateStaticCollisionShapes(&m_terrain, 1.0f);
-	btRigidBody* body = Globals::physics->addStaticModel(terrainShape, Physics::BtTransform(), false, btVector3(1, 1, 1), Physics::collisiontypes::TERRAIN, Physics::collisiontypes::RAY);
+	btRigidBody* body = Globals::physics->addStaticModel(terrainShape, Physics::BtTransform(), false, btVector3(1, 1, 1), Physics::collisiontypes::TERRAIN, Physics::collisiontypes::RAY | Physics::collisiontypes::CAR);
 
 	m_water.create(1, HEIGHTMAP_WIDTH, 200.0f);
 
@@ -52,7 +52,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_water(
 	pos[0] = HEIGHTMAP_WIDTH * 0.5f;
 	pos[2] = HEIGHTMAP_WIDTH * 0.5f;
 	pos[1] = m_terrain.getHeightMap().heightAt(pos[0], pos[2]) + CAMERA_Y_OFFSET;
-
+	//pos[1] = 0.0f;
 	//setup the camera.
 	m_camera = Camera();
 	m_camera.perspective(45.0f, static_cast<float>(WIDTH) / static_cast<float>(HEIGHT), 1.0f, 5000.0f);
@@ -74,6 +74,14 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_water(
 	m_cameraBoundsMin[1] = 0.0f;
 	m_cameraBoundsMin[2] = lowerBounds;
 
+	m_bottom = new MeshCube(Vector3f(HEIGHTMAP_WIDTH * 0.5f, -5.0f, HEIGHTMAP_WIDTH * 0.5f), HEIGHTMAP_WIDTH, 5.0f, HEIGHTMAP_WIDTH);
+	m_bottom->setShader(Globals::shaderManager.getAssetPointer("texture"));
+	m_bottom->setTexture(&Globals::textureManager.get("marble"));
+	m_bottom->setPrecision(1, 1);
+	m_bottom->buildMesh4Q();
+
+	std::vector<btCollisionShape*> bottomShape = Physics::CreateStaticCollisionShapes(m_bottom, 1.0f);
+	btRigidBody* bottomBody = Globals::physics->addStaticModel(bottomShape, Physics::BtTransform(), false, btVector3(1, 1, 1), Physics::collisiontypes::RENDERABLE_OBJECT | Physics::collisiontypes::PICKABLE_OBJECT | Physics::collisiontypes::TERRAIN, Physics::collisiontypes::RAY | Physics::collisiontypes::CAR);
 
 
 	//m_entities.push_back(new MeshCube(Vector3f(HEIGHTMAP_WIDTH * 0.5f + 300.0f, 450.1f, HEIGHTMAP_WIDTH * 0.5f + 300.0f), 100, 100, 100));
@@ -153,11 +161,31 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_water(
 	glUseProgram(Globals::shaderManager.getAssetPointer("skybox")->m_program);
 	Globals::shaderManager.getAssetPointer("skybox")->loadVector("fogColor", Vector4f(0.5f, 0.5f, 0.5f, 1.0f));
 	glUseProgram(0);
+
+	
+	m_car = new PhysicsCar();
+	m_car->Initialize(Globals::physics->GetDynamicsWorld(), Physics::BtTransform(Vector3f(HEIGHTMAP_WIDTH * 0.5f + 100.0f, m_terrain.getHeightMap().heightAt(HEIGHTMAP_WIDTH * 0.5f + 100.0f, HEIGHTMAP_WIDTH * 0.5f + 100.0f) + 50.0f, HEIGHTMAP_WIDTH * 0.5f + 100.0f), Vector3f(0, 1, 0), -45.0f));
+
+	car = new Model();
+	car->loadObject("res/models/car/car.obj");
+
+	wheel[0] = new Model();
+	wheel[0]->loadObject("res/models/wheel/wheel.obj");
+
+	wheel[1] = new Model();
+	wheel[1]->loadObject("res/models/wheel/wheel.obj");
+
+	wheel[2] = new Model();
+	wheel[2]->loadObject("res/models/wheel/wheel.obj");
+
+	wheel[3] = new Model();
+	wheel[3]->loadObject("res/models/wheel/wheel.obj");
 }
 
 Game::~Game() {}
 
 void Game::fixedUpdate() {
+	m_car->Update(m_fdt);
 	Globals::physics->stepSimulation(m_fdt);
 };
 
@@ -168,24 +196,40 @@ void Game::update() {
 	float dx = 0.0f;
 	float dy = 0.0f;
 	bool move = false;
-	if (keyboard.keyDown(Keyboard::KEY_W) || keyboard.keyDown(Keyboard::KEY_UP)) {		
+	if (keyboard.keyDown(Keyboard::KEY_W)) {		
 		directrion += Vector3f(0.0f, 0.0f, 1.0f);
 		move |= true;
 	}
 
-	if (keyboard.keyDown(Keyboard::KEY_S) || keyboard.keyDown(Keyboard::KEY_DOWN)) {
+	if (keyboard.keyDown(Keyboard::KEY_S)) {
 		directrion += Vector3f(0.0f, 0.0f, -1.0f);
 		move |= true;
 	}
 
-	if (keyboard.keyDown(Keyboard::KEY_A) || keyboard.keyDown(Keyboard::KEY_LEFT)) {
+	if (keyboard.keyDown(Keyboard::KEY_A)) {
 		directrion += Vector3f(-1.0f, 0.0f, 0.0f);
 		move |= true;
 	}
 
-	if (keyboard.keyDown(Keyboard::KEY_D) || keyboard.keyDown(Keyboard::KEY_RIGHT)) {
+	if (keyboard.keyDown(Keyboard::KEY_D)) {
 		directrion += Vector3f(1.0f, 0.0f, 0.0f);
 		move |= true;
+	}
+
+	if (keyboard.keyDown(Keyboard::KEY_UP)) {
+		m_car->Forward();
+	}
+
+	if (keyboard.keyDown(Keyboard::KEY_DOWN)) {
+		m_car->Backward();
+	}
+
+	if (keyboard.keyDown(Keyboard::KEY_LEFT)) {
+		m_car->TurnLeft();
+	}
+
+	if (keyboard.keyDown(Keyboard::KEY_RIGHT)) {
+		m_car->TurnRight();
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_Q)) {
@@ -365,16 +409,14 @@ void Game::render(unsigned int &frameBuffer) {
 
 	m_tree->draw(m_camera);
 
-	
-
 	for (auto entitie : m_entities) {
 		entitie->draw(m_camera);
 	}
+	m_bottom->draw(m_camera);
 
 	m_mousePicker.draw(m_camera);
 
-	
-	
+	m_car->draw(m_camera);
 
 	if (m_debugNormal) {
 		auto normalGS = Globals::shaderManager.getAssetPointer("normalGS");

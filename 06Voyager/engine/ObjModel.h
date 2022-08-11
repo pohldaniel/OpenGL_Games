@@ -134,6 +134,8 @@ public:
 		return m_mesh;
 	}
 	
+	Transform m_transform;
+
 private:
 	//size values
 	unsigned int m_size, m_numVertices, m_numIndices, m_stride, m_offset, m_numberOfBytes;
@@ -151,7 +153,7 @@ private:
 	bool m_hasMaterial;
 	Vector3f m_center;
 	Matrix4f m_modelMatrix;
-	Transform m_transform;
+	
 
 	BoundingBox aabb;
 	BoundingSphere boundingSphere;
@@ -172,7 +174,6 @@ public:
 		std::string diffuseTexPath;
 		std::string bumpMapPath;
 		std::string displacementMapPath;
-		Shader * shader;
 	};
 
 	Mesh(std::string mltName, int numberTriangles, Model* model);

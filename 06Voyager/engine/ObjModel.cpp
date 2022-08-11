@@ -308,8 +308,6 @@ bool Model::loadObject(const char* a_filename, Vector3f& rotate, float degree, V
 
 		if (m_hasMaterial) {
 			m_mesh[j]->readMaterial();
-		}else {
-			m_mesh[j]->m_material.shader = Globals::shaderManager.getAssetPointer("texture");
 		}
 
 		m_mesh[j]->createBuffer();

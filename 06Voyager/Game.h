@@ -21,6 +21,7 @@
 #include "Barrel.h"
 #include "Ray.h"
 #include "MousePicker.h"
+#include "PhysicsCar.h"
 
 class RayResultCallback : public btCollisionWorld::ClosestRayResultCallback{
 public:
@@ -92,4 +93,8 @@ public:
 	Text* m_text;
 
 	MousePicker m_mousePicker;
+
+	Model *car, *wheel[4];
+	MeshCube* m_bottom;
+	PhysicsCar* m_car;
 };

@@ -3,10 +3,30 @@
 #include <btBulletDynamicsCommon.h>
 #include "engine/Vector.h"
 
+
 class Mesh;
 class Model;
 class MeshCube;
+class MeshQuad;
 class Terrain;
+class PhysicsCar;
+
+class btFilteredVehicleRaycaster : public btVehicleRaycaster{
+	btDynamicsWorld* m_dynamicsWorld;
+
+public:
+	btFilteredVehicleRaycaster(btDynamicsWorld* world, int collisionFilterGroup, int collisionFilterMask)
+		: m_dynamicsWorld(world)
+	{
+		m_collisionFilterGroup = collisionFilterGroup;
+		m_collisionFilterMask = collisionFilterMask;
+	}
+
+	virtual void* castRay(const btVector3& from, const btVector3& to, btVehicleRaycasterResult& result) override;
+private:
+	int m_collisionFilterGroup = -1;
+	int m_collisionFilterMask = -1;
+};
 
 class Physics{
 public:
@@ -16,6 +36,7 @@ public:
 		RENDERABLE_OBJECT = 2,
 		RAY = 4,
 		PICKABLE_OBJECT = 8,
+		CAR = 16,
 		COL_FORCE_8BIT = 0xFF
 	};
 
@@ -39,6 +60,9 @@ public:
 	static btCollisionShape* CreateStaticCollisionShape(MeshCube* mesh, const btVector3 & scale = btVector3(1, 1, 1));
 	static std::vector<btCollisionShape*> CreateStaticCollisionShapes(MeshCube* model, float scale = 1.f);
 
+	static btCollisionShape* CreateStaticCollisionShape(MeshQuad* mesh, const btVector3 & scale = btVector3(1, 1, 1));
+	static std::vector<btCollisionShape*> CreateStaticCollisionShapes(MeshQuad* model, float scale = 1.f);
+
 	static btCollisionShape * CreateStaticCollisionShape(Terrain* mesh, const btVector3 & scale = btVector3(1, 1, 1));
 	static std::vector<btCollisionShape *> CreateStaticCollisionShapes(Terrain* model, float scale = 1.f);
 
@@ -51,12 +75,11 @@ public:
 	static btTransform BtTransform(const Vector3f& origin, const Vector3f& axis, float degrees);
 
 	static Matrix4f MatrixFrom(const btTransform& trans, const btVector3& scale = btVector3(1.0f, 1.0f, 1.0f));
-
+	static btRigidBody* CreateRigidBody(btScalar mass, const btTransform & startTransform, btCollisionShape * shape);
 	
 
 	btDiscreteDynamicsWorld * GetDynamicsWorld() { return m_dynamicsWorld; }
 	
-
 private:
 
 	btRigidBody * createRigidBody(btScalar mass, const btTransform & startTransform, btCollisionShape * shape);

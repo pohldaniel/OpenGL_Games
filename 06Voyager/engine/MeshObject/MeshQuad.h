@@ -31,12 +31,14 @@ public:
 	void draw(const Camera camera);
 	void setShader(Shader* shader);
 	void setTexture(Texture* texture);
+	int getNumberOfTriangles();
 
 	std::vector<unsigned int> m_indexBuffer;
 	std::vector<Vector3f> m_positions;
 	std::vector<Vector2f> m_texels;
 	std::vector<Vector3f> m_normals;
-	
+	Vector3f m_offset;
+
 private:
 
 	int m_uResolution;
@@ -60,7 +62,7 @@ private:
 	unsigned int m_vao;
 	unsigned int m_vbo[4];
 	unsigned int m_drawCount;
-
+	unsigned int m_numberOfTriangle;
 	Transform m_transform;
 	Matrix4f _modelMatrix;
 

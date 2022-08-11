@@ -68,6 +68,10 @@ void Shader::loadFloat(const char* location, float value) {
 	glUniform1f(glGetUniformLocation(m_program, location), value);
 }
 
+void Shader::loadFloat(const char* location, float value[4]) {
+	glUniform4f(glGetUniformLocation(m_program, location), value[0], value[1], value[2], value[3]);
+}
+
 void Shader::loadFloatArray(const char* location, float *value, const unsigned short count) {
 	glUniform1fv(glGetUniformLocation(m_program, location), count, value);
 }

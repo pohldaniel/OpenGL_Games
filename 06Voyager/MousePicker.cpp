@@ -3,6 +3,7 @@
 MousePicker::MousePicker() {
 	m_cursor = new MeshQuad(100, 100, 0);
 	m_cursor->setPrecision(1, 1);
+	m_cursor->m_offset = Vector3f(50.0f, 50.0f, 0.0f);
 	m_cursor->buildMesh();
 	m_cursor->setTexture(&Globals::textureManager.get("null"));
 	m_cursor->setShader(Globals::shaderManager.getAssetPointer("ring"));
