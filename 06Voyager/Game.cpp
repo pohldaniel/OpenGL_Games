@@ -165,21 +165,6 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_water(
 	
 	m_car = new PhysicsCar();
 	m_car->Initialize(Globals::physics->GetDynamicsWorld(), Physics::BtTransform(Vector3f(HEIGHTMAP_WIDTH * 0.5f + 100.0f, m_terrain.getHeightMap().heightAt(HEIGHTMAP_WIDTH * 0.5f + 100.0f, HEIGHTMAP_WIDTH * 0.5f + 100.0f) + 50.0f, HEIGHTMAP_WIDTH * 0.5f + 100.0f), Vector3f(0, 1, 0), -45.0f));
-
-	car = new Model();
-	car->loadObject("res/models/car/car.obj");
-
-	wheel[0] = new Model();
-	wheel[0]->loadObject("res/models/wheel/wheel.obj");
-
-	wheel[1] = new Model();
-	wheel[1]->loadObject("res/models/wheel/wheel.obj");
-
-	wheel[2] = new Model();
-	wheel[2]->loadObject("res/models/wheel/wheel.obj");
-
-	wheel[3] = new Model();
-	wheel[3]->loadObject("res/models/wheel/wheel.obj");
 }
 
 Game::~Game() {}
@@ -372,7 +357,7 @@ void Game::update() {
 };
 
 void Game::render(unsigned int &frameBuffer) {
-	Model::UpdateViewUbo(m_camera);
+	ObjModel::UpdateViewUbo(m_camera);
 
 	renderOffscreen();
 	shadowPass();

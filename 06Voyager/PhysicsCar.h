@@ -147,7 +147,7 @@ private:
 	float m_vehicleSteering;
 	bool m_turned;
 
-	Model *car, *wheel;
+	ObjModel *car, *wheel;
 	Matrix4f rot;
 	Matrix4f trans;
 };

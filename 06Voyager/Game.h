@@ -94,7 +94,6 @@ public:
 
 	MousePicker m_mousePicker;
 
-	Model *car, *wheel[4];
 	MeshCube* m_bottom;
 	PhysicsCar* m_car;
 };

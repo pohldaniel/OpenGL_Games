@@ -1,7 +1,7 @@
 #include "Fern.h"
 
 Fern::Fern() : RenderableObject() {
-	m_model = new Model();
+	m_model = new ObjModel();
 	m_model->loadObject("res/models/fern/fern.obj");
 	m_model->createAABB();
 	m_model->createSphere();

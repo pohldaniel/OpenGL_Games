@@ -5,10 +5,10 @@
 
 #include "ObjModel.h"
 
-unsigned int Model::s_materialUbo = 0;
-unsigned int Model::s_viewUbo = 0;
+unsigned int ObjModel::s_materialUbo = 0;
+unsigned int ObjModel::s_viewUbo = 0;
 
-Model::Model() : m_size(0), m_stride(0), m_offset(0), m_numberOfBytes(0) {
+ObjModel::ObjModel() : m_size(0), m_stride(0), m_offset(0), m_numberOfBytes(0) {
 	m_numberOfMeshes = 0;
 	m_numberOfTriangles = 0;
 	m_mltPath = "";
@@ -25,43 +25,43 @@ Model::Model() : m_size(0), m_stride(0), m_offset(0), m_numberOfBytes(0) {
 	m_hasConvexHull = false;
 }
 
-Model::~Model() {
+ObjModel::~ObjModel() {
 	
 }
 
-void Model::rotate(const Vector3f &axis, float degrees) {
+void ObjModel::rotate(const Vector3f &axis, float degrees) {
 	m_transform.rotate(axis, degrees);
 }
 
-void Model::translate(float dx, float dy, float dz) {
+void ObjModel::translate(float dx, float dy, float dz) {
 	m_transform.translate(dx, dy, dz);
 }
 
-void Model::scale(float a, float b, float c) {
+void ObjModel::scale(float a, float b, float c) {
 	m_transform.scale(a, b, c);
 }
 
-const Matrix4f &Model::getTransformationMatrix() const {
+const Matrix4f &ObjModel::getTransformationMatrix() const {
 	return m_transform.getTransformationMatrix();
 }
 
-const Matrix4f &Model::getInvTransformationMatrix() {
+const Matrix4f &ObjModel::getInvTransformationMatrix() {
 	return m_transform.getInvTransformationMatrix();
 }
 
-const Vector3f &Model::getCenter() const {
+const Vector3f &ObjModel::getCenter() const {
 	return m_center;
 }
 
-std::string Model::getMltPath() {
+std::string ObjModel::getMltPath() {
 	return m_mltPath;
 }
 
-std::string Model::getModelDirectory() {
+std::string ObjModel::getModelDirectory() {
 	return m_modelDirectory;
 }
 
-bool Model::loadObject(const char* filename) {
+bool ObjModel::loadObject(const char* filename) {
 	return loadObject(filename, Vector3f(0.0, 1.0, 0.0), 0.0, Vector3f(0.0, 0.0, 0.0), 1.0);
 }
 
@@ -69,7 +69,7 @@ bool compare(const std::array<int, 10> &i_lhs, const std::array<int, 10> &i_rhs)
 	return i_lhs[9] < i_rhs[9];
 }
 
-bool Model::loadObject(const char* a_filename, Vector3f& axis, float degree, Vector3f& translate, float scale) {
+bool ObjModel::loadObject(const char* a_filename, Vector3f& axis, float degree, Vector3f& translate, float scale) {
 	
 	std::string filename(a_filename);
 
@@ -331,19 +331,19 @@ bool Model::loadObject(const char* a_filename, Vector3f& axis, float degree, Vec
 	indexBufferCreator.textureCoordsIn.shrink_to_fit();
 }
 
-void Model::drawRaw() {
+void ObjModel::drawRaw() {
 	for (int j = 0; j < m_numberOfMeshes; j++) {
 		m_mesh[j]->drawRaw();
 	}
 }
 
-void Model::drawRawInstanced() {
+void ObjModel::drawRawInstanced() {
 	for (int j = 0; j < m_numberOfMeshes; j++) {
 		m_mesh[j]->drawRawInstanced();
 	}
 }
 
-void Model::draw(Camera& camera) {
+void ObjModel::draw(Camera& camera) {
 	for (int i = 0; i < m_mesh.size(); i++) {
 		m_mesh[i]->updateMaterialUbo(s_materialUbo);
 		glUseProgram(m_shader[i]->m_program);
@@ -360,7 +360,7 @@ void Model::draw(Camera& camera) {
 	Texture::Unbind();	
 }
 
-void Model::drawInstanced(Camera& camera) {
+void ObjModel::drawInstanced(Camera& camera) {
 	for (int i = 0; i < m_mesh.size(); i++) {
 		m_mesh[i]->updateMaterialUbo(s_materialUbo);
 
@@ -377,85 +377,85 @@ void Model::drawInstanced(Camera& camera) {
 	Texture::Unbind();
 }
 
-void Model::drawAABB() {
+void ObjModel::drawAABB() {
 	aabb.drawRaw();
 }
 
-void Model::drawSphere() {
+void ObjModel::drawSphere() {
 	boundingSphere.drawRaw();
 }
 
-void Model::drawHull() {
+void ObjModel::drawHull() {
 	convexHull.drawRaw();
 }
 
-void Model::createAABB() {
+void ObjModel::createAABB() {
 	aabb.createBuffer(*this);
 }
 
-void Model::createSphere() {
+void ObjModel::createSphere() {
 	boundingSphere.createBuffer(*this);
 }
 
-void Model::createConvexHull(const char* filename, bool useConvhull) {
+void ObjModel::createConvexHull(const char* filename, bool useConvhull) {
 	createConvexHull(filename, Vector3f(0.0, 1.0, 0.0), 0.0, Vector3f(0.0, 0.0, 0.0), 1.0, useConvhull);
 }
 
-void Model::createConvexHull(const char* filename, Vector3f &rotate, float degree, Vector3f& translate, float scale, bool useConvhull) {
+void ObjModel::createConvexHull(const char* filename, Vector3f &rotate, float degree, Vector3f& translate, float scale, bool useConvhull) {
 	convexHull.createBuffer(filename, rotate, degree, translate, scale, useConvhull, *this);
 }
 
-BoundingBox& Model::getAABB() {
+BoundingBox& ObjModel::getAABB() {
 	return aabb;
 }
 
-BoundingSphere& Model::getBoundingSphere() {
+BoundingSphere& ObjModel::getBoundingSphere() {
 	return boundingSphere;
 }
 
-ConvexHull& Model::getConvexHull() {
+ConvexHull& ObjModel::getConvexHull() {
 	return convexHull;
 }
 
-Transform& Model::getTransform() {
+Transform& ObjModel::getTransform() {
 	return m_transform;
 }
 
-std::vector<Mesh*> Model::getMeshes() {
+std::vector<Mesh*> ObjModel::getMeshes() {
 	return m_mesh;
 }
 
-void Model::generateTangents() {
+void ObjModel::generateTangents() {
 	for (int j = 0; j < m_numberOfMeshes; j++) {
 		m_mesh[j]->generateTangents();
 	}
 }
 
-void Model::generateNormals() {
+void ObjModel::generateNormals() {
 	for (int j = 0; j < m_numberOfMeshes; j++) {
 		m_mesh[j]->generateNormals();
 	}
 }
 
-void Model::createInstancesStatic(std::vector<Matrix4f>& modelMTX) {
+void ObjModel::createInstancesStatic(std::vector<Matrix4f>& modelMTX) {
 	for (int j = 0; j < m_numberOfMeshes; j++) {
 		m_mesh[j]->createInstancesStatic(modelMTX);
 	}
 }
 
-void Model::createInstancesDynamic(unsigned int numberOfInstances){
+void ObjModel::createInstancesDynamic(unsigned int numberOfInstances){
 	for (int j = 0; j < m_numberOfMeshes; j++) {
 		m_mesh[j]->createInstancesDynamic(numberOfInstances);
 	}
 }
 
-void Model::updateInstances(std::vector<Matrix4f>& modelMTX) {
+void ObjModel::updateInstances(std::vector<Matrix4f>& modelMTX) {
 	for (int j = 0; j < m_numberOfMeshes; j++) {
 		m_mesh[j]->updateInstances(modelMTX);
 	}
 }
 
-void Model::initAssets(bool instanced) {
+void ObjModel::initAssets(bool instanced) {
 	//normally this should used for a global ligthing approach
 	if (!s_materialUbo) {
 		glGenBuffers(1, &s_materialUbo);
@@ -463,7 +463,7 @@ void Model::initAssets(bool instanced) {
 		glBufferData(GL_UNIFORM_BUFFER, 52, NULL, GL_STATIC_DRAW);
 		glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-		glBindBufferRange(GL_UNIFORM_BUFFER, Model::s_materialBinding, s_materialUbo, 0, 52);
+		glBindBufferRange(GL_UNIFORM_BUFFER, ObjModel::s_materialBinding, s_materialUbo, 0, 52);
 	}
 
 	if (!s_viewUbo && instanced) {
@@ -472,7 +472,7 @@ void Model::initAssets(bool instanced) {
 		glBufferData(GL_UNIFORM_BUFFER, 64, NULL, GL_STATIC_DRAW);
 		glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-		glBindBufferRange(GL_UNIFORM_BUFFER, Model::s_viewBinding, s_viewUbo, 0, 52);
+		glBindBufferRange(GL_UNIFORM_BUFFER, ObjModel::s_viewBinding, s_viewUbo, 0, 52);
 	}
 
 	for (int i = 0; i < m_mesh.size(); i++) {
@@ -481,10 +481,10 @@ void Model::initAssets(bool instanced) {
 			if (!m_shaderManager.checkAsset(instanced ? "diffuse_instance" : "diffuse")) {
 				m_shaderManager.loadShader(instanced ? "diffuse_instance" : "diffuse", instanced ? DIFFUSE_INSTANCE_VS : DIFFUSE_VS, instanced ? DIFFUSE_INSTANCE_FS : DIFFUSE_FS, false);
 				
-				glUniformBlockBinding(m_shaderManager.getAssetPointer(instanced ? "diffuse_instance" : "diffuse")->m_program, glGetUniformBlockIndex(m_shaderManager.getAssetPointer(instanced ? "diffuse_instance" : "diffuse")->m_program, "u_material"), Model::s_materialBinding);
+				glUniformBlockBinding(m_shaderManager.getAssetPointer(instanced ? "diffuse_instance" : "diffuse")->m_program, glGetUniformBlockIndex(m_shaderManager.getAssetPointer(instanced ? "diffuse_instance" : "diffuse")->m_program, "u_material"), ObjModel::s_materialBinding);
 
 				if (instanced) {
-					glUniformBlockBinding(m_shaderManager.getAssetPointer("diffuse_instance")->m_program, glGetUniformBlockIndex(m_shaderManager.getAssetPointer("diffuse_instance")->m_program, "u_view"), Model::s_viewBinding);
+					glUniformBlockBinding(m_shaderManager.getAssetPointer("diffuse_instance")->m_program, glGetUniformBlockIndex(m_shaderManager.getAssetPointer("diffuse_instance")->m_program, "u_view"), ObjModel::s_viewBinding);
 				}
 			}
 			m_shader[i] = m_shaderManager.getAssetPointer(instanced ? "diffuse_instance" : "diffuse");
@@ -494,10 +494,10 @@ void Model::initAssets(bool instanced) {
 			if (!m_shaderManager.checkAsset(instanced ? "diffuse_texture_instance" : "diffuse_texture")) {
 				m_shaderManager.loadShader(instanced ? "diffuse_texture_instance" : "diffuse_texture", instanced ? DIFFUSE_TEXTURE_INSTANCE_VS : DIFFUSE_TEXTURE_VS, instanced ? DIFFUSE_TEXTURE_INSTANCE_FS : DIFFUSE_TEXTURE_FS, false);
 
-				glUniformBlockBinding(m_shaderManager.getAssetPointer(instanced ? "diffuse_texture_instance" : "diffuse_texture")->m_program, glGetUniformBlockIndex(m_shaderManager.getAssetPointer(instanced ? "diffuse_texture_instance" : "diffuse_texture")->m_program, "u_material"), Model::s_materialBinding);
+				glUniformBlockBinding(m_shaderManager.getAssetPointer(instanced ? "diffuse_texture_instance" : "diffuse_texture")->m_program, glGetUniformBlockIndex(m_shaderManager.getAssetPointer(instanced ? "diffuse_texture_instance" : "diffuse_texture")->m_program, "u_material"), ObjModel::s_materialBinding);
 				
 				if (instanced) {
-					glUniformBlockBinding(m_shaderManager.getAssetPointer("diffuse_texture_instance")->m_program, glGetUniformBlockIndex(m_shaderManager.getAssetPointer("diffuse_texture_instance")->m_program, "u_view"), Model::s_viewBinding);
+					glUniformBlockBinding(m_shaderManager.getAssetPointer("diffuse_texture_instance")->m_program, glGetUniformBlockIndex(m_shaderManager.getAssetPointer("diffuse_texture_instance")->m_program, "u_view"), ObjModel::s_viewBinding);
 				}
 	
 				glUseProgram(m_shaderManager.getAssetPointer(instanced ? "diffuse_texture_instance" : "diffuse_texture")->m_program);
@@ -521,7 +521,7 @@ void Model::initAssets(bool instanced) {
 	}
 }
 
-void Model::initAssets(AssetManager<Shader>& shaderManager, AssetManager<Texture>& textureManager, bool instanced) {
+void ObjModel::initAssets(AssetManager<Shader>& shaderManager, AssetManager<Texture>& textureManager, bool instanced) {
 
 	//normally this should used for a global ligthing approach
 	if (!s_materialUbo) {
@@ -530,7 +530,7 @@ void Model::initAssets(AssetManager<Shader>& shaderManager, AssetManager<Texture
 		glBufferData(GL_UNIFORM_BUFFER, 52, NULL, GL_STATIC_DRAW);
 		glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-		glBindBufferRange(GL_UNIFORM_BUFFER, Model::s_materialBinding, s_materialUbo, 0, 52);
+		glBindBufferRange(GL_UNIFORM_BUFFER, ObjModel::s_materialBinding, s_materialUbo, 0, 52);
 	}
 
 	if (!s_viewUbo && instanced) {
@@ -539,7 +539,7 @@ void Model::initAssets(AssetManager<Shader>& shaderManager, AssetManager<Texture
 		glBufferData(GL_UNIFORM_BUFFER, 64, NULL, GL_STATIC_DRAW);
 		glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-		glBindBufferRange(GL_UNIFORM_BUFFER, Model::s_viewBinding, s_viewUbo, 0, 64);
+		glBindBufferRange(GL_UNIFORM_BUFFER, ObjModel::s_viewBinding, s_viewUbo, 0, 64);
 	}
 
 	for (int i = 0; i < m_mesh.size(); i++) {
@@ -548,10 +548,10 @@ void Model::initAssets(AssetManager<Shader>& shaderManager, AssetManager<Texture
 			if (!shaderManager.checkAsset(instanced ? "diffuse_instance" : "diffuse")) {
 				shaderManager.loadShader(instanced ? "diffuse_instance" : "diffuse", instanced ? DIFFUSE_INSTANCE_VS : DIFFUSE_VS, instanced ? DIFFUSE_INSTANCE_FS : DIFFUSE_FS, false);				
 				
-				glUniformBlockBinding(shaderManager.getAssetPointer(instanced ? "diffuse_instance" : "diffuse")->m_program, glGetUniformBlockIndex(shaderManager.getAssetPointer(instanced ? "diffuse_instance" : "diffuse")->m_program, "u_material"), Model::s_materialBinding);	
+				glUniformBlockBinding(shaderManager.getAssetPointer(instanced ? "diffuse_instance" : "diffuse")->m_program, glGetUniformBlockIndex(shaderManager.getAssetPointer(instanced ? "diffuse_instance" : "diffuse")->m_program, "u_material"), ObjModel::s_materialBinding);
 
 				if (instanced) {
-					glUniformBlockBinding(shaderManager.getAssetPointer("diffuse_instance")->m_program, glGetUniformBlockIndex(shaderManager.getAssetPointer("diffuse_instance")->m_program, "u_view"), Model::s_viewBinding);
+					glUniformBlockBinding(shaderManager.getAssetPointer("diffuse_instance")->m_program, glGetUniformBlockIndex(shaderManager.getAssetPointer("diffuse_instance")->m_program, "u_view"), ObjModel::s_viewBinding);
 				}
 				
 			}
@@ -562,10 +562,10 @@ void Model::initAssets(AssetManager<Shader>& shaderManager, AssetManager<Texture
 			if (!shaderManager.checkAsset(instanced ? "diffuse_texture_instance" : "diffuse_texture")) {
 				shaderManager.loadShader(instanced ? "diffuse_texture_instance" : "diffuse_texture", instanced ? DIFFUSE_TEXTURE_INSTANCE_VS : DIFFUSE_TEXTURE_VS, instanced ? DIFFUSE_TEXTURE_INSTANCE_FS : DIFFUSE_TEXTURE_FS, false);
 
-				glUniformBlockBinding(shaderManager.getAssetPointer(instanced ? "diffuse_texture_instance" : "diffuse_texture")->m_program, glGetUniformBlockIndex(shaderManager.getAssetPointer(instanced ? "diffuse_texture_instance" : "diffuse_texture")->m_program, "u_material"), Model::s_materialBinding);
+				glUniformBlockBinding(shaderManager.getAssetPointer(instanced ? "diffuse_texture_instance" : "diffuse_texture")->m_program, glGetUniformBlockIndex(shaderManager.getAssetPointer(instanced ? "diffuse_texture_instance" : "diffuse_texture")->m_program, "u_material"), ObjModel::s_materialBinding);
 				
 				if (instanced) {
-					glUniformBlockBinding(shaderManager.getAssetPointer("diffuse_texture_instance")->m_program, glGetUniformBlockIndex(shaderManager.getAssetPointer("diffuse_texture_instance")->m_program, "u_view"), Model::s_viewBinding);
+					glUniformBlockBinding(shaderManager.getAssetPointer("diffuse_texture_instance")->m_program, glGetUniformBlockIndex(shaderManager.getAssetPointer("diffuse_texture_instance")->m_program, "u_view"), ObjModel::s_viewBinding);
 				}
 
 				glUseProgram(shaderManager.getAssetPointer(instanced ? "diffuse_texture_instance" : "diffuse_texture")->m_program);
@@ -589,14 +589,14 @@ void Model::initAssets(AssetManager<Shader>& shaderManager, AssetManager<Texture
 	}
 }
 
-void Model::UpdateViewUbo(const Camera& camera) {
+void ObjModel::UpdateViewUbo(const Camera& camera) {
 	glBindBuffer(GL_UNIFORM_BUFFER, s_viewUbo);
 	glBufferSubData(GL_UNIFORM_BUFFER, 0, 64, &camera.getViewMatrixTranspose()[0][0]);
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-Mesh::Mesh(std::string mltName, int numberTriangles, Model* model) : m_stride(0), m_triangleOffset(0) {
+Mesh::Mesh(std::string mltName, int numberTriangles, ObjModel* model) : m_stride(0), m_triangleOffset(0) {
 	m_numberOfTriangles = numberTriangles;
 	m_mltName = mltName;
 	m_model = model;
@@ -615,7 +615,7 @@ Mesh::Mesh(std::string mltName, int numberTriangles, Model* model) : m_stride(0)
 	m_hasTangents = false;
 }
 
-Mesh::Mesh(int numberTriangles, Model* model) : m_stride(0), m_triangleOffset(0) {
+Mesh::Mesh(int numberTriangles, ObjModel* model) : m_stride(0), m_triangleOffset(0) {
 	m_numberOfTriangles = numberTriangles;
 	m_model = model;
 	
@@ -1304,7 +1304,7 @@ int IndexBufferCreator::addVertex(int hash, const float *pVertex, int stride) {
 	return index;
 }
 
-void BoundingBox::createBuffer(Model& model) {
+void BoundingBox::createBuffer(ObjModel& model) {
 
 	m_vertexBuffer.push_back(position[0]); m_vertexBuffer.push_back(position[1]); m_vertexBuffer.push_back(position[2]);	
 	m_vertexBuffer.push_back(position[0] + size[0]); m_vertexBuffer.push_back(position[1]); m_vertexBuffer.push_back(position[2]);	
@@ -1364,7 +1364,7 @@ void BoundingBox::drawRaw() {
 	glBindVertexArray(0);
 }
 
-void BoundingSphere::createBuffer(Model& model) {
+void BoundingSphere::createBuffer(ObjModel& model) {
 
 	std::vector<float> vertices;
 	for (unsigned int j = 0; j < model.getMeshes().size(); j++) {
@@ -1487,7 +1487,7 @@ void BoundingSphere::drawRaw() {
 	glBindVertexArray(0);
 }
 
-void ConvexHull::createBuffer(const char* filename, Vector3f &rotate, float degree, Vector3f& translate, float scale, bool useConvhull, Model& model) {
+void ConvexHull::createBuffer(const char* filename, Vector3f &rotate, float degree, Vector3f& translate, float scale, bool useConvhull, ObjModel& model) {
 	std::vector<float> vertexCoords;
 
 	char buffer[250];

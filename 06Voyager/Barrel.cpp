@@ -1,7 +1,7 @@
 #include "Barrel.h"
 
 Barrel::Barrel() : RenderableObject() {
-	m_model = new Model();
+	m_model = new ObjModel();
 	m_model->loadObject("res/models/barrel/barrel.obj");
 	m_model->generateTangents();
 	m_model->createAABB();

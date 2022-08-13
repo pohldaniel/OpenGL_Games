@@ -30,14 +30,14 @@ public:
 
 	const Matrix4f &getTransformationMatrix() const;
 	const Matrix4f &getInvTransformationMatrix();
-	const Model* getModel() const;
+	const ObjModel* getModel() const;
 	unsigned int getId() const;
 
 	Transform m_transform;
 
 protected:
 	Shader *m_shader;
-	Model *m_model;
+	ObjModel *m_model;
 	Texture *m_texture;
 	
 	Vector4f m_pickColor;

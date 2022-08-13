@@ -69,11 +69,11 @@ btCollisionShape* PhysicsCar::CreateVehicleShape()
 }
 
 PhysicsCar::PhysicsCar() : m_engineForce(0.f), m_breakingForce(0.f), m_vehicleSteering(0.f), m_turned(false) {
-	car = new Model();
+	car = new ObjModel();
 	car->loadObject("res/models/car/car.obj");
 	car->initAssets(Globals::shaderManager, Globals::textureManager);
 
-	wheel = new Model();
+	wheel = new ObjModel();
 	wheel->loadObject("res/models/wheel/wheel.obj");
 	wheel->initAssets(Globals::shaderManager, Globals::textureManager, true);
 	wheel->createInstancesDynamic(4);

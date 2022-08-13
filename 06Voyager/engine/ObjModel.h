@@ -159,10 +159,10 @@
 						color = vec4(diffuse.xyz, 1.0) * texture(u_texture, v_texCoord);	\n \
 					}"
 
-class Model;
+class ObjModel;
 struct BoundingBox {
 
-	void createBuffer(Model& model);
+	void createBuffer(ObjModel& model);
 	void drawRaw();
 
 	std::vector<float> m_vertexBuffer;
@@ -178,7 +178,7 @@ struct BoundingBox {
 
 struct BoundingSphere {
 
-	void createBuffer(Model& model);
+	void createBuffer(ObjModel& model);
 	void drawRaw();
 
 	std::vector<float> m_vertexBuffer;
@@ -197,7 +197,7 @@ struct BoundingSphere {
 };
 
 struct ConvexHull {
-	void createBuffer(const char* filename, Vector3f &rotate, float degree, Vector3f& translate, float scale, bool useConvhull, Model& model);
+	void createBuffer(const char* filename, Vector3f &rotate, float degree, Vector3f& translate, float scale, bool useConvhull, ObjModel& model);
 	void drawRaw();
 
 	std::vector<float> m_vertexBuffer;
@@ -227,7 +227,7 @@ private:
 
 
 class Mesh;
-class Model {
+class ObjModel {
 	friend Mesh;
 	friend BoundingBox;
 	friend BoundingSphere;
@@ -235,8 +235,8 @@ class Model {
 
 public:
 
-	Model();
-	~Model();
+	ObjModel();
+	~ObjModel();
 
 	const Vector3f &getCenter() const;
 	const Matrix4f &getTransformationMatrix() const;
@@ -321,7 +321,7 @@ private:
 
 class Mesh {
 
-	friend Model;
+	friend ObjModel;
 
 public:
 	///////////////////////////////geometry content
@@ -335,8 +335,8 @@ public:
 		std::string displacementMapPath;
 	};
 
-	Mesh(std::string mltName, int numberTriangles, Model* model);
-	Mesh(int numberTriangles, Model* model);
+	Mesh(std::string mltName, int numberTriangles, ObjModel* model);
+	Mesh(int numberTriangles, ObjModel* model);
 	~Mesh();
 
 	void drawRaw();
@@ -351,7 +351,7 @@ public:
 private:
 	bool readMaterial();
 
-	Model* m_model;
+	ObjModel* m_model;
 	std::string m_mltName;
 	Material m_material;	
 	///////////////////////////////////////OpenGL content////////////////// to do seperate it 

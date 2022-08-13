@@ -1,7 +1,7 @@
 #include "Tree.h"
 
 Tree::Tree() : RenderableObject() {
-	m_model = new Model();
+	m_model = new ObjModel();
 	m_model->loadObject("res/models/tree/lowPolyTree.obj");
 	m_model->createAABB();
 	m_model->createSphere();

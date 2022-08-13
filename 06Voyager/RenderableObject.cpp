@@ -86,7 +86,7 @@ const Matrix4f &RenderableObject::getInvTransformationMatrix() {
 	return m_transform.getInvTransformationMatrix();
 }
 
-const Model* RenderableObject::getModel() const {
+const ObjModel* RenderableObject::getModel() const {
 	return m_model;
 }
 
