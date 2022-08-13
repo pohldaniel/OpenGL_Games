@@ -314,33 +314,11 @@ void Game::update() {
 
 	m_camera.calcLightTransformation(LIGHT_DIRECTION);
 	m_camera.calcLightTransformation2(LIGHT_DIRECTION);
+
 	m_skybox.update();
 	m_barrel->update(m_dt);
 	m_barrel->setDrawBorder(m_mousePicker.getPickedId() == m_barrel->getId());
 
-	//m_barrel->rotate(Vector3f(0.0f, 0.0f, 1.0f), 10.4f * m_dt);
-
-	/*Vector3f scale;
-	m_barrel->m_modelMatrix.getScale(scale);
-
-	Vector3f position;
-	m_barrel->m_modelMatrix.getPosition(position);
-
-	m_barrel->rotate(Vector3f(0.0f, 0.0f, 1.0f), 10.4f * m_dt);
-	//m_barrel->scale(1.0f + m_dt, 1.0f + m_dt, 1.0f + m_dt);
-
-	Matrix4f oriantation1, oriantation2;
-
-	std::cout << scale[0] << "  " << scale[1] << "  " << scale[2] << std::endl;
-	std::cout << position[0] << "  " << position[1] << "  " << position[2] << std::endl;
-	std::cout << m_barrel->m_modelMatrix.getPosition()[0] << "  " << m_barrel->m_modelMatrix.getPosition()[1] << "  " << m_barrel->m_modelMatrix.getPosition()[2] << std::endl;
-	std::cout << "##################" << std::endl;
-
-	m_barrel->m_modelMatrix.getOrientation(oriantation1);
-	m_barrel->m_modelMatrix.getOrientation2(oriantation2);
-
-	oriantation1.print();
-	oriantation2.print();*/
 
 	for (auto entitie : m_entities) {
 		entitie->update(m_dt);

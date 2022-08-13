@@ -68,8 +68,6 @@ void Matrix4f::invRotate(const Vector3f &axis, float degrees) {
 	float c = cosf(rad);
 	float s = sinf(rad);
 
-
-
 	mtx[0][0] = (x * x) * (1.0f - c) + c;
 	mtx[0][1] = (x * y) * (1.0f - c) + (z * s);
 	mtx[0][2] = (x * z) * (1.0f - c) - (y * s);

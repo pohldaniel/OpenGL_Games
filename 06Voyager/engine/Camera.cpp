@@ -765,3 +765,7 @@ const Matrix4f &Camera::getViewMatrixTranspose() const {
 const Matrix4f &Camera::getInvViewMatrix() const{
 	return m_invViewMatrix;
 }
+
+const Matrix4f &Camera::getProjectionMatrixTranspose() const {
+	return m_projMatrixTranspose;
+}
