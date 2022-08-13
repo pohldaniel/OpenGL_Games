@@ -993,15 +993,19 @@ Matrix4f Matrix4f::operator^(const Matrix4f &rhs) const {
 	return tmp;
 }
 
-Matrix4f Matrix4f::transpose() {
+void Matrix4f::transpose() {
 
-	return Matrix4f(mtx[0][0], mtx[1][0], mtx[2][0], mtx[3][0],
-		mtx[0][1], mtx[1][1], mtx[2][1], mtx[3][1],
-		mtx[0][2], mtx[1][2], mtx[2][2], mtx[3][2],
-		mtx[0][3], mtx[1][3], mtx[2][3], mtx[3][3]);
+	float tmp = mtx[0][1]; mtx[0][1] = mtx[1][0]; mtx[1][0] = tmp;
+	tmp = mtx[0][2]; mtx[0][2] = mtx[2][0]; mtx[2][0] = tmp;
+	tmp = mtx[0][3]; mtx[0][3] = mtx[3][0]; mtx[3][0] = tmp;
+
+	tmp = mtx[2][1]; mtx[2][1] = mtx[1][2]; mtx[1][2] = tmp;
+	tmp = mtx[3][1]; mtx[3][1] = mtx[1][3]; mtx[1][3] = tmp;
+
+	tmp = mtx[2][3]; mtx[2][3] = mtx[3][2]; mtx[3][2] = tmp;
 }
 
-void Matrix4f::Transpose(Matrix4f &m) {
+Matrix4f& Matrix4f::Transpose(Matrix4f &m) {
 
 	float tmp = m[0][1]; m[0][1] = m[1][0]; m[1][0] = tmp;
 	tmp = m[0][2]; m[0][2] = m[2][0]; m[2][0] = tmp;
@@ -1011,6 +1015,8 @@ void Matrix4f::Transpose(Matrix4f &m) {
 	tmp = m[3][1]; m[3][1] = m[1][3]; m[1][3] = tmp;
 
 	tmp = m[2][3]; m[2][3] = m[3][2]; m[3][2] = tmp;
+
+	return m;
 }
 
 float Matrix4f::determinant() const {

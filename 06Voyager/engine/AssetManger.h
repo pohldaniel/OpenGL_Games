@@ -31,13 +31,13 @@ public:
 		m_assets[name].loadFromFile(path, characterSize);
 	}
 
-	void loadShader(const std::string& name, const std::string& vertex, const std::string& fragment) {
+	void loadShader(const std::string& name, const std::string& vertex, const std::string& fragment, bool fromFile = true) {
 		//m_assets[name].loadFromFile(vertex, fragment);
-		m_assetPointer[name] = new T(vertex, fragment);
+		m_assetPointer[name] = new T(vertex, fragment, fromFile);
 	}
 
-	void loadShader(const std::string& name, const std::string& vertex, const std::string& fragment, const std::string& geometry) {
-		m_assetPointer[name] = new T(vertex, fragment, geometry);
+	void loadShader(const std::string& name, const std::string& vertex, const std::string& fragment, const std::string& geometry, bool fromFile = true) {
+		m_assetPointer[name] = new T(vertex, fragment, geometry, true);
 	}
 
 	void loadSpritesheet(const std::string& name, const std::string& path, unsigned short tileWidth, unsigned short tileHeight, unsigned short spacing, unsigned int yStart, unsigned int xStart, unsigned int xLength, unsigned int format = -1) {
@@ -90,6 +90,10 @@ public:
 		/*for (const auto& s : m_assets) {
 		s.second.~T();
 		}*/
+	}
+
+	bool checkAsset(const std::string& name) {		
+		return (m_assetPointer.count(name) != 0) || (m_assets.count(name) != 0);
 	}
 
 private:

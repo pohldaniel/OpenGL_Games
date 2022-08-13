@@ -301,8 +301,8 @@ void Game::update() {
 
 		Globals::physics->GetDynamicsWorld()->rayTest(origin, target, callback);
 		if (callback.hasHit()) {
-			MeshCube* cube = reinterpret_cast<MeshCube*>(callback.m_collisionObject->getUserPointer());
-			cube->dissolve();			
+			//MeshCube* cube = reinterpret_cast<MeshCube*>(callback.m_collisionObject->getUserPointer());
+			//cube->dissolve();			
 		}
 		m_mousePicker.click();
 	}
@@ -372,6 +372,8 @@ void Game::update() {
 };
 
 void Game::render(unsigned int &frameBuffer) {
+	Model::UpdateViewUbo(m_camera);
+
 	renderOffscreen();
 	shadowPass();
 	mousePickPass();

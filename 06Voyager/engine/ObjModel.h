@@ -9,6 +9,8 @@
 #include <string>
 #include <algorithm>
 #include <memory>
+#include <cctype>
+#include <unordered_map>
 
 #include "Vector.h"
 #include "Extension.h"
@@ -16,10 +18,148 @@
 #include "Texture.h"
 #include "Camera.h"
 #include "Transform.h"
-
+#include "AssetManger.h"
 #include "..\Miniball\Miniball.h"
-#include "..\Constants.h"
 
+#define DIFFUSE_VS	"#version 410 core														\n \
+																							\n \
+					layout(location = 0) in vec3 i_position;								\n \
+					layout(location = 1) in vec2 i_texCoord;								\n \
+					layout(location = 2) in vec3 i_normal;									\n \
+																							\n \
+					uniform mat4 u_projection = mat4(1.0);									\n \
+					uniform mat4 u_modelView = mat4(1.0);									\n \
+																							\n \
+					void main() {															\n \
+						gl_Position = u_projection * u_modelView * vec4(i_position, 1.0);	\n \
+					}"
+
+
+#define DIFFUSE_FS	"#version 410 core													\n \
+																						\n \
+					layout (std140) uniform u_material {								\n \
+						vec4 ambient;													\n \
+						vec4 diffuse;													\n \
+						vec4 specular;													\n \
+						int shininess;													\n \
+					};																	\n \
+																						\n \
+					out vec4 color;														\n \
+																						\n \
+																						\n \
+					void main() {														\n \
+						color = vec4 (diffuse.xyz, 1.0);								\n \
+					}"    
+
+#define DIFFUSE_TEXTURE_VS	"#version 410 core													\n \
+																								\n \
+							layout(location = 0) in vec3 i_position;							\n \
+							layout(location = 1) in vec2 i_texCoord;							\n \
+							layout(location = 2) in vec3 i_normal;								\n \
+																								\n \
+							out vec2 v_texCoord;												\n \
+																								\n \
+							uniform mat4 u_projection = mat4(1.0);								\n \
+							uniform mat4 u_modelView = mat4(1.0);								\n \
+																								\n \
+							void main() {														\n \
+							gl_Position =   u_projection * u_modelView * vec4(i_position, 1.0);	\n \
+								v_texCoord = i_texCoord;										\n \
+							}"
+
+
+#define DIFFUSE_TEXTURE_FS	"#version 410 core													\n \
+																								\n \
+							layout (std140) uniform u_material {								\n \
+								vec4 ambient;													\n \
+								vec4 diffuse;													\n \
+								vec4 specular;													\n \
+								int shininess;													\n \
+							};																	\n \
+																								\n \
+							in vec2 v_texCoord;													\n \
+							out vec4 color;														\n \
+																								\n \
+							uniform sampler2D u_texture;										\n \
+																								\n \
+							void main() {														\n \
+								color = vec4(diffuse.xyz, 1.0) * texture(u_texture, v_texCoord);\n \
+							}"    
+
+#define DIFFUSE_INSTANCE_VS	"#version 410 core													\n \
+																								\n \
+					layout(location = 0) in vec3 i_position;									\n \
+					layout(location = 1) in vec2 i_texCoord;									\n \
+					layout(location = 2) in vec3 i_normal;										\n \
+					layout(location = 3) in mat4 i_model;										\n \
+																								\n \
+					layout (std140) uniform u_view {											\n \
+						mat4 view;																\n \
+					};																			\n \
+																								\n \
+					uniform mat4 u_projection = mat4(1.0);										\n \
+																								\n \
+					void main() {																\n \
+						gl_Position = u_projection * view * i_model  * vec4(i_position, 1.0);	\n \
+					}"
+
+
+#define DIFFUSE_INSTANCE_FS	"#version 410 core											\n \
+																						\n \
+					layout (std140) uniform u_material {								\n \
+						vec4 ambient;													\n \
+						vec4 diffuse;													\n \
+						vec4 specular;													\n \
+						int shininess;													\n \
+					};																	\n \
+																						\n \
+					out vec4 color;														\n \
+																						\n \
+																						\n \
+					void main() {														\n \
+						color = vec4 (diffuse.xyz, 1.0);								\n \
+					}"    
+
+#define DIFFUSE_TEXTURE_INSTANCE_VS	"#version 410 core												\n \
+																									\n \
+					layout(location = 0) in vec3 i_position;										\n \
+					layout(location = 1) in vec2 i_texCoord;										\n \
+					layout(location = 2) in vec3 i_normal;											\n \
+					layout(location = 3) in mat4 i_model;											\n \
+																									\n \
+					out vec2 v_texCoord;															\n \
+																									\n \
+					layout (std140) uniform u_view {												\n \
+						mat4 view;																	\n \
+					};																				\n \
+																									\n \
+					uniform mat4 u_projection = mat4(1.0);											\n \
+																									\n \
+					void main() {																	\n \
+						gl_Position =   u_projection *  view * i_model  * vec4(i_position, 1.0);	\n \
+						v_texCoord = i_texCoord;													\n \
+					}"
+
+
+#define DIFFUSE_TEXTURE_INSTANCE_FS	"#version 410 core										\n \
+																							\n \
+					layout (std140) uniform u_material {									\n \
+						vec4 ambient;														\n \
+						vec4 diffuse;														\n \
+						vec4 specular;														\n \
+						int shininess;														\n \
+					};																		\n \
+																							\n \
+					in vec2 v_texCoord;														\n \
+					out vec4 color;															\n \
+																							\n \
+					uniform sampler2D u_texture;											\n \
+																							\n \
+					void main() {															\n \
+						color = vec4(diffuse.xyz, 1.0) * texture(u_texture, v_texCoord);	\n \
+					}"
+
+class Model;
 struct BoundingBox {
 
 	void createBuffer(Model& model);
@@ -107,6 +247,9 @@ public:
 	void scale(float a, float b, float c);
 
 	void drawRaw();
+	void drawRawInstanced();
+	void draw(Camera& camera);
+	void drawInstanced(Camera& camera);
 
 	void createAABB();
 	void createSphere();
@@ -120,21 +263,25 @@ public:
 	bool loadObject(const char* filename);
 	bool loadObject(const char* a_filename, Vector3f &rotate, float degree, Vector3f& translate, float scale);
 
-
 	std::string getMltPath();
 	std::string getModelDirectory();
 	BoundingBox& getAABB();
 	BoundingSphere& getBoundingSphere();
 	ConvexHull& getConvexHull();
+	Transform& getTransform();
 
-	void setModelMatrix(Matrix4f &modelMatrix) { m_modelMatrix = modelMatrix; }
-	void createInstances(std::vector<Matrix4f> modelMTX);
+	void generateTangents();
+	void generateNormals();
+	void createInstancesStatic(std::vector<Matrix4f>& modelMTX);
+	void createInstancesDynamic(unsigned int numberOfInstances);
+	void updateInstances(std::vector<Matrix4f>& modelMTX);
 
-	std::vector<Mesh*> getMeshes() {
-		return m_mesh;
-	}
-	
-	Transform m_transform;
+	std::vector<Mesh*> getMeshes();
+
+	void initAssets(bool instanced = false);
+	void initAssets(AssetManager<Shader>& shaderManager, AssetManager<Texture>& textureManager, bool instanced = false);
+
+	static void UpdateViewUbo(const Camera& camera);
 
 private:
 	//size values
@@ -152,12 +299,24 @@ private:
 	std::string m_modelDirectory;
 	bool m_hasMaterial;
 	Vector3f m_center;
-	Matrix4f m_modelMatrix;
 	
-
 	BoundingBox aabb;
 	BoundingSphere boundingSphere;
 	ConvexHull convexHull;
+
+	std::unordered_map<int, Shader*> m_shader;
+	std::unordered_map<int, Texture> m_textures;
+
+	AssetManager<Shader> m_shaderManager;
+	AssetManager<Texture> m_textureManager;
+
+	Transform m_transform;
+
+	static unsigned int s_materialUbo;
+	static const unsigned int s_materialBinding = 3;
+
+	static unsigned int s_viewUbo;
+	static const unsigned int s_viewBinding = 4;
 };
 
 class Mesh {
@@ -181,11 +340,15 @@ public:
 	~Mesh();
 
 	void drawRaw();
-
+	void drawRawInstanced();
 	void setMaterial(const Vector3f &ambient, const Vector3f &diffuse, const Vector3f &specular, float shinies);
-	Material getMaterial();
-	void generateTangents();
-	void generateNormals();
+	Material& getMaterial();
+	
+	std::vector<float>& getVertexBuffer();
+	std::vector<unsigned int>& getIndexBuffer();
+	int getStride();
+
+private:
 	bool readMaterial();
 
 	Model* m_model;
@@ -194,25 +357,26 @@ public:
 	///////////////////////////////////////OpenGL content////////////////// to do seperate it 
 
 	void createBuffer();
-	void createInstances(std::vector<Matrix4f> modelMTX);
-	
+	void generateTangents();
+	void generateNormals();
+	void createInstancesStatic(std::vector<Matrix4f>& modelMTX);
+	void createInstancesDynamic(unsigned int numberOfInstances);
+	void updateInstances(std::vector<Matrix4f>& modelMTX);
 	short m_numBuffers;
 	unsigned int m_vao = 0;
 	unsigned int m_vbo[5] = { 0 };
+	unsigned int m_vboInstances;
 	unsigned int m_ibo = 0;
-	unsigned int m_vbo2;
+	
 
 	unsigned int m_drawCount;
 	unsigned int m_instanceCount = 0;
 	
-	std::vector <float> m_vertexBuffer;
+	std::vector<float> m_vertexBuffer;
 	std::vector<unsigned int> m_indexBuffer;
-	std::vector<Vector3f> m_positions;
-	std::vector<Vector2f> m_texels;
-	std::vector<Vector3f> m_normals;
-	std::vector<Vector3f> m_tangents;
-	std::vector<Vector3f> m_bitangents;
 
 	bool m_hasTextureCoords, m_hasNormals, m_hasTangents;
 	unsigned int m_triangleOffset, m_numberOfTriangles, m_stride;
+
+	void updateMaterialUbo(unsigned int& ubo);
 };

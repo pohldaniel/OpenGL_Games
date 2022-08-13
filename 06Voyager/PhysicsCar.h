@@ -1,7 +1,9 @@
 #pragma once
+#include <unordered_map>
 #include "engine/Camera.h"
 #include "engine/ObjModel.h"
 #include "Physics.h"
+
 
 #define CAR_SCALE 10.0f         /// meritko auta
 #define CAR_RAISE_BOTTOM 0.1f /// zvyseni spodku kolizniho telesa auta
@@ -114,8 +116,6 @@ public:
 	void Initialize(btDiscreteDynamicsWorld *refWorld, const btTransform & trans);
 	void Deinitialize();
 
-	void initShader();
-
 	void Reset(const btTransform & trans);
 	void Update(btScalar timeStep = 1 / 60.f);
 
@@ -147,7 +147,7 @@ private:
 	float m_vehicleSteering;
 	bool m_turned;
 
-	Model *car, *wheel[4];
-
-	std::unordered_map<int, Shader*> m_shader;
+	Model *car, *wheel;
+	Matrix4f rot;
+	Matrix4f trans;
 };

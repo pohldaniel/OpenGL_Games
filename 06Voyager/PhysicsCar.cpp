@@ -11,6 +11,7 @@
 #include <cmath>
 #include <vector>
 #include <iostream>
+#include "Constants.h"
 #define CRB CAR_RAISE_BOTTOM
 
 btCollisionShape* PhysicsCar::CreateVehicleShape()
@@ -70,24 +71,18 @@ btCollisionShape* PhysicsCar::CreateVehicleShape()
 PhysicsCar::PhysicsCar() : m_engineForce(0.f), m_breakingForce(0.f), m_vehicleSteering(0.f), m_turned(false) {
 	car = new Model();
 	car->loadObject("res/models/car/car.obj");
+	car->initAssets(Globals::shaderManager, Globals::textureManager);
 
-	wheel[0] = new Model();
-	wheel[0]->loadObject("res/models/wheel/wheel.obj");
+	wheel = new Model();
+	wheel->loadObject("res/models/wheel/wheel.obj");
+	wheel->initAssets(Globals::shaderManager, Globals::textureManager, true);
+	wheel->createInstancesDynamic(4);
 
-	wheel[1] = new Model();
-	wheel[1]->loadObject("res/models/wheel/wheel.obj");
-
-	wheel[2] = new Model();
-	wheel[2]->loadObject("res/models/wheel/wheel.obj");
-
-	wheel[3] = new Model();
-	wheel[3]->loadObject("res/models/wheel/wheel.obj");
-
-	initShader();
+	rot.rotate(Vector3f(0.0f, 1.0f, 0.0f), 180.0f);
+	trans.translate(20.0f, 0.0f, 0.0f);
 }
 
-void PhysicsCar::Initialize(btDiscreteDynamicsWorld *refWorld, const btTransform & trans)
-{
+void PhysicsCar::Initialize(btDiscreteDynamicsWorld *refWorld, const btTransform & trans){
 	m_refDynamicsWorld = refWorld;
 	m_initialTrans = trans;
 
@@ -202,8 +197,7 @@ void PhysicsCar::Update(btScalar timeStep)
 	m_turned = false;
 }
 
-void PhysicsCar::TurnLeft()
-{
+void PhysicsCar::TurnLeft(){
 	if (m_vehicleSteering < 0)
 		m_vehicleSteering += m_cfg.steeringDecrement;
 	else
@@ -260,66 +254,20 @@ btTransform PhysicsCar::GetWorldTransform()
 }
 
 void PhysicsCar::draw(Camera& camera) {
-	car->m_transform.fromMatrix(Physics::MatrixFrom(GetWorldTransform(), btVector3(CAR_SCALE, CAR_SCALE, CAR_SCALE)));
-
-	for (int i = 0; i < car->getMeshes().size(); i++) {
-
+	car->getTransform().fromMatrix(Physics::MatrixFrom(GetWorldTransform(), btVector3(CAR_SCALE, CAR_SCALE, CAR_SCALE)));
+	car->draw(camera);
 	
-		glUseProgram(m_shader[i]->m_program);
-		m_shader[i]->loadFloat("material.ambient", car->getMeshes()[i]->m_material.ambient);
-		m_shader[i]->loadFloat("material.diffuse", car->getMeshes()[i]->m_material.diffuse);
-		m_shader[i]->loadFloat("material.specular", car->getMeshes()[i]->m_material.specular);
-		m_shader[i]->loadFloat("material.shininess", car->getMeshes()[i]->m_material.shininess);
+	/*car->updateInstances(std::vector<Matrix4f>({
+	Physics::MatrixTransposeFrom(GetWorldTransform(), btVector3(CAR_SCALE, CAR_SCALE, CAR_SCALE)),
+	Physics::MatrixTransposeFrom(trans, GetWorldTransform(), btVector3(CAR_SCALE, CAR_SCALE, CAR_SCALE)) }));
 
-		m_shader[i]->loadMatrix("u_modelView",  car->m_transform.getTransformationMatrix() * camera.getViewMatrix() );
-		m_shader[i]->loadMatrix("u_projection", Globals::projection);
-		car->getMeshes()[i]->drawRaw();
-		glUseProgram(0);
-	}
+	car->drawInstanced(camera);*/
 
-	auto shader = Globals::shaderManager.getAssetPointer("color");
-	/*glUseProgram(shader->m_program);
-	shader->loadMatrix("u_transform", car->m_transform.getTransformationMatrix() * camera.getViewMatrix() * Globals::projection);
-	shader->loadVector("u_color", Vector4f(1.0f, 1.0f, 0.0f, 1.0f));
-	car->drawRaw();
-	glUseProgram(0);*/
+	wheel->updateInstances(std::vector<Matrix4f>(
+							{ Physics::MatrixTransposeFrom(GetVehicle()->getWheelInfo(0).m_worldTransform, btVector3(CAR_SCALE, CAR_SCALE, CAR_SCALE)) * rot,
+							  Physics::MatrixTransposeFrom(GetVehicle()->getWheelInfo(1).m_worldTransform, btVector3(CAR_SCALE, CAR_SCALE, CAR_SCALE)),
+							  Physics::MatrixTransposeFrom(GetVehicle()->getWheelInfo(2).m_worldTransform, btVector3(CAR_SCALE, CAR_SCALE, CAR_SCALE)) * rot,
+							  Physics::MatrixTransposeFrom(GetVehicle()->getWheelInfo(3).m_worldTransform, btVector3(CAR_SCALE, CAR_SCALE, CAR_SCALE)) }));
 
-
-	glUseProgram(shader->m_program);
-	wheel[0]->m_transform.fromMatrix(Physics::MatrixFrom(GetVehicle()->getWheelInfo(0).m_worldTransform, btVector3(CAR_SCALE, CAR_SCALE, CAR_SCALE)));
-	shader->loadMatrix("u_transform", wheel[0]->m_transform.getTransformationMatrix() * camera.getViewMatrix() * Globals::projection);
-	shader->loadVector("u_color", Vector4f(1.0f, 1.0f, 0.0f, 1.0f));
-	wheel[0]->drawRaw();
-	glUseProgram(0);
-
-	glUseProgram(shader->m_program);
-	wheel[1]->m_transform.fromMatrix(Physics::MatrixFrom(GetVehicle()->getWheelInfo(1).m_worldTransform, btVector3(CAR_SCALE, CAR_SCALE, CAR_SCALE)));
-	shader->loadMatrix("u_transform", wheel[1]->m_transform.getTransformationMatrix() * camera.getViewMatrix() * Globals::projection);
-	shader->loadVector("u_color", Vector4f(1.0f, 1.0f, 0.0f, 1.0f));
-	wheel[1]->drawRaw();
-	glUseProgram(0);
-
-	glUseProgram(shader->m_program);
-	wheel[2]->m_transform.fromMatrix(Physics::MatrixFrom(GetVehicle()->getWheelInfo(2).m_worldTransform, btVector3(CAR_SCALE, CAR_SCALE, CAR_SCALE)));
-	shader->loadMatrix("u_transform", wheel[2]->m_transform.getTransformationMatrix() * camera.getViewMatrix() * Globals::projection);
-	shader->loadVector("u_color", Vector4f(1.0f, 1.0f, 0.0f, 1.0f));
-	wheel[2]->drawRaw();
-	glUseProgram(0);
-
-	glUseProgram(shader->m_program);
-	wheel[3]->m_transform.fromMatrix(Physics::MatrixFrom(GetVehicle()->getWheelInfo(3).m_worldTransform, btVector3(CAR_SCALE, CAR_SCALE, CAR_SCALE)));
-	shader->loadMatrix("u_transform", wheel[3]->m_transform.getTransformationMatrix() * camera.getViewMatrix() * Globals::projection);
-	shader->loadVector("u_color", Vector4f(1.0f, 1.0f, 0.0f, 1.0f));
-	wheel[3]->drawRaw();
-	glUseProgram(0);
-}
-
-void PhysicsCar::initShader() {
-	
-	for (int i = 0; i < car->getMeshes().size(); i++) {
-		std::cout << car->getMeshes()[i]->m_material.diffuseTexPath << std::endl;
-
-		m_shader[i] = !car->getMeshes()[i]->m_material.diffuseTexPath.empty() ? new Shader("res/models/car/diffuse.vert", "res/models/car/diffuse.frag") : new Shader("res/models/car/diffuse_texture.vert", "res/models/car/diffuse_texture.frag");
-		
-	}
+	wheel->drawInstanced(camera);
 }

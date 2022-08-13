@@ -78,6 +78,25 @@ void Camera::updateViewMatrix(bool orthogonalizeAxes){
 	m_viewMatrix[2][3] = -Vector3f::Dot(m_zAxis, m_eye);
 	m_viewMatrix[3][3] = 1.0f;
 
+	m_viewMatrixTranspose[0][0] = m_xAxis[0];
+	m_viewMatrixTranspose[0][1] = m_yAxis[0];
+	m_viewMatrixTranspose[0][2] = m_zAxis[0];
+	m_viewMatrixTranspose[0][3] = 0.0f;
+
+	m_viewMatrixTranspose[1][0] = m_xAxis[1];
+	m_viewMatrixTranspose[1][1] = m_yAxis[1];
+	m_viewMatrixTranspose[1][2] = m_zAxis[1];
+	m_viewMatrixTranspose[1][3] = 0.0f;
+
+	m_viewMatrixTranspose[2][0] = m_xAxis[2];
+	m_viewMatrixTranspose[2][1] = m_yAxis[2];
+	m_viewMatrixTranspose[2][2] = m_zAxis[2];
+	m_viewMatrixTranspose[2][3] = 0.0f;
+
+	m_viewMatrixTranspose[3][0] = -Vector3f::Dot(m_xAxis, m_eye);
+	m_viewMatrixTranspose[3][1] = -Vector3f::Dot(m_yAxis, m_eye);
+	m_viewMatrixTranspose[3][2] = -Vector3f::Dot(m_zAxis, m_eye);
+	m_viewMatrixTranspose[3][3] = 1.0f;
 
 	m_invViewMatrix[0][0] = m_xAxis[0];
 	m_invViewMatrix[1][0] = m_xAxis[1];
@@ -135,6 +154,26 @@ void Camera::updateViewMatrix(const Vector3f &eye, const Vector3f &target, const
 	m_viewMatrix[1][3] = -Vector3f::Dot(m_yAxis, eye);
 	m_viewMatrix[2][3] = -Vector3f::Dot(m_zAxis, eye);
 	m_viewMatrix[3][3] = 1.0f;
+
+	m_viewMatrixTranspose[0][0] = m_xAxis[0];
+	m_viewMatrixTranspose[0][1] = m_yAxis[0];
+	m_viewMatrixTranspose[0][2] = m_zAxis[0];
+	m_viewMatrixTranspose[0][3] = 0.0f;
+
+	m_viewMatrixTranspose[1][0] = m_xAxis[1];
+	m_viewMatrixTranspose[1][1] = m_yAxis[1];
+	m_viewMatrixTranspose[1][2] = m_zAxis[1];
+	m_viewMatrixTranspose[1][3] = 0.0f;
+
+	m_viewMatrixTranspose[2][0] = m_xAxis[2];
+	m_viewMatrixTranspose[2][1] = m_yAxis[2];
+	m_viewMatrixTranspose[2][2] = m_zAxis[2];
+	m_viewMatrixTranspose[2][3] = 0.0f;
+
+	m_viewMatrixTranspose[3][0] = -Vector3f::Dot(m_xAxis, m_eye);
+	m_viewMatrixTranspose[3][1] = -Vector3f::Dot(m_yAxis, m_eye);
+	m_viewMatrixTranspose[3][2] = -Vector3f::Dot(m_zAxis, m_eye);
+	m_viewMatrixTranspose[3][3] = 1.0f;
 
 	// Extract the pitch angle from the view matrix.
 	m_accumPitchDegrees = -asinf(m_viewMatrix[1][2])*180.f / PI;
@@ -717,6 +756,10 @@ const Matrix4f &Camera::getOrthographicMatrix() const{
 
 const Matrix4f &Camera::getViewMatrix() const{
 	return m_viewMatrix;
+}
+
+const Matrix4f &Camera::getViewMatrixTranspose() const {
+	return m_viewMatrixTranspose;
 }
 
 const Matrix4f &Camera::getInvViewMatrix() const{

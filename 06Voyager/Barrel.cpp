@@ -3,7 +3,7 @@
 Barrel::Barrel() : RenderableObject() {
 	m_model = new Model();
 	m_model->loadObject("res/models/barrel/barrel.obj");
-	m_model->getMeshes()[0]->generateTangents();
+	m_model->generateTangents();
 	m_model->createAABB();
 	m_model->createSphere();
 	m_model->createConvexHull("res/models/barrel/barrel_conv.obj", false);
@@ -81,7 +81,7 @@ void Barrel::draw(const Camera& camera) {
 	}
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	//drawAABB(camera);
-	//drawSphere(camera);
+	drawSphere(camera);
 	drawHull(camera);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }

@@ -149,7 +149,7 @@ public:
 	Matrix4f operator+(const Matrix4f &rhs) const;
 	Matrix4f operator*(const Matrix4f &rhs) const;
 	Matrix4f operator^(const Matrix4f &rhs) const;
-	Matrix4f transpose();
+	void transpose();
 	Matrix4f inverse() const;
 	float determinant() const;
 
@@ -195,7 +195,7 @@ public:
 	static Matrix4f &GetInvOrthographic(float left, float right, float bottom, float top, float znear, float zfar);
 	static Matrix4f &GetInvOrthographic(Matrix4f &mtx, float left, float right, float bottom, float top, float znear, float zfar);
 
-	static void Transpose(Matrix4f &p);
+	static Matrix4f &Transpose(Matrix4f &m);
 
 private:
 	float mtx[4][4];
