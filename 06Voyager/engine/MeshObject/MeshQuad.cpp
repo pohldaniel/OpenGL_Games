@@ -148,8 +148,9 @@ void MeshQuad::draw(const Camera camera) {
 	glUseProgram(m_shader->m_program);
 	
 	m_texture->bind(0);
-	m_shader->loadMatrix("u_modelView", _modelMatrix * camera.getViewMatrix());
-	m_shader->loadMatrix("u_projection", Globals::projection);
+	m_shader->loadMatrix("u_projection", Globals::projection, false);
+	m_shader->loadMatrix("u_view", camera.getViewMatrix(), false);
+	m_shader->loadMatrix("u_model", _modelMatrix);
 
 	glBindVertexArray(m_vao);
 	glDrawElements(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0);

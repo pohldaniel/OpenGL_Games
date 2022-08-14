@@ -58,7 +58,7 @@ void Camera::updateViewMatrix(bool orthogonalizeAxes){
 	}
 
 	// Reconstruct the view matrix.
-	m_viewMatrix[0][0] = m_xAxis[0];
+	/*m_viewMatrix[0][0] = m_xAxis[0];
 	m_viewMatrix[1][0] = m_yAxis[0];
 	m_viewMatrix[2][0] = m_zAxis[0];
 	m_viewMatrix[3][0] = 0.0f;
@@ -76,7 +76,7 @@ void Camera::updateViewMatrix(bool orthogonalizeAxes){
 	m_viewMatrix[0][3] = -Vector3f::Dot(m_xAxis, m_eye);
 	m_viewMatrix[1][3] = -Vector3f::Dot(m_yAxis, m_eye);
 	m_viewMatrix[2][3] = -Vector3f::Dot(m_zAxis, m_eye);
-	m_viewMatrix[3][3] = 1.0f;
+	m_viewMatrix[3][3] = 1.0f;*/
 
 	m_viewMatrixTranspose[0][0] = m_xAxis[0];
 	m_viewMatrixTranspose[0][1] = m_yAxis[0];
@@ -99,23 +99,23 @@ void Camera::updateViewMatrix(bool orthogonalizeAxes){
 	m_viewMatrixTranspose[3][3] = 1.0f;
 
 	m_invViewMatrix[0][0] = m_xAxis[0];
-	m_invViewMatrix[1][0] = m_xAxis[1];
-	m_invViewMatrix[2][0] = m_xAxis[2];
-	m_invViewMatrix[3][0] = 0.0f;
+	m_invViewMatrix[0][1] = m_xAxis[1];
+	m_invViewMatrix[0][2] = m_xAxis[2];
+	m_invViewMatrix[0][3] = 0.0f;
 
-	m_invViewMatrix[0][1] = m_yAxis[0];
+	m_invViewMatrix[1][0] = m_yAxis[0];
 	m_invViewMatrix[1][1] = m_yAxis[1];
-	m_invViewMatrix[2][1] = m_yAxis[2];
-	m_invViewMatrix[3][1] = 0.0f;
+	m_invViewMatrix[1][2] = m_yAxis[2];
+	m_invViewMatrix[1][3] = 0.0f;
 
-	m_invViewMatrix[0][2] = m_zAxis[0];
-	m_invViewMatrix[1][2] = m_zAxis[1];
+	m_invViewMatrix[2][0] = m_zAxis[0];
+	m_invViewMatrix[2][1] = m_zAxis[1];
 	m_invViewMatrix[2][2] = m_zAxis[2];
-	m_invViewMatrix[3][2] = 0.0f;
+	m_invViewMatrix[2][3] = 0.0f;
 
-	m_invViewMatrix[0][3] = m_eye[0];
-	m_invViewMatrix[1][3] = m_eye[1];
-	m_invViewMatrix[2][3] = m_eye[2];
+	m_invViewMatrix[3][0] = m_eye[0];
+	m_invViewMatrix[3][1] = m_eye[1];
+	m_invViewMatrix[3][2] = m_eye[2];
 	m_invViewMatrix[3][3] = 1.0f;
 }
 
@@ -135,7 +135,7 @@ void Camera::updateViewMatrix(const Vector3f &eye, const Vector3f &target, const
 
 	m_viewDir = -m_zAxis;
 
-	m_viewMatrix[0][0] = m_xAxis[0];
+	/*m_viewMatrix[0][0] = m_xAxis[0];
 	m_viewMatrix[1][0] = m_yAxis[0];
 	m_viewMatrix[2][0] = m_zAxis[0];
 	m_viewMatrix[3][0] = 0.0f;
@@ -153,7 +153,7 @@ void Camera::updateViewMatrix(const Vector3f &eye, const Vector3f &target, const
 	m_viewMatrix[0][3] = -Vector3f::Dot(m_xAxis, eye);
 	m_viewMatrix[1][3] = -Vector3f::Dot(m_yAxis, eye);
 	m_viewMatrix[2][3] = -Vector3f::Dot(m_zAxis, eye);
-	m_viewMatrix[3][3] = 1.0f;
+	m_viewMatrix[3][3] = 1.0f;*/
 
 	m_viewMatrixTranspose[0][0] = m_xAxis[0];
 	m_viewMatrixTranspose[0][1] = m_yAxis[0];
@@ -176,7 +176,7 @@ void Camera::updateViewMatrix(const Vector3f &eye, const Vector3f &target, const
 	m_viewMatrixTranspose[3][3] = 1.0f;
 
 	// Extract the pitch angle from the view matrix.
-	m_accumPitchDegrees = -asinf(m_viewMatrix[1][2])*180.f / PI;
+	m_accumPitchDegrees = -asinf(m_viewMatrixTranspose[2][1])*180.f / PI;
 
 	Matrix4f invView;
 	invView.invLookAt(eye, target, up);
@@ -192,23 +192,23 @@ void Camera::perspective(float fovx, float aspect, float znear, float zfar){
 	float yScale = e;
 
 	m_projMatrix[0][0] = xScale;
-	m_projMatrix[1][0] = 0.0f;
-	m_projMatrix[2][0] = 0.0f;
-	m_projMatrix[3][0] = 0.0f;
-
 	m_projMatrix[0][1] = 0.0f;
-	m_projMatrix[1][1] = yScale;
-	m_projMatrix[2][1] = 0.0f;
-	m_projMatrix[3][1] = 0.0f;
-
 	m_projMatrix[0][2] = 0.0f;
-	m_projMatrix[1][2] = 0.0f;
-	m_projMatrix[2][2] = (zfar + znear) / (znear - zfar);
-	m_projMatrix[3][2] = -1.0f;
-
 	m_projMatrix[0][3] = 0.0f;
+
+	m_projMatrix[1][0] = 0.0f;
+	m_projMatrix[1][1] = yScale;
+	m_projMatrix[1][2] = 0.0f;
 	m_projMatrix[1][3] = 0.0f;
-	m_projMatrix[2][3] = (2.0f * zfar * znear) / (znear - zfar);
+
+	m_projMatrix[2][0] = 0.0f;
+	m_projMatrix[2][1] = 0.0f;
+	m_projMatrix[2][2] = (zfar + znear) / (znear - zfar);
+	m_projMatrix[2][3] = -1.0f;
+
+	m_projMatrix[3][0] = 0.0f;
+	m_projMatrix[3][1] = 0.0f;
+	m_projMatrix[3][2] = (2.0f * zfar * znear) / (znear - zfar);
 	m_projMatrix[3][3] = 0.0f;
 
 	m_fovx = fovx;
@@ -220,23 +220,23 @@ void Camera::perspective(float fovx, float aspect, float znear, float zfar){
 void Camera::orthographic(float left, float right, float bottom, float top, float znear, float zfar){
 
 	m_orthMatrix[0][0] = 2 / (right - left);
-	m_orthMatrix[1][0] = 0.0f;
-	m_orthMatrix[2][0] = 0.0f;
-	m_orthMatrix[3][0] = 0.0f;
-
 	m_orthMatrix[0][1] = 0.0f;
-	m_orthMatrix[1][1] = 2 / (top - bottom);
-	m_orthMatrix[2][1] = 0.0f;
-	m_orthMatrix[3][1] = 0.0f;
-
 	m_orthMatrix[0][2] = 0.0f;
-	m_orthMatrix[1][2] = 0.0f;
-	m_orthMatrix[2][2] = 2 / (znear - zfar);
-	m_orthMatrix[3][2] = 0.0f;
+	m_orthMatrix[0][3] = 0.0f;
 
-	m_orthMatrix[0][3] = (right + left) / (left - right);
-	m_orthMatrix[1][3] = (top + bottom) / (bottom - top);
-	m_orthMatrix[2][3] = (zfar + znear) / (znear - zfar);
+	m_orthMatrix[1][0] = 0.0f;
+	m_orthMatrix[1][1] = 2 / (top - bottom);
+	m_orthMatrix[1][2] = 0.0f;
+	m_orthMatrix[1][3] = 0.0f;
+
+	m_orthMatrix[2][0] = 0.0f;
+	m_orthMatrix[2][1] = 0.0f;
+	m_orthMatrix[2][2] = 2 / (znear - zfar);
+	m_orthMatrix[2][3] = 0.0f;
+
+	m_orthMatrix[3][0] = (right + left) / (left - right);
+	m_orthMatrix[3][1] = (top + bottom) / (bottom - top);
+	m_orthMatrix[3][2] = (zfar + znear) / (znear - zfar);
 	m_orthMatrix[3][3] = 1.0f;
 
 	m_znear = znear;
@@ -260,7 +260,7 @@ void Camera::lookAt(const Vector3f &eye, const Vector3f &target, const Vector3f 
 
 	m_viewDir = -m_zAxis;
 
-	m_viewMatrix[0][0] = m_xAxis[0];
+	/*m_viewMatrix[0][0] = m_xAxis[0];
 	m_viewMatrix[1][0] = m_yAxis[0];
 	m_viewMatrix[2][0] = m_zAxis[0];
 	m_viewMatrix[3][0] = 0.0f;
@@ -278,10 +278,30 @@ void Camera::lookAt(const Vector3f &eye, const Vector3f &target, const Vector3f 
 	m_viewMatrix[0][3] = -Vector3f::Dot(m_xAxis, eye);
 	m_viewMatrix[1][3] = -Vector3f::Dot(m_yAxis, eye);
 	m_viewMatrix[2][3] = -Vector3f::Dot(m_zAxis, eye);
-	m_viewMatrix[3][3] = 1.0f;
+	m_viewMatrix[3][3] = 1.0f;*/
+
+	m_viewMatrixTranspose[0][0] = m_xAxis[0];
+	m_viewMatrixTranspose[0][1] = m_yAxis[0];
+	m_viewMatrixTranspose[0][2] = m_zAxis[0];
+	m_viewMatrixTranspose[0][3] = 0.0f;
+
+	m_viewMatrixTranspose[1][0] = m_xAxis[1];
+	m_viewMatrixTranspose[1][1] = m_yAxis[1];
+	m_viewMatrixTranspose[1][2] = m_zAxis[1];
+	m_viewMatrixTranspose[1][3] = 0.0f;
+
+	m_viewMatrixTranspose[2][0] = m_xAxis[2];
+	m_viewMatrixTranspose[2][1] = m_yAxis[2];
+	m_viewMatrixTranspose[2][2] = m_zAxis[2];
+	m_viewMatrixTranspose[2][3] = 0.0f;
+
+	m_viewMatrixTranspose[3][0] = -Vector3f::Dot(m_xAxis, m_eye);
+	m_viewMatrixTranspose[3][1] = -Vector3f::Dot(m_yAxis, m_eye);
+	m_viewMatrixTranspose[3][2] = -Vector3f::Dot(m_zAxis, m_eye);
+	m_viewMatrixTranspose[3][3] = 1.0f;
 
 	// Extract the pitch angle from the view matrix.
-	m_accumPitchDegrees = -asinf(m_viewMatrix[1][2])*180.f / PI;
+	m_accumPitchDegrees = -asinf(m_viewMatrixTranspose[2][1])*180.f / PI;
 
 	Matrix4f invView;
 	invView.invLookAt(eye, target, up);
@@ -289,8 +309,8 @@ void Camera::lookAt(const Vector3f &eye, const Vector3f &target, const Vector3f 
 }
 
 void Camera::pitchReflection(const float distance) {
-	m_viewMatrix[1][1] = -m_viewMatrix[1][1];
-	m_viewMatrix[1][3] = 2 * distance + m_viewMatrix[1][3];
+	m_viewMatrixTranspose[1][1] = -m_viewMatrixTranspose[1][1];
+	m_viewMatrixTranspose[3][1] = 2 * distance + m_viewMatrixTranspose[3][1];
 }
 
 void Camera::move(float dx, float dy, float dz){
@@ -423,11 +443,11 @@ void Camera::rotateFirstPerson(float yaw, float pitch){
 }
 
 const float Camera::getFar() const {
-	return m_projMatrix[2][3] / (m_projMatrix[2][2] + 1);
+	return m_projMatrix[3][2] / (m_projMatrix[2][2] + 1);
 }
 
 const float Camera::getNear() const {
-	return m_projMatrix[2][3] / (m_projMatrix[2][2] - 1);
+	return m_projMatrix[2][2] / (m_projMatrix[2][2] - 1);
 }
 
 const float Camera::getFovXDeg() const {
@@ -543,15 +563,15 @@ void Camera::calcLightTransformation(Vector3f &direction) {
 	lightView.lookAt(center + direction, center, Vector3f(0.0f, 1.0f, 0.0f));
 
 	Vector3f transforms[] = {
-		lightView * Vector4f(nearTopLeft) ,
-		lightView * Vector4f(nearTopRight) ,
-		lightView * Vector4f(nearBottomLeft) ,
-		lightView * Vector4f(nearBottomRight) ,
+		Vector4f(nearTopLeft) * lightView ,
+		Vector4f(nearTopRight) * lightView ,
+		Vector4f(nearBottomLeft) * lightView ,
+		Vector4f(nearBottomRight) * lightView ,
 
-		lightView * Vector4f(farTopLeft) ,
-		lightView * Vector4f(farTopRight) ,
-		lightView * Vector4f(farBottomLeft) ,
-		lightView * Vector4f(farBottomRight)
+		Vector4f(farTopLeft) * lightView ,
+		Vector4f(farTopRight) * lightView ,
+		Vector4f(farBottomLeft) * lightView ,
+		Vector4f(farBottomRight) * lightView
 	};
 
 	float minX, maxX, minY, maxY, minZ, maxZ;
@@ -601,15 +621,15 @@ void Camera::calcLightTransformation(Vector3f &direction, float near, float far,
 	viewMatrix.lookAt(center + direction, center, Vector3f(0.0f, 1.0f, 0.0f));
 
 	Vector3f transforms[] = {
-		viewMatrix * Vector4f(nearTopLeft) ,
-		viewMatrix * Vector4f(nearTopRight) ,
-		viewMatrix * Vector4f(nearBottomLeft) ,
-		viewMatrix * Vector4f(nearBottomRight) ,
+		Vector4f(nearTopLeft) * viewMatrix ,
+		Vector4f(nearTopRight) * viewMatrix ,
+		Vector4f(nearBottomLeft) * viewMatrix ,
+		Vector4f(nearBottomRight) * viewMatrix ,
 
-		viewMatrix * Vector4f(farTopLeft) ,
-		viewMatrix * Vector4f(farTopRight) ,
-		viewMatrix * Vector4f(farBottomLeft) ,
-		viewMatrix * Vector4f(farBottomRight)
+		Vector4f(farTopLeft) * viewMatrix ,
+		Vector4f(farTopRight) * viewMatrix ,
+		Vector4f(farBottomLeft) * viewMatrix ,
+		Vector4f(farBottomRight) * viewMatrix
 	};
 
 	float minX, maxX, minY, maxY, minZ, maxZ;
@@ -667,8 +687,8 @@ void Camera::setUpLightTransformation(float distance) {
 	for (unsigned short numberCascades = 0; numberCascades < m_numberCascades; numberCascades++) {		
 		m_bounds.push_back(Vector2f(_near, _far));
 
-		Vector4f vClip = m_projMatrix ^ Vector4f(0.0f, 0.0f, -_far, 1.0f);
-
+		Vector4f vClip = Vector4f(0.0f, 0.0f, -_far, 1.0f) ^ m_projMatrix;
+		
 		//clipSpace
 		m_cascadeEndClipSpace[numberCascades] = vClip[2];
 
@@ -693,7 +713,9 @@ void Camera::setUpLightTransformation(std::vector<Vector2f>& bounds) {
 	m_cascadeEndClipSpace = new float[m_numberCascades];
 
 	for (unsigned short numberCascades = 0; numberCascades < m_numberCascades; numberCascades++) {
-		Vector4f vClip = m_projMatrix ^ Vector4f(0.0f, 0.0f, -bounds[numberCascades][1], 1.0f);
+		//Vector4f vClip = m_projMatrix ^ Vector4f(0.0f, 0.0f, -bounds[numberCascades][1], 1.0f);
+
+		Vector4f vClip =  Vector4f(0.0f, 0.0f, -bounds[numberCascades][1], 1.0f) ^ m_projMatrix;
 
 		//clipSpace
 		m_cascadeEndClipSpace[numberCascades] = vClip[2];
@@ -755,7 +777,7 @@ const Matrix4f &Camera::getOrthographicMatrix() const{
 }
 
 const Matrix4f &Camera::getViewMatrix() const{
-	return m_viewMatrix;
+	return m_viewMatrixTranspose;
 }
 
 const Matrix4f &Camera::getViewMatrixTranspose() const {
@@ -764,8 +786,4 @@ const Matrix4f &Camera::getViewMatrixTranspose() const {
 
 const Matrix4f &Camera::getInvViewMatrix() const{
 	return m_invViewMatrix;
-}
-
-const Matrix4f &Camera::getProjectionMatrixTranspose() const {
-	return m_projMatrixTranspose;
 }

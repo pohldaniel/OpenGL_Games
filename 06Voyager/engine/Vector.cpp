@@ -163,7 +163,6 @@ void Matrix4f::scale(float a, float b, float c) {
 	mtx[3][3] = 1.0f;
 }
 
-
 void Matrix4f::invScale(float a, float b, float c) {
 
 	if (a == 0) a = 1.0;
@@ -203,23 +202,23 @@ void Matrix4f::lookAt(const Vector3f &eye, const Vector3f &target, const Vector3
 	Vector3f::Normalize(yAxis);
 
 	mtx[0][0] = xAxis[0];
-	mtx[1][0] = yAxis[0];
-	mtx[2][0] = zAxis[0];
-	mtx[3][0] = 0.0f;
+	mtx[0][1] = yAxis[0];
+	mtx[0][2] = zAxis[0];
+	mtx[0][3] = 0.0f;
 
-	mtx[0][1] = xAxis[1];
+	mtx[1][0] = xAxis[1];
 	mtx[1][1] = yAxis[1];
-	mtx[2][1] = zAxis[1];
-	mtx[3][1] = 0.0f;
+	mtx[1][2] = zAxis[1];
+	mtx[1][3] = 0.0f;
 
-	mtx[0][2] = xAxis[2];
-	mtx[1][2] = yAxis[2];
+	mtx[2][0] = xAxis[2];
+	mtx[2][1] = yAxis[2];
 	mtx[2][2] = zAxis[2];
-	mtx[3][2] = 0.0f;
+	mtx[2][3] = 0.0f;
 
-	mtx[0][3] = -Vector3f::Dot(xAxis, eye);
-	mtx[1][3] = -Vector3f::Dot(yAxis, eye);
-	mtx[2][3] = -Vector3f::Dot(zAxis, eye);
+	mtx[3][0] = -Vector3f::Dot(xAxis, eye);
+	mtx[3][1] = -Vector3f::Dot(yAxis, eye);
+	mtx[3][2] = -Vector3f::Dot(zAxis, eye);
 	mtx[3][3] = 1.0f;
 
 }
@@ -236,24 +235,24 @@ void Matrix4f::invLookAt(const Vector3f &eye, const Vector3f &target, const Vect
 	Vector3f::Normalize(yAxis);
 
 	mtx[0][0] = xAxis[0];
-	mtx[1][0] = xAxis[1];
-	mtx[2][0] = xAxis[2];
-	mtx[3][0] = 0.0f;
+	mtx[0][1] = xAxis[1];
+	mtx[0][2] = xAxis[2];
+	mtx[0][3] = 0.0f;
 
-	mtx[0][1] = yAxis[0];
+	mtx[1][0] = yAxis[0];
 	mtx[1][1] = yAxis[1];
-	mtx[2][1] = yAxis[2];
-	mtx[3][1] = 0.0f;
+	mtx[1][2] = yAxis[2];
+	mtx[1][3] = 0.0f;
 
 
-	mtx[0][2] = zAxis[0];
-	mtx[1][2] = zAxis[1];
+	mtx[2][0] = zAxis[0];
+	mtx[2][1] = zAxis[1];
 	mtx[2][2] = zAxis[2];
-	mtx[3][2] = 0.0f;
+	mtx[2][3] = 0.0f;
 
-	mtx[0][3] = eye[0];
-	mtx[1][3] = eye[1];
-	mtx[2][3] = eye[2];
+	mtx[3][0] = eye[0];
+	mtx[3][1] = eye[1];
+	mtx[3][2] = eye[2];
 	mtx[3][3] = 1.0f;
 }
 
@@ -264,23 +263,23 @@ void Matrix4f::perspective(float fovx, float aspect, float znear, float zfar) {
 	float yScale = 1 / e;
 
 	mtx[0][0] = xScale;
-	mtx[1][0] = 0.0f;
-	mtx[2][0] = 0.0f;
-	mtx[3][0] = 0.0f;
-
 	mtx[0][1] = 0.0f;
-	mtx[1][1] = yScale;
-	mtx[2][1] = 0.0f;
-	mtx[3][1] = 0.0f;
-
 	mtx[0][2] = 0.0f;
-	mtx[1][2] = 0.0f;
-	mtx[2][2] = (zfar + znear) / (znear - zfar);
-	mtx[3][2] = -1.0f;
-
 	mtx[0][3] = 0.0f;
+
+	mtx[1][0] = 0.0f;
+	mtx[1][1] = yScale;
+	mtx[1][2] = 0.0f;
 	mtx[1][3] = 0.0f;
-	mtx[2][3] = (2.0f * zfar * znear) / (znear - zfar);
+
+	mtx[2][0] = 0.0f;
+	mtx[2][1] = 0.0f;
+	mtx[2][2] = (zfar + znear) / (znear - zfar);
+	mtx[2][3] = -1.0f;
+
+	mtx[3][0] = 0.0f;
+	mtx[3][1] = 0.0f;
+	mtx[3][2] = (2.0f * zfar * znear) / (znear - zfar);
 	mtx[3][3] = 0.0f;
 }
 
@@ -291,23 +290,23 @@ void Matrix4f::perspectiveD3D(float fovx, float aspect, float znear, float zfar)
 	float yScale = 1 / e;
 
 	mtx[0][0] = xScale;
-	mtx[1][0] = 0.0f;
-	mtx[2][0] = 0.0f;
-	mtx[3][0] = 0.0f;
-
 	mtx[0][1] = 0.0f;
-	mtx[1][1] = yScale;
-	mtx[2][1] = 0.0f;
-	mtx[3][1] = 0.0f;
-
 	mtx[0][2] = 0.0f;
-	mtx[1][2] = 0.0f;
-	mtx[2][2] = zfar / (znear - zfar);
-	mtx[3][2] = -1.0f;
-
 	mtx[0][3] = 0.0f;
+
+	mtx[1][0] = 0.0f;
+	mtx[1][1] = yScale;
+	mtx[1][2] = 0.0f;
 	mtx[1][3] = 0.0f;
-	mtx[2][3] = (zfar * znear) / (znear - zfar);
+
+	mtx[2][0] = 0.0f;
+	mtx[2][1] = 0.0f;
+	mtx[2][2] = zfar / (znear - zfar);
+	mtx[2][3] = -1.0f;
+
+	mtx[3][0] = 0.0f;
+	mtx[3][1] = 0.0f;
+	mtx[3][2] = (zfar * znear) / (znear - zfar);
 	mtx[3][3] = 0.0f;
 
 }
@@ -323,23 +322,23 @@ void Matrix4f::linearPerspectiveD3D(float fovx, float aspect, float znear, float
 	//float far = -N * Q / (1 - Q);
 
 	mtx[0][0] = xScale;
-	mtx[1][0] = 0.0f;
-	mtx[2][0] = 0.0f;
-	mtx[3][0] = 0.0f;
-
 	mtx[0][1] = 0.0f;
-	mtx[1][1] = yScale;
-	mtx[2][1] = 0.0f;
-	mtx[3][1] = 0.0f;
-
 	mtx[0][2] = 0.0f;
-	mtx[1][2] = 0.0f;
-	mtx[2][2] = 1 / (znear - zfar);
-	mtx[3][2] = -1.0f;
-
 	mtx[0][3] = 0.0f;
+
+	mtx[1][0] = 0.0f;
+	mtx[1][1] = yScale;
+	mtx[1][2] = 0.0f;
 	mtx[1][3] = 0.0f;
-	mtx[2][3] = znear / (znear - zfar);
+
+	mtx[2][0] = 0.0f;
+	mtx[2][1] = 0.0f;
+	mtx[2][2] = 1 / (znear - zfar);
+	mtx[2][3] = -1.0f;
+
+	mtx[3][0] = 0.0f;
+	mtx[3][1] = 0.0f;
+	mtx[3][2] = znear / (znear - zfar);
 	mtx[3][3] = 0.0f;
 
 }
@@ -361,57 +360,57 @@ void Matrix4f::invPerspective(float fovx, float aspect, float znear, float zfar)
 	mtx[2][0] = 0.0f;
 	mtx[2][1] = 0.0f;
 	mtx[2][2] = 0.0;
-	mtx[2][3] = -1.0f;
+	mtx[2][3] = (znear - zfar) / (2 * zfar * znear);
 
 	mtx[3][0] = 0.0f;
 	mtx[3][1] = 0.0f;
-	mtx[3][2] = (znear - zfar) / (2 * zfar * znear);
+	mtx[3][2] = -1.0f;
 	mtx[3][3] = (znear + zfar) / (2 * zfar * znear);
 }
 
 void Matrix4f::orthographic(float left, float right, float bottom, float top, float znear, float zfar) {
 
 	mtx[0][0] = 2 / (right - left);
-	mtx[1][0] = 0.0f;
-	mtx[2][0] = 0.0f;
-	mtx[3][0] = 0.0f;
-
 	mtx[0][1] = 0.0f;
-	mtx[1][1] = 2 / (top - bottom);
-	mtx[2][1] = 0.0f;
-	mtx[3][1] = 0.0f;
-
 	mtx[0][2] = 0.0f;
-	mtx[1][2] = 0.0f;
-	mtx[2][2] = 2 / (znear - zfar);
-	mtx[3][2] = 0.0f;
+	mtx[0][3] = 0.0f;
 
-	mtx[0][3] = (right + left) / (left - right);
-	mtx[1][3] = (top + bottom) / (bottom - top);
-	mtx[2][3] = (zfar + znear) / (znear - zfar);
+	mtx[1][0] = 0.0f;
+	mtx[1][1] = 2 / (top - bottom);
+	mtx[1][2] = 0.0f;
+	mtx[1][3] = 0.0f;
+
+	mtx[2][0] = 0.0f;
+	mtx[2][1] = 0.0f;
+	mtx[2][2] = 2 / (znear - zfar);
+	mtx[2][3] = 0.0f;
+
+	mtx[3][0] = (right + left) / (left - right);
+	mtx[3][1] = (top + bottom) / (bottom - top);
+	mtx[3][2] = (zfar + znear) / (znear - zfar);
 	mtx[3][3] = 1.0f;
 }
 
 void Matrix4f::invOrthographic(float left, float right, float bottom, float top, float znear, float zfar) {
 
 	mtx[0][0] = (right - left) * 0.5f;
-	mtx[1][0] = 0.0f;
-	mtx[2][0] = 0.0f;
-	mtx[3][0] = 0.0f;
-
 	mtx[0][1] = 0.0f;
-	mtx[1][1] = (top - bottom) * 0.5f;
-	mtx[2][1] = 0.0f;
-	mtx[3][1] = 0.0f;
-
 	mtx[0][2] = 0.0f;
-	mtx[1][2] = 0.0f;
-	mtx[2][2] = (znear - zfar) * 0.5f;
-	mtx[2][3] = -(zfar + znear) * 0.5f;
+	mtx[0][3] = 0.0f;
 
-	mtx[0][3] = (right + left) * 0.5f;
-	mtx[1][3] = (top + bottom) * 0.5f;
-	mtx[3][2] = 0.0f;
+	mtx[1][0] = 0.0f;
+	mtx[1][1] = (top - bottom) * 0.5f;
+	mtx[1][2] = 0.0f;
+	mtx[1][3] = 0.0f;
+
+	mtx[2][0] = 0.0f;
+	mtx[2][1] = 0.0f;
+	mtx[2][2] = (znear - zfar) * 0.5f;
+	mtx[2][3] = 0.0f;
+
+	mtx[3][0] = (right + left) * 0.5f;
+	mtx[3][1] = (top + bottom) * 0.5f;
+	mtx[3][2] = -(zfar + znear) * 0.5f;	
 	mtx[3][3] = 1.0f;
 }
 
@@ -508,7 +507,7 @@ void Matrix4f::toHeadPitchRoll(float &headDegrees, float &pitchDegrees, float &r
 	rollDegrees = thetaZ * _180_ON_PI;
 }
 
-Matrix4f &Matrix4f::Translate(const float dx, const float dy, const float dz) {
+Matrix4f Matrix4f::Translate(const float dx, const float dy, const float dz) {
 	return Matrix4f(1.0f, 0.0f, 0.0f, dx,
 		0.0f, 1.0f, 0.0f, dy,
 		0.0f, 0.0f, 1.0f, dz,
@@ -539,7 +538,7 @@ Matrix4f &Matrix4f::Translate(Matrix4f &mtx, const float dx, const float dy, con
 	return mtx;
 }
 
-Matrix4f &Matrix4f::Scale(float x, float y, float z) {
+Matrix4f Matrix4f::Scale(float x, float y, float z) {
 
 	//if (x == 0) x = 1.0;
 	//if (y == 0) y = 1.0;
@@ -644,7 +643,7 @@ Matrix4f &Matrix4f::GetNormalMatrix(Matrix4f &mtx, const Matrix4f &modelViewMatr
 	return mtx;
 }
 
-Matrix4f &Matrix4f::GetPerspective(float fovx, float aspect, float znear, float zfar) {
+Matrix4f Matrix4f::GetPerspective(float fovx, float aspect, float znear, float zfar) {
 	Matrix4f perspective;
 
 	float e = tanf(PI_ON_180 * fovx * 0.5f);
@@ -652,23 +651,23 @@ Matrix4f &Matrix4f::GetPerspective(float fovx, float aspect, float znear, float 
 	float yScale = 1 / e;
 
 	perspective[0][0] = xScale;
-	perspective[1][0] = 0.0f;
-	perspective[2][0] = 0.0f;
-	perspective[3][0] = 0.0f;
-
 	perspective[0][1] = 0.0f;
-	perspective[1][1] = yScale;
-	perspective[2][1] = 0.0f;
-	perspective[3][1] = 0.0f;
-
 	perspective[0][2] = 0.0f;
-	perspective[1][2] = 0.0f;
-	perspective[2][2] = (zfar + znear) / (znear - zfar);
-	perspective[3][2] = -1.0f;
-
 	perspective[0][3] = 0.0f;
+
+	perspective[1][0] = 0.0f;
+	perspective[1][1] = yScale;
+	perspective[1][2] = 0.0f;
 	perspective[1][3] = 0.0f;
-	perspective[2][3] = (2.0f * zfar * znear) / (znear - zfar);
+
+	perspective[2][0] = 0.0f;
+	perspective[2][1] = 0.0f;
+	perspective[2][2] = (zfar + znear) / (znear - zfar);
+	perspective[2][3] = -1.0f;
+
+	perspective[3][0] = 0.0f;
+	perspective[3][1] = 0.0f;
+	perspective[3][2] = (2.0f * zfar * znear) / (znear - zfar);
 	perspective[3][3] = 0.0f;
 
 	return perspective;
@@ -680,29 +679,29 @@ Matrix4f &Matrix4f::GetPerspective(Matrix4f &mtx, float fovx, float aspect, floa
 	float yScale = 1 / e;
 
 	mtx[0][0] = xScale;
-	mtx[1][0] = 0.0f;
-	mtx[2][0] = 0.0f;
-	mtx[3][0] = 0.0f;
-
 	mtx[0][1] = 0.0f;
-	mtx[1][1] = yScale;
-	mtx[2][1] = 0.0f;
-	mtx[3][1] = 0.0f;
-
 	mtx[0][2] = 0.0f;
-	mtx[1][2] = 0.0f;
-	mtx[2][2] = (zfar + znear) / (znear - zfar);
-	mtx[3][2] = -1.0f;
-
 	mtx[0][3] = 0.0f;
+
+	mtx[1][0] = 0.0f;
+	mtx[1][1] = yScale;
+	mtx[1][2] = 0.0f;
 	mtx[1][3] = 0.0f;
-	mtx[2][3] = (2.0f * zfar * znear) / (znear - zfar);
+
+	mtx[2][0] = 0.0f;
+	mtx[2][1] = 0.0f;
+	mtx[2][2] = (zfar + znear) / (znear - zfar);
+	mtx[2][3] = -1.0f;
+
+	mtx[3][0] = 0.0f;
+	mtx[3][1] = 0.0f;
+	mtx[3][2] = (2.0f * zfar * znear) / (znear - zfar);
 	mtx[3][3] = 0.0f;
 
 	return mtx;
 }
 
-Matrix4f &Matrix4f::GetInvPerspective(float fovx, float aspect, float znear, float zfar) {
+Matrix4f Matrix4f::GetInvPerspective(float fovx, float aspect, float znear, float zfar) {
 	Matrix4f invPerspective;
 
 	float e = tanf(PI_ON_180 * fovx * 0.5f);
@@ -720,11 +719,11 @@ Matrix4f &Matrix4f::GetInvPerspective(float fovx, float aspect, float znear, flo
 	invPerspective[2][0] = 0.0f;
 	invPerspective[2][1] = 0.0f;
 	invPerspective[2][2] = 0.0;
-	invPerspective[2][3] = -1.0f;
+	invPerspective[2][3] = (znear - zfar) / (2 * zfar * znear);
 
 	invPerspective[3][0] = 0.0f;
 	invPerspective[3][1] = 0.0f;
-	invPerspective[3][2] = (znear - zfar) / (2 * zfar * znear);
+	invPerspective[3][2] = -1.0f;
 	invPerspective[3][3] = (znear + zfar) / (2 * zfar * znear);
 
 	return invPerspective;
@@ -746,37 +745,37 @@ Matrix4f &Matrix4f::GetInvPerspective(Matrix4f &mtx, float fovx, float aspect, f
 	mtx[2][0] = 0.0f;
 	mtx[2][1] = 0.0f;
 	mtx[2][2] = 0.0;
-	mtx[2][3] = -1.0f;
+	mtx[2][3] = (znear - zfar) / (2 * zfar * znear);
 
 	mtx[3][0] = 0.0f;
 	mtx[3][1] = 0.0f;
-	mtx[3][2] = (znear - zfar) / (2 * zfar * znear);
+	mtx[3][2] = -1.0f;
 	mtx[3][3] = (znear + zfar) / (2 * zfar * znear);
 
 	return mtx;
 }
 
-Matrix4f &Matrix4f::GetOrthographic(float left, float right, float bottom, float top, float znear, float zfar) {
+Matrix4f Matrix4f::GetOrthographic(float left, float right, float bottom, float top, float znear, float zfar) {
 	Matrix4f ortho;
 
 	ortho[0][0] = 2 / (right - left);
-	ortho[1][0] = 0.0f;
-	ortho[2][0] = 0.0f;
-	ortho[3][0] = 0.0f;
-
 	ortho[0][1] = 0.0f;
-	ortho[1][1] = 2 / (top - bottom);
-	ortho[2][1] = 0.0f;
-	ortho[3][1] = 0.0f;
-
 	ortho[0][2] = 0.0f;
-	ortho[1][2] = 0.0f;
-	ortho[2][2] = 2 / (znear - zfar);
-	ortho[3][2] = 0.0f;
+	ortho[0][3] = 0.0f;
 
-	ortho[0][3] = (right + left) / (left - right);
-	ortho[1][3] = (top + bottom) / (bottom - top);
-	ortho[2][3] = (zfar + znear) / (znear - zfar);
+	ortho[1][0] = 0.0f;
+	ortho[1][1] = 2 / (top - bottom);
+	ortho[1][2] = 0.0f;
+	ortho[1][3] = 0.0f;
+
+	ortho[2][0] = 0.0f;
+	ortho[2][1] = 0.0f;
+	ortho[2][2] = 2 / (znear - zfar);
+	ortho[2][3] = 0.0f;
+
+	ortho[3][0] = (right + left) / (left - right);
+	ortho[3][1] = (top + bottom) / (bottom - top);
+	ortho[3][2] = (zfar + znear) / (znear - zfar);
 	ortho[3][3] = 1.0f;
 
 	return ortho;
@@ -784,50 +783,50 @@ Matrix4f &Matrix4f::GetOrthographic(float left, float right, float bottom, float
 
 Matrix4f &Matrix4f::GetOrthographic(Matrix4f &mtx, float left, float right, float bottom, float top, float znear, float zfar) {
 	mtx[0][0] = 2 / (right - left);
-	mtx[1][0] = 0.0f;
-	mtx[2][0] = 0.0f;
-	mtx[3][0] = 0.0f;
-
 	mtx[0][1] = 0.0f;
-	mtx[1][1] = 2 / (top - bottom);
-	mtx[2][1] = 0.0f;
-	mtx[3][1] = 0.0f;
-
 	mtx[0][2] = 0.0f;
-	mtx[1][2] = 0.0f;
-	mtx[2][2] = 2 / (znear - zfar);
-	mtx[3][2] = 0.0f;
+	mtx[0][3] = 0.0f;
 
-	mtx[0][3] = (right + left) / (left - right);
-	mtx[1][3] = (top + bottom) / (bottom - top);
-	mtx[2][3] = (zfar + znear) / (znear - zfar);
+	mtx[1][0] = 0.0f;
+	mtx[1][1] = 2 / (top - bottom);
+	mtx[1][2] = 0.0f;
+	mtx[1][3] = 0.0f;
+
+	mtx[2][0] = 0.0f;
+	mtx[2][1] = 0.0f;
+	mtx[2][2] = 2 / (znear - zfar);
+	mtx[2][3] = 0.0f;
+
+	mtx[3][0] = (right + left) / (left - right);
+	mtx[3][1] = (top + bottom) / (bottom - top);
+	mtx[3][2] = (zfar + znear) / (znear - zfar);
 	mtx[3][3] = 1.0f;
 
 	return mtx;
 }
 
 
-Matrix4f &Matrix4f::GetInvOrthographic(float left, float right, float bottom, float top, float znear, float zfar) {
+Matrix4f Matrix4f::GetInvOrthographic(float left, float right, float bottom, float top, float znear, float zfar) {
 	Matrix4f invOrtho;
 
 	invOrtho[0][0] = (right - left) * 0.5f;
-	invOrtho[1][0] = 0.0f;
-	invOrtho[2][0] = 0.0f;
-	invOrtho[3][0] = 0.0f;
-
 	invOrtho[0][1] = 0.0f;
-	invOrtho[1][1] = (top - bottom) * 0.5f;
-	invOrtho[2][1] = 0.0f;
-	invOrtho[3][1] = 0.0f;
-
 	invOrtho[0][2] = 0.0f;
-	invOrtho[1][2] = 0.0f;
-	invOrtho[2][2] = (znear - zfar) * 0.5f;
-	invOrtho[2][3] = -(zfar + znear) * 0.5f;
+	invOrtho[0][3] = 0.0f;
 
-	invOrtho[0][3] = (right + left) * 0.5f;
-	invOrtho[1][3] = (top + bottom) * 0.5f;
-	invOrtho[3][2] = 0.0f;
+	invOrtho[1][0] = 0.0f;
+	invOrtho[1][1] = (top - bottom) * 0.5f;
+	invOrtho[1][2] = 0.0f;
+	invOrtho[1][3] = 0.0f;
+
+	invOrtho[2][0] = 0.0f;
+	invOrtho[2][1] = 0.0f;
+	invOrtho[2][2] = (znear - zfar) * 0.5f;
+	invOrtho[2][3] = 0.0f;
+	
+	invOrtho[3][0] = (right + left) * 0.5f;
+	invOrtho[3][1] = (top + bottom) * 0.5f;
+	invOrtho[3][2] = -(zfar + znear) * 0.5f;
 	invOrtho[3][3] = 1.0f;
 
 	return invOrtho;
@@ -835,23 +834,23 @@ Matrix4f &Matrix4f::GetInvOrthographic(float left, float right, float bottom, fl
 
 Matrix4f &Matrix4f::GetInvOrthographic(Matrix4f &mtx, float left, float right, float bottom, float top, float znear, float zfar) {
 	mtx[0][0] = (right - left) * 0.5f;
-	mtx[1][0] = 0.0f;
-	mtx[2][0] = 0.0f;
-	mtx[3][0] = 0.0f;
-
 	mtx[0][1] = 0.0f;
-	mtx[1][1] = (top - bottom) * 0.5f;
-	mtx[2][1] = 0.0f;
-	mtx[3][1] = 0.0f;
-
 	mtx[0][2] = 0.0f;
-	mtx[1][2] = 0.0f;
-	mtx[2][2] = (znear - zfar) * 0.5f;
-	mtx[2][3] = -(zfar + znear) * 0.5f;
+	mtx[0][3] = 0.0f;
 
-	mtx[0][3] = (right + left) * 0.5f;
-	mtx[1][3] = (top + bottom) * 0.5f;
-	mtx[3][2] = 0.0f;
+	mtx[1][0] = 0.0f;
+	mtx[1][1] = (top - bottom) * 0.5f;
+	mtx[1][2] = 0.0f;
+	mtx[1][3] = 0.0f;
+
+	mtx[2][0] = 0.0f;
+	mtx[2][1] = 0.0f;
+	mtx[2][2] = (znear - zfar) * 0.5f;
+	mtx[2][3] = 0.0f;
+
+	mtx[3][0] = (right + left) * 0.5f;
+	mtx[3][1] = (top + bottom) * 0.5f;
+	mtx[3][2] = -(zfar + znear) * 0.5f;
 	mtx[3][3] = 1.0f;
 
 	return mtx;
@@ -1091,8 +1090,8 @@ Matrix4f operator*(float scalar, const Matrix4f &rhs) {
 Vector3f operator*(const Vector4f &lhs, const Matrix4f &rhs) {
 
 	return Vector3f((lhs[0] * rhs.mtx[0][0]) + (lhs[1] * rhs.mtx[1][0]) + (lhs[2] * rhs.mtx[2][0]) + (lhs[3] * rhs.mtx[3][0]),
-		(lhs[0] * rhs.mtx[0][1]) + (lhs[1] * rhs.mtx[1][1]) + (lhs[2] * rhs.mtx[2][1]) + (lhs[3] * rhs.mtx[3][1]),
-		(lhs[0] * rhs.mtx[0][2]) + (lhs[1] * rhs.mtx[1][2]) + (lhs[2] * rhs.mtx[2][2]) + (lhs[3] * rhs.mtx[3][2]));
+					(lhs[0] * rhs.mtx[0][1]) + (lhs[1] * rhs.mtx[1][1]) + (lhs[2] * rhs.mtx[2][1]) + (lhs[3] * rhs.mtx[3][1]),
+					(lhs[0] * rhs.mtx[0][2]) + (lhs[1] * rhs.mtx[1][2]) + (lhs[2] * rhs.mtx[2][2]) + (lhs[3] * rhs.mtx[3][2]));
 }
 
 //friend operator
@@ -1143,6 +1142,20 @@ Vector4f operator^(const Matrix4f &rhs, const Vector4f &lhs) {
 		(lhs[0] * rhs.mtx[0][3]) + (lhs[1] * rhs.mtx[1][3]) + (lhs[2] * rhs.mtx[2][3]) + (lhs[3] * rhs.mtx[3][3])
 	);*/
 }
+
+/*Vector4f operator^(const Vector4f &lhs, const Matrix4f &rhs) {
+
+	return Vector4f((lhs[0] * rhs.mtx[0][0]) + (lhs[1] * rhs.mtx[1][0]) + (lhs[2] * rhs.mtx[2][0]) + (lhs[3] * rhs.mtx[3][0]),
+		(lhs[0] * rhs.mtx[0][1]) + (lhs[1] * rhs.mtx[1][1]) + (lhs[2] * rhs.mtx[2][1]) + (lhs[3] * rhs.mtx[3][1]),
+		(lhs[0] * rhs.mtx[0][2]) + (lhs[1] * rhs.mtx[1][2]) + (lhs[2] * rhs.mtx[2][2]) + (lhs[3] * rhs.mtx[3][2]),
+		(lhs[0] * rhs.mtx[0][3]) + (lhs[1] * rhs.mtx[1][3]) + (lhs[2] * rhs.mtx[2][3]) + (lhs[3] * rhs.mtx[3][3]));
+
+	/*return Vector4f((lhs[0] * rhs.mtx[0][0]) + (lhs[1] * rhs.mtx[1][0]) + (lhs[2] * rhs.mtx[2][0]) + (lhs[3] * rhs.mtx[3][0]),
+	(lhs[0] * rhs.mtx[0][1]) + (lhs[1] * rhs.mtx[1][1]) + (lhs[2] * rhs.mtx[2][1]) + (lhs[3] * rhs.mtx[3][1]),
+	(lhs[0] * rhs.mtx[0][2]) + (lhs[1] * rhs.mtx[1][2]) + (lhs[2] * rhs.mtx[2][2]) + (lhs[3] * rhs.mtx[3][2]),
+	(lhs[0] * rhs.mtx[0][3]) + (lhs[1] * rhs.mtx[1][3]) + (lhs[2] * rhs.mtx[2][3]) + (lhs[3] * rhs.mtx[3][3])
+	);
+}*/
 
 Vector4f operator^(const Vector4f &lhs, const Matrix4f &rhs) {
 	return Vector4f((lhs[0] * rhs.mtx[0][0]) + (lhs[1] * rhs.mtx[1][0]) + (lhs[2] * rhs.mtx[2][0]) + (lhs[3] * rhs.mtx[3][0]),

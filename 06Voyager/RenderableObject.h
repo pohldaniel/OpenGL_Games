@@ -24,6 +24,8 @@ public:
 	void setDisabled(bool disabled);
 	bool isDisabled();
 
+	void setRotPos(const Vector3f &axis, float degrees, float dx, float dy, float dz);
+	void setRotPosScale(const Vector3f &axis, float degrees, float dx, float dy, float dz, float x, float y, float z);
 	void rotate(const Vector3f &axis, float degrees);
 	void translate(float dx, float dy, float dz);
 	void scale(float a, float b, float c);
@@ -31,6 +33,7 @@ public:
 	const Matrix4f &getTransformationMatrix() const;
 	const Matrix4f &getInvTransformationMatrix();
 	const ObjModel* getModel() const;
+	Transform &getTransform();
 	unsigned int getId() const;
 
 	Transform m_transform;

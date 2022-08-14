@@ -348,8 +348,9 @@ void ObjModel::draw(Camera& camera) {
 		m_mesh[i]->updateMaterialUbo(s_materialUbo);
 		glUseProgram(m_shader[i]->m_program);
 
-		m_shader[i]->loadMatrix("u_modelView", m_transform.getTransformationMatrix() * camera.getViewMatrix());
-		m_shader[i]->loadMatrix("u_projection", camera.getProjectionMatrix());
+		m_shader[i]->loadMatrix("u_projection", camera.getProjectionMatrix(), false);
+		m_shader[i]->loadMatrix("u_view", camera.getViewMatrix(), false);
+		m_shader[i]->loadMatrix("u_model", m_transform.getTransformationMatrix());
 
 		m_textures[i].bind(0);
 		m_mesh[i]->drawRaw();
@@ -366,7 +367,7 @@ void ObjModel::drawInstanced(Camera& camera) {
 
 		glUseProgram(m_shader[i]->m_program);
 		
-		m_shader[i]->loadMatrix("u_projection", camera.getProjectionMatrix());
+		m_shader[i]->loadMatrix("u_projection", camera.getProjectionMatrix(), false);
 
 		m_textures[i].bind(0);
 		m_mesh[i]->drawRawInstanced();
@@ -591,7 +592,7 @@ void ObjModel::initAssets(AssetManager<Shader>& shaderManager, AssetManager<Text
 
 void ObjModel::UpdateViewUbo(const Camera& camera) {
 	glBindBuffer(GL_UNIFORM_BUFFER, s_viewUbo);
-	glBufferSubData(GL_UNIFORM_BUFFER, 0, 64, &camera.getViewMatrixTranspose()[0][0]);
+	glBufferSubData(GL_UNIFORM_BUFFER, 0, 64, &camera.getViewMatrix()[0][0]);
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 

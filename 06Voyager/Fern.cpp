@@ -27,8 +27,9 @@ void Fern::draw(const Camera& camera) {
 	}
 
 	glUseProgram(m_shader->m_program);
-	m_shader->loadMatrix("u_modelView", m_transform.getTransformationMatrix() * camera.getViewMatrix(), true);
-	m_shader->loadMatrix("u_projection", Globals::projection, true);
+	m_shader->loadMatrix("u_projection", Globals::projection, false);
+	m_shader->loadMatrix("u_view", camera.getViewMatrix(), false);
+	m_shader->loadMatrix("u_model", m_transform.getTransformationMatrix(), false);
 
 	m_texture->bind(0);
 
@@ -43,7 +44,9 @@ void Fern::draw(const Camera& camera) {
 		glStencilMask(0x00);
 
 		glUseProgram(m_colorShader->m_program);
-		m_colorShader->loadMatrix("u_transform", m_transformOutline * m_transform.getTransformationMatrix() * camera.getViewMatrix() * Globals::projection);
+		m_colorShader->loadMatrix("u_projection", Globals::projection, false);
+		m_colorShader->loadMatrix("u_view", camera.getViewMatrix(), false);
+		m_colorShader->loadMatrix("u_model", m_transform.getTransformationMatrix() * m_transformOutline, false);
 		m_colorShader->loadVector("u_color", Vector4f(1.0f, 1.0f, 0.0f, 1.0f));
 		m_model->drawRaw();
 		glUseProgram(0);
@@ -55,8 +58,8 @@ void Fern::draw(const Camera& camera) {
 	glDisable(GL_ALPHA_TEST);
 
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	//drawAABB(camera);
-	//drawSphere(camera);
+	drawAABB(camera);
+	drawSphere(camera);
 	drawHull(camera);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }

@@ -621,9 +621,10 @@ void MeshCube::draw(const Camera camera) {
 	//glEnable(GL_BLEND);
 	glUseProgram(m_shader->m_program);
 
+	m_shader->loadMatrix("u_projection", Globals::projection, false);
+	m_shader->loadMatrix("u_view", camera.getViewMatrix(), false);
+	m_shader->loadMatrix("u_model", Matrix4f::IDENTITY);
 	
-	m_shader->loadMatrix("u_modelView", camera.getViewMatrix());
-	m_shader->loadMatrix("u_projection", Globals::projection);
 	m_shader->loadFloat("dissolveAmount", m_dissolveAmount);
 
 	m_shader->loadInt("u_texture", 0);

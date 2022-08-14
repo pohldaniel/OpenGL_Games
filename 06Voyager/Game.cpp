@@ -81,7 +81,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_water(
 	m_bottom->buildMesh4Q();
 
 	std::vector<btCollisionShape*> bottomShape = Physics::CreateStaticCollisionShapes(m_bottom, 1.0f);
-	btRigidBody* bottomBody = Globals::physics->addStaticModel(bottomShape, Physics::BtTransform(), false, btVector3(1, 1, 1), Physics::collisiontypes::RENDERABLE_OBJECT | Physics::collisiontypes::PICKABLE_OBJECT | Physics::collisiontypes::TERRAIN, Physics::collisiontypes::RAY | Physics::collisiontypes::CAR);
+	btRigidBody* bottomBody = Globals::physics->addStaticModel(bottomShape, Physics::BtTransform(), false, btVector3(1, 1, 1), Physics::collisiontypes::RENDERABLE_OBJECT, Physics::collisiontypes::RAY | Physics::collisiontypes::CAR);
 
 
 	//m_entities.push_back(new MeshCube(Vector3f(HEIGHTMAP_WIDTH * 0.5f + 300.0f, 450.1f, HEIGHTMAP_WIDTH * 0.5f + 300.0f), 100, 100, 100));
@@ -119,20 +119,20 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_water(
 	m_tree->scale(10.0f, 10.0f, 10.0f);
 
 	std::vector<btCollisionShape*> treeShape = Physics::CreateStaticCollisionShapes(m_tree->getConvexHull().m_vertexBuffer, m_tree->getConvexHull().m_indexBuffer, 10.0f);
-	btRigidBody* treeBody = Globals::physics->addStaticModel(treeShape, Physics::BtTransform(Vector3f(HEIGHTMAP_WIDTH * 0.5f + 800.0f, m_terrain.getHeightMap().heightAt(HEIGHTMAP_WIDTH * 0.5f + 800.0f, HEIGHTMAP_WIDTH * 0.5f + 300.0f), HEIGHTMAP_WIDTH * 0.5f + 300.0f)), false, btVector3(1, 1, 1), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::RAY);
+	btRigidBody* treeBody = Globals::physics->addStaticModel(treeShape, Physics::BtTransform(Vector3f(HEIGHTMAP_WIDTH * 0.5f + 800.0f, m_terrain.getHeightMap().heightAt(HEIGHTMAP_WIDTH * 0.5f + 800.0f, HEIGHTMAP_WIDTH * 0.5f + 300.0f), HEIGHTMAP_WIDTH * 0.5f + 300.0f)), false, btVector3(1, 1, 1), Physics::collisiontypes::RENDERABLE_OBJECT, Physics::collisiontypes::RAY);
 
 
 	m_fernEntities.push_back(new Fern());
 	m_fernEntities.back()->translate(HEIGHTMAP_WIDTH * 0.5f + 400.0f, m_terrain.getHeightMap().heightAt(HEIGHTMAP_WIDTH * 0.5f + 400.0f, HEIGHTMAP_WIDTH * 0.5f + 400.0f), HEIGHTMAP_WIDTH * 0.5f + 400.0f);
 
 	std::vector<btCollisionShape*> fernShape1 = Physics::CreateStaticCollisionShapes(m_fernEntities.back()->getConvexHull().m_vertexBuffer, m_fernEntities.back()->getConvexHull().m_indexBuffer, 10.0f);
-	btRigidBody* fernBody1 = Globals::physics->addStaticModel(fernShape1, Physics::BtTransform(Vector3f(HEIGHTMAP_WIDTH * 0.5f + 400.0f, m_terrain.getHeightMap().heightAt(HEIGHTMAP_WIDTH * 0.5f + 400.0f, HEIGHTMAP_WIDTH * 0.5f + 400.0f), HEIGHTMAP_WIDTH * 0.5f + 400.0f)), false, btVector3(1, 1, 1), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::RAY);
+	btRigidBody* fernBody1 = Globals::physics->addStaticModel(fernShape1, Physics::BtTransform(Vector3f(HEIGHTMAP_WIDTH * 0.5f + 400.0f, m_terrain.getHeightMap().heightAt(HEIGHTMAP_WIDTH * 0.5f + 400.0f, HEIGHTMAP_WIDTH * 0.5f + 400.0f), HEIGHTMAP_WIDTH * 0.5f + 400.0f)), false, btVector3(1, 1, 1), Physics::collisiontypes::RENDERABLE_OBJECT, Physics::collisiontypes::RAY);
 
 	m_fernEntities.push_back(new Fern());
 	m_fernEntities.back()->translate(HEIGHTMAP_WIDTH * 0.5f + 500.0f, m_terrain.getHeightMap().heightAt(HEIGHTMAP_WIDTH * 0.5f + 400.0f, HEIGHTMAP_WIDTH * 0.5f + 400.0f), HEIGHTMAP_WIDTH * 0.5f + 400.0f);
 
 	std::vector<btCollisionShape*> fernShape2 = Physics::CreateStaticCollisionShapes(m_fernEntities.back()->getConvexHull().m_vertexBuffer, m_fernEntities.back()->getConvexHull().m_indexBuffer, 10.0f);
-	btRigidBody* fernBody2 = Globals::physics->addStaticModel(fernShape2, Physics::BtTransform(Vector3f(HEIGHTMAP_WIDTH * 0.5f + 500.0f, m_terrain.getHeightMap().heightAt(HEIGHTMAP_WIDTH * 0.5f + 400.0f, HEIGHTMAP_WIDTH * 0.5f + 400.0f), HEIGHTMAP_WIDTH * 0.5f + 400.0f)), false, btVector3(1, 1, 1), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::RAY);
+	btRigidBody* fernBody2 = Globals::physics->addStaticModel(fernShape2, Physics::BtTransform(Vector3f(HEIGHTMAP_WIDTH * 0.5f + 500.0f, m_terrain.getHeightMap().heightAt(HEIGHTMAP_WIDTH * 0.5f + 400.0f, HEIGHTMAP_WIDTH * 0.5f + 400.0f), HEIGHTMAP_WIDTH * 0.5f + 400.0f)), false, btVector3(1, 1, 1), Physics::collisiontypes::RENDERABLE_OBJECT, Physics::collisiontypes::RAY);
 	
 	for (auto entitie : m_fernEntities) {		
 		entitie->scale(10.0f, 10.0f, 10.0f);
@@ -144,8 +144,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_water(
 	btRigidBody* barrelBody = Globals::physics->addStaticModel(barrelShape, Physics::BtTransform(Vector3f(HEIGHTMAP_WIDTH * 0.5f + 200.0f, m_terrain.getHeightMap().heightAt(HEIGHTMAP_WIDTH * 0.5f + 200.0f, HEIGHTMAP_WIDTH * 0.5f + 200.0f) + 50.0f, HEIGHTMAP_WIDTH * 0.5f + 200.0f), Vector3f(0.0f, 0.0f, 1.0f), 90.0f), false, btVector3(1, 1, 1), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::RAY);
 	barrelBody->setUserPointer(reinterpret_cast<void*>(m_barrel));
 
-	
-	m_barrel->m_transform.fromMatrix(Physics::MatrixFrom(barrelBody->getWorldTransform(), barrelShape[0]->getLocalScaling())); //posRotScale
+	m_barrel->m_transform.fromMatrix(Physics::MatrixTransposeFrom(barrelBody->getWorldTransform(), barrelShape[0]->getLocalScaling())); //posRotScale
 
 	charachterSet.loadFromFile("res/verdana.fnt");
 
@@ -265,13 +264,13 @@ void Game::update() {
 		float mouseXndc = (2.0f * mouse.xPosAbsolute()) / (float)WIDTH - 1.0f;
 		float mouseYndc = 1.0f - (2.0f * mouse.yPosAbsolute()) / (float)HEIGHT;
 
-		Vector4f rayStartEye = Globals::invProjection ^ Vector4f(mouseXndc, mouseYndc, -1.0f, 1.0f);
-		Vector4f rayEndEye = Globals::invProjection ^ Vector4f(mouseXndc, mouseYndc, 1.0f, 1.0f);
+		Vector4f rayStartEye = Vector4f(mouseXndc, mouseYndc, -1.0f, 1.0f) ^ Globals::invProjection;
+		Vector4f rayEndEye = Vector4f(mouseXndc, mouseYndc, 1.0f, 1.0f) ^ Globals::invProjection;
 		rayEndEye = rayEndEye * (1.0f / rayEndEye[3]);
 
 		
-		Vector3f rayStartWorld = m_camera.getInvViewMatrix() * rayStartEye;
-		Vector3f rayEndWorld = m_camera.getInvViewMatrix() * rayEndEye;
+		Vector3f rayStartWorld = rayStartEye * m_camera.getInvViewMatrix();
+		Vector3f rayEndWorld = rayEndEye * m_camera.getInvViewMatrix();
 
 		Vector3f rayDirection = rayEndWorld - rayStartWorld;
 		Vector3f::Normalize(rayDirection);
@@ -279,15 +278,12 @@ void Game::update() {
 		btVector3 origin = btVector3(rayStartWorld[0], rayStartWorld[1], rayStartWorld[2]);		
 		btVector3 target = btVector3(rayEndWorld[0], rayEndWorld[1], rayEndWorld[2]);
 
+		RayResultCallback callback(origin, target, Physics::collisiontypes::RAY, Physics::collisiontypes::PICKABLE_OBJECT);
 		
-		RayResultCallback callback(origin, target, Physics::collisiontypes::RAY, Physics::collisiontypes::RENDERABLE_OBJECT);
-		callback.m_collisionFilterGroup = Physics::collisiontypes::RAY;
-		callback.m_collisionFilterMask = Physics::collisiontypes::RENDERABLE_OBJECT;
-
 		Globals::physics->GetDynamicsWorld()->rayTest(origin, target, callback);
 		if (callback.hasHit()) {
-			//MeshCube* cube = reinterpret_cast<MeshCube*>(callback.m_collisionObject->getUserPointer());
-			//cube->dissolve();			
+			MeshCube* cube = reinterpret_cast<MeshCube*>(callback.m_collisionObject->getUserPointer());
+			cube->dissolve();			
 		}
 		m_mousePicker.click();
 	}
@@ -318,8 +314,7 @@ void Game::update() {
 	m_skybox.update();
 	m_barrel->update(m_dt);
 	m_barrel->setDrawBorder(m_mousePicker.getPickedId() == m_barrel->getId());
-
-
+	
 	for (auto entitie : m_entities) {
 		entitie->update(m_dt);
 	}
@@ -350,8 +345,8 @@ void Game::render(unsigned int &frameBuffer) {
 	auto shader = Globals::shaderManager.getAssetPointer("terrain");
 	glUseProgram(shader->m_program);
 
-	shader->loadMatrixArray("u_projectionShadows", m_camera.lightProjections, m_camera.m_numberCascades);
-	shader->loadMatrixArray("u_viewShadows", m_camera.lightViews, m_camera.m_numberCascades);
+	shader->loadMatrixArray("u_projectionShadows", m_camera.lightProjections, m_camera.m_numberCascades, false);
+	shader->loadMatrixArray("u_viewShadows", m_camera.lightViews, m_camera.m_numberCascades, false);
 	shader->loadFloatArray("u_cascadeEndClipSpace", m_camera.m_cascadeEndClipSpace, m_camera.m_numberCascades);
 	shader->loadBool("u_debug", m_debug);
 	
@@ -362,7 +357,7 @@ void Game::render(unsigned int &frameBuffer) {
 	glActiveTexture(GL_TEXTURE5);
 	glBindTexture(GL_TEXTURE_2D_ARRAY, m_lightDepthFramebuffer.getDepthTexture());
 
-	m_terrain.draw(m_camera);
+	m_terrain.drawNormal(m_camera);
 	glUseProgram(0);
 
 	m_barrel->draw(m_camera);
@@ -377,7 +372,7 @@ void Game::render(unsigned int &frameBuffer) {
 	for (auto entitie : m_entities) {
 		entitie->draw(m_camera);
 	}
-	m_bottom->draw(m_camera);
+	//m_bottom->draw(m_camera);
 
 	m_mousePicker.draw(m_camera);
 
@@ -386,15 +381,16 @@ void Game::render(unsigned int &frameBuffer) {
 	if (m_debugNormal) {
 		auto normalGS = Globals::shaderManager.getAssetPointer("normalGS");
 		glUseProgram(normalGS->m_program);
-		normalGS->loadMatrix("u_projection", Globals::projection);
-		normalGS->loadMatrix("u_modelView", m_barrel->getTransformationMatrix() * m_camera.getViewMatrix());
+		normalGS->loadMatrix("u_projection", Globals::projection, false);
+		normalGS->loadMatrix("u_view", m_camera.getViewMatrix(), false);
+		normalGS->loadMatrix("u_model", m_barrel->getTransformationMatrix());
 		normalGS->loadMatrix("u_normal", Matrix4f::GetNormalMatrix(m_barrel->getTransformationMatrix() * m_camera.getViewMatrix()));
 		m_barrel->drawShadow(m_camera);
 		glUseProgram(0);
 	}
 
 	m_skybox.render(m_camera);
-	m_ray.draw(m_camera);
+	//m_ray.draw(m_camera);
 	m_text->render();
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);	
 
@@ -460,7 +456,7 @@ void Game::renderOffscreen() {
 	m_water.bindReflectionBuffer();
 	glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	
+
 	glUseProgram(Globals::shaderManager.getAssetPointer("terrain")->m_program);
 	Globals::shaderManager.getAssetPointer("terrain")->loadVector("u_plane", Vector4f(0.0f, 1.0f, 0.0f, -m_water.getWaterLevel()));
 	glUseProgram(0);
@@ -479,7 +475,7 @@ void Game::renderOffscreen() {
 	glUseProgram(Globals::shaderManager.getAssetPointer("terrain")->m_program);
 	Globals::shaderManager.getAssetPointer("terrain")->loadVector("u_plane", Vector4f(0.0f, -1.0f, 0.0f, m_water.getWaterLevel()));
 	glUseProgram(0);
-	m_terrain.draw(m_camera);
+	m_terrain.drawNormal(m_camera);
 	Framebuffer::Unbind();
 
 	glDisable(GL_CLIP_DISTANCE0);
@@ -492,8 +488,8 @@ void Game::shadowPass() {
 
 	auto shader = Globals::shaderManager.getAssetPointer("depthGS");
 	glUseProgram(shader->m_program);
-	shader->loadMatrixArray("u_projectionShadows", m_camera.lightProjections, m_camera.m_numberCascades);
-	shader->loadMatrixArray("u_viewShadows", m_camera.lightViews, m_camera.m_numberCascades);
+	shader->loadMatrixArray("u_projectionShadows", m_camera.lightProjections, m_camera.m_numberCascades, false);
+	shader->loadMatrixArray("u_viewShadows", m_camera.lightViews, m_camera.m_numberCascades, false);
 
 	for (unsigned short j = 0; j < m_camera.m_numberCascades; j++) {
 		shader->loadInt("u_numCascades", j);
@@ -503,15 +499,15 @@ void Game::shadowPass() {
 			entitie->drawShadow(m_camera);
 		}
 
-		shader->loadMatrix("u_model", m_tree->getTransformationMatrix());
+		shader->loadMatrix("u_model", m_tree->getTransformationMatrix(), false);
 		m_tree->drawShadow(m_camera);
 
 		for (auto entitie : m_fernEntities) {
-			shader->loadMatrix("u_model", entitie->getTransformationMatrix());
+			shader->loadMatrix("u_model", entitie->getTransformationMatrix(), false);
 			entitie->drawShadow(m_camera);
 		}
 
-		shader->loadMatrix("u_model", m_barrel->getTransformationMatrix());
+		shader->loadMatrix("u_model", m_barrel->getTransformationMatrix(), false);
 		m_barrel->drawShadow(m_camera);
 
 	}

@@ -104,7 +104,7 @@ void Text::addChar(const Vector2f& pos, unsigned int _c, std::vector<float>& ver
 void Text::render() {
 	glEnable(GL_BLEND);
 	glUseProgram(m_fontShader->m_program);
-	m_fontShader->loadMatrix("u_projection", m_projection);
+	m_fontShader->loadMatrix("u_projection", m_projection, false);
 	m_fontShader->loadMatrix("u_model", m_transform);
 	m_fontShader->loadVector("u_blendColor", m_blendColor);
 

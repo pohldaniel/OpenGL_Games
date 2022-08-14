@@ -16,7 +16,9 @@ out vec3 v_lightDirection[MAX_LIGHTS];
 out vec3 v_viewDirection;
 
 uniform mat4 u_projection;
-uniform mat4 u_modelView;
+uniform mat4 u_view;
+uniform mat4 u_model;
+
 uniform mat4 u_normal;
 uniform mat4 u_modelViewLight;
 
@@ -32,7 +34,7 @@ void main(void){
 					v_tangent.y, v_bitangent.y, v_normal.y,
 					v_tangent.z, v_bitangent.z, v_normal.z);
 
-	vec4 vertexInCamSpace = u_modelView * vec4(i_position, 1.0);
+	vec4 vertexInCamSpace = u_view * u_model * vec4(i_position, 1.0);
 
 	v_viewDirection = - TBN * vertexInCamSpace.xyz;
 

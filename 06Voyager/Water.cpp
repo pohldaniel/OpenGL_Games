@@ -115,7 +115,8 @@ void Water::render(const Camera& camera, const unsigned int &reflectionTexture, 
 	if (move > 1.0f) move = 0.0f;
 	
 	glUseProgram(m_waterShader->m_program);
-	m_waterShader->loadMatrix("u_transform", camera.getViewMatrix() * Globals::projection);
+	m_waterShader->loadMatrix("u_projection", Globals::projection, false);
+	m_waterShader->loadMatrix("u_view", camera.getViewMatrix(), false);
 	m_waterShader->loadMatrix("u_normal", Matrix4f::GetNormalMatrix(camera.getViewMatrix()));
 	m_waterShader->loadVector("cameraPos", camera.getPosition());
 

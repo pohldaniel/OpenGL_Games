@@ -63,13 +63,13 @@ void MousePicker::updatePosition(unsigned int posX, unsigned int posY, const Cam
 	float mouseXndc = (2.0f * posX) / (float)WIDTH - 1.0f;
 	float mouseYndc = 1.0f - (2.0f * posY) / (float)HEIGHT;
 
-	Vector4f rayStartEye = Globals::invProjection ^ Vector4f(mouseXndc, mouseYndc, -1.0f, 1.0f);
-	Vector4f rayEndEye = Globals::invProjection ^ Vector4f(mouseXndc, mouseYndc, 1.0f, 1.0f);
+	Vector4f rayStartEye = Vector4f(mouseXndc, mouseYndc, -1.0f, 1.0f) ^ Globals::invProjection;
+	Vector4f rayEndEye = Vector4f(mouseXndc, mouseYndc, 1.0f, 1.0f) ^ Globals::invProjection;
 	rayEndEye = rayEndEye * (1.0f / rayEndEye[3]);
 
 
-	Vector3f rayStartWorld = camera.getInvViewMatrix() * rayStartEye;
-	Vector3f rayEndWorld = camera.getInvViewMatrix() * rayEndEye;
+	Vector3f rayStartWorld = rayStartEye * camera.getInvViewMatrix();
+	Vector3f rayEndWorld = rayEndEye * camera.getInvViewMatrix();
 
 	Vector3f rayDirection = rayEndWorld - rayStartWorld;
 	Vector3f::Normalize(rayDirection);
@@ -78,7 +78,7 @@ void MousePicker::updatePosition(unsigned int posX, unsigned int posY, const Cam
 	btVector3 origin = btVector3(rayStartWorld[0], rayStartWorld[1], rayStartWorld[2]);
 	btVector3 target = btVector3(rayEndWorld[0], rayEndWorld[1], rayEndWorld[2]);
 
-	MousePickCallback callback(origin, target, Physics::collisiontypes::RAY, Physics::collisiontypes::TERRAIN | Physics::collisiontypes::PICKABLE_OBJECT);
+	MousePickCallback callback(origin, target, Physics::collisiontypes::RAY, Physics::collisiontypes::TERRAIN | Physics::collisiontypes::RENDERABLE_OBJECT);
 	
 	Globals::physics->GetDynamicsWorld()->rayTest(origin, target, callback);
 

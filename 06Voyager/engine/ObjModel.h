@@ -28,10 +28,11 @@
 					layout(location = 2) in vec3 i_normal;									\n \
 																							\n \
 					uniform mat4 u_projection = mat4(1.0);									\n \
-					uniform mat4 u_modelView = mat4(1.0);									\n \
+					uniform mat4 u_view = mat4(1.0);										\n \
+					uniform mat4 u_model = mat4(1.0);										\n \
 																							\n \
 					void main() {															\n \
-						gl_Position = u_projection * u_modelView * vec4(i_position, 1.0);	\n \
+						gl_Position = u_projection * u_view * u_model * vec4(i_position, 1.0);	\n \
 					}"
 
 
@@ -60,10 +61,11 @@
 							out vec2 v_texCoord;												\n \
 																								\n \
 							uniform mat4 u_projection = mat4(1.0);								\n \
-							uniform mat4 u_modelView = mat4(1.0);								\n \
+							uniform mat4 u_view = mat4(1.0);									\n \
+							uniform mat4 u_model = mat4(1.0);									\n \
 																								\n \
 							void main() {														\n \
-							gl_Position =   u_projection * u_modelView * vec4(i_position, 1.0);	\n \
+							gl_Position =   u_projection * u_view * u_model * vec4(i_position, 1.0);	\n \
 								v_texCoord = i_texCoord;										\n \
 							}"
 

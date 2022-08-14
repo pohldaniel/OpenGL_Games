@@ -152,7 +152,8 @@ LRESULT Application::DisplayWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 			}
 			
 			glViewport(0, 0, _width, _height);			
-			Globals::projection = Matrix4f::GetPerspective(Globals::projection, 45.0f, static_cast<float>(_width) / static_cast<float>(_height), 1.0f, 5000.0f);
+			//Globals::projection = Matrix4f::GetPerspective(Globals::projection, 45.0f, static_cast<float>(_width) / static_cast<float>(_height), 1.0f, 5000.0f);
+			Globals::projection.perspective(45.0f, static_cast<float>(_width) / static_cast<float>(_height), 1.0f, 5000.0f);
 			Globals::invProjection = Matrix4f::GetInvPerspective(Globals::invProjection, 45.0f, static_cast<float>(_width) / static_cast<float>(_height), 1.0f, 5000.0f);
 			//Globals::ortoghraphic = Matrix4f::GetOrthographic(Globals::ortoghraphic, -static_cast<float>(_width) * 0.5f, static_cast<float>(_width)* 0.5f, 0.0f, static_cast<float>(_height), -1.0f, 1.0f);
 			Globals::orthographic = Matrix4f::GetOrthographic(Globals::orthographic, 0.0f, static_cast<float>(_width), 0.0f, static_cast<float>(_height), -1.0f, 1.0f);

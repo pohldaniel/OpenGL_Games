@@ -44,7 +44,7 @@ Shader& Shader::get() {
 }
 
 //OpenGL specifies matrices as column-major to get row-major just transpose it
-void Shader::loadMatrix(const char* location, const Matrix4f matrix, bool trans) {
+void Shader::loadMatrix(const char* location, const Matrix4f& matrix, bool trans) {
 	glUniformMatrix4fv(glGetUniformLocation(m_program, location), 1, trans, &matrix[0][0]);
 }
 

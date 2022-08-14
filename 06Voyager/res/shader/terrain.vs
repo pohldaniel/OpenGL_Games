@@ -17,7 +17,6 @@ flat out uint numCascades;
 uniform float tilingFactor;
 uniform mat4 u_projection;
 uniform mat4 u_modelView;
-uniform mat4 u_transform = mat4(1.0);
 uniform mat4 u_normal = mat4(1.0);
 uniform vec4 u_plane;
 

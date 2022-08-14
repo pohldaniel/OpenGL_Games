@@ -108,11 +108,13 @@ void SkyBox::update() {
 
 void SkyBox::render(const Camera& camera) {
 	Matrix4f view = camera.getViewMatrix();
-	view[0][3] = 0.0f; view[1][3] = 0.0f; view[2][3] = 0.0f;
+	view[3][0] = 0.0f; view[3][1] = 0.0f; view[3][2] = 0.0f;
 	
 	glDepthFunc(GL_LEQUAL);
 	glUseProgram(m_skyboxShader->m_program);
-	m_skyboxShader->loadMatrix("u_transform", m_model * view * Globals::projection );
+	m_skyboxShader->loadMatrix("u_projection", Globals::projection, false);
+	m_skyboxShader->loadMatrix("u_view", view, false);
+	m_skyboxShader->loadMatrix("u_model", m_model);
 	m_skyboxShader->loadFloat("u_blendFactor", m_blend);
 	m_skyboxShader->loadInt("u_day", 0);
 	m_skyboxShader->loadInt("u_nigth", 1);

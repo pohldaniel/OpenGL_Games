@@ -13,7 +13,8 @@ out vec3 bitangent;
 
 
 uniform mat4 u_projection;
-uniform mat4 u_modelView;
+uniform mat4 u_view;
+uniform mat4 u_model;
 uniform mat4 u_normal;
 
 
@@ -25,6 +26,6 @@ void main(void){
 
 	
 
-	gl_Position = u_modelView * vec4(i_position, 1.0);
+	gl_Position = u_view * u_model * vec4(i_position, 1.0);
 
 }
