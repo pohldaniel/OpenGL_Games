@@ -8,7 +8,7 @@
 unsigned int ObjModel::s_materialUbo = 0;
 unsigned int ObjModel::s_viewUbo = 0;
 
-ObjModel::ObjModel() : m_size(0), m_stride(0), m_offset(0), m_numberOfBytes(0) {
+ObjModel::ObjModel() : m_stride(0), m_offset(0) {
 	m_numberOfMeshes = 0;
 	m_numberOfTriangles = 0;
 	m_mltPath = "";
@@ -61,16 +61,17 @@ std::string ObjModel::getModelDirectory() {
 	return m_modelDirectory;
 }
 
-bool ObjModel::loadObject(const char* filename) {
-	return loadObject(filename, Vector3f(0.0, 1.0, 0.0), 0.0, Vector3f(0.0, 0.0, 0.0), 1.0);
+bool ObjModel::loadObject(const char* filename, bool asSingleMesh) {
+	return loadObject(filename, Vector3f(0.0, 1.0, 0.0), 0.0, Vector3f(0.0, 0.0, 0.0), 1.0, asSingleMesh);
 }
 
 bool compare(const std::array<int, 10> &i_lhs, const std::array<int, 10> &i_rhs) {
 	return i_lhs[9] < i_rhs[9];
 }
 
-bool ObjModel::loadObject(const char* a_filename, Vector3f& axis, float degree, Vector3f& translate, float scale) {
-	
+bool ObjModel::loadObject(const char* a_filename, Vector3f& axis, float degree, Vector3f& translate, float scale, bool asSingleMesh) {
+	m_isSingleMesh = asSingleMesh;
+
 	std::string filename(a_filename);
 
 	const size_t index = filename.rfind('/');
@@ -289,7 +290,8 @@ bool ObjModel::loadObject(const char* a_filename, Vector3f& axis, float degree, 
 	indexBufferCreator.positionCoordsIn = vertexCoords;
 	indexBufferCreator.normalCoordsIn = normalCoords;
 	indexBufferCreator.textureCoordsIn = textureCoords;
-	
+
+
 	for (int j = 0; j < m_numberOfMeshes; j++) {
 		std::vector<std::array<int, 10>>::const_iterator first = face.begin() + m_mesh[j]->m_triangleOffset;
 		std::vector<std::array<int, 10>>::const_iterator last = face.begin() + (m_mesh[j]->m_triangleOffset + m_mesh[j]->m_numberOfTriangles);
@@ -297,22 +299,26 @@ bool ObjModel::loadObject(const char* a_filename, Vector3f& axis, float degree, 
 		indexBufferCreator.face = subFace;
 		indexBufferCreator.createIndexBuffer();
 
-		m_mesh[j]->m_indexBuffer = indexBufferCreator.indexBufferOut;
-		m_mesh[j]->m_vertexBuffer = indexBufferCreator.vertexBufferOut;
-
 		if (!textureCoords.empty() && !normalCoords.empty()) {
 			m_hasTextureCoords = true; m_hasNormals = true;
+			m_stride = 8;
 			m_mesh[j]->m_hasTextureCoords = true; m_mesh[j]->m_hasNormals = true;
 			m_mesh[j]->m_stride = 8;
+
 		}else if (!normalCoords.empty()) {
 			m_hasNormals = true;
+			m_stride = 6;
 			m_mesh[j]->m_hasNormals = true;
 			m_mesh[j]->m_stride = 6;
+
 		}else if (!textureCoords.empty()) {
 			m_hasTextureCoords = true;
+			m_stride = 5;
 			m_mesh[j]->m_hasTextureCoords = true;
 			m_mesh[j]->m_stride = 5;
+
 		}else {
+			m_stride = 3;
 			m_mesh[j]->m_stride = 3;
 		}
 
@@ -320,12 +326,34 @@ bool ObjModel::loadObject(const char* a_filename, Vector3f& axis, float degree, 
 			m_mesh[j]->readMaterial();
 		}
 
-		m_mesh[j]->createBuffer();
+		if (!m_isSingleMesh) {
+			m_mesh[j]->m_indexBuffer = indexBufferCreator.indexBufferOut;
+			m_mesh[j]->m_vertexBuffer = indexBufferCreator.vertexBufferOut;
 
+			ObjModel::CreateBuffer(m_mesh[j]->m_vertexBuffer,
+					m_mesh[j]->m_indexBuffer,
+					m_mesh[j]->m_drawCount,
+					m_mesh[j]->m_vao,
+					m_mesh[j]->m_vbo,
+					m_mesh[j]->m_ibo,
+					m_mesh[j]->m_stride);
+		}else {
+			m_mesh[j]->m_drawCount = subFace.size() * 3;
+			m_mesh[j]->m_baseIndex = m_indexBuffer.size();
+			m_mesh[j]->m_baseVertex = m_vertexBuffer.size() / m_stride;
+
+			m_vertexBuffer.insert(m_vertexBuffer.end(), indexBufferCreator.vertexBufferOut.begin(), indexBufferCreator.vertexBufferOut.end());
+			m_indexBuffer.insert(m_indexBuffer.end(), indexBufferCreator.indexBufferOut.begin(), indexBufferCreator.indexBufferOut.end());
+		}
+			
 		indexBufferCreator.indexBufferOut.clear();
 		indexBufferCreator.indexBufferOut.shrink_to_fit();
 		indexBufferCreator.vertexBufferOut.clear();
 		indexBufferCreator.vertexBufferOut.shrink_to_fit();
+	}
+
+	if (m_isSingleMesh) {
+		ObjModel::CreateBuffer(m_vertexBuffer, m_indexBuffer, m_drawCount, m_vao, m_vbo, m_ibo, m_stride);
 	}
 
 	indexBufferCreator.positionCoordsIn.clear();
@@ -346,6 +374,22 @@ void ObjModel::drawRawInstanced() {
 	for (int j = 0; j < m_numberOfMeshes; j++) {
 		m_mesh[j]->drawRawInstanced();
 	}
+}
+
+void ObjModel::drawRawAsSingleMesh() {
+	glBindVertexArray(m_vao);
+	for (int i = 0; i < m_mesh.size(); i++) {
+		glDrawElementsBaseVertex(GL_TRIANGLES, m_mesh[i]->m_drawCount, GL_UNSIGNED_INT, (void*)(sizeof(unsigned int) * m_mesh[i]->m_baseIndex), m_mesh[i]->m_baseVertex);
+	}
+	glBindVertexArray(0);
+}
+
+void ObjModel::drawRawInstancedAsSingleMesh() {
+	glBindVertexArray(m_vao);
+	for (int i = 0; i < m_mesh.size(); i++) {
+		glDrawElementsInstancedBaseVertexBaseInstance(GL_TRIANGLES, m_mesh[i]->m_drawCount, GL_UNSIGNED_INT, (void*)(sizeof(unsigned int) * m_mesh[i]->m_baseIndex), m_instanceCount, m_mesh[i]->m_baseVertex, 0);
+	}
+	glBindVertexArray(0);
 }
 
 void ObjModel::draw(Camera& camera) {
@@ -381,6 +425,42 @@ void ObjModel::drawInstanced(Camera& camera) {
 	}
 
 	Texture::Unbind();
+}
+
+void ObjModel::drawAsSingleMesh(Camera& camera) {
+	glBindVertexArray(m_vao);
+	for (int i = 0; i < m_mesh.size(); i++) {
+		m_mesh[i]->updateMaterialUbo(s_materialUbo);
+
+		glUseProgram(m_shader[i]->m_program);
+
+		m_shader[i]->loadMatrix("u_projection", camera.getProjectionMatrix());
+		m_shader[i]->loadMatrix("u_view", camera.getViewMatrix());
+		m_shader[i]->loadMatrix("u_model", m_transform.getTransformationMatrix());
+
+		m_textures[i].bind(0);
+		glDrawElementsBaseVertex(GL_TRIANGLES, m_mesh[i]->m_drawCount, GL_UNSIGNED_INT, (void*)(sizeof(unsigned int) * m_mesh[i]->m_baseIndex), m_mesh[i]->m_baseVertex);
+		glUseProgram(0);
+	}
+	Texture::Unbind();
+	glBindVertexArray(0);
+}
+
+void ObjModel::drawInstancedAsSingleMesh(Camera& camera) {
+	glBindVertexArray(m_vao);
+	for (int i = 0; i < m_mesh.size(); i++) {
+		m_mesh[i]->updateMaterialUbo(s_materialUbo);
+
+		glUseProgram(m_shader[i]->m_program);
+
+		m_shader[i]->loadMatrix("u_projection", camera.getProjectionMatrix());
+		m_textures[i].bind(0);
+		glDrawElementsInstancedBaseVertexBaseInstance(GL_TRIANGLES, m_mesh[i]->m_drawCount, GL_UNSIGNED_INT, (void*)(sizeof(unsigned int) * m_mesh[i]->m_baseIndex), m_instanceCount, m_mesh[i]->m_baseVertex, 0);
+			
+		glUseProgram(0);
+	}
+	Texture::Unbind();
+	glBindVertexArray(0);
 }
 
 void ObjModel::drawAABB() {
@@ -450,14 +530,48 @@ void ObjModel::createInstancesStatic(std::vector<Matrix4f>& modelMTX) {
 }
 
 void ObjModel::createInstancesDynamic(unsigned int numberOfInstances){
-	for (int j = 0; j < m_numberOfMeshes; j++) {
-		m_mesh[j]->createInstancesDynamic(numberOfInstances);
+	if (m_isSingleMesh) {
+		m_instanceCount = numberOfInstances;
+		glGenBuffers(1, &m_vboInstances);
+
+		glBindVertexArray(m_vao);
+
+		glBindBuffer(GL_ARRAY_BUFFER, m_vboInstances);
+		glBufferData(GL_ARRAY_BUFFER, m_instanceCount * sizeof(GLfloat) * 4 * 4, NULL, GL_DYNAMIC_DRAW);
+		//glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+
+		glEnableVertexAttribArray(3);
+		glEnableVertexAttribArray(4);
+		glEnableVertexAttribArray(5);
+		glEnableVertexAttribArray(6);
+		glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 4 * 4, (void*)(0));
+		glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 4 * 4, (void*)(sizeof(float) * 4));
+		glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 4 * 4, (void*)(sizeof(float) * 8));
+		glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 4 * 4, (void*)(sizeof(float) * 12));
+
+		glVertexAttribDivisor(3, 1);
+		glVertexAttribDivisor(4, 1);
+		glVertexAttribDivisor(5, 1);
+		glVertexAttribDivisor(6, 1);
+
+		glBindVertexArray(0);
+	}else {
+		for (int j = 0; j < m_numberOfMeshes; j++) {
+			m_mesh[j]->createInstancesDynamic(numberOfInstances);
+		}
 	}
 }
 
 void ObjModel::updateInstances(std::vector<Matrix4f>& modelMTX) {
-	for (int j = 0; j < m_numberOfMeshes; j++) {
-		m_mesh[j]->updateInstances(modelMTX);
+	if (m_isSingleMesh) {
+		glBindBuffer(GL_ARRAY_BUFFER, m_vboInstances);
+		glBufferSubData(GL_ARRAY_BUFFER, 0, modelMTX.size() * sizeof(GLfloat) * 4 * 4, modelMTX[0][0]);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+	}else {
+		for (int j = 0; j < m_numberOfMeshes; j++) {
+			m_mesh[j]->updateInstances(modelMTX);
+		}
 	}
 }
 
@@ -599,6 +713,85 @@ void ObjModel::UpdateViewUbo(const Camera& camera) {
 	glBindBuffer(GL_UNIFORM_BUFFER, s_viewUbo);
 	glBufferSubData(GL_UNIFORM_BUFFER, 0, 64, &camera.getViewMatrix()[0][0]);
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+}
+
+void ObjModel::CreateBuffer(std::vector<float>& vertexBuffer, std::vector<unsigned int> indexBuffer, unsigned int& drawCount, unsigned int& vao, unsigned int (&vbo)[5], unsigned int& ibo, unsigned int stride) {
+	drawCount = indexBuffer.size();
+
+	if (vao)
+		glDeleteVertexArrays(1, &vao);
+
+	if (vbo[0])
+		glDeleteBuffers(1, &vbo[0]);
+
+	if (vbo[1])
+		glDeleteBuffers(1, &vbo[1]);
+
+	if (vbo[2])
+		glDeleteBuffers(1, &vbo[2]);
+
+	if (vbo[3])
+		glDeleteBuffers(1, &vbo[3]);
+
+	if (vbo[4])
+		glDeleteBuffers(1, &vbo[4]);
+
+	if (ibo)
+		glDeleteBuffers(1, &ibo);
+
+
+	glGenBuffers(5, vbo);
+	glGenBuffers(1, &ibo);
+
+	glGenVertexArrays(1, &vao);
+	glBindVertexArray(vao);
+
+	//Position
+	glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
+	glBufferData(GL_ARRAY_BUFFER, vertexBuffer.size() * sizeof(float), &vertexBuffer[0], GL_STATIC_DRAW);
+
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)0);
+
+	//Texture Coordinates
+	if (stride == 5 || stride == 8 || stride == 14) {
+
+		glBindBuffer(GL_ARRAY_BUFFER, vbo[1]);
+		glBufferData(GL_ARRAY_BUFFER, vertexBuffer.size() * sizeof(float), &vertexBuffer[0], GL_STATIC_DRAW);
+
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)(3 * sizeof(float)));
+	}
+
+	//Normals
+	if (stride == 6 || stride == 8 || stride == 14) {
+		glBindBuffer(GL_ARRAY_BUFFER, vbo[2]);
+		glBufferData(GL_ARRAY_BUFFER, vertexBuffer.size() * sizeof(float), &vertexBuffer[0], GL_STATIC_DRAW);
+
+		glEnableVertexAttribArray(2);
+		glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)((stride == 6 || stride == 8) ? 5 * sizeof(float) : 3 * sizeof(float)));
+	}
+
+	if (stride == 14) {
+		glBindBuffer(GL_ARRAY_BUFFER, vbo[3]);
+		glBufferData(GL_ARRAY_BUFFER, vertexBuffer.size() * sizeof(float), &vertexBuffer[0], GL_STATIC_DRAW);
+
+		glEnableVertexAttribArray(3);
+		glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)(8 * sizeof(float)));
+
+		glBindBuffer(GL_ARRAY_BUFFER, vbo[4]);
+		glBufferData(GL_ARRAY_BUFFER, vertexBuffer.size() * sizeof(float), &vertexBuffer[0], GL_STATIC_DRAW);
+
+		glEnableVertexAttribArray(4);
+		glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)(11 * sizeof(float)));
+
+	}
+
+	//Indices
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexBuffer.size() * sizeof(m_indexBuffer[0]), &indexBuffer[0], GL_STATIC_DRAW);
+
+	glBindVertexArray(0);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -757,85 +950,6 @@ bool Mesh::readMaterial() {
 	}
 
 	return true;
-}
-
-void Mesh::createBuffer() {
-	m_drawCount = m_indexBuffer.size();
-
-	if(m_vao) 
-		glDeleteVertexArrays(1, &m_vao);
-
-	if(m_vbo[0])
-		glDeleteBuffers(1, &m_vbo[0]);
-
-	if (m_vbo[1])
-		glDeleteBuffers(1, &m_vbo[1]);
-
-	if (m_vbo[2])
-		glDeleteBuffers(1, &m_vbo[2]);
-
-	if (m_vbo[3])
-		glDeleteBuffers(1, &m_vbo[3]);
-
-	if (m_vbo[4])
-		glDeleteBuffers(1, &m_vbo[4]);
-
-	if (m_ibo)
-		glDeleteBuffers(1, &m_ibo);
-
-
-	glGenBuffers(m_numBuffers, m_vbo);
-	glGenBuffers(1, &m_ibo);
-
-	glGenVertexArrays(1, &m_vao);
-	glBindVertexArray(m_vao);
-
-	//Position
-	glBindBuffer(GL_ARRAY_BUFFER, m_vbo[0]);
-	glBufferData(GL_ARRAY_BUFFER, m_vertexBuffer.size() * sizeof(float), &m_vertexBuffer[0], GL_STATIC_DRAW);
-
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, m_stride * sizeof(float), (void*)0);
-
-	//Texture Coordinates
-	if (m_model->m_hasTextureCoords) {
-		
-		glBindBuffer(GL_ARRAY_BUFFER, m_vbo[1]);
-		glBufferData(GL_ARRAY_BUFFER, m_vertexBuffer.size() * sizeof(float), &m_vertexBuffer[0], GL_STATIC_DRAW);
-
-		glEnableVertexAttribArray(1);
-		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, m_stride * sizeof(float), (void*)(3 * sizeof(float)));
-	}
-
-	//Normals
-	if (m_model->m_hasNormals) {
-		glBindBuffer(GL_ARRAY_BUFFER, m_vbo[2]);
-		glBufferData(GL_ARRAY_BUFFER, m_vertexBuffer.size() * sizeof(float), &m_vertexBuffer[0], GL_STATIC_DRAW);
-
-		glEnableVertexAttribArray(2);
-		glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, m_stride * sizeof(float), (void*)(m_model->m_hasTextureCoords ? 5 * sizeof(float) : 3 * sizeof(float)));
-	}
-
-	if (m_hasTangents) {
-		glBindBuffer(GL_ARRAY_BUFFER, m_vbo[3]);
-		glBufferData(GL_ARRAY_BUFFER, m_vertexBuffer.size() * sizeof(float), &m_vertexBuffer[0], GL_STATIC_DRAW);
-
-		glEnableVertexAttribArray(3);
-		glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, m_stride * sizeof(float), (void*)(8 * sizeof(float)));
-
-		glBindBuffer(GL_ARRAY_BUFFER, m_vbo[4]);
-		glBufferData(GL_ARRAY_BUFFER, m_vertexBuffer.size() * sizeof(float), &m_vertexBuffer[0], GL_STATIC_DRAW);
-
-		glEnableVertexAttribArray(4);
-		glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, m_stride * sizeof(float), (void*)(11 * sizeof(float)));
-
-	}
-
-	//Indices
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ibo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_indexBuffer.size() * sizeof(m_indexBuffer[0]), &m_indexBuffer[0], GL_STATIC_DRAW);
-
-	glBindVertexArray(0);
 }
 
 void Mesh::createInstancesStatic(std::vector<Matrix4f>& modelMTX){
@@ -997,7 +1111,8 @@ void Mesh::generateNormals() {
 	
 	m_stride = m_model->m_hasTextureCoords ? 8 : 6;
 	m_hasNormals = true;
-	createBuffer();
+
+	ObjModel::CreateBuffer(m_vertexBuffer, m_indexBuffer, m_drawCount, m_vao, m_vbo, m_ibo, m_stride);
 }
 
 void Mesh::generateTangents() {
@@ -1174,7 +1289,8 @@ void Mesh::generateTangents() {
 	tmpVertex.clear();
 	m_stride = 14;
 	m_hasTangents = true;
-	createBuffer();
+
+	ObjModel::CreateBuffer(m_vertexBuffer, m_indexBuffer, m_drawCount, m_vao, m_vbo, m_ibo, m_stride);
 }
 
 Mesh::~Mesh() {}
@@ -1270,7 +1386,83 @@ void IndexBufferCreator::createIndexBuffer() {
 			indexBufferOut[i * 3 + 2] = addVertex(((face[i])[2] - 1), &vertex3[0], 3);
 		}
 	}
+	
+	face.clear();
+	face.shrink_to_fit();
+
 	std::map<int, std::vector<int>>().swap(m_vertexCache);
+}
+
+void IndexBufferCreator::expandIndexBuffer() {
+	
+
+	if (!textureCoordsIn.empty() && !normalCoordsIn.empty()) {
+		for (int i = 0; i < face.size(); i++) {
+
+			float vertex1[] = { positionCoordsIn[((face[i])[0] - 1) * 3], positionCoordsIn[((face[i])[0] - 1) * 3 + 1], positionCoordsIn[((face[i])[0] - 1) * 3 + 2],
+				textureCoordsIn[((face[i])[3] - 1) * 2], textureCoordsIn[((face[i])[3] - 1) * 2 + 1],
+				normalCoordsIn[((face[i])[6] - 1) * 3], normalCoordsIn[((face[i])[6] - 1) * 3 + 1], normalCoordsIn[((face[i])[6] - 1) * 3 + 2] };
+			indexBufferOut[i * 3] = addVertex(((face[i])[0] - 1), &vertex1[0], 8);
+
+			float vertex2[] = { positionCoordsIn[((face[i])[1] - 1) * 3], positionCoordsIn[((face[i])[1] - 1) * 3 + 1], positionCoordsIn[((face[i])[1] - 1) * 3 + 2],
+				textureCoordsIn[((face[i])[4] - 1) * 2], textureCoordsIn[((face[i])[4] - 1) * 2 + 1],
+				normalCoordsIn[((face[i])[7] - 1) * 3], normalCoordsIn[((face[i])[7] - 1) * 3 + 1], normalCoordsIn[((face[i])[7] - 1) * 3 + 2] };
+			indexBufferOut[i * 3 + 1] = addVertex(((face[i])[1] - 1), &vertex2[0], 8);
+
+			float vertex3[] = { positionCoordsIn[((face[i])[2] - 1) * 3], positionCoordsIn[((face[i])[2] - 1) * 3 + 1], positionCoordsIn[((face[i])[2] - 1) * 3 + 2],
+				textureCoordsIn[((face[i])[5] - 1) * 2], textureCoordsIn[((face[i])[5] - 1) * 2 + 1],
+				normalCoordsIn[((face[i])[8] - 1) * 3], normalCoordsIn[((face[i])[8] - 1) * 3 + 1], normalCoordsIn[((face[i])[8] - 1) * 3 + 2] };
+			indexBufferOut[i * 3 + 2] = addVertex(((face[i])[2] - 1), &vertex3[0], 8);
+		}
+
+	}else if (!normalCoordsIn.empty()) {
+
+		for (int i = 0; i < face.size(); i++) {
+
+			float vertex1[] = { positionCoordsIn[((face[i])[0] - 1) * 3], positionCoordsIn[((face[i])[0] - 1) * 3 + 1], positionCoordsIn[((face[i])[0] - 1) * 3 + 2],
+				normalCoordsIn[((face[i])[6] - 1) * 3], normalCoordsIn[((face[i])[6] - 1) * 3 + 1], normalCoordsIn[((face[i])[6] - 1) * 3 + 2] };
+			indexBufferOut[i * 3] = addVertex(((face[i])[0] - 1), &vertex1[0], 6);
+
+			float vertex2[] = { positionCoordsIn[((face[i])[1] - 1) * 3], positionCoordsIn[((face[i])[1] - 1) * 3 + 1], positionCoordsIn[((face[i])[1] - 1) * 3 + 2],
+				normalCoordsIn[((face[i])[7] - 1) * 3], normalCoordsIn[((face[i])[7] - 1) * 3 + 1], normalCoordsIn[((face[i])[7] - 1) * 3 + 2] };
+			indexBufferOut[i * 3 + 1] = addVertex(((face[i])[1] - 1), &vertex2[0], 6);
+
+			float vertex3[] = { positionCoordsIn[((face[i])[2] - 1) * 3], positionCoordsIn[((face[i])[2] - 1) * 3 + 1], positionCoordsIn[((face[i])[2] - 1) * 3 + 2],
+				normalCoordsIn[((face[i])[8] - 1) * 3], normalCoordsIn[((face[i])[8] - 1) * 3 + 1], normalCoordsIn[((face[i])[8] - 1) * 3 + 2] };
+			indexBufferOut[i * 3 + 2] = addVertex(((face[i])[2] - 1), &vertex3[0], 6);
+		}
+
+	}else if (!textureCoordsIn.empty()) {
+
+		for (int i = 0; i < face.size(); i++) {
+
+			float vertex1[] = { positionCoordsIn[((face[i])[0] - 1) * 3], positionCoordsIn[((face[i])[0] - 1) * 3 + 1], positionCoordsIn[((face[i])[0] - 1) * 3 + 2],
+				textureCoordsIn[((face[i])[3] - 1) * 2], textureCoordsIn[((face[i])[3] - 1) * 2 + 1] };
+			indexBufferOut[i * 3] = addVertex(((face[i])[0] - 1), &vertex1[0], 5);
+
+			float vertex2[] = { positionCoordsIn[((face[i])[1] - 1) * 3],positionCoordsIn[((face[i])[1] - 1) * 3 + 1], positionCoordsIn[((face[i])[1] - 1) * 3 + 2],
+				textureCoordsIn[((face[i])[4] - 1) * 2], textureCoordsIn[((face[i])[4] - 1) * 2 + 1] };
+			indexBufferOut[i * 3 + 1] = addVertex(((face[i])[1] - 1), &vertex2[0], 5);
+
+			float vertex3[] = { positionCoordsIn[((face[i])[2] - 1) * 3], positionCoordsIn[((face[i])[2] - 1) * 3 + 1], positionCoordsIn[((face[i])[2] - 1) * 3 + 2],
+				textureCoordsIn[((face[i])[5] - 1) * 2], textureCoordsIn[((face[i])[5] - 1) * 2 + 1] };
+			indexBufferOut[i * 3 + 2] = addVertex(((face[i])[2] - 1), &vertex3[0], 5);
+		}
+
+	}else {
+		for (int i = 0; i < face.size(); i++) {
+
+			float vertex1[] = { positionCoordsIn[((face[i])[0] - 1) * 3], positionCoordsIn[((face[i])[0] - 1) * 3 + 1], positionCoordsIn[((face[i])[0] - 1) * 3 + 2] };
+			indexBufferOut[i * 3] = addVertex(((face[i])[0] - 1), &vertex1[0], 3);
+
+			float vertex2[] = { positionCoordsIn[((face[i])[1] - 1) * 3], positionCoordsIn[((face[i])[1] - 1) * 3 + 1], positionCoordsIn[((face[i])[1] - 1) * 3 + 2] };
+			indexBufferOut[i * 3 + 1] = addVertex(((face[i])[1] - 1), &vertex2[0], 3);
+
+			float vertex3[] = { positionCoordsIn[((face[i])[2] - 1) * 3], positionCoordsIn[((face[i])[2] - 1) * 3 + 1], positionCoordsIn[((face[i])[2] - 1) * 3 + 2] };
+			indexBufferOut[i * 3 + 2] = addVertex(((face[i])[2] - 1), &vertex3[0], 3);
+		}
+	}
+
 	face.clear();
 	face.shrink_to_fit();
 }

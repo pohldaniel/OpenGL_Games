@@ -216,6 +216,8 @@ typedef char GLchar;
 
 	extern void glVertexAttribDivisor(GLuint index, GLuint divisor);
 	extern void glDrawElementsInstanced(GLenum mode, GLsizei count, GLenum type, const void * indices, GLsizei instancecount);
+	extern void glDrawElementsBaseVertex(GLenum mode, GLsizei count, GLenum type, void *indices,GLint basevertex);
+	extern void glDrawElementsInstancedBaseVertexBaseInstance(GLenum mode, GLsizei count, GLenum type, void *indices, GLsizei instancecount, GLint basevertex, GLuint baseinstance);
 
 	extern void glFramebufferTexture(GLenum target, GLenum attachment, GLuint texture, GLint level);
 	extern void glBindImageTexture(GLuint unit, GLuint texture, GLint level, GLboolean layered, GLint layer, GLenum access, GLenum format);

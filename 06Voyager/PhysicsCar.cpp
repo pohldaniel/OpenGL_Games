@@ -70,7 +70,7 @@ btCollisionShape* PhysicsCar::CreateVehicleShape()
 
 PhysicsCar::PhysicsCar() : m_engineForce(0.f), m_breakingForce(0.f), m_vehicleSteering(0.f), m_turned(false) {
 	car = new ObjModel();
-	car->loadObject("res/models/car/car.obj");
+	car->loadObject("res/models/car/car.obj", true);
 	car->initAssets(Globals::shaderManager, Globals::textureManager);
 	//car->createInstancesDynamic(2);
 
@@ -254,12 +254,15 @@ btTransform PhysicsCar::GetWorldTransform(){
 
 void PhysicsCar::draw(Camera& camera) {
 	car->getTransform().fromMatrix(Physics::MatrixFrom(GetWorldTransform(), btVector3(CAR_SCALE, CAR_SCALE, CAR_SCALE)));
-	car->draw(camera);
+	//car->draw(camera);
+	car->drawAsSingleMesh(camera);
 	
+
 	//car->updateInstances(std::vector<Matrix4f>({
 	//Physics::MatrixFrom(GetWorldTransform(), btVector3(CAR_SCALE, CAR_SCALE, CAR_SCALE)),
 	//trans * Physics::MatrixFrom(GetWorldTransform(), btVector3(CAR_SCALE, CAR_SCALE, CAR_SCALE)) }));
 	//car->drawInstanced(camera);
+	//car->drawInstancedAsSingleMesh(camera);
 
 	wheel->updateInstances(std::vector<Matrix4f>(
 							{ Physics::MatrixFrom(GetVehicle()->getWheelInfo(0).m_worldTransform, btVector3(CAR_SCALE, CAR_SCALE, CAR_SCALE)) * rot,

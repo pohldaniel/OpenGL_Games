@@ -639,6 +639,20 @@ void glDrawElementsInstanced(GLenum mode, GLsizei count, GLenum type, const void
 	glDrawElementsInstanced(mode, count, type, indices, instancecount);
 }
 
+void glDrawElementsBaseVertex(GLenum mode, GLsizei count, GLenum type, void *indices, GLint basevertex) {
+	typedef void(APIENTRY * PFNGLDRAWELEMENTSBASEVERTEXPROC)(GLenum mode, GLsizei count, GLenum type, void *indices, GLint basevertex);
+	static PFNGLDRAWELEMENTSBASEVERTEXPROC  glDrawElementsBaseVertex = 0;
+	LOAD_ENTRYPOINT("glDrawElementsBaseVertex", glDrawElementsBaseVertex, PFNGLDRAWELEMENTSBASEVERTEXPROC);
+	glDrawElementsBaseVertex(mode, count, type, indices, basevertex);
+}
+
+void glDrawElementsInstancedBaseVertexBaseInstance(GLenum mode, GLsizei count, GLenum type, void *indices, GLsizei instancecount, GLint basevertex, GLuint baseinstance) {
+	typedef void(APIENTRY * PFNGLDRAWELEMENTSINSTANCEDBASEVERTEXINSTANCEPROC)(GLenum mode, GLsizei count, GLenum type, void *indices, GLsizei instancecount, GLint basevertex, GLuint baseinstance);
+	static PFNGLDRAWELEMENTSINSTANCEDBASEVERTEXINSTANCEPROC glDrawElementsInstancedBaseVertexBaseInstance = 0;
+	LOAD_ENTRYPOINT("glDrawElementsInstancedBaseVertexBaseInstance", glDrawElementsInstancedBaseVertexBaseInstance, PFNGLDRAWELEMENTSINSTANCEDBASEVERTEXINSTANCEPROC);
+	glDrawElementsInstancedBaseVertexBaseInstance(mode, count, type, indices, instancecount, basevertex, baseinstance);
+}
+
 void glBindImageTexture(GLuint unit, GLuint texture, GLint level, GLboolean layered, GLint layer, GLenum access, GLenum format) {
 	typedef void(APIENTRY * PFNGLBINDIMAGETEXTUREPROC)(GLuint unit, GLuint texture, GLint level, GLboolean layered, GLint layer, GLenum access, GLenum format);
 	static PFNGLBINDIMAGETEXTUREPROC  glBindImageTexture = 0;

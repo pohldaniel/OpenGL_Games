@@ -221,6 +221,7 @@ struct IndexBufferCreator {
 	std::vector<unsigned int> indexBufferOut;
 
 	void createIndexBuffer();
+	void expandIndexBuffer();
 
 private:
 	std::map<int, std::vector<int>> m_vertexCache;
@@ -250,8 +251,13 @@ public:
 
 	void drawRaw();
 	void drawRawInstanced();
+	void drawRawAsSingleMesh();
+	void drawRawInstancedAsSingleMesh();
+
 	void draw(Camera& camera);
 	void drawInstanced(Camera& camera);
+	void drawAsSingleMesh(Camera& camera);
+	void drawInstancedAsSingleMesh(Camera& camera);
 
 	void createAABB();
 	void createSphere();
@@ -262,8 +268,8 @@ public:
 	void drawSphere();
 	void drawHull();
 
-	bool loadObject(const char* filename);
-	bool loadObject(const char* a_filename, Vector3f& rotate, float degree, Vector3f& translate, float scale);
+	bool loadObject(const char* filename, bool asSingleMesh = false);
+	bool loadObject(const char* a_filename, Vector3f& rotate, float degree, Vector3f& translate, float scale, bool asSingleMesh = false);
 
 	std::string getMltPath();
 	std::string getModelDirectory();
@@ -286,11 +292,12 @@ public:
 	static void UpdateViewUbo(const Camera& camera);
 
 private:
-	//size values
-	unsigned int m_size, m_numVertices, m_numIndices, m_stride, m_offset, m_numberOfBytes;
+
+	unsigned int m_numVertices, m_numIndices, m_stride, m_offset;
 
 	bool m_hasTextureCoords, m_hasNormals, m_hasTangents;
 	bool m_hasAABB, m_hasBoundingSphere, m_hasConvexHull;
+	bool m_isSingleMesh = false;
 
 	std::vector<Mesh*> m_mesh;
 	
@@ -319,6 +326,19 @@ private:
 
 	static unsigned int s_viewUbo;
 	static const unsigned int s_viewBinding = 4;
+
+	std::vector<float> m_vertexBuffer;
+	std::vector<unsigned int> m_indexBuffer;
+
+	unsigned int m_drawCount;
+	unsigned int m_instanceCount = 0;
+
+	unsigned int m_vao = 0;
+	unsigned int m_vbo[5] = { 0 };
+	unsigned int m_ibo = 0;
+	unsigned int m_vboInstances;
+
+	void static CreateBuffer(std::vector<float>& vertexBuffer, std::vector<unsigned int> indexBuffer, unsigned int& drawCount, unsigned int& vao, unsigned int(&vbo)[5], unsigned int& ibo, unsigned int stride);
 };
 
 class Mesh {
@@ -356,9 +376,8 @@ private:
 	ObjModel* m_model;
 	std::string m_mltName;
 	Material m_material;	
-	///////////////////////////////////////OpenGL content////////////////// to do seperate it 
+	///////////////////////////////////////OpenGL content//////////////////
 
-	void createBuffer();
 	void generateTangents();
 	void generateNormals();
 	void createInstancesStatic(std::vector<Matrix4f>& modelMTX);
@@ -370,15 +389,14 @@ private:
 	unsigned int m_vboInstances;
 	unsigned int m_ibo = 0;
 	
-
-	unsigned int m_drawCount;
+	unsigned int m_drawCount = 0;
 	unsigned int m_instanceCount = 0;
 	
 	std::vector<float> m_vertexBuffer;
 	std::vector<unsigned int> m_indexBuffer;
 
 	bool m_hasTextureCoords, m_hasNormals, m_hasTangents;
-	unsigned int m_triangleOffset, m_numberOfTriangles, m_stride;
+	unsigned int m_triangleOffset, m_numberOfTriangles, m_stride, m_baseVertex, m_baseIndex;
 
 	void updateMaterialUbo(unsigned int& ubo);
 };
