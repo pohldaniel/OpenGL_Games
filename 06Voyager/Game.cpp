@@ -6,7 +6,7 @@ const float HEIGHTMAP_SCALE = 2.0f;
 
 const int HEIGHTMAP_RESOLUTION = 128;
 const int HEIGHTMAP_WIDTH = 8192;
-const float CAMERA_Y_OFFSET = 200.0f;
+const float CAMERA_Y_OFFSET = 100.0f;
 const Vector3f CAMERA_ACCELERATION(400.0f, 400.0f, 400.0f);
 const Vector3f CAMERA_VELOCITY(200.0f, 200.0f, 200.0f);
 Vector3f LIGHT_DIRECTION(-100.0f, 100.0f, -100.0f);
@@ -163,6 +163,19 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_water(
 	
 	m_car = new PhysicsCar();
 	m_car->Initialize(Globals::physics->GetDynamicsWorld(), Physics::BtTransform(Vector3f(HEIGHTMAP_WIDTH * 0.5f + 100.0f, m_terrain.getHeightMap().heightAt(HEIGHTMAP_WIDTH * 0.5f + 100.0f, HEIGHTMAP_WIDTH * 0.5f + 100.0f) + 50.0f, HEIGHTMAP_WIDTH * 0.5f + 100.0f), Vector3f(0, 1, 0), -45.0f));
+
+	
+	Vector3f position;
+	position[0] = HEIGHTMAP_WIDTH * 0.5f + 100.0f;
+	position[2] = HEIGHTMAP_WIDTH * 0.5f + 100.0f;
+	position[1] = m_terrain.getHeightMap().heightAt(HEIGHTMAP_WIDTH * 0.5f + 100.0f, HEIGHTMAP_WIDTH * 0.5f + 100.0f) + 50.0f;
+
+	cowboy.loadModel("./res/models/cowboy/cowboy.dae", "./res/models/cowboy/cowboy.png");
+	cowboy.rotate(Vector3f(0.0f, 1.0f, 0.0f), 180.0f);
+	cowboy.translate(position[0], position[1], position[2]);
+	cowboy.scale(10.0f);
+
+	cowboy.getAnimator()->startAnimation("");
 }
 
 Game::~Game() {}
@@ -324,7 +337,7 @@ void Game::update() {
 	}
 
 	m_mousePicker.update(m_dt);
-
+	cowboy.update(m_dt);
 	//performCameraCollisionDetection();
 };
 
@@ -376,6 +389,7 @@ void Game::render(unsigned int &frameBuffer) {
 	m_mousePicker.draw(m_camera);
 
 	m_car->draw(m_camera);
+	cowboy.draw(m_camera);
 
 	if (m_debugNormal) {
 		auto normalGS = Globals::shaderManager.getAssetPointer("normalGS");

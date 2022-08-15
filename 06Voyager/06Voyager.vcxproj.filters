@@ -88,6 +88,24 @@
     <Filter Include="convhull">
       <UniqueIdentifier>{1371a72c-34c3-44a8-a506-a830abf194bc}</UniqueIdentifier>
     </Filter>
+    <Filter Include="engine\animation">
+      <UniqueIdentifier>{f04175df-6c48-48d5-974f-c6e572ed1e6e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="engine\animation\AnimatedModel">
+      <UniqueIdentifier>{4b170087-c238-4000-a069-42c31f107ea8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="engine\animation\Animator">
+      <UniqueIdentifier>{30aae57b-7850-4002-9a47-bf63cb8df0f0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="engine\animation\ColladaLoader">
+      <UniqueIdentifier>{bb3552e7-955d-48d6-9b5f-3bb2a54ccbe8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="engine\animation\Render">
+      <UniqueIdentifier>{e215bffc-deb3-489a-b618-920f438247c9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tinyxml">
+      <UniqueIdentifier>{5747a425-01ea-4d6f-98d7-b237601e9996}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine\input\Event.h">
@@ -915,6 +933,30 @@
     <ClInclude Include="PhysicsCar.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="engine\animation\AnimatedModel\AnimatedMesh.h">
+      <Filter>engine\animation\AnimatedModel</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\animation\AnimatedModel\AnimatedModel.h">
+      <Filter>engine\animation\AnimatedModel</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\animation\Animator\Animation.h">
+      <Filter>engine\animation\Animator</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\animation\Animator\Animator.h">
+      <Filter>engine\animation\Animator</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\animation\ColladaLoader\ColladaLoader.h">
+      <Filter>engine\animation\ColladaLoader</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\animation\Render\AnimationShader.h">
+      <Filter>engine\animation\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="tinyxml\tinystr.h">
+      <Filter>tinyxml</Filter>
+    </ClInclude>
+    <ClInclude Include="tinyxml\tinyxml.h">
+      <Filter>tinyxml</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine\input\EventDispatcher.cpp">
@@ -1501,6 +1543,36 @@
     </ClCompile>
     <ClCompile Include="PhysicsCar.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\animation\AnimatedModel\AnimatedMesh.cpp">
+      <Filter>engine\animation\AnimatedModel</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\animation\AnimatedModel\AnimatedModel.cpp">
+      <Filter>engine\animation\AnimatedModel</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\animation\Animator\Animation.cpp">
+      <Filter>engine\animation\Animator</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\animation\Animator\Animator.cpp">
+      <Filter>engine\animation\Animator</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\animation\ColladaLoader\ColladaLoader.cpp">
+      <Filter>engine\animation\ColladaLoader</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\animation\Render\AnimationShader.cpp">
+      <Filter>engine\animation\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="tinyxml\tinystr.cpp">
+      <Filter>tinyxml</Filter>
+    </ClCompile>
+    <ClCompile Include="tinyxml\tinyxml.cpp">
+      <Filter>tinyxml</Filter>
+    </ClCompile>
+    <ClCompile Include="tinyxml\tinyxmlerror.cpp">
+      <Filter>tinyxml</Filter>
+    </ClCompile>
+    <ClCompile Include="tinyxml\tinyxmlparser.cpp">
+      <Filter>tinyxml</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

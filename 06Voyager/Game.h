@@ -8,6 +8,7 @@
 #include "engine/MeshObject/MeshQuad.h"
 #include "engine/MeshObject/MeshCube.h"
 #include "engine/ObjModel.h"
+#include "engine/animation/AnimatedModel/AnimatedModel.h"
 #include "CharacterSetBmp.h"
 #include "Text.h"
 
@@ -96,4 +97,6 @@ public:
 
 	MeshCube* m_bottom;
 	PhysicsCar* m_car;
+
+	AnimatedModel cowboy;
 };
