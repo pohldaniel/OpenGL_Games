@@ -91,7 +91,7 @@ void SkyBox::createBuffer() {
 
 void SkyBox::update() {
 	m_rotation = m_rotation >= 360.0f ? 0 : m_rotation + m_rotationSpeed * m_dt;
-	m_model.rotate(Vector3f(0.0f, 1.0f, 0.0f), m_rotation);
+	m_model.invRotate(Vector3f(0.0f, 1.0f, 0.0f), m_rotation);
 
 	if (m_fadeIn) {	
 		m_blend = m_blend <= 1.0f ? m_blend + m_transitionSpeed * m_dt : 1.0f;
@@ -112,8 +112,8 @@ void SkyBox::render(const Camera& camera) {
 	
 	glDepthFunc(GL_LEQUAL);
 	glUseProgram(m_skyboxShader->m_program);
-	m_skyboxShader->loadMatrix("u_projection", Globals::projection, false);
-	m_skyboxShader->loadMatrix("u_view", view, false);
+	m_skyboxShader->loadMatrix("u_projection", Globals::projection);
+	m_skyboxShader->loadMatrix("u_view", view);
 	m_skyboxShader->loadMatrix("u_model", m_model);
 	m_skyboxShader->loadFloat("u_blendFactor", m_blend);
 	m_skyboxShader->loadInt("u_day", 0);

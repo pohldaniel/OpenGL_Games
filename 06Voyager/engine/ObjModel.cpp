@@ -167,9 +167,14 @@ bool ObjModel::loadObject(const char* a_filename, Vector3f& axis, float degree, 
 				fgets(buffer, sizeof(buffer), pFile);
 				sscanf(buffer, "%f %f %f", &tmpx, &tmpy, &tmpz);
 
-				normalCoords.push_back(tmpx);
-				normalCoords.push_back(tmpy);
-				normalCoords.push_back(tmpz);
+				Matrix4f rot;
+				rot.rotate(axis, degree);
+
+				Vector3f tmp = rot * Vector3f(tmpx, tmpy, tmpz);
+
+				normalCoords.push_back(tmp[0]);
+				normalCoords.push_back(tmp[1]);
+				normalCoords.push_back(tmp[2]);
 				break;
 
 			}default: {
@@ -348,8 +353,8 @@ void ObjModel::draw(Camera& camera) {
 		m_mesh[i]->updateMaterialUbo(s_materialUbo);
 		glUseProgram(m_shader[i]->m_program);
 
-		m_shader[i]->loadMatrix("u_projection", camera.getProjectionMatrix(), false);
-		m_shader[i]->loadMatrix("u_view", camera.getViewMatrix(), false);
+		m_shader[i]->loadMatrix("u_projection", camera.getProjectionMatrix());
+		m_shader[i]->loadMatrix("u_view", camera.getViewMatrix());
 		m_shader[i]->loadMatrix("u_model", m_transform.getTransformationMatrix());
 
 		m_textures[i].bind(0);
@@ -367,7 +372,7 @@ void ObjModel::drawInstanced(Camera& camera) {
 
 		glUseProgram(m_shader[i]->m_program);
 		
-		m_shader[i]->loadMatrix("u_projection", camera.getProjectionMatrix(), false);
+		m_shader[i]->loadMatrix("u_projection", camera.getProjectionMatrix());
 
 		m_textures[i].bind(0);
 		m_mesh[i]->drawRawInstanced();
@@ -808,7 +813,7 @@ void Mesh::createBuffer() {
 		glBufferData(GL_ARRAY_BUFFER, m_vertexBuffer.size() * sizeof(float), &m_vertexBuffer[0], GL_STATIC_DRAW);
 
 		glEnableVertexAttribArray(2);
-		glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, m_stride * sizeof(float), (void*)(m_model->m_hasTextureCoords ? 5 : 3 * sizeof(float)));
+		glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, m_stride * sizeof(float), (void*)(m_model->m_hasTextureCoords ? 5 * sizeof(float) : 3 * sizeof(float)));
 	}
 
 	if (m_hasTangents) {

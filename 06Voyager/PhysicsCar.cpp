@@ -72,6 +72,7 @@ PhysicsCar::PhysicsCar() : m_engineForce(0.f), m_breakingForce(0.f), m_vehicleSt
 	car = new ObjModel();
 	car->loadObject("res/models/car/car.obj");
 	car->initAssets(Globals::shaderManager, Globals::textureManager);
+	//car->createInstancesDynamic(2);
 
 	wheel = new ObjModel();
 	wheel->loadObject("res/models/wheel/wheel.obj");
@@ -244,12 +245,10 @@ void PhysicsCar::Brake()
 	m_engineForce = 0.f;
 }
 
-btTransform PhysicsCar::GetWorldTransform()
-{
+btTransform PhysicsCar::GetWorldTransform(){
 	btTransform vehicleTrans;
 	m_vehicle->getRigidBody()->getMotionState()->getWorldTransform(vehicleTrans);
 	btCompoundShape* compoundShape = static_cast<btCompoundShape*>(m_vehicle->getRigidBody()->getCollisionShape());
-
 	return vehicleTrans * compoundShape->getChildTransform(0);
 }
 
@@ -257,17 +256,15 @@ void PhysicsCar::draw(Camera& camera) {
 	car->getTransform().fromMatrix(Physics::MatrixFrom(GetWorldTransform(), btVector3(CAR_SCALE, CAR_SCALE, CAR_SCALE)));
 	car->draw(camera);
 	
-	/*car->updateInstances(std::vector<Matrix4f>({
-	Physics::MatrixTransposeFrom(GetWorldTransform(), btVector3(CAR_SCALE, CAR_SCALE, CAR_SCALE)),
-	Physics::MatrixTransposeFrom(trans, GetWorldTransform(), btVector3(CAR_SCALE, CAR_SCALE, CAR_SCALE)) }));
-
-	car->drawInstanced(camera);*/
+	//car->updateInstances(std::vector<Matrix4f>({
+	//Physics::MatrixFrom(GetWorldTransform(), btVector3(CAR_SCALE, CAR_SCALE, CAR_SCALE)),
+	//trans * Physics::MatrixFrom(GetWorldTransform(), btVector3(CAR_SCALE, CAR_SCALE, CAR_SCALE)) }));
+	//car->drawInstanced(camera);
 
 	wheel->updateInstances(std::vector<Matrix4f>(
-							{ Physics::MatrixTransposeFrom(GetVehicle()->getWheelInfo(0).m_worldTransform, btVector3(CAR_SCALE, CAR_SCALE, CAR_SCALE)) * rot,
-							  Physics::MatrixTransposeFrom(GetVehicle()->getWheelInfo(1).m_worldTransform, btVector3(CAR_SCALE, CAR_SCALE, CAR_SCALE)),
-							  Physics::MatrixTransposeFrom(GetVehicle()->getWheelInfo(2).m_worldTransform, btVector3(CAR_SCALE, CAR_SCALE, CAR_SCALE)) * rot,
-							  Physics::MatrixTransposeFrom(GetVehicle()->getWheelInfo(3).m_worldTransform, btVector3(CAR_SCALE, CAR_SCALE, CAR_SCALE)) }));
-
+							{ Physics::MatrixFrom(GetVehicle()->getWheelInfo(0).m_worldTransform, btVector3(CAR_SCALE, CAR_SCALE, CAR_SCALE)) * rot,
+							  Physics::MatrixFrom(GetVehicle()->getWheelInfo(1).m_worldTransform, btVector3(CAR_SCALE, CAR_SCALE, CAR_SCALE)),
+							  Physics::MatrixFrom(GetVehicle()->getWheelInfo(2).m_worldTransform, btVector3(CAR_SCALE, CAR_SCALE, CAR_SCALE)) * rot,
+							  Physics::MatrixFrom(GetVehicle()->getWheelInfo(3).m_worldTransform, btVector3(CAR_SCALE, CAR_SCALE, CAR_SCALE)) }));
 	wheel->drawInstanced(camera);
 }

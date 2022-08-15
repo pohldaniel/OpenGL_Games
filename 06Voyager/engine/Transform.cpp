@@ -23,7 +23,7 @@ void Transform::setRotPos(const Vector3f &axis, float degrees, float dx, float d
 
 	if (degrees != 0.0f && !(axis[0] == 0.0f && axis[1] == 0.0f && axis[2] == 0.0f)) {
 		Matrix4f rotMtx;
-		rotMtx.rotate(axis, degrees);
+		rotMtx.invRotate(axis, degrees);
 		T = rotMtx * T;
 
 		//Matrix4f invRotMtx = Matrix4f(rotMtx[0][0], rotMtx[1][0], rotMtx[2][0], rotMtx[3][0],
@@ -59,7 +59,7 @@ void Transform::setRotPosScale(const Vector3f &axis, float degrees, float dx, fl
 	if (degrees != 0.0f && !(axis[0] == 0.0f && axis[1] == 0.0f && axis[2] == 0.0f)) {
 
 		Matrix4f rotMtx;
-		rotMtx.rotate(axis, degrees);
+		rotMtx.invRotate(axis, degrees);
 
 		T = rotMtx * T;
 
@@ -100,7 +100,7 @@ void Transform::setRotPosScale(const Vector3f &axis, float degrees, float dx, fl
 void Transform::rotate(const Vector3f &axis, float degrees) {
 
 	Matrix4f rotMtx;
-	rotMtx.rotate(axis, degrees);
+	rotMtx.invRotate(axis, degrees);
 
 	//Matrix4f invRotMtx = Matrix4f(rotMtx[0][0], rotMtx[1][0], rotMtx[2][0], rotMtx[3][0],
 	//	rotMtx[0][1], rotMtx[1][1], rotMtx[2][1], rotMtx[3][1],

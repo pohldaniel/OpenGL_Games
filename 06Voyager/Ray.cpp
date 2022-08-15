@@ -13,7 +13,7 @@ void Ray::draw(const Camera& camera) {
 
 	
 	glUseProgram(m_rayShader->m_program);
-	m_rayShader->loadMatrix("u_transform", camera.getViewMatrix() * Globals::projection);
+	m_rayShader->loadMatrix("u_transform", Globals::projection * camera.getViewMatrix());
 	//m_rayShader->loadMatrix("u_transform", camera.getViewMatrix());
 	
 	glBindVertexArray(m_vao);

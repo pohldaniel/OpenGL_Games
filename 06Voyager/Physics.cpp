@@ -268,45 +268,20 @@ Matrix4f Physics::MatrixFrom(const btTransform& trans, const btVector3& scale){
 	btMatrix3x3 m = trans.getBasis();
 	btVector3 v = trans.getOrigin();
 
-	return Matrix4f(m[0].x() * scale[0], m[0].y() * scale[1], m[0].z() * scale[2], v.x(),
-					m[1].x() * scale[0], m[1].y() * scale[1], m[1].z() * scale[2], v.y(),
-					m[2].x() * scale[0], m[2].y() * scale[1], m[2].z() * scale[2], v.z(),
-					0.0f, 0.0f, 0.0f, 1.0f);
-}
-
-Matrix4f Physics::MatrixFrom(const Matrix4f& mtx, const btTransform& trans, const btVector3& scale) {
-	btMatrix3x3 m = trans.getBasis();
-	btVector3 v = trans.getOrigin();
-
-	return Matrix4f(m[0].x() * scale[0], m[0].y() * scale[1], m[0].z() * scale[2], v.x(),
-		m[1].x() * scale[0], m[1].y() * scale[1], m[1].z() * scale[2], v.y(),
-		m[2].x() * scale[0], m[2].y() * scale[1], m[2].z() * scale[2], v.z(),
-		0.0f, 0.0f, 0.0f, 1.0f) * mtx;
-}
-
-Matrix4f Physics::MatrixTransposeFrom(const btTransform& trans, const btVector3& scale) {
-	btMatrix3x3 m = trans.getBasis();
-	btVector3 v = trans.getOrigin();
-
 	return Matrix4f(m[0].x() * scale[0], m[1].x() * scale[1], m[2].x() * scale[2], 0.0f,
 					m[0].y() * scale[0], m[1].y() * scale[1], m[2].y() * scale[2], 0.0f,
 					m[0].z() * scale[0], m[1].z() * scale[1], m[2].z() * scale[2], 0.0f,
 					v.x(), v.y(), v.z(), 1.0f);
 }
 
-Matrix4f Physics::MatrixTransposeFrom(const Matrix4f& mtx, const btTransform& trans, const btVector3& scale) {
+Matrix4f Physics::MatrixTransposeFrom(const btTransform& trans, const btVector3& scale) {
 	btMatrix3x3 m = trans.getBasis();
 	btVector3 v = trans.getOrigin();
 
-	return Matrix4f(mtx[0][0], mtx[1][0], mtx[2][0], mtx[3][0],
-		mtx[0][1], mtx[1][1], mtx[2][1], mtx[3][1],
-		mtx[0][2], mtx[1][2], mtx[2][2], mtx[3][2],
-		mtx[0][3], mtx[1][3], mtx[2][3], mtx[3][3])
-		*
-		Matrix4f(m[0].x() * scale[0], m[1].x() * scale[1], m[2].x() * scale[2], 0.0f,
-		m[0].y() * scale[0], m[1].y() * scale[1], m[2].y() * scale[2], 0.0f,
-		m[0].z() * scale[0], m[1].z() * scale[1], m[2].z() * scale[2], 0.0f,
-		v.x(), v.y(), v.z(), 1.0f);
+	return Matrix4f(m[0].x() * scale[0], m[0].y() * scale[1], m[0].z() * scale[2], v.x(),
+					m[1].x() * scale[0], m[1].y() * scale[1], m[1].z() * scale[2], v.y(),
+					m[2].x() * scale[0], m[2].y() * scale[1], m[2].z() * scale[2], v.z(),
+					0.0f, 0.0f, 0.0f, 1.0f);
 }
 
 btCollisionShape * Physics::CreateStaticCollisionShape(Terrain* mesh, const btVector3& scale) {

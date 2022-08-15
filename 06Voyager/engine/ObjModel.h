@@ -244,7 +244,7 @@ public:
 	const Matrix4f &getTransformationMatrix() const;
 	const Matrix4f &getInvTransformationMatrix();
 
-	void rotate(const Vector3f &axis, float degrees);
+	void rotate(const Vector3f& axis, float degrees);
 	void translate(float dx, float dy, float dz);
 	void scale(float a, float b, float c);
 
@@ -256,14 +256,14 @@ public:
 	void createAABB();
 	void createSphere();
 	void createConvexHull(const char* a_filename, bool useConvhull = true);
-	void createConvexHull(const char* a_filename, Vector3f &rotate, float degree, Vector3f& translate, float scale, bool useConvhull = true);
+	void createConvexHull(const char* a_filename, Vector3f& rotate, float degree, Vector3f& translate, float scale, bool useConvhull = true);
 
 	void drawAABB();
 	void drawSphere();
 	void drawHull();
 
 	bool loadObject(const char* filename);
-	bool loadObject(const char* a_filename, Vector3f &rotate, float degree, Vector3f& translate, float scale);
+	bool loadObject(const char* a_filename, Vector3f& rotate, float degree, Vector3f& translate, float scale);
 
 	std::string getMltPath();
 	std::string getModelDirectory();

@@ -140,12 +140,11 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_water(
 	
 	m_barrel = new Barrel();
 
-	std::vector<btCollisionShape*> barrelShape = Physics::CreateStaticCollisionShapes(m_barrel->getConvexHull().m_vertexBuffer, m_barrel->getConvexHull().m_indexBuffer, btVector3(5.0f, 2.0f, 8.0f));
-	btRigidBody* barrelBody = Globals::physics->addStaticModel(barrelShape, Physics::BtTransform(Vector3f(HEIGHTMAP_WIDTH * 0.5f + 200.0f, m_terrain.getHeightMap().heightAt(HEIGHTMAP_WIDTH * 0.5f + 200.0f, HEIGHTMAP_WIDTH * 0.5f + 200.0f) + 50.0f, HEIGHTMAP_WIDTH * 0.5f + 200.0f), Vector3f(0.0f, 0.0f, 1.0f), 90.0f), false, btVector3(1, 1, 1), Physics::collisiontypes::PICKABLE_OBJECT, Physics::collisiontypes::RAY);
+	std::vector<btCollisionShape*> barrelShape = Physics::CreateStaticCollisionShapes(m_barrel->getConvexHull().m_vertexBuffer, m_barrel->getConvexHull().m_indexBuffer, btVector3(10.0f, 10.0f, 10.0f));
+	btRigidBody* barrelBody = Globals::physics->addStaticModel(barrelShape, Physics::BtTransform(Vector3f(HEIGHTMAP_WIDTH * 0.5f + 200.0f, m_terrain.getHeightMap().heightAt(HEIGHTMAP_WIDTH * 0.5f + 200.0f, HEIGHTMAP_WIDTH * 0.5f + 200.0f) + 50.0f, HEIGHTMAP_WIDTH * 0.5f + 200.0f), Vector3f(0.0f, 0.0f, 1.0f), 45.0f), false, btVector3(1, 1, 1), Physics::collisiontypes::RENDERABLE_OBJECT, Physics::collisiontypes::RAY);
 	barrelBody->setUserPointer(reinterpret_cast<void*>(m_barrel));
 
-	m_barrel->m_transform.fromMatrix(Physics::MatrixTransposeFrom(barrelBody->getWorldTransform(), barrelShape[0]->getLocalScaling())); //posRotScale
-
+	m_barrel->m_transform.fromMatrix(Physics::MatrixFrom(barrelBody->getWorldTransform(), barrelShape[0]->getLocalScaling()));
 	charachterSet.loadFromFile("res/verdana.fnt");
 
 	m_text = new Text(charachterSet);
@@ -345,8 +344,8 @@ void Game::render(unsigned int &frameBuffer) {
 	auto shader = Globals::shaderManager.getAssetPointer("terrain");
 	glUseProgram(shader->m_program);
 
-	shader->loadMatrixArray("u_projectionShadows", m_camera.lightProjections, m_camera.m_numberCascades, false);
-	shader->loadMatrixArray("u_viewShadows", m_camera.lightViews, m_camera.m_numberCascades, false);
+	shader->loadMatrixArray("u_projectionShadows", m_camera.lightProjections, m_camera.m_numberCascades);
+	shader->loadMatrixArray("u_viewShadows", m_camera.lightViews, m_camera.m_numberCascades);
 	shader->loadFloatArray("u_cascadeEndClipSpace", m_camera.m_cascadeEndClipSpace, m_camera.m_numberCascades);
 	shader->loadBool("u_debug", m_debug);
 	
@@ -381,10 +380,10 @@ void Game::render(unsigned int &frameBuffer) {
 	if (m_debugNormal) {
 		auto normalGS = Globals::shaderManager.getAssetPointer("normalGS");
 		glUseProgram(normalGS->m_program);
-		normalGS->loadMatrix("u_projection", Globals::projection, false);
-		normalGS->loadMatrix("u_view", m_camera.getViewMatrix(), false);
+		normalGS->loadMatrix("u_projection", Globals::projection);
+		normalGS->loadMatrix("u_view", m_camera.getViewMatrix());
 		normalGS->loadMatrix("u_model", m_barrel->getTransformationMatrix());
-		normalGS->loadMatrix("u_normal", Matrix4f::GetNormalMatrix(m_barrel->getTransformationMatrix() * m_camera.getViewMatrix()));
+		normalGS->loadMatrix("u_normal", Matrix4f::GetNormalMatrix(m_camera.getViewMatrix() * m_barrel->getTransformationMatrix()));
 		m_barrel->drawShadow(m_camera);
 		glUseProgram(0);
 	}
@@ -488,8 +487,8 @@ void Game::shadowPass() {
 
 	auto shader = Globals::shaderManager.getAssetPointer("depthGS");
 	glUseProgram(shader->m_program);
-	shader->loadMatrixArray("u_projectionShadows", m_camera.lightProjections, m_camera.m_numberCascades, false);
-	shader->loadMatrixArray("u_viewShadows", m_camera.lightViews, m_camera.m_numberCascades, false);
+	shader->loadMatrixArray("u_projectionShadows", m_camera.lightProjections, m_camera.m_numberCascades);
+	shader->loadMatrixArray("u_viewShadows", m_camera.lightViews, m_camera.m_numberCascades);
 
 	for (unsigned short j = 0; j < m_camera.m_numberCascades; j++) {
 		shader->loadInt("u_numCascades", j);
@@ -499,15 +498,15 @@ void Game::shadowPass() {
 			entitie->drawShadow(m_camera);
 		}
 
-		shader->loadMatrix("u_model", m_tree->getTransformationMatrix(), false);
+		shader->loadMatrix("u_model", m_tree->getTransformationMatrix());
 		m_tree->drawShadow(m_camera);
 
 		for (auto entitie : m_fernEntities) {
-			shader->loadMatrix("u_model", entitie->getTransformationMatrix(), false);
+			shader->loadMatrix("u_model", entitie->getTransformationMatrix());
 			entitie->drawShadow(m_camera);
 		}
 
-		shader->loadMatrix("u_model", m_barrel->getTransformationMatrix(), false);
+		shader->loadMatrix("u_model", m_barrel->getTransformationMatrix());
 		m_barrel->drawShadow(m_camera);
 
 	}

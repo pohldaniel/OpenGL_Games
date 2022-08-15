@@ -115,7 +115,7 @@ void MousePicker::updatePosition(unsigned int posX, unsigned int posY, const Cam
 
 		Matrix4f trans;
 		trans.translate(callback.m_hitPointWorld[0], callback.m_hitPointWorld[1], callback.m_hitPointWorld[2]);
-		m_cursor->setTransformation(rotation * trans);
+		m_cursor->setTransformation(trans * rotation);
 	}
 }
 

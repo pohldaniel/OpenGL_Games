@@ -94,21 +94,21 @@ void Matrix4f::translate(float dx, float dy, float dz) {
 	mtx[0][0] = 1.0f;
 	mtx[1][0] = 0.0f;
 	mtx[2][0] = 0.0f;
-	mtx[3][0] = 0.0f;
+	mtx[3][0] = dx;
 
 	mtx[0][1] = 0.0f;
 	mtx[1][1] = 1.0f;
 	mtx[2][1] = 0.0f;
-	mtx[3][1] = 0.0f;
+	mtx[3][1] = dy;
 
 	mtx[0][2] = 0.0f;
 	mtx[1][2] = 0.0f;
 	mtx[2][2] = 1.0f;
-	mtx[3][2] = 0.0f;
+	mtx[3][2] = dz;
 
-	mtx[0][3] = dx;
-	mtx[1][3] = dy;
-	mtx[2][3] = dz;
+	mtx[0][3] = 0.0f;
+	mtx[1][3] = 0.0f;
+	mtx[2][3] = 0.0f;
 	mtx[3][3] = 1.0f;
 }
 
@@ -117,21 +117,21 @@ void Matrix4f::invTranslate(float dx, float dy, float dz) {
 	mtx[0][0] = 1.0f;
 	mtx[1][0] = 0.0f;
 	mtx[2][0] = 0.0f;
-	mtx[3][0] = 0.0f;
+	mtx[3][0] = -dx;
 
 	mtx[0][1] = 0.0f;
 	mtx[1][1] = 1.0f;
 	mtx[2][1] = 0.0f;
-	mtx[3][1] = 0.0f;
+	mtx[3][1] = -dy;
 
 	mtx[0][2] = 0.0f;
 	mtx[1][2] = 0.0f;
 	mtx[2][2] = 1.0f;
-	mtx[3][2] = 0.0f;
+	mtx[3][2] = -dz;
 
-	mtx[0][3] = -dx;
-	mtx[1][3] = -dy;
-	mtx[2][3] = -dz;
+	mtx[0][3] = 0.0f;
+	mtx[1][3] = 0.0f;
+	mtx[2][3] = 0.0f;
 	mtx[3][3] = 1.0f;
 }
 

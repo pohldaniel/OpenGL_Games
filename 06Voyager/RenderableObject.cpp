@@ -32,9 +32,9 @@ void RenderableObject::drawShadow(const Camera& camera) {
 
 void RenderableObject::drawAABB(const Camera& camera) {
 	glUseProgram(m_colorShader->m_program);
-	m_colorShader->loadMatrix("u_projection", Globals::projection, false);
-	m_colorShader->loadMatrix("u_view", camera.getViewMatrix(), false);
-	m_colorShader->loadMatrix("u_model", m_transform.getTransformationMatrix(), false);
+	m_colorShader->loadMatrix("u_projection", Globals::projection);
+	m_colorShader->loadMatrix("u_view", camera.getViewMatrix());
+	m_colorShader->loadMatrix("u_model", m_transform.getTransformationMatrix());
 	m_colorShader->loadVector("u_color", m_pickColor);
 	m_model->drawAABB();
 	glUseProgram(0);
@@ -42,9 +42,9 @@ void RenderableObject::drawAABB(const Camera& camera) {
 
 void RenderableObject::drawSphere(const Camera& camera) {
 	glUseProgram(m_colorShader->m_program);
-	m_colorShader->loadMatrix("u_projection", Globals::projection, false);
-	m_colorShader->loadMatrix("u_view", camera.getViewMatrix(), false);
-	m_colorShader->loadMatrix("u_model", m_transform.getTransformationMatrix(), false);
+	m_colorShader->loadMatrix("u_projection", Globals::projection);
+	m_colorShader->loadMatrix("u_view", camera.getViewMatrix());
+	m_colorShader->loadMatrix("u_model", m_transform.getTransformationMatrix());
 	m_colorShader->loadVector("u_color", m_pickColor);
 	m_model->drawSphere();
 	glUseProgram(0);
@@ -52,9 +52,9 @@ void RenderableObject::drawSphere(const Camera& camera) {
 
 void RenderableObject::drawHull(const Camera& camera) {
 	glUseProgram(m_colorShader->m_program);
-	m_colorShader->loadMatrix("u_projection", Globals::projection, false);
-	m_colorShader->loadMatrix("u_view", camera.getViewMatrix(), false);
-	m_colorShader->loadMatrix("u_model", m_transform.getTransformationMatrix(), false);
+	m_colorShader->loadMatrix("u_projection", Globals::projection);
+	m_colorShader->loadMatrix("u_view", camera.getViewMatrix());
+	m_colorShader->loadMatrix("u_model", m_transform.getTransformationMatrix());
 	m_colorShader->loadVector("u_color", m_pickColor);
 	m_model->drawHull();
 	glUseProgram(0);
