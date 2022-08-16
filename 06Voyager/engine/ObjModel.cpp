@@ -61,16 +61,16 @@ std::string ObjModel::getModelDirectory() {
 	return m_modelDirectory;
 }
 
-bool ObjModel::loadObject(const char* filename, bool asSingleMesh, bool withoutNormals) {
-	return loadObject(filename, Vector3f(0.0, 1.0, 0.0), 0.0, Vector3f(0.0, 0.0, 0.0), 1.0, asSingleMesh, withoutNormals);
+bool ObjModel::loadObject(const char* filename, bool asStackedModel, bool withoutNormals, bool generateSmoothNormals, bool generateSmoothTangents) {
+	return loadObject(filename, Vector3f(0.0, 1.0, 0.0), 0.0, Vector3f(0.0, 0.0, 0.0), 1.0, asStackedModel, withoutNormals, generateSmoothNormals, generateSmoothTangents);
 }
 
 bool compare(const std::array<int, 10> &i_lhs, const std::array<int, 10> &i_rhs) {
 	return i_lhs[9] < i_rhs[9];
 }
 
-bool ObjModel::loadObject(const char* a_filename, Vector3f& axis, float degree, Vector3f& translate, float scale, bool asSingleMesh, bool withoutNormals) {
-	m_isSingleMesh = asSingleMesh;
+bool ObjModel::loadObject(const char* a_filename, Vector3f& axis, float degree, Vector3f& translate, float scale, bool asStackedModel, bool withoutNormals, bool generateSmoothNormals, bool generateSmoothTangents) {
+	m_isStacked = asStackedModel;
 
 	std::string filename(a_filename);
 
@@ -85,6 +85,8 @@ bool ObjModel::loadObject(const char* a_filename, Vector3f& axis, float degree, 
 	std::vector<float> vertexCoords;
 	std::vector<float> normalCoords;
 	std::vector<float> textureCoords;
+	std::vector<float> tangentCoords;
+	std::vector<float> bitangentCoords;
 
 	std::map<std::string, int> name;
 
@@ -237,12 +239,12 @@ bool ObjModel::loadObject(const char* a_filename, Vector3f& axis, float degree, 
 				face.push_back({ { a, b, c, 0, 0, 0, n1, n2, n3, assign } });
 
 			}else if (!textureCoords.empty()) {				
-				if (!withoutNormals) {
-					sscanf(buffer, "%d/%d %d/%d %d/%d", &a, &t1, &b, &t2, &c, &t3);
-					face.push_back({ { a, b, c, t1, t2, t3, 0, 0, 0, assign } });
-				}else {
+				if (withoutNormals) {
 					sscanf(buffer, "%d/%d/%d %d/%d/%d %d/%d/%d ", &a, &t1, &n1, &b, &t2, &n2, &c, &t3, &n3);
 					face.push_back({ { a, b, c, t1, t2, t3, n1, n2, n3, assign } });
+				}else {
+					sscanf(buffer, "%d/%d %d/%d %d/%d", &a, &t1, &b, &t2, &c, &t3);
+					face.push_back({ { a, b, c, t1, t2, t3, 0, 0, 0, assign } });
 				}
 			}else {
 				sscanf(buffer, "%d %d %d", &a, &b, &c);
@@ -293,11 +295,32 @@ bool ObjModel::loadObject(const char* a_filename, Vector3f& axis, float degree, 
 	dup.clear();
 	name.clear();
 
+	if (withoutNormals) {
+		
+		if (generateSmoothNormals) {			
+			ObjModel::GenerateNormals(vertexCoords, face, normalCoords);
+		}
+	}
+
+	if (generateSmoothTangents) {
+		//if (normalCoords.empty()) {
+			//ObjModel::GenerateNormals(vertexCoords, face, normalCoords);
+		//}
+
+		//this approach have to overworked: -it should be possible to use the imported normals from the file insteed of generating them to match the indices during gram schmidt
+		// but for now something is rendering
+		normalCoords.clear();
+		normalCoords.shrink_to_fit();
+		ObjModel::GenerateNormals(vertexCoords, face, normalCoords);
+		ObjModel::GenerateTangents(vertexCoords, textureCoords, normalCoords, face, tangentCoords, bitangentCoords);
+	}
+	
 	IndexBufferCreator indexBufferCreator;
 	indexBufferCreator.positionCoordsIn = vertexCoords;
 	indexBufferCreator.normalCoordsIn = normalCoords;
 	indexBufferCreator.textureCoordsIn = textureCoords;
-
+	indexBufferCreator.tangentCoordsIn = tangentCoords;
+	indexBufferCreator.bitangentCoordsIn = bitangentCoords;
 
 	for (int j = 0; j < m_numberOfMeshes; j++) {
 		std::vector<std::array<int, 10>>::const_iterator first = face.begin() + m_mesh[j]->m_triangleOffset;
@@ -305,8 +328,12 @@ bool ObjModel::loadObject(const char* a_filename, Vector3f& axis, float degree, 
 		std::vector<std::array<int, 10>> subFace(first, last);
 		indexBufferCreator.face = subFace;
 		indexBufferCreator.createIndexBuffer();
-
-		if (!textureCoords.empty() && !normalCoords.empty()) {
+		if (!tangentCoords.empty()) {
+			m_hasTextureCoords = true; m_hasNormals = true; m_hasTangents = true;
+			m_stride = 14;
+			m_mesh[j]->m_hasTextureCoords = true; m_mesh[j]->m_hasNormals = true; m_mesh[j]->m_hasTangents = true;
+			m_mesh[j]->m_stride = 14;
+		} else if (!textureCoords.empty() && !normalCoords.empty()) {
 			m_hasTextureCoords = true; m_hasNormals = true;
 			m_stride = 8;
 			m_mesh[j]->m_hasTextureCoords = true; m_mesh[j]->m_hasNormals = true;
@@ -333,7 +360,7 @@ bool ObjModel::loadObject(const char* a_filename, Vector3f& axis, float degree, 
 			m_mesh[j]->readMaterial();
 		}
 
-		if (!m_isSingleMesh) {
+		if (!m_isStacked) {
 			m_mesh[j]->m_indexBuffer = indexBufferCreator.indexBufferOut;
 			m_mesh[j]->m_vertexBuffer = indexBufferCreator.vertexBufferOut;
 
@@ -359,7 +386,7 @@ bool ObjModel::loadObject(const char* a_filename, Vector3f& axis, float degree, 
 		indexBufferCreator.vertexBufferOut.shrink_to_fit();
 	}
 
-	if (m_isSingleMesh) {
+	if (m_isStacked) {
 		ObjModel::CreateBuffer(m_vertexBuffer, m_indexBuffer, m_drawCount, m_vao, m_vbo, m_ibo, m_stride);
 	}
 
@@ -369,6 +396,8 @@ bool ObjModel::loadObject(const char* a_filename, Vector3f& axis, float degree, 
 	indexBufferCreator.normalCoordsIn.shrink_to_fit();
 	indexBufferCreator.textureCoordsIn.clear();
 	indexBufferCreator.textureCoordsIn.shrink_to_fit();
+
+	return true;
 }
 
 void ObjModel::drawRaw() {
@@ -383,7 +412,7 @@ void ObjModel::drawRawInstanced() {
 	}
 }
 
-void ObjModel::drawRawAsSingleMesh() {
+void ObjModel::drawRawStacked() {
 	glBindVertexArray(m_vao);
 	for (int i = 0; i < m_mesh.size(); i++) {
 		glDrawElementsBaseVertex(GL_TRIANGLES, m_mesh[i]->m_drawCount, GL_UNSIGNED_INT, (void*)(sizeof(unsigned int) * m_mesh[i]->m_baseIndex), m_mesh[i]->m_baseVertex);
@@ -391,7 +420,7 @@ void ObjModel::drawRawAsSingleMesh() {
 	glBindVertexArray(0);
 }
 
-void ObjModel::drawRawInstancedAsSingleMesh() {
+void ObjModel::drawRawInstancedStacked() {
 	glBindVertexArray(m_vao);
 	for (int i = 0; i < m_mesh.size(); i++) {
 		glDrawElementsInstancedBaseVertexBaseInstance(GL_TRIANGLES, m_mesh[i]->m_drawCount, GL_UNSIGNED_INT, (void*)(sizeof(unsigned int) * m_mesh[i]->m_baseIndex), m_instanceCount, m_mesh[i]->m_baseVertex, 0);
@@ -434,7 +463,7 @@ void ObjModel::drawInstanced(Camera& camera) {
 	Texture::Unbind();
 }
 
-void ObjModel::drawAsSingleMesh(Camera& camera) {
+void ObjModel::drawStacked(Camera& camera) {
 	glBindVertexArray(m_vao);
 	for (int i = 0; i < m_mesh.size(); i++) {
 		m_mesh[i]->updateMaterialUbo(s_materialUbo);
@@ -453,7 +482,7 @@ void ObjModel::drawAsSingleMesh(Camera& camera) {
 	glBindVertexArray(0);
 }
 
-void ObjModel::drawInstancedAsSingleMesh(Camera& camera) {
+void ObjModel::drawInstancedStacked(Camera& camera) {
 	glBindVertexArray(m_vao);
 	for (int i = 0; i < m_mesh.size(); i++) {
 		m_mesh[i]->updateMaterialUbo(s_materialUbo);
@@ -520,7 +549,7 @@ std::vector<Mesh*> ObjModel::getMeshes() {
 
 void ObjModel::generateTangents() {
 
-	if (m_isSingleMesh) {
+	if (m_isStacked) {
 		if (m_hasNormals) { return; }
 
 		ObjModel::GenerateTangents(m_vertexBuffer, m_indexBuffer, *this, m_hasNormals, m_hasTangents,  m_stride, 0, m_mesh.size());		
@@ -538,7 +567,7 @@ void ObjModel::generateTangents() {
 
 void ObjModel::generateNormals() {
 	
-	if (m_isSingleMesh) {
+	if (m_isStacked) {
 		if (m_hasNormals) { return; }
 
 		ObjModel::GenerateNormals(m_vertexBuffer, m_indexBuffer, *this, m_hasNormals, m_stride, 0, m_mesh.size());
@@ -815,7 +844,7 @@ void ObjModel::createInstancesStatic(std::vector<Matrix4f>& modelMTX) {
 }
 
 void ObjModel::createInstancesDynamic(unsigned int numberOfInstances){
-	if (m_isSingleMesh) {
+	if (m_isStacked) {
 		m_instanceCount = numberOfInstances;
 		glGenBuffers(1, &m_vboInstances);
 
@@ -849,7 +878,7 @@ void ObjModel::createInstancesDynamic(unsigned int numberOfInstances){
 }
 
 void ObjModel::updateInstances(std::vector<Matrix4f>& modelMTX) {
-	if (m_isSingleMesh) {
+	if (m_isStacked) {
 		glBindBuffer(GL_ARRAY_BUFFER, m_vboInstances);
 		glBufferSubData(GL_ARRAY_BUFFER, 0, modelMTX.size() * sizeof(GLfloat) * 4 * 4, modelMTX[0][0]);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -1054,7 +1083,7 @@ void ObjModel::CreateBuffer(std::vector<float>& vertexBuffer, std::vector<unsign
 		glBufferData(GL_ARRAY_BUFFER, vertexBuffer.size() * sizeof(float), &vertexBuffer[0], GL_STATIC_DRAW);
 
 		glEnableVertexAttribArray(2);
-		glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)((stride == 6 || stride == 8) ? 5 * sizeof(float) : 3 * sizeof(float)));
+		glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)((stride == 8 || stride == 14) ? 5 * sizeof(float) : 3 * sizeof(float)));
 	}
 
 	if (stride == 14) {
@@ -1077,6 +1106,209 @@ void ObjModel::CreateBuffer(std::vector<float>& vertexBuffer, std::vector<unsign
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexBuffer.size() * sizeof(m_indexBuffer[0]), &indexBuffer[0], GL_STATIC_DRAW);
 
 	glBindVertexArray(0);
+}
+
+void ObjModel::GenerateNormals(std::vector<float>& vertexCoords, std::vector<std::array<int, 10>>& face, std::vector<float>& normalCoords) {
+	normalCoords.resize(vertexCoords.size());
+	float pVertex0[3] = { 0.0f, 0.0f, 0.0f };
+	float pVertex1[3] = { 0.0f, 0.0f, 0.0f };
+	float pVertex2[3] = { 0.0f, 0.0f, 0.0f };
+	float edge1[3] = { 0.0f, 0.0f, 0.0f };
+	float edge2[3] = { 0.0f, 0.0f, 0.0f };
+	float normal[3] = { 0.0f, 0.0f, 0.0f };
+	for (unsigned int i = 0; i < face.size(); i++) {
+
+		pVertex0[0] = vertexCoords[((face[i])[0] - 1) * 3]; pVertex0[1] = vertexCoords[((face[i])[0] - 1) * 3 + 1]; pVertex0[2] = vertexCoords[((face[i])[0] - 1) * 3 + 2];
+		pVertex1[0] = vertexCoords[((face[i])[1] - 1) * 3]; pVertex1[1] = vertexCoords[((face[i])[1] - 1) * 3 + 1]; pVertex1[2] = vertexCoords[((face[i])[1] - 1) * 3 + 2];
+		pVertex2[0] = vertexCoords[((face[i])[2] - 1) * 3]; pVertex2[1] = vertexCoords[((face[i])[2] - 1) * 3 + 1]; pVertex2[2] = vertexCoords[((face[i])[2] - 1) * 3 + 2];
+
+		// Calculate triangle face normal.
+		edge1[0] = pVertex1[0] - pVertex0[0];
+		edge1[1] = pVertex1[1] - pVertex0[1];
+		edge1[2] = pVertex1[2] - pVertex0[2];
+
+		edge2[0] = pVertex2[0] - pVertex0[0];
+		edge2[1] = pVertex2[1] - pVertex0[1];
+		edge2[2] = pVertex2[2] - pVertex0[2];
+
+		normal[0] = (edge1[1] * edge2[2]) - (edge1[2] * edge2[1]);
+		normal[1] = (edge1[2] * edge2[0]) - (edge1[0] * edge2[2]);
+		normal[2] = (edge1[0] * edge2[1]) - (edge1[1] * edge2[0]);
+
+		normalCoords[((face[i])[0] - 1) * 3] = normalCoords[((face[i])[0] - 1) * 3] + normal[0];
+		normalCoords[((face[i])[0] - 1) * 3 + 1] = normalCoords[((face[i])[0] - 1) * 3 + 1] + normal[1];
+		normalCoords[((face[i])[0] - 1) * 3 + 2] = normalCoords[((face[i])[0] - 1) * 3 + 2] + normal[2];
+
+		normalCoords[((face[i])[1] - 1) * 3] = normalCoords[((face[i])[1] - 1) * 3] + normal[0];
+		normalCoords[((face[i])[1] - 1) * 3 + 1] = normalCoords[((face[i])[1] - 1) * 3 + 1] + normal[1];
+		normalCoords[((face[i])[1] - 1) * 3 + 2] = normalCoords[((face[i])[1] - 1) * 3 + 2] + normal[2];
+
+		normalCoords[((face[i])[2] - 1) * 3] = normalCoords[((face[i])[2] - 1) * 3] + normal[0];
+		normalCoords[((face[i])[2] - 1) * 3 + 1] = normalCoords[((face[i])[2] - 1) * 3 + 1] + normal[1];
+		normalCoords[((face[i])[2] - 1) * 3 + 2] = normalCoords[((face[i])[2] - 1) * 3 + 2] + normal[2];
+
+		(face[i])[6] = (face[i])[0]; (face[i])[7] = (face[i])[1]; (face[i])[8] = (face[i])[2];
+	}
+
+	for (int i = 0; i < normalCoords.size(); i = i + 3) {
+
+		float length = 1.0f / sqrtf(normalCoords[i] * normalCoords[i] + normalCoords[i + 1] * normalCoords[i + 1] + normalCoords[i + 2] * normalCoords[i + 2]);
+
+		normalCoords[i] *= length;
+		normalCoords[i + 1] *= length;
+		normalCoords[i + 2] *= length;
+	}
+}
+
+void ObjModel::GenerateTangents(std::vector<float>& vertexCoords, std::vector<float>& textureCoords, std::vector<float>& normalCoords, std::vector<std::array<int, 10>>& face, std::vector<float>& tangentCoords, std::vector<float>& bitangentCoords) {
+
+	if (textureCoords.empty()) return;
+	
+	tangentCoords.resize(vertexCoords.size());
+	bitangentCoords.resize(vertexCoords.size());
+
+	float pVertex0[5] = { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
+	float pVertex1[5] = { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
+	float pVertex2[5] = { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
+	float edge1[3] = { 0.0f, 0.0f, 0.0f };
+	float edge2[3] = { 0.0f, 0.0f, 0.0f };
+	float texEdge1[2] = { 0.0f, 0.0f };
+	float texEdge2[2] = { 0.0f, 0.0f };
+	float normal[3] = { 0.0f, 0.0f, 0.0f };
+	float tangent[3] = { 0.0f, 0.0f, 0.0f };
+	float bitangent[3] = { 0.0f, 0.0f, 0.0f };
+	float det = 0.0f;
+
+	for (unsigned int i = 0; i < face.size(); i++) {
+
+		pVertex0[0] = vertexCoords[((face[i])[0] - 1) * 3]; pVertex0[1] = vertexCoords[((face[i])[0] - 1) * 3 + 1]; pVertex0[2] = vertexCoords[((face[i])[0] - 1) * 3 + 2];
+		pVertex0[3] = textureCoords[((face[i])[3] - 1) * 3]; pVertex0[4] = textureCoords[((face[i])[3] - 1) * 3 + 1];
+
+		pVertex1[0] = vertexCoords[((face[i])[1] - 1) * 3]; pVertex1[1] = vertexCoords[((face[i])[1] - 1) * 3 + 1]; pVertex1[2] = vertexCoords[((face[i])[1] - 1) * 3 + 2];
+		pVertex1[3] = textureCoords[((face[i])[4] - 1) * 3]; pVertex1[4] = textureCoords[((face[i])[4] - 1) * 3 + 1];
+
+		pVertex2[0] = vertexCoords[((face[i])[2] - 1) * 3]; pVertex2[1] = vertexCoords[((face[i])[2] - 1) * 3 + 1]; pVertex2[2] = vertexCoords[((face[i])[2] - 1) * 3 + 2];
+		pVertex2[3] = textureCoords[((face[i])[5] - 1) * 3]; pVertex2[4] = textureCoords[((face[i])[5] - 1) * 3 + 1];
+
+		edge1[0] = pVertex1[0] - pVertex0[0];
+		edge1[1] = pVertex1[1] - pVertex0[1];
+		edge1[2] = pVertex1[2] - pVertex0[2];
+
+		edge2[0] = pVertex2[0] - pVertex0[0];
+		edge2[1] = pVertex2[1] - pVertex0[1];
+		edge2[2] = pVertex2[2] - pVertex0[2];
+
+		texEdge1[0] = pVertex1[3] - pVertex0[3];
+		texEdge1[1] = pVertex1[4] - pVertex0[4];
+
+		texEdge2[0] = pVertex2[3] - pVertex0[3];
+		texEdge2[1] = pVertex2[4] - pVertex0[4];
+
+		det = texEdge1[0] * texEdge2[1] - texEdge2[0] * texEdge1[1];
+
+		if (fabs(det) < 1e-6f) {
+
+			tangent[0] = 1.0f;
+			tangent[1] = 0.0f;
+			tangent[2] = 0.0f;
+
+			bitangent[0] = 0.0f;
+			bitangent[1] = 1.0f;
+			bitangent[2] = 0.0f;
+
+		}else {
+			det = 1.0f / det;
+
+			tangent[0] = (texEdge2[1] * edge1[0] - texEdge1[1] * edge2[0]) * det;
+			tangent[1] = (texEdge2[1] * edge1[1] - texEdge1[1] * edge2[1]) * det;
+			tangent[2] = (texEdge2[1] * edge1[2] - texEdge1[1] * edge2[2]) * det;
+
+			bitangent[0] = (-texEdge2[0] * edge1[0] + texEdge1[0] * edge2[0]) * det;
+			bitangent[1] = (-texEdge2[0] * edge1[1] + texEdge1[0] * edge2[1]) * det;
+			bitangent[2] = (-texEdge2[0] * edge1[2] + texEdge1[0] * edge2[2]) * det;
+		}
+
+		tangentCoords[((face[i])[0] - 1) * 3] = tangentCoords[((face[i])[0] - 1) * 3] + tangent[0];
+		tangentCoords[((face[i])[0] - 1) * 3 + 1] = tangentCoords[((face[i])[0] - 1) * 3 + 1] + tangent[1];
+		tangentCoords[((face[i])[0] - 1) * 3 + 2] = tangentCoords[((face[i])[0] - 1) * 3 + 2] + tangent[2];
+
+		tangentCoords[((face[i])[1] - 1) * 3] = tangentCoords[((face[i])[1] - 1) * 3] + tangent[0];
+		tangentCoords[((face[i])[1] - 1) * 3 + 1] = tangentCoords[((face[i])[1] - 1) * 3 + 1] + tangent[1];
+		tangentCoords[((face[i])[1] - 1) * 3 + 2] = tangentCoords[((face[i])[1] - 1) * 3 + 2] + tangent[2];
+
+		tangentCoords[((face[i])[2] - 1) * 3] = tangentCoords[((face[i])[2] - 1) * 3] + tangent[0];
+		tangentCoords[((face[i])[2] - 1) * 3 + 1] = tangentCoords[((face[i])[2] - 1) * 3 + 1] + tangent[1];
+		tangentCoords[((face[i])[2] - 1) * 3 + 2] = tangentCoords[((face[i])[2] - 1) * 3 + 2] + tangent[2];
+
+		bitangentCoords[((face[i])[0] - 1) * 3] = bitangentCoords[((face[i])[0] - 1) * 3] + bitangent[0];
+		bitangentCoords[((face[i])[0] - 1) * 3 + 1] = bitangentCoords[((face[i])[0] - 1) * 3 + 1] + bitangent[1];
+		bitangentCoords[((face[i])[0] - 1) * 3 + 2] = bitangentCoords[((face[i])[0] - 1) * 3 + 2] + bitangent[2];
+
+		bitangentCoords[((face[i])[1] - 1) * 3] = bitangentCoords[((face[i])[1] - 1) * 3] + bitangent[0];
+		bitangentCoords[((face[i])[1] - 1) * 3 + 1] = bitangentCoords[((face[i])[1] - 1) * 3 + 1] + bitangent[1];
+		bitangentCoords[((face[i])[1] - 1) * 3 + 2] = bitangentCoords[((face[i])[1] - 1) * 3 + 2] + bitangent[2];
+
+		bitangentCoords[((face[i])[2] - 1) * 3] = bitangentCoords[((face[i])[2] - 1) * 3] + bitangent[0];
+		bitangentCoords[((face[i])[2] - 1) * 3 + 1] = bitangentCoords[((face[i])[2] - 1) * 3 + 1] + bitangent[1];
+		bitangentCoords[((face[i])[2] - 1) * 3 + 2] = bitangentCoords[((face[i])[2] - 1) * 3 + 2] + bitangent[2];
+	}
+	
+	float nDotT = 0.0f;
+	float bDotB = 0.0f;
+	float length = 0.0f;
+
+	for (unsigned int i = 0; i < tangentCoords.size(); i = i + 3) {
+
+		normal[0] = normalCoords[i]; normal[1] = normalCoords[i + 1]; normal[2] = normalCoords[i + 2];
+		tangent[0] = tangentCoords[i]; tangent[1] = tangentCoords[i + 1]; tangent[2] = tangentCoords[i + 2];
+		//bitangent[0] = bitangentCoords[((face[i])[0] - 1) * 3]; bitangent[1] = bitangentCoords[((face[i])[0] - 1) * 3 + 1]; bitangent[2] = bitangentCoords[((face[i])[0] - 1) * 3 + 2];
+		
+		// Gram-Schmidt orthogonalize tangent with normal.
+
+		nDotT = normal[0] * tangent[0] +
+			normal[1] * tangent[1] +
+			normal[2] * tangent[2];
+
+		tangent[0] -= normal[0] * nDotT;
+		tangent[1] -= normal[1] * nDotT;
+		tangent[2] -= normal[2] * nDotT;
+
+		// Normalize the tangent.
+
+		length = 1.0f / sqrtf(tangent[0] * tangent[0] +
+			tangent[1] * tangent[1] +
+			tangent[2] * tangent[2]);
+
+		tangentCoords[i] *= length;
+		tangentCoords[i + 1] *= length;
+		tangentCoords[i + 2] *= length;
+
+		bitangent[0] = (normal[1] * tangentCoords[i + 2]) -
+			(normal[2] * tangentCoords[i + 1]);
+		bitangent[1] = (normal[2] * tangentCoords[i]) -
+			(normal[0] * tangentCoords[i + 2]);
+		bitangent[2] = (normal[0] * tangentCoords[i + 1]) -
+			(normal[1] * tangentCoords[i]);
+
+		bDotB = bitangent[0] * bitangentCoords[i] +
+			bitangent[1] * bitangentCoords[i + 1] +
+			bitangent[2] * bitangentCoords[i + 2];
+
+		// Calculate handedness
+		if (bDotB < 0.0f) {
+			bitangentCoords[i] = -bitangent[0];
+			bitangentCoords[i + 1] = -bitangent[1];
+			bitangentCoords[i + 2] = -bitangent[2];
+
+		}else {
+
+			bitangentCoords[i] = bitangent[0];
+			bitangentCoords[i + 1] = bitangent[1];
+			bitangentCoords[i + 2] = bitangent[2];
+		}
+
+	}
+
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1346,7 +1578,35 @@ int Mesh::getStride() {
 void IndexBufferCreator::createIndexBuffer() {
 
 	indexBufferOut.resize(face.size() * 3);
-	if (!textureCoordsIn.empty() && !normalCoordsIn.empty()) {
+	if (!tangentCoordsIn.empty()) {
+		for (int i = 0; i < face.size(); i++) {
+
+			float vertex1[] = { positionCoordsIn[((face[i])[0] - 1) * 3], positionCoordsIn[((face[i])[0] - 1) * 3 + 1], positionCoordsIn[((face[i])[0] - 1) * 3 + 2],
+				textureCoordsIn[((face[i])[3] - 1) * 2], textureCoordsIn[((face[i])[3] - 1) * 2 + 1],
+				normalCoordsIn[((face[i])[6] - 1) * 3], normalCoordsIn[((face[i])[6] - 1) * 3 + 1], normalCoordsIn[((face[i])[6] - 1) * 3 + 2],
+				tangentCoordsIn[((face[i])[0] - 1) * 3], tangentCoordsIn[((face[i])[0] - 1) * 3 + 1], tangentCoordsIn[((face[i])[0] - 1) * 3 + 2],
+				bitangentCoordsIn[((face[i])[0] - 1) * 3], bitangentCoordsIn[((face[i])[0] - 1) * 3 + 1], bitangentCoordsIn[((face[i])[0] - 1) * 3 + 2]};
+
+			indexBufferOut[i * 3] = addVertex(((face[i])[0] - 1), &vertex1[0], 14);
+
+			float vertex2[] = { positionCoordsIn[((face[i])[1] - 1) * 3], positionCoordsIn[((face[i])[1] - 1) * 3 + 1], positionCoordsIn[((face[i])[1] - 1) * 3 + 2],
+				textureCoordsIn[((face[i])[4] - 1) * 2], textureCoordsIn[((face[i])[4] - 1) * 2 + 1],
+				normalCoordsIn[((face[i])[7] - 1) * 3], normalCoordsIn[((face[i])[7] - 1) * 3 + 1], normalCoordsIn[((face[i])[7] - 1) * 3 + 2],
+				tangentCoordsIn[((face[i])[1] - 1) * 3], tangentCoordsIn[((face[i])[1] - 1) * 3 + 1], tangentCoordsIn[((face[i])[1] - 1) * 3 + 2],
+				bitangentCoordsIn[((face[i])[1] - 1) * 3], bitangentCoordsIn[((face[i])[1] - 1) * 3 + 1], bitangentCoordsIn[((face[i])[1] - 1) * 3 + 2]};
+
+			indexBufferOut[i * 3 + 1] = addVertex(((face[i])[1] - 1), &vertex2[0], 14);
+
+			float vertex3[] = { positionCoordsIn[((face[i])[2] - 1) * 3], positionCoordsIn[((face[i])[2] - 1) * 3 + 1], positionCoordsIn[((face[i])[2] - 1) * 3 + 2],
+				textureCoordsIn[((face[i])[5] - 1) * 2], textureCoordsIn[((face[i])[5] - 1) * 2 + 1],
+				normalCoordsIn[((face[i])[8] - 1) * 3], normalCoordsIn[((face[i])[8] - 1) * 3 + 1], normalCoordsIn[((face[i])[8] - 1) * 3 + 2],
+				tangentCoordsIn[((face[i])[2] - 1) * 3], tangentCoordsIn[((face[i])[2] - 1) * 3 + 1], tangentCoordsIn[((face[i])[2] - 1) * 3 + 2] ,
+				bitangentCoordsIn[((face[i])[2] - 1) * 3], bitangentCoordsIn[((face[i])[2] - 1) * 3 + 1], bitangentCoordsIn[((face[i])[2] - 1) * 3 + 2] };
+
+			indexBufferOut[i * 3 + 2] = addVertex(((face[i])[2] - 1), &vertex3[0], 14);
+		}
+	} else if (!textureCoordsIn.empty() && !normalCoordsIn.empty()) {
+
 		for (int i = 0; i < face.size(); i++) {
 
 			float vertex1[] = { positionCoordsIn[((face[i])[0] - 1) * 3], positionCoordsIn[((face[i])[0] - 1) * 3 + 1], positionCoordsIn[((face[i])[0] - 1) * 3 + 2],

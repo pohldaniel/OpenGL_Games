@@ -182,31 +182,29 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_water(
 	position[2] = HEIGHTMAP_WIDTH * 0.5f + 300.0f;
 	position[1] = m_terrain.getHeightMap().heightAt(HEIGHTMAP_WIDTH * 0.5f + 800.0f, HEIGHTMAP_WIDTH * 0.5f + 300.0f) + 200.0f;
 
-	dragon = new ObjModel();
-	dragon->loadObject("res/models/dragon/dragon.obj", Vector3f(1.0f, 0.0f, 0.0f), 0.0f, Vector3f(0.0f, 0.0f, 0.0f), 1.0f, false, false);
-	dragon->getTransform().setRotPosScale(Vector3f(1.0f, 0.0f, 0.0f), -90.0f, position[0], position[1], position[2], 10.0f, 10.0f, 10.0f);
-	//dragon->generateNormals();
-	dragon->initAssets(Globals::shaderManager, Globals::textureManager);
+	dragonCompare = new ObjModel();
+	dragonCompare->loadObject("res/models/dragon/dragon.obj", Vector3f(1.0f, 0.0f, 0.0f), 0.0f, Vector3f(0.0f, 0.0f, 0.0f), 1.0f);
+	dragonCompare->getTransform().setRotPosScale(Vector3f(1.0f, 0.0f, 0.0f), -90.0f, position[0], position[1], position[2], 10.0f, 10.0f, 10.0f);
+	dragonCompare->initAssets(Globals::shaderManager, Globals::textureManager);
 
 	position[0] = HEIGHTMAP_WIDTH * 0.5f + 1000.0f;
 	position[2] = HEIGHTMAP_WIDTH * 0.5f + 300.0f;
 	position[1] = m_terrain.getHeightMap().heightAt(HEIGHTMAP_WIDTH * 0.5f + 800.0f, HEIGHTMAP_WIDTH * 0.5f + 300.0f) + 200.0f;
 
-	dragon2 = new ObjModel();
-	dragon2->loadObject("res/models/dragon/dragon.obj", Vector3f(1.0f, 0.0f, 0.0f), 0.0f, Vector3f(0.0f, 0.0f, 0.0f), 1.0f, false, true);
-	dragon2->getTransform().setRotPosScale(Vector3f(1.0f, 0.0f, 0.0f), -90.0f, position[0], position[1], position[2], 10.0f, 10.0f, 10.0f);
-	dragon2->generateNormals();
-	dragon2->initAssets(Globals::shaderManager, Globals::textureManager);
+	dragonGN = new ObjModel();
+	dragonGN->loadObject("res/models/dragon/dragon.obj", Vector3f(1.0f, 0.0f, 0.0f), 0.0f, Vector3f(0.0f, 0.0f, 0.0f), 1.0f, false, true, true);
+	dragonGN->getTransform().setRotPosScale(Vector3f(1.0f, 0.0f, 0.0f), -90.0f, position[0], position[1], position[2], 10.0f, 10.0f, 10.0f);
+	dragonGN->initAssets(Globals::shaderManager, Globals::textureManager);
 
 	position[0] = HEIGHTMAP_WIDTH * 0.5f + 1300.0f;
 	position[2] = HEIGHTMAP_WIDTH * 0.5f + 300.0f;
 	position[1] = m_terrain.getHeightMap().heightAt(HEIGHTMAP_WIDTH * 0.5f + 800.0f, HEIGHTMAP_WIDTH * 0.5f + 300.0f) + 200.0f;
 
-	dragonSingle = new ObjModel();
-	dragonSingle->loadObject("res/models/dragon/dragon.obj", Vector3f(1.0f, 0.0f, 0.0f), 0.0f, Vector3f(0.0f, 0.0f, 0.0f), 1.0f, true, true);
-	dragonSingle->getTransform().setRotPosScale(Vector3f(1.0f, 0.0f, 0.0f), -90.0f, position[0], position[1], position[2], 10.0f, 10.0f, 10.0f);
-	dragonSingle->generateNormals();
-	dragonSingle->initAssets(Globals::shaderManager, Globals::textureManager);
+	dragonStacked = new ObjModel();
+	dragonStacked->loadObject("res/models/dragon/dragon.obj", Vector3f(1.0f, 0.0f, 0.0f), 0.0f, Vector3f(0.0f, 0.0f, 0.0f), 1.0f, true, true, false);
+	dragonStacked->getTransform().setRotPosScale(Vector3f(1.0f, 0.0f, 0.0f), -90.0f, position[0], position[1], position[2], 10.0f, 10.0f, 10.0f);
+	dragonStacked->generateNormals();
+	dragonStacked->initAssets(Globals::shaderManager, Globals::textureManager);
 }
 
 Game::~Game() {}
@@ -426,14 +424,14 @@ void Game::render(unsigned int &frameBuffer) {
 	glUseProgram(shader->m_program);
 	shader->loadMatrix("u_projection", Globals::projection);
 	shader->loadMatrix("u_view", m_camera.getViewMatrix());
-	shader->loadMatrix("u_model", dragon->getTransformationMatrix());
-	dragon->drawRaw();
+	shader->loadMatrix("u_model", dragonCompare->getTransformationMatrix());
+	dragonCompare->drawRaw();
 
-	shader->loadMatrix("u_model", dragon2->getTransformationMatrix());
-	dragon2->drawRaw();
+	shader->loadMatrix("u_model", dragonGN->getTransformationMatrix());
+	dragonGN->drawRaw();
 
-	shader->loadMatrix("u_model", dragonSingle->getTransformationMatrix());
-	dragonSingle->drawRawAsSingleMesh();
+	shader->loadMatrix("u_model", dragonStacked->getTransformationMatrix());
+	dragonStacked->drawRawStacked();
 
 	glUseProgram(0);
 

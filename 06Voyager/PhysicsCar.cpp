@@ -255,7 +255,7 @@ btTransform PhysicsCar::GetWorldTransform(){
 void PhysicsCar::draw(Camera& camera) {
 	car->getTransform().fromMatrix(Physics::MatrixFrom(GetWorldTransform(), btVector3(CAR_SCALE, CAR_SCALE, CAR_SCALE)));
 	//car->draw(camera);
-	car->drawAsSingleMesh(camera);
+	car->drawStacked(camera);
 	
 
 	//car->updateInstances(std::vector<Matrix4f>({

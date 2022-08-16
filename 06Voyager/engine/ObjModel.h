@@ -216,6 +216,8 @@ struct IndexBufferCreator {
 	std::vector<float> positionCoordsIn;
 	std::vector<float> normalCoordsIn;
 	std::vector<float> textureCoordsIn;
+	std::vector<float> tangentCoordsIn;
+	std::vector<float> bitangentCoordsIn;
 
 	std::vector <float> vertexBufferOut;
 	std::vector<unsigned int> indexBufferOut;
@@ -250,13 +252,13 @@ public:
 
 	void drawRaw();
 	void drawRawInstanced();
-	void drawRawAsSingleMesh();
-	void drawRawInstancedAsSingleMesh();
+	void drawRawStacked();
+	void drawRawInstancedStacked();
 
 	void draw(Camera& camera);
 	void drawInstanced(Camera& camera);
-	void drawAsSingleMesh(Camera& camera);
-	void drawInstancedAsSingleMesh(Camera& camera);
+	void drawStacked(Camera& camera);
+	void drawInstancedStacked(Camera& camera);
 
 	void createAABB();
 	void createSphere();
@@ -267,8 +269,8 @@ public:
 	void drawSphere();
 	void drawHull();
 
-	bool loadObject(const char* filename, bool asSingleMesh = false, bool withoutNormals = false);
-	bool loadObject(const char* a_filename, Vector3f& rotate, float degree, Vector3f& translate, float scale, bool asSingleMesh = false, bool withoutNormals = false);
+	bool loadObject(const char* filename, bool asStackedModel = false, bool withoutNormals = false, bool generateSmoothNormals = false, bool generateSmoothTangents = false);
+	bool loadObject(const char* a_filename, Vector3f& rotate, float degree, Vector3f& translate, float scale, bool asStackedModel = false, bool withoutNormals = false, bool generateSmoothNormals = false, bool generateSmoothTangents = false);
 
 	std::string getMltPath();
 	std::string getModelDirectory();
@@ -279,6 +281,7 @@ public:
 
 	void generateTangents();
 	void generateNormals();
+	
 	void createInstancesStatic(std::vector<Matrix4f>& modelMTX);
 	void createInstancesDynamic(unsigned int numberOfInstances);
 	void updateInstances(std::vector<Matrix4f>& modelMTX);
@@ -296,7 +299,7 @@ private:
 
 	bool m_hasTextureCoords, m_hasNormals, m_hasTangents;
 	bool m_hasAABB, m_hasBoundingSphere, m_hasConvexHull;
-	bool m_isSingleMesh = false;
+	bool m_isStacked = false;
 
 	std::vector<Mesh*> m_mesh;
 	
@@ -340,6 +343,9 @@ private:
 	void static CreateBuffer(std::vector<float>& vertexBuffer, std::vector<unsigned int> indexBuffer, unsigned int& drawCount, unsigned int& vao, unsigned int(&vbo)[5], unsigned int& ibo, unsigned int stride);
 	void static GenerateNormals(std::vector<float>& vertexBuffer, std::vector<unsigned int>& indexBuffer, ObjModel& model, bool& hasNormals, unsigned int& stride, unsigned int startIndex, unsigned int endIndex);
 	void static GenerateTangents(std::vector<float>& vertexBuffer, std::vector<unsigned int>& indexBuffer, ObjModel& model, bool& hasNormals, bool& hasTangents, unsigned int& stride, unsigned int startIndex, unsigned int endIndex);
+
+	void static GenerateNormals(std::vector<float>& vertexCoords, std::vector<std::array<int, 10>>& face, std::vector<float>& normalCoords);
+	void static GenerateTangents(std::vector<float>& vertexCoords, std::vector<float>& textureCoords, std::vector<float>& normalCoords, std::vector<std::array<int, 10>>& face, std::vector<float>& tangentCoords, std::vector<float>& bitangentCoords);
 };
 
 class Mesh {
