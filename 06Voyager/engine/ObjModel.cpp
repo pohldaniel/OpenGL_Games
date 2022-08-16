@@ -61,8 +61,8 @@ std::string ObjModel::getModelDirectory() {
 	return m_modelDirectory;
 }
 
-bool ObjModel::loadObject(const char* filename, bool asSingleMesh) {
-	return loadObject(filename, Vector3f(0.0, 1.0, 0.0), 0.0, Vector3f(0.0, 0.0, 0.0), 1.0, asSingleMesh);
+bool ObjModel::loadObject(const char* filename, bool asSingleMesh, bool withoutNormals) {
+	return loadObject(filename, Vector3f(0.0, 1.0, 0.0), 0.0, Vector3f(0.0, 0.0, 0.0), 1.0, asSingleMesh, withoutNormals);
 }
 
 bool compare(const std::array<int, 10> &i_lhs, const std::array<int, 10> &i_rhs) {
@@ -542,9 +542,6 @@ void ObjModel::generateNormals() {
 		if (m_hasNormals) { return; }
 
 		ObjModel::GenerateNormals(m_vertexBuffer, m_indexBuffer, *this, m_hasNormals, m_stride, 0, m_mesh.size());
-		m_stride = m_hasTextureCoords ? 8 : 6;
-
-
 		ObjModel::CreateBuffer(m_vertexBuffer, m_indexBuffer, m_drawCount, m_vao, m_vbo, m_ibo, m_stride);
 
 	}else {
@@ -552,8 +549,6 @@ void ObjModel::generateNormals() {
 		for (int j = 0; j < m_mesh.size(); j++) {
 			if (m_mesh[j]->m_hasNormals) continue;
 			ObjModel::GenerateNormals(m_mesh[j]->m_vertexBuffer, m_mesh[j]->m_indexBuffer, *this, m_mesh[j]->m_hasNormals, m_mesh[j]->m_stride, j, j + 1);
-			m_mesh[j]->m_stride = m_mesh[j]->m_hasTextureCoords ? 8 : 6;
-
 			ObjModel::CreateBuffer(m_mesh[j]->m_vertexBuffer, m_mesh[j]->m_indexBuffer, m_mesh[j]->m_drawCount, m_mesh[j]->m_vao, m_mesh[j]->m_vbo, m_mesh[j]->m_ibo, m_mesh[j]->m_stride);
 		}
 	}

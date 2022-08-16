@@ -267,7 +267,7 @@ public:
 	void drawSphere();
 	void drawHull();
 
-	bool loadObject(const char* filename, bool asSingleMesh = false);
+	bool loadObject(const char* filename, bool asSingleMesh = false, bool withoutNormals = false);
 	bool loadObject(const char* a_filename, Vector3f& rotate, float degree, Vector3f& translate, float scale, bool asSingleMesh = false, bool withoutNormals = false);
 
 	std::string getMltPath();
