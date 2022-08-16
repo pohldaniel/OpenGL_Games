@@ -221,7 +221,6 @@ struct IndexBufferCreator {
 	std::vector<unsigned int> indexBufferOut;
 
 	void createIndexBuffer();
-	void expandIndexBuffer();
 
 private:
 	std::map<int, std::vector<int>> m_vertexCache;
@@ -269,7 +268,7 @@ public:
 	void drawHull();
 
 	bool loadObject(const char* filename, bool asSingleMesh = false);
-	bool loadObject(const char* a_filename, Vector3f& rotate, float degree, Vector3f& translate, float scale, bool asSingleMesh = false);
+	bool loadObject(const char* a_filename, Vector3f& rotate, float degree, Vector3f& translate, float scale, bool asSingleMesh = false, bool withoutNormals = false);
 
 	std::string getMltPath();
 	std::string getModelDirectory();
@@ -339,6 +338,8 @@ private:
 	unsigned int m_vboInstances;
 
 	void static CreateBuffer(std::vector<float>& vertexBuffer, std::vector<unsigned int> indexBuffer, unsigned int& drawCount, unsigned int& vao, unsigned int(&vbo)[5], unsigned int& ibo, unsigned int stride);
+	void static GenerateNormals(std::vector<float>& vertexBuffer, std::vector<unsigned int>& indexBuffer, ObjModel& model, bool& hasNormals, unsigned int& stride, unsigned int startIndex, unsigned int endIndex);
+	void static GenerateTangents(std::vector<float>& vertexBuffer, std::vector<unsigned int>& indexBuffer, ObjModel& model, bool& hasNormals, bool& hasTangents, unsigned int& stride, unsigned int startIndex, unsigned int endIndex);
 };
 
 class Mesh {
@@ -378,8 +379,6 @@ private:
 	Material m_material;	
 	///////////////////////////////////////OpenGL content//////////////////
 
-	void generateTangents();
-	void generateNormals();
 	void createInstancesStatic(std::vector<Matrix4f>& modelMTX);
 	void createInstancesDynamic(unsigned int numberOfInstances);
 	void updateInstances(std::vector<Matrix4f>& modelMTX);

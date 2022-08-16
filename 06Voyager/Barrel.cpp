@@ -8,7 +8,7 @@ Barrel::Barrel() : RenderableObject() {
 	m_model->createSphere();
 	m_model->createConvexHull("res/models/barrel/barrel_conv.obj", false);
 
-	m_shader = Globals::shaderManager.getAssetPointer("normal");
+	m_shader = Globals::shaderManager.getAssetPointer("normal_map");
 	
 
 	m_texture = &Globals::textureManager.get("barrel");

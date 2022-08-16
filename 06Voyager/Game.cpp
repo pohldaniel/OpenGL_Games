@@ -176,6 +176,37 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_water(
 	cowboy.scale(10.0f);
 
 	cowboy.getAnimator()->startAnimation("");
+
+
+	position[0] = HEIGHTMAP_WIDTH * 0.5f + 800.0f;
+	position[2] = HEIGHTMAP_WIDTH * 0.5f + 300.0f;
+	position[1] = m_terrain.getHeightMap().heightAt(HEIGHTMAP_WIDTH * 0.5f + 800.0f, HEIGHTMAP_WIDTH * 0.5f + 300.0f) + 200.0f;
+
+	dragon = new ObjModel();
+	dragon->loadObject("res/models/dragon/dragon.obj", Vector3f(1.0f, 0.0f, 0.0f), 0.0f, Vector3f(0.0f, 0.0f, 0.0f), 1.0f, false, false);
+	dragon->getTransform().setRotPosScale(Vector3f(1.0f, 0.0f, 0.0f), -90.0f, position[0], position[1], position[2], 10.0f, 10.0f, 10.0f);
+	//dragon->generateNormals();
+	dragon->initAssets(Globals::shaderManager, Globals::textureManager);
+
+	position[0] = HEIGHTMAP_WIDTH * 0.5f + 1000.0f;
+	position[2] = HEIGHTMAP_WIDTH * 0.5f + 300.0f;
+	position[1] = m_terrain.getHeightMap().heightAt(HEIGHTMAP_WIDTH * 0.5f + 800.0f, HEIGHTMAP_WIDTH * 0.5f + 300.0f) + 200.0f;
+
+	dragon2 = new ObjModel();
+	dragon2->loadObject("res/models/dragon/dragon.obj", Vector3f(1.0f, 0.0f, 0.0f), 0.0f, Vector3f(0.0f, 0.0f, 0.0f), 1.0f, false, true);
+	dragon2->getTransform().setRotPosScale(Vector3f(1.0f, 0.0f, 0.0f), -90.0f, position[0], position[1], position[2], 10.0f, 10.0f, 10.0f);
+	dragon2->generateNormals();
+	dragon2->initAssets(Globals::shaderManager, Globals::textureManager);
+
+	position[0] = HEIGHTMAP_WIDTH * 0.5f + 1300.0f;
+	position[2] = HEIGHTMAP_WIDTH * 0.5f + 300.0f;
+	position[1] = m_terrain.getHeightMap().heightAt(HEIGHTMAP_WIDTH * 0.5f + 800.0f, HEIGHTMAP_WIDTH * 0.5f + 300.0f) + 200.0f;
+
+	dragonSingle = new ObjModel();
+	dragonSingle->loadObject("res/models/dragon/dragon.obj", Vector3f(1.0f, 0.0f, 0.0f), 0.0f, Vector3f(0.0f, 0.0f, 0.0f), 1.0f, true, true);
+	dragonSingle->getTransform().setRotPosScale(Vector3f(1.0f, 0.0f, 0.0f), -90.0f, position[0], position[1], position[2], 10.0f, 10.0f, 10.0f);
+	dragonSingle->generateNormals();
+	dragonSingle->initAssets(Globals::shaderManager, Globals::textureManager);
 }
 
 Game::~Game() {}
@@ -390,6 +421,21 @@ void Game::render(unsigned int &frameBuffer) {
 
 	m_car->draw(m_camera);
 	cowboy.draw(m_camera);
+
+	shader = Globals::shaderManager.getAssetPointer("normal");
+	glUseProgram(shader->m_program);
+	shader->loadMatrix("u_projection", Globals::projection);
+	shader->loadMatrix("u_view", m_camera.getViewMatrix());
+	shader->loadMatrix("u_model", dragon->getTransformationMatrix());
+	dragon->drawRaw();
+
+	shader->loadMatrix("u_model", dragon2->getTransformationMatrix());
+	dragon2->drawRaw();
+
+	shader->loadMatrix("u_model", dragonSingle->getTransformationMatrix());
+	dragonSingle->drawRawAsSingleMesh();
+
+	glUseProgram(0);
 
 	if (m_debugNormal) {
 		auto normalGS = Globals::shaderManager.getAssetPointer("normalGS");

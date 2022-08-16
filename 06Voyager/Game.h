@@ -99,4 +99,5 @@ public:
 	PhysicsCar* m_car;
 
 	AnimatedModel cowboy;
+	ObjModel *dragon, *dragon2, *dragonSingle;
 };
