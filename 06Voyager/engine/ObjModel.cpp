@@ -396,6 +396,10 @@ bool ObjModel::loadObject(const char* a_filename, Vector3f& axis, float degree, 
 	indexBufferCreator.normalCoordsIn.shrink_to_fit();
 	indexBufferCreator.textureCoordsIn.clear();
 	indexBufferCreator.textureCoordsIn.shrink_to_fit();
+	indexBufferCreator.tangentCoordsIn.clear();
+	indexBufferCreator.tangentCoordsIn.shrink_to_fit();
+	indexBufferCreator.bitangentCoords.clear();
+	indexBufferCreator.bitangentCoords.shrink_to_fit();
 
 	return true;
 }
@@ -550,7 +554,7 @@ std::vector<Mesh*> ObjModel::getMeshes() {
 void ObjModel::generateTangents() {
 
 	if (m_isStacked) {
-		if (m_hasNormals) { return; }
+		if (m_hasTangents) { return; }
 
 		ObjModel::GenerateTangents(m_vertexBuffer, m_indexBuffer, *this, m_hasNormals, m_hasTangents,  m_stride, 0, m_mesh.size());		
 		ObjModel::CreateBuffer(m_vertexBuffer, m_indexBuffer, m_drawCount, m_vao, m_vbo, m_ibo, m_stride);
