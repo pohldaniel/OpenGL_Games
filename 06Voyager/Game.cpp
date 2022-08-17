@@ -201,10 +201,20 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_water(
 	position[1] = m_terrain.getHeightMap().heightAt(HEIGHTMAP_WIDTH * 0.5f + 800.0f, HEIGHTMAP_WIDTH * 0.5f + 300.0f) + 200.0f;
 
 	dragonStacked = new ObjModel();
-	dragonStacked->loadObject("res/models/dragon/dragon.obj", Vector3f(1.0f, 0.0f, 0.0f), 0.0f, Vector3f(0.0f, 0.0f, 0.0f), 1.0f, true, true, false);
+	dragonStacked->loadObject("res/models/dragon/dragon.obj", Vector3f(1.0f, 0.0f, 0.0f), 0.0f, Vector3f(0.0f, 0.0f, 0.0f), 1.0f, true, true, false, true);
 	dragonStacked->getTransform().setRotPosScale(Vector3f(1.0f, 0.0f, 0.0f), -90.0f, position[0], position[1], position[2], 10.0f, 10.0f, 10.0f);
 	dragonStacked->generateNormals();
 	dragonStacked->initAssets(Globals::shaderManager, Globals::textureManager);
+
+	Assimp::Importer Importer;
+
+	const aiScene* pScene = Importer.ReadFile("res/models/dragon/dragon.obj", ASSIMP_LOAD_FLAGS);
+
+	if (pScene) {
+		std::cout << pScene->mNumMeshes << "  " << pScene->mNumMaterials << std::endl;
+	}
+	
+
 }
 
 Game::~Game() {}

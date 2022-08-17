@@ -1,5 +1,9 @@
 #pragma once
 
+#include <assimp/Importer.hpp> 
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
+
 #include "engine/input/MouseEventListener.h"
 #include "engine/input/KeyBorad.h"
 #include "engine/input/Mouse.h"
@@ -23,6 +27,8 @@
 #include "Ray.h"
 #include "MousePicker.h"
 #include "PhysicsCar.h"
+
+#define ASSIMP_LOAD_FLAGS (aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_JoinIdenticalVertices)
 
 class RayResultCallback : public btCollisionWorld::ClosestRayResultCallback{
 public:

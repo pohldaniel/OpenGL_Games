@@ -269,8 +269,8 @@ public:
 	void drawSphere();
 	void drawHull();
 
-	bool loadObject(const char* filename, bool asStackedModel = false, bool withoutNormals = false, bool generateSmoothNormals = false, bool generateSmoothTangents = false);
-	bool loadObject(const char* a_filename, Vector3f& rotate, float degree, Vector3f& translate, float scale, bool asStackedModel = false, bool withoutNormals = false, bool generateSmoothNormals = false, bool generateSmoothTangents = false);
+	bool loadObject(const char* filename, bool asStackedModel = false, bool withoutNormals = false, bool generateSmoothNormals = false, bool generateFlatNormals = false, bool generateSmoothTangents = false);
+	bool loadObject(const char* a_filename, Vector3f& rotate, float degree, Vector3f& translate, float scale, bool asStackedModel = false, bool withoutNormals = false, bool generateSmoothNormals = false, bool generateFlatNormals = false, bool generateSmoothTangents = false);
 
 	std::string getMltPath();
 	std::string getModelDirectory();
@@ -345,6 +345,7 @@ private:
 	void static GenerateTangents(std::vector<float>& vertexBuffer, std::vector<unsigned int>& indexBuffer, ObjModel& model, bool& hasNormals, bool& hasTangents, unsigned int& stride, unsigned int startIndex, unsigned int endIndex);
 
 	void static GenerateNormals(std::vector<float>& vertexCoords, std::vector<std::array<int, 10>>& face, std::vector<float>& normalCoords);
+	void static GenerateFlatNormals(std::vector<float>& vertexCoords, std::vector<std::array<int, 10>>& face, std::vector<float>& normalCoords);
 	void static GenerateTangents(std::vector<float>& vertexCoords, std::vector<float>& textureCoords, std::vector<float>& normalCoords, std::vector<std::array<int, 10>>& face, std::vector<float>& tangentCoords, std::vector<float>& bitangentCoords);
 };
 

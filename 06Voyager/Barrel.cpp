@@ -4,7 +4,7 @@ Barrel::Barrel() : RenderableObject() {
 	m_model = new ObjModel();
 	//m_model->loadObject("res/models/barrel/barrel.obj");
 	//m_model->generateTangents();
-	m_model->loadObject("res/models/barrel/barrel.obj", false, true, false, true);
+	m_model->loadObject("res/models/barrel/barrel.obj", false, true, false, false, true);
 	m_model->createAABB();
 	m_model->createSphere();
 	m_model->createConvexHull("res/models/barrel/barrel_conv.obj", false);

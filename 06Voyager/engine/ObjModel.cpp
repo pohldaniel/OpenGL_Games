@@ -61,15 +61,15 @@ std::string ObjModel::getModelDirectory() {
 	return m_modelDirectory;
 }
 
-bool ObjModel::loadObject(const char* filename, bool asStackedModel, bool withoutNormals, bool generateSmoothNormals, bool generateSmoothTangents) {
-	return loadObject(filename, Vector3f(0.0, 1.0, 0.0), 0.0, Vector3f(0.0, 0.0, 0.0), 1.0, asStackedModel, withoutNormals, generateSmoothNormals, generateSmoothTangents);
+bool ObjModel::loadObject(const char* filename, bool asStackedModel, bool withoutNormals, bool generateSmoothNormals, bool generateFlatNormals, bool generateSmoothTangents) {
+	return loadObject(filename, Vector3f(0.0, 1.0, 0.0), 0.0, Vector3f(0.0, 0.0, 0.0), 1.0, asStackedModel, withoutNormals, generateSmoothNormals, generateFlatNormals, generateSmoothTangents);
 }
 
 bool compare(const std::array<int, 10> &i_lhs, const std::array<int, 10> &i_rhs) {
 	return i_lhs[9] < i_rhs[9];
 }
 
-bool ObjModel::loadObject(const char* a_filename, Vector3f& axis, float degree, Vector3f& translate, float scale, bool asStackedModel, bool withoutNormals, bool generateSmoothNormals, bool generateSmoothTangents) {
+bool ObjModel::loadObject(const char* a_filename, Vector3f& axis, float degree, Vector3f& translate, float scale, bool asStackedModel, bool withoutNormals, bool generateSmoothNormals, bool generateFlatNormals, bool generateSmoothTangents) {
 	m_isStacked = asStackedModel;
 
 	std::string filename(a_filename);
@@ -264,10 +264,13 @@ bool ObjModel::loadObject(const char* a_filename, Vector3f& axis, float degree, 
 	aabb.position = Vector3f(xmin, ymin, zmin);
 	aabb.size = Vector3f(xmax, ymax, zmax) - Vector3f(xmin, ymin, zmin);
 
-
 	if (withoutNormals) {
 		if (generateSmoothNormals) {
 			ObjModel::GenerateNormals(vertexCoords, face, normalCoords);
+		}
+
+		if (generateFlatNormals) {
+			ObjModel::GenerateFlatNormals(vertexCoords, face, normalCoords);
 		}
 	}
 
@@ -1115,6 +1118,8 @@ void ObjModel::GenerateNormals(std::vector<float>& vertexCoords, std::vector<std
 	float edge1[3] = { 0.0f, 0.0f, 0.0f };
 	float edge2[3] = { 0.0f, 0.0f, 0.0f };
 	float normal[3] = { 0.0f, 0.0f, 0.0f };
+	float length;
+
 	for (unsigned int i = 0; i < face.size(); i++) {
 
 		pVertex0[0] = vertexCoords[((face[i])[0] - 1) * 3]; pVertex0[1] = vertexCoords[((face[i])[0] - 1) * 3 + 1]; pVertex0[2] = vertexCoords[((face[i])[0] - 1) * 3 + 2];
@@ -1151,11 +1156,58 @@ void ObjModel::GenerateNormals(std::vector<float>& vertexCoords, std::vector<std
 
 	for (int i = 0; i < normalCoords.size(); i = i + 3) {
 
-		float length = 1.0f / sqrtf(normalCoords[i] * normalCoords[i] + normalCoords[i + 1] * normalCoords[i + 1] + normalCoords[i + 2] * normalCoords[i + 2]);
+		length = 1.0f / sqrtf(normalCoords[i] * normalCoords[i] + normalCoords[i + 1] * normalCoords[i + 1] + normalCoords[i + 2] * normalCoords[i + 2]);
 
 		normalCoords[i] *= length;
 		normalCoords[i + 1] *= length;
 		normalCoords[i + 2] *= length;
+	}
+}
+
+void ObjModel::GenerateFlatNormals(std::vector<float>& vertexCoords, std::vector<std::array<int, 10>>& face, std::vector<float>& normalCoords) {
+	normalCoords.resize(vertexCoords.size());
+	float pVertex0[3] = { 0.0f, 0.0f, 0.0f };
+	float pVertex1[3] = { 0.0f, 0.0f, 0.0f };
+	float pVertex2[3] = { 0.0f, 0.0f, 0.0f };
+	float edge1[3] = { 0.0f, 0.0f, 0.0f };
+	float edge2[3] = { 0.0f, 0.0f, 0.0f };
+	float normal[3] = { 0.0f, 0.0f, 0.0f };
+	float length;
+
+	for (unsigned int i = 0; i < face.size(); i++) {
+
+		pVertex0[0] = vertexCoords[((face[i])[0] - 1) * 3]; pVertex0[1] = vertexCoords[((face[i])[0] - 1) * 3 + 1]; pVertex0[2] = vertexCoords[((face[i])[0] - 1) * 3 + 2];
+		pVertex1[0] = vertexCoords[((face[i])[1] - 1) * 3]; pVertex1[1] = vertexCoords[((face[i])[1] - 1) * 3 + 1]; pVertex1[2] = vertexCoords[((face[i])[1] - 1) * 3 + 2];
+		pVertex2[0] = vertexCoords[((face[i])[2] - 1) * 3]; pVertex2[1] = vertexCoords[((face[i])[2] - 1) * 3 + 1]; pVertex2[2] = vertexCoords[((face[i])[2] - 1) * 3 + 2];
+
+		// Calculate triangle face normal.
+		edge1[0] = pVertex1[0] - pVertex0[0];
+		edge1[1] = pVertex1[1] - pVertex0[1];
+		edge1[2] = pVertex1[2] - pVertex0[2];
+
+		edge2[0] = pVertex2[0] - pVertex0[0];
+		edge2[1] = pVertex2[1] - pVertex0[1];
+		edge2[2] = pVertex2[2] - pVertex0[2];
+
+		normal[0] = (edge1[1] * edge2[2]) - (edge1[2] * edge2[1]);
+		normal[1] = (edge1[2] * edge2[0]) - (edge1[0] * edge2[2]);
+		normal[2] = (edge1[0] * edge2[1]) - (edge1[1] * edge2[0]);
+
+		length = 1.0f / sqrtf(normal[0] * normal[0] + normal[1] * normal[1] + normal[2] * normal[2]);
+
+		normalCoords[((face[i])[0] - 1) * 3] = normal[0] * length;
+		normalCoords[((face[i])[0] - 1) * 3 + 1] = normal[1] * length;
+		normalCoords[((face[i])[0] - 1) * 3 + 2] = normal[2] * length;
+
+		normalCoords[((face[i])[1] - 1) * 3] = normal[0] * length;
+		normalCoords[((face[i])[1] - 1) * 3 + 1] = normal[1] * length;
+		normalCoords[((face[i])[1] - 1) * 3 + 2] = normal[2] * length;
+
+		normalCoords[((face[i])[2] - 1) * 3] = normal[0] * length;
+		normalCoords[((face[i])[2] - 1) * 3 + 1] = normal[1] * length;
+		normalCoords[((face[i])[2] - 1) * 3 + 2] = normal[2] * length;
+
+		(face[i])[6] = (face[i])[0]; (face[i])[7] = (face[i])[1]; (face[i])[8] = (face[i])[2];
 	}
 }
 
