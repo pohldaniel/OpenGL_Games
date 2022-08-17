@@ -94,23 +94,23 @@ void MousePicker::updatePosition(unsigned int posX, unsigned int posY, const Cam
 		Matrix4f rotation;
 
 		rotation[0][0] = tangent[0];
-		rotation[0][1] = normal[0];
-		rotation[0][2] = bitangent[0];
-		rotation[0][3] = 0.0f;
-
-		rotation[1][0] = tangent[1];
-		rotation[1][1] = normal[1];
-		rotation[1][2] = bitangent[1];
-		rotation[1][3] = 0.0f;
-
-		rotation[2][0] = tangent[2];
-		rotation[2][1] = normal[2];
-		rotation[2][2] = bitangent[2];
-		rotation[2][3] = 0.0f;
-
+		rotation[1][0] = normal[0];
+		rotation[2][0] = bitangent[0];
 		rotation[3][0] = 0.0f;
+
+		rotation[0][1] = tangent[1];
+		rotation[1][1] = normal[1];
+		rotation[2][1] = bitangent[1];
 		rotation[3][1] = 0.0f;
+
+		rotation[0][2] = tangent[2];
+		rotation[1][2] = normal[2];
+		rotation[2][2] = bitangent[2];
 		rotation[3][2] = 0.0f;
+
+		rotation[0][3] = 0.0f;
+		rotation[1][3] = 0.0f;
+		rotation[2][3] = 0.0f;
 		rotation[3][3] = 1.0f;
 
 		Matrix4f trans;
