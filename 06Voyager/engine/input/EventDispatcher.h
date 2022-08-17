@@ -21,7 +21,7 @@ public:
 
 	bool update();
 	void pushEvent(const Event& event);
-	void setProcessOSEvents(std::function<void()> fun);
+	void setProcessOSEvents(std::function<bool()> fun);
 
 private:
 	//std::vector<ApplicationEventListener *> mApplicationListeners;
@@ -32,8 +32,9 @@ private:
 
 	bool popEvent(Event& event);
 	bool pollEvent(Event& event);
-	std::function<void()> processOSEvents = 0;
+	std::function<bool()> processOSEvents = 0;
 
 	std::vector<MouseEventListener *> mMouseListeners;
 	std::vector<KeyboardEventListener *> mKeyboardListeners;
+	bool m_isRunning = true;
 };

@@ -84,7 +84,7 @@ bool EventDispatcher::update() {
 			}
 		}
 	}
-	return true;
+	return m_isRunning;
 }
 
 bool EventDispatcher::popEvent(Event& event) {
@@ -94,7 +94,7 @@ bool EventDispatcher::popEvent(Event& event) {
 		return true;
 	}
 	
-	processOSEvents();
+	m_isRunning = processOSEvents();
 	return false;
 }
 
@@ -106,6 +106,6 @@ void EventDispatcher::pushEvent(const Event& event) {
 	m_events.push(event);
 }
 
-void EventDispatcher::setProcessOSEvents(std::function<void()> fun) {
+void EventDispatcher::setProcessOSEvents(std::function<bool()> fun) {
 	processOSEvents = fun;
 }
