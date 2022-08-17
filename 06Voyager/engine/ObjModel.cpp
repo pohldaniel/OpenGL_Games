@@ -264,6 +264,20 @@ bool ObjModel::loadObject(const char* a_filename, Vector3f& axis, float degree, 
 	aabb.position = Vector3f(xmin, ymin, zmin);
 	aabb.size = Vector3f(xmax, ymax, zmax) - Vector3f(xmin, ymin, zmin);
 
+
+	if (withoutNormals) {
+		if (generateSmoothNormals) {
+			ObjModel::GenerateNormals(vertexCoords, face, normalCoords);
+		}
+	}
+
+	if (generateSmoothTangents) {
+		if (normalCoords.empty()) {
+			ObjModel::GenerateNormals(vertexCoords, face, normalCoords);
+		}
+		ObjModel::GenerateTangents(vertexCoords, textureCoords, normalCoords, face, tangentCoords, bitangentCoords);
+	}
+
 	std::sort(face.begin(), face.end(), compare);
 	std::map<int, int> dup;
 
@@ -295,25 +309,7 @@ bool ObjModel::loadObject(const char* a_filename, Vector3f& axis, float degree, 
 	dup.clear();
 	name.clear();
 
-	if (withoutNormals) {
-		
-		if (generateSmoothNormals) {			
-			ObjModel::GenerateNormals(vertexCoords, face, normalCoords);
-		}
-	}
-
-	if (generateSmoothTangents) {
-		//if (normalCoords.empty()) {
-			//ObjModel::GenerateNormals(vertexCoords, face, normalCoords);
-		//}
-
-		//this approach have to overworked: -it should be possible to use the imported normals from the file insteed of generating them to match the indices during gram schmidt
-		// but for now something is rendering
-		normalCoords.clear();
-		normalCoords.shrink_to_fit();
-		ObjModel::GenerateNormals(vertexCoords, face, normalCoords);
-		ObjModel::GenerateTangents(vertexCoords, textureCoords, normalCoords, face, tangentCoords, bitangentCoords);
-	}
+	
 	
 	IndexBufferCreator indexBufferCreator;
 	indexBufferCreator.positionCoordsIn = vertexCoords;
@@ -398,8 +394,8 @@ bool ObjModel::loadObject(const char* a_filename, Vector3f& axis, float degree, 
 	indexBufferCreator.textureCoordsIn.shrink_to_fit();
 	indexBufferCreator.tangentCoordsIn.clear();
 	indexBufferCreator.tangentCoordsIn.shrink_to_fit();
-	indexBufferCreator.bitangentCoords.clear();
-	indexBufferCreator.bitangentCoords.shrink_to_fit();
+	indexBufferCreator.bitangentCoordsIn.clear();
+	indexBufferCreator.bitangentCoordsIn.shrink_to_fit();
 
 	return true;
 }
@@ -723,7 +719,7 @@ void ObjModel::GenerateTangents(std::vector<float>& vertexBuffer, std::vector<un
 			edge2[0] = pVertex2[0] - pVertex0[0];
 			edge2[1] = pVertex2[1] - pVertex0[1];
 			edge2[2] = pVertex2[2] - pVertex0[2];
-
+			
 			texEdge1[0] = pVertex1[3] - pVertex0[3];
 			texEdge1[1] = pVertex1[4] - pVertex0[4];
 
@@ -754,8 +750,7 @@ void ObjModel::GenerateTangents(std::vector<float>& vertexBuffer, std::vector<un
 				bitangent[1] = (-texEdge2[0] * edge1[1] + texEdge1[0] * edge2[1]) * det;
 				bitangent[2] = (-texEdge2[0] * edge1[2] + texEdge1[0] * edge2[2]) * det;
 			}
-
-
+			
 			// Accumulate the tangents and bitangents.
 			tmpVertex[(pTriangle[0] + model.m_mesh[j]->m_baseVertex) * 14 + 8] = tmpVertex[(pTriangle[0] + model.m_mesh[j]->m_baseVertex) * 14 + 8] + tangent[0];
 			tmpVertex[(pTriangle[0] + model.m_mesh[j]->m_baseVertex) * 14 + 9] = tmpVertex[(pTriangle[0] + model.m_mesh[j]->m_baseVertex) * 14 + 9] + tangent[1];
@@ -1170,6 +1165,8 @@ void ObjModel::GenerateTangents(std::vector<float>& vertexCoords, std::vector<fl
 	
 	tangentCoords.resize(vertexCoords.size());
 	bitangentCoords.resize(vertexCoords.size());
+	std::vector<float> tmpNormalCoords;
+	tmpNormalCoords.resize(vertexCoords.size());
 
 	float pVertex0[5] = { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
 	float pVertex1[5] = { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
@@ -1186,13 +1183,22 @@ void ObjModel::GenerateTangents(std::vector<float>& vertexCoords, std::vector<fl
 	for (unsigned int i = 0; i < face.size(); i++) {
 
 		pVertex0[0] = vertexCoords[((face[i])[0] - 1) * 3]; pVertex0[1] = vertexCoords[((face[i])[0] - 1) * 3 + 1]; pVertex0[2] = vertexCoords[((face[i])[0] - 1) * 3 + 2];
-		pVertex0[3] = textureCoords[((face[i])[3] - 1) * 3]; pVertex0[4] = textureCoords[((face[i])[3] - 1) * 3 + 1];
+		pVertex0[3] = textureCoords[((face[i])[3] - 1) * 2]; pVertex0[4] = textureCoords[((face[i])[3] - 1) * 2 + 1];
+		tmpNormalCoords[((face[i])[0] - 1) * 3] = normalCoords[((face[i])[6] - 1) * 3];
+		tmpNormalCoords[((face[i])[0] - 1) * 3 + 1] = normalCoords[((face[i])[6] - 1) * 3 + 1];
+		tmpNormalCoords[((face[i])[0] - 1) * 3 + 2] = normalCoords[((face[i])[6] - 1) * 3 + 2];
 
 		pVertex1[0] = vertexCoords[((face[i])[1] - 1) * 3]; pVertex1[1] = vertexCoords[((face[i])[1] - 1) * 3 + 1]; pVertex1[2] = vertexCoords[((face[i])[1] - 1) * 3 + 2];
-		pVertex1[3] = textureCoords[((face[i])[4] - 1) * 3]; pVertex1[4] = textureCoords[((face[i])[4] - 1) * 3 + 1];
+		pVertex1[3] = textureCoords[((face[i])[4] - 1) * 2]; pVertex1[4] = textureCoords[((face[i])[4] - 1) * 2 + 1];
+		tmpNormalCoords[((face[i])[1] - 1) * 3] = normalCoords[((face[i])[7] - 1) * 3];
+		tmpNormalCoords[((face[i])[1] - 1) * 3 + 1] = normalCoords[((face[i])[7] - 1) * 3 + 1];
+		tmpNormalCoords[((face[i])[1] - 1) * 3 + 2] = normalCoords[((face[i])[7] - 1) * 3 + 2];
 
 		pVertex2[0] = vertexCoords[((face[i])[2] - 1) * 3]; pVertex2[1] = vertexCoords[((face[i])[2] - 1) * 3 + 1]; pVertex2[2] = vertexCoords[((face[i])[2] - 1) * 3 + 2];
-		pVertex2[3] = textureCoords[((face[i])[5] - 1) * 3]; pVertex2[4] = textureCoords[((face[i])[5] - 1) * 3 + 1];
+		pVertex2[3] = textureCoords[((face[i])[5] - 1) * 2]; pVertex2[4] = textureCoords[((face[i])[5] - 1) * 2 + 1];
+		tmpNormalCoords[((face[i])[2] - 1) * 3] = normalCoords[((face[i])[8] - 1) * 3];
+		tmpNormalCoords[((face[i])[2] - 1) * 3 + 1] = normalCoords[((face[i])[8] - 1) * 3 + 1];
+		tmpNormalCoords[((face[i])[2] - 1) * 3 + 2] = normalCoords[((face[i])[8] - 1) * 3 + 2];
 
 		edge1[0] = pVertex1[0] - pVertex0[0];
 		edge1[1] = pVertex1[1] - pVertex0[1];
@@ -1231,7 +1237,7 @@ void ObjModel::GenerateTangents(std::vector<float>& vertexCoords, std::vector<fl
 			bitangent[1] = (-texEdge2[0] * edge1[1] + texEdge1[0] * edge2[1]) * det;
 			bitangent[2] = (-texEdge2[0] * edge1[2] + texEdge1[0] * edge2[2]) * det;
 		}
-
+		
 		tangentCoords[((face[i])[0] - 1) * 3] = tangentCoords[((face[i])[0] - 1) * 3] + tangent[0];
 		tangentCoords[((face[i])[0] - 1) * 3 + 1] = tangentCoords[((face[i])[0] - 1) * 3 + 1] + tangent[1];
 		tangentCoords[((face[i])[0] - 1) * 3 + 2] = tangentCoords[((face[i])[0] - 1) * 3 + 2] + tangent[2];
@@ -1263,12 +1269,10 @@ void ObjModel::GenerateTangents(std::vector<float>& vertexCoords, std::vector<fl
 
 	for (unsigned int i = 0; i < tangentCoords.size(); i = i + 3) {
 
-		normal[0] = normalCoords[i]; normal[1] = normalCoords[i + 1]; normal[2] = normalCoords[i + 2];
+		normal[0] = tmpNormalCoords[i]; normal[1] = tmpNormalCoords[i + 1]; normal[2] = tmpNormalCoords[i + 2];
 		tangent[0] = tangentCoords[i]; tangent[1] = tangentCoords[i + 1]; tangent[2] = tangentCoords[i + 2];
-		//bitangent[0] = bitangentCoords[((face[i])[0] - 1) * 3]; bitangent[1] = bitangentCoords[((face[i])[0] - 1) * 3 + 1]; bitangent[2] = bitangentCoords[((face[i])[0] - 1) * 3 + 2];
-		
+	
 		// Gram-Schmidt orthogonalize tangent with normal.
-
 		nDotT = normal[0] * tangent[0] +
 			normal[1] * tangent[1] +
 			normal[2] * tangent[2];
@@ -1278,7 +1282,6 @@ void ObjModel::GenerateTangents(std::vector<float>& vertexCoords, std::vector<fl
 		tangent[2] -= normal[2] * nDotT;
 
 		// Normalize the tangent.
-
 		length = 1.0f / sqrtf(tangent[0] * tangent[0] +
 			tangent[1] * tangent[1] +
 			tangent[2] * tangent[2]);
@@ -1305,7 +1308,6 @@ void ObjModel::GenerateTangents(std::vector<float>& vertexCoords, std::vector<fl
 			bitangentCoords[i + 2] = -bitangent[2];
 
 		}else {
-
 			bitangentCoords[i] = bitangent[0];
 			bitangentCoords[i + 1] = bitangent[1];
 			bitangentCoords[i + 2] = bitangent[2];
