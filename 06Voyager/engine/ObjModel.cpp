@@ -8,21 +8,30 @@
 unsigned int ObjModel::s_materialUbo = 0;
 unsigned int ObjModel::s_viewUbo = 0;
 
-ObjModel::ObjModel() : m_stride(0), m_offset(0) {
+ObjModel::ObjModel()  {
 	m_numberOfMeshes = 0;
 	m_numberOfTriangles = 0;
+	m_numberOfVertices = 0;
+	m_stride = 0;
+
 	m_mltPath = "";
 	m_modelDirectory = "";
+	
+	m_center = Vector3f(0.0f, 0.0f, 0.0f);
+
 	m_hasMaterial = false;
-	m_center;
+	m_isStacked = false;
 
 	m_hasTextureCoords = false;
 	m_hasNormals = false;
 	m_hasTangents = false;
-
+	
 	m_hasAABB = false;
 	m_hasBoundingSphere = false;
 	m_hasConvexHull = false;
+	
+	m_vertexBuffer.clear();
+	m_indexBuffer.clear();
 }
 
 ObjModel::~ObjModel() {
@@ -840,8 +849,36 @@ void ObjModel::GenerateTangents(std::vector<float>& vertexBuffer, std::vector<un
 }
 
 void ObjModel::createInstancesStatic(std::vector<Matrix4f>& modelMTX) {
-	for (int j = 0; j < m_numberOfMeshes; j++) {
-		m_mesh[j]->createInstancesStatic(modelMTX);
+	if (m_isStacked) {
+		m_instanceCount = modelMTX.size();
+
+		glGenBuffers(1, &m_vboInstances);
+
+		glBindVertexArray(m_vao);
+
+		glBindBuffer(GL_ARRAY_BUFFER, m_vboInstances);
+		glBufferData(GL_ARRAY_BUFFER, modelMTX.size() * sizeof(GLfloat) * 4 * 4, modelMTX[0][0], GL_STATIC_DRAW);
+
+		glEnableVertexAttribArray(3);
+		glEnableVertexAttribArray(4);
+		glEnableVertexAttribArray(5);
+		glEnableVertexAttribArray(6);
+		glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 4 * 4, (void*)(0));
+		glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 4 * 4, (void*)(sizeof(float) * 4));
+		glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 4 * 4, (void*)(sizeof(float) * 8));
+		glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 4 * 4, (void*)(sizeof(float) * 12));
+
+		glVertexAttribDivisor(3, 1);
+		glVertexAttribDivisor(4, 1);
+		glVertexAttribDivisor(5, 1);
+		glVertexAttribDivisor(6, 1);
+
+		glBindVertexArray(0);
+	}else {
+
+		for (int j = 0; j < m_numberOfMeshes; j++) {
+			m_mesh[j]->createInstancesStatic(modelMTX);
+		}
 	}
 }
 
@@ -1062,7 +1099,7 @@ void ObjModel::CreateBuffer(std::vector<float>& vertexBuffer, std::vector<unsign
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
 
-	//Position
+	//Positions
 	glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
 	glBufferData(GL_ARRAY_BUFFER, vertexBuffer.size() * sizeof(float), &vertexBuffer[0], GL_STATIC_DRAW);
 
@@ -1088,6 +1125,7 @@ void ObjModel::CreateBuffer(std::vector<float>& vertexBuffer, std::vector<unsign
 		glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)((stride == 8 || stride == 14) ? 5 * sizeof(float) : 3 * sizeof(float)));
 	}
 
+	//Tangents Bitangents
 	if (stride == 14) {
 		glBindBuffer(GL_ARRAY_BUFFER, vbo[3]);
 		glBufferData(GL_ARRAY_BUFFER, vertexBuffer.size() * sizeof(float), &vertexBuffer[0], GL_STATIC_DRAW);
@@ -1366,7 +1404,6 @@ void ObjModel::GenerateTangents(std::vector<float>& vertexCoords, std::vector<fl
 		}
 
 	}
-
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1378,8 +1415,6 @@ Mesh::Mesh(std::string mltName, int numberTriangles, ObjModel* model) : m_stride
 	m_material.diffuseTexPath = "";
 	m_material.bumpMapPath = "";
 	m_material.displacementMapPath = "";
-
-	m_numBuffers = 5;
 
 	m_vertexBuffer.clear();
 	m_indexBuffer.clear();
@@ -1399,8 +1434,6 @@ Mesh::Mesh(int numberTriangles, ObjModel* model) : m_stride(0), m_triangleOffset
 	m_material.diffuseTexPath = "";
 	m_material.bumpMapPath = "";
 	m_material.displacementMapPath = "";
-
-	m_numBuffers = 5;
 
 	m_vertexBuffer.clear();
 	m_indexBuffer.clear();

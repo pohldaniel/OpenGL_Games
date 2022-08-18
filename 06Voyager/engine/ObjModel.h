@@ -295,20 +295,16 @@ public:
 
 private:
 
-	unsigned int m_numVertices, m_numIndices, m_stride, m_offset;
+	unsigned int m_numberOfVertices, m_numberOfTriangles, m_numberOfMeshes, m_stride;
 
-	bool m_hasTextureCoords, m_hasNormals, m_hasTangents;
+	bool m_hasTextureCoords, m_hasNormals, m_hasTangents, m_hasMaterial;
 	bool m_hasAABB, m_hasBoundingSphere, m_hasConvexHull;
-	bool m_isStacked = false;
+	bool m_isStacked;
 
 	std::vector<Mesh*> m_mesh;
-	
-	int m_numberOfMeshes;
-	int m_numberOfTriangles;
-	unsigned int m_numberOfVertices;
 	std::string m_mltPath;
 	std::string m_modelDirectory;
-	bool m_hasMaterial;
+
 	Vector3f m_center;
 	
 	BoundingBox aabb;
@@ -332,13 +328,13 @@ private:
 	std::vector<float> m_vertexBuffer;
 	std::vector<unsigned int> m_indexBuffer;
 
-	unsigned int m_drawCount;
+	unsigned int m_drawCount = 0;
 	unsigned int m_instanceCount = 0;
 
 	unsigned int m_vao = 0;
 	unsigned int m_vbo[5] = { 0 };
 	unsigned int m_ibo = 0;
-	unsigned int m_vboInstances;
+	unsigned int m_vboInstances = 0;
 
 	void static CreateBuffer(std::vector<float>& vertexBuffer, std::vector<unsigned int> indexBuffer, unsigned int& drawCount, unsigned int& vao, unsigned int(&vbo)[5], unsigned int& ibo, unsigned int stride);
 	void static GenerateNormals(std::vector<float>& vertexBuffer, std::vector<unsigned int>& indexBuffer, ObjModel& model, bool& hasNormals, unsigned int& stride, unsigned int startIndex, unsigned int endIndex);
@@ -389,10 +385,10 @@ private:
 	void createInstancesStatic(std::vector<Matrix4f>& modelMTX);
 	void createInstancesDynamic(unsigned int numberOfInstances);
 	void updateInstances(std::vector<Matrix4f>& modelMTX);
-	short m_numBuffers;
+	
 	unsigned int m_vao = 0;
 	unsigned int m_vbo[5] = { 0 };
-	unsigned int m_vboInstances;
+	unsigned int m_vboInstances = 0;
 	unsigned int m_ibo = 0;
 	
 	unsigned int m_drawCount = 0;

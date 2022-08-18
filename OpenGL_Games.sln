@@ -83,6 +83,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libzlib", "libzlib\libzlib.
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libassimp", "libassimp\libassimp.vcxproj", "{5B6070E9-F688-4BA9-A26B-7B2997D67DFA}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "assimp", "assimp\assimp.vcxproj", "{8376EB68-6E32-483B-A918-190832C7C7CB}"
+	ProjectSection(ProjectDependencies) = postProject
+		{3EDA72B4-0BF1-4D04-ADE4-B6ED77CDB985} = {3EDA72B4-0BF1-4D04-ADE4-B6ED77CDB985}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -299,6 +304,14 @@ Global
 		{5B6070E9-F688-4BA9-A26B-7B2997D67DFA}.Release|x64.Build.0 = Release|x64
 		{5B6070E9-F688-4BA9-A26B-7B2997D67DFA}.Release|x86.ActiveCfg = Release|Win32
 		{5B6070E9-F688-4BA9-A26B-7B2997D67DFA}.Release|x86.Build.0 = Release|Win32
+		{8376EB68-6E32-483B-A918-190832C7C7CB}.Debug|x64.ActiveCfg = Debug|x64
+		{8376EB68-6E32-483B-A918-190832C7C7CB}.Debug|x64.Build.0 = Debug|x64
+		{8376EB68-6E32-483B-A918-190832C7C7CB}.Debug|x86.ActiveCfg = Debug|Win32
+		{8376EB68-6E32-483B-A918-190832C7C7CB}.Debug|x86.Build.0 = Debug|Win32
+		{8376EB68-6E32-483B-A918-190832C7C7CB}.Release|x64.ActiveCfg = Release|x64
+		{8376EB68-6E32-483B-A918-190832C7C7CB}.Release|x64.Build.0 = Release|x64
+		{8376EB68-6E32-483B-A918-190832C7C7CB}.Release|x86.ActiveCfg = Release|Win32
+		{8376EB68-6E32-483B-A918-190832C7C7CB}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

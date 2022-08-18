@@ -86,9 +86,9 @@ void MousePicker::updatePosition(unsigned int posX, unsigned int posY, const Cam
 
 		Vector3f normal = Vector3f(callback.m_hitNormalWorld[0], callback.m_hitNormalWorld[1], callback.m_hitNormalWorld[2]);
 		Vector3f tangent = Vector3f::Cross(camera.getViewDirection(), normal);
-		Vector3f::Normalize(tangent);
+		//Vector3f::Normalize(tangent);
 		Vector3f bitangent = Vector3f::Cross(normal, tangent);
-		Vector3f::Normalize(bitangent);
+		//Vector3f::Normalize(bitangent);
 
 
 		Matrix4f rotation;

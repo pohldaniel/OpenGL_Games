@@ -206,15 +206,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_water(
 	dragonStacked->generateNormals();
 	dragonStacked->initAssets(Globals::shaderManager, Globals::textureManager);
 
-	Assimp::Importer Importer;
-
-	const aiScene* pScene = Importer.ReadFile("res/models/dragon/dragon.obj", ASSIMP_LOAD_FLAGS);
-
-	if (pScene) {
-		std::cout << pScene->mNumMeshes << "  " << pScene->mNumMaterials << std::endl;
-	}
-	
-
+	dragon.loadModel("res/models/dragon/dragon.obj");
 }
 
 Game::~Game() {}

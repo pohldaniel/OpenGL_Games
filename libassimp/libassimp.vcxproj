@@ -153,9 +153,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <Text Include="ReadMe.txt" />
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="clipper\clipper.hpp" />
     <ClInclude Include="include\assimp\Compiler\poppack1.h" />
     <ClInclude Include="include\assimp\Compiler\pstdint.h" />
@@ -352,6 +349,7 @@
     <ClInclude Include="src\AssetLib\X\XFileImporter.h" />
     <ClInclude Include="src\AssetLib\X\XFileParser.h" />
     <ClInclude Include="src\CApi\CInterfaceIOWrapper.h" />
+    <ClInclude Include="src\Common\BaseProcess.h" />
     <ClInclude Include="src\Common\DefaultProgressHandler.h" />
     <ClInclude Include="src\Common\FileLogStream.h" />
     <ClInclude Include="src\Common\IFF.h" />

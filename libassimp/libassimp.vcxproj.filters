@@ -221,9 +221,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="ReadMe.txt" />
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="zip\src\miniz.h">
       <Filter>ziplib</Filter>
     </ClInclude>
@@ -967,6 +964,9 @@
     </ClInclude>
     <ClInclude Include="src\AssetLib\XGL\XGLLoader.h">
       <Filter>AssetLib\XGL</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Common\BaseProcess.h">
+      <Filter>Common</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
