@@ -102,5 +102,5 @@ public:
 	AnimatedModel cowboy;
 	ObjModel *dragonCompare, *dragonGN, *dragonStacked;
 
-	AssimpModel dragon;
+	AssimpModel dragonAssimp;
 };

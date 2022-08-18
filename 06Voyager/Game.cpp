@@ -113,7 +113,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_water(
 	//m_lightDepthFramebuffer.attachLayerdTexture(Framebuffer::Attachments::COLOR, m_camera.m_numberCascades);
 	m_lightDepthFramebuffer.attachLayerdTexture(Framebuffer::Attachments::DEPTH24, m_camera.m_numberCascades);
 
-
+	
 	m_tree = new Tree();
 	m_tree->translate(HEIGHTMAP_WIDTH * 0.5f + 800.0f, m_terrain.getHeightMap().heightAt(HEIGHTMAP_WIDTH * 0.5f + 800.0f, HEIGHTMAP_WIDTH * 0.5f + 300.0f), HEIGHTMAP_WIDTH * 0.5f + 300.0f);
 	m_tree->scale(10.0f, 10.0f, 10.0f);
@@ -206,7 +206,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_water(
 	dragonStacked->generateNormals();
 	dragonStacked->initAssets(Globals::shaderManager, Globals::textureManager);
 
-	dragon.loadModel("res/models/dragon/dragon.obj");
+	dragonAssimp.loadModel("res/models/dragon/dragon.obj");
 }
 
 Game::~Game() {}
@@ -433,8 +433,8 @@ void Game::render(unsigned int &frameBuffer) {
 	dragonGN->drawRaw();
 
 	shader->loadMatrix("u_model", dragonStacked->getTransformationMatrix());
-	dragonStacked->drawRawStacked();
-
+	//dragonStacked->drawRawStacked();
+	dragonAssimp.drawRaw();
 	glUseProgram(0);
 
 	if (m_debugNormal) {

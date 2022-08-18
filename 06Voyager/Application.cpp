@@ -373,7 +373,7 @@ void Application::loadAssets() {
 	
 	Globals::textureManager.loadTexture("barrel_normal", "res/models/barrel/barrelNormal.png", true);
 	Globals::textureManager.get("barrel_normal").setLinear();
-
+	
 	Globals::spritesheetManager.createSpritesheet("terrain", Globals::textureManager.get("dirt").getTexture(), 512, 512, GL_RGB8);
 	Globals::spritesheetManager.getAssetPointer("terrain")->addToSpritesheet((&Globals::textureManager.get("grass"))->getTexture(), 512, 512, GL_RGB8);
 	Globals::spritesheetManager.getAssetPointer("terrain")->addToSpritesheet((&Globals::textureManager.get("rock"))->getTexture(), 512, 512, GL_RGB8);
@@ -412,14 +412,13 @@ void Application::loadAssets() {
 	Globals::textureManager.get("water_normal").setLinear();
 	Globals::textureManager.get("water_normal").setRepeat();
 
-
 	Globals::textureManager.createPerlinTexture("perlin", 512, 512, 373);
 	Globals::textureManager.get("perlin").setLinear();
 	Globals::textureManager.get("perlin").setRepeat();
 
-	Globals::textureManager.loadTexture("gradient", "res/gradient.png", true);
-	Globals::textureManager.get("gradient").setLinear();
-	Globals::textureManager.get("gradient").setRepeat();
+	//Globals::textureManager.loadTexture("gradient", "res/gradient.png", true);
+	//Globals::textureManager.get("gradient").setLinear();
+	//Globals::textureManager.get("gradient").setRepeat();
 
 	std::string facesDay[] = { "res/cubemap/day/right.png", "res/cubemap/day/left.png", "res/cubemap/day/top.png", "res/cubemap/day/bottom.png", "res/cubemap/day/back.png", "res/cubemap/day/front.png", };
 	Globals::cubemapManager.loadCubeMap("day", facesDay, false);
@@ -428,4 +427,5 @@ void Application::loadAssets() {
 	Globals::cubemapManager.loadCubeMap("night", facesNight, false);
 
 	Globals::cubemapManager.createNullCubemap("null");
+	
 }

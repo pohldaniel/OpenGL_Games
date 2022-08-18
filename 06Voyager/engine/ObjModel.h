@@ -350,7 +350,7 @@ class Mesh {
 	friend ObjModel;
 
 public:
-	///////////////////////////////geometry content
+
 	struct Material {		
 		float ambient[4];
 		float diffuse[4];
