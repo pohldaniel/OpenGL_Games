@@ -126,7 +126,8 @@
       <ModuleDefinitionFile>vorbis.def</ModuleDefinitionFile>
     </Link>
     <PostBuildEvent>
-      <Command>move ..\libd\x86\vorbis.dll ..\02Deathjump</Command>
+      <Command>
+      </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -146,7 +147,8 @@
       <ModuleDefinitionFile>vorbis.def</ModuleDefinitionFile>
     </Link>
     <PostBuildEvent>
-      <Command>move ..\libd\x64\vorbis.dll ..\02Deathjump</Command>
+      <Command>
+      </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -170,7 +172,8 @@
       <ModuleDefinitionFile>vorbis.def</ModuleDefinitionFile>
     </Link>
     <PostBuildEvent>
-      <Command>move ..\lib\x86\vorbis.dll ..\02Deathjump</Command>
+      <Command>
+      </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -194,7 +197,8 @@
       <ModuleDefinitionFile>vorbis.def</ModuleDefinitionFile>
     </Link>
     <PostBuildEvent>
-      <Command>move ..\lib\x64\vorbis.dll ..\02Deathjump</Command>
+      <Command>
+      </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
