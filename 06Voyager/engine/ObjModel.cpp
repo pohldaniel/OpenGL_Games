@@ -360,7 +360,7 @@ bool ObjModel::loadObject(const char* a_filename, Vector3f& axis, float degree, 
 		}
 
 		if (m_hasMaterial) {
-			m_meshes[j]->readMaterial();
+			ObjModel::ReadMaterialFromFile(m_meshes[j]->m_material, getModelDirectory() + "/" + getMltPath(), m_meshes[j]->m_mltName);
 		}
 
 		if (!m_isStacked) {
@@ -1395,6 +1395,105 @@ void ObjModel::GenerateTangents(std::vector<float>& vertexCoords, std::vector<fl
 	}
 }
 
+void ObjModel::ReadMaterialFromFile(Material& material, std::string path, std::string mltName) {
+	std::vector<std::string*>lines;
+	int start = -1;
+	int end = -1;
+
+	std::ifstream in(path);
+
+	if (!in.is_open()) {
+		std::cout << "mlt file not found" << std::endl;
+		return;
+	}
+
+	std::string line;
+	while (getline(in, line)) {
+		lines.push_back(new std::string(line));
+
+	}
+	in.close();
+
+	for (int i = 0; i < lines.size(); i++) {
+
+		if (strcmp((*lines[i]).c_str(), mltName.c_str()) == 0) {
+			start = i;
+			continue;
+		}
+
+		if ((*lines[i]).find("newmtl") != std::string::npos && start > 0) {
+			end = i;
+			break;
+		}
+		else {
+			end = lines.size();
+		}
+
+	}
+
+	if (start < 0 || end < 0) return;
+
+	for (int i = start; i < end; i++) {
+
+		if ((*lines[i])[0] == '#') {
+
+			continue;
+
+		}else if ((*lines[i])[0] == 'N' && (*lines[i])[1] == 's') {
+			int tmp;
+			sscanf(lines[i]->c_str(), "Ns %i", &tmp);
+			material.shininess = tmp;
+
+		}else if ((*lines[i])[0] == 'K' && (*lines[i])[1] == 'a') {
+			float tmpx, tmpy, tmpz;
+			sscanf(lines[i]->c_str(), "Ka %f %f %f", &tmpx, &tmpy, &tmpz);
+
+			material.ambient[0] = tmpx;
+			material.ambient[1] = tmpy;
+			material.ambient[2] = tmpz;
+			material.ambient[3] = 0.0f;
+
+		}else if ((*lines[i])[0] == 'K' && (*lines[i])[1] == 'd') {
+			float tmpx, tmpy, tmpz;
+			sscanf(lines[i]->c_str(), "Kd %f %f %f", &tmpx, &tmpy, &tmpz);
+
+			material.diffuse[0] = tmpx;
+			material.diffuse[1] = tmpy;
+			material.diffuse[2] = tmpz;
+			material.diffuse[3] = 0.0f;
+
+		}else if ((*lines[i])[0] == 'K' && (*lines[i])[1] == 's') {
+			float tmpx, tmpy, tmpz;
+			sscanf(lines[i]->c_str(), "Ks %f %f %f", &tmpx, &tmpy, &tmpz);
+
+			material.specular[0] = tmpx;
+			material.specular[1] = tmpy;
+			material.specular[2] = tmpz;
+			material.specular[3] = 0.0f;
+
+		}else if ((*lines[i])[0] == 'm') {
+
+			char identifierBuffer[20], valueBuffer[250];;
+			sscanf(lines[i]->c_str(), "%s %s", identifierBuffer, valueBuffer);
+
+			if (strstr(identifierBuffer, "map_Kd") != 0) {
+				material.diffuseTexPath = valueBuffer;
+				std::transform(material.diffuseTexPath.begin(), material.diffuseTexPath.end(), material.diffuseTexPath.begin(), [](unsigned char c) { return std::tolower(c); });
+			}else if (strstr(identifierBuffer, "map_bump") != 0) {
+				material.bumpMapPath = valueBuffer;
+				std::transform(material.bumpMapPath.begin(), material.bumpMapPath.end(), material.bumpMapPath.begin(), [](unsigned char c) { return std::tolower(c); });
+			}else if (strstr(identifierBuffer, "map_disp") != 0) {
+				material.displacementMapPath = valueBuffer;
+				std::transform(material.displacementMapPath.begin(), material.displacementMapPath.end(), material.displacementMapPath.begin(), [](unsigned char c) { return std::tolower(c); });
+			}
+		}
+	}
+
+	for (int i = 0; i < lines.size(); i++) {
+		delete lines[i];
+	}
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 Mesh::Mesh(std::string mltName, int numberTriangles, ObjModel* model) : m_stride(0), m_triangleOffset(0) {
 	m_numberOfTriangles = numberTriangles;
@@ -1437,7 +1536,7 @@ Mesh::Mesh(int numberTriangles, ObjModel* model) : m_stride(0), m_triangleOffset
 
 Mesh::~Mesh() {}
 
-Mesh::Material& Mesh::getMaterial() {
+ObjModel::Material& Mesh::getMaterial() {
 	return m_material;
 }
 
@@ -1455,106 +1554,6 @@ void Mesh::setMaterial(const Vector3f &ambient, const Vector3f &diffuse, const V
 	m_material.specular[2] = specular[2];
 
 	m_material.shininess = shininess;
-}
-
-bool Mesh::readMaterial() {
-	std::vector<std::string*>lines;
-	int start = -1;
-	int end = -1;
-
-	std::ifstream in((m_model->getModelDirectory() + "/" + m_model->getMltPath()).c_str());
-
-	if (!in.is_open()) {
-		std::cout << "mlt file not found" << std::endl;
-		return false;
-	}
-
-	std::string line;
-	while (getline(in, line)) {
-		lines.push_back(new std::string(line));
-
-	}
-	in.close();
-
-	for (int i = 0; i < lines.size(); i++) {
-
-		if (strcmp((*lines[i]).c_str(), m_mltName.c_str()) == 0) {
-			start = i;
-			continue;
-		}
-
-		if ((*lines[i]).find("newmtl") != std::string::npos && start > 0) {
-			end = i;
-			break;
-		}else {
-			end = lines.size();
-		}
-
-	}
-
-	if (start < 0 || end < 0) return false;
-
-	for (int i = start; i < end; i++) {
-
-		if ((*lines[i])[0] == '#') {
-
-			continue;
-
-		}else if ((*lines[i])[0] == 'N' && (*lines[i])[1] == 's') {
-			int tmp;
-			sscanf(lines[i]->c_str(), "Ns %i", &tmp);
-			m_material.shininess = tmp;
-
-		}else if ((*lines[i])[0] == 'K' && (*lines[i])[1] == 'a') {
-			float tmpx, tmpy, tmpz;
-			sscanf(lines[i]->c_str(), "Ka %f %f %f", &tmpx, &tmpy, &tmpz);
-
-			m_material.ambient[0] = tmpx;
-			m_material.ambient[1] = tmpy;
-			m_material.ambient[2] = tmpz;
-			m_material.ambient[3] = 0.0f;
-
-		}else if ((*lines[i])[0] == 'K' && (*lines[i])[1] == 'd') {
-			float tmpx, tmpy, tmpz;
-			sscanf(lines[i]->c_str(), "Kd %f %f %f", &tmpx, &tmpy, &tmpz);
-
-			m_material.diffuse[0] = tmpx;
-			m_material.diffuse[1] = tmpy;
-			m_material.diffuse[2] = tmpz;
-			m_material.diffuse[3] = 0.0f;
-
-		}else if ((*lines[i])[0] == 'K' && (*lines[i])[1] == 's') {
-			float tmpx, tmpy, tmpz;
-			sscanf(lines[i]->c_str(), "Ks %f %f %f", &tmpx, &tmpy, &tmpz);
-
-			m_material.specular[0] = tmpx;
-			m_material.specular[1] = tmpy;
-			m_material.specular[2] = tmpz;
-			m_material.specular[3] = 0.0f;
-
-		}else if ((*lines[i])[0] == 'm') {
-
-			char identifierBuffer[20], valueBuffer[250];;
-			sscanf(lines[i]->c_str(), "%s %s", identifierBuffer, valueBuffer);
-
-			if (strstr(identifierBuffer, "map_Kd") != 0) {
-				m_material.diffuseTexPath = valueBuffer;
-				std::transform(m_material.diffuseTexPath.begin(), m_material.diffuseTexPath.end(), m_material.diffuseTexPath.begin(),[](unsigned char c) { return std::tolower(c); });
-			}else if (strstr(identifierBuffer, "map_bump") != 0) {
-				m_material.bumpMapPath = valueBuffer;
-				std::transform(m_material.bumpMapPath.begin(), m_material.bumpMapPath.end(), m_material.bumpMapPath.begin(), [](unsigned char c) { return std::tolower(c); });
-			}else if (strstr(identifierBuffer, "map_disp") != 0) {
-				m_material.displacementMapPath = valueBuffer;
-				std::transform(m_material.displacementMapPath.begin(), m_material.displacementMapPath.end(), m_material.displacementMapPath.begin(), [](unsigned char c) { return std::tolower(c); });
-			}
-		}
-	}
-
-	for (int i = 0; i < lines.size(); i++) {
-		delete lines[i];
-	}
-
-	return true;
 }
 
 void Mesh::createInstancesStatic(std::vector<Matrix4f>& modelMTX){

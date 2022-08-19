@@ -38,7 +38,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	std::cout << "4                : fade day night" << std::endl;
 	std::cout << "5                : rotate barrel light" << std::endl;
 	std::cout << "t                : debug framebuffer" << std::endl;
-	std::cout << "r                : switch cascade depthbuffer" << std::endl;
+	std::cout << "r                : switch cascaded depthbuffer" << std::endl;
 	std::cout << "n                : debug normals" << std::endl;
 	#endif
 	

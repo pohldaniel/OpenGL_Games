@@ -101,6 +101,17 @@ class ObjModel {
 
 public:
 
+	struct Material {
+		float ambient[4];
+		float diffuse[4];
+		float specular[4];
+		float shininess;
+		std::string diffuseTexPath;
+		std::string bumpMapPath;
+		std::string displacementMapPath;
+	};
+
+
 	ObjModel();
 	~ObjModel();
 
@@ -196,6 +207,8 @@ private:
 	void static GenerateNormals(std::vector<float>& vertexCoords, std::vector<std::array<int, 10>>& face, std::vector<float>& normalCoords);
 	void static GenerateFlatNormals(std::vector<float>& vertexCoords, std::vector<std::array<int, 10>>& face, std::vector<float>& normalCoords);
 	void static GenerateTangents(std::vector<float>& vertexCoords, std::vector<float>& textureCoords, std::vector<float>& normalCoords, std::vector<std::array<int, 10>>& face, std::vector<float>& tangentCoords, std::vector<float>& bitangentCoords);
+
+	void static ReadMaterialFromFile(Material& material, std::string path, std::string mltName);
 };
 
 class Mesh {
@@ -204,16 +217,6 @@ class Mesh {
 
 public:
 
-	struct Material {		
-		float ambient[4];
-		float diffuse[4];
-		float specular[4];
-		float shininess;
-		std::string diffuseTexPath;
-		std::string bumpMapPath;
-		std::string displacementMapPath;
-	};
-
 	Mesh(std::string mltName, int numberTriangles, ObjModel* model);
 	Mesh(int numberTriangles, ObjModel* model);
 	~Mesh();
@@ -221,18 +224,17 @@ public:
 	void drawRaw();
 	void drawRawInstanced();
 	void setMaterial(const Vector3f &ambient, const Vector3f &diffuse, const Vector3f &specular, float shinies);
-	Material& getMaterial();
+	ObjModel::Material& getMaterial();
 	
 	std::vector<float>& getVertexBuffer();
 	std::vector<unsigned int>& getIndexBuffer();
 	int getStride();
 
 private:
-	bool readMaterial();
 
 	ObjModel* m_model;
 	std::string m_mltName;
-	Material m_material;	
+	ObjModel::Material m_material;
 	///////////////////////////////////////OpenGL content//////////////////
 
 	void createInstancesStatic(std::vector<Matrix4f>& modelMTX);
