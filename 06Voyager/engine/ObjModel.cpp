@@ -5,9 +5,6 @@
 
 #include "ObjModel.h"
 
-unsigned int ObjModel::s_materialUbo = 0;
-unsigned int ObjModel::s_viewUbo = 0;
-
 ObjModel::ObjModel()  {
 	m_numberOfMeshes = 0;
 	m_numberOfTriangles = 0;
@@ -301,28 +298,26 @@ bool ObjModel::loadObject(const char* a_filename, Vector3f& axis, float degree, 
 	for (iterDup; iterDup != dup.end(); iterDup++) {
 
 		if (name.empty()) {
-			m_mesh.push_back(new Mesh(iterDup->second, this));
+			m_meshes.push_back(new Mesh(iterDup->second, this));
 		}else {
 
 			std::map<std::string, int >::const_iterator iterName = name.begin();
 			for (iterName; iterName != name.end(); iterName++) {
 
 				if (iterDup->first == iterName->second) {
-					m_mesh.push_back(new Mesh("newmtl " + iterName->first, iterDup->second, this));
-					if (m_mesh.size() > 1) {
-						m_mesh[m_mesh.size() - 1]->m_triangleOffset = m_mesh[m_mesh.size() - 2]->m_numberOfTriangles + m_mesh[m_mesh.size() - 2]->m_triangleOffset;
+					m_meshes.push_back(new Mesh("newmtl " + iterName->first, iterDup->second, this));
+					if (m_meshes.size() > 1) {
+						m_meshes[m_meshes.size() - 1]->m_triangleOffset = m_meshes[m_meshes.size() - 2]->m_numberOfTriangles + m_meshes[m_meshes.size() - 2]->m_triangleOffset;
 					}
 				}
 			}
 		}
 	}
 
-	m_numberOfMeshes = m_mesh.size();
+	m_numberOfMeshes = m_meshes.size();
 	dup.clear();
 	name.clear();
 
-	
-	
 	IndexBufferCreator indexBufferCreator;
 	indexBufferCreator.positionCoordsIn = vertexCoords;
 	indexBufferCreator.normalCoordsIn = normalCoords;
@@ -331,58 +326,58 @@ bool ObjModel::loadObject(const char* a_filename, Vector3f& axis, float degree, 
 	indexBufferCreator.bitangentCoordsIn = bitangentCoords;
 
 	for (int j = 0; j < m_numberOfMeshes; j++) {
-		std::vector<std::array<int, 10>>::const_iterator first = face.begin() + m_mesh[j]->m_triangleOffset;
-		std::vector<std::array<int, 10>>::const_iterator last = face.begin() + (m_mesh[j]->m_triangleOffset + m_mesh[j]->m_numberOfTriangles);
+		std::vector<std::array<int, 10>>::const_iterator first = face.begin() + m_meshes[j]->m_triangleOffset;
+		std::vector<std::array<int, 10>>::const_iterator last = face.begin() + (m_meshes[j]->m_triangleOffset + m_meshes[j]->m_numberOfTriangles);
 		std::vector<std::array<int, 10>> subFace(first, last);
 		indexBufferCreator.face = subFace;
 		indexBufferCreator.createIndexBuffer();
 		if (!tangentCoords.empty()) {
 			m_hasTextureCoords = true; m_hasNormals = true; m_hasTangents = true;
 			m_stride = 14;
-			m_mesh[j]->m_hasTextureCoords = true; m_mesh[j]->m_hasNormals = true; m_mesh[j]->m_hasTangents = true;
-			m_mesh[j]->m_stride = 14;
+			m_meshes[j]->m_hasTextureCoords = true; m_meshes[j]->m_hasNormals = true; m_meshes[j]->m_hasTangents = true;
+			m_meshes[j]->m_stride = 14;
 		} else if (!textureCoords.empty() && !normalCoords.empty()) {
 			m_hasTextureCoords = true; m_hasNormals = true;
 			m_stride = 8;
-			m_mesh[j]->m_hasTextureCoords = true; m_mesh[j]->m_hasNormals = true;
-			m_mesh[j]->m_stride = 8;
+			m_meshes[j]->m_hasTextureCoords = true; m_meshes[j]->m_hasNormals = true;
+			m_meshes[j]->m_stride = 8;
 
 		}else if (!normalCoords.empty()) {
 			m_hasNormals = true;
 			m_stride = 6;
-			m_mesh[j]->m_hasNormals = true;
-			m_mesh[j]->m_stride = 6;
+			m_meshes[j]->m_hasNormals = true;
+			m_meshes[j]->m_stride = 6;
 
 		}else if (!textureCoords.empty()) {
 			m_hasTextureCoords = true;
 			m_stride = 5;
-			m_mesh[j]->m_hasTextureCoords = true;
-			m_mesh[j]->m_stride = 5;
+			m_meshes[j]->m_hasTextureCoords = true;
+			m_meshes[j]->m_stride = 5;
 
 		}else {
 			m_stride = 3;
-			m_mesh[j]->m_stride = 3;
+			m_meshes[j]->m_stride = 3;
 		}
 
 		if (m_hasMaterial) {
-			m_mesh[j]->readMaterial();
+			m_meshes[j]->readMaterial();
 		}
 
 		if (!m_isStacked) {
-			m_mesh[j]->m_indexBuffer = indexBufferCreator.indexBufferOut;
-			m_mesh[j]->m_vertexBuffer = indexBufferCreator.vertexBufferOut;
+			m_meshes[j]->m_indexBuffer = indexBufferCreator.indexBufferOut;
+			m_meshes[j]->m_vertexBuffer = indexBufferCreator.vertexBufferOut;
 
-			ObjModel::CreateBuffer(m_mesh[j]->m_vertexBuffer,
-					m_mesh[j]->m_indexBuffer,
-					m_mesh[j]->m_drawCount,
-					m_mesh[j]->m_vao,
-					m_mesh[j]->m_vbo,
-					m_mesh[j]->m_ibo,
-					m_mesh[j]->m_stride);
+			ObjModel::CreateBuffer(m_meshes[j]->m_vertexBuffer,
+					m_meshes[j]->m_indexBuffer,
+					m_meshes[j]->m_drawCount,
+					m_meshes[j]->m_vao,
+					m_meshes[j]->m_vbo,
+					m_meshes[j]->m_ibo,
+					m_meshes[j]->m_stride);
 		}else {
-			m_mesh[j]->m_drawCount = subFace.size() * 3;
-			m_mesh[j]->m_baseIndex = m_indexBuffer.size();
-			m_mesh[j]->m_baseVertex = m_vertexBuffer.size() / m_stride;
+			m_meshes[j]->m_drawCount = subFace.size() * 3;
+			m_meshes[j]->m_baseIndex = m_indexBuffer.size();
+			m_meshes[j]->m_baseVertex = m_vertexBuffer.size() / m_stride;
 
 			m_vertexBuffer.insert(m_vertexBuffer.end(), indexBufferCreator.vertexBufferOut.begin(), indexBufferCreator.vertexBufferOut.end());
 			m_indexBuffer.insert(m_indexBuffer.end(), indexBufferCreator.indexBufferOut.begin(), indexBufferCreator.indexBufferOut.end());
@@ -414,35 +409,35 @@ bool ObjModel::loadObject(const char* a_filename, Vector3f& axis, float degree, 
 
 void ObjModel::drawRaw() {
 	for (int j = 0; j < m_numberOfMeshes; j++) {
-		m_mesh[j]->drawRaw();
+		m_meshes[j]->drawRaw();
 	}
 }
 
 void ObjModel::drawRawInstanced() {
 	for (int j = 0; j < m_numberOfMeshes; j++) {
-		m_mesh[j]->drawRawInstanced();
+		m_meshes[j]->drawRawInstanced();
 	}
 }
 
 void ObjModel::drawRawStacked() {
 	glBindVertexArray(m_vao);
-	for (int i = 0; i < m_mesh.size(); i++) {
-		glDrawElementsBaseVertex(GL_TRIANGLES, m_mesh[i]->m_drawCount, GL_UNSIGNED_INT, (void*)(sizeof(unsigned int) * m_mesh[i]->m_baseIndex), m_mesh[i]->m_baseVertex);
+	for (int i = 0; i < m_meshes.size(); i++) {
+		glDrawElementsBaseVertex(GL_TRIANGLES, m_meshes[i]->m_drawCount, GL_UNSIGNED_INT, (void*)(sizeof(unsigned int) * m_meshes[i]->m_baseIndex), m_meshes[i]->m_baseVertex);
 	}
 	glBindVertexArray(0);
 }
 
 void ObjModel::drawRawInstancedStacked() {
 	glBindVertexArray(m_vao);
-	for (int i = 0; i < m_mesh.size(); i++) {
-		glDrawElementsInstancedBaseVertexBaseInstance(GL_TRIANGLES, m_mesh[i]->m_drawCount, GL_UNSIGNED_INT, (void*)(sizeof(unsigned int) * m_mesh[i]->m_baseIndex), m_instanceCount, m_mesh[i]->m_baseVertex, 0);
+	for (int i = 0; i < m_meshes.size(); i++) {
+		glDrawElementsInstancedBaseVertexBaseInstance(GL_TRIANGLES, m_meshes[i]->m_drawCount, GL_UNSIGNED_INT, (void*)(sizeof(unsigned int) * m_meshes[i]->m_baseIndex), m_instanceCount, m_meshes[i]->m_baseVertex, 0);
 	}
 	glBindVertexArray(0);
 }
 
 void ObjModel::draw(Camera& camera) {
-	for (int i = 0; i < m_mesh.size(); i++) {
-		m_mesh[i]->updateMaterialUbo(s_materialUbo);
+	for (int i = 0; i < m_meshes.size(); i++) {
+		m_meshes[i]->updateMaterialUbo(BuiltInShader::materialUbo);
 		glUseProgram(m_shader[i]->m_program);
 
 		m_shader[i]->loadMatrix("u_projection", camera.getProjectionMatrix());
@@ -450,7 +445,7 @@ void ObjModel::draw(Camera& camera) {
 		m_shader[i]->loadMatrix("u_model", m_transform.getTransformationMatrix());
 
 		m_textures[i].bind(0);
-		m_mesh[i]->drawRaw();
+		m_meshes[i]->drawRaw();
 
 		glUseProgram(0);
 	}
@@ -459,15 +454,15 @@ void ObjModel::draw(Camera& camera) {
 }
 
 void ObjModel::drawInstanced(Camera& camera) {
-	for (int i = 0; i < m_mesh.size(); i++) {
-		m_mesh[i]->updateMaterialUbo(s_materialUbo);
+	for (int i = 0; i < m_meshes.size(); i++) {
+		m_meshes[i]->updateMaterialUbo(BuiltInShader::materialUbo);
 
 		glUseProgram(m_shader[i]->m_program);
 		
 		m_shader[i]->loadMatrix("u_projection", camera.getProjectionMatrix());
 
 		m_textures[i].bind(0);
-		m_mesh[i]->drawRawInstanced();
+		m_meshes[i]->drawRawInstanced();
 
 		glUseProgram(0);
 	}
@@ -477,8 +472,8 @@ void ObjModel::drawInstanced(Camera& camera) {
 
 void ObjModel::drawStacked(Camera& camera) {
 	glBindVertexArray(m_vao);
-	for (int i = 0; i < m_mesh.size(); i++) {
-		m_mesh[i]->updateMaterialUbo(s_materialUbo);
+	for (int i = 0; i < m_meshes.size(); i++) {
+		m_meshes[i]->updateMaterialUbo(BuiltInShader::materialUbo);
 
 		glUseProgram(m_shader[i]->m_program);
 
@@ -487,7 +482,7 @@ void ObjModel::drawStacked(Camera& camera) {
 		m_shader[i]->loadMatrix("u_model", m_transform.getTransformationMatrix());
 
 		m_textures[i].bind(0);
-		glDrawElementsBaseVertex(GL_TRIANGLES, m_mesh[i]->m_drawCount, GL_UNSIGNED_INT, (void*)(sizeof(unsigned int) * m_mesh[i]->m_baseIndex), m_mesh[i]->m_baseVertex);
+		glDrawElementsBaseVertex(GL_TRIANGLES, m_meshes[i]->m_drawCount, GL_UNSIGNED_INT, (void*)(sizeof(unsigned int) * m_meshes[i]->m_baseIndex), m_meshes[i]->m_baseVertex);
 		glUseProgram(0);
 	}
 	Texture::Unbind();
@@ -496,14 +491,14 @@ void ObjModel::drawStacked(Camera& camera) {
 
 void ObjModel::drawInstancedStacked(Camera& camera) {
 	glBindVertexArray(m_vao);
-	for (int i = 0; i < m_mesh.size(); i++) {
-		m_mesh[i]->updateMaterialUbo(s_materialUbo);
+	for (int i = 0; i < m_meshes.size(); i++) {
+		m_meshes[i]->updateMaterialUbo(BuiltInShader::materialUbo);
 
 		glUseProgram(m_shader[i]->m_program);
 
 		m_shader[i]->loadMatrix("u_projection", camera.getProjectionMatrix());
 		m_textures[i].bind(0);
-		glDrawElementsInstancedBaseVertexBaseInstance(GL_TRIANGLES, m_mesh[i]->m_drawCount, GL_UNSIGNED_INT, (void*)(sizeof(unsigned int) * m_mesh[i]->m_baseIndex), m_instanceCount, m_mesh[i]->m_baseVertex, 0);
+		glDrawElementsInstancedBaseVertexBaseInstance(GL_TRIANGLES, m_meshes[i]->m_drawCount, GL_UNSIGNED_INT, (void*)(sizeof(unsigned int) * m_meshes[i]->m_baseIndex), m_instanceCount, m_meshes[i]->m_baseVertex, 0);
 			
 		glUseProgram(0);
 	}
@@ -556,7 +551,7 @@ Transform& ObjModel::getTransform() {
 }
 
 std::vector<Mesh*> ObjModel::getMeshes() {
-	return m_mesh;
+	return m_meshes;
 }
 
 void ObjModel::generateTangents() {
@@ -564,15 +559,15 @@ void ObjModel::generateTangents() {
 	if (m_isStacked) {
 		if (m_hasTangents) { return; }
 
-		ObjModel::GenerateTangents(m_vertexBuffer, m_indexBuffer, *this, m_hasNormals, m_hasTangents,  m_stride, 0, m_mesh.size());		
+		ObjModel::GenerateTangents(m_vertexBuffer, m_indexBuffer, *this, m_hasNormals, m_hasTangents,  m_stride, 0, m_meshes.size());		
 		ObjModel::CreateBuffer(m_vertexBuffer, m_indexBuffer, m_drawCount, m_vao, m_vbo, m_ibo, m_stride);
 
 	}else {
 
-		for (int j = 0; j < m_mesh.size(); j++) {
-			if (m_mesh[j]->m_hasTangents) continue;
-			ObjModel::GenerateTangents(m_mesh[j]->m_vertexBuffer, m_mesh[j]->m_indexBuffer, *this, m_mesh[j]->m_hasNormals, m_mesh[j]->m_hasTangents, m_mesh[j]->m_stride, j, j + 1);
-			ObjModel::CreateBuffer(m_mesh[j]->m_vertexBuffer, m_mesh[j]->m_indexBuffer, m_mesh[j]->m_drawCount, m_mesh[j]->m_vao, m_mesh[j]->m_vbo, m_mesh[j]->m_ibo, m_mesh[j]->m_stride);
+		for (int j = 0; j < m_meshes.size(); j++) {
+			if (m_meshes[j]->m_hasTangents) continue;
+			ObjModel::GenerateTangents(m_meshes[j]->m_vertexBuffer, m_meshes[j]->m_indexBuffer, *this, m_meshes[j]->m_hasNormals, m_meshes[j]->m_hasTangents, m_meshes[j]->m_stride, j, j + 1);
+			ObjModel::CreateBuffer(m_meshes[j]->m_vertexBuffer, m_meshes[j]->m_indexBuffer, m_meshes[j]->m_drawCount, m_meshes[j]->m_vao, m_meshes[j]->m_vbo, m_meshes[j]->m_ibo, m_meshes[j]->m_stride);
 		}
 	}
 }
@@ -582,15 +577,15 @@ void ObjModel::generateNormals() {
 	if (m_isStacked) {
 		if (m_hasNormals) { return; }
 
-		ObjModel::GenerateNormals(m_vertexBuffer, m_indexBuffer, *this, m_hasNormals, m_stride, 0, m_mesh.size());
+		ObjModel::GenerateNormals(m_vertexBuffer, m_indexBuffer, *this, m_hasNormals, m_stride, 0, m_meshes.size());
 		ObjModel::CreateBuffer(m_vertexBuffer, m_indexBuffer, m_drawCount, m_vao, m_vbo, m_ibo, m_stride);
 
 	}else {
 
-		for (int j = 0; j < m_mesh.size(); j++) {
-			if (m_mesh[j]->m_hasNormals) continue;
-			ObjModel::GenerateNormals(m_mesh[j]->m_vertexBuffer, m_mesh[j]->m_indexBuffer, *this, m_mesh[j]->m_hasNormals, m_mesh[j]->m_stride, j, j + 1);
-			ObjModel::CreateBuffer(m_mesh[j]->m_vertexBuffer, m_mesh[j]->m_indexBuffer, m_mesh[j]->m_drawCount, m_mesh[j]->m_vao, m_mesh[j]->m_vbo, m_mesh[j]->m_ibo, m_mesh[j]->m_stride);
+		for (int j = 0; j < m_meshes.size(); j++) {
+			if (m_meshes[j]->m_hasNormals) continue;
+			ObjModel::GenerateNormals(m_meshes[j]->m_vertexBuffer, m_meshes[j]->m_indexBuffer, *this, m_meshes[j]->m_hasNormals, m_meshes[j]->m_stride, j, j + 1);
+			ObjModel::CreateBuffer(m_meshes[j]->m_vertexBuffer, m_meshes[j]->m_indexBuffer, m_meshes[j]->m_drawCount, m_meshes[j]->m_vao, m_meshes[j]->m_vbo, m_meshes[j]->m_ibo, m_meshes[j]->m_stride);
 		}
 	}
 }
@@ -621,13 +616,13 @@ void ObjModel::GenerateNormals(std::vector<float>& vertexBuffer, std::vector<uns
 	}
 	
 	for (int j = startIndex; j < endIndex; j++) {
-		for (int i = 0; i < model.m_mesh[j]->m_numberOfTriangles; i++) {
+		for (int i = 0; i < model.m_meshes[j]->m_numberOfTriangles; i++) {
 
-			pTriangle = &indexBuffer[i * 3 + model.m_mesh[j]->m_baseIndex];
+			pTriangle = &indexBuffer[i * 3 + model.m_meshes[j]->m_baseIndex];
 
-			pVertex0 = &vertexBuffer[(pTriangle[0] + model.m_mesh[j]->m_baseVertex) * stride];
-			pVertex1 = &vertexBuffer[(pTriangle[1] + model.m_mesh[j]->m_baseVertex) * stride];
-			pVertex2 = &vertexBuffer[(pTriangle[2] + model.m_mesh[j]->m_baseVertex) * stride];
+			pVertex0 = &vertexBuffer[(pTriangle[0] + model.m_meshes[j]->m_baseVertex) * stride];
+			pVertex1 = &vertexBuffer[(pTriangle[1] + model.m_meshes[j]->m_baseVertex) * stride];
+			pVertex2 = &vertexBuffer[(pTriangle[2] + model.m_meshes[j]->m_baseVertex) * stride];
 
 			// Calculate triangle face normal.
 			edge1[0] = pVertex1[0] - pVertex0[0];
@@ -643,17 +638,17 @@ void ObjModel::GenerateNormals(std::vector<float>& vertexBuffer, std::vector<uns
 			normal[2] = (edge1[0] * edge2[1]) - (edge1[1] * edge2[0]);
 
 			// Accumulate the normals.
-			tmpVertex[(pTriangle[0] + model.m_mesh[j]->m_baseVertex) * vertexLength + 3 + vertexOffset] = tmpVertex[(pTriangle[0] + model.m_mesh[j]->m_baseVertex) * vertexLength + 3 + vertexOffset] + normal[0];
-			tmpVertex[(pTriangle[0] + model.m_mesh[j]->m_baseVertex) * vertexLength + 4 + vertexOffset] = tmpVertex[(pTriangle[0] + model.m_mesh[j]->m_baseVertex) * vertexLength + 4 + vertexOffset] + normal[1];
-			tmpVertex[(pTriangle[0] + model.m_mesh[j]->m_baseVertex) * vertexLength + 5 + vertexOffset] = tmpVertex[(pTriangle[0] + model.m_mesh[j]->m_baseVertex) * vertexLength + 5 + vertexOffset] + normal[2];
+			tmpVertex[(pTriangle[0] + model.m_meshes[j]->m_baseVertex) * vertexLength + 3 + vertexOffset] = tmpVertex[(pTriangle[0] + model.m_meshes[j]->m_baseVertex) * vertexLength + 3 + vertexOffset] + normal[0];
+			tmpVertex[(pTriangle[0] + model.m_meshes[j]->m_baseVertex) * vertexLength + 4 + vertexOffset] = tmpVertex[(pTriangle[0] + model.m_meshes[j]->m_baseVertex) * vertexLength + 4 + vertexOffset] + normal[1];
+			tmpVertex[(pTriangle[0] + model.m_meshes[j]->m_baseVertex) * vertexLength + 5 + vertexOffset] = tmpVertex[(pTriangle[0] + model.m_meshes[j]->m_baseVertex) * vertexLength + 5 + vertexOffset] + normal[2];
 
-			tmpVertex[(pTriangle[1] + model.m_mesh[j]->m_baseVertex) * vertexLength + 3 + vertexOffset] = tmpVertex[(pTriangle[1] + model.m_mesh[j]->m_baseVertex) * vertexLength + 3 + vertexOffset] + normal[0];
-			tmpVertex[(pTriangle[1] + model.m_mesh[j]->m_baseVertex) * vertexLength + 4 + vertexOffset] = tmpVertex[(pTriangle[1] + model.m_mesh[j]->m_baseVertex) * vertexLength + 4 + vertexOffset] + normal[1];
-			tmpVertex[(pTriangle[1] + model.m_mesh[j]->m_baseVertex) * vertexLength + 5 + vertexOffset] = tmpVertex[(pTriangle[1] + model.m_mesh[j]->m_baseVertex) * vertexLength + 5 + vertexOffset] + normal[2];
+			tmpVertex[(pTriangle[1] + model.m_meshes[j]->m_baseVertex) * vertexLength + 3 + vertexOffset] = tmpVertex[(pTriangle[1] + model.m_meshes[j]->m_baseVertex) * vertexLength + 3 + vertexOffset] + normal[0];
+			tmpVertex[(pTriangle[1] + model.m_meshes[j]->m_baseVertex) * vertexLength + 4 + vertexOffset] = tmpVertex[(pTriangle[1] + model.m_meshes[j]->m_baseVertex) * vertexLength + 4 + vertexOffset] + normal[1];
+			tmpVertex[(pTriangle[1] + model.m_meshes[j]->m_baseVertex) * vertexLength + 5 + vertexOffset] = tmpVertex[(pTriangle[1] + model.m_meshes[j]->m_baseVertex) * vertexLength + 5 + vertexOffset] + normal[2];
 
-			tmpVertex[(pTriangle[2] + model.m_mesh[j]->m_baseVertex) * vertexLength + 3 + vertexOffset] = tmpVertex[(pTriangle[2] + model.m_mesh[j]->m_baseVertex) * vertexLength + 3 + vertexOffset] + normal[0];
-			tmpVertex[(pTriangle[2] + model.m_mesh[j]->m_baseVertex) * vertexLength + 4 + vertexOffset] = tmpVertex[(pTriangle[2] + model.m_mesh[j]->m_baseVertex) * vertexLength + 4 + vertexOffset] + normal[1];
-			tmpVertex[(pTriangle[2] + model.m_mesh[j]->m_baseVertex) * vertexLength + 5 + vertexOffset] = tmpVertex[(pTriangle[2] + model.m_mesh[j]->m_baseVertex) * vertexLength + 5 + vertexOffset] + normal[2];
+			tmpVertex[(pTriangle[2] + model.m_meshes[j]->m_baseVertex) * vertexLength + 3 + vertexOffset] = tmpVertex[(pTriangle[2] + model.m_meshes[j]->m_baseVertex) * vertexLength + 3 + vertexOffset] + normal[0];
+			tmpVertex[(pTriangle[2] + model.m_meshes[j]->m_baseVertex) * vertexLength + 4 + vertexOffset] = tmpVertex[(pTriangle[2] + model.m_meshes[j]->m_baseVertex) * vertexLength + 4 + vertexOffset] + normal[1];
+			tmpVertex[(pTriangle[2] + model.m_meshes[j]->m_baseVertex) * vertexLength + 5 + vertexOffset] = tmpVertex[(pTriangle[2] + model.m_meshes[j]->m_baseVertex) * vertexLength + 5 + vertexOffset] + normal[2];
 		}
 	}
 
@@ -715,13 +710,13 @@ void ObjModel::GenerateTangents(std::vector<float>& vertexBuffer, std::vector<un
 	}
 
 	for (int j = startIndex; j < endIndex; j++) {
-		for (int i = 0; i < model.m_mesh[j]->m_numberOfTriangles; i++) {
+		for (int i = 0; i < model.m_meshes[j]->m_numberOfTriangles; i++) {
 		
-			pTriangle = &indexBuffer[i * 3 + model.m_mesh[j]->m_baseIndex];
+			pTriangle = &indexBuffer[i * 3 + model.m_meshes[j]->m_baseIndex];
 
-			pVertex0 = &vertexBuffer[(pTriangle[0] + model.m_mesh[j]->m_baseVertex) * stride];
-			pVertex1 = &vertexBuffer[(pTriangle[1] + model.m_mesh[j]->m_baseVertex) * stride];
-			pVertex2 = &vertexBuffer[(pTriangle[2] + model.m_mesh[j]->m_baseVertex) * stride];
+			pVertex0 = &vertexBuffer[(pTriangle[0] + model.m_meshes[j]->m_baseVertex) * stride];
+			pVertex1 = &vertexBuffer[(pTriangle[1] + model.m_meshes[j]->m_baseVertex) * stride];
+			pVertex2 = &vertexBuffer[(pTriangle[2] + model.m_meshes[j]->m_baseVertex) * stride];
 
 			// Calculate triangle face normal.
 			edge1[0] = pVertex1[0] - pVertex0[0];
@@ -764,29 +759,29 @@ void ObjModel::GenerateTangents(std::vector<float>& vertexBuffer, std::vector<un
 			}
 			
 			// Accumulate the tangents and bitangents.
-			tmpVertex[(pTriangle[0] + model.m_mesh[j]->m_baseVertex) * 14 + 8] = tmpVertex[(pTriangle[0] + model.m_mesh[j]->m_baseVertex) * 14 + 8] + tangent[0];
-			tmpVertex[(pTriangle[0] + model.m_mesh[j]->m_baseVertex) * 14 + 9] = tmpVertex[(pTriangle[0] + model.m_mesh[j]->m_baseVertex) * 14 + 9] + tangent[1];
-			tmpVertex[(pTriangle[0] + model.m_mesh[j]->m_baseVertex) * 14 + 10] = tmpVertex[(pTriangle[0] + model.m_mesh[j]->m_baseVertex) * 14 + 10] + tangent[2];
+			tmpVertex[(pTriangle[0] + model.m_meshes[j]->m_baseVertex) * 14 + 8] = tmpVertex[(pTriangle[0] + model.m_meshes[j]->m_baseVertex) * 14 + 8] + tangent[0];
+			tmpVertex[(pTriangle[0] + model.m_meshes[j]->m_baseVertex) * 14 + 9] = tmpVertex[(pTriangle[0] + model.m_meshes[j]->m_baseVertex) * 14 + 9] + tangent[1];
+			tmpVertex[(pTriangle[0] + model.m_meshes[j]->m_baseVertex) * 14 + 10] = tmpVertex[(pTriangle[0] + model.m_meshes[j]->m_baseVertex) * 14 + 10] + tangent[2];
 
-			tmpVertex[(pTriangle[0] + model.m_mesh[j]->m_baseVertex) * 14 + 11] = tmpVertex[(pTriangle[0] + model.m_mesh[j]->m_baseVertex) * 14 + 11] + bitangent[0];
-			tmpVertex[(pTriangle[0] + model.m_mesh[j]->m_baseVertex) * 14 + 12] = tmpVertex[(pTriangle[0] + model.m_mesh[j]->m_baseVertex) * 14 + 12] + bitangent[1];
-			tmpVertex[(pTriangle[0] + model.m_mesh[j]->m_baseVertex) * 14 + 13] = tmpVertex[(pTriangle[0] + model.m_mesh[j]->m_baseVertex) * 14 + 13] + bitangent[2];
+			tmpVertex[(pTriangle[0] + model.m_meshes[j]->m_baseVertex) * 14 + 11] = tmpVertex[(pTriangle[0] + model.m_meshes[j]->m_baseVertex) * 14 + 11] + bitangent[0];
+			tmpVertex[(pTriangle[0] + model.m_meshes[j]->m_baseVertex) * 14 + 12] = tmpVertex[(pTriangle[0] + model.m_meshes[j]->m_baseVertex) * 14 + 12] + bitangent[1];
+			tmpVertex[(pTriangle[0] + model.m_meshes[j]->m_baseVertex) * 14 + 13] = tmpVertex[(pTriangle[0] + model.m_meshes[j]->m_baseVertex) * 14 + 13] + bitangent[2];
 
-			tmpVertex[(pTriangle[1] + model.m_mesh[j]->m_baseVertex) * 14 + 8] = tmpVertex[(pTriangle[1] + model.m_mesh[j]->m_baseVertex) * 14 + 8] + tangent[0];
-			tmpVertex[(pTriangle[1] + model.m_mesh[j]->m_baseVertex) * 14 + 9] = tmpVertex[(pTriangle[1] + model.m_mesh[j]->m_baseVertex) * 14 + 9] + tangent[1];
-			tmpVertex[(pTriangle[1] + model.m_mesh[j]->m_baseVertex) * 14 + 10] = tmpVertex[(pTriangle[1] + model.m_mesh[j]->m_baseVertex) * 14 + 10] + tangent[2];
+			tmpVertex[(pTriangle[1] + model.m_meshes[j]->m_baseVertex) * 14 + 8] = tmpVertex[(pTriangle[1] + model.m_meshes[j]->m_baseVertex) * 14 + 8] + tangent[0];
+			tmpVertex[(pTriangle[1] + model.m_meshes[j]->m_baseVertex) * 14 + 9] = tmpVertex[(pTriangle[1] + model.m_meshes[j]->m_baseVertex) * 14 + 9] + tangent[1];
+			tmpVertex[(pTriangle[1] + model.m_meshes[j]->m_baseVertex) * 14 + 10] = tmpVertex[(pTriangle[1] + model.m_meshes[j]->m_baseVertex) * 14 + 10] + tangent[2];
 
-			tmpVertex[(pTriangle[1] + model.m_mesh[j]->m_baseVertex) * 14 + 11] = tmpVertex[(pTriangle[1] + model.m_mesh[j]->m_baseVertex) * 14 + 11] + bitangent[0];
-			tmpVertex[(pTriangle[1] + model.m_mesh[j]->m_baseVertex) * 14 + 12] = tmpVertex[(pTriangle[1] + model.m_mesh[j]->m_baseVertex) * 14 + 12] + bitangent[1];
-			tmpVertex[(pTriangle[1] + model.m_mesh[j]->m_baseVertex) * 14 + 13] = tmpVertex[(pTriangle[1] + model.m_mesh[j]->m_baseVertex) * 14 + 13] + bitangent[2];
+			tmpVertex[(pTriangle[1] + model.m_meshes[j]->m_baseVertex) * 14 + 11] = tmpVertex[(pTriangle[1] + model.m_meshes[j]->m_baseVertex) * 14 + 11] + bitangent[0];
+			tmpVertex[(pTriangle[1] + model.m_meshes[j]->m_baseVertex) * 14 + 12] = tmpVertex[(pTriangle[1] + model.m_meshes[j]->m_baseVertex) * 14 + 12] + bitangent[1];
+			tmpVertex[(pTriangle[1] + model.m_meshes[j]->m_baseVertex) * 14 + 13] = tmpVertex[(pTriangle[1] + model.m_meshes[j]->m_baseVertex) * 14 + 13] + bitangent[2];
 
-			tmpVertex[(pTriangle[2] + model.m_mesh[j]->m_baseVertex) * 14 + 8] = tmpVertex[(pTriangle[2] + model.m_mesh[j]->m_baseVertex) * 14 + 8] + tangent[0];
-			tmpVertex[(pTriangle[2] + model.m_mesh[j]->m_baseVertex) * 14 + 9] = tmpVertex[(pTriangle[2] + model.m_mesh[j]->m_baseVertex) * 14 + 9] + tangent[1];
-			tmpVertex[(pTriangle[2] + model.m_mesh[j]->m_baseVertex) * 14 + 10] = tmpVertex[(pTriangle[2] + model.m_mesh[j]->m_baseVertex) * 14 + 10] + tangent[2];
+			tmpVertex[(pTriangle[2] + model.m_meshes[j]->m_baseVertex) * 14 + 8] = tmpVertex[(pTriangle[2] + model.m_meshes[j]->m_baseVertex) * 14 + 8] + tangent[0];
+			tmpVertex[(pTriangle[2] + model.m_meshes[j]->m_baseVertex) * 14 + 9] = tmpVertex[(pTriangle[2] + model.m_meshes[j]->m_baseVertex) * 14 + 9] + tangent[1];
+			tmpVertex[(pTriangle[2] + model.m_meshes[j]->m_baseVertex) * 14 + 10] = tmpVertex[(pTriangle[2] + model.m_meshes[j]->m_baseVertex) * 14 + 10] + tangent[2];
 
-			tmpVertex[(pTriangle[2] + model.m_mesh[j]->m_baseVertex) * 14 + 11] = tmpVertex[(pTriangle[2] + model.m_mesh[j]->m_baseVertex) * 14 + 11] + bitangent[0];
-			tmpVertex[(pTriangle[2] + model.m_mesh[j]->m_baseVertex) * 14 + 12] = tmpVertex[(pTriangle[2] + model.m_mesh[j]->m_baseVertex) * 14 + 12] + bitangent[1];
-			tmpVertex[(pTriangle[2] + model.m_mesh[j]->m_baseVertex) * 14 + 13] = tmpVertex[(pTriangle[2] + model.m_mesh[j]->m_baseVertex) * 14 + 13] + bitangent[2];
+			tmpVertex[(pTriangle[2] + model.m_meshes[j]->m_baseVertex) * 14 + 11] = tmpVertex[(pTriangle[2] + model.m_meshes[j]->m_baseVertex) * 14 + 11] + bitangent[0];
+			tmpVertex[(pTriangle[2] + model.m_meshes[j]->m_baseVertex) * 14 + 12] = tmpVertex[(pTriangle[2] + model.m_meshes[j]->m_baseVertex) * 14 + 12] + bitangent[1];
+			tmpVertex[(pTriangle[2] + model.m_meshes[j]->m_baseVertex) * 14 + 13] = tmpVertex[(pTriangle[2] + model.m_meshes[j]->m_baseVertex) * 14 + 13] + bitangent[2];
 		}
 	}
 
@@ -877,7 +872,7 @@ void ObjModel::createInstancesStatic(std::vector<Matrix4f>& modelMTX) {
 	}else {
 
 		for (int j = 0; j < m_numberOfMeshes; j++) {
-			m_mesh[j]->createInstancesStatic(modelMTX);
+			m_meshes[j]->createInstancesStatic(modelMTX);
 		}
 	}
 }
@@ -911,7 +906,7 @@ void ObjModel::createInstancesDynamic(unsigned int numberOfInstances){
 		glBindVertexArray(0);
 	}else {
 		for (int j = 0; j < m_numberOfMeshes; j++) {
-			m_mesh[j]->createInstancesDynamic(numberOfInstances);
+			m_meshes[j]->createInstancesDynamic(numberOfInstances);
 		}
 	}
 }
@@ -923,41 +918,41 @@ void ObjModel::updateInstances(std::vector<Matrix4f>& modelMTX) {
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}else {
 		for (int j = 0; j < m_numberOfMeshes; j++) {
-			m_mesh[j]->updateInstances(modelMTX);
+			m_meshes[j]->updateInstances(modelMTX);
 		}
 	}
 }
 
 void ObjModel::initAssets(bool instanced) {
 	//normally this should used for a global ligthing approach
-	if (!s_materialUbo) {
-		glGenBuffers(1, &s_materialUbo);
-		glBindBuffer(GL_UNIFORM_BUFFER, s_materialUbo);
+	if (!BuiltInShader::materialUbo) {
+		glGenBuffers(1, &BuiltInShader::materialUbo);
+		glBindBuffer(GL_UNIFORM_BUFFER, BuiltInShader::materialUbo);
 		glBufferData(GL_UNIFORM_BUFFER, 52, NULL, GL_STATIC_DRAW);
 		glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-		glBindBufferRange(GL_UNIFORM_BUFFER, ObjModel::s_materialBinding, s_materialUbo, 0, 52);
+		glBindBufferRange(GL_UNIFORM_BUFFER, BuiltInShader::materialBinding, BuiltInShader::materialUbo, 0, 52);
 	}
 
-	if (!s_viewUbo && instanced) {
-		glGenBuffers(1, &s_materialUbo);
-		glBindBuffer(GL_UNIFORM_BUFFER, s_materialUbo);
+	if (!BuiltInShader::viewUbo && instanced) {
+		glGenBuffers(1, &BuiltInShader::materialUbo);
+		glBindBuffer(GL_UNIFORM_BUFFER, BuiltInShader::materialUbo);
 		glBufferData(GL_UNIFORM_BUFFER, 64, NULL, GL_STATIC_DRAW);
 		glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-		glBindBufferRange(GL_UNIFORM_BUFFER, ObjModel::s_viewBinding, s_viewUbo, 0, 52);
+		glBindBufferRange(GL_UNIFORM_BUFFER, BuiltInShader::viewBinding, BuiltInShader::viewUbo, 0, 52);
 	}
 
-	for (int i = 0; i < m_mesh.size(); i++) {
-		if (m_mesh[i]->m_material.diffuseTexPath.empty()) {
+	for (int i = 0; i < m_meshes.size(); i++) {
+		if (m_meshes[i]->m_material.diffuseTexPath.empty()) {
 
 			if (!m_shaderManager.checkAsset(instanced ? "diffuse_instance" : "diffuse")) {
 				m_shaderManager.loadShaderFromString(instanced ? "diffuse_instance" : "diffuse", instanced ? DIFFUSE_INSTANCE_VS : DIFFUSE_VS, instanced ? DIFFUSE_INSTANCE_FS : DIFFUSE_FS);
 				
-				glUniformBlockBinding(m_shaderManager.getAssetPointer(instanced ? "diffuse_instance" : "diffuse")->m_program, glGetUniformBlockIndex(m_shaderManager.getAssetPointer(instanced ? "diffuse_instance" : "diffuse")->m_program, "u_material"), ObjModel::s_materialBinding);
+				glUniformBlockBinding(m_shaderManager.getAssetPointer(instanced ? "diffuse_instance" : "diffuse")->m_program, glGetUniformBlockIndex(m_shaderManager.getAssetPointer(instanced ? "diffuse_instance" : "diffuse")->m_program, "u_material"), BuiltInShader::materialBinding);
 
 				if (instanced) {
-					glUniformBlockBinding(m_shaderManager.getAssetPointer("diffuse_instance")->m_program, glGetUniformBlockIndex(m_shaderManager.getAssetPointer("diffuse_instance")->m_program, "u_view"), ObjModel::s_viewBinding);
+					glUniformBlockBinding(m_shaderManager.getAssetPointer("diffuse_instance")->m_program, glGetUniformBlockIndex(m_shaderManager.getAssetPointer("diffuse_instance")->m_program, "u_view"), BuiltInShader::viewBinding);
 				}
 			}
 			m_shader[i] = m_shaderManager.getAssetPointer(instanced ? "diffuse_instance" : "diffuse");
@@ -967,10 +962,10 @@ void ObjModel::initAssets(bool instanced) {
 			if (!m_shaderManager.checkAsset(instanced ? "diffuse_texture_instance" : "diffuse_texture")) {
 				m_shaderManager.loadShaderFromString(instanced ? "diffuse_texture_instance" : "diffuse_texture", instanced ? DIFFUSE_TEXTURE_INSTANCE_VS : DIFFUSE_TEXTURE_VS, instanced ? DIFFUSE_TEXTURE_INSTANCE_FS : DIFFUSE_TEXTURE_FS);
 
-				glUniformBlockBinding(m_shaderManager.getAssetPointer(instanced ? "diffuse_texture_instance" : "diffuse_texture")->m_program, glGetUniformBlockIndex(m_shaderManager.getAssetPointer(instanced ? "diffuse_texture_instance" : "diffuse_texture")->m_program, "u_material"), ObjModel::s_materialBinding);
+				glUniformBlockBinding(m_shaderManager.getAssetPointer(instanced ? "diffuse_texture_instance" : "diffuse_texture")->m_program, glGetUniformBlockIndex(m_shaderManager.getAssetPointer(instanced ? "diffuse_texture_instance" : "diffuse_texture")->m_program, "u_material"), BuiltInShader::materialBinding);
 				
 				if (instanced) {
-					glUniformBlockBinding(m_shaderManager.getAssetPointer("diffuse_texture_instance")->m_program, glGetUniformBlockIndex(m_shaderManager.getAssetPointer("diffuse_texture_instance")->m_program, "u_view"), ObjModel::s_viewBinding);
+					glUniformBlockBinding(m_shaderManager.getAssetPointer("diffuse_texture_instance")->m_program, glGetUniformBlockIndex(m_shaderManager.getAssetPointer("diffuse_texture_instance")->m_program, "u_view"), BuiltInShader::viewBinding);
 				}
 	
 				glUseProgram(m_shaderManager.getAssetPointer(instanced ? "diffuse_texture_instance" : "diffuse_texture")->m_program);
@@ -978,7 +973,7 @@ void ObjModel::initAssets(bool instanced) {
 				glUseProgram(0);
 			}
 
-			std::string texture = m_mesh[i]->m_material.diffuseTexPath;
+			std::string texture = m_meshes[i]->m_material.diffuseTexPath;
 			int foundSlash = texture.find_last_of("/\\");
 
 			int foundDot = texture.find_last_of(".");
@@ -997,34 +992,34 @@ void ObjModel::initAssets(bool instanced) {
 void ObjModel::initAssets(AssetManager<Shader>& shaderManager, AssetManager<Texture>& textureManager, bool instanced) {
 
 	//normally this should used for a global ligthing approach
-	if (!s_materialUbo) {
-		glGenBuffers(1, &s_materialUbo);
-		glBindBuffer(GL_UNIFORM_BUFFER, s_materialUbo);
+	if (!BuiltInShader::materialUbo) {
+		glGenBuffers(1, &BuiltInShader::materialUbo);
+		glBindBuffer(GL_UNIFORM_BUFFER, BuiltInShader::materialUbo);
 		glBufferData(GL_UNIFORM_BUFFER, 52, NULL, GL_STATIC_DRAW);
 		glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-		glBindBufferRange(GL_UNIFORM_BUFFER, ObjModel::s_materialBinding, s_materialUbo, 0, 52);
+		glBindBufferRange(GL_UNIFORM_BUFFER, BuiltInShader::materialBinding, BuiltInShader::materialUbo, 0, 52);
 	}
 
-	if (!s_viewUbo && instanced) {
-		glGenBuffers(1, &s_viewUbo);
-		glBindBuffer(GL_UNIFORM_BUFFER, s_viewUbo);
+	if (!BuiltInShader::viewUbo && instanced) {
+		glGenBuffers(1, &BuiltInShader::viewUbo);
+		glBindBuffer(GL_UNIFORM_BUFFER, BuiltInShader::viewUbo);
 		glBufferData(GL_UNIFORM_BUFFER, 64, NULL, GL_STATIC_DRAW);
 		glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-		glBindBufferRange(GL_UNIFORM_BUFFER, ObjModel::s_viewBinding, s_viewUbo, 0, 64);
+		glBindBufferRange(GL_UNIFORM_BUFFER, BuiltInShader::viewBinding, BuiltInShader::viewUbo, 0, 64);
 	}
 
-	for (int i = 0; i < m_mesh.size(); i++) {
-		if (m_mesh[i]->m_material.diffuseTexPath.empty()) {
+	for (int i = 0; i < m_meshes.size(); i++) {
+		if (m_meshes[i]->m_material.diffuseTexPath.empty()) {
 
 			if (!shaderManager.checkAsset(instanced ? "diffuse_instance" : "diffuse")) {
 				shaderManager.loadShaderFromString(instanced ? "diffuse_instance" : "diffuse", instanced ? DIFFUSE_INSTANCE_VS : DIFFUSE_VS, instanced ? DIFFUSE_INSTANCE_FS : DIFFUSE_FS);
 				
-				glUniformBlockBinding(shaderManager.getAssetPointer(instanced ? "diffuse_instance" : "diffuse")->m_program, glGetUniformBlockIndex(shaderManager.getAssetPointer(instanced ? "diffuse_instance" : "diffuse")->m_program, "u_material"), ObjModel::s_materialBinding);
+				glUniformBlockBinding(shaderManager.getAssetPointer(instanced ? "diffuse_instance" : "diffuse")->m_program, glGetUniformBlockIndex(shaderManager.getAssetPointer(instanced ? "diffuse_instance" : "diffuse")->m_program, "u_material"), BuiltInShader::materialBinding);
 
 				if (instanced) {
-					glUniformBlockBinding(shaderManager.getAssetPointer("diffuse_instance")->m_program, glGetUniformBlockIndex(shaderManager.getAssetPointer("diffuse_instance")->m_program, "u_view"), ObjModel::s_viewBinding);
+					glUniformBlockBinding(shaderManager.getAssetPointer("diffuse_instance")->m_program, glGetUniformBlockIndex(shaderManager.getAssetPointer("diffuse_instance")->m_program, "u_view"), BuiltInShader::viewBinding);
 				}
 				
 			}
@@ -1035,10 +1030,10 @@ void ObjModel::initAssets(AssetManager<Shader>& shaderManager, AssetManager<Text
 			if (!shaderManager.checkAsset(instanced ? "diffuse_texture_instance" : "diffuse_texture")) {
 				shaderManager.loadShaderFromString(instanced ? "diffuse_texture_instance" : "diffuse_texture", instanced ? DIFFUSE_TEXTURE_INSTANCE_VS : DIFFUSE_TEXTURE_VS, instanced ? DIFFUSE_TEXTURE_INSTANCE_FS : DIFFUSE_TEXTURE_FS);
 
-				glUniformBlockBinding(shaderManager.getAssetPointer(instanced ? "diffuse_texture_instance" : "diffuse_texture")->m_program, glGetUniformBlockIndex(shaderManager.getAssetPointer(instanced ? "diffuse_texture_instance" : "diffuse_texture")->m_program, "u_material"), ObjModel::s_materialBinding);
+				glUniformBlockBinding(shaderManager.getAssetPointer(instanced ? "diffuse_texture_instance" : "diffuse_texture")->m_program, glGetUniformBlockIndex(shaderManager.getAssetPointer(instanced ? "diffuse_texture_instance" : "diffuse_texture")->m_program, "u_material"), BuiltInShader::materialBinding);
 				
 				if (instanced) {
-					glUniformBlockBinding(shaderManager.getAssetPointer("diffuse_texture_instance")->m_program, glGetUniformBlockIndex(shaderManager.getAssetPointer("diffuse_texture_instance")->m_program, "u_view"), ObjModel::s_viewBinding);
+					glUniformBlockBinding(shaderManager.getAssetPointer("diffuse_texture_instance")->m_program, glGetUniformBlockIndex(shaderManager.getAssetPointer("diffuse_texture_instance")->m_program, "u_view"), BuiltInShader::viewBinding);
 				}
 
 				glUseProgram(shaderManager.getAssetPointer(instanced ? "diffuse_texture_instance" : "diffuse_texture")->m_program);
@@ -1046,7 +1041,7 @@ void ObjModel::initAssets(AssetManager<Shader>& shaderManager, AssetManager<Text
 				glUseProgram(0);
 			}
 
-			std::string texture = m_mesh[i]->m_material.diffuseTexPath;
+			std::string texture = m_meshes[i]->m_material.diffuseTexPath;
 			int foundSlash = texture.find_last_of("/\\");
 
 			int foundDot = texture.find_last_of(".");
@@ -1060,12 +1055,6 @@ void ObjModel::initAssets(AssetManager<Shader>& shaderManager, AssetManager<Text
 			m_shader[i] = shaderManager.getAssetPointer(instanced ? "diffuse_texture_instance" : "diffuse_texture");
 		}
 	}
-}
-
-void ObjModel::UpdateViewUbo(const Camera& camera) {
-	glBindBuffer(GL_UNIFORM_BUFFER, s_viewUbo);
-	glBufferSubData(GL_UNIFORM_BUFFER, 0, 64, &camera.getViewMatrix()[0][0]);
-	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
 void ObjModel::CreateBuffer(std::vector<float>& vertexBuffer, std::vector<unsigned int> indexBuffer, unsigned int& drawCount, unsigned int& vao, unsigned int (&vbo)[5], unsigned int& ibo, unsigned int stride) {
@@ -1143,7 +1132,7 @@ void ObjModel::CreateBuffer(std::vector<float>& vertexBuffer, std::vector<unsign
 
 	//Indices
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexBuffer.size() * sizeof(m_indexBuffer[0]), &indexBuffer[0], GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexBuffer.size() * sizeof(unsigned int), &indexBuffer[0], GL_STATIC_DRAW);
 
 	glBindVertexArray(0);
 }

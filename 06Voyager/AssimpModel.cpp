@@ -32,6 +32,14 @@ std::string AssimpModel::getModelDirectory() {
 	return m_modelDirectory;
 }
 
+Transform& AssimpModel::getTransform() {
+	return m_transform;
+}
+
+std::vector<AssimpMesh*> AssimpModel::getMeshes() {
+	return m_meshes;
+}
+
 bool AssimpModel::loadModel(const char* a_filename) {
 	std::string filename(a_filename);
 
@@ -43,119 +51,87 @@ bool AssimpModel::loadModel(const char* a_filename) {
 
 	Assimp::Importer Importer;
 
-	const aiScene* pScene = Importer.ReadFile("res/models/dragon/dragon.obj", ASSIMP_LOAD_FLAGS);
-
-	if (pScene) {
-		std::cout << pScene->mNumMeshes << "  " << pScene->mNumMaterials << std::endl;
-	}
-
-	m_materialCount = pScene->mNumMaterials;
-	for (unsigned int m = 0; m < pScene->mNumMaterials; ++m){
-		aiMaterial* material = pScene->mMaterials[m];
-
-		aiString materialName = material->GetName();
-		
-		int numTextures = material->GetTextureCount(aiTextureType_DIFFUSE);
-
-		if (numTextures > 0) {
-			aiString name;
-			material->Get(AI_MATKEY_TEXTURE(aiTextureType_DIFFUSE, 0), name);
-
-			std::string texture = name.data;
-			int foundSlash = texture.find_last_of("/\\");
-
-			int foundDot = texture.find_last_of(".");
-			foundDot = (foundDot < 0 ? texture.length() : foundDot);
-			foundDot = foundSlash < 0 ? foundDot : foundDot - 1;
-			std::string textureName = texture.substr(foundSlash + 1, foundDot);
-			if (!m_textureManager.checkAsset(textureName)) {				
-				m_textureManager.loadTexture(textureName, foundSlash < 0 ? m_modelDirectory + "/" + texture.substr(foundSlash + 1) : texture, true);
-			}
-			m_textures[pScene->mMeshes[m]->mMaterialIndex] = m_textureManager.get(textureName);
-		}
-	}
-
-	m_numberOfMeshes = pScene->mNumMeshes;
-	for (int i = 0; i < pScene->mNumMeshes; i++) {
-
-		m_mesh.push_back(new AssimpMesh(this));
-
-		AssimpMesh* mesh = m_mesh.back();
-
-		mesh->m_numberOfTriangles = pScene->mMeshes[i]->mNumFaces;
-
-		mesh->m_drawCount = pScene->mMeshes[i]->mNumFaces * 3;
-
-		if (mesh->m_vao)
-			glDeleteVertexArrays(1, &mesh->m_vao);
-
-		if (mesh->m_vbo[0])
-			glDeleteBuffers(1, &mesh->m_vbo[0]);
-
-		if (mesh->m_vbo[1])
-			glDeleteBuffers(1, &mesh->m_vbo[1]);
-
-		if (mesh->m_vbo[2])
-			glDeleteBuffers(1, &mesh->m_vbo[2]);
-
-		if (mesh->m_vbo[3])
-			glDeleteBuffers(1, &mesh->m_vbo[3]);
-
-		if (mesh->m_vbo[4])
-			glDeleteBuffers(1, &mesh->m_vbo[4]);
-
-		if (mesh->m_ibo)
-			glDeleteBuffers(1, &mesh->m_ibo);
-
-
-		glGenBuffers(5, mesh->m_vbo);
-		glGenBuffers(1, &mesh->m_ibo);
-
-		glGenVertexArrays(1, &mesh->m_vao);
-		glBindVertexArray(mesh->m_vao);
-		
-		//Positions
-		glBindBuffer(GL_ARRAY_BUFFER, mesh->m_vbo[0]);
-		glBufferData(GL_ARRAY_BUFFER, pScene->mMeshes[i]->mNumVertices * sizeof(aiVector3D), pScene->mMeshes[i]->mVertices, GL_STATIC_DRAW);
-
-		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
-
-		//Texture Coords
-		glBindBuffer(GL_ARRAY_BUFFER, mesh->m_vbo[1]);
-		glBufferData(GL_ARRAY_BUFFER, pScene->mMeshes[i]->mNumVertices * sizeof(aiVector3D), &pScene->mMeshes[i]->mTextureCoords[0][0], GL_STATIC_DRAW);
-
-		glEnableVertexAttribArray(1);
-		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 3 * sizeof(ai_real), 0);
-
-		//Normals
-		glBindBuffer(GL_ARRAY_BUFFER, mesh->m_vbo[2]);
-		glBufferData(GL_ARRAY_BUFFER, pScene->mMeshes[i]->mNumVertices * sizeof(aiVector3D), pScene->mMeshes[i]->mNormals, GL_STATIC_DRAW);
-
-		glEnableVertexAttribArray(2);
-		glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, 0);
-
-		
-		
-
-		unsigned int *faceArray;
-		faceArray = (unsigned int *)malloc(sizeof(unsigned int) * pScene->mMeshes[i]->mNumFaces * 3);
-		unsigned int faceIndex = 0;
-
-		for (unsigned int t = 0; t < pScene->mMeshes[i]->mNumFaces; ++t) {
-			const aiFace* face = &pScene->mMeshes[i]->mFaces[t];
-
-			memcpy(&faceArray[faceIndex], face->mIndices, 3 * sizeof(unsigned int));
-			faceIndex += 3;
-		}
-		
-		//Indices
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->m_ibo);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, mesh->m_drawCount * sizeof(unsigned int), faceArray, GL_STATIC_DRAW);
-
-		glBindVertexArray(0);
-	}
+	const aiScene* pScene = Importer.ReadFile(a_filename, ASSIMP_LOAD_FLAGS);
 	
+	bool exportTangents = false;
+	bool isStacked = false;
+	m_numberOfMeshes = pScene->mNumMeshes;
+	
+	for (int j = 0; j < pScene->mNumMeshes; j++) {
+
+		const aiMesh* aiMesh = pScene->mMeshes[j];
+
+		m_meshes.push_back(new AssimpMesh(this));
+		AssimpMesh* mesh = m_meshes.back();
+		mesh->m_numberOfTriangles = aiMesh->mNumFaces;
+		
+		
+		const aiMaterial* aiMaterial = pScene->mMaterials[aiMesh->mMaterialIndex];
+
+		AssimpModel::ReadAiMaterial(aiMaterial, mesh->m_material);
+
+
+		isStacked ? m_hasTextureCoords = aiMesh->HasTextureCoords(0) : mesh->m_hasTextureCoords = aiMesh->HasTextureCoords(0);
+		isStacked ? m_hasNormals = aiMesh->HasNormals() : mesh->m_hasNormals = aiMesh->HasNormals();
+		isStacked ? m_hasTangents = aiMesh->HasTangentsAndBitangents() & exportTangents : mesh->m_hasTangents = aiMesh->HasTangentsAndBitangents() & exportTangents;
+
+		isStacked ? m_stride = m_hasTangents ? 14 : (m_hasNormals && m_hasTextureCoords) ? 8 : m_hasNormals ? 6 : m_hasTextureCoords ? 5 : 3 
+				  : mesh->m_stride = mesh->m_hasTangents ? 14 : (mesh->m_hasNormals && mesh->m_hasTextureCoords) ? 8 : mesh->m_hasNormals ? 6 : mesh->m_hasTextureCoords ? 5 : 3;
+
+		if (!isStacked) {
+			for (unsigned int i = 0; i < aiMesh->mNumVertices; i++) {
+				mesh->m_vertexBuffer.push_back(aiMesh->mVertices[i].x); mesh->m_vertexBuffer.push_back(aiMesh->mVertices[i].y); mesh->m_vertexBuffer.push_back(aiMesh->mVertices[i].z);
+				if (mesh->m_hasTextureCoords) {
+					mesh->m_vertexBuffer.push_back(aiMesh->mTextureCoords[0][i].x); mesh->m_vertexBuffer.push_back(aiMesh->mTextureCoords[0][i].y);
+				}
+				mesh->m_vertexBuffer.push_back(aiMesh->mNormals[i].x); mesh->m_vertexBuffer.push_back(aiMesh->mNormals[i].y); mesh->m_vertexBuffer.push_back(aiMesh->mNormals[i].z);
+
+				if (mesh->m_hasTangents) {
+					mesh->m_vertexBuffer.push_back(aiMesh->mTangents[i].x); mesh->m_vertexBuffer.push_back(aiMesh->mTangents[i].y); mesh->m_vertexBuffer.push_back(aiMesh->mTangents[i].z);
+					mesh->m_vertexBuffer.push_back(aiMesh->mBitangents[i].x); mesh->m_vertexBuffer.push_back(aiMesh->mBitangents[i].y); mesh->m_vertexBuffer.push_back(aiMesh->mBitangents[i].z);
+				}
+			}
+
+			for (unsigned int t = 0; t < aiMesh->mNumFaces; ++t) {
+				const aiFace* face = &aiMesh->mFaces[t];
+				mesh->m_indexBuffer.push_back(face->mIndices[0]);
+				mesh->m_indexBuffer.push_back(face->mIndices[1]);
+				mesh->m_indexBuffer.push_back(face->mIndices[2]);
+			}
+
+			AssimpModel::CreateBuffer(mesh->m_vertexBuffer,
+				mesh->m_indexBuffer,
+				mesh->m_drawCount,
+				mesh->m_vao,
+				mesh->m_vbo,
+				mesh->m_ibo,
+				mesh->m_stride);
+		}else {
+			for (unsigned int i = 0; i < aiMesh->mNumVertices; i++) {
+				m_vertexBuffer.push_back(aiMesh->mVertices[i].x); m_vertexBuffer.push_back(aiMesh->mVertices[i].y); m_vertexBuffer.push_back(aiMesh->mVertices[i].z);
+				if (m_hasTextureCoords) {
+					m_vertexBuffer.push_back(aiMesh->mTextureCoords[0][i].x); m_vertexBuffer.push_back(aiMesh->mTextureCoords[0][i].y);
+				}
+				m_vertexBuffer.push_back(aiMesh->mNormals[i].x); m_vertexBuffer.push_back(aiMesh->mNormals[i].y); m_vertexBuffer.push_back(aiMesh->mNormals[i].z);
+
+				if (m_hasTangents) {
+					m_vertexBuffer.push_back(aiMesh->mTangents[i].x); m_vertexBuffer.push_back(aiMesh->mTangents[i].y); m_vertexBuffer.push_back(aiMesh->mTangents[i].z);
+					m_vertexBuffer.push_back(aiMesh->mBitangents[i].x); m_vertexBuffer.push_back(aiMesh->mBitangents[i].y); m_vertexBuffer.push_back(aiMesh->mBitangents[i].z);
+				}
+			}
+
+			for (unsigned int t = 0; t < aiMesh->mNumFaces; ++t) {
+				const aiFace* face = &aiMesh->mFaces[t];
+				m_indexBuffer.push_back(face->mIndices[0]);
+				m_indexBuffer.push_back(face->mIndices[1]);
+				m_indexBuffer.push_back(face->mIndices[2]);
+			}
+
+			AssimpModel::CreateBuffer(m_vertexBuffer, m_indexBuffer, m_drawCount, m_vao, m_vbo, m_ibo, m_stride);
+		}
+		
+	}
+	Importer.FreeScene();
 	return true;
 }
 
@@ -223,17 +199,291 @@ void AssimpModel::updateInstances(std::vector<Matrix4f>& modelMTX) {
 
 void AssimpModel::drawRaw() {
 	for (int j = 0; j < m_numberOfMeshes; j++) {
-		m_mesh[j]->drawRaw();
+		m_meshes[j]->drawRaw();
+	}
+}
+
+void AssimpModel::draw(Camera& camera) {
+	for (int i = 0; i < m_meshes.size(); i++) {
+		m_meshes[i]->updateMaterialUbo(BuiltInShader::materialUbo);
+		glUseProgram(m_shader[i]->m_program);
+
+		m_shader[i]->loadMatrix("u_projection", camera.getProjectionMatrix());
+		m_shader[i]->loadMatrix("u_view", camera.getViewMatrix());
+		m_shader[i]->loadMatrix("u_model", m_transform.getTransformationMatrix());
+
+		m_textures[i].bind(0);
+		m_meshes[i]->drawRaw();
+
+		glUseProgram(0);
+	}
+
+	Texture::Unbind();
+}
+
+void AssimpModel::initAssets(bool instanced) {
+
+	if (!BuiltInShader::materialUbo) {
+		glGenBuffers(1, &BuiltInShader::materialUbo);
+		glBindBuffer(GL_UNIFORM_BUFFER, BuiltInShader::materialUbo);
+		glBufferData(GL_UNIFORM_BUFFER, 52, NULL, GL_STATIC_DRAW);
+		glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+		glBindBufferRange(GL_UNIFORM_BUFFER, BuiltInShader::materialBinding, BuiltInShader::materialUbo, 0, 52);
+	}
+
+	if (!BuiltInShader::viewUbo && instanced) {
+		glGenBuffers(1, &BuiltInShader::materialUbo);
+		glBindBuffer(GL_UNIFORM_BUFFER, BuiltInShader::materialUbo);
+		glBufferData(GL_UNIFORM_BUFFER, 64, NULL, GL_STATIC_DRAW);
+		glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+		glBindBufferRange(GL_UNIFORM_BUFFER, BuiltInShader::viewBinding, BuiltInShader::viewUbo, 0, 52);
+	}
+
+	for (int i = 0; i < m_meshes.size(); i++) {
+		if (m_meshes[i]->m_material.diffuseTexPath.empty()) {
+
+			if (!m_shaderManager.checkAsset(instanced ? "diffuse_instance" : "diffuse")) {
+				m_shaderManager.loadShaderFromString(instanced ? "diffuse_instance" : "diffuse", instanced ? DIFFUSE_INSTANCE_VS : DIFFUSE_VS, instanced ? DIFFUSE_INSTANCE_FS : DIFFUSE_FS);
+
+				glUniformBlockBinding(m_shaderManager.getAssetPointer(instanced ? "diffuse_instance" : "diffuse")->m_program, glGetUniformBlockIndex(m_shaderManager.getAssetPointer(instanced ? "diffuse_instance" : "diffuse")->m_program, "u_material"), BuiltInShader::materialBinding);
+
+				if (instanced) {
+					glUniformBlockBinding(m_shaderManager.getAssetPointer("diffuse_instance")->m_program, glGetUniformBlockIndex(m_shaderManager.getAssetPointer("diffuse_instance")->m_program, "u_view"), BuiltInShader::viewBinding);
+				}
+			}
+			m_shader[i] = m_shaderManager.getAssetPointer(instanced ? "diffuse_instance" : "diffuse");
+			m_textures[i] = Texture();
+
+		}else {
+			if (!m_shaderManager.checkAsset(instanced ? "diffuse_texture_instance" : "diffuse_texture")) {
+				m_shaderManager.loadShaderFromString(instanced ? "diffuse_texture_instance" : "diffuse_texture", instanced ? DIFFUSE_TEXTURE_INSTANCE_VS : DIFFUSE_TEXTURE_VS, instanced ? DIFFUSE_TEXTURE_INSTANCE_FS : DIFFUSE_TEXTURE_FS);
+
+				glUniformBlockBinding(m_shaderManager.getAssetPointer(instanced ? "diffuse_texture_instance" : "diffuse_texture")->m_program, glGetUniformBlockIndex(m_shaderManager.getAssetPointer(instanced ? "diffuse_texture_instance" : "diffuse_texture")->m_program, "u_material"), BuiltInShader::materialBinding);
+
+				if (instanced) {
+					glUniformBlockBinding(m_shaderManager.getAssetPointer("diffuse_texture_instance")->m_program, glGetUniformBlockIndex(m_shaderManager.getAssetPointer("diffuse_texture_instance")->m_program, "u_view"), BuiltInShader::viewBinding);
+				}
+
+				glUseProgram(m_shaderManager.getAssetPointer(instanced ? "diffuse_texture_instance" : "diffuse_texture")->m_program);
+				m_shaderManager.getAssetPointer(instanced ? "diffuse_texture_instance" : "diffuse_texture")->loadInt("u_texture", 0);
+				glUseProgram(0);
+			}
+
+			std::string texture = m_meshes[i]->m_material.diffuseTexPath;
+			int foundSlash = texture.find_last_of("/\\");
+
+			int foundDot = texture.find_last_of(".");
+			foundDot = (foundDot < 0 ? texture.length() : foundDot);
+			foundDot = foundSlash < 0 ? foundDot : foundDot - 1;
+			std::string textureName = texture.substr(foundSlash + 1, foundDot);
+			if (!m_textureManager.checkAsset(textureName)) {
+				m_textureManager.loadTexture(textureName, foundSlash < 0 ? m_modelDirectory + "/" + texture.substr(foundSlash + 1) : texture, true);
+			}
+			m_textures[i] = m_textureManager.get(textureName);
+			m_shader[i] = m_shaderManager.getAssetPointer(instanced ? "diffuse_texture_instance" : "diffuse_texture");
+		}
+	}
+}
+
+void AssimpModel::initAssets(AssetManager<Shader>& shaderManager, AssetManager<Texture>& textureManager, bool instanced) {
+
+	if (!BuiltInShader::materialUbo) {
+		glGenBuffers(1, &BuiltInShader::materialUbo);
+		glBindBuffer(GL_UNIFORM_BUFFER, BuiltInShader::materialUbo);
+		glBufferData(GL_UNIFORM_BUFFER, 52, NULL, GL_STATIC_DRAW);
+		glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+		glBindBufferRange(GL_UNIFORM_BUFFER, BuiltInShader::materialBinding, BuiltInShader::materialUbo, 0, 52);
+	}
+
+	if (!BuiltInShader::viewUbo && instanced) {
+		glGenBuffers(1, &BuiltInShader::viewUbo);
+		glBindBuffer(GL_UNIFORM_BUFFER, BuiltInShader::viewUbo);
+		glBufferData(GL_UNIFORM_BUFFER, 64, NULL, GL_STATIC_DRAW);
+		glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+		glBindBufferRange(GL_UNIFORM_BUFFER, BuiltInShader::viewBinding, BuiltInShader::viewUbo, 0, 64);
+	}
+
+	for (int i = 0; i < m_meshes.size(); i++) {
+		if (m_meshes[i]->m_material.diffuseTexPath.empty()) {
+
+			if (!shaderManager.checkAsset(instanced ? "diffuse_instance" : "diffuse")) {
+				shaderManager.loadShaderFromString(instanced ? "diffuse_instance" : "diffuse", instanced ? DIFFUSE_INSTANCE_VS : DIFFUSE_VS, instanced ? DIFFUSE_INSTANCE_FS : DIFFUSE_FS);
+
+				glUniformBlockBinding(shaderManager.getAssetPointer(instanced ? "diffuse_instance" : "diffuse")->m_program, glGetUniformBlockIndex(shaderManager.getAssetPointer(instanced ? "diffuse_instance" : "diffuse")->m_program, "u_material"), BuiltInShader::materialBinding);
+
+				if (instanced) {
+					glUniformBlockBinding(shaderManager.getAssetPointer("diffuse_instance")->m_program, glGetUniformBlockIndex(shaderManager.getAssetPointer("diffuse_instance")->m_program, "u_view"), BuiltInShader::viewBinding);
+				}
+
+			}
+			m_shader[i] = shaderManager.getAssetPointer(instanced ? "diffuse_instance" : "diffuse");
+			m_textures[i] = Texture();
+
+		}else {
+			if (!shaderManager.checkAsset(instanced ? "diffuse_texture_instance" : "diffuse_texture")) {
+				shaderManager.loadShaderFromString(instanced ? "diffuse_texture_instance" : "diffuse_texture", instanced ? DIFFUSE_TEXTURE_INSTANCE_VS : DIFFUSE_TEXTURE_VS, instanced ? DIFFUSE_TEXTURE_INSTANCE_FS : DIFFUSE_TEXTURE_FS);
+
+				glUniformBlockBinding(shaderManager.getAssetPointer(instanced ? "diffuse_texture_instance" : "diffuse_texture")->m_program, glGetUniformBlockIndex(shaderManager.getAssetPointer(instanced ? "diffuse_texture_instance" : "diffuse_texture")->m_program, "u_material"), BuiltInShader::materialBinding);
+
+				if (instanced) {
+					glUniformBlockBinding(shaderManager.getAssetPointer("diffuse_texture_instance")->m_program, glGetUniformBlockIndex(shaderManager.getAssetPointer("diffuse_texture_instance")->m_program, "u_view"), BuiltInShader::viewBinding);
+				}
+
+				glUseProgram(shaderManager.getAssetPointer(instanced ? "diffuse_texture_instance" : "diffuse_texture")->m_program);
+				shaderManager.getAssetPointer(instanced ? "diffuse_texture_instance" : "diffuse_texture")->loadInt("u_texture", 0);
+				glUseProgram(0);
+			}
+
+			std::string texture = m_meshes[i]->m_material.diffuseTexPath;
+			int foundSlash = texture.find_last_of("/\\");
+
+			int foundDot = texture.find_last_of(".");
+			foundDot = (foundDot < 0 ? texture.length() : foundDot);
+			foundDot = foundSlash < 0 ? foundDot : foundDot - 1;
+			std::string textureName = texture.substr(foundSlash + 1, foundDot);
+			if (!textureManager.checkAsset(textureName)) {
+				textureManager.loadTexture(textureName, foundSlash < 0 ? m_modelDirectory + "/" + texture.substr(foundSlash + 1) : texture, true);
+			}
+			m_textures[i] = textureManager.get(textureName);
+			m_shader[i] = shaderManager.getAssetPointer(instanced ? "diffuse_texture_instance" : "diffuse_texture");
+		}
 	}
 }
 
 void AssimpModel::CreateBuffer(std::vector<float>& vertexBuffer, std::vector<unsigned int> indexBuffer, unsigned int& drawCount, unsigned int& vao, unsigned int(&vbo)[5], unsigned int& ibo, unsigned int stride) {
+	drawCount = indexBuffer.size();
 
+	if (vao)
+		glDeleteVertexArrays(1, &vao);
+
+	if (vbo[0])
+		glDeleteBuffers(1, &vbo[0]);
+
+	if (vbo[1])
+		glDeleteBuffers(1, &vbo[1]);
+
+	if (vbo[2])
+		glDeleteBuffers(1, &vbo[2]);
+
+	if (vbo[3])
+		glDeleteBuffers(1, &vbo[3]);
+
+	if (vbo[4])
+		glDeleteBuffers(1, &vbo[4]);
+
+	if (ibo)
+		glDeleteBuffers(1, &ibo);
+
+
+	glGenBuffers(5, vbo);
+	glGenBuffers(1, &ibo);
+
+	glGenVertexArrays(1, &vao);
+	glBindVertexArray(vao);
+
+	//Positions
+	glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
+	glBufferData(GL_ARRAY_BUFFER, vertexBuffer.size() * sizeof(float), &vertexBuffer[0], GL_STATIC_DRAW);
+
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)0);
+
+	//Texture Coordinates
+	if (stride == 5 || stride == 8 || stride == 14) {
+
+		glBindBuffer(GL_ARRAY_BUFFER, vbo[1]);
+		glBufferData(GL_ARRAY_BUFFER, vertexBuffer.size() * sizeof(float), &vertexBuffer[0], GL_STATIC_DRAW);
+
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)(3 * sizeof(float)));
+	}
+
+	//Normals
+	if (stride == 6 || stride == 8 || stride == 14) {
+		glBindBuffer(GL_ARRAY_BUFFER, vbo[2]);
+		glBufferData(GL_ARRAY_BUFFER, vertexBuffer.size() * sizeof(float), &vertexBuffer[0], GL_STATIC_DRAW);
+
+		glEnableVertexAttribArray(2);
+		glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)((stride == 8 || stride == 14) ? 5 * sizeof(float) : 3 * sizeof(float)));
+	}
+
+	//Tangents Bitangents
+	if (stride == 14) {
+		glBindBuffer(GL_ARRAY_BUFFER, vbo[3]);
+		glBufferData(GL_ARRAY_BUFFER, vertexBuffer.size() * sizeof(float), &vertexBuffer[0], GL_STATIC_DRAW);
+
+		glEnableVertexAttribArray(3);
+		glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)(8 * sizeof(float)));
+
+		glBindBuffer(GL_ARRAY_BUFFER, vbo[4]);
+		glBufferData(GL_ARRAY_BUFFER, vertexBuffer.size() * sizeof(float), &vertexBuffer[0], GL_STATIC_DRAW);
+
+		glEnableVertexAttribArray(4);
+		glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)(11 * sizeof(float)));
+
+	}
+
+	//Indices
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexBuffer.size() * sizeof(unsigned int), &indexBuffer[0], GL_STATIC_DRAW);
+
+	glBindVertexArray(0);
 }
 
+void AssimpModel::ReadAiMaterial(const aiMaterial* aiMaterial, Material& material) {
+	float shininess = 0.0f;
+	aiColor4D diffuse = aiColor4D(0.0f, 0.0f, 0.0f, 0.0f);
+	aiColor4D ambient = aiColor4D(0.0f, 0.0f, 0.0f, 0.0f);
+	aiColor4D specular = aiColor4D(0.0f, 0.0f, 0.0f, 0.0f);
 
+	if (AI_SUCCESS == aiGetMaterialColor(aiMaterial, AI_MATKEY_COLOR_DIFFUSE, &diffuse)) {
+		//std::cout << "Diffuse: " << diffuse.r << "  " << diffuse.g << "  " << diffuse.b << "  " << diffuse.a << std::endl;
+	}
+
+	material.diffuse[0] = diffuse.r;
+	material.diffuse[1] = diffuse.g;
+	material.diffuse[2] = diffuse.b;
+	material.diffuse[3] = diffuse.a;
+
+	if (AI_SUCCESS == aiGetMaterialColor(aiMaterial, AI_MATKEY_COLOR_AMBIENT, &ambient)) {
+		//std::cout << "Ambient: " << ambient.r << "  " << ambient.g << "  " << ambient.b << "  " << ambient.a << std::endl;
+	}
+
+	material.ambient[0] = ambient.r;
+	material.ambient[1] = ambient.g;
+	material.ambient[2] = ambient.b;
+	material.ambient[3] = ambient.a;
+
+	if (AI_SUCCESS == aiGetMaterialColor(aiMaterial, AI_MATKEY_COLOR_SPECULAR, &specular)) {
+		//std::cout << "Specular: " << specular.r << "  " << specular.g << "  " << specular.b << "  " << specular.a << std::endl;
+	}
+
+	material.specular[0] = specular.r;
+	material.specular[1] = specular.g;
+	material.specular[2] = specular.b;
+	material.specular[3] = specular.a;
+
+	if (AI_SUCCESS == aiGetMaterialFloat(aiMaterial, AI_MATKEY_SHININESS, &shininess)) {
+		//std::cout << "Shininess: " << shininess << std::endl;
+	}
+
+	material.shininess = shininess;
+
+	int numDiffuseTextures = aiMaterial->GetTextureCount(aiTextureType_DIFFUSE);
+	if (numDiffuseTextures > 0) {
+		aiString name;
+		aiMaterial->Get(AI_MATKEY_TEXTURE(aiTextureType_DIFFUSE, 0), name);
+		material.diffuseTexPath = name.data;
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 AssimpMesh::AssimpMesh(AssimpModel* model) {
-
+	m_model = model;
 }
 
 AssimpMesh::~AssimpMesh() {
@@ -245,4 +495,13 @@ void AssimpMesh::drawRaw() {
 	glBindVertexArray(m_vao);
 	glDrawElements(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
+}
+
+void AssimpMesh::updateMaterialUbo(unsigned int& ubo) {
+	glBindBuffer(GL_UNIFORM_BUFFER, ubo);
+	glBufferSubData(GL_UNIFORM_BUFFER, 0, 16, &m_material.ambient);
+	glBufferSubData(GL_UNIFORM_BUFFER, 16, 32, &m_material.diffuse);
+	glBufferSubData(GL_UNIFORM_BUFFER, 32, 48, &m_material.specular);
+	glBufferSubData(GL_UNIFORM_BUFFER, 48, 52, &m_material.shininess);
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }

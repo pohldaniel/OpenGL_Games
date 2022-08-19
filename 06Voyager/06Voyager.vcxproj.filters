@@ -960,6 +960,9 @@
     <ClInclude Include="AssimpModel.h">
       <Filter>engine</Filter>
     </ClInclude>
+    <ClInclude Include="BuiltInShader.h">
+      <Filter>engine</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine\input\EventDispatcher.cpp">
@@ -1578,6 +1581,9 @@
       <Filter>tinyxml</Filter>
     </ClCompile>
     <ClCompile Include="AssimpModel.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="BuiltInShader.cpp">
       <Filter>engine</Filter>
     </ClCompile>
   </ItemGroup>

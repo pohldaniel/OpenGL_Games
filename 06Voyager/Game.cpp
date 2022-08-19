@@ -206,7 +206,13 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_water(
 	dragonStacked->generateNormals();
 	dragonStacked->initAssets(Globals::shaderManager, Globals::textureManager);
 
+	position[0] = HEIGHTMAP_WIDTH * 0.5f + 1300.0f;
+	position[2] = HEIGHTMAP_WIDTH * 0.5f + 700.0f;
+	position[1] = m_terrain.getHeightMap().heightAt(HEIGHTMAP_WIDTH * 0.5f + 800.0f, HEIGHTMAP_WIDTH * 0.5f + 300.0f) + 200.0f;
+
 	dragonAssimp.loadModel("res/models/dragon/dragon.obj");
+	dragonAssimp.initAssets(Globals::shaderManager, Globals::textureManager);
+	dragonAssimp.getTransform().setRotPosScale(Vector3f(1.0f, 0.0f, 0.0f), -90.0f, position[0], position[1], position[2], 10.0f, 10.0f, 10.0f);
 }
 
 Game::~Game() {}
@@ -373,7 +379,7 @@ void Game::update() {
 };
 
 void Game::render(unsigned int &frameBuffer) {
-	ObjModel::UpdateViewUbo(m_camera);
+	BuiltInShader::UpdateViewUbo(m_camera);
 
 	renderOffscreen();
 	shadowPass();
@@ -422,20 +428,12 @@ void Game::render(unsigned int &frameBuffer) {
 	m_car->draw(m_camera);
 	cowboy.draw(m_camera);
 
-	shader = Globals::shaderManager.getAssetPointer("normal");
-	glUseProgram(shader->m_program);
-	shader->loadMatrix("u_projection", Globals::projection);
-	shader->loadMatrix("u_view", m_camera.getViewMatrix());
-	shader->loadMatrix("u_model", dragonCompare->getTransformationMatrix());
-	dragonCompare->drawRaw();
-
-	shader->loadMatrix("u_model", dragonGN->getTransformationMatrix());
-	dragonGN->drawRaw();
-
-	shader->loadMatrix("u_model", dragonStacked->getTransformationMatrix());
-	//dragonStacked->drawRawStacked();
-	dragonAssimp.drawRaw();
-	glUseProgram(0);
+	if (!m_debugNormal) {
+		dragonCompare->draw(m_camera);
+		dragonGN->draw(m_camera);
+		dragonStacked->drawStacked(m_camera);
+		dragonAssimp.draw(m_camera);
+	}
 
 	if (m_debugNormal) {
 		auto normalGS = Globals::shaderManager.getAssetPointer("normalGS");
@@ -445,6 +443,22 @@ void Game::render(unsigned int &frameBuffer) {
 		normalGS->loadMatrix("u_model", m_barrel->getTransformationMatrix());
 		normalGS->loadMatrix("u_normal", Matrix4f::GetNormalMatrix(m_camera.getViewMatrix() * m_barrel->getTransformationMatrix()));
 		m_barrel->drawShadow(m_camera);
+		glUseProgram(0);
+
+		shader = Globals::shaderManager.getAssetPointer("normal");
+		glUseProgram(shader->m_program);
+		shader->loadMatrix("u_transform", Globals::projection * m_camera.getViewMatrix() * dragonCompare->getTransformationMatrix());
+		dragonCompare->drawRaw();
+
+		shader->loadMatrix("u_transform", Globals::projection * m_camera.getViewMatrix() * dragonGN->getTransformationMatrix());
+		dragonGN->drawRaw();
+
+		shader->loadMatrix("u_transform", Globals::projection * m_camera.getViewMatrix() * dragonStacked->getTransformationMatrix());
+		dragonStacked->drawRawStacked();
+
+		shader->loadMatrix("u_transform", Globals::projection * m_camera.getViewMatrix() * dragonAssimp.getTransformationMatrix());
+		dragonAssimp.drawRaw();
+
 		glUseProgram(0);
 	}
 
