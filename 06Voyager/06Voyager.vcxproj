@@ -155,9 +155,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Application.h" />
-    <ClInclude Include="AssimpModel.h" />
     <ClInclude Include="Barrel.h" />
-    <ClInclude Include="BuiltInShader.h" />
     <ClInclude Include="Bullet\BulletCollision\BroadphaseCollision\btAxisSweep3.h" />
     <ClInclude Include="Bullet\BulletCollision\BroadphaseCollision\btAxisSweep3Internal.h" />
     <ClInclude Include="Bullet\BulletCollision\BroadphaseCollision\btBroadphaseInterface.h" />
@@ -400,6 +398,8 @@
     <ClInclude Include="engine\animation\ColladaLoader\ColladaLoader.h" />
     <ClInclude Include="engine\animation\Render\AnimationShader.h" />
     <ClInclude Include="engine\AssetManger.h" />
+    <ClInclude Include="engine\AssimpModel.h" />
+    <ClInclude Include="engine\BuiltInShader.h" />
     <ClInclude Include="engine\Camera.h" />
     <ClInclude Include="engine\Clock.h" />
     <ClInclude Include="engine\Extension.h" />
@@ -442,9 +442,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Application.cpp" />
-    <ClCompile Include="AssimpModel.cpp" />
     <ClCompile Include="Barrel.cpp" />
-    <ClCompile Include="BuiltInShader.cpp" />
     <ClCompile Include="Bullet\BulletCollision\BroadphaseCollision\btAxisSweep3.cpp" />
     <ClCompile Include="Bullet\BulletCollision\BroadphaseCollision\btBroadphaseProxy.cpp" />
     <ClCompile Include="Bullet\BulletCollision\BroadphaseCollision\btCollisionAlgorithm.cpp" />
@@ -605,6 +603,8 @@
     <ClCompile Include="engine\animation\Animator\Animator.cpp" />
     <ClCompile Include="engine\animation\ColladaLoader\ColladaLoader.cpp" />
     <ClCompile Include="engine\animation\Render\AnimationShader.cpp" />
+    <ClCompile Include="engine\AssimpModel.cpp" />
+    <ClCompile Include="engine\BuiltInShader.cpp" />
     <ClCompile Include="engine\Camera.cpp" />
     <ClCompile Include="engine\Extension.cpp" />
     <ClCompile Include="engine\Framebuffer.cpp" />

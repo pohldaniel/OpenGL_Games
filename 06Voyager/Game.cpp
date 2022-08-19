@@ -423,8 +423,7 @@ void Game::render(unsigned int &frameBuffer) {
 	}
 	//m_bottom->draw(m_camera);
 
-	m_mousePicker.draw(m_camera);
-
+	
 	m_car->draw(m_camera);
 	cowboy.draw(m_camera);
 
@@ -462,8 +461,11 @@ void Game::render(unsigned int &frameBuffer) {
 		glUseProgram(0);
 	}
 
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	m_mousePicker.draw(m_camera);
+
 	m_skybox.render(m_camera);
-	//m_ray.draw(m_camera);
+
 	m_text->render();
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);	
 

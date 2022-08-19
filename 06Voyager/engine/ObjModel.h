@@ -19,7 +19,7 @@
 #include "Camera.h"
 #include "Transform.h"
 #include "AssetManger.h"
-#include "..\BuiltInShader.h"
+#include "BuiltInShader.h"
 #include "..\Miniball\Miniball.h"
 
 

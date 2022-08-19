@@ -26,4 +26,6 @@ namespace Globals {
 	extern AssetManager<Cubemap> cubemapManager;
 
 	extern Physics *physics;
+
+	extern bool enableWireframe;
 }

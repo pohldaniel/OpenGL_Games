@@ -15,6 +15,7 @@ extern AssetManager<Texture> Globals::textureManager = AssetManager<Texture>();
 extern AssetManager<Spritesheet> Globals::spritesheetManager = AssetManager<Spritesheet>();
 extern AssetManager<Cubemap> Globals::cubemapManager = AssetManager<Cubemap>();
 extern Physics* Globals::physics = NULL;
+extern bool Globals::enableWireframe = false;
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd) {
 

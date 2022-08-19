@@ -957,10 +957,10 @@
     <ClInclude Include="tinyxml\tinyxml.h">
       <Filter>tinyxml</Filter>
     </ClInclude>
-    <ClInclude Include="AssimpModel.h">
+    <ClInclude Include="engine\AssimpModel.h">
       <Filter>engine</Filter>
     </ClInclude>
-    <ClInclude Include="BuiltInShader.h">
+    <ClInclude Include="engine\BuiltInShader.h">
       <Filter>engine</Filter>
     </ClInclude>
   </ItemGroup>
@@ -1580,10 +1580,10 @@
     <ClCompile Include="tinyxml\tinyxmlparser.cpp">
       <Filter>tinyxml</Filter>
     </ClCompile>
-    <ClCompile Include="AssimpModel.cpp">
+    <ClCompile Include="engine\AssimpModel.cpp">
       <Filter>engine</Filter>
     </ClCompile>
-    <ClCompile Include="BuiltInShader.cpp">
+    <ClCompile Include="engine\BuiltInShader.cpp">
       <Filter>engine</Filter>
     </ClCompile>
   </ItemGroup>

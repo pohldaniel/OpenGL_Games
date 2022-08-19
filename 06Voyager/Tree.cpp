@@ -56,7 +56,7 @@ void Tree::draw(const Camera& camera) {
 	drawAABB(camera);
 	drawSphere(camera);
 	drawHull(camera);
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	glPolygonMode(GL_FRONT_AND_BACK, Globals::enableWireframe ? GL_LINE : GL_FILL);
 }
 
 void Tree::setDrawBorder(bool flag) {

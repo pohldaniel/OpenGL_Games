@@ -8,6 +8,7 @@
 #include "engine/MeshObject/MeshQuad.h"
 #include "engine/MeshObject/MeshCube.h"
 #include "engine/ObjModel.h"
+#include "engine/AssimpModel.h"
 #include "engine/animation/AnimatedModel/AnimatedModel.h"
 #include "CharacterSetBmp.h"
 #include "Text.h"
@@ -23,7 +24,6 @@
 #include "Ray.h"
 #include "MousePicker.h"
 #include "PhysicsCar.h"
-#include "AssimpModel.h"
 
 class RayResultCallback : public btCollisionWorld::ClosestRayResultCallback{
 public:

@@ -33,7 +33,7 @@ public:
 
 	void clearAndPush(State* state);
 	void toggleWireframe() {
-		m_enableWireframe = !m_enableWireframe;
+		Globals::enableWireframe = !Globals::enableWireframe;
 	}
 	const bool isRunning() const;
 
@@ -51,7 +51,7 @@ private:
 	unsigned int m_frameBuffer;
 	unsigned int m_rbDepthStencil;
 	bool m_isRunning = true;
-	bool m_enableWireframe = false;
+	
 };
 
 class State {

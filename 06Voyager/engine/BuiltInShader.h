@@ -1,7 +1,7 @@
 #pragma once
 
-#include "engine/Extension.h"
-#include "engine/Camera.h"
+#include "Extension.h"
+#include "Camera.h"
 
 #define DIFFUSE_VS	"#version 410 core														\n \
 																							\n \

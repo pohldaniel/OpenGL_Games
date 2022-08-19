@@ -7,13 +7,13 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
-#include "engine\Vector.h"
-#include "engine\Extension.h"
-#include "engine\Shader.h"
-#include "engine\Texture.h"
-#include "engine\Camera.h"
-#include "engine\Transform.h"
-#include "engine\AssetManger.h"
+#include "Vector.h"
+#include "Extension.h"
+#include "Shader.h"
+#include "Texture.h"
+#include "Camera.h"
+#include "Transform.h"
+#include "AssetManger.h"
 #include "BuiltInShader.h"
 
 #define ASSIMP_LOAD_FLAGS (aiProcess_JoinIdenticalVertices | aiProcess_RemoveRedundantMaterials | aiProcess_PreTransformVertices)
