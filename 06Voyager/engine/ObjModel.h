@@ -26,7 +26,7 @@
 class ObjModel;
 struct BoundingBox {
 
-	void createBuffer(ObjModel& model);
+	void createBuffer();
 	void drawRaw();
 
 	std::vector<float> m_vertexBuffer;
@@ -42,7 +42,7 @@ struct BoundingBox {
 
 struct BoundingSphere {
 
-	void createBuffer(ObjModel& model);
+	void createBuffer(ObjModel& model);	
 	void drawRaw();
 
 	std::vector<float> m_vertexBuffer;
@@ -111,7 +111,6 @@ public:
 		std::string displacementMapPath;
 	};
 
-
 	ObjModel();
 	~ObjModel();
 
@@ -142,8 +141,8 @@ public:
 	void drawSphere();
 	void drawHull();
 
-	bool loadObject(const char* filename, bool asStackedModel = false, bool withoutNormals = false, bool generateSmoothNormals = false, bool generateFlatNormals = false, bool generateSmoothTangents = false);
-	bool loadObject(const char* a_filename, Vector3f& rotate, float degree, Vector3f& translate, float scale, bool asStackedModel = false, bool withoutNormals = false, bool generateSmoothNormals = false, bool generateFlatNormals = false, bool generateSmoothTangents = false);
+	bool loadObject(const char* filename, bool isStacked = false, bool withoutNormals = false, bool generateSmoothNormals = false, bool generateFlatNormals = false, bool generateSmoothTangents = false);
+	bool loadObject(const char* a_filename, Vector3f& rotate, float degree, Vector3f& translate, float scale, bool asStacked = false, bool withoutNormals = false, bool generateSmoothNormals = false, bool generateFlatNormals = false, bool generateSmoothTangents = false);
 
 	std::string getMltPath();
 	std::string getModelDirectory();
@@ -192,7 +191,6 @@ private:
 	std::vector<float> m_vertexBuffer;
 	std::vector<unsigned int> m_indexBuffer;
 
-	unsigned int m_drawCount = 0;
 	unsigned int m_instanceCount = 0;
 
 	unsigned int m_vao = 0;
@@ -200,7 +198,7 @@ private:
 	unsigned int m_ibo = 0;
 	unsigned int m_vboInstances = 0;
 
-	void static CreateBuffer(std::vector<float>& vertexBuffer, std::vector<unsigned int> indexBuffer, unsigned int& drawCount, unsigned int& vao, unsigned int(&vbo)[5], unsigned int& ibo, unsigned int stride);
+	void static CreateBuffer(std::vector<float>& vertexBuffer, std::vector<unsigned int> indexBuffer, unsigned int& vao, unsigned int(&vbo)[5], unsigned int& ibo, unsigned int stride);
 	void static GenerateNormals(std::vector<float>& vertexBuffer, std::vector<unsigned int>& indexBuffer, ObjModel& model, bool& hasNormals, unsigned int& stride, unsigned int startIndex, unsigned int endIndex);
 	void static GenerateTangents(std::vector<float>& vertexBuffer, std::vector<unsigned int>& indexBuffer, ObjModel& model, bool& hasNormals, bool& hasTangents, unsigned int& stride, unsigned int startIndex, unsigned int endIndex);
 

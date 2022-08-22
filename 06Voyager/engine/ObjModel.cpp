@@ -67,16 +67,16 @@ std::string ObjModel::getModelDirectory() {
 	return m_modelDirectory;
 }
 
-bool ObjModel::loadObject(const char* filename, bool asStackedModel, bool withoutNormals, bool generateSmoothNormals, bool generateFlatNormals, bool generateSmoothTangents) {
-	return loadObject(filename, Vector3f(0.0, 1.0, 0.0), 0.0, Vector3f(0.0, 0.0, 0.0), 1.0, asStackedModel, withoutNormals, generateSmoothNormals, generateFlatNormals, generateSmoothTangents);
+bool ObjModel::loadObject(const char* filename, bool isStacked, bool withoutNormals, bool generateSmoothNormals, bool generateFlatNormals, bool generateSmoothTangents) {
+	return loadObject(filename, Vector3f(0.0, 1.0, 0.0), 0.0, Vector3f(0.0, 0.0, 0.0), 1.0, isStacked, withoutNormals, generateSmoothNormals, generateFlatNormals, generateSmoothTangents);
 }
 
 bool compare(const std::array<int, 10> &i_lhs, const std::array<int, 10> &i_rhs) {
 	return i_lhs[9] < i_rhs[9];
 }
 
-bool ObjModel::loadObject(const char* a_filename, Vector3f& axis, float degree, Vector3f& translate, float scale, bool asStackedModel, bool withoutNormals, bool generateSmoothNormals, bool generateFlatNormals, bool generateSmoothTangents) {
-	m_isStacked = asStackedModel;
+bool ObjModel::loadObject(const char* a_filename, Vector3f& axis, float degree, Vector3f& translate, float scale, bool isStacked, bool withoutNormals, bool generateSmoothNormals, bool generateFlatNormals, bool generateSmoothTangents) {
+	m_isStacked = isStacked;
 
 	std::string filename(a_filename);
 
@@ -267,6 +267,7 @@ bool ObjModel::loadObject(const char* a_filename, Vector3f& axis, float degree, 
 	}// end while
 	fclose(pFile);
 
+	m_center = Vector3f((xmax + xmin) * 0.5f, (ymax + ymin) * 0.5f, (zmax + zmin) * 0.5f);
 	aabb.position = Vector3f(xmin, ymin, zmin);
 	aabb.size = Vector3f(xmax, ymax, zmax) - Vector3f(xmin, ymin, zmin);
 
@@ -366,18 +367,19 @@ bool ObjModel::loadObject(const char* a_filename, Vector3f& axis, float degree, 
 		if (!m_isStacked) {
 			m_meshes[j]->m_indexBuffer = indexBufferCreator.indexBufferOut;
 			m_meshes[j]->m_vertexBuffer = indexBufferCreator.vertexBufferOut;
+			m_meshes[j]->m_drawCount = indexBufferCreator.indexBufferOut.size();
 
 			ObjModel::CreateBuffer(m_meshes[j]->m_vertexBuffer,
 					m_meshes[j]->m_indexBuffer,
-					m_meshes[j]->m_drawCount,
 					m_meshes[j]->m_vao,
 					m_meshes[j]->m_vbo,
 					m_meshes[j]->m_ibo,
 					m_meshes[j]->m_stride);
 		}else {
-			m_meshes[j]->m_drawCount = subFace.size() * 3;
+			
 			m_meshes[j]->m_baseIndex = m_indexBuffer.size();
 			m_meshes[j]->m_baseVertex = m_vertexBuffer.size() / m_stride;
+			m_meshes[j]->m_drawCount = indexBufferCreator.indexBufferOut.size();
 
 			m_vertexBuffer.insert(m_vertexBuffer.end(), indexBufferCreator.vertexBufferOut.begin(), indexBufferCreator.vertexBufferOut.end());
 			m_indexBuffer.insert(m_indexBuffer.end(), indexBufferCreator.indexBufferOut.begin(), indexBufferCreator.indexBufferOut.end());
@@ -390,7 +392,7 @@ bool ObjModel::loadObject(const char* a_filename, Vector3f& axis, float degree, 
 	}
 
 	if (m_isStacked) {
-		ObjModel::CreateBuffer(m_vertexBuffer, m_indexBuffer, m_drawCount, m_vao, m_vbo, m_ibo, m_stride);
+		ObjModel::CreateBuffer(m_vertexBuffer, m_indexBuffer, m_vao, m_vbo, m_ibo, m_stride);
 	}
 
 	indexBufferCreator.positionCoordsIn.clear();
@@ -519,7 +521,8 @@ void ObjModel::drawHull() {
 }
 
 void ObjModel::createAABB() {
-	aabb.createBuffer(*this);
+	aabb.createBuffer();
+	m_hasAABB = true;
 }
 
 void ObjModel::createSphere() {
@@ -560,14 +563,14 @@ void ObjModel::generateTangents() {
 		if (m_hasTangents) { return; }
 
 		ObjModel::GenerateTangents(m_vertexBuffer, m_indexBuffer, *this, m_hasNormals, m_hasTangents,  m_stride, 0, m_meshes.size());		
-		ObjModel::CreateBuffer(m_vertexBuffer, m_indexBuffer, m_drawCount, m_vao, m_vbo, m_ibo, m_stride);
+		ObjModel::CreateBuffer(m_vertexBuffer, m_indexBuffer, m_vao, m_vbo, m_ibo, m_stride);
 
 	}else {
 
 		for (int j = 0; j < m_meshes.size(); j++) {
 			if (m_meshes[j]->m_hasTangents) continue;
 			ObjModel::GenerateTangents(m_meshes[j]->m_vertexBuffer, m_meshes[j]->m_indexBuffer, *this, m_meshes[j]->m_hasNormals, m_meshes[j]->m_hasTangents, m_meshes[j]->m_stride, j, j + 1);
-			ObjModel::CreateBuffer(m_meshes[j]->m_vertexBuffer, m_meshes[j]->m_indexBuffer, m_meshes[j]->m_drawCount, m_meshes[j]->m_vao, m_meshes[j]->m_vbo, m_meshes[j]->m_ibo, m_meshes[j]->m_stride);
+			ObjModel::CreateBuffer(m_meshes[j]->m_vertexBuffer, m_meshes[j]->m_indexBuffer, m_meshes[j]->m_vao, m_meshes[j]->m_vbo, m_meshes[j]->m_ibo, m_meshes[j]->m_stride);
 		}
 	}
 }
@@ -578,14 +581,14 @@ void ObjModel::generateNormals() {
 		if (m_hasNormals) { return; }
 
 		ObjModel::GenerateNormals(m_vertexBuffer, m_indexBuffer, *this, m_hasNormals, m_stride, 0, m_meshes.size());
-		ObjModel::CreateBuffer(m_vertexBuffer, m_indexBuffer, m_drawCount, m_vao, m_vbo, m_ibo, m_stride);
+		ObjModel::CreateBuffer(m_vertexBuffer, m_indexBuffer, m_vao, m_vbo, m_ibo, m_stride);
 
 	}else {
 
 		for (int j = 0; j < m_meshes.size(); j++) {
 			if (m_meshes[j]->m_hasNormals) continue;
 			ObjModel::GenerateNormals(m_meshes[j]->m_vertexBuffer, m_meshes[j]->m_indexBuffer, *this, m_meshes[j]->m_hasNormals, m_meshes[j]->m_stride, j, j + 1);
-			ObjModel::CreateBuffer(m_meshes[j]->m_vertexBuffer, m_meshes[j]->m_indexBuffer, m_meshes[j]->m_drawCount, m_meshes[j]->m_vao, m_meshes[j]->m_vbo, m_meshes[j]->m_ibo, m_meshes[j]->m_stride);
+			ObjModel::CreateBuffer(m_meshes[j]->m_vertexBuffer, m_meshes[j]->m_indexBuffer, m_meshes[j]->m_vao, m_meshes[j]->m_vbo, m_meshes[j]->m_ibo, m_meshes[j]->m_stride);
 		}
 	}
 }
@@ -1057,8 +1060,7 @@ void ObjModel::initAssets(AssetManager<Shader>& shaderManager, AssetManager<Text
 	}
 }
 
-void ObjModel::CreateBuffer(std::vector<float>& vertexBuffer, std::vector<unsigned int> indexBuffer, unsigned int& drawCount, unsigned int& vao, unsigned int (&vbo)[5], unsigned int& ibo, unsigned int stride) {
-	drawCount = indexBuffer.size();
+void ObjModel::CreateBuffer(std::vector<float>& vertexBuffer, std::vector<unsigned int> indexBuffer, unsigned int& vao, unsigned int (&vbo)[5], unsigned int& ibo, unsigned int stride) {
 
 	if (vao)
 		glDeleteVertexArrays(1, &vao);
@@ -1792,17 +1794,16 @@ int IndexBufferCreator::addVertex(int hash, const float *pVertex, int stride) {
 	return index;
 }
 
-void BoundingBox::createBuffer(ObjModel& model) {
-
-	m_vertexBuffer.push_back(position[0]); m_vertexBuffer.push_back(position[1]); m_vertexBuffer.push_back(position[2]);	
-	m_vertexBuffer.push_back(position[0] + size[0]); m_vertexBuffer.push_back(position[1]); m_vertexBuffer.push_back(position[2]);	
-	m_vertexBuffer.push_back(position[0] + size[0]); m_vertexBuffer.push_back(position[1] + size[1]); m_vertexBuffer.push_back(position[2]);	
-	m_vertexBuffer.push_back(position[0]); m_vertexBuffer.push_back(position[1] + size[1]); m_vertexBuffer.push_back(position[2]);	
-	m_vertexBuffer.push_back(position[0]); m_vertexBuffer.push_back(position[1]); m_vertexBuffer.push_back(position[2] + size[2]);	
-	m_vertexBuffer.push_back(position[0] + size[0]); m_vertexBuffer.push_back(position[1]); m_vertexBuffer.push_back(position[2] + size[2]);	
-	m_vertexBuffer.push_back(position[0] + size[0]); m_vertexBuffer.push_back(position[1] + size[1]); m_vertexBuffer.push_back(position[2] + size[2]);	
+void BoundingBox::createBuffer() {
+	m_vertexBuffer.push_back(position[0]); m_vertexBuffer.push_back(position[1]); m_vertexBuffer.push_back(position[2]);
+	m_vertexBuffer.push_back(position[0] + size[0]); m_vertexBuffer.push_back(position[1]); m_vertexBuffer.push_back(position[2]);
+	m_vertexBuffer.push_back(position[0] + size[0]); m_vertexBuffer.push_back(position[1] + size[1]); m_vertexBuffer.push_back(position[2]);
+	m_vertexBuffer.push_back(position[0]); m_vertexBuffer.push_back(position[1] + size[1]); m_vertexBuffer.push_back(position[2]);
+	m_vertexBuffer.push_back(position[0]); m_vertexBuffer.push_back(position[1]); m_vertexBuffer.push_back(position[2] + size[2]);
+	m_vertexBuffer.push_back(position[0] + size[0]); m_vertexBuffer.push_back(position[1]); m_vertexBuffer.push_back(position[2] + size[2]);
+	m_vertexBuffer.push_back(position[0] + size[0]); m_vertexBuffer.push_back(position[1] + size[1]); m_vertexBuffer.push_back(position[2] + size[2]);
 	m_vertexBuffer.push_back(position[0]); m_vertexBuffer.push_back(position[1] + size[1]); m_vertexBuffer.push_back(position[2] + size[2]);
-	
+
 	m_indexBuffer.push_back(0); m_indexBuffer.push_back(1); m_indexBuffer.push_back(2);
 	m_indexBuffer.push_back(2); m_indexBuffer.push_back(3); m_indexBuffer.push_back(0);
 
@@ -1841,8 +1842,6 @@ void BoundingBox::createBuffer(ObjModel& model) {
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
-
-	model.m_hasAABB = true;	
 }
 
 void BoundingBox::drawRaw() {

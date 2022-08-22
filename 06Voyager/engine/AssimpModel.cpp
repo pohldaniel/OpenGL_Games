@@ -1,7 +1,9 @@
 #include "AssimpModel.h"
 
 AssimpModel::AssimpModel() {
-	
+	m_hasTextureCoords = false;
+	m_hasNormals = false;
+	m_hasTangents = false;
 }
 
 AssimpModel::~AssimpModel() {
@@ -28,6 +30,10 @@ const Matrix4f &AssimpModel::getInvTransformationMatrix() {
 	return m_transform.getInvTransformationMatrix();
 }
 
+const Vector3f &AssimpModel::getCenter() const {
+	return m_center;
+}
+
 std::string AssimpModel::getModelDirectory() {
 	return m_modelDirectory;
 }
@@ -40,7 +46,13 @@ std::vector<AssimpMesh*> AssimpModel::getMeshes() {
 	return m_meshes;
 }
 
-bool AssimpModel::loadModel(const char* a_filename) {
+BoundingBox& AssimpModel::getAABB() {
+	return aabb;
+}
+
+bool AssimpModel::loadModel(const char* a_filename, bool isStacked) {
+	m_isStacked = isStacked;
+
 	std::string filename(a_filename);
 
 	const size_t index = filename.rfind('/');
@@ -54,9 +66,12 @@ bool AssimpModel::loadModel(const char* a_filename) {
 	const aiScene* pScene = Importer.ReadFile(a_filename, ASSIMP_LOAD_FLAGS);
 	
 	bool exportTangents = false;
-	bool isStacked = false;
+
 	m_numberOfMeshes = pScene->mNumMeshes;
 	
+	float xmin = FLT_MAX; float ymin = FLT_MAX; float zmin = FLT_MAX;
+	float xmax = -FLT_MAX; float ymax = -FLT_MAX; float zmax = -FLT_MAX;
+
 	for (int j = 0; j < pScene->mNumMeshes; j++) {
 
 		const aiMesh* aiMesh = pScene->mMeshes[j];
@@ -71,67 +86,81 @@ bool AssimpModel::loadModel(const char* a_filename) {
 		AssimpModel::ReadAiMaterial(aiMaterial, mesh->m_material);
 
 
-		isStacked ? m_hasTextureCoords = aiMesh->HasTextureCoords(0) : mesh->m_hasTextureCoords = aiMesh->HasTextureCoords(0);
-		isStacked ? m_hasNormals = aiMesh->HasNormals() : mesh->m_hasNormals = aiMesh->HasNormals();
-		isStacked ? m_hasTangents = aiMesh->HasTangentsAndBitangents() & exportTangents : mesh->m_hasTangents = aiMesh->HasTangentsAndBitangents() & exportTangents;
+		m_isStacked ? m_hasTextureCoords = aiMesh->HasTextureCoords(0) : mesh->m_hasTextureCoords = aiMesh->HasTextureCoords(0);
+		m_isStacked ? m_hasNormals = aiMesh->HasNormals() : mesh->m_hasNormals = aiMesh->HasNormals();
+		m_isStacked ? m_hasTangents = aiMesh->HasTangentsAndBitangents() & exportTangents : mesh->m_hasTangents = aiMesh->HasTangentsAndBitangents() & exportTangents;
 
-		isStacked ? m_stride = m_hasTangents ? 14 : (m_hasNormals && m_hasTextureCoords) ? 8 : m_hasNormals ? 6 : m_hasTextureCoords ? 5 : 3 
+		m_isStacked ? m_stride = m_hasTangents ? 14 : (m_hasNormals && m_hasTextureCoords) ? 8 : m_hasNormals ? 6 : m_hasTextureCoords ? 5 : 3
 				  : mesh->m_stride = mesh->m_hasTangents ? 14 : (mesh->m_hasNormals && mesh->m_hasTextureCoords) ? 8 : mesh->m_hasNormals ? 6 : mesh->m_hasTextureCoords ? 5 : 3;
 
-		if (!isStacked) {
-			for (unsigned int i = 0; i < aiMesh->mNumVertices; i++) {
-				mesh->m_vertexBuffer.push_back(aiMesh->mVertices[i].x); mesh->m_vertexBuffer.push_back(aiMesh->mVertices[i].y); mesh->m_vertexBuffer.push_back(aiMesh->mVertices[i].z);
-				if (mesh->m_hasTextureCoords) {
-					mesh->m_vertexBuffer.push_back(aiMesh->mTextureCoords[0][i].x); mesh->m_vertexBuffer.push_back(aiMesh->mTextureCoords[0][i].y);
-				}
-				mesh->m_vertexBuffer.push_back(aiMesh->mNormals[i].x); mesh->m_vertexBuffer.push_back(aiMesh->mNormals[i].y); mesh->m_vertexBuffer.push_back(aiMesh->mNormals[i].z);
 
-				if (mesh->m_hasTangents) {
-					mesh->m_vertexBuffer.push_back(aiMesh->mTangents[i].x); mesh->m_vertexBuffer.push_back(aiMesh->mTangents[i].y); mesh->m_vertexBuffer.push_back(aiMesh->mTangents[i].z);
-					mesh->m_vertexBuffer.push_back(aiMesh->mBitangents[i].x); mesh->m_vertexBuffer.push_back(aiMesh->mBitangents[i].y); mesh->m_vertexBuffer.push_back(aiMesh->mBitangents[i].z);
-				}
+		if (m_isStacked) {
+			mesh->m_baseIndex = m_indexBuffer.size();
+			mesh->m_baseVertex = m_vertexBuffer.size() / m_stride;
+		}
+
+		std::vector<float>& vertexBuffer = m_isStacked ? m_vertexBuffer : mesh->m_vertexBuffer;
+		std::vector<unsigned int>& indexBuffer = m_isStacked ? m_indexBuffer : mesh->m_indexBuffer;
+
+		for (unsigned int i = 0; i < aiMesh->mNumVertices; i++) {
+
+			xmin = (std::min)(aiMesh->mVertices[i].x, xmin);
+			ymin = (std::min)(aiMesh->mVertices[i].y, ymin);
+			zmin = (std::min)(aiMesh->mVertices[i].z, zmin);
+
+			xmax = (std::max)(aiMesh->mVertices[i].x, xmax);
+			ymax = (std::max)(aiMesh->mVertices[i].y, ymax);
+			zmax = (std::max)(aiMesh->mVertices[i].z, zmax);
+
+			vertexBuffer.push_back(aiMesh->mVertices[i].x); vertexBuffer.push_back(aiMesh->mVertices[i].y); vertexBuffer.push_back(aiMesh->mVertices[i].z);
+
+			if (m_hasTextureCoords || mesh->m_hasTextureCoords) {
+				vertexBuffer.push_back(aiMesh->mTextureCoords[0][i].x); vertexBuffer.push_back(aiMesh->mTextureCoords[0][i].y);
+			}
+
+			if (m_hasNormals || mesh->m_hasNormals) {
+				vertexBuffer.push_back(aiMesh->mNormals[i].x); vertexBuffer.push_back(aiMesh->mNormals[i].y); vertexBuffer.push_back(aiMesh->mNormals[i].z);
+			}
+
+			if (m_hasTangents || mesh->m_hasTangents) {
+				
+				vertexBuffer.push_back(aiMesh->mTangents[i].x); vertexBuffer.push_back(aiMesh->mTangents[i].y); vertexBuffer.push_back(aiMesh->mTangents[i].z);
+				vertexBuffer.push_back(aiMesh->mBitangents[i].x); vertexBuffer.push_back(aiMesh->mBitangents[i].y); vertexBuffer.push_back(aiMesh->mBitangents[i].z);
 			}
 
 			for (unsigned int t = 0; t < aiMesh->mNumFaces; ++t) {
 				const aiFace* face = &aiMesh->mFaces[t];
-				mesh->m_indexBuffer.push_back(face->mIndices[0]);
-				mesh->m_indexBuffer.push_back(face->mIndices[1]);
-				mesh->m_indexBuffer.push_back(face->mIndices[2]);
+				indexBuffer.push_back(face->mIndices[0]);
+				indexBuffer.push_back(face->mIndices[1]);
+				indexBuffer.push_back(face->mIndices[2]);
 			}
+
+			
+		}
+
+		mesh->m_drawCount = aiMesh->mNumFaces * 3;
+
+		if (!m_isStacked) {
 
 			AssimpModel::CreateBuffer(mesh->m_vertexBuffer,
 				mesh->m_indexBuffer,
-				mesh->m_drawCount,
 				mesh->m_vao,
 				mesh->m_vbo,
 				mesh->m_ibo,
 				mesh->m_stride);
-		}else {
-			for (unsigned int i = 0; i < aiMesh->mNumVertices; i++) {
-				m_vertexBuffer.push_back(aiMesh->mVertices[i].x); m_vertexBuffer.push_back(aiMesh->mVertices[i].y); m_vertexBuffer.push_back(aiMesh->mVertices[i].z);
-				if (m_hasTextureCoords) {
-					m_vertexBuffer.push_back(aiMesh->mTextureCoords[0][i].x); m_vertexBuffer.push_back(aiMesh->mTextureCoords[0][i].y);
-				}
-				m_vertexBuffer.push_back(aiMesh->mNormals[i].x); m_vertexBuffer.push_back(aiMesh->mNormals[i].y); m_vertexBuffer.push_back(aiMesh->mNormals[i].z);
-
-				if (m_hasTangents) {
-					m_vertexBuffer.push_back(aiMesh->mTangents[i].x); m_vertexBuffer.push_back(aiMesh->mTangents[i].y); m_vertexBuffer.push_back(aiMesh->mTangents[i].z);
-					m_vertexBuffer.push_back(aiMesh->mBitangents[i].x); m_vertexBuffer.push_back(aiMesh->mBitangents[i].y); m_vertexBuffer.push_back(aiMesh->mBitangents[i].z);
-				}
-			}
-
-			for (unsigned int t = 0; t < aiMesh->mNumFaces; ++t) {
-				const aiFace* face = &aiMesh->mFaces[t];
-				m_indexBuffer.push_back(face->mIndices[0]);
-				m_indexBuffer.push_back(face->mIndices[1]);
-				m_indexBuffer.push_back(face->mIndices[2]);
-			}
-
-			AssimpModel::CreateBuffer(m_vertexBuffer, m_indexBuffer, m_drawCount, m_vao, m_vbo, m_ibo, m_stride);
 		}
 		
 	}
-	Importer.FreeScene();
+
+	if (m_isStacked) {
+		AssimpModel::CreateBuffer(m_vertexBuffer, m_indexBuffer, m_vao, m_vbo, m_ibo, m_stride);
+	}
+
+	m_center = Vector3f((xmax + xmin) * 0.5f, (ymax + ymin) * 0.5f, (zmax + zmin) * 0.5f);
+
+	aabb.position = Vector3f(xmin, ymin, zmin);
+	aabb.size = Vector3f(xmax, ymax, zmax) - Vector3f(xmin, ymin, zmin);
+	
 	return true;
 }
 
@@ -203,6 +232,28 @@ void AssimpModel::drawRaw() {
 	}
 }
 
+void AssimpModel::drawRawInstanced() {
+	for (int j = 0; j < m_numberOfMeshes; j++) {
+		m_meshes[j]->drawRawInstanced();
+	}
+}
+
+void  AssimpModel::drawRawStacked() {
+	glBindVertexArray(m_vao);
+	for (int i = 0; i < m_meshes.size(); i++) {
+		glDrawElementsBaseVertex(GL_TRIANGLES, m_meshes[i]->m_drawCount, GL_UNSIGNED_INT, (void*)(sizeof(unsigned int) * m_meshes[i]->m_baseIndex), m_meshes[i]->m_baseVertex);
+	}
+	glBindVertexArray(0);
+}
+
+void AssimpModel::drawRawInstancedStacked() {
+	glBindVertexArray(m_vao);
+	for (int i = 0; i < m_meshes.size(); i++) {
+		glDrawElementsInstancedBaseVertexBaseInstance(GL_TRIANGLES, m_meshes[i]->m_drawCount, GL_UNSIGNED_INT, (void*)(sizeof(unsigned int) * m_meshes[i]->m_baseIndex), m_instanceCount, m_meshes[i]->m_baseVertex, 0);
+	}
+	glBindVertexArray(0);
+}
+
 void AssimpModel::draw(Camera& camera) {
 	for (int i = 0; i < m_meshes.size(); i++) {
 		m_meshes[i]->updateMaterialUbo(BuiltInShader::materialUbo);
@@ -219,6 +270,68 @@ void AssimpModel::draw(Camera& camera) {
 	}
 
 	Texture::Unbind();
+}
+
+void AssimpModel::drawInstanced(Camera& camera) {
+	for (int i = 0; i < m_meshes.size(); i++) {
+		m_meshes[i]->updateMaterialUbo(BuiltInShader::materialUbo);
+
+		glUseProgram(m_shader[i]->m_program);
+
+		m_shader[i]->loadMatrix("u_projection", camera.getProjectionMatrix());
+
+		m_textures[i].bind(0);
+		m_meshes[i]->drawRawInstanced();
+
+		glUseProgram(0);
+	}
+
+	Texture::Unbind();
+}
+
+void AssimpModel::drawStacked(Camera& camera) {
+	glBindVertexArray(m_vao);
+	for (int i = 0; i < m_meshes.size(); i++) {
+		m_meshes[i]->updateMaterialUbo(BuiltInShader::materialUbo);
+
+		glUseProgram(m_shader[i]->m_program);
+
+		m_shader[i]->loadMatrix("u_projection", camera.getProjectionMatrix());
+		m_shader[i]->loadMatrix("u_view", camera.getViewMatrix());
+		m_shader[i]->loadMatrix("u_model", m_transform.getTransformationMatrix());
+
+		m_textures[i].bind(0);
+		glDrawElementsBaseVertex(GL_TRIANGLES, m_meshes[i]->m_drawCount, GL_UNSIGNED_INT, (void*)(sizeof(unsigned int) * m_meshes[i]->m_baseIndex), m_meshes[i]->m_baseVertex);
+		glUseProgram(0);
+	}
+	Texture::Unbind();
+	glBindVertexArray(0);
+}
+
+void AssimpModel::drawInstancedStacked(Camera& camera) {
+	glBindVertexArray(m_vao);
+	for (int i = 0; i < m_meshes.size(); i++) {
+		m_meshes[i]->updateMaterialUbo(BuiltInShader::materialUbo);
+
+		glUseProgram(m_shader[i]->m_program);
+
+		m_shader[i]->loadMatrix("u_projection", camera.getProjectionMatrix());
+		m_textures[i].bind(0);
+		glDrawElementsInstancedBaseVertexBaseInstance(GL_TRIANGLES, m_meshes[i]->m_drawCount, GL_UNSIGNED_INT, (void*)(sizeof(unsigned int) * m_meshes[i]->m_baseIndex), m_instanceCount, m_meshes[i]->m_baseVertex, 0);
+
+		glUseProgram(0);
+	}
+	Texture::Unbind();
+	glBindVertexArray(0);
+}
+
+void AssimpModel::drawAABB() {
+	aabb.drawRaw();
+}
+
+void AssimpModel::createAABB() {
+	aabb.createBuffer();
+	m_hasAABB = true;
 }
 
 void AssimpModel::initAssets(bool instanced) {
@@ -354,8 +467,7 @@ void AssimpModel::initAssets(AssetManager<Shader>& shaderManager, AssetManager<T
 	}
 }
 
-void AssimpModel::CreateBuffer(std::vector<float>& vertexBuffer, std::vector<unsigned int> indexBuffer, unsigned int& drawCount, unsigned int& vao, unsigned int(&vbo)[5], unsigned int& ibo, unsigned int stride) {
-	drawCount = indexBuffer.size();
+void AssimpModel::CreateBuffer(std::vector<float>& vertexBuffer, std::vector<unsigned int> indexBuffer, unsigned int& vao, unsigned int(&vbo)[5], unsigned int& ibo, unsigned int stride) {
 
 	if (vao)
 		glDeleteVertexArrays(1, &vao);
@@ -484,6 +596,9 @@ void AssimpModel::ReadAiMaterial(const aiMaterial* aiMaterial, Material& materia
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 AssimpMesh::AssimpMesh(AssimpModel* model) {
 	m_model = model;
+	m_hasTextureCoords = false;
+	m_hasNormals = false;
+	m_hasTangents = false;
 }
 
 AssimpMesh::~AssimpMesh() {
@@ -491,9 +606,14 @@ AssimpMesh::~AssimpMesh() {
 }
 
 void AssimpMesh::drawRaw() {
-	
 	glBindVertexArray(m_vao);
 	glDrawElements(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0);
+	glBindVertexArray(0);
+}
+
+void AssimpMesh::drawRawInstanced() {
+	glBindVertexArray(m_vao);
+	glDrawElementsInstanced(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0, m_instanceCount);
 	glBindVertexArray(0);
 }
 

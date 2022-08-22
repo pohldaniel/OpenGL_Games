@@ -210,7 +210,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_water(
 	position[2] = HEIGHTMAP_WIDTH * 0.5f + 700.0f;
 	position[1] = m_terrain.getHeightMap().heightAt(HEIGHTMAP_WIDTH * 0.5f + 800.0f, HEIGHTMAP_WIDTH * 0.5f + 300.0f) + 200.0f;
 
-	dragonAssimp.loadModel("res/models/dragon/dragon.obj");
+	dragonAssimp.loadModel("res/models/dragon/dragon.obj", true);
 	dragonAssimp.initAssets(Globals::shaderManager, Globals::textureManager);
 	dragonAssimp.getTransform().setRotPosScale(Vector3f(1.0f, 0.0f, 0.0f), -90.0f, position[0], position[1], position[2], 10.0f, 10.0f, 10.0f);
 }
@@ -431,7 +431,7 @@ void Game::render(unsigned int &frameBuffer) {
 		dragonCompare->draw(m_camera);
 		dragonGN->draw(m_camera);
 		dragonStacked->drawStacked(m_camera);
-		dragonAssimp.draw(m_camera);
+		dragonAssimp.drawStacked(m_camera);
 	}
 
 	if (m_debugNormal) {
@@ -456,7 +456,7 @@ void Game::render(unsigned int &frameBuffer) {
 		dragonStacked->drawRawStacked();
 
 		shader->loadMatrix("u_transform", Globals::projection * m_camera.getViewMatrix() * dragonAssimp.getTransformationMatrix());
-		dragonAssimp.drawRaw();
+		dragonAssimp.drawRawStacked();
 
 		glUseProgram(0);
 	}
