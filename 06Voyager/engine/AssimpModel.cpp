@@ -85,7 +85,6 @@ bool AssimpModel::loadModel(const char* a_filename, bool isStacked) {
 
 		AssimpModel::ReadAiMaterial(aiMaterial, mesh->m_material);
 
-
 		m_isStacked ? m_hasTextureCoords = aiMesh->HasTextureCoords(0) : mesh->m_hasTextureCoords = aiMesh->HasTextureCoords(0);
 		m_isStacked ? m_hasNormals = aiMesh->HasNormals() : mesh->m_hasNormals = aiMesh->HasNormals();
 		m_isStacked ? m_hasTangents = aiMesh->HasTangentsAndBitangents() & exportTangents : mesh->m_hasTangents = aiMesh->HasTangentsAndBitangents() & exportTangents;
@@ -127,15 +126,14 @@ bool AssimpModel::loadModel(const char* a_filename, bool isStacked) {
 				vertexBuffer.push_back(aiMesh->mTangents[i].x); vertexBuffer.push_back(aiMesh->mTangents[i].y); vertexBuffer.push_back(aiMesh->mTangents[i].z);
 				vertexBuffer.push_back(aiMesh->mBitangents[i].x); vertexBuffer.push_back(aiMesh->mBitangents[i].y); vertexBuffer.push_back(aiMesh->mBitangents[i].z);
 			}
+	
+		}
 
-			for (unsigned int t = 0; t < aiMesh->mNumFaces; ++t) {
-				const aiFace* face = &aiMesh->mFaces[t];
-				indexBuffer.push_back(face->mIndices[0]);
-				indexBuffer.push_back(face->mIndices[1]);
-				indexBuffer.push_back(face->mIndices[2]);
-			}
-
-			
+		for (unsigned int t = 0; t < aiMesh->mNumFaces; ++t) {
+			const aiFace* face = &aiMesh->mFaces[t];
+			indexBuffer.push_back(face->mIndices[0]);
+			indexBuffer.push_back(face->mIndices[1]);
+			indexBuffer.push_back(face->mIndices[2]);
 		}
 
 		mesh->m_drawCount = aiMesh->mNumFaces * 3;

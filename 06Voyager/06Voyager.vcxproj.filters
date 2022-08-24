@@ -963,6 +963,15 @@
     <ClInclude Include="engine\BuiltInShader.h">
       <Filter>engine</Filter>
     </ClInclude>
+    <ClInclude Include="engine\AssimpAnimatedModel.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="AssimpAnimation.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="AssimpAnimator.h">
+      <Filter>engine</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine\input\EventDispatcher.cpp">
@@ -1584,6 +1593,15 @@
       <Filter>engine</Filter>
     </ClCompile>
     <ClCompile Include="engine\BuiltInShader.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\AssimpAnimatedModel.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="AssimpAnimation.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="AssimpAnimator.cpp">
       <Filter>engine</Filter>
     </ClCompile>
   </ItemGroup>

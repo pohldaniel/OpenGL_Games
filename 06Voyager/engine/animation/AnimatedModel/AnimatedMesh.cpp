@@ -13,7 +13,7 @@ AnimatedMesh::AnimatedMesh(ColladaLoader loader) : loader(loader) {
 
 	loader.loadData(positions, texCoords, normals, jointIds, jointWeights, indices, m_jointsList);
 	loader.createJoints(rootJoint);
-
+	
 	m_drawCount = indices.size();
 
 	glGenVertexArrays(1, &m_vao);
@@ -63,7 +63,6 @@ AnimatedMesh::AnimatedMesh(ColladaLoader loader) : loader(loader) {
 	glBindVertexArray(0);
 	
 }
-
 
 AnimatedMesh::~AnimatedMesh() {
 	glDeleteVertexArrays(1, &m_vao);

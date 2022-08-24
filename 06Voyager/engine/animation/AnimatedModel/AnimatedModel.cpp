@@ -4,12 +4,8 @@
 #include "..\..\Texture.h"
 #include "AnimatedModel.h"
 
-
-
 AnimatedModel::AnimatedModel() : m_shader("./res/models/cowboy/animationShader.vert", "./res/models/cowboy/animationShader.frag") {
 	m_animator = std::make_shared<Animator>(this);
-	
-
 	m_transform = Transform();
 }
 
@@ -42,7 +38,6 @@ void AnimatedModel::draw(Camera camera){
 
 
 void AnimatedModel::setRotPos(const Vector3f &axis, float degrees, float dx, float dy, float dz) {
-
 	m_transform.setRotPos(axis, degrees, dx, dy, dz);
 }
 

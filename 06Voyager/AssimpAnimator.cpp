@@ -1,8 +1,9 @@
-#include "Animator.h"
+#include "AssimpAnimator.h"
 #include <iostream>
-#include "..\AnimatedModel\AnimatedModel.h"
+#include "engine/AssimpAnimatedModel.h"
+#include "AssimpAnimation.h"
 
-Vector3f GetInterpolated(Vector3f start, Vector3f end, float progression) {
+Vector3f AssimpAnimator::GetInterpolated(Vector3f start, Vector3f end, float progression) {
 
 	float x = start[0] + (end[0] - start[0]) * progression;
 	float y = start[1] + (end[1] - start[1]) * progression;
@@ -10,7 +11,7 @@ Vector3f GetInterpolated(Vector3f start, Vector3f end, float progression) {
 	return Vector3f(x, y, z);
 }
 
-Quaternion interpolateQuat(Quaternion a, Quaternion b, float blend) {
+Quaternion AssimpAnimator::interpolateQuat(Quaternion a, Quaternion b, float blend) {
 	Quaternion result = Quaternion(0.0, 0.0, 0.0, 1.0);
 	float dot = a[3] * b[3] + a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
 	float blendI = 1.0 - blend;
@@ -32,28 +33,27 @@ Quaternion interpolateQuat(Quaternion a, Quaternion b, float blend) {
 	return result;
 }
 
-Animator::Animator(AnimatedModel *model){
+AssimpAnimator::AssimpAnimator(AssimpAnimatedModel *model) {
 	m_model = model;
 }
 
-void Animator::startAnimation(const std::string & animationName){
+void AssimpAnimator::startAnimation(const std::string & animationName) {
 
-	for (auto animation : m_animations){
+	for (auto animation : m_animations) {
 
-		if (animation->getName() == animationName){
+		if (animation->getName() == animationName) {
 			m_animationTime = 0;
 			m_currentAnimation = animation;
 		}
 	}
 }
 
-void Animator::addAnimation(ColladaLoader loader){
-	m_animations.push_back(std::make_shared<Animation>(loader));
+void AssimpAnimator::addAnimation(AssimpAnimation* animation) {
+	m_animations.push_back(std::shared_ptr<AssimpAnimation>(animation));
 }
 
+void AssimpAnimator::update(double elapsedTime) {
 
-void Animator::update(double elapsedTime){
-	
 	//increase animationTime
 	m_animationTime += elapsedTime;
 
@@ -67,26 +67,14 @@ void Animator::update(double elapsedTime){
 	m_model->m_meshes[0]->applyPoseToJoints(currentPose);
 }
 
-std::unordered_map<std::string, Matrix4f> Animator::calculateCurrentAnimationPose() {
+std::unordered_map<std::string, Matrix4f> AssimpAnimator::calculateCurrentAnimationPose() {
 
-	std::vector<KeyFrameData> keyFrames = m_currentAnimation->m_keyFrames;
+	std::vector<AssimpKeyFrameData> keyFrames = m_currentAnimation->m_keyFrames;
 
 	/**c++ implementation*/
-	std::vector<KeyFrameData>::iterator upper = std::upper_bound(keyFrames.begin() + 1, keyFrames.end(), m_animationTime, KeyFrameData::greater_than());
-	KeyFrameData  nextFrame = *upper;
-	KeyFrameData  previousFrame = *(std::prev(upper));
-
-	/**custom implementation*/
-	/*KeyFrameData  previousFrame = keyFrames[0];
-	KeyFrameData  nextFrame = keyFrames[0];
-	for (int i = 1; i < keyFrames.size(); i++) {
-	nextFrame = keyFrames[i];
-	if (nextFrame.time >  m_animationTime) {
-	break;
-	}
-	previousFrame = keyFrames[i];
-	}*/
-
+	std::vector<AssimpKeyFrameData>::iterator upper = std::upper_bound(keyFrames.begin() + 1, keyFrames.end(), m_animationTime, AssimpKeyFrameData::greater_than());
+	AssimpKeyFrameData  nextFrame = *upper;
+	AssimpKeyFrameData  previousFrame = *(std::prev(upper));
 
 	float totalTime = nextFrame.time - previousFrame.time;
 	float currentTime = m_animationTime - previousFrame.time;
@@ -94,7 +82,7 @@ std::unordered_map<std::string, Matrix4f> Animator::calculateCurrentAnimationPos
 
 	std::unordered_map<std::string, Matrix4f> currentPose;
 
-	std::map<std::string, JointTransformData>::iterator it = previousFrame.pose.begin();
+	std::map<std::string, AssimpBoneTransformData>::iterator it = previousFrame.pose.begin();
 	while (it != previousFrame.pose.end()) {
 
 		std::string name = it->first;

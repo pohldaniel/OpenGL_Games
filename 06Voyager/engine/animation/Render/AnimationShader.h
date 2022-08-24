@@ -9,7 +9,7 @@
 
 static const unsigned int MAX_JOINTS = 50;
 class AnimatedModel;
-
+class AssimpAnimatedModel;
 class AnimationShader : public Shader{
 
 public:
@@ -17,6 +17,7 @@ public:
 	virtual ~AnimationShader();
 
 	void update(const AnimatedModel& model, const Camera& camera, std::vector<Matrix4f> jointVector);
+	void update(const AssimpAnimatedModel& model, const Camera& camera, std::vector<Matrix4f> jointVector);
 	void bind();
 };
 #endif

@@ -51,7 +51,7 @@ void ColladaLoader::loadData(std::vector<Vector3f> &positions,
 	std::vector<VertexSkinData> skinningData;
 
 	loadGeometry(positions, texCoords, normals, indices);
-	loadController(jointIds, jointWeights, jointsList, skinningData);
+	loadController(jointsList, skinningData);
 	createIndexBuffer(positions, texCoords, normals, jointIds, jointWeights, indices, skinningData);
 	
 	//fill up the 'SkeletonData: skeletonData' structure. Needed to create the 'Joint: rootJoint' structure out of "AnimatedMesh.h"
@@ -191,7 +191,7 @@ void ColladaLoader::loadGeometry(std::vector<Vector3f> &positions, std::vector<V
 	}
 }
 
-void ColladaLoader::loadController(std::vector<std::array<unsigned int, 4>> &jointIds, std::vector<Vector4f> &jointWeights, std::vector<std::string> &jointsList, std::vector<VertexSkinData> &skinningData) {
+void ColladaLoader::loadController(std::vector<std::string> &jointsList, std::vector<VertexSkinData> &skinningData) {
 
 
 	char* text;
@@ -293,7 +293,6 @@ void ColladaLoader::loadController(std::vector<std::array<unsigned int, 4>> &joi
 		for (int j = 0; j < effectiveJointCounts[i]; j++) {
 			int jointId = rawData[pointer++];
 			int weightId = rawData[pointer++];
-
 			skinData.addJointEffect(jointId, weights[weightId]);
 		}
 		skinData.fill();
@@ -304,7 +303,7 @@ void ColladaLoader::loadController(std::vector<std::array<unsigned int, 4>> &joi
 }
 
 void ColladaLoader::createIndexBuffer(std::vector<Vector3f> &positions, std::vector<Vector2f> &texCoords, std::vector<Vector3f> &normals, std::vector<std::array<unsigned int, 4>> &jointIds, std::vector<Vector4f> &jointWeights, std::vector<unsigned int> &indices, std::vector<VertexSkinData> &skinningData) {
-
+	
 	m_indexBuffer.resize(numberOfTriangles * 3);
 
 	short offset = inputNodes, vertexstride = 3 * inputNodes;
@@ -317,7 +316,6 @@ void ColladaLoader::createIndexBuffer(std::vector<Vector3f> &positions, std::vec
 			skinningData[indices[i * vertexstride + offsetPositions + offset * 0]].jointIds[0], skinningData[indices[i * vertexstride + offsetPositions + offset * 0]].jointIds[1], skinningData[indices[i * vertexstride + offsetPositions + offset * 0]].jointIds[2],
 			skinningData[indices[i * vertexstride + offsetPositions + offset * 0]].weights[0] , skinningData[indices[i * vertexstride + offsetPositions + offset * 0]].weights[1] , skinningData[indices[i * vertexstride + offsetPositions + offset * 0]].weights[2]
 		};
-
 		m_indexBuffer[i * 3] = addVertex(indices[i * 3], &vertex1[0], 14);
 
 		float vertex2[] = { positions[indices[i * vertexstride + offsetPositions + offset * 1]][0], positions[indices[i * vertexstride + offsetPositions + offset * 1]][1], positions[indices[i * vertexstride + offsetPositions + offset * 1]][2],
@@ -326,26 +324,30 @@ void ColladaLoader::createIndexBuffer(std::vector<Vector3f> &positions, std::vec
 			skinningData[indices[i * vertexstride + offsetPositions + offset * 1]].jointIds[0], skinningData[indices[i * vertexstride + offsetPositions + offset * 1]].jointIds[1], skinningData[indices[i * vertexstride + offsetPositions + offset * 1]].jointIds[2],
 			skinningData[indices[i * vertexstride + offsetPositions + offset * 1]].weights[0] , skinningData[indices[i * vertexstride + offsetPositions + offset * 1]].weights[1] , skinningData[indices[i * vertexstride + offsetPositions + offset * 1]].weights[2]
 		};
-
 		m_indexBuffer[i * 3 + 1] = addVertex(indices[i * 3 + 3], &vertex2[0], 14);
 
 		float vertex3[] = { positions[indices[i * vertexstride + offsetPositions + offset * 2]][0], positions[indices[i * vertexstride + offsetPositions + offset * 2]][1], positions[indices[i * vertexstride + offsetPositions + offset * 2]][2],
-			normals[indices[i * vertexstride + offsetNormals + offset * 2]][0]  , normals[indices[i * vertexstride + offsetNormals + offset * 2]][1]  , normals[indices[i * 3 + offsetNormals + offset * 2]][2],
+			normals[indices[i * vertexstride + offsetNormals + offset * 2]][0]  , normals[indices[i * vertexstride + offsetNormals + offset * 2]][1]  , normals[indices[i * vertexstride + offsetNormals + offset * 2]][2],
 			texCoords[indices[i * vertexstride + offsetTexcoords + offset * 2]][0], texCoords[indices[i * vertexstride + offsetTexcoords + offset * 2]][1],
 			skinningData[indices[i * vertexstride + offsetPositions + offset * 2]].jointIds[0], skinningData[indices[i * vertexstride + offsetPositions + offset * 2]].jointIds[1], skinningData[indices[i * vertexstride + offsetPositions + offset * 2]].jointIds[2],
 			skinningData[indices[i * vertexstride + offsetPositions + offset * 2]].weights[0] , skinningData[indices[i * vertexstride + offsetPositions + offset * 2]].weights[1] , skinningData[indices[i * vertexstride + offsetPositions + offset * 2]].weights[2]
 		};
-
 		m_indexBuffer[i * 3 + 2] = addVertex(indices[i * 3 + 6], &vertex3[0], 14);
 	}
 
 	positions.clear();
+	positions.shrink_to_fit();
 	normals.clear();
+	normals.shrink_to_fit();
 	texCoords.clear();
+	texCoords.shrink_to_fit();
 	jointIds.clear();
+	jointIds.shrink_to_fit();
 	jointWeights.clear();
+	jointWeights.shrink_to_fit();
 	indices.clear();
-
+	indices.shrink_to_fit();
+	
 	for (int i = 0; i < m_vertexBuffer.size(); i = i + 14) {
 
 		Vector3f position = Vector3f(m_vertexBuffer[i], m_vertexBuffer[i + 1], m_vertexBuffer[i + 2]);
@@ -361,6 +363,7 @@ void ColladaLoader::createIndexBuffer(std::vector<Vector3f> &positions, std::vec
 		jointWeights.push_back(jointWeight);
 
 	}
+
 	indices = m_indexBuffer;
 }
 
@@ -396,7 +399,8 @@ int ColladaLoader::addVertex(int hash, const float *pVertex, int numberOfBytes) 
 			m_vertexCache[hash].push_back(index);
 		}
 	}
-	return index;
+	
+	return index;	
 }
 
 
@@ -428,7 +432,6 @@ void ColladaLoader::loadVisualScene(std::vector<std::string> &jointsList) {
 
 	std::string name = std::string(((TiXmlElement*)rootNode)->Attribute("sid"));
 	std::vector<std::string>::iterator it = std::find(jointsList.begin(), jointsList.end(), name);
-
 	skeletonData.headJoint = JointData(std::distance(jointsList.begin(), it), std::string(((TiXmlElement*)rootNode)->Attribute("id")), offsetMatrix);
 
 	//breadth - first search
@@ -438,6 +441,8 @@ void ColladaLoader::loadVisualScene(std::vector<std::string> &jointsList) {
 		nextNode = nextNode->NextSiblingElement("node");
 	}
 	skeletonData.jointCount = jointsList.size();
+
+	//printSkeletonData(skeletonData.headJoint);
 }
 
 JointData ColladaLoader::search(TiXmlNode* _node, std::vector<std::string> &jointsList) {
@@ -470,6 +475,14 @@ JointData ColladaLoader::search(TiXmlNode* _node, std::vector<std::string> &join
 	return data;
 }
 
+void ColladaLoader::printSkeletonData(JointData& boneData) {
+	boneData.bindLocalTransform.print();
+
+	for (int i = 0; i < boneData.children.size(); i++) {
+		printSkeletonData(boneData.children[i]);
+	}
+}
+
 void ColladaLoader::createJoints(Joint &joint) {
 	
 	joint.index = skeletonData.headJoint.index;
@@ -484,7 +497,7 @@ void ColladaLoader::createJoints(Joint &joint) {
 	}
 }
 
-Joint ColladaLoader::createJoints(JointData data, Matrix4f parentBindTransform2) {
+Joint ColladaLoader::createJoints(JointData data, Matrix4f parentBindTransform) {
 
 	Joint joint;
 
@@ -492,12 +505,13 @@ Joint ColladaLoader::createJoints(JointData data, Matrix4f parentBindTransform2)
 	joint.name = data.nameId;
 	joint.localBindTransform = data.bindLocalTransform;
 
-	Matrix4f bindTransform = parentBindTransform2 * data.bindLocalTransform;
+	Matrix4f bindTransform = parentBindTransform * data.bindLocalTransform;
 	joint.inverseBindTransform = bindTransform.inverse();
 
 	for (JointData child : data.children) {
 		joint.children.push_back(createJoints(child, bindTransform));
 	}
+
 	return joint;
 }
 
@@ -510,6 +524,8 @@ void ColladaLoader::loadAnimation(std::vector<KeyFrameData> &m_keyFrames, float 
 	int numberOfKeyframes;
 
 	std::vector<float> times;
+
+	bool keyFrameResized = false;
 
 	while (animation != NULL) {
 
@@ -532,9 +548,11 @@ void ColladaLoader::loadAnimation(std::vector<KeyFrameData> &m_keyFrames, float 
 		source = source->NextSiblingElement("channel");
 		std::string target = std::string(source->Attribute("target"));
 		std::string jointNameId = target.substr(0, target.find('/'));
-
-
-		m_keyFrames.resize(numberOfKeyframes);
+		
+		if (!keyFrameResized) {
+			m_keyFrames.resize(numberOfKeyframes);
+			keyFrameResized = true;
+		}
 
 		Matrix4f  matrix;
 		matrix[0][0] = atof(strtok(text, " "));
@@ -565,15 +583,17 @@ void ColladaLoader::loadAnimation(std::vector<KeyFrameData> &m_keyFrames, float 
 
 			Vector3f scale = Vector3f(sx, sy, sz);
 
-			//*matrix[0][0] = matrix[0][0] * 1.0 / (scale[0]); matrix[0][1] = matrix[0][1] * 1.0 / (scale[0]); matrix[0][2] = matrix[0][2] * 1.0 / (scale[0]); matrix[3][0] = 0.0;
-			//*matrix[1][0] = matrix[1][0] * 1.0 / (scale[1]); matrix[1][1] = matrix[1][1] * 1.0 / (scale[1]); matrix[1][2] = matrix[1][2] * 1.0 / (scale[1]); matrix[3][1] = 0.0;
-			//*matrix[2][0] = matrix[2][0] * 1.0 / (scale[2]); matrix[2][1] = matrix[2][1] * 1.0 / (scale[2]); matrix[2][2] = matrix[2][2] * 1.0 / (scale[2]); matrix[3][2] = 0.0;
-			//*matrix[0][3] = 0.0;								matrix[1][3] = 0.0;								matrix[2][3] = 0.0;								matrix[3][3] = 1.0;
+			//matrix[0][0] = matrix[0][0] * 1.0 / (scale[0]); matrix[0][1] = matrix[0][1] * 1.0 / (scale[0]); matrix[0][2] = matrix[0][2] * 1.0 / (scale[0]); matrix[3][0] = 0.0;
+			//matrix[1][0] = matrix[1][0] * 1.0 / (scale[1]); matrix[1][1] = matrix[1][1] * 1.0 / (scale[1]); matrix[1][2] = matrix[1][2] * 1.0 / (scale[1]); matrix[3][1] = 0.0;
+			//matrix[2][0] = matrix[2][0] * 1.0 / (scale[2]); matrix[2][1] = matrix[2][1] * 1.0 / (scale[2]); matrix[2][2] = matrix[2][2] * 1.0 / (scale[2]); matrix[3][2] = 0.0;
+			matrix[3][0] = 0.0;								matrix[3][1] = 0.0;								matrix[3][2] = 0.0;								matrix[3][3] = 1.0;
+			
+			Quaternion quat = Quaternion(matrix);
 
-		
 			m_keyFrames[k].pose.insert(std::pair<std::string, JointTransformData>(jointNameId, JointTransformData(jointNameId, position, Quaternion(matrix), scale)));
 		}
 		animation = animation->NextSiblingElement("animation");
+
 	}
 	duration = times[numberOfKeyframes - 1];
 	name = "";

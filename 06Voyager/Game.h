@@ -10,6 +10,8 @@
 #include "engine/ObjModel.h"
 #include "engine/AssimpModel.h"
 #include "engine/animation/AnimatedModel/AnimatedModel.h"
+#include "engine/AssimpAnimatedModel.h"
+
 #include "CharacterSetBmp.h"
 #include "Text.h"
 
@@ -103,4 +105,6 @@ public:
 	ObjModel *dragonCompare, *dragonGN, *dragonStacked;
 
 	AssimpModel dragonAssimp;
+
+	AssimpAnimatedModel cowboyAssimp;
 };

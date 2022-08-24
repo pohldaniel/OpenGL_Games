@@ -20,6 +20,7 @@ struct WeightData {
 	}
 };
 
+
 struct VertexSkinData {
 public:
 	void addJointEffect(int jointId, float weight) {
@@ -106,7 +107,7 @@ public:
 	void loadAnimation(std::vector<KeyFrameData> &m_keyFrames, float &duration, std::string &name);
 
 	TiXmlDocument doc;
-
+	void printSkeletonData(JointData& boneData);
 private:
 	const std::string& m_path;
 	
@@ -118,7 +119,7 @@ private:
 	int addVertex(int hash, const float *pVertex, int numberOfBytes);
 
 	void loadGeometry(std::vector<Vector3f> &positions, std::vector<Vector2f> &texCoords, std::vector<Vector3f> &normals, std::vector<unsigned int> &indices);
-	void loadController(std::vector<std::array<unsigned int, 4>> &jointIds, std::vector<Vector4f> &jointWeights, std::vector<std::string> &jointsList, std::vector<VertexSkinData> &skinningData);
+	void loadController(std::vector<std::string> &jointsList, std::vector<VertexSkinData> &skinningData);
 	void createIndexBuffer(std::vector<Vector3f> &positions, std::vector<Vector2f> &texCoords, std::vector<Vector3f> &normals, std::vector<std::array<unsigned int, 4>> &jointIds, std::vector<Vector4f> &jointWeights, std::vector<unsigned int> &indices, std::vector<VertexSkinData> &skinningData);
 	
 	JointData search(TiXmlNode* node, std::vector<std::string> &jointsList);
