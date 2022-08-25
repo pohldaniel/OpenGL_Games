@@ -1,6 +1,6 @@
 #include "AssimpAnimator.h"
 #include <iostream>
-#include "engine/AssimpAnimatedModel.h"
+#include "AssimpAnimatedModel.h"
 #include "AssimpAnimation.h"
 
 Vector3f AssimpAnimator::GetInterpolated(Vector3f start, Vector3f end, float progression) {
@@ -93,7 +93,7 @@ std::unordered_map<std::string, Matrix4f> AssimpAnimator::calculateCurrentAnimat
 		Quaternion rot = interpolateQuat(previousFrame.pose.at(name).rotationKeys, nextFrame.pose.at(name).rotationKeys, progression);
 		Matrix4f mat = rot.toMatrix4f();
 		Matrix4f trans = Matrix4f::Translate(position[0], position[1], position[2]);
-		trans.transpose();
+
 		Matrix4f sca;
 		sca.scale(scale[0], scale[1], scale[2]);
 

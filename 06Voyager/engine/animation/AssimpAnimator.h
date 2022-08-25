@@ -2,7 +2,7 @@
 
 #include <memory>
 #include <unordered_map>
-#include "engine/Vector.h"
+#include "../Vector.h"
 
 class AssimpAnimation;
 class AssimpAnimatedModel;

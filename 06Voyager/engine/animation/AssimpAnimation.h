@@ -6,7 +6,7 @@
 
 #include <assimp/scene.h>
 
-#include "engine/Vector.h"
+#include "../Vector.h"
 
 struct AssimpBoneTransformData {
 

@@ -3,7 +3,7 @@
 
 #include "AnimationShader.h"
 #include "../AnimatedModel/AnimatedModel.h"
-#include "../../AssimpAnimatedModel.h"
+#include "../AssimpAnimatedModel.h"
 
 AnimationShader::AnimationShader(const std::string& vertex, const std::string& fragment) : Shader(vertex, fragment) {
 

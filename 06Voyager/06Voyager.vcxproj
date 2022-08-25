@@ -395,6 +395,9 @@
     <ClInclude Include="engine\animation\AnimatedModel\AnimatedModel.h" />
     <ClInclude Include="engine\animation\Animator\Animation.h" />
     <ClInclude Include="engine\animation\Animator\Animator.h" />
+    <ClInclude Include="engine\animation\AssimpAnimatedModel.h" />
+    <ClInclude Include="engine\animation\AssimpAnimation.h" />
+    <ClInclude Include="engine\animation\AssimpAnimator.h" />
     <ClInclude Include="engine\animation\ColladaLoader\ColladaLoader.h" />
     <ClInclude Include="engine\animation\Render\AnimationShader.h" />
     <ClInclude Include="engine\AssetManger.h" />
@@ -601,6 +604,9 @@
     <ClCompile Include="engine\animation\AnimatedModel\AnimatedModel.cpp" />
     <ClCompile Include="engine\animation\Animator\Animation.cpp" />
     <ClCompile Include="engine\animation\Animator\Animator.cpp" />
+    <ClCompile Include="engine\animation\AssimpAnimatedModel.cpp" />
+    <ClCompile Include="engine\animation\AssimpAnimation.cpp" />
+    <ClCompile Include="engine\animation\AssimpAnimator.cpp" />
     <ClCompile Include="engine\animation\ColladaLoader\ColladaLoader.cpp" />
     <ClCompile Include="engine\animation\Render\AnimationShader.cpp" />
     <ClCompile Include="engine\AssimpModel.cpp" />

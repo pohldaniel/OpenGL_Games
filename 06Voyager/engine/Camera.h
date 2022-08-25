@@ -33,7 +33,6 @@ public:
 	const float getFovXRad() const;
 
 	const Matrix4f &getViewMatrix() const;
-	const Matrix4f &getViewMatrixTranspose() const;
 	const Matrix4f &getInvViewMatrix() const;
 	const Matrix4f &getProjectionMatrix() const;
 	const Matrix4f &getInvProjectionMatrix() const;
@@ -86,10 +85,9 @@ protected:
 	Vector3f		m_acceleration;
 	Vector3f		m_velocity;
 
-	//Matrix4f		m_viewMatrix;
-	Matrix4f		m_viewMatrixTranspose;
-
+	Matrix4f		m_viewMatrix;
 	Matrix4f		m_invViewMatrix;
+
 	Matrix4f		m_projMatrix;
 	Matrix4f		m_invProjMatrix;
 	Matrix4f		m_orthMatrix;

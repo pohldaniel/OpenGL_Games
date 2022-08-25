@@ -3,7 +3,6 @@
 #include "..\AnimatedModel\AnimatedModel.h"
 
 Vector3f GetInterpolated(Vector3f start, Vector3f end, float progression) {
-
 	float x = start[0] + (end[0] - start[0]) * progression;
 	float y = start[1] + (end[1] - start[1]) * progression;
 	float z = start[2] + (end[2] - start[2]) * progression;
@@ -50,7 +49,6 @@ void Animator::startAnimation(const std::string & animationName){
 void Animator::addAnimation(ColladaLoader loader){
 	m_animations.push_back(std::make_shared<Animation>(loader));
 }
-
 
 void Animator::update(double elapsedTime){
 	
@@ -105,7 +103,7 @@ std::unordered_map<std::string, Matrix4f> Animator::calculateCurrentAnimationPos
 		Quaternion rot = interpolateQuat(previousFrame.pose.at(name).rotationKeys, nextFrame.pose.at(name).rotationKeys, progression);
 		Matrix4f mat = rot.toMatrix4f();
 		Matrix4f trans = Matrix4f::Translate(position[0], position[1], position[2]);
-		trans.transpose();
+
 		Matrix4f sca;
 		sca.scale(scale[0], scale[1], scale[2]);
 
@@ -113,5 +111,4 @@ std::unordered_map<std::string, Matrix4f> Animator::calculateCurrentAnimationPos
 		it++;
 	}
 	return currentPose;
-
 }

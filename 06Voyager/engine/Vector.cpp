@@ -479,23 +479,21 @@ void Matrix4f::toHeadPitchRoll(float &headDegrees, float &pitchDegrees, float &r
 	float thetaY = 0.0f;
 	float thetaZ = 0.0f;
 
-	if (thetaX < HALF_PI)
-	{
+	if (thetaX < HALF_PI){
+
 		if (thetaX > -HALF_PI) {
 
 			thetaZ = atan2f(-mtx[1][0], mtx[1][1]);
 			thetaY = atan2f(-mtx[0][2], mtx[2][2]);
 
-		}
-		else {
+		}else {
 
 			// Not a unique solution.
 			thetaZ = -atan2f(mtx[2][0], mtx[0][0]);
 			thetaY = 0.0f;
 		}
 
-	}
-	else {
+	}else {
 
 		// Not a unique solution.
 		thetaZ = atan2f(mtx[2][0], mtx[0][0]);
@@ -508,31 +506,31 @@ void Matrix4f::toHeadPitchRoll(float &headDegrees, float &pitchDegrees, float &r
 }
 
 Matrix4f Matrix4f::Translate(const float dx, const float dy, const float dz) {
-	return Matrix4f(1.0f, 0.0f, 0.0f, dx,
-		0.0f, 1.0f, 0.0f, dy,
-		0.0f, 0.0f, 1.0f, dz,
-		0.0f, 0.0f, 0.0f, 1.0);
+	return Matrix4f(1.0f, 0.0f, 0.0f, 0.0f,
+		0.0f, 1.0f, 0.0f, 0.0f,
+		0.0f, 0.0f, 1.0f, 0.0f,
+		dx  , dy  , dz  , 1.0);
 }
 
 Matrix4f &Matrix4f::Translate(Matrix4f &mtx, const float dx, const float dy, const float dz) {
 	mtx[0][0] = 1.0f;
 	mtx[1][0] = 0.0f;
 	mtx[2][0] = 0.0f;
-	mtx[3][0] = 0.0f;
+	mtx[3][0] = dx;
 
 	mtx[0][1] = 0.0f;
 	mtx[1][1] = 1.0f;
 	mtx[2][1] = 0.0f;
-	mtx[3][1] = 0.0f;
+	mtx[3][1] = dy;
 
 	mtx[0][2] = 0.0f;
 	mtx[1][2] = 0.0f;
 	mtx[2][2] = 1.0f;
-	mtx[3][2] = 0.0f;
+	mtx[3][2] = dz;
 
-	mtx[0][3] = dx;
-	mtx[1][3] = dy;
-	mtx[2][3] = dz;
+	mtx[0][3] = 0.0f;
+	mtx[1][3] = 0.0f;
+	mtx[2][3] = 0.0f;
 	mtx[3][3] = 1.0f;
 
 	return mtx;
@@ -857,12 +855,10 @@ Matrix4f &Matrix4f::GetInvOrthographic(Matrix4f &mtx, float left, float right, f
 }
 
 float *Matrix4f::operator[](int row) {
-
 	return mtx[row];
 }
 
 const float *Matrix4f::operator[](int row) const {
-
 	return mtx[row];
 }
 
@@ -1046,8 +1042,7 @@ Matrix4f Matrix4f::inverse() const{
 	if (fabsf(d) < 0.0001f) {
 		tmp.identity();
 
-	}
-	else {
+	}else {
 		d = 1.0f / d;
 
 		tmp.mtx[0][0] = d * (mtx[1][1] * (mtx[2][2] * mtx[3][3] - mtx[3][2] * mtx[2][3]) + mtx[2][1] * (mtx[3][2] * mtx[1][3] - mtx[1][2] * mtx[3][3]) + mtx[3][1] * (mtx[1][2] * mtx[2][3] - mtx[2][2] * mtx[1][3]));
@@ -1102,22 +1097,12 @@ Vector3f operator*(const Matrix4f &rhs, const Vector4f &lhs) {
 					(lhs[0] * rhs.mtx[2][0]) + (lhs[1] * rhs.mtx[2][1]) + (lhs[2] * rhs.mtx[2][2]) + (lhs[3] * rhs.mtx[2][3]));
 }
 
-/*//friend operator
-Vector3f operator&(const Matrix4f &rhs, const Vector4f &lhs) {
-
-	float norm = rhs[0][3] * lhs[0] + rhs[1][3] * lhs[1] + rhs[2][3] * lhs[2] + rhs[3][3] * lhs[3];
-
-	return Vector3f((lhs[0] * rhs.mtx[0][0]) + (lhs[1] * rhs.mtx[0][1]) + (lhs[2] * rhs.mtx[0][2]) + (lhs[3] * rhs.mtx[0][3]),
-		(lhs[0] * rhs.mtx[1][0]) + (lhs[1] * rhs.mtx[1][1]) + (lhs[2] * rhs.mtx[1][2]) + (lhs[3] * rhs.mtx[1][3]),
-		(lhs[0] * rhs.mtx[2][0]) + (lhs[1] * rhs.mtx[2][1]) + (lhs[2] * rhs.mtx[2][2]) + (lhs[3] * rhs.mtx[2][3]));
-}*/
-
 //friend operator
 Vector3f operator*(const Matrix4f &rhs, const Vector3f &lhs) {
 
 	return Vector3f((lhs[0] * rhs.mtx[0][0]) + (lhs[1] * rhs.mtx[0][1]) + (lhs[2] * rhs.mtx[0][2]),
-		(lhs[0] * rhs.mtx[1][0]) + (lhs[1] * rhs.mtx[1][1]) + (lhs[2] * rhs.mtx[1][2]),
-		(lhs[0] * rhs.mtx[2][0]) + (lhs[1] * rhs.mtx[2][1]) + (lhs[2] * rhs.mtx[2][2]));
+					(lhs[0] * rhs.mtx[1][0]) + (lhs[1] * rhs.mtx[1][1]) + (lhs[2] * rhs.mtx[1][2]),
+					(lhs[0] * rhs.mtx[2][0]) + (lhs[1] * rhs.mtx[2][1]) + (lhs[2] * rhs.mtx[2][2]));
 }
 
 //friend operator
@@ -1135,27 +1120,7 @@ Vector4f operator^(const Matrix4f &rhs, const Vector4f &lhs) {
 		(lhs[0] * rhs.mtx[1][0]) + (lhs[1] * rhs.mtx[1][1]) + (lhs[2] * rhs.mtx[1][2]) + (lhs[3] * rhs.mtx[1][3]),
 		(lhs[0] * rhs.mtx[2][0]) + (lhs[1] * rhs.mtx[2][1]) + (lhs[2] * rhs.mtx[2][2]) + (lhs[3] * rhs.mtx[2][3]),
 		(lhs[0] * rhs.mtx[3][0]) + (lhs[1] * rhs.mtx[3][1]) + (lhs[2] * rhs.mtx[3][2]) + (lhs[3] * rhs.mtx[3][3]));
-
-	/*return Vector4f((lhs[0] * rhs.mtx[0][0]) + (lhs[1] * rhs.mtx[1][0]) + (lhs[2] * rhs.mtx[2][0]) + (lhs[3] * rhs.mtx[3][0]),
-		(lhs[0] * rhs.mtx[0][1]) + (lhs[1] * rhs.mtx[1][1]) + (lhs[2] * rhs.mtx[2][1]) + (lhs[3] * rhs.mtx[3][1]),
-		(lhs[0] * rhs.mtx[0][2]) + (lhs[1] * rhs.mtx[1][2]) + (lhs[2] * rhs.mtx[2][2]) + (lhs[3] * rhs.mtx[3][2]),
-		(lhs[0] * rhs.mtx[0][3]) + (lhs[1] * rhs.mtx[1][3]) + (lhs[2] * rhs.mtx[2][3]) + (lhs[3] * rhs.mtx[3][3])
-	);*/
 }
-
-/*Vector4f operator^(const Vector4f &lhs, const Matrix4f &rhs) {
-
-	return Vector4f((lhs[0] * rhs.mtx[0][0]) + (lhs[1] * rhs.mtx[1][0]) + (lhs[2] * rhs.mtx[2][0]) + (lhs[3] * rhs.mtx[3][0]),
-		(lhs[0] * rhs.mtx[0][1]) + (lhs[1] * rhs.mtx[1][1]) + (lhs[2] * rhs.mtx[2][1]) + (lhs[3] * rhs.mtx[3][1]),
-		(lhs[0] * rhs.mtx[0][2]) + (lhs[1] * rhs.mtx[1][2]) + (lhs[2] * rhs.mtx[2][2]) + (lhs[3] * rhs.mtx[3][2]),
-		(lhs[0] * rhs.mtx[0][3]) + (lhs[1] * rhs.mtx[1][3]) + (lhs[2] * rhs.mtx[2][3]) + (lhs[3] * rhs.mtx[3][3]));
-
-	/*return Vector4f((lhs[0] * rhs.mtx[0][0]) + (lhs[1] * rhs.mtx[1][0]) + (lhs[2] * rhs.mtx[2][0]) + (lhs[3] * rhs.mtx[3][0]),
-	(lhs[0] * rhs.mtx[0][1]) + (lhs[1] * rhs.mtx[1][1]) + (lhs[2] * rhs.mtx[2][1]) + (lhs[3] * rhs.mtx[3][1]),
-	(lhs[0] * rhs.mtx[0][2]) + (lhs[1] * rhs.mtx[1][2]) + (lhs[2] * rhs.mtx[2][2]) + (lhs[3] * rhs.mtx[3][2]),
-	(lhs[0] * rhs.mtx[0][3]) + (lhs[1] * rhs.mtx[1][3]) + (lhs[2] * rhs.mtx[2][3]) + (lhs[3] * rhs.mtx[3][3])
-	);
-}*/
 
 Vector4f operator^(const Vector4f &lhs, const Matrix4f &rhs) {
 	return Vector4f((lhs[0] * rhs.mtx[0][0]) + (lhs[1] * rhs.mtx[1][0]) + (lhs[2] * rhs.mtx[2][0]) + (lhs[3] * rhs.mtx[3][0]),

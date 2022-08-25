@@ -1,7 +1,7 @@
 #include "AssimpAnimatedModel.h"
 
 
-AssimpAnimatedModel::AssimpAnimatedModel() : m_shader("./res/models/cowboy/animationShader.vert", "./res/models/cowboy/animationShader.frag") {
+AssimpAnimatedModel::AssimpAnimatedModel() : m_shader("./res/shader/animationShader.vert", "./res/shader/animationShader.frag") {
 	m_animator = std::make_shared<AssimpAnimator>(this);
 	m_transform = Transform();
 }
@@ -11,7 +11,7 @@ void AssimpAnimatedModel::loadModel(const std::string &a_filename, const std::st
 
 	Assimp::Importer Importer;
 
-	const aiScene* pScene = Importer.ReadFile(a_filename, aiProcess_FlipUVs | aiProcess_JoinIdenticalVertices);
+	const aiScene* pScene = Importer.ReadFile(a_filename, aiProcess_GenNormals | aiProcess_FlipUVs | aiProcess_JoinIdenticalVertices);
 
 	if (!pScene) {
 		std::cout << a_filename << "  " << Importer.GetErrorString() << std::endl;
@@ -120,7 +120,7 @@ void AssimpAnimatedModel::loadModel(const std::string &a_filename, const std::st
 
 		animation->m_duration = aiAnimation->mDuration;
 		animation->m_name = aiAnimation->mName.data;
-
+		std::cout << animation->m_name << std::endl;
 		animation->m_keyFrames.resize(aiAnimation->mChannels[0]->mNumPositionKeys);
 
 		for (int c = 0; c < aiAnimation->mNumChannels; c++) {

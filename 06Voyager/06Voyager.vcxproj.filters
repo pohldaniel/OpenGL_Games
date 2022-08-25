@@ -963,14 +963,14 @@
     <ClInclude Include="engine\BuiltInShader.h">
       <Filter>engine</Filter>
     </ClInclude>
-    <ClInclude Include="engine\AssimpAnimatedModel.h">
-      <Filter>engine</Filter>
+    <ClInclude Include="engine\animation\AssimpAnimatedModel.h">
+      <Filter>engine\animation</Filter>
     </ClInclude>
-    <ClInclude Include="AssimpAnimation.h">
-      <Filter>engine</Filter>
+    <ClInclude Include="engine\animation\AssimpAnimation.h">
+      <Filter>engine\animation</Filter>
     </ClInclude>
-    <ClInclude Include="AssimpAnimator.h">
-      <Filter>engine</Filter>
+    <ClInclude Include="engine\animation\AssimpAnimator.h">
+      <Filter>engine\animation</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1595,14 +1595,14 @@
     <ClCompile Include="engine\BuiltInShader.cpp">
       <Filter>engine</Filter>
     </ClCompile>
-    <ClCompile Include="engine\AssimpAnimatedModel.cpp">
-      <Filter>engine</Filter>
+    <ClCompile Include="engine\animation\AssimpAnimatedModel.cpp">
+      <Filter>engine\animation</Filter>
     </ClCompile>
-    <ClCompile Include="AssimpAnimation.cpp">
-      <Filter>engine</Filter>
+    <ClCompile Include="engine\animation\AssimpAnimation.cpp">
+      <Filter>engine\animation</Filter>
     </ClCompile>
-    <ClCompile Include="AssimpAnimator.cpp">
-      <Filter>engine</Filter>
+    <ClCompile Include="engine\animation\AssimpAnimator.cpp">
+      <Filter>engine\animation</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

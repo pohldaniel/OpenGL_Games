@@ -10,7 +10,7 @@
 #include "engine/ObjModel.h"
 #include "engine/AssimpModel.h"
 #include "engine/animation/AnimatedModel/AnimatedModel.h"
-#include "engine/AssimpAnimatedModel.h"
+#include "engine/animation/AssimpAnimatedModel.h"
 
 #include "CharacterSetBmp.h"
 #include "Text.h"

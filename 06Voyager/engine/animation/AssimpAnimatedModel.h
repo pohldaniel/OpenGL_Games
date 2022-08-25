@@ -2,21 +2,22 @@
 
 #include <memory>
 #include <vector>
-#include <memory>
+#include <queue>
+#include <array>
 
 #include <assimp/Importer.hpp> 
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
-#include "Vector.h"
-#include "Camera.h"
-#include "Transform.h"
-#include "Texture.h"
+#include "../Vector.h"
+#include "../Camera.h"
+#include "../Transform.h"
+#include "../Texture.h"
 
-#include "animation\Animator\Animator.h"
-#include "animation\Render\AnimationShader.h"
-#include "..\AssimpAnimation.h"
-#include "..\AssimpAnimator.h"
+
+#include "Render/AnimationShader.h"
+#include "AssimpAnimation.h"
+#include "AssimpAnimator.h"
 
 struct AssimpWeightData {
 	unsigned int vertexId;

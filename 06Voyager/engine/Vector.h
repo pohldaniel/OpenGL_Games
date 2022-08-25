@@ -119,7 +119,6 @@ class Matrix4f {
 
 	friend Vector3f operator*(const Vector4f &lhs, const Matrix4f &rhs);
 	friend Vector3f operator*(const Matrix4f &rhs, const Vector4f &lhs);
-	//friend Vector3f operator&(const Matrix4f &rhs, const Vector4f &lhs);
 	friend Vector3f operator*(const Vector3f &lhs, const Matrix4f &rhs);
 	friend Vector3f operator*(const Matrix4f &lhs, const Vector3f &rhs);
 	friend Vector4f operator^(const Vector4f &rhs, const Matrix4f &lhs);
