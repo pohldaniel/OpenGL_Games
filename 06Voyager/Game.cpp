@@ -218,11 +218,13 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_water(
 	position[2] = HEIGHTMAP_WIDTH * 0.5f + 70.0f;
 	position[1] = m_terrain.getHeightMap().heightAt(HEIGHTMAP_WIDTH * 0.5f + 50.0f, HEIGHTMAP_WIDTH * 0.5f + 70.0f + 100.0f) + 50.0f;
 
-	cowboyAssimp.loadModel("res/models/cowboy/cowboy.dae", "res/models/cowboy/cowboy.png");
+	cowboyAssimp.loadModel("res/models/vampire/dancing_vampire.dae", "res/models/vampire/textures/Vampire_diffuse.png");
 	cowboyAssimp.rotate(Vector3f(0.0f, 1.0f, 0.0f), 180.0f);
 	cowboyAssimp.translate(position[0], position[1], position[2]);
-	cowboyAssimp.scale(10.0f, 10.0f, 10.0f);
-	cowboyAssimp.getAnimator()->startAnimation("Armature");
+	cowboyAssimp.scale(0.3f, 0.3f, 0.3f);
+	cowboyAssimp.getAnimator()->startAnimation("Vampire");
+	
+	
 }
 
 Game::~Game() {}
@@ -385,6 +387,7 @@ void Game::update() {
 
 	m_mousePicker.update(m_dt);
 	cowboy.update(m_dt);
+	//cowboyAssimp.update(m_dt);
 	cowboyAssimp.update(m_dt);
 	//performCameraCollisionDetection();
 };
@@ -436,7 +439,7 @@ void Game::render(unsigned int &frameBuffer) {
 
 	
 	m_car->draw(m_camera);
-	cowboy.draw(m_camera);
+	//cowboy.draw(m_camera);
 	cowboyAssimp.draw(m_camera);
 
 	if (!m_debugNormal) {

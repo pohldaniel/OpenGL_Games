@@ -7,7 +7,7 @@
 #include "..\..\Camera.h"
 #include "..\..\Shader.h"
 
-static const unsigned int MAX_JOINTS = 50;
+static const unsigned int MAX_JOINTS = 70;
 class AnimatedModel;
 class AssimpAnimatedModel;
 class AnimationShader : public Shader{

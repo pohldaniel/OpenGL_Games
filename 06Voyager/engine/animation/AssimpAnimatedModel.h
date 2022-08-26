@@ -35,15 +35,18 @@ struct AssimpWeightData {
 struct AssimpBoneData {
 	int index;
 	std::string nameId;
-	Matrix4f bindLocalTransform;
+	Matrix4f localBindTransform;
+
+	Matrix4f offsteMatrix;
+
 	std::vector<AssimpBoneData> children;
 
 
-	AssimpBoneData(int _index, std::string _nameId, Matrix4f _bindLocalTransform) {
+	AssimpBoneData(int _index, std::string _nameId, Matrix4f _localBindTransform, Matrix4f _offsteMatrix) {
 		index = _index;
 		nameId = _nameId;
-		bindLocalTransform = _bindLocalTransform;
-
+		localBindTransform = _localBindTransform;
+		offsteMatrix = _offsteMatrix;
 	}
 
 	AssimpBoneData() {}
@@ -108,12 +111,14 @@ public:
 	std::shared_ptr<AssimpAnimator> getAnimator() { return m_animator; }
 	
 	int m_numberOfTriangles;
-	AssimpBoneData fetchAiHierarchy(aiNode *node, std::vector<std::string> &boneList);
+	AssimpBoneData fetchAiHierarchy(aiNode *node, std::vector<std::string>& boneList, std::vector<Matrix4f>& offsetMatrices);
 	AssimpSkeletonData skeletonData;
 
 	aiNode* searchNode(aiNode *node, std::vector<std::string> &boneList);
 
 	void printSkeletonData(AssimpBoneData& boneData);
+	void printAiHierarchy(aiNode *node);
+
 
 private:
 	Transform m_transform;
@@ -127,8 +132,8 @@ private:
 	std::vector<Vector4f> m_jointWeights;
 	std::vector<unsigned int> m_indexBuffer;
 
-	static void CreateJoints(AssimpBone& bone, AssimpSkeletonData& skeletonData);
-	static AssimpBone CreateJoints(AssimpBoneData data, Matrix4f parentBindTransform);
+	static void CreateJoints(AssimpBone& bone, AssimpSkeletonData& skeletonData, std::vector<std::string> &boneList);
+	static AssimpBone CreateJoints(AssimpBoneData data, Matrix4f parentBindTransform, std::vector<std::string> &boneList);
 	static void CreateBuffer(std::vector<Vector3f>& positions, std::vector<Vector2f>& texCoords, std::vector<Vector3f>& normals, std::vector<std::array<unsigned int, 4>>& jointIds, std::vector<Vector4f>& jointWeights, std::vector<unsigned int>& indices, unsigned int& vao, unsigned int(&vbo)[5], unsigned int& ibo);
 };
 

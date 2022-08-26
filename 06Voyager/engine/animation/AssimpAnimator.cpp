@@ -76,6 +76,17 @@ std::unordered_map<std::string, Matrix4f> AssimpAnimator::calculateCurrentAnimat
 	AssimpKeyFrameData  nextFrame = *upper;
 	AssimpKeyFrameData  previousFrame = *(std::prev(upper));
 
+	/**custom implementation*/
+	/*AssimpKeyFrameData  previousFrame = keyFrames[0];
+	AssimpKeyFrameData  nextFrame = keyFrames[0];
+	for (int i = 1; i < keyFrames.size(); i++) {
+		nextFrame = keyFrames[i];
+		if (nextFrame.time >  m_animationTime) {
+			break;
+		}
+		previousFrame = keyFrames[i];
+	}*/
+
 	float totalTime = nextFrame.time - previousFrame.time;
 	float currentTime = m_animationTime - previousFrame.time;
 	float progression = currentTime / totalTime;
@@ -87,17 +98,26 @@ std::unordered_map<std::string, Matrix4f> AssimpAnimator::calculateCurrentAnimat
 
 		std::string name = it->first;
 
-		Vector3f position = GetInterpolated(previousFrame.pose.at(name).positonKeys, nextFrame.pose.at(name).positonKeys, progression);
-		Vector3f scale = GetInterpolated(previousFrame.pose.at(name).scallingKeys, nextFrame.pose.at(name).scallingKeys, progression);
+		//if (previousFrame.pose.count(name) > 0 && nextFrame.pose.count(name) > 0) {
 
-		Quaternion rot = interpolateQuat(previousFrame.pose.at(name).rotationKeys, nextFrame.pose.at(name).rotationKeys, progression);
-		Matrix4f mat = rot.toMatrix4f();
-		Matrix4f trans = Matrix4f::Translate(position[0], position[1], position[2]);
+			AssimpBoneTransformData _prevFrame = previousFrame.pose.at(name);
+			AssimpBoneTransformData _nextFrame = nextFrame.pose.at(name);
 
-		Matrix4f sca;
-		sca.scale(scale[0], scale[1], scale[2]);
+			Vector3f position = GetInterpolated(previousFrame.pose.at(name).positonKeys, nextFrame.pose.at(name).positonKeys, progression);
+			Vector3f scale = GetInterpolated(previousFrame.pose.at(name).scallingKeys, nextFrame.pose.at(name).scallingKeys, progression);
 
-		currentPose.insert(std::make_pair(name, sca * trans * mat));
+			Quaternion rot = interpolateQuat(previousFrame.pose.at(name).rotationKeys, nextFrame.pose.at(name).rotationKeys, progression);
+			Matrix4f mat = rot.toMatrix4f();
+			Matrix4f trans ;
+			trans.translate(position[0], position[1], position[2]);
+			Matrix4f sca;
+			sca.scale(scale[0], scale[1], scale[2]);
+
+			currentPose.insert(std::make_pair(name, sca * trans * mat));
+		/*}
+		else {
+			currentPose.insert(std::make_pair(name, Matrix4f::IDENTITY));
+		}*/
 		it++;
 	}
 	return currentPose;

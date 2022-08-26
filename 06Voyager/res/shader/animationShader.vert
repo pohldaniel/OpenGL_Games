@@ -1,6 +1,6 @@
 #version 410 core
 
-const int MAX_JOINTS = 50;
+const int MAX_JOINTS = 70;
 const int MAX_WEIGHTS = 3;
 
 layout(location = 0) in vec3 i_position;
