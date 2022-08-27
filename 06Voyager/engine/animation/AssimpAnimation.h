@@ -25,11 +25,11 @@ struct AssimpBoneTransformData {
 
 struct AssimpKeyFrameData {
 
-	double time;
+	float time;
 	std::map<std::string, AssimpBoneTransformData> pose;
 
 	struct greater_than {
-		bool operator()(const double b, const AssimpKeyFrameData &a) {
+		bool operator()(const float b, const AssimpKeyFrameData &a) {
 			return a.time > b;
 		}
 	};
@@ -51,6 +51,4 @@ public:
 	std::string m_name;
 	std::vector<AssimpKeyFrameData> m_keyFrames;
 	float m_duration;
-
-
 };

@@ -62,6 +62,7 @@ void AssimpAnimatedModel::loadModel(const std::string &a_filename, const std::st
 				}
 
 				boneId++;
+				//std::cout << "Bone Name: " << boneName << std::endl;
 			}
 
 			AssimpWeightData first = pq.top();
@@ -123,7 +124,7 @@ void AssimpAnimatedModel::loadModel(const std::string &a_filename, const std::st
 		CreateBuffer(m_positions, m_texCoords, m_normals, m_jointIds, m_jointWeights, m_indexBuffer, mesh->m_vao, mesh->m_vbo, mesh->m_ibo);	
 	}
 
-	for (int i = 0; i < pScene->mNumAnimations; i++) {
+	for (unsigned int i = 0; i < pScene->mNumAnimations; i++) {
 
 		const aiAnimation* aiAnimation = pScene->mAnimations[i];
 		AssimpAnimation* animation = new AssimpAnimation();
@@ -133,13 +134,13 @@ void AssimpAnimatedModel::loadModel(const std::string &a_filename, const std::st
 
 		animation->m_keyFrames.resize(aiAnimation->mChannels[0]->mNumPositionKeys);
 
-		for (int c = 0; c < aiAnimation->mNumChannels; c++) {
+		for (unsigned int c = 0; c < aiAnimation->mNumChannels; c++) {
 
 			
 
 			std::string boneNameId = aiAnimation->mChannels[c]->mNodeName.data;
 			
-			for (int k = 0; k < aiAnimation->mChannels[c]->mNumPositionKeys; k++) {
+			for (unsigned int k = 0; k < aiAnimation->mChannels[c]->mNumPositionKeys; k++) {
 
 				animation->m_keyFrames[k].time = aiAnimation->mChannels[c]->mPositionKeys[k].mTime;
 
@@ -231,7 +232,7 @@ void AssimpAnimatedModel::CreateBuffer(std::vector<Vector3f>& positions, std::ve
 
 void AssimpAnimatedModel::printAiHierarchy(aiNode *node) {
 	std::cout << node->mName.data << std::endl;
-	for (int i = 0; i < node->mNumChildren; i++) {
+	for (unsigned int i = 0; i < node->mNumChildren; i++) {
 		printAiHierarchy(node->mChildren[i]);
 	}
 }
@@ -240,12 +241,14 @@ void AssimpAnimatedModel::printSkeletonData(AssimpBoneData& boneData) {
 
 	boneData.localBindTransform.print();
 
-	for (int i = 0; i < boneData.children.size(); i++) {
+	for (unsigned int i = 0; i < boneData.children.size(); i++) {
 		printSkeletonData(boneData.children[i]);
 	}
 }
 
 void AssimpAnimatedModel::CreateJoints(AssimpBone& bone, AssimpSkeletonData& skeletonData, std::vector<std::string> &boneList) {	
+	//std::cout << "Loader: " << skeletonData.headJoint.nameId << std::endl;
+	
 	bone.index = skeletonData.headJoint.index;
 	bone.name = skeletonData.headJoint.nameId;
 
@@ -260,6 +263,8 @@ void AssimpAnimatedModel::CreateJoints(AssimpBone& bone, AssimpSkeletonData& ske
 }
 
 AssimpAnimatedModel::AssimpBone AssimpAnimatedModel::CreateJoints(AssimpBoneData data, Matrix4f parentBindTransform, std::vector<std::string> &boneList) {
+	//std::cout << "Loader: " << data.nameId << std::endl;
+	
 	AssimpBone bone;
 
 	bone.index = data.index;
@@ -286,17 +291,17 @@ AssimpBoneData AssimpAnimatedModel::fetchAiHierarchy(aiNode *node, std::vector<s
 
 	
 	AssimpBoneData data;
-	int index = std::distance(boneList.begin(), it);
+	unsigned int index = std::distance(boneList.begin(), it);
 	data = AssimpBoneData(index, node->mName.data, transMatrix, offsetMatrices[index]);
 	
-	for (int i = 0; i < node->mNumChildren; i++) {
-		/*AssimpBoneData innerData = fetchAiHierarchy(node->mChildren[i], boneList, offsetMatrices);
+	for (unsigned int i = 0; i < node->mNumChildren; i++) {
+		AssimpBoneData innerData = fetchAiHierarchy(node->mChildren[i], boneList, offsetMatrices);
 		std::vector<std::string>::iterator innerIt = std::find(boneList.begin(), boneList.end(), innerData.nameId);
 		if (innerIt != boneList.end()) {
 			data.addChild(innerData);
-		}*/
+		}
 
-		data.addChild(fetchAiHierarchy(node->mChildren[i], boneList, offsetMatrices));
+		//data.addChild(fetchAiHierarchy(node->mChildren[i], boneList, offsetMatrices));
 	}
 
 	return data;
@@ -311,7 +316,7 @@ aiNode* AssimpAnimatedModel::searchNode(aiNode *node, std::vector<std::string> &
 		return node;
 	}
 
-	for (int i = 0; i < node->mNumChildren; i++) {
+	for (unsigned int i = 0; i < node->mNumChildren; i++) {
 		aiNode *result = searchNode(node->mChildren[i], boneList);
 		if (result) {
 			return result;

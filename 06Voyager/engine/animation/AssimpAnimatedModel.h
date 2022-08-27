@@ -33,16 +33,15 @@ struct AssimpWeightData {
 };
 
 struct AssimpBoneData {
-	int index;
+	unsigned int index;
 	std::string nameId;
 	Matrix4f localBindTransform;
-
 	Matrix4f offsteMatrix;
 
 	std::vector<AssimpBoneData> children;
 
 
-	AssimpBoneData(int _index, std::string _nameId, Matrix4f _localBindTransform, Matrix4f _offsteMatrix) {
+	AssimpBoneData(unsigned int _index, std::string _nameId, Matrix4f _localBindTransform, Matrix4f _offsteMatrix) {
 		index = _index;
 		nameId = _nameId;
 		localBindTransform = _localBindTransform;
@@ -153,16 +152,6 @@ public:
 
 private:
 
-	enum MeshBufferPositions {
-		POSITION,
-		TEX_COORD,
-		NORMAL,
-		JOINT_IDS,
-		JOINT_WEIGHTS,
-		INDEX,
-		NUM_BUFFERS
-	};
-
 	void addJointsToArray(AssimpAnimatedModel::AssimpBone rootJoint, std::vector<Matrix4f> &boneArray);
 	void applyPoseToJoints(std::unordered_map<std::string, Matrix4f> currentPose, AssimpAnimatedModel::AssimpBone& joint, Matrix4f parentTransform);
 
@@ -171,7 +160,7 @@ private:
 	unsigned int m_ibo = 0;
 	unsigned int m_drawCount;
 
-	std::unordered_map<std::string, unsigned int> m_boneIdMap;
+	
 	std::vector<std::string> m_boneList;
 
 	AssimpAnimatedModel::AssimpBone m_rootBone;

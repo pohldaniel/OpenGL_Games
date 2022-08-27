@@ -12,11 +12,11 @@ Vector3f AssimpAnimator::GetInterpolated(Vector3f start, Vector3f end, float pro
 }
 
 Quaternion AssimpAnimator::interpolateQuat(Quaternion a, Quaternion b, float blend) {
-	Quaternion result = Quaternion(0.0, 0.0, 0.0, 1.0);
+	Quaternion result = Quaternion(0.0f, 0.0f, 0.0f, 1.0f);
 	float dot = a[3] * b[3] + a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
-	float blendI = 1.0 - blend;
+	float blendI = 1.0f - blend;
 
-	if (dot < 0) {
+	if (dot < 0.0f) {
 		result[3] = blendI * a[3] + blend * -b[3];
 		result[0] = blendI * a[0] + blend * -b[0];
 		result[1] = blendI * a[1] + blend * -b[1];
