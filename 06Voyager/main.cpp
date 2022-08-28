@@ -14,6 +14,8 @@ extern AssetManager<Shader> Globals::shaderManager = AssetManager<Shader>();
 extern AssetManager<Texture> Globals::textureManager = AssetManager<Texture>();
 extern AssetManager<Spritesheet> Globals::spritesheetManager = AssetManager<Spritesheet>();
 extern AssetManager<Cubemap> Globals::cubemapManager = AssetManager<Cubemap>();
+extern AssetManager<AssimpAnimation> Globals::animationManager = AssetManager<AssimpAnimation>();
+
 extern Physics* Globals::physics = NULL;
 extern bool Globals::enableWireframe = false;
 

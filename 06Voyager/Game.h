@@ -106,5 +106,5 @@ public:
 
 	AssimpModel dragonAssimp;
 
-	AssimpAnimatedModel cowboyAssimp;
+	AssimpAnimatedModel assimpAnimated;
 };

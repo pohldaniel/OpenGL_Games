@@ -79,6 +79,16 @@ public:
 		m_assets[name].loadFromFile(path);
 	}
 
+	void loadAnimationDae(const std::string& name, const std::string& path, std::string sourceName, std::string destName, unsigned int animationOffset = 0u, unsigned int animationCuttOff = 0u) {
+		m_assetPointer[name] = new T();
+		m_assetPointer[name]->loadAnimationDae(path, sourceName, destName, animationOffset, animationCuttOff);
+	}
+
+	void loadAnimationFbx(const std::string& name, const std::string& path, std::string sourceName, std::string destName, unsigned int animationOffset = 0u, unsigned int animationCuttOff = 0u, unsigned int timeShift = 0u) {
+		m_assetPointer[name] = new T();
+		m_assetPointer[name]->loadAnimationFbx(path, sourceName, destName, animationOffset, animationCuttOff, timeShift);
+	}
+
 	T& get(const std::string& name) {
 		return m_assets[name];
 	}

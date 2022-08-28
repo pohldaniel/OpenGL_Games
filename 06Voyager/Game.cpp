@@ -218,13 +218,33 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_water(
 	position[2] = HEIGHTMAP_WIDTH * 0.5f + 70.0f;
 	position[1] = m_terrain.getHeightMap().heightAt(HEIGHTMAP_WIDTH * 0.5f + 50.0f, HEIGHTMAP_WIDTH * 0.5f + 70.0f + 100.0f) + 50.0f;
 
-	cowboyAssimp.loadModel("res/models/vampire/dancing_vampire.dae", "res/models/vampire/textures/Vampire_diffuse.png");
-	cowboyAssimp.rotate(Vector3f(0.0f, 1.0f, 0.0f), 180.0f);
-	cowboyAssimp.translate(position[0], position[1], position[2]);
-	cowboyAssimp.scale(0.3f, 0.3f, 0.3f);
-	cowboyAssimp.getAnimator()->startAnimation("Vampire");
+	/*Globals::animationManager.loadAnimationDae("cowboy_run", "res/models/cowboy/cowboy.dae", "Armature", "cowboy_run");
+	assimpAnimated.loadModel("res/models/cowboy/cowboy.dae", "res/models/cowboy/cowboy.png");
+	assimpAnimated.rotate(Vector3f(0.0f, 1.0f, 0.0f), 180.0f);
+	assimpAnimated.translate(position[0], position[1], position[2]);
+	assimpAnimated.scale(10.3f, 10.3f, 10.3f);
+	assimpAnimated.getAnimator()->addAnimation(Globals::animationManager.getAssetPointer("cowboy_run"));
+	assimpAnimated.getAnimator()->startAnimation("cowboy_run");*/
 	
-	
+
+	Globals::animationManager.loadAnimationDae("vampire_dance", "res/models/vampire/dancing_vampire.dae", "", "vampire_dance");
+	assimpAnimated.loadModel("res/models/vampire/dancing_vampire.dae", "res/models/vampire/textures/Vampire_diffuse.png");
+	assimpAnimated.rotate(Vector3f(0.0f, 1.0f, 0.0f), 180.0f);
+	assimpAnimated.translate(position[0], position[1], position[2]);
+	assimpAnimated.scale(0.3f, 0.3f, 0.3f);
+	assimpAnimated.getAnimator()->addAnimation(Globals::animationManager.getAssetPointer("vampire_dance"));
+	assimpAnimated.getAnimator()->startAnimation("vampire_dance");
+
+	/*Globals::animationManager.loadAnimationFbx("player_idle", "res/models/player/player.fbx", "Player", "player_idle", 6u, 82u, 50u);
+	Globals::animationManager.loadAnimationFbx("player_run", "res/models/player/player.fbx", "Player", "player_run", 83u, 104u, 50u);
+
+	assimpAnimated.loadModel("res/models/player/player.fbx", "res/models/player/textures/Player_D.tga");
+	assimpAnimated.rotate(Vector3f(0.0f, 1.0f, 0.0f), 180.0f);
+	assimpAnimated.translate(position[0], position[1], position[2]);
+	assimpAnimated.scale(0.3f, 0.3f, 0.3f);
+	assimpAnimated.getAnimator()->addAnimation(Globals::animationManager.getAssetPointer("player_idle"));
+	assimpAnimated.getAnimator()->addAnimation(Globals::animationManager.getAssetPointer("player_run"));
+	assimpAnimated.getAnimator()->startAnimation("player_idle");*/
 }
 
 Game::~Game() {}
@@ -319,6 +339,16 @@ void Game::update() {
 		m_debugNormal = !m_debugNormal;
 	}
 
+	if (keyboard.keyPressed(Keyboard::KEY_H)) {
+		assimpAnimated.getAnimator()->startAnimation("player_run");
+	}
+
+	if (keyboard.keyPressed(Keyboard::KEY_G)) {
+		assimpAnimated.getAnimator()->startAnimation("player_idle");
+	}
+
+	
+
 	Mouse &mouse = Mouse::instance();
 	if (mouse.buttonPressed(Mouse::MouseButton::BUTTON_LEFT)) {
 		
@@ -387,8 +417,7 @@ void Game::update() {
 
 	m_mousePicker.update(m_dt);
 	cowboy.update(m_dt);
-	//cowboyAssimp.update(m_dt);
-	cowboyAssimp.update(m_dt);
+	assimpAnimated.update(m_dt);
 	//performCameraCollisionDetection();
 };
 
@@ -440,7 +469,7 @@ void Game::render(unsigned int &frameBuffer) {
 	
 	m_car->draw(m_camera);
 	//cowboy.draw(m_camera);
-	cowboyAssimp.draw(m_camera);
+	assimpAnimated.draw(m_camera);
 
 	if (!m_debugNormal) {
 		dragonCompare->draw(m_camera);

@@ -10,7 +10,7 @@ void AssimpAnimatedModel::loadModel(const std::string &a_filename, const std::st
 	m_texture = std::make_shared<Texture>(texture);
 
 	Assimp::Importer Importer;
-	//Importer.SetPropertyBool(AI_CONFIG_IMPORT_FBX_PRESERVE_PIVOTS, false);
+	Importer.SetPropertyBool(AI_CONFIG_IMPORT_FBX_PRESERVE_PIVOTS, false);
 
 	const aiScene* pScene = Importer.ReadFile(a_filename, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs);
 
@@ -123,37 +123,6 @@ void AssimpAnimatedModel::loadModel(const std::string &a_filename, const std::st
 		mesh->m_drawCount = aiMesh->mNumFaces * 3;
 		CreateBuffer(m_positions, m_texCoords, m_normals, m_jointIds, m_jointWeights, m_indexBuffer, mesh->m_vao, mesh->m_vbo, mesh->m_ibo);	
 	}
-
-	for (unsigned int i = 0; i < pScene->mNumAnimations; i++) {
-
-		const aiAnimation* aiAnimation = pScene->mAnimations[i];
-		AssimpAnimation* animation = new AssimpAnimation();
-
-		animation->m_duration = aiAnimation->mDuration;
-		animation->m_name = "Vampire";
-
-		animation->m_keyFrames.resize(aiAnimation->mChannels[0]->mNumPositionKeys);
-
-		for (unsigned int c = 0; c < aiAnimation->mNumChannels; c++) {
-
-			
-
-			std::string boneNameId = aiAnimation->mChannels[c]->mNodeName.data;
-			
-			for (unsigned int k = 0; k < aiAnimation->mChannels[c]->mNumPositionKeys; k++) {
-
-				animation->m_keyFrames[k].time = aiAnimation->mChannels[c]->mPositionKeys[k].mTime;
-
-				Vector3f position = Vector3f(aiAnimation->mChannels[c]->mPositionKeys[k].mValue.x, aiAnimation->mChannels[c]->mPositionKeys[k].mValue.y, aiAnimation->mChannels[c]->mPositionKeys[k].mValue.z);
-				Vector3f scale = Vector3f(aiAnimation->mChannels[c]->mScalingKeys[k].mValue.x, aiAnimation->mChannels[c]->mScalingKeys[k].mValue.z, aiAnimation->mChannels[c]->mScalingKeys[k].mValue.y);
-				aiQuaternion quat = aiAnimation->mChannels[c]->mRotationKeys[k].mValue;
-
-				//becarefull use the conjugated quternion <-> transpose the rotation matrix
-				animation->m_keyFrames[k].pose.insert(std::pair<std::string, AssimpBoneTransformData>(boneNameId, AssimpBoneTransformData(boneNameId, position, Quaternion(-quat.x, -quat.y, -quat.z, quat.w), scale)));
-			}
-		}
-		m_animator->addAnimation(animation);
-	}
 }
 
 void AssimpAnimatedModel::CreateBuffer(std::vector<Vector3f>& positions, std::vector<Vector2f>& texCoords, std::vector<Vector3f>& normals, std::vector<std::array<unsigned int, 4>>& jointIds, std::vector<Vector4f>& jointWeights, std::vector<unsigned int>& indices, unsigned int& vao, unsigned int(&vbo)[5], unsigned int& ibo){
@@ -228,7 +197,6 @@ void AssimpAnimatedModel::CreateBuffer(std::vector<Vector3f>& positions, std::ve
 	glBindVertexArray(0);
 
 };
-
 
 void AssimpAnimatedModel::printAiHierarchy(aiNode *node) {
 	std::cout << node->mName.data << std::endl;

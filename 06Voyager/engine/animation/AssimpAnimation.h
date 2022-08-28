@@ -4,7 +4,9 @@
 #include <string>
 #include <vector>
 
+#include <assimp/Importer.hpp> 
 #include <assimp/scene.h>
+#include <assimp/postprocess.h>
 
 #include "../Vector.h"
 
@@ -40,6 +42,9 @@ class AssimpAnimation {
 	friend class Animator;
 
 public:
+	void loadAnimationFbx(const std::string &filename, std::string sourceName, std::string destName, unsigned int animationOffset = 50, unsigned int animationCuttOff = 230, unsigned int timeShift = 0);
+	void loadAnimationDae(const std::string &filename, std::string sourceName, std::string destName, unsigned int animationOffset = 0, unsigned int animationCuttOff = 0);
+
 	AssimpAnimation() = default;
 	virtual ~AssimpAnimation() {}
 
@@ -50,5 +55,7 @@ public:
 
 	std::string m_name;
 	std::vector<AssimpKeyFrameData> m_keyFrames;
-	float m_duration;
+	float m_duration = 0.0f;
+	unsigned int m_animationTicks = 0;
+	unsigned int m_ticksPerSecond = 0;
 };

@@ -44,6 +44,7 @@ void AssimpAnimator::startAnimation(const std::string & animationName) {
 		if (animation->getName() == animationName) {
 			m_animationTime = 0;
 			m_currentAnimation = animation;
+			m_ticksPerSecond = animation->m_ticksPerSecond;
 		}
 	}
 }
@@ -52,12 +53,12 @@ void AssimpAnimator::addAnimation(AssimpAnimation* animation) {
 	m_animations.push_back(std::shared_ptr<AssimpAnimation>(animation));
 }
 
-void AssimpAnimator::update(double elapsedTime) {
-
+void AssimpAnimator::update(float elapsedTime) {
+	//std::cout << m_animationTime << std::endl;
 	//increase animationTime
-	m_animationTime += elapsedTime;
+	//m_animationTime += elapsedTime;
 
-	//m_animationTime += elapsedTime * m_ticksPerSecond;
+	m_animationTime += elapsedTime * m_ticksPerSecond;
 
 	if (m_animationTime > m_currentAnimation->getDuration()) {
 		m_animationTime = fmod(m_animationTime, m_currentAnimation->getDuration());
@@ -72,12 +73,12 @@ std::unordered_map<std::string, Matrix4f> AssimpAnimator::calculateCurrentAnimat
 	std::vector<AssimpKeyFrameData> keyFrames = m_currentAnimation->m_keyFrames;
 
 	/**c++ implementation*/
-	std::vector<AssimpKeyFrameData>::iterator upper = std::upper_bound(keyFrames.begin() + 1, keyFrames.end(), m_animationTime, AssimpKeyFrameData::greater_than());
-	AssimpKeyFrameData  nextFrame = *upper;
-	AssimpKeyFrameData  previousFrame = *(std::prev(upper));
+	//std::vector<AssimpKeyFrameData>::iterator upper = std::upper_bound(keyFrames.begin() + 1, keyFrames.end(), m_animationTime, AssimpKeyFrameData::greater_than());
+	//AssimpKeyFrameData  nextFrame = *upper;
+	//AssimpKeyFrameData  previousFrame = *(std::prev(upper));
 
 	/**custom implementation*/
-	/*AssimpKeyFrameData  previousFrame = keyFrames[0];
+	AssimpKeyFrameData  previousFrame = keyFrames[0];
 	AssimpKeyFrameData  nextFrame = keyFrames[0];
 	for (int i = 1; i < keyFrames.size(); i++) {
 		nextFrame = keyFrames[i];
@@ -85,7 +86,7 @@ std::unordered_map<std::string, Matrix4f> AssimpAnimator::calculateCurrentAnimat
 			break;
 		}
 		previousFrame = keyFrames[i];
-	}*/
+	}
 
 	float totalTime = nextFrame.time - previousFrame.time;
 	float currentTime = m_animationTime - previousFrame.time;
@@ -98,7 +99,7 @@ std::unordered_map<std::string, Matrix4f> AssimpAnimator::calculateCurrentAnimat
 
 		std::string name = it->first;
 
-		//if (previousFrame.pose.count(name) > 0 && nextFrame.pose.count(name) > 0) {
+		if (previousFrame.pose.count(name) > 0 && nextFrame.pose.count(name) > 0) {
 
 			AssimpBoneTransformData _prevFrame = previousFrame.pose.at(name);
 			AssimpBoneTransformData _nextFrame = nextFrame.pose.at(name);
@@ -114,10 +115,14 @@ std::unordered_map<std::string, Matrix4f> AssimpAnimator::calculateCurrentAnimat
 			sca.scale(scale[0], scale[1], scale[2]);
 
 			currentPose.insert(std::make_pair(name, sca * trans * mat));
-		/*}
+			//Matrix4f tmp = sca * trans * mat;
+			//(sca * trans * mat).print();
+
+		}
 		else {
+			
 			currentPose.insert(std::make_pair(name, Matrix4f::IDENTITY));
-		}*/
+		}
 		it++;
 	}
 	return currentPose;

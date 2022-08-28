@@ -14,14 +14,15 @@ public:
 
 	void startAnimation(const std::string& animationName);
 	void addAnimation(AssimpAnimation* animation);
-	void update(double elapsedTime);
+	void update(float elapsedTime);
 
 private:
 	AssimpAnimatedModel* m_model;
 
 	std::vector<std::shared_ptr<AssimpAnimation>> m_animations;
 	std::shared_ptr<AssimpAnimation> m_currentAnimation;
-	double m_animationTime;
+	float m_animationTime;
+	unsigned int m_ticksPerSecond = 0;
 
 	std::unordered_map<std::string, Matrix4f> calculateCurrentAnimationPose();
 
