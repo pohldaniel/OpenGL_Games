@@ -1,5 +1,6 @@
+#define NOMINMAX
 #pragma once
-
+#include <algorithm>
 #include "engine/input/MouseEventListener.h"
 #include "engine/input/KeyBorad.h"
 #include "engine/input/Mouse.h"
@@ -57,6 +58,7 @@ public:
 	void renderOffscreen();
 	void shadowPass();
 	void mousePickPass();
+	void toggleDayNight();
 
 	Camera m_camera;
 	Terrain m_terrain;
@@ -107,4 +109,10 @@ public:
 	AssimpModel dragonAssimp;
 
 	AssimpAnimatedModel assimpAnimated;
+
+	const float m_transitionSpeed = 0.5f;
+	bool m_transitionEnd = false;
+	bool m_fadeIn = false;
+	bool m_fadeOut = true;
+	float m_blend = 0.0f;
 };

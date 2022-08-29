@@ -89,6 +89,7 @@ public:
 	virtual ~AssimpAnimatedModel() {}
 
 	void update(float elapsedTime);
+	void update(std::string base, std::string layer, const float blendFactor, float elapsedTime);
 	void draw(Camera& camera);
 
 	void loadModel(const std::string &filename, const std::string &texture);

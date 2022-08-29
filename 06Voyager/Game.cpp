@@ -226,7 +226,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_water(
 	assimpAnimated.getAnimator()->addAnimation(Globals::animationManager.getAssetPointer("cowboy_run"));
 	assimpAnimated.getAnimator()->startAnimation("cowboy_run");*/
 
-	/*Globals::animationManager.loadAnimationDae("right_wing", "res/models/dragon_dae/dragon.dae", "right_wing", "right_wing");
+	Globals::animationManager.loadAnimationDae("right_wing", "res/models/dragon_dae/dragon.dae", "right_wing", "right_wing");
 	Globals::animationManager.loadAnimationDae("left_wing", "res/models/dragon_dae/dragon.dae", "left_wing", "left_wing");
 	Globals::animationManager.loadAnimationDae("both_wing", "res/models/dragon_dae/dragon.dae", "both_wing", "both_wing");
 
@@ -235,18 +235,18 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_water(
 	assimpAnimated.translate(position[0], position[1], position[2]);
 	assimpAnimated.scale(10.3f, 10.3f, 10.3f);
 
-	assimpAnimated.getAnimator()->addAnimation(Globals::animationManager.getAssetPointer("right_wing"));
 	assimpAnimated.getAnimator()->addAnimation(Globals::animationManager.getAssetPointer("left_wing"));
 	assimpAnimated.getAnimator()->addAnimation(Globals::animationManager.getAssetPointer("both_wing"));
-	assimpAnimated.getAnimator()->startAnimation("left_wing");*/
+	assimpAnimated.getAnimator()->addAnimation(Globals::animationManager.getAssetPointer("right_wing"));
+	assimpAnimated.getAnimator()->startAnimation("both_wing");
 
-	Globals::animationManager.loadAnimationDae("cowboy_run", "res/models/cowboy/cowboy.dae", "Armature", "cowboy_run");
+	/*Globals::animationManager.loadAnimationDae("cowboy_run", "res/models/cowboy/cowboy.dae", "Armature", "cowboy_run");
 	assimpAnimated.loadModel("res/models/cowboy/cowboy.dae", "res/models/cowboy/cowboy.png");
 	assimpAnimated.rotate(Vector3f(0.0f, 1.0f, 0.0f), 180.0f);
 	assimpAnimated.translate(position[0], position[1], position[2]);
 	assimpAnimated.scale(10.3f, 10.3f, 10.3f);
 	assimpAnimated.getAnimator()->addAnimation(Globals::animationManager.getAssetPointer("cowboy_run"));
-	assimpAnimated.getAnimator()->startAnimation("cowboy_run");
+	assimpAnimated.getAnimator()->startAnimation("cowboy_run");*/
 	
 
 	/*Globals::animationManager.loadAnimationDae("vampire_dance", "res/models/vampire/dancing_vampire.dae", "", "vampire_dance");
@@ -362,14 +362,9 @@ void Game::update() {
 	}
 
 	if (keyboard.keyPressed(Keyboard::KEY_H)) {
-		assimpAnimated.getAnimator()->startAnimation("player_run");
+		toggleDayNight();
 	}
 
-	if (keyboard.keyPressed(Keyboard::KEY_G)) {
-		assimpAnimated.getAnimator()->startAnimation("player_idle");
-	}
-
-	
 
 	Mouse &mouse = Mouse::instance();
 	if (mouse.buttonPressed(Mouse::MouseButton::BUTTON_LEFT)) {
@@ -421,6 +416,18 @@ void Game::update() {
 
 	}// end if any movement
 
+	if (m_fadeIn) {
+		m_blend = m_blend <= 1.0f ? m_blend + m_transitionSpeed * m_dt : 1.0f;
+		m_fadeIn = m_blend <= 1.0f;
+		m_transitionEnd = !m_fadeIn;
+	}
+
+	if (m_fadeOut) {
+		m_blend = m_blend >= 0.0f ? m_blend - m_transitionSpeed * m_dt : 0.0f;
+		m_fadeOut = m_blend >= 0.0f;
+		m_transitionEnd = m_fadeOut;
+	}
+
 	m_camera.calcLightTransformation(LIGHT_DIRECTION);
 	m_camera.calcLightTransformation2(LIGHT_DIRECTION);
 
@@ -436,12 +443,27 @@ void Game::update() {
 	for (auto entitie : m_fernEntities) {
 		entitie->setDrawBorder(m_mousePicker.getPickedId() == entitie->getId());
 	}
-
+	//std::cout << m_blend << std::endl;
 	m_mousePicker.update(m_dt);
 	cowboy.update(m_dt);
-	assimpAnimated.update(m_dt);
+	//assimpAnimated.update(m_dt);
+
+	assimpAnimated.update("left_wing", "both_wing", std::min(std::max(m_blend, 0.0f), 1.0f), m_dt);
+
 	//performCameraCollisionDetection();
 };
+
+void Game::toggleDayNight() {
+
+	if (!m_transitionEnd) {
+		m_fadeOut = m_fadeIn;
+		m_fadeIn = !m_fadeIn;
+	}
+	else {
+		m_fadeIn = m_fadeOut;
+		m_fadeOut = !m_fadeOut;
+	}
+}
 
 void Game::render(unsigned int &frameBuffer) {
 	BuiltInShader::UpdateViewUbo(m_camera);

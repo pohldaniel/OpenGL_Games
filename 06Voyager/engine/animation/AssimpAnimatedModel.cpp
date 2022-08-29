@@ -298,6 +298,10 @@ void AssimpAnimatedModel::update(float elapsedTime) {
 	m_animator->update(elapsedTime);
 }
 
+void AssimpAnimatedModel::update(std::string base, std::string layer, const float blendFactor, float elapsedTime) {
+	m_animator->blendTwoAnimations(base, layer, blendFactor, elapsedTime);
+}
+
 void AssimpAnimatedModel::draw(Camera& camera) {
 
 	m_shader.bind();

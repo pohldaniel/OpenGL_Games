@@ -16,6 +16,8 @@ public:
 	void addAnimation(AssimpAnimation* animation);
 	void update(float elapsedTime);
 
+	void blendTwoAnimations(std::string pBaseAnimation, std::string pLayeredAnimation, float blendFactor, float deltaTime);
+
 private:
 	AssimpAnimatedModel* m_model;
 
@@ -25,6 +27,7 @@ private:
 	unsigned int m_ticksPerSecond = 0;
 
 	std::unordered_map<std::string, Matrix4f> calculateCurrentAnimationPose();
+	std::unordered_map<std::string, Matrix4f> calculateBlendedAnimationPose(const float currentTimeBase, const float currentTimeLayered, const float blendFactor);
 
 	Vector3f getInterpolated(Vector3f start, Vector3f end, float progression);
 	Quaternion interpolateQuat(Quaternion a, Quaternion b, float blend);
