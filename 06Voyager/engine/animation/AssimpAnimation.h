@@ -10,31 +10,40 @@
 
 #include "../Vector.h"
 
-struct AssimpBoneTransformData {
-
-	std::string jointNameId;
-	Vector3f positonKeys;
-	Quaternion rotationKeys;
-	Vector3f scallingKeys;
-
-	AssimpBoneTransformData(std::string _jointNameId, Vector3f _positonKeys, Quaternion _rotationKeys, Vector3f _scallingKeys) {
-		jointNameId = _jointNameId;
-		positonKeys = _positonKeys;
-		rotationKeys = _rotationKeys;
-		scallingKeys = _scallingKeys;
-	}
-};
+typedef std::pair<float, Vector3f> PositionKey;
+typedef PositionKey ScaleKey;
+typedef std::pair<float, Quaternion> RotationKey;
 
 struct AssimpKeyFrameData {
 
-	float time;
-	std::map<std::string, AssimpBoneTransformData> pose;
+	
+	std::map<std::string, std::vector<PositionKey>> positions;
+	std::map<std::string, std::vector<ScaleKey>> scales;
+	std::map<std::string, std::vector<RotationKey>> rotations;
+	
+	unsigned int getPositionIndex(float animationTime, std::string boneName){
+		unsigned int index = 0;
+		auto ret = std::find_if(positions[boneName].begin() + 1, positions[boneName].end(), [&index, &animationTime](PositionKey x) {
+			index++;
+			return animationTime < x.first;
+		
+		});
+		return index - 1;	
+	}
 
-	struct greater_than {
-		bool operator()(const float b, const AssimpKeyFrameData &a) {
-			return a.time > b;
+	unsigned int getScaleIndex(float animationTime, std::string boneName) {
+		for (int index = 0; index < scales[boneName].size() - 1; ++index){
+			if (animationTime < scales[boneName][index + 1].first)
+				return index;
 		}
-	};
+	}
+
+	unsigned int getRotationIndex(float animationTime, std::string boneName) {
+		for (int index = 0; index < rotations[boneName].size() - 1; ++index) {
+			if (animationTime < rotations[boneName][index + 1].first)
+				return index;
+		}
+	}
 };
 
 class AssimpAnimation {
@@ -54,8 +63,10 @@ public:
 //private:
 
 	std::string m_name;
-	std::vector<AssimpKeyFrameData> m_keyFrames;
 	float m_duration = 0.0f;
 	unsigned int m_animationTicks = 0;
 	unsigned int m_ticksPerSecond = 0;
+
+	AssimpKeyFrameData m_keyFrames;
+	std::vector<std::string> m_boneList;
 };

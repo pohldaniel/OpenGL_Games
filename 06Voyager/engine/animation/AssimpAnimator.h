@@ -26,7 +26,8 @@ private:
 
 	std::unordered_map<std::string, Matrix4f> calculateCurrentAnimationPose();
 
-	Vector3f GetInterpolated(Vector3f start, Vector3f end, float progression);
+	Vector3f getInterpolated(Vector3f start, Vector3f end, float progression);
 	Quaternion interpolateQuat(Quaternion a, Quaternion b, float blend);
+	float getProgression(float lastTimeStamp, float nextTimeStamp, float animationTime);
 };
 

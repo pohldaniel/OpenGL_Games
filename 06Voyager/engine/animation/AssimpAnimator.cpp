@@ -3,7 +3,7 @@
 #include "AssimpAnimatedModel.h"
 #include "AssimpAnimation.h"
 
-Vector3f AssimpAnimator::GetInterpolated(Vector3f start, Vector3f end, float progression) {
+Vector3f AssimpAnimator::getInterpolated(Vector3f start, Vector3f end, float progression) {
 
 	float x = start[0] + (end[0] - start[0]) * progression;
 	float y = start[1] + (end[1] - start[1]) * progression;
@@ -33,6 +33,13 @@ Quaternion AssimpAnimator::interpolateQuat(Quaternion a, Quaternion b, float ble
 	return result;
 }
 
+float AssimpAnimator::getProgression(float lastTimeStamp, float nextTimeStamp, float animationTime) {
+	float currentTime = animationTime - lastTimeStamp;
+	float totalTime = nextTimeStamp - lastTimeStamp;	
+	return currentTime / totalTime;
+}
+
+
 AssimpAnimator::AssimpAnimator(AssimpAnimatedModel *model) {
 	m_model = model;
 }
@@ -54,10 +61,7 @@ void AssimpAnimator::addAnimation(AssimpAnimation* animation) {
 }
 
 void AssimpAnimator::update(float elapsedTime) {
-	//std::cout << m_animationTime << std::endl;
-	//increase animationTime
-	//m_animationTime += elapsedTime;
-
+	
 	m_animationTime += elapsedTime * m_ticksPerSecond;
 
 	if (m_animationTime > m_currentAnimation->getDuration()) {
@@ -69,61 +73,30 @@ void AssimpAnimator::update(float elapsedTime) {
 
 std::unordered_map<std::string, Matrix4f> AssimpAnimator::calculateCurrentAnimationPose() {
 
-	std::vector<AssimpKeyFrameData> keyFrames = m_currentAnimation->m_keyFrames;
-
-	/**c++ implementation*/
-	std::vector<AssimpKeyFrameData>::iterator upper = std::upper_bound(keyFrames.begin() + 1, keyFrames.end(), m_animationTime, AssimpKeyFrameData::greater_than());
-	AssimpKeyFrameData  nextFrame = *upper;
-	AssimpKeyFrameData  previousFrame = *(std::prev(upper));
-
-	/**custom implementation*/
-	/*AssimpKeyFrameData  previousFrame = keyFrames[0];
-	AssimpKeyFrameData  nextFrame = keyFrames[0];
-	for (int i = 1; i < keyFrames.size(); i++) {
-		nextFrame = keyFrames[i];
-		if (nextFrame.time >  m_animationTime) {
-			break;
-		}
-		previousFrame = keyFrames[i];
-	}*/
-
-	float totalTime = nextFrame.time - previousFrame.time;
-	float currentTime = m_animationTime - previousFrame.time;
-	float progression = currentTime / totalTime;
+	AssimpKeyFrameData keyFrames = m_currentAnimation->m_keyFrames;
 
 	std::unordered_map<std::string, Matrix4f> currentPose;
+	for (auto boneName : m_currentAnimation->m_boneList) {
+		int index = keyFrames.getPositionIndex(m_animationTime, boneName);
+		float progression = getProgression(keyFrames.positions.at(boneName)[index].first, keyFrames.positions.at(boneName)[index + 1].first, m_animationTime);
+		Vector3f position = getInterpolated(keyFrames.positions.at(boneName)[index].second, keyFrames.positions.at(boneName)[index + 1].second, progression);
 
-	std::map<std::string, AssimpBoneTransformData>::iterator it = previousFrame.pose.begin();
-	while (it != previousFrame.pose.end()) {
+		index = keyFrames.getScaleIndex(m_animationTime, boneName);
+		progression = getProgression(keyFrames.scales.at(boneName)[index].first, keyFrames.scales.at(boneName)[index + 1].first, m_animationTime);
+		Vector3f scale = getInterpolated(keyFrames.scales.at(boneName)[index].second, keyFrames.scales.at(boneName)[index + 1].second, progression);
 
-		std::string name = it->first;
+		index = keyFrames.getRotationIndex(m_animationTime, boneName);
+		progression = getProgression(keyFrames.rotations.at(boneName)[index].first, keyFrames.rotations.at(boneName)[index + 1].first, m_animationTime);
+		Quaternion rot = interpolateQuat(keyFrames.rotations.at(boneName)[index].second, keyFrames.rotations.at(boneName)[index + 1].second, progression);
+		
+		Matrix4f mat = rot.toMatrix4f();
+		Matrix4f trans;
+		trans.translate(position[0], position[1], position[2]);
+		Matrix4f sca;
+		sca.scale(scale[0], scale[1], scale[2]);
 
-		//if (previousFrame.pose.count(name) > 0 && nextFrame.pose.count(name) > 0) {
-
-			AssimpBoneTransformData _prevFrame = previousFrame.pose.at(name);
-			AssimpBoneTransformData _nextFrame = nextFrame.pose.at(name);
-
-			Vector3f position = GetInterpolated(previousFrame.pose.at(name).positonKeys, nextFrame.pose.at(name).positonKeys, progression);
-			Vector3f scale = GetInterpolated(previousFrame.pose.at(name).scallingKeys, nextFrame.pose.at(name).scallingKeys, progression);
-
-			Quaternion rot = interpolateQuat(previousFrame.pose.at(name).rotationKeys, nextFrame.pose.at(name).rotationKeys, progression);
-			Matrix4f mat = rot.toMatrix4f();
-			Matrix4f trans ;
-			trans.translate(position[0], position[1], position[2]);
-			Matrix4f sca;
-			sca.scale(scale[0], scale[1], scale[2]);
-
-			currentPose.insert(std::make_pair(name, sca * trans * mat));
-			//Matrix4f tmp = sca * trans * mat;
-			//(sca * trans * mat).print();
-
-		//}
-		//else {
-			
-			//currentPose.insert(std::make_pair(name, Matrix4f::IDENTITY));
-		//}
-		it++;
+		currentPose.insert(std::make_pair(boneName, sca * trans * mat));
 	}
-	return currentPose;
 
+	return currentPose;
 }
