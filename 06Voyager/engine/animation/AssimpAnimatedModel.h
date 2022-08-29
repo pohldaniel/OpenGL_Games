@@ -139,29 +139,32 @@ private:
 class AssimpAnimatedMesh {
 
 	friend AssimpAnimatedModel;
+	friend AssimpAnimator;
 
 public:
 
 	
-	AssimpAnimatedMesh();
+	AssimpAnimatedMesh(AssimpAnimatedModel* model);
 	virtual ~AssimpAnimatedMesh();
 
 	void draw();
 	std::vector<Matrix4f> getBoneArray();
-	void applyPoseToJoints(std::unordered_map<std::string, Matrix4f> currentPose);
+	void applyPoseToJoints(std::unordered_map<std::string, Matrix4f>& currentPose, std::vector<Matrix4f>& boneArray);
 
 private:
 
 	void addJointsToArray(AssimpAnimatedModel::AssimpBone rootJoint, std::vector<Matrix4f> &boneArray);
-	void applyPoseToJoints(std::unordered_map<std::string, Matrix4f> currentPose, AssimpAnimatedModel::AssimpBone& joint, Matrix4f parentTransform);
+	void applyPoseToJoints(std::unordered_map<std::string, Matrix4f>& currentPose, AssimpAnimatedModel::AssimpBone& joint, std::vector<Matrix4f>& boneArray, Matrix4f parentTransform);
 
 	unsigned int m_vao = 0;
 	unsigned int m_vbo[5] = { 0 };
 	unsigned int m_ibo = 0;
 	unsigned int m_drawCount;
-
+	AssimpAnimatedModel* m_model;
 	
 	std::vector<std::string> m_boneList;
 
 	AssimpAnimatedModel::AssimpBone m_rootBone;
+
+	std::unordered_map<std::string, Matrix4f> currentPose;
 };

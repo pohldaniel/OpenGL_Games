@@ -35,7 +35,7 @@ void AssimpAnimatedModel::loadModel(const std::string &a_filename, const std::st
 		m_numberOfTriangles = aiMesh->mNumFaces;
 
 
-		m_meshes.push_back(new AssimpAnimatedMesh()); 
+		m_meshes.push_back(new AssimpAnimatedMesh(this)); 
 		mesh = m_meshes.back();
 
 		for (unsigned int i = 0; i < aiMesh->mNumVertices; i++) {
@@ -335,7 +335,9 @@ const Matrix4f &AssimpAnimatedModel::getInvTransformationMatrix() {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-AssimpAnimatedMesh::AssimpAnimatedMesh() {}
+AssimpAnimatedMesh::AssimpAnimatedMesh(AssimpAnimatedModel* model) {
+	m_model = model;
+}
 
 AssimpAnimatedMesh::~AssimpAnimatedMesh() {
 	glDeleteVertexArrays(1, &m_vao);
@@ -358,61 +360,19 @@ std::vector<Matrix4f> AssimpAnimatedMesh::getBoneArray() {
 }
 
 void AssimpAnimatedMesh::addJointsToArray(AssimpAnimatedModel::AssimpBone rootJoint, std::vector<Matrix4f> &boneArray) {
+	applyPoseToJoints(currentPose, m_rootBone, boneArray, Matrix4f::IDENTITY);
+}
 
-	//if (rootJoint.index == boneArray.size()) {		
-		//return;
-	//}
+void AssimpAnimatedMesh::applyPoseToJoints(std::unordered_map<std::string, Matrix4f>& currentPose, std::vector<Matrix4f> &boneArray) {
+	applyPoseToJoints(currentPose, m_rootBone, boneArray, Matrix4f::IDENTITY);
+}
 
-	boneArray[rootJoint.index] = rootJoint.animatedTransform;
-	for (int i = 0; i < rootJoint.children.size(); i++) {
-		addJointsToArray(rootJoint.children[i], boneArray);	
-	}
-
+void AssimpAnimatedMesh::applyPoseToJoints(std::unordered_map<std::string, Matrix4f>& currentPose, AssimpAnimatedModel::AssimpBone& joint, std::vector<Matrix4f> &boneArray, Matrix4f currentTransform) {
 	
-}
+	currentTransform = (currentPose.find(joint.name) != currentPose.end()) ? currentTransform * currentPose.at(joint.name) : currentTransform * joint.localBindTransform;
 
-void AssimpAnimatedMesh::applyPoseToJoints(std::unordered_map<std::string, Matrix4f> currentPose) {
-	applyPoseToJoints(currentPose, m_rootBone, Matrix4f::IDENTITY);
-}
-
-void AssimpAnimatedMesh::applyPoseToJoints(std::unordered_map<std::string, Matrix4f> currentPose, AssimpAnimatedModel::AssimpBone& joint, Matrix4f parentTransform) {
-
-	Matrix4f currentTransform;
-	if (currentPose.find(joint.name) == currentPose.end()) {
-		//check for identity maybe there is a bette way
-		bool check = true;
-		for (short i = 0; i < 4; i++) {
-			check = check && memcmp(parentTransform[i], Matrix4f::IDENTITY[i], sizeof(float) * 4) == 0;
-		}
-
-		if (check) {
-			currentTransform = joint.localBindTransform;
-		}else {
-			currentTransform = parentTransform * joint.localBindTransform;
-		}
-
-	}else {
-		currentTransform = parentTransform * currentPose.at(joint.name);
-	}
-
+	boneArray[joint.index] = currentTransform * joint.inverseBindTransform;
 	for (int i = 0; i < joint.children.size(); i++) {
-		applyPoseToJoints(currentPose, joint.children[i], currentTransform);
-	}
-
-	if (currentPose.find(joint.name) == currentPose.end()) {
-		//check for identity maybe there is a bette way
-		bool check = true;
-		for (short i = 0; i < 4; i++) {
-			check = check && memcmp(parentTransform[i], Matrix4f::IDENTITY[i], sizeof(float) * 4) == 0;
-		}
-
-		if (check) {
-			joint.animatedTransform = joint.localBindTransform * joint.inverseBindTransform;
-		}else {
-			joint.animatedTransform = currentTransform * joint.inverseBindTransform;
-		}
-
-	}else {
-		joint.animatedTransform = currentTransform * joint.inverseBindTransform;
+		applyPoseToJoints(currentPose, joint.children[i], boneArray, currentTransform);
 	}
 }

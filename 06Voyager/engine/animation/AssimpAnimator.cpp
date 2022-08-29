@@ -64,8 +64,7 @@ void AssimpAnimator::update(float elapsedTime) {
 		m_animationTime = fmod(m_animationTime, m_currentAnimation->getDuration());
 	}
 
-	std::unordered_map<std::string, Matrix4f> currentPose = calculateCurrentAnimationPose();
-	m_model->m_meshes[0]->applyPoseToJoints(currentPose);
+	m_model->m_meshes[0]->currentPose = calculateCurrentAnimationPose();	
 }
 
 std::unordered_map<std::string, Matrix4f> AssimpAnimator::calculateCurrentAnimationPose() {
@@ -73,12 +72,12 @@ std::unordered_map<std::string, Matrix4f> AssimpAnimator::calculateCurrentAnimat
 	std::vector<AssimpKeyFrameData> keyFrames = m_currentAnimation->m_keyFrames;
 
 	/**c++ implementation*/
-	//std::vector<AssimpKeyFrameData>::iterator upper = std::upper_bound(keyFrames.begin() + 1, keyFrames.end(), m_animationTime, AssimpKeyFrameData::greater_than());
-	//AssimpKeyFrameData  nextFrame = *upper;
-	//AssimpKeyFrameData  previousFrame = *(std::prev(upper));
+	std::vector<AssimpKeyFrameData>::iterator upper = std::upper_bound(keyFrames.begin() + 1, keyFrames.end(), m_animationTime, AssimpKeyFrameData::greater_than());
+	AssimpKeyFrameData  nextFrame = *upper;
+	AssimpKeyFrameData  previousFrame = *(std::prev(upper));
 
 	/**custom implementation*/
-	AssimpKeyFrameData  previousFrame = keyFrames[0];
+	/*AssimpKeyFrameData  previousFrame = keyFrames[0];
 	AssimpKeyFrameData  nextFrame = keyFrames[0];
 	for (int i = 1; i < keyFrames.size(); i++) {
 		nextFrame = keyFrames[i];
@@ -86,7 +85,7 @@ std::unordered_map<std::string, Matrix4f> AssimpAnimator::calculateCurrentAnimat
 			break;
 		}
 		previousFrame = keyFrames[i];
-	}
+	}*/
 
 	float totalTime = nextFrame.time - previousFrame.time;
 	float currentTime = m_animationTime - previousFrame.time;
@@ -99,7 +98,7 @@ std::unordered_map<std::string, Matrix4f> AssimpAnimator::calculateCurrentAnimat
 
 		std::string name = it->first;
 
-		if (previousFrame.pose.count(name) > 0 && nextFrame.pose.count(name) > 0) {
+		//if (previousFrame.pose.count(name) > 0 && nextFrame.pose.count(name) > 0) {
 
 			AssimpBoneTransformData _prevFrame = previousFrame.pose.at(name);
 			AssimpBoneTransformData _nextFrame = nextFrame.pose.at(name);
@@ -118,11 +117,11 @@ std::unordered_map<std::string, Matrix4f> AssimpAnimator::calculateCurrentAnimat
 			//Matrix4f tmp = sca * trans * mat;
 			//(sca * trans * mat).print();
 
-		}
-		else {
+		//}
+		//else {
 			
-			currentPose.insert(std::make_pair(name, Matrix4f::IDENTITY));
-		}
+			//currentPose.insert(std::make_pair(name, Matrix4f::IDENTITY));
+		//}
 		it++;
 	}
 	return currentPose;

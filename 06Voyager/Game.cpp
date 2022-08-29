@@ -218,22 +218,38 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_water(
 	position[2] = HEIGHTMAP_WIDTH * 0.5f + 70.0f;
 	position[1] = m_terrain.getHeightMap().heightAt(HEIGHTMAP_WIDTH * 0.5f + 50.0f, HEIGHTMAP_WIDTH * 0.5f + 70.0f + 100.0f) + 50.0f;
 
-	/*Globals::animationManager.loadAnimationDae("cowboy_run", "res/models/cowboy/cowboy.dae", "Armature", "cowboy_run");
-	assimpAnimated.loadModel("res/models/cowboy/cowboy.dae", "res/models/cowboy/cowboy.png");
+	/*Globals::animationManager.loadAnimationDae("cowboy_run", "res/models/mushroom/mushroom.dae", "Armature", "cowboy_run");
+	assimpAnimated.loadModel("res/models/mushroom/mushroom.dae", "res/models/mushroom/mushroom.png");
 	assimpAnimated.rotate(Vector3f(0.0f, 1.0f, 0.0f), 180.0f);
 	assimpAnimated.translate(position[0], position[1], position[2]);
 	assimpAnimated.scale(10.3f, 10.3f, 10.3f);
 	assimpAnimated.getAnimator()->addAnimation(Globals::animationManager.getAssetPointer("cowboy_run"));
 	assimpAnimated.getAnimator()->startAnimation("cowboy_run");*/
+
+	/*Globals::animationManager.loadAnimationDae("cowboy_run", "res/models/dragon_dae/dragon.dae", "Armature", "cowboy_run");
+	assimpAnimated.loadModel("res/models/dragon_dae/dragon.dae", "res/models/dragon_dae/dragon.png");
+	assimpAnimated.rotate(Vector3f(0.0f, 1.0f, 0.0f), 180.0f);
+	assimpAnimated.translate(position[0], position[1], position[2]);
+	assimpAnimated.scale(10.3f, 10.3f, 10.3f);
+	assimpAnimated.getAnimator()->addAnimation(Globals::animationManager.getAssetPointer("cowboy_run"));
+	assimpAnimated.getAnimator()->startAnimation("cowboy_run");*/
+
+	Globals::animationManager.loadAnimationDae("cowboy_run", "res/models/cowboy/cowboy.dae", "Armature", "cowboy_run");
+	assimpAnimated.loadModel("res/models/cowboy/cowboy.dae", "res/models/cowboy/cowboy.png");
+	assimpAnimated.rotate(Vector3f(0.0f, 1.0f, 0.0f), 180.0f);
+	assimpAnimated.translate(position[0], position[1], position[2]);
+	assimpAnimated.scale(10.3f, 10.3f, 10.3f);
+	assimpAnimated.getAnimator()->addAnimation(Globals::animationManager.getAssetPointer("cowboy_run"));
+	assimpAnimated.getAnimator()->startAnimation("cowboy_run");
 	
 
-	Globals::animationManager.loadAnimationDae("vampire_dance", "res/models/vampire/dancing_vampire.dae", "", "vampire_dance");
+	/*Globals::animationManager.loadAnimationDae("vampire_dance", "res/models/vampire/dancing_vampire.dae", "", "vampire_dance");
 	assimpAnimated.loadModel("res/models/vampire/dancing_vampire.dae", "res/models/vampire/textures/Vampire_diffuse.png");
 	assimpAnimated.rotate(Vector3f(0.0f, 1.0f, 0.0f), 180.0f);
 	assimpAnimated.translate(position[0], position[1], position[2]);
 	assimpAnimated.scale(0.3f, 0.3f, 0.3f);
 	assimpAnimated.getAnimator()->addAnimation(Globals::animationManager.getAssetPointer("vampire_dance"));
-	assimpAnimated.getAnimator()->startAnimation("vampire_dance");
+	assimpAnimated.getAnimator()->startAnimation("vampire_dance");*/
 
 	/*Globals::animationManager.loadAnimationFbx("player_idle", "res/models/player/player.fbx", "Player", "player_idle", 6u, 82u, 50u);
 	Globals::animationManager.loadAnimationFbx("player_run", "res/models/player/player.fbx", "Player", "player_run", 83u, 104u, 50u);
