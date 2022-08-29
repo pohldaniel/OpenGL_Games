@@ -75,7 +75,7 @@ void AssimpAnimation::loadAnimationDae(const std::string &filename, std::string 
 	for (unsigned int i = 0; i < aiScene->mNumAnimations; i++) {
 		
 		const aiAnimation* aiAnimation = aiScene->mAnimations[i];
-		std::cout << aiAnimation->mName.data << std::endl;
+
 		if (sourceName.compare(aiAnimation->mName.data) != 0) {
 			continue;
 		}

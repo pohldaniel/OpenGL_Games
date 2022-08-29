@@ -226,13 +226,19 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_water(
 	assimpAnimated.getAnimator()->addAnimation(Globals::animationManager.getAssetPointer("cowboy_run"));
 	assimpAnimated.getAnimator()->startAnimation("cowboy_run");*/
 
-	/*Globals::animationManager.loadAnimationDae("cowboy_run", "res/models/dragon_dae/dragon.dae", "Armature", "cowboy_run");
+	/*Globals::animationManager.loadAnimationDae("right_wing", "res/models/dragon_dae/dragon.dae", "right_wing", "right_wing");
+	Globals::animationManager.loadAnimationDae("left_wing", "res/models/dragon_dae/dragon.dae", "left_wing", "left_wing");
+	Globals::animationManager.loadAnimationDae("both_wing", "res/models/dragon_dae/dragon.dae", "both_wing", "both_wing");
+
 	assimpAnimated.loadModel("res/models/dragon_dae/dragon.dae", "res/models/dragon_dae/dragon.png");
 	assimpAnimated.rotate(Vector3f(0.0f, 1.0f, 0.0f), 180.0f);
 	assimpAnimated.translate(position[0], position[1], position[2]);
 	assimpAnimated.scale(10.3f, 10.3f, 10.3f);
-	assimpAnimated.getAnimator()->addAnimation(Globals::animationManager.getAssetPointer("cowboy_run"));
-	assimpAnimated.getAnimator()->startAnimation("cowboy_run");*/
+
+	assimpAnimated.getAnimator()->addAnimation(Globals::animationManager.getAssetPointer("right_wing"));
+	assimpAnimated.getAnimator()->addAnimation(Globals::animationManager.getAssetPointer("left_wing"));
+	assimpAnimated.getAnimator()->addAnimation(Globals::animationManager.getAssetPointer("both_wing"));
+	assimpAnimated.getAnimator()->startAnimation("left_wing");*/
 
 	Globals::animationManager.loadAnimationDae("cowboy_run", "res/models/cowboy/cowboy.dae", "Armature", "cowboy_run");
 	assimpAnimated.loadModel("res/models/cowboy/cowboy.dae", "res/models/cowboy/cowboy.png");
