@@ -374,6 +374,8 @@ void Application::loadAssets() {
 	Globals::textureManager.loadTexture("barrel_normal", "res/models/barrel/barrelNormal.png", true);
 	Globals::textureManager.get("barrel_normal").setLinear();
 	
+	Globals::textureManager.loadTexture("woman", "Assets/Woman.png", false);
+
 	Globals::spritesheetManager.createSpritesheet("terrain", Globals::textureManager.get("dirt").getTexture(), 512, 512, GL_RGB8);
 	Globals::spritesheetManager.getAssetPointer("terrain")->addToSpritesheet((&Globals::textureManager.get("grass"))->getTexture(), 512, 512, GL_RGB8);
 	Globals::spritesheetManager.getAssetPointer("terrain")->addToSpritesheet((&Globals::textureManager.get("rock"))->getTexture(), 512, 512, GL_RGB8);

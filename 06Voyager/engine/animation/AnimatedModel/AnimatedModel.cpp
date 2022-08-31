@@ -4,7 +4,7 @@
 #include "..\..\Texture.h"
 #include "AnimatedModel.h"
 
-AnimatedModel::AnimatedModel() : m_shader("./res/shader/animationShader.vert", "./res/shader/animationShader.frag") {
+AnimatedModel::AnimatedModel() : m_shader("./res/shader/animation.vs", "./res/shader/animation.fs") {
 	m_animator = std::make_shared<Animator>(this);
 	m_transform = Transform();
 }

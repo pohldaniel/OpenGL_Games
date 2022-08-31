@@ -12,7 +12,6 @@
 #include "engine/AssimpModel.h"
 #include "engine/animation/AnimatedModel/AnimatedModel.h"
 #include "engine/animation/AssimpAnimatedModel.h"
-
 #include "CharacterSetBmp.h"
 #include "Text.h"
 
@@ -110,9 +109,15 @@ public:
 
 	AssimpAnimatedModel assimpAnimated;
 
+	AssimpAnimatedModel woman;
+
 	const float m_transitionSpeed = 0.5f;
 	bool m_transitionEnd = false;
 	bool m_fadeIn = false;
 	bool m_fadeOut = true;
 	float m_blend = 0.0f;
+
+	float m_playbackTime = 0.0f;
+	float m_additiveTime = 0.0f;
+	float m_additiveDirection = 1.0f;
 };

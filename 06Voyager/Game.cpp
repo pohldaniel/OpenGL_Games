@@ -267,6 +267,22 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_water(
 	assimpAnimated.getAnimator()->addAnimation(Globals::animationManager.getAssetPointer("player_idle"));
 	assimpAnimated.getAnimator()->addAnimation(Globals::animationManager.getAssetPointer("player_run"));
 	assimpAnimated.getAnimator()->startAnimation("player_idle");*/
+
+	position[0] = HEIGHTMAP_WIDTH * 0.5f + 150.0f;
+	position[2] = HEIGHTMAP_WIDTH * 0.5f + 70.0f;
+	position[1] = m_terrain.getHeightMap().heightAt(HEIGHTMAP_WIDTH * 0.5f + 150.0f, HEIGHTMAP_WIDTH * 0.5f + 70.0f + 100.0f) + 50.0f;
+
+	Globals::animationManager.loadAnimationDae("woman_walk", "res/models/woman/Woman.gltf", "Walking", "woman_walk", 0, 0, 1000.0f);
+	Globals::animationManager.loadAnimationDae("lean_left", "res/models/woman/Woman.gltf", "Lean_Left", "lean_left", 0, 0, 1000.0f);
+
+	
+	woman.loadModel("res/models/woman/Woman.gltf", "res/models/woman/Woman.png");
+	woman.getAnimator()->addAnimation(Globals::animationManager.getAssetPointer("woman_walk"));
+	woman.getAnimator()->addAnimation(Globals::animationManager.getAssetPointer("lean_left"));
+	woman.rotate(Vector3f(0.0f, 1.0f, 0.0f), 240.0f);
+	woman.scale(0.1f, 0.1f, 0.1f);
+	woman.translate(position[0], position[1], position[2]);
+	//woman.getAnimator()->startAnimation("woman_walk");
 }
 
 Game::~Game() {}
@@ -443,13 +459,26 @@ void Game::update() {
 	for (auto entitie : m_fernEntities) {
 		entitie->setDrawBorder(m_mousePicker.getPickedId() == entitie->getId());
 	}
-	//std::cout << m_blend << std::endl;
-	m_mousePicker.update(m_dt);
-	cowboy.update(m_dt);
-	//assimpAnimated.update(m_dt);
 
+	m_mousePicker.update(m_dt);
+	
 	assimpAnimated.update("left_wing", "both_wing", std::min(std::max(m_blend, 0.0f), 1.0f), m_dt);
 
+	m_additiveTime += m_dt * m_additiveDirection;
+
+	if (m_additiveTime < 0.0f) {
+		m_additiveTime = 0.0f;
+		m_additiveDirection *= -1.0f;
+	}
+
+	if (m_additiveTime > 1.0f) {
+		m_additiveTime = 1.0f;
+		m_additiveDirection *= -1.0f;
+	}
+
+	float time = Globals::animationManager.getAssetPointer("lean_left")->mStartTime + (Globals::animationManager.getAssetPointer("lean_left")->mEndTime* m_additiveTime);
+	m_playbackTime = woman.addTwoAnimations(m_playbackTime + m_dt, time, "woman_walk", "lean_left");
+	
 	//performCameraCollisionDetection();
 };
 
@@ -458,8 +487,7 @@ void Game::toggleDayNight() {
 	if (!m_transitionEnd) {
 		m_fadeOut = m_fadeIn;
 		m_fadeIn = !m_fadeIn;
-	}
-	else {
+	}else {
 		m_fadeIn = m_fadeOut;
 		m_fadeOut = !m_fadeOut;
 	}
@@ -512,8 +540,9 @@ void Game::render(unsigned int &frameBuffer) {
 
 	
 	m_car->draw(m_camera);
-	//cowboy.draw(m_camera);
+
 	assimpAnimated.draw(m_camera);
+	woman.draw(m_camera);
 
 	if (!m_debugNormal) {
 		dragonCompare->draw(m_camera);

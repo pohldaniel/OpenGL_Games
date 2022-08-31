@@ -193,6 +193,7 @@ typedef char GLchar;
 #define GL_TEXTURE_SWIZZLE_RGBA 0x8E46
 #define GL_PIXEL_PACK_BUFFER 0x88EB
 #define GL_STREAM_READ 0x88E1
+#define GL_STREAM_DRAW 0x88E0
 
 	extern void glActiveTextureARB(GLenum texture);
 	extern void glMultiTexCoord2fARB(GLenum target, GLfloat s, GLfloat t);
@@ -218,6 +219,7 @@ typedef char GLchar;
 	extern void glDrawElementsInstanced(GLenum mode, GLsizei count, GLenum type, const void * indices, GLsizei instancecount);
 	extern void glDrawElementsBaseVertex(GLenum mode, GLsizei count, GLenum type, void *indices,GLint basevertex);
 	extern void glDrawElementsInstancedBaseVertexBaseInstance(GLenum mode, GLsizei count, GLenum type, void *indices, GLsizei instancecount, GLint basevertex, GLuint baseinstance);
+	extern void glDrawArraysInstanced(GLenum mode, GLint first, GLsizei count, GLsizei instancecount);
 
 	extern void glFramebufferTexture(GLenum target, GLenum attachment, GLuint texture, GLint level);
 	extern void glBindImageTexture(GLuint unit, GLuint texture, GLint level, GLboolean layered, GLint layer, GLenum access, GLenum format);

@@ -27,6 +27,7 @@ public:
 
 	void loadMatrix(const char* location, const Matrix4f& matrix, bool trans = false);
 	void loadMatrixArray(const char* location, const std::vector<Matrix4f> matrixArray, const unsigned short count, bool trans = false);
+
 	void loadVector(const char* location, Vector4f vector);
 	void loadVector(const char* location, Vector3f vector);
 	void loadVector(const char* location, Vector2f vector);

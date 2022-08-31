@@ -22,6 +22,7 @@ void AnimationShader::update(const AssimpAnimatedModel& model, const Camera& cam
 	loadMatrix("u_model", model.getTransformationMatrix());
 	loadMatrix("u_view", camera.getViewMatrix());
 	loadMatrix("u_projection", camera.getProjectionMatrix());
+	loadVector("u_light", Vector3f(1.0f, 1.0f, 1.0f));
 }
 
 void AnimationShader::bind(){

@@ -1,7 +1,7 @@
 #include "AssimpAnimatedModel.h"
 
 
-AssimpAnimatedModel::AssimpAnimatedModel() : m_shader("./res/shader/animationShader.vert", "./res/shader/animationShader.frag") {
+AssimpAnimatedModel::AssimpAnimatedModel() : m_shader("./res/shader/animation.vs", "./res/shader/animation.fs") {
 	m_animator = std::make_shared<AssimpAnimator>(this);
 	m_transform = Transform();
 }
@@ -51,6 +51,7 @@ void AssimpAnimatedModel::loadModel(const std::string &a_filename, const std::st
 				aiBone *bone = aiMesh->mBones[boneIndex];
 				const std::string boneName = bone->mName.C_Str();
 				mesh->m_boneList.push_back(boneName);
+				
 				offsetMatrices.push_back(Matrix4f(bone->mOffsetMatrix.a1, bone->mOffsetMatrix.b1, bone->mOffsetMatrix.c1, bone->mOffsetMatrix.d1,
 												  bone->mOffsetMatrix.a2, bone->mOffsetMatrix.b2, bone->mOffsetMatrix.c2, bone->mOffsetMatrix.d2,
 												  bone->mOffsetMatrix.a3, bone->mOffsetMatrix.b3, bone->mOffsetMatrix.c3, bone->mOffsetMatrix.d3,
@@ -62,13 +63,11 @@ void AssimpAnimatedModel::loadModel(const std::string &a_filename, const std::st
 				}
 
 				boneId++;
-				//std::cout << "Bone Name: " << boneName << std::endl;
 			}
 
 			AssimpWeightData first = pq.top();
 			short k = -1;
-			
-			
+					
 			std::array<unsigned int, 4> jointId = { 0, 0, 0, 0 };
 			std::array<unsigned int, 4> vertexId = { 0, 0, 0, 0 };
 			Vector4f jointWeight = { 0.0f, 0.0f, 0.0f, 0.0f };
@@ -105,14 +104,14 @@ void AssimpAnimatedModel::loadModel(const std::string &a_filename, const std::st
 			aiNode *meshRootNode = searchNode(pScene->mRootNode, mesh->m_boneList);			
 			//std::cout << "AI Hierarchy" << std::endl;
 			//printAiHierarchy(pScene->mRootNode);
-
+			
 			skeletonData.headJoint = fetchAiHierarchy(meshRootNode, mesh->m_boneList, offsetMatrices);
 			skeletonData.jointCount = mesh->m_boneList.size();
 
 			//printSkeletonData(skeletonData.headJoint);
 			CreateJoints(mesh->m_rootBone, skeletonData, mesh->m_boneList);
 		}
-
+		
 		for (unsigned int t = 0; t < aiMesh->mNumFaces; ++t) {
 			const aiFace* face = &aiMesh->mFaces[t];
 			m_indexBuffer.push_back(face->mIndices[0]);
@@ -206,7 +205,6 @@ void AssimpAnimatedModel::printAiHierarchy(aiNode *node) {
 }
 
 void AssimpAnimatedModel::printSkeletonData(AssimpBoneData& boneData) {
-
 	boneData.localBindTransform.print();
 
 	for (unsigned int i = 0; i < boneData.children.size(); i++) {
@@ -215,8 +213,6 @@ void AssimpAnimatedModel::printSkeletonData(AssimpBoneData& boneData) {
 }
 
 void AssimpAnimatedModel::CreateJoints(AssimpBone& bone, AssimpSkeletonData& skeletonData, std::vector<std::string> &boneList) {	
-	//std::cout << "Loader: " << skeletonData.headJoint.nameId << std::endl;
-	
 	bone.index = skeletonData.headJoint.index;
 	bone.name = skeletonData.headJoint.nameId;
 
@@ -231,8 +227,6 @@ void AssimpAnimatedModel::CreateJoints(AssimpBone& bone, AssimpSkeletonData& ske
 }
 
 AssimpAnimatedModel::AssimpBone AssimpAnimatedModel::CreateJoints(AssimpBoneData data, Matrix4f parentBindTransform, std::vector<std::string> &boneList) {
-	//std::cout << "Loader: " << data.nameId << std::endl;
-	
 	AssimpBone bone;
 
 	bone.index = data.index;
@@ -247,17 +241,35 @@ AssimpAnimatedModel::AssimpBone AssimpAnimatedModel::CreateJoints(AssimpBoneData
 	return bone;
 }
 
+AssimpAnimatedModel::AssimpBone AssimpAnimatedMesh::GetLocalTransform(std::string jointName) {
+	return GetLocalTransform(m_rootBone, jointName);
+}
+
+AssimpAnimatedModel::AssimpBone AssimpAnimatedMesh::GetLocalTransform(AssimpAnimatedModel::AssimpBone& joint, std::string jointName) {
+	if (joint.name.compare(jointName) == 0) {
+		return joint;
+	}
+
+	for (unsigned int i = 0; i < joint.children.size(); i++) {
+		AssimpAnimatedModel::AssimpBone bone = GetLocalTransform(joint.children[i], jointName);
+		bool result = bone.name.compare(jointName) == 0;
+		if (result) {
+			return bone;
+		}
+	}
+	return AssimpAnimatedModel::AssimpBone();
+}
+
 AssimpBoneData AssimpAnimatedModel::fetchAiHierarchy(aiNode *node, std::vector<std::string> &boneList, std::vector<Matrix4f>& offsetMatrices) {
 
 	std::vector<std::string>::iterator it = std::find(boneList.begin(), boneList.end(), node->mName.C_Str());
 	
 	aiMatrix4x4 tmp = node->mTransformation;
 	Matrix4f transMatrix = Matrix4f(tmp.a1, tmp.b1, tmp.c1, tmp.d1,
-									 tmp.a2, tmp.b2, tmp.c2, tmp.d2,
-									 tmp.a3, tmp.b3, tmp.c3, tmp.d3,
-									 tmp.a4, tmp.b4, tmp.c4, tmp.d4);
+									tmp.a2, tmp.b2, tmp.c2, tmp.d2,
+									tmp.a3, tmp.b3, tmp.c3, tmp.d3,
+									tmp.a4, tmp.b4, tmp.c4, tmp.d4);
 
-	
 	AssimpBoneData data;
 	unsigned int index = std::distance(boneList.begin(), it);
 	data = AssimpBoneData(index, node->mName.data, transMatrix, offsetMatrices[index]);
@@ -268,16 +280,12 @@ AssimpBoneData AssimpAnimatedModel::fetchAiHierarchy(aiNode *node, std::vector<s
 		if (innerIt != boneList.end()) {
 			data.addChild(innerData);
 		}
-
-		//data.addChild(fetchAiHierarchy(node->mChildren[i], boneList, offsetMatrices));
 	}
 
 	return data;
 }
 
 aiNode* AssimpAnimatedModel::searchNode(aiNode *node, std::vector<std::string> &boneList) {
-
-
 	std::vector<std::string>::iterator it = std::find(boneList.begin(), boneList.end(), node->mName.C_Str());
 
 	if (it != boneList.end()) {
@@ -302,6 +310,10 @@ void AssimpAnimatedModel::update(std::string base, std::string layer, const floa
 	m_animator->blendTwoAnimations(base, layer, blendFactor, elapsedTime);
 }
 
+float AssimpAnimatedModel::addTwoAnimations(float time, float addTime, std::string base, std::string layer) {
+	return m_animator->addTwoAnimations(time, addTime, base, layer);
+}
+
 void AssimpAnimatedModel::draw(Camera& camera) {
 
 	m_shader.bind();
@@ -309,7 +321,13 @@ void AssimpAnimatedModel::draw(Camera& camera) {
 
 		m_texture->bind(0);
 		m_shader.update(*this, camera, mesh->getBoneArray());
-		mesh->draw();
+		mesh->drawRaw();
+	}
+}
+
+void AssimpAnimatedModel::drawRaw() {
+	for (auto mesh : m_meshes) {
+		mesh->drawRaw();
 	}
 }
 
@@ -347,7 +365,7 @@ AssimpAnimatedMesh::~AssimpAnimatedMesh() {
 	glDeleteVertexArrays(1, &m_vao);
 }
 
-void AssimpAnimatedMesh::draw() {
+void AssimpAnimatedMesh::drawRaw() {
 	glBindVertexArray(m_vao);
 	glDrawElements(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);

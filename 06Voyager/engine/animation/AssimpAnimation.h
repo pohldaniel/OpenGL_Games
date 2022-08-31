@@ -3,6 +3,7 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <unordered_map>
 
 #include <assimp/Importer.hpp> 
 #include <assimp/scene.h>
@@ -15,8 +16,6 @@ typedef PositionKey ScaleKey;
 typedef std::pair<float, Quaternion> RotationKey;
 
 struct AssimpKeyFrameData {
-
-	
 	std::map<std::string, std::vector<PositionKey>> positions;
 	std::map<std::string, std::vector<ScaleKey>> scales;
 	std::map<std::string, std::vector<RotationKey>> rotations;
@@ -45,14 +44,14 @@ struct AssimpKeyFrameData {
 		}
 	}
 };
-
+class AssimpAnimatedMesh;
 class AssimpAnimation {
 
 	friend class Animator;
 
 public:
 	void loadAnimationFbx(const std::string &filename, std::string sourceName, std::string destName, unsigned int animationOffset = 50, unsigned int animationCuttOff = 230, unsigned int timeShift = 0);
-	void loadAnimationDae(const std::string &filename, std::string sourceName, std::string destName, unsigned int animationOffset = 0, unsigned int animationCuttOff = 0);
+	void loadAnimationDae(const std::string &filename, std::string sourceName, std::string destName, unsigned int animationOffset = 0, unsigned int animationCuttOff = 0, float timeScale = 1.0f);
 
 	AssimpAnimation() = default;
 	virtual ~AssimpAnimation() {}
@@ -69,4 +68,13 @@ public:
 
 	AssimpKeyFrameData m_keyFrames;
 	std::vector<std::string> m_boneList;
+	
+	float adjustTimeToFitRange(float inTime);
+	float mStartTime = 0.0f;
+	float mEndTime = 0.0f;
+	bool mLooping = true;
+
+	Vector3f getInterpolated(Vector3f start, Vector3f end, float progression);
+	Quaternion interpolateQuat(Quaternion a, Quaternion b, float blend);
+	float getProgression(float lastTimeStamp, float nextTimeStamp, float animationTime);
 };

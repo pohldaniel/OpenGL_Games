@@ -653,6 +653,13 @@ void glDrawElementsInstancedBaseVertexBaseInstance(GLenum mode, GLsizei count, G
 	glDrawElementsInstancedBaseVertexBaseInstance(mode, count, type, indices, instancecount, basevertex, baseinstance);
 }
 
+void glDrawArraysInstanced(GLenum mode, GLint first, GLsizei count, GLsizei instancecount) {
+	typedef void(APIENTRY * PFNGLDRAWARRAYSINSTANCEDPROC)(GLenum mode, GLint first, GLsizei count, GLsizei instancecount);
+	static PFNGLDRAWARRAYSINSTANCEDPROC  glDrawArraysInstanced = 0;
+	LOAD_ENTRYPOINT("glDrawArraysInstanced", glDrawArraysInstanced, PFNGLDRAWARRAYSINSTANCEDPROC);
+	glDrawArraysInstanced(mode, first, count, instancecount);
+}
+
 void glBindImageTexture(GLuint unit, GLuint texture, GLint level, GLboolean layered, GLint layer, GLenum access, GLenum format) {
 	typedef void(APIENTRY * PFNGLBINDIMAGETEXTUREPROC)(GLuint unit, GLuint texture, GLint level, GLboolean layered, GLint layer, GLenum access, GLenum format);
 	static PFNGLBINDIMAGETEXTUREPROC  glBindImageTexture = 0;

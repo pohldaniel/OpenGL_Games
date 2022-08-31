@@ -75,7 +75,7 @@ public:
 
 	struct AssimpBone {
 		int index;
-		std::string name;
+		std::string name = "";
 		std::vector<AssimpBone> children;
 
 		Matrix4f localBindTransform;
@@ -90,7 +90,10 @@ public:
 
 	void update(float elapsedTime);
 	void update(std::string base, std::string layer, const float blendFactor, float elapsedTime);
+	float addTwoAnimations(float time, float addTime, std::string base, std::string layer);
+
 	void draw(Camera& camera);
+	void drawRaw();
 
 	void loadModel(const std::string &filename, const std::string &texture);
 
@@ -148,11 +151,11 @@ public:
 	AssimpAnimatedMesh(AssimpAnimatedModel* model);
 	virtual ~AssimpAnimatedMesh();
 
-	void draw();
+	void drawRaw();
 	std::vector<Matrix4f> getBoneArray();
 	void applyPoseToJoints(std::unordered_map<std::string, Matrix4f>& currentPose, std::vector<Matrix4f>& boneArray);
 
-private:
+//private:
 
 	void addJointsToArray(AssimpAnimatedModel::AssimpBone rootJoint, std::vector<Matrix4f> &boneArray);
 	void applyPoseToJoints(std::unordered_map<std::string, Matrix4f>& currentPose, AssimpAnimatedModel::AssimpBone& joint, std::vector<Matrix4f>& boneArray, Matrix4f parentTransform);
@@ -168,4 +171,7 @@ private:
 	AssimpAnimatedModel::AssimpBone m_rootBone;
 
 	std::unordered_map<std::string, Matrix4f> currentPose;
+
+	AssimpAnimatedModel::AssimpBone GetLocalTransform(std::string joint);
+	AssimpAnimatedModel::AssimpBone GetLocalTransform(AssimpAnimatedModel::AssimpBone& joint, std::string jointName);
 };
