@@ -310,8 +310,8 @@ void AssimpAnimatedModel::update(std::string base, std::string layer, const floa
 	m_animator->blendTwoAnimations(base, layer, blendFactor, elapsedTime);
 }
 
-float AssimpAnimatedModel::addTwoAnimations(float time, float addTime, std::string base, std::string layer) {
-	return m_animator->addTwoAnimations(time, addTime, base, layer);
+void AssimpAnimatedModel::addTwoAnimations(float deltaTime, std::string base, std::string layer) {
+	m_animator->addTwoAnimations(deltaTime, base, layer);
 }
 
 void AssimpAnimatedModel::draw(Camera& camera) {

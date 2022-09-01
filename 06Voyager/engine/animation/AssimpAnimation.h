@@ -20,28 +20,29 @@ struct AssimpKeyFrameData {
 	std::map<std::string, std::vector<ScaleKey>> scales;
 	std::map<std::string, std::vector<RotationKey>> rotations;
 	
-	unsigned int getPositionIndex(float animationTime, std::string boneName){
-		unsigned int index = 0;
-		auto ret = std::find_if(positions[boneName].begin() + 1, positions[boneName].end(), [&index, &animationTime](PositionKey x) {
-			index++;
-			return animationTime < x.first;
-		
-		});
-		return index - 1;	
+	unsigned int getPositionIndex(float animationTime, std::string boneName){		
+		for (unsigned int index = positions[boneName].size() - 1; index >= 0; --index) {			
+			if (animationTime >= positions[boneName][index].first) {				
+				return index;
+			}
+		}		
 	}
 
 	unsigned int getScaleIndex(float animationTime, std::string boneName) {
-		for (int index = 0; index < scales[boneName].size() - 1; ++index){
-			if (animationTime < scales[boneName][index + 1].first)
+
+		for (unsigned int index = scales[boneName].size() - 1; index >= 0; --index) {
+			if (animationTime >= scales[boneName][index].first) {
 				return index;
-		}
+			}
+		}		
 	}
 
 	unsigned int getRotationIndex(float animationTime, std::string boneName) {
-		for (int index = 0; index < rotations[boneName].size() - 1; ++index) {
-			if (animationTime < rotations[boneName][index + 1].first)
+		for (unsigned int index = rotations[boneName].size() - 1; index >= 0; --index) {
+			if (animationTime >= rotations[boneName][index].first) {
 				return index;
-		}
+			}
+		}		
 	}
 };
 class AssimpAnimatedMesh;
@@ -51,7 +52,7 @@ class AssimpAnimation {
 
 public:
 	void loadAnimationFbx(const std::string &filename, std::string sourceName, std::string destName, unsigned int animationOffset = 50, unsigned int animationCuttOff = 230, unsigned int timeShift = 0);
-	void loadAnimationDae(const std::string &filename, std::string sourceName, std::string destName, unsigned int animationOffset = 0, unsigned int animationCuttOff = 0, float timeScale = 1.0f);
+	void loadAnimationDae(const std::string &filename, std::string sourceName, std::string destName, bool looping = false, unsigned int animationOffset = 0, unsigned int animationCuttOff = 0, float timeScale = 1.0f);
 
 	AssimpAnimation() = default;
 	virtual ~AssimpAnimation() {}
@@ -64,17 +65,13 @@ public:
 	std::string m_name;
 	float m_duration = 0.0f;
 	unsigned int m_animationTicks = 0;
-	unsigned int m_ticksPerSecond = 0;
+	float m_ticksPerSecond = 0;
+	bool m_looping = true;
 
 	AssimpKeyFrameData m_keyFrames;
 	std::vector<std::string> m_boneList;
 	
-	float adjustTimeToFitRange(float inTime);
-	float mStartTime = 0.0f;
-	float mEndTime = 0.0f;
-	bool mLooping = true;
-
-	Vector3f getInterpolated(Vector3f start, Vector3f end, float progression);
-	Quaternion interpolateQuat(Quaternion a, Quaternion b, float blend);
-	float getProgression(float lastTimeStamp, float nextTimeStamp, float animationTime);
+	float m_startTime = 0.0f;
+	float m_endTime = 0.0f;
+	
 };

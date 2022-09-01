@@ -79,14 +79,14 @@ public:
 		m_assets[name].loadFromFile(path);
 	}
 
-	void loadAnimationDae(const std::string& name, const std::string& path, std::string sourceName, std::string destName, unsigned int animationOffset = 0u, unsigned int animationCuttOff = 0u, float timeScale = 1.0f) {
+	void loadAnimationDae(const std::string& name, const std::string& path, std::string sourceName, std::string destName, bool looping = false, unsigned int animationOffset = 0u, unsigned int animationCuttOff = 0u, float timeScale = 1.0f) {
 		m_assetPointer[name] = new T();
-		m_assetPointer[name]->loadAnimationDae(path, sourceName, destName, animationOffset, animationCuttOff, timeScale);
+		m_assetPointer[name]->loadAnimationDae(path, sourceName, destName, looping, animationOffset, animationCuttOff, timeScale);
 	}
 
-	void loadAnimationFbx(const std::string& name, const std::string& path, std::string sourceName, std::string destName, unsigned int animationOffset = 0u, unsigned int animationCuttOff = 0u, unsigned int timeShift = 0u) {
+	void loadAnimationFbx(const std::string& name, const std::string& path, std::string sourceName, std::string destName, bool looping = false, unsigned int animationOffset = 0u, unsigned int animationCuttOff = 0u, unsigned int timeShift = 0u) {
 		m_assetPointer[name] = new T();
-		m_assetPointer[name]->loadAnimationFbx(path, sourceName, destName, animationOffset, animationCuttOff, timeShift);
+		m_assetPointer[name]->loadAnimationFbx(path, sourceName, destName, looping, animationOffset, animationCuttOff, timeShift);
 	}
 
 	T& get(const std::string& name) {

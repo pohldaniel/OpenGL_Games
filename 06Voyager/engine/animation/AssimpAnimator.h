@@ -25,7 +25,7 @@ public:
 	void update(float elapsedTime);
 
 	void blendTwoAnimations(std::string pBaseAnimation, std::string pLayeredAnimation, float blendFactor, float deltaTime);
-	float addTwoAnimations(float time, float addTime, std::string base, std::string layer);
+	void addTwoAnimations(float addTime, std::string base, std::string layer);
 private:
 	AssimpAnimatedModel* m_model;
 
@@ -35,7 +35,7 @@ private:
 	std::shared_ptr<AssimpAnimation> m_currentAnimation;
 	std::shared_ptr<AssimpAnimation> m_layeredAnimation;
 	float m_animationTime;
-	unsigned int m_ticksPerSecond = 0;
+	float m_ticksPerSecond = 0;
 	bool m_replaceBasePose = true;
 
 	AssimpKeyFrameBaseData m_basePose;
@@ -51,5 +51,8 @@ private:
 
 	std::string m_current;
 	std::string m_layer;
+
+	float m_additiveTime = 0.0f;
+	float m_additiveDirection = 1.0f;
 };
 

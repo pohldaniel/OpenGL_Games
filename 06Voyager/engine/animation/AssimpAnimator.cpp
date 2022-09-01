@@ -45,38 +45,29 @@ AssimpAnimator::AssimpAnimator(AssimpAnimatedModel *model) {
 }
 
 void AssimpAnimator::startAnimation(const std::string & current) {
-
 	m_animationTime = 0;
 	m_currentAnimation = m_animations.at(current);
 	m_ticksPerSecond = m_currentAnimation->m_ticksPerSecond;
-	/*for (auto animation : m_animations) {
-
-		if (animation->getName() == animationName) {
-			m_animationTime = 0;
-			m_currentAnimation = animation;
-			m_ticksPerSecond = animation->m_ticksPerSecond;
-		}
-	}*/
 }
 
 void AssimpAnimator::addAnimation(AssimpAnimation* animation) {
-	//m_animations.push_back(std::shared_ptr<AssimpAnimation>(animation));
-
 	m_animations.insert(std::make_pair(animation->getName(), std::shared_ptr<AssimpAnimation>(animation)));
 }
 
 void AssimpAnimator::update(float deltaTime) {
 	
-	m_animationTime += deltaTime * m_ticksPerSecond;
+	m_animationTime += deltaTime * m_ticksPerSecond * 10.0f;
 
 	if (m_animationTime > m_currentAnimation->getDuration()) {
 		m_animationTime = fmod(m_animationTime, m_currentAnimation->getDuration());
 	}
 
+	//std::cout << "Time1: " << m_animationTime <<  std::endl;
+
 	m_model->m_meshes[0]->currentPose = calculateCurrentAnimationPose();	
 }
 
-float AssimpAnimator::addTwoAnimations(float time, float addTime, std::string current, std::string layer) {
+void AssimpAnimator::addTwoAnimations(float deltaTime, std::string current, std::string layer) {
 	if (layer.compare(m_layer) != 0) {
 		replaceBasePose(*m_animations.at(layer));
 		m_current = current;
@@ -84,11 +75,29 @@ float AssimpAnimator::addTwoAnimations(float time, float addTime, std::string cu
 	}
 	m_currentAnimation = m_animations.at(current);
 	m_layeredAnimation = m_animations.at(layer);
-	time = m_currentAnimation->adjustTimeToFitRange(time);
-	addTime = m_layeredAnimation->adjustTimeToFitRange(addTime);
-	m_model->m_meshes[0]->currentPose = calculateCurrentAnimationPose(time, addTime, *m_currentAnimation, *m_layeredAnimation);
 
-	return time;
+	m_animationTime += deltaTime;
+	if (m_animationTime > m_currentAnimation->getDuration()) {
+		m_animationTime = fmod(m_animationTime, m_currentAnimation->getDuration());
+	}
+
+	
+
+	m_additiveTime += deltaTime * m_additiveDirection;
+
+
+	if (m_additiveTime < 0.0f) {
+		m_additiveTime = 0.0f;
+		m_additiveDirection *= -1.0f;
+	}
+
+	if (m_additiveTime > 1.0f) {
+		m_additiveTime = 1.0f;
+		m_additiveDirection *= -1.0f;
+	}
+
+	float addTime = m_layeredAnimation->m_startTime + (m_layeredAnimation->m_duration * m_additiveTime);
+	m_model->m_meshes[0]->currentPose = calculateCurrentAnimationPose(m_animationTime, addTime, *m_currentAnimation, *m_layeredAnimation);
 }
 
 void AssimpAnimator::replaceBasePose(AssimpAnimation& animation) {
@@ -137,7 +146,7 @@ std::unordered_map<std::string, Matrix4f> AssimpAnimator::calculateCurrentAnimat
 		int indexAdd = keyFramesAdd.getPositionIndex(addTime, boneName);
 		float progressionAdd = getProgression(keyFramesAdd.positions.at(boneName)[indexAdd].first, keyFramesAdd.positions.at(boneName)[indexAdd + 1].first, addTime);
 		Vector3f positionAdd = getInterpolated(keyFramesAdd.positions.at(boneName)[indexAdd].second, keyFramesAdd.positions.at(boneName)[indexAdd + 1].second, progressionAdd);
-
+		 
 		indexAdd = keyFramesAdd.getScaleIndex(addTime, boneName);
 		progressionAdd = getProgression(keyFramesAdd.scales.at(boneName)[indexAdd].first, keyFramesAdd.scales.at(boneName)[indexAdd + 1].first, addTime);
 		Vector3f scaleAdd = getInterpolated(keyFramesAdd.scales.at(boneName)[indexAdd].second, keyFramesAdd.scales.at(boneName)[indexAdd + 1].second, progressionAdd);

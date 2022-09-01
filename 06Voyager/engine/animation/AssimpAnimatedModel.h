@@ -90,7 +90,7 @@ public:
 
 	void update(float elapsedTime);
 	void update(std::string base, std::string layer, const float blendFactor, float elapsedTime);
-	float addTwoAnimations(float time, float addTime, std::string base, std::string layer);
+	void addTwoAnimations(float deltaTime, std::string base, std::string layer);
 
 	void draw(Camera& camera);
 	void drawRaw();
