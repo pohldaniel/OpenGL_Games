@@ -91,6 +91,7 @@ public:
 	void update(float elapsedTime);
 
 	void addTwoAnimations(float deltaTime, std::string base, std::string layer, float speed = 1.0f);
+	void addTwoAnimationsDisjoint(float deltaTime, std::string base, std::string layer, float speed = 1.0f);
 	void blendTwoAnimations(float deltaTime, std::string base, std::string layer, float blendTime, float speed = 1.0f);
 	void blendTwoAnimationsDisjoint(float deltaTime, std::string base, std::string layer, float blendTime, float speed = 1.0f);
 

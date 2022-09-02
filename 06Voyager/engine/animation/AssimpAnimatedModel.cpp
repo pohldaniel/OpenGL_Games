@@ -310,6 +310,10 @@ void AssimpAnimatedModel::addTwoAnimations(float deltaTime, std::string base, st
 	m_animator->addTwoAnimations(deltaTime, base, layer, speed);
 }
 
+void AssimpAnimatedModel::addTwoAnimationsDisjoint(float deltaTime, std::string base, std::string layer, float speed) {
+	m_animator->addTwoAnimationsDisjoint(deltaTime, base, layer, speed);
+}
+
 void AssimpAnimatedModel::blendTwoAnimations(float deltaTime, std::string base, std::string layer, float blendTime, float speed) {
 	m_animator->blendTwoAnimations(deltaTime, base, layer, blendTime, speed);
 }

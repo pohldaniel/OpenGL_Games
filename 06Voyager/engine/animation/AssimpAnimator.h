@@ -26,6 +26,7 @@ public:
 	void update(float elapsedTime);
 
 	void addTwoAnimations(float deltaTime, std::string current, std::string layer, float speed = 1.0f);
+	void addTwoAnimationsDisjoint(float deltaTime, std::string current, std::string layer, float speed = 1.0f);
 	void blendTwoAnimations(float deltaTime, std::string current, std::string layer, float blendTime, float speed = 1.0f);
 	void blendTwoAnimationsDisjoint(float deltaTime, std::string current, std::string layer, float blendTime, float speed = 1.0f);
 
@@ -44,6 +45,7 @@ private:
 
 	std::unordered_map<std::string, Matrix4f> calculateCurrentAnimationPose(float currentTime);
 	std::unordered_map<std::string, Matrix4f> calculateAdditiveAnimationPose(float currentTime, float layeredTime, AssimpAnimation& animation, AssimpAnimation& animationLayer);
+	std::unordered_map<std::string, Matrix4f> calculateAdditiveAnimationPoseDisjoint(float currentTime, float layeredTime, AssimpAnimation& animation, AssimpAnimation& animationLayer);
 	std::unordered_map<std::string, Matrix4f> calculateBlendedPose(float currentTime, float layeredTime, AssimpAnimation& curretAnimation, AssimpAnimation& animationLayer, float blendTime);
 	std::unordered_map<std::string, Matrix4f> calculateBlendedPoseDisjoint(float currentTime, float layeredTime, AssimpAnimation& curretAnimation, AssimpAnimation& animationLayer, float blendTime);
 

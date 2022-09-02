@@ -471,10 +471,10 @@ void Game::update() {
 
 	//assimpAnimated.update("left_wing", "both_wing", std::min(std::max(m_blend, 0.0f), 1.0f), m_dt);
 	//assimpAnimated.update(m_dt);
-	assimpAnimated.blendTwoAnimationsDisjoint(m_dt, "both_wing", "right_wing", bt, 1.0f);
-
+	//assimpAnimated.blendTwoAnimationsDisjoint(m_dt, "both_wing", "right_wing", bt, 1.0f);
+	assimpAnimated.addTwoAnimationsDisjoint(m_dt, "left_wing", "right_wing", 1.0f);
 	//woman.update(m_dt);
-	//woman.addTwoAnimations(m_dt, "woman_walk", "lean_left", 1.0f);	
+	//woman.addTwoAnimationsDisjoint(m_dt, "woman_walk", "lean_left", 1.0f);
 	woman.blendTwoAnimations(m_dt, "woman_walk", "woman_run", bt, 1.0f);
 
 	m_blendTime += m_dt;
