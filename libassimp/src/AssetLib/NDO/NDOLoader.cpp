@@ -3,7 +3,9 @@
 Open Asset Import Library (assimp)
 ---------------------------------------------------------------------------
 
-Copyright (c) 2006-2022, assimp team
+Copyright (c) 2006-2019, assimp team
+
+
 
 All rights reserved.
 
@@ -80,10 +82,19 @@ NDOImporter::~NDOImporter()
 
 // ------------------------------------------------------------------------------------------------
 // Returns whether the class can handle the format of the given file.
-bool NDOImporter::CanRead( const std::string& pFile, IOSystem* pIOHandler, bool /*checkSig*/) const
+bool NDOImporter::CanRead( const std::string& pFile, IOSystem* pIOHandler, bool checkSig) const
 {
-    static const char* tokens[] = {"nendo"};
-    return SearchFileHeaderForToken(pIOHandler,pFile,tokens,AI_COUNT_OF(tokens),5);
+    // check file extension
+    const std::string extension = GetExtension(pFile);
+
+    if( extension == "ndo")
+        return true;
+
+    if ((checkSig || !extension.length()) && pIOHandler) {
+        const char* tokens[] = {"nendo"};
+        return SearchFileHeaderForToken(pIOHandler,pFile,tokens,1,5);
+    }
+    return false;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -105,13 +116,7 @@ void NDOImporter::SetupProperties(const Importer* /*pImp*/)
 void NDOImporter::InternReadFile( const std::string& pFile,
     aiScene* pScene, IOSystem* pIOHandler)
 {
-
-    auto file = pIOHandler->Open( pFile, "rb");
-    if (!file) {
-        throw DeadlyImportError("Nendo: Could not open ", pFile);
-    }
-
-    StreamReaderBE reader(file);
+    StreamReaderBE reader(pIOHandler->Open( pFile, "rb"));
 
     // first 9 bytes are nendo file format ("nendo 1.n")
     const char* head = (const char*)reader.GetPtr();
@@ -136,7 +141,7 @@ void NDOImporter::InternReadFile( const std::string& pFile,
         ASSIMP_LOG_INFO("NDO file format is 1.2");
     }
     else {
-        ASSIMP_LOG_WARN( "Unrecognized nendo file format version, continuing happily ... :", (head+6));
+        ASSIMP_LOG_WARN_F( "Unrecognized nendo file format version, continuing happily ... :", (head+6));
     }
 
     reader.IncPtr(2); /* skip flags */

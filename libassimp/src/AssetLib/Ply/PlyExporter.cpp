@@ -2,7 +2,7 @@
 Open Asset Import Library (assimp)
 ----------------------------------------------------------------------
 
-Copyright (c) 2006-2022, assimp team
+Copyright (c) 2006-2019, assimp team
 
 
 All rights reserved.
@@ -77,7 +77,7 @@ void ExportScenePly(const char* pFile,IOSystem* pIOSystem, const aiScene* pScene
 
     // we're still here - export successfully completed. Write the file.
     std::unique_ptr<IOStream> outfile (pIOSystem->Open(pFile,"wt"));
-    if (outfile == nullptr) {
+    if(outfile == NULL) {
         throw DeadlyExportError("could not open output .ply file: " + std::string(pFile));
     }
 
@@ -91,7 +91,7 @@ void ExportScenePlyBinary(const char* pFile, IOSystem* pIOSystem, const aiScene*
 
     // we're still here - export successfully completed. Write the file.
     std::unique_ptr<IOStream> outfile(pIOSystem->Open(pFile, "wb"));
-    if (outfile == nullptr) {
+    if (outfile == NULL) {
         throw DeadlyExportError("could not open output .ply file: " + std::string(pFile));
     }
 
@@ -373,11 +373,10 @@ void PlyExporter::WriteMeshIndices(const aiMesh* m, unsigned int offset)
 {
     for (unsigned int i = 0; i < m->mNumFaces; ++i) {
         const aiFace& f = m->mFaces[i];
-        mOutput << f.mNumIndices;
+        mOutput << f.mNumIndices << " ";
         for(unsigned int c = 0; c < f.mNumIndices; ++c) {
-            mOutput << " " << (f.mIndices[c] + offset);
+            mOutput << (f.mIndices[c] + offset) << (c == f.mNumIndices-1 ? endl : " ");
         }
-        mOutput << endl;
     }
 }
 

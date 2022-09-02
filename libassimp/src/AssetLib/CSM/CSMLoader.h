@@ -2,7 +2,8 @@
 Open Asset Import Library (assimp)
 ----------------------------------------------------------------------
 
-Copyright (c) 2006-2022, assimp team
+Copyright (c) 2006-2019, assimp team
+
 
 All rights reserved.
 
@@ -47,7 +48,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <assimp/BaseImporter.h>
 
-namespace Assimp {
+namespace Assimp    {
 
 // ---------------------------------------------------------------------------
 /** Importer class to load MOCAPs in CharacterStudio Motion format.
@@ -58,32 +59,35 @@ namespace Assimp {
  *  Link to file format specification:
  *  <max_8_dvd>\samples\Motion\Docs\CSM.rtf
 */
-class CSMImporter : public BaseImporter {
+class CSMImporter : public BaseImporter
+{
 public:
     CSMImporter();
-    ~CSMImporter() override;
+    ~CSMImporter();
 
+
+public:
     // -------------------------------------------------------------------
-    bool CanRead(const std::string &pFile, IOSystem *pIOHandler,
-            bool checkSig) const override;
+    bool CanRead( const std::string& pFile, IOSystem* pIOHandler,
+        bool checkSig) const;
 
 protected:
-    // -------------------------------------------------------------------
-    const aiImporterDesc *GetInfo() const override;
 
     // -------------------------------------------------------------------
-    void SetupProperties(const Importer *pImp) override;
+    const aiImporterDesc* GetInfo () const;
 
     // -------------------------------------------------------------------
-    void InternReadFile(const std::string &pFile, aiScene *pScene,
-            IOSystem *pIOHandler) override;
+    void SetupProperties(const Importer* pImp);
+
+    // -------------------------------------------------------------------
+    void InternReadFile( const std::string& pFile, aiScene* pScene,
+        IOSystem* pIOHandler);
 
 private:
+
     bool noSkeletonMesh;
 
 }; // end of class CSMImporter
-
 } // end of namespace Assimp
-
 #endif // AI_AC3DIMPORTER_H_INC
 

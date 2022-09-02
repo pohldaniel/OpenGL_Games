@@ -3,7 +3,7 @@
 Open Asset Import Library (assimp)
 ---------------------------------------------------------------------------
 
-Copyright (c) 2006-2022, assimp team
+Copyright (c) 2006-2019, assimp team
 
 
 
@@ -90,10 +90,19 @@ CSMImporter::~CSMImporter()
 
 // ------------------------------------------------------------------------------------------------
 // Returns whether the class can handle the format of the given file.
-bool CSMImporter::CanRead( const std::string& pFile, IOSystem* pIOHandler, bool /*checkSig*/) const
+bool CSMImporter::CanRead( const std::string& pFile, IOSystem* pIOHandler, bool checkSig) const
 {
-    static const char* tokens[] = {"$Filename"};
-    return SearchFileHeaderForToken(pIOHandler,pFile,tokens,AI_COUNT_OF(tokens));
+    // check file extension
+    const std::string extension = GetExtension(pFile);
+
+    if( extension == "csm")
+        return true;
+
+    if ((checkSig || !extension.length()) && pIOHandler) {
+        const char* tokens[] = {"$Filename"};
+        return SearchFileHeaderForToken(pIOHandler,pFile,tokens,1);
+    }
+    return false;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -118,8 +127,8 @@ void CSMImporter::InternReadFile( const std::string& pFile,
     std::unique_ptr<IOStream> file( pIOHandler->Open( pFile, "rb"));
 
     // Check whether we can read from the file
-    if( file.get() == nullptr) {
-        throw DeadlyImportError( "Failed to open CSM file ", pFile, ".");
+    if( file.get() == NULL) {
+        throw DeadlyImportError( "Failed to open CSM file " + pFile + ".");
     }
 
     // allocate storage and copy the contents of the file to a memory buffer
@@ -169,7 +178,7 @@ void CSMImporter::InternReadFile( const std::string& pFile,
                         *ot++ = *buffer++;
 
                     *ot = '\0';
-                    nda->mNodeName.length = static_cast<ai_uint32>(ot-nda->mNodeName.data);
+                    nda->mNodeName.length = (size_t)(ot-nda->mNodeName.data);
                 }
 
                 anim->mNumChannels = static_cast<unsigned int>(anims_temp.size());

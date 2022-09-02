@@ -2,7 +2,8 @@
 Open Asset Import Library (assimp)
 ----------------------------------------------------------------------
 
-Copyright (c) 2006-2022, assimp team
+Copyright (c) 2006-2019, assimp team
+
 
 All rights reserved.
 
@@ -55,23 +56,29 @@ struct aiMesh;
 struct aiMaterial;
 struct aiLight;
 
-namespace Assimp {
+
+namespace Assimp    {
 
 // ---------------------------------------------------------------------------
 /** AC3D (*.ac) importer class
 */
-class AC3DImporter : public BaseImporter {
+class AC3DImporter : public BaseImporter
+{
 public:
     AC3DImporter();
-    ~AC3DImporter() override;
+    ~AC3DImporter();
+
+
 
     // Represents an AC3D material
-    struct Material {
-        Material() :
-                rgb(0.6f, 0.6f, 0.6f),
-                spec(1.f, 1.f, 1.f),
-                shin(0.f),
-                trans(0.f) {}
+    struct Material
+    {
+        Material()
+            :   rgb     (0.6f,0.6f,0.6f)
+            ,   spec    (1.f,1.f,1.f)
+            ,   shin    (0.f)
+            ,   trans   (0.f)
+        {}
 
         // base color of the material
         aiColor3D rgb;
@@ -96,50 +103,43 @@ public:
     };
 
     // Represents an AC3D surface
-    struct Surface {
-        Surface() :
-                mat(0),
-                flags(0) {}
+    struct Surface
+    {
+        Surface()
+            :   mat     (0)
+            ,   flags   (0)
+        {}
 
-        unsigned int mat, flags;
+        unsigned int mat,flags;
 
-        typedef std::pair<unsigned int, aiVector2D> SurfaceEntry;
-        std::vector<SurfaceEntry> entries;
-
-        // Type is low nibble of flags
-        enum Type : uint8_t {
-            Polygon = 0x0,
-            ClosedLine = 0x1,
-            OpenLine = 0x2,
-            TriangleStrip = 0x4, // ACC extension (TORCS and Speed Dreams)
-
-            Mask = 0xf,
-        };
-
-        inline uint8_t GetType() const { return (flags & Mask); }
+        typedef std::pair<unsigned int, aiVector2D > SurfaceEntry;
+        std::vector< SurfaceEntry > entries;
     };
 
     // Represents an AC3D object
-    struct Object {
-        Object() :
-                type(World),
-                name(),
-                children(),
-                texture(),
-                texRepeat(1.f, 1.f),
-                texOffset(0.0f, 0.0f),
-                rotation(),
-                translation(),
-                vertices(),
-                surfaces(),
-                numRefs(0),
-                subDiv(0),
-                crease() {}
+    struct Object
+    {
+        Object()
+            :   type    (World)
+            ,   name( "" )
+            ,   children()
+            ,   texture( "" )
+            ,   texRepeat( 1.f, 1.f )
+            ,   texOffset( 0.0f, 0.0f )
+            ,   rotation()
+            ,   translation()
+            ,   vertices()
+            ,   surfaces()
+            ,   numRefs (0)
+            ,   subDiv  (0)
+            ,   crease()
+        {}
 
         // Type description
-        enum Type {
+        enum Type
+        {
             World = 0x0,
-            Poly = 0x1,
+            Poly  = 0x1,
             Group = 0x2,
             Light = 0x4
         } type;
@@ -179,33 +179,37 @@ public:
         float crease;
     };
 
+
 public:
+
     // -------------------------------------------------------------------
     /** Returns whether the class can handle the format of the given file.
      * See BaseImporter::CanRead() for details.
      */
-    bool CanRead(const std::string &pFile, IOSystem *pIOHandler,
-            bool checkSig) const override;
+    bool CanRead( const std::string& pFile, IOSystem* pIOHandler,
+        bool checkSig) const;
 
 protected:
+
     // -------------------------------------------------------------------
     /** Return importer meta information.
      * See #BaseImporter::GetInfo for the details */
-    const aiImporterDesc *GetInfo() const override;
+    const aiImporterDesc* GetInfo () const;
 
     // -------------------------------------------------------------------
     /** Imports the given file into the given scene structure.
      * See BaseImporter::InternReadFile() for details*/
-    void InternReadFile(const std::string &pFile, aiScene *pScene,
-            IOSystem *pIOHandler) override;
+    void InternReadFile( const std::string& pFile, aiScene* pScene,
+        IOSystem* pIOHandler);
 
     // -------------------------------------------------------------------
     /** Called prior to ReadFile().
     * The function is a request to the importer to update its configuration
     * basing on the Importer's configuration property list.*/
-    void SetupProperties(const Importer *pImp) override;
+    void SetupProperties(const Importer* pImp);
 
 private:
+
     // -------------------------------------------------------------------
     /** Get the next line from the file.
      *  @return false if the end of the file was reached*/
@@ -216,7 +220,7 @@ private:
      *  load subobjects, the method returns after a 'kids 0' was
      *  encountered.
      *  @objects List of output objects*/
-    void LoadObjectSection(std::vector<Object> &objects);
+    void LoadObjectSection(std::vector<Object>& objects);
 
     // -------------------------------------------------------------------
     /** Convert all objects into meshes and nodes.
@@ -225,24 +229,26 @@ private:
      *  @param outMaterials List of output materials
      *  @param materials Material list
      *  @param Scenegraph node for the object */
-    aiNode *ConvertObjectSection(Object &object,
-            std::vector<aiMesh *> &meshes,
-            std::vector<aiMaterial *> &outMaterials,
-            const std::vector<Material> &materials,
-            aiNode *parent = nullptr);
+    aiNode* ConvertObjectSection(Object& object,
+        std::vector<aiMesh*>& meshes,
+        std::vector<aiMaterial*>& outMaterials,
+        const std::vector<Material>& materials,
+        aiNode* parent = NULL);
 
     // -------------------------------------------------------------------
     /** Convert a material
      *  @param object Current object
      *  @param matSrc Source material description
      *  @param matDest Destination material to be filled */
-    void ConvertMaterial(const Object &object,
-            const Material &matSrc,
-            aiMaterial &matDest);
+    void ConvertMaterial(const Object& object,
+        const Material& matSrc,
+        aiMaterial& matDest);
 
 private:
+
+
     // points to the next data line
-    const char *buffer;
+    const char* buffer;
 
     // Configuration option: if enabled, up to two meshes
     // are generated per material: those faces who have
@@ -259,10 +265,10 @@ private:
     unsigned int mNumMeshes;
 
     // current list of light sources
-    std::vector<aiLight *> *mLights;
+    std::vector<aiLight*>* mLights;
 
     // name counters
-    unsigned int mLightsCounter, mGroupsCounter, mPolysCounter, mWorldsCounter;
+    unsigned int lights, groups, polys, worlds;
 };
 
 } // end of namespace Assimp

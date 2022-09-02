@@ -2,7 +2,8 @@
 Open Asset Import Library (assimp)
 ----------------------------------------------------------------------
 
-Copyright (c) 2006-2022, assimp team
+Copyright (c) 2006-2019, assimp team
+
 
 All rights reserved.
 
@@ -45,12 +46,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #ifndef ASSIMP_BUILD_NO_FBX_IMPORTER
 
-//#ifdef ASSIMP_BUILD_NO_OWN_ZLIB
-#include "Common/Compression.h"
-//#   include <zlib.h>
-//#else
-//#   include "../contrib/zlib/zlib.h"
-//#endif
+#ifdef ASSIMP_BUILD_NO_OWN_ZLIB
+#   include <zlib.h>
+#else
+#   include "../contrib/zlib/zlib.h"
+#endif
 
 #include "FBXTokenizer.h"
 #include "FBXParser.h"
@@ -59,7 +59,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <assimp/ParsingUtils.h>
 #include <assimp/fast_atof.h>
 #include <assimp/ByteSwapper.h>
-#include <assimp/DefaultLogger.hpp>
 
 #include <iostream>
 
@@ -73,17 +72,17 @@ namespace {
     AI_WONT_RETURN void ParseError(const std::string& message, const Token& token) AI_WONT_RETURN_SUFFIX;
     AI_WONT_RETURN void ParseError(const std::string& message, const Token& token)
     {
-        throw DeadlyImportError("FBX-Parser", Util::GetTokenText(&token), message);
+        throw DeadlyImportError(Util::AddTokenText("FBX-Parser",message,&token));
     }
 
     // ------------------------------------------------------------------------------------------------
-    AI_WONT_RETURN void ParseError(const std::string &message, const Element *element = nullptr) AI_WONT_RETURN_SUFFIX;
+    AI_WONT_RETURN void ParseError(const std::string& message, const Element* element = NULL) AI_WONT_RETURN_SUFFIX;
     AI_WONT_RETURN void ParseError(const std::string& message, const Element* element)
     {
         if(element) {
             ParseError(message,element->KeyToken());
         }
-        throw DeadlyImportError("FBX-Parser ", message);
+        throw DeadlyImportError("FBX-Parser " + message);
     }
 
 
@@ -115,7 +114,9 @@ namespace Assimp {
 namespace FBX {
 
 // ------------------------------------------------------------------------------------------------
-Element::Element(const Token& key_token, Parser& parser) : key_token(key_token) {
+Element::Element(const Token& key_token, Parser& parser)
+: key_token(key_token)
+{
     TokenPtr n = nullptr;
     do {
         n = parser.AdvanceToNextToken();
@@ -179,7 +180,7 @@ Scope::Scope(Parser& parser,bool topLevel)
     }
 
     TokenPtr n = parser.AdvanceToNextToken();
-    if (n == nullptr) {
+    if(n == NULL) {
         ParseError("unexpected end of file");
     }
 
@@ -190,15 +191,11 @@ Scope::Scope(Parser& parser,bool topLevel)
         }
 
         const std::string& str = n->StringContents();
-        if (str.empty()) {
-            ParseError("unexpected content: empty string.");
-        }
-        
         elements.insert(ElementMap::value_type(str,new_Element(*n,parser)));
 
         // Element() should stop at the next Key token (or right after a Close token)
         n = parser.CurrentToken();
-        if (n == nullptr) {
+        if(n == NULL) {
             if (topLevel) {
                 return;
             }
@@ -208,7 +205,8 @@ Scope::Scope(Parser& parser,bool topLevel)
 }
 
 // ------------------------------------------------------------------------------------------------
-Scope::~Scope() {
+Scope::~Scope()
+{
     for(ElementMap::value_type& v : elements) {
         delete v.second;
     }
@@ -222,7 +220,6 @@ Parser::Parser (const TokenList& tokens, bool is_binary)
 , cursor(tokens.begin())
 , is_binary(is_binary)
 {
-    ASSIMP_LOG_DEBUG("Parsing FBX tokens");
     root.reset(new Scope(*this,true));
 }
 
@@ -237,7 +234,7 @@ TokenPtr Parser::AdvanceToNextToken()
 {
     last = current;
     if (cursor == tokens.end()) {
-        current = nullptr;
+        current = NULL;
     } else {
         current = *cursor++;
     }
@@ -259,7 +256,7 @@ TokenPtr Parser::LastToken() const
 // ------------------------------------------------------------------------------------------------
 uint64_t ParseTokenAsID(const Token& t, const char*& err_out)
 {
-    err_out = nullptr;
+    err_out = NULL;
 
     if (t.Type() != TokenType_DATA) {
         err_out = "expected TOK_DATA token";
@@ -297,7 +294,7 @@ uint64_t ParseTokenAsID(const Token& t, const char*& err_out)
 size_t ParseTokenAsDim(const Token& t, const char*& err_out)
 {
     // same as ID parsing, except there is a trailing asterisk
-    err_out = nullptr;
+    err_out = NULL;
 
     if (t.Type() != TokenType_DATA) {
         err_out = "expected TOK_DATA token";
@@ -343,7 +340,7 @@ size_t ParseTokenAsDim(const Token& t, const char*& err_out)
 // ------------------------------------------------------------------------------------------------
 float ParseTokenAsFloat(const Token& t, const char*& err_out)
 {
-    err_out = nullptr;
+    err_out = NULL;
 
     if (t.Type() != TokenType_DATA) {
         err_out = "expected TOK_DATA token";
@@ -370,13 +367,9 @@ float ParseTokenAsFloat(const Token& t, const char*& err_out)
     // first - next in the fbx token stream comes ',',
     // which fast_atof could interpret as decimal point.
 #define MAX_FLOAT_LENGTH 31
-    const size_t length = static_cast<size_t>(t.end()-t.begin());
-    if (length > MAX_FLOAT_LENGTH) {
-        return 0.f;
-    }
-
     char temp[MAX_FLOAT_LENGTH + 1];
-    std::copy(t.begin(), t.end(), temp);
+    const size_t length = static_cast<size_t>(t.end()-t.begin());
+    std::copy(t.begin(),t.end(),temp);
     temp[std::min(static_cast<size_t>(MAX_FLOAT_LENGTH),length)] = '\0';
 
     return fast_atof(temp);
@@ -386,7 +379,7 @@ float ParseTokenAsFloat(const Token& t, const char*& err_out)
 // ------------------------------------------------------------------------------------------------
 int ParseTokenAsInt(const Token& t, const char*& err_out)
 {
-    err_out = nullptr;
+    err_out = NULL;
 
     if (t.Type() != TokenType_DATA) {
         err_out = "expected TOK_DATA token";
@@ -422,7 +415,7 @@ int ParseTokenAsInt(const Token& t, const char*& err_out)
 // ------------------------------------------------------------------------------------------------
 int64_t ParseTokenAsInt64(const Token& t, const char*& err_out)
 {
-    err_out = nullptr;
+    err_out = NULL;
 
     if (t.Type() != TokenType_DATA) {
         err_out = "expected TOK_DATA token";
@@ -459,11 +452,11 @@ int64_t ParseTokenAsInt64(const Token& t, const char*& err_out)
 // ------------------------------------------------------------------------------------------------
 std::string ParseTokenAsString(const Token& t, const char*& err_out)
 {
-    err_out = nullptr;
+    err_out = NULL;
 
     if (t.Type() != TokenType_DATA) {
         err_out = "expected TOK_DATA token";
-        return std::string();
+        return "";
     }
 
     if(t.IsBinary())
@@ -471,7 +464,7 @@ std::string ParseTokenAsString(const Token& t, const char*& err_out)
         const char* data = t.begin();
         if (data[0] != 'S') {
             err_out = "failed to parse S(tring), unexpected data type (binary)";
-            return std::string();
+            return "";
         }
 
         // read string length
@@ -485,13 +478,13 @@ std::string ParseTokenAsString(const Token& t, const char*& err_out)
     const size_t length = static_cast<size_t>(t.end() - t.begin());
     if(length < 2) {
         err_out = "token is too short to hold a string";
-        return std::string();
+        return "";
     }
 
     const char* s = t.begin(), *e = t.end() - 1;
     if (*s != '\"' || *e != '\"') {
         err_out = "expected double quoted string";
-        return std::string();
+        return "";
     }
 
     return std::string(s+1,length-2);
@@ -524,7 +517,9 @@ void ReadBinaryDataArrayHead(const char*& data, const char* end, char& type, uin
 // ------------------------------------------------------------------------------------------------
 // read binary data array, assume cursor points to the 'compression mode' field (i.e. behind the header)
 void ReadBinaryDataArray(char type, uint32_t count, const char*& data, const char* end,
-        std::vector<char>& buff, const Element& /*el*/) {
+    std::vector<char>& buff,
+    const Element& /*el*/)
+{
     BE_NCONST uint32_t encmode = SafeParse<uint32_t>(data, end);
     AI_SWAP4(encmode);
     data += 4;
@@ -566,11 +561,31 @@ void ReadBinaryDataArray(char type, uint32_t count, const char*& data, const cha
     else if(encmode == 1) {
         // zlib/deflate, next comes ZIP head (0x78 0x01)
         // see http://www.ietf.org/rfc/rfc1950.txt
-         Compression compress;
-        if (compress.open(Compression::Format::Binary, Compression::FlushMode::Finish, 0)) {
-            compress.decompress(data, comp_len, buff);
-            compress.close();
+
+        z_stream zstream;
+        zstream.opaque = Z_NULL;
+        zstream.zalloc = Z_NULL;
+        zstream.zfree  = Z_NULL;
+        zstream.data_type = Z_BINARY;
+
+        // http://hewgill.com/journal/entries/349-how-to-decompress-gzip-stream-with-zlib
+        if(Z_OK != inflateInit(&zstream)) {
+            ParseError("failure initializing zlib");
         }
+
+        zstream.next_in   = reinterpret_cast<Bytef*>( const_cast<char*>(data) );
+        zstream.avail_in  = comp_len;
+
+        zstream.avail_out = static_cast<uInt>(buff.size());
+        zstream.next_out = reinterpret_cast<Bytef*>(&*buff.begin());
+        const int ret = inflate(&zstream, Z_FINISH);
+
+        if (ret != Z_STREAM_END && ret != Z_OK) {
+            ParseError("failure decompressing compressed data section");
+        }
+
+        // terminate zlib
+        inflateEnd(&zstream);
     }
 #ifdef ASSIMP_BUILD_DEBUG
     else {
@@ -620,10 +635,7 @@ void ParseVectorDataArray(std::vector<aiVector3D>& out, const Element& el)
         ReadBinaryDataArray(type, count, data, end, buff, el);
 
         ai_assert(data == end);
-        uint64_t dataToRead = static_cast<uint64_t>(count) * (type == 'd' ? 8 : 4);
-        if (dataToRead != buff.size()) {
-            ParseError("Invalid read size (binary)",&el);
-        }
+        ai_assert(buff.size() == count * (type == 'd' ? 8 : 4));
 
         const uint32_t count3 = count / 3;
         out.reserve(count3);
@@ -676,6 +688,7 @@ void ParseVectorDataArray(std::vector<aiVector3D>& out, const Element& el)
     }
 }
 
+
 // ------------------------------------------------------------------------------------------------
 // read an array of color4 tuples
 void ParseVectorDataArray(std::vector<aiColor4D>& out, const Element& el)
@@ -709,10 +722,7 @@ void ParseVectorDataArray(std::vector<aiColor4D>& out, const Element& el)
         ReadBinaryDataArray(type, count, data, end, buff, el);
 
         ai_assert(data == end);
-        uint64_t dataToRead = static_cast<uint64_t>(count) * (type == 'd' ? 8 : 4);
-        if (dataToRead != buff.size()) {
-            ParseError("Invalid read size (binary)",&el);
-        }
+        ai_assert(buff.size() == count * (type == 'd' ? 8 : 4));
 
         const uint32_t count4 = count / 4;
         out.reserve(count4);
@@ -760,7 +770,8 @@ void ParseVectorDataArray(std::vector<aiColor4D>& out, const Element& el)
 
 // ------------------------------------------------------------------------------------------------
 // read an array of float2 tuples
-void ParseVectorDataArray(std::vector<aiVector2D>& out, const Element& el) {
+void ParseVectorDataArray(std::vector<aiVector2D>& out, const Element& el)
+{
     out.resize( 0 );
     const TokenList& tok = el.Tokens();
     if(tok.empty()) {
@@ -790,10 +801,7 @@ void ParseVectorDataArray(std::vector<aiVector2D>& out, const Element& el) {
         ReadBinaryDataArray(type, count, data, end, buff, el);
 
         ai_assert(data == end);
-        uint64_t dataToRead = static_cast<uint64_t>(count) * (type == 'd' ? 8 : 4);
-        if (dataToRead != buff.size()) {
-            ParseError("Invalid read size (binary)",&el);
-        }
+        ai_assert(buff.size() == count * (type == 'd' ? 8 : 4));
 
         const uint32_t count2 = count / 2;
         out.reserve(count2);
@@ -804,7 +812,8 @@ void ParseVectorDataArray(std::vector<aiVector2D>& out, const Element& el) {
                 out.push_back(aiVector2D(static_cast<float>(d[0]),
                     static_cast<float>(d[1])));
             }
-        } else if (type == 'f') {
+        }
+        else if (type == 'f') {
             const float* f = reinterpret_cast<const float*>(&buff[0]);
             for (unsigned int i = 0; i < count2; ++i, f += 2) {
                 out.push_back(aiVector2D(f[0],f[1]));
@@ -837,7 +846,8 @@ void ParseVectorDataArray(std::vector<aiVector2D>& out, const Element& el) {
 
 // ------------------------------------------------------------------------------------------------
 // read an array of ints
-void ParseVectorDataArray(std::vector<int>& out, const Element& el) {
+void ParseVectorDataArray(std::vector<int>& out, const Element& el)
+{
     out.resize( 0 );
     const TokenList& tok = el.Tokens();
     if(tok.empty()) {
@@ -863,10 +873,7 @@ void ParseVectorDataArray(std::vector<int>& out, const Element& el) {
         ReadBinaryDataArray(type, count, data, end, buff, el);
 
         ai_assert(data == end);
-        uint64_t dataToRead = static_cast<uint64_t>(count) * 4;
-        if (dataToRead != buff.size()) {
-            ParseError("Invalid read size (binary)",&el);
-        }
+        ai_assert(buff.size() == count * 4);
 
         out.reserve(count);
 
@@ -924,10 +931,7 @@ void ParseVectorDataArray(std::vector<float>& out, const Element& el)
         ReadBinaryDataArray(type, count, data, end, buff, el);
 
         ai_assert(data == end);
-        uint64_t dataToRead = static_cast<uint64_t>(count) * (type == 'd' ? 8 : 4);
-        if (dataToRead != buff.size()) {
-            ParseError("Invalid read size (binary)",&el);
-        }
+        ai_assert(buff.size() == count * (type == 'd' ? 8 : 4));
 
         if (type == 'd') {
             const double* d = reinterpret_cast<const double*>(&buff[0]);
@@ -988,10 +992,7 @@ void ParseVectorDataArray(std::vector<unsigned int>& out, const Element& el)
         ReadBinaryDataArray(type, count, data, end, buff, el);
 
         ai_assert(data == end);
-        uint64_t dataToRead = static_cast<uint64_t>(count) * 4;
-        if (dataToRead != buff.size()) {
-            ParseError("Invalid read size (binary)",&el);
-        }
+        ai_assert(buff.size() == count * 4);
 
         out.reserve(count);
 
@@ -1056,10 +1057,7 @@ void ParseVectorDataArray(std::vector<uint64_t>& out, const Element& el)
         ReadBinaryDataArray(type, count, data, end, buff, el);
 
         ai_assert(data == end);
-        uint64_t dataToRead = static_cast<uint64_t>(count) * 8;
-        if (dataToRead != buff.size()) {
-            ParseError("Invalid read size (binary)",&el);
-        }
+        ai_assert(buff.size() == count * 8);
 
         out.reserve(count);
 
@@ -1117,10 +1115,7 @@ void ParseVectorDataArray(std::vector<int64_t>& out, const Element& el)
         ReadBinaryDataArray(type, count, data, end, buff, el);
 
         ai_assert(data == end);
-        uint64_t dataToRead = static_cast<uint64_t>(count) * 8;
-        if (dataToRead != buff.size()) {
-            ParseError("Invalid read size (binary)",&el);
-        }
+        ai_assert(buff.size() == count * 8);
 
         out.reserve(count);
 
@@ -1210,7 +1205,7 @@ bool HasElement( const Scope& sc, const std::string& index ) {
 
 // ------------------------------------------------------------------------------------------------
 // extract a required element from a scope, abort if the element cannot be found
-const Element& GetRequiredElement(const Scope& sc, const std::string& index, const Element* element /*= nullptr*/)
+const Element& GetRequiredElement(const Scope& sc, const std::string& index, const Element* element /*= NULL*/)
 {
     const Element* el = sc[index];
     if(!el) {

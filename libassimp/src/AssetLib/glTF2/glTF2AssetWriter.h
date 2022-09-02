@@ -2,7 +2,7 @@
 Open Asset Import Library (assimp)
 ----------------------------------------------------------------------
 
-Copyright (c) 2006-2022, assimp team
+Copyright (c) 2006-2019, assimp team
 
 
 All rights reserved.
@@ -46,16 +46,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * glTF Extensions Support:
  *   KHR_materials_pbrSpecularGlossiness: full
  *   KHR_materials_unlit: full
- *   KHR_materials_sheen: full
- *   KHR_materials_clearcoat: full
- *   KHR_materials_transmission: full
- *   KHR_materials_volume: full
- *   KHR_materials_ior: full
  */
 #ifndef GLTF2ASSETWRITER_H_INC
 #define GLTF2ASSETWRITER_H_INC
 
-#if !defined(ASSIMP_BUILD_NO_GLTF_IMPORTER) && !defined(ASSIMP_BUILD_NO_GLTF2_IMPORTER)
+#ifndef ASSIMP_BUILD_NO_GLTF_IMPORTER
 
 #include "glTF2Asset.h"
 

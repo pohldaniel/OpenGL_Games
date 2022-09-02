@@ -28,3 +28,5 @@ C/C++ -> Optimization
   
 C/C++ -> Command line
   ->add /bigobj to the Addidional Options
+  
+  https://stackoverflow.com/questions/69860756/how-do-i-correctly-blend-between-skeletal-animations-in-opengl-from-a-walk-anima

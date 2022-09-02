@@ -2,7 +2,7 @@
 Open Asset Import Library (assimp)
 ----------------------------------------------------------------------
 
-Copyright (c) 2006-2022, assimp team
+Copyright (c) 2006-2019, assimp team
 
 All rights reserved.
 
@@ -48,42 +48,39 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef ASSIMP_BUILD_NO_FBX_EXPORTER
 
 namespace Assimp {
-namespace FBX {
+namespace FBX
+{
+    const std::string NULL_RECORD = { // 13 null bytes
+        '\0','\0','\0','\0','\0','\0','\0','\0','\0','\0','\0','\0','\0'
+    }; // who knows why
+    const std::string SEPARATOR = {'\x00', '\x01'}; // for use inside strings
+    const std::string MAGIC_NODE_TAG = "_$AssimpFbx$"; // from import
+    const int64_t SECOND = 46186158000; // FBX's kTime unit
 
-const std::string NULL_RECORD = { // 25 null bytes in 64-bit and 13 null bytes in 32-bit
-    '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0',
-    '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0'
-}; // who knows why, it looks like two integers 32/64 bit (compressed and uncompressed sizes?) + 1 byte (might be compression type?)
-const std::string SEPARATOR = { '\x00', '\x01' }; // for use inside strings
-const std::string MAGIC_NODE_TAG = "_$AssimpFbx$"; // from import
-const int64_t SECOND = 46186158000; // FBX's kTime unit
+    // rotation order. We'll probably use EulerXYZ for everything
+    enum RotOrder {
+        RotOrder_EulerXYZ = 0,
+        RotOrder_EulerXZY,
+        RotOrder_EulerYZX,
+        RotOrder_EulerYXZ,
+        RotOrder_EulerZXY,
+        RotOrder_EulerZYX,
 
-// rotation order. We'll probably use EulerXYZ for everything
-enum RotOrder {
-    RotOrder_EulerXYZ = 0,
-    RotOrder_EulerXZY,
-    RotOrder_EulerYZX,
-    RotOrder_EulerYXZ,
-    RotOrder_EulerZXY,
-    RotOrder_EulerZYX,
+        RotOrder_SphericXYZ,
 
-    RotOrder_SphericXYZ,
+        RotOrder_MAX // end-of-enum sentinel
+    };
 
-    RotOrder_MAX // end-of-enum sentinel
-};
+    // transformation inheritance method. Most of the time RSrs
+    enum TransformInheritance {
+        TransformInheritance_RrSs = 0,
+        TransformInheritance_RSrs,
+        TransformInheritance_Rrs,
 
-// transformation inheritance method. Most of the time RSrs
-enum TransformInheritance {
-    TransformInheritance_RrSs = 0,
-    TransformInheritance_RSrs,
-    TransformInheritance_Rrs,
-
-    TransformInheritance_MAX // end-of-enum sentinel
-};
-
-} // namespace FBX
-} // namespace Assimp
-
+        TransformInheritance_MAX // end-of-enum sentinel
+    };
+}
+}
 #endif // ASSIMP_BUILD_NO_FBX_EXPORTER
 
 #endif // AI_FBXCOMMON_H_INC

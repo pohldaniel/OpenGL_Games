@@ -2,7 +2,8 @@
 Open Asset Import Library (assimp)
 ----------------------------------------------------------------------
 
-Copyright (c) 2006-2022, assimp team
+Copyright (c) 2006-2019, assimp team
+
 
 All rights reserved.
 
@@ -39,6 +40,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ----------------------------------------------------------------------
 */
 
+
 /** @file IRRLoader.h
  *  @brief Declaration of the .irrMesh (Irrlight Engine Mesh Format)
  *  importer class.
@@ -46,7 +48,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef AI_IRRLOADER_H_INCLUDED
 #define AI_IRRLOADER_H_INCLUDED
 
-#include "AssetLib/Irr/IRRShared.h"
+#include "IRRShared.h"
 #include "Common/Importer.h"
 
 #include <assimp/SceneCombiner.h>
@@ -65,22 +67,23 @@ namespace Assimp    {
 class IRRImporter : public BaseImporter, public IrrlichtBase {
 public:
     IRRImporter();
-    ~IRRImporter() override;
+    ~IRRImporter();
 
     // -------------------------------------------------------------------
     /** Returns whether the class can handle the format of the given file.
      *  See BaseImporter::CanRead() for details.
      */
     bool CanRead( const std::string& pFile, IOSystem* pIOHandler,
-        bool checkSig) const override;
+        bool checkSig) const;
 
 protected:
-    const aiImporterDesc* GetInfo () const override;
-    void InternReadFile( const std::string& pFile, aiScene* pScene, IOSystem* pIOHandler) override;
-    void SetupProperties(const Importer* pImp) override;
+    const aiImporterDesc* GetInfo () const;
+    void InternReadFile( const std::string& pFile, aiScene* pScene, IOSystem* pIOHandler);
+    void SetupProperties(const Importer* pImp);
 
 private:
-    /** Data structure for a scene-graph node animator
+
+    /** Data structure for a scenegraph node animator
      */
     struct Animator {
         // Type of the animator
@@ -126,7 +129,7 @@ private:
         int timeForWay;
     };
 
-    /** Data structure for a scene-graph node in an IRR file
+    /** Data structure for a scenegraph node in an IRR file
      */
     struct Node
     {
@@ -224,7 +227,8 @@ private:
 
 
     // -------------------------------------------------------------------
-    /// Fill the scene-graph recursively
+    /** Fill the scenegraph recursively
+     */
     void GenerateGraph(Node* root,aiNode* rootOut ,aiScene* scene,
         BatchLoader& batch,
         std::vector<aiMesh*>& meshes,
@@ -233,21 +237,26 @@ private:
         std::vector<aiMaterial*>& materials,
         unsigned int& defaultMatIdx);
 
+
     // -------------------------------------------------------------------
-    /// Generate a mesh that consists of just a single quad
+    /** Generate a mesh that consists of just a single quad
+     */
     aiMesh* BuildSingleQuadMesh(const SkyboxVertex& v1,
         const SkyboxVertex& v2,
         const SkyboxVertex& v3,
         const SkyboxVertex& v4);
 
+
     // -------------------------------------------------------------------
-    /// Build a sky-box
-    ///
-    /// @param meshes Receives 6 output meshes
-    /// @param materials The last 6 materials are assigned to the newly
-    ///                  created meshes. The names of the materials are adjusted.
+    /** Build a skybox
+     *
+     *  @param meshes Receives 6 output meshes
+     *  @param materials The last 6 materials are assigned to the newly
+     *    created meshes. The names of the materials are adjusted.
+     */
     void BuildSkybox(std::vector<aiMesh*>& meshes,
         std::vector<aiMaterial*> materials);
+
 
     // -------------------------------------------------------------------
     /** Copy a material for a mesh to the output material list
@@ -262,6 +271,7 @@ private:
         unsigned int& defMatIdx,
         aiMesh* mesh);
 
+
     // -------------------------------------------------------------------
     /** Compute animations for a specific node
      *
@@ -271,11 +281,13 @@ private:
     void ComputeAnimations(Node* root, aiNode* real,
         std::vector<aiNodeAnim*>& anims);
 
+
 private:
-    /// Configuration option: desired output FPS
+
+    /** Configuration option: desired output FPS */
     double fps;
 
-    /// Configuration option: speed flag was set?
+    /** Configuration option: speed flag was set? */
     bool configSpeedFlag;
 };
 

@@ -2,7 +2,7 @@
 Open Asset Import Library (assimp)
 ----------------------------------------------------------------------
 
-Copyright (c) 2006-2022, assimp team
+Copyright (c) 2006-2019, assimp team
 
 
 All rights reserved.
@@ -386,14 +386,7 @@ void BlenderTessellatorP2T::ReferencePoints( std::vector< Blender::PointP2T >& p
 // ------------------------------------------------------------------------------------------------
 inline PointP2T& BlenderTessellatorP2T::GetActualPointStructure( p2t::Point& point ) const
 {
-#if defined __clang__
-#    pragma clang diagnostic push
-#    pragma clang diagnostic ignored "-Winvalid-offsetof"
-#endif // __clang__
     unsigned int pointOffset = offsetof( PointP2T, point2D );
-#if defined __clang__
-#    pragma clang diagnostic pop
-#endif
     PointP2T& pointStruct = *reinterpret_cast< PointP2T* >( reinterpret_cast< char* >( &point ) - pointOffset );
     if ( pointStruct.magic != static_cast<int>( BLEND_TESS_MAGIC ) )
     {
@@ -401,6 +394,7 @@ inline PointP2T& BlenderTessellatorP2T::GetActualPointStructure( p2t::Point& poi
     }
     return pointStruct;
 }
+
 // ------------------------------------------------------------------------------------------------
 void BlenderTessellatorP2T::MakeFacesFromTriangles( std::vector< p2t::Triangle* >& triangles ) const
 {

@@ -2,7 +2,7 @@
 Open Asset Import Library (assimp)
 ----------------------------------------------------------------------
 
-Copyright (c) 2006-2022, assimp team
+Copyright (c) 2006-2019, assimp team
 
 
 All rights reserved.
@@ -39,7 +39,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ----------------------------------------------------------------------
 */
-#pragma once
 #ifndef AI_OPENGEX_IMPORTER_H
 #define AI_OPENGEX_IMPORTER_H
 
@@ -80,7 +79,7 @@ struct MetricInfo {
     int m_intValue;
 
     MetricInfo()
-    : m_stringValue( )
+    : m_stringValue( "" )
     , m_floatValue( 0.0f )
     , m_intValue( -1 ) {
         // empty
@@ -97,21 +96,21 @@ public:
     OpenGEXImporter();
 
     /// The class destructor.
-    ~OpenGEXImporter() override;
+    virtual ~OpenGEXImporter();
 
     /// BaseImporter override.
-    bool CanRead( const std::string &file, IOSystem *pIOHandler, bool checkSig ) const override;
+    virtual bool CanRead( const std::string &file, IOSystem *pIOHandler, bool checkSig ) const;
+
+    /// BaseImporter override.
+    virtual void InternReadFile( const std::string &file, aiScene *pScene, IOSystem *pIOHandler );
+
+    /// BaseImporter override.
+    virtual const aiImporterDesc *GetInfo() const;
+
+    /// BaseImporter override.
+    virtual void SetupProperties( const Importer *pImp );
 
 protected:
-    /// BaseImporter override.
-    void InternReadFile( const std::string &file, aiScene *pScene, IOSystem *pIOHandler ) override;
-
-    /// BaseImporter override.
-    virtual const aiImporterDesc *GetInfo() const override;
-
-    /// BaseImporter override.
-    virtual void SetupProperties( const Importer *pImp ) override;
-
     void handleNodes( ODDLParser::DDLNode *node, aiScene *pScene );
     void handleMetricNode( ODDLParser::DDLNode *node, aiScene *pScene );
     void handleNameNode( ODDLParser::DDLNode *node, aiScene *pScene );
@@ -177,15 +176,15 @@ private:
     };
 
     struct ChildInfo {
-        using NodeList = std::list<aiNode*>;
+        typedef std::list<aiNode*> NodeList;
         std::list<aiNode*> m_children;
     };
     ChildInfo *m_root;
-    using NodeChildMap = std::map<aiNode*, std::unique_ptr<ChildInfo> >;
+    typedef std::map<aiNode*, std::unique_ptr<ChildInfo> > NodeChildMap;
     NodeChildMap m_nodeChildMap;
 
     std::vector<std::unique_ptr<aiMesh> > m_meshCache;
-    using ReferenceMap = std::map<std::string, size_t>;
+    typedef std::map<std::string, size_t> ReferenceMap;
     std::map<std::string, size_t> m_mesh2refMap;
     std::map<std::string, size_t> m_material2refMap;
 

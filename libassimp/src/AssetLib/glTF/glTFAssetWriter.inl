@@ -2,7 +2,8 @@
 Open Asset Import Library (assimp)
 ----------------------------------------------------------------------
 
-Copyright (c) 2006-2022, assimp team
+Copyright (c) 2006-2019, assimp team
+
 
 All rights reserved.
 
@@ -39,16 +40,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ----------------------------------------------------------------------
 */
 
-#include <assimp/Base64.hpp>
-
 #include <rapidjson/stringbuffer.h>
 #include <rapidjson/writer.h>
 #include <rapidjson/prettywriter.h>
-
-#if _MSC_VER
-#    pragma warning(push)
-#    pragma warning( disable : 4706)
-#endif // _MSC_VER
 
 namespace glTF {
 
@@ -60,9 +54,9 @@ namespace glTF {
 
     namespace {
 
-        template<typename T, size_t N>
-        inline
-        Value& MakeValue(Value& val, T(&r)[N], MemoryPoolAllocator<>& al) {
+        template<size_t N>
+        inline 
+        Value& MakeValue(Value& val, float(&r)[N], MemoryPoolAllocator<>& al) {
             val.SetArray();
             val.Reserve(N, al);
             for (decltype(N) i = 0; i < N; ++i) {
@@ -71,23 +65,12 @@ namespace glTF {
             return val;
         }
 
-        template<typename T>
-        inline
-        Value& MakeValue(Value& val, const std::vector<T> & r, MemoryPoolAllocator<>& al) {
+        inline 
+        Value& MakeValue(Value& val, const std::vector<float> & r, MemoryPoolAllocator<>& al) {
             val.SetArray();
             val.Reserve(static_cast<rapidjson::SizeType>(r.size()), al);
             for (unsigned int i = 0; i < r.size(); ++i) {
                 val.PushBack(r[i], al);
-            }
-            return val;
-        }
-
-        template<typename C, typename T>
-        inline Value& MakeValueCast(Value& val, const std::vector<T> & r, MemoryPoolAllocator<>& al) {
-            val.SetArray();
-            val.Reserve(static_cast<rapidjson::SizeType>(r.size()), al);
-            for (unsigned int i = 0; i < r.size(); ++i) {
-                val.PushBack(static_cast<C>(r[i]), al);
             }
             return val;
         }
@@ -117,13 +100,8 @@ namespace glTF {
         obj.AddMember("type", StringRef(AttribType::ToString(a.type)), w.mAl);
 
         Value vTmpMax, vTmpMin;
-		if (a.componentType == ComponentType_FLOAT) {
-			obj.AddMember("max", MakeValue(vTmpMax, a.max, w.mAl), w.mAl);
-			obj.AddMember("min", MakeValue(vTmpMin, a.min, w.mAl), w.mAl);
-		} else {
-			obj.AddMember("max", MakeValueCast<int64_t>(vTmpMax, a.max, w.mAl), w.mAl);
-			obj.AddMember("min", MakeValueCast<int64_t>(vTmpMin, a.min, w.mAl), w.mAl);
-		}
+        obj.AddMember("max", MakeValue(vTmpMax, a.max, w.mAl), w.mAl);
+        obj.AddMember("min", MakeValue(vTmpMin, a.min, w.mAl), w.mAl);
     }
 
     inline void Write(Value& obj, Animation& a, AssetWriter& w)
@@ -209,9 +187,7 @@ namespace glTF {
         obj.AddMember("buffer", Value(bv.buffer->id, w.mAl).Move(), w.mAl);
         obj.AddMember("byteOffset", static_cast<uint64_t>(bv.byteOffset), w.mAl);
         obj.AddMember("byteLength", static_cast<uint64_t>(bv.byteLength), w.mAl);
-        if (bv.target != BufferViewTarget_NONE) {
-            obj.AddMember("target", int(bv.target), w.mAl);
-        }
+        obj.AddMember("target", int(bv.target), w.mAl);
     }
 
     inline void Write(Value& /*obj*/, Camera& /*c*/, AssetWriter& /*w*/)
@@ -239,7 +215,7 @@ namespace glTF {
         else if (img.HasData()) {
             uri = "data:" + (img.mimeType.empty() ? "application/octet-stream" : img.mimeType);
             uri += ";base64,";
-            Base64::Encode(img.GetData(), img.GetDataLength(), uri);
+            glTFCommon::Util::EncodeBase64(img.GetData(), img.GetDataLength(), uri);
         }
         else {
             uri = img.uri;
@@ -307,11 +283,11 @@ namespace glTF {
 			Value json_extensions;
 
 			json_extensions.SetObject();
-#ifdef ASSIMP_IMPORTER_GLTF_USE_OPEN3DGC
 			for(Mesh::SExtension* ptr_ext : m.Extension)
 			{
 				switch(ptr_ext->Type)
 				{
+#ifdef ASSIMP_IMPORTER_GLTF_USE_OPEN3DGC
 					case Mesh::SExtension::EType::Compression_Open3DGC:
 						{
 							Value json_comp_data;
@@ -341,11 +317,11 @@ namespace glTF {
 						}
 
 						break;
+#endif
 					default:
 						throw DeadlyImportError("GLTF: Can not write mesh: unknown mesh extension, only Open3DGC is supported.");
 				}// switch(ptr_ext->Type)
 			}// for(Mesh::SExtension* ptr_ext : m.Extension)
-#endif
 
 			// Add extensions to mesh
 			obj.AddMember("extensions", json_extensions, w.mAl);
@@ -532,9 +508,7 @@ namespace glTF {
         StringBuffer docBuffer;
 
         PrettyWriter<StringBuffer> writer(docBuffer);
-        if (!mDoc.Accept(writer)) {
-            throw DeadlyExportError("Failed to write scene data!");
-        }
+        mDoc.Accept(writer);
 
         if (jsonOutFile->Write(docBuffer.GetString(), docBuffer.GetSize(), 1) != 1) {
             throw DeadlyExportError("Failed to write scene data!");
@@ -573,9 +547,7 @@ namespace glTF {
 
         StringBuffer docBuffer;
         Writer<StringBuffer> writer(docBuffer);
-        if (!mDoc.Accept(writer)) {
-            throw DeadlyExportError("Failed to write scene data!");
-        }
+        mDoc.Accept(writer);
 
         if (outfile->Write(docBuffer.GetString(), docBuffer.GetSize(), 1) != 1) {
             throw DeadlyExportError("Failed to write scene data!");
@@ -639,9 +611,6 @@ namespace glTF {
         asset.SetObject();
         asset.AddMember("version", Value(mAsset.asset.version, mAl).Move(), mAl);
         asset.AddMember("generator", Value(mAsset.asset.generator, mAl).Move(), mAl);
-        if (!mAsset.asset.copyright.empty())
-            asset.AddMember("copyright", Value(mAsset.asset.copyright, mAl).Move(), mAl);
-
         mDoc.AddMember("asset", asset, mAl);
     }
 
@@ -709,8 +678,6 @@ namespace glTF {
         w.WriteObjects(d);
     }
 
-#if _MSC_VER
-#    pragma warning(pop)
-#endif // _WIN32
-
 }
+
+

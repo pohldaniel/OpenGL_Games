@@ -2,7 +2,8 @@
 Open Asset Import Library (assimp)
 ----------------------------------------------------------------------
 
-Copyright (c) 2006-2022, assimp team
+Copyright (c) 2006-2019, assimp team
+
 
 All rights reserved.
 
@@ -42,17 +43,18 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef D3MFOPCPACKAGE_H
 #define D3MFOPCPACKAGE_H
 
-#include <assimp/IOSystem.hpp>
 #include <memory>
-#include <string>
 
-struct aiTexture;
+#include <assimp/IOSystem.hpp>
+#include <assimp/irrXMLWrapper.h>
 
 namespace Assimp {
-
-class ZipArchiveIOSystem;
+    class ZipArchiveIOSystem;
 
 namespace D3MF {
+
+using XmlReader = irr::io::IrrXMLReader ;
+using XmlReaderPtr = std::shared_ptr<XmlReader> ;
 
 struct OpcPackageRelationship {
     std::string id;
@@ -62,23 +64,20 @@ struct OpcPackageRelationship {
 
 class D3MFOpcPackage {
 public:
-    D3MFOpcPackage( IOSystem* pIOHandler, const std::string& file );
+    D3MFOpcPackage( IOSystem* pIOHandler, const std::string& rFile );
     ~D3MFOpcPackage();
     IOStream* RootStream() const;
     bool validate();
-    const std::vector<aiTexture*> &GetEmbeddedTextures() const;
 
 protected:
     std::string ReadPackageRootRelationship(IOStream* stream);
-    void LoadEmbeddedTextures(IOStream *fileStream, const std::string &filename);
 
 private:
     IOStream* mRootStream;
-    ZipArchiveIOSystem *mZipArchive;
-    std::vector<aiTexture *> mEmbeddedTextures;
+    std::unique_ptr<ZipArchiveIOSystem> mZipArchive;
 };
 
-} // namespace D3MF
-} // namespace Assimp
+} // Namespace D3MF
+} // Namespace Assimp
 
 #endif // D3MFOPCPACKAGE_H

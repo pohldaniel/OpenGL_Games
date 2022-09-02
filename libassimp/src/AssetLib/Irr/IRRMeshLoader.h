@@ -2,7 +2,8 @@
 Open Asset Import Library (assimp)
 ----------------------------------------------------------------------
 
-Copyright (c) 2006-2022, assimp team
+Copyright (c) 2006-2019, assimp team
+
 
 All rights reserved.
 
@@ -46,12 +47,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef AI_IRRMESHLOADER_H_INCLUDED
 #define AI_IRRMESHLOADER_H_INCLUDED
 
-#include "IRRShared.h"
 #include <assimp/BaseImporter.h>
+#include "IRRShared.h"
 
 #ifndef ASSIMP_BUILD_NO_IRRMESH_IMPORTER
 
-namespace Assimp {
+namespace Assimp    {
 
 // ---------------------------------------------------------------------------
 /** IrrMesh importer class.
@@ -60,31 +61,37 @@ namespace Assimp {
  * irrEdit. As IrrEdit itself is capable of importing quite many file formats,
  * it might be a good file format for data exchange.
  */
-class IRRMeshImporter : public BaseImporter, public IrrlichtBase {
+class IRRMeshImporter : public BaseImporter, public IrrlichtBase
+{
 public:
     IRRMeshImporter();
-    ~IRRMeshImporter() override;
+    ~IRRMeshImporter();
+
+
+public:
 
     // -------------------------------------------------------------------
     /** Returns whether the class can handle the format of the given file.
      *  See BaseImporter::CanRead() for details.
      */
-    bool CanRead(const std::string &pFile, IOSystem *pIOHandler,
-            bool checkSig) const override;
+    bool CanRead( const std::string& pFile, IOSystem* pIOHandler,
+        bool checkSig) const;
 
 protected:
+
     // -------------------------------------------------------------------
     /** Return importer meta information.
      * See #BaseImporter::GetInfo for the details
      */
-    const aiImporterDesc *GetInfo() const override;
+    const aiImporterDesc* GetInfo () const;
 
     // -------------------------------------------------------------------
     /** Imports the given file into the given scene structure.
      * See BaseImporter::InternReadFile() for details
      */
-    void InternReadFile(const std::string &pFile, aiScene *pScene,
-            IOSystem *pIOHandler) override;
+    void InternReadFile( const std::string& pFile, aiScene* pScene,
+        IOSystem* pIOHandler);
+
 };
 
 } // end of namespace Assimp

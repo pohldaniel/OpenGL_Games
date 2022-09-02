@@ -2,7 +2,7 @@
 Open Asset Import Library (assimp)
 ----------------------------------------------------------------------
 
-Copyright (c) 2006-2022, assimp team
+Copyright (c) 2006-2019, assimp team
 
 
 All rights reserved.
@@ -50,7 +50,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef GLTFASSETWRITER_H_INC
 #define GLTFASSETWRITER_H_INC
 
-#if !defined(ASSIMP_BUILD_NO_GLTF_IMPORTER) && !defined(ASSIMP_BUILD_NO_GLTF1_IMPORTER)
+#ifndef ASSIMP_BUILD_NO_GLTF_IMPORTER
 
 #include "glTFAsset.h"
 

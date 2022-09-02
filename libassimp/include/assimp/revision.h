@@ -5,7 +5,7 @@
 #define GitBranch ""
 
 #define VER_MAJOR 5
-#define VER_MINOR 2
+#define VER_MINOR 0
 #define VER_PATCH 0
 #define VER_BUILD 0
 
@@ -18,7 +18,6 @@
 #else
 #define VER_FILEVERSION_STR         STR(VER_MAJOR) "." STR(VER_MINOR) "." STR(VER_PATCH) "." STR(VER_BUILD) " (Commit 0)"
 #endif
-#define VER_COPYRIGHT_STR           "\xA9 2006-2022"
 
 #ifdef  NDEBUG
 #define VER_ORIGINAL_FILENAME_STR   "assimp-vc140-mt.dll"

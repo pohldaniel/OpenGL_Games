@@ -2,7 +2,8 @@
 Open Asset Import Library (assimp)
 ----------------------------------------------------------------------
 
-Copyright (c) 2006-2022, assimp team
+Copyright (c) 2006-2019, assimp team
+
 
 All rights reserved.
 
@@ -49,24 +50,26 @@ namespace Assimp {
 namespace FBX {
 
 /** FBX import settings, parts of which are publicly accessible via their corresponding AI_CONFIG constants */
-struct ImportSettings {
-    ImportSettings() :
-            strictMode(true),
-            readAllLayers(true),
-            readAllMaterials(false),
-            readMaterials(true),
-            readTextures(true),
-            readCameras(true),
-            readLights(true),
-            readAnimations(true),
-            readWeights(true),
-            preservePivots(true),
-            optimizeEmptyAnimationCurves(true),
-            useLegacyEmbeddedTextureNaming(false),
-            removeEmptyBones(true),
-            convertToMeters(false) {
+struct ImportSettings
+{
+    ImportSettings()
+    : strictMode(true)
+    , readAllLayers(true)
+    , readAllMaterials(false)
+    , readMaterials(true)
+    , readTextures(true)
+    , readCameras(true)
+    , readLights(true)
+    , readAnimations(true)
+    , readWeights(true)
+    , preservePivots(true)
+    , optimizeEmptyAnimationCurves(true)
+    , useLegacyEmbeddedTextureNaming(false)
+    , removeEmptyBones( true )
+    , convertToMeters( false ) {
         // empty
     }
+
 
     /** enable strict mode:
      *   - only accept fbx 2012, 2013 files
@@ -90,6 +93,7 @@ struct ImportSettings {
      *  need to be processed .
      *  This bit is ignored unless readMaterials=true*/
     bool readAllMaterials;
+
 
     /** import materials (true) or skip them and assign a default
      *  material. The default value is true.*/
@@ -152,7 +156,9 @@ struct ImportSettings {
     bool convertToMeters;
 };
 
-} // namespace FBX
-} // namespace Assimp
+
+} // !FBX
+} // !Assimp
 
 #endif
+

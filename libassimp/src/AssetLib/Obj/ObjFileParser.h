@@ -2,7 +2,8 @@
 Open Asset Import Library (assimp)
 ----------------------------------------------------------------------
 
-Copyright (c) 2006-2020, assimp team
+Copyright (c) 2006-2019, assimp team
+
 
 All rights reserved.
 
@@ -41,25 +42,24 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef OBJ_FILEPARSER_H_INC
 #define OBJ_FILEPARSER_H_INC
 
-#include <assimp/IOStreamBuffer.h>
-#include <assimp/material.h>
-#include <assimp/mesh.h>
-#include <assimp/vector2.h>
-#include <assimp/vector3.h>
+#include <vector>
+#include <string>
 #include <map>
 #include <memory>
-#include <string>
-#include <vector>
+#include <assimp/vector2.h>
+#include <assimp/vector3.h>
+#include <assimp/mesh.h>
+#include <assimp/IOStreamBuffer.h>
 
 namespace Assimp {
 
 namespace ObjFile {
-struct Model;
-struct Object;
-struct Material;
-struct Point3;
-struct Point2;
-} // namespace ObjFile
+    struct Model;
+    struct Object;
+    struct Material;
+    struct Point3;
+    struct Point2;
+}
 
 class ObjFileImporter;
 class IOSystem;
@@ -74,37 +74,35 @@ public:
     typedef std::vector<char>::iterator DataArrayIt;
     typedef std::vector<char>::const_iterator ConstDataArrayIt;
 
+public:
     /// @brief  The default constructor.
     ObjFileParser();
     /// @brief  Constructor with data array.
-    ObjFileParser(IOStreamBuffer<char> &streamBuffer, const std::string &modelName, IOSystem *io, ProgressHandler *progress, const std::string &originalObjFileName);
+    ObjFileParser( IOStreamBuffer<char> &streamBuffer, const std::string &modelName, IOSystem* io, ProgressHandler* progress, const std::string &originalObjFileName);
     /// @brief  Destructor
     ~ObjFileParser();
     /// @brief  If you want to load in-core data.
-    void setBuffer(std::vector<char> &buffer);
+    void setBuffer( std::vector<char> &buffer );
     /// @brief  Model getter.
     ObjFile::Model *GetModel() const;
 
-    ObjFileParser(const ObjFileParser&) = delete;
-    ObjFileParser &operator=(const ObjFileParser& ) = delete;
-
 protected:
     /// Parse the loaded file
-    void parseFile(IOStreamBuffer<char> &streamBuffer);
+    void parseFile( IOStreamBuffer<char> &streamBuffer );
     /// Method to copy the new delimited word in the current line.
     void copyNextWord(char *pBuffer, size_t length);
     /// Method to copy the new line.
-    //    void copyNextLine(char *pBuffer, size_t length);
+//    void copyNextLine(char *pBuffer, size_t length);
     /// Get the number of components in a line.
     size_t getNumComponentsInDataDefinition();
     /// Stores the vector
-    size_t getTexCoordVector(std::vector<aiVector3D> &point3d_array);
+    size_t getTexCoordVector( std::vector<aiVector3D> &point3d_array );
     /// Stores the following 3d vector.
-    void getVector3(std::vector<aiVector3D> &point3d_array);
+    void getVector3( std::vector<aiVector3D> &point3d_array );
     /// Stores the following homogeneous vector as a 3D vector
-    void getHomogeneousVector3(std::vector<aiVector3D> &point3d_array);
+    void getHomogeneousVector3( std::vector<aiVector3D> &point3d_array );
     /// Stores the following two 3d vectors on the line.
-    void getTwoVectors3(std::vector<aiVector3D> &point3d_array_a, std::vector<aiVector3D> &point3d_array_b);
+    void getTwoVectors3( std::vector<aiVector3D> &point3d_array_a, std::vector<aiVector3D> &point3d_array_b );
     /// Stores the following 3d vector.
     void getVector2(std::vector<aiVector2D> &point2d_array);
     /// Stores the following face.
@@ -124,24 +122,26 @@ protected:
     /// Gets the group number and resolution from file.
     void getGroupNumberAndResolution();
     /// Returns the index of the material. Is -1 if not material was found.
-    int getMaterialIndex(const std::string &strMaterialName);
+    int getMaterialIndex( const std::string &strMaterialName );
     /// Parse object name
     void getObjectName();
     /// Creates a new object.
-    void createObject(const std::string &strObjectName);
+    void createObject( const std::string &strObjectName );
     /// Creates a new mesh.
-    void createMesh(const std::string &meshName);
+    void createMesh( const std::string &meshName );
     /// Returns true, if a new mesh instance must be created.
-    bool needsNewMesh(const std::string &rMaterialName);
+    bool needsNewMesh( const std::string &rMaterialName );
     /// Error report in token
     void reportErrorTokenInFace();
 
 private:
     // Copy and assignment constructor should be private
     // because the class contains pointer to allocated memory
+    ObjFileParser(const ObjFileParser& rhs);
+    ObjFileParser& operator=(const ObjFileParser& rhs);
 
     /// Default material name
-    static constexpr const char DEFAULT_MATERIAL[] = AI_DEFAULT_MATERIAL_NAME;
+    static const std::string DEFAULT_MATERIAL;
     //! Iterator to current position in buffer
     DataArrayIt m_DataIt;
     //! Iterator to end position of buffer
@@ -155,11 +155,11 @@ private:
     /// Pointer to IO system instance.
     IOSystem *m_pIO;
     //! Pointer to progress handler
-    ProgressHandler *m_progress;
+    ProgressHandler* m_progress;
     /// Path to the current model, name of the obj file where the buffer comes from
     const std::string m_originalObjFileName;
 };
 
-} // Namespace Assimp
+}   // Namespace Assimp
 
 #endif

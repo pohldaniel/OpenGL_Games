@@ -3,7 +3,7 @@
 Open Asset Import Library (assimp)
 ---------------------------------------------------------------------------
 
-Copyright (c) 2006-2022, assimp team
+Copyright (c) 2006-2019, assimp team
 
 
 
@@ -242,7 +242,7 @@ LWO::Texture* LWOImporter::SetupNewTextureLWOB(LWO::TextureList& list,unsigned i
     else
     {
         // procedural or gradient, not supported
-        ASSIMP_LOG_ERROR("LWOB: Unsupported legacy texture: ", type);
+        ASSIMP_LOG_ERROR_F("LWOB: Unsupported legacy texture: ", type);
     }
 
     return tex;
@@ -255,7 +255,7 @@ void LWOImporter::LoadLWOBSurface(unsigned int size)
 
     mSurfaces->push_back( LWO::Surface () );
     LWO::Surface& surf = mSurfaces->back();
-    LWO::Texture *pTex = nullptr;
+    LWO::Texture* pTex = NULL;
 
     GetS0(surf.mName,size);
     bool running = true;

@@ -2,7 +2,7 @@
 Open Asset Import Library (assimp)
 ----------------------------------------------------------------------
 
-Copyright (c) 2006-2022, assimp team
+Copyright (c) 2006-2016, assimp team
 All rights reserved.
 
 Redistribution and use of this software in source and binary forms,
@@ -59,19 +59,19 @@ public:
     MMDImporter();
 
     /// \brief  Destructor
-    ~MMDImporter() override;
+    ~MMDImporter();
 
 public:
     /// \brief  Returns whether the class can handle the format of the given file.
     /// \remark See BaseImporter::CanRead() for details.
-    bool CanRead( const std::string& pFile, IOSystem* pIOHandler, bool checkSig) const override;
+    bool CanRead( const std::string& pFile, IOSystem* pIOHandler, bool checkSig) const;
 
 private:
     //! \brief  Appends the supported extension.
-    const aiImporterDesc* GetInfo() const override;
+    const aiImporterDesc* GetInfo () const;
 
     //! \brief  File import implementation.
-    void InternReadFile(const std::string& pFile, aiScene* pScene, IOSystem* pIOHandler) override;
+    void InternReadFile(const std::string& pFile, aiScene* pScene, IOSystem* pIOHandler);
 
     //! \brief  Create the data from imported content.
     void CreateDataFromImport(const pmx::PmxModel* pModel, aiScene* pScene);

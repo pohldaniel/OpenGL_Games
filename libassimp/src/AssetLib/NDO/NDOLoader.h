@@ -2,7 +2,7 @@
 Open Asset Import Library (assimp)
 ----------------------------------------------------------------------
 
-Copyright (c) 2006-2022, assimp team
+Copyright (c) 2006-2008, assimp team
 All rights reserved.
 
 Redistribution and use of this software in source and binary forms,
@@ -44,18 +44,19 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef INCLUDED_AI_NDO_LOADER_H
 #define INCLUDED_AI_NDO_LOADER_H
 
-#include <assimp/BaseImporter.h>
 #include <assimp/vector3.h>
-#include <cstdint>
+#include <assimp/BaseImporter.h>
+#include <stdint.h>
 #include <string>
 #include <vector>
+
 
 struct aiImporterDesc;
 struct aiScene;
 
-namespace Assimp {
-class IOSystem;
-class Importer;
+namespace Assimp    {
+    class IOSystem;
+    class Importer;
 
 // ---------------------------------------------------------------------------
 /** @brief Importer class to load meshes from Nendo.
@@ -63,30 +64,38 @@ class Importer;
  *  Basing on
  *  <blender>/blender/release/scripts/nendo_import.py by Anthony D'Agostino.
 */
-class NDOImporter : public BaseImporter {
+class NDOImporter : public BaseImporter
+{
 public:
     NDOImporter();
-    ~NDOImporter() override;
+    ~NDOImporter();
+
+
+public:
 
     //! Represents a single edge
-    struct Edge {
+    struct Edge
+    {
         unsigned int edge[8];
         unsigned int hard;
         uint8_t color[8];
     };
 
     //! Represents a single face
-    struct Face {
+    struct Face
+    {
         unsigned int elem;
     };
 
-    struct Vertex {
+    struct Vertex
+    {
         unsigned int num;
         aiVector3D val;
     };
 
     //! Represents a single object
-    struct Object {
+    struct Object
+    {
         std::string name;
 
         std::vector<Edge> edges;
@@ -95,22 +104,23 @@ public:
     };
 
     // -------------------------------------------------------------------
-    bool CanRead(const std::string &pFile, IOSystem *pIOHandler,
-            bool checkSig) const override;
+    bool CanRead( const std::string& pFile, IOSystem* pIOHandler,
+        bool checkSig) const;
 
 protected:
-    // -------------------------------------------------------------------
-    const aiImporterDesc *GetInfo() const override;
 
     // -------------------------------------------------------------------
-    void SetupProperties(const Importer *pImp) override;
+    const aiImporterDesc* GetInfo () const;
 
     // -------------------------------------------------------------------
-    void InternReadFile(const std::string &pFile, aiScene *pScene,
-            IOSystem *pIOHandler) override;
+    void SetupProperties(const Importer* pImp);
+
+    // -------------------------------------------------------------------
+    void InternReadFile( const std::string& pFile, aiScene* pScene,
+        IOSystem* pIOHandler);
+
+private:
 
 }; // end of class NDOImporter
-
 } // end of namespace Assimp
-
 #endif // INCLUDED_AI_NDO_LOADER_H

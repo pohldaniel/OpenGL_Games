@@ -4,7 +4,7 @@
 Open Asset Import Library (assimp)
 ----------------------------------------------------------------------
 
-Copyright (c) 2006-2022, assimp team
+Copyright (c) 2006-2019, assimp team
 
 
 All rights reserved.
@@ -53,7 +53,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 struct aiNode;
 
-namespace Assimp {
+namespace Assimp
+{
 
 // --------------------------------------------------------------------------------
 /** Loader class to read Motion Capturing data from a .bvh file.
@@ -62,10 +63,12 @@ namespace Assimp {
  * the hierarchy. It contains no actual mesh data, but we generate a dummy mesh
  * inside the loader just to be able to see something.
 */
-class BVHLoader : public BaseImporter {
+class BVHLoader : public BaseImporter
+{
 
     /** Possible animation channels for which the motion data holds the values */
-    enum ChannelType {
+    enum ChannelType
+    {
         Channel_PositionX,
         Channel_PositionY,
         Channel_PositionZ,
@@ -75,57 +78,61 @@ class BVHLoader : public BaseImporter {
     };
 
     /** Collected list of node. Will be bones of the dummy mesh some day, addressed by their array index */
-    struct Node {
-        const aiNode *mNode;
+    struct Node
+    {
+        const aiNode* mNode;
         std::vector<ChannelType> mChannels;
         std::vector<float> mChannelValues; // motion data values for that node. Of size NumChannels * NumFrames
 
-        Node() :
-                mNode(nullptr) {}
+        Node()
+        : mNode(nullptr)
+        { }
 
-        explicit Node(const aiNode *pNode) :
-                mNode(pNode) {}
+        explicit Node( const aiNode* pNode) : mNode( pNode) { }
     };
 
 public:
+
     BVHLoader();
     ~BVHLoader();
 
 public:
     /** Returns whether the class can handle the format of the given file.
      * See BaseImporter::CanRead() for details. */
-    bool CanRead(const std::string &pFile, IOSystem *pIOHandler, bool cs) const;
+    bool CanRead( const std::string& pFile, IOSystem* pIOHandler, bool cs) const;
 
-    void SetupProperties(const Importer *pImp);
-    const aiImporterDesc *GetInfo() const;
+    void SetupProperties(const Importer* pImp);
+    const aiImporterDesc* GetInfo () const;
 
 protected:
+
+
     /** Imports the given file into the given scene structure.
      * See BaseImporter::InternReadFile() for details
      */
-    void InternReadFile(const std::string &pFile, aiScene *pScene, IOSystem *pIOHandler);
+    void InternReadFile( const std::string& pFile, aiScene* pScene, IOSystem* pIOHandler);
 
 protected:
     /** Reads the file */
-    void ReadStructure(aiScene *pScene);
+    void ReadStructure( aiScene* pScene);
 
     /** Reads the hierarchy */
-    void ReadHierarchy(aiScene *pScene);
+    void ReadHierarchy( aiScene* pScene);
 
-    /** Reads a node and recursively its children and returns the created node. */
-    aiNode *ReadNode();
+    /** Reads a node and recursively its childs and returns the created node. */
+    aiNode* ReadNode();
 
     /** Reads an end node and returns the created node. */
-    aiNode *ReadEndSite(const std::string &pParentName);
+    aiNode* ReadEndSite( const std::string& pParentName);
 
     /** Reads a node offset for the given node */
-    void ReadNodeOffset(aiNode *pNode);
+    void ReadNodeOffset( aiNode* pNode);
 
     /** Reads the animation channels into the given node */
-    void ReadNodeChannels(BVHLoader::Node &pNode);
+    void ReadNodeChannels( BVHLoader::Node& pNode);
 
     /** Reads the motion data */
-    void ReadMotion(aiScene *pScene);
+    void ReadMotion( aiScene* pScene);
 
     /** Retrieves the next token */
     std::string GetNextToken();
@@ -134,11 +141,10 @@ protected:
     float GetNextTokenAsFloat();
 
     /** Aborts the file reading with an exception */
-    template<typename... T>
-    AI_WONT_RETURN void ThrowException(T&&... args) AI_WONT_RETURN_SUFFIX;
+    AI_WONT_RETURN void ThrowException( const std::string& pError) AI_WONT_RETURN_SUFFIX;
 
     /** Constructs an animation for the motion data and stores it in the given scene */
-    void CreateAnimation(aiScene *pScene);
+    void CreateAnimation( aiScene* pScene);
 
 protected:
     /** Filename, for a verbose error message */

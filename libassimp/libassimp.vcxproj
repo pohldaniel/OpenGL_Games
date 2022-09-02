@@ -88,7 +88,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;ASSIMP_BUILD_NO_OWN_ZLIB;ASSIMP_BUILD_NO_M3D_IMPORTER;ASSIMP_BUILD_NO_M3D_EXPORTER;ASSIMP_BUILD_NO_C4D_IMPORTER;OPENDDLPARSER_BUILD;ASSIMP_BUILD_DLL_EXPORT;RAPIDJSON_HAS_STDSTRING=1;RAPIDJSON_NOMEMBERITERATORCLASS;_SCL_SECURE_NO_WARNINGS;_CRT_SECURE_NO_WARNINGS;WIN32_LEAN_AND_MEAN;UNICODE;_UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>./;src;..\libzlib\include;..\libzlib;pugixml\src;rapidjson\include;unzip;openddlparser\include;include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>./;src;..\libzlib\include;..\libzlib;irrXML;rapidjson\include;unzip;openddlparser\include;include\assimp;include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4800</DisableSpecificWarnings>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
     </ClCompile>
@@ -103,7 +103,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;_LIB;ASSIMP_BUILD_NO_OWN_ZLIB;ASSIMP_BUILD_NO_M3D_IMPORTER;ASSIMP_BUILD_NO_M3D_EXPORTER;ASSIMP_BUILD_NO_C4D_IMPORTER;OPENDDLPARSER_BUILD;ASSIMP_BUILD_DLL_EXPORT;RAPIDJSON_HAS_STDSTRING=1;RAPIDJSON_NOMEMBERITERATORCLASS;_SCL_SECURE_NO_WARNINGS;_CRT_SECURE_NO_WARNINGS;WIN32_LEAN_AND_MEAN;UNICODE;_UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>./;src;..\libzlib\include;..\libzlib;pugixml\src;rapidjson\include;unzip;openddlparser\include;include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>./;src;..\libzlib\include;..\libzlib;irrXML;rapidjson\include;unzip;openddlparser\include;include\assimp;include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4800</DisableSpecificWarnings>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
       <AdditionalOptions>/bigobj</AdditionalOptions>
@@ -121,10 +121,11 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>false</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;_LIB;ASSIMP_BUILD_NO_OWN_ZLIB;ASSIMP_BUILD_NO_M3D_IMPORTER;ASSIMP_BUILD_NO_M3D_EXPORTER;ASSIMP_BUILD_NO_C4D_IMPORTER;OPENDDLPARSER_BUILD;ASSIMP_BUILD_DLL_EXPORT;RAPIDJSON_HAS_STDSTRING=1;RAPIDJSON_NOMEMBERITERATORCLASS;_SCL_SECURE_NO_WARNINGS;_CRT_SECURE_NO_WARNINGS;WIN32_LEAN_AND_MEAN;UNICODE;_UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>./;src;..\libzlib\include;..\libzlib;pugixml\src;rapidjson\include;unzip;openddlparser\include;include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>./;src;..\libzlib\include;..\libzlib;irrXML;rapidjson\include;unzip;openddlparser\include;include\assimp;include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4800</DisableSpecificWarnings>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <WholeProgramOptimization>false</WholeProgramOptimization>
+      <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -141,10 +142,11 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>false</IntrinsicFunctions>
       <PreprocessorDefinitions>NDEBUG;_LIB;ASSIMP_BUILD_NO_OWN_ZLIB;WIN32;_WINDOWS;ASSIMP_BUILD_NO_M3D_IMPORTER;ASSIMP_BUILD_NO_M3D_EXPORTER;WIN32_LEAN_AND_MEAN;UNICODE;_UNICODE;ASSIMP_BUILD_NO_C4D_IMPORTER;MINIZ_USE_UNALIGNED_LOADS_AND_STORES=0;ASSIMP_IMPORTER_GLTF_USE_OPEN3DGC=1;RAPIDJSON_HAS_STDSTRING=1;RAPIDJSON_NOMEMBERITERATORCLASS;ASSIMP_BUILD_DLL_EXPORT;_SCL_SECURE_NO_WARNINGS;_CRT_SECURE_NO_WARNINGS;OPENDDLPARSER_BUILD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>./;src;..\libzlib\include;..\libzlib;pugixml\src;rapidjson\include;unzip;openddlparser\include;include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>./;src;..\libzlib\include;..\libzlib;irrXML;rapidjson\include;unzip;openddlparser\include;include\assimp;include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4800</DisableSpecificWarnings>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <WholeProgramOptimization>false</WholeProgramOptimization>
+      <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -157,6 +159,7 @@
     <ClInclude Include="include\assimp\Compiler\poppack1.h" />
     <ClInclude Include="include\assimp\Compiler\pstdint.h" />
     <ClInclude Include="include\assimp\Compiler\pushpack1.h" />
+    <ClInclude Include="irrXML\irrXML.h" />
     <ClInclude Include="Open3DGC\o3dgcAdjacencyInfo.h" />
     <ClInclude Include="Open3DGC\o3dgcArithmeticCodec.h" />
     <ClInclude Include="Open3DGC\o3dgcBinaryStream.h" />
@@ -181,7 +184,6 @@
     <ClInclude Include="openddlparser\include\openddlparser\OpenDDLParser.h" />
     <ClInclude Include="openddlparser\include\openddlparser\OpenDDLParserUtils.h" />
     <ClInclude Include="openddlparser\include\openddlparser\OpenDDLStream.h" />
-    <ClInclude Include="openddlparser\include\openddlparser\TPoolAllocator.h" />
     <ClInclude Include="openddlparser\include\openddlparser\Value.h" />
     <ClInclude Include="poly2tri\poly2tri\common\shapes.h" />
     <ClInclude Include="poly2tri\poly2tri\common\utils.h" />
@@ -189,29 +191,24 @@
     <ClInclude Include="poly2tri\poly2tri\sweep\cdt.h" />
     <ClInclude Include="poly2tri\poly2tri\sweep\sweep.h" />
     <ClInclude Include="poly2tri\poly2tri\sweep\sweep_context.h" />
-    <ClInclude Include="pugixml\src\pugiconfig.hpp" />
-    <ClInclude Include="pugixml\src\pugixml.hpp" />
     <ClInclude Include="src\AssetLib\3DS\3DSExporter.h" />
     <ClInclude Include="src\AssetLib\3DS\3DSHelper.h" />
     <ClInclude Include="src\AssetLib\3DS\3DSLoader.h" />
-    <ClInclude Include="src\AssetLib\3MF\3MFTypes.h" />
     <ClInclude Include="src\AssetLib\3MF\3MFXmlTags.h" />
     <ClInclude Include="src\AssetLib\3MF\D3MFExporter.h" />
     <ClInclude Include="src\AssetLib\3MF\D3MFImporter.h" />
     <ClInclude Include="src\AssetLib\3MF\D3MFOpcPackage.h" />
-    <ClInclude Include="src\AssetLib\3MF\XmlSerializer.h" />
     <ClInclude Include="src\AssetLib\AC\ACLoader.h" />
     <ClInclude Include="src\AssetLib\AMF\AMFImporter.hpp" />
+    <ClInclude Include="src\AssetLib\AMF\AMFImporter_Macro.hpp" />
     <ClInclude Include="src\AssetLib\AMF\AMFImporter_Node.hpp" />
     <ClInclude Include="src\AssetLib\ASE\ASELoader.h" />
     <ClInclude Include="src\AssetLib\ASE\ASEParser.h" />
     <ClInclude Include="src\AssetLib\Assbin\AssbinExporter.h" />
-    <ClInclude Include="src\AssetLib\Assbin\AssbinFileWriter.h" />
     <ClInclude Include="src\AssetLib\Assbin\AssbinLoader.h" />
     <ClInclude Include="src\AssetLib\Assjson\cencode.h" />
     <ClInclude Include="src\AssetLib\Assjson\mesh_splitter.h" />
     <ClInclude Include="src\AssetLib\Assxml\AssxmlExporter.h" />
-    <ClInclude Include="src\AssetLib\Assxml\AssxmlFileWriter.h" />
     <ClInclude Include="src\AssetLib\B3D\B3DImporter.h" />
     <ClInclude Include="src\AssetLib\Blender\BlenderBMesh.h" />
     <ClInclude Include="src\AssetLib\Blender\BlenderCustomData.h" />
@@ -259,11 +256,6 @@
     <ClInclude Include="src\AssetLib\HMP\HalfLifeFileData.h" />
     <ClInclude Include="src\AssetLib\HMP\HMPFileData.h" />
     <ClInclude Include="src\AssetLib\HMP\HMPLoader.h" />
-    <ClInclude Include="src\AssetLib\IFC\IFCLoader.h" />
-    <ClInclude Include="src\AssetLib\IFC\IFCReaderGen_2x3.h" />
-    <ClInclude Include="src\AssetLib\IFC\IFCUtil.h" />
-    <ClInclude Include="src\AssetLib\IQM\iqm.h" />
-    <ClInclude Include="src\AssetLib\IQM\IQMImporter.h" />
     <ClInclude Include="src\AssetLib\Irr\IRRLoader.h" />
     <ClInclude Include="src\AssetLib\Irr\IRRMeshLoader.h" />
     <ClInclude Include="src\AssetLib\Irr\IRRShared.h" />
@@ -271,11 +263,6 @@
     <ClInclude Include="src\AssetLib\LWO\LWOFileData.h" />
     <ClInclude Include="src\AssetLib\LWO\LWOLoader.h" />
     <ClInclude Include="src\AssetLib\LWS\LWSLoader.h" />
-    <ClInclude Include="src\AssetLib\M3D\m3d.h" />
-    <ClInclude Include="src\AssetLib\M3D\M3DExporter.h" />
-    <ClInclude Include="src\AssetLib\M3D\M3DImporter.h" />
-    <ClInclude Include="src\AssetLib\M3D\M3DMaterials.h" />
-    <ClInclude Include="src\AssetLib\M3D\M3DWrapper.h" />
     <ClInclude Include="src\AssetLib\MD2\MD2FileData.h" />
     <ClInclude Include="src\AssetLib\MD2\MD2Loader.h" />
     <ClInclude Include="src\AssetLib\MD2\MD2NormalTable.h" />
@@ -286,14 +273,6 @@
     <ClInclude Include="src\AssetLib\MDC\MDCFileData.h" />
     <ClInclude Include="src\AssetLib\MDC\MDCLoader.h" />
     <ClInclude Include="src\AssetLib\MDC\MDCNormalTable.h" />
-    <ClInclude Include="src\AssetLib\MDL\HalfLife\HalfLifeMDLBaseHeader.h" />
-    <ClInclude Include="src\AssetLib\MDL\HalfLife\HL1FileData.h" />
-    <ClInclude Include="src\AssetLib\MDL\HalfLife\HL1ImportDefinitions.h" />
-    <ClInclude Include="src\AssetLib\MDL\HalfLife\HL1ImportSettings.h" />
-    <ClInclude Include="src\AssetLib\MDL\HalfLife\HL1MDLLoader.h" />
-    <ClInclude Include="src\AssetLib\MDL\HalfLife\HL1MeshTrivert.h" />
-    <ClInclude Include="src\AssetLib\MDL\HalfLife\LogFunctions.h" />
-    <ClInclude Include="src\AssetLib\MDL\HalfLife\UniqueNameGenerator.h" />
     <ClInclude Include="src\AssetLib\MDL\MDLDefaultColorMap.h" />
     <ClInclude Include="src\AssetLib\MDL\MDLFileData.h" />
     <ClInclude Include="src\AssetLib\MDL\MDLLoader.h" />
@@ -330,19 +309,16 @@
     <ClInclude Include="src\AssetLib\Raw\RawLoader.h" />
     <ClInclude Include="src\AssetLib\SIB\SIBImporter.h" />
     <ClInclude Include="src\AssetLib\SMD\SMDLoader.h" />
-    <ClInclude Include="src\AssetLib\STEPParser\STEPFileEncoding.h" />
-    <ClInclude Include="src\AssetLib\STEPParser\STEPFileReader.h" />
     <ClInclude Include="src\AssetLib\Step\StepExporter.h" />
     <ClInclude Include="src\AssetLib\STL\STLExporter.h" />
     <ClInclude Include="src\AssetLib\STL\STLLoader.h" />
     <ClInclude Include="src\AssetLib\Terragen\TerragenLoader.h" />
     <ClInclude Include="src\AssetLib\Unreal\UnrealLoader.h" />
+    <ClInclude Include="src\AssetLib\X3D\FIReader.hpp" />
     <ClInclude Include="src\AssetLib\X3D\X3DExporter.hpp" />
-    <ClInclude Include="src\AssetLib\X3D\X3DGeoHelper.h" />
     <ClInclude Include="src\AssetLib\X3D\X3DImporter.hpp" />
     <ClInclude Include="src\AssetLib\X3D\X3DImporter_Macro.hpp" />
     <ClInclude Include="src\AssetLib\X3D\X3DImporter_Node.hpp" />
-    <ClInclude Include="src\AssetLib\X3D\X3DXmlHelper.h" />
     <ClInclude Include="src\AssetLib\XGL\XGLLoader.h" />
     <ClInclude Include="src\AssetLib\X\XFileExporter.h" />
     <ClInclude Include="src\AssetLib\X\XFileHelper.h" />
@@ -352,20 +328,26 @@
     <ClInclude Include="src\Common\BaseProcess.h" />
     <ClInclude Include="src\Common\DefaultProgressHandler.h" />
     <ClInclude Include="src\Common\FileLogStream.h" />
+    <ClInclude Include="src\Common\FileSystemFilter.h" />
     <ClInclude Include="src\Common\IFF.h" />
     <ClInclude Include="src\Common\Importer.h" />
-    <ClInclude Include="src\Common\Maybe.h" />
     <ClInclude Include="src\Common\PolyTools.h" />
     <ClInclude Include="src\Common\ScenePreprocessor.h" />
     <ClInclude Include="src\Common\ScenePrivate.h" />
     <ClInclude Include="src\Common\simd.h" />
+    <ClInclude Include="src\Common\SplitByBoneCountProcess.h" />
     <ClInclude Include="src\Common\StdOStreamLogStream.h" />
     <ClInclude Include="src\Common\TargetAnimation.h" />
     <ClInclude Include="src\Common\VertexTriangleAdjacency.h" />
     <ClInclude Include="src\Common\Win32DebugLogStream.h" />
+    <ClInclude Include="src\Importer\IFC\IFCLoader.h" />
+    <ClInclude Include="src\Importer\IFC\IFCReaderGen_2x3.h" />
+    <ClInclude Include="src\Importer\IFC\IFCUtil.h" />
+    <ClInclude Include="src\Importer\StepFile\StepFileImporter.h" />
+    <ClInclude Include="src\Importer\StepFile\StepReaderGen.h" />
+    <ClInclude Include="src\Importer\STEPParser\STEPFileEncoding.h" />
+    <ClInclude Include="src\Importer\STEPParser\STEPFileReader.h" />
     <ClInclude Include="src\Material\MaterialSystem.h" />
-    <ClInclude Include="src\Pbrt\PbrtExporter.h" />
-    <ClInclude Include="src\PostProcessing\ArmaturePopulate.h" />
     <ClInclude Include="src\PostProcessing\CalcTangentsProcess.h" />
     <ClInclude Include="src\PostProcessing\ComputeUVMappingProcess.h" />
     <ClInclude Include="src\PostProcessing\ConvertToLHProcess.h" />
@@ -391,7 +373,6 @@
     <ClInclude Include="src\PostProcessing\RemoveVCProcess.h" />
     <ClInclude Include="src\PostProcessing\ScaleProcess.h" />
     <ClInclude Include="src\PostProcessing\SortByPTypeProcess.h" />
-    <ClInclude Include="src\PostProcessing\SplitByBoneCountProcess.h" />
     <ClInclude Include="src\PostProcessing\SplitLargeMeshes.h" />
     <ClInclude Include="src\PostProcessing\TextureTransform.h" />
     <ClInclude Include="src\PostProcessing\TriangulateProcess.h" />
@@ -405,6 +386,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="clipper\clipper.cpp" />
+    <ClCompile Include="irrXML\irrXML.cpp" />
     <ClCompile Include="Open3DGC\o3dgcArithmeticCodec.cpp" />
     <ClCompile Include="Open3DGC\o3dgcDynamicVectorDecoder.cpp" />
     <ClCompile Include="Open3DGC\o3dgcDynamicVectorEncoder.cpp" />
@@ -427,7 +409,6 @@
     <ClCompile Include="src\AssetLib\3MF\D3MFExporter.cpp" />
     <ClCompile Include="src\AssetLib\3MF\D3MFImporter.cpp" />
     <ClCompile Include="src\AssetLib\3MF\D3MFOpcPackage.cpp" />
-    <ClCompile Include="src\AssetLib\3MF\XmlSerializer.cpp" />
     <ClCompile Include="src\AssetLib\AC\ACLoader.cpp" />
     <ClCompile Include="src\AssetLib\AMF\AMFImporter.cpp" />
     <ClCompile Include="src\AssetLib\AMF\AMFImporter_Geometry.cpp" />
@@ -436,13 +417,11 @@
     <ClCompile Include="src\AssetLib\ASE\ASELoader.cpp" />
     <ClCompile Include="src\AssetLib\ASE\ASEParser.cpp" />
     <ClCompile Include="src\AssetLib\Assbin\AssbinExporter.cpp" />
-    <ClCompile Include="src\AssetLib\Assbin\AssbinFileWriter.cpp" />
     <ClCompile Include="src\AssetLib\Assbin\AssbinLoader.cpp" />
     <ClCompile Include="src\AssetLib\Assjson\cencode.c" />
     <ClCompile Include="src\AssetLib\Assjson\json_exporter.cpp" />
     <ClCompile Include="src\AssetLib\Assjson\mesh_splitter.cpp" />
     <ClCompile Include="src\AssetLib\Assxml\AssxmlExporter.cpp" />
-    <ClCompile Include="src\AssetLib\Assxml\AssxmlFileWriter.cpp" />
     <ClCompile Include="src\AssetLib\B3D\B3DImporter.cpp" />
     <ClCompile Include="src\AssetLib\Blender\BlenderBMesh.cpp" />
     <ClCompile Include="src\AssetLib\Blender\BlenderCustomData.cpp" />
@@ -454,7 +433,6 @@
     <ClCompile Include="src\AssetLib\BVH\BVHLoader.cpp" />
     <ClCompile Include="src\AssetLib\COB\COBLoader.cpp" />
     <ClCompile Include="src\AssetLib\Collada\ColladaExporter.cpp" />
-    <ClCompile Include="src\AssetLib\Collada\ColladaHelper.cpp" />
     <ClCompile Include="src\AssetLib\Collada\ColladaLoader.cpp" />
     <ClCompile Include="src\AssetLib\Collada\ColladaParser.cpp" />
     <ClCompile Include="src\AssetLib\CSM\CSMLoader.cpp" />
@@ -483,17 +461,6 @@
     <ClCompile Include="src\AssetLib\glTF\glTFExporter.cpp" />
     <ClCompile Include="src\AssetLib\glTF\glTFImporter.cpp" />
     <ClCompile Include="src\AssetLib\HMP\HMPLoader.cpp" />
-    <ClCompile Include="src\AssetLib\IFC\IFCBoolean.cpp" />
-    <ClCompile Include="src\AssetLib\IFC\IFCCurve.cpp" />
-    <ClCompile Include="src\AssetLib\IFC\IFCGeometry.cpp" />
-    <ClCompile Include="src\AssetLib\IFC\IFCLoader.cpp" />
-    <ClCompile Include="src\AssetLib\IFC\IFCMaterial.cpp" />
-    <ClCompile Include="src\AssetLib\IFC\IFCOpenings.cpp" />
-    <ClCompile Include="src\AssetLib\IFC\IFCProfile.cpp" />
-    <ClCompile Include="src\AssetLib\IFC\IFCReaderGen1_2x3.cpp" />
-    <ClCompile Include="src\AssetLib\IFC\IFCReaderGen2_2x3.cpp" />
-    <ClCompile Include="src\AssetLib\IFC\IFCUtil.cpp" />
-    <ClCompile Include="src\AssetLib\IQM\IQMImporter.cpp" />
     <ClCompile Include="src\AssetLib\Irr\IRRLoader.cpp" />
     <ClCompile Include="src\AssetLib\Irr\IRRMeshLoader.cpp" />
     <ClCompile Include="src\AssetLib\Irr\IRRShared.cpp" />
@@ -502,16 +469,11 @@
     <ClCompile Include="src\AssetLib\LWO\LWOLoader.cpp" />
     <ClCompile Include="src\AssetLib\LWO\LWOMaterial.cpp" />
     <ClCompile Include="src\AssetLib\LWS\LWSLoader.cpp" />
-    <ClCompile Include="src\AssetLib\M3D\M3DExporter.cpp" />
-    <ClCompile Include="src\AssetLib\M3D\M3DImporter.cpp" />
-    <ClCompile Include="src\AssetLib\M3D\M3DWrapper.cpp" />
     <ClCompile Include="src\AssetLib\MD2\MD2Loader.cpp" />
     <ClCompile Include="src\AssetLib\MD3\MD3Loader.cpp" />
     <ClCompile Include="src\AssetLib\MD5\MD5Loader.cpp" />
     <ClCompile Include="src\AssetLib\MD5\MD5Parser.cpp" />
     <ClCompile Include="src\AssetLib\MDC\MDCLoader.cpp" />
-    <ClCompile Include="src\AssetLib\MDL\HalfLife\HL1MDLLoader.cpp" />
-    <ClCompile Include="src\AssetLib\MDL\HalfLife\UniqueNameGenerator.cpp" />
     <ClCompile Include="src\AssetLib\MDL\MDLLoader.cpp" />
     <ClCompile Include="src\AssetLib\MDL\MDLMaterialLoader.cpp" />
     <ClCompile Include="src\AssetLib\MMD\MMDImporter.cpp" />
@@ -540,15 +502,13 @@
     <ClCompile Include="src\AssetLib\Raw\RawLoader.cpp" />
     <ClCompile Include="src\AssetLib\SIB\SIBImporter.cpp" />
     <ClCompile Include="src\AssetLib\SMD\SMDLoader.cpp" />
-    <ClCompile Include="src\AssetLib\STEPParser\STEPFileEncoding.cpp" />
-    <ClCompile Include="src\AssetLib\STEPParser\STEPFileReader.cpp" />
     <ClCompile Include="src\AssetLib\Step\StepExporter.cpp" />
     <ClCompile Include="src\AssetLib\STL\STLExporter.cpp" />
     <ClCompile Include="src\AssetLib\STL\STLLoader.cpp" />
     <ClCompile Include="src\AssetLib\Terragen\TerragenLoader.cpp" />
     <ClCompile Include="src\AssetLib\Unreal\UnrealLoader.cpp" />
+    <ClCompile Include="src\AssetLib\X3D\FIReader.cpp" />
     <ClCompile Include="src\AssetLib\X3D\X3DExporter.cpp" />
-    <ClCompile Include="src\AssetLib\X3D\X3DGeoHelper.cpp" />
     <ClCompile Include="src\AssetLib\X3D\X3DImporter.cpp" />
     <ClCompile Include="src\AssetLib\X3D\X3DImporter_Geometry2D.cpp" />
     <ClCompile Include="src\AssetLib\X3D\X3DImporter_Geometry3D.cpp" />
@@ -560,30 +520,24 @@
     <ClCompile Include="src\AssetLib\X3D\X3DImporter_Rendering.cpp" />
     <ClCompile Include="src\AssetLib\X3D\X3DImporter_Shape.cpp" />
     <ClCompile Include="src\AssetLib\X3D\X3DImporter_Texturing.cpp" />
-    <ClCompile Include="src\AssetLib\X3D\X3DXmlHelper.cpp" />
+    <ClCompile Include="src\AssetLib\X3D\X3DVocabulary.cpp" />
     <ClCompile Include="src\AssetLib\XGL\XGLLoader.cpp" />
     <ClCompile Include="src\AssetLib\X\XFileExporter.cpp" />
     <ClCompile Include="src\AssetLib\X\XFileImporter.cpp" />
     <ClCompile Include="src\AssetLib\X\XFileParser.cpp" />
     <ClCompile Include="src\CApi\AssimpCExport.cpp" />
     <ClCompile Include="src\CApi\CInterfaceIOWrapper.cpp" />
-    <ClCompile Include="src\Common\AssertHandler.cpp" />
     <ClCompile Include="src\Common\Assimp.cpp" />
-    <ClCompile Include="src\Common\Base64.cpp" />
     <ClCompile Include="src\Common\BaseImporter.cpp" />
     <ClCompile Include="src\Common\BaseProcess.cpp" />
     <ClCompile Include="src\Common\Bitmap.cpp" />
-    <ClCompile Include="src\Common\Compression.cpp" />
     <ClCompile Include="src\Common\CreateAnimMesh.cpp" />
     <ClCompile Include="src\Common\DefaultIOStream.cpp" />
     <ClCompile Include="src\Common\DefaultIOSystem.cpp" />
     <ClCompile Include="src\Common\DefaultLogger.cpp" />
-    <ClCompile Include="src\Common\Exceptional.cpp" />
     <ClCompile Include="src\Common\Exporter.cpp" />
     <ClCompile Include="src\Common\Importer.cpp" />
     <ClCompile Include="src\Common\ImporterRegistry.cpp" />
-    <ClCompile Include="src\Common\IOSystem.cpp" />
-    <ClCompile Include="src\Common\material.cpp" />
     <ClCompile Include="src\Common\PostStepRegistry.cpp" />
     <ClCompile Include="src\Common\RemoveComments.cpp" />
     <ClCompile Include="src\Common\scene.cpp" />
@@ -593,15 +547,30 @@
     <ClCompile Include="src\Common\simd.cpp" />
     <ClCompile Include="src\Common\SkeletonMeshBuilder.cpp" />
     <ClCompile Include="src\Common\SpatialSort.cpp" />
+    <ClCompile Include="src\Common\SplitByBoneCountProcess.cpp" />
     <ClCompile Include="src\Common\StandardShapes.cpp" />
     <ClCompile Include="src\Common\Subdivision.cpp" />
     <ClCompile Include="src\Common\TargetAnimation.cpp" />
     <ClCompile Include="src\Common\Version.cpp" />
     <ClCompile Include="src\Common\VertexTriangleAdjacency.cpp" />
     <ClCompile Include="src\Common\ZipArchiveIOSystem.cpp" />
+    <ClCompile Include="src\Importer\IFC\IFCBoolean.cpp" />
+    <ClCompile Include="src\Importer\IFC\IFCCurve.cpp" />
+    <ClCompile Include="src\Importer\IFC\IFCGeometry.cpp" />
+    <ClCompile Include="src\Importer\IFC\IFCLoader.cpp" />
+    <ClCompile Include="src\Importer\IFC\IFCMaterial.cpp" />
+    <ClCompile Include="src\Importer\IFC\IFCOpenings.cpp" />
+    <ClCompile Include="src\Importer\IFC\IFCProfile.cpp" />
+    <ClCompile Include="src\Importer\IFC\IFCReaderGen1_2x3.cpp" />
+    <ClCompile Include="src\Importer\IFC\IFCReaderGen2_2x3.cpp" />
+    <ClCompile Include="src\Importer\IFC\IFCUtil.cpp" />
+    <ClCompile Include="src\Importer\StepFile\StepFileGen1.cpp" />
+    <ClCompile Include="src\Importer\StepFile\StepFileGen2.cpp" />
+    <ClCompile Include="src\Importer\StepFile\StepFileGen3.cpp" />
+    <ClCompile Include="src\Importer\StepFile\StepFileImporter.cpp" />
+    <ClCompile Include="src\Importer\STEPParser\STEPFileEncoding.cpp" />
+    <ClCompile Include="src\Importer\STEPParser\STEPFileReader.cpp" />
     <ClCompile Include="src\Material\MaterialSystem.cpp" />
-    <ClCompile Include="src\Pbrt\PbrtExporter.cpp" />
-    <ClCompile Include="src\PostProcessing\ArmaturePopulate.cpp" />
     <ClCompile Include="src\PostProcessing\CalcTangentsProcess.cpp" />
     <ClCompile Include="src\PostProcessing\ComputeUVMappingProcess.cpp" />
     <ClCompile Include="src\PostProcessing\ConvertToLHProcess.cpp" />
@@ -627,12 +596,10 @@
     <ClCompile Include="src\PostProcessing\RemoveVCProcess.cpp" />
     <ClCompile Include="src\PostProcessing\ScaleProcess.cpp" />
     <ClCompile Include="src\PostProcessing\SortByPTypeProcess.cpp" />
-    <ClCompile Include="src\PostProcessing\SplitByBoneCountProcess.cpp" />
     <ClCompile Include="src\PostProcessing\SplitLargeMeshes.cpp" />
     <ClCompile Include="src\PostProcessing\TextureTransform.cpp" />
     <ClCompile Include="src\PostProcessing\TriangulateProcess.cpp" />
     <ClCompile Include="src\PostProcessing\ValidateDataStructure.cpp" />
-    <ClCompile Include="unzip\crypt.c" />
     <ClCompile Include="unzip\ioapi.c" />
     <ClCompile Include="unzip\unzip.c" />
     <ClCompile Include="zip\src\zip.c" />

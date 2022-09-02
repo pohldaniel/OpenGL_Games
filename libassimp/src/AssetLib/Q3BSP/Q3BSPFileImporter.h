@@ -2,7 +2,8 @@
 Open Asset Import Library (assimp)
 ----------------------------------------------------------------------
 
-Copyright (c) 2006-2022, assimp team
+Copyright (c) 2006-2019, assimp team
+
 
 All rights reserved.
 
@@ -70,19 +71,19 @@ public:
     Q3BSPFileImporter();
 
     /// @brief  Destructor.
-    ~Q3BSPFileImporter() override;
+    ~Q3BSPFileImporter();
 
     /// @brief  Returns whether the class can handle the format of the given file.
     /// @remark See BaseImporter::CanRead() for details.
-    bool CanRead( const std::string& pFile, IOSystem* pIOHandler, bool checkSig ) const override;
+    bool CanRead( const std::string& pFile, IOSystem* pIOHandler, bool checkSig ) const;
 
 protected:
-    using FaceMap = std::map<std::string, std::vector<Q3BSP::sQ3BSPFace*>*>;
-    using FaceMapIt = std::map<std::string, std::vector<Q3BSP::sQ3BSPFace*>* >::iterator;
-    using FaceMapConstIt = std::map<std::string, std::vector<Q3BSP::sQ3BSPFace*>*>::const_iterator;
+    typedef std::map<std::string, std::vector<Q3BSP::sQ3BSPFace*>*> FaceMap;
+    typedef std::map<std::string, std::vector<Q3BSP::sQ3BSPFace*>* >::iterator FaceMapIt;
+    typedef std::map<std::string, std::vector<Q3BSP::sQ3BSPFace*>*>::const_iterator FaceMapConstIt;
 
-    const aiImporterDesc* GetInfo () const override;
-    void InternReadFile(const std::string& pFile, aiScene* pScene, IOSystem* pIOHandler) override;
+    const aiImporterDesc* GetInfo () const;
+    void InternReadFile(const std::string& pFile, aiScene* pScene, IOSystem* pIOHandler);
     void separateMapName( const std::string &rImportName, std::string &rArchiveName, std::string &rMapName );
     bool findFirstMapInArchive(ZipArchiveIOSystem &rArchive, std::string &rMapName );
     void CreateDataFromImport( const Q3BSP::Q3BSPModel *pModel, aiScene* pScene, ZipArchiveIOSystem *pArchive );

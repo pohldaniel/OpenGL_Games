@@ -2,7 +2,7 @@
 Open Asset Import Library (assimp)
 ----------------------------------------------------------------------
 
-Copyright (c) 2006-2022, assimp team
+Copyright (c) 2006-2019, assimp team
 
 All rights reserved.
 
@@ -38,9 +38,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ----------------------------------------------------------------------
 */
-#ifndef ASSIMP_BUILD_NO_GLTF_IMPORTER
-
-#include "AssetLib/glTF/glTFCommon.h"
+#include "glTFCommon.h"
 
 namespace glTFCommon {
 
@@ -48,7 +46,85 @@ using namespace glTFCommon::Util;
 
 namespace Util {
 
-bool ParseDataURI(const char *const_uri, size_t uriLen, DataURI &out) {
+size_t DecodeBase64(const char* in, size_t inLength, uint8_t*& out) {
+    ai_assert(inLength % 4 == 0);
+
+    if (inLength < 4) {
+        out = 0;
+        return 0;
+    }
+
+    int nEquals = int(in[inLength - 1] == '=') +
+        int(in[inLength - 2] == '=');
+
+    size_t outLength = (inLength * 3) / 4 - nEquals;
+    out = new uint8_t[outLength];
+    memset(out, 0, outLength);
+
+    size_t i, j = 0;
+
+    for (i = 0; i + 4 < inLength; i += 4) {
+        uint8_t b0 = DecodeCharBase64(in[i]);
+        uint8_t b1 = DecodeCharBase64(in[i + 1]);
+        uint8_t b2 = DecodeCharBase64(in[i + 2]);
+        uint8_t b3 = DecodeCharBase64(in[i + 3]);
+
+        out[j++] = (uint8_t)((b0 << 2) | (b1 >> 4));
+        out[j++] = (uint8_t)((b1 << 4) | (b2 >> 2));
+        out[j++] = (uint8_t)((b2 << 6) | b3);
+    }
+
+    {
+        uint8_t b0 = DecodeCharBase64(in[i]);
+        uint8_t b1 = DecodeCharBase64(in[i + 1]);
+        uint8_t b2 = DecodeCharBase64(in[i + 2]);
+        uint8_t b3 = DecodeCharBase64(in[i + 3]);
+
+        out[j++] = (uint8_t)((b0 << 2) | (b1 >> 4));
+        if (b2 < 64) out[j++] = (uint8_t)((b1 << 4) | (b2 >> 2));
+        if (b3 < 64) out[j++] = (uint8_t)((b2 << 6) | b3);
+    }
+
+    return outLength;
+}
+
+void EncodeBase64(const uint8_t* in, size_t inLength, std::string& out) {
+    size_t outLength = ((inLength + 2) / 3) * 4;
+
+    size_t j = out.size();
+    out.resize(j + outLength);
+
+    for (size_t i = 0; i < inLength; i += 3) {
+        uint8_t b = (in[i] & 0xFC) >> 2;
+        out[j++] = EncodeCharBase64(b);
+
+        b = (in[i] & 0x03) << 4;
+        if (i + 1 < inLength) {
+            b |= (in[i + 1] & 0xF0) >> 4;
+            out[j++] = EncodeCharBase64(b);
+
+            b = (in[i + 1] & 0x0F) << 2;
+            if (i + 2 < inLength) {
+                b |= (in[i + 2] & 0xC0) >> 6;
+                out[j++] = EncodeCharBase64(b);
+
+                b = in[i + 2] & 0x3F;
+                out[j++] = EncodeCharBase64(b);
+            }
+            else {
+                out[j++] = EncodeCharBase64(b);
+                out[j++] = '=';
+            }
+        }
+        else {
+            out[j++] = EncodeCharBase64(b);
+            out[j++] = '=';
+            out[j++] = '=';
+        }
+    }
+}
+
+bool ParseDataURI(const char* const_uri, size_t uriLen, DataURI& out) {
     if (nullptr == const_uri) {
         return false;
     }
@@ -63,7 +139,7 @@ bool ParseDataURI(const char *const_uri, size_t uriLen, DataURI &out) {
     out.charset = "US-ASCII";
     out.base64 = false;
 
-    char *uri = const_cast<char *>(const_uri);
+    char* uri = const_cast<char*>(const_uri);
     if (uri[0] != 0x10) {
         uri[0] = 0x10;
         uri[1] = uri[2] = uri[3] = uri[4] = 0;
@@ -71,26 +147,28 @@ bool ParseDataURI(const char *const_uri, size_t uriLen, DataURI &out) {
         size_t i = 5, j;
         if (uri[i] != ';' && uri[i] != ',') { // has media type?
             uri[1] = char(i);
-            for (;i < uriLen && uri[i] != ';' && uri[i] != ','; ++i) {
+            for (; uri[i] != ';' && uri[i] != ',' && i < uriLen; ++i) {
                 // nothing to do!
             }
         }
-        while (i < uriLen && uri[i] == ';') {
+        while (uri[i] == ';' && i < uriLen) {
             uri[i++] = '\0';
-            for (j = i; i < uriLen && uri[i] != ';' && uri[i] != ','; ++i) {
+            for (j = i; uri[i] != ';' && uri[i] != ',' && i < uriLen; ++i) {
                 // nothing to do!
             }
 
             if (strncmp(uri + j, "charset=", 8) == 0) {
                 uri[2] = char(j + 8);
-            } else if (strncmp(uri + j, "base64", 6) == 0) {
+            }
+            else if (strncmp(uri + j, "base64", 6) == 0) {
                 uri[3] = char(j);
             }
         }
         if (i < uriLen) {
             uri[i++] = '\0';
             uri[4] = char(i);
-        } else {
+        }
+        else {
             uri[1] = uri[2] = uri[3] = 0;
             uri[4] = 5;
         }
@@ -111,7 +189,5 @@ bool ParseDataURI(const char *const_uri, size_t uriLen, DataURI &out) {
     return true;
 }
 
-} // namespace Util
-} // namespace glTFCommon
-
-#endif
+}
+}

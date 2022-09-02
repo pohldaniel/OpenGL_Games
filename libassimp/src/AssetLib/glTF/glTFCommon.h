@@ -2,7 +2,7 @@
 Open Asset Import Library (assimp)
 ----------------------------------------------------------------------
 
-Copyright (c) 2006-2022, assimp team
+Copyright (c) 2006-2019, assimp team
 
 All rights reserved.
 
@@ -45,476 +45,204 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <assimp/Exceptional.h>
 
-#include <algorithm>
-#include <list>
 #include <map>
-#include <stdexcept>
 #include <string>
+#include <list>
 #include <vector>
+#include <algorithm>
+#include <stdexcept>
 
+#define RAPIDJSON_HAS_STDSTRING 1
+#include <rapidjson/rapidjson.h>
 #include <rapidjson/document.h>
 #include <rapidjson/error/en.h>
-#include <rapidjson/rapidjson.h>
-
-// clang-format off
 
 #ifdef ASSIMP_API
-#   include <assimp/ByteSwapper.h>
-#   include <assimp/DefaultIOSystem.h>
 #   include <memory>
+#   include <assimp/DefaultIOSystem.h>
+#   include <assimp/ByteSwapper.h>
 #else
 #   include <memory>
 #   define AI_SWAP4(p)
 #   define ai_assert
 #endif
 
+
 #if _MSC_VER > 1500 || (defined __GNUC___)
-#   define ASSIMP_GLTF_USE_UNORDERED_MULTIMAP
-#else
-#   define gltf_unordered_map map
+#       define ASSIMP_GLTF_USE_UNORDERED_MULTIMAP
+#   else
+#       define gltf_unordered_map map
 #endif
 
 #ifdef ASSIMP_GLTF_USE_UNORDERED_MULTIMAP
 #   include <unordered_map>
-#   if defined(_MSC_VER) && _MSC_VER <= 1600
-#       define gltf_unordered_map tr1::unordered_map
-#   else
+#   if _MSC_VER > 1600
 #       define gltf_unordered_map unordered_map
+#   else
+#       define gltf_unordered_map tr1::unordered_map
 #   endif
 #endif
-// clang-format on
-
 
 namespace glTFCommon {
 
-using rapidjson::Document;
-using rapidjson::Value;
-
 #ifdef ASSIMP_API
-using Assimp::IOStream;
-using Assimp::IOSystem;
-using std::shared_ptr;
+    using Assimp::IOStream;
+    using Assimp::IOSystem;
+    using std::shared_ptr;
 #else
-using std::shared_ptr;
+    using std::shared_ptr;
 
-typedef std::runtime_error DeadlyImportError;
-typedef std::runtime_error DeadlyExportError;
+    typedef std::runtime_error DeadlyImportError;
+    typedef std::runtime_error DeadlyExportError;
 
-enum aiOrigin {
-    aiOrigin_SET = 0,
-    aiOrigin_CUR = 1,
-    aiOrigin_END = 2
-};
+    enum aiOrigin {
+        aiOrigin_SET = 0,
+        aiOrigin_CUR = 1,
+        aiOrigin_END = 2
+    };
 
-class IOSystem;
+    class IOSystem;
 
-class IOStream {
-public:
-    IOStream(FILE *file) :
-            f(file) {}
-    ~IOStream() {
-        fclose(f);
-    }
+    class IOStream {
+    public:
+        IOStream(FILE* file) : f(file) {}
+        ~IOStream() { fclose(f); f = 0; }
 
-    size_t Read(void *b, size_t sz, size_t n) { return fread(b, sz, n, f); }
-    size_t Write(const void *b, size_t sz, size_t n) { return fwrite(b, sz, n, f); }
-    int Seek(size_t off, aiOrigin orig) { return fseek(f, off, int(orig)); }
-    size_t Tell() const { return ftell(f); }
+        size_t Read(void* b, size_t sz, size_t n) { return fread(b, sz, n, f); }
+        size_t Write(const void* b, size_t sz, size_t n) { return fwrite(b, sz, n, f); }
+        int    Seek(size_t off, aiOrigin orig) { return fseek(f, off, int(orig)); }
+        size_t Tell() const { return ftell(f); }
 
-    size_t FileSize() {
-        long p = Tell(), len = (Seek(0, aiOrigin_END), Tell());
-        return size_t((Seek(p, aiOrigin_SET), len));
-    }
+        size_t FileSize() {
+            long p = Tell(), len = (Seek(0, aiOrigin_END), Tell());
+            return size_t((Seek(p, aiOrigin_SET), len));
+        }
 
-private:
-    FILE *f;
-};
+    private:
+        FILE* f;
+    };
 #endif
 
-// Vec/matrix types, as raw float arrays
-typedef float(vec3)[3];
-typedef float(vec4)[4];
-typedef float(mat4)[16];
+    // Vec/matrix types, as raw float arrays
+    typedef float(vec3)[3];
+    typedef float(vec4)[4];
+    typedef float(mat4)[16];
 
-inline void CopyValue(const glTFCommon::vec3 &v, aiColor4D &out) {
-    out.r = v[0];
-    out.g = v[1];
-    out.b = v[2];
-    out.a = 1.0;
-}
-
-inline void CopyValue(const glTFCommon::vec4 &v, aiColor4D &out) {
-    out.r = v[0];
-    out.g = v[1];
-    out.b = v[2];
-    out.a = v[3];
-}
-
-inline void CopyValue(const glTFCommon::vec4 &v, aiColor3D &out) {
-    out.r = v[0];
-    out.g = v[1];
-    out.b = v[2];
-}
-
-inline void CopyValue(const glTFCommon::vec3 &v, aiColor3D &out) {
-    out.r = v[0];
-    out.g = v[1];
-    out.b = v[2];
-}
-
-inline void CopyValue(const glTFCommon::vec3 &v, aiVector3D &out) {
-    out.x = v[0];
-    out.y = v[1];
-    out.z = v[2];
-}
-
-inline void CopyValue(const glTFCommon::vec4 &v, aiQuaternion &out) {
-    out.x = v[0];
-    out.y = v[1];
-    out.z = v[2];
-    out.w = v[3];
-}
-
-inline void CopyValue(const glTFCommon::mat4 &v, aiMatrix4x4 &o) {
-    o.a1 = v[0];
-    o.b1 = v[1];
-    o.c1 = v[2];
-    o.d1 = v[3];
-    o.a2 = v[4];
-    o.b2 = v[5];
-    o.c2 = v[6];
-    o.d2 = v[7];
-    o.a3 = v[8];
-    o.b3 = v[9];
-    o.c3 = v[10];
-    o.d3 = v[11];
-    o.a4 = v[12];
-    o.b4 = v[13];
-    o.c4 = v[14];
-    o.d4 = v[15];
-}
-
-#if _MSC_VER
-#    pragma warning(push)
-#    pragma warning(disable : 4310)
-#endif // _MSC_VER
-
-inline std::string getCurrentAssetDir(const std::string &pFile) {
-    int pos = std::max(int(pFile.rfind('/')), int(pFile.rfind('\\')));
-    if (pos == int(std::string::npos)) {
-        return std::string();
+    inline
+    void CopyValue(const glTFCommon::vec3& v, aiColor4D& out) {
+        out.r = v[0];
+        out.g = v[1];
+        out.b = v[2];
+        out.a = 1.0;
     }
 
-    return pFile.substr(0, pos + 1);
-}
-#if _MSC_VER
-#    pragma warning(pop)
-#endif // _MSC_VER
-
-namespace Util {
-
-void EncodeBase64(const uint8_t *in, size_t inLength, std::string &out);
-
-size_t DecodeBase64(const char *in, size_t inLength, uint8_t *&out);
-
-inline size_t DecodeBase64(const char *in, uint8_t *&out) {
-    return DecodeBase64(in, strlen(in), out);
-}
-
-struct DataURI {
-    const char *mediaType;
-    const char *charset;
-    bool base64;
-    const char *data;
-    size_t dataLength;
-};
-
-//! Check if a uri is a data URI
-bool ParseDataURI(const char *const_uri, size_t uriLen, DataURI &out);
-
-} // namespace Util
-
-#define CHECK_EXT(EXT) \
-    if (exts.find(#EXT) != exts.end()) extensionsUsed.EXT = true;
-
-//! Helper struct to represent values that might not be present
-template <class T>
-struct Nullable {
-    T value;
-    bool isPresent;
-
-    Nullable() :
-            isPresent(false) {}
-    Nullable(T &val) :
-            value(val),
-            isPresent(true) {}
-};
-
-//! A reference to one top-level object, which is valid
-//! until the Asset instance is destroyed
-template <class T>
-class Ref {
-    std::vector<T *> *vector;
-    unsigned int index;
-
-public:
-    Ref() :
-            vector(0),
-            index(0) {}
-    Ref(std::vector<T *> &vec, unsigned int idx) :
-            vector(&vec),
-            index(idx) {}
-
-    inline unsigned int GetIndex() const { return index; }
-
-    operator bool() const { return vector != nullptr && index < vector->size(); }
-
-    T *operator->() { return (*vector)[index]; }
-
-    T &operator*() { return *((*vector)[index]); }
-};
-
-//
-// JSON Value reading helpers
-//
-
-template <class T>
-struct ReadHelper {
-    static bool Read(Value &val, T &out) {
-        return val.IsInt() ? out = static_cast<T>(val.GetInt()), true : false;
+    inline
+    void CopyValue(const glTFCommon::vec4& v, aiColor4D& out) {
+        out.r = v[0];
+        out.g = v[1];
+        out.b = v[2];
+        out.a = v[3];
     }
-};
 
-template <>
-struct ReadHelper<bool> {
-    static bool Read(Value &val, bool &out) {
-        return val.IsBool() ? out = val.GetBool(), true : false;
+    inline
+    void CopyValue(const glTFCommon::vec4& v, aiColor3D& out) {
+        out.r = v[0];
+        out.g = v[1];
+        out.b = v[2];
     }
-};
 
-template <>
-struct ReadHelper<float> {
-    static bool Read(Value &val, float &out) {
-        return val.IsNumber() ? out = static_cast<float>(val.GetDouble()), true : false;
+    inline
+    void CopyValue(const glTFCommon::vec3& v, aiColor3D& out) {
+        out.r = v[0];
+        out.g = v[1];
+        out.b = v[2];
     }
-};
 
-template <unsigned int N>
-struct ReadHelper<float[N]> {
-    static bool Read(Value &val, float (&out)[N]) {
-        if (!val.IsArray() || val.Size() != N) return false;
-        for (unsigned int i = 0; i < N; ++i) {
-            if (val[i].IsNumber())
-                out[i] = static_cast<float>(val[i].GetDouble());
+    inline
+    void CopyValue(const glTFCommon::vec3& v, aiVector3D& out) {
+        out.x = v[0];
+        out.y = v[1];
+        out.z = v[2];
+    }
+
+    inline
+    void CopyValue(const glTFCommon::vec4& v, aiQuaternion& out) {
+        out.x = v[0];
+        out.y = v[1];
+        out.z = v[2];
+        out.w = v[3];
+    }
+
+    inline
+    void CopyValue(const glTFCommon::mat4& v, aiMatrix4x4& o) {
+        o.a1 = v[0]; o.b1 = v[1]; o.c1 = v[2]; o.d1 = v[3];
+        o.a2 = v[4]; o.b2 = v[5]; o.c2 = v[6]; o.d2 = v[7];
+        o.a3 = v[8]; o.b3 = v[9]; o.c3 = v[10]; o.d3 = v[11];
+        o.a4 = v[12]; o.b4 = v[13]; o.c4 = v[14]; o.d4 = v[15];
+    }
+
+    namespace Util {
+
+        void EncodeBase64(const uint8_t* in, size_t inLength, std::string& out);
+
+        size_t DecodeBase64(const char* in, size_t inLength, uint8_t*& out);
+
+        inline
+            size_t DecodeBase64(const char* in, uint8_t*& out) {
+            return DecodeBase64(in, strlen(in), out);
         }
-        return true;
-    }
-};
 
-template <>
-struct ReadHelper<const char *> {
-    static bool Read(Value &val, const char *&out) {
-        return val.IsString() ? (out = val.GetString(), true) : false;
-    }
-};
+        struct DataURI {
+            const char* mediaType;
+            const char* charset;
+            bool base64;
+            const char* data;
+            size_t dataLength;
+        };
 
-template <>
-struct ReadHelper<std::string> {
-    static bool Read(Value &val, std::string &out) {
-        return val.IsString() ? (out = std::string(val.GetString(), val.GetStringLength()), true) : false;
-    }
-};
+        //! Check if a uri is a data URI
+        bool ParseDataURI(const char* const_uri, size_t uriLen, DataURI& out);
 
-template <class T>
-struct ReadHelper<Nullable<T>> {
-    static bool Read(Value &val, Nullable<T> &out) {
-        return out.isPresent = ReadHelper<T>::Read(val, out.value);
-    }
-};
+        template<bool B>
+        struct DATA {
+            static const uint8_t tableDecodeBase64[128];
+        };
 
-template <>
-struct ReadHelper<uint64_t> {
-    static bool Read(Value &val, uint64_t &out) {
-        return val.IsUint64() ? out = val.GetUint64(), true : false;
-    }
-};
+        template<bool B>
+        const uint8_t DATA<B>::tableDecodeBase64[128] = {
+                0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+                0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+                0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 62,  0,  0,  0, 63,
+            52, 53, 54, 55, 56, 57, 58, 59, 60, 61,  0,  0,  0, 64,  0,  0,
+                0,  0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14,
+            15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25,  0,  0,  0,  0,  0,
+                0, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40,
+            41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51,  0,  0,  0,  0,  0
+        };
 
-template <>
-struct ReadHelper<int64_t> {
-    static bool Read(Value &val, int64_t &out) {
-        return val.IsInt64() ? out = val.GetInt64(), true : false;
-    }
-};
-
-template <class T>
-inline static bool ReadValue(Value &val, T &out) {
-    return ReadHelper<T>::Read(val, out);
-}
-
-template <class T>
-inline static bool ReadMember(Value &obj, const char *id, T &out) {
-    if (!obj.IsObject()) {
-        return false;
-    }
-    Value::MemberIterator it = obj.FindMember(id);
-    if (it != obj.MemberEnd()) {
-        return ReadHelper<T>::Read(it->value, out);
-    }
-    return false;
-}
-
-template <class T>
-inline static T MemberOrDefault(Value &obj, const char *id, T defaultValue) {
-    T out;
-    return ReadMember(obj, id, out) ? out : defaultValue;
-}
-
-inline Value *FindMember(Value &val, const char *id) {
-    if (!val.IsObject()) {
-        return nullptr;
-    }
-    Value::MemberIterator it = val.FindMember(id);
-    return (it != val.MemberEnd()) ? &it->value : nullptr;
-}
-
-template <int N>
-inline void throwUnexpectedTypeError(const char (&expectedTypeName)[N], const char *memberId, const char *context, const char *extraContext) {
-    std::string fullContext = context;
-    if (extraContext && (strlen(extraContext) > 0)) {
-        fullContext = fullContext + " (" + extraContext + ")";
-    }
-    throw DeadlyImportError("Member \"", memberId, "\" was not of type \"", expectedTypeName, "\" when reading ", fullContext);
-}
-
-// Look-up functions with type checks. Context and extra context help the user identify the problem if there's an error.
-
-inline Value *FindStringInContext(Value &val, const char *memberId, const char *context, const char *extraContext = nullptr) {
-    if (!val.IsObject()) {
-        return nullptr;
-    }
-    Value::MemberIterator it = val.FindMember(memberId);
-    if (it == val.MemberEnd()) {
-        return nullptr;
-    }
-    if (!it->value.IsString()) {
-        throwUnexpectedTypeError("string", memberId, context, extraContext);
-    }
-    return &it->value;
-}
-
-inline Value *FindNumberInContext(Value &val, const char *memberId, const char *context, const char *extraContext = nullptr) {
-    if (!val.IsObject()) {
-        return nullptr;
-    }
-    Value::MemberIterator it = val.FindMember(memberId);
-    if (it == val.MemberEnd()) {
-        return nullptr;
-    }
-    if (!it->value.IsNumber()) {
-        throwUnexpectedTypeError("number", memberId, context, extraContext);
-    }
-    return &it->value;
-}
-
-inline Value *FindUIntInContext(Value &val, const char *memberId, const char *context, const char *extraContext = nullptr) {
-    if (!val.IsObject()) {
-        return nullptr;
-    }
-    Value::MemberIterator it = val.FindMember(memberId);
-    if (it == val.MemberEnd()) {
-        return nullptr;
-    }
-    if (!it->value.IsUint()) {
-        throwUnexpectedTypeError("uint", memberId, context, extraContext);
-    }
-    return &it->value;
-}
-
-inline Value *FindArrayInContext(Value &val, const char *memberId, const char *context, const char *extraContext = nullptr) {
-    if (!val.IsObject()) {
-        return nullptr;
-    }
-    Value::MemberIterator it = val.FindMember(memberId);
-    if (it == val.MemberEnd()) {
-        return nullptr;
-    }
-    if (!it->value.IsArray()) {
-        throwUnexpectedTypeError("array", memberId, context, extraContext);
-    }
-    return &it->value;
-}
-
-inline Value *FindObjectInContext(Value &val, const char *memberId, const char *context, const char *extraContext = nullptr) {
-    if (!val.IsObject()) {
-        return nullptr;
-    }
-    Value::MemberIterator it = val.FindMember(memberId);
-    if (it == val.MemberEnd()) {
-        return nullptr;
-    }
-    if (!it->value.IsObject()) {
-        throwUnexpectedTypeError("object", memberId, context, extraContext);
-    }
-    return &it->value;
-}
-
-inline Value *FindExtensionInContext(Value &val, const char *extensionId, const char *context, const char *extraContext = nullptr) {
-    if (Value *extensionList = FindObjectInContext(val, "extensions", context, extraContext)) {
-        if (Value *extension = FindObjectInContext(*extensionList, extensionId, context, extraContext)) {
-            return extension;
+        inline
+            char EncodeCharBase64(uint8_t b) {
+            return "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/="[size_t(b)];
         }
+
+        inline
+            uint8_t DecodeCharBase64(char c) {
+            return DATA<true>::tableDecodeBase64[size_t(c)]; // TODO faster with lookup table or ifs?
+            /*if (c >= 'A' && c <= 'Z') return c - 'A';
+            if (c >= 'a' && c <= 'z') return c - 'a' + 26;
+            if (c >= '0' && c <= '9') return c - '0' + 52;
+            if (c == '+') return 62;
+            if (c == '/') return 63;
+            return 64; // '-' */
+        }
+
+        size_t DecodeBase64(const char* in, size_t inLength, uint8_t*& out);
+
+        void EncodeBase64(const uint8_t* in, size_t inLength, std::string& out);
     }
-    return nullptr;
+
 }
 
-// Overloads when the value is the document.
-
-inline Value *FindString(Document &doc, const char *memberId) {
-    return FindStringInContext(doc, memberId, "the document");
-}
-
-inline Value *FindNumber(Document &doc, const char *memberId) {
-    return FindNumberInContext(doc, memberId, "the document");
-}
-
-inline Value *FindUInt(Document &doc, const char *memberId) {
-    return FindUIntInContext(doc, memberId, "the document");
-}
-
-inline Value *FindArray(Document &val, const char *memberId) {
-    return FindArrayInContext(val, memberId, "the document");
-}
-
-inline Value *FindObject(Document &doc, const char *memberId) {
-    return FindObjectInContext(doc, memberId, "the document");
-}
-
-inline Value *FindExtension(Value &val, const char *extensionId) {
-    return FindExtensionInContext(val, extensionId, "the document");
-}
-
-inline Value *FindString(Value &val, const char *id) {
-    Value::MemberIterator it = val.FindMember(id);
-    return (it != val.MemberEnd() && it->value.IsString()) ? &it->value : 0;
-}
-
-inline Value *FindObject(Value &val, const char *id) {
-    Value::MemberIterator it = val.FindMember(id);
-    return (it != val.MemberEnd() && it->value.IsObject()) ? &it->value : 0;
-}
-
-inline Value *FindArray(Value &val, const char *id) {
-    Value::MemberIterator it = val.FindMember(id);
-    return (it != val.MemberEnd() && it->value.IsArray()) ? &it->value : 0;
-}
-
-inline Value *FindNumber(Value &val, const char *id) {
-    Value::MemberIterator it = val.FindMember(id);
-    return (it != val.MemberEnd() && it->value.IsNumber()) ? &it->value : 0;
-}
-
-} // namespace glTFCommon
-
-#endif // ASSIMP_BUILD_NO_GLTF_IMPORTER
+#endif  // ASSIMP_BUILD_NO_GLTF_IMPORTER
 
 #endif // AI_GLFTCOMMON_H_INC

@@ -2,7 +2,8 @@
 Open Asset Import Library (assimp)
 ----------------------------------------------------------------------
 
-Copyright (c) 2006-2022, assimp team
+Copyright (c) 2006-2019, assimp team
+
 
 All rights reserved.
 
@@ -57,7 +58,9 @@ const Field& Structure :: operator [] (const std::string& ss) const
 {
     std::map<std::string, size_t>::const_iterator it = indices.find(ss);
     if (it == indices.end()) {
-        throw Error("BlendDNA: Did not find a field named `",ss,"` in structure `",name,"`");
+        throw Error((Formatter::format(),
+            "BlendDNA: Did not find a field named `",ss,"` in structure `",name,"`"
+            ));
     }
 
     return fields[(*it).second];
@@ -67,14 +70,16 @@ const Field& Structure :: operator [] (const std::string& ss) const
 const Field* Structure :: Get (const std::string& ss) const
 {
     std::map<std::string, size_t>::const_iterator it = indices.find(ss);
-    return it == indices.end() ? nullptr : &fields[(*it).second];
+    return it == indices.end() ? NULL : &fields[(*it).second];
 }
 
 //--------------------------------------------------------------------------------
 const Field& Structure :: operator [] (const size_t i) const
 {
     if (i >= fields.size()) {
-        throw Error("BlendDNA: There is no field with index `",i,"` in structure `",name,"`");
+        throw Error((Formatter::format(),
+            "BlendDNA: There is no field with index `",i,"` in structure `",name,"`"
+            ));
     }
 
     return fields[i];
@@ -105,7 +110,9 @@ void Structure :: ReadFieldArray(T (& out)[M], const char* name, const FileDatab
 
         // is the input actually an array?
         if (!(f.flags & FieldFlag_Array)) {
-            throw Error("Field `",name,"` of structure `",this->name,"` ought to be an array of size ",M);
+            throw Error((Formatter::format(),"Field `",name,"` of structure `",
+                this->name,"` ought to be an array of size ",M
+                ));
         }
 
         db.reader->IncPtr(f.offset);
@@ -142,9 +149,9 @@ void Structure :: ReadFieldArray2(T (& out)[M][N], const char* name, const FileD
 
         // is the input actually an array?
         if (!(f.flags & FieldFlag_Array)) {
-            throw Error("Field `",name,"` of structure `",
+            throw Error((Formatter::format(),"Field `",name,"` of structure `",
                 this->name,"` ought to be an array of size ",M,"*",N
-                );
+                ));
         }
 
         db.reader->IncPtr(f.offset);
@@ -189,8 +196,8 @@ bool Structure :: ReadFieldPtr(TOUT<T>& out, const char* name, const FileDatabas
 
         // sanity check, should never happen if the genblenddna script is right
         if (!(f->flags & FieldFlag_Pointer)) {
-            throw Error("Field `",name,"` of structure `",
-                this->name,"` ought to be a pointer");
+            throw Error((Formatter::format(),"Field `",name,"` of structure `",
+                this->name,"` ought to be a pointer"));
         }
 
         db.reader->IncPtr(f->offset);
@@ -232,13 +239,11 @@ bool Structure :: ReadFieldPtr(TOUT<T> (&out)[N], const char* name,
     try {
         f = &(*this)[name];
 
-#ifdef _DEBUG
         // sanity check, should never happen if the genblenddna script is right
         if ((FieldFlag_Pointer|FieldFlag_Pointer) != (f->flags & (FieldFlag_Pointer|FieldFlag_Pointer))) {
-            throw Error("Field `",name,"` of structure `",
-                this->name,"` ought to be a pointer AND an array");
+            throw Error((Formatter::format(),"Field `",name,"` of structure `",
+                this->name,"` ought to be a pointer AND an array"));
         }
-#endif // _DEBUG
 
         db.reader->IncPtr(f->offset);
 
@@ -316,8 +321,8 @@ bool Structure::ReadCustomDataPtr(std::shared_ptr<ElemBase>&out, int cdtype, con
 
 		// sanity check, should never happen if the genblenddna script is right
 		if (!(f->flags & FieldFlag_Pointer)) {
-			throw Error("Field `", name, "` of structure `",
-				this->name, "` ought to be a pointer");
+			throw Error((Formatter::format(), "Field `", name, "` of structure `",
+				this->name, "` ought to be a pointer"));
 		}
 
 		db.reader->IncPtr(f->offset);
@@ -363,8 +368,8 @@ bool Structure::ReadFieldPtrVector(vector<TOUT<T>>&out, const char* name, const 
 
 		// sanity check, should never happen if the genblenddna script is right
 		if (!(f->flags & FieldFlag_Pointer)) {
-			throw Error("Field `", name, "` of structure `",
-				this->name, "` ought to be a pointer");
+			throw Error((Formatter::format(), "Field `", name, "` of structure `",
+				this->name, "` ought to be a pointer"));
 		}
 
 		db.reader->IncPtr(f->offset);
@@ -422,9 +427,9 @@ bool Structure :: ResolvePointer(TOUT<T>& out, const Pointer & ptrval, const Fil
     // and check if it matches the type which we expect.
     const Structure& ss = db.dna[block->dna_index];
     if (ss != s) {
-        throw Error("Expected target to be of type `",s.name,
+        throw Error((Formatter::format(),"Expected target to be of type `",s.name,
             "` but seemingly it is a `",ss.name,"` instead"
-            );
+            ));
     }
 
     // try to retrieve the object from the cache
@@ -565,7 +570,7 @@ template <> bool Structure :: ResolvePointer<std::shared_ptr,ElemBase>(std::shar
         // this might happen if DNA::RegisterConverters hasn't been called so far
         // or if the target type is not contained in `our` DNA.
         out.reset();
-        ASSIMP_LOG_WARN( "Failed to find a converter for the `",s.name,"` structure" );
+        ASSIMP_LOG_WARN_F( "Failed to find a converter for the `",s.name,"` structure" );
         return false;
     }
 
@@ -608,14 +613,16 @@ const FileBlockHead* Structure :: LocateFileBlockForAddress(const Pointer & ptrv
     if (it == db.entries.end()) {
         // this is crucial, pointers may not be invalid.
         // this is either a corrupted file or an attempted attack.
-        throw DeadlyImportError("Failure resolving pointer 0x",
-            std::hex,ptrval.val,", no file block falls into this address range");
+        throw DeadlyImportError((Formatter::format(),"Failure resolving pointer 0x",
+            std::hex,ptrval.val,", no file block falls into this address range"
+            ));
     }
     if (ptrval.val >= (*it).address.val + (*it).size) {
-        throw DeadlyImportError("Failure resolving pointer 0x",
+        throw DeadlyImportError((Formatter::format(),"Failure resolving pointer 0x",
             std::hex,ptrval.val,", nearest file block starting at 0x",
             (*it).address.val," ends at 0x",
-            (*it).address.val + (*it).size);
+            (*it).address.val + (*it).size
+            ));
     }
     return &*it;
 }
@@ -668,7 +675,7 @@ template <typename T> inline void ConvertDispatcher(T& out, const Structure& in,
         out = static_cast<T>(db.reader->GetF8());
     }
     else {
-        throw DeadlyImportError("Unknown source for conversion to primitive data type: ", in.name);
+        throw DeadlyImportError("Unknown source for conversion to primitive data type: "+in.name);
     }
 }
 
@@ -776,7 +783,9 @@ const Structure& DNA :: operator [] (const std::string& ss) const
 {
     std::map<std::string, size_t>::const_iterator it = indices.find(ss);
     if (it == indices.end()) {
-        throw Error("BlendDNA: Did not find a structure named `",ss,"`");
+        throw Error((Formatter::format(),
+            "BlendDNA: Did not find a structure named `",ss,"`"
+            ));
     }
 
     return structures[(*it).second];
@@ -786,14 +795,16 @@ const Structure& DNA :: operator [] (const std::string& ss) const
 const Structure* DNA :: Get (const std::string& ss) const
 {
     std::map<std::string, size_t>::const_iterator it = indices.find(ss);
-    return it == indices.end() ? nullptr : &structures[(*it).second];
+    return it == indices.end() ? NULL : &structures[(*it).second];
 }
 
 //--------------------------------------------------------------------------------
 const Structure& DNA :: operator [] (const size_t i) const
 {
     if (i >= structures.size()) {
-        throw Error("BlendDNA: There is no structure with index `",i,"`");
+        throw Error((Formatter::format(),
+            "BlendDNA: There is no structure with index `",i,"`"
+            ));
     }
 
     return structures[i];

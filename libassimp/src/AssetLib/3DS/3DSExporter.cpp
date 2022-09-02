@@ -2,7 +2,7 @@
 Open Asset Import Library (assimp)
 ----------------------------------------------------------------------
 
-Copyright (c) 2006-2022, assimp team
+Copyright (c) 2006-2019, assimp team
 
 
 All rights reserved.
@@ -43,118 +43,120 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef ASSIMP_BUILD_NO_EXPORT
 #ifndef ASSIMP_BUILD_NO_3DS_EXPORTER
 
-#include "AssetLib/3DS/3DSExporter.h"
-#include "AssetLib/3DS/3DSHelper.h"
-#include "AssetLib/3DS/3DSLoader.h"
+#include "3DSExporter.h"
+#include "3DSLoader.h"
+#include "3DSHelper.h"
 #include "PostProcessing/SplitLargeMeshes.h"
 
 #include <assimp/SceneCombiner.h>
 #include <assimp/StringComparison.h>
+#include <assimp/IOSystem.hpp>
 #include <assimp/DefaultLogger.hpp>
 #include <assimp/Exporter.hpp>
-#include <assimp/IOSystem.hpp>
 
 #include <memory>
 
-namespace Assimp {
-
+using namespace Assimp;
+namespace Assimp    {
 using namespace D3DS;
 
 namespace {
 
-//////////////////////////////////////////////////////////////////////////////////////
-// Scope utility to write a 3DS file chunk.
-//
-// Upon construction, the chunk header is written with the chunk type (flags)
-// filled out, but the chunk size left empty. Upon destruction, the correct chunk
-// size based on the then-position of the output stream cursor is filled in.
-class ChunkWriter {
-    enum {
-        CHUNK_SIZE_NOT_SET = 0xdeadbeef,
-        SIZE_OFFSET = 2
+    //////////////////////////////////////////////////////////////////////////////////////
+    // Scope utility to write a 3DS file chunk.
+    //
+    // Upon construction, the chunk header is written with the chunk type (flags)
+    // filled out, but the chunk size left empty. Upon destruction, the correct chunk
+    // size based on the then-position of the output stream cursor is filled in.
+    class ChunkWriter {
+        enum {
+              CHUNK_SIZE_NOT_SET = 0xdeadbeef
+            , SIZE_OFFSET        = 2
+        };
+    public:
+
+        ChunkWriter(StreamWriterLE& writer, uint16_t chunk_type)
+            : writer(writer)
+        {
+            chunk_start_pos = writer.GetCurrentPos();
+            writer.PutU2(chunk_type);
+            writer.PutU4(CHUNK_SIZE_NOT_SET);
+        }
+
+        ~ChunkWriter() {
+            std::size_t head_pos = writer.GetCurrentPos();
+
+            ai_assert(head_pos > chunk_start_pos);
+            const std::size_t chunk_size = head_pos - chunk_start_pos;
+
+            writer.SetCurrentPos(chunk_start_pos + SIZE_OFFSET);
+            writer.PutU4(static_cast<uint32_t>(chunk_size));
+            writer.SetCurrentPos(head_pos);
+        }
+
+    private:
+        StreamWriterLE& writer;
+        std::size_t chunk_start_pos;
     };
 
-public:
-    ChunkWriter(StreamWriterLE &writer, uint16_t chunk_type) :
-            writer(writer) {
-        chunk_start_pos = writer.GetCurrentPos();
-        writer.PutU2(chunk_type);
-        writer.PutU4((uint32_t)CHUNK_SIZE_NOT_SET);
+
+    // Return an unique name for a given |mesh| attached to |node| that
+    // preserves the mesh's given name if it has one. |index| is the index
+    // of the mesh in |aiScene::mMeshes|.
+    std::string GetMeshName(const aiMesh& mesh, unsigned int index, const aiNode& node) {
+        static const std::string underscore = "_";
+        char postfix[10] = {0};
+        ASSIMP_itoa10(postfix, index);
+
+        std::string result = node.mName.C_Str();
+        if (mesh.mName.length > 0) {
+            result += underscore + mesh.mName.C_Str();
+        }
+        return result + underscore + postfix;
     }
 
-    ~ChunkWriter() {
-        std::size_t head_pos = writer.GetCurrentPos();
+    // Return an unique name for a given |mat| with original position |index|
+    // in |aiScene::mMaterials|. The name preserves the original material
+    // name if possible.
+    std::string GetMaterialName(const aiMaterial& mat, unsigned int index) {
+        static const std::string underscore = "_";
+        char postfix[10] = {0};
+        ASSIMP_itoa10(postfix, index);
 
-        ai_assert(head_pos > chunk_start_pos);
-        const std::size_t chunk_size = head_pos - chunk_start_pos;
+        aiString mat_name;
+        if (AI_SUCCESS == mat.Get(AI_MATKEY_NAME, mat_name)) {
+            return mat_name.C_Str() + underscore + postfix;
+        }
 
-        writer.SetCurrentPos(chunk_start_pos + SIZE_OFFSET);
-        writer.PutU4(static_cast<uint32_t>(chunk_size));
-        writer.SetCurrentPos(head_pos);
+        return "Material" + underscore + postfix;
     }
 
-private:
-    StreamWriterLE &writer;
-    std::size_t chunk_start_pos;
-};
-
-// Return an unique name for a given |mesh| attached to |node| that
-// preserves the mesh's given name if it has one. |index| is the index
-// of the mesh in |aiScene::mMeshes|.
-std::string GetMeshName(const aiMesh &mesh, unsigned int index, const aiNode &node) {
-    static const char underscore = '_';
-    char postfix[10] = { 0 };
-    ASSIMP_itoa10(postfix, index);
-
-    std::string result = node.mName.C_Str();
-    if (mesh.mName.length > 0) {
-        result += underscore;
-        result += mesh.mName.C_Str();
-    }
-    return result + underscore + postfix;
-}
-
-// Return an unique name for a given |mat| with original position |index|
-// in |aiScene::mMaterials|. The name preserves the original material
-// name if possible.
-std::string GetMaterialName(const aiMaterial &mat, unsigned int index) {
-    static const std::string underscore = "_";
-    char postfix[10] = { 0 };
-    ASSIMP_itoa10(postfix, index);
-
-    aiString mat_name;
-    if (AI_SUCCESS == mat.Get(AI_MATKEY_NAME, mat_name)) {
-        return mat_name.C_Str() + underscore + postfix;
+    // Collect world transformations for each node
+    void CollectTrafos(const aiNode* node, std::map<const aiNode*, aiMatrix4x4>& trafos) {
+        const aiMatrix4x4& parent = node->mParent ? trafos[node->mParent] : aiMatrix4x4();
+        trafos[node] = parent * node->mTransformation;
+        for (unsigned int i = 0; i < node->mNumChildren; ++i) {
+            CollectTrafos(node->mChildren[i], trafos);
+        }
     }
 
-    return "Material" + underscore + postfix;
-}
-
-// Collect world transformations for each node
-void CollectTrafos(const aiNode *node, std::map<const aiNode *, aiMatrix4x4> &trafos) {
-    const aiMatrix4x4 &parent = node->mParent ? trafos[node->mParent] : aiMatrix4x4();
-    trafos[node] = parent * node->mTransformation;
-    for (unsigned int i = 0; i < node->mNumChildren; ++i) {
-        CollectTrafos(node->mChildren[i], trafos);
+    // Generate a flat list of the meshes (by index) assigned to each node
+    void CollectMeshes(const aiNode* node, std::multimap<const aiNode*, unsigned int>& meshes) {
+        for (unsigned int i = 0; i < node->mNumMeshes; ++i) {
+            meshes.insert(std::make_pair(node, node->mMeshes[i]));
+        }
+        for (unsigned int i = 0; i < node->mNumChildren; ++i) {
+            CollectMeshes(node->mChildren[i], meshes);
+        }
     }
 }
-
-// Generate a flat list of the meshes (by index) assigned to each node
-void CollectMeshes(const aiNode *node, std::multimap<const aiNode *, unsigned int> &meshes) {
-    for (unsigned int i = 0; i < node->mNumMeshes; ++i) {
-        meshes.insert(std::make_pair(node, node->mMeshes[i]));
-    }
-    for (unsigned int i = 0; i < node->mNumChildren; ++i) {
-        CollectMeshes(node->mChildren[i], meshes);
-    }
-}
-} // namespace
 
 // ------------------------------------------------------------------------------------------------
 // Worker function for exporting a scene to 3DS. Prototyped and registered in Exporter.cpp
-void ExportScene3DS(const char *pFile, IOSystem *pIOSystem, const aiScene *pScene, const ExportProperties * /*pProperties*/) {
-    std::shared_ptr<IOStream> outfile(pIOSystem->Open(pFile, "wb"));
-    if (!outfile) {
+void ExportScene3DS(const char* pFile, IOSystem* pIOSystem, const aiScene* pScene, const ExportProperties* /*pProperties*/)
+{
+    std::shared_ptr<IOStream> outfile (pIOSystem->Open(pFile, "wb"));
+    if(!outfile) {
         throw DeadlyExportError("Could not open output .3ds file: " + std::string(pFile));
     }
 
@@ -165,8 +167,8 @@ void ExportScene3DS(const char *pFile, IOSystem *pIOSystem, const aiScene *pScen
     // SplitLargeMeshes can do this, but it requires the correct limit to be set
     // which is not possible with the current way of specifying preprocess steps
     // in |Exporter::ExportFormatEntry|.
-    aiScene *scenecopy_tmp;
-    SceneCombiner::CopyScene(&scenecopy_tmp, pScene);
+    aiScene* scenecopy_tmp;
+    SceneCombiner::CopyScene(&scenecopy_tmp,pScene);
     std::unique_ptr<aiScene> scenecopy(scenecopy_tmp);
 
     SplitLargeMeshesProcess_Triangle tri_splitter;
@@ -184,26 +186,28 @@ void ExportScene3DS(const char *pFile, IOSystem *pIOSystem, const aiScene *pScen
 } // end of namespace Assimp
 
 // ------------------------------------------------------------------------------------------------
-Discreet3DSExporter::Discreet3DSExporter(std::shared_ptr<IOStream> &outfile, const aiScene *scene) :
-        scene(scene), writer(outfile) {
+Discreet3DSExporter:: Discreet3DSExporter(std::shared_ptr<IOStream> &outfile, const aiScene* scene)
+: scene(scene)
+, writer(outfile)
+{
     CollectTrafos(scene->mRootNode, trafos);
     CollectMeshes(scene->mRootNode, meshes);
 
-    ChunkWriter curRootChunk(writer, Discreet3DS::CHUNK_MAIN);
+    ChunkWriter chunk(writer, Discreet3DS::CHUNK_MAIN);
 
     {
-        ChunkWriter curChunk(writer, Discreet3DS::CHUNK_OBJMESH);
+        ChunkWriter chunk(writer, Discreet3DS::CHUNK_OBJMESH);
         WriteMaterials();
         WriteMeshes();
 
         {
-            ChunkWriter curChunk1(writer, Discreet3DS::CHUNK_MASTER_SCALE);
+            ChunkWriter chunk(writer, Discreet3DS::CHUNK_MASTER_SCALE);
             writer.PutF4(1.0f);
         }
     }
 
     {
-        ChunkWriter curChunk(writer, Discreet3DS::CHUNK_KEYFRAMER);
+        ChunkWriter chunk(writer, Discreet3DS::CHUNK_KEYFRAMER);
         WriteHierarchy(*scene->mRootNode, -1, -1);
     }
 }
@@ -213,13 +217,15 @@ Discreet3DSExporter::~Discreet3DSExporter() {
     // empty
 }
 
+
 // ------------------------------------------------------------------------------------------------
-int Discreet3DSExporter::WriteHierarchy(const aiNode &node, int seq, int sibling_level) {
+int Discreet3DSExporter::WriteHierarchy(const aiNode& node, int seq, int sibling_level)
+{
     // 3DS scene hierarchy is serialized as in http://www.martinreddy.net/gfx/3d/3DS.spec
     {
-        ChunkWriter curRootChunk(writer, Discreet3DS::CHUNK_TRACKINFO);
+        ChunkWriter chunk(writer, Discreet3DS::CHUNK_TRACKINFO);
         {
-            ChunkWriter curChunk(writer, Discreet3DS::CHUNK_TRACKOBJNAME);
+            ChunkWriter chunk(writer, Discreet3DS::CHUNK_TRACKOBJNAME);
 
             // Assimp node names are unique and distinct from all mesh-node
             // names we generate; thus we can use them as-is
@@ -231,7 +237,7 @@ int Discreet3DSExporter::WriteHierarchy(const aiNode &node, int seq, int sibling
 
             int16_t hierarchy_pos = static_cast<int16_t>(seq);
             if (sibling_level != -1) {
-                hierarchy_pos = (uint16_t)sibling_level;
+                hierarchy_pos = sibling_level;
             }
 
             // Write the hierarchy position
@@ -254,9 +260,9 @@ int Discreet3DSExporter::WriteHierarchy(const aiNode &node, int seq, int sibling
         const bool first_child = node.mNumChildren == 0 && i == 0;
 
         const unsigned int mesh_idx = node.mMeshes[i];
-        const aiMesh &mesh = *scene->mMeshes[mesh_idx];
+        const aiMesh& mesh = *scene->mMeshes[mesh_idx];
 
-        ChunkWriter curChunk(writer, Discreet3DS::CHUNK_TRACKINFO);
+        ChunkWriter chunk(writer, Discreet3DS::CHUNK_TRACKINFO);
         {
             ChunkWriter chunk(writer, Discreet3DS::CHUNK_TRACKOBJNAME);
             WriteString(GetMeshName(mesh, mesh_idx, node));
@@ -270,41 +276,36 @@ int Discreet3DSExporter::WriteHierarchy(const aiNode &node, int seq, int sibling
 }
 
 // ------------------------------------------------------------------------------------------------
-void Discreet3DSExporter::WriteMaterials() {
+void Discreet3DSExporter::WriteMaterials()
+{
     for (unsigned int i = 0; i < scene->mNumMaterials; ++i) {
-        ChunkWriter curRootChunk(writer, Discreet3DS::CHUNK_MAT_MATERIAL);
-        const aiMaterial &mat = *scene->mMaterials[i];
+        ChunkWriter chunk(writer, Discreet3DS::CHUNK_MAT_MATERIAL);
+        const aiMaterial& mat = *scene->mMaterials[i];
 
         {
             ChunkWriter chunk(writer, Discreet3DS::CHUNK_MAT_MATNAME);
-            const std::string &name = GetMaterialName(mat, i);
+            const std::string& name = GetMaterialName(mat, i);
             WriteString(name);
         }
 
         aiColor3D color;
         if (mat.Get(AI_MATKEY_COLOR_DIFFUSE, color) == AI_SUCCESS) {
-            ChunkWriter curChunk(writer, Discreet3DS::CHUNK_MAT_DIFFUSE);
+            ChunkWriter chunk(writer, Discreet3DS::CHUNK_MAT_DIFFUSE);
             WriteColor(color);
         }
 
         if (mat.Get(AI_MATKEY_COLOR_SPECULAR, color) == AI_SUCCESS) {
-            ChunkWriter curChunk(writer, Discreet3DS::CHUNK_MAT_SPECULAR);
+            ChunkWriter chunk(writer, Discreet3DS::CHUNK_MAT_SPECULAR);
             WriteColor(color);
         }
 
         if (mat.Get(AI_MATKEY_COLOR_AMBIENT, color) == AI_SUCCESS) {
-            ChunkWriter curChunk(writer, Discreet3DS::CHUNK_MAT_AMBIENT);
+            ChunkWriter chunk(writer, Discreet3DS::CHUNK_MAT_AMBIENT);
             WriteColor(color);
         }
 
-        float f;
-        if (mat.Get(AI_MATKEY_OPACITY, f) == AI_SUCCESS) {
-            ChunkWriter chunk(writer, Discreet3DS::CHUNK_MAT_TRANSPARENCY);
-            WritePercentChunk(1.0f - f);
-        }
-
         if (mat.Get(AI_MATKEY_COLOR_EMISSIVE, color) == AI_SUCCESS) {
-            ChunkWriter curChunk(writer, Discreet3DS::CHUNK_MAT_SELF_ILLUM);
+            ChunkWriter chunk(writer, Discreet3DS::CHUNK_MAT_SELF_ILLUM);
             WriteColor(color);
         }
 
@@ -313,7 +314,7 @@ void Discreet3DSExporter::WriteMaterials() {
             ChunkWriter chunk(writer, Discreet3DS::CHUNK_MAT_SHADING);
 
             Discreet3DS::shadetype3ds shading_mode_out;
-            switch (shading_mode) {
+            switch(shading_mode) {
             case aiShadingMode_Flat:
             case aiShadingMode_NoShading:
                 shading_mode_out = Discreet3DS::Flat;
@@ -330,7 +331,6 @@ void Discreet3DSExporter::WriteMaterials() {
             case aiShadingMode_Blinn:
             case aiShadingMode_CookTorrance:
             case aiShadingMode_Fresnel:
-            case aiShadingMode_PBR_BRDF: // Possibly should be Discreet3DS::Metal in some cases but this is undocumented
                 shading_mode_out = Discreet3DS::Phong;
                 break;
 
@@ -341,6 +341,8 @@ void Discreet3DSExporter::WriteMaterials() {
             writer.PutU2(static_cast<uint16_t>(shading_mode_out));
         }
 
+
+        float f;
         if (mat.Get(AI_MATKEY_SHININESS, f) == AI_SUCCESS) {
             ChunkWriter chunk(writer, Discreet3DS::CHUNK_MAT_SHININESS);
             WritePercentChunk(f);
@@ -357,10 +359,7 @@ void Discreet3DSExporter::WriteMaterials() {
             writer.PutI2(1);
         }
 
-        // Fallback to BASE_COLOR if no DIFFUSE
-        if (!WriteTexture(mat, aiTextureType_DIFFUSE, Discreet3DS::CHUNK_MAT_TEXTURE))
-            WriteTexture(mat, aiTextureType_BASE_COLOR, Discreet3DS::CHUNK_MAT_TEXTURE);
-
+        WriteTexture(mat, aiTextureType_DIFFUSE, Discreet3DS::CHUNK_MAT_TEXTURE);
         WriteTexture(mat, aiTextureType_HEIGHT, Discreet3DS::CHUNK_MAT_BUMPMAP);
         WriteTexture(mat, aiTextureType_OPACITY, Discreet3DS::CHUNK_MAT_OPACMAP);
         WriteTexture(mat, aiTextureType_SHININESS, Discreet3DS::CHUNK_MAT_MAT_SHINMAP);
@@ -371,47 +370,48 @@ void Discreet3DSExporter::WriteMaterials() {
 }
 
 // ------------------------------------------------------------------------------------------------
-// returns true if the texture existed
-bool Discreet3DSExporter::WriteTexture(const aiMaterial &mat, aiTextureType type, uint16_t chunk_flags) {
+void Discreet3DSExporter::WriteTexture(const aiMaterial& mat, aiTextureType type, uint16_t chunk_flags)
+{
     aiString path;
     aiTextureMapMode map_mode[2] = {
         aiTextureMapMode_Wrap, aiTextureMapMode_Wrap
     };
     ai_real blend = 1.0;
-    if (mat.GetTexture(type, 0, &path, nullptr, nullptr, &blend, nullptr, map_mode) != AI_SUCCESS || !path.length) {
-        return false;
+    if (mat.GetTexture(type, 0, &path, NULL, NULL, &blend, NULL, map_mode) != AI_SUCCESS || !path.length) {
+        return;
     }
 
     // TODO: handle embedded textures properly
     if (path.data[0] == '*') {
-        ASSIMP_LOG_ERROR("Ignoring embedded texture for export: ", path.C_Str());
-        return false;
+        ASSIMP_LOG_ERROR("Ignoring embedded texture for export: " + std::string(path.C_Str()));
+        return;
     }
 
     ChunkWriter chunk(writer, chunk_flags);
     {
-        ChunkWriter curChunk(writer, Discreet3DS::CHUNK_MAPFILE);
+        ChunkWriter chunk(writer, Discreet3DS::CHUNK_MAPFILE);
         WriteString(path);
     }
 
     WritePercentChunk(blend);
 
     {
-        ChunkWriter curChunk(writer, Discreet3DS::CHUNK_MAT_MAP_TILING);
+        ChunkWriter chunk(writer, Discreet3DS::CHUNK_MAT_MAP_TILING);
         uint16_t val = 0; // WRAP
         if (map_mode[0] == aiTextureMapMode_Mirror) {
             val = 0x2;
-        } else if (map_mode[0] == aiTextureMapMode_Decal) {
+        }
+        else if (map_mode[0] == aiTextureMapMode_Decal) {
             val = 0x10;
         }
         writer.PutU2(val);
     }
     // TODO: export texture transformation (i.e. UV offset, scale, rotation)
-    return true;
 }
 
 // ------------------------------------------------------------------------------------------------
-void Discreet3DSExporter::WriteMeshes() {
+void Discreet3DSExporter::WriteMeshes()
+{
     // NOTE: 3DS allows for instances. However:
     //   i)  not all importers support reading them
     //   ii) instances are not as flexible as they are in assimp, in particular,
@@ -423,35 +423,36 @@ void Discreet3DSExporter::WriteMeshes() {
     // Furthermore, the TRIMESH is transformed into world space so that it will
     // appear correctly if importers don't read the scene hierarchy at all.
     for (MeshesByNodeMap::const_iterator it = meshes.begin(); it != meshes.end(); ++it) {
-        const aiNode &node = *(*it).first;
+        const aiNode& node = *(*it).first;
         const unsigned int mesh_idx = (*it).second;
 
-        const aiMesh &mesh = *scene->mMeshes[mesh_idx];
+        const aiMesh& mesh = *scene->mMeshes[mesh_idx];
 
         // This should not happen if the SLM step is correctly executed
         // before the scene is handed to the exporter
         ai_assert(mesh.mNumVertices <= 0xffff);
         ai_assert(mesh.mNumFaces <= 0xffff);
 
-        const aiMatrix4x4 &trafo = trafos[&node];
+        const aiMatrix4x4& trafo = trafos[&node];
 
         ChunkWriter chunk(writer, Discreet3DS::CHUNK_OBJBLOCK);
 
         // Mesh name is tied to the node it is attached to so it can later be referenced
-        const std::string &name = GetMeshName(mesh, mesh_idx, node);
+        const std::string& name = GetMeshName(mesh, mesh_idx, node);
         WriteString(name);
+
 
         // TRIMESH chunk
         ChunkWriter chunk2(writer, Discreet3DS::CHUNK_TRIMESH);
 
         // Vertices in world space
         {
-            ChunkWriter curChunk(writer, Discreet3DS::CHUNK_VERTLIST);
+            ChunkWriter chunk(writer, Discreet3DS::CHUNK_VERTLIST);
 
             const uint16_t count = static_cast<uint16_t>(mesh.mNumVertices);
             writer.PutU2(count);
             for (unsigned int i = 0; i < mesh.mNumVertices; ++i) {
-                const aiVector3D &v = mesh.mVertices[i];
+                const aiVector3D& v = trafo * mesh.mVertices[i];
                 writer.PutF4(v.x);
                 writer.PutF4(v.y);
                 writer.PutF4(v.z);
@@ -460,12 +461,12 @@ void Discreet3DSExporter::WriteMeshes() {
 
         // UV coordinates
         if (mesh.HasTextureCoords(0)) {
-            ChunkWriter curChunk(writer, Discreet3DS::CHUNK_MAPLIST);
+            ChunkWriter chunk(writer, Discreet3DS::CHUNK_MAPLIST);
             const uint16_t count = static_cast<uint16_t>(mesh.mNumVertices);
             writer.PutU2(count);
 
             for (unsigned int i = 0; i < mesh.mNumVertices; ++i) {
-                const aiVector3D &v = mesh.mTextureCoords[0][i];
+                const aiVector3D& v = mesh.mTextureCoords[0][i];
                 writer.PutF4(v.x);
                 writer.PutF4(v.y);
             }
@@ -473,14 +474,14 @@ void Discreet3DSExporter::WriteMeshes() {
 
         // Faces (indices)
         {
-            ChunkWriter curChunk(writer, Discreet3DS::CHUNK_FACELIST);
+            ChunkWriter chunk(writer, Discreet3DS::CHUNK_FACELIST);
 
             ai_assert(mesh.mNumFaces <= 0xffff);
 
             // Count triangles, discard lines and points
             uint16_t count = 0;
             for (unsigned int i = 0; i < mesh.mNumFaces; ++i) {
-                const aiFace &f = mesh.mFaces[i];
+                const aiFace& f = mesh.mFaces[i];
                 if (f.mNumIndices < 3) {
                     continue;
                 }
@@ -491,7 +492,7 @@ void Discreet3DSExporter::WriteMeshes() {
 
             writer.PutU2(count);
             for (unsigned int i = 0; i < mesh.mNumFaces; ++i) {
-                const aiFace &f = mesh.mFaces[i];
+                const aiFace& f = mesh.mFaces[i];
                 if (f.mNumIndices < 3) {
                     continue;
                 }
@@ -512,25 +513,21 @@ void Discreet3DSExporter::WriteMeshes() {
 
         // Transformation matrix by which the mesh vertices have been pre-transformed with.
         {
-            ChunkWriter curChunk(writer, Discreet3DS::CHUNK_TRMATRIX);
-            // Store rotation 3x3 matrix row wise
-            for (unsigned int r = 0; r < 3; ++r) {
+            ChunkWriter chunk(writer, Discreet3DS::CHUNK_TRMATRIX);
+            for (unsigned int r = 0; r < 4; ++r) {
                 for (unsigned int c = 0; c < 3; ++c) {
                     writer.PutF4(trafo[r][c]);
                 }
-            }
-            // Store translation sub vector column wise
-            for (unsigned int r = 0; r < 3; ++r) {
-                writer.PutF4(trafo[r][3]);
             }
         }
     }
 }
 
 // ------------------------------------------------------------------------------------------------
-void Discreet3DSExporter::WriteFaceMaterialChunk(const aiMesh &mesh) {
-    ChunkWriter curChunk(writer, Discreet3DS::CHUNK_FACEMAT);
-    const std::string &name = GetMaterialName(*scene->mMaterials[mesh.mMaterialIndex], mesh.mMaterialIndex);
+void Discreet3DSExporter::WriteFaceMaterialChunk(const aiMesh& mesh)
+{
+    ChunkWriter chunk(writer, Discreet3DS::CHUNK_FACEMAT);
+    const std::string& name = GetMaterialName(*scene->mMaterials[mesh.mMaterialIndex], mesh.mMaterialIndex);
     WriteString(name);
 
     // Because assimp splits meshes by material, only a single
@@ -545,7 +542,7 @@ void Discreet3DSExporter::WriteFaceMaterialChunk(const aiMesh &mesh) {
 }
 
 // ------------------------------------------------------------------------------------------------
-void Discreet3DSExporter::WriteString(const std::string &s) {
+void Discreet3DSExporter::WriteString(const std::string& s) {
     for (std::string::const_iterator it = s.begin(); it != s.end(); ++it) {
         writer.PutI1(*it);
     }
@@ -553,7 +550,7 @@ void Discreet3DSExporter::WriteString(const std::string &s) {
 }
 
 // ------------------------------------------------------------------------------------------------
-void Discreet3DSExporter::WriteString(const aiString &s) {
+void Discreet3DSExporter::WriteString(const aiString& s) {
     for (std::size_t i = 0; i < s.length; ++i) {
         writer.PutI1(s.data[i]);
     }
@@ -561,8 +558,8 @@ void Discreet3DSExporter::WriteString(const aiString &s) {
 }
 
 // ------------------------------------------------------------------------------------------------
-void Discreet3DSExporter::WriteColor(const aiColor3D &color) {
-    ChunkWriter curChunk(writer, Discreet3DS::CHUNK_RGBF);
+void Discreet3DSExporter::WriteColor(const aiColor3D& color) {
+    ChunkWriter chunk(writer, Discreet3DS::CHUNK_RGBF);
     writer.PutF4(color.r);
     writer.PutF4(color.g);
     writer.PutF4(color.b);
@@ -570,15 +567,16 @@ void Discreet3DSExporter::WriteColor(const aiColor3D &color) {
 
 // ------------------------------------------------------------------------------------------------
 void Discreet3DSExporter::WritePercentChunk(float f) {
-    ChunkWriter curChunk(writer, Discreet3DS::CHUNK_PERCENTF);
+    ChunkWriter chunk(writer, Discreet3DS::CHUNK_PERCENTF);
     writer.PutF4(f);
 }
 
 // ------------------------------------------------------------------------------------------------
 void Discreet3DSExporter::WritePercentChunk(double f) {
-    ChunkWriter ccurChunkhunk(writer, Discreet3DS::CHUNK_PERCENTD);
+    ChunkWriter chunk(writer, Discreet3DS::CHUNK_PERCENTD);
     writer.PutF8(f);
 }
+
 
 #endif // ASSIMP_BUILD_NO_3DS_EXPORTER
 #endif // ASSIMP_BUILD_NO_EXPORT

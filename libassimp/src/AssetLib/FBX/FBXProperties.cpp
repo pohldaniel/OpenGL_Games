@@ -2,7 +2,7 @@
 Open Asset Import Library (assimp)
 ----------------------------------------------------------------------
 
-Copyright (c) 2006-2022, assimp team
+Copyright (c) 2006-2019, assimp team
 
 
 All rights reserved.
@@ -52,8 +52,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "FBXDocumentUtil.h"
 #include "FBXProperties.h"
 
-#include <utility>
-
 namespace Assimp {
 namespace FBX {
 
@@ -71,51 +69,30 @@ Property::~Property()
 
 namespace {
 
-void checkTokenCount(const TokenList& tok, unsigned int expectedCount)
-{
-    ai_assert(expectedCount >= 2);
-    if (tok.size() < expectedCount) {
-        const std::string& s = ParseTokenAsString(*tok[1]);
-        if (tok[1]->IsBinary()) {
-            throw DeadlyImportError("Not enough tokens for property of type ", s, " at offset ", tok[1]->Offset());
-        }
-        else {
-            throw DeadlyImportError("Not enough tokens for property of type ", s, " at line ", tok[1]->Line());
-        }
-    }
-}
-
 // ------------------------------------------------------------------------------------------------
-// read a typed property out of a FBX element. The return value is nullptr if the property cannot be read.
+// read a typed property out of a FBX element. The return value is NULL if the property cannot be read.
 Property* ReadTypedProperty(const Element& element)
 {
     ai_assert(element.KeyToken().StringContents() == "P");
 
     const TokenList& tok = element.Tokens();
-    if (tok.size() < 2) {
-        return nullptr;
-    }
+    ai_assert(tok.size() >= 5);
 
     const std::string& s = ParseTokenAsString(*tok[1]);
     const char* const cs = s.c_str();
     if (!strcmp(cs,"KString")) {
-        checkTokenCount(tok, 5);
         return new TypedProperty<std::string>(ParseTokenAsString(*tok[4]));
     }
     else if (!strcmp(cs,"bool") || !strcmp(cs,"Bool")) {
-        checkTokenCount(tok, 5);
         return new TypedProperty<bool>(ParseTokenAsInt(*tok[4]) != 0);
     }
-    else if (!strcmp(cs, "int") || !strcmp(cs, "Int") || !strcmp(cs, "enum") || !strcmp(cs, "Enum") || !strcmp(cs, "Integer")) {
-        checkTokenCount(tok, 5);
+    else if (!strcmp(cs, "int") || !strcmp(cs, "Int") || !strcmp(cs, "enum") || !strcmp(cs, "Enum")) {
         return new TypedProperty<int>(ParseTokenAsInt(*tok[4]));
     }
     else if (!strcmp(cs, "ULongLong")) {
-        checkTokenCount(tok, 5);
         return new TypedProperty<uint64_t>(ParseTokenAsID(*tok[4]));
     }
     else if (!strcmp(cs, "KTime")) {
-        checkTokenCount(tok, 5);
         return new TypedProperty<int64_t>(ParseTokenAsInt64(*tok[4]));
     }
     else if (!strcmp(cs,"Vector3D") ||
@@ -126,27 +103,16 @@ Property* ReadTypedProperty(const Element& element)
         !strcmp(cs,"Lcl Rotation") ||
         !strcmp(cs,"Lcl Scaling")
         ) {
-        checkTokenCount(tok, 7);
         return new TypedProperty<aiVector3D>(aiVector3D(
             ParseTokenAsFloat(*tok[4]),
             ParseTokenAsFloat(*tok[5]),
             ParseTokenAsFloat(*tok[6]))
         );
     }
-    else if (!strcmp(cs,"double") || !strcmp(cs,"Number") || !strcmp(cs,"float") || !strcmp(cs,"Float") || !strcmp(cs,"FieldOfView") || !strcmp( cs, "UnitScaleFactor" ) ) {
-        checkTokenCount(tok, 5);
+    else if (!strcmp(cs,"double") || !strcmp(cs,"Number") || !strcmp(cs,"Float") || !strcmp(cs,"FieldOfView") || !strcmp( cs, "UnitScaleFactor" ) ) {
         return new TypedProperty<float>(ParseTokenAsFloat(*tok[4]));
     }
-    else if (!strcmp(cs, "ColorAndAlpha")) {
-        checkTokenCount(tok, 8);
-        return new TypedProperty<aiColor4D>(aiColor4D(
-            ParseTokenAsFloat(*tok[4]),
-            ParseTokenAsFloat(*tok[5]),
-            ParseTokenAsFloat(*tok[6]),
-            ParseTokenAsFloat(*tok[7]))
-        );
-    }
-    return nullptr;
+    return NULL;
 }
 
 
@@ -157,7 +123,7 @@ std::string PeekPropertyName(const Element& element)
     ai_assert(element.KeyToken().StringContents() == "P");
     const TokenList& tok = element.Tokens();
     if(tok.size() < 4) {
-        return std::string();
+        return "";
     }
 
     return ParseTokenAsString(*tok[0]);
@@ -174,8 +140,10 @@ PropertyTable::PropertyTable()
 }
 
 // ------------------------------------------------------------------------------------------------
-PropertyTable::PropertyTable(const Element &element, std::shared_ptr<const PropertyTable> templateProps) :
-        templateProps(std::move(templateProps)), element(&element) {
+PropertyTable::PropertyTable(const Element& element, std::shared_ptr<const PropertyTable> templateProps)
+: templateProps(templateProps)
+, element(&element)
+{
     const Scope& scope = GetRequiredScope(element);
     for(const ElementMap::value_type& v : scope.Elements()) {
         if(v.first != "P") {
@@ -198,6 +166,7 @@ PropertyTable::PropertyTable(const Element &element, std::shared_ptr<const Prope
         lazyProps[name] = v.second;
     }
 }
+
 
 // ------------------------------------------------------------------------------------------------
 PropertyTable::~PropertyTable()
@@ -228,7 +197,7 @@ const Property* PropertyTable::Get(const std::string& name) const
                 return templateProps->Get(name);
             }
 
-            return nullptr;
+            return NULL;
         }
     }
 
@@ -240,25 +209,21 @@ DirectPropertyMap PropertyTable::GetUnparsedProperties() const
     DirectPropertyMap result;
 
     // Loop through all the lazy properties (which is all the properties)
-    for(const LazyPropertyMap::value_type& currentElement : lazyProps) {
+    for(const LazyPropertyMap::value_type& element : lazyProps) {
 
         // Skip parsed properties
-        if (props.end() != props.find(currentElement.first)) {
-            continue;
-        }
+        if (props.end() != props.find(element.first)) continue;
 
         // Read the element's value.
         // Wrap the naked pointer (since the call site is required to acquire ownership)
         // std::unique_ptr from C++11 would be preferred both as a wrapper and a return value.
-        std::shared_ptr<Property> prop = std::shared_ptr<Property>(ReadTypedProperty(*currentElement.second));
+        std::shared_ptr<Property> prop = std::shared_ptr<Property>(ReadTypedProperty(*element.second));
 
         // Element could not be read. Skip it.
-        if (!prop) {
-            continue;
-        }
+        if (!prop) continue;
 
         // Add to result
-        result[currentElement.first] = prop;
+        result[element.first] = prop;
     }
 
     return result;

@@ -2,7 +2,7 @@
 Open Asset Import Library (assimp)
 ----------------------------------------------------------------------
 
-Copyright (c) 2006-2022, assimp team
+Copyright (c) 2006-2019, assimp team
 
 
 All rights reserved.
@@ -52,8 +52,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace Assimp {
 namespace FBX {
 
-/**
- *  DOM base class for all kinds of FBX geometry
+/** 
+ *  DOM base class for all kinds of FBX geometry 
  */
 class Geometry : public Object
 {
@@ -61,10 +61,10 @@ public:
     Geometry( uint64_t id, const Element& element, const std::string& name, const Document& doc );
     virtual ~Geometry();
 
-    /** Get the Skin attached to this geometry or nullptr */
+    /** Get the Skin attached to this geometry or NULL */
     const Skin* DeformerSkin() const;
 
-    /** Get the BlendShape attached to this geometry or nullptr */
+    /** Get the BlendShape attached to this geometry or NULL */
     const std::vector<const BlendShape*>& GetBlendShapes() const;
 
 private:
@@ -76,7 +76,7 @@ private:
 typedef std::vector<int> MatIndexArray;
 
 
-/**
+/** 
  *  DOM class for FBX geometry of type "Mesh"
  */
 class MeshGeometry : public Geometry
@@ -84,7 +84,7 @@ class MeshGeometry : public Geometry
 public:
     /** The class constructor */
     MeshGeometry( uint64_t id, const Element& element, const std::string& name, const Document& doc );
-
+    
     /** The class destructor */
     virtual ~MeshGeometry();
 
@@ -123,7 +123,7 @@ public:
     /** Get per-face-vertex material assignments */
     const MatIndexArray& GetMaterialIndices() const;
 
-    /** Convert from a fbx file vertex index (for example from a #Cluster weight) or nullptr
+    /** Convert from a fbx file vertex index (for example from a #Cluster weight) or NULL
     * if the vertex index is not valid. */
     const unsigned int* ToOutputVertexIndex( unsigned int in_index, unsigned int& count ) const;
 

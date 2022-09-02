@@ -2,7 +2,8 @@
 Open Asset Import Library (assimp)
 ----------------------------------------------------------------------
 
-Copyright (c) 2006-2022, assimp team
+Copyright (c) 2006-2019, assimp team
+
 
 All rights reserved.
 
@@ -56,9 +57,9 @@ namespace Q3BSP
 }
 
 // -------------------------------------------------------------------
-///	@brief  This class implements th Q3DSP file parsing.
 // -------------------------------------------------------------------
-class Q3BSPFileParser {
+class Q3BSPFileParser
+{
 public:
     Q3BSPFileParser( const std::string &rMapName, ZipArchiveIOSystem *pZipArchive );
     ~Q3BSPFileParser();

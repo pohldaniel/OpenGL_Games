@@ -2,7 +2,7 @@
 Open Asset Import Library (assimp)
 ----------------------------------------------------------------------
 
-Copyright (c) 2006-2022, assimp team
+Copyright (c) 2006-2019, assimp team
 
 
 All rights reserved.
@@ -61,16 +61,16 @@ namespace Util {
 // signal DOM construction error, this is always unrecoverable. Throws DeadlyImportError.
 void DOMError(const std::string& message, const Token& token)
 {
-    throw DeadlyImportError("FBX-DOM", Util::GetTokenText(&token), message);
+    throw DeadlyImportError(Util::AddTokenText("FBX-DOM",message,&token));
 }
 
 // ------------------------------------------------------------------------------------------------
-void DOMError(const std::string& message, const Element* element /*= nullptr*/)
+void DOMError(const std::string& message, const Element* element /*= NULL*/)
 {
     if(element) {
         DOMError(message,element->KeyToken());
     }
-    throw DeadlyImportError("FBX-DOM ", message);
+    throw DeadlyImportError("FBX-DOM " + message);
 }
 
 
@@ -79,19 +79,19 @@ void DOMError(const std::string& message, const Element* element /*= nullptr*/)
 void DOMWarning(const std::string& message, const Token& token)
 {
     if(DefaultLogger::get()) {
-        ASSIMP_LOG_WARN("FBX-DOM", Util::GetTokenText(&token), message);
+        ASSIMP_LOG_WARN(Util::AddTokenText("FBX-DOM",message,&token));
     }
 }
 
 // ------------------------------------------------------------------------------------------------
-void DOMWarning(const std::string& message, const Element* element /*= nullptr*/)
+void DOMWarning(const std::string& message, const Element* element /*= NULL*/)
 {
     if(element) {
         DOMWarning(message,element->KeyToken());
         return;
     }
     if(DefaultLogger::get()) {
-        ASSIMP_LOG_WARN("FBX-DOM: ", message);
+        ASSIMP_LOG_WARN("FBX-DOM: " + message);
     }
 }
 
@@ -106,7 +106,7 @@ std::shared_ptr<const PropertyTable> GetPropertyTable(const Document& doc,
 {
     const Element* const Properties70 = sc["Properties70"];
     std::shared_ptr<const PropertyTable> templateProps = std::shared_ptr<const PropertyTable>(
-            static_cast<const PropertyTable *>(nullptr));
+        static_cast<const PropertyTable*>(NULL));
 
     if(templateName.length()) {
         PropertyTemplateMap::const_iterator it = doc.Templates().find(templateName);

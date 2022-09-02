@@ -3,7 +3,7 @@
 Open Asset Import Library (assimp)
 ---------------------------------------------------------------------------
 
-Copyright (c) 2006-2022, assimp team
+Copyright (c) 2006-2019, assimp team
 
 All rights reserved.
 
@@ -60,7 +60,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // internal headers
 #include "SMDLoader.h"
 
-#ifndef _MSC_VER
+#ifndef _WIN32
 #define strtok_s strtok_r
 #endif
 
@@ -81,15 +81,15 @@ static const aiImporterDesc desc = {
 
 // ------------------------------------------------------------------------------------------------
 // Constructor to be privately used by Importer
-SMDImporter::SMDImporter() :
-        configFrameID(), 
-        mBuffer(), 
-        pScene( nullptr ), 
-        iFileSize( 0 ), 
-        iSmallestFrame( INT_MAX ),
-        dLengthOfAnim( 0.0 ),
-        bHasUVs(false ), 
-        iLineNumber((unsigned int)-1)  {
+SMDImporter::SMDImporter()
+: configFrameID()
+, mBuffer()
+, pScene( nullptr )
+, iFileSize( 0 )
+, iSmallestFrame( INT_MAX )
+, dLengthOfAnim( 0.0 )
+, bHasUVs(false )
+, iLineNumber(-1)  {
     // empty
 }
 
@@ -101,8 +101,9 @@ SMDImporter::~SMDImporter() {
 
 // ------------------------------------------------------------------------------------------------
 // Returns whether the class can handle the format of the given file.
-bool SMDImporter::CanRead( const std::string& filename, IOSystem* /*pIOHandler*/, bool) const {
-    return SimpleExtensionCheck(filename, "smd", "vta");
+bool SMDImporter::CanRead( const std::string& pFile, IOSystem* /*pIOHandler*/, bool) const {
+    // fixme: auto format detection
+    return SimpleExtensionCheck(pFile,"smd","vta");
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -128,8 +129,8 @@ void SMDImporter::SetupProperties(const Importer* pImp) {
 
 // ------------------------------------------------------------------------------------------------
 // Imports the given file into the given scene structure.
-void SMDImporter::InternReadFile( const std::string& pFile, aiScene* scene, IOSystem* pIOHandler) {
-    this->pScene = scene;
+void SMDImporter::InternReadFile( const std::string& pFile, aiScene* pScene, IOSystem* pIOHandler) {
+    this->pScene = pScene;
     ReadSmd(pFile, pIOHandler);
 
     // If there are no triangles it seems to be an animation SMD,
@@ -189,19 +190,19 @@ void SMDImporter::InternReadFile( const std::string& pFile, aiScene* scene, IOSy
 // ------------------------------------------------------------------------------------------------
 // Write an error message with line number to the log file
 void SMDImporter::LogErrorNoThrow(const char* msg) {
-    const size_t _BufferSize = 1024;
-    char szTemp[_BufferSize];
-    ai_snprintf(szTemp,_BufferSize,"Line %u: %s",iLineNumber,msg);
+    const size_t BufferSize = 1024;
+    char szTemp[BufferSize];
+    ai_snprintf(szTemp,BufferSize,"Line %u: %s",iLineNumber,msg);
     DefaultLogger::get()->error(szTemp);
 }
 
 // ------------------------------------------------------------------------------------------------
 // Write a warning with line number to the log file
 void SMDImporter::LogWarning(const char* msg) {
-    const size_t _BufferSize = 1024;
-    char szTemp[_BufferSize];
+    const size_t BufferSize = 1024;
+    char szTemp[BufferSize];
     ai_assert(strlen(msg) < 1000);
-    ai_snprintf(szTemp,_BufferSize,"Line %u: %s",iLineNumber,msg);
+    ai_snprintf(szTemp,BufferSize,"Line %u: %s",iLineNumber,msg);
     ASSIMP_LOG_WARN(szTemp);
 }
 
@@ -437,7 +438,7 @@ void SMDImporter::AddBoneChildren(aiNode* pcNode, uint32_t iParent) {
             pc->mTransformation = bone.sAnim.asKeys[0].matrix;
         }
 
-        if (bone.iParent == static_cast<uint32_t>(-1)) {
+        if (bone.iParent == static_cast<uint32_t>(-1)) { 
             bone.mOffsetMatrix = pc->mTransformation;
         } else {
             bone.mOffsetMatrix = asBones[bone.iParent].mOffsetMatrix * pc->mTransformation;
@@ -576,7 +577,7 @@ void SMDImporter::GetAnimationFileList(const std::string &pFile, IOSystem* pIOHa
     char *context1, *context2;
 
     tok1 = strtok_s(&buf[0], "\r\n", &context1);
-    while (tok1 != nullptr) {
+    while (tok1 != NULL) {
         tok2 = strtok_s(tok1, " \t", &context2);
         if (tok2) {
             char *p = tok2;
@@ -615,7 +616,7 @@ void SMDImporter::CreateOutputMaterials() {
         if (aszTextures[iMat].length())
         {
             ::strncpy(szName.data, aszTextures[iMat].c_str(),MAXLEN-1);
-            szName.length = static_cast<ai_uint32>( aszTextures[iMat].length() );
+            szName.length = aszTextures[iMat].length();
             pcMat->AddProperty(&szName,AI_MATKEY_TEXTURE_DIFFUSE(0));
         }
     }
@@ -694,7 +695,7 @@ void SMDImporter::ReadSmd(const std::string &pFile, IOSystem* pIOHandler) {
 
     // Check whether we can read from the file
     if (file.get() == nullptr) {
-        throw DeadlyImportError("Failed to open SMD/VTA file ", pFile, ".");
+        throw DeadlyImportError("Failed to open SMD/VTA file " + pFile + ".");
     }
 
     iFileSize = (unsigned int)file->FileSize();
@@ -867,7 +868,7 @@ void SMDImporter::ParseNodeInfo(const char* szCurrent, const char** szCurrentOut
 
     bool bQuota = true;
     if ('\"' != *szCurrent) {
-        LogWarning("Bone name is expected to be enclosed in "
+        LogWarning("Bone name is expcted to be enclosed in "
             "double quotation marks. ");
         bQuota = false;
     } else {

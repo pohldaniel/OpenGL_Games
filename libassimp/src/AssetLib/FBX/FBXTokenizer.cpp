@@ -2,7 +2,7 @@
 Open Asset Import Library (assimp)
 ----------------------------------------------------------------------
 
-Copyright (c) 2006-2022, assimp team
+Copyright (c) 2006-2019, assimp team
 
 
 All rights reserved.
@@ -54,7 +54,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "FBXTokenizer.h"
 #include "FBXUtil.h"
 #include <assimp/Exceptional.h>
-#include <assimp/DefaultLogger.hpp>
 
 namespace Assimp {
 namespace FBX {
@@ -90,7 +89,7 @@ namespace {
 AI_WONT_RETURN void TokenizeError(const std::string& message, unsigned int line, unsigned int column) AI_WONT_RETURN_SUFFIX;
 AI_WONT_RETURN void TokenizeError(const std::string& message, unsigned int line, unsigned int column)
 {
-    throw DeadlyImportError("FBX-Tokenize", Util::GetLineAndColumnText(line,column), message);
+    throw DeadlyImportError(Util::AddLineAndColumn("FBX-Tokenize",message,line,column));
 }
 
 
@@ -127,7 +126,7 @@ void ProcessDataToken( TokenList& output_tokens, const char*& start, const char*
         TokenizeError("unexpected character, expected data token", line, column);
     }
 
-    start = end = nullptr;
+    start = end = NULL;
 }
 
 }
@@ -135,8 +134,7 @@ void ProcessDataToken( TokenList& output_tokens, const char*& start, const char*
 // ------------------------------------------------------------------------------------------------
 void Tokenize(TokenList& output_tokens, const char* input)
 {
-	ai_assert(input);
-	ASSIMP_LOG_DEBUG("Tokenizing ASCII FBX file");
+    ai_assert(input);
 
     // line and column numbers numbers are one-based
     unsigned int line = 1;
@@ -146,7 +144,7 @@ void Tokenize(TokenList& output_tokens, const char* input)
     bool in_double_quotes = false;
     bool pending_data_token = false;
 
-    const char *token_begin = nullptr, *token_end = nullptr;
+    const char* token_begin = NULL, *token_end = NULL;
     for (const char* cur = input;*cur;column += (*cur == '\t' ? ASSIMP_FBX_TAB_WIDTH : 1), ++cur) {
         const char c = *cur;
 

@@ -2,7 +2,7 @@
 Open Asset Import Library (assimp)
 ----------------------------------------------------------------------
 
-Copyright (c) 2006-2022, assimp team
+Copyright (c) 2006-2019, assimp team
 
 All rights reserved.
 
@@ -62,81 +62,90 @@ namespace Assimp {
 // so they are specified with an 'A' suffix.
 
 void FBX::Node::AddP70int(
-    const std::string& cur_name, int32_t value
+    const std::string& name, int32_t value
 ) {
     FBX::Node n("P");
-    n.AddProperties(cur_name, "int", "Integer", "", value);
+    n.AddProperties(name, "int", "Integer", "", value);
     AddChild(n);
 }
 
 void FBX::Node::AddP70bool(
-    const std::string& cur_name, bool value
+    const std::string& name, bool value
 ) {
     FBX::Node n("P");
-    n.AddProperties(cur_name, "bool", "", "", int32_t(value));
+    n.AddProperties(name, "bool", "", "", int32_t(value));
     AddChild(n);
 }
 
 void FBX::Node::AddP70double(
-        const std::string &cur_name, double value) {
+    const std::string& name, double value
+) {
     FBX::Node n("P");
-    n.AddProperties(cur_name, "double", "Number", "", value);
+    n.AddProperties(name, "double", "Number", "", value);
     AddChild(n);
 }
 
 void FBX::Node::AddP70numberA(
-        const std::string &cur_name, double value) {
+    const std::string& name, double value
+) {
     FBX::Node n("P");
-    n.AddProperties(cur_name, "Number", "", "A", value);
+    n.AddProperties(name, "Number", "", "A", value);
     AddChild(n);
 }
 
 void FBX::Node::AddP70color(
-        const std::string &cur_name, double r, double g, double b) {
+    const std::string& name, double r, double g, double b
+) {
     FBX::Node n("P");
-    n.AddProperties(cur_name, "ColorRGB", "Color", "", r, g, b);
+    n.AddProperties(name, "ColorRGB", "Color", "", r, g, b);
     AddChild(n);
 }
 
 void FBX::Node::AddP70colorA(
-        const std::string &cur_name, double r, double g, double b) {
+    const std::string& name, double r, double g, double b
+) {
     FBX::Node n("P");
-    n.AddProperties(cur_name, "Color", "", "A", r, g, b);
+    n.AddProperties(name, "Color", "", "A", r, g, b);
     AddChild(n);
 }
 
 void FBX::Node::AddP70vector(
-        const std::string &cur_name, double x, double y, double z) {
+    const std::string& name, double x, double y, double z
+) {
     FBX::Node n("P");
-    n.AddProperties(cur_name, "Vector3D", "Vector", "", x, y, z);
+    n.AddProperties(name, "Vector3D", "Vector", "", x, y, z);
     AddChild(n);
 }
 
 void FBX::Node::AddP70vectorA(
-        const std::string &cur_name, double x, double y, double z) {
+    const std::string& name, double x, double y, double z
+) {
     FBX::Node n("P");
-    n.AddProperties(cur_name, "Vector", "", "A", x, y, z);
+    n.AddProperties(name, "Vector", "", "A", x, y, z);
     AddChild(n);
 }
 
 void FBX::Node::AddP70string(
-        const std::string &cur_name, const std::string &value) {
+    const std::string& name, const std::string& value
+) {
     FBX::Node n("P");
-    n.AddProperties(cur_name, "KString", "", "", value);
+    n.AddProperties(name, "KString", "", "", value);
     AddChild(n);
 }
 
 void FBX::Node::AddP70enum(
-        const std::string &cur_name, int32_t value) {
+    const std::string& name, int32_t value
+) {
     FBX::Node n("P");
-    n.AddProperties(cur_name, "enum", "", "", value);
+    n.AddProperties(name, "enum", "", "", value);
     AddChild(n);
 }
 
 void FBX::Node::AddP70time(
-        const std::string &cur_name, int64_t value) {
+    const std::string& name, int64_t value
+) {
     FBX::Node n("P");
-    n.AddProperties(cur_name, "KTime", "Time", "", value);
+    n.AddProperties(name, "KTime", "Time", "", value);
     AddChild(n);
 }
 
@@ -144,8 +153,9 @@ void FBX::Node::AddP70time(
 // public member functions for writing nodes to stream
 
 void FBX::Node::Dump(
-        const std::shared_ptr<Assimp::IOStream> &outfile,
-        bool binary, int indent) {
+    std::shared_ptr<Assimp::IOStream> outfile,
+    bool binary, int indent
+) {
     if (binary) {
         Assimp::StreamWriterLE outstream(outfile);
         DumpBinary(outstream);
@@ -315,9 +325,9 @@ void FBX::Node::BeginBinary(Assimp::StreamWriterLE &s)
     this->start_pos = s.Tell();
 
     // placeholders for end pos and property section info
-    s.PutU8(0); // end pos
-    s.PutU8(0); // number of properties
-    s.PutU8(0); // total property section length
+    s.PutU4(0); // end pos
+    s.PutU4(0); // number of properties
+    s.PutU4(0); // total property section length
 
     // node name
     s.PutU1(uint8_t(name.size())); // length of node name
@@ -342,9 +352,9 @@ void FBX::Node::EndPropertiesBinary(
     size_t pos = s.Tell();
     ai_assert(pos > property_start);
     size_t property_section_size = pos - property_start;
-    s.Seek(start_pos + 8); // 8 bytes of uint64_t of end_pos
-    s.PutU8(num_properties);
-    s.PutU8(property_section_size);
+    s.Seek(start_pos + 4);
+    s.PutU4(uint32_t(num_properties));
+    s.PutU4(uint32_t(property_section_size));
     s.Seek(pos);
 }
 
@@ -365,7 +375,7 @@ void FBX::Node::EndBinary(
     // now go back and write initial pos
     this->end_pos = s.Tell();
     s.Seek(start_pos);
-    s.PutU8(end_pos);
+    s.PutU4(uint32_t(end_pos));
     s.Seek(end_pos);
 }
 
@@ -425,7 +435,7 @@ void FBX::Node::WritePropertyNodeAscii(
     char buffer[32];
     FBX::Node node(name);
     node.Begin(s, false, indent);
-    std::string vsize = ai_to_string(v.size());
+    std::string vsize = to_string(v.size());
     // *<size> {
     s.PutChar('*'); s.PutString(vsize); s.PutString(" {\n");
     // indent + 1
@@ -461,7 +471,7 @@ void FBX::Node::WritePropertyNodeAscii(
     char buffer[32];
     FBX::Node node(name);
     node.Begin(s, false, indent);
-    std::string vsize = ai_to_string(v.size());
+    std::string vsize = to_string(v.size());
     // *<size> {
     s.PutChar('*'); s.PutString(vsize); s.PutString(" {\n");
     // indent + 1

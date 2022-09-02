@@ -3,7 +3,7 @@
 Open Asset Import Library (assimp)
 ---------------------------------------------------------------------------
 
-Copyright (c) 2006-2022, assimp team
+Copyright (c) 2006-2019, assimp team
 
 
 
@@ -88,12 +88,26 @@ MS3DImporter::MS3DImporter()
 // Destructor, private as well
 MS3DImporter::~MS3DImporter()
 {}
+
 // ------------------------------------------------------------------------------------------------
 // Returns whether the class can handle the format of the given file.
-bool MS3DImporter::CanRead( const std::string& pFile, IOSystem* pIOHandler, bool /*checkSig*/) const
+bool MS3DImporter::CanRead( const std::string& pFile, IOSystem* pIOHandler, bool checkSig) const
 {
-    static const char* tokens[] = { "MS3D000000" };
-    return SearchFileHeaderForToken(pIOHandler,pFile,tokens,AI_COUNT_OF(tokens));
+    // first call - simple extension check
+    const std::string extension = GetExtension(pFile);
+    if (extension == "ms3d") {
+        return true;
+    }
+
+    // second call - check for magic identifiers
+    else if (!extension.length() || checkSig)   {
+        if (!pIOHandler) {
+            return true;
+        }
+        const char* tokens[] = {"MS3D000000"};
+        return SearchFileHeaderForToken(pIOHandler,pFile,tokens,1);
+    }
+    return false;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -201,12 +215,7 @@ void MS3DImporter :: CollectChildJoints(const std::vector<TempJoint>& joints, ai
 void MS3DImporter::InternReadFile( const std::string& pFile,
     aiScene* pScene, IOSystem* pIOHandler)
 {
-
-    auto file = pIOHandler->Open(pFile, "rb");
-    if (!file)
-        throw DeadlyImportError("MS3D: Could not open ", pFile);
-
-    StreamReaderLE stream(file);
+    StreamReaderLE stream(pIOHandler->Open(pFile,"rb"));
 
     // CanRead() should have done this already
     char head[10];
@@ -220,7 +229,7 @@ void MS3DImporter::InternReadFile( const std::string& pFile,
     stream.CopyAndAdvance(head,10);
     stream >> version;
     if (strncmp(head,"MS3D000000",10)) {
-        throw DeadlyImportError("Not a MS3D file, magic string MS3D000000 not found: ", pFile);
+        throw DeadlyImportError("Not a MS3D file, magic string MS3D000000 not found: "+pFile);
     }
 
     if (version != 4) {
@@ -252,19 +261,19 @@ void MS3DImporter::InternReadFile( const std::string& pFile,
         TempTriangle& t = triangles[i];
 
         stream.IncPtr(2);
-        for (unsigned int j = 0; j < 3; ++j) {
-            t.indices[j] = stream.GetI2();
+        for (unsigned int i = 0; i < 3; ++i) {
+            t.indices[i] = stream.GetI2();
         }
 
-        for (unsigned int j = 0; j < 3; ++j) {
-            ReadVector(stream,t.normals[j]);
+        for (unsigned int i = 0; i < 3; ++i) {
+            ReadVector(stream,t.normals[i]);
         }
 
-        for (unsigned int j = 0; j < 3; ++j) {
-            stream >> (float&)(t.uv[j].x); // see note in ReadColor()
+        for (unsigned int i = 0; i < 3; ++i) {
+            stream >> (float&)(t.uv[i].x); // see note in ReadColor()
         }
-        for (unsigned int j = 0; j < 3; ++j) {
-            stream >> (float&)(t.uv[j].y);
+        for (unsigned int i = 0; i < 3; ++i) {
+            stream >> (float&)(t.uv[i].y);
         }
 
         t.sg    = stream.GetI1();
@@ -287,8 +296,8 @@ void MS3DImporter::InternReadFile( const std::string& pFile,
         stream >> num;
 
         t.triangles.resize(num);
-        for (unsigned int j = 0; j < num; ++j) {
-            t.triangles[j] = stream.GetI2();
+        for (unsigned int i = 0; i < num; ++i) {
+            t.triangles[i] = stream.GetI2();
         }
         t.mat = stream.GetI1();
         if (t.mat == UINT_MAX) {
@@ -300,8 +309,8 @@ void MS3DImporter::InternReadFile( const std::string& pFile,
     stream >> mat;
 
     std::vector<TempMaterial> materials(mat);
-    for (unsigned int j = 0;j < mat; ++j) {
-        TempMaterial& t = materials[j];
+    for (unsigned int i = 0;i < mat; ++i) {
+        TempMaterial& t = materials[i];
 
         stream.CopyAndAdvance(t.name,32);
         t.name[32] = '\0';
@@ -329,8 +338,8 @@ void MS3DImporter::InternReadFile( const std::string& pFile,
     stream >> joint;
 
     std::vector<TempJoint> joints(joint);
-    for(unsigned int ii = 0; ii < joint; ++ii) {
-        TempJoint& j = joints[ii];
+    for(unsigned int i = 0; i < joint; ++i) {
+        TempJoint& j = joints[i];
 
         stream.IncPtr(1);
         stream.CopyAndAdvance(j.name,32);
@@ -373,7 +382,7 @@ void MS3DImporter::InternReadFile( const std::string& pFile,
                 }
 
                 const std::string& s = std::string(reinterpret_cast<char*>(stream.GetPtr()),len);
-                ASSIMP_LOG_DEBUG("MS3D: Model comment: ", s);
+                ASSIMP_LOG_DEBUG_F("MS3D: Model comment: ", s);
             }
 
             if(stream.GetRemainingSize() > 4 && inrange((stream >> subversion,subversion),1u,3u)) {
@@ -485,21 +494,21 @@ void MS3DImporter::InternReadFile( const std::string& pFile,
         typedef std::map<unsigned int,unsigned int> BoneSet;
         BoneSet mybones;
 
-        for (unsigned int j = 0,n = 0; j < m->mNumFaces; ++j) {
-            aiFace& f = m->mFaces[j];
-            if (g.triangles[j]>triangles.size()) {
+        for (unsigned int i = 0,n = 0; i < m->mNumFaces; ++i) {
+            aiFace& f = m->mFaces[i];
+            if (g.triangles[i]>triangles.size()) {
                 throw DeadlyImportError("MS3D: Encountered invalid triangle index, file is malformed");
             }
 
-            TempTriangle& t = triangles[g.triangles[j]];
+            TempTriangle& t = triangles[g.triangles[i]];
             f.mIndices = new unsigned int[f.mNumIndices=3];
 
-            for (unsigned int k = 0; k < 3; ++k,++n) {
-                if (t.indices[k]>vertices.size()) {
+            for (unsigned int i = 0; i < 3; ++i,++n) {
+                if (t.indices[i]>vertices.size()) {
                     throw DeadlyImportError("MS3D: Encountered invalid vertex index, file is malformed");
                 }
 
-                const TempVertex& v = vertices[t.indices[k]];
+                const TempVertex& v = vertices[t.indices[i]];
                 for(unsigned int a = 0; a < 4; ++a) {
                     if (v.bone_id[a] != UINT_MAX) {
                         if (v.bone_id[a] >= joints.size()) {
@@ -515,9 +524,9 @@ void MS3DImporter::InternReadFile( const std::string& pFile,
                 // collect vertex components
                 m->mVertices[n] = v.pos;
 
-                m->mNormals[n] = t.normals[k];
-                m->mTextureCoords[0][n] = aiVector3D(t.uv[k].x,1.f-t.uv[k].y,0.0);
-                f.mIndices[k] = n;
+                m->mNormals[n] = t.normals[i];
+                m->mTextureCoords[0][n] = aiVector3D(t.uv[i].x,1.f-t.uv[i].y,0.0);
+                f.mIndices[i] = n;
             }
         }
 
@@ -536,11 +545,11 @@ void MS3DImporter::InternReadFile( const std::string& pFile,
             }
 
             // .. and collect bone weights
-            for (unsigned int j = 0,n = 0; j < m->mNumFaces; ++j) {
-                TempTriangle& t = triangles[g.triangles[j]];
+            for (unsigned int i = 0,n = 0; i < m->mNumFaces; ++i) {
+                TempTriangle& t = triangles[g.triangles[i]];
 
-                for (unsigned int k = 0; k < 3; ++k,++n) {
-                    const TempVertex& v = vertices[t.indices[k]];
+                for (unsigned int i = 0; i < 3; ++i,++n) {
+                    const TempVertex& v = vertices[t.indices[i]];
                     for(unsigned int a = 0; a < 4; ++a) {
                         const unsigned int bone = v.bone_id[a];
                         if(bone==UINT_MAX){
@@ -648,7 +657,7 @@ void MS3DImporter::InternReadFile( const std::string& pFile,
         }
         // fixup to pass the validation if not a single animation channel is non-trivial
         if (!anim->mNumChannels) {
-            anim->mChannels = nullptr;
+            anim->mChannels = NULL;
         }
     }
 }

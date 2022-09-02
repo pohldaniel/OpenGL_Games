@@ -2,7 +2,8 @@
 Open Asset Import Library (assimp)
 ----------------------------------------------------------------------
 
-Copyright (c) 2006-2022, assimp team
+Copyright (c) 2006-2019, assimp team
+
 
 All rights reserved.
 
@@ -42,7 +43,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /** @file  XFileImporter.h
  *  @brief Definition of the XFile importer class.
  */
-#pragma once
 #ifndef AI_XFILEIMPORTER_H_INC
 #define AI_XFILEIMPORTER_H_INC
 
@@ -69,27 +69,28 @@ namespace XFile {
 class XFileImporter : public BaseImporter {
 public:
     XFileImporter();
-    ~XFileImporter() override;
+    ~XFileImporter();
 
     // -------------------------------------------------------------------
     /** Returns whether the class can handle the format of the given file.
      * See BaseImporter::CanRead() for details. */
     bool CanRead( const std::string& pFile, IOSystem* pIOHandler,
-        bool CheckSig) const override;
+        bool CheckSig) const;
 
 protected:
+
     // -------------------------------------------------------------------
     /** Return importer meta information.
      * See #BaseImporter::GetInfo for the details
      */
-    const aiImporterDesc* GetInfo () const override;
+    const aiImporterDesc* GetInfo () const;
 
     // -------------------------------------------------------------------
     /** Imports the given file into the given scene structure.
      * See BaseImporter::InternReadFile() for details
      */
     void InternReadFile( const std::string& pFile, aiScene* pScene,
-        IOSystem* pIOHandler) override;
+        IOSystem* pIOHandler);
 
     // -------------------------------------------------------------------
     /** Constructs the return data structure out of the imported data.
@@ -139,7 +140,7 @@ protected:
     void ConvertMaterials( aiScene* pScene, std::vector<XFile::Material>& pMaterials);
 
 protected:
-    /// Buffer to hold the loaded file
+    /** Buffer to hold the loaded file */
     std::vector<char> mBuffer;
 };
 

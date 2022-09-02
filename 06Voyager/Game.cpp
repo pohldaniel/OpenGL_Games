@@ -218,7 +218,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_water(
 	position[2] = HEIGHTMAP_WIDTH * 0.5f + 70.0f;
 	position[1] = m_terrain.getHeightMap().heightAt(HEIGHTMAP_WIDTH * 0.5f + 50.0f, HEIGHTMAP_WIDTH * 0.5f + 70.0f + 100.0f) + 50.0f;
 
-	/*Globals::animationManager.loadAnimationDae("cowboy_run", "res/models/mushroom/mushroom.dae", "Armature", "cowboy_run");
+	/*Globals::animationManager.loadAnimation("cowboy_run", "res/models/mushroom/mushroom.dae", "Armature", "cowboy_run");
 	assimpAnimated.loadModel("res/models/mushroom/mushroom.dae", "res/models/mushroom/mushroom.png");
 	assimpAnimated.rotate(Vector3f(0.0f, 1.0f, 0.0f), 180.0f);
 	assimpAnimated.translate(position[0], position[1], position[2]);
@@ -240,7 +240,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_water(
 	assimpAnimated.getAnimator()->addAnimation(Globals::animationManager.getAssetPointer("right_wing"));
 	assimpAnimated.getAnimator()->startAnimation("right_wing");
 
-	/*Globals::animationManager.loadAnimationDae("cowboy_run", "res/models/cowboy/cowboy.dae", "Armature", "cowboy_run");
+	/*Globals::animationManager.loadAnimation("cowboy_run", "res/models/cowboy/cowboy.dae", "Armature", "cowboy_run");
 	assimpAnimated.loadModel("res/models/cowboy/cowboy.dae", "res/models/cowboy/cowboy.png");
 	assimpAnimated.rotate(Vector3f(0.0f, 1.0f, 0.0f), 180.0f);
 	assimpAnimated.translate(position[0], position[1], position[2]);
@@ -249,7 +249,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_water(
 	assimpAnimated.getAnimator()->startAnimation("cowboy_run");*/
 	
 
-	/*Globals::animationManager.loadAnimationDae("vampire_dance", "res/models/vampire/dancing_vampire.dae", "", "vampire_dance");
+	/*Globals::animationManager.loadAnimation("vampire_dance", "res/models/vampire/dancing_vampire.dae", "", "vampire_dance");
 	assimpAnimated.loadModel("res/models/vampire/dancing_vampire.dae", "res/models/vampire/textures/Vampire_diffuse.png");
 	assimpAnimated.rotate(Vector3f(0.0f, 1.0f, 0.0f), 180.0f);
 	assimpAnimated.translate(position[0], position[1], position[2]);
@@ -475,7 +475,7 @@ void Game::update() {
 	assimpAnimated.addTwoAnimationsDisjoint(m_dt, "left_wing", "right_wing", 1.0f);
 	//woman.update(m_dt);
 	//woman.addTwoAnimationsDisjoint(m_dt, "woman_walk", "lean_left", 1.0f);
-	woman.blendTwoAnimations(m_dt, "woman_walk", "woman_run", bt, 1.0f);
+	woman.blendTwoAnimations(m_dt, "woman_run", "woman_walk", bt, 1.0f);
 
 	m_blendTime += m_dt;
 	if (m_blendTime >= 2.0f) {

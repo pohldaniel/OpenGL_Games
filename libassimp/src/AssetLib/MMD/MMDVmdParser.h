@@ -2,7 +2,7 @@
 Open Asset Import Library (assimp)
 ----------------------------------------------------------------------
 
-Copyright (c) 2006-2022, assimp team
+Copyright (c) 2006-2019, assimp team
 
 
 All rights reserved.
@@ -199,9 +199,9 @@ namespace vmd
 			stream->write((char*)&ik_count, sizeof(int));
 			for (int i = 0; i < ik_count; i++)
 			{
-				const VmdIkEnable& ik_enable_ref = this->ik_enable.at(i);
-                stream->write(ik_enable_ref.ik_name.c_str(), 20);
-                stream->write((char *)&ik_enable_ref.enable, sizeof(uint8_t));
+				const VmdIkEnable& ik_enable = this->ik_enable.at(i);
+				stream->write(ik_enable.ik_name.c_str(), 20);
+				stream->write((char*)&ik_enable.enable, sizeof(uint8_t));
 			}
 		}
 	};
@@ -358,7 +358,7 @@ namespace vmd
 				light_frames[i].Write(stream);
 			}
 
-			// self shadow data
+			// self shadow datas
 			const int self_shadow_num = 0;
 			stream->write(reinterpret_cast<const char*>(&self_shadow_num), sizeof(int));
 

@@ -2,7 +2,8 @@
 Open Asset Import Library (assimp)
 ----------------------------------------------------------------------
 
-Copyright (c) 2006-2022, assimp team
+Copyright (c) 2006-2019, assimp team
+
 
 All rights reserved.
 
@@ -42,15 +43,15 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /** @file  COBScene.h
 *  @brief Utilities for the COB importer.
 */
-#pragma once
 #ifndef INCLUDED_AI_COB_SCENE_H
 #define INCLUDED_AI_COB_SCENE_H
 
-#include <assimp/BaseImporter.h>
-#include <assimp/material.h>
-
+#include <memory>
 #include <deque>
 #include <map>
+
+#include <assimp/BaseImporter.h>
+#include <assimp/material.h>
 
 namespace Assimp {
 namespace COB {
@@ -74,10 +75,10 @@ struct Face
 
 // ------------------
 /** COB chunk header information */
-const unsigned int NO_SIZE = UINT_MAX;
-
 struct ChunkInfo
 {
+    enum {NO_SIZE=UINT_MAX};
+
     ChunkInfo ()
         :   id        (0)
         ,   parent_id (0)

@@ -2,7 +2,7 @@
 Open Asset Import Library (assimp)
 ----------------------------------------------------------------------
 
-Copyright (c) 2006-2022, assimp team
+Copyright (c) 2006-2019, assimp team
 
 
 All rights reserved.
@@ -43,7 +43,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /** @file AssxmlExporter.h
  * ASSXML Exporter Main Header
  */
-#pragma once
 #ifndef AI_ASSXMLEXPORTER_H_INC
 #define AI_ASSXMLEXPORTER_H_INC
 

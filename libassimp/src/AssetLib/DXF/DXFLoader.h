@@ -2,7 +2,8 @@
 Open Asset Import Library (assimp)
 ----------------------------------------------------------------------
 
-Copyright (c) 2006-2022, assimp team
+Copyright (c) 2006-2019, assimp team
+
 
 All rights reserved.
 
@@ -42,7 +43,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /** @file  DXFLoader.h
  *  @brief Declaration of the .dxf importer class.
  */
-#pragma once
 #ifndef AI_DXFLOADER_H_INCLUDED
 #define AI_DXFLOADER_H_INCLUDED
 
@@ -59,36 +59,39 @@ namespace DXF {
     struct Block;
     struct InsertBlock;
 
-    using BlockMap = std::map<std::string, const DXF::Block*>;
+    typedef std::map<std::string, const DXF::Block*> BlockMap;
 }
 
 // ---------------------------------------------------------------------------
-/**
+/** 
  *  @brief  DXF importer implementation.
  */
 class DXFImporter : public BaseImporter {
 public:
     DXFImporter();
-    ~DXFImporter() override;
+    ~DXFImporter();
 
     // -------------------------------------------------------------------
     /** Returns whether the class can handle the format of the given file.
     * See BaseImporter::CanRead() for details.  */
     bool CanRead( const std::string& pFile, IOSystem* pIOHandler,
-        bool checkSig) const override;
+        bool checkSig) const;
 
 protected:
     // -------------------------------------------------------------------
     /** Return importer meta information.
      * See #BaseImporter::GetInfo for the details*/
-    const aiImporterDesc* GetInfo () const override;
+    const aiImporterDesc* GetInfo () const;
 
     // -------------------------------------------------------------------
     /** Imports the given file into the given scene structure.
      * See BaseImporter::InternReadFile() for details */
-    void InternReadFile( const std::string& pFile, aiScene* pScene, IOSystem* pIOHandler) override;
+    void InternReadFile( const std::string& pFile,
+        aiScene* pScene,
+        IOSystem* pIOHandler);
 
 private:
+
     // -----------------------------------------------------
     void SkipSection(DXF::LineReader& reader);
 

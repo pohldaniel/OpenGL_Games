@@ -2,7 +2,8 @@
 Open Asset Import Library (assimp)
 ----------------------------------------------------------------------
 
-Copyright (c) 2006-2022, assimp team
+Copyright (c) 2006-2019, assimp team
+
 
 All rights reserved.
 
@@ -41,15 +42,15 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /** @file  HMPLoader.h
  *  @brief Declaration of the HMP importer class
  */
-#pragma once
+
 #ifndef AI_HMPLOADER_H_INCLUDED
 #define AI_HMPLOADER_H_INCLUDED
 
+// internal headers
 #include <assimp/BaseImporter.h>
 
-// internal headers
-#include "AssetLib/HMP/HMPFileData.h"
-#include "AssetLib/MDL/MDLLoader.h"
+#include "../MDL/MDLLoader.h"
+#include "HMPFileData.h"
 
 namespace Assimp {
 using namespace HMP;
@@ -57,58 +58,66 @@ using namespace HMP;
 // ---------------------------------------------------------------------------
 /** Used to load 3D GameStudio HMP files (terrains)
 */
-class HMPImporter : public MDLImporter {
+class HMPImporter : public MDLImporter
+{
 public:
     HMPImporter();
-    ~HMPImporter() override;
+    ~HMPImporter();
+
+
+public:
 
     // -------------------------------------------------------------------
     /** Returns whether the class can handle the format of the given file.
      * See BaseImporter::CanRead() for details.
      */
-    bool CanRead(const std::string &pFile, IOSystem *pIOHandler,
-            bool checkSig) const override;
+    bool CanRead( const std::string& pFile, IOSystem* pIOHandler,
+        bool checkSig) const;
 
 protected:
+
+
     // -------------------------------------------------------------------
     /** Return importer meta information.
      * See #BaseImporter::GetInfo for the details
      */
-    const aiImporterDesc *GetInfo() const override;
+    const aiImporterDesc* GetInfo () const;
 
     // -------------------------------------------------------------------
     /** Imports the given file into the given scene structure.
     * See BaseImporter::InternReadFile() for details
     */
-    void InternReadFile(const std::string &pFile, aiScene *pScene,
-            IOSystem *pIOHandler) override;
+    void InternReadFile( const std::string& pFile, aiScene* pScene,
+        IOSystem* pIOHandler);
+
+protected:
 
     // -------------------------------------------------------------------
     /** Import a HMP4 file
     */
-    void InternReadFile_HMP4();
+    void InternReadFile_HMP4( );
 
     // -------------------------------------------------------------------
     /** Import a HMP5 file
     */
-    void InternReadFile_HMP5();
+    void InternReadFile_HMP5( );
 
     // -------------------------------------------------------------------
     /** Import a HMP7 file
     */
-    void InternReadFile_HMP7();
+    void InternReadFile_HMP7( );
 
     // -------------------------------------------------------------------
     /** Validate a HMP 5,4,7 file header
     */
-    void ValidateHeader_HMP457();
+    void ValidateHeader_HMP457( );
 
     // -------------------------------------------------------------------
     /** Try to load one material from the file, if this fails create
      * a default material
     */
-    void CreateMaterial(const unsigned char *szCurrent,
-            const unsigned char **szCurrentOut);
+    void CreateMaterial(const unsigned char* szCurrent,
+        const unsigned char** szCurrentOut);
 
     // -------------------------------------------------------------------
     /** Build a list of output faces and vertices. The function
@@ -116,7 +125,7 @@ protected:
      * \param width Width of the height field
      * \param width Height of the height field
     */
-    void CreateOutputFaceList(unsigned int width, unsigned int height);
+    void CreateOutputFaceList(unsigned int width,unsigned int height);
 
     // -------------------------------------------------------------------
     /** Generate planar texture coordinates for a terrain
@@ -124,17 +133,21 @@ protected:
      * \param height Height of the terrain, in vertices
     */
     void GenerateTextureCoords(const unsigned int width,
-            const unsigned int height);
+        const unsigned int height);
 
     // -------------------------------------------------------------------
     /** Read the first skin from the file and skip all others ...
      *  \param iNumSkins Number of skins in the file
      *  \param szCursor Position of the first skin (offset 84)
     */
-    void ReadFirstSkin(unsigned int iNumSkins, const unsigned char *szCursor,
-            const unsigned char **szCursorOut);
+    void ReadFirstSkin(unsigned int iNumSkins, const unsigned char* szCursor,
+        const unsigned char** szCursorOut);
+
+private:
+
 };
 
 } // end of namespace Assimp
 
 #endif // AI_HMPIMPORTER_H_INC
+

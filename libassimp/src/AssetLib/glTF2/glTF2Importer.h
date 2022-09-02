@@ -2,7 +2,7 @@
 Open Asset Import Library (assimp)
 ----------------------------------------------------------------------
 
-Copyright (c) 2006-2022, assimp team
+Copyright (c) 2006-2019, assimp team
 
 
 All rights reserved.
@@ -43,10 +43,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define AI_GLTF2IMPORTER_H_INC
 
 #include <assimp/BaseImporter.h>
+#include <assimp/DefaultIOSystem.h>
 
 struct aiNode;
 
-namespace glTF2 {
+
+namespace glTF2
+{
     class Asset;
 }
 
@@ -56,36 +59,34 @@ namespace Assimp {
  * Load the glTF2 format.
  * https://github.com/KhronosGroup/glTF/tree/master/specification
  */
-class glTF2Importer : public BaseImporter {
+class glTF2Importer : public BaseImporter{
 public:
     glTF2Importer();
-    ~glTF2Importer() override;
-    bool CanRead(const std::string &pFile, IOSystem *pIOHandler, bool checkSig) const override;
+    virtual ~glTF2Importer();
+    virtual bool CanRead( const std::string& pFile, IOSystem* pIOHandler, bool checkSig ) const;
 
 protected:
-    const aiImporterDesc *GetInfo() const override;
-    void InternReadFile(const std::string &pFile, aiScene *pScene, IOSystem *pIOHandler) override;
-    virtual void SetupProperties(const Importer *pImp) override;
+    virtual const aiImporterDesc* GetInfo() const;
+    virtual void InternReadFile( const std::string& pFile, aiScene* pScene, IOSystem* pIOHandler );
 
 private:
-    void ImportEmbeddedTextures(glTF2::Asset &a);
-    void ImportMaterials(glTF2::Asset &a);
-    void ImportMeshes(glTF2::Asset &a);
-    void ImportCameras(glTF2::Asset &a);
-    void ImportLights(glTF2::Asset &a);
-    void ImportNodes(glTF2::Asset &a);
-    void ImportAnimations(glTF2::Asset &a);
-    void ImportCommonMetadata(glTF2::Asset &a);
 
-private:
     std::vector<unsigned int> meshOffsets;
-    std::vector<int> mEmbeddedTexIdxs;
-    aiScene *mScene;
 
-    /// An instance of rapidjson::IRemoteSchemaDocumentProvider
-    void *mSchemaDocumentProvider = nullptr;
+    std::vector<int> embeddedTexIdxs;
+
+    aiScene* mScene;
+
+    void ImportEmbeddedTextures(glTF2::Asset& a);
+    void ImportMaterials(glTF2::Asset& a);
+    void ImportMeshes(glTF2::Asset& a);
+    void ImportCameras(glTF2::Asset& a);
+    void ImportLights(glTF2::Asset& a);
+    void ImportNodes(glTF2::Asset& a);
+    void ImportAnimations(glTF2::Asset& a);
 };
 
-} // namespace Assimp
+} // Namespace assimp
 
 #endif // AI_GLTF2IMPORTER_H_INC
+

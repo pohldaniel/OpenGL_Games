@@ -2,7 +2,8 @@
 Open Asset Import Library (assimp)
 ----------------------------------------------------------------------
 
-Copyright (c) 2006-2022, assimp team
+Copyright (c) 2006-2019, assimp team
+
 
 All rights reserved.
 
@@ -43,20 +44,23 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *  @brief Definition of the Valve SMD file format
  */
 
-#pragma once
 #ifndef AI_SMDLOADER_H_INCLUDED
 #define AI_SMDLOADER_H_INCLUDED
 
+// internal headers
 #include <assimp/BaseImporter.h>
 #include <assimp/ParsingUtils.h>
+
+// public Assimp headers
 #include <assimp/types.h>
 #include <assimp/texture.h>
 #include <assimp/anim.h>
 #include <assimp/material.h>
 
-#include <vector>
-
 struct aiNode;
+
+// STL headers
+#include <vector>
 
 namespace Assimp {
 namespace SMD {
@@ -65,7 +69,8 @@ namespace SMD {
 /** Data structure for a vertex in a SMD file
 */
 struct Vertex {
-    Vertex() AI_NO_EXCEPT : iParentNode(UINT_MAX) {
+    Vertex() AI_NO_EXCEPT
+    : iParentNode(UINT_MAX) {
         // empty
     }
 
@@ -86,11 +91,12 @@ struct Vertex {
 /** Data structure for a face in a SMD file
 */
 struct Face {
-    Face() AI_NO_EXCEPT :
-            iTexture(0x0), avVertices{} {
+    Face() AI_NO_EXCEPT
+    : iTexture(0x0)
+    , avVertices{} {
         // empty
     }
-    
+
     //! Texture index for the face
     unsigned int iTexture;
 
@@ -103,8 +109,15 @@ struct Face {
 */
 struct Bone {
     //! Default constructor
-    Bone() AI_NO_EXCEPT : iParent(UINT_MAX), bIsUsed(false) {
+    Bone() AI_NO_EXCEPT
+    : iParent(UINT_MAX)
+    , bIsUsed(false) {
         // empty
+    }
+
+    //! Destructor
+    ~Bone()
+    {
     }
 
     //! Name of the bone
@@ -116,12 +129,14 @@ struct Bone {
     //! Animation of the bone
     struct Animation {
         //! Public default constructor
-        Animation() AI_NO_EXCEPT : iFirstTimeKey() {
+        Animation() AI_NO_EXCEPT
+        : iFirstTimeKey() {
             asKeys.reserve(20);
         }
 
         //! Data structure for a matrix key
-        struct MatrixKey {
+        struct MatrixKey
+        {
             //! Matrix at this time
             aiMatrix4x4 matrix;
 
@@ -159,38 +174,46 @@ struct Bone {
 // ---------------------------------------------------------------------------
 /** Used to load Half-life 1 and 2 SMD models
 */
-class ASSIMP_API SMDImporter : public BaseImporter {
+class ASSIMP_API SMDImporter : public BaseImporter
+{
 public:
     SMDImporter();
-    ~SMDImporter() override;
+    ~SMDImporter();
+
+
+public:
 
     // -------------------------------------------------------------------
     /** Returns whether the class can handle the format of the given file.
      * See BaseImporter::CanRead() for details.
      */
     bool CanRead( const std::string& pFile, IOSystem* pIOHandler,
-        bool checkSig) const override;
+        bool checkSig) const;
 
     // -------------------------------------------------------------------
     /** Called prior to ReadFile().
      * The function is a request to the importer to update its configuration
      * basing on the Importer's configuration property list.
      */
-    void SetupProperties(const Importer* pImp) override;
+    void SetupProperties(const Importer* pImp);
 
 protected:
+
+
     // -------------------------------------------------------------------
     /** Return importer meta information.
      * See #BaseImporter::GetInfo for the details
      */
-    const aiImporterDesc* GetInfo () const override;
+    const aiImporterDesc* GetInfo () const;
 
     // -------------------------------------------------------------------
     /** Imports the given file into the given scene structure.
     * See BaseImporter::InternReadFile() for details
     */
     void InternReadFile( const std::string& pFile, aiScene* pScene,
-        IOSystem* pIOHandler) override;
+        IOSystem* pIOHandler);
+
+protected:
 
     // -------------------------------------------------------------------
     /** Parse the SMD file and create the output scene
@@ -382,7 +405,7 @@ private:
      */
     bool bHasUVs;
 
-    /** Current line number
+    /** Current line numer
      */
     unsigned int iLineNumber;
 
