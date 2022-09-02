@@ -44,7 +44,7 @@ AssimpAnimator::AssimpAnimator(AssimpAnimatedModel *model) {
 	m_model = model;
 }
 
-void AssimpAnimator::startAnimation(const std::string & current) {
+void AssimpAnimator::startAnimation(const std::string& current) {
 	m_animationTime = 0;
 	m_currentAnimation = m_animations.at(current);
 	m_ticksPerSecond = m_currentAnimation->m_ticksPerSecond;
@@ -56,48 +56,306 @@ void AssimpAnimator::addAnimation(AssimpAnimation* animation) {
 
 void AssimpAnimator::update(float deltaTime) {
 	
-	m_animationTime += deltaTime * m_ticksPerSecond * 10.0f;
+	m_animationTime += deltaTime * m_ticksPerSecond;
 
 	if (m_animationTime > m_currentAnimation->getDuration()) {
 		m_animationTime = fmod(m_animationTime, m_currentAnimation->getDuration());
 	}
 
-	//std::cout << "Time1: " << m_animationTime <<  std::endl;
-
-	m_model->m_meshes[0]->currentPose = calculateCurrentAnimationPose();	
+	m_model->m_meshes[0]->currentPose = calculateCurrentAnimationPose(m_animationTime);
 }
 
-void AssimpAnimator::addTwoAnimations(float deltaTime, std::string current, std::string layer) {
+void AssimpAnimator::addTwoAnimations(float deltaTime, std::string current, std::string layer, float speed) {
 	if (layer.compare(m_layer) != 0) {
 		replaceBasePose(*m_animations.at(layer));
 		m_current = current;
 		m_layer = layer;
 	}
+
 	m_currentAnimation = m_animations.at(current);
 	m_layeredAnimation = m_animations.at(layer);
 
-	m_animationTime += deltaTime;
+	m_animationTime += deltaTime * m_currentAnimation->m_ticksPerSecond * speed;
 	if (m_animationTime > m_currentAnimation->getDuration()) {
 		m_animationTime = fmod(m_animationTime, m_currentAnimation->getDuration());
 	}
 
-	
-
-	m_additiveTime += deltaTime * m_additiveDirection;
-
-
-	if (m_additiveTime < 0.0f) {
-		m_additiveTime = 0.0f;
+	m_layeredTime += deltaTime * m_additiveDirection * m_layeredAnimation->m_ticksPerSecond * speed;
+	if (m_layeredTime < 0.0f) {
+		m_layeredTime = 0.0f;
 		m_additiveDirection *= -1.0f;
 	}
 
-	if (m_additiveTime > 1.0f) {
-		m_additiveTime = 1.0f;
+	if (m_layeredTime > 1.0f) {
+		m_layeredTime = 1.0f;
 		m_additiveDirection *= -1.0f;
 	}
 
-	float addTime = m_layeredAnimation->m_startTime + (m_layeredAnimation->m_duration * m_additiveTime);
-	m_model->m_meshes[0]->currentPose = calculateCurrentAnimationPose(m_animationTime, addTime, *m_currentAnimation, *m_layeredAnimation);
+	float addTime = m_layeredAnimation->m_startTime + (m_layeredAnimation->m_duration * m_layeredTime);
+	m_model->m_meshes[0]->currentPose = calculateAdditiveAnimationPose(m_animationTime, addTime, *m_currentAnimation, *m_layeredAnimation);
+}
+
+void AssimpAnimator::blendTwoAnimations(float deltaTime, std::string current, std::string layer, float blendTime,  float speed) {
+	m_currentAnimation = m_animations.at(current);
+	m_layeredAnimation = m_animations.at(layer);
+
+	float a = 1.0f;
+	float b = m_currentAnimation->getDuration() / m_layeredAnimation->getDuration();
+	const float animSpeedMultiplierUp = (1.0f - blendTime) * a + b * blendTime;
+
+	a = m_layeredAnimation->getDuration() / m_currentAnimation->getDuration();
+	b = 1.0f;
+	const float animSpeedMultiplierDown = (1.0f - blendTime) * a + b * blendTime;
+
+	m_animationTime += m_currentAnimation->m_ticksPerSecond * deltaTime * animSpeedMultiplierUp;
+	if (m_animationTime > m_currentAnimation->getDuration()) {
+		m_animationTime = fmod(m_animationTime, m_currentAnimation->getDuration());
+	}
+
+	m_layeredTime += m_layeredAnimation->m_ticksPerSecond * deltaTime * animSpeedMultiplierDown;
+	if (m_layeredTime > m_layeredAnimation->getDuration()) {
+		m_layeredTime = fmod(m_layeredTime, m_layeredAnimation->getDuration());
+	}
+
+	m_model->m_meshes[0]->currentPose = calculateBlendedPose(m_animationTime, m_layeredTime, *m_currentAnimation, *m_layeredAnimation, blendTime);
+
+	mBlendTime += deltaTime;
+	if (mBlendTime >= 2.0f) {
+		mBlendTime = 0.0f;
+		mInvertBlend = !mInvertBlend;
+	}
+}
+
+void AssimpAnimator::blendTwoAnimationsDisjoint(float deltaTime, std::string current, std::string layer, float blendTime, float speed) {
+	m_currentAnimation = m_animations.at(current);
+	m_layeredAnimation = m_animations.at(layer);
+
+	float a = 1.0f;
+	float b = m_currentAnimation->getDuration() / m_layeredAnimation->getDuration();
+	const float animSpeedMultiplierUp = (1.0f - blendTime) * a + b * blendTime;
+
+	a = m_layeredAnimation->getDuration() / m_currentAnimation->getDuration();
+	b = 1.0f;
+	const float animSpeedMultiplierDown = (1.0f - blendTime) * a + b * blendTime;
+
+
+	m_animationTime += m_currentAnimation->m_ticksPerSecond * deltaTime * animSpeedMultiplierUp;
+	if (m_animationTime > m_currentAnimation->getDuration()) {
+		m_animationTime = fmod(m_animationTime, m_currentAnimation->getDuration());
+	}
+
+	m_layeredTime += m_layeredAnimation->m_ticksPerSecond * deltaTime * animSpeedMultiplierDown;
+	if (m_layeredTime > m_layeredAnimation->getDuration()) {
+		m_layeredTime = fmod(m_layeredTime, m_layeredAnimation->getDuration());
+	}
+
+	m_model->m_meshes[0]->currentPose = calculateBlendedPoseDisjoint(m_animationTime, m_layeredTime, *m_currentAnimation, *m_layeredAnimation, blendTime);
+
+	mBlendTime += deltaTime;
+	if (mBlendTime >= 2.0f) {
+		mBlendTime = 0.0f;
+		mInvertBlend = !mInvertBlend;
+	}
+}
+
+std::unordered_map<std::string, Matrix4f> AssimpAnimator::calculateBlendedPose(float currentTime, float layeredTime, AssimpAnimation& curretAnimation, AssimpAnimation& animationLayer, float blendTime) {
+	AssimpKeyFrameData keyFramesA = curretAnimation.m_keyFrames;
+	AssimpKeyFrameData keyFramesB = animationLayer.m_keyFrames;
+
+	std::unordered_map<std::string, Matrix4f> currentPose;
+
+	for (auto boneName : curretAnimation.m_boneList) {
+
+		int indexA = keyFramesA.getPositionIndex(currentTime, boneName);
+		float progressionA = getProgression(keyFramesA.positions.at(boneName)[indexA].first, keyFramesA.positions.at(boneName)[indexA + 1].first, currentTime);
+		Vector3f positionA = getInterpolated(keyFramesA.positions.at(boneName)[indexA].second, keyFramesA.positions.at(boneName)[indexA + 1].second, progressionA);
+
+		indexA = keyFramesA.getScaleIndex(currentTime, boneName);
+		progressionA = getProgression(keyFramesA.scales.at(boneName)[indexA].first, keyFramesA.scales.at(boneName)[indexA + 1].first, currentTime);
+		Vector3f scaleA = getInterpolated(keyFramesA.scales.at(boneName)[indexA].second, keyFramesA.scales.at(boneName)[indexA + 1].second, progressionA);
+
+		indexA = keyFramesA.getRotationIndex(currentTime, boneName);
+		progressionA = getProgression(keyFramesA.rotations.at(boneName)[indexA].first, keyFramesA.rotations.at(boneName)[indexA + 1].first, currentTime);
+		Quaternion rotA = interpolateQuat(keyFramesA.rotations.at(boneName)[indexA].second, keyFramesA.rotations.at(boneName)[indexA + 1].second, progressionA);
+
+		int indexB = keyFramesB.getPositionIndex(layeredTime, boneName);
+		float progressionB = getProgression(keyFramesB.positions.at(boneName)[indexB].first, keyFramesB.positions.at(boneName)[indexB + 1].first, layeredTime);
+		Vector3f positionB = getInterpolated(keyFramesB.positions.at(boneName)[indexB].second, keyFramesB.positions.at(boneName)[indexB + 1].second, progressionB);
+
+		indexB = keyFramesB.getScaleIndex(layeredTime, boneName);
+		progressionB = getProgression(keyFramesB.scales.at(boneName)[indexB].first, keyFramesB.scales.at(boneName)[indexB + 1].first, layeredTime);
+		Vector3f scaleB = getInterpolated(keyFramesB.scales.at(boneName)[indexB].second, keyFramesB.scales.at(boneName)[indexB + 1].second, progressionB);
+
+		indexB = keyFramesB.getRotationIndex(layeredTime, boneName);
+		progressionB = getProgression(keyFramesB.rotations.at(boneName)[indexB].first, keyFramesB.rotations.at(boneName)[indexB + 1].first, layeredTime);
+		Quaternion rotB = interpolateQuat(keyFramesB.rotations.at(boneName)[indexB].second, keyFramesB.rotations.at(boneName)[indexB + 1].second, progressionB);
+
+		Vector3f position = getInterpolated(positionA, positionB, blendTime);
+		Vector3f scale = getInterpolated(scaleA, scaleB, blendTime);
+		Quaternion rot = interpolateQuat(rotA, rotB, blendTime);
+
+		Matrix4f mat = rot.toMatrix4f();
+		Matrix4f trans;
+		trans.translate(position[0], position[1], position[2]);
+		Matrix4f sca;
+		sca.scale(scale[0], scale[1], scale[2]);
+
+		currentPose.insert(std::make_pair(boneName, sca * trans * mat));
+	}
+
+	return currentPose;
+}
+
+std::unordered_map<std::string, Matrix4f> AssimpAnimator::calculateBlendedPoseDisjoint(float currentTime, float layeredTime, AssimpAnimation& curretAnimation, AssimpAnimation& animationLayer, float blendTime) {
+	AssimpKeyFrameData keyFramesA = curretAnimation.m_keyFrames;
+	AssimpKeyFrameData keyFramesB = animationLayer.m_keyFrames;
+
+	std::unordered_map<std::string, Matrix4f> currentPose;
+
+	AssimpKeyFrameBaseData poseB;
+
+	std::set<std::string> bonesB;
+
+	for (auto boneName : animationLayer.m_boneList) {
+		float progression;
+		Vector3f position;
+		Vector3f scale;
+		Quaternion rot;
+
+		int index = keyFramesB.getPositionIndex(layeredTime, boneName);
+		//if(index == -1) {
+		//	position = Vector3f(0.0f, 0.0f, 0.0f);
+		//}else {
+		progression = getProgression(keyFramesB.positions.at(boneName)[index].first, keyFramesB.positions.at(boneName)[index + 1].first, layeredTime);
+		position = getInterpolated(keyFramesB.positions.at(boneName)[index].second, keyFramesB.positions.at(boneName)[index + 1].second, progression);
+		//}
+		index = keyFramesB.getScaleIndex(layeredTime, boneName);
+
+		//if(index == -1) {
+		//	scale = Vector3f(1.0f, 1.0f, 1.0f);
+		//}else {
+		progression = getProgression(keyFramesB.scales.at(boneName)[index].first, keyFramesB.scales.at(boneName)[index + 1].first, layeredTime);
+		scale = getInterpolated(keyFramesB.scales.at(boneName)[index].second, keyFramesB.scales.at(boneName)[index + 1].second, progression);
+		//}
+		index = keyFramesB.getRotationIndex(layeredTime, boneName);
+
+		//if (index == -1) {
+		//	rot.identity();
+		//}else {
+		progression = getProgression(keyFramesB.rotations.at(boneName)[index].first, keyFramesB.rotations.at(boneName)[index + 1].first, layeredTime);
+		rot = interpolateQuat(keyFramesB.rotations.at(boneName)[index].second, keyFramesB.rotations.at(boneName)[index + 1].second, progression);
+		//}
+
+		poseB.positions.insert(std::make_pair(boneName, position));
+		poseB.scales.insert(std::make_pair(boneName, scale));
+		poseB.rotations.insert(std::make_pair(boneName, rot));
+
+		bonesB.insert(boneName);
+
+	}
+
+	for (auto boneName : curretAnimation.m_boneList) {
+		float progressionA;
+		Vector3f positionA;
+		Vector3f scaleA;
+		Quaternion rotA;
+
+		int indexA = keyFramesA.getPositionIndex(currentTime, boneName);
+
+		//if (indexA == -1) {
+		//	positionA = Vector3f(0.0f, 0.0f, 0.0f);
+		//}else {
+		progressionA = getProgression(keyFramesA.positions.at(boneName)[indexA].first, keyFramesA.positions.at(boneName)[indexA + 1].first, currentTime);
+		positionA = getInterpolated(keyFramesA.positions.at(boneName)[indexA].second, keyFramesA.positions.at(boneName)[indexA + 1].second, progressionA);
+		//}
+		indexA = keyFramesA.getScaleIndex(currentTime, boneName);
+
+		//if (indexA == -1) {
+		//	scaleA = Vector3f(1.0f, 1.0f, 1.0f);
+		//}else {
+		progressionA = getProgression(keyFramesA.scales.at(boneName)[indexA].first, keyFramesA.scales.at(boneName)[indexA + 1].first, currentTime);
+		scaleA = getInterpolated(keyFramesA.scales.at(boneName)[indexA].second, keyFramesA.scales.at(boneName)[indexA + 1].second, progressionA);
+		//}
+		indexA = keyFramesA.getRotationIndex(currentTime, boneName);
+
+		//if (indexA == -1) {
+		//rotA.identity();
+		//}else {
+		progressionA = getProgression(keyFramesA.rotations.at(boneName)[indexA].first, keyFramesA.rotations.at(boneName)[indexA + 1].first, currentTime);
+		rotA = interpolateQuat(keyFramesA.rotations.at(boneName)[indexA].second, keyFramesA.rotations.at(boneName)[indexA + 1].second, progressionA);
+		//}
+
+		if (bonesB.find(boneName) != bonesB.end()) {
+			float progressionB;
+			Vector3f positionB;
+			Vector3f scaleB;
+			Quaternion rotB;
+
+			int indexB = keyFramesB.getPositionIndex(layeredTime, boneName);
+			//if (indexB == -1) {
+			//positionB = Vector3f(0.0f, 0.0f, 0.0f);
+			//}else {
+			progressionB = getProgression(keyFramesB.positions.at(boneName)[indexB].first, keyFramesB.positions.at(boneName)[indexB + 1].first, layeredTime);
+			positionB = getInterpolated(keyFramesB.positions.at(boneName)[indexB].second, keyFramesB.positions.at(boneName)[indexB + 1].second, progressionB);
+			//}
+
+			indexB = keyFramesB.getScaleIndex(layeredTime, boneName);
+			//if (indexB == -1) {
+			//scaleB = Vector3f(1.0f, 1.0f, 1.0f);
+			//}else {
+			progressionB = getProgression(keyFramesB.scales.at(boneName)[indexB].first, keyFramesB.scales.at(boneName)[indexB + 1].first, layeredTime);
+			scaleB = getInterpolated(keyFramesB.scales.at(boneName)[indexB].second, keyFramesB.scales.at(boneName)[indexB + 1].second, progressionB);
+			//}
+
+			indexB = keyFramesB.getRotationIndex(layeredTime, boneName);
+			//if (indexB == -1) {
+			//rotB.identity();
+			//}else {
+			progressionB = getProgression(keyFramesB.rotations.at(boneName)[indexB].first, keyFramesB.rotations.at(boneName)[indexB + 1].first, layeredTime);
+			rotB = interpolateQuat(keyFramesB.rotations.at(boneName)[indexB].second, keyFramesB.rotations.at(boneName)[indexB + 1].second, progressionB);
+			//}
+			Vector3f position = getInterpolated(positionA, positionB, blendTime);
+			Vector3f scale = getInterpolated(scaleA, scaleB, blendTime);
+			Quaternion rot = interpolateQuat(rotA, rotB, blendTime);
+
+			Matrix4f mat = rot.toMatrix4f();
+			Matrix4f trans;
+			trans.translate(position[0], position[1], position[2]);
+			Matrix4f sca;
+			sca.scale(scale[0], scale[1], scale[2]);
+
+			currentPose.insert(std::make_pair(boneName, sca * trans * mat));
+			bonesB.erase(boneName);
+
+		}else {
+			Matrix4f mat = rotA.toMatrix4f();
+			Matrix4f trans;
+			trans.translate(positionA[0], positionA[1], positionA[2]);
+			Matrix4f sca;
+			sca.scale(scaleA[0], scaleA[1], scaleA[2]);
+
+			currentPose.insert(std::make_pair(boneName, sca * trans * mat));
+		}
+	}
+
+	std::set<std::string>::iterator it;
+	for (it = bonesB.begin(); it != bonesB.end(); ++it) {
+		std::string boneName = *it;
+
+		Vector3f position = poseB.positions.at(boneName);
+		Vector3f scale = poseB.scales.at(boneName);
+		Quaternion rot = poseB.rotations.at(boneName);
+
+		Matrix4f mat = rot.toMatrix4f();
+		Matrix4f trans;
+		trans.translate(position[0], position[1], position[2]);
+		Matrix4f sca;
+		sca.scale(scale[0], scale[1], scale[2]);
+
+		currentPose.insert(std::make_pair(boneName, sca * trans * mat));
+	}
+
+	return currentPose;
 }
 
 void AssimpAnimator::replaceBasePose(AssimpAnimation& animation) {
@@ -123,7 +381,7 @@ void AssimpAnimator::replaceBasePose(AssimpAnimation& animation) {
 	}
 }
 
-std::unordered_map<std::string, Matrix4f> AssimpAnimator::calculateCurrentAnimationPose(float time, float addTime, AssimpAnimation& animation, AssimpAnimation& animationAdd) {
+std::unordered_map<std::string, Matrix4f> AssimpAnimator::calculateAdditiveAnimationPose(float time, float addTime, AssimpAnimation& animation, AssimpAnimation& animationAdd) {
 	AssimpKeyFrameData keyFrames = animation.m_keyFrames;
 	AssimpKeyFrameData keyFramesAdd = animationAdd.m_keyFrames;
 	
@@ -175,162 +433,22 @@ std::unordered_map<std::string, Matrix4f> AssimpAnimator::calculateCurrentAnimat
 	return currentPose;
 }
 
-void AssimpAnimator::blendTwoAnimations(std::string current, std::string layer, float blendFactor, float deltaTime) {
-	m_currentAnimation = m_animations.at(current);
-	m_layeredAnimation = m_animations.at(layer);
-	
-	// Speed multipliers to correctly transition from one animation to another
-	float a = 1.0f;
-	float b = m_currentAnimation->getDuration() / m_layeredAnimation->getDuration();
-	const float animSpeedMultiplierUp = (1.0f - blendFactor) * a + b * blendFactor; // Lerp
-
-	a = m_layeredAnimation->getDuration() / m_currentAnimation->getDuration();
-	b = 1.0f;
-	const float animSpeedMultiplierDown = (1.0f - blendFactor) * a + b * blendFactor; // Lerp
-
-	// Current time of each animation, "scaled" by the above speed multiplier variables
-	static float currentTimeBase = 0.0f;
-	currentTimeBase += m_currentAnimation->m_ticksPerSecond * deltaTime * animSpeedMultiplierUp;
-	currentTimeBase = fmod(currentTimeBase, m_currentAnimation->getDuration());
-
-	static float currentTimeLayered = 0.0f;
-	currentTimeLayered += m_layeredAnimation->m_ticksPerSecond * deltaTime * animSpeedMultiplierDown;
-	currentTimeLayered = fmod(currentTimeLayered, m_layeredAnimation->getDuration());
-	m_model->m_meshes[0]->currentPose = calculateBlendedAnimationPose(currentTimeBase, currentTimeLayered, *m_currentAnimation, *m_layeredAnimation, blendFactor);
-}
-
-std::unordered_map<std::string, Matrix4f> AssimpAnimator::calculateBlendedAnimationPose(const float currentTimeBase, const float currentTimeLayered, AssimpAnimation& animationBase, AssimpAnimation& animationAddLayer, const float blendFactor) {
-	AssimpKeyFrameData keyFramesBase = animationBase.m_keyFrames;
-	AssimpKeyFrameData keyFramesLayer = animationAddLayer.m_keyFrames;
-
-	std::unordered_map<std::string, Matrix4f> currentPose;
-
-	std::sort(animationBase.m_boneList.begin(), animationBase.m_boneList.end());
-	std::sort(animationAddLayer.m_boneList.begin(), animationAddLayer.m_boneList.end());
-
-	std::vector<std::string> intersection;
-
-	std::set_intersection(animationBase.m_boneList.begin(), animationBase.m_boneList.end(),
-		animationAddLayer.m_boneList.begin(), animationAddLayer.m_boneList.end(),
-		std::back_inserter(intersection));
-
-	for (auto boneName : intersection) {
-		int index = keyFramesBase.getPositionIndex(currentTimeBase, boneName);
-		float progression = getProgression(keyFramesBase.positions.at(boneName)[index].first, keyFramesBase.positions.at(boneName)[index + 1].first, currentTimeBase);
-		Vector3f positionBase = getInterpolated(keyFramesBase.positions.at(boneName)[index].second, keyFramesBase.positions.at(boneName)[index + 1].second, progression);
-
-		index = keyFramesBase.getScaleIndex(currentTimeBase, boneName);
-		progression = getProgression(keyFramesBase.scales.at(boneName)[index].first, keyFramesBase.scales.at(boneName)[index + 1].first, currentTimeBase);
-		Vector3f scaleBase = getInterpolated(keyFramesBase.scales.at(boneName)[index].second, keyFramesBase.scales.at(boneName)[index + 1].second, progression);
-
-		index = keyFramesBase.getRotationIndex(currentTimeBase, boneName);
-		progression = getProgression(keyFramesBase.rotations.at(boneName)[index].first, keyFramesBase.rotations.at(boneName)[index + 1].first, currentTimeBase);
-		Quaternion rotBase = interpolateQuat(keyFramesBase.rotations.at(boneName)[index].second, keyFramesBase.rotations.at(boneName)[index + 1].second, progression);
-
-
-		index = keyFramesLayer.getPositionIndex(currentTimeLayered, boneName);
-		progression = getProgression(keyFramesLayer.positions.at(boneName)[index].first, keyFramesLayer.positions.at(boneName)[index + 1].first, currentTimeLayered);
-		Vector3f positionLayer = getInterpolated(keyFramesLayer.positions.at(boneName)[index].second, keyFramesLayer.positions.at(boneName)[index + 1].second, progression);
-
-		index = keyFramesLayer.getScaleIndex(currentTimeLayered, boneName);
-		progression = getProgression(keyFramesLayer.scales.at(boneName)[index].first, keyFramesLayer.scales.at(boneName)[index + 1].first, currentTimeLayered);
-		Vector3f scaleLayer = getInterpolated(keyFramesLayer.scales.at(boneName)[index].second, keyFramesLayer.scales.at(boneName)[index + 1].second, progression);
-
-		index = keyFramesLayer.getRotationIndex(currentTimeLayered, boneName);
-		progression = getProgression(keyFramesLayer.rotations.at(boneName)[index].first, keyFramesLayer.rotations.at(boneName)[index + 1].first, currentTimeLayered);
-		Quaternion rotLayer = interpolateQuat(keyFramesLayer.rotations.at(boneName)[index].second, keyFramesLayer.rotations.at(boneName)[index + 1].second, progression);
-
-
-		Vector3f position = getInterpolated(positionBase, positionLayer, blendFactor);
-		Vector3f scale = getInterpolated(scaleBase, scaleLayer, blendFactor);
-		Quaternion rot = interpolateQuat(rotBase, rotLayer, blendFactor);
-
-		Matrix4f mat = rot.toMatrix4f();
-		Matrix4f trans;
-		trans.translate(position[0], position[1], position[2]);
-		Matrix4f sca;
-		sca.scale(scale[0], scale[1], scale[2]);
-
-		currentPose.insert(std::make_pair(boneName, sca * trans * mat));
-	}
-
-	if (blendFactor != 1.0f) {
-		std::vector<std::string> diffRight;
-
-		std::set_difference(animationBase.m_boneList.begin(), animationBase.m_boneList.end(),
-			animationAddLayer.m_boneList.begin(), animationAddLayer.m_boneList.end(), std::inserter(diffRight, diffRight.begin()));
-
-		for (auto boneName : diffRight) {
-			int index = keyFramesBase.getPositionIndex(currentTimeBase, boneName);
-			float progression = getProgression(keyFramesBase.positions.at(boneName)[index].first, keyFramesBase.positions.at(boneName)[index + 1].first, currentTimeBase);
-			Vector3f positionBase = getInterpolated(keyFramesBase.positions.at(boneName)[index].second, keyFramesBase.positions.at(boneName)[index + 1].second, progression);
-
-			index = keyFramesBase.getScaleIndex(currentTimeBase, boneName);
-			progression = getProgression(keyFramesBase.scales.at(boneName)[index].first, keyFramesBase.scales.at(boneName)[index + 1].first, currentTimeBase);
-			Vector3f scaleBase = getInterpolated(keyFramesBase.scales.at(boneName)[index].second, keyFramesBase.scales.at(boneName)[index + 1].second, progression);
-
-			index = keyFramesBase.getRotationIndex(currentTimeBase, boneName);
-			progression = getProgression(keyFramesBase.rotations.at(boneName)[index].first, keyFramesBase.rotations.at(boneName)[index + 1].first, currentTimeBase);
-			Quaternion rotBase = interpolateQuat(keyFramesBase.rotations.at(boneName)[index].second, keyFramesBase.rotations.at(boneName)[index + 1].second, progression);
-
-			Matrix4f mat = rotBase.toMatrix4f();
-			Matrix4f trans;
-			trans.translate(positionBase[0], positionBase[1], positionBase[2]);
-			Matrix4f sca;
-			sca.scale(scaleBase[0], scaleBase[1], scaleBase[2]);
-
-			currentPose.insert(std::make_pair(boneName, sca * trans * mat));
-		}
-	}
-
-	if (blendFactor != 0.0f) {
-		std::vector<std::string> diffLeft;
-
-		std::set_difference(animationAddLayer.m_boneList.begin(), animationAddLayer.m_boneList.end(),
-			animationBase.m_boneList.begin(), animationBase.m_boneList.end(), std::inserter(diffLeft, diffLeft.begin()));
-
-		for (auto boneName : diffLeft) {
-			int index = keyFramesLayer.getPositionIndex(currentTimeLayered, boneName);
-			float progression = getProgression(keyFramesLayer.positions.at(boneName)[index].first, keyFramesLayer.positions.at(boneName)[index + 1].first, currentTimeLayered);
-			Vector3f positionLayer = getInterpolated(keyFramesLayer.positions.at(boneName)[index].second, keyFramesLayer.positions.at(boneName)[index + 1].second, progression);
-
-			index = keyFramesLayer.getScaleIndex(currentTimeLayered, boneName);
-			progression = getProgression(keyFramesLayer.scales.at(boneName)[index].first, keyFramesLayer.scales.at(boneName)[index + 1].first, currentTimeLayered);
-			Vector3f scaleLayer = getInterpolated(keyFramesLayer.scales.at(boneName)[index].second, keyFramesLayer.scales.at(boneName)[index + 1].second, progression);
-
-			index = keyFramesLayer.getRotationIndex(currentTimeLayered, boneName);
-			progression = getProgression(keyFramesLayer.rotations.at(boneName)[index].first, keyFramesLayer.rotations.at(boneName)[index + 1].first, currentTimeLayered);
-			Quaternion rotLayer = interpolateQuat(keyFramesLayer.rotations.at(boneName)[index].second, keyFramesLayer.rotations.at(boneName)[index + 1].second, progression);
-
-			Matrix4f mat = rotLayer.toMatrix4f();
-			Matrix4f trans;
-			trans.translate(positionLayer[0], positionLayer[1], positionLayer[2]);
-			Matrix4f sca;
-			sca.scale(scaleLayer[0], scaleLayer[1], scaleLayer[2]);
-
-			currentPose.insert(std::make_pair(boneName, sca * trans * mat));
-		}
-	}
-
-	return currentPose;
-}
-
-std::unordered_map<std::string, Matrix4f> AssimpAnimator::calculateCurrentAnimationPose() {
+std::unordered_map<std::string, Matrix4f> AssimpAnimator::calculateCurrentAnimationPose(float currentTime) {
 
 	AssimpKeyFrameData keyFrames = m_currentAnimation->m_keyFrames;
 	std::unordered_map<std::string, Matrix4f> currentPose;
 
 	for (auto boneName : m_currentAnimation->m_boneList) {
-		int index = keyFrames.getPositionIndex(m_animationTime, boneName);
-		float progression = getProgression(keyFrames.positions.at(boneName)[index].first, keyFrames.positions.at(boneName)[index + 1].first, m_animationTime);
+		int index = keyFrames.getPositionIndex(currentTime, boneName);
+		float progression = getProgression(keyFrames.positions.at(boneName)[index].first, keyFrames.positions.at(boneName)[index + 1].first, currentTime);
 		Vector3f position = getInterpolated(keyFrames.positions.at(boneName)[index].second, keyFrames.positions.at(boneName)[index + 1].second, progression);
 
-		index = keyFrames.getScaleIndex(m_animationTime, boneName);
-		progression = getProgression(keyFrames.scales.at(boneName)[index].first, keyFrames.scales.at(boneName)[index + 1].first, m_animationTime);
+		index = keyFrames.getScaleIndex(currentTime, boneName);
+		progression = getProgression(keyFrames.scales.at(boneName)[index].first, keyFrames.scales.at(boneName)[index + 1].first, currentTime);
 		Vector3f scale = getInterpolated(keyFrames.scales.at(boneName)[index].second, keyFrames.scales.at(boneName)[index + 1].second, progression);
 
-		index = keyFrames.getRotationIndex(m_animationTime, boneName);
-		progression = getProgression(keyFrames.rotations.at(boneName)[index].first, keyFrames.rotations.at(boneName)[index + 1].first, m_animationTime);
+		index = keyFrames.getRotationIndex(currentTime, boneName);
+		progression = getProgression(keyFrames.rotations.at(boneName)[index].first, keyFrames.rotations.at(boneName)[index + 1].first, currentTime);
 		Quaternion rot = interpolateQuat(keyFrames.rotations.at(boneName)[index].second, keyFrames.rotations.at(boneName)[index + 1].second, progression);
 		
 		Matrix4f mat = rot.toMatrix4f();

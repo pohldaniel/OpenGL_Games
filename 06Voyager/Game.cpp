@@ -226,9 +226,9 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_water(
 	assimpAnimated.getAnimator()->addAnimation(Globals::animationManager.getAssetPointer("cowboy_run"));
 	assimpAnimated.getAnimator()->startAnimation("cowboy_run");*/
 
-	Globals::animationManager.loadAnimationDae("right_wing", "res/models/dragon_dae/dragon.dae", "right_wing", "right_wing");
-	Globals::animationManager.loadAnimationDae("left_wing", "res/models/dragon_dae/dragon.dae", "left_wing", "left_wing");
-	Globals::animationManager.loadAnimationDae("both_wing", "res/models/dragon_dae/dragon.dae", "both_wing", "both_wing");
+	Globals::animationManager.loadAnimation("right_wing", "res/models/dragon_dae/dragon.dae", "right_wing", "right_wing");
+	Globals::animationManager.loadAnimation("left_wing", "res/models/dragon_dae/dragon.dae", "left_wing", "left_wing");
+	Globals::animationManager.loadAnimation("both_wing", "res/models/dragon_dae/dragon.dae", "both_wing", "both_wing");
 
 	assimpAnimated.loadModel("res/models/dragon_dae/dragon.dae", "res/models/dragon_dae/dragon.png");
 	assimpAnimated.rotate(Vector3f(0.0f, 1.0f, 0.0f), 180.0f);
@@ -238,7 +238,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_water(
 	assimpAnimated.getAnimator()->addAnimation(Globals::animationManager.getAssetPointer("left_wing"));
 	assimpAnimated.getAnimator()->addAnimation(Globals::animationManager.getAssetPointer("both_wing"));
 	assimpAnimated.getAnimator()->addAnimation(Globals::animationManager.getAssetPointer("right_wing"));
-	assimpAnimated.getAnimator()->startAnimation("both_wing");
+	assimpAnimated.getAnimator()->startAnimation("right_wing");
 
 	/*Globals::animationManager.loadAnimationDae("cowboy_run", "res/models/cowboy/cowboy.dae", "Armature", "cowboy_run");
 	assimpAnimated.loadModel("res/models/cowboy/cowboy.dae", "res/models/cowboy/cowboy.png");
@@ -272,17 +272,19 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_water(
 	position[2] = HEIGHTMAP_WIDTH * 0.5f + 70.0f;
 	position[1] = m_terrain.getHeightMap().heightAt(HEIGHTMAP_WIDTH * 0.5f + 150.0f, HEIGHTMAP_WIDTH * 0.5f + 70.0f + 100.0f) + 50.0f;
 
-	Globals::animationManager.loadAnimationDae("woman_walk", "res/models/woman/Woman.gltf", "Walking", "woman_walk", false, 0, 0, 1000.0f);
-	Globals::animationManager.loadAnimationDae("lean_left", "res/models/woman/Woman.gltf", "Lean_Left", "lean_left", false, 0, 0, 1000.0f);
-
+	Globals::animationManager.loadAnimation("woman_walk", "res/models/woman/Woman.gltf", "Walking", "woman_walk", false, 0, 0, 1000.0f);
+	Globals::animationManager.loadAnimation("lean_left", "res/models/woman/Woman.gltf", "Lean_Left", "lean_left", false, 0, 0, 1000.0f);
+	Globals::animationManager.loadAnimation("woman_run", "res/models/woman/Woman.gltf", "Running", "woman_run", false, 0, 0, 1000.0f);
 	
 	woman.loadModel("res/models/woman/Woman.gltf", "res/models/woman/Woman.png");
 	woman.getAnimator()->addAnimation(Globals::animationManager.getAssetPointer("woman_walk"));
 	woman.getAnimator()->addAnimation(Globals::animationManager.getAssetPointer("lean_left"));
+	woman.getAnimator()->addAnimation(Globals::animationManager.getAssetPointer("woman_run"));
+
 	woman.rotate(Vector3f(0.0f, 1.0f, 0.0f), 240.0f);
 	woman.scale(0.1f, 0.1f, 0.1f);
 	woman.translate(position[0], position[1], position[2]);
-	woman.getAnimator()->startAnimation("lean_left");
+	//woman.getAnimator()->startAnimation("woman_walk");
 }
 
 Game::~Game() {}
@@ -462,11 +464,24 @@ void Game::update() {
 
 	m_mousePicker.update(m_dt);
 	
+	float bt = m_blendTime;
+	if (bt < 0.0f) { bt = 0.0f; }
+	if (bt > 1.0f) { bt = 1.0f; }
+	if (m_invertBlend) { bt = 1.0f - bt; }
+
 	//assimpAnimated.update("left_wing", "both_wing", std::min(std::max(m_blend, 0.0f), 1.0f), m_dt);
 	//assimpAnimated.update(m_dt);
-	//woman.update(m_dt);
+	assimpAnimated.blendTwoAnimationsDisjoint(m_dt, "both_wing", "right_wing", bt, 1.0f);
 
-	woman.addTwoAnimations(m_dt, "woman_walk", "lean_left");	
+	//woman.update(m_dt);
+	//woman.addTwoAnimations(m_dt, "woman_walk", "lean_left", 1.0f);	
+	woman.blendTwoAnimations(m_dt, "woman_walk", "woman_run", bt, 1.0f);
+
+	m_blendTime += m_dt;
+	if (m_blendTime >= 2.0f) {
+		m_blendTime = 0.0f;
+		m_invertBlend = !m_invertBlend;
+	}
 };
 
 void Game::toggleDayNight() {
@@ -528,7 +543,7 @@ void Game::render(unsigned int &frameBuffer) {
 	
 	m_car->draw(m_camera);
 
-	//assimpAnimated.draw(m_camera);
+	assimpAnimated.draw(m_camera);
 	woman.draw(m_camera);
 
 	if (!m_debugNormal) {

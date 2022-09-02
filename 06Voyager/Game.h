@@ -117,7 +117,7 @@ public:
 	bool m_fadeOut = true;
 	float m_blend = 0.0f;
 
-	float m_playbackTime = 0.0f;
-	float m_additiveTime = 0.0f;
-	float m_additiveDirection = 1.0f;
+	
+	float m_blendTime;
+	bool m_invertBlend;
 };

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <map>
+#include <set>
 #include <memory>
 #include <unordered_map>
 #include "../Vector.h"
@@ -24,25 +25,27 @@ public:
 	void addAnimation(AssimpAnimation* animation);
 	void update(float elapsedTime);
 
-	void blendTwoAnimations(std::string pBaseAnimation, std::string pLayeredAnimation, float blendFactor, float deltaTime);
-	void addTwoAnimations(float addTime, std::string base, std::string layer);
+	void addTwoAnimations(float deltaTime, std::string current, std::string layer, float speed = 1.0f);
+	void blendTwoAnimations(float deltaTime, std::string current, std::string layer, float blendTime, float speed = 1.0f);
+	void blendTwoAnimationsDisjoint(float deltaTime, std::string current, std::string layer, float blendTime, float speed = 1.0f);
+
 private:
 	AssimpAnimatedModel* m_model;
 
-	//std::vector<std::shared_ptr<AssimpAnimation>> m_animations;
 	std::unordered_map<std::string, std::shared_ptr<AssimpAnimation>> m_animations;
 
 	std::shared_ptr<AssimpAnimation> m_currentAnimation;
 	std::shared_ptr<AssimpAnimation> m_layeredAnimation;
-	float m_animationTime;
-	float m_ticksPerSecond = 0;
+	float m_animationTime = 0.0f;
+	float m_ticksPerSecond = 1.0f;
 	bool m_replaceBasePose = true;
 
 	AssimpKeyFrameBaseData m_basePose;
 
-	std::unordered_map<std::string, Matrix4f> calculateCurrentAnimationPose();
-	std::unordered_map<std::string, Matrix4f> calculateBlendedAnimationPose(const float currentTimeBase, const float currentTimeLayered, AssimpAnimation& animationBase, AssimpAnimation& animationAddLayer, const float blendFactor);
-	std::unordered_map<std::string, Matrix4f> calculateCurrentAnimationPose(float time, float addTime, AssimpAnimation& animation, AssimpAnimation& animationAdd);
+	std::unordered_map<std::string, Matrix4f> calculateCurrentAnimationPose(float currentTime);
+	std::unordered_map<std::string, Matrix4f> calculateAdditiveAnimationPose(float currentTime, float layeredTime, AssimpAnimation& animation, AssimpAnimation& animationLayer);
+	std::unordered_map<std::string, Matrix4f> calculateBlendedPose(float currentTime, float layeredTime, AssimpAnimation& curretAnimation, AssimpAnimation& animationLayer, float blendTime);
+	std::unordered_map<std::string, Matrix4f> calculateBlendedPoseDisjoint(float currentTime, float layeredTime, AssimpAnimation& curretAnimation, AssimpAnimation& animationLayer, float blendTime);
 
 	Vector3f getInterpolated(Vector3f start, Vector3f end, float progression);
 	Quaternion interpolateQuat(Quaternion a, Quaternion b, float blend);
@@ -52,7 +55,10 @@ private:
 	std::string m_current;
 	std::string m_layer;
 
-	float m_additiveTime = 0.0f;
+	float m_layeredTime = 0.0f;
 	float m_additiveDirection = 1.0f;
+
+	float mBlendTime;
+	bool mInvertBlend;
 };
 

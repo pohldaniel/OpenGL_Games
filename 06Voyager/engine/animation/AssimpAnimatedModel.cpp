@@ -306,12 +306,16 @@ void AssimpAnimatedModel::update(float elapsedTime) {
 	m_animator->update(elapsedTime);
 }
 
-void AssimpAnimatedModel::update(std::string base, std::string layer, const float blendFactor, float elapsedTime) {
-	m_animator->blendTwoAnimations(base, layer, blendFactor, elapsedTime);
+void AssimpAnimatedModel::addTwoAnimations(float deltaTime, std::string base, std::string layer, float speed) {
+	m_animator->addTwoAnimations(deltaTime, base, layer, speed);
 }
 
-void AssimpAnimatedModel::addTwoAnimations(float deltaTime, std::string base, std::string layer) {
-	m_animator->addTwoAnimations(deltaTime, base, layer);
+void AssimpAnimatedModel::blendTwoAnimations(float deltaTime, std::string base, std::string layer, float blendTime, float speed) {
+	m_animator->blendTwoAnimations(deltaTime, base, layer, blendTime, speed);
+}
+
+void AssimpAnimatedModel::blendTwoAnimationsDisjoint(float deltaTime, std::string base, std::string layer, float blendTime, float speed) {
+	m_animator->blendTwoAnimationsDisjoint(deltaTime, base, layer, blendTime, speed);
 }
 
 void AssimpAnimatedModel::draw(Camera& camera) {

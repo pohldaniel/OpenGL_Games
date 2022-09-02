@@ -63,7 +63,7 @@ void AssimpAnimation::loadAnimationFbx(const std::string &filename, std::string 
 	}*/
 }
 
-void AssimpAnimation::loadAnimationDae(const std::string &filename, std::string sourceName, std::string destName, bool looping, unsigned int animationOffset, unsigned int animationCuttOff, float timeScale) {
+void AssimpAnimation::loadAnimation(const std::string &filename, std::string sourceName, std::string destName, bool looping, unsigned int animationOffset, unsigned int animationCuttOff, float timeScale) {
 	
 	Assimp::Importer Importer;
 	const aiScene* aiScene = Importer.ReadFile(filename, NULL);
@@ -76,15 +76,15 @@ void AssimpAnimation::loadAnimationDae(const std::string &filename, std::string 
 	for (unsigned int i = 0; i < aiScene->mNumAnimations; i++) {
 		
 		const aiAnimation* aiAnimation = aiScene->mAnimations[i];
-		
+
 		if (sourceName.compare(aiAnimation->mName.data) != 0) {
 			continue;
 		}
 
 		m_name = destName;
 		m_looping = looping;
-		m_ticksPerSecond = aiAnimation->mTicksPerSecond;
-
+		//m_ticksPerSecond = aiAnimation->mTicksPerSecond;
+		m_ticksPerSecond = 1.0f;
 
 		m_duration = (animationCuttOff == 0 && animationOffset == 0) ? aiAnimation->mDuration : 0;		
 		m_startTime = 0.0f;

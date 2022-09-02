@@ -1,10 +1,10 @@
 #include "Shader.h"
 
 Shader::Shader(std::string vertex, std::string fragment, bool fromFile) {
-	if (fromFile) 
+	if (fromFile)
 		m_program = createProgramFromFile(vertex, fragment);
-	else 
-		m_program = createProgram(vertex, fragment);		
+	else
+		m_program = createProgram(vertex, fragment);
 }
 
 Shader::Shader(std::string vertex, std::string fragment, std::string geometry, bool fromFile) {
@@ -43,7 +43,6 @@ Shader& Shader::get() {
 	return *this;
 }
 
-//OpenGL specifies matrices as column-major to get row-major just transpose it
 void Shader::loadMatrix(const char* location, const Matrix4f& matrix, bool trans) {
 	glUniformMatrix4fv(glGetUniformLocation(m_program, location), 1, trans, &matrix[0][0]);
 }
@@ -137,7 +136,7 @@ GLuint Shader::loadShaderProgram(GLenum type, std::string buffer) {
 	return shader;
 }
 
-GLuint Shader::loadShaderProgram(GLenum type, const char *pszFilename){
+GLuint Shader::loadShaderProgram(GLenum type, const char *pszFilename) {
 
 	GLuint shader = 0;
 	std::string buffer;

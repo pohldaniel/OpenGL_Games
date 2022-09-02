@@ -89,8 +89,10 @@ public:
 	virtual ~AssimpAnimatedModel() {}
 
 	void update(float elapsedTime);
-	void update(std::string base, std::string layer, const float blendFactor, float elapsedTime);
-	void addTwoAnimations(float deltaTime, std::string base, std::string layer);
+
+	void addTwoAnimations(float deltaTime, std::string base, std::string layer, float speed = 1.0f);
+	void blendTwoAnimations(float deltaTime, std::string base, std::string layer, float blendTime, float speed = 1.0f);
+	void blendTwoAnimationsDisjoint(float deltaTime, std::string base, std::string layer, float blendTime, float speed = 1.0f);
 
 	void draw(Camera& camera);
 	void drawRaw();
