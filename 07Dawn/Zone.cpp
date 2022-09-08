@@ -87,17 +87,12 @@ void Zone::drawZone() {
 
 void Zone::drawTiles() {
 	for (unsigned int x = 0; x < TileMap.size(); x++) {
-		TileMap[x].tile->texture->DrawTexture(TileMap[x].x_pos, TileMap[x].y_pos, 0);
+		TextureManager::DrawTexture(TileMap[x].tile->texture, TileMap[x].x_pos, TileMap[x].y_pos);
 	}
 }
 
 void Zone::drawEnvironment() {
 	for (unsigned int x = 0; x < EnvironmentMap.size(); x++) {
-		EnvironmentMap[x].tile->texture->DrawTexture(EnvironmentMap[x].x_pos,
-													 EnvironmentMap[x].y_pos, 
-													 0,
-													 EnvironmentMap[x].transparency, EnvironmentMap[x].red,
-													 EnvironmentMap[x].green, EnvironmentMap[x].blue,
-													 EnvironmentMap[x].x_scale, EnvironmentMap[x].y_scale);
+		TextureManager::DrawTexture(EnvironmentMap[x].tile->texture, EnvironmentMap[x].x_pos, EnvironmentMap[x].y_pos, EnvironmentMap[x].transparency, EnvironmentMap[x].red, EnvironmentMap[x].green, EnvironmentMap[x].blue, EnvironmentMap[x].x_scale, EnvironmentMap[x].y_scale);
 	}
 }

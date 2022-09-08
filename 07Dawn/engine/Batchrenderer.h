@@ -29,8 +29,7 @@ public:
 
 	void addQuad(std::vector<Vertex> particles);
 	void setCamera(const Camera& camera);
-
-
+	void setShader(Shader* shader);
 	static Batchrenderer& get();
 
 private:

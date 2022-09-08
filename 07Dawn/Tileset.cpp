@@ -4,7 +4,7 @@
 
 #include "tileset.h"
 
-#include "CTexture.h"
+
 
 void AdjacencyEquivalenceClass::addEquivalentTile(int tile, int offsetX, int offsetY){
 	equivalentTiles.push_back(tile);
@@ -31,7 +31,6 @@ int TileSet::addTile(std::string filename, TileClassificationType::TileClassific
 	for (size_t curTileNr = 0; curTileNr<tiles.size(); ++curTileNr) {
 		Tile *curTile = tiles[curTileNr];
 		if (curTile->filename == filename && curTile->tileType == tileType) {
-			std::cout << "#############################" << std::endl;
 			return curTileNr;
 		}
 	}
@@ -41,8 +40,7 @@ int TileSet::addTile(std::string filename, TileClassificationType::TileClassific
 	newTile->filename = filename;
 	newTile->tileType = tileType;
 	newTile->tileID = position;
-	newTile->texture = new CTexture();
-	newTile->texture->LoadIMG(filename, 0);
+	newTile->texture = TextureManager::Loadimage(filename);
 	Tile *tilePtr = newTile.release();
 	tiles.push_back(tilePtr);
 	preparedTiles[static_cast<size_t>(tileType)].push_back(tilePtr);

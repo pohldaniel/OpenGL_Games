@@ -18,7 +18,7 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 		return true;
 	});
 
-	ViewPort::get().init();
+	ViewPort::get().init(WIDTH, HEIGHT);
 }
 
 Application::~Application() {
@@ -344,4 +344,5 @@ void Application::loadAssets() {
 	Globals::spritesheetManager.createNullSpritesheet("null", 1024, 1024, 4);
 
 	Batchrenderer::get().init();
+	Batchrenderer::get().setShader(Globals::shaderManager.getAssetPointer("batch"));
 }

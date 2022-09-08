@@ -1,6 +1,5 @@
 #include "Batchrenderer.h"
 #include <algorithm>
-#include "../Constants.h"
 
 //Batchrenderer Batchrenderer::s_instance = Batchrenderer(ViewPort::get().getCamera());
 //
@@ -14,6 +13,10 @@ void Batchrenderer::setCamera(const Camera& camera) {
 	m_camera = &camera;
 }
 
+void Batchrenderer::setShader(Shader* shader) {
+	m_shader = shader;
+}
+
 Batchrenderer& Batchrenderer::get() {
 	return s_instance;
 }
@@ -24,7 +27,6 @@ Batchrenderer::~Batchrenderer() {
 
 void Batchrenderer::init()  {
 
-	m_shader = Globals::shaderManager.getAssetPointer("batch");
 	buffer = new Vertex[max_quad_vert_count];
 
 	glGenBuffers(1, &m_vbo);

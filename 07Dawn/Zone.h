@@ -5,7 +5,7 @@
 #include "engine/Spritesheet.h"
 
 #include "Tileset.h"
-#include "CTexture.h"
+#include "TextureManager.h"
 
 struct sTileMap {
 	int x_pos, y_pos;

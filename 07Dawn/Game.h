@@ -8,7 +8,7 @@
 
 #include "StateMachine.h"
 #include "ViewPort.h"
-#include "CTexture.h"
+
 
 class Game : public State, public MouseEventListener {
 public:

@@ -155,7 +155,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Application.cpp" />
-    <ClCompile Include="CTexture.cpp" />
+    <ClCompile Include="TextureManager.cpp" />
     <ClCompile Include="engine\Batchrenderer.cpp" />
     <ClCompile Include="engine\Camera.cpp" />
     <ClCompile Include="engine\CharacterSet.cpp" />
@@ -189,7 +189,7 @@
   <ItemGroup>
     <ClInclude Include="Application.h" />
     <ClInclude Include="Constants.h" />
-    <ClInclude Include="CTexture.h" />
+    <ClInclude Include="TextureManager.h" />
     <ClInclude Include="engine\AssetManger.h" />
     <ClInclude Include="engine\Batchrenderer.h" />
     <ClInclude Include="engine\Camera.h" />
@@ -214,7 +214,6 @@
     <ClInclude Include="Luainterface.h" />
     <ClInclude Include="Luainterfacegenerated.h" />
     <ClInclude Include="StateMachine.h" />
-    <ClInclude Include="Textureframe.h" />
     <ClInclude Include="Tileset.h" />
     <ClInclude Include="ViewPort.h" />
     <ClInclude Include="Zone.h" />

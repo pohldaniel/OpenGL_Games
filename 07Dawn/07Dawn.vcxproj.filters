@@ -111,14 +111,14 @@
     <ClCompile Include="Game.cpp">
       <Filter>Source Files\States</Filter>
     </ClCompile>
-    <ClCompile Include="CTexture.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="ViewPort.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="engine\Batchrenderer.cpp">
       <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="TextureManager.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -203,17 +203,14 @@
     <ClInclude Include="Application.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Textureframe.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="CTexture.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ViewPort.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="engine\Batchrenderer.h">
       <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="TextureManager.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

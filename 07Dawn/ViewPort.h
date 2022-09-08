@@ -6,7 +6,7 @@ class ViewPort {
 public:
 	
 	static ViewPort& get();
-	void init();
+	void init(unsigned int width, unsigned int height);
 	void update(float dt);
 	Camera& getCamera();
 

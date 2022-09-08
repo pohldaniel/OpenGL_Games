@@ -11,14 +11,12 @@
 #include "engine/Spritesheet.h"
 
 
-struct sTexture {
+struct DawnTexture {
 	unsigned int texture;
 	float x1, x2, y1, y2;
-	int height, width, textureOffsetX, textureOffsetY;
-	bool contains_collision_box;
-	std::string textureFile;
+	int height, width, textureOffsetX, textureOffsetY;	
 	unsigned int frame;
-	sTexture() {
+	DawnTexture() {
 		texture = 0;
 		x1 = 0.0f;
 		x2 = 0.0f;
@@ -26,12 +24,28 @@ struct sTexture {
 		y2 = 0.0f;
 		height = 0;
 		width = 0;
-		contains_collision_box = false;
-		textureFile = "";
 		textureOffsetX = 0;
 		textureOffsetY = 0;
 		frame = 0;
 	}
+};
+
+class TextureCache {
+
+public:
+	static TextureCache& get() {
+		return s_instance;
+	}
+
+	DawnTexture getTextureFromCache(std::string filename);
+
+private:
+
+	TextureCache() = default;
+	~TextureCache() = default;
+
+	std::map< std::string, DawnTexture > textures;
+	static TextureCache s_instance;
 };
 
 struct TextureAtlasCreator {
@@ -60,7 +74,7 @@ public:
 		buffer = nullptr;
 	}
 
-	void addTexture(sTexture& stexture, char *texture, size_t w, size_t h){
+	void addTexture(DawnTexture& stexture, char *texture, size_t w, size_t h){
 
 		if (width - curX < w){
 			curX = 0;
@@ -120,27 +134,13 @@ private:
 };
 
 
-class TextureCache{
+
+class TextureManager{
 
 public:
-	TextureCache();
-	~TextureCache();
+	static bool IsRectOnScreen(int left, int width, int bottom, int height);
+	static void DrawTexture(DawnTexture& stexture, int x, int y, float transparency = 1.0f, float red = 1.0f, float green = 1.0f, float blue = 1.0f, float x_scale = 1.0f, float y_scale = 1.0f);
+	static DawnTexture& Loadimage(std::string file, bool isOpenGLThreadInThreadedMode = false, int textureOffsetX = 0, int textureOffsetY = 0);
 
-	sTexture getTextureFromCache(std::string filename);
 
-private:
-	std::map< std::string, sTexture > textures;
-};
-
-class CTexture{
-public:
-	sTexture& getTexture(int index);
-	std::vector<sTexture>& getTexture();
-	void LoadIMG(std::string file, int texture_index, bool isOpenGLThreadInThreadedMode = false, int textureOffsetX = 0, int textureOffsetY = 0);
-	void DrawTexture(int x, int y, int draw_id, float transparency = 1.0f, float red = 1.0f, float green = 1.0f, float blue = 1.0f, float x_scale = 1.0f, float y_scale = 1.0f);
-
-	static bool isRectOnScreen(int left, int width, int bottom, int height);
-
-private:
-	std::vector<sTexture> m_texture;	
 };

@@ -2,7 +2,7 @@
 #include <string>
 #include <vector>
 
-class CTexture;
+#include "TextureManager.h"
 
 namespace TileClassificationType{
 	enum TileClassificationType{
@@ -27,7 +27,7 @@ public:
 	int tileID;
 	std::string filename;
 	TileClassificationType::TileClassificationType tileType;
-	CTexture *texture;
+	DawnTexture texture;
 };
 
 struct Point{
