@@ -17,6 +17,8 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 		}
 		return true;
 	});
+
+	ViewPort::get().init();
 }
 
 Application::~Application() {
@@ -156,8 +158,13 @@ LRESULT Application::DisplayWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 			glViewport(0, 0, _width, _height);			
 			Globals::projection = Matrix4f::GetPerspective(Globals::projection, 45.0f, static_cast<float>(_width) / static_cast<float>(_height), 1.0f, 5000.0f);
 			Globals::invProjection = Matrix4f::GetInvPerspective(Globals::invProjection, 45.0f, static_cast<float>(_width) / static_cast<float>(_height), 1.0f, 5000.0f);
-			Globals::orthographic = Matrix4f::GetOrthographic(Globals::orthographic, -static_cast<float>(_width) * 0.5f, static_cast<float>(_width)* 0.5f, 0.0f, static_cast<float>(_height), -1.0f, 1.0f);
+			//Globals::orthographic = Matrix4f::GetOrthographic(Globals::orthographic, -static_cast<float>(_width) * 0.5f, static_cast<float>(_width)* 0.5f, 0.0f, static_cast<float>(_height), -1.0f, 1.0f);
 	
+			Globals::orthographic = Matrix4f::GetOrthographic(Globals::orthographic, 0.0f, static_cast<float>(_width), 0.0f, static_cast<float>(_height), -1.0f, 1.0f);
+			Globals::invOrthographic = Matrix4f::GetInvOrthographic(Globals::invOrthographic, 0.0f, static_cast<float>(_width), 0.0f, static_cast<float>(_height), -1.0f, 1.0f);
+			
+			
+
 			break;
 		}default: {
 			//Mouse::instance().handleMsg(hWnd, message, wParam, lParam);
@@ -203,17 +210,18 @@ void Application::initOpenGL() {
 	wglMakeCurrent(hDC, hRC);
 	enableVerticalSync(true);
 
-	glEnable(GL_DEPTH_TEST);
+	glDisable(GL_DEPTH_TEST);
 	//glDepthFunc(GL_LEQUAL);
-	glDepthFunc(GL_LESS);
+	//glDepthFunc(GL_LESS);
 	//glDepthFunc(GL_ALWAYS);
 	//alpha test for cutting border of the quads
-	//glEnable(GL_ALPHA_TEST);
-	//glAlphaFunc(GL_GREATER, 0.0);
+	glEnable(GL_ALPHA_TEST);
+	glAlphaFunc(GL_GREATER, 0.0);
 
-	glAlphaFunc(GL_GEQUAL, 0.5);
+	//glAlphaFunc(GL_GEQUAL, 0.5);
 
 	
+	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	//glDisable(GL_ALPHA_TEST);
 	//button transparency, fog and light
@@ -222,14 +230,16 @@ void Application::initOpenGL() {
 	//https://stackoverflow.com/questions/2171085/opengl-blending-with-previous-contents-of-framebuffer
 	glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 	//glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+	// enable blending
+
 	//outline
-	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+	//glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 
 	//glEnable(GL_CLIP_DISTANCE0);
 	
-	glCullFace(GL_BACK);
-	glFrontFace(GL_CCW);
-	glEnable(GL_CULL_FACE);
+	//glCullFace(GL_BACK);
+	//glFrontFace(GL_CCW);
+	//glEnable(GL_CULL_FACE);
 }
 
 void Application::enableVerticalSync(bool enableVerticalSync) {
@@ -275,6 +285,9 @@ void Application::fixedUpdate() {
 
 void Application::initStates() {
 	m_machine = new StateMachine(m_dt, m_fdt);
+	Game* game = dynamic_cast<Game*>(m_machine->addStateAtTop(new Game(*m_machine)));
+
+	AddMouseListener(game);
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
@@ -322,5 +335,10 @@ void Application::AddMouseListener(MouseEventListener * el) {
 
 void Application::loadAssets() {
 	Globals::shaderManager.loadShader("quad", "res/shader/quad.vs", "res/shader/quad.fs");
-	
+	Globals::shaderManager.loadShader("quad_array", "res/shader/quad_array.vs", "res/shader/quad_array.fs");
+	Globals::shaderManager.loadShader("batch", "res/shader/batch.vs", "res/shader/batch.fs");
+	Globals::textureManager.createNullTexture("grey", 2, 2, 128);
+	Globals::spritesheetManager.createNullSpritesheet("null", 1024, 1024, 4);
+
+	Batchrenderer::get().init();
 }

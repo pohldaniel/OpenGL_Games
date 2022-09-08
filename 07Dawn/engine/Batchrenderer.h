@@ -1,25 +1,25 @@
 #ifndef _BATCHRENDERER_H
 #define _BATCHRENDERER_H
 
-#include "../Constants.h"
 #include "Extension.h"
 #include "Vector.h"
 #include "Shader.h"
+#include "Camera.h"
+
 
 struct Vertex{
-	Vector4f posTex;
-	Vector4f color;
+	Vector3f position;
+	Vector2f texCoord;
+	unsigned int frame;
 };
 
-static const size_t max_quad = 1000;
+static const size_t max_quad = 200;
 static const size_t max_quad_vert_count = max_quad * 4;
 static const size_t max_quad_index_count = max_quad * 6;
 
 class Batchrenderer {
-public:
 
-	Batchrenderer() = default;
-	~Batchrenderer();
+public:
 
 	unsigned int m_vao = 0;
 	unsigned int m_vbo = 0;
@@ -30,29 +30,31 @@ public:
 	Vertex* buffer;
 	Vertex* buffer_ptr;
 	std::vector<Vertex> _buffer;
-	// stats
-	int draw_calls = 0;
-	int quad_vertex = 0;
 
 	void init();
-	void resetStats();
 	void shutdown();
 	void endBatch();
 	void beginBatch();
 	void flush();
-	void addQuad(Vector2f position, Vector2f size, Vector4f color);
-	void addVertex(Vector2f position, Vector4f color);
+	void addQuad(Vector4f position, Vector4f texCoord, unsigned int frame);
+
 	void addQuad(std::vector<Vertex> particles);
+	void setCamera(const Camera& camera);
 
-
-	void endBatch2();
-	void beginBatch2();
-	void flush2();
-	void resetStats2();
+	const Camera* m_camera;
+	//const Camera& m_cameraRef;
 
 	Shader *m_shader;
 
 	unsigned int batchSize = 0;
+
+	static Batchrenderer& get();
+
+private:
+	//Batchrenderer(const Camera& camera);
+	Batchrenderer() = default;
+	~Batchrenderer();
+	static Batchrenderer s_instance;
 };
 
 #endif

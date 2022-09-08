@@ -1,0 +1,1 @@
+toluapp.exe -o Luainterfacegenerated.cpp -H Luainterfacegenerated.h Luainterface.pkg

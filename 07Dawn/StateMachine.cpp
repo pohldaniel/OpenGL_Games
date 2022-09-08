@@ -82,11 +82,12 @@ void StateMachine::render() {
 	
 	if (!m_states.empty()) {	
 		glPolygonMode(GL_FRONT_AND_BACK, Globals::enableWireframe ? GL_LINE : GL_FILL);
+
 		m_states.top()->render(m_frameBuffer);
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);		
 	}
 	
-	glClearColor(0.3f, 0.5f, 0.9f, 1.0f);
+	glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	//glEnable(GL_BLEND);
 	glUseProgram(m_shader->m_program);

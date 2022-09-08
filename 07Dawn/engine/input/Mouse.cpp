@@ -200,8 +200,8 @@ void Mouse::handleEvent(Event event) {
 			int x = event.mouseMove.x;
 			int y = event.mouseMove.y;
 
-			m_xPosRelative = centerX - x;
-			m_yPosRelative = centerY - y;
+			m_xPosRelative = static_cast<float>(centerX - x);
+			m_yPosRelative = static_cast<float>(centerY - y);
 
 			m_xPosAbsolute = x;
 			m_yPosAbsolute = y;
@@ -271,8 +271,8 @@ void Mouse::update(){
 		
 		POINT        CursorPos;
 		GetCursorPos(&CursorPos);		
-		m_xPosRelative = (centerX - CursorPos.x);
-		m_yPosRelative = (centerY - CursorPos.y);
+		m_xPosRelative = static_cast<float>(centerX - CursorPos.x);
+		m_yPosRelative = static_cast<float>(centerY - CursorPos.y);
 		setCursorToMiddle();
 	}
 }

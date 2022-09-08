@@ -292,7 +292,7 @@ Game::~Game() {}
 void Game::fixedUpdate() {
 	m_car->Update(m_fdt);
 	Globals::physics->stepSimulation(m_fdt);
-};
+}
 
 void Game::update() {
 	Keyboard &keyboard = Keyboard::instance();

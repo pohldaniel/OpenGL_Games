@@ -6,8 +6,8 @@ template<typename T>
 class AssetManager {
 public:
 
-	void loadTexture(const std::string& name, const std::string& path, const bool flipVertical = true, unsigned int format = -1) {
-		m_assets[name].loadFromFile(path, flipVertical, format);
+	void loadTexture(const std::string& name, const std::string& path, const bool flipVertical = true, unsigned int internalFormat = 0, unsigned int format = 0) {
+		m_assets[name].loadFromFile(path, flipVertical, internalFormat, format);
 	}
 
 	void loadTexture(const std::string& name, const std::string& path, unsigned short tileWidth, unsigned short tileHeight, unsigned short spacing, unsigned int posY, unsigned int posX, const bool flipVertical = true, unsigned int format = -1) {

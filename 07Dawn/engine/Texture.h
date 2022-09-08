@@ -18,11 +18,13 @@ public:
 	unsigned int getHeight();
 	unsigned int getChannels();
 	void bind(unsigned int unit);
-	void loadFromFile(std::string pictureFile, const bool flipVertical = false, unsigned int format = -1);
+	void loadFromFile(std::string pictureFile, const bool flipVertical = false, unsigned int internalFormat = 0, unsigned int _format = 0);
 	void loadFromFile(std::string pictureFile, unsigned short tileWidth, unsigned short tileHeight, unsigned short spacing = 0, unsigned int posY = 0, unsigned int posX = 0, const bool flipVertical = false, unsigned int format = -1);
 	void loadFromFile(std::string pictureFile, unsigned int offsetX, unsigned int offsetY, unsigned int width = 0, unsigned int height = 0, const bool flipVertical = false, unsigned int format = -1);
 	void createNullTexture(unsigned int width, unsigned int height, unsigned int color = 255);
 	void createPerlinTexture(unsigned int width, unsigned int height, unsigned int seed = 0);
+	void readPixel(char* pixel);
+	//void freePixel();
 
 	void setRepeat();
 	void setLinear();
@@ -32,6 +34,10 @@ public:
 	static void FlipVertical(unsigned char* data, unsigned int padWidth, unsigned int height);
 	static void Unbind();
 	static unsigned char* LoadFromFile(std::string pictureFile, const bool flipVertical = false);
+	static void Safe(std::string fileOut, unsigned int& texture, unsigned int width, unsigned int height, unsigned int channels, unsigned int format = 0);
+
+	unsigned int m_format;
+
 private:
 	void flipVertical(unsigned char* data, unsigned int padWidth, unsigned int height);
 	
@@ -39,6 +45,8 @@ private:
 	unsigned int m_width = 0;
 	unsigned int m_height = 0;
 	unsigned short m_channels = 0;
+	
+	char* m_pixel;
 };
 
 #endif

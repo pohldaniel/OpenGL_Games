@@ -6,9 +6,13 @@
 #include "engine/input/KeyBorad.h"
 #include "engine/input/Mouse.h"
 #include "engine/Extension.h"
+#include "engine/Batchrenderer.h"
 
 #include "Constants.h"
 #include "StateMachine.h"
+#include "ViewPort.h"
+
+#include "Game.h"
 
 class Application {
 public:

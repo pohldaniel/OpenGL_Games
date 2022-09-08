@@ -444,9 +444,9 @@ void Camera::calcLightTransformation(Vector3f &direction) {
 	float near = getNear();
 	float far = getFar();
 
-	float heightNear = 2 * tanf(0.5 * getFovXRad()) * near;
+	float heightNear = 2 * tanf(0.5f * getFovXRad()) * near;
 	float widthNear = heightNear * m_aspectRatio;	
-	float heightFar = 2 * tanf(0.5 * getFovXRad()) * far;
+	float heightFar = 2 * tanf(0.5f * getFovXRad()) * far;
 	float widthFar = heightFar  * m_aspectRatio;
 
 
@@ -660,6 +660,50 @@ void Camera::setUpLightTransformation(std::vector<Vector2f>& bounds) {
 		//clipSpace
 		m_cascadeEndClipSpace[numberCascades] = vClip[2];
 	}
+}
+
+const Vector2f & Camera::getBottomLeft() {
+	m_bottomLeft[0] = -(1.0f / m_orthMatrix[0][0]) * (1.0f + m_orthMatrix[3][0]);
+	m_bottomLeft[1] = -(1.0f / m_orthMatrix[1][1]) * (1.0f + m_orthMatrix[3][1]);
+
+	return m_bottomLeft;
+}
+
+const Vector2f &Camera::getBottomRight() {
+	m_bottomRight[0] = (1.0f / m_orthMatrix[0][0]) * (1.0f - m_orthMatrix[3][0]);
+	m_bottomRight[1] = -(1.0f / m_orthMatrix[1][1]) * (1.0f + m_orthMatrix[3][1]);
+
+	return m_bottomRight;
+}
+
+const Vector2f &Camera::getTopLeft() {
+	m_topLeft[0] = -(1.0f / m_orthMatrix[0][0]) * (1.0f + m_orthMatrix[3][0]);
+	m_topLeft[1] = (1.0f / m_orthMatrix[1][1]) * (1.0f - m_orthMatrix[3][1]);
+
+	return m_topLeft;
+}
+
+const Vector2f &Camera::getTopRight() {
+	m_topRight[0] = (1.0f / m_orthMatrix[0][0]) * (1.0f - m_orthMatrix[3][0]);
+	m_topRight[1] = (1.0f / m_orthMatrix[1][1]) * (1.0f - m_orthMatrix[3][1]);
+
+	return m_topRight;
+}
+
+const float Camera::getLeftOrthographic() const {
+	return -(1.0f / m_orthMatrix[0][0]) * (1.0f + m_orthMatrix[3][0]);
+}
+
+const float Camera::getRightOrthographic() const {
+	return (1.0f / m_orthMatrix[0][0]) * (1.0f - m_orthMatrix[3][0]);
+}
+
+const float Camera::getBottomOrthographic() const {
+	return -(1.0f / m_orthMatrix[1][1]) * (1.0f + m_orthMatrix[3][1]);
+}
+
+const float Camera::getTopOrthographic() const {
+	return (1.0f / m_orthMatrix[1][1]) * (1.0f - m_orthMatrix[3][1]);
 }
 
 void Camera::setPosition(float x, float y, float z){

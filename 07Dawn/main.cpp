@@ -10,11 +10,25 @@
 extern Matrix4f Globals::projection = Matrix4f();
 extern Matrix4f Globals::invProjection = Matrix4f();
 extern Matrix4f Globals::orthographic = Matrix4f();
+extern Matrix4f Globals::invOrthographic = Matrix4f();
 extern AssetManager<Shader> Globals::shaderManager = AssetManager<Shader>();
 extern AssetManager<Texture> Globals::textureManager = AssetManager<Texture>();
 extern AssetManager<Spritesheet> Globals::spritesheetManager = AssetManager<Spritesheet>();
-
 extern bool Globals::enableWireframe = false;
+extern std::map<std::string, Zone*> Globals::allZones = std::map<std::string, Zone*>();
+extern Zone* Globals::currentZone = nullptr;
+extern bool  Globals::initPhase = false;
+
+
+extern void Globals::setCurrentZone(Zone* newCurZone){
+	Globals::currentZone = newCurZone;
+}
+
+extern Zone* Globals::getCurrentZone()
+{
+	return Globals::currentZone;
+}
+
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd) {
 
@@ -25,6 +39,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	SetConsoleTitle("Debug console");
 
 	MoveWindow(GetConsoleWindow(), 1300, 0, 550, 300, true);
+	std::cout << "w, a, s, d : scroll map" << std::endl;
 	#endif
 	
 	float deltaTime = 0.0f;

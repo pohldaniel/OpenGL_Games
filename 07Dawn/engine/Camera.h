@@ -31,6 +31,11 @@ public:
 	const float getNear() const;
 	const float getFovXDeg() const;
 	const float getFovXRad() const;
+	
+	const float getLeftOrthographic() const;
+	const float getRightOrthographic() const;
+	const float getBottomOrthographic() const;
+	const float getTopOrthographic() const;
 
 	const Matrix4f &getViewMatrix() const;
 	const Matrix4f &getInvViewMatrix() const;
@@ -42,6 +47,11 @@ public:
 	const Vector3f &getCamY() const;
 	const Vector3f &getCamZ() const;
 	const Vector3f &getViewDirection() const;
+
+	const Vector2f &getBottomLeft();
+	const Vector2f &getBottomRight();
+	const Vector2f &getTopLeft();
+	const Vector2f &getTopRight();
 
 	void setPosition(float x, float y, float z);
 	void setPosition(const Vector3f &position);
@@ -59,6 +69,7 @@ public:
 	std::vector<Vector2f> m_bounds;
 	short m_numberCascades = 0;
 	float* m_cascadeEndClipSpace;
+
 protected:
 
     void rotateFirstPerson(float yaw, float pitch);
@@ -84,6 +95,11 @@ protected:
 	Vector3f		m_currentVelocity;
 	Vector3f		m_acceleration;
 	Vector3f		m_velocity;
+
+	Vector2f		m_bottomLeft;
+	Vector2f		m_bottomRight;
+	Vector2f		m_topLeft;
+	Vector2f		m_topRight;
 
 	Matrix4f		m_viewMatrix;
 	Matrix4f		m_invViewMatrix;

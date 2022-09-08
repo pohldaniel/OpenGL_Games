@@ -1,15 +1,31 @@
 #include "Batchrenderer.h"
 #include <algorithm>
+#include "../Constants.h"
+
+//Batchrenderer Batchrenderer::s_instance = Batchrenderer(ViewPort::get().getCamera());
+//
+//Batchrenderer::Batchrenderer(const Camera& camera) : m_cameraRef(camera){
+//
+//}
+
+Batchrenderer Batchrenderer::s_instance;
+
+void Batchrenderer::setCamera(const Camera& camera) {
+	m_camera = &camera;
+}
+
+Batchrenderer& Batchrenderer::get() {
+	return s_instance;
+}
 
 Batchrenderer::~Batchrenderer() {
 	shutdown();
 }
 
-void Batchrenderer::init() {
+void Batchrenderer::init()  {
 
-	m_shader = Globals::shaderManager.getAssetPointer("quad_color");
+	m_shader = Globals::shaderManager.getAssetPointer("batch");
 	buffer = new Vertex[max_quad_vert_count];
-	//_buffer.resize(max_quad_vert_count);
 
 	glGenBuffers(1, &m_vbo);
 
@@ -20,11 +36,13 @@ void Batchrenderer::init() {
 	glBufferData(GL_ARRAY_BUFFER, max_quad_vert_count * sizeof(Vertex), nullptr, GL_DYNAMIC_DRAW); // dynamic
 
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const void*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const void*)0);
 
 	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const void*)(4 * sizeof(float)));
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const void*)(3 * sizeof(float)));
 
+	glEnableVertexAttribArray(2);
+	glVertexAttribIPointer(2, 1, GL_UNSIGNED_INT, sizeof(Vertex), (const void*)(5 * sizeof(float)));
 	
 	uint32_t indices[max_quad_index_count];
 	uint32_t index_offset = 0;
@@ -51,10 +69,6 @@ void Batchrenderer::init() {
 	glDeleteBuffers(1, &m_indexbuffer);
 }
 
-void Batchrenderer::resetStats() {
-	draw_calls = 0;
-	quad_vertex = 0;
-}
 
 void Batchrenderer::shutdown(){
 	glDeleteBuffers(1, &m_vbo);
@@ -69,123 +83,60 @@ void Batchrenderer::shutdown(){
 void Batchrenderer::endBatch(){
 	GLsizeiptr size = (uint8_t*)buffer_ptr - (uint8_t*)buffer;
 
-	// Set dynamic vertex buffer & upload data
 	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-	// glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(Vertex), vertices.data());
 	glBufferSubData(GL_ARRAY_BUFFER, 0, size, buffer);
 }
 
 
 void Batchrenderer::flush(){
-
+	
 	glUseProgram(m_shader->m_program);
-	m_shader->loadMatrix("u_transform", Globals::projection);
+	m_shader->loadMatrix("u_transform", m_camera->getOrthographicMatrix() * m_camera->getViewMatrix());
+
+	
+	
 	glBindVertexArray(m_vao);
 	glDrawElements(GL_TRIANGLES, index_count, GL_UNSIGNED_INT, nullptr);
 
-	draw_calls += 1;
-	index_count = 0;
+	
 
-	// unbind
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 	glUseProgram(0);
+
+	index_count = 0;
 }
 
 void Batchrenderer::beginBatch(){
 	buffer_ptr = buffer;
 }
 
-void Batchrenderer::addQuad(Vector2f position, Vector2f size, Vector4f color){
+void Batchrenderer::addQuad(Vector4f position, Vector4f texCoord, unsigned int frame){
   if (index_count >= max_quad_index_count) {
     endBatch();
     flush();
     beginBatch();
   }
-  float xpos = position[0];
-  float ypos = position[1];
-  float w = size[0];
-  float h = size[1];
-
-  buffer_ptr->posTex = { xpos, ypos, 0.0f, 0.0f};
-  buffer_ptr->color = color;
+ 
+  buffer_ptr->position = { position[0], position[1], 0.0f};
+  buffer_ptr->texCoord = { texCoord[0],  texCoord[1]};
+  buffer_ptr->frame = frame;
   buffer_ptr++;
 
-  buffer_ptr->posTex = { (xpos + w), ypos, 1.0f, 0.0f };
-  buffer_ptr->color = color;
+  buffer_ptr->position = { (position[0] + position[2]), position[1], 0.0f};
+  buffer_ptr->texCoord = { texCoord[2],  texCoord[1] };
+  buffer_ptr->frame = frame;
   buffer_ptr++;
 
-  buffer_ptr->posTex = { (xpos + w), (ypos + h), 1.0f, 1.0f };
-  buffer_ptr->color = color;
+  buffer_ptr->position = { (position[0] + position[2]), (position[1] + position[3]), 0.0f};
+  buffer_ptr->texCoord = { texCoord[2],  texCoord[3] };
+  buffer_ptr->frame = frame;
   buffer_ptr++;
 
-  buffer_ptr->posTex = { xpos, (ypos + h), 0.0f, 1.0f };
-  buffer_ptr->color = color;
+  buffer_ptr->position = { position[0], (position[1] + position[3]), 0.0f};
+  buffer_ptr->texCoord = { texCoord[0],  texCoord[3] };
+  buffer_ptr->frame = frame;
   buffer_ptr++;
 
   index_count += 6;
-  quad_vertex += 4;
-}
-
-void Batchrenderer::addVertex(Vector2f position, Vector4f color) {
-	if (index_count >= max_quad_index_count) {
-		endBatch();
-		flush();
-		beginBatch();
-	}
-
-	float xpos = position[0];
-	float ypos = position[1];
-	
-	buffer_ptr->posTex = { xpos, ypos, 0.0f, 0.0f };
-	buffer_ptr->color = color;
-	buffer_ptr++;
-
-	quad_vertex += 1;
-
-	if (quad_vertex % 4 == 0) {
-		index_count += 6;
-	}
-}
-
-void Batchrenderer::addQuad(std::vector<Vertex> particles) {
-	
-	if (_buffer.size() >= max_quad_vert_count) {
-		endBatch2();
-		flush2();
-		beginBatch2();
-	}
-
-	_buffer.insert(std::end(_buffer), std::begin(particles), std::end(particles));
-	index_count += 6 * _buffer.size() * 0.25;
-	quad_vertex += particles.size();
-}
-
-void Batchrenderer::endBatch2() {
-	// Set dynamic vertex buffer & upload data
-	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vertex) * _buffer.size(), &_buffer[0]);
-}
-void Batchrenderer::beginBatch2() {
-	_buffer.resize(0);
-}
-
-void Batchrenderer::flush2() {
-	glUseProgram(m_shader->m_program);
-	m_shader->loadMatrix("u_transform", Globals::projection);
-	glBindVertexArray(m_vao);
-	glDrawElements(GL_TRIANGLES, index_count, GL_UNSIGNED_INT, nullptr);
-
-	draw_calls += 1;
-	index_count = 0;
-
-	// unbind
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
-	glUseProgram(0);
-}
-
-void Batchrenderer::resetStats2() {
-	draw_calls = 0;
-	quad_vertex = 0;
 }
