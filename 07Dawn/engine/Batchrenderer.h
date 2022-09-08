@@ -20,17 +20,6 @@ static const size_t max_quad_index_count = max_quad * 6;
 class Batchrenderer {
 
 public:
-
-	unsigned int m_vao = 0;
-	unsigned int m_vbo = 0;
-	unsigned int m_indexbuffer = 0;
-
-	uint32_t index_count = 0;
-
-	Vertex* buffer;
-	Vertex* buffer_ptr;
-	std::vector<Vertex> _buffer;
-
 	void init();
 	void shutdown();
 	void endBatch();
@@ -41,12 +30,6 @@ public:
 	void addQuad(std::vector<Vertex> particles);
 	void setCamera(const Camera& camera);
 
-	const Camera* m_camera;
-	//const Camera& m_cameraRef;
-
-	Shader *m_shader;
-
-	unsigned int batchSize = 0;
 
 	static Batchrenderer& get();
 
@@ -54,6 +37,23 @@ private:
 	//Batchrenderer(const Camera& camera);
 	Batchrenderer() = default;
 	~Batchrenderer();
+
+	unsigned int m_vao = 0;
+	unsigned int m_vbo = 0;
+	unsigned int m_ibo= 0;
+
+	uint32_t index_count = 0;
+
+	Vertex* buffer;
+	Vertex* buffer_ptr;
+
+	//const Camera& m_cameraRef;
+	const Camera* m_camera;
+	
+	Shader *m_shader;
+	unsigned int batchSize = 0;
+
+
 	static Batchrenderer s_instance;
 };
 

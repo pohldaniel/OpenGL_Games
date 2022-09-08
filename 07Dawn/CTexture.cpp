@@ -3,7 +3,7 @@
 
 #include "Constants.h"
 
-TextureAtlas CTexture::s_textureAtlas;
+TextureAtlasCreator TextureAtlasCreator::s_instance;
 
 std::auto_ptr<TextureCache> textureCache(new TextureCache());
 
@@ -28,7 +28,7 @@ sTexture TextureCache::getTextureFromCache(std::string filename){
 	
 	char* bytes = (char*)malloc(tex->getWidth() * tex->getHeight() * tex->getChannels());
 	tex->readPixel(bytes);
-	CTexture::s_textureAtlas.addTexture(textures[filename], bytes, tex->getWidth(), tex->getHeight());
+	TextureAtlasCreator::get().addTexture(textures[filename], bytes, tex->getWidth(), tex->getHeight());
 	free(bytes);
 
 	return textures[filename];

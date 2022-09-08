@@ -19,6 +19,7 @@ public:
 	void createSpritesheet(unsigned int texture, unsigned int width, unsigned int height, unsigned int format = -1);
 	void addToSpritesheet(std::string pictureFile, unsigned short tileWidth, unsigned short tileHeight, unsigned short spacing = 0, bool reverse = false, bool flipVertical = false, int row = 0, int minColumn = 0, int maxColumn = -1, unsigned int format = -1);
 	void addToSpritesheet(unsigned int texture, unsigned int width, unsigned int height, unsigned int format = -1);
+	void addToSpritesheet(unsigned char* bytes, unsigned int width, unsigned int height, unsigned int format = 0);
 	void createNullSpritesheet(unsigned int width, unsigned int height, unsigned short layer);
 	
 	void setRepeat();
@@ -31,9 +32,9 @@ private:
 	unsigned int m_texture;
 
 
-	unsigned short m_tileCountX;
-	unsigned short m_tileCountY;
-	unsigned short m_totalFrames;
+	unsigned short m_tileCountX = 0;
+	unsigned short m_tileCountY = 0;
+	unsigned short m_totalFrames = 0;
 };
 
 #endif

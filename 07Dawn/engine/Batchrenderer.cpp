@@ -19,7 +19,7 @@ Batchrenderer& Batchrenderer::get() {
 }
 
 Batchrenderer::~Batchrenderer() {
-	shutdown();
+	//shutdown();
 }
 
 void Batchrenderer::init()  {
@@ -58,26 +58,24 @@ void Batchrenderer::init()  {
 		index_offset += 4;
 	}
 
-	glGenBuffers(1, &m_indexbuffer);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_indexbuffer);
+	glGenBuffers(1, &m_ibo);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ibo);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
 	// unbind vbo and vao
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 
-	glDeleteBuffers(1, &m_indexbuffer);
+	glDeleteBuffers(1, &m_ibo);
 }
 
 
 void Batchrenderer::shutdown(){
 	glDeleteBuffers(1, &m_vbo);
+	//glDeleteBuffers(1, &m_ibo);
 	glDeleteVertexArrays(1, &m_vao);
 
 	delete[] buffer;
-
-	_buffer.clear();
-	_buffer.shrink_to_fit();
 }
 
 void Batchrenderer::endBatch(){
@@ -92,13 +90,9 @@ void Batchrenderer::flush(){
 	
 	glUseProgram(m_shader->m_program);
 	m_shader->loadMatrix("u_transform", m_camera->getOrthographicMatrix() * m_camera->getViewMatrix());
-
-	
 	
 	glBindVertexArray(m_vao);
 	glDrawElements(GL_TRIANGLES, index_count, GL_UNSIGNED_INT, nullptr);
-
-	
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);

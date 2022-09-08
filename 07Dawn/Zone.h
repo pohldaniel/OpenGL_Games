@@ -80,10 +80,13 @@ public:
 	std::vector<sEnvironmentMap> EnvironmentMap;
 	std::vector<sCollisionMap> CollisionMap;
 	std::vector<sTileMap> TileMap;
+
+	unsigned int m_textureAtlas;
+
 private:
 
 	std::string m_zoneName;
 	bool m_mapLoaded = true;
-
-	Spritesheet spriteSheet;
+	
+	
 };

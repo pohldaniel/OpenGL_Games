@@ -22,6 +22,9 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 }
 
 Application::~Application() {
+
+	Batchrenderer::get().shutdown();
+
 	//release OpenGL context
 	HDC hdc = GetDC(m_window);
 	wglMakeCurrent(GetDC(m_window), 0);

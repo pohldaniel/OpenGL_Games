@@ -27,16 +27,9 @@ void Game::render(unsigned int &frameBuffer) {
 	glClearColor(0.0f, 0.0f, 1.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	glEnable(GL_BLEND);
+
+	newZone->drawZone();
 	
-	Batchrenderer::get().beginBatch();
-	glBindTexture(GL_TEXTURE_2D_ARRAY, CTexture::s_textureAtlas.m_texture);
-
-	newZone->drawTiles();
-	newZone->drawEnvironment();
-
-	Batchrenderer::get().endBatch();
-	Batchrenderer::get().flush();
-
 	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
 
 	glDisable(GL_BLEND);

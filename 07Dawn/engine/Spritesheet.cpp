@@ -288,6 +288,37 @@ void Spritesheet::addToSpritesheet(unsigned int texture, unsigned int width, uns
 	m_texture = texture_new;
 }
 
+void Spritesheet::addToSpritesheet(unsigned char* bytes, unsigned int width, unsigned int height, unsigned int format) {
+	unsigned internalFormat = format == 0 ? GL_RGBA8 : format;
+	m_totalFrames++;
+
+	unsigned int fbo = 0;
+	glGenFramebuffers(1, &fbo);
+	glBindFramebuffer(GL_READ_FRAMEBUFFER, fbo);
+
+	unsigned int texture_new;
+	glGenTextures(1, &texture_new);
+	glBindTexture(GL_TEXTURE_2D_ARRAY, texture_new);
+	glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_RGBA8, width, height, m_totalFrames, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+
+	for (int layer = 0; layer < m_totalFrames - 1; ++layer) {
+		glFramebufferTextureLayer(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, m_texture, 0, layer);
+		glReadBuffer(GL_COLOR_ATTACHMENT0);
+		glCopyTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, layer, 0, 0, width, height);
+	}
+	glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, m_totalFrames - 1, width, height, 1, GL_RGBA, GL_UNSIGNED_BYTE, bytes);
+
+	glBindTexture(GL_TEXTURE_2D_ARRAY, texture_new);
+	glTexParameterf(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameterf(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
+
+	glDeleteTextures(1, &m_texture);
+	m_texture = texture_new;
+}
+
 
 unsigned int Spritesheet::getAtlas() {
 	return m_texture;

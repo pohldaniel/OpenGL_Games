@@ -8,7 +8,7 @@
 #include "engine/Texture.h"
 #include "engine/Extension.h"
 #include "engine/Batchrenderer.h"
-
+#include "engine/Spritesheet.h"
 
 
 struct sTexture {
@@ -34,45 +34,30 @@ struct sTexture {
 	}
 };
 
-
-
-struct TextureAtlas {
+struct TextureAtlasCreator {
 	
+public:	
 
-	unsigned char* buffer;
-	size_t width;
-	size_t height;
-	size_t curX;
-	size_t curY;
-	size_t maxY;
-	GLuint texID;
-	GLuint m_texture;
-	size_t curTextures;
-	size_t usedSpace;
-	size_t currentFrame;
+	static TextureAtlasCreator& get() {
+		return s_instance;
+	}
 
-	TextureAtlas(){
-		width = 1024;
-		height = 1024;
+	void init(unsigned int& _textureAtlas, unsigned _width = 1024u, unsigned int _height = 1024u) {
+		textureAtlas = &_textureAtlas;
+		width = _width;
+		height = _height;
 		curX = 0;
 		curY = 0;
 		maxY = 0;
-		curTextures = 0;
-		currentFrame = 0;
-		usedSpace = 0;
 		buffer = new unsigned char[width * height * 4];
 		memset(buffer, 0, width*height * 4);
-		glGenTextures(1, &texID);
-
-		glGenTextures(1, &m_texture);
 	}
 
-	size_t getWidth() const{
-		return width;
-	}
-
-	size_t getHeight() const{
-		return height;
+	void shutdown() {
+		addFrame();
+		*textureAtlas = spritesheet.getAtlas();
+		delete[] buffer;
+		buffer = nullptr;
 	}
 
 	void addTexture(sTexture& stexture, char *texture, size_t w, size_t h){
@@ -83,7 +68,7 @@ struct TextureAtlas {
 		}
 
 		if (height - curY < h){
-			finishFrame();
+			addFrame();
 		}
 
 		for (size_t row = 0; row<h; ++row){
@@ -96,68 +81,42 @@ struct TextureAtlas {
 		stexture.y2 = static_cast<float>(curY + h) / static_cast<float>(height);
 		stexture.width = w;
 		stexture.height = h;
-		stexture.texture = texID;
-		stexture.frame = currentFrame;
+		stexture.frame = spritesheet.getTotalFrames();
 		curX += w;
 		maxY = (std::max)(maxY, curY + h);
-		++curTextures;
 	}
 
-	void finishFrame(){
+	void addFrame() {
 		if (curX == 0 && curY == 0) return;
-		//Texture::Safe("atlas_" + std::to_string(currentFrame) + ".png", texID, width, height, 4, GL_RGBA);
-		currentFrame++;
 
-		unsigned int fbo = 0;
-		glGenFramebuffers(1, &fbo);
-		glBindFramebuffer(GL_READ_FRAMEBUFFER, fbo);
+		spritesheet.addToSpritesheet(buffer, width, height);
 
-		unsigned int texture_new;
-		glGenTextures(1, &texture_new);
-		glBindTexture(GL_TEXTURE_2D_ARRAY, texture_new);
-		glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_RGBA8, width, height, currentFrame, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-
-		for (int layer = 0; layer < currentFrame - 1; ++layer) {
-			glFramebufferTextureLayer(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, m_texture, 0, layer);
-			glReadBuffer(GL_COLOR_ATTACHMENT0);
-			glCopyTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, layer, 0, 0, width, height);
-		}
-		glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, currentFrame - 1, width, height, 1, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
-		/*glFramebufferTexture2D(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texID, 0);
-		glCopyTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, currentFrame - 1, 0, 0, width, height);
-		glReadBuffer(GL_COLOR_ATTACHMENT0);
-		glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
-
-		glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
-		glDeleteFramebuffers(1, &fbo);*/
-
-		glBindTexture(GL_TEXTURE_2D_ARRAY, texture_new);
-		glTexParameterf(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameterf(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
-
-		glDeleteTextures(1, &m_texture);
-		m_texture = texture_new;
-		
 		memset(buffer, 0, width*height * 4);
-
 		curX = 0;
 		curY = 0;
 		maxY = 0;
-		curTextures = 0;
-		usedSpace = 0;
-
-		// Have OpenGL generate a texture object handle for us
-		glGenTextures(1, &texID);
-
-		
 	}
 
-	void safeAtlas() {
-		Texture::Safe("atlas.png", texID, width, height, 4, GL_RGBA);
+	size_t getWidth() const {
+		return width;
 	}
+
+	size_t getHeight() const {
+		return height;
+	}
+
+private:
+	TextureAtlasCreator() = default;
+	static TextureAtlasCreator s_instance;
+	unsigned char* buffer;
+	size_t width;
+	size_t height;
+	size_t curX;
+	size_t curY;
+	size_t maxY;
+	Spritesheet spritesheet;
+
+	unsigned int* textureAtlas;
 };
 
 
@@ -182,10 +141,6 @@ public:
 
 	static bool isRectOnScreen(int left, int width, int bottom, int height);
 
-	static TextureAtlas s_textureAtlas;
-
 private:
-	std::vector<sTexture> m_texture;
-
-	
+	std::vector<sTexture> m_texture;	
 };

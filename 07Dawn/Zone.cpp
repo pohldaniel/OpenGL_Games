@@ -19,8 +19,9 @@ Zone::~Zone(){
 void Zone::loadZone(std::string file){
 	
 	bool needOwnTextureFrame = !Globals::initPhase;
-	if (needOwnTextureFrame) {
+	if (needOwnTextureFrame) {		
 		Globals::initPhase = true;
+		TextureAtlasCreator::get().init(m_textureAtlas);
 	}
 
 	m_zoneName = file;
@@ -45,7 +46,8 @@ void Zone::loadZone(std::string file){
 	m_mapLoaded = true;
 
 	if (needOwnTextureFrame) {
-		CTexture::s_textureAtlas.finishFrame();
+		TextureAtlasCreator::get().shutdown();
+
 		Globals::initPhase = false;
 	}
 }
@@ -70,6 +72,17 @@ void Zone::addEnvironment(int x_pos, int y_pos, Tile *tile, bool centeredOnPos){
 			tile->texture->getTexture(0).collision_box.h,
 			tile->texture->getTexture(0).collision_box.w));
 	}*/
+}
+
+void Zone::drawZone() {
+	Batchrenderer::get().beginBatch();
+	glBindTexture(GL_TEXTURE_2D_ARRAY, m_textureAtlas);
+
+	drawTiles();
+	drawEnvironment();
+
+	Batchrenderer::get().endBatch();
+	Batchrenderer::get().flush();
 }
 
 void Zone::drawTiles() {
