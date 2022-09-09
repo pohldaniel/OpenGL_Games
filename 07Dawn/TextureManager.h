@@ -37,7 +37,7 @@ public:
 		return s_instance;
 	}
 
-	DawnTexture getTextureFromCache(std::string filename);
+	DawnTexture& getTextureFromCache(std::string filename);
 
 private:
 
@@ -120,6 +120,7 @@ public:
 	}
 
 private:
+
 	TextureAtlasCreator() = default;
 	static TextureAtlasCreator s_instance;
 	unsigned char* buffer;
@@ -141,6 +142,4 @@ public:
 	static bool IsRectOnScreen(int left, int width, int bottom, int height);
 	static void DrawTexture(DawnTexture& stexture, int x, int y, float transparency = 1.0f, float red = 1.0f, float green = 1.0f, float blue = 1.0f, float x_scale = 1.0f, float y_scale = 1.0f);
 	static DawnTexture& Loadimage(std::string file, bool isOpenGLThreadInThreadedMode = false, int textureOffsetX = 0, int textureOffsetY = 0);
-
-
 };

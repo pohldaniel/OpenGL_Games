@@ -13,14 +13,10 @@ struct Vertex{
 	unsigned int frame;
 };
 
-static const size_t max_quad = 200;
-static const size_t max_quad_vert_count = max_quad * 4;
-static const size_t max_quad_index_count = max_quad * 6;
-
 class Batchrenderer {
 
 public:
-	void init();
+	void init(size_t size = 400);
 	void shutdown();
 	void endBatch();
 	void beginBatch();
@@ -37,6 +33,11 @@ private:
 	Batchrenderer() = default;
 	~Batchrenderer();
 
+	size_t m_maxQuad = 0;
+	size_t m_maxVert = 0;
+	size_t m_maxIndex = 0;
+
+	
 	unsigned int m_vao = 0;
 	unsigned int m_vbo = 0;
 	unsigned int m_ibo= 0;

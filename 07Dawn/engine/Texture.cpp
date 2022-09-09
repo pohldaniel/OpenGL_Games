@@ -376,15 +376,16 @@ unsigned int Texture::getChannels() {
 	return m_channels;
 }
 
-void Texture::readPixel(char* pixel) {
-	//pixel = (char*)malloc(m_width * m_height * m_channels);
+unsigned char* Texture::readPixel() {
+	unsigned char* bytes = (unsigned char*)malloc(m_width * m_height * m_channels);
+
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, m_texture);
 
-	glGetTexImage(GL_TEXTURE_2D, 0, m_format, GL_UNSIGNED_BYTE, pixel);
+	glGetTexImage(GL_TEXTURE_2D, 0, m_format, GL_UNSIGNED_BYTE, bytes);
 
-	
+	return bytes;
 }
 
 void Texture::bind(unsigned int unit){

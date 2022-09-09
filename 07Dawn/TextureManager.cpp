@@ -4,27 +4,24 @@
 TextureCache TextureCache::s_instance;
 TextureAtlasCreator TextureAtlasCreator::s_instance;
 
-DawnTexture TextureCache::getTextureFromCache(std::string filename){
+DawnTexture& TextureCache::getTextureFromCache(std::string filename){
 	if (textures.count(filename) > 0) {
 		return textures[filename];
 	}
 
-	Texture* tex  = new Texture();
-	tex->loadFromFile(filename, true);
+	Texture tex;
+	tex.loadFromFile(filename, true);
 
-	textures[filename].width = tex->getWidth();
-	textures[filename].height = tex->getHeight();
+	textures[filename].width = tex.getWidth();
+	textures[filename].height = tex.getHeight();
 	textures[filename].x1 = 0.0f;
 	textures[filename].x2 = 1.0f;
 	textures[filename].y1 = 0.0f;
 	textures[filename].y2 = 1.0f;
 
-
-	char* bytes = (char*)malloc(tex->getWidth() * tex->getHeight() * tex->getChannels());
-	tex->readPixel(bytes);
-	TextureAtlasCreator::get().addTexture(textures[filename], bytes, tex->getWidth(), tex->getHeight());
+	unsigned char* bytes = tex.readPixel();
+	TextureAtlasCreator::get().addTexture(textures[filename], reinterpret_cast<char*>(bytes), tex.getWidth(), tex.getHeight());
 	free(bytes);
-
 	return textures[filename];
 }
 

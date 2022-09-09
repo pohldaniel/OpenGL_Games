@@ -25,9 +25,13 @@ Batchrenderer::~Batchrenderer() {
 	//shutdown();
 }
 
-void Batchrenderer::init()  {
+void Batchrenderer::init(size_t size)  {
 
-	buffer = new Vertex[max_quad_vert_count];
+	size_t m_maxQuad = size;
+	size_t m_maxVert = m_maxQuad * 4;
+	size_t m_maxIndex = m_maxQuad * 6;
+
+	buffer = new Vertex[m_maxVert];
 
 	glGenBuffers(1, &m_vbo);
 
@@ -35,7 +39,7 @@ void Batchrenderer::init()  {
 	glBindVertexArray(m_vao);
 	
 	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-	glBufferData(GL_ARRAY_BUFFER, max_quad_vert_count * sizeof(Vertex), nullptr, GL_DYNAMIC_DRAW); // dynamic
+	glBufferData(GL_ARRAY_BUFFER, m_maxVert * sizeof(Vertex), nullptr, GL_DYNAMIC_DRAW); // dynamic
 
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const void*)0);
@@ -46,9 +50,9 @@ void Batchrenderer::init()  {
 	glEnableVertexAttribArray(2);
 	glVertexAttribIPointer(2, 1, GL_UNSIGNED_INT, sizeof(Vertex), (const void*)(5 * sizeof(float)));
 	
-	uint32_t indices[max_quad_index_count];
+	uint32_t* indices = new uint32_t[m_maxIndex];
 	uint32_t index_offset = 0;
-	for (int i = 0; i < max_quad_index_count; i += 6) {
+	for (int i = 0; i < m_maxIndex; i += 6) {
 		indices[i + 0] = 0 + index_offset;
 		indices[i + 1] = 1 + index_offset;
 		indices[i + 2] = 2 + index_offset;
@@ -62,13 +66,15 @@ void Batchrenderer::init()  {
 
 	glGenBuffers(1, &m_ibo);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ibo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint32_t) * m_maxIndex, indices, GL_STATIC_DRAW);
 
 	// unbind vbo and vao
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 
 	glDeleteBuffers(1, &m_ibo);
+
+	delete[] indices;
 }
 
 
@@ -108,7 +114,7 @@ void Batchrenderer::beginBatch(){
 }
 
 void Batchrenderer::addQuad(Vector4f position, Vector4f texCoord, unsigned int frame){
-  if (index_count >= max_quad_index_count) {
+  if (index_count >= m_maxIndex) {
     endBatch();
     flush();
     beginBatch();
