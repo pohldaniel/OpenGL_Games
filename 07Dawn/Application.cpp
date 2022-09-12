@@ -214,13 +214,12 @@ void Application::initOpenGL() {
 	wglMakeCurrent(hDC, hRC);
 	enableVerticalSync(true);
 
-	glDisable(GL_DEPTH_TEST);
-	//glDepthFunc(GL_LEQUAL);
+	glDepthFunc(GL_ALWAYS);
 	//glDepthFunc(GL_LESS);
 	//glDepthFunc(GL_ALWAYS);
 	//alpha test for cutting border of the quads
-	glEnable(GL_ALPHA_TEST);
-	glAlphaFunc(GL_GREATER, 0.0);
+	//glEnable(GL_ALPHA_TEST);
+	//glAlphaFunc(GL_GREATER, 0.4f);
 
 	//glAlphaFunc(GL_GEQUAL, 0.5);
 
@@ -232,8 +231,8 @@ void Application::initOpenGL() {
 	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	//https://stackoverflow.com/questions/2171085/opengl-blending-with-previous-contents-of-framebuffer
-	glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-	//glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+	//glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+	glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 	// enable blending
 
 	//outline
@@ -342,7 +341,7 @@ void Application::loadAssets() {
 	Globals::shaderManager.loadShader("quad_array", "res/shader/quad_array.vs", "res/shader/quad_array.fs");
 	Globals::shaderManager.loadShader("batch", "res/shader/batch.vs", "res/shader/batch.fs");
 	Globals::shaderManager.loadShader("instanced", "res/shader/instanced.vs", "res/shader/instanced.fs");
-	Globals::textureManager.createNullTexture("grey", 2, 2, 128);
+	Globals::textureManager.createNullTexture("grey", 64, 64, 128);
 	Globals::spritesheetManager.createNullSpritesheet("null", 1024, 1024, 4);
 
 	Batchrenderer::get().init();

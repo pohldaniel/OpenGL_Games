@@ -23,9 +23,8 @@ void Zone::loadZone(std::string file){
 		Globals::initPhase = true;
 		TextureAtlasCreator::get().init(m_textureAtlas);
 	}
-
+	
 	m_zoneName = file;
-
 
 	Globals::allZones[m_zoneName] = this;
 	LuaFunctions::executeLuaScript(std::string("DawnInterface.setCurrentZone( \"").append(m_zoneName).append("\");"));
@@ -47,7 +46,6 @@ void Zone::loadZone(std::string file){
 
 	if (needOwnTextureFrame) {
 		TextureAtlasCreator::get().shutdown();
-
 		Globals::initPhase = false;
 	}
 }
@@ -82,6 +80,8 @@ void Zone::drawZoneBatched() {
 	drawEnvironmentBatched();
 
 	Batchrenderer::get().drawBuffer();
+
+	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
 }
 
 void Zone::drawTilesBatched() {
@@ -104,6 +104,8 @@ void Zone::drawZoneInstanced() {
 	drawEnvironmentInstanced();
 
 	Instancedrenderer::get().drawBuffer();
+
+	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
 }
 
 

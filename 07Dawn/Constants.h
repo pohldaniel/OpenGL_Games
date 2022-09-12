@@ -1,6 +1,7 @@
 #pragma once
 
 #include <map>
+#include <vector>
 
 #include "engine\Vector.h"
 #include "engine\AssetManger.h"
@@ -9,6 +10,7 @@
 #include "engine\Spritesheet.h"
 
 #include "Zone.h"
+#include "Framesbase.h"
 
 #define WIDTH 1600
 #define HEIGHT 900
@@ -35,4 +37,7 @@ namespace Globals {
 	extern void setCurrentZone(Zone* newCurZone);
 	extern Zone* getCurrentZone();
 	extern bool initPhase;
+	extern std::vector<FramesBase*> activeFrames;
+
+	extern unsigned int textureAtlas;
 }

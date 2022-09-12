@@ -1,16 +1,22 @@
 #include "TextureManager.h"
 #include "ViewPort.h"
+#include "Constants.h"
 
 TextureCache TextureCache::s_instance;
 TextureAtlasCreator TextureAtlasCreator::s_instance;
 
 DawnTexture& TextureCache::getTextureFromCache(std::string filename){
+
 	if (textures.count(filename) > 0) {
 		return textures[filename];
 	}
-
+	
 	Texture tex;
 	tex.loadFromFile(filename, true);
+
+	if (tex.getChannels() == 3) {		
+		tex.addAlphaChannel();
+	}
 
 	textures[filename].width = tex.getWidth();
 	textures[filename].height = tex.getHeight();
@@ -18,15 +24,29 @@ DawnTexture& TextureCache::getTextureFromCache(std::string filename){
 	textures[filename].textureWidth = 1.0f;
 	textures[filename].textureOffsetY = 0.0f;
 	textures[filename].textureHeight = 1.0f;
-
+	
 	unsigned char* bytes = tex.readPixel();
 	TextureAtlasCreator::get().addTexture(textures[filename], reinterpret_cast<char*>(bytes), tex.getWidth(), tex.getHeight());
 	free(bytes);
+
 	return textures[filename];
 }
 
-void TextureManager::DrawTextureBatched(DawnTexture& stexture, int x, int y, float transparency, float red, float green, float blue, float x_scale, float y_scale) {
-	if (!TextureManager::IsRectOnScreen(x, stexture.width * x_scale, y, stexture.height * y_scale)) {
+
+void TextureManager::loadimage(std::string file, int textureIndex, bool isOpenGLThreadInThreadedMode) {
+	if (textureIndex >= m_texture.size() ) {
+		m_texture.resize(textureIndex + 1);
+	}
+
+	m_texture[textureIndex] = TextureCache::get().getTextureFromCache(file);
+}
+
+DawnTexture& TextureManager::getTexture(int index){	
+	return m_texture[index];
+}
+
+void TextureManager::DrawTextureBatched(DawnTexture& stexture, int x, int y, float transparency, float red, float green, float blue, float x_scale, float y_scale, bool checkVieport) {
+	if (!TextureManager::IsRectOnScreen(x, stexture.width * x_scale, y, stexture.height * y_scale) && checkVieport) {
 		return;
 	}
 	//glColor4f(red, green, blue, transparency);
@@ -34,17 +54,18 @@ void TextureManager::DrawTextureBatched(DawnTexture& stexture, int x, int y, flo
 	Batchrenderer::get().addQuad(Vector4f(x, y, stexture.width, stexture.height), Vector4f(stexture.textureOffsetX, stexture.textureOffsetY, stexture.textureWidth, stexture.textureHeight), stexture.frame);
 }
 
-void TextureManager::DrawTextureInstanced(DawnTexture& stexture, int x, int y, float transparency, float red, float green, float blue, float x_scale, float y_scale) {
-	if (!TextureManager::IsRectOnScreen(x, stexture.width * x_scale, y, stexture.height * y_scale)) {
+void TextureManager::DrawTextureInstanced(DawnTexture& stexture, int x, int y, float transparency, float red, float green, float blue, float x_scale, float y_scale, bool checkVieport) {
+	if (!TextureManager::IsRectOnScreen(x, stexture.width * x_scale, y, stexture.height * y_scale) && checkVieport) {
 		return;
 	}
 
 	Instancedrenderer::get().addQuad(Vector4f(x, y, stexture.width, stexture.height), Vector4f(stexture.textureOffsetX, stexture.textureOffsetY, stexture.textureWidth, stexture.textureHeight), stexture.frame);
 }
 
-DawnTexture& TextureManager::Loadimage(std::string file, bool isOpenGLThreadInThreadedMode, int textureOffsetX, int textureOffsetY) {
+DawnTexture& TextureManager::Loadimage(std::string file, bool isOpenGLThreadInThreadedMode) {
 	return TextureCache::get().getTextureFromCache(file);
 }
+
 
 bool TextureManager::IsRectOnScreen(int left, int width, int bottom, int height){
 	ViewPort& viewPort = ViewPort::get();

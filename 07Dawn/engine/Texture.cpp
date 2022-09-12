@@ -184,7 +184,7 @@ void Texture::loadFromFile(std::string pictureFile, unsigned int _offsetX, unsig
 void Texture::createNullTexture(unsigned int width, unsigned int height, unsigned int color) {
 	int pitch = ((width * 32 + 31) & ~31) >> 3; // align to 4-byte boundaries
 	std::vector<unsigned char> pixels(pitch * height, color);
-	
+
 	glGenTextures(1, &m_texture);
 	glBindTexture(GL_TEXTURE_2D, m_texture);
 
@@ -245,6 +245,58 @@ void Texture::createPerlinTexture(unsigned int width, unsigned int height, unsig
 
 	free(pixels);
 }
+
+unsigned char* Texture::readPixel() {
+	unsigned char* bytes = (unsigned char*)malloc(m_width * m_height * m_channels);
+
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, m_texture);
+
+	glGetTexImage(GL_TEXTURE_2D, 0, m_format, GL_UNSIGNED_BYTE, bytes);
+
+	return bytes;
+}
+
+void Texture::addAlphaChannel(unsigned int value) {
+	unsigned char* bytes = (unsigned char*)malloc(m_width * m_height * m_channels);
+	
+	glBindTexture(GL_TEXTURE_2D, m_texture);
+	glGetTexImage(GL_TEXTURE_2D, 0, m_format, GL_UNSIGNED_BYTE, bytes);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	m_channels = 4;
+	m_format = GL_RGBA;
+
+	unsigned char* bytesNew = (unsigned char*)malloc(m_width * m_height * m_channels);
+
+	for (unsigned int i = 0, k = 0; i < m_width * m_height * 4; i = i + 4, k = k + 3) {
+		bytesNew[i] = bytes[k];
+		bytesNew[i + 1] = bytes[k + 1];
+		bytesNew[i + 2] = bytes[k + 2];
+		bytesNew[i + 3] = value;
+	}
+
+	unsigned int texture_new;
+	glGenTextures(1, &texture_new);
+	glBindTexture(GL_TEXTURE_2D_ARRAY, texture_new);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, m_width, m_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, bytesNew);
+
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	glDeleteTextures(1, &m_texture);
+	m_texture = texture_new;
+
+	free(bytes);
+	free(bytesNew);
+}
+
 
 void Texture::CutSubimage(std::string fileIn, std::string fileOut, unsigned int _offsetX, unsigned int _offsetY, unsigned int _width, unsigned int _height, const bool _flipVertical) {
 
@@ -347,17 +399,17 @@ unsigned char* Texture::LoadFromFile(std::string pictureFile, const bool _flipVe
 void Texture::Safe(std::string fileOut, unsigned int& texture, unsigned int width, unsigned int height, unsigned int channels, unsigned int format) {
 	unsigned char* bytes = (unsigned char*)malloc(width * channels * height);
 
-	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, texture);
 	glGetTexImage(GL_TEXTURE_2D, 0, format, GL_UNSIGNED_BYTE, bytes);
 
-	/*for (int i = 0; i < width * channels * height; i = i + 4) {
-		std::cout << (int)bytes[i] << "  " << (int)bytes[i + 1] << "  " << (int)bytes[i + 2] << "  " << (int)bytes[i + 3] << "  " << std::endl;
-	}*/
 	glBindTexture(GL_TEXTURE_2D, 0);
 	SOIL_save_image(fileOut.c_str(), SOIL_SAVE_TYPE_PNG, width, height, channels, bytes);
 
 	free(bytes);
+}
+
+void Texture::Safe(std::string fileOut, unsigned char* bytes, unsigned int width, unsigned int height, unsigned int channels) {
+	SOIL_save_image(fileOut.c_str(), SOIL_SAVE_TYPE_PNG, width, height, channels, bytes);
 }
 
 unsigned int Texture::getTexture(){
@@ -374,18 +426,6 @@ unsigned int Texture::getHeight() {
 
 unsigned int Texture::getChannels() {
 	return m_channels;
-}
-
-unsigned char* Texture::readPixel() {
-	unsigned char* bytes = (unsigned char*)malloc(m_width * m_height * m_channels);
-
-
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, m_texture);
-
-	glGetTexImage(GL_TEXTURE_2D, 0, m_format, GL_UNSIGNED_BYTE, bytes);
-
-	return bytes;
 }
 
 void Texture::bind(unsigned int unit){

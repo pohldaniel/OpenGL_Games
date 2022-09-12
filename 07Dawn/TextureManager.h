@@ -62,6 +62,7 @@ public:
 		maxY = 0;
 		buffer = new unsigned char[width * height * 4];
 		memset(buffer, 0, width*height * 4);
+		spritesheet = Spritesheet();
 	}
 
 	void shutdown() {
@@ -93,16 +94,18 @@ public:
 		stexture.width = w;
 		stexture.height = h;
 		stexture.frame = spritesheet.getTotalFrames();
+
+		
 		curX += w;
 		maxY = (std::max)(maxY, curY + h);
 	}
 
 	void addFrame() {
 		if (curX == 0 && curY == 0) return;
-
 		spritesheet.addToSpritesheet(buffer, width, height);
-
+		//Texture::Safe("atlas.png", buffer, width, height, 4);
 		memset(buffer, 0, width*height * 4);
+
 		curX = 0;
 		curY = 0;
 		maxY = 0;
@@ -131,14 +134,16 @@ private:
 	unsigned int* textureAtlas;
 };
 
-
-
 class TextureManager{
 
 public:
+	std::vector<DawnTexture> m_texture;
+
+	void loadimage(std::string file, int textureIndex = 0, bool isOpenGLThreadInThreadedMode = false);
+	DawnTexture& getTexture(int index);
 
 	static bool IsRectOnScreen(int left, int width, int bottom, int height);
-	static void DrawTextureBatched(DawnTexture& stexture, int x, int y, float transparency = 1.0f, float red = 1.0f, float green = 1.0f, float blue = 1.0f, float x_scale = 1.0f, float y_scale = 1.0f);
-	static void DrawTextureInstanced(DawnTexture& stexture, int x, int y, float transparency = 1.0f, float red = 1.0f, float green = 1.0f, float blue = 1.0f, float x_scale = 1.0f, float y_scale = 1.0f);
-	static DawnTexture& Loadimage(std::string file, bool isOpenGLThreadInThreadedMode = false, int textureOffsetX = 0, int textureOffsetY = 0);
+	static void DrawTextureBatched(DawnTexture& stexture, int x, int y, float transparency = 1.0f, float red = 1.0f, float green = 1.0f, float blue = 1.0f, float x_scale = 1.0f, float y_scale = 1.0f, bool checkVieport = true);
+	static void DrawTextureInstanced(DawnTexture& stexture, int x, int y, float transparency = 1.0f, float red = 1.0f, float green = 1.0f, float blue = 1.0f, float x_scale = 1.0f, float y_scale = 1.0f, bool checkVieport = true);
+	static DawnTexture& Loadimage(std::string file, bool isOpenGLThreadInThreadedMode = false);
 };

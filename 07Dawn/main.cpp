@@ -7,6 +7,7 @@
 #include "Application.h"
 #include "Constants.h"
 
+
 extern Matrix4f Globals::projection = Matrix4f();
 extern Matrix4f Globals::invProjection = Matrix4f();
 extern Matrix4f Globals::orthographic = Matrix4f();
@@ -18,7 +19,8 @@ extern bool Globals::enableWireframe = false;
 extern std::map<std::string, Zone*> Globals::allZones = std::map<std::string, Zone*>();
 extern Zone* Globals::currentZone = nullptr;
 extern bool  Globals::initPhase = false;
-
+extern std::vector<FramesBase*> Globals::activeFrames = std::vector<FramesBase*>();
+extern unsigned int Globals::textureAtlas = 0;
 
 extern void Globals::setCurrentZone(Zone* newCurZone){
 	Globals::currentZone = newCurZone;

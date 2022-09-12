@@ -112,14 +112,14 @@ void Batchrenderer::addQuad(Vector4f position, Vector4f texCoord, unsigned int f
   indexCount += 6;
 }
 
-void Batchrenderer::drawBuffer() {
+void Batchrenderer::drawBuffer(bool updateView) {
 	GLsizeiptr size = (uint8_t*)bufferPtr - (uint8_t*)buffer;
 	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
 	glBufferSubData(GL_ARRAY_BUFFER, 0, size, buffer);
 
 
 	glUseProgram(m_shader->m_program);
-	m_shader->loadMatrix("u_transform", m_camera->getOrthographicMatrix() * m_camera->getViewMatrix());
+	m_shader->loadMatrix("u_transform", updateView ? m_camera->getOrthographicMatrix() * m_camera->getViewMatrix() : m_camera->getOrthographicMatrix());
 
 	glBindVertexArray(m_vao);
 	glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, nullptr);

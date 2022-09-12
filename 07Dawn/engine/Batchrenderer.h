@@ -17,10 +17,9 @@ public:
 
 	void init(size_t size = 400);
 	void shutdown();
-	void drawBuffer();
+	void drawBuffer(bool updateView = true);
 	void addQuad(Vector4f position, Vector4f texCoord, unsigned int frame);
 
-	void addQuad(std::vector<Vertex> particles);
 	void setCamera(const Camera& camera);
 	void setShader(Shader* shader);
 	static Batchrenderer& get();
@@ -44,7 +43,7 @@ private:
 	Vertex* buffer;
 	Vertex* bufferPtr;
 
-	//const Camera& m_cameraR;
+	//const Camera& m_camera;
 	const Camera* m_camera;
 	
 	Shader *m_shader;

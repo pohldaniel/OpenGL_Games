@@ -155,7 +155,15 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Application.cpp" />
+    <ClCompile Include="Configuredframes.cpp" />
+    <ClCompile Include="Configurableframe.cpp" />
+    <ClCompile Include="DawnState.cpp" />
     <ClCompile Include="engine\Instancerenderer.cpp" />
+    <ClCompile Include="Fontcache.cpp" />
+    <ClCompile Include="Frames.cpp" />
+    <ClCompile Include="Framesbase.cpp" />
+    <ClCompile Include="GLFT_Font.cpp" />
+    <ClCompile Include="Label.cpp" />
     <ClCompile Include="TextureManager.cpp" />
     <ClCompile Include="engine\Batchrenderer.cpp" />
     <ClCompile Include="engine\Camera.cpp" />
@@ -189,8 +197,16 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h" />
+    <ClInclude Include="Configuredframes.h" />
+    <ClInclude Include="Configurableframe.h" />
     <ClInclude Include="Constants.h" />
+    <ClInclude Include="DawnState.h" />
     <ClInclude Include="engine\Instancerenderer.h" />
+    <ClInclude Include="Fontcache.h" />
+    <ClInclude Include="Frames.h" />
+    <ClInclude Include="Framesbase.h" />
+    <ClInclude Include="GLFT_Font.h" />
+    <ClInclude Include="Label.h" />
     <ClInclude Include="TextureManager.h" />
     <ClInclude Include="engine\AssetManger.h" />
     <ClInclude Include="engine\Batchrenderer.h" />

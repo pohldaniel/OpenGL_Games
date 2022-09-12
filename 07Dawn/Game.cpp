@@ -8,6 +8,12 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	m_camera.orthographic(0.0f, static_cast<float>(WIDTH), 0.0f, static_cast<float>(HEIGHT), -1.0f, 1.0f);
 
 	Batchrenderer::get().setCamera(ViewPort::get().getCamera());
+
+	Frames::initFrameTextures();
+	mainMenuFrame.reset(new ConfigurableFrame(100, 100, 0, 0, DawnState::MainMenu));
+
+	ConfiguredFrames::fillMainMenuFrame(mainMenuFrame.get());
+	mainMenuFrame->setVisible(true);
 }
 
 Game::~Game() {}
@@ -24,15 +30,20 @@ void Game::update() {
 void Game::render(unsigned int &frameBuffer) {
 	glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
 
+
 	glClearColor(0.0f, 0.0f, 1.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	glEnable(GL_BLEND);
+	
 
 	newZone->drawZoneBatched();
 	//newZone->drawZoneInstanced();
-	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
 
+	glEnable(GL_DEPTH_TEST);
+	mainMenuFrame->draw(0, 0);
+	glDisable(GL_DEPTH_TEST);
 	glDisable(GL_BLEND);
+
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
