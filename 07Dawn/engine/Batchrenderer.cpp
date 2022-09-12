@@ -3,7 +3,7 @@
 
 //Batchrenderer Batchrenderer::s_instance = Batchrenderer(ViewPort::get().getCamera());
 //
-//Batchrenderer::Batchrenderer(const Camera& camera) : m_cameraRef(camera){
+//Batchrenderer::Batchrenderer(const Camera& camera) : m_camera(camera){
 //
 //}
 
@@ -27,9 +27,9 @@ Batchrenderer::~Batchrenderer() {
 
 void Batchrenderer::init(size_t size)  {
 
-	size_t m_maxQuad = size;
-	size_t m_maxVert = m_maxQuad * 4;
-	size_t m_maxIndex = m_maxQuad * 6;
+	m_maxQuad = size;
+	m_maxVert = m_maxQuad * 4;
+	m_maxIndex = m_maxQuad * 6;
 
 	buffer = new Vertex[m_maxVert];
 
@@ -42,13 +42,13 @@ void Batchrenderer::init(size_t size)  {
 	glBufferData(GL_ARRAY_BUFFER, m_maxVert * sizeof(Vertex), nullptr, GL_DYNAMIC_DRAW); // dynamic
 
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const void*)0);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const void*)0);
 
 	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const void*)(3 * sizeof(float)));
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const void*)(2 * sizeof(float)));
 
 	glEnableVertexAttribArray(2);
-	glVertexAttribIPointer(2, 1, GL_UNSIGNED_INT, sizeof(Vertex), (const void*)(5 * sizeof(float)));
+	glVertexAttribIPointer(2, 1, GL_UNSIGNED_INT, sizeof(Vertex), (const void*)(4 * sizeof(float)));
 	
 	uint32_t* indices = new uint32_t[m_maxIndex];
 	uint32_t index_offset = 0;
@@ -75,30 +75,52 @@ void Batchrenderer::init(size_t size)  {
 	glDeleteBuffers(1, &m_ibo);
 
 	delete[] indices;
+
+	bufferPtr = buffer;
 }
 
 
 void Batchrenderer::shutdown(){
 	glDeleteBuffers(1, &m_vbo);
-	//glDeleteBuffers(1, &m_ibo);
 	glDeleteVertexArrays(1, &m_vao);
 
 	delete[] buffer;
 }
 
-void Batchrenderer::endBatch(){
-	GLsizeiptr size = (uint8_t*)bufferPtr - (uint8_t*)buffer;
+void Batchrenderer::addQuad(Vector4f position, Vector4f texCoord, unsigned int frame){
 
-	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-	glBufferSubData(GL_ARRAY_BUFFER, 0, size, buffer);
+  if (indexCount >= m_maxIndex) {
+	drawBuffer();
+  }
+ 
+  bufferPtr->posTex = { position[0], position[1],  texCoord[0],  texCoord[1] };
+  bufferPtr->frame = frame;
+  bufferPtr++;
+
+  bufferPtr->posTex = { position[0] + position[2], position[1],  texCoord[0] + texCoord[2],  texCoord[1] };
+  bufferPtr->frame = frame;
+  bufferPtr++;
+
+  bufferPtr->posTex = { position[0] + position[2], position[1] + position[3],  texCoord[0] + texCoord[2],  texCoord[1] + texCoord[3] };
+  bufferPtr->frame = frame;
+  bufferPtr++;
+
+  bufferPtr->posTex = { position[0], position[1] + position[3],  texCoord[0],  texCoord[1] + texCoord[3] };
+  bufferPtr->frame = frame;
+  bufferPtr++;
+
+  indexCount += 6;
 }
 
+void Batchrenderer::drawBuffer() {
+	GLsizeiptr size = (uint8_t*)bufferPtr - (uint8_t*)buffer;
+	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, size, buffer);
 
-void Batchrenderer::flush(){
-	
+
 	glUseProgram(m_shader->m_program);
 	m_shader->loadMatrix("u_transform", m_camera->getOrthographicMatrix() * m_camera->getViewMatrix());
-	
+
 	glBindVertexArray(m_vao);
 	glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, nullptr);
 
@@ -107,39 +129,6 @@ void Batchrenderer::flush(){
 	glUseProgram(0);
 
 	indexCount = 0;
-}
 
-void Batchrenderer::beginBatch(){
 	bufferPtr = buffer;
-}
-
-void Batchrenderer::addQuad(Vector4f position, Vector4f texCoord, unsigned int frame){
-
-  if (indexCount >= m_maxIndex) {
-    endBatch();
-    flush();
-    beginBatch();
-  }
- 
-  bufferPtr->position = { position[0], position[1], 0.0f};
-  bufferPtr->texCoord = { texCoord[0],  texCoord[1]};
-  bufferPtr->frame = frame;
-  bufferPtr++;
-
-  bufferPtr->position = { (position[0] + position[2]), position[1], 0.0f};
-  bufferPtr->texCoord = { texCoord[0] + texCoord[2],  texCoord[1] };
-  bufferPtr->frame = frame;
-  bufferPtr++;
-
-  bufferPtr->position = { (position[0] + position[2]), (position[1] + position[3]), 0.0f};
-  bufferPtr->texCoord = { texCoord[0] + texCoord[2], texCoord[1] + texCoord[3] };
-  bufferPtr->frame = frame;
-  bufferPtr++;
-
-  bufferPtr->position = { position[0], (position[1] + position[3]), 0.0f};
-  bufferPtr->texCoord = { texCoord[0],  texCoord[1] + texCoord[3] };
-  bufferPtr->frame = frame;
-  bufferPtr++;
-
-  indexCount += 6;
 }

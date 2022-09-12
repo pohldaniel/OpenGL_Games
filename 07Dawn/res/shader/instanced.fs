@@ -8,8 +8,5 @@ uniform sampler2DArray u_texture;
 uniform vec4 u_blendColor = vec4(1.0);
 
 void main(void) {
-
 	outColor = u_blendColor * texture(u_texture, vec3(texCoord, layer));
-	
-	//outColor = vec4(1.0, 1.0, 0.0, 1.0);
 }

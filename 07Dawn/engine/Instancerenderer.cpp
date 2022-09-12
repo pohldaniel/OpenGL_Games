@@ -91,24 +91,16 @@ void Instancedrenderer::shutdown() {
 
 void Instancedrenderer::addQuad(Vector4f posSize, Vector4f texPosSize, unsigned int frame) {
 
+	if (m_instanceCount >= m_maxQuad) {
+		drawBuffer();
+	}
+
 	//instanceBuffer.push_back({posSize[0], posSize[1], posSize[2], posSize[3],
 	//						  texPosSize[0], texPosSize[1], texPosSize[2], texPosSize[3],
 	//						  frame });
 
-	if (m_instanceCount >= m_maxVert) {
-		drawBuffer();
-	}
-
-	bufferPtr->posSize[0] = posSize[0];
-	bufferPtr->posSize[1] = posSize[1];
-	bufferPtr->posSize[2] = posSize[2];
-	bufferPtr->posSize[3] = posSize[3];
-
-	bufferPtr->texPosSize[0] = texPosSize[0];
-	bufferPtr->texPosSize[1] = texPosSize[1];
-	bufferPtr->texPosSize[2] = texPosSize[2];
-	bufferPtr->texPosSize[3] = texPosSize[3];
-
+	bufferPtr->posSize = { posSize[0] , posSize[1] , posSize[2] , posSize[3] };
+	bufferPtr->texPosSize = { texPosSize[0] , texPosSize[1] , texPosSize[2] , texPosSize[3] };
 	bufferPtr->frame = frame;
 
 	bufferPtr++;
@@ -117,7 +109,7 @@ void Instancedrenderer::addQuad(Vector4f posSize, Vector4f texPosSize, unsigned 
 }
 
 void Instancedrenderer::drawBuffer() {
-	
+
 	glBindBuffer(GL_ARRAY_BUFFER, m_vboInstance);
 	glBufferSubData(GL_ARRAY_BUFFER, 0, m_instanceCount * sizeof(Vertex), buffer);
 

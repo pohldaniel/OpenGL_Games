@@ -1,7 +1,6 @@
 #version 410 core
 
 layout(location = 0) in vec4 i_base;
-
 layout(location = 1) in vec4 i_posSize;
 layout(location = 2) in vec4 i_texPosSize;
 layout(location = 3) in uint i_layer;

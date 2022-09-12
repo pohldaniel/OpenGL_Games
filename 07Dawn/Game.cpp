@@ -28,8 +28,8 @@ void Game::render(unsigned int &frameBuffer) {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	glEnable(GL_BLEND);
 
-	//newZone->drawZoneBatched();
-	newZone->drawZoneInstanced();
+	newZone->drawZoneBatched();
+	//newZone->drawZoneInstanced();
 	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
 
 	glDisable(GL_BLEND);

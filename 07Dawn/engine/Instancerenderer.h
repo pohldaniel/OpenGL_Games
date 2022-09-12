@@ -1,7 +1,9 @@
-#pragma once
+#ifndef _INSTANCERENDERER_H
+#define _INSTANCERENDERER_H
+
+#include <array>
 
 #include "Extension.h"
-#include "Vector.h"
 #include "Shader.h"
 #include "Camera.h"
 
@@ -11,8 +13,8 @@ class Instancedrenderer {
 
 public:
 	struct Vertex {
-		float posSize[4];
-		float texPosSize[4];
+		std::array<float, 4> posSize;
+		std::array<float, 4> texPosSize;
 		unsigned int frame;
 	};
 
@@ -47,3 +49,4 @@ private:
 	static Instancedrenderer s_instance;
 	unsigned int m_instanceCount = 0;
 };
+#endif
