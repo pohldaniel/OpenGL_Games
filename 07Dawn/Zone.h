@@ -70,9 +70,14 @@ public:
 	Zone();
 	~Zone();
 
-	void drawZone();
-	void drawTiles();
-	void drawEnvironment();
+	void drawZoneBatched();
+	void drawTilesBatched();
+	void drawEnvironmentBatched();
+
+	void drawZoneInstanced();
+	void drawTilesInstanced();
+	void drawEnvironmentInstanced();
+
 	void loadZone(std::string file);
 	bool zoneDataLoaded() const;
 	void addEnvironment(int x_pos, int y_pos, Tile *tile, bool centeredOnPos);

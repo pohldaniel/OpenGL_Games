@@ -8,24 +8,21 @@
 #include "engine/Texture.h"
 #include "engine/Extension.h"
 #include "engine/Batchrenderer.h"
+#include "engine/Instancerenderer.h"
 #include "engine/Spritesheet.h"
 
 
 struct DawnTexture {
 	unsigned int texture;
-	float x1, x2, y1, y2;
-	int height, width, textureOffsetX, textureOffsetY;	
+	float textureOffsetX, textureOffsetY, textureWidth, textureHeight;
+	int height, width;	
 	unsigned int frame;
 	DawnTexture() {
 		texture = 0;
-		x1 = 0.0f;
-		x2 = 0.0f;
-		y1 = 0.0f;
-		y2 = 0.0f;
-		height = 0;
-		width = 0;
-		textureOffsetX = 0;
-		textureOffsetY = 0;
+		textureOffsetX = 0.0f;
+		textureOffsetY = 0.0f;
+		textureWidth = 0.0f;
+		textureHeight = 0.0f;
 		frame = 0;
 	}
 };
@@ -89,10 +86,10 @@ public:
 			memcpy(buffer + (((curY + row)*width + curX) * 4), texture + (w*row * 4), 4 * w);
 		}
 
-		stexture.x1 = static_cast<float>(curX) / static_cast<float>(width);
-		stexture.x2 = static_cast<float>(curX + w) / static_cast<float>(width);
-		stexture.y1 = static_cast<float>(curY) / static_cast<float>(height);
-		stexture.y2 = static_cast<float>(curY + h) / static_cast<float>(height);
+		stexture.textureOffsetX = static_cast<float>(curX) / static_cast<float>(width);
+		stexture.textureWidth = static_cast<float>(w) / static_cast<float>(width);
+		stexture.textureOffsetY = static_cast<float>(curY) / static_cast<float>(height);
+		stexture.textureHeight = static_cast<float>(h) / static_cast<float>(height);
 		stexture.width = w;
 		stexture.height = h;
 		stexture.frame = spritesheet.getTotalFrames();
@@ -139,7 +136,9 @@ private:
 class TextureManager{
 
 public:
+
 	static bool IsRectOnScreen(int left, int width, int bottom, int height);
-	static void DrawTexture(DawnTexture& stexture, int x, int y, float transparency = 1.0f, float red = 1.0f, float green = 1.0f, float blue = 1.0f, float x_scale = 1.0f, float y_scale = 1.0f);
+	static void DrawTextureBatched(DawnTexture& stexture, int x, int y, float transparency = 1.0f, float red = 1.0f, float green = 1.0f, float blue = 1.0f, float x_scale = 1.0f, float y_scale = 1.0f);
+	static void DrawTextureInstanced(DawnTexture& stexture, int x, int y, float transparency = 1.0f, float red = 1.0f, float green = 1.0f, float blue = 1.0f, float x_scale = 1.0f, float y_scale = 1.0f);
 	static DawnTexture& Loadimage(std::string file, bool isOpenGLThreadInThreadedMode = false, int textureOffsetX = 0, int textureOffsetY = 0);
 };

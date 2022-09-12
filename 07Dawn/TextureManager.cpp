@@ -14,10 +14,10 @@ DawnTexture& TextureCache::getTextureFromCache(std::string filename){
 
 	textures[filename].width = tex.getWidth();
 	textures[filename].height = tex.getHeight();
-	textures[filename].x1 = 0.0f;
-	textures[filename].x2 = 1.0f;
-	textures[filename].y1 = 0.0f;
-	textures[filename].y2 = 1.0f;
+	textures[filename].textureOffsetX = 0.0f;
+	textures[filename].textureWidth = 1.0f;
+	textures[filename].textureOffsetY = 0.0f;
+	textures[filename].textureHeight = 1.0f;
 
 	unsigned char* bytes = tex.readPixel();
 	TextureAtlasCreator::get().addTexture(textures[filename], reinterpret_cast<char*>(bytes), tex.getWidth(), tex.getHeight());
@@ -25,14 +25,21 @@ DawnTexture& TextureCache::getTextureFromCache(std::string filename){
 	return textures[filename];
 }
 
-void TextureManager::DrawTexture(DawnTexture& stexture, int x, int y, float transparency, float red, float green, float blue, float x_scale, float y_scale) {
+void TextureManager::DrawTextureBatched(DawnTexture& stexture, int x, int y, float transparency, float red, float green, float blue, float x_scale, float y_scale) {
 	if (!TextureManager::IsRectOnScreen(x, stexture.width * x_scale, y, stexture.height * y_scale)) {
 		return;
 	}
 	//glColor4f(red, green, blue, transparency);
 	//glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+	Batchrenderer::get().addQuad(Vector4f(x, y, stexture.width, stexture.height), Vector4f(stexture.textureOffsetX, stexture.textureOffsetY, stexture.textureWidth, stexture.textureHeight), stexture.frame);
+}
 
-	Batchrenderer::get().addQuad(Vector4f(x, y, stexture.width, stexture.height), Vector4f(stexture.x1, stexture.y1, stexture.x2, stexture.y2), stexture.frame);
+void TextureManager::DrawTextureInstanced(DawnTexture& stexture, int x, int y, float transparency, float red, float green, float blue, float x_scale, float y_scale) {
+	if (!TextureManager::IsRectOnScreen(x, stexture.width * x_scale, y, stexture.height * y_scale)) {
+		return;
+	}
+
+	Instancedrenderer::get().addQuad(Vector4f(x, y, stexture.width, stexture.height), Vector4f(stexture.textureOffsetX, stexture.textureOffsetY, stexture.textureWidth, stexture.textureHeight), stexture.frame);
 }
 
 DawnTexture& TextureManager::Loadimage(std::string file, bool isOpenGLThreadInThreadedMode, int textureOffsetX, int textureOffsetY) {

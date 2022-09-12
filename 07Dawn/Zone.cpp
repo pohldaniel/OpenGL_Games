@@ -74,25 +74,48 @@ void Zone::addEnvironment(int x_pos, int y_pos, Tile *tile, bool centeredOnPos){
 	}*/
 }
 
-void Zone::drawZone() {
+void Zone::drawZoneBatched() {
 	Batchrenderer::get().beginBatch();
 	glBindTexture(GL_TEXTURE_2D_ARRAY, m_textureAtlas);
 
-	drawTiles();
-	drawEnvironment();
+	drawTilesBatched();
+	drawEnvironmentBatched();
 
 	Batchrenderer::get().endBatch();
 	Batchrenderer::get().flush();
 }
 
-void Zone::drawTiles() {
+void Zone::drawTilesBatched() {
 	for (unsigned int x = 0; x < TileMap.size(); x++) {
-		TextureManager::DrawTexture(TileMap[x].tile->texture, TileMap[x].x_pos, TileMap[x].y_pos);
+		TextureManager::DrawTextureBatched(TileMap[x].tile->texture, TileMap[x].x_pos, TileMap[x].y_pos);
 	}
 }
 
-void Zone::drawEnvironment() {
+void Zone::drawEnvironmentBatched() {
 	for (unsigned int x = 0; x < EnvironmentMap.size(); x++) {
-		TextureManager::DrawTexture(EnvironmentMap[x].tile->texture, EnvironmentMap[x].x_pos, EnvironmentMap[x].y_pos, EnvironmentMap[x].transparency, EnvironmentMap[x].red, EnvironmentMap[x].green, EnvironmentMap[x].blue, EnvironmentMap[x].x_scale, EnvironmentMap[x].y_scale);
+		TextureManager::DrawTextureBatched(EnvironmentMap[x].tile->texture, EnvironmentMap[x].x_pos, EnvironmentMap[x].y_pos, EnvironmentMap[x].transparency, EnvironmentMap[x].red, EnvironmentMap[x].green, EnvironmentMap[x].blue, EnvironmentMap[x].x_scale, EnvironmentMap[x].y_scale);
+	}
+}
+
+void Zone::drawZoneInstanced() {
+	
+	glBindTexture(GL_TEXTURE_2D_ARRAY, m_textureAtlas);
+
+	drawTilesInstanced();
+	drawEnvironmentInstanced();
+
+	Instancedrenderer::get().drawBuffer();
+}
+
+
+void Zone::drawTilesInstanced() {
+	for (unsigned int x = 0; x < TileMap.size(); x++) {
+		TextureManager::DrawTextureInstanced(TileMap[x].tile->texture, TileMap[x].x_pos, TileMap[x].y_pos);
+	}
+}
+
+void Zone::drawEnvironmentInstanced() {
+	for (unsigned int x = 0; x < EnvironmentMap.size(); x++) {
+		TextureManager::DrawTextureInstanced(EnvironmentMap[x].tile->texture, EnvironmentMap[x].x_pos, EnvironmentMap[x].y_pos, EnvironmentMap[x].transparency, EnvironmentMap[x].red, EnvironmentMap[x].green, EnvironmentMap[x].blue, EnvironmentMap[x].x_scale, EnvironmentMap[x].y_scale);
 	}
 }

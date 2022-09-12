@@ -24,6 +24,7 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 Application::~Application() {
 
 	Batchrenderer::get().shutdown();
+	Instancedrenderer::get().shutdown();
 
 	//release OpenGL context
 	HDC hdc = GetDC(m_window);
@@ -340,9 +341,13 @@ void Application::loadAssets() {
 	Globals::shaderManager.loadShader("quad", "res/shader/quad.vs", "res/shader/quad.fs");
 	Globals::shaderManager.loadShader("quad_array", "res/shader/quad_array.vs", "res/shader/quad_array.fs");
 	Globals::shaderManager.loadShader("batch", "res/shader/batch.vs", "res/shader/batch.fs");
+	Globals::shaderManager.loadShader("instanced", "res/shader/instanced.vs", "res/shader/instanced.fs");
 	Globals::textureManager.createNullTexture("grey", 2, 2, 128);
 	Globals::spritesheetManager.createNullSpritesheet("null", 1024, 1024, 4);
 
 	Batchrenderer::get().init();
 	Batchrenderer::get().setShader(Globals::shaderManager.getAssetPointer("batch"));
+
+	Instancedrenderer::get().init();
+	Instancedrenderer::get().setShader(Globals::shaderManager.getAssetPointer("instanced"));
 }

@@ -7,15 +7,17 @@
 #include "Camera.h"
 
 
-struct Vertex{
-	Vector3f position;
-	Vector2f texCoord;
-	unsigned int frame;
-};
 
 class Batchrenderer {
 
 public:
+	struct Vertex {
+		Vector3f position;
+		Vector2f texCoord;
+		unsigned int frame;
+	};
+
+
 	void init(size_t size = 400);
 	void shutdown();
 	void endBatch();
@@ -42,16 +44,16 @@ private:
 	unsigned int m_vbo = 0;
 	unsigned int m_ibo= 0;
 
-	uint32_t index_count = 0;
+	uint32_t indexCount = 0;
 
 	Vertex* buffer;
-	Vertex* buffer_ptr;
+	Vertex* bufferPtr;
 
 	//const Camera& m_cameraRef;
 	const Camera* m_camera;
 	
 	Shader *m_shader;
-	unsigned int batchSize = 0;
+	
 
 
 	static Batchrenderer s_instance;

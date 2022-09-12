@@ -155,6 +155,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Application.cpp" />
+    <ClCompile Include="engine\Instancerenderer.cpp" />
     <ClCompile Include="TextureManager.cpp" />
     <ClCompile Include="engine\Batchrenderer.cpp" />
     <ClCompile Include="engine\Camera.cpp" />
@@ -189,6 +190,7 @@
   <ItemGroup>
     <ClInclude Include="Application.h" />
     <ClInclude Include="Constants.h" />
+    <ClInclude Include="engine\Instancerenderer.h" />
     <ClInclude Include="TextureManager.h" />
     <ClInclude Include="engine\AssetManger.h" />
     <ClInclude Include="engine\Batchrenderer.h" />
