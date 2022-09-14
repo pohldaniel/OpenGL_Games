@@ -48,7 +48,7 @@ public:
 	unsigned int calcStringWidth(const char *str, ...) const;
 	unsigned int calcStringWidth(const std::string& str) const;
 	unsigned int getHeight() const;
-
+	unsigned int texID_;
 private:
 	// leave copy constructor and operator= undefined to make noncopyable
 	GLFT_Font(const GLFT_Font&);
@@ -56,7 +56,7 @@ private:
 
 private:
 	// font data
-	unsigned int texID_;
+	
 	unsigned int listBase_;
 	std::vector<unsigned char> widths_;
 	unsigned char height_;

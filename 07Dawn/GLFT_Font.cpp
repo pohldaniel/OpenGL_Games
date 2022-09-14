@@ -1,5 +1,42 @@
-#include "GLFT_Font.h"
+// GLFT_Font (http://polimath.com/blog/code/glft_font/)
+//  by James Turk (james.p.turk@gmail.com)
+//  Based on work by Marijn Haverbeke (http://marijn.haverbeke.nl)
+//
+// Version 0.2.1 - Released 2 March 2008 - Updated contact information.
+// Version 0.2.0 - Released 18 July 2005 - Added beginDraw/endDraw,
+//                                       Changed vsprintf to vsnprintf
+// Version 0.1.0 - Released 1 July 2005 - Initial Release
+//
+// Copyright (c) 2005-2008, James Turk
+// All rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are met:
+//
+//    * Redistributions of source code must retain the above copyright notice,
+//      this list of conditions and the following disclaimer.
+//    * Redistributions in binary form must reproduce the above copyright
+//      notice, this list of conditions and the following disclaimer in the
+//      documentation and/or other materials provided with the distribution.
+//    * Neither the name of the GLFT_Font nor the names of its contributors
+//      may be used to endorse or promote products derived from this software
+//      without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+// AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+// ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+// LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+// CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+// SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+// INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+// CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+// ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+// POSSIBILITY OF SUCH DAMAGE.
 
+
+#include "GLFT_Font.h"
+#include <iostream>
 #include <cstring>
 #include <algorithm>
 // static members
@@ -39,7 +76,7 @@ GLFT_Font::GLFT_Font() :
 {
 }
 
-extern bool threadedMode = false;
+//extern bool threadedMode;
 
 //void processFontInOpenGLThread(GLFT_Font *font, const std::string &filename, unsigned int size);
 
@@ -60,10 +97,10 @@ void GLFT_Font::open(const std::string& filename, unsigned int size, bool isOpen
 {
 	const size_t MARGIN = 3;
 
-	if (threadedMode && !isOpenGLThreadInThreadedMode) {
+	//if (threadedMode && !isOpenGLThreadInThreadedMode) {
 		//processFontInOpenGLThread(this, filename, size);
-		return;
-	}
+		//return;
+	//}
 
 	// release the font if it already exists
 	if (isValid()) {
@@ -98,11 +135,11 @@ void GLFT_Font::open(const std::string& filename, unsigned int size, bool isOpen
 	for (unsigned int ch = 0; ch < NUM_CHARS; ++ch) {
 		// Look up the character in the font file.
 		charIndex = FT_Get_Char_Index(face, ch + SPACE);
-
 		// Render the current glyph.
 		FT_Load_Glyph(face, charIndex, FT_LOAD_RENDER);
 
 		widths_[ch] = (face->glyph->metrics.horiAdvance >> 6) + MARGIN;
+		
 		// If the line is full go to the next line
 		if (widths_[ch] > lineSpace) {
 			lineSpace = imageWidth - MARGIN;
@@ -111,7 +148,7 @@ void GLFT_Font::open(const std::string& filename, unsigned int size, bool isOpen
 		lineSpace -= widths_[ch];
 
 		maxAscent = std::max(face->glyph->bitmap_top, maxAscent);
-		maxDescent = std::max((int)(face->glyph->bitmap.rows - face->glyph->bitmap_top), maxDescent);
+		maxDescent = std::max((int)face->glyph->bitmap.rows - face->glyph->bitmap_top, maxDescent);
 	}
 
 	height_ = maxAscent + maxDescent;   // calculate height_ for text
@@ -156,7 +193,7 @@ void GLFT_Font::open(const std::string& filename, unsigned int size, bool isOpen
 		texX2 = (static_cast<float>(x + widths_[ch])) / imageWidth;
 		texY1 = (static_cast<float>(y - maxAscent)) / imageHeight;
 		texY2 = (static_cast<float>(y - maxAscent + height_)) / imageHeight;
-
+		//std::cout << "Tex: " << texX1 << "  " << texY1 << "  " << texX2 << "  " << texY2 << "  " << (int)widths_[ch] << std::endl;
 		// generate the character's display list
 		glNewList(listBase_ + ch, GL_COMPILE);
 		if (face->glyph->bitmap_left < 0)
@@ -298,9 +335,7 @@ StreamFlusher GLFT_Font::endDraw()
 
 unsigned int GLFT_Font::calcStringWidth(const char *str, ...) const
 {
-	if (!threadedMode && !isValid()) {
-		throw std::logic_error("Invalid GLFT_Font::calcStringWidth call.");
-	}
+	
 	unsigned int width = 0;
 
 	std::va_list args;
@@ -322,9 +357,7 @@ unsigned int GLFT_Font::calcStringWidth(const char *str, ...) const
 
 unsigned int GLFT_Font::calcStringWidth(const std::string& str) const
 {
-	if (!threadedMode && !isValid()) {
-		throw std::logic_error("Invalid GLFT_Font::calcStringWidth call.");
-	}
+	
 	unsigned int width = 0;
 
 	// iterate through widths of each char and accumulate width of string
@@ -337,8 +370,6 @@ unsigned int GLFT_Font::calcStringWidth(const std::string& str) const
 
 unsigned int GLFT_Font::getHeight() const
 {
-	if (!threadedMode && !isValid()) {
-		throw std::logic_error("Invalid GLFT_Font::getHeight call.");
-	}
+	
 	return height_;
 }

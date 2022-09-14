@@ -159,6 +159,7 @@
     <ClCompile Include="Configurableframe.cpp" />
     <ClCompile Include="DawnState.cpp" />
     <ClCompile Include="engine\Instancerenderer.cpp" />
+    <ClCompile Include="Label_new.cpp" />
     <ClCompile Include="Fontcache.cpp" />
     <ClCompile Include="Frames.cpp" />
     <ClCompile Include="Framesbase.cpp" />
@@ -202,6 +203,7 @@
     <ClInclude Include="Constants.h" />
     <ClInclude Include="DawnState.h" />
     <ClInclude Include="engine\Instancerenderer.h" />
+    <ClInclude Include="Label_new.h" />
     <ClInclude Include="Fontcache.h" />
     <ClInclude Include="Frames.h" />
     <ClInclude Include="Framesbase.h" />

@@ -73,7 +73,7 @@ void Zone::addEnvironment(int x_pos, int y_pos, Tile *tile, bool centeredOnPos){
 }
 
 void Zone::drawZoneBatched() {
-
+	Batchrenderer::get().setShader(Globals::shaderManager.getAssetPointer("batch"));
 	glBindTexture(GL_TEXTURE_2D_ARRAY, m_textureAtlas);
 
 	drawTilesBatched();

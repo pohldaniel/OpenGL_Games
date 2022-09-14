@@ -150,6 +150,9 @@
     <ClCompile Include="Fontcache.cpp">
       <Filter>Source Files\UI</Filter>
     </ClCompile>
+    <ClCompile Include="Label_new.cpp">
+      <Filter>Source Files\UI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine\input\Event.h">
@@ -267,6 +270,9 @@
       <Filter>Source Files\UI</Filter>
     </ClInclude>
     <ClInclude Include="Fontcache.h">
+      <Filter>Source Files\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="Label_new.h">
       <Filter>Source Files\UI</Filter>
     </ClInclude>
   </ItemGroup>

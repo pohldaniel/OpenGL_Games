@@ -87,25 +87,25 @@ void Batchrenderer::shutdown(){
 	delete[] buffer;
 }
 
-void Batchrenderer::addQuad(Vector4f position, Vector4f texCoord, unsigned int frame){
+void Batchrenderer::addQuad(Vector4f posSize, Vector4f texPosSize, unsigned int frame){
 
   if (indexCount >= m_maxIndex) {
 	drawBuffer();
   }
  
-  bufferPtr->posTex = { position[0], position[1],  texCoord[0],  texCoord[1] };
+  bufferPtr->posTex = { posSize[0], posSize[1],  texPosSize[0],  texPosSize[1] };
   bufferPtr->frame = frame;
   bufferPtr++;
 
-  bufferPtr->posTex = { position[0] + position[2], position[1],  texCoord[0] + texCoord[2],  texCoord[1] };
+  bufferPtr->posTex = { posSize[0] + posSize[2], posSize[1],  texPosSize[0] + texPosSize[2],  texPosSize[1] };
   bufferPtr->frame = frame;
   bufferPtr++;
 
-  bufferPtr->posTex = { position[0] + position[2], position[1] + position[3],  texCoord[0] + texCoord[2],  texCoord[1] + texCoord[3] };
+  bufferPtr->posTex = { posSize[0] + posSize[2], posSize[1] + posSize[3],  texPosSize[0] + texPosSize[2],  texPosSize[1] + texPosSize[3] };
   bufferPtr->frame = frame;
   bufferPtr++;
 
-  bufferPtr->posTex = { position[0], position[1] + position[3],  texCoord[0],  texCoord[1] + texCoord[3] };
+  bufferPtr->posTex = { posSize[0], posSize[1] + posSize[3],  texPosSize[0],  texPosSize[1] + texPosSize[3] };
   bufferPtr->frame = frame;
   bufferPtr++;
 

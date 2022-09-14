@@ -1,3 +1,5 @@
+#include <iostream>
+
 #include "Label.h"
 #include "GLFT_Font.h"
 
@@ -45,9 +47,10 @@ void Label::execute()
 
 void Label::draw(int mouseX, int mouseY)
 {
+	
 	if (font == NULL || text == "")
 		return;
-
+	//std::cout << "Pos X: " << getPosX() << " Pos Y: " << getPosY() << " Text: " << text << std::endl;
 	if (onClickedFunc != NULL
 		&& mouseX > getPosX() && mouseX < getPosX() + font->calcStringWidth(text)
 		&& mouseY > getPosY() && mouseY < getPosY() + font->getHeight())
@@ -57,7 +60,7 @@ void Label::draw(int mouseX, int mouseY)
 	font->drawText(getPosX(), getPosY(), text);
 
 	// draw child controls if any
-	FramesBase::draw(mouseX, mouseY);
+	//FramesBase::draw(mouseX, mouseY);
 }
 
 void Label::clicked(int mouseX, int mouseY, uint8_t mouseState)

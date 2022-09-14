@@ -24,9 +24,9 @@ ConfigurableFrame::ConfigurableFrame(int contentX, int contentY, int contentWidt
 void ConfigurableFrame::draw(int mouseX, int mouseY){
 	//glColor4f(1, 1, 1, 1);
 	Frames::drawFrame(getPosX(), getPosY(), blocksX, blocksY, usedBlockWidth, usedBlockHeight);
-	//glTranslatef(usedBlockWidth, usedBlockHeight, 0);
-	//FramesBase::draw(mouseX - usedBlockWidth, mouseY - usedBlockHeight);
-	//glTranslatef(-usedBlockWidth, -usedBlockHeight, 0);
+	glTranslatef(usedBlockWidth, usedBlockHeight, 0);
+	FramesBase::draw(mouseX - usedBlockWidth, mouseY - usedBlockHeight);
+	glTranslatef(-usedBlockWidth, -usedBlockHeight, 0);
 }
 
 void ConfigurableFrame::clicked(int mouseX, int mouseY, uint8_t mouseState)

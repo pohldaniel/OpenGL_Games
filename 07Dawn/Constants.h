@@ -8,6 +8,7 @@
 #include "engine\Shader.h"
 #include "engine\Texture.h"
 #include "engine\Spritesheet.h"
+#include "engine\CharacterSet.h"
 
 #include "Zone.h"
 #include "Framesbase.h"
@@ -38,6 +39,7 @@ namespace Globals {
 	extern Zone* getCurrentZone();
 	extern bool initPhase;
 	extern std::vector<FramesBase*> activeFrames;
+	extern AssetManager<CharacterSet> fontManager;
 
 	extern unsigned int textureAtlas;
 }

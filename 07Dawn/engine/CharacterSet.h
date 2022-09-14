@@ -8,22 +8,9 @@
 #include <ft2build.h>
 #include FT_FREETYPE_H
 #include "Extension.h"
+#include "Texture.h"
 
-#define MAXWIDTH 4096
-
-struct CharacterOld {
-	unsigned int textureID;
-	int size[2];
-	int bearing[2];
-	unsigned int advance;
-};
-
-struct CharacterSetOld {	
-	~CharacterSetOld();
-	void loadFromFile(const std::string& path, const float characterSize = 100.0f);
-	std::map<GLchar, CharacterOld> characters;
-	float characterSize;
-};
+#define MAXWIDTH 1024
 
 struct Character {
 	int bearing[2];
@@ -39,12 +26,15 @@ struct CharacterSet {
 	CharacterSet& operator=(const CharacterSet& rhs);
 	~CharacterSet();
 
-	void loadFromFile(const std::string& path, const float characterSize = 100.0f);
+	void loadFromFile(const std::string& path, const float characterSize, unsigned int intspacingX = 1, unsigned int spacingY = 10, const bool flipVertical = true);
+	void safeFont();
 	std::map<GLchar, Character> characters;
 	unsigned int spriteSheet;
 	unsigned int maxWidth;
 	unsigned int maxHeight;
 	unsigned int lineHeight;
+
+	const Character& getCharacter(const char c) const;
 };
 
 #endif

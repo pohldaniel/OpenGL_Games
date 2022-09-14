@@ -105,14 +105,14 @@ bool FramesBase::isMovingFrame() const{
 
 void FramesBase::draw(int mouseX, int mouseY){
 	if (childFrames.size() > 0){
-		//glTranslatef(posX, posY, 0.0f);
+		glTranslatef(posX, posY, 0.0f);
 
 		for (size_t curChildNr = 0; curChildNr<childFrames.size(); ++curChildNr)
 		{
 			childFrames[curChildNr]->draw(mouseX - posX, mouseY - posY);
 		}
 
-		//glTranslatef(-posX, -posY, 0.0f);
+		glTranslatef(-posX, -posY, 0.0f);
 	}
 }
 

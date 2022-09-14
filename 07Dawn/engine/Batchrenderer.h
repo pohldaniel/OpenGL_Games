@@ -18,7 +18,7 @@ public:
 	void init(size_t size = 400);
 	void shutdown();
 	void drawBuffer(bool updateView = true);
-	void addQuad(Vector4f position, Vector4f texCoord, unsigned int frame);
+	void addQuad(Vector4f posSize, Vector4f texPosSize, unsigned int frame = 0);
 
 	void setCamera(const Camera& camera);
 	void setShader(Shader* shader);

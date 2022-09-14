@@ -20,7 +20,7 @@ public:
 
 	void init(size_t size = 400);
 	void shutdown();
-	void addQuad(Vector4f position, Vector4f texCoord, unsigned int frame);
+	void addQuad(Vector4f posSize, Vector4f texPosSize, unsigned int frame);
 	void drawBuffer();
 	void setShader(Shader* shader);
 

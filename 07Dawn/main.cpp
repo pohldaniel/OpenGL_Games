@@ -15,6 +15,7 @@ extern Matrix4f Globals::invOrthographic = Matrix4f();
 extern AssetManager<Shader> Globals::shaderManager = AssetManager<Shader>();
 extern AssetManager<Texture> Globals::textureManager = AssetManager<Texture>();
 extern AssetManager<Spritesheet> Globals::spritesheetManager = AssetManager<Spritesheet>();
+extern AssetManager<CharacterSet> Globals::fontManager = AssetManager<CharacterSet>();
 extern bool Globals::enableWireframe = false;
 extern std::map<std::string, Zone*> Globals::allZones = std::map<std::string, Zone*>();
 extern Zone* Globals::currentZone = nullptr;

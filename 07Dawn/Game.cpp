@@ -14,6 +14,8 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 
 	ConfiguredFrames::fillMainMenuFrame(mainMenuFrame.get());
 	mainMenuFrame->setVisible(true);
+
+	m_label = LabelNew(Globals::fontManager.get("verdana_20"));
 }
 
 Game::~Game() {}
@@ -28,19 +30,29 @@ void Game::update() {
 
 
 void Game::render(unsigned int &frameBuffer) {
-	glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	glLoadMatrixf(&m_camera.getOrthographicMatrix()[0][0]);
 
+	glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
+	
 
 	glClearColor(0.0f, 0.0f, 1.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	glEnable(GL_BLEND);
 	
 
+	
+
+	glEnable(GL_TEXTURE_2D);
 	newZone->drawZoneBatched();
 	//newZone->drawZoneInstanced();
 
 	glEnable(GL_DEPTH_TEST);
 	mainMenuFrame->draw(0, 0);
+
+	m_label.draw("New Game");
+
 	glDisable(GL_DEPTH_TEST);
 	glDisable(GL_BLEND);
 

@@ -178,7 +178,7 @@ void Spritesheet::createSpritesheet(unsigned int texture, unsigned int width, un
 	//OpenGL 3.0
 	glGenTextures(1, &m_texture);
 	glBindTexture(GL_TEXTURE_2D_ARRAY, m_texture);
-	glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, internalFormat, width, height, m_totalFrames, 0, internalFormat == GL_RGBA8 ? GL_RGBA : GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, internalFormat, width, height, m_totalFrames, 0, internalFormat == GL_RGBA8 ? GL_RGBA : internalFormat == GL_RGB8 ? GL_RGB : _format, GL_UNSIGNED_BYTE, NULL);
 
 
 	unsigned int fbo = 0;
