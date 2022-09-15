@@ -7,15 +7,15 @@
 
 #include "Constants.h"
 
-class LabelNew : public Widget {
+class Label: public Widget {
 
 public:
-	LabelNew() = default;
-	LabelNew(const CharacterSet& characterSet, std::string text = "");
-	~LabelNew() = default;
+	Label() = default;
+	Label(const CharacterSet& characterSet, std::string text = "");
+	~Label() = default;
 
-	LabelNew(LabelNew const& rhs);
-	LabelNew& operator=(const LabelNew& rhs);
+	Label(Label const& rhs);
+	Label& operator=(const Label& rhs);
 
 	void draw();
 	void draw(std::string text);

@@ -15,11 +15,11 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 
 	m_modal.setAutoresize();
 	m_modal.setCenteringLayout();
-	//m_modal.setCenterOnScreen();
+	m_modal.setCenterOnScreen();
 
-	m_modal.addChildFrame(0, 0, std::auto_ptr<Widget>(new LabelNew(Globals::fontManager.get("verdana_20"), "Quit Game")));
-	m_modal.addChildFrame(0, 10, std::auto_ptr<Widget>(new LabelNew(Globals::fontManager.get("verdana_20"), "Options")));
-	m_modal.addChildFrame(0, 30, std::auto_ptr<Widget>(new LabelNew(Globals::fontManager.get("verdana_20"), "New Game")));
+	m_modal.addChildFrame(0, 0, std::auto_ptr<Widget>(new Label(Globals::fontManager.get("verdana_20"), "Quit Game")));
+	m_modal.addChildFrame(0, 10, std::auto_ptr<Widget>(new Label(Globals::fontManager.get("verdana_20"), "Options")));
+	m_modal.addChildFrame(0, 30, std::auto_ptr<Widget>(new Label(Globals::fontManager.get("verdana_20"), "New Game")));
 }
 
 Game::~Game() {}

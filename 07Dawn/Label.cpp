@@ -1,24 +1,24 @@
 #include "Label.h"
 
-LabelNew::LabelNew(const CharacterSet& characterSet, std::string text) {
+Label::Label(const CharacterSet& characterSet, std::string text) {
 	m_characterSet = &characterSet;
 	m_text = text;
 }
 
-LabelNew &LabelNew::operator=(const LabelNew &rhs) {
+Label &Label::operator=(const Label &rhs) {
 	m_text = rhs.m_text;
 	m_characterSet = rhs.m_characterSet;
 }
 
-LabelNew::LabelNew(LabelNew const& rhs) : m_characterSet(rhs.m_characterSet) {
+Label::Label(Label const& rhs) : m_characterSet(rhs.m_characterSet) {
 	m_text = rhs.m_text;
 }
 
-void LabelNew::draw() {
+void Label::draw() {
 	draw(m_text);
 }
 
-void LabelNew::draw(std::string text) {
+void Label::draw(std::string text) {
 
 	glBindTexture(GL_TEXTURE_2D, m_characterSet->spriteSheet);
 
@@ -39,7 +39,7 @@ void LabelNew::draw(std::string text) {
 }
 
 
-int LabelNew::getWidth() const {
+int Label::getWidth() const {
 
 	int sizeX = 0;
 	std::string::const_iterator c;
@@ -50,7 +50,7 @@ int LabelNew::getWidth() const {
 	return  sizeX;
 }
 
-int LabelNew::getHeight() const {
+int Label::getHeight() const {
 	//std::cout << "Label New Height: " << m_characterSet->lineHeight << std::endl;
 	return m_characterSet->lineHeight;
 }
