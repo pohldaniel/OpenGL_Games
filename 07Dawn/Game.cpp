@@ -26,6 +26,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	m_modal.setCenteringLayout();
 	m_modal.setCenterOnScreen();
 
+	//m_modal.addChildFrame(0, 0, std::auto_ptr<Widget>(new LabelNew(Globals::fontManager.get("verdana_20"), "\"@\"")));
 	m_modal.addChildFrame(0, 0, std::auto_ptr<Widget>(new LabelNew(Globals::fontManager.get("verdana_20"), "Quit Game")));
 	m_modal.addChildFrame(0, 10, std::auto_ptr<Widget>(new LabelNew(Globals::fontManager.get("verdana_20"), "Options")));
 	m_modal.addChildFrame(0, 30, std::auto_ptr<Widget>(new LabelNew(Globals::fontManager.get("verdana_20"), "New Game")));
@@ -62,7 +63,7 @@ void Game::render(unsigned int &frameBuffer) {
 	//newZone->drawZoneInstanced();
 
 	glEnable(GL_DEPTH_TEST);
-	mainMenuFrame->draw(0, 0);
+	//mainMenuFrame->draw(0, 0);
 
 	m_label.draw("New Game");
 

@@ -30,7 +30,7 @@ void LabelNew::draw(std::string text) {
 
 		const Character& _c = m_characterSet->getCharacter(*c);
 
-		Batchrenderer::get().addQuad(Vector4f(width, getPosY() -_c.advance[1], _c.size[0], _c.size[1]), Vector4f(_c.textureOffset[0], _c.textureOffset[1], _c.textureSize[0], _c.textureSize[1]), 0);
+		Batchrenderer::get().addQuad(Vector4f(width, getPosY() , _c.size[0], _c.size[1]), Vector4f(_c.textureOffset[0], _c.textureOffset[1], _c.textureSize[0], _c.textureSize[1]), 0);
 		width = width + _c.advance[0];
 	}
 	Batchrenderer::get().drawBuffer(false);
