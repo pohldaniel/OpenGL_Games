@@ -13,6 +13,7 @@
 #include "Configuredframes.h"
 #include "Frames.h"
 #include "Label_new.h"
+#include "Modal.h"
 
 class Game : public State, public MouseEventListener {
 public:
@@ -31,4 +32,6 @@ public:
 
 	
 	LabelNew m_label;
+
+	Modal m_modal;
 };

@@ -9,4 +9,6 @@ uniform vec4 u_blendColor = vec4(1.0);
 
 void main() {
 	outColor = u_blendColor * vec4(1.0, 1.0, 1.0, texture(u_texture, texCoord).r);
+	
+	//outColor = u_blendColor;
 } 

@@ -9,9 +9,10 @@ flat out uint layer;
 out vec2 texCoord;
 
 uniform mat4 u_transform = mat4(1.0);
+uniform mat4 u_model = mat4(1.0);
 
 void main(void) {
-	gl_Position = u_transform * vec4(i_position, 0.0, 1.0);  
+	gl_Position = u_transform * u_model * vec4(i_position, 0.0, 1.0);  
     texCoord  = i_texCoord;
 	layer = i_layer;
 }

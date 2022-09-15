@@ -3,9 +3,11 @@
 #include "engine/CharacterSet.h"
 #include "engine/Batchrenderer.h"
 
+#include "Widget.h"
+
 #include "Constants.h"
 
-class LabelNew {
+class LabelNew : public Widget {
 
 public:
 	LabelNew() = default;
@@ -17,6 +19,9 @@ public:
 
 	void draw();
 	void draw(std::string text);
-	std::string m_text = "New Game";
+	std::string m_text;
 	const CharacterSet* m_characterSet;
+
+	virtual int getWidth() const override;
+	virtual int getHeight() const override;
 };

@@ -50,17 +50,18 @@ void Label::draw(int mouseX, int mouseY)
 	
 	if (font == NULL || text == "")
 		return;
-	//std::cout << "Pos X: " << getPosX() << " Pos Y: " << getPosY() << " Text: " << text << std::endl;
+
 	if (onClickedFunc != NULL
 		&& mouseX > getPosX() && mouseX < getPosX() + font->calcStringWidth(text)
 		&& mouseY > getPosY() && mouseY < getPosY() + font->getHeight())
 		glColor4f(selectColorRed, selectColorGreen, selectColorBlue, selectColorAlpha);
 	else
 		glColor4f(baseColorRed, baseColorGreen, baseColorBlue, baseColorAlpha);
+
 	font->drawText(getPosX(), getPosY(), text);
 
 	// draw child controls if any
-	//FramesBase::draw(mouseX, mouseY);
+	FramesBase::draw(mouseX, mouseY);
 }
 
 void Label::clicked(int mouseX, int mouseY, uint8_t mouseState)
@@ -74,13 +75,12 @@ void Label::clicked(int mouseX, int mouseY, uint8_t mouseState)
 	//return false;
 }
 
-int Label::getWidth() const
-{
+int Label::getWidth() const{
 	return font->calcStringWidth(text);
 }
 
-int Label::getHeight() const
-{
+int Label::getHeight() const{
+	//std::cout << "Label Height: " << font->getHeight() << std::endl;
 	return font->getHeight();
 }
 

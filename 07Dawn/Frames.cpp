@@ -30,7 +30,9 @@ namespace Frames{
 	}
 
 	void drawFrame(int leftX, int bottomY, int numBlocksX, int numBlocksY, int blockWidth, int blockHeight){
+				
 		glBindTexture(GL_TEXTURE_2D_ARRAY, Globals::textureAtlas);
+		Batchrenderer::get().setShader(Globals::shaderManager.getAssetPointer("batch"));
 
 		// draw the corners
 		TextureManager::DrawTextureBatched(frameTextures->getTexture(9), leftX, bottomY, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, false);

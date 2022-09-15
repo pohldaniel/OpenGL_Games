@@ -24,14 +24,34 @@ void LabelNew::draw(std::string text) {
 
 	Batchrenderer::get().setShader(Globals::shaderManager.getAssetPointer("font"));
 	std::string::const_iterator c;
-	float width = 733.0f;
+	float width = getPosX();
+
 	for (c = text.begin(); c != text.end(); c++) {
 
 		const Character& _c = m_characterSet->getCharacter(*c);
 
-		Batchrenderer::get().addQuad(Vector4f(width, 500.0f, _c.size[0], _c.size[1]), Vector4f(_c.textureOffset[0], _c.textureOffset[1], _c.textureSize[0], _c.textureSize[1]), 0);
+		Batchrenderer::get().addQuad(Vector4f(width, getPosY() -_c.advance[1], _c.size[0], _c.size[1]), Vector4f(_c.textureOffset[0], _c.textureOffset[1], _c.textureSize[0], _c.textureSize[1]), 0);
 		width = width + _c.advance[0];
 	}
-	Batchrenderer::get().drawBuffer();
+	Batchrenderer::get().drawBuffer(false);
 	glBindTexture(GL_TEXTURE_2D, 0);
+
+	//Widget::draw();
+}
+
+
+int LabelNew::getWidth() const {
+
+	int sizeX = 0;
+	std::string::const_iterator c;
+	for (c = m_text.begin(); c != m_text.end(); c++) {
+		const Character ch = m_characterSet->getCharacter(*c);
+		sizeX = sizeX + ((ch.advance[0]));		
+	}
+	return  sizeX;
+}
+
+int LabelNew::getHeight() const {
+	//std::cout << "Label New Height: " << m_characterSet->lineHeight << std::endl;
+	return m_characterSet->lineHeight;
 }

@@ -159,12 +159,14 @@
     <ClCompile Include="Configurableframe.cpp" />
     <ClCompile Include="DawnState.cpp" />
     <ClCompile Include="engine\Instancerenderer.cpp" />
+    <ClCompile Include="engine\Transform.cpp" />
     <ClCompile Include="Label_new.cpp" />
     <ClCompile Include="Fontcache.cpp" />
     <ClCompile Include="Frames.cpp" />
     <ClCompile Include="Framesbase.cpp" />
     <ClCompile Include="GLFT_Font.cpp" />
     <ClCompile Include="Label.cpp" />
+    <ClCompile Include="Modal.cpp" />
     <ClCompile Include="TextureManager.cpp" />
     <ClCompile Include="engine\Batchrenderer.cpp" />
     <ClCompile Include="engine\Camera.cpp" />
@@ -194,6 +196,7 @@
     <ClCompile Include="StateMachine.cpp" />
     <ClCompile Include="Tileset.cpp" />
     <ClCompile Include="ViewPort.cpp" />
+    <ClCompile Include="Widget.cpp" />
     <ClCompile Include="Zone.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -203,12 +206,14 @@
     <ClInclude Include="Constants.h" />
     <ClInclude Include="DawnState.h" />
     <ClInclude Include="engine\Instancerenderer.h" />
+    <ClInclude Include="engine\Transform.h" />
     <ClInclude Include="Label_new.h" />
     <ClInclude Include="Fontcache.h" />
     <ClInclude Include="Frames.h" />
     <ClInclude Include="Framesbase.h" />
     <ClInclude Include="GLFT_Font.h" />
     <ClInclude Include="Label.h" />
+    <ClInclude Include="Modal.h" />
     <ClInclude Include="TextureManager.h" />
     <ClInclude Include="engine\AssetManger.h" />
     <ClInclude Include="engine\Batchrenderer.h" />
@@ -236,6 +241,7 @@
     <ClInclude Include="StateMachine.h" />
     <ClInclude Include="Tileset.h" />
     <ClInclude Include="ViewPort.h" />
+    <ClInclude Include="Widget.h" />
     <ClInclude Include="Zone.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -2,6 +2,7 @@
 
 #include "Constants.h"
 
+
 FramesBase::FramesBase()
 	: visible(false),
 	moveableFrame(false),
@@ -105,14 +106,17 @@ bool FramesBase::isMovingFrame() const{
 
 void FramesBase::draw(int mouseX, int mouseY){
 	if (childFrames.size() > 0){
-		glTranslatef(posX, posY, 0.0f);
+		glTranslatef(0, posY, 0.0f);
+
+		//std::cout << posX << "  " << posY << std::endl;
 
 		for (size_t curChildNr = 0; curChildNr<childFrames.size(); ++curChildNr)
 		{
+			//std::cout << childFrames[curChildNr]->getPosX() << std::endl;
 			childFrames[curChildNr]->draw(mouseX - posX, mouseY - posY);
 		}
 
-		glTranslatef(-posX, -posY, 0.0f);
+		glTranslatef(0, -posY, 0.0f);
 	}
 }
 

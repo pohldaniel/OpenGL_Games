@@ -10,12 +10,25 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	Batchrenderer::get().setCamera(ViewPort::get().getCamera());
 
 	Frames::initFrameTextures();
-	mainMenuFrame.reset(new ConfigurableFrame(100, 100, 0, 0, DawnState::MainMenu));
+	mainMenuFrame.reset(new ConfigurableFrame(0, 0, 0, 0, DawnState::MainMenu));
 
 	ConfiguredFrames::fillMainMenuFrame(mainMenuFrame.get());
 	mainMenuFrame->setVisible(true);
 
 	m_label = LabelNew(Globals::fontManager.get("verdana_20"));
+
+	m_modal = Modal(0, 0, 0, 0);
+
+	//m_modal.setPosition(200, 400);
+	//m_modal.setSize(3, 2);
+
+	m_modal.setAutoresize();
+	m_modal.setCenteringLayout();
+	m_modal.setCenterOnScreen();
+
+	m_modal.addChildFrame(0, 0, std::auto_ptr<Widget>(new LabelNew(Globals::fontManager.get("verdana_20"), "Quit Game")));
+	m_modal.addChildFrame(0, 10, std::auto_ptr<Widget>(new LabelNew(Globals::fontManager.get("verdana_20"), "Options")));
+	m_modal.addChildFrame(0, 30, std::auto_ptr<Widget>(new LabelNew(Globals::fontManager.get("verdana_20"), "New Game")));
 }
 
 Game::~Game() {}
@@ -52,6 +65,8 @@ void Game::render(unsigned int &frameBuffer) {
 	mainMenuFrame->draw(0, 0);
 
 	m_label.draw("New Game");
+
+	m_modal.draw();
 
 	glDisable(GL_DEPTH_TEST);
 	glDisable(GL_BLEND);

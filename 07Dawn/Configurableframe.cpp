@@ -11,22 +11,25 @@ ConfigurableFrame::ConfigurableFrame(int contentX, int contentY, int contentWidt
 	: FramesBase(contentX - usedBlockWidth, contentY - usedBlockHeight,
 		Frames::calculateNeededBlockWidth(contentWidth, usedBlockWidth) * usedBlockWidth,
 		Frames::calculateNeededBlockHeight(contentHeight, usedBlockHeight) * usedBlockHeight, 0, 0),
-	blocksX(Frames::calculateNeededBlockWidth(contentWidth, usedBlockWidth)),
-	blocksY(Frames::calculateNeededBlockHeight(contentHeight, usedBlockHeight)),
+	//blocksX(Frames::calculateNeededBlockWidth(contentWidth, usedBlockWidth)),
+	//blocksY(Frames::calculateNeededBlockHeight(contentHeight, usedBlockHeight)),
 	autoResize(false),
 	centeringLayout(false),
 	centerOnScreen(false)
 {
 	setPosition(contentX, contentY);
 	setFramesDawnState(dawnState);
+
 }
 
 void ConfigurableFrame::draw(int mouseX, int mouseY){
 	//glColor4f(1, 1, 1, 1);
+
+
 	Frames::drawFrame(getPosX(), getPosY(), blocksX, blocksY, usedBlockWidth, usedBlockHeight);
-	glTranslatef(usedBlockWidth, usedBlockHeight, 0);
-	FramesBase::draw(mouseX - usedBlockWidth, mouseY - usedBlockHeight);
-	glTranslatef(-usedBlockWidth, -usedBlockHeight, 0);
+	glTranslatef(0, 0, 0);
+	FramesBase::draw(0, 0);
+	glTranslatef(0, 0, 0);
 }
 
 void ConfigurableFrame::clicked(int mouseX, int mouseY, uint8_t mouseState)
@@ -66,6 +69,8 @@ void ConfigurableFrame::addChildFrame(int relPosX, int relPosY, std::auto_ptr<Fr
 {
 	FramesBase::addChildFrame(relPosX, relPosY, newChild);
 	applyLayout();
+
+	
 }
 
 void ConfigurableFrame::applyLayout()
@@ -109,20 +114,17 @@ void ConfigurableFrame::applyLayout()
 		int curY = skipPerElement;
 		for (size_t curChild = 0; curChild < childFrames.size(); ++curChild)
 		{
-			// std::cout << "setting element " << curChild << " to (" << (blocksX*usedBlockWidth - maxChildWidth) / 2 << "," << curY << ")" << std::endl;
+
 			childFrames[curChild]->setPosition((blocksX*usedBlockWidth - maxChildWidth) / 2, curY);
 			curY += skipPerElement + childFrames[curChild]->getHeight();
 		}
 	}
 }
 
-void ConfigurableFrame::resize(int width, int height)
-{
-	// std::cout << "(width,height) = "<< width << "," << height << std::endl;
+void ConfigurableFrame::resize(int width, int height){
 	blocksX = Frames::calculateNeededBlockWidth(width, usedBlockWidth);
 	blocksY = Frames::calculateNeededBlockHeight(height, usedBlockHeight);
-	// std::cout << "(blocksX,blocksY) = " << blocksX << "," << blocksY << std::endl;
-	recalculatePosition();
+	recalculatePosition();	
 }
 
 void ConfigurableFrame::recalculatePosition()

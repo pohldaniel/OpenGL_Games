@@ -24,8 +24,8 @@ private:
 
 	int contentX;
 	int contentY;
-	int blocksX;
-	int blocksY;
+	int blocksX = 20;
+	int blocksY = 20;
 
 	bool autoResize;
 	bool centeringLayout;

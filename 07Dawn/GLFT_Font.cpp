@@ -193,7 +193,7 @@ void GLFT_Font::open(const std::string& filename, unsigned int size, bool isOpen
 		texX2 = (static_cast<float>(x + widths_[ch])) / imageWidth;
 		texY1 = (static_cast<float>(y - maxAscent)) / imageHeight;
 		texY2 = (static_cast<float>(y - maxAscent + height_)) / imageHeight;
-		//std::cout << "Tex: " << texX1 << "  " << texY1 << "  " << texX2 << "  " << texY2 << "  " << (int)widths_[ch] << std::endl;
+
 		// generate the character's display list
 		glNewList(listBase_ + ch, GL_COMPILE);
 		if (face->glyph->bitmap_left < 0)

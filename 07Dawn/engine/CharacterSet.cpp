@@ -40,6 +40,9 @@ void CharacterSet::loadFromFile(const std::string& path, const float characterSi
 
 		unsigned int roww = 0;
 		unsigned int rowh = 0;
+		int maxDescent = 0;
+		int maxAscent = 0;
+
 		maxWidth = 0;
 		maxHeight = 0;
 		lineHeight = 0;
@@ -58,14 +61,17 @@ void CharacterSet::loadFromFile(const std::string& path, const float characterSi
 				rowh = 0;
 			}
 			roww += g->bitmap.width + spacingX;
-			rowh = std::max(rowh, g->bitmap.rows + spacingY);
-			lineHeight = std::max(lineHeight, g->bitmap.rows);
-			
+			rowh = std::max(rowh, (int)g->bitmap.rows + spacingY);			
+			//lineHeight = std::max(lineHeight, g->bitmap.rows);
+
+			maxAscent = std::max(g->bitmap_top, maxAscent);
+			maxDescent = std::max((int)g->bitmap.rows - g->bitmap_top, maxDescent);	
 		}
-		
+
+		lineHeight = maxAscent + maxDescent;
 		maxWidth = std::max(maxWidth, roww);
 		maxHeight += rowh;
-
+		
 		unsigned int p = 1;
 		while (p < maxWidth)
 			p <<= 1;
@@ -94,7 +100,7 @@ void CharacterSet::loadFromFile(const std::string& path, const float characterSi
 		// Paste all glyph bitmaps into the texture, remembering the offset 
 		unsigned int ox = 0;
 		unsigned int oy = spacingY;
-
+		int yOffset = 0;
 		rowh = 0;
 
 		for (int i = 32; i < 128; i++) {
@@ -108,7 +114,7 @@ void CharacterSet::loadFromFile(const std::string& path, const float characterSi
 				rowh = 0;
 				ox = spacingX;
 			}
-
+			
 			if (flipVertical) {
 				std::vector<BYTE> srcPixels(g->bitmap.width * g->bitmap.rows);
 				memcpy(&srcPixels[0], g->bitmap.buffer, g->bitmap.width * g->bitmap.rows);
@@ -123,19 +129,48 @@ void CharacterSet::loadFromFile(const std::string& path, const float characterSi
 					memcpy(pDestRow, pSrcRow, g->bitmap.width);
 				}
 			}
-
-			glTexSubImage2D(GL_TEXTURE_2D, 0, ox, oy, g->bitmap.width, g->bitmap.rows, GL_RED, GL_UNSIGNED_BYTE, g->bitmap.buffer);
 			
-			Character character = {				
-				{g->bitmap_left, g->bitmap_top },
-				{g->bitmap.width + spacingX, g->bitmap.rows },
-				{ static_cast<float>(ox) / (float)maxWidth, static_cast<float>(oy) / (float)maxHeight },
-				{ static_cast<float>(g->bitmap.width + spacingX) / static_cast<float>(maxWidth), static_cast<float>(g->bitmap.rows) / static_cast<float>(maxHeight)},
-				{(g->advance.x >> 6) + spacingX, (g->advance.y >> 6) + spacingY }
-				
-			};
-			characters.insert(std::pair<char, Character>(i, character));
+			yOffset = (g->metrics.height >> 6) - g->bitmap_top;
 
+			if (yOffset > 0) {
+				
+				glTexSubImage2D(GL_TEXTURE_2D, 0, ox, oy + yOffset, g->bitmap.width, g->bitmap.rows, GL_RED, GL_UNSIGNED_BYTE, g->bitmap.buffer);
+				Character character = {
+					{ g->bitmap_left, g->bitmap_top + yOffset },
+					{ g->bitmap.width + spacingX, g->bitmap.rows },
+					{ static_cast<float>(ox) / (float)maxWidth, static_cast<float>(oy + yOffset) / (float)maxHeight },
+					{ static_cast<float>(g->bitmap.width + spacingX) / static_cast<float>(maxWidth), static_cast<float>(g->bitmap.rows) / static_cast<float>(maxHeight) },
+					{ (g->advance.x >> 6) + spacingX, (g->advance.y >> 6) }
+				};
+
+				characters.insert(std::pair<char, Character>(i, character));
+				
+			}else {
+
+				unsigned char* bytes = (unsigned char*)malloc(g->bitmap.width * (g->bitmap.rows + maxDescent));
+				unsigned int index = 0;
+
+				for (int i = 0; i < g->bitmap.width * maxDescent; i++, index++) {
+					bytes[index] = 0;
+				}
+
+				for (int i = 0; i < g->bitmap.width * g->bitmap.rows; i++, index++) {
+					bytes[index] = g->bitmap.buffer[i];
+				}
+				glTexSubImage2D(GL_TEXTURE_2D, 0, ox, oy + maxDescent, g->bitmap.width, (g->bitmap.rows + maxDescent), GL_RED, GL_UNSIGNED_BYTE, bytes);
+
+				free(bytes);
+
+				Character character = {
+					{ g->bitmap_left, g->bitmap_top + maxDescent },
+					{ g->bitmap.width + spacingX, g->bitmap.rows + maxDescent },
+					{ static_cast<float>(ox) / (float)maxWidth, static_cast<float>(oy + maxDescent) / (float)maxHeight },
+					{ static_cast<float>(g->bitmap.width + spacingX) / static_cast<float>(maxWidth), static_cast<float>(g->bitmap.rows + maxDescent) / static_cast<float>(maxHeight) },
+					{ (g->advance.x >> 6) + spacingX, (g->advance.y >> 6) }
+				};
+				characters.insert(std::pair<char, Character>(i, character));
+			}
+	
 			rowh = (std::max)(rowh, g->bitmap.rows + spacingY);
 			ox += g->bitmap.width + spacingX;
 		}
