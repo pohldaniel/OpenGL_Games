@@ -1,7 +1,7 @@
 #include "Modal.h"
 
-static const size_t usedBlockWidth = 64;
-static const size_t usedBlockHeight = 64;
+static const float usedBlockWidth = 64.0f;
+static const float usedBlockHeight = 64.0f;
 
 Modal::Modal(int contentX, int contentY, int contentWidth, int contentHeight)
 	: Widget(contentX - usedBlockWidth, contentY - usedBlockHeight, Frames::calculateNeededBlockWidth(contentWidth, usedBlockWidth) * usedBlockWidth, Frames::calculateNeededBlockHeight(contentHeight, usedBlockHeight) * usedBlockHeight),
@@ -24,11 +24,11 @@ Modal::Modal(int contentX, int contentY, int contentWidth, int contentHeight)
 
 void Modal::draw() {
 
-	//glColor4f(1, 1, 1, 1);
 	Frames::drawFrame(getPosX(), getPosY(), blocksX, blocksY, usedBlockWidth, usedBlockHeight);
-	//glTranslatef(usedBlockWidth, usedBlockHeight, 0);
+
+	m_transform.translate(usedBlockWidth, usedBlockHeight, 0.0f);
 	Widget::draw();
-	//glTranslatef(-usedBlockWidth, -usedBlockHeight, 0);
+	m_transform.translate(-usedBlockWidth, -usedBlockHeight, 0.0f);
 }
 
 void Modal::setAutoresize(){

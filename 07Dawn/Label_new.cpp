@@ -35,7 +35,6 @@ void LabelNew::draw(std::string text) {
 	}
 	Batchrenderer::get().drawBuffer(false);
 	glBindTexture(GL_TEXTURE_2D, 0);
-
 	//Widget::draw();
 }
 

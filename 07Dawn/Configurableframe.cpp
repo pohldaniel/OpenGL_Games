@@ -11,8 +11,8 @@ ConfigurableFrame::ConfigurableFrame(int contentX, int contentY, int contentWidt
 	: FramesBase(contentX - usedBlockWidth, contentY - usedBlockHeight,
 		Frames::calculateNeededBlockWidth(contentWidth, usedBlockWidth) * usedBlockWidth,
 		Frames::calculateNeededBlockHeight(contentHeight, usedBlockHeight) * usedBlockHeight, 0, 0),
-	//blocksX(Frames::calculateNeededBlockWidth(contentWidth, usedBlockWidth)),
-	//blocksY(Frames::calculateNeededBlockHeight(contentHeight, usedBlockHeight)),
+	blocksX(Frames::calculateNeededBlockWidth(contentWidth, usedBlockWidth)),
+	blocksY(Frames::calculateNeededBlockHeight(contentHeight, usedBlockHeight)),
 	autoResize(false),
 	centeringLayout(false),
 	centerOnScreen(false)
@@ -27,9 +27,9 @@ void ConfigurableFrame::draw(int mouseX, int mouseY){
 
 
 	Frames::drawFrame(getPosX(), getPosY(), blocksX, blocksY, usedBlockWidth, usedBlockHeight);
-	glTranslatef(0, 0, 0);
+	glTranslatef(usedBlockWidth, usedBlockHeight, 0);
 	FramesBase::draw(0, 0);
-	glTranslatef(0, 0, 0);
+	glTranslatef(-usedBlockWidth, -usedBlockHeight, 0);
 }
 
 void ConfigurableFrame::clicked(int mouseX, int mouseY, uint8_t mouseState)

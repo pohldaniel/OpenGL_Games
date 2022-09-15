@@ -18,26 +18,25 @@ Widget::~Widget() {
 
 void Widget::draw() {
 	if (m_childWidgets.size() > 0) {
-		//glTranslatef(posX, posY, 0.0f);
 
-		m_transform.translate(0, m_posY, 0.0f);
+		
+		m_transform.translate(m_posX, m_posY, 0.0f);
 
 		auto fontShader = Globals::shaderManager.getAssetPointer("font");
 		glUseProgram(fontShader->m_program);
 		fontShader->loadMatrix("u_model", m_transform.getTransformationMatrix());
 		glUseProgram(0);
 
+		
 		for (unsigned short w = 0; w < m_childWidgets.size(); ++w){
-			//std::cout << m_childWidgets[w]->getPosX() << std::endl;
-
 			m_childWidgets[w]->draw();
 		}
 
-		m_transform.translate(0, -m_posY, 0.0f);
-		glUseProgram(fontShader->m_program);
-		fontShader->loadMatrix("u_model", Matrix4f::IDENTITY);
-		glUseProgram(0);
-		//glTranslatef(-posX, -posY, 0.0f);
+		m_transform.translate(-m_posX, -m_posY, 0.0f);
+
+		//glUseProgram(fontShader->m_program);
+		//fontShader->loadMatrix("u_model", m_transform.getTransformationMatrix());
+		//glUseProgram(0);
 	}
 
 }

@@ -30,8 +30,5 @@ public:
 
 	std::auto_ptr<ConfigurableFrame> mainMenuFrame;
 
-	
-	LabelNew m_label;
-
 	Modal m_modal;
 };
