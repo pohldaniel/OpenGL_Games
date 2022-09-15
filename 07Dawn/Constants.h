@@ -11,7 +11,6 @@
 #include "engine\CharacterSet.h"
 
 #include "Zone.h"
-#include "Framesbase.h"
 
 #define WIDTH 1600
 #define HEIGHT 900
@@ -38,7 +37,6 @@ namespace Globals {
 	extern void setCurrentZone(Zone* newCurZone);
 	extern Zone* getCurrentZone();
 	extern bool initPhase;
-	extern std::vector<FramesBase*> activeFrames;
 	extern AssetManager<CharacterSet> fontManager;
 
 	extern unsigned int textureAtlas;

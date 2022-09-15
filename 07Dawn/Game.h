@@ -9,10 +9,8 @@
 
 #include "StateMachine.h"
 #include "ViewPort.h"
-#include "Configurableframe.h"
-#include "Configuredframes.h"
-#include "Frames.h"
-#include "Label_new.h"
+
+#include "Label.h"
 #include "Modal.h"
 
 class Game : public State, public MouseEventListener {
@@ -27,8 +25,6 @@ public:
 
 	Zone* newZone;
 	Camera m_camera;
-
-	std::auto_ptr<ConfigurableFrame> mainMenuFrame;
 
 	Modal m_modal;
 };

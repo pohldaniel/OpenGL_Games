@@ -126,31 +126,7 @@
     <ClCompile Include="engine\Instancerenderer.cpp">
       <Filter>engine</Filter>
     </ClCompile>
-    <ClCompile Include="DawnState.cpp">
-      <Filter>Source Files\UI</Filter>
-    </ClCompile>
-    <ClCompile Include="Framesbase.cpp">
-      <Filter>Source Files\UI</Filter>
-    </ClCompile>
-    <ClCompile Include="Configuredframes.cpp">
-      <Filter>Source Files\UI</Filter>
-    </ClCompile>
-    <ClCompile Include="Configurableframe.cpp">
-      <Filter>Source Files\UI</Filter>
-    </ClCompile>
     <ClCompile Include="Frames.cpp">
-      <Filter>Source Files\UI</Filter>
-    </ClCompile>
-    <ClCompile Include="Label.cpp">
-      <Filter>Source Files\UI</Filter>
-    </ClCompile>
-    <ClCompile Include="GLFT_Font.cpp">
-      <Filter>Source Files\UI</Filter>
-    </ClCompile>
-    <ClCompile Include="Fontcache.cpp">
-      <Filter>Source Files\UI</Filter>
-    </ClCompile>
-    <ClCompile Include="Label_new.cpp">
       <Filter>Source Files\UI</Filter>
     </ClCompile>
     <ClCompile Include="Widget.cpp">
@@ -161,6 +137,9 @@
     </ClCompile>
     <ClCompile Include="engine\Transform.cpp">
       <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="Label.cpp">
+      <Filter>Source Files\UI</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -257,31 +236,7 @@
     <ClInclude Include="engine\Instancerenderer.h">
       <Filter>engine</Filter>
     </ClInclude>
-    <ClInclude Include="DawnState.h">
-      <Filter>Source Files\UI</Filter>
-    </ClInclude>
-    <ClInclude Include="Framesbase.h">
-      <Filter>Source Files\UI</Filter>
-    </ClInclude>
-    <ClInclude Include="Configuredframes.h">
-      <Filter>Source Files\UI</Filter>
-    </ClInclude>
-    <ClInclude Include="Configurableframe.h">
-      <Filter>Source Files\UI</Filter>
-    </ClInclude>
     <ClInclude Include="Frames.h">
-      <Filter>Source Files\UI</Filter>
-    </ClInclude>
-    <ClInclude Include="Label.h">
-      <Filter>Source Files\UI</Filter>
-    </ClInclude>
-    <ClInclude Include="GLFT_Font.h">
-      <Filter>Source Files\UI</Filter>
-    </ClInclude>
-    <ClInclude Include="Fontcache.h">
-      <Filter>Source Files\UI</Filter>
-    </ClInclude>
-    <ClInclude Include="Label_new.h">
       <Filter>Source Files\UI</Filter>
     </ClInclude>
     <ClInclude Include="Widget.h">
@@ -292,6 +247,9 @@
     </ClInclude>
     <ClInclude Include="engine\Transform.h">
       <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Label.h">
+      <Filter>Source Files\UI</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

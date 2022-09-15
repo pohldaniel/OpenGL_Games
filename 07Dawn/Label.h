@@ -1,38 +1,27 @@
 #pragma once
 
-#include "engine/Extension.h"
-#include "Framesbase.h"
+#include "engine/CharacterSet.h"
+#include "engine/Batchrenderer.h"
 
-class GLFT_Font;
+#include "Widget.h"
 
-class SimpleFunctionObject{
-public:
-	virtual void operator()() = 0;
-};
+#include "Constants.h"
 
-class Label : public FramesBase{
+class LabelNew : public Widget {
 
 public:
-	Label(GLFT_Font *font = NULL, std::string text = "");
-	~Label();
-	virtual void setText(std::string newText);
-	virtual void setFont(GLFT_Font *font);
+	LabelNew() = default;
+	LabelNew(const CharacterSet& characterSet, std::string text = "");
+	~LabelNew() = default;
 
-	virtual void draw(int mouseX, int mouseY);
-	virtual void clicked(int mouseX, int mouseY, uint8_t mouseState);
-	void setOnClicked(SimpleFunctionObject* onClickedFunc);
-	void execute();
+	LabelNew(LabelNew const& rhs);
+	LabelNew& operator=(const LabelNew& rhs);
 
-	virtual int getWidth() const;
-	virtual int getHeight() const;
+	void draw();
+	void draw(std::string text);
+	std::string m_text;
+	const CharacterSet* m_characterSet;
 
-	virtual void setBaseColor(float red, float green, float blue, float alpha);
-	virtual void setSelectColor(float red, float green, float blue, float alpha);
-
-private:
-	GLFT_Font *font;
-	float baseColorRed, baseColorGreen, baseColorBlue, baseColorAlpha;
-	float selectColorRed, selectColorGreen, selectColorBlue, selectColorAlpha;
-	std::string text;
-	mutable SimpleFunctionObject *onClickedFunc;
+	virtual int getWidth() const override;
+	virtual int getHeight() const override;
 };

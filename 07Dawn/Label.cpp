@@ -1,101 +1,56 @@
-#include <iostream>
-
 #include "Label.h"
-#include "GLFT_Font.h"
 
-/// class Label
-Label::Label(GLFT_Font *font_, std::string text_)
-{
-	setFont(font_);
-	setText(text_);
-	setBaseColor(0.0f, 0.0f, 0.0f, 0.0f);
-	setSelectColor(0.0f, 0.0f, 0.0f, 0.0f);
-	onClickedFunc = NULL;
+LabelNew::LabelNew(const CharacterSet& characterSet, std::string text) {
+	m_characterSet = &characterSet;
+	m_text = text;
 }
 
-Label::~Label()
-{
-	if (onClickedFunc != NULL)
-		delete onClickedFunc;
+LabelNew &LabelNew::operator=(const LabelNew &rhs) {
+	m_text = rhs.m_text;
+	m_characterSet = rhs.m_characterSet;
 }
 
-void Label::setText(std::string newText)
-{
-	text = newText;
+LabelNew::LabelNew(LabelNew const& rhs) : m_characterSet(rhs.m_characterSet) {
+	m_text = rhs.m_text;
 }
 
-void Label::setFont(GLFT_Font *newFont)
-{
-	font = newFont;
+void LabelNew::draw() {
+	draw(m_text);
 }
 
-void Label::setOnClicked(SimpleFunctionObject* onClickedFunc)
-{
-	if (this->onClickedFunc) {
-		delete this->onClickedFunc;
+void LabelNew::draw(std::string text) {
+
+	glBindTexture(GL_TEXTURE_2D, m_characterSet->spriteSheet);
+
+	Batchrenderer::get().setShader(Globals::shaderManager.getAssetPointer("font"));
+	std::string::const_iterator c;
+	float width = getPosX();
+
+	for (c = text.begin(); c != text.end(); c++) {
+
+		const Character& _c = m_characterSet->getCharacter(*c);
+
+		Batchrenderer::get().addQuad(Vector4f(width, getPosY() , _c.size[0], _c.size[1]), Vector4f(_c.textureOffset[0], _c.textureOffset[1], _c.textureSize[0], _c.textureSize[1]), 0);
+		width = width + _c.advance[0];
 	}
-	this->onClickedFunc = onClickedFunc;
+	Batchrenderer::get().drawBuffer(false);
+	glBindTexture(GL_TEXTURE_2D, 0);
+	//Widget::draw();
 }
 
-void Label::execute()
-{
-	if (onClickedFunc != NULL)
-	{
-		(*onClickedFunc)();
+
+int LabelNew::getWidth() const {
+
+	int sizeX = 0;
+	std::string::const_iterator c;
+	for (c = m_text.begin(); c != m_text.end(); c++) {
+		const Character ch = m_characterSet->getCharacter(*c);
+		sizeX = sizeX + ((ch.advance[0]));		
 	}
+	return  sizeX;
 }
 
-void Label::draw(int mouseX, int mouseY)
-{
-	
-	if (font == NULL || text == "")
-		return;
-
-	if (onClickedFunc != NULL
-		&& mouseX > getPosX() && mouseX < getPosX() + font->calcStringWidth(text)
-		&& mouseY > getPosY() && mouseY < getPosY() + font->getHeight())
-		glColor4f(selectColorRed, selectColorGreen, selectColorBlue, selectColorAlpha);
-	else
-		glColor4f(baseColorRed, baseColorGreen, baseColorBlue, baseColorAlpha);
-
-	font->drawText(getPosX(), getPosY(), text);
-
-	// draw child controls if any
-	FramesBase::draw(mouseX, mouseY);
-}
-
-void Label::clicked(int mouseX, int mouseY, uint8_t mouseState)
-{
-	if (mouseX > getPosX() && mouseX < getPosX() + font->calcStringWidth(text)
-		&& mouseY > getPosY() && mouseY < getPosY() + font->getHeight())
-	{
-		execute();
-		return; // true;
-	}
-	//return false;
-}
-
-int Label::getWidth() const{
-	return font->calcStringWidth(text);
-}
-
-int Label::getHeight() const{
-	//std::cout << "Label Height: " << font->getHeight() << std::endl;
-	return font->getHeight();
-}
-
-void Label::setBaseColor(float red, float green, float blue, float alpha)
-{
-	baseColorRed = red;
-	baseColorGreen = green;
-	baseColorBlue = blue;
-	baseColorAlpha = alpha;
-}
-
-void Label::setSelectColor(float red, float green, float blue, float alpha)
-{
-	selectColorRed = red;
-	selectColorGreen = green;
-	selectColorBlue = blue;
-	selectColorAlpha = alpha;
+int LabelNew::getHeight() const {
+	//std::cout << "Label New Height: " << m_characterSet->lineHeight << std::endl;
+	return m_characterSet->lineHeight;
 }

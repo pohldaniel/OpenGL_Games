@@ -20,7 +20,6 @@ extern bool Globals::enableWireframe = false;
 extern std::map<std::string, Zone*> Globals::allZones = std::map<std::string, Zone*>();
 extern Zone* Globals::currentZone = nullptr;
 extern bool  Globals::initPhase = false;
-extern std::vector<FramesBase*> Globals::activeFrames = std::vector<FramesBase*>();
 extern unsigned int Globals::textureAtlas = 0;
 
 extern void Globals::setCurrentZone(Zone* newCurZone){

@@ -10,12 +10,6 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	Batchrenderer::get().setCamera(ViewPort::get().getCamera());
 
 	Frames::initFrameTextures();
-	mainMenuFrame.reset(new ConfigurableFrame(0, 0, 0, 0, DawnState::MainMenu));
-
-	ConfiguredFrames::fillMainMenuFrame(mainMenuFrame.get());
-	mainMenuFrame->setVisible(true);
-
-	
 	m_modal = Modal(0, 0, 0, 0);
 	m_modal.setPosition(200, 322);
 
@@ -56,10 +50,7 @@ void Game::render(unsigned int &frameBuffer) {
 	//newZone->drawZoneInstanced();
 
 	glEnable(GL_DEPTH_TEST);
-	mainMenuFrame->draw(0, 0);
-
 	m_modal.draw();
-
 	glDisable(GL_DEPTH_TEST);
 	glDisable(GL_BLEND);
 
