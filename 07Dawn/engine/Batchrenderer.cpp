@@ -132,3 +132,11 @@ void Batchrenderer::drawBuffer(bool updateView) {
 
 	bufferPtr = buffer;
 }
+
+void Batchrenderer::bindTexture(unsigned int texture, bool isTextureArray) {
+	glBindTexture(isTextureArray ? GL_TEXTURE_2D_ARRAY : GL_TEXTURE_2D, texture);
+}
+
+void Batchrenderer::unbindTexture(bool isTextureArray) {
+	glBindTexture(isTextureArray ? GL_TEXTURE_2D_ARRAY : GL_TEXTURE_2D, 0);
+}

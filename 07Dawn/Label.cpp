@@ -20,6 +20,18 @@ void Label::draw() {
 
 void Label::draw(std::string text) {
 
+	auto fontShader = Globals::shaderManager.getAssetPointer("font");
+
+	if (m_hover) {
+		glUseProgram(fontShader->m_program);
+		fontShader->loadVector("u_blendColor", Vector4f(1.0f, 1.0f, 0.0f, 1.0f));
+		glUseProgram(0);
+	}else {
+		glUseProgram(fontShader->m_program);
+		fontShader->loadVector("u_blendColor", Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+		glUseProgram(0);
+	}
+
 	glBindTexture(GL_TEXTURE_2D, m_characterSet->spriteSheet);
 
 	Batchrenderer::get().setShader(Globals::shaderManager.getAssetPointer("font"));
@@ -28,16 +40,31 @@ void Label::draw(std::string text) {
 
 	for (c = text.begin(); c != text.end(); c++) {
 
-		const Character& _c = m_characterSet->getCharacter(*c);
+		const Character& ch = m_characterSet->getCharacter(*c);
 
-		Batchrenderer::get().addQuad(Vector4f(width, getPosY() , _c.size[0], _c.size[1]), Vector4f(_c.textureOffset[0], _c.textureOffset[1], _c.textureSize[0], _c.textureSize[1]), 0);
-		width = width + _c.advance[0];
+		Batchrenderer::get().addQuad(Vector4f(width, getPosY() , ch.size[0], ch.size[1]), Vector4f(ch.textureOffset[0], ch.textureOffset[1], ch.textureSize[0], ch.textureSize[1]), 0);
+		width = width + ch.advance[0];
 	}
 	Batchrenderer::get().drawBuffer(false);
 	glBindTexture(GL_TEXTURE_2D, 0);
 	//Widget::draw();
 }
 
+void Label::update(int mouseX, int mouseY) {
+	
+	if (mouseX > getPosX() && mouseX < getPosX() + getWidth() &&
+		mouseY > getPosY() && mouseY < getPosY() + getHeight()) {
+		m_hover = true;
+
+		if (Globals::lMouseButton && m_fun) {
+			m_fun();
+		}
+
+	}else {
+		m_hover = false;
+	}
+		
+}
 
 int Label::getWidth() const {
 
@@ -51,6 +78,9 @@ int Label::getWidth() const {
 }
 
 int Label::getHeight() const {
-	//std::cout << "Label New Height: " << m_characterSet->lineHeight << std::endl;
 	return m_characterSet->lineHeight;
+}
+
+void Label::setFunction(std::function<void()> fun) {
+	m_fun = fun;
 }

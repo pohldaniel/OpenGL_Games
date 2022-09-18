@@ -73,20 +73,21 @@ void StateMachine::update() {
 			delete m_states.top();
 			m_states.pop();
 		}
-	}else {
+	}
+	else {
 		m_isRunning = false;
 	}
 }
 
 void StateMachine::render() {
-	
-	if (!m_states.empty()) {	
+
+	if (!m_states.empty()) {
 		glPolygonMode(GL_FRONT_AND_BACK, Globals::enableWireframe ? GL_LINE : GL_FILL);
 
 		m_states.top()->render(m_frameBuffer);
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);		
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	}
-	
+
 	glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	//glEnable(GL_BLEND);

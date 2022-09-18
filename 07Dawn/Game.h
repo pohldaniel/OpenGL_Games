@@ -5,13 +5,10 @@
 #include "engine/input/Mouse.h"
 #include "engine/Camera.h"
 #include "engine/Batchrenderer.h"
-#include "engine/CharacterSet.h"
 
 #include "StateMachine.h"
-#include "ViewPort.h"
 
-#include "Label.h"
-#include "Modal.h"
+
 
 class Game : public State, public MouseEventListener {
 public:
@@ -24,7 +21,5 @@ public:
 	void OnMouseMotion(Event::MouseMoveEvent& event) override;
 
 	Zone* newZone;
-	Camera m_camera;
 
-	Modal m_modal;
 };

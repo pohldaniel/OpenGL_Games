@@ -7,7 +7,6 @@
 #include "Application.h"
 #include "Constants.h"
 
-
 extern Matrix4f Globals::projection = Matrix4f();
 extern Matrix4f Globals::invProjection = Matrix4f();
 extern Matrix4f Globals::orthographic = Matrix4f();
@@ -17,6 +16,8 @@ extern AssetManager<Texture> Globals::textureManager = AssetManager<Texture>();
 extern AssetManager<Spritesheet> Globals::spritesheetManager = AssetManager<Spritesheet>();
 extern AssetManager<CharacterSet> Globals::fontManager = AssetManager<CharacterSet>();
 extern bool Globals::enableWireframe = false;
+extern bool Globals::lMouseButton = false;
+
 extern std::map<std::string, Zone*> Globals::allZones = std::map<std::string, Zone*>();
 extern Zone* Globals::currentZone = nullptr;
 extern bool  Globals::initPhase = false;

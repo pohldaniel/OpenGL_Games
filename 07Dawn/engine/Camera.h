@@ -4,7 +4,7 @@
 #include <vector>
 #include "Vector.h"
 
-class Camera{
+class Camera {
 
 public:
 
@@ -14,6 +14,8 @@ public:
 
 	void perspective(float fovx, float aspect, float znear, float zfar);
 	void orthographic(float left, float right, float bottom, float top, float znear, float zfar);
+	void invPerspective(float fovx, float aspect, float znear, float zfar);
+	void invOrthographic(float left, float right, float bottom, float top, float znear, float zfar);
 	void lookAt(const Vector3f &eye, const Vector3f &target, const Vector3f &up);
 	void move(float dx, float dy, float dz);
 	void rotate(float yaw, float pitch, float roll);
@@ -24,14 +26,14 @@ public:
 
 	void setUpLightTransformation(float distance);
 	void setUpLightTransformation(std::vector<Vector2f>& bounds);
-	
+
 	void calcLightTransformation(Vector3f &direction, float near, float far, Matrix4f& viewMatrix, Matrix4f& projectionMatrix);
 
 	const float getFar() const;
 	const float getNear() const;
 	const float getFovXDeg() const;
 	const float getFovXRad() const;
-	
+
 	const float getLeftOrthographic() const;
 	const float getRightOrthographic() const;
 	const float getBottomOrthographic() const;
@@ -42,6 +44,7 @@ public:
 	const Matrix4f &getProjectionMatrix() const;
 	const Matrix4f &getInvProjectionMatrix() const;
 	const Matrix4f &getOrthographicMatrix() const;
+	const Matrix4f &getInvOrthographicMatrix() const;
 	const Vector3f &getPosition() const;
 	const Vector3f &getCamX() const;
 	const Vector3f &getCamY() const;
@@ -72,25 +75,25 @@ public:
 
 protected:
 
-    void rotateFirstPerson(float yaw, float pitch);
+	void rotateFirstPerson(float yaw, float pitch);
 	void updateViewMatrix(bool orthogonalizeAxes);
 	void updateViewMatrix(const Vector3f &eye, const Vector3f &target, const Vector3f &up);
 
-    Vector3f WORLD_XAXIS;
+	Vector3f WORLD_XAXIS;
 	Vector3f WORLD_YAXIS;
 	Vector3f WORLD_ZAXIS;
 
-    float			m_fovx;
-    float			m_znear;
-    float			m_zfar;
+	float			m_fovx;
+	float			m_znear;
+	float			m_zfar;
 	float			m_aspectRatio;
 	float			m_accumPitchDegrees;
 	float			m_rotationSpeed;
 
 	Vector3f		m_eye;
 	Vector3f		m_xAxis;
-    Vector3f		m_yAxis;
-    Vector3f		m_zAxis;
+	Vector3f		m_yAxis;
+	Vector3f		m_zAxis;
 	Vector3f		m_viewDir;
 	Vector3f		m_currentVelocity;
 	Vector3f		m_acceleration;
@@ -107,5 +110,6 @@ protected:
 	Matrix4f		m_projMatrix;
 	Matrix4f		m_invProjMatrix;
 	Matrix4f		m_orthMatrix;
+	Matrix4f		m_invOrthMatrix;
 };
 #endif // __cameraH__

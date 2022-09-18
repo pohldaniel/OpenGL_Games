@@ -12,7 +12,6 @@
 #include "StateMachine.h"
 #include "ViewPort.h"
 
-#include "Game.h"
 
 class Application {
 public:

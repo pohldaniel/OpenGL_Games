@@ -10,7 +10,7 @@ enum CurrentState {
 	GAME,
 	SETTINGS,
 	PAUSE,
-	MENU,
+	MAINMENU,
 	LEVELSELECT
 };
 

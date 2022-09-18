@@ -11,7 +11,6 @@
 #include "engine/Instancerenderer.h"
 #include "engine/Spritesheet.h"
 
-
 struct DawnTexture {
 	unsigned int texture;
 	float textureOffsetX, textureOffsetY, textureWidth, textureHeight;
@@ -137,13 +136,11 @@ private:
 class TextureManager{
 
 public:
-	std::vector<DawnTexture> m_texture;
-
-	void loadimage(std::string file, int textureIndex = 0, bool isOpenGLThreadInThreadedMode = false);
-	DawnTexture& getTexture(int index);
 
 	static bool IsRectOnScreen(int left, int width, int bottom, int height);
 	static void DrawTextureBatched(DawnTexture& stexture, int x, int y, float transparency = 1.0f, float red = 1.0f, float green = 1.0f, float blue = 1.0f, float x_scale = 1.0f, float y_scale = 1.0f, bool checkVieport = true);
 	static void DrawTextureInstanced(DawnTexture& stexture, int x, int y, float transparency = 1.0f, float red = 1.0f, float green = 1.0f, float blue = 1.0f, float x_scale = 1.0f, float y_scale = 1.0f, bool checkVieport = true);
 	static DawnTexture& Loadimage(std::string file, bool isOpenGLThreadInThreadedMode = false);
+
+	static void Loadimage(std::string file, int textureIndex, std::vector<DawnTexture>& textureBase, bool isOpenGLThreadInThreadedMode = false);
 };

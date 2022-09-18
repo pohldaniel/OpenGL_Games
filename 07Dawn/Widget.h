@@ -9,6 +9,7 @@ public:
 	~Widget();
 
 	virtual void draw();
+	virtual void update(int mouseX, int mouseY);
 
 	virtual void addChildWidget(int posX, int posY, std::auto_ptr<Widget> newChild);
 	virtual int getPosX() const;

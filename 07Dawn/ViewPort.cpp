@@ -12,6 +12,7 @@ ViewPort& ViewPort::get() {
 void ViewPort::init(unsigned int width, unsigned int height) {
 	m_camera.lookAt(Vector3f(0.0f, 0.0f, 0.0f), Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
 	m_camera.orthographic(0.0f, static_cast<float>(width), 0.0f, static_cast<float>(height), -1.0f, 1.0f);
+	m_camera.invOrthographic(0.0f, static_cast<float>(width), 0.0f, static_cast<float>(height), -1.0f, 1.0f);
 
 	m_left = m_camera.getLeftOrthographic() + m_screeBorder;
 	m_right = m_camera.getRightOrthographic() - m_screeBorder;

@@ -254,7 +254,7 @@ void Mouse::smoothMouse(bool smooth){
 }
 
 void Mouse::update(){
-
+	
 	bool *pTempMouseStates = m_pPrevButtonStates;
 
 	m_pPrevButtonStates = m_pCurrButtonStates;
@@ -273,7 +273,12 @@ void Mouse::update(){
 		GetCursorPos(&CursorPos);		
 		m_xPosRelative = static_cast<float>(centerX - CursorPos.x);
 		m_yPosRelative = static_cast<float>(centerY - CursorPos.y);
-		setCursorToMiddle();
+		//setCursorToMiddle();
+
+		ScreenToClient(m_hWnd, &CursorPos);
+
+		m_xPosAbsolute = CursorPos.x;
+		m_yPosAbsolute = CursorPos.y;
 	}
 }
 
@@ -294,7 +299,6 @@ void Mouse::attach2(HWND hWnd) {
 	centerY = rectWindow.top + rectClient.bottom / 2;
 
 	setCursorToMiddle();
-	hideCursor(true);
 	m_attached = true;
 }
 

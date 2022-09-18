@@ -1,6 +1,9 @@
 #include <iostream>
 #include "Application.h"
 
+#include "Game.h"
+#include "MainMenu.h"
+
 Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fdt), m_eventDispatcher(new EventDispatcher()){
 	initWindow();
 	initOpenGL();
@@ -19,6 +22,7 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 	});
 
 	ViewPort::get().init(WIDTH, HEIGHT);
+	Batchrenderer::get().setCamera(ViewPort::get().getCamera());
 }
 
 Application::~Application() {
@@ -118,7 +122,7 @@ LRESULT Application::DisplayWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 
 	switch (message) {
 		case WM_CREATE: {
-			//Mouse::instance().setHwnd(hWnd);
+			Mouse::instance().attach2(hWnd);
 			Keyboard::instance().enable();
 			break;
 		}case WM_DESTROY: {
@@ -128,11 +132,11 @@ LRESULT Application::DisplayWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 			Mouse::instance().setAbsolute(LOWORD(lParam), HIWORD(lParam));
 			break;
 		}case WM_RBUTTONDOWN: {
-			Mouse::instance().attach2(hWnd);
+			//Mouse::instance().attach2(hWnd);
 			Keyboard::instance().enable();
 			break;
 		}case WM_RBUTTONUP: {
-			Mouse::instance().detach2();
+			//Mouse::instance().detach2();
 			break;
 		}case WM_KEYDOWN: {
 
@@ -144,7 +148,7 @@ LRESULT Application::DisplayWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 					m_machine->toggleWireframe();
 					break;
 				}case VK_SPACE: {
-					//  Mouse::instance().detach2();
+					 Mouse::instance().detach2();
 					Keyboard::instance().disable();
 					break;
 				}
@@ -159,16 +163,15 @@ LRESULT Application::DisplayWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 				_height = 1;
 			}
 			
-			glViewport(0, 0, _width, _height);			
+			glViewport(0, 0, _width, _height);	
 			Globals::projection = Matrix4f::GetPerspective(Globals::projection, 45.0f, static_cast<float>(_width) / static_cast<float>(_height), 1.0f, 5000.0f);
 			Globals::invProjection = Matrix4f::GetInvPerspective(Globals::invProjection, 45.0f, static_cast<float>(_width) / static_cast<float>(_height), 1.0f, 5000.0f);
 			//Globals::orthographic = Matrix4f::GetOrthographic(Globals::orthographic, -static_cast<float>(_width) * 0.5f, static_cast<float>(_width)* 0.5f, 0.0f, static_cast<float>(_height), -1.0f, 1.0f);
-	
+
 			Globals::orthographic = Matrix4f::GetOrthographic(Globals::orthographic, 0.0f, static_cast<float>(_width), 0.0f, static_cast<float>(_height), -1.0f, 1.0f);
 			Globals::invOrthographic = Matrix4f::GetInvOrthographic(Globals::invOrthographic, 0.0f, static_cast<float>(_width), 0.0f, static_cast<float>(_height), -1.0f, 1.0f);
-			
-			
 
+			
 			break;
 		}default: {
 			//Mouse::instance().handleMsg(hWnd, message, wParam, lParam);
@@ -267,6 +270,9 @@ bool Application::isRunning() {
 
 	Keyboard::instance().update();
 	Mouse::instance().update();
+
+	Globals::lMouseButton = Mouse::instance().buttonPressed(Mouse::MouseButton::BUTTON_LEFT);
+
 	if (Keyboard::instance().keyDown(Keyboard::KEY_ESCAPE)) {
 		return false;
 	}
@@ -288,9 +294,11 @@ void Application::fixedUpdate() {
 
 void Application::initStates() {
 	m_machine = new StateMachine(m_dt, m_fdt);
-	Game* game = dynamic_cast<Game*>(m_machine->addStateAtTop(new Game(*m_machine)));
+	//Game* game = dynamic_cast<Game*>(m_machine->addStateAtTop(new Game(*m_machine)));
 
-	AddMouseListener(game);
+	//AddMouseListener(game);
+
+	m_machine->addStateAtTop(new MainMenu(*m_machine));
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {

@@ -126,20 +126,20 @@
     <ClCompile Include="engine\Instancerenderer.cpp">
       <Filter>engine</Filter>
     </ClCompile>
-    <ClCompile Include="Frames.cpp">
+    <ClCompile Include="engine\Transform.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="Dialog.cpp">
+      <Filter>Source Files\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="Label.cpp">
       <Filter>Source Files\UI</Filter>
     </ClCompile>
     <ClCompile Include="Widget.cpp">
       <Filter>Source Files\UI</Filter>
     </ClCompile>
-    <ClCompile Include="Modal.cpp">
-      <Filter>Source Files\UI</Filter>
-    </ClCompile>
-    <ClCompile Include="engine\Transform.cpp">
-      <Filter>engine</Filter>
-    </ClCompile>
-    <ClCompile Include="Label.cpp">
-      <Filter>Source Files\UI</Filter>
+    <ClCompile Include="MainMenu.cpp">
+      <Filter>Source Files\States</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -236,20 +236,20 @@
     <ClInclude Include="engine\Instancerenderer.h">
       <Filter>engine</Filter>
     </ClInclude>
-    <ClInclude Include="Frames.h">
+    <ClInclude Include="engine\Transform.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Dialog.h">
+      <Filter>Source Files\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="Label.h">
       <Filter>Source Files\UI</Filter>
     </ClInclude>
     <ClInclude Include="Widget.h">
       <Filter>Source Files\UI</Filter>
     </ClInclude>
-    <ClInclude Include="Modal.h">
-      <Filter>Source Files\UI</Filter>
-    </ClInclude>
-    <ClInclude Include="engine\Transform.h">
-      <Filter>engine</Filter>
-    </ClInclude>
-    <ClInclude Include="Label.h">
-      <Filter>Source Files\UI</Filter>
+    <ClInclude Include="MainMenu.h">
+      <Filter>Source Files\States</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

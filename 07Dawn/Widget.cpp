@@ -18,8 +18,7 @@ Widget::~Widget() {
 
 void Widget::draw() {
 	if (m_childWidgets.size() > 0) {
-
-		
+	
 		m_transform.translate(m_posX, m_posY, 0.0f);
 
 		auto fontShader = Globals::shaderManager.getAssetPointer("font");
@@ -38,9 +37,15 @@ void Widget::draw() {
 		//fontShader->loadMatrix("u_model", m_transform.getTransformationMatrix());
 		//glUseProgram(0);
 	}
-
 }
 
+void Widget::update(int mouseX, int mouseY) {
+	if (m_childWidgets.size() > 0) {
+		for (unsigned short w = 0; w < m_childWidgets.size(); ++w) {
+			m_childWidgets[w]->update(mouseX - m_posX, mouseY - m_posY);
+		}
+	}
+}
 
 void Widget::addToParent(int posX, int posY, Widget* parent) {
 	this->m_parentFrame = parent;
@@ -55,8 +60,6 @@ void Widget::addChildWidget(int posX, int posY, std::auto_ptr<Widget> newChild) 
 void Widget::setPosition(int posX, int posY) {
 	m_posX = posX;
 	m_posY = posY;
-
-	
 }
 
 void Widget::setSize(int width, int height) {
