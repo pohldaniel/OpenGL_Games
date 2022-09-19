@@ -182,5 +182,5 @@ void Dialog::resize(int width, int height){
 
 void Dialog::recalculatePosition(){
 	if (centerOnScreen)
-		setPosition((WIDTH - getWidth()) / 2, (HEIGHT - getHeight()) / 2);
+		setPosition((ViewPort::get().getWidth() - getWidth()) / 2, (ViewPort::get().getHeight() - getHeight()) / 2);
 }

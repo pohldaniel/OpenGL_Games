@@ -24,14 +24,8 @@ MainMenu::~MainMenu() {}
 void MainMenu::fixedUpdate() {}
 
 void MainMenu::update() {
-
-	Mouse &mouse = Mouse::instance();
-
-	float mouseXndc = (2.0f * mouse.xPosAbsolute()) / (float)WIDTH - 1.0f;
-	float mouseYndc = 1.0f - (2.0f * mouse.yPosAbsolute()) / (float)HEIGHT;
-	Vector4f m_cursorPosEye = Vector4f(mouseXndc, mouseYndc, -1.0f, 1.0f) ^ ViewPort::get().getCamera().getInvOrthographicMatrix();
-
-	m_dialog.update(static_cast<int>(m_cursorPosEye[0]), static_cast<int>(m_cursorPosEye[1]));
+	ViewPort::get().update(m_dt);
+	m_dialog.update(static_cast<int>(ViewPort::get().getCursorPos()[0]), static_cast<int>(ViewPort::get().getCursorPos()[1]));
 }
 
 void MainMenu::render(unsigned int &frameBuffer) {
@@ -47,4 +41,8 @@ void MainMenu::render(unsigned int &frameBuffer) {
 	glDisable(GL_BLEND);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+void MainMenu::resize() {
+	m_dialog.applyLayout();
 }

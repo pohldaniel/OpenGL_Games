@@ -715,32 +715,20 @@ void Camera::setUpLightTransformation(std::vector<Vector2f>& bounds) {
 	}
 }
 
-const Vector2f & Camera::getBottomLeft() {
-	m_bottomLeft[0] = -(1.0f / m_orthMatrix[0][0]) * (1.0f + m_orthMatrix[3][0]);
-	m_bottomLeft[1] = -(1.0f / m_orthMatrix[1][1]) * (1.0f + m_orthMatrix[3][1]);
-
-	return m_bottomLeft;
+const Vector2f Camera::getBottomLeft() {
+	return Vector2f(-(1.0f / m_orthMatrix[0][0]) * (1.0f + m_orthMatrix[3][0]), -(1.0f / m_orthMatrix[1][1]) * (1.0f + m_orthMatrix[3][1]));
 }
 
-const Vector2f &Camera::getBottomRight() {
-	m_bottomRight[0] = (1.0f / m_orthMatrix[0][0]) * (1.0f - m_orthMatrix[3][0]);
-	m_bottomRight[1] = -(1.0f / m_orthMatrix[1][1]) * (1.0f + m_orthMatrix[3][1]);
-
-	return m_bottomRight;
+const Vector2f Camera::getBottomRight() {
+	return  Vector2f((1.0f / m_orthMatrix[0][0]) * (1.0f - m_orthMatrix[3][0]), -(1.0f / m_orthMatrix[1][1]) * (1.0f + m_orthMatrix[3][1]));
 }
 
-const Vector2f &Camera::getTopLeft() {
-	m_topLeft[0] = -(1.0f / m_orthMatrix[0][0]) * (1.0f + m_orthMatrix[3][0]);
-	m_topLeft[1] = (1.0f / m_orthMatrix[1][1]) * (1.0f - m_orthMatrix[3][1]);
-
-	return m_topLeft;
+const Vector2f Camera::getTopLeft() {
+	return Vector2f(-(1.0f / m_orthMatrix[0][0]) * (1.0f + m_orthMatrix[3][0]), (1.0f / m_orthMatrix[1][1]) * (1.0f - m_orthMatrix[3][1]));
 }
 
-const Vector2f &Camera::getTopRight() {
-	m_topRight[0] = (1.0f / m_orthMatrix[0][0]) * (1.0f - m_orthMatrix[3][0]);
-	m_topRight[1] = (1.0f / m_orthMatrix[1][1]) * (1.0f - m_orthMatrix[3][1]);
-
-	return m_topRight;
+const Vector2f Camera::getTopRight() {
+	return Vector2f((1.0f / m_orthMatrix[0][0]) * (1.0f - m_orthMatrix[3][0]), (1.0f / m_orthMatrix[1][1]) * (1.0f - m_orthMatrix[3][1]));
 }
 
 const float Camera::getLeftOrthographic() const {

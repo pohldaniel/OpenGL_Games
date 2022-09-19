@@ -29,13 +29,15 @@ public:
 	void setAutoresize();
 	void setCenteringLayout();
 	void setCenterOnScreen();
+	void applyLayout();
+
 
 	virtual void addChildFrame(int relPosX, int relPosY, std::auto_ptr<Widget> newChild);
 	virtual int getWidth() const;
 	virtual int getHeight() const;
 
 private:
-	void applyLayout();
+	
 	void resize(int width, int height);
 	void recalculatePosition();
 

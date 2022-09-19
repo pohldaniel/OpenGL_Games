@@ -1,5 +1,5 @@
+#include <iostream>
 #include "ViewPort.h"
-
 
 ViewPort ViewPort::s_instance;
 
@@ -14,10 +14,13 @@ void ViewPort::init(unsigned int width, unsigned int height) {
 	m_camera.orthographic(0.0f, static_cast<float>(width), 0.0f, static_cast<float>(height), -1.0f, 1.0f);
 	m_camera.invOrthographic(0.0f, static_cast<float>(width), 0.0f, static_cast<float>(height), -1.0f, 1.0f);
 
-	m_left = m_camera.getLeftOrthographic() + m_screeBorder;
-	m_right = m_camera.getRightOrthographic() - m_screeBorder;
-	m_bottom = m_camera.getBottomOrthographic() + m_screeBorder;
-	m_top = m_camera.getTopOrthographic() - m_screeBorder;
+	m_left = m_camera.getLeftOrthographic();
+	m_right = m_camera.getRightOrthographic();
+	m_bottom = m_camera.getBottomOrthographic();
+	m_top = m_camera.getTopOrthographic();
+
+	m_width = width;
+	m_height = height;
 }
 
 void ViewPort::update(float dt) {
@@ -44,24 +47,42 @@ void ViewPort::update(float dt) {
 	}
 
 	m_camera.move(directrion[0] * dt * moveSpeed, directrion[1] * dt * moveSpeed, directrion[2] * dt * moveSpeed);
+
+	Mouse &mouse = Mouse::instance();
+
+	float mouseXndc = static_cast<float>(2.0f * mouse.xPosAbsolute()) / static_cast<float>(m_width) - 1.0f;
+	float mouseYndc = 1.0f - static_cast<float>(2.0f * mouse.yPosAbsolute()) / static_cast<float>(m_height);
+	m_cursorPosEye = Vector2f(0.5f * (m_right * (mouseXndc + 1.0f) + m_left * (1.0f - mouseXndc)), 0.5f * (m_top * (mouseYndc + 1.0f) + m_bottom * (1.0f - mouseYndc)));
 }
 
 Camera& ViewPort::getCamera() {
 	return m_camera;
 }
 
+Vector2f& ViewPort::getCursorPos() {	
+	return m_cursorPosEye;	
+}
+
 float ViewPort::getLeft() {
-	return m_postition[0] + m_left;
+	return m_postition[0] + m_left + m_screeBorder;
 }
 
 float ViewPort::getRight() {
-	return m_postition[0] + m_right;
+	return m_postition[0] + m_right - m_screeBorder;
 }
 
 float ViewPort::getBottom() {
-	return m_postition[1] + m_bottom;
+	return m_postition[1] + m_bottom + m_screeBorder;
 }
 
 float ViewPort::getTop() {
-	return m_postition[1] + m_top;
+	return m_postition[1] + m_top - m_screeBorder;
+}
+
+float ViewPort::getWidth() {
+	return m_width;
+}
+
+float ViewPort::getHeight() {
+	return m_height;
 }

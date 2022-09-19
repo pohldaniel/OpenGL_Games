@@ -13,9 +13,10 @@ public:
 	MainMenu(StateMachine& machine);
 	~MainMenu();
 
-	virtual void fixedUpdate() override;
-	virtual void update() override;
-	virtual void render(unsigned int &frameBuffer) override;
+	void fixedUpdate() override;
+	void update() override;
+	void render(unsigned int &frameBuffer) override;
+	void resize() override;
 
 	Dialog m_dialog;
 };

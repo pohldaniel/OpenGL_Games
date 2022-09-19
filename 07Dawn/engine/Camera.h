@@ -51,10 +51,10 @@ public:
 	const Vector3f &getCamZ() const;
 	const Vector3f &getViewDirection() const;
 
-	const Vector2f &getBottomLeft();
-	const Vector2f &getBottomRight();
-	const Vector2f &getTopLeft();
-	const Vector2f &getTopRight();
+	const Vector2f getBottomLeft();
+	const Vector2f getBottomRight();
+	const Vector2f getTopLeft();
+	const Vector2f getTopRight();
 
 	void setPosition(float x, float y, float z);
 	void setPosition(const Vector3f &position);
@@ -98,11 +98,6 @@ protected:
 	Vector3f		m_currentVelocity;
 	Vector3f		m_acceleration;
 	Vector3f		m_velocity;
-
-	Vector2f		m_bottomLeft;
-	Vector2f		m_bottomRight;
-	Vector2f		m_topLeft;
-	Vector2f		m_topRight;
 
 	Matrix4f		m_viewMatrix;
 	Matrix4f		m_invViewMatrix;

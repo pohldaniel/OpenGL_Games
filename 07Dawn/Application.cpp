@@ -65,7 +65,7 @@ bool Application::initWindow() {
 		NULL,
 		"WINDOWCLASS",
 		"Voyager",
-		WS_OVERLAPPEDWINDOW ^ (WS_THICKFRAME | WS_MAXIMIZEBOX),
+		WS_OVERLAPPEDWINDOW,
 		CW_USEDEFAULT, CW_USEDEFAULT,
 		WIDTH,
 		HEIGHT,
@@ -170,8 +170,18 @@ LRESULT Application::DisplayWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 
 			Globals::orthographic = Matrix4f::GetOrthographic(Globals::orthographic, 0.0f, static_cast<float>(_width), 0.0f, static_cast<float>(_height), -1.0f, 1.0f);
 			Globals::invOrthographic = Matrix4f::GetInvOrthographic(Globals::invOrthographic, 0.0f, static_cast<float>(_width), 0.0f, static_cast<float>(_height), -1.0f, 1.0f);
-
+			ViewPort::get().init(_width, _height);
 			
+			if (m_init) {
+				m_machine->resize(_width, _height);
+				m_machine->m_states.top()->resize();
+			}
+
+			break;
+		}case WM_GETMINMAXINFO:{
+			LPMINMAXINFO lpMMI = (LPMINMAXINFO)lParam;
+			lpMMI->ptMinTrackSize.x = 1024;
+			lpMMI->ptMinTrackSize.y = 786;
 			break;
 		}default: {
 			//Mouse::instance().handleMsg(hWnd, message, wParam, lParam);
