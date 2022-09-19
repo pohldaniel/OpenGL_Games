@@ -88,6 +88,7 @@ bool EventDispatcher::update() {
 }
 
 bool EventDispatcher::popEvent(Event& event) {
+	
 	if (!m_events.empty()) {
 		event = m_events.front();
 		m_events.pop();

@@ -70,10 +70,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 			application.fixedUpdate();
 			physicsElapsedTime -= PHYSICS_STEP;
 		}
-
+		
 		application.update();
 		application.render();
-
 
 		deltaTime = deltaClock.restartSec();
 

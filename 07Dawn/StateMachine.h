@@ -8,7 +8,7 @@
 
 enum CurrentState {
 	GAME,
-	SETTINGS,
+	EDITOR,
 	PAUSE,
 	MAINMENU,
 	LEVELSELECT

@@ -11,10 +11,10 @@ DawnTexture& TextureCache::getTextureFromCache(std::string filename){
 		return textures[filename];
 	}
 	
-	Texture tex;
+	Texture tex = Texture();
 	tex.loadFromFile(filename, true);
 
-	if (tex.getChannels() == 3) {		
+	if (tex.getChannels() == 3) {
 		tex.addAlphaChannel();
 	}
 

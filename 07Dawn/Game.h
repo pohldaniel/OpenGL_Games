@@ -8,8 +8,6 @@
 
 #include "StateMachine.h"
 
-
-
 class Game : public State, public MouseEventListener {
 public:
 	Game(StateMachine& machine);

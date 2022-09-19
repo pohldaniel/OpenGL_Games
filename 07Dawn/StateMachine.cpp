@@ -49,8 +49,8 @@ State* StateMachine::addStateAtTop(State* state) {
 void StateMachine::addStateAtBottom(State* state) {
 	if (m_states.empty()) {
 		m_states.push(state);
-	}
-	else {
+
+	}else {
 		State* temp = m_states.top();
 		m_states.pop();
 		addStateAtBottom(state);
@@ -71,14 +71,13 @@ void StateMachine::update() {
 			delete m_states.top();
 			m_states.pop();
 		}
-	}
-	else {
+
+	}else {
 		m_isRunning = false;
 	}
 }
 
 void StateMachine::render() {
-
 	if (!m_states.empty()) {
 		glPolygonMode(GL_FRONT_AND_BACK, Globals::enableWireframe ? GL_LINE : GL_FILL);
 

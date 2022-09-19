@@ -156,6 +156,7 @@
   <ItemGroup>
     <ClCompile Include="Application.cpp" />
     <ClCompile Include="Dialog.cpp" />
+    <ClCompile Include="Editor.cpp" />
     <ClCompile Include="engine\Instancerenderer.cpp" />
     <ClCompile Include="engine\Transform.cpp" />
     <ClCompile Include="Label.cpp" />
@@ -196,6 +197,7 @@
     <ClInclude Include="Application.h" />
     <ClInclude Include="Constants.h" />
     <ClInclude Include="Dialog.h" />
+    <ClInclude Include="Editor.h" />
     <ClInclude Include="engine\Instancerenderer.h" />
     <ClInclude Include="engine\Transform.h" />
     <ClInclude Include="Label.h" />

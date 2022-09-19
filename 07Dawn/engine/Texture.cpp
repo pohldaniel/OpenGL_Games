@@ -70,7 +70,8 @@ void Texture::loadFromFile(std::string fileName, const bool _flipVertical, unsig
 	unsigned char* imageData = SOIL_load_image(fileName.c_str(), &width, &height, &numCompontents, SOIL_LOAD_AUTO);
 	unsigned internalFormat = _internalFormat == 0 && numCompontents == 3 ? GL_RGB8 : _internalFormat == 0 ? GL_RGBA8 : _internalFormat;
 	m_format = _format == 0 && numCompontents == 3 ? GL_RGB : _format == 0 ? GL_RGBA : _format;
-
+	
+	
 	if (_flipVertical)
 		flipVertical(imageData, numCompontents * width, height);
 	
@@ -259,6 +260,7 @@ unsigned char* Texture::readPixel() {
 }
 
 void Texture::addAlphaChannel(unsigned int value) {
+	
 	unsigned char* bytes = (unsigned char*)malloc(m_width * m_height * m_channels);
 	
 	glBindTexture(GL_TEXTURE_2D, m_texture);
@@ -267,8 +269,8 @@ void Texture::addAlphaChannel(unsigned int value) {
 
 	m_channels = 4;
 	m_format = GL_RGBA;
-
-	unsigned char* bytesNew = (unsigned char*)malloc(m_width * m_height * m_channels);
+	
+	unsigned char* bytesNew = (unsigned char*)malloc(m_height *  m_width* m_channels);
 
 	for (unsigned int i = 0, k = 0; i < m_width * m_height * 4; i = i + 4, k = k + 3) {
 		bytesNew[i] = bytes[k];
@@ -279,7 +281,7 @@ void Texture::addAlphaChannel(unsigned int value) {
 
 	unsigned int texture_new;
 	glGenTextures(1, &texture_new);
-	glBindTexture(GL_TEXTURE_2D_ARRAY, texture_new);
+	glBindTexture(GL_TEXTURE_2D, texture_new);
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -290,7 +292,6 @@ void Texture::addAlphaChannel(unsigned int value) {
 
 	glBindTexture(GL_TEXTURE_2D, 0);
 
-	glDeleteTextures(1, &m_texture);
 	m_texture = texture_new;
 
 	free(bytes);

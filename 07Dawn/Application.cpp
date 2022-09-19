@@ -1,8 +1,9 @@
 #include <iostream>
 #include "Application.h"
 
-#include "Game.h"
 #include "MainMenu.h"
+#include "Game.h"
+#include "Editor.h"
 
 Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fdt), m_eventDispatcher(new EventDispatcher()){
 	initWindow();
@@ -22,7 +23,8 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 	});
 
 	ViewPort::get().init(WIDTH, HEIGHT);
-	Batchrenderer::get().setCamera(ViewPort::get().getCamera());
+	Batchrenderer::get().init();
+	Batchrenderer::get().setCamera(ViewPort::get().getCamera());	
 }
 
 Application::~Application() {
@@ -64,7 +66,7 @@ bool Application::initWindow() {
 	m_window = CreateWindowEx(
 		NULL,
 		"WINDOWCLASS",
-		"Voyager",
+		"Dawn",
 		WS_OVERLAPPEDWINDOW,
 		CW_USEDEFAULT, CW_USEDEFAULT,
 		WIDTH,
@@ -95,7 +97,7 @@ bool Application::initWindow() {
 }
 
 LRESULT CALLBACK Application::StaticWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
-
+	
 	Application* application = nullptr;
 
 	switch (message) {
@@ -128,16 +130,6 @@ LRESULT Application::DisplayWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 		}case WM_DESTROY: {
 			PostQuitMessage(0);
 			break;
-		}case WM_LBUTTONDOWN: { // Capture the mouse			
-			Mouse::instance().setAbsolute(LOWORD(lParam), HIWORD(lParam));
-			break;
-		}case WM_RBUTTONDOWN: {
-			//Mouse::instance().attach2(hWnd);
-			Keyboard::instance().enable();
-			break;
-		}case WM_RBUTTONUP: {
-			//Mouse::instance().detach2();
-			break;
 		}case WM_KEYDOWN: {
 
 			switch (wParam) {
@@ -155,7 +147,7 @@ LRESULT Application::DisplayWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 			}
 			break;
 		}case WM_SIZE: {
-
+			
 			int _height = HIWORD(lParam);		// retrieve width and height
 			int _width = LOWORD(lParam);
 
@@ -176,9 +168,10 @@ LRESULT Application::DisplayWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 				m_machine->resize(_width, _height);
 				m_machine->m_states.top()->resize();
 			}
-
+			
 			break;
 		}case WM_GETMINMAXINFO:{
+			
 			LPMINMAXINFO lpMMI = (LPMINMAXINFO)lParam;
 			lpMMI->ptMinTrackSize.x = 1024;
 			lpMMI->ptMinTrackSize.y = 786;
@@ -286,7 +279,7 @@ bool Application::isRunning() {
 	if (Keyboard::instance().keyDown(Keyboard::KEY_ESCAPE)) {
 		return false;
 	}
-
+	
 	return m_eventDispatcher->update();
 }
 
@@ -305,10 +298,10 @@ void Application::fixedUpdate() {
 void Application::initStates() {
 	m_machine = new StateMachine(m_dt, m_fdt);
 	//Game* game = dynamic_cast<Game*>(m_machine->addStateAtTop(new Game(*m_machine)));
-
 	//AddMouseListener(game);
 
 	m_machine->addStateAtTop(new MainMenu(*m_machine));
+	//m_machine->addStateAtTop(new Editor(*m_machine));
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
@@ -332,6 +325,7 @@ void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 				TrackMouseEvent(&trackMouseEvent);
 				m_mouseTracking = true;
 			}*/
+			
 			break;
 		}/*case WM_MOUSELEAVE: {
 			m_mouseTracking = false;
@@ -365,8 +359,7 @@ void Application::loadAssets() {
 	
 	Globals::fontManager.loadCharacterSet("verdana_20", "res/verdana.ttf", 20.0f, 3, 20);
 
-	Batchrenderer::get().init();
-	
+
 
 	Instancedrenderer::get().init();
 	Instancedrenderer::get().setShader(Globals::shaderManager.getAssetPointer("instanced"));

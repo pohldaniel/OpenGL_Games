@@ -46,7 +46,7 @@ private:
 	unsigned int m_width = 0;
 	unsigned int m_height = 0;
 	unsigned short m_channels = 0;
-	unsigned int m_format;
+	unsigned int m_format = 0;
 };
 
 #endif
