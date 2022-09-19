@@ -292,6 +292,7 @@ void Texture::addAlphaChannel(unsigned int value) {
 
 	glBindTexture(GL_TEXTURE_2D, 0);
 
+	glDeleteTextures(1, &m_texture);
 	m_texture = texture_new;
 
 	free(bytes);
