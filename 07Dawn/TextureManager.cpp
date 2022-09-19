@@ -11,7 +11,7 @@ DawnTexture& TextureCache::getTextureFromCache(std::string filename){
 		return textures[filename];
 	}
 	
-	Texture tex = Texture();
+	Texture tex;
 	tex.loadFromFile(filename, true);
 
 	if (tex.getChannels() == 3) {

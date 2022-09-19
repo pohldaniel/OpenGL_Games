@@ -45,7 +45,7 @@ void Editor::initTextures() {
 	TextureManager::Loadimage("res/background_editor.tga", 0, m_interfacetexture);
 	TextureManager::Loadimage("res/current_tile_backdrop.tga", 1, m_interfacetexture);
 	TextureManager::Loadimage("res/tile.tga", 2, m_interfacetexture);
-	TextureManager::Loadimage("res/edit_backdrop.tga", 3, m_interfacetexture);
+	TextureManager::Loadimage("res/edit_backdrop.png", 3, m_interfacetexture);
 	TextureManager::Loadimage("res/tile_solid.tga", 4, m_interfacetexture);
 	TextureManager::Loadimage("res/circle.tga", 5, m_interfacetexture);
 

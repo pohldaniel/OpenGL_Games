@@ -5,6 +5,7 @@
 #include "StateMachine.h"
 
 #include "Game.h"
+#include "Editor.h"
 #include "Dialog.h"
 #include "Label.h"
 

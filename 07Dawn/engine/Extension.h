@@ -13,6 +13,7 @@ extern "C" {
 //
 #define GL_BGR							  0x80E0
 #define GL_BGRA                           0x80E1
+#define GL_RGB8I						  0x8D8F
 #define GL_CLAMP_TO_EDGE                  0x812F
 #define GL_R8                             0x8229
 #define GL_RGB32F_ARB					  0x8815

@@ -3,10 +3,6 @@
 Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	newZone = new Zone();
 	newZone->loadZone("res/_lua/zone1");
-
-	
-
-
 }
 
 Game::~Game() {}

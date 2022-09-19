@@ -66,15 +66,15 @@ Texture::~Texture() {
 }
 
 void Texture::loadFromFile(std::string fileName, const bool _flipVertical, unsigned int _internalFormat, unsigned int _format) {
+		
 	int width, height, numCompontents;
 	unsigned char* imageData = SOIL_load_image(fileName.c_str(), &width, &height, &numCompontents, SOIL_LOAD_AUTO);
 	unsigned internalFormat = _internalFormat == 0 && numCompontents == 3 ? GL_RGB8 : _internalFormat == 0 ? GL_RGBA8 : _internalFormat;
 	m_format = _format == 0 && numCompontents == 3 ? GL_RGB : _format == 0 ? GL_RGBA : _format;
-	
-	
+
 	if (_flipVertical)
 		flipVertical(imageData, numCompontents * width, height);
-	
+
 	glGenTextures(1, &m_texture);
 	glBindTexture(GL_TEXTURE_2D, m_texture);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -89,6 +89,7 @@ void Texture::loadFromFile(std::string fileName, const bool _flipVertical, unsig
 	m_width = width;
 	m_height = height;
 	m_channels = numCompontents;
+
 }
 
 void Texture::loadFromFile(std::string pictureFile, unsigned short tileWidth, unsigned short tileHeight, unsigned short spacing, unsigned int _posY, unsigned int _posX, const bool _flipVertical, unsigned int _format) {
@@ -249,28 +250,23 @@ void Texture::createPerlinTexture(unsigned int width, unsigned int height, unsig
 
 unsigned char* Texture::readPixel() {
 	unsigned char* bytes = (unsigned char*)malloc(m_width * m_height * m_channels);
-
-
-	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, m_texture);
-
 	glGetTexImage(GL_TEXTURE_2D, 0, m_format, GL_UNSIGNED_BYTE, bytes);
-
+	glBindTexture(GL_TEXTURE_2D, 0);
 	return bytes;
 }
 
 void Texture::addAlphaChannel(unsigned int value) {
-	
 	unsigned char* bytes = (unsigned char*)malloc(m_width * m_height * m_channels);
 	
 	glBindTexture(GL_TEXTURE_2D, m_texture);
 	glGetTexImage(GL_TEXTURE_2D, 0, m_format, GL_UNSIGNED_BYTE, bytes);
 	glBindTexture(GL_TEXTURE_2D, 0);
-
+	
 	m_channels = 4;
 	m_format = GL_RGBA;
 	
-	unsigned char* bytesNew = (unsigned char*)malloc(m_height *  m_width* m_channels);
+	unsigned char* bytesNew = (unsigned char*)malloc(m_width * m_height * m_channels);
 
 	for (unsigned int i = 0, k = 0; i < m_width * m_height * 4; i = i + 4, k = k + 3) {
 		bytesNew[i] = bytes[k];

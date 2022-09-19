@@ -165,8 +165,8 @@ LRESULT Application::DisplayWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 			ViewPort::get().init(_width, _height);
 			
 			if (m_init) {
-				m_machine->resize(_width, _height);
-				m_machine->m_states.top()->resize();
+				//m_machine->resize(_width, _height);
+				//m_machine->m_states.top()->resize();
 			}
 			
 			break;
@@ -300,8 +300,8 @@ void Application::initStates() {
 	//Game* game = dynamic_cast<Game*>(m_machine->addStateAtTop(new Game(*m_machine)));
 	//AddMouseListener(game);
 
-	m_machine->addStateAtTop(new MainMenu(*m_machine));
-	//m_machine->addStateAtTop(new Editor(*m_machine));
+	//m_machine->addStateAtTop(new MainMenu(*m_machine));
+	m_machine->addStateAtTop(new Editor(*m_machine));
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
@@ -355,8 +355,8 @@ void Application::loadAssets() {
 	Globals::shaderManager.loadShader("font", "res/shader/batch.vs", "res/shader/font.fs");
 	Globals::shaderManager.loadShader("instanced", "res/shader/instanced.vs", "res/shader/instanced.fs");
 	Globals::textureManager.createNullTexture("grey", 64, 64, 128);
-	Globals::spritesheetManager.createNullSpritesheet("null", 1024, 1024, 4);
-	
+	Globals::spritesheetManager.createNullSpritesheet("null", 1024, 1024, 197);
+	//Globals::textureManager.loadTexture("tmp", "res/edit_backdrop.tga", false, GL_RGBA8, GL_BGRA);
 	Globals::fontManager.loadCharacterSet("verdana_20", "res/verdana.ttf", 20.0f, 3, 20);
 
 

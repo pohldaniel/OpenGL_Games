@@ -166,6 +166,8 @@ void CharacterSet::loadFromFile(const std::string& path, const float characterSi
 			rowh = (std::max)(rowh, g->bitmap.rows + spacingY);
 			ox += g->bitmap.width + spacingX;
 		}
+
+		glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
 
