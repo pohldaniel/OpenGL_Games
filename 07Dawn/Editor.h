@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Fontrenderer.h"
+
 #include "StateMachine.h"
 
 class Editor : public State {
@@ -16,4 +18,10 @@ public:
 
 	unsigned int m_textureAtlas;
 	std::vector<DawnTexture> m_interfacetexture;
+	Vector2f m_editorFocus;
+	int m_tilepos”ffset;
+	unsigned int m_tilepos, m_currentTilepos;
+
+	void incTilepos();
+	void decTilepos();
 };

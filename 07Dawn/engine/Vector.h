@@ -30,9 +30,7 @@ public:
 
 	const float* getVec()const;
 
-	//Vector2f &operator^(const Vector2f &rhs);
 	Vector2f& operator= (const Vector2f& rhs);
-	
 
 	Vector2f &operator+=(const Vector2f &rhs);
 	Vector2f &operator-=(const Vector2f &rhs);
@@ -50,7 +48,7 @@ private:
 };
 
 class Vector3f {
-
+	friend Vector2f operator+(const Vector3f &lhs, const Vector2f &rhs);
 	friend Vector3f operator-(const Vector3f &v);
 	friend Vector3f operator*(float lhs, const Vector3f &rhs);
 	friend bool operator ==(Vector3f lhs, Vector3f rhs);

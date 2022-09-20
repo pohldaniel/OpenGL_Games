@@ -63,6 +63,14 @@ Vector2f& ViewPort::getCursorPos() {
 	return m_cursorPosEye;	
 }
 
+const Vector3f& ViewPort::getPosition() {
+	return m_postition;
+}
+
+const Vector2f& ViewPort::getBottomLeft() {
+	return m_postition + m_camera.getBottomLeft() ;
+}
+
 float ViewPort::getLeft() {
 	return m_postition[0] + m_left + m_screeBorder;
 }

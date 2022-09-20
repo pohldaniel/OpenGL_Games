@@ -139,55 +139,15 @@ void Mouse::performMouseSmoothing(float x, float y){
 }
 
 void Mouse::handleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam){
-	
-	RAWINPUT *pRaw = 0;
-	UINT size = TEMP_BUFFER_SIZE;
 	switch (msg){
-
-	default: {
-		
-		break;
-	}
-	case WM_INPUT:
-		GetRawInputData(reinterpret_cast<HRAWINPUT>(lParam), RID_INPUT, m_tempBuffer, &size, sizeof(RAWINPUTHEADER));
-		pRaw = reinterpret_cast<RAWINPUT*>(m_tempBuffer);
-		if (pRaw->header.dwType == RIM_TYPEMOUSE){
-
-			m_xPosRelative = static_cast<float>(pRaw->data.mouse.lLastX);
-			m_yPosRelative = static_cast<float>(pRaw->data.mouse.lLastY);
-
-			if (m_enableFiltering){
-				
-				performMouseFiltering(m_xPosRelative, m_yPosRelative);
-
-				m_xPosRelative = m_filtered[0];
-				m_yPosRelative = m_filtered[1];
-
-				performMouseSmoothing(m_xPosRelative, m_yPosRelative);
-
-				m_xPosRelative = m_filtered[0];
-				m_yPosRelative = m_filtered[1];
-			}
-		}
-
-		break;
-
-	case WM_MOUSEMOVE: {
-		int x = static_cast<int>(static_cast<short>(LOWORD(lParam)));
-		int y = static_cast<int>(static_cast<short>(HIWORD(lParam)));
 	
-		m_xPosRelative = centerX - x;
-		m_yPosRelative = centerY - y;
+		case WM_MOUSEWHEEL: {
+			m_wheelDelta += static_cast<int>(static_cast<int>(wParam) >> 16);
+			break;
+		}default: {
 
-
-		m_xPosAbsolute = x;
-		m_yPosAbsolute = y;
-		
-		break;
-
-	}case WM_MOUSEWHEEL:
-		m_wheelDelta += static_cast<int>(static_cast<int>(wParam) >> 16);
-		break;
+			break;
+		}
 	}
 }
 
@@ -266,7 +226,7 @@ void Mouse::update(){
 
 	m_mouseWheel = static_cast<float>(m_wheelDelta - m_prevWheelDelta) / static_cast<float>(WHEEL_DELTA);
 	m_prevWheelDelta = m_wheelDelta;
-	
+
 	if (m_attached) {
 		
 		POINT        CursorPos;

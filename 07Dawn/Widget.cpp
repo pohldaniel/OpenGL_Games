@@ -25,17 +25,12 @@ void Widget::draw() {
 		glUseProgram(fontShader->m_program);
 		fontShader->loadMatrix("u_model", m_transform.getTransformationMatrix());
 		glUseProgram(0);
-
 		
 		for (unsigned short w = 0; w < m_childWidgets.size(); ++w){
 			m_childWidgets[w]->draw();
 		}
 
-		m_transform.translate(-m_posX, -m_posY, 0.0f);
-
-		//glUseProgram(fontShader->m_program);
-		//fontShader->loadMatrix("u_model", m_transform.getTransformationMatrix());
-		//glUseProgram(0);
+		m_transform.translate(-m_posX, -m_posY, 0.0f);	
 	}
 }
 

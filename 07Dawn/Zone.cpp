@@ -93,7 +93,7 @@ void Zone::drawTilesBatched() {
 
 void Zone::drawEnvironmentBatched() {
 	for (unsigned int x = 0; x < EnvironmentMap.size(); x++) {
-		TextureManager::DrawTextureBatched(EnvironmentMap[x].tile->texture, EnvironmentMap[x].x_pos, EnvironmentMap[x].y_pos, EnvironmentMap[x].transparency, EnvironmentMap[x].red, EnvironmentMap[x].green, EnvironmentMap[x].blue, EnvironmentMap[x].x_scale, EnvironmentMap[x].y_scale);
+		TextureManager::DrawTextureBatched(EnvironmentMap[x].tile->texture, EnvironmentMap[x].x_pos, EnvironmentMap[x].y_pos);
 	}
 }
 
@@ -118,6 +118,6 @@ void Zone::drawTilesInstanced() {
 
 void Zone::drawEnvironmentInstanced() {
 	for (unsigned int x = 0; x < EnvironmentMap.size(); x++) {
-		TextureManager::DrawTextureInstanced(EnvironmentMap[x].tile->texture, EnvironmentMap[x].x_pos, EnvironmentMap[x].y_pos, EnvironmentMap[x].transparency, EnvironmentMap[x].red, EnvironmentMap[x].green, EnvironmentMap[x].blue, EnvironmentMap[x].x_scale, EnvironmentMap[x].y_scale);
+		TextureManager::DrawTextureInstanced(EnvironmentMap[x].tile->texture, EnvironmentMap[x].x_pos, EnvironmentMap[x].y_pos);
 	}
 }

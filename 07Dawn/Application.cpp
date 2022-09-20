@@ -6,6 +6,8 @@
 #include "Editor.h"
 
 Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fdt), m_eventDispatcher(new EventDispatcher()){
+	ViewPort::get().init(WIDTH, HEIGHT);
+	
 	initWindow();
 	initOpenGL();
 	loadAssets();
@@ -22,7 +24,7 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 		return true;
 	});
 
-	ViewPort::get().init(WIDTH, HEIGHT);
+
 	Batchrenderer::get().init();
 	Batchrenderer::get().setCamera(ViewPort::get().getCamera());	
 }
@@ -158,26 +160,23 @@ LRESULT Application::DisplayWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 			glViewport(0, 0, _width, _height);	
 			Globals::projection = Matrix4f::GetPerspective(Globals::projection, 45.0f, static_cast<float>(_width) / static_cast<float>(_height), 1.0f, 5000.0f);
 			Globals::invProjection = Matrix4f::GetInvPerspective(Globals::invProjection, 45.0f, static_cast<float>(_width) / static_cast<float>(_height), 1.0f, 5000.0f);
-			//Globals::orthographic = Matrix4f::GetOrthographic(Globals::orthographic, -static_cast<float>(_width) * 0.5f, static_cast<float>(_width)* 0.5f, 0.0f, static_cast<float>(_height), -1.0f, 1.0f);
-
 			Globals::orthographic = Matrix4f::GetOrthographic(Globals::orthographic, 0.0f, static_cast<float>(_width), 0.0f, static_cast<float>(_height), -1.0f, 1.0f);
 			Globals::invOrthographic = Matrix4f::GetInvOrthographic(Globals::invOrthographic, 0.0f, static_cast<float>(_width), 0.0f, static_cast<float>(_height), -1.0f, 1.0f);
-			ViewPort::get().init(_width, _height);
-			
+						
 			if (m_init) {
-				//m_machine->resize(_width, _height);
-				//m_machine->m_states.top()->resize();
+				ViewPort::get().init(_width, _height);
+				m_machine->resize(_width, _height);
+				m_machine->m_states.top()->resize();
 			}
 			
 			break;
-		}case WM_GETMINMAXINFO:{
-			
+		}case WM_GETMINMAXINFO:{			
 			LPMINMAXINFO lpMMI = (LPMINMAXINFO)lParam;
 			lpMMI->ptMinTrackSize.x = 1024;
 			lpMMI->ptMinTrackSize.y = 786;
 			break;
 		}default: {
-			//Mouse::instance().handleMsg(hWnd, message, wParam, lParam);
+			Mouse::instance().handleMsg(hWnd, message, wParam, lParam);
 			break;
 		}
 	}
@@ -300,47 +299,20 @@ void Application::initStates() {
 	//Game* game = dynamic_cast<Game*>(m_machine->addStateAtTop(new Game(*m_machine)));
 	//AddMouseListener(game);
 
-	//m_machine->addStateAtTop(new MainMenu(*m_machine));
-	m_machine->addStateAtTop(new Editor(*m_machine));
+	m_machine->addStateAtTop(new MainMenu(*m_machine));
+	//m_machine->addStateAtTop(new Editor(*m_machine));
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
 	switch (message) {
-		/*case WM_CLOSE: case WM_QUIT: {
-			Event event;
-			event.type = Event::CLOSED;
-			m_eventDispatcher->pushEvent(event);
-			break;
-		}*/case WM_MOUSEMOVE: {
+		case WM_MOUSEMOVE: {
 			Event event;
 			event.type = Event::MOUSEMOTION;
 			event.mouseMove.x = static_cast<int>(static_cast<short>(LOWORD(lParam)));
 			event.mouseMove.y = static_cast<int>(static_cast<short>(HIWORD(lParam)));
-			m_eventDispatcher->pushEvent(event);
-			/*if (!m_mouseTracking) {
-				TRACKMOUSEEVENT trackMouseEvent;
-				trackMouseEvent.cbSize = sizeof(TRACKMOUSEEVENT);
-				trackMouseEvent.dwFlags = TME_LEAVE;
-				trackMouseEvent.hwndTrack = hWnd;
-				TrackMouseEvent(&trackMouseEvent);
-				m_mouseTracking = true;
-			}*/
-			
+			m_eventDispatcher->pushEvent(event);			
 			break;
-		}/*case WM_MOUSELEAVE: {
-			m_mouseTracking = false;
-
-			POINT cursor;
-			GetCursorPos(&cursor);
-			ScreenToClient(hWnd, &cursor);
-
-			Event event;
-			event.type = Event::MOUSEMOTION;
-			event.mouseMove.x = cursor.x;
-			event.mouseMove.y = cursor.y;
-			m_eventDispatcher->pushEvent(event);
-			break;
-		}*/
+		}
 	}
 }
 
@@ -356,11 +328,13 @@ void Application::loadAssets() {
 	Globals::shaderManager.loadShader("instanced", "res/shader/instanced.vs", "res/shader/instanced.fs");
 	Globals::textureManager.createNullTexture("grey", 64, 64, 128);
 	Globals::spritesheetManager.createNullSpritesheet("null", 1024, 1024, 197);
-	//Globals::textureManager.loadTexture("tmp", "res/edit_backdrop.tga", false, GL_RGBA8, GL_BGRA);
+
 	Globals::fontManager.loadCharacterSet("verdana_20", "res/verdana.ttf", 20.0f, 3, 20);
-
-
+	Globals::fontManager.loadCharacterSet("verdana_10", "res/verdana.ttf", 10.0f, 3, 20);
+	Globals::fontManager.loadCharacterSet("verdana_9", "res/verdana.ttf", 9.0f, 3, 20);
+	Globals::fontManager.loadCharacterSet("verdana_5", "res/verdana.ttf", 5.0f, 3, 20);
 
 	Instancedrenderer::get().init();
 	Instancedrenderer::get().setShader(Globals::shaderManager.getAssetPointer("instanced"));
+	Fontrenderer::get().setShader(Globals::shaderManager.getAssetPointer("font"));	
 }

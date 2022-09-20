@@ -138,8 +138,10 @@ class TextureManager{
 public:
 
 	static bool IsRectOnScreen(int left, int width, int bottom, int height);
-	static void DrawTextureBatched(DawnTexture& stexture, int x, int y, float transparency = 1.0f, float red = 1.0f, float green = 1.0f, float blue = 1.0f, float x_scale = 1.0f, float y_scale = 1.0f, bool checkVieport = true);
-	static void DrawTextureInstanced(DawnTexture& stexture, int x, int y, float transparency = 1.0f, float red = 1.0f, float green = 1.0f, float blue = 1.0f, float x_scale = 1.0f, float y_scale = 1.0f, bool checkVieport = true);
+	static void DrawTextureBatched(DawnTexture& stexture, int x, int y, bool checkVieport = true);
+	static void DrawTextureBatched(DawnTexture& stexture, int x, int y, float width, float height, bool checkVieport = true);
+
+	static void DrawTextureInstanced(DawnTexture& stexture, int x, int y, bool checkVieport = true);
 	static DawnTexture& Loadimage(std::string file, bool isOpenGLThreadInThreadedMode = false);
 
 	static void Loadimage(std::string file, int textureIndex, std::vector<DawnTexture>& textureBase, bool isOpenGLThreadInThreadedMode = false);

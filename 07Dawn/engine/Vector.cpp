@@ -1185,7 +1185,6 @@ Vector2f &Vector2f::operator+=(const Vector2f &rhs) {
 	return *this;
 }
 
-
 Vector2f Vector2f::operator+(const Vector2f &rhs) const {
 	Vector2f tmp(*this);
 	tmp += rhs;
@@ -1328,7 +1327,6 @@ void Vector3f::set(float x_, float y_, float z_) {
 }
 
 const float* Vector3f::getVec()const {
-
 	return vec;
 }
 
@@ -1346,6 +1344,11 @@ bool operator ==(Vector3f lhs, Vector3f rhs) {
 //friend operator
 Vector3f operator*(float lhs, const Vector3f &rhs) {
 	return Vector3f(lhs * rhs[0], lhs * rhs[1], lhs * rhs[2]);
+}
+
+//friend operator
+Vector2f operator+(const Vector3f &lhs, const Vector2f &rhs) {
+	return Vector2f(lhs.vec[0] + rhs[0], lhs.vec[1] + rhs[1]);
 }
 ////////////////////////////////////////////////////////////////////////////////////////
 

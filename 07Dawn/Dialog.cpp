@@ -31,27 +31,27 @@ void DialogCanvas::drawCanvas(int left, int bottom, int colummns, int rows, int 
 	Batchrenderer::get().setShader(Globals::shaderManager.getAssetPointer("batch"));
 
 	// draw the corners
-	TextureManager::DrawTextureBatched(m_textureBases[0], left, bottom, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, false);
-	TextureManager::DrawTextureBatched(m_textureBases[1], left + tileWidth + (colummns * tileWidth), bottom, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, false);
-	TextureManager::DrawTextureBatched(m_textureBases[2], left, bottom + tileHeight + (rows * tileHeight), 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, false);
-	TextureManager::DrawTextureBatched(m_textureBases[3], left + tileWidth + (colummns * tileWidth), bottom + tileHeight + (rows * tileHeight), 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, false);
+	TextureManager::DrawTextureBatched(m_textureBases[0], left, bottom, false);
+	TextureManager::DrawTextureBatched(m_textureBases[1], left + tileWidth + (colummns * tileWidth), bottom, false);
+	TextureManager::DrawTextureBatched(m_textureBases[2], left, bottom + tileHeight + (rows * tileHeight), false);
+	TextureManager::DrawTextureBatched(m_textureBases[3], left + tileWidth + (colummns * tileWidth), bottom + tileHeight + (rows * tileHeight), false);
 
 	// draw the top and bottom borders
 	for (unsigned short column = 0; column < colummns; column++) {
-		TextureManager::DrawTextureBatched(m_textureBases[5], left + tileWidth + (column * tileWidth), bottom + tileHeight + (rows * tileHeight), 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, false);
-		TextureManager::DrawTextureBatched(m_textureBases[6], left + tileWidth + (column * tileWidth), bottom, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, false);
+		TextureManager::DrawTextureBatched(m_textureBases[5], left + tileWidth + (column * tileWidth), bottom + tileHeight + (rows * tileHeight), false);
+		TextureManager::DrawTextureBatched(m_textureBases[6], left + tileWidth + (column * tileWidth), bottom, false);
 	}
 
 	// draw the right and left borders
 	for (unsigned short row = 0; row < rows; row++) {
-		TextureManager::DrawTextureBatched(m_textureBases[7], left, bottom + tileHeight + (row * tileHeight), 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, false);
-		TextureManager::DrawTextureBatched(m_textureBases[8], left + tileWidth + (colummns * tileWidth), bottom + tileHeight + (row * tileHeight), 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, false);
+		TextureManager::DrawTextureBatched(m_textureBases[7], left, bottom + tileHeight + (row * tileHeight), false);
+		TextureManager::DrawTextureBatched(m_textureBases[8], left + tileWidth + (colummns * tileWidth), bottom + tileHeight + (row * tileHeight), false);
 	}
 
 	// draw the background
 	for (unsigned short row = 0; row < rows; row++) {
 		for (int column = 0; column < colummns; column++) {
-			TextureManager::DrawTextureBatched(m_textureBases[4], left + tileWidth + (column * tileWidth), bottom + tileHeight + (row * tileHeight), 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, false);
+			TextureManager::DrawTextureBatched(m_textureBases[4], left + tileWidth + (column * tileWidth), bottom + tileHeight + (row * tileHeight), false);
 		}
 	}
 
@@ -97,6 +97,11 @@ void Dialog::draw() {
 	m_transform.translate(TILE_WIDTH, TILE_HEIGHT, 0.0f);
 	Widget::draw();
 	m_transform.translate(-TILE_WIDTH, -TILE_HEIGHT, 0.0f);
+
+	auto fontShader = Globals::shaderManager.getAssetPointer("font");
+	glUseProgram(fontShader->m_program);
+	fontShader->loadMatrix("u_model", m_transform.getTransformationMatrix());
+	glUseProgram(0);
 }
 
 void Dialog::update(int mouseX, int mouseY) {

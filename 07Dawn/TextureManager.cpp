@@ -32,22 +32,28 @@ DawnTexture& TextureCache::getTextureFromCache(std::string filename){
 	return textures[filename];
 }
 
-void TextureManager::DrawTextureBatched(DawnTexture& stexture, int x, int y, float transparency, float red, float green, float blue, float x_scale, float y_scale, bool checkVieport) {
-	if (!TextureManager::IsRectOnScreen(x, stexture.width * x_scale, y, stexture.height * y_scale) && checkVieport) {
+void TextureManager::DrawTextureBatched(DawnTexture& stexture, int x, int y, bool checkVieport) {
+	if (!TextureManager::IsRectOnScreen(x, stexture.width, y, stexture.height) && checkVieport) {
 		return;
 	}
 
-	//glColor4f(red, green, blue, transparency);
-	//glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-	Batchrenderer::get().addQuad(Vector4f(x, y, stexture.width, stexture.height), Vector4f(stexture.textureOffsetX, stexture.textureOffsetY, stexture.textureWidth, stexture.textureHeight), stexture.frame);
+	Batchrenderer::get().addQuad(Vector4f(static_cast< float >(x), static_cast< float >(y), static_cast< float >(stexture.width), static_cast< float >(stexture.height)), Vector4f(stexture.textureOffsetX, stexture.textureOffsetY, stexture.textureWidth, stexture.textureHeight), stexture.frame);
 }
 
-void TextureManager::DrawTextureInstanced(DawnTexture& stexture, int x, int y, float transparency, float red, float green, float blue, float x_scale, float y_scale, bool checkVieport) {
-	if (!TextureManager::IsRectOnScreen(x, stexture.width * x_scale, y, stexture.height * y_scale) && checkVieport) {
+void TextureManager::DrawTextureBatched(DawnTexture& stexture, int x, int y, float width, float height, bool checkVieport) {
+	if (!TextureManager::IsRectOnScreen(x, width, y, height) && checkVieport) {
 		return;
 	}
 
-	Instancedrenderer::get().addQuad(Vector4f(x, y, stexture.width, stexture.height), Vector4f(stexture.textureOffsetX, stexture.textureOffsetY, stexture.textureWidth, stexture.textureHeight), stexture.frame);
+	Batchrenderer::get().addQuad(Vector4f(static_cast< float >(x), static_cast< float >(y), width, height), Vector4f(stexture.textureOffsetX, stexture.textureOffsetY, stexture.textureWidth, stexture.textureHeight), stexture.frame);
+}
+
+void TextureManager::DrawTextureInstanced(DawnTexture& stexture, int x, int y, bool checkVieport) {
+	if (!TextureManager::IsRectOnScreen(x, stexture.width, y, stexture.height) && checkVieport) {
+		return;
+	}
+
+	Instancedrenderer::get().addQuad(Vector4f(static_cast< float >(x), static_cast< float >(y), static_cast< float >(stexture.width), static_cast< float >(stexture.height)), Vector4f(stexture.textureOffsetX, stexture.textureOffsetY, stexture.textureWidth, stexture.textureHeight), stexture.frame);
 }
 
 DawnTexture& TextureManager::Loadimage(std::string file, bool isOpenGLThreadInThreadedMode) {
