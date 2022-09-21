@@ -1,16 +1,21 @@
 #include "Luainterface.h"
 
+#include "Tileset.h"
+#include "Zone.h"
+
+#include "Constants.h"
 
 namespace EditorInterface{
 	void addGroundTile(int posX, int posY, int tile){		
 		Zone *currentZone = Globals::getCurrentZone();
-		TileSet *tileSet = EditorInterface::getTileSet();
+		TileSet *tileSet = EditorInterface::getTileSet(TileClassificationType::TileClassificationType::FLOOR);
+		//std::cout << "------------" << std::endl;
 		currentZone->TileMap.push_back(sTileMap(posX, posY, tileSet->getTile(tile)));
 	}
 
 	void addEnvironment(int posX, int posY, int posZ, int tile){
 		Zone *currentZone = Globals::getCurrentZone();
-		TileSet *tileSet = EditorInterface::getTileSet();
+		TileSet *tileSet = EditorInterface::getTileSet(TileClassificationType::TileClassificationType::ENVIRONMENT);
 		currentZone->EnvironmentMap.push_back(sEnvironmentMap(posX, posY, tileSet->getTile(tile), 1, 1, 1, 1, 1, 1, posZ));
 	}
 

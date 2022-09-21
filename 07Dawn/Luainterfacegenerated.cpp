@@ -1,6 +1,6 @@
 /*
 ** Lua binding: Luainterface
-** Generated automatically by tolua++-1.0.92 on Mon Sep  5 16:32:05 2022.
+** Generated automatically by tolua++-1.0.92 on Wed Sep 21 16:57:48 2022.
 */
 
 #ifndef __cplusplus
@@ -13,7 +13,8 @@
 /* Exported function */
 TOLUA_API int  tolua_Luainterface_open(lua_State* tolua_S);
 
-#include "luainterface.h"
+#include "Tileset.h"
+#include "Zone.h"
 
 /* function to register type */
 static void tolua_reg_types(lua_State* tolua_S)
@@ -371,6 +372,30 @@ static int tolua_Luainterface_EditorInterface_getTileSet00(lua_State* tolua_S)
 }
 #endif //#ifndef TOLUA_DISABLE
 
+/* function: EditorInterface::getTileSet */
+#ifndef TOLUA_DISABLE_tolua_Luainterface_EditorInterface_getTileSet01
+static int tolua_Luainterface_EditorInterface_getTileSet01(lua_State* tolua_S)
+{
+	tolua_Error tolua_err;
+	if (
+		!tolua_isnumber(tolua_S, 1, 0, &tolua_err) ||
+		!tolua_isnoobj(tolua_S, 2, &tolua_err)
+		)
+		goto tolua_lerror;
+	else
+	{
+		TileClassificationType::TileClassificationType tileType = ((TileClassificationType::TileClassificationType) (int)  tolua_tonumber(tolua_S, 1, 0));
+		{
+			TileSet* tolua_ret = (TileSet*)EditorInterface::getTileSet(tileType);
+			tolua_pushusertype(tolua_S, (void*)tolua_ret, "TileSet");
+		}
+	}
+	return 1;
+tolua_lerror:
+	return tolua_Luainterface_EditorInterface_getTileSet00(tolua_S);
+}
+#endif //#ifndef TOLUA_DISABLE
+
 /* function: EditorInterface::addGroundTile */
 #ifndef TOLUA_DISABLE_tolua_Luainterface_EditorInterface_addGroundTile00
 static int tolua_Luainterface_EditorInterface_addGroundTile00(lua_State* tolua_S)
@@ -546,6 +571,7 @@ TOLUA_API int tolua_Luainterface_open(lua_State* tolua_S)
 	tolua_module(tolua_S, "EditorInterface", 0);
 	tolua_beginmodule(tolua_S, "EditorInterface");
 	tolua_function(tolua_S, "getTileSet", tolua_Luainterface_EditorInterface_getTileSet00);
+	tolua_function(tolua_S, "getTileSet", tolua_Luainterface_EditorInterface_getTileSet01);
 	tolua_function(tolua_S, "addGroundTile", tolua_Luainterface_EditorInterface_addGroundTile00);
 	tolua_function(tolua_S, "addEnvironment", tolua_Luainterface_EditorInterface_addEnvironment00);
 	tolua_function(tolua_S, "adjustLastRGBA", tolua_Luainterface_EditorInterface_adjustLastRGBA00);

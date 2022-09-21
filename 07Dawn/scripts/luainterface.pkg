@@ -1,4 +1,5 @@
-$#include "luainterface.h"
+$#include "Tileset.h"
+$#include "Zone.h"
 
 namespace DawnInterface{
 	void enterZone( std::string zoneName, int enterX, int enterY );
@@ -46,6 +47,7 @@ class TileSet
 namespace EditorInterface
 {
 	TileSet *getTileSet();
+	TileSet *getTileSet(TileClassificationType::TileClassificationType tileType);
 	void addGroundTile( int posX, int posY, int tile );
 	void addEnvironment( int posX, int posY, int posZ, int tile );
 	void adjustLastRGBA( double red, double green, double blue, double alpha );

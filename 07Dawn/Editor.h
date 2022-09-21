@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Fontrenderer.h"
-
+#include "Luainterface.h"
 #include "StateMachine.h"
 
 class Editor : public State {
@@ -19,8 +19,11 @@ public:
 	unsigned int m_textureAtlas;
 	std::vector<DawnTexture> m_interfacetexture;
 	Vector2f m_editorFocus;
-	int m_tilepos”ffset;
+	Vector2f m_originalFocus;
+	int m_tileposOffset, m_objectEditSelected;
 	unsigned int m_tilepos, m_currentTilepos;
+
+	TileClassificationType::TileClassificationType m_selectedTileSet;
 
 	void incTilepos();
 	void decTilepos();

@@ -35,6 +35,8 @@ extern float Globals::soundVolume = 0.3f;
 
 extern b2World* Globals::world = NULL;
 
+using namespace std::chrono;
+
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd) {
 	
 	
@@ -70,17 +72,25 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	Clock fixedDeltaClock;
 	
 	int frames = 0;
-	double framesTime = 0;
-	
-	
+	float framesTime = 0;
+		
 	while (application.isRunning()) {
+
 		#if FIXEDUPDATE
-		float timeToSleep = UPDATE_STEP - deltaTime;	
-		if (timeToSleep > 0){	
-			std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<uint32_t>(timeToSleep * 1000.0f)));					
+		int timeToSleep = UPDATE_STEP - deltaTime * 1000000;
+		if (0 < timeToSleep){
+			std::this_thread::sleep_for(std::chrono::microseconds(timeToSleep));
 		}
-		fixedDeltaTime = deltaTime * 0.8f;
-		application.fixedUpdate();
+		
+		physicsElapsedTime += deltaTime;
+		while (physicsElapsedTime > PHYSICS_STEP) {
+			fixedDeltaTime = fixedDeltaClock.restartSec();
+			if (fixedDeltaTime > PHYSICS_STEP * 5.0f)
+				fixedDeltaTime = PHYSICS_STEP;
+
+			application.fixedUpdate();
+			physicsElapsedTime -= PHYSICS_STEP;
+		}
 		application.update();
 		application.render();
 		#else 
@@ -93,7 +103,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 			application.fixedUpdate();
 			physicsElapsedTime -= PHYSICS_STEP;
 		}
-
 		application.update();
 		application.render();
 		#endif

@@ -2,11 +2,15 @@
 
 #include "Luafunctions.h"
 
-#include "Constants.h"
-#include "Tileset.h"
+namespace TileClassificationType {
+	enum TileClassificationType;
+}
+
+class TileSet;
 
 namespace EditorInterface{
 	TileSet *getTileSet();
+	TileSet *getTileSet(TileClassificationType::TileClassificationType tileType);
 	void addGroundTile(int posX, int posY, int tile);
 	void addEnvironment(int posX, int posY, int posZ, int tile);
 	void adjustLastRGBA(double red, double green, double blue, double alpha);

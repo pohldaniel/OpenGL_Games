@@ -1,4 +1,4 @@
-local tileSet = EditorInterface.getTileSet();
+local tileSet = EditorInterface.getTileSet(TileClassificationType.SHADOW);
 
 MapData.DontSave.shadow_shadow1_tga = tileSet:addTile( "res/shadow/shadow1.tga", TileClassificationType.SHADOW );
 MapData.DontSave.shadow_shadow2_tga = tileSet:addTile( "res/shadow/shadow2.tga", TileClassificationType.SHADOW );

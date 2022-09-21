@@ -4,6 +4,8 @@
 
 #include "engine/Spritesheet.h"
 
+#include "Luainterface.h"
+
 #include "Tileset.h"
 #include "TextureManager.h"
 
@@ -73,6 +75,7 @@ public:
 	void drawZoneBatched();
 	void drawTilesBatched();
 	void drawEnvironmentBatched();
+	void drawShadowsBatched();
 
 	void drawZoneInstanced();
 	void drawTilesInstanced();
@@ -81,11 +84,18 @@ public:
 	void loadZone(std::string file);
 	bool zoneDataLoaded() const;
 	void addEnvironment(int x_pos, int y_pos, Tile *tile, bool centeredOnPos);
+	int deleteEnvironment(int x, int y);
+	void addShadow(int x_pos, int y_pos, Tile *tile);
+	int deleteShadow(int x, int y);
+	void changeTile(int iId, Tile *tile_);
+	void deleteTile(int iId);
+	int locateTile(int x, int y);
 
-	std::vector<sEnvironmentMap> EnvironmentMap;
-	std::vector<sCollisionMap> CollisionMap;
 	std::vector<sTileMap> TileMap;
-
+	std::vector<sEnvironmentMap> EnvironmentMap;
+	std::vector<sEnvironmentMap> ShadowMap;
+	std::vector<sCollisionMap> CollisionMap;
+	
 	unsigned int m_textureAtlas;
 
 private:

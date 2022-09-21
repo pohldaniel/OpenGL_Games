@@ -54,13 +54,12 @@ public:
 };
 
 class TileSet{
-private:
+public:
 	std::vector<Tile*> tiles;
 	std::vector<AdjacencyStruct*> adjacencyList;
-	std::vector< std::vector<Tile*> > preparedTiles;
 	std::vector<AdjacencyEquivalenceClass*> myEquivalenceClasses;
 
-public:
+
 	TileSet();
 
 	// The following functions are in the LUA EditorInterface
@@ -74,13 +73,30 @@ public:
 	// normal interface
 	Tile *getTile(int tileID) const;
 	Tile *getEmptyTile() const;
-	size_t numberOfTiles() const;
+	unsigned int numberOfTiles() const;
 	void clear();
 	std::vector<Tile*> getAllTiles() const;
-	std::vector<Tile*> getAllTilesOfType(TileClassificationType::TileClassificationType tileType);
+
 	void getAllAdjacentTiles(Tile *searchTile, std::vector< std::vector<Tile*> > &matchingTiles, std::vector< std::vector<Point> > &matchOffsets) const;
+
 };
 
-namespace EditorInterface{
-	TileSet *getTileSet();
-}
+class TileSetManager {
+
+public:
+
+	void addTile(std::string filename, TileClassificationType::TileClassificationType tileType);
+	TileSet& getTileSet(TileClassificationType::TileClassificationType tileType);
+	
+	static TileSetManager& get();
+	
+private:
+	TileSetManager() = default;
+	
+
+	std::map<int, TileSet> m_tileSets;
+	unsigned int textureAtlas;
+
+	static TileSetManager s_instance;
+};
+

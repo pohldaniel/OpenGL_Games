@@ -4,7 +4,7 @@
 
 #include "tileset.h"
 
-
+TileSetManager TileSetManager::s_instance;
 
 void AdjacencyEquivalenceClass::addEquivalentTile(int tile, int offsetX, int offsetY){
 	equivalentTiles.push_back(tile);
@@ -20,15 +20,15 @@ static TileSet* getTheTileSet(){
 }
 
 TileSet::TileSet(){
-	preparedTiles.resize(TileClassificationType::COUNT);
+	/*preparedTiles.resize(TileClassificationType::COUNT);
 	for (size_t curTileType = 0; curTileType < static_cast<size_t>(TileClassificationType::COUNT); ++curTileType) {
 		preparedTiles[curTileType] = std::vector<Tile*>();
-	}
+	}*/
 }
 
 // The following functions are in the LUA EditorInterface
 int TileSet::addTile(std::string filename, TileClassificationType::TileClassificationType tileType){
-	for (size_t curTileNr = 0; curTileNr<tiles.size(); ++curTileNr) {
+	for (unsigned int curTileNr = 0; curTileNr<tiles.size(); ++curTileNr) {
 		Tile *curTile = tiles[curTileNr];
 		if (curTile->filename == filename && curTile->tileType == tileType) {
 			return curTileNr;
@@ -43,9 +43,36 @@ int TileSet::addTile(std::string filename, TileClassificationType::TileClassific
 	newTile->texture = TextureManager::Loadimage(filename);
 	Tile *tilePtr = newTile.release();
 	tiles.push_back(tilePtr);
-	preparedTiles[static_cast<size_t>(tileType)].push_back(tilePtr);
+	//preparedTiles[static_cast<size_t>(tileType)].push_back(tilePtr);
 
 	return position;
+}
+
+TileSetManager& TileSetManager::get() {
+	return s_instance;
+}
+
+void TileSetManager::addTile(std::string filename, TileClassificationType::TileClassificationType tileType) {
+	
+	for (unsigned int curTileNr = 0; curTileNr < m_tileSets[tileType].tiles.size(); ++curTileNr) {
+		Tile *curTile = m_tileSets[tileType].tiles[curTileNr];
+		if (curTile->filename == filename && curTile->tileType == tileType) {
+			//return curTileNr;
+		}
+	}
+
+	int position = m_tileSets[tileType].tiles.size();
+	std::auto_ptr<Tile> newTile = std::auto_ptr<Tile>(new Tile());
+	newTile->filename = filename;
+	newTile->tileType = tileType;
+	newTile->tileID = position;
+	newTile->texture = TextureManager::Loadimage(filename);
+	Tile *tilePtr = newTile.release();
+	m_tileSets[tileType].tiles.push_back(tilePtr);
+}
+
+TileSet& TileSetManager::getTileSet(TileClassificationType::TileClassificationType tileType) {
+	return m_tileSets[tileType];
 }
 
 int TileSet::addTileWithCollisionBox(std::string filename, TileClassificationType::TileClassificationType tileType, int cbx, int cby, int cbw, int cbh) {
@@ -136,7 +163,7 @@ Tile* TileSet::getEmptyTile() const{
 	return tiles[0];
 }
 
-size_t TileSet::numberOfTiles() const{
+unsigned int TileSet::numberOfTiles() const{
 	return tiles.size();
 }
 
@@ -146,11 +173,6 @@ void TileSet::clear(){
 
 std::vector<Tile*> TileSet::getAllTiles() const{
 	return tiles;
-}
-
-std::vector<Tile*> TileSet::getAllTilesOfType(TileClassificationType::TileClassificationType tileType){
-	// NOTE: For optimization we could (and should) precache a vector for each type here
-	return preparedTiles[static_cast<size_t>(tileType)];
 }
 
 void TileSet::getAllAdjacentTiles(Tile *searchTile, std::vector< std::vector<Tile*> > &result, std::vector< std::vector<Point> > &matchOffsets) const{
@@ -190,5 +212,9 @@ namespace EditorInterface{
 
 	TileSet *getTileSet(){
 		return getTheTileSet();
+	}
+
+	TileSet *getTileSet(TileClassificationType::TileClassificationType tileType) {
+		return &TileSetManager::get().getTileSet(tileType);
 	}
 }

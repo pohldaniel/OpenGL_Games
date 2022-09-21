@@ -2,8 +2,9 @@
 #include <iostream>
 #include "Zone.h"
 
-#include "luafunctions.h"
+
 #include "Constants.h"
+
 
 bool sTileMap::operator<(const sTileMap& tile1) const{ 
 	// instead of using a predicate in our sort call.
@@ -54,13 +55,37 @@ bool Zone::zoneDataLoaded() const {
 	return m_mapLoaded;
 }
 
+int Zone::locateTile(int x, int y){
+	
+	for (unsigned int t = 0; t < TileMap.size(); t++) {
+		if ((TileMap[t].x_pos + TileMap[t].tile->texture.width > x) && (TileMap[t].x_pos < x)) {
+			if ((TileMap[t].y_pos + TileMap[t].tile->texture.height > y) && (TileMap[t].y_pos < y)) {
+				return t; 	
+			}
+		}
+	}
+	return -1;
+
+}
+
+void Zone::changeTile(int iId, Tile *tile_){
+	if (iId >= 0) {
+		TileMap[iId].tile = tile_;
+	}
+}
+
+void Zone::deleteTile(int iId) {
+	if (iId >= 0) {
+		TileMap[iId].tile = EditorInterface::getTileSet(TileClassificationType::FLOOR)->getEmptyTile();
+	}
+}
 void Zone::addEnvironment(int x_pos, int y_pos, Tile *tile, bool centeredOnPos){
 	int placePosX = x_pos;
 	int placePosY = y_pos;
-	/**if (centeredOnPos) {
-		placePosX -= tile->texture->getTexture(0).width / 2;
-		placePosY -= tile->texture->getTexture(0).height / 2;
-	}*/
+	if (centeredOnPos) {
+		placePosX -= tile->texture.width / 2;
+		placePosY -= tile->texture.height / 2;
+	}
 
 	EnvironmentMap.push_back(sEnvironmentMap(placePosX, placePosY, tile,
 		1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0));
@@ -72,6 +97,38 @@ void Zone::addEnvironment(int x_pos, int y_pos, Tile *tile, bool centeredOnPos){
 	}*/
 }
 
+int Zone::deleteEnvironment(int x, int y){
+
+	for (unsigned int t = 0; t<EnvironmentMap.size(); t++) {
+		if ((EnvironmentMap[t].x_pos + EnvironmentMap[t].tile->texture.width > x) && (EnvironmentMap[t].x_pos < x)) {
+			if ((EnvironmentMap[t].y_pos + EnvironmentMap[t].tile->texture.height > y) &&
+				(EnvironmentMap[t].y_pos < y)) {
+				EnvironmentMap.erase(EnvironmentMap.begin() + t);
+				return 0;
+			}
+		}
+	}
+	return 1;
+}
+
+void Zone::addShadow(int x_pos, int y_pos, Tile *tile) {
+	ShadowMap.push_back(sEnvironmentMap(x_pos - (tile->texture.width / 2), y_pos - (tile->texture.height / 2), tile, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0));
+}
+
+int Zone::deleteShadow(int x, int y){
+
+	for (unsigned int t = 0; t<ShadowMap.size(); t++) {
+		if ((ShadowMap[t].x_pos + ShadowMap[t].tile->texture.width > x) && (ShadowMap[t].x_pos < x)) {
+			if ((ShadowMap[t].y_pos + ShadowMap[t].tile->texture.height > y) &&
+				(ShadowMap[t].y_pos < y)) {
+				ShadowMap.erase(ShadowMap.begin() + t);
+				return 0;
+			}
+		}
+	}
+	return 1;
+}
+
 void Zone::drawZoneBatched() {
 	
 	Batchrenderer::get().setShader(Globals::shaderManager.getAssetPointer("batch"));
@@ -79,7 +136,7 @@ void Zone::drawZoneBatched() {
 
 	drawTilesBatched();
 	drawEnvironmentBatched();
-
+	drawShadowsBatched();
 	Batchrenderer::get().drawBuffer();
 
 	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
@@ -94,6 +151,12 @@ void Zone::drawTilesBatched() {
 void Zone::drawEnvironmentBatched() {
 	for (unsigned int x = 0; x < EnvironmentMap.size(); x++) {
 		TextureManager::DrawTextureBatched(EnvironmentMap[x].tile->texture, EnvironmentMap[x].x_pos, EnvironmentMap[x].y_pos);
+	}
+}
+
+void Zone::drawShadowsBatched(){
+	for (unsigned int x = 0; x < ShadowMap.size(); x++) {
+		TextureManager::DrawTextureBatched(ShadowMap[x].tile->texture, ShadowMap[x].x_pos, ShadowMap[x].y_pos);
 	}
 }
 

@@ -1,4 +1,4 @@
-local tileSet = EditorInterface.getTileSet();
+local tileSet = EditorInterface.getTileSet(TileClassificationType.ENVIRONMENT);
 
 MapData.DontSave.tree_tree1_tga = tileSet:addTileWithCollisionBox( "res/tree/tree1.tga", TileClassificationType.ENVIRONMENT, 0, 58, 109, 64 );
 MapData.DontSave.tree_tree2_tga = tileSet:addTileWithCollisionBox( "res/tree/tree2.tga", TileClassificationType.ENVIRONMENT, 0, 62, 68, 87 );

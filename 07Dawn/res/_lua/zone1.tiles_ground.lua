@@ -1,4 +1,4 @@
-local tileSet = EditorInterface.getTileSet();
+local tileSet = EditorInterface.getTileSet(TileClassificationType.FLOOR);
 
 MapData.DontSave.tiles_black_tga = tileSet:addTile( "res/tiles/black.tga", TileClassificationType.FLOOR );
 MapData.DontSave.tiles_johnbayly_snow_tile_64x64_tga = tileSet:addTile( "res/tiles/johnbayly/snow_tile-64x64.tga", TileClassificationType.FLOOR );
