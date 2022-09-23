@@ -7,6 +7,7 @@ namespace TileClassificationType {
 }
 
 class TileSet;
+class CCharacter;
 
 namespace EditorInterface{
 	TileSet *getTileSet();
@@ -21,4 +22,6 @@ namespace EditorInterface{
 namespace DawnInterface{
 	void enterZone(std::string zoneName, int enterX, int enterY);
 	void setCurrentZone(std::string zoneName);
+
+	CCharacter* createNewMobType(std::string typeID);
 }

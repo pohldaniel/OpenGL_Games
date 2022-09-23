@@ -4,8 +4,13 @@
 
 TextureCache TextureCache::s_instance;
 TextureAtlasCreator TextureAtlasCreator::s_instance;
+TextureManager TextureManager::s_instance;
 
-DawnTexture& TextureCache::getTextureFromCache(std::string filename){
+TextureCache& TextureCache::Get() {
+	return s_instance;
+}
+
+TextureRect& TextureCache::getTextureFromCache(std::string filename){
 
 	if (textures.count(filename) > 0) {
 		return textures[filename];
@@ -32,23 +37,23 @@ DawnTexture& TextureCache::getTextureFromCache(std::string filename){
 	return textures[filename];
 }
 
-void TextureManager::DrawTextureBatched(DawnTexture& stexture, int x, int y, bool checkVieport) {
+void TextureManager::DrawTextureBatched(TextureRect& stexture, int x, int y, bool checkVieport, Vector4f color) {
 	if (!TextureManager::IsRectOnScreen(x, stexture.width, y, stexture.height) && checkVieport) {
 		return;
 	}
 
-	Batchrenderer::get().addQuad(Vector4f(static_cast< float >(x), static_cast< float >(y), static_cast< float >(stexture.width), static_cast< float >(stexture.height)), Vector4f(stexture.textureOffsetX, stexture.textureOffsetY, stexture.textureWidth, stexture.textureHeight), stexture.frame);
+	Batchrenderer::get().addQuad(Vector4f(static_cast< float >(x), static_cast< float >(y), static_cast< float >(stexture.width), static_cast< float >(stexture.height)), Vector4f(stexture.textureOffsetX, stexture.textureOffsetY, stexture.textureWidth, stexture.textureHeight), color, stexture.frame);
 }
 
-void TextureManager::DrawTextureBatched(DawnTexture& stexture, int x, int y, float width, float height, bool checkVieport) {
+void TextureManager::DrawTextureBatched(TextureRect& stexture, int x, int y, float width, float height, bool checkVieport, Vector4f color) {
 	if (!TextureManager::IsRectOnScreen(x, width, y, height) && checkVieport) {
 		return;
 	}
 
-	Batchrenderer::get().addQuad(Vector4f(static_cast< float >(x), static_cast< float >(y), width, height), Vector4f(stexture.textureOffsetX, stexture.textureOffsetY, stexture.textureWidth, stexture.textureHeight), stexture.frame);
+	Batchrenderer::get().addQuad(Vector4f(static_cast< float >(x), static_cast< float >(y), width, height), Vector4f(stexture.textureOffsetX, stexture.textureOffsetY, stexture.textureWidth, stexture.textureHeight), color, stexture.frame);
 }
 
-void TextureManager::DrawTextureInstanced(DawnTexture& stexture, int x, int y, bool checkVieport) {
+void TextureManager::DrawTextureInstanced(TextureRect& stexture, int x, int y, bool checkVieport) {
 	if (!TextureManager::IsRectOnScreen(x, stexture.width, y, stexture.height) && checkVieport) {
 		return;
 	}
@@ -56,18 +61,29 @@ void TextureManager::DrawTextureInstanced(DawnTexture& stexture, int x, int y, b
 	Instancedrenderer::get().addQuad(Vector4f(static_cast< float >(x), static_cast< float >(y), static_cast< float >(stexture.width), static_cast< float >(stexture.height)), Vector4f(stexture.textureOffsetX, stexture.textureOffsetY, stexture.textureWidth, stexture.textureHeight), stexture.frame);
 }
 
-DawnTexture& TextureManager::Loadimage(std::string file, bool isOpenGLThreadInThreadedMode) {
-	return TextureCache::get().getTextureFromCache(file);
+TextureRect& TextureManager::Loadimage(std::string file, bool isOpenGLThreadInThreadedMode) {
+	return TextureCache::Get().getTextureFromCache(file);
 }
 
-void TextureManager::Loadimage(std::string file, int textureIndex, std::vector<DawnTexture>& textureBase, bool isOpenGLThreadInThreadedMode) {
+void TextureManager::Loadimage(std::string file, int textureIndex, std::vector<TextureRect>& textureBase, bool isOpenGLThreadInThreadedMode) {
 	if (textureIndex >= textureBase.size()) {
 		textureBase.resize(textureIndex + 1);
 	}
 
-	textureBase[textureIndex] = TextureCache::get().getTextureFromCache(file);
+	textureBase[textureIndex] = TextureCache::Get().getTextureFromCache(file);
 }
 
+TextureManager& TextureManager::Get() {
+	return s_instance;
+}
+
+unsigned int& TextureManager::GetTextureAtlas(std::string name) {
+	return TextureManager::Get().m_textureAtlases[name];
+}
+
+void TextureManager::SetTextureAtlas(std::string name, unsigned int value) {
+	TextureManager::Get().m_textureAtlases[name] = value;
+}
 
 bool TextureManager::IsRectOnScreen(int left, int width, int bottom, int height){
 	ViewPort& viewPort = ViewPort::get();

@@ -33,4 +33,9 @@ public:
 
 	bool m_hover = false;
 	std::function<void()> m_fun = 0;
+
+	Vector4f defaultColor = Vector4f(1.0f, 1.0f, 1.0f, 1.0f);
+	Vector4f hoverColor = Vector4f(1.0f, 1.0f, 0.0f, 1.0f);
+
+	Vector4f activeColor;
 };

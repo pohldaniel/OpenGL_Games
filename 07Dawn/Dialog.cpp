@@ -1,7 +1,7 @@
 #include "Dialog.h"
 
 unsigned int  DialogCanvas::textureAtlas;
-std::vector<DawnTexture>  DialogCanvas::m_textureBases;
+std::vector<TextureRect>  DialogCanvas::m_textureBases;
 
 void DialogCanvas::initTextures() {
 
@@ -9,7 +9,7 @@ void DialogCanvas::initTextures() {
 		return;
 	}
 
-	TextureAtlasCreator::get().init(textureAtlas, 576, 64);
+	TextureAtlasCreator::get().init(576, 64);
 
 	TextureManager::Loadimage("res/interface/tooltip/lower_left2.tga", 0, m_textureBases);
 	TextureManager::Loadimage("res/interface/tooltip/lower_right2.tga", 1, m_textureBases);
@@ -22,7 +22,7 @@ void DialogCanvas::initTextures() {
 	TextureManager::Loadimage("res/interface/tooltip/left2.tga", 7, m_textureBases);
 	TextureManager::Loadimage("res/interface/tooltip/right2.tga", 8, m_textureBases);
 
-	TextureAtlasCreator::get().shutdown();
+	textureAtlas = TextureAtlasCreator::get().getAtlas();
 }
 
 void DialogCanvas::drawCanvas(int left, int bottom, int colummns, int rows, int tileWidth, int tileHeight) {

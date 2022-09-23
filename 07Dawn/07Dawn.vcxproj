@@ -155,6 +155,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Application.cpp" />
+    <ClCompile Include="Character.cpp" />
     <ClCompile Include="Dialog.cpp" />
     <ClCompile Include="Editor.cpp" />
     <ClCompile Include="engine\Instancerenderer.cpp" />
@@ -162,6 +163,7 @@
     <ClCompile Include="Fontrenderer.cpp" />
     <ClCompile Include="Label.cpp" />
     <ClCompile Include="MainMenu.cpp" />
+    <ClCompile Include="Npc.cpp" />
     <ClCompile Include="TextureManager.cpp" />
     <ClCompile Include="engine\Batchrenderer.cpp" />
     <ClCompile Include="engine\Camera.cpp" />
@@ -189,13 +191,14 @@
     <ClCompile Include="soil2\SOIL2.c" />
     <ClCompile Include="soil2\wfETC.c" />
     <ClCompile Include="StateMachine.cpp" />
-    <ClCompile Include="Tileset.cpp" />
+    <ClCompile Include="TilesetManager.cpp" />
     <ClCompile Include="ViewPort.cpp" />
     <ClCompile Include="Widget.cpp" />
     <ClCompile Include="Zone.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h" />
+    <ClInclude Include="Character.h" />
     <ClInclude Include="Constants.h" />
     <ClInclude Include="Dialog.h" />
     <ClInclude Include="Editor.h" />
@@ -204,6 +207,7 @@
     <ClInclude Include="Fontrenderer.h" />
     <ClInclude Include="Label.h" />
     <ClInclude Include="MainMenu.h" />
+    <ClInclude Include="Npc.h" />
     <ClInclude Include="TextureManager.h" />
     <ClInclude Include="engine\AssetManger.h" />
     <ClInclude Include="engine\Batchrenderer.h" />
@@ -229,7 +233,7 @@
     <ClInclude Include="Luainterface.h" />
     <ClInclude Include="Luainterfacegenerated.h" />
     <ClInclude Include="StateMachine.h" />
-    <ClInclude Include="Tileset.h" />
+    <ClInclude Include="TilesetManager.h" />
     <ClInclude Include="ViewPort.h" />
     <ClInclude Include="Widget.h" />
     <ClInclude Include="Zone.h" />

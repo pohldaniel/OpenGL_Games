@@ -11,36 +11,24 @@
 #include "engine/Instancerenderer.h"
 #include "engine/Spritesheet.h"
 
-struct DawnTexture {
-	unsigned int texture;
-	float textureOffsetX, textureOffsetY, textureWidth, textureHeight;
-	int height, width;	
-	unsigned int frame;
-	DawnTexture() {
-		texture = 0;
-		textureOffsetX = 0.0f;
-		textureOffsetY = 0.0f;
-		textureWidth = 0.0f;
-		textureHeight = 0.0f;
-		frame = 0;
-	}
+struct TextureRect {
+	float textureOffsetX = 0.0f, textureOffsetY = 0.0f, textureWidth = 0.0f, textureHeight = 0.0f;
+	int height = 0, width = 0;
+	unsigned int frame = 0;
 };
 
 class TextureCache {
 
 public:
-	static TextureCache& get() {
-		return s_instance;
-	}
-
-	DawnTexture& getTextureFromCache(std::string filename);
+	static TextureCache& Get();
+	TextureRect& getTextureFromCache(std::string filename);
 
 private:
 
 	TextureCache() = default;
 	~TextureCache() = default;
 
-	std::map< std::string, DawnTexture > textures;
+	std::map< std::string, TextureRect> textures;
 	static TextureCache s_instance;
 };
 
@@ -52,8 +40,8 @@ public:
 		return s_instance;
 	}
 
-	void init(unsigned int& _textureAtlas, unsigned _width = 1024u, unsigned int _height = 1024u) {
-		textureAtlas = &_textureAtlas;
+	void init(unsigned _width = 1024u, unsigned int _height = 1024u) {
+
 		width = _width;
 		height = _height;
 		curX = 0;
@@ -62,16 +50,17 @@ public:
 		buffer = new unsigned char[width * height * 4];
 		memset(buffer, 0, width*height * 4);
 		spritesheet = Spritesheet();
+		frame = 0;
 	}
 
-	void shutdown() {
+	unsigned int getAtlas() {
 		addFrame();
-		*textureAtlas = spritesheet.getAtlas();
 		delete[] buffer;
 		buffer = nullptr;
+		return spritesheet.getAtlas();
 	}
 
-	void addTexture(DawnTexture& stexture, char *texture, size_t w, size_t h){
+	void addTexture(TextureRect& stexture, char *texture, size_t w, size_t h){
 
 		if (width - curX < w){
 			curX = 0;
@@ -101,13 +90,17 @@ public:
 
 	void addFrame() {
 		if (curX == 0 && curY == 0) return;
+
+		//Texture::Safe("mob" + std::to_string(spritesheet.getTotalFrames()) + ".png", buffer, width, height, 4);
+
 		spritesheet.addToSpritesheet(buffer, width, height);
-		//Texture::Safe("atlas.png", buffer, width, height, 4);
+		
 		memset(buffer, 0, width*height * 4);
 
 		curX = 0;
 		curY = 0;
 		maxY = 0;
+		frame++;
 	}
 
 	size_t getWidth() const {
@@ -129,20 +122,29 @@ private:
 	size_t curY;
 	size_t maxY;
 	Spritesheet spritesheet;
+	unsigned short frame;
 
-	unsigned int* textureAtlas;
 };
 
 class TextureManager{
 
 public:
 
-	static bool IsRectOnScreen(int left, int width, int bottom, int height);
-	static void DrawTextureBatched(DawnTexture& stexture, int x, int y, bool checkVieport = true);
-	static void DrawTextureBatched(DawnTexture& stexture, int x, int y, float width, float height, bool checkVieport = true);
+	static bool IsRectOnScreen(int left, int width, int bottom, int height);	
+	static void DrawTextureBatched(TextureRect& stexture, int x, int y, bool checkVieport = true, Vector4f color = Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+	static void DrawTextureBatched(TextureRect& stexture, int x, int y, float width, float height, bool checkVieport = true, Vector4f color = Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+	static void DrawTextureInstanced(TextureRect& stexture, int x, int y, bool checkVieport = true);
+	static TextureRect& Loadimage(std::string file, bool isOpenGLThreadInThreadedMode = false);
 
-	static void DrawTextureInstanced(DawnTexture& stexture, int x, int y, bool checkVieport = true);
-	static DawnTexture& Loadimage(std::string file, bool isOpenGLThreadInThreadedMode = false);
+	static void Loadimage(std::string file, int textureIndex, std::vector<TextureRect>& textureBase, bool isOpenGLThreadInThreadedMode = false);
+	static unsigned int& GetTextureAtlas(std::string name);
+	static void SetTextureAtlas(std::string name, unsigned int value);
 
-	static void Loadimage(std::string file, int textureIndex, std::vector<DawnTexture>& textureBase, bool isOpenGLThreadInThreadedMode = false);
+	static TextureManager& Get();
+
+private:
+	TextureManager() = default;
+
+	std::map<std::string, unsigned int> m_textureAtlases;
+	static TextureManager s_instance;
 };

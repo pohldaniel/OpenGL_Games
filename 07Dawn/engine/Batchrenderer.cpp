@@ -48,7 +48,10 @@ void Batchrenderer::init(size_t size)  {
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const void*)(2 * sizeof(float)));
 
 	glEnableVertexAttribArray(2);
-	glVertexAttribIPointer(2, 1, GL_UNSIGNED_INT, sizeof(Vertex), (const void*)(4 * sizeof(float)));
+	glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const void*)(4 * sizeof(float)));
+
+	glEnableVertexAttribArray(3);
+	glVertexAttribIPointer(3, 1, GL_UNSIGNED_INT, sizeof(Vertex), (const void*)(8 * sizeof(float)));
 	
 	uint32_t* indices = new uint32_t[m_maxIndex];
 	uint32_t index_offset = 0;
@@ -87,25 +90,29 @@ void Batchrenderer::shutdown(){
 	delete[] buffer;
 }
 
-void Batchrenderer::addQuad(Vector4f posSize, Vector4f texPosSize, unsigned int frame){
+void Batchrenderer::addQuad(Vector4f posSize, Vector4f texPosSize, Vector4f color, unsigned int frame){
 
   if (indexCount >= m_maxIndex) {
 	drawBuffer();
   }
  
   bufferPtr->posTex = { posSize[0], posSize[1],  texPosSize[0],  texPosSize[1] };
+  bufferPtr->color = { color[0], color[1], color[2], color[3] };
   bufferPtr->frame = frame;
   bufferPtr++;
 
   bufferPtr->posTex = { posSize[0] + posSize[2], posSize[1],  texPosSize[0] + texPosSize[2],  texPosSize[1] };
+  bufferPtr->color = { color[0], color[1], color[2], color[3] };
   bufferPtr->frame = frame;
   bufferPtr++;
 
   bufferPtr->posTex = { posSize[0] + posSize[2], posSize[1] + posSize[3],  texPosSize[0] + texPosSize[2],  texPosSize[1] + texPosSize[3] };
+  bufferPtr->color = { color[0], color[1], color[2], color[3] };
   bufferPtr->frame = frame;
   bufferPtr++;
 
   bufferPtr->posTex = { posSize[0], posSize[1] + posSize[3],  texPosSize[0],  texPosSize[1] + texPosSize[3] };
+  bufferPtr->color = { color[0], color[1], color[2], color[3] };
   bufferPtr->frame = frame;
   bufferPtr++;
 

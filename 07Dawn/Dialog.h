@@ -13,7 +13,7 @@ private:
 	static int calculateNeededBlockHeight(int height, int tileHeight);
 
 	static unsigned int textureAtlas;
-	static std::vector<DawnTexture> m_textureBases;
+	static std::vector<TextureRect> m_textureBases;
 };
 
 class Dialog : public Widget {

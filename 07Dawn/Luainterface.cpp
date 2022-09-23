@@ -1,27 +1,27 @@
 #include "Luainterface.h"
 
-#include "Tileset.h"
+#include "TilesetManager.h"
 #include "Zone.h"
 
 #include "Constants.h"
+#include "Npc.h"
 
 namespace EditorInterface{
 	void addGroundTile(int posX, int posY, int tile){		
 		Zone *currentZone = Globals::getCurrentZone();
 		TileSet *tileSet = EditorInterface::getTileSet(TileClassificationType::TileClassificationType::FLOOR);
-		//std::cout << "------------" << std::endl;
-		currentZone->TileMap.push_back(sTileMap(posX, posY, tileSet->getTile(tile)));
+		currentZone->tileMap.push_back(TileMap(posX, posY, tileSet->getTile(tile)));
 	}
 
 	void addEnvironment(int posX, int posY, int posZ, int tile){
 		Zone *currentZone = Globals::getCurrentZone();
 		TileSet *tileSet = EditorInterface::getTileSet(TileClassificationType::TileClassificationType::ENVIRONMENT);
-		currentZone->EnvironmentMap.push_back(sEnvironmentMap(posX, posY, tileSet->getTile(tile), 1, 1, 1, 1, 1, 1, posZ));
+		currentZone->environmentMap.push_back(EnvironmentMap(posX, posY, tileSet->getTile(tile), 1, 1, 1, 1, 1, 1, posZ));
 	}
 
 	void adjustLastRGBA(double red, double green, double blue, double alpha){
 		Zone *currentZone = Globals::getCurrentZone();
-		sEnvironmentMap &lastEnv = currentZone->EnvironmentMap[currentZone->EnvironmentMap.size() - 1];
+		EnvironmentMap &lastEnv = currentZone->environmentMap[currentZone->environmentMap.size() - 1];
 		lastEnv.red = red;
 		lastEnv.green = green;
 		lastEnv.blue = blue;
@@ -37,7 +37,7 @@ namespace EditorInterface{
 
 	void addCollisionRect(int lrx, int lry, int width, int height){
 		Zone *currentZone = Globals::getCurrentZone();
-		currentZone->CollisionMap.push_back(sCollisionMap(lrx, lry, height, width));
+		currentZone->collisionMap.push_back({ lrx, lry, width, height });
 	}
 }
 namespace DawnInterface{
@@ -71,5 +71,11 @@ namespace DawnInterface{
 		}
 		Zone* newCurZone = Globals::allZones[zoneName];
 		Globals::setCurrentZone(newCurZone);
+	}
+
+	CCharacter* createNewMobType(std::string typeID){
+		CCharacter* newMobType = new Npc(0, 0, 0, 0, 0);
+		Globals::allMobTypes[typeID] = newMobType;
+		return newMobType;
 	}
 }

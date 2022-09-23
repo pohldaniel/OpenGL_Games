@@ -22,6 +22,7 @@ extern std::map<std::string, Zone*> Globals::allZones = std::map<std::string, Zo
 extern Zone* Globals::currentZone = nullptr;
 extern bool  Globals::initPhase = false;
 extern unsigned int Globals::textureAtlas = 0;
+extern std::map<std::string, CCharacter*> Globals::allMobTypes = std::map<std::string, CCharacter*>();
 
 extern void Globals::setCurrentZone(Zone* newCurZone){
 	Globals::currentZone = newCurZone;

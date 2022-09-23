@@ -99,9 +99,6 @@
     <ClCompile Include="Luainterfacegenerated.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Tileset.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Luainterface.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -146,6 +143,15 @@
     </ClCompile>
     <ClCompile Include="Fontrenderer.cpp">
       <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="TilesetManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Character.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Npc.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -215,9 +221,6 @@
     <ClInclude Include="Luainterface.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Tileset.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Zone.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -262,6 +265,15 @@
     </ClInclude>
     <ClInclude Include="Fontrenderer.h">
       <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="TilesetManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Character.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Npc.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

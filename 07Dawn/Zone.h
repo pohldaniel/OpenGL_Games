@@ -6,27 +6,27 @@
 
 #include "Luainterface.h"
 
-#include "Tileset.h"
+#include "TilesetManager.h"
 #include "TextureManager.h"
 
-struct sTileMap {
+struct TileMap {
 	int x_pos, y_pos;
 	Tile *tile;
-	sTileMap(int _x, int _y, Tile *_tile) {
+	TileMap(int _x, int _y, Tile *_tile) {
 		x_pos = _x;
 		y_pos = _y;
 		tile = _tile;
 	};
 
-	bool operator<(const sTileMap& tile1) const;
+	bool operator<(const TileMap& tile1) const;
 };
 
 
-struct sEnvironmentMap {
+struct EnvironmentMap {
 	int x_pos, y_pos, z_pos;
 	Tile *tile;
 	float transparency, red, green, blue, x_scale, y_scale;
-	sEnvironmentMap(int _x, int _y, Tile *_tile, float _tp, float _red, float _green, float _blue, float _x_scale, float _y_scale, int _z_pos) {
+	EnvironmentMap(int _x, int _y, Tile *_tile, float _tp, float _red, float _green, float _blue, float _x_scale, float _y_scale, int _z_pos) {
 		x_pos = _x;
 		y_pos = _y;
 		tile = _tile;
@@ -39,7 +39,7 @@ struct sEnvironmentMap {
 		z_pos = _z_pos;
 	};
 
-	bool operator<(const sEnvironmentMap& environmentObject) const { // instead of using a predicate in our sort call.
+	bool operator<(const EnvironmentMap& environmentObject) const { // instead of using a predicate in our sort call.
 		if (z_pos == environmentObject.z_pos)
 		{
 			if (y_pos == environmentObject.y_pos) {
@@ -56,17 +56,10 @@ struct sEnvironmentMap {
 
 };
 
-struct sCollisionMap {
-	int x, y, h, w;
-	sCollisionMap(int _x, int _y, int _h, int _w) {
-		x = _x;
-		y = _y;
-		h = _h;
-		w = _w;
-	};
-};
+
 
 class Zone{
+	friend class Editor;
 
 public:
 	Zone();
@@ -90,18 +83,18 @@ public:
 	void changeTile(int iId, Tile *tile_);
 	void deleteTile(int iId);
 	int locateTile(int x, int y);
-
-	std::vector<sTileMap> TileMap;
-	std::vector<sEnvironmentMap> EnvironmentMap;
-	std::vector<sEnvironmentMap> ShadowMap;
-	std::vector<sCollisionMap> CollisionMap;
+	std::string getName() const;
 	
-	unsigned int m_textureAtlas;
+
+	std::vector<TileMap> tileMap;
+	std::vector<EnvironmentMap> environmentMap;
+	std::vector<EnvironmentMap> shadowMap;
+	std::vector<CollisionRect> collisionMap;
 
 private:
 
-	std::string m_zoneName;
+	std::string m_name;
 	bool m_mapLoaded = true;
 	
-	
+	const unsigned int* m_textureAtlas;
 };

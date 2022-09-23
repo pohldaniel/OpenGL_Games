@@ -1,9 +1,48 @@
-$#include "Tileset.h"
+$#include "TilesetManager.h"
 $#include "Zone.h"
+$#include "Character.h"
+$#include "TextureManager.h"
+
+enum Direction
+{
+    STOP = 0,
+    N    = 1,
+    NE   = 2,
+    E    = 3,
+    SE   = 4,
+    S    = 5,
+    SW   = 6,
+    W    = 7,
+    NW   = 8
+};
+
+namespace ActivityType
+{
+	enum ActivityType
+	{
+		Walking,
+		Casting,
+		Attacking,
+		Shooting,
+		Dying,
+		Count
+	};
+}
 
 namespace DawnInterface{
 	void enterZone( std::string zoneName, int enterX, int enterY );
 	void setCurrentZone( std::string zoneName );
+	CCharacter* createNewMobType( std::string typeID );
+}
+
+namespace EditorInterface
+{
+	TileSet *getTileSet(TileClassificationType::TileClassificationType tileType);
+	void addGroundTile( int posX, int posY, int tile );
+	void addEnvironment( int posX, int posY, int posZ, int tile );
+	void adjustLastRGBA( double red, double green, double blue, double alpha );
+	//void adjustLastScale( double scaleX, double scaleY );
+	void addCollisionRect( int lrx, int lry, int width, int height );
 }
 
 // EDITOR Stuff
@@ -44,13 +83,22 @@ class TileSet
 	void printTileSet() const;
 };
 
-namespace EditorInterface
+class CCharacter 
 {
-	TileSet *getTileSet();
-	TileSet *getTileSet(TileClassificationType::TileClassificationType tileType);
-	void addGroundTile( int posX, int posY, int tile );
-	void addEnvironment( int posX, int posY, int posZ, int tile );
-	void adjustLastRGBA( double red, double green, double blue, double alpha );
-	//void adjustLastScale( double scaleX, double scaleY );
-	void addCollisionRect( int lrx, int lry, int width, int height );
-}
+	void setNumMoveTexturesPerDirection( ActivityType::ActivityType activity, int numTextures );
+	void setMoveTexture( ActivityType::ActivityType activity, int direction, int index, std::string filename, int textureOffsetX = 0, int textureOffsetY = 0 );
+};
+
+struct TextureAtlasCreator 
+{
+
+	static TextureAtlasCreator& get();
+	void init(unsigned int width = 1024u, unsigned int height = 1024u);
+	unsigned int getAtlas();
+};
+
+class TextureManager
+{
+	static void SetTextureAtlas(std::string name, unsigned int value);
+};
+
