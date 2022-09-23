@@ -8,6 +8,7 @@
 
 #include "TilesetManager.h"
 #include "TextureManager.h"
+#include "Npc.h"
 
 struct TileMap {
 	int x_pos, y_pos;
@@ -69,6 +70,7 @@ public:
 	void drawTilesBatched();
 	void drawEnvironmentBatched();
 	void drawShadowsBatched();
+	void drawNpcsBatched();
 
 	void drawZoneInstanced();
 	void drawTilesInstanced();
@@ -84,13 +86,15 @@ public:
 	void deleteTile(int iId);
 	int locateTile(int x, int y);
 	std::string getName() const;
-	
+	void addNPC(Npc* npcToAdd);
+	std::vector<Npc*> getNPCs();
+
 
 	std::vector<TileMap> tileMap;
 	std::vector<EnvironmentMap> environmentMap;
 	std::vector<EnvironmentMap> shadowMap;
 	std::vector<CollisionRect> collisionMap;
-
+	std::vector <Npc*> npcs;
 private:
 
 	std::string m_name;

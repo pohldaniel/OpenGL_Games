@@ -32,8 +32,8 @@ class Tile{
 public:
 	int tileID;
 	bool containsCollisionRect;
-	TextureRect texture;
-	CollisionRect collision;
+	TextureRect textureRect;
+	CollisionRect collisionRect;
 };
 
 struct Point{

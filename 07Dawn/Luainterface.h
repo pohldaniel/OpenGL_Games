@@ -8,6 +8,7 @@ namespace TileClassificationType {
 
 class TileSet;
 class CCharacter;
+class Npc;
 
 namespace EditorInterface{
 	TileSet *getTileSet();
@@ -24,4 +25,5 @@ namespace DawnInterface{
 	void setCurrentZone(std::string zoneName);
 
 	CCharacter* createNewMobType(std::string typeID);
+	Npc* addMobSpawnPoint(std::string mobID, int x_pos, int y_pos, int respawn_rate, int do_respawn);
 }

@@ -33,7 +33,7 @@ int TileSet::addTile(std::string filename, TileClassificationType::TileClassific
 	std::auto_ptr<Tile> newTile = std::auto_ptr<Tile>(new Tile());
 
 	newTile->tileID = tileId;
-	newTile->texture = TextureManager::Loadimage(filename);
+	newTile->textureRect = TextureManager::Loadimage(filename);
 	Tile *tilePtr = newTile.release();
 	tiles.push_back(tilePtr);
 
@@ -44,7 +44,7 @@ int TileSet::addTileWithCollisionBox(std::string filename, TileClassificationTyp
 	int tileId = addTile(filename, tileType);
 	Tile *newTile = tiles[tileId];
 	newTile->containsCollisionRect = true;
-	newTile->collision = { cbx, cby, cbw,cbh };
+	newTile->collisionRect = { cbx, cby, cbw,cbh };
 
 	return tileId;
 }

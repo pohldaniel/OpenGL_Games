@@ -23,3 +23,26 @@ Npc::Npc(int _x_spawn_pos, int _y_spawn_pos, int _NPC_id, int _seconds_to_respaw
 Npc::~Npc() {
 
 }
+
+void Npc::setSpawnInfo(int _x_spawn_pos, int _y_spawn_pos, int _seconds_to_respawn, int _do_respawn) {
+	x_pos = _x_spawn_pos;
+	y_pos = _y_spawn_pos;
+	x_spawn_pos = _x_spawn_pos;
+	y_spawn_pos = _y_spawn_pos;
+	do_respawn = _do_respawn;
+	seconds_to_respawn = _seconds_to_respawn;
+}
+
+void Npc::setAttitude(Attitude::Attitude attitude) {
+	attitudeTowardsPlayer = attitude;
+}
+
+void Npc::draw() {
+	ActivityType::ActivityType curActivity = getCurActivity();
+
+	int drawX = getXPos();
+	int drawY = getYPos();
+	TextureRect& rect = getTileSet(curActivity)->getAllTiles()[4]->textureRect;
+
+	TextureManager::DrawTextureBatched(rect, drawX, drawY, true);
+}

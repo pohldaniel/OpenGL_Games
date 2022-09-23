@@ -2,6 +2,7 @@ $#include "TilesetManager.h"
 $#include "Zone.h"
 $#include "Character.h"
 $#include "TextureManager.h"
+$#include "Npc.h"
 
 enum Direction
 {
@@ -29,10 +30,21 @@ namespace ActivityType
 	};
 }
 
+namespace Attitude
+{
+	enum Attitude
+	{
+		FRIENDLY,
+		NEUTRAL,
+		HOSTILE
+	};
+}
+
 namespace DawnInterface{
-	void enterZone( std::string zoneName, int enterX, int enterY );
-	void setCurrentZone( std::string zoneName );
+	void enterZone(std::string zoneName, int enterX, int enterY );
+	void setCurrentZone(std::string zoneName );
 	CCharacter* createNewMobType( std::string typeID );
+	Npc* addMobSpawnPoint(std::string mobID, int x_pos, int y_pos, int respawn_rate, int do_respawn );
 }
 
 namespace EditorInterface
@@ -87,6 +99,12 @@ class CCharacter
 {
 	void setNumMoveTexturesPerDirection( ActivityType::ActivityType activity, int numTextures );
 	void setMoveTexture( ActivityType::ActivityType activity, int direction, int index, std::string filename, int textureOffsetX = 0, int textureOffsetY = 0 );
+	void setName(std::string newName);
+};
+
+class Npc : public CCharacter
+{
+	void setAttitude( Attitude::Attitude attitude );
 };
 
 struct TextureAtlasCreator 

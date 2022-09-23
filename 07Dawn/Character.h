@@ -5,8 +5,7 @@
 #include "TextureManager.h"
 #include "TilesetManager.h"
 
-enum Direction
-{
+enum Direction{
 	STOP = 0,
 	N = 1,
 	NE = 2,
@@ -19,6 +18,7 @@ enum Direction
 };
 
 namespace ActivityType{
+
 	enum ActivityType{
 		Walking,
 		Casting,
@@ -29,6 +29,15 @@ namespace ActivityType{
 	};
 }
 
+namespace Attitude{
+
+	enum Attitude{
+		FRIENDLY,
+		NEUTRAL,
+		HOSTILE
+	};
+}
+
 class CCharacter{
 
 public:
@@ -36,9 +45,17 @@ public:
 	CCharacter();
 	~CCharacter() = default;
 
+	virtual void draw() {}
+
 	void setNumMoveTexturesPerDirection(ActivityType::ActivityType activity, int numTextures);
 	void setMoveTexture(ActivityType::ActivityType activity, int direction, int index, std::string filename, int textureOffsetX = 0, int textureOffsetY = 0);
 	TileSet* getTileSet(ActivityType::ActivityType activity);
+	void setTileSet(ActivityType::ActivityType activity, TileSet& value);
+	ActivityType::ActivityType getCurActivity() const;
+	int getXPos() const;
+	int getYPos() const;
+	void setName(std::string newName);
+	unsigned short getNumActivities();
 
 	bool alive;
 	//bool hasDrawnDyingOnce;
@@ -64,4 +81,6 @@ public:
 	std::map<int, TileSet> m_tileSets;
 
 	unsigned int m_textureAtlas;
+	int x_pos, y_pos;
+	std::string name;
 };

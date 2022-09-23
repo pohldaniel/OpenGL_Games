@@ -41,7 +41,6 @@ void TextureManager::DrawTextureBatched(TextureRect& stexture, int x, int y, boo
 	if (!TextureManager::IsRectOnScreen(x, stexture.width, y, stexture.height) && checkVieport) {
 		return;
 	}
-
 	Batchrenderer::get().addQuad(Vector4f(static_cast< float >(x), static_cast< float >(y), static_cast< float >(stexture.width), static_cast< float >(stexture.height)), Vector4f(stexture.textureOffsetX, stexture.textureOffsetY, stexture.textureWidth, stexture.textureHeight), color, stexture.frame);
 }
 

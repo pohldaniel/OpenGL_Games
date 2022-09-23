@@ -48,6 +48,9 @@ void Zone::loadZone(std::string file){
 	}
 
 	m_textureAtlas = &TextureManager::GetTextureAtlas(m_name);
+
+	LuaFunctions::executeLuaFile("res/_lua/mobdata.lua");
+	LuaFunctions::executeLuaFile("res/_lua/zone1.spawnpoints.lua");
 }
 
 std::string Zone::getName() const {
@@ -61,8 +64,8 @@ bool Zone::zoneDataLoaded() const {
 int Zone::locateTile(int x, int y){
 	
 	for (unsigned int t = 0; t < tileMap.size(); t++) {
-		if ((tileMap[t].x_pos + tileMap[t].tile->texture.width > x) && (tileMap[t].x_pos < x)) {
-			if ((tileMap[t].y_pos + tileMap[t].tile->texture.height > y) && (tileMap[t].y_pos < y)) {
+		if ((tileMap[t].x_pos + tileMap[t].tile->textureRect.width > x) && (tileMap[t].x_pos < x)) {
+			if ((tileMap[t].y_pos + tileMap[t].tile->textureRect.height > y) && (tileMap[t].y_pos < y)) {
 				return t; 	
 			}
 		}
@@ -85,25 +88,25 @@ void Zone::addEnvironment(int x_pos, int y_pos, Tile *tile, bool centeredOnPos){
 	int placePosX = x_pos;
 	int placePosY = y_pos;
 	if (centeredOnPos) {
-		placePosX -= tile->texture.width / 2;
-		placePosY -= tile->texture.height / 2;
+		placePosX -= tile->textureRect.width / 2;
+		placePosY -= tile->textureRect.height / 2;
 	}
 
 	environmentMap.push_back(EnvironmentMap(placePosX, placePosY, tile, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0));
 
 	if (tile->containsCollisionRect == true) {
-		collisionMap.push_back({ placePosX + tile->collision.x,
-											 placePosY + tile->collision.y,
-											 tile->collision.w,
-											 tile->collision.h });
+		collisionMap.push_back({ placePosX + tile->collisionRect.x,
+											 placePosY + tile->collisionRect.y,
+											 tile->collisionRect.w,
+											 tile->collisionRect.h });
 	}
 }
 
 int Zone::deleteEnvironment(int x, int y){
 
 	for (unsigned int t = 0; t<environmentMap.size(); t++) {
-		if ((environmentMap[t].x_pos + environmentMap[t].tile->texture.width > x) && (environmentMap[t].x_pos < x)) {
-			if ((environmentMap[t].y_pos + environmentMap[t].tile->texture.height > y) &&
+		if ((environmentMap[t].x_pos + environmentMap[t].tile->textureRect.width > x) && (environmentMap[t].x_pos < x)) {
+			if ((environmentMap[t].y_pos + environmentMap[t].tile->textureRect.height > y) &&
 				(environmentMap[t].y_pos < y)) {
 				environmentMap.erase(environmentMap.begin() + t);
 				return 0;
@@ -114,14 +117,14 @@ int Zone::deleteEnvironment(int x, int y){
 }
 
 void Zone::addShadow(int x_pos, int y_pos, Tile *tile) {
-	shadowMap.push_back(EnvironmentMap(x_pos - (tile->texture.width / 2), y_pos - (tile->texture.height / 2), tile, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0));
+	shadowMap.push_back(EnvironmentMap(x_pos - (tile->textureRect.width / 2), y_pos - (tile->textureRect.height / 2), tile, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0));
 }
 
 int Zone::deleteShadow(int x, int y){
 
 	for (unsigned int t = 0; t < shadowMap.size(); t++) {
-		if ((shadowMap[t].x_pos + shadowMap[t].tile->texture.width > x) && (shadowMap[t].x_pos < x)) {
-			if ((shadowMap[t].y_pos + shadowMap[t].tile->texture.height > y) &&
+		if ((shadowMap[t].x_pos + shadowMap[t].tile->textureRect.width > x) && (shadowMap[t].x_pos < x)) {
+			if ((shadowMap[t].y_pos + shadowMap[t].tile->textureRect.height > y) &&
 				(shadowMap[t].y_pos < y)) {
 				shadowMap.erase(shadowMap.begin() + t);
 				return 0;
@@ -131,35 +134,54 @@ int Zone::deleteShadow(int x, int y){
 	return 1;
 }
 
+void Zone::addNPC(Npc *npcToAdd) {
+	npcs.push_back(npcToAdd);
+}
+
+std::vector<Npc*> Zone::getNPCs() {
+	return npcs;
+}
+
 void Zone::drawZoneBatched() {
 	
 	Batchrenderer::get().setShader(Globals::shaderManager.getAssetPointer("batch"));
-	glBindTexture(GL_TEXTURE_2D_ARRAY, *m_textureAtlas);
+	Batchrenderer::get().bindTexture(*m_textureAtlas, true);
 
 	drawTilesBatched();
 	drawEnvironmentBatched();
 	drawShadowsBatched();
 	Batchrenderer::get().drawBuffer();
 
-	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
+	Batchrenderer::get().bindTexture(TextureManager::GetTextureAtlas("Wolf"), true);
+	drawNpcsBatched();
+	Batchrenderer::get().drawBuffer();
+
+	Batchrenderer::get().unbindTexture(true);
 }
 
 void Zone::drawTilesBatched() {
 	for (unsigned int x = 0; x < tileMap.size(); x++) {
-		TextureManager::DrawTextureBatched(tileMap[x].tile->texture, tileMap[x].x_pos, tileMap[x].y_pos);
+		TextureManager::DrawTextureBatched(tileMap[x].tile->textureRect, tileMap[x].x_pos, tileMap[x].y_pos);
 	}
 }
 
 void Zone::drawEnvironmentBatched() {
 	for (unsigned int x = 0; x < environmentMap.size(); x++) {
-		TextureManager::DrawTextureBatched(environmentMap[x].tile->texture, environmentMap[x].x_pos, environmentMap[x].y_pos);
+		TextureManager::DrawTextureBatched(environmentMap[x].tile->textureRect, environmentMap[x].x_pos, environmentMap[x].y_pos);
 	}
 }
 
 void Zone::drawShadowsBatched(){
 	for (unsigned int x = 0; x < shadowMap.size(); x++) {
-		TextureManager::DrawTextureBatched(shadowMap[x].tile->texture, shadowMap[x].x_pos, shadowMap[x].y_pos);
+		TextureManager::DrawTextureBatched(shadowMap[x].tile->textureRect, shadowMap[x].x_pos, shadowMap[x].y_pos);
 	}
+}
+
+void Zone::drawNpcsBatched() {
+	for (unsigned int x = 0; x < npcs.size(); x++) {
+		npcs[x]->draw();
+	}
+	
 }
 
 void Zone::drawZoneInstanced() {
@@ -174,15 +196,14 @@ void Zone::drawZoneInstanced() {
 	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
 }
 
-
 void Zone::drawTilesInstanced() {
 	for (unsigned int x = 0; x < tileMap.size(); x++) {
-		TextureManager::DrawTextureInstanced(tileMap[x].tile->texture, tileMap[x].x_pos, tileMap[x].y_pos);
+		TextureManager::DrawTextureInstanced(tileMap[x].tile->textureRect, tileMap[x].x_pos, tileMap[x].y_pos);
 	}
 }
 
 void Zone::drawEnvironmentInstanced() {
 	for (unsigned int x = 0; x < environmentMap.size(); x++) {
-		TextureManager::DrawTextureInstanced(environmentMap[x].tile->texture, environmentMap[x].x_pos, environmentMap[x].y_pos);
+		TextureManager::DrawTextureInstanced(environmentMap[x].tile->textureRect, environmentMap[x].x_pos, environmentMap[x].y_pos);
 	}
 }

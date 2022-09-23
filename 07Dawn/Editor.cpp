@@ -15,8 +15,6 @@ Editor::Editor(StateMachine& machine) : State(machine, CurrentState::EDITOR) {
 	initTextures();
 	Fontrenderer::get().setCharacterSet(Globals::fontManager.get("verdana_9"));
 
-
-	LuaFunctions::executeLuaFile("res/_lua/mobdata.lua");
 	loadNPCs();
 }
 
@@ -115,18 +113,13 @@ void Editor::render(unsigned int &frameBuffer) {
 	glEnable(GL_BLEND);
 
 	newZone->drawZoneBatched();
-	
-	Batchrenderer::get().setShader(Globals::shaderManager.getAssetPointer("batch"));
-
+		
 	Batchrenderer::get().bindTexture(m_textureAtlas, true);
-	
-	
 	TextureManager::DrawTextureBatched(m_interfacetexture[0], m_originalFocus[0], m_originalFocus[1] + ViewPort::get().getHeight() - 100, ViewPort::get().getWidth(), 100.0f, false);
 	TextureManager::DrawTextureBatched(m_interfacetexture[0], m_originalFocus[0], m_originalFocus[1], ViewPort::get().getWidth(), 100.0f, false);
 	TextureManager::DrawTextureBatched(m_interfacetexture[1], m_originalFocus[0] + ViewPort::get().getWidth() * 0.5f - 5.0f, m_originalFocus[1] + ViewPort::get().getHeight() - 65, 50.0f, 50.0f, false);
 	Batchrenderer::get().drawBuffer(false);
 	
-
 	if (m_selectedTileSet == TileClassificationType::COLLISION) {
 		
 		for (unsigned int x = 0; x < newZone->collisionMap.size(); x++) {
@@ -136,13 +129,13 @@ void Editor::render(unsigned int &frameBuffer) {
 		Batchrenderer::get().drawBuffer(true);
 	}else if (m_selectedTileSet == TileClassificationType::NPC) {
 		Batchrenderer::get().setShader(Globals::shaderManager.getAssetPointer("batch"));
-		Batchrenderer::get().bindTexture(TextureManager::GetTextureAtlas("Skeleton_Archer"), true);
+		Batchrenderer::get().bindTexture(TextureManager::GetTextureAtlas("Wolf"), true);
 
 		for (size_t curNPC = 0; curNPC < editorNPCs.size(); curNPC++) {
-			TextureRect& rect = editorNPCs[curNPC].second->getTileSet(ActivityType::ActivityType::Walking)->getAllTiles()[4]->texture;
+			TextureRect& rect = editorNPCs[curNPC].second->getTileSet(ActivityType::ActivityType::Walking)->getAllTiles()[4]->textureRect;
 			TextureManager::DrawTextureBatched(rect, m_originalFocus[0] + ViewPort::get().getWidth() * 0.5f + (curNPC * 50) + (m_tileposOffset * 50) - 48 + 20, m_originalFocus[1] + ViewPort::get().getHeight() - 40 - 48, rect.width, rect.height, false);
 		}
-		Batchrenderer::get().drawBuffer(true);
+		Batchrenderer::get().drawBuffer(false);
 	}else {
 
 		Batchrenderer::get().bindTexture(TextureManager::GetTextureAtlas(newZone->getName()), true);
@@ -151,7 +144,7 @@ void Editor::render(unsigned int &frameBuffer) {
 
 		for (m_tilepos = 0; m_tilepos < curTiles.size(); ++m_tilepos) {
 			Tile *curTile = curTiles[m_tilepos];
-			TextureManager::DrawTextureBatched(curTile->texture, m_originalFocus[0] + ViewPort::get().getWidth() * 0.5f + (m_tilepos * 50) + (m_tileposOffset * 50), m_originalFocus[1] + ViewPort::get().getHeight() - 60, 40.0f, 40.0f, false);
+			TextureManager::DrawTextureBatched(curTile->textureRect, m_originalFocus[0] + ViewPort::get().getWidth() * 0.5f + (m_tilepos * 50) + (m_tileposOffset * 50), m_originalFocus[1] + ViewPort::get().getHeight() - 60, 40.0f, 40.0f, false);
 		}
 
 		Batchrenderer::get().drawBuffer(false);
@@ -218,19 +211,24 @@ void Editor::loadNPCs(){
 
 void Editor::incTilepos(){
 
-	if (m_selectedTileSet == TileClassificationType::NPC) {
-		if (m_currentTilepos + 1 < editorNPCs.size()){
-			m_currentTilepos++;
-			m_tileposOffset--;
-		}
-	}else {
+	switch (m_selectedTileSet) {
+		case TileClassificationType::FLOOR: case TileClassificationType::ENVIRONMENT: case TileClassificationType::SHADOW: {
+			TileSet* curTileSet = EditorInterface::getTileSet(m_selectedTileSet);
 
-		TileSet* curTileSet = EditorInterface::getTileSet(m_selectedTileSet);
-
-		if (m_currentTilepos + 1 < curTileSet->numberOfTiles()) {
-			m_currentTilepos++;
-			m_tileposOffset--;
+			if (m_currentTilepos + 1 < curTileSet->numberOfTiles()) {
+				m_currentTilepos++;
+				m_tileposOffset--;
+			}
+			
 		}
+		break;
+		case TileClassificationType::NPC: {
+			if (m_currentTilepos + 1 < editorNPCs.size()) {
+				m_currentTilepos++;
+				m_tileposOffset--;
+			}
+		}
+		break;
 	}
 }
 

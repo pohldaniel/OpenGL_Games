@@ -1,6 +1,6 @@
 /*
 ** Lua binding: Luainterface
-** Generated automatically by tolua++-1.0.92 on Fri Sep 23 01:58:28 2022.
+** Generated automatically by tolua++-1.0.92 on Fri Sep 23 14:05:53 2022.
 */
 
 #ifndef __cplusplus
@@ -17,6 +17,7 @@ TOLUA_API int  tolua_Luainterface_open(lua_State* tolua_S);
 #include "Zone.h"
 #include "Character.h"
 #include "TextureManager.h"
+#include "Npc.h"
 
 /* function to register type */
 static void tolua_reg_types(lua_State* tolua_S)
@@ -25,6 +26,7 @@ static void tolua_reg_types(lua_State* tolua_S)
 	tolua_usertype(tolua_S, "TileSet");
 	tolua_usertype(tolua_S, "AdjacencyEquivalenceClass");
 	tolua_usertype(tolua_S, "TextureManager");
+	tolua_usertype(tolua_S, "Npc");
 	tolua_usertype(tolua_S, "TextureAtlasCreator");
 }
 
@@ -112,6 +114,43 @@ static int tolua_Luainterface_DawnInterface_createNewMobType00(lua_State* tolua_
 #ifndef TOLUA_RELEASE
 	tolua_lerror :
 				 tolua_error(tolua_S, "#ferror in function 'createNewMobType'.", &tolua_err);
+				 return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
+/* function: DawnInterface::addMobSpawnPoint */
+#ifndef TOLUA_DISABLE_tolua_Luainterface_DawnInterface_addMobSpawnPoint00
+static int tolua_Luainterface_DawnInterface_addMobSpawnPoint00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+	tolua_Error tolua_err;
+	if (
+		!tolua_iscppstring(tolua_S, 1, 0, &tolua_err) ||
+		!tolua_isnumber(tolua_S, 2, 0, &tolua_err) ||
+		!tolua_isnumber(tolua_S, 3, 0, &tolua_err) ||
+		!tolua_isnumber(tolua_S, 4, 0, &tolua_err) ||
+		!tolua_isnumber(tolua_S, 5, 0, &tolua_err) ||
+		!tolua_isnoobj(tolua_S, 6, &tolua_err)
+		)
+		goto tolua_lerror;
+	else
+#endif
+	{
+		std::string mobID = ((std::string)  tolua_tocppstring(tolua_S, 1, 0));
+		int x_pos = ((int)tolua_tonumber(tolua_S, 2, 0));
+		int y_pos = ((int)tolua_tonumber(tolua_S, 3, 0));
+		int respawn_rate = ((int)tolua_tonumber(tolua_S, 4, 0));
+		int do_respawn = ((int)tolua_tonumber(tolua_S, 5, 0));
+		{
+			Npc* tolua_ret = (Npc*)DawnInterface::addMobSpawnPoint(mobID, x_pos, y_pos, respawn_rate, do_respawn);
+			tolua_pushusertype(tolua_S, (void*)tolua_ret, "Npc");
+		}
+	}
+	return 1;
+#ifndef TOLUA_RELEASE
+	tolua_lerror :
+				 tolua_error(tolua_S, "#ferror in function 'addMobSpawnPoint'.", &tolua_err);
 				 return 0;
 #endif
 }
@@ -620,6 +659,72 @@ static int tolua_Luainterface_CCharacter_setMoveTexture00(lua_State* tolua_S)
 }
 #endif //#ifndef TOLUA_DISABLE
 
+/* method: setName of class  CCharacter */
+#ifndef TOLUA_DISABLE_tolua_Luainterface_CCharacter_setName00
+static int tolua_Luainterface_CCharacter_setName00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+	tolua_Error tolua_err;
+	if (
+		!tolua_isusertype(tolua_S, 1, "CCharacter", 0, &tolua_err) ||
+		!tolua_iscppstring(tolua_S, 2, 0, &tolua_err) ||
+		!tolua_isnoobj(tolua_S, 3, &tolua_err)
+		)
+		goto tolua_lerror;
+	else
+#endif
+	{
+		CCharacter* self = (CCharacter*)tolua_tousertype(tolua_S, 1, 0);
+		std::string newName = ((std::string)  tolua_tocppstring(tolua_S, 2, 0));
+#ifndef TOLUA_RELEASE
+		if (!self) tolua_error(tolua_S, "invalid 'self' in function 'setName'", NULL);
+#endif
+		{
+			self->setName(newName);
+		}
+	}
+	return 0;
+#ifndef TOLUA_RELEASE
+	tolua_lerror :
+				 tolua_error(tolua_S, "#ferror in function 'setName'.", &tolua_err);
+				 return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
+/* method: setAttitude of class  Npc */
+#ifndef TOLUA_DISABLE_tolua_Luainterface_Npc_setAttitude00
+static int tolua_Luainterface_Npc_setAttitude00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+	tolua_Error tolua_err;
+	if (
+		!tolua_isusertype(tolua_S, 1, "Npc", 0, &tolua_err) ||
+		!tolua_isnumber(tolua_S, 2, 0, &tolua_err) ||
+		!tolua_isnoobj(tolua_S, 3, &tolua_err)
+		)
+		goto tolua_lerror;
+	else
+#endif
+	{
+		Npc* self = (Npc*)tolua_tousertype(tolua_S, 1, 0);
+		Attitude::Attitude attitude = ((Attitude::Attitude) (int)  tolua_tonumber(tolua_S, 2, 0));
+#ifndef TOLUA_RELEASE
+		if (!self) tolua_error(tolua_S, "invalid 'self' in function 'setAttitude'", NULL);
+#endif
+		{
+			self->setAttitude(attitude);
+		}
+	}
+	return 0;
+#ifndef TOLUA_RELEASE
+	tolua_lerror :
+				 tolua_error(tolua_S, "#ferror in function 'setAttitude'.", &tolua_err);
+				 return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
 /* method: get of class  TextureAtlasCreator */
 #ifndef TOLUA_DISABLE_tolua_Luainterface_TextureAtlasCreator_get00
 static int tolua_Luainterface_TextureAtlasCreator_get00(lua_State* tolua_S)
@@ -771,11 +876,18 @@ TOLUA_API int tolua_Luainterface_open(lua_State* tolua_S)
 	tolua_constant(tolua_S, "Dying", ActivityType::Dying);
 	tolua_constant(tolua_S, "Count", ActivityType::Count);
 	tolua_endmodule(tolua_S);
+	tolua_module(tolua_S, "Attitude", 0);
+	tolua_beginmodule(tolua_S, "Attitude");
+	tolua_constant(tolua_S, "FRIENDLY", Attitude::FRIENDLY);
+	tolua_constant(tolua_S, "NEUTRAL", Attitude::NEUTRAL);
+	tolua_constant(tolua_S, "HOSTILE", Attitude::HOSTILE);
+	tolua_endmodule(tolua_S);
 	tolua_module(tolua_S, "DawnInterface", 0);
 	tolua_beginmodule(tolua_S, "DawnInterface");
 	tolua_function(tolua_S, "enterZone", tolua_Luainterface_DawnInterface_enterZone00);
 	tolua_function(tolua_S, "setCurrentZone", tolua_Luainterface_DawnInterface_setCurrentZone00);
 	tolua_function(tolua_S, "createNewMobType", tolua_Luainterface_DawnInterface_createNewMobType00);
+	tolua_function(tolua_S, "addMobSpawnPoint", tolua_Luainterface_DawnInterface_addMobSpawnPoint00);
 	tolua_endmodule(tolua_S);
 	tolua_module(tolua_S, "EditorInterface", 0);
 	tolua_beginmodule(tolua_S, "EditorInterface");
@@ -815,6 +927,11 @@ TOLUA_API int tolua_Luainterface_open(lua_State* tolua_S)
 	tolua_beginmodule(tolua_S, "CCharacter");
 	tolua_function(tolua_S, "setNumMoveTexturesPerDirection", tolua_Luainterface_CCharacter_setNumMoveTexturesPerDirection00);
 	tolua_function(tolua_S, "setMoveTexture", tolua_Luainterface_CCharacter_setMoveTexture00);
+	tolua_function(tolua_S, "setName", tolua_Luainterface_CCharacter_setName00);
+	tolua_endmodule(tolua_S);
+	tolua_cclass(tolua_S, "Npc", "Npc", "CCharacter", NULL);
+	tolua_beginmodule(tolua_S, "Npc");
+	tolua_function(tolua_S, "setAttitude", tolua_Luainterface_Npc_setAttitude00);
 	tolua_endmodule(tolua_S);
 	tolua_cclass(tolua_S, "TextureAtlasCreator", "TextureAtlasCreator", "", NULL);
 	tolua_beginmodule(tolua_S, "TextureAtlasCreator");

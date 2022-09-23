@@ -12,8 +12,6 @@ CCharacter::CCharacter() {
 }
 
 
-
-
 void CCharacter::setNumMoveTexturesPerDirection(ActivityType::ActivityType activity, int numTextures){
 	size_t activityNr = static_cast<size_t>(activity);
 	numMoveTexturesPerDirection[activityNr] = numTextures;
@@ -26,11 +24,38 @@ TileSet* CCharacter::getTileSet(ActivityType::ActivityType activity) {
 	return &m_tileSets[activity];
 }
 
+void CCharacter::setTileSet(ActivityType::ActivityType activity, TileSet& value) {
+	m_tileSets[activity] = value;
+}
+
+unsigned short CCharacter::getNumActivities() {
+	return m_tileSets.size();
+}
+
 void CCharacter::setMoveTexture(ActivityType::ActivityType activity, int direction, int index, std::string filename, int textureOffsetX, int textureOffsetY){
+	
+	
 	size_t activityNr = static_cast<size_t>(activity);
 	TileSet* tileSet = getTileSet(activity);
 
 	tileSet->addTile(filename, TileClassificationType::TileClassificationType::FLOOR);
-
-	
 }
+
+ActivityType::ActivityType CCharacter::getCurActivity() const {
+	ActivityType::ActivityType curActivity = ActivityType::Walking;
+	
+	return curActivity;
+}
+
+int CCharacter::getXPos() const {
+	return x_pos;
+}
+
+int CCharacter::getYPos() const {
+	return y_pos;
+}
+
+void CCharacter::setName(std::string newName){
+	name = newName;
+}
+
