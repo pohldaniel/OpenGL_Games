@@ -29,7 +29,7 @@ void Fontrenderer::drawText(int posX, int posY, std::string text) {
 
 	for (c = text.begin(); c != text.end(); c++) {
 
-		const Character& ch = m_characterSet->getCharacter(*c);
+		const Char& ch = m_characterSet->getCharacter(*c);
 
 		Batchrenderer::get().addQuad(Vector4f(posX, posY, ch.size[0], ch.size[1]), Vector4f(ch.textureOffset[0], ch.textureOffset[1], ch.textureSize[0], ch.textureSize[1]));
 		posX = posX + ch.advance[0];

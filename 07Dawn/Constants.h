@@ -47,5 +47,5 @@ namespace Globals {
 
 	extern unsigned int textureAtlas;
 
-	extern std::map<std::string, CCharacter*> allMobTypes;
+	extern std::map<std::string, Character*> allMobTypes;
 }

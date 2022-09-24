@@ -3,6 +3,7 @@
 #include <cassert>
 
 #include "TilesetManager.h"
+#include "Character.h"
 
 TileSetManager TileSetManager::s_instance;
 
@@ -12,6 +13,10 @@ TileSetManager& TileSetManager::Get() {
 
 TileSet& TileSetManager::getTileSet(TileClassificationType::TileClassificationType tileType) {
 	return m_tileSets[tileType];
+}
+
+TileSet& TileSetManager::getTileSet(ActivityType::ActivityType activityType, Direction direction) {
+	return m_moveTileSets[{activityType, direction}];
 }
 
 void AdjacencyEquivalenceClass::addEquivalentTile(int tile, int offsetX, int offsetY){

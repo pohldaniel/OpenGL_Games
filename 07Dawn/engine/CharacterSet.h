@@ -12,7 +12,7 @@
 
 #define MAXWIDTH 1024
 
-struct Character {
+struct Char {
 	int bearing[2];
 	int size[2];
 	float textureOffset[2];
@@ -28,13 +28,13 @@ struct CharacterSet {
 
 	void loadFromFile(const std::string& path, const float characterSize, unsigned int intspacingX = 1, unsigned int spacingY = 10, const bool flipVertical = true);
 	void safeFont();
-	std::map<GLchar, Character> characters;
+	std::map<GLchar, Char> characters;
 	unsigned int spriteSheet;
 	unsigned int maxWidth;
 	unsigned int maxHeight;
 	unsigned int lineHeight;
 
-	const Character& getCharacter(const char c) const;
+	const Char& getCharacter(const char c) const;
 };
 
 #endif

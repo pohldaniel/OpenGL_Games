@@ -47,6 +47,7 @@ public:
 		curX = 0;
 		curY = 0;
 		maxY = 0;
+		fillSpace = 0;
 		buffer = new unsigned char[width * height * 4];
 		memset(buffer, 0, width*height * 4);
 		spritesheet = Spritesheet();
@@ -88,6 +89,11 @@ public:
 		maxY = (std::max)(maxY, curY + h);
 	}
 
+	void resetLine() {
+		curX = 0;
+		curY = maxY;
+	}
+
 	void addFrame() {
 		if (curX == 0 && curY == 0) return;
 
@@ -100,15 +106,8 @@ public:
 		curX = 0;
 		curY = 0;
 		maxY = 0;
+		fillSpace = 0;
 		frame++;
-	}
-
-	size_t getWidth() const {
-		return width;
-	}
-
-	size_t getHeight() const {
-		return height;
 	}
 
 private:
@@ -121,6 +120,7 @@ private:
 	size_t curX;
 	size_t curY;
 	size_t maxY;
+	size_t fillSpace;
 	Spritesheet spritesheet;
 	unsigned short frame;
 

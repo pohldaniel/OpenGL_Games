@@ -3,6 +3,7 @@
 #include <vector>
 
 #include "TextureManager.h"
+#include "Character.h"
 
 namespace TileClassificationType{
 	enum TileClassificationType{
@@ -91,7 +92,7 @@ class TileSetManager {
 
 public:
 
-	
+	TileSet& getTileSet(ActivityType::ActivityType activityType, Direction direction);
 	TileSet& getTileSet(TileClassificationType::TileClassificationType tileType);	
 	static TileSetManager& Get();
 	
@@ -99,6 +100,8 @@ private:
 	TileSetManager() = default;
 	
 	std::map<int, TileSet> m_tileSets;
+	std::map<std::pair<int, int>, TileSet> m_moveTileSets;
+
 	unsigned int textureAtlas;
 	static TileSetManager s_instance;
 };

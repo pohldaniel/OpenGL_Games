@@ -1,9 +1,15 @@
 #pragma once
 
 #include <cstdint>
+#include <utility>
+#include <string>
+#include <complex>
+#include <tuple>
+#include <iostream>
 
 #include "TextureManager.h"
-#include "TilesetManager.h"
+
+class TileSet;
 
 enum Direction{
 	STOP = 0,
@@ -38,19 +44,19 @@ namespace Attitude{
 	};
 }
 
-class CCharacter{
+class Character{
 
 public:
 
-	CCharacter();
-	~CCharacter() = default;
+	Character();
+	~Character() = default;
 
 	virtual void draw() {}
 
 	void setNumMoveTexturesPerDirection(ActivityType::ActivityType activity, int numTextures);
-	void setMoveTexture(ActivityType::ActivityType activity, int direction, int index, std::string filename, int textureOffsetX = 0, int textureOffsetY = 0);
-	TileSet* getTileSet(ActivityType::ActivityType activity);
-	void setTileSet(ActivityType::ActivityType activity, TileSet& value);
+	void setMoveTexture(ActivityType::ActivityType activity, Direction direction, int index, std::string filename, int textureOffsetX = 0, int textureOffsetY = 0);
+	TileSet* getTileSet(ActivityType::ActivityType activity, Direction direction);
+	void setTileSet(std::map<std::pair<int, int>, TileSet>& moveTileSets);
 	ActivityType::ActivityType getCurActivity() const;
 	int getXPos() const;
 	int getYPos() const;
@@ -76,9 +82,8 @@ public:
 
 	int* numMoveTexturesPerDirection;
 
-	TextureRect** texture;
 
-	std::map<int, TileSet> m_tileSets;
+	std::map<std::pair<int, int>, TileSet> m_moveTileSets;
 
 	unsigned int m_textureAtlas;
 	int x_pos, y_pos;

@@ -4,7 +4,7 @@
 
 #include "Character.h"
 
-class Npc : public CCharacter{
+class Npc : public Character{
 
 public:
 

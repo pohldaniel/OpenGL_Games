@@ -24,7 +24,7 @@ public:
 	Vector2f m_originalFocus;
 	int m_tileposOffset, m_objectEditSelected;
 	unsigned int m_tilepos, m_currentTilepos;
-	std::vector<std::pair<std::string, CCharacter*> > editorNPCs;
+	std::vector<std::pair<std::string, Character*> > editorNPCs;
 
 	TileClassificationType::TileClassificationType m_selectedTileSet;
 

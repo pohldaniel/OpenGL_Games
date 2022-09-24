@@ -152,7 +152,7 @@ void CharacterSet::loadFromFile(const std::string& path, const float characterSi
 			glTexSubImage2D(GL_TEXTURE_2D, 0, ox, oy, g->bitmap.width, height, GL_RED, GL_UNSIGNED_BYTE, bytes);
 			free(bytes);
 
-			Character character = {
+			Char character = {
 				{ g->bitmap_left, g->bitmap_top },
 				{ g->bitmap.width + spacingX, height },
 				{ static_cast<float>(ox) / (float)maxWidth, static_cast<float>(oy) / (float)maxHeight },
@@ -160,7 +160,7 @@ void CharacterSet::loadFromFile(const std::string& path, const float characterSi
 				{ (g->advance.x >> 6) + spacingX, yOffset }
 			};
 
-			characters.insert(std::pair<char, Character>(i, character));
+			characters.insert(std::pair<char, Char>(i, character));
 			
 
 			rowh = (std::max)(rowh, g->bitmap.rows + spacingY);
@@ -210,6 +210,6 @@ void CharacterSet::safeFont() {
 	free(bytesNew);
 }
 
-const Character& CharacterSet::getCharacter(const char c) const {
+const Char& CharacterSet::getCharacter(const char c) const {
 	return characters.at(c);
 }

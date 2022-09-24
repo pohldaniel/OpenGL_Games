@@ -28,7 +28,7 @@ void Label::draw(std::string text) {
 
 	for (c = text.begin(); c != text.end(); c++) {
 
-		const Character& ch = m_characterSet->getCharacter(*c);
+		const Char& ch = m_characterSet->getCharacter(*c);
 
 		Batchrenderer::get().addQuad(Vector4f(posX, getPosY() , ch.size[0], ch.size[1]), Vector4f(ch.textureOffset[0], ch.textureOffset[1], ch.textureSize[0], ch.textureSize[1]), activeColor);
 		posX = posX + ch.advance[0];
@@ -59,7 +59,7 @@ int Label::getWidth() const {
 	int sizeX = 0;
 	std::string::const_iterator c;
 	for (c = m_text.begin(); c != m_text.end(); c++) {
-		const Character ch = m_characterSet->getCharacter(*c);
+		const Char ch = m_characterSet->getCharacter(*c);
 		sizeX = sizeX + ((ch.advance[0]));		
 	}
 	return  sizeX;

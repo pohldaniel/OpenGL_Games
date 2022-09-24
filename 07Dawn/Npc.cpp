@@ -1,6 +1,7 @@
 #include "Npc.h"
+#include "TilesetManager.h"
 
-Npc::Npc(int _x_spawn_pos, int _y_spawn_pos, int _NPC_id, int _seconds_to_respawn, int _do_respawn) : CCharacter() {
+Npc::Npc(int _x_spawn_pos, int _y_spawn_pos, int _NPC_id, int _seconds_to_respawn, int _do_respawn) : Character() {
 	alive = true;
 	current_texture = 1; // this will be altered later on to draw what animation frame we want to draw.
 	respawn_thisframe = 0.0f;
@@ -42,7 +43,7 @@ void Npc::draw() {
 
 	int drawX = getXPos();
 	int drawY = getYPos();
-	TextureRect& rect = getTileSet(curActivity)->getAllTiles()[4]->textureRect;
+	TextureRect& rect = getTileSet(curActivity, Direction::S)->getAllTiles()[0]->textureRect;
 
 	TextureManager::DrawTextureBatched(rect, drawX, drawY, true);
 }
