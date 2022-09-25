@@ -76,6 +76,8 @@ public:
 	void drawTilesInstanced();
 	void drawEnvironmentInstanced();
 
+	void update();
+
 	void loadZone(std::string file);
 	bool zoneDataLoaded() const;
 	void addEnvironment(int x_pos, int y_pos, Tile *tile, bool centeredOnPos);

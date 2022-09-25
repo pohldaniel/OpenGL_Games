@@ -164,6 +164,7 @@
     <ClCompile Include="Label.cpp" />
     <ClCompile Include="MainMenu.cpp" />
     <ClCompile Include="Npc.cpp" />
+    <ClCompile Include="Random.cpp" />
     <ClCompile Include="TextureManager.cpp" />
     <ClCompile Include="engine\Batchrenderer.cpp" />
     <ClCompile Include="engine\Camera.cpp" />
@@ -208,6 +209,7 @@
     <ClInclude Include="Label.h" />
     <ClInclude Include="MainMenu.h" />
     <ClInclude Include="Npc.h" />
+    <ClInclude Include="Random.h" />
     <ClInclude Include="TextureManager.h" />
     <ClInclude Include="engine\AssetManger.h" />
     <ClInclude Include="engine\Batchrenderer.h" />

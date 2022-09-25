@@ -9,6 +9,7 @@
 #include "engine\Texture.h"
 #include "engine\Spritesheet.h"
 #include "engine\CharacterSet.h"
+#include "engine\Clock.h"
 
 #include "Zone.h"
 
@@ -48,4 +49,6 @@ namespace Globals {
 	extern unsigned int textureAtlas;
 
 	extern std::map<std::string, Character*> allMobTypes;
+
+	extern Clock clock;
 }

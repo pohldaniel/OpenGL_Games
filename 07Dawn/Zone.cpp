@@ -142,6 +142,13 @@ std::vector<Npc*> Zone::getNPCs() {
 	return npcs;
 }
 
+void Zone::update() {
+	for (unsigned int x = 0; x < npcs.size(); x++) {
+		npcs[x]->Wander();
+		npcs[x]->Move();
+	}
+}
+
 void Zone::drawZoneBatched() {
 	
 	Batchrenderer::get().setShader(Globals::shaderManager.getAssetPointer("batch"));

@@ -1,6 +1,6 @@
 #include "Npc.h"
 #include "TilesetManager.h"
-
+#include "Constants.h"
 Npc::Npc(int _x_spawn_pos, int _y_spawn_pos, int _NPC_id, int _seconds_to_respawn, int _do_respawn) : Character() {
 	alive = true;
 	current_texture = 1; // this will be altered later on to draw what animation frame we want to draw.
@@ -10,7 +10,7 @@ Npc::Npc(int _x_spawn_pos, int _y_spawn_pos, int _NPC_id, int _seconds_to_respaw
 	wander_lastframe = 0.0f; // helping us decide when the mob will wander.
 	wander_every_seconds = 3; // this mob wanders every 1 seconds.
 	wandering = false;
-	//MovingDirection = STOP;
+	MovingDirection = STOP;
 
 	remainingMovePoints = 0;
 	direction_texture = 0;
@@ -19,6 +19,8 @@ Npc::Npc(int _x_spawn_pos, int _y_spawn_pos, int _NPC_id, int _seconds_to_respaw
 	//setTarget(NULL);
 	markedAsDeleted = false;
 	lastPathCalculated = 0;
+
+	
 }
 
 Npc::~Npc() {
@@ -40,10 +42,52 @@ void Npc::setAttitude(Attitude::Attitude attitude) {
 
 void Npc::draw() {
 	ActivityType::ActivityType curActivity = getCurActivity();
-
+	
 	int drawX = getXPos();
 	int drawY = getYPos();
-	TextureRect& rect = getTileSet(curActivity, Direction::S)->getAllTiles()[0]->textureRect;
 
+	TextureRect& rect = getTileSet(curActivity, GetDirectionTexture())->getAllTiles()[0]->textureRect;
 	TextureManager::DrawTextureBatched(rect, drawX, drawY, true);
+}
+
+Direction Npc::GetDirection(){
+
+	if (wandering) {
+		return WanderDirection;
+	}else {
+		return MovingDirection;
+	}
+}
+
+void Npc::Wander() {
+	if (wandering) {
+		if (wander_points_left > 0) {
+			// checking if character is moving more than the wander_radius. if he does we'll stop him.
+			// probably is some other function we could use here that doesnt require as much power... /arnestig
+			if (sqrt((pow(x_pos - x_spawn_pos, 2) + pow(y_pos - y_spawn_pos, 2))) < getWanderRadius()) {
+				wander_points_left--;
+			}
+			else {
+				wander_lastframe = Globals::clock.getElapsedTimeMilli();
+				wandering = false;
+				WanderDirection = STOP;
+			}
+		}else {
+			wander_lastframe = Globals::clock.getElapsedTimeMilli();
+			wandering = false;
+			WanderDirection = STOP;
+		}
+	}else {
+		
+		wander_thisframe = Globals::clock.getElapsedTimeMilli();
+		if ((wander_thisframe - wander_lastframe) > (wander_every_seconds * 1000)) {
+			wandering = true;
+			wander_points_left = RNG::randomSizeT(10, 59);  // how far will the NPC wander?
+			WanderDirection = static_cast<Direction>(RNG::randomSizeT(1, 8));  // random at which direction NPC will go.
+		}
+	}
+}
+
+void Npc::Move() {
+	Character::Move();
 }

@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <vector>
+#include <unordered_map>
 
 #include "TextureManager.h"
 #include "Character.h"
@@ -99,8 +100,8 @@ public:
 private:
 	TileSetManager() = default;
 	
-	std::map<int, TileSet> m_tileSets;
-	std::map<std::pair<int, int>, TileSet> m_moveTileSets;
+	std::unordered_map<int, TileSet> m_tileSets;
+	std::unordered_map<std::pair<int, int>, TileSet, pair_hash> m_moveTileSets;
 
 	unsigned int textureAtlas;
 	static TileSetManager s_instance;

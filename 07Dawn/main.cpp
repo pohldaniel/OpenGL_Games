@@ -6,6 +6,7 @@
 #include "engine\Clock.h"
 #include "Application.h"
 #include "Constants.h"
+#include "Random.h"
 
 extern Matrix4f Globals::projection = Matrix4f();
 extern Matrix4f Globals::invProjection = Matrix4f();
@@ -17,6 +18,7 @@ extern AssetManager<Spritesheet> Globals::spritesheetManager = AssetManager<Spri
 extern AssetManager<CharacterSet> Globals::fontManager = AssetManager<CharacterSet>();
 extern bool Globals::enableWireframe = false;
 extern bool Globals::lMouseButton = false;
+extern Clock Globals::clock = Clock();
 
 extern std::map<std::string, Zone*> Globals::allZones = std::map<std::string, Zone*>();
 extern Zone* Globals::currentZone = nullptr;
@@ -60,6 +62,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	int frames = 0;
 	float framesTime = 0;
+
+	RNG::initRNG(time(0));
 
 	while (application.isRunning()) {
 		physicsElapsedTime += deltaTime;

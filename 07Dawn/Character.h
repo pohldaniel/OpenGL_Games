@@ -2,14 +2,20 @@
 
 #include <cstdint>
 #include <utility>
-#include <string>
-#include <complex>
-#include <tuple>
+#include <unordered_map>
 #include <iostream>
 
 #include "TextureManager.h"
+#include "Random.h"
 
 class TileSet;
+
+struct pair_hash {
+	template <class T1, class T2>
+	std::size_t operator () (const std::pair<T1, T2> &p) const {
+		return std::hash<T1>{}(p.first) ^ std::hash<T2>{}(p.second);
+	}
+};
 
 enum Direction{
 	STOP = 0,
@@ -56,16 +62,41 @@ public:
 	void setNumMoveTexturesPerDirection(ActivityType::ActivityType activity, int numTextures);
 	void setMoveTexture(ActivityType::ActivityType activity, Direction direction, int index, std::string filename, int textureOffsetX = 0, int textureOffsetY = 0);
 	TileSet* getTileSet(ActivityType::ActivityType activity, Direction direction);
-	void setTileSet(std::map<std::pair<int, int>, TileSet>& moveTileSets);
+	void setTileSet(std::unordered_map<std::pair<int, int>, TileSet, pair_hash>& moveTileSets);
 	ActivityType::ActivityType getCurActivity() const;
 	int getXPos() const;
 	int getYPos() const;
 	void setName(std::string newName);
 	unsigned short getNumActivities();
+	virtual Direction GetDirection() = 0;
+
+	Direction GetDirectionTexture();
+	uint16_t getWanderRadius() const;
+	float getMovementSpeed() const;
+
+	bool isStunned() const;
+	bool isMesmerized() const;
+	bool isFeared() const;
+	bool isCharmed() const;
+	bool getIsPreparing() const;
+	bool mayDoAnythingAffectingSpellActionWithoutAborting() const;
+	bool mayDoAnythingAffectingSpellActionWithAborting() const;
+	bool isPlayer() const;
+	bool isChanneling() const;
+	bool isSneaking() const;
+
+	void Move();
+	bool continuePreparing();
+	void MoveUp(uint8_t n);
+	void MoveDown(uint8_t n);
+	void MoveLeft(uint8_t n);
+	void MoveRight(uint8_t n);
 
 	bool alive;
 	//bool hasDrawnDyingOnce;
 	int current_texture, direction_texture;
+	bool hasChoosenFearDirection;
+	bool isPreparing;
 
 	// timers
 	float wander_thisframe, wander_lastframe;
@@ -83,9 +114,11 @@ public:
 	int* numMoveTexturesPerDirection;
 
 
-	std::map<std::pair<int, int>, TileSet> m_moveTileSets;
+	std::unordered_map<std::pair<int, int>, TileSet, pair_hash> m_moveTileSets;
 
-	unsigned int m_textureAtlas;
 	int x_pos, y_pos;
 	std::string name;
+	uint16_t wander_radius;
+	Direction activeDirection;
+	Direction WanderDirection, MovingDirection, fearDirection, dyingDirection;
 };
