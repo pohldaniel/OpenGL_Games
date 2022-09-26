@@ -1,6 +1,7 @@
 #include "Npc.h"
 #include "TilesetManager.h"
 #include "Constants.h"
+
 Npc::Npc(int _x_spawn_pos, int _y_spawn_pos, int _NPC_id, int _seconds_to_respawn, int _do_respawn) : Character() {
 	alive = true;
 	current_texture = 1; // this will be altered later on to draw what animation frame we want to draw.
@@ -46,8 +47,12 @@ void Npc::draw() {
 	int drawX = getXPos();
 	int drawY = getYPos();
 
-	TextureRect& rect = getTileSet(curActivity, GetDirectionTexture())->getAllTiles()[0]->textureRect;
-	TextureManager::DrawTextureBatched(rect, drawX, drawY, true);
+	//TextureRect& rect = getTileSet(curActivity, GetDirectionTexture())->getAllTiles()[index]->textureRect;
+	TextureManager::DrawTextureBatched(*rect, drawX, drawY, true);
+}
+
+void Npc::update(float deltaTime) {
+	Character::update(deltaTime);
 }
 
 Direction Npc::GetDirection(){
@@ -66,8 +71,13 @@ void Npc::Wander() {
 			// probably is some other function we could use here that doesnt require as much power... /arnestig
 			if (sqrt((pow(x_pos - x_spawn_pos, 2) + pow(y_pos - y_spawn_pos, 2))) < getWanderRadius()) {
 				wander_points_left--;
-			}
-			else {
+
+				
+				if (wander_points_left == 0 && index != 0) {
+					wander_points_left++;
+				}
+				
+			}else {
 				wander_lastframe = Globals::clock.getElapsedTimeMilli();
 				wandering = false;
 				WanderDirection = STOP;

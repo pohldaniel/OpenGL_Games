@@ -28,6 +28,9 @@
     <Filter Include="Source Files\UI">
       <UniqueIdentifier>{4157acff-ef90-4ab5-bebc-7ada3b5b8b50}</UniqueIdentifier>
     </Filter>
+    <Filter Include="engine\animation">
+      <UniqueIdentifier>{671d5b4a-97d8-4eaa-a894-2993364408af}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Application.cpp">
@@ -156,6 +159,9 @@
     <ClCompile Include="Random.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="engine\animation\Animation2d.cpp">
+      <Filter>engine\animation</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine\input\Event.h">
@@ -280,6 +286,9 @@
     </ClInclude>
     <ClInclude Include="Random.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\animation\Animation2d.h">
+      <Filter>engine\animation</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

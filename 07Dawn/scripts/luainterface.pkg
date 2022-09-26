@@ -43,7 +43,7 @@ namespace Attitude
 namespace DawnInterface{
 	void enterZone(std::string zoneName, int enterX, int enterY );
 	void setCurrentZone(std::string zoneName );
-	Character* createNewMobType( std::string typeID );
+	Character* createNewMobType(std::string typeID);
 	Npc* addMobSpawnPoint(std::string mobID, int x_pos, int y_pos, int respawn_rate, int do_respawn );
 }
 
@@ -97,7 +97,6 @@ class TileSet
 
 class Character 
 {
-	void setNumMoveTexturesPerDirection( ActivityType::ActivityType activity, int numTextures );
 	void setMoveTexture(ActivityType::ActivityType activity, Direction direction, int index, std::string filename, int textureOffsetX = 0, int textureOffsetY = 0);
 	void setName(std::string newName);
 };

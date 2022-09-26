@@ -1,23 +1,18 @@
 #include "Character.h"
 #include "TilesetManager.h"
-
+#include "Constants.h"
 
 Character::Character() {
-	size_t numActivities = static_cast<size_t>(ActivityType::Count);
-	numMoveTexturesPerDirection = new int[numActivities];
 	wander_radius = 40;
-
 	activeDirection = S;
 }
 
-
-void Character::setNumMoveTexturesPerDirection(ActivityType::ActivityType activity, int numTextures){
-	size_t activityNr = static_cast<size_t>(activity);
-	numMoveTexturesPerDirection[activityNr] = numTextures;
+void Character::setNumActivities(unsigned short numActivities) {	
+	m_numActivities = numActivities;
 }
 
 TileSet* Character::getTileSet(ActivityType::ActivityType activity, Direction direction) {
-	return &m_moveTileSets[{activity, direction}];
+	return &m_moveTileSets[{activity, direction}];	
 }
 
 void Character::setTileSet(std::unordered_map<std::pair<int, int>, TileSet, pair_hash>& moveTileSets) {
@@ -25,12 +20,11 @@ void Character::setTileSet(std::unordered_map<std::pair<int, int>, TileSet, pair
 }
 
 unsigned short Character::getNumActivities() {
-	return m_moveTileSets.size() / 8;
+	return m_numActivities;
 }
 
 void Character::setMoveTexture(ActivityType::ActivityType activity, Direction direction, int index, std::string filename, int textureOffsetX, int textureOffsetY){
 	TileSet* tileSet = getTileSet(activity, direction);
-
 	tileSet->addTile(filename, TileClassificationType::TileClassificationType::FLOOR);
 }
 
@@ -52,6 +46,93 @@ void Character::setName(std::string newName){
 	name = newName;
 }
 
+void Character::update(float deltaTime) {
+	ActivityType::ActivityType curActivity = getCurActivity();
+
+	if (isStunned() == true || isMesmerized() == true) {
+		rect = &m_moveTileSets[{curActivity, activeDirection}].getAllTiles()[0]->textureRect;
+		return;
+	}
+
+	Direction direction = GetDirection();
+	if (direction != STOP) {
+		activeDirection = direction;
+	}
+
+	switch (curActivity) {
+		case ActivityType::Walking: {
+			
+			if (direction == STOP) {
+				rect = &m_moveTileSets[{curActivity, activeDirection}].getAllTiles()[0]->textureRect;
+				index = 0;
+				return;
+			}
+			int msPerDrawFrame = 100;
+
+
+			TileSet& tileSet = m_moveTileSets[{curActivity, activeDirection}];
+
+			dumping += deltaTime * 10;
+
+			//index = ((Globals::clock.getElapsedTimeMilli() % (msPerDrawFrame * tileSet.getAllTiles().size())) / msPerDrawFrame);
+
+			index = dumping;
+			index = index % tileSet.getAllTiles().size();
+
+			rect = &tileSet.getAllTiles()[index]->textureRect;
+			
+			
+			break;
+		}case ActivityType::Attacking: {
+
+			if (direction == STOP) {
+				rect = &m_moveTileSets[{curActivity, activeDirection}].getAllTiles()[0]->textureRect;
+				index = 0;
+				return;
+			}
+			int msPerDrawFrame = 80;
+
+			TileSet& tileSet = m_moveTileSets[{curActivity, activeDirection}];
+
+			index = ((Globals::clock.getElapsedTimeMilli() % (msPerDrawFrame * tileSet.getAllTiles().size())) / msPerDrawFrame);
+			rect = &tileSet.getAllTiles()[index]->textureRect;
+
+			break;
+		}case ActivityType::Casting: {
+
+			if (direction == STOP) {
+				rect = &m_moveTileSets[{curActivity, activeDirection}].getAllTiles()[0]->textureRect;
+				index = 0;
+				return;
+			}
+			int msPerDrawFrame = 80;
+
+			TileSet& tileSet = m_moveTileSets[{curActivity, activeDirection}];
+
+			index = ((Globals::clock.getElapsedTimeMilli() % (msPerDrawFrame * tileSet.getAllTiles().size())) / msPerDrawFrame);
+			rect = &tileSet.getAllTiles()[index]->textureRect;
+
+			break;
+		}case ActivityType::Dying: {
+
+			if (direction == STOP) {
+				rect = &m_moveTileSets[{curActivity, activeDirection}].getAllTiles()[0]->textureRect;
+				index = 0;
+				return;
+			}
+			int msPerDrawFrame = 80;
+
+			TileSet& tileSet = m_moveTileSets[{curActivity, activeDirection}];
+
+			index = ((Globals::clock.getElapsedTimeMilli() % (msPerDrawFrame * tileSet.getAllTiles().size())) / msPerDrawFrame);
+			rect = &tileSet.getAllTiles()[index]->textureRect;
+
+			break;
+		}
+		
+	}
+}
+
 Direction Character::GetDirectionTexture() {
 	if (isStunned() == true || isMesmerized() == true) {
 		return activeDirection;
@@ -64,18 +145,22 @@ Direction Character::GetDirectionTexture() {
 	
 	ActivityType::ActivityType curActivity = getCurActivity();
 
-	switch (curActivity) {
+	/*switch (curActivity) {
 		case ActivityType::Walking: {
 
 			if (direction == STOP)
 				return activeDirection;
 
+			TileSet& tileSet = m_moveTileSets2[curActivity][activeDirection];
 			int msPerDrawFrame = 100;
-			//int index = ((SDL_GetTicks() % (msPerDrawFrame * numMoveTexturesPerDirection[curActivity])) / msPerDrawFrame);
+			index = ((Globals::clock.getElapsedTimeMilli() % (msPerDrawFrame * tileSet.getAllTiles().size())) / msPerDrawFrame);
+
+			std::cout << "Size: " << "  " << tileSet.getAllTiles().size() << std::endl;
+
 			return direction;
 		}
 		break;
-	}
+	}*/
 	
 	return direction;
 }

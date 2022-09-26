@@ -76,7 +76,7 @@ public:
 	void drawTilesInstanced();
 	void drawEnvironmentInstanced();
 
-	void update();
+	void update(float deltaTime);
 
 	void loadZone(std::string file);
 	bool zoneDataLoaded() const;

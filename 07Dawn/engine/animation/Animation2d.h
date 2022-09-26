@@ -1,11 +1,11 @@
 #pragma once
 #include "../Spritesheet.h"
 
-class Animator {
+class Animation2D {
 public:
-	Animator() = default;
-	Animator(std::string pictureFile, unsigned short tileWidth, unsigned short tileHeight, unsigned yStart, unsigned xLength, float time, unsigned int& textureAtlas, unsigned int& currentFrame);
-	~Animator();
+	Animation2D() = default;
+	Animation2D(std::string pictureFile, unsigned short tileWidth, unsigned short tileHeight, unsigned yStart, unsigned xLength, float time, unsigned int& textureAtlas, unsigned int& currentFrame);
+	~Animation2D();
 
 	void create(std::string pictureFile, unsigned short tileWidth, unsigned short tileHeight, unsigned yStart, unsigned xLength, float time, unsigned int& textureAtlas, unsigned int& currentFrame);
 	void create(Spritesheet* spriteSheet, float time, unsigned int& textureAtlas, unsigned int& currentFrame);

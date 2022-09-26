@@ -58,11 +58,13 @@ public:
 	~Character() = default;
 
 	virtual void draw() {}
+	void update(float deltaTime);
 
-	void setNumMoveTexturesPerDirection(ActivityType::ActivityType activity, int numTextures);
 	void setMoveTexture(ActivityType::ActivityType activity, Direction direction, int index, std::string filename, int textureOffsetX = 0, int textureOffsetY = 0);
 	TileSet* getTileSet(ActivityType::ActivityType activity, Direction direction);
 	void setTileSet(std::unordered_map<std::pair<int, int>, TileSet, pair_hash>& moveTileSets);
+	void setNumActivities(unsigned short numActivities);
+
 	ActivityType::ActivityType getCurActivity() const;
 	int getXPos() const;
 	int getYPos() const;
@@ -111,9 +113,8 @@ public:
 	bool wandering, moving, in_combat;
 	uint32_t remainingMovePoints;
 
-	int* numMoveTexturesPerDirection;
 
-
+	unsigned short m_numActivities;
 	std::unordered_map<std::pair<int, int>, TileSet, pair_hash> m_moveTileSets;
 
 	int x_pos, y_pos;
@@ -121,4 +122,9 @@ public:
 	uint16_t wander_radius;
 	Direction activeDirection;
 	Direction WanderDirection, MovingDirection, fearDirection, dyingDirection;
+
+
+	TextureRect* rect;
+	int index = 0;
+	float dumping = 0.0f;
 };

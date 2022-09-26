@@ -80,19 +80,18 @@ namespace DawnInterface{
 	}
 
 	Npc* addMobSpawnPoint(std::string mobID, int x_pos, int y_pos, int respawn_rate, int do_respawn) {
+	
 		Npc* newMob = new Npc(0, 0, 0, 0, 0);
 		//newMob->baseOnType(mobID);
-
 		if (Globals::allMobTypes.count(mobID) != 1) {
 			return newMob;
 		}
 
+		
 		Character* other = Globals::allMobTypes[mobID];
-
 		newMob->setTileSet(other->m_moveTileSets);
+		newMob->setNumActivities(other->m_moveTileSets.size() / 8);
 
-		
-		
 		newMob->setSpawnInfo(x_pos, y_pos, respawn_rate, do_respawn);
 		//newMob->setActiveGUI(&GUI);
 		Globals::getCurrentZone()->addNPC(newMob);

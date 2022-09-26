@@ -142,10 +142,12 @@ std::vector<Npc*> Zone::getNPCs() {
 	return npcs;
 }
 
-void Zone::update() {
+void Zone::update(float deltaTime) {
 	for (unsigned int x = 0; x < npcs.size(); x++) {
 		npcs[x]->Wander();
 		npcs[x]->Move();
+
+		npcs[x]->update(deltaTime);
 	}
 }
 
