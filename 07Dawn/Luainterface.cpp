@@ -73,28 +73,21 @@ namespace DawnInterface{
 		Globals::setCurrentZone(newCurZone);
 	}
 
-	Character* createNewMobType(std::string typeID){
-		Character* newMobType = new Npc(0, 0, 0, 0, 0);
-		Globals::allMobTypes[typeID] = newMobType;
-		return newMobType;
+	CharacterType& createNewMobType(std::string characterType) {
+		return CharacterTypeManager::Get().getCharacterType(characterType);
 	}
 
-	Npc* addMobSpawnPoint(std::string mobID, int x_pos, int y_pos, int respawn_rate, int do_respawn) {
+	void addMobSpawnPoint(std::string mobID, int x_pos, int y_pos, int respawn_rate, int do_respawn, Attitude::Attitude attitude) {
 	
-		Npc* newMob = new Npc(0, 0, 0, 0, 0);
-		//newMob->baseOnType(mobID);
-		if (Globals::allMobTypes.count(mobID) != 1) {
-			return newMob;
+		if (!CharacterTypeManager::Get().containsCaracterType(mobID)) {
+			return;
 		}
 
-		
-		Character* other = Globals::allMobTypes[mobID];
-		newMob->setTileSet(other->m_moveTileSets);
-		newMob->setNumActivities(other->m_moveTileSets.size() / 8);
-
+		Npc* newMob = new Npc(CharacterTypeManager::Get().getCharacterType(mobID), 0, 0, 0, 0, 0);	
+		newMob->baseOnType(mobID);
 		newMob->setSpawnInfo(x_pos, y_pos, respawn_rate, do_respawn);
+		newMob->setAttitude(attitude);
 		//newMob->setActiveGUI(&GUI);
 		Globals::getCurrentZone()->addNPC(newMob);
-		return newMob;
 	}
 }

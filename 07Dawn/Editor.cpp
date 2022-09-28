@@ -15,9 +15,6 @@ Editor::Editor(StateMachine& machine) : State(machine, CurrentState::EDITOR) {
 	initTextures();
 	Fontrenderer::get().setCharacterSet(Globals::fontManager.get("verdana_9"));
 
-	
-
-
 	loadNPCs();
 }
 
@@ -137,7 +134,7 @@ void Editor::render(unsigned int &frameBuffer) {
 		Batchrenderer::get().bindTexture(TextureManager::GetTextureAtlas("Wolf"), true);
 
 		for (size_t curNPC = 0; curNPC < editorNPCs.size(); curNPC++) {
-			TextureRect& rect = editorNPCs[curNPC].second->getTileSet(ActivityType::ActivityType::Walking, Direction::S)->getAllTiles()[0]->textureRect;
+			TextureRect& rect = editorNPCs[curNPC].second.getTileSet(ActivityType::ActivityType::Walking, Direction::S).getAllTiles()[0]->textureRect;
 			TextureManager::DrawTextureBatched(rect, m_originalFocus[0] + ViewPort::get().getWidth() * 0.5f + (curNPC * 50) + (m_tileposOffset * 50) - 48 + 20, m_originalFocus[1] + ViewPort::get().getHeight() - 40 - 48, rect.width, rect.height, false);
 		}
 		Batchrenderer::get().drawBuffer(false);
@@ -208,9 +205,12 @@ void Editor::initTextures() {
 }
 
 void Editor::loadNPCs(){
+	
+	std::unordered_map< std::string, CharacterType>::iterator curNPC;
+
 	editorNPCs.clear();
-	for (std::map< std::string, Character* >::iterator curNPC = Globals::allMobTypes.begin(); curNPC != Globals::allMobTypes.end(); curNPC++) {
-		editorNPCs.push_back(std::pair< std::string, Character* >((*curNPC).first, (*curNPC).second));
+	for (curNPC = CharacterTypeManager::Get().getCharacterTypes().begin(); curNPC != CharacterTypeManager::Get().getCharacterTypes().end(); curNPC++) {
+		editorNPCs.push_back(std::pair<std::string, CharacterType>((*curNPC).first, (*curNPC).second));
 	}
 }
 

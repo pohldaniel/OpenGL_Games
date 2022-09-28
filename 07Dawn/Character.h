@@ -29,6 +29,17 @@ enum Direction{
 	NW = 8
 };
 
+namespace CharacterClass{
+
+	enum CharacterClass{
+		NOCLASS,
+		ANYCLASS,
+		Liche,
+		Ranger,
+		Warrior
+	};
+}
+
 namespace ActivityType{
 
 	enum ActivityType{
@@ -50,25 +61,100 @@ namespace Attitude{
 	};
 }
 
+struct CharacterType {
+	friend class Character;
+
+	void addMoveTexture(ActivityType::ActivityType activity, Direction direction, int index, std::string filename, int textureOffsetX = 0, int textureOffsetY = 0);
+
+	void setStrength(uint16_t newStrength);
+	void setDexterity(uint16_t newDexterity);
+	void setVitality(uint16_t newVitality);
+	void setIntellect(uint16_t newIntellect);
+	void setWisdom(uint16_t newWisdom);
+	void setMaxHealth(uint16_t newMaxHealth);
+	void setMaxMana(uint16_t newMaxMana);
+	void setMaxFatigue(uint16_t newMaxFatigue);
+	void setHealthRegen(uint16_t newHealthRegen);
+	void setManaRegen(uint16_t newManaRegen);
+	void setFatigueRegen(uint16_t newFatigueRegen);
+	void setMinDamage(uint16_t newMinDamage);
+	void setMaxDamage(uint16_t newMaxDamage);
+	void setArmor(uint16_t newArmor);
+	void setDamageModifierPoints(uint16_t newDamageModifierPoints);
+	void setHitModifierPoints(uint16_t newHitModifierPoints);
+	void setEvadeModifierPoints(uint16_t newEvadeModifierPoints);
+	void setName(std::string newName);
+	void setWanderRadius(uint16_t newWanderRadius);
+	void setLevel(uint8_t newLevel);
+	void setClass(CharacterClass::CharacterClass);
+	//void inscribeSpellInSpellbook(CSpellActionBase* spell);
+	//void addItemToLootTable(Item* item, double dropChance);
+	void setExperienceValue(uint8_t experienceValue);
+
+	TileSet& getTileSet(ActivityType::ActivityType activity, Direction direction);
+	
+private:
+	std::unordered_map<std::pair<int, int>, TileSet, pair_hash> m_moveTileSets;
+
+	std::string name;
+	uint16_t strength;
+	uint16_t dexterity;
+	uint16_t vitality;
+	uint16_t intellect;
+	uint16_t wisdom;
+	uint16_t max_health;
+	uint16_t max_mana;
+	uint16_t max_fatigue;
+	uint16_t healthRegen;
+	uint16_t manaRegen;
+	uint16_t fatigueRegen;
+	uint8_t experienceValue;
+	uint16_t wander_radius;
+	uint16_t min_damage;
+	uint16_t max_damage;
+	uint8_t level;
+	uint16_t armor;
+	uint16_t damageModifierPoints;
+	uint16_t hitModifierPoints;
+	uint16_t evadeModifierPoints;
+	CharacterClass::CharacterClass characterClass;
+};
+
+class CharacterTypeManager {
+
+public:
+	CharacterType& getCharacterType(std::string characterType);
+	bool containsCaracterType(std::string characterType);
+
+	std::unordered_map<std::string, CharacterType>& getCharacterTypes();
+
+	static CharacterTypeManager& Get();
+
+private:
+	CharacterTypeManager() = default;
+	std::unordered_map<std::string, CharacterType> m_characterTypes;
+	static CharacterTypeManager s_instance;
+};
+
+
 class Character{
 
 public:
 
-	Character();
+	Character(CharacterType& characterType);
 	~Character() = default;
 
 	virtual void draw() {}
 	void update(float deltaTime);
 
-	void setMoveTexture(ActivityType::ActivityType activity, Direction direction, int index, std::string filename, int textureOffsetX = 0, int textureOffsetY = 0);
-	TileSet* getTileSet(ActivityType::ActivityType activity, Direction direction);
-	void setTileSet(std::unordered_map<std::pair<int, int>, TileSet, pair_hash>& moveTileSets);
+	
 	void setNumActivities(unsigned short numActivities);
+	void baseOnType(std::string otherName);
 
 	ActivityType::ActivityType getCurActivity() const;
 	int getXPos() const;
 	int getYPos() const;
-	void setName(std::string newName);
+	
 	unsigned short getNumActivities();
 	virtual Direction GetDirection() = 0;
 
@@ -94,6 +180,54 @@ public:
 	void MoveLeft(uint8_t n);
 	void MoveRight(uint8_t n);
 
+
+	/*void setStrength(uint16_t newStrength);
+	void setDexterity(uint16_t newDexterity);
+	void setVitality(uint16_t newVitality);
+	void setIntellect(uint16_t newIntellect);
+	void setWisdom(uint16_t newWisdom);
+	void setMaxHealth(uint16_t newMaxHealth);
+	void setMaxMana(uint16_t newMaxMana);
+	void setMaxFatigue(uint16_t newMaxFatigue);
+	void setHealthRegen(uint16_t newHealthRegen);
+	void setManaRegen(uint16_t newManaRegen);
+	void setFatigueRegen(uint16_t newFatigueRegen);
+	void setMinDamage(uint16_t newMinDamage);
+	void setMaxDamage(uint16_t newMaxDamage);
+	void setArmor(uint16_t newArmor);
+	void setDamageModifierPoints(uint16_t newDamageModifierPoints);
+	void setHitModifierPoints(uint16_t newHitModifierPoints);
+	void setEvadeModifierPoints(uint16_t newEvadeModifierPoints);
+	void setName(std::string newName);
+	void setWanderRadius(uint16_t newWanderRadius);
+	void setLevel(uint8_t newLevel);
+	void setClass(CharacterClass::CharacterClass);
+	void setExperienceValue(uint8_t experienceValue);*/
+	//void inscribeSpellInSpellbook(CSpellActionBase* spell);
+	//void addItemToLootTable(Item* item, double dropChance);
+	
+	uint16_t getStrength() const;
+	uint16_t getDexterity() const;
+	uint16_t getVitality() const;
+	uint16_t getIntellect() const;
+	uint16_t getWisdom() const;
+	uint16_t getMaxHealth() const;
+	uint16_t getMaxMana() const;
+	uint16_t getMaxFatigue() const;
+	uint16_t getMaxDamage() const;
+	uint16_t getMinDamage() const;
+	uint16_t getArmor() const;
+	uint16_t getHealthRegen() const;
+	uint16_t getManaRegen() const;
+	uint16_t getFatigueRegen() const;
+	uint16_t getDamageModifierPoints() const;
+	uint16_t getHitModifierPoints() const;
+	uint16_t getEvadeModifierPoints() const;
+	CharacterClass::CharacterClass getClass() const;
+	std::string getName() const;
+	uint8_t getLevel() const;
+	uint8_t getExperienceValue() const;
+
 	bool alive;
 	//bool hasDrawnDyingOnce;
 	int current_texture, direction_texture;
@@ -114,17 +248,44 @@ public:
 	uint32_t remainingMovePoints;
 
 
-	unsigned short m_numActivities;
-	std::unordered_map<std::pair<int, int>, TileSet, pair_hash> m_moveTileSets;
+	
+	//std::unordered_map<std::pair<int, int>, TileSet, pair_hash> m_moveTileSets;
 
 	int x_pos, y_pos;
-	std::string name;
-	uint16_t wander_radius;
+	
 	Direction activeDirection;
 	Direction WanderDirection, MovingDirection, fearDirection, dyingDirection;
-
+	unsigned short m_numActivities;
 
 	TextureRect* rect;
 	int index = 0;
 	float dumping = 0.0f;
+
+	std::string name;
+	uint16_t strength;
+	uint16_t dexterity;
+	uint16_t vitality;
+	uint16_t intellect;
+	uint16_t wisdom;
+	uint16_t max_health;
+	//uint16_t current_health;
+	uint16_t max_mana;
+	//uint16_t current_mana;
+	uint16_t max_fatigue;
+	//uint16_t current_fatigue;
+	uint16_t healthRegen;
+	uint16_t manaRegen;
+	uint16_t fatigueRegen;
+	uint8_t experienceValue;
+	uint16_t wander_radius;
+	uint16_t min_damage;
+	uint16_t max_damage;
+	uint8_t level;
+	uint16_t armor;
+	uint16_t damageModifierPoints;
+	uint16_t hitModifierPoints;
+	uint16_t evadeModifierPoints;
+	CharacterClass::CharacterClass characterClass;
+
+	CharacterType& m_characterType;
 };

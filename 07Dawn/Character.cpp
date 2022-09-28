@@ -2,7 +2,7 @@
 #include "TilesetManager.h"
 #include "Constants.h"
 
-Character::Character() {
+Character::Character(CharacterType& characterType) : m_characterType(characterType) {
 	wander_radius = 40;
 	activeDirection = S;
 }
@@ -11,21 +11,59 @@ void Character::setNumActivities(unsigned short numActivities) {
 	m_numActivities = numActivities;
 }
 
-TileSet* Character::getTileSet(ActivityType::ActivityType activity, Direction direction) {
-	return &m_moveTileSets[{activity, direction}];	
-}
-
-void Character::setTileSet(std::unordered_map<std::pair<int, int>, TileSet, pair_hash>& moveTileSets) {
-	m_moveTileSets = moveTileSets;
-}
-
 unsigned short Character::getNumActivities() {
 	return m_numActivities;
 }
 
-void Character::setMoveTexture(ActivityType::ActivityType activity, Direction direction, int index, std::string filename, int textureOffsetX, int textureOffsetY){
-	TileSet* tileSet = getTileSet(activity, direction);
-	tileSet->addTile(filename, TileClassificationType::TileClassificationType::FLOOR);
+void Character::baseOnType(std::string characterType) {
+	CharacterType& other = CharacterTypeManager::Get().getCharacterType(characterType);
+	m_numActivities = m_characterType.m_moveTileSets.size() / 8;
+	
+	strength = other.strength;
+	dexterity = other.dexterity;
+	vitality = other.vitality;
+	intellect = other.intellect;
+	wisdom = other.wisdom;
+	max_health = other.max_health;
+	max_mana = other.max_mana;
+	max_fatigue = other.max_fatigue;
+	min_damage = other.min_damage;
+	max_damage = other.max_damage;	
+	armor = other.armor;
+	healthRegen = other.healthRegen;
+	manaRegen = other.manaRegen;
+	fatigueRegen = other.fatigueRegen;
+	damageModifierPoints = other.damageModifierPoints;
+	hitModifierPoints = other.hitModifierPoints;
+	evadeModifierPoints = other.evadeModifierPoints;
+	characterClass = other.characterClass;
+	wander_radius = other.wander_radius;
+	name = other.name;
+	level = other.level;
+	experienceValue = other.experienceValue;
+
+	/*setStrength(other.strength);
+	setDexterity(other.dexterity);
+	setVitality(other.vitality);
+	setIntellect(other.intellect);
+	setWisdom(other.wisdom);
+	setMaxHealth(other.max_health);
+	setMaxMana(other.max_mana);
+	setMaxFatigue(other.max_fatigue);
+	setMinDamage(other.min_damage);
+	setMaxDamage(other.max_damage);
+	setArmor(other.armor);
+	setHealthRegen(other.healthRegen);
+	setManaRegen(other.manaRegen);
+	setFatigueRegen(other.fatigueRegen);
+	setDamageModifierPoints(other.damageModifierPoints);
+	setHitModifierPoints(other.hitModifierPoints);
+	setEvadeModifierPoints(other.evadeModifierPoints);
+	setClass(other.characterClass);
+	setWanderRadius(other.wander_radius);
+	setName(other.name);
+	setLevel(other.level);
+	setExperienceValue(other.experienceValue);*/
 }
 
 ActivityType::ActivityType Character::getCurActivity() const {
@@ -42,15 +80,12 @@ int Character::getYPos() const {
 	return y_pos;
 }
 
-void Character::setName(std::string newName){
-	name = newName;
-}
 
 void Character::update(float deltaTime) {
 	ActivityType::ActivityType curActivity = getCurActivity();
 
 	if (isStunned() == true || isMesmerized() == true) {
-		rect = &m_moveTileSets[{curActivity, activeDirection}].getAllTiles()[0]->textureRect;
+		rect = &m_characterType.m_moveTileSets[{curActivity, activeDirection}].getAllTiles()[0]->textureRect;
 		return;
 	}
 
@@ -63,19 +98,17 @@ void Character::update(float deltaTime) {
 		case ActivityType::Walking: {
 			
 			if (direction == STOP) {
-				rect = &m_moveTileSets[{curActivity, activeDirection}].getAllTiles()[0]->textureRect;
+				rect = &m_characterType.m_moveTileSets[{curActivity, activeDirection}].getAllTiles()[0]->textureRect;
 				index = 0;
 				return;
 			}
 			int msPerDrawFrame = 100;
 
 
-			TileSet& tileSet = m_moveTileSets[{curActivity, activeDirection}];
-
-			dumping += deltaTime * 10;
+			TileSet& tileSet = m_characterType.m_moveTileSets[{curActivity, activeDirection}];
 
 			//index = ((Globals::clock.getElapsedTimeMilli() % (msPerDrawFrame * tileSet.getAllTiles().size())) / msPerDrawFrame);
-
+			dumping += deltaTime * 10;
 			index = dumping;
 			index = index % tileSet.getAllTiles().size();
 
@@ -86,13 +119,13 @@ void Character::update(float deltaTime) {
 		}case ActivityType::Attacking: {
 
 			if (direction == STOP) {
-				rect = &m_moveTileSets[{curActivity, activeDirection}].getAllTiles()[0]->textureRect;
+				rect = &m_characterType.m_moveTileSets[{curActivity, activeDirection}].getAllTiles()[0]->textureRect;
 				index = 0;
 				return;
 			}
 			int msPerDrawFrame = 80;
 
-			TileSet& tileSet = m_moveTileSets[{curActivity, activeDirection}];
+			TileSet& tileSet = m_characterType.m_moveTileSets[{curActivity, activeDirection}];
 
 			index = ((Globals::clock.getElapsedTimeMilli() % (msPerDrawFrame * tileSet.getAllTiles().size())) / msPerDrawFrame);
 			rect = &tileSet.getAllTiles()[index]->textureRect;
@@ -101,13 +134,13 @@ void Character::update(float deltaTime) {
 		}case ActivityType::Casting: {
 
 			if (direction == STOP) {
-				rect = &m_moveTileSets[{curActivity, activeDirection}].getAllTiles()[0]->textureRect;
+				rect = &m_characterType.m_moveTileSets[{curActivity, activeDirection}].getAllTiles()[0]->textureRect;
 				index = 0;
 				return;
 			}
 			int msPerDrawFrame = 80;
 
-			TileSet& tileSet = m_moveTileSets[{curActivity, activeDirection}];
+			TileSet& tileSet = m_characterType.m_moveTileSets[{curActivity, activeDirection}];
 
 			index = ((Globals::clock.getElapsedTimeMilli() % (msPerDrawFrame * tileSet.getAllTiles().size())) / msPerDrawFrame);
 			rect = &tileSet.getAllTiles()[index]->textureRect;
@@ -116,13 +149,13 @@ void Character::update(float deltaTime) {
 		}case ActivityType::Dying: {
 
 			if (direction == STOP) {
-				rect = &m_moveTileSets[{curActivity, activeDirection}].getAllTiles()[0]->textureRect;
+				rect = &m_characterType.m_moveTileSets[{curActivity, activeDirection}].getAllTiles()[0]->textureRect;
 				index = 0;
 				return;
 			}
 			int msPerDrawFrame = 80;
 
-			TileSet& tileSet = m_moveTileSets[{curActivity, activeDirection}];
+			TileSet& tileSet = m_characterType.m_moveTileSets[{curActivity, activeDirection}];
 
 			index = ((Globals::clock.getElapsedTimeMilli() % (msPerDrawFrame * tileSet.getAllTiles().size())) / msPerDrawFrame);
 			rect = &tileSet.getAllTiles()[index]->textureRect;
@@ -414,4 +447,305 @@ void Character::Move(){
 			break;
 		}
 	}
+}
+
+/*void Character::setStrength(uint16_t newStrength){
+	strength = newStrength;
+}
+
+void Character::setName(std::string newName) {
+	name = newName;
+}
+
+void Character::setDexterity(uint16_t newDexterity){
+	dexterity = newDexterity;
+}
+
+void Character::setVitality(uint16_t newVitality){
+	vitality = newVitality;
+}
+
+void Character::setIntellect(uint16_t newIntellect){
+	intellect = newIntellect;
+}
+
+void Character::setWisdom(uint16_t newWisdom){
+	wisdom = newWisdom;
+}
+
+void Character::setMaxHealth(uint16_t newMaxHealth){
+	max_health = newMaxHealth;
+	// if ( current_health > getModifiedMaxHealth() )
+	// {
+	// current_health = getModifiedMaxHealth();
+	// }
+}
+
+void Character::setMaxMana(uint16_t newMaxMana){
+	max_mana = newMaxMana;
+	// if ( current_mana > getModifiedMaxMana() )
+	// {
+	// current_mana = getModifiedMaxMana();
+	// }
+}
+
+void Character::setMaxFatigue(uint16_t newMaxFatigue){
+	max_fatigue = newMaxFatigue;
+	// if ( current_fatigue > getModifiedMaxFatigue() )
+	// {
+	//current_fatigue = getModifiedMaxFatigue();
+	// }
+}
+
+void Character::setHealthRegen(uint16_t newHealthRegen){
+	healthRegen = newHealthRegen;
+}
+
+void Character::setManaRegen(uint16_t newManaRegen){
+	manaRegen = newManaRegen;
+}
+
+void Character::setFatigueRegen(uint16_t newFatigueRegen){
+	fatigueRegen = newFatigueRegen;
+}
+
+void Character::setMaxDamage(uint16_t newMaxDamage){
+	max_damage = newMaxDamage;
+}
+
+void Character::setMinDamage(uint16_t newMinDamage){
+	min_damage = newMinDamage;
+}
+
+void Character::setArmor(uint16_t newArmor){
+	armor = newArmor;
+}
+
+void Character::setDamageModifierPoints(uint16_t newDamageModifierPoints){
+	damageModifierPoints = newDamageModifierPoints;
+}
+
+void Character::setHitModifierPoints(uint16_t newHitModifierPoints){
+	hitModifierPoints = newHitModifierPoints;
+}
+
+void Character::setEvadeModifierPoints(uint16_t newEvadeModifierPoints){
+	evadeModifierPoints = newEvadeModifierPoints;
+}
+
+void Character::setWanderRadius(uint16_t newWanderRadius){
+	wander_radius = newWanderRadius;
+}
+
+void Character::setLevel(uint8_t newLevel){
+	level = newLevel;
+}
+
+void Character::setClass(CharacterClass::CharacterClass characterClass){
+	Character::characterClass = characterClass;
+}
+
+void Character::setExperienceValue(uint8_t experienceValue){
+	Character::experienceValue = experienceValue;
+}*/
+
+uint16_t Character::getStrength() const{
+	return strength;
+}
+
+uint16_t Character::getDexterity() const{
+	return dexterity;
+}
+
+uint16_t Character::getVitality() const{
+	return vitality;
+}
+
+uint16_t Character::getIntellect() const{
+	return intellect;
+}
+
+uint16_t Character::getWisdom() const{
+	return wisdom;
+}
+
+uint16_t Character::getMaxHealth() const{
+	return max_health;
+}
+
+uint16_t Character::getMaxMana() const{
+	return max_mana;
+}
+
+uint16_t Character::getMaxFatigue() const{
+	return max_fatigue;
+}
+
+uint16_t Character::getMaxDamage() const{
+	return max_damage;
+}
+
+uint16_t Character::getMinDamage() const{
+	return min_damage;
+}
+
+uint16_t Character::getArmor() const{
+	return armor;
+}
+
+uint16_t Character::getHealthRegen() const{
+	return healthRegen;
+}
+
+uint16_t Character::getManaRegen() const{
+	return manaRegen;
+}
+
+uint16_t Character::getFatigueRegen() const{
+	return fatigueRegen;
+}
+
+uint16_t Character::getDamageModifierPoints() const{
+	return damageModifierPoints;
+}
+
+uint16_t Character::getHitModifierPoints() const{
+	return hitModifierPoints;
+}
+
+uint16_t Character::getEvadeModifierPoints() const{
+	return evadeModifierPoints;
+}
+
+CharacterClass::CharacterClass Character::getClass() const{
+	return characterClass;
+}
+
+std::string Character::getName() const{
+	return name;
+}
+
+uint8_t Character::getLevel() const{
+	return level;
+}
+
+uint8_t Character::getExperienceValue() const{
+	return experienceValue;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void CharacterType::addMoveTexture(ActivityType::ActivityType activity, Direction direction, int index, std::string filename, int textureOffsetX, int textureOffsetY) {
+	TileSet& tileSet = m_moveTileSets[{activity, direction}];
+	tileSet.addTile(filename, TileClassificationType::TileClassificationType::FLOOR);
+}
+
+void CharacterType::setStrength(uint16_t newStrength) {
+	strength = newStrength;
+}
+
+void CharacterType::setName(std::string newName) {
+	name = newName;
+}
+
+void CharacterType::setDexterity(uint16_t newDexterity) {
+	dexterity = newDexterity;
+}
+
+void CharacterType::setVitality(uint16_t newVitality) {
+	vitality = newVitality;
+}
+
+void CharacterType::setIntellect(uint16_t newIntellect) {
+	intellect = newIntellect;
+}
+
+void CharacterType::setWisdom(uint16_t newWisdom) {
+	wisdom = newWisdom;
+}
+
+void CharacterType::setMaxHealth(uint16_t newMaxHealth) {
+	max_health = newMaxHealth;
+}
+
+void CharacterType::setMaxMana(uint16_t newMaxMana) {
+	max_mana = newMaxMana;
+}
+
+void CharacterType::setMaxFatigue(uint16_t newMaxFatigue) {
+	max_fatigue = newMaxFatigue;
+}
+
+void CharacterType::setHealthRegen(uint16_t newHealthRegen) {
+	healthRegen = newHealthRegen;
+}
+
+void CharacterType::setManaRegen(uint16_t newManaRegen) {
+	manaRegen = newManaRegen;
+}
+
+void CharacterType::setFatigueRegen(uint16_t newFatigueRegen) {
+	fatigueRegen = newFatigueRegen;
+}
+
+void CharacterType::setMaxDamage(uint16_t newMaxDamage) {
+	max_damage = newMaxDamage;
+}
+
+void CharacterType::setMinDamage(uint16_t newMinDamage) {
+	min_damage = newMinDamage;
+}
+
+void CharacterType::setArmor(uint16_t newArmor) {
+	armor = newArmor;
+}
+
+void CharacterType::setDamageModifierPoints(uint16_t newDamageModifierPoints) {
+	damageModifierPoints = newDamageModifierPoints;
+}
+
+void CharacterType::setHitModifierPoints(uint16_t newHitModifierPoints) {
+	hitModifierPoints = newHitModifierPoints;
+}
+
+void CharacterType::setEvadeModifierPoints(uint16_t newEvadeModifierPoints) {
+	evadeModifierPoints = newEvadeModifierPoints;
+}
+
+void CharacterType::setWanderRadius(uint16_t newWanderRadius) {
+	wander_radius = newWanderRadius;
+}
+
+void CharacterType::setLevel(uint8_t newLevel) {
+	level = newLevel;
+}
+
+void CharacterType::setClass(CharacterClass::CharacterClass characterClass) {
+	CharacterType::characterClass = characterClass;
+}
+
+void CharacterType::setExperienceValue(uint8_t experienceValue) {
+	CharacterType::experienceValue = experienceValue;
+}
+
+TileSet& CharacterType::getTileSet(ActivityType::ActivityType activity, Direction direction) {
+	return m_moveTileSets[{activity, direction}];
+}
+
+////////////////////////////////////////////////////////////////////////////////
+CharacterTypeManager CharacterTypeManager::s_instance;
+
+CharacterTypeManager& CharacterTypeManager::Get() {
+	return s_instance;
+}
+
+CharacterType& CharacterTypeManager::getCharacterType(std::string characterType) {
+	return m_characterTypes[characterType];
+}
+
+std::unordered_map<std::string, CharacterType>& CharacterTypeManager::getCharacterTypes() {
+	return m_characterTypes;
+}
+
+bool CharacterTypeManager::containsCaracterType(std::string characterType) {
+	return m_characterTypes.count(characterType) == 1;
 }
