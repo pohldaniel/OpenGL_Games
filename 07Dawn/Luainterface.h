@@ -28,6 +28,6 @@ namespace EditorInterface{
 namespace DawnInterface{
 	void enterZone(std::string zoneName, int enterX, int enterY);
 	void setCurrentZone(std::string zoneName);
-	CharacterType& createNewMobType(std::string typeID);
+	const CharacterType& createNewMobType(std::string typeID);
 	void addMobSpawnPoint(std::string mobID, int x_pos, int y_pos, int respawn_rate, int do_respawn, Attitude::Attitude attitude);
 }

@@ -2,7 +2,7 @@
 #include "TilesetManager.h"
 #include "Constants.h"
 
-Character::Character(CharacterType& characterType) : m_characterType(characterType) {
+Character::Character(const CharacterType& characterType) : m_characterType(characterType) {
 	wander_radius = 40;
 	activeDirection = S;
 }
@@ -16,7 +16,7 @@ unsigned short Character::getNumActivities() {
 }
 
 void Character::baseOnType(std::string characterType) {
-	CharacterType& other = CharacterTypeManager::Get().getCharacterType(characterType);
+	const CharacterType& other = CharacterTypeManager::Get().getCharacterType(characterType);
 	m_numActivities = m_characterType.m_moveTileSets.size() / 8;
 	
 	strength = other.strength;
@@ -85,7 +85,7 @@ void Character::update(float deltaTime) {
 	ActivityType::ActivityType curActivity = getCurActivity();
 
 	if (isStunned() == true || isMesmerized() == true) {
-		rect = &m_characterType.m_moveTileSets[{curActivity, activeDirection}].getAllTiles()[0]->textureRect;
+		rect = &m_characterType.m_moveTileSets.at({curActivity, activeDirection}).getAllTiles()[0]->textureRect;
 		return;
 	}
 
@@ -98,14 +98,14 @@ void Character::update(float deltaTime) {
 		case ActivityType::Walking: {
 			
 			if (direction == STOP) {
-				rect = &m_characterType.m_moveTileSets[{curActivity, activeDirection}].getAllTiles()[0]->textureRect;
+				rect = &m_characterType.m_moveTileSets.at({ curActivity, activeDirection }).getAllTiles()[0]->textureRect;
 				index = 0;
 				return;
 			}
 			int msPerDrawFrame = 100;
 
 
-			TileSet& tileSet = m_characterType.m_moveTileSets[{curActivity, activeDirection}];
+			const TileSet& tileSet = m_characterType.m_moveTileSets.at({ curActivity, activeDirection });
 
 			//index = ((Globals::clock.getElapsedTimeMilli() % (msPerDrawFrame * tileSet.getAllTiles().size())) / msPerDrawFrame);
 			dumping += deltaTime * 10;
@@ -119,13 +119,13 @@ void Character::update(float deltaTime) {
 		}case ActivityType::Attacking: {
 
 			if (direction == STOP) {
-				rect = &m_characterType.m_moveTileSets[{curActivity, activeDirection}].getAllTiles()[0]->textureRect;
+				rect = &m_characterType.m_moveTileSets.at({ curActivity, activeDirection }).getAllTiles()[0]->textureRect;
 				index = 0;
 				return;
 			}
 			int msPerDrawFrame = 80;
 
-			TileSet& tileSet = m_characterType.m_moveTileSets[{curActivity, activeDirection}];
+			const TileSet& tileSet = m_characterType.m_moveTileSets.at({ curActivity, activeDirection });
 
 			index = ((Globals::clock.getElapsedTimeMilli() % (msPerDrawFrame * tileSet.getAllTiles().size())) / msPerDrawFrame);
 			rect = &tileSet.getAllTiles()[index]->textureRect;
@@ -134,13 +134,13 @@ void Character::update(float deltaTime) {
 		}case ActivityType::Casting: {
 
 			if (direction == STOP) {
-				rect = &m_characterType.m_moveTileSets[{curActivity, activeDirection}].getAllTiles()[0]->textureRect;
+				rect = &m_characterType.m_moveTileSets.at({ curActivity, activeDirection }).getAllTiles()[0]->textureRect;
 				index = 0;
 				return;
 			}
 			int msPerDrawFrame = 80;
 
-			TileSet& tileSet = m_characterType.m_moveTileSets[{curActivity, activeDirection}];
+			const TileSet& tileSet = m_characterType.m_moveTileSets.at({ curActivity, activeDirection });
 
 			index = ((Globals::clock.getElapsedTimeMilli() % (msPerDrawFrame * tileSet.getAllTiles().size())) / msPerDrawFrame);
 			rect = &tileSet.getAllTiles()[index]->textureRect;
@@ -149,13 +149,13 @@ void Character::update(float deltaTime) {
 		}case ActivityType::Dying: {
 
 			if (direction == STOP) {
-				rect = &m_characterType.m_moveTileSets[{curActivity, activeDirection}].getAllTiles()[0]->textureRect;
+				rect = &m_characterType.m_moveTileSets.at({ curActivity, activeDirection }).getAllTiles()[0]->textureRect;
 				index = 0;
 				return;
 			}
 			int msPerDrawFrame = 80;
 
-			TileSet& tileSet = m_characterType.m_moveTileSets[{curActivity, activeDirection}];
+			const TileSet& tileSet = m_characterType.m_moveTileSets.at({ curActivity, activeDirection });
 
 			index = ((Globals::clock.getElapsedTimeMilli() % (msPerDrawFrame * tileSet.getAllTiles().size())) / msPerDrawFrame);
 			rect = &tileSet.getAllTiles()[index]->textureRect;
@@ -738,7 +738,7 @@ CharacterTypeManager& CharacterTypeManager::Get() {
 	return s_instance;
 }
 
-CharacterType& CharacterTypeManager::getCharacterType(std::string characterType) {
+const CharacterType& CharacterTypeManager::getCharacterType(std::string characterType) {
 	return m_characterTypes[characterType];
 }
 

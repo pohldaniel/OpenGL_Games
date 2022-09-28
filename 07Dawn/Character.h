@@ -123,7 +123,7 @@ private:
 class CharacterTypeManager {
 
 public:
-	CharacterType& getCharacterType(std::string characterType);
+	const CharacterType& getCharacterType(std::string characterType);
 	bool containsCaracterType(std::string characterType);
 
 	std::unordered_map<std::string, CharacterType>& getCharacterTypes();
@@ -141,7 +141,7 @@ class Character{
 
 public:
 
-	Character(CharacterType& characterType);
+	Character(const CharacterType& characterType);
 	~Character() = default;
 
 	virtual void draw() {}
@@ -287,5 +287,5 @@ public:
 	uint16_t evadeModifierPoints;
 	CharacterClass::CharacterClass characterClass;
 
-	CharacterType& m_characterType;
+	const CharacterType& m_characterType;
 };

@@ -73,7 +73,7 @@ namespace DawnInterface{
 		Globals::setCurrentZone(newCurZone);
 	}
 
-	CharacterType& createNewMobType(std::string characterType) {
+	const CharacterType& createNewMobType(std::string characterType) {
 		return CharacterTypeManager::Get().getCharacterType(characterType);
 	}
 

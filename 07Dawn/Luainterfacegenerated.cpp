@@ -1,6 +1,6 @@
 /*
 ** Lua binding: Luainterface
-** Generated automatically by tolua++-1.0.92 on Wed Sep 28 14:32:40 2022.
+** Generated automatically by tolua++-1.0.92 on Wed Sep 28 16:43:39 2022.
 */
 
 #ifndef __cplusplus

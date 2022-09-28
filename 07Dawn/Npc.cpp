@@ -2,7 +2,7 @@
 #include "TilesetManager.h"
 #include "Constants.h"
 
-Npc::Npc(CharacterType& characterType, int _x_spawn_pos, int _y_spawn_pos, int _NPC_id, int _seconds_to_respawn, int _do_respawn) : Character(characterType) {
+Npc::Npc(const CharacterType& characterType, int _x_spawn_pos, int _y_spawn_pos, int _NPC_id, int _seconds_to_respawn, int _do_respawn) : Character(characterType) {
 	alive = true;
 	current_texture = 1; // this will be altered later on to draw what animation frame we want to draw.
 	respawn_thisframe = 0.0f;

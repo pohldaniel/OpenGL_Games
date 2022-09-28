@@ -206,7 +206,7 @@ void Editor::initTextures() {
 
 void Editor::loadNPCs(){
 	
-	std::unordered_map< std::string, CharacterType>::iterator curNPC;
+	std::unordered_map< std::string, CharacterType>::const_iterator curNPC;
 
 	editorNPCs.clear();
 	for (curNPC = CharacterTypeManager::Get().getCharacterTypes().begin(); curNPC != CharacterTypeManager::Get().getCharacterTypes().end(); curNPC++) {
