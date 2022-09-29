@@ -147,6 +147,10 @@ void Zone::addInteractionRegion(InteractionRegion *interactionRegionToAdd){
 	interactionRegions.push_back(interactionRegionToAdd);
 }
 
+std::vector<InteractionRegion*> Zone::getInteractionRegions() {
+	return interactionRegions;
+}
+
 void Zone::update(float deltaTime) {
 	for (unsigned int x = 0; x < npcs.size(); x++) {
 		npcs[x]->Wander();

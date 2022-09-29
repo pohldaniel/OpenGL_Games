@@ -92,6 +92,7 @@ public:
 	void addNPC(Npc* npcToAdd);
 	std::vector<Npc*> getNPCs();
 	void addInteractionRegion(InteractionRegion *interactionRegionToAdd);
+	std::vector<InteractionRegion*> getInteractionRegions();
 
 	std::vector<TileMap> tileMap;
 	std::vector<EnvironmentMap> environmentMap;

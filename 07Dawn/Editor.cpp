@@ -125,6 +125,25 @@ void Editor::render(unsigned int &frameBuffer) {
 			TextureManager::DrawTextureBatched(m_interfacetexture[4], newZone->collisionMap[x].x, newZone->collisionMap[x].y, newZone->collisionMap[x].w, newZone->collisionMap[x].h, true, Vector4f(0.7f, 0.1f, 0.6f, 0.8f));
 		}
 
+		// Interaction Regions
+		std::vector<InteractionRegion*> zoneInteractionRegions = newZone->getInteractionRegions();
+		for (size_t curInteractionRegionNr = 0; curInteractionRegionNr < zoneInteractionRegions.size(); ++curInteractionRegionNr){
+			InteractionRegion *curInteractionRegion = zoneInteractionRegions[curInteractionRegionNr];
+			int left, bottom, width, height;
+			curInteractionRegion->getPosition(left, bottom, width, height);
+			if (!TextureManager::IsRectOnScreen(left - 4, width + 8, bottom - 4, height + 8)){
+				continue;
+			}
+
+			// draw border around the region
+			TextureManager::DrawTextureBatched(m_interfacetexture[4], left, bottom, width, height, true, Vector4f(0.0f, 0.8f, 0.0f, 0.6f));
+			
+			// draw region
+			if (width > 8 && height > 8){
+				TextureManager::DrawTextureBatched(m_interfacetexture[4], left + 4, bottom + 4, width - 8, height - 8, true, Vector4f(0.0f, 0.3f, 0.0f, 0.6f));
+			}
+		}
+
 		//  Wander radius
 		std::vector<Npc*> npcs = newZone->getNPCs();
 		for (size_t curNPCNr = 0; curNPCNr < npcs.size(); ++curNPCNr) {
