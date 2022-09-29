@@ -302,6 +302,7 @@ void Camera::pitchReflection(const float distance) {
 
 void Camera::move(float dx, float dy, float dz) {
 	Vector3f eye = m_eye;
+
 	eye += m_xAxis * dx;
 	eye += WORLD_YAXIS * dy;
 	eye += m_viewDir * dz;

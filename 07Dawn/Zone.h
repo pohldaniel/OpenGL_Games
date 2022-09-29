@@ -9,6 +9,7 @@
 #include "TilesetManager.h"
 #include "TextureManager.h"
 #include "Npc.h"
+#include "InteractionRegion.h"
 
 struct TileMap {
 	int x_pos, y_pos;
@@ -90,13 +91,15 @@ public:
 	std::string getName() const;
 	void addNPC(Npc* npcToAdd);
 	std::vector<Npc*> getNPCs();
-
+	void addInteractionRegion(InteractionRegion *interactionRegionToAdd);
 
 	std::vector<TileMap> tileMap;
 	std::vector<EnvironmentMap> environmentMap;
 	std::vector<EnvironmentMap> shadowMap;
 	std::vector<CollisionRect> collisionMap;
 	std::vector <Npc*> npcs;
+	std::vector<InteractionRegion*> interactionRegions;
+
 private:
 
 	std::string m_name;

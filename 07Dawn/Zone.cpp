@@ -51,6 +51,7 @@ void Zone::loadZone(std::string file){
 
 	LuaFunctions::executeLuaFile("res/_lua/mobdata.lua");
 	LuaFunctions::executeLuaFile("res/_lua/zone1.spawnpoints.lua");
+	LuaFunctions::executeLuaFile("res/_lua/gameinit.lua");
 }
 
 std::string Zone::getName() const {
@@ -140,6 +141,10 @@ void Zone::addNPC(Npc *npcToAdd) {
 
 std::vector<Npc*> Zone::getNPCs() {
 	return npcs;
+}
+
+void Zone::addInteractionRegion(InteractionRegion *interactionRegionToAdd){
+	interactionRegions.push_back(interactionRegionToAdd);
 }
 
 void Zone::update(float deltaTime) {

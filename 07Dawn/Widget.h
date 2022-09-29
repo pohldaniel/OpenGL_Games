@@ -1,4 +1,6 @@
 #pragma once
+#include <vector>
+
 #include "engine/Transform.h"
 #include "Constants.h"
 
@@ -16,7 +18,7 @@ public:
 	virtual int getPosY() const;
 	virtual int getWidth() const;
 	virtual int getHeight() const;
-
+	virtual void toggle();
 
 	void addToParent(int posX, int posY, Widget* parent);
 	std::vector<Widget*> getChildWidgets();

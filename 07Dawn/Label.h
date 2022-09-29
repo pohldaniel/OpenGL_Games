@@ -9,7 +9,7 @@
 
 #include "Constants.h"
 
-class Label: public Widget {
+class Label : public Widget {
 
 public:
 	Label() = default;

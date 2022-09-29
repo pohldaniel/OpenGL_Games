@@ -124,7 +124,6 @@ void Batchrenderer::drawBuffer(bool updateView) {
 	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
 	glBufferSubData(GL_ARRAY_BUFFER, 0, size, buffer);
 
-
 	glUseProgram(m_shader->m_program);
 	m_shader->loadMatrix("u_transform", updateView ? m_camera->getOrthographicMatrix() * m_camera->getViewMatrix() : m_camera->getOrthographicMatrix());
 

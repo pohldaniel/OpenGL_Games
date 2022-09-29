@@ -701,3 +701,10 @@ void glBindBufferRange(GLenum target, GLuint index, GLuint buffer, GLintptr offs
 	LOAD_ENTRYPOINT("glBindBufferRange", glBindBufferRange, PFNGLBINDBUFFERRANGEPROC);
 	glBindBufferRange(target, index, buffer, offset, size);
 }
+
+void glBlendEquation(GLenum mode) {
+	typedef void(APIENTRY * PFNGLBLENDEQUATIONPROC)(GLenum mode);
+	static PFNGLBLENDEQUATIONPROC glBlendEquation = 0;
+	LOAD_ENTRYPOINT("glBlendEquation", glBlendEquation, PFNGLBLENDEQUATIONPROC);
+	glBlendEquation(mode);
+}

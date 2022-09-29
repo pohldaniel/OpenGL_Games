@@ -35,4 +35,5 @@ private:
 	unsigned int m_height;
 
 	Vector2f m_cursorPosEye;
+	bool m_init = false;
 };

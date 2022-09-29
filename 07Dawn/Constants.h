@@ -13,6 +13,7 @@
 
 #include "Zone.h"
 
+
 #define WIDTH 1600
 #define HEIGHT 900
 
@@ -49,4 +50,5 @@ namespace Globals {
 	extern unsigned int textureAtlas;
 
 	extern Clock clock;
+	extern std::vector<TextWindow*> allTextWindows;
 }

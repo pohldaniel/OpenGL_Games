@@ -108,7 +108,7 @@ void Editor::update() {
 
 void Editor::render(unsigned int &frameBuffer) {
 	glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
-
+	
 
 	glClearColor(0.0f, 0.0f, 1.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
@@ -117,19 +117,36 @@ void Editor::render(unsigned int &frameBuffer) {
 	newZone->drawZoneBatched();
 		
 	Batchrenderer::get().bindTexture(m_textureAtlas, true);
+		
+	if (m_selectedTileSet == TileClassificationType::COLLISION) {
+
+		// Collison boxes
+		for (unsigned int x = 0; x < newZone->collisionMap.size(); x++) {
+			TextureManager::DrawTextureBatched(m_interfacetexture[4], newZone->collisionMap[x].x, newZone->collisionMap[x].y, newZone->collisionMap[x].w, newZone->collisionMap[x].h, true, Vector4f(0.7f, 0.1f, 0.6f, 0.8f));
+		}
+
+		//  Wander radius
+		std::vector<Npc*> npcs = newZone->getNPCs();
+		for (size_t curNPCNr = 0; curNPCNr < npcs.size(); ++curNPCNr) {
+
+			Npc* curNPC = npcs[curNPCNr];
+			int wanderRadius = curNPC->getWanderRadius();
+			double rootX = curNPC->x_spawn_pos + curNPC->getWidth() / 2;
+			double rootY = curNPC->y_spawn_pos + curNPC->getHeight() / 2;
+			double collisionRadius = wanderRadius + 0.5*sqrt(curNPC->getWidth()*curNPC->getWidth() + curNPC->getHeight()*curNPC->getHeight());
+
+			TextureManager::DrawTextureBatched(m_interfacetexture[5], rootX - collisionRadius, rootY - collisionRadius, 2 * collisionRadius, 2 * collisionRadius, true, Vector4f(0.0f, 0.0f, 0.5f, 0.4f));
+		}
+
+		Batchrenderer::get().drawBuffer(true);
+	}
+	
 	TextureManager::DrawTextureBatched(m_interfacetexture[0], m_originalFocus[0], m_originalFocus[1] + ViewPort::get().getHeight() - 100, ViewPort::get().getWidth(), 100.0f, false);
 	TextureManager::DrawTextureBatched(m_interfacetexture[0], m_originalFocus[0], m_originalFocus[1], ViewPort::get().getWidth(), 100.0f, false);
 	TextureManager::DrawTextureBatched(m_interfacetexture[1], m_originalFocus[0] + ViewPort::get().getWidth() * 0.5f - 5.0f, m_originalFocus[1] + ViewPort::get().getHeight() - 65, 50.0f, 50.0f, false);
 	Batchrenderer::get().drawBuffer(false);
 	
-	if (m_selectedTileSet == TileClassificationType::COLLISION) {
-		
-		for (unsigned int x = 0; x < newZone->collisionMap.size(); x++) {
-			TextureManager::DrawTextureBatched(m_interfacetexture[4], newZone->collisionMap[x].x, newZone->collisionMap[x].y, newZone->collisionMap[x].w, newZone->collisionMap[x].h, true, Vector4f(0.7f, 0.1f, 0.6f, 0.8f));
-			
-		}
-		Batchrenderer::get().drawBuffer(true);
-	}else if (m_selectedTileSet == TileClassificationType::NPC) {
+	if (m_selectedTileSet == TileClassificationType::NPC) {
 		Batchrenderer::get().setShader(Globals::shaderManager.getAssetPointer("batch"));
 		Batchrenderer::get().bindTexture(TextureManager::GetTextureAtlas("Wolf"), true);
 
@@ -200,8 +217,22 @@ void Editor::initTextures() {
 	TextureManager::Loadimage("res/edit_backdrop.png", 3, m_interfacetexture);
 	TextureManager::Loadimage("res/tile_solid.tga", 4, m_interfacetexture);
 	TextureManager::Loadimage("res/circle.tga", 5, m_interfacetexture);
-
 	m_textureAtlas = TextureAtlasCreator::get().getAtlas();
+
+	//smoothing out the circle
+	m_interfacetexture[4].textureWidth = m_interfacetexture[4].textureWidth - (1.0f / 1024.0f);
+	m_interfacetexture[4].textureHeight = m_interfacetexture[4].textureHeight - (1.0f / 1024.0f);
+
+	m_interfacetexture[5].textureOffsetX = m_interfacetexture[5].textureOffsetX + (0.3f / 1024.0f);
+	m_interfacetexture[5].textureOffsetY = m_interfacetexture[5].textureOffsetY + (0.3f / 1024.0f);
+
+	
+
+	glBindTexture(GL_TEXTURE_2D_ARRAY, m_textureAtlas);
+	glTexParameterf(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
+	glTexParameterf(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
+	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
 }
 
 void Editor::loadNPCs(){

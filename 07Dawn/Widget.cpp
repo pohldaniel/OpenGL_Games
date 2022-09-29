@@ -81,3 +81,7 @@ int Widget::getHeight() const {
 std::vector<Widget*> Widget::getChildWidgets() {
 	return m_childWidgets;
 }
+
+void Widget::toggle() {
+
+}

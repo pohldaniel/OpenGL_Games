@@ -1,0 +1,1 @@
+dofile( "res/_lua/quests_wood.lua" );

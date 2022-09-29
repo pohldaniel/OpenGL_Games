@@ -10,7 +10,10 @@ ViewPort& ViewPort::get() {
 }
 
 void ViewPort::init(unsigned int width, unsigned int height) {
-	m_camera.lookAt(Vector3f(0.0f, 0.0f, 0.0f), Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
+	if (!m_init) {
+		m_camera.lookAt(Vector3f(0.0f, 0.0f, 0.0f), Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
+		m_init = true;
+	}
 	m_camera.orthographic(0.0f, static_cast<float>(width), 0.0f, static_cast<float>(height), -1.0f, 1.0f);
 	m_camera.invOrthographic(0.0f, static_cast<float>(width), 0.0f, static_cast<float>(height), -1.0f, 1.0f);
 
@@ -26,7 +29,7 @@ void ViewPort::init(unsigned int width, unsigned int height) {
 void ViewPort::update(float dt) {
 	Keyboard &keyboard = Keyboard::instance();
 	Vector3f directrion = Vector3f();
-
+	
 	float dx = 0.0f;
 	float dy = 0.0f;
 	float moveSpeed = 500.0f;

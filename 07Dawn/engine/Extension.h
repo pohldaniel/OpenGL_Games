@@ -195,6 +195,11 @@ typedef char GLchar;
 #define GL_PIXEL_PACK_BUFFER 0x88EB
 #define GL_STREAM_READ 0x88E1
 #define GL_STREAM_DRAW 0x88E0
+#define GL_FUNC_ADD 0x8006
+#define GL_MIN 0x8007
+#define GL_MAX 0x8008
+#define GL_FUNC_SUBTRACT 0x800A
+#define GL_FUNC_REVERSE_SUBTRACT 0x800B
 
 	extern void glActiveTextureARB(GLenum texture);
 	extern void glMultiTexCoord2fARB(GLenum target, GLfloat s, GLfloat t);
@@ -230,6 +235,8 @@ typedef char GLchar;
 	extern GLuint glGetUniformBlockIndex(GLuint program, const GLchar *uniformBlockName);
 	extern void glUniformBlockBinding(GLuint program, GLuint uniformBlockIndex, GLuint uniformBlockBinding);
 	extern void glBindBufferRange(GLenum target, GLuint index, GLuint buffer, GLintptr offset, GLsizeiptr size);
+
+	extern void glBlendEquation(GLenum mode);
 
 } // extern "C"
 #endif

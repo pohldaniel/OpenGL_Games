@@ -1,6 +1,6 @@
 /*
 ** Lua binding: Luainterface
-** Generated automatically by tolua++-1.0.92 on Wed Sep 28 16:43:39 2022.
+** Generated automatically by tolua++-1.0.92 on Fri Sep 30 00:14:42 2022.
 */
 
 #ifndef __cplusplus
@@ -18,17 +18,21 @@ TOLUA_API int  tolua_Luainterface_open(lua_State* tolua_S);
 #include "Character.h"
 #include "TextureManager.h"
 #include "Npc.h"
+#include "InteractionRegion.h"
+#include "TextWindow.h"
 
 /* function to register type */
 static void tolua_reg_types(lua_State* tolua_S)
 {
-	tolua_usertype(tolua_S, "Character");
 	tolua_usertype(tolua_S, "TextureManager");
 	tolua_usertype(tolua_S, "TileSet");
-	tolua_usertype(tolua_S, "AdjacencyEquivalenceClass");
-	tolua_usertype(tolua_S, "CharacterType");
 	tolua_usertype(tolua_S, "Npc");
 	tolua_usertype(tolua_S, "TextureAtlasCreator");
+	tolua_usertype(tolua_S, "Character");
+	tolua_usertype(tolua_S, "AdjacencyEquivalenceClass");
+	tolua_usertype(tolua_S, "CharacterType");
+	tolua_usertype(tolua_S, "TextWindow");
+	tolua_usertype(tolua_S, "InteractionRegion");
 }
 
 /* function: DawnInterface::enterZone */
@@ -153,6 +157,88 @@ static int tolua_Luainterface_DawnInterface_addMobSpawnPoint00(lua_State* tolua_
 #ifndef TOLUA_RELEASE
 	tolua_lerror :
 				 tolua_error(tolua_S, "#ferror in function 'addMobSpawnPoint'.", &tolua_err);
+				 return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
+/* function: DawnInterface::addInteractionRegion */
+#ifndef TOLUA_DISABLE_tolua_Luainterface_DawnInterface_addInteractionRegion00
+static int tolua_Luainterface_DawnInterface_addInteractionRegion00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+	tolua_Error tolua_err;
+	if (
+		!tolua_isnoobj(tolua_S, 1, &tolua_err)
+		)
+		goto tolua_lerror;
+	else
+#endif
+	{
+		{
+			InteractionRegion* tolua_ret = (InteractionRegion*)DawnInterface::addInteractionRegion();
+			tolua_pushusertype(tolua_S, (void*)tolua_ret, "InteractionRegion");
+		}
+	}
+	return 1;
+#ifndef TOLUA_RELEASE
+	tolua_lerror :
+				 tolua_error(tolua_S, "#ferror in function 'addInteractionRegion'.", &tolua_err);
+				 return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
+/* function: DawnInterface::removeInteractionRegion */
+#ifndef TOLUA_DISABLE_tolua_Luainterface_DawnInterface_removeInteractionRegion00
+static int tolua_Luainterface_DawnInterface_removeInteractionRegion00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+	tolua_Error tolua_err;
+	if (
+		!tolua_isusertype(tolua_S, 1, "InteractionRegion", 0, &tolua_err) ||
+		!tolua_isnoobj(tolua_S, 2, &tolua_err)
+		)
+		goto tolua_lerror;
+	else
+#endif
+	{
+		InteractionRegion* regionToRemove = ((InteractionRegion*)tolua_tousertype(tolua_S, 1, 0));
+		{
+			DawnInterface::removeInteractionRegion(regionToRemove);
+		}
+	}
+	return 0;
+#ifndef TOLUA_RELEASE
+	tolua_lerror :
+				 tolua_error(tolua_S, "#ferror in function 'removeInteractionRegion'.", &tolua_err);
+				 return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
+/* function: DawnInterface::createTextWindow */
+#ifndef TOLUA_DISABLE_tolua_Luainterface_DawnInterface_createTextWindow00
+static int tolua_Luainterface_DawnInterface_createTextWindow00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+	tolua_Error tolua_err;
+	if (
+		!tolua_isnoobj(tolua_S, 1, &tolua_err)
+		)
+		goto tolua_lerror;
+	else
+#endif
+	{
+		{
+			TextWindow* tolua_ret = (TextWindow*)DawnInterface::createTextWindow();
+			tolua_pushusertype(tolua_S, (void*)tolua_ret, "TextWindow");
+		}
+	}
+	return 1;
+#ifndef TOLUA_RELEASE
+	tolua_lerror :
+				 tolua_error(tolua_S, "#ferror in function 'createTextWindow'.", &tolua_err);
 				 return 0;
 #endif
 }
@@ -1385,6 +1471,111 @@ static int tolua_Luainterface_Npc_setAttitude00(lua_State* tolua_S)
 }
 #endif //#ifndef TOLUA_DISABLE
 
+/* method: setPosition of class  InteractionRegion */
+#ifndef TOLUA_DISABLE_tolua_Luainterface_InteractionRegion_setPosition00
+static int tolua_Luainterface_InteractionRegion_setPosition00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+	tolua_Error tolua_err;
+	if (
+		!tolua_isusertype(tolua_S, 1, "InteractionRegion", 0, &tolua_err) ||
+		!tolua_isnumber(tolua_S, 2, 0, &tolua_err) ||
+		!tolua_isnumber(tolua_S, 3, 0, &tolua_err) ||
+		!tolua_isnumber(tolua_S, 4, 0, &tolua_err) ||
+		!tolua_isnumber(tolua_S, 5, 0, &tolua_err) ||
+		!tolua_isnoobj(tolua_S, 6, &tolua_err)
+		)
+		goto tolua_lerror;
+	else
+#endif
+	{
+		InteractionRegion* self = (InteractionRegion*)tolua_tousertype(tolua_S, 1, 0);
+		int left = ((int)tolua_tonumber(tolua_S, 2, 0));
+		int bottom = ((int)tolua_tonumber(tolua_S, 3, 0));
+		int width = ((int)tolua_tonumber(tolua_S, 4, 0));
+		int height = ((int)tolua_tonumber(tolua_S, 5, 0));
+#ifndef TOLUA_RELEASE
+		if (!self) tolua_error(tolua_S, "invalid 'self' in function 'setPosition'", NULL);
+#endif
+		{
+			self->setPosition(left, bottom, width, height);
+		}
+	}
+	return 0;
+#ifndef TOLUA_RELEASE
+	tolua_lerror :
+				 tolua_error(tolua_S, "#ferror in function 'setPosition'.", &tolua_err);
+				 return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
+/* method: setOnEnterText of class  InteractionRegion */
+#ifndef TOLUA_DISABLE_tolua_Luainterface_InteractionRegion_setOnEnterText00
+static int tolua_Luainterface_InteractionRegion_setOnEnterText00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+	tolua_Error tolua_err;
+	if (
+		!tolua_isusertype(tolua_S, 1, "InteractionRegion", 0, &tolua_err) ||
+		!tolua_iscppstring(tolua_S, 2, 0, &tolua_err) ||
+		!tolua_isnoobj(tolua_S, 3, &tolua_err)
+		)
+		goto tolua_lerror;
+	else
+#endif
+	{
+		InteractionRegion* self = (InteractionRegion*)tolua_tousertype(tolua_S, 1, 0);
+		std::string enterCode = ((std::string)  tolua_tocppstring(tolua_S, 2, 0));
+#ifndef TOLUA_RELEASE
+		if (!self) tolua_error(tolua_S, "invalid 'self' in function 'setOnEnterText'", NULL);
+#endif
+		{
+			self->setOnEnterText(enterCode);
+		}
+	}
+	return 0;
+#ifndef TOLUA_RELEASE
+	tolua_lerror :
+				 tolua_error(tolua_S, "#ferror in function 'setOnEnterText'.", &tolua_err);
+				 return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
+/* method: setOnLeaveText of class  InteractionRegion */
+#ifndef TOLUA_DISABLE_tolua_Luainterface_InteractionRegion_setOnLeaveText00
+static int tolua_Luainterface_InteractionRegion_setOnLeaveText00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+	tolua_Error tolua_err;
+	if (
+		!tolua_isusertype(tolua_S, 1, "InteractionRegion", 0, &tolua_err) ||
+		!tolua_iscppstring(tolua_S, 2, 0, &tolua_err) ||
+		!tolua_isnoobj(tolua_S, 3, &tolua_err)
+		)
+		goto tolua_lerror;
+	else
+#endif
+	{
+		InteractionRegion* self = (InteractionRegion*)tolua_tousertype(tolua_S, 1, 0);
+		std::string leaveCode = ((std::string)  tolua_tocppstring(tolua_S, 2, 0));
+#ifndef TOLUA_RELEASE
+		if (!self) tolua_error(tolua_S, "invalid 'self' in function 'setOnLeaveText'", NULL);
+#endif
+		{
+			self->setOnLeaveText(leaveCode);
+		}
+	}
+	return 0;
+#ifndef TOLUA_RELEASE
+	tolua_lerror :
+				 tolua_error(tolua_S, "#ferror in function 'setOnLeaveText'.", &tolua_err);
+				 return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
 /* method: get of class  TextureAtlasCreator */
 #ifndef TOLUA_DISABLE_tolua_Luainterface_TextureAtlasCreator_get00
 static int tolua_Luainterface_TextureAtlasCreator_get00(lua_State* tolua_S)
@@ -1618,6 +1809,9 @@ TOLUA_API int tolua_Luainterface_open(lua_State* tolua_S)
 	tolua_function(tolua_S, "setCurrentZone", tolua_Luainterface_DawnInterface_setCurrentZone00);
 	tolua_function(tolua_S, "createNewMobType", tolua_Luainterface_DawnInterface_createNewMobType00);
 	tolua_function(tolua_S, "addMobSpawnPoint", tolua_Luainterface_DawnInterface_addMobSpawnPoint00);
+	tolua_function(tolua_S, "addInteractionRegion", tolua_Luainterface_DawnInterface_addInteractionRegion00);
+	tolua_function(tolua_S, "removeInteractionRegion", tolua_Luainterface_DawnInterface_removeInteractionRegion00);
+	tolua_function(tolua_S, "createTextWindow", tolua_Luainterface_DawnInterface_createTextWindow00);
 	tolua_endmodule(tolua_S);
 	tolua_module(tolua_S, "EditorInterface", 0);
 	tolua_beginmodule(tolua_S, "EditorInterface");
@@ -1682,6 +1876,12 @@ TOLUA_API int tolua_Luainterface_open(lua_State* tolua_S)
 	tolua_cclass(tolua_S, "Npc", "Npc", "Character", NULL);
 	tolua_beginmodule(tolua_S, "Npc");
 	tolua_function(tolua_S, "setAttitude", tolua_Luainterface_Npc_setAttitude00);
+	tolua_endmodule(tolua_S);
+	tolua_cclass(tolua_S, "InteractionRegion", "InteractionRegion", "", NULL);
+	tolua_beginmodule(tolua_S, "InteractionRegion");
+	tolua_function(tolua_S, "setPosition", tolua_Luainterface_InteractionRegion_setPosition00);
+	tolua_function(tolua_S, "setOnEnterText", tolua_Luainterface_InteractionRegion_setOnEnterText00);
+	tolua_function(tolua_S, "setOnLeaveText", tolua_Luainterface_InteractionRegion_setOnLeaveText00);
 	tolua_endmodule(tolua_S);
 	tolua_cclass(tolua_S, "TextureAtlasCreator", "TextureAtlasCreator", "", NULL);
 	tolua_beginmodule(tolua_S, "TextureAtlasCreator");

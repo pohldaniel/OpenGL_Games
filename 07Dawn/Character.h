@@ -228,11 +228,17 @@ public:
 	uint8_t getLevel() const;
 	uint8_t getExperienceValue() const;
 
+	int getWidth() const;
+	int getHeight() const;
+
 	bool alive;
 	//bool hasDrawnDyingOnce;
 	int current_texture, direction_texture;
 	bool hasChoosenFearDirection;
 	bool isPreparing;
+	bool useBoundingBox = false;
+	int boundingBoxW = 0;
+	int boundingBoxH = 0;
 
 	// timers
 	float wander_thisframe, wander_lastframe;

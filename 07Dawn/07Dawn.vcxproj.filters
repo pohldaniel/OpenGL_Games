@@ -162,6 +162,12 @@
     <ClCompile Include="engine\animation\Animation2d.cpp">
       <Filter>engine\animation</Filter>
     </ClCompile>
+    <ClCompile Include="InteractionRegion.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TextWindow.cpp">
+      <Filter>Source Files\UI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine\input\Event.h">
@@ -289,6 +295,12 @@
     </ClInclude>
     <ClInclude Include="engine\animation\Animation2d.h">
       <Filter>engine\animation</Filter>
+    </ClInclude>
+    <ClInclude Include="InteractionRegion.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TextWindow.h">
+      <Filter>Source Files\UI</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

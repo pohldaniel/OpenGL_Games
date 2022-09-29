@@ -5,6 +5,8 @@
 
 #include "Constants.h"
 #include "Npc.h"
+#include "InteractionRegion.h"
+#include "TextWindow.h"
 
 namespace EditorInterface{
 	void addGroundTile(int posX, int posY, int tile){		
@@ -89,5 +91,22 @@ namespace DawnInterface{
 		newMob->setAttitude(attitude);
 		//newMob->setActiveGUI(&GUI);
 		Globals::getCurrentZone()->addNPC(newMob);
+	}
+
+	InteractionRegion* addInteractionRegion(){
+		InteractionRegion *newInteractionRegion = new InteractionRegion();
+		Globals::getCurrentZone()->addInteractionRegion(newInteractionRegion);
+		return newInteractionRegion;
+	}
+
+	void removeInteractionRegion(InteractionRegion *regionToRemove){
+		regionToRemove->markAsDeletable();
+	}
+
+	TextWindow *createTextWindow(){
+		TextWindow *newTextWindow = new TextWindow();
+		Globals::allTextWindows.push_back(newTextWindow);
+		newTextWindow->toggle();
+		return newTextWindow;
 	}
 }

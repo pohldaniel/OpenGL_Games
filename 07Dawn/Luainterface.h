@@ -14,6 +14,8 @@ class TileSet;
 class Character;
 class Npc;
 struct CharacterType;
+class InteractionRegion;
+class TextWindow;
 
 namespace EditorInterface{
 	TileSet *getTileSet();
@@ -30,4 +32,7 @@ namespace DawnInterface{
 	void setCurrentZone(std::string zoneName);
 	const CharacterType& createNewMobType(std::string typeID);
 	void addMobSpawnPoint(std::string mobID, int x_pos, int y_pos, int respawn_rate, int do_respawn, Attitude::Attitude attitude);
+	InteractionRegion* addInteractionRegion();
+	void removeInteractionRegion(InteractionRegion *regionToRemove);
+	TextWindow *createTextWindow();
 }

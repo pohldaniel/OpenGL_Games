@@ -213,3 +213,14 @@ void CharacterSet::safeFont() {
 const Char& CharacterSet::getCharacter(const char c) const {
 	return characters.at(c);
 }
+
+int CharacterSet::getWidth(std::string text) const {
+
+	int sizeX = 0;
+	std::string::const_iterator c;
+	for (c = text.begin(); c != text.end(); c++) {
+		const Char ch = getCharacter(*c);
+		sizeX = sizeX + ((ch.advance[0]));
+	}
+	return  sizeX;
+}

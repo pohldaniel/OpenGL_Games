@@ -219,12 +219,14 @@ void Application::initOpenGL() {
 	wglMakeCurrent(hDC, hRC);
 	enableVerticalSync(true);
 
+	//glAlphaFunc(GL_NEVER, 0.0f);
+
 	glDepthFunc(GL_ALWAYS);
 	//glDepthFunc(GL_LESS);
-	//glDepthFunc(GL_ALWAYS);
+	//glDepthFunc(GL_NEVER);
 	//alpha test for cutting border of the quads
 	//glEnable(GL_ALPHA_TEST);
-	//glAlphaFunc(GL_GREATER, 0.4f);
+	//glAlphaFunc(GL_LEQUAL, 0.81f);
 
 	//glAlphaFunc(GL_GEQUAL, 0.5);
 
@@ -234,10 +236,11 @@ void Application::initOpenGL() {
 	//glDisable(GL_ALPHA_TEST);
 	//button transparency, fog and light
 	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
+	
 	//https://stackoverflow.com/questions/2171085/opengl-blending-with-previous-contents-of-framebuffer
 	//glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 	glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+	//glBlendEquation(GL_FUNC_ADD);
 	// enable blending
 
 	//outline

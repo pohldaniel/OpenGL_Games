@@ -35,6 +35,8 @@ struct CharacterSet {
 	unsigned int lineHeight;
 
 	const Char& getCharacter(const char c) const;
+
+	int getWidth(std::string text) const;
 };
 
 #endif

@@ -633,6 +633,16 @@ uint8_t Character::getExperienceValue() const{
 	return experienceValue;
 }
 
+int Character::getWidth() const {
+	TextureRect& rect = m_characterType.m_moveTileSets.at({ ActivityType::ActivityType::Walking, Direction::S }).getAllTiles()[0]->textureRect;
+	return useBoundingBox ? boundingBoxW : rect.width;
+}
+
+int Character::getHeight() const {
+	TextureRect& rect = m_characterType.m_moveTileSets.at({ ActivityType::ActivityType::Walking, Direction::S }).getAllTiles()[0]->textureRect;
+	return useBoundingBox ? boundingBoxH : rect.height;
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 void CharacterType::addMoveTexture(ActivityType::ActivityType activity, Direction direction, int index, std::string filename, int textureOffsetX, int textureOffsetY) {
 	TileSet& tileSet = m_moveTileSets[{activity, direction}];

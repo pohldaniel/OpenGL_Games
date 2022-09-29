@@ -73,7 +73,7 @@ public:
 		}
 
 		for (size_t row = 0; row<h; ++row){
-			memcpy(buffer + (((curY + row)*width + curX) * 4), texture + (w*row * 4), 4 * w);
+			memcpy(buffer + (((curY + row) * width + curX) * 4), texture + (w * row * 4), 4 * w);
 		}
 
 		stexture.textureOffsetX = static_cast<float>(curX) / static_cast<float>(width);
