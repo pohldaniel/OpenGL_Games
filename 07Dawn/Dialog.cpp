@@ -28,7 +28,6 @@ void DialogCanvas::initTextures() {
 void DialogCanvas::drawCanvas(int left, int bottom, int colummns, int rows, int tileWidth, int tileHeight) {
 
 	Batchrenderer::get().bindTexture(textureAtlas, true);
-	Batchrenderer::get().setShader(Globals::shaderManager.getAssetPointer("batch"));
 
 	// draw the corners
 	TextureManager::DrawTextureBatched(m_textureBases[0], left, bottom, false);

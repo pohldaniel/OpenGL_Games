@@ -8,6 +8,7 @@
 #include "Camera.h"
 
 class Batchrenderer {
+	friend class Fontrenderer;
 
 public:
 	struct Vertex {

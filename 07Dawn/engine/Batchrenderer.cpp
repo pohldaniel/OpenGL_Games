@@ -26,7 +26,7 @@ Batchrenderer::~Batchrenderer() {
 }
 
 void Batchrenderer::init(size_t size)  {
-
+	
 	m_maxQuad = size;
 	m_maxVert = m_maxQuad * 4;
 	m_maxIndex = m_maxQuad * 6;

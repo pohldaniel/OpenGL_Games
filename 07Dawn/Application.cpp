@@ -12,7 +12,6 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 	initOpenGL();
 	loadAssets();
 	initStates();
-
 	m_enableVerticalSync = true;
 
 	m_eventDispatcher->setProcessOSEvents([&]() {
@@ -24,9 +23,15 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 		return true;
 	});
 
-
+	Fontrenderer::get().init();
+	Fontrenderer::get().setShader(Globals::shaderManager.getAssetPointer("font"));
+	Fontrenderer::get().setCamera(ViewPort::get().getCamera());
 	Batchrenderer::get().init();
 	Batchrenderer::get().setCamera(ViewPort::get().getCamera());	
+	Batchrenderer::get().setShader(Globals::shaderManager.getAssetPointer("batch"));
+
+	Instancedrenderer::get().init();
+	Instancedrenderer::get().setShader(Globals::shaderManager.getAssetPointer("instanced"));
 }
 
 Application::~Application() {
@@ -337,7 +342,6 @@ void Application::loadAssets() {
 	Globals::fontManager.loadCharacterSet("verdana_9", "res/verdana.ttf", 9.0f, 3, 20);
 	Globals::fontManager.loadCharacterSet("verdana_5", "res/verdana.ttf", 5.0f, 3, 20);
 
-	Instancedrenderer::get().init();
-	Instancedrenderer::get().setShader(Globals::shaderManager.getAssetPointer("instanced"));
-	Fontrenderer::get().setShader(Globals::shaderManager.getAssetPointer("font"));	
+	
+	
 }

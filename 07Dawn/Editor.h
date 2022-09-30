@@ -31,4 +31,7 @@ public:
 
 	void incTilepos();
 	void decTilepos();
+
+private:
+	void printShortText(const CharacterSet& characterSet, const std::string &printText, int left, int width, int bottom, int height);
 };

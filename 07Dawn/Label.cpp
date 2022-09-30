@@ -19,22 +19,7 @@ void Label::draw() {
 }
 
 void Label::draw(std::string text) {
-
-	glBindTexture(GL_TEXTURE_2D, m_characterSet->spriteSheet);
-
-	Batchrenderer::get().setShader(Globals::shaderManager.getAssetPointer("font"));
-	std::string::const_iterator c;
-	float posX = getPosX();
-
-	for (c = text.begin(); c != text.end(); c++) {
-
-		const Char& ch = m_characterSet->getCharacter(*c);
-
-		Batchrenderer::get().addQuad(Vector4f(posX, getPosY() , ch.size[0], ch.size[1]), Vector4f(ch.textureOffset[0], ch.textureOffset[1], ch.textureSize[0], ch.textureSize[1]), activeColor);
-		posX = posX + ch.advance[0];
-	}
-	Batchrenderer::get().drawBuffer(false);
-	glBindTexture(GL_TEXTURE_2D, 0);
+	Fontrenderer::get().drawText(*m_characterSet, getPosX(), getPosY(), text, false, activeColor);
 	//Widget::draw();
 }
 

@@ -13,8 +13,6 @@ Editor::Editor(StateMachine& machine) : State(machine, CurrentState::EDITOR) {
 	m_selectedTileSet = TileClassificationType::FLOOR;
 
 	initTextures();
-	Fontrenderer::get().setCharacterSet(Globals::fontManager.get("verdana_9"));
-
 	loadNPCs();
 }
 
@@ -104,7 +102,43 @@ void Editor::update() {
 		m_selectedTileSet = static_cast<TileClassificationType::TileClassificationType>((m_selectedTileSet + 1) % TileClassificationType::COUNT);
 	}
 }
-	
+
+void Editor::printShortText(const CharacterSet& characterSet, const std::string &printText, int left, int width, int bottom, int height){
+	int curY = bottom + height - characterSet.lineHeight;
+	const int lineHeight = characterSet.lineHeight * 1.5;
+	const int bottomMargin = characterSet.lineHeight * 0.5;
+	size_t curStringPos = 0;
+	while (curY - bottomMargin > bottom) {
+		std::string curLine = "";
+		curLine.push_back(printText.at(curStringPos));
+		++curStringPos;
+		while (curStringPos < printText.size() && printText.at(curStringPos) != '\n') {
+			if (printText.at(curStringPos) == '\r'){
+				++curStringPos;
+				continue;
+			}
+
+			curLine.push_back(printText.at(curStringPos));
+			if (characterSet.getWidth(curLine) > width){
+				curLine.erase(curLine.size() - 1, 1);
+				break;
+			}
+			++curStringPos;
+		}
+		// skip until end of line
+		while (curStringPos < printText.size() && printText.at(curStringPos) != '\n') {
+			++curStringPos;
+		}
+		++curStringPos;
+
+		// print current line
+		Fontrenderer::get().drawText(characterSet, left, curY, curLine, true);
+		curY -= lineHeight;
+
+		if (curStringPos >= printText.size())
+			break;
+	}
+}
 
 void Editor::render(unsigned int &frameBuffer) {
 	glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
@@ -142,6 +176,28 @@ void Editor::render(unsigned int &frameBuffer) {
 			if (width > 8 && height > 8){
 				TextureManager::DrawTextureBatched(m_interfacetexture[4], left + 4, bottom + 4, width - 8, height - 8, true, Vector4f(0.0f, 0.3f, 0.0f, 0.6f));
 			}
+			Batchrenderer::get().drawBuffer(true);
+
+			// draw text for region
+			int tinyFontHeight = Globals::fontManager.get("verdana_5").lineHeight;
+			if (width > 28 && height > tinyFontHeight * 3 + 8){
+
+				std::string curEnterText = curInteractionRegion->getOnEnterText();
+				std::string curLeaveText = curInteractionRegion->getOnLeaveText();
+				bool printEnterAndLeaveText = (curEnterText.size() > 0 && curLeaveText.size() > 0 && height > tinyFontHeight * 6);
+				if (curEnterText.size() > 0){
+
+					std::string printText = std::string("Enter:\n").append(curEnterText);
+					int printHeight = height - 8;
+					int printBottom = bottom + 4;
+					if (printEnterAndLeaveText){
+
+						printBottom = printBottom - 4 + height - height / 2;
+						printHeight = (height - 8) / 2;
+					}
+					printShortText(Globals::fontManager.get("verdana_5"), printText, left + 4, width - 8, printBottom, printHeight);
+				}
+			}
 		}
 
 		//  Wander radius
@@ -166,7 +222,6 @@ void Editor::render(unsigned int &frameBuffer) {
 	Batchrenderer::get().drawBuffer(false);
 	
 	if (m_selectedTileSet == TileClassificationType::NPC) {
-		Batchrenderer::get().setShader(Globals::shaderManager.getAssetPointer("batch"));
 		Batchrenderer::get().bindTexture(TextureManager::GetTextureAtlas("Wolf"), true);
 
 		for (size_t curNPC = 0; curNPC < editorNPCs.size(); curNPC++) {
@@ -205,17 +260,17 @@ void Editor::render(unsigned int &frameBuffer) {
 	glEnd();
 	glLoadIdentity();
 
-	int fontHeight = Fontrenderer::get().getFontHeight();
-	Fontrenderer::get().drawText(m_originalFocus[0] + 10, m_originalFocus[1] + 90 - fontHeight, "[ Scoll Up/Down ]  Select previous/next object");
-	Fontrenderer::get().drawText(m_originalFocus[0] + 10, m_originalFocus[1] + 80 - fontHeight, "[ F1 ]  Next set of objects");
-	Fontrenderer::get().drawText(m_originalFocus[0] + 10, m_originalFocus[1] + 70 - fontHeight, "[ DEL ]  Delete object at mouse position");
-	Fontrenderer::get().drawText(m_originalFocus[0] + 10, m_originalFocus[1] + 60 - fontHeight, "[ ENTER ]  Place object at mouse position");
-	Fontrenderer::get().drawText(m_originalFocus[0] + 10, m_originalFocus[1] + 50 - fontHeight, "[ S ]  Saves the changes into zone1-files");
-	Fontrenderer::get().drawText(m_originalFocus[0] + 10, m_originalFocus[1] + 40 - fontHeight, "[ O ]  Load a different zone (not yet implemented)");
-	Fontrenderer::get().drawText(m_originalFocus[0] + 10, m_originalFocus[1] + 30 - fontHeight, "[ L ]  Exit the editor");
-	Fontrenderer::get().drawText(m_originalFocus[0] + 10, m_originalFocus[1] + 20 - fontHeight, "//Press the left mouse button near the sides to scroll around ;-)");
+	int fontHeight = Globals::fontManager.get("verdana_9").lineHeight;
+	Fontrenderer::get().drawText(Globals::fontManager.get("verdana_9"), m_originalFocus[0] + 10, m_originalFocus[1] + 90 - fontHeight, "[ Scoll Up/Down ]  Select previous/next object");
+	Fontrenderer::get().drawText(Globals::fontManager.get("verdana_9"), m_originalFocus[0] + 10, m_originalFocus[1] + 80 - fontHeight, "[ F1 ]  Next set of objects");
+	Fontrenderer::get().drawText(Globals::fontManager.get("verdana_9"), m_originalFocus[0] + 10, m_originalFocus[1] + 70 - fontHeight, "[ DEL ]  Delete object at mouse position");
+	Fontrenderer::get().drawText(Globals::fontManager.get("verdana_9"), m_originalFocus[0] + 10, m_originalFocus[1] + 60 - fontHeight, "[ ENTER ]  Place object at mouse position");
+	Fontrenderer::get().drawText(Globals::fontManager.get("verdana_9"), m_originalFocus[0] + 10, m_originalFocus[1] + 50 - fontHeight, "[ S ]  Saves the changes into zone1-files");
+	Fontrenderer::get().drawText(Globals::fontManager.get("verdana_9"), m_originalFocus[0] + 10, m_originalFocus[1] + 40 - fontHeight, "[ O ]  Load a different zone (not yet implemented)");
+	Fontrenderer::get().drawText(Globals::fontManager.get("verdana_9"), m_originalFocus[0] + 10, m_originalFocus[1] + 30 - fontHeight, "[ L ]  Exit the editor");
+	Fontrenderer::get().drawText(Globals::fontManager.get("verdana_9"), m_originalFocus[0] + 10, m_originalFocus[1] + 20 - fontHeight, "//Press the left mouse button near the sides to scroll around ;-)");
 
-	Fontrenderer::get().drawText(m_originalFocus[0] + 10, m_originalFocus[1] + ViewPort::get().getHeight() - 20, "x: " + Fontrenderer::get().FloatToString(ViewPort::get().getCursorPos()[0], 0) + ", y: " + Fontrenderer::get().FloatToString(ViewPort::get().getCursorPos()[1], 0));
+	Fontrenderer::get().drawText(Globals::fontManager.get("verdana_9"), m_originalFocus[0] + 10, m_originalFocus[1] + ViewPort::get().getHeight() - 20, "x: " + Fontrenderer::get().FloatToString(ViewPort::get().getCursorPos()[0], 0) + ", y: " + Fontrenderer::get().FloatToString(ViewPort::get().getCursorPos()[1], 0));
 
 	glDisable(GL_BLEND);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);

@@ -3,7 +3,7 @@
 #include <functional>
 
 #include "engine/CharacterSet.h"
-#include "engine/Batchrenderer.h"
+#include "Fontrenderer.h"
 
 #include "Widget.h"
 

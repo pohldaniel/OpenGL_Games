@@ -162,7 +162,6 @@ void Zone::update(float deltaTime) {
 
 void Zone::drawZoneBatched() {
 	
-	Batchrenderer::get().setShader(Globals::shaderManager.getAssetPointer("batch"));
 	Batchrenderer::get().bindTexture(*m_textureAtlas, true);
 
 	drawTilesBatched();
