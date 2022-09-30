@@ -83,6 +83,10 @@ public:
 	bool zoneDataLoaded() const;
 	void addEnvironment(int x_pos, int y_pos, Tile *tile, bool centeredOnPos);
 	int deleteEnvironment(int x, int y);
+	int locateEnvironment(int x, int y);
+	int locateShadow(int x, int y);
+	int Zone::locateNPC(int x, int y);
+	int locateCollisionbox(int x, int y);
 	void addShadow(int x_pos, int y_pos, Tile *tile);
 	int deleteShadow(int x, int y);
 	void changeTile(int iId, Tile *tile_);

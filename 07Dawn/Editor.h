@@ -23,15 +23,17 @@ public:
 	std::vector<TextureRect> m_interfacetexture;
 	Vector2f m_editorFocus;
 	Vector2f m_originalFocus;
-	int m_tileposOffset, m_objectEditSelected;
-	unsigned int m_tilepos, m_currentTilepos;
-	
-	std::vector<std::pair<std::string, CharacterType> > editorNPCs;
+	Vector2f m_currentFocus;
+		
+	std::vector<std::pair<std::string, CharacterType>> editorNPCs;
 	TileClassificationType::TileClassificationType m_selectedTileSet;
+	int m_tileposOffset, m_selectedObject = 0, m_selectedObjectId = -1;
+	unsigned int m_tilepos, m_currentTilepos;
 
 	void incTilepos();
 	void decTilepos();
 
 private:
 	void printShortText(const CharacterSet& characterSet, const std::string &printText, int left, int width, int bottom, int height);
+	void drawEditFrame(EnvironmentMap* editobject);
 };

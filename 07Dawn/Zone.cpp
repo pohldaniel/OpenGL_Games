@@ -103,9 +103,9 @@ void Zone::addEnvironment(int x_pos, int y_pos, Tile *tile, bool centeredOnPos){
 	}
 }
 
-int Zone::deleteEnvironment(int x, int y){
+int Zone::deleteEnvironment(int x, int y) {
 
-	for (unsigned int t = 0; t<environmentMap.size(); t++) {
+	for (unsigned int t = 0; t < environmentMap.size(); t++) {
 		if ((environmentMap[t].x_pos + environmentMap[t].tile->textureRect.width > x) && (environmentMap[t].x_pos < x)) {
 			if ((environmentMap[t].y_pos + environmentMap[t].tile->textureRect.height > y) &&
 				(environmentMap[t].y_pos < y)) {
@@ -115,6 +115,19 @@ int Zone::deleteEnvironment(int x, int y){
 		}
 	}
 	return 1;
+}
+
+int Zone::locateEnvironment(int x, int y) {
+	for (unsigned int t = 0; t < environmentMap.size(); t++) {
+		if ((environmentMap[t].x_pos + environmentMap[t].tile->textureRect.width > x) &&
+			(environmentMap[t].x_pos < x)) {
+			if ((environmentMap[t].y_pos + environmentMap[t].tile->textureRect.height > y) &&
+				(environmentMap[t].y_pos < y)) {
+				return t;
+			}
+		}
+	}
+	return -1;
 }
 
 void Zone::addShadow(int x_pos, int y_pos, Tile *tile) {
@@ -135,12 +148,50 @@ int Zone::deleteShadow(int x, int y){
 	return 1;
 }
 
+int Zone::locateShadow(int x, int y) {
+	for (unsigned int t = 0; t < shadowMap.size(); t++) {
+		if ((shadowMap[t].x_pos + shadowMap[t].tile->textureRect.width > x) &&
+			(shadowMap[t].x_pos < x)) {
+			if ((shadowMap[t].y_pos + shadowMap[t].tile->textureRect.height > y) &&
+				(shadowMap[t].y_pos < y)) {
+				return t;
+			}
+		}
+	}
+	return -1;
+}
+
 void Zone::addNPC(Npc *npcToAdd) {
 	npcs.push_back(npcToAdd);
+}
+//->m_characterType.getTileSet(ActivityType::ActivityType::Walking, Direction::S).getAllTiles()[0]->textureRect.width
+int Zone::locateNPC(int x, int y) {
+	
+	for (unsigned int t = 0; t < npcs.size(); t++) {
+		if ((npcs[t]->getXPos() + npcs[t]->m_characterType.getTileSet(ActivityType::ActivityType::Walking, Direction::S).getAllTiles()[0]->textureRect.width > x) &&
+			(npcs[t]->getXPos() < x)) {
+			if ((npcs[t]->getYPos() + npcs[t]->m_characterType.getTileSet(ActivityType::ActivityType::Walking, Direction::S).getAllTiles()[0]->textureRect.height > y) &&
+				(npcs[t]->getYPos() < y)) {
+				return t;
+			}
+		}
+	}
+	return -1;
 }
 
 std::vector<Npc*> Zone::getNPCs() {
 	return npcs;
+}
+
+int Zone::locateCollisionbox(int x, int y) {
+	for (unsigned int t = 0; t < collisionMap.size(); t++) {
+		if ((collisionMap[t].x + collisionMap[t].w > x) && (collisionMap[t].x < x)) {
+			if ((collisionMap[t].y + collisionMap[t].h > y) && (collisionMap[t].y < y)) {
+				return t;
+			}
+		}
+	}
+	return -1;
 }
 
 void Zone::addInteractionRegion(InteractionRegion *interactionRegionToAdd){

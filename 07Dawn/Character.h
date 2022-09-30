@@ -91,7 +91,7 @@ struct CharacterType {
 	//void addItemToLootTable(Item* item, double dropChance);
 	void setExperienceValue(uint8_t experienceValue);
 
-	TileSet& getTileSet(ActivityType::ActivityType activity, Direction direction);
+	const TileSet& getTileSet(ActivityType::ActivityType activity, Direction direction) const;
 	
 private:
 	std::unordered_map<std::pair<int, int>, TileSet, pair_hash> m_moveTileSets;

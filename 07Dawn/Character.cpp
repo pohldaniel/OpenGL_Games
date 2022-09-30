@@ -737,8 +737,8 @@ void CharacterType::setExperienceValue(uint8_t experienceValue) {
 	CharacterType::experienceValue = experienceValue;
 }
 
-TileSet& CharacterType::getTileSet(ActivityType::ActivityType activity, Direction direction) {
-	return m_moveTileSets[{activity, direction}];
+const TileSet& CharacterType::getTileSet(ActivityType::ActivityType activity, Direction direction) const{
+	return m_moveTileSets.at({activity, direction});
 }
 
 ////////////////////////////////////////////////////////////////////////////////
