@@ -37,27 +37,40 @@ TextureRect& TextureCache::getTextureFromCache(std::string filename){
 	return textures[filename];
 }
 
-void TextureManager::DrawTextureBatched(TextureRect& stexture, int x, int y, bool checkVieport, Vector4f color) {
-	if (!TextureManager::IsRectOnScreen(x, stexture.width, y, stexture.height) && checkVieport) {
+void TextureManager::DrawTextureBatched(TextureRect& textureRect, int x, int y, bool cullVieport, bool updateView) {
+	if (!TextureManager::IsRectOnScreen(x, textureRect.width, y, textureRect.height) && cullVieport) {
 		return;
 	}
-	Batchrenderer::get().addQuad(Vector4f(static_cast< float >(x), static_cast< float >(y), static_cast< float >(stexture.width), static_cast< float >(stexture.height)), Vector4f(stexture.textureOffsetX, stexture.textureOffsetY, stexture.textureWidth, stexture.textureHeight), color, stexture.frame);
+	Batchrenderer::get().addQuad(Vector4f(static_cast< float >(x), static_cast< float >(y), static_cast< float >(textureRect.width), static_cast< float >(textureRect.height)), Vector4f(textureRect.textureOffsetX, textureRect.textureOffsetY, textureRect.textureWidth, textureRect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), textureRect.frame, updateView);
 }
 
-void TextureManager::DrawTextureBatched(TextureRect& stexture, int x, int y, float width, float height, bool checkVieport, Vector4f color) {
-	if (!TextureManager::IsRectOnScreen(x, width, y, height) && checkVieport) {
+void TextureManager::DrawTextureBatched(TextureRect& textureRect, int x, int y, Vector4f color, bool cullVieport, bool updateView) {
+	if (!TextureManager::IsRectOnScreen(x, textureRect.width, y, textureRect.height) && cullVieport) {
 		return;
 	}
-
-	Batchrenderer::get().addQuad(Vector4f(static_cast< float >(x), static_cast< float >(y), width, height), Vector4f(stexture.textureOffsetX, stexture.textureOffsetY, stexture.textureWidth, stexture.textureHeight), color, stexture.frame);
+	Batchrenderer::get().addQuad(Vector4f(static_cast< float >(x), static_cast< float >(y), static_cast< float >(textureRect.width), static_cast< float >(textureRect.height)), Vector4f(textureRect.textureOffsetX, textureRect.textureOffsetY, textureRect.textureWidth, textureRect.textureHeight), color, textureRect.frame, updateView);
 }
 
-void TextureManager::DrawTextureInstanced(TextureRect& stexture, int x, int y, bool checkVieport) {
-	if (!TextureManager::IsRectOnScreen(x, stexture.width, y, stexture.height) && checkVieport) {
+void TextureManager::DrawTextureBatched(TextureRect& textureRect, int x, int y, float width, float height, bool cullVieport, bool updateView) {
+	if (!TextureManager::IsRectOnScreen(x, width, y, height) && cullVieport) {
+		return;
+	}
+	Batchrenderer::get().addQuad(Vector4f(static_cast< float >(x), static_cast< float >(y), width, height), Vector4f(textureRect.textureOffsetX, textureRect.textureOffsetY, textureRect.textureWidth, textureRect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), textureRect.frame, updateView);
+}
+
+void TextureManager::DrawTextureBatched(TextureRect& textureRect, int x, int y, float width, float height, Vector4f color, bool cullVieport, bool updateView) {
+	if (!TextureManager::IsRectOnScreen(x, width, y, height) && cullVieport) {
+		return;
+	}
+	Batchrenderer::get().addQuad(Vector4f(static_cast< float >(x), static_cast< float >(y), width, height), Vector4f(textureRect.textureOffsetX, textureRect.textureOffsetY, textureRect.textureWidth, textureRect.textureHeight), color, textureRect.frame, updateView);
+}
+
+void TextureManager::DrawTextureInstanced(TextureRect& textureRect, int x, int y, bool checkVieport) {
+	if (!TextureManager::IsRectOnScreen(x, textureRect.width, y, textureRect.height) && checkVieport) {
 		return;
 	}
 
-	Instancedrenderer::get().addQuad(Vector4f(static_cast< float >(x), static_cast< float >(y), static_cast< float >(stexture.width), static_cast< float >(stexture.height)), Vector4f(stexture.textureOffsetX, stexture.textureOffsetY, stexture.textureWidth, stexture.textureHeight), stexture.frame);
+	Instancedrenderer::get().addQuad(Vector4f(static_cast< float >(x), static_cast< float >(y), static_cast< float >(textureRect.width), static_cast< float >(textureRect.height)), Vector4f(textureRect.textureOffsetX, textureRect.textureOffsetY, textureRect.textureWidth, textureRect.textureHeight), textureRect.frame);
 }
 
 TextureRect& TextureManager::Loadimage(std::string file, bool isOpenGLThreadInThreadedMode) {

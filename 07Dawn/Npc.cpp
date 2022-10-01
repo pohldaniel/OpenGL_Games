@@ -48,7 +48,7 @@ void Npc::draw() {
 	int drawY = getYPos();
 
 	//TextureRect& rect = getTileSet(curActivity, GetDirectionTexture())->getAllTiles()[index]->textureRect;
-	TextureManager::DrawTextureBatched(*rect, drawX, drawY, true);
+	TextureManager::DrawTextureBatched(*rect, drawX, drawY, true, true);
 }
 
 void Npc::update(float deltaTime) {

@@ -90,10 +90,10 @@ void Batchrenderer::shutdown(){
 	delete[] buffer;
 }
 
-void Batchrenderer::addQuad(Vector4f posSize, Vector4f texPosSize, Vector4f color, unsigned int frame){
+void Batchrenderer::addQuad(Vector4f posSize, Vector4f texPosSize, Vector4f color, unsigned int frame, bool updateView){
 
   if (indexCount >= m_maxIndex) {
-	drawBuffer();
+	drawBuffer(updateView);
   }
  
   bufferPtr->posTex = { posSize[0], posSize[1],  texPosSize[0],  texPosSize[1] };

@@ -19,7 +19,7 @@ void Label::draw() {
 }
 
 void Label::draw(std::string text) {
-	Fontrenderer::get().drawText(*m_characterSet, getPosX(), getPosY(), text, false, activeColor);
+	Fontrenderer::get().drawText(*m_characterSet, getPosX(), getPosY(), text, activeColor);
 	//Widget::draw();
 }
 
