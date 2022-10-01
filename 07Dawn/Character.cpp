@@ -5,6 +5,8 @@
 Character::Character(const CharacterType& characterType) : m_characterType(characterType) {
 	wander_radius = 40;
 	activeDirection = S;
+
+	rect = &m_characterType.m_moveTileSets.at({ getCurActivity(), activeDirection }).getAllTiles()[0]->textureRect;
 }
 
 void Character::setNumActivities(unsigned short numActivities) {	

@@ -20,8 +20,6 @@ Npc::Npc(const CharacterType& characterType, int _x_spawn_pos, int _y_spawn_pos,
 	//setTarget(NULL);
 	markedAsDeleted = false;
 	lastPathCalculated = 0;
-
-	
 }
 
 Npc::~Npc() {
@@ -101,4 +99,12 @@ void Npc::Wander() {
 
 void Npc::Move() {
 	Character::Move();
+}
+
+void Npc::markAsDeleted() {
+	markedAsDeleted = true;
+}
+
+bool Npc::isMarkedAsDeletable() const {
+	return markedAsDeleted;
 }

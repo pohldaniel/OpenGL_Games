@@ -61,28 +61,28 @@ void Editor::update() {
 	}
 
 	if (keyboard.keyPressed(Keyboard::KEY_ENTER)) {
-
-		Tile *currentTile = EditorInterface::getTileSet(m_selectedTileSet)->getAllTiles()[m_currentTilepos];
+	
 		switch (m_selectedTileSet) {
 			case TileClassificationType::FLOOR: {
+				Tile *currentTile = EditorInterface::getTileSet(m_selectedTileSet)->getAllTiles()[m_currentTilepos];
 				newZone->changeTile(newZone->locateTile(static_cast<int>(m_editorFocus[0] + ViewPort::get().getCursorPos()[0]), static_cast<int>(m_editorFocus[1] + ViewPort::get().getCursorPos()[1])), currentTile);
 				break;
 			}case TileClassificationType::ENVIRONMENT: {
+				Tile *currentTile = EditorInterface::getTileSet(m_selectedTileSet)->getAllTiles()[m_currentTilepos];
 				newZone->addEnvironment(static_cast<int>(m_editorFocus[0] + ViewPort::get().getCursorPos()[0]), static_cast<int>(m_editorFocus[1] + ViewPort::get().getCursorPos()[1]), currentTile, true /* centered on pos */);
 				break;
 			}case TileClassificationType::SHADOW: {
+				Tile *currentTile = EditorInterface::getTileSet(m_selectedTileSet)->getAllTiles()[m_currentTilepos];
 				newZone->addShadow(static_cast<int>(m_editorFocus[0] + ViewPort::get().getCursorPos()[0]), static_cast<int>(m_editorFocus[1] + ViewPort::get().getCursorPos()[1]), currentTile);
 				break;
-			}/*case 3: // collisionboxes
-				zoneToEdit->AddCollisionbox(editorFocus->getX() + mouseX, editorFocus->getY() + mouseY);
+			}case 3: {
+				newZone->addCollisionbox(static_cast<int>(m_editorFocus[0] + ViewPort::get().getCursorPos()[0]), static_cast<int>(m_editorFocus[1] + ViewPort::get().getCursorPos()[1]));
 				break;
-			case 4: // NPCs
-				CNPC *curNPC = DawnInterface::addMobSpawnPoint(editorNPCs[current_tilepos].first, editorFocus->getX() + mouseX - 48, editorFocus->getY() + mouseY - 48, 180, 1);
-				curNPC->setAttitude(Attitude::HOSTILE);
+			}case 4: {
+				DawnInterface::addMobSpawnPoint(editorNPCs[m_currentTilepos].first, static_cast<int>(m_editorFocus[0] + ViewPort::get().getCursorPos()[0]) - 48, static_cast<int>(m_editorFocus[1] + ViewPort::get().getCursorPos()[1]) - 48, 180, 1, Attitude::HOSTILE);	
 				break;
-			}*/
-		}
-		
+			}
+		}		
 	}
 
 	if (keyboard.keyPressed(Keyboard::KEY_DELETE)) {
@@ -99,30 +99,225 @@ void Editor::update() {
 			if (newZone->deleteShadow(static_cast<int>(m_editorFocus[0] + ViewPort::get().getCursorPos()[0]), static_cast<int>(m_editorFocus[1] + ViewPort::get().getCursorPos()[1])) == 0)
 				m_selectedObjectId = -1;
 			break;
-		/*case 3: // collisionboxes
-			if (newZone-->DeleteCollisionbox(editorFocus->getX() + mouseX, editorFocus->getY() + mouseY) == 0)
+		case 3: // collisionboxes
+			if (newZone->deleteCollisionbox(static_cast<int>(m_editorFocus[0] + ViewPort::get().getCursorPos()[0]), static_cast<int>(m_editorFocus[1] + ViewPort::get().getCursorPos()[1])) == 0)
 				m_selectedObjectId = -1;
 			break;
 		case 4: // NPCs
-			if (newZone-->DeleteNPC(editorFocus->getX() + mouseX, editorFocus->getY() + mouseY) == 0)
-			{
-				zoneToEdit->cleanupNPCList();
+			if (newZone->deleteNPC(static_cast<int>(m_editorFocus[0] + ViewPort::get().getCursorPos()[0]), static_cast<int>(m_editorFocus[1] + ViewPort::get().getCursorPos()[1])) == 0){
+				newZone->cleanupNPCList();
 				m_selectedObjectId = -1;
 			}
-			break;*/
-		}
+			break;
+		}	
+	}
 
-		
+	switch (m_selectedTileSet ) {	
+		if (m_selectedObjectId >= 0) {
+			case TileClassificationType::ENVIRONMENT: {
+				if (keyboard.keyDown(Keyboard::KEY_SHIFT)) {
+					if (keyboard.keyDown(Keyboard::KEY_DOWN)) {
+						newZone->environmentMap[m_selectedObjectId].height -= 1;
+					}
+					if (keyboard.keyDown(Keyboard::KEY_UP)) {
+						newZone->environmentMap[m_selectedObjectId].height += 1;
+					}
+					if (keyboard.keyDown(Keyboard::KEY_LEFT)) {
+						newZone->environmentMap[m_selectedObjectId].width -= 1;
+					}
+					if (keyboard.keyDown(Keyboard::KEY_RIGHT)) {
+						newZone->environmentMap[m_selectedObjectId].width += 1;
+					}
+
+					if (keyboard.keyDown(Keyboard::KEY_1)) {
+						if (newZone->environmentMap[m_selectedObjectId].red >= 0.01f) {
+							newZone->environmentMap[m_selectedObjectId].red -= 0.01f;
+						}
+					}
+					if (keyboard.keyDown(Keyboard::KEY_2)) {
+						if (newZone->environmentMap[m_selectedObjectId].green >= 0.01f) {
+							newZone->environmentMap[m_selectedObjectId].green -= 0.01f;
+						}
+					}
+					if (keyboard.keyDown(Keyboard::KEY_3)) {
+						if (newZone->environmentMap[m_selectedObjectId].blue >= 0.01f) {
+							newZone->environmentMap[m_selectedObjectId].blue -= 0.01f;
+						}
+					}
+				}else {
+					bool moveonce = keyboard.keyDown(Keyboard::KEY_CTRL);
+
+					if (moveonce ? keyboard.keyPressed(Keyboard::KEY_DOWN) : keyboard.keyDown(Keyboard::KEY_DOWN)) {
+						newZone->environmentMap[m_selectedObjectId].y_pos -= 1;
+					}
+					if (moveonce ? keyboard.keyPressed(Keyboard::KEY_UP) : keyboard.keyDown(Keyboard::KEY_UP)) {
+						newZone->environmentMap[m_selectedObjectId].y_pos += 1;
+					}
+					if (moveonce ? keyboard.keyPressed(Keyboard::KEY_LEFT) : keyboard.keyDown(Keyboard::KEY_LEFT)) {
+						newZone->environmentMap[m_selectedObjectId].x_pos -= 1;
+					}
+					if (moveonce ? keyboard.keyPressed(Keyboard::KEY_RIGHT) : keyboard.keyDown(Keyboard::KEY_RIGHT)) {
+						newZone->environmentMap[m_selectedObjectId].x_pos += 1;
+					}
+					if (keyboard.keyDown(Keyboard::KEY_1)) {
+						if (newZone->environmentMap[m_selectedObjectId].red <= 0.99f) {
+							newZone->environmentMap[m_selectedObjectId].red += 0.01f;
+						}
+					}
+					if (keyboard.keyDown(Keyboard::KEY_2)) {
+						if (newZone->environmentMap[m_selectedObjectId].green <= 0.99f) {
+							newZone->environmentMap[m_selectedObjectId].green += 0.01f;
+						}
+					}
+					if (keyboard.keyDown(Keyboard::KEY_3)) {
+						if (newZone->environmentMap[m_selectedObjectId].blue <= 0.99f) {
+							newZone->environmentMap[m_selectedObjectId].blue += 0.01f;
+						}
+					}
+					if (keyboard.keyDown(Keyboard::KEY_COMMA)) {
+						if (newZone->environmentMap[m_selectedObjectId].transparency <= 0.99f) {
+							newZone->environmentMap[m_selectedObjectId].transparency += 0.01f;
+						}
+					}
+
+					if (keyboard.keyDown(Keyboard::KEY_PERIOD)) {
+						if (newZone->environmentMap[m_selectedObjectId].transparency >= 0.01f) {
+							newZone->environmentMap[m_selectedObjectId].transparency -= 0.01f;
+						}
+					}
+
+					if (keyboard.keyDown(Keyboard::KEY_B)) {
+						newZone->environmentMap[m_selectedObjectId].z_pos++;
+					}
+
+					if (keyboard.keyDown(Keyboard::KEY_N)) {
+						if (newZone->environmentMap[m_selectedObjectId].z_pos > 0) {
+							newZone->environmentMap[m_selectedObjectId].z_pos--;
+						}
+					}
+				}
+				break;
+			}case TileClassificationType::SHADOW: {
+				if (keyboard.keyDown(Keyboard::KEY_SHIFT)) {
+					if (keyboard.keyDown(Keyboard::KEY_DOWN)) {
+						newZone->shadowMap[m_selectedObjectId].height -= 1;
+					}
+					if (keyboard.keyDown(Keyboard::KEY_UP)) {
+						newZone->shadowMap[m_selectedObjectId].height += 1;
+					}
+					if (keyboard.keyDown(Keyboard::KEY_LEFT)) {
+						newZone->shadowMap[m_selectedObjectId].width -= 1;
+					}
+					if (keyboard.keyDown(Keyboard::KEY_RIGHT)) {
+						newZone->shadowMap[m_selectedObjectId].width += 1;
+					}
+					if (keyboard.keyDown(Keyboard::KEY_1)) {
+						if (newZone->shadowMap[m_selectedObjectId].red >= 0.01f) {
+							newZone->shadowMap[m_selectedObjectId].red -= 0.01f;
+						}
+					}
+					if (keyboard.keyDown(Keyboard::KEY_2)) {
+						if (newZone->shadowMap[m_selectedObjectId].green >= 0.01f) {
+							newZone->shadowMap[m_selectedObjectId].green -= 0.01f;
+						}
+					}
+					if (keyboard.keyDown(Keyboard::KEY_3)) {
+						if (newZone->shadowMap[m_selectedObjectId].blue >= 0.01f) {
+							newZone->shadowMap[m_selectedObjectId].blue -= 0.01f;
+						}
+					}
+				}else {
+					if (keyboard.keyDown(Keyboard::KEY_DOWN)) {
+						newZone->shadowMap[m_selectedObjectId].y_pos -= 1;
+					}
+
+					if (keyboard.keyDown(Keyboard::KEY_UP)) {
+						newZone->shadowMap[m_selectedObjectId].y_pos += 1;
+					}
+					if (keyboard.keyDown(Keyboard::KEY_LEFT)) {
+						newZone->shadowMap[m_selectedObjectId].x_pos -= 1;
+					}
+					if (keyboard.keyDown(Keyboard::KEY_RIGHT)) {
+						newZone->shadowMap[m_selectedObjectId].x_pos += 1;
+					}
+					if (keyboard.keyDown(Keyboard::KEY_1)) {
+						if (newZone->shadowMap[m_selectedObjectId].red <= 0.99f) {
+							newZone->shadowMap[m_selectedObjectId].red += 0.01f;
+						}
+					}
+					if (keyboard.keyDown(Keyboard::KEY_2)) {
+						if (newZone->shadowMap[m_selectedObjectId].green <= 0.99f) {
+							newZone->shadowMap[m_selectedObjectId].green += 0.01f;
+						}
+					}
+					if (keyboard.keyDown(Keyboard::KEY_3)) {
+						if (newZone->shadowMap[m_selectedObjectId].blue <= 0.99f) {
+							newZone->shadowMap[m_selectedObjectId].blue += 0.01f;
+						}
+					}
+
+					if (keyboard.keyDown(Keyboard::KEY_COMMA)) {
+						if (newZone->shadowMap[m_selectedObjectId].transparency <= 0.99f) {
+							newZone->shadowMap[m_selectedObjectId].transparency += 0.01f;
+						}
+					}
+
+					if (keyboard.keyDown(Keyboard::KEY_PERIOD)) {
+						if (newZone->shadowMap[m_selectedObjectId].transparency >= 0.01f) {
+							newZone->shadowMap[m_selectedObjectId].transparency -= 0.01f;
+						}
+					}
+				}
+				break;
+			}case 3: {
+				if (keyboard.keyDown(Keyboard::KEY_SHIFT)) {
+					if (keyboard.keyDown(Keyboard::KEY_DOWN)) {
+						newZone->collisionMap[m_selectedObjectId].h -= 1;
+					}
+					if (keyboard.keyDown(Keyboard::KEY_UP)) {
+						newZone->collisionMap[m_selectedObjectId].h += 1;
+					}
+					if (keyboard.keyDown(Keyboard::KEY_LEFT)) {
+						newZone->collisionMap[m_selectedObjectId].w -= 1;
+					}
+					if (keyboard.keyDown(Keyboard::KEY_RIGHT)) {
+						newZone->collisionMap[m_selectedObjectId].w += 1;
+					}
+				}else {
+					if (keyboard.keyDown(Keyboard::KEY_DOWN)) {
+						newZone->collisionMap[m_selectedObjectId].y -= 1;
+					}
+
+					if (keyboard.keyDown(Keyboard::KEY_UP)) {
+						newZone->collisionMap[m_selectedObjectId].y += 1;
+					}
+					if (keyboard.keyDown(Keyboard::KEY_LEFT)) {
+						newZone->collisionMap[m_selectedObjectId].x -= 1;
+					}
+					if (keyboard.keyDown(Keyboard::KEY_RIGHT)) {
+						newZone->collisionMap[m_selectedObjectId].x += 1;
+					}					
+				}
+				break;
+			}case 4: {
+				DawnInterface::addMobSpawnPoint(editorNPCs[m_currentTilepos].first, static_cast<int>(m_editorFocus[0] + ViewPort::get().getCursorPos()[0]) - 48, static_cast<int>(m_editorFocus[1] + ViewPort::get().getCursorPos()[1]) - 48, 180, 1, Attitude::HOSTILE);
+				break;
+			}
+		}
 	}
 
 	if (keyboard.keyPressed(Keyboard::KEY_F1)) {
 		m_currentTilepos = 0;
 		m_tileposOffset = 0;
 		m_selectedObjectId = -1;
-
 		m_selectedObject = m_selectedObject < 4 ? m_selectedObject + 1 : 0;
-
 		m_selectedTileSet = static_cast<TileClassificationType::TileClassificationType>((m_selectedTileSet + 1) % TileClassificationType::COUNT);
+	}
+
+	if (keyboard.keyPressed(Keyboard::KEY_S)) {
+		//SaveZone();
+		//message.AddText(editorFocus->getX() + (Configuration::screenWidth / 2), editorFocus->getY() + (Configuration::screenHeight / 2), 1.0f, 0.625f, 0.71f, 1.0f, 15, 3.0f, "Zone saved ...");
+		std::cout << "Zone saved ..." << std::endl;
 	}
 }
 
@@ -340,7 +535,7 @@ void Editor::render(unsigned int &frameBuffer) {
 
 void Editor::drawEditFrame(EnvironmentMap* editobject) {
 	// Highlight the currently selected tile
-	TextureManager::DrawTextureBatched(m_interfacetexture[3], editobject->x_pos, editobject->y_pos, editobject->tile->textureRect.width, editobject->tile->textureRect.height,Vector4f(1.0f, 1.0f, 1.0f, 0.2f), false);
+	TextureManager::DrawTextureBatched(m_interfacetexture[3], editobject->x_pos, editobject->y_pos, editobject->width, editobject->height, Vector4f(1.0f, 1.0f, 1.0f, 0.2f), false);
 	TextureManager::DrawTextureBatched(m_interfacetexture[3], m_currentFocus[0] + 50.0f, m_currentFocus[1] + ViewPort::get().getHeight() * 0.5f - 200.0f, 350.0f, 200.0f, Vector4f(1.0f, 1.0f, 1.0f, 1.0f), false);
 	Batchrenderer::get().drawBuffer(true);
 	Batchrenderer::get().bindTexture(TextureManager::GetTextureAtlas(newZone->getName()), true);
@@ -353,8 +548,8 @@ void Editor::drawEditFrame(EnvironmentMap* editobject) {
 	Fontrenderer::get().addText(Globals::fontManager.get("verdana_10"), m_currentFocus[0] + 242.0f, m_currentFocus[1] + ViewPort::get().getHeight() * 0.5f - 22.0f - fontHeight, "Red: " + Fontrenderer::get().FloatToString(editobject->red, 2), Vector4f(0.0f, 0.0f, 0.0f, 1.0f), true);
 	Fontrenderer::get().addText(Globals::fontManager.get("verdana_10"), m_currentFocus[0] + 242.0f, m_currentFocus[1] + ViewPort::get().getHeight() * 0.5f - 34.0f - fontHeight, "Green: " + Fontrenderer::get().FloatToString(editobject->green, 2), Vector4f(0.0f, 0.0f, 0.0f, 1.0f), true);
 	Fontrenderer::get().addText(Globals::fontManager.get("verdana_10"), m_currentFocus[0] + 242.0f, m_currentFocus[1] + ViewPort::get().getHeight() * 0.5f - 46.0f - fontHeight, "Blue: " + Fontrenderer::get().FloatToString(editobject->blue, 2), Vector4f(0.0f, 0.0f, 0.0f, 1.0f), true);
-	Fontrenderer::get().addText(Globals::fontManager.get("verdana_10"), m_currentFocus[0] + 242.0f, m_currentFocus[1] + ViewPort::get().getHeight() * 0.5f - 58.0f - fontHeight, "Scale X: " + Fontrenderer::get().FloatToString(editobject->x_scale, 2), Vector4f(0.0f, 0.0f, 0.0f, 1.0f), true);
-	Fontrenderer::get().addText(Globals::fontManager.get("verdana_10"), m_currentFocus[0] + 242.0f, m_currentFocus[1] + ViewPort::get().getHeight() * 0.5f - 70.0f - fontHeight, "Scale Y: " + Fontrenderer::get().FloatToString(editobject->y_scale, 2), Vector4f(0.0f, 0.0f, 0.0f, 1.0f), true);
+	Fontrenderer::get().addText(Globals::fontManager.get("verdana_10"), m_currentFocus[0] + 242.0f, m_currentFocus[1] + ViewPort::get().getHeight() * 0.5f - 58.0f - fontHeight, "Width: " + Fontrenderer::get().FloatToString(editobject->width, 2), Vector4f(0.0f, 0.0f, 0.0f, 1.0f), true);
+	Fontrenderer::get().addText(Globals::fontManager.get("verdana_10"), m_currentFocus[0] + 242.0f, m_currentFocus[1] + ViewPort::get().getHeight() * 0.5f - 70.0f - fontHeight, "Height: " + Fontrenderer::get().FloatToString(editobject->height, 2), Vector4f(0.0f, 0.0f, 0.0f, 1.0f), true);
 	Fontrenderer::get().addText(Globals::fontManager.get("verdana_10"), m_currentFocus[0] + 242.0f, m_currentFocus[1] + ViewPort::get().getHeight() * 0.5f - 82.0f - fontHeight, "Z Position: " + Fontrenderer::get().FloatToString(editobject->z_pos, 0), Vector4f(0.0f, 0.0f, 0.0f, 1.0f), true);
 	Fontrenderer::get().drawBuffer(true);
 }

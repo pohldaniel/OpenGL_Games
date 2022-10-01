@@ -18,7 +18,7 @@ namespace EditorInterface{
 	void addEnvironment(int posX, int posY, int posZ, int tile){
 		Zone *currentZone = Globals::getCurrentZone();
 		TileSet *tileSet = EditorInterface::getTileSet(TileClassificationType::TileClassificationType::ENVIRONMENT);
-		currentZone->environmentMap.push_back(EnvironmentMap(posX, posY, tileSet->getTile(tile), 1, 1, 1, 1, 1, 1, posZ));
+		currentZone->environmentMap.push_back(EnvironmentMap(posX, posY, tileSet->getTile(tile), 1.0f, 1.0f, 1.0f, 1.0f, static_cast<float>(tileSet->getTile(tile)->textureRect.width), static_cast<float>(tileSet->getTile(tile)->textureRect.height), posZ));
 	}
 
 	void adjustLastRGBA(double red, double green, double blue, double alpha){
@@ -84,7 +84,6 @@ namespace DawnInterface{
 		if (!CharacterTypeManager::Get().containsCaracterType(mobID)) {
 			return;
 		}
-
 		Npc* newMob = new Npc(CharacterTypeManager::Get().getCharacterType(mobID), 0, 0, 0, 0, 0);	
 		newMob->baseOnType(mobID);
 		newMob->setSpawnInfo(x_pos, y_pos, respawn_rate, do_respawn);

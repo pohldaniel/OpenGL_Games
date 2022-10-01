@@ -93,13 +93,10 @@ void Zone::addEnvironment(int x_pos, int y_pos, Tile *tile, bool centeredOnPos){
 		placePosY -= tile->textureRect.height / 2;
 	}
 
-	environmentMap.push_back(EnvironmentMap(placePosX, placePosY, tile, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0));
+	environmentMap.push_back(EnvironmentMap(placePosX, placePosY, tile, 1.0f, 1.0f, 1.0f, 1.0f, static_cast<float>(tile->textureRect.width), static_cast<float>(tile->textureRect.height), 1.0f));
 
 	if (tile->containsCollisionRect == true) {
-		collisionMap.push_back({ placePosX + tile->collisionRect.x,
-											 placePosY + tile->collisionRect.y,
-											 tile->collisionRect.w,
-											 tile->collisionRect.h });
+		collisionMap.push_back({ placePosX + tile->collisionRect.x, placePosY + tile->collisionRect.y, tile->collisionRect.w, tile->collisionRect.h });
 	}
 }
 
@@ -164,7 +161,46 @@ int Zone::locateShadow(int x, int y) {
 void Zone::addNPC(Npc *npcToAdd) {
 	npcs.push_back(npcToAdd);
 }
-//->m_characterType.getTileSet(ActivityType::ActivityType::Walking, Direction::S).getAllTiles()[0]->textureRect.width
+
+int Zone::deleteNPC(int x, int y) {
+	for (unsigned int t = 0; t< npcs.size(); t++) {
+		if ((npcs[t]->getXPos() + npcs[t]->m_characterType.getTileSet(ActivityType::ActivityType::Walking, Direction::S).getAllTiles()[0]->textureRect.width > x) &&
+			(npcs[t]->getXPos() < x)) {
+			if ((npcs[t]->getYPos() + npcs[t]->m_characterType.getTileSet(ActivityType::ActivityType::Walking, Direction::S).getAllTiles()[0]->textureRect.height > y) &&
+				(npcs[t]->getYPos() < y)) {
+				removeNPC(npcs[t]);
+				return 0;
+			}
+		}
+	}
+
+	return 1;
+}
+
+void Zone::removeNPC(Npc *npcToDelete) {
+	for (size_t curNPCNr = 0; curNPCNr<npcs.size(); ++curNPCNr) {
+		Npc *curNPC = npcs[curNPCNr];
+		if (curNPC == npcToDelete) {
+			curNPC->markAsDeleted();
+			break;
+		}
+	}
+}
+
+void Zone::cleanupNPCList() {
+	size_t curNPCNr = 0;
+	while (curNPCNr < npcs.size()) {
+		Npc* curNPC = npcs[curNPCNr];
+		if (curNPC->isMarkedAsDeletable()) {
+			npcs.erase(npcs.begin() + curNPCNr);
+			// TODO: delete curNPC. There seem to be some problems at the moment.
+			//delete curNPC;
+		}else {
+			++curNPCNr;
+		}
+	}
+}
+
 int Zone::locateNPC(int x, int y) {
 	
 	for (unsigned int t = 0; t < npcs.size(); t++) {
@@ -182,6 +218,23 @@ int Zone::locateNPC(int x, int y) {
 std::vector<Npc*> Zone::getNPCs() {
 	return npcs;
 }
+
+void Zone::addCollisionbox(int x_pos, int y_pos) {
+	collisionMap.push_back({ x_pos, y_pos, 100, 100 });
+}
+
+int Zone::deleteCollisionbox(int x, int y) {
+	for (unsigned int t = 0; t < collisionMap.size(); t++) {
+		if ((collisionMap[t].x + collisionMap[t].w > x) && (collisionMap[t].x < x)) {
+			if ((collisionMap[t].y + collisionMap[t].h > y) && (collisionMap[t].y < y)) {
+				collisionMap.erase(collisionMap.begin() + t);
+				return 0;
+			}
+		}
+	}
+	return -1;
+}
+
 
 int Zone::locateCollisionbox(int x, int y) {
 	for (unsigned int t = 0; t < collisionMap.size(); t++) {
@@ -235,7 +288,7 @@ void Zone::drawTilesBatched() {
 
 void Zone::drawEnvironmentBatched() {
 	for (unsigned int x = 0; x < environmentMap.size(); x++) {
-		TextureManager::DrawTextureBatched(environmentMap[x].tile->textureRect, environmentMap[x].x_pos, environmentMap[x].y_pos);
+		TextureManager::DrawTextureBatched(environmentMap[x].tile->textureRect, environmentMap[x].x_pos, environmentMap[x].y_pos, environmentMap[x].width, environmentMap[x].height, Vector4f(environmentMap[x].red, environmentMap[x].green, environmentMap[x].blue, environmentMap[x].transparency));
 	}
 }
 

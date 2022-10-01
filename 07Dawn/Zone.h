@@ -27,8 +27,8 @@ struct TileMap {
 struct EnvironmentMap {
 	int x_pos, y_pos, z_pos;
 	Tile *tile;
-	float transparency, red, green, blue, x_scale, y_scale;
-	EnvironmentMap(int _x, int _y, Tile *_tile, float _tp, float _red, float _green, float _blue, float _x_scale, float _y_scale, int _z_pos) {
+	float transparency, red, green, blue, width, height;
+	EnvironmentMap(int _x, int _y, Tile *_tile, float _tp, float _red, float _green, float _blue, float _width, float _height, int _z_pos) {
 		x_pos = _x;
 		y_pos = _y;
 		tile = _tile;
@@ -36,8 +36,8 @@ struct EnvironmentMap {
 		red = _red;
 		green = _green;
 		blue = _blue;
-		x_scale = _x_scale;
-		y_scale = _y_scale;
+		width = _width;
+		height = _height;
 		z_pos = _z_pos;
 	};
 
@@ -85,8 +85,10 @@ public:
 	int deleteEnvironment(int x, int y);
 	int locateEnvironment(int x, int y);
 	int locateShadow(int x, int y);
-	int Zone::locateNPC(int x, int y);
+	int locateNPC(int x, int y);
 	int locateCollisionbox(int x, int y);
+	void addCollisionbox(int x_pos, int y_pos);
+	int deleteCollisionbox(int x, int y);
 	void addShadow(int x_pos, int y_pos, Tile *tile);
 	int deleteShadow(int x, int y);
 	void changeTile(int iId, Tile *tile_);
@@ -94,6 +96,9 @@ public:
 	int locateTile(int x, int y);
 	std::string getName() const;
 	void addNPC(Npc* npcToAdd);
+	int deleteNPC(int x, int y);
+	void removeNPC(Npc *npcToDelete);
+	void cleanupNPCList();
 	std::vector<Npc*> getNPCs();
 	void addInteractionRegion(InteractionRegion *interactionRegionToAdd);
 	std::vector<InteractionRegion*> getInteractionRegions();

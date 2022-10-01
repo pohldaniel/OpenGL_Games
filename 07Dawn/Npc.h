@@ -22,6 +22,8 @@ public:
 
 	void setSpawnInfo(int _x_spawn_pos, int _y_spawn_pos, int _seconds_to_respawn, int _do_respawn);
 	void setAttitude(Attitude::Attitude attitude);
+	void markAsDeleted();
+	bool isMarkedAsDeletable() const;
 
 private:
 
