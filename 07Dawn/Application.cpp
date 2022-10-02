@@ -4,10 +4,12 @@
 #include "MainMenu.h"
 #include "Game.h"
 #include "Editor.h"
+#include "LoadingScreen.h"
 
 Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fdt), m_eventDispatcher(new EventDispatcher()){
 	ViewPort::get().init(WIDTH, HEIGHT);
-	
+	m_loadingManager = new LoadingManager();
+
 	initWindow();
 	initOpenGL();
 	loadAssets();
@@ -308,7 +310,9 @@ void Application::initStates() {
 	//AddMouseListener(game);
 
 	//m_machine->addStateAtTop(new MainMenu(*m_machine));
-	m_machine->addStateAtTop(new Editor(*m_machine));
+	//m_machine->addStateAtTop(new Editor(*m_machine));
+
+	m_machine->addStateAtTop(new LoadingScreen(*m_machine, m_loadingManager));
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {

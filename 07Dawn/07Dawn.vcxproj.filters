@@ -31,6 +31,9 @@
     <Filter Include="engine\animation">
       <UniqueIdentifier>{671d5b4a-97d8-4eaa-a894-2993364408af}</UniqueIdentifier>
     </Filter>
+    <Filter Include="thread">
+      <UniqueIdentifier>{1233b3eb-217f-4b26-a243-740a2750c478}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Application.cpp">
@@ -168,6 +171,18 @@
     <ClCompile Include="TextWindow.cpp">
       <Filter>Source Files\UI</Filter>
     </ClCompile>
+    <ClCompile Include="thread\EventClass.cpp">
+      <Filter>thread</Filter>
+    </ClCompile>
+    <ClCompile Include="thread\MutexClass.cpp">
+      <Filter>thread</Filter>
+    </ClCompile>
+    <ClCompile Include="thread\Thread.cpp">
+      <Filter>thread</Filter>
+    </ClCompile>
+    <ClCompile Include="LoadingScreen.cpp">
+      <Filter>Source Files\States</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine\input\Event.h">
@@ -301,6 +316,21 @@
     </ClInclude>
     <ClInclude Include="TextWindow.h">
       <Filter>Source Files\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="thread\EventClass.h">
+      <Filter>thread</Filter>
+    </ClInclude>
+    <ClInclude Include="thread\MutexClass.h">
+      <Filter>thread</Filter>
+    </ClInclude>
+    <ClInclude Include="thread\Thread.h">
+      <Filter>thread</Filter>
+    </ClInclude>
+    <ClInclude Include="Loadingmanager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LoadingScreen.h">
+      <Filter>Source Files\States</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

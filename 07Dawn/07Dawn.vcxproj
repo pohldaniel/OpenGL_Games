@@ -164,6 +164,7 @@
     <ClCompile Include="Fontrenderer.cpp" />
     <ClCompile Include="InteractionRegion.cpp" />
     <ClCompile Include="Label.cpp" />
+    <ClCompile Include="LoadingScreen.cpp" />
     <ClCompile Include="MainMenu.cpp" />
     <ClCompile Include="Npc.cpp" />
     <ClCompile Include="Random.cpp" />
@@ -195,6 +196,9 @@
     <ClCompile Include="soil2\wfETC.c" />
     <ClCompile Include="StateMachine.cpp" />
     <ClCompile Include="TextWindow.cpp" />
+    <ClCompile Include="thread\EventClass.cpp" />
+    <ClCompile Include="thread\MutexClass.cpp" />
+    <ClCompile Include="thread\Thread.cpp" />
     <ClCompile Include="TilesetManager.cpp" />
     <ClCompile Include="ViewPort.cpp" />
     <ClCompile Include="Widget.cpp" />
@@ -212,6 +216,8 @@
     <ClInclude Include="Fontrenderer.h" />
     <ClInclude Include="InteractionRegion.h" />
     <ClInclude Include="Label.h" />
+    <ClInclude Include="Loadingmanager.h" />
+    <ClInclude Include="LoadingScreen.h" />
     <ClInclude Include="MainMenu.h" />
     <ClInclude Include="Npc.h" />
     <ClInclude Include="Random.h" />
@@ -241,6 +247,9 @@
     <ClInclude Include="Luainterfacegenerated.h" />
     <ClInclude Include="StateMachine.h" />
     <ClInclude Include="TextWindow.h" />
+    <ClInclude Include="thread\EventClass.h" />
+    <ClInclude Include="thread\MutexClass.h" />
+    <ClInclude Include="thread\Thread.h" />
     <ClInclude Include="TilesetManager.h" />
     <ClInclude Include="ViewPort.h" />
     <ClInclude Include="Widget.h" />
