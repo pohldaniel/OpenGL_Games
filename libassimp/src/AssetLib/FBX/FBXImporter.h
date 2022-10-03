@@ -2,8 +2,7 @@
 Open Asset Import Library (assimp)
 ----------------------------------------------------------------------
 
-Copyright (c) 2006-2019, assimp team
-
+Copyright (c) 2006-2022, assimp team
 
 All rights reserved.
 
@@ -51,50 +50,50 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "FBXImportSettings.h"
 
-namespace Assimp    {
+namespace Assimp {
 
 // TinyFormatter.h
 namespace Formatter {
-    template <typename T,typename TR, typename A> class basic_formatter;
-    typedef class basic_formatter< char, std::char_traits<char>, std::allocator<char> > format;
-}
+
+template <typename T, typename TR, typename A>
+class basic_formatter;
+
+typedef class basic_formatter<char, std::char_traits<char>, std::allocator<char>> format;
+
+} // namespace Formatter
 
 // -------------------------------------------------------------------------------------------
-/** Load the Autodesk FBX file format.
-
- See http://en.wikipedia.org/wiki/FBX
-*/
+/// Loads the Autodesk FBX file format.
+///
+/// See http://en.wikipedia.org/wiki/FBX
 // -------------------------------------------------------------------------------------------
-class FBXImporter : public BaseImporter, public LogFunctions<FBXImporter>
-{
+class FBXImporter : public BaseImporter, public LogFunctions<FBXImporter> {
 public:
+    /// @brief The class constructor.
     FBXImporter();
-    virtual ~FBXImporter();
 
-    // --------------------
-    bool CanRead( const std::string& pFile,
-        IOSystem* pIOHandler,
-        bool checkSig
-    ) const;
+    ///	@brief The class destructor, default implementation.
+    ~FBXImporter() override = default;
+
+    /// @brief Will check the file for readability.
+    bool CanRead(const std::string &pFile, IOSystem *pIOHandler, bool checkSig) const override;
 
 protected:
+    // --------------------
+    const aiImporterDesc *GetInfo() const override;
 
     // --------------------
-    const aiImporterDesc* GetInfo () const;
+    void SetupProperties(const Importer *pImp) override;
 
     // --------------------
-    void SetupProperties(const Importer* pImp);
-
-    // --------------------
-    void InternReadFile( const std::string& pFile,
-        aiScene* pScene,
-        IOSystem* pIOHandler
-    );
+    void InternReadFile(const std::string &pFile,
+            aiScene *pScene,
+            IOSystem *pIOHandler) override;
 
 private:
-    FBX::ImportSettings settings;
+    FBX::ImportSettings mSettings;
 }; // !class FBXImporter
 
 } // end of namespace Assimp
-#endif // !INCLUDED_AI_FBX_IMPORTER_H
 
+#endif // !INCLUDED_AI_FBX_IMPORTER_H

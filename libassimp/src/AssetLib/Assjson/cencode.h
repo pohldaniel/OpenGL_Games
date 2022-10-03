@@ -8,6 +8,10 @@ For details, see http://sourceforge.net/projects/libb64
 #ifndef BASE64_CENCODE_H
 #define BASE64_CENCODE_H
 
+#ifdef _MSC_VER
+#pragma warning(disable : 4127 )
+#endif // _MSC_VER
+
 typedef enum
 {
 	step_A, step_B, step_C

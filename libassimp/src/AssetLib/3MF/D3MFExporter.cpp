@@ -2,8 +2,7 @@
 Open Asset Import Library (assimp)
 ----------------------------------------------------------------------
 
-Copyright (c) 2006-2019, assimp team
-
+Copyright (c) 2006-2022, assimp team
 
 All rights reserved.
 
@@ -44,81 +43,74 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "D3MFExporter.h"
 
-#include <assimp/scene.h>
-#include <assimp/IOSystem.hpp>
-#include <assimp/IOStream.hpp>
-#include <assimp/Exporter.hpp>
-#include <assimp/DefaultLogger.hpp>
-#include <assimp/StringUtils.h>
 #include <assimp/Exceptional.h>
+#include <assimp/StringUtils.h>
+#include <assimp/scene.h>
+#include <assimp/DefaultLogger.hpp>
+#include <assimp/Exporter.hpp>
+#include <assimp/IOStream.hpp>
+#include <assimp/IOSystem.hpp>
 
 #include "3MFXmlTags.h"
 #include "D3MFOpcPackage.h"
 
 #ifdef ASSIMP_USE_HUNTER
-#  include <zip/zip.h>
+#include <zip/zip.h>
 #else
-#  include <zip/src/zip.h>
+#include <zip/src/zip.h>
 #endif
 
 namespace Assimp {
 
-void ExportScene3MF( const char* pFile, IOSystem* pIOSystem, const aiScene* pScene, const ExportProperties* /*pProperties*/ ) {
-    if ( nullptr == pIOSystem ) {
-        throw DeadlyExportError( "Could not export 3MP archive: " + std::string( pFile ) );
+void ExportScene3MF(const char *pFile, IOSystem *pIOSystem, const aiScene *pScene, const ExportProperties * /*pProperties*/) {
+    if (nullptr == pIOSystem) {
+        throw DeadlyExportError("Could not export 3MP archive: " + std::string(pFile));
     }
-    D3MF::D3MFExporter myExporter( pFile, pScene );
-    if ( myExporter.validate() ) {
-        if ( pIOSystem->Exists( pFile ) ) {
-            if ( !pIOSystem->DeleteFile( pFile ) ) {
-                throw DeadlyExportError( "File exists, cannot override : " + std::string( pFile ) );
+    D3MF::D3MFExporter myExporter(pFile, pScene);
+    if (myExporter.validate()) {
+        if (pIOSystem->Exists(pFile)) {
+            if (!pIOSystem->DeleteFile(pFile)) {
+                throw DeadlyExportError("File exists, cannot override : " + std::string(pFile));
             }
         }
         bool ok = myExporter.exportArchive(pFile);
-        if ( !ok ) {
-            throw DeadlyExportError( "Could not export 3MP archive: " + std::string( pFile ) );
+        if (!ok) {
+            throw DeadlyExportError("Could not export 3MP archive: " + std::string(pFile));
         }
     }
 }
 
 namespace D3MF {
 
-D3MFExporter::D3MFExporter( const char* pFile, const aiScene* pScene )
-: mArchiveName( pFile )
-, m_zipArchive( nullptr )
-, mScene( pScene )
-, mModelOutput()
-, mRelOutput()
-, mContentOutput()
-, mBuildItems()
-, mRelations() {
+D3MFExporter::D3MFExporter(const char *pFile, const aiScene *pScene) :
+        mArchiveName(pFile), m_zipArchive(nullptr), mScene(pScene), mModelOutput(), mRelOutput(), mContentOutput(), mBuildItems(), mRelations() {
     // empty
 }
 
 D3MFExporter::~D3MFExporter() {
-    for ( size_t i = 0; i < mRelations.size(); ++i ) {
-        delete mRelations[ i ];
+    for (size_t i = 0; i < mRelations.size(); ++i) {
+        delete mRelations[i];
     }
     mRelations.clear();
 }
 
 bool D3MFExporter::validate() {
-    if ( mArchiveName.empty() ) {
+    if (mArchiveName.empty()) {
         return false;
     }
 
-    if ( nullptr == mScene ) {
+    if (nullptr == mScene) {
         return false;
     }
 
     return true;
 }
 
-bool D3MFExporter::exportArchive( const char *file ) {
-    bool ok( true );
+bool D3MFExporter::exportArchive(const char *file) {
+    bool ok(true);
 
-    m_zipArchive = zip_open( file, ZIP_DEFAULT_COMPRESSION_LEVEL, 'w' );
-    if ( nullptr == m_zipArchive ) {
+    m_zipArchive = zip_open(file, ZIP_DEFAULT_COMPRESSION_LEVEL, 'w');
+    if (nullptr == m_zipArchive) {
         return false;
     }
 
@@ -126,7 +118,7 @@ bool D3MFExporter::exportArchive( const char *file ) {
     ok |= export3DModel();
     ok |= exportRelations();
 
-    zip_close( m_zipArchive );
+    zip_close(m_zipArchive);
     m_zipArchive = nullptr;
 
     return ok;
@@ -145,7 +137,7 @@ bool D3MFExporter::exportContentTypes() {
     mContentOutput << std::endl;
     mContentOutput << "</Types>";
     mContentOutput << std::endl;
-    exportContentTyp( XmlTag::CONTENT_TYPES_ARCHIVE );
+    zipContentType(XmlTag::CONTENT_TYPES_ARCHIVE);
 
     return true;
 }
@@ -157,20 +149,20 @@ bool D3MFExporter::exportRelations() {
     mRelOutput << std::endl;
     mRelOutput << "<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\">";
 
-    for ( size_t i = 0; i < mRelations.size(); ++i ) {
-        if ( mRelations[ i ]->target[ 0 ] == '/' ) {
-            mRelOutput << "<Relationship Target=\"" << mRelations[ i ]->target << "\" ";
+    for (size_t i = 0; i < mRelations.size(); ++i) {
+        if (mRelations[i]->target[0] == '/') {
+            mRelOutput << "<Relationship Target=\"" << mRelations[i]->target << "\" ";
         } else {
-            mRelOutput << "<Relationship Target=\"/" << mRelations[ i ]->target << "\" ";
+            mRelOutput << "<Relationship Target=\"/" << mRelations[i]->target << "\" ";
         }
         mRelOutput << "Id=\"" << mRelations[i]->id << "\" ";
-        mRelOutput << "Type=\"" << mRelations[ i ]->type << "\" />";
+        mRelOutput << "Type=\"" << mRelations[i]->type << "\" />";
         mRelOutput << std::endl;
     }
     mRelOutput << "</Relationships>";
     mRelOutput << std::endl;
 
-    writeRelInfoToFile( "_rels", ".rels" );
+    zipRelInfo("_rels", ".rels");
     mRelOutput.flush();
 
     return true;
@@ -181,8 +173,8 @@ bool D3MFExporter::export3DModel() {
 
     writeHeader();
     mModelOutput << "<" << XmlTag::model << " " << XmlTag::model_unit << "=\"millimeter\""
-            << "xmlns=\"http://schemas.microsoft.com/3dmanufacturing/core/2015/02\">"
-            << std::endl;
+                 << " xmlns=\"http://schemas.microsoft.com/3dmanufacturing/core/2015/02\">"
+                 << std::endl;
     mModelOutput << "<" << XmlTag::resources << ">";
     mModelOutput << std::endl;
 
@@ -191,7 +183,6 @@ bool D3MFExporter::export3DModel() {
     writeBaseMaterials();
 
     writeObjects();
-
 
     mModelOutput << "</" << XmlTag::resources << ">";
     mModelOutput << std::endl;
@@ -203,36 +194,36 @@ bool D3MFExporter::export3DModel() {
     info->id = "rel0";
     info->target = "/3D/3DModel.model";
     info->type = XmlTag::PACKAGE_START_PART_RELATIONSHIP_TYPE;
-    mRelations.push_back( info );
+    mRelations.push_back(info);
 
-    writeModelToArchive( "3D", "3DModel.model" );
+    zipModel("3D", "3DModel.model");
     mModelOutput.flush();
 
     return true;
 }
 
 void D3MFExporter::writeHeader() {
-    mModelOutput << "<?xml version=\"1.0\" encoding=\"UTF - 8\"?>";
+    mModelOutput << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
     mModelOutput << std::endl;
 }
 
 void D3MFExporter::writeMetaData() {
-    if ( nullptr == mScene->mMetaData ) {
+    if (nullptr == mScene->mMetaData) {
         return;
     }
 
-    const unsigned int numMetaEntries( mScene->mMetaData->mNumProperties );
-    if ( 0 == numMetaEntries ) {
+    const unsigned int numMetaEntries(mScene->mMetaData->mNumProperties);
+    if (0 == numMetaEntries) {
         return;
     }
 
-	const aiString *key = nullptr;
+    const aiString *key = nullptr;
     const aiMetadataEntry *entry(nullptr);
-    for ( size_t i = 0; i < numMetaEntries; ++i ) {
-        mScene->mMetaData->Get( i, key, entry );
-        std::string k( key->C_Str() );
+    for (size_t i = 0; i < numMetaEntries; ++i) {
+        mScene->mMetaData->Get(i, key, entry);
+        std::string k(key->C_Str());
         aiString value;
-        mScene->mMetaData->Get(  k, value );
+        mScene->mMetaData->Get(k, value);
         mModelOutput << "<" << XmlTag::meta << " " << XmlTag::meta_name << "=\"" << key->C_Str() << "\">";
         mModelOutput << value.C_Str();
         mModelOutput << "</" << XmlTag::meta << ">" << std::endl;
@@ -241,159 +232,169 @@ void D3MFExporter::writeMetaData() {
 
 void D3MFExporter::writeBaseMaterials() {
     mModelOutput << "<basematerials id=\"1\">\n";
-    std::string strName, hexDiffuseColor , tmp;
-    for ( size_t i = 0; i < mScene->mNumMaterials; ++i ) {
-        aiMaterial *mat = mScene->mMaterials[ i ];
+    std::string strName, hexDiffuseColor, tmp;
+    for (size_t i = 0; i < mScene->mNumMaterials; ++i) {
+        aiMaterial *mat = mScene->mMaterials[i];
         aiString name;
-        if ( mat->Get( AI_MATKEY_NAME, name ) != aiReturn_SUCCESS ) {
-            strName = "basemat_" + to_string( i );
+        if (mat->Get(AI_MATKEY_NAME, name) != aiReturn_SUCCESS) {
+            strName = "basemat_" + ai_to_string(i);
         } else {
             strName = name.C_Str();
         }
         aiColor4D color;
-        if ( mat->Get( AI_MATKEY_COLOR_DIFFUSE, color ) == aiReturn_SUCCESS ) {
+        if (mat->Get(AI_MATKEY_COLOR_DIFFUSE, color) == aiReturn_SUCCESS) {
             hexDiffuseColor.clear();
             tmp.clear();
-            hexDiffuseColor = "#";
-            
-            tmp = DecimalToHexa( color.r );
-            hexDiffuseColor += tmp;
-            tmp = DecimalToHexa( color.g );
-            hexDiffuseColor += tmp;
-            tmp = DecimalToHexa( color.b );
-            hexDiffuseColor += tmp;
-            tmp = DecimalToHexa( color.a );
-            hexDiffuseColor += tmp;
+            // rgbs %
+            if (color.r <= 1 && color.g <= 1 && color.b <= 1 && color.a <= 1) {
+
+                hexDiffuseColor = ai_rgba2hex(
+                        (int)((ai_real)color.r) * 255,
+                        (int)((ai_real)color.g) * 255,
+                        (int)((ai_real)color.b) * 255,
+                        (int)((ai_real)color.a) * 255,
+                        true);
+
+            } else {
+                hexDiffuseColor = "#";
+                tmp = ai_decimal_to_hexa((ai_real)color.r);
+                hexDiffuseColor += tmp;
+                tmp = ai_decimal_to_hexa((ai_real)color.g);
+                hexDiffuseColor += tmp;
+                tmp = ai_decimal_to_hexa((ai_real)color.b);
+                hexDiffuseColor += tmp;
+                tmp = ai_decimal_to_hexa((ai_real)color.a);
+                hexDiffuseColor += tmp;
+            }
         } else {
             hexDiffuseColor = "#FFFFFFFF";
         }
 
-        mModelOutput << "<base name=\""+strName+"\" "+" displaycolor=\""+hexDiffuseColor+"\" />\n";
+        mModelOutput << "<base name=\"" + strName + "\" " + " displaycolor=\"" + hexDiffuseColor + "\" />\n";
     }
     mModelOutput << "</basematerials>\n";
 }
 
 void D3MFExporter::writeObjects() {
-    if ( nullptr == mScene->mRootNode ) {
+    if (nullptr == mScene->mRootNode) {
         return;
     }
 
     aiNode *root = mScene->mRootNode;
-    for ( unsigned int i = 0; i < root->mNumChildren; ++i ) {
-        aiNode *currentNode( root->mChildren[ i ] );
-        if ( nullptr == currentNode ) {
+    for (unsigned int i = 0; i < root->mNumChildren; ++i) {
+        aiNode *currentNode(root->mChildren[i]);
+        if (nullptr == currentNode) {
             continue;
         }
-        mModelOutput << "<" << XmlTag::object << " id=\"" << currentNode->mName.C_Str() << "\" type=\"model\">";
+        mModelOutput << "<" << XmlTag::object << " id=\"" << i + 2 << "\" type=\"model\">";
         mModelOutput << std::endl;
-        for ( unsigned int j = 0; j < currentNode->mNumMeshes; ++j ) {
-            aiMesh *currentMesh = mScene->mMeshes[ currentNode->mMeshes[ j ] ];
-            if ( nullptr == currentMesh ) {
+        for (unsigned int j = 0; j < currentNode->mNumMeshes; ++j) {
+            aiMesh *currentMesh = mScene->mMeshes[currentNode->mMeshes[j]];
+            if (nullptr == currentMesh) {
                 continue;
             }
-            writeMesh( currentMesh );
+            writeMesh(currentMesh);
         }
-        mBuildItems.push_back( i );
+        mBuildItems.push_back(i);
 
         mModelOutput << "</" << XmlTag::object << ">";
         mModelOutput << std::endl;
     }
 }
 
-void D3MFExporter::writeMesh( aiMesh *mesh ) {
-    if ( nullptr == mesh ) {
+void D3MFExporter::writeMesh(aiMesh *mesh) {
+    if (nullptr == mesh) {
         return;
     }
 
-    mModelOutput << "<" << XmlTag::mesh << ">" << std::endl;
-    mModelOutput << "<" << XmlTag::vertices << ">" << std::endl;
-    for ( unsigned int i = 0; i < mesh->mNumVertices; ++i ) {
-        writeVertex( mesh->mVertices[ i ] );
+    mModelOutput << "<"
+                 << XmlTag::mesh
+                 << ">" << "\n";
+    mModelOutput << "<"
+                 << XmlTag::vertices
+                 << ">" << "\n";
+    for (unsigned int i = 0; i < mesh->mNumVertices; ++i) {
+        writeVertex(mesh->mVertices[i]);
     }
-    mModelOutput << "</" << XmlTag::vertices << ">" << std::endl;
+    mModelOutput << "</"
+                 << XmlTag::vertices << ">"
+                 << "\n";
 
-    const unsigned int matIdx( mesh->mMaterialIndex );
+    const unsigned int matIdx(mesh->mMaterialIndex);
 
-    writeFaces( mesh, matIdx );
+    writeFaces(mesh, matIdx);
 
-    mModelOutput << "</" << XmlTag::mesh << ">" << std::endl;
+    mModelOutput << "</"
+                 << XmlTag::mesh << ">"
+                 << "\n";
 }
 
-void D3MFExporter::writeVertex( const aiVector3D &pos ) {
+void D3MFExporter::writeVertex(const aiVector3D &pos) {
     mModelOutput << "<" << XmlTag::vertex << " x=\"" << pos.x << "\" y=\"" << pos.y << "\" z=\"" << pos.z << "\" />";
     mModelOutput << std::endl;
 }
 
-void D3MFExporter::writeFaces( aiMesh *mesh, unsigned int matIdx ) {
-    if ( nullptr == mesh ) {
+void D3MFExporter::writeFaces(aiMesh *mesh, unsigned int matIdx) {
+    if (nullptr == mesh) {
         return;
     }
 
-    if ( !mesh->HasFaces() ) {
+    if (!mesh->HasFaces()) {
         return;
     }
-    mModelOutput << "<" << XmlTag::triangles << ">" << std::endl;
-    for ( unsigned int i = 0; i < mesh->mNumFaces; ++i ) {
-        aiFace &currentFace = mesh->mFaces[ i ];
-        mModelOutput << "<" << XmlTag::triangle << " v1=\"" << currentFace.mIndices[ 0 ] << "\" v2=\""
-                << currentFace.mIndices[ 1 ] << "\" v3=\"" << currentFace.mIndices[ 2 ]
-                << "\" pid=\"1\" p1=\""+to_string(matIdx)+"\" />";
-        mModelOutput << std::endl;
+    mModelOutput << "<"
+                 << XmlTag::triangles << ">"
+                 << "\n";
+    for (unsigned int i = 0; i < mesh->mNumFaces; ++i) {
+        aiFace &currentFace = mesh->mFaces[i];
+        mModelOutput << "<" << XmlTag::triangle << " v1=\"" << currentFace.mIndices[0] << "\" v2=\""
+                     << currentFace.mIndices[1] << "\" v3=\"" << currentFace.mIndices[2]
+                     << "\" pid=\"1\" p1=\"" + ai_to_string(matIdx) + "\" />";
+        mModelOutput << "\n";
     }
-    mModelOutput << "</" << XmlTag::triangles << ">";
-    mModelOutput << std::endl;
+    mModelOutput << "</"
+                 << XmlTag::triangles
+                 << ">";
+    mModelOutput << "\n";
 }
 
 void D3MFExporter::writeBuild() {
-    mModelOutput << "<" << XmlTag::build << ">" << std::endl;
+    mModelOutput << "<"
+                 << XmlTag::build
+                 << ">"
+                 << "\n";
 
-    for ( size_t i = 0; i < mBuildItems.size(); ++i ) {
-        mModelOutput << "<" << XmlTag::item << " objectid=\"" << i + 1 << "\"/>";
-        mModelOutput << std::endl;
+    for (size_t i = 0; i < mBuildItems.size(); ++i) {
+        mModelOutput << "<" << XmlTag::item << " objectid=\"" << i + 2 << "\"/>";
+        mModelOutput << "\n";
     }
     mModelOutput << "</" << XmlTag::build << ">";
-    mModelOutput << std::endl;
+    mModelOutput << "\n";
 }
 
-void D3MFExporter::exportContentTyp( const std::string &filename ) {
-    if ( nullptr == m_zipArchive ) {
-        throw DeadlyExportError( "3MF-Export: Zip archive not valid, nullptr." );
-    }
-    const std::string entry = filename;
-    zip_entry_open( m_zipArchive, entry.c_str() );
-
-    const std::string &exportTxt( mContentOutput.str() );
-    zip_entry_write( m_zipArchive, exportTxt.c_str(), exportTxt.size() );
-
-    zip_entry_close( m_zipArchive );
+void D3MFExporter::zipContentType(const std::string &filename) {
+    addFileInZip(filename, mContentOutput.str());
 }
 
-void D3MFExporter::writeModelToArchive( const std::string &folder, const std::string &modelName ) {
-    if ( nullptr == m_zipArchive ) {
-        throw DeadlyExportError( "3MF-Export: Zip archive not valid, nullptr." );
-    }
+void D3MFExporter::zipModel(const std::string &folder, const std::string &modelName) {
     const std::string entry = folder + "/" + modelName;
-    zip_entry_open( m_zipArchive, entry.c_str() );
-
-    const std::string &exportTxt( mModelOutput.str() );
-    zip_entry_write( m_zipArchive, exportTxt.c_str(), exportTxt.size() );
-
-    zip_entry_close( m_zipArchive );
+    addFileInZip(entry, mModelOutput.str());
 }
 
-void D3MFExporter::writeRelInfoToFile( const std::string &folder, const std::string &relName ) {
-    if ( nullptr == m_zipArchive ) {
-        throw DeadlyExportError( "3MF-Export: Zip archive not valid, nullptr." );
-    }
+void D3MFExporter::zipRelInfo(const std::string &folder, const std::string &relName) {
     const std::string entry = folder + "/" + relName;
-    zip_entry_open( m_zipArchive, entry.c_str() );
-
-    const std::string &exportTxt( mRelOutput.str() );
-    zip_entry_write( m_zipArchive, exportTxt.c_str(), exportTxt.size() );
-
-    zip_entry_close( m_zipArchive );
+    addFileInZip(entry, mRelOutput.str());
 }
 
+void D3MFExporter::addFileInZip(const std::string& entry, const std::string& content) {
+    if (nullptr == m_zipArchive) {
+        throw DeadlyExportError("3MF-Export: Zip archive not valid, nullptr.");
+    }
+
+    zip_entry_open(m_zipArchive, entry.c_str());
+    zip_entry_write(m_zipArchive, content.c_str(), content.size());
+    zip_entry_close(m_zipArchive);
+}
 
 } // Namespace D3MF
 } // Namespace Assimp

@@ -668,19 +668,19 @@
     </animation>
   </library_animations>
   <library_animation_clips>
-	<animation_clip id="right_wing">
+	<animation_clip id="right_wing" name="right_wing">
 	  <instance_animation url="#Armature_metarigAction_001_upper_arm_R_001_pose_matrix"/>
 	  <instance_animation url="#Armature_metarigAction_001_forearm_R_001_pose_matrix"/>
 	  <instance_animation url="#Armature_metarigAction_001_hand_R_001_pose_matrix"/>
 	  <instance_animation url="#Armature_metarigAction_001_f_toe_R_001_pose_matrix"/>
 	</animation_clip>
-	<animation_clip id="left_wing">
+	<animation_clip id="left_wing" name="left_wing">
 	  <instance_animation url="#Armature_ArmatureAction_upper_arm_L_001_pose_matrix"/>
 	  <instance_animation url="#Armature_ArmatureAction_forearm_L_001_pose_matrix"/>
 	  <instance_animation url="#Armature_ArmatureAction_hand_L_001_pose_matrix"/>
 	  <instance_animation url="#Armature_ArmatureAction_f_toe_L_001_pose_matrix"/>
 	</animation_clip>
-	<animation_clip id="both_wing">
+	<animation_clip id="both_wing" name="both_wing">
 	  <instance_animation url="#Armature_metarigAction_forearm_L_001_pose_matrix"/>
 	  <instance_animation url="#Armature_metarigAction_hand_L_001_pose_matrix"/>
 	  <instance_animation url="#Armature_metarigAction_f_toe_L_001_pose_matrix"/>

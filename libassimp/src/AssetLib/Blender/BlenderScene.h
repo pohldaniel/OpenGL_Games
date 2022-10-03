@@ -2,7 +2,7 @@
 Open Asset Import Library (assimp)
 ----------------------------------------------------------------------
 
-Copyright (c) 2006-2019, assimp team
+Copyright (c) 2006-2022, assimp team
 
 
 All rights reserved.
@@ -48,13 +48,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "BlenderDNA.h"
 
-namespace Assimp    {
+namespace Assimp {
 namespace Blender {
 
 // Minor parts of this file are extracts from blender data structures,
 // declared in the ./source/blender/makesdna directory.
 // Stuff that is not used by Assimp is commented.
-
 
 // NOTE
 // this file serves as input data to the `./scripts/genblenddna.py`
@@ -95,19 +94,20 @@ namespace Blender {
 
 // warn if field is missing, substitute default value
 #ifdef WARN
-#  undef WARN
+#undef WARN
 #endif
-#define WARN 
+#define WARN
 
 // fail the import if the field does not exist
 #ifdef FAIL
-#  undef FAIL
+#undef FAIL
 #endif
-#define FAIL 
+#define FAIL
 
 struct Object;
 struct MTex;
 struct Image;
+struct Collection;
 
 #include <memory>
 
@@ -117,27 +117,26 @@ static const size_t MaxNameLen = 1024;
 
 // -------------------------------------------------------------------------------
 struct ID : ElemBase {
-    char name[ MaxNameLen ] WARN;
+    char name[MaxNameLen] WARN;
     short flag;
 };
 
 // -------------------------------------------------------------------------------
 struct ListBase : ElemBase {
     std::shared_ptr<ElemBase> first;
-    std::shared_ptr<ElemBase> last;
+    std::weak_ptr<ElemBase> last;
 };
-
 
 // -------------------------------------------------------------------------------
 struct PackedFile : ElemBase {
-     int size WARN;
-     int seek WARN;
-     std::shared_ptr< FileOffset > data WARN;
+    int size WARN;
+    int seek WARN;
+    std::shared_ptr<FileOffset> data WARN;
 };
 
 // -------------------------------------------------------------------------------
 struct GroupObject : ElemBase {
-    std::shared_ptr<GroupObject> prev,next FAIL;
+    std::shared_ptr<GroupObject> prev, next FAIL;
     std::shared_ptr<Object> ob;
 };
 
@@ -150,6 +149,26 @@ struct Group : ElemBase {
 };
 
 // -------------------------------------------------------------------------------
+struct CollectionObject : ElemBase {
+    //CollectionObject* prev;
+    std::shared_ptr<CollectionObject> next;
+    Object *ob;
+};
+
+// -------------------------------------------------------------------------------
+struct CollectionChild : ElemBase {
+    std::shared_ptr<CollectionChild> next, prev;
+    std::shared_ptr<Collection> collection;
+};
+
+// -------------------------------------------------------------------------------
+struct Collection : ElemBase {
+    ID id FAIL;
+    ListBase gobject; // CollectionObject
+    ListBase children; // CollectionChild
+};
+
+// -------------------------------------------------------------------------------
 struct World : ElemBase {
     ID id FAIL;
 };
@@ -157,23 +176,20 @@ struct World : ElemBase {
 // -------------------------------------------------------------------------------
 struct MVert : ElemBase {
     float co[3] FAIL;
-    float no[3] FAIL;       // readed as short and divided through / 32767.f
+    float no[3] FAIL; // read as short and divided through / 32767.f
     char flag;
     int mat_nr WARN;
     int bweight;
 
-    MVert() : ElemBase()
-        , flag(0)
-        , mat_nr(0)
-        , bweight(0)
-    {}
+    MVert() :
+            ElemBase(), flag(0), mat_nr(0), bweight(0) {}
 };
 
 // -------------------------------------------------------------------------------
 struct MEdge : ElemBase {
-      int v1, v2 FAIL;
-      char crease, bweight;
-      short flag;
+    int v1, v2 FAIL;
+    char crease, bweight;
+    short flag;
 };
 
 // -------------------------------------------------------------------------------
@@ -190,7 +206,7 @@ struct MLoopUV : ElemBase {
 // -------------------------------------------------------------------------------
 // Note that red and blue are not swapped, as with MCol
 struct MLoopCol : ElemBase {
-	unsigned char r, g, b, a;
+    unsigned char r, g, b, a;
 };
 
 // -------------------------------------------------------------------------------
@@ -203,19 +219,19 @@ struct MPoly : ElemBase {
 
 // -------------------------------------------------------------------------------
 struct MTexPoly : ElemBase {
-    Image* tpage;
+    Image *tpage;
     char flag, transp;
     short mode, tile, pad;
 };
 
 // -------------------------------------------------------------------------------
 struct MCol : ElemBase {
-    char r,g,b,a FAIL;
+    char r, g, b, a FAIL;
 };
 
 // -------------------------------------------------------------------------------
 struct MFace : ElemBase {
-    int v1,v2,v3,v4 FAIL;
+    int v1, v2, v3, v4 FAIL;
     int mat_nr FAIL;
     char flag;
 };
@@ -232,13 +248,12 @@ struct TFace : ElemBase {
 
 // -------------------------------------------------------------------------------
 struct MTFace : ElemBase {
-	MTFace()
-	: flag(0)
-	, mode(0)
-	, tile(0)
-	, unwrap(0)
-	{
-	}
+    MTFace() :
+            flag(0),
+            mode(0),
+            tile(0),
+            unwrap(0) {
+    }
 
     float uv[4][2] FAIL;
     char flag;
@@ -250,31 +265,31 @@ struct MTFace : ElemBase {
 };
 
 // -------------------------------------------------------------------------------
-struct MDeformWeight : ElemBase  {
-      int    def_nr FAIL;
-      float  weight FAIL;
+struct MDeformWeight : ElemBase {
+    int def_nr FAIL;
+    float weight FAIL;
 };
 
 // -------------------------------------------------------------------------------
-struct MDeformVert : ElemBase  {
+struct MDeformVert : ElemBase {
     vector<MDeformWeight> dw WARN;
     int totweight;
 };
 
 // -------------------------------------------------------------------------------
-#define MA_RAYMIRROR    0x40000
+#define MA_RAYMIRROR 0x40000
 #define MA_TRANSPARENCY 0x10000
-#define MA_RAYTRANSP    0x20000
-#define MA_ZTRANSP      0x00040
+#define MA_RAYTRANSP 0x20000
+#define MA_ZTRANSP 0x00040
 
 struct Material : ElemBase {
     ID id FAIL;
 
-    float r,g,b WARN;
-    float specr,specg,specb WARN;
+    float r, g, b WARN;
+    float specr, specg, specb WARN;
     short har;
-    float ambr,ambg,ambb WARN;
-    float mirr,mirg,mirb;
+    float ambr, ambg, ambb WARN;
+    float mirr, mirg, mirb;
     float emit WARN;
     float ray_mirror;
     float alpha WARN;
@@ -399,20 +414,19 @@ struct CustomDataLayer : ElemBase {
     int active_mask;
     int uid;
     char name[64];
-    std::shared_ptr<ElemBase> data;     // must be converted to real type according type member
+    std::shared_ptr<ElemBase> data; // must be converted to real type according type member
 
-    CustomDataLayer()
-        : ElemBase()
-        , type(0)
-        , offset(0)
-        , flag(0)
-        , active(0)
-        , active_rnd(0)
-        , active_clone(0)
-        , active_mask(0)
-        , uid(0)
-        , data(nullptr)
-    {
+    CustomDataLayer() :
+            ElemBase(),
+            type(0),
+            offset(0),
+            flag(0),
+            active(0),
+            active_rnd(0),
+            active_clone(0),
+            active_mask(0),
+            uid(0),
+            data(nullptr) {
         memset(name, 0, sizeof name);
     }
 };
@@ -430,8 +444,8 @@ CustomData 208
     CustomDataExternal *external 200 8
 */
 struct CustomData : ElemBase {
-    vector<std::shared_ptr<struct CustomDataLayer> > layers;
-    int typemap[42];    // CD_NUMTYPES
+    vector<std::shared_ptr<struct CustomDataLayer>> layers;
+    int typemap[42]; // CD_NUMTYPES
     int totlayer;
     int maxlayer;
     int totsize;
@@ -469,7 +483,7 @@ struct Mesh : ElemBase {
     vector<MDeformVert> dvert;
     vector<MCol> mcol;
 
-    vector< std::shared_ptr<Material> > mat FAIL;
+    vector<std::shared_ptr<Material>> mat FAIL;
 
     struct CustomData vdata;
     struct CustomData edata;
@@ -490,153 +504,159 @@ struct Library : ElemBase {
 // -------------------------------------------------------------------------------
 struct Camera : ElemBase {
     enum Type {
-          Type_PERSP    =   0
-         ,Type_ORTHO    =   1
+        Type_PERSP = 0,
+        Type_ORTHO = 1
     };
 
     ID id FAIL;
 
-    Type type,flag WARN;
+    Type type, flag WARN;
     float lens WARN;
     float sensor_x WARN;
     float clipsta, clipend;
 };
 
-
 // -------------------------------------------------------------------------------
 struct Lamp : ElemBase {
 
     enum FalloffType {
-         FalloffType_Constant   = 0x0
-        ,FalloffType_InvLinear  = 0x1
-        ,FalloffType_InvSquare  = 0x2
+        FalloffType_Constant = 0x0,
+        FalloffType_InvLinear = 0x1,
+        FalloffType_InvSquare = 0x2
         //,FalloffType_Curve    = 0x3
         //,FalloffType_Sliders  = 0x4
     };
 
     enum Type {
-         Type_Local         = 0x0
-        ,Type_Sun           = 0x1
-        ,Type_Spot          = 0x2
-        ,Type_Hemi          = 0x3
-        ,Type_Area          = 0x4
+        Type_Local = 0x0,
+        Type_Sun = 0x1,
+        Type_Spot = 0x2,
+        Type_Hemi = 0x3,
+        Type_Area = 0x4
         //,Type_YFPhoton    = 0x5
     };
 
-      ID id FAIL;
-      //AnimData *adt;
+    ID id FAIL;
+    //AnimData *adt;
 
-      Type type FAIL;
-      short flags;
+    Type type FAIL;
+    short flags;
 
-      //int mode;
+    //int mode;
 
-      short colormodel, totex;
-      float r,g,b,k WARN;
-      //float shdwr, shdwg, shdwb;
+    short colormodel, totex;
+    float r, g, b, k WARN;
+    //float shdwr, shdwg, shdwb;
 
-      float energy, dist, spotsize, spotblend;
-      //float haint;
+    float energy, dist, spotsize, spotblend;
+    //float haint;
 
-      float constant_coefficient;
-      float linear_coefficient;
-      float quadratic_coefficient;
+    float constant_coefficient;
+    float linear_coefficient;
+    float quadratic_coefficient;
 
-      float att1, att2;
-      //struct CurveMapping *curfalloff;
-      FalloffType falloff_type;
+    float att1, att2;
+    //struct CurveMapping *curfalloff;
+    FalloffType falloff_type;
 
-      //float clipsta, clipend, shadspotsize;
-      //float bias, soft, compressthresh;
-      //short bufsize, samp, buffers, filtertype;
-      //char bufflag, buftype;
+    //float clipsta, clipend, shadspotsize;
+    //float bias, soft, compressthresh;
+    //short bufsize, samp, buffers, filtertype;
+    //char bufflag, buftype;
 
-      //short ray_samp, ray_sampy, ray_sampz;
-      //short ray_samp_type;
-      short area_shape;
-      float area_size, area_sizey, area_sizez;
-      //float adapt_thresh;
-      //short ray_samp_method;
+    //short ray_samp, ray_sampy, ray_sampz;
+    //short ray_samp_type;
+    short area_shape;
+    float area_size, area_sizey, area_sizez;
+    //float adapt_thresh;
+    //short ray_samp_method;
 
-      //short texact, shadhalostep;
+    //short texact, shadhalostep;
 
-      //short sun_effect_type;
-      //short skyblendtype;
-      //float horizon_brightness;
-      //float spread;
-      float sun_brightness;
-      //float sun_size;
-      //float backscattered_light;
-      //float sun_intensity;
-      //float atm_turbidity;
-      //float atm_inscattering_factor;
-      //float atm_extinction_factor;
-      //float atm_distance_factor;
-      //float skyblendfac;
-      //float sky_exposure;
-      //short sky_colorspace;
+    //short sun_effect_type;
+    //short skyblendtype;
+    //float horizon_brightness;
+    //float spread;
+    float sun_brightness;
+    //float sun_size;
+    //float backscattered_light;
+    //float sun_intensity;
+    //float atm_turbidity;
+    //float atm_inscattering_factor;
+    //float atm_extinction_factor;
+    //float atm_distance_factor;
+    //float skyblendfac;
+    //float sky_exposure;
+    //short sky_colorspace;
 
-      // int YF_numphotons, YF_numsearch;
-      // short YF_phdepth, YF_useqmc, YF_bufsize, YF_pad;
-      // float YF_causticblur, YF_ltradius;
+    // int YF_numphotons, YF_numsearch;
+    // short YF_phdepth, YF_useqmc, YF_bufsize, YF_pad;
+    // float YF_causticblur, YF_ltradius;
 
-      // float YF_glowint, YF_glowofs;
-      // short YF_glowtype, YF_pad2;
+    // float YF_glowint, YF_glowofs;
+    // short YF_glowtype, YF_pad2;
 
-      //struct Ipo *ipo;
-      //struct MTex *mtex[18];
-      // short pr_texture;
+    //struct Ipo *ipo;
+    //struct MTex *mtex[18];
+    // short pr_texture;
 
-      //struct PreviewImage *preview;
+    //struct PreviewImage *preview;
 };
 
 // -------------------------------------------------------------------------------
-struct ModifierData : ElemBase  {
+struct ModifierData : ElemBase {
     enum ModifierType {
-      eModifierType_None = 0,
-      eModifierType_Subsurf,
-      eModifierType_Lattice,
-      eModifierType_Curve,
-      eModifierType_Build,
-      eModifierType_Mirror,
-      eModifierType_Decimate,
-      eModifierType_Wave,
-      eModifierType_Armature,
-      eModifierType_Hook,
-      eModifierType_Softbody,
-      eModifierType_Boolean,
-      eModifierType_Array,
-      eModifierType_EdgeSplit,
-      eModifierType_Displace,
-      eModifierType_UVProject,
-      eModifierType_Smooth,
-      eModifierType_Cast,
-      eModifierType_MeshDeform,
-      eModifierType_ParticleSystem,
-      eModifierType_ParticleInstance,
-      eModifierType_Explode,
-      eModifierType_Cloth,
-      eModifierType_Collision,
-      eModifierType_Bevel,
-      eModifierType_Shrinkwrap,
-      eModifierType_Fluidsim,
-      eModifierType_Mask,
-      eModifierType_SimpleDeform,
-      eModifierType_Multires,
-      eModifierType_Surface,
-      eModifierType_Smoke,
-      eModifierType_ShapeKey
+        eModifierType_None = 0,
+        eModifierType_Subsurf,
+        eModifierType_Lattice,
+        eModifierType_Curve,
+        eModifierType_Build,
+        eModifierType_Mirror,
+        eModifierType_Decimate,
+        eModifierType_Wave,
+        eModifierType_Armature,
+        eModifierType_Hook,
+        eModifierType_Softbody,
+        eModifierType_Boolean,
+        eModifierType_Array,
+        eModifierType_EdgeSplit,
+        eModifierType_Displace,
+        eModifierType_UVProject,
+        eModifierType_Smooth,
+        eModifierType_Cast,
+        eModifierType_MeshDeform,
+        eModifierType_ParticleSystem,
+        eModifierType_ParticleInstance,
+        eModifierType_Explode,
+        eModifierType_Cloth,
+        eModifierType_Collision,
+        eModifierType_Bevel,
+        eModifierType_Shrinkwrap,
+        eModifierType_Fluidsim,
+        eModifierType_Mask,
+        eModifierType_SimpleDeform,
+        eModifierType_Multires,
+        eModifierType_Surface,
+        eModifierType_Smoke,
+        eModifierType_ShapeKey
     };
 
     std::shared_ptr<ElemBase> next WARN;
-    std::shared_ptr<ElemBase> prev WARN;
+    std::weak_ptr<ElemBase> prev WARN;
 
     int type, mode;
     char name[32];
 };
 
+
+// ------------------------------------------------------------------------------------------------
+struct SharedModifierData : ElemBase {
+    ModifierData modifier;
+};
+
+
 // -------------------------------------------------------------------------------
-struct SubsurfModifierData : ElemBase  {
+struct SubsurfModifierData : SharedModifierData {
 
     enum Type {
 
@@ -646,53 +666,52 @@ struct SubsurfModifierData : ElemBase  {
 
     enum Flags {
         // some omitted
-        FLAGS_SubsurfUV     =1<<3
+        FLAGS_SubsurfUV = 1 << 3
     };
 
-    ModifierData modifier FAIL;
     short subdivType WARN;
     short levels FAIL;
-    short renderLevels ;
+    short renderLevels;
     short flags;
 };
 
 // -------------------------------------------------------------------------------
-struct MirrorModifierData : ElemBase {
+struct MirrorModifierData : SharedModifierData {
 
     enum Flags {
-        Flags_CLIPPING      =1<<0,
-        Flags_MIRROR_U      =1<<1,
-        Flags_MIRROR_V      =1<<2,
-        Flags_AXIS_X        =1<<3,
-        Flags_AXIS_Y        =1<<4,
-        Flags_AXIS_Z        =1<<5,
-        Flags_VGROUP        =1<<6
+        Flags_CLIPPING = 1 << 0,
+        Flags_MIRROR_U = 1 << 1,
+        Flags_MIRROR_V = 1 << 2,
+        Flags_AXIS_X = 1 << 3,
+        Flags_AXIS_Y = 1 << 4,
+        Flags_AXIS_Z = 1 << 5,
+        Flags_VGROUP = 1 << 6
     };
-
-    ModifierData modifier FAIL;
 
     short axis, flag;
     float tolerance;
-    std::shared_ptr<Object> mirror_ob;
+    std::weak_ptr<Object> mirror_ob;
 };
 
 // -------------------------------------------------------------------------------
-struct Object : ElemBase  {
+struct Object : ElemBase {
     ID id FAIL;
 
     enum Type {
-         Type_EMPTY     =   0
-        ,Type_MESH      =   1
-        ,Type_CURVE     =   2
-        ,Type_SURF      =   3
-        ,Type_FONT      =   4
-        ,Type_MBALL     =   5
+        Type_EMPTY = 0,
+        Type_MESH = 1,
+        Type_CURVE = 2,
+        Type_SURF = 3,
+        Type_FONT = 4,
+        Type_MBALL = 5
 
-        ,Type_LAMP      =   10
-        ,Type_CAMERA    =   11
+        ,
+        Type_LAMP = 10,
+        Type_CAMERA = 11
 
-        ,Type_WAVE      =   21
-        ,Type_LATTICE   =   22
+        ,
+        Type_WAVE = 21,
+        Type_LATTICE = 22
     };
 
     Type type FAIL;
@@ -700,39 +719,29 @@ struct Object : ElemBase  {
     float parentinv[4][4] WARN;
     char parsubstr[32] WARN;
 
-    Object* parent WARN;
+    Object *parent WARN;
     std::shared_ptr<Object> track WARN;
 
-    std::shared_ptr<Object> proxy,proxy_from,proxy_group WARN;
+    std::shared_ptr<Object> proxy, proxy_from, proxy_group WARN;
     std::shared_ptr<Group> dup_group WARN;
     std::shared_ptr<ElemBase> data FAIL;
 
     ListBase modifiers;
 
-    Object()
-    : ElemBase()
-    , type( Type_EMPTY )
-    , parent( nullptr )
-    , track()
-    , proxy()
-    , proxy_from()
-    , data() {
+    Object() :
+            ElemBase(), type(Type_EMPTY), parent(nullptr), track(), proxy(), proxy_from(), data() {
         // empty
     }
 };
 
-
 // -------------------------------------------------------------------------------
 struct Base : ElemBase {
-    Base* prev WARN;
+    Base *prev WARN;
     std::shared_ptr<Base> next WARN;
     std::shared_ptr<Object> object WARN;
 
-    Base() 
-    : ElemBase()
-    , prev( nullptr )
-    , next()
-    , object() {
+    Base() :
+            ElemBase(), prev(nullptr), next(), object() {
         // empty
         // empty
     }
@@ -745,14 +754,12 @@ struct Scene : ElemBase {
     std::shared_ptr<Object> camera WARN;
     std::shared_ptr<World> world WARN;
     std::shared_ptr<Base> basact WARN;
+    std::shared_ptr<Collection> master_collection WARN;
 
     ListBase base;
 
-    Scene()
-    : ElemBase()
-    , camera()
-    , world()
-    , basact() {
+    Scene() :
+            ElemBase(), camera(), world(), basact(), master_collection() {
         // empty
     }
 };
@@ -783,9 +790,9 @@ struct Image : ElemBase {
     short animspeed;
 
     short gen_x, gen_y, gen_type;
-    
-    Image()
-    : ElemBase() {
+
+    Image() :
+            ElemBase() {
         // empty
     }
 };
@@ -795,33 +802,33 @@ struct Tex : ElemBase {
 
     // actually, the only texture type we support is Type_IMAGE
     enum Type {
-         Type_CLOUDS        = 1
-        ,Type_WOOD          = 2
-        ,Type_MARBLE        = 3
-        ,Type_MAGIC         = 4
-        ,Type_BLEND         = 5
-        ,Type_STUCCI        = 6
-        ,Type_NOISE         = 7
-        ,Type_IMAGE         = 8
-        ,Type_PLUGIN        = 9
-        ,Type_ENVMAP        = 10
-        ,Type_MUSGRAVE      = 11
-        ,Type_VORONOI       = 12
-        ,Type_DISTNOISE     = 13
-        ,Type_POINTDENSITY  = 14
-        ,Type_VOXELDATA     = 15
+        Type_CLOUDS = 1,
+        Type_WOOD = 2,
+        Type_MARBLE = 3,
+        Type_MAGIC = 4,
+        Type_BLEND = 5,
+        Type_STUCCI = 6,
+        Type_NOISE = 7,
+        Type_IMAGE = 8,
+        Type_PLUGIN = 9,
+        Type_ENVMAP = 10,
+        Type_MUSGRAVE = 11,
+        Type_VORONOI = 12,
+        Type_DISTNOISE = 13,
+        Type_POINTDENSITY = 14,
+        Type_VOXELDATA = 15
     };
 
     enum ImageFlags {
-         ImageFlags_INTERPOL         = 1
-        ,ImageFlags_USEALPHA         = 2
-        ,ImageFlags_MIPMAP           = 4
-        ,ImageFlags_IMAROT           = 16
-        ,ImageFlags_CALCALPHA        = 32
-        ,ImageFlags_NORMALMAP        = 2048
-        ,ImageFlags_GAUSS_MIP        = 4096
-        ,ImageFlags_FILTER_MIN       = 8192
-        ,ImageFlags_DERIVATIVEMAP   = 16384
+        ImageFlags_INTERPOL = 1,
+        ImageFlags_USEALPHA = 2,
+        ImageFlags_MIPMAP = 4,
+        ImageFlags_IMAROT = 16,
+        ImageFlags_CALCALPHA = 32,
+        ImageFlags_NORMALMAP = 2048,
+        ImageFlags_GAUSS_MIP = 4096,
+        ImageFlags_FILTER_MIN = 8192,
+        ImageFlags_DERIVATIVEMAP = 16384
     };
 
     ID id FAIL;
@@ -876,11 +883,8 @@ struct Tex : ElemBase {
 
     //char use_nodes;
 
-    Tex()
-    : ElemBase()
-    , imaflag( ImageFlags_INTERPOL )
-    , type( Type_CLOUDS )
-    , ima() {
+    Tex() :
+            ElemBase(), imaflag(ImageFlags_INTERPOL), type(Type_CLOUDS), ima() {
         // empty
     }
 };
@@ -889,52 +893,52 @@ struct Tex : ElemBase {
 struct MTex : ElemBase {
 
     enum Projection {
-         Proj_N = 0
-        ,Proj_X = 1
-        ,Proj_Y = 2
-        ,Proj_Z = 3
+        Proj_N = 0,
+        Proj_X = 1,
+        Proj_Y = 2,
+        Proj_Z = 3
     };
 
     enum Flag {
-         Flag_RGBTOINT      = 0x1
-        ,Flag_STENCIL       = 0x2
-        ,Flag_NEGATIVE      = 0x4
-        ,Flag_ALPHAMIX      = 0x8
-        ,Flag_VIEWSPACE     = 0x10
+        Flag_RGBTOINT = 0x1,
+        Flag_STENCIL = 0x2,
+        Flag_NEGATIVE = 0x4,
+        Flag_ALPHAMIX = 0x8,
+        Flag_VIEWSPACE = 0x10
     };
 
     enum BlendType {
-         BlendType_BLEND            = 0
-        ,BlendType_MUL              = 1
-        ,BlendType_ADD              = 2
-        ,BlendType_SUB              = 3
-        ,BlendType_DIV              = 4
-        ,BlendType_DARK             = 5
-        ,BlendType_DIFF             = 6
-        ,BlendType_LIGHT            = 7
-        ,BlendType_SCREEN           = 8
-        ,BlendType_OVERLAY          = 9
-        ,BlendType_BLEND_HUE        = 10
-        ,BlendType_BLEND_SAT        = 11
-        ,BlendType_BLEND_VAL        = 12
-        ,BlendType_BLEND_COLOR      = 13
+        BlendType_BLEND = 0,
+        BlendType_MUL = 1,
+        BlendType_ADD = 2,
+        BlendType_SUB = 3,
+        BlendType_DIV = 4,
+        BlendType_DARK = 5,
+        BlendType_DIFF = 6,
+        BlendType_LIGHT = 7,
+        BlendType_SCREEN = 8,
+        BlendType_OVERLAY = 9,
+        BlendType_BLEND_HUE = 10,
+        BlendType_BLEND_SAT = 11,
+        BlendType_BLEND_VAL = 12,
+        BlendType_BLEND_COLOR = 13
     };
 
     enum MapType {
-         MapType_COL         = 1
-        ,MapType_NORM        = 2
-        ,MapType_COLSPEC     = 4
-        ,MapType_COLMIR      = 8
-        ,MapType_REF         = 16
-        ,MapType_SPEC        = 32
-        ,MapType_EMIT        = 64
-        ,MapType_ALPHA       = 128
-        ,MapType_HAR         = 256
-        ,MapType_RAYMIRR     = 512
-        ,MapType_TRANSLU     = 1024
-        ,MapType_AMB         = 2048
-        ,MapType_DISPLACE    = 4096
-        ,MapType_WARP        = 8192
+        MapType_COL = 1,
+        MapType_NORM = 2,
+        MapType_COLSPEC = 4,
+        MapType_COLMIR = 8,
+        MapType_REF = 16,
+        MapType_SPEC = 32,
+        MapType_EMIT = 64,
+        MapType_ALPHA = 128,
+        MapType_HAR = 256,
+        MapType_RAYMIRR = 512,
+        MapType_TRANSLU = 1024,
+        MapType_AMB = 2048,
+        MapType_DISPLACE = 4096,
+        MapType_WARP = 8192
     };
 
     // short texco, maptoneg;
@@ -945,7 +949,7 @@ struct MTex : ElemBase {
     std::shared_ptr<Tex> tex;
     char uvname[32];
 
-    Projection projx,projy,projz;
+    Projection projx, projy, projz;
     char mapping;
     float ofs[3], size[3], rot;
 
@@ -953,7 +957,7 @@ struct MTex : ElemBase {
     short colormodel, pmapto, pmaptoneg;
     //short normapspace, which_output;
     //char brush_map_mode;
-    float r,g,b,k WARN;
+    float r, g, b, k WARN;
     //float def_var, rt;
 
     //float colfac, varfac;
@@ -972,12 +976,12 @@ struct MTex : ElemBase {
     //float shadowfac;
     //float zenupfac, zendownfac, blendfac;
 
-    MTex()
-    : ElemBase() {
+    MTex() :
+            ElemBase() {
         // empty
     }
 };
 
-}
-}
+} // namespace Blender
+} // namespace Assimp
 #endif

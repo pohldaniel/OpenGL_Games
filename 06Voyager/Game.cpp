@@ -1,4 +1,3 @@
-
 #include "Game.h"
 
 const float HEIGHTMAP_ROUGHNESS = 1.2f;
@@ -12,7 +11,7 @@ const Vector3f CAMERA_VELOCITY(200.0f, 200.0f, 200.0f);
 Vector3f LIGHT_DIRECTION(-100.0f, 100.0f, -100.0f);
 
 Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_water(Water(m_dt, m_fdt)), m_skybox(SkyBox(m_dt, m_fdt, 2500.0f)) {
-	
+
 	m_copyFramebuffer.create(WIDTH, HEIGHT);
 	m_copyFramebuffer.attachTexture(Framebuffer::Attachments::COLOR);
 	m_copyFramebuffer.attachRenderbuffer(Framebuffer::Attachments::DEPTH_STENCIL);
@@ -113,7 +112,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_water(
 	//m_lightDepthFramebuffer.attachLayerdTexture(Framebuffer::Attachments::COLOR, m_camera.m_numberCascades);
 	m_lightDepthFramebuffer.attachLayerdTexture(Framebuffer::Attachments::DEPTH24, m_camera.m_numberCascades);
 
-	
+
 	m_tree = new Tree();
 	m_tree->translate(HEIGHTMAP_WIDTH * 0.5f + 800.0f, m_terrain.getHeightMap().heightAt(HEIGHTMAP_WIDTH * 0.5f + 800.0f, HEIGHTMAP_WIDTH * 0.5f + 300.0f), HEIGHTMAP_WIDTH * 0.5f + 300.0f);
 	m_tree->scale(10.0f, 10.0f, 10.0f);
@@ -133,11 +132,11 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_water(
 
 	std::vector<btCollisionShape*> fernShape2 = Physics::CreateStaticCollisionShapes(m_fernEntities.back()->getConvexHull().m_vertexBuffer, m_fernEntities.back()->getConvexHull().m_indexBuffer, 10.0f);
 	btRigidBody* fernBody2 = Globals::physics->addStaticModel(fernShape2, Physics::BtTransform(Vector3f(HEIGHTMAP_WIDTH * 0.5f + 500.0f, m_terrain.getHeightMap().heightAt(HEIGHTMAP_WIDTH * 0.5f + 400.0f, HEIGHTMAP_WIDTH * 0.5f + 400.0f), HEIGHTMAP_WIDTH * 0.5f + 400.0f)), false, btVector3(1, 1, 1), Physics::collisiontypes::RENDERABLE_OBJECT, Physics::collisiontypes::RAY);
-	
-	for (auto entitie : m_fernEntities) {		
+
+	for (auto entitie : m_fernEntities) {
 		entitie->scale(10.0f, 10.0f, 10.0f);
 	}
-	
+
 	m_barrel = new Barrel();
 
 	std::vector<btCollisionShape*> barrelShape = Physics::CreateStaticCollisionShapes(m_barrel->getConvexHull().m_vertexBuffer, m_barrel->getConvexHull().m_indexBuffer, btVector3(10.0f, 10.0f, 10.0f));
@@ -160,11 +159,11 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_water(
 	Globals::shaderManager.getAssetPointer("skybox")->loadVector("fogColor", Vector4f(0.5f, 0.5f, 0.5f, 1.0f));
 	glUseProgram(0);
 
-	
+
 	m_car = new PhysicsCar();
 	m_car->Initialize(Globals::physics->GetDynamicsWorld(), Physics::BtTransform(Vector3f(HEIGHTMAP_WIDTH * 0.5f + 100.0f, m_terrain.getHeightMap().heightAt(HEIGHTMAP_WIDTH * 0.5f + 100.0f, HEIGHTMAP_WIDTH * 0.5f + 100.0f) + 50.0f, HEIGHTMAP_WIDTH * 0.5f + 100.0f), Vector3f(0, 1, 0), -45.0f));
 
-	
+
 	Vector3f position;
 	position[0] = HEIGHTMAP_WIDTH * 0.5f + 100.0f;
 	position[2] = HEIGHTMAP_WIDTH * 0.5f + 100.0f;
@@ -226,9 +225,9 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_water(
 	assimpAnimated.getAnimator()->addAnimation(Globals::animationManager.getAssetPointer("cowboy_run"));
 	assimpAnimated.getAnimator()->startAnimation("cowboy_run");*/
 
-	Globals::animationManager.loadAnimation("right_wing", "res/models/dragon_dae/dragon.dae", "right_wing", "right_wing");
-	Globals::animationManager.loadAnimation("left_wing", "res/models/dragon_dae/dragon.dae", "left_wing", "left_wing");
-	Globals::animationManager.loadAnimation("both_wing", "res/models/dragon_dae/dragon.dae", "both_wing", "both_wing");
+	Globals::animationManager.loadAnimation("right_wing", "res/models/dragon_dae/dragon.dae", "right_wing", "right_wing", false, 0, 0, 1000.0f);
+	Globals::animationManager.loadAnimation("left_wing", "res/models/dragon_dae/dragon.dae", "left_wing", "left_wing", false, 0, 0, 1000.0f);
+	Globals::animationManager.loadAnimation("both_wing", "res/models/dragon_dae/dragon.dae", "both_wing", "both_wing", false, 0, 0, 1000.0f);
 
 	assimpAnimated.loadModel("res/models/dragon_dae/dragon.dae", "res/models/dragon_dae/dragon.png");
 	assimpAnimated.rotate(Vector3f(0.0f, 1.0f, 0.0f), 180.0f);
@@ -247,7 +246,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_water(
 	assimpAnimated.scale(10.3f, 10.3f, 10.3f);
 	assimpAnimated.getAnimator()->addAnimation(Globals::animationManager.getAssetPointer("cowboy_run"));
 	assimpAnimated.getAnimator()->startAnimation("cowboy_run");*/
-	
+
 
 	/*Globals::animationManager.loadAnimation("vampire_dance", "res/models/vampire/dancing_vampire.dae", "", "vampire_dance");
 	assimpAnimated.loadModel("res/models/vampire/dancing_vampire.dae", "res/models/vampire/textures/Vampire_diffuse.png");
@@ -257,16 +256,15 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_water(
 	assimpAnimated.getAnimator()->addAnimation(Globals::animationManager.getAssetPointer("vampire_dance"));
 	assimpAnimated.getAnimator()->startAnimation("vampire_dance");*/
 
-	/*Globals::animationManager.loadAnimationFbx("player_idle", "res/models/player/player.fbx", "Player", "player_idle", 6u, 82u, 50u);
-	Globals::animationManager.loadAnimationFbx("player_run", "res/models/player/player.fbx", "Player", "player_run", 83u, 104u, 50u);
-
-	assimpAnimated.loadModel("res/models/player/player.fbx", "res/models/player/textures/Player_D.tga");
+	//Globals::animationManager.loadAnimationFbx("player_idle", "res/models/player/player.fbx", "Player", "player_idle", 6u, 82u, 50u);
+	//Globals::animationManager.loadAnimationFbx("player_run", "res/models/player/player.fbx", "Player", "player_run", 83u, 104u, 50u);
+	/*assimpAnimated.loadModel("res/models/player/player.fbx", "res/models/player/textures/Player_D.tga");
 	assimpAnimated.rotate(Vector3f(0.0f, 1.0f, 0.0f), 180.0f);
 	assimpAnimated.translate(position[0], position[1], position[2]);
-	assimpAnimated.scale(0.3f, 0.3f, 0.3f);
-	assimpAnimated.getAnimator()->addAnimation(Globals::animationManager.getAssetPointer("player_idle"));
-	assimpAnimated.getAnimator()->addAnimation(Globals::animationManager.getAssetPointer("player_run"));
-	assimpAnimated.getAnimator()->startAnimation("player_idle");*/
+	assimpAnimated.scale(0.3f, 0.3f, 0.3f);*/
+	//assimpAnimated.getAnimator()->addAnimation(Globals::animationManager.getAssetPointer("player_idle"));
+	//assimpAnimated.getAnimator()->addAnimation(Globals::animationManager.getAssetPointer("player_run"));
+	//assimpAnimated.getAnimator()->startAnimation("player_idle");
 
 	position[0] = HEIGHTMAP_WIDTH * 0.5f + 150.0f;
 	position[2] = HEIGHTMAP_WIDTH * 0.5f + 70.0f;
@@ -275,7 +273,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_water(
 	Globals::animationManager.loadAnimation("woman_walk", "res/models/woman/Woman.gltf", "Walking", "woman_walk", false, 0, 0, 1000.0f);
 	Globals::animationManager.loadAnimation("lean_left", "res/models/woman/Woman.gltf", "Lean_Left", "lean_left", false, 0, 0, 1000.0f);
 	Globals::animationManager.loadAnimation("woman_run", "res/models/woman/Woman.gltf", "Running", "woman_run", false, 0, 0, 1000.0f);
-	
+
 	woman.loadModel("res/models/woman/Woman.gltf", "res/models/woman/Woman.png");
 	woman.getAnimator()->addAnimation(Globals::animationManager.getAssetPointer("woman_walk"));
 	woman.getAnimator()->addAnimation(Globals::animationManager.getAssetPointer("lean_left"));
@@ -284,7 +282,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_water(
 	woman.rotate(Vector3f(0.0f, 1.0f, 0.0f), 240.0f);
 	woman.scale(0.1f, 0.1f, 0.1f);
 	woman.translate(position[0], position[1], position[2]);
-	//woman.getAnimator()->startAnimation("woman_walk");
+	woman.getAnimator()->startAnimation("woman_walk");
 }
 
 Game::~Game() {}
@@ -301,7 +299,7 @@ void Game::update() {
 	float dx = 0.0f;
 	float dy = 0.0f;
 	bool move = false;
-	if (keyboard.keyDown(Keyboard::KEY_W)) {		
+	if (keyboard.keyDown(Keyboard::KEY_W)) {
 		directrion += Vector3f(0.0f, 0.0f, 1.0f);
 		move |= true;
 	}
@@ -347,7 +345,7 @@ void Game::update() {
 		move |= true;
 	}
 
-	if (keyboard.keyPressed(Keyboard::KEY_1) ) {
+	if (keyboard.keyPressed(Keyboard::KEY_1)) {
 		m_terrain.toggleDisableColorMaps();
 	}
 
@@ -386,7 +384,7 @@ void Game::update() {
 
 	Mouse &mouse = Mouse::instance();
 	if (mouse.buttonPressed(Mouse::MouseButton::BUTTON_LEFT)) {
-		
+
 		float mouseXndc = (2.0f * mouse.xPosAbsolute()) / (float)WIDTH - 1.0f;
 		float mouseYndc = 1.0f - (2.0f * mouse.yPosAbsolute()) / (float)HEIGHT;
 
@@ -394,27 +392,27 @@ void Game::update() {
 		Vector4f rayEndEye = Vector4f(mouseXndc, mouseYndc, 1.0f, 1.0f) ^ Globals::invProjection;
 		rayEndEye = rayEndEye * (1.0f / rayEndEye[3]);
 
-		
+
 		Vector3f rayStartWorld = rayStartEye * m_camera.getInvViewMatrix();
 		Vector3f rayEndWorld = rayEndEye * m_camera.getInvViewMatrix();
 
 		Vector3f rayDirection = rayEndWorld - rayStartWorld;
 		Vector3f::Normalize(rayDirection);
 
-		btVector3 origin = btVector3(rayStartWorld[0], rayStartWorld[1], rayStartWorld[2]);		
+		btVector3 origin = btVector3(rayStartWorld[0], rayStartWorld[1], rayStartWorld[2]);
 		btVector3 target = btVector3(rayEndWorld[0], rayEndWorld[1], rayEndWorld[2]);
 
 		RayResultCallback callback(origin, target, Physics::collisiontypes::RAY, Physics::collisiontypes::PICKABLE_OBJECT);
-		
+
 		Globals::physics->GetDynamicsWorld()->rayTest(origin, target, callback);
 		if (callback.hasHit()) {
 			MeshCube* cube = reinterpret_cast<MeshCube*>(callback.m_collisionObject->getUserPointer());
-			cube->dissolve();			
+			cube->dissolve();
 		}
 		m_mousePicker.click();
 	}
 
-	if (mouse.buttonDown(Mouse::MouseButton::BUTTON_RIGHT)) {		
+	if (mouse.buttonDown(Mouse::MouseButton::BUTTON_RIGHT)) {
 		dx = mouse.xPosRelative();
 		dy = mouse.yPosRelative();
 	}
@@ -424,7 +422,7 @@ void Game::update() {
 		// rotate camera
 		if (dx || dy) {
 			m_camera.rotateSmoothly(dx, dy, 0.0f);
-			
+
 		} // end if any rotation
 
 		if (move) {
@@ -452,7 +450,7 @@ void Game::update() {
 	m_skybox.update();
 	m_barrel->update(m_dt);
 	m_barrel->setDrawBorder(m_mousePicker.getPickedId() == m_barrel->getId());
-	
+
 	for (auto entitie : m_entities) {
 		entitie->update(m_dt);
 	}
@@ -463,7 +461,7 @@ void Game::update() {
 	}
 
 	m_mousePicker.update(m_dt);
-	
+
 	float bt = m_blendTime;
 	if (bt < 0.0f) { bt = 0.0f; }
 	if (bt > 1.0f) { bt = 1.0f; }
@@ -471,11 +469,11 @@ void Game::update() {
 
 	//assimpAnimated.update("left_wing", "both_wing", std::min(std::max(m_blend, 0.0f), 1.0f), m_dt);
 	//assimpAnimated.update(m_dt);
-	//assimpAnimated.blendTwoAnimationsDisjoint(m_dt, "both_wing", "right_wing", bt, 1.0f);
-	assimpAnimated.addTwoAnimationsDisjoint(m_dt, "left_wing", "right_wing", 1.0f);
+	assimpAnimated.blendTwoAnimationsDisjoint(m_dt, "left_wing", "right_wing", bt, 1.0f);
+	//assimpAnimated.addTwoAnimationsDisjoint(m_dt, "left_wing", "right_wing", 1.0f);
 	//woman.update(m_dt);
-	//woman.addTwoAnimationsDisjoint(m_dt, "woman_walk", "lean_left", 1.0f);
-	woman.blendTwoAnimations(m_dt, "woman_run", "woman_walk", bt, 1.0f);
+	woman.addTwoAnimationsDisjoint(m_dt, "woman_walk", "lean_left", 1.0f);
+	//woman.blendTwoAnimations(m_dt, "woman_run", "woman_walk", bt, 1.0f);
 
 	m_blendTime += m_dt;
 	if (m_blendTime >= 2.0f) {
@@ -489,7 +487,8 @@ void Game::toggleDayNight() {
 	if (!m_transitionEnd) {
 		m_fadeOut = m_fadeIn;
 		m_fadeIn = !m_fadeIn;
-	}else {
+	}
+	else {
 		m_fadeIn = m_fadeOut;
 		m_fadeOut = !m_fadeOut;
 	}
@@ -506,7 +505,7 @@ void Game::render(unsigned int &frameBuffer) {
 
 	glClearColor(1.0f, 0.5f, 0.5f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-	
+
 	m_water.render(m_camera, m_water.getReflectionBuffer().getColorTexture(), m_water.getRefractionBuffer().getColorTexture(), m_water.getRefractionBuffer().getDepthTexture());
 	auto shader = Globals::shaderManager.getAssetPointer("terrain");
 	glUseProgram(shader->m_program);
@@ -515,7 +514,7 @@ void Game::render(unsigned int &frameBuffer) {
 	shader->loadMatrixArray("u_viewShadows", m_camera.lightViews, m_camera.m_numberCascades);
 	shader->loadFloatArray("u_cascadeEndClipSpace", m_camera.m_cascadeEndClipSpace, m_camera.m_numberCascades);
 	shader->loadBool("u_debug", m_debug);
-	
+
 	shader->loadInt("u_texture", 0);
 	shader->loadInt("u_shadowMaps", 5);
 	shader->loadUnsignedInt("u_numCascades", m_camera.m_numberCascades);
@@ -528,7 +527,7 @@ void Game::render(unsigned int &frameBuffer) {
 
 	m_barrel->draw(m_camera);
 
-	
+
 	for (auto entitie : m_fernEntities) {
 		entitie->draw(m_camera);
 	}
@@ -540,7 +539,7 @@ void Game::render(unsigned int &frameBuffer) {
 	}
 	//m_bottom->draw(m_camera);
 
-	
+
 	m_car->draw(m_camera);
 
 	assimpAnimated.draw(m_camera);
@@ -586,7 +585,7 @@ void Game::render(unsigned int &frameBuffer) {
 	m_skybox.render(m_camera);
 
 	m_text->render();
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);	
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	if (m_debug) {
 		glBindFramebuffer(GL_READ_FRAMEBUFFER, frameBuffer);
@@ -632,7 +631,7 @@ void Game::render(unsigned int &frameBuffer) {
 		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		
+
 		glUseProgram(m_quadArrayShadowShader->m_program);
 		m_quadArrayShadowShader->loadMatrix("u_transform", Matrix4f::IDENTITY);
 		m_quadArrayShadowShader->loadInt("u_layer", m_debugCount);
@@ -641,7 +640,7 @@ void Game::render(unsigned int &frameBuffer) {
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glDisable(GL_SCISSOR_TEST);
-	}	
+	}
 }
 
 void Game::renderOffscreen() {
@@ -673,7 +672,7 @@ void Game::renderOffscreen() {
 	Framebuffer::Unbind();
 
 	glDisable(GL_CLIP_DISTANCE0);
-	
+
 }
 
 void Game::shadowPass() {
@@ -713,13 +712,13 @@ void Game::shadowPass() {
 void Game::mousePickPass() {
 	m_mousePicker.getBuffer().bindWrite();
 
-	
+
 	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	//m_barrel->drawAABB(m_camera);
 	m_barrel->drawHull(m_camera);
 	/*for (auto entitie : m_fernEntities) {
-		entitie->drawAABB(m_camera);
+	entitie->drawAABB(m_camera);
 	}*/
 
 	for (auto entitie : m_fernEntities) {
@@ -736,7 +735,7 @@ void Game::OnMouseMotion(Event::MouseMoveEvent& event) {
 	m_mousePicker.updatePosition(event.x, event.y, m_camera);
 }
 
-void Game::performCameraCollisionDetection(){
+void Game::performCameraCollisionDetection() {
 
 	const Vector3f &pos = m_camera.getPosition();
 	Vector3f newPos(pos);

@@ -3,7 +3,7 @@
 Open Asset Import Library (assimp)
 ---------------------------------------------------------------------------
 
-Copyright (c) 2006-2019, assimp team
+Copyright (c) 2006-2022, assimp team
 
 All rights reserved.
 
@@ -44,12 +44,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #ifndef ASSIMP_BUILD_NO_X_IMPORTER
 
-#include "XFileImporter.h"
-#include "XFileParser.h"
+#include "AssetLib/X/XFileImporter.h"
+#include "AssetLib/X/XFileParser.h"
 #include "PostProcessing/ConvertToLHProcess.h"
 
 #include <assimp/TinyFormatter.h>
-#include <assimp/Defines.h>
 #include <assimp/IOSystem.hpp>
 #include <assimp/scene.h>
 #include <assimp/DefaultLogger.hpp>
@@ -83,23 +82,13 @@ XFileImporter::XFileImporter()
 
 // ------------------------------------------------------------------------------------------------
 // Destructor, private as well
-XFileImporter::~XFileImporter() {
-    // empty
-}
+XFileImporter::~XFileImporter() = default;
 
 // ------------------------------------------------------------------------------------------------
 // Returns whether the class can handle the format of the given file.
-bool XFileImporter::CanRead( const std::string& pFile, IOSystem* pIOHandler, bool checkSig) const {
-    std::string extension = GetExtension(pFile);
-    if(extension == "x") {
-        return true;
-    }
-    if (!extension.length() || checkSig) {
-        uint32_t token[1];
-        token[0] = AI_MAKE_MAGIC("xof ");
-        return CheckMagicToken(pIOHandler,pFile,token,1,0);
-    }
-    return false;
+bool XFileImporter::CanRead( const std::string& pFile, IOSystem* pIOHandler, bool /*checkSig*/) const {
+    static const uint32_t token[] = { AI_MAKE_MAGIC("xof ") };
+    return CheckMagicToken(pIOHandler,pFile,token,AI_COUNT_OF(token));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -113,8 +102,8 @@ const aiImporterDesc* XFileImporter::GetInfo () const {
 void XFileImporter::InternReadFile( const std::string& pFile, aiScene* pScene, IOSystem* pIOHandler) {
     // read file into memory
     std::unique_ptr<IOStream> file( pIOHandler->Open( pFile));
-    if ( file.get() == NULL ) {
-        throw DeadlyImportError( "Failed to open file " + pFile + "." );
+    if ( file.get() == nullptr ) {
+        throw DeadlyImportError( "Failed to open file ", pFile, "." );
     }
 
     static const size_t MinSize = 16;
@@ -211,7 +200,7 @@ aiNode* XFileImporter::CreateNodes( aiScene* pScene, aiNode* pParent, const XFil
 
     // create node
     aiNode* node = new aiNode;
-    node->mName.length = pNode->mName.length();
+    node->mName.length = (ai_uint32)pNode->mName.length();
     node->mParent = pParent;
     memcpy( node->mName.data, pNode->mName.c_str(), pNode->mName.length());
     node->mName.data[node->mName.length] = 0;
@@ -220,7 +209,7 @@ aiNode* XFileImporter::CreateNodes( aiScene* pScene, aiNode* pParent, const XFil
     // convert meshes from the source node
     CreateMeshes( pScene, node, pNode->mMeshes);
 
-    // handle childs
+    // handle children
     if( !pNode->mChildren.empty() ) {
         node->mNumChildren = (unsigned int)pNode->mChildren.size();
         node->mChildren = new aiNode* [node->mNumChildren];
@@ -389,7 +378,7 @@ void XFileImporter::CreateMeshes( aiScene* pScene, aiNode* pNode, const std::vec
                     // does the new vertex stem from an old vertex which was influenced by this bone?
                     ai_real w = oldWeights[orgPoints[d]];
                     if ( w > 0.0 ) {
-                        newWeights.push_back( aiVertexWeight( d, w ) );
+                        newWeights.emplace_back( d, w );
                     }
                 }
 
@@ -513,30 +502,36 @@ void XFileImporter::CreateAnimations( aiScene* pScene, const XFile::Scene* pData
             } else {
                 // separate key sequences for position, rotation, scaling
                 nbone->mNumPositionKeys = (unsigned int)bone->mPosKeys.size();
-                nbone->mPositionKeys = new aiVectorKey[nbone->mNumPositionKeys];
-                for( unsigned int c = 0; c < nbone->mNumPositionKeys; ++c ) {
-                    aiVector3D pos = bone->mPosKeys[c].mValue;
+                if (nbone->mNumPositionKeys != 0) {
+                    nbone->mPositionKeys = new aiVectorKey[nbone->mNumPositionKeys];
+                    for( unsigned int c = 0; c < nbone->mNumPositionKeys; ++c ) {
+                        aiVector3D pos = bone->mPosKeys[c].mValue;
 
-                    nbone->mPositionKeys[c].mTime = bone->mPosKeys[c].mTime;
-                    nbone->mPositionKeys[c].mValue = pos;
+                        nbone->mPositionKeys[c].mTime = bone->mPosKeys[c].mTime;
+                        nbone->mPositionKeys[c].mValue = pos;
+                    }
                 }
 
                 // rotation
                 nbone->mNumRotationKeys = (unsigned int)bone->mRotKeys.size();
-                nbone->mRotationKeys = new aiQuatKey[nbone->mNumRotationKeys];
-                for( unsigned int c = 0; c < nbone->mNumRotationKeys; ++c ) {
-                    aiMatrix3x3 rotmat = bone->mRotKeys[c].mValue.GetMatrix();
+                if (nbone->mNumRotationKeys != 0) {
+                    nbone->mRotationKeys = new aiQuatKey[nbone->mNumRotationKeys];
+                    for( unsigned int c = 0; c < nbone->mNumRotationKeys; ++c ) {
+                        aiMatrix3x3 rotmat = bone->mRotKeys[c].mValue.GetMatrix();
 
-                    nbone->mRotationKeys[c].mTime = bone->mRotKeys[c].mTime;
-                    nbone->mRotationKeys[c].mValue = aiQuaternion( rotmat);
-                    nbone->mRotationKeys[c].mValue.w *= -1.0f; // needs quat inversion
+                        nbone->mRotationKeys[c].mTime = bone->mRotKeys[c].mTime;
+                        nbone->mRotationKeys[c].mValue = aiQuaternion( rotmat);
+                        nbone->mRotationKeys[c].mValue.w *= -1.0f; // needs quat inversion
+                    }
                 }
 
                 // scaling
                 nbone->mNumScalingKeys = (unsigned int)bone->mScaleKeys.size();
-                nbone->mScalingKeys = new aiVectorKey[nbone->mNumScalingKeys];
-                for( unsigned int c = 0; c < nbone->mNumScalingKeys; c++)
-                    nbone->mScalingKeys[c] = bone->mScaleKeys[c];
+                if (nbone->mNumScalingKeys != 0) {
+                    nbone->mScalingKeys = new aiVectorKey[nbone->mNumScalingKeys];
+                    for( unsigned int c = 0; c < nbone->mNumScalingKeys; c++)
+                        nbone->mScalingKeys[c] = bone->mScaleKeys[c];
+                }
 
                 // longest lasting key sequence determines duration
                 if( bone->mPosKeys.size() > 0)
@@ -586,9 +581,9 @@ void XFileImporter::ConvertMaterials( aiScene* pScene, std::vector<XFile::Materi
         XFile::Material& oldMat = pMaterials[a];
         if( oldMat.mIsReference) {
             // find the material it refers to by name, and store its index
-            for( size_t a = 0; a < pScene->mNumMaterials; ++a ) {
+            for( size_t b = 0; b < pScene->mNumMaterials; ++b ) {
                 aiString name;
-                pScene->mMaterials[a]->Get( AI_MATKEY_NAME, name);
+                pScene->mMaterials[b]->Get( AI_MATKEY_NAME, name);
                 if( strcmp( name.C_Str(), oldMat.mName.data()) == 0 ) {
                     oldMat.sceneIndex = a;
                     break;
@@ -596,7 +591,7 @@ void XFileImporter::ConvertMaterials( aiScene* pScene, std::vector<XFile::Materi
             }
 
             if( oldMat.sceneIndex == SIZE_MAX ) {
-                ASSIMP_LOG_WARN_F( "Could not resolve global material reference \"", oldMat.mName, "\"" );
+                ASSIMP_LOG_WARN( "Could not resolve global material reference \"", oldMat.mName, "\"" );
                 oldMat.sceneIndex = 0;
             }
 
@@ -661,9 +656,7 @@ void XFileImporter::ConvertMaterials( aiScene* pScene, std::vector<XFile::Materi
 
                 // convert to lower case for easier comparison
                 for ( unsigned int c = 0; c < sz.length(); ++c ) {
-                    if ( isalpha( sz[ c ] ) ) {
-                        sz[ c ] = tolower( sz[ c ] );
-                    }
+                    sz[ c ] = (char) tolower( (unsigned char) sz[ c ] );
                 }
 
                 // Place texture filename property under the corresponding name

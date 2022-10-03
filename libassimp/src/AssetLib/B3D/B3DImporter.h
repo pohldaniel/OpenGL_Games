@@ -2,8 +2,7 @@
 Open Asset Import Library (assimp)
 ----------------------------------------------------------------------
 
-Copyright (c) 2006-2019, assimp team
-
+Copyright (c) 2006-2022, assimp team
 
 All rights reserved.
 
@@ -40,8 +39,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ----------------------------------------------------------------------
 */
 
-/** @file Definition of the .b3d importer class. */
-
+/**
+ *  @file Definition of the .b3d importer class.
+ */
+#pragma once
 #ifndef AI_B3DIMPORTER_H_INC
 #define AI_B3DIMPORTER_H_INC
 
@@ -62,14 +63,12 @@ namespace Assimp{
 class B3DImporter : public BaseImporter{
 public:
     B3DImporter() = default;
-    virtual ~B3DImporter();
-
-    virtual bool CanRead( const std::string& pFile, IOSystem* pIOHandler, bool checkSig) const;
+    ~B3DImporter() override;
+    bool CanRead( const std::string& pFile, IOSystem* pIOHandler, bool checkSig) const override;
 
 protected:
-
-    virtual const aiImporterDesc* GetInfo () const;
-    virtual void InternReadFile( const std::string& pFile, aiScene* pScene, IOSystem* pIOHandler);
+    const aiImporterDesc* GetInfo () const override;
+    void InternReadFile( const std::string& pFile, aiScene* pScene, IOSystem* pIOHandler) override;
 
 private:
 
@@ -82,7 +81,7 @@ private:
     std::string ReadString();
     std::string ReadChunk();
     void ExitChunk();
-    unsigned ChunkSize();
+    size_t ChunkSize();
 
     template<class T>
     T *to_array( const std::vector<T> &v );
@@ -96,7 +95,7 @@ private:
     };
 
     AI_WONT_RETURN void Oops() AI_WONT_RETURN_SUFFIX;
-    AI_WONT_RETURN void Fail( std::string str ) AI_WONT_RETURN_SUFFIX;
+    AI_WONT_RETURN void Fail(const std::string &str) AI_WONT_RETURN_SUFFIX;
 
     void ReadTEXS();
     void ReadBRUS();
@@ -112,10 +111,9 @@ private:
 
     void ReadBB3D( aiScene *scene );
 
-    unsigned _pos;
-//  unsigned _size;
+    size_t _pos;
     std::vector<unsigned char> _buf;
-    std::vector<unsigned> _stack;
+    std::vector<size_t> _stack;
 
     std::vector<std::string> _textures;
     std::vector<std::unique_ptr<aiMaterial> > _materials;

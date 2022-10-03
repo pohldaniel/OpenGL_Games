@@ -51,7 +51,7 @@ void AssimpAnimatedModel::loadModel(const std::string &a_filename, const std::st
 				aiBone *bone = aiMesh->mBones[boneIndex];
 				const std::string boneName = bone->mName.C_Str();
 				mesh->m_boneList.push_back(boneName);
-				
+				//std::cout << "Bone Name: " << boneName << std::endl;
 				offsetMatrices.push_back(Matrix4f(bone->mOffsetMatrix.a1, bone->mOffsetMatrix.b1, bone->mOffsetMatrix.c1, bone->mOffsetMatrix.d1,
 												  bone->mOffsetMatrix.a2, bone->mOffsetMatrix.b2, bone->mOffsetMatrix.c2, bone->mOffsetMatrix.d2,
 												  bone->mOffsetMatrix.a3, bone->mOffsetMatrix.b3, bone->mOffsetMatrix.c3, bone->mOffsetMatrix.d3,

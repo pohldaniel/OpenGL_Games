@@ -2,8 +2,7 @@
 Open Asset Import Library (assimp)
 ----------------------------------------------------------------------
 
-Copyright (c) 2006-2019, assimp team
-
+Copyright (c) 2006-2022, assimp team
 
 All rights reserved.
 
@@ -54,7 +53,6 @@ struct aiNode;
 
 namespace Assimp {
 
-
 // ---------------------------------------------------------------------------
 /**
  * @brief   Importer class for the sterolithography STL file format.
@@ -69,13 +67,13 @@ public:
     /**
      * @brief   The class destructor.
      */
-    ~STLImporter();
+    ~STLImporter() override;
 
     /**
      * @brief   Returns whether the class can handle the format of the given file.
      *  See BaseImporter::CanRead() for details.
      */
-    bool CanRead( const std::string& pFile, IOSystem* pIOHandler, bool checkSig) const;
+    bool CanRead( const std::string& pFile, IOSystem* pIOHandler, bool checkSig) const override;
 
 protected:
 
@@ -83,14 +81,14 @@ protected:
      * @brief   Return importer meta information.
      *  See #BaseImporter::GetInfo for the details
      */
-    const aiImporterDesc* GetInfo () const;
+    const aiImporterDesc* GetInfo () const override;
 
     /**
      * @brief   Imports the given file into the given scene structure.
     * See BaseImporter::InternReadFile() for details
     */
     void InternReadFile( const std::string& pFile, aiScene* pScene,
-        IOSystem* pIOHandler);
+        IOSystem* pIOHandler) override;
 
     /**
      * @brief   Loads a binary .stl file
@@ -111,13 +109,13 @@ protected:
     const char* mBuffer;
 
     /** Size of the file, in bytes */
-    unsigned int fileSize;
+    size_t mFileSize;
 
     /** Output scene */
-    aiScene* pScene;
+    aiScene* mScene;
 
     /** Default vertex color */
-    aiColor4D clrColorDefault;
+    aiColor4D mClrColorDefault;
 };
 
 } // end of namespace Assimp

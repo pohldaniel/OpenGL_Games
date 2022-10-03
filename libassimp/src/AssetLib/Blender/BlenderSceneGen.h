@@ -2,7 +2,7 @@
 Open Asset Import Library (ASSIMP)
 ----------------------------------------------------------------------
 
-Copyright (c) 2006-2016, ASSIMP Development Team
+Copyright (c) 2006-2020, ASSIMP Development Team
 All rights reserved.
 
 Redistribution and use of this software in source and binary forms,
@@ -58,6 +58,12 @@ template <> void Structure :: Convert<Object> (
 
 template <> void Structure :: Convert<Group> (
     Group& dest,
+    const FileDatabase& db
+    ) const
+;
+
+template <> void Structure::Convert<Collection>(
+    Collection& dest,
     const FileDatabase& db
     ) const
 ;

@@ -2,7 +2,7 @@
 Open Asset Import Library (assimp)
 ----------------------------------------------------------------------
 
-Copyright (c) 2006-2012, assimp team
+Copyright (c) 2006-2020, assimp team
 All rights reserved.
 
 Redistribution and use of this software in source and binary forms,
@@ -74,13 +74,11 @@ std::shared_ptr<const PropertyTable> GetPropertyTable(const Document& doc,
 
 // ------------------------------------------------------------------------------------------------
 template <typename T>
-inline
-const T* ProcessSimpleConnection(const Connection& con,
-    bool is_object_property_conn,
-    const char* name,
-    const Element& element,
-    const char** propNameOut = nullptr)
-{
+inline const T* ProcessSimpleConnection(const Connection& con,
+        bool is_object_property_conn,
+        const char* name,
+        const Element& element,
+        const char** propNameOut = nullptr) {
     if (is_object_property_conn && !con.PropertyName().length()) {
         DOMWarning("expected incoming " + std::string(name) +
             " link to be an object-object connection, ignoring",

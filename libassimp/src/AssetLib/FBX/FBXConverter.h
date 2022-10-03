@@ -2,7 +2,7 @@
 Open Asset Import Library (assimp)
 ----------------------------------------------------------------------
 
-Copyright (c) 2006-2019, assimp team
+Copyright (c) 2006-2022, assimp team
 
 
 All rights reserved.
@@ -75,8 +75,19 @@ typedef std::map<int64_t, morphKeyData*> morphAnimData;
 namespace Assimp {
 namespace FBX {
 
+class MeshGeometry;
+
+using SkeletonBoneArray = std::vector<aiSkeletonBone *>;
+using SkeletonBoneToMesh = std::map<aiMesh*, SkeletonBoneArray*>;
+
+struct SkeletonBoneContainer {
+    std::vector<aiMesh *> MeshArray;
+    SkeletonBoneToMesh SkeletonBoneToMeshLookup;
+};
+
 class Document;
-/** 
+
+/**
  *  Convert a FBX #Document to #aiScene
  *  @param out Empty scene to be populated
  *  @param doc Parsed FBX document
@@ -123,7 +134,7 @@ private:
 
     // ------------------------------------------------------------------------------------------------
     // collect and assign child nodes
-    void ConvertNodes(uint64_t id, aiNode& parent, const aiMatrix4x4& parent_transform = aiMatrix4x4());
+    void ConvertNodes(uint64_t id, aiNode *parent, aiNode *root_node);
 
     // ------------------------------------------------------------------------------------------------
     void ConvertLights(const Model& model, const std::string &orig_name );
@@ -171,40 +182,39 @@ private:
 
     // ------------------------------------------------------------------------------------------------
     /**
-    *  note: memory for output_nodes will be managed by the caller
+    *  note: memory for output_nodes is managed by the caller, via the PotentialNode struct.
     */
-    bool GenerateTransformationNodeChain(const Model& model, const std::string& name, std::vector<aiNode*>& output_nodes, std::vector<aiNode*>& post_output_nodes);
+    struct PotentialNode;
+    bool GenerateTransformationNodeChain(const Model& model, const std::string& name, std::vector<PotentialNode>& output_nodes, std::vector<PotentialNode>& post_output_nodes);
 
     // ------------------------------------------------------------------------------------------------
     void SetupNodeMetadata(const Model& model, aiNode& nd);
 
     // ------------------------------------------------------------------------------------------------
-    void ConvertModel(const Model& model, aiNode& nd, const aiMatrix4x4& node_global_transform);
-    
+    void ConvertModel(const Model &model, aiNode *parent, aiNode *root_node, const aiMatrix4x4 &absolute_transform);
+
     // ------------------------------------------------------------------------------------------------
     // MeshGeometry -> aiMesh, return mesh index + 1 or 0 if the conversion failed
-    std::vector<unsigned int> ConvertMesh(const MeshGeometry& mesh, const Model& model,
-        const aiMatrix4x4& node_global_transform, aiNode& nd);
+    std::vector<unsigned int>
+    ConvertMesh(const MeshGeometry &mesh, const Model &model, aiNode *parent, aiNode *root_node, const aiMatrix4x4 &absolute_transform);
 
     // ------------------------------------------------------------------------------------------------
-    std::vector<unsigned int> ConvertLine(const LineGeometry& line, const Model& model,
-        const aiMatrix4x4& node_global_transform, aiNode& nd);
+    std::vector<unsigned int> ConvertLine(const LineGeometry& line, aiNode *root_node);
 
     // ------------------------------------------------------------------------------------------------
-    aiMesh* SetupEmptyMesh(const Geometry& mesh, aiNode& nd);
+    aiMesh* SetupEmptyMesh(const Geometry& mesh, aiNode *parent);
 
     // ------------------------------------------------------------------------------------------------
-    unsigned int ConvertMeshSingleMaterial(const MeshGeometry& mesh, const Model& model,
-        const aiMatrix4x4& node_global_transform, aiNode& nd);
+    unsigned int ConvertMeshSingleMaterial(const MeshGeometry &mesh, const Model &model, const aiMatrix4x4 &absolute_transform,
+                                           aiNode *parent, aiNode *root_node);
 
     // ------------------------------------------------------------------------------------------------
-    std::vector<unsigned int> ConvertMeshMultiMaterial(const MeshGeometry& mesh, const Model& model,
-        const aiMatrix4x4& node_global_transform, aiNode& nd);
+    std::vector<unsigned int>
+    ConvertMeshMultiMaterial(const MeshGeometry &mesh, const Model &model, const aiMatrix4x4 &absolute_transform, aiNode *parent, aiNode *root_node);
 
     // ------------------------------------------------------------------------------------------------
-    unsigned int ConvertMeshMultiMaterial(const MeshGeometry& mesh, const Model& model,
-        MatIndexArray::value_type index,
-        const aiMatrix4x4& node_global_transform, aiNode& nd);
+    unsigned int ConvertMeshMultiMaterial(const MeshGeometry &mesh, const Model &model, const aiMatrix4x4 &absolute_transform, MatIndexArray::value_type index,
+                                          aiNode *parent, aiNode *root_node);
 
     // ------------------------------------------------------------------------------------------------
     static const unsigned int NO_MATERIAL_SEPARATION = /* std::numeric_limits<unsigned int>::max() */
@@ -217,17 +227,19 @@ private:
     *  - outputVertStartIndices is only used when a material index is specified, it gives for
     *    each output vertex the DOM index it maps to.
     */
-    void ConvertWeights(aiMesh* out, const Model& model, const MeshGeometry& geo,
-        const aiMatrix4x4& node_global_transform = aiMatrix4x4(),
-        unsigned int materialIndex = NO_MATERIAL_SEPARATION,
-        std::vector<unsigned int>* outputVertStartIndices = NULL);
+    void ConvertWeights(aiMesh *out, const MeshGeometry &geo, const aiMatrix4x4 &absolute_transform, aiNode *parent = nullptr,
+            unsigned int materialIndex = NO_MATERIAL_SEPARATION,
+            std::vector<unsigned int> *outputVertStartIndices = nullptr);
 
     // ------------------------------------------------------------------------------------------------
-    void ConvertCluster(std::vector<aiBone*>& bones, const Model& /*model*/, const Cluster& cl,
-        std::vector<size_t>& out_indices,
-        std::vector<size_t>& index_out_indices,
-        std::vector<size_t>& count_out_indices,
-        const aiMatrix4x4& node_global_transform);
+    void ConvertWeightsToSkeleton(aiMesh *out, const MeshGeometry &geo, const aiMatrix4x4 &absolute_transform,
+            aiNode *parent, unsigned int materialIndex, std::vector<unsigned int> *outputVertStartIndices,
+            SkeletonBoneContainer &skeletonContainer);
+
+    // ------------------------------------------------------------------------------------------------
+    void ConvertCluster(std::vector<aiBone *> &local_mesh_bones, const Cluster *cl,
+                        std::vector<size_t> &out_indices, std::vector<size_t> &index_out_indices,
+            std::vector<size_t> &count_out_indices, const aiMatrix4x4 &absolute_transform, aiNode *parent);
 
     // ------------------------------------------------------------------------------------------------
     void ConvertMaterialForMesh(aiMesh* out, const Model& model, const MeshGeometry& geo,
@@ -300,7 +312,8 @@ private:
     void ConvertAnimationStack(const AnimationStack& st);
 
     // ------------------------------------------------------------------------------------------------
-    void ProcessMorphAnimDatas(std::map<std::string, morphAnimData*>* morphAnimDatas, const BlendShapeChannel* bsc, const AnimationCurveNode* node);
+    void ProcessMorphAnimDatas(std::map<std::string, morphAnimData*>* morphAnimDatas,
+        const BlendShapeChannel* bsc, const AnimationCurveNode* node);
 
     // ------------------------------------------------------------------------------------------------
     void GenerateNodeAnimations(std::vector<aiNodeAnim*>& node_anims,
@@ -349,12 +362,10 @@ private:
     aiNodeAnim* GenerateSimpleNodeAnim(const std::string& name,
         const Model& target,
         NodeMap::const_iterator chain[TransformationComp_MAXIMUM],
-        NodeMap::const_iterator iter_end,
-        const LayerMap& layer_map,
+        NodeMap::const_iterator iterEnd,
         int64_t start, int64_t stop,
-        double& max_time,
-        double& min_time,
-        bool reverse_order = false);
+        double& maxTime,
+        double& minTime);
 
     // key (time), value, mapto (component index)
     typedef std::tuple<std::shared_ptr<KeyTimeList>, std::shared_ptr<KeyValueList>, unsigned int > KeyFrameList;
@@ -362,6 +373,7 @@ private:
 
     // ------------------------------------------------------------------------------------------------
     KeyFrameListList GetKeyframeList(const std::vector<const AnimationCurveNode*>& nodes, int64_t start, int64_t stop);
+    KeyFrameListList GetRotationKeyframeList(const std::vector<const AnimationCurveNode*>& nodes, int64_t start, int64_t stop);
 
     // ------------------------------------------------------------------------------------------------
     KeyTimeList GetKeyTimeList(const KeyFrameListList& inputs);
@@ -378,20 +390,6 @@ private:
         double& maxTime,
         double& minTime,
         Model::RotOrder order);
-
-    // ------------------------------------------------------------------------------------------------
-    void ConvertTransformOrder_TRStoSRT(aiQuatKey* out_quat, aiVectorKey* out_scale,
-        aiVectorKey* out_translation,
-        const KeyFrameListList& scaling,
-        const KeyFrameListList& translation,
-        const KeyFrameListList& rotation,
-        const KeyTimeList& times,
-        double& maxTime,
-        double& minTime,
-        Model::RotOrder order,
-        const aiVector3D& def_scale,
-        const aiVector3D& def_translate,
-        const aiVector3D& def_rotation);
 
     // ------------------------------------------------------------------------------------------------
     // euler xyz -> quat
@@ -418,44 +416,71 @@ private:
         double& minTime,
         Model::RotOrder order);
 
+    // ------------------------------------------------------------------------------------------------
+    // Copy global geometric data and some information about the source asset into scene metadata.
     void ConvertGlobalSettings();
 
     // ------------------------------------------------------------------------------------------------
     // copy generated meshes, animations, lights, cameras and textures to the output scene
     void TransferDataToScene();
 
+    // ------------------------------------------------------------------------------------------------
+    // FBX file could have embedded textures not connected to anything
+    void ConvertOrphanedEmbeddedTextures();
+
 private:
     // 0: not assigned yet, others: index is value - 1
     unsigned int defaultMaterialIndex;
 
-    std::vector<aiMesh*> meshes;
+    std::vector<aiMesh*> mMeshes;
     std::vector<aiMaterial*> materials;
     std::vector<aiAnimation*> animations;
     std::vector<aiLight*> lights;
     std::vector<aiCamera*> cameras;
     std::vector<aiTexture*> textures;
 
-    using MaterialMap = std::map<const Material*, unsigned int>;
+    using MaterialMap = std::fbx_unordered_map<const Material*, unsigned int>;
     MaterialMap materials_converted;
 
-    using VideoMap = std::map<const Video*, unsigned int>;
+    using VideoMap = std::fbx_unordered_map<const Video*, unsigned int>;
     VideoMap textures_converted;
 
-    using MeshMap = std::map<const Geometry*, std::vector<unsigned int> >;
+    using MeshMap = std::fbx_unordered_map<const Geometry*, std::vector<unsigned int> >;
     MeshMap meshes_converted;
 
     // fixed node name -> which trafo chain components have animations?
-    using NodeAnimBitMap = std::map<std::string, unsigned int> ;
+    using NodeAnimBitMap = std::fbx_unordered_map<std::string, unsigned int> ;
     NodeAnimBitMap node_anim_chain_bits;
 
     // number of nodes with the same name
-    using NodeNameCache = std::unordered_map<std::string, unsigned int>;
+    using NodeNameCache = std::fbx_unordered_map<std::string, unsigned int>;
     NodeNameCache mNodeNames;
+
+    // Deformer name is not the same as a bone name - it does contain the bone name though :)
+    // Deformer names in FBX are always unique in an FBX file.
+    std::map<const std::string, aiBone *> bone_map;
 
     double anim_fps;
 
-    aiScene* const out;
+    std::vector<aiSkeleton *> mSkeletons;
+    aiScene* const mSceneOut;
     const FBX::Document& doc;
+    bool mRemoveEmptyBones;
+    static void BuildBoneList(aiNode *current_node, const aiNode *root_node, const aiScene *scene,
+                             std::vector<aiBone*>& bones);
+
+    void BuildBoneStack(aiNode *current_node, const aiNode *root_node, const aiScene *scene,
+                   const std::vector<aiBone *> &bones,
+                   std::map<aiBone *, aiNode *> &bone_stack,
+                   std::vector<aiNode*> &node_stack );
+
+    static void BuildNodeList(aiNode *current_node, std::vector<aiNode *> &nodes);
+
+    static aiNode *GetNodeFromStack(const aiString &node_name, std::vector<aiNode *> &nodes);
+
+    static aiNode *GetArmatureRoot(aiNode *bone_node, std::vector<aiBone*> &bone_list);
+
+    static bool IsBoneNode(const aiString &bone_name, std::vector<aiBone *> &bones);
 };
 
 }

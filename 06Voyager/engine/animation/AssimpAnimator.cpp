@@ -542,6 +542,7 @@ std::unordered_map<std::string, Matrix4f> AssimpAnimator::calculateCurrentAnimat
 
 	for (auto boneName : m_currentAnimation->m_boneList) {
 		int index = keyFrames.getPositionIndex(currentTime, boneName);
+
 		float progression = getProgression(keyFrames.positions.at(boneName)[index].first, keyFrames.positions.at(boneName)[index + 1].first, currentTime);
 		Vector3f position = getInterpolated(keyFrames.positions.at(boneName)[index].second, keyFrames.positions.at(boneName)[index + 1].second, progression);
 
@@ -560,6 +561,7 @@ std::unordered_map<std::string, Matrix4f> AssimpAnimator::calculateCurrentAnimat
 		sca.scale(scale[0], scale[1], scale[2]);
 
 		currentPose.insert(std::make_pair(boneName, sca * trans * mat));
+		
 	}
 
 	return currentPose;

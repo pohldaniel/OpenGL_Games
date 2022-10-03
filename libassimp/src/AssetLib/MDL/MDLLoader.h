@@ -2,8 +2,7 @@
 Open Asset Import Library (assimp)
 ----------------------------------------------------------------------
 
-Copyright (c) 2006-2019, assimp team
-
+Copyright (c) 2006-2022, assimp team
 
 All rights reserved.
 
@@ -44,19 +43,19 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /**  @file MDLLoader.h
  *   @brief Declaration of the loader for MDL files
  */
-
+#pragma once
 #ifndef AI_MDLLOADER_H_INCLUDED
 #define AI_MDLLOADER_H_INCLUDED
 
 #include <assimp/BaseImporter.h>
 #include "MDLFileData.h"
-#include "../HMP/HalfLifeFileData.h"
+#include "AssetLib/HMP/HalfLifeFileData.h"
+#include "AssetLib/MDL/HalfLife/HL1ImportSettings.h"
 
 struct aiNode;
 struct aiTexture;
 
-namespace Assimp    {
-
+namespace Assimp {
 
 using namespace MDL;
 
@@ -77,6 +76,7 @@ using namespace MDL;
  *      <li>3D Game Studio MDL3, MDL4</li>
  *      <li>3D Game Studio MDL5</li>
  *      <li>3D Game Studio MDL7</li>
+ *      <li>Halflife 1</li>
  *      <li>Halflife 2</li>
  *   </ul>
  *  These formats are partially identical and it would be possible to load
@@ -87,34 +87,34 @@ class MDLImporter : public BaseImporter
 {
 public:
     MDLImporter();
-    ~MDLImporter();
+    ~MDLImporter() override;
 
     // -------------------------------------------------------------------
     /** Returns whether the class can handle the format of the given file.
     * See BaseImporter::CanRead() for details.  */
     bool CanRead( const std::string& pFile, IOSystem* pIOHandler,
-        bool checkSig) const;
+        bool checkSig) const override;
 
     // -------------------------------------------------------------------
     /** Called prior to ReadFile().
     * The function is a request to the importer to update its configuration
     * basing on the Importer's configuration property list.
     */
-    void SetupProperties(const Importer* pImp);
+    void SetupProperties(const Importer* pImp) override;
 
 protected:
     // -------------------------------------------------------------------
     /** Return importer meta information.
      * See #BaseImporter::GetInfo for the details
      */
-    const aiImporterDesc* GetInfo () const;
+    const aiImporterDesc* GetInfo () const override;
 
     // -------------------------------------------------------------------
     /** Imports the given file into the given scene structure.
     * See BaseImporter::InternReadFile() for details
     */
     void InternReadFile( const std::string& pFile, aiScene* pScene,
-        IOSystem* pIOHandler);
+        IOSystem* pIOHandler) override;
 
     // -------------------------------------------------------------------
     /** Import a quake 1 MDL file (IDPO)
@@ -130,6 +130,11 @@ protected:
     /** Import a GameStudio A7 file (MDL 7)
     */
     void InternReadFile_3DGS_MDL7( );
+
+    // -------------------------------------------------------------------
+    /** Import a Half-Life 1 MDL file
+    */
+    void InternReadFile_HL1(const std::string& pFile, const uint32_t iMagicWord);
 
     // -------------------------------------------------------------------
     /** Import a CS:S/HL2 MDL file (not fully implemented)
@@ -315,7 +320,7 @@ protected:
     /** Load the bone list of a MDL7 file
      * \return If the bones could be loaded successfully, a valid
      *   array containing pointers to a temporary bone
-     *   representation. NULL if the bones could not be loaded.
+     *   representation. nullptr if the bones could not be loaded.
      */
     MDL::IntBone_MDL7** LoadBones_3DGS_MDL7();
 
@@ -429,13 +434,16 @@ protected:
     unsigned int iGSFileVersion;
 
     /** Output I/O handler. used to load external lmp files */
-    IOSystem* pIOHandler;
+    IOSystem* mIOHandler;
 
     /** Output scene to be filled */
     aiScene* pScene;
 
     /** Size of the input file in bytes */
     unsigned int iFileSize;
+
+    /* Configuration for HL1 MDL */
+    HalfLife::HL1ImportSettings mHL1ImportSettings;
 };
 
 } // end of namespace Assimp

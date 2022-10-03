@@ -2,7 +2,7 @@
 Open Asset Import Library (assimp)
 ----------------------------------------------------------------------
 
-Copyright (c) 2006-2019, assimp team
+Copyright (c) 2006-2022, assimp team
 
 
 All rights reserved.
@@ -48,6 +48,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "FBXCompileConfig.h"
 #include <assimp/ai_assert.h>
+#include <assimp/defs.h>
 #include <vector>
 #include <string>
 
@@ -95,7 +96,7 @@ public:
     /** construct a binary token */
     Token(const char* sbegin, const char* send, TokenType type, size_t offset);
 
-    ~Token();
+    ~Token() = default;
 
 public:
     std::string StringContents() const {

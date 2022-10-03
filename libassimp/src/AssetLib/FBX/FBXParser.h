@@ -2,8 +2,7 @@
 Open Asset Import Library (assimp)
 ----------------------------------------------------------------------
 
-Copyright (c) 2006-2019, assimp team
-
+Copyright (c) 2006-2022, assimp team
 
 All rights reserved.
 
@@ -49,6 +48,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdint.h>
 #include <map>
 #include <memory>
+#include <vector>
 #include <assimp/LogAux.h>
 #include <assimp/fast_atof.h>
 
@@ -87,7 +87,7 @@ class Element
 {
 public:
     Element(const Token& key_token, Parser& parser);
-    ~Element();
+    ~Element() = default;
 
     const Scope* Compound() const {
         return compound.get();
@@ -126,7 +126,7 @@ public:
 
     const Element* operator[] (const std::string& index) const {
         ElementMap::const_iterator it = elements.find(index);
-        return it == elements.end() ? NULL : (*it).second;
+        return it == elements.end() ? nullptr : (*it).second;
     }
 
 	const Element* FindElementCaseInsensitive(const std::string& elementName) const {
@@ -137,7 +137,7 @@ public:
 				return element->second;
 			}
 		}
-		return NULL;
+        return nullptr;
 	}
 
     ElementCollection GetCollection(const std::string& index) const {
@@ -160,7 +160,7 @@ public:
     /** Parse given a token list. Does not take ownership of the tokens -
      *  the objects must persist during the entire parser lifetime */
     Parser (const TokenList& tokens,bool is_binary);
-    ~Parser();
+    ~Parser() = default;
 
     const Scope& GetRootScope() const {
         return *root.get();
@@ -219,7 +219,7 @@ void ParseVectorDataArray(std::vector<int64_t>& out, const Element& el);
 bool HasElement( const Scope& sc, const std::string& index );
 
 // extract a required element from a scope, abort if the element cannot be found
-const Element& GetRequiredElement(const Scope& sc, const std::string& index, const Element* element = NULL);
+const Element &GetRequiredElement(const Scope &sc, const std::string &index, const Element *element = nullptr);
 
 // extract required compound scope
 const Scope& GetRequiredScope(const Element& el);

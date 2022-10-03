@@ -2,7 +2,7 @@
 Open Asset Import Library (assimp)
 ----------------------------------------------------------------------
 
-Copyright (c) 2006-2019, assimp team
+Copyright (c) 2006-2020, assimp team
 
 
 All rights reserved.
@@ -70,14 +70,14 @@ void ExportSceneObj(const char* pFile,IOSystem* pIOSystem, const aiScene* pScene
     // we're still here - export successfully completed. Write both the main OBJ file and the material script
     {
         std::unique_ptr<IOStream> outfile (pIOSystem->Open(pFile,"wt"));
-        if(outfile == NULL) {
+        if (outfile == nullptr) {
             throw DeadlyExportError("could not open output .obj file: " + std::string(pFile));
         }
         outfile->Write( exporter.mOutput.str().c_str(), static_cast<size_t>(exporter.mOutput.tellp()),1);
     }
     {
         std::unique_ptr<IOStream> outfile (pIOSystem->Open(exporter.GetMaterialLibFileName(),"wt"));
-        if(outfile == NULL) {
+        if (outfile == nullptr) {
             throw DeadlyExportError("could not open output .mtl file: " + std::string(exporter.GetMaterialLibFileName()));
         }
         outfile->Write( exporter.mOutputMat.str().c_str(), static_cast<size_t>(exporter.mOutputMat.tellp()),1);
@@ -86,7 +86,7 @@ void ExportSceneObj(const char* pFile,IOSystem* pIOSystem, const aiScene* pScene
 
 // ------------------------------------------------------------------------------------------------
 // Worker function for exporting a scene to Wavefront OBJ without the material file. Prototyped and registered in Exporter.cpp
-void ExportSceneObjNoMtl(const char* pFile,IOSystem* pIOSystem, const aiScene* pScene, const ExportProperties* pProperties) {
+void ExportSceneObjNoMtl(const char* pFile,IOSystem* pIOSystem, const aiScene* pScene, const ExportProperties* ) {
     // invoke the exporter
     ObjExporter exporter(pFile, pScene, true);
 
@@ -97,7 +97,7 @@ void ExportSceneObjNoMtl(const char* pFile,IOSystem* pIOSystem, const aiScene* p
     // we're still here - export successfully completed. Write both the main OBJ file and the material script
     {
         std::unique_ptr<IOStream> outfile (pIOSystem->Open(pFile,"wt"));
-        if(outfile == NULL) {
+        if (outfile == nullptr) {
             throw DeadlyExportError("could not open output .obj file: " + std::string(pFile));
         }
         outfile->Write( exporter.mOutput.str().c_str(), static_cast<size_t>(exporter.mOutput.tellp()),1);
@@ -137,9 +137,7 @@ ObjExporter::ObjExporter(const char* _filename, const aiScene* pScene, bool noMt
 }
 
 // ------------------------------------------------------------------------------------------------
-ObjExporter::~ObjExporter() {
-    // empty
-}
+ObjExporter::~ObjExporter() = default;
 
 // ------------------------------------------------------------------------------------------------
 std::string ObjExporter::GetMaterialLibName() {
@@ -271,12 +269,12 @@ void ObjExporter::WriteGeometryFile(bool noMtl) {
     if ( !useVc ) {
         mOutput << "# " << vp.size() << " vertex positions" << endl;
         for ( const vertexData& v : vp ) {
-            mOutput << "v  " << v.vp.x << " " << v.vp.y << " " << v.vp.z << endl;
+            mOutput << "v " << v.vp.x << " " << v.vp.y << " " << v.vp.z << endl;
         }
     } else {
         mOutput << "# " << vp.size() << " vertex positions and colors" << endl;
         for ( const vertexData& v : vp ) {
-            mOutput << "v  " << v.vp.x << " " << v.vp.y << " " << v.vp.z << " " << v.vc.r << " " << v.vc.g << " " << v.vc.b << endl;
+            mOutput << "v " << v.vp.x << " " << v.vp.y << " " << v.vp.z << " " << v.vc.r << " " << v.vc.g << " " << v.vc.b << endl;
         }
     }
     mOutput << endl;
@@ -333,7 +331,7 @@ void ObjExporter::WriteGeometryFile(bool noMtl) {
 
 // ------------------------------------------------------------------------------------------------
 void ObjExporter::AddMesh(const aiString& name, const aiMesh* m, const aiMatrix4x4& mat) {
-    mMeshes.push_back(MeshInstance() );
+    mMeshes.emplace_back();
     MeshInstance& mesh = mMeshes.back();
 
     if ( nullptr != m->mColors[ 0 ] ) {

@@ -2,8 +2,7 @@
 Open Asset Import Library (assimp)
 ----------------------------------------------------------------------
 
-Copyright (c) 2006-2019, assimp team
-
+Copyright (c) 2006-2020, assimp team
 
 All rights reserved.
 
@@ -41,9 +40,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef OBJFILEMTLIMPORTER_H_INC
 #define OBJFILEMTLIMPORTER_H_INC
 
-#include <vector>
-#include <string>
 #include <assimp/defs.h>
+#include <string>
+#include <vector>
+#include "Common/Maybe.h"
 
 struct aiColor3D;
 struct aiString;
@@ -51,44 +51,43 @@ struct aiString;
 namespace Assimp {
 
 namespace ObjFile {
-    struct Model;
-    struct Material;
-}
-
+struct Model;
+struct Material;
+} // namespace ObjFile
 
 /**
  *  @class  ObjFileMtlImporter
  *  @brief  Loads the material description from a mtl file.
  */
-class ObjFileMtlImporter
-{
+class ObjFileMtlImporter {
 public:
     static const size_t BUFFERSIZE = 2048;
-    typedef std::vector<char> DataArray;
-    typedef std::vector<char>::iterator DataArrayIt;
-    typedef std::vector<char>::const_iterator ConstDataArrayIt;
+    using DataArray = std::vector<char>;
+    using DataArrayIt = std::vector<char>::iterator;
+    using ConstDataArrayIt = std::vector<char>::const_iterator;
 
-public:
-    //! \brief  Default constructor
-    ObjFileMtlImporter( std::vector<char> &buffer, const std::string &strAbsPath,
-        ObjFile::Model *pModel );
+    //! \brief  The class default constructor
+    ObjFileMtlImporter(std::vector<char> &buffer, const std::string &strAbsPath,
+            ObjFile::Model *pModel);
 
-    //! \brief  DEstructor
+    //! \brief  The class destructor
     ~ObjFileMtlImporter();
+
+    ObjFileMtlImporter(const ObjFileMtlImporter &rOther) = delete;
+    ObjFileMtlImporter &operator=(const ObjFileMtlImporter &rOther) = delete;
 
 private:
     /// Copy constructor, empty.
-    ObjFileMtlImporter(const ObjFileMtlImporter &rOther);
-    /// \brief  Assignment operator, returns only a reference of this instance.
-    ObjFileMtlImporter &operator = (const ObjFileMtlImporter &rOther);
     /// Load the whole material description
     void load();
     /// Get color data.
-    void getColorRGBA( aiColor3D *pColor);
+    void getColorRGBA(aiColor3D *pColor);
+    void getColorRGBA(Maybe<aiColor3D> &value);
     /// Get illumination model from loaded data
-    void getIlluminationModel( int &illum_model );
+    void getIlluminationModel(int &illum_model);
     /// Gets a float value from data.
-    void getFloatValue( ai_real &value );
+    void getFloatValue(ai_real &value);
+    void getFloatValue(Maybe<ai_real> &value);
     /// Creates a new material from loaded data.
     void createMaterial();
     /// Get texture name from loaded data.
@@ -107,7 +106,7 @@ private:
     //! Current line in file
     unsigned int m_uiLine;
     //! Helper buffer
-    char m_buffer[BUFFERSIZE];
+    std::vector<char> m_buffer;
 };
 
 // ------------------------------------------------------------------------------------------------
