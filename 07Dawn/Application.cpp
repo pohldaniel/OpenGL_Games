@@ -310,9 +310,9 @@ void Application::initStates() {
 	//AddMouseListener(game);
 
 	//m_machine->addStateAtTop(new MainMenu(*m_machine));
-	//m_machine->addStateAtTop(new Editor(*m_machine));
+	m_machine->addStateAtTop(new Editor(*m_machine));
 
-	m_machine->addStateAtTop(new LoadingScreen(*m_machine, m_loadingManager));
+	//m_machine->addStateAtTop(new LoadingScreen(*m_machine, m_loadingManager));
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {

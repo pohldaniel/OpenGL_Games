@@ -8,6 +8,7 @@ Label::Label(const CharacterSet& characterSet, std::string text) {
 Label &Label::operator=(const Label &rhs) {
 	m_text = rhs.m_text;
 	m_characterSet = rhs.m_characterSet;
+	return *this;
 }
 
 Label::Label(Label const& rhs) : m_characterSet(rhs.m_characterSet) {

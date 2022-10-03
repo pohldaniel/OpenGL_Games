@@ -116,11 +116,15 @@ void CharacterSet::loadFromFile(const std::string& path, const float characterSi
 			}
 			
 			if (flipVertical) {
-				std::vector<BYTE> srcPixels(g->bitmap.width * g->bitmap.rows);
-				memcpy(&srcPixels[0], g->bitmap.buffer, g->bitmap.width * g->bitmap.rows);
+				std::vector<unsigned char> srcPixels(g->bitmap.width * g->bitmap.rows);
+				//memcpy(&srcPixels[0], g->bitmap.buffer, g->bitmap.width * g->bitmap.rows);
+		
+				for (unsigned int i = 0; i < g->bitmap.width * g->bitmap.rows; ++i) {
+					srcPixels[i] = g->bitmap.buffer[i];
+				}
 
-				BYTE *pSrcRow = 0;
-				BYTE *pDestRow = 0;
+				unsigned char *pSrcRow = 0;
+				unsigned char *pDestRow = 0;
 
 				for (unsigned int i = 0; i < g->bitmap.rows; ++i) {
 
