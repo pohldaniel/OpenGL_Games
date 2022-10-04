@@ -18,7 +18,7 @@ public:
 
 	inline unsigned int restartMilli() {
 		end = std::chrono::high_resolution_clock::now();
-		unsigned int elapsed_microsecs = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count();
+		unsigned int elapsed_microsecs = static_cast<unsigned int>(std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count());
 		begin = end;
 
 		return elapsed_microsecs;
@@ -26,7 +26,7 @@ public:
 
 	inline unsigned int restartMicro() {
 		end = std::chrono::high_resolution_clock::now();
-		unsigned int elapsed_microsecs = std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count();
+		unsigned int elapsed_microsecs = static_cast<unsigned int>(std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count());
 		begin = end;
 
 		return elapsed_microsecs;
@@ -37,11 +37,11 @@ public:
 	}
 
 	inline unsigned int getElapsedTimeMilli() const {
-		return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - initial).count();
+		return static_cast<unsigned int>(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - initial).count());
 	}
 
 	inline unsigned int getElapsedTimeMicro() const {
-		return std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - initial).count();
+		return static_cast<unsigned int>(std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - initial).count());
 	}
 	
 private:

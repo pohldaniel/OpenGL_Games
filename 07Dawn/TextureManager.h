@@ -40,7 +40,7 @@ public:
 		return s_instance;
 	}
 
-	void init(unsigned _width = 1024u, unsigned int _height = 1024u) {
+	void init(unsigned int _width = 1024u, unsigned int _height = 1024u) {
 
 		width = _width;
 		height = _height;
@@ -61,7 +61,7 @@ public:
 		return spritesheet.getAtlas();
 	}
 
-	void addTexture(TextureRect& stexture, char *texture, size_t w, size_t h){
+	void addTexture(TextureRect& stexture, char *texture, unsigned int w, unsigned int h){
 
 		if (width - curX < w){
 			curX = 0;
@@ -72,7 +72,7 @@ public:
 			addFrame();
 		}
 
-		for (size_t row = 0; row<h; ++row){
+		for (unsigned int row = 0; row<h; ++row){
 			memcpy(buffer + (((curY + row) * width + curX) * 4), texture + (w * row * 4), 4 * w);
 		}
 
@@ -115,12 +115,12 @@ private:
 	TextureAtlasCreator() = default;
 	static TextureAtlasCreator s_instance;
 	unsigned char* buffer;
-	size_t width;
-	size_t height;
-	size_t curX;
-	size_t curY;
-	size_t maxY;
-	size_t fillSpace;
+	unsigned int width;
+	unsigned int height;
+	unsigned int curX;
+	unsigned int curY;
+	unsigned int maxY;
+	unsigned int fillSpace;
 	Spritesheet spritesheet;
 	unsigned short frame;
 

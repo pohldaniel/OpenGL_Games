@@ -1,31 +1,20 @@
 #pragma once
 
 #include "thread/Thread.h"
-#include "random.h"
-
 #include <string>
 
 class LoadingManager : public CThread {
+
 public:
-
-	bool started;
-	bool finished;
-	std::string progressString;
-	double progress;
-	CMutexClass accessMutex;
-	LoadingManager() : finished(false), progressString(""), progress(0.0), accessMutex(), started(false) {
-		SetThreadType(ThreadTypeEventDriven);
-	}
-
-	void setProgress(double newProgress) {
+	void setProgress(float newProgress) {
 		progress = newProgress;
 	}
 
-	virtual double getProgress() {
+	float getProgress() {
 		return progress;
 	}
 
-	virtual bool isFinished() {
+	bool isFinished() {
 		bool result = false;
 		accessMutex.Lock();
 		result = finished;
@@ -33,11 +22,11 @@ public:
 		return result;
 	}
 
-	virtual std::string getActivityText() {
+	std::string getActivityText() {
 		return progressString;
 	}
 
-	virtual void startBackgroundThread() {
+	void startBackgroundThread() {
 		//threadedMode = true;
 		//curTextureProcessor = this;
 		do{
@@ -46,7 +35,7 @@ public:
 		} while (!started);
 	}
 
-	virtual void finish() {
+	void finish() {
 		//threadedMode = false;
 		//curTextureProcessor = NULL;
 	}
@@ -57,54 +46,81 @@ public:
 		progressString = "Initializing Editor";
 		//Editor.LoadTextures();
 		Sleep(100);
-		setProgress(0.025);
+		setProgress(0.025f);
 		progressString = "Initializing GUI";
 		//GUI.LoadTextures();
 		//GUI.SetPlayer(Globals::getPlayer());
 		Sleep(100);
-		setProgress(0.05);
+		setProgress(0.05f);
 		progressString = "Initializing Character Screen";
 		//characterInfoScreen = std::auto_ptr<CharacterInfoScreen>(new CharacterInfoScreen(Globals::getPlayer()));
 		//characterInfoScreen->LoadTextures();
 		Sleep(100);
-		setProgress(0.075);
+		setProgress(0.075f);
 		progressString = "Initializing Inventory Screen";
 		//inventoryScreen = std::auto_ptr<InventoryScreen>(new InventoryScreen(Globals::getPlayer()));
 		//inventoryScreen->loadTextures();
 		Sleep(100);
-		setProgress(0.1);
+		setProgress(0.1f);
 		progressString = "Initializing Action Bar";
 		//actionBar = std::auto_ptr<ActionBar>(new ActionBar(Globals::getPlayer()));
 		//actionBar->loadTextures();
 		Sleep(100);
-		setProgress(0.125);
+		setProgress(0.125f);
 		progressString = "Initializing Spellbook";
 		//spellbook = std::auto_ptr<Spellbook>(new Spellbook(Globals::getPlayer()));
 		//spellbook->loadTextures();
 		Sleep(100);
-		setProgress(0.15);
+		setProgress(0.15f);
 		progressString = "Initializing Log Window";
 		//logWindow = std::auto_ptr<LogWindow>(new LogWindow);
 		//logWindow->loadTextures();
 		Sleep(100);
-		setProgress(0.16);
+		setProgress(0.16f);
 		progressString = "Initializing Buff Display";
 		//buffWindow = std::auto_ptr<BuffWindow>(new BuffWindow(Globals::getPlayer()));
 		Sleep(100);
-		setProgress(0.175);
+		setProgress(0.175f);
 		progressString = "Initializing Quest Screen";
 		//questWindow = std::auto_ptr<QuestWindow>(new QuestWindow);
 		Sleep(100);
-		setProgress(0.2);
+		setProgress(0.2f);
 		progressString = "Initializing Menu Screen";
 		//optionsWindow = std::auto_ptr<OptionsWindow>(new OptionsWindow);
+
+		Sleep(100);
+		setProgress(0.3f);
+		Sleep(100);
+		setProgress(0.4f);
+		Sleep(100);
+		setProgress(0.5f);
+		Sleep(100);
+		setProgress(0.6f);
+		Sleep(100);
+		setProgress(0.8f);
+		Sleep(100);
+		setProgress(0.9f);
+		Sleep(100);
+		setProgress(1.0f);
+		Sleep(100);
 
 		accessMutex.Lock();
 		finished = true;
 		accessMutex.Unlock();
 	}
 
-	virtual BOOL OnTask() {
+	static LoadingManager& Get() {
+		static LoadingManager instance;
+		return instance;
+	}
+
+private:
+
+	LoadingManager() : finished(false), progressString("-"), progress(0.0), accessMutex(), started(false) {
+		SetThreadType(ThreadTypeEventDriven);
+	}
+
+	BOOL OnTask() override {
 		if (started) {
 			return true;
 		}
@@ -114,4 +130,9 @@ public:
 		return true;
 	}
 
+	bool started;
+	bool finished;
+	std::string progressString;
+	float progress;
+	CMutexClass accessMutex;
 };

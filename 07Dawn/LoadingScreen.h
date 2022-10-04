@@ -1,16 +1,27 @@
 #pragma once
 #include "StateMachine.h"
-#include "Loadingmanager.h"
+
 
 class LoadingScreen : public State {
+
 public:
-	LoadingScreen(StateMachine& machine, LoadingManager* loadingManager);
+	LoadingScreen(StateMachine& machine);
 	~LoadingScreen();
 
-	virtual void fixedUpdate() override;
-	virtual void update() override;
-	virtual void render(unsigned int &frameBuffer) override;
+	void fixedUpdate() override;
+	void update() override;
+	void render(unsigned int &frameBuffer) override;
 
 private:
-	LoadingManager* loadingManager;
+	std::vector<TextureRect> m_backgroundTextures;
+	unsigned int m_textureAtlas;
+
+	short m_posX;
+	short m_posY;
+	short m_width;
+	short m_height;
+	unsigned short m_backgroundToDraw;
+	std::string m_curText;
+	float m_progress;
+	const CharacterSet& m_characterSet;
 };

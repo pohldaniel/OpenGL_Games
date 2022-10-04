@@ -8,7 +8,7 @@
 
 Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fdt), m_eventDispatcher(new EventDispatcher()){
 	ViewPort::get().init(WIDTH, HEIGHT);
-	m_loadingManager = new LoadingManager();
+	
 
 	initWindow();
 	initOpenGL();
@@ -309,10 +309,10 @@ void Application::initStates() {
 	//Game* game = dynamic_cast<Game*>(m_machine->addStateAtTop(new Game(*m_machine)));
 	//AddMouseListener(game);
 
-	//m_machine->addStateAtTop(new MainMenu(*m_machine));
-	m_machine->addStateAtTop(new Editor(*m_machine));
+	m_machine->addStateAtTop(new MainMenu(*m_machine));
+	//m_machine->addStateAtTop(new Editor(*m_machine));
 
-	//m_machine->addStateAtTop(new LoadingScreen(*m_machine, m_loadingManager));
+	//m_machine->addStateAtTop(new LoadingScreen(*m_machine));
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {

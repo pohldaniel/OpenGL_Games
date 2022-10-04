@@ -1,9 +1,31 @@
 #include "LoadingScreen.h"
+#include "Loadingmanager.h"
+#include "Editor.h"
 
-LoadingScreen::LoadingScreen(StateMachine& machine, LoadingManager* loadingManager) : State(machine, CurrentState::LOADINGSCREEN) {
-	this->loadingManager = loadingManager;
+LoadingScreen::LoadingScreen(StateMachine& machine) : State(machine, CurrentState::LOADINGSCREEN), m_characterSet(Globals::fontManager.get("verdana_20")) {
+	if (m_backgroundTextures.size() > 0) {
+		return;
+	}
 
-	loadingManager->startBackgroundThread();
+	TextureAtlasCreator::get().init(1024, 1024);
+
+	TextureManager::Loadimage("res/interface/LoadingScreen/SilverForest.tga", 0, m_backgroundTextures);
+	TextureManager::Loadimage("res/interface/LoadingScreen/BelemarMountains.tga", 1, m_backgroundTextures);
+	TextureManager::Loadimage("res/lifebar.tga", 2, m_backgroundTextures);
+	m_textureAtlas = TextureAtlasCreator::get().getAtlas();
+	
+	// randomly choose background and calculate positions for the background
+	m_backgroundToDraw = RNG::randomInt(0, 1);
+
+	m_width = m_backgroundTextures[m_backgroundToDraw].width;
+	m_height = m_backgroundTextures[m_backgroundToDraw].height;
+	m_posX = (static_cast<short>(ViewPort::get().getWidth()) - m_width) / 2;
+	m_posY = (static_cast<short>(ViewPort::get().getHeight()) - m_height) / 2;
+
+	m_curText = "";
+	m_progress = 0.0;
+
+	LoadingManager::Get().startBackgroundThread();
 }
 
 LoadingScreen::~LoadingScreen() {}
@@ -13,14 +35,38 @@ void LoadingScreen::fixedUpdate() {
 }
 
 void LoadingScreen::update() {
-	if (!loadingManager->isFinished()){
-		std::cout << loadingManager->getActivityText() << std::endl;
-
-	}/*else{
-		setDone();
-	}*/
+	if (!LoadingManager::Get().isFinished()){
+		m_curText = LoadingManager::Get().getActivityText();
+		m_progress = LoadingManager::Get().getProgress();
+	}else{
+		m_isRunning = false;
+		m_machine.addStateAtTop(new Editor(m_machine));
+	}
 }
 
 void LoadingScreen::render(unsigned int &frameBuffer) {
-	
+	glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
+
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+	glEnable(GL_BLEND);
+
+	int progressBarWidth = static_cast<int>(ViewPort::get().getWidth()) / 2;
+	int progressBarPosX = (static_cast<int>(ViewPort::get().getWidth()) - progressBarWidth) / 2;
+	int progressBarPosY = 20;
+
+	Batchrenderer::get().bindTexture(m_textureAtlas, true);
+	TextureManager::DrawTextureBatched(m_backgroundTextures[m_backgroundToDraw], m_posX, m_posY, m_width, m_height, false, false);
+
+	TextureManager::DrawTextureBatched(m_backgroundTextures[2], progressBarPosX, progressBarPosY, m_progress * progressBarWidth, 16, Vector4f(0.75f, 0.2f, 0.2f, 1.0f), false, false);
+	TextureManager::DrawTextureBatched(m_backgroundTextures[2], progressBarPosX + static_cast<int>(m_progress * progressBarWidth), progressBarPosY, progressBarWidth - m_progress * progressBarWidth, 16, Vector4f(0.5f, 0.1f, 0.1f, 1.0f), false, false);
+	Batchrenderer::get().drawBuffer(false);
+
+	int textX = m_posX + m_width / 2 - m_characterSet.getWidth(m_curText) / 2;
+	int textY = 30 + m_characterSet.lineHeight;
+	Fontrenderer::get().drawText(m_characterSet, textX, textY, m_curText);
+	Batchrenderer::get().unbindTexture(true);
+
+	glDisable(GL_BLEND);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }

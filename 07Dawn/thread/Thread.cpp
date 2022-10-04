@@ -119,8 +119,6 @@ LPVOID
 _THKERNEL( LPVOID lpvData /* CThread Object */ 
 		  )
 {
-
-	std::cout << "THKERNEL" << std::endl;
 	CThread *pThread = (CThread *)lpvData;
 	ThreadType_t lastType;
 	/*
@@ -353,7 +351,6 @@ CThread::KernelProcess()
 		m_state = ThreadStateWaiting;
 	}
 	else {
-		std::cout << "Call OnTask" << std::endl;
 		if( !OnTask() )
 		{
 			m_mutex.Lock();
@@ -361,7 +358,6 @@ CThread::KernelProcess()
 			m_mutex.Unlock();
 			return FALSE;
 		}
-		std::cout << "End OnTask" << std::endl;
 		m_mutex.Lock();
 		m_state = ThreadStateWaiting;
 	}
@@ -443,9 +439,7 @@ CThread::CThread(void)
 		return;
 	}
 
-	std::cout << "Init Thread: " << std::endl;
 	Start();
-
 }
 
 /**
@@ -604,7 +598,6 @@ CThread::SetIdle(DWORD dwIdle)
 BOOL
 CThread::Start()
 {
-	std::cout << "Start Thread: " << std::endl;
 	m_mutex.Lock();
 	if( m_bRunning ) 
 	{

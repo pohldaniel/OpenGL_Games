@@ -52,6 +52,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	float fixedDeltaTime = 0.0f;
 	float physicsElapsedTime = 0.0;
 
+	RNG::initRNG(time(0));
+
 	Application application(deltaTime, fixedDeltaTime);
 
 	HWND hwnd = application.getWindow();
@@ -62,8 +64,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	int frames = 0;
 	float framesTime = 0;
-
-	RNG::initRNG(time(0));
 
 	while (application.isRunning()) {
 		physicsElapsedTime += deltaTime;

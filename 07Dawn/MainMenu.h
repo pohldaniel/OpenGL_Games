@@ -3,9 +3,7 @@
 #include "engine/input/Mouse.h"
 
 #include "StateMachine.h"
-
-#include "Game.h"
-#include "Editor.h"
+#include "LoadingScreen.h"
 #include "Dialog.h"
 #include "Label.h"
 

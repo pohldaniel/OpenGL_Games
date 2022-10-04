@@ -556,7 +556,8 @@ void Editor::drawEditFrame(EnvironmentMap* editobject) {
 
 void Editor::initTextures() {
 
-	if (m_interfacetexture.size() > 0) {
+	if (m_interfacetexture.size() > 0) {std::string curText;
+		double progress;
 		return;
 	}
 
@@ -576,8 +577,6 @@ void Editor::initTextures() {
 
 	m_interfacetexture[5].textureOffsetX = m_interfacetexture[5].textureOffsetX + (0.3f / 1024.0f);
 	m_interfacetexture[5].textureOffsetY = m_interfacetexture[5].textureOffsetY + (0.3f / 1024.0f);
-
-	
 
 	glBindTexture(GL_TEXTURE_2D_ARRAY, m_textureAtlas);
 	glTexParameterf(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);

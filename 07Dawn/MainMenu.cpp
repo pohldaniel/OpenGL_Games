@@ -15,7 +15,7 @@ MainMenu::MainMenu(StateMachine& machine) : State(machine, CurrentState::MAINMEN
 
 	dynamic_cast<Label*>(m_dialog.getChildWidgets()[2])->setFunction([&]() {
 		m_isRunning = false;
-		m_machine.addStateAtTop(new Editor(m_machine));
+		m_machine.addStateAtTop(new LoadingScreen(m_machine));
 	});
 
 	/*dynamic_cast<Label*>(m_dialog.getChildWidgets()[3])->setFunction([&]() {
@@ -37,7 +37,7 @@ void MainMenu::render(unsigned int &frameBuffer) {
 
 	glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
 
-	glClearColor(0.0f, 0.0f, 1.0f, 1.0f);
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	glEnable(GL_BLEND);
 

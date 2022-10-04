@@ -12,7 +12,6 @@
 #include "Constants.h"
 #include "StateMachine.h"
 #include "ViewPort.h"
-#include "Loadingmanager.h"
 
 class Application {
 public:
@@ -52,5 +51,4 @@ private:
 	EventDispatcher * m_eventDispatcher = nullptr;
 	void processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 	bool m_mouseTracking = false;
-	LoadingManager* m_loadingManager;
 };
