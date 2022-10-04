@@ -131,6 +131,7 @@ class TextureManager{
 public:
 
 	static bool IsRectOnScreen(int left, int width, int bottom, int height);
+	static bool CheckPointInRect(int px, int py, int left, int width, int bottom, int height);
 	static void DrawTextureBatched(TextureRect& textureRect, int x, int y, bool cullVieport, bool updateView);
 	static void DrawTextureBatched(TextureRect& textureRect, int x, int y, Vector4f color = Vector4f(1.0f, 1.0f, 1.0f, 1.0f), bool cullVieport = true, bool updateView = true);
 	static void DrawTextureBatched(TextureRect& textureRect, int x, int y, float width, float height, bool cullVieport, bool updateView);

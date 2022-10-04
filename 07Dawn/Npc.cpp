@@ -108,3 +108,28 @@ void Npc::markAsDeleted() {
 bool Npc::isMarkedAsDeletable() const {
 	return markedAsDeleted;
 }
+
+std::string Npc::getLuaEditorSaveText() const {
+	std::ostringstream oss;
+
+	oss << "DawnInterface.addMobSpawnPoint( \"" << "Wolf" << "\", "
+		<< x_spawn_pos << ", "
+		<< y_spawn_pos << ", "
+		<< seconds_to_respawn << ", "
+		<< do_respawn << ", " 
+		<<  "Attitude." << Npc::AttitudeToString(attitudeTowardsPlayer) << " );" << std::endl;
+
+	return oss.str();
+}
+
+std::string Npc::AttitudeToString(Attitude::Attitude attitude) {
+	switch (attitude) {
+	case Attitude::HOSTILE:
+		return "HOSTILE";
+	case Attitude::NEUTRAL:
+		return "NEUTRAL";
+	case Attitude::FRIENDLY:
+		return "FRIENDLY";
+	}
+}
+

@@ -140,16 +140,15 @@ LRESULT Application::DisplayWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 			PostQuitMessage(0);
 			break;
 		}case WM_KEYDOWN: {
-
 			switch (wParam) {
-				case 'v': case 'V': {
+				case 'V': {
 					enableVerticalSync(!m_enableVerticalSync);
 					break;
-				}case 'z': case 'Z': {
+				}case 'Z': {
 					m_machine->toggleWireframe();
 					break;
 				}case VK_SPACE: {
-					 Mouse::instance().detach2();
+					Mouse::instance().detach2();
 					Keyboard::instance().disable();
 					break;
 				}
@@ -309,8 +308,8 @@ void Application::initStates() {
 	//Game* game = dynamic_cast<Game*>(m_machine->addStateAtTop(new Game(*m_machine)));
 	//AddMouseListener(game);
 
-	m_machine->addStateAtTop(new MainMenu(*m_machine));
-	//m_machine->addStateAtTop(new Editor(*m_machine));
+	//m_machine->addStateAtTop(new MainMenu(*m_machine));
+	m_machine->addStateAtTop(new Editor(*m_machine));
 
 	//m_machine->addStateAtTop(new LoadingScreen(*m_machine));
 }

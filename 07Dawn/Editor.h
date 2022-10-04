@@ -27,7 +27,7 @@ public:
 		
 	std::vector<std::pair<std::string, CharacterType>> editorNPCs;
 	TileClassificationType::TileClassificationType m_selectedTileSet;
-	int m_tileposOffset, m_selectedObject = 0, m_selectedObjectId = -1;
+	int m_tileposOffset, m_selectedObjectId = -1;
 	unsigned int m_tilepos, m_currentTilepos;
 
 	void incTilepos();
@@ -36,4 +36,13 @@ public:
 private:
 	void printShortText(const CharacterSet& characterSet, const std::string &printText, int left, int width, int bottom, int height);
 	void drawEditFrame(EnvironmentMap* editobject);
+	void updateAdjacencyList();
+	void placeAdjacentTile();
+	void applyAdjacencyModification(int modification);
+	void Editor::saveZone();
+
+	bool adjacencyModeEnabled;
+	std::vector<std::vector<Tile*>> curAdjacentTiles;
+	std::vector<std::vector<Point>> curAdjacencyOffsets;
+	unsigned int curDirectionAdjacencySelection[AdjacencyType::BOTTOM + 1];
 };

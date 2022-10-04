@@ -24,6 +24,9 @@ public:
 	void setAttitude(Attitude::Attitude attitude);
 	void markAsDeleted();
 	bool isMarkedAsDeletable() const;
+	std::string getLuaEditorSaveText() const;
+
+	static std::string AttitudeToString(Attitude::Attitude attitude);
 
 private:
 

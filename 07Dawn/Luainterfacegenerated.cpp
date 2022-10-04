@@ -1,6 +1,6 @@
 /*
 ** Lua binding: Luainterface
-** Generated automatically by tolua++-1.0.92 on Fri Sep 30 00:14:42 2022.
+** Generated automatically by tolua++-1.0.92 on Tue Oct  4 19:19:27 2022.
 */
 
 #ifndef __cplusplus
@@ -19,20 +19,22 @@ TOLUA_API int  tolua_Luainterface_open(lua_State* tolua_S);
 #include "TextureManager.h"
 #include "Npc.h"
 #include "InteractionRegion.h"
+#include "InteractionPoint.h"
 #include "TextWindow.h"
 
 /* function to register type */
 static void tolua_reg_types(lua_State* tolua_S)
 {
 	tolua_usertype(tolua_S, "TextureManager");
-	tolua_usertype(tolua_S, "TileSet");
+	tolua_usertype(tolua_S, "CharacterType");
+	tolua_usertype(tolua_S, "InteractionPoint");
 	tolua_usertype(tolua_S, "Npc");
 	tolua_usertype(tolua_S, "TextureAtlasCreator");
 	tolua_usertype(tolua_S, "Character");
 	tolua_usertype(tolua_S, "AdjacencyEquivalenceClass");
-	tolua_usertype(tolua_S, "CharacterType");
-	tolua_usertype(tolua_S, "TextWindow");
 	tolua_usertype(tolua_S, "InteractionRegion");
+	tolua_usertype(tolua_S, "TextWindow");
+	tolua_usertype(tolua_S, "TileSet");
 }
 
 /* function: DawnInterface::enterZone */
@@ -217,6 +219,119 @@ static int tolua_Luainterface_DawnInterface_removeInteractionRegion00(lua_State*
 }
 #endif //#ifndef TOLUA_DISABLE
 
+/* function: DawnInterface::addInteractionPoint */
+#ifndef TOLUA_DISABLE_tolua_Luainterface_DawnInterface_addInteractionPoint00
+static int tolua_Luainterface_DawnInterface_addInteractionPoint00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+	tolua_Error tolua_err;
+	if (
+		!tolua_isnoobj(tolua_S, 1, &tolua_err)
+		)
+		goto tolua_lerror;
+	else
+#endif
+	{
+		{
+			InteractionPoint* tolua_ret = (InteractionPoint*)DawnInterface::addInteractionPoint();
+			tolua_pushusertype(tolua_S, (void*)tolua_ret, "InteractionPoint");
+		}
+	}
+	return 1;
+#ifndef TOLUA_RELEASE
+	tolua_lerror :
+				 tolua_error(tolua_S, "#ferror in function 'addInteractionPoint'.", &tolua_err);
+				 return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
+/* function: DawnInterface::addCharacterInteractionPoint */
+#ifndef TOLUA_DISABLE_tolua_Luainterface_DawnInterface_addCharacterInteractionPoint00
+static int tolua_Luainterface_DawnInterface_addCharacterInteractionPoint00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+	tolua_Error tolua_err;
+	if (
+		!tolua_isusertype(tolua_S, 1, "Character", 0, &tolua_err) ||
+		!tolua_isnoobj(tolua_S, 2, &tolua_err)
+		)
+		goto tolua_lerror;
+	else
+#endif
+	{
+		Character* character = ((Character*)tolua_tousertype(tolua_S, 1, 0));
+		{
+			InteractionPoint* tolua_ret = (InteractionPoint*)DawnInterface::addCharacterInteractionPoint(character);
+			tolua_pushusertype(tolua_S, (void*)tolua_ret, "InteractionPoint");
+		}
+	}
+	return 1;
+#ifndef TOLUA_RELEASE
+	tolua_lerror :
+				 tolua_error(tolua_S, "#ferror in function 'addCharacterInteractionPoint'.", &tolua_err);
+				 return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
+/* function: DawnInterface::removeInteractionPoint */
+#ifndef TOLUA_DISABLE_tolua_Luainterface_DawnInterface_removeInteractionPoint00
+static int tolua_Luainterface_DawnInterface_removeInteractionPoint00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+	tolua_Error tolua_err;
+	if (
+		!tolua_isusertype(tolua_S, 1, "InteractionPoint", 0, &tolua_err) ||
+		!tolua_isnoobj(tolua_S, 2, &tolua_err)
+		)
+		goto tolua_lerror;
+	else
+#endif
+	{
+		InteractionPoint* pointToRemove = ((InteractionPoint*)tolua_tousertype(tolua_S, 1, 0));
+		{
+			DawnInterface::removeInteractionPoint(pointToRemove);
+		}
+	}
+	return 0;
+#ifndef TOLUA_RELEASE
+	tolua_lerror :
+				 tolua_error(tolua_S, "#ferror in function 'removeInteractionPoint'.", &tolua_err);
+				 return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
+/* function: DawnInterface::getItemReferenceRestore */
+#ifndef TOLUA_DISABLE_tolua_Luainterface_DawnInterface_getItemReferenceRestore00
+static int tolua_Luainterface_DawnInterface_getItemReferenceRestore00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+	tolua_Error tolua_err;
+	if (
+		!tolua_isusertype(tolua_S, 1, "Character", 0, &tolua_err) ||
+		!tolua_isnoobj(tolua_S, 2, &tolua_err)
+		)
+		goto tolua_lerror;
+	else
+#endif
+	{
+		Character* character = ((Character*)tolua_tousertype(tolua_S, 1, 0));
+		{
+			std::string tolua_ret = (std::string)  DawnInterface::getItemReferenceRestore(character);
+			tolua_pushcppstring(tolua_S, (const char*)tolua_ret);
+		}
+	}
+	return 1;
+#ifndef TOLUA_RELEASE
+	tolua_lerror :
+				 tolua_error(tolua_S, "#ferror in function 'getItemReferenceRestore'.", &tolua_err);
+				 return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
 /* function: DawnInterface::createTextWindow */
 #ifndef TOLUA_DISABLE_tolua_Luainterface_DawnInterface_createTextWindow00
 static int tolua_Luainterface_DawnInterface_createTextWindow00(lua_State* tolua_S)
@@ -356,10 +471,10 @@ static int tolua_Luainterface_EditorInterface_adjustLastRGBA00(lua_State* tolua_
 	else
 #endif
 	{
-		double red = ((double)tolua_tonumber(tolua_S, 1, 0));
-		double green = ((double)tolua_tonumber(tolua_S, 2, 0));
-		double blue = ((double)tolua_tonumber(tolua_S, 3, 0));
-		double alpha = ((double)tolua_tonumber(tolua_S, 4, 0));
+		float red = ((float)tolua_tonumber(tolua_S, 1, 0));
+		float green = ((float)tolua_tonumber(tolua_S, 2, 0));
+		float blue = ((float)tolua_tonumber(tolua_S, 3, 0));
+		float alpha = ((float)tolua_tonumber(tolua_S, 4, 0));
 		{
 			EditorInterface::adjustLastRGBA(red, green, blue, alpha);
 		}
@@ -368,6 +483,36 @@ static int tolua_Luainterface_EditorInterface_adjustLastRGBA00(lua_State* tolua_
 #ifndef TOLUA_RELEASE
 	tolua_lerror :
 				 tolua_error(tolua_S, "#ferror in function 'adjustLastRGBA'.", &tolua_err);
+				 return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
+/* function: EditorInterface::adjustLastSize */
+#ifndef TOLUA_DISABLE_tolua_Luainterface_EditorInterface_adjustLastSize00
+static int tolua_Luainterface_EditorInterface_adjustLastSize00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+	tolua_Error tolua_err;
+	if (
+		!tolua_isnumber(tolua_S, 1, 0, &tolua_err) ||
+		!tolua_isnumber(tolua_S, 2, 0, &tolua_err) ||
+		!tolua_isnoobj(tolua_S, 3, &tolua_err)
+		)
+		goto tolua_lerror;
+	else
+#endif
+	{
+		float width = ((float)tolua_tonumber(tolua_S, 1, 0));
+		float height = ((float)tolua_tonumber(tolua_S, 2, 0));
+		{
+			EditorInterface::adjustLastSize(width, height);
+		}
+	}
+	return 0;
+#ifndef TOLUA_RELEASE
+	tolua_lerror :
+				 tolua_error(tolua_S, "#ferror in function 'adjustLastSize'.", &tolua_err);
 				 return 0;
 #endif
 }
@@ -1811,6 +1956,10 @@ TOLUA_API int tolua_Luainterface_open(lua_State* tolua_S)
 	tolua_function(tolua_S, "addMobSpawnPoint", tolua_Luainterface_DawnInterface_addMobSpawnPoint00);
 	tolua_function(tolua_S, "addInteractionRegion", tolua_Luainterface_DawnInterface_addInteractionRegion00);
 	tolua_function(tolua_S, "removeInteractionRegion", tolua_Luainterface_DawnInterface_removeInteractionRegion00);
+	tolua_function(tolua_S, "addInteractionPoint", tolua_Luainterface_DawnInterface_addInteractionPoint00);
+	tolua_function(tolua_S, "addCharacterInteractionPoint", tolua_Luainterface_DawnInterface_addCharacterInteractionPoint00);
+	tolua_function(tolua_S, "removeInteractionPoint", tolua_Luainterface_DawnInterface_removeInteractionPoint00);
+	tolua_function(tolua_S, "getItemReferenceRestore", tolua_Luainterface_DawnInterface_getItemReferenceRestore00);
 	tolua_function(tolua_S, "createTextWindow", tolua_Luainterface_DawnInterface_createTextWindow00);
 	tolua_endmodule(tolua_S);
 	tolua_module(tolua_S, "EditorInterface", 0);
@@ -1819,6 +1968,7 @@ TOLUA_API int tolua_Luainterface_open(lua_State* tolua_S)
 	tolua_function(tolua_S, "addGroundTile", tolua_Luainterface_EditorInterface_addGroundTile00);
 	tolua_function(tolua_S, "addEnvironment", tolua_Luainterface_EditorInterface_addEnvironment00);
 	tolua_function(tolua_S, "adjustLastRGBA", tolua_Luainterface_EditorInterface_adjustLastRGBA00);
+	tolua_function(tolua_S, "adjustLastSize", tolua_Luainterface_EditorInterface_adjustLastSize00);
 	tolua_function(tolua_S, "addCollisionRect", tolua_Luainterface_EditorInterface_addCollisionRect00);
 	tolua_endmodule(tolua_S);
 	tolua_module(tolua_S, "TileClassificationType", 0);

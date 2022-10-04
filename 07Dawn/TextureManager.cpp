@@ -97,7 +97,7 @@ void TextureManager::SetTextureAtlas(std::string name, unsigned int value) {
 	TextureManager::Get().m_textureAtlases[name] = value;
 }
 
-bool TextureManager::IsRectOnScreen(int left, int width, int bottom, int height){
+bool TextureManager::IsRectOnScreen(int left, int width, int bottom, int height) {
 	ViewPort& viewPort = ViewPort::get();
 	float _left = viewPort.getLeft();
 	float _right = viewPort.getRight();
@@ -112,4 +112,8 @@ bool TextureManager::IsRectOnScreen(int left, int width, int bottom, int height)
 		return false;
 	}
 	return true;
+}
+
+bool TextureManager::CheckPointInRect(int px, int py, int left, int width, int bottom, int height) {
+	return (left < px && left + width > px && bottom < py && bottom + height > py);
 }

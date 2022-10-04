@@ -1,6 +1,6 @@
 #include "InteractionRegion.h"
-#include "luafunctions.h"
-#include "zone.h"
+#include "Luafunctions.h"
+#include "Zone.h"
 
 #include "Constants.h"
 

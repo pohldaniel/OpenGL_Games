@@ -37,7 +37,7 @@ void Zone::loadZone(std::string file){
 	LuaFunctions::executeLuaFile(std::string(file).append(".environment.lua"));
 	LuaFunctions::executeLuaFile(std::string(file).append(".shadow.lua"));
 	LuaFunctions::executeLuaFile(std::string(file).append(".collision.lua"));
-
+	
 	//LuaFunctions::executeLuaFile(std::string(file).append(".init.lua"));
 
 	m_mapLoaded = true;
@@ -74,7 +74,7 @@ int Zone::locateTile(int x, int y){
 	return -1;
 }
 
-void Zone::changeTile(int iId, Tile *tile_){
+void Zone::replaceTile(int iId, Tile *tile_){
 	if (iId >= 0) {
 		tileMap[iId].tile = tile_;
 	}
@@ -85,6 +85,7 @@ void Zone::deleteTile(int iId) {
 		tileMap[iId].tile = EditorInterface::getTileSet(TileClassificationType::FLOOR)->getEmptyTile();
 	}
 }
+
 void Zone::addEnvironment(int x_pos, int y_pos, Tile *tile, bool centeredOnPos){
 	int placePosX = x_pos;
 	int placePosY = y_pos;
@@ -98,6 +99,17 @@ void Zone::addEnvironment(int x_pos, int y_pos, Tile *tile, bool centeredOnPos){
 	if (tile->containsCollisionRect == true) {
 		collisionMap.push_back({ placePosX + tile->collisionRect.x, placePosY + tile->collisionRect.y, tile->collisionRect.w, tile->collisionRect.h });
 	}
+}
+
+void Zone::replaceEnvironment(int x_pos, int y_pos, Tile *tile, bool centeredOnPos, int replaceId) {
+	int placePosX = x_pos;
+	int placePosY = y_pos;
+	if (centeredOnPos) {
+		placePosX -= tile->textureRect.width / 2;
+		placePosY -= tile->textureRect.height / 2;
+	}
+
+	environmentMap[replaceId] = EnvironmentMap(placePosX, placePosY, tile, 1.0f, 1.0f, 1.0f, 1.0f, static_cast<float>(tile->textureRect.width), static_cast<float>(tile->textureRect.height), 1.0f);
 }
 
 int Zone::deleteEnvironment(int x, int y) {
@@ -219,6 +231,10 @@ std::vector<Npc*> Zone::getNPCs() {
 	return npcs;
 }
 
+std::string Zone::getZoneName() const {
+	return m_name;
+}
+
 void Zone::addCollisionbox(int x_pos, int y_pos) {
 	collisionMap.push_back({ x_pos, y_pos, 100, 100 });
 }
@@ -253,6 +269,37 @@ void Zone::addInteractionRegion(InteractionRegion *interactionRegionToAdd){
 
 std::vector<InteractionRegion*> Zone::getInteractionRegions() {
 	return interactionRegions;
+}
+
+std::vector<InteractionPoint*> Zone::getInteractionPoints() {
+	return interactionPoints;
+}
+
+bool Zone::findInteractionPointForCharacter(Character *character) const {
+	for (size_t curIP = 0; curIP < interactionPoints.size(); curIP++) {
+		CharacterInteractionPoint *curCharacterIP = dynamic_cast<CharacterInteractionPoint*>(interactionPoints[curIP]);
+		if (curCharacterIP != NULL) {
+			if (character == curCharacterIP->getCharacter()) {
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+void Zone::addInteractionPoint(InteractionPoint *interactionPointToAdd) {
+	interactionPoints.push_back(interactionPointToAdd);
+}
+
+void Zone::findCharacter(Character *character, bool &found, size_t &foundPos) const {
+	for (size_t curNpcNr = 0; curNpcNr < npcs.size(); ++curNpcNr) {
+		if (npcs[curNpcNr] == character) {
+			found = true;
+			foundPos = curNpcNr;
+			return;
+		}
+	}
+	found = false;
 }
 
 void Zone::update(float deltaTime) {

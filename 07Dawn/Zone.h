@@ -10,6 +10,7 @@
 #include "TextureManager.h"
 #include "Npc.h"
 #include "InteractionRegion.h"
+#include "InteractionPoint.h"
 
 struct TileMap {
 	int x_pos, y_pos;
@@ -82,6 +83,9 @@ public:
 	void loadZone(std::string file);
 	bool zoneDataLoaded() const;
 	void addEnvironment(int x_pos, int y_pos, Tile *tile, bool centeredOnPos);
+	void replaceEnvironment(int x_pos, int y_pos, Tile *tile, bool centeredOnPos, int replaceId);
+	std::string getZoneName() const;
+
 	int deleteEnvironment(int x, int y);
 	int locateEnvironment(int x, int y);
 	int locateShadow(int x, int y);
@@ -91,7 +95,7 @@ public:
 	int deleteCollisionbox(int x, int y);
 	void addShadow(int x_pos, int y_pos, Tile *tile);
 	int deleteShadow(int x, int y);
-	void changeTile(int iId, Tile *tile_);
+	void replaceTile(int iId, Tile *tile_);
 	void deleteTile(int iId);
 	int locateTile(int x, int y);
 	std::string getName() const;
@@ -103,13 +107,19 @@ public:
 	void addInteractionRegion(InteractionRegion *interactionRegionToAdd);
 	std::vector<InteractionRegion*> getInteractionRegions();
 
+	std::vector<InteractionPoint*> getInteractionPoints();
+	bool findInteractionPointForCharacter(Character *character) const;
+	void addInteractionPoint(InteractionPoint *interactionPointToAdd);
+
+	void findCharacter(Character *character, bool &found, size_t &foundPos) const;
+
 	std::vector<TileMap> tileMap;
 	std::vector<EnvironmentMap> environmentMap;
 	std::vector<EnvironmentMap> shadowMap;
 	std::vector<CollisionRect> collisionMap;
 	std::vector <Npc*> npcs;
 	std::vector<InteractionRegion*> interactionRegions;
-
+	std::vector<InteractionPoint*> interactionPoints;
 private:
 
 	std::string m_name;

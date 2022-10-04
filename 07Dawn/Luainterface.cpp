@@ -6,6 +6,7 @@
 #include "Constants.h"
 #include "Npc.h"
 #include "InteractionRegion.h"
+#include "InteractionPoint.h"
 #include "TextWindow.h"
 
 namespace EditorInterface{
@@ -21,7 +22,7 @@ namespace EditorInterface{
 		currentZone->environmentMap.push_back(EnvironmentMap(posX, posY, tileSet->getTile(tile), 1.0f, 1.0f, 1.0f, 1.0f, static_cast<float>(tileSet->getTile(tile)->textureRect.width), static_cast<float>(tileSet->getTile(tile)->textureRect.height), posZ));
 	}
 
-	void adjustLastRGBA(double red, double green, double blue, double alpha){
+	void adjustLastRGBA(float red, float green, float blue, float alpha){
 		Zone *currentZone = Globals::getCurrentZone();
 		EnvironmentMap &lastEnv = currentZone->environmentMap[currentZone->environmentMap.size() - 1];
 		lastEnv.red = red;
@@ -30,12 +31,12 @@ namespace EditorInterface{
 		lastEnv.transparency = alpha;
 	}
 
-	/*void adjustLastScale(double scaleX, double scaleY){
-		CZone *currentZone = Globals::getCurrentZone();
-		sEnvironmentMap &lastEnv = currentZone->EnvironmentMap[currentZone->EnvironmentMap.size() - 1];
-		lastEnv.x_scale = scaleX;
-		lastEnv.y_scale = scaleY;
-	}*/
+	void adjustLastSize(float width, float height){
+		Zone *currentZone = Globals::getCurrentZone();
+		EnvironmentMap &lastEnv = currentZone->environmentMap[currentZone->environmentMap.size() - 1];
+		lastEnv.width = width;
+		lastEnv.height = height;
+	}
 
 	void addCollisionRect(int lrx, int lry, int width, int height){
 		Zone *currentZone = Globals::getCurrentZone();
@@ -57,8 +58,7 @@ namespace DawnInterface{
 		//getPlayer()->setPosition(enterX, enterY);
 		std::ostringstream oss;
 		std::string zoneNameNoPrefix = zoneName;
-		if (zoneNameNoPrefix.find_last_of('/') != std::string::npos)
-		{
+		if (zoneNameNoPrefix.find_last_of('/') != std::string::npos){
 			zoneNameNoPrefix = zoneNameNoPrefix.substr(zoneNameNoPrefix.find_last_of('/') + 1);
 		}
 		oss << "if (" << zoneNameNoPrefix << ".onEnterMap ~= nil)\nthen\n    " << zoneNameNoPrefix << ".onEnterMap(" << enterX << "," << enterY << ");\nelse    print \"" << zoneNameNoPrefix << ".onEnterMap was not defined\";\nend";
@@ -100,6 +100,40 @@ namespace DawnInterface{
 
 	void removeInteractionRegion(InteractionRegion *regionToRemove){
 		regionToRemove->markAsDeletable();
+	}
+
+	InteractionPoint* addInteractionPoint(){
+		InteractionPoint *newInteractionPoint = new InteractionPoint();
+		Globals::getCurrentZone()->addInteractionPoint(newInteractionPoint);
+		return newInteractionPoint;
+	}
+
+	InteractionPoint* addCharacterInteractionPoint(Character *character){
+		InteractionPoint *newInteractionPoint = new CharacterInteractionPoint(character);
+		Globals::getCurrentZone()->addInteractionPoint(newInteractionPoint);
+		return newInteractionPoint;
+	}
+
+	void removeInteractionPoint(InteractionPoint *pointToRemove){
+		//pointToRemove->markAsDeletable();
+	}
+
+	std::string getItemReferenceRestore(Character *character){
+		if (character == NULL) {
+			return "nil;";
+		}
+		for (std::map< std::string, Zone* >::iterator it = Globals::allZones.begin(); it != Globals::allZones.end(); ++it) {
+			Zone *curZone = it->second;
+			bool found;
+			size_t foundPos;
+			curZone->findCharacter(character, found, foundPos);
+			if (found) {
+				std::ostringstream oss;
+				oss << "DawnInterface.restoreCharacterReference( \"" << curZone->getZoneName() << "\", " << foundPos << " )";
+				return oss.str();
+			}
+		}
+		// not found
 	}
 
 	TextWindow *createTextWindow(){

@@ -30,8 +30,7 @@ void ViewPort::update(float dt) {
 	Keyboard &keyboard = Keyboard::instance();
 	Vector3f directrion = Vector3f();
 	
-	float dx = 0.0f;
-	float dy = 0.0f;
+	
 	float moveSpeed = 500.0f;
 	if (keyboard.keyDown(Keyboard::KEY_W)) {
 		directrion += Vector3f(0.0f, 1.0f, 0.0f);
