@@ -1,30 +1,12 @@
 #pragma once
 #include <string>
 #include <vector>
+#include <array>
 #include <unordered_map>
 
+#include "Enums.h"
 #include "TextureManager.h"
 #include "Character.h"
-
-namespace TileClassificationType{
-	enum TileClassificationType{
-		FLOOR,
-		ENVIRONMENT,
-		SHADOW,
-		COLLISION,
-		NPC,
-		COUNT
-	};
-}
-
-namespace AdjacencyType{
-	enum AdjacencyType{
-		RIGHT,
-		LEFT,
-		TOP,
-		BOTTOM
-	};
-}
 
 struct CollisionRect {
 	int x, y, w, h;	
@@ -32,69 +14,58 @@ struct CollisionRect {
 
 class Tile{
 public:
-	int tileID;
+	unsigned int tileId;
 	bool containsCollisionRect;
 	TextureRect textureRect;
 	CollisionRect collisionRect;
 };
 
-struct Point{
-	int x;
-	int y;
-
-	Point(int x_ = 0, int y_ = 0) : x(x_), y(y_){
-	}
+struct AdjacencyStruct{
+	Enums::AdjacencyType adjacencyType;
+	unsigned int baseTile;
+	unsigned int adjacentTile;
+	std::array<int,2> offset;
 };
 
-class AdjacencyStruct{
-public:
-	AdjacencyType::AdjacencyType adjacencyType;
-	int baseTile;
-	int adjacentTile;
-	Point offset;
-};
-
-class AdjacencyEquivalenceClass{
-public:
+struct AdjacencyEquivalenceClass{
 	std::vector<int> equivalentTiles;
-	std::vector<Point> offsets;
+	std::vector<std::array<int,2>> offsets;
 	void addEquivalentTile(int tile, int offsetX, int offsetY);
 };
 
 class TileSet{
 public:
-	std::vector<Tile*> tiles;
-	std::vector<AdjacencyStruct*> adjacencyList;
-	std::vector<AdjacencyEquivalenceClass*> myEquivalenceClasses;
-
-
+	
 	TileSet();
 
 	// The following functions are in the LUA EditorInterface
-	int addTile(std::string filename, TileClassificationType::TileClassificationType tileType);
-	int addTileWithCollisionBox(std::string filename, TileClassificationType::TileClassificationType tileType, int cbx, int cby, int cbw, int cbh);
-	void addAdjacency(int tile1, AdjacencyType::AdjacencyType adjacencyType, int tile2, int offsetX, int offsetY);
-	AdjacencyEquivalenceClass *createAdjacencyEquivalenceClass();
-	void addEquivalenceAdjacency(AdjacencyEquivalenceClass *class1, AdjacencyType::AdjacencyType adjacencyType, AdjacencyEquivalenceClass *class2, int allOffsetX, int allOffsetY);
+	unsigned int addTile(std::string filename, Enums::TileClassificationType tileType);
+	unsigned int addTileWithCollisionBox(std::string filename, Enums::TileClassificationType tileType, int cbx, int cby, int cbw, int cbh);
+	void addEquivalenceAdjacency(AdjacencyEquivalenceClass *class1, Enums::AdjacencyType adjacencyType, AdjacencyEquivalenceClass *class2, int allOffsetX, int allOffsetY);
+	void addAdjacency(unsigned int tile1, Enums::AdjacencyType adjacencyType, unsigned int tile2, int offsetX, int offsetY);
+	AdjacencyEquivalenceClass* createAdjacencyEquivalenceClass();	
 	void printTileSet() const;
 
 	// normal interface
-	Tile *getTile(int tileID) const;
-	Tile *getEmptyTile() const;
-	unsigned int numberOfTiles() const;
-	void clear();
-	std::vector<Tile*> getAllTiles() const;
-
-	void getAllAdjacentTiles(Tile *searchTile, std::vector< std::vector<Tile*> > &matchingTiles, std::vector< std::vector<Point> > &matchOffsets) const;
-
+	const Tile& getTile(int tileID);
+	const Tile& getEmptyTile();
+	const std::vector<Tile>& getAllTiles() const;
+	void getAllAdjacentTiles(const Tile& searchTile, std::vector<std::vector<Tile>> &matchingTiles, std::vector<std::vector<std::array<int,2>>> &matchOffsets) const;
+	unsigned int numberOfTiles();
+	void clearTiles();
+	
+private:
+	std::vector<AdjacencyStruct> m_adjacencyList;
+	std::vector<AdjacencyEquivalenceClass*> m_equivalenceClasses;
+	std::vector<Tile> m_tiles;
 };
 
 class TileSetManager {
 
 public:
 
-	TileSet& getTileSet(ActivityType::ActivityType activityType, Direction direction);
-	TileSet& getTileSet(TileClassificationType::TileClassificationType tileType);	
+	TileSet& getTileSet(Enums::ActivityType activityType, Enums::Direction direction);
+	TileSet& getTileSet(Enums::TileClassificationType tileType);
 	static TileSetManager& Get();
 	
 private:

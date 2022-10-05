@@ -1,6 +1,6 @@
 /*
 ** Lua binding: Luainterface
-** Generated automatically by tolua++-1.0.92 on Tue Oct  4 19:19:27 2022.
+** Generated automatically by tolua++-1.0.92 on Wed Oct  5 16:30:17 2022.
 */
 
 #ifndef __cplusplus
@@ -21,6 +21,7 @@ TOLUA_API int  tolua_Luainterface_open(lua_State* tolua_S);
 #include "InteractionRegion.h"
 #include "InteractionPoint.h"
 #include "TextWindow.h"
+#include "Enums.h"
 
 /* function to register type */
 static void tolua_reg_types(lua_State* tolua_S)
@@ -150,7 +151,7 @@ static int tolua_Luainterface_DawnInterface_addMobSpawnPoint00(lua_State* tolua_
 		int y_pos = ((int)tolua_tonumber(tolua_S, 3, 0));
 		int respawn_rate = ((int)tolua_tonumber(tolua_S, 4, 0));
 		int do_respawn = ((int)tolua_tonumber(tolua_S, 5, 0));
-		Attitude::Attitude attitude = ((Attitude::Attitude) (int)  tolua_tonumber(tolua_S, 6, 0));
+		Enums::Attitude attitude = ((Enums::Attitude) (int)  tolua_tonumber(tolua_S, 6, 0));
 		{
 			DawnInterface::addMobSpawnPoint(mobID, x_pos, y_pos, respawn_rate, do_respawn, attitude);
 		}
@@ -373,7 +374,7 @@ static int tolua_Luainterface_EditorInterface_getTileSet00(lua_State* tolua_S)
 	else
 #endif
 	{
-		TileClassificationType::TileClassificationType tileType = ((TileClassificationType::TileClassificationType) (int)  tolua_tonumber(tolua_S, 1, 0));
+		Enums::TileClassificationType tileType = ((Enums::TileClassificationType) (int)  tolua_tonumber(tolua_S, 1, 0));
 		{
 			TileSet* tolua_ret = (TileSet*)EditorInterface::getTileSet(tileType);
 			tolua_pushusertype(tolua_S, (void*)tolua_ret, "TileSet");
@@ -607,12 +608,12 @@ static int tolua_Luainterface_TileSet_addTile00(lua_State* tolua_S)
 	{
 		TileSet* self = (TileSet*)tolua_tousertype(tolua_S, 1, 0);
 		std::string filename = ((std::string)  tolua_tocppstring(tolua_S, 2, 0));
-		TileClassificationType::TileClassificationType tileType = ((TileClassificationType::TileClassificationType) (int)  tolua_tonumber(tolua_S, 3, 0));
+		Enums::TileClassificationType tileType = ((Enums::TileClassificationType) (int)  tolua_tonumber(tolua_S, 3, 0));
 #ifndef TOLUA_RELEASE
 		if (!self) tolua_error(tolua_S, "invalid 'self' in function 'addTile'", NULL);
 #endif
 		{
-			int tolua_ret = (int)self->addTile(filename, tileType);
+			unsigned int tolua_ret = (unsigned int)self->addTile(filename, tileType);
 			tolua_pushnumber(tolua_S, (lua_Number)tolua_ret);
 		}
 	}
@@ -647,7 +648,7 @@ static int tolua_Luainterface_TileSet_addTileWithCollisionBox00(lua_State* tolua
 	{
 		TileSet* self = (TileSet*)tolua_tousertype(tolua_S, 1, 0);
 		std::string filename = ((std::string)  tolua_tocppstring(tolua_S, 2, 0));
-		TileClassificationType::TileClassificationType tileType = ((TileClassificationType::TileClassificationType) (int)  tolua_tonumber(tolua_S, 3, 0));
+		Enums::TileClassificationType tileType = ((Enums::TileClassificationType) (int)  tolua_tonumber(tolua_S, 3, 0));
 		int cbx = ((int)tolua_tonumber(tolua_S, 4, 0));
 		int cby = ((int)tolua_tonumber(tolua_S, 5, 0));
 		int cbw = ((int)tolua_tonumber(tolua_S, 6, 0));
@@ -656,7 +657,7 @@ static int tolua_Luainterface_TileSet_addTileWithCollisionBox00(lua_State* tolua
 		if (!self) tolua_error(tolua_S, "invalid 'self' in function 'addTileWithCollisionBox'", NULL);
 #endif
 		{
-			int tolua_ret = (int)self->addTileWithCollisionBox(filename, tileType, cbx, cby, cbw, cbh);
+			unsigned int tolua_ret = (unsigned int)self->addTileWithCollisionBox(filename, tileType, cbx, cby, cbw, cbh);
 			tolua_pushnumber(tolua_S, (lua_Number)tolua_ret);
 		}
 	}
@@ -689,9 +690,9 @@ static int tolua_Luainterface_TileSet_addAdjacency00(lua_State* tolua_S)
 #endif
 	{
 		TileSet* self = (TileSet*)tolua_tousertype(tolua_S, 1, 0);
-		int tile1 = ((int)tolua_tonumber(tolua_S, 2, 0));
-		AdjacencyType::AdjacencyType adjacencyType = ((AdjacencyType::AdjacencyType) (int)  tolua_tonumber(tolua_S, 3, 0));
-		int tile2 = ((int)tolua_tonumber(tolua_S, 4, 0));
+		unsigned int tile1 = ((unsigned int)tolua_tonumber(tolua_S, 2, 0));
+		Enums::AdjacencyType adjacencyType = ((Enums::AdjacencyType) (int)  tolua_tonumber(tolua_S, 3, 0));
+		unsigned int tile2 = ((unsigned int)tolua_tonumber(tolua_S, 4, 0));
 		int offsetX = ((int)tolua_tonumber(tolua_S, 5, 0));
 		int offsetY = ((int)tolua_tonumber(tolua_S, 6, 0));
 #ifndef TOLUA_RELEASE
@@ -763,7 +764,7 @@ static int tolua_Luainterface_TileSet_addEquivalenceAdjacency00(lua_State* tolua
 	{
 		TileSet* self = (TileSet*)tolua_tousertype(tolua_S, 1, 0);
 		AdjacencyEquivalenceClass* class1 = ((AdjacencyEquivalenceClass*)tolua_tousertype(tolua_S, 2, 0));
-		AdjacencyType::AdjacencyType adjacencyType = ((AdjacencyType::AdjacencyType) (int)  tolua_tonumber(tolua_S, 3, 0));
+		Enums::AdjacencyType adjacencyType = ((Enums::AdjacencyType) (int)  tolua_tonumber(tolua_S, 3, 0));
 		AdjacencyEquivalenceClass* class2 = ((AdjacencyEquivalenceClass*)tolua_tousertype(tolua_S, 4, 0));
 		int offsetX = ((int)tolua_tonumber(tolua_S, 5, 0));
 		int offsetY = ((int)tolua_tonumber(tolua_S, 6, 0));
@@ -1490,7 +1491,7 @@ static int tolua_Luainterface_CharacterType_setClass00(lua_State* tolua_S)
 #endif
 	{
 		CharacterType* self = (CharacterType*)tolua_tousertype(tolua_S, 1, 0);
-		CharacterClass::CharacterClass characterClass = ((CharacterClass::CharacterClass) (int)  tolua_tonumber(tolua_S, 2, 0));
+		Enums::CharacterClass characterClass = ((Enums::CharacterClass) (int)  tolua_tonumber(tolua_S, 2, 0));
 #ifndef TOLUA_RELEASE
 		if (!self) tolua_error(tolua_S, "invalid 'self' in function 'setClass'", NULL);
 #endif
@@ -1561,8 +1562,8 @@ static int tolua_Luainterface_CharacterType_addMoveTexture00(lua_State* tolua_S)
 #endif
 	{
 		CharacterType* self = (CharacterType*)tolua_tousertype(tolua_S, 1, 0);
-		ActivityType::ActivityType activity = ((ActivityType::ActivityType) (int)  tolua_tonumber(tolua_S, 2, 0));
-		Direction direction = ((Direction)(int)tolua_tonumber(tolua_S, 3, 0));
+		Enums::ActivityType activity = ((Enums::ActivityType) (int)  tolua_tonumber(tolua_S, 2, 0));
+		Enums::Direction direction = ((Enums::Direction) (int)  tolua_tonumber(tolua_S, 3, 0));
 		int index = ((int)tolua_tonumber(tolua_S, 4, 0));
 		std::string filename = ((std::string)  tolua_tocppstring(tolua_S, 5, 0));
 		int textureOffsetX = ((int)tolua_tonumber(tolua_S, 6, 0));
@@ -1599,7 +1600,7 @@ static int tolua_Luainterface_Npc_setAttitude00(lua_State* tolua_S)
 #endif
 	{
 		Npc* self = (Npc*)tolua_tousertype(tolua_S, 1, 0);
-		Attitude::Attitude attitude = ((Attitude::Attitude) (int)  tolua_tonumber(tolua_S, 2, 0));
+		Enums::Attitude attitude = ((Enums::Attitude) (int)  tolua_tonumber(tolua_S, 2, 0));
 #ifndef TOLUA_RELEASE
 		if (!self) tolua_error(tolua_S, "invalid 'self' in function 'setAttitude'", NULL);
 #endif
@@ -1916,37 +1917,41 @@ TOLUA_API int tolua_Luainterface_open(lua_State* tolua_S)
 	tolua_reg_types(tolua_S);
 	tolua_module(tolua_S, NULL, 0);
 	tolua_beginmodule(tolua_S, NULL);
-	tolua_constant(tolua_S, "STOP", STOP);
-	tolua_constant(tolua_S, "N", N);
-	tolua_constant(tolua_S, "NE", NE);
-	tolua_constant(tolua_S, "E", E);
-	tolua_constant(tolua_S, "SE", SE);
-	tolua_constant(tolua_S, "S", S);
-	tolua_constant(tolua_S, "SW", SW);
-	tolua_constant(tolua_S, "W", W);
-	tolua_constant(tolua_S, "NW", NW);
-	tolua_module(tolua_S, "ActivityType", 0);
-	tolua_beginmodule(tolua_S, "ActivityType");
-	tolua_constant(tolua_S, "Walking", ActivityType::Walking);
-	tolua_constant(tolua_S, "Casting", ActivityType::Casting);
-	tolua_constant(tolua_S, "Attacking", ActivityType::Attacking);
-	tolua_constant(tolua_S, "Shooting", ActivityType::Shooting);
-	tolua_constant(tolua_S, "Dying", ActivityType::Dying);
-	tolua_constant(tolua_S, "Count", ActivityType::Count);
-	tolua_endmodule(tolua_S);
-	tolua_module(tolua_S, "CharacterClass", 0);
-	tolua_beginmodule(tolua_S, "CharacterClass");
-	tolua_constant(tolua_S, "NOCLASS", CharacterClass::NOCLASS);
-	tolua_constant(tolua_S, "ANYCLASS", CharacterClass::ANYCLASS);
-	tolua_constant(tolua_S, "Liche", CharacterClass::Liche);
-	tolua_constant(tolua_S, "Ranger", CharacterClass::Ranger);
-	tolua_constant(tolua_S, "Warrior", CharacterClass::Warrior);
-	tolua_endmodule(tolua_S);
-	tolua_module(tolua_S, "Attitude", 0);
-	tolua_beginmodule(tolua_S, "Attitude");
-	tolua_constant(tolua_S, "FRIENDLY", Attitude::FRIENDLY);
-	tolua_constant(tolua_S, "NEUTRAL", Attitude::NEUTRAL);
-	tolua_constant(tolua_S, "HOSTILE", Attitude::HOSTILE);
+	tolua_module(tolua_S, "Enums", 0);
+	tolua_beginmodule(tolua_S, "Enums");
+	tolua_constant(tolua_S, "FLOOR", Enums::FLOOR);
+	tolua_constant(tolua_S, "ENVIRONMENT", Enums::ENVIRONMENT);
+	tolua_constant(tolua_S, "SHADOW", Enums::SHADOW);
+	tolua_constant(tolua_S, "COLLISION", Enums::COLLISION);
+	tolua_constant(tolua_S, "NPC", Enums::NPC);
+	tolua_constant(tolua_S, "COUNT", Enums::COUNT);
+	tolua_constant(tolua_S, "RIGHT", Enums::RIGHT);
+	tolua_constant(tolua_S, "LEFT", Enums::LEFT);
+	tolua_constant(tolua_S, "TOP", Enums::TOP);
+	tolua_constant(tolua_S, "BOTTOM", Enums::BOTTOM);
+	tolua_constant(tolua_S, "FRIENDLY", Enums::FRIENDLY);
+	tolua_constant(tolua_S, "NEUTRAL", Enums::NEUTRAL);
+	tolua_constant(tolua_S, "HOSTILE", Enums::HOSTILE);
+	tolua_constant(tolua_S, "NOCLASS", Enums::NOCLASS);
+	tolua_constant(tolua_S, "ANYCLASS", Enums::ANYCLASS);
+	tolua_constant(tolua_S, "Liche", Enums::Liche);
+	tolua_constant(tolua_S, "Ranger", Enums::Ranger);
+	tolua_constant(tolua_S, "Warrior", Enums::Warrior);
+	tolua_constant(tolua_S, "Walking", Enums::Walking);
+	tolua_constant(tolua_S, "Casting", Enums::Casting);
+	tolua_constant(tolua_S, "Attacking", Enums::Attacking);
+	tolua_constant(tolua_S, "Shooting", Enums::Shooting);
+	tolua_constant(tolua_S, "Dying", Enums::Dying);
+	tolua_constant(tolua_S, "Count", Enums::Count);
+	tolua_constant(tolua_S, "STOP", Enums::STOP);
+	tolua_constant(tolua_S, "N", Enums::N);
+	tolua_constant(tolua_S, "NE", Enums::NE);
+	tolua_constant(tolua_S, "E", Enums::E);
+	tolua_constant(tolua_S, "SE", Enums::SE);
+	tolua_constant(tolua_S, "S", Enums::S);
+	tolua_constant(tolua_S, "SW", Enums::SW);
+	tolua_constant(tolua_S, "W", Enums::W);
+	tolua_constant(tolua_S, "NW", Enums::NW);
 	tolua_endmodule(tolua_S);
 	tolua_module(tolua_S, "DawnInterface", 0);
 	tolua_beginmodule(tolua_S, "DawnInterface");
@@ -1970,19 +1975,6 @@ TOLUA_API int tolua_Luainterface_open(lua_State* tolua_S)
 	tolua_function(tolua_S, "adjustLastRGBA", tolua_Luainterface_EditorInterface_adjustLastRGBA00);
 	tolua_function(tolua_S, "adjustLastSize", tolua_Luainterface_EditorInterface_adjustLastSize00);
 	tolua_function(tolua_S, "addCollisionRect", tolua_Luainterface_EditorInterface_addCollisionRect00);
-	tolua_endmodule(tolua_S);
-	tolua_module(tolua_S, "TileClassificationType", 0);
-	tolua_beginmodule(tolua_S, "TileClassificationType");
-	tolua_constant(tolua_S, "FLOOR", TileClassificationType::FLOOR);
-	tolua_constant(tolua_S, "ENVIRONMENT", TileClassificationType::ENVIRONMENT);
-	tolua_constant(tolua_S, "SHADOW", TileClassificationType::SHADOW);
-	tolua_endmodule(tolua_S);
-	tolua_module(tolua_S, "AdjacencyType", 0);
-	tolua_beginmodule(tolua_S, "AdjacencyType");
-	tolua_constant(tolua_S, "RIGHT", AdjacencyType::RIGHT);
-	tolua_constant(tolua_S, "LEFT", AdjacencyType::LEFT);
-	tolua_constant(tolua_S, "TOP", AdjacencyType::TOP);
-	tolua_constant(tolua_S, "BOTTOM", AdjacencyType::BOTTOM);
 	tolua_endmodule(tolua_S);
 	tolua_cclass(tolua_S, "AdjacencyEquivalenceClass", "AdjacencyEquivalenceClass", "", NULL);
 	tolua_beginmodule(tolua_S, "AdjacencyEquivalenceClass");

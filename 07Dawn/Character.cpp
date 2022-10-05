@@ -4,9 +4,9 @@
 
 Character::Character(const CharacterType& characterType) : m_characterType(characterType) {
 	wander_radius = 40;
-	activeDirection = S;
+	activeDirection = Enums::Direction::S;
 
-	rect = &m_characterType.m_moveTileSets.at({ getCurActivity(), activeDirection }).getAllTiles()[0]->textureRect;
+	rect = &m_characterType.m_moveTileSets.at({ getCurActivity(), activeDirection }).getAllTiles()[0].textureRect;
 }
 
 void Character::setNumActivities(unsigned short numActivities) {	
@@ -68,8 +68,8 @@ void Character::baseOnType(std::string characterType) {
 	setExperienceValue(other.experienceValue);*/
 }
 
-ActivityType::ActivityType Character::getCurActivity() const {
-	ActivityType::ActivityType curActivity = ActivityType::Walking;
+Enums::ActivityType Character::getCurActivity() const {
+	Enums::ActivityType curActivity = Enums::ActivityType::Walking;
 	
 	return curActivity;
 }
@@ -84,23 +84,23 @@ int Character::getYPos() const {
 
 
 void Character::update(float deltaTime) {
-	ActivityType::ActivityType curActivity = getCurActivity();
+	Enums::ActivityType curActivity = getCurActivity();
 
 	if (isStunned() == true || isMesmerized() == true) {
-		rect = &m_characterType.m_moveTileSets.at({curActivity, activeDirection}).getAllTiles()[0]->textureRect;
+		rect = &m_characterType.m_moveTileSets.at({curActivity, activeDirection}).getAllTiles()[0].textureRect;
 		return;
 	}
 
-	Direction direction = GetDirection();
-	if (direction != STOP) {
+	Enums::Direction direction = GetDirection();
+	if (direction != Enums::Direction::STOP) {
 		activeDirection = direction;
 	}
 
 	switch (curActivity) {
-		case ActivityType::Walking: {
+		case  Enums::ActivityType::Walking: {
 			
-			if (direction == STOP) {
-				rect = &m_characterType.m_moveTileSets.at({ curActivity, activeDirection }).getAllTiles()[0]->textureRect;
+			if (direction == Enums::Direction::STOP) {
+				rect = &m_characterType.m_moveTileSets.at({ curActivity, activeDirection }).getAllTiles()[0].textureRect;
 				index = 0;
 				return;
 			}
@@ -114,14 +114,14 @@ void Character::update(float deltaTime) {
 			index = dumping;
 			index = index % tileSet.getAllTiles().size();
 
-			rect = &tileSet.getAllTiles()[index]->textureRect;
+			rect = &tileSet.getAllTiles()[index].textureRect;
 			
 			
 			break;
-		}case ActivityType::Attacking: {
+		}case Enums::ActivityType::Attacking: {
 
-			if (direction == STOP) {
-				rect = &m_characterType.m_moveTileSets.at({ curActivity, activeDirection }).getAllTiles()[0]->textureRect;
+			if (direction == Enums::Direction::STOP) {
+				rect = &m_characterType.m_moveTileSets.at({ curActivity, activeDirection }).getAllTiles()[0].textureRect;
 				index = 0;
 				return;
 			}
@@ -130,13 +130,13 @@ void Character::update(float deltaTime) {
 			const TileSet& tileSet = m_characterType.m_moveTileSets.at({ curActivity, activeDirection });
 
 			index = ((Globals::clock.getElapsedTimeMilli() % (msPerDrawFrame * tileSet.getAllTiles().size())) / msPerDrawFrame);
-			rect = &tileSet.getAllTiles()[index]->textureRect;
+			rect = &tileSet.getAllTiles()[index].textureRect;
 
 			break;
-		}case ActivityType::Casting: {
+		}case Enums::ActivityType::Casting: {
 
-			if (direction == STOP) {
-				rect = &m_characterType.m_moveTileSets.at({ curActivity, activeDirection }).getAllTiles()[0]->textureRect;
+			if (direction == Enums::Direction::STOP) {
+				rect = &m_characterType.m_moveTileSets.at({ curActivity, activeDirection }).getAllTiles()[0].textureRect;
 				index = 0;
 				return;
 			}
@@ -145,13 +145,13 @@ void Character::update(float deltaTime) {
 			const TileSet& tileSet = m_characterType.m_moveTileSets.at({ curActivity, activeDirection });
 
 			index = ((Globals::clock.getElapsedTimeMilli() % (msPerDrawFrame * tileSet.getAllTiles().size())) / msPerDrawFrame);
-			rect = &tileSet.getAllTiles()[index]->textureRect;
+			rect = &tileSet.getAllTiles()[index].textureRect;
 
 			break;
-		}case ActivityType::Dying: {
+		}case Enums::ActivityType::Dying: {
 
-			if (direction == STOP) {
-				rect = &m_characterType.m_moveTileSets.at({ curActivity, activeDirection }).getAllTiles()[0]->textureRect;
+			if (direction == Enums::Direction::STOP) {
+				rect = &m_characterType.m_moveTileSets.at({ curActivity, activeDirection }).getAllTiles()[0].textureRect;
 				index = 0;
 				return;
 			}
@@ -160,7 +160,7 @@ void Character::update(float deltaTime) {
 			const TileSet& tileSet = m_characterType.m_moveTileSets.at({ curActivity, activeDirection });
 
 			index = ((Globals::clock.getElapsedTimeMilli() % (msPerDrawFrame * tileSet.getAllTiles().size())) / msPerDrawFrame);
-			rect = &tileSet.getAllTiles()[index]->textureRect;
+			rect = &tileSet.getAllTiles()[index].textureRect;
 
 			break;
 		}
@@ -168,17 +168,17 @@ void Character::update(float deltaTime) {
 	}
 }
 
-Direction Character::GetDirectionTexture() {
+Enums::Direction Character::GetDirectionTexture() {
 	if (isStunned() == true || isMesmerized() == true) {
 		return activeDirection;
 	}
 
-	Direction direction = GetDirection();
-	if (direction != STOP) {
+	Enums::Direction direction = GetDirection();
+	if (direction != Enums::Direction::STOP) {
 		activeDirection = direction;
 	}
 	
-	ActivityType::ActivityType curActivity = getCurActivity();
+	Enums::ActivityType curActivity = getCurActivity();
 
 	/*switch (curActivity) {
 		case ActivityType::Walking: {
@@ -385,13 +385,13 @@ void Character::Move(){
 		}
 	}
 	
-	Direction movingDirection = GetDirection();
+	Enums::Direction movingDirection = GetDirection();
 
-	if ((movingDirection != STOP) && !mayDoAnythingAffectingSpellActionWithoutAborting()) {
+	if ((movingDirection != Enums::Direction::STOP) && !mayDoAnythingAffectingSpellActionWithoutAborting()) {
 		//CastingAborted();
 	}
 
-	if (movingDirection != STOP && isChanneling() == true) {
+	if (movingDirection != Enums::Direction::STOP && isChanneling() == true) {
 		//removeSpellsWithCharacterState(CharacterStates::Channeling);
 	}
 
@@ -399,7 +399,7 @@ void Character::Move(){
 	/// if we are feared (fleeing) we run at a random direction. Only choose a direction once for each fear effect.
 	if (isFeared() == true) {
 		if (hasChoosenFearDirection == false) {
-			fearDirection = static_cast<Direction>(RNG::randomSizeT(1, 8));
+			fearDirection = static_cast<Enums::Direction>(RNG::randomSizeT(1, 8));
 			hasChoosenFearDirection = true;
 		}
 		movingDirection = fearDirection;
@@ -408,7 +408,7 @@ void Character::Move(){
 	unsigned int movePerStep = 10; // moves one step per movePerStep ms
 
 	// To balance moving diagonally boost, movePerStep = 10*sqrt(2)
-	if (movingDirection == NW || movingDirection == NE || movingDirection == SW || movingDirection == SE)
+	if (movingDirection == Enums::Direction::NW || movingDirection == Enums::Direction::NE || movingDirection == Enums::Direction::SW || movingDirection == Enums::Direction::SE)
 		movePerStep = 14;
 
 	// recalculate the movementpoints based on our movementspeed (spells that affect this can be immobolizing spells, snares or movement enhancer
@@ -417,31 +417,31 @@ void Character::Move(){
 	while (remainingMovePoints > movePerStep) {
 		remainingMovePoints -= movePerStep;
 		switch (movingDirection) {
-		case NW:
+		case Enums::Direction::NW:
 			//MoveLeft(1);
 			//MoveUp(1);
 			break;
-		case N:
+		case Enums::Direction::N:
 			//MoveUp(1);
 			break;
-		case NE:
+		case Enums::Direction::NE:
 			//MoveRight(1);
 			//MoveUp(1);
 			break;
-		case W:
+		case Enums::Direction::W:
 			//MoveLeft(1);
 			break;
-		case E:
+		case Enums::Direction::E:
 			//MoveRight(1);
 			break;
-		case SW:
+		case Enums::Direction::SW:
 			//MoveLeft(1);
 			//MoveDown(1);
 			break;
-		case S:
+		case Enums::Direction::S:
 			//MoveDown(1);
 			break;
-		case SE:
+		case Enums::Direction::SE:
 			//MoveRight(1);
 			//MoveDown(1);
 			break;
@@ -619,7 +619,7 @@ uint16_t Character::getEvadeModifierPoints() const{
 	return evadeModifierPoints;
 }
 
-CharacterClass::CharacterClass Character::getClass() const{
+Enums::CharacterClass Character::getClass() const{
 	return characterClass;
 }
 
@@ -636,19 +636,19 @@ uint8_t Character::getExperienceValue() const{
 }
 
 int Character::getWidth() const {
-	TextureRect& rect = m_characterType.m_moveTileSets.at({ ActivityType::ActivityType::Walking, Direction::S }).getAllTiles()[0]->textureRect;
+	const TextureRect& rect = m_characterType.m_moveTileSets.at({ Enums::ActivityType::Walking, Enums::Direction::S }).getAllTiles()[0].textureRect;
 	return useBoundingBox ? boundingBoxW : rect.width;
 }
 
 int Character::getHeight() const {
-	TextureRect& rect = m_characterType.m_moveTileSets.at({ ActivityType::ActivityType::Walking, Direction::S }).getAllTiles()[0]->textureRect;
+	const TextureRect& rect = m_characterType.m_moveTileSets.at({ Enums::ActivityType::Walking, Enums::Direction::S }).getAllTiles()[0].textureRect;
 	return useBoundingBox ? boundingBoxH : rect.height;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void CharacterType::addMoveTexture(ActivityType::ActivityType activity, Direction direction, int index, std::string filename, int textureOffsetX, int textureOffsetY) {
+void CharacterType::addMoveTexture(Enums::ActivityType activity, Enums::Direction direction, int index, std::string filename, int textureOffsetX, int textureOffsetY) {
 	TileSet& tileSet = m_moveTileSets[{activity, direction}];
-	tileSet.addTile(filename, TileClassificationType::TileClassificationType::FLOOR);
+	tileSet.addTile(filename, Enums::TileClassificationType::FLOOR);
 }
 
 void CharacterType::setStrength(uint16_t newStrength) {
@@ -731,7 +731,7 @@ void CharacterType::setLevel(uint8_t newLevel) {
 	level = newLevel;
 }
 
-void CharacterType::setClass(CharacterClass::CharacterClass characterClass) {
+void CharacterType::setClass(Enums::CharacterClass characterClass) {
 	CharacterType::characterClass = characterClass;
 }
 
@@ -739,7 +739,7 @@ void CharacterType::setExperienceValue(uint8_t experienceValue) {
 	CharacterType::experienceValue = experienceValue;
 }
 
-const TileSet& CharacterType::getTileSet(ActivityType::ActivityType activity, Direction direction) const{
+const TileSet& CharacterType::getTileSet(Enums::ActivityType activity, Enums::Direction direction) const{
 	return m_moveTileSets.at({activity, direction});
 }
 

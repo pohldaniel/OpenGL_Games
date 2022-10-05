@@ -3,7 +3,6 @@
 #include <cassert>
 
 #include "TilesetManager.h"
-#include "Character.h"
 
 TileSetManager TileSetManager::s_instance;
 
@@ -11,168 +10,157 @@ TileSetManager& TileSetManager::Get() {
 	return s_instance;
 }
 
-TileSet& TileSetManager::getTileSet(TileClassificationType::TileClassificationType tileType) {
+TileSet& TileSetManager::getTileSet(Enums::TileClassificationType tileType) {
 	return m_tileSets[tileType];
 }
 
-TileSet& TileSetManager::getTileSet(ActivityType::ActivityType activityType, Direction direction) {
+TileSet& TileSetManager::getTileSet(Enums::ActivityType activityType, Enums::Direction direction) {
 	return m_moveTileSets[{activityType, direction}];
 }
 
 void AdjacencyEquivalenceClass::addEquivalentTile(int tile, int offsetX, int offsetY){
 	equivalentTiles.push_back(tile);
-	offsets.push_back(Point(offsetX, offsetY));
+	offsets.push_back({ offsetX, offsetY });
 }
 
-AdjacencyEquivalenceClass *TileSet::createAdjacencyEquivalenceClass(){
-	myEquivalenceClasses.push_back(new AdjacencyEquivalenceClass());
-	return myEquivalenceClasses[myEquivalenceClasses.size() - 1];
+AdjacencyEquivalenceClass* TileSet::createAdjacencyEquivalenceClass(){
+
+	m_equivalenceClasses.push_back(new AdjacencyEquivalenceClass());
+	return m_equivalenceClasses[m_equivalenceClasses.size() - 1];
 }
 
 TileSet::TileSet() {}
 
 // The following functions are in the LUA EditorInterface
-int TileSet::addTile(std::string filename, TileClassificationType::TileClassificationType tileType) {
+unsigned int TileSet::addTile(std::string filename, Enums::TileClassificationType tileType) {
 
-	int tileId = tiles.size();
-	std::auto_ptr<Tile> newTile = std::auto_ptr<Tile>(new Tile());
+	unsigned int tileId = static_cast<unsigned int>(m_tiles.size());
+	/*std::auto_ptr<Tile> newTile = std::auto_ptr<Tile>(new Tile());
 
-	newTile->tileID = tileId;
+	newTile->tileId = tileId;
 	newTile->textureRect = TextureManager::Loadimage(filename);
 	Tile *tilePtr = newTile.release();
-	tiles.push_back(tilePtr);
+	//m_tiles.push_back(tilePtr);*/
+	m_tiles.push_back({ tileId , false, TextureManager::Loadimage(filename), {} });
+	return tileId;
+}
+
+unsigned int TileSet::addTileWithCollisionBox(std::string filename, Enums::TileClassificationType tileType, int cbx, int cby, int cbw, int cbh) {
+	unsigned int tileId = addTile(filename, tileType);
+	Tile& newTile = m_tiles[tileId];
+	newTile.containsCollisionRect = true;
+	newTile.collisionRect = { cbx, cby, cbw,cbh };
 
 	return tileId;
 }
 
-int TileSet::addTileWithCollisionBox(std::string filename, TileClassificationType::TileClassificationType tileType, int cbx, int cby, int cbw, int cbh) {
-	int tileId = addTile(filename, tileType);
-	Tile *newTile = tiles[tileId];
-	newTile->containsCollisionRect = true;
-	newTile->collisionRect = { cbx, cby, cbw,cbh };
+void TileSet::addAdjacency(unsigned int tile1, Enums::AdjacencyType adjacencyType, unsigned int tile2, int offsetX, int offsetY) {
 
-	return tileId;
-}
-
-void TileSet::addAdjacency(int tile1, AdjacencyType::AdjacencyType adjacencyType, int tile2, int offsetX, int offsetY) {
-
-	if (adjacencyType == AdjacencyType::LEFT) {
-		addAdjacency(tile2, AdjacencyType::RIGHT, tile1, -offsetX, -offsetY);
+	if (adjacencyType == Enums::LEFT) {
+		addAdjacency(tile2, Enums::RIGHT, tile1, -offsetX, -offsetY);
 		return;
 	}
 
-	if (adjacencyType == AdjacencyType::BOTTOM) {
-		addAdjacency(tile2, AdjacencyType::TOP, tile1, -offsetX, -offsetY);
+	if (adjacencyType == Enums::BOTTOM) {
+		addAdjacency(tile2, Enums::TOP, tile1, -offsetX, -offsetY);
 		return;
 	}
 
-	for (size_t curAdjacencyNr = 0; curAdjacencyNr<adjacencyList.size(); ++curAdjacencyNr) {
-		AdjacencyStruct *curAdjacency = adjacencyList[curAdjacencyNr];
-		if (curAdjacency->baseTile == tile1 && curAdjacency->adjacencyType == adjacencyType && curAdjacency->adjacentTile == tile2) {
+	for (size_t curAdjacencyNr = 0; curAdjacencyNr<m_adjacencyList.size(); ++curAdjacencyNr) {
+		AdjacencyStruct curAdjacency = m_adjacencyList[curAdjacencyNr];
+		if (curAdjacency.baseTile == tile1 && curAdjacency.adjacencyType == adjacencyType && curAdjacency.adjacentTile == tile2) {
 			return;
 		}
 	}
-
-	std::auto_ptr<AdjacencyStruct> newAdjacency = std::auto_ptr<AdjacencyStruct>(new AdjacencyStruct());
-	newAdjacency->baseTile = tile1;
-	newAdjacency->adjacentTile = tile2;
-	newAdjacency->adjacencyType = adjacencyType;
-	newAdjacency->offset = Point(offsetX, offsetY);
-	adjacencyList.push_back(newAdjacency.release());
+	m_adjacencyList.push_back({ adjacencyType, tile1, tile2, { offsetX, offsetY }});
 }
 
-void TileSet::addEquivalenceAdjacency(AdjacencyEquivalenceClass *class1, AdjacencyType::AdjacencyType adjacencyType, AdjacencyEquivalenceClass *class2, int allOffsetX, int allOffsetY){
-
+void TileSet::addEquivalenceAdjacency(AdjacencyEquivalenceClass *class1, Enums::AdjacencyType adjacencyType, AdjacencyEquivalenceClass *class2, int allOffsetX, int allOffsetY){
+	
 	std::vector<int> &firstTiles = class1->equivalentTiles;
 	std::vector<int> &secondTiles = class2->equivalentTiles;
+
+
 	for (size_t curFirstTileIndex = 0; curFirstTileIndex<firstTiles.size(); ++curFirstTileIndex) {
 		for (size_t curSecondTileIndex = 0; curSecondTileIndex<secondTiles.size(); ++curSecondTileIndex) {
 			addAdjacency(firstTiles[curFirstTileIndex], adjacencyType, secondTiles[curSecondTileIndex],
-				class2->offsets[curSecondTileIndex].x - class1->offsets[curFirstTileIndex].x + allOffsetX,
-				class2->offsets[curSecondTileIndex].y - class1->offsets[curFirstTileIndex].y + allOffsetY);
+				class2->offsets[curSecondTileIndex][0] - class1->offsets[curFirstTileIndex][0] + allOffsetX,
+				class2->offsets[curSecondTileIndex][1] - class1->offsets[curFirstTileIndex][1] + allOffsetY);
 		}
 	}
 }
 
 void TileSet::printTileSet() const{
 
-	std::cout << "-- all " << tiles.size() << " Tiles in TileSet" << std::endl;
-	for (size_t curTileNr = 0; curTileNr<tiles.size(); ++curTileNr) {
-		Tile *curTile = tiles[curTileNr];
+	std::cout << "-- all " << m_tiles.size() << " Tiles in TileSet" << std::endl;
+	for (size_t curTileNr = 0; curTileNr < m_tiles.size(); ++curTileNr) {
+		const Tile& curTile = m_tiles[curTileNr];
 		std::cout << curTileNr << ": " << std::endl;
 	}
 	std::cout << std::endl;
-	std::cout << "-- all " << adjacencyList.size() << " Adjacencies in TileSet" << std::endl;
-	for (size_t curAdjacencyNr = 0; curAdjacencyNr<adjacencyList.size(); ++curAdjacencyNr) {
-		AdjacencyStruct *curAdjacency = adjacencyList[curAdjacencyNr];
-		Tile *startTile = tiles[curAdjacency->baseTile];
-		Tile *endTile = tiles[curAdjacency->adjacentTile];
-		if (curAdjacency->adjacencyType == AdjacencyType::RIGHT) {
-			std::cout << startTile->tileID << " [on right] <--> [on left] " << endTile->tileID << std::endl;
-		}
-		else {
-			std::cout << startTile->tileID << " [on top] <--> [on bottom] " << endTile->tileID << std::endl;
+	std::cout << "-- all " << m_adjacencyList.size() << " Adjacencies in TileSet" << std::endl;
+	for (size_t curAdjacencyNr = 0; curAdjacencyNr < m_adjacencyList.size(); ++curAdjacencyNr) {
+		const AdjacencyStruct& curAdjacency = m_adjacencyList[curAdjacencyNr];
+		const Tile& startTile = m_tiles[curAdjacency.baseTile];
+		const Tile& endTile = m_tiles[curAdjacency.adjacentTile];
+		if (curAdjacency.adjacencyType == Enums::AdjacencyType::RIGHT) {
+			std::cout << startTile.tileId << " [on right] <--> [on left] " << endTile.tileId << std::endl;
+		}else {
+			std::cout << startTile.tileId << " [on top] <--> [on bottom] " << endTile.tileId << std::endl;
 		}
 	}
 	std::cout << std::endl;
 }
 
-Tile* TileSet::getTile(int tileID) const{
-	return tiles[tileID];
+const Tile& TileSet::getTile(int tileID) {
+	return m_tiles[tileID];
 }
 
-Tile* TileSet::getEmptyTile() const{
-	return tiles[0];
+const Tile& TileSet::getEmptyTile() {
+	return m_tiles[0];
 }
 
-unsigned int TileSet::numberOfTiles() const{
-	return tiles.size();
+unsigned int TileSet::numberOfTiles() {
+	return static_cast<unsigned int>(m_tiles.size());
 }
 
-void TileSet::clear(){
-	tiles.clear();
+void TileSet::clearTiles(){
+	m_tiles.clear();
 }
 
-std::vector<Tile*> TileSet::getAllTiles() const{
-	return tiles;
+const std::vector<Tile>& TileSet::getAllTiles() const{
+	return m_tiles;
 }
 
-void TileSet::getAllAdjacentTiles(Tile *searchTile, std::vector< std::vector<Tile*> > &result, std::vector< std::vector<Point> > &matchOffsets) const{
+void TileSet::getAllAdjacentTiles(const Tile& searchTile, std::vector< std::vector<Tile> > &result, std::vector< std::vector<std::array<int, 2>> > &matchOffsets) const{
 	result.clear();
 	result.resize(4);
 	matchOffsets.clear();
 	matchOffsets.resize(4);
 
-	for (size_t curAdjacencyNr = 0; curAdjacencyNr<adjacencyList.size(); ++curAdjacencyNr) {
-		AdjacencyStruct *curAdjacency = adjacencyList[curAdjacencyNr];
-		if (tiles[curAdjacency->baseTile] == searchTile) {
-			if (curAdjacency->adjacencyType == AdjacencyType::RIGHT) {
-				result[AdjacencyType::RIGHT].push_back(tiles[curAdjacency->adjacentTile]);
-				matchOffsets[AdjacencyType::RIGHT].push_back(Point(curAdjacency->offset.x, curAdjacency->offset.y));
-			}
-			else {
+	for (size_t curAdjacencyNr = 0; curAdjacencyNr < m_adjacencyList.size(); ++curAdjacencyNr) {
+		const AdjacencyStruct& curAdjacency = m_adjacencyList[curAdjacencyNr];
+		if (m_tiles[curAdjacency.baseTile].tileId == searchTile.tileId) {
+			if (curAdjacency.adjacencyType == Enums::AdjacencyType::RIGHT) {
+				result[Enums::AdjacencyType::RIGHT].push_back(m_tiles[curAdjacency.adjacentTile]);
+				matchOffsets[Enums::AdjacencyType::RIGHT].push_back({ curAdjacency.offset[0], curAdjacency.offset[1] });
+
+			}else {
 				assert(curAdjacency->adjacencyType == AdjacencyType::TOP);
-				result[AdjacencyType::TOP].push_back(tiles[curAdjacency->adjacentTile]);
-				matchOffsets[AdjacencyType::TOP].push_back(Point(curAdjacency->offset.x, curAdjacency->offset.y));
+				result[Enums::AdjacencyType::TOP].push_back(m_tiles[curAdjacency.adjacentTile]);
+				matchOffsets[Enums::AdjacencyType::TOP].push_back({ curAdjacency.offset[0], curAdjacency.offset[1] });
 			}
 		}
-		if (tiles[curAdjacency->adjacentTile] == searchTile) {
-			if (curAdjacency->adjacencyType == AdjacencyType::RIGHT) {
-				result[AdjacencyType::LEFT].push_back(tiles[curAdjacency->baseTile]);
-				matchOffsets[AdjacencyType::LEFT].push_back(Point(-curAdjacency->offset.x, -curAdjacency->offset.y));
-			}
-			else {
+
+		if (m_tiles[curAdjacency.adjacentTile].tileId == searchTile.tileId) {
+			if (curAdjacency.adjacencyType == Enums::AdjacencyType::RIGHT) {
+				result[Enums::AdjacencyType::LEFT].push_back(m_tiles[curAdjacency.baseTile]);
+				matchOffsets[Enums::AdjacencyType::LEFT].push_back({ -curAdjacency.offset[0], -curAdjacency.offset[1] });
+			}else {
 				assert(curAdjacency->adjacencyType == AdjacencyType::TOP);
-				result[AdjacencyType::BOTTOM].push_back(tiles[curAdjacency->baseTile]);
-				matchOffsets[AdjacencyType::BOTTOM].push_back(Point(-curAdjacency->offset.x, -curAdjacency->offset.y));
+				result[Enums::AdjacencyType::BOTTOM].push_back(m_tiles[curAdjacency.baseTile]);
+				matchOffsets[Enums::AdjacencyType::BOTTOM].push_back({ -curAdjacency.offset[0], -curAdjacency.offset[1] });
 			}
 		}
-	}
-}
-
-namespace EditorInterface{
-
-	TileSet *getTileSet(TileClassificationType::TileClassificationType tileType) {
-		return &TileSetManager::Get().getTileSet(tileType);
 	}
 }

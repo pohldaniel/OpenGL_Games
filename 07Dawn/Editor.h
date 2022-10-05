@@ -5,6 +5,7 @@
 #include "StateMachine.h"
 
 #include "Character.h"
+#include "Message.h"
 
 class Editor : public State {
 public:
@@ -26,7 +27,7 @@ public:
 	Vector2f m_currentFocus;
 		
 	std::vector<std::pair<std::string, CharacterType>> editorNPCs;
-	TileClassificationType::TileClassificationType m_selectedTileSet;
+	Enums::TileClassificationType m_selectedTileSet;
 	int m_tileposOffset, m_selectedObjectId = -1;
 	unsigned int m_tilepos, m_currentTilepos;
 
@@ -42,7 +43,7 @@ private:
 	void Editor::saveZone();
 
 	bool adjacencyModeEnabled;
-	std::vector<std::vector<Tile*>> curAdjacentTiles;
-	std::vector<std::vector<Point>> curAdjacencyOffsets;
-	unsigned int curDirectionAdjacencySelection[AdjacencyType::BOTTOM + 1];
+	std::vector<std::vector<Tile>> curAdjacentTiles;
+	std::vector<std::vector<std::array<int, 2>>> curAdjacencyOffsets;
+	unsigned int curDirectionAdjacencySelection[Enums::AdjacencyType::BOTTOM + 1];
 };

@@ -5,6 +5,7 @@
 #include <unordered_map>
 #include <iostream>
 
+#include "Enums.h"
 #include "TextureManager.h"
 #include "Random.h"
 
@@ -17,54 +18,10 @@ struct pair_hash {
 	}
 };
 
-enum Direction{
-	STOP = 0,
-	N = 1,
-	NE = 2,
-	E = 3,
-	SE = 4,
-	S = 5,
-	SW = 6,
-	W = 7,
-	NW = 8
-};
-
-namespace CharacterClass{
-
-	enum CharacterClass{
-		NOCLASS,
-		ANYCLASS,
-		Liche,
-		Ranger,
-		Warrior
-	};
-}
-
-namespace ActivityType{
-
-	enum ActivityType{
-		Walking,
-		Casting,
-		Attacking,
-		Shooting,
-		Dying,
-		Count
-	};
-}
-
-namespace Attitude{
-
-	enum Attitude{
-		FRIENDLY,
-		NEUTRAL,
-		HOSTILE
-	};
-}
-
 struct CharacterType {
 	friend class Character;
 
-	void addMoveTexture(ActivityType::ActivityType activity, Direction direction, int index, std::string filename, int textureOffsetX = 0, int textureOffsetY = 0);
+	void addMoveTexture(Enums::ActivityType activity, Enums::Direction direction, int index, std::string filename, int textureOffsetX = 0, int textureOffsetY = 0);
 
 	void setStrength(uint16_t newStrength);
 	void setDexterity(uint16_t newDexterity);
@@ -86,12 +43,12 @@ struct CharacterType {
 	void setName(std::string newName);
 	void setWanderRadius(uint16_t newWanderRadius);
 	void setLevel(uint8_t newLevel);
-	void setClass(CharacterClass::CharacterClass);
+	void setClass(Enums::CharacterClass);
 	//void inscribeSpellInSpellbook(CSpellActionBase* spell);
 	//void addItemToLootTable(Item* item, double dropChance);
 	void setExperienceValue(uint8_t experienceValue);
 
-	const TileSet& getTileSet(ActivityType::ActivityType activity, Direction direction) const;
+	const TileSet& getTileSet(Enums::ActivityType activity, Enums::Direction direction) const;
 	
 private:
 	std::unordered_map<std::pair<int, int>, TileSet, pair_hash> m_moveTileSets;
@@ -117,7 +74,7 @@ private:
 	uint16_t damageModifierPoints;
 	uint16_t hitModifierPoints;
 	uint16_t evadeModifierPoints;
-	CharacterClass::CharacterClass characterClass;
+	Enums::CharacterClass characterClass;
 };
 
 class CharacterTypeManager {
@@ -151,14 +108,14 @@ public:
 	void setNumActivities(unsigned short numActivities);
 	void baseOnType(std::string otherName);
 
-	ActivityType::ActivityType getCurActivity() const;
+	Enums::ActivityType getCurActivity() const;
 	int getXPos() const;
 	int getYPos() const;
 	
 	unsigned short getNumActivities();
-	virtual Direction GetDirection() = 0;
+	virtual Enums::Direction GetDirection() = 0;
 
-	Direction GetDirectionTexture();
+	Enums::Direction GetDirectionTexture();
 	uint16_t getWanderRadius() const;
 	float getMovementSpeed() const;
 
@@ -223,7 +180,7 @@ public:
 	uint16_t getDamageModifierPoints() const;
 	uint16_t getHitModifierPoints() const;
 	uint16_t getEvadeModifierPoints() const;
-	CharacterClass::CharacterClass getClass() const;
+	Enums::CharacterClass getClass() const;
 	std::string getName() const;
 	uint8_t getLevel() const;
 	uint8_t getExperienceValue() const;
@@ -259,11 +216,11 @@ public:
 
 	int x_pos, y_pos;
 	
-	Direction activeDirection;
-	Direction WanderDirection, MovingDirection, fearDirection, dyingDirection;
+	Enums::Direction activeDirection;
+	Enums::Direction WanderDirection, MovingDirection, fearDirection, dyingDirection;
 	unsigned short m_numActivities;
 
-	TextureRect* rect;
+	const TextureRect* rect;
 	int index = 0;
 	float dumping = 0.0f;
 
@@ -291,7 +248,7 @@ public:
 	uint16_t damageModifierPoints;
 	uint16_t hitModifierPoints;
 	uint16_t evadeModifierPoints;
-	CharacterClass::CharacterClass characterClass;
+	Enums::CharacterClass characterClass;
 
 	const CharacterType& m_characterType;
 };

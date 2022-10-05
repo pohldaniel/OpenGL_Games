@@ -37,35 +37,35 @@ TextureRect& TextureCache::getTextureFromCache(std::string filename){
 	return textures[filename];
 }
 
-void TextureManager::DrawTextureBatched(TextureRect& textureRect, int x, int y, bool cullVieport, bool updateView) {
+void TextureManager::DrawTextureBatched(const TextureRect& textureRect, int x, int y, bool cullVieport, bool updateView) {
 	if (!TextureManager::IsRectOnScreen(x, textureRect.width, y, textureRect.height) && cullVieport) {
 		return;
 	}
 	Batchrenderer::get().addQuad(Vector4f(static_cast< float >(x), static_cast< float >(y), static_cast< float >(textureRect.width), static_cast< float >(textureRect.height)), Vector4f(textureRect.textureOffsetX, textureRect.textureOffsetY, textureRect.textureWidth, textureRect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), textureRect.frame, updateView);
 }
 
-void TextureManager::DrawTextureBatched(TextureRect& textureRect, int x, int y, Vector4f color, bool cullVieport, bool updateView) {
+void TextureManager::DrawTextureBatched(const TextureRect& textureRect, int x, int y, Vector4f color, bool cullVieport, bool updateView) {
 	if (!TextureManager::IsRectOnScreen(x, textureRect.width, y, textureRect.height) && cullVieport) {
 		return;
 	}
 	Batchrenderer::get().addQuad(Vector4f(static_cast< float >(x), static_cast< float >(y), static_cast< float >(textureRect.width), static_cast< float >(textureRect.height)), Vector4f(textureRect.textureOffsetX, textureRect.textureOffsetY, textureRect.textureWidth, textureRect.textureHeight), color, textureRect.frame, updateView);
 }
 
-void TextureManager::DrawTextureBatched(TextureRect& textureRect, int x, int y, float width, float height, bool cullVieport, bool updateView) {
-	if (!TextureManager::IsRectOnScreen(x, width, y, height) && cullVieport) {
+void TextureManager::DrawTextureBatched(const TextureRect& textureRect, int x, int y, float width, float height, bool cullVieport, bool updateView) {
+	if (!TextureManager::IsRectOnScreen(x, static_cast<int>(width), y, static_cast<int>(height)) && cullVieport) {
 		return;
 	}
-	Batchrenderer::get().addQuad(Vector4f(static_cast< float >(x), static_cast< float >(y), width, height), Vector4f(textureRect.textureOffsetX, textureRect.textureOffsetY, textureRect.textureWidth, textureRect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), textureRect.frame, updateView);
+	Batchrenderer::get().addQuad(Vector4f(static_cast<float>(x), static_cast<float>(y), width, height), Vector4f(textureRect.textureOffsetX, textureRect.textureOffsetY, textureRect.textureWidth, textureRect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), textureRect.frame, updateView);
 }
 
-void TextureManager::DrawTextureBatched(TextureRect& textureRect, int x, int y, float width, float height, Vector4f color, bool cullVieport, bool updateView) {
-	if (!TextureManager::IsRectOnScreen(x, width, y, height) && cullVieport) {
+void TextureManager::DrawTextureBatched(const TextureRect& textureRect, int x, int y, float width, float height, Vector4f color, bool cullVieport, bool updateView) {
+	if (!TextureManager::IsRectOnScreen(x, static_cast<int>(width), y, static_cast<int>(height)) && cullVieport) {
 		return;
 	}
 	Batchrenderer::get().addQuad(Vector4f(static_cast< float >(x), static_cast< float >(y), width, height), Vector4f(textureRect.textureOffsetX, textureRect.textureOffsetY, textureRect.textureWidth, textureRect.textureHeight), color, textureRect.frame, updateView);
 }
 
-void TextureManager::DrawTextureInstanced(TextureRect& textureRect, int x, int y, bool checkVieport) {
+void TextureManager::DrawTextureInstanced(const TextureRect& textureRect, int x, int y, bool checkVieport) {
 	if (!TextureManager::IsRectOnScreen(x, textureRect.width, y, textureRect.height) && checkVieport) {
 		return;
 	}
@@ -114,6 +114,6 @@ bool TextureManager::IsRectOnScreen(int left, int width, int bottom, int height)
 	return true;
 }
 
-bool TextureManager::CheckPointInRect(int px, int py, int left, int width, int bottom, int height) {
+bool TextureManager::CheckPointInRect(float px, float py, int left, int width, int bottom, int height) {
 	return (left < px && left + width > px && bottom < py && bottom + height > py);
 }

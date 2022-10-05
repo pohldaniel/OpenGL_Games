@@ -6,22 +6,42 @@ $#include "Npc.h"
 $#include "InteractionRegion.h"
 $#include "InteractionPoint.h"
 $#include "TextWindow.h"
+$#include "Enums.h"
 
-enum Direction
+namespace Enums
 {
-    STOP = 0,
-    N    = 1,
-    NE   = 2,
-    E    = 3,
-    SE   = 4,
-    S    = 5,
-    SW   = 6,
-    W    = 7,
-    NW   = 8
-};
+	enum TileClassificationType{
+		FLOOR,
+		ENVIRONMENT,
+		SHADOW,
+		COLLISION,
+		NPC,
+		COUNT
+	};
 
-namespace ActivityType
-{
+	enum AdjacencyType {
+		RIGHT,
+		LEFT,
+		TOP,
+		BOTTOM
+	};
+	
+	enum Attitude
+	{
+		FRIENDLY,
+		NEUTRAL,
+		HOSTILE
+	};
+	
+	enum CharacterClass
+	{
+		NOCLASS,
+		ANYCLASS,
+		Liche,
+		Ranger,
+		Warrior
+	};
+	
 	enum ActivityType
 	{
 		Walking,
@@ -31,27 +51,18 @@ namespace ActivityType
 		Dying,
 		Count
 	};
-}
-
-namespace CharacterClass
-{
-	enum CharacterClass
+	
+	enum Direction
 	{
-		NOCLASS,
-		ANYCLASS,
-		Liche,
-		Ranger,
-		Warrior
-	};
-}
-
-namespace Attitude
-{
-	enum Attitude
-	{
-		FRIENDLY,
-		NEUTRAL,
-		HOSTILE
+		STOP = 0,
+		N    = 1,
+		NE   = 2,
+		E    = 3,
+		SE   = 4,
+		S    = 5,
+		SW   = 6,
+		W    = 7,
+		NW   = 8
 	};
 }
 
@@ -59,7 +70,7 @@ namespace DawnInterface{
 	void enterZone(std::string zoneName, int enterX, int enterY );
 	void setCurrentZone(std::string zoneName );
 	CharacterType& createNewMobType(std::string typeID);
-	void addMobSpawnPoint(std::string mobID, int x_pos, int y_pos, int respawn_rate, int do_respawn, Attitude::Attitude attitude);
+	void addMobSpawnPoint(std::string mobID, int x_pos, int y_pos, int respawn_rate, int do_respawn, Enums::Attitude attitude);
 	InteractionRegion* addInteractionRegion();
 	void removeInteractionRegion(InteractionRegion *regionToRemove);
 	InteractionPoint* addInteractionPoint();
@@ -71,7 +82,7 @@ namespace DawnInterface{
 
 namespace EditorInterface
 {
-	TileSet *getTileSet(TileClassificationType::TileClassificationType tileType);
+	TileSet *getTileSet(Enums::TileClassificationType tileType);
 	void addGroundTile( int posX, int posY, int tile );
 	void addEnvironment( int posX, int posY, int posZ, int tile );
 	void adjustLastRGBA( float red, float green, float blue, float alpha );
@@ -80,26 +91,7 @@ namespace EditorInterface
 }
 
 // EDITOR Stuff
-namespace TileClassificationType
-{
-	enum TileClassificationType
-	{
-		FLOOR,
-		ENVIRONMENT,
-		SHADOW
-	};
-}
 
-namespace AdjacencyType
-{
-	enum AdjacencyType
-	{
-		RIGHT,
-		LEFT,
-		TOP,
-		BOTTOM
-	};
-}
 
 class AdjacencyEquivalenceClass
 {
@@ -109,11 +101,11 @@ class AdjacencyEquivalenceClass
 
 class TileSet
 {
-	int addTile( std::string filename, TileClassificationType::TileClassificationType tileType );
-	int addTileWithCollisionBox( std::string filename, TileClassificationType::TileClassificationType tileType, int cbx, int cby, int cbw, int cbh );
-	void addAdjacency( int tile1, AdjacencyType::AdjacencyType adjacencyType, int tile2, int offsetX, int offsetY );
-	AdjacencyEquivalenceClass *createAdjacencyEquivalenceClass();
-	void addEquivalenceAdjacency( AdjacencyEquivalenceClass *class1, AdjacencyType::AdjacencyType adjacencyType, AdjacencyEquivalenceClass *class2, int offsetX, int offsetY );
+	unsigned int addTile( std::string filename, Enums::TileClassificationType tileType );
+	unsigned int addTileWithCollisionBox( std::string filename, Enums::TileClassificationType tileType, int cbx, int cby, int cbw, int cbh );
+	void addAdjacency(unsigned int tile1, Enums::AdjacencyType adjacencyType, unsigned int tile2, int offsetX, int offsetY);
+	AdjacencyEquivalenceClass* createAdjacencyEquivalenceClass();
+	void addEquivalenceAdjacency( AdjacencyEquivalenceClass *class1, Enums::AdjacencyType adjacencyType, AdjacencyEquivalenceClass *class2, int offsetX, int offsetY );
 	void printTileSet() const;
 };
 
@@ -138,14 +130,14 @@ struct CharacterType {
 	void setName(std::string newName);
 	void setWanderRadius(int newWanderRadius);
 	void setLevel(int newLevel);
-	void setClass(CharacterClass::CharacterClass characterClass);
+	void setClass(Enums::CharacterClass characterClass);
 	void setExperienceValue(int experienceValue);
-	void addMoveTexture(ActivityType::ActivityType activity, Direction direction, int index, std::string filename, int textureOffsetX = 0, int textureOffsetY = 0);
+	void addMoveTexture(Enums::ActivityType activity, Enums::Direction direction, int index, std::string filename, int textureOffsetX = 0, int textureOffsetY = 0);
 }
 
 class Npc : public Character
 {
-	void setAttitude( Attitude::Attitude attitude );
+	void setAttitude( Enums::Attitude attitude );
 };
 
 class InteractionRegion

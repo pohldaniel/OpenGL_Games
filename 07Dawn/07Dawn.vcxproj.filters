@@ -344,5 +344,8 @@
     <ClInclude Include="Message.h">
       <Filter>Source Files\UI</Filter>
     </ClInclude>
+    <ClInclude Include="Enums.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

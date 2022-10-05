@@ -14,8 +14,8 @@
 
 struct TileMap {
 	int x_pos, y_pos;
-	Tile *tile;
-	TileMap(int _x, int _y, Tile *_tile) {
+	Tile tile;
+	TileMap(int _x, int _y, Tile _tile) {
 		x_pos = _x;
 		y_pos = _y;
 		tile = _tile;
@@ -27,9 +27,9 @@ struct TileMap {
 
 struct EnvironmentMap {
 	int x_pos, y_pos, z_pos;
-	Tile *tile;
+	Tile tile;
 	float transparency, red, green, blue, width, height;
-	EnvironmentMap(int _x, int _y, Tile *_tile, float _tp, float _red, float _green, float _blue, float _width, float _height, int _z_pos) {
+	EnvironmentMap(int _x, int _y, Tile _tile, float _tp, float _red, float _green, float _blue, float _width, float _height, int _z_pos) {
 		x_pos = _x;
 		y_pos = _y;
 		tile = _tile;
@@ -82,8 +82,8 @@ public:
 
 	void loadZone(std::string file);
 	bool zoneDataLoaded() const;
-	void addEnvironment(int x_pos, int y_pos, Tile *tile, bool centeredOnPos);
-	void replaceEnvironment(int x_pos, int y_pos, Tile *tile, bool centeredOnPos, int replaceId);
+	void addEnvironment(int x_pos, int y_pos, Tile tile, bool centeredOnPos);
+	void replaceEnvironment(int x_pos, int y_pos, Tile tile, bool centeredOnPos, int replaceId);
 	std::string getZoneName() const;
 
 	int deleteEnvironment(int x, int y);
@@ -93,9 +93,9 @@ public:
 	int locateCollisionbox(int x, int y);
 	void addCollisionbox(int x_pos, int y_pos);
 	int deleteCollisionbox(int x, int y);
-	void addShadow(int x_pos, int y_pos, Tile *tile);
+	void addShadow(int x_pos, int y_pos, Tile tile);
 	int deleteShadow(int x, int y);
-	void replaceTile(int iId, Tile *tile_);
+	void replaceTile(int iId, Tile tile_);
 	void deleteTile(int iId);
 	int locateTile(int x, int y);
 	std::string getName() const;

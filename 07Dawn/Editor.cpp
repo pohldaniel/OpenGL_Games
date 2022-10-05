@@ -10,7 +10,7 @@ Editor::Editor(StateMachine& machine) : State(machine, CurrentState::EDITOR) {
 	m_tileposOffset = 0;
 	m_tilepos = 0;
 	m_currentTilepos = 0;
-	m_selectedTileSet = TileClassificationType::FLOOR;
+	m_selectedTileSet = Enums::TileClassificationType::FLOOR;
 	adjacencyModeEnabled = false;
 
 	initTextures();
@@ -39,16 +39,16 @@ void Editor::update() {
 		int previousSelectedObjectId = m_selectedObjectId;
 
 		switch (m_selectedTileSet) {
-			case TileClassificationType::ENVIRONMENT:
+			case Enums::TileClassificationType::ENVIRONMENT:
 				m_selectedObjectId = newZone->locateEnvironment(static_cast<int>(m_editorFocus[0] + ViewPort::get().getCursorPos()[0]), static_cast<int>(m_editorFocus[1] + ViewPort::get().getCursorPos()[1]));
 				break;
-			case TileClassificationType::SHADOW: // shadows
+			case Enums::TileClassificationType::SHADOW: // shadows
 				m_selectedObjectId = newZone->locateShadow(static_cast<int>(m_editorFocus[0] + ViewPort::get().getCursorPos()[0]), static_cast<int>(m_editorFocus[1] + ViewPort::get().getCursorPos()[1]));
 				break;
-			case TileClassificationType::COLLISION:
+			case Enums::TileClassificationType::COLLISION:
 				m_selectedObjectId = newZone->locateCollisionbox(static_cast<int>(m_editorFocus[0] + ViewPort::get().getCursorPos()[0]), static_cast<int>(m_editorFocus[1] + ViewPort::get().getCursorPos()[1]));
 				break;
-			case TileClassificationType::NPC: // NPCs
+			case Enums::TileClassificationType::NPC: // NPCs
 				m_selectedObjectId = newZone->locateNPC(static_cast<int>(m_editorFocus[0] + ViewPort::get().getCursorPos()[0]), static_cast<int>(m_editorFocus[1] + ViewPort::get().getCursorPos()[1]));
 			default:
 				curAdjacentTiles.clear();
@@ -90,23 +90,23 @@ void Editor::update() {
 	if (keyboard.keyPressed(Keyboard::KEY_ENTER)) {
 	
 		switch (m_selectedTileSet) {
-			case TileClassificationType::FLOOR: {
-				Tile *currentTile = EditorInterface::getTileSet(m_selectedTileSet)->getAllTiles()[m_currentTilepos];
+			case Enums::TileClassificationType::FLOOR: {
+				const Tile& currentTile = EditorInterface::getTileSet(m_selectedTileSet)->getAllTiles()[m_currentTilepos];
 				newZone->replaceTile(newZone->locateTile(static_cast<int>(m_editorFocus[0] + ViewPort::get().getCursorPos()[0]), static_cast<int>(m_editorFocus[1] + ViewPort::get().getCursorPos()[1])), currentTile);
 				break;
-			}case TileClassificationType::ENVIRONMENT: {
-				Tile *currentTile = EditorInterface::getTileSet(m_selectedTileSet)->getAllTiles()[m_currentTilepos];
+			}case Enums::TileClassificationType::ENVIRONMENT: {
+				const Tile& currentTile = EditorInterface::getTileSet(m_selectedTileSet)->getAllTiles()[m_currentTilepos];
 				newZone->addEnvironment(static_cast<int>(m_editorFocus[0] + ViewPort::get().getCursorPos()[0]), static_cast<int>(m_editorFocus[1] + ViewPort::get().getCursorPos()[1]), currentTile, true /* centered on pos */);
 				break;
-			}case TileClassificationType::SHADOW: {
-				Tile *currentTile = EditorInterface::getTileSet(m_selectedTileSet)->getAllTiles()[m_currentTilepos];
+			}case Enums::TileClassificationType::SHADOW: {
+				const Tile& currentTile = EditorInterface::getTileSet(m_selectedTileSet)->getAllTiles()[m_currentTilepos];
 				newZone->addShadow(static_cast<int>(m_editorFocus[0] + ViewPort::get().getCursorPos()[0]), static_cast<int>(m_editorFocus[1] + ViewPort::get().getCursorPos()[1]), currentTile);
 				break;
-			}case TileClassificationType::COLLISION: {
+			}case Enums::TileClassificationType::COLLISION: {
 				newZone->addCollisionbox(static_cast<int>(m_editorFocus[0] + ViewPort::get().getCursorPos()[0]), static_cast<int>(m_editorFocus[1] + ViewPort::get().getCursorPos()[1]));
 				break;
-			}case TileClassificationType::NPC: {
-				DawnInterface::addMobSpawnPoint(editorNPCs[m_currentTilepos].first, static_cast<int>(m_editorFocus[0] + ViewPort::get().getCursorPos()[0]) - 48, static_cast<int>(m_editorFocus[1] + ViewPort::get().getCursorPos()[1]) - 48, 180, 1, Attitude::HOSTILE);	
+			}case Enums::TileClassificationType::NPC: {
+				DawnInterface::addMobSpawnPoint(editorNPCs[m_currentTilepos].first, static_cast<int>(m_editorFocus[0] + ViewPort::get().getCursorPos()[0]) - 48, static_cast<int>(m_editorFocus[1] + ViewPort::get().getCursorPos()[1]) - 48, 180, 1, Enums::Attitude::HOSTILE);
 				break;
 			}
 		}		
@@ -115,22 +115,22 @@ void Editor::update() {
 	if (keyboard.keyPressed(Keyboard::KEY_DELETE)) {
 
 		switch (m_selectedTileSet) {
-		case TileClassificationType::FLOOR: // tiles
+		case Enums::TileClassificationType::FLOOR: // tiles
 			newZone->deleteTile(newZone->locateTile(static_cast<int>(m_editorFocus[0] + ViewPort::get().getCursorPos()[0]), static_cast<int>(m_editorFocus[1] + ViewPort::get().getCursorPos()[1])));
 			break;
-		case TileClassificationType::ENVIRONMENT: // environment
+		case Enums::TileClassificationType::ENVIRONMENT: // environment
 			if (newZone->deleteEnvironment(static_cast<int>(m_editorFocus[0] + ViewPort::get().getCursorPos()[0]), static_cast<int>(m_editorFocus[1] + ViewPort::get().getCursorPos()[1])) == 0)
 				m_selectedObjectId = -1;
 			break;
-		case TileClassificationType::SHADOW: // shadows
+		case Enums::TileClassificationType::SHADOW: // shadows
 			if (newZone->deleteShadow(static_cast<int>(m_editorFocus[0] + ViewPort::get().getCursorPos()[0]), static_cast<int>(m_editorFocus[1] + ViewPort::get().getCursorPos()[1])) == 0)
 				m_selectedObjectId = -1;
 			break;
-		case TileClassificationType::COLLISION: // collisionboxes
+		case Enums::TileClassificationType::COLLISION: // collisionboxes
 			if (newZone->deleteCollisionbox(static_cast<int>(m_editorFocus[0] + ViewPort::get().getCursorPos()[0]), static_cast<int>(m_editorFocus[1] + ViewPort::get().getCursorPos()[1])) == 0)
 				m_selectedObjectId = -1;
 			break;
-		case TileClassificationType::NPC: // NPCs
+		case Enums::TileClassificationType::NPC: // NPCs
 			if (newZone->deleteNPC(static_cast<int>(m_editorFocus[0] + ViewPort::get().getCursorPos()[0]), static_cast<int>(m_editorFocus[1] + ViewPort::get().getCursorPos()[1])) == 0){
 				newZone->cleanupNPCList();
 				m_selectedObjectId = -1;
@@ -141,7 +141,7 @@ void Editor::update() {
 
 	switch (m_selectedTileSet ) {	
 		if (m_selectedObjectId >= 0) {
-			case TileClassificationType::ENVIRONMENT: {
+			case Enums::TileClassificationType::ENVIRONMENT: {
 				if (keyboard.keyDown(Keyboard::KEY_SHIFT)) {
 					if (keyboard.keyDown(Keyboard::KEY_DOWN)) {
 						newZone->environmentMap[m_selectedObjectId].height -= 1;
@@ -224,7 +224,7 @@ void Editor::update() {
 					}
 				}
 				break;
-			}case TileClassificationType::SHADOW: {
+			}case Enums::TileClassificationType::SHADOW: {
 				if (keyboard.keyDown(Keyboard::KEY_SHIFT)) {
 					if (keyboard.keyDown(Keyboard::KEY_DOWN)) {
 						newZone->shadowMap[m_selectedObjectId].height -= 1;
@@ -296,7 +296,7 @@ void Editor::update() {
 					}
 				}
 				break;
-			}case TileClassificationType::COLLISION: {
+			}case Enums::TileClassificationType::COLLISION: {
 				if (keyboard.keyDown(Keyboard::KEY_SHIFT)) {
 					if (keyboard.keyDown(Keyboard::KEY_DOWN)) {
 						newZone->collisionMap[m_selectedObjectId].h -= 1;
@@ -326,7 +326,7 @@ void Editor::update() {
 					}					
 				}
 				break;
-			}case TileClassificationType::NPC: {
+			}case Enums::TileClassificationType::NPC: {
 				if (keyboard.keyDown(Keyboard::KEY_DOWN)) {
 					newZone->getNPCs()[m_selectedObjectId]->y_spawn_pos--;
 					newZone->getNPCs()[m_selectedObjectId]->y_pos--;
@@ -353,7 +353,7 @@ void Editor::update() {
 		m_currentTilepos = 0;
 		m_tileposOffset = 0;
 		m_selectedObjectId = -1;
-		m_selectedTileSet = static_cast<TileClassificationType::TileClassificationType>((m_selectedTileSet + 1) % TileClassificationType::COUNT);
+		m_selectedTileSet = static_cast<Enums::TileClassificationType>((m_selectedTileSet + 1) % Enums::TileClassificationType::COUNT);
 	}
 
 	if (keyboard.keyPressed(Keyboard::KEY_M)) {
@@ -425,7 +425,7 @@ void Editor::render(unsigned int &frameBuffer) {
 		
 	Batchrenderer::get().bindTexture(m_textureAtlas, true);
 		
-	if (m_selectedTileSet == TileClassificationType::COLLISION) {
+	if (m_selectedTileSet == Enums::TileClassificationType::COLLISION) {
 
 		// Collison boxes
 		for (unsigned int x = 0; x < newZone->collisionMap.size(); x++) {
@@ -508,32 +508,32 @@ void Editor::render(unsigned int &frameBuffer) {
 
 	if (m_selectedObjectId >= 0) { // we have selected an object to edit it's properties, show the edit-screen.
 		switch (m_selectedTileSet) {
-			case TileClassificationType::ENVIRONMENT:
+			case Enums::TileClassificationType::ENVIRONMENT:
 				drawEditFrame(&(newZone->environmentMap[m_selectedObjectId]));
 				break;
-			case TileClassificationType::SHADOW:
+			case Enums::TileClassificationType::SHADOW:
 				drawEditFrame(&(newZone->shadowMap[m_selectedObjectId]));
 				break;
 		}		
 	}
 
-	if (m_selectedTileSet == TileClassificationType::NPC) {
+	if (m_selectedTileSet == Enums::TileClassificationType::NPC) {
 		Batchrenderer::get().bindTexture(TextureManager::GetTextureAtlas("Wolf"), true);
 
 		for (size_t curNPC = 0; curNPC < editorNPCs.size(); curNPC++) {
-			TextureRect& rect = editorNPCs[curNPC].second.getTileSet(ActivityType::ActivityType::Walking, Direction::S).getAllTiles()[0]->textureRect;
+			const TextureRect& rect = editorNPCs.at(curNPC).second.getTileSet(Enums::ActivityType::Walking, Enums::Direction::S).getAllTiles()[0].textureRect;
 			TextureManager::DrawTextureBatched(rect, m_originalFocus[0] + ViewPort::get().getWidth() * 0.5f + (curNPC * 50) + (m_tileposOffset * 50) - 48 + 20, m_originalFocus[1] + ViewPort::get().getHeight() - 40 - 48, rect.width, rect.height, false, false);
 		}
 
 	}else {
 
 		Batchrenderer::get().bindTexture(TextureManager::GetTextureAtlas(newZone->getName()), true);
-		std::vector<Tile*> curTiles = EditorInterface::getTileSet(m_selectedTileSet)->getAllTiles();
+		std::vector<Tile> curTiles = EditorInterface::getTileSet(m_selectedTileSet)->getAllTiles();
 
 
 		for (m_tilepos = 0; m_tilepos < curTiles.size(); ++m_tilepos) {
-			Tile *curTile = curTiles[m_tilepos];
-			TextureManager::DrawTextureBatched(curTile->textureRect, m_originalFocus[0] + ViewPort::get().getWidth() * 0.5f + (m_tilepos * 50) + (m_tileposOffset * 50), m_originalFocus[1] + ViewPort::get().getHeight() - 60, 40.0f, 40.0f, false, false);
+			Tile& curTile = curTiles[m_tilepos];
+			TextureManager::DrawTextureBatched(curTile.textureRect, m_originalFocus[0] + ViewPort::get().getWidth() * 0.5f + (m_tilepos * 50) + (m_tileposOffset * 50), m_originalFocus[1] + ViewPort::get().getHeight() - 60, 40.0f, 40.0f, false, false);
 		}
 	}
 	Batchrenderer::get().drawBuffer(false);
@@ -560,10 +560,10 @@ void Editor::render(unsigned int &frameBuffer) {
 	Fontrenderer::get().addText(Globals::fontManager.get("verdana_9"), m_originalFocus[0] + 10, m_originalFocus[1] + 80 - fontHeight, "[ F1 ]  Next set of objects", Vector4f(1.0f, 1.0f, 0.13f, 1.0f));
 	Fontrenderer::get().addText(Globals::fontManager.get("verdana_9"), m_originalFocus[0] + 10, m_originalFocus[1] + 70 - fontHeight, "[ DEL ]  Delete object at mouse position", Vector4f(1.0f, 1.0f, 0.13f, 1.0f));
 	Fontrenderer::get().addText(Globals::fontManager.get("verdana_9"), m_originalFocus[0] + 10, m_originalFocus[1] + 60 - fontHeight, "[ ENTER ]  Place object at mouse position", Vector4f(1.0f, 1.0f, 0.13f, 1.0f));
-	Fontrenderer::get().addText(Globals::fontManager.get("verdana_9"), m_originalFocus[0] + 10, m_originalFocus[1] + 50 - fontHeight, "[ S ]  Saves the changes into zone1-files", Vector4f(1.0f, 1.0f, 0.13f, 1.0f));
+	Fontrenderer::get().addText(Globals::fontManager.get("verdana_9"), m_originalFocus[0] + 10, m_originalFocus[1] + 50 - fontHeight, "[ C ]  Saves the changes into zone1-files", Vector4f(1.0f, 1.0f, 0.13f, 1.0f));
 	Fontrenderer::get().addText(Globals::fontManager.get("verdana_9"), m_originalFocus[0] + 10, m_originalFocus[1] + 40 - fontHeight, "[ O ]  Load a different zone (not yet implemented)", Vector4f(1.0f, 1.0f, 0.13f, 1.0f));
 	Fontrenderer::get().addText(Globals::fontManager.get("verdana_9"), m_originalFocus[0] + 10, m_originalFocus[1] + 30 - fontHeight, "[ L ]  Exit the editor", Vector4f(1.0f, 1.0f, 0.13f, 1.0f));
-	Fontrenderer::get().addText(Globals::fontManager.get("verdana_9"), m_originalFocus[0] + 10, m_originalFocus[1] + 20 - fontHeight, "//Press the left mouse button near the sides to scroll around ;-)", Vector4f(1.0f, 1.0f, 0.13f, 1.0f));
+	//Fontrenderer::get().addText(Globals::fontManager.get("verdana_9"), m_originalFocus[0] + 10, m_originalFocus[1] + 20 - fontHeight, "//Press the left mouse button near the sides to scroll around ;-)", Vector4f(1.0f, 1.0f, 0.13f, 1.0f));
 	Fontrenderer::get().addText(Globals::fontManager.get("verdana_9"), m_originalFocus[0] + 10, m_originalFocus[1] + ViewPort::get().getHeight() - 20, "x: " + Fontrenderer::get().FloatToString(ViewPort::get().getCursorPos()[0], 0) + ", y: " + Fontrenderer::get().FloatToString(ViewPort::get().getCursorPos()[1], 0));
 	Fontrenderer::get().addText(Globals::fontManager.get("verdana_9"), m_originalFocus[0] + 10, m_originalFocus[1] + ViewPort::get().getHeight() - 60, adjacencyModeEnabled ? "Adjacency Mode: enabled" : "Adjacency Mode: disabled");
 	
@@ -576,7 +576,8 @@ void Editor::render(unsigned int &frameBuffer) {
 		Fontrenderer::get().addText(Globals::fontManager.get("verdana_9"), m_originalFocus[0] + ViewPort::get().getWidth() - 500, m_originalFocus[1] + 60 - fontHeight, "[ , ]  Decrease transparency", Vector4f(0.5f, 1.0f, 0.5f, 1.0f));
 		Fontrenderer::get().addText(Globals::fontManager.get("verdana_9"), m_originalFocus[0] + ViewPort::get().getWidth() - 500, m_originalFocus[1] + 50 - fontHeight, "[ 1/2/3 ]  Increase color RED/GREEN/BLUE", Vector4f(0.5f, 1.0f, 0.5f, 1.0f));
 		Fontrenderer::get().addText(Globals::fontManager.get("verdana_9"), m_originalFocus[0] + ViewPort::get().getWidth() - 500, m_originalFocus[1] + 40 - fontHeight, "[ Left Shift + 1/2/3 ]  Decrease color RED/GREEN/BLUE)", Vector4f(0.5f, 1.0f, 0.5f, 1.0f));
-		Fontrenderer::get().addText(Globals::fontManager.get("verdana_9"), m_originalFocus[0] + ViewPort::get().getWidth() - 500, m_originalFocus[1] + 30 - fontHeight, "[ b/n ] Increase / decrease Z-position", Vector4f(0.5f, 1.0f, 0.5f, 1.0f));
+		Fontrenderer::get().addText(Globals::fontManager.get("verdana_9"), m_originalFocus[0] + ViewPort::get().getWidth() - 500, m_originalFocus[1] + 30 - fontHeight, "[ B/N ] Increase / decrease Z-position", Vector4f(0.5f, 1.0f, 0.5f, 1.0f));
+		Fontrenderer::get().addText(Globals::fontManager.get("verdana_9"), m_originalFocus[0] + ViewPort::get().getWidth() - 500, m_originalFocus[1] + 20 - fontHeight, "[ M ] Toggle Adjacency Modus", Vector4f(0.5f, 1.0f, 0.5f, 1.0f));
 		Fontrenderer::get().drawBuffer();
 	}
 
@@ -595,38 +596,38 @@ void Editor::drawEditFrame(EnvironmentMap* editobject) {
 
 	if (adjacencyModeEnabled) {
 		Batchrenderer::get().bindTexture(TextureManager::GetTextureAtlas(newZone->getName()), true);
-		for (size_t curDir = 0; curDir <= AdjacencyType::BOTTOM; ++curDir) {
+		for (size_t curDir = 0; curDir <= Enums::AdjacencyType::BOTTOM; ++curDir) {
 
-			std::vector<Tile*>& curDirectionAdjacencies = curAdjacentTiles[curDir];
-			std::vector<Point>& curDirectionAdjacencyOffsets = curAdjacencyOffsets[curDir];
+			std::vector<Tile>& curDirectionAdjacencies = curAdjacentTiles[curDir];
+			std::vector<std::array<int, 2>>& curDirectionAdjacencyOffsets = curAdjacencyOffsets[curDir];
 			if (curDirectionAdjacencies.size() > 0) {
 
-				Tile* adjacencyProposal = curDirectionAdjacencies[curDirectionAdjacencySelection[curDir]];
+				Tile adjacencyProposal = curDirectionAdjacencies[curDirectionAdjacencySelection[curDir]];
 
 				// draw the adjacent tile
-				int drawX = editobject->x_pos + curDirectionAdjacencyOffsets[curDirectionAdjacencySelection[curDir]].x;
-				int drawY = editobject->y_pos + curDirectionAdjacencyOffsets[curDirectionAdjacencySelection[curDir]].y;
+				int drawX = editobject->x_pos + curDirectionAdjacencyOffsets[curDirectionAdjacencySelection[curDir]][0];
+				int drawY = editobject->y_pos + curDirectionAdjacencyOffsets[curDirectionAdjacencySelection[curDir]][1];
 				switch (curDir) {
-					case AdjacencyType::RIGHT:
-						drawX += editobject->tile->textureRect.width;
+					case Enums::AdjacencyType::RIGHT:
+						drawX += editobject->tile.textureRect.width;
 						break;
-					case AdjacencyType::LEFT:
-						drawX -= adjacencyProposal->textureRect.width;
+					case Enums::AdjacencyType::LEFT:
+						drawX -= adjacencyProposal.textureRect.width;
 						break;
-					case AdjacencyType::TOP:
-						drawY += editobject->tile->textureRect.height;
+					case Enums::AdjacencyType::TOP:
+						drawY += editobject->tile.textureRect.height;
 						break;
-					case AdjacencyType::BOTTOM:
-						drawY -= adjacencyProposal->textureRect.height;
+					case Enums::AdjacencyType::BOTTOM:
+						drawY -= adjacencyProposal.textureRect.height;
 						break;
 				}
 
-				int drawW = adjacencyProposal->textureRect.width;
-				int drawH = adjacencyProposal->textureRect.height;
+				int drawW = adjacencyProposal.textureRect.width;
+				int drawH = adjacencyProposal.textureRect.height;
 				
 
-				bool mouseInAdjacencyRect = TextureManager::CheckPointInRect(static_cast<int>(ViewPort::get().getCursorPos()[0] + ViewPort::get().getPosition()[0]), static_cast<int>(ViewPort::get().getCursorPos()[1] + ViewPort::get().getPosition()[1]), drawX, drawW, drawY, drawH);	
-				TextureManager::DrawTextureBatched(adjacencyProposal->textureRect, drawX, drawY, drawW, drawH, mouseInAdjacencyRect ? Vector4f(1.0f, 0.8f, 0.8f, 1.0f) : Vector4f(1.0f, 0.8f, 0.8f, 0.5f), false, true);
+				bool mouseInAdjacencyRect = TextureManager::CheckPointInRect(ViewPort::get().getCursorPos()[0] + ViewPort::get().getPosition()[0], ViewPort::get().getCursorPos()[1] + ViewPort::get().getPosition()[1], drawX, drawW, drawY, drawH);	
+				TextureManager::DrawTextureBatched(adjacencyProposal.textureRect, drawX, drawY, drawW, drawH, mouseInAdjacencyRect ? Vector4f(1.0f, 0.8f, 0.8f, 1.0f) : Vector4f(1.0f, 0.8f, 0.8f, 0.5f), false, true);
 			}
 		}
 		Batchrenderer::get().drawBuffer(true);
@@ -634,7 +635,7 @@ void Editor::drawEditFrame(EnvironmentMap* editobject) {
 		TextureManager::DrawTextureBatched(m_interfacetexture[3], m_currentFocus[0] + 50.0f, m_currentFocus[1] + ViewPort::get().getHeight() * 0.5f - 200.0f, 350.0f, 200.0f, Vector4f(1.0f, 1.0f, 1.0f, 1.0f), false);
 		Batchrenderer::get().drawBuffer(true);
 		Batchrenderer::get().bindTexture(TextureManager::GetTextureAtlas(newZone->getName()), true);
-		TextureManager::DrawTextureBatched(editobject->tile->textureRect, m_currentFocus[0] + 55.0f, m_currentFocus[1] + ViewPort::get().getHeight() * 0.5f - editobject->tile->textureRect.height - 5.0f, Vector4f(editobject->red, editobject->green, editobject->blue, editobject->transparency), false);
+		TextureManager::DrawTextureBatched(editobject->tile.textureRect, m_currentFocus[0] + 55.0f, m_currentFocus[1] + ViewPort::get().getHeight() * 0.5f - editobject->tile.textureRect.height - 5.0f, Vector4f(editobject->red, editobject->green, editobject->blue, editobject->transparency), false);
 		Batchrenderer::get().drawBuffer(true);
 
 		int fontHeight = Globals::fontManager.get("verdana_10").lineHeight;
@@ -689,7 +690,7 @@ void Editor::loadNPCs(){
 void Editor::incTilepos(){
 
 	switch (m_selectedTileSet) {
-		case TileClassificationType::FLOOR: case TileClassificationType::ENVIRONMENT: case TileClassificationType::SHADOW: {
+		case Enums::TileClassificationType::FLOOR: case Enums::TileClassificationType::ENVIRONMENT: case Enums::TileClassificationType::SHADOW: {
 			TileSet* curTileSet = EditorInterface::getTileSet(m_selectedTileSet);
 
 			if (m_currentTilepos + 1 < curTileSet->numberOfTiles()) {
@@ -699,7 +700,7 @@ void Editor::incTilepos(){
 			
 		}
 		break;
-		case TileClassificationType::NPC: {
+		case Enums::TileClassificationType::NPC: {
 			if (m_currentTilepos + 1 < editorNPCs.size()) {
 				m_currentTilepos++;
 				m_tileposOffset--;
@@ -721,8 +722,8 @@ void Editor::updateAdjacencyList(){
 		return;
 
 	switch (m_selectedTileSet){
-		case TileClassificationType::ENVIRONMENT:
-			EditorInterface::getTileSet(TileClassificationType::ENVIRONMENT)->getAllAdjacentTiles(newZone->environmentMap[m_selectedObjectId].tile, curAdjacentTiles, curAdjacencyOffsets);
+		case Enums::TileClassificationType::ENVIRONMENT:
+			EditorInterface::getTileSet(Enums::TileClassificationType::ENVIRONMENT)->getAllAdjacentTiles(newZone->environmentMap[m_selectedObjectId].tile, curAdjacentTiles, curAdjacencyOffsets);
 			for (size_t curDirection = 0; curDirection<4; ++curDirection) {
 
 				if (curDirectionAdjacencySelection[curDirection] >= curAdjacentTiles[curDirection].size()) {
@@ -734,8 +735,8 @@ void Editor::updateAdjacencyList(){
 				}
 			}
 		break;
-		case TileClassificationType::SHADOW:
-			EditorInterface::getTileSet(TileClassificationType::ENVIRONMENT)->getAllAdjacentTiles(newZone->shadowMap[m_selectedObjectId].tile, curAdjacentTiles, curAdjacencyOffsets);
+		case Enums::TileClassificationType::SHADOW:
+			EditorInterface::getTileSet(Enums::TileClassificationType::ENVIRONMENT)->getAllAdjacentTiles(newZone->shadowMap[m_selectedObjectId].tile, curAdjacentTiles, curAdjacencyOffsets);
 
 			for (size_t curDirection = 0; curDirection<4; ++curDirection) {
 
@@ -756,10 +757,10 @@ void Editor::placeAdjacentTile() {
 	EnvironmentMap* editobject = NULL;
 	if (m_selectedObjectId >= 0) {
 		switch (m_selectedTileSet) {
-		case TileClassificationType::ENVIRONMENT:
+		case Enums::TileClassificationType::ENVIRONMENT:
 			editobject = &(newZone->environmentMap[m_selectedObjectId]);
 			break;
-		case TileClassificationType::SHADOW:
+		case Enums::TileClassificationType::SHADOW:
 			editobject = &(newZone->shadowMap[m_selectedObjectId]);
 			break;
 		}
@@ -770,35 +771,35 @@ void Editor::placeAdjacentTile() {
 	}
 
 	if (adjacencyModeEnabled) {
-		for (size_t curDirection = 0; curDirection <= AdjacencyType::BOTTOM; ++curDirection) {
+		for (size_t curDirection = 0; curDirection <= Enums::AdjacencyType::BOTTOM; ++curDirection) {
 
-			std::vector<Tile*> &curDirectionAdjacencies = curAdjacentTiles[curDirection];
-			std::vector<Point> &curDirectionAdjacencyOffsets = curAdjacencyOffsets[curDirection];
+			std::vector<Tile> &curDirectionAdjacencies = curAdjacentTiles[curDirection];
+			std::vector<std::array<int, 2>> &curDirectionAdjacencyOffsets = curAdjacencyOffsets[curDirection];
 			if (curDirectionAdjacencies.size() > 0) {
 
-				Tile* adjacencyProposal = curDirectionAdjacencies[curDirectionAdjacencySelection[curDirection]];
+				Tile adjacencyProposal = curDirectionAdjacencies[curDirectionAdjacencySelection[curDirection]];
 
 				// draw the adjacent tile
-				int drawX = editobject->x_pos + curDirectionAdjacencyOffsets[curDirectionAdjacencySelection[curDirection]].x;
-				int drawY = editobject->y_pos + curDirectionAdjacencyOffsets[curDirectionAdjacencySelection[curDirection]].y;
+				int drawX = editobject->x_pos + curDirectionAdjacencyOffsets[curDirectionAdjacencySelection[curDirection]][0];
+				int drawY = editobject->y_pos + curDirectionAdjacencyOffsets[curDirectionAdjacencySelection[curDirection]][1];
 				switch (curDirection) {
-				case AdjacencyType::RIGHT:
-					drawX += editobject->tile->textureRect.width;
+				case Enums::AdjacencyType::RIGHT:
+					drawX += editobject->tile.textureRect.width;
 					break;
-				case AdjacencyType::LEFT:
-					drawX -= adjacencyProposal->textureRect.width;
+				case Enums::AdjacencyType::LEFT:
+					drawX -= adjacencyProposal.textureRect.width;
 					break;
-				case AdjacencyType::TOP:
-					drawY += editobject->tile->textureRect.height;
+				case Enums::AdjacencyType::TOP:
+					drawY += editobject->tile.textureRect.height;
 					break;
-				case AdjacencyType::BOTTOM:
-					drawY -= adjacencyProposal->textureRect.height;
+				case Enums::AdjacencyType::BOTTOM:
+					drawY -= adjacencyProposal.textureRect.height;
 					break;
 				}
 				
-				int drawW = adjacencyProposal->textureRect.width;
-				int drawH = adjacencyProposal->textureRect.height;
-				bool mouseInAdjacencyRect = TextureManager::CheckPointInRect(static_cast<int>(ViewPort::get().getCursorPos()[0] + ViewPort::get().getPosition()[0]), static_cast<int>(ViewPort::get().getCursorPos()[1] + ViewPort::get().getPosition()[1]), drawX, drawW, drawY, drawH);
+				int drawW = adjacencyProposal.textureRect.width;
+				int drawH = adjacencyProposal.textureRect.height;
+				bool mouseInAdjacencyRect = TextureManager::CheckPointInRect(ViewPort::get().getCursorPos()[0] + ViewPort::get().getPosition()[0], ViewPort::get().getCursorPos()[1] + ViewPort::get().getPosition()[1], drawX, drawW, drawY, drawH);
 				
 
 				if (mouseInAdjacencyRect) {
@@ -819,10 +820,10 @@ void Editor::applyAdjacencyModification(int modification) {
 	EnvironmentMap* editobject = NULL;
 	if (m_selectedObjectId >= 0) {
 		switch (m_selectedTileSet) {
-		case TileClassificationType::ENVIRONMENT:
+		case Enums::TileClassificationType::ENVIRONMENT:
 			editobject = &(newZone->environmentMap[m_selectedObjectId]);
 			break;
-		case TileClassificationType::SHADOW:
+		case Enums::TileClassificationType::SHADOW:
 			editobject = &(newZone->shadowMap[m_selectedObjectId]);
 			break;
 		}
@@ -834,36 +835,36 @@ void Editor::applyAdjacencyModification(int modification) {
 
 	if (adjacencyModeEnabled) {
 
-		for (size_t curDirection = 0; curDirection <= AdjacencyType::BOTTOM; ++curDirection) {
+		for (size_t curDirection = 0; curDirection <= Enums::AdjacencyType::BOTTOM; ++curDirection) {
 
-			std::vector<Tile*> &curDirectionAdjacencies = curAdjacentTiles[curDirection];
-			std::vector<Point> &curDirectionAdjacencyOffsets = curAdjacencyOffsets[curDirection];
+			std::vector<Tile> &curDirectionAdjacencies = curAdjacentTiles[curDirection];
+			std::vector<std::array<int, 2>> &curDirectionAdjacencyOffsets = curAdjacencyOffsets[curDirection];
 
 			if (curDirectionAdjacencies.size() > 0){
-				Tile* adjacencyProposal = curDirectionAdjacencies[curDirectionAdjacencySelection[curDirection]];
+				Tile adjacencyProposal = curDirectionAdjacencies[curDirectionAdjacencySelection[curDirection]];
 
 				// draw the adjacent tile
-				int drawX = editobject->x_pos + curDirectionAdjacencyOffsets[curDirectionAdjacencySelection[curDirection]].x;
-				int drawY = editobject->y_pos + curDirectionAdjacencyOffsets[curDirectionAdjacencySelection[curDirection]].y;
+				int drawX = editobject->x_pos + curDirectionAdjacencyOffsets[curDirectionAdjacencySelection[curDirection]][0];
+				int drawY = editobject->y_pos + curDirectionAdjacencyOffsets[curDirectionAdjacencySelection[curDirection]][1];
 				switch (curDirection) {
-				case AdjacencyType::RIGHT:
-					drawX += editobject->tile->textureRect.width;
+				case Enums::AdjacencyType::RIGHT:
+					drawX += editobject->tile.textureRect.width;
 					break;
-				case AdjacencyType::LEFT:
-					drawX -= adjacencyProposal->textureRect.width;
+				case Enums::AdjacencyType::LEFT:
+					drawX -= adjacencyProposal.textureRect.width;
 					break;
-				case AdjacencyType::TOP:
-					drawY += editobject->tile->textureRect.height;
+				case Enums::AdjacencyType::TOP:
+					drawY += editobject->tile.textureRect.height;
 					break;
-				case AdjacencyType::BOTTOM:
-					drawY -= adjacencyProposal->textureRect.height;
+				case Enums::AdjacencyType::BOTTOM:
+					drawY -= adjacencyProposal.textureRect.height;
 					break;
 				}
 
-				int drawW = adjacencyProposal->textureRect.width;
-				int drawH = adjacencyProposal->textureRect.height;
+				int drawW = adjacencyProposal.textureRect.width;
+				int drawH = adjacencyProposal.textureRect.height;
 
-				bool mouseInAdjacencyRect = TextureManager::CheckPointInRect(static_cast<int>(ViewPort::get().getCursorPos()[0] + ViewPort::get().getPosition()[0]), static_cast<int>(ViewPort::get().getCursorPos()[1] + ViewPort::get().getPosition()[1]), drawX, drawW, drawY, drawH);
+				bool mouseInAdjacencyRect = TextureManager::CheckPointInRect(ViewPort::get().getCursorPos()[0] + ViewPort::get().getPosition()[0], ViewPort::get().getCursorPos()[1] + ViewPort::get().getPosition()[1], drawX, drawW, drawY, drawH);
 
 
 				if (mouseInAdjacencyRect) {
@@ -887,7 +888,7 @@ void Editor::saveZone() {
 	std::ofstream ofs(groundTileFileName.c_str());
 	for (size_t x = 0; x < newZone->tileMap.size(); x++){
 		TileMap &curTile = newZone->tileMap[x];
-		ofs << "EditorInterface.addGroundTile("<< curTile.x_pos << ", " << curTile.y_pos << ", "<< curTile.tile->tileID << ");" << std::endl;
+		ofs << "EditorInterface.addGroundTile("<< curTile.x_pos << ", " << curTile.y_pos << ", "<< curTile.tile.tileId << ");" << std::endl;
 
 		
 	}
@@ -901,7 +902,7 @@ void Editor::saveZone() {
 	ofs.open(environmentTileFileName.c_str());
 	for (size_t x = 0; x < newZone->environmentMap.size(); x++) {
 		EnvironmentMap &curEnv = newZone->environmentMap[x];
-		ofs << "EditorInterface.addEnvironment( " << curEnv.x_pos << ", " << curEnv.y_pos << ", " << curEnv.z_pos << ", " << curEnv.tile->tileID << ");" << std::endl;
+		ofs << "EditorInterface.addEnvironment( " << curEnv.x_pos << ", " << curEnv.y_pos << ", " << curEnv.z_pos << ", " << curEnv.tile.tileId << ");" << std::endl;
 			
 		if (curEnv.transparency != 1 ||
 			curEnv.red != 1 ||
@@ -910,7 +911,7 @@ void Editor::saveZone() {
 			ofs << "EditorInterface.adjustLastRGBA( " << curEnv.red << ", " << curEnv.green << ", " << curEnv.blue << ", " << curEnv.transparency << " );" << std::endl;
 		}
 
-		if (static_cast<int>(curEnv.width) != curEnv.tile->textureRect.width || static_cast<int>(curEnv.height) != curEnv.tile->textureRect.height) {
+		if (static_cast<int>(curEnv.width) != curEnv.tile.textureRect.width || static_cast<int>(curEnv.height) != curEnv.tile.textureRect.height) {
 			ofs << "EditorInterface.adjustLastSize(" << curEnv.width<< "," << curEnv.height << ");" << std::endl;
 		}
 	}
@@ -922,7 +923,7 @@ void Editor::saveZone() {
 	ofs.open(shadowTileFileName.c_str());
 	for (size_t x = 0; x < newZone->shadowMap.size(); x++){
 		EnvironmentMap& curEnv = newZone->shadowMap[x];
-		ofs << "EditorInterface.addEnvironment(" << curEnv.x_pos << ", " << curEnv.y_pos << ", " << curEnv.z_pos << ", " << curEnv.tile->tileID << ");" << std::endl;
+		ofs << "EditorInterface.addEnvironment(" << curEnv.x_pos << ", " << curEnv.y_pos << ", " << curEnv.z_pos << ", " << curEnv.tile.tileId << ");" << std::endl;
 		if (curEnv.transparency != 1 ||
 			curEnv.red != 1 ||
 			curEnv.green != 1 ||
@@ -931,7 +932,7 @@ void Editor::saveZone() {
 			ofs << "EditorInterface.adjustLastRGBA( " << curEnv.red << ", " << curEnv.green << ", " << curEnv.blue << ", " << curEnv.transparency << " );" << std::endl;
 		}
 
-		if (static_cast<int>(curEnv.width) != curEnv.tile->textureRect.width || static_cast<int>(curEnv.height) != curEnv.tile->textureRect.height) {
+		if (static_cast<int>(curEnv.width) != curEnv.tile.textureRect.width || static_cast<int>(curEnv.height) != curEnv.tile.textureRect.height) {
 			ofs << "EditorInterface.adjustLastSize(" << curEnv.width << "," << curEnv.height << ");" << std::endl;
 		}
 	}

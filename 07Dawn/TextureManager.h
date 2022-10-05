@@ -131,14 +131,14 @@ class TextureManager{
 public:
 
 	static bool IsRectOnScreen(int left, int width, int bottom, int height);
-	static bool CheckPointInRect(int px, int py, int left, int width, int bottom, int height);
-	static void DrawTextureBatched(TextureRect& textureRect, int x, int y, bool cullVieport, bool updateView);
-	static void DrawTextureBatched(TextureRect& textureRect, int x, int y, Vector4f color = Vector4f(1.0f, 1.0f, 1.0f, 1.0f), bool cullVieport = true, bool updateView = true);
-	static void DrawTextureBatched(TextureRect& textureRect, int x, int y, float width, float height, bool cullVieport, bool updateView);
-	static void DrawTextureBatched(TextureRect& textureRect, int x, int y, float width, float height, Vector4f color = Vector4f(1.0f, 1.0f, 1.0f, 1.0f), bool cullVieport = true, bool updateView = true);
+	static bool CheckPointInRect(float px, float py, int left, int width, int bottom, int height);
+	static void DrawTextureBatched(const TextureRect& textureRect, int x, int y, bool cullVieport, bool updateView);
+	static void DrawTextureBatched(const TextureRect& textureRect, int x, int y, Vector4f color = Vector4f(1.0f, 1.0f, 1.0f, 1.0f), bool cullVieport = true, bool updateView = true);
+	static void DrawTextureBatched(const TextureRect& textureRect, int x, int y, float width, float height, bool cullVieport, bool updateView);
+	static void DrawTextureBatched(const TextureRect& textureRect, int x, int y, float width, float height, Vector4f color = Vector4f(1.0f, 1.0f, 1.0f, 1.0f), bool cullVieport = true, bool updateView = true);
 
 
-	static void DrawTextureInstanced(TextureRect& textureRect, int x, int y, bool checkVieport = true);
+	static void DrawTextureInstanced(const TextureRect& textureRect, int x, int y, bool checkVieport = true);
 	static TextureRect& Loadimage(std::string file, bool isOpenGLThreadInThreadedMode = false);
 
 	static void Loadimage(std::string file, int textureIndex, std::vector<TextureRect>& textureBase, bool isOpenGLThreadInThreadedMode = false);

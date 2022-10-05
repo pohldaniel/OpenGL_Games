@@ -16,17 +16,17 @@ public:
 	void draw() override;
 	void update(float deltaTime);
 
-	Direction GetDirection() override;
+	Enums::Direction GetDirection() override;
 	void Wander();
 	void Move();
 
 	void setSpawnInfo(int _x_spawn_pos, int _y_spawn_pos, int _seconds_to_respawn, int _do_respawn);
-	void setAttitude(Attitude::Attitude attitude);
+	void setAttitude(Enums::Attitude attitude);
 	void markAsDeleted();
 	bool isMarkedAsDeletable() const;
 	std::string getLuaEditorSaveText() const;
 
-	static std::string AttitudeToString(Attitude::Attitude attitude);
+	static std::string AttitudeToString(Enums::Attitude attitude);
 
 private:
 
@@ -37,5 +37,5 @@ private:
 	bool markedAsDeleted;
 	bool chasingPlayer;
 	uint32_t lastPathCalculated;
-	Attitude::Attitude attitudeTowardsPlayer;
+	Enums::Attitude attitudeTowardsPlayer;
 };

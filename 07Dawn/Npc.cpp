@@ -11,7 +11,7 @@ Npc::Npc(const CharacterType& characterType, int _x_spawn_pos, int _y_spawn_pos,
 	wander_lastframe = 0.0f; // helping us decide when the mob will wander.
 	wander_every_seconds = 3; // this mob wanders every 1 seconds.
 	wandering = false;
-	MovingDirection = STOP;
+	MovingDirection = Enums::Direction::STOP;
 
 	remainingMovePoints = 0;
 	direction_texture = 0;
@@ -35,12 +35,12 @@ void Npc::setSpawnInfo(int _x_spawn_pos, int _y_spawn_pos, int _seconds_to_respa
 	seconds_to_respawn = _seconds_to_respawn;
 }
 
-void Npc::setAttitude(Attitude::Attitude attitude) {
+void Npc::setAttitude(Enums::Attitude attitude) {
 	attitudeTowardsPlayer = attitude;
 }
 
 void Npc::draw() {
-	ActivityType::ActivityType curActivity = getCurActivity();
+	Enums::ActivityType curActivity = getCurActivity();
 	
 	int drawX = getXPos();
 	int drawY = getYPos();
@@ -53,7 +53,7 @@ void Npc::update(float deltaTime) {
 	Character::update(deltaTime);
 }
 
-Direction Npc::GetDirection(){
+Enums::Direction Npc::GetDirection(){
 
 	if (wandering) {
 		return WanderDirection;
@@ -78,12 +78,12 @@ void Npc::Wander() {
 			}else {
 				wander_lastframe = Globals::clock.getElapsedTimeMilli();
 				wandering = false;
-				WanderDirection = STOP;
+				WanderDirection = Enums::Direction::STOP;
 			}
 		}else {
 			wander_lastframe = Globals::clock.getElapsedTimeMilli();
 			wandering = false;
-			WanderDirection = STOP;
+			WanderDirection = Enums::Direction::STOP;
 		}
 	}else {
 		
@@ -91,7 +91,7 @@ void Npc::Wander() {
 		if ((wander_thisframe - wander_lastframe) > (wander_every_seconds * 1000)) {
 			wandering = true;
 			wander_points_left = RNG::randomSizeT(10, 59);  // how far will the NPC wander?
-			WanderDirection = static_cast<Direction>(RNG::randomSizeT(1, 8));  // random at which direction NPC will go.
+			WanderDirection = static_cast<Enums::Direction>(RNG::randomSizeT(1, 8));  // random at which direction NPC will go.
 			wander_every_seconds = RNG::randomSizeT(3, 6);
 		}
 	}
@@ -117,18 +117,18 @@ std::string Npc::getLuaEditorSaveText() const {
 		<< y_spawn_pos << ", "
 		<< seconds_to_respawn << ", "
 		<< do_respawn << ", " 
-		<<  "Attitude." << Npc::AttitudeToString(attitudeTowardsPlayer) << " );" << std::endl;
+		<<  "Enums." << Npc::AttitudeToString(attitudeTowardsPlayer) << " );" << std::endl;
 
 	return oss.str();
 }
 
-std::string Npc::AttitudeToString(Attitude::Attitude attitude) {
+std::string Npc::AttitudeToString(Enums::Attitude attitude) {
 	switch (attitude) {
-	case Attitude::HOSTILE:
+	case Enums::Attitude::HOSTILE:
 		return "HOSTILE";
-	case Attitude::NEUTRAL:
+	case Enums::Attitude::NEUTRAL:
 		return "NEUTRAL";
-	case Attitude::FRIENDLY:
+	case Enums::Attitude::FRIENDLY:
 		return "FRIENDLY";
 	}
 }

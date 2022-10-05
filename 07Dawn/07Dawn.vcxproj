@@ -215,6 +215,7 @@
     <ClInclude Include="engine\animation\Animation2d.h" />
     <ClInclude Include="engine\Instancerenderer.h" />
     <ClInclude Include="engine\Transform.h" />
+    <ClInclude Include="Enums.h" />
     <ClInclude Include="Fontrenderer.h" />
     <ClInclude Include="InteractionPoint.h" />
     <ClInclude Include="InteractionRegion.h" />

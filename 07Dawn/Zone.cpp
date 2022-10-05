@@ -6,7 +6,7 @@
 
 
 bool TileMap::operator<(const TileMap& tile1) const{ 
-	return tile->tileID < tile1.tile->tileID;
+	return tile.tileId < tile1.tile.tileId;
 };
 
 Zone::Zone() {
@@ -65,8 +65,8 @@ bool Zone::zoneDataLoaded() const {
 int Zone::locateTile(int x, int y){
 	
 	for (unsigned int t = 0; t < tileMap.size(); t++) {
-		if ((tileMap[t].x_pos + tileMap[t].tile->textureRect.width > x) && (tileMap[t].x_pos < x)) {
-			if ((tileMap[t].y_pos + tileMap[t].tile->textureRect.height > y) && (tileMap[t].y_pos < y)) {
+		if ((tileMap[t].x_pos + tileMap[t].tile.textureRect.width > x) && (tileMap[t].x_pos < x)) {
+			if ((tileMap[t].y_pos + tileMap[t].tile.textureRect.height > y) && (tileMap[t].y_pos < y)) {
 				return t; 	
 			}
 		}
@@ -74,7 +74,7 @@ int Zone::locateTile(int x, int y){
 	return -1;
 }
 
-void Zone::replaceTile(int iId, Tile *tile_){
+void Zone::replaceTile(int iId, Tile tile_){
 	if (iId >= 0) {
 		tileMap[iId].tile = tile_;
 	}
@@ -82,41 +82,41 @@ void Zone::replaceTile(int iId, Tile *tile_){
 
 void Zone::deleteTile(int iId) {
 	if (iId >= 0) {
-		tileMap[iId].tile = EditorInterface::getTileSet(TileClassificationType::FLOOR)->getEmptyTile();
+		tileMap[iId].tile = EditorInterface::getTileSet(Enums::TileClassificationType::FLOOR)->getEmptyTile();
 	}
 }
 
-void Zone::addEnvironment(int x_pos, int y_pos, Tile *tile, bool centeredOnPos){
+void Zone::addEnvironment(int x_pos, int y_pos, Tile tile, bool centeredOnPos){
 	int placePosX = x_pos;
 	int placePosY = y_pos;
 	if (centeredOnPos) {
-		placePosX -= tile->textureRect.width / 2;
-		placePosY -= tile->textureRect.height / 2;
+		placePosX -= tile.textureRect.width / 2;
+		placePosY -= tile.textureRect.height / 2;
 	}
 
-	environmentMap.push_back(EnvironmentMap(placePosX, placePosY, tile, 1.0f, 1.0f, 1.0f, 1.0f, static_cast<float>(tile->textureRect.width), static_cast<float>(tile->textureRect.height), 1.0f));
+	environmentMap.push_back(EnvironmentMap(placePosX, placePosY, tile, 1.0f, 1.0f, 1.0f, 1.0f, static_cast<float>(tile.textureRect.width), static_cast<float>(tile.textureRect.height), 1.0f));
 
-	if (tile->containsCollisionRect == true) {
-		collisionMap.push_back({ placePosX + tile->collisionRect.x, placePosY + tile->collisionRect.y, tile->collisionRect.w, tile->collisionRect.h });
+	if (tile.containsCollisionRect == true) {
+		collisionMap.push_back({ placePosX + tile.collisionRect.x, placePosY + tile.collisionRect.y, tile.collisionRect.w, tile.collisionRect.h });
 	}
 }
 
-void Zone::replaceEnvironment(int x_pos, int y_pos, Tile *tile, bool centeredOnPos, int replaceId) {
+void Zone::replaceEnvironment(int x_pos, int y_pos, Tile tile, bool centeredOnPos, int replaceId) {
 	int placePosX = x_pos;
 	int placePosY = y_pos;
 	if (centeredOnPos) {
-		placePosX -= tile->textureRect.width / 2;
-		placePosY -= tile->textureRect.height / 2;
+		placePosX -= tile.textureRect.width / 2;
+		placePosY -= tile.textureRect.height / 2;
 	}
 
-	environmentMap[replaceId] = EnvironmentMap(placePosX, placePosY, tile, 1.0f, 1.0f, 1.0f, 1.0f, static_cast<float>(tile->textureRect.width), static_cast<float>(tile->textureRect.height), 1.0f);
+	environmentMap[replaceId] = EnvironmentMap(placePosX, placePosY, tile, 1.0f, 1.0f, 1.0f, 1.0f, static_cast<float>(tile.textureRect.width), static_cast<float>(tile.textureRect.height), 1.0f);
 }
 
 int Zone::deleteEnvironment(int x, int y) {
 
 	for (unsigned int t = 0; t < environmentMap.size(); t++) {
-		if ((environmentMap[t].x_pos + environmentMap[t].tile->textureRect.width > x) && (environmentMap[t].x_pos < x)) {
-			if ((environmentMap[t].y_pos + environmentMap[t].tile->textureRect.height > y) &&
+		if ((environmentMap[t].x_pos + environmentMap[t].tile.textureRect.width > x) && (environmentMap[t].x_pos < x)) {
+			if ((environmentMap[t].y_pos + environmentMap[t].tile.textureRect.height > y) &&
 				(environmentMap[t].y_pos < y)) {
 				environmentMap.erase(environmentMap.begin() + t);
 				return 0;
@@ -128,9 +128,9 @@ int Zone::deleteEnvironment(int x, int y) {
 
 int Zone::locateEnvironment(int x, int y) {
 	for (unsigned int t = 0; t < environmentMap.size(); t++) {
-		if ((environmentMap[t].x_pos + environmentMap[t].tile->textureRect.width > x) &&
+		if ((environmentMap[t].x_pos + environmentMap[t].tile.textureRect.width > x) &&
 			(environmentMap[t].x_pos < x)) {
-			if ((environmentMap[t].y_pos + environmentMap[t].tile->textureRect.height > y) &&
+			if ((environmentMap[t].y_pos + environmentMap[t].tile.textureRect.height > y) &&
 				(environmentMap[t].y_pos < y)) {
 				return t;
 			}
@@ -139,15 +139,15 @@ int Zone::locateEnvironment(int x, int y) {
 	return -1;
 }
 
-void Zone::addShadow(int x_pos, int y_pos, Tile *tile) {
-	shadowMap.push_back(EnvironmentMap(x_pos - (tile->textureRect.width / 2), y_pos - (tile->textureRect.height / 2), tile, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0));
+void Zone::addShadow(int x_pos, int y_pos, Tile tile) {
+	shadowMap.push_back(EnvironmentMap(x_pos - (tile.textureRect.width / 2), y_pos - (tile.textureRect.height / 2), tile, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0));
 }
 
 int Zone::deleteShadow(int x, int y){
 
 	for (unsigned int t = 0; t < shadowMap.size(); t++) {
-		if ((shadowMap[t].x_pos + shadowMap[t].tile->textureRect.width > x) && (shadowMap[t].x_pos < x)) {
-			if ((shadowMap[t].y_pos + shadowMap[t].tile->textureRect.height > y) &&
+		if ((shadowMap[t].x_pos + shadowMap[t].tile.textureRect.width > x) && (shadowMap[t].x_pos < x)) {
+			if ((shadowMap[t].y_pos + shadowMap[t].tile.textureRect.height > y) &&
 				(shadowMap[t].y_pos < y)) {
 				shadowMap.erase(shadowMap.begin() + t);
 				return 0;
@@ -159,9 +159,9 @@ int Zone::deleteShadow(int x, int y){
 
 int Zone::locateShadow(int x, int y) {
 	for (unsigned int t = 0; t < shadowMap.size(); t++) {
-		if ((shadowMap[t].x_pos + shadowMap[t].tile->textureRect.width > x) &&
+		if ((shadowMap[t].x_pos + shadowMap[t].tile.textureRect.width > x) &&
 			(shadowMap[t].x_pos < x)) {
-			if ((shadowMap[t].y_pos + shadowMap[t].tile->textureRect.height > y) &&
+			if ((shadowMap[t].y_pos + shadowMap[t].tile.textureRect.height > y) &&
 				(shadowMap[t].y_pos < y)) {
 				return t;
 			}
@@ -176,9 +176,9 @@ void Zone::addNPC(Npc *npcToAdd) {
 
 int Zone::deleteNPC(int x, int y) {
 	for (unsigned int t = 0; t< npcs.size(); t++) {
-		if ((npcs[t]->getXPos() + npcs[t]->m_characterType.getTileSet(ActivityType::ActivityType::Walking, Direction::S).getAllTiles()[0]->textureRect.width > x) &&
+		if ((npcs[t]->getXPos() + npcs[t]->m_characterType.getTileSet(Enums::ActivityType::Walking, Enums::Direction::S).getAllTiles()[0].textureRect.width > x) &&
 			(npcs[t]->getXPos() < x)) {
-			if ((npcs[t]->getYPos() + npcs[t]->m_characterType.getTileSet(ActivityType::ActivityType::Walking, Direction::S).getAllTiles()[0]->textureRect.height > y) &&
+			if ((npcs[t]->getYPos() + npcs[t]->m_characterType.getTileSet(Enums::ActivityType::Walking, Enums::Direction::S).getAllTiles()[0].textureRect.height > y) &&
 				(npcs[t]->getYPos() < y)) {
 				removeNPC(npcs[t]);
 				return 0;
@@ -216,9 +216,9 @@ void Zone::cleanupNPCList() {
 int Zone::locateNPC(int x, int y) {
 	
 	for (unsigned int t = 0; t < npcs.size(); t++) {
-		if ((npcs[t]->getXPos() + npcs[t]->m_characterType.getTileSet(ActivityType::ActivityType::Walking, Direction::S).getAllTiles()[0]->textureRect.width > x) &&
+		if ((npcs[t]->getXPos() + npcs[t]->m_characterType.getTileSet(Enums::ActivityType::Walking, Enums::Direction::S).getAllTiles()[0].textureRect.width > x) &&
 			(npcs[t]->getXPos() < x)) {
-			if ((npcs[t]->getYPos() + npcs[t]->m_characterType.getTileSet(ActivityType::ActivityType::Walking, Direction::S).getAllTiles()[0]->textureRect.height > y) &&
+			if ((npcs[t]->getYPos() + npcs[t]->m_characterType.getTileSet(Enums::ActivityType::Walking, Enums::Direction::S).getAllTiles()[0].textureRect.height > y) &&
 				(npcs[t]->getYPos() < y)) {
 				return t;
 			}
@@ -329,19 +329,19 @@ void Zone::drawZoneBatched() {
 
 void Zone::drawTilesBatched() {
 	for (unsigned int x = 0; x < tileMap.size(); x++) {
-		TextureManager::DrawTextureBatched(tileMap[x].tile->textureRect, tileMap[x].x_pos, tileMap[x].y_pos);
+		TextureManager::DrawTextureBatched(tileMap[x].tile.textureRect, tileMap[x].x_pos, tileMap[x].y_pos);
 	}
 }
 
 void Zone::drawEnvironmentBatched() {
 	for (unsigned int x = 0; x < environmentMap.size(); x++) {
-		TextureManager::DrawTextureBatched(environmentMap[x].tile->textureRect, environmentMap[x].x_pos, environmentMap[x].y_pos, environmentMap[x].width, environmentMap[x].height, Vector4f(environmentMap[x].red, environmentMap[x].green, environmentMap[x].blue, environmentMap[x].transparency));
+		TextureManager::DrawTextureBatched(environmentMap[x].tile.textureRect, environmentMap[x].x_pos, environmentMap[x].y_pos, environmentMap[x].width, environmentMap[x].height, Vector4f(environmentMap[x].red, environmentMap[x].green, environmentMap[x].blue, environmentMap[x].transparency));
 	}
 }
 
 void Zone::drawShadowsBatched(){
 	for (unsigned int x = 0; x < shadowMap.size(); x++) {
-		TextureManager::DrawTextureBatched(shadowMap[x].tile->textureRect, shadowMap[x].x_pos, shadowMap[x].y_pos);
+		TextureManager::DrawTextureBatched(shadowMap[x].tile.textureRect, shadowMap[x].x_pos, shadowMap[x].y_pos);
 	}
 }
 
@@ -366,12 +366,12 @@ void Zone::drawZoneInstanced() {
 
 void Zone::drawTilesInstanced() {
 	for (unsigned int x = 0; x < tileMap.size(); x++) {
-		TextureManager::DrawTextureInstanced(tileMap[x].tile->textureRect, tileMap[x].x_pos, tileMap[x].y_pos);
+		TextureManager::DrawTextureInstanced(tileMap[x].tile.textureRect, tileMap[x].x_pos, tileMap[x].y_pos);
 	}
 }
 
 void Zone::drawEnvironmentInstanced() {
 	for (unsigned int x = 0; x < environmentMap.size(); x++) {
-		TextureManager::DrawTextureInstanced(environmentMap[x].tile->textureRect, environmentMap[x].x_pos, environmentMap[x].y_pos);
+		TextureManager::DrawTextureInstanced(environmentMap[x].tile.textureRect, environmentMap[x].x_pos, environmentMap[x].y_pos);
 	}
 }
