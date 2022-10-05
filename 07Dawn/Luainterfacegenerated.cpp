@@ -1,6 +1,6 @@
 /*
 ** Lua binding: Luainterface
-** Generated automatically by tolua++-1.0.92 on Wed Oct  5 16:30:17 2022.
+** Generated automatically by tolua++-1.0.92 on Wed Oct  5 16:50:24 2022.
 */
 
 #ifndef __cplusplus
@@ -376,8 +376,8 @@ static int tolua_Luainterface_EditorInterface_getTileSet00(lua_State* tolua_S)
 	{
 		Enums::TileClassificationType tileType = ((Enums::TileClassificationType) (int)  tolua_tonumber(tolua_S, 1, 0));
 		{
-			TileSet* tolua_ret = (TileSet*)EditorInterface::getTileSet(tileType);
-			tolua_pushusertype(tolua_S, (void*)tolua_ret, "TileSet");
+			TileSet& tolua_ret = (TileSet&)EditorInterface::getTileSet(tileType);
+			tolua_pushusertype(tolua_S, (void*)&tolua_ret, "TileSet");
 		}
 	}
 	return 1;

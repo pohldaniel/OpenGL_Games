@@ -19,7 +19,7 @@ class InteractionPoint;
 class TextWindow;
 
 namespace EditorInterface{
-	TileSet *getTileSet(Enums::TileClassificationType tileType);
+	TileSet& getTileSet(Enums::TileClassificationType tileType);
 	void addGroundTile(int posX, int posY, int tile);
 	void addEnvironment(int posX, int posY, int posZ, int tile);
 	void adjustLastRGBA(float red, float green, float blue, float alpha);

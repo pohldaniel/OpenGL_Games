@@ -82,7 +82,7 @@ void Zone::replaceTile(int iId, Tile tile_){
 
 void Zone::deleteTile(int iId) {
 	if (iId >= 0) {
-		tileMap[iId].tile = EditorInterface::getTileSet(Enums::TileClassificationType::FLOOR)->getEmptyTile();
+		tileMap[iId].tile = EditorInterface::getTileSet(Enums::TileClassificationType::FLOOR).getEmptyTile();
 	}
 }
 

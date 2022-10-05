@@ -112,7 +112,7 @@ void TileSet::printTileSet() const{
 	std::cout << std::endl;
 }
 
-const Tile& TileSet::getTile(int tileID) {
+const Tile& TileSet::getTile(int tileID)  const{
 	return m_tiles[tileID];
 }
 

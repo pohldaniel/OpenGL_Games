@@ -12,14 +12,14 @@
 namespace EditorInterface{
 	void addGroundTile(int posX, int posY, int tile){		
 		Zone *currentZone = Globals::getCurrentZone();
-		TileSet *tileSet = EditorInterface::getTileSet(Enums::TileClassificationType::FLOOR);
-		currentZone->tileMap.push_back(TileMap(posX, posY, tileSet->getTile(tile)));
+		const TileSet& tileSet = EditorInterface::getTileSet(Enums::TileClassificationType::FLOOR);
+		currentZone->tileMap.push_back(TileMap(posX, posY, tileSet.getTile(tile)));
 	}
 
 	void addEnvironment(int posX, int posY, int posZ, int tile){
 		Zone *currentZone = Globals::getCurrentZone();
-		TileSet *tileSet = EditorInterface::getTileSet(Enums::TileClassificationType::ENVIRONMENT);
-		currentZone->environmentMap.push_back(EnvironmentMap(posX, posY, tileSet->getTile(tile), 1.0f, 1.0f, 1.0f, 1.0f, static_cast<float>(tileSet->getTile(tile).textureRect.width), static_cast<float>(tileSet->getTile(tile).textureRect.height), posZ));
+		const TileSet& tileSet = EditorInterface::getTileSet(Enums::TileClassificationType::ENVIRONMENT);
+		currentZone->environmentMap.push_back(EnvironmentMap(posX, posY, tileSet.getTile(tile), 1.0f, 1.0f, 1.0f, 1.0f, static_cast<float>(tileSet.getTile(tile).textureRect.width), static_cast<float>(tileSet.getTile(tile).textureRect.height), posZ));
 	}
 
 	void adjustLastRGBA(float red, float green, float blue, float alpha){
@@ -43,8 +43,8 @@ namespace EditorInterface{
 		currentZone->collisionMap.push_back({ lrx, lry, width, height });
 	}
 
-	TileSet *getTileSet(Enums::TileClassificationType tileType) {
-		return &TileSetManager::Get().getTileSet(tileType);
+	TileSet& getTileSet(Enums::TileClassificationType tileType) {
+		return TileSetManager::Get().getTileSet(tileType);
 	}
 }
 namespace DawnInterface{

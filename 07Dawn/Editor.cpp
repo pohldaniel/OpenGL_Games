@@ -91,15 +91,15 @@ void Editor::update() {
 	
 		switch (m_selectedTileSet) {
 			case Enums::TileClassificationType::FLOOR: {
-				const Tile& currentTile = EditorInterface::getTileSet(m_selectedTileSet)->getAllTiles()[m_currentTilepos];
+				const Tile& currentTile = EditorInterface::getTileSet(m_selectedTileSet).getAllTiles()[m_currentTilepos];
 				newZone->replaceTile(newZone->locateTile(static_cast<int>(m_editorFocus[0] + ViewPort::get().getCursorPos()[0]), static_cast<int>(m_editorFocus[1] + ViewPort::get().getCursorPos()[1])), currentTile);
 				break;
 			}case Enums::TileClassificationType::ENVIRONMENT: {
-				const Tile& currentTile = EditorInterface::getTileSet(m_selectedTileSet)->getAllTiles()[m_currentTilepos];
+				const Tile& currentTile = EditorInterface::getTileSet(m_selectedTileSet).getAllTiles()[m_currentTilepos];
 				newZone->addEnvironment(static_cast<int>(m_editorFocus[0] + ViewPort::get().getCursorPos()[0]), static_cast<int>(m_editorFocus[1] + ViewPort::get().getCursorPos()[1]), currentTile, true /* centered on pos */);
 				break;
 			}case Enums::TileClassificationType::SHADOW: {
-				const Tile& currentTile = EditorInterface::getTileSet(m_selectedTileSet)->getAllTiles()[m_currentTilepos];
+				const Tile& currentTile = EditorInterface::getTileSet(m_selectedTileSet).getAllTiles()[m_currentTilepos];
 				newZone->addShadow(static_cast<int>(m_editorFocus[0] + ViewPort::get().getCursorPos()[0]), static_cast<int>(m_editorFocus[1] + ViewPort::get().getCursorPos()[1]), currentTile);
 				break;
 			}case Enums::TileClassificationType::COLLISION: {
@@ -528,11 +528,11 @@ void Editor::render(unsigned int &frameBuffer) {
 	}else {
 
 		Batchrenderer::get().bindTexture(TextureManager::GetTextureAtlas(newZone->getName()), true);
-		std::vector<Tile> curTiles = EditorInterface::getTileSet(m_selectedTileSet)->getAllTiles();
+		const std::vector<Tile>& curTiles = EditorInterface::getTileSet(m_selectedTileSet).getAllTiles();
 
 
 		for (m_tilepos = 0; m_tilepos < curTiles.size(); ++m_tilepos) {
-			Tile& curTile = curTiles[m_tilepos];
+			const Tile& curTile = curTiles[m_tilepos];
 			TextureManager::DrawTextureBatched(curTile.textureRect, m_originalFocus[0] + ViewPort::get().getWidth() * 0.5f + (m_tilepos * 50) + (m_tileposOffset * 50), m_originalFocus[1] + ViewPort::get().getHeight() - 60, 40.0f, 40.0f, false, false);
 		}
 	}
@@ -691,9 +691,9 @@ void Editor::incTilepos(){
 
 	switch (m_selectedTileSet) {
 		case Enums::TileClassificationType::FLOOR: case Enums::TileClassificationType::ENVIRONMENT: case Enums::TileClassificationType::SHADOW: {
-			TileSet* curTileSet = EditorInterface::getTileSet(m_selectedTileSet);
+			TileSet& curTileSet = EditorInterface::getTileSet(m_selectedTileSet);
 
-			if (m_currentTilepos + 1 < curTileSet->numberOfTiles()) {
+			if (m_currentTilepos + 1 < curTileSet.numberOfTiles()) {
 				m_currentTilepos++;
 				m_tileposOffset--;
 			}
@@ -723,7 +723,7 @@ void Editor::updateAdjacencyList(){
 
 	switch (m_selectedTileSet){
 		case Enums::TileClassificationType::ENVIRONMENT:
-			EditorInterface::getTileSet(Enums::TileClassificationType::ENVIRONMENT)->getAllAdjacentTiles(newZone->environmentMap[m_selectedObjectId].tile, curAdjacentTiles, curAdjacencyOffsets);
+			EditorInterface::getTileSet(Enums::TileClassificationType::ENVIRONMENT).getAllAdjacentTiles(newZone->environmentMap[m_selectedObjectId].tile, curAdjacentTiles, curAdjacencyOffsets);
 			for (size_t curDirection = 0; curDirection<4; ++curDirection) {
 
 				if (curDirectionAdjacencySelection[curDirection] >= curAdjacentTiles[curDirection].size()) {
@@ -736,7 +736,7 @@ void Editor::updateAdjacencyList(){
 			}
 		break;
 		case Enums::TileClassificationType::SHADOW:
-			EditorInterface::getTileSet(Enums::TileClassificationType::ENVIRONMENT)->getAllAdjacentTiles(newZone->shadowMap[m_selectedObjectId].tile, curAdjacentTiles, curAdjacencyOffsets);
+			EditorInterface::getTileSet(Enums::TileClassificationType::ENVIRONMENT).getAllAdjacentTiles(newZone->shadowMap[m_selectedObjectId].tile, curAdjacentTiles, curAdjacencyOffsets);
 
 			for (size_t curDirection = 0; curDirection<4; ++curDirection) {
 
