@@ -5,6 +5,7 @@
 #include "engine/Shader.h"
 #include "engine/Quad.h"
 #include "Constants.h"
+#include "Message.h"
 
 enum CurrentState {
 	GAME,

@@ -167,6 +167,7 @@
     <ClCompile Include="Label.cpp" />
     <ClCompile Include="LoadingScreen.cpp" />
     <ClCompile Include="MainMenu.cpp" />
+    <ClCompile Include="Message.cpp" />
     <ClCompile Include="Npc.cpp" />
     <ClCompile Include="Random.cpp" />
     <ClCompile Include="TextureManager.cpp" />
@@ -221,6 +222,7 @@
     <ClInclude Include="Loadingmanager.h" />
     <ClInclude Include="LoadingScreen.h" />
     <ClInclude Include="MainMenu.h" />
+    <ClInclude Include="Message.h" />
     <ClInclude Include="Npc.h" />
     <ClInclude Include="Random.h" />
     <ClInclude Include="TextureManager.h" />

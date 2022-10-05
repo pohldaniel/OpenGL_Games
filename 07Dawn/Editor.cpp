@@ -372,8 +372,7 @@ void Editor::update() {
 
 	if (keyboard.keyPressed(Keyboard::KEY_C)) {
 		saveZone();
-		//message.AddText(editorFocus->getX() + (Configuration::screenWidth / 2), editorFocus->getY() + (Configuration::screenHeight / 2), 1.0f, 0.625f, 0.71f, 1.0f, 15, 3.0f, "Zone saved ...");
-		std::cout << "Zone saved ..." << std::endl;
+		Message::Get().addText(ViewPort::get().getWidth() * 0.5f, ViewPort::get().getHeight() * 0.5f, 1.0f, 0.625f, 0.71f, 1.0f, 15, 3.0f, "Zone saved ...");	
 	}
 }
 

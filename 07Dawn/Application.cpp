@@ -341,6 +341,7 @@ void Application::loadAssets() {
 	Globals::spritesheetManager.createNullSpritesheet("null", 1024, 1024, 197);
 
 	Globals::fontManager.loadCharacterSet("verdana_20", "res/verdana.ttf", 20.0f, 3, 20);
+	Globals::fontManager.loadCharacterSet("verdana_12", "res/verdana.ttf", 12.0f, 3, 20);
 	Globals::fontManager.loadCharacterSet("verdana_10", "res/verdana.ttf", 10.0f, 3, 20);
 	Globals::fontManager.loadCharacterSet("verdana_9", "res/verdana.ttf", 9.0f, 3, 20);
 	Globals::fontManager.loadCharacterSet("verdana_5", "res/verdana.ttf", 5.0f, 3, 20);
