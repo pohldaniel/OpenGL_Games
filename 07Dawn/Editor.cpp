@@ -1,9 +1,11 @@
 #include "Editor.h"
 
 Editor::Editor(StateMachine& machine) : State(machine, CurrentState::EDITOR) {
-	newZone = new Zone();
-	newZone->loadZone("res/_lua/zone1");
+	LuaFunctions::executeLuaFile("res/_lua/mobdata.lua");
 
+	newZone = &ZoneManager::Get().getZone("res/_lua/zone1");
+	newZone->loadZone();
+	
 	m_originalFocus = ViewPort::get().getBottomLeft();
 	m_editorFocus = ViewPort::get().getBottomLeft();
 	
@@ -14,8 +16,10 @@ Editor::Editor(StateMachine& machine) : State(machine, CurrentState::EDITOR) {
 	adjacencyModeEnabled = false;
 
 	initTextures();
-	loadNPCs();
+	loadNPCs();	
 
+	
+	LuaFunctions::executeLuaFile("res/_lua/gameinit.lua");
 	LuaFunctions::executeLuaFile("res/_lua/tileAdjacency.lua");
 }
 
@@ -144,82 +148,82 @@ void Editor::update() {
 			case Enums::TileClassificationType::ENVIRONMENT: {
 				if (keyboard.keyDown(Keyboard::KEY_SHIFT)) {
 					if (keyboard.keyDown(Keyboard::KEY_DOWN)) {
-						newZone->environmentMap[m_selectedObjectId].height -= 1;
+						newZone->m_environmentMap[m_selectedObjectId].height -= 1;
 					}
 					if (keyboard.keyDown(Keyboard::KEY_UP)) {
-						newZone->environmentMap[m_selectedObjectId].height += 1;
+						newZone->m_environmentMap[m_selectedObjectId].height += 1;
 					}
 					if (keyboard.keyDown(Keyboard::KEY_LEFT)) {
-						newZone->environmentMap[m_selectedObjectId].width -= 1;
+						newZone->m_environmentMap[m_selectedObjectId].width -= 1;
 					}
 					if (keyboard.keyDown(Keyboard::KEY_RIGHT)) {
-						newZone->environmentMap[m_selectedObjectId].width += 1;
+						newZone->m_environmentMap[m_selectedObjectId].width += 1;
 					}
 
 					if (keyboard.keyDown(Keyboard::KEY_1)) {
-						if (newZone->environmentMap[m_selectedObjectId].red >= 0.01f) {
-							newZone->environmentMap[m_selectedObjectId].red -= 0.01f;
+						if (newZone->m_environmentMap[m_selectedObjectId].red >= 0.01f) {
+							newZone->m_environmentMap[m_selectedObjectId].red -= 0.01f;
 						}
 					}
 					if (keyboard.keyDown(Keyboard::KEY_2)) {
-						if (newZone->environmentMap[m_selectedObjectId].green >= 0.01f) {
-							newZone->environmentMap[m_selectedObjectId].green -= 0.01f;
+						if (newZone->m_environmentMap[m_selectedObjectId].green >= 0.01f) {
+							newZone->m_environmentMap[m_selectedObjectId].green -= 0.01f;
 						}
 					}
 					if (keyboard.keyDown(Keyboard::KEY_3)) {
-						if (newZone->environmentMap[m_selectedObjectId].blue >= 0.01f) {
-							newZone->environmentMap[m_selectedObjectId].blue -= 0.01f;
+						if (newZone->m_environmentMap[m_selectedObjectId].blue >= 0.01f) {
+							newZone->m_environmentMap[m_selectedObjectId].blue -= 0.01f;
 						}
 					}
 				}else {
 					bool moveonce = keyboard.keyDown(Keyboard::KEY_CTRL);
 
 					if (moveonce ? keyboard.keyPressed(Keyboard::KEY_DOWN) : keyboard.keyDown(Keyboard::KEY_DOWN)) {
-						newZone->environmentMap[m_selectedObjectId].y_pos -= 1;
+						newZone->m_environmentMap[m_selectedObjectId].y_pos -= 1;
 					}
 					if (moveonce ? keyboard.keyPressed(Keyboard::KEY_UP) : keyboard.keyDown(Keyboard::KEY_UP)) {
-						newZone->environmentMap[m_selectedObjectId].y_pos += 1;
+						newZone->m_environmentMap[m_selectedObjectId].y_pos += 1;
 					}
 					if (moveonce ? keyboard.keyPressed(Keyboard::KEY_LEFT) : keyboard.keyDown(Keyboard::KEY_LEFT)) {
-						newZone->environmentMap[m_selectedObjectId].x_pos -= 1;
+						newZone->m_environmentMap[m_selectedObjectId].x_pos -= 1;
 					}
 					if (moveonce ? keyboard.keyPressed(Keyboard::KEY_RIGHT) : keyboard.keyDown(Keyboard::KEY_RIGHT)) {
-						newZone->environmentMap[m_selectedObjectId].x_pos += 1;
+						newZone->m_environmentMap[m_selectedObjectId].x_pos += 1;
 					}
 					if (keyboard.keyDown(Keyboard::KEY_1)) {
-						if (newZone->environmentMap[m_selectedObjectId].red <= 0.99f) {
-							newZone->environmentMap[m_selectedObjectId].red += 0.01f;
+						if (newZone->m_environmentMap[m_selectedObjectId].red <= 0.99f) {
+							newZone->m_environmentMap[m_selectedObjectId].red += 0.01f;
 						}
 					}
 					if (keyboard.keyDown(Keyboard::KEY_2)) {
-						if (newZone->environmentMap[m_selectedObjectId].green <= 0.99f) {
-							newZone->environmentMap[m_selectedObjectId].green += 0.01f;
+						if (newZone->m_environmentMap[m_selectedObjectId].green <= 0.99f) {
+							newZone->m_environmentMap[m_selectedObjectId].green += 0.01f;
 						}
 					}
 					if (keyboard.keyDown(Keyboard::KEY_3)) {
-						if (newZone->environmentMap[m_selectedObjectId].blue <= 0.99f) {
-							newZone->environmentMap[m_selectedObjectId].blue += 0.01f;
+						if (newZone->m_environmentMap[m_selectedObjectId].blue <= 0.99f) {
+							newZone->m_environmentMap[m_selectedObjectId].blue += 0.01f;
 						}
 					}
 					if (keyboard.keyDown(Keyboard::KEY_COMMA)) {
-						if (newZone->environmentMap[m_selectedObjectId].transparency <= 0.99f) {
-							newZone->environmentMap[m_selectedObjectId].transparency += 0.01f;
+						if (newZone->m_environmentMap[m_selectedObjectId].transparency <= 0.99f) {
+							newZone->m_environmentMap[m_selectedObjectId].transparency += 0.01f;
 						}
 					}
 
 					if (keyboard.keyDown(Keyboard::KEY_PERIOD)) {
-						if (newZone->environmentMap[m_selectedObjectId].transparency >= 0.01f) {
-							newZone->environmentMap[m_selectedObjectId].transparency -= 0.01f;
+						if (newZone->m_environmentMap[m_selectedObjectId].transparency >= 0.01f) {
+							newZone->m_environmentMap[m_selectedObjectId].transparency -= 0.01f;
 						}
 					}
 
 					if (keyboard.keyDown(Keyboard::KEY_B)) {
-						newZone->environmentMap[m_selectedObjectId].z_pos++;
+						newZone->m_environmentMap[m_selectedObjectId].z_pos++;
 					}
 
 					if (keyboard.keyDown(Keyboard::KEY_N)) {
-						if (newZone->environmentMap[m_selectedObjectId].z_pos > 0) {
-							newZone->environmentMap[m_selectedObjectId].z_pos--;
+						if (newZone->m_environmentMap[m_selectedObjectId].z_pos > 0) {
+							newZone->m_environmentMap[m_selectedObjectId].z_pos--;
 						}
 					}
 				}
@@ -227,71 +231,71 @@ void Editor::update() {
 			}case Enums::TileClassificationType::SHADOW: {
 				if (keyboard.keyDown(Keyboard::KEY_SHIFT)) {
 					if (keyboard.keyDown(Keyboard::KEY_DOWN)) {
-						newZone->shadowMap[m_selectedObjectId].height -= 1;
+						newZone->m_shadowMap[m_selectedObjectId].height -= 1;
 					}
 					if (keyboard.keyDown(Keyboard::KEY_UP)) {
-						newZone->shadowMap[m_selectedObjectId].height += 1;
+						newZone->m_shadowMap[m_selectedObjectId].height += 1;
 					}
 					if (keyboard.keyDown(Keyboard::KEY_LEFT)) {
-						newZone->shadowMap[m_selectedObjectId].width -= 1;
+						newZone->m_shadowMap[m_selectedObjectId].width -= 1;
 					}
 					if (keyboard.keyDown(Keyboard::KEY_RIGHT)) {
-						newZone->shadowMap[m_selectedObjectId].width += 1;
+						newZone->m_shadowMap[m_selectedObjectId].width += 1;
 					}
 					if (keyboard.keyDown(Keyboard::KEY_1)) {
-						if (newZone->shadowMap[m_selectedObjectId].red >= 0.01f) {
-							newZone->shadowMap[m_selectedObjectId].red -= 0.01f;
+						if (newZone->m_shadowMap[m_selectedObjectId].red >= 0.01f) {
+							newZone->m_shadowMap[m_selectedObjectId].red -= 0.01f;
 						}
 					}
 					if (keyboard.keyDown(Keyboard::KEY_2)) {
-						if (newZone->shadowMap[m_selectedObjectId].green >= 0.01f) {
-							newZone->shadowMap[m_selectedObjectId].green -= 0.01f;
+						if (newZone->m_shadowMap[m_selectedObjectId].green >= 0.01f) {
+							newZone->m_shadowMap[m_selectedObjectId].green -= 0.01f;
 						}
 					}
 					if (keyboard.keyDown(Keyboard::KEY_3)) {
-						if (newZone->shadowMap[m_selectedObjectId].blue >= 0.01f) {
-							newZone->shadowMap[m_selectedObjectId].blue -= 0.01f;
+						if (newZone->m_shadowMap[m_selectedObjectId].blue >= 0.01f) {
+							newZone->m_shadowMap[m_selectedObjectId].blue -= 0.01f;
 						}
 					}
 				}else {
 					if (keyboard.keyDown(Keyboard::KEY_DOWN)) {
-						newZone->shadowMap[m_selectedObjectId].y_pos -= 1;
+						newZone->m_shadowMap[m_selectedObjectId].y_pos -= 1;
 					}
 
 					if (keyboard.keyDown(Keyboard::KEY_UP)) {
-						newZone->shadowMap[m_selectedObjectId].y_pos += 1;
+						newZone->m_shadowMap[m_selectedObjectId].y_pos += 1;
 					}
 					if (keyboard.keyDown(Keyboard::KEY_LEFT)) {
-						newZone->shadowMap[m_selectedObjectId].x_pos -= 1;
+						newZone->m_shadowMap[m_selectedObjectId].x_pos -= 1;
 					}
 					if (keyboard.keyDown(Keyboard::KEY_RIGHT)) {
-						newZone->shadowMap[m_selectedObjectId].x_pos += 1;
+						newZone->m_shadowMap[m_selectedObjectId].x_pos += 1;
 					}
 					if (keyboard.keyDown(Keyboard::KEY_1)) {
-						if (newZone->shadowMap[m_selectedObjectId].red <= 0.99f) {
-							newZone->shadowMap[m_selectedObjectId].red += 0.01f;
+						if (newZone->m_shadowMap[m_selectedObjectId].red <= 0.99f) {
+							newZone->m_shadowMap[m_selectedObjectId].red += 0.01f;
 						}
 					}
 					if (keyboard.keyDown(Keyboard::KEY_2)) {
-						if (newZone->shadowMap[m_selectedObjectId].green <= 0.99f) {
-							newZone->shadowMap[m_selectedObjectId].green += 0.01f;
+						if (newZone->m_shadowMap[m_selectedObjectId].green <= 0.99f) {
+							newZone->m_shadowMap[m_selectedObjectId].green += 0.01f;
 						}
 					}
 					if (keyboard.keyDown(Keyboard::KEY_3)) {
-						if (newZone->shadowMap[m_selectedObjectId].blue <= 0.99f) {
-							newZone->shadowMap[m_selectedObjectId].blue += 0.01f;
+						if (newZone->m_shadowMap[m_selectedObjectId].blue <= 0.99f) {
+							newZone->m_shadowMap[m_selectedObjectId].blue += 0.01f;
 						}
 					}
 
 					if (keyboard.keyDown(Keyboard::KEY_COMMA)) {
-						if (newZone->shadowMap[m_selectedObjectId].transparency <= 0.99f) {
-							newZone->shadowMap[m_selectedObjectId].transparency += 0.01f;
+						if (newZone->m_shadowMap[m_selectedObjectId].transparency <= 0.99f) {
+							newZone->m_shadowMap[m_selectedObjectId].transparency += 0.01f;
 						}
 					}
 
 					if (keyboard.keyDown(Keyboard::KEY_PERIOD)) {
-						if (newZone->shadowMap[m_selectedObjectId].transparency >= 0.01f) {
-							newZone->shadowMap[m_selectedObjectId].transparency -= 0.01f;
+						if (newZone->m_shadowMap[m_selectedObjectId].transparency >= 0.01f) {
+							newZone->m_shadowMap[m_selectedObjectId].transparency -= 0.01f;
 						}
 					}
 				}
@@ -299,30 +303,30 @@ void Editor::update() {
 			}case Enums::TileClassificationType::COLLISION: {
 				if (keyboard.keyDown(Keyboard::KEY_SHIFT)) {
 					if (keyboard.keyDown(Keyboard::KEY_DOWN)) {
-						newZone->collisionMap[m_selectedObjectId].h -= 1;
+						newZone->m_collisionMap[m_selectedObjectId].h -= 1;
 					}
 					if (keyboard.keyDown(Keyboard::KEY_UP)) {
-						newZone->collisionMap[m_selectedObjectId].h += 1;
+						newZone->m_collisionMap[m_selectedObjectId].h += 1;
 					}
 					if (keyboard.keyDown(Keyboard::KEY_LEFT)) {
-						newZone->collisionMap[m_selectedObjectId].w -= 1;
+						newZone->m_collisionMap[m_selectedObjectId].w -= 1;
 					}
 					if (keyboard.keyDown(Keyboard::KEY_RIGHT)) {
-						newZone->collisionMap[m_selectedObjectId].w += 1;
+						newZone->m_collisionMap[m_selectedObjectId].w += 1;
 					}
 				}else {
 					if (keyboard.keyDown(Keyboard::KEY_DOWN)) {
-						newZone->collisionMap[m_selectedObjectId].y -= 1;
+						newZone->m_collisionMap[m_selectedObjectId].y -= 1;
 					}
 
 					if (keyboard.keyDown(Keyboard::KEY_UP)) {
-						newZone->collisionMap[m_selectedObjectId].y += 1;
+						newZone->m_collisionMap[m_selectedObjectId].y += 1;
 					}
 					if (keyboard.keyDown(Keyboard::KEY_LEFT)) {
-						newZone->collisionMap[m_selectedObjectId].x -= 1;
+						newZone->m_collisionMap[m_selectedObjectId].x -= 1;
 					}
 					if (keyboard.keyDown(Keyboard::KEY_RIGHT)) {
-						newZone->collisionMap[m_selectedObjectId].x += 1;
+						newZone->m_collisionMap[m_selectedObjectId].x += 1;
 					}					
 				}
 				break;
@@ -428,8 +432,8 @@ void Editor::render(unsigned int &frameBuffer) {
 	if (m_selectedTileSet == Enums::TileClassificationType::COLLISION) {
 
 		// Collison boxes
-		for (unsigned int x = 0; x < newZone->collisionMap.size(); x++) {
-			TextureManager::DrawTextureBatched(m_interfacetexture[4], newZone->collisionMap[x].x, newZone->collisionMap[x].y, newZone->collisionMap[x].w, newZone->collisionMap[x].h, m_selectedObjectId == (signed int)x ? Vector4f(0.9f, 0.2f, 0.8f, 0.8f) : Vector4f(0.7f, 0.1f, 0.6f, 0.8f));
+		for (unsigned int x = 0; x < newZone->m_collisionMap.size(); x++) {
+			TextureManager::DrawTextureBatched(m_interfacetexture[4], newZone->m_collisionMap[x].x, newZone->m_collisionMap[x].y, newZone->m_collisionMap[x].w, newZone->m_collisionMap[x].h, m_selectedObjectId == (signed int)x ? Vector4f(0.9f, 0.2f, 0.8f, 0.8f) : Vector4f(0.7f, 0.1f, 0.6f, 0.8f));
 		}
 
 		// Interaction Regions
@@ -509,10 +513,10 @@ void Editor::render(unsigned int &frameBuffer) {
 	if (m_selectedObjectId >= 0) { // we have selected an object to edit it's properties, show the edit-screen.
 		switch (m_selectedTileSet) {
 			case Enums::TileClassificationType::ENVIRONMENT:
-				drawEditFrame(&(newZone->environmentMap[m_selectedObjectId]));
+				drawEditFrame(&(newZone->m_environmentMap[m_selectedObjectId]));
 				break;
 			case Enums::TileClassificationType::SHADOW:
-				drawEditFrame(&(newZone->shadowMap[m_selectedObjectId]));
+				drawEditFrame(&(newZone->m_shadowMap[m_selectedObjectId]));
 				break;
 		}		
 	}
@@ -723,7 +727,7 @@ void Editor::updateAdjacencyList(){
 
 	switch (m_selectedTileSet){
 		case Enums::TileClassificationType::ENVIRONMENT:
-			EditorInterface::getTileSet(Enums::TileClassificationType::ENVIRONMENT).getAllAdjacentTiles(newZone->environmentMap[m_selectedObjectId].tile, curAdjacentTiles, curAdjacencyOffsets);
+			EditorInterface::getTileSet(Enums::TileClassificationType::ENVIRONMENT).getAllAdjacentTiles(newZone->m_environmentMap[m_selectedObjectId].tile, curAdjacentTiles, curAdjacencyOffsets);
 			for (size_t curDirection = 0; curDirection<4; ++curDirection) {
 
 				if (curDirectionAdjacencySelection[curDirection] >= curAdjacentTiles[curDirection].size()) {
@@ -736,7 +740,7 @@ void Editor::updateAdjacencyList(){
 			}
 		break;
 		case Enums::TileClassificationType::SHADOW:
-			EditorInterface::getTileSet(Enums::TileClassificationType::ENVIRONMENT).getAllAdjacentTiles(newZone->shadowMap[m_selectedObjectId].tile, curAdjacentTiles, curAdjacencyOffsets);
+			EditorInterface::getTileSet(Enums::TileClassificationType::ENVIRONMENT).getAllAdjacentTiles(newZone->m_shadowMap[m_selectedObjectId].tile, curAdjacentTiles, curAdjacencyOffsets);
 
 			for (size_t curDirection = 0; curDirection<4; ++curDirection) {
 
@@ -758,10 +762,10 @@ void Editor::placeAdjacentTile() {
 	if (m_selectedObjectId >= 0) {
 		switch (m_selectedTileSet) {
 		case Enums::TileClassificationType::ENVIRONMENT:
-			editobject = &(newZone->environmentMap[m_selectedObjectId]);
+			editobject = &(newZone->m_environmentMap[m_selectedObjectId]);
 			break;
 		case Enums::TileClassificationType::SHADOW:
-			editobject = &(newZone->shadowMap[m_selectedObjectId]);
+			editobject = &(newZone->m_shadowMap[m_selectedObjectId]);
 			break;
 		}
 	}
@@ -821,10 +825,10 @@ void Editor::applyAdjacencyModification(int modification) {
 	if (m_selectedObjectId >= 0) {
 		switch (m_selectedTileSet) {
 		case Enums::TileClassificationType::ENVIRONMENT:
-			editobject = &(newZone->environmentMap[m_selectedObjectId]);
+			editobject = &(newZone->m_environmentMap[m_selectedObjectId]);
 			break;
 		case Enums::TileClassificationType::SHADOW:
-			editobject = &(newZone->shadowMap[m_selectedObjectId]);
+			editobject = &(newZone->m_shadowMap[m_selectedObjectId]);
 			break;
 		}
 	}
@@ -880,28 +884,28 @@ void Editor::applyAdjacencyModification(int modification) {
 }
 
 void Editor::saveZone() {
-	std::string zoneName = Globals::getCurrentZone()->getZoneName();
+	std::string zoneName = ZoneManager::Get().getCurrentZone()->getZoneName();
 	// save the ground
 	std::string groundTileFileName = zoneName;
 	groundTileFileName.append(".ground.lua");
 
 	std::ofstream ofs(groundTileFileName.c_str());
-	for (size_t x = 0; x < newZone->tileMap.size(); x++){
-		TileMap &curTile = newZone->tileMap[x];
+	for (size_t x = 0; x < newZone->m_tileMap.size(); x++){
+		TileMap &curTile = newZone->m_tileMap[x];
 		ofs << "EditorInterface.addGroundTile("<< curTile.x_pos << ", " << curTile.y_pos << ", "<< curTile.tile.tileId << ");" << std::endl;
 
 		
 	}
 	ofs.close();
 
-	std::sort(newZone->environmentMap.begin(), newZone->environmentMap.end());
+	std::sort(newZone->m_environmentMap.begin(), newZone->m_environmentMap.end());
 
 	std::string environmentTileFileName = zoneName;
 	environmentTileFileName.append(".environment.lua");
 
 	ofs.open(environmentTileFileName.c_str());
-	for (size_t x = 0; x < newZone->environmentMap.size(); x++) {
-		EnvironmentMap &curEnv = newZone->environmentMap[x];
+	for (size_t x = 0; x < newZone->m_environmentMap.size(); x++) {
+		EnvironmentMap &curEnv = newZone->m_environmentMap[x];
 		ofs << "EditorInterface.addEnvironment( " << curEnv.x_pos << ", " << curEnv.y_pos << ", " << curEnv.z_pos << ", " << curEnv.tile.tileId << ");" << std::endl;
 			
 		if (curEnv.transparency != 1 ||
@@ -921,8 +925,8 @@ void Editor::saveZone() {
 	shadowTileFileName.append(".shadow.lua");
 
 	ofs.open(shadowTileFileName.c_str());
-	for (size_t x = 0; x < newZone->shadowMap.size(); x++){
-		EnvironmentMap& curEnv = newZone->shadowMap[x];
+	for (size_t x = 0; x < newZone->m_shadowMap.size(); x++){
+		EnvironmentMap& curEnv = newZone->m_shadowMap[x];
 		ofs << "EditorInterface.addEnvironment(" << curEnv.x_pos << ", " << curEnv.y_pos << ", " << curEnv.z_pos << ", " << curEnv.tile.tileId << ");" << std::endl;
 		if (curEnv.transparency != 1 ||
 			curEnv.red != 1 ||
@@ -942,8 +946,8 @@ void Editor::saveZone() {
 	collisionTileFileName.append(".collision.lua");
 
 	ofs.open(collisionTileFileName.c_str());
-	for (unsigned int x = 0; x < newZone->collisionMap.size(); x++) {
-		CollisionRect& curCollision = newZone->collisionMap[x];
+	for (unsigned int x = 0; x < newZone->m_collisionMap.size(); x++) {
+		CollisionRect& curCollision = newZone->m_collisionMap[x];
 		ofs << "EditorInterface.addCollisionRect("<< curCollision.x << ", " << curCollision.y << ", "<< curCollision.w << ", " << curCollision.h << ");" << std::endl;
 	}
 	ofs.close();

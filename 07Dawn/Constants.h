@@ -39,16 +39,6 @@ namespace Globals {
 	extern bool enableWireframe;
 	extern bool lMouseButton;
 
-	extern std::map<std::string,Zone*> allZones;
-	extern Zone* currentZone;
-
-	extern void setCurrentZone(Zone* newCurZone);
-	extern Zone* getCurrentZone();
-	extern bool initPhase;
-
-
-	extern unsigned int textureAtlas;
-
 	extern Clock clock;
 	extern std::vector<TextWindow*> allTextWindows;
 }

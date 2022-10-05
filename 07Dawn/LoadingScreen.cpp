@@ -1,5 +1,5 @@
 #include "LoadingScreen.h"
-#include "Loadingmanager.h"
+#include "LoadingManager.h"
 #include "Editor.h"
 
 LoadingScreen::LoadingScreen(StateMachine& machine) : State(machine, CurrentState::LOADINGSCREEN), m_characterSet(Globals::fontManager.get("verdana_20")) {

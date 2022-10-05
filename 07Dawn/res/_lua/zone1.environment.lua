@@ -920,6 +920,7 @@ EditorInterface.addEnvironment( -1044, 431, 0, 0);
 EditorInterface.addEnvironment( 1425, 429, 0, 0);
 EditorInterface.addEnvironment( 1043, 423, 0, 1);
 EditorInterface.addEnvironment( 197, 422, 0, 0);
+EditorInterface.adjustLastRGBA( 1, 0.54, 1, 1 );
 EditorInterface.addEnvironment( 851, 415, 0, 0);
 EditorInterface.addEnvironment( -658, 415, 0, 0);
 EditorInterface.addEnvironment( 71, 412, 0, 0);

@@ -19,22 +19,7 @@ extern AssetManager<CharacterSet> Globals::fontManager = AssetManager<CharacterS
 extern bool Globals::enableWireframe = false;
 extern bool Globals::lMouseButton = false;
 extern Clock Globals::clock = Clock();
-
-extern std::map<std::string, Zone*> Globals::allZones = std::map<std::string, Zone*>();
-extern Zone* Globals::currentZone = nullptr;
-extern bool  Globals::initPhase = false;
-extern unsigned int Globals::textureAtlas = 0;
 extern std::vector<TextWindow*> Globals::allTextWindows = std::vector<TextWindow*>();
-
-extern void Globals::setCurrentZone(Zone* newCurZone){
-	Globals::currentZone = newCurZone;
-}
-
-extern Zone* Globals::getCurrentZone()
-{
-	return Globals::currentZone;
-}
-
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd) {
 

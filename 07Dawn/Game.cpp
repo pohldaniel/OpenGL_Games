@@ -1,8 +1,9 @@
 #include "Game.h"
 
 Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
-	newZone = new Zone();
-	newZone->loadZone("res/_lua/zone1");
+	newZone = &ZoneManager::Get().getZone("res/_lua/zone1");
+	newZone->loadZone();
+
 }
 
 Game::~Game() {}

@@ -220,7 +220,7 @@
     <ClInclude Include="InteractionPoint.h" />
     <ClInclude Include="InteractionRegion.h" />
     <ClInclude Include="Label.h" />
-    <ClInclude Include="Loadingmanager.h" />
+    <ClInclude Include="LoadingManager.h" />
     <ClInclude Include="LoadingScreen.h" />
     <ClInclude Include="MainMenu.h" />
     <ClInclude Include="Message.h" />

@@ -332,9 +332,6 @@
     <ClInclude Include="thread\Thread.h">
       <Filter>thread</Filter>
     </ClInclude>
-    <ClInclude Include="Loadingmanager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="LoadingScreen.h">
       <Filter>Source Files\States</Filter>
     </ClInclude>
@@ -345,6 +342,9 @@
       <Filter>Source Files\UI</Filter>
     </ClInclude>
     <ClInclude Include="Enums.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LoadingManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -12,8 +12,7 @@ struct CollisionRect {
 	int x, y, w, h;	
 };
 
-class Tile{
-public:
+struct Tile{
 	unsigned int tileId;
 	bool containsCollisionRect;
 	TextureRect textureRect;
