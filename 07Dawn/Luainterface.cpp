@@ -92,26 +92,23 @@ namespace DawnInterface{
 		ZoneManager::Get().getCurrentZone()->addNPC(newMob);
 	}
 
-	InteractionRegion* addInteractionRegion(){
-		InteractionRegion *newInteractionRegion = new InteractionRegion();
-		ZoneManager::Get().getCurrentZone()->addInteractionRegion(newInteractionRegion);
-		return newInteractionRegion;
+	const InteractionRegion& addInteractionRegion(){
+		ZoneManager::Get().getCurrentZone()->addInteractionRegion(InteractionRegion());
+		return ZoneManager::Get().getCurrentZone()->getInteractionRegions().back();
 	}
 
 	void removeInteractionRegion(InteractionRegion *regionToRemove){
 		regionToRemove->markAsDeletable();
 	}
 
-	InteractionPoint* addInteractionPoint(){
-		InteractionPoint *newInteractionPoint = new InteractionPoint();
-		ZoneManager::Get().getCurrentZone()->addInteractionPoint(newInteractionPoint);
-		return newInteractionPoint;
+	const InteractionPoint& addInteractionPoint(){
+		ZoneManager::Get().getCurrentZone()->addInteractionPoint(InteractionPoint());
+		return ZoneManager::Get().getCurrentZone()->getInteractionPoints().back();
 	}
 
-	InteractionPoint* addCharacterInteractionPoint(Character *character){
-		InteractionPoint *newInteractionPoint = new CharacterInteractionPoint(character);
-		ZoneManager::Get().getCurrentZone()->addInteractionPoint(newInteractionPoint);
-		return newInteractionPoint;
+	const InteractionPoint& addCharacterInteractionPoint(Character *character){
+		ZoneManager::Get().getCurrentZone()->addInteractionPoint(CharacterInteractionPoint(character));
+		return ZoneManager::Get().getCurrentZone()->getInteractionPoints().back();
 	}
 
 	void removeInteractionPoint(InteractionPoint *pointToRemove){
@@ -133,7 +130,7 @@ namespace DawnInterface{
 				return oss.str();
 			}
 		}
-		// not found
+		return "";
 	}
 
 	TextWindow *createTextWindow(){

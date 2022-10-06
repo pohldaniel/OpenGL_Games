@@ -5,6 +5,8 @@
 
 class InteractionRegion{
 public:
+	
+
 	void setPosition(int left, int bottom, int width, int height);
 	void getPosition(int &left, int &bottom, int &width, int &height) const;
 	void setOnEnterText(std::string enterCode);
@@ -18,7 +20,7 @@ public:
 	bool isMarkedDeletable() const;
 
 private:
-	friend InteractionRegion* DawnInterface::addInteractionRegion();
+	friend const InteractionRegion& DawnInterface::addInteractionRegion();
 	friend void DawnInterface::removeInteractionRegion(InteractionRegion *regionToRemove);
 
 	InteractionRegion();

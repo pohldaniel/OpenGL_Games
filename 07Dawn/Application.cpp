@@ -282,8 +282,6 @@ bool Application::isRunning() {
 	Keyboard::instance().update();
 	Mouse::instance().update();
 
-	Globals::lMouseButton = Mouse::instance().buttonPressed(Mouse::MouseButton::BUTTON_LEFT);
-
 	if (Keyboard::instance().keyDown(Keyboard::KEY_ESCAPE)) {
 		return false;
 	}
@@ -308,8 +306,8 @@ void Application::initStates() {
 	//Game* game = dynamic_cast<Game*>(m_machine->addStateAtTop(new Game(*m_machine)));
 	//AddMouseListener(game);
 
-	//m_machine->addStateAtTop(new MainMenu(*m_machine));
-	m_machine->addStateAtTop(new Editor(*m_machine));
+	m_machine->addStateAtTop(new MainMenu(*m_machine));
+	//m_machine->addStateAtTop(new Editor(*m_machine));
 
 	//m_machine->addStateAtTop(new LoadingScreen(*m_machine));
 }
@@ -340,11 +338,11 @@ void Application::loadAssets() {
 	Globals::textureManager.createNullTexture("grey", 64, 64, 128);
 	Globals::spritesheetManager.createNullSpritesheet("null", 1024, 1024, 197);
 
-	Globals::fontManager.loadCharacterSet("verdana_20", "res/verdana.ttf", 20.0f, 3, 20);
-	Globals::fontManager.loadCharacterSet("verdana_12", "res/verdana.ttf", 12.0f, 3, 20);
-	Globals::fontManager.loadCharacterSet("verdana_10", "res/verdana.ttf", 10.0f, 3, 20);
-	Globals::fontManager.loadCharacterSet("verdana_9", "res/verdana.ttf", 9.0f, 3, 20);
-	Globals::fontManager.loadCharacterSet("verdana_5", "res/verdana.ttf", 5.0f, 3, 20);
+	Globals::fontManager.loadCharacterSet("verdana_20", "res/verdana.ttf", 20, 3, 20);
+	Globals::fontManager.loadCharacterSet("verdana_12", "res/verdana.ttf", 12, 3, 20);
+	Globals::fontManager.loadCharacterSet("verdana_10", "res/verdana.ttf", 10, 3, 20);
+	Globals::fontManager.loadCharacterSet("verdana_9", "res/verdana.ttf", 9, 3, 20);
+	Globals::fontManager.loadCharacterSet("verdana_5", "res/verdana.ttf", 5, 3, 20);
 
 	
 	

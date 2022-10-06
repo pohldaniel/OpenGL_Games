@@ -186,7 +186,7 @@ void Mouse::hideCursor(bool hideCursor){
 }
 
 void Mouse::setPosition(UINT x, UINT y){
-	POINT pt = { x, y };
+	POINT pt = { static_cast<long>(x), static_cast<long>(y) };
 
 	if (ClientToScreen(m_hWnd, &pt)){
 		SetCursorPos(pt.x, pt.y);

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "thread/Thread.h"
 #include <string>
+#include "thread/Thread.h"
 
 class LoadingManager : public CThread {
 

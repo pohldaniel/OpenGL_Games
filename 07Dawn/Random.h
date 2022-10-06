@@ -3,7 +3,7 @@
 
 namespace RNG { // RandomNumberGenerator
 
-	void initRNG(unsigned int seed);
+	void initRNG(time_t seed);
 	size_t randomSizeT(size_t min, size_t max);
 	int randomInt(int min, int max);
 	double randomDouble(double min, double max);

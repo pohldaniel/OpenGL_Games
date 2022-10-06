@@ -50,7 +50,7 @@ void Texture::FlipVertical(unsigned char* data, unsigned int padWidth, unsigned 
 	BYTE *pSrcRow = 0;
 	BYTE *pDestRow = 0;
 
-	for (int i = 0; i < height; ++i) {
+	for (unsigned int i = 0; i < height; ++i) {
 
 		pSrcRow = &srcPixels[(height - 1 - i) * padWidth];
 		pDestRow = &data[i * padWidth];
@@ -223,9 +223,9 @@ void Texture::createPerlinTexture(unsigned int width, unsigned int height, unsig
 			//n = 20 * pn.noise(x, y, 0.8);
 			//n = n - floor(n);
 		
-			pixels[i * numComponents * width + j * numComponents + 0] = floor(255 * n);
-			pixels[i * numComponents * width + j * numComponents + 1] = floor(255 * n);
-			pixels[i * numComponents * width + j * numComponents + 2] = floor(255 * n);
+			pixels[i * numComponents * width + j * numComponents + 0] = static_cast <int>(floor(255 * n));
+			pixels[i * numComponents * width + j * numComponents + 1] = static_cast <int>(floor(255 * n));
+			pixels[i * numComponents * width + j * numComponents + 2] = static_cast <int>(floor(255 * n));
 			pixels[i * numComponents * width + j * numComponents + 3] = 255;
 		}
 	}
@@ -349,7 +349,8 @@ void Texture::AddHorizontally(std::string fileIn1, std::string fileIn2, std::str
 	unsigned int imageSize = (width1 + width2 ) * numCompontents1 * (height1);
 
 	unsigned char imageData;
-	unsigned int count = 0, x = 0, y = 0, row = 0;
+	unsigned int count = 0, x = 0, y = 0;
+	int row = 0;
 	unsigned int rowWidth = (width1 + width2) * numCompontents1;
 	bool toggle = false;
 

@@ -24,6 +24,10 @@ void Fontrenderer::setCamera(const Camera& camera) {
 	m_batchrenderer->setCamera(camera);
 }
 
+void Fontrenderer::updateModelMtx(const Matrix4f& mtx) {
+	m_batchrenderer->updateModelMtx(mtx);
+}
+
 void Fontrenderer::drawText(const CharacterSet& characterSet, int posX, int posY, std::string text, Vector4f color, bool updateView) {
 	glBindTexture(GL_TEXTURE_2D, characterSet.spriteSheet);
 
@@ -32,8 +36,8 @@ void Fontrenderer::drawText(const CharacterSet& characterSet, int posX, int posY
 
 		const Char& ch = characterSet.getCharacter(*c);
 
-		m_batchrenderer->addQuad(Vector4f(posX, posY, ch.size[0], ch.size[1]), Vector4f(ch.textureOffset[0], ch.textureOffset[1], ch.textureSize[0], ch.textureSize[1]), color, 0 , updateView);
-		posX = posX + ch.advance[0];
+		m_batchrenderer->addQuad(Vector4f(static_cast<float>(posX), static_cast<float>(posY), static_cast<float>(ch.size[0]), static_cast<float>(ch.size[1])), Vector4f(ch.textureOffset[0], ch.textureOffset[1], ch.textureSize[0], ch.textureSize[1]), color, 0 , updateView);
+		posX = posX + ch.advance;
 	}
 	m_batchrenderer->drawBuffer(updateView);
 	glBindTexture(GL_TEXTURE_2D, 0);
@@ -45,8 +49,8 @@ void Fontrenderer::addText(const CharacterSet& characterSet, int posX, int posY,
 
 		const Char& ch = characterSet.getCharacter(*c);
 
-		m_batchrenderer->addQuad(Vector4f(posX, posY, ch.size[0], ch.size[1]), Vector4f(ch.textureOffset[0], ch.textureOffset[1], ch.textureSize[0], ch.textureSize[1]), color, 0, updateView);
-		posX = posX + ch.advance[0];
+		m_batchrenderer->addQuad(Vector4f(static_cast<float>(posX), static_cast<float>(posY), static_cast<float>(ch.size[0]), static_cast<float>(ch.size[1])), Vector4f(ch.textureOffset[0], ch.textureOffset[1], ch.textureSize[0], ch.textureSize[1]), color, 0, updateView);
+		posX = posX + ch.advance;
 	}
 }
 

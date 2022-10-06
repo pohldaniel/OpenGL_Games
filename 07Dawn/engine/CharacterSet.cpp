@@ -22,7 +22,7 @@ CharacterSet::~CharacterSet() {
 	}
 }
 
-void CharacterSet::loadFromFile(const std::string& path, const float characterSize, unsigned int spacingX, unsigned int spacingY, const bool flipVertical) {
+void CharacterSet::loadFromFile(const std::string& path, unsigned int characterSize, unsigned int spacingX, unsigned int spacingY, const bool flipVertical) {
 	spacingX = spacingX == 0 ? 1 : spacingX;
 
 	FT_Library ft;
@@ -141,15 +141,15 @@ void CharacterSet::loadFromFile(const std::string& path, const float characterSi
 			unsigned char* bytes = (unsigned char*)malloc(g->bitmap.width * height);
 			unsigned int index = 0;
 
-			for (int i = 0; i < g->bitmap.width * (maxDescent - yOffset); i++, index++) {
+			for (unsigned int i = 0; i < g->bitmap.width * (maxDescent - yOffset); i++, index++) {
 				bytes[index] = 0;
 			}
 
-			for (int i = 0; i < g->bitmap.width * g->bitmap.rows; i++, index++) {
+			for (unsigned int i = 0; i < g->bitmap.width * g->bitmap.rows; i++, index++) {
 				bytes[index] = g->bitmap.buffer[i];
 			}
 
-			for (int i = 0; i < g->bitmap.width * std::max(0, yOffset); i++, index++) {
+			for (unsigned int i = 0; i < g->bitmap.width * std::max(0, yOffset); i++, index++) {
 					bytes[index] = 0;
 			}
 
@@ -161,7 +161,7 @@ void CharacterSet::loadFromFile(const std::string& path, const float characterSi
 				{ g->bitmap.width + spacingX, height },
 				{ static_cast<float>(ox) / (float)maxWidth, static_cast<float>(oy) / (float)maxHeight },
 				{ static_cast<float>(g->bitmap.width + spacingX) / static_cast<float>(maxWidth), static_cast<float>(height) / static_cast<float>(maxHeight) },
-				{ (g->advance.x >> 6) + spacingX, yOffset }
+				{ (g->advance.x >> 6) + spacingX}
 			};
 
 			characters.insert(std::pair<char, Char>(i, character));
@@ -224,7 +224,7 @@ int CharacterSet::getWidth(std::string text) const {
 	std::string::const_iterator c;
 	for (c = text.begin(); c != text.end(); c++) {
 		const Char ch = getCharacter(*c);
-		sizeX = sizeX + ((ch.advance[0]));
+		sizeX = sizeX + ((ch.advance));
 	}
 	return  sizeX;
 }

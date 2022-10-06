@@ -1,8 +1,7 @@
 #pragma once
 #include <vector>
 
-#include "engine/Transform.h"
-#include "Constants.h"
+#include "ViewPort.h"
 
 class Widget {
 public:
@@ -10,7 +9,7 @@ public:
 	Widget(short posX, short posY, short width, short height);
 	~Widget();
 
-	virtual void draw();
+	virtual void draw(int posX, int posY);
 	virtual void update(int mouseX, int mouseY);
 
 	virtual void addChildWidget(int posX, int posY, std::auto_ptr<Widget> newChild);
@@ -32,11 +31,7 @@ protected:
 
 	short m_width;
 	short m_height;
-	//short frameOffsetX;
-	//short frameOffsetY;
 
 	std::vector<Widget*> m_childWidgets;
 	Widget* m_parentFrame;
-
-	Transform m_transform;
 };

@@ -17,9 +17,6 @@
 #define WIDTH 1600
 #define HEIGHT 900
 
-#define TILE_WIDTH 64.0f
-#define TILE_HEIGHT 64.0f
-
 #define DEBUG 1
 
 #define PHYSICS_STEP 0.0166666f
@@ -37,7 +34,6 @@ namespace Globals {
 	extern AssetManager<CharacterSet> fontManager;
 
 	extern bool enableWireframe;
-	extern bool lMouseButton;
 
 	extern Clock clock;
 	extern std::vector<TextWindow*> allTextWindows;

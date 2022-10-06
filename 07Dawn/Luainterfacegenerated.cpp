@@ -1,6 +1,6 @@
 /*
 ** Lua binding: Luainterface
-** Generated automatically by tolua++-1.0.92 on Wed Oct  5 16:50:24 2022.
+** Generated automatically by tolua++-1.0.92 on Thu Oct  6 12:10:00 2022.
 */
 
 #ifndef __cplusplus
@@ -179,8 +179,8 @@ static int tolua_Luainterface_DawnInterface_addInteractionRegion00(lua_State* to
 #endif
 	{
 		{
-			InteractionRegion* tolua_ret = (InteractionRegion*)DawnInterface::addInteractionRegion();
-			tolua_pushusertype(tolua_S, (void*)tolua_ret, "InteractionRegion");
+			InteractionRegion& tolua_ret = (InteractionRegion&)DawnInterface::addInteractionRegion();
+			tolua_pushusertype(tolua_S, (void*)&tolua_ret, "InteractionRegion");
 		}
 	}
 	return 1;
@@ -234,8 +234,8 @@ static int tolua_Luainterface_DawnInterface_addInteractionPoint00(lua_State* tol
 #endif
 	{
 		{
-			InteractionPoint* tolua_ret = (InteractionPoint*)DawnInterface::addInteractionPoint();
-			tolua_pushusertype(tolua_S, (void*)tolua_ret, "InteractionPoint");
+			InteractionPoint& tolua_ret = (InteractionPoint&)DawnInterface::addInteractionPoint();
+			tolua_pushusertype(tolua_S, (void*)&tolua_ret, "InteractionPoint");
 		}
 	}
 	return 1;
@@ -263,8 +263,8 @@ static int tolua_Luainterface_DawnInterface_addCharacterInteractionPoint00(lua_S
 	{
 		Character* character = ((Character*)tolua_tousertype(tolua_S, 1, 0));
 		{
-			InteractionPoint* tolua_ret = (InteractionPoint*)DawnInterface::addCharacterInteractionPoint(character);
-			tolua_pushusertype(tolua_S, (void*)tolua_ret, "InteractionPoint");
+			InteractionPoint& tolua_ret = (InteractionPoint&)DawnInterface::addCharacterInteractionPoint(character);
+			tolua_pushusertype(tolua_S, (void*)&tolua_ret, "InteractionPoint");
 		}
 	}
 	return 1;
@@ -1617,6 +1617,144 @@ static int tolua_Luainterface_Npc_setAttitude00(lua_State* tolua_S)
 }
 #endif //#ifndef TOLUA_DISABLE
 
+/* method: setPosition of class  InteractionPoint */
+#ifndef TOLUA_DISABLE_tolua_Luainterface_InteractionPoint_setPosition00
+static int tolua_Luainterface_InteractionPoint_setPosition00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+	tolua_Error tolua_err;
+	if (
+		!tolua_isusertype(tolua_S, 1, "InteractionPoint", 0, &tolua_err) ||
+		!tolua_isnumber(tolua_S, 2, 0, &tolua_err) ||
+		!tolua_isnumber(tolua_S, 3, 0, &tolua_err) ||
+		!tolua_isnumber(tolua_S, 4, 0, &tolua_err) ||
+		!tolua_isnumber(tolua_S, 5, 0, &tolua_err) ||
+		!tolua_isnoobj(tolua_S, 6, &tolua_err)
+		)
+		goto tolua_lerror;
+	else
+#endif
+	{
+		InteractionPoint* self = (InteractionPoint*)tolua_tousertype(tolua_S, 1, 0);
+		int posX = ((int)tolua_tonumber(tolua_S, 2, 0));
+		int posY = ((int)tolua_tonumber(tolua_S, 3, 0));
+		int width = ((int)tolua_tonumber(tolua_S, 4, 0));
+		int height = ((int)tolua_tonumber(tolua_S, 5, 0));
+#ifndef TOLUA_RELEASE
+		if (!self) tolua_error(tolua_S, "invalid 'self' in function 'setPosition'", NULL);
+#endif
+		{
+			self->setPosition(posX, posY, width, height);
+		}
+	}
+	return 0;
+#ifndef TOLUA_RELEASE
+	tolua_lerror :
+				 tolua_error(tolua_S, "#ferror in function 'setPosition'.", &tolua_err);
+				 return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
+/* method: setInteractionType of class  InteractionPoint */
+#ifndef TOLUA_DISABLE_tolua_Luainterface_InteractionPoint_setInteractionType00
+static int tolua_Luainterface_InteractionPoint_setInteractionType00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+	tolua_Error tolua_err;
+	if (
+		!tolua_isusertype(tolua_S, 1, "InteractionPoint", 0, &tolua_err) ||
+		!tolua_isnumber(tolua_S, 2, 0, &tolua_err) ||
+		!tolua_isnoobj(tolua_S, 3, &tolua_err)
+		)
+		goto tolua_lerror;
+	else
+#endif
+	{
+		InteractionPoint* self = (InteractionPoint*)tolua_tousertype(tolua_S, 1, 0);
+		Enums::InteractionType interactionType = ((Enums::InteractionType) (int)  tolua_tonumber(tolua_S, 2, 0));
+#ifndef TOLUA_RELEASE
+		if (!self) tolua_error(tolua_S, "invalid 'self' in function 'setInteractionType'", NULL);
+#endif
+		{
+			self->setInteractionType(interactionType);
+		}
+	}
+	return 0;
+#ifndef TOLUA_RELEASE
+	tolua_lerror :
+				 tolua_error(tolua_S, "#ferror in function 'setInteractionType'.", &tolua_err);
+				 return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
+/* method: setBackgroundTexture of class  InteractionPoint */
+#ifndef TOLUA_DISABLE_tolua_Luainterface_InteractionPoint_setBackgroundTexture00
+static int tolua_Luainterface_InteractionPoint_setBackgroundTexture00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+	tolua_Error tolua_err;
+	if (
+		!tolua_isusertype(tolua_S, 1, "InteractionPoint", 0, &tolua_err) ||
+		!tolua_iscppstring(tolua_S, 2, 0, &tolua_err) ||
+		!tolua_isnoobj(tolua_S, 3, &tolua_err)
+		)
+		goto tolua_lerror;
+	else
+#endif
+	{
+		InteractionPoint* self = (InteractionPoint*)tolua_tousertype(tolua_S, 1, 0);
+		std::string texturename = ((std::string)  tolua_tocppstring(tolua_S, 2, 0));
+#ifndef TOLUA_RELEASE
+		if (!self) tolua_error(tolua_S, "invalid 'self' in function 'setBackgroundTexture'", NULL);
+#endif
+		{
+			self->setBackgroundTexture(texturename);
+		}
+	}
+	return 0;
+#ifndef TOLUA_RELEASE
+	tolua_lerror :
+				 tolua_error(tolua_S, "#ferror in function 'setBackgroundTexture'.", &tolua_err);
+				 return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
+/* method: setInteractionCode of class  InteractionPoint */
+#ifndef TOLUA_DISABLE_tolua_Luainterface_InteractionPoint_setInteractionCode00
+static int tolua_Luainterface_InteractionPoint_setInteractionCode00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+	tolua_Error tolua_err;
+	if (
+		!tolua_isusertype(tolua_S, 1, "InteractionPoint", 0, &tolua_err) ||
+		!tolua_iscppstring(tolua_S, 2, 0, &tolua_err) ||
+		!tolua_isnoobj(tolua_S, 3, &tolua_err)
+		)
+		goto tolua_lerror;
+	else
+#endif
+	{
+		InteractionPoint* self = (InteractionPoint*)tolua_tousertype(tolua_S, 1, 0);
+		std::string interactionCode = ((std::string)  tolua_tocppstring(tolua_S, 2, 0));
+#ifndef TOLUA_RELEASE
+		if (!self) tolua_error(tolua_S, "invalid 'self' in function 'setInteractionCode'", NULL);
+#endif
+		{
+			self->setInteractionCode(interactionCode);
+		}
+	}
+	return 0;
+#ifndef TOLUA_RELEASE
+	tolua_lerror :
+				 tolua_error(tolua_S, "#ferror in function 'setInteractionCode'.", &tolua_err);
+				 return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
 /* method: setPosition of class  InteractionRegion */
 #ifndef TOLUA_DISABLE_tolua_Luainterface_InteractionRegion_setPosition00
 static int tolua_Luainterface_InteractionRegion_setPosition00(lua_State* tolua_S)
@@ -1952,6 +2090,9 @@ TOLUA_API int tolua_Luainterface_open(lua_State* tolua_S)
 	tolua_constant(tolua_S, "SW", Enums::SW);
 	tolua_constant(tolua_S, "W", Enums::W);
 	tolua_constant(tolua_S, "NW", Enums::NW);
+	tolua_constant(tolua_S, "Quest", Enums::Quest);
+	tolua_constant(tolua_S, "Shop", Enums::Shop);
+	tolua_constant(tolua_S, "Zone", Enums::Zone);
 	tolua_endmodule(tolua_S);
 	tolua_module(tolua_S, "DawnInterface", 0);
 	tolua_beginmodule(tolua_S, "DawnInterface");
@@ -2018,6 +2159,13 @@ TOLUA_API int tolua_Luainterface_open(lua_State* tolua_S)
 	tolua_cclass(tolua_S, "Npc", "Npc", "Character", NULL);
 	tolua_beginmodule(tolua_S, "Npc");
 	tolua_function(tolua_S, "setAttitude", tolua_Luainterface_Npc_setAttitude00);
+	tolua_endmodule(tolua_S);
+	tolua_cclass(tolua_S, "InteractionPoint", "InteractionPoint", "", NULL);
+	tolua_beginmodule(tolua_S, "InteractionPoint");
+	tolua_function(tolua_S, "setPosition", tolua_Luainterface_InteractionPoint_setPosition00);
+	tolua_function(tolua_S, "setInteractionType", tolua_Luainterface_InteractionPoint_setInteractionType00);
+	tolua_function(tolua_S, "setBackgroundTexture", tolua_Luainterface_InteractionPoint_setBackgroundTexture00);
+	tolua_function(tolua_S, "setInteractionCode", tolua_Luainterface_InteractionPoint_setInteractionCode00);
 	tolua_endmodule(tolua_S);
 	tolua_cclass(tolua_S, "InteractionRegion", "InteractionRegion", "", NULL);
 	tolua_beginmodule(tolua_S, "InteractionRegion");

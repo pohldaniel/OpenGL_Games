@@ -16,7 +16,7 @@ public:
 	std::string FloatToString(float val, int precision);
 	void init(size_t size = 400);
 	void setCamera(const Camera& camera);
-
+	void updateModelMtx(const Matrix4f& mtx);
 	static Fontrenderer& get();
 	
 private:

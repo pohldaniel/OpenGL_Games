@@ -2,8 +2,8 @@
 
 Widget::Widget(short posX, short posY, short width, short height) : m_posX(posX), m_posY(posY), m_width(width), m_height(height){
 
-	if(m_posY + m_height > HEIGHT) {
-		m_posY = HEIGHT - m_height;
+	if(static_cast<unsigned short>(m_posY + m_height) > ViewPort::get().getHeight()) {
+		m_posY = ViewPort::get().getHeight() - m_height;
 	}
 }
 
@@ -16,20 +16,12 @@ Widget::~Widget() {
 	m_childWidgets.resize(0);
 }
 
-void Widget::draw() {
+void Widget::draw(int posX, int posY) {
 	if (m_childWidgets.size() > 0) {
-	
-		m_transform.translate(m_posX, m_posY, 0.0f);
-
-		auto fontShader = Globals::shaderManager.getAssetPointer("font");
-		glUseProgram(fontShader->m_program);
-		fontShader->loadMatrix("u_model", m_transform.getTransformationMatrix());
-		glUseProgram(0);
+		
 		for (unsigned short w = 0; w < m_childWidgets.size(); ++w){
-			m_childWidgets[w]->draw();
+			m_childWidgets[w]->draw(posX, posY);
 		}
-
-		m_transform.translate(-m_posX, -m_posY, 0.0f);	
 	}
 }
 

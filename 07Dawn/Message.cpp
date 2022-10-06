@@ -32,7 +32,7 @@ void Message::draw() {
 
 			if ((m_messages[book].thisframe - m_messages[book].lastframe) > m_messages[book].decayrate) {
 				m_messages[book].lastframe = m_messages[book].thisframe;
-				m_messages[book].transparency -= 0.01;
+				m_messages[book].transparency -= 0.01f;
 			}
 		}
 
@@ -50,7 +50,7 @@ void Message::addText(int x, int y, float red, float green, float blue, float tr
 	va_end(args);
 
 	// push everything to our vector.
-	m_messages.push_back({std::string(buffer), x, y, red, green, blue, transparency, decayrate, lifetime, 0.0f, 0.0f, 0.0f, 0.0f });
+	m_messages.push_back({std::string(buffer), x, y, red, green, blue, transparency, decayrate, lifetime, 0, 0, 0, 0 });
 }
 
 void Message::deleteDecayed() {

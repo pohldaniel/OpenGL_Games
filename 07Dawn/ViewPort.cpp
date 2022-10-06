@@ -69,7 +69,7 @@ const Vector3f& ViewPort::getPosition() {
 	return m_postition;
 }
 
-const Vector2f& ViewPort::getBottomLeft() {
+const Vector2f ViewPort::getBottomLeft() {
 	return m_postition + m_camera.getBottomLeft() ;
 }
 
@@ -89,10 +89,10 @@ float ViewPort::getTop() {
 	return m_postition[1] + m_top - m_screeBorder;
 }
 
-float ViewPort::getWidth() {
+unsigned int ViewPort::getWidth() {
 	return m_width;
 }
 
-float ViewPort::getHeight() {
+unsigned int ViewPort::getHeight() {
 	return m_height;
 }

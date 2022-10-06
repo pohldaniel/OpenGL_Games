@@ -12,14 +12,14 @@ public:
 	Camera& getCamera();
 	Vector2f& getCursorPos();
 	const Vector3f& getPosition();
-	const Vector2f& getBottomLeft();
+	const Vector2f getBottomLeft();
 
 	float getLeft();
 	float getRight();
 	float getBottom();
 	float getTop();
-	float getWidth();
-	float getHeight();
+	unsigned int getWidth();
+	unsigned int getHeight();
 
 private:
 	ViewPort();

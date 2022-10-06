@@ -4,8 +4,8 @@
 #include "random.h"
 
 namespace RNG {
-	void initRNG(unsigned int seed) {
-		srand(seed);
+	void initRNG(time_t seed) {
+		srand(static_cast<unsigned int>(seed));
 	}
 
 	size_t randomSizeT(size_t min, size_t max) {
@@ -13,7 +13,7 @@ namespace RNG {
 	}
 
 	int randomInt(int min, int max) {
-		return randomSizeT(0, max - min) + min;
+		return min + (static_cast<int>((max - min + 1) * static_cast<double>(rand()) / static_cast<double>(RAND_MAX + 1.0)));
 	}
 
 	double randomDouble(double min, double max) {

@@ -24,6 +24,7 @@ public:
 
 	void setCamera(const Camera& camera);
 	void setShader(Shader* shader);
+	void updateModelMtx(const Matrix4f& mtx);
 
 	void bindTexture(unsigned int texture, bool isTextureArray = false);
 	void unbindTexture(bool isTextureArray = false);

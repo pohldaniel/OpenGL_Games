@@ -591,9 +591,9 @@ void Camera::calcLightTransformation(Vector3f &direction) {
 }
 
 void Camera::calcLightTransformation(Vector3f &direction, float near, float far, Matrix4f& viewMatrix, Matrix4f& projectionMatrix) {
-	float heightNear = 2 * tanf(0.5 * getFovXRad()) * near;
+	float heightNear = 2 * tanf(0.5f * getFovXRad()) * near;
 	float widthNear = heightNear * m_aspectRatio;
-	float heightFar = 2 * tanf(0.5 * getFovXRad()) * far;
+	float heightFar = 2 * tanf(0.5f * getFovXRad()) * far;
 	float widthFar = heightFar  * m_aspectRatio;
 
 	//worldSpace
@@ -701,7 +701,7 @@ void Camera::setUpLightTransformation(float distance) {
 
 void Camera::setUpLightTransformation(std::vector<Vector2f>& bounds) {
 	m_bounds = bounds;
-	m_numberCascades = bounds.size();
+	m_numberCascades = static_cast<short>(bounds.size());
 	lightViews.resize(m_numberCascades);
 	lightProjections.resize(m_numberCascades);
 	m_cascadeEndClipSpace = new float[m_numberCascades];

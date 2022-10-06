@@ -208,7 +208,7 @@ public:
 	int NPC_id;
 	int seconds_to_respawn;
 	bool wandering, moving, in_combat;
-	uint32_t remainingMovePoints;
+	unsigned int remainingMovePoints;
 
 
 	
@@ -222,7 +222,7 @@ public:
 
 	const TextureRect* rect;
 	int index = 0;
-	float dumping = 0.0f;
+	float progress = 0.0f;
 
 	std::string name;
 	uint16_t strength;

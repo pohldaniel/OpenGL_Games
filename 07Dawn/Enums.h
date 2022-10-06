@@ -50,4 +50,10 @@ namespace Enums {
 		Ranger,
 		Warrior
 	};
+
+	enum InteractionType {
+		Quest,
+		Shop,
+		Zone
+	};
 }

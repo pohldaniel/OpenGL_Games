@@ -19,7 +19,7 @@ unsigned short Character::getNumActivities() {
 
 void Character::baseOnType(std::string characterType) {
 	const CharacterType& other = CharacterTypeManager::Get().getCharacterType(characterType);
-	m_numActivities = m_characterType.m_moveTileSets.size() / 8;
+	m_numActivities = static_cast<unsigned short>(m_characterType.m_moveTileSets.size()) / 8;
 	
 	strength = other.strength;
 	dexterity = other.dexterity;
@@ -110,8 +110,8 @@ void Character::update(float deltaTime) {
 			const TileSet& tileSet = m_characterType.m_moveTileSets.at({ curActivity, activeDirection });
 
 			//index = ((Globals::clock.getElapsedTimeMilli() % (msPerDrawFrame * tileSet.getAllTiles().size())) / msPerDrawFrame);
-			dumping += deltaTime * 10;
-			index = dumping;
+			progress += deltaTime * 10;
+			index = static_cast<int>(std::round(progress));
 			index = index % tileSet.getAllTiles().size();
 
 			rect = &tileSet.getAllTiles()[index].textureRect;
@@ -332,10 +332,10 @@ float Character::getMovementSpeed() const {
 		return lowestMovementSpeed;
 	}
 	else if (isFeared() == true) { // if we are feared, we reduce the movementspeed. Mostly so we dont run too far away.
-		return 0.60;
+		return 0.60f;
 	}
 	else if (isSneaking() == true) { // if we are sneaking, we reduce the movementspeed aswell of the character. good place to do that is here
-		return 0.75;
+		return 0.75f;
 	}
 	else {
 		return highestMovementSpeed;
@@ -412,7 +412,7 @@ void Character::Move(){
 		movePerStep = 14;
 
 	// recalculate the movementpoints based on our movementspeed (spells that affect this can be immobolizing spells, snares or movement enhancer
-	remainingMovePoints *= getMovementSpeed();
+	remainingMovePoints = static_cast<unsigned int>(remainingMovePoints * getMovementSpeed());
 
 	while (remainingMovePoints > movePerStep) {
 		remainingMovePoints -= movePerStep;

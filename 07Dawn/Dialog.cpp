@@ -92,15 +92,7 @@ Dialog::Dialog(int posX, int posY, int width, int height)
 void Dialog::draw() {
 
 	DialogCanvas::drawCanvas(getPosX(), getPosY(), m_columns, m_rows, TILE_WIDTH, TILE_HEIGHT);
-
-	m_transform.translate(TILE_WIDTH, TILE_HEIGHT, 0.0f);
-	Widget::draw();
-	m_transform.translate(-TILE_WIDTH, -TILE_HEIGHT, 0.0f);
-
-	auto fontShader = Globals::shaderManager.getAssetPointer("font");
-	glUseProgram(fontShader->m_program);
-	fontShader->loadMatrix("u_model", m_transform.getTransformationMatrix());
-	glUseProgram(0);
+	Widget::draw(getPosX() + TILE_WIDTH, getPosY() + TILE_HEIGHT);	
 }
 
 void Dialog::update(int mouseX, int mouseY) {
@@ -147,7 +139,7 @@ void Dialog::applyLayout() {
 			maxWidth = std::max(maxWidth, childFrames[curChild]->getWidth());
 			totalHeight += childFrames[curChild]->getHeight();	
 		}
-		totalHeight += (childFrames.size() + 1) * 2;
+		totalHeight += (static_cast<int>(childFrames.size()) + 1) * 2;
 		resize(maxWidth, totalHeight);
 
 	}else if (autoResize){
@@ -168,7 +160,7 @@ void Dialog::applyLayout() {
 			totalChildHeight += childFrames[curChild]->getHeight();
 			maxChildWidth = std::max(maxChildWidth, childFrames[curChild]->getWidth());
 		}
-		int skipPerElement = ((m_rows * TILE_HEIGHT - totalChildHeight) / (childFrames.size() + 1));
+		int skipPerElement = ((m_rows * TILE_HEIGHT - totalChildHeight) / (static_cast<int>(childFrames.size()) + 1));
 		int curY = skipPerElement;
 		for (size_t curChild = 0; curChild < childFrames.size(); ++curChild){
 			childFrames[curChild]->setPosition((m_columns * TILE_WIDTH - maxChildWidth) / 2, curY);

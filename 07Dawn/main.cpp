@@ -17,7 +17,6 @@ extern AssetManager<Texture> Globals::textureManager = AssetManager<Texture>();
 extern AssetManager<Spritesheet> Globals::spritesheetManager = AssetManager<Spritesheet>();
 extern AssetManager<CharacterSet> Globals::fontManager = AssetManager<CharacterSet>();
 extern bool Globals::enableWireframe = false;
-extern bool Globals::lMouseButton = false;
 extern Clock Globals::clock = Clock();
 extern std::vector<TextWindow*> Globals::allTextWindows = std::vector<TextWindow*>();
 

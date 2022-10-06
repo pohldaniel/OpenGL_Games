@@ -7,7 +7,7 @@
 
 #include "Widget.h"
 
-#include "Constants.h"
+
 
 class Label : public Widget {
 
@@ -19,8 +19,8 @@ public:
 	Label(Label const& rhs);
 	Label& operator=(const Label& rhs);
 
-	void draw();
-	void draw(std::string text);
+	void draw(int posX, int posY) override;
+	void draw(int posX, int posY, std::string text);
 	void update(int mouseX, int mouseY);
 
 	void setFunction(std::function<void()> fun);

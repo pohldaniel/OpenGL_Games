@@ -2,6 +2,7 @@
 #include <vector>
 #include <string>
 
+#include "Enums.h"
 #include "Luainterface.h"
 #include "ViewPort.h"
 #include "TextureManager.h"
@@ -10,20 +11,11 @@ class InteractionPoint;
 class CharacterInteractionPoint;
 class Character;
 
-namespace InteractionType {
-	enum InteractionType {
-		Quest,
-		Shop,
-		Zone
-	};
-}
-
-
 class InteractionPoint {
 public:
 	~InteractionPoint();
 	void setPosition(int posX, int posY, int width, int height);
-	void setInteractionType(InteractionType::InteractionType interactionType);
+	void setInteractionType(Enums::InteractionType interactionType);
 	void setBackgroundTexture(std::string texturename);
 	void setInteractionCode(std::string interactionCode);
 
@@ -48,10 +40,10 @@ protected:
 	unsigned int m_textureAtlas2;
 	
 	std::string interactionCode;
-	InteractionType::InteractionType interactionType;
+	Enums::InteractionType interactionType;
 
 private:
-	friend InteractionPoint* DawnInterface::addInteractionPoint();
+	friend const InteractionPoint& DawnInterface::addInteractionPoint();
 	friend void DawnInterface::removeInteractionPoint(InteractionPoint *pointToRemove);
 
 	void markAsDeletable();
@@ -73,7 +65,7 @@ public:
 
 	virtual std::string getLuaSaveText() const;
 private:
-	friend InteractionPoint* DawnInterface::addCharacterInteractionPoint(Character *character);
+	friend const InteractionPoint& DawnInterface::addCharacterInteractionPoint(Character *character);
 
 	CharacterInteractionPoint(Character *character);
 	Character *interactionCharacter;

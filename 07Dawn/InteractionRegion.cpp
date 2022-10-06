@@ -2,16 +2,13 @@
 #include "Luafunctions.h"
 #include "Zone.h"
 
-#include "Constants.h"
-
 InteractionRegion::InteractionRegion()
 	: left(0),
 	bottom(0),
 	width(0),
 	height(0),
 	playerInside(false),
-	markedAsDeletable(false)
-{
+	markedAsDeletable(false) {
 }
 
 void InteractionRegion::setPosition(int left_, int bottom_, int width_, int height_) {
@@ -28,7 +25,7 @@ void InteractionRegion::getPosition(int &left_, int &bottom_, int &width_, int &
 	height_ = height;
 }
 
-void InteractionRegion::setOnEnterText(std::string enterCode) {
+void InteractionRegion::setOnEnterText(std::string enterCode) {	
 	this->onEnterCode = enterCode;
 }
 

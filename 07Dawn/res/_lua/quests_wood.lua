@@ -38,11 +38,11 @@ function quest_playHideAndSeek.init()
 	townLeaveRegion:setPosition( 550, 1200, 300, 100 );
 	townLeaveRegion:setOnEnterText( "quest_playHideAndSeek.leaveTown()" );
 
-	--john = DawnInterface.addInteractionPoint();
-	--john:setPosition( 820, 270, 64, 64 );
-	--john:setBackgroundTexture( "data/character/John.tga" );
-	--john:setInteractionType( InteractionType.Quest );
-	--john:setInteractionCode( "quest_playHideAndSeek.onActivateJohn()" );
+	john = DawnInterface.addInteractionPoint();
+	john:setPosition( 820, 270, 64, 64 );
+	john:setBackgroundTexture( "data/character/John.tga" );
+	john:setInteractionType( Enums.Quest );
+	john:setInteractionCode( "quest_playHideAndSeek.onActivateJohn()" );
 end
 
 function quest_playHideAndSeek.onActivateJohn()

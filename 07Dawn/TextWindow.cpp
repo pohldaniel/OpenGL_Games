@@ -1,4 +1,5 @@
 #include "TextWindow.h"
+#include "Constants.h"
 
 CharacterSet* textWindowFont = NULL;
 
@@ -106,7 +107,7 @@ void TextWindow::setPosition(PositionType::PositionType positionType, int x, int
 
 void TextWindow::center() {
 	this->positionType = PositionType::CENTER;
-	this->x = ViewPort::get().getWidth() * 0.5f;
+	this->x = ViewPort::get().getWidth() / 2;
 	this->y = 280;
 
 	updateFramesPosition();
@@ -124,9 +125,9 @@ void TextWindow::updateFramesPosition() {
 	int neededWidth = lineWidth;
 	int neededHeight = 0;
 	if (textLines.size() > 0) {
-		const int lineSpace = textWindowFont->lineHeight * 0.5;
-		neededHeight = textWindowFont->lineHeight * textLines.size()
-			+ lineSpace * (textLines.size() - 1);
+		const int lineSpace = textWindowFont->lineHeight  / 2;
+		neededHeight = textWindowFont->lineHeight * static_cast<int>(textLines.size())
+			+ lineSpace * (static_cast<int>(textLines.size()) - 1);
 	}
 	int neededInnerBlocksX = neededWidth / blockSizeX;
 	if (neededWidth % blockSizeX != 0) {

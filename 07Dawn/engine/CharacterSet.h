@@ -14,10 +14,10 @@
 
 struct Char {
 	int bearing[2];
-	int size[2];
+	unsigned int size[2];
 	float textureOffset[2];
 	float textureSize[2];
-	unsigned int advance[2];	
+	unsigned int advance;
 };
 
 struct CharacterSet {
@@ -26,7 +26,7 @@ struct CharacterSet {
 	CharacterSet& operator=(const CharacterSet& rhs);
 	~CharacterSet();
 
-	void loadFromFile(const std::string& path, const float characterSize, unsigned int intspacingX = 1, unsigned int spacingY = 10, const bool flipVertical = true);
+	void loadFromFile(const std::string& path, unsigned int characterSize, unsigned int intspacingX = 1, unsigned int spacingY = 10, const bool flipVertical = true);
 	void safeFont();
 	std::map<GLchar, Char> characters;
 	unsigned int spriteSheet;

@@ -3,7 +3,10 @@
 #include <vector>
 #include <stdint.h>
 
+#include "engine/CharacterSet.h"
+
 #include "Widget.h"
+#include "Luainterface.h"
 
 namespace PositionType {
 

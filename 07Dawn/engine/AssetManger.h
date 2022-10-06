@@ -26,7 +26,7 @@ public:
 		m_assets[name].createPerlinTexture(width, height, seed);
 	}
 
-	void loadCharacterSet(const std::string& name, const std::string& path, const float characterSize, const unsigned int spacingX = 1, const unsigned int spacingY = 10, const bool flipVertical = true) {
+	void loadCharacterSet(const std::string& name, const std::string& path, const unsigned int characterSize, const unsigned int spacingX = 1, const unsigned int spacingY = 10, const bool flipVertical = true) {
 		m_assets.insert(std::pair<std::string, T>(name, T()));
 		m_assets[name].loadFromFile(path, characterSize, spacingX, spacingY, flipVertical);
 	}

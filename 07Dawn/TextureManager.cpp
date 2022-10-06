@@ -1,6 +1,5 @@
 #include "TextureManager.h"
 #include "ViewPort.h"
-#include "Constants.h"
 
 TextureCache TextureCache::s_instance;
 TextureAtlasCreator TextureAtlasCreator::s_instance;

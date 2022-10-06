@@ -15,12 +15,12 @@ Label::Label(Label const& rhs) : m_characterSet(rhs.m_characterSet) {
 	m_text = rhs.m_text;
 }
 
-void Label::draw() {
-	draw(m_text);
+void Label::draw(int posX, int posY) {
+	draw(posX, posY, m_text);
 }
 
-void Label::draw(std::string text) {
-	Fontrenderer::get().drawText(*m_characterSet, getPosX(), getPosY(), text, activeColor);
+void Label::draw(int posX, int posY, std::string text) {
+	Fontrenderer::get().drawText(*m_characterSet, posX + getPosX(), posY + getPosY(), text, activeColor);
 	//Widget::draw();
 }
 
@@ -30,7 +30,7 @@ void Label::update(int mouseX, int mouseY) {
 		mouseY > getPosY() && mouseY < getPosY() + getHeight()) {
 
 		activeColor = hoverColor;
-		if (Globals::lMouseButton && m_fun) {
+		if (Mouse::instance().buttonPressed(Mouse::MouseButton::BUTTON_LEFT) && m_fun) {
 			m_fun();
 		}
 
@@ -46,7 +46,7 @@ int Label::getWidth() const {
 	std::string::const_iterator c;
 	for (c = m_text.begin(); c != m_text.end(); c++) {
 		const Char ch = m_characterSet->getCharacter(*c);
-		sizeX = sizeX + ((ch.advance[0]));		
+		sizeX = sizeX + ((ch.advance));		
 	}
 	return  sizeX;
 }

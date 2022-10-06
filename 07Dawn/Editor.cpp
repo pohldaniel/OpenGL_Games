@@ -376,14 +376,14 @@ void Editor::update() {
 
 	if (keyboard.keyPressed(Keyboard::KEY_C)) {
 		saveZone();
-		Message::Get().addText(ViewPort::get().getWidth() * 0.5f, ViewPort::get().getHeight() * 0.5f, 1.0f, 0.625f, 0.71f, 1.0f, 15, 3.0f, "Zone saved ...");	
+		Message::Get().addText(ViewPort::get().getWidth() / 2, ViewPort::get().getHeight() / 2, 1.0f, 0.625f, 0.71f, 1.0f, 15, 3.0f, "Zone saved ...");
 	}
 }
 
 void Editor::printShortText(const CharacterSet& characterSet, const std::string &printText, int left, int width, int bottom, int height){
 	int curY = bottom + height - characterSet.lineHeight;
-	const int lineHeight = characterSet.lineHeight * 1.5;
-	const int bottomMargin = characterSet.lineHeight * 0.5;
+	const int lineHeight = characterSet.lineHeight * 1.5f;
+	const int bottomMargin = characterSet.lineHeight * 0.5f;
 	size_t curStringPos = 0;
 	while (curY - bottomMargin > bottom) {
 		std::string curLine = "";
@@ -437,11 +437,11 @@ void Editor::render(unsigned int &frameBuffer) {
 		}
 
 		// Interaction Regions
-		std::vector<InteractionRegion*> zoneInteractionRegions = newZone->getInteractionRegions();
+		std::vector<InteractionRegion>& zoneInteractionRegions = newZone->getInteractionRegions();
 		for (size_t curInteractionRegionNr = 0; curInteractionRegionNr < zoneInteractionRegions.size(); ++curInteractionRegionNr){
-			InteractionRegion *curInteractionRegion = zoneInteractionRegions[curInteractionRegionNr];
+			InteractionRegion& curInteractionRegion = zoneInteractionRegions[curInteractionRegionNr];
 			int left, bottom, width, height;
-			curInteractionRegion->getPosition(left, bottom, width, height);
+			curInteractionRegion.getPosition(left, bottom, width, height);
 			if (!TextureManager::IsRectOnScreen(left - 4, width + 8, bottom - 4, height + 8)){
 				continue;
 			}
@@ -459,8 +459,8 @@ void Editor::render(unsigned int &frameBuffer) {
 			int tinyFontHeight = Globals::fontManager.get("verdana_5").lineHeight;
 			if (width > 28 && height > tinyFontHeight * 3 + 8){
 
-				std::string curEnterText = curInteractionRegion->getOnEnterText();
-				std::string curLeaveText = curInteractionRegion->getOnLeaveText();
+				std::string curEnterText = curInteractionRegion.getOnEnterText();
+				std::string curLeaveText = curInteractionRegion.getOnLeaveText();
 				bool printEnterAndLeaveText = (curEnterText.size() > 0 && curLeaveText.size() > 0 && height > tinyFontHeight * 6);
 				if (curEnterText.size() > 0){
 

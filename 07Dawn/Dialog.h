@@ -1,6 +1,10 @@
 #pragma once
+#define NOMINMAX
+#define TILE_WIDTH 64
+#define TILE_HEIGHT 64
 
 #include "Widget.h"
+#include "TextureManager.h"
 
 struct DialogCanvas {
 
@@ -21,16 +25,14 @@ public:
 
 	Dialog() = default;
 
-	Dialog(int posX, int posY, int width, int height);
-	virtual void draw() override;
-	virtual void update(int mouseX, int mouseY) override;
-	//virtual void clicked(int mouseX, int mouseY, uint8_t mouseState);
+	Dialog(int posX, int posY, int width, int height);	
+	void update(int mouseX, int mouseY) override;
+	void draw();
 
 	void setAutoresize();
 	void setCenteringLayout();
 	void setCenterOnScreen();
 	void applyLayout();
-
 
 	virtual void addChildFrame(int relPosX, int relPosY, std::auto_ptr<Widget> newChild);
 	virtual int getWidth() const;
@@ -41,8 +43,6 @@ private:
 	void resize(int width, int height);
 	void recalculatePosition();
 
-	//int contentX;
-	//int contentY;
 	int m_columns;
 	int m_rows;
 

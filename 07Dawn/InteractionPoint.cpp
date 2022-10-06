@@ -1,8 +1,6 @@
 #include "InteractionPoint.h"
 #include "Character.h"
 #include "Zone.h"
-#include "Constants.h"
-
 
 InteractionPoint::InteractionPoint()
 	: interactionCode(""),
@@ -23,7 +21,7 @@ void InteractionPoint::setPosition(int posX, int posY, int width, int height) {
 	this->height = height;
 }
 
-void InteractionPoint::setInteractionType(InteractionType::InteractionType interactionType) {
+void InteractionPoint::setInteractionType(Enums::InteractionType interactionType) {
 	// We explicitely want to allow an interaction texture to change
 	//if (interactionTexture != NULL) {
 		//delete interactionTexture;
@@ -32,20 +30,20 @@ void InteractionPoint::setInteractionType(InteractionType::InteractionType inter
 	//interactionTexture = new CTexture();
 	switch (interactionType){
 
-	case InteractionType::Quest:
+	case Enums::InteractionType::Quest:
 		TextureAtlasCreator::get().init(1024, 1024);
 		TextureManager::Loadimage("res/interaction/talk0.tga", 0, m_interactionTextures);
 		TextureManager::Loadimage("res/interaction/talk1.tga", 1, m_interactionTextures);		
 		m_textureAtlas = TextureAtlasCreator::get().getAtlas();
 		break;
-	case InteractionType::Shop:
+	case Enums::InteractionType::Shop:
 		TextureAtlasCreator::get().init(1024, 1024);
 		TextureManager::Loadimage("res/interaction/shop0.tga", 0, m_interactionTextures);
 		TextureManager::Loadimage("res/interaction/shop1.tga", 1, m_interactionTextures);
 		m_textureAtlas = TextureAtlasCreator::get().getAtlas();
 		
 		break;
-	case InteractionType::Zone:
+	case Enums::InteractionType::Zone:
 		TextureAtlasCreator::get().init(1024, 1024);
 		TextureManager::Loadimage("res/interaction/zone0.tga", 0, m_interactionTextures);
 		TextureManager::Loadimage("res/interaction/zone1.tga", 1, m_interactionTextures);
@@ -143,13 +141,13 @@ void InteractionPoint::markAsDeletable() {
 	markedAsDeletable = true;
 }
 
-std::string toStringForLua(InteractionType::InteractionType interactionType) {
+std::string toStringForLua(Enums::InteractionType interactionType) {
 	switch (interactionType) {
-		case InteractionType::Quest:
+		case Enums::InteractionType::Quest:
 			return "InteractionType.Quest";
-		case InteractionType::Shop:
+		case Enums::InteractionType::Shop:
 			return "InteractionType.Shop";
-		case InteractionType::Zone:
+		case Enums::InteractionType::Zone:
 			return "InteractionType.Zone";
 	}
 }

@@ -12,8 +12,8 @@ struct Text {
 	float red, green, blue, transparency;
 	int decayrate;
 	float lifetime;		
-	float lastframe, thisframe;
-	float startdecaylastframe, startdecaythisframe;
+	int lastframe, thisframe;
+	unsigned int startdecaylastframe, startdecaythisframe;
 };
 
 class Message{

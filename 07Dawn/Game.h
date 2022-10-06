@@ -3,7 +3,6 @@
 #include "engine/input/MouseEventListener.h"
 #include "engine/input/KeyBorad.h"
 #include "engine/input/Mouse.h"
-#include "engine/Camera.h"
 #include "engine/Batchrenderer.h"
 
 #include "StateMachine.h"

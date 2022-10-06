@@ -64,6 +64,12 @@ namespace Enums
 		W    = 7,
 		NW   = 8
 	};
+	
+	enum InteractionType {
+		Quest,
+		Shop,
+		Zone
+	};
 }
 
 namespace DawnInterface{
@@ -71,10 +77,10 @@ namespace DawnInterface{
 	void setCurrentZone(std::string zoneName );
 	CharacterType& createNewMobType(std::string typeID);
 	void addMobSpawnPoint(std::string mobID, int x_pos, int y_pos, int respawn_rate, int do_respawn, Enums::Attitude attitude);
-	InteractionRegion* addInteractionRegion();
+	InteractionRegion& addInteractionRegion();
 	void removeInteractionRegion(InteractionRegion *regionToRemove);
-	InteractionPoint* addInteractionPoint();
-	InteractionPoint *addCharacterInteractionPoint(Character *character);
+	InteractionPoint& addInteractionPoint();
+	InteractionPoint& addCharacterInteractionPoint(Character *character);
 	void removeInteractionPoint(InteractionPoint *pointToRemove);
 	std::string getItemReferenceRestore(Character *character);
 	TextWindow *createTextWindow();
@@ -138,6 +144,14 @@ struct CharacterType {
 class Npc : public Character
 {
 	void setAttitude( Enums::Attitude attitude );
+};
+
+class InteractionPoint
+{
+	void setPosition( int posX, int posY, int width, int height );
+	void setInteractionType( Enums::InteractionType interactionType );
+	void setBackgroundTexture( std::string texturename );
+	void setInteractionCode( std::string interactionCode );
 };
 
 class InteractionRegion

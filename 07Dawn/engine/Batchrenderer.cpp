@@ -17,6 +17,12 @@ void Batchrenderer::setShader(Shader* shader) {
 	m_shader = shader;
 }
 
+void Batchrenderer::updateModelMtx(const Matrix4f& mtx) {
+	glUseProgram(m_shader->m_program);
+	m_shader->loadMatrix("u_model", mtx);
+	glUseProgram(0);
+}
+
 Batchrenderer& Batchrenderer::get() {
 	return s_instance;
 }

@@ -28,14 +28,16 @@ namespace EditorInterface{
 }
 
 namespace DawnInterface{
-	void enterZone(std::string zoneName, int enterX, int enterY);
-	void setCurrentZone(std::string zoneName);
 	const CharacterType& createNewMobType(std::string typeID);
+	const InteractionRegion& addInteractionRegion();
+	const InteractionPoint& addInteractionPoint();
+	const InteractionPoint& addCharacterInteractionPoint(Character *character);
+
+	void enterZone(std::string zoneName, int enterX, int enterY);
+	void setCurrentZone(std::string zoneName);	
 	void addMobSpawnPoint(std::string mobID, int x_pos, int y_pos, int respawn_rate, int do_respawn, Enums::Attitude attitude);
-	InteractionRegion* addInteractionRegion();
-	void removeInteractionRegion(InteractionRegion *regionToRemove);
-	InteractionPoint* addInteractionPoint();
-	InteractionPoint *addCharacterInteractionPoint(Character *character);
+	
+	void removeInteractionRegion(InteractionRegion *regionToRemove);	
 	void removeInteractionPoint(InteractionPoint *pointToRemove);
 	std::string getItemReferenceRestore(Character *character);
 	TextWindow *createTextWindow();
