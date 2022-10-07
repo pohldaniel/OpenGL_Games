@@ -1,10 +1,10 @@
 DawnInterface.addMobSpawnPoint( "Wolf", 3128, 518, 180, 1, Enums.HOSTILE);
 DawnInterface.addMobSpawnPoint( "Wolf", 2764, 498, 180, 1, Enums.HOSTILE);
 DawnInterface.addMobSpawnPoint( "Wolf", 2690, 284, 180, 1, Enums.HOSTILE);
-DawnInterface.addMobSpawnPoint( "Wolf", 2339, 422, 180, 1, Enums.HOSTILE);
+DawnInterface.addMobSpawnPoint( "Skeleton", 2339, 422, 180, 1, Enums.HOSTILE);
 DawnInterface.addMobSpawnPoint( "Wolf", 2119, 600, 180, 1, Enums.HOSTILE);
 DawnInterface.addMobSpawnPoint( "Wolf", 1781, 410, 180, 1, Enums.HOSTILE);
-DawnInterface.addMobSpawnPoint( "Wolf", 1310, 377, 180, 1, Enums.HOSTILE);
+DawnInterface.addMobSpawnPoint( "Skeleton", 1310, 377, 180, 1, Enums.HOSTILE);
 DawnInterface.addMobSpawnPoint( "Wizard", -75, 2200, 1, 0, Enums.FRIENDLY);
 DawnInterface.addMobSpawnPoint( "Wizard", 55, 2200, 1, 0, Enums.FRIENDLY);
 DawnInterface.addMobSpawnPoint( "Spider", -410, -3697, 180, 1, Enums.HOSTILE);

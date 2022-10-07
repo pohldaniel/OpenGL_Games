@@ -1,8 +1,14 @@
 #include "MainMenu.h"
 
 MainMenu::MainMenu(StateMachine& machine) : State(machine, CurrentState::MAINMENU) {
-	//LuaFunctions::executeLuaFile("res/_lua/mobdata.lua");
+	LuaFunctions::executeLuaFile("res/_lua/mobdata.lua");
 	
+	ZoneManager::Get().getZone("res/_lua/zone1").loadZone();
+	ZoneManager::Get().setCurrentZone(&ZoneManager::Get().getZone("res/_lua/zone1"));
+
+	LuaFunctions::executeLuaFile("res/_lua/gameinit.lua");
+	LuaFunctions::executeLuaFile("res/_lua/tileAdjacency.lua");
+
 	m_dialog = Dialog(0, 0, 0, 0);
 	m_dialog.setPosition(200, 322);
 
@@ -33,6 +39,7 @@ void MainMenu::fixedUpdate() {}
 void MainMenu::update() {
 	ViewPort::get().update(m_dt);
 	m_dialog.update(static_cast<int>(ViewPort::get().getCursorPos()[0]), static_cast<int>(ViewPort::get().getCursorPos()[1]));
+
 }
 
 void MainMenu::render(unsigned int &frameBuffer) {
@@ -48,6 +55,8 @@ void MainMenu::render(unsigned int &frameBuffer) {
 	glDisable(GL_BLEND);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	
 }
 
 void MainMenu::resize() {

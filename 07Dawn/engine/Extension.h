@@ -200,6 +200,8 @@ typedef char GLchar;
 #define GL_MAX 0x8008
 #define GL_FUNC_SUBTRACT 0x800A
 #define GL_FUNC_REVERSE_SUBTRACT 0x800B
+#define GL_GPU_MEM_INFO_TOTAL_AVAILABLE_MEM_NVX 0x9048
+#define GL_GPU_MEM_INFO_CURRENT_AVAILABLE_MEM_NVX 0x9049
 
 	extern void glActiveTextureARB(GLenum texture);
 	extern void glMultiTexCoord2fARB(GLenum target, GLfloat s, GLfloat t);

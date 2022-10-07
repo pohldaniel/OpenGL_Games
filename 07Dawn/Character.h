@@ -20,6 +20,7 @@ struct pair_hash {
 
 struct CharacterType {
 	friend class Character;
+	friend class Npc;
 
 	void addMoveTexture(Enums::ActivityType activity, Enums::Direction direction, int index, std::string filename, int maxWidth = 0, int maxHeight = 0);
 
@@ -114,9 +115,11 @@ public:
 	
 	unsigned short getNumActivities();
 	virtual Enums::Direction GetDirection() = 0;
+	virtual Enums::Direction GetDirectionRNG() = 0;
 
 	Enums::Direction GetDirectionTexture();
 	uint16_t getWanderRadius() const;
+	uint16_t getWanderRadiusSq() const;
 	float getMovementSpeed() const;
 
 	bool isStunned() const;
@@ -130,7 +133,7 @@ public:
 	bool isChanneling() const;
 	bool isSneaking() const;
 
-	void Move();
+	void Move(float deltaTime);
 	bool continuePreparing();
 	void MoveUp(uint8_t n);
 	void MoveDown(uint8_t n);
@@ -188,6 +191,7 @@ public:
 	int getWidth() const;
 	int getHeight() const;
 
+
 	bool alive;
 	//bool hasDrawnDyingOnce;
 	int current_texture, direction_texture;
@@ -208,20 +212,21 @@ public:
 	int NPC_id;
 	int seconds_to_respawn;
 	bool wandering, moving, in_combat;
-	unsigned int remainingMovePoints;
+	//unsigned int remainingMovePoints;
 
-
-	
-	//std::unordered_map<std::pair<int, int>, TileSet, pair_hash> m_moveTileSets;
 
 	int x_pos, y_pos;
-	
 	Enums::Direction activeDirection;
 	Enums::Direction WanderDirection, MovingDirection, fearDirection, dyingDirection;
 	unsigned short m_numActivities;
 
 	const TextureRect* rect;
-	int index = 0;
+	unsigned short index = 0;
+	unsigned short currentFrame = 0;
+	float m_elapsedTime = 0.0f;
+	float m_wanderTime = 0.0f;
+	bool m_canWander = true;
+	bool m_smoothOut = true;
 	float progress = 0.0f;
 
 	std::string name;

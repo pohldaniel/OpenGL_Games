@@ -4,6 +4,7 @@
 
 #include "StateMachine.h"
 #include "LoadingScreen.h"
+#include "Editor.h"
 #include "Dialog.h"
 #include "Label.h"
 

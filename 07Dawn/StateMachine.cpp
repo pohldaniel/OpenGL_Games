@@ -81,7 +81,6 @@ void StateMachine::update() {
 void StateMachine::render() {
 	if (!m_states.empty()) {
 		glPolygonMode(GL_FRONT_AND_BACK, Globals::enableWireframe ? GL_LINE : GL_FILL);
-
 		m_states.top()->render(m_frameBuffer);
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	}
@@ -95,7 +94,7 @@ void StateMachine::render() {
 	glUseProgram(0);
 	Message::Get().draw();
 	Message::Get().deleteDecayed();
-	glDisable(GL_BLEND);	
+	glDisable(GL_BLEND);
 }
 
 void StateMachine::clearAndPush(State* state) {

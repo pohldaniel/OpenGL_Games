@@ -5,6 +5,7 @@
 Character::Character(const CharacterType& characterType) : m_characterType(characterType) {
 	wander_radius = 40;
 	activeDirection = Enums::Direction::S;
+	
 
 	rect = &m_characterType.m_moveTileSets.at({ getCurActivity(), activeDirection }).getAllTiles()[0].textureRect;
 }
@@ -44,28 +45,7 @@ void Character::baseOnType(std::string characterType) {
 	level = other.level;
 	experienceValue = other.experienceValue;
 
-	/*setStrength(other.strength);
-	setDexterity(other.dexterity);
-	setVitality(other.vitality);
-	setIntellect(other.intellect);
-	setWisdom(other.wisdom);
-	setMaxHealth(other.max_health);
-	setMaxMana(other.max_mana);
-	setMaxFatigue(other.max_fatigue);
-	setMinDamage(other.min_damage);
-	setMaxDamage(other.max_damage);
-	setArmor(other.armor);
-	setHealthRegen(other.healthRegen);
-	setManaRegen(other.manaRegen);
-	setFatigueRegen(other.fatigueRegen);
-	setDamageModifierPoints(other.damageModifierPoints);
-	setHitModifierPoints(other.hitModifierPoints);
-	setEvadeModifierPoints(other.evadeModifierPoints);
-	setClass(other.characterClass);
-	setWanderRadius(other.wander_radius);
-	setName(other.name);
-	setLevel(other.level);
-	setExperienceValue(other.experienceValue);*/
+	activeDirection = GetDirectionRNG();
 }
 
 Enums::ActivityType Character::getCurActivity() const {
@@ -97,73 +77,56 @@ void Character::update(float deltaTime) {
 	}
 
 	switch (curActivity) {
-		case  Enums::ActivityType::Walking: {
-			
+
+		case Enums::ActivityType::Dying: {
+
 			if (direction == Enums::Direction::STOP) {
 				rect = &m_characterType.m_moveTileSets.at({ curActivity, activeDirection }).getAllTiles()[0].textureRect;
 				index = 0;
+				progress = 0.0f;
 				return;
 			}
-			int msPerDrawFrame = 100;
-
 
 			const TileSet& tileSet = m_characterType.m_moveTileSets.at({ curActivity, activeDirection });
+			progress += deltaTime * 12;
+			index = static_cast<int>(std::round(progress));
+			index = index % tileSet.getAllTiles().size();
+			rect = &tileSet.getAllTiles()[index].textureRect;
 
-			//index = ((Globals::clock.getElapsedTimeMilli() % (msPerDrawFrame * tileSet.getAllTiles().size())) / msPerDrawFrame);
+			break;
+		}case  Enums::ActivityType::Walking: {
+			
+			if (direction == Enums::Direction::STOP) {				
+				rect = &m_characterType.m_moveTileSets.at({ curActivity, activeDirection }).getAllTiles()[0].textureRect;
+				index = 0;
+				progress = 0.0f;
+				return;
+			}
+
+			const TileSet& tileSet = m_characterType.m_moveTileSets.at({ curActivity, activeDirection });
 			progress += deltaTime * 10;
 			index = static_cast<int>(std::round(progress));
 			index = index % tileSet.getAllTiles().size();
 			rect = &tileSet.getAllTiles()[index].textureRect;
 			
-			
 			break;
-		}case Enums::ActivityType::Attacking: {
+		}case Enums::ActivityType::Attacking: case Enums::ActivityType::Casting: case Enums::ActivityType::Shooting: {
 
 			if (direction == Enums::Direction::STOP) {
 				rect = &m_characterType.m_moveTileSets.at({ curActivity, activeDirection }).getAllTiles()[0].textureRect;
 				index = 0;
+				progress = 0.0f;
 				return;
 			}
-			int msPerDrawFrame = 80;
 
 			const TileSet& tileSet = m_characterType.m_moveTileSets.at({ curActivity, activeDirection });
-
-			index = ((Globals::clock.getElapsedTimeMilli() % (msPerDrawFrame * tileSet.getAllTiles().size())) / msPerDrawFrame);
+			progress += deltaTime * 12;
+			index = static_cast<int>(std::round(progress));
+			index = index % tileSet.getAllTiles().size();
 			rect = &tileSet.getAllTiles()[index].textureRect;
 
 			break;
-		}case Enums::ActivityType::Casting: {
-
-			if (direction == Enums::Direction::STOP) {
-				rect = &m_characterType.m_moveTileSets.at({ curActivity, activeDirection }).getAllTiles()[0].textureRect;
-				index = 0;
-				return;
-			}
-			int msPerDrawFrame = 80;
-
-			const TileSet& tileSet = m_characterType.m_moveTileSets.at({ curActivity, activeDirection });
-
-			index = ((Globals::clock.getElapsedTimeMilli() % (msPerDrawFrame * tileSet.getAllTiles().size())) / msPerDrawFrame);
-			rect = &tileSet.getAllTiles()[index].textureRect;
-
-			break;
-		}case Enums::ActivityType::Dying: {
-
-			if (direction == Enums::Direction::STOP) {
-				rect = &m_characterType.m_moveTileSets.at({ curActivity, activeDirection }).getAllTiles()[0].textureRect;
-				index = 0;
-				return;
-			}
-			int msPerDrawFrame = 80;
-
-			const TileSet& tileSet = m_characterType.m_moveTileSets.at({ curActivity, activeDirection });
-
-			index = ((Globals::clock.getElapsedTimeMilli() % (msPerDrawFrame * tileSet.getAllTiles().size())) / msPerDrawFrame);
-			rect = &tileSet.getAllTiles()[index].textureRect;
-
-			break;
-		}
-		
+		}		
 	}
 }
 
@@ -201,6 +164,10 @@ Enums::Direction Character::GetDirectionTexture() {
 
 uint16_t Character::getWanderRadius() const {
 	return wander_radius;
+}
+
+uint16_t Character::getWanderRadiusSq() const {
+	return wander_radius * wander_radius;
 }
 
 bool Character::isStunned() const{
@@ -297,7 +264,7 @@ bool Character::isPlayer() const {
 
 bool Character::mayDoAnythingAffectingSpellActionWithoutAborting() const {
 	//return (curSpellAction == NULL);
-	return false;
+	return true;
 }
 
 bool Character::mayDoAnythingAffectingSpellActionWithAborting() const {
@@ -307,7 +274,7 @@ bool Character::mayDoAnythingAffectingSpellActionWithAborting() const {
 		return (curSpellAction == NULL);
 	}*/
 
-	return false;
+	return true;
 }
 
 float Character::getMovementSpeed() const {
@@ -365,10 +332,10 @@ void Character::MoveRight(uint8_t n) {
 		//}
 }
 
-void Character::Move(){
-
+void Character::Move(float deltaTime){
+	
 	if (isStunned() == true || isMesmerized() == true) {
-		remainingMovePoints = 0;
+		m_elapsedTime = 0.0f;
 		return;
 	}
 
@@ -379,11 +346,13 @@ void Character::Move(){
 	continuePreparing();
 	if (!mayDoAnythingAffectingSpellActionWithoutAborting()) {
 		if (!mayDoAnythingAffectingSpellActionWithAborting()) {
-			remainingMovePoints = 0;
+			m_elapsedTime = 0.0f;
 			return;
 		}
 	}
 	
+	//Enums::Direction movingDirection = GetDirectionRNG();
+
 	Enums::Direction movingDirection = GetDirection();
 
 	if ((movingDirection != Enums::Direction::STOP) && !mayDoAnythingAffectingSpellActionWithoutAborting()) {
@@ -404,45 +373,45 @@ void Character::Move(){
 		movingDirection = fearDirection;
 	}
 
-	unsigned int movePerStep = 10; // moves one step per movePerStep ms
+	float movePerStep = 0.01f; // moves one step per movePerStep ms
 
 	// To balance moving diagonally boost, movePerStep = 10*sqrt(2)
 	if (movingDirection == Enums::Direction::NW || movingDirection == Enums::Direction::NE || movingDirection == Enums::Direction::SW || movingDirection == Enums::Direction::SE)
-		movePerStep = 14;
+		movePerStep = 0.014f;
 
+	
 	// recalculate the movementpoints based on our movementspeed (spells that affect this can be immobolizing spells, snares or movement enhancer
-	remainingMovePoints = static_cast<unsigned int>(remainingMovePoints * getMovementSpeed());
-
-	while (remainingMovePoints > movePerStep) {
-		remainingMovePoints -= movePerStep;
+	m_elapsedTime += deltaTime;
+	while (m_elapsedTime > movePerStep) {
+		m_elapsedTime -= movePerStep;
 		switch (movingDirection) {
 		case Enums::Direction::NW:
-			//MoveLeft(1);
-			//MoveUp(1);
+			MoveLeft(1);
+			MoveUp(1);
 			break;
 		case Enums::Direction::N:
-			//MoveUp(1);
+			MoveUp(1);
 			break;
 		case Enums::Direction::NE:
-			//MoveRight(1);
-			//MoveUp(1);
+			MoveRight(1);
+			MoveUp(1);
 			break;
 		case Enums::Direction::W:
-			//MoveLeft(1);
+			MoveLeft(1);
 			break;
 		case Enums::Direction::E:
-			//MoveRight(1);
+			MoveRight(1);
 			break;
 		case Enums::Direction::SW:
-			//MoveLeft(1);
-			//MoveDown(1);
+			MoveLeft(1);
+			MoveDown(1);
 			break;
 		case Enums::Direction::S:
-			//MoveDown(1);
+			MoveDown(1);
 			break;
 		case Enums::Direction::SE:
-			//MoveRight(1);
-			//MoveDown(1);
+			MoveRight(1);
+			MoveDown(1);
 			break;
 		default:
 			break;

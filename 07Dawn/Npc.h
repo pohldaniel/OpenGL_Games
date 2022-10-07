@@ -17,8 +17,9 @@ public:
 	void update(float deltaTime);
 
 	Enums::Direction GetDirection() override;
-	void Wander();
-	void Move();
+	Enums::Direction GetDirectionRNG() override;
+	Enums::Direction GetOppositeDirection(Enums::Direction direction);
+	void Animate(float deltaTime);
 
 	void setSpawnInfo(int _x_spawn_pos, int _y_spawn_pos, int _seconds_to_respawn, int _do_respawn);
 	void setAttitude(Enums::Attitude attitude);
@@ -38,4 +39,6 @@ private:
 	bool chasingPlayer;
 	uint32_t lastPathCalculated;
 	Enums::Attitude attitudeTowardsPlayer;
+
+	bool m_updated = false;
 };

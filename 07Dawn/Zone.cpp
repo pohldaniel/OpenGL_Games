@@ -298,9 +298,8 @@ void Zone::findCharacter(Character *character, bool &found, size_t &foundPos) co
 
 void Zone::update(float deltaTime) {
 	for (unsigned int x = 0; x < m_npcs.size(); x++) {
-		m_npcs[x]->Wander();
-		m_npcs[x]->Move();
-
+		
+		
 		m_npcs[x]->update(deltaTime);
 	}
 }

@@ -37,5 +37,5 @@ public:
 	Vector4f defaultColor = Vector4f(1.0f, 1.0f, 1.0f, 1.0f);
 	Vector4f hoverColor = Vector4f(1.0f, 1.0f, 0.0f, 1.0f);
 
-	Vector4f activeColor;
+	Vector4f activeColor = Vector4f(1.0f, 1.0f, 1.0f, 1.0f);
 };

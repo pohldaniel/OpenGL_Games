@@ -13,7 +13,6 @@ Npc::Npc(const CharacterType& characterType, int _x_spawn_pos, int _y_spawn_pos,
 	wandering = false;
 	MovingDirection = Enums::Direction::STOP;
 
-	remainingMovePoints = 0;
 	direction_texture = 0;
 	//attitudeTowardsPlayer = Attitude::NEUTRAL;
 	chasingPlayer = false;
@@ -40,17 +39,28 @@ void Npc::setAttitude(Enums::Attitude attitude) {
 }
 
 void Npc::draw() {
-	Enums::ActivityType curActivity = getCurActivity();
-	
-	int drawX = getXPos();
-	int drawY = getYPos();
 
-	//TextureRect& rect = getTileSet(curActivity, GetDirectionTexture())->getAllTiles()[index]->textureRect;
-	TextureManager::DrawTextureBatched(*rect, drawX, drawY, true, true);
+
+	//if (m_updated) {
+		Enums::ActivityType curActivity = getCurActivity();
+
+		int drawX = getXPos();
+		int drawY = getYPos();
+		//std::cout << drawX << "  " << drawY << std::endl;
+		//TextureRect& rect = getTileSet(curActivity, GetDirectionTexture())->getAllTiles()[index]->textureRect;
+		TextureManager::DrawTextureBatched(*rect, drawX, drawY, true, true);
+	//}
 }
-
+ 
 void Npc::update(float deltaTime) {
-	Character::update(deltaTime);
+	m_updated = TextureManager::IsRectOnScreen(getXPos(), rect->width, getYPos(), rect->height);
+	
+	if (m_updated) {
+		
+		Animate(deltaTime);
+		Move(deltaTime);
+		//Character::update(deltaTime);
+	}
 }
 
 Enums::Direction Npc::GetDirection(){
@@ -62,47 +72,92 @@ Enums::Direction Npc::GetDirection(){
 	}
 }
 
-void Npc::Wander() {
-	
-	if (wandering) {
-		
-		if (wander_points_left > 0) {
-			// checking if character is moving more than the wander_radius. if he does we'll stop him.
-			// probably is some other function we could use here that doesnt require as much power... /arnestig
-			if (sqrt((pow(x_pos - x_spawn_pos, 2) + pow(y_pos - y_spawn_pos, 2))) < getWanderRadius()) {
-				wander_points_left--;
-
-				
-				if (wander_points_left == 0 && index != 0) {
-					wander_points_left++;
-				}
-				
-			}else {
-				wander_lastframe = Globals::clock.getElapsedTimeMilli();
-				wandering = false;
-				WanderDirection = Enums::Direction::STOP;
-			}
-		}else {
-			wander_lastframe = Globals::clock.getElapsedTimeMilli();
-			wandering = false;
-			WanderDirection = Enums::Direction::STOP;
-		}
-	}else {
-		
-		wander_thisframe = Globals::clock.getElapsedTimeMilli();
-		if ((wander_thisframe - wander_lastframe) > (wander_every_seconds * 1000)) {
-			
-			
-			wandering = true;
-			wander_points_left = RNG::randomSizeT(10, 59);  // how far will the NPC wander?
-			WanderDirection = static_cast<Enums::Direction>(RNG::randomSizeT(1, 8));  // random at which direction NPC will go.
-			wander_every_seconds = RNG::randomSizeT(3, 6);
-		}
-	}
+Enums::Direction Npc::GetDirectionRNG() {
+	return static_cast<Enums::Direction>(RNG::randomSizeT(1, 8));	
 }
 
-void Npc::Move() {
-	Character::Move();
+void Npc::Animate(float deltaTime) {
+	
+	Enums::ActivityType curActivity = getCurActivity();
+	const TileSet& tileSet = m_characterType.m_moveTileSets.at({ curActivity, activeDirection });
+	
+	if (wandering) {
+
+		if (wander_points_left > 0) {
+		
+			m_canWander = (pow(x_pos - x_spawn_pos, 2) + pow(y_pos - y_spawn_pos, 2)) < getWanderRadiusSq();
+
+			wander_points_left = m_canWander ? wander_points_left - 1 : 0;
+
+			m_wanderTime = m_wanderTime >= tileSet.getAllTiles().size() ? 0.0f : m_wanderTime + deltaTime * 12;
+			index = static_cast<unsigned short>(floor(m_wanderTime));
+			currentFrame = index % (tileSet.getAllTiles().size());
+			index = index % (tileSet.getAllTiles().size() + 1);
+
+			if ((wander_points_left == 0 && (index + 1 < tileSet.getAllTiles().size() + 1)  && m_canWander) && m_smoothOut) {
+				wander_points_left++;					
+			}
+		}else {
+
+			wander_lastframe = Globals::clock.getElapsedTimeMilli();
+			wandering = false;
+			WanderDirection = Enums::Direction::STOP;				
+			m_wanderTime = m_smoothOut ? 0.0f : m_wanderTime;
+			index = m_smoothOut ? 0 : index;
+		}
+		
+	}else {
+
+		wander_thisframe = Globals::clock.getElapsedTimeMilli();
+		if ((wander_thisframe - wander_lastframe) > (wander_every_seconds * 1000)) {
+			wandering = true;
+			wander_points_left = RNG::randomSizeT(10, 59);  // how far will the NPC wander?
+
+			WanderDirection = !m_canWander ? GetOppositeDirection(activeDirection) : GetDirectionRNG();
+			activeDirection = WanderDirection;
+
+			if (!m_canWander) {
+				while ((pow(x_pos - x_spawn_pos, 2) + pow(y_pos - y_spawn_pos, 2)) >= getWanderRadiusSq()) {
+					Move(deltaTime);
+				}
+
+				m_canWander = true;
+			}
+
+			wander_every_seconds = 1;		
+		}
+	}
+	//std::cout << "Name: " << name << " Index: " << index << " Current Frame: " << currentFrame << " Wander Time: " << m_wanderTime << std::endl;
+	rect = &tileSet.getAllTiles()[currentFrame].textureRect;
+}
+
+Enums::Direction Npc::GetOppositeDirection(Enums::Direction direction) {
+	switch (direction) {
+	case Enums::Direction::NW:
+		return Enums::Direction::SE;
+		break;
+	case Enums::Direction::N:
+		return Enums::Direction::S;
+		break;
+	case Enums::Direction::NE:
+		return Enums::Direction::SW;
+		break;
+	case Enums::Direction::W:
+		return Enums::Direction::E;
+		break;
+	case Enums::Direction::E:
+		return Enums::Direction::W;
+		break;
+	case Enums::Direction::SW:
+		return Enums::Direction::NE;
+		break;
+	case Enums::Direction::S:
+		return Enums::Direction::N;
+		break;
+	case Enums::Direction::SE:
+		return Enums::Direction::NW;
+		break;
+	}
 }
 
 void Npc::markAsDeleted() {
