@@ -26,7 +26,7 @@ Editor::Editor(StateMachine& machine) : State(machine, CurrentState::EDITOR) {
 Editor::~Editor() {}
 
 void Editor::fixedUpdate() {
-
+	
 }
 
 void Editor::update() {
@@ -522,13 +522,12 @@ void Editor::render(unsigned int &frameBuffer) {
 	}
 
 	if (m_selectedTileSet == Enums::TileClassificationType::NPC) {
-		Batchrenderer::get().bindTexture(TextureManager::GetTextureAtlas("Wolf"), true);
+		Batchrenderer::get().bindTexture(TextureManager::GetTextureAtlas("mobs"), true);
 
 		for (size_t curNPC = 0; curNPC < editorNPCs.size(); curNPC++) {
 			const TextureRect& rect = editorNPCs.at(curNPC).second.getTileSet(Enums::ActivityType::Walking, Enums::Direction::S).getAllTiles()[0].textureRect;
 			TextureManager::DrawTextureBatched(rect, m_originalFocus[0] + ViewPort::get().getWidth() * 0.5f + (curNPC * 50) + (m_tileposOffset * 50) - 48 + 20, m_originalFocus[1] + ViewPort::get().getHeight() - 40 - 48, rect.width, rect.height, false, false);
 		}
-
 	}else {
 
 		Batchrenderer::get().bindTexture(TextureManager::GetTextureAtlas(newZone->getName()), true);

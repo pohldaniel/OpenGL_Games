@@ -9,7 +9,7 @@ TextureCache& TextureCache::Get() {
 	return s_instance;
 }
 
-TextureRect& TextureCache::getTextureFromCache(std::string filename){
+TextureRect& TextureCache::getTextureFromCache(std::string filename, unsigned int maxWidth, unsigned maxHeight){
 
 	if (textures.count(filename) > 0) {
 		return textures[filename];
@@ -30,7 +30,7 @@ TextureRect& TextureCache::getTextureFromCache(std::string filename){
 	textures[filename].textureHeight = 1.0f;
 	
 	unsigned char* bytes = tex.readPixel();
-	TextureAtlasCreator::get().addTexture(textures[filename], reinterpret_cast<char*>(bytes), tex.getWidth(), tex.getHeight());
+	TextureAtlasCreator::get().addTexture(textures[filename], reinterpret_cast<char*>(bytes), tex.getWidth(), tex.getHeight(), maxWidth, maxHeight);
 	free(bytes);
 
 	return textures[filename];
@@ -72,8 +72,12 @@ void TextureManager::DrawTextureInstanced(const TextureRect& textureRect, int x,
 	Instancedrenderer::get().addQuad(Vector4f(static_cast< float >(x), static_cast< float >(y), static_cast< float >(textureRect.width), static_cast< float >(textureRect.height)), Vector4f(textureRect.textureOffsetX, textureRect.textureOffsetY, textureRect.textureWidth, textureRect.textureHeight), textureRect.frame);
 }
 
-TextureRect& TextureManager::Loadimage(std::string file, bool isOpenGLThreadInThreadedMode) {
+TextureRect& TextureManager::Loadimage(std::string file) {
 	return TextureCache::Get().getTextureFromCache(file);
+}
+
+TextureRect& TextureManager::Loadimage(std::string file, unsigned int maxWidth, unsigned maxHeight) {
+	return TextureCache::Get().getTextureFromCache(file, maxWidth, maxHeight);
 }
 
 void TextureManager::Loadimage(std::string file, int textureIndex, std::vector<TextureRect>& textureBase, bool isOpenGLThreadInThreadedMode) {

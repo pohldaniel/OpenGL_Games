@@ -1,6 +1,6 @@
 #pragma once
-#include "engine/CharacterSet.h"
-#include "engine/Batchrenderer.h"
+#include "CharacterSet.h"
+#include "Batchrenderer.h"
 
 class Fontrenderer {
 	

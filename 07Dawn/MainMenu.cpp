@@ -1,6 +1,8 @@
 #include "MainMenu.h"
 
 MainMenu::MainMenu(StateMachine& machine) : State(machine, CurrentState::MAINMENU) {
+	//LuaFunctions::executeLuaFile("res/_lua/mobdata.lua");
+	
 	m_dialog = Dialog(0, 0, 0, 0);
 	m_dialog.setPosition(200, 322);
 

@@ -63,7 +63,9 @@ Enums::Direction Npc::GetDirection(){
 }
 
 void Npc::Wander() {
+	
 	if (wandering) {
+		
 		if (wander_points_left > 0) {
 			// checking if character is moving more than the wander_radius. if he does we'll stop him.
 			// probably is some other function we could use here that doesnt require as much power... /arnestig
@@ -89,6 +91,8 @@ void Npc::Wander() {
 		
 		wander_thisframe = Globals::clock.getElapsedTimeMilli();
 		if ((wander_thisframe - wander_lastframe) > (wander_every_seconds * 1000)) {
+			
+			
 			wandering = true;
 			wander_points_left = RNG::randomSizeT(10, 59);  // how far will the NPC wander?
 			WanderDirection = static_cast<Enums::Direction>(RNG::randomSizeT(1, 8));  // random at which direction NPC will go.

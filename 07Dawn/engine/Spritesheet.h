@@ -26,12 +26,12 @@ public:
 	void setLinear();
 
 	void bind(unsigned int unit);
+	void safe(std::string name, unsigned int width, unsigned int height, unsigned int channels);
 
 	static void Unbind();
 private:
+
 	unsigned int m_texture;
-
-
 	unsigned short m_tileCountX = 0;
 	unsigned short m_tileCountY = 0;
 	unsigned short m_totalFrames = 0;

@@ -1,6 +1,6 @@
 /*
 ** Lua binding: Luainterface
-** Generated automatically by tolua++-1.0.92 on Thu Oct  6 12:10:00 2022.
+** Generated automatically by tolua++-1.0.92 on Thu Oct  6 23:23:14 2022.
 */
 
 #ifndef __cplusplus
@@ -599,8 +599,7 @@ static int tolua_Luainterface_TileSet_addTile00(lua_State* tolua_S)
 	if (
 		!tolua_isusertype(tolua_S, 1, "TileSet", 0, &tolua_err) ||
 		!tolua_iscppstring(tolua_S, 2, 0, &tolua_err) ||
-		!tolua_isnumber(tolua_S, 3, 0, &tolua_err) ||
-		!tolua_isnoobj(tolua_S, 4, &tolua_err)
+		!tolua_isnoobj(tolua_S, 3, &tolua_err)
 		)
 		goto tolua_lerror;
 	else
@@ -608,12 +607,11 @@ static int tolua_Luainterface_TileSet_addTile00(lua_State* tolua_S)
 	{
 		TileSet* self = (TileSet*)tolua_tousertype(tolua_S, 1, 0);
 		std::string filename = ((std::string)  tolua_tocppstring(tolua_S, 2, 0));
-		Enums::TileClassificationType tileType = ((Enums::TileClassificationType) (int)  tolua_tonumber(tolua_S, 3, 0));
 #ifndef TOLUA_RELEASE
 		if (!self) tolua_error(tolua_S, "invalid 'self' in function 'addTile'", NULL);
 #endif
 		{
-			unsigned int tolua_ret = (unsigned int)self->addTile(filename, tileType);
+			unsigned int tolua_ret = (unsigned int)self->addTile(filename);
 			tolua_pushnumber(tolua_S, (lua_Number)tolua_ret);
 		}
 	}
@@ -639,8 +637,7 @@ static int tolua_Luainterface_TileSet_addTileWithCollisionBox00(lua_State* tolua
 		!tolua_isnumber(tolua_S, 4, 0, &tolua_err) ||
 		!tolua_isnumber(tolua_S, 5, 0, &tolua_err) ||
 		!tolua_isnumber(tolua_S, 6, 0, &tolua_err) ||
-		!tolua_isnumber(tolua_S, 7, 0, &tolua_err) ||
-		!tolua_isnoobj(tolua_S, 8, &tolua_err)
+		!tolua_isnoobj(tolua_S, 7, &tolua_err)
 		)
 		goto tolua_lerror;
 	else
@@ -648,16 +645,15 @@ static int tolua_Luainterface_TileSet_addTileWithCollisionBox00(lua_State* tolua
 	{
 		TileSet* self = (TileSet*)tolua_tousertype(tolua_S, 1, 0);
 		std::string filename = ((std::string)  tolua_tocppstring(tolua_S, 2, 0));
-		Enums::TileClassificationType tileType = ((Enums::TileClassificationType) (int)  tolua_tonumber(tolua_S, 3, 0));
-		int cbx = ((int)tolua_tonumber(tolua_S, 4, 0));
-		int cby = ((int)tolua_tonumber(tolua_S, 5, 0));
-		int cbw = ((int)tolua_tonumber(tolua_S, 6, 0));
-		int cbh = ((int)tolua_tonumber(tolua_S, 7, 0));
+		int cbx = ((int)tolua_tonumber(tolua_S, 3, 0));
+		int cby = ((int)tolua_tonumber(tolua_S, 4, 0));
+		int cbw = ((int)tolua_tonumber(tolua_S, 5, 0));
+		int cbh = ((int)tolua_tonumber(tolua_S, 6, 0));
 #ifndef TOLUA_RELEASE
 		if (!self) tolua_error(tolua_S, "invalid 'self' in function 'addTileWithCollisionBox'", NULL);
 #endif
 		{
-			unsigned int tolua_ret = (unsigned int)self->addTileWithCollisionBox(filename, tileType, cbx, cby, cbw, cbh);
+			unsigned int tolua_ret = (unsigned int)self->addTileWithCollisionBox(filename, cbx, cby, cbw, cbh);
 			tolua_pushnumber(tolua_S, (lua_Number)tolua_ret);
 		}
 	}
@@ -1923,6 +1919,37 @@ static int tolua_Luainterface_TextureAtlasCreator_init00(lua_State* tolua_S)
 }
 #endif //#ifndef TOLUA_DISABLE
 
+/* method: addFrame of class  TextureAtlasCreator */
+#ifndef TOLUA_DISABLE_tolua_Luainterface_TextureAtlasCreator_addFrame00
+static int tolua_Luainterface_TextureAtlasCreator_addFrame00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+	tolua_Error tolua_err;
+	if (
+		!tolua_isusertype(tolua_S, 1, "TextureAtlasCreator", 0, &tolua_err) ||
+		!tolua_isnoobj(tolua_S, 2, &tolua_err)
+		)
+		goto tolua_lerror;
+	else
+#endif
+	{
+		TextureAtlasCreator* self = (TextureAtlasCreator*)tolua_tousertype(tolua_S, 1, 0);
+#ifndef TOLUA_RELEASE
+		if (!self) tolua_error(tolua_S, "invalid 'self' in function 'addFrame'", NULL);
+#endif
+		{
+			self->addFrame();
+		}
+	}
+	return 0;
+#ifndef TOLUA_RELEASE
+	tolua_lerror :
+				 tolua_error(tolua_S, "#ferror in function 'addFrame'.", &tolua_err);
+				 return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
 /* method: getAtlas of class  TextureAtlasCreator */
 #ifndef TOLUA_DISABLE_tolua_Luainterface_TextureAtlasCreator_getAtlas00
 static int tolua_Luainterface_TextureAtlasCreator_getAtlas00(lua_State* tolua_S)
@@ -1955,32 +1982,34 @@ static int tolua_Luainterface_TextureAtlasCreator_getAtlas00(lua_State* tolua_S)
 }
 #endif //#ifndef TOLUA_DISABLE
 
-/* method: addFrame of class  TextureAtlasCreator */
-#ifndef TOLUA_DISABLE_tolua_Luainterface_TextureAtlasCreator_addFrame00
-static int tolua_Luainterface_TextureAtlasCreator_addFrame00(lua_State* tolua_S)
+/* method: safeAtlas of class  TextureAtlasCreator */
+#ifndef TOLUA_DISABLE_tolua_Luainterface_TextureAtlasCreator_safeAtlas00
+static int tolua_Luainterface_TextureAtlasCreator_safeAtlas00(lua_State* tolua_S)
 {
 #ifndef TOLUA_RELEASE
 	tolua_Error tolua_err;
 	if (
 		!tolua_isusertype(tolua_S, 1, "TextureAtlasCreator", 0, &tolua_err) ||
-		!tolua_isnoobj(tolua_S, 2, &tolua_err)
+		!tolua_iscppstring(tolua_S, 2, 0, &tolua_err) ||
+		!tolua_isnoobj(tolua_S, 3, &tolua_err)
 		)
 		goto tolua_lerror;
 	else
 #endif
 	{
 		TextureAtlasCreator* self = (TextureAtlasCreator*)tolua_tousertype(tolua_S, 1, 0);
+		std::string name = ((std::string)  tolua_tocppstring(tolua_S, 2, 0));
 #ifndef TOLUA_RELEASE
-		if (!self) tolua_error(tolua_S, "invalid 'self' in function 'addFrame'", NULL);
+		if (!self) tolua_error(tolua_S, "invalid 'self' in function 'safeAtlas'", NULL);
 #endif
 		{
-			self->addFrame();
+			self->safeAtlas(name);
 		}
 	}
 	return 0;
 #ifndef TOLUA_RELEASE
 	tolua_lerror :
-				 tolua_error(tolua_S, "#ferror in function 'addFrame'.", &tolua_err);
+				 tolua_error(tolua_S, "#ferror in function 'safeAtlas'.", &tolua_err);
 				 return 0;
 #endif
 }
@@ -2177,8 +2206,9 @@ TOLUA_API int tolua_Luainterface_open(lua_State* tolua_S)
 	tolua_beginmodule(tolua_S, "TextureAtlasCreator");
 	tolua_function(tolua_S, "get", tolua_Luainterface_TextureAtlasCreator_get00);
 	tolua_function(tolua_S, "init", tolua_Luainterface_TextureAtlasCreator_init00);
-	tolua_function(tolua_S, "getAtlas", tolua_Luainterface_TextureAtlasCreator_getAtlas00);
 	tolua_function(tolua_S, "addFrame", tolua_Luainterface_TextureAtlasCreator_addFrame00);
+	tolua_function(tolua_S, "getAtlas", tolua_Luainterface_TextureAtlasCreator_getAtlas00);
+	tolua_function(tolua_S, "safeAtlas", tolua_Luainterface_TextureAtlasCreator_safeAtlas00);
 	tolua_function(tolua_S, "resetLine", tolua_Luainterface_TextureAtlasCreator_resetLine00);
 	tolua_endmodule(tolua_S);
 	tolua_cclass(tolua_S, "TextureManager", "TextureManager", "", NULL);

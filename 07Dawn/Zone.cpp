@@ -314,7 +314,7 @@ void Zone::drawZoneBatched() {
 	drawShadowsBatched();
 	Batchrenderer::get().drawBuffer();
 
-	Batchrenderer::get().bindTexture(TextureManager::GetTextureAtlas("Wolf"), true);
+	Batchrenderer::get().bindTexture(TextureManager::GetTextureAtlas("mobs"), true);
 	drawNpcsBatched();
 	Batchrenderer::get().drawBuffer();
 

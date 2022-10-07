@@ -38,8 +38,8 @@ public:
 	TileSet();
 
 	// The following functions are in the LUA EditorInterface
-	unsigned int addTile(std::string filename, Enums::TileClassificationType tileType);
-	unsigned int addTileWithCollisionBox(std::string filename, Enums::TileClassificationType tileType, int cbx, int cby, int cbw, int cbh);
+	unsigned int addTile(std::string filename);	
+	unsigned int addTileWithCollisionBox(std::string filename, int cbx, int cby, int cbw, int cbh);
 	void addEquivalenceAdjacency(AdjacencyEquivalenceClass* class1, Enums::AdjacencyType adjacencyType, AdjacencyEquivalenceClass* class2, int allOffsetX, int allOffsetY);
 	void addAdjacency(unsigned int tile1, Enums::AdjacencyType adjacencyType, unsigned int tile2, int offsetX, int offsetY);
 	AdjacencyEquivalenceClass* createAdjacencyEquivalenceClass();	
@@ -52,7 +52,8 @@ public:
 	void getAllAdjacentTiles(const Tile& searchTile, std::vector<std::vector<Tile>> &matchingTiles, std::vector<std::vector<std::array<int,2>>> &matchOffsets) const;
 	unsigned int numberOfTiles();
 	void clearTiles();
-	
+	unsigned int addTile(std::string filename, unsigned int maxWidth, unsigned int maxHeight);
+
 private:
 	std::vector<AdjacencyStruct> m_adjacencyList;
 	std::vector<AdjacencyEquivalenceClass*> m_equivalenceClasses;

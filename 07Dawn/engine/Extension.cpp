@@ -681,6 +681,14 @@ void glGetTextureImage(GLuint texture, GLint level, GLenum format, GLenum type, 
 	glGetTextureImage(texture, level, format, type, bufSize, pixels);
 }
 
+void glGetTextureSubImage(GLuint texture, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLsizei width, GLsizei height, GLsizei depth, GLenum format, GLenum type, GLsizei bufSize, void *pixels) {
+	typedef void(APIENTRY * PFNGLGETTEXTURESUBIMAGEPROC)(GLuint texture, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLsizei width, GLsizei height, GLsizei depth, GLenum format, GLenum type, GLsizei bufSize, void *pixels);
+	static PFNGLGETTEXTURESUBIMAGEPROC glGetTextureSubImage = 0;
+	LOAD_ENTRYPOINT("glGetTextureSubImage", glGetTextureSubImage, PFNGLGETTEXTURESUBIMAGEPROC);
+	glGetTextureSubImage(texture, level, xoffset, yoffset, zoffset, width, height, depth, format, type, bufSize, pixels);
+}
+
+
 GLuint glGetUniformBlockIndex(GLuint program, const GLchar *uniformBlockName) {
 	typedef GLuint(APIENTRY * PFNGLGETUNIFORMBLOCKINDEXPROC)(GLuint program, const GLchar *uniformBlockName);
 	static PFNGLGETUNIFORMBLOCKINDEXPROC  glGetUniformBlockIndex = 0;

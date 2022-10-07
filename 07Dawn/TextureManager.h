@@ -21,7 +21,7 @@ class TextureCache {
 
 public:
 	static TextureCache& Get();
-	TextureRect& getTextureFromCache(std::string filename);
+	TextureRect& getTextureFromCache(std::string filename, unsigned int maxWidth = 0, unsigned maxHeight = 0);
 
 private:
 
@@ -61,14 +61,22 @@ public:
 		return spritesheet.getAtlas();
 	}
 
-	void addTexture(TextureRect& stexture, char *texture, unsigned int w, unsigned int h){
+	void safeAtlas(std::string name) {
+		spritesheet.safe(name, width, height, 4);
+	}
 
-		if (width - curX < w){
+	void addTexture(TextureRect& stexture, char *texture, unsigned int w, unsigned int h, unsigned int _maxWidth = 0, unsigned int _maxHeight = 0){
+
+		unsigned int maxWidth = _maxWidth > 0 ? _maxWidth : width;
+		unsigned int maxHeight = _maxHeight > 0 ? _maxHeight : height;
+
+		if (maxWidth - curX < w) {
 			curX = 0;
 			curY = maxY;
 		}
+		
 
-		if (height - curY < h){
+		if (maxHeight - curY < h){
 			addFrame();
 		}
 
@@ -97,10 +105,7 @@ public:
 	void addFrame() {
 		if (curX == 0 && curY == 0) return;
 
-		//Texture::Safe("mob" + std::to_string(spritesheet.getTotalFrames()) + ".png", buffer, width, height, 4);
-
 		spritesheet.addToSpritesheet(buffer, width, height);
-		
 		memset(buffer, 0, width*height * 4);
 
 		curX = 0;
@@ -139,7 +144,8 @@ public:
 
 
 	static void DrawTextureInstanced(const TextureRect& textureRect, int x, int y, bool checkVieport = true);
-	static TextureRect& Loadimage(std::string file, bool isOpenGLThreadInThreadedMode = false);
+	static TextureRect& Loadimage(std::string file);
+	static TextureRect& Loadimage(std::string file, unsigned int maxWidth, unsigned maxHeight);
 
 	static void Loadimage(std::string file, int textureIndex, std::vector<TextureRect>& textureBase, bool isOpenGLThreadInThreadedMode = false);
 	static unsigned int& GetTextureAtlas(std::string name);

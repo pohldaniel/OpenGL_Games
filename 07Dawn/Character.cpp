@@ -113,7 +113,6 @@ void Character::update(float deltaTime) {
 			progress += deltaTime * 10;
 			index = static_cast<int>(std::round(progress));
 			index = index % tileSet.getAllTiles().size();
-
 			rect = &tileSet.getAllTiles()[index].textureRect;
 			
 			
@@ -646,9 +645,9 @@ int Character::getHeight() const {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void CharacterType::addMoveTexture(Enums::ActivityType activity, Enums::Direction direction, int index, std::string filename, int textureOffsetX, int textureOffsetY) {
+void CharacterType::addMoveTexture(Enums::ActivityType activity, Enums::Direction direction, int index, std::string filename, int maxWidth, int maxHeight) {
 	TileSet& tileSet = m_moveTileSets[{activity, direction}];
-	tileSet.addTile(filename, Enums::TileClassificationType::FLOOR);
+	tileSet.addTile(filename, maxWidth, maxHeight);
 }
 
 void CharacterType::setStrength(uint16_t newStrength) {

@@ -32,21 +32,24 @@ AdjacencyEquivalenceClass* TileSet::createAdjacencyEquivalenceClass(){
 TileSet::TileSet() {}
 
 // The following functions are in the LUA EditorInterface
-unsigned int TileSet::addTile(std::string filename, Enums::TileClassificationType tileType) {
+unsigned int TileSet::addTile(std::string filename) {
 
 	unsigned int tileId = static_cast<unsigned int>(m_tiles.size());
-	/*std::auto_ptr<Tile> newTile = std::auto_ptr<Tile>(new Tile());
-
-	newTile->tileId = tileId;
-	newTile->textureRect = TextureManager::Loadimage(filename);
-	Tile *tilePtr = newTile.release();
-	//m_tiles.push_back(tilePtr);*/
+	
 	m_tiles.push_back({ tileId , false, TextureManager::Loadimage(filename), {} });
 	return tileId;
 }
 
-unsigned int TileSet::addTileWithCollisionBox(std::string filename, Enums::TileClassificationType tileType, int cbx, int cby, int cbw, int cbh) {
-	unsigned int tileId = addTile(filename, tileType);
+unsigned int TileSet::addTile(std::string filename, unsigned int maxWidth, unsigned int maxHeight) {
+
+	unsigned int tileId = static_cast<unsigned int>(m_tiles.size());
+
+	m_tiles.push_back({ tileId , false, TextureManager::Loadimage(filename, maxWidth, maxHeight),{} });
+	return tileId;
+}
+
+unsigned int TileSet::addTileWithCollisionBox(std::string filename, int cbx, int cby, int cbw, int cbh) {
+	unsigned int tileId = addTile(filename);
 	Tile& newTile = m_tiles[tileId];
 	newTile.containsCollisionRect = true;
 	newTile.collisionRect = { cbx, cby, cbw,cbh };

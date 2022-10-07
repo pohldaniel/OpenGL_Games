@@ -238,7 +238,7 @@ void Spritesheet::addToSpritesheet(unsigned int texture, unsigned int width, uns
 	glBindTexture(GL_TEXTURE_2D_ARRAY, texture_new);
 	glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, internalFormat, width, height, m_totalFrames, 0, internalFormat == GL_RGBA8 ? GL_RGBA : GL_RGB, GL_UNSIGNED_BYTE, NULL);
 
-	for (int layer = 0; layer < m_totalFrames - 1; ++layer) {
+	for (unsigned short layer = 0; layer < m_totalFrames - 1; ++layer) {
 		glFramebufferTextureLayer(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, m_texture, 0, layer);
 		glReadBuffer(GL_COLOR_ATTACHMENT0);
 		glCopyTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, layer, 0, 0, width, height);
@@ -301,7 +301,7 @@ void Spritesheet::addToSpritesheet(unsigned char* bytes, unsigned int width, uns
 	glBindTexture(GL_TEXTURE_2D_ARRAY, texture_new);
 	glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_RGBA8, width, height, m_totalFrames, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 
-	for (int layer = 0; layer < m_totalFrames - 1; ++layer) {
+	for (unsigned short layer = 0; layer < m_totalFrames - 1; ++layer) {
 		glFramebufferTextureLayer(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, m_texture, 0, layer);
 		glReadBuffer(GL_COLOR_ATTACHMENT0);
 		glCopyTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, layer, 0, 0, width, height);
@@ -334,6 +334,18 @@ unsigned short Spritesheet::getTileCountY() {
 
 unsigned short Spritesheet::getTotalFrames() {
 	return m_totalFrames;
+}
+
+//https://stackoverflow.com/questions/60247269/can-glreadpixels-be-used-to-read-layers-from-gl-texture-3d
+void Spritesheet::safe(std::string name, unsigned int width, unsigned int height, unsigned int channels) {
+
+	unsigned char* bytes = (unsigned char*)malloc(width * channels * height);
+	for (unsigned short layer = 0; layer < m_totalFrames; ++layer) {		
+		glGetTextureSubImage(m_texture, 0, 0, 0, layer, width, height, 1, GL_RGBA, GL_UNSIGNED_BYTE, sizeof(unsigned char) * width * channels * height, bytes);
+		SOIL_save_image((name + "_" + std::to_string(layer) + ".png").c_str(), SOIL_SAVE_TYPE_PNG, width, height, channels, bytes);
+		
+	}	
+	free(bytes);
 }
 
 Spritesheet::~Spritesheet() {

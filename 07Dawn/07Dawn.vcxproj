@@ -159,9 +159,9 @@
     <ClCompile Include="Dialog.cpp" />
     <ClCompile Include="Editor.cpp" />
     <ClCompile Include="engine\animation\Animation2d.cpp" />
+    <ClCompile Include="engine\Fontrenderer.cpp" />
     <ClCompile Include="engine\Instancerenderer.cpp" />
     <ClCompile Include="engine\Transform.cpp" />
-    <ClCompile Include="Fontrenderer.cpp" />
     <ClCompile Include="InteractionPoint.cpp" />
     <ClCompile Include="InteractionRegion.cpp" />
     <ClCompile Include="Label.cpp" />
@@ -213,10 +213,10 @@
     <ClInclude Include="Dialog.h" />
     <ClInclude Include="Editor.h" />
     <ClInclude Include="engine\animation\Animation2d.h" />
+    <ClInclude Include="engine\Fontrenderer.h" />
     <ClInclude Include="engine\Instancerenderer.h" />
     <ClInclude Include="engine\Transform.h" />
     <ClInclude Include="Enums.h" />
-    <ClInclude Include="Fontrenderer.h" />
     <ClInclude Include="InteractionPoint.h" />
     <ClInclude Include="InteractionRegion.h" />
     <ClInclude Include="Label.h" />

@@ -21,7 +21,7 @@ struct pair_hash {
 struct CharacterType {
 	friend class Character;
 
-	void addMoveTexture(Enums::ActivityType activity, Enums::Direction direction, int index, std::string filename, int textureOffsetX = 0, int textureOffsetY = 0);
+	void addMoveTexture(Enums::ActivityType activity, Enums::Direction direction, int index, std::string filename, int maxWidth = 0, int maxHeight = 0);
 
 	void setStrength(uint16_t newStrength);
 	void setDexterity(uint16_t newDexterity);

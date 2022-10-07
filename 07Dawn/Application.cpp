@@ -9,7 +9,6 @@
 Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fdt), m_eventDispatcher(new EventDispatcher()){
 	ViewPort::get().init(WIDTH, HEIGHT);
 	
-
 	initWindow();
 	initOpenGL();
 	loadAssets();
@@ -306,8 +305,8 @@ void Application::initStates() {
 	//Game* game = dynamic_cast<Game*>(m_machine->addStateAtTop(new Game(*m_machine)));
 	//AddMouseListener(game);
 
-	m_machine->addStateAtTop(new MainMenu(*m_machine));
-	//m_machine->addStateAtTop(new Editor(*m_machine));
+	//m_machine->addStateAtTop(new MainMenu(*m_machine));
+	m_machine->addStateAtTop(new Editor(*m_machine));
 
 	//m_machine->addStateAtTop(new LoadingScreen(*m_machine));
 }
@@ -342,8 +341,5 @@ void Application::loadAssets() {
 	Globals::fontManager.loadCharacterSet("verdana_12", "res/verdana.ttf", 12, 3, 20);
 	Globals::fontManager.loadCharacterSet("verdana_10", "res/verdana.ttf", 10, 3, 20);
 	Globals::fontManager.loadCharacterSet("verdana_9", "res/verdana.ttf", 9, 3, 20);
-	Globals::fontManager.loadCharacterSet("verdana_5", "res/verdana.ttf", 5, 3, 20);
-
-	
-	
+	Globals::fontManager.loadCharacterSet("verdana_5", "res/verdana.ttf", 5, 3, 20);	
 }

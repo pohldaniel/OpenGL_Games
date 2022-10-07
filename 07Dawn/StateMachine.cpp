@@ -90,7 +90,7 @@ void StateMachine::render() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	glEnable(GL_BLEND);
 	glUseProgram(m_shader->m_program);
-	m_shader->loadMatrix("u_transform", Matrix4f::IDENTITY);
+	//m_shader->loadMatrix("u_transform", Matrix4f::IDENTITY);
 	m_quad->render(m_frameTexture);
 	glUseProgram(0);
 	Message::Get().draw();
