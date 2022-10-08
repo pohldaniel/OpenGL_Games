@@ -2,12 +2,11 @@
 #include "TilesetManager.h"
 #include "Constants.h"
 
-Character::Character(const CharacterType& characterType) : m_characterType(characterType) {
+Character::Character() {
 	wander_radius = 40;
 	activeDirection = Enums::Direction::S;
 	
-
-	rect = &m_characterType.m_moveTileSets.at({ getCurActivity(), activeDirection }).getAllTiles()[0].textureRect;
+	
 }
 
 void Character::setNumActivities(unsigned short numActivities) {	
@@ -20,7 +19,7 @@ unsigned short Character::getNumActivities() {
 
 void Character::baseOnType(std::string characterType) {
 	const CharacterType& other = CharacterTypeManager::Get().getCharacterType(characterType);
-	m_numActivities = static_cast<unsigned short>(m_characterType.m_moveTileSets.size()) / 8;
+	
 	
 	strength = other.strength;
 	dexterity = other.dexterity;
@@ -64,70 +63,28 @@ int Character::getYPos() const {
 
 
 void Character::update(float deltaTime) {
-	Enums::ActivityType curActivity = getCurActivity();
+	
+}
 
-	if (isStunned() == true || isMesmerized() == true) {
-		rect = &m_characterType.m_moveTileSets.at({curActivity, activeDirection}).getAllTiles()[0].textureRect;
-		return;
+std::string getCharacterClassPortrait(Enums::CharacterClass characterClass){
+	switch (characterClass){
+	case Enums::CharacterClass::Liche:
+		return "res/interface/Portrait/Liche.tga";
+		break;
+	case Enums::CharacterClass::Ranger:
+		return "res/interface/Portrait/Ranger.tga";
+		break;
+	case Enums::CharacterClass::Warrior:
+		return "res/interface/Portrait/Warrior.tga";
+		break;
+	default:
+		return "";
+		break;
 	}
+}
 
-	Enums::Direction direction = GetDirection();
-	if (direction != Enums::Direction::STOP) {
-		activeDirection = direction;
-	}
-
-	switch (curActivity) {
-
-		case Enums::ActivityType::Dying: {
-
-			if (direction == Enums::Direction::STOP) {
-				rect = &m_characterType.m_moveTileSets.at({ curActivity, activeDirection }).getAllTiles()[0].textureRect;
-				index = 0;
-				progress = 0.0f;
-				return;
-			}
-
-			const TileSet& tileSet = m_characterType.m_moveTileSets.at({ curActivity, activeDirection });
-			progress += deltaTime * 12;
-			index = static_cast<int>(std::round(progress));
-			index = index % tileSet.getAllTiles().size();
-			rect = &tileSet.getAllTiles()[index].textureRect;
-
-			break;
-		}case  Enums::ActivityType::Walking: {
-			
-			if (direction == Enums::Direction::STOP) {				
-				rect = &m_characterType.m_moveTileSets.at({ curActivity, activeDirection }).getAllTiles()[0].textureRect;
-				index = 0;
-				progress = 0.0f;
-				return;
-			}
-
-			const TileSet& tileSet = m_characterType.m_moveTileSets.at({ curActivity, activeDirection });
-			progress += deltaTime * 10;
-			index = static_cast<int>(std::round(progress));
-			index = index % tileSet.getAllTiles().size();
-			rect = &tileSet.getAllTiles()[index].textureRect;
-			
-			break;
-		}case Enums::ActivityType::Attacking: case Enums::ActivityType::Casting: case Enums::ActivityType::Shooting: {
-
-			if (direction == Enums::Direction::STOP) {
-				rect = &m_characterType.m_moveTileSets.at({ curActivity, activeDirection }).getAllTiles()[0].textureRect;
-				index = 0;
-				progress = 0.0f;
-				return;
-			}
-
-			const TileSet& tileSet = m_characterType.m_moveTileSets.at({ curActivity, activeDirection });
-			progress += deltaTime * 12;
-			index = static_cast<int>(std::round(progress));
-			index = index % tileSet.getAllTiles().size();
-			rect = &tileSet.getAllTiles()[index].textureRect;
-
-			break;
-		}		
-	}
+void Character::giveCoins(unsigned int amountOfCoins) {
+	coins += amountOfCoins;
 }
 
 uint16_t Character::getWanderRadius() const {
@@ -300,9 +257,7 @@ void Character::MoveRight(uint8_t n) {
 		//}
 }
 
-
-
-/*void Character::setStrength(uint16_t newStrength){
+void Character::setStrength(uint16_t newStrength){
 	strength = newStrength;
 }
 
@@ -394,13 +349,13 @@ void Character::setLevel(uint8_t newLevel){
 	level = newLevel;
 }
 
-void Character::setClass(CharacterClass::CharacterClass characterClass){
-	Character::characterClass = characterClass;
+void Character::setClass(Enums::CharacterClass _characterClass){
+	characterClass = _characterClass;
 }
 
 void Character::setExperienceValue(uint8_t experienceValue){
 	Character::experienceValue = experienceValue;
-}*/
+}
 
 uint16_t Character::getStrength() const{
 	return strength;
@@ -486,19 +441,7 @@ uint8_t Character::getExperienceValue() const{
 	return experienceValue;
 }
 
-int Character::getWidth() const {
-	const TextureRect& rect = m_characterType.m_moveTileSets.at({ Enums::ActivityType::Walking, Enums::Direction::S }).getAllTiles()[0].textureRect;
-	return useBoundingBox ? boundingBoxW : rect.width;
-}
 
-int Character::getHeight() const {
-	const TextureRect& rect = m_characterType.m_moveTileSets.at({ Enums::ActivityType::Walking, Enums::Direction::S }).getAllTiles()[0].textureRect;
-	return useBoundingBox ? boundingBoxH : rect.height;
-}
-
-unsigned short Character::getNumActivityTextures(Enums::ActivityType activity) {
-	return m_characterType.m_numMoveTexturesPerDirection.at(activity);
-}
 
 Enums::Direction Character::GetOppositeDirection(Enums::Direction direction) {
 	switch (direction) {

@@ -28,6 +28,8 @@ void Game::render(unsigned int &frameBuffer) {
 
 
 	newZone->drawZoneBatched();
+
+	m_interface->DrawInterface();
 	m_interface->DrawCursor(!m_hideInGameCursor);
 	glDisable(GL_BLEND);
 

@@ -37,4 +37,5 @@ namespace Globals {
 
 	extern Clock clock;
 	extern std::vector<TextWindow*> allTextWindows;
+
 }

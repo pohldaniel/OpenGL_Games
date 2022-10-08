@@ -6,7 +6,7 @@
 #include "Editor.h"
 #include "LoadingScreen.h"
 
-EventDispatcher* Application::s_eventDispatcher;
+EventDispatcher& Application::s_eventDispatcher = EventDispatcher();
 
 Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fdt) {
 	ViewPort::get().init(WIDTH, HEIGHT);
@@ -16,9 +16,8 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 	loadAssets();
 	initStates();
 	m_enableVerticalSync = true;
-	Application::s_eventDispatcher = new EventDispatcher();
 
-	Application::s_eventDispatcher->setProcessOSEvents([&]() {
+	Application::s_eventDispatcher.setProcessOSEvents([&]() {
 		while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
 			if (msg.message == WM_QUIT) return false;
 			TranslateMessage(&msg);
@@ -288,7 +287,7 @@ bool Application::isRunning() {
 		return false;
 	}
 	
-	return s_eventDispatcher->update();
+	return s_eventDispatcher.update();
 }
 
 void Application::render() {
@@ -321,20 +320,20 @@ void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 			event.type = Event::MOUSEMOTION;
 			event.data.mouseMove.x = static_cast<int>(static_cast<short>(LOWORD(lParam)));
 			event.data.mouseMove.y = static_cast<int>(static_cast<short>(HIWORD(lParam)));
-			s_eventDispatcher->pushEvent(event);			
+			s_eventDispatcher.pushEvent(event);			
 			break;
 		}case WM_NCMOUSEMOVE: {
 			Event event;
 			event.type = Event::MOUSEMOTION;
 			event.data.mouseMove.titleBar = true;
-			s_eventDispatcher->pushEvent(event);
+			s_eventDispatcher.pushEvent(event);
 			break;
 		}
 	}
 }
 
 void Application::AddMouseListener(MouseEventListener * el) {
-	s_eventDispatcher->AddMouseListener(el);
+	s_eventDispatcher.AddMouseListener(el);
 }
 
 void Application::loadAssets() {

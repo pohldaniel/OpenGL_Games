@@ -16,6 +16,9 @@ public:
 	void draw() override;
 	void update(float deltaTime) override;
 	void Move(float deltaTime) override;
+	int getWidth() const override;;
+	int getHeight() const override;;
+	unsigned short getNumActivityTextures(Enums::ActivityType activity) override;
 
 	Enums::Direction GetDirection() override;
 	Enums::Direction GetDirectionRNG() override;
@@ -26,7 +29,7 @@ public:
 	void markAsDeleted();
 	bool isMarkedAsDeletable() const;
 	std::string getLuaEditorSaveText() const;
-
+	const CharacterType& getCharacterType();
 private:
 
 	//Attitude::Attitude attitudeTowardsPlayer;
@@ -39,4 +42,6 @@ private:
 	Enums::Attitude attitudeTowardsPlayer;
 
 	bool m_updated = false;
+
+	const CharacterType& m_characterType;
 };

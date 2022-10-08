@@ -40,6 +40,8 @@ struct EnvironmentMap {
 class Zone{
 	friend class Editor;
 	friend class ZoneManager;
+	
+
 public:
 	Zone();
 	~Zone();

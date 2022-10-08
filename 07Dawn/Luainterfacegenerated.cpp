@@ -1,6 +1,6 @@
 /*
 ** Lua binding: Luainterface
-** Generated automatically by tolua++-1.0.92 on Sat Oct  8 13:00:12 2022.
+** Generated automatically by tolua++-1.0.92 on Sat Oct  8 23:24:55 2022.
 */
 
 #ifndef __cplusplus
@@ -18,6 +18,7 @@ TOLUA_API int  tolua_Luainterface_open(lua_State* tolua_S);
 #include "Character.h"
 #include "TextureManager.h"
 #include "Npc.h"
+#include "Player.h"
 #include "InteractionRegion.h"
 #include "InteractionPoint.h"
 #include "TextWindow.h"
@@ -27,15 +28,16 @@ TOLUA_API int  tolua_Luainterface_open(lua_State* tolua_S);
 static void tolua_reg_types(lua_State* tolua_S)
 {
 	tolua_usertype(tolua_S, "TextureManager");
-	tolua_usertype(tolua_S, "CharacterType");
+	tolua_usertype(tolua_S, "TileSet");
 	tolua_usertype(tolua_S, "InteractionPoint");
 	tolua_usertype(tolua_S, "Npc");
 	tolua_usertype(tolua_S, "TextureAtlasCreator");
 	tolua_usertype(tolua_S, "Character");
-	tolua_usertype(tolua_S, "AdjacencyEquivalenceClass");
 	tolua_usertype(tolua_S, "InteractionRegion");
+	tolua_usertype(tolua_S, "AdjacencyEquivalenceClass");
 	tolua_usertype(tolua_S, "TextWindow");
-	tolua_usertype(tolua_S, "TileSet");
+	tolua_usertype(tolua_S, "CharacterType");
+	tolua_usertype(tolua_S, "Player");
 }
 
 /* function: DawnInterface::enterZone */
@@ -1611,6 +1613,430 @@ static int tolua_Luainterface_CharacterType_setExperienceValue00(lua_State* tolu
 }
 #endif //#ifndef TOLUA_DISABLE
 
+/* method: Get of class  Player */
+#ifndef TOLUA_DISABLE_tolua_Luainterface_Player_Get00
+static int tolua_Luainterface_Player_Get00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+	tolua_Error tolua_err;
+	if (
+		!tolua_isusertable(tolua_S, 1, "Player", 0, &tolua_err) ||
+		!tolua_isnoobj(tolua_S, 2, &tolua_err)
+		)
+		goto tolua_lerror;
+	else
+#endif
+	{
+		{
+			Player& tolua_ret = (Player&)Player::Get();
+			tolua_pushusertype(tolua_S, (void*)&tolua_ret, "Player");
+		}
+	}
+	return 1;
+#ifndef TOLUA_RELEASE
+	tolua_lerror :
+				 tolua_error(tolua_S, "#ferror in function 'Get'.", &tolua_err);
+				 return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
+/* method: setMaxHealth of class  Player */
+#ifndef TOLUA_DISABLE_tolua_Luainterface_Player_setMaxHealth00
+static int tolua_Luainterface_Player_setMaxHealth00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+	tolua_Error tolua_err;
+	if (
+		!tolua_isusertype(tolua_S, 1, "Player", 0, &tolua_err) ||
+		!tolua_isnumber(tolua_S, 2, 0, &tolua_err) ||
+		!tolua_isnoobj(tolua_S, 3, &tolua_err)
+		)
+		goto tolua_lerror;
+	else
+#endif
+	{
+		Player* self = (Player*)tolua_tousertype(tolua_S, 1, 0);
+		int newMaxHealth = ((int)tolua_tonumber(tolua_S, 2, 0));
+#ifndef TOLUA_RELEASE
+		if (!self) tolua_error(tolua_S, "invalid 'self' in function 'setMaxHealth'", NULL);
+#endif
+		{
+			self->setMaxHealth(newMaxHealth);
+		}
+	}
+	return 0;
+#ifndef TOLUA_RELEASE
+	tolua_lerror :
+				 tolua_error(tolua_S, "#ferror in function 'setMaxHealth'.", &tolua_err);
+				 return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
+/* method: setMaxMana of class  Player */
+#ifndef TOLUA_DISABLE_tolua_Luainterface_Player_setMaxMana00
+static int tolua_Luainterface_Player_setMaxMana00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+	tolua_Error tolua_err;
+	if (
+		!tolua_isusertype(tolua_S, 1, "Player", 0, &tolua_err) ||
+		!tolua_isnumber(tolua_S, 2, 0, &tolua_err) ||
+		!tolua_isnoobj(tolua_S, 3, &tolua_err)
+		)
+		goto tolua_lerror;
+	else
+#endif
+	{
+		Player* self = (Player*)tolua_tousertype(tolua_S, 1, 0);
+		int newMaxMana = ((int)tolua_tonumber(tolua_S, 2, 0));
+#ifndef TOLUA_RELEASE
+		if (!self) tolua_error(tolua_S, "invalid 'self' in function 'setMaxMana'", NULL);
+#endif
+		{
+			self->setMaxMana(newMaxMana);
+		}
+	}
+	return 0;
+#ifndef TOLUA_RELEASE
+	tolua_lerror :
+				 tolua_error(tolua_S, "#ferror in function 'setMaxMana'.", &tolua_err);
+				 return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
+/* method: setMaxFatigue of class  Player */
+#ifndef TOLUA_DISABLE_tolua_Luainterface_Player_setMaxFatigue00
+static int tolua_Luainterface_Player_setMaxFatigue00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+	tolua_Error tolua_err;
+	if (
+		!tolua_isusertype(tolua_S, 1, "Player", 0, &tolua_err) ||
+		!tolua_isnumber(tolua_S, 2, 0, &tolua_err) ||
+		!tolua_isnoobj(tolua_S, 3, &tolua_err)
+		)
+		goto tolua_lerror;
+	else
+#endif
+	{
+		Player* self = (Player*)tolua_tousertype(tolua_S, 1, 0);
+		int newMaxFatigue = ((int)tolua_tonumber(tolua_S, 2, 0));
+#ifndef TOLUA_RELEASE
+		if (!self) tolua_error(tolua_S, "invalid 'self' in function 'setMaxFatigue'", NULL);
+#endif
+		{
+			self->setMaxFatigue(newMaxFatigue);
+		}
+	}
+	return 0;
+#ifndef TOLUA_RELEASE
+	tolua_lerror :
+				 tolua_error(tolua_S, "#ferror in function 'setMaxFatigue'.", &tolua_err);
+				 return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
+/* method: setStrength of class  Player */
+#ifndef TOLUA_DISABLE_tolua_Luainterface_Player_setStrength00
+static int tolua_Luainterface_Player_setStrength00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+	tolua_Error tolua_err;
+	if (
+		!tolua_isusertype(tolua_S, 1, "Player", 0, &tolua_err) ||
+		!tolua_isnumber(tolua_S, 2, 0, &tolua_err) ||
+		!tolua_isnoobj(tolua_S, 3, &tolua_err)
+		)
+		goto tolua_lerror;
+	else
+#endif
+	{
+		Player* self = (Player*)tolua_tousertype(tolua_S, 1, 0);
+		int newStrength = ((int)tolua_tonumber(tolua_S, 2, 0));
+#ifndef TOLUA_RELEASE
+		if (!self) tolua_error(tolua_S, "invalid 'self' in function 'setStrength'", NULL);
+#endif
+		{
+			self->setStrength(newStrength);
+		}
+	}
+	return 0;
+#ifndef TOLUA_RELEASE
+	tolua_lerror :
+				 tolua_error(tolua_S, "#ferror in function 'setStrength'.", &tolua_err);
+				 return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
+/* method: setVitality of class  Player */
+#ifndef TOLUA_DISABLE_tolua_Luainterface_Player_setVitality00
+static int tolua_Luainterface_Player_setVitality00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+	tolua_Error tolua_err;
+	if (
+		!tolua_isusertype(tolua_S, 1, "Player", 0, &tolua_err) ||
+		!tolua_isnumber(tolua_S, 2, 0, &tolua_err) ||
+		!tolua_isnoobj(tolua_S, 3, &tolua_err)
+		)
+		goto tolua_lerror;
+	else
+#endif
+	{
+		Player* self = (Player*)tolua_tousertype(tolua_S, 1, 0);
+		int newVitality = ((int)tolua_tonumber(tolua_S, 2, 0));
+#ifndef TOLUA_RELEASE
+		if (!self) tolua_error(tolua_S, "invalid 'self' in function 'setVitality'", NULL);
+#endif
+		{
+			self->setVitality(newVitality);
+		}
+	}
+	return 0;
+#ifndef TOLUA_RELEASE
+	tolua_lerror :
+				 tolua_error(tolua_S, "#ferror in function 'setVitality'.", &tolua_err);
+				 return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
+/* method: setDexterity of class  Player */
+#ifndef TOLUA_DISABLE_tolua_Luainterface_Player_setDexterity00
+static int tolua_Luainterface_Player_setDexterity00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+	tolua_Error tolua_err;
+	if (
+		!tolua_isusertype(tolua_S, 1, "Player", 0, &tolua_err) ||
+		!tolua_isnumber(tolua_S, 2, 0, &tolua_err) ||
+		!tolua_isnoobj(tolua_S, 3, &tolua_err)
+		)
+		goto tolua_lerror;
+	else
+#endif
+	{
+		Player* self = (Player*)tolua_tousertype(tolua_S, 1, 0);
+		int newDexterity = ((int)tolua_tonumber(tolua_S, 2, 0));
+#ifndef TOLUA_RELEASE
+		if (!self) tolua_error(tolua_S, "invalid 'self' in function 'setDexterity'", NULL);
+#endif
+		{
+			self->setDexterity(newDexterity);
+		}
+	}
+	return 0;
+#ifndef TOLUA_RELEASE
+	tolua_lerror :
+				 tolua_error(tolua_S, "#ferror in function 'setDexterity'.", &tolua_err);
+				 return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
+/* method: setWisdom of class  Player */
+#ifndef TOLUA_DISABLE_tolua_Luainterface_Player_setWisdom00
+static int tolua_Luainterface_Player_setWisdom00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+	tolua_Error tolua_err;
+	if (
+		!tolua_isusertype(tolua_S, 1, "Player", 0, &tolua_err) ||
+		!tolua_isnumber(tolua_S, 2, 0, &tolua_err) ||
+		!tolua_isnoobj(tolua_S, 3, &tolua_err)
+		)
+		goto tolua_lerror;
+	else
+#endif
+	{
+		Player* self = (Player*)tolua_tousertype(tolua_S, 1, 0);
+		int newWisdom = ((int)tolua_tonumber(tolua_S, 2, 0));
+#ifndef TOLUA_RELEASE
+		if (!self) tolua_error(tolua_S, "invalid 'self' in function 'setWisdom'", NULL);
+#endif
+		{
+			self->setWisdom(newWisdom);
+		}
+	}
+	return 0;
+#ifndef TOLUA_RELEASE
+	tolua_lerror :
+				 tolua_error(tolua_S, "#ferror in function 'setWisdom'.", &tolua_err);
+				 return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
+/* method: setIntellect of class  Player */
+#ifndef TOLUA_DISABLE_tolua_Luainterface_Player_setIntellect00
+static int tolua_Luainterface_Player_setIntellect00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+	tolua_Error tolua_err;
+	if (
+		!tolua_isusertype(tolua_S, 1, "Player", 0, &tolua_err) ||
+		!tolua_isnumber(tolua_S, 2, 0, &tolua_err) ||
+		!tolua_isnoobj(tolua_S, 3, &tolua_err)
+		)
+		goto tolua_lerror;
+	else
+#endif
+	{
+		Player* self = (Player*)tolua_tousertype(tolua_S, 1, 0);
+		int newIntellect = ((int)tolua_tonumber(tolua_S, 2, 0));
+#ifndef TOLUA_RELEASE
+		if (!self) tolua_error(tolua_S, "invalid 'self' in function 'setIntellect'", NULL);
+#endif
+		{
+			self->setIntellect(newIntellect);
+		}
+	}
+	return 0;
+#ifndef TOLUA_RELEASE
+	tolua_lerror :
+				 tolua_error(tolua_S, "#ferror in function 'setIntellect'.", &tolua_err);
+				 return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
+/* method: setHealthRegen of class  Player */
+#ifndef TOLUA_DISABLE_tolua_Luainterface_Player_setHealthRegen00
+static int tolua_Luainterface_Player_setHealthRegen00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+	tolua_Error tolua_err;
+	if (
+		!tolua_isusertype(tolua_S, 1, "Player", 0, &tolua_err) ||
+		!tolua_isnumber(tolua_S, 2, 0, &tolua_err) ||
+		!tolua_isnoobj(tolua_S, 3, &tolua_err)
+		)
+		goto tolua_lerror;
+	else
+#endif
+	{
+		Player* self = (Player*)tolua_tousertype(tolua_S, 1, 0);
+		int newHealthRegen = ((int)tolua_tonumber(tolua_S, 2, 0));
+#ifndef TOLUA_RELEASE
+		if (!self) tolua_error(tolua_S, "invalid 'self' in function 'setHealthRegen'", NULL);
+#endif
+		{
+			self->setHealthRegen(newHealthRegen);
+		}
+	}
+	return 0;
+#ifndef TOLUA_RELEASE
+	tolua_lerror :
+				 tolua_error(tolua_S, "#ferror in function 'setHealthRegen'.", &tolua_err);
+				 return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
+/* method: setManaRegen of class  Player */
+#ifndef TOLUA_DISABLE_tolua_Luainterface_Player_setManaRegen00
+static int tolua_Luainterface_Player_setManaRegen00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+	tolua_Error tolua_err;
+	if (
+		!tolua_isusertype(tolua_S, 1, "Player", 0, &tolua_err) ||
+		!tolua_isnumber(tolua_S, 2, 0, &tolua_err) ||
+		!tolua_isnoobj(tolua_S, 3, &tolua_err)
+		)
+		goto tolua_lerror;
+	else
+#endif
+	{
+		Player* self = (Player*)tolua_tousertype(tolua_S, 1, 0);
+		int newManaRegen = ((int)tolua_tonumber(tolua_S, 2, 0));
+#ifndef TOLUA_RELEASE
+		if (!self) tolua_error(tolua_S, "invalid 'self' in function 'setManaRegen'", NULL);
+#endif
+		{
+			self->setManaRegen(newManaRegen);
+		}
+	}
+	return 0;
+#ifndef TOLUA_RELEASE
+	tolua_lerror :
+				 tolua_error(tolua_S, "#ferror in function 'setManaRegen'.", &tolua_err);
+				 return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
+/* method: setFatigueRegen of class  Player */
+#ifndef TOLUA_DISABLE_tolua_Luainterface_Player_setFatigueRegen00
+static int tolua_Luainterface_Player_setFatigueRegen00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+	tolua_Error tolua_err;
+	if (
+		!tolua_isusertype(tolua_S, 1, "Player", 0, &tolua_err) ||
+		!tolua_isnumber(tolua_S, 2, 0, &tolua_err) ||
+		!tolua_isnoobj(tolua_S, 3, &tolua_err)
+		)
+		goto tolua_lerror;
+	else
+#endif
+	{
+		Player* self = (Player*)tolua_tousertype(tolua_S, 1, 0);
+		int newFatigueRegen = ((int)tolua_tonumber(tolua_S, 2, 0));
+#ifndef TOLUA_RELEASE
+		if (!self) tolua_error(tolua_S, "invalid 'self' in function 'setFatigueRegen'", NULL);
+#endif
+		{
+			self->setFatigueRegen(newFatigueRegen);
+		}
+	}
+	return 0;
+#ifndef TOLUA_RELEASE
+	tolua_lerror :
+				 tolua_error(tolua_S, "#ferror in function 'setFatigueRegen'.", &tolua_err);
+				 return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
+/* method: giveCoins of class  Player */
+#ifndef TOLUA_DISABLE_tolua_Luainterface_Player_giveCoins00
+static int tolua_Luainterface_Player_giveCoins00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+	tolua_Error tolua_err;
+	if (
+		!tolua_isusertype(tolua_S, 1, "Player", 0, &tolua_err) ||
+		!tolua_isnumber(tolua_S, 2, 0, &tolua_err) ||
+		!tolua_isnoobj(tolua_S, 3, &tolua_err)
+		)
+		goto tolua_lerror;
+	else
+#endif
+	{
+		Player* self = (Player*)tolua_tousertype(tolua_S, 1, 0);
+		unsigned int amountOfCoins = ((unsigned int)tolua_tonumber(tolua_S, 2, 0));
+#ifndef TOLUA_RELEASE
+		if (!self) tolua_error(tolua_S, "invalid 'self' in function 'giveCoins'", NULL);
+#endif
+		{
+			self->giveCoins(amountOfCoins);
+		}
+	}
+	return 0;
+#ifndef TOLUA_RELEASE
+	tolua_lerror :
+				 tolua_error(tolua_S, "#ferror in function 'giveCoins'.", &tolua_err);
+				 return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
 /* method: setAttitude of class  Npc */
 #ifndef TOLUA_DISABLE_tolua_Luainterface_Npc_setAttitude00
 static int tolua_Luainterface_Npc_setAttitude00(lua_State* tolua_S)
@@ -2216,6 +2642,22 @@ TOLUA_API int tolua_Luainterface_open(lua_State* tolua_S)
 	tolua_function(tolua_S, "setLevel", tolua_Luainterface_CharacterType_setLevel00);
 	tolua_function(tolua_S, "setClass", tolua_Luainterface_CharacterType_setClass00);
 	tolua_function(tolua_S, "setExperienceValue", tolua_Luainterface_CharacterType_setExperienceValue00);
+	tolua_endmodule(tolua_S);
+	tolua_cclass(tolua_S, "Player", "Player", "Character", NULL);
+	tolua_beginmodule(tolua_S, "Player");
+	tolua_function(tolua_S, "Get", tolua_Luainterface_Player_Get00);
+	tolua_function(tolua_S, "setMaxHealth", tolua_Luainterface_Player_setMaxHealth00);
+	tolua_function(tolua_S, "setMaxMana", tolua_Luainterface_Player_setMaxMana00);
+	tolua_function(tolua_S, "setMaxFatigue", tolua_Luainterface_Player_setMaxFatigue00);
+	tolua_function(tolua_S, "setStrength", tolua_Luainterface_Player_setStrength00);
+	tolua_function(tolua_S, "setVitality", tolua_Luainterface_Player_setVitality00);
+	tolua_function(tolua_S, "setDexterity", tolua_Luainterface_Player_setDexterity00);
+	tolua_function(tolua_S, "setWisdom", tolua_Luainterface_Player_setWisdom00);
+	tolua_function(tolua_S, "setIntellect", tolua_Luainterface_Player_setIntellect00);
+	tolua_function(tolua_S, "setHealthRegen", tolua_Luainterface_Player_setHealthRegen00);
+	tolua_function(tolua_S, "setManaRegen", tolua_Luainterface_Player_setManaRegen00);
+	tolua_function(tolua_S, "setFatigueRegen", tolua_Luainterface_Player_setFatigueRegen00);
+	tolua_function(tolua_S, "giveCoins", tolua_Luainterface_Player_giveCoins00);
 	tolua_endmodule(tolua_S);
 	tolua_cclass(tolua_S, "Npc", "Npc", "Character", NULL);
 	tolua_beginmodule(tolua_S, "Npc");

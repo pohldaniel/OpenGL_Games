@@ -32,6 +32,7 @@ end
 TextureManager:SetTextureAtlas("mobs", TextureAtlasCreator:get():getAtlas());
 --TextureAtlasCreator:get():safeAtlas("tmp/Wolf")
 
+wolfbase:calcNumMoveTexturesPerDirection();
 wolfbase:setStrength( 15 )
 wolfbase:setDexterity( 25 )
 wolfbase:setVitality( 15 )

@@ -3,6 +3,7 @@ $#include "Zone.h"
 $#include "Character.h"
 $#include "TextureManager.h"
 $#include "Npc.h"
+$#include "Player.h"
 $#include "InteractionRegion.h"
 $#include "InteractionPoint.h"
 $#include "TextWindow.h"
@@ -137,6 +138,24 @@ struct CharacterType {
 	void setLevel(int newLevel);
 	void setClass(Enums::CharacterClass characterClass);
 	void setExperienceValue(int experienceValue);
+}
+
+class Player : public Character
+{
+	static Player& Get();
+	
+	void setMaxHealth(int newMaxHealth);
+	void setMaxMana(int newMaxMana);
+	void setMaxFatigue(int newMaxFatigue);
+	void setStrength(int newStrength);
+	void setVitality(int newVitality);
+	void setDexterity(int newDexterity);
+	void setWisdom(int newWisdom);
+	void setIntellect(int newIntellect);
+	void setHealthRegen(int newHealthRegen);
+	void setManaRegen(int newManaRegen);
+	void setFatigueRegen(int newFatigueRegen);
+	void giveCoins(unsigned int amountOfCoins);
 }
 
 class Npc : public Character

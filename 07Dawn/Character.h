@@ -20,6 +20,7 @@ struct pair_hash {
 
 struct CharacterType {
 	friend class Character;
+	friend class Player;
 	friend class Npc;
 
 	void addMoveTexture(Enums::ActivityType activity, Enums::Direction direction, int index, std::string filename, unsigned int maxWidth = 0, unsigned int maxHeight = 0);
@@ -101,18 +102,22 @@ class Character{
 
 public:
 
-	Character(const CharacterType& characterType);
+	Character();
 	~Character() = default;
 
 	virtual void draw() = 0;
 	virtual void update(float deltaTime);
 	virtual void Move(float deltaTime) = 0;
-	
+	virtual int getWidth() const = 0;
+	virtual int getHeight() const = 0;
+	virtual unsigned short getNumActivityTextures(Enums::ActivityType activity) = 0;
+
+
 	void setNumActivities(unsigned short numActivities);
 	void baseOnType(std::string otherName);
 
 	Enums::ActivityType getCurActivity() const;
-	unsigned short getNumActivityTextures(Enums::ActivityType activity);
+	
 	int getXPos() const;
 	int getYPos() const;
 	
@@ -124,6 +129,7 @@ public:
 	uint16_t getWanderRadius() const;
 	uint16_t getWanderRadiusSq() const;
 	float getMovementSpeed() const;
+	void giveCoins(unsigned int amountOfCoins);
 
 	bool isStunned() const;
 	bool isMesmerized() const;
@@ -144,7 +150,7 @@ public:
 	void MoveRight(uint8_t n);
 
 
-	/*void setStrength(uint16_t newStrength);
+	void setStrength(uint16_t newStrength);
 	void setDexterity(uint16_t newDexterity);
 	void setVitality(uint16_t newVitality);
 	void setIntellect(uint16_t newIntellect);
@@ -164,8 +170,8 @@ public:
 	void setName(std::string newName);
 	void setWanderRadius(uint16_t newWanderRadius);
 	void setLevel(uint8_t newLevel);
-	void setClass(CharacterClass::CharacterClass);
-	void setExperienceValue(uint8_t experienceValue);*/
+	void setClass(Enums::CharacterClass characterClass);
+	void setExperienceValue(uint8_t experienceValue);
 	//void inscribeSpellInSpellbook(CSpellActionBase* spell);
 	//void addItemToLootTable(Item* item, double dropChance);
 	
@@ -190,9 +196,9 @@ public:
 	std::string getName() const;
 	uint8_t getLevel() const;
 	uint8_t getExperienceValue() const;
+	uint32_t coins;
 
-	int getWidth() const;
-	int getHeight() const;
+	
 
 
 	static std::string AttitudeToString(Enums::Attitude attitude);
@@ -261,5 +267,5 @@ public:
 	uint16_t evadeModifierPoints;
 	Enums::CharacterClass characterClass;
 
-	const CharacterType& m_characterType;
+	
 };

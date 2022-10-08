@@ -170,6 +170,7 @@
     <ClCompile Include="MainMenu.cpp" />
     <ClCompile Include="Message.cpp" />
     <ClCompile Include="Npc.cpp" />
+    <ClCompile Include="Player.cpp" />
     <ClCompile Include="Random.cpp" />
     <ClCompile Include="TextureManager.cpp" />
     <ClCompile Include="engine\Batchrenderer.cpp" />
@@ -227,6 +228,7 @@
     <ClInclude Include="MainMenu.h" />
     <ClInclude Include="Message.h" />
     <ClInclude Include="Npc.h" />
+    <ClInclude Include="Player.h" />
     <ClInclude Include="Random.h" />
     <ClInclude Include="TextureManager.h" />
     <ClInclude Include="engine\AssetManger.h" />

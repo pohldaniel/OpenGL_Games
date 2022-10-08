@@ -3,6 +3,8 @@
 #include "engine/Batchrenderer.h"
 #include "TextureManager.h"
 
+class Character;
+
 class Interface{
 public:
 	Interface();
@@ -11,7 +13,8 @@ public:
 	bool enabled;
 	void DrawInterface();
 	void DrawCursor(bool hideInGameCursor);
-	
+	void SetPlayer(Character *player_);
+
 	/*void drawTargetedNPCText();
 	void drawCombatText();
 	void drawCharacterStates();*/
@@ -23,12 +26,16 @@ private:
 	std::vector<TextureRect> m_interfacetexture;
 	unsigned int m_textureAtlas;
 
+	void drawCharacterStates();
+
+	Character* player;
+
 	//CTexture damageDisplayTexturesBig;
 	//CTexture damageDisplayTexturesSmall;
 
 	//std::vector<sDamageDisplay> damageDisplay;
 
-	//CCharacter* player;
+
 
 	//GLFT_Font* NPCTextFont;
 	//GLFT_Font* levelFont;

@@ -2,7 +2,7 @@
 #include "TilesetManager.h"
 #include "Constants.h"
 
-Npc::Npc(const CharacterType& characterType, int _x_spawn_pos, int _y_spawn_pos, int _NPC_id, int _seconds_to_respawn, int _do_respawn) : Character(characterType) {
+Npc::Npc(const CharacterType& characterType, int _x_spawn_pos, int _y_spawn_pos, int _NPC_id, int _seconds_to_respawn, int _do_respawn) : m_characterType(characterType) {
 	alive = true;
 	current_texture = 1; // this will be altered later on to draw what animation frame we want to draw.
 	respawn_thisframe = 0.0f;
@@ -19,6 +19,8 @@ Npc::Npc(const CharacterType& characterType, int _x_spawn_pos, int _y_spawn_pos,
 	//setTarget(NULL);
 	markedAsDeleted = false;
 	lastPathCalculated = 0;
+
+	rect = &m_characterType.m_moveTileSets.at({ getCurActivity(), activeDirection }).getAllTiles()[0].textureRect;
 }
 
 Npc::~Npc() {
@@ -235,4 +237,22 @@ std::string Npc::getLuaEditorSaveText() const {
 		<<  "Enums." << Character::AttitudeToString(attitudeTowardsPlayer) << " );" << std::endl;
 
 	return oss.str();
+}
+
+int Npc::getWidth() const {
+	const TextureRect& rect = m_characterType.m_moveTileSets.at({ Enums::ActivityType::Walking, Enums::Direction::S }).getAllTiles()[0].textureRect;
+	return useBoundingBox ? boundingBoxW : rect.width;
+}
+
+int Npc::getHeight() const {
+	const TextureRect& rect = m_characterType.m_moveTileSets.at({ Enums::ActivityType::Walking, Enums::Direction::S }).getAllTiles()[0].textureRect;
+	return useBoundingBox ? boundingBoxH : rect.height;
+}
+
+unsigned short Npc::getNumActivityTextures(Enums::ActivityType activity) {
+	return m_characterType.m_numMoveTexturesPerDirection.at(activity);
+}
+
+const CharacterType& Npc::getCharacterType() {
+	return m_characterType;
 }
