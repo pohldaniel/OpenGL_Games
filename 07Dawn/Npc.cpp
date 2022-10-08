@@ -14,7 +14,7 @@ Npc::Npc(const CharacterType& characterType, int _x_spawn_pos, int _y_spawn_pos,
 	MovingDirection = Enums::Direction::STOP;
 
 	direction_texture = 0;
-	//attitudeTowardsPlayer = Attitude::NEUTRAL;
+	attitudeTowardsPlayer = Enums::Attitude::NEUTRAL;
 	chasingPlayer = false;
 	//setTarget(NULL);
 	markedAsDeleted = false;
@@ -46,8 +46,6 @@ void Npc::draw() {
 
 		int drawX = getXPos();
 		int drawY = getYPos();
-		//std::cout << drawX << "  " << drawY << std::endl;
-		//TextureRect& rect = getTileSet(curActivity, GetDirectionTexture())->getAllTiles()[index]->textureRect;
 		TextureManager::DrawTextureBatched(*rect, drawX, drawY, true, true);
 	//}
 }
@@ -57,7 +55,7 @@ void Npc::update(float deltaTime) {
 	
 	if (m_updated) {
 		
-		Animate(deltaTime);
+		Wander(deltaTime);
 		Move(deltaTime);
 		//Character::update(deltaTime);
 	}
@@ -76,12 +74,12 @@ Enums::Direction Npc::GetDirectionRNG() {
 	return static_cast<Enums::Direction>(RNG::randomSizeT(1, 8));	
 }
 
-void Npc::Animate(float deltaTime) {
-	
-	Enums::ActivityType curActivity = getCurActivity();
-	const TileSet& tileSet = m_characterType.m_moveTileSets.at({ curActivity, activeDirection });
+void Npc::Wander(float deltaTime) {
 	
 	if (wandering) {
+		Enums::ActivityType curActivity = Enums::ActivityType::Attacking;
+		unsigned short numActivityTextures = getNumActivityTextures(curActivity);
+		const TileSet& tileSet = m_characterType.m_moveTileSets.at({ curActivity, activeDirection });
 
 		if (wander_points_left > 0) {
 		
@@ -89,12 +87,12 @@ void Npc::Animate(float deltaTime) {
 
 			wander_points_left = m_canWander ? wander_points_left - 1 : 0;
 
-			m_wanderTime = m_wanderTime >= tileSet.getAllTiles().size() ? 0.0f : m_wanderTime + deltaTime * 12;
+			m_wanderTime = m_wanderTime >= numActivityTextures ? 0.0f : m_wanderTime + deltaTime * 12;
 			index = static_cast<unsigned short>(floor(m_wanderTime));
-			currentFrame = index % (tileSet.getAllTiles().size());
-			index = index % (tileSet.getAllTiles().size() + 1);
+			currentFrame = index % (numActivityTextures);
+			index = index % (numActivityTextures + 1);
 
-			if ((wander_points_left == 0 && (index + 1 < tileSet.getAllTiles().size() + 1)  && m_canWander) && m_smoothOut) {
+			if ((wander_points_left == 0 && (index + 1 < numActivityTextures + 1)  && m_canWander) && m_smoothOut) {
 				wander_points_left++;					
 			}
 		}else {
@@ -104,8 +102,13 @@ void Npc::Animate(float deltaTime) {
 			WanderDirection = Enums::Direction::STOP;				
 			m_wanderTime = m_smoothOut ? 0.0f : m_wanderTime;
 			index = m_smoothOut ? 0 : index;
+			
+			//index = 0;
+			//currentFrame = 0;
 		}
-		
+	
+		rect = &tileSet.getAllTiles()[currentFrame].textureRect;
+
 	}else {
 
 		wander_thisframe = Globals::clock.getElapsedTimeMilli();
@@ -127,36 +130,89 @@ void Npc::Animate(float deltaTime) {
 			wander_every_seconds = 1;		
 		}
 	}
-	//std::cout << "Name: " << name << " Index: " << index << " Current Frame: " << currentFrame << " Wander Time: " << m_wanderTime << std::endl;
-	rect = &tileSet.getAllTiles()[currentFrame].textureRect;
 }
 
-Enums::Direction Npc::GetOppositeDirection(Enums::Direction direction) {
-	switch (direction) {
-	case Enums::Direction::NW:
-		return Enums::Direction::SE;
-		break;
-	case Enums::Direction::N:
-		return Enums::Direction::S;
-		break;
-	case Enums::Direction::NE:
-		return Enums::Direction::SW;
-		break;
-	case Enums::Direction::W:
-		return Enums::Direction::E;
-		break;
-	case Enums::Direction::E:
-		return Enums::Direction::W;
-		break;
-	case Enums::Direction::SW:
-		return Enums::Direction::NE;
-		break;
-	case Enums::Direction::S:
-		return Enums::Direction::N;
-		break;
-	case Enums::Direction::SE:
-		return Enums::Direction::NW;
-		break;
+void Npc::Move(float deltaTime) {
+
+	if (isStunned() == true || isMesmerized() == true) {
+		m_elapsedTime = 0.0f;
+		return;
+	}
+
+	if (isFeared() == false) {
+		hasChoosenFearDirection = false;
+	}
+
+	continuePreparing();
+	if (!mayDoAnythingAffectingSpellActionWithoutAborting()) {
+		if (!mayDoAnythingAffectingSpellActionWithAborting()) {
+			m_elapsedTime = 0.0f;
+			return;
+		}
+	}
+
+	Enums::Direction movingDirection = GetDirection();
+
+	if ((movingDirection != Enums::Direction::STOP) && !mayDoAnythingAffectingSpellActionWithoutAborting()) {
+		//CastingAborted();
+	}
+
+	if (movingDirection != Enums::Direction::STOP && isChanneling() == true) {
+		//removeSpellsWithCharacterState(CharacterStates::Channeling);
+	}
+
+
+	/// if we are feared (fleeing) we run at a random direction. Only choose a direction once for each fear effect.
+	if (isFeared() == true) {
+		if (hasChoosenFearDirection == false) {
+			fearDirection = static_cast<Enums::Direction>(RNG::randomSizeT(1, 8));
+			hasChoosenFearDirection = true;
+		}
+		movingDirection = fearDirection;
+	}
+
+	float movePerStep = 0.01f; // moves one step per movePerStep ms
+
+							   // To balance moving diagonally boost, movePerStep = 10*sqrt(2)
+	if (movingDirection == Enums::Direction::NW || movingDirection == Enums::Direction::NE || movingDirection == Enums::Direction::SW || movingDirection == Enums::Direction::SE)
+		movePerStep = 0.014f;
+
+	// recalculate the movementpoints based on our movementspeed (spells that affect this can be immobolizing spells, snares or movement enhancer
+	m_elapsedTime += deltaTime;
+	while (m_elapsedTime > movePerStep) {
+		m_elapsedTime -= movePerStep;
+		switch (movingDirection) {
+		case Enums::Direction::NW:
+			MoveLeft(1);
+			MoveUp(1);
+			break;
+		case Enums::Direction::N:
+			MoveUp(1);
+			break;
+		case Enums::Direction::NE:
+			MoveRight(1);
+			MoveUp(1);
+			break;
+		case Enums::Direction::W:
+			MoveLeft(1);
+			break;
+		case Enums::Direction::E:
+			MoveRight(1);
+			break;
+		case Enums::Direction::SW:
+			MoveLeft(1);
+			MoveDown(1);
+			break;
+		case Enums::Direction::S:
+			MoveDown(1);
+			break;
+		case Enums::Direction::SE:
+			MoveRight(1);
+			MoveDown(1);
+			break;
+		default:
+			break;
+		}
 	}
 }
 
@@ -176,19 +232,7 @@ std::string Npc::getLuaEditorSaveText() const {
 		<< y_spawn_pos << ", "
 		<< seconds_to_respawn << ", "
 		<< do_respawn << ", " 
-		<<  "Enums." << Npc::AttitudeToString(attitudeTowardsPlayer) << " );" << std::endl;
+		<<  "Enums." << Character::AttitudeToString(attitudeTowardsPlayer) << " );" << std::endl;
 
 	return oss.str();
 }
-
-std::string Npc::AttitudeToString(Enums::Attitude attitude) {
-	switch (attitude) {
-	case Enums::Attitude::HOSTILE:
-		return "HOSTILE";
-	case Enums::Attitude::NEUTRAL:
-		return "NEUTRAL";
-	case Enums::Attitude::FRIENDLY:
-		return "FRIENDLY";
-	}
-}
-

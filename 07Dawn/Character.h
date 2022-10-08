@@ -22,7 +22,8 @@ struct CharacterType {
 	friend class Character;
 	friend class Npc;
 
-	void addMoveTexture(Enums::ActivityType activity, Enums::Direction direction, int index, std::string filename, int maxWidth = 0, int maxHeight = 0);
+	void addMoveTexture(Enums::ActivityType activity, Enums::Direction direction, int index, std::string filename, unsigned int maxWidth = 0, unsigned int maxHeight = 0);
+	void calcNumMoveTexturesPerDirection();
 
 	void setStrength(uint16_t newStrength);
 	void setDexterity(uint16_t newDexterity);
@@ -53,6 +54,7 @@ struct CharacterType {
 	
 private:
 	std::unordered_map<std::pair<int, int>, TileSet, pair_hash> m_moveTileSets;
+	std::unordered_map<Enums::ActivityType, unsigned short> m_numMoveTexturesPerDirection;
 
 	std::string name;
 	uint16_t strength;
@@ -102,14 +104,15 @@ public:
 	Character(const CharacterType& characterType);
 	~Character() = default;
 
-	virtual void draw() {}
-	void update(float deltaTime);
-
+	virtual void draw() = 0;
+	virtual void update(float deltaTime);
+	virtual void Move(float deltaTime) = 0;
 	
 	void setNumActivities(unsigned short numActivities);
 	void baseOnType(std::string otherName);
 
 	Enums::ActivityType getCurActivity() const;
+	unsigned short getNumActivityTextures(Enums::ActivityType activity);
 	int getXPos() const;
 	int getYPos() const;
 	
@@ -117,7 +120,7 @@ public:
 	virtual Enums::Direction GetDirection() = 0;
 	virtual Enums::Direction GetDirectionRNG() = 0;
 
-	Enums::Direction GetDirectionTexture();
+	Enums::Direction GetOppositeDirection(Enums::Direction direction);
 	uint16_t getWanderRadius() const;
 	uint16_t getWanderRadiusSq() const;
 	float getMovementSpeed() const;
@@ -133,7 +136,7 @@ public:
 	bool isChanneling() const;
 	bool isSneaking() const;
 
-	void Move(float deltaTime);
+	
 	bool continuePreparing();
 	void MoveUp(uint8_t n);
 	void MoveDown(uint8_t n);
@@ -191,6 +194,9 @@ public:
 	int getWidth() const;
 	int getHeight() const;
 
+
+	static std::string AttitudeToString(Enums::Attitude attitude);
+	static std::string ActivityToString(Enums::ActivityType activity);
 
 	bool alive;
 	//bool hasDrawnDyingOnce;

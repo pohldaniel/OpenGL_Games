@@ -189,6 +189,9 @@
     <ClCompile Include="engine\Fontrenderer.cpp">
       <Filter>engine</Filter>
     </ClCompile>
+    <ClCompile Include="Interface.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine\input\Event.h">
@@ -346,6 +349,9 @@
     </ClInclude>
     <ClInclude Include="engine\Fontrenderer.h">
       <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Interface.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

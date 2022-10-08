@@ -716,3 +716,18 @@ void glBlendEquation(GLenum mode) {
 	LOAD_ENTRYPOINT("glBlendEquation", glBlendEquation, PFNGLBLENDEQUATIONPROC);
 	glBlendEquation(mode);
 }
+
+void glGetTextureParameterfv(GLuint texture, GLenum pname, GLfloat *params) {
+	typedef void(APIENTRY * PFNGLGETTEXTUREPARAMETERFVPROC)(GLuint texture, GLenum pname, GLfloat *params);
+	static PFNGLGETTEXTUREPARAMETERFVPROC glGetTextureParameterfv = 0;
+	LOAD_ENTRYPOINT("glGetTextureParameterfv", glGetTextureParameterfv, PFNGLGETTEXTUREPARAMETERFVPROC);
+	glGetTextureParameterfv(texture, pname, params);
+}
+
+void glGetTextureParameteriv(GLuint texture, GLenum pname, GLint *params) {
+	typedef void(APIENTRY * PFNGLGETTEXTUREPARAMETERIVPROC)(GLuint texture, GLenum pname, GLint *params);
+	static PFNGLGETTEXTUREPARAMETERIVPROC glGetTextureParameteriv = 0;
+	LOAD_ENTRYPOINT("glGetTextureParameteriv", glGetTextureParameteriv, PFNGLGETTEXTUREPARAMETERIVPROC);
+	glGetTextureParameteriv(texture, pname, params);
+
+}

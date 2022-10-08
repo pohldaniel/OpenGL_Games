@@ -1,6 +1,6 @@
 /*
 ** Lua binding: Luainterface
-** Generated automatically by tolua++-1.0.92 on Thu Oct  6 23:23:14 2022.
+** Generated automatically by tolua++-1.0.92 on Sat Oct  8 13:00:12 2022.
 */
 
 #ifndef __cplusplus
@@ -811,6 +811,80 @@ static int tolua_Luainterface_TileSet_printTileSet00(lua_State* tolua_S)
 }
 #endif //#ifndef TOLUA_DISABLE
 
+/* method: addMoveTexture of class  CharacterType */
+#ifndef TOLUA_DISABLE_tolua_Luainterface_CharacterType_addMoveTexture00
+static int tolua_Luainterface_CharacterType_addMoveTexture00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+	tolua_Error tolua_err;
+	if (
+		!tolua_isusertype(tolua_S, 1, "CharacterType", 0, &tolua_err) ||
+		!tolua_isnumber(tolua_S, 2, 0, &tolua_err) ||
+		!tolua_isnumber(tolua_S, 3, 0, &tolua_err) ||
+		!tolua_isnumber(tolua_S, 4, 0, &tolua_err) ||
+		!tolua_iscppstring(tolua_S, 5, 0, &tolua_err) ||
+		!tolua_isnumber(tolua_S, 6, 1, &tolua_err) ||
+		!tolua_isnumber(tolua_S, 7, 1, &tolua_err) ||
+		!tolua_isnoobj(tolua_S, 8, &tolua_err)
+		)
+		goto tolua_lerror;
+	else
+#endif
+	{
+		CharacterType* self = (CharacterType*)tolua_tousertype(tolua_S, 1, 0);
+		Enums::ActivityType activity = ((Enums::ActivityType) (int)  tolua_tonumber(tolua_S, 2, 0));
+		Enums::Direction direction = ((Enums::Direction) (int)  tolua_tonumber(tolua_S, 3, 0));
+		int index = ((int)tolua_tonumber(tolua_S, 4, 0));
+		std::string filename = ((std::string)  tolua_tocppstring(tolua_S, 5, 0));
+		unsigned int maxWidth = ((unsigned int)tolua_tonumber(tolua_S, 6, 0));
+		unsigned int maxHeight = ((unsigned int)tolua_tonumber(tolua_S, 7, 0));
+#ifndef TOLUA_RELEASE
+		if (!self) tolua_error(tolua_S, "invalid 'self' in function 'addMoveTexture'", NULL);
+#endif
+		{
+			self->addMoveTexture(activity, direction, index, filename, maxWidth, maxHeight);
+		}
+	}
+	return 0;
+#ifndef TOLUA_RELEASE
+	tolua_lerror :
+				 tolua_error(tolua_S, "#ferror in function 'addMoveTexture'.", &tolua_err);
+				 return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
+/* method: calcNumMoveTexturesPerDirection of class  CharacterType */
+#ifndef TOLUA_DISABLE_tolua_Luainterface_CharacterType_calcNumMoveTexturesPerDirection00
+static int tolua_Luainterface_CharacterType_calcNumMoveTexturesPerDirection00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+	tolua_Error tolua_err;
+	if (
+		!tolua_isusertype(tolua_S, 1, "CharacterType", 0, &tolua_err) ||
+		!tolua_isnoobj(tolua_S, 2, &tolua_err)
+		)
+		goto tolua_lerror;
+	else
+#endif
+	{
+		CharacterType* self = (CharacterType*)tolua_tousertype(tolua_S, 1, 0);
+#ifndef TOLUA_RELEASE
+		if (!self) tolua_error(tolua_S, "invalid 'self' in function 'calcNumMoveTexturesPerDirection'", NULL);
+#endif
+		{
+			self->calcNumMoveTexturesPerDirection();
+		}
+	}
+	return 0;
+#ifndef TOLUA_RELEASE
+	tolua_lerror :
+				 tolua_error(tolua_S, "#ferror in function 'calcNumMoveTexturesPerDirection'.", &tolua_err);
+				 return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
 /* method: setStrength of class  CharacterType */
 #ifndef TOLUA_DISABLE_tolua_Luainterface_CharacterType_setStrength00
 static int tolua_Luainterface_CharacterType_setStrength00(lua_State* tolua_S)
@@ -1537,49 +1611,6 @@ static int tolua_Luainterface_CharacterType_setExperienceValue00(lua_State* tolu
 }
 #endif //#ifndef TOLUA_DISABLE
 
-/* method: addMoveTexture of class  CharacterType */
-#ifndef TOLUA_DISABLE_tolua_Luainterface_CharacterType_addMoveTexture00
-static int tolua_Luainterface_CharacterType_addMoveTexture00(lua_State* tolua_S)
-{
-#ifndef TOLUA_RELEASE
-	tolua_Error tolua_err;
-	if (
-		!tolua_isusertype(tolua_S, 1, "CharacterType", 0, &tolua_err) ||
-		!tolua_isnumber(tolua_S, 2, 0, &tolua_err) ||
-		!tolua_isnumber(tolua_S, 3, 0, &tolua_err) ||
-		!tolua_isnumber(tolua_S, 4, 0, &tolua_err) ||
-		!tolua_iscppstring(tolua_S, 5, 0, &tolua_err) ||
-		!tolua_isnumber(tolua_S, 6, 1, &tolua_err) ||
-		!tolua_isnumber(tolua_S, 7, 1, &tolua_err) ||
-		!tolua_isnoobj(tolua_S, 8, &tolua_err)
-		)
-		goto tolua_lerror;
-	else
-#endif
-	{
-		CharacterType* self = (CharacterType*)tolua_tousertype(tolua_S, 1, 0);
-		Enums::ActivityType activity = ((Enums::ActivityType) (int)  tolua_tonumber(tolua_S, 2, 0));
-		Enums::Direction direction = ((Enums::Direction) (int)  tolua_tonumber(tolua_S, 3, 0));
-		int index = ((int)tolua_tonumber(tolua_S, 4, 0));
-		std::string filename = ((std::string)  tolua_tocppstring(tolua_S, 5, 0));
-		int textureOffsetX = ((int)tolua_tonumber(tolua_S, 6, 0));
-		int textureOffsetY = ((int)tolua_tonumber(tolua_S, 7, 0));
-#ifndef TOLUA_RELEASE
-		if (!self) tolua_error(tolua_S, "invalid 'self' in function 'addMoveTexture'", NULL);
-#endif
-		{
-			self->addMoveTexture(activity, direction, index, filename, textureOffsetX, textureOffsetY);
-		}
-	}
-	return 0;
-#ifndef TOLUA_RELEASE
-	tolua_lerror :
-				 tolua_error(tolua_S, "#ferror in function 'addMoveTexture'.", &tolua_err);
-				 return 0;
-#endif
-}
-#endif //#ifndef TOLUA_DISABLE
-
 /* method: setAttitude of class  Npc */
 #ifndef TOLUA_DISABLE_tolua_Luainterface_Npc_setAttitude00
 static int tolua_Luainterface_Npc_setAttitude00(lua_State* tolua_S)
@@ -2161,6 +2192,8 @@ TOLUA_API int tolua_Luainterface_open(lua_State* tolua_S)
 	tolua_endmodule(tolua_S);
 	tolua_cclass(tolua_S, "CharacterType", "CharacterType", "", NULL);
 	tolua_beginmodule(tolua_S, "CharacterType");
+	tolua_function(tolua_S, "addMoveTexture", tolua_Luainterface_CharacterType_addMoveTexture00);
+	tolua_function(tolua_S, "calcNumMoveTexturesPerDirection", tolua_Luainterface_CharacterType_calcNumMoveTexturesPerDirection00);
 	tolua_function(tolua_S, "setStrength", tolua_Luainterface_CharacterType_setStrength00);
 	tolua_function(tolua_S, "setDexterity", tolua_Luainterface_CharacterType_setDexterity00);
 	tolua_function(tolua_S, "setVitality", tolua_Luainterface_CharacterType_setVitality00);
@@ -2183,7 +2216,6 @@ TOLUA_API int tolua_Luainterface_open(lua_State* tolua_S)
 	tolua_function(tolua_S, "setLevel", tolua_Luainterface_CharacterType_setLevel00);
 	tolua_function(tolua_S, "setClass", tolua_Luainterface_CharacterType_setClass00);
 	tolua_function(tolua_S, "setExperienceValue", tolua_Luainterface_CharacterType_setExperienceValue00);
-	tolua_function(tolua_S, "addMoveTexture", tolua_Luainterface_CharacterType_addMoveTexture00);
 	tolua_endmodule(tolua_S);
 	tolua_cclass(tolua_S, "Npc", "Npc", "Character", NULL);
 	tolua_beginmodule(tolua_S, "Npc");

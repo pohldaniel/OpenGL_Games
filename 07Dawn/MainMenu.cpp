@@ -1,7 +1,7 @@
 #include "MainMenu.h"
-
+#include "Application.h"
 MainMenu::MainMenu(StateMachine& machine) : State(machine, CurrentState::MAINMENU) {
-	LuaFunctions::executeLuaFile("res/_lua/mobdata.lua");
+	LuaFunctions::executeLuaFile("res/_lua/mobdata_wolf.lua");
 	
 	ZoneManager::Get().getZone("res/_lua/zone1").loadZone();
 	ZoneManager::Get().setCurrentZone(&ZoneManager::Get().getZone("res/_lua/zone1"));
@@ -26,10 +26,12 @@ MainMenu::MainMenu(StateMachine& machine) : State(machine, CurrentState::MAINMEN
 		m_machine.addStateAtTop(new LoadingScreen(m_machine));
 	});
 
-	/*dynamic_cast<Label*>(m_dialog.getChildWidgets()[3])->setFunction([&]() {
+	dynamic_cast<Label*>(m_dialog.getChildWidgets()[3])->setFunction([&]() {
 		m_isRunning = false;
-		m_machine.addStateAtTop(new Game(m_machine));
-	});*/
+		Game* game = new Game(m_machine);
+		Application::AddMouseListener(game);
+		m_machine.addStateAtTop(game);
+	});
 }
 
 MainMenu::~MainMenu() {}

@@ -80,7 +80,7 @@ TextureRect& TextureManager::Loadimage(std::string file, unsigned int maxWidth, 
 	return TextureCache::Get().getTextureFromCache(file, maxWidth, maxHeight);
 }
 
-void TextureManager::Loadimage(std::string file, int textureIndex, std::vector<TextureRect>& textureBase, bool isOpenGLThreadInThreadedMode) {
+void TextureManager::Loadimage(std::string file, int textureIndex, std::vector<TextureRect>& textureBase) {
 	if (textureIndex >= textureBase.size()) {
 		textureBase.resize(textureIndex + 1);
 	}

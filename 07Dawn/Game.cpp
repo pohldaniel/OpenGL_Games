@@ -1,8 +1,10 @@
 #include "Game.h"
 
 Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
-	newZone = &ZoneManager::Get().getZone("res/_lua/zone1");
-	newZone->loadZone();
+	newZone = ZoneManager::Get().getCurrentZone();
+	m_interface = new Interface();
+
+	Mouse::instance().hideCursor(true);
 
 }
 
@@ -26,11 +28,13 @@ void Game::render(unsigned int &frameBuffer) {
 
 
 	newZone->drawZoneBatched();
-	
+	m_interface->DrawCursor(!m_hideInGameCursor);
 	glDisable(GL_BLEND);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void Game::OnMouseMotion(Event::MouseMoveEvent& event) {
+	m_hideInGameCursor = event.titleBar;
+	Mouse::instance().hideCursor(!m_hideInGameCursor);
 }

@@ -58,27 +58,27 @@ bool EventDispatcher::update() {
 				//Mouse::instance().handleEvent(m_event);
 
 				for (MouseEventListener * el : mMouseListeners){
-					el->OnMouseMotion(m_event.mouseMove);
+					el->OnMouseMotion(m_event.data.mouseMove);
 				}
 				return true;
 			}case Event::KEYDOWN: {
 				for (KeyboardEventListener * el : mKeyboardListeners) {
-					el->OnKeyDown(m_event.keyboard);
+					el->OnKeyDown(m_event.data.keyboard);
 				}
 				return true;
 			}case Event::KEYUP: {
 				for (KeyboardEventListener * el : mKeyboardListeners) {
-					el->OnKeyUp(m_event.keyboard);
+					el->OnKeyUp(m_event.data.keyboard);
 				}
 				return true;
 			}case Event::MOUSEBUTTONDOWN: {
 				for (MouseEventListener * el : mMouseListeners) {
-					el->OnMouseButtonDown(m_event.mouseButton);
+					el->OnMouseButtonDown(m_event.data.mouseButton);
 				}
 				return true;
 			}case Event::MOUSEBUTTONUP: {
 				for (MouseEventListener * el : mMouseListeners) {
-					el->OnMouseButtonUp(m_event.mouseButton);
+					el->OnMouseButtonUp(m_event.data.mouseButton);
 				}
 				return true;
 			}

@@ -24,7 +24,7 @@ public:
 	bool isRunning();
 	HWND getWindow();
 	
-	void AddMouseListener(MouseEventListener * el);
+	static void AddMouseListener(MouseEventListener * el);
 
 private:
 	static LRESULT CALLBACK StaticWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
@@ -48,7 +48,7 @@ private:
 
 	StateMachine* m_machine;
 
-	EventDispatcher * m_eventDispatcher = nullptr;
+	static EventDispatcher* s_eventDispatcher;
 	void processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 	bool m_mouseTracking = false;
 };

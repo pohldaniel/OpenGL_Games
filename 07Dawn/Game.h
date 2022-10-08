@@ -6,6 +6,7 @@
 #include "engine/Batchrenderer.h"
 
 #include "StateMachine.h"
+#include "Interface.h"
 
 class Game : public State, public MouseEventListener {
 public:
@@ -18,5 +19,7 @@ public:
 	void OnMouseMotion(Event::MouseMoveEvent& event) override;
 
 	Zone* newZone;
+	Interface* m_interface;
 
+	bool m_hideInGameCursor = false;
 };

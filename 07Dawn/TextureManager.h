@@ -62,7 +62,7 @@ public:
 	}
 
 	void safeAtlas(std::string name) {
-		spritesheet.safe(name, width, height, 4);
+		spritesheet.safe(name);
 	}
 
 	void addTexture(TextureRect& stexture, char *texture, unsigned int w, unsigned int h, unsigned int _maxWidth = 0, unsigned int _maxHeight = 0){
@@ -147,7 +147,7 @@ public:
 	static TextureRect& Loadimage(std::string file);
 	static TextureRect& Loadimage(std::string file, unsigned int maxWidth, unsigned maxHeight);
 
-	static void Loadimage(std::string file, int textureIndex, std::vector<TextureRect>& textureBase, bool isOpenGLThreadInThreadedMode = false);
+	static void Loadimage(std::string file, int textureIndex, std::vector<TextureRect>& textureBase);
 	static unsigned int& GetTextureAtlas(std::string name);
 	static void SetTextureAtlas(std::string name, unsigned int value);
 

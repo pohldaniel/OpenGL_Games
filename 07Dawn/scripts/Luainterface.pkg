@@ -112,6 +112,9 @@ class TileSet
 };
 
 struct CharacterType {
+	void addMoveTexture(Enums::ActivityType activity, Enums::Direction direction, int index, std::string filename, unsigned int maxWidth = 0, unsigned int maxHeight = 0);
+	void calcNumMoveTexturesPerDirection();
+
 	void setStrength(int newStrength);
 	void setDexterity(int newDexterity);
 	void setVitality(int newVitality);
@@ -134,7 +137,6 @@ struct CharacterType {
 	void setLevel(int newLevel);
 	void setClass(Enums::CharacterClass characterClass);
 	void setExperienceValue(int experienceValue);
-	void addMoveTexture(Enums::ActivityType activity, Enums::Direction direction, int index, std::string filename, int textureOffsetX = 0, int textureOffsetY = 0);
 }
 
 class Npc : public Character

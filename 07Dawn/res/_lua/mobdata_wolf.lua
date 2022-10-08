@@ -7,7 +7,6 @@ for direction = 1,8 do
 	for index=0,7,1 do
 		wolfbase:addMoveTexture( Enums.Walking, direction, index, "res/character/wolf/running "..directions[direction].."000"..index..".tga", 786, 768);
 	end
-	TextureAtlasCreator:get():resetLine();
 end
 TextureAtlasCreator:get():addFrame();
 

@@ -1,9 +1,12 @@
 #pragma once
 class Event{
 public:
+	Event() = default;
+
 	struct MouseMoveEvent{
 		int x; 
 		int y;
+		bool titleBar;
 	};
 
 	struct MouseButtonEvent {
@@ -30,14 +33,18 @@ public:
 		MOUSEBUTTONUP,
 		KEYDOWN,
 		KEYUP,
+
 		COUNT                  
 	};
 
 	EventType type;
-
-	union{
+	
+	union U{
+		U() { mouseMove.titleBar = false; }
 		MouseMoveEvent mouseMove;
 		MouseButtonEvent mouseButton;
 		KeyboardEvent keyboard;
+		
 	};
+	U data;
 };

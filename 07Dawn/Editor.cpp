@@ -1,10 +1,14 @@
 #include "Editor.h"
 
 Editor::Editor(StateMachine& machine) : State(machine, CurrentState::EDITOR) {
-	//LuaFunctions::executeLuaFile("res/_lua/mobdata.lua");
+	LuaFunctions::executeLuaFile("res/_lua/mobdata.lua");
 
+	ZoneManager::Get().getZone("res/_lua/zone1").loadZone();
+	ZoneManager::Get().setCurrentZone(&ZoneManager::Get().getZone("res/_lua/zone1"));
 	newZone = ZoneManager::Get().getCurrentZone();
 	
+	LuaFunctions::executeLuaFile("res/_lua/gameinit.lua");
+	LuaFunctions::executeLuaFile("res/_lua/tileAdjacency.lua");
 	
 	m_originalFocus = ViewPort::get().getBottomLeft();
 	m_editorFocus = ViewPort::get().getBottomLeft();
@@ -17,10 +21,6 @@ Editor::Editor(StateMachine& machine) : State(machine, CurrentState::EDITOR) {
 
 	initTextures();
 	loadNPCs();	
-
-	
-	//LuaFunctions::executeLuaFile("res/_lua/gameinit.lua");
-	//LuaFunctions::executeLuaFile("res/_lua/tileAdjacency.lua");
 }
 
 Editor::~Editor() {}

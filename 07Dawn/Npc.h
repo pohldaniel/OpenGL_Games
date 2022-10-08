@@ -14,20 +14,18 @@ public:
 	
 	~Npc();
 	void draw() override;
-	void update(float deltaTime);
+	void update(float deltaTime) override;
+	void Move(float deltaTime) override;
 
 	Enums::Direction GetDirection() override;
 	Enums::Direction GetDirectionRNG() override;
-	Enums::Direction GetOppositeDirection(Enums::Direction direction);
-	void Animate(float deltaTime);
+	void Wander(float deltaTime);
 
 	void setSpawnInfo(int _x_spawn_pos, int _y_spawn_pos, int _seconds_to_respawn, int _do_respawn);
 	void setAttitude(Enums::Attitude attitude);
 	void markAsDeleted();
 	bool isMarkedAsDeletable() const;
 	std::string getLuaEditorSaveText() const;
-
-	static std::string AttitudeToString(Enums::Attitude attitude);
 
 private:
 

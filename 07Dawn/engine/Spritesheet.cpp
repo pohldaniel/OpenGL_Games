@@ -337,14 +337,43 @@ unsigned short Spritesheet::getTotalFrames() {
 }
 
 //https://stackoverflow.com/questions/60247269/can-glreadpixels-be-used-to-read-layers-from-gl-texture-3d
-void Spritesheet::safe(std::string name, unsigned int width, unsigned int height, unsigned int channels) {
+void Spritesheet::safe(std::string name) {
+	int width, height, depth;
+	int miplevel = 0;
 
-	unsigned char* bytes = (unsigned char*)malloc(width * channels * height);
-	for (unsigned short layer = 0; layer < m_totalFrames; ++layer) {		
-		glGetTextureSubImage(m_texture, 0, 0, 0, layer, width, height, 1, GL_RGBA, GL_UNSIGNED_BYTE, sizeof(unsigned char) * width * channels * height, bytes);
-		SOIL_save_image((name + "_" + std::to_string(layer) + ".png").c_str(), SOIL_SAVE_TYPE_PNG, width, height, channels, bytes);
+	glBindTexture(GL_TEXTURE_2D_ARRAY, m_texture);
+	glGetTexLevelParameteriv(GL_TEXTURE_2D_ARRAY, miplevel, GL_TEXTURE_WIDTH, &width);
+	glGetTexLevelParameteriv(GL_TEXTURE_2D_ARRAY, miplevel, GL_TEXTURE_HEIGHT, &height);
+	glGetTexLevelParameteriv(GL_TEXTURE_2D_ARRAY, miplevel, GL_TEXTURE_DEPTH, &depth);
+	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
+
+	unsigned char* bytes = (unsigned char*)malloc(width * 4 * height);
+	for (unsigned short layer = 0; layer < depth; ++layer) {
+		glGetTextureSubImage(m_texture, 0, 0, 0, layer, width, height, 1, GL_RGBA, GL_UNSIGNED_BYTE, sizeof(unsigned char) * width * 4 * height, bytes);
+		SOIL_save_image((name + "_" + std::to_string(layer) + ".png").c_str(), SOIL_SAVE_TYPE_PNG, width, height, 4, bytes);
 		
 	}	
+	free(bytes);
+}
+
+void Spritesheet::Safe(std::string name, unsigned int textureAtlas) {
+	int width, height, depth;
+	int miplevel = 0;
+	
+	glBindTexture(GL_TEXTURE_2D_ARRAY, textureAtlas);
+	glGetTexLevelParameteriv(GL_TEXTURE_2D_ARRAY, miplevel, GL_TEXTURE_WIDTH, &width);
+	glGetTexLevelParameteriv(GL_TEXTURE_2D_ARRAY, miplevel, GL_TEXTURE_HEIGHT, &height);
+	glGetTexLevelParameteriv(GL_TEXTURE_2D_ARRAY, miplevel, GL_TEXTURE_DEPTH, &depth);
+	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
+
+	unsigned char* bytes = (unsigned char*)malloc(width * 4 * height);
+
+	for (unsigned short layer = 0; layer < depth; ++layer) {
+		glGetTextureSubImage(textureAtlas, 0, 0, 0, layer, width, height, 1, GL_RGBA, GL_UNSIGNED_BYTE, sizeof(unsigned char) * width * 4 * height, bytes);
+		SOIL_save_image((name + "_" + std::to_string(layer) + ".png").c_str(), SOIL_SAVE_TYPE_PNG, width, height, 4, bytes);
+
+	}
+
 	free(bytes);
 }
 

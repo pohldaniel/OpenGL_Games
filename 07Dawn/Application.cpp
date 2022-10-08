@@ -6,7 +6,9 @@
 #include "Editor.h"
 #include "LoadingScreen.h"
 
-Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fdt), m_eventDispatcher(new EventDispatcher()){
+EventDispatcher* Application::s_eventDispatcher;
+
+Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fdt) {
 	ViewPort::get().init(WIDTH, HEIGHT);
 	
 	initWindow();
@@ -14,8 +16,9 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 	loadAssets();
 	initStates();
 	m_enableVerticalSync = true;
+	Application::s_eventDispatcher = new EventDispatcher();
 
-	m_eventDispatcher->setProcessOSEvents([&]() {
+	Application::s_eventDispatcher->setProcessOSEvents([&]() {
 		while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
 			if (msg.message == WM_QUIT) return false;
 			TranslateMessage(&msg);
@@ -285,7 +288,7 @@ bool Application::isRunning() {
 		return false;
 	}
 	
-	return m_eventDispatcher->update();
+	return s_eventDispatcher->update();
 }
 
 void Application::render() {
@@ -313,19 +316,25 @@ void Application::initStates() {
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
 	switch (message) {
-		case WM_MOUSEMOVE: {
+		case WM_MOUSEMOVE: {			
 			Event event;
 			event.type = Event::MOUSEMOTION;
-			event.mouseMove.x = static_cast<int>(static_cast<short>(LOWORD(lParam)));
-			event.mouseMove.y = static_cast<int>(static_cast<short>(HIWORD(lParam)));
-			m_eventDispatcher->pushEvent(event);			
+			event.data.mouseMove.x = static_cast<int>(static_cast<short>(LOWORD(lParam)));
+			event.data.mouseMove.y = static_cast<int>(static_cast<short>(HIWORD(lParam)));
+			s_eventDispatcher->pushEvent(event);			
+			break;
+		}case WM_NCMOUSEMOVE: {
+			Event event;
+			event.type = Event::MOUSEMOTION;
+			event.data.mouseMove.titleBar = true;
+			s_eventDispatcher->pushEvent(event);
 			break;
 		}
 	}
 }
 
 void Application::AddMouseListener(MouseEventListener * el) {
-	m_eventDispatcher->AddMouseListener(el);
+	s_eventDispatcher->AddMouseListener(el);
 }
 
 void Application::loadAssets() {

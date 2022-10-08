@@ -26,9 +26,10 @@ public:
 	void setLinear();
 
 	void bind(unsigned int unit);
-	void safe(std::string name, unsigned int width, unsigned int height, unsigned int channels);
+	void safe(std::string name);
 
 	static void Unbind();
+	static void Safe(std::string name, unsigned int textureAtlas);
 private:
 
 	unsigned int m_texture;

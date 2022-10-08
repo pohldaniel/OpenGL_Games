@@ -130,38 +130,6 @@ void Character::update(float deltaTime) {
 	}
 }
 
-Enums::Direction Character::GetDirectionTexture() {
-	if (isStunned() == true || isMesmerized() == true) {
-		return activeDirection;
-	}
-
-	Enums::Direction direction = GetDirection();
-	if (direction != Enums::Direction::STOP) {
-		activeDirection = direction;
-	}
-	
-	Enums::ActivityType curActivity = getCurActivity();
-
-	/*switch (curActivity) {
-		case ActivityType::Walking: {
-
-			if (direction == STOP)
-				return activeDirection;
-
-			TileSet& tileSet = m_moveTileSets2[curActivity][activeDirection];
-			int msPerDrawFrame = 100;
-			index = ((Globals::clock.getElapsedTimeMilli() % (msPerDrawFrame * tileSet.getAllTiles().size())) / msPerDrawFrame);
-
-			std::cout << "Size: " << "  " << tileSet.getAllTiles().size() << std::endl;
-
-			return direction;
-		}
-		break;
-	}*/
-	
-	return direction;
-}
-
 uint16_t Character::getWanderRadius() const {
 	return wander_radius;
 }
@@ -332,92 +300,7 @@ void Character::MoveRight(uint8_t n) {
 		//}
 }
 
-void Character::Move(float deltaTime){
-	
-	if (isStunned() == true || isMesmerized() == true) {
-		m_elapsedTime = 0.0f;
-		return;
-	}
 
-	if (isFeared() == false) {
-		hasChoosenFearDirection = false;
-	}
-
-	continuePreparing();
-	if (!mayDoAnythingAffectingSpellActionWithoutAborting()) {
-		if (!mayDoAnythingAffectingSpellActionWithAborting()) {
-			m_elapsedTime = 0.0f;
-			return;
-		}
-	}
-	
-	//Enums::Direction movingDirection = GetDirectionRNG();
-
-	Enums::Direction movingDirection = GetDirection();
-
-	if ((movingDirection != Enums::Direction::STOP) && !mayDoAnythingAffectingSpellActionWithoutAborting()) {
-		//CastingAborted();
-	}
-
-	if (movingDirection != Enums::Direction::STOP && isChanneling() == true) {
-		//removeSpellsWithCharacterState(CharacterStates::Channeling);
-	}
-
-
-	/// if we are feared (fleeing) we run at a random direction. Only choose a direction once for each fear effect.
-	if (isFeared() == true) {
-		if (hasChoosenFearDirection == false) {
-			fearDirection = static_cast<Enums::Direction>(RNG::randomSizeT(1, 8));
-			hasChoosenFearDirection = true;
-		}
-		movingDirection = fearDirection;
-	}
-
-	float movePerStep = 0.01f; // moves one step per movePerStep ms
-
-	// To balance moving diagonally boost, movePerStep = 10*sqrt(2)
-	if (movingDirection == Enums::Direction::NW || movingDirection == Enums::Direction::NE || movingDirection == Enums::Direction::SW || movingDirection == Enums::Direction::SE)
-		movePerStep = 0.014f;
-
-	
-	// recalculate the movementpoints based on our movementspeed (spells that affect this can be immobolizing spells, snares or movement enhancer
-	m_elapsedTime += deltaTime;
-	while (m_elapsedTime > movePerStep) {
-		m_elapsedTime -= movePerStep;
-		switch (movingDirection) {
-		case Enums::Direction::NW:
-			MoveLeft(1);
-			MoveUp(1);
-			break;
-		case Enums::Direction::N:
-			MoveUp(1);
-			break;
-		case Enums::Direction::NE:
-			MoveRight(1);
-			MoveUp(1);
-			break;
-		case Enums::Direction::W:
-			MoveLeft(1);
-			break;
-		case Enums::Direction::E:
-			MoveRight(1);
-			break;
-		case Enums::Direction::SW:
-			MoveLeft(1);
-			MoveDown(1);
-			break;
-		case Enums::Direction::S:
-			MoveDown(1);
-			break;
-		case Enums::Direction::SE:
-			MoveRight(1);
-			MoveDown(1);
-			break;
-		default:
-			break;
-		}
-	}
-}
 
 /*void Character::setStrength(uint16_t newStrength){
 	strength = newStrength;
@@ -613,10 +496,82 @@ int Character::getHeight() const {
 	return useBoundingBox ? boundingBoxH : rect.height;
 }
 
+unsigned short Character::getNumActivityTextures(Enums::ActivityType activity) {
+	return m_characterType.m_numMoveTexturesPerDirection.at(activity);
+}
+
+Enums::Direction Character::GetOppositeDirection(Enums::Direction direction) {
+	switch (direction) {
+	case Enums::Direction::NW:
+		return Enums::Direction::SE;
+		break;
+	case Enums::Direction::N:
+		return Enums::Direction::S;
+		break;
+	case Enums::Direction::NE:
+		return Enums::Direction::SW;
+		break;
+	case Enums::Direction::W:
+		return Enums::Direction::E;
+		break;
+	case Enums::Direction::E:
+		return Enums::Direction::W;
+		break;
+	case Enums::Direction::SW:
+		return Enums::Direction::NE;
+		break;
+	case Enums::Direction::S:
+		return Enums::Direction::N;
+		break;
+	case Enums::Direction::SE:
+		return Enums::Direction::NW;
+		break;
+	}
+}
+
+std::string Character::AttitudeToString(Enums::Attitude attitude) {
+	switch (attitude) {
+	case Enums::Attitude::HOSTILE:
+		return "HOSTILE";
+	case Enums::Attitude::NEUTRAL:
+		return "NEUTRAL";
+	case Enums::Attitude::FRIENDLY:
+		return "FRIENDLY";
+	}
+}
+
+std::string Character::ActivityToString(Enums::ActivityType activity) {
+	switch (activity) {
+	case Enums::ActivityType::Walking:
+		return "Walking";
+	case Enums::ActivityType::Dying:
+		return "Dying";
+	case Enums::ActivityType::Attacking:
+		return "ATTACKING";
+	case Enums::ActivityType::Casting:
+		return "Casting";
+	case Enums::ActivityType::Shooting:
+		return "Shooting";
+	}
+}
+
+
 ////////////////////////////////////////////////////////////////////////////////
-void CharacterType::addMoveTexture(Enums::ActivityType activity, Enums::Direction direction, int index, std::string filename, int maxWidth, int maxHeight) {
+void CharacterType::addMoveTexture(Enums::ActivityType activity, Enums::Direction direction, int index, std::string filename, unsigned int maxWidth, unsigned int maxHeight) {
 	TileSet& tileSet = m_moveTileSets[{activity, direction}];
 	tileSet.addTile(filename, maxWidth, maxHeight);
+}
+
+void CharacterType::calcNumMoveTexturesPerDirection() {
+	std::unordered_map<std::pair<int, int>, TileSet, pair_hash>::const_iterator it;
+
+	for (it = m_moveTileSets.begin(); it != m_moveTileSets.end(); it++) {
+		Enums::ActivityType currActivity = static_cast<Enums::ActivityType>(it->first.first);
+		if (m_numMoveTexturesPerDirection.find(static_cast<Enums::ActivityType>(it->first.first)) == m_numMoveTexturesPerDirection.end()) {
+			m_numMoveTexturesPerDirection[static_cast<Enums::ActivityType>(it->first.first)] = m_moveTileSets.at({ static_cast<Enums::ActivityType>(it->first.first), Enums::Direction::S }).getAllTiles().size();
+		}
+
+	}
 }
 
 void CharacterType::setStrength(uint16_t newStrength) {

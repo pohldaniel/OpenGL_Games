@@ -157,8 +157,8 @@ void Mouse::handleEvent(Event event) {
 
 	switch (event.type) {
 		case Event::MOUSEMOTION: {
-			int x = event.mouseMove.x;
-			int y = event.mouseMove.y;
+			int x = event.data.mouseMove.x;
+			int y = event.data.mouseMove.y;
 
 			m_xPosRelative = static_cast<float>(centerX - x);
 			m_yPosRelative = static_cast<float>(centerY - y);

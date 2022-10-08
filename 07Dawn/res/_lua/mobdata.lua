@@ -31,6 +31,7 @@ for direction = 1,8 do
 end
 TextureAtlasCreator:get():addFrame();
 
+wolfbase:calcNumMoveTexturesPerDirection();
 wolfbase:setStrength( 15 )
 wolfbase:setDexterity( 25 )
 wolfbase:setVitality( 15 )
@@ -74,6 +75,7 @@ for direction = 1,8 do
 end
 TextureAtlasCreator:get():addFrame();
 
+witchbase:calcNumMoveTexturesPerDirection();
 witchbase:setStrength( 15 )
 witchbase:setDexterity( 25 )
 witchbase:setVitality( 15 )
@@ -112,6 +114,7 @@ for direction = 1,8 do
 end
 TextureAtlasCreator:get():addFrame();
 
+humanbase:calcNumMoveTexturesPerDirection();
 humanbase:setStrength( 15 )
 humanbase:setDexterity( 25 )
 humanbase:setVitality( 15 )
@@ -145,11 +148,19 @@ TextureAtlasCreator:get():addFrame();
 
 for direction = 1,8 do
 	for index=0,12,1 do
+		wizardbase:addMoveTexture( Enums.Attacking, direction, index, "res/character/wizard/attacking "..directions[direction].."000"..index..".tga", 1248, 768);
+	end
+end
+TextureAtlasCreator:get():addFrame();
+
+for direction = 1,8 do
+	for index=0,12,1 do
 		wizardbase:addMoveTexture( Enums.Dying, direction, index, "res/character/wizard/dying "..directions[direction].."000"..index..".tga", 1664, 1024);
 	end
 end
 TextureAtlasCreator:get():addFrame();
 
+wizardbase:calcNumMoveTexturesPerDirection();
 wizardbase:setStrength( 10 )
 wizardbase:setDexterity( 10 )
 wizardbase:setVitality( 10 )
@@ -201,6 +212,7 @@ for direction = 1,8 do
 end
 TextureAtlasCreator:get():addFrame();
 
+spiderlingbase:calcNumMoveTexturesPerDirection();
 spiderlingbase:setStrength( 10 )
 spiderlingbase:setDexterity( 10 )
 spiderlingbase:setVitality( 10 )
@@ -257,6 +269,7 @@ for direction = 1,8 do
 end
 TextureAtlasCreator:get():addFrame();
 
+spiderbase:calcNumMoveTexturesPerDirection();
 spiderbase:setStrength( 20 )
 spiderbase:setDexterity( 30 )
 spiderbase:setVitality( 20 )
@@ -313,6 +326,7 @@ for direction = 1,8 do
 end
 TextureAtlasCreator:get():addFrame();
 
+skeletonbase:calcNumMoveTexturesPerDirection();
 skeletonbase:setStrength( 25 )
 skeletonbase:setDexterity( 40 )
 skeletonbase:setVitality( 45 )
@@ -375,6 +389,7 @@ TextureAtlasCreator:get():addFrame();
 TextureManager:SetTextureAtlas("mobs", TextureAtlasCreator:get():getAtlas());
 --TextureAtlasCreator:get():safeAtlas("tmp/mobs")
 
+skeletonarcherbase:calcNumMoveTexturesPerDirection();
 skeletonarcherbase:setStrength( 25 )
 skeletonarcherbase:setDexterity( 40 )
 skeletonarcherbase:setVitality( 45 )

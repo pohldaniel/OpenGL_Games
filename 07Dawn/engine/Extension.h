@@ -202,6 +202,7 @@ typedef char GLchar;
 #define GL_FUNC_REVERSE_SUBTRACT 0x800B
 #define GL_GPU_MEM_INFO_TOTAL_AVAILABLE_MEM_NVX 0x9048
 #define GL_GPU_MEM_INFO_CURRENT_AVAILABLE_MEM_NVX 0x9049
+#define GL_TEXTURE_DEPTH 0x8071
 
 	extern void glActiveTextureARB(GLenum texture);
 	extern void glMultiTexCoord2fARB(GLenum target, GLfloat s, GLfloat t);
@@ -240,6 +241,9 @@ typedef char GLchar;
 	extern void glBindBufferRange(GLenum target, GLuint index, GLuint buffer, GLintptr offset, GLsizeiptr size);
 
 	extern void glBlendEquation(GLenum mode);
+
+	extern void glGetTextureParameterfv(GLuint texture, GLenum pname, GLfloat *params);
+	extern void glGetTextureParameteriv(GLuint texture, GLenum pname, GLint *params);
 
 } // extern "C"
 #endif
