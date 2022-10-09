@@ -160,6 +160,7 @@
     <ClCompile Include="Editor.cpp" />
     <ClCompile Include="engine\animation\Animation2d.cpp" />
     <ClCompile Include="engine\Fontrenderer.cpp" />
+    <ClCompile Include="engine\input\ApplicationEventListener.cpp" />
     <ClCompile Include="engine\Instancerenderer.cpp" />
     <ClCompile Include="engine\Transform.cpp" />
     <ClCompile Include="InteractionPoint.cpp" />
@@ -216,6 +217,7 @@
     <ClInclude Include="Editor.h" />
     <ClInclude Include="engine\animation\Animation2d.h" />
     <ClInclude Include="engine\Fontrenderer.h" />
+    <ClInclude Include="engine\input\ApplicationEventListener.h" />
     <ClInclude Include="engine\Instancerenderer.h" />
     <ClInclude Include="engine\Transform.h" />
     <ClInclude Include="Enums.h" />

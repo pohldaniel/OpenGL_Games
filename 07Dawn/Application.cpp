@@ -6,7 +6,8 @@
 #include "Editor.h"
 #include "LoadingScreen.h"
 
-EventDispatcher& Application::s_eventDispatcher = EventDispatcher();
+EventDispatcher& Application::s_eventDispatcher = EventDispatcher::Get();
+
 
 Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fdt) {
 	ViewPort::get().init(WIDTH, HEIGHT);
@@ -115,6 +116,12 @@ LRESULT CALLBACK Application::StaticWndProc(HWND hWnd, UINT message, WPARAM wPar
 			application = static_cast<Application*>(reinterpret_cast<CREATESTRUCT*>(lParam)->lpCreateParams);			
 			SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(application));
 			break;
+		}case WM_SETCURSOR: {
+			if (LOWORD(lParam) == HTCLIENT) {
+				SetCursor(Mouse::GetCursorIcon());
+				return TRUE;
+			}
+			break;
 		}default: {
 			application = reinterpret_cast<Application*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
 			break;
@@ -135,13 +142,6 @@ LRESULT Application::DisplayWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 		case WM_CREATE: {
 			Mouse::instance().attach2(hWnd);
 			Keyboard::instance().enable();
-			hCursor = LoadCursorFromFileA("res/cursors/black.cur");
-			break;
-		}case WM_SETCURSOR: {
-			if (LOWORD(lParam) == HTCLIENT) {
-				SetCursor(hCursor);
-				return TRUE;
-			}
 			break;
 		}case WM_DESTROY: {
 			PostQuitMessage(0);
@@ -328,18 +328,14 @@ void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 			event.data.mouseMove.y = static_cast<int>(static_cast<short>(HIWORD(lParam)));
 			s_eventDispatcher.pushEvent(event);			
 			break;
-		}case WM_NCMOUSEMOVE: {
+		}/*case WM_NCMOUSEMOVE: {
 			Event event;
 			event.type = Event::MOUSEMOTION;
 			event.data.mouseMove.titleBar = true;
 			s_eventDispatcher.pushEvent(event);
 			break;
-		}
+		}*/
 	}
-}
-
-void Application::AddMouseListener(MouseEventListener * el) {
-	s_eventDispatcher.AddMouseListener(el);
 }
 
 void Application::loadAssets() {

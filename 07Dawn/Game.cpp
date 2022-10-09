@@ -4,7 +4,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	newZone = ZoneManager::Get().getCurrentZone();
 	m_interface = new Interface();
 
-	Mouse::instance().hideCursor(true);
+	Mouse::SetCursorIcon("res/cursors/pointer.cur");
 }
 
 Game::~Game() {}
@@ -29,13 +29,13 @@ void Game::render(unsigned int &frameBuffer) {
 	newZone->drawZoneBatched();
 
 	m_interface->DrawInterface();
-	m_interface->DrawCursor(m_drawInGameCursor);
+	//m_interface->DrawCursor(m_drawInGameCursor);
 	glDisable(GL_BLEND);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void Game::OnMouseMotion(Event::MouseMoveEvent& event) {
-	m_drawInGameCursor = !event.titleBar;
-	Mouse::instance().hideCursor(m_drawInGameCursor);
+	//m_drawInGameCursor = !event.titleBar;
+	//Mouse::instance().hideCursor(m_drawInGameCursor);
 }

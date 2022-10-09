@@ -1,6 +1,8 @@
 #include "Mouse.h"
 #include <iostream>
 
+HCURSOR Mouse::s_cursor = LoadCursor(nullptr, IDC_ARROW);
+
 const float Mouse::WEIGHT_MODIFIER = 0.2f;
 BYTE Mouse::m_tempBuffer[TEMP_BUFFER_SIZE];
 
@@ -8,6 +10,14 @@ Mouse &Mouse::instance(){
 
 	static Mouse theInstance;
 	return theInstance;
+}
+
+void Mouse::SetCursorIcon(std::string file) {
+	Mouse::s_cursor = LoadCursorFromFileA(file.c_str());
+}
+
+HCURSOR Mouse::GetCursorIcon() {
+	return Mouse::s_cursor;
 }
 
 Mouse::Mouse(){

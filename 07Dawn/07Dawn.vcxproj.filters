@@ -195,6 +195,9 @@
     <ClCompile Include="Player.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="engine\input\ApplicationEventListener.cpp">
+      <Filter>engine\input</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine\input\Event.h">
@@ -358,6 +361,9 @@
     </ClInclude>
     <ClInclude Include="Player.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\input\ApplicationEventListener.h">
+      <Filter>engine\input</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

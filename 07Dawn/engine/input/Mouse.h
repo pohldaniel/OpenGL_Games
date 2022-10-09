@@ -1,5 +1,5 @@
 #pragma once
-
+#include <string>
 #include <windows.h>
 #include "Event.h"
 
@@ -72,7 +72,9 @@ public:
 	void setWeightModifier(float weightModifier);
 	void smoothMouse(bool smooth);
 	void update();
-	
+
+	static void SetCursorIcon(std::string file);
+	static HCURSOR GetCursorIcon();
 private:
 	Mouse();
 	Mouse(const Mouse &);
@@ -112,4 +114,6 @@ private:
 
 	int centerX;
 	int centerY;
+
+	static HCURSOR s_cursor;
 };

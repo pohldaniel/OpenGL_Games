@@ -1,9 +1,8 @@
 #include "MainMenu.h"
-#include "Application.h"
 #include "Player.h"
 
 MainMenu::MainMenu(StateMachine& machine) : State(machine, CurrentState::MAINMENU) {
-	
+	Mouse::SetCursorIcon("res/cursors/black.cur");
 
 	LuaFunctions::executeLuaFile("res/_lua/mobdata_wolf.lua");
 	LuaFunctions::executeLuaFile("res/_lua/playerdata_w.lua");
@@ -35,7 +34,7 @@ MainMenu::MainMenu(StateMachine& machine) : State(machine, CurrentState::MAINMEN
 	dynamic_cast<Label*>(m_dialog.getChildWidgets()[3])->setFunction([&]() {
 		m_isRunning = false;
 		Game* game = new Game(m_machine);
-		Application::AddMouseListener(game);
+		EventDispatcher::AddMouseListener(game);
 		m_machine.addStateAtTop(game);
 	});
 }

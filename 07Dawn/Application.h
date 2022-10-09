@@ -24,8 +24,6 @@ public:
 	bool isRunning();
 	HWND getWindow();
 	
-	static void AddMouseListener(MouseEventListener * el);
-
 private:
 	static LRESULT CALLBACK StaticWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 	LRESULT DisplayWndProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lParam);
@@ -41,7 +39,7 @@ private:
 
 	MSG msg;
 	HWND m_window;
-	HCURSOR hCursor;
+	
 
 	const float& m_fdt;
 	const float& m_dt;

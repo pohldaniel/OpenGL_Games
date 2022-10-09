@@ -1,51 +1,74 @@
 #include <iostream>
 
 #include "EventDispatcher.h"
+#include "ApplicationEventListener.h"
 #include "MouseEventListener.h"
 #include "KeyboardEventListener.h"
 
-void EventDispatcher::AddMouseListener(MouseEventListener * el){
+EventDispatcher EventDispatcher::s_instance;
+
+EventDispatcher& EventDispatcher::Get() {
+	return s_instance;
+}
+
+void EventDispatcher::AddApplicationListener(ApplicationEventListener * el) {
 	// do not add NULL
 	if (!el)
 		return;
 
-	auto it = std::find(mMouseListeners.begin(), mMouseListeners.end(), el);
+	auto it = std::find(s_instance.mApplicationListeners.begin(), s_instance.mApplicationListeners.end(), el);
 
 	// listener not found -> add it
-	if (mMouseListeners.end() == it){
-		el->mDispatcher = this;
-		mMouseListeners.emplace_back(el);
+	if (s_instance.mApplicationListeners.end() == it) {
+		el->mDispatcher = &s_instance;
+		s_instance.mApplicationListeners.emplace_back(el);
+	}
+}
+
+void EventDispatcher::AddMouseListener(MouseEventListener * el){
+	if (!el)
+		return;
+
+	auto it = std::find(s_instance.mMouseListeners.begin(), s_instance.mMouseListeners.end(), el);
+
+	if (s_instance.mMouseListeners.end() == it){
+		el->mDispatcher = &s_instance;
+		s_instance.mMouseListeners.emplace_back(el);
 	}
 }
 
 void EventDispatcher::AddKeyboardListener(KeyboardEventListener * el) {
-	// do not add NULL
 	if (!el)
 		return;
 
-	auto it = std::find(mKeyboardListeners.begin(), mKeyboardListeners.end(), el);
+	auto it = std::find(s_instance.mKeyboardListeners.begin(), s_instance.mKeyboardListeners.end(), el);
 
-	// listener not found -> add it
-	if (mKeyboardListeners.end() == it) {
-		el->mDispatcher = this;
-		mKeyboardListeners.emplace_back(el);
+	if (s_instance.mKeyboardListeners.end() == it) {
+		el->mDispatcher = &s_instance;
+		s_instance.mKeyboardListeners.emplace_back(el);
 	}
 }
 
-void EventDispatcher::RemoveMouseListener(MouseEventListener * el){
-	auto it = std::find(mMouseListeners.begin(), mMouseListeners.end(), el);
+void EventDispatcher::RemoveApplicationListener(ApplicationEventListener * el) {
+	auto it = std::find(s_instance.mApplicationListeners.begin(), s_instance.mApplicationListeners.end(), el);
 
 	// listener found -> remove it
-	if (it != mMouseListeners.end())
-		mMouseListeners.erase(it);
+	if (it != s_instance.mApplicationListeners.end())
+		s_instance.mApplicationListeners.erase(it);
+}
+
+void EventDispatcher::RemoveMouseListener(MouseEventListener * el){
+	auto it = std::find(s_instance.mMouseListeners.begin(), s_instance.mMouseListeners.end(), el);
+
+	if (it != s_instance.mMouseListeners.end())
+		s_instance.mMouseListeners.erase(it);
 }
 
 void EventDispatcher::RemoveKeyboardListener(KeyboardEventListener * el) {
-	auto it = std::find(mKeyboardListeners.begin(), mKeyboardListeners.end(), el);
+	auto it = std::find(s_instance.mKeyboardListeners.begin(), s_instance.mKeyboardListeners.end(), el);
 
-	// listener found -> remove it
-	if (it != mKeyboardListeners.end())
-		mKeyboardListeners.erase(it);
+	if (it != s_instance.mKeyboardListeners.end())
+		s_instance.mKeyboardListeners.erase(it);
 }
 
 bool EventDispatcher::update() {
@@ -55,8 +78,6 @@ bool EventDispatcher::update() {
 			case Event::CLOSED:
 				return false;
 			case Event::MOUSEMOTION: {
-				//Mouse::instance().handleEvent(m_event);
-
 				for (MouseEventListener * el : mMouseListeners){
 					el->OnMouseMotion(m_event.data.mouseMove);
 				}
@@ -79,6 +100,11 @@ bool EventDispatcher::update() {
 			}case Event::MOUSEBUTTONUP: {
 				for (MouseEventListener * el : mMouseListeners) {
 					el->OnMouseButtonUp(m_event.data.mouseButton);
+				}
+				return true;
+			}case Event::RESIZE: {
+				for (ApplicationEventListener * el : mApplicationListeners) {
+					el->OnResize(m_event.data.application);
 				}
 				return true;
 			}

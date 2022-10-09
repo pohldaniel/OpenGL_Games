@@ -25,15 +25,19 @@ public:
 
 	};
 
+	struct ApplicationEvent {
+		int width;
+		int height;
+	};
+
 	enum EventType{
 		CLOSED,                
-		RESIZED,               
+		RESIZE,               
 		MOUSEMOTION,
 		MOUSEBUTTONDOWN,
 		MOUSEBUTTONUP,
 		KEYDOWN,
 		KEYUP,
-
 		COUNT                  
 	};
 
@@ -44,7 +48,7 @@ public:
 		MouseMoveEvent mouseMove;
 		MouseButtonEvent mouseButton;
 		KeyboardEvent keyboard;
-		
+		ApplicationEvent application;
 	};
 	U data;
 };
