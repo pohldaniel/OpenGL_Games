@@ -148,6 +148,10 @@ public:
 	static void DrawTextureBatched(const TextureRect& textureRect, int x, int y, float width, float height, bool cullVieport, bool updateView);
 	static void DrawTextureBatched(const TextureRect& textureRect, int x, int y, float width, float height, Vector4f color = Vector4f(1.0f, 1.0f, 1.0f, 1.0f), bool cullVieport = true, bool updateView = true);
 
+	static void DrawTexture(const TextureRect& textureRect, int x, int y, bool cullVieport, bool updateView);
+	static void DrawTexture(const TextureRect& textureRect, int x, int y, Vector4f color = Vector4f(1.0f, 1.0f, 1.0f, 1.0f), bool cullVieport = true, bool updateView = true);
+	static void DrawTexture(const TextureRect& textureRect, int x, int y, float width, float height, bool cullVieport, bool updateView);
+	static void DrawTexture(const TextureRect& textureRect, int x, int y, float width, float height, Vector4f color = Vector4f(1.0f, 1.0f, 1.0f, 1.0f), bool cullVieport = true, bool updateView = true);
 
 	static void DrawTextureInstanced(const TextureRect& textureRect, int x, int y, bool checkVieport = true);
 	static TextureRect& Loadimage(std::string file);

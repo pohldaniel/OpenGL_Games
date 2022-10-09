@@ -28,11 +28,11 @@ Batchrenderer& Batchrenderer::get() {
 }
 
 Batchrenderer::~Batchrenderer() {
-	//shutdown();
+	shutdown();
 }
 
-void Batchrenderer::init(size_t size)  {
-	
+void Batchrenderer::init(size_t size, bool drawSingle) {
+
 	m_maxQuad = size;
 	m_maxVert = m_maxQuad * 4;
 	m_maxIndex = m_maxQuad * 6;
@@ -43,7 +43,7 @@ void Batchrenderer::init(size_t size)  {
 
 	glGenVertexArrays(1, &m_vao);
 	glBindVertexArray(m_vao);
-	
+
 	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
 	glBufferData(GL_ARRAY_BUFFER, m_maxVert * sizeof(Vertex), nullptr, GL_DYNAMIC_DRAW); // dynamic
 
@@ -58,7 +58,7 @@ void Batchrenderer::init(size_t size)  {
 
 	glEnableVertexAttribArray(3);
 	glVertexAttribIPointer(3, 1, GL_UNSIGNED_INT, sizeof(Vertex), (const void*)(8 * sizeof(float)));
-	
+
 	uint32_t* indices = new uint32_t[m_maxIndex];
 	uint32_t index_offset = 0;
 	for (int i = 0; i < m_maxIndex; i += 6) {
@@ -86,43 +86,77 @@ void Batchrenderer::init(size_t size)  {
 	delete[] indices;
 
 	bufferPtr = buffer;
+
+	if (drawSingle) {
+		glGenBuffers(1, &m_vboSingle);
+
+		glGenVertexArrays(1, &m_vaoSingle);
+		glBindVertexArray(m_vaoSingle);
+
+		glBindBuffer(GL_ARRAY_BUFFER, m_vboSingle);
+		glBufferData(GL_ARRAY_BUFFER, 4 * sizeof(Vertex), nullptr, GL_DYNAMIC_DRAW); // dynamic
+
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const void*)0);
+
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const void*)(2 * sizeof(float)));
+
+		glEnableVertexAttribArray(2);
+		glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const void*)(4 * sizeof(float)));
+
+		glEnableVertexAttribArray(3);
+		glVertexAttribIPointer(3, 1, GL_UNSIGNED_INT, sizeof(Vertex), (const void*)(8 * sizeof(float)));
+
+		const GLushort _indices[] = { 0, 1, 2, 2, 3, 0 };
+
+		glGenBuffers(1, &m_iboSingle);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_iboSingle);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(_indices), _indices, GL_STATIC_DRAW);
+
+		// unbind vbo and vao
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindVertexArray(0);
+
+		glDeleteBuffers(1, &m_iboSingle);
+	}
 }
 
 
-void Batchrenderer::shutdown(){
+void Batchrenderer::shutdown() {
 	glDeleteBuffers(1, &m_vbo);
 	glDeleteVertexArrays(1, &m_vao);
 
 	delete[] buffer;
 }
 
-void Batchrenderer::addQuad(Vector4f posSize, Vector4f texPosSize, Vector4f color, unsigned int frame, bool updateView){
+void Batchrenderer::addQuad(Vector4f posSize, Vector4f texPosSize, Vector4f color, unsigned int frame, bool updateView) {
 
-  if (indexCount >= m_maxIndex) {
-	drawBuffer(updateView);
-  }
- 
-  bufferPtr->posTex = { posSize[0], posSize[1],  texPosSize[0],  texPosSize[1] };
-  bufferPtr->color = { color[0], color[1], color[2], color[3] };
-  bufferPtr->frame = frame;
-  bufferPtr++;
+	if (indexCount >= m_maxIndex) {
+		drawBuffer(updateView);
+	}
 
-  bufferPtr->posTex = { posSize[0] + posSize[2], posSize[1],  texPosSize[0] + texPosSize[2],  texPosSize[1] };
-  bufferPtr->color = { color[0], color[1], color[2], color[3] };
-  bufferPtr->frame = frame;
-  bufferPtr++;
+	bufferPtr->posTex = { posSize[0], posSize[1],  texPosSize[0],  texPosSize[1] };
+	bufferPtr->color = { color[0], color[1], color[2], color[3] };
+	bufferPtr->frame = frame;
+	bufferPtr++;
 
-  bufferPtr->posTex = { posSize[0] + posSize[2], posSize[1] + posSize[3],  texPosSize[0] + texPosSize[2],  texPosSize[1] + texPosSize[3] };
-  bufferPtr->color = { color[0], color[1], color[2], color[3] };
-  bufferPtr->frame = frame;
-  bufferPtr++;
+	bufferPtr->posTex = { posSize[0] + posSize[2], posSize[1],  texPosSize[0] + texPosSize[2],  texPosSize[1] };
+	bufferPtr->color = { color[0], color[1], color[2], color[3] };
+	bufferPtr->frame = frame;
+	bufferPtr++;
 
-  bufferPtr->posTex = { posSize[0], posSize[1] + posSize[3],  texPosSize[0],  texPosSize[1] + texPosSize[3] };
-  bufferPtr->color = { color[0], color[1], color[2], color[3] };
-  bufferPtr->frame = frame;
-  bufferPtr++;
+	bufferPtr->posTex = { posSize[0] + posSize[2], posSize[1] + posSize[3],  texPosSize[0] + texPosSize[2],  texPosSize[1] + texPosSize[3] };
+	bufferPtr->color = { color[0], color[1], color[2], color[3] };
+	bufferPtr->frame = frame;
+	bufferPtr++;
 
-  indexCount += 6;
+	bufferPtr->posTex = { posSize[0], posSize[1] + posSize[3],  texPosSize[0],  texPosSize[1] + texPosSize[3] };
+	bufferPtr->color = { color[0], color[1], color[2], color[3] };
+	bufferPtr->frame = frame;
+	bufferPtr++;
+
+	indexCount += 6;
 }
 
 void Batchrenderer::drawBuffer(bool updateView) {
@@ -143,6 +177,35 @@ void Batchrenderer::drawBuffer(bool updateView) {
 	indexCount = 0;
 
 	bufferPtr = buffer;
+}
+
+void Batchrenderer::drawSingleQuad(Vector4f posSize, Vector4f texPosSize, Vector4f color, unsigned int frame, bool updateView) {
+
+	Vertex data[] = { posSize[0], posSize[1],                            texPosSize[0],  texPosSize[1],                                 color[0], color[1], color[2], color[3], frame ,
+		posSize[0] + posSize[2], posSize[1],               texPosSize[0] + texPosSize[2],  texPosSize[1],                 color[0], color[1], color[2], color[3], frame ,
+		posSize[0] + posSize[2], posSize[1] + posSize[3],  texPosSize[0] + texPosSize[2],  texPosSize[1] + texPosSize[3], color[0], color[1], color[2], color[3], frame ,
+		posSize[0], posSize[1] + posSize[3],               texPosSize[0],  texPosSize[1] + texPosSize[3] ,                color[0], color[1], color[2], color[3], frame };
+
+	glBindBuffer(GL_ARRAY_BUFFER, m_vboSingle);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, 4 * sizeof(Vertex), data);
+
+	glUseProgram(m_shader->m_program);
+	m_shader->loadMatrix("u_transform", updateView ? m_camera->getOrthographicMatrix() * m_camera->getViewMatrix() : m_camera->getOrthographicMatrix());
+
+	glBindVertexArray(m_vaoSingle);
+	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, nullptr);
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+	glUseProgram(0);
+
+	//glBufferData(GL_ARRAY_BUFFER, sizeof(data), NULL, GL_STATIC_DRAW);
+	//void *ptr = glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
+	//if (ptr) {
+	//	memcpy(ptr, data, sizeof(data));
+	//	glUnmapBuffer(GL_ARRAY_BUFFER);
+	//}
+
 }
 
 void Batchrenderer::bindTexture(unsigned int texture, bool isTextureArray) {

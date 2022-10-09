@@ -9,12 +9,12 @@ TextureCache& TextureCache::Get() {
 	return s_instance;
 }
 
-TextureRect& TextureCache::getTextureFromCache(std::string filename, unsigned int maxWidth, unsigned maxHeight){
+TextureRect& TextureCache::getTextureFromCache(std::string filename, unsigned int maxWidth, unsigned maxHeight) {
 
 	if (textures.count(filename) > 0) {
 		return textures[filename];
 	}
-	
+
 	Texture tex;
 	tex.loadFromFile(filename, true);
 
@@ -28,11 +28,11 @@ TextureRect& TextureCache::getTextureFromCache(std::string filename, unsigned in
 	textures[filename].textureWidth = 1.0f;
 	textures[filename].textureOffsetY = 0.0f;
 	textures[filename].textureHeight = 1.0f;
-	
+
 	unsigned char* bytes = tex.readPixel();
 	TextureAtlasCreator::get().addTexture(textures[filename], reinterpret_cast<char*>(bytes), tex.getWidth(), tex.getHeight(), maxWidth, maxHeight);
 	free(bytes);
-	
+
 	return textures[filename];
 }
 
@@ -62,6 +62,35 @@ void TextureManager::DrawTextureBatched(const TextureRect& textureRect, int x, i
 		return;
 	}
 	Batchrenderer::get().addQuad(Vector4f(static_cast< float >(x), static_cast< float >(y), width, height), Vector4f(textureRect.textureOffsetX, textureRect.textureOffsetY, textureRect.textureWidth, textureRect.textureHeight), color, textureRect.frame, updateView);
+}
+
+void TextureManager::DrawTexture(const TextureRect& textureRect, int x, int y, bool cullVieport, bool updateView) {
+	if (!TextureManager::IsRectOnScreen(x, textureRect.width, y, textureRect.height) && cullVieport) {
+		return;
+	}
+	Batchrenderer::get().drawSingleQuad(Vector4f(static_cast< float >(x), static_cast< float >(y), static_cast< float >(textureRect.width), static_cast< float >(textureRect.height)), Vector4f(textureRect.textureOffsetX, textureRect.textureOffsetY, textureRect.textureWidth, textureRect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), textureRect.frame, updateView);
+
+}
+
+void TextureManager::DrawTexture(const TextureRect& textureRect, int x, int y, Vector4f color, bool cullVieport, bool updateView) {
+	if (!TextureManager::IsRectOnScreen(x, textureRect.width, y, textureRect.height) && cullVieport) {
+		return;
+	}
+	Batchrenderer::get().drawSingleQuad(Vector4f(static_cast< float >(x), static_cast< float >(y), static_cast< float >(textureRect.width), static_cast< float >(textureRect.height)), Vector4f(textureRect.textureOffsetX, textureRect.textureOffsetY, textureRect.textureWidth, textureRect.textureHeight), color, textureRect.frame, updateView);
+}
+
+void TextureManager::DrawTexture(const TextureRect& textureRect, int x, int y, float width, float height, bool cullVieport, bool updateView) {
+	if (!TextureManager::IsRectOnScreen(x, static_cast<int>(width), y, static_cast<int>(height)) && cullVieport) {
+		return;
+	}
+	Batchrenderer::get().drawSingleQuad(Vector4f(static_cast<float>(x), static_cast<float>(y), width, height), Vector4f(textureRect.textureOffsetX, textureRect.textureOffsetY, textureRect.textureWidth, textureRect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), textureRect.frame, updateView);
+}
+
+void TextureManager::DrawTexture(const TextureRect& textureRect, int x, int y, float width, float height, Vector4f color, bool cullVieport, bool updateView) {
+	if (!TextureManager::IsRectOnScreen(x, static_cast<int>(width), y, static_cast<int>(height)) && cullVieport) {
+		return;
+	}
+	Batchrenderer::get().drawSingleQuad(Vector4f(static_cast< float >(x), static_cast< float >(y), width, height), Vector4f(textureRect.textureOffsetX, textureRect.textureOffsetY, textureRect.textureWidth, textureRect.textureHeight), color, textureRect.frame, updateView);
 }
 
 void TextureManager::DrawTextureInstanced(const TextureRect& textureRect, int x, int y, bool checkVieport) {

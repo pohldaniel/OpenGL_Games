@@ -3,7 +3,7 @@
 #include "Zone.h"
 #include "Player.h"
 
-Interface::Interface() { 
+Interface::Interface() {
 	LoadTextures();
 	player = &Player::Get();
 }
@@ -12,10 +12,10 @@ void Interface::SetPlayer(Character *player_) {
 	player = player_;
 }
 
-void Interface::initFonts(){
+void Interface::initFonts() {
 	//NPCTextFont = FontCache::getFontFromCache("data/verdana.ttf", 12);
 	//levelFont = FontCache::getFontFromCache("data/verdana.ttf", 12);
-	
+
 }
 
 void Interface::LoadTextures() {
@@ -58,7 +58,8 @@ void Interface::LoadTextures() {
 void Interface::DrawInterface() {
 
 	Batchrenderer::get().bindTexture(m_textureAtlas, true);
-	TextureManager::DrawTextureBatched(m_interfacetexture[14], 4, ViewPort::get().getHeight() - 68, false, false);
+	
+	TextureManager::DrawTexture(m_interfacetexture[14], 4, ViewPort::get().getHeight() - 68, false, false);
 	TextureManager::DrawTextureBatched(m_interfacetexture[11], 0, 50 + ViewPort::get().getHeight() - m_interfacetexture[11].height, false, false);
 
 	float lifeBarPercentage = 0.5f;
@@ -74,15 +75,18 @@ void Interface::DrawInterface() {
 	if (true) {
 		TextureManager::DrawTextureBatched(m_interfacetexture[12], 76, ViewPort::get().getHeight() - 53, manaBarPercentage * 123.0f, static_cast<float>(m_interfacetexture[12].height), Vector4f(0.16f, 0.576f, 0.815f, 1.0f), false, false);
 
-	/// fatigue bar
-	}else {
+		/// fatigue bar
+	}
+	else {
 		Vector4f color;
-		if (fatigueBarPercentage <= 0.33){
+		if (fatigueBarPercentage <= 0.33) {
 			color = Vector4f(0.109f, 0.917f, 0.047f, 1.0f);
-		}else if (fatigueBarPercentage >= 0.34 && fatigueBarPercentage <= 0.66){
+		}
+		else if (fatigueBarPercentage >= 0.34 && fatigueBarPercentage <= 0.66) {
 			color = Vector4f(0.917f, 0.847f, 0.047f, 1.0f);
 
-		}else{
+		}
+		else {
 			color = Vector4f(0.917f, 0.047f, 0.047f, 1.0f);
 
 		}
@@ -93,19 +97,19 @@ void Interface::DrawInterface() {
 
 
 	// actual castbar
-	TextureManager::DrawTextureBatched(m_interfacetexture[0], ViewPort::get().getWidth() / 2 - 50, 100, 100.0f , 20.0f, Vector4f(0.5f, 0.5f, 0.0f, 1.0f), false, false);	
+	TextureManager::DrawTextureBatched(m_interfacetexture[0], ViewPort::get().getWidth() / 2 - 50, 100, 100.0f, 20.0f, Vector4f(0.5f, 0.5f, 0.0f, 1.0f), false, false);
 	TextureManager::DrawTextureBatched(m_interfacetexture[0], ViewPort::get().getWidth() / 2 - 50, 100, 100 * 0.3f, 20.0f, Vector4f(0.8f, 0.8f, 0.0f, 1.0f), false, false);
 
 	//buff effect (it seems meaningless to render this symbol as an additinal frame)
-	TextureManager::DrawTextureBatched(m_interfacetexture[16], ViewPort::get().getWidth() - 204,ViewPort::get().getHeight() - 50 - 40 *0, false, false);
+	TextureManager::DrawTextureBatched(m_interfacetexture[16], ViewPort::get().getWidth() - 204, ViewPort::get().getHeight() - 50 - 40 * 0, false, false);
 	TextureManager::DrawTextureBatched(m_interfacetexture[17], ViewPort::get().getWidth() - 204 + 36, ViewPort::get().getHeight() - 50 - 40 * 0, 168.0f, 36.0f, false, false);
-	
+
 	//log window
 	TextureManager::DrawTextureBatched(m_interfacetexture[18], 0, 0, 390.0f, 150.0f, false, false);
-		
+
 	//action bar
 	TextureManager::DrawTextureBatched(m_interfacetexture[18], ViewPort::get().getWidth() - 630, 0, 630.0f, 80.0f, false, false);
-	for (unsigned int buttonId = 0; buttonId < 10; buttonId++) {	
+	for (unsigned int buttonId = 0; buttonId < 10; buttonId++) {
 		TextureManager::DrawTextureBatched(m_interfacetexture[19], ViewPort::get().getWidth() - 610 + buttonId * 60, 12, 50.0f, 50.0f, Vector4f(0.4f, 0.4f, 0.4f, 1.0f), false, false);
 	}
 
@@ -118,7 +122,7 @@ void Interface::DrawCursor(bool drawInGameCursor) {
 		Batchrenderer::get().bindTexture(m_textureAtlas, true);
 		TextureManager::DrawTextureBatched(m_interfacetexture[15], ViewPort::get().getCursorPosX(), ViewPort::get().getCursorPosY() - 19, false, false);
 		Batchrenderer::get().drawBuffer(false);
-	}	
+	}
 }
 
 void Interface::drawCharacterStates() {
@@ -134,7 +138,7 @@ void Interface::drawCharacterStates() {
 	for (size_t curCharacter = 0; curCharacter < allCharacters.size(); curCharacter++) {
 		/// draws fear symbol
 		if (allCharacters[curCharacter]->isFeared() == true) {
-			TextureManager::DrawTextureBatched(m_interfacetexture[7], allCharacters[curCharacter]->getXPos() + allCharacters[curCharacter]->getWidth() / 2 - m_interfacetexture[7].width / 2, allCharacters[curCharacter]->getYPos() + allCharacters[curCharacter]->getHeight() / 2, false, false);	
+			TextureManager::DrawTextureBatched(m_interfacetexture[7], allCharacters[curCharacter]->getXPos() + allCharacters[curCharacter]->getWidth() / 2 - m_interfacetexture[7].width / 2, allCharacters[curCharacter]->getYPos() + allCharacters[curCharacter]->getHeight() / 2, false, false);
 		}
 		/// draws stun symbol
 		if (allCharacters[curCharacter]->isStunned() == true) {

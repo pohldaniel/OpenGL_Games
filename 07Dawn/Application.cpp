@@ -30,7 +30,7 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 	Fontrenderer::get().init();
 	Fontrenderer::get().setShader(Globals::shaderManager.getAssetPointer("font"));
 	Fontrenderer::get().setCamera(ViewPort::get().getCamera());
-	Batchrenderer::get().init();
+	Batchrenderer::get().init(400, true);
 	Batchrenderer::get().setCamera(ViewPort::get().getCamera());	
 	Batchrenderer::get().setShader(Globals::shaderManager.getAssetPointer("batch"));
 

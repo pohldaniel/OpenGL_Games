@@ -17,10 +17,11 @@ public:
 		unsigned int frame;
 	};
 
-	void init(size_t size = 400);
+	void init(size_t size = 400, bool drawSingle = false);
 	void shutdown();
 	void drawBuffer(bool updateView = true);
 	void addQuad(Vector4f posSize, Vector4f texPosSize, Vector4f color = Vector4f(1.0f, 1.0f, 1.0f, 1.0f), unsigned int frame = 0, bool updateView = true);
+	void drawSingleQuad(Vector4f posSize, Vector4f texPosSize, Vector4f color = Vector4f(1.0f, 1.0f, 1.0f, 1.0f), unsigned int frame = 0, bool updateView = true);
 
 	void setCamera(const Camera& camera);
 	void setShader(Shader* shader);
@@ -44,11 +45,16 @@ private:
 	unsigned int m_vbo = 0;
 	unsigned int m_ibo= 0;
 
+	unsigned int m_vaoSingle = 0;
+	unsigned int m_vboSingle = 0;
+	unsigned int m_iboSingle = 0;
+
 	uint32_t indexCount = 0;
 
 	Vertex* buffer;
 	Vertex* bufferPtr;
-
+	Vertex* m_data;
+	Vertex* m_dataPtr;
 	//const Camera& m_camera;
 	const Camera* m_camera;
 	
