@@ -41,6 +41,7 @@ private:
 
 	MSG msg;
 	HWND m_window;
+	HCURSOR hCursor;
 
 	const float& m_fdt;
 	const float& m_dt;

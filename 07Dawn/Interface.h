@@ -12,7 +12,7 @@ public:
 	void initFonts();
 	bool enabled;
 	void DrawInterface();
-	void DrawCursor(bool hideInGameCursor);
+	void DrawCursor(bool drawInGameCursor);
 	void SetPlayer(Character *player_);
 
 	/*void drawTargetedNPCText();

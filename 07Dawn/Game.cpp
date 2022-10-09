@@ -5,7 +5,6 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	m_interface = new Interface();
 
 	Mouse::instance().hideCursor(true);
-
 }
 
 Game::~Game() {}
@@ -30,13 +29,13 @@ void Game::render(unsigned int &frameBuffer) {
 	newZone->drawZoneBatched();
 
 	m_interface->DrawInterface();
-	m_interface->DrawCursor(!m_hideInGameCursor);
+	m_interface->DrawCursor(m_drawInGameCursor);
 	glDisable(GL_BLEND);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void Game::OnMouseMotion(Event::MouseMoveEvent& event) {
-	m_hideInGameCursor = event.titleBar;
-	Mouse::instance().hideCursor(!m_hideInGameCursor);
+	m_drawInGameCursor = !event.titleBar;
+	Mouse::instance().hideCursor(m_drawInGameCursor);
 }

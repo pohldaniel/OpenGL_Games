@@ -112,11 +112,10 @@ LRESULT CALLBACK Application::StaticWndProc(HWND hWnd, UINT message, WPARAM wPar
 
 	switch (message) {
 		case WM_CREATE: {
-			application = static_cast<Application*>(reinterpret_cast<CREATESTRUCT*>(lParam)->lpCreateParams);
-		
+			application = static_cast<Application*>(reinterpret_cast<CREATESTRUCT*>(lParam)->lpCreateParams);			
 			SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(application));
 			break;
-		}default: {		
+		}default: {
 			application = reinterpret_cast<Application*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
 			break;
 		}
@@ -136,6 +135,13 @@ LRESULT Application::DisplayWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 		case WM_CREATE: {
 			Mouse::instance().attach2(hWnd);
 			Keyboard::instance().enable();
+			hCursor = LoadCursorFromFileA("res/cursors/black.cur");
+			break;
+		}case WM_SETCURSOR: {
+			if (LOWORD(lParam) == HTCLIENT) {
+				SetCursor(hCursor);
+				return TRUE;
+			}
 			break;
 		}case WM_DESTROY: {
 			PostQuitMessage(0);

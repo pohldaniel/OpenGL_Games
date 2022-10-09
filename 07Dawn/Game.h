@@ -21,5 +21,5 @@ public:
 	Zone* newZone;
 	Interface* m_interface;
 
-	bool m_hideInGameCursor = false;
+	bool m_drawInGameCursor = false;
 };

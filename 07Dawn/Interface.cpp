@@ -105,15 +105,16 @@ void Interface::DrawInterface() {
 		
 	//action bar
 	TextureManager::DrawTextureBatched(m_interfacetexture[18], ViewPort::get().getWidth() - 630, 0, 630.0f, 80.0f, false, false);
-
-
+	for (unsigned int buttonId = 0; buttonId < 10; buttonId++) {	
+		TextureManager::DrawTextureBatched(m_interfacetexture[19], ViewPort::get().getWidth() - 610 + buttonId * 60, 12, 50.0f, 50.0f, Vector4f(0.4f, 0.4f, 0.4f, 1.0f), false, false);
+	}
 
 	drawCharacterStates();
 	Batchrenderer::get().drawBuffer(false);
 }
 
-void Interface::DrawCursor(bool hideInGameCursor) {
-	if (hideInGameCursor) {
+void Interface::DrawCursor(bool drawInGameCursor) {
+	if (drawInGameCursor) {
 		Batchrenderer::get().bindTexture(m_textureAtlas, true);
 		TextureManager::DrawTextureBatched(m_interfacetexture[15], ViewPort::get().getCursorPosX(), ViewPort::get().getCursorPosY() - 19, false, false);
 		Batchrenderer::get().drawBuffer(false);
