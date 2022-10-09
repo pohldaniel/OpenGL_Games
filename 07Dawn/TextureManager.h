@@ -49,6 +49,7 @@ public:
 		maxY = 0;
 		fillSpace = 0;
 		buffer = new unsigned char[width * height * 4];
+		bufferPtr = buffer;
 		memset(buffer, 0, width*height * 4);
 		spritesheet = Spritesheet();
 		frame = 0;
@@ -80,8 +81,13 @@ public:
 			addFrame();
 		}
 
+		if (maxHeight < h || maxWidth < w) {
+			std::cout << "Texture to large for TextrueAtlas" << std::endl;
+			return;
+		}
+
 		for (unsigned int row = 0; row<h; ++row){
-			memcpy(buffer + (((curY + row) * width + curX) * 4), texture + (w * row * 4), 4 * w);
+			memcpy(bufferPtr + (((curY + row) * width + curX) * 4), texture + (w * row * 4), 4 * w);
 		}
 
 		stexture.textureOffsetX = static_cast<float>(curX) / static_cast<float>(width);
@@ -104,10 +110,9 @@ public:
 
 	void addFrame() {
 		if (curX == 0 && curY == 0) return;
-
-		spritesheet.addToSpritesheet(buffer, width, height);
-		memset(buffer, 0, width*height * 4);
-
+		spritesheet.addToSpritesheet(bufferPtr, width, height);
+		memset(bufferPtr, 0, width*height * 4);
+		bufferPtr = buffer;
 		curX = 0;
 		curY = 0;
 		maxY = 0;
@@ -120,6 +125,7 @@ private:
 	TextureAtlasCreator() = default;
 	static TextureAtlasCreator s_instance;
 	unsigned char* buffer;
+	unsigned char* bufferPtr;
 	unsigned int width;
 	unsigned int height;
 	unsigned int curX;

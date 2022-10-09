@@ -134,6 +134,7 @@ public:
 	bool isStunned() const;
 	bool isMesmerized() const;
 	bool isFeared() const;
+	bool isConfused() const;
 	bool isCharmed() const;
 	bool getIsPreparing() const;
 	bool mayDoAnythingAffectingSpellActionWithoutAborting() const;

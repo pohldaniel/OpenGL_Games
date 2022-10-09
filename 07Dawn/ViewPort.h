@@ -11,6 +11,8 @@ public:
 	void update(float dt);
 	Camera& getCamera();
 	Vector2f& getCursorPos();
+	const int getCursorPosX();
+	const int getCursorPosY();
 	const Vector3f& getPosition();
 	const Vector2f getBottomLeft();
 

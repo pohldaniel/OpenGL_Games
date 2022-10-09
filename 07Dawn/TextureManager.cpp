@@ -32,7 +32,7 @@ TextureRect& TextureCache::getTextureFromCache(std::string filename, unsigned in
 	unsigned char* bytes = tex.readPixel();
 	TextureAtlasCreator::get().addTexture(textures[filename], reinterpret_cast<char*>(bytes), tex.getWidth(), tex.getHeight(), maxWidth, maxHeight);
 	free(bytes);
-
+	
 	return textures[filename];
 }
 

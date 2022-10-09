@@ -65,6 +65,14 @@ Vector2f& ViewPort::getCursorPos() {
 	return m_cursorPosEye;	
 }
 
+const int ViewPort::getCursorPosX() {
+	return static_cast<int>(m_cursorPosEye[0]);
+}
+
+const int ViewPort::getCursorPosY() {
+	return static_cast<int>(m_cursorPosEye[1]);
+}
+
 const Vector3f& ViewPort::getPosition() {
 	return m_postition;
 }

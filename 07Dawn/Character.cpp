@@ -122,6 +122,15 @@ bool Character::isFeared() const {
 	return false;
 }
 
+bool Character::isConfused() const {
+	/*for (size_t activeSpell = 0; activeSpell < activeSpells.size(); activeSpell++) {
+		if (activeSpells[activeSpell].first->getCharacterState().first == CharacterStates::Confused) {
+			return true;
+		}
+	}*/
+	return false;
+}
+
 bool Character::isCharmed() const {
 	/*for (size_t activeSpell = 0; activeSpell < activeSpells.size(); activeSpell++) {
 		if (activeSpells[activeSpell].first->getCharacterState().first == CharacterStates::Charmed) {
@@ -511,7 +520,7 @@ void CharacterType::calcNumMoveTexturesPerDirection() {
 	for (it = m_moveTileSets.begin(); it != m_moveTileSets.end(); it++) {
 		Enums::ActivityType currActivity = static_cast<Enums::ActivityType>(it->first.first);
 		if (m_numMoveTexturesPerDirection.find(static_cast<Enums::ActivityType>(it->first.first)) == m_numMoveTexturesPerDirection.end()) {
-			m_numMoveTexturesPerDirection[static_cast<Enums::ActivityType>(it->first.first)] = m_moveTileSets.at({ static_cast<Enums::ActivityType>(it->first.first), Enums::Direction::S }).getAllTiles().size();
+			m_numMoveTexturesPerDirection[static_cast<Enums::ActivityType>(it->first.first)] = static_cast<unsigned short>(m_moveTileSets.at({ static_cast<Enums::ActivityType>(it->first.first), Enums::Direction::S }).getAllTiles().size());
 		}
 
 	}

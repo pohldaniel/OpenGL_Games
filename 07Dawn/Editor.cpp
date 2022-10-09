@@ -1,7 +1,7 @@
 #include "Editor.h"
 
 Editor::Editor(StateMachine& machine) : State(machine, CurrentState::EDITOR) {
-	LuaFunctions::executeLuaFile("res/_lua/mobdata.lua");
+	//LuaFunctions::executeLuaFile("res/_lua/mobdata_wolf.lua");
 
 	ZoneManager::Get().getZone("res/_lua/zone1").loadZone();
 	ZoneManager::Get().setCurrentZone(&ZoneManager::Get().getZone("res/_lua/zone1"));

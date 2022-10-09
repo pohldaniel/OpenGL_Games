@@ -4,7 +4,7 @@
 
 MainMenu::MainMenu(StateMachine& machine) : State(machine, CurrentState::MAINMENU) {
 	
-	
+
 	LuaFunctions::executeLuaFile("res/_lua/mobdata_wolf.lua");
 	LuaFunctions::executeLuaFile("res/_lua/playerdata_w.lua");
 
@@ -14,9 +14,7 @@ MainMenu::MainMenu(StateMachine& machine) : State(machine, CurrentState::MAINMEN
 	ZoneManager::Get().getZone("res/_lua/zone1").loadZone();
 	ZoneManager::Get().setCurrentZone(&ZoneManager::Get().getZone("res/_lua/zone1"));
 
-	LuaFunctions::executeLuaFile("res/_lua/gameinit.lua");
-	LuaFunctions::executeLuaFile("res/_lua/tileAdjacency.lua");
-
+	
 	m_dialog = Dialog(0, 0, 0, 0);
 	m_dialog.setPosition(200, 322);
 

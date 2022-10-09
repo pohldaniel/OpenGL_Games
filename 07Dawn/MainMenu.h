@@ -20,4 +20,6 @@ public:
 	void resize() override;
 
 	Dialog m_dialog;
+
+	std::vector<TextureRect> m_interfacetexture;
 };
