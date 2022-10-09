@@ -181,7 +181,7 @@ void Batchrenderer::drawBuffer(bool updateView) {
 
 void Batchrenderer::drawSingleQuad(Vector4f posSize, Vector4f texPosSize, Vector4f color, unsigned int frame, bool updateView) {
 
-	Vertex data[] = { posSize[0], posSize[1],                            texPosSize[0],  texPosSize[1],                                 color[0], color[1], color[2], color[3], frame ,
+	/**Vertex data[] = { posSize[0], posSize[1],                            texPosSize[0],  texPosSize[1],                                 color[0], color[1], color[2], color[3], frame ,
 		posSize[0] + posSize[2], posSize[1],               texPosSize[0] + texPosSize[2],  texPosSize[1],                 color[0], color[1], color[2], color[3], frame ,
 		posSize[0] + posSize[2], posSize[1] + posSize[3],  texPosSize[0] + texPosSize[2],  texPosSize[1] + texPosSize[3], color[0], color[1], color[2], color[3], frame ,
 		posSize[0], posSize[1] + posSize[3],               texPosSize[0],  texPosSize[1] + texPosSize[3] ,                color[0], color[1], color[2], color[3], frame };
@@ -197,15 +197,42 @@ void Batchrenderer::drawSingleQuad(Vector4f posSize, Vector4f texPosSize, Vector
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
-	glUseProgram(0);
+	glUseProgram(0);*/
 
-	//glBufferData(GL_ARRAY_BUFFER, sizeof(data), NULL, GL_STATIC_DRAW);
-	//void *ptr = glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
+	//Vertex data[] = { posSize[0], posSize[1], texPosSize[0], texPosSize[1], color[0], color[1], color[2], color[3], frame ,
+	//	posSize[0] + posSize[2], posSize[1],               texPosSize[0] + texPosSize[2],  texPosSize[1],                 color[0], color[1], color[2], color[3], frame ,
+	//	posSize[0] + posSize[2], posSize[1] + posSize[3],  texPosSize[0] + texPosSize[2],  texPosSize[1] + texPosSize[3], color[0], color[1], color[2], color[3], frame ,
+	//	posSize[0], posSize[1] + posSize[3],               texPosSize[0],  texPosSize[1] + texPosSize[3] ,                color[0], color[1], color[2], color[3], frame };
+
+	//glBindBuffer(GL_ARRAY_BUFFER, m_vboSingle);
+	//glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * 4, NULL, GL_STATIC_DRAW);
+	//void* ptr = glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
 	//if (ptr) {
 	//	memcpy(ptr, data, sizeof(data));
 	//	glUnmapBuffer(GL_ARRAY_BUFFER);
 	//}
 
+	glBindBuffer(GL_ARRAY_BUFFER, m_vboSingle);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * 4, NULL, GL_STATIC_DRAW);
+	Vertex* ptr = (Vertex*)glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
+	if (ptr) {
+		ptr[0] = { posSize[0], posSize[1], texPosSize[0], texPosSize[1], color[0], color[1], color[2], color[3], frame };
+		ptr[1] = { posSize[0] + posSize[2], posSize[1], texPosSize[0] + texPosSize[2],  texPosSize[1], color[0], color[1], color[2], color[3], frame };
+		ptr[2] = { posSize[0] + posSize[2], posSize[1] + posSize[3], texPosSize[0] + texPosSize[2], texPosSize[1] + texPosSize[3], color[0], color[1], color[2], color[3], frame };
+		ptr[3] = { posSize[0], posSize[1] + posSize[3], texPosSize[0], texPosSize[1] + texPosSize[3], color[0], color[1], color[2], color[3], frame };
+		
+		glUnmapBuffer(GL_ARRAY_BUFFER);
+	}
+
+	glUseProgram(m_shader->m_program);
+	m_shader->loadMatrix("u_transform", updateView ? m_camera->getOrthographicMatrix() * m_camera->getViewMatrix() : m_camera->getOrthographicMatrix());
+
+	glBindVertexArray(m_vaoSingle);
+	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, nullptr);
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+	glUseProgram(0);
 }
 
 void Batchrenderer::bindTexture(unsigned int texture, bool isTextureArray) {
