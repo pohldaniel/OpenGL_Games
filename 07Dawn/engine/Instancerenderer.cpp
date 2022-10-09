@@ -8,12 +8,13 @@ void Instancedrenderer::setShader(Shader* shader) {
 	m_shader = shader;
 }
 
-Instancedrenderer& Instancedrenderer::get() {
+Instancedrenderer& Instancedrenderer::Get() {
 	return s_instance;
 }
 
 Instancedrenderer::~Instancedrenderer() {
-	//shutdown();
+	delete[] buffer;
+	buffer = nullptr;
 }
 
 void Instancedrenderer::init(size_t size) {
@@ -25,10 +26,8 @@ void Instancedrenderer::init(size_t size) {
 		1.0f, 0.0f,  1.0f, 0.0f,		
 	};
 
-
 	m_maxQuad = size;
 	m_maxVert = m_maxQuad * 4;
-
 
 	buffer = new Vertex[m_maxVert];
 
@@ -62,8 +61,7 @@ void Instancedrenderer::init(size_t size) {
 	glVertexAttribDivisor(2, 1);
 	glVertexAttribDivisor(3, 1);
 	
-
-	static const GLushort indices[] = {
+	const GLushort indices[] = {
 		0, 1, 2,
 		0, 2, 3
 	};
@@ -85,8 +83,6 @@ void Instancedrenderer::shutdown() {
 	glDeleteBuffers(1, &m_vboBase);
 	glDeleteBuffers(1, &m_vboInstance);
 	glDeleteVertexArrays(1, &m_vao);
-
-	delete[] buffer;
 }
 
 void Instancedrenderer::addQuad(Vector4f posSize, Vector4f texPosSize, unsigned int frame) {

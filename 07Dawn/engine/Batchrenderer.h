@@ -29,12 +29,14 @@ public:
 
 	void bindTexture(unsigned int texture, bool isTextureArray = false);
 	void unbindTexture(bool isTextureArray = false);
-	static Batchrenderer& get();
+	static Batchrenderer& Get();
 
 private:
 
 	//Batchrenderer(const Camera& camera);
 	Batchrenderer() = default;
+	Batchrenderer(Batchrenderer const& rhs) = delete;
+	Batchrenderer& operator=(const Batchrenderer& rhs) = delete;
 	~Batchrenderer();
 
 	size_t m_maxQuad = 0;

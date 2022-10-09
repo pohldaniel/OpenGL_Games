@@ -24,7 +24,7 @@ public:
 	void drawBuffer();
 	void setShader(Shader* shader);
 
-	static Instancedrenderer& get();
+	static Instancedrenderer& Get();
 
 private:
 

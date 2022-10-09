@@ -55,17 +55,17 @@ void LoadingScreen::render(unsigned int &frameBuffer) {
 	int progressBarPosX = (static_cast<int>(ViewPort::get().getWidth()) - progressBarWidth) / 2;
 	int progressBarPosY = 20;
 
-	Batchrenderer::get().bindTexture(m_textureAtlas, true);
+	Batchrenderer::Get().bindTexture(m_textureAtlas, true);
 	TextureManager::DrawTextureBatched(m_backgroundTextures[m_backgroundToDraw], m_posX, m_posY, m_width, m_height, false, false);
 
 	TextureManager::DrawTextureBatched(m_backgroundTextures[2], progressBarPosX, progressBarPosY, m_progress * progressBarWidth, 16, Vector4f(0.75f, 0.2f, 0.2f, 1.0f), false, false);
 	TextureManager::DrawTextureBatched(m_backgroundTextures[2], progressBarPosX + static_cast<int>(m_progress * progressBarWidth), progressBarPosY, progressBarWidth - m_progress * progressBarWidth, 16, Vector4f(0.5f, 0.1f, 0.1f, 1.0f), false, false);
-	Batchrenderer::get().drawBuffer(false);
+	Batchrenderer::Get().drawBuffer(false);
 
 	int textX = m_posX + m_width / 2 - m_characterSet.getWidth(m_curText) / 2;
 	int textY = 30 + m_characterSet.lineHeight;
-	Fontrenderer::get().drawText(m_characterSet, textX, textY, m_curText);
-	Batchrenderer::get().unbindTexture(true);
+	Fontrenderer::Get().drawText(m_characterSet, textX, textY, m_curText);
+	Batchrenderer::Get().unbindTexture(true);
 
 	glDisable(GL_BLEND);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);

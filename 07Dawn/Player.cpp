@@ -14,9 +14,37 @@ Player::~Player() {
 
 }
 
+void Player::init(int x, int y) {
+	x_pos = x;
+	y_pos = y;
+	direction_texture = Enums::Direction::S;
+	//remainingMovePoints = 0;
+	isPreparing = false;
+	alive = true;
+	//hasDrawnDyingOnce = false;
+	hasChoosenFearDirection = false;
+	//hasChoosenDyingDirection = false;
+	//curSpellAction = NULL;
+	//experience = 0;
+	coins = 0;
+	//dyingTransparency = 1.0f;
+}
+
 
 void Player::draw() {
+	Enums::ActivityType curActivity = getCurActivity();
 
+	int drawX = getXPos();
+	int drawY = getYPos();
+
+	if (getUseBoundingBox()){
+		drawX -= getBoundingBoxX();
+		drawY -= getBoundingBoxY();
+	}
+
+	Batchrenderer::Get().bindTexture(TextureManager::GetTextureAtlas("player"), true);
+	TextureManager::DrawTexture(*rect, drawX, drawY, true, true);
+	Batchrenderer::Get().unbindTexture(true);
 }
 
 void Player::Move(float deltaTime) {

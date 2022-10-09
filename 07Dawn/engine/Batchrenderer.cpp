@@ -23,12 +23,13 @@ void Batchrenderer::updateModelMtx(const Matrix4f& mtx) {
 	glUseProgram(0);
 }
 
-Batchrenderer& Batchrenderer::get() {
+Batchrenderer& Batchrenderer::Get() {
 	return s_instance;
 }
 
 Batchrenderer::~Batchrenderer() {
-	shutdown();
+	delete[] buffer;
+	buffer = nullptr;	
 }
 
 void Batchrenderer::init(size_t size, bool drawSingle) {
@@ -122,12 +123,15 @@ void Batchrenderer::init(size_t size, bool drawSingle) {
 	}
 }
 
-
 void Batchrenderer::shutdown() {
+
 	glDeleteBuffers(1, &m_vbo);
 	glDeleteVertexArrays(1, &m_vao);
-
-	delete[] buffer;
+	
+	if (m_vboSingle) {
+		glDeleteBuffers(1, &m_vboSingle);
+		glDeleteVertexArrays(1, &m_vaoSingle);
+	}
 }
 
 void Batchrenderer::addQuad(Vector4f posSize, Vector4f texPosSize, Vector4f color, unsigned int frame, bool updateView) {

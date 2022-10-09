@@ -306,18 +306,18 @@ void Zone::update(float deltaTime) {
 
 void Zone::drawZoneBatched() {
 
-	Batchrenderer::get().bindTexture(m_textureAtlas, true);
+	Batchrenderer::Get().bindTexture(m_textureAtlas, true);
 
 	drawTilesBatched();
 	drawEnvironmentBatched();
 	drawShadowsBatched();
-	Batchrenderer::get().drawBuffer();
+	Batchrenderer::Get().drawBuffer();
 
-	Batchrenderer::get().bindTexture(TextureManager::GetTextureAtlas("mobs"), true);
+	Batchrenderer::Get().bindTexture(TextureManager::GetTextureAtlas("mobs"), true);
 	drawNpcsBatched();
-	Batchrenderer::get().drawBuffer();
+	Batchrenderer::Get().drawBuffer();
 
-	Batchrenderer::get().unbindTexture(true);
+	Batchrenderer::Get().unbindTexture(true);
 }
 
 void Zone::drawTilesBatched() {
@@ -351,7 +351,7 @@ void Zone::drawZoneInstanced() {
 	drawTilesInstanced();
 	drawEnvironmentInstanced();
 
-	Instancedrenderer::get().drawBuffer();
+	Instancedrenderer::Get().drawBuffer();
 
 	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
 }

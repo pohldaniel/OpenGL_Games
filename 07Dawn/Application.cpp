@@ -27,21 +27,25 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 		return true;
 	});
 
-	Fontrenderer::get().init();
-	Fontrenderer::get().setShader(Globals::shaderManager.getAssetPointer("font"));
-	Fontrenderer::get().setCamera(ViewPort::get().getCamera());
-	Batchrenderer::get().init(400, true);
-	Batchrenderer::get().setCamera(ViewPort::get().getCamera());	
-	Batchrenderer::get().setShader(Globals::shaderManager.getAssetPointer("batch"));
+	Fontrenderer::Get().init();
+	Fontrenderer::Get().setShader(Globals::shaderManager.getAssetPointer("font"));
+	Fontrenderer::Get().setCamera(ViewPort::get().getCamera());
+	Batchrenderer::Get().init(400, true);
+	Batchrenderer::Get().setCamera(ViewPort::get().getCamera());	
+	Batchrenderer::Get().setShader(Globals::shaderManager.getAssetPointer("batch"));
 
-	Instancedrenderer::get().init();
-	Instancedrenderer::get().setShader(Globals::shaderManager.getAssetPointer("instanced"));
+	Instancedrenderer::Get().init();
+	Instancedrenderer::Get().setShader(Globals::shaderManager.getAssetPointer("instanced"));
 }
 
 Application::~Application() {
 
-	Batchrenderer::get().shutdown();
-	Instancedrenderer::get().shutdown();
+	Batchrenderer::Get().shutdown();
+	Instancedrenderer::Get().shutdown();
+	Fontrenderer::Get().shutdown();
+
+	Globals::shaderManager.clear();
+	Globals::spritesheetManager.clear();
 
 	//release OpenGL context
 	HDC hdc = GetDC(m_window);

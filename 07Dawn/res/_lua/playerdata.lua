@@ -114,10 +114,12 @@ for direction = 1,8 do
 	end
 end
 TextureAtlasCreator:get():addFrame();
+TextureManager:SetTextureAtlas("player", TextureAtlasCreator:get():getAtlas());
 
 swordsman:calcNumMoveTexturesPerDirection();
 
-player = Player:Get()
+player = Player:Get();
+player:setBoundingBox( 18, 20, 64, 64 );
 player:setMaxHealth(400);
 player:setMaxMana(250);
 player:setMaxFatigue(100);
@@ -130,5 +132,5 @@ player:setHealthRegen(1);
 player:setManaRegen(2);
 player:setFatigueRegen( 5 );
 player:giveCoins( 576 );
-
-TextureAtlasCreator:get():safeAtlas("tmp/player")
+player:init(512, 400);
+--TextureAtlasCreator:get():safeAtlas("tmp/player")

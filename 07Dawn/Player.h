@@ -22,4 +22,6 @@ public:
 	static Player s_instance;
 
 	const CharacterType* m_characterType;
+
+	void init(int x, int y);
 };

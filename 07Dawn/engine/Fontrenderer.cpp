@@ -2,7 +2,7 @@
 
 Fontrenderer Fontrenderer::s_instance;
 
-Fontrenderer& Fontrenderer::get() {
+Fontrenderer& Fontrenderer::Get() {
 	return s_instance;
 }
 
@@ -10,6 +10,10 @@ Fontrenderer::Fontrenderer() : m_batchrenderer(new Batchrenderer()) {}
 
 Fontrenderer::~Fontrenderer() {
 	delete m_batchrenderer;
+}
+
+void Fontrenderer::shutdown() {
+	m_batchrenderer->shutdown();
 }
 
 void Fontrenderer::init(size_t size)  {

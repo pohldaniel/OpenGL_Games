@@ -29,6 +29,7 @@ for direction = 1,8 do
 		wolfbase:addMoveTexture( Enums.Dying, direction, index, "res/character/wolf/dying "..directions[direction].."000"..index..".tga", 864, 768);
 	end
 end
+TextureAtlasCreator:get():addFrame();
 TextureManager:SetTextureAtlas("mobs", TextureAtlasCreator:get():getAtlas());
 --TextureAtlasCreator:get():safeAtlas("tmp/Wolf")
 

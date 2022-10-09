@@ -27,7 +27,7 @@ void DialogCanvas::initTextures() {
 
 void DialogCanvas::drawCanvas(int left, int bottom, int colummns, int rows, int tileWidth, int tileHeight) {
 
-	Batchrenderer::get().bindTexture(textureAtlas, true);
+	Batchrenderer::Get().bindTexture(textureAtlas, true);
 
 	// draw the corners
 	TextureManager::DrawTextureBatched(m_textureBases[0], left, bottom, false, false);
@@ -54,8 +54,8 @@ void DialogCanvas::drawCanvas(int left, int bottom, int colummns, int rows, int 
 		}
 	}
 
-	Batchrenderer::get().drawBuffer(false);
-	Batchrenderer::get().unbindTexture(true);
+	Batchrenderer::Get().drawBuffer(false);
+	Batchrenderer::Get().unbindTexture(true);
 }
 
 int DialogCanvas::calculateNeededBlockWidth(int width, int tileWidth) {

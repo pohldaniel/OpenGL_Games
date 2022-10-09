@@ -1,6 +1,6 @@
 /*
 ** Lua binding: Luainterface
-** Generated automatically by tolua++-1.0.92 on Sat Oct  8 23:24:55 2022.
+** Generated automatically by tolua++-1.0.92 on Sun Oct  9 23:27:35 2022.
 */
 
 #ifndef __cplusplus
@@ -1641,6 +1641,45 @@ static int tolua_Luainterface_Player_Get00(lua_State* tolua_S)
 }
 #endif //#ifndef TOLUA_DISABLE
 
+/* method: setBoundingBox of class  Player */
+#ifndef TOLUA_DISABLE_tolua_Luainterface_Player_setBoundingBox00
+static int tolua_Luainterface_Player_setBoundingBox00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+	tolua_Error tolua_err;
+	if (
+		!tolua_isusertype(tolua_S, 1, "Player", 0, &tolua_err) ||
+		!tolua_isnumber(tolua_S, 2, 0, &tolua_err) ||
+		!tolua_isnumber(tolua_S, 3, 0, &tolua_err) ||
+		!tolua_isnumber(tolua_S, 4, 0, &tolua_err) ||
+		!tolua_isnumber(tolua_S, 5, 0, &tolua_err) ||
+		!tolua_isnoobj(tolua_S, 6, &tolua_err)
+		)
+		goto tolua_lerror;
+	else
+#endif
+	{
+		Player* self = (Player*)tolua_tousertype(tolua_S, 1, 0);
+		int bbx = ((int)tolua_tonumber(tolua_S, 2, 0));
+		int bby = ((int)tolua_tonumber(tolua_S, 3, 0));
+		int bbw = ((int)tolua_tonumber(tolua_S, 4, 0));
+		int bbh = ((int)tolua_tonumber(tolua_S, 5, 0));
+#ifndef TOLUA_RELEASE
+		if (!self) tolua_error(tolua_S, "invalid 'self' in function 'setBoundingBox'", NULL);
+#endif
+		{
+			self->setBoundingBox(bbx, bby, bbw, bbh);
+		}
+	}
+	return 0;
+#ifndef TOLUA_RELEASE
+	tolua_lerror :
+				 tolua_error(tolua_S, "#ferror in function 'setBoundingBox'.", &tolua_err);
+				 return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
 /* method: setMaxHealth of class  Player */
 #ifndef TOLUA_DISABLE_tolua_Luainterface_Player_setMaxHealth00
 static int tolua_Luainterface_Player_setMaxHealth00(lua_State* tolua_S)
@@ -2032,6 +2071,41 @@ static int tolua_Luainterface_Player_giveCoins00(lua_State* tolua_S)
 #ifndef TOLUA_RELEASE
 	tolua_lerror :
 				 tolua_error(tolua_S, "#ferror in function 'giveCoins'.", &tolua_err);
+				 return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
+/* method: init of class  Player */
+#ifndef TOLUA_DISABLE_tolua_Luainterface_Player_init00
+static int tolua_Luainterface_Player_init00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+	tolua_Error tolua_err;
+	if (
+		!tolua_isusertype(tolua_S, 1, "Player", 0, &tolua_err) ||
+		!tolua_isnumber(tolua_S, 2, 0, &tolua_err) ||
+		!tolua_isnumber(tolua_S, 3, 0, &tolua_err) ||
+		!tolua_isnoobj(tolua_S, 4, &tolua_err)
+		)
+		goto tolua_lerror;
+	else
+#endif
+	{
+		Player* self = (Player*)tolua_tousertype(tolua_S, 1, 0);
+		int x = ((int)tolua_tonumber(tolua_S, 2, 0));
+		int y = ((int)tolua_tonumber(tolua_S, 3, 0));
+#ifndef TOLUA_RELEASE
+		if (!self) tolua_error(tolua_S, "invalid 'self' in function 'init'", NULL);
+#endif
+		{
+			self->init(x, y);
+		}
+	}
+	return 0;
+#ifndef TOLUA_RELEASE
+	tolua_lerror :
+				 tolua_error(tolua_S, "#ferror in function 'init'.", &tolua_err);
 				 return 0;
 #endif
 }
@@ -2646,6 +2720,7 @@ TOLUA_API int tolua_Luainterface_open(lua_State* tolua_S)
 	tolua_cclass(tolua_S, "Player", "Player", "Character", NULL);
 	tolua_beginmodule(tolua_S, "Player");
 	tolua_function(tolua_S, "Get", tolua_Luainterface_Player_Get00);
+	tolua_function(tolua_S, "setBoundingBox", tolua_Luainterface_Player_setBoundingBox00);
 	tolua_function(tolua_S, "setMaxHealth", tolua_Luainterface_Player_setMaxHealth00);
 	tolua_function(tolua_S, "setMaxMana", tolua_Luainterface_Player_setMaxMana00);
 	tolua_function(tolua_S, "setMaxFatigue", tolua_Luainterface_Player_setMaxFatigue00);
@@ -2658,6 +2733,7 @@ TOLUA_API int tolua_Luainterface_open(lua_State* tolua_S)
 	tolua_function(tolua_S, "setManaRegen", tolua_Luainterface_Player_setManaRegen00);
 	tolua_function(tolua_S, "setFatigueRegen", tolua_Luainterface_Player_setFatigueRegen00);
 	tolua_function(tolua_S, "giveCoins", tolua_Luainterface_Player_giveCoins00);
+	tolua_function(tolua_S, "init", tolua_Luainterface_Player_init00);
 	tolua_endmodule(tolua_S);
 	tolua_cclass(tolua_S, "Npc", "Npc", "Character", NULL);
 	tolua_beginmodule(tolua_S, "Npc");

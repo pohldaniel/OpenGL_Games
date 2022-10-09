@@ -53,6 +53,18 @@ Enums::ActivityType Character::getCurActivity() const {
 	return curActivity;
 }
 
+void Character::setBoundingBox(int bbx, int bby, int bbw, int bbh) {
+	boundingBoxX = bbx;
+	boundingBoxY = bby;
+	boundingBoxW = bbw;
+	boundingBoxH = bbh;
+	useBoundingBox = true;
+}
+
+void Character::setUseBoundingBox(bool use) {
+	useBoundingBox = use;
+}
+
 int Character::getXPos() const {
 	return x_pos;
 }
@@ -61,6 +73,25 @@ int Character::getYPos() const {
 	return y_pos;
 }
 
+int Character::getBoundingBoxX() const {
+	return boundingBoxX;
+}
+
+int Character::getBoundingBoxY() const {
+	return boundingBoxY;
+}
+
+int Character::getBoundingBoxW() const {
+	return boundingBoxW;
+}
+
+int Character::getBoundingBoxH() const {
+	return boundingBoxH;
+}
+
+bool Character::getUseBoundingBox() const {
+	return useBoundingBox;
+}
 
 void Character::update(float deltaTime) {
 	

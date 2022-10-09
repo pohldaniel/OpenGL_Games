@@ -199,7 +199,22 @@ public:
 	uint8_t getExperienceValue() const;
 	uint32_t coins;
 
+
+	int boundingBoxX;
+	int boundingBoxY;
+	int boundingBoxW;
+	int boundingBoxH;
+	bool useBoundingBox = false;
+
+	void setBoundingBox(int bbx, int bby, int bbw, int bbh);
+	void setUseBoundingBox(bool use);
+	int getBoundingBoxX() const;
+	int getBoundingBoxY() const;
+	int getBoundingBoxW() const;
+	int getBoundingBoxH() const;
+	bool getUseBoundingBox() const ;
 	
+
 
 
 	static std::string AttitudeToString(Enums::Attitude attitude);
@@ -210,9 +225,7 @@ public:
 	int current_texture, direction_texture;
 	bool hasChoosenFearDirection;
 	bool isPreparing;
-	bool useBoundingBox = false;
-	int boundingBoxW = 0;
-	int boundingBoxH = 0;
+	
 
 	// timers
 	float wander_thisframe, wander_lastframe;

@@ -11,13 +11,14 @@ public:
 	void drawBuffer(bool updateView = false);
 	void bindTexture(const CharacterSet& characterSet);
 	void unbindTexture();
+	void shutdown();
 
 	void setShader(Shader* shader);
 	std::string FloatToString(float val, int precision);
 	void init(size_t size = 400);
 	void setCamera(const Camera& camera);
 	void updateModelMtx(const Matrix4f& mtx);
-	static Fontrenderer& get();
+	static Fontrenderer& Get();
 	
 private:
 	Fontrenderer();

@@ -7,6 +7,7 @@
 
 #include "StateMachine.h"
 #include "Interface.h"
+#include "Player.h"
 
 class Game : public State, public MouseEventListener {
 public:

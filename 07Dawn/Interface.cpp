@@ -57,7 +57,7 @@ void Interface::LoadTextures() {
 
 void Interface::DrawInterface() {
 
-	Batchrenderer::get().bindTexture(m_textureAtlas, true);
+	Batchrenderer::Get().bindTexture(m_textureAtlas, true);
 	
 	TextureManager::DrawTexture(m_interfacetexture[14], 4, ViewPort::get().getHeight() - 68, false, false);
 	TextureManager::DrawTextureBatched(m_interfacetexture[11], 0, 50 + ViewPort::get().getHeight() - m_interfacetexture[11].height, false, false);
@@ -114,14 +114,14 @@ void Interface::DrawInterface() {
 	}
 
 	drawCharacterStates();
-	Batchrenderer::get().drawBuffer(false);
+	Batchrenderer::Get().drawBuffer(false);
 }
 
 void Interface::DrawCursor(bool drawInGameCursor) {
 	if (drawInGameCursor) {
-		Batchrenderer::get().bindTexture(m_textureAtlas, true);
+		Batchrenderer::Get().bindTexture(m_textureAtlas, true);
 		TextureManager::DrawTextureBatched(m_interfacetexture[15], ViewPort::get().getCursorPosX(), ViewPort::get().getCursorPosY() - 19, false, false);
-		Batchrenderer::get().drawBuffer(false);
+		Batchrenderer::Get().drawBuffer(false);
 	}
 }
 

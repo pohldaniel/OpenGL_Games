@@ -144,6 +144,7 @@ class Player : public Character
 {
 	static Player& Get();
 	
+	void setBoundingBox(int bbx, int bby, int bbw, int bbh);
 	void setMaxHealth(int newMaxHealth);
 	void setMaxMana(int newMaxMana);
 	void setMaxFatigue(int newMaxFatigue);
@@ -156,6 +157,8 @@ class Player : public Character
 	void setManaRegen(int newManaRegen);
 	void setFatigueRegen(int newFatigueRegen);
 	void giveCoins(unsigned int amountOfCoins);
+	
+	void init(int x, int y);
 }
 
 class Npc : public Character
