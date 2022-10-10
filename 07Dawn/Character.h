@@ -107,7 +107,7 @@ public:
 
 	virtual void draw() = 0;
 	virtual void update(float deltaTime);
-	virtual void Move(float deltaTime) = 0;
+
 	virtual int getWidth() const = 0;
 	virtual int getHeight() const = 0;
 	virtual unsigned short getNumActivityTextures(Enums::ActivityType activity) = 0;
@@ -122,8 +122,7 @@ public:
 	int getYPos() const;
 	
 	unsigned short getNumActivities();
-	virtual Enums::Direction GetDirection() = 0;
-	virtual Enums::Direction GetDirectionRNG() = 0;
+	
 
 	Enums::Direction GetOppositeDirection(Enums::Direction direction);
 	uint16_t getWanderRadius() const;
@@ -149,7 +148,8 @@ public:
 	void MoveDown(uint8_t n);
 	void MoveLeft(uint8_t n);
 	void MoveRight(uint8_t n);
-
+	void Move(char x, char y);
+	void Move(Enums::Direction direction, uint8_t n = 1);
 
 	void setStrength(uint16_t newStrength);
 	void setDexterity(uint16_t newDexterity);
@@ -215,7 +215,7 @@ public:
 	bool getUseBoundingBox() const ;
 	
 
-
+	void interruptCurrentActivityWith(Enums::ActivityType activity);
 
 	static std::string AttitudeToString(Enums::Attitude attitude);
 	static std::string ActivityToString(Enums::ActivityType activity);
@@ -243,6 +243,9 @@ public:
 
 	int x_pos, y_pos;
 	Enums::Direction activeDirection;
+	Enums::Direction lastActiveDirection;
+	Enums::ActivityType curActivity;
+
 	Enums::Direction WanderDirection, MovingDirection, fearDirection, dyingDirection;
 	unsigned short m_numActivities;
 
@@ -253,6 +256,8 @@ public:
 	float m_wanderTime = 0.0f;
 	bool m_canWander = true;
 	bool m_smoothOut = true;
+	bool m_handleAnimation = false;
+
 	float progress = 0.0f;
 
 	std::string name;

@@ -44,7 +44,7 @@ void Character::baseOnType(std::string characterType) {
 	level = other.level;
 	experienceValue = other.experienceValue;
 
-	activeDirection = GetDirectionRNG();
+	
 }
 
 Enums::ActivityType Character::getCurActivity() const {
@@ -95,6 +95,12 @@ bool Character::getUseBoundingBox() const {
 
 void Character::update(float deltaTime) {
 	
+}
+
+void Character::interruptCurrentActivityWith(Enums::ActivityType activity) {
+	curActivity = activity;
+	m_handleAnimation = false;
+	currentFrame = 0;
 }
 
 std::string getCharacterClassPortrait(Enums::CharacterClass characterClass){
@@ -295,6 +301,46 @@ void Character::MoveRight(uint8_t n) {
 	//if (CollisionCheck(E) == 0) {
 		x_pos += n;
 		//}
+}
+
+void Character::Move(char x, char y) {
+	x_pos += x;
+	y_pos += y;
+}
+
+void Character::Move(Enums::Direction direction, uint8_t n) {
+	switch (direction) {
+		case Enums::Direction::NW:
+			MoveLeft(n);
+			MoveUp(n);
+			break;
+		case Enums::Direction::N:
+			MoveUp(n);
+			break;
+		case Enums::Direction::NE:
+			MoveRight(n);
+			MoveUp(n);
+			break;
+		case Enums::Direction::W:
+			MoveLeft(n);
+			break;
+		case Enums::Direction::E:
+			MoveRight(n);
+			break;
+		case Enums::Direction::SW:
+			MoveLeft(n);
+			MoveDown(n);
+			break;
+		case Enums::Direction::S:
+			MoveDown(n);
+			break;
+		case Enums::Direction::SE:
+			MoveRight(n);
+			MoveDown(n);
+			break;
+		default:
+			break;
+	}
 }
 
 void Character::setStrength(uint16_t newStrength){
@@ -508,6 +554,9 @@ Enums::Direction Character::GetOppositeDirection(Enums::Direction direction) {
 		break;
 	case Enums::Direction::SE:
 		return Enums::Direction::NW;
+		break;
+	default:
+		return Enums::Direction::STOP;
 		break;
 	}
 }

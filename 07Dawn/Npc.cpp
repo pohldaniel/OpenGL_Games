@@ -12,7 +12,7 @@ Npc::Npc(const CharacterType& characterType, int _x_spawn_pos, int _y_spawn_pos,
 	wander_every_seconds = 3; // this mob wanders every 1 seconds.
 	wandering = false;
 	MovingDirection = Enums::Direction::STOP;
-
+	activeDirection = GetDirectionRNG();
 	direction_texture = 0;
 	attitudeTowardsPlayer = Enums::Attitude::NEUTRAL;
 	chasingPlayer = false;
@@ -129,7 +129,7 @@ void Npc::Wander(float deltaTime) {
 				m_canWander = true;
 			}
 
-			wander_every_seconds = 1;		
+			wander_every_seconds = RNG::randomSizeT(3, 6);
 		}
 	}
 }

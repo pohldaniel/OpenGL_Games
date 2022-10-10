@@ -15,13 +15,13 @@ public:
 	~Npc();
 	void draw() override;
 	void update(float deltaTime) override;
-	void Move(float deltaTime) override;
+	
 	int getWidth() const override;;
 	int getHeight() const override;;
 	unsigned short getNumActivityTextures(Enums::ActivityType activity) override;
 
-	Enums::Direction GetDirection() override;
-	Enums::Direction GetDirectionRNG() override;
+	Enums::Direction GetDirection();
+	Enums::Direction GetDirectionRNG();
 	void Wander(float deltaTime);
 
 	void setSpawnInfo(int _x_spawn_pos, int _y_spawn_pos, int _seconds_to_respawn, int _do_respawn);
@@ -44,4 +44,6 @@ private:
 	bool m_updated = false;
 
 	const CharacterType& m_characterType;
+
+	void Move(float deltaTime);
 };

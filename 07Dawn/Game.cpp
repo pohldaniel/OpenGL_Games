@@ -14,7 +14,8 @@ void Game::fixedUpdate() {
 }
 
 void Game::update() {
-	ViewPort::get().update(m_dt);
+	//ViewPort::get().update(m_dt);
+	Player::Get().update(m_dt);
 }
 
 void Game::render(unsigned int &frameBuffer) {
