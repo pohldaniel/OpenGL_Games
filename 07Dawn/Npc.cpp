@@ -177,17 +177,14 @@ void Npc::processInput() {
 
 	if (keyboard.keyPressed(Keyboard::KEY_T)) {
 		curActivity = Enums::ActivityType::Walking;
-		activeDirection = lastActiveDirection;
+		activeDirection = GetDirectionRNG();
 		currentFrame = 0;
 		m_stopped = false;
 
-		//wander_points_left = wander_points_left == 0 ? 200 : wander_points_left;
 		//wander_points_left = RNG::randomSizeT(10, 59);
-
-		wander_points_left = 200;
+		wander_points_left = 59;
 	}
 }
-
 
 void Npc::markAsDeleted() {
 	markedAsDeleted = true;
