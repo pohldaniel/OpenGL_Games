@@ -320,8 +320,8 @@ end
 TextureAtlasCreator:get():addFrame();
 
 for direction = 1,8 do
-	for index=0,9,1 do
-		skeletonbase:addMoveTexture( Enums.Dying, direction, index, "res/character/skeleton/dying "..directions[direction].."000"..index..".tga", 960, 768);
+	for index=0,8,1 do
+		skeletonbase:addMoveTexture( Enums.Dying, direction, index, "res/character/skeleton/dying "..directions[direction].."000"..index..".tga", 864, 768);
 	end
 end
 TextureAtlasCreator:get():addFrame();

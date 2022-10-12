@@ -11,9 +11,12 @@ Npc::Npc(const CharacterType& characterType, int _x_spawn_pos, int _y_spawn_pos,
 	wander_lastframe = 0.0f; // helping us decide when the mob will wander.
 	wander_every_seconds = 3; // this mob wanders every 1 seconds.
 	wandering = false;
-	MovingDirection = Enums::Direction::STOP;
-	WanderDirection = GetDirectionRNG();
-	activeDirection = WanderDirection;
+
+	WanderDirection = Enums::Direction::STOP;
+	activeDirection = Enums::Direction::STOP;
+	lastActiveDirection = activeDirection;
+	curActivity = Enums::ActivityType::Walking;
+
 	direction_texture = 0;
 	attitudeTowardsPlayer = Enums::Attitude::NEUTRAL;
 	chasingPlayer = false;
@@ -21,7 +24,7 @@ Npc::Npc(const CharacterType& characterType, int _x_spawn_pos, int _y_spawn_pos,
 	markedAsDeleted = false;
 	lastPathCalculated = 0;
 	wander_points_left = 0;
-	rect = &m_characterType.m_moveTileSets.at({ getCurActivity(), activeDirection }).getAllTiles()[0].textureRect;
+	rect = &m_characterType.m_moveTileSets.at({ getCurActivity(), GetDirectionRNG() }).getAllTiles()[0].textureRect;
 }
 
 Npc::~Npc() {}
@@ -41,7 +44,6 @@ void Npc::setAttitude(Enums::Attitude attitude) {
 
 void Npc::draw() {
 
-
 	//if (m_updated) {
 		Enums::ActivityType curActivity = getCurActivity();
 
@@ -53,8 +55,10 @@ void Npc::draw() {
  
 void Npc::update(float deltaTime) {
 	m_updated = TextureManager::IsRectOnScreen(getXPos(), rect->width, getYPos(), rect->height);
-	
-	if (m_updated) {	
+
+	if (m_updated) {
+		processInput();
+		lastActiveDirection = activeDirection != Enums::Direction::STOP ? activeDirection : lastActiveDirection;
 		Move(deltaTime);
 		Animate(deltaTime);
 	}
@@ -65,38 +69,53 @@ Enums::Direction Npc::GetDirectionRNG() {
 }
 
 void Npc::Move(float deltaTime) {
-	curActivity = Enums::ActivityType::Walking;
-
-	if (wander_points_left > 0) {
-
-		m_canWander = (pow(x_pos - x_spawn_pos, 2) + pow(y_pos - y_spawn_pos, 2)) < getWanderRadiusSq();
 		
-		if (!m_canWander) {				
-			WanderDirection = GetOppositeDirection(activeDirection);
-			while ((pow(x_pos - x_spawn_pos, 2) + pow(y_pos - y_spawn_pos, 2)) >= getWanderRadiusSq()) {
-				Move(deltaTime, WanderDirection);
+	if (!m_stopped) {
+		if (activeDirection != Enums::Direction::STOP || (wander_points_left > 0)) {
+			wander_points_left--;
+			m_canWander = (pow(x_pos - x_spawn_pos, 2) + pow(y_pos - y_spawn_pos, 2)) < getWanderRadiusSq();
+
+			if (!m_canWander) {
+				WanderDirection = GetOppositeDirection(lastActiveDirection);
+				while ((pow(x_pos - x_spawn_pos, 2) + pow(y_pos - y_spawn_pos, 2)) >= getWanderRadiusSq()) {
+					Move(deltaTime, WanderDirection);
+				}
+
+				activeDirection = Enums::Direction::STOP;
+				m_handleAnimation = false;
+				wander_points_left = 0;
+				currentFrame = 0;
+
+			}else if (wander_points_left == 0) {
+				activeDirection = Enums::Direction::STOP;
+				wander_points_left = m_handleAnimation ? wander_points_left + 1 : 0;
+				m_handleAnimation = m_smoothOut;
 			}
-			wander_points_left = -1;
+
+			wander_lastframe = Globals::clock.getElapsedTimeMilli();
+
+		}else {
+			
+			wander_thisframe = Globals::clock.getElapsedTimeMilli();
+			if (m_canWander = (wander_thisframe - wander_lastframe) > (wander_every_seconds * 1000)) {
+
+				//wander_points_left = 200;
+				wander_points_left = RNG::randomSizeT(10, 59);  // how far will the NPC wander?
+
+				WanderDirection = WanderDirection != lastActiveDirection ? WanderDirection : GetDirectionRNG();
+				activeDirection = WanderDirection;
+				lastActiveDirection = activeDirection;
+
+				m_handleAnimation = m_smoothOut;
+
+				//wander_every_seconds = 1;
+				wander_every_seconds = RNG::randomSizeT(3, 6);
+			}
 		}
 
-		wander_lastframe = Globals::clock.getElapsedTimeMilli();
-	}else {
-			
-		wander_thisframe = Globals::clock.getElapsedTimeMilli();
-		if (m_canWander = (wander_thisframe - wander_lastframe) > (wander_every_seconds * 1000)) {
-
-			wander_points_left = RNG::randomSizeT(10, 59);  // how far will the NPC wander?
-
-			WanderDirection = WanderDirection != activeDirection ? WanderDirection : GetDirectionRNG();
-			activeDirection = WanderDirection;
-			
-			wander_every_seconds = 1;
-			//wander_every_seconds = RNG::randomSizeT(3, 6);
+		if (m_canWander) {
+			Move(deltaTime, lastActiveDirection);
 		}
-	}
-
-	if (m_canWander) {
-		Move(deltaTime, activeDirection);
 	}
 }
 
@@ -105,36 +124,70 @@ void Npc::Move(float deltaTime, Enums::Direction direction) {
 	float movePerStep = 0.01f;
 	if (direction == Enums::Direction::NW || direction == Enums::Direction::NE || direction == Enums::Direction::SW || direction == Enums::Direction::SE)
 		movePerStep = 0.014f;
-
-	// recalculate the movementpoints based on our movementspeed (spells that affect this can be immobolizing spells, snares or movement enhancer
+	
 	m_elapsedTime += deltaTime;
 	while (m_elapsedTime > movePerStep) {
+		
 		m_elapsedTime -= movePerStep;
 		Character::Move(direction);
 	}
 }
 
 void Npc::Animate(float deltaTime) {
-	const TileSet& tileSet = m_characterType.m_moveTileSets.at({ curActivity, activeDirection });
-	unsigned short numActivityTextures = getNumActivityTextures(curActivity);
+	
+	if (activeDirection != Enums::Direction::STOP || (m_handleAnimation || m_waitForAnimation)) {
+		const TileSet& tileSet = m_characterType.m_moveTileSets.at({ curActivity, lastActiveDirection });
+		unsigned short numActivityTextures = getNumActivityTextures(curActivity);
 
-	if (wander_points_left > 0) {
-		wander_points_left--;
 		m_wanderTime = m_wanderTime >= numActivityTextures ? 0.0f : m_wanderTime + deltaTime * 12;
-		index = static_cast<unsigned short>(floor(m_wanderTime));
-		currentFrame = index % (numActivityTextures);
-		index = index % (numActivityTextures + 1);
+		currentFrame = static_cast<unsigned short>(floor(m_wanderTime));
+		if (++currentFrame > numActivityTextures - 1) {
+			currentFrame = curActivity == Enums::ActivityType::Dying ? numActivityTextures - 1 : 0;
+			m_handleAnimation = activeDirection != Enums::Direction::STOP;
+			m_waitForAnimation = false;
 
-		if ((wander_points_left == 0 && (index + 1 < numActivityTextures + 1) && m_canWander) && m_smoothOut) {
-			wander_points_left++;
-		}
-	}else {
-		m_wanderTime = (m_smoothOut || !m_canWander) ? 0.0f : m_wanderTime;
-		index = (m_smoothOut || !m_canWander) ? 0 : index;
+		}	
+		rect = &tileSet.getAllTiles()[currentFrame].textureRect;
+	}
+}
+
+void Npc::processInput() {
+	Keyboard &keyboard = Keyboard::instance();
+
+	if (keyboard.keyDown(Keyboard::KEY_E) && !m_waitForAnimation) {
+		curActivity = Enums::ActivityType::Dying;		
+		currentFrame = 0;
+		m_wanderTime = 0.0f;
+		m_waitForAnimation = true;
+		m_stopped = true;
+		activeDirection = Enums::Direction::STOP;
+		wander_points_left = 0;
+		
 	}
 
-	rect = &tileSet.getAllTiles()[currentFrame].textureRect;
+	if (keyboard.keyDown(Keyboard::KEY_R) && !m_waitForAnimation) {
+		curActivity = Enums::ActivityType::Attacking;
+		currentFrame = 0;
+		m_wanderTime = 0.0f;
+		m_waitForAnimation = true;
+		m_stopped = true;
+		activeDirection = Enums::Direction::STOP;
+		wander_points_left = 0;
+	}
+
+	if (keyboard.keyPressed(Keyboard::KEY_T)) {
+		curActivity = Enums::ActivityType::Walking;
+		activeDirection = lastActiveDirection;
+		currentFrame = 0;
+		m_stopped = false;
+
+		//wander_points_left = wander_points_left == 0 ? 200 : wander_points_left;
+		//wander_points_left = RNG::randomSizeT(10, 59);
+
+		wander_points_left = 200;
+	}
 }
+
 
 void Npc::markAsDeleted() {
 	markedAsDeleted = true;

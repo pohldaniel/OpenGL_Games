@@ -46,7 +46,12 @@ private:
 	void Move(float deltaTime);
 	void Move(float deltaTime, Enums::Direction direction);
 	void Animate(float deltaTime);
+	void processInput();
 
 	bool m_canWander = true;
-	bool m_smoothOut = true;
+	bool m_smoothOut = false;
+	bool m_stopped = false;
+	bool m_handleAnimation = false;
+
+	Enums::Direction WanderDirection;
 };

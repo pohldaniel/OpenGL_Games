@@ -246,7 +246,7 @@ public:
 	Enums::Direction lastActiveDirection;
 	Enums::ActivityType curActivity;
 
-	Enums::Direction WanderDirection, MovingDirection, fearDirection, dyingDirection;
+	Enums::Direction fearDirection, dyingDirection;
 	unsigned short m_numActivities;
 
 	const TextureRect* rect;
@@ -254,8 +254,8 @@ public:
 	unsigned short currentFrame = 0;
 	float m_elapsedTime = 0.0f;
 	float m_wanderTime = 0.0f;
-	bool m_handleAnimation = false;
 	
+	bool m_waitForAnimation = false;
 
 	float progress = 0.0f;
 

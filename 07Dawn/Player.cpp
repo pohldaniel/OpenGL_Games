@@ -92,7 +92,7 @@ void Player::Move(float deltaTime) {
 void Player::Animate(float deltaTime) {
 	const TileSet& tileSet = m_characterType->m_moveTileSets.at({ curActivity, lastActiveDirection });
 
-	if (activeDirection != Enums::Direction::STOP || ((curActivity == Enums::ActivityType::Dying || curActivity == Enums::ActivityType::Casting) && m_handleAnimation)) {
+	if (activeDirection != Enums::Direction::STOP || ((curActivity == Enums::ActivityType::Dying || curActivity == Enums::ActivityType::Casting) && m_waitForAnimation)) {
 		unsigned short numActivityTextures = getNumActivityTextures(curActivity);
 	
 		m_wanderTime += deltaTime;
@@ -100,7 +100,7 @@ void Player::Animate(float deltaTime) {
 			m_wanderTime -= m_duration;
 			if (++currentFrame > numActivityTextures - 1) {				
 				currentFrame = curActivity == Enums::ActivityType::Dying ? numActivityTextures - 1 : 0;
-				m_handleAnimation = false;
+				m_waitForAnimation = false;
 				
 			}
 		}
@@ -155,17 +155,16 @@ void Player::processInput() {
 		return;
 	}
 
-	if (keyboard.keyDown(Keyboard::KEY_E) && !m_handleAnimation) {
+	if (keyboard.keyDown(Keyboard::KEY_E) && !m_waitForAnimation) {
 		curActivity = Enums::ActivityType::Dying;
 		currentFrame = 0;
-		m_handleAnimation = true;
-		activeDirection = Enums::Direction::STOP;
+		m_waitForAnimation = true;
 	}
 
-	if (keyboard.keyDown(Keyboard::KEY_R) && !m_handleAnimation) {
+	if (keyboard.keyDown(Keyboard::KEY_R) && !m_waitForAnimation) {
 		curActivity = Enums::ActivityType::Casting;
 		currentFrame = 0;
-		m_handleAnimation = true;
+		m_waitForAnimation = true;
 	}
 
 	activeDirection = Enums::Direction::STOP;

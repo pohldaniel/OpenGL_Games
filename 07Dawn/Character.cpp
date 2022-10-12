@@ -99,7 +99,7 @@ void Character::update(float deltaTime) {
 
 void Character::interruptCurrentActivityWith(Enums::ActivityType activity) {
 	curActivity = activity;
-	m_handleAnimation = false;
+	m_waitForAnimation = false;
 	currentFrame = 0;
 }
 
