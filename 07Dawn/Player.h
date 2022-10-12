@@ -34,5 +34,5 @@ public:
 	void Move(float deltaTime);
 	void Animate(float deltaTime);
 	void processInput();
-
+	
 };

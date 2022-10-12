@@ -20,10 +20,8 @@ public:
 	int getHeight() const override;;
 	unsigned short getNumActivityTextures(Enums::ActivityType activity) override;
 
-	Enums::Direction GetDirection();
 	Enums::Direction GetDirectionRNG();
-	void Wander(float deltaTime);
-
+	
 	void setSpawnInfo(int _x_spawn_pos, int _y_spawn_pos, int _seconds_to_respawn, int _do_respawn);
 	void setAttitude(Enums::Attitude attitude);
 	void markAsDeleted();
@@ -46,4 +44,9 @@ private:
 	const CharacterType& m_characterType;
 
 	void Move(float deltaTime);
+	void Move(float deltaTime, Enums::Direction direction);
+	void Animate(float deltaTime);
+
+	bool m_canWander = true;
+	bool m_smoothOut = true;
 };

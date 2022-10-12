@@ -254,9 +254,8 @@ public:
 	unsigned short currentFrame = 0;
 	float m_elapsedTime = 0.0f;
 	float m_wanderTime = 0.0f;
-	bool m_canWander = true;
-	bool m_smoothOut = true;
 	bool m_handleAnimation = false;
+	
 
 	float progress = 0.0f;
 
