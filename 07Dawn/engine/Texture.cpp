@@ -92,6 +92,56 @@ void Texture::loadFromFile(std::string fileName, const bool _flipVertical, unsig
 
 }
 
+void Texture::loadFromFile(std::string fileName, const bool _flipVertical, unsigned int _internalFormat, unsigned int _format, int paddingLeft, int paddingRight, int paddingTop, int paddingBottom) {
+
+	int width, height, numCompontents;
+	unsigned char* imageData = SOIL_load_image(fileName.c_str(), &width, &height, &numCompontents, SOIL_LOAD_AUTO);
+	unsigned int internalFormat = _internalFormat == 0 && numCompontents == 3 ? GL_RGB8 : _internalFormat == 0 ? GL_RGBA8 : _internalFormat;
+	m_format = _format == 0 && numCompontents == 3 ? GL_RGB : _format == 0 ? GL_RGBA : _format;
+
+	if (_flipVertical)
+		flipVertical(imageData, numCompontents * width, height);
+
+	unsigned char* bytes = (unsigned char*)malloc(numCompontents * (height - paddingTop) * width);
+
+	int row = 0;
+	for (int i = 0; i < width * numCompontents * (height - paddingTop); i= i + numCompontents) {
+		if (i % (width * numCompontents) == 0 && i> 0) {
+			row = row + width * numCompontents;
+		}
+
+		for (int x = 0; x < width * numCompontents; x++) {
+			if (x < paddingLeft * numCompontents) continue;
+
+			if (x > (width - (paddingRight + paddingLeft)) * numCompontents) continue;
+
+			for (int j = 0; j < numCompontents; j++) {
+				bytes[row + (x - paddingLeft * numCompontents) + j] = imageData[row + x + j];
+			}
+		}
+		
+	}
+	height = height - paddingTop ;
+	width = width - (paddingRight + paddingLeft);
+	
+	glGenTextures(1, &m_texture);
+	glBindTexture(GL_TEXTURE_2D, m_texture);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, m_format, GL_UNSIGNED_BYTE, bytes);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	SOIL_free_image_data(imageData);
+	free(bytes);
+
+	m_width = width;
+	m_height = height;
+	m_channels = numCompontents;
+
+}
+
 void Texture::loadFromFile(std::string pictureFile, unsigned short tileWidth, unsigned short tileHeight, unsigned short spacing, unsigned int _posY, unsigned int _posX, const bool _flipVertical, unsigned int _format) {
 	
 	int width, height, numCompontents;

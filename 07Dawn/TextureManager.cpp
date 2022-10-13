@@ -9,15 +9,15 @@ TextureCache& TextureCache::Get() {
 	return s_instance;
 }
 
-TextureRect& TextureCache::getTextureFromCache(std::string filename, unsigned int maxWidth, unsigned maxHeight) {
+TextureRect& TextureCache::getTextureFromCache(std::string filename, unsigned int maxWidth, unsigned maxHeight, bool reload, unsigned int textureOffsetX, unsigned int textureOffsetY) {
 
-	if (textures.count(filename) > 0) {
+	if (textures.count(filename) > 0 && !reload) {
 		return textures[filename];
 	}
-
+	
 	Texture tex;
-	tex.loadFromFile(filename, true);
-
+	textureOffsetY > 0 ? tex.loadFromFile(filename, true, 0 , 0, 0, 0, textureOffsetY, 0) : tex.loadFromFile(filename, true);
+	
 	if (tex.getChannels() == 3) {
 		tex.addAlphaChannel();
 	}
@@ -30,7 +30,7 @@ TextureRect& TextureCache::getTextureFromCache(std::string filename, unsigned in
 	textures[filename].textureHeight = 1.0f;
 
 	unsigned char* bytes = tex.readPixel();
-	TextureAtlasCreator::get().addTexture(textures[filename], reinterpret_cast<char*>(bytes), tex.getWidth(), tex.getHeight(), maxWidth, maxHeight);
+	TextureAtlasCreator::get().addTexture(textures[filename], reinterpret_cast<char*>(bytes), tex.getWidth(), tex.getHeight(), maxWidth, maxHeight, textureOffsetX, textureOffsetY);
 	free(bytes);
 
 	return textures[filename];
@@ -101,12 +101,12 @@ void TextureManager::DrawTextureInstanced(const TextureRect& textureRect, int x,
 	Instancedrenderer::Get().addQuad(Vector4f(static_cast< float >(x), static_cast< float >(y), static_cast< float >(textureRect.width), static_cast< float >(textureRect.height)), Vector4f(textureRect.textureOffsetX, textureRect.textureOffsetY, textureRect.textureWidth, textureRect.textureHeight), textureRect.frame);
 }
 
-TextureRect& TextureManager::Loadimage(std::string file) {
-	return TextureCache::Get().getTextureFromCache(file);
+TextureRect& TextureManager::Loadimage(std::string file, bool reload) {
+	return TextureCache::Get().getTextureFromCache(file, 0, 0, reload);
 }
 
-TextureRect& TextureManager::Loadimage(std::string file, unsigned int maxWidth, unsigned maxHeight) {
-	return TextureCache::Get().getTextureFromCache(file, maxWidth, maxHeight);
+TextureRect& TextureManager::Loadimage(std::string file, unsigned int maxWidth, unsigned maxHeight, bool reload, unsigned int textureOffsetX, unsigned int textureOffsetY) {
+	return TextureCache::Get().getTextureFromCache(file, maxWidth, maxHeight, reload, textureOffsetX, textureOffsetY);
 }
 
 void TextureManager::Loadimage(std::string file, int textureIndex, std::vector<TextureRect>& textureBase) {

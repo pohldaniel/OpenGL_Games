@@ -1,6 +1,6 @@
 /*
 ** Lua binding: Luainterface
-** Generated automatically by tolua++-1.0.92 on Sun Oct  9 23:27:35 2022.
+** Generated automatically by tolua++-1.0.92 on Thu Oct 13 13:29:31 2022.
 */
 
 #ifndef __cplusplus
@@ -827,7 +827,10 @@ static int tolua_Luainterface_CharacterType_addMoveTexture00(lua_State* tolua_S)
 		!tolua_iscppstring(tolua_S, 5, 0, &tolua_err) ||
 		!tolua_isnumber(tolua_S, 6, 1, &tolua_err) ||
 		!tolua_isnumber(tolua_S, 7, 1, &tolua_err) ||
-		!tolua_isnoobj(tolua_S, 8, &tolua_err)
+		!tolua_isboolean(tolua_S, 8, 1, &tolua_err) ||
+		!tolua_isnumber(tolua_S, 9, 1, &tolua_err) ||
+		!tolua_isnumber(tolua_S, 10, 1, &tolua_err) ||
+		!tolua_isnoobj(tolua_S, 11, &tolua_err)
 		)
 		goto tolua_lerror;
 	else
@@ -840,11 +843,14 @@ static int tolua_Luainterface_CharacterType_addMoveTexture00(lua_State* tolua_S)
 		std::string filename = ((std::string)  tolua_tocppstring(tolua_S, 5, 0));
 		unsigned int maxWidth = ((unsigned int)tolua_tonumber(tolua_S, 6, 0));
 		unsigned int maxHeight = ((unsigned int)tolua_tonumber(tolua_S, 7, 0));
+		bool reload = ((bool)tolua_toboolean(tolua_S, 8, false));
+		unsigned int textureOffsetX = ((unsigned int)tolua_tonumber(tolua_S, 9, 0));
+		unsigned int textureOffsetY = ((unsigned int)tolua_tonumber(tolua_S, 10, 0));
 #ifndef TOLUA_RELEASE
 		if (!self) tolua_error(tolua_S, "invalid 'self' in function 'addMoveTexture'", NULL);
 #endif
 		{
-			self->addMoveTexture(activity, direction, index, filename, maxWidth, maxHeight);
+			self->addMoveTexture(activity, direction, index, filename, maxWidth, maxHeight, reload, textureOffsetX, textureOffsetY);
 		}
 	}
 	return 0;

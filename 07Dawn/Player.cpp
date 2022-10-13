@@ -55,9 +55,9 @@ void Player::draw() {
 
 void Player::update(float deltaTime) {
 
-	if (curActivity != Enums::ActivityType::Dying) {
+	//if (curActivity != Enums::ActivityType::Dying) {
 		processInput();
-	}
+	//}
 
 	if (activeDirection != Enums::Direction::STOP && curActivity != Enums::ActivityType::Walking) {		
 		interruptCurrentActivityWith(Enums::ActivityType::Walking);

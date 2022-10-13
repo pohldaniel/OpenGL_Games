@@ -5,35 +5,35 @@ TextureAtlasCreator:get():init(1664, 1024);
 wizard = DawnInterface.createNewMobType("player_w")
 for direction = 1,8 do
 	for index=0,7,1 do
-		wizard:addMoveTexture( Enums.Walking, direction, index, "res/character/wizard/walking "..directions[direction].."000"..index..".tga", 768, 768);
+		wizard:addMoveTexture( Enums.Walking, direction, index, "res/character/wizard/walking "..directions[direction].."000"..index..".tga", 768, 768, true);
 	end
 end
 TextureAtlasCreator:get():addFrame();
 
 for direction = 1,8 do
 	for index=0,12,1 do
-		wizard:addMoveTexture( Enums.Attacking, direction, index, "res/character/wizard/attacking "..directions[direction].."000"..index..".tga", 1248, 768);
+		wizard:addMoveTexture( Enums.Attacking, direction, index, "res/character/wizard/attacking "..directions[direction].."000"..index..".tga", 1248, 768, true);
 	end
 end
 TextureAtlasCreator:get():addFrame();
 
 for direction = 1,8 do
 	for index=0,12,1 do
-		wizard:addMoveTexture( Enums.Casting, direction, index, "res/character/wizard/attacking "..directions[direction].."000"..index..".tga", 1248, 768);
+		wizard:addMoveTexture( Enums.Casting, direction, index, "res/character/wizard/attacking "..directions[direction].."000"..index..".tga", 1248, 768, true);
 	end
 end
 TextureAtlasCreator:get():addFrame();
 
 for direction = 1,8 do
 	for index=0,12,1 do
-		wizard:addMoveTexture( Enums.Shooting, direction, index, "res/character/wizard/attacking "..directions[direction].."000"..index..".tga", 1248, 768);
+		wizard:addMoveTexture( Enums.Shooting, direction, index, "res/character/wizard/attacking "..directions[direction].."000"..index..".tga", 1248, 768, true);
 	end
 end
 TextureAtlasCreator:get():addFrame();
 
 for direction = 1,8 do
 	for index=0,12,1 do
-		wizard:addMoveTexture( Enums.Dying, direction, index, "res/character/wizard/dying "..directions[direction].."000"..index..".tga", 1664, 1024);
+		wizard:addMoveTexture( Enums.Dying, direction, index, "res/character/wizard/dying "..directions[direction].."000"..index..".tga", 1664, 768, true, 16, 32);
 	end
 end
 TextureAtlasCreator:get():addFrame();

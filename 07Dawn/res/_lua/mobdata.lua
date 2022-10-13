@@ -138,49 +138,49 @@ humanbase:setLevel( 2 )
 humanbase:setClass( Enums.Warrior );
 humanbase:setExperienceValue( 25 );
 
---wizardbase = DawnInterface.createNewMobType("Wizard")
---for direction = 1,8 do
---	for index=0,7,1 do
---		wizardbase:addMoveTexture( Enums.Walking, direction, index, "res/character/wizard/walking "..directions[direction].."000"..index..".tga", 768, 768);
---	end
---end
---TextureAtlasCreator:get():addFrame();
+wizardbase = DawnInterface.createNewMobType("Wizard")
+for direction = 1,8 do
+	for index=0,7,1 do
+		wizardbase:addMoveTexture( Enums.Walking, direction, index, "res/character/wizard/walking "..directions[direction].."000"..index..".tga", 768, 768);
+	end
+end
+TextureAtlasCreator:get():addFrame();
 
---for direction = 1,8 do
---	for index=0,12,1 do
---		wizardbase:addMoveTexture( Enums.Attacking, direction, index, "res/character/wizard/attacking "..directions[direction].."000"..index..".tga", 1248, 768);
---	end
---end
---TextureAtlasCreator:get():addFrame();
+for direction = 1,8 do
+	for index=0,12,1 do
+		wizardbase:addMoveTexture( Enums.Attacking, direction, index, "res/character/wizard/attacking "..directions[direction].."000"..index..".tga", 1248, 768);
+	end
+end
+TextureAtlasCreator:get():addFrame();
 
---for direction = 1,8 do
---	for index=0,12,1 do
---		wizardbase:addMoveTexture( Enums.Dying, direction, index, "res/character/wizard/dying "..directions[direction].."000"..index..".tga", 1664, 1024);
---	end
---end
---TextureAtlasCreator:get():addFrame();
+for direction = 1,8 do
+	for index=0,12,1 do
+		wizardbase:addMoveTexture( Enums.Dying, direction, index, "res/character/wizard/dying "..directions[direction].."000"..index..".tga", 1664, 1024);
+	end
+end
+TextureAtlasCreator:get():addFrame();
 
---wizardbase:calcNumMoveTexturesPerDirection();
---wizardbase:setStrength( 10 )
---wizardbase:setDexterity( 10 )
---wizardbase:setVitality( 10 )
---wizardbase:setIntellect( 25 )
---wizardbase:setWisdom( 20 )
---wizardbase:setMaxHealth( 150 )
---wizardbase:setMaxMana( 100 )
---wizardbase:setHealthRegen( 0 )
---wizardbase:setManaRegen( 1 )
---wizardbase:setMinDamage( 2 )
---wizardbase:setMaxDamage( 3 )
---wizardbase:setArmor( 10 )
---wizardbase:setDamageModifierPoints( 0 )
---wizardbase:setHitModifierPoints( 0 )
---wizardbase:setEvadeModifierPoints( 0 )
---wizardbase:setName("A wizard")
---wizardbase:setWanderRadius( 250 )
---wizardbase:setLevel( 2 )
---wizardbase:setClass( Enums.Liche )
---wizardbase:setExperienceValue( 25 );
+wizardbase:calcNumMoveTexturesPerDirection();
+wizardbase:setStrength( 10 )
+wizardbase:setDexterity( 10 )
+wizardbase:setVitality( 10 )
+wizardbase:setIntellect( 25 )
+wizardbase:setWisdom( 20 )
+wizardbase:setMaxHealth( 150 )
+wizardbase:setMaxMana( 100 )
+wizardbase:setHealthRegen( 0 )
+wizardbase:setManaRegen( 1 )
+wizardbase:setMinDamage( 2 )
+wizardbase:setMaxDamage( 3 )
+wizardbase:setArmor( 10 )
+wizardbase:setDamageModifierPoints( 0 )
+wizardbase:setHitModifierPoints( 0 )
+wizardbase:setEvadeModifierPoints( 0 )
+wizardbase:setName("A wizard")
+wizardbase:setWanderRadius( 250 )
+wizardbase:setLevel( 2 )
+wizardbase:setClass( Enums.Liche )
+wizardbase:setExperienceValue( 25 );
 
 
 spiderlingbase = DawnInterface.createNewMobType("Spiderling")

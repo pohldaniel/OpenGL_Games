@@ -589,9 +589,9 @@ std::string Character::ActivityToString(Enums::ActivityType activity) {
 
 
 ////////////////////////////////////////////////////////////////////////////////
-void CharacterType::addMoveTexture(Enums::ActivityType activity, Enums::Direction direction, int index, std::string filename, unsigned int maxWidth, unsigned int maxHeight) {
+void CharacterType::addMoveTexture(Enums::ActivityType activity, Enums::Direction direction, int index, std::string filename, unsigned int maxWidth, unsigned int maxHeight, bool reload, unsigned int textureOffsetX, unsigned int textureOffsetY) {
 	TileSet& tileSet = m_moveTileSets[{activity, direction}];
-	tileSet.addTile(filename, maxWidth, maxHeight);
+	tileSet.addTile(filename, maxWidth, maxHeight, reload, textureOffsetX, textureOffsetY);
 }
 
 void CharacterType::calcNumMoveTexturesPerDirection() {

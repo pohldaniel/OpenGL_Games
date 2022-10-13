@@ -23,7 +23,7 @@ struct CharacterType {
 	friend class Player;
 	friend class Npc;
 
-	void addMoveTexture(Enums::ActivityType activity, Enums::Direction direction, int index, std::string filename, unsigned int maxWidth = 0, unsigned int maxHeight = 0);
+	void addMoveTexture(Enums::ActivityType activity, Enums::Direction direction, int index, std::string filename, unsigned int maxWidth = 0, unsigned int maxHeight = 0, bool reload = false, unsigned int textureOffsetX = 0, unsigned int textureOffsetY = 0);
 	void calcNumMoveTexturesPerDirection();
 
 	void setStrength(uint16_t newStrength);

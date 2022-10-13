@@ -32,19 +32,19 @@ AdjacencyEquivalenceClass* TileSet::createAdjacencyEquivalenceClass(){
 TileSet::TileSet() {}
 
 // The following functions are in the LUA EditorInterface
-unsigned int TileSet::addTile(std::string filename) {
+unsigned int TileSet::addTile(std::string filename, bool reload, unsigned int textureOffsetX, unsigned int textureOffsetY) {
 
 	unsigned int tileId = static_cast<unsigned int>(m_tiles.size());
 	
-	m_tiles.push_back({ tileId , false, TextureManager::Loadimage(filename), {} });
+	m_tiles.push_back({ tileId , false, TextureManager::Loadimage(filename, 0, 0, reload, textureOffsetX, textureOffsetY), {} });
 	return tileId;
 }
 
-unsigned int TileSet::addTile(std::string filename, unsigned int maxWidth, unsigned int maxHeight) {
+unsigned int TileSet::addTile(std::string filename, unsigned int maxWidth, unsigned int maxHeight, bool reload, unsigned int textureOffsetX, unsigned int textureOffsetY) {
 
 	unsigned int tileId = static_cast<unsigned int>(m_tiles.size());
 
-	m_tiles.push_back({ tileId , false, TextureManager::Loadimage(filename, maxWidth, maxHeight),{} });
+	m_tiles.push_back({ tileId , false, TextureManager::Loadimage(filename, maxWidth, maxHeight, reload, textureOffsetX, textureOffsetY),{} });
 	return tileId;
 }
 

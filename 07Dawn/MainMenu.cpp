@@ -5,7 +5,7 @@ MainMenu::MainMenu(StateMachine& machine) : State(machine, CurrentState::MAINMEN
 	Mouse::SetCursorIcon("res/cursors/black.cur");
 
 	LuaFunctions::executeLuaFile("res/_lua/mobdata_wolf.lua");
-	LuaFunctions::executeLuaFile("res/_lua/playerdata_w.lua");
+	LuaFunctions::executeLuaFile("res/_lua/playerdata.lua");
 
 	Player::Get().setCharacterType("player_w");
 

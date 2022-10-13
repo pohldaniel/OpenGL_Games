@@ -21,7 +21,7 @@ class TextureCache {
 
 public:
 	static TextureCache& Get();
-	TextureRect& getTextureFromCache(std::string filename, unsigned int maxWidth = 0, unsigned maxHeight = 0);
+	TextureRect& getTextureFromCache(std::string filename, unsigned int maxWidth = 0, unsigned maxHeight = 0, bool reload = false, unsigned int textureOffsetX = 0, unsigned int textureOffsetY = 0);
 
 private:
 
@@ -66,7 +66,7 @@ public:
 		spritesheet.safe(name);
 	}
 
-	void addTexture(TextureRect& stexture, char *texture, unsigned int w, unsigned int h, unsigned int _maxWidth = 0, unsigned int _maxHeight = 0){
+	void addTexture(TextureRect& stexture, char *texture, unsigned int w, unsigned int h, unsigned int _maxWidth = 0, unsigned int _maxHeight = 0, unsigned int textureOffsetX = 0, unsigned int textureOffsetY = 0){
 
 		unsigned int maxWidth = _maxWidth > 0 ? _maxWidth : width;
 		unsigned int maxHeight = _maxHeight > 0 ? _maxHeight : height;
@@ -90,7 +90,7 @@ public:
 			memcpy(bufferPtr + (((curY + row) * width + curX) * 4), texture + (w * row * 4), 4 * w);
 		}
 
-		stexture.textureOffsetX = static_cast<float>(curX) / static_cast<float>(width);
+		stexture.textureOffsetX = static_cast<float>(curX + textureOffsetX) / static_cast<float>(width);
 		stexture.textureWidth = static_cast<float>(w) / static_cast<float>(width);
 		stexture.textureOffsetY = static_cast<float>(curY) / static_cast<float>(height);
 		stexture.textureHeight = static_cast<float>(h) / static_cast<float>(height);
@@ -154,8 +154,8 @@ public:
 	static void DrawTexture(const TextureRect& textureRect, int x, int y, float width, float height, Vector4f color = Vector4f(1.0f, 1.0f, 1.0f, 1.0f), bool cullVieport = true, bool updateView = true);
 
 	static void DrawTextureInstanced(const TextureRect& textureRect, int x, int y, bool checkVieport = true);
-	static TextureRect& Loadimage(std::string file);
-	static TextureRect& Loadimage(std::string file, unsigned int maxWidth, unsigned maxHeight);
+	static TextureRect& Loadimage(std::string file, bool reload);
+	static TextureRect& Loadimage(std::string file, unsigned int maxWidth, unsigned maxHeight, bool reload, unsigned int textureOffsetX, unsigned int textureOffsetY);
 
 	static void Loadimage(std::string file, int textureIndex, std::vector<TextureRect>& textureBase);
 	static unsigned int& GetTextureAtlas(std::string name);

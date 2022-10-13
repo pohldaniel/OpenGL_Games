@@ -19,6 +19,8 @@ public:
 	unsigned int getChannels();
 	void bind(unsigned int unit);
 	void loadFromFile(std::string pictureFile, const bool flipVertical = false, unsigned int internalFormat = 0, unsigned int _format = 0);
+	void loadFromFile(std::string fileName, const bool _flipVertical, unsigned int _internalFormat, unsigned int _format, int paddingLeft = 0, int paddingRight = 0, int paddingTop = 0, int paddingBottom = 0);
+
 	void loadFromFile(std::string pictureFile, unsigned short tileWidth, unsigned short tileHeight, unsigned short spacing = 0, unsigned int posY = 0, unsigned int posX = 0, const bool flipVertical = false, unsigned int format = -1);
 	void loadFromFile(std::string pictureFile, unsigned int offsetX, unsigned int offsetY, unsigned int width = 0, unsigned int height = 0, const bool flipVertical = false, unsigned int format = -1);
 	void addAlphaChannel(unsigned int value = 255);	

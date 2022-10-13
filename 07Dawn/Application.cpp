@@ -317,8 +317,8 @@ void Application::initStates() {
 	//Game* game = dynamic_cast<Game*>(m_machine->addStateAtTop(new Game(*m_machine)));
 	//AddMouseListener(game);
 
-	//m_machine->addStateAtTop(new MainMenu(*m_machine));
-	m_machine->addStateAtTop(new Editor(*m_machine));
+	m_machine->addStateAtTop(new MainMenu(*m_machine));
+	//m_machine->addStateAtTop(new Editor(*m_machine));
 
 	//m_machine->addStateAtTop(new LoadingScreen(*m_machine));
 }
