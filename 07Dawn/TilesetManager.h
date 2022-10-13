@@ -38,8 +38,8 @@ public:
 	TileSet();
 
 	// The following functions are in the LUA EditorInterface
-	unsigned int addTile(std::string filename, bool reload = false, unsigned int textureOffsetX = 0, unsigned int textureOffsetY = 0);
-	unsigned int addTile(std::string filename, unsigned int maxWidth, unsigned int maxHeight, bool reload = false, unsigned int textureOffsetX = 0, unsigned int textureOffsetY = 0);
+	unsigned int addTile(std::string filename, bool reload = false, int paddingLeft = 0, int paddingRight = 0, int paddingTop = 0, int paddingBottom = 0);
+	unsigned int addTile(std::string filename, unsigned int maxWidth, unsigned int maxHeight, bool reload = false, int paddingLeft = 0, int paddingRight = 0, int paddingTop = 0, int paddingBottom = 0);
 	unsigned int addTileWithCollisionBox(std::string filename, int cbx, int cby, int cbw, int cbh);
 	void addEquivalenceAdjacency(AdjacencyEquivalenceClass* class1, Enums::AdjacencyType adjacencyType, AdjacencyEquivalenceClass* class2, int allOffsetX, int allOffsetY);
 	void addAdjacency(unsigned int tile1, Enums::AdjacencyType adjacencyType, unsigned int tile2, int offsetX, int offsetY);

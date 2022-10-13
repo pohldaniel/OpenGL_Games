@@ -1,6 +1,6 @@
 /*
 ** Lua binding: Luainterface
-** Generated automatically by tolua++-1.0.92 on Thu Oct 13 13:29:31 2022.
+** Generated automatically by tolua++-1.0.92 on Thu Oct 13 19:22:28 2022.
 */
 
 #ifndef __cplusplus
@@ -830,7 +830,9 @@ static int tolua_Luainterface_CharacterType_addMoveTexture00(lua_State* tolua_S)
 		!tolua_isboolean(tolua_S, 8, 1, &tolua_err) ||
 		!tolua_isnumber(tolua_S, 9, 1, &tolua_err) ||
 		!tolua_isnumber(tolua_S, 10, 1, &tolua_err) ||
-		!tolua_isnoobj(tolua_S, 11, &tolua_err)
+		!tolua_isnumber(tolua_S, 11, 1, &tolua_err) ||
+		!tolua_isnumber(tolua_S, 12, 1, &tolua_err) ||
+		!tolua_isnoobj(tolua_S, 13, &tolua_err)
 		)
 		goto tolua_lerror;
 	else
@@ -844,13 +846,15 @@ static int tolua_Luainterface_CharacterType_addMoveTexture00(lua_State* tolua_S)
 		unsigned int maxWidth = ((unsigned int)tolua_tonumber(tolua_S, 6, 0));
 		unsigned int maxHeight = ((unsigned int)tolua_tonumber(tolua_S, 7, 0));
 		bool reload = ((bool)tolua_toboolean(tolua_S, 8, false));
-		unsigned int textureOffsetX = ((unsigned int)tolua_tonumber(tolua_S, 9, 0));
-		unsigned int textureOffsetY = ((unsigned int)tolua_tonumber(tolua_S, 10, 0));
+		int paddingLeft = ((int)tolua_tonumber(tolua_S, 9, 0));
+		int paddingRight = ((int)tolua_tonumber(tolua_S, 10, 0));
+		int paddingTop = ((int)tolua_tonumber(tolua_S, 11, 0));
+		int paddingBottom = ((int)tolua_tonumber(tolua_S, 12, 0));
 #ifndef TOLUA_RELEASE
 		if (!self) tolua_error(tolua_S, "invalid 'self' in function 'addMoveTexture'", NULL);
 #endif
 		{
-			self->addMoveTexture(activity, direction, index, filename, maxWidth, maxHeight, reload, textureOffsetX, textureOffsetY);
+			self->addMoveTexture(activity, direction, index, filename, maxWidth, maxHeight, reload, paddingLeft, paddingRight, paddingTop, paddingBottom);
 		}
 	}
 	return 0;

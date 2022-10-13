@@ -93,7 +93,6 @@ void Texture::loadFromFile(std::string fileName, const bool _flipVertical, unsig
 }
 
 void Texture::loadFromFile(std::string fileName, const bool _flipVertical, unsigned int _internalFormat, unsigned int _format, int paddingLeft, int paddingRight, int paddingTop, int paddingBottom) {
-
 	int width, height, numCompontents;
 	unsigned char* imageData = SOIL_load_image(fileName.c_str(), &width, &height, &numCompontents, SOIL_LOAD_AUTO);
 	unsigned int internalFormat = _internalFormat == 0 && numCompontents == 3 ? GL_RGB8 : _internalFormat == 0 ? GL_RGBA8 : _internalFormat;
@@ -102,27 +101,56 @@ void Texture::loadFromFile(std::string fileName, const bool _flipVertical, unsig
 	if (_flipVertical)
 		flipVertical(imageData, numCompontents * width, height);
 
-	unsigned char* bytes = (unsigned char*)malloc(numCompontents * (height - paddingTop) * width);
+	unsigned char* bytes = (unsigned char*)malloc(numCompontents * (height + paddingTop) * (width + (paddingRight + paddingLeft)) );
 
-	int row = 0;
-	for (int i = 0; i < width * numCompontents * (height - paddingTop); i= i + numCompontents) {
-		if (i % (width * numCompontents) == 0 && i> 0) {
+	int row = 0, x = -paddingLeft * numCompontents;
+	for (int i = 0; i < (width + (paddingRight + paddingLeft)) * numCompontents * (height + paddingTop); i = i++) {
+		if (i % ((width + (paddingRight + paddingLeft)) * numCompontents) == 0 && i > 0) {
 			row = row + width * numCompontents;
-		}
-
-		for (int x = 0; x < width * numCompontents; x++) {
-			if (x < paddingLeft * numCompontents) continue;
-
-			if (x > (width - (paddingRight + paddingLeft)) * numCompontents) continue;
-
-			for (int j = 0; j < numCompontents; j++) {
-				bytes[row + (x - paddingLeft * numCompontents) + j] = imageData[row + x + j];
-			}
+			x = row - paddingLeft * numCompontents;
 		}
 		
+		bytes[i] = imageData[x];
+		x++;	
 	}
-	height = height - paddingTop ;
-	width = width - (paddingRight + paddingLeft);
+	
+
+	height = height + paddingTop;
+	width = width + (paddingRight + paddingLeft);
+
+	unsigned char* bytesNew;
+	row = 0, x = -(paddingBottom * width * numCompontents);
+	if (paddingBottom < 0) {
+
+		bytesNew = (unsigned char*)malloc(numCompontents * width * (height + paddingBottom));
+		
+		for (int i = 0; i < numCompontents * width * (height + paddingBottom); i = i++) {
+
+			if (i % (width  * numCompontents) == 0 && i > 0) {
+				row = (row + width * numCompontents);
+				x = row - (paddingBottom * width * numCompontents);
+			}
+			bytesNew[i] = bytes[x];
+			x++;
+
+		}
+		height = height + paddingBottom;
+	}
+
+	if (paddingBottom > 0) {
+		bytesNew = (unsigned char*)malloc(numCompontents * width * (height + paddingBottom));
+
+		for (int i = 0; i < numCompontents * width * (height + paddingBottom); i = i++) {
+			if (i % (width  * numCompontents) == 0 && i > 0) {
+				row = (row + width * numCompontents);
+				x = row - (paddingBottom * static_cast<int>(width) * numCompontents);
+			}
+
+			bytesNew[i] = x < 0 ? 0 : bytes[x];
+
+			x++;
+		}
+	}
 	
 	glGenTextures(1, &m_texture);
 	glBindTexture(GL_TEXTURE_2D, m_texture);
@@ -130,12 +158,15 @@ void Texture::loadFromFile(std::string fileName, const bool _flipVertical, unsig
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, m_format, GL_UNSIGNED_BYTE, bytes);
+	glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, m_format, GL_UNSIGNED_BYTE, paddingBottom != 0 ? bytesNew : bytes);
 	glBindTexture(GL_TEXTURE_2D, 0);
 
 	SOIL_free_image_data(imageData);
 	free(bytes);
-
+	if (paddingBottom != 0) {
+		free(bytesNew);
+	}
+	
 	m_width = width;
 	m_height = height;
 	m_channels = numCompontents;

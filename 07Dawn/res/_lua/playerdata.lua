@@ -1,6 +1,6 @@
 directions = {'n', 'ne', 'e', 'se', 's', 'sw', 'w', 'nw'}
 
-TextureAtlasCreator:get():init(1664, 768);
+TextureAtlasCreator:get():init(1248, 780);
 
 wizard = DawnInterface.createNewMobType("player_w")
 for direction = 1,8 do
@@ -33,7 +33,7 @@ TextureAtlasCreator:get():addFrame();
 
 for direction = 1,8 do
 	for index=0,12,1 do
-		wizard:addMoveTexture( Enums.Dying, direction, index, "res/character/wizard/dying "..directions[direction].."000"..index..".tga", 1664, 768, true, 16, 32);
+		wizard:addMoveTexture( Enums.Dying, direction, index, "res/character/wizard/dying "..directions[direction].."000"..index..".tga", 1248, 768, true, -16, -16, -20, -12);
 	end
 end
 TextureAtlasCreator:get():addFrame();
@@ -43,35 +43,35 @@ wizard:calcNumMoveTexturesPerDirection();
 ranger = DawnInterface.createNewMobType("player_r")
 for direction = 1,8 do
 	for index=0,7,1 do
-		ranger:addMoveTexture( Enums.Walking, direction, index, "res/character/ranger/walking "..directions[direction].."000"..index..".tga", 768, 768, true);
+		ranger:addMoveTexture( Enums.Walking, direction, index, "res/character/ranger/walking "..directions[direction].."000"..index..".tga", 768, 780, true, 0, 0, 0, 12);
 	end
 end
 TextureAtlasCreator:get():addFrame();
 
 for direction = 1,8 do
 	for index=0,12,1 do
-		ranger:addMoveTexture( Enums.Attacking, direction, index, "res/character/ranger/attacking "..directions[direction].."000"..index..".tga", 1248, 768, true);
+		ranger:addMoveTexture( Enums.Attacking, direction, index, "res/character/ranger/attacking "..directions[direction].."000"..index..".tga", 1248, 780, true, 0, 0, 0, 12);
 	end
 end
 TextureAtlasCreator:get():addFrame();
 
 for direction = 1,8 do
 	for index=0,12,1 do
-		ranger:addMoveTexture( Enums.Casting, direction, index, "res/character/ranger/attacking "..directions[direction].."000"..index..".tga", 1248, 768, true);
+		ranger:addMoveTexture( Enums.Casting, direction, index, "res/character/ranger/attacking "..directions[direction].."000"..index..".tga", 1248, 780, true, 0, 0, 0, 12);
 	end
 end
 TextureAtlasCreator:get():addFrame();
 
 for direction = 1,8 do
 	for index=0,12,1 do
-		ranger:addMoveTexture( Enums.Shooting, direction, index, "res/character/ranger/attacking "..directions[direction].."000"..index..".tga", 1248, 768, true);
+		ranger:addMoveTexture( Enums.Shooting, direction, index, "res/character/ranger/attacking "..directions[direction].."000"..index..".tga", 1248, 780, true, 0, 0, 0, 12);
 	end
 end
 TextureAtlasCreator:get():addFrame();
 
 for direction = 1,8 do
 	for index=0,10,1 do
-		ranger:addMoveTexture( Enums.Dying, direction, index, "res/character/ranger/dying "..directions[direction].."000"..index..".tga", 1408, 768, true, 16, 32);
+		ranger:addMoveTexture( Enums.Dying, direction, index, "res/character/ranger/dying "..directions[direction].."000"..index..".tga", 1056, 768, true, -16, -16, -27, -5);
 	end
 end
 TextureAtlasCreator:get():addFrame();
@@ -82,35 +82,35 @@ ranger:calcNumMoveTexturesPerDirection();
 swordsman = DawnInterface.createNewMobType("player_s")
 for direction = 1,8 do
 	for index=0,7,1 do
-		swordsman:addMoveTexture( Enums.Walking, direction, index, "res/character/swordsman/walking "..directions[direction].."000"..index..".tga", 768, 768, true);
+		swordsman:addMoveTexture( Enums.Walking, direction, index, "res/character/swordsman/walking "..directions[direction].."000"..index..".tga", 768, 780, true, 0, 0, 0, 12);
 	end
 end
 TextureAtlasCreator:get():addFrame();
 
 for direction = 1,8 do
 	for index=0,12,1 do
-		swordsman:addMoveTexture( Enums.Attacking, direction, index, "res/character/swordsman/attacking "..directions[direction].."000"..index..".tga", 1248, 768, true);
+		swordsman:addMoveTexture( Enums.Attacking, direction, index, "res/character/swordsman/attacking "..directions[direction].."000"..index..".tga", 1248, 780, true, 0, 0, 0, 12);
 	end
 end
 TextureAtlasCreator:get():addFrame();
 
 for direction = 1,8 do
 	for index=0,12,1 do
-		swordsman:addMoveTexture( Enums.Casting, direction, index, "res/character/swordsman/attacking "..directions[direction].."000"..index..".tga", 1248, 768, true);
+		swordsman:addMoveTexture( Enums.Casting, direction, index, "res/character/swordsman/attacking "..directions[direction].."000"..index..".tga", 1248, 780, true, 0, 0, 0, 12);
 	end
 end
 TextureAtlasCreator:get():addFrame();
 
 for direction = 1,8 do
 	for index=0,12,1 do
-		swordsman:addMoveTexture( Enums.Shooting, direction, index, "res/character/swordsman/attacking "..directions[direction].."000"..index..".tga", 1248, 768, true);
+		swordsman:addMoveTexture( Enums.Shooting, direction, index, "res/character/swordsman/attacking "..directions[direction].."000"..index..".tga", 1248, 780, true, 0, 0, 0, 12);
 	end
 end
 TextureAtlasCreator:get():addFrame();
 
 for direction = 1,8 do
 	for index=0,8,1 do
-		swordsman:addMoveTexture( Enums.Dying, direction, index, "res/character/swordsman/dying "..directions[direction].."000"..index..".tga", 1152, 768, true, 16, 32);
+		swordsman:addMoveTexture( Enums.Dying, direction, index, "res/character/swordsman/dying "..directions[direction].."000"..index..".tga", 864, 768, true, -16, -16, -30, -2);
 	end
 end
 TextureAtlasCreator:get():addFrame();
@@ -133,4 +133,4 @@ player:setManaRegen(2);
 player:setFatigueRegen( 5 );
 player:giveCoins( 576 );
 player:init(512, 400);
---TextureAtlasCreator:get():safeAtlas("tmp/player")
+TextureAtlasCreator:get():safeAtlas("tmp/player")

@@ -9,14 +9,14 @@ TextureCache& TextureCache::Get() {
 	return s_instance;
 }
 
-TextureRect& TextureCache::getTextureFromCache(std::string filename, unsigned int maxWidth, unsigned maxHeight, bool reload, unsigned int textureOffsetX, unsigned int textureOffsetY) {
+TextureRect& TextureCache::getTextureFromCache(std::string filename, unsigned int maxWidth, unsigned maxHeight, bool reload, int paddingLeft, int paddingRight, int paddingTop, int paddingBottom) {
 
 	if (textures.count(filename) > 0 && !reload) {
 		return textures[filename];
 	}
 	
 	Texture tex;
-	textureOffsetY > 0 ? tex.loadFromFile(filename, true, 0 , 0, 0, 0, textureOffsetY, 0) : tex.loadFromFile(filename, true);
+	(paddingLeft != 0 || paddingRight != 0 || paddingTop != 0 || paddingBottom != 0) ? tex.loadFromFile(filename, true, 0 , 0, paddingLeft, paddingRight, paddingTop, paddingBottom) : tex.loadFromFile(filename, true);
 	
 	if (tex.getChannels() == 3) {
 		tex.addAlphaChannel();
@@ -30,7 +30,7 @@ TextureRect& TextureCache::getTextureFromCache(std::string filename, unsigned in
 	textures[filename].textureHeight = 1.0f;
 
 	unsigned char* bytes = tex.readPixel();
-	TextureAtlasCreator::get().addTexture(textures[filename], reinterpret_cast<char*>(bytes), tex.getWidth(), tex.getHeight(), maxWidth, maxHeight, textureOffsetX, textureOffsetY);
+	TextureAtlasCreator::get().addTexture(textures[filename], reinterpret_cast<char*>(bytes), tex.getWidth(), tex.getHeight(), maxWidth, maxHeight, paddingLeft, paddingTop);
 	free(bytes);
 
 	return textures[filename];
@@ -105,8 +105,8 @@ TextureRect& TextureManager::Loadimage(std::string file, bool reload) {
 	return TextureCache::Get().getTextureFromCache(file, 0, 0, reload);
 }
 
-TextureRect& TextureManager::Loadimage(std::string file, unsigned int maxWidth, unsigned maxHeight, bool reload, unsigned int textureOffsetX, unsigned int textureOffsetY) {
-	return TextureCache::Get().getTextureFromCache(file, maxWidth, maxHeight, reload, textureOffsetX, textureOffsetY);
+TextureRect& TextureManager::Loadimage(std::string file, unsigned int maxWidth, unsigned maxHeight, bool reload, int paddingLeft, int paddingRight, int paddingTop, int paddingBottom) {
+	return TextureCache::Get().getTextureFromCache(file, maxWidth, maxHeight, reload, paddingLeft, paddingRight, paddingTop, paddingBottom);
 }
 
 void TextureManager::Loadimage(std::string file, int textureIndex, std::vector<TextureRect>& textureBase) {

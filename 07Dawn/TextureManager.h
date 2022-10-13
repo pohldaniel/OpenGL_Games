@@ -21,7 +21,7 @@ class TextureCache {
 
 public:
 	static TextureCache& Get();
-	TextureRect& getTextureFromCache(std::string filename, unsigned int maxWidth = 0, unsigned maxHeight = 0, bool reload = false, unsigned int textureOffsetX = 0, unsigned int textureOffsetY = 0);
+	TextureRect& getTextureFromCache(std::string filename, unsigned int maxWidth = 0, unsigned maxHeight = 0, bool reload = false, int paddingLeft = 0, int paddingRight = 0, int paddingTop = 0, int paddingBottom = 0);
 
 private:
 
@@ -76,7 +76,6 @@ public:
 			curY = maxY;
 		}
 		
-
 		if (maxHeight - curY < h){
 			addFrame();
 		}
@@ -90,14 +89,13 @@ public:
 			memcpy(bufferPtr + (((curY + row) * width + curX) * 4), texture + (w * row * 4), 4 * w);
 		}
 
-		stexture.textureOffsetX = static_cast<float>(curX + textureOffsetX) / static_cast<float>(width);
+		stexture.textureOffsetX = static_cast<float>(curX) / static_cast<float>(width);
 		stexture.textureWidth = static_cast<float>(w) / static_cast<float>(width);
 		stexture.textureOffsetY = static_cast<float>(curY) / static_cast<float>(height);
 		stexture.textureHeight = static_cast<float>(h) / static_cast<float>(height);
 		stexture.width = w;
 		stexture.height = h;
 		stexture.frame = spritesheet.getTotalFrames();
-
 		
 		curX += w;
 		maxY = (std::max)(maxY, curY + h);
@@ -155,7 +153,7 @@ public:
 
 	static void DrawTextureInstanced(const TextureRect& textureRect, int x, int y, bool checkVieport = true);
 	static TextureRect& Loadimage(std::string file, bool reload);
-	static TextureRect& Loadimage(std::string file, unsigned int maxWidth, unsigned maxHeight, bool reload, unsigned int textureOffsetX, unsigned int textureOffsetY);
+	static TextureRect& Loadimage(std::string file, unsigned int maxWidth, unsigned maxHeight, bool reload, int paddingLeft, int paddingRight, int paddingTop, int paddingBottom);
 
 	static void Loadimage(std::string file, int textureIndex, std::vector<TextureRect>& textureBase);
 	static unsigned int& GetTextureAtlas(std::string name);
