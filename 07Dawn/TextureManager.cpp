@@ -64,6 +64,18 @@ void TextureManager::DrawTextureBatched(const TextureRect& textureRect, int x, i
 	Batchrenderer::Get().addQuad(Vector4f(static_cast< float >(x), static_cast< float >(y), width, height), Vector4f(textureRect.textureOffsetX, textureRect.textureOffsetY, textureRect.textureWidth, textureRect.textureHeight), color, textureRect.frame, updateView);
 }
 
+void TextureManager::DrawBuffer(bool updateView) {
+	Batchrenderer::Get().drawBuffer(updateView);
+}
+
+void TextureManager::BindTexture(unsigned int texture, bool isTextureArray) {
+	Batchrenderer::Get().bindTexture(texture, isTextureArray);
+}
+
+void TextureManager::UnbindTexture(bool isTextureArray) {
+	Batchrenderer::Get().unbindTexture(isTextureArray);
+}
+
 void TextureManager::DrawTexture(const TextureRect& textureRect, int x, int y, bool cullVieport, bool updateView) {
 	if (!TextureManager::IsRectOnScreen(x, textureRect.width, y, textureRect.height) && cullVieport) {
 		return;
@@ -99,10 +111,6 @@ void TextureManager::DrawTextureInstanced(const TextureRect& textureRect, int x,
 	}
 
 	Instancedrenderer::Get().addQuad(Vector4f(static_cast< float >(x), static_cast< float >(y), static_cast< float >(textureRect.width), static_cast< float >(textureRect.height)), Vector4f(textureRect.textureOffsetX, textureRect.textureOffsetY, textureRect.textureWidth, textureRect.textureHeight), textureRect.frame);
-}
-
-TextureRect& TextureManager::Loadimage(std::string file, bool reload) {
-	return TextureCache::Get().getTextureFromCache(file, 0, 0, reload);
 }
 
 TextureRect& TextureManager::Loadimage(std::string file, unsigned int maxWidth, unsigned maxHeight, bool reload, int paddingLeft, int paddingRight, int paddingTop, int paddingBottom) {

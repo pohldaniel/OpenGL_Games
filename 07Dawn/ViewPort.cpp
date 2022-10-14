@@ -49,28 +49,39 @@ void ViewPort::update(float dt) {
 	}
 
 	m_camera.move(directrion[0] * dt * moveSpeed, directrion[1] * dt * moveSpeed, directrion[2] * dt * moveSpeed);
-
-	Mouse &mouse = Mouse::instance();
-
-	float mouseXndc = static_cast<float>(2.0f * mouse.xPosAbsolute()) / static_cast<float>(m_width) - 1.0f;
-	float mouseYndc = 1.0f - static_cast<float>(2.0f * mouse.yPosAbsolute()) / static_cast<float>(m_height);
-	m_cursorPosEye = Vector2f(0.5f * (m_right * (mouseXndc + 1.0f) + m_left * (1.0f - mouseXndc)), 0.5f * (m_top * (mouseYndc + 1.0f) + m_bottom * (1.0f - mouseYndc)));
 }
 
 Camera& ViewPort::getCamera() {
 	return m_camera;
 }
 
-Vector2f& ViewPort::getCursorPos() {	
+void ViewPort::setPosition(Vector3f& position) {
+	position[0] = position[0] - static_cast<float>(m_width) * 0.5f;
+	position[1] = position[1] - static_cast<float>(m_height) * 0.5f;
+	m_camera.setPosition(position);
+}
+
+Vector2f& ViewPort::getCursorPos() {
+	Mouse &mouse = Mouse::instance();
+	float mouseXndc = static_cast<float>(2.0f * mouse.xPosAbsolute()) / static_cast<float>(m_width) - 1.0f;
+	float mouseYndc = 1.0f - static_cast<float>(2.0f * mouse.yPosAbsolute()) / static_cast<float>(m_height);
+	m_cursorPosEye = Vector2f(m_postition[0] + 0.5f * (m_right * (mouseXndc + 1.0f) + m_left * (1.0f - mouseXndc)), m_postition[1] + 0.5f * (m_top * (mouseYndc + 1.0f) + m_bottom * (1.0f - mouseYndc)));
+
 	return m_cursorPosEye;	
 }
 
 const int ViewPort::getCursorPosX() {
-	return static_cast<int>(m_cursorPosEye[0]);
+	Mouse &mouse = Mouse::instance();
+	float mouseXndc = static_cast<float>(2.0f * mouse.xPosAbsolute()) / static_cast<float>(m_width) - 1.0f;
+
+	return static_cast<int>(m_postition[0] + 0.5f * (m_right * (mouseXndc + 1.0f) + m_left * (1.0f - mouseXndc)));
 }
 
 const int ViewPort::getCursorPosY() {
-	return static_cast<int>(m_cursorPosEye[1]);
+	Mouse &mouse = Mouse::instance();
+	float mouseYndc = 1.0f - static_cast<float>(2.0f * mouse.yPosAbsolute()) / static_cast<float>(m_height);
+
+	return static_cast<int>(m_postition[1] + 0.5f * (m_top * (mouseYndc + 1.0f) + m_bottom * (1.0f - mouseYndc)));
 }
 
 const Vector3f& ViewPort::getPosition() {

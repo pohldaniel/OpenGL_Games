@@ -224,3 +224,7 @@ unsigned short Npc::getNumActivityTextures(Enums::ActivityType activity) {
 const CharacterType& Npc::getCharacterType() {
 	return m_characterType;
 }
+
+Enums::Attitude Npc::getAttitude() const {
+	return this->attitudeTowardsPlayer;
+}

@@ -28,6 +28,7 @@ public:
 	bool isMarkedAsDeletable() const;
 	std::string getLuaEditorSaveText() const;
 	const CharacterType& getCharacterType();
+	Enums::Attitude getAttitude() const;
 private:
 
 	//Attitude::Attitude attitudeTowardsPlayer;

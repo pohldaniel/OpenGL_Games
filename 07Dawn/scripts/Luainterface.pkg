@@ -77,7 +77,7 @@ namespace DawnInterface{
 	void enterZone(std::string zoneName, int enterX, int enterY );
 	void setCurrentZone(std::string zoneName );
 	CharacterType& createNewMobType(std::string typeID);
-	void addMobSpawnPoint(std::string mobID, int x_pos, int y_pos, int respawn_rate, int do_respawn, Enums::Attitude attitude);
+	void addMobSpawnPoint(std::string mobID, std::string name, int x_pos, int y_pos, int respawn_rate, int do_respawn, Enums::Attitude attitude);
 	InteractionRegion& addInteractionRegion();
 	void removeInteractionRegion(InteractionRegion *regionToRemove);
 	InteractionPoint& addInteractionPoint();

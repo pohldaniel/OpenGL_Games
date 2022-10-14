@@ -1,9 +1,9 @@
 #include "Game.h"
 
-Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
-	newZone = ZoneManager::Get().getCurrentZone();
-	m_interface = new Interface();
-
+Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), player(Player::Get()) {
+	zone = ZoneManager::Get().getCurrentZone();
+	dawnInterface = &Interface::Get();
+	dawnInterface->init();
 	Mouse::SetCursorIcon("res/cursors/pointer.cur");
 }
 
@@ -15,7 +15,34 @@ void Game::fixedUpdate() {
 
 void Game::update() {
 	//ViewPort::get().update(m_dt);
-	Player::Get().update(m_dt);
+	player.update(m_dt);
+	ViewPort::get().setPosition(Player::Get().getPosition());
+
+	Mouse &mouse = Mouse::instance();
+
+	if (mouse.buttonPressed(Mouse::BUTTON_LEFT)) {
+		// get and iterate through the NPCs
+		std::vector<Npc*> zoneNPCs = zone->getNPCs();
+		for (unsigned int x = 0; x < zoneNPCs.size(); x++) {
+			Npc* curNPC = zoneNPCs[x];
+			// is the mouse over a NPC and no AoE spell is being prepared?
+			if (curNPC->CheckMouseOver(ViewPort::get().getCursorPosX(), ViewPort::get().getCursorPosY())) {
+				// is the NPC friendly?
+				if (!curNPC->getAttitude() == Enums::Attitude::FRIENDLY) {
+					// set a target if the player has none
+
+					if (!player.hasTarget(curNPC)) {
+
+						player.setTarget(curNPC, curNPC->getAttitude());
+					}else{
+
+						player.setTarget(nullptr);
+					}
+					break;
+				}
+			}
+		}	
+	}
 }
 
 void Game::render(unsigned int &frameBuffer) {
@@ -27,10 +54,10 @@ void Game::render(unsigned int &frameBuffer) {
 	glEnable(GL_BLEND);
 
 
-	newZone->drawZoneBatched();
+	zone->drawZoneBatched();
 	Player::Get().draw();
-	m_interface->DrawInterface();
-	//m_interface->DrawCursor(m_drawInGameCursor);
+	dawnInterface->DrawInterface();
+	//dawnInterface->DrawCursor(m_drawInGameCursor);
 	glDisable(GL_BLEND);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);

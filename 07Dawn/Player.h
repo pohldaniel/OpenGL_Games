@@ -16,6 +16,7 @@ public:
 	unsigned short getNumActivityTextures(Enums::ActivityType activity)override;
 
 	void setCharacterType(std::string characterType);
+	Vector3f getPosition();
 
 	static Player& Get();
 	~Player();

@@ -13,6 +13,7 @@ public:
 	Vector2f& getCursorPos();
 	const int getCursorPosX();
 	const int getCursorPosY();
+
 	const Vector3f& getPosition();
 	const Vector2f getBottomLeft();
 
@@ -22,6 +23,8 @@ public:
 	float getTop();
 	unsigned int getWidth();
 	unsigned int getHeight();
+
+	void setPosition(Vector3f& position);
 
 private:
 	ViewPort();

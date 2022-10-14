@@ -19,8 +19,9 @@ public:
 	virtual void render(unsigned int &frameBuffer) override;
 	void OnMouseMotion(Event::MouseMoveEvent& event) override;
 
-	Zone* newZone;
-	Interface* m_interface;
+	Zone* zone;
+	Interface* dawnInterface;
+	Player& player;
 
 	bool m_drawInGameCursor = false;
 };

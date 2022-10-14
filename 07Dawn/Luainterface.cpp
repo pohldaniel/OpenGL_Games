@@ -78,7 +78,7 @@ namespace DawnInterface{
 		return CharacterTypeManager::Get().getCharacterType(characterType);
 	}
 
-	void addMobSpawnPoint(std::string mobID, int x_pos, int y_pos, int respawn_rate, int do_respawn, Enums::Attitude attitude) {
+	void addMobSpawnPoint(std::string mobID, std::string name, int x_pos, int y_pos, int respawn_rate, int do_respawn, Enums::Attitude attitude) {
 		
 		if (!CharacterTypeManager::Get().containsCaracterType(mobID)) {
 			return;
@@ -88,6 +88,7 @@ namespace DawnInterface{
 		newMob->baseOnType(mobID);
 		newMob->setSpawnInfo(x_pos, y_pos, respawn_rate, do_respawn);
 		newMob->setAttitude(attitude);
+		newMob->setName(name);
 		//newMob->setActiveGUI(&GUI);
 		ZoneManager::Get().getCurrentZone()->addNPC(newMob);
 	}

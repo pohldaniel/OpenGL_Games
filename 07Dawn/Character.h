@@ -129,6 +129,15 @@ public:
 	uint16_t getWanderRadiusSq() const;
 	float getMovementSpeed() const;
 	void giveCoins(unsigned int amountOfCoins);
+	bool CheckMouseOver(int _x_pos, int _y_pos);
+	bool hasTarget(Character* target);
+
+	void setTarget(Character *target);
+	void setTarget(Character *target, Enums::Attitude attitude);
+	Character* getTarget() const;
+
+	Character* target;
+	Enums::Attitude targetAttitude;
 
 	bool isStunned() const;
 	bool isMesmerized() const;
@@ -198,7 +207,12 @@ public:
 	uint8_t getLevel() const;
 	uint8_t getExperienceValue() const;
 	uint32_t coins;
-
+	uint16_t getCurrentHealth() const;
+	void modifyCurrentHealth(int16_t currentHealthModifier);
+	void setCurrentHealth(uint16_t newCurrentHealth);
+	uint16_t getModifiedMaxHealth() const;
+	float getPreparationPercentage() const;
+	std::string getCurrentSpellActionName() const;
 
 	int boundingBoxX;
 	int boundingBoxY;
@@ -224,7 +238,7 @@ public:
 	//bool hasDrawnDyingOnce;
 	int current_texture, direction_texture;
 	bool hasChoosenFearDirection;
-	bool isPreparing;
+	bool isPreparing = false;
 	
 
 	// timers
@@ -266,7 +280,7 @@ public:
 	uint16_t intellect;
 	uint16_t wisdom;
 	uint16_t max_health;
-	//uint16_t current_health;
+	uint16_t current_health;
 	uint16_t max_mana;
 	//uint16_t current_mana;
 	uint16_t max_fatigue;
@@ -284,6 +298,6 @@ public:
 	uint16_t hitModifierPoints;
 	uint16_t evadeModifierPoints;
 	Enums::CharacterClass characterClass;
-
+	float preparationPercentage;
 	
 };

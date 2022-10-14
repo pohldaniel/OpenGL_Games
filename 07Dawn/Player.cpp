@@ -48,9 +48,9 @@ void Player::draw() {
 		drawY -= getBoundingBoxY();
 	}
 
-	Batchrenderer::Get().bindTexture(TextureManager::GetTextureAtlas("player"), true);
+	TextureManager::BindTexture(TextureManager::GetTextureAtlas("player"), true);
 	TextureManager::DrawTexture(*rect, drawX, drawY, true, true);
-	Batchrenderer::Get().unbindTexture(true);
+	TextureManager::UnbindTexture(true);
 }
 
 void Player::update(float deltaTime) {
@@ -186,4 +186,8 @@ unsigned short Player::getNumActivityTextures(Enums::ActivityType activity) {
 void Player::setCharacterType(std::string characterType) {
 	m_characterType = &CharacterTypeManager::Get().getCharacterType(characterType);
 	rect = &m_characterType->m_moveTileSets.at({ getCurActivity(), activeDirection }).getAllTiles()[0].textureRect;
+}
+
+Vector3f Player::getPosition() {
+	return Vector3f(static_cast<float>(getXPos()), static_cast<float>(getYPos()), 0.0f);
 }

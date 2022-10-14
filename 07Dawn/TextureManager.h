@@ -152,12 +152,14 @@ public:
 	static void DrawTexture(const TextureRect& textureRect, int x, int y, float width, float height, Vector4f color = Vector4f(1.0f, 1.0f, 1.0f, 1.0f), bool cullVieport = true, bool updateView = true);
 
 	static void DrawTextureInstanced(const TextureRect& textureRect, int x, int y, bool checkVieport = true);
-	static TextureRect& Loadimage(std::string file, bool reload);
 	static TextureRect& Loadimage(std::string file, unsigned int maxWidth, unsigned maxHeight, bool reload, int paddingLeft, int paddingRight, int paddingTop, int paddingBottom);
 
 	static void Loadimage(std::string file, int textureIndex, std::vector<TextureRect>& textureBase);
 	static unsigned int& GetTextureAtlas(std::string name);
 	static void SetTextureAtlas(std::string name, unsigned int value);
+	static void DrawBuffer(bool updateView = true);
+	static void BindTexture(unsigned int texture, bool isTextureArray = false);
+	static void UnbindTexture(bool isTextureArray = false);
 
 	static TextureManager& Get();
 

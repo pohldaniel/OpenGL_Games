@@ -92,43 +92,6 @@ void Texture::loadFromFile(std::string fileName, const bool _flipVertical, unsig
 
 }
 
-unsigned char* Texture::AddRemoveLeftPadding(unsigned char* imageData, int& width, int height, int numCompontents, int padding) {
-	if (padding == 0) return imageData;
-
-	unsigned char* bytes = (unsigned char*)malloc(numCompontents * height * (width + padding));
-
-	if (padding < 0) {
-
-		int row = 0, x = -padding * numCompontents;
-		for (int i = 0; i < numCompontents * height * (width + padding); i = i++) {
-			if (i % ((width + padding) * numCompontents) == 0 && i > 0) {
-				row = row + width * numCompontents;
-				x = row - padding * numCompontents;
-			}
-
-			bytes[i] = imageData[x];
-			x++;
-		}
-	}
-
-	if (padding > 0) {
-		int row = 0, x = 0;
-		for (int i = 0; i < numCompontents * height * (width + padding); i = i++) {
-			if (i % ((width + padding) * numCompontents) == 0 && i > 0) {
-				row = row + width * numCompontents;
-				x = row;
-			}
-
-			bytes[i] = x - row < padding * numCompontents ? bytes[i] = 0 : bytes[i] = imageData[x - padding * numCompontents];
-			x++;
-		}
-	}
-
-	width = width + padding;
-	free(imageData);
-	return bytes;
-}
-
 void Texture::loadFromFile(std::string fileName, const bool _flipVertical, unsigned int _internalFormat, unsigned int _format, int paddingLeft, int paddingRight, int paddingTop, int paddingBottom) {
 	int width, height, numCompontents;
 	unsigned char* imageData = SOIL_load_image(fileName.c_str(), &width, &height, &numCompontents, SOIL_LOAD_AUTO);
@@ -479,6 +442,43 @@ void Texture::Safe(std::string fileOut, unsigned int& texture, unsigned int widt
 
 void Texture::Safe(std::string fileOut, unsigned char* bytes, unsigned int width, unsigned int height, unsigned int channels) {
 	SOIL_save_image(fileOut.c_str(), SOIL_SAVE_TYPE_PNG, width, height, channels, bytes);
+}
+
+unsigned char* Texture::AddRemoveLeftPadding(unsigned char* imageData, int& width, int height, int numCompontents, int padding) {
+	if (padding == 0) return imageData;
+
+	unsigned char* bytes = (unsigned char*)malloc(numCompontents * height * (width + padding));
+
+	if (padding < 0) {
+
+		int row = 0, x = -padding * numCompontents;
+		for (int i = 0; i < numCompontents * height * (width + padding); i = i++) {
+			if (i % ((width + padding) * numCompontents) == 0 && i > 0) {
+				row = row + width * numCompontents;
+				x = row - padding * numCompontents;
+			}
+
+			bytes[i] = imageData[x];
+			x++;
+		}
+	}
+
+	if (padding > 0) {
+		int row = 0, x = 0;
+		for (int i = 0; i < numCompontents * height * (width + padding); i = i++) {
+			if (i % ((width + padding) * numCompontents) == 0 && i > 0) {
+				row = row + width * numCompontents;
+				x = row;
+			}
+
+			bytes[i] = x - row < padding * numCompontents ? bytes[i] = 0 : bytes[i] = imageData[x - padding * numCompontents];
+			x++;
+		}
+	}
+
+	width = width + padding;
+	free(imageData);
+	return bytes;
 }
 
 unsigned char* Texture::AddRemoveRightPadding(unsigned char* imageData, int& width, int height, int numCompontents, int padding) {

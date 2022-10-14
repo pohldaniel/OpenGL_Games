@@ -1,6 +1,6 @@
 /*
 ** Lua binding: Luainterface
-** Generated automatically by tolua++-1.0.92 on Thu Oct 13 19:22:28 2022.
+** Generated automatically by tolua++-1.0.92 on Fri Oct 14 23:26:51 2022.
 */
 
 #ifndef __cplusplus
@@ -137,25 +137,27 @@ static int tolua_Luainterface_DawnInterface_addMobSpawnPoint00(lua_State* tolua_
 	tolua_Error tolua_err;
 	if (
 		!tolua_iscppstring(tolua_S, 1, 0, &tolua_err) ||
-		!tolua_isnumber(tolua_S, 2, 0, &tolua_err) ||
+		!tolua_iscppstring(tolua_S, 2, 0, &tolua_err) ||
 		!tolua_isnumber(tolua_S, 3, 0, &tolua_err) ||
 		!tolua_isnumber(tolua_S, 4, 0, &tolua_err) ||
 		!tolua_isnumber(tolua_S, 5, 0, &tolua_err) ||
 		!tolua_isnumber(tolua_S, 6, 0, &tolua_err) ||
-		!tolua_isnoobj(tolua_S, 7, &tolua_err)
+		!tolua_isnumber(tolua_S, 7, 0, &tolua_err) ||
+		!tolua_isnoobj(tolua_S, 8, &tolua_err)
 		)
 		goto tolua_lerror;
 	else
 #endif
 	{
 		std::string mobID = ((std::string)  tolua_tocppstring(tolua_S, 1, 0));
-		int x_pos = ((int)tolua_tonumber(tolua_S, 2, 0));
-		int y_pos = ((int)tolua_tonumber(tolua_S, 3, 0));
-		int respawn_rate = ((int)tolua_tonumber(tolua_S, 4, 0));
-		int do_respawn = ((int)tolua_tonumber(tolua_S, 5, 0));
-		Enums::Attitude attitude = ((Enums::Attitude) (int)  tolua_tonumber(tolua_S, 6, 0));
+		std::string name = ((std::string)  tolua_tocppstring(tolua_S, 2, 0));
+		int x_pos = ((int)tolua_tonumber(tolua_S, 3, 0));
+		int y_pos = ((int)tolua_tonumber(tolua_S, 4, 0));
+		int respawn_rate = ((int)tolua_tonumber(tolua_S, 5, 0));
+		int do_respawn = ((int)tolua_tonumber(tolua_S, 6, 0));
+		Enums::Attitude attitude = ((Enums::Attitude) (int)  tolua_tonumber(tolua_S, 7, 0));
 		{
-			DawnInterface::addMobSpawnPoint(mobID, x_pos, y_pos, respawn_rate, do_respawn, attitude);
+			DawnInterface::addMobSpawnPoint(mobID, name, x_pos, y_pos, respawn_rate, do_respawn, attitude);
 		}
 	}
 	return 0;

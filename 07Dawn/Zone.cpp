@@ -306,18 +306,18 @@ void Zone::update(float deltaTime) {
 
 void Zone::drawZoneBatched() {
 
-	Batchrenderer::Get().bindTexture(m_textureAtlas, true);
+	TextureManager::BindTexture(m_textureAtlas, true);
 
 	drawTilesBatched();
 	drawEnvironmentBatched();
 	drawShadowsBatched();
-	Batchrenderer::Get().drawBuffer();
+	TextureManager::DrawBuffer();
 
-	Batchrenderer::Get().bindTexture(TextureManager::GetTextureAtlas("mobs"), true);
+	TextureManager::BindTexture(TextureManager::GetTextureAtlas("mobs"), true);
 	drawNpcsBatched();
-	Batchrenderer::Get().drawBuffer();
+	TextureManager::DrawBuffer();
 
-	Batchrenderer::Get().unbindTexture(true);
+	TextureManager::UnbindTexture(true);
 }
 
 void Zone::drawTilesBatched() {

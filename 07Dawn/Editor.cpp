@@ -2,13 +2,13 @@
 
 Editor::Editor(StateMachine& machine) : State(machine, CurrentState::EDITOR) {
 	//LuaFunctions::executeLuaFile("res/_lua/mobdata.lua");
-
+	Mouse::SetCursorIcon("res/cursors/pointer.cur");
 	ZoneManager::Get().getZone("res/_lua/zone1").loadZone();
 	ZoneManager::Get().setCurrentZone(&ZoneManager::Get().getZone("res/_lua/zone1"));
 	newZone = ZoneManager::Get().getCurrentZone();
 	
 	LuaFunctions::executeLuaFile("res/_lua/gameinit.lua");
-	LuaFunctions::executeLuaFile("res/_lua/tileAdjacency.lua");
+	LuaFunctions::executeLuaFile("res/_lua/tileAdjacency.lua"); 
 	
 	m_originalFocus = ViewPort::get().getBottomLeft();
 	m_editorFocus = ViewPort::get().getBottomLeft();
@@ -44,16 +44,16 @@ void Editor::update() {
 
 		switch (m_selectedTileSet) {
 			case Enums::TileClassificationType::ENVIRONMENT:
-				m_selectedObjectId = newZone->locateEnvironment(static_cast<int>(m_editorFocus[0] + ViewPort::get().getCursorPos()[0]), static_cast<int>(m_editorFocus[1] + ViewPort::get().getCursorPos()[1]));
+				m_selectedObjectId = newZone->locateEnvironment(ViewPort::get().getCursorPosX(), ViewPort::get().getCursorPosY());
 				break;
 			case Enums::TileClassificationType::SHADOW: // shadows
-				m_selectedObjectId = newZone->locateShadow(static_cast<int>(m_editorFocus[0] + ViewPort::get().getCursorPos()[0]), static_cast<int>(m_editorFocus[1] + ViewPort::get().getCursorPos()[1]));
+				m_selectedObjectId = newZone->locateShadow(ViewPort::get().getCursorPosX(), ViewPort::get().getCursorPosY());
 				break;
 			case Enums::TileClassificationType::COLLISION:
-				m_selectedObjectId = newZone->locateCollisionbox(static_cast<int>(m_editorFocus[0] + ViewPort::get().getCursorPos()[0]), static_cast<int>(m_editorFocus[1] + ViewPort::get().getCursorPos()[1]));
+				m_selectedObjectId = newZone->locateCollisionbox(ViewPort::get().getCursorPosX(), ViewPort::get().getCursorPosY());
 				break;
 			case Enums::TileClassificationType::NPC: // NPCs
-				m_selectedObjectId = newZone->locateNPC(static_cast<int>(m_editorFocus[0] + ViewPort::get().getCursorPos()[0]), static_cast<int>(m_editorFocus[1] + ViewPort::get().getCursorPos()[1]));
+				m_selectedObjectId = newZone->locateNPC(ViewPort::get().getCursorPosX(), ViewPort::get().getCursorPosY());
 			default:
 				curAdjacentTiles.clear();
 				break;
@@ -96,21 +96,21 @@ void Editor::update() {
 		switch (m_selectedTileSet) {
 			case Enums::TileClassificationType::FLOOR: {
 				const Tile& currentTile = EditorInterface::getTileSet(m_selectedTileSet).getAllTiles()[m_currentTilepos];
-				newZone->replaceTile(newZone->locateTile(static_cast<int>(m_editorFocus[0] + ViewPort::get().getCursorPos()[0]), static_cast<int>(m_editorFocus[1] + ViewPort::get().getCursorPos()[1])), currentTile);
+				newZone->replaceTile(newZone->locateTile(ViewPort::get().getCursorPosX(), ViewPort::get().getCursorPosY()), currentTile);
 				break;
 			}case Enums::TileClassificationType::ENVIRONMENT: {
 				const Tile& currentTile = EditorInterface::getTileSet(m_selectedTileSet).getAllTiles()[m_currentTilepos];
-				newZone->addEnvironment(static_cast<int>(m_editorFocus[0] + ViewPort::get().getCursorPos()[0]), static_cast<int>(m_editorFocus[1] + ViewPort::get().getCursorPos()[1]), currentTile, true /* centered on pos */);
+				newZone->addEnvironment(ViewPort::get().getCursorPosX(), ViewPort::get().getCursorPosY(), currentTile, true /* centered on pos */);
 				break;
 			}case Enums::TileClassificationType::SHADOW: {
 				const Tile& currentTile = EditorInterface::getTileSet(m_selectedTileSet).getAllTiles()[m_currentTilepos];
-				newZone->addShadow(static_cast<int>(m_editorFocus[0] + ViewPort::get().getCursorPos()[0]), static_cast<int>(m_editorFocus[1] + ViewPort::get().getCursorPos()[1]), currentTile);
+				newZone->addShadow(ViewPort::get().getCursorPosX(), ViewPort::get().getCursorPosY(), currentTile);
 				break;
 			}case Enums::TileClassificationType::COLLISION: {
-				newZone->addCollisionbox(static_cast<int>(m_editorFocus[0] + ViewPort::get().getCursorPos()[0]), static_cast<int>(m_editorFocus[1] + ViewPort::get().getCursorPos()[1]));
+				newZone->addCollisionbox(ViewPort::get().getCursorPosX(), ViewPort::get().getCursorPosY());
 				break;
 			}case Enums::TileClassificationType::NPC: {
-				DawnInterface::addMobSpawnPoint(editorNPCs[m_currentTilepos].first, static_cast<int>(m_editorFocus[0] + ViewPort::get().getCursorPos()[0]) - 48, static_cast<int>(m_editorFocus[1] + ViewPort::get().getCursorPos()[1]) - 48, 180, 1, Enums::Attitude::HOSTILE);
+				DawnInterface::addMobSpawnPoint(editorNPCs[m_currentTilepos].first, "", ViewPort::get().getCursorPosX() - 48, ViewPort::get().getCursorPosY() - 48, 180, 1, Enums::Attitude::HOSTILE);
 				break;
 			}
 		}		
@@ -120,22 +120,22 @@ void Editor::update() {
 
 		switch (m_selectedTileSet) {
 		case Enums::TileClassificationType::FLOOR: // tiles
-			newZone->deleteTile(newZone->locateTile(static_cast<int>(m_editorFocus[0] + ViewPort::get().getCursorPos()[0]), static_cast<int>(m_editorFocus[1] + ViewPort::get().getCursorPos()[1])));
+			newZone->deleteTile(newZone->locateTile(ViewPort::get().getCursorPosX(), ViewPort::get().getCursorPosY()));
 			break;
 		case Enums::TileClassificationType::ENVIRONMENT: // environment
-			if (newZone->deleteEnvironment(static_cast<int>(m_editorFocus[0] + ViewPort::get().getCursorPos()[0]), static_cast<int>(m_editorFocus[1] + ViewPort::get().getCursorPos()[1])) == 0)
+			if (newZone->deleteEnvironment(ViewPort::get().getCursorPosX(), ViewPort::get().getCursorPosY()) == 0)
 				m_selectedObjectId = -1;
 			break;
 		case Enums::TileClassificationType::SHADOW: // shadows
-			if (newZone->deleteShadow(static_cast<int>(m_editorFocus[0] + ViewPort::get().getCursorPos()[0]), static_cast<int>(m_editorFocus[1] + ViewPort::get().getCursorPos()[1])) == 0)
+			if (newZone->deleteShadow(ViewPort::get().getCursorPosX(), ViewPort::get().getCursorPosY()) == 0)
 				m_selectedObjectId = -1;
 			break;
 		case Enums::TileClassificationType::COLLISION: // collisionboxes
-			if (newZone->deleteCollisionbox(static_cast<int>(m_editorFocus[0] + ViewPort::get().getCursorPos()[0]), static_cast<int>(m_editorFocus[1] + ViewPort::get().getCursorPos()[1])) == 0)
+			if (newZone->deleteCollisionbox(ViewPort::get().getCursorPosX(), ViewPort::get().getCursorPosY()) == 0)
 				m_selectedObjectId = -1;
 			break;
 		case Enums::TileClassificationType::NPC: // NPCs
-			if (newZone->deleteNPC(static_cast<int>(m_editorFocus[0] + ViewPort::get().getCursorPos()[0]), static_cast<int>(m_editorFocus[1] + ViewPort::get().getCursorPos()[1])) == 0){
+			if (newZone->deleteNPC(ViewPort::get().getCursorPosY(), ViewPort::get().getCursorPosY()) == 0){
 				newZone->cleanupNPCList();
 				m_selectedObjectId = -1;
 			}
@@ -383,8 +383,8 @@ void Editor::update() {
 
 void Editor::printShortText(const CharacterSet& characterSet, const std::string &printText, int left, int width, int bottom, int height){
 	int curY = bottom + height - characterSet.lineHeight;
-	const int lineHeight = characterSet.lineHeight * 1.5f;
-	const int bottomMargin = characterSet.lineHeight * 0.5f;
+	int lineHeight = characterSet.lineHeight / 2 + characterSet.lineHeight;
+	int bottomMargin = characterSet.lineHeight / 2;
 	size_t curStringPos = 0;
 	while (curY - bottomMargin > bottom) {
 		std::string curLine = "";
@@ -428,13 +428,13 @@ void Editor::render(unsigned int &frameBuffer) {
 
 	newZone->drawZoneBatched();
 		
-	Batchrenderer::Get().bindTexture(m_textureAtlas, true);
+	TextureManager::BindTexture(m_textureAtlas, true);
 		
 	if (m_selectedTileSet == Enums::TileClassificationType::COLLISION) {
 
 		// Collison boxes
 		for (unsigned int x = 0; x < newZone->m_collisionMap.size(); x++) {
-			TextureManager::DrawTextureBatched(m_interfacetexture[4], newZone->m_collisionMap[x].x, newZone->m_collisionMap[x].y, newZone->m_collisionMap[x].w, newZone->m_collisionMap[x].h, m_selectedObjectId == (signed int)x ? Vector4f(0.9f, 0.2f, 0.8f, 0.8f) : Vector4f(0.7f, 0.1f, 0.6f, 0.8f));
+			TextureManager::DrawTextureBatched(m_interfacetexture[4], newZone->m_collisionMap[x].x, newZone->m_collisionMap[x].y, static_cast<float>(newZone->m_collisionMap[x].w), static_cast<float>(newZone->m_collisionMap[x].h), m_selectedObjectId == static_cast<int>(x) ? Vector4f(0.9f, 0.2f, 0.8f, 0.8f) : Vector4f(0.7f, 0.1f, 0.6f, 0.8f));
 		}
 
 		// Interaction Regions
@@ -448,13 +448,13 @@ void Editor::render(unsigned int &frameBuffer) {
 			}
 
 			// draw border around the region
-			TextureManager::DrawTextureBatched(m_interfacetexture[4], left, bottom, width, height, Vector4f(0.0f, 0.8f, 0.0f, 0.6f));
+			TextureManager::DrawTextureBatched(m_interfacetexture[4], left, bottom, static_cast<float>(width), static_cast<float>(height), Vector4f(0.0f, 0.8f, 0.0f, 0.6f));
 			
 			// draw region
 			if (width > 8 && height > 8){
-				TextureManager::DrawTextureBatched(m_interfacetexture[4], left + 4, bottom + 4, width - 8, height - 8, Vector4f(0.0f, 0.3f, 0.0f, 0.6f));
+				TextureManager::DrawTextureBatched(m_interfacetexture[4], left + 4, bottom + 4, static_cast<float>(width - 8), static_cast<float>(height - 8), Vector4f(0.0f, 0.3f, 0.0f, 0.6f));
 			}
-			Batchrenderer::Get().drawBuffer(true);
+			TextureManager::DrawBuffer(true);
 
 			// draw text for region
 			int tinyFontHeight = Globals::fontManager.get("verdana_5").lineHeight;
@@ -496,20 +496,20 @@ void Editor::render(unsigned int &frameBuffer) {
 
 			Npc* curNPC = npcs[curNPCNr];
 			int wanderRadius = curNPC->getWanderRadius();
-			double rootX = curNPC->x_spawn_pos + curNPC->getWidth() / 2;
-			double rootY = curNPC->y_spawn_pos + curNPC->getHeight() / 2;
-			double collisionRadius = wanderRadius + 0.5*sqrt(curNPC->getWidth()*curNPC->getWidth() + curNPC->getHeight()*curNPC->getHeight());
+			float rootX = curNPC->x_spawn_pos + curNPC->getWidth() * 0.5f;
+			float rootY = curNPC->y_spawn_pos + curNPC->getHeight() * 0.5f;
+			float collisionRadius = static_cast<float>(wanderRadius) + 0.5f * sqrtf(static_cast<float>(curNPC->getWidth()*curNPC->getWidth() + curNPC->getHeight()*curNPC->getHeight()));
 
-			TextureManager::DrawTextureBatched(m_interfacetexture[5], rootX - collisionRadius, rootY - collisionRadius, 2 * collisionRadius, 2 * collisionRadius, Vector4f(0.0f, 0.0f, 0.5f, 0.4f));
+			TextureManager::DrawTextureBatched(m_interfacetexture[5], static_cast<int>(rootX - collisionRadius), static_cast<int>(rootY - collisionRadius), 2.0f * collisionRadius, 2.0f * collisionRadius, Vector4f(0.0f, 0.0f, 0.5f, 0.4f));
 		}
 
-		Batchrenderer::Get().drawBuffer(true);
+		TextureManager::DrawBuffer(true);
 	}
 
-	TextureManager::DrawTextureBatched(m_interfacetexture[0], m_originalFocus[0], m_originalFocus[1] + ViewPort::get().getHeight() - 100, ViewPort::get().getWidth(), 100.0f, false, false);
-	TextureManager::DrawTextureBatched(m_interfacetexture[0], m_originalFocus[0], m_originalFocus[1], ViewPort::get().getWidth(), 100.0f, false, false);
-	TextureManager::DrawTextureBatched(m_interfacetexture[1], m_originalFocus[0] + ViewPort::get().getWidth() * 0.5f - 5.0f, m_originalFocus[1] + ViewPort::get().getHeight() - 65, 50.0f, 50.0f, false, false);
-	Batchrenderer::Get().drawBuffer(false);
+	TextureManager::DrawTextureBatched(m_interfacetexture[0], 0, static_cast<int>(m_originalFocus[1]) + ViewPort::get().getHeight() - 100, static_cast<float>(ViewPort::get().getWidth()), 100.0f, false, false);
+	TextureManager::DrawTextureBatched(m_interfacetexture[0], 0, static_cast<int>(m_originalFocus[1]), static_cast<float>(ViewPort::get().getWidth()), 100.0f, false, false);
+	TextureManager::DrawTextureBatched(m_interfacetexture[1], ViewPort::get().getWidth() / 2 - 5, static_cast<int>(m_originalFocus[1] + ViewPort::get().getHeight() - 65), 50.0f, 50.0f, false, false);
+	TextureManager::DrawBuffer(false);
 
 	if (m_selectedObjectId >= 0) { // we have selected an object to edit it's properties, show the edit-screen.
 		switch (m_selectedTileSet) {
@@ -523,70 +523,70 @@ void Editor::render(unsigned int &frameBuffer) {
 	}
 
 	if (m_selectedTileSet == Enums::TileClassificationType::NPC) {
-		Batchrenderer::Get().bindTexture(TextureManager::GetTextureAtlas("mobs"), true);
+		TextureManager::BindTexture(TextureManager::GetTextureAtlas("mobs"), true);
 
-		for (size_t curNPC = 0; curNPC < editorNPCs.size(); curNPC++) {			
+		for (unsigned int curNPC = 0; curNPC < editorNPCs.size(); curNPC++) {			
 			const TextureRect& rect = editorNPCs.at(curNPC).second.getTileSet(Enums::ActivityType::Walking, Enums::Direction::S).getAllTiles()[0].textureRect;
-			TextureManager::DrawTextureBatched(rect, m_originalFocus[0] + ViewPort::get().getWidth() * 0.5f + (curNPC * 50) + (m_tileposOffset * 50) - 48 + 20, m_originalFocus[1] + ViewPort::get().getHeight() - 40 - 48, rect.width, rect.height, false, false);
+			TextureManager::DrawTextureBatched(rect, ViewPort::get().getWidth() / 2 + (curNPC * 50) + (m_tileposOffset * 50) - 48 + 20,  ViewPort::get().getHeight() - 40 - 48, false, false);
 		}
 	}else {
 
-		Batchrenderer::Get().bindTexture(TextureManager::GetTextureAtlas(newZone->getName()), true);
+		TextureManager::BindTexture(TextureManager::GetTextureAtlas(newZone->getName()), true);
 		const std::vector<Tile>& curTiles = EditorInterface::getTileSet(m_selectedTileSet).getAllTiles();
 
 
 		for (m_tilepos = 0; m_tilepos < curTiles.size(); ++m_tilepos) {
 			const Tile& curTile = curTiles[m_tilepos];
-			TextureManager::DrawTextureBatched(curTile.textureRect, m_originalFocus[0] + ViewPort::get().getWidth() * 0.5f + (m_tilepos * 50) + (m_tileposOffset * 50), m_originalFocus[1] + ViewPort::get().getHeight() - 60, 40.0f, 40.0f, false, false);
+			TextureManager::DrawTextureBatched(curTile.textureRect, ViewPort::get().getWidth() / 2 + (m_tilepos * 50) + (m_tileposOffset * 50), ViewPort::get().getHeight() - 60, 40.0f, 40.0f, false, false);
 		}
 	}
-	Batchrenderer::Get().drawBuffer(false);
+	TextureManager::DrawBuffer(false);
 
-	glMatrixMode(GL_PROJECTION);
+	/*glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	glLoadMatrixf(&ViewPort::get().getCamera().getOrthographicMatrix()[0][0]);
 
 	glBegin(GL_LINES);
 	glTexCoord2f(0.0f, 0.0f);
-	glVertex3f(ViewPort::get().getCursorPos()[0] - 20 + m_originalFocus[0], ViewPort::get().getCursorPos()[1] + m_originalFocus[1], 0.0f);
+	glVertex3f(ViewPort::get().getCursorPosX2() - 20, ViewPort::get().getCursorPosY2(), 0.0f);
 	glTexCoord2f(1.0f, 0.0f);
-	glVertex3f(ViewPort::get().getCursorPos()[0] + 20 + m_originalFocus[0], ViewPort::get().getCursorPos()[1] + m_originalFocus[1], 0.0f);
+	glVertex3f(ViewPort::get().getCursorPosX2() + 20, ViewPort::get().getCursorPosY2(), 0.0f);
 	glTexCoord2f(0.0f, 0.0f);
-	glVertex3f(ViewPort::get().getCursorPos()[0] + m_originalFocus[0], ViewPort::get().getCursorPos()[1] + 20 + m_originalFocus[1], 0.0f);
+	glVertex3f(ViewPort::get().getCursorPosX2(), ViewPort::get().getCursorPosY2() + 20, 0.0f);
 	glTexCoord2f(1.0f, 0.0f);
-	glVertex3f(ViewPort::get().getCursorPos()[0] + m_originalFocus[0], ViewPort::get().getCursorPos()[1] - 20 + m_originalFocus[1], 0.0f);
+	glVertex3f(ViewPort::get().getCursorPosX2(), ViewPort::get().getCursorPosY2() - 20, 0.0f);
 	glEnd();
-	glLoadIdentity();
+	glLoadIdentity();*/
 
 	int fontHeight = Globals::fontManager.get("verdana_9").lineHeight;
 	Fontrenderer::Get().bindTexture(Globals::fontManager.get("verdana_9"));
-	Fontrenderer::Get().addText(Globals::fontManager.get("verdana_9"), m_originalFocus[0] + 10, m_originalFocus[1] + 90 - fontHeight, "[ Scoll Up/Down ]  Select previous/next object", Vector4f(1.0f, 1.0f, 0.13f, 1.0f));
-	Fontrenderer::Get().addText(Globals::fontManager.get("verdana_9"), m_originalFocus[0] + 10, m_originalFocus[1] + 80 - fontHeight, "[ F1 ]  Next set of objects", Vector4f(1.0f, 1.0f, 0.13f, 1.0f));
-	Fontrenderer::Get().addText(Globals::fontManager.get("verdana_9"), m_originalFocus[0] + 10, m_originalFocus[1] + 70 - fontHeight, "[ DEL ]  Delete object at mouse position", Vector4f(1.0f, 1.0f, 0.13f, 1.0f));
-	Fontrenderer::Get().addText(Globals::fontManager.get("verdana_9"), m_originalFocus[0] + 10, m_originalFocus[1] + 60 - fontHeight, "[ ENTER ]  Place object at mouse position", Vector4f(1.0f, 1.0f, 0.13f, 1.0f));
-	Fontrenderer::Get().addText(Globals::fontManager.get("verdana_9"), m_originalFocus[0] + 10, m_originalFocus[1] + 50 - fontHeight, "[ C ]  Saves the changes into zone1-files", Vector4f(1.0f, 1.0f, 0.13f, 1.0f));
-	Fontrenderer::Get().addText(Globals::fontManager.get("verdana_9"), m_originalFocus[0] + 10, m_originalFocus[1] + 40 - fontHeight, "[ O ]  Load a different zone (not yet implemented)", Vector4f(1.0f, 1.0f, 0.13f, 1.0f));
-	Fontrenderer::Get().addText(Globals::fontManager.get("verdana_9"), m_originalFocus[0] + 10, m_originalFocus[1] + 30 - fontHeight, "[ L ]  Exit the editor", Vector4f(1.0f, 1.0f, 0.13f, 1.0f));
-	//Fontrenderer::Get().addText(Globals::fontManager.get("verdana_9"), m_originalFocus[0] + 10, m_originalFocus[1] + 20 - fontHeight, "//Press the left mouse button near the sides to scroll around ;-)", Vector4f(1.0f, 1.0f, 0.13f, 1.0f));
-	Fontrenderer::Get().addText(Globals::fontManager.get("verdana_9"), m_originalFocus[0] + 10, m_originalFocus[1] + ViewPort::get().getHeight() - 20, "x: " + Fontrenderer::Get().FloatToString(ViewPort::get().getCursorPos()[0], 0) + ", y: " + Fontrenderer::Get().FloatToString(ViewPort::get().getCursorPos()[1], 0));
-	Fontrenderer::Get().addText(Globals::fontManager.get("verdana_9"), m_originalFocus[0] + 10, m_originalFocus[1] + ViewPort::get().getHeight() - 60, adjacencyModeEnabled ? "Adjacency Mode: enabled" : "Adjacency Mode: disabled");
+	Fontrenderer::Get().addText(Globals::fontManager.get("verdana_9"), 10, 90 - fontHeight, "[ Scoll Up/Down ]  Select previous/next object", Vector4f(1.0f, 1.0f, 0.13f, 1.0f));
+	Fontrenderer::Get().addText(Globals::fontManager.get("verdana_9"), 10, 80 - fontHeight, "[ F1 ]  Next set of objects", Vector4f(1.0f, 1.0f, 0.13f, 1.0f));
+	Fontrenderer::Get().addText(Globals::fontManager.get("verdana_9"), 10, 70 - fontHeight, "[ DEL ]  Delete object at mouse position", Vector4f(1.0f, 1.0f, 0.13f, 1.0f));
+	Fontrenderer::Get().addText(Globals::fontManager.get("verdana_9"), 10, 60 - fontHeight, "[ ENTER ]  Place object at mouse position", Vector4f(1.0f, 1.0f, 0.13f, 1.0f));
+	Fontrenderer::Get().addText(Globals::fontManager.get("verdana_9"), 10, 50 - fontHeight, "[ C ]  Saves the changes into zone1-files", Vector4f(1.0f, 1.0f, 0.13f, 1.0f));
+	Fontrenderer::Get().addText(Globals::fontManager.get("verdana_9"), 10, 40 - fontHeight, "[ O ]  Load a different zone (not yet implemented)", Vector4f(1.0f, 1.0f, 0.13f, 1.0f));
+	Fontrenderer::Get().addText(Globals::fontManager.get("verdana_9"), 10,30 - fontHeight, "[ L ]  Exit the editor", Vector4f(1.0f, 1.0f, 0.13f, 1.0f));
+	//Fontrenderer::Get().addText(Globals::fontManager.get("verdana_9"), 10, 20 - fontHeight, "//Press the left mouse button near the sides to scroll around ;-)", Vector4f(1.0f, 1.0f, 0.13f, 1.0f));
+	Fontrenderer::Get().addText(Globals::fontManager.get("verdana_9"), 10, ViewPort::get().getHeight() - 20, "x: " + Fontrenderer::Get().FloatToString(ViewPort::get().getCursorPos()[0], 0) + ", y: " + Fontrenderer::Get().FloatToString(ViewPort::get().getCursorPos()[1], 0));
+	Fontrenderer::Get().addText(Globals::fontManager.get("verdana_9"), 10, ViewPort::get().getHeight() - 60, adjacencyModeEnabled ? "Adjacency Mode: enabled" : "Adjacency Mode: disabled");
 	
 	if (m_selectedObjectId < 0) {
 		Fontrenderer::Get().drawBuffer();
 	}else {
-		Fontrenderer::Get().addText(Globals::fontManager.get("verdana_9"), m_originalFocus[0] + ViewPort::get().getWidth() - 500, m_originalFocus[1] + 90 - fontHeight, "[ UP, DOWN, LEFT, RIGHT ]  Move the object",Vector4f(0.5f, 1.0f, 0.5f, 1.0f));
-		Fontrenderer::Get().addText(Globals::fontManager.get("verdana_9"), m_originalFocus[0] + ViewPort::get().getWidth() - 500, m_originalFocus[1] + 80 - fontHeight, "[ Left Shift + UP, DOWN, LEFT, RIGHT ]  Change scale of object", Vector4f(0.5f, 1.0f, 0.5f, 1.0f));
-		Fontrenderer::Get().addText(Globals::fontManager.get("verdana_9"), m_originalFocus[0] + ViewPort::get().getWidth() - 500, m_originalFocus[1] + 70 - fontHeight, "[ . ]  Increase transparency", Vector4f(0.5f, 1.0f, 0.5f, 1.0f));
-		Fontrenderer::Get().addText(Globals::fontManager.get("verdana_9"), m_originalFocus[0] + ViewPort::get().getWidth() - 500, m_originalFocus[1] + 60 - fontHeight, "[ , ]  Decrease transparency", Vector4f(0.5f, 1.0f, 0.5f, 1.0f));
-		Fontrenderer::Get().addText(Globals::fontManager.get("verdana_9"), m_originalFocus[0] + ViewPort::get().getWidth() - 500, m_originalFocus[1] + 50 - fontHeight, "[ 1/2/3 ]  Increase color RED/GREEN/BLUE", Vector4f(0.5f, 1.0f, 0.5f, 1.0f));
-		Fontrenderer::Get().addText(Globals::fontManager.get("verdana_9"), m_originalFocus[0] + ViewPort::get().getWidth() - 500, m_originalFocus[1] + 40 - fontHeight, "[ Left Shift + 1/2/3 ]  Decrease color RED/GREEN/BLUE)", Vector4f(0.5f, 1.0f, 0.5f, 1.0f));
-		Fontrenderer::Get().addText(Globals::fontManager.get("verdana_9"), m_originalFocus[0] + ViewPort::get().getWidth() - 500, m_originalFocus[1] + 30 - fontHeight, "[ B/N ] Increase / decrease Z-position", Vector4f(0.5f, 1.0f, 0.5f, 1.0f));
-		Fontrenderer::Get().addText(Globals::fontManager.get("verdana_9"), m_originalFocus[0] + ViewPort::get().getWidth() - 500, m_originalFocus[1] + 20 - fontHeight, "[ M ] Toggle Adjacency Modus", Vector4f(0.5f, 1.0f, 0.5f, 1.0f));
+		Fontrenderer::Get().addText(Globals::fontManager.get("verdana_9"), ViewPort::get().getWidth() - 500, 90 - fontHeight, "[ UP, DOWN, LEFT, RIGHT ]  Move the object",Vector4f(0.5f, 1.0f, 0.5f, 1.0f));
+		Fontrenderer::Get().addText(Globals::fontManager.get("verdana_9"), ViewPort::get().getWidth() - 500, 80 - fontHeight, "[ Left Shift + UP, DOWN, LEFT, RIGHT ]  Change scale of object", Vector4f(0.5f, 1.0f, 0.5f, 1.0f));
+		Fontrenderer::Get().addText(Globals::fontManager.get("verdana_9"), ViewPort::get().getWidth() - 500, 70 - fontHeight, "[ . ]  Increase transparency", Vector4f(0.5f, 1.0f, 0.5f, 1.0f));
+		Fontrenderer::Get().addText(Globals::fontManager.get("verdana_9"), ViewPort::get().getWidth() - 500, 60 - fontHeight, "[ , ]  Decrease transparency", Vector4f(0.5f, 1.0f, 0.5f, 1.0f));
+		Fontrenderer::Get().addText(Globals::fontManager.get("verdana_9"), ViewPort::get().getWidth() - 500, 50 - fontHeight, "[ 1/2/3 ]  Increase color RED/GREEN/BLUE", Vector4f(0.5f, 1.0f, 0.5f, 1.0f));
+		Fontrenderer::Get().addText(Globals::fontManager.get("verdana_9"), ViewPort::get().getWidth() - 500, 40 - fontHeight, "[ Left Shift + 1/2/3 ]  Decrease color RED/GREEN/BLUE)", Vector4f(0.5f, 1.0f, 0.5f, 1.0f));
+		Fontrenderer::Get().addText(Globals::fontManager.get("verdana_9"), ViewPort::get().getWidth() - 500, 30 - fontHeight, "[ B/N ] Increase / decrease Z-position", Vector4f(0.5f, 1.0f, 0.5f, 1.0f));
+		Fontrenderer::Get().addText(Globals::fontManager.get("verdana_9"), ViewPort::get().getWidth() - 500, 20 - fontHeight, "[ M ] Toggle Adjacency Modus", Vector4f(0.5f, 1.0f, 0.5f, 1.0f));
 		Fontrenderer::Get().drawBuffer();
 	}
 
 	Fontrenderer::Get().unbindTexture();
-	Batchrenderer::Get().unbindTexture(true);
+	TextureManager::UnbindTexture(true);
 	
 	glDisable(GL_BLEND);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -596,10 +596,10 @@ void Editor::drawEditFrame(EnvironmentMap* editobject) {
 
 	// Highlight the currently selected tile
 	TextureManager::DrawTextureBatched(m_interfacetexture[3], editobject->x_pos, editobject->y_pos, editobject->width, editobject->height, Vector4f(1.0f, 1.0f, 1.0f, 0.2f), false);
-	Batchrenderer::Get().drawBuffer(true);
+	TextureManager::DrawBuffer(true);
 
 	if (adjacencyModeEnabled) {
-		Batchrenderer::Get().bindTexture(TextureManager::GetTextureAtlas(newZone->getName()), true);
+		TextureManager::BindTexture(TextureManager::GetTextureAtlas(newZone->getName()), true);
 		for (size_t curDir = 0; curDir <= Enums::AdjacencyType::BOTTOM; ++curDir) {
 
 			std::vector<Tile>& curDirectionAdjacencies = curAdjacentTiles[curDir];
@@ -630,27 +630,26 @@ void Editor::drawEditFrame(EnvironmentMap* editobject) {
 				int drawH = adjacencyProposal.textureRect.height;
 				
 
-				bool mouseInAdjacencyRect = TextureManager::CheckPointInRect(ViewPort::get().getCursorPos()[0] + ViewPort::get().getPosition()[0], ViewPort::get().getCursorPos()[1] + ViewPort::get().getPosition()[1], drawX, drawW, drawY, drawH);	
-				TextureManager::DrawTextureBatched(adjacencyProposal.textureRect, drawX, drawY, drawW, drawH, mouseInAdjacencyRect ? Vector4f(1.0f, 0.8f, 0.8f, 1.0f) : Vector4f(1.0f, 0.8f, 0.8f, 0.5f), false, true);
+				bool mouseInAdjacencyRect = TextureManager::CheckPointInRect(static_cast<float>(ViewPort::get().getCursorPosX()), static_cast<float>(ViewPort::get().getCursorPosY()), drawX, drawW, drawY, drawH);
+				TextureManager::DrawTextureBatched(adjacencyProposal.textureRect, drawX, drawY, mouseInAdjacencyRect ? Vector4f(1.0f, 0.8f, 0.8f, 1.0f) : Vector4f(1.0f, 0.8f, 0.8f, 0.5f), false, true);
 			}
 		}
-		Batchrenderer::Get().drawBuffer(true);
+		TextureManager::DrawBuffer(true);
 	}else {
-		TextureManager::DrawTextureBatched(m_interfacetexture[3], m_currentFocus[0] + 50.0f, m_currentFocus[1] + ViewPort::get().getHeight() * 0.5f - 200.0f, 350.0f, 200.0f, Vector4f(1.0f, 1.0f, 1.0f, 1.0f), false);
-		Batchrenderer::Get().drawBuffer(true);
-		Batchrenderer::Get().bindTexture(TextureManager::GetTextureAtlas(newZone->getName()), true);
-		TextureManager::DrawTextureBatched(editobject->tile.textureRect, m_currentFocus[0] + 55.0f, m_currentFocus[1] + ViewPort::get().getHeight() * 0.5f - editobject->tile.textureRect.height - 5.0f, Vector4f(editobject->red, editobject->green, editobject->blue, editobject->transparency), false);
-		Batchrenderer::Get().drawBuffer(true);
+		TextureManager::DrawTextureBatched(m_interfacetexture[3], static_cast<int>(m_currentFocus[0]) + 50, static_cast<int>(m_currentFocus[1]) + ViewPort::get().getHeight() / 2 - 200, 350.0f, 200.0f, Vector4f(1.0f, 1.0f, 1.0f, 1.0f), false);
+		TextureManager::DrawBuffer(true);
+		TextureManager::BindTexture(TextureManager::GetTextureAtlas(newZone->getName()), true);
+		TextureManager::DrawTexture(editobject->tile.textureRect, static_cast<int>(m_currentFocus[0]) + 55, static_cast<int>(m_currentFocus[1]) + ViewPort::get().getHeight() / 2 - editobject->tile.textureRect.height - 5, Vector4f(editobject->red, editobject->green, editobject->blue, editobject->transparency), false);
 
 		int fontHeight = Globals::fontManager.get("verdana_10").lineHeight;
 		Fontrenderer::Get().bindTexture(Globals::fontManager.get("verdana_10"));
-		Fontrenderer::Get().addText(Globals::fontManager.get("verdana_10"), m_currentFocus[0] + 242.0f, m_currentFocus[1] + ViewPort::get().getHeight() * 0.5f - 10.0f - fontHeight, "Transparency: " + Fontrenderer::Get().FloatToString(editobject->transparency, 2), Vector4f(0.0f, 0.0f, 0.0f, 1.0f), true);
-		Fontrenderer::Get().addText(Globals::fontManager.get("verdana_10"), m_currentFocus[0] + 242.0f, m_currentFocus[1] + ViewPort::get().getHeight() * 0.5f - 22.0f - fontHeight, "Red: " + Fontrenderer::Get().FloatToString(editobject->red, 2), Vector4f(0.0f, 0.0f, 0.0f, 1.0f), true);
-		Fontrenderer::Get().addText(Globals::fontManager.get("verdana_10"), m_currentFocus[0] + 242.0f, m_currentFocus[1] + ViewPort::get().getHeight() * 0.5f - 34.0f - fontHeight, "Green: " + Fontrenderer::Get().FloatToString(editobject->green, 2), Vector4f(0.0f, 0.0f, 0.0f, 1.0f), true);
-		Fontrenderer::Get().addText(Globals::fontManager.get("verdana_10"), m_currentFocus[0] + 242.0f, m_currentFocus[1] + ViewPort::get().getHeight() * 0.5f - 46.0f - fontHeight, "Blue: " + Fontrenderer::Get().FloatToString(editobject->blue, 2), Vector4f(0.0f, 0.0f, 0.0f, 1.0f), true);
-		Fontrenderer::Get().addText(Globals::fontManager.get("verdana_10"), m_currentFocus[0] + 242.0f, m_currentFocus[1] + ViewPort::get().getHeight() * 0.5f - 58.0f - fontHeight, "Width: " + Fontrenderer::Get().FloatToString(editobject->width, 2), Vector4f(0.0f, 0.0f, 0.0f, 1.0f), true);
-		Fontrenderer::Get().addText(Globals::fontManager.get("verdana_10"), m_currentFocus[0] + 242.0f, m_currentFocus[1] + ViewPort::get().getHeight() * 0.5f - 70.0f - fontHeight, "Height: " + Fontrenderer::Get().FloatToString(editobject->height, 2), Vector4f(0.0f, 0.0f, 0.0f, 1.0f), true);
-		Fontrenderer::Get().addText(Globals::fontManager.get("verdana_10"), m_currentFocus[0] + 242.0f, m_currentFocus[1] + ViewPort::get().getHeight() * 0.5f - 82.0f - fontHeight, "Z Position: " + Fontrenderer::Get().FloatToString(editobject->z_pos, 0), Vector4f(0.0f, 0.0f, 0.0f, 1.0f), true);
+		Fontrenderer::Get().addText(Globals::fontManager.get("verdana_10"), static_cast<int>(m_currentFocus[0]) + 242, static_cast<int>(m_currentFocus[1]) + ViewPort::get().getHeight() / 2 - 10 - fontHeight, "Transparency: " + Fontrenderer::Get().FloatToString(editobject->transparency, 2), Vector4f(0.0f, 0.0f, 0.0f, 1.0f), true);
+		Fontrenderer::Get().addText(Globals::fontManager.get("verdana_10"), static_cast<int>(m_currentFocus[0]) + 242, static_cast<int>(m_currentFocus[1]) + ViewPort::get().getHeight() / 2 - 22 - fontHeight, "Red: " + Fontrenderer::Get().FloatToString(editobject->red, 2), Vector4f(0.0f, 0.0f, 0.0f, 1.0f), true);
+		Fontrenderer::Get().addText(Globals::fontManager.get("verdana_10"), static_cast<int>(m_currentFocus[0]) + 242, static_cast<int>(m_currentFocus[1]) + ViewPort::get().getHeight() / 2 - 34 - fontHeight, "Green: " + Fontrenderer::Get().FloatToString(editobject->green, 2), Vector4f(0.0f, 0.0f, 0.0f, 1.0f), true);
+		Fontrenderer::Get().addText(Globals::fontManager.get("verdana_10"), static_cast<int>(m_currentFocus[0]) + 242, static_cast<int>(m_currentFocus[1]) + ViewPort::get().getHeight() / 2 - 46 - fontHeight, "Blue: " + Fontrenderer::Get().FloatToString(editobject->blue, 2), Vector4f(0.0f, 0.0f, 0.0f, 1.0f), true);
+		Fontrenderer::Get().addText(Globals::fontManager.get("verdana_10"), static_cast<int>(m_currentFocus[0]) + 242, static_cast<int>(m_currentFocus[1]) + ViewPort::get().getHeight() / 2 - 58 - fontHeight, "Width: " + Fontrenderer::Get().FloatToString(editobject->width, 2), Vector4f(0.0f, 0.0f, 0.0f, 1.0f), true);
+		Fontrenderer::Get().addText(Globals::fontManager.get("verdana_10"), static_cast<int>(m_currentFocus[0]) + 242, static_cast<int>(m_currentFocus[1]) + ViewPort::get().getHeight() / 2 - 70 - fontHeight, "Height: " + Fontrenderer::Get().FloatToString(editobject->height, 2), Vector4f(0.0f, 0.0f, 0.0f, 1.0f), true);
+		Fontrenderer::Get().addText(Globals::fontManager.get("verdana_10"), static_cast<int>(m_currentFocus[0]) + 242, static_cast<int>(m_currentFocus[1]) + ViewPort::get().getHeight() / 2 - 82 - fontHeight, "Z Position: " + Fontrenderer::Get().FloatToString(static_cast<float>(editobject->z_pos), 0), Vector4f(0.0f, 0.0f, 0.0f, 1.0f), true);
 		Fontrenderer::Get().drawBuffer(true);
 	}
 }
@@ -729,10 +728,10 @@ void Editor::updateAdjacencyList(){
 	switch (m_selectedTileSet){
 		case Enums::TileClassificationType::ENVIRONMENT:
 			EditorInterface::getTileSet(Enums::TileClassificationType::ENVIRONMENT).getAllAdjacentTiles(newZone->m_environmentMap[m_selectedObjectId].tile, curAdjacentTiles, curAdjacencyOffsets);
-			for (size_t curDirection = 0; curDirection<4; ++curDirection) {
+			for (unsigned int curDirection = 0; curDirection<4; ++curDirection) {
 
 				if (curDirectionAdjacencySelection[curDirection] >= curAdjacentTiles[curDirection].size()) {
-					curDirectionAdjacencySelection[curDirection] = curAdjacentTiles[curDirection].size() - 1;
+					curDirectionAdjacencySelection[curDirection] = static_cast<unsigned int>(curAdjacentTiles[curDirection].size()) - 1;
 				}
 
 				if (curDirectionAdjacencySelection[curDirection] < 0) {
@@ -743,10 +742,10 @@ void Editor::updateAdjacencyList(){
 		case Enums::TileClassificationType::SHADOW:
 			EditorInterface::getTileSet(Enums::TileClassificationType::ENVIRONMENT).getAllAdjacentTiles(newZone->m_shadowMap[m_selectedObjectId].tile, curAdjacentTiles, curAdjacencyOffsets);
 
-			for (size_t curDirection = 0; curDirection<4; ++curDirection) {
+			for (unsigned int curDirection = 0; curDirection<4; ++curDirection) {
 
 				if (curDirectionAdjacencySelection[curDirection] >= curAdjacentTiles[curDirection].size()) {
-					curDirectionAdjacencySelection[curDirection] = curAdjacentTiles[curDirection].size() - 1;
+					curDirectionAdjacencySelection[curDirection] = static_cast<unsigned int>(curAdjacentTiles[curDirection].size()) - 1;
 				}
 
 				if (curDirectionAdjacencySelection[curDirection] < 0) {
@@ -804,11 +803,11 @@ void Editor::placeAdjacentTile() {
 				
 				int drawW = adjacencyProposal.textureRect.width;
 				int drawH = adjacencyProposal.textureRect.height;
-				bool mouseInAdjacencyRect = TextureManager::CheckPointInRect(ViewPort::get().getCursorPos()[0] + ViewPort::get().getPosition()[0], ViewPort::get().getCursorPos()[1] + ViewPort::get().getPosition()[1], drawX, drawW, drawY, drawH);
+				bool mouseInAdjacencyRect = TextureManager::CheckPointInRect(static_cast<float>(ViewPort::get().getCursorPosX()), static_cast<float>(ViewPort::get().getCursorPosY()), drawX, drawW, drawY, drawH);
 				
 
 				if (mouseInAdjacencyRect) {
-					int objectId = newZone->locateEnvironment(static_cast<int>(m_editorFocus[0] + ViewPort::get().getCursorPos()[0]), static_cast<int>(m_editorFocus[1] + ViewPort::get().getCursorPos()[1]));
+					int objectId = newZone->locateEnvironment(ViewPort::get().getCursorPosX(), ViewPort::get().getCursorPosY());
 					if (objectId < 0) {
 						newZone->addEnvironment(drawX, drawY, adjacencyProposal, false /* not centered on pos */);
 					}else {
@@ -869,13 +868,13 @@ void Editor::applyAdjacencyModification(int modification) {
 				int drawW = adjacencyProposal.textureRect.width;
 				int drawH = adjacencyProposal.textureRect.height;
 
-				bool mouseInAdjacencyRect = TextureManager::CheckPointInRect(ViewPort::get().getCursorPos()[0] + ViewPort::get().getPosition()[0], ViewPort::get().getCursorPos()[1] + ViewPort::get().getPosition()[1], drawX, drawW, drawY, drawH);
+				bool mouseInAdjacencyRect = TextureManager::CheckPointInRect(static_cast<float>(ViewPort::get().getCursorPosX()), static_cast<float>(ViewPort::get().getCursorPosY()), drawX, drawW, drawY, drawH);
 
 
 				if (mouseInAdjacencyRect) {
 					if ((modification > 0
 						&& static_cast<unsigned int>(curDirectionAdjacencies.size()) > curDirectionAdjacencySelection[curDirection] + modification)
-						|| (modification < 0 && curDirectionAdjacencySelection[curDirection] >= -modification)) {
+						|| (modification < 0 && static_cast<int>(curDirectionAdjacencySelection[curDirection]) >= -modification)) {
 						curDirectionAdjacencySelection[curDirection] += modification;
 					}
 				}

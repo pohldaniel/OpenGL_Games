@@ -40,7 +40,7 @@ function quest_playHideAndSeek.init()
 
 	john = DawnInterface.addInteractionPoint();
 	john:setPosition( 820, 270, 64, 64 );
-	john:setBackgroundTexture( "data/character/John.tga" );
+	john:setBackgroundTexture( "res/character/John.tga" );
 	john:setInteractionType( Enums.Quest );
 	john:setInteractionCode( "quest_playHideAndSeek.onActivateJohn()" );
 end
@@ -83,7 +83,7 @@ end
 function quest_playHideAndSeek.onKilledQuestMonster()
 	james = DawnInterface.addInteractionPoint();
 	james:setPosition( 3783,640, 64, 64 );
-	james:setBackgroundTexture( "data/character/James.tga" );
+	james:setBackgroundTexture( "res/character/James.tga" );
 	james:setInteractionType( InteractionType.Quest );
 	james:setInteractionCode( "quest_playHideAndSeek.onActivateJames()" );
 	DawnInterface.removeMobSpawnPoint( quest_playHideAndSeek.monsterSpawnPoint );

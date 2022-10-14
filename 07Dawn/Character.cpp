@@ -2,11 +2,28 @@
 #include "TilesetManager.h"
 #include "Constants.h"
 
+const uint16_t NULLABLE_ATTRIBUTE_MIN = 0;
+const uint16_t NON_NULLABLE_ATTRIBUTE_MIN = 1;
+
+template <class AttributeType, class ModifierType>
+AttributeType getModifiedAttributeValue(AttributeType attributeValue, ModifierType modifier,
+	AttributeType minValue = std::numeric_limits<AttributeType>::min(),
+	AttributeType maxValue = std::numeric_limits<AttributeType>::max()) {
+
+	// is modified value < minValue? => set to minValue
+	if (modifier < 0 && static_cast<AttributeType>(-modifier) > attributeValue - minValue)
+		return minValue;
+	// is modified value > maxValue? => set to maxValue
+	else if (modifier > 0 && (maxValue - attributeValue) < modifier)
+		return maxValue;
+	else
+		return (attributeValue + modifier);
+}
+
+
 Character::Character() {
 	wander_radius = 40;
-	activeDirection = Enums::Direction::S;
-	
-	
+	activeDirection = Enums::Direction::S;	
 }
 
 void Character::setNumActivities(unsigned short numActivities) {	
@@ -19,8 +36,7 @@ unsigned short Character::getNumActivities() {
 
 void Character::baseOnType(std::string characterType) {
 	const CharacterType& other = CharacterTypeManager::Get().getCharacterType(characterType);
-	
-	
+		
 	strength = other.strength;
 	dexterity = other.dexterity;
 	vitality = other.vitality;
@@ -42,9 +58,7 @@ void Character::baseOnType(std::string characterType) {
 	wander_radius = other.wander_radius;
 	name = other.name;
 	level = other.level;
-	experienceValue = other.experienceValue;
-
-	
+	experienceValue = other.experienceValue;	
 }
 
 Enums::ActivityType Character::getCurActivity() const {
@@ -527,7 +541,76 @@ uint8_t Character::getExperienceValue() const{
 	return experienceValue;
 }
 
+uint16_t Character::getCurrentHealth() const {
+	if (current_health > getModifiedMaxHealth())
+		return getModifiedMaxHealth();
 
+	return current_health;
+}
+
+void Character::setCurrentHealth(uint16_t newCurrentHealth) {
+
+	current_health = newCurrentHealth;
+}
+
+uint16_t Character::getModifiedMaxHealth() const {
+	return getMaxHealth();
+}
+
+void Character::modifyCurrentHealth(int16_t currentHealthModifier) {
+	setCurrentHealth(getModifiedAttributeValue(getCurrentHealth(), currentHealthModifier, NULLABLE_ATTRIBUTE_MIN, getModifiedMaxHealth()));
+}
+
+
+bool Character::CheckMouseOver(int _x_pos, int _y_pos) {
+	int myWidth = getWidth();
+	int myHeight = getHeight();
+	if (((x_pos < _x_pos) && ((x_pos + myWidth) > _x_pos))
+		&& ((y_pos < _y_pos) && ((y_pos + myHeight) > _y_pos))) {
+		return true;
+	}else {
+		return false;
+	}
+}
+
+bool Character::hasTarget(Character* target) {
+
+	if (Character::target == target) {
+		return true;
+	}
+
+	return false;
+}
+
+void Character::setTarget(Character *target) {
+	this->target = target;
+}
+
+void Character::setTarget(Character *target, Enums::Attitude attitude) {
+	this->target = target;
+	targetAttitude = attitude;
+}
+
+Character* Character::getTarget() const {
+	return target;
+}
+
+float Character::getPreparationPercentage() const {
+	if (isPreparing) {
+
+		return preparationPercentage;
+	}else {
+
+		return 0;
+	}
+}
+
+std::string Character::getCurrentSpellActionName() const {
+	//if (curSpellAction != NULL) {
+		//return curSpellAction->getName();
+	//}
+	return "Spell_Action";
+}
 
 Enums::Direction Character::GetOppositeDirection(Enums::Direction direction) {
 	switch (direction) {
