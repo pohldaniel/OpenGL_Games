@@ -33,7 +33,7 @@ TextureAtlasCreator:get():addFrame();
 
 for direction = 1,8 do
 	for index=0,12,1 do
-		wizard:addMoveTexture( Enums.Dying, direction, index, "res/character/wizard/dying "..directions[direction].."000"..index..".tga", 1248, 768, true, -16, -16, -20, -12);
+		wizard:addMoveTexture( Enums.Dying, direction, index, "res/character/wizard/dying "..directions[direction].."000"..index..".tga", 1248, 768, true, -16, -16, -12, -20);
 	end
 end
 TextureAtlasCreator:get():addFrame();
@@ -56,4 +56,4 @@ player:setManaRegen(2);
 player:setFatigueRegen( 5 );
 player:giveCoins( 576 );
 player:init(512, 400);
-TextureAtlasCreator:get():safeAtlas("tmp/player")
+--TextureAtlasCreator:get():safeAtlas("tmp/player")
