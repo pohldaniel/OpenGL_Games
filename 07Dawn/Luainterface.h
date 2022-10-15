@@ -18,6 +18,15 @@ class InteractionRegion;
 class InteractionPoint;
 class TextWindow;
 
+class CSpellActionBase;
+class GeneralRayDamageSpell;
+class GeneralAreaDamageSpell;
+class GeneralBoltDamageSpell;
+class GeneralHealingSpell;
+class GeneralBuffSpell;
+class MeleeDamageAction;
+class RangedDamageAction;
+
 namespace EditorInterface{
 	TileSet& getTileSet(Enums::TileClassificationType tileType);
 	void addGroundTile(int posX, int posY, int tile);
@@ -41,4 +50,20 @@ namespace DawnInterface{
 	void removeInteractionPoint(InteractionPoint *pointToRemove);
 	std::string getItemReferenceRestore(Character *character);
 	TextWindow *createTextWindow();
+
+	GeneralRayDamageSpell* createGeneralRayDamageSpell();
+	GeneralAreaDamageSpell* createGeneralAreaDamageSpell();
+	GeneralBoltDamageSpell* createGeneralBoltDamageSpell();
+	GeneralHealingSpell* createGeneralHealingSpell();
+	GeneralBuffSpell* createGeneralBuffSpell();
+	MeleeDamageAction* createMeleeDamageAction();
+	RangedDamageAction* createRangedDamageAction();
+	GeneralRayDamageSpell* copySpell(GeneralRayDamageSpell *other);
+	GeneralAreaDamageSpell* copySpell(GeneralAreaDamageSpell *other);
+	GeneralBoltDamageSpell* copySpell(GeneralBoltDamageSpell *other);
+	GeneralHealingSpell* copySpell(GeneralHealingSpell *other);
+	GeneralBuffSpell* copySpell(GeneralBuffSpell *other);
+	MeleeDamageAction* copySpell(MeleeDamageAction *other);
+	RangedDamageAction* copySpell(RangedDamageAction *other);
+	void inscribeSpellInPlayerSpellbook(CSpellActionBase *inscribedSpell);
 }

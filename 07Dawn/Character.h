@@ -304,6 +304,8 @@ public:
 	uint64_t experience;
 
 	CSpellActionBase* curSpellAction;
+	std::vector<CSpellActionBase*> spellbook;
+
 	Enums::CharacterArchType getArchType() const;
 	uint16_t getCurrentFatigue() const;
 	void setCurrentFatigue(uint16_t newCurrentFatigue);
@@ -332,4 +334,5 @@ public:
 	uint64_t getExpNeededForLevel(uint8_t level) const;
 	void executeSpellWithoutCasting(CSpellActionBase *spell, Character *target);
 	void Heal(int amount);
+	void inscribeSpellInSpellbook(CSpellActionBase *spell);
 };

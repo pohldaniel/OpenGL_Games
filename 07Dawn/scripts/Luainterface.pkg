@@ -8,6 +8,7 @@ $#include "InteractionRegion.h"
 $#include "InteractionPoint.h"
 $#include "TextWindow.h"
 $#include "Enums.h"
+$#include "Spell.h"
 
 namespace Enums
 {
@@ -71,6 +72,82 @@ namespace Enums
 		Shop,
 		Zone
 	};
+	
+	enum EffectType {
+		SingleTargetSpell,
+		SelfAffectingSpell,
+		AreaTargetSpell
+	};
+
+	enum ElementType{
+		Fire,
+		Water,
+		Air,
+		Earth,
+		Light,
+		Dark,
+		CountET
+	};
+
+	enum StatsType {
+		Dexterity,
+		Intellect,
+		Strength,
+		Vitality,
+		Wisdom,
+		Health,
+		Mana,
+		Fatigue,
+		Armor,
+		DamageModifier,
+		HitModifier,
+		EvadeModifier,
+		ParryModifier,
+		BlockModifier,
+		MeleeCritical,
+		SpellCritical,
+		ResistAll,
+		SpellEffectAll,
+		HealthRegen,
+		ManaRegen,
+		FatigueRegen,
+		CountST
+	};
+	
+	enum CharacterStates {
+		Channeling,
+		Charmed,
+		Confused,
+		Feared,
+		Invisible,
+		Mesmerized,
+		Movementspeed,
+		SeeInvisible,
+		SeeSneaking,
+		Sneaking,
+		Stunned,
+		NOEFFECT
+	};
+	
+	enum WeaponType {
+		NO_WEAPON = 0x01,
+		ONEHAND_SWORD = 0x02,
+		TWOHAND_SWORD = 0x04,
+		DAGGER = 0x08,
+		STAFF = 0x10,
+		ONEHAND_CLUB = 0x20,
+		TWOHAND_CLUB = 0x40,
+		WAND = 0x80,
+		SPELLBOOK = 0x100, // offhand spellbooks for caster classes.
+		ONEHAND_MACE = 0x200,
+		TWOHAND_MACE = 0x400,
+		ONEHAND_AXE = 0x800,
+		TWOHAND_AXE = 0x1000,
+		BOW = 0x2000,
+		SLINGSHOT = 0x4000,
+		CROSSBOW = 0x8000,
+		SHIELD = 0x10000
+	};
 }
 
 namespace DawnInterface{
@@ -85,6 +162,22 @@ namespace DawnInterface{
 	void removeInteractionPoint(InteractionPoint *pointToRemove);
 	std::string getItemReferenceRestore(Character *character);
 	TextWindow *createTextWindow();
+	
+	GeneralRayDamageSpell* createGeneralRayDamageSpell();
+	GeneralAreaDamageSpell* createGeneralAreaDamageSpell();
+	GeneralBoltDamageSpell* createGeneralBoltDamageSpell();
+	GeneralHealingSpell* createGeneralHealingSpell();
+	GeneralBuffSpell* createGeneralBuffSpell();
+	MeleeDamageAction* createMeleeDamageAction();
+	RangedDamageAction* createRangedDamageAction();
+	GeneralRayDamageSpell* copySpell( GeneralRayDamageSpell *other );
+	GeneralAreaDamageSpell* copySpell( GeneralAreaDamageSpell *other );
+	GeneralBoltDamageSpell* copySpell( GeneralBoltDamageSpell *other );
+	GeneralHealingSpell* copySpell( GeneralHealingSpell *other );
+	GeneralBuffSpell* copySpell( GeneralBuffSpell *other );
+	MeleeDamageAction* copySpell( MeleeDamageAction *other );
+	RangedDamageAction* copySpell( RangedDamageAction *other );
+	void inscribeSpellInPlayerSpellbook( CSpellActionBase *inscribedSpell );
 }
 
 namespace EditorInterface
@@ -195,5 +288,110 @@ struct TextureAtlasCreator
 class TextureManager
 {
 	static void SetTextureAtlas(std::string name, unsigned int value);
+};
+
+class CSpellActionBase
+{
+	void addAdditionalSpellOnTarget( CSpellActionBase *spell, double chanceToExecute );
+	void addAdditionalSpellOnCreator( CSpellActionBase *spell, double chanceToExecute );
+	void setRequiredClass( Enums::CharacterClass requiredClass );
+	void setRequiredLevel( int requiredLevel );
+	void addRequiredWeapon( Enums::WeaponType weaponType );
+	void setSoundSpellCasting( std::string soundSpellCasting );
+	void setSoundSpellStart( std::string soundSpellStart );
+	void setSoundSpellHit( std::string soundSpellHit );
+	void setRank( int rank );
+	void setInstant( bool instant );
+	void setCharacterState( Enums::CharacterStates characterState, float value = 1.0 );
+};
+
+class CAction : public CSpellActionBase
+{
+};
+
+class CSpell : public CSpellActionBase
+{
+};
+
+class ConfigurableSpell : public CSpell
+{
+	void setCastTime( int newCastTime );
+	void setCooldown( int newCooldown );
+	void setSpellCost( int spellCost );
+	void setName( std::string newName );
+	void setInfo( std::string newInfo );
+	void setRange( int minRange, int maxRange );
+	void setSpellSymbol( std::string symbolFile );
+};
+
+class ConfigurableAction : public CAction
+{
+
+	void setCastTime( int newCastTime );
+	void setCooldown( int newCooldown );
+	void setSpellCost( int spellCost );
+	void setName( std::string newName );
+	void setInfo( std::string newInfo );
+	void setRange( int minRange, int maxRange );
+	void setSpellSymbol( std::string symbolFile );
+};
+
+class GeneralDamageSpell : public ConfigurableSpell
+{
+	void setDirectDamage( int newMinDirectDamage, int newMaxDirectDamage, Enums::ElementType newElementDirect );
+	void setContinuousDamage( double newMinContDamagePerSec, double newMaxContDamagePerSec, int newContDamageTime, Enums::ElementType newContDamageElement );
+};
+
+class GeneralRayDamageSpell : public GeneralDamageSpell
+{
+	void setNumAnimations( int count );
+	void setAnimationTexture( int num, std::string filename );
+};
+
+class GeneralAreaDamageSpell : public GeneralDamageSpell
+{
+	void setNumAnimations( int count );
+	void setAnimationTexture( int num, std::string filename );
+	void setRadius( int newRadius );
+};
+
+class GeneralBoltDamageSpell : public GeneralDamageSpell
+{
+	void setMoveSpeed( int newMoveSpeed );
+	void setExpireTime( int newExpireTime );
+
+	void setNumAnimations( int count );
+	void setAnimationTexture( int num, std::string filename );
+};
+
+class GeneralHealingSpell : public ConfigurableSpell
+{
+	void setEffectType( Enums::EffectType newEffectType );
+	void setDirectHealing( int healEffectMin, int healEffectMax, Enums::ElementType healEffectElement );
+	void setContinuousHealing( double minContinuousHealingPerSecond, double maxContinuousHealingPerSecond, int continuousHealingTime, Enums::ElementType elementContinuous );
+};
+
+class GeneralBuffSpell : public ConfigurableSpell
+{
+	void setEffectType( Enums::EffectType newEffectType );
+	void setDuration( int newDuration );
+	void setStats( Enums::StatsType statsType, int amount );
+	void setResistElementModifierPoints( Enums::ElementType elementType, int resistModifierPoints );
+	void setSpellEffectElementModifierPoints( Enums::ElementType elementType, int spellEffectElementModifierPoints );
+
+};
+
+class MeleeDamageAction : public ConfigurableAction
+{
+	void setDamageBonus( double damageBonus );
+};
+
+class RangedDamageAction : public ConfigurableAction
+{
+	void setDamageBonus( double damageBonus );
+	void setMoveSpeed( int newMoveSpeed );
+	void setExpireTime( int newExpireTime );
+	void setNumAnimations( int count );
+	void setAnimationTexture( int num, std::string filename );
 };
 

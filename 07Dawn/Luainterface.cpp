@@ -8,6 +8,8 @@
 #include "InteractionRegion.h"
 #include "InteractionPoint.h"
 #include "TextWindow.h"
+#include "Spell.h"
+#include "Player.h"
 
 namespace EditorInterface{
 	
@@ -216,5 +218,10 @@ namespace DawnInterface{
 		std::auto_ptr<RangedDamageAction> newSpell(dynamic_cast<RangedDamageAction*>(SpellCreation::getRangedDamageAction(other)));
 		newSpell->unsetLuaID();
 		return newSpell.release();
+	}
+
+	void inscribeSpellInPlayerSpellbook(CSpellActionBase* inscribedSpell) {
+		Player::Get().inscribeSpellInSpellbook(inscribedSpell);
+		//spellbook->reloadSpellsFromPlayer();
 	}
 }

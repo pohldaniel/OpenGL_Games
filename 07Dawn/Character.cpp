@@ -867,6 +867,31 @@ void Character::executeSpellWithoutCasting(CSpellActionBase *spell, Character *t
 	}
 }
 
+void Character::inscribeSpellInSpellbook(CSpellActionBase *spell) {
+
+	if (spell->getRequiredClass() == getClass() || spell->getRequiredClass() == Enums::CharacterClass::ANYCLASS) {
+		for (size_t curSpell = 0; curSpell < spellbook.size(); curSpell++) {
+			if (spellbook[curSpell]->getName() == spell->getName()) {
+				if (spellbook[curSpell]->getRank() < spell->getRank()) {
+					spellbook[curSpell] = spell;
+					if (isPlayer() == true) {
+						// this will seed a new ticket for the itemtooltip, causing it to reload. We might need this because of the tooltip message displaying already known spells and ranks.
+						//dynamic_cast<Player*>(this)->setTicketForItemTooltip();
+					}
+				}
+				return;
+			}
+		}
+		spellbook.push_back(spell);
+
+		if (isPlayer() == true) {
+			// this will seed a new ticket for the itemtooltip, causing it to reload. We might need this because of the tooltip message displaying already known spells and ranks.
+			//dynamic_cast<Player*>(this)->setTicketForItemTooltip();
+		}
+	}
+}
+
+
 Enums::Direction Character::GetOppositeDirection(Enums::Direction direction) {
 	switch (direction) {
 	case Enums::Direction::NW:
