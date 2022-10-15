@@ -17,7 +17,7 @@ void Interface::SetPlayer(Character *player_) {
 void Interface::init() {
 	loadTextures();
 	player = &Player::Get();
-	m_charset = &Globals::fontManager.get("verdana_12");
+	charset = &Globals::fontManager.get("verdana_12");
 }
 
 void Interface::loadTextures() {
@@ -164,7 +164,7 @@ void Interface::drawTargetedNPCText() {
 	Npc* npc = dynamic_cast<Npc*>(player->getTarget());
 
 	uint8_t width = 40;
-	uint8_t stringWidth = m_charset->getWidth(npc->getName().c_str());
+	uint8_t stringWidth = charset->getWidth(npc->getName().c_str());
 
 	if (stringWidth > width + 64){
 		width = stringWidth - 56;
@@ -181,18 +181,17 @@ void Interface::drawTargetedNPCText() {
 	float life_percentage = static_cast<float>(npc->getCurrentHealth()) / static_cast<float>(npc->getModifiedMaxHealth());
 	TextureManager::DrawTextureBatched(m_interfacetexture[0], npc->getXPos(), npc->getYPos() + npc->getHeight(), npc->getWidth()*life_percentage, 8.0f, Vector4f(1.0f - life_percentage, life_percentage, 0.0f, 1.0f), true, true);
 	
-	if (npc->continuePreparing()) {
+	if (true) {
 		// draw backdrop first
 		TextureManager::DrawTextureBatched(m_interfacetexture[0], npc->getXPos(), npc->getYPos() + npc->getHeight() - 12, static_cast<float>(npc->getWidth()), 8.0f, Vector4f(0.5f, 0.5f, 0.0f, 1.0f), true, true);
 		//then the actual castbar
 		TextureManager::DrawTextureBatched(m_interfacetexture[0], npc->getXPos(), npc->getYPos() + npc->getHeight() - 12, npc->getWidth()* npc->getPreparationPercentage(), 8.0f, Vector4f(0.8f, 0.8f, 0.0f, 1.0f), true, true);
-		 Fontrenderer::Get().addText(*m_charset, npc->getXPos(), npc->y_pos + npc->getHeight() - 24, npc->getCurrentSpellActionName(), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), true);
+		 Fontrenderer::Get().addText(*charset, npc->getXPos(), npc->y_pos + npc->getHeight() - 24, npc->getCurrentSpellActionName(), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), true);
 	}
 
 	TextureManager::DrawBuffer(true);
 
 	Vector4f color;
-
 	switch (npc->getAttitude()) {
 		case Enums::Attitude::FRIENDLY:
 			color = Vector4f(0.0f, 1.0f, 0.0f, 1.0f);
@@ -204,8 +203,9 @@ void Interface::drawTargetedNPCText() {
 			color = Vector4f(1.0f, 0.0f, 0.0f, 1.0f);
 			break;
 	}
-	Fontrenderer::Get().bindTexture(*m_charset);
-	Fontrenderer::Get().addText(*m_charset, fontStart, npc->y_pos + npc->getHeight() + 12, npc->getName(), color, true);
+
+	Fontrenderer::Get().bindTexture(*charset);
+	Fontrenderer::Get().addText(*charset, fontStart, npc->y_pos + npc->getHeight() + 12, npc->getName(), color, true);
 	Fontrenderer::Get().drawBuffer(true);
 	
 	// load the active spells from the NPC

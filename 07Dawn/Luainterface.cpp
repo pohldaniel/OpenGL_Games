@@ -140,4 +140,81 @@ namespace DawnInterface{
 		newTextWindow->toggle();
 		return newTextWindow;
 	}
+
+	GeneralRayDamageSpell* createGeneralRayDamageSpell() {
+		std::auto_ptr<GeneralRayDamageSpell> newSpell(dynamic_cast<GeneralRayDamageSpell*>(SpellCreation::getGeneralRayDamageSpell()));
+		return newSpell.release();
+	}
+
+	GeneralAreaDamageSpell* createGeneralAreaDamageSpell() {
+		std::auto_ptr<GeneralAreaDamageSpell> newSpell(dynamic_cast<GeneralAreaDamageSpell*>(SpellCreation::getGeneralAreaDamageSpell()));
+		return newSpell.release();
+	}
+
+	GeneralBoltDamageSpell* createGeneralBoltDamageSpell() {
+		std::auto_ptr<GeneralBoltDamageSpell> newSpell(dynamic_cast<GeneralBoltDamageSpell*>(SpellCreation::getGeneralBoltDamageSpell()));
+		return newSpell.release();
+	}
+
+	GeneralHealingSpell* createGeneralHealingSpell() {
+		std::auto_ptr<GeneralHealingSpell> newSpell(dynamic_cast<GeneralHealingSpell*>(SpellCreation::getGeneralHealingSpell()));
+		return newSpell.release();
+	}
+
+	GeneralBuffSpell* createGeneralBuffSpell() {
+		std::auto_ptr<GeneralBuffSpell> newSpell(dynamic_cast<GeneralBuffSpell*>(SpellCreation::getGeneralBuffSpell()));
+		return newSpell.release();
+	}
+
+	MeleeDamageAction* createMeleeDamageAction() {
+		std::auto_ptr<MeleeDamageAction> newAction(dynamic_cast<MeleeDamageAction*>(SpellCreation::getMeleeDamageAction()));
+		return newAction.release();
+	}
+
+	RangedDamageAction* createRangedDamageAction() {
+		std::auto_ptr<RangedDamageAction> newAction(dynamic_cast<RangedDamageAction*>(SpellCreation::getRangedDamageAction()));
+		return newAction.release();
+	}
+
+	GeneralRayDamageSpell* copySpell(GeneralRayDamageSpell *other) {
+		std::auto_ptr<GeneralRayDamageSpell> newSpell(dynamic_cast<GeneralRayDamageSpell*>(SpellCreation::getGeneralRayDamageSpell(other)));
+		newSpell->unsetLuaID();
+		return newSpell.release();
+	}
+
+	GeneralAreaDamageSpell* copySpell(GeneralAreaDamageSpell *other) {
+		std::auto_ptr<GeneralAreaDamageSpell> newSpell(dynamic_cast<GeneralAreaDamageSpell*>(SpellCreation::getGeneralAreaDamageSpell(other)));
+		newSpell->unsetLuaID();
+		return newSpell.release();
+	}
+
+	GeneralBoltDamageSpell* copySpell(GeneralBoltDamageSpell *other) {
+		std::auto_ptr<GeneralBoltDamageSpell> newSpell(dynamic_cast<GeneralBoltDamageSpell*>(SpellCreation::getGeneralBoltDamageSpell(other)));
+		newSpell->unsetLuaID();
+		return newSpell.release();
+	}
+
+	GeneralHealingSpell* copySpell(GeneralHealingSpell *other) {
+		std::auto_ptr<GeneralHealingSpell> newSpell(dynamic_cast<GeneralHealingSpell*>(SpellCreation::getGeneralHealingSpell(other)));
+		newSpell->unsetLuaID();
+		return newSpell.release();
+	}
+
+	GeneralBuffSpell* copySpell(GeneralBuffSpell *other) {
+		std::auto_ptr<GeneralBuffSpell> newSpell(dynamic_cast<GeneralBuffSpell*>(SpellCreation::getGeneralBuffSpell(other)));
+		newSpell->unsetLuaID();
+		return newSpell.release();
+	}
+
+	MeleeDamageAction* copySpell(MeleeDamageAction *other) {
+		std::auto_ptr<MeleeDamageAction> newSpell(dynamic_cast<MeleeDamageAction*>(SpellCreation::getMeleeDamageAction(other)));
+		newSpell->unsetLuaID();
+		return newSpell.release();
+	}
+
+	RangedDamageAction* copySpell(RangedDamageAction *other) {
+		std::auto_ptr<RangedDamageAction> newSpell(dynamic_cast<RangedDamageAction*>(SpellCreation::getRangedDamageAction(other)));
+		newSpell->unsetLuaID();
+		return newSpell.release();
+	}
 }

@@ -1,4 +1,5 @@
 #include "Character.h"
+#include "Player.h"
 #include "TilesetManager.h"
 #include "Constants.h"
 
@@ -147,65 +148,74 @@ uint16_t Character::getWanderRadiusSq() const {
 }
 
 bool Character::isStunned() const{
-	/*for (size_t activeSpell = 0; activeSpell < activeSpells.size(); activeSpell++) {
-		if (activeSpells[activeSpell].first->getCharacterState().first == CharacterStates::Stunned) {
+	for (size_t activeSpell = 0; activeSpell < activeSpells.size(); activeSpell++) {
+		if (activeSpells[activeSpell].first->getCharacterState().first == Enums::CharacterStates::Stunned) {
 			return true;
 		}
-	}*/
+	}
 	return false;
 }
 
 bool Character::isMesmerized() const {
-	/*for (size_t activeSpell = 0; activeSpell < activeSpells.size(); activeSpell++) {
-		if (activeSpells[activeSpell].first->getCharacterState().first == CharacterStates::Mesmerized) {
+	for (size_t activeSpell = 0; activeSpell < activeSpells.size(); activeSpell++) {
+		if (activeSpells[activeSpell].first->getCharacterState().first == Enums::CharacterStates::Mesmerized) {
 			return true;
 		}
-	}*/
+	}
 	return false;
 }
 
 bool Character::isFeared() const {
-	/*for (size_t activeSpell = 0; activeSpell < activeSpells.size(); activeSpell++) {
-		if (activeSpells[activeSpell].first->getCharacterState().first == CharacterStates::Feared) {
+	for (size_t activeSpell = 0; activeSpell < activeSpells.size(); activeSpell++) {
+		if (activeSpells[activeSpell].first->getCharacterState().first == Enums::CharacterStates::Feared) {
 			return true;
 		}
-	}*/
+	}
 	return false;
 }
 
 bool Character::isConfused() const {
-	/*for (size_t activeSpell = 0; activeSpell < activeSpells.size(); activeSpell++) {
-		if (activeSpells[activeSpell].first->getCharacterState().first == CharacterStates::Confused) {
+	for (size_t activeSpell = 0; activeSpell < activeSpells.size(); activeSpell++) {
+		if (activeSpells[activeSpell].first->getCharacterState().first == Enums::CharacterStates::Confused) {
 			return true;
 		}
-	}*/
+	}
 	return false;
 }
 
 bool Character::isCharmed() const {
-	/*for (size_t activeSpell = 0; activeSpell < activeSpells.size(); activeSpell++) {
-		if (activeSpells[activeSpell].first->getCharacterState().first == CharacterStates::Charmed) {
+	for (size_t activeSpell = 0; activeSpell < activeSpells.size(); activeSpell++) {
+		if (activeSpells[activeSpell].first->getCharacterState().first == Enums::CharacterStates::Charmed) {
 			return true;
 		}
-	}*/
+	}
 	return false;
 }
 
 bool Character::isChanneling() const {
-	/*for (size_t activeSpell = 0; activeSpell < activeSpells.size(); activeSpell++) {
-		if (activeSpells[activeSpell].first->getCharacterState().first == CharacterStates::Channeling) {
+	for (size_t activeSpell = 0; activeSpell < activeSpells.size(); activeSpell++) {
+		if (activeSpells[activeSpell].first->getCharacterState().first == Enums::CharacterStates::Channeling) {
 			return true;
 		}
-	}*/
+	}
 	return false;
 }
 
 bool Character::isSneaking() const {
-	/*for (size_t activeSpell = 0; activeSpell < activeSpells.size(); activeSpell++) {
-		if (activeSpells[activeSpell].first->getCharacterState().first == CharacterStates::Sneaking) {
+	for (size_t activeSpell = 0; activeSpell < activeSpells.size(); activeSpell++) {
+		if (activeSpells[activeSpell].first->getCharacterState().first == Enums::CharacterStates::Sneaking) {
 			return true;
 		}
-	}*/
+	}
+	return false;
+}
+
+bool Character::isInvisible() const {
+	for (size_t activeSpell = 0; activeSpell < activeSpells.size(); activeSpell++) {
+		if (activeSpells[activeSpell].first->getCharacterState().first == Enums::CharacterStates::Invisible) {
+			return true;
+		}
+	}
 	return false;
 }
 
@@ -610,6 +620,251 @@ std::string Character::getCurrentSpellActionName() const {
 		//return curSpellAction->getName();
 	//}
 	return "Spell_Action";
+}
+
+Enums::CharacterArchType Character::getArchType() const {
+	return characterArchType;
+}
+
+uint16_t Character::getModifiedMaxMana() const {
+	return getMaxMana();
+}
+
+
+void Character::modifyMaxMana(int16_t maxManaModifier) {
+	setMaxMana(getModifiedAttributeValue(max_mana, maxManaModifier, NULLABLE_ATTRIBUTE_MIN));
+}
+
+uint16_t Character::getCurrentMana() const {
+	if (current_mana > getModifiedMaxMana())
+		return getModifiedMaxMana();
+
+	return current_mana;
+}
+
+void Character::setCurrentMana(uint16_t newCurrentMana) {
+	current_mana = newCurrentMana;
+}
+
+void Character::modifyCurrentMana(int16_t currentManaModifier) {
+	setCurrentMana(getModifiedAttributeValue(getCurrentMana(), currentManaModifier, NULLABLE_ATTRIBUTE_MIN, getModifiedMaxMana()));
+}
+
+
+uint16_t Character::getModifiedMaxFatigue() const {
+	return getMaxFatigue();
+}
+
+void Character::modifyMaxFatigue(int16_t maxFatigueModifier) {
+	setMaxFatigue(getModifiedAttributeValue(max_fatigue, maxFatigueModifier, NULLABLE_ATTRIBUTE_MIN));
+}
+
+uint16_t Character::getCurrentFatigue() const {
+	if (current_fatigue > getModifiedMaxFatigue())
+		return getModifiedMaxFatigue();
+
+	return current_fatigue;
+}
+
+void Character::setCurrentFatigue(uint16_t newCurrentFatigue) {
+	current_fatigue = newCurrentFatigue;
+}
+
+void Character::modifyCurrentFatigue(int16_t currentFatigueModifier) {
+	setCurrentFatigue(getModifiedAttributeValue(getCurrentFatigue(), currentFatigueModifier, NULLABLE_ATTRIBUTE_MIN, getModifiedMaxFatigue()));
+}
+
+bool Character::isAlive() const {
+	return alive;
+}
+
+bool Character::canBeDamaged() const {
+	return true;
+}
+
+void Character::addActiveSpell(CSpellActionBase *spell) {
+	if (!canBeDamaged())
+		return;
+
+	// here we check to see if the current spell cast is already on the character. if it is, then we refresh it.
+	for (size_t curSpell = 0; curSpell < activeSpells.size(); curSpell++) {
+		if (activeSpells[curSpell].first->getID() == spell->getID())
+		{
+			// we replace the old spell with a new, in case a more powerful spell is cast (a higher rank)
+			activeSpells[curSpell].first = spell;
+			activeSpells[curSpell].second = Globals::clock.getElapsedTimeMilli();
+			return;
+		}
+	}
+
+	// add new spell on character.
+	activeSpells.push_back(std::pair<CSpellActionBase*, uint32_t>(spell, Globals::clock.getElapsedTimeMilli()));
+
+	// if we're an NPC and the spell is hostile, we want to set the caster to hostile.
+	if (isPlayer() == false && spell->isSpellHostile() == true) {
+		// in the future when having more than one player playing, this function needs to be reworked.
+		dynamic_cast<Npc*>(this)->chasePlayer(&Player::Get());
+	}
+}
+
+void Character::addCooldownSpell(CSpellActionBase *spell) {
+
+	if (spell->getCooldown() > 0) {
+		cooldownSpells.push_back(std::pair<CSpellActionBase*, uint32_t>(spell, Globals::clock.getElapsedTimeMilli()));
+	}
+}
+
+void Character::removeSpellsWithCharacterState(Enums::CharacterStates characterState) {
+	// we remove spells based on what character states they have.
+	// removing active spells can cause NULL pointers, because they can be active in some damage cycle or other functions.
+	// Therefor in order to "remove" these spells we just mark them as completed, and let the cleanup-function handle the removal of the spells.
+	for (size_t curSpell = 0; curSpell < activeSpells.size(); curSpell++) {
+		if (activeSpells[curSpell].first->getCharacterState().first == characterState) {
+			activeSpells[curSpell].first->markSpellActionAsFinished();
+		}
+	}
+}
+
+void Character::Die() {
+	/*if (hasChoosenDyingDirection == false) {
+		dyingDirection = static_cast<Direction>(activeDirection);
+		dyingStartFrame = SDL_GetTicks();
+		reduceDyingTranspFrame = SDL_GetTicks() + 7000;
+	}*/
+	curActivity = Enums::ActivityType::Dying;
+}
+
+void Character::Damage(int amount, bool criticalHit) {
+	if (isFeared() == true) { // if we're feared and taking damage, we have a 20% chance to break from the fear
+		if (RNG::randomSizeT(0, 100) <= 20) {
+			removeSpellsWithCharacterState(Enums::CharacterStates::Feared);
+		}
+	}
+
+	if (isChanneling() == true) { // if we're channeling something while taking damage, we loose focus and abort the channeling.
+		removeSpellsWithCharacterState(Enums::CharacterStates::Channeling);
+	}
+
+	if (isSneaking() == true) { // if we're sneaking while taking damage, we loose the sneak state
+		removeSpellsWithCharacterState(Enums::CharacterStates::Sneaking);
+	}
+
+	if (isInvisible() == true) { // if we're invisible while taking damage, we loose the invisible state
+		removeSpellsWithCharacterState(Enums::CharacterStates::Invisible);
+	}
+
+	if (isMesmerized() == true) { // if we're mesmerized while taking damage, we loose the mesmerize state
+		removeSpellsWithCharacterState(Enums::CharacterStates::Mesmerized);
+	}
+
+	/// here we check for equipped items if they have any trigger spells which is used in TriggerType::TAKING_DAMAGE
+	/*if (isPlayer() == true) {
+		std::vector<InventoryItem*> inventory = Globals::getPlayer()->getInventory()->getEquippedItems();
+		for (size_t curItem = 0; curItem < inventory.size(); curItem++) {
+			std::vector<TriggerSpellOnItem*> triggerSpells = inventory[curItem]->getItem()->getTriggerSpells();
+			for (size_t curSpell = 0; curSpell < triggerSpells.size(); curSpell++)
+			{
+				/// searches for spells on the item with the triggertype TAKING_DAMAGE.
+				if (triggerSpells[curSpell]->getTriggerType() == TriggerType::TAKING_DAMAGE) {
+					/// found one, check to see if we manages to trigger the spell.
+
+					if ((RNG::randomSizeT(0, 10000) <= triggerSpells[curSpell]->getChanceToTrigger() * 10000) == true) {
+						/// we triggered this spell, now we cast it based on if it's a self-cast spell or a cast on our target spell.
+						if (triggerSpells[curSpell]->getCastOnSelf() == true) {
+							/// cast spell on self
+							executeSpellWithoutCasting(triggerSpells[curSpell]->getSpellToTrigger(), this);
+						}
+						else {
+							if (this->getTarget() != NULL) {
+								/// cast spell on the character's target.
+								executeSpellWithoutCasting(triggerSpells[curSpell]->getSpellToTrigger(), this->getTarget());
+							}
+						}
+					}
+				}
+			}
+		}
+	}*/
+
+	if (alive) {
+		//addDamageDisplayToGUI(amount, criticalHit, 0);
+		if (current_health <= amount) {
+			current_health = 0;
+			Die();
+			if (isPlayer() == false) {
+				Player *player = &Player::Get();
+				player->gainExperience(getExperienceValue());
+			}
+		}
+		else {
+			modifyCurrentHealth(-amount);
+		}
+	}
+}
+
+uint64_t Character::getExpNeededForLevel(uint8_t level) const {
+	uint64_t result = (level*(level - 1) * 50);
+	return result;
+}
+
+bool Character::canRaiseLevel() const {
+	return (experience >= getExpNeededForLevel(getLevel() + 1) && (getExpNeededForLevel(getLevel() + 1) != getExpNeededForLevel(getLevel())));
+}
+
+void Character::raiseLevel() {
+	if (canRaiseLevel()) {
+		setMaxHealth(getMaxHealth() * 1.1);
+		setStrength(getStrength() * 1.1);
+		setLevel(getLevel() + 1);
+		GLfloat yellow[] = { 1.0f, 1.0f, 0.0f };
+		if (isPlayer() == true)
+		{
+			//dynamic_cast<Player*>(this)->setTicketForItemTooltip();
+			//dynamic_cast<Player*>(this)->setTicketForSpellTooltip();
+		}
+		//DawnInterface::addTextToLogWindow(yellow, "You are now a level %d %s.", getLevel(), getClassName().c_str());
+	}
+}
+
+void Character::gainExperience(uint64_t addExp) {
+	if (isPlayer()) {
+
+		if (std::numeric_limits<uint64_t>::max() - addExp < experience) {
+			experience = std::numeric_limits<uint64_t>::max();
+
+		}
+		else {
+			experience += addExp;
+			GLfloat yellow[] = { 1.0f, 1.0f, 0.0f };
+			//DawnInterface::addTextToLogWindow(yellow, "You gain %d experience.", addExp);
+		}
+
+		while (canRaiseLevel()) {
+			raiseLevel();
+		}
+	}
+}
+
+void Character::Heal(int amount) {
+	if (alive) {
+		uint16_t modifiedDiff = getModifiedMaxHealth() - getCurrentHealth();
+		if (modifiedDiff <= amount) {
+			amount = modifiedDiff;
+		}
+		//addDamageDisplayToGUI(amount, false, 1);
+		modifyCurrentHealth(amount);
+	}
+}
+
+void Character::executeSpellWithoutCasting(CSpellActionBase *spell, Character *target) {
+
+	CSpellActionBase *newSpell = NULL;
+
+	newSpell = spell->cast(this, target);
+
+	if (newSpell != NULL) {
+		newSpell->startEffect();
+	}
 }
 
 Enums::Direction Character::GetOppositeDirection(Enums::Direction direction) {

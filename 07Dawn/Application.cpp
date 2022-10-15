@@ -314,12 +314,10 @@ void Application::fixedUpdate() {
 
 void Application::initStates() {
 	m_machine = new StateMachine(m_dt, m_fdt);
-	//Game* game = dynamic_cast<Game*>(m_machine->addStateAtTop(new Game(*m_machine)));
-	//AddMouseListener(game);
+	m_machine->addStateAtTop(new Game(*m_machine));
 
-	m_machine->addStateAtTop(new MainMenu(*m_machine));
+	//m_machine->addStateAtTop(new MainMenu(*m_machine));
 	//m_machine->addStateAtTop(new Editor(*m_machine));
-
 	//m_machine->addStateAtTop(new LoadingScreen(*m_machine));
 }
 

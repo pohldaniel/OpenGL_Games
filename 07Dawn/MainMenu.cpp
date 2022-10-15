@@ -6,13 +6,10 @@ MainMenu::MainMenu(StateMachine& machine) : State(machine, CurrentState::MAINMEN
 
 	LuaFunctions::executeLuaFile("res/_lua/mobdata_wolf.lua");
 	LuaFunctions::executeLuaFile("res/_lua/playerdata.lua");
-
 	Player::Get().setCharacterType("player_w");
-
 
 	ZoneManager::Get().getZone("res/_lua/zone1").loadZone();
 	ZoneManager::Get().setCurrentZone(&ZoneManager::Get().getZone("res/_lua/zone1"));
-
 	
 	m_dialog = Dialog(0, 0, 0, 0);
 	m_dialog.setPosition(200, 322);
@@ -46,7 +43,6 @@ void MainMenu::fixedUpdate() {}
 void MainMenu::update() {
 	ViewPort::get().update(m_dt);
 	m_dialog.update(static_cast<int>(ViewPort::get().getCursorPos()[0]), static_cast<int>(ViewPort::get().getCursorPos()[1]));
-
 }
 
 void MainMenu::render(unsigned int &frameBuffer) {
@@ -61,9 +57,7 @@ void MainMenu::render(unsigned int &frameBuffer) {
 
 	glDisable(GL_BLEND);
 
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-	
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);	
 }
 
 void MainMenu::resize() {

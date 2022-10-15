@@ -8,6 +8,7 @@
 #include "Enums.h"
 #include "TextureManager.h"
 #include "Random.h"
+#include "Spell.h"
 
 class TileSet;
 
@@ -282,9 +283,9 @@ public:
 	uint16_t max_health;
 	uint16_t current_health;
 	uint16_t max_mana;
-	//uint16_t current_mana;
+	uint16_t current_mana;
 	uint16_t max_fatigue;
-	//uint16_t current_fatigue;
+	uint16_t current_fatigue;
 	uint16_t healthRegen;
 	uint16_t manaRegen;
 	uint16_t fatigueRegen;
@@ -298,6 +299,37 @@ public:
 	uint16_t hitModifierPoints;
 	uint16_t evadeModifierPoints;
 	Enums::CharacterClass characterClass;
+	Enums::CharacterArchType characterArchType;
 	float preparationPercentage;
-	
+	uint64_t experience;
+
+	CSpellActionBase* curSpellAction;
+	Enums::CharacterArchType getArchType() const;
+	uint16_t getCurrentFatigue() const;
+	void setCurrentFatigue(uint16_t newCurrentFatigue);
+	void modifyCurrentFatigue(int16_t currentFatigueModifier);
+	void modifyMaxFatigue(int16_t maxFatigueModifier);
+	uint16_t getModifiedMaxFatigue() const;
+	void addCooldownSpell(CSpellActionBase *spell);
+
+	void modifyCurrentMana(int16_t currentManaModifier);
+	void setCurrentMana(uint16_t newCurrentMana);
+	uint16_t getCurrentMana() const;
+	void modifyMaxMana(int16_t maxManaModifier);
+	uint16_t getModifiedMaxMana() const;
+	bool isAlive() const;
+	void addActiveSpell(CSpellActionBase *spell);
+	bool canBeDamaged() const;
+	std::vector<std::pair<CSpellActionBase*, uint32_t>> activeSpells;
+	std::vector<std::pair<CSpellActionBase*, uint32_t> > cooldownSpells;
+	void Damage(int amount, bool criticalHit);
+	void removeSpellsWithCharacterState(Enums::CharacterStates characterState);
+	bool isInvisible() const;
+	void Die();
+	void gainExperience(uint64_t addExp);
+	bool canRaiseLevel() const;
+	void raiseLevel();
+	uint64_t getExpNeededForLevel(uint8_t level) const;
+	void executeSpellWithoutCasting(CSpellActionBase *spell, Character *target);
+	void Heal(int amount);
 };

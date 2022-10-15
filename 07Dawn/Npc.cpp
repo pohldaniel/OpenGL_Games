@@ -194,6 +194,46 @@ bool Npc::isMarkedAsDeletable() const {
 	return markedAsDeleted;
 }
 
+void Npc::chasePlayer(Character *player) {
+	chasingPlayer = true;
+	setTarget(player);
+
+	// This can be used to deactivate pathfinding, because it might cause performance problems
+	bool dontUsePathfinding = false;
+	if (!dontUsePathfinding) {
+		// check whether we need to calculate a path for this NPC
+		// if so calculate the path and set a list of waypoints
+
+		// don't calculate a path too often
+		bool neverCalculatePath = dontUsePathfinding || (Globals::clock.getElapsedTimeMilli() - lastPathCalculated < 2000);
+		// don't calculate a path if we are very close to the player
+		int rawDistance = ((std::sqrt(std::pow(getXPos() + getWidth() / 2 - (player->getXPos() + player->getWidth() / 2), 2)
+			+ std::pow(getYPos() + getHeight() / 2 - (player->getYPos() + player->getHeight() / 2), 2)))
+			- std::sqrt(std::pow((getWidth() + player->getWidth()) / 2, 2)
+				+ std::pow((getHeight() + player->getHeight()) / 2, 2)));
+		if (rawDistance < 50) {
+			waypoints.clear();
+			neverCalculatePath = true;
+		}
+		bool calculatePath = (waypoints.size() == 0);
+		// recalculate the path if the player has moved too far from the endpoint of the path
+		if (!calculatePath && !neverCalculatePath) {
+			std::array<int, 2> lastPoint = waypoints.front();
+			if (std::pow(lastPoint[0] - player->getXPos(), 2) + std::pow(lastPoint[1] - player->getYPos(), 2) > std::max(waypoints.size() * 100, static_cast<size_t>(1000))) {
+				calculatePath = true;
+			}
+		}
+		if (calculatePath && !neverCalculatePath) {
+
+			//waypoints = aStar(Point(getXPos(), getYPos()), Point(player->getXPos() + player->getWidth() / 2, player->getYPos() + player->getHeight() / 2), getWidth(), getHeight());
+			if (waypoints.size() > 0) {
+				waypoints.pop_back();
+				lastPathCalculated = Globals::clock.getElapsedTimeMilli();
+			}
+		}
+	}
+}
+
 std::string Npc::getLuaEditorSaveText() const {
 	std::ostringstream oss;
 

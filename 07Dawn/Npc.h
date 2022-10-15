@@ -29,6 +29,8 @@ public:
 	std::string getLuaEditorSaveText() const;
 	const CharacterType& getCharacterType();
 	Enums::Attitude getAttitude() const;
+	void chasePlayer(Character *player);
+
 private:
 
 	//Attitude::Attitude attitudeTowardsPlayer;
@@ -55,4 +57,5 @@ private:
 	bool m_handleAnimation = false;
 
 	Enums::Direction WanderDirection;
+	std::vector<std::array<int, 2>> waypoints;
 };

@@ -34,7 +34,7 @@ private:
 	void drawCharacterStates();
 
 	Character* player;
-	CharacterSet* m_charset;
+	CharacterSet* charset;
 	//CTexture damageDisplayTexturesBig;
 	//CTexture damageDisplayTexturesSmall;
 

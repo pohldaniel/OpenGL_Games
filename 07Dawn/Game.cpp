@@ -1,10 +1,18 @@
 #include "Game.h"
 
 Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), player(Player::Get()) {
+	Mouse::SetCursorIcon("res/cursors/pointer.cur");
+	
+	LuaFunctions::executeLuaFile("res/_lua/mobdata_wolf.lua");
+	LuaFunctions::executeLuaFile("res/_lua/playerdata.lua");
+	Player::Get().setCharacterType("player_w");
+
+	ZoneManager::Get().getZone("res/_lua/zone1").loadZone();
+	ZoneManager::Get().setCurrentZone(&ZoneManager::Get().getZone("res/_lua/zone1"));
+	
 	zone = ZoneManager::Get().getCurrentZone();
 	dawnInterface = &Interface::Get();
-	dawnInterface->init();
-	Mouse::SetCursorIcon("res/cursors/pointer.cur");
+	dawnInterface->init();	
 }
 
 Game::~Game() {}

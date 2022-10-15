@@ -1,8 +1,10 @@
 #include "Editor.h"
 
 Editor::Editor(StateMachine& machine) : State(machine, CurrentState::EDITOR) {
-	//LuaFunctions::executeLuaFile("res/_lua/mobdata.lua");
 	Mouse::SetCursorIcon("res/cursors/pointer.cur");
+
+	//LuaFunctions::executeLuaFile("res/_lua/mobdata.lua");
+	
 	ZoneManager::Get().getZone("res/_lua/zone1").loadZone();
 	ZoneManager::Get().setCurrentZone(&ZoneManager::Get().getZone("res/_lua/zone1"));
 	newZone = ZoneManager::Get().getCurrentZone();
