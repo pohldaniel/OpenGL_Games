@@ -13,11 +13,6 @@ namespace Enums {
 	enum CharacterClass;
 }
 
-//#include "elements.h"
-//#include "stats.h"
-
-//#include "item.h"
-
 class Character;
 struct TextureRect;
 
@@ -29,8 +24,7 @@ class GeneralBuffSpell;
 class MeleeDamageAction;
 class RangedDamageAction;
 
-class CSpellActionBase
-{
+class CSpellActionBase {
 protected:
 	CSpellActionBase();
 public:
@@ -119,11 +113,13 @@ public:
 
 	bool isSpellHostile() const;
 
-	void drawSymbol(int left, int width, int bottom, int height) const;
+	void drawSymbol(int left, int bottom, int width, int height) const;
 
 	/// this resets the luaID to empty. It is only to be used in copySpell-function because there we want to create a new spell which
 	/// will be inscribed in the spell database so it will get an ID.
 	void unsetLuaID();
+	void setSymbolTextureRect(TextureRect& textureRect);
+
 protected:
 	Character *creator;
 	Character *target;
@@ -142,16 +138,16 @@ protected:
 	std::vector< std::pair<CSpellActionBase*, double> > additionalSpellsOnTarget;
 	std::vector< std::pair<CSpellActionBase*, double> > additionalSpellsOnCreator;
 	std::pair<Enums::CharacterStates, float> characterStateEffects;
+
+	TextureRect* spellSymbol;
 };
 
-class CSpell : public CSpellActionBase
-{
+class CSpell : public CSpellActionBase {
 public:
 	CSpell() {}
 };
 
-class CAction : public CSpellActionBase
-{
+class CAction : public CSpellActionBase {
 public:
 	CAction() {}
 	virtual double getProgress() const = 0;
@@ -159,8 +155,8 @@ public:
 
 class GeneralBoltDamageSpell;
 
-namespace SpellCreation
-{
+namespace SpellCreation {
+
 	CSpellActionBase* getGeneralRayDamageSpell();
 	CSpellActionBase* getGeneralRayDamageSpell(GeneralRayDamageSpell *other);
 	CSpellActionBase* getGeneralAreaDamageSpell();
@@ -177,8 +173,8 @@ namespace SpellCreation
 	CSpellActionBase* getRangedDamageAction(RangedDamageAction *other);
 }
 
-class ConfigurableSpell : public CSpell
-{
+class ConfigurableSpell : public CSpell {
+
 public:
 	void setCastTime(uint16_t newCastTime);
 	virtual uint16_t getCastTime() const;
@@ -197,8 +193,6 @@ public:
 	virtual std::string getInfo() const;
 	void setDuration(uint16_t newDuration);
 	virtual uint16_t getDuration() const;
-
-	void setSpellSymbol(std::string symbolFile);
 	TextureRect* getSymbol() const;
 
 protected:
@@ -216,9 +210,7 @@ protected:
 	int16_t centerY;
 
 	std::string name;
-	std::string info;
-
-	TextureRect* spellSymbol;
+	std::string info;	
 };
 
 class ConfigurableAction : public CAction
@@ -242,7 +234,6 @@ public:
 	void setDuration(uint16_t newDuration);
 	virtual uint16_t getDuration() const;
 
-	void setSpellSymbol(std::string symbolFile);
 	TextureRect* getSymbol() const;
 
 protected:
@@ -258,8 +249,6 @@ protected:
 
 	std::string name;
 	std::string info;
-
-	TextureRect* spellSymbol;
 };
 
 class GeneralDamageSpell : public ConfigurableSpell
@@ -326,7 +315,7 @@ private:
 	double remainingEffect;
 
 	int numTextures;
-	TextureRect *spellTexture;
+	std::vector<TextureRect> spellTexture;
 };
 
 class GeneralAreaDamageSpell : public GeneralDamageSpell
@@ -367,7 +356,7 @@ private:
 	double remainingEffect;
 
 	int numTextures;
-	TextureRect *spellTexture;
+	std::vector<TextureRect> spellTexture;
 
 	Enums::EffectType effectType;
 	bool child;
@@ -410,7 +399,7 @@ private:
 	uint32_t animationTimerStop;
 
 	int numBoltTextures;
-	TextureRect* boltTexture;
+	std::vector<TextureRect> boltTexture;
 };
 
 class GeneralHealingSpell : public ConfigurableSpell
@@ -569,7 +558,7 @@ private:
 	uint32_t animationTimerStop;
 
 	int numProjectileTextures;
-	TextureRect* projectileTexture;
+	std::vector<TextureRect> projectileTexture;
 
 	double damageBonus; // How much damage bonus should we add to our min and max weapon damage?
 };

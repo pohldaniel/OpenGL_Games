@@ -10,6 +10,7 @@ namespace Enums {
 	enum Attitude;
 }
 
+struct TextureRect;
 class TileSet;
 class Character;
 class Npc;
@@ -37,6 +38,8 @@ namespace EditorInterface{
 }
 
 namespace DawnInterface{
+	TextureRect& loadimage(std::string file);
+
 	const CharacterType& createNewMobType(std::string typeID);
 	const InteractionRegion& addInteractionRegion();
 	const InteractionPoint& addInteractionPoint();

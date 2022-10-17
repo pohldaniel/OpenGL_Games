@@ -98,11 +98,10 @@ bool CSpellActionBase::isEffectComplete() const
 	return finished;
 }
 
-void CSpellActionBase::drawSymbol(int left, int width, int bottom, int height) const {
+void CSpellActionBase::drawSymbol(int left, int bottom, int width, int height) const {
 	TextureRect* texture = getSymbol();
 	if (texture != NULL) {
-		//DrawingHelpers::mapTextureToRect(texture->getTexture(0),
-			//left, width, bottom, height);
+		TextureManager::DrawTextureBatched(*texture, left, bottom, width, height, Vector4f(1.0f, 0.0f, 0.0f, 1.0f), false, false);
 	}
 }
 
@@ -233,6 +232,10 @@ void CSpellActionBase::setCharacterState(Enums::CharacterStates characterState, 
 
 std::pair<Enums::CharacterStates, float> CSpellActionBase::getCharacterState() const {
 	return characterStateEffects;
+}
+
+void CSpellActionBase::setSymbolTextureRect(TextureRect& textureRect) {
+	spellSymbol = &textureRect;
 }
 
 /// ConfigurableSpell
@@ -371,18 +374,8 @@ void ConfigurableSpell::setDuration(uint16_t newDuration) {
 	duration = newDuration;
 }
 
-uint16_t ConfigurableSpell::getDuration() const
-{
+uint16_t ConfigurableSpell::getDuration() const {
 	return duration;
-}
-
-void ConfigurableSpell::setSpellSymbol(std::string symbolFile) {
-
-	if (spellSymbol != NULL) {
-		delete spellSymbol;
-	}
-	spellSymbol = new TextureRect();
-	//spellSymbol->LoadIMG(symbolFile, 0);
 }
 
 TextureRect* ConfigurableSpell::getSymbol() const {
@@ -517,18 +510,8 @@ void ConfigurableAction::setDuration(uint16_t newDuration)
 	duration = newDuration;
 }
 
-uint16_t ConfigurableAction::getDuration() const
-{
+uint16_t ConfigurableAction::getDuration() const {
 	return duration;
-}
-
-void ConfigurableAction::setSpellSymbol(std::string symbolFile)
-{
-	if (spellSymbol != NULL) {
-		delete spellSymbol;
-	}
-	spellSymbol = new TextureRect();
-	//spellSymbol->LoadIMG(symbolFile, 0);
 }
 
 TextureRect* ConfigurableAction::getSymbol() const {
@@ -659,12 +642,9 @@ double GeneralDamageSpell::calculateContinuousDamage(uint64_t timePassed) {
 }
 
 /// class GeneralRayDamageSpell
-
 GeneralRayDamageSpell::GeneralRayDamageSpell() {
 	remainingEffect = 0;
-
 	numTextures = 0;
-	spellTexture = NULL;
 }
 
 GeneralRayDamageSpell::GeneralRayDamageSpell(GeneralRayDamageSpell *other) : GeneralDamageSpell(other) {
@@ -691,16 +671,11 @@ CSpellActionBase* GeneralRayDamageSpell::cast(Character *creator, int x, int y) 
 }
 
 void GeneralRayDamageSpell::setNumAnimations(int count) {
-	if (spellTexture != NULL) {
-		delete spellTexture;
-	}
-	spellTexture = new TextureRect();
 	numTextures = count;
 }
 
 void GeneralRayDamageSpell::setAnimationTexture(int num, std::string filename) {
-
-	//spellTexture->LoadIMG(filename, num);
+	TextureManager::Loadimage(filename, num, spellTexture);
 }
 
 void GeneralRayDamageSpell::startEffect() {
@@ -821,7 +796,6 @@ GeneralAreaDamageSpell::GeneralAreaDamageSpell() {
 	remainingEffect = 0;
 
 	numTextures = 0;
-	spellTexture = NULL;
 
 	centerX = 0;
 	centerY = 0;
@@ -891,15 +865,11 @@ CSpellActionBase* GeneralAreaDamageSpell::cast(Character *creator, int x, int y)
 }
 
 void GeneralAreaDamageSpell::setNumAnimations(int count) {
-	if (spellTexture != NULL) {
-		delete spellTexture;
-	}
-	spellTexture = new TextureRect();
 	numTextures = count;
 }
 
 void GeneralAreaDamageSpell::setAnimationTexture(int num, std::string filename) {
-	//spellTexture->LoadIMG(filename, num);
+	TextureManager::Loadimage(filename, num, spellTexture);
 }
 
 void GeneralAreaDamageSpell::startEffect() {
@@ -1008,11 +978,8 @@ void GeneralAreaDamageSpell::setRadius(uint16_t newRadius) {
 }
 
 /// class GeneralBoltDamageSpell
-
-
 GeneralBoltDamageSpell::GeneralBoltDamageSpell() {
 	numBoltTextures = 0;
-	boltTexture = NULL;
 	moveSpeed = 1;
 	expireTime = 10000;
 }
@@ -1046,16 +1013,12 @@ void GeneralBoltDamageSpell::setExpireTime(int newExpireTime) {
 	expireTime = newExpireTime;
 }
 
-void GeneralBoltDamageSpell::setNumAnimations(int count) {
-	if (boltTexture != NULL) {
-		delete boltTexture;
-	}
-	boltTexture = new TextureRect();
+void GeneralBoltDamageSpell::setNumAnimations(int count) {	
 	numBoltTextures = count;
 }
 
 void GeneralBoltDamageSpell::setAnimationTexture(int num, std::string filename) {
-	//boltTexture->LoadIMG(filename, num);
+	TextureManager::Loadimage(filename, num, boltTexture);
 }
 
 void GeneralBoltDamageSpell::startEffect() {
@@ -1637,7 +1600,6 @@ RangedDamageAction::RangedDamageAction() {
 	maxRange = 360; // default maxrange for ranged attacks. Can be overridden with setRange().
 	numProjectileTextures = 0;
 	damageBonus = 1.0;
-	projectileTexture = NULL;
 	moveSpeed = 1;
 	expireTime = 10000;
 }
@@ -1675,15 +1637,11 @@ void RangedDamageAction::setExpireTime(int newExpireTime) {
 }
 
 void RangedDamageAction::setNumAnimations(int count) {
-	if (projectileTexture != NULL) {
-		delete projectileTexture;
-	}
-	projectileTexture = new TextureRect();
 	numProjectileTextures = count;
 }
 
 void RangedDamageAction::setAnimationTexture(int num, std::string filename) {	
-	//projectileTexture->LoadIMG(filename, num);
+	TextureManager::Loadimage(filename, num, projectileTexture);
 }
 
 void RangedDamageAction::startEffect() {

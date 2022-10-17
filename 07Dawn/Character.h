@@ -335,4 +335,5 @@ public:
 	void executeSpellWithoutCasting(CSpellActionBase *spell, Character *target);
 	void Heal(int amount);
 	void inscribeSpellInSpellbook(CSpellActionBase *spell);
+	std::vector<CSpellActionBase*> getSpellbook() const;
 };

@@ -151,6 +151,8 @@ namespace Enums
 }
 
 namespace DawnInterface{
+	TextureRect& loadimage(std::string file);
+
 	void enterZone(std::string zoneName, int enterX, int enterY );
 	void setCurrentZone(std::string zoneName );
 	CharacterType& createNewMobType(std::string typeID);
@@ -303,6 +305,7 @@ class CSpellActionBase
 	void setRank( int rank );
 	void setInstant( bool instant );
 	void setCharacterState( Enums::CharacterStates characterState, float value = 1.0 );
+	void setSymbolTextureRect(TextureRect& textureRect);
 };
 
 class CAction : public CSpellActionBase
@@ -321,7 +324,6 @@ class ConfigurableSpell : public CSpell
 	void setName( std::string newName );
 	void setInfo( std::string newInfo );
 	void setRange( int minRange, int maxRange );
-	void setSpellSymbol( std::string symbolFile );
 };
 
 class ConfigurableAction : public CAction
@@ -333,7 +335,6 @@ class ConfigurableAction : public CAction
 	void setName( std::string newName );
 	void setInfo( std::string newInfo );
 	void setRange( int minRange, int maxRange );
-	void setSpellSymbol( std::string symbolFile );
 };
 
 class GeneralDamageSpell : public ConfigurableSpell

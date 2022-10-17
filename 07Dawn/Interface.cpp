@@ -18,6 +18,17 @@ void Interface::init() {
 	loadTextures();
 	player = &Player::Get();
 	charset = &Globals::fontManager.get("verdana_12");
+
+	button.push_back(sButton(0, 0, 50, 50, "1", Keyboard::Key::KEY_1));
+	button.push_back(sButton(60, 0, 50, 50, "2", Keyboard::Key::KEY_2));
+	button.push_back(sButton(120, 0, 50, 50, "3", Keyboard::Key::KEY_3));
+	button.push_back(sButton(180, 0, 50, 50, "4", Keyboard::Key::KEY_4));
+	button.push_back(sButton(240, 0, 50, 50, "5", Keyboard::Key::KEY_5));
+	button.push_back(sButton(300, 0, 50, 50, "6", Keyboard::Key::KEY_6));
+	button.push_back(sButton(360, 0, 50, 50, "7", Keyboard::Key::KEY_7));
+	button.push_back(sButton(420, 0, 50, 50, "8", Keyboard::Key::KEY_8));
+	button.push_back(sButton(480, 0, 50, 50, "9", Keyboard::Key::KEY_9));
+	button.push_back(sButton(540, 0, 50, 50, "0", Keyboard::Key::KEY_0));
 }
 
 void Interface::loadTextures() {
@@ -110,6 +121,7 @@ void Interface::DrawInterface() {
 	//action bar
 	TextureManager::DrawTextureBatched(m_interfacetexture[18], ViewPort::get().getWidth() - 630, 0, 630.0f, 80.0f, false, false);
 	for (unsigned int buttonId = 0; buttonId < 10; buttonId++) {
+	
 		TextureManager::DrawTextureBatched(m_interfacetexture[19], ViewPort::get().getWidth() - 610 + buttonId * 60, 12, 50.0f, 50.0f, Vector4f(0.4f, 0.4f, 0.4f, 1.0f), false, false);
 	}
 
@@ -117,6 +129,16 @@ void Interface::DrawInterface() {
 	TextureManager::DrawBuffer(false);
 
 	drawTargetedNPCText();
+
+	TextureManager::DrawBuffer(true);
+
+	TextureManager::BindTexture(TextureManager::GetTextureAtlas("symbols"), true);
+	for (unsigned int buttonId = 0; buttonId < 10; buttonId++) {
+		button[buttonId].action->drawSymbol(ViewPort::get().getWidth() - 630 + 20 + buttonId * 60 + 2, 14, 46, 46);
+	}
+	
+	TextureManager::DrawBuffer(false);
+	TextureManager::UnbindTexture(true);
 }
 
 void Interface::DrawCursor(bool drawInGameCursor) {
@@ -241,3 +263,17 @@ void Interface::drawTargetedNPCText() {
 		}
 	}*/
 }
+
+void Interface::bindActionToButtonNr(int buttonNr, CSpellActionBase *action) {
+	bindAction(&button[buttonNr], action);
+}
+
+void Interface::bindAction(sButton *button, CSpellActionBase* action) {
+	button->action = action;
+	//button->tooltip = new spellTooltip(button->action, player);
+
+	/** this could be added to game settings, making the player choose to
+	display a full tooltip when hoovering spells in the actionbar.**/
+	//button->tooltip->enableSmallTooltip();
+}
+

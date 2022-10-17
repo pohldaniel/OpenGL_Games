@@ -179,7 +179,6 @@ void Batchrenderer::drawBuffer(bool updateView) {
 	glUseProgram(0);
 
 	indexCount = 0;
-
 	bufferPtr = buffer;
 }
 

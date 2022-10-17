@@ -459,7 +459,7 @@ void Character::setLevel(uint8_t newLevel){
 	level = newLevel;
 }
 
-void Character::setClass(Enums::CharacterClass _characterClass){
+void Character::setClass(Enums::CharacterClass _characterClass){	
 	characterClass = _characterClass;
 }
 
@@ -868,7 +868,6 @@ void Character::executeSpellWithoutCasting(CSpellActionBase *spell, Character *t
 }
 
 void Character::inscribeSpellInSpellbook(CSpellActionBase *spell) {
-
 	if (spell->getRequiredClass() == getClass() || spell->getRequiredClass() == Enums::CharacterClass::ANYCLASS) {
 		for (size_t curSpell = 0; curSpell < spellbook.size(); curSpell++) {
 			if (spellbook[curSpell]->getName() == spell->getName()) {
@@ -889,6 +888,10 @@ void Character::inscribeSpellInSpellbook(CSpellActionBase *spell) {
 			//dynamic_cast<Player*>(this)->setTicketForItemTooltip();
 		}
 	}
+}
+
+std::vector<CSpellActionBase*> Character::getSpellbook() const {
+	return spellbook;
 }
 
 

@@ -3,10 +3,13 @@
 Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), player(Player::Get()) {
 	Mouse::SetCursorIcon("res/cursors/pointer.cur");
 	
-	LuaFunctions::executeLuaFile("res/_lua/spells.lua");
 	LuaFunctions::executeLuaFile("res/_lua/mobdata_wolf.lua");
 	LuaFunctions::executeLuaFile("res/_lua/playerdata_w.lua");
+
 	Player::Get().setCharacterType("player_w");
+	Player::Get().setClass(Enums::CharacterClass::Liche);
+
+	LuaFunctions::executeLuaFile("res/_lua/spells.lua");
 
 	ZoneManager::Get().getZone("res/_lua/zone1").loadZone();
 	ZoneManager::Get().setCurrentZone(&ZoneManager::Get().getZone("res/_lua/zone1"));
@@ -14,6 +17,12 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), player(P
 	zone = ZoneManager::Get().getCurrentZone();
 	dawnInterface = &Interface::Get();
 	dawnInterface->init();	
+
+	// setting initial actions in the action bar
+	const std::vector<CSpellActionBase*> inscribedSpells = Player::Get().getSpellbook();
+	for (size_t curEntry = 0; curEntry <= 9 && curEntry < inscribedSpells.size(); ++curEntry) {
+		dawnInterface->bindActionToButtonNr(curEntry, inscribedSpells[curEntry]);
+	}
 }
 
 Game::~Game() {}

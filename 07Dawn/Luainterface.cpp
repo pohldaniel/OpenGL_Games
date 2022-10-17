@@ -1,5 +1,6 @@
 #include "Luainterface.h"
 
+#include "TextureManager.h"
 #include "TilesetManager.h"
 #include "Zone.h"
 
@@ -51,6 +52,10 @@ namespace EditorInterface{
 	}
 }
 namespace DawnInterface{
+
+	TextureRect& loadimage(std::string file) {
+		return TextureManager::Loadimage(file);
+	}
 
 	void enterZone(std::string zoneName, int enterX, int enterY){
 		Zone& newZone = ZoneManager::Get().getZone(zoneName);
