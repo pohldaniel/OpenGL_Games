@@ -1,36 +1,38 @@
 #pragma once
-#include "../Spritesheet.h"
+#include <vector>
 
 class Animation2D {
+
 public:
+	struct TextureRect {
+		float textureOffsetX;
+		float textureOffsetY;
+		float textureWidth;
+		float textureHeight;
+		int height;
+		int width;
+		unsigned int frame;
+	};
+
+
 	Animation2D() = default;
-	Animation2D(std::string pictureFile, unsigned short tileWidth, unsigned short tileHeight, unsigned yStart, unsigned xLength, float time, unsigned int& textureAtlas, unsigned int& currentFrame);
 	~Animation2D();
 
-	void create(std::string pictureFile, unsigned short tileWidth, unsigned short tileHeight, unsigned yStart, unsigned xLength, float time, unsigned int& textureAtlas, unsigned int& currentFrame);
-	void create(Spritesheet* spriteSheet, float time, unsigned int& textureAtlas, unsigned int& currentFrame);
 	void update(const float deltaTime);
-
-	// Accessors
-	unsigned int getCurrentFrame() const;
-	unsigned int getFrameCount() const;
-	unsigned int getTextureAtlas() const;
-	void setCurrentFrame(const unsigned int& frame);
-	void setTextureAtlas(const unsigned int& atlas);
-	void setUpdateTime(const float& time);
+	void start();
+	void addFrame(const TextureRect& frame);
+	const Animation2D::TextureRect& getFrame();
+	const bool waitForAnimation();
 private:
 
-	Spritesheet *m_spriteSheet;
-	
 	unsigned m_frameCount = 0;
 	float m_elapsedTime = 0.f;
-	float m_updateTime = 0.f;
-
-	unsigned int m_textureAtlas;
 	unsigned int m_currentFrame = 0;
 
-	unsigned int* i_textureAtlas;
-	unsigned int* i_currentFrame;
+	
+	TextureRect frame;
+	std::vector<TextureRect> frames;
 
-	void updateAnimation();
+	bool m_waitForAnimation = false;
+	bool m_loop = false;
 };

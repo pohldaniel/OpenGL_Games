@@ -4,10 +4,12 @@
 #include "engine/input/KeyBorad.h"
 #include "engine/input/Mouse.h"
 #include "engine/Batchrenderer.h"
+#include "engine/Transform.h"
 
 #include "StateMachine.h"
 #include "Interface.h"
 #include "Player.h"
+#include "Spell.h"
 
 class Game : public State, public MouseEventListener {
 public:
@@ -24,4 +26,7 @@ public:
 	Player& player;
 
 	bool m_drawInGameCursor = false;
+
+	GeneralRayDamageSpell* spell;
+	Transform transform;
 };

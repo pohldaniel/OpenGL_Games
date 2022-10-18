@@ -9,6 +9,8 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), player(P
 	Player::Get().setCharacterType("player_w");
 	Player::Get().setClass(Enums::CharacterClass::Liche);
 
+	player = Player::Get();
+
 	LuaFunctions::executeLuaFile("res/_lua/spells.lua");
 
 	ZoneManager::Get().getZone("res/_lua/zone1").loadZone();
@@ -23,6 +25,8 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), player(P
 	for (size_t curEntry = 0; curEntry <= 9 && curEntry < inscribedSpells.size(); ++curEntry) {
 		dawnInterface->bindActionToButtonNr(curEntry, inscribedSpells[curEntry]);
 	}
+
+	spell = dynamic_cast<GeneralRayDamageSpell*>(Player::Get().getSpellbook()[1]);
 }
 
 Game::~Game() {}
@@ -33,12 +37,13 @@ void Game::fixedUpdate() {
 
 void Game::update() {
 	//ViewPort::get().update(m_dt);
+	spell->update(m_dt);
 	player.update(m_dt);
 	ViewPort::get().setPosition(Player::Get().getPosition());
 
 	Mouse &mouse = Mouse::instance();
 
-	if (mouse.buttonPressed(Mouse::BUTTON_LEFT)) {
+	if(mouse.buttonPressed(Mouse::BUTTON_LEFT)) {
 		// get and iterate through the NPCs
 		std::vector<Npc*> zoneNPCs = zone->getNPCs();
 		for (unsigned int x = 0; x < zoneNPCs.size(); x++) {
@@ -61,8 +66,14 @@ void Game::update() {
 			}
 		}	
 	}
+
+	if (mouse.buttonPressed(Mouse::BUTTON_RIGHT)) {
+		spell->startAnimation();
+	}
 }
 
+
+float degrees = 0.0f;
 void Game::render(unsigned int &frameBuffer) {
 	glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
 
@@ -70,10 +81,42 @@ void Game::render(unsigned int &frameBuffer) {
 	glClearColor(0.0f, 0.0f, 1.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	glEnable(GL_BLEND);
-
+	
 
 	zone->drawZoneBatched();
-	Player::Get().draw();
+	player.draw();
+
+
+	if (!spell->waitForAnimation()) {
+		degrees = asin((player.getYPos() - ViewPort::get().getCursorPosY()) / sqrt((pow(player.getXPos() - ViewPort::get().getCursorPosX(), 2) + pow(player.getYPos() - ViewPort::get().getCursorPosY(), 2)))) * 57.296;
+		degrees += 90;
+
+		if (player.getXPos() < ViewPort::get().getCursorPosX()) {
+			degrees = -degrees;
+		}
+	}
+	
+	float offsetRadius = 32.0f;
+
+	transform.translate(-128.0f - offsetRadius, offsetRadius, 0);
+	transform.rotate(Vector3f(0.0f, 0.0f, 1.0f), degrees);
+	transform.translate(128.0f + offsetRadius, -offsetRadius, 0);
+
+
+	transform.translate(player.getXPos() - 128.0f, player.getYPos() + 32.0f, 0);
+
+	auto shader = Globals::shaderManager.getAssetPointer("batch");
+
+	glUseProgram(shader->m_program);
+	shader->loadMatrix("u_model", transform.getTransformationMatrix());
+	glUseProgram(0);
+	spell->draw(0, 0);
+
+	glUseProgram(shader->m_program);
+	shader->loadMatrix("u_model", Matrix4f::IDENTITY);
+
+	glUseProgram(0);
+	transform.reset();
 	dawnInterface->DrawInterface();
 	//dawnInterface->DrawCursor(m_drawInGameCursor);
 	glDisable(GL_BLEND);

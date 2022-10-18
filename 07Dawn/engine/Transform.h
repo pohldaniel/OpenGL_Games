@@ -27,7 +27,8 @@ public:
 	void getOrientation(Matrix4f& orientation);
 	void getOrientation(Quaternion& orientation);
 	void getScale(Vector3f& scale);
-	
+	void reset();
+
 private:
 
 	bool pos;

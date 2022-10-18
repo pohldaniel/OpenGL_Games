@@ -74,9 +74,9 @@ symbols["voiceoftheforest"] = DawnInterface.loadimage("res/spells/voiceofthefore
 TextureManager:SetTextureAtlas("symbols", TextureAtlasCreator:get():getAtlas());
 --TextureAtlasCreator:get():safeAtlas("tmp/symbols")
 
-TextureAtlasCreator:get():init(1024, 1024);
-
 spellDatabase = {};
+
+TextureAtlasCreator:get():init(1024, 1024);
 
 curSpell = DawnInterface.createGeneralBoltDamageSpell();
 spellDatabase["magicmissile"] = curSpell;
@@ -88,7 +88,7 @@ curSpell:setSoundSpellCasting( "res/sound/spellcast.ogg" );
 curSpell:setDirectDamage(  6, 10, Enums.Light );
 curSpell:setSymbolTextureRect(symbols["magicmissile"]);
 curSpell:setNumAnimations( 1 );
-curSpell:setAnimationTexture( 0, "res/spells/magicmissile/magicmissile.tga" );
+curSpell:addAnimationFrame("res/spells/magicmissile/magicmissile.tga");
 curSpell:setMoveSpeed( 500 );
 curSpell:setRequiredClass( Enums.Liche );
 DawnInterface.inscribeSpellInPlayerSpellbook( curSpell );
@@ -114,7 +114,7 @@ curSpell:setCastTime( 2000 );
 curSpell:setSpellCost( 0 );
 curSpell:setSoundSpellStart( "res/spells/venomspit/venomspit.ogg" );
 curSpell:setNumAnimations( 1 );
-curSpell:setAnimationTexture( 0, "res/spells/venomspit/0.tga" );
+curSpell:addAnimationFrame("res/spells/venomspit/0.tga");
 curSpell:setMoveSpeed( 1000 );
 curSpell:addAdditionalSpellOnTarget( spellDatabase["venomspiteffect1"], 0.05 );
 curSpell:setRequiredClass( Enums.Ranger );
@@ -132,14 +132,12 @@ curSpell:setContinuousDamage( 10, 20, 2000, Enums.Air );
 curSpell:setSymbolTextureRect(symbols["electrocute"]);
 curSpell:setSoundSpellStart( "res/spells/lightning/lightning.ogg" );
 curSpell:setNumAnimations( 5 );
-curSpell:setAnimationTexture( 0, "res/spells/lightning/1.tga" );
-curSpell:setAnimationTexture( 1, "res/spells/lightning/2.tga" );
-curSpell:setAnimationTexture( 2, "res/spells/lightning/3.tga" );
-curSpell:setAnimationTexture( 3, "res/spells/lightning/4.tga" );
-curSpell:setAnimationTexture( 4, "res/spells/lightning/5.tga" );
+curSpell:addAnimationFrame("res/spells/lightning/1.tga");
+curSpell:addAnimationFrame("res/spells/lightning/2.tga");
+curSpell:addAnimationFrame("res/spells/lightning/3.tga");
+curSpell:addAnimationFrame("res/spells/lightning/4.tga");
+curSpell:addAnimationFrame("res/spells/lightning/5.tga");
 curSpell:setRequiredClass( Enums.Liche );
-
--- add this spell to players spellbook
 DawnInterface.inscribeSpellInPlayerSpellbook( curSpell );
 
 curSpell = DawnInterface.createGeneralAreaDamageSpell();
@@ -153,11 +151,9 @@ curSpell:setDirectDamage(  15, 30, Enums.Fire );
 curSpell:setContinuousDamage( 4, 7, 5000, Enums.Fire );
 curSpell:setSymbolTextureRect(symbols["inferno"]);
 curSpell:setNumAnimations( 1 );
-curSpell:setAnimationTexture( 0, "res/spells/inferno/inferno.tga" );
+curSpell:addAnimationFrame("res/spells/inferno/inferno.tga");
 curSpell:setRadius( 120 );
 curSpell:setRequiredClass( Enums.Liche );
-
--- add this spell to players spellbook
 DawnInterface.inscribeSpellInPlayerSpellbook( curSpell );
 
 curSpell = DawnInterface.createGeneralBoltDamageSpell();
@@ -169,15 +165,13 @@ curSpell:setSpellCost( 25 );
 curSpell:setDirectDamage(  20, 40, Enums.Air );
 curSpell:setSymbolTextureRect(symbols["lightning"]);
 curSpell:setNumAnimations( 5 );
-curSpell:setAnimationTexture( 0, "res/spells/lightning/1_small.tga" );
-curSpell:setAnimationTexture( 1, "res/spells/lightning/2_small.tga" );
-curSpell:setAnimationTexture( 2, "res/spells/lightning/3_small.tga" );
-curSpell:setAnimationTexture( 3, "res/spells/lightning/4_small.tga" );
-curSpell:setAnimationTexture( 4, "res/spells/lightning/5_small.tga" );
+curSpell:addAnimationFrame("res/spells/lightning/1_small.tga");
+curSpell:addAnimationFrame("res/spells/lightning/2_small.tga");
+curSpell:addAnimationFrame("res/spells/lightning/3_small.tga");
+curSpell:addAnimationFrame("res/spells/lightning/4_small.tga");
+curSpell:addAnimationFrame("res/spells/lightning/5_small.tga");
 curSpell:setMoveSpeed( 1000 );
 curSpell:setRequiredClass( Enums.Liche );
-
--- add this spell to players spellbook
 DawnInterface.inscribeSpellInPlayerSpellbook( curSpell );
 
 curSpell = DawnInterface.createGeneralHealingSpell();
@@ -190,8 +184,6 @@ curSpell:setSymbolTextureRect(symbols["healing"]);
 curSpell:setEffectType( Enums.SelfAffectingSpell );
 curSpell:setDirectHealing( 50, 50, Enums.Light );
 curSpell:setRequiredClass( Enums.Liche );
-
--- add this spell to players spellbook
 DawnInterface.inscribeSpellInPlayerSpellbook( curSpell );
 
 curSpell = DawnInterface.createGeneralHealingSpell();
@@ -204,8 +196,6 @@ curSpell:setSymbolTextureRect(symbols["healother"]);
 curSpell:setEffectType( Enums.SingleTargetSpell );
 curSpell:setDirectHealing( 50, 70, Enums.Dark );
 curSpell:setRequiredClass( Enums.Liche );
-
--- add this spell to players spellbook
 DawnInterface.inscribeSpellInPlayerSpellbook( curSpell );
 
 curSpell = DawnInterface.createGeneralHealingSpell();
@@ -219,8 +209,6 @@ curSpell:setEffectType( Enums.SelfAffectingSpell );
 curSpell:setCooldown( 30 );
 curSpell:setContinuousHealing( 10, 15, 12000, Enums.Light );
 curSpell:setRequiredClass( Enums.Liche );
-
--- add this spell to players spellbook
 DawnInterface.inscribeSpellInPlayerSpellbook( curSpell );
 
 curSpell = DawnInterface.createGeneralBuffSpell();
@@ -246,8 +234,6 @@ curSpell:setSymbolTextureRect(symbols["leatherskin"]);
 curSpell:setEffectType( Enums.SelfAffectingSpell );
 curSpell:setDuration( 300 );
 curSpell:setRequiredClass( Enums.Ranger );
-
--- add this spell to players spellbook
 DawnInterface.inscribeSpellInPlayerSpellbook( curSpell );
 
 curSpell = DawnInterface.copySpell( spellDatabase["leatherskin"] );
@@ -281,10 +267,7 @@ curSpell:setSymbolTextureRect(symbols["layingofhands"]);
 curSpell:setEffectType( Enums.SelfAffectingSpell );
 curSpell:setDirectHealing( 500, 500, Enums.Light );
 curSpell:setRequiredClass( Enums.Warrior );
-
--- add this spell to players spellbook
 DawnInterface.inscribeSpellInPlayerSpellbook( curSpell );
-
 
 curSpell = DawnInterface.createGeneralHealingSpell();
 spellDatabase["smallhealingpotion"] = curSpell;
@@ -309,8 +292,6 @@ curSpell:setSpellCost( 100 );
 curSpell:setSymbolTextureRect(symbols["callingofthegrave"]);
 curSpell:setEffectType( Enums.SelfAffectingSpell );
 curSpell:setRequiredClass( Enums.Liche );
-
--- add this spell to players spellbook
 DawnInterface.inscribeSpellInPlayerSpellbook( curSpell );
 
 curSpell = DawnInterface.createGeneralBuffSpell();
@@ -324,8 +305,6 @@ curSpell:setSpellCost( 0 );
 curSpell:setSymbolTextureRect(symbols["mightofthetitan"]);
 curSpell:setEffectType( Enums.SelfAffectingSpell );
 curSpell:setRequiredClass( Enums.Warrior );
-
--- add this spell to players spellbook
 DawnInterface.inscribeSpellInPlayerSpellbook( curSpell );
 
 curSpell = DawnInterface.createGeneralBuffSpell();
@@ -350,7 +329,6 @@ curSpell:setCooldown( 120 );
 curSpell:setSymbolTextureRect(symbols["vortex"]);
 curSpell:setEffectType( Enums.SelfAffectingSpell );
 curSpell:setRequiredClass( Enums.Liche );
-
 DawnInterface.inscribeSpellInPlayerSpellbook( curSpell );
 
 curSpell = DawnInterface.createGeneralBuffSpell();
@@ -364,7 +342,6 @@ curSpell:setCastTime( 2000 );
 curSpell:setSymbolTextureRect(symbols["earthenseeds"]);
 curSpell:setEffectType( Enums.SelfAffectingSpell );
 curSpell:setRequiredClass( Enums.Liche );
-
 DawnInterface.inscribeSpellInPlayerSpellbook( curSpell );
 
 curSpell = DawnInterface.createMeleeDamageAction();
@@ -396,7 +373,6 @@ curSpell:setSoundSpellStart( "res/spells/melee/melee_swing.ogg" );
 curSpell:setSoundSpellHit( "res/spells/melee/melee_hit.ogg" );
 curSpell:setInfo("Attack with your weapon, causing %minWeaponDamage%-%maxWeaponDamage% damage.");
 curSpell:setRequiredClass( Enums.ANYCLASS );
-
 DawnInterface.inscribeSpellInPlayerSpellbook( curSpell );
 
 curSpell = DawnInterface.createMeleeDamageAction();
@@ -408,7 +384,6 @@ curSpell:setInfo("Devastating strike, causing %minWeaponDamage% to %maxWeaponDam
 curSpell:setSymbolTextureRect(symbols["phantomstrike"]);
 curSpell:setSpellCost( 50 );
 curSpell:setRequiredClass( Enums.Warrior );
-
 DawnInterface.inscribeSpellInPlayerSpellbook( curSpell );
 
 curSpell = DawnInterface.createGeneralBuffSpell();
@@ -470,8 +445,6 @@ curSpell:setCooldown( 60 );
 curSpell:setSymbolTextureRect(symbols["healing"]);
 curSpell:setEffectType( Enums.SelfAffectingSpell );
 curSpell:setRequiredClass( Enums.Warrior );
-
--- add this spell to players spellbook
 DawnInterface.inscribeSpellInPlayerSpellbook( curSpell );
 
 curSpell = DawnInterface.createGeneralBuffSpell();
@@ -492,8 +465,6 @@ curSpell:setInfo("Tactical strike, causing %minWeaponDamage% to %maxWeaponDamage
 curSpell:addAdditionalSpellOnCreator( spellDatabase["lungeeffect1"], 1.0 );
 curSpell:setRequiredClass( Enums.Warrior );
 curSpell:addRequiredWeapon( Enums.ONEHAND_SWORD );
-
--- add this spell to players spellbook
 DawnInterface.inscribeSpellInPlayerSpellbook( curSpell );
 
 curSpell = DawnInterface.createGeneralBuffSpell();
@@ -514,8 +485,6 @@ curSpell:setInfo("Bash with your shield, causing %minWeaponDamage% to %maxWeapon
 curSpell:addAdditionalSpellOnTarget( spellDatabase["shieldbasheffect1"], 1.0 );
 curSpell:setRequiredClass( Enums.Warrior );
 curSpell:addRequiredWeapon( Enums.SHIELD ); 
-
--- add this spell to players spellbook
 DawnInterface.inscribeSpellInPlayerSpellbook( curSpell );
 
 curSpell = DawnInterface.createRangedDamageAction();
@@ -527,15 +496,13 @@ curSpell:setCastTime( 2000 );
 curSpell:setSpellCost( 0 );
 curSpell:setSymbolTextureRect(symbols["shoot"]);
 curSpell:setNumAnimations( 1 );
-curSpell:setAnimationTexture( 0, "res/spells/shoot/0.tga" );
+curSpell:addAnimationFrame("res/spells/shoot/0.tga");
 curSpell:setMoveSpeed( 1000 );
 curSpell:setRequiredClass( Enums.Ranger );
 curSpell:setSoundSpellStart( "res/spells/shoot/shoot.ogg" );
 curSpell:addRequiredWeapon( Enums.BOW );
 curSpell:addRequiredWeapon( Enums.CROSSBOW );
 curSpell:addRequiredWeapon( Enums.SLINGSHOT );
-
--- add this spell to players spellbook
 DawnInterface.inscribeSpellInPlayerSpellbook( curSpell );
 
 curSpell = DawnInterface.createGeneralBuffSpell();
@@ -589,11 +556,10 @@ curSpell:setSpellCost( 40 );
 curSpell:setSoundSpellStart( "res/spells/terrify/terrify.ogg" );
 curSpell:setInfo("Sends a dark soul of the Umbral'un to terrorize the target dealing %minSpellDirectDamage%-%maxSpellDirectDamage% damage and causing it to flee for a short period. When the soul leaves it curses the target, reducing Dark magic resistance for a minute.");
 curSpell:setNumAnimations( 1 );
-curSpell:setAnimationTexture( 0, "res/spells/terrify/0.tga" );
+curSpell:addAnimationFrame("res/spells/terrify/0.tga");
 curSpell:setMoveSpeed( 650 );
 curSpell:addAdditionalSpellOnTarget( spellDatabase["terrifyeffect1"], 1.0 );
 curSpell:setRequiredClass( Enums.Liche );
-
 DawnInterface.inscribeSpellInPlayerSpellbook( curSpell );
 
 curSpell = DawnInterface.createGeneralBuffSpell();
@@ -642,14 +608,13 @@ curSpell:setSpellCost( 25 );
 curSpell:setSymbolTextureRect(symbols["frozenshot"]);
 curSpell:setNumAnimations( 1 );
 curSpell:setCooldown( 18 );
-curSpell:setAnimationTexture( 0, "res/spells/shoot/0.tga" );
+curSpell:addAnimationFrame("res/spells/shoot/0.tga" );
 curSpell:setMoveSpeed( 1000 );
 curSpell:setRequiredClass( Enums.Ranger );
 curSpell:addRequiredWeapon( Enums.BOW );
 curSpell:addRequiredWeapon( Enums.CROSSBOW );
 curSpell:addRequiredWeapon( Enums.SLINGSHOT );
 curSpell:addAdditionalSpellOnTarget( spellDatabase["frozenshoteffect1"], 1.0 );
-
 DawnInterface.inscribeSpellInPlayerSpellbook( curSpell );
 
 curSpell = DawnInterface.createGeneralBuffSpell();
@@ -669,14 +634,13 @@ curSpell:setSpellCost( 10 );
 curSpell:setCooldown( 14 );
 curSpell:setSymbolTextureRect(symbols["pindown"]);
 curSpell:setNumAnimations( 1 );
-curSpell:setAnimationTexture( 0, "res/spells/shoot/0.tga" );
+curSpell:addAnimationFrame("res/spells/shoot/0.tga" );
 curSpell:setMoveSpeed( 1000 );
 curSpell:setRequiredClass( Enums.Ranger );
 curSpell:addRequiredWeapon( Enums.BOW );
 curSpell:addRequiredWeapon( Enums.CROSSBOW );
 curSpell:addRequiredWeapon( Enums.SLINGSHOT );
 curSpell:addAdditionalSpellOnTarget( spellDatabase["pindowneffect1"], 1.0 );
-
 DawnInterface.inscribeSpellInPlayerSpellbook( curSpell );
 
 curSpell = DawnInterface.createGeneralBoltDamageSpell();
@@ -698,14 +662,13 @@ curSpell:setCooldown( 5 );
 curSpell:setSoundSpellStart( "res/spells/flamingarrow/flamingarrow.ogg" );
 curSpell:setSymbolTextureRect(symbols["flamingarrow"]);
 curSpell:setNumAnimations( 1 );
-curSpell:setAnimationTexture( 0, "res/spells/shoot/0.tga" );
+curSpell:addAnimationFrame("res/spells/shoot/0.tga");
 curSpell:setMoveSpeed( 1000 );
 curSpell:setRequiredClass( Enums.Ranger );
 curSpell:addRequiredWeapon( Enums.BOW );
 curSpell:addRequiredWeapon( Enums.CROSSBOW );
 curSpell:addRequiredWeapon( Enums.SLINGSHOT );
 curSpell:addAdditionalSpellOnTarget( spellDatabase["flamingarroweffect1"], 1.0 );
-
 DawnInterface.inscribeSpellInPlayerSpellbook( curSpell );
 
 curSpell = DawnInterface.createRangedDamageAction();
@@ -718,13 +681,12 @@ curSpell:setSpellCost( 35 );
 curSpell:setSymbolTextureRect(symbols["landyrsforce"]);
 curSpell:setNumAnimations( 1 );
 curSpell:setCooldown( 24 );
-curSpell:setAnimationTexture( 0, "res/spells/shoot/0.tga" );
+curSpell:addAnimationFrame("res/spells/shoot/0.tga");
 curSpell:setMoveSpeed( 1200 );
 curSpell:setRequiredClass( Enums.Ranger );
 curSpell:addRequiredWeapon( Enums.BOW );
 curSpell:addRequiredWeapon( Enums.CROSSBOW );
 curSpell:addRequiredWeapon( Enums.SLINGSHOT );
-
 DawnInterface.inscribeSpellInPlayerSpellbook( curSpell );
 
 curSpell = DawnInterface.createGeneralBuffSpell();
@@ -738,7 +700,6 @@ curSpell:setCastTime( 2000 );
 curSpell:setSymbolTextureRect(symbols["voiceoftheforest"]);
 curSpell:setEffectType( Enums.SelfAffectingSpell );
 curSpell:setRequiredClass( Enums.Ranger );
-
 DawnInterface.inscribeSpellInPlayerSpellbook( curSpell );
 
 curSpell = DawnInterface.createGeneralBuffSpell();
@@ -757,7 +718,7 @@ curSpell:setCastTime( 2000 );
 curSpell:setSpellCost( 35 );
 curSpell:setSoundSpellStart( "res/spells/venomspit/venomspit.ogg" );
 curSpell:setNumAnimations( 1 );
-curSpell:setAnimationTexture( 0, "res/spells/venomspit/0.tga" );
+curSpell:addAnimationFrame("res/spells/venomspit/0.tga");
 curSpell:setMoveSpeed( 600 );
 curSpell:setSymbolTextureRect(symbols["landyrsforce"]);
 curSpell:setCooldown( 12 );

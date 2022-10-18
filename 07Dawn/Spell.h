@@ -4,6 +4,9 @@
 #include <stdint.h>
 #include <vector>
 
+#include "engine/animation/Animation2D.h"
+
+
 namespace Enums {
 	enum WeaponType;
 	enum CharacterStates : int;
@@ -119,7 +122,13 @@ public:
 	/// will be inscribed in the spell database so it will get an ID.
 	void unsetLuaID();
 	void setSymbolTextureRect(TextureRect& textureRect);
+	void addAnimationFrame(std::string file, int paddingLeft = 0, int paddingRight = 0, int paddingTop = 0, int paddingBottom = 0);
+	void startAnimation();
+	const bool waitForAnimation();
 
+	static const TextureRect ConvertRect(const Animation2D::TextureRect& rect);
+	static const Animation2D::TextureRect ConvertRect(const TextureRect& rect);
+	
 protected:
 	Character *creator;
 	Character *target;
@@ -140,6 +149,8 @@ protected:
 	std::pair<Enums::CharacterStates, float> characterStateEffects;
 
 	TextureRect* spellSymbol;
+	Animation2D animation;
+	const  Animation2D::TextureRect& currentFrame;
 };
 
 class CSpell : public CSpellActionBase {
@@ -299,6 +310,8 @@ public:
 
 	virtual void drawEffect();
 
+	void update(float deltatime);
+	void draw(int posX, int posY);
 protected:
 	GeneralRayDamageSpell();
 	GeneralRayDamageSpell(GeneralRayDamageSpell *other);

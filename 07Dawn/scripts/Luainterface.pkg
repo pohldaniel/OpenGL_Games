@@ -306,6 +306,7 @@ class CSpellActionBase
 	void setInstant( bool instant );
 	void setCharacterState( Enums::CharacterStates characterState, float value = 1.0 );
 	void setSymbolTextureRect(TextureRect& textureRect);
+	void addAnimationFrame(std::string file, int paddingLeft = 0, int paddingRight = 0, int paddingTop = 0, int paddingBottom = 0);
 };
 
 class CAction : public CSpellActionBase

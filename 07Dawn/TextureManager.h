@@ -12,9 +12,13 @@
 #include "engine/Spritesheet.h"
 
 struct TextureRect {
-	float textureOffsetX = 0.0f, textureOffsetY = 0.0f, textureWidth = 0.0f, textureHeight = 0.0f;
-	int height = 0, width = 0;
-	unsigned int frame = 0;
+	float textureOffsetX;
+	float textureOffsetY;
+	float textureWidth;
+	float textureHeight;
+	int height;
+	int width;
+	unsigned int frame;
 };
 
 class TextureCache {

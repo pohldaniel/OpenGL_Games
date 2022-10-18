@@ -158,7 +158,7 @@
     <ClCompile Include="Character.cpp" />
     <ClCompile Include="Dialog.cpp" />
     <ClCompile Include="Editor.cpp" />
-    <ClCompile Include="engine\animation\Animation2d.cpp" />
+    <ClCompile Include="engine\animation\Animation2D.cpp" />
     <ClCompile Include="engine\Fontrenderer.cpp" />
     <ClCompile Include="engine\input\ApplicationEventListener.cpp" />
     <ClCompile Include="engine\Instancerenderer.cpp" />
@@ -216,7 +216,7 @@
     <ClInclude Include="Constants.h" />
     <ClInclude Include="Dialog.h" />
     <ClInclude Include="Editor.h" />
-    <ClInclude Include="engine\animation\Animation2d.h" />
+    <ClInclude Include="engine\animation\Animation2D.h" />
     <ClInclude Include="engine\Fontrenderer.h" />
     <ClInclude Include="engine\input\ApplicationEventListener.h" />
     <ClInclude Include="engine\Instancerenderer.h" />

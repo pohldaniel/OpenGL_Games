@@ -159,9 +159,6 @@
     <ClCompile Include="Random.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="engine\animation\Animation2d.cpp">
-      <Filter>engine\animation</Filter>
-    </ClCompile>
     <ClCompile Include="InteractionRegion.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -200,6 +197,9 @@
     </ClCompile>
     <ClCompile Include="Spell.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\animation\Animation2D.cpp">
+      <Filter>engine\animation</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -323,9 +323,6 @@
     <ClInclude Include="Random.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="engine\animation\Animation2d.h">
-      <Filter>engine\animation</Filter>
-    </ClInclude>
     <ClInclude Include="InteractionRegion.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -370,6 +367,9 @@
     </ClInclude>
     <ClInclude Include="Spell.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\animation\Animation2D.h">
+      <Filter>engine\animation</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

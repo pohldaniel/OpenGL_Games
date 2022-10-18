@@ -14,7 +14,15 @@ Transform::Transform(const Matrix4f &m) {
 }
 
 Transform::~Transform() {
+	
+}
 
+void Transform::reset() {
+	pos = false;
+	T.identity();
+	invT.identity();
+
+	startPosition = Vector3f(0.0, 0.0, 0.0);
 }
 
 void Transform::setRotPos(const Vector3f &axis, float degrees, float dx, float dy, float dz) {

@@ -35,6 +35,7 @@ namespace DawnInterface {
 	//void addTextToLogWindow(GLfloat color[], const char *text, ...);
 }
 
+
 /// Implementation of class CSpellActionBase
 CSpellActionBase::CSpellActionBase()
 	: boundToCreator(false),
@@ -44,7 +45,8 @@ CSpellActionBase::CSpellActionBase()
 	requiredLevel(1),
 	requiredWeapons(0),
 	rank(1),
-	luaID("") {
+	luaID(""),
+	currentFrame(animation.getFrame()){
 	characterStateEffects.first = Enums::CharacterStates::NOEFFECT;
 	characterStateEffects.second = 1.0f;
 }
@@ -238,10 +240,28 @@ void CSpellActionBase::setSymbolTextureRect(TextureRect& textureRect) {
 	spellSymbol = &textureRect;
 }
 
-/// ConfigurableSpell
+void CSpellActionBase::addAnimationFrame(std::string file, int paddingLeft, int paddingRight, int paddingTop, int paddingBottom) {
+	animation.addFrame(ConvertRect(TextureManager::Loadimage(file, 0u, 0u, false, paddingLeft, paddingRight, paddingTop, paddingBottom)));
+}
 
-ConfigurableSpell::ConfigurableSpell()
-{
+void CSpellActionBase::startAnimation() {
+	animation.start();
+}
+
+const TextureRect CSpellActionBase::ConvertRect(const Animation2D::TextureRect& rect) {
+	return{ rect.textureOffsetX , rect.textureOffsetY, rect.textureWidth , rect.textureHeight, rect.height, rect.width, rect.frame };
+}
+
+const Animation2D::TextureRect CSpellActionBase::ConvertRect(const TextureRect& rect) {
+	return{ rect.textureOffsetX , rect.textureOffsetY, rect.textureWidth , rect.textureHeight, rect.height, rect.width, rect.frame };
+}
+
+const bool CSpellActionBase::waitForAnimation() {
+	return animation.waitForAnimation();
+}
+
+/// ConfigurableSpell
+ConfigurableSpell::ConfigurableSpell() {
 	spellSymbol = NULL;
 
 	castTime = 0;
@@ -775,6 +795,19 @@ void GeneralRayDamageSpell::drawEffect() {
 
 		DrawingHelpers::mapTextureToRect(spellTexture->getTexture(frameCount), creator->getXPos() + 32, 256, creator->getYPos() + 64, 400);
 		glPopMatrix();*/
+	}
+}
+
+void GeneralRayDamageSpell::update(float deltatime) {
+	animation.update(deltatime);
+}
+
+void GeneralRayDamageSpell::draw(int posX, int posY) {
+	if (animation.waitForAnimation()) {
+		TextureManager::BindTexture(TextureManager::GetTextureAtlas("spells"), true);
+		TextureRect rect = ConvertRect(currentFrame);
+		TextureManager::DrawTexture(rect, posX, posY, false, true);
+		TextureManager::UnbindTexture(true);
 	}
 }
 
