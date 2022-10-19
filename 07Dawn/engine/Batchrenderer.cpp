@@ -134,6 +134,35 @@ void Batchrenderer::shutdown() {
 	}
 }
 
+void Batchrenderer::addQuadAA(Vector4f posSize, Vector4f texPosSize, Vector4f color, unsigned int frame, bool updateView) {
+
+	if (indexCount >= m_maxIndex) {
+		drawBuffer(updateView);
+	}
+
+	bufferPtr->posTex = { posSize[0], posSize[1],  texPosSize[0],  texPosSize[1] };
+	bufferPtr->color = { color[0], color[1], color[2], color[3] };
+	bufferPtr->frame = frame;
+	bufferPtr++;
+
+	bufferPtr->posTex = { posSize[0] + posSize[2], posSize[1],  texPosSize[0] + texPosSize[2],  texPosSize[1] };
+	bufferPtr->color = { color[0], color[1], color[2], color[3] };
+	bufferPtr->frame = frame;
+	bufferPtr++;
+
+	bufferPtr->posTex = { posSize[0] + posSize[2], posSize[1] + posSize[3],  texPosSize[0] + texPosSize[2],  texPosSize[1] + texPosSize[3] };
+	bufferPtr->color = { color[0], color[1], color[2], color[3] };
+	bufferPtr->frame = frame;
+	bufferPtr++;
+
+	bufferPtr->posTex = { posSize[0], posSize[1] + posSize[3],  texPosSize[0],  texPosSize[1] + texPosSize[3] };
+	bufferPtr->color = { color[0], color[1], color[2], color[3] };
+	bufferPtr->frame = frame;
+	bufferPtr++;
+
+	indexCount += 6;
+}
+
 void Batchrenderer::addQuad(float pos[8], Vector4f texPosSize, Vector4f color, unsigned int frame, bool updateView) {
 
 	if (indexCount >= m_maxIndex) {
@@ -163,35 +192,6 @@ void Batchrenderer::addQuad(float pos[8], Vector4f texPosSize, Vector4f color, u
 	indexCount += 6;
 }
 
-void Batchrenderer::addQuad(Vector4f posSize, Vector4f texPosSize, Vector4f color, unsigned int frame, bool updateView) {
-
-	if (indexCount >= m_maxIndex) {
-		drawBuffer(updateView);
-	}
-
-	bufferPtr->posTex = { posSize[0], posSize[1],  texPosSize[0],  texPosSize[1] };
-	bufferPtr->color = { color[0], color[1], color[2], color[3] };
-	bufferPtr->frame = frame;
-	bufferPtr++;
-
-	bufferPtr->posTex = { posSize[0] + posSize[2], posSize[1],  texPosSize[0] + texPosSize[2],  texPosSize[1] };
-	bufferPtr->color = { color[0], color[1], color[2], color[3] };
-	bufferPtr->frame = frame;
-	bufferPtr++;
-
-	bufferPtr->posTex = { posSize[0] + posSize[2], posSize[1] + posSize[3],  texPosSize[0] + texPosSize[2],  texPosSize[1] + texPosSize[3] };
-	bufferPtr->color = { color[0], color[1], color[2], color[3] };
-	bufferPtr->frame = frame;
-	bufferPtr++;
-
-	bufferPtr->posTex = { posSize[0], posSize[1] + posSize[3],  texPosSize[0],  texPosSize[1] + texPosSize[3] };
-	bufferPtr->color = { color[0], color[1], color[2], color[3] };
-	bufferPtr->frame = frame;
-	bufferPtr++;
-
-	indexCount += 6;
-}
-
 void Batchrenderer::drawBuffer(bool updateView) {
 	GLsizeiptr size = (uint8_t*)bufferPtr - (uint8_t*)buffer;
 	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
@@ -211,7 +211,7 @@ void Batchrenderer::drawBuffer(bool updateView) {
 	bufferPtr = buffer;
 }
 
-void Batchrenderer::drawSingleQuad(Vector4f posSize, Vector4f texPosSize, Vector4f color, unsigned int frame, bool updateView) {
+void Batchrenderer::drawSingleQuadAA(Vector4f posSize, Vector4f texPosSize, Vector4f color, unsigned int frame, bool updateView) {
 
 	/**Vertex data[] = { posSize[0], posSize[1],                            texPosSize[0],  texPosSize[1],                                 color[0], color[1], color[2], color[3], frame ,
 		posSize[0] + posSize[2], posSize[1],               texPosSize[0] + texPosSize[2],  texPosSize[1],                 color[0], color[1], color[2], color[3], frame ,

@@ -425,9 +425,8 @@ void GeneralRayDamageSpell::draw(int posX, int posY, float degree) {
 		TextureManager::BindTexture(TextureManager::GetTextureAtlas("spells"), true);
 		const TextureRect& rect = ConvertRect(currentFrame);
 	
-		TextureManager::RotateTextureRect(rect, static_cast<float>(posX), static_cast<float>(posY), degree, 128.0f + offsetRadius, -offsetRadius, TextureManager::TransPos);
-		TextureManager::DrawTextureBatched(rect, TextureManager::TransPos, true);
-		TextureManager::DrawBuffer(true);
+		TextureManager::RotateTextureRect(rect, static_cast<float>(posX), static_cast<float>(posY), degree, rect.width * 0.5f + offsetRadius, -offsetRadius, TextureManager::TransPos);
+		TextureManager::DrawTexture(rect, TextureManager::TransPos, true);
 		TextureManager::UnbindTexture(true);
 	}
 }

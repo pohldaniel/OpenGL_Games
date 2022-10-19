@@ -20,10 +20,10 @@ public:
 	void init(size_t size = 400, bool drawSingle = false);
 	void shutdown();
 	void drawBuffer(bool updateView = true);
-	void addQuad(Vector4f posSize, Vector4f texPosSize, Vector4f color = Vector4f(1.0f, 1.0f, 1.0f, 1.0f), unsigned int frame = 0, bool updateView = true);
+	void addQuadAA(Vector4f posSize, Vector4f texPosSize, Vector4f color = Vector4f(1.0f, 1.0f, 1.0f, 1.0f), unsigned int frame = 0, bool updateView = true);
 	void addQuad(float pos[8], Vector4f texPosSize, Vector4f color = Vector4f(1.0f, 1.0f, 1.0f, 1.0f), unsigned int frame = 0, bool updateView = true);
 
-	void drawSingleQuad(Vector4f posSize, Vector4f texPosSize, Vector4f color = Vector4f(1.0f, 1.0f, 1.0f, 1.0f), unsigned int frame = 0, bool updateView = true);
+	void drawSingleQuadAA(Vector4f posSize, Vector4f texPosSize, Vector4f color = Vector4f(1.0f, 1.0f, 1.0f, 1.0f), unsigned int frame = 0, bool updateView = true);
 	void drawSingleQuad(float pos[8], Vector4f texPosSize, Vector4f color = Vector4f(1.0f, 1.0f, 1.0f, 1.0f), unsigned int frame = 0, bool updateView = true);
 
 	void setCamera(const Camera& camera);
