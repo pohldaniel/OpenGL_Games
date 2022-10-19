@@ -4,7 +4,7 @@
 #include "engine/Batchrenderer.h"
 #include "engine/Fontrenderer.h"
 #include "TextureManager.h"
-#include "Spell.h"
+#include "SpellActionBase.h"
 
 class Character;
 

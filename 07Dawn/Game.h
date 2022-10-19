@@ -9,7 +9,7 @@
 #include "StateMachine.h"
 #include "Interface.h"
 #include "Player.h"
-#include "Spell.h"
+#include "Spells.h"
 
 class Game : public State, public MouseEventListener {
 public:

@@ -96,27 +96,9 @@ void Game::render(unsigned int &frameBuffer) {
 		}
 	}
 	
-	float offsetRadius = 32.0f;
 
-	transform.translate(-128.0f - offsetRadius, offsetRadius, 0);
-	transform.rotate(Vector3f(0.0f, 0.0f, 1.0f), degrees);
-	transform.translate(128.0f + offsetRadius, -offsetRadius, 0);
+	spell->draw(player.getXPos() - 128.0f, player.getYPos() + 32.0f, degrees);
 
-
-	transform.translate(player.getXPos() - 128.0f, player.getYPos() + 32.0f, 0);
-
-	auto shader = Globals::shaderManager.getAssetPointer("batch");
-
-	glUseProgram(shader->m_program);
-	shader->loadMatrix("u_model", transform.getTransformationMatrix());
-	glUseProgram(0);
-	spell->draw(0, 0);
-
-	glUseProgram(shader->m_program);
-	shader->loadMatrix("u_model", Matrix4f::IDENTITY);
-
-	glUseProgram(0);
-	transform.reset();
 	dawnInterface->DrawInterface();
 	//dawnInterface->DrawCursor(m_drawInGameCursor);
 	glDisable(GL_BLEND);

@@ -154,6 +154,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Actions.cpp" />
     <ClCompile Include="Application.cpp" />
     <ClCompile Include="Character.cpp" />
     <ClCompile Include="Dialog.cpp" />
@@ -173,7 +174,8 @@
     <ClCompile Include="Npc.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="Random.cpp" />
-    <ClCompile Include="Spell.cpp" />
+    <ClCompile Include="SpellActionBase.cpp" />
+    <ClCompile Include="Spells.cpp" />
     <ClCompile Include="TextureManager.cpp" />
     <ClCompile Include="engine\Batchrenderer.cpp" />
     <ClCompile Include="engine\Camera.cpp" />
@@ -211,6 +213,7 @@
     <ClCompile Include="Zone.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Actions.h" />
     <ClInclude Include="Application.h" />
     <ClInclude Include="Character.h" />
     <ClInclude Include="Constants.h" />
@@ -233,7 +236,8 @@
     <ClInclude Include="Npc.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="Random.h" />
-    <ClInclude Include="Spell.h" />
+    <ClInclude Include="SpellActionBase.h" />
+    <ClInclude Include="Spells.h" />
     <ClInclude Include="TextureManager.h" />
     <ClInclude Include="engine\AssetManger.h" />
     <ClInclude Include="engine\Batchrenderer.h" />

@@ -1,266 +1,7 @@
-/**
-Copyright (C) 2009,2010,2011  Dawn - 2D roleplaying game
-
-This file is a part of the dawn-rpg project <https://github.com/frusen/Dawn>.
-
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>. **/
-
-#include "Spell.h"
+#include "Spells.h"
 #include "Enums.h"
 #include "Constants.h"
 
-#include <iostream>
-#include <cstdlib>
-#include <memory>
-#include "Character.h"
-#include "Player.h"
-#include "Luafunctions.h"
-#include "random.h"
-#include "TextureManager.h"
-
-#include <cassert>
-
-namespace DawnInterface {
-	//void addTextToLogWindow(GLfloat color[], const char *text, ...);
-}
-
-
-/// Implementation of class CSpellActionBase
-CSpellActionBase::CSpellActionBase()
-	: boundToCreator(false),
-	finished(false),
-	instant(false),
-	requiredClass(Enums::CharacterClass::NOCLASS),
-	requiredLevel(1),
-	requiredWeapons(0),
-	rank(1),
-	luaID(""),
-	currentFrame(animation.getFrame()){
-	characterStateEffects.first = Enums::CharacterStates::NOEFFECT;
-	characterStateEffects.second = 1.0f;
-}
-
-CSpellActionBase::~CSpellActionBase() {
-	if (boundToCreator) {
-		creator->curSpellAction = NULL;
-		creator->isPreparing = false;
-	}
-}
-
-void CSpellActionBase::unbindFromCreator() {
-
-	if (boundToCreator) {
-		creator->curSpellAction = NULL;
-		creator->isPreparing = false;
-		boundToCreator = false;
-		uint16_t spellCost = getSpellCost();
-
-		// if we're confused while casting, we add 20% more to the spell cost.
-		if (creator->isConfused() == true) {
-			spellCost *= 1.20;
-		}
-
-
-		if (creator->getArchType() == Enums::CharacterArchType::Fighter) {
-			creator->modifyCurrentFatigue(-spellCost);
-		}else {
-			creator->modifyCurrentMana(-spellCost);
-		}
-	}
-}
-
-bool CSpellActionBase::isBoundToCreator() const {
-	return boundToCreator;
-}
-
-void CSpellActionBase::beginPreparationOfSpellAction()
-{
-	boundToCreator = true;
-}
-
-void CSpellActionBase::markSpellActionAsFinished()
-{
-	unbindFromCreator();
-	finished = true;
-}
-
-bool CSpellActionBase::isEffectComplete() const
-{
-	return finished;
-}
-
-void CSpellActionBase::drawSymbol(int left, int bottom, int width, int height) const {
-	TextureRect* texture = getSymbol();
-	if (texture != NULL) {
-		TextureManager::DrawTextureBatched(*texture, left, bottom, width, height, Vector4f(1.0f, 0.0f, 0.0f, 1.0f), false, false);
-	}
-}
-
-std::string CSpellActionBase::getID() const {
-
-	if (luaID.size() == 0) {
-		luaID = LuaFunctions::getIDFromLuaTable("spellDatabase", this);
-	}
-	return luaID;
-}
-
-void CSpellActionBase::unsetLuaID() {
-	luaID = "";
-}
-
-void CSpellActionBase::addAdditionalSpellOnTarget(CSpellActionBase *spell, double chanceToExecute) {
-
-	additionalSpellsOnTarget.push_back(std::pair<CSpellActionBase*, double>(spell, chanceToExecute));
-}
-
-void CSpellActionBase::addAdditionalSpellOnCreator(CSpellActionBase *spell, double chanceToExecute) {
-
-	additionalSpellsOnCreator.push_back(std::pair<CSpellActionBase*, double>(spell, chanceToExecute));
-}
-
-void CSpellActionBase::setRequiredClass(Enums::CharacterClass requiredClass) {
-
-	this->requiredClass = requiredClass;
-}
-
-void CSpellActionBase::addRequiredWeapon(Enums::WeaponType weaponType) {
-
-	requiredWeapons |= weaponType;
-}
-
-uint32_t CSpellActionBase::getRequiredWeapons() const{
-
-	return requiredWeapons;
-}
-
-Enums::CharacterClass CSpellActionBase::getRequiredClass() const{
-
-	return requiredClass;
-}
-
-void CSpellActionBase::setRequiredLevel(uint8_t requiredLevel) {
-	this->requiredLevel = requiredLevel;
-}
-
-uint8_t CSpellActionBase::getRequiredLevel() const {
-	return requiredLevel;
-}
-
-void CSpellActionBase::setRank(uint8_t rank) {
-	this->rank = rank;
-}
-
-uint8_t CSpellActionBase::getRank() const {
-	return rank;
-}
-
-void CSpellActionBase::setInstant(bool instant) {
-	this->instant = instant;
-}
-
-bool CSpellActionBase::getInstant() const {
-	return instant;
-}
-
-void CSpellActionBase::setSoundSpellCasting(std::string soundSpellCasting) {
-	this->soundSpellCasting = soundSpellCasting;
-}
-
-void CSpellActionBase::setSoundSpellStart(std::string soundSpellStart) {
-	this->soundSpellStart = soundSpellStart;
-}
-
-void CSpellActionBase::setSoundSpellHit(std::string soundSpellHit) {
-	this->soundSpellHit = soundSpellHit;
-}
-
-void CSpellActionBase::playSoundSpellCasting() {
-	if (soundSpellCasting != "") {
-		//SoundEngine::playSound(soundSpellCasting);
-	}
-}
-
-void CSpellActionBase::stopSoundSpellCasting() {
-	if (soundSpellCasting != "") {
-		//SoundEngine::stopSound(soundSpellCasting);
-	}
-}
-
-void CSpellActionBase::playSoundSpellStart() {
-	if (soundSpellStart != "") {
-		//SoundEngine::playSound(soundSpellStart);
-	}
-}
-
-void CSpellActionBase::stopSoundSpellStart() {
-	if (soundSpellStart != "") {
-		//SoundEngine::stopSound(soundSpellStart);
-	}
-}
-
-void CSpellActionBase::playSoundSpellHit() {
-	if (soundSpellHit != "") {
-		//SoundEngine::playSound(soundSpellHit);
-	}
-}
-
-void CSpellActionBase::stopSoundSpellHit() {
-	if (soundSpellHit != "") {
-		//SoundEngine::stopSound(soundSpellHit);
-	}
-}
-
-bool CSpellActionBase::isSpellHostile() const {
-	return hostileSpell;
-}
-
-void CSpellActionBase::setCharacterState(Enums::CharacterStates characterState, float value) {
-
-	characterStateEffects.first = characterState;
-	characterStateEffects.second = value;
-	hostileSpell = Enums::isStateConsideredHarmfull(characterState, value);
-}
-
-std::pair<Enums::CharacterStates, float> CSpellActionBase::getCharacterState() const {
-	return characterStateEffects;
-}
-
-void CSpellActionBase::setSymbolTextureRect(TextureRect& textureRect) {
-	spellSymbol = &textureRect;
-}
-
-void CSpellActionBase::addAnimationFrame(std::string file, int paddingLeft, int paddingRight, int paddingTop, int paddingBottom) {
-	animation.addFrame(ConvertRect(TextureManager::Loadimage(file, 0u, 0u, false, paddingLeft, paddingRight, paddingTop, paddingBottom)));
-}
-
-void CSpellActionBase::startAnimation() {
-	animation.start();
-}
-
-const TextureRect CSpellActionBase::ConvertRect(const Animation2D::TextureRect& rect) {
-	return{ rect.textureOffsetX , rect.textureOffsetY, rect.textureWidth , rect.textureHeight, rect.height, rect.width, rect.frame };
-}
-
-const Animation2D::TextureRect CSpellActionBase::ConvertRect(const TextureRect& rect) {
-	return{ rect.textureOffsetX , rect.textureOffsetY, rect.textureWidth , rect.textureHeight, rect.height, rect.width, rect.frame };
-}
-
-const bool CSpellActionBase::waitForAnimation() {
-	return animation.waitForAnimation();
-}
-
-/// ConfigurableSpell
 ConfigurableSpell::ConfigurableSpell() {
 	spellSymbol = NULL;
 
@@ -402,146 +143,10 @@ TextureRect* ConfigurableSpell::getSymbol() const {
 	return spellSymbol;
 }
 
-/// ConfigurableAction
-
-ConfigurableAction::ConfigurableAction() {
-	spellSymbol = NULL;
-
-	castTime = 0;
-	cooldown = 0;
-	spellCost = 0;
-	duration = 0;
-	minRange = 0;
-	maxRange = 100; // default maxrange for melee actions. Can be overridden with setRange().
-
-	name = "";
-	info = "";
-}
-
-ConfigurableAction::ConfigurableAction(ConfigurableAction *other) {
-	luaID = other->getID();
-	spellSymbol = other->spellSymbol;
-
-	castTime = other->castTime;
-	cooldown = other->cooldown;
-	spellCost = other->spellCost;
-	duration = other->duration;
-	minRange = other->minRange;
-	maxRange = other->maxRange;
-	hostileSpell = other->hostileSpell;
-	instant = other->instant;
-
-	additionalSpellsOnCreator = other->additionalSpellsOnCreator;
-	additionalSpellsOnTarget = other->additionalSpellsOnTarget;
-
-	soundSpellCasting = other->soundSpellCasting;
-	soundSpellHit = other->soundSpellHit;
-	soundSpellStart = other->soundSpellStart;
-
-	characterStateEffects = other->characterStateEffects;
-
-	requiredClass = other->requiredClass;
-	requiredLevel = other->requiredLevel;
-	requiredWeapons = other->requiredWeapons;
-
-	name = other->name;
-	info = other->info;
-}
-
-void ConfigurableAction::setCastTime(uint16_t newCastTime) {
-	castTime = newCastTime;
-}
-
-uint16_t ConfigurableAction::getCastTime() const {
-	return castTime;
-}
-
-void ConfigurableAction::setCooldown(uint16_t newCooldown) {
-	cooldown = newCooldown;
-}
-
-uint16_t ConfigurableAction::getCooldown() const
-{
-	return cooldown;
-}
-
-uint16_t ConfigurableAction::getRadius() const
-{
-	return 0;
-}
-
-int16_t ConfigurableAction::getX() const
-{
-	return 0;
-}
-
-int16_t ConfigurableAction::getY() const
-{
-	return 0;
-}
-
-void ConfigurableAction::setSpellCost(uint16_t spellCost)
-{
-	this->spellCost = spellCost;
-}
-
-uint16_t ConfigurableAction::getSpellCost() const
-{
-	return spellCost;
-}
-
-void ConfigurableAction::setRange(uint16_t minRange, uint16_t maxRange)
-{
-	this->minRange = minRange;
-	this->maxRange = maxRange;
-}
-
-bool ConfigurableAction::isInRange(uint16_t distance) const
-{
-	if (distance >= minRange && distance <= maxRange)
-	{
-		return true;
-	}
-	return false;
-}
-
-void ConfigurableAction::setName(std::string newName)
-{
-	name = newName;
-}
-
-std::string ConfigurableAction::getName() const
-{
-	return name;
-}
-
-void ConfigurableAction::setInfo(std::string newInfo)
-{
-	info = newInfo;
-}
-
-std::string ConfigurableAction::getInfo() const
-{
-	return info;
-}
-
-void ConfigurableAction::setDuration(uint16_t newDuration)
-{
-	duration = newDuration;
-}
-
-uint16_t ConfigurableAction::getDuration() const {
-	return duration;
-}
-
-TextureRect* ConfigurableAction::getSymbol() const {
-	return spellSymbol;
-}
-
 /// GeneralDamageSpell
 
 
-GeneralDamageSpell::GeneralDamageSpell() {
+GeneralDamageSpell::GeneralDamageSpell() : currentFrame(animation.getFrame()) {
 	minDirectDamage = 0;
 	maxDirectDamage = 0;
 	elementDirect = Enums::ElementType::Air;
@@ -551,7 +156,7 @@ GeneralDamageSpell::GeneralDamageSpell() {
 	elementContinuous = Enums::ElementType::Air;
 }
 
-GeneralDamageSpell::GeneralDamageSpell(GeneralDamageSpell *other) : ConfigurableSpell(other) {
+GeneralDamageSpell::GeneralDamageSpell(GeneralDamageSpell *other) : ConfigurableSpell(other), currentFrame(other->currentFrame) {
 	minDirectDamage = other->minDirectDamage; // This should be a list of effects
 	maxDirectDamage = other->maxDirectDamage;
 	elementDirect = other->elementDirect;
@@ -614,38 +219,38 @@ Enums::ElementType GeneralDamageSpell::getContinuousDamageElement() const
 
 void GeneralDamageSpell::dealDirectDamage() {
 	/*if (getDirectDamageMax() > 0) {
-		/// play the hit sound effect for the spell, if we have any.
-		if (soundSpellHit != "") {
-			//SoundEngine::playSound(soundSpellHit);
-		}
+	/// play the hit sound effect for the spell, if we have any.
+	if (soundSpellHit != "") {
+	//SoundEngine::playSound(soundSpellHit);
+	}
 
-		int damage = getDirectDamageMin() + RNG::randomInt(0, getDirectDamageMax() - getDirectDamageMin());
-		double fatigueDamageFactor = 1.0;
+	int damage = getDirectDamageMin() + RNG::randomInt(0, getDirectDamageMax() - getDirectDamageMin());
+	double fatigueDamageFactor = 1.0;
 
-		// here we recalculate the damage if we're a fighter class with high fatigue
-		if (creator->getArchType() == Enums::CharacterArchType::Fighter) {
-			fatigueDamageFactor = 1.0 - (floor(((static_cast<double>(creator->getMaxFatigue()) - creator->getCurrentFatigue() - getSpellCost() - 1) / creator->getMaxFatigue()) / 0.25) / 10);
-			if (fatigueDamageFactor > 1.0) {
-				fatigueDamageFactor = 1.0;
-			}
-			else if (fatigueDamageFactor < 0.7) {
-				fatigueDamageFactor = 0.7;
-			}
-		}
+	// here we recalculate the damage if we're a fighter class with high fatigue
+	if (creator->getArchType() == Enums::CharacterArchType::Fighter) {
+	fatigueDamageFactor = 1.0 - (floor(((static_cast<double>(creator->getMaxFatigue()) - creator->getCurrentFatigue() - getSpellCost() - 1) / creator->getMaxFatigue()) / 0.25) / 10);
+	if (fatigueDamageFactor > 1.0) {
+	fatigueDamageFactor = 1.0;
+	}
+	else if (fatigueDamageFactor < 0.7) {
+	fatigueDamageFactor = 0.7;
+	}
+	}
 
-		double damageFactor = StatsSystem::getStatsSystem()->complexGetSpellEffectElementModifier(creator->getLevel(), creator->getModifiedSpellEffectElementModifierPoints(getDirectDamageElement()), target->getLevel());
-		double resist = StatsSystem::getStatsSystem()->complexGetResistElementChance(target->getLevel(), target->getModifiedResistElementModifierPoints(getDirectDamageElement()), creator->getLevel());
-		double realDamage = damage * damageFactor * fatigueDamageFactor * (1 - resist);
-		double spellCriticalChance = StatsSystem::getStatsSystem()->complexGetSpellCriticalStrikeChance(creator->getLevel(), creator->getModifiedSpellCriticalModifierPoints(), target->getLevel());
-		bool criticalHit = RNG::randomSizeT(0, 10000) <= spellCriticalChance * 10000;
-		if (criticalHit == true) {
-			int criticalDamageMultiplier = 2;
-			realDamage *= criticalDamageMultiplier;
-		}
+	double damageFactor = StatsSystem::getStatsSystem()->complexGetSpellEffectElementModifier(creator->getLevel(), creator->getModifiedSpellEffectElementModifierPoints(getDirectDamageElement()), target->getLevel());
+	double resist = StatsSystem::getStatsSystem()->complexGetResistElementChance(target->getLevel(), target->getModifiedResistElementModifierPoints(getDirectDamageElement()), creator->getLevel());
+	double realDamage = damage * damageFactor * fatigueDamageFactor * (1 - resist);
+	double spellCriticalChance = StatsSystem::getStatsSystem()->complexGetSpellCriticalStrikeChance(creator->getLevel(), creator->getModifiedSpellCriticalModifierPoints(), target->getLevel());
+	bool criticalHit = RNG::randomSizeT(0, 10000) <= spellCriticalChance * 10000;
+	if (criticalHit == true) {
+	int criticalDamageMultiplier = 2;
+	realDamage *= criticalDamageMultiplier;
+	}
 
-		if (target->isAlive()) {
-			target->Damage(round(realDamage), criticalHit);
-		}
+	if (target->isAlive()) {
+	target->Damage(round(realDamage), criticalHit);
+	}
 	}*/
 }
 
@@ -660,6 +265,23 @@ double GeneralDamageSpell::calculateContinuousDamage(uint64_t timePassed) {
 	return realDamage;*/
 	return 1.0;
 }
+
+void GeneralDamageSpell::addAnimationFrame(std::string file, int paddingLeft, int paddingRight, int paddingTop, int paddingBottom) {
+	animation.addFrame(ConvertRect(TextureManager::Loadimage(file, 0u, 0u, false, paddingLeft, paddingRight, paddingTop, paddingBottom)));
+}
+void GeneralDamageSpell::update(float deltatime) {
+	animation.update(deltatime);
+}
+
+const bool GeneralDamageSpell::waitForAnimation() const {
+	return animation.waitForAnimation();
+}
+
+void GeneralDamageSpell::startAnimation() {
+	animation.start();
+}
+
+
 
 /// class GeneralRayDamageSpell
 GeneralRayDamageSpell::GeneralRayDamageSpell() {
@@ -798,21 +420,19 @@ void GeneralRayDamageSpell::drawEffect() {
 	}
 }
 
-void GeneralRayDamageSpell::update(float deltatime) {
-	animation.update(deltatime);
-}
-
-void GeneralRayDamageSpell::draw(int posX, int posY) {
+void GeneralRayDamageSpell::draw(int posX, int posY, float degree) {
 	if (animation.waitForAnimation()) {
 		TextureManager::BindTexture(TextureManager::GetTextureAtlas("spells"), true);
-		TextureRect rect = ConvertRect(currentFrame);
-		TextureManager::DrawTexture(rect, posX, posY, false, true);
+		const TextureRect& rect = ConvertRect(currentFrame);
+	
+		TextureManager::RotateTextureRect(rect, static_cast<float>(posX), static_cast<float>(posY), degree, 128.0f + offsetRadius, -offsetRadius, TextureManager::TransPos);
+		TextureManager::DrawTextureBatched(rect, TextureManager::TransPos, true);
+		TextureManager::DrawBuffer(true);
 		TextureManager::UnbindTexture(true);
 	}
 }
 
 /// class GeneralAreaDamageSpell
-
 int16_t GeneralAreaDamageSpell::getX() {
 	return centerX;
 }
@@ -1046,7 +666,7 @@ void GeneralBoltDamageSpell::setExpireTime(int newExpireTime) {
 	expireTime = newExpireTime;
 }
 
-void GeneralBoltDamageSpell::setNumAnimations(int count) {	
+void GeneralBoltDamageSpell::setNumAnimations(int count) {
 	numBoltTextures = count;
 }
 
@@ -1091,10 +711,11 @@ void GeneralBoltDamageSpell::inEffect() {
 	int movex;
 	int movey;
 
-	if(percdist >= 1.0) {
+	if (percdist >= 1.0) {
 		movex = dx;
 		movey = dy;
-	}else {
+	}
+	else {
 		movex = dx * percdist;
 		movey = dy * percdist;
 	}
@@ -1106,9 +727,10 @@ void GeneralBoltDamageSpell::inEffect() {
 	posx += movex;
 	posy += movey;
 
-	if((posx == targetx && posy == targety) || getInstant() == true) {
+	if ((posx == targetx && posy == targety) || getInstant() == true) {
 		finishEffect();
-	}else if ((curTicks - effectStart) > expireTime) {
+	}
+	else if ((curTicks - effectStart) > expireTime) {
 		markSpellActionAsFinished();
 	}
 }
@@ -1155,9 +777,9 @@ void GeneralBoltDamageSpell::drawEffect() {
 		glTranslatef(-textureWidth / 2, -textureHeight / 2, 0.0f);
 
 		DrawingHelpers::mapTextureToRect(
-			boltTexture->getTexture(frameCount),
-			0, textureWidth,
-			0, textureHeight);
+		boltTexture->getTexture(frameCount),
+		0, textureWidth,
+		0, textureHeight);
 		glPopMatrix();*/
 	}
 }
@@ -1277,11 +899,11 @@ void GeneralHealingSpell::startEffect() {
 	// only do a heal if we've set a healing value to the spell.
 	if ((healEffectMin + healEffectMax) > 0) {
 		//double healingFactor = StatsSystem::getStatsSystem()->complexGetSpellEffectElementModifier(creator->getLevel(), creator->getModifiedSpellEffectElementModifierPoints(healEffectElement), creator->getLevel());
-		double realHealing = healing ;
+		double realHealing = healing;
 		/*double spellCriticalChance = StatsSystem::getStatsSystem()->complexGetSpellCriticalStrikeChance(creator->getLevel(), creator->getModifiedSpellCriticalModifierPoints(), creator->getLevel());
 		if (RNG::randomSizeT(0, 10000) <= spellCriticalChance * 10000) {
-			int criticalEffectMultiplier = 2;
-			realHealing *= criticalEffectMultiplier;
+		int criticalEffectMultiplier = 2;
+		realHealing *= criticalEffectMultiplier;
 		}*/
 		int healingCaused = round(realHealing);
 
@@ -1490,438 +1112,45 @@ void GeneralBuffSpell::finishEffect() {
 	}
 }
 
+namespace SpellCreation {
 
-/// MeleeDamageAction
-
-MeleeDamageAction::MeleeDamageAction() {
-	damageBonus = 1.0;
-}
-
-MeleeDamageAction::MeleeDamageAction(MeleeDamageAction *other) : ConfigurableAction(other) {
-	damageBonus = other->damageBonus;
-}
-
-CSpellActionBase* MeleeDamageAction::cast(Character *creator, Character *target, bool child = false) {
-	std::auto_ptr<MeleeDamageAction> newAction(new MeleeDamageAction(this));
-	newAction->creator = creator;
-	newAction->target = target;
-
-	return newAction.release();
-}
-
-CSpellActionBase* MeleeDamageAction::cast(Character *creator, int x, int y) {
-	//this function does nothing... 'cause it's only needed in GeneralAreaDamageSpell
-	MeleeDamageAction* newSpell = new MeleeDamageAction(this);
-	return newSpell;
-}
-
-void MeleeDamageAction::setDamageBonus(double damageBonus) {
-	this->damageBonus = damageBonus;
-}
-
-double MeleeDamageAction::getDamageBonus() const {
-	return damageBonus;
-}
-
-void MeleeDamageAction::dealDamage() {
-
-	/*const StatsSystem *statsSystem = StatsSystem::getStatsSystem();
-
-	double fatigueDamageFactor = 1.0;
-
-	// here we recalculate the damage if we're a fighter class with high fatigue
-	if (creator->getArchType() == Enums::CharacterArchType::Fighter) {
-		fatigueDamageFactor = 1.0 - (floor(((static_cast<double>(creator->getMaxFatigue()) - creator->getCurrentFatigue() - getSpellCost() - 1) / creator->getMaxFatigue()) / 0.25) / 10);
-		if (fatigueDamageFactor > 1.0) {
-			fatigueDamageFactor = 1.0;
-		}
-		else if (fatigueDamageFactor < 0.7) {
-			fatigueDamageFactor = 0.7;
-		}
-	}
-
-	double minDamage = creator->getModifiedMinDamage() * statsSystem->complexGetDamageModifier(creator->getLevel(), creator->getModifiedDamageModifierPoints(), target->getLevel());
-	double maxDamage = creator->getModifiedMaxDamage() * statsSystem->complexGetDamageModifier(creator->getLevel(), creator->getModifiedDamageModifierPoints(), target->getLevel());
-	int damage = RNG::randomSizeT(minDamage, maxDamage) * damageBonus;
-
-	double hitChance = statsSystem->complexGetHitChance(creator->getLevel(), creator->getModifiedHitModifierPoints(), target->getLevel());
-	double criticalHitChance = statsSystem->complexGetMeleeCriticalStrikeChance(creator->getLevel(), creator->getModifiedMeleeCriticalModifierPoints(), target->getLevel());
-	double targetEvadeChance = statsSystem->complexGetEvadeChance(target->getLevel(), target->getModifiedEvadeModifierPoints(), creator->getLevel());
-	double targetParryChance = statsSystem->complexGetParryChance(target->getLevel(), target->getModifiedParryModifierPoints(), creator->getLevel());
-	double targetBlockChance = statsSystem->complexGetBlockChance(target->getLevel(), target->getModifiedBlockModifierPoints(), creator->getLevel());
-	double damageReduction = statsSystem->complexGetDamageReductionModifier(target->getLevel(), target->getModifiedArmor(), creator->getLevel());
-
-	bool hasHit = RNG::randomSizeT(0, 10000) <= hitChance * 10000;
-	bool criticalHit = RNG::randomSizeT(0, 10000) <= criticalHitChance * 10000;
-	int criticalHitFactor = 2;
-	bool targetEvaded = RNG::randomSizeT(0, 10000) <= targetEvadeChance * 10000;
-	bool targetParried = RNG::randomSizeT(0, 10000) <= targetParryChance * 10000;
-	bool targetBlocked = RNG::randomSizeT(0, 10000) <= targetBlockChance * 10000;
-	double blockFactor = 0.5;
-
-	if (hasHit && !targetEvaded && !targetParried) {
-		int damageDone = damage * (1.0 - damageReduction) * fatigueDamageFactor * (targetBlocked ? blockFactor : 1.0) * (criticalHit ? criticalHitFactor : 1);
-		if (damageDone < 1) {
-			damageDone = 1;
-		}
-		target->Damage(damageDone, criticalHit);
-
-		/// play the hit sound effect for the spell, if we have any.
-		if (soundSpellHit != "") {
-			//SoundEngine::playSound(soundSpellHit);
-		}
-	}*/
-}
-
-double MeleeDamageAction::getProgress() const {
-	int32_t curTime = Globals::clock.getElapsedTimeMilli();
-	return ((curTime - effectStart) / 650.0);
-}
-
-Enums::EffectType MeleeDamageAction::getEffectType() const {
-	return Enums::SingleTargetSpell;
-}
-
-void MeleeDamageAction::startEffect() {
-
-	/// play the start sound effect for the spell, if we have any.
-	if (soundSpellStart != "") {
-		//SoundEngine::playSound(soundSpellStart);
-	}
-	effectStart = Globals::clock.getElapsedTimeMilli();
-	target->addActiveSpell(this);
-	creator->addCooldownSpell(dynamic_cast<CSpellActionBase*> (cast(NULL, NULL)));
-}
-
-void MeleeDamageAction::inEffect() {
-	if (target->isAlive() == false) {
-		// target died while having this effect active. mark it as finished.
-		finishEffect();
-		return;
-	}
-
-	if (getProgress() >= 1.0) {
-		finishEffect();
-	}
-}
-
-void MeleeDamageAction::drawEffect(){ }
-
-void MeleeDamageAction::finishEffect() {
-	dealDamage();
-	markSpellActionAsFinished();
-
-	// do we have an additional spell that perhaps should be cast on our target?
-	for (size_t additionalSpell = 0; additionalSpell < additionalSpellsOnTarget.size(); additionalSpell++) {
-		if (RNG::randomSizeT(0, 10000) <= additionalSpellsOnTarget[additionalSpell].second * 10000) {
-			creator->executeSpellWithoutCasting(additionalSpellsOnTarget[additionalSpell].first, target);
-		}
-	}
-
-	// do we have an additional spell that perhaps should be cast on our creator?
-	for (size_t additionalSpell = 0; additionalSpell < additionalSpellsOnCreator.size(); additionalSpell++) {
-		if (RNG::randomSizeT(0, 10000) <= additionalSpellsOnCreator[additionalSpell].second * 10000) {
-			creator->executeSpellWithoutCasting(additionalSpellsOnCreator[additionalSpell].first, creator);
-		}
-	}
-}
-
-/// RangedDamageAction
-
-RangedDamageAction::RangedDamageAction() {
-	minRange = 0;
-	maxRange = 360; // default maxrange for ranged attacks. Can be overridden with setRange().
-	numProjectileTextures = 0;
-	damageBonus = 1.0;
-	moveSpeed = 1;
-	expireTime = 10000;
-}
-
-RangedDamageAction::RangedDamageAction(RangedDamageAction *other) : ConfigurableAction(other) {
-	minRange = other->minRange;
-	maxRange = other->maxRange;
-	damageBonus = other->damageBonus;
-	numProjectileTextures = other->numProjectileTextures;
-	projectileTexture = other->projectileTexture;
-	moveSpeed = other->moveSpeed;
-	expireTime = other->expireTime;
-}
-
-CSpellActionBase* RangedDamageAction::cast(Character *creator, Character *target, bool child = false) {
-	RangedDamageAction* newSpell = new RangedDamageAction(this);
-	newSpell->creator = creator;
-	newSpell->target = target;
-
-	return newSpell;
-}
-
-CSpellActionBase* RangedDamageAction::cast(Character *creator, int x, int y) {
-	//this function does nothing... 'cause it's only needed in GeneralAreaDamageSpell
-	RangedDamageAction* newSpell = new RangedDamageAction(this);
-	return newSpell;
-}
-
-void RangedDamageAction::setMoveSpeed(int newMoveSpeed) {
-	moveSpeed = newMoveSpeed;
-}
-
-void RangedDamageAction::setExpireTime(int newExpireTime) {
-	expireTime = newExpireTime;
-}
-
-void RangedDamageAction::setNumAnimations(int count) {
-	numProjectileTextures = count;
-}
-
-void RangedDamageAction::setAnimationTexture(int num, std::string filename) {	
-	TextureManager::Loadimage(filename, num, projectileTexture);
-}
-
-void RangedDamageAction::startEffect() {
-	/// play the start sound effect for the spell, if we have any.
-	if (soundSpellStart != "") {
-		//SoundEngine::playSound(soundSpellStart);
-	}
-	frameCount = 0;
-	moveRemaining = 0.0;
-	effectStart = Globals::clock.getElapsedTimeMilli();
-	animationTimerStart = effectStart;
-	lastEffect = effectStart;
-	posx = creator->getXPos() + (creator->getWidth() / 2);
-	posy = creator->getYPos() + (creator->getHeight() / 2);
-
-	target->addActiveSpell(this);
-	creator->addCooldownSpell(dynamic_cast<CSpellActionBase*> (cast(NULL, NULL)));
-	unbindFromCreator();
-}
-
-void RangedDamageAction::inEffect() {
-	if (target->isAlive() == false) {
-		// target died while having this effect active. mark it as finished.
-		finishEffect();
-		return;
-	}
-
-	uint32_t curTicks = Globals::clock.getElapsedTimeMilli();
-	moveRemaining += moveSpeed * (curTicks - lastEffect) / 1000.0;
-	int targetx = target->getXPos() + (target->getWidth() / 2);
-	int targety = target->getYPos() + (target->getHeight() / 2);
-	int dx = targetx - posx;
-	int dy = targety - posy;
-	double dist = sqrt((dx * dx) + (dy * dy));
-	double percdist = (moveRemaining / dist);
-	int movex;
-	int movey;
-
-	if (percdist >= 1.0) {
-		movex = dx;
-		movey = dy;
-	}else {
-		movex = dx * percdist;
-		movey = dy * percdist;
-	}
-
-	double movedDist = sqrt(movex * movex + movey * movey);
-	moveRemaining -= movedDist;
-	lastEffect = curTicks;
-
-	posx += movex;
-	posy += movey;
-
-	if ((posx == targetx && posy == targety) || getInstant() == true) {
-		finishEffect();
-	}else if ((curTicks - effectStart) > expireTime) {
-		markSpellActionAsFinished();
-	}
-}
-
-void RangedDamageAction::finishEffect() {
-	dealDamage();
-	markSpellActionAsFinished();
-
-	// do we have an additional spell that perhaps should be cast on our target?
-	for (size_t additionalSpell = 0; additionalSpell < additionalSpellsOnTarget.size(); additionalSpell++) {
-		if (RNG::randomSizeT(0, 10000) <= additionalSpellsOnTarget[additionalSpell].second * 10000) {
-			creator->executeSpellWithoutCasting(additionalSpellsOnTarget[additionalSpell].first, target);
-		}
-	}
-
-	// do we have an additional spell that perhaps should be cast on our creator?
-	for (size_t additionalSpell = 0; additionalSpell < additionalSpellsOnCreator.size(); additionalSpell++) {
-		if (RNG::randomSizeT(0, 10000) <= additionalSpellsOnCreator[additionalSpell].second * 10000) {
-			creator->executeSpellWithoutCasting(additionalSpellsOnCreator[additionalSpell].first, creator);
-		}
-	}
-}
-
-double RangedDamageAction::getProgress() const {
-	int32_t curTime = Globals::clock.getElapsedTimeMilli();
-	return ((curTime - effectStart) / 650.0);
-}
-
-
-void RangedDamageAction::drawEffect() {
-
-	if (numProjectileTextures > 0) {
-		int targetx = target->getXPos() + (target->getWidth() / 2);
-		int targety = target->getYPos() + (target->getHeight() / 2);
-		float degrees;
-		degrees = asin((posy - targety) / sqrt((pow(posx - targetx, 2) + pow(posy - targety, 2)))) * 57.296;
-		degrees += 90;
-
-		animationTimerStop = Globals::clock.getElapsedTimeMilli();
-		frameCount = static_cast<size_t>((animationTimerStop - animationTimerStart) / 50) % numProjectileTextures;
-
-		if (posx < targetx) {
-			degrees = -degrees;
-		}
-
-		/*int textureWidth = projectileTexture->getTexture(frameCount).width;
-		int textureHeight = projectileTexture->getTexture(frameCount).height;
-		glPushMatrix();
-		glTranslatef(posx, posy, 0.0f);
-		glRotatef(degrees, 0.0f, 0.0f, 1.0f);
-		glTranslatef(-textureWidth / 2, -textureHeight / 2, 0.0f);
-
-		DrawingHelpers::mapTextureToRect(
-			projectileTexture->getTexture(frameCount),
-			0, textureWidth,
-			0, textureHeight);
-		glPopMatrix();*/
-	}
-}
-
-void RangedDamageAction::setDamageBonus(double damageBonus) {
-	this->damageBonus = damageBonus;
-}
-
-double RangedDamageAction::getDamageBonus() const {
-	return damageBonus;
-}
-
-void RangedDamageAction::dealDamage() {
-
-	/*const StatsSystem *statsSystem = StatsSystem::getStatsSystem();
-
-	double fatigueDamageFactor = 1.0;
-
-	// here we recalculate the damage if we're a fighter class with high fatigue
-	if (creator->getArchType() == Enums::CharacterArchType::Fighter) {
-		fatigueDamageFactor = 1.0 - (floor(((static_cast<double>(creator->getMaxFatigue()) - creator->getCurrentFatigue() - getSpellCost() - 1) / creator->getMaxFatigue()) / 0.25) / 10);
-		if (fatigueDamageFactor > 1.0) {
-			fatigueDamageFactor = 1.0;
-		}
-		else if (fatigueDamageFactor < 0.7) {
-			fatigueDamageFactor = 0.7;
-		}
-	}
-
-	double minDamage = creator->getModifiedMinDamage() * statsSystem->complexGetDamageModifier(creator->getLevel(), creator->getModifiedDamageModifierPoints(), target->getLevel());
-	double maxDamage = creator->getModifiedMaxDamage() * statsSystem->complexGetDamageModifier(creator->getLevel(), creator->getModifiedDamageModifierPoints(), target->getLevel());
-	int damage = RNG::randomSizeT(minDamage, maxDamage) * damageBonus;
-
-	double hitChance = statsSystem->complexGetHitChance(creator->getLevel(), creator->getModifiedHitModifierPoints(), target->getLevel());
-	double criticalHitChance = statsSystem->complexGetMeleeCriticalStrikeChance(creator->getLevel(), creator->getModifiedMeleeCriticalModifierPoints(), target->getLevel());
-	double targetEvadeChance = statsSystem->complexGetEvadeChance(target->getLevel(), target->getModifiedEvadeModifierPoints(), creator->getLevel());
-	double targetBlockChance = statsSystem->complexGetBlockChance(target->getLevel(), target->getModifiedBlockModifierPoints(), creator->getLevel());
-	double damageReduction = statsSystem->complexGetDamageReductionModifier(target->getLevel(), target->getModifiedArmor(), creator->getLevel());
-
-	bool hasHit = RNG::randomSizeT(0, 10000) <= hitChance * 10000;
-	bool criticalHit = RNG::randomSizeT(0, 10000) <= criticalHitChance * 10000;
-	int criticalHitFactor = 2;
-	bool targetEvaded = RNG::randomSizeT(0, 10000) <= targetEvadeChance * 10000;
-	bool targetBlocked = RNG::randomSizeT(0, 10000) <= targetBlockChance * 10000;
-	double blockFactor = 0.5;
-
-	if (hasHit && !targetEvaded) {
-		int damageDone = damage * (1.0 - damageReduction) * fatigueDamageFactor * (targetBlocked ? blockFactor : 1.0) * (criticalHit ? criticalHitFactor : 1);
-		if (damageDone < 1) {
-			damageDone = 1;
-		}
-		target->Damage(damageDone, criticalHit);
-
-		/// play the hit sound effect for the spell, if we have any.
-		if (soundSpellHit != "") {
-			//SoundEngine::playSound(soundSpellHit);
-		}
-	}*/
-}
-
-Enums::EffectType RangedDamageAction::getEffectType() const {
-	return Enums::SingleTargetSpell;
-}
-
-
-/// SpellCreation factory methods
-namespace SpellCreation
-{
-	CSpellActionBase* getGeneralRayDamageSpell()
-	{
+	CSpellActionBase* getGeneralRayDamageSpell() {
 		return new GeneralRayDamageSpell();
 	}
 
-	CSpellActionBase* getGeneralRayDamageSpell(GeneralRayDamageSpell *other)
-	{
+	CSpellActionBase* getGeneralRayDamageSpell(GeneralRayDamageSpell *other) {
 		return new GeneralRayDamageSpell(other);
 	}
 
-	CSpellActionBase* getGeneralAreaDamageSpell()
-	{
+	CSpellActionBase* getGeneralAreaDamageSpell() {
 		return new GeneralAreaDamageSpell();
 	}
 
-	CSpellActionBase* getGeneralAreaDamageSpell(GeneralAreaDamageSpell *other)
-	{
+	CSpellActionBase* getGeneralAreaDamageSpell(GeneralAreaDamageSpell *other) {
 		return new GeneralAreaDamageSpell(other);
 	}
 
-	CSpellActionBase* getGeneralBoltDamageSpell()
-	{
+	CSpellActionBase* getGeneralBoltDamageSpell() {
 		return new GeneralBoltDamageSpell();
 	}
 
-	CSpellActionBase* getGeneralBoltDamageSpell(GeneralBoltDamageSpell *other)
-	{
+	CSpellActionBase* getGeneralBoltDamageSpell(GeneralBoltDamageSpell *other) {
 		return new GeneralBoltDamageSpell(other);
 	}
 
-	CSpellActionBase* getGeneralHealingSpell()
-	{
+	CSpellActionBase* getGeneralHealingSpell() {
 		return new GeneralHealingSpell();
 	}
 
-	CSpellActionBase* getGeneralHealingSpell(GeneralHealingSpell *other)
-	{
+	CSpellActionBase* getGeneralHealingSpell(GeneralHealingSpell *other) {
 		return new GeneralHealingSpell(other);
 	}
 
-	CSpellActionBase* getGeneralBuffSpell()
-	{
+	CSpellActionBase* getGeneralBuffSpell() {
 		return new GeneralBuffSpell();
 	}
 
-	CSpellActionBase* getGeneralBuffSpell(GeneralBuffSpell *other)
-	{
+	CSpellActionBase* getGeneralBuffSpell(GeneralBuffSpell *other) {
 		return new GeneralBuffSpell(other);
 	}
-
-	CSpellActionBase* getMeleeDamageAction()
-	{
-		return new MeleeDamageAction();
-	}
-
-	CSpellActionBase* getMeleeDamageAction(MeleeDamageAction *other)
-	{
-		return new MeleeDamageAction(other);
-	}
-
-	CSpellActionBase* getRangedDamageAction()
-	{
-		return new RangedDamageAction();
-	}
-
-	CSpellActionBase* getRangedDamageAction(RangedDamageAction *other)
-	{
-		return new RangedDamageAction(other);
-	}
-} // namespace SpellCreation
+}

@@ -8,7 +8,8 @@ $#include "InteractionRegion.h"
 $#include "InteractionPoint.h"
 $#include "TextWindow.h"
 $#include "Enums.h"
-$#include "Spell.h"
+$#include "Actions.h"
+$#include "Spells.h"
 
 namespace Enums
 {
@@ -306,7 +307,6 @@ class CSpellActionBase
 	void setInstant( bool instant );
 	void setCharacterState( Enums::CharacterStates characterState, float value = 1.0 );
 	void setSymbolTextureRect(TextureRect& textureRect);
-	void addAnimationFrame(std::string file, int paddingLeft = 0, int paddingRight = 0, int paddingTop = 0, int paddingBottom = 0);
 };
 
 class CAction : public CSpellActionBase
@@ -342,6 +342,7 @@ class GeneralDamageSpell : public ConfigurableSpell
 {
 	void setDirectDamage( int newMinDirectDamage, int newMaxDirectDamage, Enums::ElementType newElementDirect );
 	void setContinuousDamage( double newMinContDamagePerSec, double newMaxContDamagePerSec, int newContDamageTime, Enums::ElementType newContDamageElement );
+	void addAnimationFrame(std::string file, int paddingLeft = 0, int paddingRight = 0, int paddingTop = 0, int paddingBottom = 0);
 };
 
 class GeneralRayDamageSpell : public GeneralDamageSpell
@@ -395,5 +396,6 @@ class RangedDamageAction : public ConfigurableAction
 	void setExpireTime( int newExpireTime );
 	void setNumAnimations( int count );
 	void setAnimationTexture( int num, std::string filename );
+	void addAnimationFrame(std::string file, int paddingLeft = 0, int paddingRight = 0, int paddingTop = 0, int paddingBottom = 0);
 };
 

@@ -9,7 +9,8 @@
 #include "InteractionRegion.h"
 #include "InteractionPoint.h"
 #include "TextWindow.h"
-#include "Spell.h"
+#include "Actions.h"
+#include "Spells.h"
 #include "Player.h"
 
 namespace EditorInterface{

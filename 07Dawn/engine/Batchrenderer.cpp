@@ -134,6 +134,35 @@ void Batchrenderer::shutdown() {
 	}
 }
 
+void Batchrenderer::addQuad(float pos[8], Vector4f texPosSize, Vector4f color, unsigned int frame, bool updateView) {
+
+	if (indexCount >= m_maxIndex) {
+		drawBuffer(updateView);
+	}
+
+	bufferPtr->posTex = { pos[0], pos[1],  texPosSize[0],  texPosSize[1] };
+	bufferPtr->color = { color[0], color[1], color[2], color[3] };
+	bufferPtr->frame = frame;
+	bufferPtr++;
+
+	bufferPtr->posTex = { pos[2], pos[3],  texPosSize[0] + texPosSize[2],  texPosSize[1] };
+	bufferPtr->color = { color[0], color[1], color[2], color[3] };
+	bufferPtr->frame = frame;
+	bufferPtr++;
+
+	bufferPtr->posTex = { pos[4], pos[5],  texPosSize[0] + texPosSize[2],  texPosSize[1] + texPosSize[3] };
+	bufferPtr->color = { color[0], color[1], color[2], color[3] };
+	bufferPtr->frame = frame;
+	bufferPtr++;
+
+	bufferPtr->posTex = { pos[6], pos[7],  texPosSize[0],  texPosSize[1] + texPosSize[3] };
+	bufferPtr->color = { color[0], color[1], color[2], color[3] };
+	bufferPtr->frame = frame;
+	bufferPtr++;
+
+	indexCount += 6;
+}
+
 void Batchrenderer::addQuad(Vector4f posSize, Vector4f texPosSize, Vector4f color, unsigned int frame, bool updateView) {
 
 	if (indexCount >= m_maxIndex) {
@@ -224,6 +253,30 @@ void Batchrenderer::drawSingleQuad(Vector4f posSize, Vector4f texPosSize, Vector
 		ptr[2] = { posSize[0] + posSize[2], posSize[1] + posSize[3], texPosSize[0] + texPosSize[2], texPosSize[1] + texPosSize[3], color[0], color[1], color[2], color[3], frame };
 		ptr[3] = { posSize[0], posSize[1] + posSize[3], texPosSize[0], texPosSize[1] + texPosSize[3], color[0], color[1], color[2], color[3], frame };
 		
+		glUnmapBuffer(GL_ARRAY_BUFFER);
+	}
+
+	glUseProgram(m_shader->m_program);
+	m_shader->loadMatrix("u_transform", updateView ? m_camera->getOrthographicMatrix() * m_camera->getViewMatrix() : m_camera->getOrthographicMatrix());
+
+	glBindVertexArray(m_vaoSingle);
+	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, nullptr);
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+	glUseProgram(0);
+}
+
+void Batchrenderer::drawSingleQuad(float pos[8], Vector4f texPosSize, Vector4f color, unsigned int frame, bool updateView) {
+	glBindBuffer(GL_ARRAY_BUFFER, m_vboSingle);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * 4, NULL, GL_STATIC_DRAW);
+	Vertex* ptr = (Vertex*)glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
+	if (ptr) {
+		ptr[0] = { pos[0], pos[1], texPosSize[0], texPosSize[1], color[0], color[1], color[2], color[3], frame };
+		ptr[1] = { pos[2], pos[3], texPosSize[0] + texPosSize[2],  texPosSize[1], color[0], color[1], color[2], color[3], frame };
+		ptr[2] = { pos[4], pos[5], texPosSize[0] + texPosSize[2], texPosSize[1] + texPosSize[3], color[0], color[1], color[2], color[3], frame };
+		ptr[3] = { pos[6], pos[7], texPosSize[0], texPosSize[1] + texPosSize[3], color[0], color[1], color[2], color[3], frame };
+
 		glUnmapBuffer(GL_ARRAY_BUFFER);
 	}
 

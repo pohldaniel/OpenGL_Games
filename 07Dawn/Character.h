@@ -8,7 +8,7 @@
 #include "Enums.h"
 #include "TextureManager.h"
 #include "Random.h"
-#include "Spell.h"
+#include "SpellActionBase.h"
 
 class TileSet;
 

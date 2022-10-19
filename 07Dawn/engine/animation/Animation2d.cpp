@@ -13,17 +13,18 @@ void Animation2D::update(const float deltaTime) {
 			m_waitForAnimation = false;
 
 		}	 
-		frame = frames[m_currentFrame];
+		m_frame = m_frames[m_currentFrame];
 	}
 }
 
 void Animation2D::addFrame(const TextureRect& frame) {
-	frames.push_back(frame);
-	m_frameCount = frames.size();
+	m_frames.push_back(frame);
+	m_frameCount = static_cast<unsigned int>(m_frames.size());
+	m_frame = m_frames[0];
 }
 
 const Animation2D::TextureRect& Animation2D::getFrame() {
-	return frame;
+	return m_frame;
 }
 
 void Animation2D::start() {
@@ -31,6 +32,6 @@ void Animation2D::start() {
 	m_elapsedTime = 0.0f;
 }
 
-const bool Animation2D::waitForAnimation() {
+const bool Animation2D::waitForAnimation() const{
 	return m_waitForAnimation;
 }

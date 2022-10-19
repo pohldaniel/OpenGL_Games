@@ -34,6 +34,9 @@
     <Filter Include="thread">
       <UniqueIdentifier>{1233b3eb-217f-4b26-a243-740a2750c478}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Spells">
+      <UniqueIdentifier>{1b0fcf45-374a-4014-b91f-c5ae6b1dde92}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Application.cpp">
@@ -195,11 +198,17 @@
     <ClCompile Include="engine\input\ApplicationEventListener.cpp">
       <Filter>engine\input</Filter>
     </ClCompile>
-    <ClCompile Include="Spell.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="engine\animation\Animation2D.cpp">
       <Filter>engine\animation</Filter>
+    </ClCompile>
+    <ClCompile Include="SpellActionBase.cpp">
+      <Filter>Source Files\Spells</Filter>
+    </ClCompile>
+    <ClCompile Include="Spells.cpp">
+      <Filter>Source Files\Spells</Filter>
+    </ClCompile>
+    <ClCompile Include="Actions.cpp">
+      <Filter>Source Files\Spells</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -365,11 +374,17 @@
     <ClInclude Include="engine\input\ApplicationEventListener.h">
       <Filter>engine\input</Filter>
     </ClInclude>
-    <ClInclude Include="Spell.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="engine\animation\Animation2D.h">
       <Filter>engine\animation</Filter>
+    </ClInclude>
+    <ClInclude Include="SpellActionBase.h">
+      <Filter>Source Files\Spells</Filter>
+    </ClInclude>
+    <ClInclude Include="Spells.h">
+      <Filter>Source Files\Spells</Filter>
+    </ClInclude>
+    <ClInclude Include="Actions.h">
+      <Filter>Source Files\Spells</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
