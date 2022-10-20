@@ -1,5 +1,6 @@
 #pragma once
 
+#include "engine/input/Mouse.h"
 #include "engine/input/KeyBorad.h"
 #include "engine/Batchrenderer.h"
 #include "engine/Fontrenderer.h"
@@ -64,7 +65,7 @@ struct sSpellSlot{
 };
 
 
-class Interface{
+class Interface {
 public:
 
 	void loadTextures();
@@ -129,4 +130,6 @@ private:
 	int actionBarPosX;
 	int actionBarPosY;
 	static Interface s_instance;
+	int cursorRadius;
+	std::pair<int, int> m_lastMouseDown;
 };

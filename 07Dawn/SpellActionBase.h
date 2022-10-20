@@ -49,6 +49,7 @@ public:
 	/// \brief Draws the graphical representation of the spell effect.
 	virtual void drawEffect() = 0;
 	virtual void draw(int posX, int posY, float degree) {};
+
 	virtual void update(float deltatime) {};
 	virtual void startAnimation() {};
 	virtual const bool waitForAnimation() const { return false; };
@@ -57,7 +58,7 @@ public:
 	/// \brief Called while the spell is not yet completed and thought for continuous effects.
 	/// Needs to mark the spell as completed unless that has already been done,
 	/// e.g. because the effect is not continuous.
-	virtual void inEffect() = 0;
+	virtual void inEffect(float deltatime) = 0;
 
 	/// \brief Whether the spell has done its work and the object can be destroyed.
 	bool isEffectComplete() const;

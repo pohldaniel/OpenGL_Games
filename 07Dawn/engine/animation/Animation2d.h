@@ -23,15 +23,16 @@ public:
 	void addFrame(const TextureRect& frame);
 	const Animation2D::TextureRect& getFrame();
 	const bool waitForAnimation() const;
+	void resetAnimation();
 
 private:
 
 	unsigned m_frameCount = 0;
-	float m_elapsedTime = 0.f;
+	float m_elapsedTime = 0.0f;
 	unsigned int m_currentFrame = 0;
 	TextureRect m_frame;
 	std::vector<TextureRect> m_frames;
 
 	bool m_waitForAnimation = false;
-	bool m_loop = false;
+	bool m_loop = true;
 };

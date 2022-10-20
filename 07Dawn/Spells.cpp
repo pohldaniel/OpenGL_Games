@@ -321,10 +321,14 @@ void GeneralRayDamageSpell::setAnimationTexture(int num, std::string filename) {
 }
 
 void GeneralRayDamageSpell::startEffect() {
+	if (!isEffectComplete()) return;
 	/// play the start sound effect for the spell, if we have any.
 	if (soundSpellStart != "") {
 		//SoundEngine::playSound(soundSpellStart);
 	}
+	animation.start();
+	finished = false;
+
 	remainingEffect = 0.0;
 	frameCount = 0;
 
@@ -334,47 +338,47 @@ void GeneralRayDamageSpell::startEffect() {
 	animationTimerStart = effectStart;
 	lastEffect = effectStart;
 
-	target->addActiveSpell(this);
-	creator->addCooldownSpell(dynamic_cast<CSpellActionBase*> (cast(NULL, NULL)));
-	unbindFromCreator();
+	m_spellTimer.restart();
+
+	//target->addActiveSpell(this);
+	//creator->addCooldownSpell(dynamic_cast<CSpellActionBase*> (cast(NULL, NULL)));
+	//unbindFromCreator();
 }
 
-void GeneralRayDamageSpell::inEffect() {
-	if (target->isAlive() == false) {
+void GeneralRayDamageSpell::inEffect(float deltatime) {
+	if (isEffectComplete()) return;
+
+	
+	//if (target->isAlive() == false) {
 		// target died while having this effect active. mark it as finished.
-		finishEffect();
+	//	finishEffect();
+	//	return;
+	//}
+
+	animation.update(deltatime);
+
+	unsigned int elapsedSinceLast = m_spellTimer.getElapsedTimeMilli();
+	if (elapsedSinceLast < 1000) {
 		return;
 	}
-
-	uint32_t curTime = Globals::clock.getElapsedTimeMilli();
-	uint32_t elapsedSinceLast = curTime - lastEffect;
-	uint32_t elapsedSinceStart = curTime - effectStart;
-	if (curTime - lastEffect < 1000) {
-		// do damage at most every 1 seconds unless effect is done
-		if (elapsedSinceStart >= continuousDamageTime) {
-
-			elapsedSinceLast = continuousDamageTime - (lastEffect - effectStart);
-		}
-		return;
-	}
+	m_spellTimer.reset();
 
 	remainingEffect += calculateContinuousDamage(elapsedSinceLast);
-	// no critical damage in this phase so far
 
+	// no critical damage in this phase so far
 	bool callFinish = false;
-	if (elapsedSinceStart >= continuousDamageTime) {
+	if (m_spellTimer.getElapsedTimeSinceRestartMilli() >= continuousDamageTime) {
 		callFinish = true;
 	}
 
 	if (floor(remainingEffect) > 0) {
-		target->Damage(floor(remainingEffect), false);
+		//target->Damage(floor(remainingEffect), false);
 		remainingEffect = remainingEffect - floor(remainingEffect);
-		lastEffect = curTime;
 	}
 
-	if (callFinish || !target->isAlive()) {
+	if (callFinish ) {
 		finishEffect();
-	}
+	}	
 }
 
 void GeneralRayDamageSpell::finishEffect()
@@ -421,11 +425,11 @@ void GeneralRayDamageSpell::drawEffect() {
 }
 
 void GeneralRayDamageSpell::draw(int posX, int posY, float degree) {
-	if (animation.waitForAnimation()) {
+	if (!isEffectComplete()) {
 		TextureManager::BindTexture(TextureManager::GetTextureAtlas("spells"), true);
 		const TextureRect& rect = ConvertRect(currentFrame);
 	
-		TextureManager::RotateTextureRect(rect, static_cast<float>(posX), static_cast<float>(posY), degree, rect.width * 0.5f + offsetRadius, -offsetRadius, TextureManager::TransPos);
+		TextureManager::RotateTextureRect(rect, static_cast<float>(posX - 128), static_cast<float>(posY + 32), degree, rect.width * 0.5f + offsetRadius, -offsetRadius, TextureManager::TransPos);
 		TextureManager::DrawTexture(rect, TextureManager::TransPos, true);
 		TextureManager::UnbindTexture(true);
 	}
@@ -525,21 +529,29 @@ void GeneralAreaDamageSpell::setAnimationTexture(int num, std::string filename) 
 }
 
 void GeneralAreaDamageSpell::startEffect() {
+	if (!isEffectComplete()) return;
 	/// play the start sound effect for the spell, if we have any.
 	if (soundSpellStart != "") {
 		//SoundEngine::playSound(soundSpellStart);
 	}
+	centerX = ViewPort::get().getCursorPosX();
+	centerY = ViewPort::get().getCursorPosY();
+
+
 
 	remainingEffect = 0.0;
 	frameCount = 0;
-
-	if (child) dealDirectDamage();
+	finished = false;
+	m_spellTimer.restart();
+	
+	m_elapsedTime = 0.0f;
+	//if (child) dealDirectDamage();
 
 	effectStart = Globals::clock.getElapsedTimeMilli();
 	animationTimerStart = Globals::clock.getElapsedTimeMilli();
 	lastEffect = Globals::clock.getElapsedTimeMilli();
 
-	if (!child) {
+	/*if (!child) {
 		//Globals::addActiveAoESpell(this);
 
 		if (creator->getTarget() != NULL)
@@ -548,39 +560,35 @@ void GeneralAreaDamageSpell::startEffect() {
 			creator->addCooldownSpell(dynamic_cast<CSpellActionBase*> (cast(NULL, centerX, centerY)));
 
 		unbindFromCreator();
-	}
+	}*/
 }
 
-void GeneralAreaDamageSpell::inEffect() {
-	uint32_t curTime = Globals::clock.getElapsedTimeMilli();
-	uint32_t elapsedSinceLast = curTime - lastEffect;
-	uint32_t elapsedSinceStart = curTime - effectStart;
+void GeneralAreaDamageSpell::inEffect(float deltaTime) {
+	if (isEffectComplete()) return;
+	
+	m_elapsedTime = m_elapsedTime + deltaTime * 10;
+	radius = static_cast<unsigned short>(floor(m_elapsedTime)) + 50;
 
-	if (curTime - lastEffect < 1000) {
-		// do damage at most every 1 seconds unless effect is done
-		if (elapsedSinceStart >= continuousDamageTime) {
-			elapsedSinceLast = continuousDamageTime - (lastEffect - effectStart);
-		}
-
+	unsigned int elapsedSinceLast = m_spellTimer.getElapsedTimeMilli();
+	if (elapsedSinceLast < 1000) {		
 		return;
 	}
+	m_spellTimer.reset();
 
-	if (child) remainingEffect += calculateContinuousDamage(elapsedSinceLast);
+	remainingEffect += calculateContinuousDamage(elapsedSinceLast);
+
 	// no critical damage in this phase so far
-
 	bool callFinish = false;
-	if (elapsedSinceStart >= continuousDamageTime) {
+	if (m_spellTimer.getElapsedTimeSinceRestartMilli() >= continuousDamageTime) {
 		callFinish = true;
 	}
 
-	if (floor(remainingEffect) > 0 && child) {
-		target->Damage(floor(remainingEffect), false);
+	if (floor(remainingEffect) > 0) {
+		//target->Damage(floor(remainingEffect), false);
 		remainingEffect = remainingEffect - floor(remainingEffect);
-		if (!target->isAlive()) {
-			callFinish = true;
-		}
-
-		lastEffect = curTime;
+		//if (!target->isAlive()) {
+			//callFinish = true;
+		//}
 	}
 
 	if (callFinish) {
@@ -616,6 +624,16 @@ void GeneralAreaDamageSpell::drawEffect() {
 
 		DrawingHelpers::mapTextureToRect(spellTexture->getTexture(frameCount), -radius, radius * 2, -radius, radius * 2);
 		glPopMatrix();*/
+	}
+}
+
+void GeneralAreaDamageSpell::draw(int posX, int posY, float degree) {
+	if (!isEffectComplete()) {
+		TextureManager::BindTexture(TextureManager::GetTextureAtlas("spells"), true);
+		const TextureRect& rect = ConvertRect(currentFrame);
+		
+		TextureManager::DrawTexture(rect, centerX - radius, centerY - radius, radius * 2, radius * 2, false, true);
+		TextureManager::UnbindTexture(true);
 	}
 }
 
@@ -692,7 +710,7 @@ void GeneralBoltDamageSpell::startEffect() {
 	unbindFromCreator();
 }
 
-void GeneralBoltDamageSpell::inEffect() {
+void GeneralBoltDamageSpell::inEffect(float deltatime) {
 	if (target->isAlive() == false) {
 		// target died while having this effect active. mark it as finished.
 		finishEffect();
@@ -914,7 +932,7 @@ void GeneralHealingSpell::startEffect() {
 	unbindFromCreator();
 }
 
-void GeneralHealingSpell::inEffect() {
+void GeneralHealingSpell::inEffect(float deltatime) {
 	if (target->isAlive() == false) {
 		// target died while having this effect active. mark it as finished.
 		finishEffect();
@@ -1078,7 +1096,7 @@ void GeneralBuffSpell::startEffect() {
 	unbindFromCreator();
 }
 
-void GeneralBuffSpell::inEffect() {
+void GeneralBuffSpell::inEffect(float deltatime) {
 	if (target->isAlive() == false) {
 		// target died while having this effect active. mark it as finished.
 		finishEffect();

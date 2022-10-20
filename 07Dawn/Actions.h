@@ -73,7 +73,7 @@ public:
 
 	virtual void drawEffect();
 	virtual void startEffect();
-	virtual void inEffect();
+	virtual void inEffect(float deltatime) override;
 	virtual void finishEffect();
 
 	double getProgress() const;
@@ -104,7 +104,7 @@ public:
 
 	virtual void drawEffect();
 	virtual void startEffect();
-	virtual void inEffect();
+	virtual void inEffect(float deltatime) override;
 	virtual void finishEffect();
 
 	double getProgress() const;

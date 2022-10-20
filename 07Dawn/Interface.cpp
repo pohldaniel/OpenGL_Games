@@ -19,6 +19,7 @@ void Interface::SetPlayer(Character *player_) {
 }
 
 void Interface::init() {
+
 	loadTextures();
 	player = &Player::Get();
 	charset = &Globals::fontManager.get("verdana_12");
@@ -342,6 +343,8 @@ bool Interface::hasFloatingSpell() const {
 }
 
 void Interface::dragSpell() {
+	//if (spellQueue != NULL && !spellQueue->action->isEffectComplete)
+		//return;
 
 	if (spellQueue != NULL) {
 		if (spellQueue->action != NULL) {
@@ -354,6 +357,9 @@ void Interface::dragSpell() {
 }
 
 void Interface::setSpellQueue(sButton &button, bool actionReadyToCast) {
+	//if (spellQueue != NULL && !spellQueue->action->isEffectComplete())
+		//return;
+
 	spellQueue = &button;
 	spellQueue->actionReadyToCast = actionReadyToCast;
 }
@@ -383,26 +389,24 @@ bool Interface::isButtonUsed(sButton *button) const {
 void Interface::processInput() {
 	Mouse &mouse = Mouse::instance();
 	if (mouse.buttonPressed(Mouse::BUTTON_LEFT)) {
+		m_lastMouseDown = std::pair<int, int>(ViewPort::get().getCursorPosRelX(), ViewPort::get().getCursorPosRelY());
 
-		
-		int buttonId = getMouseOverButtonId(ViewPort::get().getCursorPosRelX(), ViewPort::get().getCursorPosRelY());
+		int buttonId = getMouseOverButtonId(m_lastMouseDown.first, m_lastMouseDown.second);
 		if (buttonId >= 0) {
 			// we clicked a button which has an action and has no floating spell on the mouse (we're launching an action from the actionbar)
 			if (button[buttonId].action != NULL /*&& !spellbook->hasFloatingSpell() && isSpellUseable(button[buttonId].action) && !isPreparingAoESpell()*/) {
-
-				
-				setSpellQueue(button[buttonId]);
+	
 				
 				// AoE spell with specific position
-				/*if (button[buttonId].action->getEffectType() == Enums::EffectType::AreaTargetSpell && player->getTarget() == NULL && isSpellUseable(button[buttonId].action) == true)
-				{
+				if (button[buttonId].action->getEffectType() == Enums::EffectType::AreaTargetSpell /*&& player->getTarget() == NULL && isSpellUseable(button[buttonId].action) == true*/) {
+					
 					setSpellQueue(button[buttonId], false);
 					cursorRadius = button[buttonId].action->getRadius();
-				}
-				else // "regular" spell
-				{
+
+				} else { // "regular" spell
+				
 					setSpellQueue(button[buttonId]);
-				}*/
+				}
 			}
 
 			// check to see if we're holding a floating spell on the mouse. if we do, we want to place it in the actionbar slot...
@@ -412,7 +416,15 @@ void Interface::processInput() {
 
 				bindAction(&button[buttonId], getFloatingSpell()->action);
 				unsetFloatingSpell();
+				setSpellQueue(button[buttonId]);
 			}
+		}
+	}
+
+
+	if (mouse.buttonDown(Mouse::BUTTON_LEFT)) {
+		if ((sqrt(pow(m_lastMouseDown.first - ViewPort::get().getCursorPosRelX(), 2) + pow(m_lastMouseDown.second - ViewPort::get().getCursorPosRelY(), 2)) > 2) /*&& !actionBar->isPreparingAoESpell()*/) {
+			dragSpell();
 		}
 	}
 }
@@ -420,4 +432,3 @@ void Interface::processInput() {
 CSpellActionBase* Interface::getCurrentAction() {
 	return spellQueue != nullptr ? spellQueue->action : nullptr;
 }
-

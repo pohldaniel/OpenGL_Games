@@ -254,7 +254,7 @@ void MeleeDamageAction::startEffect() {
 	creator->addCooldownSpell(dynamic_cast<CSpellActionBase*> (cast(NULL, NULL)));
 }
 
-void MeleeDamageAction::inEffect() {
+void MeleeDamageAction::inEffect(float deltatime) {
 	if (target->isAlive() == false) {
 		// target died while having this effect active. mark it as finished.
 		finishEffect();
@@ -356,7 +356,7 @@ void RangedDamageAction::startEffect() {
 	unbindFromCreator();
 }
 
-void RangedDamageAction::inEffect() {
+void RangedDamageAction::inEffect(float deltatime) {
 	if (target->isAlive() == false) {
 		// target died while having this effect active. mark it as finished.
 		finishEffect();

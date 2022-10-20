@@ -10,7 +10,7 @@ void Animation2D::update(const float deltaTime) {
 		m_currentFrame = static_cast<unsigned short>(floor(m_elapsedTime));
 		if (++m_currentFrame > m_frameCount - 1) {
 			m_currentFrame = 0;
-			m_waitForAnimation = false;
+			m_waitForAnimation = m_loop;
 
 		}	 
 		m_frame = m_frames[m_currentFrame];
@@ -20,6 +20,10 @@ void Animation2D::update(const float deltaTime) {
 void Animation2D::addFrame(const TextureRect& frame) {
 	m_frames.push_back(frame);
 	m_frameCount = static_cast<unsigned int>(m_frames.size());
+	m_frame = m_frames[0];
+}
+
+void Animation2D::resetAnimation() {
 	m_frame = m_frames[0];
 }
 

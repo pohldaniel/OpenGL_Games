@@ -1,5 +1,5 @@
 #pragma once
-
+#include "engine/Clock.h"
 #include "SpellActionBase.h"
 
 class GeneralRayDamageSpell;
@@ -51,6 +51,8 @@ public:
 	virtual uint16_t getDuration() const;
 	TextureRect* getSymbol() const;
 
+	Clock m_spellTimer;
+
 protected:
 	ConfigurableSpell();
 	ConfigurableSpell(ConfigurableSpell *other);
@@ -62,9 +64,9 @@ protected:
 	uint16_t minRange;
 	uint16_t maxRange;
 	uint16_t radius;
-	int16_t centerX;
-	int16_t centerY;
-
+	int centerX;
+	int centerY;
+	float m_elapsedTime = 0.0f;
 	std::string name;
 	std::string info;
 };
@@ -119,7 +121,7 @@ public:
 	void setAnimationTexture(int num, std::string filename);
 
 	virtual void startEffect();
-	virtual void inEffect();
+	virtual void inEffect(float deltatime) override;
 	void finishEffect();
 
 	virtual void drawEffect();
@@ -154,9 +156,9 @@ public:
 
 	void setNumAnimations(int count);
 	void setAnimationTexture(int num, std::string filename);
-
+	void draw(int posX, int posY, float degree);
 	virtual void startEffect();
-	virtual void inEffect();
+	virtual void inEffect(float deltatime) override;
 	void finishEffect();
 
 	virtual void drawEffect();
@@ -201,7 +203,7 @@ public:
 	void setAnimationTexture(int num, std::string filename);
 
 	virtual void startEffect();
-	virtual void inEffect();
+	virtual void inEffect(float deltatime) override;
 	void finishEffect();
 
 	virtual void drawEffect();
@@ -249,7 +251,7 @@ public:
 
 	virtual void drawEffect();
 	virtual void startEffect();
-	virtual void inEffect();
+	virtual void inEffect(float deltatime) override;
 	virtual void finishEffect();
 	double calculateContinuousHealing(uint64_t timePassed);
 
@@ -292,7 +294,7 @@ public:
 
 	virtual void drawEffect();
 	virtual void startEffect();
-	virtual void inEffect();
+	virtual void inEffect(float deltatime) override;
 	void finishEffect();
 
 protected:

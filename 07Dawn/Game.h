@@ -23,7 +23,7 @@ public:
 	void resize() override;
 
 	void OnMouseMotion(Event::MouseMoveEvent& event) override;
-	void OnMouseButtonDown(Event::MouseButtonEvent& event) override;
+	
 
 	Zone* zone;
 	Interface* dawnInterface;

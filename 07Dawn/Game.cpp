@@ -39,7 +39,7 @@ void Game::fixedUpdate() {
 
 void Game::update() {
 	//ViewPort::get().update(m_dt);
-	spell->update(m_dt);
+	
 	player.update(m_dt);
 	ViewPort::get().setPosition(Player::Get().getPosition());
 
@@ -70,12 +70,15 @@ void Game::update() {
 	}
 
 	if (mouse.buttonPressed(Mouse::BUTTON_RIGHT)) {
-		spell->startAnimation();
+		spell->startEffect();
 	}
+
+	if(!spell->isEffectComplete())
+		spell->inEffect(m_dt);
 
 	dawnInterface->processInput();
 
-	if (dawnInterface->getCurrentAction() != nullptr) {
+	if (dawnInterface->getCurrentAction() != nullptr && spell->isEffectComplete()) {
 		spell = dawnInterface->getCurrentAction();
 	}
 }
@@ -95,7 +98,7 @@ void Game::render(unsigned int &frameBuffer) {
 	player.draw();
 
 
-	if (!spell->waitForAnimation()) {
+	if (spell->isEffectComplete()) {
 		degrees = asin((player.getYPos() - ViewPort::get().getCursorPosY()) / sqrt((pow(player.getXPos() - ViewPort::get().getCursorPosX(), 2) + pow(player.getYPos() - ViewPort::get().getCursorPosY(), 2)))) * 57.296;
 		degrees += 90;
 
@@ -104,8 +107,7 @@ void Game::render(unsigned int &frameBuffer) {
 		}
 	}
 	
-
-	spell->draw(player.getXPos() - 128.0f, player.getYPos() + 32.0f, degrees);
+	spell->draw(player.getXPos(), player.getYPos(), degrees);
 
 	dawnInterface->DrawInterface();
 	dawnInterface->DrawFloatingSpell();
@@ -119,18 +121,6 @@ void Game::OnMouseMotion(Event::MouseMoveEvent& event) {
 	//m_drawInGameCursor = !event.titleBar;
 	//Mouse::instance().hideCursor(m_drawInGameCursor);
 
-	Mouse &mouse = Mouse::instance();
-	if (mouse.buttonDown(Mouse::BUTTON_LEFT)) {
-		if ((sqrt(pow(mouse.xPosLast() - event.x, 2) + pow(mouse.yPosLast() - event.y, 2)) > 2) /*&& !actionBar->isPreparingAoESpell()*/) {
-			dawnInterface->dragSpell();
-		}
-	}
-}
-
-void Game::OnMouseButtonDown(Event::MouseButtonEvent& event) {
-
-	Mouse &mouse = Mouse::instance();
-	mouse.setLastPosition(event.x, event.y);
 }
 
 void Game::resize() {

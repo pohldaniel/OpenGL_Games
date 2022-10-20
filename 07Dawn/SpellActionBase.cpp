@@ -6,7 +6,7 @@
 
 CSpellActionBase::CSpellActionBase()
 	: boundToCreator(false),
-	finished(false),
+	finished(true),
 	instant(false),
 	requiredClass(Enums::CharacterClass::NOCLASS),
 	requiredLevel(1),
