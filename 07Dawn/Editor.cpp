@@ -3,7 +3,7 @@
 Editor::Editor(StateMachine& machine) : State(machine, CurrentState::EDITOR) {
 	Mouse::SetCursorIcon("res/cursors/pointer.cur");
 
-	//LuaFunctions::executeLuaFile("res/_lua/mobdata.lua");
+	LuaFunctions::executeLuaFile("res/_lua/mobdata.lua");
 	
 	ZoneManager::Get().getZone("res/_lua/zone1").loadZone();
 	ZoneManager::Get().setCurrentZone(&ZoneManager::Get().getZone("res/_lua/zone1"));
@@ -430,7 +430,7 @@ void Editor::render(unsigned int &frameBuffer) {
 
 	newZone->drawZoneBatched();
 		
-	TextureManager::BindTexture(m_textureAtlas, true);
+	/*TextureManager::BindTexture(m_textureAtlas, true);
 		
 	if (m_selectedTileSet == Enums::TileClassificationType::COLLISION) {
 
@@ -544,21 +544,7 @@ void Editor::render(unsigned int &frameBuffer) {
 	}
 	TextureManager::DrawBuffer(false);
 
-	/*glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	glLoadMatrixf(&ViewPort::get().getCamera().getOrthographicMatrix()[0][0]);
-
-	glBegin(GL_LINES);
-	glTexCoord2f(0.0f, 0.0f);
-	glVertex3f(ViewPort::get().getCursorPosX2() - 20, ViewPort::get().getCursorPosY2(), 0.0f);
-	glTexCoord2f(1.0f, 0.0f);
-	glVertex3f(ViewPort::get().getCursorPosX2() + 20, ViewPort::get().getCursorPosY2(), 0.0f);
-	glTexCoord2f(0.0f, 0.0f);
-	glVertex3f(ViewPort::get().getCursorPosX2(), ViewPort::get().getCursorPosY2() + 20, 0.0f);
-	glTexCoord2f(1.0f, 0.0f);
-	glVertex3f(ViewPort::get().getCursorPosX2(), ViewPort::get().getCursorPosY2() - 20, 0.0f);
-	glEnd();
-	glLoadIdentity();*/
+	
 
 	int fontHeight = Globals::fontManager.get("verdana_9").lineHeight;
 	Fontrenderer::Get().bindTexture(Globals::fontManager.get("verdana_9"));
@@ -588,7 +574,7 @@ void Editor::render(unsigned int &frameBuffer) {
 	}
 
 	Fontrenderer::Get().unbindTexture();
-	TextureManager::UnbindTexture(true);
+	TextureManager::UnbindTexture(true);*/
 	
 	glDisable(GL_BLEND);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);

@@ -56,8 +56,8 @@ Camera& ViewPort::getCamera() {
 }
 
 void ViewPort::setPosition(Vector3f& position) {
-	position[0] = position[0] - static_cast<float>(m_width) * 0.5f;
-	position[1] = position[1] - static_cast<float>(m_height) * 0.5f;
+	position[0] = position[0] - static_cast<float>(m_width / 2);
+	position[1] = position[1] - static_cast<float>(m_height / 2);
 	m_camera.setPosition(position);
 }
 
@@ -82,6 +82,20 @@ const int ViewPort::getCursorPosY() {
 	float mouseYndc = 1.0f - static_cast<float>(2.0f * mouse.yPosAbsolute()) / static_cast<float>(m_height);
 
 	return static_cast<int>(m_postition[1] + 0.5f * (m_top * (mouseYndc + 1.0f) + m_bottom * (1.0f - mouseYndc)));
+}
+
+const int ViewPort::getCursorPosRelX() {
+	Mouse &mouse = Mouse::instance();
+	float mouseXndc = static_cast<float>(2.0f * mouse.xPosAbsolute()) / static_cast<float>(m_width) - 1.0f;
+
+	return static_cast<int>(0.5f * (m_right * (mouseXndc + 1.0f) + m_left * (1.0f - mouseXndc)));
+}
+
+const int ViewPort::getCursorPosRelY() {
+	Mouse &mouse = Mouse::instance();
+	float mouseYndc = 1.0f - static_cast<float>(2.0f * mouse.yPosAbsolute()) / static_cast<float>(m_height);
+
+	return static_cast<int>(0.5f * (m_top * (mouseYndc + 1.0f) + m_bottom * (1.0f - mouseYndc)));
 }
 
 const Vector3f& ViewPort::getPosition() {

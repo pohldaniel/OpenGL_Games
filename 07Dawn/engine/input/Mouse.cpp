@@ -287,3 +287,8 @@ void Mouse::setAbsolute(int x, int y) {
 	m_xPosAbsolute = x;
 	m_yPosAbsolute = y;
 }
+
+void Mouse::setLastPosition(int x, int y) {
+	m_xLastPos = x;
+	m_yLastPos = y;
+}

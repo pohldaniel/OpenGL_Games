@@ -48,7 +48,10 @@ public:
 
 	/// \brief Draws the graphical representation of the spell effect.
 	virtual void drawEffect() = 0;
-
+	virtual void draw(int posX, int posY, float degree) {};
+	virtual void update(float deltatime) {};
+	virtual void startAnimation() {};
+	virtual const bool waitForAnimation() const { return false; };
 	/// \brief Called directly after creation of the spell and is thought for an initial effect.
 	virtual void startEffect() = 0;
 	/// \brief Called while the spell is not yet completed and thought for continuous effects.

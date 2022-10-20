@@ -6,6 +6,10 @@
 
 Interface Interface::s_instance;
 
+Interface::Interface() : floatingSpellSlot(sSpellSlot(0, 0, 0, 0)) {
+
+}
+
 Interface& Interface::Get() {
 	return s_instance;
 }
@@ -19,16 +23,23 @@ void Interface::init() {
 	player = &Player::Get();
 	charset = &Globals::fontManager.get("verdana_12");
 
-	button.push_back(sButton(0, 0, 50, 50, "1", Keyboard::Key::KEY_1));
-	button.push_back(sButton(60, 0, 50, 50, "2", Keyboard::Key::KEY_2));
-	button.push_back(sButton(120, 0, 50, 50, "3", Keyboard::Key::KEY_3));
-	button.push_back(sButton(180, 0, 50, 50, "4", Keyboard::Key::KEY_4));
-	button.push_back(sButton(240, 0, 50, 50, "5", Keyboard::Key::KEY_5));
-	button.push_back(sButton(300, 0, 50, 50, "6", Keyboard::Key::KEY_6));
-	button.push_back(sButton(360, 0, 50, 50, "7", Keyboard::Key::KEY_7));
-	button.push_back(sButton(420, 0, 50, 50, "8", Keyboard::Key::KEY_8));
-	button.push_back(sButton(480, 0, 50, 50, "9", Keyboard::Key::KEY_9));
-	button.push_back(sButton(540, 0, 50, 50, "0", Keyboard::Key::KEY_0));
+	button.push_back(sButton(22, 14, 46, 46, "1", Keyboard::Key::KEY_1));
+	button.push_back(sButton(82, 14, 46, 46, "2", Keyboard::Key::KEY_2));
+	button.push_back(sButton(142, 14, 46, 46, "3", Keyboard::Key::KEY_3));
+	button.push_back(sButton(202, 14, 46, 46, "4", Keyboard::Key::KEY_4));
+	button.push_back(sButton(262, 14, 46, 46, "5", Keyboard::Key::KEY_5));
+	button.push_back(sButton(322, 14, 46, 46, "6", Keyboard::Key::KEY_6));
+	button.push_back(sButton(382, 14, 46, 46, "7", Keyboard::Key::KEY_7));
+	button.push_back(sButton(442, 14, 46, 46, "8", Keyboard::Key::KEY_8));
+	button.push_back(sButton(502, 14, 46, 46, "9", Keyboard::Key::KEY_9));
+	button.push_back(sButton(562, 14, 46, 46, "0", Keyboard::Key::KEY_0));
+
+	actionBarPosX = ViewPort::get().getWidth() - 630;
+	actionBarPosY = 0;
+}
+
+void Interface::resize() {
+	actionBarPosX = ViewPort::get().getWidth() - 630;
 }
 
 void Interface::loadTextures() {
@@ -58,10 +69,14 @@ void Interface::loadTextures() {
 	TextureManager::Loadimage("res/interface/BuffWindow/background.tga", 17, m_interfacetexture);
 	TextureManager::Loadimage("res/interface/blended_bg.tga", 18, m_interfacetexture);
 
-
 	TextureManager::Loadimage("res/border.tga", 19, m_interfacetexture);
 	TextureManager::Loadimage("res/cursors/circle1_enabled.tga", 20, m_interfacetexture);
 	TextureManager::Loadimage("res/cursors/circle1_disabled.tga", 21, m_interfacetexture);
+
+	TextureManager::Loadimage("res/interface/spellbook/base.tga", 22, m_interfacetexture);
+	TextureManager::Loadimage("res/interface/spellbook/placeholder.tga", 23, m_interfacetexture);
+	TextureManager::Loadimage("res/interface/spellbook/arrow_right.tga", 24, m_interfacetexture);
+	TextureManager::Loadimage("res/interface/spellbook/arrow_left.tga", 25, m_interfacetexture);
 
 	m_textureAtlas = TextureAtlasCreator::get().getAtlas();
 
@@ -134,7 +149,9 @@ void Interface::DrawInterface() {
 
 	TextureManager::BindTexture(TextureManager::GetTextureAtlas("symbols"), true);
 	for (unsigned int buttonId = 0; buttonId < 10; buttonId++) {
-		button[buttonId].action->drawSymbol(ViewPort::get().getWidth() - 630 + 20 + buttonId * 60 + 2, 14, 46, 46);
+		if (button[buttonId].action != NULL) {
+			button[buttonId].action->drawSymbol(ViewPort::get().getWidth() - 608 + buttonId * 60, 14, 46, 46);
+		}
 	}
 	
 	TextureManager::DrawBuffer(false);
@@ -146,6 +163,26 @@ void Interface::DrawCursor(bool drawInGameCursor) {
 		TextureManager::BindTexture(m_textureAtlas, true);
 		TextureManager::DrawTextureBatched(m_interfacetexture[15], ViewPort::get().getCursorPosX(), ViewPort::get().getCursorPosY() - 19, false, false);
 		TextureManager::DrawBuffer(false);
+	}
+}
+
+void Interface::DrawFloatingSpell() {
+	if (floatingSpell != NULL){
+		TextureManager::BindTexture(m_textureAtlas, true);
+		TextureManager::DrawTexture(m_interfacetexture[23], ViewPort::get().getCursorPosX(), ViewPort::get().getCursorPosY() +20, 50.0f, 50.0f, false, true);
+
+		TextureManager::BindTexture(TextureManager::GetTextureAtlas("symbols"), true);
+
+		
+		// draw the spell icon
+		floatingSpell->action->drawSymbol(ViewPort::get().getCursorPosX() + 2, ViewPort::get().getCursorPosY() + 22, 46.0f, 46.0f);
+		TextureManager::DrawBuffer(true);
+
+
+		// draw the spell name
+		//floatingSpell->font->drawText(world_x + mouseX + 25 - floatingSpell->font->calcStringWidth(floatingSpell->action->getName()) / 2,
+			//world_y + mouseY + 20 - floatingSpell->font->getHeight() - 5,
+			//floatingSpell->action->getName());
 	}
 }
 
@@ -275,5 +312,112 @@ void Interface::bindAction(sButton *button, CSpellActionBase* action) {
 	/** this could be added to game settings, making the player choose to
 	display a full tooltip when hoovering spells in the actionbar.**/
 	//button->tooltip->enableSmallTooltip();
+}
+
+void Interface::unbindAction(sButton *button) {
+	button->action = NULL;
+	//delete button->tooltip;
+	//button->tooltip = NULL;
+}
+
+sSpellSlot* Interface::getFloatingSpell() const {
+	return floatingSpell;
+}
+
+void Interface::setFloatingSpell(CSpellActionBase* newFloatingSpell) {
+	floatingSpellSlot.action = newFloatingSpell;
+	floatingSpell = &floatingSpellSlot;
+}
+
+void Interface::unsetFloatingSpell() {
+	floatingSpell = NULL;
+}
+
+bool Interface::hasFloatingSpell() const {
+	if (floatingSpell == NULL) {
+		return false;
+	}else{
+		return true;
+	}
+}
+
+void Interface::dragSpell() {
+
+	if (spellQueue != NULL) {
+		if (spellQueue->action != NULL) {
+				 
+			setFloatingSpell(spellQueue->action);
+			unbindAction(spellQueue);
+			spellQueue = NULL;
+		}
+	}
+}
+
+void Interface::setSpellQueue(sButton &button, bool actionReadyToCast) {
+	spellQueue = &button;
+	spellQueue->actionReadyToCast = actionReadyToCast;
+}
+
+int8_t Interface::getMouseOverButtonId(int x, int y) {
+	for (size_t buttonIndex = 0; buttonIndex < button.size(); buttonIndex++) {
+		if (x > actionBarPosX + button[buttonIndex].posX &&
+			x < actionBarPosX + button[buttonIndex].posX + (button[buttonIndex].width) &&
+			y > button[buttonIndex].posY &&
+			y < button[buttonIndex].posY + (button[buttonIndex].height)) {
+			return buttonIndex;
+		}
+	}
+
+	return -1;
+}
+
+bool Interface::isButtonUsed(sButton *button) const {
+
+	if (button->action == NULL) {
+		return false;
+	}else {
+		return true;
+	}
+}
+
+void Interface::processInput() {
+	Mouse &mouse = Mouse::instance();
+	if (mouse.buttonPressed(Mouse::BUTTON_LEFT)) {
+
+		
+		int buttonId = getMouseOverButtonId(ViewPort::get().getCursorPosRelX(), ViewPort::get().getCursorPosRelY());
+		if (buttonId >= 0) {
+			// we clicked a button which has an action and has no floating spell on the mouse (we're launching an action from the actionbar)
+			if (button[buttonId].action != NULL /*&& !spellbook->hasFloatingSpell() && isSpellUseable(button[buttonId].action) && !isPreparingAoESpell()*/) {
+
+				
+				setSpellQueue(button[buttonId]);
+				
+				// AoE spell with specific position
+				/*if (button[buttonId].action->getEffectType() == Enums::EffectType::AreaTargetSpell && player->getTarget() == NULL && isSpellUseable(button[buttonId].action) == true)
+				{
+					setSpellQueue(button[buttonId], false);
+					cursorRadius = button[buttonId].action->getRadius();
+				}
+				else // "regular" spell
+				{
+					setSpellQueue(button[buttonId]);
+				}*/
+			}
+
+			// check to see if we're holding a floating spell on the mouse. if we do, we want to place it in the actionbar slot...
+			if (hasFloatingSpell()) {
+				if (isButtonUsed(&button[buttonId]))
+					unbindAction(&button[buttonId]);
+
+				bindAction(&button[buttonId], getFloatingSpell()->action);
+				unsetFloatingSpell();
+			}
+		}
+	}
+}
+
+CSpellActionBase* Interface::getCurrentAction() {
+	return spellQueue != nullptr ? spellQueue->action : nullptr;
 }
 

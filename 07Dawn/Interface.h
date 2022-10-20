@@ -40,6 +40,30 @@ struct sButton {
 	};
 };
 
+struct sSpellSlot{
+	CSpellActionBase* action;
+	//GLFT_Font* font;
+	//Tooltip* tooltip;
+	int posX;
+	int posY;
+	int width;
+	int height;
+
+	//void initFont();
+
+	sSpellSlot(int posX_, int posY_, int width_, int height_){
+		posX = posX_;
+		posY = posY_;
+		width = width_;
+		height = height_;
+		action = NULL;
+		//font = NULL;
+		//tooltip = NULL;
+		//initFont();
+	}
+};
+
+
 class Interface{
 public:
 
@@ -48,6 +72,8 @@ public:
 	bool enabled;
 	void DrawInterface();
 	void DrawCursor(bool drawInGameCursor);
+	void DrawFloatingSpell();
+	void processInput();
 	void SetPlayer(Character *player_);
 	void drawTargetedNPCText();
 
@@ -61,19 +87,36 @@ public:
 
 	void bindActionToButtonNr(int buttonNr, CSpellActionBase *action);
 	void bindAction(sButton *button, CSpellActionBase* action);
+	void unbindAction(sButton *button);
 
 	std::vector <sButton> button;
+	sSpellSlot* floatingSpell;
+	sSpellSlot& floatingSpellSlot;
+
+
+	sSpellSlot* getFloatingSpell() const;
+	void setFloatingSpell(CSpellActionBase* newFloatingSpell);
+	void unsetFloatingSpell();
+	bool hasFloatingSpell() const;
+	void setSpellQueue(sButton &button, bool actionReadyToCast = true);
+	void dragSpell();
+	int8_t getMouseOverButtonId(int x, int y);
+	void resize();
+
+	CSpellActionBase* getCurrentAction();
 
 private:
-	Interface() = default;
+	Interface();
 
 	std::vector<TextureRect> m_interfacetexture;
 	unsigned int m_textureAtlas;
 
 	void drawCharacterStates();
+	bool isButtonUsed(sButton *button) const;
 
 	Character* player;
 	CharacterSet* charset;
+	sButton* spellQueue;
 	//CTexture damageDisplayTexturesBig;
 	//CTexture damageDisplayTexturesSmall;
 
@@ -83,6 +126,7 @@ private:
 
 	//GLFT_Font* NPCTextFont;
 	//GLFT_Font* levelFont;
-
+	int actionBarPosX;
+	int actionBarPosY;
 	static Interface s_instance;
 };

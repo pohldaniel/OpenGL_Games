@@ -22,6 +22,7 @@ void Zone::loadZone(){
 	TextureManager::SetTextureAtlas(m_file, TextureAtlasCreator::get().getAtlas());
 	m_textureAtlas = TextureManager::GetTextureAtlas(m_file);
 	
+
 	//ZoneManager::Get().setCurrentZone(this);
 	LuaFunctions::executeLuaScript(std::string("DawnInterface.setCurrentZone( \"").append(m_file).append("\");"));
 	LuaFunctions::executeLuaFile(std::string(m_file).append(".ground.lua"));

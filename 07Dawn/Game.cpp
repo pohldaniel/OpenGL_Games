@@ -1,6 +1,8 @@
 #include "Game.h"
 
 Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), player(Player::Get()) {
+	EventDispatcher::AddMouseListener(this);
+	
 	Mouse::SetCursorIcon("res/cursors/pointer.cur");
 	
 	LuaFunctions::executeLuaFile("res/_lua/mobdata_wolf.lua");
@@ -15,8 +17,8 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), player(P
 
 	ZoneManager::Get().getZone("res/_lua/zone1").loadZone();
 	ZoneManager::Get().setCurrentZone(&ZoneManager::Get().getZone("res/_lua/zone1"));
-	
 	zone = ZoneManager::Get().getCurrentZone();
+
 	dawnInterface = &Interface::Get();
 	dawnInterface->init();	
 
@@ -26,7 +28,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), player(P
 		dawnInterface->bindActionToButtonNr(curEntry, inscribedSpells[curEntry]);
 	}
 
-	spell = dynamic_cast<GeneralRayDamageSpell*>(Player::Get().getSpellbook()[1]);
+	spell = Player::Get().getSpellbook()[1];
 }
 
 Game::~Game() {}
@@ -70,6 +72,12 @@ void Game::update() {
 	if (mouse.buttonPressed(Mouse::BUTTON_RIGHT)) {
 		spell->startAnimation();
 	}
+
+	dawnInterface->processInput();
+
+	if (dawnInterface->getCurrentAction() != nullptr) {
+		spell = dawnInterface->getCurrentAction();
+	}
 }
 
 
@@ -100,6 +108,7 @@ void Game::render(unsigned int &frameBuffer) {
 	spell->draw(player.getXPos() - 128.0f, player.getYPos() + 32.0f, degrees);
 
 	dawnInterface->DrawInterface();
+	dawnInterface->DrawFloatingSpell();
 	//dawnInterface->DrawCursor(m_drawInGameCursor);
 	glDisable(GL_BLEND);
 
@@ -109,4 +118,21 @@ void Game::render(unsigned int &frameBuffer) {
 void Game::OnMouseMotion(Event::MouseMoveEvent& event) {
 	//m_drawInGameCursor = !event.titleBar;
 	//Mouse::instance().hideCursor(m_drawInGameCursor);
+
+	Mouse &mouse = Mouse::instance();
+	if (mouse.buttonDown(Mouse::BUTTON_LEFT)) {
+		if ((sqrt(pow(mouse.xPosLast() - event.x, 2) + pow(mouse.yPosLast() - event.y, 2)) > 2) /*&& !actionBar->isPreparingAoESpell()*/) {
+			dawnInterface->dragSpell();
+		}
+	}
+}
+
+void Game::OnMouseButtonDown(Event::MouseButtonEvent& event) {
+
+	Mouse &mouse = Mouse::instance();
+	mouse.setLastPosition(event.x, event.y);
+}
+
+void Game::resize() {
+	dawnInterface->resize();
 }

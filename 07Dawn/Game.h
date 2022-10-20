@@ -3,6 +3,7 @@
 #include "engine/input/MouseEventListener.h"
 #include "engine/input/KeyBorad.h"
 #include "engine/input/Mouse.h"
+#include "engine/input/EventDispatcher.h"
 #include "engine/Batchrenderer.h"
 #include "engine/Transform.h"
 
@@ -16,10 +17,13 @@ public:
 	Game(StateMachine& machine);
 	~Game();
 
-	virtual void fixedUpdate() override;
-	virtual void update() override;
-	virtual void render(unsigned int &frameBuffer) override;
+	void fixedUpdate() override;
+	void update() override;
+	void render(unsigned int &frameBuffer) override;
+	void resize() override;
+
 	void OnMouseMotion(Event::MouseMoveEvent& event) override;
+	void OnMouseButtonDown(Event::MouseButtonEvent& event) override;
 
 	Zone* zone;
 	Interface* dawnInterface;
@@ -27,6 +31,6 @@ public:
 
 	bool m_drawInGameCursor = false;
 
-	GeneralRayDamageSpell* spell;
+	CSpellActionBase* spell;
 	Transform transform;
 };

@@ -330,6 +330,14 @@ void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 			event.data.mouseMove.y = static_cast<int>(static_cast<short>(HIWORD(lParam)));
 			s_eventDispatcher.pushEvent(event);			
 			break;
+		}case WM_LBUTTONDOWN: { // Capture the mouse			
+			Event event;
+			event.type = Event::MOUSEBUTTONDOWN;
+			event.data.mouseButton.x = static_cast<int>(static_cast<short>(LOWORD(lParam)));
+			event.data.mouseButton.y = static_cast<int>(static_cast<short>(HIWORD(lParam)));
+			event.data.mouseButton.button = Event::MouseButtonEvent::MouseButton::BUTTON_LEFT;
+			s_eventDispatcher.pushEvent(event);
+			break;
 		}/*case WM_NCMOUSEMOVE: {
 			Event event;
 			event.type = Event::MOUSEMOTION;

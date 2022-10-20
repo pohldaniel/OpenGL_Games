@@ -88,12 +88,9 @@ public:
 	double calculateContinuousDamage(uint64_t timePassed);
 
 	void addAnimationFrame(std::string file, int paddingLeft = 0, int paddingRight = 0, int paddingTop = 0, int paddingBottom = 0);
-	void update(float deltatime);
-	void startAnimation();
-	const bool waitForAnimation() const;
-
-
-
+	void update(float deltatime) override;
+	void startAnimation() override;
+	const bool waitForAnimation() const override;
 
 protected:
 	GeneralDamageSpell();
@@ -128,7 +125,7 @@ public:
 	virtual void drawEffect();
 
 
-	void draw(int posX, int posY, float degree);
+	void draw(int posX, int posY, float degree) override;
 	float offsetRadius = 32.0f;
 
 protected:

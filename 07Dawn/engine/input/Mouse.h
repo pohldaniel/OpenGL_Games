@@ -50,6 +50,14 @@ public:
 		return m_yPosRelative;
 	}
 
+	int xPosLast() const {
+		return m_xLastPos;
+	}
+
+	int yPosLast() const {
+		return m_yLastPos;
+	}
+
 	float weightModifier() const{
 		return m_weightModifier;
 	}
@@ -71,6 +79,7 @@ public:
 	void setAbsolute(int x, int y);
 	void setWeightModifier(float weightModifier);
 	void smoothMouse(bool smooth);
+	void setLastPosition(int x, int y);
 	void update();
 
 	static void SetCursorIcon(std::string file);

@@ -14,6 +14,9 @@ public:
 	const int getCursorPosX();
 	const int getCursorPosY();
 
+	const int getCursorPosRelX();
+	const int getCursorPosRelY();
+
 	const Vector3f& getPosition();
 	const Vector2f getBottomLeft();
 
@@ -34,7 +37,7 @@ private:
 	static ViewPort s_instance;
 	float m_left, m_right, m_bottom, m_top;
 	const Vector3f& m_postition;
-	float m_screeBorder = 100.0f;
+	float m_screeBorder = 0.0f;
 
 	unsigned int m_width;
 	unsigned int m_height;
