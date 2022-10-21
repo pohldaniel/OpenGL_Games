@@ -340,6 +340,13 @@ void GeneralRayDamageSpell::startEffect() {
 
 	m_spellTimer.restart();
 
+	degrees = asin((Player::Get().getYPos() - ViewPort::get().getCursorPosY()) / sqrt((pow(Player::Get().getXPos() - ViewPort::get().getCursorPosX(), 2) + pow(Player::Get().getYPos() - ViewPort::get().getCursorPosY(), 2)))) * 57.296;
+	degrees += 90;
+
+	if (Player::Get().getXPos() < ViewPort::get().getCursorPosX()) {
+		degrees = -degrees;
+	}
+
 	//target->addActiveSpell(this);
 	//creator->addCooldownSpell(dynamic_cast<CSpellActionBase*> (cast(NULL, NULL)));
 	//unbindFromCreator();
@@ -424,12 +431,13 @@ void GeneralRayDamageSpell::drawEffect() {
 	}
 }
 
-void GeneralRayDamageSpell::draw(int posX, int posY, float degree) {
+void GeneralRayDamageSpell::draw() {
 	if (!isEffectComplete()) {
+
 		TextureManager::BindTexture(TextureManager::GetTextureAtlas("spells"), true);
 		const TextureRect& rect = ConvertRect(currentFrame);
 	
-		TextureManager::RotateTextureRect(rect, static_cast<float>(posX - 128), static_cast<float>(posY + 32), degree, rect.width * 0.5f + offsetRadius, -offsetRadius, TextureManager::TransPos);
+		TextureManager::RotateTextureRect(rect, static_cast<float>(Player::Get().getXPos() - 128), static_cast<float>(Player::Get().getYPos() + 32), degrees, rect.width * 0.5f + offsetRadius, -offsetRadius, TextureManager::TransPos);
 		TextureManager::DrawTexture(rect, TextureManager::TransPos, true);
 		TextureManager::UnbindTexture(true);
 	}
@@ -627,7 +635,7 @@ void GeneralAreaDamageSpell::drawEffect() {
 	}
 }
 
-void GeneralAreaDamageSpell::draw(int posX, int posY, float degree) {
+void GeneralAreaDamageSpell::draw() {
 	if (!isEffectComplete()) {
 		TextureManager::BindTexture(TextureManager::GetTextureAtlas("spells"), true);
 		const TextureRect& rect = ConvertRect(currentFrame);
@@ -697,30 +705,40 @@ void GeneralBoltDamageSpell::startEffect() {
 		//SoundEngine::playSound(soundSpellStart);
 	}
 
+	const Player& player = Player::Get();
+	finished = false;
+
 	frameCount = 0;
 	moveRemaining = 0.0;
 	effectStart = Globals::clock.getElapsedTimeMilli();
 	animationTimerStart = effectStart;
 	lastEffect = effectStart;
-	posx = creator->getXPos() + (creator->getWidth() / 2);
-	posy = creator->getYPos() + (creator->getHeight() / 2);
+	posx = player.getXPos() + (player.getWidth() / 2);
+	posy = player.getYPos() + (player.getHeight() / 2);
 
-	target->addActiveSpell(this);
-	creator->addCooldownSpell(dynamic_cast<CSpellActionBase*> (cast(NULL, NULL)));
-	unbindFromCreator();
+	m_spellTimer.restart();
+
+	targetx = ViewPort::get().getCursorPosX();
+	targety = ViewPort::get().getCursorPosY();
+
+	degrees = asin((posy - targety) / sqrt((pow(posx - targetx, 2) + pow(posy - targety, 2)))) * 57.296;
+	degrees += 90;
+
+	if (posx < targetx) {
+		degrees = -degrees;
+	}
+
+	//target->addActiveSpell(this);
+	//creator->addCooldownSpell(dynamic_cast<CSpellActionBase*> (cast(NULL, NULL)));
+	//unbindFromCreator();
 }
 
 void GeneralBoltDamageSpell::inEffect(float deltatime) {
-	if (target->isAlive() == false) {
-		// target died while having this effect active. mark it as finished.
-		finishEffect();
-		return;
-	}
 
-	uint32_t curTicks = Globals::clock.getElapsedTimeMilli();
-	moveRemaining += moveSpeed * (curTicks - lastEffect) / 1000.0;
-	int targetx = target->getXPos() + (target->getWidth() / 2);
-	int targety = target->getYPos() + (target->getHeight() / 2);
+	moveRemaining += moveSpeed * deltatime;
+
+	//int targetx = ViewPort::get().getCursorPosX();
+	//int targety = ViewPort::get().getCursorPosY();
 	int dx = targetx - posx;
 	int dy = targety - posy;
 	double dist = sqrt((dx * dx) + (dy * dy));
@@ -731,23 +749,20 @@ void GeneralBoltDamageSpell::inEffect(float deltatime) {
 	if (percdist >= 1.0) {
 		movex = dx;
 		movey = dy;
-	}
-	else {
+	}else {
 		movex = dx * percdist;
 		movey = dy * percdist;
 	}
 
 	double movedDist = sqrt(movex * movex + movey * movey);
 	moveRemaining -= movedDist;
-	lastEffect = curTicks;
-
+	
 	posx += movex;
 	posy += movey;
 
 	if ((posx == targetx && posy == targety) || getInstant() == true) {
 		finishEffect();
-	}
-	else if ((curTicks - effectStart) > expireTime) {
+	}else if (m_spellTimer.getElapsedTimeSinceRestartMilli() > expireTime) {
 		markSpellActionAsFinished();
 	}
 }
@@ -798,6 +813,16 @@ void GeneralBoltDamageSpell::drawEffect() {
 		0, textureWidth,
 		0, textureHeight);
 		glPopMatrix();*/
+	}
+}
+
+void GeneralBoltDamageSpell::draw() {
+	if (!isEffectComplete()) {
+		TextureManager::BindTexture(TextureManager::GetTextureAtlas("spells"), true);
+		const TextureRect& rect = ConvertRect(currentFrame);
+		TextureManager::RotateTextureRect(rect, static_cast<float>(posx - rect.width * 0.5f), static_cast<float>(posy - rect.height * 0.5f), degrees, rect.width * 0.5f, rect.height * 0.5f, TextureManager::TransPos);
+		TextureManager::DrawTexture(rect, TextureManager::TransPos, true);
+		TextureManager::UnbindTexture(true);		
 	}
 }
 

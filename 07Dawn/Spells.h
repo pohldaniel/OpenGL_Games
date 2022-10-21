@@ -1,6 +1,7 @@
 #pragma once
 #include "engine/Clock.h"
 #include "SpellActionBase.h"
+#include "Player.h"
 
 class GeneralRayDamageSpell;
 class GeneralAreaDamageSpell;
@@ -127,9 +128,9 @@ public:
 	virtual void drawEffect();
 
 
-	void draw(int posX, int posY, float degree) override;
+	void draw() override;
 	float offsetRadius = 32.0f;
-
+	float degrees = 0.0f;
 protected:
 	GeneralRayDamageSpell();
 	GeneralRayDamageSpell(GeneralRayDamageSpell *other);
@@ -156,7 +157,7 @@ public:
 
 	void setNumAnimations(int count);
 	void setAnimationTexture(int num, std::string filename);
-	void draw(int posX, int posY, float degree);
+	void draw() override;
 	virtual void startEffect();
 	virtual void inEffect(float deltatime) override;
 	void finishEffect();
@@ -207,7 +208,10 @@ public:
 	void finishEffect();
 
 	virtual void drawEffect();
-
+	virtual void draw();
+	float degrees;
+	int targetx;
+	int targety;
 protected:
 	GeneralBoltDamageSpell();
 	GeneralBoltDamageSpell(GeneralBoltDamageSpell *other);

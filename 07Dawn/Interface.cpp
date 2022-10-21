@@ -423,7 +423,7 @@ void Interface::processInput() {
 
 
 	if (mouse.buttonDown(Mouse::BUTTON_LEFT)) {
-		if ((sqrt(pow(m_lastMouseDown.first - ViewPort::get().getCursorPosRelX(), 2) + pow(m_lastMouseDown.second - ViewPort::get().getCursorPosRelY(), 2)) > 2) /*&& !actionBar->isPreparingAoESpell()*/) {
+		if ((sqrt(pow(m_lastMouseDown.first - ViewPort::get().getCursorPosRelX(), 2) + pow(m_lastMouseDown.second - ViewPort::get().getCursorPosRelY(), 5)) > 2) /*&& !actionBar->isPreparingAoESpell()*/) {
 			dragSpell();
 		}
 	}

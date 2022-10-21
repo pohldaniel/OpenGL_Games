@@ -48,7 +48,7 @@ public:
 
 	/// \brief Draws the graphical representation of the spell effect.
 	virtual void drawEffect() = 0;
-	virtual void draw(int posX, int posY, float degree) {};
+	virtual void draw() {};
 
 	virtual void update(float deltatime) {};
 	virtual void startAnimation() {};

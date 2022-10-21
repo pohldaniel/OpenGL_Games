@@ -98,16 +98,8 @@ void Game::render(unsigned int &frameBuffer) {
 	player.draw();
 
 
-	if (spell->isEffectComplete()) {
-		degrees = asin((player.getYPos() - ViewPort::get().getCursorPosY()) / sqrt((pow(player.getXPos() - ViewPort::get().getCursorPosX(), 2) + pow(player.getYPos() - ViewPort::get().getCursorPosY(), 2)))) * 57.296;
-		degrees += 90;
 
-		if (player.getXPos() < ViewPort::get().getCursorPosX()) {
-			degrees = -degrees;
-		}
-	}
-	
-	spell->draw(player.getXPos(), player.getYPos(), degrees);
+	spell->draw();
 
 	dawnInterface->DrawInterface();
 	dawnInterface->DrawFloatingSpell();
