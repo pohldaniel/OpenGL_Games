@@ -47,8 +47,7 @@ public:
 	///       i.e. for spells created by cast function.
 
 	/// \brief Draws the graphical representation of the spell effect.
-	virtual void drawEffect() = 0;
-	virtual void draw() {};
+	virtual void draw() = 0;
 
 	virtual void update(float deltatime) {};
 	virtual void startAnimation() {};

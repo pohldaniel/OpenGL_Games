@@ -124,11 +124,8 @@ public:
 	virtual void startEffect();
 	virtual void inEffect(float deltatime) override;
 	void finishEffect();
-
-	virtual void drawEffect();
-
-
 	void draw() override;
+
 	float offsetRadius = 32.0f;
 	float degrees = 0.0f;
 protected:
@@ -162,7 +159,6 @@ public:
 	virtual void inEffect(float deltatime) override;
 	void finishEffect();
 
-	virtual void drawEffect();
 
 	Enums::EffectType getEffectType() const;
 
@@ -207,7 +203,6 @@ public:
 	virtual void inEffect(float deltatime) override;
 	void finishEffect();
 
-	virtual void drawEffect();
 	virtual void draw();
 	float degrees;
 	int targetx;
@@ -253,7 +248,8 @@ public:
 	uint16_t getContinuousHealingMin() const;
 	uint16_t getContinuousHealingMax() const;
 
-	virtual void drawEffect();
+	virtual void draw() override;
+
 	virtual void startEffect();
 	virtual void inEffect(float deltatime) override;
 	virtual void finishEffect();
@@ -296,7 +292,7 @@ public:
 	int16_t getSpellEffectElementModifierPoints(Enums::ElementType elementType) const;
 	void setSpellEffectElementModifierPoints(Enums::ElementType elementType, int16_t spellEffectElementModifierPoints);
 
-	virtual void drawEffect();
+	virtual void draw() override;
 	virtual void startEffect();
 	virtual void inEffect(float deltatime) override;
 	void finishEffect();

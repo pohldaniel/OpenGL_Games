@@ -407,30 +407,6 @@ void GeneralRayDamageSpell::finishEffect()
 	}
 }
 
-void GeneralRayDamageSpell::drawEffect() {
-	if (numTextures > 0) {
-		float degrees;
-		degrees = asin((creator->getYPos() - target->getYPos()) / sqrt((pow(creator->getXPos() - target->getXPos(), 2) + pow(creator->getYPos() - target->getYPos(), 2)))) * 57.296;
-		degrees += 90;
-
-		animationTimerStop = Globals::clock.getElapsedTimeMilli();
-		frameCount = static_cast<size_t>((animationTimerStop - animationTimerStart) / 50) % numTextures;
-
-		if (creator->getXPos() < target->getXPos()) {
-			degrees = -degrees;
-		}
-
-
-		/*glPushMatrix();
-		glTranslatef(creator->getXPos() + 32, creator->getYPos() + 32, 0.0f);
-		glRotatef(degrees, 0.0f, 0.0f, 1.0f);
-		glTranslatef(-160 - creator->getXPos(), -creator->getYPos() - 32, 0.0);
-
-		DrawingHelpers::mapTextureToRect(spellTexture->getTexture(frameCount), creator->getXPos() + 32, 256, creator->getYPos() + 64, 400);
-		glPopMatrix();*/
-	}
-}
-
 void GeneralRayDamageSpell::draw() {
 	if (!isEffectComplete()) {
 
@@ -622,19 +598,6 @@ void GeneralAreaDamageSpell::finishEffect() {
 	}
 }
 
-void GeneralAreaDamageSpell::drawEffect() {
-	if (numTextures > 0 && !child) {
-		animationTimerStop = Globals::clock.getElapsedTimeMilli();
-		frameCount = static_cast<size_t>((animationTimerStop - animationTimerStart) / 50) % numTextures;
-
-		/*glPushMatrix();
-		glTranslatef(centerX, centerY, 0.0f);
-
-		DrawingHelpers::mapTextureToRect(spellTexture->getTexture(frameCount), -radius, radius * 2, -radius, radius * 2);
-		glPopMatrix();*/
-	}
-}
-
 void GeneralAreaDamageSpell::draw() {
 	if (!isEffectComplete()) {
 		TextureManager::BindTexture(TextureManager::GetTextureAtlas("spells"), true);
@@ -705,6 +668,9 @@ void GeneralBoltDamageSpell::startEffect() {
 		//SoundEngine::playSound(soundSpellStart);
 	}
 
+	if(animation.getNumberOfFrames() > 1u)
+		animation.start();
+
 	const Player& player = Player::Get();
 	finished = false;
 
@@ -734,6 +700,10 @@ void GeneralBoltDamageSpell::startEffect() {
 }
 
 void GeneralBoltDamageSpell::inEffect(float deltatime) {
+	if (isEffectComplete()) return;
+
+	if (animation.getNumberOfFrames() > 1u)
+		animation.update(deltatime);
 
 	moveRemaining += moveSpeed * deltatime;
 
@@ -783,36 +753,6 @@ void GeneralBoltDamageSpell::finishEffect() {
 		if (RNG::randomSizeT(0, 10000) <= additionalSpellsOnCreator[additionalSpell].second * 10000) {
 			creator->executeSpellWithoutCasting(additionalSpellsOnCreator[additionalSpell].first, creator);
 		}
-	}
-}
-
-void GeneralBoltDamageSpell::drawEffect() {
-	if (numBoltTextures > 0) {
-		int targetx = target->getXPos() + (target->getWidth() / 2);
-		int targety = target->getYPos() + (target->getHeight() / 2);
-		float degrees;
-		degrees = asin((posy - targety) / sqrt((pow(posx - targetx, 2) + pow(posy - targety, 2)))) * 57.296;
-		degrees += 90;
-
-		animationTimerStop = Globals::clock.getElapsedTimeMilli();
-		frameCount = static_cast<size_t>((animationTimerStop - animationTimerStart) / 50) % numBoltTextures;
-
-		if (posx < targetx) {
-			degrees = -degrees;
-		}
-
-		/*int textureWidth = boltTexture->getTexture(frameCount).width;
-		int textureHeight = boltTexture->getTexture(frameCount).height;
-		glPushMatrix();
-		glTranslatef(posx, posy, 0.0f);
-		glRotatef(degrees, 0.0f, 0.0f, 1.0f);
-		glTranslatef(-textureWidth / 2, -textureHeight / 2, 0.0f);
-
-		DrawingHelpers::mapTextureToRect(
-		boltTexture->getTexture(frameCount),
-		0, textureWidth,
-		0, textureHeight);
-		glPopMatrix();*/
 	}
 }
 
@@ -932,9 +872,14 @@ void GeneralHealingSpell::startEffect() {
 	if (soundSpellStart != "") {
 		//SoundEngine::playSound(soundSpellStart);
 	}
+
+	finished = false;
+
 	remainingEffect = 0.0;
 	effectStart = Globals::clock.getElapsedTimeMilli();
 	lastEffect = effectStart;
+
+	m_spellTimer.restart();
 
 	int healing = RNG::randomSizeT(healEffectMin, healEffectMax);
 
@@ -949,43 +894,33 @@ void GeneralHealingSpell::startEffect() {
 		}*/
 		int healingCaused = round(realHealing);
 
-		target->Heal(healingCaused);
+		//target->Heal(healingCaused);
 	}
 
-	target->addActiveSpell(this);
-	creator->addCooldownSpell(dynamic_cast<CSpellActionBase*> (cast(NULL, NULL)));
-	unbindFromCreator();
+	//target->addActiveSpell(this);
+	//creator->addCooldownSpell(dynamic_cast<CSpellActionBase*> (cast(NULL, NULL)));
+	//unbindFromCreator();
 }
 
 void GeneralHealingSpell::inEffect(float deltatime) {
-	if (target->isAlive() == false) {
-		// target died while having this effect active. mark it as finished.
-		finishEffect();
-		return;
-	}
+	if (isEffectComplete()) return;
 
-	uint32_t curTime = Globals::clock.getElapsedTimeMilli();
-	uint32_t elapsedSinceLast = curTime - lastEffect;
-	uint32_t elapsedSinceStart = curTime - effectStart;
-	if (curTime - lastEffect < 1000) {
-		// heal every second
-		if (elapsedSinceStart >= continuousHealingTime) {
-			elapsedSinceLast = continuousHealingTime - (lastEffect - effectStart);
-		}
+	unsigned int elapsedSinceLast = m_spellTimer.getElapsedTimeMilli();
+	if (elapsedSinceLast < 1000) {
 		return;
 	}
+	m_spellTimer.reset();
 
 	remainingEffect += calculateContinuousHealing(elapsedSinceLast);
 
 	bool callFinish = false;
-	if (elapsedSinceStart >= continuousHealingTime) {
+	if (m_spellTimer.getElapsedTimeSinceRestartMilli() >= continuousHealingTime) {
 		callFinish = true;
 	}
 
 	if (floor(remainingEffect) > 0) {
-		target->Heal(floor(remainingEffect));
+		//target->Heal(floor(remainingEffect));
 		remainingEffect = remainingEffect - floor(remainingEffect);
-		lastEffect = curTime;
 	}
 
 	if (callFinish) {
@@ -1011,8 +946,7 @@ void GeneralHealingSpell::finishEffect() {
 	}
 }
 
-void GeneralHealingSpell::drawEffect() {
-}
+void GeneralHealingSpell::draw() { }
 
 /// GeneralBuffSpell
 
@@ -1115,6 +1049,9 @@ void GeneralBuffSpell::startEffect() {
 	if (soundSpellStart != "") {
 		//SoundEngine::playSound(soundSpellStart);
 	}
+	m_spellTimer.restart();
+	finished = false;
+
 	effectStart = Globals::clock.getElapsedTimeMilli();
 	target->addActiveSpell(this);
 	creator->addCooldownSpell(dynamic_cast<CSpellActionBase*> (cast(NULL, NULL)));
@@ -1122,6 +1059,8 @@ void GeneralBuffSpell::startEffect() {
 }
 
 void GeneralBuffSpell::inEffect(float deltatime) {
+	if (isEffectComplete()) return;
+
 	if (target->isAlive() == false) {
 		// target died while having this effect active. mark it as finished.
 		finishEffect();
@@ -1129,12 +1068,12 @@ void GeneralBuffSpell::inEffect(float deltatime) {
 	}
 
 	uint32_t curTime = Globals::clock.getElapsedTimeMilli();
-	if (curTime - effectStart > getDuration() * 1000u) {
+	if (m_spellTimer.getElapsedTimeSinceRestartMilli() > getDuration() * 1000u) {
 		finishEffect();
 	}
 }
 
-void GeneralBuffSpell::drawEffect() { }
+void GeneralBuffSpell::draw() { }
 
 void GeneralBuffSpell::finishEffect() {
 	markSpellActionAsFinished();

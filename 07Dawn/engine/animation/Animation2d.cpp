@@ -39,3 +39,7 @@ void Animation2D::start() {
 const bool Animation2D::waitForAnimation() const{
 	return m_waitForAnimation;
 }
+
+unsigned int Animation2D::getNumberOfFrames() {
+	return m_frameCount;
+}

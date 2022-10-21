@@ -235,8 +235,7 @@ void MeleeDamageAction::dealDamage() {
 }
 
 double MeleeDamageAction::getProgress() const {
-	int32_t curTime = Globals::clock.getElapsedTimeMilli();
-	return ((curTime - effectStart) / 650.0);
+	return m_actionTimer.getElapsedTimeSinceRestartMilli() / 650.0;
 }
 
 Enums::EffectType MeleeDamageAction::getEffectType() const {
@@ -249,12 +248,16 @@ void MeleeDamageAction::startEffect() {
 	if (soundSpellStart != "") {
 		//SoundEngine::playSound(soundSpellStart);
 	}
+	m_actionTimer.restart();
+	finished = false;
 	effectStart = Globals::clock.getElapsedTimeMilli();
 	target->addActiveSpell(this);
 	creator->addCooldownSpell(dynamic_cast<CSpellActionBase*> (cast(NULL, NULL)));
 }
 
 void MeleeDamageAction::inEffect(float deltatime) {
+	if (isEffectComplete()) return;
+
 	if (target->isAlive() == false) {
 		// target died while having this effect active. mark it as finished.
 		finishEffect();
@@ -266,7 +269,7 @@ void MeleeDamageAction::inEffect(float deltatime) {
 	}
 }
 
-void MeleeDamageAction::drawEffect() { }
+void MeleeDamageAction::draw() { }
 
 void MeleeDamageAction::finishEffect() {
 	dealDamage();
@@ -343,30 +346,45 @@ void RangedDamageAction::startEffect() {
 	if (soundSpellStart != "") {
 		//SoundEngine::playSound(soundSpellStart);
 	}
+	const Player& player = Player::Get();
+	finished = false;
+
 	frameCount = 0;
 	moveRemaining = 0.0;
 	effectStart = Globals::clock.getElapsedTimeMilli();
 	animationTimerStart = effectStart;
 	lastEffect = effectStart;
-	posx = creator->getXPos() + (creator->getWidth() / 2);
-	posy = creator->getYPos() + (creator->getHeight() / 2);
+	posx = player.getXPos() + (player.getWidth() / 2);
+	posy = player.getYPos() + (player.getHeight() / 2);
 
+	m_actionTimer.restart();
+
+	targetx = ViewPort::get().getCursorPosX();
+	targety = ViewPort::get().getCursorPosY();
+
+	degrees = asin((posy - targety) / sqrt((pow(posx - targetx, 2) + pow(posy - targety, 2)))) * 57.296;
+	degrees += 90;
+
+	if (posx < targetx) {
+		degrees = -degrees;
+	}
 	target->addActiveSpell(this);
 	creator->addCooldownSpell(dynamic_cast<CSpellActionBase*> (cast(NULL, NULL)));
 	unbindFromCreator();
 }
 
 void RangedDamageAction::inEffect(float deltatime) {
-	if (target->isAlive() == false) {
-		// target died while having this effect active. mark it as finished.
-		finishEffect();
-		return;
-	}
+	if (isEffectComplete()) return;
 
-	uint32_t curTicks = Globals::clock.getElapsedTimeMilli();
-	moveRemaining += moveSpeed * (curTicks - lastEffect) / 1000.0;
-	int targetx = target->getXPos() + (target->getWidth() / 2);
-	int targety = target->getYPos() + (target->getHeight() / 2);
+	//if (target->isAlive() == false) {
+		// target died while having this effect active. mark it as finished.
+		//finishEffect();
+		//return;
+	//}
+	moveRemaining += moveSpeed * deltatime;
+	
+	//int targetx = target->getXPos() + (target->getWidth() / 2);
+	//int targety = target->getYPos() + (target->getHeight() / 2);
 	int dx = targetx - posx;
 	int dy = targety - posy;
 	double dist = sqrt((dx * dx) + (dy * dy));
@@ -385,15 +403,13 @@ void RangedDamageAction::inEffect(float deltatime) {
 
 	double movedDist = sqrt(movex * movex + movey * movey);
 	moveRemaining -= movedDist;
-	lastEffect = curTicks;
 
 	posx += movex;
 	posy += movey;
 
 	if ((posx == targetx && posy == targety) || getInstant() == true) {
 		finishEffect();
-	}
-	else if ((curTicks - effectStart) > expireTime) {
+	}else if (m_actionTimer.getElapsedTimeSinceRestartMilli() > expireTime) {
 		markSpellActionAsFinished();
 	}
 }
@@ -422,35 +438,13 @@ double RangedDamageAction::getProgress() const {
 	return ((curTime - effectStart) / 650.0);
 }
 
-
-void RangedDamageAction::drawEffect() {
-
-	if (numProjectileTextures > 0) {
-		int targetx = target->getXPos() + (target->getWidth() / 2);
-		int targety = target->getYPos() + (target->getHeight() / 2);
-		float degrees;
-		degrees = asin((posy - targety) / sqrt((pow(posx - targetx, 2) + pow(posy - targety, 2)))) * 57.296;
-		degrees += 90;
-
-		animationTimerStop = Globals::clock.getElapsedTimeMilli();
-		frameCount = static_cast<size_t>((animationTimerStop - animationTimerStart) / 50) % numProjectileTextures;
-
-		if (posx < targetx) {
-			degrees = -degrees;
-		}
-
-		/*int textureWidth = projectileTexture->getTexture(frameCount).width;
-		int textureHeight = projectileTexture->getTexture(frameCount).height;
-		glPushMatrix();
-		glTranslatef(posx, posy, 0.0f);
-		glRotatef(degrees, 0.0f, 0.0f, 1.0f);
-		glTranslatef(-textureWidth / 2, -textureHeight / 2, 0.0f);
-
-		DrawingHelpers::mapTextureToRect(
-		projectileTexture->getTexture(frameCount),
-		0, textureWidth,
-		0, textureHeight);
-		glPopMatrix();*/
+void RangedDamageAction::draw() {
+	if (!isEffectComplete()) {
+		TextureManager::BindTexture(TextureManager::GetTextureAtlas("spells"), true);
+		const TextureRect& rect = ConvertRect(currentFrame);
+		TextureManager::RotateTextureRect(rect, static_cast<float>(posx - rect.width * 0.5f), static_cast<float>(posy - rect.height * 0.5f), degrees, rect.width * 0.5f, rect.height * 0.5f, TextureManager::TransPos);
+		TextureManager::DrawTexture(rect, TextureManager::TransPos, true);
+		TextureManager::UnbindTexture(true);
 	}
 }
 

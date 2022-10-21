@@ -2,7 +2,7 @@
 
 #include <string>
 #include <vector>
-
+#include "engine/Clock.h"
 #include "engine/animation/Animation2D.h"
 
 #include "SpellActionBase.h"
@@ -46,7 +46,7 @@ public:
 	virtual uint16_t getDuration() const;
 
 	TextureRect* getSymbol() const;
-
+	Clock m_actionTimer;
 protected:
 	ConfigurableAction();
 	ConfigurableAction(ConfigurableAction *other);
@@ -71,7 +71,7 @@ public:
 
 	virtual Enums::EffectType getEffectType() const;
 
-	virtual void drawEffect();
+	virtual void draw();
 	virtual void startEffect();
 	virtual void inEffect(float deltatime) override;
 	virtual void finishEffect();
@@ -102,10 +102,11 @@ public:
 
 	virtual Enums::EffectType getEffectType() const;
 
-	virtual void drawEffect();
+	void draw() override;
 	virtual void startEffect();
 	virtual void inEffect(float deltatime) override;
 	virtual void finishEffect();
+	
 
 	double getProgress() const;
 
@@ -123,6 +124,9 @@ public:
 	void startAnimation();
 	const bool waitForAnimation() const;
 
+	float degrees;
+	int targetx;
+	int targety;
 protected:
 	RangedDamageAction();
 	RangedDamageAction(RangedDamageAction *other);

@@ -24,10 +24,11 @@ public:
 	const Animation2D::TextureRect& getFrame();
 	const bool waitForAnimation() const;
 	void resetAnimation();
+	unsigned int getNumberOfFrames();
 
 private:
 
-	unsigned m_frameCount = 0;
+	unsigned int m_frameCount = 0;
 	float m_elapsedTime = 0.0f;
 	unsigned int m_currentFrame = 0;
 	TextureRect m_frame;
