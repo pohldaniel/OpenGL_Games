@@ -37,6 +37,7 @@ void Interface::init() {
 
 	actionBarPosX = ViewPort::get().getWidth() - 630;
 	actionBarPosY = 0;
+	preparingAoESpell = false;
 }
 
 void Interface::resize() {
@@ -122,11 +123,11 @@ void Interface::DrawInterface() {
 
 	TextureManager::DrawTextureBatched(m_interfacetexture[13], 76, ViewPort::get().getHeight() - 67, experienceBarPercentage * 123.0f, static_cast<float>(m_interfacetexture[13].height), false, false);
 
-
-	// actual castbar
-	TextureManager::DrawTextureBatched(m_interfacetexture[0], ViewPort::get().getWidth() / 2 - 50, 100, 100.0f, 20.0f, Vector4f(0.5f, 0.5f, 0.0f, 1.0f), false, false);
-	TextureManager::DrawTextureBatched(m_interfacetexture[0], ViewPort::get().getWidth() / 2 - 50, 100, 100 * 0.3f, 20.0f, Vector4f(0.8f, 0.8f, 0.0f, 1.0f), false, false);
-
+	if (player->getIsPreparing()){
+		// actual castbar
+		TextureManager::DrawTextureBatched(m_interfacetexture[0], ViewPort::get().getWidth() / 2 - 50, 100, 100.0f, 20.0f, Vector4f(0.5f, 0.5f, 0.0f, 1.0f), false, false);
+		TextureManager::DrawTextureBatched(m_interfacetexture[0], ViewPort::get().getWidth() / 2 - 50, 100, 100.0f * player->getPreparationPercentage(), 20.0f, Vector4f(0.8f, 0.8f, 0.0f, 1.0f), false, false);
+	}
 	//buff effect (it seems meaningless to render this symbol as an additinal frame)
 	TextureManager::DrawTextureBatched(m_interfacetexture[16], ViewPort::get().getWidth() - 204, ViewPort::get().getHeight() - 50 - 40 * 0, false, false);
 	TextureManager::DrawTextureBatched(m_interfacetexture[17], ViewPort::get().getWidth() - 204 + 36, ViewPort::get().getHeight() - 50 - 40 * 0, 168.0f, 36.0f, false, false);
@@ -137,8 +138,13 @@ void Interface::DrawInterface() {
 	//action bar
 	TextureManager::DrawTextureBatched(m_interfacetexture[18], ViewPort::get().getWidth() - 630, 0, 630.0f, 80.0f, false, false);
 	for (unsigned int buttonId = 0; buttonId < 10; buttonId++) {
-	
-		TextureManager::DrawTextureBatched(m_interfacetexture[19], ViewPort::get().getWidth() - 610 + buttonId * 60, 12, 50.0f, 50.0f, Vector4f(0.4f, 0.4f, 0.4f, 1.0f), false, false);
+
+		Vector4f borderColor = Vector4f(0.4f, 0.4f, 0.4f, 1.0f);
+		if (spellQueue != nullptr && spellQueue->action == button[buttonId].action){
+			borderColor = Vector4f(0.8f, 0.8f, 0.8f, 1.0f);
+		}
+
+		TextureManager::DrawTextureBatched(m_interfacetexture[19], ViewPort::get().getWidth() - 610 + buttonId * 60, 12, 50.0f, 50.0f, borderColor, false, false);
 	}
 
 	drawCharacterStates();
@@ -398,7 +404,7 @@ void Interface::processInput() {
 	
 				
 				// AoE spell with specific position
-				if (button[buttonId].action->getEffectType() == Enums::EffectType::AreaTargetSpell /*&& player->getTarget() == NULL && isSpellUseable(button[buttonId].action) == true*/) {
+				if (button[buttonId].action->getEffectType() == Enums::EffectType::AreaTargetSpell && player->getTarget() == NULL /*&& isSpellUseable(button[buttonId].action) == true*/) {
 					
 					setSpellQueue(button[buttonId], false);
 					cursorRadius = button[buttonId].action->getRadius();
@@ -423,7 +429,7 @@ void Interface::processInput() {
 
 
 	if (mouse.buttonDown(Mouse::BUTTON_LEFT)) {
-		if ((sqrt(pow(m_lastMouseDown.first - ViewPort::get().getCursorPosRelX(), 2) + pow(m_lastMouseDown.second - ViewPort::get().getCursorPosRelY(), 5)) > 2) /*&& !actionBar->isPreparingAoESpell()*/) {
+		if ((sqrt(pow(m_lastMouseDown.first - ViewPort::get().getCursorPosRelX(), 2) + pow(m_lastMouseDown.second - ViewPort::get().getCursorPosRelY(), 2)) > 5) /*&& !actionBar->isPreparingAoESpell()*/) {
 			dragSpell();
 		}
 	}
@@ -431,4 +437,53 @@ void Interface::processInput() {
 
 CSpellActionBase* Interface::getCurrentAction() {
 	return spellQueue != nullptr ? spellQueue->action : nullptr;
+}
+
+void Interface::executeSpellQueue() {
+	if (spellQueue != NULL) {
+		
+		Enums::EffectType effectType = spellQueue->action->getEffectType();
+
+		if (spellQueue->action != NULL && spellQueue->actionReadyToCast == true) {
+			CSpellActionBase *curAction = NULL;
+			if (effectType == Enums::EffectType::SingleTargetSpell && player->getTarget() != NULL) {
+				curAction = spellQueue->action->cast(player, player->getTarget(), true);
+			} else if (effectType == Enums::EffectType::SelfAffectingSpell) {
+				curAction = spellQueue->action->cast(player, player, false);
+			}else if (effectType == Enums::EffectType::AreaTargetSpell) {
+				
+				// AoE spell cast on target with target selected previous to casting
+				if (!preparingAoESpell) {
+					curAction = spellQueue->action->cast(player, player->getTarget(), false);
+				}
+				// AoE spell cast on specific position
+				else if (spellQueue->areaOfEffectOnSpecificLocation == true) {
+					curAction = spellQueue->action->cast(player, spellQueue->actionSpecificXPos, spellQueue->actionSpecificYPos);
+					preparingAoESpell = false;
+				}
+			}
+
+			if (curAction != NULL) {
+				player->castSpell(dynamic_cast<CSpellActionBase*>(curAction));
+				player->m_waitForAnimation = true;
+			}
+
+			spellQueue = NULL;
+		}else if (spellQueue->action) {
+			
+			if (effectType == Enums::EffectType::AreaTargetSpell)
+				preparingAoESpell = true;
+		}
+	}
+}
+
+bool Interface::isPreparingAoESpell() const {
+	return preparingAoESpell;
+}
+
+void Interface::makeReadyToCast(int x, int y) {
+	spellQueue->actionReadyToCast = true;
+	spellQueue->areaOfEffectOnSpecificLocation = true;
+	spellQueue->actionSpecificXPos = x;
+	spellQueue->actionSpecificYPos = y;
 }

@@ -139,8 +139,8 @@ void Npc::Animate(float deltaTime) {
 		const TileSet& tileSet = m_characterType.m_moveTileSets.at({ curActivity, lastActiveDirection });
 		unsigned short numActivityTextures = getNumActivityTextures(curActivity);
 
-		m_wanderTime = m_wanderTime >= numActivityTextures ? 0.0f : m_wanderTime + deltaTime * 12;
-		currentFrame = static_cast<unsigned short>(floor(m_wanderTime));
+		m_animationTime = m_animationTime >= numActivityTextures ? 0.0f : m_animationTime + deltaTime * 12;
+		currentFrame = static_cast<unsigned short>(floor(m_animationTime));
 		if (++currentFrame > numActivityTextures - 1) {
 			currentFrame = curActivity == Enums::ActivityType::Dying ? numActivityTextures - 1 : 0;
 			m_handleAnimation = activeDirection != Enums::Direction::STOP;
@@ -157,7 +157,7 @@ void Npc::processInput() {
 	if (keyboard.keyDown(Keyboard::KEY_E) && !m_waitForAnimation) {
 		curActivity = Enums::ActivityType::Dying;		
 		currentFrame = 0;
-		m_wanderTime = 0.0f;
+		m_animationTime = 0.0f;
 		m_waitForAnimation = true;
 		m_stopped = true;
 		activeDirection = Enums::Direction::STOP;
@@ -168,7 +168,7 @@ void Npc::processInput() {
 	if (keyboard.keyDown(Keyboard::KEY_R) && !m_waitForAnimation) {
 		curActivity = Enums::ActivityType::Attacking;
 		currentFrame = 0;
-		m_wanderTime = 0.0f;
+		m_animationTime = 0.0f;
 		m_waitForAnimation = true;
 		m_stopped = true;
 		activeDirection = Enums::Direction::STOP;

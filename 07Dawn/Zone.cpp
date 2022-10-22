@@ -1,5 +1,6 @@
 #include <iostream>
 #include "Zone.h"
+#include "Constants.h"
 
 Zone::Zone() { }
 
@@ -314,11 +315,9 @@ void Zone::drawZoneBatched() {
 	drawShadowsBatched();
 	TextureManager::DrawBuffer();
 
-	TextureManager::BindTexture(TextureManager::GetTextureAtlas("mobs"), true);
-	drawNpcsBatched();
-	TextureManager::DrawBuffer();
-
-	TextureManager::UnbindTexture(true);
+	
+	//drawNpcsBatched();
+	
 }
 
 void Zone::drawTilesBatched() {
@@ -340,9 +339,14 @@ void Zone::drawShadowsBatched(){
 }
 
 void Zone::drawNpcsBatched() {
+	TextureManager::BindTexture(TextureManager::GetTextureAtlas("mobs"), true);
 	for (unsigned int x = 0; x < m_npcs.size(); x++) {
 		m_npcs[x]->draw();
 	}	
+
+	TextureManager::DrawBuffer();
+
+	TextureManager::UnbindTexture(true);
 }
 
 void Zone::drawZoneInstanced() {
@@ -366,6 +370,38 @@ void Zone::drawTilesInstanced() {
 void Zone::drawEnvironmentInstanced() {
 	for (unsigned int x = 0; x < m_environmentMap.size(); x++) {
 		TextureManager::DrawTextureInstanced(m_environmentMap[x].tile.textureRect, m_environmentMap[x].x_pos, m_environmentMap[x].y_pos);
+	}
+}
+
+void Zone::addActiveAoESpell(CSpellActionBase *spell) {
+	activeAoESpells.push_back(std::pair<CSpellActionBase*, uint32_t>(spell, Globals::clock.getElapsedTimeMilli()));
+}
+
+std::vector<std::pair<CSpellActionBase*, uint32_t> > Zone::getActiveAoESpells() {
+	return activeAoESpells;
+}
+
+void Zone::cleanupActiveAoESpells() {
+	size_t curSpell = 0;
+	while (curSpell < activeAoESpells.size()) {
+		if (activeAoESpells[curSpell].first->isEffectComplete() == true) {
+			delete activeAoESpells[curSpell].first;
+			activeAoESpells.erase(activeAoESpells.begin() + curSpell);
+		}else {
+			curSpell++;
+		}
+	}
+}
+
+void Zone::clearActiveAoESpells() {
+	activeAoESpells.clear();
+}
+
+void Zone::removeActiveAoESpell(CSpellActionBase* activeSpell) {
+	for (size_t curSpell = 0; curSpell < activeAoESpells.size(); curSpell++) {
+		if (activeAoESpells[curSpell].first == activeSpell) {
+			activeAoESpells[curSpell].first->markSpellActionAsFinished();
+		}
 	}
 }
 

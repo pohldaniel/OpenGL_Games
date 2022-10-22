@@ -153,7 +153,7 @@ public:
 	bool isSneaking() const;
 
 	
-	bool continuePreparing();
+
 	void MoveUp(uint8_t n);
 	void MoveDown(uint8_t n);
 	void MoveLeft(uint8_t n);
@@ -183,7 +183,6 @@ public:
 	void setLevel(uint8_t newLevel);
 	void setClass(Enums::CharacterClass characterClass);
 	void setExperienceValue(uint8_t experienceValue);
-	//void inscribeSpellInSpellbook(CSpellActionBase* spell);
 	//void addItemToLootTable(Item* item, double dropChance);
 	
 	uint16_t getStrength() const;
@@ -268,7 +267,7 @@ public:
 	unsigned short index = 0;
 	unsigned short currentFrame = 0;
 	float m_elapsedTime = 0.0f;
-	float m_wanderTime = 0.0f;
+	float m_animationTime = 0.0f;
 	
 	bool m_waitForAnimation = false;
 
@@ -303,8 +302,9 @@ public:
 	float preparationPercentage;
 	uint64_t experience;
 
-	CSpellActionBase* curSpellAction;
+	CSpellActionBase* curSpellAction = nullptr;
 	std::vector<CSpellActionBase*> spellbook;
+	uint32_t preparationStartTime, preparationCurrentTime;
 
 	Enums::CharacterArchType getArchType() const;
 	uint16_t getCurrentFatigue() const;
@@ -336,4 +336,12 @@ public:
 	void Heal(int amount);
 	void inscribeSpellInSpellbook(CSpellActionBase *spell);
 	std::vector<CSpellActionBase*> getSpellbook() const;
+	bool castSpell(CSpellActionBase *spell);
+	void giveToPreparation(CSpellActionBase *toPrepare);
+	bool continuePreparing();
+	void CastingAborted();
+	void abortCurrentSpellAction();
+	void startSpellAction();
+	void regenerateLifeManaFatigue(uint32_t regenPoints);
+	std::vector<std::pair<CSpellActionBase*, uint32_t> > getActiveSpells() const;
 };

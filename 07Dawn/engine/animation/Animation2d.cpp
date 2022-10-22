@@ -5,14 +5,16 @@ Animation2D::~Animation2D() {}
 
 
 void Animation2D::update(const float deltaTime) {
+	
 	if (m_waitForAnimation) {
+		
 		m_elapsedTime = m_elapsedTime >= m_frameCount ? 0.0f : m_elapsedTime + deltaTime * 12;
 		m_currentFrame = static_cast<unsigned short>(floor(m_elapsedTime));
 		if (++m_currentFrame > m_frameCount - 1) {
 			m_currentFrame = 0;
 			m_waitForAnimation = m_loop;
 
-		}	 
+		}	
 		m_frame = m_frames[m_currentFrame];
 	}
 }

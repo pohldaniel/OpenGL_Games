@@ -67,10 +67,10 @@ bool CSpellActionBase::isEffectComplete() const
 	return finished;
 }
 
-void CSpellActionBase::drawSymbol(int left, int bottom, int width, int height) const {
+void CSpellActionBase::drawSymbol(int left, int bottom, int width, int height, Vector4f color) const {
 	TextureRect* texture = getSymbol();
 	if (texture != NULL) {
-		TextureManager::DrawTextureBatched(*texture, left, bottom, width, height, Vector4f(1.0f, 0.0f, 0.0f, 1.0f), false, false);
+		TextureManager::DrawTextureBatched(*texture, left, bottom, width, height, color, false, false);
 	}
 }
 

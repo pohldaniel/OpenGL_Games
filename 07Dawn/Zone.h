@@ -37,6 +37,8 @@ struct EnvironmentMap {
 
 };
 
+class CMagic;
+
 class Zone{
 	friend class Editor;
 	friend class ZoneManager;
@@ -95,8 +97,16 @@ public:
 	std::vector<CollisionRect>& getCollisionMap();
 	std::vector<InteractionRegion>& getInteractionRegions();
 	std::vector<InteractionPoint>& getInteractionPoints();
-private:
 
+	std::vector<CMagic*> MagicMap;
+	void addActiveAoESpell(CSpellActionBase *spell);
+	std::vector<std::pair<CSpellActionBase*, uint32_t> > getActiveAoESpells();
+	void cleanupActiveAoESpells();
+	void clearActiveAoESpells();
+	void removeActiveAoESpell(CSpellActionBase* activeSpell);
+
+private:
+	std::vector< std::pair<CSpellActionBase*, uint32_t> > activeAoESpells;
 	std::vector<TileMap> m_tileMap;
 	std::vector<EnvironmentMap> m_environmentMap;
 	std::vector<EnvironmentMap> m_shadowMap;

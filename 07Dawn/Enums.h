@@ -182,4 +182,21 @@ namespace Enums {
 		FatigueRegen,
 		CountST
 	};
+
+	enum ItemSlot {
+		HEAD,
+		AMULET,
+		MAIN_HAND,
+		OFF_HAND,
+		BELT,
+		LEGS,
+		SHOULDER,
+		CHEST,
+		GLOVES,
+		CLOAK,
+		BOOTS,
+		RING_ONE,
+		RING_TWO,
+		COUNTIS
+	};
 }

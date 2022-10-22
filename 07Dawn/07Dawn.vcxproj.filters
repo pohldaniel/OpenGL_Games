@@ -210,6 +210,9 @@
     <ClCompile Include="Actions.cpp">
       <Filter>Source Files\Spells</Filter>
     </ClCompile>
+    <ClCompile Include="Magic.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine\input\Event.h">
@@ -385,6 +388,9 @@
     </ClInclude>
     <ClInclude Include="Actions.h">
       <Filter>Source Files\Spells</Filter>
+    </ClInclude>
+    <ClInclude Include="Magic.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

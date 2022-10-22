@@ -169,6 +169,7 @@
     <ClCompile Include="Interface.cpp" />
     <ClCompile Include="Label.cpp" />
     <ClCompile Include="LoadingScreen.cpp" />
+    <ClCompile Include="Magic.cpp" />
     <ClCompile Include="MainMenu.cpp" />
     <ClCompile Include="Message.cpp" />
     <ClCompile Include="Npc.cpp" />
@@ -231,6 +232,7 @@
     <ClInclude Include="Label.h" />
     <ClInclude Include="LoadingManager.h" />
     <ClInclude Include="LoadingScreen.h" />
+    <ClInclude Include="Magic.h" />
     <ClInclude Include="MainMenu.h" />
     <ClInclude Include="Message.h" />
     <ClInclude Include="Npc.h" />

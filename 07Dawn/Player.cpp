@@ -38,8 +38,8 @@ void Player::init(int x, int y) {
 
 
 void Player::draw() {
-	Enums::ActivityType curActivity = getCurActivity();
-
+	
+	
 	int drawX = getXPos();
 	int drawY = getYPos();
 
@@ -49,24 +49,27 @@ void Player::draw() {
 	}
 
 	TextureManager::BindTexture(TextureManager::GetTextureAtlas("player"), true);
-	TextureManager::DrawTexture(*rect, drawX, drawY, true, true);
+	TextureManager::DrawTexture(*rect, drawX, drawY, Vector4f(1.0f, 1.0f, 1.0f, 1.0f), true, true);
 	TextureManager::UnbindTexture(true);
 }
 
 void Player::update(float deltaTime) {
-
+	curActivity = getCurActivity();
+	//std::cout << "Activity: " << ActivityToString(curActivity) << std::endl;
 	//if (curActivity != Enums::ActivityType::Dying) {
 		processInput();
 	//}
 
 	if (activeDirection != Enums::Direction::STOP && curActivity != Enums::ActivityType::Walking) {		
 		interruptCurrentActivityWith(Enums::ActivityType::Walking);
+		CastingAborted();
 	}
 
 	Move(deltaTime);
 
 	lastActiveDirection = activeDirection != Enums::Direction::STOP ? activeDirection : lastActiveDirection;
 	Animate(deltaTime);
+	continuePreparing();
 }
 
 
@@ -91,18 +94,29 @@ void Player::Move(float deltaTime) {
 
 void Player::Animate(float deltaTime) {
 	const TileSet& tileSet = m_characterType->m_moveTileSets.at({ curActivity, lastActiveDirection });
-
-	if (activeDirection != Enums::Direction::STOP || ((curActivity == Enums::ActivityType::Dying || curActivity == Enums::ActivityType::Casting) && m_waitForAnimation)) {
-		unsigned short numActivityTextures = getNumActivityTextures(curActivity);
 	
-		m_wanderTime += deltaTime;
-		while (m_wanderTime >= m_duration) {
-			m_wanderTime -= m_duration;
-			if (++currentFrame > numActivityTextures - 1) {				
+	if (activeDirection != Enums::Direction::STOP || (curActivity == Enums::ActivityType::Dying && m_waitForAnimation)) {
+		unsigned short numActivityTextures = getNumActivityTextures(curActivity);
+
+		m_animationTime += deltaTime;
+		while (m_animationTime >= m_duration) {
+			m_animationTime -= m_duration;
+			if (++currentFrame > numActivityTextures - 1) {
 				currentFrame = curActivity == Enums::ActivityType::Dying ? numActivityTextures - 1 : 0;
 				m_waitForAnimation = false;
-				
+
 			}
+		}
+		rect = &tileSet.getAllTiles()[currentFrame].textureRect;
+
+	}else if (curActivity == Enums::ActivityType::Casting) {
+		unsigned short numActivityTextures = getNumActivityTextures(curActivity);
+	
+		currentFrame = static_cast<unsigned short>(floor(getPreparationPercentage() * numActivityTextures)) - 1;
+		if (++currentFrame > numActivityTextures - 1) {
+			currentFrame = 0;
+			m_waitForAnimation = false;
+
 		}
 		rect = &tileSet.getAllTiles()[currentFrame].textureRect;
 
@@ -157,12 +171,6 @@ void Player::processInput() {
 
 	if (keyboard.keyDown(Keyboard::KEY_E) && !m_waitForAnimation) {
 		curActivity = Enums::ActivityType::Dying;
-		currentFrame = 0;
-		m_waitForAnimation = true;
-	}
-
-	if (keyboard.keyDown(Keyboard::KEY_R) && !m_waitForAnimation) {
-		curActivity = Enums::ActivityType::Casting;
 		currentFrame = 0;
 		m_waitForAnimation = true;
 	}

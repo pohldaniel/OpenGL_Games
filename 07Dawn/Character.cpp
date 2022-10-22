@@ -2,6 +2,9 @@
 #include "Player.h"
 #include "TilesetManager.h"
 #include "Constants.h"
+#include "Spells.h"
+#include "Actions.h"
+#include "Magic.h"
 
 const uint16_t NULLABLE_ATTRIBUTE_MIN = 0;
 const uint16_t NON_NULLABLE_ATTRIBUTE_MIN = 1;
@@ -63,8 +66,23 @@ void Character::baseOnType(std::string characterType) {
 }
 
 Enums::ActivityType Character::getCurActivity() const {
-	Enums::ActivityType curActivity = Enums::ActivityType::Walking;
-	
+	//Enums::ActivityType curActivity = Enums::ActivityType::Walking;
+	if (curSpellAction != NULL) {
+		if (dynamic_cast<CSpell*>(curSpellAction) != NULL) {
+			return Enums::ActivityType::Casting;
+		}
+		else if (dynamic_cast<RangedDamageAction*>(curSpellAction) != NULL) {
+			return Enums::ActivityType::Shooting;
+		}
+		else if (dynamic_cast<MeleeDamageAction*>(curSpellAction) != NULL) {
+			return Enums::ActivityType::Attacking;
+		}
+	}
+
+	/*if (isAlive() == false && (dyingStartFrame < SDL_GetTicks() + 10000)) {
+		curActivity = ActivityType::Dying;
+	}*/
+
 	return curActivity;
 }
 
@@ -221,35 +239,6 @@ bool Character::isInvisible() const {
 
 bool Character::getIsPreparing() const {
 	//return isPreparing;
-	return false;
-}
-
-bool Character::continuePreparing() {
-	/// if we're preparing a spell while getting stunned, feared, mesmerized or charmed, abort the spellcasting.
-	if ((isStunned() == true || isFeared() == true || isMesmerized() == true || isCharmed() == true) && getIsPreparing() == true) {
-		//CastingAborted();
-	}
-
-	if (isPreparing) {
-		/*bool preparationFinished = (curSpellAction->getCastTime() == 0);
-		if (!preparationFinished) {
-			preparationCurrentTime = SDL_GetTicks();
-
-			// casting_percentage is mostly just for the castbar display, guess we could alter this code.
-			uint16_t spellCastTime = curSpellAction->getCastTime();
-
-			// if we're confused while casting, we add 35% more time to our spellcasting.
-			if (isConfused() == true) {
-				spellCastTime *= 1.35;
-			}
-
-			preparationPercentage = (static_cast<float>(preparationCurrentTime - preparationStartTime)) / spellCastTime;
-			preparationFinished = (preparationPercentage >= 1.0f);
-		}
-		if (preparationFinished)
-			startSpellAction();*/
-	}
-
 	return isPreparing;
 }
 
@@ -395,7 +384,7 @@ void Character::setMaxHealth(uint16_t newMaxHealth){
 	max_health = newMaxHealth;
 	// if ( current_health > getModifiedMaxHealth() )
 	// {
-	// current_health = getModifiedMaxHealth();
+	 current_health = getModifiedMaxHealth();
 	// }
 }
 
@@ -403,7 +392,7 @@ void Character::setMaxMana(uint16_t newMaxMana){
 	max_mana = newMaxMana;
 	// if ( current_mana > getModifiedMaxMana() )
 	// {
-	// current_mana = getModifiedMaxMana();
+	 current_mana = getModifiedMaxMana();
 	// }
 }
 
@@ -411,7 +400,7 @@ void Character::setMaxFatigue(uint16_t newMaxFatigue){
 	max_fatigue = newMaxFatigue;
 	// if ( current_fatigue > getModifiedMaxFatigue() )
 	// {
-	//current_fatigue = getModifiedMaxFatigue();
+	current_fatigue = getModifiedMaxFatigue();
 	// }
 }
 
@@ -616,10 +605,10 @@ float Character::getPreparationPercentage() const {
 }
 
 std::string Character::getCurrentSpellActionName() const {
-	//if (curSpellAction != NULL) {
-		//return curSpellAction->getName();
-	//}
-	return "Spell_Action";
+	if (curSpellAction != NULL) {
+		return curSpellAction->getName();
+	}
+	return "";
 }
 
 Enums::CharacterArchType Character::getArchType() const {
@@ -672,6 +661,19 @@ void Character::setCurrentFatigue(uint16_t newCurrentFatigue) {
 
 void Character::modifyCurrentFatigue(int16_t currentFatigueModifier) {
 	setCurrentFatigue(getModifiedAttributeValue(getCurrentFatigue(), currentFatigueModifier, NULLABLE_ATTRIBUTE_MIN, getModifiedMaxFatigue()));
+}
+
+void Character::regenerateLifeManaFatigue(uint32_t regenPoints) {
+	/** Regenerate life, mana and fatigue every 1000 ms. **/
+
+	/*remainingRegenPoints += regenPoints;
+
+	if (remainingRegenPoints > 1000) {
+		modifyCurrentMana(getModifiedManaRegen());
+		modifyCurrentHealth(getModifiedHealthRegen());
+		modifyCurrentFatigue(getModifiedFatigueRegen());
+		remainingRegenPoints -= 1000;
+	}*/
 }
 
 bool Character::isAlive() const {
@@ -860,7 +862,7 @@ void Character::executeSpellWithoutCasting(CSpellActionBase *spell, Character *t
 
 	CSpellActionBase *newSpell = NULL;
 
-	newSpell = spell->cast(this, target);
+	newSpell = spell->cast(this, target, false);
 
 	if (newSpell != NULL) {
 		newSpell->startEffect();
@@ -892,6 +894,189 @@ void Character::inscribeSpellInSpellbook(CSpellActionBase *spell) {
 
 std::vector<CSpellActionBase*> Character::getSpellbook() const {
 	return spellbook;
+}
+
+bool Character::castSpell(CSpellActionBase *spell) {
+
+	if (isStunned() == true || isFeared() == true || isMesmerized() == true || isCharmed() == true) {
+		/// can't cast, we're stunned, feared, mesmerized or charmed. Should perhaps display message about it.
+		return false;
+	}
+	
+	if (dynamic_cast<CAction*>(spell) != NULL) {		
+		if (spell->getSpellCost() > getCurrentFatigue()) {
+			
+			/// can't cast. cost more fatigue than we can afford. Display message here about it.
+			return false;
+		}
+	}else if (dynamic_cast<CSpell*>(spell) != NULL) {
+		if (spell->getSpellCost() > getCurrentMana()) {
+			
+			/// can't cast. not enough mana. Display message here about it.
+			return false;
+		}
+	}
+
+	if (spell->getEffectType() != Enums::EffectType::SelfAffectingSpell && getTarget() != NULL) {
+		uint16_t distance = sqrt(pow((getXPos() + getWidth() / 2) - (getTarget()->getXPos() + getTarget()->getWidth() / 2), 2) + pow((getYPos() + getHeight() / 2) - (getTarget()->getYPos() + getTarget()->getHeight() / 2), 2));
+		if (spell->isInRange(distance) == false) {
+			/// can't cast, not in range. Display message here about it...
+			return false;
+		}
+	}
+
+
+	if (isPlayer() == true) {
+		if (spell->getRequiredWeapons() != 0) {
+			//if ((spell->getRequiredWeapons() & (dynamic_cast<Player*>(this)->getInventory()->getWeaponTypeBySlot(Enums::ItemSlot::MAIN_HAND) | dynamic_cast<Player*>(this)->getInventory()->getWeaponTypeBySlot(Enums::ItemSlot::OFF_HAND))) == 0) {
+				/// can't cast spell, not wielding required weapon. Display message here about it...
+				return false;
+			//}
+		}
+	}
+
+	for (size_t curSpell = 0; curSpell < cooldownSpells.size(); curSpell++){
+
+		if (cooldownSpells[curSpell].first->getID() == spell->getID()){
+			if (Globals::clock.getElapsedTimeMilli() < cooldownSpells[curSpell].second + spell->getCooldown() * 1000){
+				/// can't cast, spell has a cooldown on it. Display message about it.
+				return false;
+			}
+		}
+	}
+
+	// if we're invisible, sneaking or channeling while casting, we remove that spell.
+	if (isSneaking() == true) {
+		removeSpellsWithCharacterState(Enums::CharacterStates::Sneaking);
+	}
+
+	if (isInvisible() == true) {
+		removeSpellsWithCharacterState(Enums::CharacterStates::Invisible);
+	}
+
+	if (isChanneling() == true) {
+		removeSpellsWithCharacterState(Enums::CharacterStates::Channeling);
+	}
+
+	giveToPreparation(spell);
+	return true;
+}
+
+void Character::giveToPreparation(CSpellActionBase *toPrepare) {
+	if (curSpellAction != NULL) {
+		// don't cast / execute. Enqueue in the list of coming actions / spells ?
+		delete toPrepare;
+	}else {
+		// setup all variables for casting / executing
+		isPreparing = true;
+		curSpellAction = toPrepare;
+		curSpellAction->playSoundSpellCasting();
+		toPrepare->beginPreparationOfSpellAction();
+		preparationStartTime = Globals::clock.getElapsedTimeMilli();
+		continuePreparing();
+	}
+}
+
+bool Character::continuePreparing() {
+	
+	/// if we're preparing a spell while getting stunned, feared, mesmerized or charmed, abort the spellcasting.
+	if ((isStunned() == true || isFeared() == true || isMesmerized() == true || isCharmed() == true) && getIsPreparing() == true) {
+		CastingAborted();
+	}
+
+	if (isPreparing) {
+		bool preparationFinished = (curSpellAction->getCastTime() == 0);
+		if (!preparationFinished) {
+			preparationCurrentTime = Globals::clock.getElapsedTimeMilli();
+
+			// casting_percentage is mostly just for the castbar display, guess we could alter this code.
+			uint16_t spellCastTime = curSpellAction->getCastTime();
+
+			// if we're confused while casting, we add 35% more time to our spellcasting.
+			if (isConfused() == true) {
+				spellCastTime *= 1.35;
+			}
+			
+			preparationPercentage = (static_cast<float>(preparationCurrentTime - preparationStartTime)) / spellCastTime;
+			preparationFinished = (preparationPercentage >= 1.0f);
+			curActivity = Enums::ActivityType::Walking;
+		}
+
+		if(preparationFinished)
+			startSpellAction();
+	}
+
+	return isPreparing;
+}
+
+void Character::CastingAborted() {
+	// if we moved, got stunned, or in some way unable to complete the spell ritual, spellcasting will fail.
+	// If we are following the above instructions to use a pointer to a spell and so on, we should clear that pointer here.
+	abortCurrentSpellAction();
+}
+
+void Character::abortCurrentSpellAction() {
+	if (isPreparing) {
+		curSpellAction->stopSoundSpellCasting();
+		delete curSpellAction;
+		curSpellAction = NULL;
+		isPreparing = false;
+	}
+}
+
+void Character::startSpellAction() {
+	isPreparing = false;
+	preparationCurrentTime = 0;
+	preparationStartTime = 0;
+
+	/// here we check for equipped items if they have any trigger spells which is used in TriggerType::EXECUTING_ACTION
+	/*if (isPlayer() == true) {
+		std::vector<InventoryItem*> inventory = Globals::getPlayer()->getInventory()->getEquippedItems();
+		for (size_t curItem = 0; curItem < inventory.size(); curItem++) {
+			std::vector<TriggerSpellOnItem*> triggerSpells = inventory[curItem]->getItem()->getTriggerSpells();
+			for (size_t curSpell = 0; curSpell < triggerSpells.size(); curSpell++)
+			{
+				/// searches for spells on the item with the triggertype EXECUTING_ACTION.
+				if (triggerSpells[curSpell]->getTriggerType() == TriggerType::EXECUTING_ACTION) {
+					/// found one, check to see if we manages to trigger the spell.
+
+					if ((RNG::randomSizeT(0, 10000) <= triggerSpells[curSpell]->getChanceToTrigger() * 10000) == true) {
+						/// we triggered this spell, now we cast it based on if it's a self-cast spell or a cast on our target spell.
+						if (triggerSpells[curSpell]->getCastOnSelf() == true) {
+							/// cast spell on self
+							executeSpellWithoutCasting(triggerSpells[curSpell]->getSpellToTrigger(), this);
+						}
+						else {
+							if (this->getTarget() != NULL) {
+								/// cast spell on the character's target.
+								executeSpellWithoutCasting(triggerSpells[curSpell]->getSpellToTrigger(), this->getTarget());
+							}
+						}
+					}
+				}
+			}
+		}
+	}*/
+
+	// are we casting an AoE spell?
+	if (curSpellAction->getRadius() > 0) {
+		ZoneManager::Get().getCurrentZone()->MagicMap.push_back(new CMagic(curSpellAction));
+		ZoneManager::Get().getCurrentZone()->MagicMap.back()->setCreator(this);
+		ZoneManager::Get().getCurrentZone()->MagicMap.back()->getSpell()->startEffect();
+		isPreparing = false;
+		preparationCurrentTime = 0;
+		preparationStartTime = 0;
+
+	} else {
+		curSpellAction->stopSoundSpellCasting();
+		curSpellAction->startEffect();
+	}
+
+	//curSpellAction = NULL;
+}
+
+std::vector<std::pair<CSpellActionBase*, uint32_t> > Character::getActiveSpells() const {
+	return activeSpells;
 }
 
 

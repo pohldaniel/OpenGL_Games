@@ -1,4 +1,5 @@
 #include "Game.h"
+#include "Magic.h"
 
 Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), player(Player::Get()) {
 	EventDispatcher::AddMouseListener(this);
@@ -66,20 +67,49 @@ void Game::update() {
 					break;
 				}
 			}
+
+		
 		}	
 	}
 
-	if (mouse.buttonPressed(Mouse::BUTTON_RIGHT)) {
+	std::vector<Npc*> zoneNPCs = zone->getNPCs();
+	for (unsigned int x = 0; x < zoneNPCs.size(); x++) {
+		Npc *curNPC = zoneNPCs[x];
+		std::vector<std::pair<CSpellActionBase*, uint32_t> > activeSpellActions = curNPC->getActiveSpells();
+		for (size_t curActiveSpellNr = 0; curActiveSpellNr < activeSpellActions.size(); ++curActiveSpellNr) {
+			
+			activeSpellActions[curActiveSpellNr].first->inEffect(m_dt);
+		}
+	}
+
+	/*if (mouse.buttonPressed(Mouse::BUTTON_RIGHT)) {
 		spell->startEffect();
 	}
 
 	if(!spell->isEffectComplete())
-		spell->inEffect(m_dt);
+		spell->inEffect(m_dt);*/
 
 	dawnInterface->processInput();
 
-	if (dawnInterface->getCurrentAction() != nullptr && spell->isEffectComplete()) {
+	if (mouse.buttonPressed(Mouse::BUTTON_LEFT)) {
+		if (dawnInterface->isPreparingAoESpell()) {
+			dawnInterface->makeReadyToCast(ViewPort::get().getCursorPosX(), ViewPort::get().getCursorPosY());
+		}
+		dawnInterface->executeSpellQueue();
+	}
+
+	/*if (dawnInterface->getCurrentAction() != nullptr && spell->isEffectComplete()) {
 		spell = dawnInterface->getCurrentAction();
+	}*/
+
+	for (unsigned int i = 0; i < zone->MagicMap.size(); ++i) {
+		zone->MagicMap[i]->process();
+		zone->MagicMap[i]->getSpell()->inEffect(m_dt);
+		zone->cleanupActiveAoESpells();
+
+		if (zone->MagicMap[i]->isDone()) {
+			zone->MagicMap.erase(zone->MagicMap.begin() + i);
+		}
 	}
 }
 
@@ -93,13 +123,42 @@ void Game::render(unsigned int &frameBuffer) {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	glEnable(GL_BLEND);
 	
-
 	zone->drawZoneBatched();
+	// draw AoE spells
+	std::vector<std::pair<CSpellActionBase*, uint32_t> > activeAoESpells = zone->getActiveAoESpells();
+	for (size_t curActiveAoESpellNr = 0; curActiveAoESpellNr < activeAoESpells.size(); ++curActiveAoESpellNr) {
+		if (!activeAoESpells[curActiveAoESpellNr].first->isEffectComplete()) {
+			activeAoESpells[curActiveAoESpellNr].first->draw();
+		}
+	}
+	zone->drawNpcsBatched();
 	player.draw();
+	
+	std::vector<Npc*> zoneNPCs = zone->getNPCs();
+	for (unsigned int x = 0; x< zoneNPCs.size(); x++){
+		Npc *curNPC = zoneNPCs[x];
+		/*if (player->getTarget() == curNPC) {
+			GUI.drawTargetedNPCText();
+		}*/
 
+		// draw the spell effects for our NPCs
+		std::vector<std::pair<CSpellActionBase*, uint32_t> > activeSpellActions = curNPC->getActiveSpells();
+		for (size_t curActiveSpellNr = 0; curActiveSpellNr < activeSpellActions.size(); ++curActiveSpellNr){
+			if (!activeSpellActions[curActiveSpellNr].first->isEffectComplete()){
+				activeSpellActions[curActiveSpellNr].first->draw();
+			}
+		}
+	}
 
+	/*std::vector<std::pair<CSpellActionBase*, uint32_t> > activeSpellActions = player.getActiveSpells();
 
-	spell->draw();
+	for (size_t curActiveSpellNr = 0; curActiveSpellNr < activeSpellActions.size(); ++curActiveSpellNr) {
+		if (!activeSpellActions[curActiveSpellNr].first->isEffectComplete()){
+			activeSpellActions[curActiveSpellNr].first->draw();
+		}
+	}*/
+
+	//spell->draw();
 
 	dawnInterface->DrawInterface();
 	dawnInterface->DrawFloatingSpell();

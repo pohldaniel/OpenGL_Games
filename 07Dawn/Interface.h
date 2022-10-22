@@ -77,6 +77,7 @@ public:
 	void processInput();
 	void SetPlayer(Character *player_);
 	void drawTargetedNPCText();
+	void executeSpellQueue();
 
 	/*void drawCombatText();
 	void drawCharacterStates();*/
@@ -103,7 +104,8 @@ public:
 	void dragSpell();
 	int8_t getMouseOverButtonId(int x, int y);
 	void resize();
-
+	bool isPreparingAoESpell() const;
+	void makeReadyToCast(int x, int y);
 	CSpellActionBase* getCurrentAction();
 
 private:
@@ -132,4 +134,5 @@ private:
 	static Interface s_instance;
 	int cursorRadius;
 	std::pair<int, int> m_lastMouseDown;
+	bool preparingAoESpell;
 };

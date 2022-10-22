@@ -162,7 +162,7 @@ MeleeDamageAction::MeleeDamageAction(MeleeDamageAction *other) : ConfigurableAct
 	damageBonus = other->damageBonus;
 }
 
-CSpellActionBase* MeleeDamageAction::cast(Character *creator, Character *target, bool child = false) {
+CSpellActionBase* MeleeDamageAction::cast(Character *creator, Character *target, bool child) {
 	std::auto_ptr<MeleeDamageAction> newAction(new MeleeDamageAction(this));
 	newAction->creator = creator;
 	newAction->target = target;
@@ -252,7 +252,7 @@ void MeleeDamageAction::startEffect() {
 	finished = false;
 	effectStart = Globals::clock.getElapsedTimeMilli();
 	target->addActiveSpell(this);
-	creator->addCooldownSpell(dynamic_cast<CSpellActionBase*> (cast(NULL, NULL)));
+	creator->addCooldownSpell(dynamic_cast<CSpellActionBase*> (cast(nullptr, nullptr, false)));
 }
 
 void MeleeDamageAction::inEffect(float deltatime) {
@@ -311,7 +311,7 @@ RangedDamageAction::RangedDamageAction(RangedDamageAction *other) : Configurable
 	expireTime = other->expireTime;
 }
 
-CSpellActionBase* RangedDamageAction::cast(Character *creator, Character *target, bool child = false) {
+CSpellActionBase* RangedDamageAction::cast(Character *creator, Character *target, bool child) {
 	RangedDamageAction* newSpell = new RangedDamageAction(this);
 	newSpell->creator = creator;
 	newSpell->target = target;
@@ -369,7 +369,7 @@ void RangedDamageAction::startEffect() {
 		degrees = -degrees;
 	}
 	target->addActiveSpell(this);
-	creator->addCooldownSpell(dynamic_cast<CSpellActionBase*> (cast(NULL, NULL)));
+	creator->addCooldownSpell(dynamic_cast<CSpellActionBase*> (cast(nullptr, nullptr, false)));
 	unbindFromCreator();
 }
 

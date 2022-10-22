@@ -156,7 +156,7 @@ GeneralDamageSpell::GeneralDamageSpell() : currentFrame(animation.getFrame()) {
 	elementContinuous = Enums::ElementType::Air;
 }
 
-GeneralDamageSpell::GeneralDamageSpell(GeneralDamageSpell *other) : ConfigurableSpell(other), currentFrame(other->currentFrame) {
+GeneralDamageSpell::GeneralDamageSpell(GeneralDamageSpell *other) : ConfigurableSpell(other), currentFrame(animation.getFrame()) {
 	minDirectDamage = other->minDirectDamage; // This should be a list of effects
 	maxDirectDamage = other->maxDirectDamage;
 	elementDirect = other->elementDirect;
@@ -165,6 +165,8 @@ GeneralDamageSpell::GeneralDamageSpell(GeneralDamageSpell *other) : Configurable
 	maxContinuousDamagePerSecond = other->maxContinuousDamagePerSecond;
 	elementContinuous = other->elementContinuous;
 	continuousDamageTime = other->continuousDamageTime;
+
+	animation = other->animation;
 }
 
 void GeneralDamageSpell::setDirectDamage(uint16_t newMinDirectDamage, uint16_t newMaxDirectDamage, Enums::ElementType newElementDirect) {
@@ -289,14 +291,14 @@ GeneralRayDamageSpell::GeneralRayDamageSpell() {
 	numTextures = 0;
 }
 
-GeneralRayDamageSpell::GeneralRayDamageSpell(GeneralRayDamageSpell *other) : GeneralDamageSpell(other) {
+GeneralRayDamageSpell::GeneralRayDamageSpell(GeneralRayDamageSpell *other) : GeneralDamageSpell(other){
 	remainingEffect = 0;
 
 	numTextures = other->numTextures;
-	spellTexture = other->spellTexture;
+	spellTexture = other->spellTexture;	
 }
 
-CSpellActionBase* GeneralRayDamageSpell::cast(Character *creator, Character *target, bool child = false) {
+CSpellActionBase* GeneralRayDamageSpell::cast(Character *creator, Character *target, bool child) {
 
 	GeneralRayDamageSpell* newSpell = new GeneralRayDamageSpell(this);
 	newSpell->creator = creator;
@@ -340,19 +342,14 @@ void GeneralRayDamageSpell::startEffect() {
 
 	m_spellTimer.restart();
 
-	degrees = asin((Player::Get().getYPos() - ViewPort::get().getCursorPosY()) / sqrt((pow(Player::Get().getXPos() - ViewPort::get().getCursorPosX(), 2) + pow(Player::Get().getYPos() - ViewPort::get().getCursorPosY(), 2)))) * 57.296;
-	degrees += 90;
-
-	if (Player::Get().getXPos() < ViewPort::get().getCursorPosX()) {
-		degrees = -degrees;
-	}
-
-	//target->addActiveSpell(this);
-	//creator->addCooldownSpell(dynamic_cast<CSpellActionBase*> (cast(NULL, NULL)));
-	//unbindFromCreator();
+	
+	target->addActiveSpell(this);
+	creator->addCooldownSpell(dynamic_cast<CSpellActionBase*> (cast(nullptr, nullptr, false)));
+	unbindFromCreator();
 }
 
 void GeneralRayDamageSpell::inEffect(float deltatime) {
+	
 	if (isEffectComplete()) return;
 
 	
@@ -361,6 +358,7 @@ void GeneralRayDamageSpell::inEffect(float deltatime) {
 	//	finishEffect();
 	//	return;
 	//}
+
 
 	animation.update(deltatime);
 
@@ -410,6 +408,14 @@ void GeneralRayDamageSpell::finishEffect()
 void GeneralRayDamageSpell::draw() {
 	if (!isEffectComplete()) {
 
+		degrees = asin((Player::Get().getYPos() - target->getYPos()) / sqrt((pow(Player::Get().getXPos() - target->getXPos(), 2) + pow(Player::Get().getYPos() - target->getYPos(), 2)))) * 57.296;
+		degrees += 90;
+
+		if (Player::Get().getXPos() < target->getXPos()) {
+			degrees = -degrees;
+		}
+
+
 		TextureManager::BindTexture(TextureManager::GetTextureAtlas("spells"), true);
 		const TextureRect& rect = ConvertRect(currentFrame);
 	
@@ -418,6 +424,18 @@ void GeneralRayDamageSpell::draw() {
 		TextureManager::UnbindTexture(true);
 	}
 }
+
+/*void GeneralRayDamageSpell::draw() {
+	if (!isEffectComplete()) {
+
+		TextureManager::BindTexture(TextureManager::GetTextureAtlas("spells"), true);
+		const TextureRect& rect = ConvertRect(currentFrame);
+
+		TextureManager::RotateTextureRect(rect, static_cast<float>(Player::Get().getXPos() - 128), static_cast<float>(Player::Get().getYPos() + 32), degrees, rect.width * 0.5f + offsetRadius, -offsetRadius, TextureManager::TransPos);
+		TextureManager::DrawTexture(rect, TextureManager::TransPos, true);
+		TextureManager::UnbindTexture(true);
+	}
+}*/
 
 /// class GeneralAreaDamageSpell
 int16_t GeneralAreaDamageSpell::getX() {
@@ -480,7 +498,7 @@ GeneralAreaDamageSpell::GeneralAreaDamageSpell(GeneralAreaDamageSpell *other) : 
 	info = other->info;
 }
 
-CSpellActionBase* GeneralAreaDamageSpell::cast(Character *creator, Character *target, bool child = false) {
+CSpellActionBase* GeneralAreaDamageSpell::cast(Character *creator, Character *target, bool child) {
 
 	GeneralAreaDamageSpell* newSpell = new GeneralAreaDamageSpell(this);
 	newSpell->creator = creator;
@@ -518,11 +536,11 @@ void GeneralAreaDamageSpell::startEffect() {
 	if (soundSpellStart != "") {
 		//SoundEngine::playSound(soundSpellStart);
 	}
-	centerX = ViewPort::get().getCursorPosX();
-	centerY = ViewPort::get().getCursorPosY();
+	//centerX = ViewPort::get().getCursorPosX();
+	//centerY = ViewPort::get().getCursorPosY();
 
 
-
+	radius = 50;
 	remainingEffect = 0.0;
 	frameCount = 0;
 	finished = false;
@@ -535,16 +553,16 @@ void GeneralAreaDamageSpell::startEffect() {
 	animationTimerStart = Globals::clock.getElapsedTimeMilli();
 	lastEffect = Globals::clock.getElapsedTimeMilli();
 
-	/*if (!child) {
-		//Globals::addActiveAoESpell(this);
+	if (!child) {
+		ZoneManager::Get().getCurrentZone()->addActiveAoESpell(this);
 
 		if (creator->getTarget() != NULL)
-			creator->addCooldownSpell(dynamic_cast<CSpellActionBase*> (cast(NULL, creator->getTarget())));
+			creator->addCooldownSpell(dynamic_cast<CSpellActionBase*> (cast(NULL, creator->getTarget(), false)));
 		else
 			creator->addCooldownSpell(dynamic_cast<CSpellActionBase*> (cast(NULL, centerX, centerY)));
 
 		unbindFromCreator();
-	}*/
+	}
 }
 
 void GeneralAreaDamageSpell::inEffect(float deltaTime) {
@@ -599,11 +617,11 @@ void GeneralAreaDamageSpell::finishEffect() {
 }
 
 void GeneralAreaDamageSpell::draw() {
-	if (!isEffectComplete()) {
+	if (!isEffectComplete() && !child) {
 		TextureManager::BindTexture(TextureManager::GetTextureAtlas("spells"), true);
 		const TextureRect& rect = ConvertRect(currentFrame);
 		
-		TextureManager::DrawTexture(rect, centerX - radius, centerY - radius, radius * 2, radius * 2, false, true);
+		TextureManager::DrawTexture(rect, centerX - radius, centerY - radius, radius * 2, radius * 2, Vector4f(1.0f, 1.0f, 1.0f, 1.0f), false, true);
 		TextureManager::UnbindTexture(true);
 	}
 }
@@ -632,7 +650,7 @@ GeneralBoltDamageSpell::GeneralBoltDamageSpell(GeneralBoltDamageSpell *other) : 
 	expireTime = other->expireTime;
 }
 
-CSpellActionBase* GeneralBoltDamageSpell::cast(Character *creator, Character *target, bool child = false) {
+CSpellActionBase* GeneralBoltDamageSpell::cast(Character *creator, Character *target, bool child) {
 	GeneralBoltDamageSpell* newSpell = new GeneralBoltDamageSpell(this);
 	newSpell->creator = creator;
 	newSpell->target = target;
@@ -694,9 +712,9 @@ void GeneralBoltDamageSpell::startEffect() {
 		degrees = -degrees;
 	}
 
-	//target->addActiveSpell(this);
-	//creator->addCooldownSpell(dynamic_cast<CSpellActionBase*> (cast(NULL, NULL)));
-	//unbindFromCreator();
+	target->addActiveSpell(this);
+	creator->addCooldownSpell(dynamic_cast<CSpellActionBase*> (cast(nullptr, nullptr, false)));
+	unbindFromCreator();
 }
 
 void GeneralBoltDamageSpell::inEffect(float deltatime) {
@@ -794,7 +812,7 @@ GeneralHealingSpell::GeneralHealingSpell(GeneralHealingSpell *other) : Configura
 	continuousHealingTime = other->continuousHealingTime;
 }
 
-CSpellActionBase* GeneralHealingSpell::cast(Character *creator, Character *target, bool child = false) {
+CSpellActionBase* GeneralHealingSpell::cast(Character *creator, Character *target, bool child) {
 
 	std::auto_ptr<GeneralHealingSpell> newSpell(new GeneralHealingSpell(this));
 	newSpell->creator = creator;
@@ -897,9 +915,9 @@ void GeneralHealingSpell::startEffect() {
 		//target->Heal(healingCaused);
 	}
 
-	//target->addActiveSpell(this);
-	//creator->addCooldownSpell(dynamic_cast<CSpellActionBase*> (cast(NULL, NULL)));
-	//unbindFromCreator();
+	target->addActiveSpell(this);
+	creator->addCooldownSpell(dynamic_cast<CSpellActionBase*> (cast(nullptr, nullptr, false)));
+	unbindFromCreator();
 }
 
 void GeneralHealingSpell::inEffect(float deltatime) {
@@ -986,7 +1004,7 @@ GeneralBuffSpell::GeneralBuffSpell(GeneralBuffSpell *other) : ConfigurableSpell(
 	}
 }
 
-CSpellActionBase* GeneralBuffSpell::cast(Character *creator, Character *target, bool child = false) {
+CSpellActionBase* GeneralBuffSpell::cast(Character *creator, Character *target, bool child) {
 	std::auto_ptr<GeneralBuffSpell> newSpell(new GeneralBuffSpell(this));
 	newSpell->creator = creator;
 	newSpell->target = target;
@@ -1054,7 +1072,7 @@ void GeneralBuffSpell::startEffect() {
 
 	effectStart = Globals::clock.getElapsedTimeMilli();
 	target->addActiveSpell(this);
-	creator->addCooldownSpell(dynamic_cast<CSpellActionBase*> (cast(NULL, NULL)));
+	creator->addCooldownSpell(dynamic_cast<CSpellActionBase*> (cast(nullptr, nullptr, false)));
 	unbindFromCreator();
 }
 
