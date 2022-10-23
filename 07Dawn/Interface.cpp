@@ -151,7 +151,7 @@ void Interface::DrawInterface() {
 	//action bar
 	TextureManager::DrawTextureBatched(m_interfacetexture[18], ViewPort::get().getWidth() - 630, 0, 630.0f, 80.0f, false, false);
 	for (unsigned int buttonId = 0; buttonId < 10; buttonId++) {
-		Vector4f borderColor = (spellQueue != nullptr && spellQueue->action == button[buttonId].action || button[buttonId].action != NULL && player->getCurrentSpellActionName() == button[buttonId].action->getName()) ? Vector4f(0.8f, 0.8f, 0.8f, 1.0f) : Vector4f(0.4f, 0.4f, 0.4f, 1.0f);
+		Vector4f borderColor = ( button[buttonId].action != NULL && player->getCurrentSpellActionName() == button[buttonId].action->getName()) ? Vector4f(0.8f, 0.8f, 0.8f, 1.0f) : Vector4f(0.4f, 0.4f, 0.4f, 1.0f);
 		TextureManager::DrawTextureBatched(m_interfacetexture[19], ViewPort::get().getWidth() - 610 + buttonId * 60, 12, 50.0f, 50.0f, borderColor, false, false);
 	}
 
@@ -449,14 +449,14 @@ void Interface::processInput() {
 			if (button[buttonId].action != NULL && !hasFloatingSpell()/*&& !isPreparingAoESpell()*/) {
 					
 				if (isSpellUseable(button[buttonId].action)) {
-					button[buttonId].isActive = true;
 
 					// AoE spell with specific position
 					if (button[buttonId].action->getEffectType() == Enums::EffectType::AreaTargetSpell && player->getTarget() == NULL) {
 						setSpellQueue(button[buttonId], false);
 						cursorRadius = button[buttonId].action->getRadius();
 
-					}else { // "regular" spell
+					// "regular" spell
+					}else {
 						setSpellQueue(button[buttonId]);
 					}
 				}
@@ -476,8 +476,8 @@ void Interface::processInput() {
 				bindAction(&button[buttonId], getFloatingSpell()->action);
 				unsetFloatingSpell();
 
-				if(isSpellUseable(button[buttonId].action))
-					setSpellQueue(button[buttonId], false);
+				//if(isSpellUseable(button[buttonId].action))
+					//setSpellQueue(button[buttonId], false);
 			}
 		}
 	}
@@ -495,6 +495,71 @@ void Interface::processInput() {
 	}
 
 	if (spellQueue != NULL && (mouse.buttonUp(Mouse::BUTTON_LEFT) && !isPreparingAoESpell() || mouse.buttonPressed(Mouse::BUTTON_LEFT) && isPreparingAoESpell())) {	
+		executeSpellQueue();
+	}
+}
+
+void Interface::processInputRightDrag() {
+	Mouse &mouse = Mouse::instance();
+	if (mouse.buttonPressed(Mouse::BUTTON_LEFT)) {
+		buttonId = getMouseOverButtonId(ViewPort::get().getCursorPosRelX(), ViewPort::get().getCursorPosRelY());
+
+		if (buttonId >= 0) {
+			// we clicked a button which has an action and has no floating spell on the mouse (we're launching an action from the actionbar)
+			if (button[buttonId].action != NULL && !hasFloatingSpell()/*&& !isPreparingAoESpell()*/) {
+
+				if (isSpellUseable(button[buttonId].action)) {
+					// AoE spell with specific position
+					if (button[buttonId].action->getEffectType() == Enums::EffectType::AreaTargetSpell && player->getTarget() == NULL) {
+						setSpellQueue(button[buttonId], false);
+						cursorRadius = button[buttonId].action->getRadius();
+
+					// "regular" spell
+					}else {
+						setSpellQueue(button[buttonId]);
+					}
+				}
+
+				if (isPreparingAoESpell()) {
+					spellQueue = NULL;
+					preparingAoESpell = false;
+				}
+			}
+
+			if (hasFloatingSpell()) {
+
+				if (isButtonUsed(&button[buttonId]))
+					unbindAction(&button[buttonId]);
+
+				bindAction(&button[buttonId], getFloatingSpell()->action);
+				unsetFloatingSpell();
+
+				//if (isSpellUseable(button[buttonId].action) && button[buttonId].action->getEffectType() != Enums::EffectType::AreaTargetSpell) {				
+					//setSpellQueue(button[buttonId], false);
+				//}
+			}
+		}
+	}
+
+	if (mouse.buttonPressed(Mouse::BUTTON_RIGHT)) {
+		m_lastMouseDown = std::pair<int, int>(ViewPort::get().getCursorPosRelX(), ViewPort::get().getCursorPosRelY());
+		buttonId = getMouseOverButtonId(m_lastMouseDown.first, m_lastMouseDown.second);
+	}
+
+	if (mouse.buttonDown(Mouse::BUTTON_RIGHT)) {
+		if ((sqrt(pow(m_lastMouseDown.first - ViewPort::get().getCursorPosRelX(), 2) + pow(m_lastMouseDown.second - ViewPort::get().getCursorPosRelY(), 2)) > 5) /*&& !sPreparingAoESpell()*/) {
+			if (buttonId >= 0) {
+				dragSpell(&button[buttonId]);
+			}
+		}
+	}
+
+	if (isPreparingAoESpell()) {
+
+		makeReadyToCast(ViewPort::get().getCursorPosX(), ViewPort::get().getCursorPosY());
+	}
+
+	if (spellQueue != NULL && mouse.buttonPressed(Mouse::BUTTON_LEFT)) {
 		executeSpellQueue();
 	}
 }

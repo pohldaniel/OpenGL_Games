@@ -24,7 +24,6 @@ struct sButton {
 	bool actionReadyToCast;
 	bool areaOfEffectOnSpecificLocation;
 	Keyboard::Key key;
-	bool isActive;
 
 	sButton(int posX_, int posY_, int width_, int height_, std::string number_, Keyboard::Key key_) {
 		posX = posX_;
@@ -40,7 +39,6 @@ struct sButton {
 		actionReadyToCast = true;
 		areaOfEffectOnSpecificLocation = false;
 		wasPressed = false;
-		isActive = false;
 	};
 };
 
@@ -78,6 +76,7 @@ public:
 	void DrawCursor(bool drawInGameCursor);
 	void DrawFloatingSpell();
 	void processInput();
+	void processInputRightDrag();
 	void SetPlayer(Character *player_);
 	void drawTargetedNPCText();
 	void executeSpellQueue();

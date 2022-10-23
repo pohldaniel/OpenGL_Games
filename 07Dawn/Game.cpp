@@ -72,7 +72,6 @@ void Game::update() {
 		}	
 	}
 
-	
 	std::vector<Npc*> zoneNPCs = zone->getNPCs();
 	for (unsigned int x = 0; x < zoneNPCs.size(); x++) {
 		Npc *curNPC = zoneNPCs[x];
@@ -83,7 +82,7 @@ void Game::update() {
 		}
 	}
 
-	dawnInterface->processInput();
+	dawnInterface->processInputRightDrag();
 
 
 	for (unsigned int i = 0; i < zone->MagicMap.size(); ++i) {
