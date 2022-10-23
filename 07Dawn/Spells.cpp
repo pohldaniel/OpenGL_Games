@@ -104,12 +104,11 @@ void ConfigurableSpell::setRange(uint16_t minRange, uint16_t maxRange)
 	this->maxRange = maxRange;
 }
 
-bool ConfigurableSpell::isInRange(uint16_t distance) const
-{
+bool ConfigurableSpell::isInRange(uint16_t distance) const {
 	if (distance >= minRange && distance <= maxRange) {
 		return true;
 	}
-	return false;
+	return maxRange < 0;
 }
 
 void ConfigurableSpell::setName(std::string newName)
@@ -386,8 +385,8 @@ void GeneralRayDamageSpell::inEffect(float deltatime) {
 	}	
 }
 
-void GeneralRayDamageSpell::finishEffect()
-{
+void GeneralRayDamageSpell::finishEffect() {
+
 	markSpellActionAsFinished();
 
 	// do we have an additional spell that perhaps should be cast on our target?
@@ -424,18 +423,6 @@ void GeneralRayDamageSpell::draw() {
 		TextureManager::UnbindTexture(true);
 	}
 }
-
-/*void GeneralRayDamageSpell::draw() {
-	if (!isEffectComplete()) {
-
-		TextureManager::BindTexture(TextureManager::GetTextureAtlas("spells"), true);
-		const TextureRect& rect = ConvertRect(currentFrame);
-
-		TextureManager::RotateTextureRect(rect, static_cast<float>(Player::Get().getXPos() - 128), static_cast<float>(Player::Get().getYPos() + 32), degrees, rect.width * 0.5f + offsetRadius, -offsetRadius, TextureManager::TransPos);
-		TextureManager::DrawTexture(rect, TextureManager::TransPos, true);
-		TextureManager::UnbindTexture(true);
-	}
-}*/
 
 /// class GeneralAreaDamageSpell
 int16_t GeneralAreaDamageSpell::getX() {
@@ -536,10 +523,7 @@ void GeneralAreaDamageSpell::startEffect() {
 	if (soundSpellStart != "") {
 		//SoundEngine::playSound(soundSpellStart);
 	}
-	//centerX = ViewPort::get().getCursorPosX();
-	//centerY = ViewPort::get().getCursorPosY();
-
-
+	
 	radius = 50;
 	remainingEffect = 0.0;
 	frameCount = 0;
@@ -702,16 +686,7 @@ void GeneralBoltDamageSpell::startEffect() {
 
 	m_spellTimer.restart();
 
-	targetx = ViewPort::get().getCursorPosX();
-	targety = ViewPort::get().getCursorPosY();
-
-	degrees = asin((posy - targety) / sqrt((pow(posx - targetx, 2) + pow(posy - targety, 2)))) * 57.296;
-	degrees += 90;
-
-	if (posx < targetx) {
-		degrees = -degrees;
-	}
-
+	
 	target->addActiveSpell(this);
 	creator->addCooldownSpell(dynamic_cast<CSpellActionBase*> (cast(nullptr, nullptr, false)));
 	unbindFromCreator();
@@ -725,8 +700,8 @@ void GeneralBoltDamageSpell::inEffect(float deltatime) {
 
 	moveRemaining += moveSpeed * deltatime;
 
-	//int targetx = ViewPort::get().getCursorPosX();
-	//int targety = ViewPort::get().getCursorPosY();
+	int targetx = target->getXPos() + (target->getWidth() / 2);
+	int targety = target->getYPos() + (target->getHeight() / 2);
 	int dx = targetx - posx;
 	int dy = targety - posy;
 	double dist = sqrt((dx * dx) + (dy * dy));
@@ -776,6 +751,17 @@ void GeneralBoltDamageSpell::finishEffect() {
 
 void GeneralBoltDamageSpell::draw() {
 	if (!isEffectComplete()) {
+		int targetx = target->getXPos() + (target->getWidth() / 2);
+		int targety = target->getYPos() + (target->getHeight() / 2);
+
+		float degrees = asin((posy - targety) / sqrt((pow(posx - targetx, 2) + pow(posy - targety, 2)))) * 57.296;
+		degrees += 90;
+
+		if (posx < targetx) {
+			degrees = -degrees;
+		}
+
+
 		TextureManager::BindTexture(TextureManager::GetTextureAtlas("spells"), true);
 		const TextureRect& rect = ConvertRect(currentFrame);
 		TextureManager::RotateTextureRect(rect, static_cast<float>(posx - rect.width * 0.5f), static_cast<float>(posy - rect.height * 0.5f), degrees, rect.width * 0.5f, rect.height * 0.5f, TextureManager::TransPos);
@@ -967,7 +953,6 @@ void GeneralHealingSpell::finishEffect() {
 void GeneralHealingSpell::draw() { }
 
 /// GeneralBuffSpell
-
 GeneralBuffSpell::GeneralBuffSpell() {
 	effectType = Enums::EffectType::SelfAffectingSpell;
 

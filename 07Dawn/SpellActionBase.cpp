@@ -12,7 +12,8 @@ CSpellActionBase::CSpellActionBase()
 	requiredLevel(1),
 	requiredWeapons(0),
 	rank(1),
-	luaID("") {
+	luaID(""),
+	needTarget(false){
 	characterStateEffects.first = Enums::CharacterStates::NOEFFECT;
 	characterStateEffects.second = 1.0f;
 }
@@ -214,4 +215,12 @@ const TextureRect CSpellActionBase::ConvertRect(const Animation2D::TextureRect& 
 
 const Animation2D::TextureRect CSpellActionBase::ConvertRect(const TextureRect& rect) {
 	return{ rect.textureOffsetX , rect.textureOffsetY, rect.textureWidth , rect.textureHeight, rect.height, rect.width, rect.frame };
+}
+
+void CSpellActionBase::setNeedTarget(bool needTarget) {
+	CSpellActionBase::needTarget = needTarget;
+}
+
+bool CSpellActionBase::getNeedTarget() {
+	return needTarget;
 }

@@ -359,15 +359,6 @@ void RangedDamageAction::startEffect() {
 
 	m_actionTimer.restart();
 
-	targetx = ViewPort::get().getCursorPosX();
-	targety = ViewPort::get().getCursorPosY();
-
-	degrees = asin((posy - targety) / sqrt((pow(posx - targetx, 2) + pow(posy - targety, 2)))) * 57.296;
-	degrees += 90;
-
-	if (posx < targetx) {
-		degrees = -degrees;
-	}
 	target->addActiveSpell(this);
 	creator->addCooldownSpell(dynamic_cast<CSpellActionBase*> (cast(nullptr, nullptr, false)));
 	unbindFromCreator();
@@ -376,15 +367,16 @@ void RangedDamageAction::startEffect() {
 void RangedDamageAction::inEffect(float deltatime) {
 	if (isEffectComplete()) return;
 
-	//if (target->isAlive() == false) {
+	if (target->isAlive() == false) {
 		// target died while having this effect active. mark it as finished.
-		//finishEffect();
-		//return;
-	//}
+		finishEffect();
+		return;
+	}
+
 	moveRemaining += moveSpeed * deltatime;
 	
-	//int targetx = target->getXPos() + (target->getWidth() / 2);
-	//int targety = target->getYPos() + (target->getHeight() / 2);
+	int targetx = target->getXPos() + (target->getWidth() / 2);
+	int targety = target->getYPos() + (target->getHeight() / 2);
 	int dx = targetx - posx;
 	int dy = targety - posy;
 	double dist = sqrt((dx * dx) + (dy * dy));
@@ -395,8 +387,8 @@ void RangedDamageAction::inEffect(float deltatime) {
 	if (percdist >= 1.0) {
 		movex = dx;
 		movey = dy;
-	}
-	else {
+
+	}else {
 		movex = dx * percdist;
 		movey = dy * percdist;
 	}
@@ -440,6 +432,16 @@ double RangedDamageAction::getProgress() const {
 
 void RangedDamageAction::draw() {
 	if (!isEffectComplete()) {
+		int targetx = target->getXPos() + (target->getWidth() / 2);
+		int targety = target->getYPos() + (target->getHeight() / 2);
+
+		float degrees = asin((posy - targety) / sqrt((pow(posx - targetx, 2) + pow(posy - targety, 2)))) * 57.296;
+		degrees += 90;
+
+		if (posx < targetx) {
+			degrees = -degrees;
+		}
+
 		TextureManager::BindTexture(TextureManager::GetTextureAtlas("spells"), true);
 		const TextureRect& rect = ConvertRect(currentFrame);
 		TextureManager::RotateTextureRect(rect, static_cast<float>(posx - rect.width * 0.5f), static_cast<float>(posy - rect.height * 0.5f), degrees, rect.width * 0.5f, rect.height * 0.5f, TextureManager::TransPos);

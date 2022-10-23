@@ -91,6 +91,7 @@ curSpell:setNumAnimations( 1 );
 curSpell:addAnimationFrame("res/spells/magicmissile/magicmissile.tga");
 curSpell:setMoveSpeed( 500 );
 curSpell:setRequiredClass( Enums.Liche );
+curSpell:setNeedTarget(true);
 DawnInterface.inscribeSpellInPlayerSpellbook( curSpell );
 
 curSpell = DawnInterface.copySpell( spellDatabase["magicmissile"] );
@@ -99,12 +100,14 @@ curSpell:setDirectDamage( 12, 18, Enums.Light );
 curSpell:setRank( 2 );
 curSpell:setRequiredLevel( 3 );
 curSpell:setSpellCost( 17 );
+curSpell:setNeedTarget(true);
 
 curSpell = DawnInterface.createGeneralRayDamageSpell();
 spellDatabase["venomspiteffect1"] = curSpell;
 curSpell:setName("Venomspit");
 curSpell:setSymbolTextureRect(symbols["venomspit"]);
 curSpell:setContinuousDamage( 4, 6, 10000, Enums.Earth );
+curSpell:setNeedTarget(true);
 
 curSpell = DawnInterface.createRangedDamageAction();
 spellDatabase["venomspit"] = curSpell;
@@ -138,6 +141,7 @@ curSpell:addAnimationFrame("res/spells/lightning/3.tga");
 curSpell:addAnimationFrame("res/spells/lightning/4.tga");
 curSpell:addAnimationFrame("res/spells/lightning/5.tga");
 curSpell:setRequiredClass( Enums.Liche );
+curSpell:setNeedTarget(true);
 DawnInterface.inscribeSpellInPlayerSpellbook( curSpell );
 
 curSpell = DawnInterface.createGeneralAreaDamageSpell();
@@ -154,6 +158,7 @@ curSpell:setNumAnimations( 1 );
 curSpell:addAnimationFrame("res/spells/inferno/inferno.tga");
 curSpell:setRadius( 120 );
 curSpell:setRequiredClass( Enums.Liche );
+curSpell:setRange(0, -1);
 DawnInterface.inscribeSpellInPlayerSpellbook( curSpell );
 
 curSpell = DawnInterface.createGeneralBoltDamageSpell();
@@ -172,6 +177,7 @@ curSpell:addAnimationFrame("res/spells/lightning/4_small.tga");
 curSpell:addAnimationFrame("res/spells/lightning/5_small.tga");
 curSpell:setMoveSpeed( 1000 );
 curSpell:setRequiredClass( Enums.Liche );
+curSpell:setNeedTarget(true);
 DawnInterface.inscribeSpellInPlayerSpellbook( curSpell );
 
 curSpell = DawnInterface.createGeneralHealingSpell();
@@ -196,6 +202,7 @@ curSpell:setSymbolTextureRect(symbols["healother"]);
 curSpell:setEffectType( Enums.SingleTargetSpell );
 curSpell:setDirectHealing( 50, 70, Enums.Dark );
 curSpell:setRequiredClass( Enums.Liche );
+curSpell:setNeedTarget(true);
 DawnInterface.inscribeSpellInPlayerSpellbook( curSpell );
 
 curSpell = DawnInterface.createGeneralHealingSpell();
@@ -352,6 +359,7 @@ curSpell:setCooldown( 2 );
 curSpell:setSymbolTextureRect(symbols["melee"]);
 curSpell:setSpellCost( 0 );
 curSpell:setRequiredClass( Enums.ANYCLASS );
+curSpell:setNeedTarget(true);
 
 curSpell = DawnInterface.createMeleeDamageAction();
 spellDatabase["wolfbite"] = curSpell;
@@ -361,8 +369,9 @@ curSpell:setCooldown( 2 );
 curSpell:setSymbolTextureRect(symbols["melee"]);
 curSpell:setSpellCost( 0 );
 curSpell:setRequiredClass( Enums.ANYCLASS );
-curSpell = DawnInterface.createMeleeDamageAction();
+curSpell:setNeedTarget(true);
 
+curSpell = DawnInterface.createMeleeDamageAction();
 spellDatabase["melee"] = curSpell;
 curSpell:setName("Melee");
 curSpell:setDamageBonus( 1.0 );
@@ -373,6 +382,7 @@ curSpell:setSoundSpellStart( "res/spells/melee/melee_swing.ogg" );
 curSpell:setSoundSpellHit( "res/spells/melee/melee_hit.ogg" );
 curSpell:setInfo("Attack with your weapon, causing %minWeaponDamage%-%maxWeaponDamage% damage.");
 curSpell:setRequiredClass( Enums.ANYCLASS );
+curSpell:setNeedTarget(true);
 DawnInterface.inscribeSpellInPlayerSpellbook( curSpell );
 
 curSpell = DawnInterface.createMeleeDamageAction();
@@ -384,6 +394,7 @@ curSpell:setInfo("Devastating strike, causing %minWeaponDamage% to %maxWeaponDam
 curSpell:setSymbolTextureRect(symbols["phantomstrike"]);
 curSpell:setSpellCost( 50 );
 curSpell:setRequiredClass( Enums.Warrior );
+curSpell:setNeedTarget(true);
 DawnInterface.inscribeSpellInPlayerSpellbook( curSpell );
 
 curSpell = DawnInterface.createGeneralBuffSpell();
@@ -400,6 +411,7 @@ curSpell:setName("Venomweave");
 curSpell:setSymbolTextureRect(symbols["venomspit"]);
 curSpell:setContinuousDamage( 4, 6, 3000, Enums.Earth );
 curSpell:addAdditionalSpellOnTarget( spellDatabase["venomweaveeffect2"], 0.1 );
+curSpell:setNeedTarget(true);
 
 curSpell = DawnInterface.createMeleeDamageAction();
 spellDatabase["venomweave"] = curSpell;
@@ -410,6 +422,7 @@ curSpell:setSymbolTextureRect(symbols["venomweave"]);
 curSpell:setSpellCost( 25 );
 curSpell:addAdditionalSpellOnTarget( spellDatabase["venomweaveeffect1"], 0.75 );
 curSpell:setRequiredClass( Enums.Warrior );
+curSpell:setNeedTarget(true);
 
 curSpell = DawnInterface.createGeneralBuffSpell();
 spellDatabase["rabies"] = curSpell;
@@ -433,6 +446,7 @@ curSpell:setSpellCost( 0 );
 curSpell:setSoundSpellStart( "res/spells/rabidbite/rabidbite.ogg" );
 curSpell:addAdditionalSpellOnTarget( spellDatabase["rabies"], 0.05 );
 curSpell:setRequiredClass( Enums.Warrior );
+curSpell:setNeedTarget(true);
 
 curSpell = DawnInterface.createGeneralHealingSpell();
 spellDatabase["bandages"] = curSpell;
@@ -465,6 +479,7 @@ curSpell:setInfo("Tactical strike, causing %minWeaponDamage% to %maxWeaponDamage
 curSpell:addAdditionalSpellOnCreator( spellDatabase["lungeeffect1"], 1.0 );
 curSpell:setRequiredClass( Enums.Warrior );
 curSpell:addRequiredWeapon( Enums.ONEHAND_SWORD );
+curSpell:setNeedTarget(true);
 DawnInterface.inscribeSpellInPlayerSpellbook( curSpell );
 
 curSpell = DawnInterface.createGeneralBuffSpell();
@@ -485,6 +500,7 @@ curSpell:setInfo("Bash with your shield, causing %minWeaponDamage% to %maxWeapon
 curSpell:addAdditionalSpellOnTarget( spellDatabase["shieldbasheffect1"], 1.0 );
 curSpell:setRequiredClass( Enums.Warrior );
 curSpell:addRequiredWeapon( Enums.SHIELD ); 
+curSpell:setNeedTarget(true);
 DawnInterface.inscribeSpellInPlayerSpellbook( curSpell );
 
 curSpell = DawnInterface.createRangedDamageAction();
@@ -560,6 +576,7 @@ curSpell:addAnimationFrame("res/spells/terrify/0.tga");
 curSpell:setMoveSpeed( 650 );
 curSpell:addAdditionalSpellOnTarget( spellDatabase["terrifyeffect1"], 1.0 );
 curSpell:setRequiredClass( Enums.Liche );
+curSpell:setNeedTarget(true);
 DawnInterface.inscribeSpellInPlayerSpellbook( curSpell );
 
 curSpell = DawnInterface.createGeneralBuffSpell();
@@ -650,6 +667,7 @@ curSpell:setSymbolTextureRect(symbols["frozenshot"]);
 curSpell:setNumAnimations( 0 );
 curSpell:setInstant( true );
 curSpell:setDirectDamage( 15, 30, Enums.Earth );
+curSpell:setNeedTarget(true);
 
 curSpell = DawnInterface.createRangedDamageAction();
 spellDatabase["flamingarrow"] = curSpell;

@@ -106,6 +106,9 @@ public:
 	void setCharacterState(Enums::CharacterStates characterState, float value = 1.0f);
 	std::pair<Enums::CharacterStates, float> getCharacterState() const;
 
+	void setNeedTarget(bool needTarget);
+	bool getNeedTarget();
+
 	bool isSpellHostile() const;
 
 	void drawSymbol(int left, int bottom, int width, int height, Vector4f color = Vector4f(1.0f, 0.0f, 0.0f, 1.0f)) const;
@@ -139,4 +142,5 @@ protected:
 	std::pair<Enums::CharacterStates, float> characterStateEffects;
 
 	TextureRect* spellSymbol;
+	bool needTarget;
 };

@@ -124,9 +124,6 @@ public:
 	void startAnimation();
 	const bool waitForAnimation() const;
 
-	float degrees;
-	int targetx;
-	int targety;
 protected:
 	RangedDamageAction();
 	RangedDamageAction(RangedDamageAction *other);

@@ -1,6 +1,6 @@
 /*
 ** Lua binding: Luainterface
-** Generated automatically by tolua++-1.0.92 on Tue Oct 18 15:57:59 2022.
+** Generated automatically by tolua++-1.0.92 on Sun Oct 23 13:33:55 2022.
 */
 
 #ifndef __cplusplus
@@ -3457,6 +3457,39 @@ static int tolua_Luainterface_CSpellActionBase_setSymbolTextureRect00(lua_State*
 }
 #endif //#ifndef TOLUA_DISABLE
 
+/* method: setNeedTarget of class  CSpellActionBase */
+#ifndef TOLUA_DISABLE_tolua_Luainterface_CSpellActionBase_setNeedTarget00
+static int tolua_Luainterface_CSpellActionBase_setNeedTarget00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+	tolua_Error tolua_err;
+	if (
+		!tolua_isusertype(tolua_S, 1, "CSpellActionBase", 0, &tolua_err) ||
+		!tolua_isboolean(tolua_S, 2, 0, &tolua_err) ||
+		!tolua_isnoobj(tolua_S, 3, &tolua_err)
+		)
+		goto tolua_lerror;
+	else
+#endif
+	{
+		CSpellActionBase* self = (CSpellActionBase*)tolua_tousertype(tolua_S, 1, 0);
+		bool needTarget = ((bool)tolua_toboolean(tolua_S, 2, 0));
+#ifndef TOLUA_RELEASE
+		if (!self) tolua_error(tolua_S, "invalid 'self' in function 'setNeedTarget'", NULL);
+#endif
+		{
+			self->setNeedTarget(needTarget);
+		}
+	}
+	return 0;
+#ifndef TOLUA_RELEASE
+	tolua_lerror :
+				 tolua_error(tolua_S, "#ferror in function 'setNeedTarget'.", &tolua_err);
+				 return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
 /* method: setCastTime of class  ConfigurableSpell */
 #ifndef TOLUA_DISABLE_tolua_Luainterface_ConfigurableSpell_setCastTime00
 static int tolua_Luainterface_ConfigurableSpell_setCastTime00(lua_State* tolua_S)
@@ -5046,6 +5079,7 @@ TOLUA_API int tolua_Luainterface_open(lua_State* tolua_S)
 	tolua_function(tolua_S, "setInstant", tolua_Luainterface_CSpellActionBase_setInstant00);
 	tolua_function(tolua_S, "setCharacterState", tolua_Luainterface_CSpellActionBase_setCharacterState00);
 	tolua_function(tolua_S, "setSymbolTextureRect", tolua_Luainterface_CSpellActionBase_setSymbolTextureRect00);
+	tolua_function(tolua_S, "setNeedTarget", tolua_Luainterface_CSpellActionBase_setNeedTarget00);
 	tolua_endmodule(tolua_S);
 	tolua_cclass(tolua_S, "CAction", "CAction", "CSpellActionBase", NULL);
 	tolua_beginmodule(tolua_S, "CAction");

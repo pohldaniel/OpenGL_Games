@@ -307,6 +307,7 @@ class CSpellActionBase
 	void setInstant( bool instant );
 	void setCharacterState( Enums::CharacterStates characterState, float value = 1.0 );
 	void setSymbolTextureRect(TextureRect& textureRect);
+	void setNeedTarget(bool needTarget);
 };
 
 class CAction : public CSpellActionBase

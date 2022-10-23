@@ -5,7 +5,8 @@
 #include "engine/Batchrenderer.h"
 #include "engine/Fontrenderer.h"
 #include "TextureManager.h"
-#include "SpellActionBase.h"
+#include "Spells.h"
+#include "Actions.h"
 
 class Character;
 
@@ -23,6 +24,7 @@ struct sButton {
 	bool actionReadyToCast;
 	bool areaOfEffectOnSpecificLocation;
 	Keyboard::Key key;
+	bool isActive;
 
 	sButton(int posX_, int posY_, int width_, int height_, std::string number_, Keyboard::Key key_) {
 		posX = posX_;
@@ -38,6 +40,7 @@ struct sButton {
 		actionReadyToCast = true;
 		areaOfEffectOnSpecificLocation = false;
 		wasPressed = false;
+		isActive = false;
 	};
 };
 
@@ -101,13 +104,13 @@ public:
 	void unsetFloatingSpell();
 	bool hasFloatingSpell() const;
 	void setSpellQueue(sButton &button, bool actionReadyToCast = true);
-	void dragSpell();
+	void dragSpell(sButton* spellQueue);
 	int8_t getMouseOverButtonId(int x, int y);
 	void resize();
 	bool isPreparingAoESpell() const;
 	void makeReadyToCast(int x, int y);
 	CSpellActionBase* getCurrentAction();
-
+	int buttonId;
 private:
 	Interface();
 
@@ -116,7 +119,8 @@ private:
 
 	void drawCharacterStates();
 	bool isButtonUsed(sButton *button) const;
-
+	bool isSpellUseable(CSpellActionBase* action);
+	bool execute;
 	Character* player;
 	CharacterSet* charset;
 	sButton* spellQueue;

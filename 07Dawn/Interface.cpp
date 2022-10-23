@@ -83,6 +83,18 @@ void Interface::loadTextures() {
 	m_textureAtlas = TextureAtlasCreator::get().getAtlas();
 
 	//Spritesheet::Safe("interface", m_textureAtlas);
+
+	glBindTexture(GL_TEXTURE_2D_ARRAY, TextureManager::GetTextureAtlas("symbols"));
+	glTexParameterf(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
+	glTexParameterf(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
+	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
+
+	glBindTexture(GL_TEXTURE_2D_ARRAY, m_textureAtlas);
+	glTexParameterf(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
+	glTexParameterf(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
+	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
 }
 
 void Interface::DrawInterface() {
@@ -128,6 +140,7 @@ void Interface::DrawInterface() {
 		TextureManager::DrawTextureBatched(m_interfacetexture[0], ViewPort::get().getWidth() / 2 - 50, 100, 100.0f, 20.0f, Vector4f(0.5f, 0.5f, 0.0f, 1.0f), false, false);
 		TextureManager::DrawTextureBatched(m_interfacetexture[0], ViewPort::get().getWidth() / 2 - 50, 100, 100.0f * player->getPreparationPercentage(), 20.0f, Vector4f(0.8f, 0.8f, 0.0f, 1.0f), false, false);
 	}
+
 	//buff effect (it seems meaningless to render this symbol as an additinal frame)
 	TextureManager::DrawTextureBatched(m_interfacetexture[16], ViewPort::get().getWidth() - 204, ViewPort::get().getHeight() - 50 - 40 * 0, false, false);
 	TextureManager::DrawTextureBatched(m_interfacetexture[17], ViewPort::get().getWidth() - 204 + 36, ViewPort::get().getHeight() - 50 - 40 * 0, 168.0f, 36.0f, false, false);
@@ -138,13 +151,13 @@ void Interface::DrawInterface() {
 	//action bar
 	TextureManager::DrawTextureBatched(m_interfacetexture[18], ViewPort::get().getWidth() - 630, 0, 630.0f, 80.0f, false, false);
 	for (unsigned int buttonId = 0; buttonId < 10; buttonId++) {
-
-		Vector4f borderColor = Vector4f(0.4f, 0.4f, 0.4f, 1.0f);
-		if (spellQueue != nullptr && spellQueue->action == button[buttonId].action){
-			borderColor = Vector4f(0.8f, 0.8f, 0.8f, 1.0f);
-		}
-
+		Vector4f borderColor = (spellQueue != nullptr && spellQueue->action == button[buttonId].action || button[buttonId].action != NULL && player->getCurrentSpellActionName() == button[buttonId].action->getName()) ? Vector4f(0.8f, 0.8f, 0.8f, 1.0f) : Vector4f(0.4f, 0.4f, 0.4f, 1.0f);
 		TextureManager::DrawTextureBatched(m_interfacetexture[19], ViewPort::get().getWidth() - 610 + buttonId * 60, 12, 50.0f, 50.0f, borderColor, false, false);
+	}
+
+	// draw the cursor if it's supposed to be drawn
+	if (isPreparingAoESpell() == true) {
+		TextureManager::DrawTextureBatched(m_interfacetexture[20], ViewPort::get().getCursorPosRelX() - cursorRadius, ViewPort::get().getCursorPosRelY() - cursorRadius, cursorRadius * 2, cursorRadius * 2, false, false);
 	}
 
 	drawCharacterStates();
@@ -157,7 +170,10 @@ void Interface::DrawInterface() {
 	TextureManager::BindTexture(TextureManager::GetTextureAtlas("symbols"), true);
 	for (unsigned int buttonId = 0; buttonId < 10; buttonId++) {
 		if (button[buttonId].action != NULL) {
-			button[buttonId].action->drawSymbol(ViewPort::get().getWidth() - 608 + buttonId * 60, 14, 46, 46);
+			bool useableSpell = isSpellUseable(button[buttonId].action);
+
+
+			button[buttonId].action->drawSymbol(ViewPort::get().getWidth() - 608 + buttonId * 60, 14, 46, 46, useableSpell ? Vector4f(1.0f, 1.0f, 1.0f, 1.0f) : Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
 		}
 	}
 	
@@ -174,6 +190,7 @@ void Interface::DrawCursor(bool drawInGameCursor) {
 }
 
 void Interface::DrawFloatingSpell() {
+
 	if (floatingSpell != NULL){
 		TextureManager::BindTexture(m_textureAtlas, true);
 		TextureManager::DrawTexture(m_interfacetexture[23], ViewPort::get().getCursorPosX(), ViewPort::get().getCursorPosY() +20, 50.0f, 50.0f, false, true);
@@ -308,6 +325,51 @@ void Interface::drawTargetedNPCText() {
 	}*/
 }
 
+bool Interface::isSpellUseable(CSpellActionBase* action) {
+	// do we have enough fatigue to cast?
+	if (dynamic_cast<CAction*>(action) != NULL) {
+		if (action->getSpellCost() > player->getCurrentFatigue()) {
+			return false;
+		}
+
+	// do we have enough mana to cast?
+	} else if (dynamic_cast<CSpell*>(action) != NULL) {
+		if (action->getSpellCost() > player->getCurrentMana()) {
+			return false;
+		}
+	}
+
+	if (action->getNeedTarget() && player->getTarget() == NULL) {
+		return false;
+	}
+
+	// do we have a target? if so, are we in range? (doesn't check for selfaffectign spells)
+	if (player->getTarget() != NULL && action->getEffectType() != Enums::EffectType::SelfAffectingSpell) {
+
+		if (player->getTargetAttitude() == Enums::Attitude::FRIENDLY)
+			return false;
+
+		uint16_t distance = sqrt(pow((player->getXPos() + player->getWidth() / 2) - (player->getTarget()->getXPos() + player->getTarget()->getWidth() / 2), 2) + pow((player->getYPos() + player->getHeight() / 2) - (player->getTarget()->getYPos() + player->getTarget()->getHeight() / 2), 2));
+
+		if (action->isInRange(distance) == false)
+			return false;
+	}
+
+	// are we stunned?
+	if (player->isStunned() == true || player->isFeared() == true || player->isMesmerized() == true || player->isCharmed() == true) {
+		return false;
+	}
+
+	// does the spell / action require a weapon of any sort?
+	/*if (action->getRequiredWeapons() != 0) {
+		if ((action->getRequiredWeapons() & (player->getInventory()->getWeaponTypeBySlot(ItemSlot::MAIN_HAND) | player->getInventory()->getWeaponTypeBySlot(ItemSlot::OFF_HAND))) == 0) {
+			return false;
+		}
+	}*/
+
+	return true;
+}
+
 void Interface::bindActionToButtonNr(int buttonNr, CSpellActionBase *action) {
 	bindAction(&button[buttonNr], action);
 }
@@ -341,31 +403,19 @@ void Interface::unsetFloatingSpell() {
 }
 
 bool Interface::hasFloatingSpell() const {
-	if (floatingSpell == NULL) {
-		return false;
-	}else{
-		return true;
-	}
+	return floatingSpell != NULL;
 }
 
-void Interface::dragSpell() {
-	//if (spellQueue != NULL && !spellQueue->action->isEffectComplete)
-		//return;
-
-	if (spellQueue != NULL) {
-		if (spellQueue->action != NULL) {
-				 
-			setFloatingSpell(spellQueue->action);
-			unbindAction(spellQueue);
-			spellQueue = NULL;
-		}
+void Interface::dragSpell(sButton *_spellQueue) {
+	if (!hasFloatingSpell()) {
+		preparingAoESpell = false;
+		setFloatingSpell(_spellQueue->action);
+		unbindAction(_spellQueue);
+		spellQueue = NULL;
 	}
 }
 
 void Interface::setSpellQueue(sButton &button, bool actionReadyToCast) {
-	//if (spellQueue != NULL && !spellQueue->action->isEffectComplete())
-		//return;
-
 	spellQueue = &button;
 	spellQueue->actionReadyToCast = actionReadyToCast;
 }
@@ -384,12 +434,7 @@ int8_t Interface::getMouseOverButtonId(int x, int y) {
 }
 
 bool Interface::isButtonUsed(sButton *button) const {
-
-	if (button->action == NULL) {
-		return false;
-	}else {
-		return true;
-	}
+	return button->action != NULL;
 }
 
 void Interface::processInput() {
@@ -397,41 +442,60 @@ void Interface::processInput() {
 	if (mouse.buttonPressed(Mouse::BUTTON_LEFT)) {
 		m_lastMouseDown = std::pair<int, int>(ViewPort::get().getCursorPosRelX(), ViewPort::get().getCursorPosRelY());
 
-		int buttonId = getMouseOverButtonId(m_lastMouseDown.first, m_lastMouseDown.second);
+		buttonId = getMouseOverButtonId(m_lastMouseDown.first, m_lastMouseDown.second);
+
 		if (buttonId >= 0) {
 			// we clicked a button which has an action and has no floating spell on the mouse (we're launching an action from the actionbar)
-			if (button[buttonId].action != NULL /*&& !spellbook->hasFloatingSpell() && isSpellUseable(button[buttonId].action) && !isPreparingAoESpell()*/) {
-	
-				
-				// AoE spell with specific position
-				if (button[buttonId].action->getEffectType() == Enums::EffectType::AreaTargetSpell && player->getTarget() == NULL /*&& isSpellUseable(button[buttonId].action) == true*/) {
+			if (button[buttonId].action != NULL && !hasFloatingSpell()/*&& !isPreparingAoESpell()*/) {
 					
-					setSpellQueue(button[buttonId], false);
-					cursorRadius = button[buttonId].action->getRadius();
+				if (isSpellUseable(button[buttonId].action)) {
+					button[buttonId].isActive = true;
 
-				} else { // "regular" spell
-				
-					setSpellQueue(button[buttonId]);
+					// AoE spell with specific position
+					if (button[buttonId].action->getEffectType() == Enums::EffectType::AreaTargetSpell && player->getTarget() == NULL) {
+						setSpellQueue(button[buttonId], false);
+						cursorRadius = button[buttonId].action->getRadius();
+
+					}else { // "regular" spell
+						setSpellQueue(button[buttonId]);
+					}
 				}
-			}
 
+				if (isPreparingAoESpell()) {
+					spellQueue = NULL;
+					preparingAoESpell = false;
+				}	
+			}
+			
 			// check to see if we're holding a floating spell on the mouse. if we do, we want to place it in the actionbar slot...
 			if (hasFloatingSpell()) {
+				
 				if (isButtonUsed(&button[buttonId]))
 					unbindAction(&button[buttonId]);
-
+				
 				bindAction(&button[buttonId], getFloatingSpell()->action);
 				unsetFloatingSpell();
-				setSpellQueue(button[buttonId]);
+
+				if(isSpellUseable(button[buttonId].action))
+					setSpellQueue(button[buttonId], false);
 			}
 		}
 	}
 
-
 	if (mouse.buttonDown(Mouse::BUTTON_LEFT)) {
-		if ((sqrt(pow(m_lastMouseDown.first - ViewPort::get().getCursorPosRelX(), 2) + pow(m_lastMouseDown.second - ViewPort::get().getCursorPosRelY(), 2)) > 5) /*&& !actionBar->isPreparingAoESpell()*/) {
-			dragSpell();
+		if ((sqrt(pow(m_lastMouseDown.first - ViewPort::get().getCursorPosRelX(), 2) + pow(m_lastMouseDown.second - ViewPort::get().getCursorPosRelY(), 2)) > 5) /*&& !sPreparingAoESpell()*/) {
+			if (buttonId >= 0) {
+				dragSpell(&button[buttonId]);
+			}
 		}
+	}
+
+	if (isPreparingAoESpell()) {
+		makeReadyToCast(ViewPort::get().getCursorPosX(), ViewPort::get().getCursorPosY());
+	}
+
+	if (spellQueue != NULL && (mouse.buttonUp(Mouse::BUTTON_LEFT) && !isPreparingAoESpell() || mouse.buttonPressed(Mouse::BUTTON_LEFT) && isPreparingAoESpell())) {	
+		executeSpellQueue();
 	}
 }
 
@@ -440,7 +504,7 @@ CSpellActionBase* Interface::getCurrentAction() {
 }
 
 void Interface::executeSpellQueue() {
-	if (spellQueue != NULL) {
+
 		
 		Enums::EffectType effectType = spellQueue->action->getEffectType();
 
@@ -464,6 +528,7 @@ void Interface::executeSpellQueue() {
 			}
 
 			if (curAction != NULL) {
+				
 				player->castSpell(dynamic_cast<CSpellActionBase*>(curAction));
 				player->m_waitForAnimation = true;
 			}
@@ -474,7 +539,7 @@ void Interface::executeSpellQueue() {
 			if (effectType == Enums::EffectType::AreaTargetSpell)
 				preparingAoESpell = true;
 		}
-	}
+	
 }
 
 bool Interface::isPreparingAoESpell() const {

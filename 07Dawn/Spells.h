@@ -204,9 +204,7 @@ public:
 	void finishEffect();
 
 	virtual void draw();
-	float degrees;
-	int targetx;
-	int targety;
+	
 protected:
 	GeneralBoltDamageSpell();
 	GeneralBoltDamageSpell(GeneralBoltDamageSpell *other);

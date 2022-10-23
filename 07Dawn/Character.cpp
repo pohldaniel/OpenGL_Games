@@ -594,6 +594,10 @@ Character* Character::getTarget() const {
 	return target;
 }
 
+Enums::Attitude Character::getTargetAttitude() {
+	return targetAttitude;
+}
+
 float Character::getPreparationPercentage() const {
 	if (isPreparing) {
 
@@ -916,7 +920,7 @@ bool Character::castSpell(CSpellActionBase *spell) {
 			return false;
 		}
 	}
-
+	
 	if (spell->getEffectType() != Enums::EffectType::SelfAffectingSpell && getTarget() != NULL) {
 		uint16_t distance = sqrt(pow((getXPos() + getWidth() / 2) - (getTarget()->getXPos() + getTarget()->getWidth() / 2), 2) + pow((getYPos() + getHeight() / 2) - (getTarget()->getYPos() + getTarget()->getHeight() / 2), 2));
 		if (spell->isInRange(distance) == false) {
@@ -935,7 +939,7 @@ bool Character::castSpell(CSpellActionBase *spell) {
 		}
 	}
 
-	for (size_t curSpell = 0; curSpell < cooldownSpells.size(); curSpell++){
+	/*for (size_t curSpell = 0; curSpell < cooldownSpells.size(); curSpell++){
 
 		if (cooldownSpells[curSpell].first->getID() == spell->getID()){
 			if (Globals::clock.getElapsedTimeMilli() < cooldownSpells[curSpell].second + spell->getCooldown() * 1000){
@@ -943,7 +947,7 @@ bool Character::castSpell(CSpellActionBase *spell) {
 				return false;
 			}
 		}
-	}
+	}*/
 
 	// if we're invisible, sneaking or channeling while casting, we remove that spell.
 	if (isSneaking() == true) {
@@ -957,7 +961,7 @@ bool Character::castSpell(CSpellActionBase *spell) {
 	if (isChanneling() == true) {
 		removeSpellsWithCharacterState(Enums::CharacterStates::Channeling);
 	}
-
+	
 	giveToPreparation(spell);
 	return true;
 }
@@ -999,7 +1003,7 @@ bool Character::continuePreparing() {
 			
 			preparationPercentage = (static_cast<float>(preparationCurrentTime - preparationStartTime)) / spellCastTime;
 			preparationFinished = (preparationPercentage >= 1.0f);
-			curActivity = Enums::ActivityType::Walking;
+			interruptCurrentActivityWith(Enums::ActivityType::Walking);
 		}
 
 		if(preparationFinished)
@@ -1071,8 +1075,6 @@ void Character::startSpellAction() {
 		curSpellAction->stopSoundSpellCasting();
 		curSpellAction->startEffect();
 	}
-
-	//curSpellAction = NULL;
 }
 
 std::vector<std::pair<CSpellActionBase*, uint32_t> > Character::getActiveSpells() const {

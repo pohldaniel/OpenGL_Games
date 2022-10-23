@@ -54,8 +54,10 @@ void Player::draw() {
 }
 
 void Player::update(float deltaTime) {
-	curActivity = getCurActivity();
 	//std::cout << "Activity: " << ActivityToString(curActivity) << std::endl;
+	
+	curActivity = getCurActivity();
+	
 	//if (curActivity != Enums::ActivityType::Dying) {
 		processInput();
 	//}
@@ -122,7 +124,7 @@ void Player::Animate(float deltaTime) {
 
 	}else if (curActivity == Enums::ActivityType::Walking) {
 		rect = &tileSet.getAllTiles()[0].textureRect;
-	}		
+	}	
 }
 
 void Player::processInput() {

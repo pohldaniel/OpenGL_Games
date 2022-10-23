@@ -72,6 +72,7 @@ void Game::update() {
 		}	
 	}
 
+	
 	std::vector<Npc*> zoneNPCs = zone->getNPCs();
 	for (unsigned int x = 0; x < zoneNPCs.size(); x++) {
 		Npc *curNPC = zoneNPCs[x];
@@ -82,25 +83,8 @@ void Game::update() {
 		}
 	}
 
-	/*if (mouse.buttonPressed(Mouse::BUTTON_RIGHT)) {
-		spell->startEffect();
-	}
-
-	if(!spell->isEffectComplete())
-		spell->inEffect(m_dt);*/
-
 	dawnInterface->processInput();
 
-	if (mouse.buttonPressed(Mouse::BUTTON_LEFT)) {
-		if (dawnInterface->isPreparingAoESpell()) {
-			dawnInterface->makeReadyToCast(ViewPort::get().getCursorPosX(), ViewPort::get().getCursorPosY());
-		}
-		dawnInterface->executeSpellQueue();
-	}
-
-	/*if (dawnInterface->getCurrentAction() != nullptr && spell->isEffectComplete()) {
-		spell = dawnInterface->getCurrentAction();
-	}*/
 
 	for (unsigned int i = 0; i < zone->MagicMap.size(); ++i) {
 		zone->MagicMap[i]->process();

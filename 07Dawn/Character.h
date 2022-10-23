@@ -136,6 +136,7 @@ public:
 	void setTarget(Character *target);
 	void setTarget(Character *target, Enums::Attitude attitude);
 	Character* getTarget() const;
+	Enums::Attitude Character::getTargetAttitude();
 
 	Character* target;
 	Enums::Attitude targetAttitude;
