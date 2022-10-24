@@ -17,6 +17,8 @@ public:
 
 	void setCharacterType(std::string characterType);
 	Vector3f getPosition();
+	void setTicketForItemTooltip();
+	void setTicketForSpellTooltip();
 
 	static Player& Get();
 	~Player();
@@ -27,7 +29,10 @@ public:
 
 	void init(int x, int y);
 
-	uint8_t movementSpeed;
+	unsigned char  movementSpeed;
+	unsigned int ticketForItemTooltip;
+	unsigned int ticketForSpellTooltip;
+
 	float m_duration = 0.01f;
 	float m_currentspeed = 1.0f;
 	float m_inverseSpeed = 0.8f;

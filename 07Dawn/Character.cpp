@@ -713,11 +713,20 @@ void Character::addActiveSpell(CSpellActionBase *spell) {
 	}
 }
 
-void Character::addCooldownSpell(CSpellActionBase *spell) {
-
-	if (spell->getCooldown() > 0) {
-		cooldownSpells.push_back(std::pair<CSpellActionBase*, uint32_t>(spell, Globals::clock.getElapsedTimeMilli()));
+void Character::cleanupActiveSpells() {
+	size_t curSpell = 0;
+	while (curSpell < activeSpells.size()) {
+		if (activeSpells[curSpell].first->isEffectComplete() == true) {
+			delete activeSpells[curSpell].first;
+			activeSpells.erase(activeSpells.begin() + curSpell);
+		}else {
+			curSpell++;
+		}
 	}
+}
+
+void Character::clearActiveSpells() {
+	activeSpells.clear();
 }
 
 void Character::removeSpellsWithCharacterState(Enums::CharacterStates characterState) {
@@ -729,6 +738,69 @@ void Character::removeSpellsWithCharacterState(Enums::CharacterStates characterS
 			activeSpells[curSpell].first->markSpellActionAsFinished();
 		}
 	}
+}
+
+void Character::removeActiveSpell(CSpellActionBase* activeSpell) {
+	for (size_t curSpell = 0; curSpell < activeSpells.size(); curSpell++) {
+		if (activeSpells[curSpell].first == activeSpell) {
+			activeSpells[curSpell].first->markSpellActionAsFinished();
+		}
+	}
+}
+
+std::vector<std::pair<CSpellActionBase*, uint32_t> > Character::getActiveSpells() const {
+	return activeSpells;
+}
+
+void Character::addCooldownSpell(CSpellActionBase *spell) {
+
+	if (spell->getCooldown() > 0) {
+		cooldownSpells.push_back(std::pair<CSpellActionBase*, uint32_t>(spell, Globals::clock.getElapsedTimeMilli()));
+	}
+}
+
+void Character::cleanupCooldownSpells() {
+	size_t curSpell = 0;
+	while (curSpell < cooldownSpells.size()) {
+		uint32_t thisDuration = Globals::clock.getElapsedTimeMilli();
+		if (thisDuration - cooldownSpells[curSpell].second > cooldownSpells[curSpell].first->getCooldown() * 1000u) {
+			delete cooldownSpells[curSpell].first;
+			cooldownSpells.erase(cooldownSpells.begin() + curSpell);
+			if (isPlayer() == true) {
+				// this will seed a new ticket for the itemtooltip and spelltooltips, causing them to reload.
+				dynamic_cast<Player*>(this)->setTicketForItemTooltip();
+				dynamic_cast<Player*>(this)->setTicketForSpellTooltip();
+			}
+		}else {
+			curSpell++;
+		}
+	}
+}
+
+void Character::clearCooldownSpells() {
+	cooldownSpells.clear();
+}
+
+std::vector<std::pair<CSpellActionBase*, uint32_t> > Character::getCooldownSpells() const {
+	return cooldownSpells;
+}
+
+uint32_t Character::getTicksOnCooldownSpell(std::string spellName) const {
+	for (size_t curSpell = 0; curSpell < cooldownSpells.size(); curSpell++) {
+		if (cooldownSpells[curSpell].first->getName() == spellName) {
+			return cooldownSpells[curSpell].second;
+		}
+	}
+	return 0u;
+}
+
+bool Character::isSpellOnCooldown(std::string spellName) const {
+	for (size_t curSpell = 0; curSpell < cooldownSpells.size(); curSpell++) {
+		if (cooldownSpells[curSpell].first->getName() == spellName) {
+			return true;
+		}
+	}
+	return false;
 }
 
 void Character::Die() {
@@ -939,7 +1011,7 @@ bool Character::castSpell(CSpellActionBase *spell) {
 		}
 	}
 
-	/*for (size_t curSpell = 0; curSpell < cooldownSpells.size(); curSpell++){
+	for (size_t curSpell = 0; curSpell < cooldownSpells.size(); curSpell++){
 
 		if (cooldownSpells[curSpell].first->getID() == spell->getID()){
 			if (Globals::clock.getElapsedTimeMilli() < cooldownSpells[curSpell].second + spell->getCooldown() * 1000){
@@ -947,7 +1019,7 @@ bool Character::castSpell(CSpellActionBase *spell) {
 				return false;
 			}
 		}
-	}*/
+	}
 
 	// if we're invisible, sneaking or channeling while casting, we remove that spell.
 	if (isSneaking() == true) {
@@ -1077,9 +1149,7 @@ void Character::startSpellAction() {
 	}
 }
 
-std::vector<std::pair<CSpellActionBase*, uint32_t> > Character::getActiveSpells() const {
-	return activeSpells;
-}
+
 
 
 Enums::Direction Character::GetOppositeDirection(Enums::Direction direction) {

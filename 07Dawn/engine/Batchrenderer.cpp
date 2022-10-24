@@ -196,7 +196,6 @@ void Batchrenderer::drawBuffer(bool updateView) {
 	GLsizeiptr size = (uint8_t*)bufferPtr - (uint8_t*)buffer;
 	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
 	glBufferSubData(GL_ARRAY_BUFFER, 0, size, buffer);
-
 	glUseProgram(m_shader->m_program);
 	m_shader->loadMatrix("u_transform", updateView ? m_camera->getOrthographicMatrix() * m_camera->getViewMatrix() : m_camera->getOrthographicMatrix());
 
@@ -291,6 +290,16 @@ void Batchrenderer::drawSingleQuad(float pos[8], Vector4f texPosSize, Vector4f c
 	glUseProgram(0);
 }
 
+void Batchrenderer::bindTexture(unsigned int texture, bool isTextureArray, unsigned int unit) {
+	glActiveTexture(GL_TEXTURE0 + unit);
+	glBindTexture(isTextureArray ? GL_TEXTURE_2D_ARRAY : GL_TEXTURE_2D, texture);
+}
+
+void Batchrenderer::unbindTexture(bool isTextureArray, unsigned int unit) {
+	glActiveTexture(GL_TEXTURE0 + unit);
+	glBindTexture(isTextureArray ? GL_TEXTURE_2D_ARRAY : GL_TEXTURE_2D, 0);
+}
+
 void Batchrenderer::bindTexture(unsigned int texture, bool isTextureArray) {
 	glBindTexture(isTextureArray ? GL_TEXTURE_2D_ARRAY : GL_TEXTURE_2D, texture);
 }
@@ -298,3 +307,5 @@ void Batchrenderer::bindTexture(unsigned int texture, bool isTextureArray) {
 void Batchrenderer::unbindTexture(bool isTextureArray) {
 	glBindTexture(isTextureArray ? GL_TEXTURE_2D_ARRAY : GL_TEXTURE_2D, 0);
 }
+
+

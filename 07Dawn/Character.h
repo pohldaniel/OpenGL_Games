@@ -214,6 +214,16 @@ public:
 	uint16_t getModifiedMaxHealth() const;
 	float getPreparationPercentage() const;
 	std::string getCurrentSpellActionName() const;
+	void clearActiveSpells();
+	void cleanupActiveSpells();
+	void removeSpellsWithCharacterState(Enums::CharacterStates characterState);
+	void removeActiveSpell(CSpellActionBase* activeSpell);
+
+	void clearCooldownSpells();
+	std::vector<std::pair<CSpellActionBase*, uint32_t>> getCooldownSpells() const;
+	uint32_t getTicksOnCooldownSpell(std::string spellName) const;
+	bool isSpellOnCooldown(std::string spellName) const;
+	void cleanupCooldownSpells();
 
 	int boundingBoxX;
 	int boundingBoxY;
@@ -326,7 +336,6 @@ public:
 	std::vector<std::pair<CSpellActionBase*, uint32_t>> activeSpells;
 	std::vector<std::pair<CSpellActionBase*, uint32_t> > cooldownSpells;
 	void Damage(int amount, bool criticalHit);
-	void removeSpellsWithCharacterState(Enums::CharacterStates characterState);
 	bool isInvisible() const;
 	void Die();
 	void gainExperience(uint64_t addExp);

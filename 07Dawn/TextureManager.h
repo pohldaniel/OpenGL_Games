@@ -180,6 +180,10 @@ public:
 	static void BindTexture(unsigned int texture, bool isTextureArray = false);
 	static void UnbindTexture(bool isTextureArray = false);
 
+	static void BindTexture(unsigned int texture, bool isTextureArray, unsigned int unit);
+	static void UnbindTexture(bool isTextureArray, unsigned int unit);
+
+	static void SetShader(Shader* shader);
 	static TextureManager& Get();
 
 	static float TransPos[8];

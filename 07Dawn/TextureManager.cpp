@@ -163,6 +163,18 @@ void TextureManager::UnbindTexture(bool isTextureArray) {
 	Batchrenderer::Get().unbindTexture(isTextureArray);
 }
 
+void TextureManager::BindTexture(unsigned int texture, bool isTextureArray, unsigned int unit) {
+	Batchrenderer::Get().bindTexture(texture, isTextureArray, unit);
+}
+
+void TextureManager::UnbindTexture(bool isTextureArray, unsigned int unit) {
+	Batchrenderer::Get().unbindTexture(isTextureArray, unit);
+}
+
+void TextureManager::SetShader(Shader* shader) {
+	Batchrenderer::Get().setShader(shader);
+}
+
 bool TextureManager::IsRectOnScreen(int left, int width, int bottom, int height) {
 	ViewPort& viewPort = ViewPort::get();
 	float _left = viewPort.getLeft();

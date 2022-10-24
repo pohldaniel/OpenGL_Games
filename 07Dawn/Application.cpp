@@ -36,6 +36,13 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 
 	Instancedrenderer::Get().init();
 	Instancedrenderer::Get().setShader(Globals::shaderManager.getAssetPointer("instanced"));
+
+	auto shader = Globals::shaderManager.getAssetPointer("batch_font");
+
+	glUseProgram(shader->m_program);
+	shader->loadInt("u_sprite", 0);
+	shader->loadInt("u_font", 1);
+	glUseProgram(0);
 }
 
 Application::~Application() {
@@ -353,6 +360,7 @@ void Application::loadAssets() {
 	Globals::shaderManager.loadShader("quad_array", "res/shader/quad_array.vs", "res/shader/quad_array.fs");
 	Globals::shaderManager.loadShader("batch", "res/shader/batch.vs", "res/shader/batch.fs");
 	Globals::shaderManager.loadShader("font", "res/shader/batch.vs", "res/shader/font.fs");
+	Globals::shaderManager.loadShader("batch_font", "res/shader/batch.vs", "res/shader/batch_font.fs");
 	Globals::shaderManager.loadShader("instanced", "res/shader/instanced.vs", "res/shader/instanced.fs");
 	Globals::textureManager.createNullTexture("grey", 64, 64, 128);
 	Globals::spritesheetManager.createNullSpritesheet("null", 1024, 1024, 197);
@@ -360,6 +368,7 @@ void Application::loadAssets() {
 	Globals::fontManager.loadCharacterSet("verdana_20", "res/verdana.ttf", 20, 3, 20);
 	Globals::fontManager.loadCharacterSet("verdana_12", "res/verdana.ttf", 12, 3, 20);
 	Globals::fontManager.loadCharacterSet("verdana_10", "res/verdana.ttf", 10, 3, 20);
+	Globals::fontManager.loadCharacterSet("verdana_11", "res/verdana.ttf", 11, 3, 20);
 	Globals::fontManager.loadCharacterSet("verdana_9", "res/verdana.ttf", 9, 3, 20);
 	Globals::fontManager.loadCharacterSet("verdana_5", "res/verdana.ttf", 5, 3, 20);	
 }

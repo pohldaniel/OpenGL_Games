@@ -7,7 +7,7 @@
 #include "TextureManager.h"
 #include "Spells.h"
 #include "Actions.h"
-
+#include "Constants.h"
 class Character;
 
 struct sButton {
@@ -121,14 +121,15 @@ private:
 	bool isSpellUseable(CSpellActionBase* action);
 	bool execute;
 	Character* player;
-	CharacterSet* charset;
+	CharacterSet* shortcutFont;
+	CharacterSet* cooldownFont;
+	CharacterSet* interfaceFont;
+
 	sButton* spellQueue;
 	//CTexture damageDisplayTexturesBig;
 	//CTexture damageDisplayTexturesSmall;
 
 	//std::vector<sDamageDisplay> damageDisplay;
-
-
 
 	//GLFT_Font* NPCTextFont;
 	//GLFT_Font* levelFont;
@@ -138,4 +139,41 @@ private:
 	int cursorRadius;
 	std::pair<int, int> m_lastMouseDown;
 	bool preparingAoESpell;
+	bool isMouseOver(int x, int y);
+	std::vector<std::pair<CSpellActionBase*, uint32_t> > cooldownSpells;
+
+	inline std::string convertTime(uint32_t ticks, uint16_t duration) {
+		// break our ticks down into hours, minutes or seconds and return a pretty string.
+		std::string output_string;
+		std::stringstream ss;
+		std::string returnString;
+
+		uint32_t thisDuration = Globals::clock.getElapsedTimeMilli();
+		uint16_t seconds = 0;
+		uint16_t minutes = 0;
+		uint16_t hours = 0;
+
+
+		seconds = duration - floor((thisDuration - ticks) / 1000);
+		hours = floor((float)seconds / 3600);
+		minutes = ceil((float)seconds / 60) - floor((float)seconds / 3600) * 60;
+
+		if (minutes == 1) { minutes = 0; } // when we're below or at 60 seconds, dont display minutes.
+
+		if (hours > 0){
+			ss << hours << "h ";
+		}
+
+		if (minutes > 0){
+			ss << minutes << "m ";
+		}
+
+		if (minutes <= 0 && hours <= 0){
+			ss << seconds << "s ";
+		}
+
+		output_string = ss.str();
+
+		return output_string;
+	}
 };

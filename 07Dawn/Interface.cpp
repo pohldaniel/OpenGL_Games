@@ -2,7 +2,7 @@
 #include "Npc.h"
 #include "Zone.h"
 #include "Player.h"
-#include "Constants.h"
+
 
 Interface Interface::s_instance;
 
@@ -22,7 +22,11 @@ void Interface::init() {
 
 	loadTextures();
 	player = &Player::Get();
-	charset = &Globals::fontManager.get("verdana_12");
+
+	interfaceFont = &Globals::fontManager.get("verdana_12");
+	cooldownFont = &Globals::fontManager.get("verdana_11");
+	shortcutFont = &Globals::fontManager.get("verdana_9");
+
 
 	button.push_back(sButton(22, 14, 46, 46, "1", Keyboard::Key::KEY_1));
 	button.push_back(sButton(82, 14, 46, 46, "2", Keyboard::Key::KEY_2));
@@ -149,6 +153,7 @@ void Interface::DrawInterface() {
 	TextureManager::DrawTextureBatched(m_interfacetexture[18], 0, 0, 390.0f, 150.0f, false, false);
 
 	//action bar
+	//Vector4f barColor = isMouseOver(ViewPort::get().getCursorPosRelX(), ViewPort::get().getCursorPosRelY()) ? Vector4f(0.0f, 0.0f, 0.0f, 0.8f) : Vector4f(0.0f, 0.0f, 0.0f, 1.0f);
 	TextureManager::DrawTextureBatched(m_interfacetexture[18], ViewPort::get().getWidth() - 630, 0, 630.0f, 80.0f, false, false);
 	for (unsigned int buttonId = 0; buttonId < 10; buttonId++) {
 		Vector4f borderColor = ( button[buttonId].action != NULL && player->getCurrentSpellActionName() == button[buttonId].action->getName()) ? Vector4f(0.8f, 0.8f, 0.8f, 1.0f) : Vector4f(0.4f, 0.4f, 0.4f, 1.0f);
@@ -167,18 +172,43 @@ void Interface::DrawInterface() {
 
 	TextureManager::DrawBuffer(true);
 
-	TextureManager::BindTexture(TextureManager::GetTextureAtlas("symbols"), true);
+	TextureManager::BindTexture(TextureManager::GetTextureAtlas("symbols"), true, 0);
+	TextureManager::BindTexture(cooldownFont->spriteSheet, false, 1);
+	TextureManager::SetShader(Globals::shaderManager.getAssetPointer("batch_font"));
+	Fontrenderer::Get().setRenderer(&Batchrenderer::Get());
+
+	cooldownSpells = player->getCooldownSpells();
 	for (unsigned int buttonId = 0; buttonId < 10; buttonId++) {
+		bool drawCooldownText;
+		std::string cooldownText;
+		bool useableSpell = isSpellUseable(button[buttonId].action);
+		
 		if (button[buttonId].action != NULL) {
-			bool useableSpell = isSpellUseable(button[buttonId].action);
 
-
+			for (size_t curSpell = 0; curSpell < cooldownSpells.size(); curSpell++) {
+				if (cooldownSpells[curSpell].first->getName() == button[buttonId].action->getName()) {
+					useableSpell = false;
+					drawCooldownText = true;
+					cooldownText = convertTime(cooldownSpells[curSpell].second, cooldownSpells[curSpell].first->getCooldown());
+				}
+			}
+			
 			button[buttonId].action->drawSymbol(ViewPort::get().getWidth() - 608 + buttonId * 60, 14, 46, 46, useableSpell ? Vector4f(1.0f, 1.0f, 1.0f, 1.0f) : Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
+
+			if (drawCooldownText == true){
+				unsigned int xModifier = cooldownFont->getWidth(cooldownText);
+				Fontrenderer::Get().addText(*cooldownFont, ViewPort::get().getWidth() - 630 + 20 + buttonId * 60 + 6 + (static_cast<float>(50) - xModifier) / 2, 32, cooldownText, Vector4f(1.0f, 1.0f, 0.0f, 1.0f), false, 10u);
+
+			}
 		}
 	}
 	
+	Fontrenderer::Get().resetRenderer();
+
 	TextureManager::DrawBuffer(false);
-	TextureManager::UnbindTexture(true);
+	TextureManager::SetShader(Globals::shaderManager.getAssetPointer("batch"));
+	TextureManager::UnbindTexture(false, 1);
+	TextureManager::UnbindTexture(true, 0);
 }
 
 void Interface::DrawCursor(bool drawInGameCursor) {
@@ -247,7 +277,7 @@ void Interface::drawTargetedNPCText() {
 	Npc* npc = dynamic_cast<Npc*>(player->getTarget());
 
 	uint8_t width = 40;
-	uint8_t stringWidth = charset->getWidth(npc->getName().c_str());
+	uint8_t stringWidth = interfaceFont->getWidth(npc->getName().c_str());
 
 	if (stringWidth > width + 64){
 		width = stringWidth - 56;
@@ -269,7 +299,7 @@ void Interface::drawTargetedNPCText() {
 		TextureManager::DrawTextureBatched(m_interfacetexture[0], npc->getXPos(), npc->getYPos() + npc->getHeight() - 12, static_cast<float>(npc->getWidth()), 8.0f, Vector4f(0.5f, 0.5f, 0.0f, 1.0f), true, true);
 		//then the actual castbar
 		TextureManager::DrawTextureBatched(m_interfacetexture[0], npc->getXPos(), npc->getYPos() + npc->getHeight() - 12, npc->getWidth()* npc->getPreparationPercentage(), 8.0f, Vector4f(0.8f, 0.8f, 0.0f, 1.0f), true, true);
-		 Fontrenderer::Get().addText(*charset, npc->getXPos(), npc->y_pos + npc->getHeight() - 24, npc->getCurrentSpellActionName(), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), true);
+		 Fontrenderer::Get().addText(*interfaceFont, npc->getXPos(), npc->y_pos + npc->getHeight() - 24, npc->getCurrentSpellActionName(), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), true);
 	}
 
 	TextureManager::DrawBuffer(true);
@@ -287,8 +317,8 @@ void Interface::drawTargetedNPCText() {
 			break;
 	}
 
-	Fontrenderer::Get().bindTexture(*charset);
-	Fontrenderer::Get().addText(*charset, fontStart, npc->y_pos + npc->getHeight() + 12, npc->getName(), color, true);
+	Fontrenderer::Get().bindTexture(*interfaceFont);
+	Fontrenderer::Get().addText(*interfaceFont, fontStart, npc->y_pos + npc->getHeight() + 12, npc->getName(), color, true);
 	Fontrenderer::Get().drawBuffer(true);
 	
 	// load the active spells from the NPC
@@ -438,10 +468,10 @@ bool Interface::isButtonUsed(sButton *button) const {
 }
 
 void Interface::processInput() {
+
 	Mouse &mouse = Mouse::instance();
 	if (mouse.buttonPressed(Mouse::BUTTON_LEFT)) {
 		m_lastMouseDown = std::pair<int, int>(ViewPort::get().getCursorPosRelX(), ViewPort::get().getCursorPosRelY());
-
 		buttonId = getMouseOverButtonId(m_lastMouseDown.first, m_lastMouseDown.second);
 
 		if (buttonId >= 0) {
@@ -454,7 +484,6 @@ void Interface::processInput() {
 					if (button[buttonId].action->getEffectType() == Enums::EffectType::AreaTargetSpell && player->getTarget() == NULL) {
 						setSpellQueue(button[buttonId], false);
 						cursorRadius = button[buttonId].action->getRadius();
-
 					// "regular" spell
 					}else {
 						setSpellQueue(button[buttonId]);
@@ -555,7 +584,6 @@ void Interface::processInputRightDrag() {
 	}
 
 	if (isPreparingAoESpell()) {
-
 		makeReadyToCast(ViewPort::get().getCursorPosX(), ViewPort::get().getCursorPosY());
 	}
 
@@ -569,42 +597,37 @@ CSpellActionBase* Interface::getCurrentAction() {
 }
 
 void Interface::executeSpellQueue() {
-
-		
 		Enums::EffectType effectType = spellQueue->action->getEffectType();
 
 		if (spellQueue->action != NULL && spellQueue->actionReadyToCast == true) {
 			CSpellActionBase *curAction = NULL;
 			if (effectType == Enums::EffectType::SingleTargetSpell && player->getTarget() != NULL) {
 				curAction = spellQueue->action->cast(player, player->getTarget(), true);
-			} else if (effectType == Enums::EffectType::SelfAffectingSpell) {
+			}else if (effectType == Enums::EffectType::SelfAffectingSpell) {
 				curAction = spellQueue->action->cast(player, player, false);
 			}else if (effectType == Enums::EffectType::AreaTargetSpell) {
 				
 				// AoE spell cast on target with target selected previous to casting
 				if (!preparingAoESpell) {
 					curAction = spellQueue->action->cast(player, player->getTarget(), false);
-				}
+
 				// AoE spell cast on specific position
-				else if (spellQueue->areaOfEffectOnSpecificLocation == true) {
+				} else if (spellQueue->areaOfEffectOnSpecificLocation == true) {
 					curAction = spellQueue->action->cast(player, spellQueue->actionSpecificXPos, spellQueue->actionSpecificYPos);
 					preparingAoESpell = false;
 				}
 			}
 
-			if (curAction != NULL) {
-				
+			if (curAction != NULL) {			
 				player->castSpell(dynamic_cast<CSpellActionBase*>(curAction));
 				player->m_waitForAnimation = true;
 			}
 
 			spellQueue = NULL;
-		}else if (spellQueue->action) {
-			
+		}else if (spellQueue->action) {			
 			if (effectType == Enums::EffectType::AreaTargetSpell)
 				preparingAoESpell = true;
-		}
-	
+		}	
 }
 
 bool Interface::isPreparingAoESpell() const {
@@ -616,4 +639,12 @@ void Interface::makeReadyToCast(int x, int y) {
 	spellQueue->areaOfEffectOnSpecificLocation = true;
 	spellQueue->actionSpecificXPos = x;
 	spellQueue->actionSpecificYPos = y;
+}
+
+bool Interface::isMouseOver(int x, int y) {
+	if (x > actionBarPosX && x < actionBarPosX + 630 && y > actionBarPosY && y <actionBarPosY + 80){
+		return true;
+	}
+
+	return false;
 }

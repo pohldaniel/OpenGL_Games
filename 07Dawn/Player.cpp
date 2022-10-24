@@ -1,4 +1,5 @@
 #include "Player.h"
+#include "Constants.h"
 
 Player Player::s_instance;
 
@@ -56,6 +57,9 @@ void Player::draw() {
 void Player::update(float deltaTime) {
 	//std::cout << "Activity: " << ActivityToString(curActivity) << std::endl;
 	
+	cleanupActiveSpells();
+	cleanupCooldownSpells();
+
 	curActivity = getCurActivity();
 	
 	//if (curActivity != Enums::ActivityType::Dying) {
@@ -200,4 +204,12 @@ void Player::setCharacterType(std::string characterType) {
 
 Vector3f Player::getPosition() {
 	return Vector3f(static_cast<float>(getXPos()), static_cast<float>(getYPos()), 0.0f);
+}
+
+void Player::setTicketForItemTooltip() {
+	ticketForItemTooltip = Globals::clock.getElapsedTimeMilli();
+}
+
+void Player::setTicketForSpellTooltip() {
+	ticketForSpellTooltip = Globals::clock.getElapsedTimeMilli();
 }

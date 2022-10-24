@@ -32,6 +32,10 @@ public:
 
 	void bindTexture(unsigned int texture, bool isTextureArray = false);
 	void unbindTexture(bool isTextureArray = false);
+
+	void bindTexture(unsigned int texture, bool isTextureArray, unsigned int unit);
+	void unbindTexture(bool isTextureArray, unsigned int unit);
+
 	static Batchrenderer& Get();
 
 private:
