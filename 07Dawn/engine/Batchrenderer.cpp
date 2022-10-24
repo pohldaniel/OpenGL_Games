@@ -1,13 +1,8 @@
 #include "Batchrenderer.h"
 #include <algorithm>
 
-//Batchrenderer Batchrenderer::s_instance = Batchrenderer(ViewPort::get().getCamera());
-//
-//Batchrenderer::Batchrenderer(const Camera& camera) : m_camera(camera){
-//
-//}
-
 Batchrenderer Batchrenderer::s_instance;
+
 
 void Batchrenderer::setCamera(const Camera& camera) {
 	m_camera = &camera;
@@ -23,6 +18,10 @@ void Batchrenderer::updateModelMtx(const Matrix4f& mtx) {
 	glUseProgram(0);
 }
 
+float(&Batchrenderer::getTransPos())[8]{
+	return transPos; 
+}
+
 Batchrenderer& Batchrenderer::Get() {
 	return s_instance;
 }
@@ -33,6 +32,8 @@ Batchrenderer::~Batchrenderer() {
 }
 
 void Batchrenderer::init(size_t size, bool drawSingle) {
+
+	float transPos[8] = { 0.0f ,0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
 
 	m_maxQuad = size;
 	m_maxVert = m_maxQuad * 4;
@@ -163,28 +164,28 @@ void Batchrenderer::addQuadAA(Vector4f posSize, Vector4f texPosSize, Vector4f co
 	indexCount += 6;
 }
 
-void Batchrenderer::addQuad(float pos[8], Vector4f texPosSize, Vector4f color, unsigned int frame, bool updateView) {
+void Batchrenderer::addQuad(Vector4f texPosSize, Vector4f color, unsigned int frame, bool updateView) {
 
 	if (indexCount >= m_maxIndex) {
 		drawBuffer(updateView);
 	}
 
-	bufferPtr->posTex = { pos[0], pos[1],  texPosSize[0],  texPosSize[1] };
+	bufferPtr->posTex = { transPos[0], transPos[1],  texPosSize[0],  texPosSize[1] };
 	bufferPtr->color = { color[0], color[1], color[2], color[3] };
 	bufferPtr->frame = frame;
 	bufferPtr++;
 
-	bufferPtr->posTex = { pos[2], pos[3],  texPosSize[0] + texPosSize[2],  texPosSize[1] };
+	bufferPtr->posTex = { transPos[2], transPos[3],  texPosSize[0] + texPosSize[2],  texPosSize[1] };
 	bufferPtr->color = { color[0], color[1], color[2], color[3] };
 	bufferPtr->frame = frame;
 	bufferPtr++;
 
-	bufferPtr->posTex = { pos[4], pos[5],  texPosSize[0] + texPosSize[2],  texPosSize[1] + texPosSize[3] };
+	bufferPtr->posTex = { transPos[4], transPos[5],  texPosSize[0] + texPosSize[2],  texPosSize[1] + texPosSize[3] };
 	bufferPtr->color = { color[0], color[1], color[2], color[3] };
 	bufferPtr->frame = frame;
 	bufferPtr++;
 
-	bufferPtr->posTex = { pos[6], pos[7],  texPosSize[0],  texPosSize[1] + texPosSize[3] };
+	bufferPtr->posTex = { transPos[6], transPos[7],  texPosSize[0],  texPosSize[1] + texPosSize[3] };
 	bufferPtr->color = { color[0], color[1], color[2], color[3] };
 	bufferPtr->frame = frame;
 	bufferPtr++;
@@ -266,15 +267,15 @@ void Batchrenderer::drawSingleQuadAA(Vector4f posSize, Vector4f texPosSize, Vect
 	glUseProgram(0);
 }
 
-void Batchrenderer::drawSingleQuad(float pos[8], Vector4f texPosSize, Vector4f color, unsigned int frame, bool updateView) {
+void Batchrenderer::drawSingleQuad(Vector4f texPosSize, Vector4f color, unsigned int frame, bool updateView) {
 	glBindBuffer(GL_ARRAY_BUFFER, m_vboSingle);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * 4, NULL, GL_STATIC_DRAW);
 	Vertex* ptr = (Vertex*)glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
 	if (ptr) {
-		ptr[0] = { pos[0], pos[1], texPosSize[0], texPosSize[1], color[0], color[1], color[2], color[3], frame };
-		ptr[1] = { pos[2], pos[3], texPosSize[0] + texPosSize[2],  texPosSize[1], color[0], color[1], color[2], color[3], frame };
-		ptr[2] = { pos[4], pos[5], texPosSize[0] + texPosSize[2], texPosSize[1] + texPosSize[3], color[0], color[1], color[2], color[3], frame };
-		ptr[3] = { pos[6], pos[7], texPosSize[0], texPosSize[1] + texPosSize[3], color[0], color[1], color[2], color[3], frame };
+		ptr[0] = { transPos[0], transPos[1], texPosSize[0], texPosSize[1], color[0], color[1], color[2], color[3], frame };
+		ptr[1] = { transPos[2], transPos[3], texPosSize[0] + texPosSize[2],  texPosSize[1], color[0], color[1], color[2], color[3], frame };
+		ptr[2] = { transPos[4], transPos[5], texPosSize[0] + texPosSize[2], texPosSize[1] + texPosSize[3], color[0], color[1], color[2], color[3], frame };
+		ptr[3] = { transPos[6], transPos[7], texPosSize[0], texPosSize[1] + texPosSize[3], color[0], color[1], color[2], color[3], frame };
 
 		glUnmapBuffer(GL_ARRAY_BUFFER);
 	}
@@ -307,5 +308,3 @@ void Batchrenderer::bindTexture(unsigned int texture, bool isTextureArray) {
 void Batchrenderer::unbindTexture(bool isTextureArray) {
 	glBindTexture(isTextureArray ? GL_TEXTURE_2D_ARRAY : GL_TEXTURE_2D, 0);
 }
-
-

@@ -1,20 +1,11 @@
 #pragma once
 #include <vector>
+#include "../Rect.h"
 
 class Animation2D {
 
 public:
-	struct TextureRect {
-		float textureOffsetX;
-		float textureOffsetY;
-		float textureWidth;
-		float textureHeight;
-		int height;
-		int width;
-		unsigned int frame;
-	};
-
-
+	
 	Animation2D() = default;
 	~Animation2D();
 

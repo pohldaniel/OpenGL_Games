@@ -109,7 +109,7 @@ protected:
 	uint16_t continuousDamageTime;
 
 	Animation2D animation;
-	const  Animation2D::TextureRect& currentFrame;
+	const  TextureRect& currentFrame;
 };
 
 class GeneralRayDamageSpell : public GeneralDamageSpell {

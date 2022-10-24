@@ -29,7 +29,7 @@ void Animation2D::resetAnimation() {
 	m_frame = m_frames[0];
 }
 
-const Animation2D::TextureRect& Animation2D::getFrame() {
+const TextureRect& Animation2D::getFrame() {
 	return m_frame;
 }
 

@@ -392,5 +392,8 @@
     <ClInclude Include="Magic.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="engine\Rect.h">
+      <Filter>engine</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

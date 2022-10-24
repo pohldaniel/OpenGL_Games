@@ -5,24 +5,13 @@
 #include <iostream>
 #include <algorithm>
 
+#include "engine/Rect.h"
 #include "engine/Texture.h"
 #include "engine/Extension.h"
 #include "engine/Batchrenderer.h"
 #include "engine/Instancerenderer.h"
 #include "engine/Spritesheet.h"
 
-struct TextureRect {
-	float textureOffsetX;
-	float textureOffsetY;
-	float textureWidth;
-	float textureHeight;
-	int height;
-	int width;
-	unsigned int frame;
-
-	//
-	//float transPos[8];
-};
 
 class TextureCache {
 
@@ -148,7 +137,7 @@ public:
 
 	static bool IsRectOnScreen(int left, int width, int bottom, int height);
 	static bool CheckPointInRect(float px, float py, int left, int width, int bottom, int height);
-	static void RotateTextureRect(const TextureRect& origin, float posX, float posY, float angle, float rotX, float rotY, float(&pos)[8]);
+	static void RotateTextureRect(const TextureRect& origin, float posX, float posY, float angle, float rotX, float rotY);
 
 	static void DrawTextureBatched(const TextureRect& textureRect, int x, int y, bool cullVieport, bool updateView);
 	static void DrawTextureBatched(const TextureRect& textureRect, int x, int y, Vector4f color = Vector4f(1.0f, 1.0f, 1.0f, 1.0f), bool cullVieport = true, bool updateView = true);
@@ -163,8 +152,8 @@ public:
 	static void DrawTexture(const TextureRect& textureRect, int x, int y, float width, float height, bool cullVieport, bool updateView);
 	static void DrawTexture(const TextureRect& textureRect, int x, int y, float width, float height, Vector4f color = Vector4f(1.0f, 1.0f, 1.0f, 1.0f), bool cullVieport = true, bool updateView = true);
 
-	static void DrawTexture(const TextureRect& textureRect, float pos[8], bool updateView);
-	static void DrawTexture(const TextureRect& textureRect, float pos[8], Vector4f color = Vector4f(1.0f, 1.0f, 1.0f, 1.0f), bool updateView = true);
+	static void DrawTexture(const TextureRect& textureRect, bool updateView);
+	static void DrawTexture(const TextureRect& textureRect, Vector4f color = Vector4f(1.0f, 1.0f, 1.0f, 1.0f), bool updateView = true);
 
 	static void DrawTextureInstanced(const TextureRect& textureRect, int x, int y, bool checkVieport = true);
 
@@ -186,7 +175,7 @@ public:
 	static void SetShader(Shader* shader);
 	static TextureManager& Get();
 
-	static float TransPos[8];
+	static float (&TransPos)[8];
 
 private:
 	TextureManager() = default;

@@ -149,5 +149,5 @@ private:
 	double damageBonus; // How much damage bonus should we add to our min and max weapon damage?
 
 	Animation2D animation;
-	const  Animation2D::TextureRect& currentFrame;
+	const  TextureRect& currentFrame;
 };

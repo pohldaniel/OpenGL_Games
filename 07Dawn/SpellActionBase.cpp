@@ -208,15 +208,6 @@ void CSpellActionBase::setSymbolTextureRect(TextureRect& textureRect) {
 	spellSymbol = &textureRect;
 }
 
-
-const TextureRect CSpellActionBase::ConvertRect(const Animation2D::TextureRect& rect) {
-	return{ rect.textureOffsetX , rect.textureOffsetY, rect.textureWidth , rect.textureHeight, rect.height, rect.width, rect.frame };
-}
-
-const Animation2D::TextureRect CSpellActionBase::ConvertRect(const TextureRect& rect) {
-	return{ rect.textureOffsetX , rect.textureOffsetY, rect.textureWidth , rect.textureHeight, rect.height, rect.width, rect.frame };
-}
-
 void CSpellActionBase::setNeedTarget(bool needTarget) {
 	CSpellActionBase::needTarget = needTarget;
 }

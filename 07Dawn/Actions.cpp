@@ -443,9 +443,9 @@ void RangedDamageAction::draw() {
 		}
 
 		TextureManager::BindTexture(TextureManager::GetTextureAtlas("spells"), true);
-		const TextureRect& rect = ConvertRect(currentFrame);
-		TextureManager::RotateTextureRect(rect, static_cast<float>(posx - rect.width * 0.5f), static_cast<float>(posy - rect.height * 0.5f), degrees, rect.width * 0.5f, rect.height * 0.5f, TextureManager::TransPos);
-		TextureManager::DrawTexture(rect, TextureManager::TransPos, true);
+		const TextureRect& rect = currentFrame;
+		TextureManager::RotateTextureRect(rect, static_cast<float>(posx - rect.width * 0.5f), static_cast<float>(posy - rect.height * 0.5f), degrees, rect.width * 0.5f, rect.height * 0.5f);
+		TextureManager::DrawTexture(rect, true);
 		TextureManager::UnbindTexture(true);
 	}
 }
@@ -511,7 +511,7 @@ Enums::EffectType RangedDamageAction::getEffectType() const {
 }
 
 void RangedDamageAction::addAnimationFrame(std::string file, int paddingLeft, int paddingRight, int paddingTop, int paddingBottom) {
-	animation.addFrame(ConvertRect(TextureManager::Loadimage(file, 0u, 0u, false, paddingLeft, paddingRight, paddingTop, paddingBottom)));
+	animation.addFrame(TextureManager::Loadimage(file, 0u, 0u, false, paddingLeft, paddingRight, paddingTop, paddingBottom));
 }
 void RangedDamageAction::update(float deltatime) {
 	animation.update(deltatime);

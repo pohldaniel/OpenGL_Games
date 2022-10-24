@@ -4,7 +4,7 @@
 TextureCache TextureCache::s_instance;
 TextureAtlasCreator TextureAtlasCreator::s_instance;
 TextureManager TextureManager::s_instance;
-float TextureManager::TransPos[8] = { 0.0f ,0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
+float (&TextureManager::TransPos)[8] = Batchrenderer::Get().getTransPos();
 
 TextureCache& TextureCache::Get() {
 	return s_instance;
@@ -38,6 +38,7 @@ TextureRect& TextureCache::getTextureFromCache(std::string filename, unsigned in
 }
 
 /////////////////////////////////////////////////////////////////////////////
+
 TextureManager& TextureManager::Get() {
 	return s_instance;
 }
@@ -72,11 +73,11 @@ void TextureManager::DrawTextureBatched(const TextureRect& textureRect, int x, i
 }
 
 void TextureManager::DrawTextureBatched(const TextureRect& textureRect, float pos[8], bool updateView) {
-	Batchrenderer::Get().addQuad(pos, Vector4f(textureRect.textureOffsetX, textureRect.textureOffsetY, textureRect.textureWidth, textureRect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), textureRect.frame, updateView);
+	Batchrenderer::Get().addQuad(Vector4f(textureRect.textureOffsetX, textureRect.textureOffsetY, textureRect.textureWidth, textureRect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), textureRect.frame, updateView);
 }
 
 void TextureManager::DrawTextureBatched(const TextureRect& textureRect, float pos[8], Vector4f color, bool updateView) {
-	Batchrenderer::Get().addQuad(pos, Vector4f(textureRect.textureOffsetX, textureRect.textureOffsetY, textureRect.textureWidth, textureRect.textureHeight), color, textureRect.frame, updateView);
+	Batchrenderer::Get().addQuad(Vector4f(textureRect.textureOffsetX, textureRect.textureOffsetY, textureRect.textureWidth, textureRect.textureHeight), color, textureRect.frame, updateView);
 }
 
 void TextureManager::DrawTexture(const TextureRect& textureRect, int x, int y, bool cullVieport, bool updateView) {
@@ -111,12 +112,12 @@ void TextureManager::DrawTexture(const TextureRect& textureRect, int x, int y, f
 	Batchrenderer::Get().drawSingleQuadAA(Vector4f(static_cast< float >(x), static_cast< float >(y), width, height), Vector4f(textureRect.textureOffsetX, textureRect.textureOffsetY, textureRect.textureWidth, textureRect.textureHeight), color, textureRect.frame, updateView);
 }
 
-void TextureManager::DrawTexture(const TextureRect& textureRect, float pos[8], bool updateView) {
-	Batchrenderer::Get().drawSingleQuad(pos, Vector4f(textureRect.textureOffsetX, textureRect.textureOffsetY, textureRect.textureWidth, textureRect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), textureRect.frame, updateView);
+void TextureManager::DrawTexture(const TextureRect& textureRect, bool updateView) {
+	Batchrenderer::Get().drawSingleQuad(Vector4f(textureRect.textureOffsetX, textureRect.textureOffsetY, textureRect.textureWidth, textureRect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), textureRect.frame, updateView);
 }
 
-void TextureManager::DrawTexture(const TextureRect& textureRect, float pos[8], Vector4f color, bool updateView) {
-	Batchrenderer::Get().drawSingleQuad(pos, Vector4f(textureRect.textureOffsetX, textureRect.textureOffsetY, textureRect.textureWidth, textureRect.textureHeight), color, textureRect.frame, updateView);
+void TextureManager::DrawTexture(const TextureRect& textureRect, Vector4f color, bool updateView) {
+	Batchrenderer::Get().drawSingleQuad(Vector4f(textureRect.textureOffsetX, textureRect.textureOffsetY, textureRect.textureWidth, textureRect.textureHeight), color, textureRect.frame, updateView);
 }
 
 void TextureManager::DrawTextureInstanced(const TextureRect& textureRect, int x, int y, bool checkVieport) {
@@ -196,20 +197,21 @@ bool TextureManager::CheckPointInRect(float px, float py, int left, int width, i
 	return (left < px && left + width > px && bottom < py && bottom + height > py);
 }
 
-void TextureManager::RotateTextureRect(const TextureRect& origin, float posX, float posY, float angle, float rotX, float rotY, float(&pos)[8]) {
+void TextureManager::RotateTextureRect(const TextureRect& origin, float posX, float posY, float angle, float rotX, float rotY) {
+	
 	angle *= PI_ON_180;
 	float s = sinf(angle);
 	float c = cosf(angle);
 
-	pos[0] = (1.0f - c) * rotX + rotY * s + posX;
-	pos[1] = (1.0f - c) * rotY - rotX * s + posY;
+	TransPos[0] = (1.0f - c) * rotX + rotY * s + posX;
+	TransPos[1] = (1.0f - c) * rotY - rotX * s + posY;
 
-	pos[2] = (origin.width - rotX) * c + rotY * s + rotX + posX;
-	pos[3] = (origin.width - rotX) * s + (1.0f - c) * rotY + posY;
+	TransPos[2] = (origin.width - rotX) * c + rotY * s + rotX + posX;
+	TransPos[3] = (origin.width - rotX) * s + (1.0f - c) * rotY + posY;
 
-	pos[4] = (origin.width - rotX) * c - (origin.height - rotY) * s + rotX + posX;
-	pos[5] = (origin.width - rotX) * s + (origin.height - rotY) * c + rotY + posY;
+	TransPos[4] = (origin.width - rotX) * c - (origin.height - rotY) * s + rotX + posX;
+	TransPos[5] = (origin.width - rotX) * s + (origin.height - rotY) * c + rotY + posY;
 
-	pos[6] = -rotX * c - (origin.height - rotY) * s + rotX + posX;
-	pos[7] = -rotX * s + (origin.height - rotY) * c + rotY + posY;
+	TransPos[6] = -rotX * c - (origin.height - rotY) * s + rotX + posX;
+	TransPos[7] = -rotX * s + (origin.height - rotY) * c + rotY + posY;
 }

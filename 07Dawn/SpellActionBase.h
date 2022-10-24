@@ -118,10 +118,6 @@ public:
 	void unsetLuaID();
 	void setSymbolTextureRect(TextureRect& textureRect);
 
-
-	static const TextureRect ConvertRect(const Animation2D::TextureRect& rect);
-	static const Animation2D::TextureRect ConvertRect(const TextureRect& rect);
-
 protected:
 	Character *creator;
 	Character *target;

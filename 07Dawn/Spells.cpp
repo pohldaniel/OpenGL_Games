@@ -268,7 +268,7 @@ double GeneralDamageSpell::calculateContinuousDamage(uint64_t timePassed) {
 }
 
 void GeneralDamageSpell::addAnimationFrame(std::string file, int paddingLeft, int paddingRight, int paddingTop, int paddingBottom) {
-	animation.addFrame(ConvertRect(TextureManager::Loadimage(file, 0u, 0u, false, paddingLeft, paddingRight, paddingTop, paddingBottom)));
+	animation.addFrame(TextureManager::Loadimage(file, 0u, 0u, false, paddingLeft, paddingRight, paddingTop, paddingBottom));
 }
 void GeneralDamageSpell::update(float deltatime) {
 	animation.update(deltatime);
@@ -416,10 +416,10 @@ void GeneralRayDamageSpell::draw() {
 
 
 		TextureManager::BindTexture(TextureManager::GetTextureAtlas("spells"), true);
-		const TextureRect& rect = ConvertRect(currentFrame);
+		const TextureRect& rect = currentFrame;
 	
-		TextureManager::RotateTextureRect(rect, static_cast<float>(Player::Get().getXPos() - 128), static_cast<float>(Player::Get().getYPos() + 32), degrees, rect.width * 0.5f + offsetRadius, -offsetRadius, TextureManager::TransPos);
-		TextureManager::DrawTexture(rect, TextureManager::TransPos, true);
+		TextureManager::RotateTextureRect(rect, static_cast<float>(Player::Get().getXPos() - 128), static_cast<float>(Player::Get().getYPos() + 32), degrees, rect.width * 0.5f + offsetRadius, -offsetRadius);
+		TextureManager::DrawTexture(rect, true);
 		TextureManager::UnbindTexture(true);
 	}
 }
@@ -603,7 +603,7 @@ void GeneralAreaDamageSpell::finishEffect() {
 void GeneralAreaDamageSpell::draw() {
 	if (!isEffectComplete() && !child) {
 		TextureManager::BindTexture(TextureManager::GetTextureAtlas("spells"), true);
-		const TextureRect& rect = ConvertRect(currentFrame);
+		const TextureRect& rect = currentFrame;
 		
 		TextureManager::DrawTexture(rect, centerX - radius, centerY - radius, radius * 2, radius * 2, Vector4f(1.0f, 1.0f, 1.0f, 1.0f), false, true);
 		TextureManager::UnbindTexture(true);
@@ -763,9 +763,9 @@ void GeneralBoltDamageSpell::draw() {
 
 
 		TextureManager::BindTexture(TextureManager::GetTextureAtlas("spells"), true);
-		const TextureRect& rect = ConvertRect(currentFrame);
-		TextureManager::RotateTextureRect(rect, static_cast<float>(posx - rect.width * 0.5f), static_cast<float>(posy - rect.height * 0.5f), degrees, rect.width * 0.5f, rect.height * 0.5f, TextureManager::TransPos);
-		TextureManager::DrawTexture(rect, TextureManager::TransPos, true);
+		const TextureRect& rect = currentFrame;
+		TextureManager::RotateTextureRect(rect, static_cast<float>(posx - rect.width * 0.5f), static_cast<float>(posy - rect.height * 0.5f), degrees, rect.width * 0.5f, rect.height * 0.5f);
+		TextureManager::DrawTexture(rect, true);
 		TextureManager::UnbindTexture(true);		
 	}
 }

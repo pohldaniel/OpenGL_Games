@@ -224,6 +224,7 @@
     <ClInclude Include="engine\Fontrenderer.h" />
     <ClInclude Include="engine\input\ApplicationEventListener.h" />
     <ClInclude Include="engine\Instancerenderer.h" />
+    <ClInclude Include="engine\Rect.h" />
     <ClInclude Include="engine\Transform.h" />
     <ClInclude Include="Enums.h" />
     <ClInclude Include="InteractionPoint.h" />
