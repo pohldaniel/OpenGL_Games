@@ -21,10 +21,9 @@ public:
 	void shutdown();
 	void drawBuffer(bool updateView = true);
 	void addQuadAA(Vector4f posSize, Vector4f texPosSize, Vector4f color = Vector4f(1.0f, 1.0f, 1.0f, 1.0f), unsigned int frame = 0, bool updateView = true);
-	void addQuad(Vector4f texPosSize, Vector4f color = Vector4f(1.0f, 1.0f, 1.0f, 1.0f), unsigned int frame = 0, bool updateView = true);
-
 	void drawSingleQuadAA(Vector4f posSize, Vector4f texPosSize, Vector4f color = Vector4f(1.0f, 1.0f, 1.0f, 1.0f), unsigned int frame = 0, bool updateView = true);
-	void drawSingleQuad(Vector4f texPosSize, Vector4f color = Vector4f(1.0f, 1.0f, 1.0f, 1.0f), unsigned int frame = 0, bool updateView = true);
+	void processQuad(bool updateView);
+	void processSingleQuad(bool updateView);
 
 	void setCamera(const Camera& camera);
 	void setShader(Shader* shader);
@@ -36,13 +35,15 @@ public:
 	void bindTexture(unsigned int texture, bool isTextureArray, unsigned int unit);
 	void unbindTexture(bool isTextureArray, unsigned int unit);
 
-	float(&getTransPos())[8];
+	float(&getQuadPos())[8];
+	float(&getTexPos())[8];
+	float(&getColor())[4];
+	unsigned int& getFrame();
 
 	static Batchrenderer& Get();
 	
 private:
 
-	//Batchrenderer(const Camera& camera);
 	Batchrenderer() = default;
 	Batchrenderer(Batchrenderer const& rhs) = delete;
 	Batchrenderer& operator=(const Batchrenderer& rhs) = delete;
@@ -66,7 +67,10 @@ private:
 	Vertex* bufferPtr;
 	const Camera* m_camera;
 	Shader *m_shader;
-	float transPos[8];
+	float quadPos[8];
+	float texPos[8];
+	float color[4];
+	unsigned int frame;
 
 	static Batchrenderer s_instance;	
 };

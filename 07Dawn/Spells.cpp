@@ -414,12 +414,9 @@ void GeneralRayDamageSpell::draw() {
 			degrees = -degrees;
 		}
 
-
 		TextureManager::BindTexture(TextureManager::GetTextureAtlas("spells"), true);
-		const TextureRect& rect = currentFrame;
-	
-		TextureManager::RotateTextureRect(rect, static_cast<float>(Player::Get().getXPos() - 128), static_cast<float>(Player::Get().getYPos() + 32), degrees, rect.width * 0.5f + offsetRadius, -offsetRadius);
-		TextureManager::DrawTexture(rect, true);
+		const TextureRect& rect = currentFrame;	
+		TextureManager::DrawRotatedTexture(rect, static_cast<float>(Player::Get().getXPos() - 128), static_cast<float>(Player::Get().getYPos() + 32), degrees, rect.width * 0.5f + offsetRadius, -offsetRadius);
 		TextureManager::UnbindTexture(true);
 	}
 }
@@ -764,8 +761,7 @@ void GeneralBoltDamageSpell::draw() {
 
 		TextureManager::BindTexture(TextureManager::GetTextureAtlas("spells"), true);
 		const TextureRect& rect = currentFrame;
-		TextureManager::RotateTextureRect(rect, static_cast<float>(posx - rect.width * 0.5f), static_cast<float>(posy - rect.height * 0.5f), degrees, rect.width * 0.5f, rect.height * 0.5f);
-		TextureManager::DrawTexture(rect, true);
+		TextureManager::DrawRotatedTexture(rect, static_cast<float>(posx - rect.width * 0.5f), static_cast<float>(posy - rect.height * 0.5f), degrees, rect.width * 0.5f, rect.height * 0.5f);
 		TextureManager::UnbindTexture(true);		
 	}
 }

@@ -137,26 +137,20 @@ public:
 
 	static bool IsRectOnScreen(int left, int width, int bottom, int height);
 	static bool CheckPointInRect(float px, float py, int left, int width, int bottom, int height);
-	static void RotateTextureRect(const TextureRect& origin, float posX, float posY, float angle, float rotX, float rotY);
-
+	
 	static void DrawTextureBatched(const TextureRect& textureRect, int x, int y, bool cullVieport, bool updateView);
 	static void DrawTextureBatched(const TextureRect& textureRect, int x, int y, Vector4f color = Vector4f(1.0f, 1.0f, 1.0f, 1.0f), bool cullVieport = true, bool updateView = true);
 	static void DrawTextureBatched(const TextureRect& textureRect, int x, int y, float width, float height, bool cullVieport, bool updateView);
 	static void DrawTextureBatched(const TextureRect& textureRect, int x, int y, float width, float height, Vector4f color = Vector4f(1.0f, 1.0f, 1.0f, 1.0f), bool cullVieport = true, bool updateView = true);
+	static void DrawRotatedTextureBatched(const TextureRect& textureRect, int x, int y, float angle, float rotX, float rotY, Vector4f color = Vector4f(1.0f, 1.0f, 1.0f, 1.0f), bool updateView = true);
 
-	static void DrawTextureBatched(const TextureRect& textureRect, float pos[8], bool updateView);
-	static void DrawTextureBatched(const TextureRect& textureRect, float pos[8], Vector4f color = Vector4f(1.0f, 1.0f, 1.0f, 1.0f), bool updateView = true);
-	
 	static void DrawTexture(const TextureRect& textureRect, int x, int y, bool cullVieport, bool updateView);
 	static void DrawTexture(const TextureRect& textureRect, int x, int y, Vector4f color = Vector4f(1.0f, 1.0f, 1.0f, 1.0f), bool cullVieport = true, bool updateView = true);
 	static void DrawTexture(const TextureRect& textureRect, int x, int y, float width, float height, bool cullVieport, bool updateView);
 	static void DrawTexture(const TextureRect& textureRect, int x, int y, float width, float height, Vector4f color = Vector4f(1.0f, 1.0f, 1.0f, 1.0f), bool cullVieport = true, bool updateView = true);
-
-	static void DrawTexture(const TextureRect& textureRect, bool updateView);
-	static void DrawTexture(const TextureRect& textureRect, Vector4f color = Vector4f(1.0f, 1.0f, 1.0f, 1.0f), bool updateView = true);
+	static void DrawRotatedTexture(const TextureRect& textureRect, int x, int y, float angle, float rotX, float rotY, Vector4f color = Vector4f(1.0f, 1.0f, 1.0f, 1.0f), bool updateView = true);
 
 	static void DrawTextureInstanced(const TextureRect& textureRect, int x, int y, bool checkVieport = true);
-
 	static void DrawBuffer(bool updateView = true);
 
 	static TextureRect& Loadimage(std::string file, unsigned int maxWidth, unsigned maxHeight, bool reload, int paddingLeft, int paddingRight, int paddingTop, int paddingBottom);
@@ -175,11 +169,16 @@ public:
 	static void SetShader(Shader* shader);
 	static TextureManager& Get();
 
-	static float (&TransPos)[8];
+	
 
 private:
 	TextureManager() = default;
 
 	std::map<std::string, unsigned int> m_textureAtlases;
 	static TextureManager s_instance;
+
+	static float(&QuadPos)[8];
+	static float(&TexPos)[8];
+	static float(&Color)[4];
+	static unsigned int& Frame;
 };

@@ -4,7 +4,10 @@
 TextureCache TextureCache::s_instance;
 TextureAtlasCreator TextureAtlasCreator::s_instance;
 TextureManager TextureManager::s_instance;
-float (&TextureManager::TransPos)[8] = Batchrenderer::Get().getTransPos();
+float (&TextureManager::QuadPos)[8] = Batchrenderer::Get().getQuadPos();
+float(&TextureManager::TexPos)[8] = Batchrenderer::Get().getTexPos();
+float(&TextureManager::Color)[4] = Batchrenderer::Get().getColor();
+unsigned int& TextureManager::Frame = Batchrenderer::Get().getFrame();
 
 TextureCache& TextureCache::Get() {
 	return s_instance;
@@ -72,14 +75,6 @@ void TextureManager::DrawTextureBatched(const TextureRect& textureRect, int x, i
 	Batchrenderer::Get().addQuadAA(Vector4f(static_cast< float >(x), static_cast< float >(y), width, height), Vector4f(textureRect.textureOffsetX, textureRect.textureOffsetY, textureRect.textureWidth, textureRect.textureHeight), color, textureRect.frame, updateView);
 }
 
-void TextureManager::DrawTextureBatched(const TextureRect& textureRect, float pos[8], bool updateView) {
-	Batchrenderer::Get().addQuad(Vector4f(textureRect.textureOffsetX, textureRect.textureOffsetY, textureRect.textureWidth, textureRect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), textureRect.frame, updateView);
-}
-
-void TextureManager::DrawTextureBatched(const TextureRect& textureRect, float pos[8], Vector4f color, bool updateView) {
-	Batchrenderer::Get().addQuad(Vector4f(textureRect.textureOffsetX, textureRect.textureOffsetY, textureRect.textureWidth, textureRect.textureHeight), color, textureRect.frame, updateView);
-}
-
 void TextureManager::DrawTexture(const TextureRect& textureRect, int x, int y, bool cullVieport, bool updateView) {
 	if (!TextureManager::IsRectOnScreen(x, textureRect.width, y, textureRect.height) && cullVieport) {
 		return;
@@ -112,13 +107,13 @@ void TextureManager::DrawTexture(const TextureRect& textureRect, int x, int y, f
 	Batchrenderer::Get().drawSingleQuadAA(Vector4f(static_cast< float >(x), static_cast< float >(y), width, height), Vector4f(textureRect.textureOffsetX, textureRect.textureOffsetY, textureRect.textureWidth, textureRect.textureHeight), color, textureRect.frame, updateView);
 }
 
-void TextureManager::DrawTexture(const TextureRect& textureRect, bool updateView) {
+/*void TextureManager::DrawTexture(const TextureRect& textureRect, bool updateView) {
 	Batchrenderer::Get().drawSingleQuad(Vector4f(textureRect.textureOffsetX, textureRect.textureOffsetY, textureRect.textureWidth, textureRect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), textureRect.frame, updateView);
 }
 
 void TextureManager::DrawTexture(const TextureRect& textureRect, Vector4f color, bool updateView) {
 	Batchrenderer::Get().drawSingleQuad(Vector4f(textureRect.textureOffsetX, textureRect.textureOffsetY, textureRect.textureWidth, textureRect.textureHeight), color, textureRect.frame, updateView);
-}
+}*/
 
 void TextureManager::DrawTextureInstanced(const TextureRect& textureRect, int x, int y, bool checkVieport) {
 	if (!TextureManager::IsRectOnScreen(x, textureRect.width, y, textureRect.height) && checkVieport) {
@@ -197,21 +192,85 @@ bool TextureManager::CheckPointInRect(float px, float py, int left, int width, i
 	return (left < px && left + width > px && bottom < py && bottom + height > py);
 }
 
-void TextureManager::RotateTextureRect(const TextureRect& origin, float posX, float posY, float angle, float rotX, float rotY) {
+void TextureManager::DrawRotatedTextureBatched(const TextureRect& textureRect, int x, int y, float angle, float rotX, float rotY, Vector4f color, bool updateView) {
+	angle *= PI_ON_180;
+	float s = sinf(angle);
+	float c = cosf(angle);
+	float _x = static_cast<float>(x);
+	float _y = static_cast<float>(y);
+
+	QuadPos[0] = (1.0f - c) * rotX + rotY * s + _x;
+	QuadPos[1] = (1.0f - c) * rotY - rotX * s + _y;
+
+	QuadPos[2] = (textureRect.width - rotX) * c + rotY * s + rotX + _x;
+	QuadPos[3] = (textureRect.width - rotX) * s + (1.0f - c) * rotY + _y;
+
+	QuadPos[4] = (textureRect.width - rotX) * c - (textureRect.height - rotY) * s + rotX + _x;
+	QuadPos[5] = (textureRect.width - rotX) * s + (textureRect.height - rotY) * c + rotY + _y;
+
+	QuadPos[6] = -rotX * c - (textureRect.height - rotY) * s + rotX + _x;
+	QuadPos[7] = -rotX * s + (textureRect.height - rotY) * c + rotY + _y;
+
+	TexPos[0] = textureRect.textureOffsetX;
+	TexPos[1] = textureRect.textureOffsetY;
+
+	TexPos[2] = textureRect.textureOffsetX + textureRect.textureWidth;
+	TexPos[3] = textureRect.textureOffsetY;
+
+	TexPos[4] = textureRect.textureOffsetX + textureRect.textureWidth;
+	TexPos[5] = textureRect.textureOffsetY + textureRect.textureHeight;
+
+	TexPos[6] = textureRect.textureOffsetX;
+	TexPos[7] = textureRect.textureOffsetY + textureRect.textureHeight;
+
+	Color[0] = color[0];
+	Color[1] = color[1];
+	Color[2] = color[2];
+	Color[3] = color[3];
+
+	Frame = textureRect.frame;
+
+	Batchrenderer::Get().processQuad(updateView);
+}
+
+void TextureManager::DrawRotatedTexture(const TextureRect& textureRect, int x, int y, float angle, float rotX, float rotY, Vector4f color, bool updateView) {
 	
 	angle *= PI_ON_180;
 	float s = sinf(angle);
 	float c = cosf(angle);
+	float _x = static_cast<float>(x);
+	float _y = static_cast<float>(y);
 
-	TransPos[0] = (1.0f - c) * rotX + rotY * s + posX;
-	TransPos[1] = (1.0f - c) * rotY - rotX * s + posY;
+	QuadPos[0] = (1.0f - c) * rotX + rotY * s + _x;
+	QuadPos[1] = (1.0f - c) * rotY - rotX * s + _y;
 
-	TransPos[2] = (origin.width - rotX) * c + rotY * s + rotX + posX;
-	TransPos[3] = (origin.width - rotX) * s + (1.0f - c) * rotY + posY;
+	QuadPos[2] = (textureRect.width - rotX) * c + rotY * s + rotX + _x;
+	QuadPos[3] = (textureRect.width - rotX) * s + (1.0f - c) * rotY + _y;
 
-	TransPos[4] = (origin.width - rotX) * c - (origin.height - rotY) * s + rotX + posX;
-	TransPos[5] = (origin.width - rotX) * s + (origin.height - rotY) * c + rotY + posY;
+	QuadPos[4] = (textureRect.width - rotX) * c - (textureRect.height - rotY) * s + rotX + _x;
+	QuadPos[5] = (textureRect.width - rotX) * s + (textureRect.height - rotY) * c + rotY + _y;
 
-	TransPos[6] = -rotX * c - (origin.height - rotY) * s + rotX + posX;
-	TransPos[7] = -rotX * s + (origin.height - rotY) * c + rotY + posY;
+	QuadPos[6] = -rotX * c - (textureRect.height - rotY) * s + rotX + _x;
+	QuadPos[7] = -rotX * s + (textureRect.height - rotY) * c + rotY + _y;
+
+	TexPos[0] = textureRect.textureOffsetX;
+	TexPos[1] = textureRect.textureOffsetY;
+
+	TexPos[2] = textureRect.textureOffsetX + textureRect.textureWidth;
+	TexPos[3] = textureRect.textureOffsetY;
+
+	TexPos[4] = textureRect.textureOffsetX + textureRect.textureWidth;
+	TexPos[5] = textureRect.textureOffsetY + textureRect.textureHeight;
+
+	TexPos[6] = textureRect.textureOffsetX;
+	TexPos[7] = textureRect.textureOffsetY + textureRect.textureHeight;
+
+	Color[0] = color[0];
+	Color[1] = color[1];
+	Color[2] = color[2];
+	Color[3] = color[3];
+
+	Frame = textureRect.frame;
+
+	Batchrenderer::Get().processSingleQuad(updateView);
 }
