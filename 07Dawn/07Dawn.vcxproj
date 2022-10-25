@@ -209,6 +209,7 @@
     <ClCompile Include="thread\MutexClass.cpp" />
     <ClCompile Include="thread\Thread.cpp" />
     <ClCompile Include="TilesetManager.cpp" />
+    <ClCompile Include="Tooltip.cpp" />
     <ClCompile Include="ViewPort.cpp" />
     <ClCompile Include="Widget.cpp" />
     <ClCompile Include="Zone.cpp" />
@@ -271,6 +272,7 @@
     <ClInclude Include="thread\MutexClass.h" />
     <ClInclude Include="thread\Thread.h" />
     <ClInclude Include="TilesetManager.h" />
+    <ClInclude Include="Tooltip.h" />
     <ClInclude Include="ViewPort.h" />
     <ClInclude Include="Widget.h" />
     <ClInclude Include="Zone.h" />

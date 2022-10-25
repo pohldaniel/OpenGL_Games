@@ -41,8 +41,7 @@ void Game::fixedUpdate() {
 void Game::update() {
 	//ViewPort::get().update(m_dt);
 	
-	player.update(m_dt);
-	ViewPort::get().setPosition(Player::Get().getPosition());
+	
 
 	Mouse &mouse = Mouse::instance();
 
@@ -81,6 +80,15 @@ void Game::update() {
 			activeSpellActions[curActiveSpellNr].first->inEffect(m_dt);
 		}
 	}
+
+	// check all active spells for inEffects on our player.
+	std::vector<std::pair<CSpellActionBase*, uint32_t> > activeSpellActions = player.getActiveSpells();
+	for (size_t curActiveSpellNr = 0; curActiveSpellNr < activeSpellActions.size(); ++curActiveSpellNr) {
+		activeSpellActions[curActiveSpellNr].first->inEffect(m_dt);
+	}
+
+	player.update(m_dt);
+	ViewPort::get().setPosition(Player::Get().getPosition());
 
 	dawnInterface->processInputRightDrag();
 

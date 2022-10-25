@@ -41,4 +41,6 @@ public:
 	void Animate(float deltaTime);
 	void processInput();
 	
+	unsigned int getTicketForItemTooltip() const;
+	unsigned int getTicketForSpellTooltip() const;
 };

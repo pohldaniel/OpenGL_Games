@@ -690,6 +690,7 @@ void GeneralBoltDamageSpell::startEffect() {
 }
 
 void GeneralBoltDamageSpell::inEffect(float deltatime) {
+	
 	if (isEffectComplete()) return;
 
 	if (animation.getNumberOfFrames() > 1u)
@@ -922,7 +923,7 @@ void GeneralHealingSpell::inEffect(float deltatime) {
 		//target->Heal(floor(remainingEffect));
 		remainingEffect = remainingEffect - floor(remainingEffect);
 	}
-
+	
 	if (callFinish) {
 		finishEffect();
 	}
@@ -1058,6 +1059,7 @@ void GeneralBuffSpell::startEffect() {
 }
 
 void GeneralBuffSpell::inEffect(float deltatime) {
+	
 	if (isEffectComplete()) return;
 
 	if (target->isAlive() == false) {
@@ -1065,7 +1067,7 @@ void GeneralBuffSpell::inEffect(float deltatime) {
 		finishEffect();
 		return;
 	}
-
+	
 	uint32_t curTime = Globals::clock.getElapsedTimeMilli();
 	if (m_spellTimer.getElapsedTimeSinceRestartMilli() > getDuration() * 1000u) {
 		finishEffect();

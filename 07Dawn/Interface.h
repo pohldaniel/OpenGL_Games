@@ -7,7 +7,9 @@
 #include "TextureManager.h"
 #include "Spells.h"
 #include "Actions.h"
+#include "Tooltip.h"
 #include "Constants.h"
+
 class Character;
 
 struct sButton {
@@ -77,7 +79,7 @@ public:
 	void DrawFloatingSpell();
 	void processInput();
 	void processInputRightDrag();
-	void SetPlayer(Character *player_);
+	void SetPlayer(Player* player);
 	void drawTargetedNPCText();
 	void executeSpellQueue();
 
@@ -120,7 +122,7 @@ private:
 	bool isButtonUsed(sButton *button) const;
 	bool isSpellUseable(CSpellActionBase* action);
 	bool execute;
-	Character* player;
+	Player* player;
 	CharacterSet* shortcutFont;
 	CharacterSet* cooldownFont;
 	CharacterSet* interfaceFont;
@@ -140,7 +142,8 @@ private:
 	std::pair<int, int> m_lastMouseDown;
 	bool preparingAoESpell;
 	bool isMouseOver(int x, int y);
-	std::vector<std::pair<CSpellActionBase*, uint32_t> > cooldownSpells;
+	std::vector<std::pair<CSpellActionBase*, uint32_t>> cooldownSpells;
+	std::vector<std::pair<CSpellActionBase*, uint32_t>> activeSpells;
 
 	inline std::string convertTime(uint32_t ticks, uint16_t duration) {
 		// break our ticks down into hours, minutes or seconds and return a pretty string.
@@ -176,4 +179,7 @@ private:
 
 		return output_string;
 	}
+
+	CSpellActionBase* getSpellAtMouse(int mouseX, int mouseY);
+	Tooltip* tooltip;
 };

@@ -213,3 +213,11 @@ void Player::setTicketForItemTooltip() {
 void Player::setTicketForSpellTooltip() {
 	ticketForSpellTooltip = Globals::clock.getElapsedTimeMilli();
 }
+
+unsigned int Player::getTicketForItemTooltip() const {
+	return ticketForItemTooltip;
+}
+
+unsigned int Player::getTicketForSpellTooltip() const {
+	return ticketForSpellTooltip;
+}

@@ -213,6 +213,9 @@
     <ClCompile Include="Magic.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Tooltip.cpp">
+      <Filter>Source Files\UI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine\input\Event.h">
@@ -394,6 +397,9 @@
     </ClInclude>
     <ClInclude Include="engine\Rect.h">
       <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Tooltip.h">
+      <Filter>Source Files\UI</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

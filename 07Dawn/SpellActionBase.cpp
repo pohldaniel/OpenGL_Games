@@ -63,15 +63,14 @@ void CSpellActionBase::markSpellActionAsFinished()
 	finished = true;
 }
 
-bool CSpellActionBase::isEffectComplete() const
-{
+bool CSpellActionBase::isEffectComplete() const {
 	return finished;
 }
 
-void CSpellActionBase::drawSymbol(int left, int bottom, int width, int height, Vector4f color) const {
+void CSpellActionBase::drawSymbol(int left, int bottom, float width, float height, Vector4f color, unsigned int layer) const {
 	TextureRect* texture = getSymbol();
-	if (texture != NULL) {
-		TextureManager::DrawTextureBatched(*texture, left, bottom, width, height, color, false, false);
+	if (texture != NULL) {		
+		Batchrenderer::Get().addQuadAA(Vector4f(static_cast< float >(left), static_cast< float >(bottom), width, height), Vector4f(texture->textureOffsetX, texture->textureOffsetY, texture->textureWidth, texture->textureHeight), color, layer, false);
 	}
 }
 
