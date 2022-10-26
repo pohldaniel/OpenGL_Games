@@ -9,10 +9,13 @@
 struct DialogCanvas {
 
 	friend class Dialog;
+	friend class SpellTooltip;
+
+	static void initTextures();
 
 private:
-	static void initTextures();
-	static void drawCanvas(int left, int bottom, int colummns, int rows, int tileWidth, int tileHeight);
+	
+	static void drawCanvas(int left, int bottom, int colummns, int rows, int tileWidth, int tileHeight, bool updateView = false);
 	static int calculateNeededBlockWidth(int width, int tileWidth);
 	static int calculateNeededBlockHeight(int height, int tileHeight);
 

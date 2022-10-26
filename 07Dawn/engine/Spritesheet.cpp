@@ -319,7 +319,6 @@ void Spritesheet::addToSpritesheet(unsigned char* bytes, unsigned int width, uns
 	m_texture = texture_new;
 }
 
-
 unsigned int Spritesheet::getAtlas() {
 	return m_texture;
 }

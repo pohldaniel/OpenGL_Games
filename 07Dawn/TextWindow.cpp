@@ -28,7 +28,7 @@ char *strtok_r(char *str, const char *delim, char **nextp){
 	return ret;
 }
 
-void formatMultilineText(std::string textIn, std::vector< std::string > &textLines, int lineWidth, CharacterSet* font){
+void TextWindow::FormatMultilineText(std::string textIn, std::vector< std::string > &textLines, int lineWidth, CharacterSet* font) {
 	// for strtok_r
 	std::string text = std::string("").append(textIn);
 	char *some_ptr = NULL;
@@ -87,7 +87,7 @@ void TextWindow::setText(std::string text) {
 	// format the text.
 	const int lineWidth = 416;
 
-	formatMultilineText(text, textLines, lineWidth, textWindowFont);
+	FormatMultilineText(text, textLines, lineWidth, textWindowFont);
 
 	updateFramesPosition();
 }

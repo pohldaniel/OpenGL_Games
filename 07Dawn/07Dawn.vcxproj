@@ -177,6 +177,7 @@
     <ClCompile Include="Random.cpp" />
     <ClCompile Include="SpellActionBase.cpp" />
     <ClCompile Include="Spells.cpp" />
+    <ClCompile Include="Statssystem.cpp" />
     <ClCompile Include="TextureManager.cpp" />
     <ClCompile Include="engine\Batchrenderer.cpp" />
     <ClCompile Include="engine\Camera.cpp" />
@@ -242,6 +243,7 @@
     <ClInclude Include="Random.h" />
     <ClInclude Include="SpellActionBase.h" />
     <ClInclude Include="Spells.h" />
+    <ClInclude Include="Statssystem.h" />
     <ClInclude Include="TextureManager.h" />
     <ClInclude Include="engine\AssetManger.h" />
     <ClInclude Include="engine\Batchrenderer.h" />

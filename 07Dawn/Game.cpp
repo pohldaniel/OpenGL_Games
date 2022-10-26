@@ -23,6 +23,8 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), player(P
 	dawnInterface = &Interface::Get();
 	dawnInterface->init();	
 
+	DialogCanvas::initTextures();
+
 	// setting initial actions in the action bar
 	const std::vector<CSpellActionBase*> inscribedSpells = Player::Get().getSpellbook();
 	for (size_t curEntry = 0; curEntry <= 9 && curEntry < inscribedSpells.size(); ++curEntry) {
@@ -40,8 +42,6 @@ void Game::fixedUpdate() {
 
 void Game::update() {
 	//ViewPort::get().update(m_dt);
-	
-	
 
 	Mouse &mouse = Mouse::instance();
 

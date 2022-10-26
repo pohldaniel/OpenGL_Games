@@ -7,6 +7,7 @@
 #include "SpellActionBase.h"
 #include "Spells.h"
 #include "Actions.h"
+#include "Dialog.h"
 
 #include "Constants.h"
 
@@ -26,7 +27,7 @@ struct sTooltipText {
 
 class Tooltip {
 
-	friend class spellTooltip;
+	friend class SpellTooltip;
 
 public:
 	~Tooltip();
@@ -66,10 +67,10 @@ private:
 	void addTooltipText(Vector4f color, CharacterSet* fontSize, std::string str, ...);
 };
 
-class spellTooltip : public Tooltip {
+class SpellTooltip : public Tooltip {
 
 public:
-	spellTooltip(CSpellActionBase *parent, Player *player);
+	SpellTooltip(CSpellActionBase *parent, Player *player);
 	void draw(int x, int y);
 	CSpellActionBase *getParent() const;
 

@@ -1,5 +1,11 @@
 #include "Player.h"
+#include "Spells.h"
+#include "Actions.h"
 #include "Constants.h"
+#include "Statssystem.h"
+
+const unsigned short NULLABLE_ATTRIBUTE_MIN = 0;
+const unsigned short NON_NULLABLE_ATTRIBUTE_MIN = 1;
 
 Player Player::s_instance;
 
@@ -220,4 +226,157 @@ unsigned int Player::getTicketForItemTooltip() const {
 
 unsigned int Player::getTicketForSpellTooltip() const {
 	return ticketForSpellTooltip;
+}
+
+static unsigned short getModifiedAttribute(const Character* character, unsigned short basicAttributeValue, unsigned short(*getSpellAttribute)(GeneralBuffSpell*), unsigned short minValue = std::numeric_limits<unsigned short>::min(), unsigned short maxValue = std::numeric_limits<unsigned short>::max()) {
+	int attributeModifier = 0;
+	/*std::vector<InventoryItem*> equippedItems = inventory.getEquippedItems();
+	size_t numItems = equippedItems.size();
+	bool readTwoHandedWeapon = false;
+	for (size_t curItemNr = 0; curItemNr<numItems; ++curItemNr) {
+		Item* curItem = equippedItems[curItemNr]->getItem();
+		assert(curItem != NULL);
+		if (curItem->isTwoHandedWeapon() == false || readTwoHandedWeapon == false) {
+			attributeModifier += getItemAttribute(curItem);
+		}
+
+		// we do this because we only want to read the stats from two-handed weapons once and not two times as it would be since we equip two-handed weapons in both main-hand and off-hand slot.
+		if (curItem->isTwoHandedWeapon()){
+			readTwoHandedWeapon = true;
+		}
+	}*/
+
+	std::vector<std::pair<CSpellActionBase*, uint32_t> > activeSpells;
+	activeSpells = character->getActiveSpells();
+	size_t numSpells = activeSpells.size();
+	for (size_t curSpellNr = 0; curSpellNr<numSpells; ++curSpellNr) {
+		GeneralBuffSpell *curSpell = dynamic_cast<GeneralBuffSpell*> (activeSpells[curSpellNr].first);
+		// since more than Buffspells can be active, we want to check to see that we're getting a buff here...
+		if (curSpell != NULL) {
+			attributeModifier += getSpellAttribute(curSpell);
+		}
+	}
+
+	if (static_cast<int32_t>(basicAttributeValue) + attributeModifier < static_cast<int32_t>(minValue)){
+		return minValue;
+	}else if (static_cast<int32_t>(basicAttributeValue) + attributeModifier > static_cast<int32_t>(maxValue)) {
+		return maxValue;
+	}else{
+		return basicAttributeValue + attributeModifier;
+	}
+}
+
+static unsigned short getModifiedAttribute(Enums::ElementType elementType, const Character *character, unsigned short basicAttributeValue, unsigned short(*getSpellAttribute)(Enums::ElementType, GeneralBuffSpell*), unsigned short minValue = std::numeric_limits<unsigned short>::min(), unsigned short maxValue = std::numeric_limits<unsigned short>::max()) {
+	int32_t attributeModifier = 0;
+	/*std::vector<InventoryItem*> equippedItems = inventory.getEquippedItems();
+	size_t numItems = equippedItems.size();
+	for (size_t curItemNr = 0; curItemNr<numItems; ++curItemNr)
+	{
+		Item* curItem = equippedItems[curItemNr]->getItem();
+		assert(curItem != NULL);
+		attributeModifier += getItemAttribute(elementType, curItem);
+	}*/
+
+	std::vector<std::pair<CSpellActionBase*, uint32_t> > activeSpells;
+	activeSpells = character->getActiveSpells();
+	size_t numSpells = activeSpells.size();
+	for (size_t curSpellNr = 0; curSpellNr<numSpells; ++curSpellNr) {
+		GeneralBuffSpell* curSpell = dynamic_cast<GeneralBuffSpell*> (activeSpells[curSpellNr].first);
+
+		// since more than Buffspells can be active, we want to check to see that we're getting a buff here...
+		if (curSpell != NULL) {
+			attributeModifier += getSpellAttribute(elementType, curSpell);
+		}
+	}
+
+	if (static_cast<int32_t>(basicAttributeValue) + attributeModifier < static_cast<int32_t>(minValue)) {
+		return minValue;
+
+	}else if (static_cast<int32_t>(basicAttributeValue) + attributeModifier > static_cast<int32_t>(maxValue)) {
+		return maxValue;
+
+	}else {
+		return basicAttributeValue + attributeModifier;
+	}
+}
+
+
+static unsigned short getSpellStrengthHelper(GeneralBuffSpell* spell) { return spell->getStats(Enums::StatsType::Strength); }
+static unsigned short getSpellDexterityHelper(GeneralBuffSpell* spell) { return spell->getStats(Enums::StatsType::Dexterity); }
+static unsigned short getSpellVitalityHelper(GeneralBuffSpell* spell) { return spell->getStats(Enums::StatsType::Vitality); }
+static unsigned short getSpellIntellectHelper(GeneralBuffSpell* spell) { return spell->getStats(Enums::StatsType::Intellect); }
+static unsigned short getSpellWisdomHelper(GeneralBuffSpell* spell) { return spell->getStats(Enums::StatsType::Wisdom); }
+static unsigned short getSpellHealthHelper(GeneralBuffSpell* spell) { return spell->getStats(Enums::StatsType::Health); }
+static unsigned short getSpellManaHelper(GeneralBuffSpell* spell) { return spell->getStats(Enums::StatsType::Mana); }
+static unsigned short getSpellFatigueHelper(GeneralBuffSpell* spell) { return spell->getStats(Enums::StatsType::Fatigue); }
+static unsigned short getSpellArmorHelper(GeneralBuffSpell* spell) { return spell->getStats(Enums::StatsType::Armor); }
+static unsigned short getSpellDamageModifierPointsHelper(GeneralBuffSpell* spell) { return spell->getStats(Enums::StatsType::DamageModifier); }
+static unsigned short getSpellHitModifierPointsHelper(GeneralBuffSpell* spell) { return spell->getStats(Enums::StatsType::HitModifier); }
+static unsigned short getSpellEvadeModifierPointsHelper(GeneralBuffSpell* spell) { return spell->getStats(Enums::StatsType::EvadeModifier); }
+static unsigned short getSpellParryModifierPointsHelper(GeneralBuffSpell* spell) { return spell->getStats(Enums::StatsType::ParryModifier); }
+static unsigned short getSpellBlockModifierPointsHelper(GeneralBuffSpell* spell) { return spell->getStats(Enums::StatsType::BlockModifier); }
+static unsigned short getSpellMeleeCriticalModifierPointsHelper(GeneralBuffSpell* spell) { return spell->getStats(Enums::StatsType::MeleeCritical); }
+static unsigned short getSpellResistElementModifierPointsHelper(Enums::ElementType elementType, GeneralBuffSpell* spell) { return spell->getResistElementModifierPoints(elementType) + spell->getStats(Enums::StatsType::ResistAll); }
+static unsigned short getSpellSpellEffectElementModifierPointsHelper(Enums::ElementType elementType, GeneralBuffSpell* spell) { return spell->getSpellEffectElementModifierPoints(elementType) + spell->getStats(Enums::StatsType::SpellEffectAll); }
+static unsigned short getSpellSpellCriticalModifierPointsHelper(GeneralBuffSpell* spell) { return spell->getStats(Enums::StatsType::SpellCritical); }
+static unsigned short getSpellHealthRegenHelper(GeneralBuffSpell* spell) { return spell->getStats(Enums::StatsType::HealthRegen); }
+static unsigned short getSpellManaRegenHelper(GeneralBuffSpell* spell) { return spell->getStats(Enums::StatsType::ManaRegen); }
+static unsigned short getSpellFatigueRegenHelper(GeneralBuffSpell* spell) { return spell->getStats(Enums::StatsType::FatigueRegen); }
+
+static unsigned short getSpellMinDamageHelper(GeneralBuffSpell* spell) { return 0; } // not used yet
+static unsigned short getSpellMaxDamageHelper(GeneralBuffSpell* spell) { return 0; } // not used yet
+
+
+unsigned short Player::getModifiedMinDamage() const {
+	unsigned short inventoryMinDamage = getModifiedAttribute( this, 0,  &getSpellMinDamageHelper, NON_NULLABLE_ATTRIBUTE_MIN);
+	return inventoryMinDamage;
+}
+
+unsigned short Player::getModifiedMaxDamage() const {
+	unsigned short inventoryMaxDamage = getModifiedAttribute( this, 0,  &getSpellMaxDamageHelper, getModifiedMinDamage());
+	return inventoryMaxDamage;
+}
+
+unsigned short Player::getModifiedArmor() const {
+	return getModifiedAttribute(this, getArmor(), &getSpellArmorHelper, NULLABLE_ATTRIBUTE_MIN) + StatsSystem::getStatsSystem()->calculateDamageReductionPoints(this);
+}
+
+unsigned short Player::getModifiedDamageModifierPoints() const {
+	return getModifiedAttribute(this, getDamageModifierPoints(), &getSpellDamageModifierPointsHelper, NULLABLE_ATTRIBUTE_MIN) + StatsSystem::getStatsSystem()->calculateDamageModifierPoints(this);
+}
+
+unsigned short Player::getModifiedHitModifierPoints() const {
+	return getModifiedAttribute(this, getHitModifierPoints(), &getSpellHitModifierPointsHelper, NULLABLE_ATTRIBUTE_MIN) + StatsSystem::getStatsSystem()->calculateHitModifierPoints(this);
+}
+
+unsigned short Player::getModifiedEvadeModifierPoints() const {
+	return getModifiedAttribute(this, getEvadeModifierPoints(), &getSpellEvadeModifierPointsHelper, NULLABLE_ATTRIBUTE_MIN) + StatsSystem::getStatsSystem()->calculateEvadeModifierPoints(this);
+}
+
+unsigned short Player::getModifiedParryModifierPoints() const {
+	return getModifiedAttribute(this, getParryModifierPoints(), &getSpellParryModifierPointsHelper, NULLABLE_ATTRIBUTE_MIN) + StatsSystem::getStatsSystem()->calculateParryModifierPoints(this);
+}
+
+unsigned short Player::getModifiedBlockModifierPoints() const {
+	return getModifiedAttribute(this, getBlockModifierPoints(), &getSpellBlockModifierPointsHelper, NULLABLE_ATTRIBUTE_MIN) + StatsSystem::getStatsSystem()->calculateBlockModifierPoints(this);
+}
+
+unsigned short Player::getModifiedMeleeCriticalModifierPoints() const {
+	return getModifiedAttribute(this, getMeleeCriticalModifierPoints(), &getSpellMeleeCriticalModifierPointsHelper, NULLABLE_ATTRIBUTE_MIN) + StatsSystem::getStatsSystem()->calculateMeleeCriticalModifierPoints(this);
+}
+
+unsigned short Player::getModifiedResistElementModifierPoints(Enums::ElementType elementType) const {
+	return getModifiedAttribute(elementType,this, getResistElementModifierPoints(elementType) + getResistAllModifierPoints(), &getSpellResistElementModifierPointsHelper, NULLABLE_ATTRIBUTE_MIN) + StatsSystem::getStatsSystem()->calculateResistElementModifierPoints(elementType, this);
+}
+
+unsigned short Player::getModifiedSpellEffectElementModifierPoints(Enums::ElementType elementType) const {
+	return getModifiedAttribute(elementType, this, getSpellEffectElementModifierPoints(elementType) + getSpellEffectAllModifierPoints(), &getSpellSpellEffectElementModifierPointsHelper, NULLABLE_ATTRIBUTE_MIN) + StatsSystem::getStatsSystem()->calculateSpellEffectElementModifierPoints(elementType, this);
+}
+
+unsigned short Player::getModifiedSpellCriticalModifierPoints() const {
+	return getModifiedAttribute(this, getSpellCriticalModifierPoints(), &getSpellSpellCriticalModifierPointsHelper, NULLABLE_ATTRIBUTE_MIN) + StatsSystem::getStatsSystem()->calculateSpellCriticalModifierPoints(this);
+}
+
+unsigned short Player::getModifiedStrength() const {
+	return getModifiedAttribute(this, getStrength(), &getSpellStrengthHelper, NON_NULLABLE_ATTRIBUTE_MIN);
 }

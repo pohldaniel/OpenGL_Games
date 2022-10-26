@@ -112,6 +112,80 @@ public:
 	void makeReadyToCast(int x, int y);
 	CSpellActionBase* getCurrentAction();
 	int buttonId;
+
+	static inline std::string ConvertTime(uint32_t ticks, uint16_t duration) {
+		// break our ticks down into hours, minutes or seconds and return a pretty string.
+		std::string output_string;
+		std::stringstream ss;
+		std::string returnString;
+
+		uint32_t thisDuration = Globals::clock.getElapsedTimeMilli();
+		uint16_t seconds = 0;
+		uint16_t minutes = 0;
+		uint16_t hours = 0;
+
+
+		seconds = duration - floor((thisDuration - ticks) / 1000);
+		hours = floor((float)seconds / 3600);
+		minutes = ceil((float)seconds / 60) - floor((float)seconds / 3600) * 60;
+
+		if (minutes == 1) { minutes = 0; } // when we're below or at 60 seconds, dont display minutes.
+
+		if (hours > 0) {
+			ss << hours << "h ";
+		}
+
+		if (minutes > 0) {
+			ss << minutes << "m ";
+		}
+
+		if (minutes <= 0 && hours <= 0) {
+			ss << seconds << "s ";
+		}
+
+		output_string = ss.str();
+
+		return output_string;
+	}
+
+	static inline std::string ConvertTime(uint16_t seconds) {
+		// break our seconds down into hours, minutes or seconds and return a pretty string.
+		std::string output_string;
+		//std::string returnString;
+		std::stringstream ss;
+
+		uint16_t minutes = 0;
+		uint16_t hours = 0;
+
+		hours = floor((float)seconds / 3600);
+		minutes = ceil((float)seconds / 60) - floor((float)seconds / 3600) * 60;
+
+		if (minutes == 1) { minutes = 0; } // when we're below or at 60 seconds, dont display minutes.
+
+		if (hours > 0) {
+			if (hours == 1) {
+				ss << hours << " hour ";
+			}else {
+				ss << hours << " hours ";
+			}
+		}
+
+		if (minutes > 0) {
+			ss << minutes << " minutes ";
+		}
+
+		if (minutes <= 0 && hours <= 0) {
+			if (seconds == 1) {
+				ss << seconds << " second";
+			}else {
+				ss << seconds << " seconds";
+			}
+		}
+
+		output_string = ss.str();
+		return output_string;
+	}
+
 private:
 	Interface();
 
@@ -145,40 +219,7 @@ private:
 	std::vector<std::pair<CSpellActionBase*, uint32_t>> cooldownSpells;
 	std::vector<std::pair<CSpellActionBase*, uint32_t>> activeSpells;
 
-	inline std::string convertTime(uint32_t ticks, uint16_t duration) {
-		// break our ticks down into hours, minutes or seconds and return a pretty string.
-		std::string output_string;
-		std::stringstream ss;
-		std::string returnString;
-
-		uint32_t thisDuration = Globals::clock.getElapsedTimeMilli();
-		uint16_t seconds = 0;
-		uint16_t minutes = 0;
-		uint16_t hours = 0;
-
-
-		seconds = duration - floor((thisDuration - ticks) / 1000);
-		hours = floor((float)seconds / 3600);
-		minutes = ceil((float)seconds / 60) - floor((float)seconds / 3600) * 60;
-
-		if (minutes == 1) { minutes = 0; } // when we're below or at 60 seconds, dont display minutes.
-
-		if (hours > 0){
-			ss << hours << "h ";
-		}
-
-		if (minutes > 0){
-			ss << minutes << "m ";
-		}
-
-		if (minutes <= 0 && hours <= 0){
-			ss << seconds << "s ";
-		}
-
-		output_string = ss.str();
-
-		return output_string;
-	}
+	
 
 	CSpellActionBase* getSpellAtMouse(int mouseX, int mouseY);
 	Tooltip* tooltip;

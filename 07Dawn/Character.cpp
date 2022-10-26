@@ -28,6 +28,13 @@ AttributeType getModifiedAttributeValue(AttributeType attributeValue, ModifierTy
 Character::Character() {
 	wander_radius = 40;
 	activeDirection = Enums::Direction::S;	
+
+	resistElementModifierPoints = new uint16_t[static_cast<size_t>(Enums::ElementType::CountET)];
+	spellEffectElementModifierPoints = new uint16_t[static_cast<size_t>(Enums::ElementType::CountET)];
+	for (unsigned int curElement = 0; curElement<static_cast<size_t>(Enums::ElementType::CountET); ++curElement) {
+		resistElementModifierPoints[curElement] = 0;
+		spellEffectElementModifierPoints[curElement] = 0;
+	}
 }
 
 void Character::setNumActivities(unsigned short numActivities) {	
@@ -448,10 +455,6 @@ void Character::setLevel(uint8_t newLevel){
 	level = newLevel;
 }
 
-void Character::setClass(Enums::CharacterClass _characterClass){	
-	characterClass = _characterClass;
-}
-
 void Character::setExperienceValue(uint8_t experienceValue){
 	Character::experienceValue = experienceValue;
 }
@@ -524,6 +527,38 @@ uint16_t Character::getEvadeModifierPoints() const{
 	return evadeModifierPoints;
 }
 
+uint16_t Character::getParryModifierPoints() const {
+	return parryModifierPoints;
+}
+
+uint16_t Character::getBlockModifierPoints() const {
+	return blockModifierPoints;
+}
+
+uint16_t Character::getMeleeCriticalModifierPoints() const {
+	return meleeCriticalModifierPoints;
+}
+
+uint16_t Character::getSpellCriticalModifierPoints() const {
+	return spellCriticalModifierPoints;
+}
+
+uint16_t Character::getSpellEffectElementModifierPoints(Enums::ElementType elementType) const {
+	return spellEffectElementModifierPoints[static_cast<size_t>(elementType)];
+}
+
+uint16_t Character::getSpellEffectAllModifierPoints() const {
+	return spellEffectAllModifierPoints;
+}
+
+uint16_t Character::getResistElementModifierPoints(Enums::ElementType elementType) const {
+	return resistElementModifierPoints[static_cast<size_t>(elementType)];
+}
+
+uint16_t Character::getResistAllModifierPoints() const {
+	return resistAllModifierPoints;
+}
+
 Enums::CharacterClass Character::getClass() const{
 	return characterClass;
 }
@@ -559,6 +594,27 @@ uint16_t Character::getModifiedMaxHealth() const {
 void Character::modifyCurrentHealth(int16_t currentHealthModifier) {
 	setCurrentHealth(getModifiedAttributeValue(getCurrentHealth(), currentHealthModifier, NULLABLE_ATTRIBUTE_MIN, getModifiedMaxHealth()));
 }
+
+uint16_t Character::getModifiedStrength() const {
+	return getStrength();
+}
+
+uint16_t Character::getModifiedDexterity() const {
+	return getDexterity();
+}
+
+uint16_t Character::getModifiedVitality() const {
+	return getVitality();
+}
+
+uint16_t Character::getModifiedIntellect() const{
+	return getIntellect();
+}
+
+uint16_t Character::getModifiedWisdom() const {
+	return getWisdom();
+}
+
 
 
 bool Character::CheckMouseOver(int _x_pos, int _y_pos) {
@@ -613,6 +669,30 @@ std::string Character::getCurrentSpellActionName() const {
 		return curSpellAction->getName();
 	}
 	return "";
+}
+
+void Character::setClass(Enums::CharacterClass characterClass) {
+	this->characterClass = characterClass;
+	switch (characterClass) {
+		/// all caster classes here...
+	case Enums::CharacterClass::Liche:
+		characterArchType = Enums::CharacterArchType::Caster;
+		break;
+
+		/// and all other fighter classes here...
+	case Enums::CharacterClass::Ranger:
+	case Enums::CharacterClass::Warrior:
+		characterArchType = Enums::CharacterArchType::Fighter;
+		break;
+	}
+
+	/// loading our portrait for the class
+	/*if (portrait != NULL){
+		delete portrait;
+	}
+
+	portrait = new CTexture;
+	portrait->LoadIMG(CharacterClass::getCharacterClassPortrait(getClass()), 0);*/
 }
 
 Enums::CharacterArchType Character::getArchType() const {

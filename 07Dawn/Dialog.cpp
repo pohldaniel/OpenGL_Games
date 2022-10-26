@@ -25,36 +25,37 @@ void DialogCanvas::initTextures() {
 	textureAtlas = TextureAtlasCreator::get().getAtlas();
 }
 
-void DialogCanvas::drawCanvas(int left, int bottom, int colummns, int rows, int tileWidth, int tileHeight) {
+void DialogCanvas::drawCanvas(int left, int bottom, int colummns, int rows, int tileWidth, int tileHeight, bool updateView) {
+	float _tileWidth = static_cast<float>(tileWidth);
+	float _tileHeight = static_cast<float>(tileHeight);
 
 	TextureManager::BindTexture(textureAtlas, true);
-
 	// draw the corners
-	TextureManager::DrawTextureBatched(m_textureBases[0], left, bottom, false, false);
-	TextureManager::DrawTextureBatched(m_textureBases[1], left + tileWidth + (colummns * tileWidth), bottom, false, false);
-	TextureManager::DrawTextureBatched(m_textureBases[2], left, bottom + tileHeight + (rows * tileHeight), false, false);
-	TextureManager::DrawTextureBatched(m_textureBases[3], left + tileWidth + (colummns * tileWidth), bottom + tileHeight + (rows * tileHeight), false, false);
+	TextureManager::DrawTextureBatched(m_textureBases[0], left, bottom, _tileWidth, _tileHeight,  false, updateView);
+	TextureManager::DrawTextureBatched(m_textureBases[1], left + tileWidth + (colummns * tileWidth), bottom, _tileWidth, _tileHeight, false, updateView);
+	TextureManager::DrawTextureBatched(m_textureBases[2], left, bottom + tileHeight + (rows * tileHeight), _tileWidth, _tileHeight, false, updateView);
+	TextureManager::DrawTextureBatched(m_textureBases[3], left + tileWidth + (colummns * tileWidth), bottom + tileHeight + (rows * tileHeight), _tileWidth, _tileHeight, false, updateView);
 
 	// draw the top and bottom borders
 	for (unsigned short column = 0; column < colummns; column++) {
-		TextureManager::DrawTextureBatched(m_textureBases[5], left + tileWidth + (column * tileWidth), bottom + tileHeight + (rows * tileHeight), false, false);
-		TextureManager::DrawTextureBatched(m_textureBases[6], left + tileWidth + (column * tileWidth), bottom, false, false);
+		TextureManager::DrawTextureBatched(m_textureBases[5], left + tileWidth + (column * tileWidth), bottom + tileHeight + (rows * tileHeight), _tileWidth, _tileHeight, false, updateView);
+		TextureManager::DrawTextureBatched(m_textureBases[6], left + tileWidth + (column * tileWidth), bottom, _tileWidth, _tileHeight, false, updateView);
 	}
 
 	// draw the right and left borders
 	for (unsigned short row = 0; row < rows; row++) {
-		TextureManager::DrawTextureBatched(m_textureBases[7], left, bottom + tileHeight + (row * tileHeight), false, false);
-		TextureManager::DrawTextureBatched(m_textureBases[8], left + tileWidth + (colummns * tileWidth), bottom + tileHeight + (row * tileHeight), false, false);
+		TextureManager::DrawTextureBatched(m_textureBases[7], left, bottom + tileHeight + (row * tileHeight), _tileWidth, _tileHeight, false, updateView);
+		TextureManager::DrawTextureBatched(m_textureBases[8], left + tileWidth + (colummns * tileWidth), bottom + tileHeight + (row * tileHeight), _tileWidth, _tileHeight, false, updateView);
 	}
 
 	// draw the background
 	for (unsigned short row = 0; row < rows; row++) {
 		for (int column = 0; column < colummns; column++) {
-			TextureManager::DrawTextureBatched(m_textureBases[4], left + tileWidth + (column * tileWidth), bottom + tileHeight + (row * tileHeight), false, false);
+			TextureManager::DrawTextureBatched(m_textureBases[4], left + tileWidth + (column * tileWidth), bottom + tileHeight + (row * tileHeight), _tileWidth, _tileHeight, false, updateView);
 		}
 	}
 
-	TextureManager::DrawBuffer(false);
+	TextureManager::DrawBuffer(updateView);
 	TextureManager::UnbindTexture(true);
 }
 

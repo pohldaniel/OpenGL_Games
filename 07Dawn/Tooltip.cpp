@@ -1,12 +1,13 @@
-#include "Tooltip.h"
-
-#include "Character.h"
-#include "Player.h"
-
 #include <memory>
 
+#include "Tooltip.h"
+#include "TextWindow.h"
+#include "Character.h"
+#include "Player.h"
+#include "Interface.h"
+#include "Statssystem.h"
 
-spellTooltip::spellTooltip(CSpellActionBase *parent_, Player *player_) : parent(parent_) {
+SpellTooltip::SpellTooltip(CSpellActionBase *parent_, Player *player_) : parent(parent_) {
 	player = player_;
 	blockWidth = 32;
 	blockHeight = 32;
@@ -63,11 +64,11 @@ int Tooltip::getTooltipHeight() const {
 	return blockHeight * curBlockNumberHeight + blockHeight;
 }
 
-void spellTooltip::getTicketFromPlayer() {
+void SpellTooltip::getTicketFromPlayer() {
 	ticketFromPlayer = player->getTicketForSpellTooltip();
 }
 
-void spellTooltip::draw(int x, int y) {
+void SpellTooltip::draw(int x, int y) {
 	if (tooltipText.empty()) {
 		return;
 	}
@@ -77,7 +78,7 @@ void spellTooltip::draw(int x, int y) {
 	if (ticketFromPlayer != player->getTicketForSpellTooltip()) {
 		reloadTooltip();
 	}
-
+	
 	// make sure the tooltip doesnt go "off screen"
 	if (x + (curBlockNumberWidth + 2) * blockWidth > ViewPort::get().getWidth()) {
 		x = ViewPort::get().getWidth() - (curBlockNumberWidth + 2) * blockWidth;
@@ -87,22 +88,16 @@ void spellTooltip::draw(int x, int y) {
 		y = ViewPort::get().getHeight() - (curBlockNumberHeight + 2) * blockHeight;
 	}
 
-	// set the correct position based on where we are
-	x += ViewPort::get().getBottomLeft()[0];
-	y += ViewPort::get().getBottomLeft()[1];
-
 	// set the first font Y-position on the top of the first tooltip block excluding topborder
 	// (we could also center the text in the tooltip, but topaligned is probably bestlooking
 	int font_y = y + blockHeight + (curBlockNumberHeight)* blockHeight - toplineHeight;
-
-	//Frames::drawFrame(x, y, curBlockNumberWidth, curBlockNumberHeight, blockWidth, blockHeight);
-
+	
+	DialogCanvas::drawCanvas(x, y, curBlockNumberWidth, curBlockNumberHeight, blockWidth, blockHeight, false);
 	// loop through the text vector and print all the text.
 	for (unsigned int i = 0; i < tooltipText.size(); i++) {
-		//glColor4fv(tooltipText[i].color);
-		//tooltipText[i].font->drawText(x + blockWidth, font_y, tooltipText[i].text);
-		//glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-		//font_y -= tooltipText[i].font->getHeight() + 11;
+
+		Fontrenderer::Get().drawText(*tooltipText[i].charset, x + blockWidth , font_y, tooltipText[i].text, tooltipText[i].color, false);
+		font_y -= tooltipText[i].charset->lineHeight + 11;
 		if (smallTooltip) {
 			break;
 		}
@@ -120,22 +115,21 @@ void Tooltip::addTooltipText(Vector4f color, CharacterSet* charSet, std::string 
 	// if it's just a newline we're adding then just add it without checking for multiline...
 	if (str.empty() == true) {
 		tooltipText.push_back(sTooltipText("", color, charSet));
-	}
-	else if (str.find("price:") != str.npos) {
+
+	}else if (str.find("price:") != str.npos) {
 		// else check to see if the text contains price information. if so we dont wordwrap.
 		tooltipText.push_back(sTooltipText(buf, color, charSet));
-
+		
 	}else {
 		// format the text into several lines so that the tooltip doesnt get too wide,
 		//then push all the text lines to our vector.
-		//GLFT_Font *tempfont = FontCache::getFontFromCache("data/verdana.ttf", fontSize);
 		std::vector<std::string> formattedLines;
-		//formatMultilineText(buf, formattedLines, 300, tempfont);
+		TextWindow::FormatMultilineText(buf, formattedLines, 300, charSet);
 		for (size_t curLine = 0; curLine < formattedLines.size(); curLine++) {
 			tooltipText.push_back(sTooltipText(formattedLines[curLine], color, charSet));
 		}
 	}
-
+	
 	// adjust width and height depending on the content of the tooltip.
 	int width = 0;
 	int height = 0;
@@ -151,9 +145,9 @@ void Tooltip::addTooltipText(Vector4f color, CharacterSet* charSet, std::string 
 		}
 	}
 
-	for (unsigned int i = 0; i < tooltipText.size(); i++)
-	{
+	for (unsigned int i = 0; i < tooltipText.size(); i++) {
 		int neededWidth = tooltipText[i].charset->getWidth(tooltipText[i].text);
+
 		if (width < neededWidth) {
 			width = neededWidth;
 		}
@@ -170,13 +164,16 @@ void Tooltip::addTooltipText(Vector4f color, CharacterSet* charSet, std::string 
 
 	blockNumberHeight = ceil(static_cast<double>(height) / blockHeight);
 	blockNumberWidth = ceil(static_cast<double>(width) / blockWidth);
+
+	
+
 	blockNumberHeightSmall = ceil(static_cast<double>(heightSmall) / blockHeight);
 	blockNumberWidthSmall = ceil(static_cast<double>(widthSmall) / blockWidth);
 
 	updateBlockNumbers();
 }
 
-void spellTooltip::getParentText() {
+void SpellTooltip::getParentText() {
 	// remember what level we generated this tooltip
 	ticketFromPlayer = player->getTicketForSpellTooltip();
 
@@ -216,16 +213,16 @@ void spellTooltip::getParentText() {
 			reqWeaponString.replace(reqWeaponString.find_last_of(","), 1, " or");
 		}
 		addTooltipText(blue, 12, reqWeaponString);
-	}
+	}*/
 
 	// display duration if we have any
 	if (parent->getDuration() > 0) {
-		addTooltipText(white, 12, "Duration: %s", TimeConverter::convertTime(parent->getDuration()).c_str());
+		addTooltipText(white, &Globals::fontManager.get("verdana_12"), "Duration: %s", Interface::ConvertTime(parent->getDuration()).c_str());
 	}
 
 	if (parent->getCooldown() > 0) {
-		addTooltipText(white, 12, "Cooldown: %s", TimeConverter::convertTime(parent->getCooldown()).c_str());
-	}*/
+		addTooltipText(white, &Globals::fontManager.get("verdana_12"), "Cooldown: %s", Interface::ConvertTime(parent->getCooldown()).c_str());
+	}
 
 	// display cast time
 	if (parent->getCastTime() == 0){
@@ -240,32 +237,31 @@ void spellTooltip::getParentText() {
 }
 
 std::string Tooltip::getDynamicValues(CSpellActionBase *spell, size_t val) const {
-	//const StatsSystem *statsSystem = StatsSystem::getStatsSystem();
 	std::stringstream ss;
 	ss.str() = "";
 
-	/*switch (val) {
+	switch (val) {
 	case 0: // minWeaponDamage
 		if (dynamic_cast<MeleeDamageAction*>(spell) != NULL) {
 			MeleeDamageAction *curSpell = dynamic_cast<MeleeDamageAction*>(spell);
-			ss << static_cast<int16_t>(player->getModifiedMinDamage() * statsSystem->complexGetDamageModifier(player->getLevel(), player->getModifiedDamageModifierPoints(), player->getLevel()) * curSpell->getDamageBonus());
+			ss << static_cast<int16_t>(player->getModifiedMinDamage() * StatsSystem::getStatsSystem()->complexGetDamageModifier(player->getLevel(), player->getModifiedDamageModifierPoints(), player->getLevel()) * curSpell->getDamageBonus());
 			return ss.str();
 		}
 		else if (dynamic_cast<RangedDamageAction*>(spell) != NULL) {
 			RangedDamageAction *curSpell = dynamic_cast<RangedDamageAction*>(spell);
-			ss << static_cast<int16_t>(player->getModifiedMinDamage() * statsSystem->complexGetDamageModifier(player->getLevel(), player->getModifiedDamageModifierPoints(), player->getLevel()) * curSpell->getDamageBonus());
+			ss << static_cast<int16_t>(player->getModifiedMinDamage() * StatsSystem::getStatsSystem()->complexGetDamageModifier(player->getLevel(), player->getModifiedDamageModifierPoints(), player->getLevel()) * curSpell->getDamageBonus());
 			return ss.str();
 		}
 		break;
 	case 1: // maxWeaponDamage
 		if (dynamic_cast<MeleeDamageAction*>(spell) != NULL) {
 			MeleeDamageAction *curSpell = dynamic_cast<MeleeDamageAction*>(spell);
-			ss << static_cast<int16_t>(player->getModifiedMaxDamage() * statsSystem->complexGetDamageModifier(player->getLevel(), player->getModifiedDamageModifierPoints(), player->getLevel()) * curSpell->getDamageBonus());
+			ss << static_cast<int16_t>(player->getModifiedMaxDamage() * StatsSystem::getStatsSystem()->complexGetDamageModifier(player->getLevel(), player->getModifiedDamageModifierPoints(), player->getLevel()) * curSpell->getDamageBonus());
 			return ss.str();
 		}
 		else if (dynamic_cast<RangedDamageAction*>(spell) != NULL) {
 			RangedDamageAction *curSpell = dynamic_cast<RangedDamageAction*>(spell);
-			ss << static_cast<int16_t>(player->getModifiedMaxDamage() * statsSystem->complexGetDamageModifier(player->getLevel(), player->getModifiedDamageModifierPoints(), player->getLevel()) * curSpell->getDamageBonus());
+			ss << static_cast<int16_t>(player->getModifiedMaxDamage() * StatsSystem::getStatsSystem()->complexGetDamageModifier(player->getLevel(), player->getModifiedDamageModifierPoints(), player->getLevel()) * curSpell->getDamageBonus());
 			return ss.str();
 		}
 		break;
@@ -325,7 +321,7 @@ std::string Tooltip::getDynamicValues(CSpellActionBase *spell, size_t val) const
 			return ss.str();
 		}
 		break;
-	}*/
+	}
 	return "";
 }
 
@@ -352,7 +348,7 @@ std::string Tooltip::parseInfoText(CSpellActionBase *spell, const std::string in
 	return toReturn;
 }
 
-CSpellActionBase *spellTooltip::getParent() const {
+CSpellActionBase* SpellTooltip::getParent() const {
 	return parent;
 }
 

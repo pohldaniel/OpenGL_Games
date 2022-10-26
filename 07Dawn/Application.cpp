@@ -197,8 +197,8 @@ LRESULT Application::DisplayWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 			break;
 		}case WM_GETMINMAXINFO:{			
 			LPMINMAXINFO lpMMI = (LPMINMAXINFO)lParam;
-			lpMMI->ptMinTrackSize.x = 1024;
-			lpMMI->ptMinTrackSize.y = 786;
+			lpMMI->ptMinTrackSize.x = 1024 + 16;
+			lpMMI->ptMinTrackSize.y = 768 + 39;
 			break;
 		}default: {
 			Mouse::instance().handleMsg(hWnd, message, wParam, lParam);
@@ -368,6 +368,7 @@ void Application::loadAssets() {
 
 	Globals::fontManager.loadCharacterSet("verdana_20", "res/verdana.ttf", 20, 3, 20);
 	Globals::fontManager.loadCharacterSet("verdana_14", "res/verdana.ttf", 14, 3, 20);
+	Globals::fontManager.loadCharacterSet("verdana_13", "res/verdana.ttf", 13, 3, 20);
 	Globals::fontManager.loadCharacterSet("verdana_12", "res/verdana.ttf", 12, 3, 20);
 	Globals::fontManager.loadCharacterSet("verdana_11", "res/verdana.ttf", 11, 3, 20);
 	Globals::fontManager.loadCharacterSet("verdana_10", "res/verdana.ttf", 10, 3, 20);

@@ -31,6 +31,8 @@ public:
 	void clicked(int mouseX, int mouseY, uint8_t mouseState);
 	void draw();
 
+	static void FormatMultilineText(std::string textIn, std::vector< std::string > &textLines, int lineWidth, CharacterSet* font);
+
 private:
 	friend TextWindow* DawnInterface::createTextWindow();
 

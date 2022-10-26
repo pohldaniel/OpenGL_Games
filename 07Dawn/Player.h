@@ -43,4 +43,19 @@ public:
 	
 	unsigned int getTicketForItemTooltip() const;
 	unsigned int getTicketForSpellTooltip() const;
+
+	unsigned short getModifiedMinDamage() const;
+	unsigned short getModifiedMaxDamage() const;
+	unsigned short getModifiedArmor() const;
+	unsigned short getModifiedDamageModifierPoints() const;
+	unsigned short getModifiedHitModifierPoints() const;
+	unsigned short getModifiedEvadeModifierPoints() const;
+	unsigned short getModifiedParryModifierPoints() const;
+	unsigned short getModifiedBlockModifierPoints() const;
+	unsigned short getModifiedMeleeCriticalModifierPoints() const;
+	unsigned short getModifiedSpellEffectElementModifierPoints(Enums::ElementType elementType) const;
+	unsigned short getModifiedResistElementModifierPoints(Enums::ElementType elementType) const;
+
+	unsigned short Player::getModifiedSpellCriticalModifierPoints() const;
+	unsigned short Player::getModifiedStrength() const;
 };

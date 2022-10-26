@@ -23,10 +23,9 @@ void Interface::init() {
 	loadTextures();
 	player = &Player::Get();
 
-	interfaceFont = &Globals::fontManager.get("verdana_12");
-	cooldownFont = &Globals::fontManager.get("verdana_11");
 	shortcutFont = &Globals::fontManager.get("verdana_10");
-
+	cooldownFont = &Globals::fontManager.get("verdana_11");
+	interfaceFont = &Globals::fontManager.get("verdana_12");
 
 	button.push_back(sButton(22, 14, 46, 46, "1", Keyboard::Key::KEY_1));
 	button.push_back(sButton(82, 14, 46, 46, "2", Keyboard::Key::KEY_2));
@@ -169,7 +168,7 @@ void Interface::DrawInterface() {
 			activeSpells[curSpell].first->drawSymbol(ViewPort::get().getWidth() - 204 + 2, ViewPort::get().getHeight() - 50 - 40 * curSpell + 2, 32.0f, 32.0f, Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1u);
 
 			Fontrenderer::Get().addText(*shortcutFont, ViewPort::get().getWidth() - 204 + 40, ViewPort::get().getHeight() - 50 + 18 - 40 * curSpell, activeSpells[curSpell].first->getName(), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), false, 2u);
-			Fontrenderer::Get().addText(*shortcutFont, ViewPort::get().getWidth() - 204 + 40, ViewPort::get().getHeight() - 50 + 8 - 40 * curSpell, convertTime(activeSpells[curSpell].second, activeSpells[curSpell].first->getDuration()), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), false, 2u);
+			Fontrenderer::Get().addText(*shortcutFont, ViewPort::get().getWidth() - 204 + 40, ViewPort::get().getHeight() - 50 + 8 - 40 * curSpell, ConvertTime(activeSpells[curSpell].second, activeSpells[curSpell].first->getDuration()), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), false, 2u);
 		}
 	}
 	Fontrenderer::Get().resetRenderer();
@@ -217,7 +216,7 @@ void Interface::DrawInterface() {
 				if (cooldownSpells[curSpell].first->getName() == button[buttonId].action->getName()) {
 					useableSpell = false;
 					drawCooldownText = true;
-					cooldownText = convertTime(cooldownSpells[curSpell].second, cooldownSpells[curSpell].first->getCooldown());
+					cooldownText = ConvertTime(cooldownSpells[curSpell].second, cooldownSpells[curSpell].first->getCooldown());
 				}
 			}
 			
@@ -242,13 +241,12 @@ void Interface::DrawInterface() {
 	CSpellActionBase *spellUnderMouse = getSpellAtMouse(ViewPort::get().getCursorPosRelX(), ViewPort::get().getCursorPosRelY());
 	if (spellUnderMouse != NULL) {
 		if (tooltip != NULL) {
-			if (dynamic_cast<spellTooltip*>(tooltip)->getParent() != spellUnderMouse) {
+			if (dynamic_cast<SpellTooltip*>(tooltip)->getParent() != spellUnderMouse) {
 				delete tooltip;
-				tooltip = new spellTooltip(spellUnderMouse, player);
+				tooltip = new SpellTooltip(spellUnderMouse, player);
 			}
-		}
-		else {
-			tooltip = new spellTooltip(spellUnderMouse, player);
+		}else {
+			tooltip = new SpellTooltip(spellUnderMouse, player);
 		}
 		tooltip->draw(ViewPort::get().getCursorPosRelX(), ViewPort::get().getCursorPosRelY());
 	}
@@ -342,7 +340,7 @@ void Interface::drawTargetedNPCText() {
 		TextureManager::DrawTextureBatched(m_interfacetexture[0], npc->getXPos(), npc->getYPos() + npc->getHeight() - 12, static_cast<float>(npc->getWidth()), 8.0f, Vector4f(0.5f, 0.5f, 0.0f, 1.0f), true, true);
 		//then the actual castbar
 		TextureManager::DrawTextureBatched(m_interfacetexture[0], npc->getXPos(), npc->getYPos() + npc->getHeight() - 12, npc->getWidth()* npc->getPreparationPercentage(), 8.0f, Vector4f(0.8f, 0.8f, 0.0f, 1.0f), true, true);
-		 Fontrenderer::Get().addText(*interfaceFont, npc->getXPos(), npc->y_pos + npc->getHeight() - 24, npc->getCurrentSpellActionName(), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), true);
+		Fontrenderer::Get().addText(*interfaceFont, npc->getXPos(), npc->y_pos + npc->getHeight() - 24, npc->getCurrentSpellActionName(), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), true);
 	}
 
 	TextureManager::DrawBuffer(true);
@@ -713,7 +711,7 @@ CSpellActionBase* Interface::getSpellAtMouse(int mouseX, int mouseY) {
 	for (size_t curSpell = 0; curSpell < activeSpells.size(); curSpell++){
 		// only draw spells that has a duration.
 		if (activeSpells[curSpell].first->getDuration() > 0) {
-			int spellPosYStart = ViewPort::get().getHeight() - 50 - 40 * curSpell;
+			int spellPosYStart = (ViewPort::get().getHeight() - 50) - 40 * curSpell;
 			int spellPosXStart = ViewPort::get().getWidth() - 204;
 			if (mouseY > spellPosYStart
 				&& mouseY < spellPosYStart + 36

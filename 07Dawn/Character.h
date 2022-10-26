@@ -214,6 +214,20 @@ public:
 	uint16_t getModifiedMaxHealth() const;
 	float getPreparationPercentage() const;
 	std::string getCurrentSpellActionName() const;
+	uint16_t getModifiedStrength() const;
+	uint16_t getModifiedDexterity() const;
+	uint16_t getModifiedVitality() const;
+	uint16_t getModifiedIntellect() const;
+	uint16_t getModifiedWisdom() const;
+	uint16_t getParryModifierPoints() const;
+	uint16_t getBlockModifierPoints() const;
+	uint16_t getMeleeCriticalModifierPoints() const;
+	uint16_t getSpellCriticalModifierPoints() const;
+	uint16_t getSpellEffectElementModifierPoints(Enums::ElementType elementType) const;
+	uint16_t getSpellEffectAllModifierPoints() const;
+	uint16_t getResistElementModifierPoints(Enums::ElementType elementType) const;
+	uint16_t getResistAllModifierPoints() const;
+
 	void clearActiveSpells();
 	void cleanupActiveSpells();
 	void removeSpellsWithCharacterState(Enums::CharacterStates characterState);
@@ -308,11 +322,19 @@ public:
 	uint16_t damageModifierPoints;
 	uint16_t hitModifierPoints;
 	uint16_t evadeModifierPoints;
+	uint16_t parryModifierPoints;
+	uint16_t blockModifierPoints;
+	uint16_t meleeCriticalModifierPoints;
+	uint16_t spellCriticalModifierPoints;
+	uint16_t spellEffectAllModifierPoints;
+	uint16_t resistAllModifierPoints;
+
 	Enums::CharacterClass characterClass;
 	Enums::CharacterArchType characterArchType;
 	float preparationPercentage;
 	uint64_t experience;
-
+	uint16_t *spellEffectElementModifierPoints;
+	uint16_t *resistElementModifierPoints;
 	CSpellActionBase* curSpellAction = nullptr;
 	std::vector<CSpellActionBase*> spellbook;
 	uint32_t preparationStartTime, preparationCurrentTime;
