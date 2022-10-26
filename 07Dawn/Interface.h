@@ -14,7 +14,7 @@ class Character;
 
 struct sButton {
 	CSpellActionBase* action;
-	//spellTooltip* tooltip;
+	SpellTooltip* tooltip;
 	std::string number;
 	int posX;
 	int posY;
@@ -34,7 +34,7 @@ struct sButton {
 		width = width_;
 		number = number_;
 		key = key_;
-		//tooltip = NULL;
+		tooltip = NULL;
 		action = NULL;
 		actionSpecificXPos = 0;
 		actionSpecificYPos = 0;
@@ -46,8 +46,8 @@ struct sButton {
 
 struct sSpellSlot{
 	CSpellActionBase* action;
-	//GLFT_Font* font;
-	//Tooltip* tooltip;
+	//CharacterSet* font;
+	Tooltip* tooltip;
 	int posX;
 	int posY;
 	int width;
@@ -62,8 +62,30 @@ struct sSpellSlot{
 		height = height_;
 		action = NULL;
 		//font = NULL;
-		//tooltip = NULL;
+		tooltip = NULL;
 		//initFont();
+	}
+};
+
+struct sDamageDisplay {
+	int digitToDisplay;
+	bool critical;
+	uint8_t damageType;
+	int x_pos;
+	int y_pos;
+	float transparency;
+	uint32_t thisFrame;
+	uint32_t lastFrame;
+	bool update;
+
+	sDamageDisplay(int digitToDisplay_, bool critical_, uint8_t damageType_, int x_pos_, int y_pos_, bool update_) {
+		digitToDisplay = digitToDisplay_;
+		critical = critical_;
+		damageType = damageType_;
+		x_pos = x_pos_;
+		y_pos = y_pos_;
+		transparency = 1.0f;
+		update = update_;
 	}
 };
 
@@ -83,11 +105,9 @@ public:
 	void drawTargetedNPCText();
 	void executeSpellQueue();
 
-	/*void drawCombatText();
-	void drawCharacterStates();*/
-	//void SetPlayer(CCharacter* player_);
-
-	//void addCombatText(int amount, bool critical, unsigned short damageType, int x_pos, int y_pos, bool update);
+	void drawCombatText();
+	void drawCharacterStates();
+	void addCombatText(int amount, bool critical, unsigned char damageType, int x_pos, int y_pos, bool update);
 
 	static Interface& Get();
 
@@ -112,7 +132,7 @@ public:
 	void makeReadyToCast(int x, int y);
 	CSpellActionBase* getCurrentAction();
 	int buttonId;
-
+	
 	static inline std::string ConvertTime(uint32_t ticks, uint16_t duration) {
 		// break our ticks down into hours, minutes or seconds and return a pretty string.
 		std::string output_string;
@@ -192,7 +212,6 @@ private:
 	std::vector<TextureRect> m_interfacetexture;
 	unsigned int m_textureAtlas;
 
-	void drawCharacterStates();
 	bool isButtonUsed(sButton *button) const;
 	bool isSpellUseable(CSpellActionBase* action);
 	bool execute;
@@ -202,10 +221,10 @@ private:
 	CharacterSet* interfaceFont;
 
 	sButton* spellQueue;
-	//CTexture damageDisplayTexturesBig;
-	//CTexture damageDisplayTexturesSmall;
+	TextureRect damageDisplayTexturesBig;
+	TextureRect damageDisplayTexturesSmall;
 
-	//std::vector<sDamageDisplay> damageDisplay;
+	std::vector<sDamageDisplay> damageDisplay;
 
 	//GLFT_Font* NPCTextFont;
 	//GLFT_Font* levelFont;

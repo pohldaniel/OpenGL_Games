@@ -4,6 +4,10 @@
 #include "Player.h"
 
 
+/*void sSpellSlot::initFont() {
+	font = &Globals::fontManager.get("verdana_11");
+}*/
+
 Interface Interface::s_instance;
 
 Interface::Interface() : floatingSpellSlot(sSpellSlot(0, 0, 0, 0)) {
@@ -117,10 +121,13 @@ void Interface::DrawInterface() {
 	// health bar
 	TextureManager::DrawTextureBatched(m_interfacetexture[12], 76, ViewPort::get().getHeight() - 35, lifeBarPercentage * 123.0f, static_cast<float>(m_interfacetexture[12].height), Vector4f(0.815f, 0.16f, 0.16f, 1.0f), false, false);
 	// mana bar
-	if(true) {
+	if(player->getArchType() == Enums::CharacterArchType::Caster) {
 		TextureManager::DrawTextureBatched(m_interfacetexture[12], 76, ViewPort::get().getHeight() - 53, manaBarPercentage * 123.0f, static_cast<float>(m_interfacetexture[12].height), Vector4f(0.16f, 0.576f, 0.815f, 1.0f), false, false);
+	
+	}
+	
 	// fatigue bar
-	}else {
+	if (player->getArchType() == Enums::CharacterArchType::Fighter){
 		Vector4f color;
 		if (fatigueBarPercentage <= 0.33) {
 			color = Vector4f(0.109f, 0.917f, 0.047f, 1.0f);
@@ -135,6 +142,7 @@ void Interface::DrawInterface() {
 		TextureManager::DrawTextureBatched(m_interfacetexture[12], 76, ViewPort::get().getHeight() - 53, fatigueBarPercentage * 123.0f, static_cast<float>(m_interfacetexture[12].height), color, false, false);
 	}
 
+	// fatigue bar
 	TextureManager::DrawTextureBatched(m_interfacetexture[13], 76, ViewPort::get().getHeight() - 67, experienceBarPercentage * 123.0f, static_cast<float>(m_interfacetexture[13].height), false, false);
 
 	if (player->getIsPreparing()){
@@ -146,6 +154,9 @@ void Interface::DrawInterface() {
 	//log window
 	TextureManager::DrawTextureBatched(m_interfacetexture[18], 0, 0, 390.0f, 150.0f, false, false);
 	TextureManager::DrawBuffer(false);
+	
+	/// draw our level beside the experience bar
+	Fontrenderer::Get().drawText(*interfaceFont, 60 - interfaceFont->getWidth(Fontrenderer::Get().FloatToString(static_cast<float>(player->getLevel()), 0)) / 2, ViewPort::get().getHeight() -70, Fontrenderer::Get().FloatToString(static_cast<float>(player->getLevel()), 0), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), false);
 
 	//buff effect (it seems meaningless to render this symbol as an additinal frame)
 	TextureManager::BindTexture(m_textureAtlas, true, 0);
@@ -191,7 +202,7 @@ void Interface::DrawInterface() {
 	if (isPreparingAoESpell() == true) {
 		TextureManager::DrawTextureBatched(m_interfacetexture[20], ViewPort::get().getCursorPosRelX() - cursorRadius, ViewPort::get().getCursorPosRelY() - cursorRadius, cursorRadius * 2, cursorRadius * 2, false, false);
 	}
-
+	drawCombatText();
 	drawCharacterStates();
 	TextureManager::DrawBuffer(false);
 
@@ -312,6 +323,78 @@ void Interface::drawCharacterStates() {
 	}
 }
 
+void Interface::addCombatText(int amount, bool critical, unsigned char damageType, int x_pos, int y_pos, bool update) {
+	std::stringstream converterStream, damageStream;
+	converterStream << amount;
+	std::string tempString = converterStream.str();
+	int damageNumber;
+	int rand_x = 0;
+
+	rand_x = RNG::randomInt(-32, 32);
+
+	int characterSpace = 16;
+
+	if (critical == true){
+		characterSpace = 24; // more space between digits if critical (need more space since bigger font)
+	}
+
+	// adding every digit in the amount of damage / heal to our struct.
+	// adding a random value (rand_x) to x_pos, to spread the damage out a bit so it wont look too clogged.
+	for (size_t streamCounter = 0; streamCounter < tempString.length(); streamCounter++){
+		damageStream.clear();
+		damageStream << tempString.at(streamCounter);
+		damageStream >> damageNumber;
+		damageDisplay.push_back(sDamageDisplay(damageNumber, critical, damageType, x_pos + (streamCounter*characterSpace) + rand_x, y_pos, update));
+	}
+}
+
+void Interface::drawCombatText() {
+	int k = 0;
+	// different color for heal and damage. damage = red, heal = green
+	GLfloat damageType[2][3] = { { 1.0f, 0.0f, 0.0f },{ 0.0f, 1.0f, 0.0f } };
+
+	TextureRect *fontTextures;
+	float reduce_amount;
+
+	for (size_t currentDamageDisplay = 0; currentDamageDisplay < damageDisplay.size(); currentDamageDisplay++) {
+
+		// cleaning up text that is already faded out.
+		if (damageDisplay[currentDamageDisplay].transparency < 0.0f) {
+			damageDisplay.erase(damageDisplay.begin() + currentDamageDisplay);
+			if (currentDamageDisplay >= damageDisplay.size()) {
+				break;
+			}
+		}
+
+		if (damageDisplay[currentDamageDisplay].critical == true) {
+			fontTextures = &damageDisplayTexturesBig;
+			reduce_amount = 0.04;
+		}else {
+			fontTextures = &damageDisplayTexturesSmall;
+			reduce_amount = 0.06;
+		}
+
+		// fading and moving text upwards every 50ms
+		damageDisplay[currentDamageDisplay].thisFrame = Globals::clock.getElapsedTimeMilli();
+		if ((damageDisplay[currentDamageDisplay].thisFrame - damageDisplay[currentDamageDisplay].lastFrame) > 50) {
+			damageDisplay[currentDamageDisplay].transparency -= reduce_amount;
+			damageDisplay[currentDamageDisplay].y_pos++;
+			damageDisplay[currentDamageDisplay].lastFrame = damageDisplay[currentDamageDisplay].thisFrame;
+		}
+
+		if (damageDisplay[currentDamageDisplay].update) {
+			k = 1;
+		}
+
+		damageDisplay[currentDamageDisplay].x_pos += (player->getDeltaX()*k);
+		damageDisplay[currentDamageDisplay].y_pos += (player->getDeltaY()*k);
+
+		//sets the color of the text we're drawing based on what type of damage type we're displaying.
+		Vector4f color = Vector4f(damageType[damageDisplay[currentDamageDisplay].damageType][0], damageType[damageDisplay[currentDamageDisplay].damageType][1], damageType[damageDisplay[currentDamageDisplay].damageType][2], damageDisplay[currentDamageDisplay].transparency);
+		TextureManager::DrawTextureBatched(*fontTextures, damageDisplay[currentDamageDisplay].x_pos, damageDisplay[currentDamageDisplay].y_pos, color, false, false);
+	}
+}
+
 void Interface::drawTargetedNPCText() {
 	if (player->getTarget() == nullptr) return;
 
@@ -363,37 +446,20 @@ void Interface::drawTargetedNPCText() {
 	Fontrenderer::Get().drawBuffer(true);
 	
 	// load the active spells from the NPC
-	/*std::vector<std::pair<CSpellActionBase*, uint32_t> > activeSpells = npc->getActiveSpells();
+	std::vector<std::pair<CSpellActionBase*, uint32_t> > activeSpells = npc->getActiveSpells();
 
-	for (size_t curSpell = 0; curSpell < activeSpells.size(); curSpell++)
-	{
+	for (size_t curSpell = 0; curSpell < activeSpells.size(); curSpell++) {
 		// only draw spells that has a duration.
-		if (activeSpells[curSpell].first->getDuration() > 0)
-		{
+		if (activeSpells[curSpell].first->getDuration() > 0) {
 			// here we draw the border and background for the spells we have affecting us.
 			// healing and buffs will be drawn with a green border and debuffs or hostile spells with a red border..
 
-			if (activeSpells[curSpell].first->isSpellHostile() == true)
-			{
-				glColor4f(0.7f, 0.0f, 0.0f, 1.0f);
-			}
-			else
-			{
-				glColor4f(0.0f, 0.7f, 0.0f, 1.0f);
-			}
-			DrawingHelpers::mapTextureToRect(interfacetextures.getTexture(5),
-				npc->getXPos() + (19 * curSpell) + 2, 18,
-				npc->getYPos() + npc->getHeight() + 30, 18);
-
-			// background
-			DrawingHelpers::mapTextureToRect(interfacetextures.getTexture(6),
-				npc->getXPos() + (19 * curSpell) + 2, 18,
-				npc->getYPos() + npc->getHeight() + 30, 18);
-
-			glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-			activeSpells[curSpell].first->drawSymbol(npc->getXPos() + (19 * curSpell) + 3, 16, npc->getYPos() + npc->getHeight() + 31, 16);
+			Vector4f color = activeSpells[curSpell].first->isSpellHostile() == true ? Vector4f(0.7f, 0.0f, 0.0f, 1.0f) : Vector4f(0.0f, 0.7f, 0.0f, 1.0f);
+			TextureManager::DrawTextureBatched(m_interfacetexture[5], npc->getXPos() + (19 * curSpell) + 2, npc->getYPos() + npc->getHeight() + 30, 18.0f, 18.0f, color, true, true);
+			TextureManager::DrawTextureBatched(m_interfacetexture[6], npc->getXPos() + (19 * curSpell) + 2, npc->getYPos() + npc->getHeight() + 30, 18.0f, 18.0f, color, true, true);
+			activeSpells[curSpell].first->drawSymbol(npc->getXPos() + (19 * curSpell) + 3, npc->getYPos() + npc->getHeight() + 31, 16.0f, 16.0f, Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
 		}
-	}*/
+	}
 }
 
 bool Interface::isSpellUseable(CSpellActionBase* action) {
@@ -447,17 +513,17 @@ void Interface::bindActionToButtonNr(int buttonNr, CSpellActionBase *action) {
 
 void Interface::bindAction(sButton *button, CSpellActionBase* action) {
 	button->action = action;
-	//button->tooltip = new spellTooltip(button->action, player);
+	button->tooltip = new SpellTooltip(button->action, player);
 
 	/** this could be added to game settings, making the player choose to
 	display a full tooltip when hoovering spells in the actionbar.**/
-	//button->tooltip->enableSmallTooltip();
+	button->tooltip->enableSmallTooltip();
 }
 
 void Interface::unbindAction(sButton *button) {
 	button->action = NULL;
-	//delete button->tooltip;
-	//button->tooltip = NULL;
+	delete button->tooltip;
+	button->tooltip = NULL;
 }
 
 sSpellSlot* Interface::getFloatingSpell() const {

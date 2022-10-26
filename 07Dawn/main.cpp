@@ -30,7 +30,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	MoveWindow(GetConsoleWindow(), 1300, 0, 550, 300, true);
 	std::cout << "w, a, s, d : scroll map" << std::endl;
-	std::cout << "Left Click : start spell animation" << std::endl;
 	#endif
 	
 	float deltaTime = 0.0f;

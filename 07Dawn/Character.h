@@ -227,6 +227,8 @@ public:
 	uint16_t getSpellEffectAllModifierPoints() const;
 	uint16_t getResistElementModifierPoints(Enums::ElementType elementType) const;
 	uint16_t getResistAllModifierPoints() const;
+	int getDeltaX();
+	int getDeltaY();
 
 	void clearActiveSpells();
 	void cleanupActiveSpells();
@@ -328,7 +330,7 @@ public:
 	uint16_t spellCriticalModifierPoints;
 	uint16_t spellEffectAllModifierPoints;
 	uint16_t resistAllModifierPoints;
-
+	int dx, dy;
 	Enums::CharacterClass characterClass;
 	Enums::CharacterArchType characterArchType;
 	float preparationPercentage;

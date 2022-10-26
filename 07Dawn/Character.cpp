@@ -615,7 +615,13 @@ uint16_t Character::getModifiedWisdom() const {
 	return getWisdom();
 }
 
+int Character::getDeltaX() {
+	return dx;
+}
 
+int Character::getDeltaY() {
+	return dy;
+}
 
 bool Character::CheckMouseOver(int _x_pos, int _y_pos) {
 	int myWidth = getWidth();
