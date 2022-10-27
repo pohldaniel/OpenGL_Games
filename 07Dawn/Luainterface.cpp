@@ -12,6 +12,7 @@
 #include "Actions.h"
 #include "Spells.h"
 #include "Player.h"
+#include "Interface.h"
 
 namespace EditorInterface{
 	
@@ -229,5 +230,22 @@ namespace DawnInterface{
 	void inscribeSpellInPlayerSpellbook(CSpellActionBase* inscribedSpell) {
 		Player::Get().inscribeSpellInSpellbook(inscribedSpell);
 		//spellbook->reloadSpellsFromPlayer();
+	}
+
+	void addTextToLogWindow(float color[], const char *text, ...){
+		char buffer[1024];
+		std::va_list args;
+
+		// writing our text and arguments to the buffer
+		va_start(args, text);
+		vsnprintf(buffer, 1024, text, args);
+		va_end(args);
+
+		// push everything to our vector.
+		Interface::Get().addTextToLog(std::string(buffer), color);
+	}
+
+	void clearLogWindow() {
+		Interface::Get().clearLogWindow();
 	}
 }

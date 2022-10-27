@@ -41,6 +41,7 @@ void Player::init(int x, int y) {
 	coins = 0;
 	//dyingTransparency = 1.0f;
 	movementSpeed = 1;
+	setName("Enylyn");
 }
 
 

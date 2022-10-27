@@ -32,6 +32,9 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), player(P
 	}
 
 	spell = Player::Get().getSpellbook()[1];
+
+	GLfloat color[] = { 1.0f, 1.0f, 0.0f };
+	DawnInterface::addTextToLogWindow(color, "Welcome to the world of Dawn, %s.", player.getName().c_str());
 }
 
 Game::~Game() {}

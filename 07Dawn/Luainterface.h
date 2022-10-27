@@ -1,5 +1,5 @@
 #pragma once
-
+#include <cstdarg>
 #include "Luafunctions.h"
 
 namespace Enums {
@@ -69,4 +69,6 @@ namespace DawnInterface{
 	MeleeDamageAction* copySpell(MeleeDamageAction *other);
 	RangedDamageAction* copySpell(RangedDamageAction *other);
 	void inscribeSpellInPlayerSpellbook(CSpellActionBase *inscribedSpell);
+	void addTextToLogWindow(float color[], const char *text, ...);
+	void clearLogWindow();
 }

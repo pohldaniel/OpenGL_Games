@@ -2,11 +2,7 @@
 #include "Npc.h"
 #include "Zone.h"
 #include "Player.h"
-
-
-/*void sSpellSlot::initFont() {
-font = &Globals::fontManager.get("verdana_11");
-}*/
+#include "TextWindow.h"
 
 Interface Interface::s_instance;
 
@@ -147,9 +143,9 @@ void Interface::DrawInterface() {
 	TextureManager::DrawTexture(m_interfacetexture[14], 4, ViewPort::get().getHeight() - 68, false, false);
 	TextureManager::DrawTextureBatched(m_interfacetexture[11], 0, 50 + ViewPort::get().getHeight() - m_interfacetexture[11].height, false, false);
 
-	float lifeBarPercentage = 0.5f;
-	float manaBarPercentage = 0.5f;
-	float fatigueBarPercentage = 0.1f;
+	float lifeBarPercentage = static_cast<float>(player->getCurrentHealth()) / player->getModifiedMaxHealth();
+	float manaBarPercentage = static_cast<float>(player->getCurrentMana()) / player->getModifiedMaxMana();
+	float fatigueBarPercentage = static_cast<float>(1 - (static_cast<float>(player->getCurrentFatigue()) / player->getModifiedMaxFatigue()));
 	unsigned int neededXP = (player->getExpNeededForLevel(player->getLevel() + 1)) - player->getExpNeededForLevel(player->getLevel());
 	unsigned int currentXP = player->getExperience() - player->getExpNeededForLevel(player->getLevel());
 	float experienceBarPercentage = static_cast<float>(currentXP) / neededXP;
@@ -188,6 +184,9 @@ void Interface::DrawInterface() {
 
 	//log window
 	TextureManager::DrawTextureBatched(m_interfacetexture[18], 0, 0, 390.0f, 150.0f, false, false);
+	for (size_t lineRow = 0; lineRow < textDatabase.size() && lineRow < 10; lineRow++) {
+		Fontrenderer::Get().addText(*interfaceFont, 10, 10 + (lineRow * interfaceFont->lineHeight), textDatabase[lineRow].text, textDatabase[lineRow].color, false, 10u);
+	}
 
 	/// draw our level beside the experience bar
 	Fontrenderer::Get().addText(*interfaceFont, 60 - interfaceFont->getWidth(Fontrenderer::Get().FloatToString(static_cast<float>(player->getLevel()), 0)) / 2, ViewPort::get().getHeight() - 70, Fontrenderer::Get().FloatToString(static_cast<float>(player->getLevel()), 0), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), false, 10u);
@@ -448,15 +447,15 @@ void Interface::drawTargetedNPCText() {
 
 	Vector4f color;
 	switch (npc->getAttitude()) {
-	case Enums::Attitude::FRIENDLY:
-		color = Vector4f(0.0f, 1.0f, 0.0f, 1.0f);
-		break;
-	case Enums::Attitude::NEUTRAL:
-		color = Vector4f(1.0f, 1.0f, 0.0f, 1.0f);
-		break;
-	case Enums::Attitude::HOSTILE:
-		color = Vector4f(1.0f, 0.0f, 0.0f, 1.0f);
-		break;
+		case Enums::Attitude::FRIENDLY:
+			color = Vector4f(0.0f, 1.0f, 0.0f, 1.0f);
+			break;
+		case Enums::Attitude::NEUTRAL:
+			color = Vector4f(1.0f, 1.0f, 0.0f, 1.0f);
+			break;
+		case Enums::Attitude::HOSTILE:
+			color = Vector4f(1.0f, 0.0f, 0.0f, 1.0f);
+			break;
 	}
 
 	Fontrenderer::Get().addText(*interfaceFont, fontStart, npc->y_pos + npc->getHeight() + 12, npc->getName(), color, true, 10u);
@@ -824,4 +823,16 @@ CSpellActionBase* Interface::getSpellAtMouse(int mouseX, int mouseY) {
 		}
 	}
 	return NULL;
+}
+
+void Interface::addTextToLog(std::string text, GLfloat color[]) {
+	std::vector<std::string> formattedLines;
+	TextWindow::FormatMultilineText(text, formattedLines, 370, &Globals::fontManager.get("verdana_12"));
+	for (size_t curLine = 0; curLine < formattedLines.size(); curLine++) {
+		textDatabase.insert(textDatabase.begin(), sTextLine(formattedLines[curLine], color));
+	}
+}
+
+void Interface::clearLogWindow() {
+	textDatabase.clear();
 }

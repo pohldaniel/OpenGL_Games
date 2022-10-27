@@ -46,14 +46,11 @@ struct sButton {
 
 struct sSpellSlot{
 	CSpellActionBase* action;
-	//CharacterSet* font;
 	Tooltip* tooltip;
 	int posX;
 	int posY;
 	int width;
 	int height;
-
-	//void initFont();
 
 	sSpellSlot(int posX_, int posY_, int width_, int height_){
 		posX = posX_;
@@ -61,9 +58,7 @@ struct sSpellSlot{
 		width = width_;
 		height = height_;
 		action = NULL;
-		//font = NULL;
 		tooltip = NULL;
-		//initFont();
 	}
 };
 
@@ -88,6 +83,20 @@ struct sDamageDisplay {
 		update = update_;
 	}
 };
+
+struct sTextLine {
+	std::string text;
+	Vector4f color;
+
+	sTextLine(std::string text_, GLfloat color_[]){
+		text = text_;
+		color[0] = color_[0];
+		color[1] = color_[1];
+		color[2] = color_[2];
+		color[3] = 1.0f;
+	}
+};
+
 
 
 class Interface {
@@ -133,7 +142,9 @@ public:
 	void makeReadyToCast(int x, int y);
 	CSpellActionBase* getCurrentAction();
 	int buttonId;
-	
+	void addTextToLog(std::string text, GLfloat color[]);
+	void clearLogWindow();
+
 	static inline std::string ConvertTime(uint32_t ticks, uint16_t duration) {
 		// break our ticks down into hours, minutes or seconds and return a pretty string.
 		std::string output_string;
@@ -243,4 +254,5 @@ private:
 
 	CSpellActionBase* getSpellAtMouse(int mouseX, int mouseY);
 	Tooltip* tooltip;
+	std::vector <sTextLine> textDatabase;
 };
