@@ -108,6 +108,7 @@ public:
 	void drawCombatText();
 	void drawCharacterStates();
 	void addCombatText(int amount, bool critical, unsigned char damageType, int x_pos, int y_pos, bool update);
+	void drawSpellTooltip(int x, int y);
 
 	static Interface& Get();
 
@@ -210,6 +211,9 @@ private:
 	Interface();
 
 	std::vector<TextureRect> m_interfacetexture;
+
+	std::vector<TextureRect> m_damageDisplayTexturesSmall;
+	std::vector<TextureRect> m_damageDisplayTexturesBig;
 	unsigned int m_textureAtlas;
 
 	bool isButtonUsed(sButton *button) const;
@@ -221,8 +225,7 @@ private:
 	CharacterSet* interfaceFont;
 
 	sButton* spellQueue;
-	TextureRect damageDisplayTexturesBig;
-	TextureRect damageDisplayTexturesSmall;
+	
 
 	std::vector<sDamageDisplay> damageDisplay;
 
@@ -237,8 +240,6 @@ private:
 	bool isMouseOver(int x, int y);
 	std::vector<std::pair<CSpellActionBase*, uint32_t>> cooldownSpells;
 	std::vector<std::pair<CSpellActionBase*, uint32_t>> activeSpells;
-
-	
 
 	CSpellActionBase* getSpellAtMouse(int mouseX, int mouseY);
 	Tooltip* tooltip;

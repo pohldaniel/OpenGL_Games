@@ -10,6 +10,7 @@
 #include "Random.h"
 #include "SpellActionBase.h"
 
+
 class TileSet;
 
 struct pair_hash {
@@ -149,7 +150,7 @@ public:
 	bool getIsPreparing() const;
 	bool mayDoAnythingAffectingSpellActionWithoutAborting() const;
 	bool mayDoAnythingAffectingSpellActionWithAborting() const;
-	bool isPlayer() const;
+	virtual bool isPlayer() const;
 	bool isChanneling() const;
 	bool isSneaking() const;
 
@@ -229,6 +230,9 @@ public:
 	uint16_t getResistAllModifierPoints() const;
 	int getDeltaX();
 	int getDeltaY();
+	void setExperience(uint64_t experience);
+	uint64_t getExperience() const;
+	void addDamageDisplayToGUI(int amount, bool critical, uint8_t damageType);
 
 	void clearActiveSpells();
 	void cleanupActiveSpells();
@@ -378,4 +382,8 @@ public:
 	void startSpellAction();
 	void regenerateLifeManaFatigue(uint32_t regenPoints);
 	std::vector<std::pair<CSpellActionBase*, uint32_t> > getActiveSpells() const;
+
+	uint16_t getModifiedSpellEffectElementModifierPoints(Enums::ElementType elementType) const;
+	uint16_t getModifiedResistElementModifierPoints(Enums::ElementType elementType) const;
+	uint16_t getModifiedSpellCriticalModifierPoints() const;
 };

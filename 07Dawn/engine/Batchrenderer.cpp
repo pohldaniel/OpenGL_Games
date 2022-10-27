@@ -317,3 +317,7 @@ void Batchrenderer::bindTexture(unsigned int texture, bool isTextureArray) {
 void Batchrenderer::unbindTexture(bool isTextureArray) {
 	glBindTexture(isTextureArray ? GL_TEXTURE_2D_ARRAY : GL_TEXTURE_2D, 0);
 }
+
+void Batchrenderer::activeTexture(unsigned int unit) {
+	glActiveTexture(GL_TEXTURE0 + unit);
+}

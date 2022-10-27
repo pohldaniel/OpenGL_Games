@@ -34,6 +34,7 @@ public:
 
 	void bindTexture(unsigned int texture, bool isTextureArray, unsigned int unit);
 	void unbindTexture(bool isTextureArray, unsigned int unit);
+	void activeTexture(unsigned int unit);
 
 	float(&getQuadPos())[8];
 	float(&getTexPos())[8];

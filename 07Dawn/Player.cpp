@@ -380,3 +380,7 @@ unsigned short Player::getModifiedSpellCriticalModifierPoints() const {
 unsigned short Player::getModifiedStrength() const {
 	return getModifiedAttribute(this, getStrength(), &getSpellStrengthHelper, NON_NULLABLE_ATTRIBUTE_MIN);
 }
+
+bool Player::isPlayer() const {
+	return true;
+}

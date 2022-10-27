@@ -167,6 +167,10 @@ void TextureManager::UnbindTexture(bool isTextureArray, unsigned int unit) {
 	Batchrenderer::Get().unbindTexture(isTextureArray, unit);
 }
 
+void TextureManager::ActiveTexture(unsigned int unit) {
+	Batchrenderer::Get().activeTexture(unit);
+}
+
 void TextureManager::SetShader(Shader* shader) {
 	Batchrenderer::Get().setShader(shader);
 }

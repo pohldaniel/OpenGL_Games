@@ -40,9 +40,8 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 	auto shader = Globals::shaderManager.getAssetPointer("batch_font");
 
 	glUseProgram(shader->m_program);
-	shader->loadInt("u_interface", 0);
-	shader->loadInt("u_sprite", 1);
-	shader->loadInt("u_font", 2);
+	shader->loadInt("u_sprite", 0);
+	shader->loadInt("u_font", 1);
 	glUseProgram(0);
 }
 

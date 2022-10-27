@@ -30,6 +30,7 @@ public:
 
 	static void Unbind();
 	static void Safe(std::string name, unsigned int textureAtlas);
+	static unsigned int Merge(unsigned int& atlas1, unsigned int& atlas2);
 private:
 
 	unsigned int m_texture;

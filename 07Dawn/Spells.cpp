@@ -1,5 +1,6 @@
 #include "Spells.h"
 #include "Enums.h"
+#include "Statssystem.h"
 #include "Constants.h"
 
 ConfigurableSpell::ConfigurableSpell() {
@@ -219,40 +220,42 @@ Enums::ElementType GeneralDamageSpell::getContinuousDamageElement() const
 }
 
 void GeneralDamageSpell::dealDirectDamage() {
-	/*if (getDirectDamageMax() > 0) {
-	/// play the hit sound effect for the spell, if we have any.
-	if (soundSpellHit != "") {
-	//SoundEngine::playSound(soundSpellHit);
-	}
+	if (getDirectDamageMax() > 0) {
+	
+		/// play the hit sound effect for the spell, if we have any.
+		if (soundSpellHit != "") {
+		//SoundEngine::playSound(soundSpellHit);
+		}
 
-	int damage = getDirectDamageMin() + RNG::randomInt(0, getDirectDamageMax() - getDirectDamageMin());
-	double fatigueDamageFactor = 1.0;
+		int damage = getDirectDamageMin() + RNG::randomInt(0, getDirectDamageMax() - getDirectDamageMin());
+		double fatigueDamageFactor = 1.0;
 
-	// here we recalculate the damage if we're a fighter class with high fatigue
-	if (creator->getArchType() == Enums::CharacterArchType::Fighter) {
-	fatigueDamageFactor = 1.0 - (floor(((static_cast<double>(creator->getMaxFatigue()) - creator->getCurrentFatigue() - getSpellCost() - 1) / creator->getMaxFatigue()) / 0.25) / 10);
-	if (fatigueDamageFactor > 1.0) {
-	fatigueDamageFactor = 1.0;
-	}
-	else if (fatigueDamageFactor < 0.7) {
-	fatigueDamageFactor = 0.7;
-	}
-	}
+		// here we recalculate the damage if we're a fighter class with high fatigue
+		if (creator->getArchType() == Enums::CharacterArchType::Fighter) {
+			fatigueDamageFactor = 1.0 - (floor(((static_cast<double>(creator->getMaxFatigue()) - creator->getCurrentFatigue() - getSpellCost() - 1) / creator->getMaxFatigue()) / 0.25) / 10);
+			if (fatigueDamageFactor > 1.0) {
+				fatigueDamageFactor = 1.0;
+			}else if (fatigueDamageFactor < 0.7) {
+				fatigueDamageFactor = 0.7;
+			}
+		}
 
-	double damageFactor = StatsSystem::getStatsSystem()->complexGetSpellEffectElementModifier(creator->getLevel(), creator->getModifiedSpellEffectElementModifierPoints(getDirectDamageElement()), target->getLevel());
-	double resist = StatsSystem::getStatsSystem()->complexGetResistElementChance(target->getLevel(), target->getModifiedResistElementModifierPoints(getDirectDamageElement()), creator->getLevel());
-	double realDamage = damage * damageFactor * fatigueDamageFactor * (1 - resist);
-	double spellCriticalChance = StatsSystem::getStatsSystem()->complexGetSpellCriticalStrikeChance(creator->getLevel(), creator->getModifiedSpellCriticalModifierPoints(), target->getLevel());
-	bool criticalHit = RNG::randomSizeT(0, 10000) <= spellCriticalChance * 10000;
-	if (criticalHit == true) {
-	int criticalDamageMultiplier = 2;
-	realDamage *= criticalDamageMultiplier;
-	}
+		double damageFactor = StatsSystem::getStatsSystem()->complexGetSpellEffectElementModifier(creator->getLevel(), creator->getModifiedSpellEffectElementModifierPoints(getDirectDamageElement()), target->getLevel());
+		double resist = StatsSystem::getStatsSystem()->complexGetResistElementChance(target->getLevel(), target->getModifiedResistElementModifierPoints(getDirectDamageElement()), creator->getLevel());
+		double realDamage = damage * damageFactor * fatigueDamageFactor * (1 - resist);
+		double spellCriticalChance = StatsSystem::getStatsSystem()->complexGetSpellCriticalStrikeChance(creator->getLevel(), creator->getModifiedSpellCriticalModifierPoints(), target->getLevel());
+		bool criticalHit = RNG::randomSizeT(0, 10000) <= spellCriticalChance * 10000;
+		
+		if (criticalHit == true) {
+			int criticalDamageMultiplier = 2;
+			realDamage *= criticalDamageMultiplier;
+		}
 
-	if (target->isAlive()) {
-	target->Damage(round(realDamage), criticalHit);
+		if (target->isAlive()) {
+
+			target->Damage(round(realDamage), criticalHit);
+		}
 	}
-	}*/
 }
 
 double GeneralDamageSpell::calculateContinuousDamage(uint64_t timePassed) {
@@ -895,7 +898,7 @@ void GeneralHealingSpell::startEffect() {
 		}*/
 		int healingCaused = round(realHealing);
 
-		//target->Heal(healingCaused);
+		target->Heal(healingCaused);
 	}
 
 	target->addActiveSpell(this);
@@ -920,7 +923,7 @@ void GeneralHealingSpell::inEffect(float deltatime) {
 	}
 
 	if (floor(remainingEffect) > 0) {
-		//target->Heal(floor(remainingEffect));
+		target->Heal(floor(remainingEffect));
 		remainingEffect = remainingEffect - floor(remainingEffect);
 	}
 	

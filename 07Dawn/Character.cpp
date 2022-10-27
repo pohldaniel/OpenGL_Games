@@ -5,6 +5,8 @@
 #include "Spells.h"
 #include "Actions.h"
 #include "Magic.h"
+#include "Interface.h"
+#include "Statssystem.h"
 
 const uint16_t NULLABLE_ATTRIBUTE_MIN = 0;
 const uint16_t NON_NULLABLE_ATTRIBUTE_MIN = 1;
@@ -623,6 +625,34 @@ int Character::getDeltaY() {
 	return dy;
 }
 
+void Character::setExperience(uint64_t experience) {
+	this->experience = experience;
+}
+
+uint64_t Character::getExperience() const {
+	return experience;
+}
+
+void Character::addDamageDisplayToGUI(int amount, bool critical, uint8_t damageType) {
+	if (isPlayer()){
+		Interface::Get().addCombatText(amount, critical, damageType, 140, ViewPort::get().getHeight() - 40, true);
+	}else {
+		Interface::Get().addCombatText(amount, critical, damageType, getXPos() + getWidth() / 2, getYPos() + getHeight() + 52, false);
+	}
+}
+
+uint16_t Character::getModifiedSpellEffectElementModifierPoints(Enums::ElementType elementType) const {
+	return getSpellEffectElementModifierPoints(elementType) + getSpellEffectAllModifierPoints() + StatsSystem::getStatsSystem()->calculateSpellEffectElementModifierPoints(elementType, this);
+}
+
+uint16_t Character::getModifiedResistElementModifierPoints(Enums::ElementType elementType) const {
+	return getResistElementModifierPoints(elementType) + getResistAllModifierPoints() + StatsSystem::getStatsSystem()->calculateResistElementModifierPoints(elementType, this);
+}
+
+uint16_t Character::getModifiedSpellCriticalModifierPoints() const {
+	return getSpellCriticalModifierPoints() + StatsSystem::getStatsSystem()->calculateSpellCriticalModifierPoints(this);
+}
+
 bool Character::CheckMouseOver(int _x_pos, int _y_pos) {
 	int myWidth = getWidth();
 	int myHeight = getHeight();
@@ -951,7 +981,8 @@ void Character::Damage(int amount, bool criticalHit) {
 	}*/
 
 	if (alive) {
-		//addDamageDisplayToGUI(amount, criticalHit, 0);
+
+		addDamageDisplayToGUI(amount, criticalHit, 0);
 		if (current_health <= amount) {
 			current_health = 0;
 			Die();
@@ -959,8 +990,7 @@ void Character::Damage(int amount, bool criticalHit) {
 				Player *player = &Player::Get();
 				player->gainExperience(getExperienceValue());
 			}
-		}
-		else {
+		}else {
 			modifyCurrentHealth(-amount);
 		}
 	}
@@ -1015,7 +1045,7 @@ void Character::Heal(int amount) {
 		if (modifiedDiff <= amount) {
 			amount = modifiedDiff;
 		}
-		//addDamageDisplayToGUI(amount, false, 1);
+		addDamageDisplayToGUI(amount, false, 1);
 		modifyCurrentHealth(amount);
 	}
 }

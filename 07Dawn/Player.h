@@ -58,4 +58,6 @@ public:
 
 	unsigned short Player::getModifiedSpellCriticalModifierPoints() const;
 	unsigned short Player::getModifiedStrength() const;
+
+	bool isPlayer() const override;
 };
