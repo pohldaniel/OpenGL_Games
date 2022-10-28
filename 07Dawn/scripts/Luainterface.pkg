@@ -211,7 +211,9 @@ class TileSet
 struct CharacterType {
 	void addMoveTexture(Enums::ActivityType activity, Enums::Direction direction, int index, std::string filename, unsigned int maxWidth = 0, unsigned int maxHeight = 0, bool reload = false, int paddingLeft = 0, int paddingRight = 0, int paddingTop = 0, int paddingBottom = 0);
 	void calcNumMoveTexturesPerDirection();
-
+	void baseOnType(std::string name);
+	void inscribeSpellInSpellbook(CSpellActionBase* spell);
+	
 	void setStrength(int newStrength);
 	void setDexterity(int newDexterity);
 	void setVitality(int newVitality);
@@ -234,6 +236,14 @@ struct CharacterType {
 	void setLevel(int newLevel);
 	void setClass(Enums::CharacterClass characterClass);
 	void setExperienceValue(int experienceValue);
+	
+	void modifyStrength(int strengthModifier);
+	void modifyDexterity(int dexterityModifier);
+	void modifyVitality(int vitalityModifier);
+	void modifyIntellect(int intellectModifier);
+	void modifyWisdom(int wisdomModifier);
+	void modifyMaxHealth(int maxHealthModifier);
+	void modifyMaxFatigue(int maxFatigueModifier);
 }
 
 class Player : public Character

@@ -127,9 +127,7 @@ void Interface::loadTextures() {
 		m_damageDisplayTexturesBig[layer].frame++;
 	}
 
-	//Spritesheet::Safe("interface", m_textureAtlas);
-
-	
+	//Spritesheet::Safe("interface", m_textureAtlas);	
 }
 
 void Interface::DrawInterface() {
@@ -219,9 +217,7 @@ void Interface::DrawInterface() {
 	for (unsigned int buttonId = 0; buttonId < 10; buttonId++) {
 		Vector4f borderColor = (button[buttonId].action != NULL && player->getCurrentSpellActionName() == button[buttonId].action->getName()) ? Vector4f(0.8f, 0.8f, 0.8f, 1.0f) : Vector4f(0.4f, 0.4f, 0.4f, 1.0f);
 		TextureManager::DrawTextureBatched(m_interfacetexture[19], ViewPort::get().getWidth() - 610 + buttonId * 60, 12, 50.0f, 50.0f, borderColor, false, false);
-		Fontrenderer::Get().addText(*shortcutFont, actionBarPosX + +20 + buttonId * 60 - 8, 54, button[buttonId].number.c_str(), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), false, 10u);
-
-		
+		Fontrenderer::Get().addText(*shortcutFont, actionBarPosX + +20 + buttonId * 60 - 8, 54, button[buttonId].number.c_str(), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), false, 10u);	
 	}
 
 	// draw the cursor if it's supposed to be drawn
@@ -494,8 +490,7 @@ bool Interface::isSpellUseable(CSpellActionBase* action) {
 		}
 
 		// do we have enough mana to cast?
-	}
-	else if (dynamic_cast<CSpell*>(action) != NULL) {
+	}else if (dynamic_cast<CSpell*>(action) != NULL) {
 		if (action->getSpellCost() > player->getCurrentMana()) {
 			return false;
 		}
@@ -653,11 +648,18 @@ void Interface::processInput() {
 	}
 
 	if (mouse.buttonPressed(Mouse::BUTTON_RIGHT)) {
+
+		//remove buff effect
 		CSpellActionBase *spellUnderMouse = getSpellAtMouse(ViewPort::get().getCursorPosRelX(), ViewPort::get().getCursorPosRelY());
 		if (spellUnderMouse != NULL) {
 			if (spellUnderMouse->isSpellHostile() == false) {
 				player->removeActiveSpell(spellUnderMouse);
 			}
+		}
+
+		if (isPreparingAoESpell()) {
+			spellQueue = NULL;
+			preparingAoESpell = false;
 		}
 	}
 
@@ -721,11 +723,17 @@ void Interface::processInputRightDrag() {
 		m_lastMouseDown = std::pair<int, int>(ViewPort::get().getCursorPosRelX(), ViewPort::get().getCursorPosRelY());
 		buttonId = getMouseOverButtonId(m_lastMouseDown.first, m_lastMouseDown.second);
 
+		//remove buff effect
 		CSpellActionBase *spellUnderMouse = getSpellAtMouse(ViewPort::get().getCursorPosRelX(), ViewPort::get().getCursorPosRelY());
 		if (spellUnderMouse != NULL) {
 			if (spellUnderMouse->isSpellHostile() == false) {
 				player->removeActiveSpell(spellUnderMouse);
 			}
+		}
+
+		if (isPreparingAoESpell()) {
+			spellQueue = NULL;
+			preparingAoESpell = false;
 		}
 	}
 
@@ -758,19 +766,18 @@ void Interface::executeSpellQueue() {
 		CSpellActionBase *curAction = NULL;
 		if (effectType == Enums::EffectType::SingleTargetSpell && player->getTarget() != NULL) {
 			curAction = spellQueue->action->cast(player, player->getTarget(), true);
-		}
-		else if (effectType == Enums::EffectType::SelfAffectingSpell) {
+
+		}else if (effectType == Enums::EffectType::SelfAffectingSpell) {
 			curAction = spellQueue->action->cast(player, player, false);
-		}
-		else if (effectType == Enums::EffectType::AreaTargetSpell) {
+
+		}else if (effectType == Enums::EffectType::AreaTargetSpell) {
 
 			// AoE spell cast on target with target selected previous to casting
 			if (!preparingAoESpell) {
 				curAction = spellQueue->action->cast(player, player->getTarget(), false);
 
-				// AoE spell cast on specific position
-			}
-			else if (spellQueue->areaOfEffectOnSpecificLocation == true) {
+			// AoE spell cast on specific position
+			}else if (spellQueue->areaOfEffectOnSpecificLocation == true) {
 				curAction = spellQueue->action->cast(player, spellQueue->actionSpecificXPos, spellQueue->actionSpecificYPos);
 				preparingAoESpell = false;
 			}
@@ -782,8 +789,8 @@ void Interface::executeSpellQueue() {
 		}
 
 		spellQueue = NULL;
-	}
-	else if (spellQueue->action) {
+
+	}else if (spellQueue->action) {
 		if (effectType == Enums::EffectType::AreaTargetSpell)
 			preparingAoESpell = true;
 	}

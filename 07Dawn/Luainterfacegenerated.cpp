@@ -1,6 +1,6 @@
 /*
 ** Lua binding: Luainterface
-** Generated automatically by tolua++-1.0.92 on Sun Oct 23 13:33:55 2022.
+** Generated automatically by tolua++-1.0.92 on Sat Oct 29 00:41:25 2022.
 */
 
 #ifndef __cplusplus
@@ -1334,6 +1334,72 @@ static int tolua_Luainterface_CharacterType_calcNumMoveTexturesPerDirection00(lu
 }
 #endif //#ifndef TOLUA_DISABLE
 
+/* method: baseOnType of class  CharacterType */
+#ifndef TOLUA_DISABLE_tolua_Luainterface_CharacterType_baseOnType00
+static int tolua_Luainterface_CharacterType_baseOnType00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+	tolua_Error tolua_err;
+	if (
+		!tolua_isusertype(tolua_S, 1, "CharacterType", 0, &tolua_err) ||
+		!tolua_iscppstring(tolua_S, 2, 0, &tolua_err) ||
+		!tolua_isnoobj(tolua_S, 3, &tolua_err)
+		)
+		goto tolua_lerror;
+	else
+#endif
+	{
+		CharacterType* self = (CharacterType*)tolua_tousertype(tolua_S, 1, 0);
+		std::string name = ((std::string)  tolua_tocppstring(tolua_S, 2, 0));
+#ifndef TOLUA_RELEASE
+		if (!self) tolua_error(tolua_S, "invalid 'self' in function 'baseOnType'", NULL);
+#endif
+		{
+			self->baseOnType(name);
+		}
+	}
+	return 0;
+#ifndef TOLUA_RELEASE
+	tolua_lerror :
+				 tolua_error(tolua_S, "#ferror in function 'baseOnType'.", &tolua_err);
+				 return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
+/* method: inscribeSpellInSpellbook of class  CharacterType */
+#ifndef TOLUA_DISABLE_tolua_Luainterface_CharacterType_inscribeSpellInSpellbook00
+static int tolua_Luainterface_CharacterType_inscribeSpellInSpellbook00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+	tolua_Error tolua_err;
+	if (
+		!tolua_isusertype(tolua_S, 1, "CharacterType", 0, &tolua_err) ||
+		!tolua_isusertype(tolua_S, 2, "CSpellActionBase", 0, &tolua_err) ||
+		!tolua_isnoobj(tolua_S, 3, &tolua_err)
+		)
+		goto tolua_lerror;
+	else
+#endif
+	{
+		CharacterType* self = (CharacterType*)tolua_tousertype(tolua_S, 1, 0);
+		CSpellActionBase* spell = ((CSpellActionBase*)tolua_tousertype(tolua_S, 2, 0));
+#ifndef TOLUA_RELEASE
+		if (!self) tolua_error(tolua_S, "invalid 'self' in function 'inscribeSpellInSpellbook'", NULL);
+#endif
+		{
+			self->inscribeSpellInSpellbook(spell);
+		}
+	}
+	return 0;
+#ifndef TOLUA_RELEASE
+	tolua_lerror :
+				 tolua_error(tolua_S, "#ferror in function 'inscribeSpellInSpellbook'.", &tolua_err);
+				 return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
 /* method: setStrength of class  CharacterType */
 #ifndef TOLUA_DISABLE_tolua_Luainterface_CharacterType_setStrength00
 static int tolua_Luainterface_CharacterType_setStrength00(lua_State* tolua_S)
@@ -2055,6 +2121,237 @@ static int tolua_Luainterface_CharacterType_setExperienceValue00(lua_State* tolu
 #ifndef TOLUA_RELEASE
 	tolua_lerror :
 				 tolua_error(tolua_S, "#ferror in function 'setExperienceValue'.", &tolua_err);
+				 return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
+/* method: modifyStrength of class  CharacterType */
+#ifndef TOLUA_DISABLE_tolua_Luainterface_CharacterType_modifyStrength00
+static int tolua_Luainterface_CharacterType_modifyStrength00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+	tolua_Error tolua_err;
+	if (
+		!tolua_isusertype(tolua_S, 1, "CharacterType", 0, &tolua_err) ||
+		!tolua_isnumber(tolua_S, 2, 0, &tolua_err) ||
+		!tolua_isnoobj(tolua_S, 3, &tolua_err)
+		)
+		goto tolua_lerror;
+	else
+#endif
+	{
+		CharacterType* self = (CharacterType*)tolua_tousertype(tolua_S, 1, 0);
+		int strengthModifier = ((int)tolua_tonumber(tolua_S, 2, 0));
+#ifndef TOLUA_RELEASE
+		if (!self) tolua_error(tolua_S, "invalid 'self' in function 'modifyStrength'", NULL);
+#endif
+		{
+			self->modifyStrength(strengthModifier);
+		}
+	}
+	return 0;
+#ifndef TOLUA_RELEASE
+	tolua_lerror :
+				 tolua_error(tolua_S, "#ferror in function 'modifyStrength'.", &tolua_err);
+				 return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
+/* method: modifyDexterity of class  CharacterType */
+#ifndef TOLUA_DISABLE_tolua_Luainterface_CharacterType_modifyDexterity00
+static int tolua_Luainterface_CharacterType_modifyDexterity00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+	tolua_Error tolua_err;
+	if (
+		!tolua_isusertype(tolua_S, 1, "CharacterType", 0, &tolua_err) ||
+		!tolua_isnumber(tolua_S, 2, 0, &tolua_err) ||
+		!tolua_isnoobj(tolua_S, 3, &tolua_err)
+		)
+		goto tolua_lerror;
+	else
+#endif
+	{
+		CharacterType* self = (CharacterType*)tolua_tousertype(tolua_S, 1, 0);
+		int dexterityModifier = ((int)tolua_tonumber(tolua_S, 2, 0));
+#ifndef TOLUA_RELEASE
+		if (!self) tolua_error(tolua_S, "invalid 'self' in function 'modifyDexterity'", NULL);
+#endif
+		{
+			self->modifyDexterity(dexterityModifier);
+		}
+	}
+	return 0;
+#ifndef TOLUA_RELEASE
+	tolua_lerror :
+				 tolua_error(tolua_S, "#ferror in function 'modifyDexterity'.", &tolua_err);
+				 return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
+/* method: modifyVitality of class  CharacterType */
+#ifndef TOLUA_DISABLE_tolua_Luainterface_CharacterType_modifyVitality00
+static int tolua_Luainterface_CharacterType_modifyVitality00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+	tolua_Error tolua_err;
+	if (
+		!tolua_isusertype(tolua_S, 1, "CharacterType", 0, &tolua_err) ||
+		!tolua_isnumber(tolua_S, 2, 0, &tolua_err) ||
+		!tolua_isnoobj(tolua_S, 3, &tolua_err)
+		)
+		goto tolua_lerror;
+	else
+#endif
+	{
+		CharacterType* self = (CharacterType*)tolua_tousertype(tolua_S, 1, 0);
+		int vitalityModifier = ((int)tolua_tonumber(tolua_S, 2, 0));
+#ifndef TOLUA_RELEASE
+		if (!self) tolua_error(tolua_S, "invalid 'self' in function 'modifyVitality'", NULL);
+#endif
+		{
+			self->modifyVitality(vitalityModifier);
+		}
+	}
+	return 0;
+#ifndef TOLUA_RELEASE
+	tolua_lerror :
+				 tolua_error(tolua_S, "#ferror in function 'modifyVitality'.", &tolua_err);
+				 return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
+/* method: modifyIntellect of class  CharacterType */
+#ifndef TOLUA_DISABLE_tolua_Luainterface_CharacterType_modifyIntellect00
+static int tolua_Luainterface_CharacterType_modifyIntellect00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+	tolua_Error tolua_err;
+	if (
+		!tolua_isusertype(tolua_S, 1, "CharacterType", 0, &tolua_err) ||
+		!tolua_isnumber(tolua_S, 2, 0, &tolua_err) ||
+		!tolua_isnoobj(tolua_S, 3, &tolua_err)
+		)
+		goto tolua_lerror;
+	else
+#endif
+	{
+		CharacterType* self = (CharacterType*)tolua_tousertype(tolua_S, 1, 0);
+		int intellectModifier = ((int)tolua_tonumber(tolua_S, 2, 0));
+#ifndef TOLUA_RELEASE
+		if (!self) tolua_error(tolua_S, "invalid 'self' in function 'modifyIntellect'", NULL);
+#endif
+		{
+			self->modifyIntellect(intellectModifier);
+		}
+	}
+	return 0;
+#ifndef TOLUA_RELEASE
+	tolua_lerror :
+				 tolua_error(tolua_S, "#ferror in function 'modifyIntellect'.", &tolua_err);
+				 return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
+/* method: modifyWisdom of class  CharacterType */
+#ifndef TOLUA_DISABLE_tolua_Luainterface_CharacterType_modifyWisdom00
+static int tolua_Luainterface_CharacterType_modifyWisdom00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+	tolua_Error tolua_err;
+	if (
+		!tolua_isusertype(tolua_S, 1, "CharacterType", 0, &tolua_err) ||
+		!tolua_isnumber(tolua_S, 2, 0, &tolua_err) ||
+		!tolua_isnoobj(tolua_S, 3, &tolua_err)
+		)
+		goto tolua_lerror;
+	else
+#endif
+	{
+		CharacterType* self = (CharacterType*)tolua_tousertype(tolua_S, 1, 0);
+		int wisdomModifier = ((int)tolua_tonumber(tolua_S, 2, 0));
+#ifndef TOLUA_RELEASE
+		if (!self) tolua_error(tolua_S, "invalid 'self' in function 'modifyWisdom'", NULL);
+#endif
+		{
+			self->modifyWisdom(wisdomModifier);
+		}
+	}
+	return 0;
+#ifndef TOLUA_RELEASE
+	tolua_lerror :
+				 tolua_error(tolua_S, "#ferror in function 'modifyWisdom'.", &tolua_err);
+				 return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
+/* method: modifyMaxHealth of class  CharacterType */
+#ifndef TOLUA_DISABLE_tolua_Luainterface_CharacterType_modifyMaxHealth00
+static int tolua_Luainterface_CharacterType_modifyMaxHealth00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+	tolua_Error tolua_err;
+	if (
+		!tolua_isusertype(tolua_S, 1, "CharacterType", 0, &tolua_err) ||
+		!tolua_isnumber(tolua_S, 2, 0, &tolua_err) ||
+		!tolua_isnoobj(tolua_S, 3, &tolua_err)
+		)
+		goto tolua_lerror;
+	else
+#endif
+	{
+		CharacterType* self = (CharacterType*)tolua_tousertype(tolua_S, 1, 0);
+		int maxHealthModifier = ((int)tolua_tonumber(tolua_S, 2, 0));
+#ifndef TOLUA_RELEASE
+		if (!self) tolua_error(tolua_S, "invalid 'self' in function 'modifyMaxHealth'", NULL);
+#endif
+		{
+			self->modifyMaxHealth(maxHealthModifier);
+		}
+	}
+	return 0;
+#ifndef TOLUA_RELEASE
+	tolua_lerror :
+				 tolua_error(tolua_S, "#ferror in function 'modifyMaxHealth'.", &tolua_err);
+				 return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
+/* method: modifyMaxFatigue of class  CharacterType */
+#ifndef TOLUA_DISABLE_tolua_Luainterface_CharacterType_modifyMaxFatigue00
+static int tolua_Luainterface_CharacterType_modifyMaxFatigue00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+	tolua_Error tolua_err;
+	if (
+		!tolua_isusertype(tolua_S, 1, "CharacterType", 0, &tolua_err) ||
+		!tolua_isnumber(tolua_S, 2, 0, &tolua_err) ||
+		!tolua_isnoobj(tolua_S, 3, &tolua_err)
+		)
+		goto tolua_lerror;
+	else
+#endif
+	{
+		CharacterType* self = (CharacterType*)tolua_tousertype(tolua_S, 1, 0);
+		int maxFatigueModifier = ((int)tolua_tonumber(tolua_S, 2, 0));
+#ifndef TOLUA_RELEASE
+		if (!self) tolua_error(tolua_S, "invalid 'self' in function 'modifyMaxFatigue'", NULL);
+#endif
+		{
+			self->modifyMaxFatigue(maxFatigueModifier);
+		}
+	}
+	return 0;
+#ifndef TOLUA_RELEASE
+	tolua_lerror :
+				 tolua_error(tolua_S, "#ferror in function 'modifyMaxFatigue'.", &tolua_err);
 				 return 0;
 #endif
 }
@@ -4994,6 +5291,8 @@ TOLUA_API int tolua_Luainterface_open(lua_State* tolua_S)
 	tolua_beginmodule(tolua_S, "CharacterType");
 	tolua_function(tolua_S, "addMoveTexture", tolua_Luainterface_CharacterType_addMoveTexture00);
 	tolua_function(tolua_S, "calcNumMoveTexturesPerDirection", tolua_Luainterface_CharacterType_calcNumMoveTexturesPerDirection00);
+	tolua_function(tolua_S, "baseOnType", tolua_Luainterface_CharacterType_baseOnType00);
+	tolua_function(tolua_S, "inscribeSpellInSpellbook", tolua_Luainterface_CharacterType_inscribeSpellInSpellbook00);
 	tolua_function(tolua_S, "setStrength", tolua_Luainterface_CharacterType_setStrength00);
 	tolua_function(tolua_S, "setDexterity", tolua_Luainterface_CharacterType_setDexterity00);
 	tolua_function(tolua_S, "setVitality", tolua_Luainterface_CharacterType_setVitality00);
@@ -5016,6 +5315,13 @@ TOLUA_API int tolua_Luainterface_open(lua_State* tolua_S)
 	tolua_function(tolua_S, "setLevel", tolua_Luainterface_CharacterType_setLevel00);
 	tolua_function(tolua_S, "setClass", tolua_Luainterface_CharacterType_setClass00);
 	tolua_function(tolua_S, "setExperienceValue", tolua_Luainterface_CharacterType_setExperienceValue00);
+	tolua_function(tolua_S, "modifyStrength", tolua_Luainterface_CharacterType_modifyStrength00);
+	tolua_function(tolua_S, "modifyDexterity", tolua_Luainterface_CharacterType_modifyDexterity00);
+	tolua_function(tolua_S, "modifyVitality", tolua_Luainterface_CharacterType_modifyVitality00);
+	tolua_function(tolua_S, "modifyIntellect", tolua_Luainterface_CharacterType_modifyIntellect00);
+	tolua_function(tolua_S, "modifyWisdom", tolua_Luainterface_CharacterType_modifyWisdom00);
+	tolua_function(tolua_S, "modifyMaxHealth", tolua_Luainterface_CharacterType_modifyMaxHealth00);
+	tolua_function(tolua_S, "modifyMaxFatigue", tolua_Luainterface_CharacterType_modifyMaxFatigue00);
 	tolua_endmodule(tolua_S);
 	tolua_cclass(tolua_S, "Player", "Player", "Character", NULL);
 	tolua_beginmodule(tolua_S, "Player");

@@ -27,6 +27,7 @@ struct CharacterType {
 
 	void addMoveTexture(Enums::ActivityType activity, Enums::Direction direction, int index, std::string filename, unsigned int maxWidth = 0, unsigned int maxHeight = 0, bool reload = false, int paddingLeft = 0, int paddingRight = 0, int paddingTop = 0, int paddingBottom = 0);
 	void calcNumMoveTexturesPerDirection();
+	void baseOnType(std::string name);
 
 	void setStrength(uint16_t newStrength);
 	void setDexterity(uint16_t newDexterity);
@@ -49,9 +50,17 @@ struct CharacterType {
 	void setWanderRadius(uint16_t newWanderRadius);
 	void setLevel(uint8_t newLevel);
 	void setClass(Enums::CharacterClass);
-	//void inscribeSpellInSpellbook(CSpellActionBase* spell);
+	void inscribeSpellInSpellbook(CSpellActionBase* spell);
 	//void addItemToLootTable(Item* item, double dropChance);
 	void setExperienceValue(uint8_t experienceValue);
+
+	void modifyStrength(int strengthModifier);
+	void modifyDexterity(int dexterityModifier);
+	void modifyVitality(int vitalityModifier);
+	void modifyIntellect(int intellectModifier);
+	void modifyWisdom(int wisdomModifier);
+	void modifyMaxHealth(int maxHealthModifier);
+	void modifyMaxFatigue(int maxFatigueModifier);
 
 	const TileSet& getTileSet(Enums::ActivityType activity, Enums::Direction direction) const;
 	
@@ -81,6 +90,8 @@ private:
 	uint16_t hitModifierPoints;
 	uint16_t evadeModifierPoints;
 	Enums::CharacterClass characterClass;
+
+	std::vector<CSpellActionBase*> spellbook;
 };
 
 class CharacterTypeManager {

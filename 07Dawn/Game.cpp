@@ -6,15 +6,18 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), player(P
 	
 	Mouse::SetCursorIcon("res/cursors/pointer.cur");
 	
-	LuaFunctions::executeLuaFile("res/_lua/mobdata_wolf.lua");
 	LuaFunctions::executeLuaFile("res/_lua/playerdata_w.lua");
-
 	Player::Get().setCharacterType("player_w");
 	Player::Get().setClass(Enums::CharacterClass::Liche);
 
 	player = Player::Get();
 
 	LuaFunctions::executeLuaFile("res/_lua/spells.lua");
+
+	LuaFunctions::executeLuaFile("res/_lua/mobdata_wolf.lua");
+	
+
+	
 
 	ZoneManager::Get().getZone("res/_lua/zone1").loadZone();
 	ZoneManager::Get().setCurrentZone(&ZoneManager::Get().getZone("res/_lua/zone1"));
@@ -74,14 +77,18 @@ void Game::update() {
 		}	
 	}
 
-	std::vector<Npc*> zoneNPCs = zone->getNPCs();
-	for (unsigned int x = 0; x < zoneNPCs.size(); x++) {
-		Npc *curNPC = zoneNPCs[x];
-		std::vector<std::pair<CSpellActionBase*, uint32_t> > activeSpellActions = curNPC->getActiveSpells();
-		for (size_t curActiveSpellNr = 0; curActiveSpellNr < activeSpellActions.size(); ++curActiveSpellNr) {
-			
-			activeSpellActions[curActiveSpellNr].first->inEffect(m_dt);
+	for (unsigned int i = 0; i < zone->MagicMap.size(); ++i) {
+		zone->MagicMap[i]->process();
+		zone->MagicMap[i]->getSpell()->inEffect(m_dt);
+		zone->cleanupActiveAoESpells();
+
+		if (zone->MagicMap[i]->isDone()) {
+			zone->MagicMap.erase(zone->MagicMap.begin() + i);
 		}
+	}
+
+	for (const auto& npc : zone->getNPCs()) {
+		npc->update(m_dt);	
 	}
 
 	// check all active spells for inEffects on our player.
@@ -96,15 +103,7 @@ void Game::update() {
 	dawnInterface->processInputRightDrag();
 
 
-	for (unsigned int i = 0; i < zone->MagicMap.size(); ++i) {
-		zone->MagicMap[i]->process();
-		zone->MagicMap[i]->getSpell()->inEffect(m_dt);
-		zone->cleanupActiveAoESpells();
-
-		if (zone->MagicMap[i]->isDone()) {
-			zone->MagicMap.erase(zone->MagicMap.begin() + i);
-		}
-	}
+	
 }
 
 

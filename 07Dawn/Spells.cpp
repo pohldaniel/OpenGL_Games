@@ -20,8 +20,7 @@ ConfigurableSpell::ConfigurableSpell() {
 	info = "";
 }
 
-ConfigurableSpell::ConfigurableSpell(ConfigurableSpell *other)
-{
+ConfigurableSpell::ConfigurableSpell(ConfigurableSpell *other) {
 	luaID = other->getID();
 	spellSymbol = other->spellSymbol;
 
@@ -54,23 +53,19 @@ ConfigurableSpell::ConfigurableSpell(ConfigurableSpell *other)
 	info = other->info;
 }
 
-void ConfigurableSpell::setCastTime(uint16_t newCastTime)
-{
+void ConfigurableSpell::setCastTime(uint16_t newCastTime) {
 	castTime = newCastTime;
 }
 
-uint16_t ConfigurableSpell::getCastTime() const
-{
+uint16_t ConfigurableSpell::getCastTime() const {
 	return castTime;
 }
 
-void ConfigurableSpell::setCooldown(uint16_t newCooldown)
-{
+void ConfigurableSpell::setCooldown(uint16_t newCooldown) {
 	cooldown = newCooldown;
 }
 
-uint16_t ConfigurableSpell::getCooldown() const
-{
+uint16_t ConfigurableSpell::getCooldown() const {
 	return cooldown;
 }
 
@@ -79,28 +74,23 @@ void ConfigurableSpell::setSpellCost(uint16_t spellCost)
 	this->spellCost = spellCost;
 }
 
-uint16_t ConfigurableSpell::getSpellCost() const
-{
+uint16_t ConfigurableSpell::getSpellCost() const {
 	return spellCost;
 }
 
-uint16_t ConfigurableSpell::getRadius() const
-{
+uint16_t ConfigurableSpell::getRadius() const {
 	return radius;
 }
 
-int16_t ConfigurableSpell::getX() const
-{
+int16_t ConfigurableSpell::getX() const {
 	return centerX;
 }
 
-int16_t ConfigurableSpell::getY() const
-{
+int16_t ConfigurableSpell::getY() const {
 	return centerY;
 }
 
-void ConfigurableSpell::setRange(uint16_t minRange, uint16_t maxRange)
-{
+void ConfigurableSpell::setRange(uint16_t minRange, uint16_t maxRange) {
 	this->minRange = minRange;
 	this->maxRange = maxRange;
 }
@@ -112,18 +102,15 @@ bool ConfigurableSpell::isInRange(uint16_t distance) const {
 	return maxRange < 0;
 }
 
-void ConfigurableSpell::setName(std::string newName)
-{
+void ConfigurableSpell::setName(std::string newName) {
 	name = newName;
 }
 
-std::string ConfigurableSpell::getName() const
-{
+std::string ConfigurableSpell::getName() const {
 	return name;
 }
 
-void ConfigurableSpell::setInfo(std::string newInfo)
-{
+void ConfigurableSpell::setInfo(std::string newInfo) {
 	info = newInfo;
 }
 
@@ -144,8 +131,6 @@ TextureRect* ConfigurableSpell::getSymbol() const {
 }
 
 /// GeneralDamageSpell
-
-
 GeneralDamageSpell::GeneralDamageSpell() : currentFrame(animation.getFrame()) {
 	minDirectDamage = 0;
 	maxDirectDamage = 0;
@@ -189,33 +174,27 @@ Enums::EffectType GeneralDamageSpell::getEffectType() const {
 	return Enums::EffectType::SingleTargetSpell;
 }
 
-uint16_t GeneralDamageSpell::getDirectDamageMin() const
-{
+uint16_t GeneralDamageSpell::getDirectDamageMin() const {
 	return minDirectDamage;
 }
 
-uint16_t GeneralDamageSpell::getDirectDamageMax() const
-{
+uint16_t GeneralDamageSpell::getDirectDamageMax() const {
 	return maxDirectDamage;
 }
 
 Enums::ElementType GeneralDamageSpell::getDirectDamageElement() const {
-
 	return elementDirect;
 }
 
-uint16_t GeneralDamageSpell::getContinuousDamageMin() const
-{
+uint16_t GeneralDamageSpell::getContinuousDamageMin() const {
 	return minContinuousDamagePerSecond;
 }
 
-uint16_t GeneralDamageSpell::getContinuousDamageMax() const
-{
+uint16_t GeneralDamageSpell::getContinuousDamageMax() const {
 	return maxContinuousDamagePerSecond;
 }
 
-Enums::ElementType GeneralDamageSpell::getContinuousDamageElement() const
-{
+Enums::ElementType GeneralDamageSpell::getContinuousDamageElement() const {
 	return elementContinuous;
 }
 
@@ -252,21 +231,20 @@ void GeneralDamageSpell::dealDirectDamage() {
 		}
 
 		if (target->isAlive()) {
-
 			target->Damage(round(realDamage), criticalHit);
 		}
 	}
 }
 
 double GeneralDamageSpell::calculateContinuousDamage(uint64_t timePassed) {
-	/*double secondsPassed = (timePassed) / 1000.0;
+	double secondsPassed = (timePassed) / 1000.0;
 
 	double curRandDamage = RNG::randomDouble(minContinuousDamagePerSecond * secondsPassed, maxContinuousDamagePerSecond * secondsPassed);
 
 	double damageFactor = StatsSystem::getStatsSystem()->complexGetSpellEffectElementModifier(creator->getLevel(), creator->getModifiedSpellEffectElementModifierPoints(elementContinuous), target->getLevel());
 	double resist = StatsSystem::getStatsSystem()->complexGetResistElementChance(target->getLevel(), target->getModifiedResistElementModifierPoints(elementContinuous), creator->getLevel());
 	double realDamage = curRandDamage * damageFactor * (1 - resist);
-	return realDamage;*/
+	return realDamage;
 	return 1.0;
 }
 
@@ -523,7 +501,7 @@ void GeneralAreaDamageSpell::startEffect() {
 	if (soundSpellStart != "") {
 		//SoundEngine::playSound(soundSpellStart);
 	}
-	
+
 	radius = 50;
 	remainingEffect = 0.0;
 	frameCount = 0;
@@ -531,7 +509,7 @@ void GeneralAreaDamageSpell::startEffect() {
 	m_spellTimer.restart();
 	
 	m_elapsedTime = 0.0f;
-	//if (child) dealDirectDamage();
+	if (child) dealDirectDamage();
 
 	effectStart = Globals::clock.getElapsedTimeMilli();
 	animationTimerStart = Globals::clock.getElapsedTimeMilli();
@@ -561,20 +539,21 @@ void GeneralAreaDamageSpell::inEffect(float deltaTime) {
 	}
 	m_spellTimer.reset();
 
-	remainingEffect += calculateContinuousDamage(elapsedSinceLast);
-
+	if (child) remainingEffect += calculateContinuousDamage(elapsedSinceLast);
 	// no critical damage in this phase so far
+
 	bool callFinish = false;
 	if (m_spellTimer.getElapsedTimeSinceRestartMilli() >= continuousDamageTime) {
 		callFinish = true;
 	}
 
-	if (floor(remainingEffect) > 0) {
-		//target->Damage(floor(remainingEffect), false);
+	if (floor(remainingEffect) > 0 && child) {
+		
+		target->Damage(floor(remainingEffect), false);
 		remainingEffect = remainingEffect - floor(remainingEffect);
-		//if (!target->isAlive()) {
-			//callFinish = true;
-		//}
+		if (!target->isAlive()) {
+			callFinish = true;
+		}
 	}
 
 	if (callFinish) {
@@ -611,12 +590,10 @@ void GeneralAreaDamageSpell::draw() {
 }
 
 Enums::EffectType GeneralAreaDamageSpell::getEffectType() const {
-
 	return effectType;
 }
 
 void GeneralAreaDamageSpell::setRadius(uint16_t newRadius) {
-
 	radius = newRadius;
 }
 
@@ -685,7 +662,6 @@ void GeneralBoltDamageSpell::startEffect() {
 	posy = player.getYPos() + (player.getHeight() / 2);
 
 	m_spellTimer.restart();
-
 	
 	target->addActiveSpell(this);
 	creator->addCooldownSpell(dynamic_cast<CSpellActionBase*> (cast(nullptr, nullptr, false)));
@@ -762,7 +738,6 @@ void GeneralBoltDamageSpell::draw() {
 			degrees = -degrees;
 		}
 
-
 		TextureManager::BindTexture(TextureManager::GetTextureAtlas("spells"), true);
 		const TextureRect& rect = currentFrame;
 		TextureManager::DrawRotatedTexture(rect, static_cast<float>(posx - rect.width * 0.5f), static_cast<float>(posy - rect.height * 0.5f), degrees, rect.width * 0.5f, rect.height * 0.5f);
@@ -771,7 +746,6 @@ void GeneralBoltDamageSpell::draw() {
 }
 
 /// GeneralHealingSpell
-
 GeneralHealingSpell::GeneralHealingSpell() {
 	effectType = Enums::SelfAffectingSpell;
 	healEffectMin = 0;
@@ -866,7 +840,7 @@ double GeneralHealingSpell::calculateContinuousHealing(uint64_t timePassed) {
 
 	double curRandHealing = RNG::randomDouble(minContinuousHealingPerSecond * secondsPassed, maxContinuousHealingPerSecond * secondsPassed);
 
-	//double healingFactor = Enums::StatsSystem::getStatsSystem()->complexGetSpellEffectElementModifier(creator->getLevel(), creator->getModifiedSpellEffectElementModifierPoints(elementContinuous), target->getLevel());
+	double healingFactor = StatsSystem::getStatsSystem()->complexGetSpellEffectElementModifier(creator->getLevel(), creator->getModifiedSpellEffectElementModifierPoints(elementContinuous), target->getLevel());
 	double realHealing = curRandHealing;
 	return realHealing;
 }
@@ -889,13 +863,13 @@ void GeneralHealingSpell::startEffect() {
 
 	// only do a heal if we've set a healing value to the spell.
 	if ((healEffectMin + healEffectMax) > 0) {
-		//double healingFactor = StatsSystem::getStatsSystem()->complexGetSpellEffectElementModifier(creator->getLevel(), creator->getModifiedSpellEffectElementModifierPoints(healEffectElement), creator->getLevel());
-		double realHealing = healing;
-		/*double spellCriticalChance = StatsSystem::getStatsSystem()->complexGetSpellCriticalStrikeChance(creator->getLevel(), creator->getModifiedSpellCriticalModifierPoints(), creator->getLevel());
+		double healingFactor = StatsSystem::getStatsSystem()->complexGetSpellEffectElementModifier(creator->getLevel(), creator->getModifiedSpellEffectElementModifierPoints(healEffectElement), creator->getLevel());
+		double realHealing = healing * healingFactor;
+		double spellCriticalChance = StatsSystem::getStatsSystem()->complexGetSpellCriticalStrikeChance(creator->getLevel(), creator->getModifiedSpellCriticalModifierPoints(), creator->getLevel());
 		if (RNG::randomSizeT(0, 10000) <= spellCriticalChance * 10000) {
 		int criticalEffectMultiplier = 2;
-		realHealing *= criticalEffectMultiplier;
-		}*/
+			realHealing *= criticalEffectMultiplier;
+		}
 		int healingCaused = round(realHealing);
 
 		target->Heal(healingCaused);

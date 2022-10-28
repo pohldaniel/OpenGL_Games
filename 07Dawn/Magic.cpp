@@ -30,7 +30,6 @@ void CMagic::process() {
 
 		// is the npc colliding with the spell and make sure it's alive
 		if (collision(curNPC) && curNPC->isAlive()) {
-
 			// loop through the active spells on the npc if it has any and make sure the effect isn't cast twice
 			std::vector<std::pair<CSpellActionBase*, uint32_t> > activeSpells = curNPC->getActiveSpells();
 			if (activeSpells.size() > 0) {

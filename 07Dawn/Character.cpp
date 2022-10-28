@@ -26,8 +26,31 @@ AttributeType getModifiedAttributeValue(AttributeType attributeValue, ModifierTy
 		return (attributeValue + modifier);
 }
 
+Character::Character() : strength(1),
+dexterity(1),
+vitality(1),
+intellect(1),
+wisdom(1),
+max_health(1),
+current_health(1),
+max_mana(0),
+current_mana(0),
+healthRegen(0),
+manaRegen(0),
+armor(0),
+damageModifierPoints(0),
+hitModifierPoints(0),
+evadeModifierPoints(0),
+blockModifierPoints(0),
+meleeCriticalModifierPoints(0),
+resistElementModifierPoints(NULL),
+resistAllModifierPoints(0),
+spellEffectElementModifierPoints(NULL),
+spellEffectAllModifierPoints(0),
+spellCriticalModifierPoints(0),
+experienceValue(0),
+level(1) {
 
-Character::Character() {
 	wander_radius = 40;
 	activeDirection = Enums::Direction::S;	
 
@@ -50,28 +73,33 @@ unsigned short Character::getNumActivities() {
 void Character::baseOnType(std::string characterType) {
 	const CharacterType& other = CharacterTypeManager::Get().getCharacterType(characterType);
 		
-	strength = other.strength;
-	dexterity = other.dexterity;
-	vitality = other.vitality;
-	intellect = other.intellect;
-	wisdom = other.wisdom;
-	max_health = other.max_health;
-	max_mana = other.max_mana;
-	max_fatigue = other.max_fatigue;
-	min_damage = other.min_damage;
-	max_damage = other.max_damage;	
-	armor = other.armor;
-	healthRegen = other.healthRegen;
-	manaRegen = other.manaRegen;
-	fatigueRegen = other.fatigueRegen;
-	damageModifierPoints = other.damageModifierPoints;
-	hitModifierPoints = other.hitModifierPoints;
-	evadeModifierPoints = other.evadeModifierPoints;
-	characterClass = other.characterClass;
-	wander_radius = other.wander_radius;
-	name = other.name;
-	level = other.level;
-	experienceValue = other.experienceValue;	
+	setStrength(other.strength);
+	setDexterity(other.dexterity);
+	setVitality(other.vitality);
+	setIntellect(other.intellect);
+	setWisdom(other.wisdom);
+	setMaxHealth(other.max_health);
+	setMaxMana(other.max_mana);
+	setMaxFatigue(other.max_fatigue);
+	setMinDamage(other.min_damage);
+	setMaxDamage(other.max_damage);
+	setArmor(other.armor);
+	
+	setHealthRegen(other.healthRegen);
+	setManaRegen(other.manaRegen);
+	setFatigueRegen(other.fatigueRegen);
+	setDamageModifierPoints(other.damageModifierPoints);
+	setHitModifierPoints(other.hitModifierPoints);
+	setEvadeModifierPoints(other.evadeModifierPoints);
+	setClass(other.characterClass);
+	setWanderRadius(other.wander_radius);
+	setName(other.name);
+	setLevel(other.level);
+	setExperienceValue(other.experienceValue);
+
+	for (const auto& spell : other.spellbook) {
+		inscribeSpellInSpellbook(spell);
+	}
 }
 
 Enums::ActivityType Character::getCurActivity() const {
@@ -1175,7 +1203,7 @@ bool Character::continuePreparing() {
 	if ((isStunned() == true || isFeared() == true || isMesmerized() == true || isCharmed() == true) && getIsPreparing() == true) {
 		CastingAborted();
 	}
-
+	
 	if (isPreparing) {
 		bool preparationFinished = (curSpellAction->getCastTime() == 0);
 		if (!preparationFinished) {
@@ -1220,7 +1248,7 @@ void Character::startSpellAction() {
 	isPreparing = false;
 	preparationCurrentTime = 0;
 	preparationStartTime = 0;
-
+	
 	/// here we check for equipped items if they have any trigger spells which is used in TriggerType::EXECUTING_ACTION
 	/*if (isPlayer() == true) {
 		std::vector<InventoryItem*> inventory = Globals::getPlayer()->getInventory()->getEquippedItems();
@@ -1255,6 +1283,7 @@ void Character::startSpellAction() {
 		ZoneManager::Get().getCurrentZone()->MagicMap.push_back(new CMagic(curSpellAction));
 		ZoneManager::Get().getCurrentZone()->MagicMap.back()->setCreator(this);
 		ZoneManager::Get().getCurrentZone()->MagicMap.back()->getSpell()->startEffect();
+
 		isPreparing = false;
 		preparationCurrentTime = 0;
 		preparationStartTime = 0;
@@ -1345,6 +1374,41 @@ void CharacterType::calcNumMoveTexturesPerDirection() {
 	}
 }
 
+void CharacterType::baseOnType(std::string name) {
+	const CharacterType& other = CharacterTypeManager::Get().getCharacterType(name);
+
+	m_moveTileSets = other.m_moveTileSets;
+	m_numMoveTexturesPerDirection = other.m_numMoveTexturesPerDirection;
+	strength = other.strength;
+	dexterity = other.dexterity;
+	vitality = other.vitality;
+	intellect = other.intellect;
+	wisdom = other.wisdom;
+	max_health = other.max_health;
+	max_mana = other.max_mana;
+	max_fatigue = other.max_fatigue;
+	min_damage = other.min_damage;
+	max_damage = other.max_damage;
+	armor = other.armor;
+	healthRegen = other.healthRegen;
+	manaRegen = other.manaRegen;
+	fatigueRegen = other.fatigueRegen;
+	damageModifierPoints = other.damageModifierPoints;
+	hitModifierPoints = other.hitModifierPoints;
+	evadeModifierPoints = other.evadeModifierPoints;
+	characterClass = other.characterClass;
+	wander_radius = other.wander_radius;
+	name = other.name;
+	level = other.level;
+	experienceValue = other.experienceValue;
+	spellbook = other.spellbook;
+	
+}
+
+void CharacterType::inscribeSpellInSpellbook(CSpellActionBase *spell) {	
+	spellbook.push_back(spell);	
+}
+
 void CharacterType::setStrength(uint16_t newStrength) {
 	strength = newStrength;
 }
@@ -1432,6 +1496,35 @@ void CharacterType::setClass(Enums::CharacterClass characterClass) {
 void CharacterType::setExperienceValue(uint8_t experienceValue) {
 	CharacterType::experienceValue = experienceValue;
 }
+
+void CharacterType::modifyStrength(int strengthModifier) {
+	strength += strengthModifier;
+}
+
+void CharacterType::modifyDexterity(int dexterityModifier) {
+	dexterity += dexterityModifier;
+}
+
+void CharacterType::modifyVitality(int vitalityModifier) {
+	vitality += vitalityModifier;
+}
+
+void CharacterType::modifyIntellect(int intellectModifier) {
+	intellect += intellectModifier;
+}
+
+void CharacterType::modifyWisdom(int wisdomModifier) {
+	wisdom += wisdomModifier;
+}
+
+void CharacterType::modifyMaxHealth(int maxHealthModifier) {
+	max_health += maxHealthModifier;
+}
+
+void CharacterType::modifyMaxFatigue(int maxFatigueModifier) {
+	max_fatigue += maxFatigueModifier;
+}
+
 
 const TileSet& CharacterType::getTileSet(Enums::ActivityType activity, Enums::Direction direction) const{
 	return m_moveTileSets.at({activity, direction});

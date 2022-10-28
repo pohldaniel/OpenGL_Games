@@ -119,8 +119,8 @@ public:
 	void setSymbolTextureRect(TextureRect& textureRect);
 
 protected:
-	Character *creator;
-	Character *target;
+	Character *creator = nullptr;
+	Character *target = nullptr;
 	bool boundToCreator;
 	bool finished;
 	bool hostileSpell;

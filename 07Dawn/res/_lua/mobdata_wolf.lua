@@ -55,8 +55,40 @@ wolfbase:setName("A wolf")
 wolfbase:setWanderRadius( 250 )
 wolfbase:setLevel( 2 )
 wolfbase:setClass( Enums.Warrior );
---wolfbase:inscribeSpellInSpellbook( spellDatabase["wolfbite"] );
---wolfbase:inscribeSpellInSpellbook( spellDatabase["rabidbite"] );
+wolfbase:inscribeSpellInSpellbook( spellDatabase["wolfbite"] );
+wolfbase:inscribeSpellInSpellbook( spellDatabase["rabidbite"] );
 --wolfbase:addItemToLootTable( itemDatabase["patchofwolfskin"], 0.25 )
 --wolfbase:addItemToLootTable( itemDatabase["wolfmeat"], 0.10 )
 wolfbase:setExperienceValue( 25 );
+
+wolfpup = DawnInterface.createNewMobType("Wolf_Pup")
+wolfpup:baseOnType("Wolf")
+wolfpup:modifyStrength( -2 )
+wolfpup:modifyDexterity( -5 )
+wolfpup:modifyVitality( -1 )
+wolfpup:modifyIntellect( -5 )
+wolfpup:modifyWisdom( -5 )
+wolfpup:modifyMaxHealth( -100 )
+wolfpup:setMinDamage( 3 )
+wolfpup:setMaxDamage( 6 )
+wolfpup:setArmor( 10 )
+wolfpup:setName("A wolf pup")
+wolfpup:setWanderRadius( 250 )
+wolfpup:setLevel( 1 )
+wolfpup:setExperienceValue( 15 );
+
+giantwolf = DawnInterface.createNewMobType("Giant_Wolf")
+giantwolf:baseOnType("Wolf")
+giantwolf:modifyStrength( 10 )
+giantwolf:modifyDexterity( 5 )
+giantwolf:modifyVitality( 20 )
+giantwolf:modifyIntellect( 10 )
+giantwolf:modifyWisdom( 4 )
+giantwolf:modifyMaxHealth( 150 )
+giantwolf:setMinDamage( 10 )
+giantwolf:setMaxDamage( 20 )
+giantwolf:setArmor( 50 )
+giantwolf:setName("A giant wolf")
+giantwolf:setWanderRadius( 50 )
+giantwolf:setLevel( 5 )
+giantwolf:setExperienceValue( 40 );

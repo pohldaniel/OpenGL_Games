@@ -61,7 +61,14 @@ void Npc::update(float deltaTime) {
 		lastActiveDirection = activeDirection != Enums::Direction::STOP ? activeDirection : lastActiveDirection;
 		Move(deltaTime);
 		Animate(deltaTime);
+
+		std::vector<std::pair<CSpellActionBase*, uint32_t> > activeSpellActions = getActiveSpells();
+		for (size_t curActiveSpellNr = 0; curActiveSpellNr < activeSpellActions.size(); ++curActiveSpellNr) {
+			activeSpellActions[curActiveSpellNr].first->inEffect(deltaTime);
+		}
+		cleanupActiveSpells();
 	}
+	
 }
 
 Enums::Direction Npc::GetDirectionRNG() {
