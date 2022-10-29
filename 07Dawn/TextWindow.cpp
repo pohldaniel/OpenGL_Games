@@ -1,7 +1,9 @@
 #include "TextWindow.h"
 #include "Constants.h"
 
-CharacterSet* textWindowFont = NULL;
+
+std::vector<TextWindow*> TextWindow::s_textWindows = std::vector<TextWindow*>();
+CharacterSet& TextWindow::Font = Globals::fontManager.get("verdana_9");
 
 char *strtok_r(char *str, const char *delim, char **nextp){
 	char *ret;
@@ -60,12 +62,16 @@ void TextWindow::FormatMultilineText(std::string textIn, std::vector< std::strin
 	}
 }
 
-void initTextWindowFont() {
-	if (textWindowFont != NULL) {
-		return;
-	}
+std::vector<TextWindow*> TextWindow::GetTextWindows() {
+	return s_textWindows;
+}
 
-	textWindowFont = &Globals::fontManager.get("verdana_9");
+void TextWindow::AddTextWindow(TextWindow* textWindow) {
+	s_textWindows.push_back(textWindow);
+}
+
+void TextWindow::RemoveTextWindow(unsigned short index) {
+	s_textWindows.erase(s_textWindows.begin() + index);
 }
 
 TextWindow::TextWindow() : Widget(0, 0, 0, 0),
@@ -73,28 +79,27 @@ TextWindow::TextWindow() : Widget(0, 0, 0, 0),
 	x(0),
 	y(0),
 	autocloseTime(1),
-	creationTime(0),
 	executeTextOnClose(""),
 	explicitClose(false) {
 	updateFramesPosition();
 }
 
 void TextWindow::setText(std::string text) {
-	initTextWindowFont();
+	//initTextWindowFont();
 
 	textLines.clear();
 
 	// format the text.
 	const int lineWidth = 416;
 
-	FormatMultilineText(text, textLines, lineWidth, textWindowFont);
+	FormatMultilineText(text, textLines, lineWidth, &Font);
 
 	updateFramesPosition();
 }
 
-void TextWindow::setAutocloseTime(int autocloseTime) {
+void TextWindow::setAutocloseTime(unsigned int autocloseTime) {
 	this->autocloseTime = autocloseTime;
-	//creationTime = SDL_GetTicks();
+	m_timer.restart();
 }
 
 void TextWindow::setPosition(PositionType::PositionType positionType, int x, int y) {
@@ -125,8 +130,8 @@ void TextWindow::updateFramesPosition() {
 	int neededWidth = lineWidth;
 	int neededHeight = 0;
 	if (textLines.size() > 0) {
-		const int lineSpace = textWindowFont->lineHeight  / 2;
-		neededHeight = textWindowFont->lineHeight * static_cast<int>(textLines.size())
+		const int lineSpace = Font.lineHeight  / 2;
+		neededHeight = Font.lineHeight * static_cast<int>(textLines.size())
 			+ lineSpace * (static_cast<int>(textLines.size()) - 1);
 	}
 	int neededInnerBlocksX = neededWidth / blockSizeX;
@@ -141,8 +146,7 @@ void TextWindow::updateFramesPosition() {
 	int leftX = 0;
 	int bottomY = 0;
 
-	switch (positionType)
-	{
+	switch (positionType){
 	case PositionType::CENTER:
 		leftX = x - (neededInnerBlocksX * blockSizeX / 2);
 		bottomY = y - (neededInnerBlocksY * blockSizeY / 2);
@@ -169,7 +173,7 @@ void TextWindow::updateFramesPosition() {
 
 bool TextWindow::canBeDeleted() const {
 
-	return false;
+	return (explicitClose || (autocloseTime > 0 && m_timer.getElapsedTimeSinceRestartMilli() > autocloseTime));
 }
 
 void TextWindow::close() {
@@ -185,5 +189,63 @@ void TextWindow::clicked(int mouseX, int mouseY, uint8_t mouseState) {
 }
 
 void TextWindow::draw() {
+	if (explicitClose || (autocloseTime > 0 && m_timer.getElapsedTimeSinceRestartMilli() > autocloseTime)) {
+		return;
+	}
+	const int blockSizeX = 32;
+	const int blockSizeY = 32;
+	const int lineWidth = 416;
+	const int lineSpace = Font.lineHeight * 0.5;
 
+	int neededWidth = lineWidth;
+	int neededHeight = 0;
+	if (textLines.size() > 0) {
+		neededHeight = Font.lineHeight * textLines.size()
+			+ lineSpace * (textLines.size() - 1);
+	}
+	int neededInnerBlocksX = neededWidth / blockSizeX;
+	if (neededWidth % blockSizeX != 0) {
+		++neededInnerBlocksX;
+	}
+	int neededInnerBlocksY = neededHeight / blockSizeY;
+	if (neededHeight % blockSizeY != 0) {
+		++neededInnerBlocksY;
+	}
+
+	int leftX = 0;
+	int bottomY = 0;
+
+	switch (positionType) {
+	case PositionType::CENTER:
+		leftX = x - (neededInnerBlocksX * blockSizeX / 2);
+		bottomY = y - (neededInnerBlocksY * blockSizeY / 2);
+		break;
+	case PositionType::BOTTOMLEFT:
+		leftX = x;
+		bottomY = y;
+		break;
+	case PositionType::LEFTCENTER:
+		leftX = x;
+		bottomY = y - (neededInnerBlocksY * blockSizeY / 2);
+		break;
+	case PositionType::BOTTOMCENTER:
+		leftX = x + (neededInnerBlocksX * blockSizeX / 2);
+		bottomY = y;
+		break;
+	}
+	
+	leftX += ViewPort::get().getLeft();
+	bottomY += ViewPort::get().getBottom();
+
+	// draw the frame
+	DialogCanvas::drawCanvas(leftX, bottomY, neededInnerBlocksX, neededInnerBlocksY, blockSizeX, blockSizeY, true);
+	// draw the text
+	int curX = leftX + blockSizeX;
+	int curY = bottomY + neededInnerBlocksY * blockSizeY + Font.lineHeight;
+	for (size_t curLineNr = 0; curLineNr < textLines.size(); ++curLineNr) {
+		std::string curLine = textLines[curLineNr];
+		Fontrenderer::Get().drawText(Font, curX, curY, curLine, Vector4f(1.0f, 1.0f, 1.0f, 1.0f), true);
+		curY -= Font.lineHeight;
+		curY -= lineSpace;
+	}
 }

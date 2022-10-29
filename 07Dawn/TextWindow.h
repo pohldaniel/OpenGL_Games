@@ -3,9 +3,11 @@
 #include <vector>
 #include <stdint.h>
 
-#include "engine/CharacterSet.h"
+#include "engine/Fontrenderer.h"
+#include "engine/Clock.h"
 
 #include "Widget.h"
+#include "Dialog.h"
 #include "Luainterface.h"
 
 namespace PositionType {
@@ -21,7 +23,7 @@ namespace PositionType {
 class TextWindow : public Widget {
 public:
 	void setText(std::string text);
-	void setAutocloseTime(int autocloseTime);
+	void setAutocloseTime(unsigned int autocloseTime);
 	void setPosition(PositionType::PositionType, int x, int y);
 	void center();
 	void setOnCloseText(std::string onCloseText);
@@ -32,6 +34,9 @@ public:
 	void draw();
 
 	static void FormatMultilineText(std::string textIn, std::vector< std::string > &textLines, int lineWidth, CharacterSet* font);
+	static std::vector<TextWindow*> GetTextWindows();
+	static void AddTextWindow(TextWindow* textWindow);
+	static void RemoveTextWindow(unsigned short index);
 
 private:
 	friend TextWindow* DawnInterface::createTextWindow();
@@ -43,9 +48,13 @@ private:
 	PositionType::PositionType positionType;
 	int x;
 	int y;
-	uint32_t autocloseTime;
-	uint32_t creationTime;
+	unsigned int autocloseTime;
+
 	std::vector<std::string> textLines;
 	std::string executeTextOnClose;
 	bool explicitClose;
+
+	static std::vector<TextWindow*> s_textWindows;
+	static CharacterSet& Font;
+	Clock m_timer;
 };

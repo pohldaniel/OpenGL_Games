@@ -1,5 +1,6 @@
 #include "Game.h"
 #include "Magic.h"
+#include "TextWindow.h"
 
 Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), player(Player::Get()) {
 	EventDispatcher::AddMouseListener(this);
@@ -13,11 +14,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), player(P
 	player = Player::Get();
 
 	LuaFunctions::executeLuaFile("res/_lua/spells.lua");
-
 	LuaFunctions::executeLuaFile("res/_lua/mobdata_wolf.lua");
-	
-
-	
 
 	ZoneManager::Get().getZone("res/_lua/zone1").loadZone();
 	ZoneManager::Get().setCurrentZone(&ZoneManager::Get().getZone("res/_lua/zone1"));
@@ -34,8 +31,6 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), player(P
 		dawnInterface->bindActionToButtonNr(curEntry, inscribedSpells[curEntry]);
 	}
 
-	spell = Player::Get().getSpellbook()[1];
-
 	GLfloat color[] = { 1.0f, 1.0f, 0.0f };
 	DawnInterface::addTextToLogWindow(color, "Welcome to the world of Dawn, %s.", player.getName().c_str());
 }
@@ -49,32 +44,19 @@ void Game::fixedUpdate() {
 void Game::update() {
 	//ViewPort::get().update(m_dt);
 
-	Mouse &mouse = Mouse::instance();
+	processInput();
+	dawnInterface->processInputRightDrag();
+	
+	for (auto it = TextWindow::GetTextWindows().begin(); it != TextWindow::GetTextWindows().end(); ++it) {
+		short index = std::distance(TextWindow::GetTextWindows().begin(), it);
+		TextWindow *curTextWindow = *it;		
+		if (curTextWindow->canBeDeleted() == true) {
+			curTextWindow->close();
+			curTextWindow->toggle();
 
-	if(mouse.buttonPressed(Mouse::BUTTON_LEFT)) {
-		// get and iterate through the NPCs
-		std::vector<Npc*> zoneNPCs = zone->getNPCs();
-		for (unsigned int x = 0; x < zoneNPCs.size(); x++) {
-			Npc* curNPC = zoneNPCs[x];
-			// is the mouse over a NPC and no AoE spell is being prepared?
-			if (curNPC->CheckMouseOver(ViewPort::get().getCursorPosX(), ViewPort::get().getCursorPosY())) {
-				// is the NPC friendly?
-				if (!curNPC->getAttitude() == Enums::Attitude::FRIENDLY) {
-					// set a target if the player has none
-
-					if (!player.hasTarget(curNPC)) {
-
-						player.setTarget(curNPC, curNPC->getAttitude());
-					}else{
-
-						player.setTarget(nullptr);
-					}
-					break;
-				}
-			}
-
-		
-		}	
+			delete curTextWindow;
+			TextWindow::RemoveTextWindow(index);
+		}
 	}
 
 	for (unsigned int i = 0; i < zone->MagicMap.size(); ++i) {
@@ -100,14 +82,9 @@ void Game::update() {
 	player.update(m_dt);
 	ViewPort::get().setPosition(Player::Get().getPosition());
 
-	dawnInterface->processInputRightDrag();
-
-
 	
 }
 
-
-float degrees = 0.0f;
 void Game::render(unsigned int &frameBuffer) {
 	glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
 
@@ -128,12 +105,9 @@ void Game::render(unsigned int &frameBuffer) {
 	player.draw();
 	
 	std::vector<Npc*> zoneNPCs = zone->getNPCs();
-	for (unsigned int x = 0; x< zoneNPCs.size(); x++){
+	for (unsigned int x = 0; x < zoneNPCs.size(); x++){
 		Npc *curNPC = zoneNPCs[x];
-		/*if (player->getTarget() == curNPC) {
-			GUI.drawTargetedNPCText();
-		}*/
-
+		
 		// draw the spell effects for our NPCs
 		std::vector<std::pair<CSpellActionBase*, uint32_t> > activeSpellActions = curNPC->getActiveSpells();
 		for (size_t curActiveSpellNr = 0; curActiveSpellNr < activeSpellActions.size(); ++curActiveSpellNr){
@@ -143,15 +117,12 @@ void Game::render(unsigned int &frameBuffer) {
 		}
 	}
 
-	/*std::vector<std::pair<CSpellActionBase*, uint32_t> > activeSpellActions = player.getActiveSpells();
-
+	std::vector<std::pair<CSpellActionBase*, uint32_t> > activeSpellActions = player.getActiveSpells();
 	for (size_t curActiveSpellNr = 0; curActiveSpellNr < activeSpellActions.size(); ++curActiveSpellNr) {
 		if (!activeSpellActions[curActiveSpellNr].first->isEffectComplete()){
 			activeSpellActions[curActiveSpellNr].first->draw();
 		}
-	}*/
-
-	//spell->draw();
+	}
 
 	dawnInterface->DrawInterface();
 	dawnInterface->DrawFloatingSpell();
@@ -169,4 +140,33 @@ void Game::OnMouseMotion(Event::MouseMoveEvent& event) {
 
 void Game::resize() {
 	dawnInterface->resize();
+}
+
+void Game::processInput() {
+	Mouse &mouse = Mouse::instance();
+
+	if (mouse.buttonPressed(Mouse::BUTTON_LEFT)) {
+		// get and iterate through the NPCs
+		std::vector<Npc*> zoneNPCs = zone->getNPCs();
+		for (unsigned int x = 0; x < zoneNPCs.size(); x++) {
+			Npc* curNPC = zoneNPCs[x];
+			// is the mouse over a NPC and no AoE spell is being prepared?
+			if (curNPC->CheckMouseOver(ViewPort::get().getCursorPosX(), ViewPort::get().getCursorPosY())) {
+				// is the NPC friendly?
+				if (!curNPC->getAttitude() == Enums::Attitude::FRIENDLY) {
+					// set a target if the player has none
+
+					if (!player.hasTarget(curNPC)) {
+						player.setTarget(curNPC, curNPC->getAttitude());
+					}else {
+						player.setTarget(nullptr);
+					}
+					break;
+				}
+			}
+
+
+		}
+	}
+
 }

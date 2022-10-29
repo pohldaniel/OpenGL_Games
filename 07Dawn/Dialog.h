@@ -10,6 +10,7 @@ struct DialogCanvas {
 
 	friend class Dialog;
 	friend class SpellTooltip;
+	friend class TextWindow;
 
 	static void initTextures();
 

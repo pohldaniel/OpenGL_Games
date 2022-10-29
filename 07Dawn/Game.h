@@ -5,7 +5,6 @@
 #include "engine/input/Mouse.h"
 #include "engine/input/EventDispatcher.h"
 #include "engine/Batchrenderer.h"
-#include "engine/Transform.h"
 
 #include "StateMachine.h"
 #include "Interface.h"
@@ -31,6 +30,6 @@ public:
 
 	bool m_drawInGameCursor = false;
 
-	CSpellActionBase* spell;
-	Transform transform;
+private:
+	void processInput();
 };

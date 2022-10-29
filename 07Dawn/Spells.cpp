@@ -263,8 +263,6 @@ void GeneralDamageSpell::startAnimation() {
 	animation.start();
 }
 
-
-
 /// class GeneralRayDamageSpell
 GeneralRayDamageSpell::GeneralRayDamageSpell() {
 	remainingEffect = 0;
@@ -332,12 +330,11 @@ void GeneralRayDamageSpell::inEffect(float deltatime) {
 	
 	if (isEffectComplete()) return;
 
-	
-	//if (target->isAlive() == false) {
+	if (target->isAlive() == false) {
 		// target died while having this effect active. mark it as finished.
-	//	finishEffect();
-	//	return;
-	//}
+		finishEffect();
+		return;
+	}
 
 
 	animation.update(deltatime);
