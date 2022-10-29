@@ -7,6 +7,7 @@
 #include "Magic.h"
 #include "Interface.h"
 #include "Statssystem.h"
+#include "Zone.h"
 
 const uint16_t NULLABLE_ATTRIBUTE_MIN = 0;
 const uint16_t NON_NULLABLE_ATTRIBUTE_MIN = 1;

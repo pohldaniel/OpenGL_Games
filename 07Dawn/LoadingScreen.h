@@ -1,5 +1,6 @@
 #pragma once
 
+#include "engine/Rect.h"
 #include "StateMachine.h"
 
 class LoadingScreen : public State {

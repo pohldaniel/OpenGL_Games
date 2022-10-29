@@ -1,6 +1,7 @@
 #include "Spells.h"
 #include "Enums.h"
 #include "Statssystem.h"
+#include "Zone.h"
 #include "Constants.h"
 
 ConfigurableSpell::ConfigurableSpell() {

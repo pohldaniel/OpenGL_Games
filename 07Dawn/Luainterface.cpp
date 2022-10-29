@@ -3,8 +3,6 @@
 #include "TextureManager.h"
 #include "TilesetManager.h"
 #include "Zone.h"
-
-#include "Constants.h"
 #include "Npc.h"
 #include "InteractionRegion.h"
 #include "InteractionPoint.h"
@@ -143,11 +141,9 @@ namespace DawnInterface{
 		return "";
 	}
 
-	TextWindow *createTextWindow(){
-		TextWindow *newTextWindow = new TextWindow();
-		Globals::allTextWindows.push_back(newTextWindow);
-		newTextWindow->toggle();
-		return newTextWindow;
+	TextWindow *createTextWindow() {
+		TextWindow::AddTextWindow(new TextWindow());
+		return TextWindow::GetTextWindows().back();
 	}
 
 	GeneralRayDamageSpell* createGeneralRayDamageSpell() {

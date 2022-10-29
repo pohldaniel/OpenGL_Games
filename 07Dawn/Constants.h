@@ -11,7 +11,7 @@
 #include "engine\CharacterSet.h"
 #include "engine\Clock.h"
 
-#include "Zone.h"
+
 
 
 #define WIDTH 1600
@@ -36,6 +36,4 @@ namespace Globals {
 	extern bool enableWireframe;
 
 	extern Clock clock;
-	extern std::vector<TextWindow*> allTextWindows;
-
 }

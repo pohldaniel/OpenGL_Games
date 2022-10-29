@@ -10,6 +10,7 @@
 #include "Interface.h"
 #include "Player.h"
 #include "Spells.h"
+#include "Zone.h"
 
 class Game : public State, public MouseEventListener {
 public:

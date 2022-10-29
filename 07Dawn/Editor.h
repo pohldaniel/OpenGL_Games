@@ -4,6 +4,7 @@
 #include "Luainterface.h"
 #include "StateMachine.h"
 
+#include "Zone.h"
 #include "Character.h"
 #include "Message.h"
 
