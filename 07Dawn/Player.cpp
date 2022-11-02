@@ -247,7 +247,7 @@ static unsigned short getModifiedAttribute(const Character* character, unsigned 
 		}
 	}*/
 
-	std::vector<CSpellActionBase*> activeSpells;
+	std::vector<SpellActionBase*> activeSpells;
 	activeSpells = character->getActiveSpells();
 	size_t numSpells = activeSpells.size();
 	for (size_t curSpellNr = 0; curSpellNr<numSpells; ++curSpellNr) {
@@ -278,7 +278,7 @@ static unsigned short getModifiedAttribute(Enums::ElementType elementType, const
 		attributeModifier += getItemAttribute(elementType, curItem);
 	}*/
 
-	std::vector<CSpellActionBase*> activeSpells;
+	std::vector<SpellActionBase*> activeSpells;
 	activeSpells = character->getActiveSpells();
 	size_t numSpells = activeSpells.size();
 	for (size_t curSpellNr = 0; curSpellNr<numSpells; ++curSpellNr) {

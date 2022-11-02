@@ -19,7 +19,7 @@ class InteractionRegion;
 class InteractionPoint;
 class TextWindow;
 
-class CSpellActionBase;
+class SpellActionBase;
 class GeneralRayDamageSpell;
 class GeneralAreaDamageSpell;
 class GeneralBoltDamageSpell;
@@ -68,7 +68,7 @@ namespace DawnInterface{
 	GeneralBuffSpell* copySpell(GeneralBuffSpell *other);
 	MeleeDamageAction* copySpell(MeleeDamageAction *other);
 	RangedDamageAction* copySpell(RangedDamageAction *other);
-	void inscribeSpellInPlayerSpellbook(CSpellActionBase *inscribedSpell);
+	void inscribeSpellInPlayerSpellbook(SpellActionBase *inscribedSpell);
 	void addTextToLogWindow(float color[], const char *text, ...);
 	void clearLogWindow();
 }

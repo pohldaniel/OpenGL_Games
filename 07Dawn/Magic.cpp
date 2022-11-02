@@ -7,12 +7,12 @@ namespace DawnInterface {
 	//void addTextToLogWindow(GLfloat color[], const char *text, ...);
 }
 
-CMagic::CMagic(CSpellActionBase *spell) {
+CMagic::CMagic(SpellActionBase *spell) {
 	this->spell = spell;
 	creator = NULL;
 }
 
-CSpellActionBase *CMagic::getSpell() {
+SpellActionBase *CMagic::getSpell() {
 	return spell;
 }
 
@@ -31,7 +31,7 @@ void CMagic::process() {
 		// is the npc colliding with the spell and make sure it's alive
 		if (collision(curNPC) && curNPC->isAlive()) {
 			// loop through the active spells on the npc if it has any and make sure the effect isn't cast twice
-			std::vector<CSpellActionBase*> activeSpells = curNPC->getActiveSpells();
+			std::vector<SpellActionBase*> activeSpells = curNPC->getActiveSpells();
 			if (activeSpells.size() > 0) {
 				for (size_t curSpell = 0; curSpell < activeSpells.size(); curSpell++) {
 
@@ -42,13 +42,13 @@ void CMagic::process() {
 				}
 
 				if (a == 0) {
-					CSpellActionBase *s = spell->cast(creator, curNPC, true);
+					SpellActionBase *s = spell->cast(creator, curNPC, true);
 					s->startEffect();
 					curNPC->addActiveSpell(s);
 				}
 
 			}else { // cast the spell
-				CSpellActionBase *s = spell->cast(creator, curNPC, true);
+				SpellActionBase *s = spell->cast(creator, curNPC, true);
 				s->startEffect();
 				curNPC->addActiveSpell(s);
 			}

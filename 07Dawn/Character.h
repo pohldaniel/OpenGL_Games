@@ -51,7 +51,7 @@ struct CharacterType {
 	void setWanderRadius(uint16_t newWanderRadius);
 	void setLevel(uint8_t newLevel);
 	void setClass(Enums::CharacterClass);
-	void inscribeSpellInSpellbook(CSpellActionBase* spell);
+	void inscribeSpellInSpellbook(SpellActionBase* spell);
 	//void addItemToLootTable(Item* item, double dropChance);
 	void setExperienceValue(uint8_t experienceValue);
 
@@ -92,7 +92,7 @@ private:
 	uint16_t evadeModifierPoints;
 	Enums::CharacterClass characterClass;
 
-	std::vector<CSpellActionBase*> spellbook;
+	std::vector<SpellActionBase*> spellbook;
 };
 
 class CharacterTypeManager {
@@ -249,10 +249,10 @@ public:
 	void clearActiveSpells();
 	void cleanupActiveSpells();
 	void removeSpellsWithCharacterState(Enums::CharacterStates characterState);
-	void removeActiveSpell(CSpellActionBase* activeSpell);
+	void removeActiveSpell(SpellActionBase* activeSpell);
 
 	void clearCooldownSpells();
-	std::vector<CSpellActionBase*> getCooldownSpells() const;
+	std::vector<SpellActionBase*> getCooldownSpells() const;
 	uint32_t getTicksOnCooldownSpell(std::string spellName) const;
 	bool isSpellOnCooldown(std::string spellName) const;
 	void cleanupCooldownSpells();
@@ -353,8 +353,8 @@ public:
 	uint64_t experience;
 	uint16_t *spellEffectElementModifierPoints;
 	uint16_t *resistElementModifierPoints;
-	CSpellActionBase* curSpellAction = nullptr;
-	std::vector<CSpellActionBase*> spellbook;
+	SpellActionBase* curSpellAction = nullptr;
+	std::vector<SpellActionBase*> spellbook;
 	uint32_t preparationStartTime, preparationCurrentTime;
 
 	Enums::CharacterArchType getArchType() const;
@@ -363,7 +363,7 @@ public:
 	void modifyCurrentFatigue(int16_t currentFatigueModifier);
 	void modifyMaxFatigue(int16_t maxFatigueModifier);
 	uint16_t getModifiedMaxFatigue() const;
-	void addCooldownSpell(CSpellActionBase *spell);
+	void addCooldownSpell(SpellActionBase *spell);
 
 	void modifyCurrentMana(int16_t currentManaModifier);
 	void setCurrentMana(uint16_t newCurrentMana);
@@ -371,10 +371,10 @@ public:
 	void modifyMaxMana(int16_t maxManaModifier);
 	uint16_t getModifiedMaxMana() const;
 	bool isAlive() const;
-	void addActiveSpell(CSpellActionBase *spell);
+	void addActiveSpell(SpellActionBase *spell);
 	bool canBeDamaged() const;
-	std::vector<CSpellActionBase*> activeSpells;
-	std::vector<CSpellActionBase*> cooldownSpells;
+	std::vector<SpellActionBase*> activeSpells;
+	std::vector<SpellActionBase*> cooldownSpells;
 
 	void Damage(int amount, bool criticalHit);
 	bool isInvisible() const;
@@ -383,18 +383,18 @@ public:
 	bool canRaiseLevel() const;
 	void raiseLevel();
 	uint64_t getExpNeededForLevel(uint8_t level) const;
-	void executeSpellWithoutCasting(CSpellActionBase *spell, Character *target);
+	void executeSpellWithoutCasting(SpellActionBase *spell, Character *target);
 	void Heal(int amount);
-	void inscribeSpellInSpellbook(CSpellActionBase *spell);
-	std::vector<CSpellActionBase*> getSpellbook() const;
-	bool castSpell(CSpellActionBase *spell);
-	void giveToPreparation(CSpellActionBase *toPrepare);
+	void inscribeSpellInSpellbook(SpellActionBase *spell);
+	std::vector<SpellActionBase*> getSpellbook() const;
+	bool castSpell(SpellActionBase *spell);
+	void giveToPreparation(SpellActionBase *toPrepare);
 	bool continuePreparing();
 	void CastingAborted();
 	void abortCurrentSpellAction();
 	void startSpellAction();
 	void regenerateLifeManaFatigue(uint32_t regenPoints);
-	std::vector<CSpellActionBase*> getActiveSpells() const;
+	std::vector<SpellActionBase*> getActiveSpells() const;
 
 	uint16_t getModifiedSpellEffectElementModifierPoints(Enums::ElementType elementType) const;
 	uint16_t getModifiedResistElementModifierPoints(Enums::ElementType elementType) const;

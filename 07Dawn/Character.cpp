@@ -106,7 +106,7 @@ void Character::baseOnType(std::string characterType) {
 Enums::ActivityType Character::getCurActivity() const {
 	//Enums::ActivityType curActivity = Enums::ActivityType::Walking;
 	if (curSpellAction != NULL) {
-		if (dynamic_cast<CSpell*>(curSpellAction) != NULL) {
+		if (dynamic_cast<Spell*>(curSpellAction) != NULL) {
 			return Enums::ActivityType::Casting;
 		}
 		else if (dynamic_cast<RangedDamageAction*>(curSpellAction) != NULL) {
@@ -833,7 +833,7 @@ bool Character::canBeDamaged() const {
 	return true;
 }
 
-void Character::addActiveSpell(CSpellActionBase *spell) {
+void Character::addActiveSpell(SpellActionBase *spell) {
 	if (!canBeDamaged())
 		return;
 
@@ -885,7 +885,7 @@ void Character::removeSpellsWithCharacterState(Enums::CharacterStates characterS
 	}
 }
 
-void Character::removeActiveSpell(CSpellActionBase* activeSpell) {
+void Character::removeActiveSpell(SpellActionBase* activeSpell) {
 	for (size_t curSpell = 0; curSpell < activeSpells.size(); curSpell++) {
 		if (activeSpells[curSpell] == activeSpell) {
 			activeSpells[curSpell]->markSpellActionAsFinished();
@@ -893,11 +893,11 @@ void Character::removeActiveSpell(CSpellActionBase* activeSpell) {
 	}
 }
 
-std::vector<CSpellActionBase*> Character::getActiveSpells() const {
+std::vector<SpellActionBase*> Character::getActiveSpells() const {
 	return activeSpells;
 }
 
-void Character::addCooldownSpell(CSpellActionBase *spell) {
+void Character::addCooldownSpell(SpellActionBase *spell) {
 
 	if (spell->getCooldown() > 0) {
 		cooldownSpells.push_back(spell);
@@ -926,7 +926,7 @@ void Character::clearCooldownSpells() {
 	cooldownSpells.clear();
 }
 
-std::vector<CSpellActionBase*> Character::getCooldownSpells() const {
+std::vector<SpellActionBase*> Character::getCooldownSpells() const {
 	return cooldownSpells;
 }
 
@@ -1079,9 +1079,9 @@ void Character::Heal(int amount) {
 	}
 }
 
-void Character::executeSpellWithoutCasting(CSpellActionBase *spell, Character *target) {
+void Character::executeSpellWithoutCasting(SpellActionBase *spell, Character *target) {
 
-	CSpellActionBase *newSpell = NULL;
+	SpellActionBase *newSpell = NULL;
 
 	newSpell = spell->cast(this, target, false);
 
@@ -1090,7 +1090,7 @@ void Character::executeSpellWithoutCasting(CSpellActionBase *spell, Character *t
 	}
 }
 
-void Character::inscribeSpellInSpellbook(CSpellActionBase *spell) {
+void Character::inscribeSpellInSpellbook(SpellActionBase *spell) {
 	if (spell->getRequiredClass() == getClass() || spell->getRequiredClass() == Enums::CharacterClass::ANYCLASS) {
 		for (size_t curSpell = 0; curSpell < spellbook.size(); curSpell++) {
 			if (spellbook[curSpell]->getName() == spell->getName()) {
@@ -1113,24 +1113,24 @@ void Character::inscribeSpellInSpellbook(CSpellActionBase *spell) {
 	}
 }
 
-std::vector<CSpellActionBase*> Character::getSpellbook() const {
+std::vector<SpellActionBase*> Character::getSpellbook() const {
 	return spellbook;
 }
 
-bool Character::castSpell(CSpellActionBase *spell) {
+bool Character::castSpell(SpellActionBase *spell) {
 
 	if (isStunned() == true || isFeared() == true || isMesmerized() == true || isCharmed() == true) {
 		/// can't cast, we're stunned, feared, mesmerized or charmed. Should perhaps display message about it.
 		return false;
 	}
 	
-	if (dynamic_cast<CAction*>(spell) != NULL) {		
+	if (dynamic_cast<Action*>(spell) != NULL) {		
 		if (spell->getSpellCost() > getCurrentFatigue()) {
 			
 			/// can't cast. cost more fatigue than we can afford. Display message here about it.
 			return false;
 		}
-	}else if (dynamic_cast<CSpell*>(spell) != NULL) {
+	}else if (dynamic_cast<Spell*>(spell) != NULL) {
 		if (spell->getSpellCost() > getCurrentMana()) {
 			
 			/// can't cast. not enough mana. Display message here about it.
@@ -1184,7 +1184,7 @@ bool Character::castSpell(CSpellActionBase *spell) {
 	return true;
 }
 
-void Character::giveToPreparation(CSpellActionBase *toPrepare) {
+void Character::giveToPreparation(SpellActionBase *toPrepare) {
 	if (curSpellAction != NULL) {
 		// don't cast / execute. Enqueue in the list of coming actions / spells ?
 		delete toPrepare;
@@ -1407,7 +1407,7 @@ void CharacterType::baseOnType(std::string name) {
 	
 }
 
-void CharacterType::inscribeSpellInSpellbook(CSpellActionBase *spell) {	
+void CharacterType::inscribeSpellInSpellbook(SpellActionBase *spell) {	
 	spellbook.push_back(spell);	
 }
 

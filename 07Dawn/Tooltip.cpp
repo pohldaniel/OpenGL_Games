@@ -4,10 +4,11 @@
 #include "TextWindow.h"
 #include "Character.h"
 #include "Player.h"
-#include "Interface.h"
 #include "Statssystem.h"
+#include "Utils.h"
+#include "Constants.h"
 
-SpellTooltip::SpellTooltip(CSpellActionBase *parent_, Player *player_) : parent(parent_) {
+SpellTooltip::SpellTooltip(SpellActionBase *parent_, Player *player_) : parent(parent_) {
 	player = player_;
 	blockWidth = 32;
 	blockHeight = 32;
@@ -217,11 +218,11 @@ void SpellTooltip::getParentText() {
 
 	// display duration if we have any
 	if (parent->getDuration() > 0) {
-		addTooltipText(white, &Globals::fontManager.get("verdana_12"), "Duration: %s", Interface::ConvertTime(parent->getDuration()).c_str());
+		addTooltipText(white, &Globals::fontManager.get("verdana_12"), "Duration: %s", Utils::ConvertTime(parent->getDuration()).c_str());
 	}
 
 	if (parent->getCooldown() > 0) {
-		addTooltipText(white, &Globals::fontManager.get("verdana_12"), "Cooldown: %s", Interface::ConvertTime(parent->getCooldown()).c_str());
+		addTooltipText(white, &Globals::fontManager.get("verdana_12"), "Cooldown: %s", Utils::ConvertTime(parent->getCooldown()).c_str());
 	}
 
 	// display cast time
@@ -236,7 +237,7 @@ void SpellTooltip::getParentText() {
 	addTooltipText(green, &Globals::fontManager.get("verdana_12"), parseInfoText(parent, parent->getInfo()));
 }
 
-std::string Tooltip::getDynamicValues(CSpellActionBase *spell, size_t val) const {
+std::string Tooltip::getDynamicValues(SpellActionBase *spell, size_t val) const {
 	std::stringstream ss;
 	ss.str() = "";
 
@@ -325,7 +326,7 @@ std::string Tooltip::getDynamicValues(CSpellActionBase *spell, size_t val) const
 	return "";
 }
 
-std::string Tooltip::parseInfoText(CSpellActionBase *spell, const std::string infoText) const {
+std::string Tooltip::parseInfoText(SpellActionBase *spell, const std::string infoText) const {
 	std::string toReturn = infoText;
 	std::vector<std::string> stats;
 	stats.push_back("%minWeaponDamage%");
@@ -348,7 +349,7 @@ std::string Tooltip::parseInfoText(CSpellActionBase *spell, const std::string in
 	return toReturn;
 }
 
-CSpellActionBase* SpellTooltip::getParent() const {
+SpellActionBase* SpellTooltip::getParent() const {
 	return parent;
 }
 

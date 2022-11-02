@@ -38,8 +38,8 @@ public:
 	int getTooltipWidth() const;
 	int getTooltipHeight() const;
 	void reloadTooltip();
-	std::string parseInfoText(CSpellActionBase *spell, const std::string infoText) const;
-	std::string getDynamicValues(CSpellActionBase *spell, size_t val) const;
+	std::string parseInfoText(SpellActionBase *spell, const std::string infoText) const;
+	std::string getDynamicValues(SpellActionBase *spell, size_t val) const;
 
 private:
 	/** \brief adjusts curBlockNumberWidth and curBlockNumberHeight according to current tooltip size */
@@ -68,12 +68,12 @@ private:
 class SpellTooltip : public Tooltip {
 
 public:
-	SpellTooltip(CSpellActionBase *parent, Player *player);
+	SpellTooltip(SpellActionBase *parent, Player *player);
 	void draw(int x, int y);
-	CSpellActionBase *getParent() const;
+	SpellActionBase *getParent() const;
 
 private:
-	CSpellActionBase *parent;
+	SpellActionBase *parent;
 	void getParentText();
 	void getTicketFromPlayer();
 };

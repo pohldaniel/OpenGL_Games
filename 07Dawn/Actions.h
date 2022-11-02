@@ -12,20 +12,20 @@ class RangedDamageAction;
 
 
 namespace SpellCreation {
-	CSpellActionBase* getMeleeDamageAction();
-	CSpellActionBase* getMeleeDamageAction(MeleeDamageAction *other);
-	CSpellActionBase* getRangedDamageAction();
-	CSpellActionBase* getRangedDamageAction(RangedDamageAction *other);
+	SpellActionBase* getMeleeDamageAction();
+	SpellActionBase* getMeleeDamageAction(MeleeDamageAction *other);
+	SpellActionBase* getRangedDamageAction();
+	SpellActionBase* getRangedDamageAction(RangedDamageAction *other);
 }
 
 
-class CAction : public CSpellActionBase {
+class Action : public SpellActionBase {
 public:
-	CAction() {}
+	Action() {}
 	virtual double getProgress() const = 0;
 };
 
-class ConfigurableAction : public CAction {
+class ConfigurableAction : public Action {
 public:
 	void setCastTime(uint16_t newCastTime);
 	virtual uint16_t getCastTime() const;
@@ -37,7 +37,7 @@ public:
 	virtual int16_t getX() const;
 	virtual int16_t getY() const;
 	void setRange(uint16_t minRange, uint16_t maxRange);
-	virtual bool isInRange(uint16_t distance) const;
+	virtual bool isInRange(double distance) const;
 	void setName(std::string newName);
 	virtual std::string getName() const;
 	void setInfo(std::string newInfo);
@@ -66,8 +66,8 @@ protected:
 class MeleeDamageAction : public ConfigurableAction {
 
 public:
-	virtual CSpellActionBase* cast(Character* creator, Character* target, bool child);
-	virtual CSpellActionBase* cast(Character* creator, int x, int y);
+	virtual SpellActionBase* cast(Character* creator, Character* target, bool child);
+	virtual SpellActionBase* cast(Character* creator, int x, int y);
 
 	virtual Enums::EffectType getEffectType() const;
 
@@ -87,8 +87,8 @@ protected:
 	MeleeDamageAction(MeleeDamageAction *other);
 
 private:
-	friend CSpellActionBase* SpellCreation::getMeleeDamageAction();
-	friend CSpellActionBase* SpellCreation::getMeleeDamageAction(MeleeDamageAction *other);
+	friend SpellActionBase* SpellCreation::getMeleeDamageAction();
+	friend SpellActionBase* SpellCreation::getMeleeDamageAction(MeleeDamageAction *other);
 
 
 	double damageBonus; // How much damage bonus should we add to our min and max weapon damage?
@@ -97,8 +97,8 @@ private:
 class RangedDamageAction : public ConfigurableAction {
 
 public:
-	virtual CSpellActionBase* cast(Character* creator, Character* target, bool child);
-	virtual CSpellActionBase* cast(Character* creator, int x, int y);
+	virtual SpellActionBase* cast(Character* creator, Character* target, bool child);
+	virtual SpellActionBase* cast(Character* creator, int x, int y);
 
 	virtual Enums::EffectType getEffectType() const;
 
@@ -127,8 +127,8 @@ protected:
 	RangedDamageAction(RangedDamageAction *other);
 
 private:
-	friend CSpellActionBase* SpellCreation::getRangedDamageAction();
-	friend CSpellActionBase* SpellCreation::getRangedDamageAction(RangedDamageAction *other);
+	friend SpellActionBase* SpellCreation::getRangedDamageAction();
+	friend SpellActionBase* SpellCreation::getRangedDamageAction(RangedDamageAction *other);
 
 	uint32_t moveSpeed;
 	uint32_t expireTime;

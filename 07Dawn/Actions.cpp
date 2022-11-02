@@ -109,7 +109,7 @@ void ConfigurableAction::setRange(uint16_t minRange, uint16_t maxRange)
 	this->maxRange = maxRange;
 }
 
-bool ConfigurableAction::isInRange(uint16_t distance) const
+bool ConfigurableAction::isInRange(double distance) const
 {
 	if (distance >= minRange && distance <= maxRange)
 	{
@@ -162,7 +162,7 @@ MeleeDamageAction::MeleeDamageAction(MeleeDamageAction *other) : ConfigurableAct
 	damageBonus = other->damageBonus;
 }
 
-CSpellActionBase* MeleeDamageAction::cast(Character *creator, Character *target, bool child) {
+SpellActionBase* MeleeDamageAction::cast(Character *creator, Character *target, bool child) {
 	std::auto_ptr<MeleeDamageAction> newAction(new MeleeDamageAction(this));
 	newAction->creator = creator;
 	newAction->target = target;
@@ -170,7 +170,7 @@ CSpellActionBase* MeleeDamageAction::cast(Character *creator, Character *target,
 	return newAction.release();
 }
 
-CSpellActionBase* MeleeDamageAction::cast(Character *creator, int x, int y) {
+SpellActionBase* MeleeDamageAction::cast(Character *creator, int x, int y) {
 	//this function does nothing... 'cause it's only needed in GeneralAreaDamageSpell
 	MeleeDamageAction* newSpell = new MeleeDamageAction(this);
 	return newSpell;
@@ -251,7 +251,7 @@ void MeleeDamageAction::startEffect() {
 	m_actionTimer.restart();
 	finished = false;
 	target->addActiveSpell(this);
-	creator->addCooldownSpell(dynamic_cast<CSpellActionBase*> (cast(nullptr, nullptr, false)));
+	creator->addCooldownSpell(dynamic_cast<SpellActionBase*> (cast(nullptr, nullptr, false)));
 }
 
 void MeleeDamageAction::inEffect(float deltatime) {
@@ -308,7 +308,7 @@ RangedDamageAction::RangedDamageAction(RangedDamageAction *other) : Configurable
 	expireTime = other->expireTime;
 }
 
-CSpellActionBase* RangedDamageAction::cast(Character *creator, Character *target, bool child) {
+SpellActionBase* RangedDamageAction::cast(Character *creator, Character *target, bool child) {
 	RangedDamageAction* newSpell = new RangedDamageAction(this);
 	newSpell->creator = creator;
 	newSpell->target = target;
@@ -316,7 +316,7 @@ CSpellActionBase* RangedDamageAction::cast(Character *creator, Character *target
 	return newSpell;
 }
 
-CSpellActionBase* RangedDamageAction::cast(Character *creator, int x, int y) {
+SpellActionBase* RangedDamageAction::cast(Character *creator, int x, int y) {
 	//this function does nothing... 'cause it's only needed in GeneralAreaDamageSpell
 	RangedDamageAction* newSpell = new RangedDamageAction(this);
 	return newSpell;
@@ -346,7 +346,7 @@ void RangedDamageAction::startEffect() {
 	m_actionTimer.restart();
 
 	target->addActiveSpell(this);
-	creator->addCooldownSpell(dynamic_cast<CSpellActionBase*> (cast(nullptr, nullptr, false)));
+	creator->addCooldownSpell(dynamic_cast<SpellActionBase*> (cast(nullptr, nullptr, false)));
 	unbindFromCreator();
 }
 
@@ -511,19 +511,19 @@ void RangedDamageAction::startAnimation() {
 
 namespace SpellCreation {
 
-	CSpellActionBase* getMeleeDamageAction() {
+	SpellActionBase* getMeleeDamageAction() {
 		return new MeleeDamageAction();
 	}
 
-	CSpellActionBase* getMeleeDamageAction(MeleeDamageAction *other) {
+	SpellActionBase* getMeleeDamageAction(MeleeDamageAction *other) {
 		return new MeleeDamageAction(other);
 	}
 
-	CSpellActionBase* getRangedDamageAction() {
+	SpellActionBase* getRangedDamageAction() {
 		return new RangedDamageAction();
 	}
 
-	CSpellActionBase* getRangedDamageAction(RangedDamageAction *other) {
+	SpellActionBase* getRangedDamageAction(RangedDamageAction *other) {
 		return new RangedDamageAction(other);
 	}
 }

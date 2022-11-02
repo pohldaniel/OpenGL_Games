@@ -180,7 +180,7 @@ namespace DawnInterface{
 	GeneralBuffSpell* copySpell( GeneralBuffSpell *other );
 	MeleeDamageAction* copySpell( MeleeDamageAction *other );
 	RangedDamageAction* copySpell( RangedDamageAction *other );
-	void inscribeSpellInPlayerSpellbook( CSpellActionBase *inscribedSpell );
+	void inscribeSpellInPlayerSpellbook( SpellActionBase *inscribedSpell );
 }
 
 namespace EditorInterface
@@ -212,7 +212,7 @@ struct CharacterType {
 	void addMoveTexture(Enums::ActivityType activity, Enums::Direction direction, int index, std::string filename, unsigned int maxWidth = 0, unsigned int maxHeight = 0, bool reload = false, int paddingLeft = 0, int paddingRight = 0, int paddingTop = 0, int paddingBottom = 0);
 	void calcNumMoveTexturesPerDirection();
 	void baseOnType(std::string name);
-	void inscribeSpellInSpellbook(CSpellActionBase* spell);
+	void inscribeSpellInSpellbook(SpellActionBase* spell);
 	
 	void setStrength(int newStrength);
 	void setDexterity(int newDexterity);
@@ -303,10 +303,10 @@ class TextureManager
 	static void SetTextureAtlas(std::string name, unsigned int value);
 };
 
-class CSpellActionBase
+class SpellActionBase
 {
-	void addAdditionalSpellOnTarget( CSpellActionBase *spell, double chanceToExecute );
-	void addAdditionalSpellOnCreator( CSpellActionBase *spell, double chanceToExecute );
+	void addAdditionalSpellOnTarget( SpellActionBase *spell, double chanceToExecute );
+	void addAdditionalSpellOnCreator( SpellActionBase *spell, double chanceToExecute );
 	void setRequiredClass( Enums::CharacterClass requiredClass );
 	void setRequiredLevel( int requiredLevel );
 	void addRequiredWeapon( Enums::WeaponType weaponType );
@@ -320,15 +320,15 @@ class CSpellActionBase
 	void setNeedTarget(bool needTarget);
 };
 
-class CAction : public CSpellActionBase
+class Action : public SpellActionBase
 {
 };
 
-class CSpell : public CSpellActionBase
+class Spell : public SpellActionBase
 {
 };
 
-class ConfigurableSpell : public CSpell
+class ConfigurableSpell : public Spell
 {
 	void setCastTime( int newCastTime );
 	void setCooldown( int newCooldown );
@@ -338,7 +338,7 @@ class ConfigurableSpell : public CSpell
 	void setRange( int minRange, int maxRange );
 };
 
-class ConfigurableAction : public CAction
+class ConfigurableAction : public Action
 {
 
 	void setCastTime( int newCastTime );

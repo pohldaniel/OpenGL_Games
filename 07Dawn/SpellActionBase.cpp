@@ -4,7 +4,7 @@
 #include "TextureManager.h"
 #include"Character.h"
 
-CSpellActionBase::CSpellActionBase()
+SpellActionBase::SpellActionBase()
 	: boundToCreator(false),
 	finished(true),
 	instant(false),
@@ -18,14 +18,14 @@ CSpellActionBase::CSpellActionBase()
 	characterStateEffects.second = 1.0f;
 }
 
-CSpellActionBase::~CSpellActionBase() {
+SpellActionBase::~SpellActionBase() {
 	if (boundToCreator) {
 		creator->curSpellAction = NULL;
 		creator->isPreparing = false;
 	}
 }
 
-void CSpellActionBase::unbindFromCreator() {
+void SpellActionBase::unbindFromCreator() {
 
 	if (boundToCreator) {
 		creator->curSpellAction = NULL;
@@ -41,176 +41,165 @@ void CSpellActionBase::unbindFromCreator() {
 
 		if (creator->getArchType() == Enums::CharacterArchType::Fighter) {
 			creator->modifyCurrentFatigue(-spellCost);
-		}
-		else {
+		}else {
 			creator->modifyCurrentMana(-spellCost);
 		}
 	}
 }
 
-bool CSpellActionBase::isBoundToCreator() const {
+bool SpellActionBase::isBoundToCreator() const {
 	return boundToCreator;
 }
 
-void CSpellActionBase::beginPreparationOfSpellAction()
-{
+void SpellActionBase::beginPreparationOfSpellAction() {
 	boundToCreator = true;
 }
 
-void CSpellActionBase::markSpellActionAsFinished()
-{
+void SpellActionBase::markSpellActionAsFinished() {
 	unbindFromCreator();
 	finished = true;
 }
 
-bool CSpellActionBase::isEffectComplete() const {
+bool SpellActionBase::isEffectComplete() const {
 	return finished;
 }
 
-void CSpellActionBase::drawSymbol(int left, int bottom, float width, float height, Vector4f color, unsigned int layer) const {
+void SpellActionBase::drawSymbol(int left, int bottom, float width, float height, Vector4f color, unsigned int layer) const {
 	TextureRect* texture = getSymbol();
 	if (texture != NULL) {		
 		Batchrenderer::Get().addQuadAA(Vector4f(static_cast< float >(left), static_cast< float >(bottom), width, height), Vector4f(texture->textureOffsetX, texture->textureOffsetY, texture->textureWidth, texture->textureHeight), color, layer, false);
 	}
 }
 
-std::string CSpellActionBase::getID() const {
-
+std::string SpellActionBase::getID() const {
 	if (luaID.size() == 0) {
 		luaID = LuaFunctions::getIDFromLuaTable("spellDatabase", this);
 	}
 	return luaID;
 }
 
-void CSpellActionBase::unsetLuaID() {
+void SpellActionBase::unsetLuaID() {
 	luaID = "";
 }
 
-void CSpellActionBase::addAdditionalSpellOnTarget(CSpellActionBase *spell, double chanceToExecute) {
-
-	additionalSpellsOnTarget.push_back(std::pair<CSpellActionBase*, double>(spell, chanceToExecute));
+void SpellActionBase::addAdditionalSpellOnTarget(SpellActionBase *spell, double chanceToExecute) {
+	additionalSpellsOnTarget.push_back(std::pair<SpellActionBase*, double>(spell, chanceToExecute));
 }
 
-void CSpellActionBase::addAdditionalSpellOnCreator(CSpellActionBase *spell, double chanceToExecute) {
-
-	additionalSpellsOnCreator.push_back(std::pair<CSpellActionBase*, double>(spell, chanceToExecute));
+void SpellActionBase::addAdditionalSpellOnCreator(SpellActionBase *spell, double chanceToExecute) {
+	additionalSpellsOnCreator.push_back(std::pair<SpellActionBase*, double>(spell, chanceToExecute));
 }
 
-void CSpellActionBase::setRequiredClass(Enums::CharacterClass requiredClass) {
-
+void SpellActionBase::setRequiredClass(Enums::CharacterClass requiredClass) {
 	this->requiredClass = requiredClass;
 }
 
-void CSpellActionBase::addRequiredWeapon(Enums::WeaponType weaponType) {
-
+void SpellActionBase::addRequiredWeapon(Enums::WeaponType weaponType) {
 	requiredWeapons |= weaponType;
 }
 
-uint32_t CSpellActionBase::getRequiredWeapons() const {
-
+uint32_t SpellActionBase::getRequiredWeapons() const {
 	return requiredWeapons;
 }
 
-Enums::CharacterClass CSpellActionBase::getRequiredClass() const {
-
+Enums::CharacterClass SpellActionBase::getRequiredClass() const {
 	return requiredClass;
 }
 
-void CSpellActionBase::setRequiredLevel(uint8_t requiredLevel) {
+void SpellActionBase::setRequiredLevel(uint8_t requiredLevel) {
 	this->requiredLevel = requiredLevel;
 }
 
-uint8_t CSpellActionBase::getRequiredLevel() const {
+uint8_t SpellActionBase::getRequiredLevel() const {
 	return requiredLevel;
 }
 
-void CSpellActionBase::setRank(uint8_t rank) {
+void SpellActionBase::setRank(uint8_t rank) {
 	this->rank = rank;
 }
 
-uint8_t CSpellActionBase::getRank() const {
+uint8_t SpellActionBase::getRank() const {
 	return rank;
 }
 
-void CSpellActionBase::setInstant(bool instant) {
+void SpellActionBase::setInstant(bool instant) {
 	this->instant = instant;
 }
 
-bool CSpellActionBase::getInstant() const {
+bool SpellActionBase::getInstant() const {
 	return instant;
 }
 
-void CSpellActionBase::setSoundSpellCasting(std::string soundSpellCasting) {
+void SpellActionBase::setSoundSpellCasting(std::string soundSpellCasting) {
 	this->soundSpellCasting = soundSpellCasting;
 }
 
-void CSpellActionBase::setSoundSpellStart(std::string soundSpellStart) {
+void SpellActionBase::setSoundSpellStart(std::string soundSpellStart) {
 	this->soundSpellStart = soundSpellStart;
 }
 
-void CSpellActionBase::setSoundSpellHit(std::string soundSpellHit) {
+void SpellActionBase::setSoundSpellHit(std::string soundSpellHit) {
 	this->soundSpellHit = soundSpellHit;
 }
 
-void CSpellActionBase::playSoundSpellCasting() {
+void SpellActionBase::playSoundSpellCasting() {
 	if (soundSpellCasting != "") {
 		//SoundEngine::playSound(soundSpellCasting);
 	}
 }
 
-void CSpellActionBase::stopSoundSpellCasting() {
+void SpellActionBase::stopSoundSpellCasting() {
 	if (soundSpellCasting != "") {
 		//SoundEngine::stopSound(soundSpellCasting);
 	}
 }
 
-void CSpellActionBase::playSoundSpellStart() {
+void SpellActionBase::playSoundSpellStart() {
 	if (soundSpellStart != "") {
 		//SoundEngine::playSound(soundSpellStart);
 	}
 }
 
-void CSpellActionBase::stopSoundSpellStart() {
+void SpellActionBase::stopSoundSpellStart() {
 	if (soundSpellStart != "") {
 		//SoundEngine::stopSound(soundSpellStart);
 	}
 }
 
-void CSpellActionBase::playSoundSpellHit() {
+void SpellActionBase::playSoundSpellHit() {
 	if (soundSpellHit != "") {
 		//SoundEngine::playSound(soundSpellHit);
 	}
 }
 
-void CSpellActionBase::stopSoundSpellHit() {
+void SpellActionBase::stopSoundSpellHit() {
 	if (soundSpellHit != "") {
 		//SoundEngine::stopSound(soundSpellHit);
 	}
 }
 
-bool CSpellActionBase::isSpellHostile() const {
+bool SpellActionBase::isSpellHostile() const {
 	return hostileSpell;
 }
 
-void CSpellActionBase::setCharacterState(Enums::CharacterStates characterState, float value) {
-
+void SpellActionBase::setCharacterState(Enums::CharacterStates characterState, float value) {
 	characterStateEffects.first = characterState;
 	characterStateEffects.second = value;
 	hostileSpell = Enums::isStateConsideredHarmfull(characterState, value);
 }
 
-std::pair<Enums::CharacterStates, float> CSpellActionBase::getCharacterState() const {
+std::pair<Enums::CharacterStates, float> SpellActionBase::getCharacterState() const {
 	return characterStateEffects;
 }
 
-void CSpellActionBase::setSymbolTextureRect(TextureRect& textureRect) {
+void SpellActionBase::setSymbolTextureRect(TextureRect& textureRect) {
 	spellSymbol = &textureRect;
 }
 
-void CSpellActionBase::setNeedTarget(bool needTarget) {
-	CSpellActionBase::needTarget = needTarget;
+void SpellActionBase::setNeedTarget(bool needTarget) {
+	SpellActionBase::needTarget = needTarget;
 }
 
-bool CSpellActionBase::getNeedTarget() {
+bool SpellActionBase::getNeedTarget() {
 	return needTarget;
 }

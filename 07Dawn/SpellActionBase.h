@@ -17,15 +17,15 @@ namespace Enums {
 class Character;
 struct TextureRect;
 
-class CSpellActionBase {
+class SpellActionBase {
 protected:
-	CSpellActionBase();
+	SpellActionBase();
 public:
 	// Question: What about different target types, such as position (for region damage spells)
 	/// \brief Creates a spell to really cast as a copy from this one with a fixed target and creator.
-	virtual CSpellActionBase* cast(Character *creator, Character *target, bool child) = 0;
-	virtual CSpellActionBase* cast(Character *creator, int x, int y) = 0;
-	virtual ~CSpellActionBase();
+	virtual SpellActionBase* cast(Character *creator, Character *target, bool child) = 0;
+	virtual SpellActionBase* cast(Character *creator, int x, int y) = 0;
+	virtual ~SpellActionBase();
 
 	/// Info about the spell, both for the game (mana cost, etc) and for the player (name, info, etc)
 
@@ -38,7 +38,7 @@ public:
 	virtual uint16_t getRadius() const = 0;
 	virtual int16_t getX() const = 0;
 	virtual int16_t getY() const = 0;
-	virtual bool isInRange(uint16_t distance) const = 0;
+	virtual bool isInRange(double distance) const = 0;
 	virtual std::string getName() const = 0;
 	virtual std::string getID() const;
 	virtual std::string getInfo() const = 0;
@@ -80,8 +80,8 @@ public:
 	void stopSoundSpellHit();
 
 	/// add additional spells to this spell, to be executed based on chance when the spell is finished.
-	void addAdditionalSpellOnTarget(CSpellActionBase *spell, double chanceToExecute);
-	void addAdditionalSpellOnCreator(CSpellActionBase *spell, double chanceToExecute);
+	void addAdditionalSpellOnTarget(SpellActionBase *spell, double chanceToExecute);
+	void addAdditionalSpellOnCreator(SpellActionBase *spell, double chanceToExecute);
 
 	/// which class can use the spell
 	void setRequiredClass(Enums::CharacterClass requiredClass);
@@ -136,8 +136,8 @@ protected:
 	uint8_t requiredLevel;
 	uint32_t requiredWeapons;
 	uint8_t rank;
-	std::vector< std::pair<CSpellActionBase*, double> > additionalSpellsOnTarget;
-	std::vector< std::pair<CSpellActionBase*, double> > additionalSpellsOnCreator;
+	std::vector< std::pair<SpellActionBase*, double> > additionalSpellsOnTarget;
+	std::vector< std::pair<SpellActionBase*, double> > additionalSpellsOnCreator;
 	std::pair<Enums::CharacterStates, float> characterStateEffects;
 
 	TextureRect* spellSymbol;

@@ -223,7 +223,7 @@ namespace DawnInterface{
 		return newSpell.release();
 	}
 
-	void inscribeSpellInPlayerSpellbook(CSpellActionBase* inscribedSpell) {
+	void inscribeSpellInPlayerSpellbook(SpellActionBase* inscribedSpell) {
 		Player::Get().inscribeSpellInSpellbook(inscribedSpell);
 		//spellbook->reloadSpellsFromPlayer();
 	}
@@ -238,7 +238,7 @@ namespace DawnInterface{
 		va_end(args);
 
 		// push everything to our vector.
-		Interface::Get().addTextToLog(std::string(buffer), color);
+		Interface::Get().addTextToLog(std::string(buffer), Vector4f(color[0], color[1], color[2], 1.0f));
 	}
 
 	void clearLogWindow() {

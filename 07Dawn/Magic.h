@@ -6,8 +6,8 @@
 class CMagic {
 
 public:
-	CMagic(CSpellActionBase *spell);
-	CSpellActionBase *getSpell();
+	CMagic(SpellActionBase *spell);
+	SpellActionBase *getSpell();
 	void setCreator(Character *c);
 
 	void process();
@@ -15,6 +15,6 @@ public:
 	bool collision(Npc *npc);
 
 private:
-	CSpellActionBase *spell;
+	SpellActionBase *spell;
 	Character *creator;
 };

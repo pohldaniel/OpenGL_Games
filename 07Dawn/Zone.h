@@ -99,14 +99,14 @@ public:
 	std::vector<InteractionPoint>& getInteractionPoints();
 
 	std::vector<CMagic*> MagicMap;
-	void addActiveAoESpell(CSpellActionBase *spell);
-	std::vector<std::pair<CSpellActionBase*, uint32_t> > getActiveAoESpells();
+	void addActiveAoESpell(SpellActionBase *spell);
+	std::vector<std::pair<SpellActionBase*, uint32_t> > getActiveAoESpells();
 	void cleanupActiveAoESpells();
 	void clearActiveAoESpells();
-	void removeActiveAoESpell(CSpellActionBase* activeSpell);
+	void removeActiveAoESpell(SpellActionBase* activeSpell);
 
 private:
-	std::vector< std::pair<CSpellActionBase*, uint32_t> > activeAoESpells;
+	std::vector< std::pair<SpellActionBase*, uint32_t> > activeAoESpells;
 	std::vector<TileMap> m_tileMap;
 	std::vector<EnvironmentMap> m_environmentMap;
 	std::vector<EnvironmentMap> m_shadowMap;

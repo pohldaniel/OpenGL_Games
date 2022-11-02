@@ -12,25 +12,25 @@ class GeneralBoltDamageSpell;
 
 namespace SpellCreation {
 
-	CSpellActionBase* getGeneralRayDamageSpell();
-	CSpellActionBase* getGeneralRayDamageSpell(GeneralRayDamageSpell *other);
-	CSpellActionBase* getGeneralAreaDamageSpell();
-	CSpellActionBase* getGeneralAreaDamageSpell(GeneralAreaDamageSpell *other);
-	CSpellActionBase* getGeneralBoltDamageSpell();
-	CSpellActionBase* getGeneralBoltDamageSpell(GeneralBoltDamageSpell *other);
-	CSpellActionBase* getGeneralHealingSpell();
-	CSpellActionBase* getGeneralHealingSpell(GeneralHealingSpell *other);
-	CSpellActionBase* getGeneralBuffSpell();
-	CSpellActionBase* getGeneralBuffSpell(GeneralBuffSpell *other);
+	SpellActionBase* getGeneralRayDamageSpell();
+	SpellActionBase* getGeneralRayDamageSpell(GeneralRayDamageSpell *other);
+	SpellActionBase* getGeneralAreaDamageSpell();
+	SpellActionBase* getGeneralAreaDamageSpell(GeneralAreaDamageSpell *other);
+	SpellActionBase* getGeneralBoltDamageSpell();
+	SpellActionBase* getGeneralBoltDamageSpell(GeneralBoltDamageSpell *other);
+	SpellActionBase* getGeneralHealingSpell();
+	SpellActionBase* getGeneralHealingSpell(GeneralHealingSpell *other);
+	SpellActionBase* getGeneralBuffSpell();
+	SpellActionBase* getGeneralBuffSpell(GeneralBuffSpell *other);
 }
 
 
-class CSpell : public CSpellActionBase {
+class Spell : public SpellActionBase {
 public:
-	CSpell() {}
+	Spell() {}
 };
 
-class ConfigurableSpell : public CSpell {
+class ConfigurableSpell : public Spell {
 
 public:
 	void setCastTime(uint16_t newCastTime);
@@ -43,7 +43,7 @@ public:
 	virtual int16_t getX() const;
 	virtual int16_t getY() const;
 	void setRange(uint16_t minRange, uint16_t maxRange);
-	virtual bool isInRange(uint16_t distance) const;
+	virtual bool isInRange(double distance) const;
 	void setName(std::string newName);
 	virtual std::string getName() const;
 	void setInfo(std::string newInfo);
@@ -116,8 +116,8 @@ protected:
 class GeneralRayDamageSpell : public GeneralDamageSpell {
 
 public:
-	virtual CSpellActionBase* cast(Character *creator, Character *target, bool child);
-	virtual CSpellActionBase* cast(Character *creator, int x, int y);
+	virtual SpellActionBase* cast(Character *creator, Character *target, bool child);
+	virtual SpellActionBase* cast(Character *creator, int x, int y);
 
 	virtual void startEffect();
 	virtual void inEffect(float deltatime) override;
@@ -131,8 +131,8 @@ protected:
 	GeneralRayDamageSpell(GeneralRayDamageSpell *other);
 
 private:
-	friend CSpellActionBase* SpellCreation::getGeneralRayDamageSpell();
-	friend CSpellActionBase* SpellCreation::getGeneralRayDamageSpell(GeneralRayDamageSpell *other);
+	friend SpellActionBase* SpellCreation::getGeneralRayDamageSpell();
+	friend SpellActionBase* SpellCreation::getGeneralRayDamageSpell(GeneralRayDamageSpell *other);
 
 	double remainingEffect;
 	std::vector<TextureRect> m_animationTextures;
@@ -140,8 +140,8 @@ private:
 
 class GeneralAreaDamageSpell : public GeneralDamageSpell {
 public:
-	virtual CSpellActionBase* cast(Character *creator, Character *target, bool child);
-	virtual CSpellActionBase* cast(Character *creator, int x, int y);
+	virtual SpellActionBase* cast(Character *creator, Character *target, bool child);
+	virtual SpellActionBase* cast(Character *creator, int x, int y);
 
 	void draw() override;
 	virtual void startEffect();
@@ -161,8 +161,8 @@ protected:
 	GeneralAreaDamageSpell(GeneralAreaDamageSpell *other);
 
 private:
-	friend CSpellActionBase* SpellCreation::getGeneralAreaDamageSpell();
-	friend CSpellActionBase* SpellCreation::getGeneralAreaDamageSpell(GeneralAreaDamageSpell *other);
+	friend SpellActionBase* SpellCreation::getGeneralAreaDamageSpell();
+	friend SpellActionBase* SpellCreation::getGeneralAreaDamageSpell(GeneralAreaDamageSpell *other);
 
 	double remainingEffect;
 	std::vector<TextureRect> m_animationTextures;
@@ -173,8 +173,8 @@ private:
 
 class GeneralBoltDamageSpell : public GeneralDamageSpell {
 public:
-	virtual CSpellActionBase* cast(Character *creator, Character *target, bool child);
-	virtual CSpellActionBase* cast(Character *creator, int x, int y);
+	virtual SpellActionBase* cast(Character *creator, Character *target, bool child);
+	virtual SpellActionBase* cast(Character *creator, int x, int y);
 
 	void setMoveSpeed(int newMoveSpeed);
 	void setExpireTime(int newExpireTime);
@@ -190,8 +190,8 @@ protected:
 	GeneralBoltDamageSpell(GeneralBoltDamageSpell *other);
 
 private:
-	friend CSpellActionBase* SpellCreation::getGeneralBoltDamageSpell();
-	friend CSpellActionBase* SpellCreation::getGeneralBoltDamageSpell(GeneralBoltDamageSpell *other);
+	friend SpellActionBase* SpellCreation::getGeneralBoltDamageSpell();
+	friend SpellActionBase* SpellCreation::getGeneralBoltDamageSpell(GeneralBoltDamageSpell *other);
 
 	uint32_t moveSpeed;
 	uint32_t expireTime;
@@ -201,11 +201,11 @@ private:
 	std::vector<TextureRect> m_animationTextures;
 };
 
-class GeneralHealingSpell : public ConfigurableSpell
-{
+class GeneralHealingSpell : public ConfigurableSpell {
+
 public:
-	virtual CSpellActionBase* cast(Character *creator, Character *target, bool child);
-	virtual CSpellActionBase* cast(Character *creator, int x, int y);
+	virtual SpellActionBase* cast(Character *creator, Character *target, bool child);
+	virtual SpellActionBase* cast(Character *creator, int x, int y);
 
 	void setEffectType(Enums::EffectType newEffectType);
 	Enums::EffectType getEffectType() const;
@@ -231,8 +231,8 @@ protected:
 	GeneralHealingSpell(GeneralHealingSpell *other);
 
 private:
-	friend CSpellActionBase* SpellCreation::getGeneralHealingSpell();
-	friend CSpellActionBase* SpellCreation::getGeneralHealingSpell(GeneralHealingSpell *other);
+	friend SpellActionBase* SpellCreation::getGeneralHealingSpell();
+	friend SpellActionBase* SpellCreation::getGeneralHealingSpell(GeneralHealingSpell *other);
 
 	Enums::EffectType effectType;
 
@@ -250,8 +250,8 @@ private:
 class GeneralBuffSpell : public ConfigurableSpell {
 
 public:
-	virtual CSpellActionBase* cast(Character *creator, Character *target, bool child);
-	virtual CSpellActionBase* cast(Character *creator, int x, int y);
+	virtual SpellActionBase* cast(Character *creator, Character *target, bool child);
+	virtual SpellActionBase* cast(Character *creator, int x, int y);
 
 	void setEffectType(Enums::EffectType newEffectType);
 	Enums::EffectType getEffectType() const;
@@ -272,8 +272,8 @@ protected:
 	GeneralBuffSpell(GeneralBuffSpell *other);
 
 private:
-	friend CSpellActionBase* SpellCreation::getGeneralBuffSpell();
-	friend CSpellActionBase* SpellCreation::getGeneralBuffSpell(GeneralBuffSpell *other);
+	friend SpellActionBase* SpellCreation::getGeneralBuffSpell();
+	friend SpellActionBase* SpellCreation::getGeneralBuffSpell(GeneralBuffSpell *other);
 
 	Enums::EffectType effectType;
 	int16_t *statsModifier;

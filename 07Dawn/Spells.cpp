@@ -95,7 +95,7 @@ void ConfigurableSpell::setRange(uint16_t minRange, uint16_t maxRange) {
 	this->maxRange = maxRange;
 }
 
-bool ConfigurableSpell::isInRange(uint16_t distance) const {
+bool ConfigurableSpell::isInRange(double distance) const {
 	if (distance >= minRange && distance <= maxRange) {
 		return true;
 	}
@@ -273,7 +273,7 @@ GeneralRayDamageSpell::GeneralRayDamageSpell(GeneralRayDamageSpell *other) : Gen
 	m_animationTextures = other->m_animationTextures;
 }
 
-CSpellActionBase* GeneralRayDamageSpell::cast(Character *creator, Character *target, bool child) {
+SpellActionBase* GeneralRayDamageSpell::cast(Character *creator, Character *target, bool child) {
 
 	GeneralRayDamageSpell* newSpell = new GeneralRayDamageSpell(this);
 	newSpell->creator = creator;
@@ -282,7 +282,7 @@ CSpellActionBase* GeneralRayDamageSpell::cast(Character *creator, Character *tar
 	return newSpell;
 }
 
-CSpellActionBase* GeneralRayDamageSpell::cast(Character *creator, int x, int y) {
+SpellActionBase* GeneralRayDamageSpell::cast(Character *creator, int x, int y) {
 
 	//this function does nothing... 'cause it's only needed in GeneralAreaDamageSpell
 	GeneralRayDamageSpell* newSpell = new GeneralRayDamageSpell(this);
@@ -303,7 +303,7 @@ void GeneralRayDamageSpell::startEffect() {
 	dealDirectDamage();
 	
 	target->addActiveSpell(this);
-	creator->addCooldownSpell(dynamic_cast<CSpellActionBase*> (cast(nullptr, nullptr, false)));
+	creator->addCooldownSpell(dynamic_cast<SpellActionBase*> (cast(nullptr, nullptr, false)));
 	unbindFromCreator();
 }
 
@@ -437,7 +437,7 @@ GeneralAreaDamageSpell::GeneralAreaDamageSpell(GeneralAreaDamageSpell *other) : 
 	info = other->info;
 }
 
-CSpellActionBase* GeneralAreaDamageSpell::cast(Character *creator, Character *target, bool child) {
+SpellActionBase* GeneralAreaDamageSpell::cast(Character *creator, Character *target, bool child) {
 
 	GeneralAreaDamageSpell* newSpell = new GeneralAreaDamageSpell(this);
 	newSpell->creator = creator;
@@ -449,7 +449,7 @@ CSpellActionBase* GeneralAreaDamageSpell::cast(Character *creator, Character *ta
 	return newSpell;
 }
 
-CSpellActionBase* GeneralAreaDamageSpell::cast(Character *creator, int x, int y) {
+SpellActionBase* GeneralAreaDamageSpell::cast(Character *creator, int x, int y) {
 
 	GeneralAreaDamageSpell* newSpell = new GeneralAreaDamageSpell(this);
 
@@ -480,9 +480,9 @@ void GeneralAreaDamageSpell::startEffect() {
 		ZoneManager::Get().getCurrentZone()->addActiveAoESpell(this);
 
 		if (creator->getTarget() != NULL)
-			creator->addCooldownSpell(dynamic_cast<CSpellActionBase*> (cast(NULL, creator->getTarget(), false)));
+			creator->addCooldownSpell(dynamic_cast<SpellActionBase*> (cast(NULL, creator->getTarget(), false)));
 		else
-			creator->addCooldownSpell(dynamic_cast<CSpellActionBase*> (cast(NULL, centerX, centerY)));
+			creator->addCooldownSpell(dynamic_cast<SpellActionBase*> (cast(NULL, centerX, centerY)));
 
 		unbindFromCreator();
 	}
@@ -570,7 +570,7 @@ GeneralBoltDamageSpell::GeneralBoltDamageSpell(GeneralBoltDamageSpell *other) : 
 	expireTime = other->expireTime;
 }
 
-CSpellActionBase* GeneralBoltDamageSpell::cast(Character *creator, Character *target, bool child) {
+SpellActionBase* GeneralBoltDamageSpell::cast(Character *creator, Character *target, bool child) {
 	GeneralBoltDamageSpell* newSpell = new GeneralBoltDamageSpell(this);
 	newSpell->creator = creator;
 	newSpell->target = target;
@@ -578,7 +578,7 @@ CSpellActionBase* GeneralBoltDamageSpell::cast(Character *creator, Character *ta
 	return newSpell;
 }
 
-CSpellActionBase* GeneralBoltDamageSpell::cast(Character *creator, int x, int y) {
+SpellActionBase* GeneralBoltDamageSpell::cast(Character *creator, int x, int y) {
 	//this function does nothing... 'cause it's only needed in GeneralAreaDamageSpell
 	GeneralBoltDamageSpell* newSpell = new GeneralBoltDamageSpell(this);
 	return newSpell;
@@ -612,7 +612,7 @@ void GeneralBoltDamageSpell::startEffect() {
 	m_spellTimer.restart();
 	
 	target->addActiveSpell(this);
-	creator->addCooldownSpell(dynamic_cast<CSpellActionBase*> (cast(nullptr, nullptr, false)));
+	creator->addCooldownSpell(dynamic_cast<SpellActionBase*> (cast(nullptr, nullptr, false)));
 	unbindFromCreator();
 }
 
@@ -720,7 +720,7 @@ GeneralHealingSpell::GeneralHealingSpell(GeneralHealingSpell *other) : Configura
 	continuousHealingTime = other->continuousHealingTime;
 }
 
-CSpellActionBase* GeneralHealingSpell::cast(Character *creator, Character *target, bool child) {
+SpellActionBase* GeneralHealingSpell::cast(Character *creator, Character *target, bool child) {
 
 	std::auto_ptr<GeneralHealingSpell> newSpell(new GeneralHealingSpell(this));
 	newSpell->creator = creator;
@@ -729,7 +729,7 @@ CSpellActionBase* GeneralHealingSpell::cast(Character *creator, Character *targe
 	return newSpell.release();
 }
 
-CSpellActionBase* GeneralHealingSpell::cast(Character *creator, int x, int y) {
+SpellActionBase* GeneralHealingSpell::cast(Character *creator, int x, int y) {
 	//this function does nothing... 'cause it's only needed in GeneralAreaDamageSpell
 	GeneralHealingSpell* newSpell = new GeneralHealingSpell(this);
 	return newSpell;
@@ -821,7 +821,7 @@ void GeneralHealingSpell::startEffect() {
 	}
 
 	target->addActiveSpell(this);
-	creator->addCooldownSpell(dynamic_cast<CSpellActionBase*> (cast(nullptr, nullptr, false)));
+	creator->addCooldownSpell(dynamic_cast<SpellActionBase*> (cast(nullptr, nullptr, false)));
 	unbindFromCreator();
 }
 
@@ -908,7 +908,7 @@ GeneralBuffSpell::GeneralBuffSpell(GeneralBuffSpell *other) : ConfigurableSpell(
 	}
 }
 
-CSpellActionBase* GeneralBuffSpell::cast(Character *creator, Character *target, bool child) {
+SpellActionBase* GeneralBuffSpell::cast(Character *creator, Character *target, bool child) {
 	std::auto_ptr<GeneralBuffSpell> newSpell(new GeneralBuffSpell(this));
 	newSpell->creator = creator;
 	newSpell->target = target;
@@ -916,7 +916,7 @@ CSpellActionBase* GeneralBuffSpell::cast(Character *creator, Character *target, 
 	return newSpell.release();
 }
 
-CSpellActionBase* GeneralBuffSpell::cast(Character *creator, int x, int y) {
+SpellActionBase* GeneralBuffSpell::cast(Character *creator, int x, int y) {
 	//this function does nothing... 'cause it's only needed in GeneralAreaDamageSpell
 	GeneralBuffSpell* newSpell = new GeneralBuffSpell(this);
 	return newSpell;
@@ -975,7 +975,7 @@ void GeneralBuffSpell::startEffect() {
 	finished = false;
 
 	target->addActiveSpell(this);
-	creator->addCooldownSpell(dynamic_cast<CSpellActionBase*> (cast(nullptr, nullptr, false)));
+	creator->addCooldownSpell(dynamic_cast<SpellActionBase*> (cast(nullptr, nullptr, false)));
 	unbindFromCreator();
 }
 
@@ -1016,43 +1016,43 @@ void GeneralBuffSpell::finishEffect() {
 
 namespace SpellCreation {
 
-	CSpellActionBase* getGeneralRayDamageSpell() {
+	SpellActionBase* getGeneralRayDamageSpell() {
 		return new GeneralRayDamageSpell();
 	}
 
-	CSpellActionBase* getGeneralRayDamageSpell(GeneralRayDamageSpell *other) {
+	SpellActionBase* getGeneralRayDamageSpell(GeneralRayDamageSpell *other) {
 		return new GeneralRayDamageSpell(other);
 	}
 
-	CSpellActionBase* getGeneralAreaDamageSpell() {
+	SpellActionBase* getGeneralAreaDamageSpell() {
 		return new GeneralAreaDamageSpell();
 	}
 
-	CSpellActionBase* getGeneralAreaDamageSpell(GeneralAreaDamageSpell *other) {
+	SpellActionBase* getGeneralAreaDamageSpell(GeneralAreaDamageSpell *other) {
 		return new GeneralAreaDamageSpell(other);
 	}
 
-	CSpellActionBase* getGeneralBoltDamageSpell() {
+	SpellActionBase* getGeneralBoltDamageSpell() {
 		return new GeneralBoltDamageSpell();
 	}
 
-	CSpellActionBase* getGeneralBoltDamageSpell(GeneralBoltDamageSpell *other) {
+	SpellActionBase* getGeneralBoltDamageSpell(GeneralBoltDamageSpell *other) {
 		return new GeneralBoltDamageSpell(other);
 	}
 
-	CSpellActionBase* getGeneralHealingSpell() {
+	SpellActionBase* getGeneralHealingSpell() {
 		return new GeneralHealingSpell();
 	}
 
-	CSpellActionBase* getGeneralHealingSpell(GeneralHealingSpell *other) {
+	SpellActionBase* getGeneralHealingSpell(GeneralHealingSpell *other) {
 		return new GeneralHealingSpell(other);
 	}
 
-	CSpellActionBase* getGeneralBuffSpell() {
+	SpellActionBase* getGeneralBuffSpell() {
 		return new GeneralBuffSpell();
 	}
 
-	CSpellActionBase* getGeneralBuffSpell(GeneralBuffSpell *other) {
+	SpellActionBase* getGeneralBuffSpell(GeneralBuffSpell *other) {
 		return new GeneralBuffSpell(other);
 	}
 }

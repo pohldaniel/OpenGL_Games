@@ -275,6 +275,7 @@
     <ClInclude Include="thread\Thread.h" />
     <ClInclude Include="TilesetManager.h" />
     <ClInclude Include="Tooltip.h" />
+    <ClInclude Include="Utils.h" />
     <ClInclude Include="ViewPort.h" />
     <ClInclude Include="Widget.h" />
     <ClInclude Include="Zone.h" />

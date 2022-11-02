@@ -25,11 +25,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), player(P
 
 	DialogCanvas::initTextures();
 
-	// setting initial actions in the action bar
-	const std::vector<CSpellActionBase*> inscribedSpells = Player::Get().getSpellbook();
-	for (short curEntry = 0; curEntry <= 9 && curEntry < inscribedSpells.size(); ++curEntry) {
-		dawnInterface->bindActionToButtonNr(curEntry, inscribedSpells[curEntry]);
-	}
+	
 
 	GLfloat color[] = { 1.0f, 1.0f, 0.0f };
 	DawnInterface::addTextToLogWindow(color, "Welcome to the world of Dawn, %s.", player.getName().c_str());
@@ -74,7 +70,7 @@ void Game::update() {
 	}
 
 	// check all active spells for inEffects on our player.
-	std::vector<CSpellActionBase*> activeSpellActions = player.getActiveSpells();
+	std::vector<SpellActionBase*> activeSpellActions = player.getActiveSpells();
 	for (size_t curActiveSpellNr = 0; curActiveSpellNr < activeSpellActions.size(); ++curActiveSpellNr) {
 		activeSpellActions[curActiveSpellNr]->inEffect(m_dt);
 	}
@@ -95,7 +91,7 @@ void Game::render(unsigned int &frameBuffer) {
 	
 	zone->drawZoneBatched();
 	// draw AoE spells
-	std::vector<std::pair<CSpellActionBase*, uint32_t> > activeAoESpells = zone->getActiveAoESpells();
+	std::vector<std::pair<SpellActionBase*, uint32_t> > activeAoESpells = zone->getActiveAoESpells();
 	for (size_t curActiveAoESpellNr = 0; curActiveAoESpellNr < activeAoESpells.size(); ++curActiveAoESpellNr) {
 		if (!activeAoESpells[curActiveAoESpellNr].first->isEffectComplete()) {
 			activeAoESpells[curActiveAoESpellNr].first->draw();
@@ -109,7 +105,7 @@ void Game::render(unsigned int &frameBuffer) {
 		Npc *curNPC = zoneNPCs[x];
 		
 		// draw the spell effects for our NPCs
-		std::vector<CSpellActionBase*> activeSpellActions = curNPC->getActiveSpells();
+		std::vector<SpellActionBase*> activeSpellActions = curNPC->getActiveSpells();
 		for (size_t curActiveSpellNr = 0; curActiveSpellNr < activeSpellActions.size(); ++curActiveSpellNr){
 			if (!activeSpellActions[curActiveSpellNr]->isEffectComplete()){
 				activeSpellActions[curActiveSpellNr]->draw();
@@ -117,16 +113,15 @@ void Game::render(unsigned int &frameBuffer) {
 		}
 	}
 
-	std::vector<CSpellActionBase*> activeSpellActions = player.getActiveSpells();
+	std::vector<SpellActionBase*> activeSpellActions = player.getActiveSpells();
 	for (size_t curActiveSpellNr = 0; curActiveSpellNr < activeSpellActions.size(); ++curActiveSpellNr) {
 		if (!activeSpellActions[curActiveSpellNr]->isEffectComplete()){
 			activeSpellActions[curActiveSpellNr]->draw();
 		}
 	}
 
-	dawnInterface->DrawInterface();
-	dawnInterface->DrawFloatingSpell();
-	//dawnInterface->DrawCursor(m_drawInGameCursor);
+	dawnInterface->draw();
+	dawnInterface->drawFloatingSpell();
 	glDisable(GL_BLEND);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
