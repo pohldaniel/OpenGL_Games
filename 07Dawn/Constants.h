@@ -11,9 +11,6 @@
 #include "engine\CharacterSet.h"
 #include "engine\Clock.h"
 
-
-
-
 #define WIDTH 1600
 #define HEIGHT 900
 

@@ -247,11 +247,11 @@ static unsigned short getModifiedAttribute(const Character* character, unsigned 
 		}
 	}*/
 
-	std::vector<std::pair<CSpellActionBase*, uint32_t> > activeSpells;
+	std::vector<CSpellActionBase*> activeSpells;
 	activeSpells = character->getActiveSpells();
 	size_t numSpells = activeSpells.size();
 	for (size_t curSpellNr = 0; curSpellNr<numSpells; ++curSpellNr) {
-		GeneralBuffSpell *curSpell = dynamic_cast<GeneralBuffSpell*> (activeSpells[curSpellNr].first);
+		GeneralBuffSpell *curSpell = dynamic_cast<GeneralBuffSpell*> (activeSpells[curSpellNr]);
 		// since more than Buffspells can be active, we want to check to see that we're getting a buff here...
 		if (curSpell != NULL) {
 			attributeModifier += getSpellAttribute(curSpell);
@@ -278,11 +278,11 @@ static unsigned short getModifiedAttribute(Enums::ElementType elementType, const
 		attributeModifier += getItemAttribute(elementType, curItem);
 	}*/
 
-	std::vector<std::pair<CSpellActionBase*, uint32_t> > activeSpells;
+	std::vector<CSpellActionBase*> activeSpells;
 	activeSpells = character->getActiveSpells();
 	size_t numSpells = activeSpells.size();
 	for (size_t curSpellNr = 0; curSpellNr<numSpells; ++curSpellNr) {
-		GeneralBuffSpell* curSpell = dynamic_cast<GeneralBuffSpell*> (activeSpells[curSpellNr].first);
+		GeneralBuffSpell* curSpell = dynamic_cast<GeneralBuffSpell*> (activeSpells[curSpellNr]);
 
 		// since more than Buffspells can be active, we want to check to see that we're getting a buff here...
 		if (curSpell != NULL) {

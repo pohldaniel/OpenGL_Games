@@ -195,17 +195,17 @@ void Interface::DrawInterface() {
 	activeSpells = player->getActiveSpells();
 	for (size_t curSpell = 0; curSpell < activeSpells.size(); curSpell++) {
 		// only draw spells that has a duration.
-		if (activeSpells[curSpell].first->getDuration() > 0) {
+		if (activeSpells[curSpell]->getDuration() > 0) {
 			// here we draw the border and background for the spells we have affecting us.
 			// healing and buffs will be drawn with a green border and debuffs or hostile spells with a red border..
 
-			Vector4f borderColor = activeSpells[curSpell].first->isSpellHostile() == true ? Vector4f(0.7f, 0.0f, 0.0f, 1.0f) : Vector4f(0.0f, 0.7f, 0.0f, 1.0f);
+			Vector4f borderColor = activeSpells[curSpell]->isSpellHostile() == true ? Vector4f(0.7f, 0.0f, 0.0f, 1.0f) : Vector4f(0.0f, 0.7f, 0.0f, 1.0f);
 			TextureManager::DrawTextureBatched(m_interfacetexture[16], ViewPort::get().getWidth() - 204, ViewPort::get().getHeight() - 50 - 40 * curSpell, borderColor, false, false);
 			TextureManager::DrawTextureBatched(m_interfacetexture[18], ViewPort::get().getWidth() - 204 + 36, ViewPort::get().getHeight() - 50 - 40 * curSpell, 168.0f, 36.0f, false, false);
-			activeSpells[curSpell].first->drawSymbol(ViewPort::get().getWidth() - 204 + 2, ViewPort::get().getHeight() - 50 - 40 * curSpell + 2, 32.0f, 32.0f, Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+			activeSpells[curSpell]->drawSymbol(ViewPort::get().getWidth() - 204 + 2, ViewPort::get().getHeight() - 50 - 40 * curSpell + 2, 32.0f, 32.0f, Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
 
-			Fontrenderer::Get().addText(*shortcutFont, ViewPort::get().getWidth() - 204 + 40, ViewPort::get().getHeight() - 50 + 18 - 40 * curSpell, activeSpells[curSpell].first->getName(), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), false, 10u);
-			Fontrenderer::Get().addText(*shortcutFont, ViewPort::get().getWidth() - 204 + 40, ViewPort::get().getHeight() - 50 + 8 - 40 * curSpell, ConvertTime(activeSpells[curSpell].second, activeSpells[curSpell].first->getDuration()), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), false, 10u);
+			Fontrenderer::Get().addText(*shortcutFont, ViewPort::get().getWidth() - 204 + 40, ViewPort::get().getHeight() - 50 + 18 - 40 * curSpell, activeSpells[curSpell]->getName(), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), false, 10u);
+			Fontrenderer::Get().addText(*shortcutFont, ViewPort::get().getWidth() - 204 + 40, ViewPort::get().getHeight() - 50 + 8 - 40 * curSpell, ConvertTime(activeSpells[curSpell]->m_timer.getElapsedTimeSec(), activeSpells[curSpell]->getDuration()), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), false, 10u);
 		}
 	}
 
@@ -242,10 +242,10 @@ void Interface::DrawInterface() {
 		if (button[buttonId].action != NULL) {
 
 			for (size_t curSpell = 0; curSpell < cooldownSpells.size(); curSpell++) {
-				if (cooldownSpells[curSpell].first->getName() == button[buttonId].action->getName()) {
+				if (cooldownSpells[curSpell]->getName() == button[buttonId].action->getName()) {
 					useableSpell = false;
 					drawCooldownText = true;
-					cooldownText = ConvertTime(cooldownSpells[curSpell].second, cooldownSpells[curSpell].first->getCooldown());
+					cooldownText = ConvertTime(cooldownSpells[curSpell]->m_timer.getElapsedTimeSec(), cooldownSpells[curSpell]->getCooldown());
 				}
 			}
 
@@ -387,11 +387,10 @@ void Interface::drawCombatText() {
 		}
 
 		// fading and moving text upwards every 50ms
-		damageDisplay[currentDamageDisplay].thisFrame = Globals::clock.getElapsedTimeMilli();
-		if ((damageDisplay[currentDamageDisplay].thisFrame - damageDisplay[currentDamageDisplay].lastFrame) > 50) {
+		if ((damageDisplay[currentDamageDisplay].timer.getElapsedTimeMilli()) > 50) {
 			damageDisplay[currentDamageDisplay].transparency -= reduce_amount;
 			damageDisplay[currentDamageDisplay].y_pos++;
-			damageDisplay[currentDamageDisplay].lastFrame = damageDisplay[currentDamageDisplay].thisFrame;
+			damageDisplay[currentDamageDisplay].timer.reset();
 		}
 
 		if (damageDisplay[currentDamageDisplay].update) {
@@ -457,18 +456,18 @@ void Interface::drawTargetedNPCText() {
 	Fontrenderer::Get().addText(*interfaceFont, fontStart, npc->y_pos + npc->getHeight() + 12, npc->getName(), color, true, 10u);
 
 	// load the active spells from the NPC
-	std::vector<std::pair<CSpellActionBase*, uint32_t> > activeSpells = npc->getActiveSpells();
+	std::vector<CSpellActionBase*> activeSpells = npc->getActiveSpells();
 
 	for (size_t curSpell = 0; curSpell < activeSpells.size(); curSpell++) {
 		// only draw spells that has a duration.
-		if (activeSpells[curSpell].first->getDuration() > 0) {
+		if (activeSpells[curSpell]->getDuration() > 0) {
 			// here we draw the border and background for the spells we have affecting us.
 			// healing and buffs will be drawn with a green border and debuffs or hostile spells with a red border..
 
-			Vector4f color = activeSpells[curSpell].first->isSpellHostile() == true ? Vector4f(0.7f, 0.0f, 0.0f, 1.0f) : Vector4f(0.0f, 0.7f, 0.0f, 1.0f);
+			Vector4f color = activeSpells[curSpell]->isSpellHostile() == true ? Vector4f(0.7f, 0.0f, 0.0f, 1.0f) : Vector4f(0.0f, 0.7f, 0.0f, 1.0f);
 			TextureManager::DrawTextureBatched(m_interfacetexture[5], npc->getXPos() + (19 * curSpell) + 2, npc->getYPos() + npc->getHeight() + 30, 18.0f, 18.0f, color, true, true);
 			TextureManager::DrawTextureBatched(m_interfacetexture[6], npc->getXPos() + (19 * curSpell) + 2, npc->getYPos() + npc->getHeight() + 30, 18.0f, 18.0f, color, true, true);
-			activeSpells[curSpell].first->drawSymbol(npc->getXPos() + (19 * curSpell) + 3, npc->getYPos() + npc->getHeight() + 31, 16.0f, 16.0f, Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+			activeSpells[curSpell]->drawSymbol(npc->getXPos() + (19 * curSpell) + 3, npc->getYPos() + npc->getHeight() + 31, 16.0f, 16.0f, Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
 		}
 	}
 }
@@ -818,14 +817,14 @@ bool Interface::isMouseOver(int x, int y) {
 CSpellActionBase* Interface::getSpellAtMouse(int mouseX, int mouseY) {
 	for (size_t curSpell = 0; curSpell < activeSpells.size(); curSpell++) {
 		// only draw spells that has a duration.
-		if (activeSpells[curSpell].first->getDuration() > 0) {
+		if (activeSpells[curSpell]->getDuration() > 0) {
 			int spellPosYStart = (ViewPort::get().getHeight() - 50) - 40 * curSpell;
 			int spellPosXStart = ViewPort::get().getWidth() - 204;
 			if (mouseY > spellPosYStart
 				&& mouseY < spellPosYStart + 36
 				&& mouseX > spellPosXStart
 				&& mouseX < spellPosXStart + 204) {
-				return activeSpells[curSpell].first;
+				return activeSpells[curSpell];
 			}
 		}
 	}

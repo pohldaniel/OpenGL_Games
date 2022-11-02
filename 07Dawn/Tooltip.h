@@ -9,8 +9,6 @@
 #include "Actions.h"
 #include "Dialog.h"
 
-#include "Constants.h"
-
 class Player;
 
 struct sTooltipText {

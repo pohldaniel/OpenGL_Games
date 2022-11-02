@@ -90,7 +90,7 @@ private:
 	friend CSpellActionBase* SpellCreation::getMeleeDamageAction();
 	friend CSpellActionBase* SpellCreation::getMeleeDamageAction(MeleeDamageAction *other);
 
-	uint32_t effectStart;
+
 	double damageBonus; // How much damage bonus should we add to our min and max weapon damage?
 };
 
@@ -112,8 +112,6 @@ public:
 
 	void setMoveSpeed(int newMoveSpeed);
 	void setExpireTime(int newExpireTime);
-	void setNumAnimations(int count);
-	void setAnimationTexture(int num, std::string filename);
 
 	void setDamageBonus(double damageBonus);
 	double getDamageBonus() const;
@@ -137,14 +135,7 @@ private:
 	int posx, posy;
 	double moveRemaining;
 
-	uint8_t frameCount;
-	uint32_t effectStart;
-	uint32_t lastEffect;
-	uint32_t animationTimerStart;
-	uint32_t animationTimerStop;
-
-	int numProjectileTextures;
-	std::vector<TextureRect> projectileTexture;
+	std::vector<TextureRect> m_animationTextures;
 
 	double damageBonus; // How much damage bonus should we add to our min and max weapon damage?
 

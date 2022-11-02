@@ -252,7 +252,7 @@ public:
 	void removeActiveSpell(CSpellActionBase* activeSpell);
 
 	void clearCooldownSpells();
-	std::vector<std::pair<CSpellActionBase*, uint32_t>> getCooldownSpells() const;
+	std::vector<CSpellActionBase*> getCooldownSpells() const;
 	uint32_t getTicksOnCooldownSpell(std::string spellName) const;
 	bool isSpellOnCooldown(std::string spellName) const;
 	void cleanupCooldownSpells();
@@ -373,8 +373,9 @@ public:
 	bool isAlive() const;
 	void addActiveSpell(CSpellActionBase *spell);
 	bool canBeDamaged() const;
-	std::vector<std::pair<CSpellActionBase*, uint32_t>> activeSpells;
-	std::vector<std::pair<CSpellActionBase*, uint32_t> > cooldownSpells;
+	std::vector<CSpellActionBase*> activeSpells;
+	std::vector<CSpellActionBase*> cooldownSpells;
+
 	void Damage(int amount, bool criticalHit);
 	bool isInvisible() const;
 	void Die();
@@ -393,7 +394,7 @@ public:
 	void abortCurrentSpellAction();
 	void startSpellAction();
 	void regenerateLifeManaFatigue(uint32_t regenPoints);
-	std::vector<std::pair<CSpellActionBase*, uint32_t> > getActiveSpells() const;
+	std::vector<CSpellActionBase*> getActiveSpells() const;
 
 	uint16_t getModifiedSpellEffectElementModifierPoints(Enums::ElementType elementType) const;
 	uint16_t getModifiedResistElementModifierPoints(Enums::ElementType elementType) const;

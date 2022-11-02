@@ -3,6 +3,7 @@
 
 #include "engine/Vector.h"
 #include "engine/animation/Animation2D.h"
+#include "engine/Clock.h"
 
 namespace Enums {
 	enum WeaponType;
@@ -117,6 +118,8 @@ public:
 	/// will be inscribed in the spell database so it will get an ID.
 	void unsetLuaID();
 	void setSymbolTextureRect(TextureRect& textureRect);
+
+	Clock m_timer;
 
 protected:
 	Character *creator = nullptr;

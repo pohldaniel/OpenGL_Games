@@ -90,7 +90,6 @@ curSpell:setDirectDamage(  50, 100, Enums.Air );
 curSpell:setContinuousDamage( 10, 20, 2000, Enums.Air );
 curSpell:setSymbolTextureRect(symbols["electrocute"]);
 curSpell:setSoundSpellStart( "res/spells/lightning/lightning.ogg" );
-curSpell:setNumAnimations( 5 );
 curSpell:addAnimationFrame("res/spells/lightning/1.tga");
 curSpell:addAnimationFrame("res/spells/lightning/2.tga");
 curSpell:addAnimationFrame("res/spells/lightning/3.tga");

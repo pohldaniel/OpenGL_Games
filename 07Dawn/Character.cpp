@@ -205,7 +205,7 @@ uint16_t Character::getWanderRadiusSq() const {
 
 bool Character::isStunned() const{
 	for (size_t activeSpell = 0; activeSpell < activeSpells.size(); activeSpell++) {
-		if (activeSpells[activeSpell].first->getCharacterState().first == Enums::CharacterStates::Stunned) {
+		if (activeSpells[activeSpell]->getCharacterState().first == Enums::CharacterStates::Stunned) {
 			return true;
 		}
 	}
@@ -214,7 +214,7 @@ bool Character::isStunned() const{
 
 bool Character::isMesmerized() const {
 	for (size_t activeSpell = 0; activeSpell < activeSpells.size(); activeSpell++) {
-		if (activeSpells[activeSpell].first->getCharacterState().first == Enums::CharacterStates::Mesmerized) {
+		if (activeSpells[activeSpell]->getCharacterState().first == Enums::CharacterStates::Mesmerized) {
 			return true;
 		}
 	}
@@ -223,7 +223,7 @@ bool Character::isMesmerized() const {
 
 bool Character::isFeared() const {
 	for (size_t activeSpell = 0; activeSpell < activeSpells.size(); activeSpell++) {
-		if (activeSpells[activeSpell].first->getCharacterState().first == Enums::CharacterStates::Feared) {
+		if (activeSpells[activeSpell]->getCharacterState().first == Enums::CharacterStates::Feared) {
 			return true;
 		}
 	}
@@ -232,7 +232,7 @@ bool Character::isFeared() const {
 
 bool Character::isConfused() const {
 	for (size_t activeSpell = 0; activeSpell < activeSpells.size(); activeSpell++) {
-		if (activeSpells[activeSpell].first->getCharacterState().first == Enums::CharacterStates::Confused) {
+		if (activeSpells[activeSpell]->getCharacterState().first == Enums::CharacterStates::Confused) {
 			return true;
 		}
 	}
@@ -241,7 +241,7 @@ bool Character::isConfused() const {
 
 bool Character::isCharmed() const {
 	for (size_t activeSpell = 0; activeSpell < activeSpells.size(); activeSpell++) {
-		if (activeSpells[activeSpell].first->getCharacterState().first == Enums::CharacterStates::Charmed) {
+		if (activeSpells[activeSpell]->getCharacterState().first == Enums::CharacterStates::Charmed) {
 			return true;
 		}
 	}
@@ -250,7 +250,7 @@ bool Character::isCharmed() const {
 
 bool Character::isChanneling() const {
 	for (size_t activeSpell = 0; activeSpell < activeSpells.size(); activeSpell++) {
-		if (activeSpells[activeSpell].first->getCharacterState().first == Enums::CharacterStates::Channeling) {
+		if (activeSpells[activeSpell]->getCharacterState().first == Enums::CharacterStates::Channeling) {
 			return true;
 		}
 	}
@@ -259,7 +259,7 @@ bool Character::isChanneling() const {
 
 bool Character::isSneaking() const {
 	for (size_t activeSpell = 0; activeSpell < activeSpells.size(); activeSpell++) {
-		if (activeSpells[activeSpell].first->getCharacterState().first == Enums::CharacterStates::Sneaking) {
+		if (activeSpells[activeSpell]->getCharacterState().first == Enums::CharacterStates::Sneaking) {
 			return true;
 		}
 	}
@@ -268,7 +268,7 @@ bool Character::isSneaking() const {
 
 bool Character::isInvisible() const {
 	for (size_t activeSpell = 0; activeSpell < activeSpells.size(); activeSpell++) {
-		if (activeSpells[activeSpell].first->getCharacterState().first == Enums::CharacterStates::Invisible) {
+		if (activeSpells[activeSpell]->getCharacterState().first == Enums::CharacterStates::Invisible) {
 			return true;
 		}
 	}
@@ -839,18 +839,18 @@ void Character::addActiveSpell(CSpellActionBase *spell) {
 
 	// here we check to see if the current spell cast is already on the character. if it is, then we refresh it.
 	for (size_t curSpell = 0; curSpell < activeSpells.size(); curSpell++) {
-		if (activeSpells[curSpell].first->getID() == spell->getID())
+		if (activeSpells[curSpell]->getID() == spell->getID())
 		{
 			// we replace the old spell with a new, in case a more powerful spell is cast (a higher rank)
-			activeSpells[curSpell].first = spell;
-			activeSpells[curSpell].second = Globals::clock.getElapsedTimeMilli();
+			activeSpells[curSpell] = spell;
+			activeSpells[curSpell]->m_timer.reset();
 			return;
 		}
 	}
 
 	// add new spell on character.
-	activeSpells.push_back(std::pair<CSpellActionBase*, uint32_t>(spell, Globals::clock.getElapsedTimeMilli()));
-
+	activeSpells.push_back(spell);
+	activeSpells.back()->m_timer.reset();
 	// if we're an NPC and the spell is hostile, we want to set the caster to hostile.
 	if (isPlayer() == false && spell->isSpellHostile() == true) {
 		// in the future when having more than one player playing, this function needs to be reworked.
@@ -861,8 +861,8 @@ void Character::addActiveSpell(CSpellActionBase *spell) {
 void Character::cleanupActiveSpells() {
 	size_t curSpell = 0;
 	while (curSpell < activeSpells.size()) {
-		if (activeSpells[curSpell].first->isEffectComplete() == true) {
-			delete activeSpells[curSpell].first;
+		if (activeSpells[curSpell]->isEffectComplete() == true) {
+			delete activeSpells[curSpell];
 			activeSpells.erase(activeSpells.begin() + curSpell);
 		}else {
 			curSpell++;
@@ -879,37 +879,37 @@ void Character::removeSpellsWithCharacterState(Enums::CharacterStates characterS
 	// removing active spells can cause NULL pointers, because they can be active in some damage cycle or other functions.
 	// Therefor in order to "remove" these spells we just mark them as completed, and let the cleanup-function handle the removal of the spells.
 	for (size_t curSpell = 0; curSpell < activeSpells.size(); curSpell++) {
-		if (activeSpells[curSpell].first->getCharacterState().first == characterState) {
-			activeSpells[curSpell].first->markSpellActionAsFinished();
+		if (activeSpells[curSpell]->getCharacterState().first == characterState) {
+			activeSpells[curSpell]->markSpellActionAsFinished();
 		}
 	}
 }
 
 void Character::removeActiveSpell(CSpellActionBase* activeSpell) {
 	for (size_t curSpell = 0; curSpell < activeSpells.size(); curSpell++) {
-		if (activeSpells[curSpell].first == activeSpell) {
-			activeSpells[curSpell].first->markSpellActionAsFinished();
+		if (activeSpells[curSpell] == activeSpell) {
+			activeSpells[curSpell]->markSpellActionAsFinished();
 		}
 	}
 }
 
-std::vector<std::pair<CSpellActionBase*, uint32_t> > Character::getActiveSpells() const {
+std::vector<CSpellActionBase*> Character::getActiveSpells() const {
 	return activeSpells;
 }
 
 void Character::addCooldownSpell(CSpellActionBase *spell) {
 
 	if (spell->getCooldown() > 0) {
-		cooldownSpells.push_back(std::pair<CSpellActionBase*, uint32_t>(spell, Globals::clock.getElapsedTimeMilli()));
+		cooldownSpells.push_back(spell);
+		cooldownSpells.back()->m_timer.reset();
 	}
 }
 
 void Character::cleanupCooldownSpells() {
 	size_t curSpell = 0;
 	while (curSpell < cooldownSpells.size()) {
-		uint32_t thisDuration = Globals::clock.getElapsedTimeMilli();
-		if (thisDuration - cooldownSpells[curSpell].second > cooldownSpells[curSpell].first->getCooldown() * 1000u) {
-			delete cooldownSpells[curSpell].first;
+		if (cooldownSpells[curSpell]->m_timer.getElapsedTimeMilli() > cooldownSpells[curSpell]->getCooldown() * 1000u) {
+			delete cooldownSpells[curSpell];
 			cooldownSpells.erase(cooldownSpells.begin() + curSpell);
 			if (isPlayer() == true) {
 				// this will seed a new ticket for the itemtooltip and spelltooltips, causing them to reload.
@@ -926,14 +926,14 @@ void Character::clearCooldownSpells() {
 	cooldownSpells.clear();
 }
 
-std::vector<std::pair<CSpellActionBase*, uint32_t> > Character::getCooldownSpells() const {
+std::vector<CSpellActionBase*> Character::getCooldownSpells() const {
 	return cooldownSpells;
 }
 
 uint32_t Character::getTicksOnCooldownSpell(std::string spellName) const {
 	for (size_t curSpell = 0; curSpell < cooldownSpells.size(); curSpell++) {
-		if (cooldownSpells[curSpell].first->getName() == spellName) {
-			return cooldownSpells[curSpell].second;
+		if (cooldownSpells[curSpell]->getName() == spellName) {
+			return cooldownSpells[curSpell]->m_timer.getElapsedTimeMilli();
 		}
 	}
 	return 0u;
@@ -941,7 +941,7 @@ uint32_t Character::getTicksOnCooldownSpell(std::string spellName) const {
 
 bool Character::isSpellOnCooldown(std::string spellName) const {
 	for (size_t curSpell = 0; curSpell < cooldownSpells.size(); curSpell++) {
-		if (cooldownSpells[curSpell].first->getName() == spellName) {
+		if (cooldownSpells[curSpell]->getName() == spellName) {
 			return true;
 		}
 	}
@@ -1158,8 +1158,9 @@ bool Character::castSpell(CSpellActionBase *spell) {
 
 	for (size_t curSpell = 0; curSpell < cooldownSpells.size(); curSpell++){
 
-		if (cooldownSpells[curSpell].first->getID() == spell->getID()){
-			if (Globals::clock.getElapsedTimeMilli() < cooldownSpells[curSpell].second + spell->getCooldown() * 1000){
+		if (cooldownSpells[curSpell]->getID() == spell->getID()){
+			
+			if (cooldownSpells[curSpell]->m_timer.getElapsedTimeMilli() < spell->getCooldown() * 1000){
 				/// can't cast, spell has a cooldown on it. Display message about it.
 				return false;
 			}

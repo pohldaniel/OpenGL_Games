@@ -250,7 +250,6 @@ void MeleeDamageAction::startEffect() {
 	}
 	m_actionTimer.restart();
 	finished = false;
-	effectStart = Globals::clock.getElapsedTimeMilli();
 	target->addActiveSpell(this);
 	creator->addCooldownSpell(dynamic_cast<CSpellActionBase*> (cast(nullptr, nullptr, false)));
 }
@@ -295,7 +294,6 @@ void MeleeDamageAction::finishEffect() {
 RangedDamageAction::RangedDamageAction() : currentFrame(animation.getFrame()) {
 	minRange = 0;
 	maxRange = 360; // default maxrange for ranged attacks. Can be overridden with setRange().
-	numProjectileTextures = 0;
 	damageBonus = 1.0;
 	moveSpeed = 1;
 	expireTime = 10000;
@@ -305,8 +303,7 @@ RangedDamageAction::RangedDamageAction(RangedDamageAction *other) : Configurable
 	minRange = other->minRange;
 	maxRange = other->maxRange;
 	damageBonus = other->damageBonus;
-	numProjectileTextures = other->numProjectileTextures;
-	projectileTexture = other->projectileTexture;
+	m_animationTextures  = other->m_animationTextures;
 	moveSpeed = other->moveSpeed;
 	expireTime = other->expireTime;
 }
@@ -333,14 +330,6 @@ void RangedDamageAction::setExpireTime(int newExpireTime) {
 	expireTime = newExpireTime;
 }
 
-void RangedDamageAction::setNumAnimations(int count) {
-	numProjectileTextures = count;
-}
-
-void RangedDamageAction::setAnimationTexture(int num, std::string filename) {
-	TextureManager::Loadimage(filename, num, projectileTexture);
-}
-
 void RangedDamageAction::startEffect() {
 	/// play the start sound effect for the spell, if we have any.
 	if (soundSpellStart != "") {
@@ -349,11 +338,8 @@ void RangedDamageAction::startEffect() {
 	const Player& player = Player::Get();
 	finished = false;
 
-	frameCount = 0;
 	moveRemaining = 0.0;
-	effectStart = Globals::clock.getElapsedTimeMilli();
-	animationTimerStart = effectStart;
-	lastEffect = effectStart;
+
 	posx = player.getXPos() + (player.getWidth() / 2);
 	posy = player.getYPos() + (player.getHeight() / 2);
 
@@ -426,8 +412,7 @@ void RangedDamageAction::finishEffect() {
 }
 
 double RangedDamageAction::getProgress() const {
-	int32_t curTime = Globals::clock.getElapsedTimeMilli();
-	return ((curTime - effectStart) / 650.0);
+	return ((m_actionTimer.getElapsedTimeMilli()) / 650.0);
 }
 
 void RangedDamageAction::draw() {

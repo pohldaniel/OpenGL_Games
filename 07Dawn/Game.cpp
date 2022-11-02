@@ -27,7 +27,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), player(P
 
 	// setting initial actions in the action bar
 	const std::vector<CSpellActionBase*> inscribedSpells = Player::Get().getSpellbook();
-	for (size_t curEntry = 0; curEntry <= 9 && curEntry < inscribedSpells.size(); ++curEntry) {
+	for (short curEntry = 0; curEntry <= 9 && curEntry < inscribedSpells.size(); ++curEntry) {
 		dawnInterface->bindActionToButtonNr(curEntry, inscribedSpells[curEntry]);
 	}
 
@@ -48,7 +48,7 @@ void Game::update() {
 	dawnInterface->processInputRightDrag();
 	
 	for (auto it = TextWindow::GetTextWindows().begin(); it != TextWindow::GetTextWindows().end(); ++it) {
-		short index = std::distance(TextWindow::GetTextWindows().begin(), it);
+		short index = static_cast<short>(std::distance(TextWindow::GetTextWindows().begin(), it));
 		TextWindow *curTextWindow = *it;		
 		if (curTextWindow->canBeDeleted() == true) {
 			curTextWindow->close();
@@ -74,9 +74,9 @@ void Game::update() {
 	}
 
 	// check all active spells for inEffects on our player.
-	std::vector<std::pair<CSpellActionBase*, uint32_t> > activeSpellActions = player.getActiveSpells();
+	std::vector<CSpellActionBase*> activeSpellActions = player.getActiveSpells();
 	for (size_t curActiveSpellNr = 0; curActiveSpellNr < activeSpellActions.size(); ++curActiveSpellNr) {
-		activeSpellActions[curActiveSpellNr].first->inEffect(m_dt);
+		activeSpellActions[curActiveSpellNr]->inEffect(m_dt);
 	}
 
 	player.update(m_dt);
@@ -109,18 +109,18 @@ void Game::render(unsigned int &frameBuffer) {
 		Npc *curNPC = zoneNPCs[x];
 		
 		// draw the spell effects for our NPCs
-		std::vector<std::pair<CSpellActionBase*, uint32_t> > activeSpellActions = curNPC->getActiveSpells();
+		std::vector<CSpellActionBase*> activeSpellActions = curNPC->getActiveSpells();
 		for (size_t curActiveSpellNr = 0; curActiveSpellNr < activeSpellActions.size(); ++curActiveSpellNr){
-			if (!activeSpellActions[curActiveSpellNr].first->isEffectComplete()){
-				activeSpellActions[curActiveSpellNr].first->draw();
+			if (!activeSpellActions[curActiveSpellNr]->isEffectComplete()){
+				activeSpellActions[curActiveSpellNr]->draw();
 			}
 		}
 	}
 
-	std::vector<std::pair<CSpellActionBase*, uint32_t> > activeSpellActions = player.getActiveSpells();
+	std::vector<CSpellActionBase*> activeSpellActions = player.getActiveSpells();
 	for (size_t curActiveSpellNr = 0; curActiveSpellNr < activeSpellActions.size(); ++curActiveSpellNr) {
-		if (!activeSpellActions[curActiveSpellNr].first->isEffectComplete()){
-			activeSpellActions[curActiveSpellNr].first->draw();
+		if (!activeSpellActions[curActiveSpellNr]->isEffectComplete()){
+			activeSpellActions[curActiveSpellNr]->draw();
 		}
 	}
 
@@ -144,7 +144,7 @@ void Game::resize() {
 
 void Game::processInput() {
 	Mouse &mouse = Mouse::instance();
-
+	Keyboard &keyboard = Keyboard::instance();
 	if (mouse.buttonPressed(Mouse::BUTTON_LEFT)) {
 		// get and iterate through the NPCs
 		std::vector<Npc*> zoneNPCs = zone->getNPCs();
@@ -169,4 +169,11 @@ void Game::processInput() {
 		}
 	}
 
+	if (keyboard.keyDown(Keyboard::KEY_F)) {
+		Message::Get().addText(ViewPort::get().getWidth() / 2, ViewPort::get().getHeight() / 2, 1.0f, 0.625f, 0.71f, 1.0f, 15u, 3.0f, "Zone saved ...");
+		return;
+	}
+
+
+	
 }

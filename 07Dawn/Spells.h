@@ -1,5 +1,5 @@
 #pragma once
-#include "engine/Clock.h"
+
 #include "SpellActionBase.h"
 #include "Player.h"
 
@@ -53,6 +53,7 @@ public:
 	TextureRect* getSymbol() const;
 
 	Clock m_spellTimer;
+	
 
 protected:
 	ConfigurableSpell();
@@ -118,9 +119,6 @@ public:
 	virtual CSpellActionBase* cast(Character *creator, Character *target, bool child);
 	virtual CSpellActionBase* cast(Character *creator, int x, int y);
 
-	void setNumAnimations(int count);
-	void setAnimationTexture(int num, std::string filename);
-
 	virtual void startEffect();
 	virtual void inEffect(float deltatime) override;
 	void finishEffect();
@@ -136,15 +134,8 @@ private:
 	friend CSpellActionBase* SpellCreation::getGeneralRayDamageSpell();
 	friend CSpellActionBase* SpellCreation::getGeneralRayDamageSpell(GeneralRayDamageSpell *other);
 
-	uint8_t frameCount;
-	uint32_t effectStart;
-	uint32_t lastEffect;
-	uint32_t animationTimerStart;
-	uint32_t animationTimerStop;
 	double remainingEffect;
-
-	int numTextures;
-	std::vector<TextureRect> spellTexture;
+	std::vector<TextureRect> m_animationTextures;
 };
 
 class GeneralAreaDamageSpell : public GeneralDamageSpell {
@@ -152,8 +143,6 @@ public:
 	virtual CSpellActionBase* cast(Character *creator, Character *target, bool child);
 	virtual CSpellActionBase* cast(Character *creator, int x, int y);
 
-	void setNumAnimations(int count);
-	void setAnimationTexture(int num, std::string filename);
 	void draw() override;
 	virtual void startEffect();
 	virtual void inEffect(float deltatime) override;
@@ -175,15 +164,8 @@ private:
 	friend CSpellActionBase* SpellCreation::getGeneralAreaDamageSpell();
 	friend CSpellActionBase* SpellCreation::getGeneralAreaDamageSpell(GeneralAreaDamageSpell *other);
 
-	uint8_t frameCount;
-	uint32_t effectStart;
-	uint32_t lastEffect;
-	uint32_t animationTimerStart;
-	uint32_t animationTimerStop;
 	double remainingEffect;
-
-	int numTextures;
-	std::vector<TextureRect> spellTexture;
+	std::vector<TextureRect> m_animationTextures;
 
 	Enums::EffectType effectType;
 	bool child;
@@ -196,8 +178,6 @@ public:
 
 	void setMoveSpeed(int newMoveSpeed);
 	void setExpireTime(int newExpireTime);
-	void setNumAnimations(int count);
-	void setAnimationTexture(int num, std::string filename);
 
 	virtual void startEffect();
 	virtual void inEffect(float deltatime) override;
@@ -218,14 +198,7 @@ private:
 	int posx, posy;
 	double moveRemaining;
 
-	uint8_t frameCount;
-	uint32_t effectStart;
-	uint32_t lastEffect;
-	uint32_t animationTimerStart;
-	uint32_t animationTimerStop;
-
-	int numBoltTextures;
-	std::vector<TextureRect> boltTexture;
+	std::vector<TextureRect> m_animationTextures;
 };
 
 class GeneralHealingSpell : public ConfigurableSpell
@@ -262,8 +235,7 @@ private:
 	friend CSpellActionBase* SpellCreation::getGeneralHealingSpell(GeneralHealingSpell *other);
 
 	Enums::EffectType effectType;
-	uint32_t effectStart;
-	uint32_t lastEffect;
+
 	double remainingEffect;
 	int healEffectMin;
 	int healEffectMax;
@@ -307,5 +279,4 @@ private:
 	int16_t *statsModifier;
 	int16_t *resistElementModifier;
 	int16_t *spellEffectElementModifier;
-	uint32_t effectStart;
 };

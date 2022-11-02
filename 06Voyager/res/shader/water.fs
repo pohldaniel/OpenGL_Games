@@ -23,9 +23,12 @@ const float reflectivity = 0.5;
 
 float getDepthPassSpaceZ(float zWC, float near, float far){
 
-	// Assume standard opengl depth range [0..1]
+	// Assume standard opengl depth range we have to map it (screen -> ndc <=> [0..1] -> [-1..1])
     float z_n = 2.0 * zWC - 1.0;
     float z_e = (2.0 * near * far) / (far + near + z_n * (near - far));	//[near, far]
+
+	// direct substitution
+	//float z_e = (near * far) / (far + zWC * (near - far));	//[near, far]
 
 	//divided by far to get the range [near/far, 1.0] just for visualisation
 	//float z_e = (2.0 * near) / (far + near + z_n * (near - far));	

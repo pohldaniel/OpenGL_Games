@@ -1,6 +1,6 @@
 /*
 ** Lua binding: Luainterface
-** Generated automatically by tolua++-1.0.92 on Sat Oct 29 00:41:25 2022.
+** Generated automatically by tolua++-1.0.92 on Wed Nov  2 01:20:20 2022.
 */
 
 #ifndef __cplusplus
@@ -4304,142 +4304,6 @@ static int tolua_Luainterface_GeneralDamageSpell_addAnimationFrame00(lua_State* 
 }
 #endif //#ifndef TOLUA_DISABLE
 
-/* method: setNumAnimations of class  GeneralRayDamageSpell */
-#ifndef TOLUA_DISABLE_tolua_Luainterface_GeneralRayDamageSpell_setNumAnimations00
-static int tolua_Luainterface_GeneralRayDamageSpell_setNumAnimations00(lua_State* tolua_S)
-{
-#ifndef TOLUA_RELEASE
-	tolua_Error tolua_err;
-	if (
-		!tolua_isusertype(tolua_S, 1, "GeneralRayDamageSpell", 0, &tolua_err) ||
-		!tolua_isnumber(tolua_S, 2, 0, &tolua_err) ||
-		!tolua_isnoobj(tolua_S, 3, &tolua_err)
-		)
-		goto tolua_lerror;
-	else
-#endif
-	{
-		GeneralRayDamageSpell* self = (GeneralRayDamageSpell*)tolua_tousertype(tolua_S, 1, 0);
-		int count = ((int)tolua_tonumber(tolua_S, 2, 0));
-#ifndef TOLUA_RELEASE
-		if (!self) tolua_error(tolua_S, "invalid 'self' in function 'setNumAnimations'", NULL);
-#endif
-		{
-			self->setNumAnimations(count);
-		}
-	}
-	return 0;
-#ifndef TOLUA_RELEASE
-	tolua_lerror :
-				 tolua_error(tolua_S, "#ferror in function 'setNumAnimations'.", &tolua_err);
-				 return 0;
-#endif
-}
-#endif //#ifndef TOLUA_DISABLE
-
-/* method: setAnimationTexture of class  GeneralRayDamageSpell */
-#ifndef TOLUA_DISABLE_tolua_Luainterface_GeneralRayDamageSpell_setAnimationTexture00
-static int tolua_Luainterface_GeneralRayDamageSpell_setAnimationTexture00(lua_State* tolua_S)
-{
-#ifndef TOLUA_RELEASE
-	tolua_Error tolua_err;
-	if (
-		!tolua_isusertype(tolua_S, 1, "GeneralRayDamageSpell", 0, &tolua_err) ||
-		!tolua_isnumber(tolua_S, 2, 0, &tolua_err) ||
-		!tolua_iscppstring(tolua_S, 3, 0, &tolua_err) ||
-		!tolua_isnoobj(tolua_S, 4, &tolua_err)
-		)
-		goto tolua_lerror;
-	else
-#endif
-	{
-		GeneralRayDamageSpell* self = (GeneralRayDamageSpell*)tolua_tousertype(tolua_S, 1, 0);
-		int num = ((int)tolua_tonumber(tolua_S, 2, 0));
-		std::string filename = ((std::string)  tolua_tocppstring(tolua_S, 3, 0));
-#ifndef TOLUA_RELEASE
-		if (!self) tolua_error(tolua_S, "invalid 'self' in function 'setAnimationTexture'", NULL);
-#endif
-		{
-			self->setAnimationTexture(num, filename);
-		}
-	}
-	return 0;
-#ifndef TOLUA_RELEASE
-	tolua_lerror :
-				 tolua_error(tolua_S, "#ferror in function 'setAnimationTexture'.", &tolua_err);
-				 return 0;
-#endif
-}
-#endif //#ifndef TOLUA_DISABLE
-
-/* method: setNumAnimations of class  GeneralAreaDamageSpell */
-#ifndef TOLUA_DISABLE_tolua_Luainterface_GeneralAreaDamageSpell_setNumAnimations00
-static int tolua_Luainterface_GeneralAreaDamageSpell_setNumAnimations00(lua_State* tolua_S)
-{
-#ifndef TOLUA_RELEASE
-	tolua_Error tolua_err;
-	if (
-		!tolua_isusertype(tolua_S, 1, "GeneralAreaDamageSpell", 0, &tolua_err) ||
-		!tolua_isnumber(tolua_S, 2, 0, &tolua_err) ||
-		!tolua_isnoobj(tolua_S, 3, &tolua_err)
-		)
-		goto tolua_lerror;
-	else
-#endif
-	{
-		GeneralAreaDamageSpell* self = (GeneralAreaDamageSpell*)tolua_tousertype(tolua_S, 1, 0);
-		int count = ((int)tolua_tonumber(tolua_S, 2, 0));
-#ifndef TOLUA_RELEASE
-		if (!self) tolua_error(tolua_S, "invalid 'self' in function 'setNumAnimations'", NULL);
-#endif
-		{
-			self->setNumAnimations(count);
-		}
-	}
-	return 0;
-#ifndef TOLUA_RELEASE
-	tolua_lerror :
-				 tolua_error(tolua_S, "#ferror in function 'setNumAnimations'.", &tolua_err);
-				 return 0;
-#endif
-}
-#endif //#ifndef TOLUA_DISABLE
-
-/* method: setAnimationTexture of class  GeneralAreaDamageSpell */
-#ifndef TOLUA_DISABLE_tolua_Luainterface_GeneralAreaDamageSpell_setAnimationTexture00
-static int tolua_Luainterface_GeneralAreaDamageSpell_setAnimationTexture00(lua_State* tolua_S)
-{
-#ifndef TOLUA_RELEASE
-	tolua_Error tolua_err;
-	if (
-		!tolua_isusertype(tolua_S, 1, "GeneralAreaDamageSpell", 0, &tolua_err) ||
-		!tolua_isnumber(tolua_S, 2, 0, &tolua_err) ||
-		!tolua_iscppstring(tolua_S, 3, 0, &tolua_err) ||
-		!tolua_isnoobj(tolua_S, 4, &tolua_err)
-		)
-		goto tolua_lerror;
-	else
-#endif
-	{
-		GeneralAreaDamageSpell* self = (GeneralAreaDamageSpell*)tolua_tousertype(tolua_S, 1, 0);
-		int num = ((int)tolua_tonumber(tolua_S, 2, 0));
-		std::string filename = ((std::string)  tolua_tocppstring(tolua_S, 3, 0));
-#ifndef TOLUA_RELEASE
-		if (!self) tolua_error(tolua_S, "invalid 'self' in function 'setAnimationTexture'", NULL);
-#endif
-		{
-			self->setAnimationTexture(num, filename);
-		}
-	}
-	return 0;
-#ifndef TOLUA_RELEASE
-	tolua_lerror :
-				 tolua_error(tolua_S, "#ferror in function 'setAnimationTexture'.", &tolua_err);
-				 return 0;
-#endif
-}
-#endif //#ifndef TOLUA_DISABLE
-
 /* method: setRadius of class  GeneralAreaDamageSpell */
 #ifndef TOLUA_DISABLE_tolua_Luainterface_GeneralAreaDamageSpell_setRadius00
 static int tolua_Luainterface_GeneralAreaDamageSpell_setRadius00(lua_State* tolua_S)
@@ -4534,74 +4398,6 @@ static int tolua_Luainterface_GeneralBoltDamageSpell_setExpireTime00(lua_State* 
 #ifndef TOLUA_RELEASE
 	tolua_lerror :
 				 tolua_error(tolua_S, "#ferror in function 'setExpireTime'.", &tolua_err);
-				 return 0;
-#endif
-}
-#endif //#ifndef TOLUA_DISABLE
-
-/* method: setNumAnimations of class  GeneralBoltDamageSpell */
-#ifndef TOLUA_DISABLE_tolua_Luainterface_GeneralBoltDamageSpell_setNumAnimations00
-static int tolua_Luainterface_GeneralBoltDamageSpell_setNumAnimations00(lua_State* tolua_S)
-{
-#ifndef TOLUA_RELEASE
-	tolua_Error tolua_err;
-	if (
-		!tolua_isusertype(tolua_S, 1, "GeneralBoltDamageSpell", 0, &tolua_err) ||
-		!tolua_isnumber(tolua_S, 2, 0, &tolua_err) ||
-		!tolua_isnoobj(tolua_S, 3, &tolua_err)
-		)
-		goto tolua_lerror;
-	else
-#endif
-	{
-		GeneralBoltDamageSpell* self = (GeneralBoltDamageSpell*)tolua_tousertype(tolua_S, 1, 0);
-		int count = ((int)tolua_tonumber(tolua_S, 2, 0));
-#ifndef TOLUA_RELEASE
-		if (!self) tolua_error(tolua_S, "invalid 'self' in function 'setNumAnimations'", NULL);
-#endif
-		{
-			self->setNumAnimations(count);
-		}
-	}
-	return 0;
-#ifndef TOLUA_RELEASE
-	tolua_lerror :
-				 tolua_error(tolua_S, "#ferror in function 'setNumAnimations'.", &tolua_err);
-				 return 0;
-#endif
-}
-#endif //#ifndef TOLUA_DISABLE
-
-/* method: setAnimationTexture of class  GeneralBoltDamageSpell */
-#ifndef TOLUA_DISABLE_tolua_Luainterface_GeneralBoltDamageSpell_setAnimationTexture00
-static int tolua_Luainterface_GeneralBoltDamageSpell_setAnimationTexture00(lua_State* tolua_S)
-{
-#ifndef TOLUA_RELEASE
-	tolua_Error tolua_err;
-	if (
-		!tolua_isusertype(tolua_S, 1, "GeneralBoltDamageSpell", 0, &tolua_err) ||
-		!tolua_isnumber(tolua_S, 2, 0, &tolua_err) ||
-		!tolua_iscppstring(tolua_S, 3, 0, &tolua_err) ||
-		!tolua_isnoobj(tolua_S, 4, &tolua_err)
-		)
-		goto tolua_lerror;
-	else
-#endif
-	{
-		GeneralBoltDamageSpell* self = (GeneralBoltDamageSpell*)tolua_tousertype(tolua_S, 1, 0);
-		int num = ((int)tolua_tonumber(tolua_S, 2, 0));
-		std::string filename = ((std::string)  tolua_tocppstring(tolua_S, 3, 0));
-#ifndef TOLUA_RELEASE
-		if (!self) tolua_error(tolua_S, "invalid 'self' in function 'setAnimationTexture'", NULL);
-#endif
-		{
-			self->setAnimationTexture(num, filename);
-		}
-	}
-	return 0;
-#ifndef TOLUA_RELEASE
-	tolua_lerror :
-				 tolua_error(tolua_S, "#ferror in function 'setAnimationTexture'.", &tolua_err);
 				 return 0;
 #endif
 }
@@ -5019,74 +4815,6 @@ static int tolua_Luainterface_RangedDamageAction_setExpireTime00(lua_State* tolu
 }
 #endif //#ifndef TOLUA_DISABLE
 
-/* method: setNumAnimations of class  RangedDamageAction */
-#ifndef TOLUA_DISABLE_tolua_Luainterface_RangedDamageAction_setNumAnimations00
-static int tolua_Luainterface_RangedDamageAction_setNumAnimations00(lua_State* tolua_S)
-{
-#ifndef TOLUA_RELEASE
-	tolua_Error tolua_err;
-	if (
-		!tolua_isusertype(tolua_S, 1, "RangedDamageAction", 0, &tolua_err) ||
-		!tolua_isnumber(tolua_S, 2, 0, &tolua_err) ||
-		!tolua_isnoobj(tolua_S, 3, &tolua_err)
-		)
-		goto tolua_lerror;
-	else
-#endif
-	{
-		RangedDamageAction* self = (RangedDamageAction*)tolua_tousertype(tolua_S, 1, 0);
-		int count = ((int)tolua_tonumber(tolua_S, 2, 0));
-#ifndef TOLUA_RELEASE
-		if (!self) tolua_error(tolua_S, "invalid 'self' in function 'setNumAnimations'", NULL);
-#endif
-		{
-			self->setNumAnimations(count);
-		}
-	}
-	return 0;
-#ifndef TOLUA_RELEASE
-	tolua_lerror :
-				 tolua_error(tolua_S, "#ferror in function 'setNumAnimations'.", &tolua_err);
-				 return 0;
-#endif
-}
-#endif //#ifndef TOLUA_DISABLE
-
-/* method: setAnimationTexture of class  RangedDamageAction */
-#ifndef TOLUA_DISABLE_tolua_Luainterface_RangedDamageAction_setAnimationTexture00
-static int tolua_Luainterface_RangedDamageAction_setAnimationTexture00(lua_State* tolua_S)
-{
-#ifndef TOLUA_RELEASE
-	tolua_Error tolua_err;
-	if (
-		!tolua_isusertype(tolua_S, 1, "RangedDamageAction", 0, &tolua_err) ||
-		!tolua_isnumber(tolua_S, 2, 0, &tolua_err) ||
-		!tolua_iscppstring(tolua_S, 3, 0, &tolua_err) ||
-		!tolua_isnoobj(tolua_S, 4, &tolua_err)
-		)
-		goto tolua_lerror;
-	else
-#endif
-	{
-		RangedDamageAction* self = (RangedDamageAction*)tolua_tousertype(tolua_S, 1, 0);
-		int num = ((int)tolua_tonumber(tolua_S, 2, 0));
-		std::string filename = ((std::string)  tolua_tocppstring(tolua_S, 3, 0));
-#ifndef TOLUA_RELEASE
-		if (!self) tolua_error(tolua_S, "invalid 'self' in function 'setAnimationTexture'", NULL);
-#endif
-		{
-			self->setAnimationTexture(num, filename);
-		}
-	}
-	return 0;
-#ifndef TOLUA_RELEASE
-	tolua_lerror :
-				 tolua_error(tolua_S, "#ferror in function 'setAnimationTexture'.", &tolua_err);
-				 return 0;
-#endif
-}
-#endif //#ifndef TOLUA_DISABLE
-
 /* method: addAnimationFrame of class  RangedDamageAction */
 #ifndef TOLUA_DISABLE_tolua_Luainterface_RangedDamageAction_addAnimationFrame00
 static int tolua_Luainterface_RangedDamageAction_addAnimationFrame00(lua_State* tolua_S)
@@ -5419,21 +5147,15 @@ TOLUA_API int tolua_Luainterface_open(lua_State* tolua_S)
 	tolua_endmodule(tolua_S);
 	tolua_cclass(tolua_S, "GeneralRayDamageSpell", "GeneralRayDamageSpell", "GeneralDamageSpell", NULL);
 	tolua_beginmodule(tolua_S, "GeneralRayDamageSpell");
-	tolua_function(tolua_S, "setNumAnimations", tolua_Luainterface_GeneralRayDamageSpell_setNumAnimations00);
-	tolua_function(tolua_S, "setAnimationTexture", tolua_Luainterface_GeneralRayDamageSpell_setAnimationTexture00);
 	tolua_endmodule(tolua_S);
 	tolua_cclass(tolua_S, "GeneralAreaDamageSpell", "GeneralAreaDamageSpell", "GeneralDamageSpell", NULL);
 	tolua_beginmodule(tolua_S, "GeneralAreaDamageSpell");
-	tolua_function(tolua_S, "setNumAnimations", tolua_Luainterface_GeneralAreaDamageSpell_setNumAnimations00);
-	tolua_function(tolua_S, "setAnimationTexture", tolua_Luainterface_GeneralAreaDamageSpell_setAnimationTexture00);
 	tolua_function(tolua_S, "setRadius", tolua_Luainterface_GeneralAreaDamageSpell_setRadius00);
 	tolua_endmodule(tolua_S);
 	tolua_cclass(tolua_S, "GeneralBoltDamageSpell", "GeneralBoltDamageSpell", "GeneralDamageSpell", NULL);
 	tolua_beginmodule(tolua_S, "GeneralBoltDamageSpell");
 	tolua_function(tolua_S, "setMoveSpeed", tolua_Luainterface_GeneralBoltDamageSpell_setMoveSpeed00);
 	tolua_function(tolua_S, "setExpireTime", tolua_Luainterface_GeneralBoltDamageSpell_setExpireTime00);
-	tolua_function(tolua_S, "setNumAnimations", tolua_Luainterface_GeneralBoltDamageSpell_setNumAnimations00);
-	tolua_function(tolua_S, "setAnimationTexture", tolua_Luainterface_GeneralBoltDamageSpell_setAnimationTexture00);
 	tolua_endmodule(tolua_S);
 	tolua_cclass(tolua_S, "GeneralHealingSpell", "GeneralHealingSpell", "ConfigurableSpell", NULL);
 	tolua_beginmodule(tolua_S, "GeneralHealingSpell");
@@ -5458,8 +5180,6 @@ TOLUA_API int tolua_Luainterface_open(lua_State* tolua_S)
 	tolua_function(tolua_S, "setDamageBonus", tolua_Luainterface_RangedDamageAction_setDamageBonus00);
 	tolua_function(tolua_S, "setMoveSpeed", tolua_Luainterface_RangedDamageAction_setMoveSpeed00);
 	tolua_function(tolua_S, "setExpireTime", tolua_Luainterface_RangedDamageAction_setExpireTime00);
-	tolua_function(tolua_S, "setNumAnimations", tolua_Luainterface_RangedDamageAction_setNumAnimations00);
-	tolua_function(tolua_S, "setAnimationTexture", tolua_Luainterface_RangedDamageAction_setAnimationTexture00);
 	tolua_function(tolua_S, "addAnimationFrame", tolua_Luainterface_RangedDamageAction_addAnimationFrame00);
 	tolua_endmodule(tolua_S);
 	tolua_endmodule(tolua_S);

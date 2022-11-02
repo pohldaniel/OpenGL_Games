@@ -2,7 +2,6 @@
 #include "Enums.h"
 #include "Statssystem.h"
 #include "Zone.h"
-#include "Constants.h"
 
 ConfigurableSpell::ConfigurableSpell() {
 	spellSymbol = NULL;
@@ -12,7 +11,7 @@ ConfigurableSpell::ConfigurableSpell() {
 	spellCost = 0;
 	duration = 0;
 	minRange = 0;
-	maxRange = 360; // default maxrange for spells. Can be overridden with setRange().
+	maxRange = 360; // default maxrange for spells. Can be overridden with setRange().F
 	radius = 0;
 	centerX = 0;
 	centerY = 0;
@@ -267,14 +266,11 @@ void GeneralDamageSpell::startAnimation() {
 /// class GeneralRayDamageSpell
 GeneralRayDamageSpell::GeneralRayDamageSpell() {
 	remainingEffect = 0;
-	numTextures = 0;
 }
 
 GeneralRayDamageSpell::GeneralRayDamageSpell(GeneralRayDamageSpell *other) : GeneralDamageSpell(other){
 	remainingEffect = 0;
-
-	numTextures = other->numTextures;
-	spellTexture = other->spellTexture;	
+	m_animationTextures = other->m_animationTextures;
 }
 
 CSpellActionBase* GeneralRayDamageSpell::cast(Character *creator, Character *target, bool child) {
@@ -293,14 +289,6 @@ CSpellActionBase* GeneralRayDamageSpell::cast(Character *creator, int x, int y) 
 	return newSpell;
 }
 
-void GeneralRayDamageSpell::setNumAnimations(int count) {
-	numTextures = count;
-}
-
-void GeneralRayDamageSpell::setAnimationTexture(int num, std::string filename) {
-	TextureManager::Loadimage(filename, num, spellTexture);
-}
-
 void GeneralRayDamageSpell::startEffect() {
 	if (!isEffectComplete()) return;
 	/// play the start sound effect for the spell, if we have any.
@@ -308,19 +296,11 @@ void GeneralRayDamageSpell::startEffect() {
 		//SoundEngine::playSound(soundSpellStart);
 	}
 	animation.start();
-	finished = false;
-
-	remainingEffect = 0.0;
-	frameCount = 0;
-
-	dealDirectDamage();
-
-	effectStart = Globals::clock.getElapsedTimeMilli();
-	animationTimerStart = effectStart;
-	lastEffect = effectStart;
-
 	m_spellTimer.restart();
 
+	finished = false;
+	remainingEffect = 0.0;
+	dealDirectDamage();
 	
 	target->addActiveSpell(this);
 	creator->addCooldownSpell(dynamic_cast<CSpellActionBase*> (cast(nullptr, nullptr, false)));
@@ -415,9 +395,6 @@ uint16_t GeneralAreaDamageSpell::getRadius() {
 
 GeneralAreaDamageSpell::GeneralAreaDamageSpell() {
 	remainingEffect = 0;
-
-	numTextures = 0;
-
 	centerX = 0;
 	centerY = 0;
 	radius = 0;
@@ -428,8 +405,7 @@ GeneralAreaDamageSpell::GeneralAreaDamageSpell() {
 GeneralAreaDamageSpell::GeneralAreaDamageSpell(GeneralAreaDamageSpell *other) : GeneralDamageSpell(other) {
 	remainingEffect = 0;
 
-	numTextures = other->numTextures;
-	spellTexture = other->spellTexture;
+	m_animationTextures = other->m_animationTextures;
 	spellSymbol = other->spellSymbol;
 
 	castTime = other->castTime;
@@ -485,14 +461,6 @@ CSpellActionBase* GeneralAreaDamageSpell::cast(Character *creator, int x, int y)
 	return newSpell;
 }
 
-void GeneralAreaDamageSpell::setNumAnimations(int count) {
-	numTextures = count;
-}
-
-void GeneralAreaDamageSpell::setAnimationTexture(int num, std::string filename) {
-	TextureManager::Loadimage(filename, num, spellTexture);
-}
-
 void GeneralAreaDamageSpell::startEffect() {
 	if (!isEffectComplete()) return;
 	/// play the start sound effect for the spell, if we have any.
@@ -502,16 +470,11 @@ void GeneralAreaDamageSpell::startEffect() {
 
 	radius = 50;
 	remainingEffect = 0.0;
-	frameCount = 0;
 	finished = false;
 	m_spellTimer.restart();
 	
 	m_elapsedTime = 0.0f;
 	if (child) dealDirectDamage();
-
-	effectStart = Globals::clock.getElapsedTimeMilli();
-	animationTimerStart = Globals::clock.getElapsedTimeMilli();
-	lastEffect = Globals::clock.getElapsedTimeMilli();
 
 	if (!child) {
 		ZoneManager::Get().getCurrentZone()->addActiveAoESpell(this);
@@ -597,14 +560,12 @@ void GeneralAreaDamageSpell::setRadius(uint16_t newRadius) {
 
 /// class GeneralBoltDamageSpell
 GeneralBoltDamageSpell::GeneralBoltDamageSpell() {
-	numBoltTextures = 0;
 	moveSpeed = 1;
 	expireTime = 10000;
 }
 
 GeneralBoltDamageSpell::GeneralBoltDamageSpell(GeneralBoltDamageSpell *other) : GeneralDamageSpell(other) {
-	numBoltTextures = other->numBoltTextures;
-	boltTexture = other->boltTexture;
+	m_animationTextures = other->m_animationTextures;
 	moveSpeed = other->moveSpeed;
 	expireTime = other->expireTime;
 }
@@ -631,14 +592,6 @@ void GeneralBoltDamageSpell::setExpireTime(int newExpireTime) {
 	expireTime = newExpireTime;
 }
 
-void GeneralBoltDamageSpell::setNumAnimations(int count) {
-	numBoltTextures = count;
-}
-
-void GeneralBoltDamageSpell::setAnimationTexture(int num, std::string filename) {
-	TextureManager::Loadimage(filename, num, boltTexture);
-}
-
 void GeneralBoltDamageSpell::startEffect() {
 	/// play the start sound effect for the spell, if we have any.
 	if (soundSpellStart != "") {
@@ -651,11 +604,8 @@ void GeneralBoltDamageSpell::startEffect() {
 	const Player& player = Player::Get();
 	finished = false;
 
-	frameCount = 0;
 	moveRemaining = 0.0;
-	effectStart = Globals::clock.getElapsedTimeMilli();
-	animationTimerStart = effectStart;
-	lastEffect = effectStart;
+
 	posx = player.getXPos() + (player.getWidth() / 2);
 	posy = player.getYPos() + (player.getHeight() / 2);
 
@@ -753,7 +703,7 @@ GeneralHealingSpell::GeneralHealingSpell() {
 	maxContinuousHealingPerSecond = 0.0;
 	elementContinuous = Enums::ElementType::Light;
 	remainingEffect = 0.0;
-	lastEffect = effectStart;
+
 	continuousHealingTime = 0;
 	hostileSpell = false;
 }
@@ -852,9 +802,6 @@ void GeneralHealingSpell::startEffect() {
 	finished = false;
 
 	remainingEffect = 0.0;
-	effectStart = Globals::clock.getElapsedTimeMilli();
-	lastEffect = effectStart;
-
 	m_spellTimer.restart();
 
 	int healing = RNG::randomSizeT(healEffectMin, healEffectMax);
@@ -1027,7 +974,6 @@ void GeneralBuffSpell::startEffect() {
 	m_spellTimer.restart();
 	finished = false;
 
-	effectStart = Globals::clock.getElapsedTimeMilli();
 	target->addActiveSpell(this);
 	creator->addCooldownSpell(dynamic_cast<CSpellActionBase*> (cast(nullptr, nullptr, false)));
 	unbindFromCreator();
@@ -1043,7 +989,6 @@ void GeneralBuffSpell::inEffect(float deltatime) {
 		return;
 	}
 	
-	uint32_t curTime = Globals::clock.getElapsedTimeMilli();
 	if (m_spellTimer.getElapsedTimeSinceRestartMilli() > getDuration() * 1000u) {
 		finishEffect();
 	}

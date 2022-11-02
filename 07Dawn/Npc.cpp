@@ -62,9 +62,9 @@ void Npc::update(float deltaTime) {
 		Move(deltaTime);
 		Animate(deltaTime);
 
-		std::vector<std::pair<CSpellActionBase*, uint32_t> > activeSpellActions = getActiveSpells();
+		std::vector<CSpellActionBase*> activeSpellActions = getActiveSpells();
 		for (size_t curActiveSpellNr = 0; curActiveSpellNr < activeSpellActions.size(); ++curActiveSpellNr) {
-			activeSpellActions[curActiveSpellNr].first->inEffect(deltaTime);
+			activeSpellActions[curActiveSpellNr]->inEffect(deltaTime);
 		}
 		cleanupActiveSpells();
 	}
