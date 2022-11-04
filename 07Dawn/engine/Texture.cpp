@@ -7,7 +7,7 @@ Texture::Texture(std::string fileName, const bool _flipVertical, unsigned int _f
 	
 	int width, height, numCompontents;
 	unsigned char* imageData = SOIL_load_image(fileName.c_str(), &width, &height, &numCompontents, SOIL_LOAD_AUTO);
-	unsigned int internalFormat = _format == -1 && numCompontents == 3 ? GL_RGB8 : _format == -1 ? GL_RGBA8 : _format;
+	unsigned int internalFormat = _format == 0 && numCompontents == 3 ? GL_RGB8 : _format == 0 ? GL_RGBA8 : _format;
 
 	if(_flipVertical)
 		flipVertical(imageData, numCompontents * width, height);
@@ -129,7 +129,7 @@ void Texture::loadFromFile(std::string pictureFile, unsigned short tileWidth, un
 	
 	int width, height, numCompontents;
 	unsigned char* imageData = SOIL_load_image(pictureFile.c_str(), &width, &height, &numCompontents, SOIL_LOAD_AUTO);
-	unsigned internalFormat = _format == -1 && numCompontents == 3 ? GL_RGB8 : _format == -1 ? GL_RGBA8 : _format;
+	unsigned int internalFormat = _format == 0 && numCompontents == 3 ? GL_RGB8 : _format == 0 ? GL_RGBA8 : _format;
 
 	if (_flipVertical)
 		flipVertical(imageData, numCompontents * width, height);
@@ -176,7 +176,7 @@ void Texture::loadFromFile(std::string pictureFile, unsigned int _offsetX, unsig
 
 	int width, height, numCompontents;
 	unsigned char* imageData = SOIL_load_image(pictureFile.c_str(), &width, &height, &numCompontents, SOIL_LOAD_AUTO);
-	unsigned internalFormat = _format == -1 && numCompontents == 3 ? GL_RGB8 : _format == -1 ? GL_RGBA8 : _format;
+	unsigned int internalFormat = _format == 0 && numCompontents == 3 ? GL_RGB8 : _format == 0 ? GL_RGBA8 : _format;
 
 	if (_flipVertical)
 		flipVertical(imageData, numCompontents * width, height);

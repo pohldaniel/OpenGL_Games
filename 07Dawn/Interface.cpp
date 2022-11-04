@@ -343,7 +343,7 @@ void Interface::drawCharacterStates() {
 	}
 }
 
-void Interface::addCombatText(int amount, bool critical, unsigned char damageType, int posX, int posY, bool update) {
+void Interface::addCombatText(int amount, bool critical, unsigned short damageType, int posX, int posY, bool update) {
 	std::stringstream converterStream, damageStream;
 	converterStream << amount;
 	std::string tempString = converterStream.str();
@@ -584,8 +584,8 @@ void Interface::setSpellQueue(Button& button, bool actionReadyToCast) {
 	m_spellQueue->actionReadyToCast = actionReadyToCast;
 }
 
-unsigned char Interface::getMouseOverButtonId(int x, int y) {
-	for (unsigned char buttonIndex = 0; buttonIndex < m_button.size(); buttonIndex++) {
+short Interface::getMouseOverButtonId(int x, int y) {
+	for (unsigned short buttonIndex = 0; buttonIndex < m_button.size(); buttonIndex++) {
 		if (x > m_actionBarPosX + m_button[buttonIndex].posX &&
 			x < m_actionBarPosX + m_button[buttonIndex].posX + (m_button[buttonIndex].width) &&
 			y > m_button[buttonIndex].posY &&
@@ -598,7 +598,7 @@ unsigned char Interface::getMouseOverButtonId(int x, int y) {
 }
 
 bool Interface::isButtonUsed(Button* button) const {
-	return button->action != nullptr;
+	 return button->action != nullptr;
 }
 
 void Interface::processInput() {
@@ -758,10 +758,6 @@ void Interface::processInputRightDrag() {
 	if (m_spellQueue != NULL && mouse.buttonPressed(Mouse::BUTTON_LEFT)) {
 		executeSpellQueue();
 	}
-}
-
-SpellActionBase* Interface::getCurrentAction() {
-	return m_spellQueue != nullptr ? m_spellQueue->action : nullptr;
 }
 
 void Interface::executeSpellQueue() {

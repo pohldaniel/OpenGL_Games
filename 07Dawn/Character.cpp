@@ -52,7 +52,6 @@ spellCriticalModifierPoints(0),
 experienceValue(0),
 level(1) {
 
-	wander_radius = 40;
 	activeDirection = Enums::Direction::S;	
 
 	resistElementModifierPoints = new uint16_t[static_cast<size_t>(Enums::ElementType::CountET)];
@@ -63,13 +62,7 @@ level(1) {
 	}
 }
 
-void Character::setNumActivities(unsigned short numActivities) {	
-	m_numActivities = numActivities;
-}
 
-unsigned short Character::getNumActivities() {
-	return m_numActivities;
-}
 
 void Character::baseOnType(std::string characterType) {
 	const CharacterType& other = CharacterTypeManager::Get().getCharacterType(characterType);
@@ -93,7 +86,6 @@ void Character::baseOnType(std::string characterType) {
 	setHitModifierPoints(other.hitModifierPoints);
 	setEvadeModifierPoints(other.evadeModifierPoints);
 	setClass(other.characterClass);
-	setWanderRadius(other.wander_radius);
 	setName(other.name);
 	setLevel(other.level);
 	setExperienceValue(other.experienceValue);
@@ -195,13 +187,7 @@ void Character::giveCoins(unsigned int amountOfCoins) {
 	coins += amountOfCoins;
 }
 
-uint16_t Character::getWanderRadius() const {
-	return wander_radius;
-}
 
-uint16_t Character::getWanderRadiusSq() const {
-	return wander_radius * wander_radius;
-}
 
 bool Character::isStunned() const{
 	for (size_t activeSpell = 0; activeSpell < activeSpells.size(); activeSpell++) {
@@ -280,21 +266,17 @@ bool Character::getIsPreparing() const {
 	return isPreparing;
 }
 
-bool Character::isPlayer() const {
-	return false;
-}
 
 bool Character::mayDoAnythingAffectingSpellActionWithoutAborting() const {
-	//return (curSpellAction == NULL);
-	return true;
+	return (curSpellAction == NULL);
 }
 
 bool Character::mayDoAnythingAffectingSpellActionWithAborting() const {
-	/*if (isPlayer() == true) {
+	if (m_isPlayer) {
 		return (curSpellAction == NULL || isPreparing);
 	}else {
 		return (curSpellAction == NULL);
-	}*/
+	}
 
 	return true;
 }
@@ -330,36 +312,33 @@ float Character::getMovementSpeed() const {
 	}
 }
 
-void Character::MoveUp(uint8_t n) {
+void Character::MoveUp(unsigned char n) {
 	//if (CollisionCheck(N) == 0) {
 		y_pos += n;
 		//}
 }
 
-void Character::MoveDown(uint8_t n) {
+void Character::MoveDown(unsigned char n) {
 	//if (CollisionCheck(S) == 0) {
 		y_pos -= n;
 		//}
 }
 
-void Character::MoveLeft(uint8_t n) {
+void Character::MoveLeft(unsigned char n) {
 	//if (CollisionCheck(W) == 0) {
 		x_pos -= n;
 		//}
 }
 
-void Character::MoveRight(uint8_t n) {
+void Character::MoveRight(unsigned char n) {
 	//if (CollisionCheck(E) == 0) {
 		x_pos += n;
 		//}
 }
 
-void Character::Move(char x, char y) {
-	x_pos += x;
-	y_pos += y;
-}
 
-void Character::Move(Enums::Direction direction, uint8_t n) {
+
+void Character::Move(Enums::Direction direction, unsigned char n) {
 	switch (direction) {
 		case Enums::Direction::NW:
 			MoveLeft(n);
@@ -394,257 +373,17 @@ void Character::Move(Enums::Direction direction, uint8_t n) {
 	}
 }
 
-void Character::setStrength(uint16_t newStrength){
-	strength = newStrength;
-}
 
-void Character::setName(std::string newName) {
-	name = newName;
-}
 
-void Character::setDexterity(uint16_t newDexterity){
-	dexterity = newDexterity;
-}
 
-void Character::setVitality(uint16_t newVitality){
-	vitality = newVitality;
-}
 
-void Character::setIntellect(uint16_t newIntellect){
-	intellect = newIntellect;
-}
 
-void Character::setWisdom(uint16_t newWisdom){
-	wisdom = newWisdom;
-}
 
-void Character::setMaxHealth(uint16_t newMaxHealth){
-	max_health = newMaxHealth;
-	// if ( current_health > getModifiedMaxHealth() )
-	// {
-	 current_health = getModifiedMaxHealth();
-	// }
-}
 
-void Character::setMaxMana(uint16_t newMaxMana){
-	max_mana = newMaxMana;
-	// if ( current_mana > getModifiedMaxMana() )
-	// {
-	 current_mana = getModifiedMaxMana();
-	// }
-}
 
-void Character::setMaxFatigue(uint16_t newMaxFatigue){
-	max_fatigue = newMaxFatigue;
-	// if ( current_fatigue > getModifiedMaxFatigue() )
-	// {
-	current_fatigue = getModifiedMaxFatigue();
-	// }
-}
 
-void Character::setHealthRegen(uint16_t newHealthRegen){
-	healthRegen = newHealthRegen;
-}
 
-void Character::setManaRegen(uint16_t newManaRegen){
-	manaRegen = newManaRegen;
-}
 
-void Character::setFatigueRegen(uint16_t newFatigueRegen){
-	fatigueRegen = newFatigueRegen;
-}
-
-void Character::setMaxDamage(uint16_t newMaxDamage){
-	max_damage = newMaxDamage;
-}
-
-void Character::setMinDamage(uint16_t newMinDamage){
-	min_damage = newMinDamage;
-}
-
-void Character::setArmor(uint16_t newArmor){
-	armor = newArmor;
-}
-
-void Character::setDamageModifierPoints(uint16_t newDamageModifierPoints){
-	damageModifierPoints = newDamageModifierPoints;
-}
-
-void Character::setHitModifierPoints(uint16_t newHitModifierPoints){
-	hitModifierPoints = newHitModifierPoints;
-}
-
-void Character::setEvadeModifierPoints(uint16_t newEvadeModifierPoints){
-	evadeModifierPoints = newEvadeModifierPoints;
-}
-
-void Character::setWanderRadius(uint16_t newWanderRadius){
-	wander_radius = newWanderRadius;
-}
-
-void Character::setLevel(uint8_t newLevel){
-	level = newLevel;
-}
-
-void Character::setExperienceValue(uint8_t experienceValue){
-	Character::experienceValue = experienceValue;
-}
-
-uint16_t Character::getStrength() const{
-	return strength;
-}
-
-uint16_t Character::getDexterity() const{
-	return dexterity;
-}
-
-uint16_t Character::getVitality() const{
-	return vitality;
-}
-
-uint16_t Character::getIntellect() const{
-	return intellect;
-}
-
-uint16_t Character::getWisdom() const{
-	return wisdom;
-}
-
-uint16_t Character::getMaxHealth() const{
-	return max_health;
-}
-
-uint16_t Character::getMaxMana() const{
-	return max_mana;
-}
-
-uint16_t Character::getMaxFatigue() const{
-	return max_fatigue;
-}
-
-uint16_t Character::getMaxDamage() const{
-	return max_damage;
-}
-
-uint16_t Character::getMinDamage() const{
-	return min_damage;
-}
-
-uint16_t Character::getArmor() const{
-	return armor;
-}
-
-uint16_t Character::getHealthRegen() const{
-	return healthRegen;
-}
-
-uint16_t Character::getManaRegen() const{
-	return manaRegen;
-}
-
-uint16_t Character::getFatigueRegen() const{
-	return fatigueRegen;
-}
-
-uint16_t Character::getDamageModifierPoints() const{
-	return damageModifierPoints;
-}
-
-uint16_t Character::getHitModifierPoints() const{
-	return hitModifierPoints;
-}
-
-uint16_t Character::getEvadeModifierPoints() const{
-	return evadeModifierPoints;
-}
-
-uint16_t Character::getParryModifierPoints() const {
-	return parryModifierPoints;
-}
-
-uint16_t Character::getBlockModifierPoints() const {
-	return blockModifierPoints;
-}
-
-uint16_t Character::getMeleeCriticalModifierPoints() const {
-	return meleeCriticalModifierPoints;
-}
-
-uint16_t Character::getSpellCriticalModifierPoints() const {
-	return spellCriticalModifierPoints;
-}
-
-uint16_t Character::getSpellEffectElementModifierPoints(Enums::ElementType elementType) const {
-	return spellEffectElementModifierPoints[static_cast<size_t>(elementType)];
-}
-
-uint16_t Character::getSpellEffectAllModifierPoints() const {
-	return spellEffectAllModifierPoints;
-}
-
-uint16_t Character::getResistElementModifierPoints(Enums::ElementType elementType) const {
-	return resistElementModifierPoints[static_cast<size_t>(elementType)];
-}
-
-uint16_t Character::getResistAllModifierPoints() const {
-	return resistAllModifierPoints;
-}
-
-Enums::CharacterClass Character::getClass() const{
-	return characterClass;
-}
-
-std::string Character::getName() const{
-	return name;
-}
-
-uint8_t Character::getLevel() const{
-	return level;
-}
-
-uint8_t Character::getExperienceValue() const{
-	return experienceValue;
-}
-
-uint16_t Character::getCurrentHealth() const {
-	if (current_health > getModifiedMaxHealth())
-		return getModifiedMaxHealth();
-
-	return current_health;
-}
-
-void Character::setCurrentHealth(uint16_t newCurrentHealth) {
-
-	current_health = newCurrentHealth;
-}
-
-uint16_t Character::getModifiedMaxHealth() const {
-	return getMaxHealth();
-}
-
-void Character::modifyCurrentHealth(int16_t currentHealthModifier) {
-	setCurrentHealth(getModifiedAttributeValue(getCurrentHealth(), currentHealthModifier, NULLABLE_ATTRIBUTE_MIN, getModifiedMaxHealth()));
-}
-
-uint16_t Character::getModifiedStrength() const {
-	return getStrength();
-}
-
-uint16_t Character::getModifiedDexterity() const {
-	return getDexterity();
-}
-
-uint16_t Character::getModifiedVitality() const {
-	return getVitality();
-}
-
-uint16_t Character::getModifiedIntellect() const{
-	return getIntellect();
-}
-
-uint16_t Character::getModifiedWisdom() const {
-	return getWisdom();
-}
 
 int Character::getDeltaX() {
 	return dx;
@@ -654,16 +393,10 @@ int Character::getDeltaY() {
 	return dy;
 }
 
-void Character::setExperience(uint64_t experience) {
-	this->experience = experience;
-}
 
-uint64_t Character::getExperience() const {
-	return experience;
-}
 
 void Character::addDamageDisplayToGUI(int amount, bool critical, uint8_t damageType) {
-	if (isPlayer()){
+	if (m_isPlayer){
 		Interface::Get().addCombatText(amount, critical, damageType, 140, ViewPort::get().getHeight() - 40, true);
 	}else {
 		Interface::Get().addCombatText(amount, critical, damageType, getXPos() + getWidth() / 2, getYPos() + getHeight() + 52, false);
@@ -693,31 +426,18 @@ bool Character::CheckMouseOver(int _x_pos, int _y_pos) {
 	}
 }
 
-bool Character::hasTarget(Character* target) {
 
-	if (Character::target == target) {
-		return true;
-	}
-
-	return false;
-}
 
 void Character::setTarget(Character *target) {
 	this->target = target;
 }
 
-void Character::setTarget(Character *target, Enums::Attitude attitude) {
-	this->target = target;
-	targetAttitude = attitude;
-}
 
 Character* Character::getTarget() const {
 	return target;
 }
 
-Enums::Attitude Character::getTargetAttitude() {
-	return targetAttitude;
-}
+
 
 float Character::getPreparationPercentage() const {
 	if (isPreparing) {
@@ -764,53 +484,9 @@ Enums::CharacterArchType Character::getArchType() const {
 	return characterArchType;
 }
 
-uint16_t Character::getModifiedMaxMana() const {
-	return getMaxMana();
-}
 
 
-void Character::modifyMaxMana(int16_t maxManaModifier) {
-	setMaxMana(getModifiedAttributeValue(max_mana, maxManaModifier, NULLABLE_ATTRIBUTE_MIN));
-}
 
-uint16_t Character::getCurrentMana() const {
-	if (current_mana > getModifiedMaxMana())
-		return getModifiedMaxMana();
-
-	return current_mana;
-}
-
-void Character::setCurrentMana(uint16_t newCurrentMana) {
-	current_mana = newCurrentMana;
-}
-
-void Character::modifyCurrentMana(int16_t currentManaModifier) {
-	setCurrentMana(getModifiedAttributeValue(getCurrentMana(), currentManaModifier, NULLABLE_ATTRIBUTE_MIN, getModifiedMaxMana()));
-}
-
-
-uint16_t Character::getModifiedMaxFatigue() const {
-	return getMaxFatigue();
-}
-
-void Character::modifyMaxFatigue(int16_t maxFatigueModifier) {
-	setMaxFatigue(getModifiedAttributeValue(max_fatigue, maxFatigueModifier, NULLABLE_ATTRIBUTE_MIN));
-}
-
-uint16_t Character::getCurrentFatigue() const {
-	if (current_fatigue > getModifiedMaxFatigue())
-		return getModifiedMaxFatigue();
-
-	return current_fatigue;
-}
-
-void Character::setCurrentFatigue(uint16_t newCurrentFatigue) {
-	current_fatigue = newCurrentFatigue;
-}
-
-void Character::modifyCurrentFatigue(int16_t currentFatigueModifier) {
-	setCurrentFatigue(getModifiedAttributeValue(getCurrentFatigue(), currentFatigueModifier, NULLABLE_ATTRIBUTE_MIN, getModifiedMaxFatigue()));
-}
 
 void Character::regenerateLifeManaFatigue(uint32_t regenPoints) {
 	/** Regenerate life, mana and fatigue every 1000 ms. **/
@@ -852,7 +528,7 @@ void Character::addActiveSpell(SpellActionBase *spell) {
 	activeSpells.push_back(spell);
 	activeSpells.back()->m_timer.reset();
 	// if we're an NPC and the spell is hostile, we want to set the caster to hostile.
-	if (isPlayer() == false && spell->isSpellHostile() == true) {
+	if (m_isPlayer == false && spell->isSpellHostile() == true) {
 		// in the future when having more than one player playing, this function needs to be reworked.
 		dynamic_cast<Npc*>(this)->chasePlayer(&Player::Get());
 	}
@@ -911,7 +587,7 @@ void Character::cleanupCooldownSpells() {
 		if (cooldownSpells[curSpell]->m_timer.getElapsedTimeMilli() > cooldownSpells[curSpell]->getCooldown() * 1000u) {
 			delete cooldownSpells[curSpell];
 			cooldownSpells.erase(cooldownSpells.begin() + curSpell);
-			if (isPlayer() == true) {
+			if (m_isPlayer == true) {
 				// this will seed a new ticket for the itemtooltip and spelltooltips, causing them to reload.
 				dynamic_cast<Player*>(this)->setTicketForItemTooltip();
 				dynamic_cast<Player*>(this)->setTicketForSpellTooltip();
@@ -1015,7 +691,7 @@ void Character::Damage(int amount, bool criticalHit) {
 		if (current_health <= amount) {
 			current_health = 0;
 			Die();
-			if (isPlayer() == false) {
+			if (m_isPlayer == false) {
 				Player *player = &Player::Get();
 				player->gainExperience(getExperienceValue());
 			}
@@ -1040,7 +716,7 @@ void Character::raiseLevel() {
 		setStrength(getStrength() * 1.1);
 		setLevel(getLevel() + 1);
 		GLfloat yellow[] = { 1.0f, 1.0f, 0.0f };
-		if (isPlayer() == true)
+		if (m_isPlayer == true)
 		{
 			//dynamic_cast<Player*>(this)->setTicketForItemTooltip();
 			//dynamic_cast<Player*>(this)->setTicketForSpellTooltip();
@@ -1050,7 +726,7 @@ void Character::raiseLevel() {
 }
 
 void Character::gainExperience(uint64_t addExp) {
-	if (isPlayer()) {
+	if (m_isPlayer) {
 
 		if (std::numeric_limits<uint64_t>::max() - addExp < experience) {
 			experience = std::numeric_limits<uint64_t>::max();
@@ -1096,7 +772,7 @@ void Character::inscribeSpellInSpellbook(SpellActionBase *spell) {
 			if (spellbook[curSpell]->getName() == spell->getName()) {
 				if (spellbook[curSpell]->getRank() < spell->getRank()) {
 					spellbook[curSpell] = spell;
-					if (isPlayer() == true) {
+					if (m_isPlayer == true) {
 						// this will seed a new ticket for the itemtooltip, causing it to reload. We might need this because of the tooltip message displaying already known spells and ranks.
 						//dynamic_cast<Player*>(this)->setTicketForItemTooltip();
 					}
@@ -1106,7 +782,7 @@ void Character::inscribeSpellInSpellbook(SpellActionBase *spell) {
 		}
 		spellbook.push_back(spell);
 
-		if (isPlayer() == true) {
+		if (m_isPlayer == true) {
 			// this will seed a new ticket for the itemtooltip, causing it to reload. We might need this because of the tooltip message displaying already known spells and ranks.
 			//dynamic_cast<Player*>(this)->setTicketForItemTooltip();
 		}
@@ -1147,7 +823,7 @@ bool Character::castSpell(SpellActionBase *spell) {
 	}
 
 
-	if (isPlayer() == true) {
+	if (m_isPlayer == true) {
 		if (spell->getRequiredWeapons() != 0) {
 			//if ((spell->getRequiredWeapons() & (dynamic_cast<Player*>(this)->getInventory()->getWeaponTypeBySlot(Enums::ItemSlot::MAIN_HAND) | dynamic_cast<Player*>(this)->getInventory()->getWeaponTypeBySlot(Enums::ItemSlot::OFF_HAND))) == 0) {
 				/// can't cast spell, not wielding required weapon. Display message here about it...
@@ -1296,7 +972,316 @@ void Character::startSpellAction() {
 	}
 }
 
+void Character::setCurrentHealth(unsigned short newCurrentHealth) {
 
+	current_health = newCurrentHealth;
+}
+
+void Character::setCurrentMana(unsigned short newCurrentMana) {
+	current_mana = newCurrentMana;
+}
+
+void Character::setCurrentFatigue(unsigned short newCurrentFatigue) {
+	current_fatigue = newCurrentFatigue;
+}
+
+void Character::setExperience(unsigned long experience) {
+	this->experience = experience;
+}
+
+
+//********************************************************////
+void Character::modifyCurrentHealth(short currentHealthModifier) {
+	setCurrentHealth(getModifiedAttributeValue(getCurrentHealth(), currentHealthModifier, NULLABLE_ATTRIBUTE_MIN, getModifiedMaxHealth()));
+}
+
+void Character::modifyCurrentMana(short currentManaModifier) {
+	setCurrentMana(getModifiedAttributeValue(getCurrentMana(), currentManaModifier, NULLABLE_ATTRIBUTE_MIN, getModifiedMaxMana()));
+}
+
+void Character::modifyCurrentFatigue(short currentFatigueModifier) {
+	setCurrentFatigue(getModifiedAttributeValue(getCurrentFatigue(), currentFatigueModifier, NULLABLE_ATTRIBUTE_MIN, getModifiedMaxFatigue()));
+}
+
+void Character::modifyMaxHealth(short maxHealthModifier){
+	setMaxHealth(getModifiedAttributeValue(max_health, maxHealthModifier, NON_NULLABLE_ATTRIBUTE_MIN));
+}
+
+void Character::modifyMaxMana(short maxManaModifier) {
+	setMaxMana(getModifiedAttributeValue(max_mana, maxManaModifier, NULLABLE_ATTRIBUTE_MIN));
+}
+
+void Character::modifyMaxFatigue(short maxFatigueModifier) {
+	setMaxFatigue(getModifiedAttributeValue(max_fatigue, maxFatigueModifier, NULLABLE_ATTRIBUTE_MIN));
+}
+
+unsigned short Character::getModifiedMaxHealth() const {
+	return getMaxHealth();
+}
+
+unsigned short Character::getModifiedMaxMana() const {
+	return getMaxMana();
+}
+
+unsigned short Character::getModifiedMaxFatigue() const {
+	return getMaxFatigue();
+}
+
+unsigned short Character::getCurrentHealth() const {
+	if (current_health > getModifiedMaxHealth())
+		return getModifiedMaxHealth();
+
+	return current_health;
+}
+
+unsigned short Character::getCurrentMana() const {
+	if (current_mana > getModifiedMaxMana())
+		return getModifiedMaxMana();
+
+	return current_mana;
+}
+
+unsigned short Character::getCurrentFatigue() const {
+	if (current_fatigue > getModifiedMaxFatigue())
+		return getModifiedMaxFatigue();
+
+	return current_fatigue;
+}
+
+unsigned short Character::getModifiedStrength() const {
+	return getStrength();
+}
+
+unsigned short Character::getModifiedDexterity() const {
+	return getDexterity();
+}
+
+unsigned short Character::getModifiedVitality() const {
+	return getVitality();
+}
+
+unsigned short Character::getModifiedIntellect() const {
+	return getIntellect();
+}
+
+unsigned short Character::getModifiedWisdom() const {
+	return getWisdom();
+}
+
+unsigned short Character::getParryModifierPoints() const {
+	return parryModifierPoints;
+}
+
+unsigned short Character::getBlockModifierPoints() const {
+	return blockModifierPoints;
+}
+
+unsigned short Character::getMeleeCriticalModifierPoints() const {
+	return meleeCriticalModifierPoints;
+}
+
+unsigned short Character::getSpellCriticalModifierPoints() const {
+	return spellCriticalModifierPoints;
+}
+
+unsigned short Character::getSpellEffectElementModifierPoints(Enums::ElementType elementType) const {
+	return spellEffectElementModifierPoints[static_cast<size_t>(elementType)];
+}
+
+unsigned short Character::getSpellEffectAllModifierPoints() const {
+	return spellEffectAllModifierPoints;
+}
+
+unsigned short Character::getResistElementModifierPoints(Enums::ElementType elementType) const {
+	return resistElementModifierPoints[static_cast<size_t>(elementType)];
+}
+
+unsigned short Character::getResistAllModifierPoints() const {
+	return resistAllModifierPoints;
+}
+
+unsigned long Character::getExperience() const {
+	return experience;
+}
+
+////////////////////////////////////////////////////LUA/////////////////////////////////////
+void Character::setName(std::string newName) {
+	name = newName;
+}
+
+void Character::setStrength(unsigned short newStrength) {
+	strength = newStrength;
+}
+
+
+void Character::setDexterity(unsigned short newDexterity) {
+	dexterity = newDexterity;
+}
+
+void Character::setVitality(unsigned short newVitality) {
+	vitality = newVitality;
+}
+
+void Character::setIntellect(unsigned short newIntellect) {
+	intellect = newIntellect;
+}
+
+void Character::setWisdom(unsigned short newWisdom) {
+	wisdom = newWisdom;
+}
+
+void Character::setMaxHealth(unsigned short newMaxHealth) {
+	max_health = newMaxHealth;
+	// if ( current_health > getModifiedMaxHealth() )
+	// {
+	current_health = getModifiedMaxHealth();
+	// }
+}
+
+void Character::setMaxMana(unsigned short newMaxMana) {
+	max_mana = newMaxMana;
+	// if ( current_mana > getModifiedMaxMana() )
+	// {
+	current_mana = getModifiedMaxMana();
+	// }
+}
+
+void Character::setMaxFatigue(unsigned short newMaxFatigue) {
+	max_fatigue = newMaxFatigue;
+	// if ( current_fatigue > getModifiedMaxFatigue() )
+	// {
+	current_fatigue = getModifiedMaxFatigue();
+	// }
+}
+
+void Character::setHealthRegen(unsigned short newHealthRegen) {
+	healthRegen = newHealthRegen;
+}
+
+void Character::setManaRegen(unsigned short newManaRegen) {
+	manaRegen = newManaRegen;
+}
+
+void Character::setFatigueRegen(unsigned short newFatigueRegen) {
+	fatigueRegen = newFatigueRegen;
+}
+
+void Character::setMaxDamage(unsigned short newMaxDamage) {
+	max_damage = newMaxDamage;
+}
+
+void Character::setMinDamage(unsigned short newMinDamage) {
+	min_damage = newMinDamage;
+}
+
+void Character::setArmor(unsigned short newArmor) {
+	armor = newArmor;
+}
+
+void Character::setDamageModifierPoints(unsigned short newDamageModifierPoints) {
+	damageModifierPoints = newDamageModifierPoints;
+}
+
+void Character::setHitModifierPoints(unsigned short newHitModifierPoints) {
+	hitModifierPoints = newHitModifierPoints;
+}
+
+void Character::setEvadeModifierPoints(unsigned short newEvadeModifierPoints) {
+	evadeModifierPoints = newEvadeModifierPoints;
+}
+
+void Character::setLevel(unsigned short newLevel) {
+	level = newLevel;
+}
+
+void Character::setExperienceValue(unsigned short experienceValue) {
+	Character::experienceValue = experienceValue;
+}
+
+Enums::CharacterClass Character::getClass() const {
+	return characterClass;
+}
+
+std::string Character::getName() const {
+	return name;
+}
+
+unsigned short Character::getStrength() const {
+	return strength;
+}
+
+unsigned short Character::getDexterity() const {
+	return dexterity;
+}
+
+unsigned short Character::getVitality() const {
+	return vitality;
+}
+
+unsigned short Character::getIntellect() const {
+	return intellect;
+}
+
+unsigned short Character::getWisdom() const {
+	return wisdom;
+}
+
+unsigned short Character::getMaxHealth() const {
+	return max_health;
+}
+
+unsigned short Character::getMaxMana() const {
+	return max_mana;
+}
+
+unsigned short Character::getMaxFatigue() const {
+	return max_fatigue;
+}
+
+unsigned short Character::getMaxDamage() const {
+	return max_damage;
+}
+
+unsigned short Character::getMinDamage() const {
+	return min_damage;
+}
+
+unsigned short Character::getArmor() const {
+	return armor;
+}
+
+unsigned short Character::getHealthRegen() const {
+	return healthRegen;
+}
+
+uint16_t Character::getManaRegen() const {
+	return manaRegen;
+}
+
+unsigned short Character::getFatigueRegen() const {
+	return fatigueRegen;
+}
+
+unsigned short Character::getDamageModifierPoints() const {
+	return damageModifierPoints;
+}
+
+unsigned short Character::getHitModifierPoints() const {
+	return hitModifierPoints;
+}
+
+unsigned short Character::getEvadeModifierPoints() const {
+	return evadeModifierPoints;
+}
+
+unsigned short Character::getLevel() const {
+	return level;
+}
+
+unsigned short Character::getExperienceValue() const {
+	return experienceValue;
+}
+/////////////////////////////////////////////////////////////////////////////////////////////
 
 
 Enums::Direction Character::GetOppositeDirection(Enums::Direction direction) {
@@ -1403,99 +1388,98 @@ void CharacterType::baseOnType(std::string name) {
 	name = other.name;
 	level = other.level;
 	experienceValue = other.experienceValue;
-	spellbook = other.spellbook;
-	
+	spellbook = other.spellbook;	
 }
 
-void CharacterType::inscribeSpellInSpellbook(SpellActionBase *spell) {	
-	spellbook.push_back(spell);	
-}
-
-void CharacterType::setStrength(uint16_t newStrength) {
-	strength = newStrength;
-}
-
-void CharacterType::setName(std::string newName) {
-	name = newName;
-}
-
-void CharacterType::setDexterity(uint16_t newDexterity) {
-	dexterity = newDexterity;
-}
-
-void CharacterType::setVitality(uint16_t newVitality) {
-	vitality = newVitality;
-}
-
-void CharacterType::setIntellect(uint16_t newIntellect) {
-	intellect = newIntellect;
-}
-
-void CharacterType::setWisdom(uint16_t newWisdom) {
-	wisdom = newWisdom;
-}
-
-void CharacterType::setMaxHealth(uint16_t newMaxHealth) {
-	max_health = newMaxHealth;
-}
-
-void CharacterType::setMaxMana(uint16_t newMaxMana) {
-	max_mana = newMaxMana;
-}
-
-void CharacterType::setMaxFatigue(uint16_t newMaxFatigue) {
-	max_fatigue = newMaxFatigue;
-}
-
-void CharacterType::setHealthRegen(uint16_t newHealthRegen) {
-	healthRegen = newHealthRegen;
-}
-
-void CharacterType::setManaRegen(uint16_t newManaRegen) {
-	manaRegen = newManaRegen;
-}
-
-void CharacterType::setFatigueRegen(uint16_t newFatigueRegen) {
-	fatigueRegen = newFatigueRegen;
-}
-
-void CharacterType::setMaxDamage(uint16_t newMaxDamage) {
-	max_damage = newMaxDamage;
-}
-
-void CharacterType::setMinDamage(uint16_t newMinDamage) {
-	min_damage = newMinDamage;
-}
-
-void CharacterType::setArmor(uint16_t newArmor) {
-	armor = newArmor;
-}
-
-void CharacterType::setDamageModifierPoints(uint16_t newDamageModifierPoints) {
-	damageModifierPoints = newDamageModifierPoints;
-}
-
-void CharacterType::setHitModifierPoints(uint16_t newHitModifierPoints) {
-	hitModifierPoints = newHitModifierPoints;
-}
-
-void CharacterType::setEvadeModifierPoints(uint16_t newEvadeModifierPoints) {
-	evadeModifierPoints = newEvadeModifierPoints;
-}
-
-void CharacterType::setWanderRadius(uint16_t newWanderRadius) {
-	wander_radius = newWanderRadius;
-}
-
-void CharacterType::setLevel(uint8_t newLevel) {
-	level = newLevel;
+void CharacterType::inscribeSpellInSpellbook(SpellActionBase *spell) {
+	spellbook.push_back(spell);
 }
 
 void CharacterType::setClass(Enums::CharacterClass characterClass) {
 	CharacterType::characterClass = characterClass;
 }
 
-void CharacterType::setExperienceValue(uint8_t experienceValue) {
+void CharacterType::setName(std::string newName) {
+	name = newName;
+}
+
+void CharacterType::setStrength(unsigned short newStrength) {
+	strength = newStrength;
+}
+
+void CharacterType::setDexterity(unsigned short newDexterity) {
+	dexterity = newDexterity;
+}
+
+void CharacterType::setVitality(unsigned short newVitality) {
+	vitality = newVitality;
+}
+
+void CharacterType::setIntellect(unsigned short newIntellect) {
+	intellect = newIntellect;
+}
+
+void CharacterType::setWisdom(unsigned short newWisdom) {
+	wisdom = newWisdom;
+}
+
+void CharacterType::setMaxHealth(unsigned short newMaxHealth) {
+	max_health = newMaxHealth;
+}
+
+void CharacterType::setMaxMana(unsigned short newMaxMana) {
+	max_mana = newMaxMana;
+}
+
+void CharacterType::setMaxFatigue(unsigned short newMaxFatigue) {
+	max_fatigue = newMaxFatigue;
+}
+
+void CharacterType::setHealthRegen(unsigned short newHealthRegen) {
+	healthRegen = newHealthRegen;
+}
+
+void CharacterType::setManaRegen(unsigned short newManaRegen) {
+	manaRegen = newManaRegen;
+}
+
+void CharacterType::setFatigueRegen(unsigned short newFatigueRegen) {
+	fatigueRegen = newFatigueRegen;
+}
+
+void CharacterType::setMaxDamage(unsigned short newMaxDamage) {
+	max_damage = newMaxDamage;
+}
+
+void CharacterType::setMinDamage(unsigned short newMinDamage) {
+	min_damage = newMinDamage;
+}
+
+void CharacterType::setArmor(unsigned short newArmor) {
+	armor = newArmor;
+}
+
+void CharacterType::setDamageModifierPoints(unsigned short newDamageModifierPoints) {
+	damageModifierPoints = newDamageModifierPoints;
+}
+
+void CharacterType::setHitModifierPoints(unsigned short newHitModifierPoints) {
+	hitModifierPoints = newHitModifierPoints;
+}
+
+void CharacterType::setEvadeModifierPoints(unsigned short newEvadeModifierPoints) {
+	evadeModifierPoints = newEvadeModifierPoints;
+}
+
+void CharacterType::setWanderRadius(unsigned short newWanderRadius) {
+	wander_radius = newWanderRadius;
+}
+
+void CharacterType::setLevel(unsigned short newLevel) {
+	level = newLevel;
+}
+
+void CharacterType::setExperienceValue(unsigned short experienceValue) {
 	CharacterType::experienceValue = experienceValue;
 }
 

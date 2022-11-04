@@ -10,11 +10,11 @@ public:
 		m_assets[name].loadFromFile(path, flipVertical, internalFormat, format);
 	}
 
-	void loadTexture(const std::string& name, const std::string& path, unsigned short tileWidth, unsigned short tileHeight, unsigned short spacing, unsigned int posY, unsigned int posX, const bool flipVertical = true, unsigned int format = -1) {
+	void loadTexture(const std::string& name, const std::string& path, unsigned short tileWidth, unsigned short tileHeight, unsigned short spacing, unsigned int posY, unsigned int posX, const bool flipVertical = true, unsigned int format = 0) {
 		m_assets[name].loadFromFile(path, tileWidth, tileHeight, spacing, posY, posX, flipVertical, format);
 	}
 
-	void loadTexture(const std::string& name, const std::string& path, unsigned int offsetX, unsigned int offsetY, unsigned int width, unsigned int height, const bool flipVertical = true, unsigned int format = -1) {
+	void loadTexture(const std::string& name, const std::string& path, unsigned int offsetX, unsigned int offsetY, unsigned int width, unsigned int height, const bool flipVertical = true, unsigned int format = 0) {
 		m_assets[name].loadFromFile(path, offsetX, offsetY, width, height, flipVertical, format);
 	}
 
@@ -48,11 +48,11 @@ public:
 		m_assetPointer[name] = new T(vertex, fragment, geometry, false);
 	}
 
-	void loadSpritesheet(const std::string& name, const std::string& path, unsigned short tileWidth, unsigned short tileHeight, unsigned short spacing, unsigned int yStart, unsigned int xStart, unsigned int xLength, unsigned int format = -1) {
+	void loadSpritesheet(const std::string& name, const std::string& path, unsigned short tileWidth, unsigned short tileHeight, unsigned short spacing, unsigned int yStart, unsigned int xStart, unsigned int xLength, unsigned int format = 0) {
 		m_assetPointer[name] = new T(path, tileWidth, tileHeight, spacing, true, true, yStart, xStart, xLength, format);
 	}
 
-	void createSpritesheet(const std::string& name, unsigned int texture, unsigned int width, unsigned int height, unsigned int format = -1) {
+	void createSpritesheet(const std::string& name, unsigned int texture, unsigned int width, unsigned int height, unsigned int format = 0) {
 		m_assetPointer[name] = new T();
 		m_assetPointer[name]->createSpritesheet(texture, width, height, format);
 	}
@@ -62,7 +62,7 @@ public:
 		m_assetPointer[name]->createNullSpritesheet(width, height, layer);
 	}
 
-	void loadCubeMap(const std::string& name, std::string* textureFiles, const bool flipVertical = true, unsigned int format = -1) {
+	void loadCubeMap(const std::string& name, std::string* textureFiles, const bool flipVertical = true, unsigned int format = 0) {
 		m_assets[name].loadFromFile(textureFiles, flipVertical, format);
 	}
 
@@ -134,11 +134,11 @@ public:
 		m_assets[name].loadFromFile(path, flipVertical, linear);
 	}
 
-	void loadTexture(const std::string& name, const std::string& path, unsigned short tileWidth, unsigned short tileHeight, unsigned short spacing, unsigned int row, unsigned int column, unsigned int format = -1, const bool linear = false) {
+	void loadTexture(const std::string& name, const std::string& path, unsigned short tileWidth, unsigned short tileHeight, unsigned short spacing, unsigned int row, unsigned int column, unsigned int format = 0, const bool linear = false) {
 		m_assets[name].loadFromFile(path, tileWidth, tileHeight, spacing, row, column, true, true, format, linear);
 	}
 
-	void loadTexture(const std::string& name, const std::string& path, unsigned int offsetX, unsigned int offsetY, unsigned int width, unsigned int height, unsigned int format = -1, const bool linear = false) {
+	void loadTexture(const std::string& name, const std::string& path, unsigned int offsetX, unsigned int offsetY, unsigned int width, unsigned int height, unsigned int format = 0, const bool linear = false) {
 		m_assets[name].loadFromFile(path, offsetX, offsetY, width, height, true, format, linear);
 	}
 
@@ -163,7 +163,7 @@ public:
 		m_assetPointer[name] = new T(vertex, fragment, geometry);
 	}
 
-	void loadSpritesheet(const std::string& name, const std::string& path, unsigned short tileWidth, unsigned short tileHeight, unsigned short spacing, unsigned int yStart, unsigned int xLength, unsigned int format = -1) {
+	void loadSpritesheet(const std::string& name, const std::string& path, unsigned short tileWidth, unsigned short tileHeight, unsigned short spacing, unsigned int yStart, unsigned int xLength, unsigned int format = 0) {
 		m_assetPointer[name] = new T(path, tileWidth, tileHeight, spacing, true, true, yStart, xLength, format);
 	}
 

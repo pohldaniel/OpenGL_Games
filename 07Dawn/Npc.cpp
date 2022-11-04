@@ -25,6 +25,9 @@ Npc::Npc(const CharacterType& characterType, int _x_spawn_pos, int _y_spawn_pos,
 	lastPathCalculated = 0;
 	wander_points_left = 0;
 	rect = &m_characterType.m_moveTileSets.at({ getCurActivity(), GetDirectionRNG() }).getAllTiles()[0].textureRect;
+
+	wander_radius = m_characterType.wander_radius;
+	m_isPlayer = false;
 }
 
 Npc::~Npc() {}
@@ -274,4 +277,16 @@ const CharacterType& Npc::getCharacterType() {
 
 Enums::Attitude Npc::getAttitude() const {
 	return this->attitudeTowardsPlayer;
+}
+
+unsigned short Npc::getWanderRadius() const {
+	return wander_radius;
+}
+
+unsigned short Npc::getWanderRadiusSq() const {
+	return wander_radius * wander_radius;
+}
+
+void Npc::setWanderRadius(unsigned short newWanderRadius) {
+	wander_radius = newWanderRadius;
 }

@@ -9,7 +9,7 @@ Spritesheet::Spritesheet(std::string fileName, unsigned short tileWidth, unsigne
 
 	int width, height, numCompontents;
 	unsigned char* imageData = SOIL_load_image(fileName.c_str(), &width, &height, &numCompontents, SOIL_LOAD_AUTO);
-	unsigned internalFormat = _format == -1 && numCompontents == 3 ? GL_RGB8 : _format == -1 ? GL_RGBA8 : _format;
+	unsigned internalFormat = _format == 0 && numCompontents == 3 ? GL_RGB8 : _format == 0 ? GL_RGBA8 : _format;
 
 	if (_flipVertical)
 		Texture::FlipVertical(imageData, numCompontents * width, height);
@@ -71,7 +71,7 @@ void Spritesheet::addToSpritesheet(std::string fileName, unsigned short tileWidt
 
 	int width, height, numCompontents;
 	unsigned char* imageData = SOIL_load_image(fileName.c_str(), &width, &height, &numCompontents, SOIL_LOAD_AUTO);
-	unsigned internalFormat = _format == -1 && numCompontents == 3 ? GL_RGB8 : _format == -1 ? GL_RGBA8 : _format;
+	unsigned internalFormat = _format == 0 && numCompontents == 3 ? GL_RGB8 : _format == 0 ? GL_RGBA8 : _format;
 
 	if (_flipVertical)
 		Texture::FlipVertical(imageData, numCompontents * width, height);
@@ -165,7 +165,7 @@ void Spritesheet::createSpritesheet(unsigned int texture, unsigned int width, un
 	//Of curse you can increase the mipmaplevel (level) but it decreases the performance.
 	//Unfortunately I wasn't able to use glCopyImageSubData with glTexImage3D. 
 
-	unsigned internalFormat = _format == -1 ? GL_RGBA8 : _format;
+	unsigned internalFormat = _format == 0 ? GL_RGBA8 : _format;
 	m_totalFrames++;
 
 	//OpenGL 4.3
@@ -206,7 +206,7 @@ void Spritesheet::addToSpritesheet(unsigned int texture, unsigned int width, uns
 	//Of curse you can increase the mipmaplevel (level) but it decreases the performance.
 	//Unfortunately I wasn't able to use glCopyImageSubData with glTexImage3D. 
 
-	unsigned internalFormat = _format == -1 ? GL_RGBA8 : _format;
+	unsigned internalFormat = _format == 0 ? GL_RGBA8 : _format;
 	m_totalFrames++;
 
 	//OpenGL 4.3

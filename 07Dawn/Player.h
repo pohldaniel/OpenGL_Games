@@ -14,6 +14,11 @@ public:
 	int getWidth() const override;
 	int getHeight() const override;
 	unsigned short getNumActivityTextures(Enums::ActivityType activity)override;
+	bool hasTarget(Character* target);
+	void setTarget(Character *target, Enums::Attitude attitude);
+
+	Enums::Attitude getTargetAttitude();
+
 
 	void setCharacterType(std::string characterType);
 	Vector3f getPosition();
@@ -59,5 +64,7 @@ public:
 	unsigned short Player::getModifiedSpellCriticalModifierPoints() const;
 	unsigned short Player::getModifiedStrength() const;
 
-	bool isPlayer() const override;
+	
+
+	Enums::Attitude targetAttitude;
 };

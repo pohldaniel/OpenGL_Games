@@ -83,18 +83,18 @@ struct TextLine {
 };
 
 class Interface {
+
 public:
 
-
-	void init();
-	bool enabled;
 	void draw();
 	void drawCursor(bool drawInGameCursor);
 	void drawFloatingSpell();
 	void processInput();
 	void processInputRightDrag();
+
+	void init();
 	void setPlayer(Player* player);
-	void addCombatText(int amount, bool critical, unsigned char damageType, int posX, int posY, bool update);
+	void addCombatText(int amount, bool critical, unsigned short damageType, int posX, int posY, bool update);
 	void resize();
 	void addTextToLog(std::string text, Vector4f color);
 	void clearLogWindow();
@@ -102,6 +102,7 @@ public:
 	static Interface& Get();
 
 private:
+
 	Interface();
 	void drawTargetedNPCText();
 	void executeSpellQueue();
@@ -123,7 +124,7 @@ private:
 	bool hasFloatingSpell() const;
 	void setSpellQueue(Button &button, bool actionReadyToCast = true);
 	void dragSpell(Button* spellQueue);
-	unsigned char getMouseOverButtonId(int x, int y);
+	short getMouseOverButtonId(int x, int y);
 
 	void bindActionToButtonNr(int buttonNr, SpellActionBase *action);
 	void bindAction(Button *button, SpellActionBase* action);
@@ -131,8 +132,6 @@ private:
 
 	bool isPreparingAoESpell() const;
 	void makeReadyToCast(int x, int y);
-	SpellActionBase* getCurrentAction();
-	
 
 	std::vector<TextLine> m_textDatabase;
 	std::vector<DamageDisplay> m_damageDisplay;
@@ -145,7 +144,7 @@ private:
 	std::vector<TextureRect> m_damageDisplayTexturesBig;
 
 	unsigned int m_textureAtlas;
-	int m_buttonId;
+	short m_buttonId;
 	bool m_execute;
 	int m_actionBarPosX;
 	int m_actionBarPosY;

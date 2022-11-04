@@ -154,7 +154,7 @@ void Game::processInput() {
 					if (!player.hasTarget(curNPC)) {
 						player.setTarget(curNPC, curNPC->getAttitude());
 					}else {
-						player.setTarget(nullptr);
+						player.Character::setTarget(NULL);
 					}
 					break;
 				}

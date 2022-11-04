@@ -42,6 +42,8 @@ void Player::init(int x, int y) {
 	//dyingTransparency = 1.0f;
 	movementSpeed = 1;
 	setName("Enylyn");
+
+	m_isPlayer = true;
 }
 
 
@@ -382,6 +384,19 @@ unsigned short Player::getModifiedStrength() const {
 	return getModifiedAttribute(this, getStrength(), &getSpellStrengthHelper, NON_NULLABLE_ATTRIBUTE_MIN);
 }
 
-bool Player::isPlayer() const {
-	return true;
+
+bool Player::hasTarget(Character* target) {
+	if (Character::target == target) {
+		return true;
+	}
+	return false;
+}
+
+void Player::setTarget(Character *target, Enums::Attitude attitude) {
+	this->target = target;
+	targetAttitude = attitude;
+}
+
+Enums::Attitude Player::getTargetAttitude() {
+	return targetAttitude;
 }

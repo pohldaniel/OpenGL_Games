@@ -30,30 +30,31 @@ struct CharacterType {
 	void calcNumMoveTexturesPerDirection();
 	void baseOnType(std::string name);
 
-	void setStrength(uint16_t newStrength);
-	void setDexterity(uint16_t newDexterity);
-	void setVitality(uint16_t newVitality);
-	void setIntellect(uint16_t newIntellect);
-	void setWisdom(uint16_t newWisdom);
-	void setMaxHealth(uint16_t newMaxHealth);
-	void setMaxMana(uint16_t newMaxMana);
-	void setMaxFatigue(uint16_t newMaxFatigue);
-	void setHealthRegen(uint16_t newHealthRegen);
-	void setManaRegen(uint16_t newManaRegen);
-	void setFatigueRegen(uint16_t newFatigueRegen);
-	void setMinDamage(uint16_t newMinDamage);
-	void setMaxDamage(uint16_t newMaxDamage);
-	void setArmor(uint16_t newArmor);
-	void setDamageModifierPoints(uint16_t newDamageModifierPoints);
-	void setHitModifierPoints(uint16_t newHitModifierPoints);
-	void setEvadeModifierPoints(uint16_t newEvadeModifierPoints);
-	void setName(std::string newName);
-	void setWanderRadius(uint16_t newWanderRadius);
-	void setLevel(uint8_t newLevel);
-	void setClass(Enums::CharacterClass);
 	void inscribeSpellInSpellbook(SpellActionBase* spell);
 	//void addItemToLootTable(Item* item, double dropChance);
-	void setExperienceValue(uint8_t experienceValue);
+	void setClass(Enums::CharacterClass);
+	void setName(std::string newName);
+
+	void setStrength(unsigned short newStrength);
+	void setDexterity(unsigned short newDexterity);
+	void setVitality(unsigned short newVitality);
+	void setIntellect(unsigned short newIntellect);
+	void setWisdom(unsigned short newWisdom);
+	void setMaxHealth(unsigned short newMaxHealth);
+	void setMaxMana(unsigned short newMaxMana);
+	void setMaxFatigue(unsigned short newMaxFatigue);
+	void setHealthRegen(unsigned short newHealthRegen);
+	void setManaRegen(unsigned short newManaRegen);
+	void setFatigueRegen(unsigned short newFatigueRegen);
+	void setMinDamage(unsigned short newMinDamage);
+	void setMaxDamage(unsigned short newMaxDamage);
+	void setArmor(unsigned short newArmor);
+	void setDamageModifierPoints(unsigned short newDamageModifierPoints);
+	void setHitModifierPoints(unsigned short newHitModifierPoints);
+	void setEvadeModifierPoints(unsigned short newEvadeModifierPoints);	
+	void setWanderRadius(unsigned short newWanderRadius);
+	void setLevel(unsigned short newLevel);
+	void setExperienceValue(unsigned short experienceValue);
 
 	void modifyStrength(int strengthModifier);
 	void modifyDexterity(int dexterityModifier);
@@ -70,26 +71,26 @@ private:
 	std::unordered_map<Enums::ActivityType, unsigned short> m_numMoveTexturesPerDirection;
 
 	std::string name;
-	uint16_t strength;
-	uint16_t dexterity;
-	uint16_t vitality;
-	uint16_t intellect;
-	uint16_t wisdom;
-	uint16_t max_health;
-	uint16_t max_mana;
-	uint16_t max_fatigue;
-	uint16_t healthRegen;
-	uint16_t manaRegen;
-	uint16_t fatigueRegen;
-	uint8_t experienceValue;
-	uint16_t wander_radius;
-	uint16_t min_damage;
-	uint16_t max_damage;
-	uint8_t level;
-	uint16_t armor;
-	uint16_t damageModifierPoints;
-	uint16_t hitModifierPoints;
-	uint16_t evadeModifierPoints;
+	unsigned short strength;
+	unsigned short dexterity;
+	unsigned short vitality;
+	unsigned short intellect;
+	unsigned short wisdom;
+	unsigned short max_health;
+	unsigned short max_mana;
+	unsigned short max_fatigue;
+	unsigned short healthRegen;
+	unsigned short manaRegen;
+	unsigned short fatigueRegen;	
+	unsigned short wander_radius;
+	unsigned short min_damage;
+	unsigned short max_damage;
+	unsigned short armor;
+	unsigned short damageModifierPoints;
+	unsigned short hitModifierPoints;
+	unsigned short evadeModifierPoints;
+	unsigned short experienceValue;
+	unsigned short level;
 	Enums::CharacterClass characterClass;
 
 	std::vector<SpellActionBase*> spellbook;
@@ -126,124 +127,172 @@ public:
 	virtual int getHeight() const = 0;
 	virtual unsigned short getNumActivityTextures(Enums::ActivityType activity) = 0;
 
-
-	void setNumActivities(unsigned short numActivities);
+	//init
 	void baseOnType(std::string otherName);
-
+	
+	//behavior
 	Enums::ActivityType getCurActivity() const;
-	
-	int getXPos() const;
-	int getYPos() const;
-	
-	unsigned short getNumActivities();
-	
-
 	Enums::Direction GetOppositeDirection(Enums::Direction direction);
-	uint16_t getWanderRadius() const;
-	uint16_t getWanderRadiusSq() const;
-	float getMovementSpeed() const;
+	
+	
+	//interaction
+	void MoveUp(unsigned char n);
+	void MoveDown(unsigned char n);
+	void MoveLeft(unsigned char n);
+	void MoveRight(unsigned char n);
+	void Move(Enums::Direction direction, unsigned char n = 1);
+
 	void giveCoins(unsigned int amountOfCoins);
 	bool CheckMouseOver(int _x_pos, int _y_pos);
-	bool hasTarget(Character* target);
-
-	void setTarget(Character *target);
-	void setTarget(Character *target, Enums::Attitude attitude);
-	Character* getTarget() const;
-	Enums::Attitude Character::getTargetAttitude();
-
-	Character* target;
-	Enums::Attitude targetAttitude;
 
 	bool isStunned() const;
 	bool isMesmerized() const;
 	bool isFeared() const;
 	bool isConfused() const;
 	bool isCharmed() const;
-	bool getIsPreparing() const;
-	bool mayDoAnythingAffectingSpellActionWithoutAborting() const;
-	bool mayDoAnythingAffectingSpellActionWithAborting() const;
-	virtual bool isPlayer() const;
 	bool isChanneling() const;
 	bool isSneaking() const;
 
+
+	bool getIsPreparing() const;
+	bool mayDoAnythingAffectingSpellActionWithoutAborting() const;
+	bool mayDoAnythingAffectingSpellActionWithAborting() const;
+	
+	
+	int getXPos() const;
+	int getYPos() const;
+	float getMovementSpeed() const;
+	Character* getTarget() const;
+
+
+	void setTarget(Character *target);
 	
 
-	void MoveUp(uint8_t n);
-	void MoveDown(uint8_t n);
-	void MoveLeft(uint8_t n);
-	void MoveRight(uint8_t n);
-	void Move(char x, char y);
-	void Move(Enums::Direction direction, uint8_t n = 1);
-
-	void setStrength(uint16_t newStrength);
-	void setDexterity(uint16_t newDexterity);
-	void setVitality(uint16_t newVitality);
-	void setIntellect(uint16_t newIntellect);
-	void setWisdom(uint16_t newWisdom);
-	void setMaxHealth(uint16_t newMaxHealth);
-	void setMaxMana(uint16_t newMaxMana);
-	void setMaxFatigue(uint16_t newMaxFatigue);
-	void setHealthRegen(uint16_t newHealthRegen);
-	void setManaRegen(uint16_t newManaRegen);
-	void setFatigueRegen(uint16_t newFatigueRegen);
-	void setMinDamage(uint16_t newMinDamage);
-	void setMaxDamage(uint16_t newMaxDamage);
-	void setArmor(uint16_t newArmor);
-	void setDamageModifierPoints(uint16_t newDamageModifierPoints);
-	void setHitModifierPoints(uint16_t newHitModifierPoints);
-	void setEvadeModifierPoints(uint16_t newEvadeModifierPoints);
-	void setName(std::string newName);
-	void setWanderRadius(uint16_t newWanderRadius);
-	void setLevel(uint8_t newLevel);
-	void setClass(Enums::CharacterClass characterClass);
-	void setExperienceValue(uint8_t experienceValue);
 	//void addItemToLootTable(Item* item, double dropChance);
+	void setClass(Enums::CharacterClass characterClass);
+	void setName(std::string newName);
+	void setStrength(unsigned short newStrength);
+	void setDexterity(unsigned short newDexterity);
+	void setVitality(unsigned short newVitality);
+	void setIntellect(unsigned short newIntellect);
+	void setWisdom(unsigned short newWisdom);
+	void setMaxHealth(unsigned short newMaxHealth);
+	void setMaxMana(unsigned short newMaxMana);
+	void setMaxFatigue(unsigned short newMaxFatigue);
+	void setHealthRegen(unsigned short newHealthRegen);
+	void setManaRegen(unsigned short newManaRegen);
+	void setFatigueRegen(unsigned short newFatigueRegen);
+	void setMinDamage(unsigned short newMinDamage);
+	void setMaxDamage(unsigned short newMaxDamage);
+	void setArmor(unsigned short newArmor);
+	void setDamageModifierPoints(unsigned short newDamageModifierPoints);
+	void setHitModifierPoints(unsigned short newHitModifierPoints);
+	void setEvadeModifierPoints(unsigned short newEvadeModifierPoints);	
+	void setLevel(unsigned short newLevel);
+	void setExperienceValue(unsigned short experienceValue);
 	
-	uint16_t getStrength() const;
-	uint16_t getDexterity() const;
-	uint16_t getVitality() const;
-	uint16_t getIntellect() const;
-	uint16_t getWisdom() const;
-	uint16_t getMaxHealth() const;
-	uint16_t getMaxMana() const;
-	uint16_t getMaxFatigue() const;
-	uint16_t getMaxDamage() const;
-	uint16_t getMinDamage() const;
-	uint16_t getArmor() const;
-	uint16_t getHealthRegen() const;
-	uint16_t getManaRegen() const;
-	uint16_t getFatigueRegen() const;
-	uint16_t getDamageModifierPoints() const;
-	uint16_t getHitModifierPoints() const;
-	uint16_t getEvadeModifierPoints() const;
 	Enums::CharacterClass getClass() const;
 	std::string getName() const;
-	uint8_t getLevel() const;
-	uint8_t getExperienceValue() const;
+	unsigned short getStrength() const;
+	unsigned short getDexterity() const;
+	unsigned short getVitality() const;
+	unsigned short getIntellect() const;
+	unsigned short getWisdom() const;
+	unsigned short getMaxHealth() const;
+	unsigned short getMaxMana() const;
+	unsigned short getMaxFatigue() const;
+	unsigned short getHealthRegen() const;
+	unsigned short getManaRegen() const;
+	unsigned short getFatigueRegen() const;
+	unsigned short getMinDamage() const;
+	unsigned short getMaxDamage() const;
+	unsigned short getArmor() const;
+	unsigned short getDamageModifierPoints() const;
+	unsigned short getHitModifierPoints() const;
+	unsigned short getEvadeModifierPoints() const;
+	unsigned short getLevel() const;
+	unsigned short getExperienceValue() const;
+
+
+	void setCurrentHealth(unsigned short newCurrentHealth);
+	void setCurrentMana(unsigned short newCurrentMana);
+	void setCurrentFatigue(unsigned short newCurrentFatigue);
+	void setExperience(unsigned long experience);
+
+	void modifyMaxHealth(short maxHealthModifier);
+	void modifyMaxMana(short maxManaModifier);
+	void modifyMaxFatigue(short maxFatigueModifier);
+	void modifyCurrentHealth(short currentHealthModifier);
+	void modifyCurrentMana(short currentManaModifier);
+	void modifyCurrentFatigue(short currentFatigueModifier);
+
+	unsigned short getModifiedMaxHealth() const;
+	unsigned short getModifiedMaxMana() const;
+	unsigned short getModifiedMaxFatigue() const;
+	unsigned short getModifiedStrength() const;
+	unsigned short getModifiedDexterity() const;
+	unsigned short getModifiedVitality() const;
+	unsigned short getModifiedIntellect() const;
+	unsigned short getModifiedWisdom() const;
+	unsigned short getParryModifierPoints() const;
+	unsigned short getBlockModifierPoints() const;
+	unsigned short getMeleeCriticalModifierPoints() const;
+	unsigned short getSpellCriticalModifierPoints() const;
+	unsigned short getSpellEffectElementModifierPoints(Enums::ElementType elementType) const;
+	unsigned short getSpellEffectAllModifierPoints() const;
+	unsigned short getResistElementModifierPoints(Enums::ElementType elementType) const;
+	unsigned short getResistAllModifierPoints() const;
+	unsigned short getCurrentHealth() const;
+	unsigned short getCurrentMana() const;
+	unsigned short getCurrentFatigue() const;
+	unsigned long getExperience() const;
+	
+	Enums::CharacterClass characterClass;
+	std::string name;
+	unsigned short strength;
+	unsigned short dexterity;
+	unsigned short vitality;
+	unsigned short intellect;
+	unsigned short wisdom;
+	unsigned short max_health;
+	unsigned short max_mana;
+	unsigned short max_fatigue;
+	unsigned short healthRegen;
+	unsigned short manaRegen;
+	unsigned short fatigueRegen;
+	unsigned short min_damage;
+	unsigned short max_damage;
+	unsigned short armor;
+	unsigned short damageModifierPoints;
+	unsigned short hitModifierPoints;
+	unsigned short evadeModifierPoints;
+	unsigned short level;
+	unsigned short experienceValue;
+
+	unsigned short parryModifierPoints;
+	unsigned short blockModifierPoints;
+	unsigned short meleeCriticalModifierPoints;
+	unsigned short spellCriticalModifierPoints;
+	unsigned short spellEffectAllModifierPoints;
+	unsigned short resistAllModifierPoints;
+	unsigned short *spellEffectElementModifierPoints;
+	unsigned short *resistElementModifierPoints;
+	unsigned short current_health;
+	unsigned short current_mana;
+	unsigned short current_fatigue;
+	unsigned long experience;
+	
+
 	uint32_t coins;
-	uint16_t getCurrentHealth() const;
-	void modifyCurrentHealth(int16_t currentHealthModifier);
-	void setCurrentHealth(uint16_t newCurrentHealth);
-	uint16_t getModifiedMaxHealth() const;
+
+	
+
 	float getPreparationPercentage() const;
 	std::string getCurrentSpellActionName() const;
-	uint16_t getModifiedStrength() const;
-	uint16_t getModifiedDexterity() const;
-	uint16_t getModifiedVitality() const;
-	uint16_t getModifiedIntellect() const;
-	uint16_t getModifiedWisdom() const;
-	uint16_t getParryModifierPoints() const;
-	uint16_t getBlockModifierPoints() const;
-	uint16_t getMeleeCriticalModifierPoints() const;
-	uint16_t getSpellCriticalModifierPoints() const;
-	uint16_t getSpellEffectElementModifierPoints(Enums::ElementType elementType) const;
-	uint16_t getSpellEffectAllModifierPoints() const;
-	uint16_t getResistElementModifierPoints(Enums::ElementType elementType) const;
-	uint16_t getResistAllModifierPoints() const;
+	
 	int getDeltaX();
 	int getDeltaY();
-	void setExperience(uint64_t experience);
-	uint64_t getExperience() const;
+	
 	void addDamageDisplayToGUI(int amount, bool critical, uint8_t damageType);
 
 	void clearActiveSpells();
@@ -279,6 +328,8 @@ public:
 
 	bool alive;
 	//bool hasDrawnDyingOnce;
+	bool m_isPlayer;
+
 	int current_texture, direction_texture;
 	bool hasChoosenFearDirection;
 	bool isPreparing = false;
@@ -316,60 +367,25 @@ public:
 
 	float progress = 0.0f;
 
-	std::string name;
-	uint16_t strength;
-	uint16_t dexterity;
-	uint16_t vitality;
-	uint16_t intellect;
-	uint16_t wisdom;
-	uint16_t max_health;
-	uint16_t current_health;
-	uint16_t max_mana;
-	uint16_t current_mana;
-	uint16_t max_fatigue;
-	uint16_t current_fatigue;
-	uint16_t healthRegen;
-	uint16_t manaRegen;
-	uint16_t fatigueRegen;
-	uint8_t experienceValue;
-	uint16_t wander_radius;
-	uint16_t min_damage;
-	uint16_t max_damage;
-	uint8_t level;
-	uint16_t armor;
-	uint16_t damageModifierPoints;
-	uint16_t hitModifierPoints;
-	uint16_t evadeModifierPoints;
-	uint16_t parryModifierPoints;
-	uint16_t blockModifierPoints;
-	uint16_t meleeCriticalModifierPoints;
-	uint16_t spellCriticalModifierPoints;
-	uint16_t spellEffectAllModifierPoints;
-	uint16_t resistAllModifierPoints;
+	
+	
+	
+	
 	int dx, dy;
-	Enums::CharacterClass characterClass;
+	
 	Enums::CharacterArchType characterArchType;
 	float preparationPercentage;
-	uint64_t experience;
-	uint16_t *spellEffectElementModifierPoints;
-	uint16_t *resistElementModifierPoints;
+	
+	
 	SpellActionBase* curSpellAction = nullptr;
 	std::vector<SpellActionBase*> spellbook;
 	uint32_t preparationStartTime, preparationCurrentTime;
 
 	Enums::CharacterArchType getArchType() const;
-	uint16_t getCurrentFatigue() const;
-	void setCurrentFatigue(uint16_t newCurrentFatigue);
-	void modifyCurrentFatigue(int16_t currentFatigueModifier);
-	void modifyMaxFatigue(int16_t maxFatigueModifier);
-	uint16_t getModifiedMaxFatigue() const;
+	
 	void addCooldownSpell(SpellActionBase *spell);
 
-	void modifyCurrentMana(int16_t currentManaModifier);
-	void setCurrentMana(uint16_t newCurrentMana);
-	uint16_t getCurrentMana() const;
-	void modifyMaxMana(int16_t maxManaModifier);
-	uint16_t getModifiedMaxMana() const;
+	
 	bool isAlive() const;
 	void addActiveSpell(SpellActionBase *spell);
 	bool canBeDamaged() const;
@@ -399,4 +415,6 @@ public:
 	uint16_t getModifiedSpellEffectElementModifierPoints(Enums::ElementType elementType) const;
 	uint16_t getModifiedResistElementModifierPoints(Enums::ElementType elementType) const;
 	uint16_t getModifiedSpellCriticalModifierPoints() const;
+
+	Character* target;
 };

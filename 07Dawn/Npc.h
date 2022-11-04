@@ -30,9 +30,11 @@ public:
 	const CharacterType& getCharacterType();
 	Enums::Attitude getAttitude() const;
 	void chasePlayer(Character *player);
+	void setWanderRadius(unsigned short newWanderRadius);
 
 private:
-
+	unsigned short getWanderRadius() const;
+	unsigned short getWanderRadiusSq() const;
 	//Attitude::Attitude attitudeTowardsPlayer;
 	//std::vector<sLootTable> lootTable;
 	//std::vector<CallIndirection*> onDieEventHandlers;
@@ -58,4 +60,6 @@ private:
 
 	Enums::Direction WanderDirection;
 	std::vector<std::array<int, 2>> waypoints;
+
+	unsigned short wander_radius;
 };
