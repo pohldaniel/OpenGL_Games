@@ -46,7 +46,7 @@ public:
 
 	void init(int x, int y);
 
-	unsigned char  movementSpeed;
+	unsigned short  movementSpeed;
 	unsigned int ticketForItemTooltip;
 	unsigned int ticketForSpellTooltip;
 
@@ -72,11 +72,18 @@ public:
 	unsigned short getModifiedMeleeCriticalModifierPoints() const;
 	unsigned short getModifiedSpellEffectElementModifierPoints(Enums::ElementType elementType) const;
 	unsigned short getModifiedResistElementModifierPoints(Enums::ElementType elementType) const;
+	unsigned long getExperience() const;
+	void setExperience(unsigned long experience);
+	unsigned long getExpNeededForLevel(unsigned short level) const;
 
 	unsigned short Player::getModifiedSpellCriticalModifierPoints() const;
 	unsigned short Player::getModifiedStrength() const;
+	void gainExperience(unsigned long addExp);
+	bool canRaiseLevel() const;
+	void raiseLevel();
+	void removeActiveSpell(SpellActionBase* activeSpell);
 
-	
+	unsigned long experience;
 
 	Enums::Attitude targetAttitude;
 	int dx, dy;

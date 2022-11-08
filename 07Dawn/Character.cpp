@@ -262,7 +262,6 @@ bool Character::isInvisible() const {
 }
 
 bool Character::getIsPreparing() const {
-	//return isPreparing;
 	return isPreparing;
 }
 
@@ -312,25 +311,25 @@ float Character::getMovementSpeed() const {
 	}
 }
 
-void Character::MoveUp(unsigned char n) {
+void Character::MoveUp(unsigned short n) {
 	//if (CollisionCheck(N) == 0) {
 		y_pos += n;
 		//}
 }
 
-void Character::MoveDown(unsigned char n) {
+void Character::MoveDown(unsigned short n) {
 	//if (CollisionCheck(S) == 0) {
 		y_pos -= n;
 		//}
 }
 
-void Character::MoveLeft(unsigned char n) {
+void Character::MoveLeft(unsigned short n) {
 	//if (CollisionCheck(W) == 0) {
 		x_pos -= n;
 		//}
 }
 
-void Character::MoveRight(unsigned char n) {
+void Character::MoveRight(unsigned short n) {
 	//if (CollisionCheck(E) == 0) {
 		x_pos += n;
 		//}
@@ -338,7 +337,7 @@ void Character::MoveRight(unsigned char n) {
 
 
 
-void Character::Move(Enums::Direction direction, unsigned char n) {
+void Character::Move(Enums::Direction direction, unsigned short n) {
 	switch (direction) {
 		case Enums::Direction::NW:
 			MoveLeft(n);
@@ -396,17 +395,6 @@ void Character::addDamageDisplayToGUI(int amount, bool critical, uint8_t damageT
 	}
 }
 
-uint16_t Character::getModifiedSpellEffectElementModifierPoints(Enums::ElementType elementType) const {
-	return getSpellEffectElementModifierPoints(elementType) + getSpellEffectAllModifierPoints() + StatsSystem::getStatsSystem()->calculateSpellEffectElementModifierPoints(elementType, this);
-}
-
-uint16_t Character::getModifiedResistElementModifierPoints(Enums::ElementType elementType) const {
-	return getResistElementModifierPoints(elementType) + getResistAllModifierPoints() + StatsSystem::getStatsSystem()->calculateResistElementModifierPoints(elementType, this);
-}
-
-uint16_t Character::getModifiedSpellCriticalModifierPoints() const {
-	return getSpellCriticalModifierPoints() + StatsSystem::getStatsSystem()->calculateSpellCriticalModifierPoints(this);
-}
 
 bool Character::CheckMouseOver(int _x_pos, int _y_pos) {
 	int myWidth = getWidth();
@@ -481,7 +469,7 @@ Enums::CharacterArchType Character::getArchType() const {
 
 
 
-void Character::regenerateLifeManaFatigue(uint32_t regenPoints) {
+void Character::regenerateLifeManaFatigue(unsigned int regenPoints) {
 	/** Regenerate life, mana and fatigue every 1000 ms. **/
 
 	/*remainingRegenPoints += regenPoints;
@@ -548,13 +536,6 @@ void Character::removeSpellsWithCharacterState(Enums::CharacterStates characterS
 	}
 }
 
-void Character::removeActiveSpell(SpellActionBase* activeSpell) {
-	for (size_t curSpell = 0; curSpell < activeSpells.size(); curSpell++) {
-		if (activeSpells[curSpell] == activeSpell) {
-			activeSpells[curSpell]->markSpellActionAsFinished();
-		}
-	}
-}
 
 std::vector<SpellActionBase*> Character::getActiveSpells() const {
 	return activeSpells;
@@ -661,48 +642,6 @@ void Character::Damage(int amount, bool criticalHit) {
 	}
 }
 
-uint64_t Character::getExpNeededForLevel(uint8_t level) const {
-	uint64_t result = (level*(level - 1) * 50);
-	return result;
-}
-
-bool Character::canRaiseLevel() const {
-	return (experience >= getExpNeededForLevel(getLevel() + 1) && (getExpNeededForLevel(getLevel() + 1) != getExpNeededForLevel(getLevel())));
-}
-
-void Character::raiseLevel() {
-	if (canRaiseLevel()) {
-		setMaxHealth(getMaxHealth() * 1.1);
-		setStrength(getStrength() * 1.1);
-		setLevel(getLevel() + 1);
-		GLfloat yellow[] = { 1.0f, 1.0f, 0.0f };
-		if (m_isPlayer == true)
-		{
-			//dynamic_cast<Player*>(this)->setTicketForItemTooltip();
-			//dynamic_cast<Player*>(this)->setTicketForSpellTooltip();
-		}
-		//DawnInterface::addTextToLogWindow(yellow, "You are now a level %d %s.", getLevel(), getClassName().c_str());
-	}
-}
-
-void Character::gainExperience(uint64_t addExp) {
-	if (m_isPlayer) {
-
-		if (std::numeric_limits<uint64_t>::max() - addExp < experience) {
-			experience = std::numeric_limits<uint64_t>::max();
-
-		}
-		else {
-			experience += addExp;
-			GLfloat yellow[] = { 1.0f, 1.0f, 0.0f };
-			//DawnInterface::addTextToLogWindow(yellow, "You gain %d experience.", addExp);
-		}
-
-		while (canRaiseLevel()) {
-			raiseLevel();
-		}
-	}
-}
 
 void Character::Heal(int amount) {
 	if (alive) {
@@ -854,14 +793,15 @@ bool Character::continuePreparing() {
 			if (isConfused() == true) {
 				spellCastTime *= 1.35;
 			}
-			
 			preparationPercentage = (static_cast<float>(preparationCurrentTime - preparationStartTime)) / spellCastTime;
 			preparationFinished = (preparationPercentage >= 1.0f);
-			interruptCurrentActivityWith(Enums::ActivityType::Walking);
+	
 		}
 
-		if(preparationFinished)
+		if (preparationFinished) {
 			startSpellAction();
+			interruptCurrentActivityWith(Enums::ActivityType::Walking);
+		}
 	}
 
 	return isPreparing;
@@ -945,9 +885,6 @@ void Character::setCurrentFatigue(unsigned short newCurrentFatigue) {
 	current_fatigue = newCurrentFatigue;
 }
 
-void Character::setExperience(unsigned long experience) {
-	this->experience = experience;
-}
 
 
 //********************************************************////
@@ -1028,6 +965,18 @@ unsigned short Character::getModifiedWisdom() const {
 	return getWisdom();
 }
 
+unsigned short Character::getModifiedSpellEffectElementModifierPoints(Enums::ElementType elementType) const {
+	return getSpellEffectElementModifierPoints(elementType) + getSpellEffectAllModifierPoints() + StatsSystem::getStatsSystem()->calculateSpellEffectElementModifierPoints(elementType, this);
+}
+
+unsigned short Character::getModifiedResistElementModifierPoints(Enums::ElementType elementType) const {
+	return getResistElementModifierPoints(elementType) + getResistAllModifierPoints() + StatsSystem::getStatsSystem()->calculateResistElementModifierPoints(elementType, this);
+}
+
+unsigned short Character::getModifiedSpellCriticalModifierPoints() const {
+	return getSpellCriticalModifierPoints() + StatsSystem::getStatsSystem()->calculateSpellCriticalModifierPoints(this);
+}
+
 unsigned short Character::getParryModifierPoints() const {
 	return parryModifierPoints;
 }
@@ -1058,10 +1007,6 @@ unsigned short Character::getResistElementModifierPoints(Enums::ElementType elem
 
 unsigned short Character::getResistAllModifierPoints() const {
 	return resistAllModifierPoints;
-}
-
-unsigned long Character::getExperience() const {
-	return experience;
 }
 
 ////////////////////////////////////////////////////LUA/////////////////////////////////////
@@ -1214,7 +1159,7 @@ unsigned short Character::getHealthRegen() const {
 	return healthRegen;
 }
 
-uint16_t Character::getManaRegen() const {
+unsigned short Character::getManaRegen() const {
 	return manaRegen;
 }
 
@@ -1244,37 +1189,6 @@ unsigned short Character::getExperienceValue() const {
 /////////////////////////////////////////////////////////////////////////////////////////////
 
 
-Enums::Direction Character::GetOppositeDirection(Enums::Direction direction) {
-	switch (direction) {
-	case Enums::Direction::NW:
-		return Enums::Direction::SE;
-		break;
-	case Enums::Direction::N:
-		return Enums::Direction::S;
-		break;
-	case Enums::Direction::NE:
-		return Enums::Direction::SW;
-		break;
-	case Enums::Direction::W:
-		return Enums::Direction::E;
-		break;
-	case Enums::Direction::E:
-		return Enums::Direction::W;
-		break;
-	case Enums::Direction::SW:
-		return Enums::Direction::NE;
-		break;
-	case Enums::Direction::S:
-		return Enums::Direction::N;
-		break;
-	case Enums::Direction::SE:
-		return Enums::Direction::NW;
-		break;
-	default:
-		return Enums::Direction::STOP;
-		break;
-	}
-}
 
 std::string Character::AttitudeToString(Enums::Attitude attitude) {
 	switch (attitude) {

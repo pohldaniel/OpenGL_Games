@@ -7,6 +7,7 @@
 
 class Npc : public Character {
 
+	friend class Editor;
 public:
 
 	Npc(const CharacterType& characterType, int _x_spawn_pos, int _y_spawn_pos, int _NPC_id, int _seconds_to_respawn, int _do_respawn);
@@ -31,6 +32,7 @@ public:
 	Enums::Attitude getAttitude() const;
 	void chasePlayer(Character *player);
 	void setWanderRadius(unsigned short newWanderRadius);
+	Enums::Direction GetOppositeDirection(Enums::Direction direction);
 
 private:
 	unsigned short getWanderRadius() const;
@@ -62,4 +64,13 @@ private:
 	std::vector<std::array<int, 2>> waypoints;
 
 	unsigned short wander_radius;
+
+	float wander_thisframe, wander_lastframe;
+	float respawn_thisframe, respawn_lastframe;
+	int wander_every_seconds, wander_points_left;
+	bool do_respawn;
+	int x_spawn_pos, y_spawn_pos;
+	int NPC_id;
+	int seconds_to_respawn;
+	bool wandering, moving, in_combat;
 };

@@ -24,7 +24,7 @@ Player::~Player() {
 void Player::init(int x, int y) {
 	x_pos = x;
 	y_pos = y;
-	direction_texture = Enums::Direction::S;
+
 
 	activeDirection = Enums::Direction::S;
 	lastActiveDirection = activeDirection;
@@ -48,7 +48,6 @@ void Player::init(int x, int y) {
 
 
 void Player::draw() {
-	
 	
 	int drawX = getXPos();
 	int drawY = getYPos();
@@ -126,13 +125,7 @@ void Player::Animate(float deltaTime) {
 
 	}else if (curActivity == Enums::ActivityType::Casting) {
 		unsigned short numActivityTextures = getNumActivityTextures(curActivity);
-	
-		currentFrame = static_cast<unsigned short>(floor(getPreparationPercentage() * numActivityTextures)) - 1;
-		if (++currentFrame > numActivityTextures - 1) {
-			currentFrame = 0;
-			m_waitForAnimation = false;
-
-		}
+		currentFrame = static_cast<unsigned short>(floor(getPreparationPercentage() * numActivityTextures));		
 		rect = &tileSet.getAllTiles()[currentFrame].textureRect;
 
 	}else if (curActivity == Enums::ActivityType::Walking) {
@@ -438,3 +431,65 @@ bool Player::isSpellOnCooldown(std::string spellName) const {
 	}
 	return false;
 }
+
+bool Player::canRaiseLevel() const {
+	return (experience >= getExpNeededForLevel(getLevel() + 1) && (getExpNeededForLevel(getLevel() + 1) != getExpNeededForLevel(getLevel())));
+}
+
+void Player::raiseLevel() {
+	if (canRaiseLevel()) {
+		setMaxHealth(getMaxHealth() * 1.1);
+		setStrength(getStrength() * 1.1);
+		setLevel(getLevel() + 1);
+		GLfloat yellow[] = { 1.0f, 1.0f, 0.0f };
+		if (m_isPlayer == true)
+		{
+			//dynamic_cast<Player*>(this)->setTicketForItemTooltip();
+			//dynamic_cast<Player*>(this)->setTicketForSpellTooltip();
+		}
+		//DawnInterface::addTextToLogWindow(yellow, "You are now a level %d %s.", getLevel(), getClassName().c_str());
+	}
+}
+
+void Player::gainExperience(unsigned long addExp) {
+	if (m_isPlayer) {
+
+		if (std::numeric_limits<unsigned long>::max() - addExp < experience) {
+			experience = std::numeric_limits<unsigned long>::max();
+
+		}
+		else {
+			experience += addExp;
+			GLfloat yellow[] = { 1.0f, 1.0f, 0.0f };
+			//DawnInterface::addTextToLogWindow(yellow, "You gain %d experience.", addExp);
+		}
+
+		while (canRaiseLevel()) {
+			raiseLevel();
+		}
+	}
+}
+
+void Player::setExperience(unsigned long experience) {
+	this->experience = experience;
+}
+
+unsigned long Player::getExperience() const {
+	return experience;
+}
+
+unsigned long Player::getExpNeededForLevel(unsigned short level) const {
+	unsigned long result = (level*(level - 1) * 50);
+	return result;
+}
+
+void Player::removeActiveSpell(SpellActionBase* activeSpell) {
+	for (size_t curSpell = 0; curSpell < activeSpells.size(); curSpell++) {
+		if (activeSpells[curSpell] == activeSpell) {
+			activeSpells[curSpell]->markSpellActionAsFinished();
+		}
+	}
+}
+
+
+

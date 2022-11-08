@@ -14,7 +14,7 @@ namespace Utils {
 		unsigned short minutes = 0;
 		unsigned short hours = 0;
 
-		seconds = ceil(seconds);
+		seconds = floor(seconds);
 		hours = static_cast<unsigned short>(floor(seconds / 3600.0f));
 		minutes = static_cast<unsigned short>(ceil(seconds / 60.0f)) - static_cast<unsigned short>(floor(seconds / 3600.0f) * 60.0f);
 

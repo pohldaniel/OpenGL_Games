@@ -115,6 +115,9 @@ private:
 
 class Character{
 
+	friend class Editor;
+	friend class SpellActionBase;
+
 public:
 
 	Character();
@@ -132,18 +135,18 @@ public:
 	
 	//behavior
 	Enums::ActivityType getCurActivity() const;
-	Enums::Direction GetOppositeDirection(Enums::Direction direction);
-	
 	
 	//interaction
-	void MoveUp(unsigned char n);
-	void MoveDown(unsigned char n);
-	void MoveLeft(unsigned char n);
-	void MoveRight(unsigned char n);
-	void Move(Enums::Direction direction, unsigned char n = 1);
+	void MoveUp(unsigned short n);
+	void MoveDown(unsigned short n);
+	void MoveLeft(unsigned short n);
+	void MoveRight(unsigned short n);
+	void Move(Enums::Direction direction, unsigned short n = 1);
 
 	void giveCoins(unsigned int amountOfCoins);
 	bool CheckMouseOver(int _x_pos, int _y_pos);
+	void interruptCurrentActivityWith(Enums::ActivityType activity);
+	void regenerateLifeManaFatigue(unsigned int regenPoints);
 
 	bool isStunned() const;
 	bool isMesmerized() const;
@@ -153,20 +156,90 @@ public:
 	bool isChanneling() const;
 	bool isSneaking() const;
 
-
 	bool getIsPreparing() const;
 	bool mayDoAnythingAffectingSpellActionWithoutAborting() const;
 	bool mayDoAnythingAffectingSpellActionWithAborting() const;
-	
-	
+		
 	int getXPos() const;
 	int getYPos() const;
+
 	float getMovementSpeed() const;
+	
+	float getPreparationPercentage() const;
+	std::string getCurrentSpellActionName() const;
+	void addDamageDisplayToGUI(int amount, bool critical, uint8_t damageType);
+
+	void Damage(int amount, bool criticalHit);
+	bool isInvisible() const;
+	void Die();
+	bool isAlive() const;
+	bool canBeDamaged() const;
+	void Heal(int amount);
+
+	void giveToPreparation(SpellActionBase *toPrepare);
+	bool continuePreparing();
+	bool castSpell(SpellActionBase *spell);
+	void CastingAborted();
+	void abortCurrentSpellAction();
+	void startSpellAction();
+	void executeSpellWithoutCasting(SpellActionBase *spell, Character *target);
+	void addCooldownSpell(SpellActionBase *spell);
+	void cleanupCooldownSpells();
+	void addActiveSpell(SpellActionBase *spell);
+	void cleanupActiveSpells();
+	void removeSpellsWithCharacterState(Enums::CharacterStates characterState);
+	
+
+	std::vector<SpellActionBase*> getSpellbook() const;
+	std::vector<SpellActionBase*> getActiveSpells() const;
+	Enums::CharacterArchType getArchType() const;
 	Character* getTarget() const;
-
-
 	void setTarget(Character *target);
 	
+
+	void setBoundingBox(int bbx, int bby, int bbw, int bbh);
+	void setUseBoundingBox(bool use);
+	int getBoundingBoxX() const;
+	int getBoundingBoxY() const;
+	int getBoundingBoxW() const;
+	int getBoundingBoxH() const;
+	bool getUseBoundingBox() const;
+
+	void setCurrentHealth(unsigned short newCurrentHealth);
+	void setCurrentMana(unsigned short newCurrentMana);
+	void setCurrentFatigue(unsigned short newCurrentFatigue);
+	
+	void modifyMaxHealth(short maxHealthModifier);
+	void modifyMaxMana(short maxManaModifier);
+	void modifyMaxFatigue(short maxFatigueModifier);
+	void modifyCurrentHealth(short currentHealthModifier);
+	void modifyCurrentMana(short currentManaModifier);
+	void modifyCurrentFatigue(short currentFatigueModifier);
+
+	unsigned short getModifiedMaxHealth() const;
+	unsigned short getModifiedMaxMana() const;
+	unsigned short getModifiedMaxFatigue() const;
+	unsigned short getModifiedStrength() const;
+	unsigned short getModifiedDexterity() const;
+	unsigned short getModifiedVitality() const;
+	unsigned short getModifiedIntellect() const;
+	unsigned short getModifiedWisdom() const;
+	unsigned short getModifiedSpellEffectElementModifierPoints(Enums::ElementType elementType) const;
+	unsigned short getModifiedResistElementModifierPoints(Enums::ElementType elementType) const;
+	unsigned short getModifiedSpellCriticalModifierPoints() const;
+	unsigned short getParryModifierPoints() const;
+	unsigned short getBlockModifierPoints() const;
+	unsigned short getMeleeCriticalModifierPoints() const;
+	unsigned short getSpellCriticalModifierPoints() const;
+	unsigned short getSpellEffectElementModifierPoints(Enums::ElementType elementType) const;
+	unsigned short getSpellEffectAllModifierPoints() const;
+	unsigned short getResistElementModifierPoints(Enums::ElementType elementType) const;
+	unsigned short getResistAllModifierPoints() const;
+	unsigned short getCurrentHealth() const;
+	unsigned short getCurrentMana() const;
+	unsigned short getCurrentFatigue() const;
+	
+////////////////////////////////////////////////////LUA STATES/////////////////////////////////////
 	void inscribeSpellInSpellbook(SpellActionBase *spell);
 	//void addItemToLootTable(Item* item, double dropChance);
 	void setClass(Enums::CharacterClass characterClass);
@@ -187,10 +260,10 @@ public:
 	void setArmor(unsigned short newArmor);
 	void setDamageModifierPoints(unsigned short newDamageModifierPoints);
 	void setHitModifierPoints(unsigned short newHitModifierPoints);
-	void setEvadeModifierPoints(unsigned short newEvadeModifierPoints);	
+	void setEvadeModifierPoints(unsigned short newEvadeModifierPoints);
 	void setLevel(unsigned short newLevel);
 	void setExperienceValue(unsigned short experienceValue);
-	
+
 	Enums::CharacterClass getClass() const;
 	std::string getName() const;
 	unsigned short getStrength() const;
@@ -213,40 +286,64 @@ public:
 	unsigned short getLevel() const;
 	unsigned short getExperienceValue() const;
 
+	static std::string AttitudeToString(Enums::Attitude attitude);
+	static std::string ActivityToString(Enums::ActivityType activity);
 
-	void setCurrentHealth(unsigned short newCurrentHealth);
-	void setCurrentMana(unsigned short newCurrentMana);
-	void setCurrentFatigue(unsigned short newCurrentFatigue);
-	void setExperience(unsigned long experience);
+protected:
 
-	void modifyMaxHealth(short maxHealthModifier);
-	void modifyMaxMana(short maxManaModifier);
-	void modifyMaxFatigue(short maxFatigueModifier);
-	void modifyCurrentHealth(short currentHealthModifier);
-	void modifyCurrentMana(short currentManaModifier);
-	void modifyCurrentFatigue(short currentFatigueModifier);
+	bool alive;
+	bool m_isPlayer;
+	bool hasChoosenFearDirection;
+	bool isPreparing = false;
+	// timers
+	float dyingStartFrame, reduceDyingTranspFrame;
 
-	unsigned short getModifiedMaxHealth() const;
-	unsigned short getModifiedMaxMana() const;
-	unsigned short getModifiedMaxFatigue() const;
-	unsigned short getModifiedStrength() const;
-	unsigned short getModifiedDexterity() const;
-	unsigned short getModifiedVitality() const;
-	unsigned short getModifiedIntellect() const;
-	unsigned short getModifiedWisdom() const;
-	unsigned short getParryModifierPoints() const;
-	unsigned short getBlockModifierPoints() const;
-	unsigned short getMeleeCriticalModifierPoints() const;
-	unsigned short getSpellCriticalModifierPoints() const;
-	unsigned short getSpellEffectElementModifierPoints(Enums::ElementType elementType) const;
-	unsigned short getSpellEffectAllModifierPoints() const;
-	unsigned short getResistElementModifierPoints(Enums::ElementType elementType) const;
-	unsigned short getResistAllModifierPoints() const;
-	unsigned short getCurrentHealth() const;
-	unsigned short getCurrentMana() const;
-	unsigned short getCurrentFatigue() const;
-	unsigned long getExperience() const;
-	
+	int x_pos, y_pos;
+	float preparationPercentage;
+	unsigned int preparationStartTime, preparationCurrentTime;
+	float progress = 0.0f;
+
+	std::vector<SpellActionBase*> spellbook;
+	std::vector<SpellActionBase*> activeSpells;
+	std::vector<SpellActionBase*> cooldownSpells;
+
+	Character* target;
+
+	SpellActionBase* curSpellAction = nullptr;
+	Enums::Direction activeDirection;
+	Enums::Direction lastActiveDirection;
+	Enums::Direction fearDirection, dyingDirection;
+	Enums::ActivityType curActivity;
+	Enums::CharacterArchType characterArchType;
+
+	const TextureRect* rect;
+	unsigned short m_numActivities;
+	unsigned short index = 0;
+	unsigned short currentFrame = 0;
+	float m_elapsedTime = 0.0f;
+	float m_animationTime = 0.0f;
+	bool m_waitForAnimation = false;
+
+	unsigned short parryModifierPoints;
+	unsigned short blockModifierPoints;
+	unsigned short meleeCriticalModifierPoints;
+	unsigned short spellCriticalModifierPoints;
+	unsigned short spellEffectAllModifierPoints;
+	unsigned short resistAllModifierPoints;
+	unsigned short *spellEffectElementModifierPoints;
+	unsigned short *resistElementModifierPoints;
+	unsigned short current_health;
+	unsigned short current_mana;
+	unsigned short current_fatigue;
+	unsigned int coins;
+
+	int boundingBoxX;
+	int boundingBoxY;
+	int boundingBoxW;
+	int boundingBoxH;
+	bool useBoundingBox = false;
+
+	//LUA STATES
 	Enums::CharacterClass characterClass;
 	std::string name;
 	unsigned short strength;
@@ -268,151 +365,4 @@ public:
 	unsigned short evadeModifierPoints;
 	unsigned short level;
 	unsigned short experienceValue;
-
-	unsigned short parryModifierPoints;
-	unsigned short blockModifierPoints;
-	unsigned short meleeCriticalModifierPoints;
-	unsigned short spellCriticalModifierPoints;
-	unsigned short spellEffectAllModifierPoints;
-	unsigned short resistAllModifierPoints;
-	unsigned short *spellEffectElementModifierPoints;
-	unsigned short *resistElementModifierPoints;
-	unsigned short current_health;
-	unsigned short current_mana;
-	unsigned short current_fatigue;
-	unsigned long experience;
-	
-
-	unsigned int coins;
-
-	
-
-	float getPreparationPercentage() const;
-	std::string getCurrentSpellActionName() const;
-	
-	
-	
-	void addDamageDisplayToGUI(int amount, bool critical, uint8_t damageType);
-
-	
-	void removeSpellsWithCharacterState(Enums::CharacterStates characterState);
-	void removeActiveSpell(SpellActionBase* activeSpell);
-
-	
-	
-
-	int boundingBoxX;
-	int boundingBoxY;
-	int boundingBoxW;
-	int boundingBoxH;
-	bool useBoundingBox = false;
-
-	void setBoundingBox(int bbx, int bby, int bbw, int bbh);
-	void setUseBoundingBox(bool use);
-	int getBoundingBoxX() const;
-	int getBoundingBoxY() const;
-	int getBoundingBoxW() const;
-	int getBoundingBoxH() const;
-	bool getUseBoundingBox() const ;
-	
-
-	void interruptCurrentActivityWith(Enums::ActivityType activity);
-
-	static std::string AttitudeToString(Enums::Attitude attitude);
-	static std::string ActivityToString(Enums::ActivityType activity);
-
-	bool alive;
-	//bool hasDrawnDyingOnce;
-	bool m_isPlayer;
-
-	int current_texture, direction_texture;
-	bool hasChoosenFearDirection;
-	bool isPreparing = false;
-	
-
-	// timers
-	float wander_thisframe, wander_lastframe;
-	float respawn_thisframe, respawn_lastframe;
-	float dyingStartFrame, reduceDyingTranspFrame;
-
-	int wander_every_seconds, wander_points_left;
-	bool do_respawn;
-	int x_spawn_pos, y_spawn_pos;
-	int NPC_id;
-	int seconds_to_respawn;
-	bool wandering, moving, in_combat;
-	//unsigned int remainingMovePoints;
-
-
-	int x_pos, y_pos;
-	Enums::Direction activeDirection;
-	Enums::Direction lastActiveDirection;
-	Enums::ActivityType curActivity;
-
-	Enums::Direction fearDirection, dyingDirection;
-	unsigned short m_numActivities;
-
-	const TextureRect* rect;
-	unsigned short index = 0;
-	unsigned short currentFrame = 0;
-	float m_elapsedTime = 0.0f;
-	float m_animationTime = 0.0f;
-	
-	bool m_waitForAnimation = false;
-
-	float progress = 0.0f;
-
-	
-	
-	
-	
-	
-	
-	Enums::CharacterArchType characterArchType;
-	float preparationPercentage;
-	
-	
-	SpellActionBase* curSpellAction = nullptr;
-	std::vector<SpellActionBase*> spellbook;
-	uint32_t preparationStartTime, preparationCurrentTime;
-
-	Enums::CharacterArchType getArchType() const;
-	
-	void addCooldownSpell(SpellActionBase *spell);
-	void cleanupCooldownSpells();
-	
-	void addActiveSpell(SpellActionBase *spell);
-	void cleanupActiveSpells();
-
-	bool isAlive() const;
-	
-	bool canBeDamaged() const;
-	std::vector<SpellActionBase*> activeSpells;
-	std::vector<SpellActionBase*> cooldownSpells;
-
-	void Damage(int amount, bool criticalHit);
-	bool isInvisible() const;
-	void Die();
-	void gainExperience(uint64_t addExp);
-	bool canRaiseLevel() const;
-	void raiseLevel();
-	uint64_t getExpNeededForLevel(uint8_t level) const;
-	void executeSpellWithoutCasting(SpellActionBase *spell, Character *target);
-	void Heal(int amount);
-
-	std::vector<SpellActionBase*> getSpellbook() const;
-	bool castSpell(SpellActionBase *spell);
-	void giveToPreparation(SpellActionBase *toPrepare);
-	bool continuePreparing();
-	void CastingAborted();
-	void abortCurrentSpellAction();
-	void startSpellAction();
-	void regenerateLifeManaFatigue(uint32_t regenPoints);
-	std::vector<SpellActionBase*> getActiveSpells() const;
-
-	uint16_t getModifiedSpellEffectElementModifierPoints(Enums::ElementType elementType) const;
-	uint16_t getModifiedResistElementModifierPoints(Enums::ElementType elementType) const;
-	uint16_t getModifiedSpellCriticalModifierPoints() const;
-
-	Character* target;
 };

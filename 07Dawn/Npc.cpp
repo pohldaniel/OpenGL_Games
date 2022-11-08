@@ -4,7 +4,6 @@
 
 Npc::Npc(const CharacterType& characterType, int _x_spawn_pos, int _y_spawn_pos, int _NPC_id, int _seconds_to_respawn, int _do_respawn) : m_characterType(characterType) {
 	alive = true;
-	current_texture = 1; // this will be altered later on to draw what animation frame we want to draw.
 	respawn_thisframe = 0.0f;
 	respawn_lastframe = 0.0f; // helps us count when to respawn the NPC.
 	wander_thisframe = 0.0f;
@@ -17,10 +16,9 @@ Npc::Npc(const CharacterType& characterType, int _x_spawn_pos, int _y_spawn_pos,
 	lastActiveDirection = activeDirection;
 	curActivity = Enums::ActivityType::Walking;
 
-	direction_texture = 0;
 	attitudeTowardsPlayer = Enums::Attitude::NEUTRAL;
 	chasingPlayer = false;
-	//setTarget(NULL);
+	setTarget(NULL);
 	markedAsDeleted = false;
 	lastPathCalculated = 0;
 	wander_points_left = 0;
@@ -142,6 +140,39 @@ void Npc::Move(float deltaTime, Enums::Direction direction) {
 		Character::Move(direction);
 	}
 }
+
+Enums::Direction Npc::GetOppositeDirection(Enums::Direction direction) {
+	switch (direction) {
+	case Enums::Direction::NW:
+		return Enums::Direction::SE;
+		break;
+	case Enums::Direction::N:
+		return Enums::Direction::S;
+		break;
+	case Enums::Direction::NE:
+		return Enums::Direction::SW;
+		break;
+	case Enums::Direction::W:
+		return Enums::Direction::E;
+		break;
+	case Enums::Direction::E:
+		return Enums::Direction::W;
+		break;
+	case Enums::Direction::SW:
+		return Enums::Direction::NE;
+		break;
+	case Enums::Direction::S:
+		return Enums::Direction::N;
+		break;
+	case Enums::Direction::SE:
+		return Enums::Direction::NW;
+		break;
+	default:
+		return Enums::Direction::STOP;
+		break;
+	}
+}
+
 
 void Npc::Animate(float deltaTime) {
 	

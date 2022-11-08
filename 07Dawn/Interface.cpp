@@ -432,12 +432,12 @@ void Interface::drawTargetedNPCText() {
 		width = stringWidth - 56;
 	}
 
-	int fontStart = npc->x_pos + npc->getWidth() / 2 - stringWidth / 2;
-	int tooltipStart = npc->x_pos + npc->getWidth() / 2 - (width + 64) / 2;
+	int fontStart = npc->getXPos() + npc->getWidth() / 2 - stringWidth / 2;
+	int tooltipStart = npc->getXPos() + npc->getWidth() / 2 - (width + 64) / 2;
 
-	TextureManager::DrawTextureBatched(m_interfacetexture[2], tooltipStart, npc->y_pos + npc->getHeight() - 3, 32.0f, 32.0f, true, true);
-	TextureManager::DrawTextureBatched(m_interfacetexture[1], tooltipStart + 32, npc->y_pos + npc->getHeight() - 3, 40.0f, 32.0f, true, true);
-	TextureManager::DrawTextureBatched(m_interfacetexture[3], tooltipStart + 32 + 40, npc->y_pos + npc->getHeight() - 3, 32.0f, 32.0f, true, true);
+	TextureManager::DrawTextureBatched(m_interfacetexture[2], tooltipStart, npc->getYPos() + npc->getHeight() - 3, 32.0f, 32.0f, true, true);
+	TextureManager::DrawTextureBatched(m_interfacetexture[1], tooltipStart + 32, npc->getYPos() + npc->getHeight() - 3, 40.0f, 32.0f, true, true);
+	TextureManager::DrawTextureBatched(m_interfacetexture[3], tooltipStart + 32 + 40, npc->getYPos() + npc->getHeight() - 3, 32.0f, 32.0f, true, true);
 
 
 	float life_percentage = static_cast<float>(npc->getCurrentHealth()) / static_cast<float>(npc->getModifiedMaxHealth());
@@ -448,7 +448,7 @@ void Interface::drawTargetedNPCText() {
 		TextureManager::DrawTextureBatched(m_interfacetexture[0], npc->getXPos(), npc->getYPos() + npc->getHeight() - 12, static_cast<float>(npc->getWidth()), 8.0f, Vector4f(0.5f, 0.5f, 0.0f, 1.0f), true, true);
 		//then the actual castbar
 		TextureManager::DrawTextureBatched(m_interfacetexture[0], npc->getXPos(), npc->getYPos() + npc->getHeight() - 12, npc->getWidth()* npc->getPreparationPercentage(), 8.0f, Vector4f(0.8f, 0.8f, 0.0f, 1.0f), true, true);
-		Fontrenderer::Get().addText(*m_interfaceFont, npc->getXPos(), npc->y_pos + npc->getHeight() - 24, npc->getCurrentSpellActionName(), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), true, 10u);
+		Fontrenderer::Get().addText(*m_interfaceFont, npc->getXPos(), npc->getYPos() + npc->getHeight() - 24, npc->getCurrentSpellActionName(), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), true, 10u);
 	}
 
 	Vector4f color;
@@ -464,7 +464,7 @@ void Interface::drawTargetedNPCText() {
 			break;
 	}
 
-	Fontrenderer::Get().addText(*m_interfaceFont, fontStart, npc->y_pos + npc->getHeight() + 12, npc->getName(), color, true, 10u);
+	Fontrenderer::Get().addText(*m_interfaceFont, fontStart, npc->getYPos() + npc->getHeight() + 12, npc->getName(), color, true, 10u);
 
 	// load the active spells from the NPC
 	std::vector<SpellActionBase*> activeSpells = npc->getActiveSpells();
@@ -767,6 +767,7 @@ void Interface::executeSpellQueue() {
 	Enums::EffectType effectType = m_spellQueue->action->getEffectType();
 
 	if (m_spellQueue->action != NULL && m_spellQueue->actionReadyToCast == true) {
+		
 		SpellActionBase *curAction = NULL;
 		if (effectType == Enums::EffectType::SingleTargetSpell && m_player->getTarget() != NULL) {
 			curAction = m_spellQueue->action->cast(m_player, m_player->getTarget(), true);
@@ -786,10 +787,9 @@ void Interface::executeSpellQueue() {
 				m_preparingAoESpell = false;
 			}
 		}
-
+		
 		if (curAction != NULL) {
 			m_player->castSpell(dynamic_cast<SpellActionBase*>(curAction));
-			m_player->m_waitForAnimation = true;
 		}
 
 		m_spellQueue = NULL;
