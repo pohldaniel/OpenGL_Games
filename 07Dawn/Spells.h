@@ -52,7 +52,7 @@ public:
 	virtual uint16_t getDuration() const;
 	TextureRect* getSymbol() const;
 
-	Clock m_spellTimer;
+	
 	
 
 protected:

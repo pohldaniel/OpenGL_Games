@@ -296,7 +296,7 @@ void GeneralRayDamageSpell::startEffect() {
 		//SoundEngine::playSound(soundSpellStart);
 	}
 	animation.start();
-	m_spellTimer.restart();
+	m_timer.restart();
 
 	finished = false;
 	remainingEffect = 0.0;
@@ -320,17 +320,17 @@ void GeneralRayDamageSpell::inEffect(float deltatime) {
 
 	animation.update(deltatime);
 
-	unsigned int elapsedSinceLast = m_spellTimer.getElapsedTimeMilli();
-	if (elapsedSinceLast < 1000) {
+	unsigned int elapsedSinceLast = m_timer.getElapsedTimeMilli();
+	if (elapsedSinceLast < 1000u) {
 		return;
 	}
-	m_spellTimer.reset();
+	m_timer.reset(1000u);
 
 	remainingEffect += calculateContinuousDamage(elapsedSinceLast);
 
 	// no critical damage in this phase so far
 	bool callFinish = false;
-	if (m_spellTimer.getElapsedTimeSinceRestartMilli() >= continuousDamageTime) {
+	if (m_timer.getElapsedTimeSinceRestartMilli() >= continuousDamageTime) {
 		callFinish = true;
 	}
 
@@ -471,7 +471,7 @@ void GeneralAreaDamageSpell::startEffect() {
 	radius = 50;
 	remainingEffect = 0.0;
 	finished = false;
-	m_spellTimer.restart();
+	m_timer.restart();
 	
 	m_elapsedTime = 0.0f;
 	if (child) dealDirectDamage();
@@ -494,17 +494,17 @@ void GeneralAreaDamageSpell::inEffect(float deltaTime) {
 	m_elapsedTime = m_elapsedTime + deltaTime * 10;
 	radius = static_cast<unsigned short>(floor(m_elapsedTime)) + 50;
 
-	unsigned int elapsedSinceLast = m_spellTimer.getElapsedTimeMilli();
-	if (elapsedSinceLast < 1000) {		
+	unsigned int elapsedSinceLast = m_timer.getElapsedTimeMilli();
+	if (elapsedSinceLast < 1000u) {
 		return;
 	}
-	m_spellTimer.reset();
+	m_timer.reset(1000u);
 
 	if (child) remainingEffect += calculateContinuousDamage(elapsedSinceLast);
 	// no critical damage in this phase so far
 
 	bool callFinish = false;
-	if (m_spellTimer.getElapsedTimeSinceRestartMilli() >= continuousDamageTime) {
+	if (m_timer.getElapsedTimeSinceRestartMilli() >= continuousDamageTime) {
 		callFinish = true;
 	}
 
@@ -609,7 +609,7 @@ void GeneralBoltDamageSpell::startEffect() {
 	posx = player.getXPos() + (player.getWidth() / 2);
 	posy = player.getYPos() + (player.getHeight() / 2);
 
-	m_spellTimer.restart();
+	m_timer.restart();
 	
 	target->addActiveSpell(this);
 	creator->addCooldownSpell(dynamic_cast<SpellActionBase*> (cast(nullptr, nullptr, false)));
@@ -650,7 +650,7 @@ void GeneralBoltDamageSpell::inEffect(float deltatime) {
 
 	if ((posx == targetx && posy == targety) || getInstant() == true) {
 		finishEffect();
-	}else if (m_spellTimer.getElapsedTimeSinceRestartMilli() > expireTime) {
+	}else if (m_timer.getElapsedTimeSinceRestartMilli() > expireTime) {
 		markSpellActionAsFinished();
 	}
 }
@@ -802,7 +802,7 @@ void GeneralHealingSpell::startEffect() {
 	finished = false;
 
 	remainingEffect = 0.0;
-	m_spellTimer.restart();
+	m_timer.restart();
 
 	int healing = RNG::randomSizeT(healEffectMin, healEffectMax);
 
@@ -828,16 +828,18 @@ void GeneralHealingSpell::startEffect() {
 void GeneralHealingSpell::inEffect(float deltatime) {
 	if (isEffectComplete()) return;
 
-	unsigned int elapsedSinceLast = m_spellTimer.getElapsedTimeMilli();
-	if (elapsedSinceLast < 1000) {
+	unsigned int elapsedSinceLast = m_timer.getElapsedTimeMilli();
+	if (elapsedSinceLast < 1000u) {
 		return;
 	}
-	m_spellTimer.reset();
+	m_timer.reset(1000u);
 
 	remainingEffect += calculateContinuousHealing(elapsedSinceLast);
 
+	
+
 	bool callFinish = false;
-	if (m_spellTimer.getElapsedTimeSinceRestartMilli() >= continuousHealingTime) {
+	if (m_timer.getElapsedTimeSinceRestartMilli() >= continuousHealingTime) {
 		callFinish = true;
 	}
 
@@ -971,7 +973,7 @@ void GeneralBuffSpell::startEffect() {
 	if (soundSpellStart != "") {
 		//SoundEngine::playSound(soundSpellStart);
 	}
-	m_spellTimer.restart();
+	m_timer.restart();
 	finished = false;
 
 	target->addActiveSpell(this);
@@ -989,7 +991,7 @@ void GeneralBuffSpell::inEffect(float deltatime) {
 		return;
 	}
 	
-	if (m_spellTimer.getElapsedTimeSinceRestartMilli() > getDuration() * 1000u) {
+	if (m_timer.getElapsedTimeSinceRestartMilli() > getDuration() * 1000u) {
 		finishEffect();
 	}
 }

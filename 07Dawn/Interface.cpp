@@ -206,14 +206,13 @@ void Interface::draw() {
 		if (m_activeSpells[curSpell]->getDuration() > 0) {
 			// here we draw the border and background for the spells we have affecting us.
 			// healing and buffs will be drawn with a green border and debuffs or hostile spells with a red border..
-
 			Vector4f borderColor = m_activeSpells[curSpell]->isSpellHostile() == true ? Vector4f(0.7f, 0.0f, 0.0f, 1.0f) : Vector4f(0.0f, 0.7f, 0.0f, 1.0f);
 			TextureManager::DrawTextureBatched(m_interfacetexture[16], ViewPort::get().getWidth() - 204, ViewPort::get().getHeight() - 50 - 40 * curSpell, borderColor, false, false);
 			TextureManager::DrawTextureBatched(m_interfacetexture[18], ViewPort::get().getWidth() - 204 + 36, ViewPort::get().getHeight() - 50 - 40 * curSpell, 168.0f, 36.0f, false, false);
 			m_activeSpells[curSpell]->drawSymbol(ViewPort::get().getWidth() - 204 + 2, ViewPort::get().getHeight() - 50 - 40 * curSpell + 2, 32.0f, 32.0f, Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
 
 			Fontrenderer::Get().addText(*m_shortcutFont, ViewPort::get().getWidth() - 204 + 40, ViewPort::get().getHeight() - 50 + 18 - 40 * curSpell, m_activeSpells[curSpell]->getName(), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), false, 10u);
-			Fontrenderer::Get().addText(*m_shortcutFont, ViewPort::get().getWidth() - 204 + 40, ViewPort::get().getHeight() - 50 + 8 - 40 * curSpell, Utils::ConvertTime(m_activeSpells[curSpell]->m_timer.getElapsedTimeSec(), m_activeSpells[curSpell]->getDuration()), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), false, 10u);
+			Fontrenderer::Get().addText(*m_shortcutFont, ViewPort::get().getWidth() - 204 + 40, ViewPort::get().getHeight() - 50 + 8 - 40 * curSpell, Utils::ConvertTime(m_activeSpells[curSpell]->m_timer.getElapsedTimeSinceRestartSec(), m_activeSpells[curSpell]->getDuration()), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), false, 10u);
 		}
 	}
 
@@ -243,23 +242,27 @@ void Interface::draw() {
 	TextureManager::BindTexture(m_cooldownFont->spriteSheet, false, 1);
 	m_cooldownSpells = m_player->getCooldownSpells();
 	for (unsigned int buttonId = 0; buttonId < 10; buttonId++) {
-		bool drawCooldownText;
+		bool drawCooldownText = false;
 		std::string cooldownText;
 		bool useableSpell = isSpellUseable(m_button[buttonId].action);
 
 		if (m_button[buttonId].action != NULL) {
 
+			
+			
+
 			for (size_t curSpell = 0; curSpell < m_cooldownSpells.size(); curSpell++) {
 				if (m_cooldownSpells[curSpell]->getName() == m_button[buttonId].action->getName()) {
 					useableSpell = false;
 					drawCooldownText = true;
-					cooldownText = Utils::ConvertTime(m_cooldownSpells[curSpell]->m_timer.getElapsedTimeSec(), m_cooldownSpells[curSpell]->getCooldown());
+					cooldownText = Utils::ConvertTime(m_cooldownSpells[curSpell]->m_timer.getElapsedTimeSinceRestartSec(), m_cooldownSpells[curSpell]->getCooldown());
 				}
 			}
-
+			
 			m_button[buttonId].action->drawSymbol(ViewPort::get().getWidth() - 608 + buttonId * 60, 14, 46.0f, 46.0f, useableSpell ? Vector4f(1.0f, 1.0f, 1.0f, 1.0f) : Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
 
 			if (drawCooldownText == true) {
+				
 				unsigned int xModifier = m_cooldownFont->getWidth(cooldownText);
 				Fontrenderer::Get().addText(*m_cooldownFont, ViewPort::get().getWidth() - 630 + 20 + buttonId * 60 + 6 + (50 - xModifier) / 2, 32, cooldownText, Vector4f(1.0f, 1.0f, 0.0f, 1.0f), false, 10u);
 

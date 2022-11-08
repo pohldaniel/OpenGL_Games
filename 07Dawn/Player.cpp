@@ -249,8 +249,7 @@ static unsigned short getModifiedAttribute(const Character* character, unsigned 
 		}
 	}*/
 
-	std::vector<SpellActionBase*> activeSpells;
-	activeSpells = character->getActiveSpells();
+	std::vector<SpellActionBase*> activeSpells = character->getActiveSpells();
 	size_t numSpells = activeSpells.size();
 	for (size_t curSpellNr = 0; curSpellNr<numSpells; ++curSpellNr) {
 		GeneralBuffSpell *curSpell = dynamic_cast<GeneralBuffSpell*> (activeSpells[curSpellNr]);
@@ -399,4 +398,43 @@ void Player::setTarget(Character *target, Enums::Attitude attitude) {
 
 Enums::Attitude Player::getTargetAttitude() {
 	return targetAttitude;
+}
+
+int Player::getDeltaX() {
+	return dx;
+}
+
+int Player::getDeltaY() {
+	return dy;
+}
+
+void Player::clearCooldownSpells() {
+	cooldownSpells.clear();
+}
+
+void Player::clearActiveSpells() {
+	activeSpells.clear();
+}
+
+
+std::vector<SpellActionBase*> Player::getCooldownSpells() const {
+	return cooldownSpells;
+}
+
+uint32_t Player::getTicksOnCooldownSpell(std::string spellName) const {
+	for (size_t curSpell = 0; curSpell < cooldownSpells.size(); curSpell++) {
+		if (cooldownSpells[curSpell]->getName() == spellName) {
+			return cooldownSpells[curSpell]->m_timer.getElapsedTimeMilli();
+		}
+	}
+	return 0u;
+}
+
+bool Player::isSpellOnCooldown(std::string spellName) const {
+	for (size_t curSpell = 0; curSpell < cooldownSpells.size(); curSpell++) {
+		if (cooldownSpells[curSpell]->getName() == spellName) {
+			return true;
+		}
+	}
+	return false;
 }

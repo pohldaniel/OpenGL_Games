@@ -167,7 +167,7 @@ public:
 
 	void setTarget(Character *target);
 	
-
+	void inscribeSpellInSpellbook(SpellActionBase *spell);
 	//void addItemToLootTable(Item* item, double dropChance);
 	void setClass(Enums::CharacterClass characterClass);
 	void setName(std::string newName);
@@ -283,28 +283,23 @@ public:
 	unsigned long experience;
 	
 
-	uint32_t coins;
+	unsigned int coins;
 
 	
 
 	float getPreparationPercentage() const;
 	std::string getCurrentSpellActionName() const;
 	
-	int getDeltaX();
-	int getDeltaY();
+	
 	
 	void addDamageDisplayToGUI(int amount, bool critical, uint8_t damageType);
 
-	void clearActiveSpells();
-	void cleanupActiveSpells();
+	
 	void removeSpellsWithCharacterState(Enums::CharacterStates characterState);
 	void removeActiveSpell(SpellActionBase* activeSpell);
 
-	void clearCooldownSpells();
-	std::vector<SpellActionBase*> getCooldownSpells() const;
-	uint32_t getTicksOnCooldownSpell(std::string spellName) const;
-	bool isSpellOnCooldown(std::string spellName) const;
-	void cleanupCooldownSpells();
+	
+	
 
 	int boundingBoxX;
 	int boundingBoxY;
@@ -371,7 +366,7 @@ public:
 	
 	
 	
-	int dx, dy;
+	
 	
 	Enums::CharacterArchType characterArchType;
 	float preparationPercentage;
@@ -384,10 +379,13 @@ public:
 	Enums::CharacterArchType getArchType() const;
 	
 	void addCooldownSpell(SpellActionBase *spell);
-
+	void cleanupCooldownSpells();
 	
-	bool isAlive() const;
 	void addActiveSpell(SpellActionBase *spell);
+	void cleanupActiveSpells();
+
+	bool isAlive() const;
+	
 	bool canBeDamaged() const;
 	std::vector<SpellActionBase*> activeSpells;
 	std::vector<SpellActionBase*> cooldownSpells;
@@ -401,7 +399,7 @@ public:
 	uint64_t getExpNeededForLevel(uint8_t level) const;
 	void executeSpellWithoutCasting(SpellActionBase *spell, Character *target);
 	void Heal(int amount);
-	void inscribeSpellInSpellbook(SpellActionBase *spell);
+
 	std::vector<SpellActionBase*> getSpellbook() const;
 	bool castSpell(SpellActionBase *spell);
 	void giveToPreparation(SpellActionBase *toPrepare);

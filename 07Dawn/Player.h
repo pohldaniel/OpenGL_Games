@@ -15,6 +15,8 @@ public:
 	int getHeight() const override;
 	unsigned short getNumActivityTextures(Enums::ActivityType activity)override;
 	bool hasTarget(Character* target);
+
+	using Character::setTarget;
 	void setTarget(Character *target, Enums::Attitude attitude);
 
 	Enums::Attitude getTargetAttitude();
@@ -22,8 +24,18 @@ public:
 
 	void setCharacterType(std::string characterType);
 	Vector3f getPosition();
+	int getDeltaX();
+	int getDeltaY();
+	
 	void setTicketForItemTooltip();
 	void setTicketForSpellTooltip();
+
+	std::vector<SpellActionBase*> getCooldownSpells() const;
+	uint32_t getTicksOnCooldownSpell(std::string spellName) const;
+	bool isSpellOnCooldown(std::string spellName) const;
+	
+	void clearCooldownSpells();
+	void clearActiveSpells();
 
 	static Player& Get();
 	~Player();
@@ -67,4 +79,5 @@ public:
 	
 
 	Enums::Attitude targetAttitude;
+	int dx, dy;
 };

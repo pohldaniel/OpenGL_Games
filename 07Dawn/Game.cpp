@@ -150,11 +150,10 @@ void Game::processInput() {
 				// is the NPC friendly?
 				if (!curNPC->getAttitude() == Enums::Attitude::FRIENDLY) {
 					// set a target if the player has none
-
 					if (!player.hasTarget(curNPC)) {
 						player.setTarget(curNPC, curNPC->getAttitude());
 					}else {
-						player.Character::setTarget(NULL);
+						player.setTarget(NULL);
 					}
 					break;
 				}

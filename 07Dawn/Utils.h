@@ -2,6 +2,7 @@
 
 #include <string>
 #include <sstream>
+#include <algorithm>
 
 namespace Utils {
 
@@ -13,6 +14,7 @@ namespace Utils {
 		unsigned short minutes = 0;
 		unsigned short hours = 0;
 
+		seconds = ceil(seconds);
 		hours = static_cast<unsigned short>(floor(seconds / 3600.0f));
 		minutes = static_cast<unsigned short>(ceil(seconds / 60.0f)) - static_cast<unsigned short>(floor(seconds / 3600.0f) * 60.0f);
 
@@ -51,8 +53,10 @@ namespace Utils {
 
 		unsigned short minutes = 0;
 		unsigned short hours = 0;
+	
+		seconds = ceil(duration - seconds);
+		//seconds = abs(ceil(duration - seconds));
 
-		seconds = duration - seconds;
 		hours = static_cast<unsigned short>(floor(seconds / 3600.0f));
 		minutes = static_cast<unsigned short>(ceil(seconds / 60.0f)) - static_cast<unsigned short>(floor(seconds / 3600.0f) * 60.0f);
 
@@ -69,7 +73,6 @@ namespace Utils {
 		if (minutes <= 0 && hours <= 0) {
 			ss << seconds << "s ";
 		}
-
 		outputString = ss.str();
 		return outputString;
 	}

@@ -385,13 +385,6 @@ void Character::Move(Enums::Direction direction, unsigned char n) {
 
 
 
-int Character::getDeltaX() {
-	return dx;
-}
-
-int Character::getDeltaY() {
-	return dy;
-}
 
 
 
@@ -515,18 +508,15 @@ void Character::addActiveSpell(SpellActionBase *spell) {
 
 	// here we check to see if the current spell cast is already on the character. if it is, then we refresh it.
 	for (size_t curSpell = 0; curSpell < activeSpells.size(); curSpell++) {
-		if (activeSpells[curSpell]->getID() == spell->getID())
-		{
+		if (activeSpells[curSpell]->getID() == spell->getID()){
 			// we replace the old spell with a new, in case a more powerful spell is cast (a higher rank)
 			activeSpells[curSpell] = spell;
-			activeSpells[curSpell]->m_timer.reset();
 			return;
 		}
 	}
 
 	// add new spell on character.
 	activeSpells.push_back(spell);
-	activeSpells.back()->m_timer.reset();
 	// if we're an NPC and the spell is hostile, we want to set the caster to hostile.
 	if (m_isPlayer == false && spell->isSpellHostile() == true) {
 		// in the future when having more than one player playing, this function needs to be reworked.
@@ -537,7 +527,7 @@ void Character::addActiveSpell(SpellActionBase *spell) {
 void Character::cleanupActiveSpells() {
 	size_t curSpell = 0;
 	while (curSpell < activeSpells.size()) {
-		if (activeSpells[curSpell]->isEffectComplete() == true) {
+		if (activeSpells[curSpell]->isEffectComplete() == true) {		
 			delete activeSpells[curSpell];
 			activeSpells.erase(activeSpells.begin() + curSpell);
 		}else {
@@ -546,9 +536,6 @@ void Character::cleanupActiveSpells() {
 	}
 }
 
-void Character::clearActiveSpells() {
-	activeSpells.clear();
-}
 
 void Character::removeSpellsWithCharacterState(Enums::CharacterStates characterState) {
 	// we remove spells based on what character states they have.
@@ -577,7 +564,6 @@ void Character::addCooldownSpell(SpellActionBase *spell) {
 
 	if (spell->getCooldown() > 0) {
 		cooldownSpells.push_back(spell);
-		cooldownSpells.back()->m_timer.reset();
 	}
 }
 
@@ -596,32 +582,6 @@ void Character::cleanupCooldownSpells() {
 			curSpell++;
 		}
 	}
-}
-
-void Character::clearCooldownSpells() {
-	cooldownSpells.clear();
-}
-
-std::vector<SpellActionBase*> Character::getCooldownSpells() const {
-	return cooldownSpells;
-}
-
-uint32_t Character::getTicksOnCooldownSpell(std::string spellName) const {
-	for (size_t curSpell = 0; curSpell < cooldownSpells.size(); curSpell++) {
-		if (cooldownSpells[curSpell]->getName() == spellName) {
-			return cooldownSpells[curSpell]->m_timer.getElapsedTimeMilli();
-		}
-	}
-	return 0u;
-}
-
-bool Character::isSpellOnCooldown(std::string spellName) const {
-	for (size_t curSpell = 0; curSpell < cooldownSpells.size(); curSpell++) {
-		if (cooldownSpells[curSpell]->getName() == spellName) {
-			return true;
-		}
-	}
-	return false;
 }
 
 void Character::Die() {

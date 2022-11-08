@@ -15,6 +15,11 @@ public:
 		begin = end;
 	}
 
+	inline void reset(unsigned int intervall) {
+		end = end + std::chrono::milliseconds(intervall);
+		begin = end;
+	}
+
 	inline float resetSec() {
 		end = std::chrono::high_resolution_clock::now();
 		float elapsed_secs = std::chrono::duration_cast<std::chrono::duration<float>>(end - begin).count();

@@ -235,7 +235,7 @@ void MeleeDamageAction::dealDamage() {
 }
 
 double MeleeDamageAction::getProgress() const {
-	return m_actionTimer.getElapsedTimeSinceRestartMilli() / 650.0;
+	return m_timer.getElapsedTimeSinceRestartMilli() / 650.0;
 }
 
 Enums::EffectType MeleeDamageAction::getEffectType() const {
@@ -248,7 +248,7 @@ void MeleeDamageAction::startEffect() {
 	if (soundSpellStart != "") {
 		//SoundEngine::playSound(soundSpellStart);
 	}
-	m_actionTimer.restart();
+	m_timer.restart();
 	finished = false;
 	target->addActiveSpell(this);
 	creator->addCooldownSpell(dynamic_cast<SpellActionBase*> (cast(nullptr, nullptr, false)));
@@ -343,7 +343,7 @@ void RangedDamageAction::startEffect() {
 	posx = player.getXPos() + (player.getWidth() / 2);
 	posy = player.getYPos() + (player.getHeight() / 2);
 
-	m_actionTimer.restart();
+	m_timer.restart();
 
 	target->addActiveSpell(this);
 	creator->addCooldownSpell(dynamic_cast<SpellActionBase*> (cast(nullptr, nullptr, false)));
@@ -387,7 +387,7 @@ void RangedDamageAction::inEffect(float deltatime) {
 
 	if ((posx == targetx && posy == targety) || getInstant() == true) {
 		finishEffect();
-	}else if (m_actionTimer.getElapsedTimeSinceRestartMilli() > expireTime) {
+	}else if (m_timer.getElapsedTimeSinceRestartMilli() > expireTime) {
 		markSpellActionAsFinished();
 	}
 }
@@ -412,7 +412,7 @@ void RangedDamageAction::finishEffect() {
 }
 
 double RangedDamageAction::getProgress() const {
-	return ((m_actionTimer.getElapsedTimeMilli()) / 650.0);
+	return ((m_timer.getElapsedTimeSinceRestartMilli()) / 650.0);
 }
 
 void RangedDamageAction::draw() {
