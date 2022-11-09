@@ -6,23 +6,20 @@ class Player : public Character {
 
 public:
 	Player();
+	~Player();
+
 	void draw() override;
 	void update(float deltaTime) override;
-	
-	
 
-	int getWidth() const override;
-	int getHeight() const override;
-	unsigned short getNumActivityTextures(Enums::ActivityType activity)override;
+
 	bool hasTarget(Character* target);
-
 	using Character::setTarget;
 	void setTarget(Character *target, Enums::Attitude attitude);
 
 	Enums::Attitude getTargetAttitude();
 
 
-	void setCharacterType(std::string characterType);
+	
 	Vector3f getPosition();
 	int getDeltaX();
 	int getDeltaY();
@@ -38,11 +35,9 @@ public:
 	void clearActiveSpells();
 
 	static Player& Get();
-	~Player();
+
 
 	static Player s_instance;
-
-	const CharacterType* m_characterType;
 
 	void init(int x, int y);
 

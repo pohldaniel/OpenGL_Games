@@ -2,7 +2,7 @@
 #include "TilesetManager.h"
 #include "Constants.h"
 
-Npc::Npc(const CharacterType& characterType, int _x_spawn_pos, int _y_spawn_pos, int _NPC_id, int _seconds_to_respawn, int _do_respawn) : m_characterType(characterType) {
+Npc::Npc(int _x_spawn_pos, int _y_spawn_pos, int _NPC_id, int _seconds_to_respawn, int _do_respawn) {
 	alive = true;
 	respawn_thisframe = 0.0f;
 	respawn_lastframe = 0.0f; // helps us count when to respawn the NPC.
@@ -22,11 +22,44 @@ Npc::Npc(const CharacterType& characterType, int _x_spawn_pos, int _y_spawn_pos,
 	markedAsDeleted = false;
 	lastPathCalculated = 0;
 	wander_points_left = 0;
-	rect = &m_characterType.m_moveTileSets.at({ getCurActivity(), GetDirectionRNG() }).getAllTiles()[0].textureRect;
-
-	wander_radius = m_characterType.wander_radius;
+	
 	m_isPlayer = false;
 }
+
+void Npc::setCharacterType(std::string characterType) {
+	m_characterType = &CharacterTypeManager::Get().getCharacterType(characterType);
+
+	setStrength(m_characterType->strength);
+	setDexterity(m_characterType->dexterity);
+	setVitality(m_characterType->vitality);
+	setIntellect(m_characterType->intellect);
+	setWisdom(m_characterType->wisdom);
+	setMaxHealth(m_characterType->max_health);
+	setMaxMana(m_characterType->max_mana);
+	setMaxFatigue(m_characterType->max_fatigue);
+	setMinDamage(m_characterType->min_damage);
+	setMaxDamage(m_characterType->max_damage);
+	setArmor(m_characterType->armor);
+
+	setHealthRegen(m_characterType->healthRegen);
+	setManaRegen(m_characterType->manaRegen);
+	setFatigueRegen(m_characterType->fatigueRegen);
+	setDamageModifierPoints(m_characterType->damageModifierPoints);
+	setHitModifierPoints(m_characterType->hitModifierPoints);
+	setEvadeModifierPoints(m_characterType->evadeModifierPoints);
+	setClass(m_characterType->characterClass);
+	setName(m_characterType->name);
+	setLevel(m_characterType->level);
+	setExperienceValue(m_characterType->experienceValue);
+
+	for (const auto& spell : m_characterType->spellbook) {
+		inscribeSpellInSpellbook(spell);
+	}
+
+	rect = &m_characterType->m_moveTileSets.at({ getCurActivity(), GetDirectionRNG() }).getAllTiles()[0].textureRect;
+	wander_radius = m_characterType->wander_radius;
+}
+
 
 Npc::~Npc() {}
 
@@ -56,7 +89,7 @@ void Npc::draw() {
  
 void Npc::update(float deltaTime) {
 	m_updated = TextureManager::IsRectOnScreen(getXPos(), rect->width, getYPos(), rect->height);
-
+	regenerateLifeManaFatigue(deltaTime);
 	if (m_updated) {
 		processInput();
 		lastActiveDirection = activeDirection != Enums::Direction::STOP ? activeDirection : lastActiveDirection;
@@ -177,8 +210,8 @@ Enums::Direction Npc::GetOppositeDirection(Enums::Direction direction) {
 void Npc::Animate(float deltaTime) {
 	
 	if (activeDirection != Enums::Direction::STOP || (m_handleAnimation || m_waitForAnimation)) {
-		const TileSet& tileSet = m_characterType.m_moveTileSets.at({ curActivity, lastActiveDirection });
-		unsigned short numActivityTextures = getNumActivityTextures(curActivity);
+		const TileSet& tileSet = m_characterType->m_moveTileSets.at({ curActivity, lastActiveDirection });
+		unsigned short numActivityTextures = m_characterType->m_numMoveTexturesPerDirection.at(curActivity);
 
 		m_animationTime = m_animationTime >= numActivityTextures ? 0.0f : m_animationTime + deltaTime * 12;
 		currentFrame = static_cast<unsigned short>(floor(m_animationTime));
@@ -286,24 +319,6 @@ std::string Npc::getLuaEditorSaveText() const {
 		<<  "Enums." << Character::AttitudeToString(attitudeTowardsPlayer) << " );" << std::endl;
 
 	return oss.str();
-}
-
-int Npc::getWidth() const {
-	const TextureRect& rect = m_characterType.m_moveTileSets.at({ Enums::ActivityType::Walking, Enums::Direction::S }).getAllTiles()[0].textureRect;
-	return useBoundingBox ? boundingBoxW : rect.width;
-}
-
-int Npc::getHeight() const {
-	const TextureRect& rect = m_characterType.m_moveTileSets.at({ Enums::ActivityType::Walking, Enums::Direction::S }).getAllTiles()[0].textureRect;
-	return useBoundingBox ? boundingBoxH : rect.height;
-}
-
-unsigned short Npc::getNumActivityTextures(Enums::ActivityType activity) {
-	return m_characterType.m_numMoveTexturesPerDirection.at(activity);
-}
-
-const CharacterType& Npc::getCharacterType() {
-	return m_characterType;
 }
 
 Enums::Attitude Npc::getAttitude() const {

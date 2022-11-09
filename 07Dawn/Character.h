@@ -125,13 +125,14 @@ public:
 
 	virtual void draw() = 0;
 	virtual void update(float deltaTime);
-
-	virtual int getWidth() const = 0;
-	virtual int getHeight() const = 0;
-	virtual unsigned short getNumActivityTextures(Enums::ActivityType activity) = 0;
+	void regenerateLifeManaFatigue(float deltaTime);
 
 	//init
-	void baseOnType(std::string otherName);
+	virtual void setCharacterType(std::string characterType);
+
+	int getWidth() const;
+	int getHeight() const;
+	
 	
 	//behavior
 	Enums::ActivityType getCurActivity() const;
@@ -146,7 +147,7 @@ public:
 	void giveCoins(unsigned int amountOfCoins);
 	bool CheckMouseOver(int _x_pos, int _y_pos);
 	void interruptCurrentActivityWith(Enums::ActivityType activity);
-	void regenerateLifeManaFatigue(unsigned int regenPoints);
+	
 
 	bool isStunned() const;
 	bool isMesmerized() const;
@@ -189,7 +190,7 @@ public:
 	void cleanupActiveSpells();
 	void removeSpellsWithCharacterState(Enums::CharacterStates characterState);
 	
-
+	const CharacterType* getCharacterType();
 	std::vector<SpellActionBase*> getSpellbook() const;
 	std::vector<SpellActionBase*> getActiveSpells() const;
 	Enums::CharacterArchType getArchType() const;
@@ -216,6 +217,9 @@ public:
 	void modifyCurrentMana(short currentManaModifier);
 	void modifyCurrentFatigue(short currentFatigueModifier);
 
+	unsigned short getModifiedManaRegen() const;
+	unsigned short getModifiedHealthRegen() const;
+	unsigned short getModifiedFatigueRegen() const;
 	unsigned short getModifiedMaxHealth() const;
 	unsigned short getModifiedMaxMana() const;
 	unsigned short getModifiedMaxFatigue() const;
@@ -306,7 +310,7 @@ protected:
 	std::vector<SpellActionBase*> spellbook;
 	std::vector<SpellActionBase*> activeSpells;
 	std::vector<SpellActionBase*> cooldownSpells;
-
+	const CharacterType* m_characterType;
 	Character* target;
 
 	SpellActionBase* curSpellAction = nullptr;
@@ -336,6 +340,7 @@ protected:
 	unsigned short current_mana;
 	unsigned short current_fatigue;
 	unsigned int coins;
+	float m_regenerationRate = 0.0f;
 
 	int boundingBoxX;
 	int boundingBoxY;

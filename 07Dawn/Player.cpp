@@ -70,6 +70,8 @@ void Player::update(float deltaTime) {
 
 	curActivity = getCurActivity();
 	
+	regenerateLifeManaFatigue(deltaTime);
+
 	//if (curActivity != Enums::ActivityType::Dying) {
 		processInput();
 	//}
@@ -110,7 +112,7 @@ void Player::Animate(float deltaTime) {
 	const TileSet& tileSet = m_characterType->m_moveTileSets.at({ curActivity, lastActiveDirection });
 	
 	if (activeDirection != Enums::Direction::STOP || (curActivity == Enums::ActivityType::Dying && m_waitForAnimation)) {
-		unsigned short numActivityTextures = getNumActivityTextures(curActivity);
+		unsigned short numActivityTextures = m_characterType->m_numMoveTexturesPerDirection.at(curActivity);
 
 		m_animationTime += deltaTime;
 		while (m_animationTime >= m_duration) {
@@ -124,7 +126,7 @@ void Player::Animate(float deltaTime) {
 		rect = &tileSet.getAllTiles()[currentFrame].textureRect;
 
 	}else if (curActivity == Enums::ActivityType::Casting) {
-		unsigned short numActivityTextures = getNumActivityTextures(curActivity);
+		unsigned short numActivityTextures = m_characterType->m_numMoveTexturesPerDirection.at(curActivity);
 		currentFrame = static_cast<unsigned short>(floor(getPreparationPercentage() * numActivityTextures));		
 		rect = &tileSet.getAllTiles()[currentFrame].textureRect;
 
@@ -186,23 +188,6 @@ void Player::processInput() {
 	activeDirection = Enums::Direction::STOP;
 }
 
-int Player::getWidth() const {
-	const TextureRect& rect = m_characterType->m_moveTileSets.at({ Enums::ActivityType::Walking, Enums::Direction::S }).getAllTiles()[0].textureRect;
-	return useBoundingBox ? boundingBoxW : rect.width;
-}
-
-int Player::getHeight() const  {
-	const TextureRect& rect = m_characterType->m_moveTileSets.at({ Enums::ActivityType::Walking, Enums::Direction::S }).getAllTiles()[0].textureRect;
-	return useBoundingBox ? boundingBoxH : rect.height;
-}
-unsigned short Player::getNumActivityTextures(Enums::ActivityType activity) {
-	return m_characterType->m_numMoveTexturesPerDirection.at(activity);
-}
-
-void Player::setCharacterType(std::string characterType) {
-	m_characterType = &CharacterTypeManager::Get().getCharacterType(characterType);
-	rect = &m_characterType->m_moveTileSets.at({ getCurActivity(), activeDirection }).getAllTiles()[0].textureRect;
-}
 
 Vector3f Player::getPosition() {
 	return Vector3f(static_cast<float>(getXPos()), static_cast<float>(getYPos()), 0.0f);

@@ -64,36 +64,6 @@ level(1) {
 
 
 
-void Character::baseOnType(std::string characterType) {
-	const CharacterType& other = CharacterTypeManager::Get().getCharacterType(characterType);
-		
-	setStrength(other.strength);
-	setDexterity(other.dexterity);
-	setVitality(other.vitality);
-	setIntellect(other.intellect);
-	setWisdom(other.wisdom);
-	setMaxHealth(other.max_health);
-	setMaxMana(other.max_mana);
-	setMaxFatigue(other.max_fatigue);
-	setMinDamage(other.min_damage);
-	setMaxDamage(other.max_damage);
-	setArmor(other.armor);
-	
-	setHealthRegen(other.healthRegen);
-	setManaRegen(other.manaRegen);
-	setFatigueRegen(other.fatigueRegen);
-	setDamageModifierPoints(other.damageModifierPoints);
-	setHitModifierPoints(other.hitModifierPoints);
-	setEvadeModifierPoints(other.evadeModifierPoints);
-	setClass(other.characterClass);
-	setName(other.name);
-	setLevel(other.level);
-	setExperienceValue(other.experienceValue);
-
-	for (const auto& spell : other.spellbook) {
-		inscribeSpellInSpellbook(spell);
-	}
-}
 
 Enums::ActivityType Character::getCurActivity() const {
 	//Enums::ActivityType curActivity = Enums::ActivityType::Walking;
@@ -372,19 +342,24 @@ void Character::Move(Enums::Direction direction, unsigned short n) {
 	}
 }
 
+const CharacterType*  Character::getCharacterType() {
+	return m_characterType;
+}
 
+void Character::setCharacterType(std::string characterType) {
+	m_characterType = &CharacterTypeManager::Get().getCharacterType(characterType);
+	rect = &m_characterType->m_moveTileSets.at({ getCurActivity(), activeDirection }).getAllTiles()[0].textureRect;
+}
 
+int Character::getWidth() const {
+	const TextureRect& rect = m_characterType->m_moveTileSets.at({ Enums::ActivityType::Walking, Enums::Direction::S }).getAllTiles()[0].textureRect;
+	return useBoundingBox ? boundingBoxW : rect.width;
+}
 
-
-
-
-
-
-
-
-
-
-
+int Character::getHeight() const {
+	const TextureRect& rect = m_characterType->m_moveTileSets.at({ Enums::ActivityType::Walking, Enums::Direction::S }).getAllTiles()[0].textureRect;
+	return useBoundingBox ? boundingBoxH : rect.height;
+}
 
 
 void Character::addDamageDisplayToGUI(int amount, bool critical, uint8_t damageType) {
@@ -465,21 +440,15 @@ Enums::CharacterArchType Character::getArchType() const {
 	return characterArchType;
 }
 
-
-
-
-
-void Character::regenerateLifeManaFatigue(unsigned int regenPoints) {
+void Character::regenerateLifeManaFatigue(float deltaTime) {
 	/** Regenerate life, mana and fatigue every 1000 ms. **/
-
-	/*remainingRegenPoints += regenPoints;
-
-	if (remainingRegenPoints > 1000) {
+	m_regenerationRate = m_regenerationRate >= 1.0f ? 0.0f : m_regenerationRate + deltaTime;
+	
+	if (m_regenerationRate == 0.0f) {
 		modifyCurrentMana(getModifiedManaRegen());
 		modifyCurrentHealth(getModifiedHealthRegen());
 		modifyCurrentFatigue(getModifiedFatigueRegen());
-		remainingRegenPoints -= 1000;
-	}*/
+	}	
 }
 
 bool Character::isAlive() const {
@@ -735,7 +704,7 @@ bool Character::castSpell(SpellActionBase *spell) {
 
 		if (cooldownSpells[curSpell]->getID() == spell->getID()){
 			
-			if (cooldownSpells[curSpell]->m_timer.getElapsedTimeMilli() < spell->getCooldown() * 1000){
+			if (cooldownSpells[curSpell]->m_timer.getElapsedTimeMilli() < spell->getCooldown() * 1000u){
 				/// can't cast, spell has a cooldown on it. Display message about it.
 				return false;
 			}
@@ -943,6 +912,18 @@ unsigned short Character::getCurrentFatigue() const {
 		return getModifiedMaxFatigue();
 
 	return current_fatigue;
+}
+
+unsigned short Character::getModifiedManaRegen() const {
+	return getManaRegen();
+}
+
+unsigned short Character::getModifiedHealthRegen() const {
+	return getHealthRegen();
+}
+
+unsigned short Character::getModifiedFatigueRegen() const {
+	return getFatigueRegen();
 }
 
 unsigned short Character::getModifiedStrength() const {

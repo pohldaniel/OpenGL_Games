@@ -172,9 +172,9 @@ void Zone::addNPC(Npc *npcToAdd) {
 
 int Zone::deleteNPC(int x, int y) {
 	for (unsigned int t = 0; t < m_npcs.size(); t++) {
-		if ((m_npcs[t]->getXPos() + m_npcs[t]->getCharacterType().getTileSet(Enums::ActivityType::Walking, Enums::Direction::S).getAllTiles()[0].textureRect.width > x) &&
+		if ((m_npcs[t]->getXPos() + m_npcs[t]->getCharacterType()->getTileSet(Enums::ActivityType::Walking, Enums::Direction::S).getAllTiles()[0].textureRect.width > x) &&
 			(m_npcs[t]->getXPos() < x)) {
-			if ((m_npcs[t]->getYPos() + m_npcs[t]->getCharacterType().getTileSet(Enums::ActivityType::Walking, Enums::Direction::S).getAllTiles()[0].textureRect.height > y) &&
+			if ((m_npcs[t]->getYPos() + m_npcs[t]->getCharacterType()->getTileSet(Enums::ActivityType::Walking, Enums::Direction::S).getAllTiles()[0].textureRect.height > y) &&
 				(m_npcs[t]->getYPos() < y)) {
 				removeNPC(m_npcs[t]);
 				return 0;
@@ -212,9 +212,9 @@ void Zone::cleanupNPCList() {
 int Zone::locateNPC(int x, int y) {
 	
 	for (unsigned int t = 0; t < m_npcs.size(); t++) {
-		if ((m_npcs[t]->getXPos() + m_npcs[t]->getCharacterType().getTileSet(Enums::ActivityType::Walking, Enums::Direction::S).getAllTiles()[0].textureRect.width > x) &&
+		if ((m_npcs[t]->getXPos() + m_npcs[t]->getCharacterType()->getTileSet(Enums::ActivityType::Walking, Enums::Direction::S).getAllTiles()[0].textureRect.width > x) &&
 			(m_npcs[t]->getXPos() < x)) {
-			if ((m_npcs[t]->getYPos() + m_npcs[t]->getCharacterType().getTileSet(Enums::ActivityType::Walking, Enums::Direction::S).getAllTiles()[0].textureRect.height > y) &&
+			if ((m_npcs[t]->getYPos() + m_npcs[t]->getCharacterType()->getTileSet(Enums::ActivityType::Walking, Enums::Direction::S).getAllTiles()[0].textureRect.height > y) &&
 				(m_npcs[t]->getYPos() < y)) {
 				return t;
 			}

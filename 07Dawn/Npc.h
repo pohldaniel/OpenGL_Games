@@ -10,25 +10,20 @@ class Npc : public Character {
 	friend class Editor;
 public:
 
-	Npc(const CharacterType& characterType, int _x_spawn_pos, int _y_spawn_pos, int _NPC_id, int _seconds_to_respawn, int _do_respawn);
-
-	
+	Npc(int _x_spawn_pos, int _y_spawn_pos, int _NPC_id, int _seconds_to_respawn, int _do_respawn);
 	~Npc();
-	void draw() override;
-	void update(float deltaTime) override;
-	
-	int getWidth() const override;;
-	int getHeight() const override;;
-	unsigned short getNumActivityTextures(Enums::ActivityType activity) override;
 
-	Enums::Direction GetDirectionRNG();
-	
+	void draw() override;
+	void update(float deltaTime) override;	
+	void setCharacterType(std::string characterType) override;
+
+	Enums::Direction GetDirectionRNG();	
 	void setSpawnInfo(int _x_spawn_pos, int _y_spawn_pos, int _seconds_to_respawn, int _do_respawn);
 	void setAttitude(Enums::Attitude attitude);
 	void markAsDeleted();
 	bool isMarkedAsDeletable() const;
 	std::string getLuaEditorSaveText() const;
-	const CharacterType& getCharacterType();
+	
 	Enums::Attitude getAttitude() const;
 	void chasePlayer(Character *player);
 	void setWanderRadius(unsigned short newWanderRadius);
@@ -48,7 +43,7 @@ private:
 
 	bool m_updated = false;
 
-	const CharacterType& m_characterType;
+	
 
 	void Move(float deltaTime);
 	void Move(float deltaTime, Enums::Direction direction);
