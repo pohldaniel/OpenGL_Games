@@ -10,36 +10,64 @@ public:
 
 	void draw() override;
 	void update(float deltaTime) override;
-
+	/////////////LUA/////////////
+	void init(int x, int y);
 
 	bool hasTarget(Character* target);
+
 	using Character::setTarget;
 	void setTarget(Character *target, Enums::Attitude attitude);
-
-	Enums::Attitude getTargetAttitude();
-
 
 	
 	Vector3f getPosition();
 	int getDeltaX();
 	int getDeltaY();
+
+	void removeActiveSpell(SpellActionBase* activeSpell);
+	std::vector<SpellActionBase*> getCooldownSpells() const;
+	Enums::Attitude getTargetAttitude();
+
+	void gainExperience(unsigned long addExp);
+	unsigned long getExperience() const;
+	unsigned long getExpNeededForLevel(unsigned short level) const;
+
+	unsigned int getTicketForItemTooltip() const;
+	unsigned int getTicketForSpellTooltip() const;
+	unsigned int getTicksOnCooldownSpell(std::string spellName) const;
 	
 	void setTicketForItemTooltip();
 	void setTicketForSpellTooltip();
 
-	std::vector<SpellActionBase*> getCooldownSpells() const;
-	uint32_t getTicksOnCooldownSpell(std::string spellName) const;
-	bool isSpellOnCooldown(std::string spellName) const;
+	unsigned short getModifiedMinDamage() const;
+	unsigned short getModifiedMaxDamage() const;
+	unsigned short getModifiedDamageModifierPoints() const;
+	unsigned short getModifiedSpellEffectElementModifierPoints(Enums::ElementType elementType) const;
 	
-	void clearCooldownSpells();
-	void clearActiveSpells();
-
 	static Player& Get();
 
+private:
 
-	static Player s_instance;
+	void Move(float deltaTime);
+	void Animate(float deltaTime);
+	void processInput();
 
-	void init(int x, int y);
+	void clearCooldownSpells();
+	void clearActiveSpells();
+	bool isSpellOnCooldown(std::string spellName) const;
+	
+	bool canRaiseLevel() const;
+	void raiseLevel();
+	void setExperience(unsigned long experience);
+
+	unsigned short getModifiedArmor() const;
+	unsigned short getModifiedHitModifierPoints() const;
+	unsigned short getModifiedEvadeModifierPoints() const;
+	unsigned short getModifiedParryModifierPoints() const;
+	unsigned short getModifiedBlockModifierPoints() const;
+	unsigned short getModifiedMeleeCriticalModifierPoints() const;
+	unsigned short getModifiedResistElementModifierPoints(Enums::ElementType elementType) const;
+	unsigned short getModifiedSpellCriticalModifierPoints() const;
+	unsigned short getModifiedStrength() const;
 
 	unsigned short  movementSpeed;
 	unsigned int ticketForItemTooltip;
@@ -49,37 +77,10 @@ public:
 	float m_currentspeed = 1.0f;
 	float m_inverseSpeed = 0.8f;
 
-	void Move(float deltaTime);
-	void Animate(float deltaTime);
-	void processInput();
-	
-	unsigned int getTicketForItemTooltip() const;
-	unsigned int getTicketForSpellTooltip() const;
-
-	unsigned short getModifiedMinDamage() const;
-	unsigned short getModifiedMaxDamage() const;
-	unsigned short getModifiedArmor() const;
-	unsigned short getModifiedDamageModifierPoints() const;
-	unsigned short getModifiedHitModifierPoints() const;
-	unsigned short getModifiedEvadeModifierPoints() const;
-	unsigned short getModifiedParryModifierPoints() const;
-	unsigned short getModifiedBlockModifierPoints() const;
-	unsigned short getModifiedMeleeCriticalModifierPoints() const;
-	unsigned short getModifiedSpellEffectElementModifierPoints(Enums::ElementType elementType) const;
-	unsigned short getModifiedResistElementModifierPoints(Enums::ElementType elementType) const;
-	unsigned long getExperience() const;
-	void setExperience(unsigned long experience);
-	unsigned long getExpNeededForLevel(unsigned short level) const;
-
-	unsigned short Player::getModifiedSpellCriticalModifierPoints() const;
-	unsigned short Player::getModifiedStrength() const;
-	void gainExperience(unsigned long addExp);
-	bool canRaiseLevel() const;
-	void raiseLevel();
-	void removeActiveSpell(SpellActionBase* activeSpell);
-
 	unsigned long experience;
 
 	Enums::Attitude targetAttitude;
 	int dx, dy;
+
+	static Player s_instance;
 };

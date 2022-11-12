@@ -336,3 +336,19 @@ unsigned short Npc::getWanderRadiusSq() const {
 void Npc::setWanderRadius(unsigned short newWanderRadius) {
 	wander_radius = newWanderRadius;
 }
+
+bool Npc::CheckMouseOver(int _x_pos, int _y_pos) {
+	int myWidth = getWidth();
+	int myHeight = getHeight();
+	if (((x_pos < _x_pos) && ((x_pos + myWidth) > _x_pos))
+		&& ((y_pos < _y_pos) && ((y_pos + myHeight) > _y_pos))) {
+		return true;
+	}
+	else {
+		return false;
+	}
+}
+
+bool Npc::canBeDamaged() const {
+	return attitudeTowardsPlayer != Enums::Attitude::FRIENDLY;
+}

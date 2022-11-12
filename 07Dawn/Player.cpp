@@ -3,9 +3,110 @@
 #include "Actions.h"
 #include "Constants.h"
 #include "Statssystem.h"
+#include "Luainterface.h"
 
 const unsigned short NULLABLE_ATTRIBUTE_MIN = 0;
 const unsigned short NON_NULLABLE_ATTRIBUTE_MIN = 1;
+
+static unsigned short getModifiedAttribute(const Character* character, unsigned short basicAttributeValue, unsigned short(*getSpellAttribute)(GeneralBuffSpell*), unsigned short minValue = std::numeric_limits<unsigned short>::min(), unsigned short maxValue = std::numeric_limits<unsigned short>::max()) {
+	int attributeModifier = 0;
+	/*std::vector<InventoryItem*> equippedItems = inventory.getEquippedItems();
+	size_t numItems = equippedItems.size();
+	bool readTwoHandedWeapon = false;
+	for (size_t curItemNr = 0; curItemNr<numItems; ++curItemNr) {
+	Item* curItem = equippedItems[curItemNr]->getItem();
+	assert(curItem != NULL);
+	if (curItem->isTwoHandedWeapon() == false || readTwoHandedWeapon == false) {
+	attributeModifier += getItemAttribute(curItem);
+	}
+
+	// we do this because we only want to read the stats from two-handed weapons once and not two times as it would be since we equip two-handed weapons in both main-hand and off-hand slot.
+	if (curItem->isTwoHandedWeapon()){
+	readTwoHandedWeapon = true;
+	}
+	}*/
+
+	std::vector<SpellActionBase*> activeSpells = character->getActiveSpells();
+	size_t numSpells = activeSpells.size();
+	for (size_t curSpellNr = 0; curSpellNr<numSpells; ++curSpellNr) {
+		GeneralBuffSpell *curSpell = dynamic_cast<GeneralBuffSpell*> (activeSpells[curSpellNr]);
+		// since more than Buffspells can be active, we want to check to see that we're getting a buff here...
+		if (curSpell != NULL) {
+			attributeModifier += getSpellAttribute(curSpell);
+		}
+	}
+
+	if (static_cast<int32_t>(basicAttributeValue) + attributeModifier < static_cast<int32_t>(minValue)) {
+		return minValue;
+	}
+	else if (static_cast<int32_t>(basicAttributeValue) + attributeModifier > static_cast<int32_t>(maxValue)) {
+		return maxValue;
+	}
+	else {
+		return basicAttributeValue + attributeModifier;
+	}
+}
+
+static unsigned short getModifiedAttribute(Enums::ElementType elementType, const Character *character, unsigned short basicAttributeValue, unsigned short(*getSpellAttribute)(Enums::ElementType, GeneralBuffSpell*), unsigned short minValue = std::numeric_limits<unsigned short>::min(), unsigned short maxValue = std::numeric_limits<unsigned short>::max()) {
+	int32_t attributeModifier = 0;
+	/*std::vector<InventoryItem*> equippedItems = inventory.getEquippedItems();
+	size_t numItems = equippedItems.size();
+	for (size_t curItemNr = 0; curItemNr<numItems; ++curItemNr)
+	{
+	Item* curItem = equippedItems[curItemNr]->getItem();
+	assert(curItem != NULL);
+	attributeModifier += getItemAttribute(elementType, curItem);
+	}*/
+
+	std::vector<SpellActionBase*> activeSpells;
+	activeSpells = character->getActiveSpells();
+	size_t numSpells = activeSpells.size();
+	for (size_t curSpellNr = 0; curSpellNr<numSpells; ++curSpellNr) {
+		GeneralBuffSpell* curSpell = dynamic_cast<GeneralBuffSpell*> (activeSpells[curSpellNr]);
+
+		// since more than Buffspells can be active, we want to check to see that we're getting a buff here...
+		if (curSpell != NULL) {
+			attributeModifier += getSpellAttribute(elementType, curSpell);
+		}
+	}
+
+	if (static_cast<int32_t>(basicAttributeValue) + attributeModifier < static_cast<int32_t>(minValue)) {
+		return minValue;
+
+	}
+	else if (static_cast<int32_t>(basicAttributeValue) + attributeModifier > static_cast<int32_t>(maxValue)) {
+		return maxValue;
+
+	}
+	else {
+		return basicAttributeValue + attributeModifier;
+	}
+}
+
+static unsigned short getSpellStrengthHelper(GeneralBuffSpell* spell) { return spell->getStats(Enums::StatsType::Strength); }
+static unsigned short getSpellDexterityHelper(GeneralBuffSpell* spell) { return spell->getStats(Enums::StatsType::Dexterity); }
+static unsigned short getSpellVitalityHelper(GeneralBuffSpell* spell) { return spell->getStats(Enums::StatsType::Vitality); }
+static unsigned short getSpellIntellectHelper(GeneralBuffSpell* spell) { return spell->getStats(Enums::StatsType::Intellect); }
+static unsigned short getSpellWisdomHelper(GeneralBuffSpell* spell) { return spell->getStats(Enums::StatsType::Wisdom); }
+static unsigned short getSpellHealthHelper(GeneralBuffSpell* spell) { return spell->getStats(Enums::StatsType::Health); }
+static unsigned short getSpellManaHelper(GeneralBuffSpell* spell) { return spell->getStats(Enums::StatsType::Mana); }
+static unsigned short getSpellFatigueHelper(GeneralBuffSpell* spell) { return spell->getStats(Enums::StatsType::Fatigue); }
+static unsigned short getSpellArmorHelper(GeneralBuffSpell* spell) { return spell->getStats(Enums::StatsType::Armor); }
+static unsigned short getSpellDamageModifierPointsHelper(GeneralBuffSpell* spell) { return spell->getStats(Enums::StatsType::DamageModifier); }
+static unsigned short getSpellHitModifierPointsHelper(GeneralBuffSpell* spell) { return spell->getStats(Enums::StatsType::HitModifier); }
+static unsigned short getSpellEvadeModifierPointsHelper(GeneralBuffSpell* spell) { return spell->getStats(Enums::StatsType::EvadeModifier); }
+static unsigned short getSpellParryModifierPointsHelper(GeneralBuffSpell* spell) { return spell->getStats(Enums::StatsType::ParryModifier); }
+static unsigned short getSpellBlockModifierPointsHelper(GeneralBuffSpell* spell) { return spell->getStats(Enums::StatsType::BlockModifier); }
+static unsigned short getSpellMeleeCriticalModifierPointsHelper(GeneralBuffSpell* spell) { return spell->getStats(Enums::StatsType::MeleeCritical); }
+static unsigned short getSpellResistElementModifierPointsHelper(Enums::ElementType elementType, GeneralBuffSpell* spell) { return spell->getResistElementModifierPoints(elementType) + spell->getStats(Enums::StatsType::ResistAll); }
+static unsigned short getSpellSpellEffectElementModifierPointsHelper(Enums::ElementType elementType, GeneralBuffSpell* spell) { return spell->getSpellEffectElementModifierPoints(elementType) + spell->getStats(Enums::StatsType::SpellEffectAll); }
+static unsigned short getSpellSpellCriticalModifierPointsHelper(GeneralBuffSpell* spell) { return spell->getStats(Enums::StatsType::SpellCritical); }
+static unsigned short getSpellHealthRegenHelper(GeneralBuffSpell* spell) { return spell->getStats(Enums::StatsType::HealthRegen); }
+static unsigned short getSpellManaRegenHelper(GeneralBuffSpell* spell) { return spell->getStats(Enums::StatsType::ManaRegen); }
+static unsigned short getSpellFatigueRegenHelper(GeneralBuffSpell* spell) { return spell->getStats(Enums::StatsType::FatigueRegen); }
+
+static unsigned short getSpellMinDamageHelper(GeneralBuffSpell* spell) { return 0; } // not used yet
+static unsigned short getSpellMaxDamageHelper(GeneralBuffSpell* spell) { return 0; } // not used yet
 
 Player Player::s_instance;
 
@@ -19,6 +120,47 @@ Player::Player() {
 
 Player::~Player() {
 
+}
+
+void Player::draw() {
+
+	int drawX = getXPos();
+	int drawY = getYPos();
+
+	if (getUseBoundingBox()) {
+		drawX -= getBoundingBoxX();
+		drawY -= getBoundingBoxY();
+	}
+
+	TextureManager::BindTexture(TextureManager::GetTextureAtlas("player"), true);
+	TextureManager::DrawTexture(*rect, drawX, drawY, Vector4f(1.0f, 1.0f, 1.0f, 1.0f), true, true);
+	TextureManager::UnbindTexture(true);
+}
+
+void Player::update(float deltaTime) {
+	//std::cout << "Activity: " << ActivityToString(curActivity) << std::endl;
+
+	cleanupActiveSpells();
+	cleanupCooldownSpells();
+
+	curActivity = getCurActivity();
+
+	regenerateLifeManaFatigue(deltaTime);
+
+	//if (curActivity != Enums::ActivityType::Dying) {
+	processInput();
+	//}
+
+	if (activeDirection != Enums::Direction::STOP && curActivity != Enums::ActivityType::Walking) {
+		interruptCurrentActivityWith(Enums::ActivityType::Walking);
+		CastingAborted();
+	}
+
+	Move(deltaTime);
+
+	lastActiveDirection = activeDirection != Enums::Direction::STOP ? activeDirection : lastActiveDirection;
+	Animate(deltaTime);
+	continuePreparing();
 }
 
 void Player::init(int x, int y) {
@@ -46,49 +188,150 @@ void Player::init(int x, int y) {
 	m_isPlayer = true;
 }
 
-
-void Player::draw() {
-	
-	int drawX = getXPos();
-	int drawY = getYPos();
-
-	if (getUseBoundingBox()){
-		drawX -= getBoundingBoxX();
-		drawY -= getBoundingBoxY();
+bool Player::hasTarget(Character* target) {
+	if (Character::target == target) {
+		return true;
 	}
-
-	TextureManager::BindTexture(TextureManager::GetTextureAtlas("player"), true);
-	TextureManager::DrawTexture(*rect, drawX, drawY, Vector4f(1.0f, 1.0f, 1.0f, 1.0f), true, true);
-	TextureManager::UnbindTexture(true);
+	return false;
 }
 
-void Player::update(float deltaTime) {
-	//std::cout << "Activity: " << ActivityToString(curActivity) << std::endl;
-	
-	cleanupActiveSpells();
-	cleanupCooldownSpells();
-
-	curActivity = getCurActivity();
-	
-	regenerateLifeManaFatigue(deltaTime);
-
-	//if (curActivity != Enums::ActivityType::Dying) {
-		processInput();
-	//}
-
-	if (activeDirection != Enums::Direction::STOP && curActivity != Enums::ActivityType::Walking) {		
-		interruptCurrentActivityWith(Enums::ActivityType::Walking);
-		CastingAborted();
-	}
-
-	Move(deltaTime);
-
-	lastActiveDirection = activeDirection != Enums::Direction::STOP ? activeDirection : lastActiveDirection;
-	Animate(deltaTime);
-	continuePreparing();
+void Player::setTarget(Character *target, Enums::Attitude attitude) {
+	this->target = target;
+	targetAttitude = attitude;
 }
 
+Vector3f Player::getPosition() {
+	return Vector3f(static_cast<float>(getXPos()), static_cast<float>(getYPos()), 0.0f);
+}
 
+int Player::getDeltaX() {
+	return dx;
+}
+
+int Player::getDeltaY() {
+	return dy;
+}
+
+void Player::removeActiveSpell(SpellActionBase* activeSpell) {
+	for (size_t curSpell = 0; curSpell < activeSpells.size(); curSpell++) {
+		if (activeSpells[curSpell] == activeSpell) {
+			activeSpells[curSpell]->markSpellActionAsFinished();
+		}
+	}
+}
+
+std::vector<SpellActionBase*> Player::getCooldownSpells() const {
+	return cooldownSpells;
+}
+
+Enums::Attitude Player::getTargetAttitude() {
+	return targetAttitude;
+}
+
+void Player::gainExperience(unsigned long addExp) {
+	if (m_isPlayer) {
+
+		if (std::numeric_limits<unsigned long>::max() - addExp < experience) {
+			experience = std::numeric_limits<unsigned long>::max();
+
+		}
+		else {
+			experience += addExp;
+			GLfloat yellow[] = { 1.0f, 1.0f, 0.0f };
+			//DawnInterface::addTextToLogWindow(yellow, "You gain %d experience.", addExp);
+		}
+
+		while (canRaiseLevel()) {
+			raiseLevel();
+		}
+	}
+}
+
+unsigned long Player::getExperience() const {
+	return experience;
+}
+
+unsigned long Player::getExpNeededForLevel(unsigned short level) const {
+	unsigned long result = (level*(level - 1) * 50);
+	return result;
+}
+
+unsigned int Player::getTicketForItemTooltip() const {
+	return ticketForItemTooltip;
+}
+
+unsigned int Player::getTicketForSpellTooltip() const {
+	return ticketForSpellTooltip;
+}
+
+void Player::setTicketForItemTooltip() {
+	ticketForItemTooltip = Globals::clock.getElapsedTimeMilli();
+}
+
+void Player::setTicketForSpellTooltip() {
+	ticketForSpellTooltip = Globals::clock.getElapsedTimeMilli();
+}
+
+unsigned int Player::getTicksOnCooldownSpell(std::string spellName) const {
+	for (size_t curSpell = 0; curSpell < cooldownSpells.size(); curSpell++) {
+		if (cooldownSpells[curSpell]->getName() == spellName) {
+			return cooldownSpells[curSpell]->m_timer.getElapsedTimeMilli();
+		}
+	}
+	return 0u;
+}
+
+unsigned short Player::getModifiedMinDamage() const {
+	unsigned short inventoryMinDamage = getModifiedAttribute(this, 0, &getSpellMinDamageHelper, NON_NULLABLE_ATTRIBUTE_MIN);
+	return inventoryMinDamage;
+}
+
+unsigned short Player::getModifiedMaxDamage() const {
+	unsigned short inventoryMaxDamage = getModifiedAttribute(this, 0, &getSpellMaxDamageHelper, getModifiedMinDamage());
+	return inventoryMaxDamage;
+}
+
+unsigned short Player::getModifiedDamageModifierPoints() const {
+	return getModifiedAttribute(this, getDamageModifierPoints(), &getSpellDamageModifierPointsHelper, NULLABLE_ATTRIBUTE_MIN) + StatsSystem::getStatsSystem()->calculateDamageModifierPoints(this);
+}
+
+unsigned short Player::getModifiedSpellEffectElementModifierPoints(Enums::ElementType elementType) const {
+	return getModifiedAttribute(elementType, this, getSpellEffectElementModifierPoints(elementType) + getSpellEffectAllModifierPoints(), &getSpellSpellEffectElementModifierPointsHelper, NULLABLE_ATTRIBUTE_MIN) + StatsSystem::getStatsSystem()->calculateSpellEffectElementModifierPoints(elementType, this);
+}
+
+bool Player::isSpellOnCooldown(std::string spellName) const {
+	for (size_t curSpell = 0; curSpell < cooldownSpells.size(); curSpell++) {
+		if (cooldownSpells[curSpell]->getName() == spellName) {
+			return true;
+		}
+	}
+	return false;
+}
+
+bool Player::canRaiseLevel() const {
+	return (experience >= getExpNeededForLevel(getLevel() + 1) && (getExpNeededForLevel(getLevel() + 1) != getExpNeededForLevel(getLevel())));
+}
+
+void Player::raiseLevel() {
+	if (canRaiseLevel()) {
+		setMaxHealth(getMaxHealth() * 1.1);
+		setStrength(getStrength() * 1.1);
+		setLevel(getLevel() + 1);
+		GLfloat yellow[] = { 1.0f, 1.0f, 0.0f };
+		if (m_isPlayer == true){
+			dynamic_cast<Player*>(this)->setTicketForItemTooltip();
+			dynamic_cast<Player*>(this)->setTicketForSpellTooltip();
+		}
+
+		DawnInterface::addTextToLogWindow(yellow, "Welcome to the world of Dawn, %s.", getLevel(), getClassName().c_str());
+	}
+}
+
+void Player::setExperience(unsigned long experience) {
+	this->experience = experience;
+}
+
+////////////////////////PRIVATE//////////////////////////////////
 void Player::Move(float deltaTime) {
 	
 	// moves one step per movePerStep ms
@@ -188,141 +431,16 @@ void Player::processInput() {
 	activeDirection = Enums::Direction::STOP;
 }
 
-
-Vector3f Player::getPosition() {
-	return Vector3f(static_cast<float>(getXPos()), static_cast<float>(getYPos()), 0.0f);
+void Player::clearCooldownSpells() {
+	cooldownSpells.clear();
 }
 
-void Player::setTicketForItemTooltip() {
-	ticketForItemTooltip = Globals::clock.getElapsedTimeMilli();
-}
-
-void Player::setTicketForSpellTooltip() {
-	ticketForSpellTooltip = Globals::clock.getElapsedTimeMilli();
-}
-
-unsigned int Player::getTicketForItemTooltip() const {
-	return ticketForItemTooltip;
-}
-
-unsigned int Player::getTicketForSpellTooltip() const {
-	return ticketForSpellTooltip;
-}
-
-static unsigned short getModifiedAttribute(const Character* character, unsigned short basicAttributeValue, unsigned short(*getSpellAttribute)(GeneralBuffSpell*), unsigned short minValue = std::numeric_limits<unsigned short>::min(), unsigned short maxValue = std::numeric_limits<unsigned short>::max()) {
-	int attributeModifier = 0;
-	/*std::vector<InventoryItem*> equippedItems = inventory.getEquippedItems();
-	size_t numItems = equippedItems.size();
-	bool readTwoHandedWeapon = false;
-	for (size_t curItemNr = 0; curItemNr<numItems; ++curItemNr) {
-		Item* curItem = equippedItems[curItemNr]->getItem();
-		assert(curItem != NULL);
-		if (curItem->isTwoHandedWeapon() == false || readTwoHandedWeapon == false) {
-			attributeModifier += getItemAttribute(curItem);
-		}
-
-		// we do this because we only want to read the stats from two-handed weapons once and not two times as it would be since we equip two-handed weapons in both main-hand and off-hand slot.
-		if (curItem->isTwoHandedWeapon()){
-			readTwoHandedWeapon = true;
-		}
-	}*/
-
-	std::vector<SpellActionBase*> activeSpells = character->getActiveSpells();
-	size_t numSpells = activeSpells.size();
-	for (size_t curSpellNr = 0; curSpellNr<numSpells; ++curSpellNr) {
-		GeneralBuffSpell *curSpell = dynamic_cast<GeneralBuffSpell*> (activeSpells[curSpellNr]);
-		// since more than Buffspells can be active, we want to check to see that we're getting a buff here...
-		if (curSpell != NULL) {
-			attributeModifier += getSpellAttribute(curSpell);
-		}
-	}
-
-	if (static_cast<int32_t>(basicAttributeValue) + attributeModifier < static_cast<int32_t>(minValue)){
-		return minValue;
-	}else if (static_cast<int32_t>(basicAttributeValue) + attributeModifier > static_cast<int32_t>(maxValue)) {
-		return maxValue;
-	}else{
-		return basicAttributeValue + attributeModifier;
-	}
-}
-
-static unsigned short getModifiedAttribute(Enums::ElementType elementType, const Character *character, unsigned short basicAttributeValue, unsigned short(*getSpellAttribute)(Enums::ElementType, GeneralBuffSpell*), unsigned short minValue = std::numeric_limits<unsigned short>::min(), unsigned short maxValue = std::numeric_limits<unsigned short>::max()) {
-	int32_t attributeModifier = 0;
-	/*std::vector<InventoryItem*> equippedItems = inventory.getEquippedItems();
-	size_t numItems = equippedItems.size();
-	for (size_t curItemNr = 0; curItemNr<numItems; ++curItemNr)
-	{
-		Item* curItem = equippedItems[curItemNr]->getItem();
-		assert(curItem != NULL);
-		attributeModifier += getItemAttribute(elementType, curItem);
-	}*/
-
-	std::vector<SpellActionBase*> activeSpells;
-	activeSpells = character->getActiveSpells();
-	size_t numSpells = activeSpells.size();
-	for (size_t curSpellNr = 0; curSpellNr<numSpells; ++curSpellNr) {
-		GeneralBuffSpell* curSpell = dynamic_cast<GeneralBuffSpell*> (activeSpells[curSpellNr]);
-
-		// since more than Buffspells can be active, we want to check to see that we're getting a buff here...
-		if (curSpell != NULL) {
-			attributeModifier += getSpellAttribute(elementType, curSpell);
-		}
-	}
-
-	if (static_cast<int32_t>(basicAttributeValue) + attributeModifier < static_cast<int32_t>(minValue)) {
-		return minValue;
-
-	}else if (static_cast<int32_t>(basicAttributeValue) + attributeModifier > static_cast<int32_t>(maxValue)) {
-		return maxValue;
-
-	}else {
-		return basicAttributeValue + attributeModifier;
-	}
-}
-
-
-static unsigned short getSpellStrengthHelper(GeneralBuffSpell* spell) { return spell->getStats(Enums::StatsType::Strength); }
-static unsigned short getSpellDexterityHelper(GeneralBuffSpell* spell) { return spell->getStats(Enums::StatsType::Dexterity); }
-static unsigned short getSpellVitalityHelper(GeneralBuffSpell* spell) { return spell->getStats(Enums::StatsType::Vitality); }
-static unsigned short getSpellIntellectHelper(GeneralBuffSpell* spell) { return spell->getStats(Enums::StatsType::Intellect); }
-static unsigned short getSpellWisdomHelper(GeneralBuffSpell* spell) { return spell->getStats(Enums::StatsType::Wisdom); }
-static unsigned short getSpellHealthHelper(GeneralBuffSpell* spell) { return spell->getStats(Enums::StatsType::Health); }
-static unsigned short getSpellManaHelper(GeneralBuffSpell* spell) { return spell->getStats(Enums::StatsType::Mana); }
-static unsigned short getSpellFatigueHelper(GeneralBuffSpell* spell) { return spell->getStats(Enums::StatsType::Fatigue); }
-static unsigned short getSpellArmorHelper(GeneralBuffSpell* spell) { return spell->getStats(Enums::StatsType::Armor); }
-static unsigned short getSpellDamageModifierPointsHelper(GeneralBuffSpell* spell) { return spell->getStats(Enums::StatsType::DamageModifier); }
-static unsigned short getSpellHitModifierPointsHelper(GeneralBuffSpell* spell) { return spell->getStats(Enums::StatsType::HitModifier); }
-static unsigned short getSpellEvadeModifierPointsHelper(GeneralBuffSpell* spell) { return spell->getStats(Enums::StatsType::EvadeModifier); }
-static unsigned short getSpellParryModifierPointsHelper(GeneralBuffSpell* spell) { return spell->getStats(Enums::StatsType::ParryModifier); }
-static unsigned short getSpellBlockModifierPointsHelper(GeneralBuffSpell* spell) { return spell->getStats(Enums::StatsType::BlockModifier); }
-static unsigned short getSpellMeleeCriticalModifierPointsHelper(GeneralBuffSpell* spell) { return spell->getStats(Enums::StatsType::MeleeCritical); }
-static unsigned short getSpellResistElementModifierPointsHelper(Enums::ElementType elementType, GeneralBuffSpell* spell) { return spell->getResistElementModifierPoints(elementType) + spell->getStats(Enums::StatsType::ResistAll); }
-static unsigned short getSpellSpellEffectElementModifierPointsHelper(Enums::ElementType elementType, GeneralBuffSpell* spell) { return spell->getSpellEffectElementModifierPoints(elementType) + spell->getStats(Enums::StatsType::SpellEffectAll); }
-static unsigned short getSpellSpellCriticalModifierPointsHelper(GeneralBuffSpell* spell) { return spell->getStats(Enums::StatsType::SpellCritical); }
-static unsigned short getSpellHealthRegenHelper(GeneralBuffSpell* spell) { return spell->getStats(Enums::StatsType::HealthRegen); }
-static unsigned short getSpellManaRegenHelper(GeneralBuffSpell* spell) { return spell->getStats(Enums::StatsType::ManaRegen); }
-static unsigned short getSpellFatigueRegenHelper(GeneralBuffSpell* spell) { return spell->getStats(Enums::StatsType::FatigueRegen); }
-
-static unsigned short getSpellMinDamageHelper(GeneralBuffSpell* spell) { return 0; } // not used yet
-static unsigned short getSpellMaxDamageHelper(GeneralBuffSpell* spell) { return 0; } // not used yet
-
-
-unsigned short Player::getModifiedMinDamage() const {
-	unsigned short inventoryMinDamage = getModifiedAttribute( this, 0,  &getSpellMinDamageHelper, NON_NULLABLE_ATTRIBUTE_MIN);
-	return inventoryMinDamage;
-}
-
-unsigned short Player::getModifiedMaxDamage() const {
-	unsigned short inventoryMaxDamage = getModifiedAttribute( this, 0,  &getSpellMaxDamageHelper, getModifiedMinDamage());
-	return inventoryMaxDamage;
+void Player::clearActiveSpells() {
+	activeSpells.clear();
 }
 
 unsigned short Player::getModifiedArmor() const {
 	return getModifiedAttribute(this, getArmor(), &getSpellArmorHelper, NULLABLE_ATTRIBUTE_MIN) + StatsSystem::getStatsSystem()->calculateDamageReductionPoints(this);
-}
-
-unsigned short Player::getModifiedDamageModifierPoints() const {
-	return getModifiedAttribute(this, getDamageModifierPoints(), &getSpellDamageModifierPointsHelper, NULLABLE_ATTRIBUTE_MIN) + StatsSystem::getStatsSystem()->calculateDamageModifierPoints(this);
 }
 
 unsigned short Player::getModifiedHitModifierPoints() const {
@@ -346,11 +464,7 @@ unsigned short Player::getModifiedMeleeCriticalModifierPoints() const {
 }
 
 unsigned short Player::getModifiedResistElementModifierPoints(Enums::ElementType elementType) const {
-	return getModifiedAttribute(elementType,this, getResistElementModifierPoints(elementType) + getResistAllModifierPoints(), &getSpellResistElementModifierPointsHelper, NULLABLE_ATTRIBUTE_MIN) + StatsSystem::getStatsSystem()->calculateResistElementModifierPoints(elementType, this);
-}
-
-unsigned short Player::getModifiedSpellEffectElementModifierPoints(Enums::ElementType elementType) const {
-	return getModifiedAttribute(elementType, this, getSpellEffectElementModifierPoints(elementType) + getSpellEffectAllModifierPoints(), &getSpellSpellEffectElementModifierPointsHelper, NULLABLE_ATTRIBUTE_MIN) + StatsSystem::getStatsSystem()->calculateSpellEffectElementModifierPoints(elementType, this);
+	return getModifiedAttribute(elementType, this, getResistElementModifierPoints(elementType) + getResistAllModifierPoints(), &getSpellResistElementModifierPointsHelper, NULLABLE_ATTRIBUTE_MIN) + StatsSystem::getStatsSystem()->calculateResistElementModifierPoints(elementType, this);
 }
 
 unsigned short Player::getModifiedSpellCriticalModifierPoints() const {
@@ -360,121 +474,4 @@ unsigned short Player::getModifiedSpellCriticalModifierPoints() const {
 unsigned short Player::getModifiedStrength() const {
 	return getModifiedAttribute(this, getStrength(), &getSpellStrengthHelper, NON_NULLABLE_ATTRIBUTE_MIN);
 }
-
-
-bool Player::hasTarget(Character* target) {
-	if (Character::target == target) {
-		return true;
-	}
-	return false;
-}
-
-void Player::setTarget(Character *target, Enums::Attitude attitude) {
-	this->target = target;
-	targetAttitude = attitude;
-}
-
-Enums::Attitude Player::getTargetAttitude() {
-	return targetAttitude;
-}
-
-int Player::getDeltaX() {
-	return dx;
-}
-
-int Player::getDeltaY() {
-	return dy;
-}
-
-void Player::clearCooldownSpells() {
-	cooldownSpells.clear();
-}
-
-void Player::clearActiveSpells() {
-	activeSpells.clear();
-}
-
-
-std::vector<SpellActionBase*> Player::getCooldownSpells() const {
-	return cooldownSpells;
-}
-
-uint32_t Player::getTicksOnCooldownSpell(std::string spellName) const {
-	for (size_t curSpell = 0; curSpell < cooldownSpells.size(); curSpell++) {
-		if (cooldownSpells[curSpell]->getName() == spellName) {
-			return cooldownSpells[curSpell]->m_timer.getElapsedTimeMilli();
-		}
-	}
-	return 0u;
-}
-
-bool Player::isSpellOnCooldown(std::string spellName) const {
-	for (size_t curSpell = 0; curSpell < cooldownSpells.size(); curSpell++) {
-		if (cooldownSpells[curSpell]->getName() == spellName) {
-			return true;
-		}
-	}
-	return false;
-}
-
-bool Player::canRaiseLevel() const {
-	return (experience >= getExpNeededForLevel(getLevel() + 1) && (getExpNeededForLevel(getLevel() + 1) != getExpNeededForLevel(getLevel())));
-}
-
-void Player::raiseLevel() {
-	if (canRaiseLevel()) {
-		setMaxHealth(getMaxHealth() * 1.1);
-		setStrength(getStrength() * 1.1);
-		setLevel(getLevel() + 1);
-		GLfloat yellow[] = { 1.0f, 1.0f, 0.0f };
-		if (m_isPlayer == true)
-		{
-			//dynamic_cast<Player*>(this)->setTicketForItemTooltip();
-			//dynamic_cast<Player*>(this)->setTicketForSpellTooltip();
-		}
-		//DawnInterface::addTextToLogWindow(yellow, "You are now a level %d %s.", getLevel(), getClassName().c_str());
-	}
-}
-
-void Player::gainExperience(unsigned long addExp) {
-	if (m_isPlayer) {
-
-		if (std::numeric_limits<unsigned long>::max() - addExp < experience) {
-			experience = std::numeric_limits<unsigned long>::max();
-
-		}
-		else {
-			experience += addExp;
-			GLfloat yellow[] = { 1.0f, 1.0f, 0.0f };
-			//DawnInterface::addTextToLogWindow(yellow, "You gain %d experience.", addExp);
-		}
-
-		while (canRaiseLevel()) {
-			raiseLevel();
-		}
-	}
-}
-
-void Player::setExperience(unsigned long experience) {
-	this->experience = experience;
-}
-
-unsigned long Player::getExperience() const {
-	return experience;
-}
-
-unsigned long Player::getExpNeededForLevel(unsigned short level) const {
-	unsigned long result = (level*(level - 1) * 50);
-	return result;
-}
-
-void Player::removeActiveSpell(SpellActionBase* activeSpell) {
-	for (size_t curSpell = 0; curSpell < activeSpells.size(); curSpell++) {
-		if (activeSpells[curSpell] == activeSpell) {
-			activeSpells[curSpell]->markSpellActionAsFinished();
-		}
-	}
-}
-
-
 

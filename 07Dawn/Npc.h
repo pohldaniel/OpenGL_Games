@@ -16,14 +16,15 @@ public:
 	void draw() override;
 	void update(float deltaTime) override;	
 	void setCharacterType(std::string characterType) override;
+	bool canBeDamaged() const override;
 
+	bool CheckMouseOver(int _x_pos, int _y_pos);
 	Enums::Direction GetDirectionRNG();	
 	void setSpawnInfo(int _x_spawn_pos, int _y_spawn_pos, int _seconds_to_respawn, int _do_respawn);
 	void setAttitude(Enums::Attitude attitude);
 	void markAsDeleted();
 	bool isMarkedAsDeletable() const;
-	std::string getLuaEditorSaveText() const;
-	
+	std::string getLuaEditorSaveText() const;	
 	Enums::Attitude getAttitude() const;
 	void chasePlayer(Character *player);
 	void setWanderRadius(unsigned short newWanderRadius);
@@ -32,7 +33,6 @@ public:
 private:
 	unsigned short getWanderRadius() const;
 	unsigned short getWanderRadiusSq() const;
-	//Attitude::Attitude attitudeTowardsPlayer;
 	//std::vector<sLootTable> lootTable;
 	//std::vector<CallIndirection*> onDieEventHandlers;
 	//std::vector<Point> waypoints;

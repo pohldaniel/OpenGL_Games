@@ -123,32 +123,24 @@ public:
 	Character();
 	~Character() = default;
 
-	virtual void draw() = 0;
-	virtual void update(float deltaTime);
-	void regenerateLifeManaFatigue(float deltaTime);
-
-	//init
 	virtual void setCharacterType(std::string characterType);
+	virtual void draw() = 0;
+	virtual void update(float deltaTime) = 0;	
 
-	int getWidth() const;
-	int getHeight() const;
+	void Damage(int amount, bool criticalHit);
+	void Heal(int amount);
+	void Die();
 	
-	
-	//behavior
-	Enums::ActivityType getCurActivity() const;
-	
-	//interaction
-	void MoveUp(unsigned short n);
-	void MoveDown(unsigned short n);
-	void MoveLeft(unsigned short n);
-	void MoveRight(unsigned short n);
-	void Move(Enums::Direction direction, unsigned short n = 1);
-
+	bool castSpell(SpellActionBase *spell);
+	void executeSpellWithoutCasting(SpellActionBase *spell, Character *target);
+	void addCooldownSpell(SpellActionBase *spell);
+	void addActiveSpell(SpellActionBase *spell);
+	void removeSpellsWithCharacterState(Enums::CharacterStates characterState);
 	void giveCoins(unsigned int amountOfCoins);
-	bool CheckMouseOver(int _x_pos, int _y_pos);
-	void interruptCurrentActivityWith(Enums::ActivityType activity);
-	
 
+	float getPreparationPercentage() const;
+	std::string getCurrentSpellActionName() const;
+	bool getIsPreparing() const;
 	bool isStunned() const;
 	bool isMesmerized() const;
 	bool isFeared() const;
@@ -156,69 +148,36 @@ public:
 	bool isCharmed() const;
 	bool isChanneling() const;
 	bool isSneaking() const;
-
-	bool getIsPreparing() const;
-	bool mayDoAnythingAffectingSpellActionWithoutAborting() const;
-	bool mayDoAnythingAffectingSpellActionWithAborting() const;
-		
-	int getXPos() const;
-	int getYPos() const;
-
-	float getMovementSpeed() const;
-	
-	float getPreparationPercentage() const;
-	std::string getCurrentSpellActionName() const;
-	void addDamageDisplayToGUI(int amount, bool critical, uint8_t damageType);
-
-	void Damage(int amount, bool criticalHit);
 	bool isInvisible() const;
-	void Die();
 	bool isAlive() const;
-	bool canBeDamaged() const;
-	void Heal(int amount);
-
-	void giveToPreparation(SpellActionBase *toPrepare);
 	bool continuePreparing();
-	bool castSpell(SpellActionBase *spell);
-	void CastingAborted();
-	void abortCurrentSpellAction();
-	void startSpellAction();
-	void executeSpellWithoutCasting(SpellActionBase *spell, Character *target);
-	void addCooldownSpell(SpellActionBase *spell);
-	void cleanupCooldownSpells();
-	void addActiveSpell(SpellActionBase *spell);
-	void cleanupActiveSpells();
-	void removeSpellsWithCharacterState(Enums::CharacterStates characterState);
-	
+
 	const CharacterType* getCharacterType();
+	std::string getClassName() const;
 	std::vector<SpellActionBase*> getSpellbook() const;
 	std::vector<SpellActionBase*> getActiveSpells() const;
 	Enums::CharacterArchType getArchType() const;
 	Character* getTarget() const;
 	void setTarget(Character *target);
 	
+	int getXPos() const;
+	int getYPos() const;
+	int getWidth() const;
+	int getHeight() const;
 
-	void setBoundingBox(int bbx, int bby, int bbw, int bbh);
-	void setUseBoundingBox(bool use);
 	int getBoundingBoxX() const;
 	int getBoundingBoxY() const;
 	int getBoundingBoxW() const;
 	int getBoundingBoxH() const;
 	bool getUseBoundingBox() const;
+	void setBoundingBox(int bbx, int bby, int bbw, int bbh);	
+	void setUseBoundingBox(bool use);
 
-	void setCurrentHealth(unsigned short newCurrentHealth);
-	void setCurrentMana(unsigned short newCurrentMana);
-	void setCurrentFatigue(unsigned short newCurrentFatigue);
-	
-	void modifyMaxHealth(short maxHealthModifier);
-	void modifyMaxMana(short maxManaModifier);
-	void modifyMaxFatigue(short maxFatigueModifier);
-	void modifyCurrentHealth(short currentHealthModifier);
-	void modifyCurrentMana(short currentManaModifier);
-	void modifyCurrentFatigue(short currentFatigueModifier);
-
-	unsigned short getModifiedManaRegen() const;
+	unsigned short getCurrentHealth() const;
+	unsigned short getCurrentMana() const;
+	unsigned short getCurrentFatigue() const;
 	unsigned short getModifiedHealthRegen() const;
+	unsigned short getModifiedManaRegen() const;
 	unsigned short getModifiedFatigueRegen() const;
 	unsigned short getModifiedMaxHealth() const;
 	unsigned short getModifiedMaxMana() const;
@@ -239,11 +198,30 @@ public:
 	unsigned short getSpellEffectAllModifierPoints() const;
 	unsigned short getResistElementModifierPoints(Enums::ElementType elementType) const;
 	unsigned short getResistAllModifierPoints() const;
-	unsigned short getCurrentHealth() const;
-	unsigned short getCurrentMana() const;
-	unsigned short getCurrentFatigue() const;
 	
-////////////////////////////////////////////////////LUA STATES/////////////////////////////////////
+    ////////////////////LUA STATES/////////
+	Enums::CharacterClass getClass() const;
+	std::string getName() const;
+	unsigned short getStrength() const;
+	unsigned short getDexterity() const;
+	unsigned short getVitality() const;
+	unsigned short getIntellect() const;
+	unsigned short getWisdom() const;
+	unsigned short getMaxHealth() const;
+	unsigned short getMaxMana() const;
+	unsigned short getMaxFatigue() const;
+	unsigned short getHealthRegen() const;
+	unsigned short getManaRegen() const;
+	unsigned short getFatigueRegen() const;
+	unsigned short getMinDamage() const;
+	unsigned short getMaxDamage() const;
+	unsigned short getArmor() const;
+	unsigned short getDamageModifierPoints() const;
+	unsigned short getHitModifierPoints() const;
+	unsigned short getEvadeModifierPoints() const;
+	unsigned short getLevel() const;
+	unsigned short getExperienceValue() const;
+
 	void inscribeSpellInSpellbook(SpellActionBase *spell);
 	//void addItemToLootTable(Item* item, double dropChance);
 	void setClass(Enums::CharacterClass characterClass);
@@ -267,38 +245,35 @@ public:
 	void setEvadeModifierPoints(unsigned short newEvadeModifierPoints);
 	void setLevel(unsigned short newLevel);
 	void setExperienceValue(unsigned short experienceValue);
-
-	Enums::CharacterClass getClass() const;
-	std::string getName() const;
-	unsigned short getStrength() const;
-	unsigned short getDexterity() const;
-	unsigned short getVitality() const;
-	unsigned short getIntellect() const;
-	unsigned short getWisdom() const;
-	unsigned short getMaxHealth() const;
-	unsigned short getMaxMana() const;
-	unsigned short getMaxFatigue() const;
-	unsigned short getHealthRegen() const;
-	unsigned short getManaRegen() const;
-	unsigned short getFatigueRegen() const;
-	unsigned short getMinDamage() const;
-	unsigned short getMaxDamage() const;
-	unsigned short getArmor() const;
-	unsigned short getDamageModifierPoints() const;
-	unsigned short getHitModifierPoints() const;
-	unsigned short getEvadeModifierPoints() const;
-	unsigned short getLevel() const;
-	unsigned short getExperienceValue() const;
+	/////////////////////////////////////////////////////////////////////
 
 	static std::string AttitudeToString(Enums::Attitude attitude);
 	static std::string ActivityToString(Enums::ActivityType activity);
+	static std::string GetCharacterClassName(Enums::CharacterClass characterClass);
 
 protected:
+
+	virtual bool canBeDamaged() const;
+	void regenerateLifeManaFatigue(float deltaTime);
+
+	void MoveUp(unsigned short n);
+	void MoveDown(unsigned short n);
+	void MoveLeft(unsigned short n);
+	void MoveRight(unsigned short n);
+	void Move(Enums::Direction direction, unsigned short n = 1);
+	void CastingAborted();
+
+	void interruptCurrentActivityWith(Enums::ActivityType activity);
+	
+	Enums::ActivityType getCurActivity() const;
+	void cleanupCooldownSpells();
+	void cleanupActiveSpells();
 
 	bool alive;
 	bool m_isPlayer;
 	bool hasChoosenFearDirection;
 	bool isPreparing = false;
+
 	// timers
 	float dyingStartFrame, reduceDyingTranspFrame;
 
@@ -306,6 +281,7 @@ protected:
 	float preparationPercentage;
 	unsigned int preparationStartTime, preparationCurrentTime;
 	float progress = 0.0f;
+	float m_regenerationRate = 0.0f;
 
 	std::vector<SpellActionBase*> spellbook;
 	std::vector<SpellActionBase*> activeSpells;
@@ -322,7 +298,6 @@ protected:
 
 	const TextureRect* rect;
 	unsigned short m_numActivities;
-	unsigned short index = 0;
 	unsigned short currentFrame = 0;
 	float m_elapsedTime = 0.0f;
 	float m_animationTime = 0.0f;
@@ -340,7 +315,6 @@ protected:
 	unsigned short current_mana;
 	unsigned short current_fatigue;
 	unsigned int coins;
-	float m_regenerationRate = 0.0f;
 
 	int boundingBoxX;
 	int boundingBoxY;
@@ -370,4 +344,26 @@ protected:
 	unsigned short evadeModifierPoints;
 	unsigned short level;
 	unsigned short experienceValue;
+
+private:
+
+	void startSpellAction();
+	void giveToPreparation(SpellActionBase *toPrepare);
+	void addDamageDisplayToGUI(int amount, bool critical, uint8_t damageType);
+	
+	void abortCurrentSpellAction();
+	bool mayDoAnythingAffectingSpellActionWithoutAborting() const;
+	bool mayDoAnythingAffectingSpellActionWithAborting() const;
+	float getMovementSpeed() const;
+
+	void setCurrentHealth(unsigned short newCurrentHealth);
+	void setCurrentMana(unsigned short newCurrentMana);
+	void setCurrentFatigue(unsigned short newCurrentFatigue);
+
+	void modifyMaxHealth(short maxHealthModifier);
+	void modifyMaxMana(short maxManaModifier);
+	void modifyMaxFatigue(short maxFatigueModifier);
+	void modifyCurrentHealth(short currentHealthModifier);
+	void modifyCurrentMana(short currentManaModifier);
+	void modifyCurrentFatigue(short currentFatigueModifier);
 };
