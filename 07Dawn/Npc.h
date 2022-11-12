@@ -19,44 +19,40 @@ public:
 	bool canBeDamaged() const override;
 
 	bool CheckMouseOver(int _x_pos, int _y_pos);
+	void chasePlayer(Character *player);
 	Enums::Direction GetDirectionRNG();	
-	void setSpawnInfo(int _x_spawn_pos, int _y_spawn_pos, int _seconds_to_respawn, int _do_respawn);
-	void setAttitude(Enums::Attitude attitude);
+	Enums::Direction GetOppositeDirection(Enums::Direction direction);
+	Enums::Attitude getAttitude() const;
 	void markAsDeleted();
 	bool isMarkedAsDeletable() const;
-	std::string getLuaEditorSaveText() const;	
-	Enums::Attitude getAttitude() const;
-	void chasePlayer(Character *player);
+	
+	////////////////LUA///////////////////
 	void setWanderRadius(unsigned short newWanderRadius);
-	Enums::Direction GetOppositeDirection(Enums::Direction direction);
+	void setSpawnInfo(int _x_spawn_pos, int _y_spawn_pos, int _seconds_to_respawn, int _do_respawn);
+	void setAttitude(Enums::Attitude attitude);
+	std::string getLuaEditorSaveText() const;
 
 private:
-	unsigned short getWanderRadius() const;
-	unsigned short getWanderRadiusSq() const;
-	//std::vector<sLootTable> lootTable;
-	//std::vector<CallIndirection*> onDieEventHandlers;
-	//std::vector<Point> waypoints;
-	bool markedAsDeleted;
-	bool chasingPlayer;
-	uint32_t lastPathCalculated;
-	Enums::Attitude attitudeTowardsPlayer;
-
-	bool m_updated = false;
-
-	
 
 	void Move(float deltaTime);
 	void Move(float deltaTime, Enums::Direction direction);
 	void Animate(float deltaTime);
 	void processInput();
 
+	unsigned short getWanderRadius() const;
+	unsigned short getWanderRadiusSq() const;
+
+	Enums::Attitude attitudeTowardsPlayer;
+	Enums::Direction WanderDirection;
+	unsigned int lastPathCalculated;
+	
+	bool m_updated = false;
 	bool m_canWander = true;
 	bool m_smoothOut = false;
 	bool m_stopped = false;
 	bool m_handleAnimation = false;
-
-	Enums::Direction WanderDirection;
-	std::vector<std::array<int, 2>> waypoints;
+	bool markedAsDeleted;
+	bool chasingPlayer;
 
 	unsigned short wander_radius;
 
@@ -68,4 +64,9 @@ private:
 	int NPC_id;
 	int seconds_to_respawn;
 	bool wandering, moving, in_combat;
+	
+	std::vector<std::array<int, 2>> waypoints;
+	//std::vector<sLootTable> lootTable;
+	//std::vector<CallIndirection*> onDieEventHandlers;
+	//std::vector<Point> waypoints;
 };

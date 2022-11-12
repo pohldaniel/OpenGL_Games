@@ -26,6 +26,37 @@ Npc::Npc(int _x_spawn_pos, int _y_spawn_pos, int _NPC_id, int _seconds_to_respaw
 	m_isPlayer = false;
 }
 
+Npc::~Npc() {}
+
+void Npc::draw() {
+
+	//if (m_updated) {
+	Enums::ActivityType curActivity = getCurActivity();
+
+	int drawX = getXPos();
+	int drawY = getYPos();
+	TextureManager::DrawTextureBatched(*rect, drawX, drawY, true, true);
+	//}
+}
+
+void Npc::update(float deltaTime) {
+	m_updated = TextureManager::IsRectOnScreen(getXPos(), rect->width, getYPos(), rect->height);
+	regenerateLifeManaFatigue(deltaTime);
+	if (m_updated) {
+		processInput();
+		lastActiveDirection = activeDirection != Enums::Direction::STOP ? activeDirection : lastActiveDirection;
+		Move(deltaTime);
+		Animate(deltaTime);
+
+		std::vector<SpellActionBase*> activeSpellActions = getActiveSpells();
+		for (size_t curActiveSpellNr = 0; curActiveSpellNr < activeSpellActions.size(); ++curActiveSpellNr) {
+			activeSpellActions[curActiveSpellNr]->inEffect(deltaTime);
+		}
+		cleanupActiveSpells();
+	}
+
+}
+
 void Npc::setCharacterType(std::string characterType) {
 	m_characterType = &CharacterTypeManager::Get().getCharacterType(characterType);
 
@@ -60,8 +91,113 @@ void Npc::setCharacterType(std::string characterType) {
 	wander_radius = m_characterType->wander_radius;
 }
 
+bool Npc::canBeDamaged() const {
+	return attitudeTowardsPlayer != Enums::Attitude::FRIENDLY;
+}
 
-Npc::~Npc() {}
+bool Npc::CheckMouseOver(int _x_pos, int _y_pos) {
+	int myWidth = getWidth();
+	int myHeight = getHeight();
+	if (((x_pos < _x_pos) && ((x_pos + myWidth) > _x_pos))
+		&& ((y_pos < _y_pos) && ((y_pos + myHeight) > _y_pos))) {
+		return true;
+	}
+	else {
+		return false;
+	}
+}
+
+void Npc::chasePlayer(Character *player) {
+	chasingPlayer = true;
+	setTarget(player);
+
+	// This can be used to deactivate pathfinding, because it might cause performance problems
+	bool dontUsePathfinding = false;
+	if (!dontUsePathfinding) {
+		// check whether we need to calculate a path for this NPC
+		// if so calculate the path and set a list of waypoints
+
+		// don't calculate a path too often
+		bool neverCalculatePath = dontUsePathfinding || (Globals::clock.getElapsedTimeMilli() - lastPathCalculated < 2000);
+		// don't calculate a path if we are very close to the player
+		int rawDistance = ((std::sqrt(std::pow(getXPos() + getWidth() / 2 - (player->getXPos() + player->getWidth() / 2), 2)
+			+ std::pow(getYPos() + getHeight() / 2 - (player->getYPos() + player->getHeight() / 2), 2)))
+			- std::sqrt(std::pow((getWidth() + player->getWidth()) / 2, 2)
+				+ std::pow((getHeight() + player->getHeight()) / 2, 2)));
+		if (rawDistance < 50) {
+			waypoints.clear();
+			neverCalculatePath = true;
+		}
+		bool calculatePath = (waypoints.size() == 0);
+		// recalculate the path if the player has moved too far from the endpoint of the path
+		if (!calculatePath && !neverCalculatePath) {
+			std::array<int, 2> lastPoint = waypoints.front();
+			if (std::pow(lastPoint[0] - player->getXPos(), 2) + std::pow(lastPoint[1] - player->getYPos(), 2) > std::max(waypoints.size() * 100, static_cast<size_t>(1000))) {
+				calculatePath = true;
+			}
+		}
+		if (calculatePath && !neverCalculatePath) {
+
+			//waypoints = aStar(Point(getXPos(), getYPos()), Point(player->getXPos() + player->getWidth() / 2, player->getYPos() + player->getHeight() / 2), getWidth(), getHeight());
+			if (waypoints.size() > 0) {
+				waypoints.pop_back();
+				lastPathCalculated = Globals::clock.getElapsedTimeMilli();
+			}
+		}
+	}
+}
+
+Enums::Direction Npc::GetDirectionRNG() {
+	return static_cast<Enums::Direction>(RNG::randomSizeT(1, 8));
+}
+
+Enums::Direction Npc::GetOppositeDirection(Enums::Direction direction) {
+	switch (direction) {
+		case Enums::Direction::NW:
+			return Enums::Direction::SE;
+			break;
+		case Enums::Direction::N:
+			return Enums::Direction::S;
+			break;
+		case Enums::Direction::NE:
+			return Enums::Direction::SW;
+			break;
+		case Enums::Direction::W:
+			return Enums::Direction::E;
+			break;
+		case Enums::Direction::E:
+			return Enums::Direction::W;
+			break;
+		case Enums::Direction::SW:
+			return Enums::Direction::NE;
+			break;
+		case Enums::Direction::S:
+			return Enums::Direction::N;
+			break;
+		case Enums::Direction::SE:
+			return Enums::Direction::NW;
+			break;
+		default:
+			return Enums::Direction::STOP;
+			break;
+	}
+}
+
+Enums::Attitude Npc::getAttitude() const {
+	return this->attitudeTowardsPlayer;
+}
+
+void Npc::markAsDeleted() {
+	markedAsDeleted = true;
+}
+
+bool Npc::isMarkedAsDeletable() const {
+	return markedAsDeleted;
+}
+
+void Npc::setWanderRadius(unsigned short newWanderRadius) {
+	wander_radius = newWanderRadius;
+}
 
 void Npc::setSpawnInfo(int _x_spawn_pos, int _y_spawn_pos, int _seconds_to_respawn, int _do_respawn) {
 	x_pos = _x_spawn_pos;
@@ -76,39 +212,7 @@ void Npc::setAttitude(Enums::Attitude attitude) {
 	attitudeTowardsPlayer = attitude;
 }
 
-void Npc::draw() {
-
-	//if (m_updated) {
-		Enums::ActivityType curActivity = getCurActivity();
-
-		int drawX = getXPos();
-		int drawY = getYPos();
-		TextureManager::DrawTextureBatched(*rect, drawX, drawY, true, true);
-	//}
-}
- 
-void Npc::update(float deltaTime) {
-	m_updated = TextureManager::IsRectOnScreen(getXPos(), rect->width, getYPos(), rect->height);
-	regenerateLifeManaFatigue(deltaTime);
-	if (m_updated) {
-		processInput();
-		lastActiveDirection = activeDirection != Enums::Direction::STOP ? activeDirection : lastActiveDirection;
-		Move(deltaTime);
-		Animate(deltaTime);
-
-		std::vector<SpellActionBase*> activeSpellActions = getActiveSpells();
-		for (size_t curActiveSpellNr = 0; curActiveSpellNr < activeSpellActions.size(); ++curActiveSpellNr) {
-			activeSpellActions[curActiveSpellNr]->inEffect(deltaTime);
-		}
-		cleanupActiveSpells();
-	}
-	
-}
-
-Enums::Direction Npc::GetDirectionRNG() {
-	return static_cast<Enums::Direction>(RNG::randomSizeT(1, 8));	
-}
-
+/////////////////////////////PRIVATE/////////////////////////////////
 void Npc::Move(float deltaTime) {
 		
 	if (!m_stopped) {
@@ -174,39 +278,6 @@ void Npc::Move(float deltaTime, Enums::Direction direction) {
 	}
 }
 
-Enums::Direction Npc::GetOppositeDirection(Enums::Direction direction) {
-	switch (direction) {
-	case Enums::Direction::NW:
-		return Enums::Direction::SE;
-		break;
-	case Enums::Direction::N:
-		return Enums::Direction::S;
-		break;
-	case Enums::Direction::NE:
-		return Enums::Direction::SW;
-		break;
-	case Enums::Direction::W:
-		return Enums::Direction::E;
-		break;
-	case Enums::Direction::E:
-		return Enums::Direction::W;
-		break;
-	case Enums::Direction::SW:
-		return Enums::Direction::NE;
-		break;
-	case Enums::Direction::S:
-		return Enums::Direction::N;
-		break;
-	case Enums::Direction::SE:
-		return Enums::Direction::NW;
-		break;
-	default:
-		return Enums::Direction::STOP;
-		break;
-	}
-}
-
-
 void Npc::Animate(float deltaTime) {
 	
 	if (activeDirection != Enums::Direction::STOP || (m_handleAnimation || m_waitForAnimation)) {
@@ -260,52 +331,12 @@ void Npc::processInput() {
 	}
 }
 
-void Npc::markAsDeleted() {
-	markedAsDeleted = true;
+unsigned short Npc::getWanderRadius() const {
+	return wander_radius;
 }
 
-bool Npc::isMarkedAsDeletable() const {
-	return markedAsDeleted;
-}
-
-void Npc::chasePlayer(Character *player) {
-	chasingPlayer = true;
-	setTarget(player);
-
-	// This can be used to deactivate pathfinding, because it might cause performance problems
-	bool dontUsePathfinding = false;
-	if (!dontUsePathfinding) {
-		// check whether we need to calculate a path for this NPC
-		// if so calculate the path and set a list of waypoints
-
-		// don't calculate a path too often
-		bool neverCalculatePath = dontUsePathfinding || (Globals::clock.getElapsedTimeMilli() - lastPathCalculated < 2000);
-		// don't calculate a path if we are very close to the player
-		int rawDistance = ((std::sqrt(std::pow(getXPos() + getWidth() / 2 - (player->getXPos() + player->getWidth() / 2), 2)
-			+ std::pow(getYPos() + getHeight() / 2 - (player->getYPos() + player->getHeight() / 2), 2)))
-			- std::sqrt(std::pow((getWidth() + player->getWidth()) / 2, 2)
-				+ std::pow((getHeight() + player->getHeight()) / 2, 2)));
-		if (rawDistance < 50) {
-			waypoints.clear();
-			neverCalculatePath = true;
-		}
-		bool calculatePath = (waypoints.size() == 0);
-		// recalculate the path if the player has moved too far from the endpoint of the path
-		if (!calculatePath && !neverCalculatePath) {
-			std::array<int, 2> lastPoint = waypoints.front();
-			if (std::pow(lastPoint[0] - player->getXPos(), 2) + std::pow(lastPoint[1] - player->getYPos(), 2) > std::max(waypoints.size() * 100, static_cast<size_t>(1000))) {
-				calculatePath = true;
-			}
-		}
-		if (calculatePath && !neverCalculatePath) {
-
-			//waypoints = aStar(Point(getXPos(), getYPos()), Point(player->getXPos() + player->getWidth() / 2, player->getYPos() + player->getHeight() / 2), getWidth(), getHeight());
-			if (waypoints.size() > 0) {
-				waypoints.pop_back();
-				lastPathCalculated = Globals::clock.getElapsedTimeMilli();
-			}
-		}
-	}
+unsigned short Npc::getWanderRadiusSq() const {
+	return wander_radius * wander_radius;
 }
 
 std::string Npc::getLuaEditorSaveText() const {
@@ -315,40 +346,8 @@ std::string Npc::getLuaEditorSaveText() const {
 		<< x_spawn_pos << ", "
 		<< y_spawn_pos << ", "
 		<< seconds_to_respawn << ", "
-		<< do_respawn << ", " 
-		<<  "Enums." << Character::AttitudeToString(attitudeTowardsPlayer) << " );" << std::endl;
+		<< do_respawn << ", "
+		<< "Enums." << Character::AttitudeToString(attitudeTowardsPlayer) << " );" << std::endl;
 
 	return oss.str();
-}
-
-Enums::Attitude Npc::getAttitude() const {
-	return this->attitudeTowardsPlayer;
-}
-
-unsigned short Npc::getWanderRadius() const {
-	return wander_radius;
-}
-
-unsigned short Npc::getWanderRadiusSq() const {
-	return wander_radius * wander_radius;
-}
-
-void Npc::setWanderRadius(unsigned short newWanderRadius) {
-	wander_radius = newWanderRadius;
-}
-
-bool Npc::CheckMouseOver(int _x_pos, int _y_pos) {
-	int myWidth = getWidth();
-	int myHeight = getHeight();
-	if (((x_pos < _x_pos) && ((x_pos + myWidth) > _x_pos))
-		&& ((y_pos < _y_pos) && ((y_pos + myHeight) > _y_pos))) {
-		return true;
-	}
-	else {
-		return false;
-	}
-}
-
-bool Npc::canBeDamaged() const {
-	return attitudeTowardsPlayer != Enums::Attitude::FRIENDLY;
 }

@@ -238,7 +238,7 @@ void Player::gainExperience(unsigned long addExp) {
 		else {
 			experience += addExp;
 			GLfloat yellow[] = { 1.0f, 1.0f, 0.0f };
-			//DawnInterface::addTextToLogWindow(yellow, "You gain %d experience.", addExp);
+			DawnInterface::addTextToLogWindow(yellow, "You gain %d experience.", addExp);
 		}
 
 		while (canRaiseLevel()) {
