@@ -64,11 +64,14 @@ bool SpellActionBase::isEffectComplete() const {
 	return finished;
 }
 
-void SpellActionBase::drawSymbol(int left, int bottom, float width, float height, Vector4f color, unsigned int layer) const {
+void SpellActionBase::drawSymbol(int left, int bottom, float width, float height, Vector4f color, unsigned int layer, bool updateView) const {
 	TextureRect* texture = getSymbol();
-	if (texture != NULL) {		
-		Batchrenderer::Get().addQuadAA(Vector4f(static_cast< float >(left), static_cast< float >(bottom), width, height), Vector4f(texture->textureOffsetX, texture->textureOffsetY, texture->textureWidth, texture->textureHeight), color, layer, false);
-	}
+	Batchrenderer::Get().addQuadAA(Vector4f(static_cast< float >(left), static_cast< float >(bottom), width, height), Vector4f(texture->textureOffsetX, texture->textureOffsetY, texture->textureWidth, texture->textureHeight), color, layer, updateView);
+}
+
+void SpellActionBase::drawSymbolSingle(int left, int bottom, float width, float height, Vector4f color, unsigned int layer, bool updateView) const {
+	TextureRect* texture = getSymbol();
+	Batchrenderer::Get().drawSingleQuadAA(Vector4f(static_cast< float >(left), static_cast< float >(bottom), width, height), Vector4f(texture->textureOffsetX, texture->textureOffsetY, texture->textureWidth, texture->textureHeight), color, layer, updateView);
 }
 
 std::string SpellActionBase::getID() const {

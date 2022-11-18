@@ -225,7 +225,7 @@ namespace DawnInterface{
 
 	void inscribeSpellInPlayerSpellbook(SpellActionBase* inscribedSpell) {
 		Player::Get().inscribeSpellInSpellbook(inscribedSpell);
-		//spellbook->reloadSpellsFromPlayer();
+		//Spellbook::Get().reloadSpellsFromPlayer();
 	}
 
 	void addTextToLogWindow(float color[], const char *text, ...){

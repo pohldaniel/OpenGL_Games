@@ -176,6 +176,7 @@
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="Random.cpp" />
     <ClCompile Include="SpellActionBase.cpp" />
+    <ClCompile Include="Spellbook.cpp" />
     <ClCompile Include="Spells.cpp" />
     <ClCompile Include="Statssystem.cpp" />
     <ClCompile Include="TextureManager.cpp" />
@@ -242,6 +243,7 @@
     <ClInclude Include="Player.h" />
     <ClInclude Include="Random.h" />
     <ClInclude Include="SpellActionBase.h" />
+    <ClInclude Include="Spellbook.h" />
     <ClInclude Include="Spells.h" />
     <ClInclude Include="Statssystem.h" />
     <ClInclude Include="TextureManager.h" />

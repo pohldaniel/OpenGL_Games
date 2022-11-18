@@ -60,6 +60,6 @@ void MainMenu::render(unsigned int &frameBuffer) {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);	
 }
 
-void MainMenu::resize() {
+void MainMenu::resize(int deltaW, int deltaH) {
 	m_dialog.applyLayout();
 }

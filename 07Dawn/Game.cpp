@@ -2,16 +2,20 @@
 #include "Magic.h"
 #include "TextWindow.h"
 
-Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), player(Player::Get()) {
+Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_player(Player::Get()) {
 	EventDispatcher::AddMouseListener(this);
 	
 	Mouse::SetCursorIcon("res/cursors/pointer.cur");
+	
 	
 	LuaFunctions::executeLuaFile("res/_lua/playerdata_w.lua");
 	Player::Get().setCharacterType("player_w");
 	Player::Get().setClass(Enums::CharacterClass::Liche);
 
-	player = Player::Get();
+
+	Interface::Get().setPlayer(&Player::Get());
+	Spellbook::Get().setPlayer(&Player::Get());
+	
 
 	LuaFunctions::executeLuaFile("res/_lua/spells.lua");
 	LuaFunctions::executeLuaFile("res/_lua/mobdata_wolf.lua");
@@ -20,15 +24,17 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), player(P
 	ZoneManager::Get().setCurrentZone(&ZoneManager::Get().getZone("res/_lua/zone1"));
 	zone = ZoneManager::Get().getCurrentZone();
 
-	dawnInterface = &Interface::Get();
-	dawnInterface->init();	
+	
 
 	DialogCanvas::initTextures();
 
-	
+	dawnInterface = &Interface::Get();
+	dawnInterface->init();
+
+	Spellbook::Get().reloadSpellsFromPlayer();
 
 	GLfloat color[] = { 1.0f, 1.0f, 0.0f };
-	DawnInterface::addTextToLogWindow(color, "Welcome to the world of Dawn, %s.", player.getName().c_str());
+	DawnInterface::addTextToLogWindow(color, "Welcome to the world of Dawn, %s.", m_player.getName().c_str());
 }
 
 Game::~Game() {}
@@ -70,12 +76,12 @@ void Game::update() {
 	}
 
 	// check all active spells for inEffects on our player.
-	std::vector<SpellActionBase*> activeSpellActions = player.getActiveSpells();
+	std::vector<SpellActionBase*> activeSpellActions = m_player.getActiveSpells();
 	for (size_t curActiveSpellNr = 0; curActiveSpellNr < activeSpellActions.size(); ++curActiveSpellNr) {
 		activeSpellActions[curActiveSpellNr]->inEffect(m_dt);
 	}
 
-	player.update(m_dt);
+	m_player.update(m_dt);
 	ViewPort::get().setPosition(Player::Get().getPosition());
 
 	
@@ -98,7 +104,7 @@ void Game::render(unsigned int &frameBuffer) {
 		}
 	}
 	zone->drawNpcsBatched();
-	player.draw();
+	m_player.draw();
 	
 	std::vector<Npc*> zoneNPCs = zone->getNPCs();
 	for (unsigned int x = 0; x < zoneNPCs.size(); x++){
@@ -113,7 +119,7 @@ void Game::render(unsigned int &frameBuffer) {
 		}
 	}
 
-	std::vector<SpellActionBase*> activeSpellActions = player.getActiveSpells();
+	std::vector<SpellActionBase*> activeSpellActions = m_player.getActiveSpells();
 	for (size_t curActiveSpellNr = 0; curActiveSpellNr < activeSpellActions.size(); ++curActiveSpellNr) {
 		if (!activeSpellActions[curActiveSpellNr]->isEffectComplete()){
 			activeSpellActions[curActiveSpellNr]->draw();
@@ -121,7 +127,7 @@ void Game::render(unsigned int &frameBuffer) {
 	}
 
 	dawnInterface->draw();
-	dawnInterface->drawFloatingSpell();
+	Spellbook::Get().drawFloatingSpell();
 	glDisable(GL_BLEND);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -133,8 +139,8 @@ void Game::OnMouseMotion(Event::MouseMoveEvent& event) {
 
 }
 
-void Game::resize() {
-	dawnInterface->resize();
+void Game::resize(int deltaW, int deltaH) {
+	dawnInterface->resize(deltaW, deltaH);
 }
 
 void Game::processInput() {
@@ -150,10 +156,10 @@ void Game::processInput() {
 				// is the NPC friendly?
 				if (!curNPC->getAttitude() == Enums::Attitude::FRIENDLY) {
 					// set a target if the player has none
-					if (!player.hasTarget(curNPC)) {
-						player.setTarget(curNPC, curNPC->getAttitude());
+					if (!m_player.hasTarget(curNPC)) {
+						m_player.setTarget(curNPC, curNPC->getAttitude());
 					}else {
-						player.setTarget(NULL);
+						m_player.setTarget(NULL);
 					}
 					break;
 				}

@@ -20,14 +20,14 @@ public:
 	void fixedUpdate() override;
 	void update() override;
 	void render(unsigned int &frameBuffer) override;
-	void resize() override;
+	void resize(int deltaW, int deltaH) override;
 
 	void OnMouseMotion(Event::MouseMoveEvent& event) override;
 	
 
 	Zone* zone;
 	Interface* dawnInterface;
-	Player& player;
+	Player& m_player;
 
 	bool m_drawInGameCursor = false;
 

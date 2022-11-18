@@ -44,6 +44,8 @@ private:
 	const float& m_fdt;
 	const float& m_dt;
 	bool m_init = false;
+	unsigned int m_width;
+	unsigned int m_height;
 
 	StateMachine* m_machine;
 

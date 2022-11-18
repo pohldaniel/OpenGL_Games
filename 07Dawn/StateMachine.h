@@ -63,7 +63,7 @@ public:
 	virtual void fixedUpdate() = 0;
 	virtual void update() = 0;
 	virtual void render(unsigned int &m_frameBuffer) = 0;
-	virtual void resize() {};
+	virtual void resize(int deltaW, int deltaH) {};
 
 	const bool isRunning() const;
 

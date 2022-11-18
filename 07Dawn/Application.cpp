@@ -174,23 +174,29 @@ LRESULT Application::DisplayWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 			break;
 		}case WM_SIZE: {
 			
-			int _height = HIWORD(lParam);		// retrieve width and height
-			int _width = LOWORD(lParam);
+			int deltaW = m_width;
+			int deltaH = m_height;
 
-			if (_height == 0) {					// avoid divide by zero
-				_height = 1;
+			m_height = HIWORD(lParam);		// retrieve width and height
+			m_width = LOWORD(lParam);
+
+			deltaW = m_width - deltaW;
+			deltaH = m_height - deltaH;
+
+			if (m_height == 0) {					// avoid divide by zero
+				m_height = 1;
 			}
 			
-			glViewport(0, 0, _width, _height);	
-			Globals::projection = Matrix4f::GetPerspective(Globals::projection, 45.0f, static_cast<float>(_width) / static_cast<float>(_height), 1.0f, 5000.0f);
-			Globals::invProjection = Matrix4f::GetInvPerspective(Globals::invProjection, 45.0f, static_cast<float>(_width) / static_cast<float>(_height), 1.0f, 5000.0f);
-			Globals::orthographic = Matrix4f::GetOrthographic(Globals::orthographic, 0.0f, static_cast<float>(_width), 0.0f, static_cast<float>(_height), -1.0f, 1.0f);
-			Globals::invOrthographic = Matrix4f::GetInvOrthographic(Globals::invOrthographic, 0.0f, static_cast<float>(_width), 0.0f, static_cast<float>(_height), -1.0f, 1.0f);
+			glViewport(0, 0, m_width, m_height);
+			Globals::projection = Matrix4f::GetPerspective(Globals::projection, 45.0f, static_cast<float>(m_width) / static_cast<float>(m_height), 1.0f, 5000.0f);
+			Globals::invProjection = Matrix4f::GetInvPerspective(Globals::invProjection, 45.0f, static_cast<float>(m_width) / static_cast<float>(m_height), 1.0f, 5000.0f);
+			Globals::orthographic = Matrix4f::GetOrthographic(Globals::orthographic, 0.0f, static_cast<float>(m_width), 0.0f, static_cast<float>(m_height), -1.0f, 1.0f);
+			Globals::invOrthographic = Matrix4f::GetInvOrthographic(Globals::invOrthographic, 0.0f, static_cast<float>(m_width), 0.0f, static_cast<float>(m_height), -1.0f, 1.0f);
 						
 			if (m_init) {
-				ViewPort::get().init(_width, _height);
-				m_machine->resize(_width, _height);
-				m_machine->m_states.top()->resize();
+				ViewPort::get().init(m_width, m_height);
+				m_machine->resize(m_width, m_height);
+				m_machine->m_states.top()->resize(deltaW, deltaH);
 			}
 			
 			break;
@@ -282,8 +288,7 @@ void Application::enableVerticalSync(bool enableVerticalSync) {
 	// WGL_EXT_swap_control.
 	typedef BOOL(WINAPI * PFNWGLSWAPINTERVALEXTPROC)(GLint);
 	static PFNWGLSWAPINTERVALEXTPROC wglSwapIntervalEXT =
-		reinterpret_cast<PFNWGLSWAPINTERVALEXTPROC>(
-			wglGetProcAddress("wglSwapIntervalEXT"));
+		reinterpret_cast<PFNWGLSWAPINTERVALEXTPROC>(wglGetProcAddress("wglSwapIntervalEXT"));
 
 	if (wglSwapIntervalEXT) {
 		wglSwapIntervalEXT(enableVerticalSync ? 1 : 0);
@@ -335,9 +340,17 @@ void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 			event.type = Event::MOUSEMOTION;
 			event.data.mouseMove.x = static_cast<int>(static_cast<short>(LOWORD(lParam)));
 			event.data.mouseMove.y = static_cast<int>(static_cast<short>(HIWORD(lParam)));
-			s_eventDispatcher.pushEvent(event);			
+			s_eventDispatcher.pushEvent(event);	
+			/*if (!m_mouseTracking) {
+				TRACKMOUSEEVENT trackMouseEvent;
+				trackMouseEvent.cbSize = sizeof(TRACKMOUSEEVENT);
+				trackMouseEvent.dwFlags = TME_LEAVE;
+				trackMouseEvent.hwndTrack = hWnd;
+				TrackMouseEvent(&trackMouseEvent);
+				m_mouseTracking = true;
+			}*/
 			break;
-		}case WM_LBUTTONDOWN: { // Capture the mouse			
+		}case WM_LBUTTONDOWN: {			
 			Event event;
 			event.type = Event::MOUSEBUTTONDOWN;
 			event.data.mouseButton.x = static_cast<int>(static_cast<short>(LOWORD(lParam)));
@@ -345,7 +358,18 @@ void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 			event.data.mouseButton.button = Event::MouseButtonEvent::MouseButton::BUTTON_LEFT;
 			s_eventDispatcher.pushEvent(event);
 			break;
-		}/*case WM_NCMOUSEMOVE: {
+		}case WM_LBUTTONUP: {		
+			Event event;
+			event.type = Event::MOUSEBUTTONUP;
+			event.data.mouseButton.x = static_cast<int>(static_cast<short>(LOWORD(lParam)));
+			event.data.mouseButton.y = static_cast<int>(static_cast<short>(HIWORD(lParam)));
+			event.data.mouseButton.button = Event::MouseButtonEvent::MouseButton::BUTTON_LEFT;
+			s_eventDispatcher.pushEvent(event);
+			break;
+		}/*case WM_MOUSELEAVE: {
+			m_mouseTracking = false;			
+			break;
+		}case WM_NCMOUSEMOVE: {
 			Event event;
 			event.type = Event::MOUSEMOTION;
 			event.data.mouseMove.titleBar = true;

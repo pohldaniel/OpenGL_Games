@@ -5,9 +5,7 @@
 #include "engine/Batchrenderer.h"
 #include "engine/Fontrenderer.h"
 #include "TextureManager.h"
-#include "Spells.h"
-#include "Actions.h"
-#include "Tooltip.h"
+#include "Spellbook.h"
 #include "Constants.h"
 
 class Character;
@@ -35,25 +33,6 @@ struct Button {
 		number = _number;
 		key = _key;		
 	};
-};
-
-struct SpellSlot{
-	int posX;
-	int posY;
-	int width;
-	int height;
-
-	SpellActionBase* action;
-	Tooltip* tooltip;
-
-	SpellSlot(int _posX, int _posY, int _width, int _height){
-		posX = _posX;
-		posY = _posY;
-		width = _width;
-		height = _height;
-		action = nullptr;
-		tooltip = nullptr;
-	}
 };
 
 struct DamageDisplay {
@@ -88,14 +67,14 @@ public:
 
 	void draw();
 	void drawCursor(bool drawInGameCursor);
-	void drawFloatingSpell();
+
 	void processInput();
 	void processInputRightDrag();
 
 	void init();
 	void setPlayer(Player* player);
 	void addCombatText(int amount, bool critical, unsigned short damageType, int posX, int posY, bool update);
-	void resize();
+	void resize(int deltaW, int deltaH);
 	void addTextToLog(std::string text, Vector4f color);
 	void clearLogWindow();
 
@@ -118,10 +97,7 @@ private:
 	bool isMouseOver(int x, int y);
 	SpellActionBase* getSpellAtMouse(int mouseX, int mouseY);
 
-	SpellSlot* getFloatingSpell() const;
-	void setFloatingSpell(SpellActionBase* newFloatingSpell);
-	void unsetFloatingSpell();
-	bool hasFloatingSpell() const;
+	
 	void setSpellQueue(Button &button, bool actionReadyToCast = true);
 	void dragSpell(Button* spellQueue);
 	short getMouseOverButtonId(int x, int y);
@@ -157,8 +133,8 @@ private:
 	CharacterSet* m_interfaceFont;
 	Tooltip* m_tooltip;
 	Button* m_spellQueue;
-	SpellSlot* m_floatingSpell;
-	SpellSlot& m_floatingSpellSlot;
+	Spellbook* m_spellbook;
+
 	std::pair<int, int> m_lastMouseDown;
 
 	static Interface s_instance;
