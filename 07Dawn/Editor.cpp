@@ -430,7 +430,7 @@ void Editor::render(unsigned int &frameBuffer) {
 
 	newZone->drawZoneBatched();
 		
-	/*TextureManager::BindTexture(m_textureAtlas, true);
+	TextureManager::BindTexture(m_textureAtlas, true);
 		
 	if (m_selectedTileSet == Enums::TileClassificationType::COLLISION) {
 
@@ -574,7 +574,7 @@ void Editor::render(unsigned int &frameBuffer) {
 	}
 
 	Fontrenderer::Get().unbindTexture();
-	TextureManager::UnbindTexture(true);*/
+	TextureManager::UnbindTexture(true);
 	
 	glDisable(GL_BLEND);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);

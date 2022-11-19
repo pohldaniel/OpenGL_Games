@@ -31,7 +31,7 @@ public:
 	void draw();
 	void drawSpellTooltip(int mouseX, int mouseY);
 	void drawFloatingSpell();
-	void processInput();
+	void processInput() override;
 
 	void setPlayer(Player* player);
 	bool hasFloatingSpell() const;

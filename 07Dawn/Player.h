@@ -42,7 +42,16 @@ public:
 	unsigned short getModifiedMaxDamage() const;
 	unsigned short getModifiedDamageModifierPoints() const;
 	unsigned short getModifiedSpellEffectElementModifierPoints(Enums::ElementType elementType) const;
-	
+	unsigned short getModifiedStrength() const;
+	unsigned short getModifiedHitModifierPoints() const;
+	unsigned short getModifiedMeleeCriticalModifierPoints() const;
+	unsigned short getModifiedArmor() const;
+	unsigned short getModifiedBlockModifierPoints() const;
+	unsigned short getModifiedEvadeModifierPoints() const;
+	unsigned short getModifiedParryModifierPoints() const;
+	unsigned short getModifiedResistElementModifierPoints(Enums::ElementType elementType) const;
+	unsigned short getModifiedSpellCriticalModifierPoints() const;
+
 	static Player& Get();
 
 private:
@@ -58,16 +67,6 @@ private:
 	bool canRaiseLevel() const;
 	void raiseLevel();
 	void setExperience(unsigned long experience);
-
-	unsigned short getModifiedArmor() const;
-	unsigned short getModifiedHitModifierPoints() const;
-	unsigned short getModifiedEvadeModifierPoints() const;
-	unsigned short getModifiedParryModifierPoints() const;
-	unsigned short getModifiedBlockModifierPoints() const;
-	unsigned short getModifiedMeleeCriticalModifierPoints() const;
-	unsigned short getModifiedResistElementModifierPoints(Enums::ElementType elementType) const;
-	unsigned short getModifiedSpellCriticalModifierPoints() const;
-	unsigned short getModifiedStrength() const;
 
 	unsigned short  movementSpeed;
 	unsigned int ticketForItemTooltip;

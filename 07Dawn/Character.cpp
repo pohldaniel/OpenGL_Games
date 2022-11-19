@@ -859,6 +859,31 @@ std::string Character::ActivityToString(Enums::ActivityType activity) {
 	}
 }
 
+std::string Character::ElementToString(Enums::ElementType elementType) {
+	switch (elementType) {
+		case Enums::ElementType::Fire:
+			return "Fire";
+			break;
+		case Enums::ElementType::Water:
+			return "Water";
+			break;
+		case Enums::ElementType::Air:
+			return "Air";
+			break;
+		case Enums::ElementType::Earth:
+			return "Earth";
+			break;
+		case Enums::ElementType::Light:
+			return "Light";
+			break;
+		case Enums::ElementType::Dark:
+			return "Dark";
+			break;
+		default:
+			return "";
+	}
+}
+
 std::string Character::GetCharacterClassName(Enums::CharacterClass characterClass) {
 
 	switch (characterClass) {

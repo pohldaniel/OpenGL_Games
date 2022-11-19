@@ -250,6 +250,7 @@ public:
 	static std::string AttitudeToString(Enums::Attitude attitude);
 	static std::string ActivityToString(Enums::ActivityType activity);
 	static std::string GetCharacterClassName(Enums::CharacterClass characterClass);
+	static std::string ElementToString(Enums::ElementType elementType);
 
 protected:
 

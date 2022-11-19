@@ -19,6 +19,7 @@ public:
 	void draw();
 	void drawExpBar();
 	void drawTabs();
+	void processInput() override;
 
 	void init();
 	void setPlayer(Player* player);
