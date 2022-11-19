@@ -1,6 +1,9 @@
 #pragma once
+
 #include "Character.h"
 #include "TilesetManager.h"
+
+class Item;
 
 class Player : public Character {
 
@@ -51,6 +54,13 @@ public:
 	unsigned short getModifiedParryModifierPoints() const;
 	unsigned short getModifiedResistElementModifierPoints(Enums::ElementType elementType) const;
 	unsigned short getModifiedSpellCriticalModifierPoints() const;
+	bool canWearArmorType(Item* item) const;
+	bool isSpellInscribedInSpellbook(SpellActionBase* spell) const;
+	bool isSpellOnCooldown(std::string spellName) const;
+
+	void startShopping();
+	void stopShopping();
+	bool isShopping() const;
 
 	static Player& Get();
 
@@ -62,7 +72,7 @@ private:
 
 	void clearCooldownSpells();
 	void clearActiveSpells();
-	bool isSpellOnCooldown(std::string spellName) const;
+	
 	
 	bool canRaiseLevel() const;
 	void raiseLevel();
@@ -80,6 +90,7 @@ private:
 
 	Enums::Attitude targetAttitude;
 	int dx, dy;
+	bool isCurrentlyShopping;
 
 	static Player s_instance;
 };

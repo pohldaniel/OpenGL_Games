@@ -7,9 +7,11 @@
 #include "SpellActionBase.h"
 #include "Spells.h"
 #include "Actions.h"
+#include "Item.h"
 #include "Dialog.h"
 
 class Player;
+class InventoryItem;
 
 struct sTooltipText {
 	std::string text;
@@ -26,6 +28,7 @@ struct sTooltipText {
 class Tooltip {
 
 	friend class SpellTooltip;
+	friend class ItemTooltip;
 
 public:
 	~Tooltip();
@@ -76,6 +79,28 @@ private:
 	SpellActionBase *parent;
 	void getParentText();
 	void getTicketFromPlayer();
+};
+
+class ItemTooltip : public Tooltip {
+public:
+	ItemTooltip(Item *parent, InventoryItem *inventoryItem, Player *player);
+	void draw(int x, int y);
+	void setShopItem(bool isShopItem_);
+	Item *getParent() const;
+
+private:
+	Item *parent;
+	InventoryItem *inventoryItem;
+	std::string currentCooldownText;
+
+	bool isShopItem;
+
+	std::string itemValue[3];
+
+	void getParentText();
+	void getTicketFromPlayer();
+	void addTooltipTextForPercentageAttribute(std::string attributeName, double attributePercentage);
+	void drawCoinsLine(int x, int y, int frameWidth, sTooltipText *tooltipText);
 };
 
 namespace DrawFunctions {

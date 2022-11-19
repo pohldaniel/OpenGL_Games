@@ -4,6 +4,7 @@
 #include "Constants.h"
 #include "Statssystem.h"
 #include "Luainterface.h"
+#include "Item.h"
 
 const unsigned short NULLABLE_ATTRIBUTE_MIN = 0;
 const unsigned short NON_NULLABLE_ATTRIBUTE_MIN = 1;
@@ -475,3 +476,32 @@ unsigned short Player::getModifiedStrength() const {
 	return getModifiedAttribute(this, getStrength(), &getSpellStrengthHelper, NON_NULLABLE_ATTRIBUTE_MIN);
 }
 
+bool Player::canWearArmorType(Item* item) const {
+	if (ArmorType::getHighestArmorTypeByClass(getClass()) < item->getArmorType()) {
+		return false;
+	}
+	return true;
+}
+
+bool Player::isSpellInscribedInSpellbook(SpellActionBase* spell) const {
+	for (size_t curSpell = 0; curSpell < getSpellbook().size(); curSpell++) {
+		if (getSpellbook()[curSpell]->getName() == spell->getName()) {
+			if (getSpellbook()[curSpell]->getRank() >= spell->getRank()) {
+				return true; // yes, spell is already inscribed in spellbook with same or higher rank.
+			}
+		}
+	}
+	return false;
+}
+
+void Player::startShopping() {
+	isCurrentlyShopping = true;
+}
+
+void Player::stopShopping() {
+	isCurrentlyShopping = false;
+}
+
+bool Player::isShopping() const {
+	return isCurrentlyShopping;
+}
