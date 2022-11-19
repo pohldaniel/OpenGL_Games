@@ -1,8 +1,10 @@
 #include "Widget.h"
-#include <iostream>
+
 Widget::Widget(short posX, short posY, short width, short height) : m_posX(posX), m_posY(posY), m_width(width), m_height(height){
 
-	if(static_cast<unsigned short>(m_posY + m_height) > ViewPort::get().getHeight()) {
+	//To create the singeltons on startup the HEIGHT has to be known
+	//Don't use ViewPort::get().getHeight()
+	if(static_cast<unsigned short>(m_posY + m_height) > HEIGHT) {
 		m_posY = ViewPort::get().getHeight() - m_height;
 	}
 }

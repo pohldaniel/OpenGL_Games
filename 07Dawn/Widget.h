@@ -1,10 +1,12 @@
 #pragma once
 #include <vector>
-
 #include "ViewPort.h"
+#include "Constants.h"
 
 class Widget {
+
 public:
+
 	Widget() = default;
 	Widget(short posX, short posY, short width, short height);
 	~Widget();
@@ -30,6 +32,7 @@ public:
 
 	bool isVisible() const;
 	void setVisible(bool visible);
+
 protected:
 
 	bool isMouseOnTitlebar(int mouseX, int mouseY) const;

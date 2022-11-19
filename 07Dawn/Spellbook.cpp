@@ -7,12 +7,12 @@ Spellbook& Spellbook::Get() {
 	return s_instance;
 }
 
-Spellbook::Spellbook() : m_floatingSpellSlot(SpellSlot(0, 0, 0, 0)) {
+Spellbook::Spellbook() : Widget(125, 50, 454, 672), m_floatingSpellSlot(SpellSlot(0, 0, 0, 0)) {
 	
 }
 
-void Spellbook::setPlayer(Player* _player) {
-	m_player = _player;
+void Spellbook::setPlayer(Player* player) {
+	m_player = player;
 }
 
 void Spellbook::init(unsigned int textureAtlas, std::vector<TextureRect> textures) {
@@ -47,8 +47,6 @@ void Spellbook::init(unsigned int textureAtlas, std::vector<TextureRect> texture
 
 	Widget::addMoveableFrame(454, 22, 13, 665);
 	Widget::addCloseButton(22, 22, 444, 666);
-	m_posX = 125;
-	m_posY = 50;
 }
 
 void Spellbook::draw() {

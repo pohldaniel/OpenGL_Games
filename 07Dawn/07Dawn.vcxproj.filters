@@ -37,6 +37,9 @@
     <Filter Include="Source Files\Spells">
       <UniqueIdentifier>{1b0fcf45-374a-4014-b91f-c5ae6b1dde92}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Interface">
+      <UniqueIdentifier>{4d5fadce-2539-45bd-bd8f-7ff3ffbd3a61}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Application.cpp">
@@ -189,9 +192,6 @@
     <ClCompile Include="engine\Fontrenderer.cpp">
       <Filter>engine</Filter>
     </ClCompile>
-    <ClCompile Include="Interface.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Player.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -220,7 +220,13 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Spellbook.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Interface</Filter>
+    </ClCompile>
+    <ClCompile Include="Interface.cpp">
+      <Filter>Source Files\Interface</Filter>
+    </ClCompile>
+    <ClCompile Include="CharacterInfo.cpp">
+      <Filter>Source Files\Interface</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -377,9 +383,6 @@
     <ClInclude Include="engine\Fontrenderer.h">
       <Filter>engine</Filter>
     </ClInclude>
-    <ClInclude Include="Interface.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Player.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -414,7 +417,13 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Spellbook.h">
-      <Filter>Header Files</Filter>
+      <Filter>Source Files\Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="Interface.h">
+      <Filter>Source Files\Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="CharacterInfo.h">
+      <Filter>Source Files\Interface</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

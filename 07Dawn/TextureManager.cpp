@@ -135,12 +135,12 @@ TextureRect& TextureManager::Loadimage(std::string file) {
 	return TextureCache::Get().getTextureFromCache(file, 0u, 0u, false, 0, 0, 0, 0);
 }
 
-void TextureManager::Loadimage(std::string file, int textureIndex, std::vector<TextureRect>& textureBase) {
+void TextureManager::Loadimage(std::string file, int textureIndex, std::vector<TextureRect>& textureBase, bool reload) {
 	if (textureIndex >= textureBase.size()) {
 		textureBase.resize(textureIndex + 1);
 	}
 
-	textureBase[textureIndex] = TextureCache::Get().getTextureFromCache(file);
+	textureBase[textureIndex] = TextureCache::Get().getTextureFromCache(file, 0u, 0u, reload, 0, 0, 0, 0);
 }
 
 unsigned int& TextureManager::GetTextureAtlas(std::string name) {

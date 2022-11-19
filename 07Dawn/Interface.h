@@ -6,6 +6,7 @@
 #include "engine/Fontrenderer.h"
 #include "TextureManager.h"
 #include "Spellbook.h"
+#include "CharacterInfo.h"
 #include "Constants.h"
 
 class Character;
@@ -133,7 +134,8 @@ private:
 	CharacterSet* m_interfaceFont;
 	Tooltip* m_tooltip;
 	Button* m_spellQueue;
-	Spellbook* m_spellbook;
+	Spellbook& m_spellbook;
+	CharacterInfo& m_characterInfo;
 
 	std::pair<int, int> m_lastMouseDown;
 

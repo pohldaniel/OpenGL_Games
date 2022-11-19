@@ -26,7 +26,6 @@ class Spellbook : public Widget{
 
 public:
 
-	Spellbook();
 	~Spellbook() = default;
 	
 	void draw();
@@ -49,10 +48,9 @@ public:
 	
 	static Spellbook& Get();
 
-	std::vector<TextureRect> m_textures;
-	unsigned int m_textureAtlas;
-
 private:
+
+	Spellbook();
 
 	bool isMouseOverNextPageArea(int mouseX, int mouseY);
 	bool isMouseOverPreviousPageArea(int mouseX, int mouseY);
@@ -78,6 +76,8 @@ private:
 	SpellSlot& m_floatingSpellSlot;
 
 	CharacterSet* m_cooldownFont;
+	std::vector<TextureRect> m_textures;
+	unsigned int m_textureAtlas;
 
 	static Spellbook s_instance;	
 };

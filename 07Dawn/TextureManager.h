@@ -155,7 +155,7 @@ public:
 
 	static TextureRect& Loadimage(std::string file, unsigned int maxWidth, unsigned maxHeight, bool reload, int paddingLeft, int paddingRight, int paddingTop, int paddingBottom);
 	static TextureRect& Loadimage(std::string file);
-	static void Loadimage(std::string file, int textureIndex, std::vector<TextureRect>& textureBase);
+	static void Loadimage(std::string file, int textureIndex, std::vector<TextureRect>& textureBase, bool reload = false);
 
 	static unsigned int& GetTextureAtlas(std::string name);
 	static void SetTextureAtlas(std::string name, unsigned int value);

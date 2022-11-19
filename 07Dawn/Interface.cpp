@@ -8,7 +8,7 @@
 
 Interface Interface::s_instance;
 
-Interface::Interface() {
+Interface::Interface() : m_spellbook(Spellbook::Get()), m_characterInfo(CharacterInfo::Get()) {
 
 }
 
@@ -49,13 +49,8 @@ void Interface::init() {
 		bindActionToButtonNr(curEntry, inscribedSpells[curEntry]);
 	}
 
-	m_spellbook = &Spellbook::Get();
-	m_spellbook->init(m_textureAtlas, { m_interfacetexture[22], m_interfacetexture[23], m_interfacetexture[4], m_interfacetexture[24], m_interfacetexture[25]});	
-}
-
-void Interface::resize(int deltaW, int deltaH) {
-	m_actionBarPosX = ViewPort::get().getWidth() - 630;
-	m_spellbook->resize(deltaW, deltaH);
+	m_spellbook.init(m_textureAtlas, { m_interfacetexture[22], m_interfacetexture[23], m_interfacetexture[4], m_interfacetexture[24], m_interfacetexture[25]});	
+	m_characterInfo.init();
 }
 
 void Interface::loadTextures() {
@@ -138,6 +133,11 @@ void Interface::loadTextures() {
 	}
 
 	//Spritesheet::Safe("interface", m_textureAtlas);	
+}
+
+void Interface::resize(int deltaW, int deltaH) {
+	m_actionBarPosX = ViewPort::get().getWidth() - 630;
+	m_spellbook.resize(deltaW, deltaH);
 }
 
 void Interface::draw() {
@@ -276,7 +276,7 @@ void Interface::draw() {
 	TextureManager::UnbindTexture(false, 1);
 	TextureManager::UnbindTexture(true, 0);
 
-	m_spellbook->draw();
+	m_spellbook.draw();
 
 
 	SpellActionBase *spellUnderMouse = getSpellAtMouse(ViewPort::get().getCursorPosRelX(), ViewPort::get().getCursorPosRelY());
@@ -477,7 +477,7 @@ void Interface::drawSpellTooltip(int x, int y) {
 	if (isMouseOver(x, y)) {
 		int buttonId = getMouseOverButtonId(x, y);
 
-		if (buttonId >= 0 && m_button[buttonId].tooltip != NULL && isPreparingAoESpell() == false && !m_spellbook->hasFloatingSpell())
+		if (buttonId >= 0 && m_button[buttonId].tooltip != NULL && isPreparingAoESpell() == false && !m_spellbook.hasFloatingSpell())
 			m_button[buttonId].tooltip->draw(x, y);
 	}
 }
@@ -549,9 +549,9 @@ void Interface::unbindAction(Button* button) {
 
 
 void Interface::dragSpell(Button* spellQueue) {
-	if (!m_spellbook->hasFloatingSpell()) {
+	if (!m_spellbook.hasFloatingSpell()) {
 		m_preparingAoESpell = false;
-		m_spellbook->setFloatingSpell(spellQueue->action);
+		m_spellbook.setFloatingSpell(spellQueue->action);
 		unbindAction(spellQueue);
 		spellQueue = nullptr;
 	}
@@ -588,7 +588,7 @@ void Interface::processInput() {
 
 		if (m_buttonId >= 0) {
 			// we clicked a button which has an action and has no floating spell on the mouse (we're launching an action from the actionbar)
-			if (m_button[m_buttonId].action != NULL && !m_spellbook->hasFloatingSpell()/*&& !isPreparingAoESpell()*/) {
+			if (m_button[m_buttonId].action != NULL && !m_spellbook.hasFloatingSpell()/*&& !isPreparingAoESpell()*/) {
 
 				if (isSpellUseable(m_button[m_buttonId].action)) {
 
@@ -609,13 +609,13 @@ void Interface::processInput() {
 			}
 
 			// check to see if we're holding a floating spell on the mouse. if we do, we want to place it in the actionbar slot...
-			if (m_spellbook->hasFloatingSpell()) {
+			if (m_spellbook.hasFloatingSpell()) {
 
 				if (isButtonUsed(&m_button[m_buttonId]))
 					unbindAction(&m_button[m_buttonId]);
 
-				bindAction(&m_button[m_buttonId], m_spellbook->getFloatingSpell()->action);
-				m_spellbook->unsetFloatingSpell();
+				bindAction(&m_button[m_buttonId], m_spellbook.getFloatingSpell()->action);
+				m_spellbook.unsetFloatingSpell();
 
 				//if(isSpellUseable(button[buttonId].action))
 				//setSpellQueue(button[buttonId], false);
@@ -655,7 +655,7 @@ void Interface::processInput() {
 		executeSpellQueue();
 	}
 
-	m_spellbook->processInput();
+	m_spellbook.processInput();
 }
 
 void Interface::processInputRightDrag() {
@@ -665,7 +665,7 @@ void Interface::processInputRightDrag() {
 
 		if (m_buttonId >= 0) {
 			// we clicked a button which has an action and has no floating spell on the mouse (we're launching an action from the actionbar)
-			if (m_button[m_buttonId].action != NULL && !m_spellbook->hasFloatingSpell()/*&& !isPreparingAoESpell()*/) {
+			if (m_button[m_buttonId].action != NULL && !m_spellbook.hasFloatingSpell()/*&& !isPreparingAoESpell()*/) {
 
 				if (isSpellUseable(m_button[m_buttonId].action)) {
 					// AoE spell with specific position
@@ -685,13 +685,13 @@ void Interface::processInputRightDrag() {
 				}
 			}
 
-			if (m_spellbook->hasFloatingSpell()) {
+			if (m_spellbook.hasFloatingSpell()) {
 
 				if (isButtonUsed(&m_button[m_buttonId]))
 					unbindAction(&m_button[m_buttonId]);
 
-				bindAction(&m_button[m_buttonId], m_spellbook->getFloatingSpell()->action);
-				m_spellbook->unsetFloatingSpell();
+				bindAction(&m_button[m_buttonId], m_spellbook.getFloatingSpell()->action);
+				m_spellbook.unsetFloatingSpell();
 
 				//if (isSpellUseable(button[buttonId].action) && button[buttonId].action->getEffectType() != Enums::EffectType::AreaTargetSpell) {				
 				//setSpellQueue(button[buttonId], false);
@@ -699,8 +699,8 @@ void Interface::processInputRightDrag() {
 			}
 		}
 
-		if (m_spellbook->hasFloatingSpell()) {
-			m_spellbook->unsetFloatingSpell();
+		if (m_spellbook.hasFloatingSpell()) {
+			m_spellbook.unsetFloatingSpell();
 		}
 	}
 
@@ -741,10 +741,10 @@ void Interface::processInputRightDrag() {
 
 	Keyboard &keyboard = Keyboard::instance();
 	if (keyboard.keyPressed(Keyboard::KEY_B)) {
-		m_spellbook->setVisible(!m_spellbook->isVisible());
+		m_spellbook.setVisible(!m_spellbook.isVisible());
 	}
 
-	m_spellbook->processInput();
+	m_spellbook.processInput();
 }
 
 void Interface::executeSpellQueue() {

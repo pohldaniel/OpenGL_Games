@@ -157,6 +157,7 @@
     <ClCompile Include="Actions.cpp" />
     <ClCompile Include="Application.cpp" />
     <ClCompile Include="Character.cpp" />
+    <ClCompile Include="CharacterInfo.cpp" />
     <ClCompile Include="Dialog.cpp" />
     <ClCompile Include="Editor.cpp" />
     <ClCompile Include="engine\animation\Animation2D.cpp" />
@@ -220,6 +221,7 @@
     <ClInclude Include="Actions.h" />
     <ClInclude Include="Application.h" />
     <ClInclude Include="Character.h" />
+    <ClInclude Include="CharacterInfo.h" />
     <ClInclude Include="Constants.h" />
     <ClInclude Include="Dialog.h" />
     <ClInclude Include="Editor.h" />
