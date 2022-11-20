@@ -18,19 +18,11 @@ Widget::~Widget() {
 	m_childWidgets.resize(0);
 }
 
-void Widget::draw(int posX, int posY) {
+void Widget::draw() {
 	if (m_childWidgets.size() > 0) {
 		
 		for (unsigned short w = 0; w < m_childWidgets.size(); ++w){
-			m_childWidgets[w]->draw(posX, posY);
-		}
-	}
-}
-
-void Widget::update(int mouseX, int mouseY) {
-	if (m_childWidgets.size() > 0) {
-		for (unsigned short w = 0; w < m_childWidgets.size(); ++w) {
-			m_childWidgets[w]->update(mouseX - m_posX, mouseY - m_posY);
+			m_childWidgets[w]->draw();
 		}
 	}
 }
@@ -57,6 +49,12 @@ void Widget::processInput() {
 			if (isMouseOnCloseButton(mouse.xPosAbsolute(), mouse.yPosAbsolute())) {
 				m_visible = false;
 			}
+		}
+	}
+
+	if (m_childWidgets.size() > 0) {
+		for (unsigned short w = 0; w < m_childWidgets.size(); ++w) {
+			m_childWidgets[w]->processInput();
 		}
 	}
 }
@@ -114,14 +112,22 @@ void Widget::addToParent(int posX, int posY, Widget* parent) {
 	setPosition(posX, posY);
 }
 
-void Widget::addChildWidget(int posX, int posY, std::auto_ptr<Widget> newChild) {
+void Widget::addChildWidget(int posX, int posY, int parentX, int parentY, std::auto_ptr<Widget> newChild) {
 	newChild->addToParent(posX, posY, this);
 	m_childWidgets.push_back(newChild.release());
+
+	m_parentX = parentX;
+	m_parentY = parentY;
 }
 
 void Widget::setPosition(int posX, int posY) {
 	m_posX = posX;
 	m_posY = posY;
+}
+
+void Widget::setParentPosition(int parentX, int parentY) {
+	m_parentX = parentX;
+	m_parentY = parentY;
 }
 
 void Widget::setSize(int width, int height) {

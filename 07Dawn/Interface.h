@@ -7,6 +7,7 @@
 #include "TextureManager.h"
 #include "Spellbook.h"
 #include "CharacterInfo.h"
+#include "InventoryScreen.h"
 #include "Constants.h"
 
 class Character;
@@ -134,8 +135,10 @@ private:
 	CharacterSet* m_interfaceFont;
 	Tooltip* m_tooltip;
 	Button* m_spellQueue;
+
 	Spellbook& m_spellbook;
 	CharacterInfo& m_characterInfo;
+	InventoryScreen& m_inventoryScreen;
 
 	std::pair<int, int> m_lastMouseDown;
 

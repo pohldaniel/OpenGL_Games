@@ -28,8 +28,47 @@ public:
 };
 
 class InventoryScreen : public Widget {
+
+public:
+	
+	~InventoryScreen() = default;
+
+	void draw() override;
+	void drawCoins();
+	void drawSlot(Enums::ItemSlot curSlot);
+	void drawFloatingSelection(int mouseX, int mouseY);
+	void drawItemPlacement(int mouseX, int mouseY);
+	void drawItemTooltip(int mouseX, int mouseY);
+	void processInput() override;
+
+	void clicked(int clickX, int clickY, uint8_t mouseState);
+
+	void loadTextures();
+	void setTextureDependentPositions();
+
+	void init();
+
+	void setPlayer(Player* player);
+
+	bool isMouseOnThisFrame(int mouseX, int mouseY) const;
+	bool isOnBackpackScreen(int mouseX, int mouseY) const;
+	bool isOverSlot(Enums::ItemSlot itemSlot, int mouseX, int mouseY) const;
+	bool hasFloatingSelection() const;
+
+	InventoryItem* getFloatingSelection() const;
+
+	Enums::ItemSlot getMouseOverSlot(int mouseX, int mouseY) const;
+
+	void setFloatingSelection(InventoryItem* item);
+	void unsetFloatingSelection();
+
+	static InventoryScreen& Get();
+
 private:
-	Player* player;
+
+	InventoryScreen();
+
+	Player* m_player;
 
 	CharacterSet* m_coinsFont;
 	std::vector<TextureRect> m_textures;
@@ -37,8 +76,6 @@ private:
 
 	InventoryItem* floatingSelection;
 	InventoryScreenSlot** mySlots;
-
-
 
 	void drawBackpack();
 	void dropItemOnGround(InventoryItem* item);
@@ -54,31 +91,5 @@ private:
 
 	void equipOnSlotOriginDependingAndPlaySound(Enums::ItemSlot slotToUse, InventoryItem* wieldItem, bool fromShop, InventoryItem* newFloatingSelection);
 
-public:
-	InventoryScreen(Player* player_);
-	~InventoryScreen();
-
-	void clicked(int clickX, int clickY, uint8_t mouseState);
-
-	void loadTextures();
-	void setTextureDependentPositions();
-
-	void draw(int mouseX, int mouseY);
-	void drawCoins();
-	void drawSlot(Enums::ItemSlot curSlot);
-	void drawFloatingSelection(int mouseX, int mouseY);
-	void drawItemPlacement(int mouseX, int mouseY);
-	void drawItemTooltip(int mouseX, int mouseY);
-
-	bool isMouseOnThisFrame(int mouseX, int mouseY) const;
-	bool isOnBackpackScreen(int mouseX, int mouseY) const;
-	bool isOverSlot(Enums::ItemSlot itemSlot, int mouseX, int mouseY) const;
-	bool hasFloatingSelection() const;
-
-	InventoryItem* getFloatingSelection() const;
-
-	Enums::ItemSlot getMouseOverSlot(int mouseX, int mouseY) const;
-
-	void setFloatingSelection(InventoryItem* item);
-	void unsetFloatingSelection();
+	static InventoryScreen s_instance;
 };

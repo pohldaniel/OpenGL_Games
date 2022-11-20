@@ -16,7 +16,7 @@ public:
 	
 	~CharacterInfo() = default;
 
-	void draw();
+	void draw() override;
 	void drawExpBar();
 	void drawTabs();
 	void processInput() override;

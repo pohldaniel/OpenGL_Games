@@ -8,7 +8,7 @@
 
 Interface Interface::s_instance;
 
-Interface::Interface() : m_spellbook(Spellbook::Get()), m_characterInfo(CharacterInfo::Get()) {
+Interface::Interface() : m_spellbook(Spellbook::Get()), m_characterInfo(CharacterInfo::Get()), m_inventoryScreen(InventoryScreen::Get()) {
 
 }
 
@@ -19,6 +19,7 @@ Interface& Interface::Get() {
 void Interface::setPlayer(Player* player) {
 	m_player = player;	
 	m_characterInfo.setPlayer(m_player);
+	m_inventoryScreen.setPlayer(m_player);
 }
 
 void Interface::init() {
@@ -52,6 +53,9 @@ void Interface::init() {
 
 	m_spellbook.init(m_textureAtlas, { m_interfacetexture[22], m_interfacetexture[23], m_interfacetexture[4], m_interfacetexture[24], m_interfacetexture[25]});	
 	m_characterInfo.init();
+	m_inventoryScreen.init();
+
+	m_inventoryScreen.setVisible(true);
 }
 
 void Interface::loadTextures() {
@@ -279,6 +283,7 @@ void Interface::draw() {
 
 	m_spellbook.draw();
 	m_characterInfo.draw();
+	m_inventoryScreen.draw();
 
 	SpellActionBase *spellUnderMouse = getSpellAtMouse(ViewPort::get().getCursorPosRelX(), ViewPort::get().getCursorPosRelY());
 	if (spellUnderMouse != NULL) {
@@ -667,6 +672,11 @@ void Interface::processInput() {
 		m_characterInfo.setVisible(!m_characterInfo.isVisible());
 	}
 	m_characterInfo.processInput();
+
+	if (keyboard.keyPressed(Keyboard::KEY_I)) {
+		m_inventoryScreen.setVisible(!m_inventoryScreen.isVisible());
+	}
+	m_inventoryScreen.processInput();
 }
 
 void Interface::processInputRightDrag() {
@@ -760,6 +770,11 @@ void Interface::processInputRightDrag() {
 		m_characterInfo.setVisible(!m_characterInfo.isVisible());
 	}
 	m_characterInfo.processInput();
+
+	if (keyboard.keyPressed(Keyboard::KEY_I)) {
+		m_inventoryScreen.setVisible(!m_inventoryScreen.isVisible());
+	}
+	m_inventoryScreen.processInput();
 }
 
 void Interface::executeSpellQueue() {

@@ -11,11 +11,10 @@ public:
 	Widget(short posX, short posY, short width, short height);
 	~Widget();
 
-	virtual void draw(int posX, int posY);
-	virtual void update(int mouseX, int mouseY);
+	virtual void draw();
 	virtual void processInput();
 
-	virtual void addChildWidget(int posX, int posY, std::auto_ptr<Widget> newChild);
+	virtual void addChildWidget(int posX, int posY, int parentX, int parentY, std::auto_ptr<Widget> newChild);
 	virtual int getPosX() const;
 	virtual int getPosY() const;
 	virtual int getWidth() const;
@@ -28,6 +27,7 @@ public:
 	std::vector<Widget*> getChildWidgets();
 
 	void setPosition(int posX, int posY);
+	void setParentPosition(int posX, int posY);
 	void setSize(int width, int height);
 
 	bool isVisible() const;
@@ -42,6 +42,9 @@ protected:
 
 	short m_posX = 0;
 	short m_posY = 0;
+
+	short m_parentX = 0;
+	short m_parentY = 0;
 
 	short m_width;
 	short m_height;

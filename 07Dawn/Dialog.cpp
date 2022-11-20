@@ -93,13 +93,11 @@ Dialog::Dialog(int posX, int posY, int width, int height)
 void Dialog::draw() {
 
 	DialogCanvas::drawCanvas(getPosX(), getPosY(), m_columns, m_rows, TILE_WIDTH, TILE_HEIGHT);
-	Widget::draw(getPosX() + TILE_WIDTH, getPosY() + TILE_HEIGHT);	
+	Widget::draw();
 }
 
-void Dialog::update(int mouseX, int mouseY) {
-	//nothing to update here
-
-	Widget::update(mouseX - TILE_WIDTH, mouseY - TILE_HEIGHT);
+void Dialog::processInput() {
+	Widget::processInput();
 }
 
 void Dialog::setAutoresize(){
@@ -126,7 +124,7 @@ int Dialog::getHeight() const{
 }
 
 void Dialog::addChildFrame(int relPosX, int relPosY, std::auto_ptr<Widget> newChild){
-	Widget::addChildWidget(relPosX, relPosY, newChild);
+	Widget::addChildWidget(relPosX, relPosY, getPosX() + TILE_WIDTH, getPosY() + TILE_HEIGHT, newChild);
 	applyLayout();	
 }
 
@@ -148,8 +146,8 @@ void Dialog::applyLayout() {
 		int maxX = 0;
 		int maxY = 0;
 		for (size_t curChild = 0; curChild < childFrames.size(); ++curChild){
-			maxX = std::max(maxX, childFrames[curChild]->getPosX() + childFrames[curChild]->getWidth());
-			maxY = std::max(maxY, childFrames[curChild]->getPosY() + childFrames[curChild]->getHeight());
+			maxX = std::max(maxX, childFrames[curChild]->getPosX()  + childFrames[curChild]->getWidth());
+			maxY = std::max(maxY, childFrames[curChild]->getPosY()  + childFrames[curChild]->getHeight());
 		}
 		resize(maxX, maxY);
 	}
@@ -178,6 +176,12 @@ void Dialog::resize(int width, int height){
 }
 
 void Dialog::recalculatePosition(){
-	if (centerOnScreen)
+	if (centerOnScreen) {
 		setPosition((ViewPort::get().getWidth() - getWidth()) / 2, (ViewPort::get().getHeight() - getHeight()) / 2);
+
+		std::vector<Widget*> childFrames = getChildWidgets();
+		for (size_t curChild = 0; curChild < childFrames.size(); ++curChild) {
+			childFrames[curChild]->setParentPosition(m_posX + TILE_WIDTH, m_posY + TILE_HEIGHT);
+		}
+	}
 }

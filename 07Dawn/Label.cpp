@@ -15,19 +15,18 @@ Label::Label(Label const& rhs) : m_characterSet(rhs.m_characterSet) {
 	m_text = rhs.m_text;
 }
 
-void Label::draw(int posX, int posY) {
-	draw(posX, posY, m_text);
+void Label::draw() {
+	draw(m_text);
 }
 
-void Label::draw(int posX, int posY, std::string text) {
-	Fontrenderer::Get().drawText(*m_characterSet, posX + getPosX(), posY + getPosY(), text, activeColor);
-	//Widget::draw();
+void Label::draw(std::string text) {
+	Fontrenderer::Get().drawText(*m_characterSet, m_parentX + getPosX(), m_parentY + getPosY(), text, activeColor);
 }
 
-void Label::update(int mouseX, int mouseY) {
-	
-	if (mouseX > getPosX() && mouseX < getPosX() + getWidth() &&
-		mouseY > getPosY() && mouseY < getPosY() + getHeight()) {
+void Label::processInput() {
+
+	if (ViewPort::get().getCursorPosRelX() > m_parentX + getPosX() + 5 && ViewPort::get().getCursorPosRelX() < m_parentX + getPosX() + getWidth() &&
+		ViewPort::get().getCursorPosRelY() > m_parentY + getPosY() && ViewPort::get().getCursorPosRelY() < m_parentY + getPosY() + getHeight()) {
 
 		activeColor = hoverColor;
 		if (Mouse::instance().buttonPressed(Mouse::MouseButton::BUTTON_LEFT) && m_fun) {

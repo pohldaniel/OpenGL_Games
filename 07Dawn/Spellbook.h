@@ -22,13 +22,13 @@ struct SpellSlot {
 	}
 };
 
-class Spellbook : public Widget{
+class Spellbook : public Widget {
 
 public:
 
 	~Spellbook() = default;
 	
-	void draw();
+	void draw() override;
 	void drawSpellTooltip(int mouseX, int mouseY);
 	void drawFloatingSpell();
 	void processInput() override;

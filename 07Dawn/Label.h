@@ -19,9 +19,8 @@ public:
 	Label(Label const& rhs);
 	Label& operator=(const Label& rhs);
 
-	void draw(int posX, int posY) override;
-	void draw(int posX, int posY, std::string text);
-	void update(int mouseX, int mouseY);
+	void draw() override;
+	void processInput() override;
 
 	void setFunction(std::function<void()> fun);
 
@@ -31,6 +30,8 @@ public:
 	virtual int getWidth() const override;
 	virtual int getHeight() const override;
 
+private:
+	void draw(std::string text);
 	bool m_hover = false;
 	std::function<void()> m_fun = 0;
 

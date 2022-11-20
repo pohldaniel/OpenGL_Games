@@ -28,10 +28,10 @@ class Dialog : public Widget {
 public:
 
 	Dialog() = default;
-
 	Dialog(int posX, int posY, int width, int height);	
-	void update(int mouseX, int mouseY) override;
-	void draw();
+
+	void draw() override;
+	void processInput() override;
 
 	void setAutoresize();
 	void setCenteringLayout();

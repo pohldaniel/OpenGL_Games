@@ -55,8 +55,8 @@ wolfbase:setName("A wolf")
 wolfbase:setWanderRadius( 250 )
 wolfbase:setLevel( 2 )
 wolfbase:setClass( Enums.Warrior );
-wolfbase:inscribeSpellInSpellbook( spellDatabase["wolfbite"] );
-wolfbase:inscribeSpellInSpellbook( spellDatabase["rabidbite"] );
+--wolfbase:inscribeSpellInSpellbook( spellDatabase["wolfbite"] );
+--wolfbase:inscribeSpellInSpellbook( spellDatabase["rabidbite"] );
 --wolfbase:addItemToLootTable( itemDatabase["patchofwolfskin"], 0.25 )
 --wolfbase:addItemToLootTable( itemDatabase["wolfmeat"], 0.10 )
 wolfbase:setExperienceValue( 25 );

@@ -4,15 +4,23 @@
 MainMenu::MainMenu(StateMachine& machine) : State(machine, CurrentState::MAINMENU) {
 	Mouse::SetCursorIcon("res/cursors/black.cur");
 
-	LuaFunctions::executeLuaFile("res/_lua/mobdata_wolf.lua");
-	LuaFunctions::executeLuaFile("res/_lua/playerdata.lua");
+	LuaFunctions::executeLuaFile("res/_lua/playerdata_w.lua");
 	Player::Get().setCharacterType("player_w");
+	Player::Get().setClass(Enums::CharacterClass::Liche);
+
+
+	Interface::Get().setPlayer(&Player::Get());
+	Spellbook::Get().setPlayer(&Player::Get());
+
+	LuaFunctions::executeLuaFile("res/_lua/spells_l.lua");
+	LuaFunctions::executeLuaFile("res/_lua/mobdata_wolf.lua");
+	
 
 	ZoneManager::Get().getZone("res/_lua/zone1").loadZone();
 	ZoneManager::Get().setCurrentZone(&ZoneManager::Get().getZone("res/_lua/zone1"));
 	
-	m_dialog = Dialog(0, 0, 0, 0);
-	m_dialog.setPosition(200, 322);
+	m_dialog = Dialog(200, 322, 0, 0);
+	//m_dialog.setPosition(200, 322);
 
 	m_dialog.setAutoresize();
 	m_dialog.setCenteringLayout();
@@ -41,8 +49,7 @@ MainMenu::~MainMenu() {}
 void MainMenu::fixedUpdate() {}
 
 void MainMenu::update() {
-	ViewPort::get().update(m_dt);
-	m_dialog.update(static_cast<int>(ViewPort::get().getCursorPos()[0]), static_cast<int>(ViewPort::get().getCursorPos()[1]));
+	m_dialog.processInput();
 }
 
 void MainMenu::render(unsigned int &frameBuffer) {
