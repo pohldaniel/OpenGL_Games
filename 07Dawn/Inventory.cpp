@@ -127,7 +127,7 @@ Inventory::Inventory() {
 }
 
 void Inventory::init(size_t sizeX_, size_t sizeY_, Player* player_) {
-	size_t numEquippable = static_cast<size_t>(ItemSlot::COUNT);
+	size_t numEquippable = static_cast<size_t>(Enums::ItemSlot::COUNTIS);
 	equippedItems = new InventoryItem*[numEquippable];
 	for (size_t curEquippable = 0; curEquippable<numEquippable; ++curEquippable) {
 		equippedItems[curEquippable] = NULL;
@@ -285,7 +285,7 @@ InventoryItem* Inventory::findFirstBlockingItem(size_t inventoryPosX, size_t inv
 std::vector<InventoryItem*> Inventory::getEquippedItems() const {
 	std::vector<InventoryItem*> allEquippedItems;
 
-	for (size_t slot = 0; slot < static_cast<size_t>(ItemSlot::COUNT); ++slot) {
+	for (size_t slot = 0; slot < static_cast<size_t>(Enums::ItemSlot::COUNTIS); ++slot) {
 		if (equippedItems[slot] != NULL) {
 			allEquippedItems.push_back(equippedItems[slot]);
 		}
@@ -298,29 +298,29 @@ std::vector<InventoryItem*> Inventory::getBackpackItems() const {
 	return backpackItems;
 }
 
-void Inventory::wieldItemAtSlot(ItemSlot::ItemSlot slotToUse, InventoryItem* item) {
+void Inventory::wieldItemAtSlot(Enums::ItemSlot slotToUse, InventoryItem* item) {
 
 	if (item != NULL) {
 		/* if we have equipped a two-handed weapon and replacing it with an
 		item in mainhand or offhand, we need to set the off-hand slot to NULL */
-		if (slotToUse == ItemSlot::MAIN_HAND || slotToUse == ItemSlot::OFF_HAND) {
+		if (slotToUse == Enums::ItemSlot::MAIN_HAND || slotToUse == Enums::ItemSlot::OFF_HAND) {
 			if (isWieldingTwoHandedWeapon() == true) {
-				equippedItems[static_cast<size_t>(ItemSlot::MAIN_HAND)] = NULL;
-				equippedItems[static_cast<size_t>(ItemSlot::OFF_HAND)] = NULL;
+				equippedItems[static_cast<size_t>(Enums::ItemSlot::MAIN_HAND)] = NULL;
+				equippedItems[static_cast<size_t>(Enums::ItemSlot::OFF_HAND)] = NULL;
 			}
 		}
 
 		/* if the item we're about to equip is a two-handed weapon,
 		we also put that item in the off-hand slot. */
 		if (item->getItem()->isTwoHandedWeapon() == true) {
-			equippedItems[static_cast<size_t>(ItemSlot::OFF_HAND)] = item;
+			equippedItems[static_cast<size_t>(Enums::ItemSlot::OFF_HAND)] = item;
 		}
 	} else {
 		/* if we're removing a two-handed weapon, we also need to set the
 		off-hand slot to NULL. */
-		if ((slotToUse == ItemSlot::MAIN_HAND || slotToUse == ItemSlot::OFF_HAND) && isWieldingTwoHandedWeapon() == true) {
-			equippedItems[static_cast<size_t>(ItemSlot::MAIN_HAND)] = NULL;
-			equippedItems[static_cast<size_t>(ItemSlot::OFF_HAND)] = NULL;
+		if ((slotToUse == Enums::ItemSlot::MAIN_HAND || slotToUse == Enums::ItemSlot::OFF_HAND) && isWieldingTwoHandedWeapon() == true) {
+			equippedItems[static_cast<size_t>(Enums::ItemSlot::MAIN_HAND)] = NULL;
+			equippedItems[static_cast<size_t>(Enums::ItemSlot::OFF_HAND)] = NULL;
 		}
 	}
 
@@ -332,7 +332,7 @@ void Inventory::wieldItemAtSlot(ItemSlot::ItemSlot slotToUse, InventoryItem* ite
 	player->setTicketForSpellTooltip();
 }
 
-InventoryItem* Inventory::getItemAtSlot(ItemSlot::ItemSlot slotToUse) {
+InventoryItem* Inventory::getItemAtSlot(Enums::ItemSlot slotToUse) {
 	return equippedItems[static_cast<size_t>(slotToUse)];
 }
 
@@ -363,14 +363,14 @@ InventoryItem* Inventory::getItemAt(size_t invPosX, size_t invPosY) {
 
 bool Inventory::isWieldingTwoHandedWeapon() const {
 
-	if (equippedItems[static_cast<size_t>(ItemSlot::MAIN_HAND)] != NULL) {
-		return equippedItems[static_cast<size_t>(ItemSlot::MAIN_HAND)]->getItem()->isTwoHandedWeapon();
+	if (equippedItems[static_cast<size_t>(Enums::ItemSlot::MAIN_HAND)] != NULL) {
+		return equippedItems[static_cast<size_t>(Enums::ItemSlot::MAIN_HAND)]->getItem()->isTwoHandedWeapon();
 	}
 
 	return false;
 }
 
-Enums::WeaponType Inventory::getWeaponTypeBySlot(ItemSlot::ItemSlot itemSlot) const {
+Enums::WeaponType Inventory::getWeaponTypeBySlot(Enums::ItemSlot itemSlot) const {
 
 	if (equippedItems[static_cast<size_t>(itemSlot)] == NULL) {
 		return Enums::WeaponType::NO_WEAPON;
@@ -493,13 +493,13 @@ std::string Inventory::getReloadText() {
 	}
 
 	oss << "-- equipped Items" << std::endl;
-	size_t numEquippable = static_cast<size_t>(ItemSlot::COUNT);
+	size_t numEquippable = static_cast<size_t>(Enums::ItemSlot::COUNTIS);
 	for (size_t curEquippable = 0; curEquippable<numEquippable; ++curEquippable) {
 		if (equippedItems[curEquippable] != NULL) {
 			Item* curItem = equippedItems[curEquippable]->getItem();
 			/* if the item is two-handed and we're inspecting the off-hand slot
 			don't output it. */
-			if (!(curItem->isTwoHandedWeapon() == true && curEquippable == static_cast<size_t>(ItemSlot::OFF_HAND))) {
+			if (!(curItem->isTwoHandedWeapon() == true && curEquippable == static_cast<size_t>(Enums::ItemSlot::OFF_HAND))) {
 				oss << "DawnInterface.restoreWieldItem( " << curEquippable << ", "
 					<< "itemDatabase[\"" << curItem->getID() << "\"] " << ");"
 					<< std::endl;
@@ -526,15 +526,15 @@ void Inventory::clear() {
 	}
 
 	// remove equipped items
-	size_t numEquippable = static_cast<size_t>(ItemSlot::COUNT);
+	size_t numEquippable = static_cast<size_t>(Enums::ItemSlot::COUNTIS);
 	for (size_t curEquippable = 0; curEquippable<numEquippable; ++curEquippable) {
 		if (equippedItems[curEquippable] != NULL) {
 			/* check if our weapon is of a two-handed type, then we need to set the
 			other side (offhand or mainhand) to NULL aswell. */
 			if (equippedItems[curEquippable]->getItem()->isTwoHandedWeapon() == true) {
 				delete equippedItems[curEquippable];
-				equippedItems[ItemSlot::MAIN_HAND] = NULL;
-				equippedItems[ItemSlot::OFF_HAND] = NULL;
+				equippedItems[Enums::ItemSlot::MAIN_HAND] = NULL;
+				equippedItems[Enums::ItemSlot::OFF_HAND] = NULL;
 
 			}else {
 				delete equippedItems[curEquippable];
@@ -544,35 +544,35 @@ void Inventory::clear() {
 	}
 }
 
-EquipPosition::EquipPosition Inventory::getEquipType(ItemSlot::ItemSlot itemSlot) {
+EquipPosition::EquipPosition Inventory::getEquipType(Enums::ItemSlot itemSlot) {
 	switch (itemSlot) {
-		case ItemSlot::HEAD:
+		case Enums::ItemSlot::HEAD:
 			return EquipPosition::HEAD;
-		case ItemSlot::AMULET:
+		case Enums::ItemSlot::AMULET:
 			return EquipPosition::AMULET;
-		case ItemSlot::MAIN_HAND:
+		case Enums::ItemSlot::MAIN_HAND:
 			return EquipPosition::MAIN_HAND;
-		case ItemSlot::OFF_HAND:
+		case Enums::ItemSlot::OFF_HAND:
 			return EquipPosition::OFF_HAND;
-		case ItemSlot::BELT:
+		case Enums::ItemSlot::BELT:
 			return EquipPosition::BELT;
-		case ItemSlot::LEGS:
+		case Enums::ItemSlot::LEGS:
 			return EquipPosition::LEGS;
-		case ItemSlot::SHOULDER:
+		case Enums::ItemSlot::SHOULDER:
 			return EquipPosition::SHOULDER;
-		case ItemSlot::CHEST:
+		case Enums::ItemSlot::CHEST:
 			return EquipPosition::CHEST;
-		case ItemSlot::GLOVES:
+		case Enums::ItemSlot::GLOVES:
 			return EquipPosition::GLOVES;
-		case ItemSlot::CLOAK:
+		case Enums::ItemSlot::CLOAK:
 			return EquipPosition::CLOAK;
-		case ItemSlot::BOOTS:
+		case Enums::ItemSlot::BOOTS:
 			return EquipPosition::BOOTS;
-		case ItemSlot::RING_ONE:
+		case Enums::ItemSlot::RING_ONE:
 			return EquipPosition::RING;
-		case ItemSlot::RING_TWO:
+		case Enums::ItemSlot::RING_TWO:
 			return EquipPosition::RING;
-		case ItemSlot::COUNT:
+		case Enums::ItemSlot::COUNTIS:
 			return EquipPosition::NONE;
 	}
 }

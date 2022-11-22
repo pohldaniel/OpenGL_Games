@@ -257,7 +257,7 @@ namespace DawnInterface{
 	}
 
 	void restoreWieldItem(int slot, Item* item) {
-		ItemSlot::ItemSlot slotToUse = static_cast<ItemSlot::ItemSlot>(slot);
+		Enums::ItemSlot slotToUse = static_cast<Enums::ItemSlot>(slot);
 		InventoryItem* invItem = new InventoryItem(item, 0, 0, &Player::Get());
 		Player::Get().getInventory()->wieldItemAtSlot(slotToUse, invItem);
 	}

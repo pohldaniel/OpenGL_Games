@@ -487,6 +487,7 @@ class Item
 	void setMaxStackSize( int maxStackSize );
 	void setValue( int newValue );
 	void setSpell( Spell *newSpell );
+	void setItemTextureRect(TextureRect& textureRect);
 	void addTriggerSpellOnSelf( SpellActionBase *spellToTrigger, float chanceToTrigger, Enums::TriggerType triggerType );
 	void addTriggerSpellOnTarget( SpellActionBase *spellToTrigger, float chanceToTrigger, Enums::TriggerType triggerType );
 };

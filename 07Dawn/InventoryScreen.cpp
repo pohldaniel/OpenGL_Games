@@ -88,6 +88,15 @@ void InventoryScreen::init() {
 
 	//Spritesheet::Safe("interface", m_textureAtlas);	
 
+	backpackFieldWidth = 32;
+	backpackFieldHeight = 32;
+	backpackSeparatorWidth = 3;
+	backpackSeparatorHeight = 3;
+	backpackOffsetX = 69;
+	backpackOffsetY = 59;
+	numSlotsX = 10;
+	numSlotsY = 4;
+
 	mySlots = new InventoryScreenSlot*[static_cast<size_t>(Enums::ItemSlot::COUNTIS)];
 	for (size_t curSlotNr = 0; curSlotNr < static_cast<size_t>(Enums::ItemSlot::COUNTIS); ++curSlotNr) {
 		mySlots[curSlotNr] = NULL;
@@ -148,6 +157,26 @@ void InventoryScreen::drawBackpack() {
 	Inventory* inventory = m_player->getInventory();
 	std::vector<InventoryItem*> items = inventory->getBackpackItems();
 	size_t numItems = items.size();
+
+	TextureManager::BindTexture(TextureManager::GetTextureAtlas("items"), true);
+
+	for (size_t curItemNr = 0; curItemNr<numItems; ++curItemNr) {
+				
+		InventoryItem* curInvItem = items[curItemNr];
+		Item* curItem = curInvItem->getItem();
+		TextureRect* symbolTexture = curItem->getSymbolTexture();
+
+		size_t invPosX = curInvItem->getInventoryPosX();
+		size_t invPosY = curInvItem->getInventoryPosY();
+		size_t sizeX = curItem->getSizeX();
+		size_t sizeY = curItem->getSizeY();
+
+		TextureManager::DrawTexture(*symbolTexture, m_posX + backpackOffsetX + invPosX * backpackFieldWidth + invPosX * backpackSeparatorWidth, m_posY + backpackOffsetY + invPosY * backpackFieldHeight + invPosY * backpackSeparatorHeight, backpackFieldWidth * sizeX + (sizeX - 1)*backpackSeparatorWidth, backpackFieldHeight * sizeY + (sizeY - 1)*backpackSeparatorHeight, false, false);		
+		// if we have an item that is stackable, and the stacksize is more than 1, we draw that number.
+		if (curInvItem->getCurrentStackSize() > 1)  {
+			Fontrenderer::Get().drawText(*m_coinsFont, m_posX + backpackOffsetX + backpackFieldWidth - m_coinsFont->getWidth(std::to_string(curInvItem->getCurrentStackSize())) + invPosX * backpackFieldWidth + invPosX * backpackSeparatorWidth, m_posY + backpackOffsetY + invPosY * backpackFieldHeight + invPosY * backpackSeparatorHeight, std::to_string(curInvItem->getCurrentStackSize()), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), false);
+		}
+	}
 }
 
 void InventoryScreen::processInput() {

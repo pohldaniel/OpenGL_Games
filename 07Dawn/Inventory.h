@@ -53,8 +53,8 @@ public:
 	std::vector<InventoryItem*> getEquippedItems() const;
 	std::vector<InventoryItem*> getBackpackItems() const;
 
-	void wieldItemAtSlot(ItemSlot::ItemSlot slotToUse, InventoryItem *item);
-	InventoryItem* getItemAtSlot(ItemSlot::ItemSlot slotToUse);
+	void wieldItemAtSlot(Enums::ItemSlot slotToUse, InventoryItem *item);
+	InventoryItem* getItemAtSlot(Enums::ItemSlot slotToUse);
 
 	bool isPositionFree(size_t invPosX, size_t invPosY) const;
 	InventoryItem* getItemAt(size_t invPosX, size_t invPosY);
@@ -62,7 +62,7 @@ public:
 	bool doesItemExistInBackpack(Item* item, int quantity) const;
 
 	bool isWieldingTwoHandedWeapon() const;
-	Enums::WeaponType getWeaponTypeBySlot(ItemSlot::ItemSlot itemSlot) const;
+	Enums::WeaponType getWeaponTypeBySlot(Enums::ItemSlot itemSlot) const;
 
 	InventoryItem* insertItemWithExchangeAt(InventoryItem* inventoryItem, size_t invPosX, size_t invPosY);
 	bool containsItem(InventoryItem* inventoryItem) const;
@@ -72,7 +72,7 @@ public:
 
 	void clear();
 
-	static EquipPosition::EquipPosition getEquipType(ItemSlot::ItemSlot itemSlot);
+	static EquipPosition::EquipPosition getEquipType(Enums::ItemSlot itemSlot);
 
 private:
 	void insertItemAt(InventoryItem* inventoryItem, size_t invPosX, size_t invPosY);

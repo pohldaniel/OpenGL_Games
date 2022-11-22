@@ -142,7 +142,7 @@ bool Item::isItemStackable() const {
 }
 
 TextureRect* Item::getSymbolTexture() {
-	return &symbolTexture;
+	return &itemSymbol;
 }
 
 Enums::ItemQuality Item::getItemQuality() const {
@@ -317,6 +317,10 @@ std::string Item::getUseableDescription() const {
 
 bool Item::isUseable() const {
 	return useableItem;
+}
+
+void Item::setItemTextureRect(TextureRect& textureRect) {
+	itemSymbol = textureRect;
 }
 
 GoldHeap::GoldHeap(size_t coins_)

@@ -5,25 +5,6 @@
 
 class Spell;
 
-namespace ItemSlot {
-	enum ItemSlot {
-		HEAD,
-		AMULET,
-		MAIN_HAND,
-		OFF_HAND,
-		BELT,
-		LEGS,
-		SHOULDER,
-		CHEST,
-		GLOVES,
-		CLOAK,
-		BOOTS,
-		RING_ONE,
-		RING_TWO,
-		COUNT // this is always the last and gives the size of the enum
-	};
-}
-
 namespace ArmorType {
 	
 
@@ -178,7 +159,7 @@ public:
 	uint32_t getValue() const;
 	uint8_t getRequiredLevel() const;
 	Spell *getSpell() const;
-
+	
 	void setStats(Enums::StatsType statsType, int16_t amount);
 	void setResistElementModifierPoints(Enums::ElementType elementType, int16_t resistModifierPoints);
 	void setSpellEffectElementModifierPoints(Enums::ElementType elementType, int16_t spellEffectElementModifierPoints);
@@ -187,6 +168,7 @@ public:
 	void setValue(uint32_t newValue);
 	void setRequiredLevel(uint8_t requiredLevel);
 	void setSpell(Spell *newSpell);
+	void setItemTextureRect(TextureRect& textureRect);
 
 	///\brief This section handles the spells that can be triggered from actions on the item
 	void addTriggerSpellOnSelf(SpellActionBase* spellToTrigger, float chanceToTrigger, Enums::TriggerType triggerType);
@@ -241,7 +223,7 @@ private:
 	Spell *spell;
 
 protected:
-	TextureRect symbolTexture;
+	TextureRect itemSymbol;
 };
 
 class GoldHeap : public Item {

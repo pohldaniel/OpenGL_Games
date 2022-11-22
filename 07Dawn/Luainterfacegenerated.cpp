@@ -1,6 +1,6 @@
 /*
 ** Lua binding: Luainterface
-** Generated automatically by tolua++-1.0.92 on Tue Nov 22 04:29:39 2022.
+** Generated automatically by tolua++-1.0.92 on Tue Nov 22 14:44:54 2022.
 */
 
 #ifndef __cplusplus
@@ -5417,6 +5417,39 @@ static int tolua_Luainterface_Item_setSpell00(lua_State* tolua_S)
 }
 #endif //#ifndef TOLUA_DISABLE
 
+/* method: setItemTextureRect of class  Item */
+#ifndef TOLUA_DISABLE_tolua_Luainterface_Item_setItemTextureRect00
+static int tolua_Luainterface_Item_setItemTextureRect00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+	tolua_Error tolua_err;
+	if (
+		!tolua_isusertype(tolua_S, 1, "Item", 0, &tolua_err) ||
+		(tolua_isvaluenil(tolua_S, 2, &tolua_err) || !tolua_isusertype(tolua_S, 2, "TextureRect", 0, &tolua_err)) ||
+		!tolua_isnoobj(tolua_S, 3, &tolua_err)
+		)
+		goto tolua_lerror;
+	else
+#endif
+	{
+		Item* self = (Item*)tolua_tousertype(tolua_S, 1, 0);
+		TextureRect* textureRect = ((TextureRect*)tolua_tousertype(tolua_S, 2, 0));
+#ifndef TOLUA_RELEASE
+		if (!self) tolua_error(tolua_S, "invalid 'self' in function 'setItemTextureRect'", NULL);
+#endif
+		{
+			self->setItemTextureRect(*textureRect);
+		}
+	}
+	return 0;
+#ifndef TOLUA_RELEASE
+	tolua_lerror :
+				 tolua_error(tolua_S, "#ferror in function 'setItemTextureRect'.", &tolua_err);
+				 return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
 /* method: addTriggerSpellOnSelf of class  Item */
 #ifndef TOLUA_DISABLE_tolua_Luainterface_Item_addTriggerSpellOnSelf00
 static int tolua_Luainterface_Item_addTriggerSpellOnSelf00(lua_State* tolua_S)
@@ -5876,6 +5909,7 @@ TOLUA_API int tolua_Luainterface_open(lua_State* tolua_S)
 	tolua_function(tolua_S, "setMaxStackSize", tolua_Luainterface_Item_setMaxStackSize00);
 	tolua_function(tolua_S, "setValue", tolua_Luainterface_Item_setValue00);
 	tolua_function(tolua_S, "setSpell", tolua_Luainterface_Item_setSpell00);
+	tolua_function(tolua_S, "setItemTextureRect", tolua_Luainterface_Item_setItemTextureRect00);
 	tolua_function(tolua_S, "addTriggerSpellOnSelf", tolua_Luainterface_Item_addTriggerSpellOnSelf00);
 	tolua_function(tolua_S, "addTriggerSpellOnTarget", tolua_Luainterface_Item_addTriggerSpellOnTarget00);
 	tolua_endmodule(tolua_S);
