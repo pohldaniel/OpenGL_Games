@@ -47,21 +47,18 @@ public:
 	void draw() override;
 	void drawCoins();
 	void drawSlot(Enums::ItemSlot curSlot);
-	void drawFloatingSelection(int mouseX, int mouseY);
+	void drawFloatingSelection();
 	void drawItemPlacement(int mouseX, int mouseY);
 	void drawItemTooltip(int mouseX, int mouseY);
 	void processInput() override;
 
 	void clicked(int clickX, int clickY, uint8_t mouseState);
-
-	void loadTextures();
 	void setTextureDependentPositions();
 
 	void init();
 
 	void setPlayer(Player* player);
 
-	bool isMouseOnThisFrame(int mouseX, int mouseY) const;
 	bool isOnBackpackScreen(int mouseX, int mouseY) const;
 	bool isOverSlot(Enums::ItemSlot itemSlot, int mouseX, int mouseY) const;
 	bool hasFloatingSelection() const;

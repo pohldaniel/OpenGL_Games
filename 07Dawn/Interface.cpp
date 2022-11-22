@@ -282,9 +282,7 @@ void Interface::draw() {
 	TextureManager::UnbindTexture(true, 0);
 
 	m_spellbook.draw();
-	m_characterInfo.draw();
-	m_inventoryScreen.draw();
-
+	
 	SpellActionBase *spellUnderMouse = getSpellAtMouse(ViewPort::get().getCursorPosRelX(), ViewPort::get().getCursorPosRelY());
 	if (spellUnderMouse != NULL) {
 		if (m_tooltip != NULL) {
@@ -299,6 +297,11 @@ void Interface::draw() {
 	}
 
 	drawSpellTooltip(ViewPort::get().getCursorPosRelX(), ViewPort::get().getCursorPosRelY());
+
+	m_characterInfo.draw();
+	m_inventoryScreen.draw();
+	m_inventoryScreen.drawFloatingSelection();
+
 }
 
 void Interface::drawCursor(bool drawInGameCursor) {

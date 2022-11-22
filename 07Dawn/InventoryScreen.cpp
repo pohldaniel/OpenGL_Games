@@ -1,5 +1,7 @@
 #include "InventoryScreen.h"
 #include "Inventory.h"
+#include "Luainterface.h"
+#include "Spells.h"
 
 InventoryScreen InventoryScreen::s_instance;
 
@@ -87,7 +89,7 @@ void InventoryScreen::init() {
 	m_textureAtlas = TextureAtlasCreator::get().getAtlas();
 
 	//Spritesheet::Safe("interface", m_textureAtlas);	
-
+	floatingSelection = NULL;
 	backpackFieldWidth = 32;
 	backpackFieldHeight = 32;
 	backpackSeparatorWidth = 3;
@@ -131,7 +133,10 @@ void InventoryScreen::draw() {
 
 	drawCoins();
 	drawBackpack();
-
+	for (size_t curSlotNr = 0; curSlotNr < static_cast<size_t>(Enums::ItemSlot::COUNTIS); ++curSlotNr) {
+		drawSlot(static_cast<Enums::ItemSlot>(curSlotNr));
+	}
+	drawItemPlacement(ViewPort::get().getCursorPosRelX(), ViewPort::get().getCursorPosRelY());
 	TextureManager::UnbindTexture(true);
 }
 
@@ -179,13 +184,403 @@ void InventoryScreen::drawBackpack() {
 	}
 }
 
+void InventoryScreen::drawFloatingSelection() {
+	// draw floating selection
+	if (floatingSelection != NULL) {
+		Item* floatingItem = floatingSelection->getItem();
+		size_t sizeX = floatingItem->getSizeX();
+		size_t sizeY = floatingItem->getSizeY();
+		TextureManager::BindTexture(TextureManager::GetTextureAtlas("items"), true);
+		TextureManager::DrawTexture(*floatingItem->getSymbolTexture(), ViewPort::get().getCursorPosRelX(), ViewPort::get().getCursorPosRelY() - 20, backpackFieldWidth * sizeX + (sizeX - 1) * backpackSeparatorWidth, backpackFieldHeight * sizeY + (sizeY - 1) * backpackSeparatorHeight, false, false);
+		TextureManager::BindTexture(true);
+	}
+}
+
+void InventoryScreen::drawItemPlacement(int mouseX, int mouseY){
+	if (!m_visible) return;
+
+	bool floatingSelectionFromShop = false;
+
+	InventoryItem* floatingSelectionToDraw = floatingSelection;
+	/*if (floatingSelectionToDraw == NULL && shopWindow->hasFloatingSelection())
+	{
+		floatingSelectionToDraw = shopWindow->getFloatingSelection();
+		floatingSelectionFromShop = true;
+	}*/
+
+	if (floatingSelectionToDraw == NULL) return;
+	
+	TextureManager::BindTexture(m_textureAtlas, true);
+
+	if (isOnBackpackScreen(mouseX, mouseY)) {
+		Item* floatingItem = floatingSelectionToDraw->getItem();
+		Inventory* inventory = m_player->getInventory();
+		GLfloat shade[4] = { 0.0f, 0.0f, 0.0f, 0.3f };
+		size_t sizeX = floatingItem->getSizeX();
+		size_t sizeY = floatingItem->getSizeY();
+
+		// calculate which backpack-slot we are looking at.
+		int fieldIndexX = (mouseX - (m_posX + backpackOffsetX)) / (backpackFieldWidth + backpackSeparatorWidth);
+		int fieldIndexY = (mouseY - (m_posY + backpackOffsetY)) / (backpackFieldHeight + backpackSeparatorHeight);
+
+		// set the shade-color depending on if the item fits or not.
+		if (inventory->hasSufficientSpaceWithExchangeAt(fieldIndexX, fieldIndexY, sizeX, sizeY)) {
+			if (floatingSelectionFromShop) {
+				// yellow color (item needs to be paid)
+				shade[0] = 1.0f;
+				shade[1] = 1.0f;
+			} else {
+				shade[1] = 1.0f; // green color
+			}
+		} else {
+			shade[0] = 1.0f; // red color
+		}
+
+		// calculate the size of the shade, if too big, we resize it.
+		int shadePosX = m_posX + backpackOffsetX
+			+ fieldIndexX * backpackFieldWidth
+			+ fieldIndexX * backpackSeparatorWidth;
+		int shadePosY = m_posY + backpackOffsetY - 1
+			+ fieldIndexY * backpackFieldHeight
+			+ fieldIndexY * backpackSeparatorHeight;
+		int shadeWidth = backpackFieldWidth * sizeX + (sizeX - 1)*backpackSeparatorWidth;
+		int shadeHeight = backpackFieldHeight * sizeY + (sizeY - 1)*backpackSeparatorHeight;
+
+		if (sizeY + fieldIndexY > numSlotsY) {
+			shadeHeight = backpackFieldWidth * (sizeY - ((sizeY + fieldIndexY) - numSlotsY)) +
+				(sizeY - ((sizeY + fieldIndexY) - (numSlotsY - 1)))*backpackSeparatorWidth;
+		}
+
+		if (sizeX + fieldIndexX > numSlotsX) {
+			shadeWidth = backpackFieldHeight * (sizeX - ((sizeX + fieldIndexX) - numSlotsX)) +
+				(sizeX - ((sizeX + fieldIndexX) - (numSlotsX - 1)))*backpackSeparatorHeight;
+		}
+
+		TextureManager::DrawTexture(m_textures[1], shadePosX, shadePosY, shadeWidth, shadeHeight, Vector4f(shade[0], shade[1], shade[2], shade[3]), false, false);
+
+		return;
+	}
+	
+	for (size_t curSlotNr = 0; curSlotNr<static_cast<size_t>(Enums::ItemSlot::COUNTIS); ++curSlotNr) {
+		Enums::ItemSlot curSlotEnum = static_cast<Enums::ItemSlot>(curSlotNr);
+		if (isOverSlot(curSlotEnum, mouseX, mouseY)) {
+			GLfloat shade[4] = { 0.0f, 0.0f, 0.0f, 0.3f };
+
+			// set the shade-color depending on if the item fits or not.
+			if (floatingSelectionToDraw->canPlayerUseItem() == true &&
+				floatingSelectionToDraw->getItem()->getEquipPosition() == Inventory::getEquipType(curSlotEnum)) {
+				if (floatingSelectionFromShop) {
+					// yellow color (item needs to be paid)
+					shade[0] = 1.0f;
+					shade[1] = 1.0f;
+				}else {
+					shade[1] = 1.0f; // green color
+				}
+			} else {
+				shade[0] = 1.0f; // red color
+			}
+
+			InventoryScreenSlot* curScreenSlot = mySlots[curSlotNr];
+			TextureManager::DrawTexture(m_textures[1], m_posX + curScreenSlot->getOffsetX(), m_posY + curScreenSlot->getOffsetY(), curScreenSlot->getSizeX(), curScreenSlot->getSizeY(), Vector4f(shade[0], shade[1], shade[2], shade[3]), false, false);
+			return;
+		}
+	}
+
+	TextureManager::UnbindTexture(true);
+}
+
+void InventoryScreen::drawSlot(Enums::ItemSlot curSlot) {
+	Inventory* inventory = m_player->getInventory();
+	InventoryItem* invItem = inventory->getItemAtSlot(curSlot);
+	if (invItem != NULL) {
+		Item* item = invItem->getItem();
+		TextureRect* symbolTexture = item->getSymbolTexture();
+
+		InventoryScreenSlot* curScreenSlot = mySlots[static_cast<size_t>(curSlot)];
+
+		size_t drawSizeX = symbolTexture->width;
+		size_t drawSizeY = symbolTexture->height;
+
+		size_t centerOffsetX = (curScreenSlot->getSizeX() - drawSizeX) / 2;
+		size_t centerOffsetY = (curScreenSlot->getSizeY() - drawSizeY) / 2;
+		TextureManager::BindTexture(m_textureAtlas, true);
+		// draw the plain background image of the item, hiding the item placeholder.
+		TextureManager::DrawTexture(*curScreenSlot->getTexture(), m_posX + curScreenSlot->getOffsetX(), m_posY + curScreenSlot->getOffsetY(), curScreenSlot->getTexture()->width, curScreenSlot->getTexture()->height, false, false);
+
+		TextureManager::BindTexture(TextureManager::GetTextureAtlas("items"), true);
+
+		// we draw the two-handed weapons on our off-handslot with 50% transparency
+		Vector4f color = item->isTwoHandedWeapon() == true && curSlot == Enums::ItemSlot::OFF_HAND ? Vector4f(1.0f, 1.0f, 1.0f, 0.5f) : Vector4f(1.0f, 1.0f, 1.0f, 1.0f);
+		TextureManager::DrawTexture(*symbolTexture, m_posX + curScreenSlot->getOffsetX() + centerOffsetX, m_posY + curScreenSlot->getOffsetY() + centerOffsetY, drawSizeX, drawSizeY, color, false, false);
+	}
+}
+
 void InventoryScreen::processInput() {
 	if (!m_visible) return;
 	Widget::processInput();
+	
+	Mouse &mouse = Mouse::instance();
+	if (mouse.buttonPressed(Mouse::BUTTON_LEFT) || mouse.buttonPressed(Mouse::BUTTON_RIGHT)) {
+	
+		// Put Floating selection out of inventory.
+		// Check several positions here for equipping
+		Inventory* inventory = m_player->getInventory();
+
+		InventoryItem* floatingSelectionToHandle = floatingSelection;
+		bool shopFloatingSelection = false;
+		/*if (floatingSelectionToHandle == NULL && shopWindow->hasFloatingSelection())
+		{
+			floatingSelectionToHandle = shopWindow->getFloatingSelection();
+			shopFloatingSelection = true;
+		}
+
+		if (!isMouseOnFrame(mouseX, mouseY) && !shopWindow->isMouseOnFrame(mouseX, mouseY)) {
+			// clicked outside inventory window
+			if (floatingSelection != NULL)
+			{
+				// drop item...
+				dropItemOnGround(floatingSelection);
+				if (inventory->containsItem(floatingSelection))
+				{
+					inventory->removeItem(floatingSelection);
+				}
+
+				unsetFloatingSelection();
+
+				return;
+			}
+		}*/
+	
+		for (size_t curSlotNr = 0; curSlotNr < static_cast<size_t>(Enums::ItemSlot::COUNTIS); ++curSlotNr) {
+			Enums::ItemSlot curSlotEnum = static_cast<Enums::ItemSlot>(curSlotNr);
+			if (isOverSlot(curSlotEnum, ViewPort::get().getCursorPosRelX(), ViewPort::get().getCursorPosRelY())) {
+				if (floatingSelectionToHandle != NULL && floatingSelectionToHandle->canPlayerUseItem() == true) {
+					if (floatingSelectionToHandle->getItem()->getEquipPosition() == Inventory::getEquipType(curSlotEnum)) {
+						// special handler for when we are trying to wield a two-handed weapon and having items in BOTH mainhand and offhand-slot equipped.
+						if (floatingSelectionToHandle->getItem()->isTwoHandedWeapon() == true && inventory->isWieldingTwoHandedWeapon() == false && inventory->getItemAtSlot(Enums::ItemSlot::MAIN_HAND) != NULL && inventory->getItemAtSlot(Enums::ItemSlot::OFF_HAND) != NULL) {
+							if (inventory->insertItem(inventory->getItemAtSlot(Enums::ItemSlot::OFF_HAND)->getItem()) == true) {
+								// successfully put the offhand in the inventory. now we just swap the floatingselection with the equipped item.
+								equipOnSlotOriginDependingAndPlaySound(curSlotEnum, floatingSelectionToHandle, shopFloatingSelection, inventory->getItemAtSlot(curSlotEnum));
+							}
+						} else if (floatingSelectionToHandle->getItem()->isTwoHandedWeapon() == true && inventory->isWieldingTwoHandedWeapon() == false && inventory->getItemAtSlot(Enums::ItemSlot::OFF_HAND) != NULL) {
+							// special handler for when we are trying to wield a two-handed weapon and having ONLY an item in offhand-slot equipped.
+							equipOnSlotOriginDependingAndPlaySound(curSlotEnum, floatingSelectionToHandle, shopFloatingSelection, inventory->getItemAtSlot(Enums::ItemSlot::OFF_HAND));
+						}else if (inventory->getItemAtSlot(curSlotEnum) == NULL) {
+							equipOnSlotOriginDependingAndPlaySound(curSlotEnum, floatingSelectionToHandle, shopFloatingSelection, NULL);
+						}else {
+							equipOnSlotOriginDependingAndPlaySound(curSlotEnum, floatingSelectionToHandle, shopFloatingSelection, inventory->getItemAtSlot(curSlotEnum));
+						}
+					}
+				}else if (floatingSelectionToHandle == NULL && inventory->getItemAtSlot(curSlotEnum) != NULL) {
+					equipOnSlotOriginDependingAndPlaySound(curSlotEnum, NULL, false, inventory->getItemAtSlot(curSlotEnum));
+				}
+				return;
+			}
+		}
+	
+		if (!isOnBackpackScreen(ViewPort::get().getCursorPosRelX(), ViewPort::get().getCursorPosRelY())){
+			return;
+		}
+	
+		// calculate field index under mouse
+		int fieldIndexX = (ViewPort::get().getCursorPosRelX() - (m_posX + backpackOffsetX)) / (backpackFieldWidth + backpackSeparatorWidth);
+		int fieldIndexY = (ViewPort::get().getCursorPosRelY() - (m_posY + backpackOffsetY)) / (backpackFieldHeight + backpackSeparatorHeight);
+
+		if (mouse.buttonPressed(Mouse::BUTTON_RIGHT)) {
+			if (!inventory->isPositionFree(fieldIndexX, fieldIndexY)) {
+				InventoryItem* useItem = inventory->getItemAt(fieldIndexX, fieldIndexY);
+
+				if (useItem->getItem()->isUseable() &&
+					useItem->getItem()->getRequiredLevel() <= m_player->getLevel() &&
+					useItem->getItem()->getSpell()->getRequiredLevel() <= m_player->getLevel() &&
+					(useItem->getItem()->getSpell()->getRequiredClass() == m_player->getClass() || useItem->getItem()->getSpell()->getRequiredClass() == Enums::CharacterClass::ANYCLASS) &&
+					!m_player->getIsPreparing() &&
+					m_player->isSpellOnCooldown(useItem->getItem()->getSpell()->getName()) == false) {
+					if (useItem->getItem()->getItemType() == Enums::ItemType::NEWSPELL) {
+						if (m_player->isSpellInscribedInSpellbook(useItem->getItem()->getSpell()) == true) {
+							// spell is already inscribed, return without learning it again.
+							return;
+						}
+						// item is a spellbook, learn new spell.
+						DawnInterface::inscribeSpellInPlayerSpellbook(dynamic_cast<SpellActionBase*>(useItem->getItem()->getSpell()));
+						GLfloat green[] = { 0.0f, 1.0f, 0.0f };
+						DawnInterface::addTextToLogWindow(green, "You inscribed %s (rank %d) in your spellbook.", useItem->getItem()->getSpell()->getName().c_str(), useItem->getItem()->getSpell()->getRank());
+						inventory->removeItem(useItem);
+					}
+					else {
+						// item is potion or scroll, use it.
+						if (m_player->castSpell(dynamic_cast<Spell*>(useItem->getItem()->getSpell()->cast(m_player, m_player, false))) == true) {
+							useItem->decreaseCurrentStack();
+							if (useItem->getCurrentStackSize() == 0) {
+								inventory->removeItem(useItem);
+							}
+						}
+					}
+				}
+				else if (floatingSelectionToHandle == NULL && useItem->canPlayerUseItem() == true) {
+					// try to equip the item
+					std::vector<size_t> possibleSlots;
+					for (size_t curSlotNr = 0; curSlotNr < static_cast<size_t>(Enums::ItemSlot::COUNTIS); ++curSlotNr) {
+						Enums::ItemSlot curSlotEnum = static_cast<Enums::ItemSlot>(curSlotNr);
+						if (Inventory::getEquipType(curSlotEnum) == useItem->getItem()->getEquipPosition()) {
+							possibleSlots.push_back(curSlotNr);
+						}
+					}
+
+					// find position to wield item
+					size_t usedSlot = static_cast<size_t>(Enums::ItemSlot::COUNTIS);
+					for (size_t curSlotIndex = 0; curSlotIndex < possibleSlots.size(); ++curSlotIndex) {
+						if ((inventory->getItemAtSlot(static_cast<Enums::ItemSlot>(possibleSlots[curSlotIndex])) == NULL)
+							|| (usedSlot == static_cast<size_t>(Enums::ItemSlot::COUNTIS))) {
+							usedSlot = possibleSlots[curSlotIndex];
+						}
+					}
+
+					if (usedSlot != static_cast<size_t>(Enums::ItemSlot::COUNTIS)) {
+						// found a position. Insert item'
+						Enums::ItemSlot curSlotEnum = static_cast<Enums::ItemSlot>(usedSlot);
+
+						// special handler for when we are trying to wield a two-handed weapon and having items in BOTH mainhand and offhand-slot equipped.
+						if (useItem->getItem()->isTwoHandedWeapon() == true && inventory->isWieldingTwoHandedWeapon() == false && inventory->getItemAtSlot(Enums::ItemSlot::MAIN_HAND) != NULL && inventory->getItemAtSlot(Enums::ItemSlot::OFF_HAND) != NULL) {
+							if (inventory->insertItem(inventory->getItemAtSlot(Enums::ItemSlot::OFF_HAND)->getItem()) == true) {
+								InventoryItem* tmp = inventory->getItemAtSlot(curSlotEnum);
+								inventory->removeItem(useItem);
+								inventory->wieldItemAtSlot(curSlotEnum, useItem);
+								//CommonSounds::playClickSound();
+								if (tmp != NULL && inventory->insertItem(tmp->getItem())) {
+									delete tmp;
+								}
+								else {
+									floatingSelection = tmp;
+								}
+							}
+						}
+						else if (useItem->getItem()->isTwoHandedWeapon() == true && inventory->isWieldingTwoHandedWeapon() == false && inventory->getItemAtSlot(Enums::ItemSlot::OFF_HAND) != NULL) {
+							// special handler for when we are trying to wield a two-handed weapon and having ONLY an item in offhand-slot equipped.
+							InventoryItem* tmp = inventory->getItemAtSlot(Enums::ItemSlot::OFF_HAND);
+							inventory->removeItem(useItem);
+							inventory->wieldItemAtSlot(curSlotEnum, useItem);
+							//CommonSounds::playClickSound();
+							if (tmp != NULL && inventory->insertItem(tmp->getItem())) {
+								delete tmp;
+							}
+							else {
+								floatingSelection = tmp;
+							}
+						}
+						else {
+							InventoryItem* tmp = inventory->getItemAtSlot(curSlotEnum);
+							inventory->removeItem(useItem);
+							inventory->wieldItemAtSlot(curSlotEnum, useItem);
+							//CommonSounds::playClickSound();
+							if (tmp != NULL && inventory->insertItem(tmp->getItem())) {
+								delete tmp;
+							}
+							else {
+								floatingSelection = tmp;
+							}
+						}
+					}
+				}
+			}
+			return;
+		}
+
+		if (floatingSelectionToHandle != NULL) {
+			if (inventory->hasSufficientSpaceWithExchangeAt(fieldIndexX, fieldIndexY, floatingSelectionToHandle->getSizeX(), floatingSelectionToHandle->getSizeY())) {
+				if (shopFloatingSelection) {
+					floatingSelectionToHandle = new InventoryItem(floatingSelectionToHandle->getItem(), 0, 0, m_player, floatingSelectionToHandle);
+				}
+				floatingSelection = inventory->insertItemWithExchangeAt(floatingSelectionToHandle, fieldIndexX, fieldIndexY);
+				if (shopFloatingSelection) {
+					//shopWindow->buyFromShop();
+				}else {
+					//CommonSounds::playClickSound();
+				}
+			}
+		} else if (!inventory->isPositionFree(fieldIndexX, fieldIndexY)) {
+			floatingSelection = inventory->getItemAt(fieldIndexX, fieldIndexY);
+			inventory->removeItem(floatingSelection);
+			//CommonSounds::playClickSound();
+		}
+
+	}
 }
 
 void InventoryScreen::addInventoryScreenSlot(InventoryScreenSlot** mySlots, Enums::ItemSlot slotToUse, size_t offsetX, size_t offsetY, size_t sizeX, size_t sizeY, TextureRect texture) {
 	mySlots[static_cast<size_t>(slotToUse)] = new InventoryScreenSlot(slotToUse, offsetX, offsetY, sizeX, sizeY, texture);
+}
+
+bool InventoryScreen::isOnBackpackScreen(int mouseX, int mouseY) const  {
+	if (mouseX < static_cast<int>(m_posX + backpackOffsetX) ||
+		mouseY < static_cast<int>(m_posY + backpackOffsetY) ||
+		mouseX > static_cast<int>(m_posX + backpackOffsetX + backpackFieldWidth * numSlotsX + (numSlotsX - 1)*backpackSeparatorWidth) ||
+		mouseY > static_cast<int>(m_posY + backpackOffsetY + backpackFieldHeight * numSlotsY + (numSlotsY - 1)*backpackSeparatorHeight)) {
+		return false;
+	}
+	return true;
+}
+
+bool InventoryScreen::isOverSlot(Enums::ItemSlot itemSlot, int mouseX, int mouseY) const {
+	InventoryScreenSlot* curSlot = mySlots[static_cast<size_t>(itemSlot)];
+	if (mouseX < static_cast<int>(m_posX + curSlot->getOffsetX()) ||
+		mouseY < static_cast<int>(m_posY + curSlot->getOffsetY()) ||
+		mouseX > static_cast<int>(m_posX + curSlot->getOffsetX() + curSlot->getSizeX()) ||
+		mouseY > static_cast<int>(m_posY + curSlot->getOffsetY() + curSlot->getSizeY())) {
+		return false;
+	}
+	return true;
+}
+
+bool InventoryScreen::hasFloatingSelection() const {
+	return floatingSelection != NULL;
+}
+
+void InventoryScreen::setFloatingSelection(InventoryItem* item) {
+	floatingSelection = item;
+}
+
+void InventoryScreen::unsetFloatingSelection() {
+	delete floatingSelection;
+	floatingSelection = NULL;
+}
+
+InventoryItem* InventoryScreen::getFloatingSelection() const {
+	return floatingSelection;
+}
+
+Enums::ItemSlot InventoryScreen::getMouseOverSlot(int mouseX, int mouseY) const {
+
+	if (isOverSlot(Enums::ItemSlot::AMULET, mouseX, mouseY))    return Enums::ItemSlot::AMULET;
+	if (isOverSlot(Enums::ItemSlot::BELT, mouseX, mouseY))      return Enums::ItemSlot::BELT;
+	if (isOverSlot(Enums::ItemSlot::BOOTS, mouseX, mouseY))     return Enums::ItemSlot::BOOTS;
+	if (isOverSlot(Enums::ItemSlot::CHEST, mouseX, mouseY))     return Enums::ItemSlot::CHEST;
+	if (isOverSlot(Enums::ItemSlot::CLOAK, mouseX, mouseY))     return Enums::ItemSlot::CLOAK;
+	if (isOverSlot(Enums::ItemSlot::GLOVES, mouseX, mouseY))    return Enums::ItemSlot::GLOVES;
+	if (isOverSlot(Enums::ItemSlot::HEAD, mouseX, mouseY))      return Enums::ItemSlot::HEAD;
+	if (isOverSlot(Enums::ItemSlot::LEGS, mouseX, mouseY))      return Enums::ItemSlot::LEGS;
+	if (isOverSlot(Enums::ItemSlot::MAIN_HAND, mouseX, mouseY)) return Enums::ItemSlot::MAIN_HAND;
+	if (isOverSlot(Enums::ItemSlot::OFF_HAND, mouseX, mouseY))  return Enums::ItemSlot::OFF_HAND;
+	if (isOverSlot(Enums::ItemSlot::RING_ONE, mouseX, mouseY))  return Enums::ItemSlot::RING_ONE;
+	if (isOverSlot(Enums::ItemSlot::RING_TWO, mouseX, mouseY))  return Enums::ItemSlot::RING_TWO;
+	if (isOverSlot(Enums::ItemSlot::SHOULDER, mouseX, mouseY))  return Enums::ItemSlot::SHOULDER;
+	return Enums::ItemSlot::COUNTIS;
+}
+
+void InventoryScreen::equipOnSlotOriginDependingAndPlaySound(Enums::ItemSlot slotToUse, InventoryItem* wieldItem, bool fromShop, InventoryItem *newFloatingSelection) {
+	Inventory* inventory = m_player->getInventory();
+	if (fromShop) {
+		// shop self-destroys its inventory items. Copy to new inventory item.
+		wieldItem = new InventoryItem(wieldItem->getItem(), 0, 0, m_player, wieldItem);
+	}
+
+	inventory->wieldItemAtSlot(slotToUse, wieldItem);
+	floatingSelection = newFloatingSelection;
+	if (fromShop) {
+		//shopWindow->buyFromShop();
+	} else {
+		//CommonSounds::playClickSound();
+	}
 }
 
 std::string currency::getLongTextString(std::uint32_t coins) {
