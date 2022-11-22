@@ -27,7 +27,6 @@ public:
 	void addAlphaChannel(unsigned int value = 255);	
 	void createNullTexture(unsigned int width, unsigned int height, unsigned int color = 255);
 	void createPerlinTexture(unsigned int width, unsigned int height, unsigned int seed = 0);
-	
 	unsigned char* readPixel();
 
 	void setRepeat();

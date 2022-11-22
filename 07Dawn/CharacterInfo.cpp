@@ -21,7 +21,7 @@ void CharacterInfo::init() {
 	TextureAtlasCreator::get().init(1024, 1024);
 
 	TextureManager::Loadimage("res/interface/CharacterInfoScreen/background.tga", 0, m_textures);
-	TextureManager::Loadimage("res/white2x2pixel.tga", 1, m_textures, true);
+	TextureManager::Loadimage("res/white2x2pixel.png", 1, m_textures, true);
 	TextureManager::Loadimage("res/interface/CharacterInfoScreen/meleeSelected.tga", 2, m_textures);
 	TextureManager::Loadimage("res/interface/CharacterInfoScreen/defenseSelected.tga", 3, m_textures);
 	TextureManager::Loadimage("res/interface/CharacterInfoScreen/spellsSelected.tga", 4, m_textures);

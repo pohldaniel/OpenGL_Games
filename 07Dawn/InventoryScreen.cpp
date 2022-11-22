@@ -63,7 +63,7 @@ void InventoryScreen::init() {
 
 	TextureAtlasCreator::get().init(1024, 1024);
 	TextureManager::Loadimage("res/interface/inventory/base.tga", 0, m_textures);
-	TextureManager::Loadimage("res/white2x2pixel.tga", 1, m_textures, true);
+	TextureManager::Loadimage("res/white2x2pixel.png", 1, m_textures, true);
 	TextureManager::Loadimage("res/interface/inventory/goldcoin.tga", 2, m_textures);
 	TextureManager::Loadimage("res/interface/inventory/silvercoin.tga", 3, m_textures);
 	TextureManager::Loadimage("res/interface/inventory/coppercoin.tga", 4, m_textures);

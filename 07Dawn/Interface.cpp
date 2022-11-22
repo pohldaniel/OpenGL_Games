@@ -66,7 +66,7 @@ void Interface::loadTextures() {
 	TextureManager::Loadimage("res/interface/tooltip/NPCTarget_background.tga", 1, m_interfacetexture);
 	TextureManager::Loadimage("res/interface/tooltip/NPCTarget_left.tga", 2, m_interfacetexture);
 	TextureManager::Loadimage("res/interface/tooltip/NPCTarget_right.tga", 3, m_interfacetexture);
-	TextureManager::Loadimage("res/white2x2pixel.tga", 4, m_interfacetexture);
+	TextureManager::Loadimage("res/white2x2pixel.png", 4, m_interfacetexture);
 	TextureManager::Loadimage("res/interface/BuffWindow/frame.tga", 5, m_interfacetexture);
 
 	TextureManager::Loadimage("res/interface/BuffWindow/background.tga", 6, m_interfacetexture);

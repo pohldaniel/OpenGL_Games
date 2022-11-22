@@ -71,7 +71,7 @@ void Texture::loadFromFile(std::string fileName, const bool _flipVertical, unsig
 	unsigned char* imageData = SOIL_load_image(fileName.c_str(), &width, &height, &numCompontents, SOIL_LOAD_AUTO);
 	unsigned internalFormat = _internalFormat == 0 && numCompontents == 3 ? GL_RGB8 : _internalFormat == 0 ? GL_RGBA8 : _internalFormat;
 	m_format = _format == 0 && numCompontents == 3 ? GL_RGB : _format == 0 ? GL_RGBA : _format;
-
+	
 	if (_flipVertical)
 		flipVertical(imageData, numCompontents * width, height);
 
@@ -292,10 +292,13 @@ unsigned char* Texture::readPixel() {
 void Texture::addAlphaChannel(unsigned int value) {
 	unsigned char* bytes = (unsigned char*)malloc(m_width * m_height * m_channels);
 	
+	//it seems necessary to use glPixelStorei(GL_UNPACK_ALIGNMENT, 2) for reading GL_RGB
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 2);
 	glBindTexture(GL_TEXTURE_2D, m_texture);
 	glGetTexImage(GL_TEXTURE_2D, 0, m_format, GL_UNSIGNED_BYTE, bytes);
 	glBindTexture(GL_TEXTURE_2D, 0);
-	
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+
 	m_channels = 4;
 	m_format = GL_RGBA;
 	
@@ -327,7 +330,6 @@ void Texture::addAlphaChannel(unsigned int value) {
 	free(bytes);
 	free(bytesNew);
 }
-
 
 void Texture::CutSubimage(std::string fileIn, std::string fileOut, unsigned int _offsetX, unsigned int _offsetY, unsigned int _width, unsigned int _height, const bool _flipVertical) {
 
