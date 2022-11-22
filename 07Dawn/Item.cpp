@@ -4,26 +4,7 @@
 #include "Item.h"
 #include "Spells.h"
 
-std::vector<Item*> allItems;
-
-namespace DawnInterface {
-	Item* createNewItem(std::string name,
-		int sizeX,
-		int sizeY,
-		std::string symbolFile,
-		ItemQuality::ItemQuality itemQuality,
-		EquipPosition::EquipPosition equipPos,
-		ItemType::ItemType itemType,
-		ArmorType::ArmorType armorType,
-		WeaponType::WeaponType weaponType) {
-
-		Item *newItem = new Item(name, sizeX, sizeY, symbolFile, itemQuality, equipPos, itemType, armorType, weaponType);
-		allItems.push_back(newItem);
-		return newItem;
-	}
-}
-
-TriggerSpellOnItem::TriggerSpellOnItem(SpellActionBase* spellToTrigger, float chanceToTrigger, TriggerType::TriggerType triggerType, bool castOnSelf) {
+TriggerSpellOnItem::TriggerSpellOnItem(SpellActionBase* spellToTrigger, float chanceToTrigger, Enums::TriggerType triggerType, bool castOnSelf) {
 
 	this->spellToTrigger = spellToTrigger;
 	this->chanceToTrigger = chanceToTrigger;
@@ -39,7 +20,7 @@ float TriggerSpellOnItem::getChanceToTrigger() const {
 	return chanceToTrigger;
 }
 
-TriggerType::TriggerType TriggerSpellOnItem::getTriggerType() const {
+Enums::TriggerType TriggerSpellOnItem::getTriggerType() const {
 	return triggerType;
 }
 
@@ -56,9 +37,9 @@ std::string TriggerSpellOnItem::getTooltipText() const {
 		toReturn.append(" on your target when ");
 	}
 
-	if (getTriggerType() == TriggerType::EXECUTING_ACTION) {
+	if (getTriggerType() == Enums::EXECUTING_ACTION) {
 		toReturn.append("casting spells.");
-	}else if (getTriggerType() == TriggerType::TAKING_DAMAGE) {
+	}else if (getTriggerType() == Enums::TAKING_DAMAGE) {
 		toReturn.append("taking damage.");
 	}
 
@@ -66,11 +47,11 @@ std::string TriggerSpellOnItem::getTooltipText() const {
 }
 
 Item::Item(std::string name_, size_t sizeX_, size_t sizeY_, std::string symbolFile,
-	ItemQuality::ItemQuality itemQuality_,
+	Enums::ItemQuality itemQuality_,
 	EquipPosition::EquipPosition equipPosition_,
-	ItemType::ItemType itemType_,
-	ArmorType::ArmorType armorType_,
-	WeaponType::WeaponType weaponType_, bool loadSymbol)
+	Enums::ItemType itemType_,
+	Enums::ArmorType armorType_,
+	Enums::WeaponType weaponType_, bool loadSymbol)
 	: name(name_),
 	sizeX(sizeX_),
 	sizeY(sizeY_),
@@ -108,11 +89,11 @@ Item::Item(std::string name_, size_t sizeX_, size_t sizeY_, std::string symbolFi
 		//symbolTexture.LoadIMG(symbolFile, 0);
 	}
 
-	if (itemType == ItemType::DRINK ||
-		itemType == ItemType::FOOD ||
-		itemType == ItemType::POTION ||
-		itemType == ItemType::NEWSPELL ||
-		itemType == ItemType::SCROLL) {
+	if (itemType == Enums::ItemType::DRINK ||
+		itemType == Enums::ItemType::FOOD ||
+		itemType == Enums::ItemType::POTION ||
+		itemType == Enums::ItemType::NEWSPELL ||
+		itemType == Enums::ItemType::SCROLL) {
 		useableItem = true;
 	}
 }
@@ -164,19 +145,19 @@ TextureRect* Item::getSymbolTexture() {
 	return &symbolTexture;
 }
 
-ItemQuality::ItemQuality Item::getItemQuality() const {
+Enums::ItemQuality Item::getItemQuality() const {
 	return itemQuality;
 }
 
-ItemType::ItemType Item::getItemType() const {
+Enums::ItemType Item::getItemType() const {
 	return itemType;
 }
 
-ArmorType::ArmorType Item::getArmorType() const {
+Enums::ArmorType Item::getArmorType() const {
 	return armorType;
 }
 
-WeaponType::WeaponType Item::getWeaponType() const {
+Enums::WeaponType Item::getWeaponType() const {
 	return weaponType;
 }
 
@@ -256,11 +237,11 @@ void Item::setDescription(std::string description_) {
 	description = "\"" + description_ + "\"";
 }
 
-void Item::addTriggerSpellOnSelf(SpellActionBase* spellToTrigger, float chanceToTrigger, TriggerType::TriggerType triggerType) {
+void Item::addTriggerSpellOnSelf(SpellActionBase* spellToTrigger, float chanceToTrigger, Enums::TriggerType triggerType) {
 	triggerSpells.push_back(new TriggerSpellOnItem(spellToTrigger, chanceToTrigger, triggerType, true));
 }
 
-void Item::addTriggerSpellOnTarget(SpellActionBase* spellToTrigger, float chanceToTrigger, TriggerType::TriggerType triggerType) {
+void Item::addTriggerSpellOnTarget(SpellActionBase* spellToTrigger, float chanceToTrigger, Enums::TriggerType triggerType) {
 	triggerSpells.push_back(new TriggerSpellOnItem(spellToTrigger, chanceToTrigger, triggerType, false));
 }
 
@@ -270,25 +251,25 @@ std::vector<TriggerSpellOnItem*> Item::getTriggerSpells() const {
 
 bool Item::isTwoHandedWeapon() const {
 	switch (getWeaponType()) {
-		case WeaponType::TWOHAND_AXE:
+		case Enums::WeaponType::TWOHAND_AXE:
 			return true;
 			break;
-		case WeaponType::TWOHAND_CLUB:
+		case Enums::WeaponType::TWOHAND_CLUB:
 			break;
 			return true;
-		case WeaponType::TWOHAND_MACE:
+		case Enums::WeaponType::TWOHAND_MACE:
 			break;
 			return true;
-		case WeaponType::TWOHAND_SWORD:
+		case Enums::WeaponType::TWOHAND_SWORD:
 			return true;
 			break;
-		case WeaponType::BOW:
+		case Enums::WeaponType::BOW:
 			return true;
 			break;
-		case WeaponType::CROSSBOW:
+		case Enums::WeaponType::CROSSBOW:
 			return true;
 			break;
-		case WeaponType::STAFF:
+		case Enums::WeaponType::STAFF:
 			return true;
 			break;
 		default:
@@ -301,29 +282,29 @@ bool Item::isTwoHandedWeapon() const {
 
 std::string Item::getUseableDescription() const {
 	switch (itemType) {
-		case ItemType::DRINK:
+		case Enums::ItemType::DRINK:
 			if (getSpell() != NULL) {
 				return std::string("Drink: ").append(getSpell()->getInfo());
 			}
 			break;
-		case ItemType::FOOD:
+		case Enums::ItemType::FOOD:
 			if (getSpell() != NULL) {
 				return std::string("Eat: ").append(getSpell()->getInfo());
 			}
 			break;
-		case ItemType::NEWSPELL:
+		case Enums::ItemType::NEWSPELL:
 			if (getSpell() != NULL) {
 				char rank[10];
 				sprintf(rank, " (rank %d)", getSpell()->getRank());
 				return std::string("Memorize: Inscribes ").append(getSpell()->getName()).append(rank).append(" to spellbook.");
 			}
 			break;
-		case ItemType::POTION:
+		case Enums::ItemType::POTION:
 			if (getSpell() != NULL) {
 				return std::string("Quaff: ").append(getSpell()->getInfo());
 			}
 			break;
-		case ItemType::SCROLL:
+		case Enums::ItemType::SCROLL:
 			if (getSpell() != NULL) {
 				return std::string("Read: ").append(getSpell()->getInfo());
 			}
@@ -339,12 +320,12 @@ bool Item::isUseable() const {
 }
 
 GoldHeap::GoldHeap(size_t coins_)
-	: Item("Coins", 1, 1, "data/items/coins.tga",
-		ItemQuality::NORMAL,
-		EquipPosition::NONE,
-		ItemType::MISCELLANEOUS,
-		ArmorType::NO_ARMOR,
-		WeaponType::NO_WEAPON,
+	: Item("Coins", 1, 1, "res/items/coins.tga",
+		Enums::ItemQuality::NORMAL,
+		EquipPosition::EquipPosition::NONE,
+		Enums::ItemType::MISCELLANEOUS,
+		Enums::ArmorType::NO_ARMOR,
+		Enums::WeaponType::NO_WEAPON,
 		false),
 	coins(coins_) {
 	//symbolTexture.LoadIMG("data/items/coins.tga", 0);

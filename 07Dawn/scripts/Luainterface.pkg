@@ -10,6 +10,7 @@ $#include "TextWindow.h"
 $#include "Enums.h"
 $#include "Actions.h"
 $#include "Spells.h"
+$#include "Item.h"
 
 namespace Enums
 {
@@ -147,7 +148,62 @@ namespace Enums
 		BOW = 0x2000,
 		SLINGSHOT = 0x4000,
 		CROSSBOW = 0x8000,
-		SHIELD = 0x10000
+		SHIELD = 0x10000,
+		COUNTWT = 0x20000
+	};
+	
+	enum ItemType {
+		QUESTITEM,
+		MISCELLANEOUS,
+		ARMOR,
+		WEAPON,
+		JEWELRY,
+		SCROLL,
+		POTION,
+		FOOD,
+		DRINK,
+		NEWSPELL,
+		COUNT
+	};
+
+	enum ArmorType {
+		NO_ARMOR,
+		CLOTH,
+		LEATHER,
+		MAIL,
+		PLATE
+	};
+	
+	enum ItemQuality {
+		POOR,
+		NORMAL,
+		ENHANCED,
+		RARE,
+		LORE
+	};
+	
+	enum TriggerType {
+		TAKING_DAMAGE,
+		EXECUTING_ACTION
+	};
+}
+
+namespace EquipPosition {
+	
+	enum EquipPosition {
+		MAIN_HAND,
+		OFF_HAND,
+		CHEST,
+		LEGS,
+		BELT,
+		BOOTS,
+		RING,
+		GLOVES,
+		HEAD,
+		CLOAK,
+		AMULET,
+		SHOULDER,
+		NONE
 	};
 }
 
@@ -181,6 +237,22 @@ namespace DawnInterface{
 	MeleeDamageAction* copySpell( MeleeDamageAction *other );
 	RangedDamageAction* copySpell( RangedDamageAction *other );
 	void inscribeSpellInPlayerSpellbook( SpellActionBase *inscribedSpell );
+	
+	std::string getInventorySaveText();
+	void restoreItemInBackpack( Item *item, int inventoryPosX, int inventoryPosY, int stackSize = 1 );
+	void restoreWieldItem( int slot, Item *item );
+	Item* createNewItem(std::string name,
+	                    int sizeX,
+	                    int sizeY,
+	                    std::string symbolFile,
+	                    Enums::ItemQuality itemQuality,
+	                    EquipPosition::EquipPosition equipPosition,
+	                    Enums::ItemType itemType,
+	                    Enums::ArmorType armorType,
+	                    Enums::WeaponType weaponType );
+						
+	Player& getPlayer();
+	void giveItemToPlayer( Item* item );
 }
 
 namespace EditorInterface
@@ -265,6 +337,7 @@ class Player : public Character
 	void giveCoins(unsigned int amountOfCoins);
 	
 	void init(int x, int y);
+	Enums::CharacterClass getClass();
 }
 
 class Npc : public Character
@@ -402,3 +475,18 @@ class RangedDamageAction : public ConfigurableAction
 	void addAnimationFrame(std::string file, int paddingLeft = 0, int paddingRight = 0, int paddingTop = 0, int paddingBottom = 0);
 };
 
+class Item
+{
+	void setDescription( std::string description );
+	void setStats( Enums::StatsType statsType, int amount );
+	void setResistElementModifierPoints( Enums::ElementType elementType, int resistModifierPoints );
+	void setSpellEffectElementModifierPoints( Enums::ElementType elementType, int spellEffectElementModifierPoints );
+	void setMinDamage( int minDamage );
+	void setMaxDamage( int maxDamage );
+	void setRequiredLevel( int requiredLevel );
+	void setMaxStackSize( int maxStackSize );
+	void setValue( int newValue );
+	void setSpell( Spell *newSpell );
+	void addTriggerSpellOnSelf( SpellActionBase *spellToTrigger, float chanceToTrigger, Enums::TriggerType triggerType );
+	void addTriggerSpellOnTarget( SpellActionBase *spellToTrigger, float chanceToTrigger, Enums::TriggerType triggerType );
+};

@@ -485,19 +485,19 @@ void ItemTooltip::getParentText() {
 
 	// setting the title of the tooltip based on item quality
 	switch (parent->getItemQuality()) {
-		case ItemQuality::POOR:
+	case Enums::ItemQuality::POOR:
 			addTooltipText(grey, &Globals::fontManager.get("verdana_14"), parent->getName());
 			break;
-		case ItemQuality::NORMAL:
+		case Enums::ItemQuality::NORMAL:
 			addTooltipText(white, &Globals::fontManager.get("verdana_14"), parent->getName());
 			break;
-		case ItemQuality::ENHANCED:
+		case Enums::ItemQuality::ENHANCED:
 			addTooltipText(yellow, &Globals::fontManager.get("verdana_14"), parent->getName());
 			break;
-		case ItemQuality::RARE:
+		case Enums::ItemQuality::RARE:
 			addTooltipText(orange, &Globals::fontManager.get("verdana_14"), parent->getName());
 			break;
-		case ItemQuality::LORE:
+		case Enums::ItemQuality::LORE:
 			addTooltipText(red, &Globals::fontManager.get("verdana_14"), parent->getName());
 			break;
 	}
@@ -507,41 +507,41 @@ void ItemTooltip::getParentText() {
 
 	// displaying which type of item it is.
 	switch (parent->getItemType()) {
-		case ItemType::QUESTITEM:
+		case Enums::ItemType::QUESTITEM:
 			addTooltipText(white, &Globals::fontManager.get("verdana_12"), "Quest item");
 			break;
-		case ItemType::MISCELLANEOUS:
+		case Enums::ItemType::MISCELLANEOUS:
 			// nothing here so far...
 			break;
-		case ItemType::ARMOR:
+		case Enums::ItemType::ARMOR:
 			if (player->canWearArmorType(parent) == true) {
 				addTooltipText(white, &Globals::fontManager.get("verdana_12"), ArmorType::getArmorTypeText(parent->getArmorType()));
 			}else {
 				addTooltipText(red, &Globals::fontManager.get("verdana_12"), ArmorType::getArmorTypeText(parent->getArmorType()));
 			}
 			break;
-		case ItemType::WEAPON:
+		case Enums::ItemType::WEAPON:
 			addTooltipText(white, &Globals::fontManager.get("verdana_12"), WeaponType::getWeaponTypeText(parent->getWeaponType()));
 			break;
-		case ItemType::JEWELRY:
+		case Enums::ItemType::JEWELRY:
 			// nothing here so far...
 			break;
-		case ItemType::DRINK:
+		case Enums::ItemType::DRINK:
 			// nothing here so far...
 			break;
-		case ItemType::FOOD:
+		case Enums::ItemType::FOOD:
 			// nothing here so far...
 			break;
-		case ItemType::POTION:
+		case Enums::ItemType::POTION:
 			addTooltipText(white, &Globals::fontManager.get("verdana_12"), "Potion");
 			break;
-		case ItemType::SCROLL:
+		case Enums::ItemType::SCROLL:
 			addTooltipText(white, &Globals::fontManager.get("verdana_12"), "Scroll");
 			break;
-		case ItemType::NEWSPELL:
+		case Enums::ItemType::NEWSPELL:
 			// nothing here so far...
 			break;
-		case ItemType::COUNT:
+		case Enums::ItemType::COUNTIT:
 			break;
 	}
 
@@ -551,7 +551,7 @@ void ItemTooltip::getParentText() {
 	}
 
 	// displaying damage if it's a weapon.
-	if (parent->getItemType() == ItemType::WEAPON && parent->getWeaponType() != WeaponType::SHIELD && parent->getWeaponType() != WeaponType::SPELLBOOK) {
+	if (parent->getItemType() == Enums::ItemType::WEAPON && parent->getWeaponType() != Enums::WeaponType::SHIELD && parent->getWeaponType() != Enums::WeaponType::SPELLBOOK) {
 		addTooltipText(white, &Globals::fontManager.get("verdana_12"), "Damage: %d-%d", parent->getMinDamage(), parent->getMaxDamage());
 	}
 
@@ -687,7 +687,7 @@ void ItemTooltip::getParentText() {
 			addTooltipText(red, &Globals::fontManager.get("verdana_12"), "Requires class %s", Character::GetCharacterClassName(parent->getSpell()->getRequiredClass()).c_str());
 		}
 
-		if (parent->getItemType() == ItemType::NEWSPELL) {
+		if (parent->getItemType() == Enums::ItemType::NEWSPELL) {
 			if (player->isSpellInscribedInSpellbook(parent->getSpell()) == true) {
 				addTooltipText(red, &Globals::fontManager.get("verdana_11"), "Already inscribed in spellbook.");
 			}

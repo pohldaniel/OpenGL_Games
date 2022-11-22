@@ -8,6 +8,7 @@
 #include "Npc.h"
 #include "InteractionRegion.h"
 #include "InteractionPoint.h"
+#include "Groundloot.h"
 
 struct TileMap {
 	int x_pos, y_pos;
@@ -104,6 +105,7 @@ public:
 	void cleanupActiveAoESpells();
 	void clearActiveAoESpells();
 	void removeActiveAoESpell(SpellActionBase* activeSpell);
+	GroundLoot* getGroundLoot();
 
 private:
 	std::vector< std::pair<SpellActionBase*, uint32_t> > activeAoESpells;
@@ -118,6 +120,7 @@ private:
 	std::string m_file;
 	bool m_mapLoaded = false;
 	unsigned int m_textureAtlas;
+	GroundLoot groundLoot;
 };
 
 class ZoneManager {

@@ -137,6 +137,7 @@ public:
 	void addActiveSpell(SpellActionBase *spell);
 	void removeSpellsWithCharacterState(Enums::CharacterStates characterState);
 	void giveCoins(unsigned int amountOfCoins);
+	unsigned int getCoins() const;
 
 	float getPreparationPercentage() const;
 	std::string getCurrentSpellActionName() const;
@@ -252,6 +253,7 @@ public:
 	static std::string GetCharacterClassName(Enums::CharacterClass characterClass);
 	static std::string ElementToString(Enums::ElementType elementType);
 	static std::string ElementToLowerString(Enums::ElementType elementType);
+	static bool HasIntersection(int r1_l, int r1_r, int r1_b, int r1_t, int r2_l, int r2_r, int r2_b, int r2_t);
 
 protected:
 

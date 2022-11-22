@@ -1,6 +1,6 @@
 /*
 ** Lua binding: Luainterface
-** Generated automatically by tolua++-1.0.92 on Wed Nov  2 12:53:48 2022.
+** Generated automatically by tolua++-1.0.92 on Tue Nov 22 04:29:39 2022.
 */
 
 #ifndef __cplusplus
@@ -25,6 +25,7 @@ TOLUA_API int  tolua_Luainterface_open(lua_State* tolua_S);
 #include "Enums.h"
 #include "Actions.h"
 #include "Spells.h"
+#include "Item.h"
 
 /* function to register type */
 static void tolua_reg_types(lua_State* tolua_S)
@@ -37,6 +38,7 @@ static void tolua_reg_types(lua_State* tolua_S)
 	tolua_usertype(tolua_S, "Npc");
 	tolua_usertype(tolua_S, "TextureRect");
 	tolua_usertype(tolua_S, "Character");
+	tolua_usertype(tolua_S, "Item");
 	tolua_usertype(tolua_S, "RangedDamageAction");
 	tolua_usertype(tolua_S, "MeleeDamageAction");
 	tolua_usertype(tolua_S, "Spell");
@@ -794,6 +796,197 @@ static int tolua_Luainterface_DawnInterface_inscribeSpellInPlayerSpellbook00(lua
 #ifndef TOLUA_RELEASE
 	tolua_lerror :
 				 tolua_error(tolua_S, "#ferror in function 'inscribeSpellInPlayerSpellbook'.", &tolua_err);
+				 return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
+/* function: DawnInterface::getInventorySaveText */
+#ifndef TOLUA_DISABLE_tolua_Luainterface_DawnInterface_getInventorySaveText00
+static int tolua_Luainterface_DawnInterface_getInventorySaveText00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+	tolua_Error tolua_err;
+	if (
+		!tolua_isnoobj(tolua_S, 1, &tolua_err)
+		)
+		goto tolua_lerror;
+	else
+#endif
+	{
+		{
+			std::string tolua_ret = (std::string)  DawnInterface::getInventorySaveText();
+			tolua_pushcppstring(tolua_S, (const char*)tolua_ret);
+		}
+	}
+	return 1;
+#ifndef TOLUA_RELEASE
+	tolua_lerror :
+				 tolua_error(tolua_S, "#ferror in function 'getInventorySaveText'.", &tolua_err);
+				 return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
+/* function: DawnInterface::restoreItemInBackpack */
+#ifndef TOLUA_DISABLE_tolua_Luainterface_DawnInterface_restoreItemInBackpack00
+static int tolua_Luainterface_DawnInterface_restoreItemInBackpack00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+	tolua_Error tolua_err;
+	if (
+		!tolua_isusertype(tolua_S, 1, "Item", 0, &tolua_err) ||
+		!tolua_isnumber(tolua_S, 2, 0, &tolua_err) ||
+		!tolua_isnumber(tolua_S, 3, 0, &tolua_err) ||
+		!tolua_isnumber(tolua_S, 4, 1, &tolua_err) ||
+		!tolua_isnoobj(tolua_S, 5, &tolua_err)
+		)
+		goto tolua_lerror;
+	else
+#endif
+	{
+		Item* item = ((Item*)tolua_tousertype(tolua_S, 1, 0));
+		int inventoryPosX = ((int)tolua_tonumber(tolua_S, 2, 0));
+		int inventoryPosY = ((int)tolua_tonumber(tolua_S, 3, 0));
+		int stackSize = ((int)tolua_tonumber(tolua_S, 4, 1));
+		{
+			DawnInterface::restoreItemInBackpack(item, inventoryPosX, inventoryPosY, stackSize);
+		}
+	}
+	return 0;
+#ifndef TOLUA_RELEASE
+	tolua_lerror :
+				 tolua_error(tolua_S, "#ferror in function 'restoreItemInBackpack'.", &tolua_err);
+				 return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
+/* function: DawnInterface::restoreWieldItem */
+#ifndef TOLUA_DISABLE_tolua_Luainterface_DawnInterface_restoreWieldItem00
+static int tolua_Luainterface_DawnInterface_restoreWieldItem00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+	tolua_Error tolua_err;
+	if (
+		!tolua_isnumber(tolua_S, 1, 0, &tolua_err) ||
+		!tolua_isusertype(tolua_S, 2, "Item", 0, &tolua_err) ||
+		!tolua_isnoobj(tolua_S, 3, &tolua_err)
+		)
+		goto tolua_lerror;
+	else
+#endif
+	{
+		int slot = ((int)tolua_tonumber(tolua_S, 1, 0));
+		Item* item = ((Item*)tolua_tousertype(tolua_S, 2, 0));
+		{
+			DawnInterface::restoreWieldItem(slot, item);
+		}
+	}
+	return 0;
+#ifndef TOLUA_RELEASE
+	tolua_lerror :
+				 tolua_error(tolua_S, "#ferror in function 'restoreWieldItem'.", &tolua_err);
+				 return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
+/* function: DawnInterface::createNewItem */
+#ifndef TOLUA_DISABLE_tolua_Luainterface_DawnInterface_createNewItem00
+static int tolua_Luainterface_DawnInterface_createNewItem00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+	tolua_Error tolua_err;
+	if (
+		!tolua_iscppstring(tolua_S, 1, 0, &tolua_err) ||
+		!tolua_isnumber(tolua_S, 2, 0, &tolua_err) ||
+		!tolua_isnumber(tolua_S, 3, 0, &tolua_err) ||
+		!tolua_iscppstring(tolua_S, 4, 0, &tolua_err) ||
+		!tolua_isnumber(tolua_S, 5, 0, &tolua_err) ||
+		!tolua_isnumber(tolua_S, 6, 0, &tolua_err) ||
+		!tolua_isnumber(tolua_S, 7, 0, &tolua_err) ||
+		!tolua_isnumber(tolua_S, 8, 0, &tolua_err) ||
+		!tolua_isnumber(tolua_S, 9, 0, &tolua_err) ||
+		!tolua_isnoobj(tolua_S, 10, &tolua_err)
+		)
+		goto tolua_lerror;
+	else
+#endif
+	{
+		std::string name = ((std::string)  tolua_tocppstring(tolua_S, 1, 0));
+		int sizeX = ((int)tolua_tonumber(tolua_S, 2, 0));
+		int sizeY = ((int)tolua_tonumber(tolua_S, 3, 0));
+		std::string symbolFile = ((std::string)  tolua_tocppstring(tolua_S, 4, 0));
+		Enums::ItemQuality itemQuality = ((Enums::ItemQuality) (int)  tolua_tonumber(tolua_S, 5, 0));
+		EquipPosition::EquipPosition equipPosition = ((EquipPosition::EquipPosition) (int)  tolua_tonumber(tolua_S, 6, 0));
+		Enums::ItemType itemType = ((Enums::ItemType) (int)  tolua_tonumber(tolua_S, 7, 0));
+		Enums::ArmorType armorType = ((Enums::ArmorType) (int)  tolua_tonumber(tolua_S, 8, 0));
+		Enums::WeaponType weaponType = ((Enums::WeaponType) (int)  tolua_tonumber(tolua_S, 9, 0));
+		{
+			Item* tolua_ret = (Item*)DawnInterface::createNewItem(name, sizeX, sizeY, symbolFile, itemQuality, equipPosition, itemType, armorType, weaponType);
+			tolua_pushusertype(tolua_S, (void*)tolua_ret, "Item");
+		}
+	}
+	return 1;
+#ifndef TOLUA_RELEASE
+	tolua_lerror :
+				 tolua_error(tolua_S, "#ferror in function 'createNewItem'.", &tolua_err);
+				 return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
+/* function: DawnInterface::getPlayer */
+#ifndef TOLUA_DISABLE_tolua_Luainterface_DawnInterface_getPlayer00
+static int tolua_Luainterface_DawnInterface_getPlayer00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+	tolua_Error tolua_err;
+	if (
+		!tolua_isnoobj(tolua_S, 1, &tolua_err)
+		)
+		goto tolua_lerror;
+	else
+#endif
+	{
+		{
+			Player& tolua_ret = (Player&)DawnInterface::getPlayer();
+			tolua_pushusertype(tolua_S, (void*)&tolua_ret, "Player");
+		}
+	}
+	return 1;
+#ifndef TOLUA_RELEASE
+	tolua_lerror :
+				 tolua_error(tolua_S, "#ferror in function 'getPlayer'.", &tolua_err);
+				 return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
+/* function: DawnInterface::giveItemToPlayer */
+#ifndef TOLUA_DISABLE_tolua_Luainterface_DawnInterface_giveItemToPlayer00
+static int tolua_Luainterface_DawnInterface_giveItemToPlayer00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+	tolua_Error tolua_err;
+	if (
+		!tolua_isusertype(tolua_S, 1, "Item", 0, &tolua_err) ||
+		!tolua_isnoobj(tolua_S, 2, &tolua_err)
+		)
+		goto tolua_lerror;
+	else
+#endif
+	{
+		Item* item = ((Item*)tolua_tousertype(tolua_S, 1, 0));
+		{
+			DawnInterface::giveItemToPlayer(item);
+		}
+	}
+	return 0;
+#ifndef TOLUA_RELEASE
+	tolua_lerror :
+				 tolua_error(tolua_S, "#ferror in function 'giveItemToPlayer'.", &tolua_err);
 				 return 0;
 #endif
 }
@@ -2855,6 +3048,38 @@ static int tolua_Luainterface_Player_init00(lua_State* tolua_S)
 }
 #endif //#ifndef TOLUA_DISABLE
 
+/* method: getClass of class  Player */
+#ifndef TOLUA_DISABLE_tolua_Luainterface_Player_getClass00
+static int tolua_Luainterface_Player_getClass00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+	tolua_Error tolua_err;
+	if (
+		!tolua_isusertype(tolua_S, 1, "Player", 0, &tolua_err) ||
+		!tolua_isnoobj(tolua_S, 2, &tolua_err)
+		)
+		goto tolua_lerror;
+	else
+#endif
+	{
+		Player* self = (Player*)tolua_tousertype(tolua_S, 1, 0);
+#ifndef TOLUA_RELEASE
+		if (!self) tolua_error(tolua_S, "invalid 'self' in function 'getClass'", NULL);
+#endif
+		{
+			Enums::CharacterClass tolua_ret = (Enums::CharacterClass)  self->getClass();
+			tolua_pushnumber(tolua_S, (lua_Number)tolua_ret);
+		}
+	}
+	return 1;
+#ifndef TOLUA_RELEASE
+	tolua_lerror :
+				 tolua_error(tolua_S, "#ferror in function 'getClass'.", &tolua_err);
+				 return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
 /* method: setAttitude of class  Npc */
 #ifndef TOLUA_DISABLE_tolua_Luainterface_Npc_setAttitude00
 static int tolua_Luainterface_Npc_setAttitude00(lua_State* tolua_S)
@@ -4856,6 +5081,416 @@ static int tolua_Luainterface_RangedDamageAction_addAnimationFrame00(lua_State* 
 }
 #endif //#ifndef TOLUA_DISABLE
 
+/* method: setDescription of class  Item */
+#ifndef TOLUA_DISABLE_tolua_Luainterface_Item_setDescription00
+static int tolua_Luainterface_Item_setDescription00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+	tolua_Error tolua_err;
+	if (
+		!tolua_isusertype(tolua_S, 1, "Item", 0, &tolua_err) ||
+		!tolua_iscppstring(tolua_S, 2, 0, &tolua_err) ||
+		!tolua_isnoobj(tolua_S, 3, &tolua_err)
+		)
+		goto tolua_lerror;
+	else
+#endif
+	{
+		Item* self = (Item*)tolua_tousertype(tolua_S, 1, 0);
+		std::string description = ((std::string)  tolua_tocppstring(tolua_S, 2, 0));
+#ifndef TOLUA_RELEASE
+		if (!self) tolua_error(tolua_S, "invalid 'self' in function 'setDescription'", NULL);
+#endif
+		{
+			self->setDescription(description);
+		}
+	}
+	return 0;
+#ifndef TOLUA_RELEASE
+	tolua_lerror :
+				 tolua_error(tolua_S, "#ferror in function 'setDescription'.", &tolua_err);
+				 return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
+/* method: setStats of class  Item */
+#ifndef TOLUA_DISABLE_tolua_Luainterface_Item_setStats00
+static int tolua_Luainterface_Item_setStats00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+	tolua_Error tolua_err;
+	if (
+		!tolua_isusertype(tolua_S, 1, "Item", 0, &tolua_err) ||
+		!tolua_isnumber(tolua_S, 2, 0, &tolua_err) ||
+		!tolua_isnumber(tolua_S, 3, 0, &tolua_err) ||
+		!tolua_isnoobj(tolua_S, 4, &tolua_err)
+		)
+		goto tolua_lerror;
+	else
+#endif
+	{
+		Item* self = (Item*)tolua_tousertype(tolua_S, 1, 0);
+		Enums::StatsType statsType = ((Enums::StatsType) (int)  tolua_tonumber(tolua_S, 2, 0));
+		int amount = ((int)tolua_tonumber(tolua_S, 3, 0));
+#ifndef TOLUA_RELEASE
+		if (!self) tolua_error(tolua_S, "invalid 'self' in function 'setStats'", NULL);
+#endif
+		{
+			self->setStats(statsType, amount);
+		}
+	}
+	return 0;
+#ifndef TOLUA_RELEASE
+	tolua_lerror :
+				 tolua_error(tolua_S, "#ferror in function 'setStats'.", &tolua_err);
+				 return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
+/* method: setResistElementModifierPoints of class  Item */
+#ifndef TOLUA_DISABLE_tolua_Luainterface_Item_setResistElementModifierPoints00
+static int tolua_Luainterface_Item_setResistElementModifierPoints00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+	tolua_Error tolua_err;
+	if (
+		!tolua_isusertype(tolua_S, 1, "Item", 0, &tolua_err) ||
+		!tolua_isnumber(tolua_S, 2, 0, &tolua_err) ||
+		!tolua_isnumber(tolua_S, 3, 0, &tolua_err) ||
+		!tolua_isnoobj(tolua_S, 4, &tolua_err)
+		)
+		goto tolua_lerror;
+	else
+#endif
+	{
+		Item* self = (Item*)tolua_tousertype(tolua_S, 1, 0);
+		Enums::ElementType elementType = ((Enums::ElementType) (int)  tolua_tonumber(tolua_S, 2, 0));
+		int resistModifierPoints = ((int)tolua_tonumber(tolua_S, 3, 0));
+#ifndef TOLUA_RELEASE
+		if (!self) tolua_error(tolua_S, "invalid 'self' in function 'setResistElementModifierPoints'", NULL);
+#endif
+		{
+			self->setResistElementModifierPoints(elementType, resistModifierPoints);
+		}
+	}
+	return 0;
+#ifndef TOLUA_RELEASE
+	tolua_lerror :
+				 tolua_error(tolua_S, "#ferror in function 'setResistElementModifierPoints'.", &tolua_err);
+				 return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
+/* method: setSpellEffectElementModifierPoints of class  Item */
+#ifndef TOLUA_DISABLE_tolua_Luainterface_Item_setSpellEffectElementModifierPoints00
+static int tolua_Luainterface_Item_setSpellEffectElementModifierPoints00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+	tolua_Error tolua_err;
+	if (
+		!tolua_isusertype(tolua_S, 1, "Item", 0, &tolua_err) ||
+		!tolua_isnumber(tolua_S, 2, 0, &tolua_err) ||
+		!tolua_isnumber(tolua_S, 3, 0, &tolua_err) ||
+		!tolua_isnoobj(tolua_S, 4, &tolua_err)
+		)
+		goto tolua_lerror;
+	else
+#endif
+	{
+		Item* self = (Item*)tolua_tousertype(tolua_S, 1, 0);
+		Enums::ElementType elementType = ((Enums::ElementType) (int)  tolua_tonumber(tolua_S, 2, 0));
+		int spellEffectElementModifierPoints = ((int)tolua_tonumber(tolua_S, 3, 0));
+#ifndef TOLUA_RELEASE
+		if (!self) tolua_error(tolua_S, "invalid 'self' in function 'setSpellEffectElementModifierPoints'", NULL);
+#endif
+		{
+			self->setSpellEffectElementModifierPoints(elementType, spellEffectElementModifierPoints);
+		}
+	}
+	return 0;
+#ifndef TOLUA_RELEASE
+	tolua_lerror :
+				 tolua_error(tolua_S, "#ferror in function 'setSpellEffectElementModifierPoints'.", &tolua_err);
+				 return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
+/* method: setMinDamage of class  Item */
+#ifndef TOLUA_DISABLE_tolua_Luainterface_Item_setMinDamage00
+static int tolua_Luainterface_Item_setMinDamage00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+	tolua_Error tolua_err;
+	if (
+		!tolua_isusertype(tolua_S, 1, "Item", 0, &tolua_err) ||
+		!tolua_isnumber(tolua_S, 2, 0, &tolua_err) ||
+		!tolua_isnoobj(tolua_S, 3, &tolua_err)
+		)
+		goto tolua_lerror;
+	else
+#endif
+	{
+		Item* self = (Item*)tolua_tousertype(tolua_S, 1, 0);
+		int minDamage = ((int)tolua_tonumber(tolua_S, 2, 0));
+#ifndef TOLUA_RELEASE
+		if (!self) tolua_error(tolua_S, "invalid 'self' in function 'setMinDamage'", NULL);
+#endif
+		{
+			self->setMinDamage(minDamage);
+		}
+	}
+	return 0;
+#ifndef TOLUA_RELEASE
+	tolua_lerror :
+				 tolua_error(tolua_S, "#ferror in function 'setMinDamage'.", &tolua_err);
+				 return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
+/* method: setMaxDamage of class  Item */
+#ifndef TOLUA_DISABLE_tolua_Luainterface_Item_setMaxDamage00
+static int tolua_Luainterface_Item_setMaxDamage00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+	tolua_Error tolua_err;
+	if (
+		!tolua_isusertype(tolua_S, 1, "Item", 0, &tolua_err) ||
+		!tolua_isnumber(tolua_S, 2, 0, &tolua_err) ||
+		!tolua_isnoobj(tolua_S, 3, &tolua_err)
+		)
+		goto tolua_lerror;
+	else
+#endif
+	{
+		Item* self = (Item*)tolua_tousertype(tolua_S, 1, 0);
+		int maxDamage = ((int)tolua_tonumber(tolua_S, 2, 0));
+#ifndef TOLUA_RELEASE
+		if (!self) tolua_error(tolua_S, "invalid 'self' in function 'setMaxDamage'", NULL);
+#endif
+		{
+			self->setMaxDamage(maxDamage);
+		}
+	}
+	return 0;
+#ifndef TOLUA_RELEASE
+	tolua_lerror :
+				 tolua_error(tolua_S, "#ferror in function 'setMaxDamage'.", &tolua_err);
+				 return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
+/* method: setRequiredLevel of class  Item */
+#ifndef TOLUA_DISABLE_tolua_Luainterface_Item_setRequiredLevel00
+static int tolua_Luainterface_Item_setRequiredLevel00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+	tolua_Error tolua_err;
+	if (
+		!tolua_isusertype(tolua_S, 1, "Item", 0, &tolua_err) ||
+		!tolua_isnumber(tolua_S, 2, 0, &tolua_err) ||
+		!tolua_isnoobj(tolua_S, 3, &tolua_err)
+		)
+		goto tolua_lerror;
+	else
+#endif
+	{
+		Item* self = (Item*)tolua_tousertype(tolua_S, 1, 0);
+		int requiredLevel = ((int)tolua_tonumber(tolua_S, 2, 0));
+#ifndef TOLUA_RELEASE
+		if (!self) tolua_error(tolua_S, "invalid 'self' in function 'setRequiredLevel'", NULL);
+#endif
+		{
+			self->setRequiredLevel(requiredLevel);
+		}
+	}
+	return 0;
+#ifndef TOLUA_RELEASE
+	tolua_lerror :
+				 tolua_error(tolua_S, "#ferror in function 'setRequiredLevel'.", &tolua_err);
+				 return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
+/* method: setMaxStackSize of class  Item */
+#ifndef TOLUA_DISABLE_tolua_Luainterface_Item_setMaxStackSize00
+static int tolua_Luainterface_Item_setMaxStackSize00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+	tolua_Error tolua_err;
+	if (
+		!tolua_isusertype(tolua_S, 1, "Item", 0, &tolua_err) ||
+		!tolua_isnumber(tolua_S, 2, 0, &tolua_err) ||
+		!tolua_isnoobj(tolua_S, 3, &tolua_err)
+		)
+		goto tolua_lerror;
+	else
+#endif
+	{
+		Item* self = (Item*)tolua_tousertype(tolua_S, 1, 0);
+		int maxStackSize = ((int)tolua_tonumber(tolua_S, 2, 0));
+#ifndef TOLUA_RELEASE
+		if (!self) tolua_error(tolua_S, "invalid 'self' in function 'setMaxStackSize'", NULL);
+#endif
+		{
+			self->setMaxStackSize(maxStackSize);
+		}
+	}
+	return 0;
+#ifndef TOLUA_RELEASE
+	tolua_lerror :
+				 tolua_error(tolua_S, "#ferror in function 'setMaxStackSize'.", &tolua_err);
+				 return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
+/* method: setValue of class  Item */
+#ifndef TOLUA_DISABLE_tolua_Luainterface_Item_setValue00
+static int tolua_Luainterface_Item_setValue00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+	tolua_Error tolua_err;
+	if (
+		!tolua_isusertype(tolua_S, 1, "Item", 0, &tolua_err) ||
+		!tolua_isnumber(tolua_S, 2, 0, &tolua_err) ||
+		!tolua_isnoobj(tolua_S, 3, &tolua_err)
+		)
+		goto tolua_lerror;
+	else
+#endif
+	{
+		Item* self = (Item*)tolua_tousertype(tolua_S, 1, 0);
+		int newValue = ((int)tolua_tonumber(tolua_S, 2, 0));
+#ifndef TOLUA_RELEASE
+		if (!self) tolua_error(tolua_S, "invalid 'self' in function 'setValue'", NULL);
+#endif
+		{
+			self->setValue(newValue);
+		}
+	}
+	return 0;
+#ifndef TOLUA_RELEASE
+	tolua_lerror :
+				 tolua_error(tolua_S, "#ferror in function 'setValue'.", &tolua_err);
+				 return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
+/* method: setSpell of class  Item */
+#ifndef TOLUA_DISABLE_tolua_Luainterface_Item_setSpell00
+static int tolua_Luainterface_Item_setSpell00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+	tolua_Error tolua_err;
+	if (
+		!tolua_isusertype(tolua_S, 1, "Item", 0, &tolua_err) ||
+		!tolua_isusertype(tolua_S, 2, "Spell", 0, &tolua_err) ||
+		!tolua_isnoobj(tolua_S, 3, &tolua_err)
+		)
+		goto tolua_lerror;
+	else
+#endif
+	{
+		Item* self = (Item*)tolua_tousertype(tolua_S, 1, 0);
+		Spell* newSpell = ((Spell*)tolua_tousertype(tolua_S, 2, 0));
+#ifndef TOLUA_RELEASE
+		if (!self) tolua_error(tolua_S, "invalid 'self' in function 'setSpell'", NULL);
+#endif
+		{
+			self->setSpell(newSpell);
+		}
+	}
+	return 0;
+#ifndef TOLUA_RELEASE
+	tolua_lerror :
+				 tolua_error(tolua_S, "#ferror in function 'setSpell'.", &tolua_err);
+				 return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
+/* method: addTriggerSpellOnSelf of class  Item */
+#ifndef TOLUA_DISABLE_tolua_Luainterface_Item_addTriggerSpellOnSelf00
+static int tolua_Luainterface_Item_addTriggerSpellOnSelf00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+	tolua_Error tolua_err;
+	if (
+		!tolua_isusertype(tolua_S, 1, "Item", 0, &tolua_err) ||
+		!tolua_isusertype(tolua_S, 2, "SpellActionBase", 0, &tolua_err) ||
+		!tolua_isnumber(tolua_S, 3, 0, &tolua_err) ||
+		!tolua_isnumber(tolua_S, 4, 0, &tolua_err) ||
+		!tolua_isnoobj(tolua_S, 5, &tolua_err)
+		)
+		goto tolua_lerror;
+	else
+#endif
+	{
+		Item* self = (Item*)tolua_tousertype(tolua_S, 1, 0);
+		SpellActionBase* spellToTrigger = ((SpellActionBase*)tolua_tousertype(tolua_S, 2, 0));
+		float chanceToTrigger = ((float)tolua_tonumber(tolua_S, 3, 0));
+		Enums::TriggerType triggerType = ((Enums::TriggerType) (int)  tolua_tonumber(tolua_S, 4, 0));
+#ifndef TOLUA_RELEASE
+		if (!self) tolua_error(tolua_S, "invalid 'self' in function 'addTriggerSpellOnSelf'", NULL);
+#endif
+		{
+			self->addTriggerSpellOnSelf(spellToTrigger, chanceToTrigger, triggerType);
+		}
+	}
+	return 0;
+#ifndef TOLUA_RELEASE
+	tolua_lerror :
+				 tolua_error(tolua_S, "#ferror in function 'addTriggerSpellOnSelf'.", &tolua_err);
+				 return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
+/* method: addTriggerSpellOnTarget of class  Item */
+#ifndef TOLUA_DISABLE_tolua_Luainterface_Item_addTriggerSpellOnTarget00
+static int tolua_Luainterface_Item_addTriggerSpellOnTarget00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+	tolua_Error tolua_err;
+	if (
+		!tolua_isusertype(tolua_S, 1, "Item", 0, &tolua_err) ||
+		!tolua_isusertype(tolua_S, 2, "SpellActionBase", 0, &tolua_err) ||
+		!tolua_isnumber(tolua_S, 3, 0, &tolua_err) ||
+		!tolua_isnumber(tolua_S, 4, 0, &tolua_err) ||
+		!tolua_isnoobj(tolua_S, 5, &tolua_err)
+		)
+		goto tolua_lerror;
+	else
+#endif
+	{
+		Item* self = (Item*)tolua_tousertype(tolua_S, 1, 0);
+		SpellActionBase* spellToTrigger = ((SpellActionBase*)tolua_tousertype(tolua_S, 2, 0));
+		float chanceToTrigger = ((float)tolua_tonumber(tolua_S, 3, 0));
+		Enums::TriggerType triggerType = ((Enums::TriggerType) (int)  tolua_tonumber(tolua_S, 4, 0));
+#ifndef TOLUA_RELEASE
+		if (!self) tolua_error(tolua_S, "invalid 'self' in function 'addTriggerSpellOnTarget'", NULL);
+#endif
+		{
+			self->addTriggerSpellOnTarget(spellToTrigger, chanceToTrigger, triggerType);
+		}
+	}
+	return 0;
+#ifndef TOLUA_RELEASE
+	tolua_lerror :
+				 tolua_error(tolua_S, "#ferror in function 'addTriggerSpellOnTarget'.", &tolua_err);
+				 return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
 /* Open function */
 TOLUA_API int tolua_Luainterface_open(lua_State* tolua_S)
 {
@@ -4962,6 +5597,46 @@ TOLUA_API int tolua_Luainterface_open(lua_State* tolua_S)
 	tolua_constant(tolua_S, "SLINGSHOT", Enums::SLINGSHOT);
 	tolua_constant(tolua_S, "CROSSBOW", Enums::CROSSBOW);
 	tolua_constant(tolua_S, "SHIELD", Enums::SHIELD);
+	tolua_constant(tolua_S, "COUNTWT", Enums::COUNTWT);
+	tolua_constant(tolua_S, "QUESTITEM", Enums::QUESTITEM);
+	tolua_constant(tolua_S, "MISCELLANEOUS", Enums::MISCELLANEOUS);
+	tolua_constant(tolua_S, "ARMOR", Enums::ARMOR);
+	tolua_constant(tolua_S, "WEAPON", Enums::WEAPON);
+	tolua_constant(tolua_S, "JEWELRY", Enums::JEWELRY);
+	tolua_constant(tolua_S, "SCROLL", Enums::SCROLL);
+	tolua_constant(tolua_S, "POTION", Enums::POTION);
+	tolua_constant(tolua_S, "FOOD", Enums::FOOD);
+	tolua_constant(tolua_S, "DRINK", Enums::DRINK);
+	tolua_constant(tolua_S, "NEWSPELL", Enums::NEWSPELL);
+	tolua_constant(tolua_S, "COUNT", Enums::COUNT);
+	tolua_constant(tolua_S, "NO_ARMOR", Enums::NO_ARMOR);
+	tolua_constant(tolua_S, "CLOTH", Enums::CLOTH);
+	tolua_constant(tolua_S, "LEATHER", Enums::LEATHER);
+	tolua_constant(tolua_S, "MAIL", Enums::MAIL);
+	tolua_constant(tolua_S, "PLATE", Enums::PLATE);
+	tolua_constant(tolua_S, "POOR", Enums::POOR);
+	tolua_constant(tolua_S, "NORMAL", Enums::NORMAL);
+	tolua_constant(tolua_S, "ENHANCED", Enums::ENHANCED);
+	tolua_constant(tolua_S, "RARE", Enums::RARE);
+	tolua_constant(tolua_S, "LORE", Enums::LORE);
+	tolua_constant(tolua_S, "TAKING_DAMAGE", Enums::TAKING_DAMAGE);
+	tolua_constant(tolua_S, "EXECUTING_ACTION", Enums::EXECUTING_ACTION);
+	tolua_endmodule(tolua_S);
+	tolua_module(tolua_S, "EquipPosition", 0);
+	tolua_beginmodule(tolua_S, "EquipPosition");
+	tolua_constant(tolua_S, "MAIN_HAND", EquipPosition::MAIN_HAND);
+	tolua_constant(tolua_S, "OFF_HAND", EquipPosition::OFF_HAND);
+	tolua_constant(tolua_S, "CHEST", EquipPosition::CHEST);
+	tolua_constant(tolua_S, "LEGS", EquipPosition::LEGS);
+	tolua_constant(tolua_S, "BELT", EquipPosition::BELT);
+	tolua_constant(tolua_S, "BOOTS", EquipPosition::BOOTS);
+	tolua_constant(tolua_S, "RING", EquipPosition::RING);
+	tolua_constant(tolua_S, "GLOVES", EquipPosition::GLOVES);
+	tolua_constant(tolua_S, "HEAD", EquipPosition::HEAD);
+	tolua_constant(tolua_S, "CLOAK", EquipPosition::CLOAK);
+	tolua_constant(tolua_S, "AMULET", EquipPosition::AMULET);
+	tolua_constant(tolua_S, "SHOULDER", EquipPosition::SHOULDER);
+	tolua_constant(tolua_S, "NONE", EquipPosition::NONE);
 	tolua_endmodule(tolua_S);
 	tolua_module(tolua_S, "DawnInterface", 0);
 	tolua_beginmodule(tolua_S, "DawnInterface");
@@ -4992,6 +5667,12 @@ TOLUA_API int tolua_Luainterface_open(lua_State* tolua_S)
 	tolua_function(tolua_S, "copySpell", tolua_Luainterface_DawnInterface_copySpell05);
 	tolua_function(tolua_S, "copySpell", tolua_Luainterface_DawnInterface_copySpell06);
 	tolua_function(tolua_S, "inscribeSpellInPlayerSpellbook", tolua_Luainterface_DawnInterface_inscribeSpellInPlayerSpellbook00);
+	tolua_function(tolua_S, "getInventorySaveText", tolua_Luainterface_DawnInterface_getInventorySaveText00);
+	tolua_function(tolua_S, "restoreItemInBackpack", tolua_Luainterface_DawnInterface_restoreItemInBackpack00);
+	tolua_function(tolua_S, "restoreWieldItem", tolua_Luainterface_DawnInterface_restoreWieldItem00);
+	tolua_function(tolua_S, "createNewItem", tolua_Luainterface_DawnInterface_createNewItem00);
+	tolua_function(tolua_S, "getPlayer", tolua_Luainterface_DawnInterface_getPlayer00);
+	tolua_function(tolua_S, "giveItemToPlayer", tolua_Luainterface_DawnInterface_giveItemToPlayer00);
 	tolua_endmodule(tolua_S);
 	tolua_module(tolua_S, "EditorInterface", 0);
 	tolua_beginmodule(tolua_S, "EditorInterface");
@@ -5068,6 +5749,7 @@ TOLUA_API int tolua_Luainterface_open(lua_State* tolua_S)
 	tolua_function(tolua_S, "setFatigueRegen", tolua_Luainterface_Player_setFatigueRegen00);
 	tolua_function(tolua_S, "giveCoins", tolua_Luainterface_Player_giveCoins00);
 	tolua_function(tolua_S, "init", tolua_Luainterface_Player_init00);
+	tolua_function(tolua_S, "getClass", tolua_Luainterface_Player_getClass00);
 	tolua_endmodule(tolua_S);
 	tolua_cclass(tolua_S, "Npc", "Npc", "Character", NULL);
 	tolua_beginmodule(tolua_S, "Npc");
@@ -5181,6 +5863,21 @@ TOLUA_API int tolua_Luainterface_open(lua_State* tolua_S)
 	tolua_function(tolua_S, "setMoveSpeed", tolua_Luainterface_RangedDamageAction_setMoveSpeed00);
 	tolua_function(tolua_S, "setExpireTime", tolua_Luainterface_RangedDamageAction_setExpireTime00);
 	tolua_function(tolua_S, "addAnimationFrame", tolua_Luainterface_RangedDamageAction_addAnimationFrame00);
+	tolua_endmodule(tolua_S);
+	tolua_cclass(tolua_S, "Item", "Item", "", NULL);
+	tolua_beginmodule(tolua_S, "Item");
+	tolua_function(tolua_S, "setDescription", tolua_Luainterface_Item_setDescription00);
+	tolua_function(tolua_S, "setStats", tolua_Luainterface_Item_setStats00);
+	tolua_function(tolua_S, "setResistElementModifierPoints", tolua_Luainterface_Item_setResistElementModifierPoints00);
+	tolua_function(tolua_S, "setSpellEffectElementModifierPoints", tolua_Luainterface_Item_setSpellEffectElementModifierPoints00);
+	tolua_function(tolua_S, "setMinDamage", tolua_Luainterface_Item_setMinDamage00);
+	tolua_function(tolua_S, "setMaxDamage", tolua_Luainterface_Item_setMaxDamage00);
+	tolua_function(tolua_S, "setRequiredLevel", tolua_Luainterface_Item_setRequiredLevel00);
+	tolua_function(tolua_S, "setMaxStackSize", tolua_Luainterface_Item_setMaxStackSize00);
+	tolua_function(tolua_S, "setValue", tolua_Luainterface_Item_setValue00);
+	tolua_function(tolua_S, "setSpell", tolua_Luainterface_Item_setSpell00);
+	tolua_function(tolua_S, "addTriggerSpellOnSelf", tolua_Luainterface_Item_addTriggerSpellOnSelf00);
+	tolua_function(tolua_S, "addTriggerSpellOnTarget", tolua_Luainterface_Item_addTriggerSpellOnTarget00);
 	tolua_endmodule(tolua_S);
 	tolua_endmodule(tolua_S);
 	return 1;

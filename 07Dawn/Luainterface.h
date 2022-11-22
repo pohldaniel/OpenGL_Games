@@ -4,10 +4,15 @@
 
 namespace Enums {
 	enum TileClassificationType;
+	enum Attitude;
+	enum ItemQuality;
+	enum ItemType;
+	enum ArmorType;
+	enum WeaponType;
 }
 
-namespace Enums {
-	enum Attitude;
+namespace EquipPosition {
+	enum EquipPosition;
 }
 
 struct TextureRect;
@@ -27,6 +32,8 @@ class GeneralHealingSpell;
 class GeneralBuffSpell;
 class MeleeDamageAction;
 class RangedDamageAction;
+class Player;
+class Item;
 
 namespace EditorInterface{
 	TileSet& getTileSet(Enums::TileClassificationType tileType);
@@ -71,4 +78,10 @@ namespace DawnInterface{
 	void inscribeSpellInPlayerSpellbook(SpellActionBase *inscribedSpell);
 	void addTextToLogWindow(float color[], const char *text, ...);
 	void clearLogWindow();
+	std::string getInventorySaveText();
+	void restoreItemInBackpack(Item* item, int inventoryPosX, int inventoryPosY, size_t stackSize);
+	void restoreWieldItem(int slot, Item* item);
+	void giveItemToPlayer(Item* item);
+	Item* createNewItem(std::string name, int sizeX, int sizeY, std::string symbolFile, Enums::ItemQuality itemQuality, EquipPosition::EquipPosition equipPos, Enums::ItemType itemType, Enums::ArmorType armorType, Enums::WeaponType weaponType);
+	Player& getPlayer();
 }

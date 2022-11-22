@@ -2,7 +2,7 @@
 #include "Zone.h"
 #include "Constants.h"
 
-Zone::Zone() { }
+Zone::Zone() : groundLoot(&Player::Get()) { }
 
 Zone::~Zone(){	 }
 
@@ -404,6 +404,11 @@ void Zone::removeActiveAoESpell(SpellActionBase* activeSpell) {
 		}
 	}
 }
+
+GroundLoot* Zone::getGroundLoot() {
+	return &groundLoot;
+}
+
 
 ///////////////////////////////////////////////////////////////////
 ZoneManager ZoneManager::s_instance;

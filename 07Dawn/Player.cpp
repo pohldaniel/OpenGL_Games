@@ -5,6 +5,7 @@
 #include "Statssystem.h"
 #include "Luainterface.h"
 #include "Item.h"
+#include "Inventory.h"
 
 const unsigned short NULLABLE_ATTRIBUTE_MIN = 0;
 const unsigned short NON_NULLABLE_ATTRIBUTE_MIN = 1;
@@ -115,8 +116,7 @@ Player& Player::Get() {
 	return s_instance;
 }
 
-Player::Player() {
-
+Player::Player() : inventory(Inventory()) {
 }
 
 Player::~Player() {
@@ -181,12 +181,14 @@ void Player::init(int x, int y) {
 	//hasChoosenDyingDirection = false;
 	//curSpellAction = NULL;
 	//experience = 0;
-	coins = 0;
+	//coins = 0;
 	//dyingTransparency = 1.0f;
 	movementSpeed = 1;
 	setName("Enylyn");
 
 	m_isPlayer = true;
+
+	inventory.init(10, 4, this);
 }
 
 bool Player::hasTarget(Character* target) {
@@ -504,4 +506,12 @@ void Player::stopShopping() {
 
 bool Player::isShopping() const {
 	return isCurrentlyShopping;
+}
+
+Inventory* Player::getInventory() {
+	return &inventory;
+}
+
+void Player::clearInventory() {
+	inventory.clear();
 }

@@ -1,10 +1,21 @@
 #pragma once
 
-#include "engine/Rect.h"
-#include "Enums.h"
-#include "Widget.h"
+#include "engine/Fontrenderer.h"
 
-class Player;
+#include "Widget.h"
+#include "Player.h"
+
+namespace currency {
+	enum currency {
+		COPPER, // 100 COPPER == 1 SILVER
+		SILVER, // 100 SILVER == 1 GOLD
+		GOLD
+	};
+	std::string getLongTextString(std::uint32_t coins);
+	void exchangeCoins(std::uint32_t &copper, std::uint32_t &silver, std::uint32_t &gold, std::uint32_t &coins);
+	std::string convertCoinsToString(currency currency, std::uint32_t coins);
+}
+
 class InventoryItem;
 
 class InventoryScreenSlot {
@@ -14,10 +25,10 @@ private:
 	size_t offsetY;
 	size_t sizeX;
 	size_t sizeY;
-	TextureRect textures;
+	TextureRect texture;
 
 public:
-	InventoryScreenSlot(Enums::ItemSlot itemSlot, size_t offsetX, size_t offsetY, size_t sizeX, size_t sizeY, std::string plain_file);
+	InventoryScreenSlot(Enums::ItemSlot itemSlot, size_t offsetX, size_t offsetY, size_t sizeX, size_t sizeY, TextureRect texture);
 	size_t getOffsetX() const;
 	size_t getOffsetY() const;
 	size_t getSizeX() const;
@@ -31,7 +42,7 @@ class InventoryScreen : public Widget {
 
 public:
 	
-	~InventoryScreen() = default;
+	~InventoryScreen();
 
 	void draw() override;
 	void drawCoins();
@@ -72,7 +83,7 @@ private:
 
 	CharacterSet* m_coinsFont;
 	std::vector<TextureRect> m_textures;
-
+	unsigned int m_textureAtlas;
 
 	InventoryItem* floatingSelection;
 	InventoryScreenSlot** mySlots;
@@ -90,6 +101,6 @@ private:
 	size_t numSlotsY;
 
 	void equipOnSlotOriginDependingAndPlaySound(Enums::ItemSlot slotToUse, InventoryItem* wieldItem, bool fromShop, InventoryItem* newFloatingSelection);
-
+	void addInventoryScreenSlot(InventoryScreenSlot** mySlots, Enums::ItemSlot slotToUse, size_t offsetX, size_t offsetY, size_t sizeX, size_t sizeY, TextureRect _texture);
 	static InventoryScreen s_instance;
 };

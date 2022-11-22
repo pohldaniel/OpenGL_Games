@@ -4,6 +4,7 @@
 #include "TilesetManager.h"
 
 class Item;
+class Inventory;
 
 class Player : public Character {
 
@@ -61,6 +62,8 @@ public:
 	void startShopping();
 	void stopShopping();
 	bool isShopping() const;
+	Inventory* getInventory();
+	void clearInventory();
 
 	static Player& Get();
 
@@ -91,6 +94,7 @@ private:
 	Enums::Attitude targetAttitude;
 	int dx, dy;
 	bool isCurrentlyShopping;
+	Inventory& inventory;
 
 	static Player s_instance;
 };

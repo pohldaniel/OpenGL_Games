@@ -11,6 +11,7 @@
 #include "Spells.h"
 #include "Player.h"
 #include "Interface.h"
+#include "Inventory.h"
 
 namespace EditorInterface{
 	
@@ -243,5 +244,52 @@ namespace DawnInterface{
 
 	void clearLogWindow() {
 		Interface::Get().clearLogWindow();
+	}
+
+	std::string getInventorySaveText() {
+		return  Player::Get().getInventory()->getReloadText();
+	}
+
+	void restoreItemInBackpack(Item* item, int inventoryPosX, int inventoryPosY, size_t stackSize) {
+		InventoryItem* invItem = new InventoryItem(item, inventoryPosX, inventoryPosY, &Player::Get());
+		invItem->setCurrentStackSize(stackSize);
+		Player::Get().getInventory()->insertItemWithExchangeAt(invItem, inventoryPosX, inventoryPosY);
+	}
+
+	void restoreWieldItem(int slot, Item* item) {
+		ItemSlot::ItemSlot slotToUse = static_cast<ItemSlot::ItemSlot>(slot);
+		InventoryItem* invItem = new InventoryItem(item, 0, 0, &Player::Get());
+		Player::Get().getInventory()->wieldItemAtSlot(slotToUse, invItem);
+	}
+
+	void giveItemToPlayer(Item* item) {
+		Inventory* playerInventory = Player::Get().getInventory();
+		bool wasInserted = playerInventory->insertItem(item);
+		if (!wasInserted) {
+			Player* player = &Player::Get();
+			ZoneManager::Get().getCurrentZone()->getGroundLoot()->addItem(player->getXPos(), player->getYPos(), item);
+		} else {
+			GLfloat blue[] = { 0.4f, 0.4f, 0.8f };
+			DawnInterface::addTextToLogWindow(blue, "You receive %s.", item->getName().c_str());
+		}
+	}
+
+	Item* createNewItem(std::string name,
+		int sizeX,
+		int sizeY,
+		std::string symbolFile,
+		Enums::ItemQuality itemQuality,
+		EquipPosition::EquipPosition equipPos,
+		Enums::ItemType itemType,
+		Enums::ArmorType armorType,
+		Enums::WeaponType weaponType) {
+
+		Item *newItem = new Item(name, sizeX, sizeY, symbolFile, itemQuality, equipPos, itemType, armorType, weaponType);
+		//allItems.push_back(newItem);
+		return newItem;
+	}
+
+	Player& getPlayer() {
+		return Player::Get();
 	}
 }
