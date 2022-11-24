@@ -123,8 +123,8 @@ int Dialog::getHeight() const{
 	return (2 + m_rows) * TILE_HEIGHT;
 }
 
-void Dialog::addChildFrame(int relPosX, int relPosY, std::auto_ptr<Widget> newChild){
-	Widget::addChildWidget(relPosX, relPosY, getPosX(), getPosY(), newChild);
+void Dialog::addChildWidget(int relPosX, int relPosY, std::auto_ptr<Widget> newChild){
+	Widget::addChildWidget(relPosX, relPosY, newChild);
 	applyLayout();	
 }
 

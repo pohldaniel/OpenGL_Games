@@ -39,9 +39,9 @@ public:
 	void setCenterOnScreen();
 	void applyLayout();
 
-	virtual void addChildFrame(int relPosX, int relPosY, std::auto_ptr<Widget> newChild);
-	virtual int getWidth() const;
-	virtual int getHeight() const;
+	void addChildWidget(int relPosX, int relPosY, std::auto_ptr<Widget> newChild) override;
+	int getWidth() const override;
+	int getHeight() const override;
 
 private:
 	

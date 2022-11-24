@@ -33,8 +33,8 @@ void Widget::processInput() {
 		if (mouse.buttonDown(Mouse::BUTTON_LEFT)) {
 			if (!m_movingFrame && isMouseOnTitlebar(mouse.xPosAbsolute(), mouse.yPosAbsolute())) {
 				m_movingFrame = true;
-				m_startMovingFrameXpos = mouse.xPosAbsolute();
-				m_startMovingFrameYpos = mouse.yPosAbsolute();
+				m_startMovingXpos = mouse.xPosAbsolute();
+				m_startMovingYpos = mouse.yPosAbsolute();
 			}
 		}else {
 			stopMovingFrame();
@@ -91,28 +91,28 @@ bool Widget::isMouseOnCloseButton(int mouseX, int mouseY) const {
 
 void Widget::moveFrame(int mouseX, int mouseY) {
 
-	m_posX = (mouseX < 0 || mouseX >  static_cast<int>(ViewPort::get().getWidth())) ? m_posX : m_posX + mouseX - m_startMovingFrameXpos;
-	m_posY -= mouseY - m_startMovingFrameYpos;
+	m_posX = (mouseX < 0 || mouseX >  static_cast<int>(ViewPort::get().getWidth())) ? m_posX : m_posX + mouseX - m_startMovingXpos;
+	m_posY -= mouseY - m_startMovingYpos;
 
 	m_posX = (std::max)(-m_titleWidth + 11, (std::min)(static_cast<int>(m_posX), static_cast<int>(ViewPort::get().getWidth()) - 33));
 	m_posY = (std::max)(-m_titleOffsetY, (std::min)(static_cast<int>(m_posY), static_cast<int>(ViewPort::get().getHeight()) - (m_titleOffsetY + m_titleHeight)));
 
-	m_startMovingFrameXpos = (std::max)(0, (std::min)(mouseX, static_cast<int>(ViewPort::get().getWidth())));
-	m_startMovingFrameYpos = (std::max)(0, (std::min)(mouseY, static_cast<int>(ViewPort::get().getHeight())));
+	m_startMovingXpos = (std::max)(0, (std::min)(mouseX, static_cast<int>(ViewPort::get().getWidth())));
+	m_startMovingYpos = (std::max)(0, (std::min)(mouseY, static_cast<int>(ViewPort::get().getHeight())));
 }
 
 void Widget::stopMovingFrame() {
 	m_movingFrame = false;
-	m_startMovingFrameXpos = 0;
-	m_startMovingFrameYpos = 0;
+	m_startMovingXpos = 0;
+	m_startMovingYpos = 0;
 }
 
 void Widget::addToParent(int posX, int posY, Widget* parent) {
-	this->m_parentFrame = parent;
+	this->m_parentWidget = parent;
 	setPosition(posX, posY);
 }
 
-void Widget::addChildWidget(int posX, int posY, int parentX, int parentY, std::auto_ptr<Widget> newChild) {
+void Widget::addChildWidget(int posX, int posY, std::auto_ptr<Widget> newChild) {
 	newChild->addToParent(posX, posY, this);
 	m_childWidgets.push_back(newChild.release());
 }

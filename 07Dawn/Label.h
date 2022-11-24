@@ -7,8 +7,6 @@
 
 #include "Widget.h"
 
-
-
 class Label : public Widget {
 
 public:
@@ -27,8 +25,8 @@ public:
 	std::string m_text;
 	const CharacterSet* m_characterSet;
 
-	virtual int getWidth() const override;
-	virtual int getHeight() const override;
+	int getWidth() const override;
+	int getHeight() const override;
 
 private:
 	void draw(std::string text);

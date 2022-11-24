@@ -13,12 +13,12 @@ public:
 
 	virtual void draw();
 	virtual void processInput();
-
-	virtual void addChildWidget(int posX, int posY, int parentX, int parentY, std::auto_ptr<Widget> newChild);
-	virtual int getPosX() const;
-	virtual int getPosY() const;
+	virtual void addChildWidget(int posX, int posY, std::auto_ptr<Widget> newChild);
 	virtual int getWidth() const;
 	virtual int getHeight() const;
+
+	int getPosX() const;
+	int getPosY() const;
 	virtual void toggle();
 
 	void addToParent(int posX, int posY, Widget* parent);
@@ -51,14 +51,14 @@ protected:
 	bool m_visible = false;
 
 	std::vector<Widget*> m_childWidgets;
-	Widget* m_parentFrame;
+	Widget* m_parentWidget;
 
 	unsigned short m_titleWidth;
 	unsigned short m_titleHeight;
 	short m_titleOffsetX;
 	short m_titleOffsetY;
-	unsigned short m_startMovingFrameXpos;
-	unsigned short m_startMovingFrameYpos;
+	unsigned short m_startMovingXpos;
+	unsigned short m_startMovingYpos;
 	bool m_moveableFrame = false;
 	bool m_movingFrame = false;
 
