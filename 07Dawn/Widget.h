@@ -8,7 +8,7 @@ class Widget {
 public:
 
 	Widget() = default;
-	Widget(short posX, short posY, short width, short height);
+	Widget(short posX, short posY, short width, short height, short offsetX, short offsetY);
 	~Widget();
 
 	virtual void draw();
@@ -27,7 +27,6 @@ public:
 	std::vector<Widget*> getChildWidgets();
 
 	void setPosition(int posX, int posY);
-	void setParentPosition(int posX, int posY);
 	void setSize(int width, int height);
 
 	bool isVisible() const;
@@ -43,8 +42,8 @@ protected:
 	short m_posX = 0;
 	short m_posY = 0;
 
-	short m_parentX = 0;
-	short m_parentY = 0;
+	short m_offsetX = 0;
+	short m_offsetY = 0;
 
 	short m_width;
 	short m_height;

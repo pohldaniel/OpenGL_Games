@@ -387,71 +387,59 @@ void ItemTooltip::draw(int x, int y) {
 	if (ticketFromPlayer != player->getTicketForItemTooltip()) {
 		reloadTooltip();
 	}
-
+	
 	// we also check to see if the bound spell has changed the displayed cooldown.
-	/*if (parent->getSpell() != NULL) {
+	if (parent->getSpell() != NULL) {
 		if (player->isSpellOnCooldown(parent->getSpell()->getName()) == true || !currentCooldownText.empty()) {
-			if (currentCooldownText != TimeConverter::convertTime(player->getTicksOnCooldownSpell(parent->getSpell()->getName()), parent->getSpell()->getCooldown())) {
+			if (currentCooldownText != Utils::ConvertTime(player->getTicksOnCooldownSpell(parent->getSpell()->getName()), parent->getSpell()->getCooldown()).c_str()) {
 				reloadTooltip();
 			}
 		}
 	}
 
 	// make sure the tooltip doesnt go "off screen"
-	if (x + (curBlockNumberWidth + 2) * blockWidth > Configuration::screenWidth)
-	{
-		x = Configuration::screenWidth - (curBlockNumberWidth + 2) * blockWidth;
+	if (x + (curBlockNumberWidth + 2) * blockWidth > ViewPort::get().getWidth()) {
+		x = ViewPort::get().getWidth() - (curBlockNumberWidth + 2) * blockWidth;
 	}
 
-	if (y + (curBlockNumberHeight + 2) * blockHeight > Configuration::screenHeight)
-	{
-		y = Configuration::screenHeight - (curBlockNumberHeight + 2) * blockHeight;
+	if (y + (curBlockNumberHeight + 2) * blockHeight > ViewPort::get().getHeight()) {
+		y = ViewPort::get().getHeight() - (curBlockNumberHeight + 2) * blockHeight;
 	}
-
-	// set the correct position based on where we are
-	x += world_x;
-	y += world_y;
-
 	// set the first font Y-position on the top of the first tooltip block excluding topborder
 	// (we could also center the text in the tooltip, but topaligned is probably bestlooking
 	int font_y = y + blockHeight + (curBlockNumberHeight)* blockHeight - toplineHeight;
 
-	Frames::drawFrame(x, y, curBlockNumberWidth, curBlockNumberHeight, blockWidth, blockHeight);
-
+	DialogCanvas::drawCanvas(x, y, curBlockNumberWidth, curBlockNumberHeight, blockWidth, blockHeight, false);
+	
 	// loop through the text vector and print all the text.
-	for (unsigned int i = 0; i < tooltipText.size(); i++)
-	{
+	for (unsigned int i = 0; i < tooltipText.size(); i++) {
 
-		if (tooltipText[i].text.find("price:") != tooltipText[i].text.npos)
-		{
+		if (tooltipText[i].text.find("price:") != tooltipText[i].text.npos) {
 			drawCoinsLine(x + blockWidth, blockWidth*curBlockNumberWidth - 10, font_y, &tooltipText[i]);
+		}else {
+			Fontrenderer::Get().drawText(*tooltipText[i].charset, x + blockWidth, font_y, tooltipText[i].text, tooltipText[i].color, false);
 		}
-		else {
-			glColor4fv(tooltipText[i].color);
-			tooltipText[i].font->drawText(x + blockWidth, font_y, tooltipText[i].text);
-			glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-		}
-		font_y -= tooltipText[i].font->getHeight() + 11;
+		font_y -= tooltipText[i].charset->lineHeight + 11;
 		if (smallTooltip) {
 			break;
 		}
-	}*/
+	}
 }
 
 void ItemTooltip::drawCoinsLine(int x, int frameWidth, int y, sTooltipText *tooltipText) {
-	/*std::string realString = tooltipText->text.substr(0, tooltipText->text.find_first_of(":") + 1);
+	std::string realString = tooltipText->text.substr(0, tooltipText->text.find_first_of(":") + 1);
 
-	int stringWidth = tooltipText->font->calcStringWidth(realString);
+	int stringWidth = tooltipText->charset->getWidth(realString);
 	int xoffset = 0;
 	for (size_t i = 0; i < 3; i++) {
 		if (itemValue[i] != "0") {
 			DrawFunctions::drawCoin(x + frameWidth - xoffset, y + 1, i);
-			int stringWidth = tooltipText->font->calcStringWidth(itemValue[i]);
-			tooltipText->font->drawText(x + frameWidth - xoffset - stringWidth, y, itemValue[i]);
+			int stringWidth = tooltipText->charset->getWidth(itemValue[i]);
+			Fontrenderer::Get().drawText(*tooltipText->charset, x + frameWidth - xoffset - stringWidth, y, itemValue[i], Vector4f(1.0f, 1.0f, 1.0f, 1.0f), false);
 			xoffset = xoffset + 25 + stringWidth;
 		}
 	}
-	tooltipText->font->drawText(x + frameWidth - xoffset + 20 - stringWidth, y, realString);*/
+	Fontrenderer::Get().drawText(*tooltipText->charset, x + frameWidth - xoffset + 20 - stringWidth, y, realString, Vector4f(1.0f, 1.0f, 1.0f, 1.0f), false);
 }
 
 void ItemTooltip::addTooltipTextForPercentageAttribute(std::string attributeName, double attributePercentage) {

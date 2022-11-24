@@ -79,7 +79,7 @@ int DialogCanvas::calculateNeededBlockHeight(int height, int tileHeight) {
 
 /////////////////////////////////////////////////////////////DIALOG///////////////////////////////////////////////////////////////////
 Dialog::Dialog(int posX, int posY, int width, int height)
-	: Widget(posX - TILE_WIDTH, posY - TILE_HEIGHT, DialogCanvas::calculateNeededBlockWidth(width, TILE_WIDTH) * TILE_WIDTH, DialogCanvas::calculateNeededBlockHeight(height, TILE_HEIGHT) * TILE_HEIGHT),
+	: Widget(posX - TILE_WIDTH, posY - TILE_HEIGHT, DialogCanvas::calculateNeededBlockWidth(width, TILE_WIDTH) * TILE_WIDTH, DialogCanvas::calculateNeededBlockHeight(height, TILE_HEIGHT) * TILE_HEIGHT, 0, 0),
 	m_columns(DialogCanvas::calculateNeededBlockWidth(width, TILE_WIDTH)),
 	m_rows(DialogCanvas::calculateNeededBlockHeight(height, TILE_HEIGHT)),
 	autoResize(false),
@@ -124,7 +124,7 @@ int Dialog::getHeight() const{
 }
 
 void Dialog::addChildFrame(int relPosX, int relPosY, std::auto_ptr<Widget> newChild){
-	Widget::addChildWidget(relPosX, relPosY, getPosX() + TILE_WIDTH, getPosY() + TILE_HEIGHT, newChild);
+	Widget::addChildWidget(relPosX, relPosY, getPosX(), getPosY(), newChild);
 	applyLayout();	
 }
 
@@ -142,7 +142,6 @@ void Dialog::applyLayout() {
 		resize(maxWidth, totalHeight);
 
 	}else if (autoResize){
-
 		int maxX = 0;
 		int maxY = 0;
 		for (size_t curChild = 0; curChild < childFrames.size(); ++curChild){
@@ -162,7 +161,7 @@ void Dialog::applyLayout() {
 		int skipPerElement = ((m_rows * TILE_HEIGHT - totalChildHeight) / (static_cast<int>(childFrames.size()) + 1));
 		int curY = skipPerElement;
 		for (size_t curChild = 0; curChild < childFrames.size(); ++curChild){
-			childFrames[curChild]->setPosition((m_columns * TILE_WIDTH - maxChildWidth) / 2, curY);
+			childFrames[curChild]->setPosition((m_columns * TILE_WIDTH - maxChildWidth) / 2 + TILE_WIDTH, curY + TILE_HEIGHT);
 			curY += skipPerElement + childFrames[curChild]->getHeight();
 		}
 	}	
@@ -179,9 +178,9 @@ void Dialog::recalculatePosition(){
 	if (centerOnScreen) {
 		setPosition((ViewPort::get().getWidth() - getWidth()) / 2, (ViewPort::get().getHeight() - getHeight()) / 2);
 
-		std::vector<Widget*> childFrames = getChildWidgets();
+		/*std::vector<Widget*> childFrames = getChildWidgets();
 		for (size_t curChild = 0; curChild < childFrames.size(); ++curChild) {
 			childFrames[curChild]->setParentPosition(m_posX + TILE_WIDTH, m_posY + TILE_HEIGHT);
-		}
+		}*/
 	}
 }

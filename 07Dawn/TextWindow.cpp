@@ -74,7 +74,7 @@ void TextWindow::RemoveTextWindow(unsigned short index) {
 	s_textWindows.erase(s_textWindows.begin() + index);
 }
 
-TextWindow::TextWindow() : Widget(0, 0, 0, 0),
+TextWindow::TextWindow() :
 	positionType(PositionType::CENTER),
 	x(0),
 	y(0),
@@ -164,11 +164,6 @@ void TextWindow::updateFramesPosition() {
 		bottomY = y;
 		break;
 	}
-
-	Widget::m_posX = leftX;
-	Widget::m_posY = bottomY;
-	Widget::m_width = (neededInnerBlocksX + 2) * blockSizeX;
-	Widget::m_height = (neededInnerBlocksY + 2) * blockSizeY;
 }
 
 bool TextWindow::canBeDeleted() const {

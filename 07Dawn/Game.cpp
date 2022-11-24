@@ -56,7 +56,6 @@ void Game::update() {
 		TextWindow *curTextWindow = *it;		
 		if (curTextWindow->canBeDeleted() == true) {
 			curTextWindow->close();
-			curTextWindow->toggle();
 
 			delete curTextWindow;
 			TextWindow::RemoveTextWindow(index);

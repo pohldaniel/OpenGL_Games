@@ -1,6 +1,6 @@
 #include "Widget.h"
 
-Widget::Widget(short posX, short posY, short width, short height) : m_posX(posX), m_posY(posY), m_width(width), m_height(height){
+Widget::Widget(short posX, short posY, short width, short height, short offsetX, short offsetY) : m_posX(posX), m_posY(posY), m_width(width), m_height(height), m_offsetX(offsetX), m_offsetY(offsetY) {
 
 	//To create the singeltons on startup the HEIGHT has to be known
 	//Don't use ViewPort::get().getHeight()
@@ -115,19 +115,11 @@ void Widget::addToParent(int posX, int posY, Widget* parent) {
 void Widget::addChildWidget(int posX, int posY, int parentX, int parentY, std::auto_ptr<Widget> newChild) {
 	newChild->addToParent(posX, posY, this);
 	m_childWidgets.push_back(newChild.release());
-
-	m_parentX = parentX;
-	m_parentY = parentY;
 }
 
 void Widget::setPosition(int posX, int posY) {
 	m_posX = posX;
 	m_posY = posY;
-}
-
-void Widget::setParentPosition(int parentX, int parentY) {
-	m_parentX = parentX;
-	m_parentY = parentY;
 }
 
 void Widget::setSize(int width, int height) {

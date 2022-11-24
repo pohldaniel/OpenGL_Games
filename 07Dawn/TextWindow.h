@@ -20,7 +20,7 @@ namespace PositionType {
 	};
 }
 
-class TextWindow : public Widget {
+class TextWindow {
 public:
 	void setText(std::string text);
 	void setAutocloseTime(unsigned int autocloseTime);

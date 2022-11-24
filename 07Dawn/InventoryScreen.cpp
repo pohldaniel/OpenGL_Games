@@ -16,7 +16,7 @@ InventoryScreenSlot::InventoryScreenSlot(Enums::ItemSlot _itemSlot, size_t _offs
 	sizeX(_sizeX),
 	sizeY(_sizeY),
 	texture(_texture) {
-	
+
 }
 
 size_t InventoryScreenSlot::getOffsetX() const {
@@ -43,16 +43,21 @@ TextureRect* InventoryScreenSlot::getTexture() {
 	return &texture;
 }
 
-InventoryScreen::InventoryScreen() : Widget(0, 80, 469, 654) {
-
+InventoryScreen::InventoryScreen() : Widget(0, 80, 469, 654, 0, 0) {
+	mySlots = new InventoryScreenSlot*[static_cast<size_t>(Enums::ItemSlot::COUNTIS)];
+	for (size_t curSlotNr = 0; curSlotNr < static_cast<size_t>(Enums::ItemSlot::COUNTIS); ++curSlotNr) {
+		mySlots[curSlotNr] = NULL;
+	}
 }
 
 InventoryScreen::~InventoryScreen() {
+
 	size_t count = static_cast<size_t>(Enums::ItemSlot::COUNTIS);
-	for (size_t curSlot = 0; curSlot<count; ++curSlot) {
+	for (size_t curSlot = 0; curSlot < count; ++curSlot) {
 		delete mySlots[curSlot];
 	}
 	delete[] mySlots;
+	
 }
 
 void InventoryScreen::setPlayer(Player* player) {
@@ -99,11 +104,6 @@ void InventoryScreen::init() {
 	numSlotsX = 10;
 	numSlotsY = 4;
 
-	mySlots = new InventoryScreenSlot*[static_cast<size_t>(Enums::ItemSlot::COUNTIS)];
-	for (size_t curSlotNr = 0; curSlotNr < static_cast<size_t>(Enums::ItemSlot::COUNTIS); ++curSlotNr) {
-		mySlots[curSlotNr] = NULL;
-	}
-
 	addInventoryScreenSlot(mySlots, Enums::ItemSlot::HEAD, 210, 556, 64, 64, m_textures[5]);
 	addInventoryScreenSlot(mySlots, Enums::ItemSlot::AMULET, 171, 532, 32, 32, m_textures[6]);
 	addInventoryScreenSlot(mySlots, Enums::ItemSlot::MAIN_HAND, 97, 412, 64, 96, m_textures[7]);
@@ -138,6 +138,7 @@ void InventoryScreen::draw() {
 	}
 	drawItemPlacement(ViewPort::get().getCursorPosRelX(), ViewPort::get().getCursorPosRelY());
 	TextureManager::UnbindTexture(true);
+	drawItemTooltip(ViewPort::get().getCursorPosRelX(), ViewPort::get().getCursorPosRelY());
 }
 
 void InventoryScreen::drawCoins() {
@@ -312,6 +313,77 @@ void InventoryScreen::drawSlot(Enums::ItemSlot curSlot) {
 		// we draw the two-handed weapons on our off-handslot with 50% transparency
 		Vector4f color = item->isTwoHandedWeapon() == true && curSlot == Enums::ItemSlot::OFF_HAND ? Vector4f(1.0f, 1.0f, 1.0f, 0.5f) : Vector4f(1.0f, 1.0f, 1.0f, 1.0f);
 		TextureManager::DrawTexture(*symbolTexture, m_posX + curScreenSlot->getOffsetX() + centerOffsetX, m_posY + curScreenSlot->getOffsetY() + centerOffsetY, drawSizeX, drawSizeY, color, false, false);
+	}
+}
+
+void InventoryScreen::drawItemTooltip(int mouseX, int mouseY) {
+	// draws tooltip over item in the backpack
+	InventoryItem* floatingSelectionToHandle = floatingSelection;
+	/*if (floatingSelectionToHandle == NULL && shopWindow->hasFloatingSelection())
+	{
+		floatingSelectionToHandle = shopWindow->getFloatingSelection();
+	}*/
+
+	if (isOnBackpackScreen(mouseX, mouseY) && isVisible() && floatingSelectionToHandle == NULL) {
+		Inventory* inventory = m_player->getInventory();
+		InventoryItem* tooltipItem;
+		int fieldIndexX = (mouseX - (m_posX + backpackOffsetX)) / (backpackFieldWidth + backpackSeparatorWidth);
+		int fieldIndexY = (mouseY - (m_posY + backpackOffsetY)) / (backpackFieldHeight + backpackSeparatorHeight);
+
+		if (!inventory->isPositionFree(fieldIndexX, fieldIndexY)) {
+			tooltipItem = inventory->getItemAt(fieldIndexX, fieldIndexY);
+			tooltipItem->getTooltip()->setShopItem(false);
+			tooltipItem->getTooltip()->draw(mouseX, mouseY);
+
+			//if player is holding down right shift and has an
+			// item with same slot equipped, we draw that too.			
+			int thisTooltipPosX;
+			int previousFrameHeight;
+			bool firstItemCompared = false;
+
+			Keyboard &keyboard = Keyboard::instance();
+			if (keyboard.keyDown(Keyboard::KEY_LSHIFT)) {
+				std::vector<InventoryItem*> equippedItems = inventory->getEquippedItems();
+				for (size_t curItem = 0; curItem < equippedItems.size(); curItem++) {
+					if (equippedItems[curItem]->getItem()->getEquipPosition() == tooltipItem->getItem()->getEquipPosition()) {
+						int thisTooltipPosY = mouseY;
+						// if this is our second item we're adding to the compare, then we need to position it next to the previous tooltip.
+						if (firstItemCompared == true) {
+							thisTooltipPosY += previousFrameHeight + 30;
+						}
+
+						// if this is the first (or only) item we're going to draw in the compare we check where it will fit.
+						if (firstItemCompared == false) {
+							if (ViewPort::get().getWidth() - (mouseX + tooltipItem->getTooltip()->getTooltipWidth() + 60) > equippedItems[curItem]->getTooltip()->getTooltipWidth()) {
+								thisTooltipPosX = mouseX + tooltipItem->getTooltip()->getTooltipWidth() + 30;
+							}else {
+								thisTooltipPosX = mouseX - 30 - equippedItems[curItem]->getTooltip()->getTooltipWidth();
+							}
+						}
+
+						previousFrameHeight = equippedItems[curItem]->getTooltip()->getTooltipHeight();
+						equippedItems[curItem]->getTooltip()->draw(thisTooltipPosX, thisTooltipPosY);
+						firstItemCompared = true;
+					}
+				}
+			}
+		}
+	}
+	
+	// draws tooltip over equipped item
+	if (isVisible() && floatingSelectionToHandle == NULL && !isOnBackpackScreen(mouseX, mouseY)) {
+		Enums::ItemSlot tooltipslot = getMouseOverSlot(mouseX, mouseY);
+
+		if (tooltipslot != Enums::ItemSlot::COUNTIS) {
+			Inventory* inventory = m_player->getInventory();
+			InventoryItem* tooltipItem;
+
+			tooltipItem = inventory->getItemAtSlot(tooltipslot);
+			if (tooltipItem){
+				tooltipItem->getTooltip()->setShopItem(false);
+				tooltipItem->getTooltip()->draw(mouseX, mouseY);
+			}
+		}
 	}
 }
 
@@ -505,6 +577,10 @@ void InventoryScreen::processInput() {
 		}
 
 	}
+}
+
+void InventoryScreen::setTextureDependentPositions() {
+	m_posX = ViewPort::get().getWidth() - m_textures[0].width - 50;
 }
 
 void InventoryScreen::addInventoryScreenSlot(InventoryScreenSlot** mySlots, Enums::ItemSlot slotToUse, size_t offsetX, size_t offsetY, size_t sizeX, size_t sizeY, TextureRect texture) {

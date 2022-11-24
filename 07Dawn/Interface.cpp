@@ -56,6 +56,7 @@ void Interface::init() {
 	m_inventoryScreen.init();
 
 	m_inventoryScreen.setVisible(true);
+	m_inventoryScreen.setTextureDependentPositions();
 }
 
 void Interface::loadTextures() {

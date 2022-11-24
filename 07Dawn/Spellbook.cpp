@@ -7,7 +7,7 @@ Spellbook& Spellbook::Get() {
 	return s_instance;
 }
 
-Spellbook::Spellbook() : Widget(125, 50, 454, 672), m_floatingSpellSlot(SpellSlot(0, 0, 0, 0)) {
+Spellbook::Spellbook() : Widget(125, 50, 454, 672, 0, 0), m_floatingSpellSlot(SpellSlot(0, 0, 0, 0)) {
 	
 }
 
