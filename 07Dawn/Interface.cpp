@@ -879,7 +879,6 @@ void Interface::processInputRightDrag() {
 		}
 	}
 
-	
 	Keyboard &keyboard = Keyboard::instance();
 	if (keyboard.keyPressed(Keyboard::KEY_B)) {
 		m_spellbook.isVisible() ? m_spellbook.close() : m_spellbook.activate();
