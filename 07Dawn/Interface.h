@@ -66,7 +66,7 @@ struct TextLine {
 class Interface {
 
 public:
-
+	~Interface();
 	void draw();
 	void drawCursor(bool drawInGameCursor);
 
@@ -141,6 +141,8 @@ private:
 	InventoryScreen& m_inventoryScreen;
 
 	std::pair<int, int> m_lastMouseDown;
+	std::vector <Widget*> m_widgets;
+	Widget* m_activeWidget;
 
 	static Interface s_instance;
 };

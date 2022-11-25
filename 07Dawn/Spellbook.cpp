@@ -7,7 +7,7 @@ Spellbook& Spellbook::Get() {
 	return s_instance;
 }
 
-Spellbook::Spellbook() : Widget(125, 50, 454, 672, 0, 0), m_floatingSpellSlot(SpellSlot(0, 0, 0, 0)) {
+Spellbook::Spellbook() : Widget(125, 50, 454, 672, 13, 15), m_floatingSpellSlot(SpellSlot(0, 0, 0, 0)) {
 	
 }
 
@@ -54,7 +54,6 @@ void Spellbook::draw() {
 	// draw spellbook base
 	TextureManager::BindTexture(m_textureAtlas, true);
 	TextureManager::DrawTexture(m_textures[0], m_posX, m_posY, false, false);
-
 	// draw placeholders, the actual spell symbol and title of the spell.
 	for (unsigned int x = 0; x < spellSlot.size(); x++) {		
 		//TextureManager::BindTexture(m_textureAtlas, true);
@@ -80,9 +79,6 @@ void Spellbook::draw() {
 
 	TextureManager::UnbindTexture(true);
 
-	if (!hasFloatingSpell()) {
-		drawSpellTooltip(ViewPort::get().getCursorPosRelX(), ViewPort::get().getCursorPosRelY());
-	}
 }
 
 void Spellbook::drawSpellTooltip(int mouseX, int mouseY) {
@@ -226,22 +222,4 @@ void Spellbook::refreshPage() {
 			spellSlot[curSlot].tooltip = new SpellTooltip(inscribedSpells[curSpellNr], m_player);
 		}
 	}
-}
-
-void Spellbook::resize(int deltaW, int deltaH) {
-	//top right corner
-	if(m_posX + m_titleWidth > static_cast<int>(ViewPort::get().getWidth()) && deltaW < 0)
-		m_posX += deltaW;
-
-	if (deltaH < 0 && m_posY > 0) {
-		m_posY += deltaH;
-	}
-
-	if (deltaH > 0 ) {
-		m_posY += deltaH;	
-	}	
-	////////////
-
-	//left bottom corner
-	//m_posX += deltaW;
 }

@@ -12,6 +12,9 @@ Interface::Interface() : m_spellbook(Spellbook::Get()), m_characterInfo(Characte
 
 }
 
+Interface::~Interface() {
+}
+
 Interface& Interface::Get() {
 	return s_instance;
 }
@@ -55,8 +58,93 @@ void Interface::init() {
 	m_characterInfo.init();
 	m_inventoryScreen.init();
 
-	m_inventoryScreen.setVisible(true);
-	m_inventoryScreen.setTextureDependentPositions();
+	m_spellbook.setOnClose([&]() {
+		for (size_t curFrame = 0; curFrame < m_widgets.size(); curFrame++){
+			if (dynamic_cast<Widget*>(&m_spellbook) == m_widgets[curFrame]) {
+				m_spellbook.setVisible(false);
+				m_widgets.erase(m_widgets.begin() + curFrame);
+				if (m_widgets.size() == 0) m_activeWidget == nullptr;
+				return;
+			}
+		}
+	});
+
+	m_spellbook.setOnActivate([&]() {
+		if (m_spellbook.isVisible()) {
+			for (size_t curFrame = 0; curFrame < m_widgets.size(); curFrame++) {
+				if (dynamic_cast<Widget*>(&m_spellbook) == m_widgets[curFrame]) {
+					m_widgets.erase(m_widgets.begin() + curFrame);
+					m_widgets.push_back(&m_spellbook);
+					m_activeWidget = m_widgets.back();
+					return;
+				}
+			}
+		}else {
+			// else add it to the frame vector and make it visible.
+			m_widgets.push_back(&m_spellbook);
+			m_spellbook.setVisible(true);
+			m_activeWidget = m_widgets.back();
+		}
+	});
+
+	m_characterInfo.setOnClose([&]() {
+		for (size_t curFrame = 0; curFrame < m_widgets.size(); curFrame++) {
+			if (dynamic_cast<Widget*>(&m_characterInfo) == m_widgets[curFrame]) {
+				m_characterInfo.setVisible(false);
+				m_widgets.erase(m_widgets.begin() + curFrame);
+				if (m_widgets.size() == 0) m_activeWidget == nullptr;
+				return;
+			}
+		}
+	});
+
+	m_characterInfo.setOnActivate([&]() {
+		if (m_characterInfo.isVisible()) {
+			for (size_t curFrame = 0; curFrame < m_widgets.size(); curFrame++) {
+				if (dynamic_cast<Widget*>(&m_characterInfo) == m_widgets[curFrame]) {
+					m_widgets.erase(m_widgets.begin() + curFrame);
+					m_widgets.push_back(&m_characterInfo);
+					m_activeWidget = m_widgets.back();
+					return;
+				}
+			}
+		}else {
+			// else add it to the frame vector and make it visible.
+			m_widgets.push_back(&m_characterInfo);
+			m_characterInfo.setVisible(true);
+			m_activeWidget = m_widgets.back();
+		}
+	});
+
+	m_inventoryScreen.setOnClose([&]() {
+		for (size_t curFrame = 0; curFrame < m_widgets.size(); curFrame++) {
+			if (dynamic_cast<Widget*>(&m_inventoryScreen) == m_widgets[curFrame]) {
+				m_inventoryScreen.setVisible(false);
+				m_widgets.erase(m_widgets.begin() + curFrame);
+				if (m_widgets.size() == 0) m_activeWidget == nullptr;
+				return;
+			}
+		}
+	});
+
+	m_inventoryScreen.setOnActivate([&]() {
+		
+		if (m_inventoryScreen.isVisible()) {
+			for (size_t curFrame = 0; curFrame < m_widgets.size(); curFrame++) {
+				if (dynamic_cast<Widget*>(&m_inventoryScreen) == m_widgets[curFrame]) {
+					m_widgets.erase(m_widgets.begin() + curFrame);
+					m_widgets.push_back(&m_inventoryScreen);
+					m_activeWidget = m_widgets.back();
+					return;
+				}
+			}
+		}else {
+			// else add it to the frame vector and make it visible.
+			m_widgets.push_back(&m_inventoryScreen);
+			m_inventoryScreen.setVisible(true);
+			m_activeWidget = m_widgets.back();
+		}
+	});
 }
 
 void Interface::loadTextures() {
@@ -144,6 +232,8 @@ void Interface::loadTextures() {
 void Interface::resize(int deltaW, int deltaH) {
 	m_actionBarPosX = ViewPort::get().getWidth() - 630;
 	m_spellbook.resize(deltaW, deltaH);
+	m_characterInfo.resize(deltaW, deltaH);
+	m_inventoryScreen.resize(deltaW, deltaH);
 }
 
 void Interface::draw() {
@@ -282,8 +372,6 @@ void Interface::draw() {
 	TextureManager::UnbindTexture(false, 1);
 	TextureManager::UnbindTexture(true, 0);
 
-	m_spellbook.draw();
-	
 	SpellActionBase *spellUnderMouse = getSpellAtMouse(ViewPort::get().getCursorPosRelX(), ViewPort::get().getCursorPosRelY());
 	if (spellUnderMouse != NULL) {
 		if (m_tooltip != NULL) {
@@ -299,9 +387,26 @@ void Interface::draw() {
 
 	drawSpellTooltip(ViewPort::get().getCursorPosRelX(), ViewPort::get().getCursorPosRelY());
 
-	m_characterInfo.draw();
-	m_inventoryScreen.draw();
+	for (size_t curFrame = 0; curFrame < m_widgets.size(); curFrame++) {
+		m_widgets[curFrame]->draw();
+	}
+
+	//if (m_widgets.size() > 0) {
+	//	if (m_widgets.back() == &m_spellbook && !m_spellbook.hasFloatingSpell()) {
+	//		m_spellbook.drawSpellTooltip(ViewPort::get().getCursorPosRelX(), ViewPort::get().getCursorPosRelY());		
+	//	}else if (m_widgets.back() == &m_inventoryScreen) {
+	//		m_inventoryScreen.drawItemTooltip(ViewPort::get().getCursorPosRelX(), ViewPort::get().getCursorPosRelY());
+	//	}
+	//}
+
+	if (!m_spellbook.hasFloatingSpell()) {
+		m_spellbook.drawSpellTooltip(ViewPort::get().getCursorPosRelX(), ViewPort::get().getCursorPosRelY());
+	}
+	m_inventoryScreen.drawItemTooltip(ViewPort::get().getCursorPosRelX(), ViewPort::get().getCursorPosRelY());
+	
+
 	m_inventoryScreen.drawFloatingSelection();
+	m_spellbook.drawFloatingSpell();
 
 }
 
@@ -559,7 +664,7 @@ void Interface::unbindAction(Button* button) {
 
 
 void Interface::dragSpell(Button* spellQueue) {
-	if (!m_spellbook.hasFloatingSpell()) {
+	if (!m_spellbook.hasFloatingSpell() && !m_inventoryScreen.hasFloatingSelection()) {
 		m_preparingAoESpell = false;
 		m_spellbook.setFloatingSpell(spellQueue->action);
 		unbindAction(spellQueue);
@@ -667,28 +772,42 @@ void Interface::processInput() {
 
 	Keyboard &keyboard = Keyboard::instance();
 	if (keyboard.keyPressed(Keyboard::KEY_B)) {
-		m_spellbook.setVisible(!m_spellbook.isVisible());
+		m_spellbook.isVisible() ? m_spellbook.close() : m_spellbook.activate();
 	}
-
-	m_spellbook.processInput();
 
 	if (keyboard.keyPressed(Keyboard::KEY_C)) {
-		m_characterInfo.setVisible(!m_characterInfo.isVisible());
+		m_characterInfo.isVisible() ? m_characterInfo.close() : m_characterInfo.activate();
 	}
-	m_characterInfo.processInput();
+
 
 	if (keyboard.keyPressed(Keyboard::KEY_I)) {
-		m_inventoryScreen.setVisible(!m_inventoryScreen.isVisible());
+		m_inventoryScreen.isVisible() ? m_inventoryScreen.close() : m_inventoryScreen.activate();
 	}
-	m_inventoryScreen.processInput();
+
+	if (m_activeWidget) m_activeWidget->processInput();
 }
 
 void Interface::processInputRightDrag() {
 	Mouse &mouse = Mouse::instance();
+	bool widgetInteraction = false;
+	bool hasSelection = m_inventoryScreen.hasFloatingSelection();
+	bool hasSpell = m_spellbook.hasFloatingSpell();
+
+	if (mouse.buttonPressed(Mouse::BUTTON_LEFT)) {
+		for (auto it = m_widgets.rbegin(); it != m_widgets.rend(); ++it) {
+			if ((*it)->isMouseOnFrame(mouse.xPosAbsolute(), mouse.yPosAbsolute())) {
+				(*it)->activate();
+				widgetInteraction = true;
+				break;
+			}
+		}
+
+	}
+	
 	if (mouse.buttonPressed(Mouse::BUTTON_LEFT)) {
 		m_buttonId = getMouseOverButtonId(ViewPort::get().getCursorPosRelX(), ViewPort::get().getCursorPosRelY());
-
-		if (m_buttonId >= 0) {
+		
+		if (m_buttonId >= 0 && !widgetInteraction) {
 			// we clicked a button which has an action and has no floating spell on the mouse (we're launching an action from the actionbar)
 			if (m_button[m_buttonId].action != NULL && !m_spellbook.hasFloatingSpell()/*&& !isPreparingAoESpell()*/) {
 
@@ -748,37 +867,57 @@ void Interface::processInputRightDrag() {
 	}
 
 	if (mouse.buttonDown(Mouse::BUTTON_RIGHT)) {
+		bool canDrag = true;
+		for (auto it = m_widgets.rbegin(); it != m_widgets.rend(); ++it) {
+			canDrag &= !(*it)->isMouseOnFrame(mouse.xPosAbsolute(), mouse.yPosAbsolute());			
+		}
 
-		if ((sqrt(pow(m_lastMouseDown.first - ViewPort::get().getCursorPosRelX(), 2) + pow(m_lastMouseDown.second - ViewPort::get().getCursorPosRelY(), 2)) > 5) /*&& !sPreparingAoESpell()*/) {
+		if (canDrag && (sqrt(pow(m_lastMouseDown.first - ViewPort::get().getCursorPosRelX(), 2) + pow(m_lastMouseDown.second - ViewPort::get().getCursorPosRelY(), 2)) > 5) /*&& !sPreparingAoESpell()*/) {
 			if (m_buttonId >= 0) {
 				dragSpell(&m_button[m_buttonId]);
 			}
 		}
 	}
 
+	
+	Keyboard &keyboard = Keyboard::instance();
+	if (keyboard.keyPressed(Keyboard::KEY_B)) {
+		m_spellbook.isVisible() ? m_spellbook.close() : m_spellbook.activate();
+	}
+
+	if (keyboard.keyPressed(Keyboard::KEY_C)) {
+		m_characterInfo.isVisible() ? m_characterInfo.close() : m_characterInfo.activate();
+	}
+
+
+	if (keyboard.keyPressed(Keyboard::KEY_I)) {
+		m_inventoryScreen.isVisible() ? m_inventoryScreen.close() : m_inventoryScreen.activate();
+	}
+
+	if (m_activeWidget) m_activeWidget->processInput();
+
+	if (hasSpell && m_inventoryScreen.hasFloatingSelection()) {
+		m_spellbook.unsetFloatingSpell();
+	}
+
+	if (hasSelection && m_spellbook.hasFloatingSpell()) {
+		//m_inventoryScreen.unsetFloatingSelection();
+		m_spellbook.unsetFloatingSpell();
+	}
+
+	if (widgetInteraction) {
+		m_spellQueue = NULL;
+		m_preparingAoESpell = false;
+	}
+
 	if (isPreparingAoESpell()) {
 		makeReadyToCast(ViewPort::get().getCursorPosX(), ViewPort::get().getCursorPosY());
 	}
 
-	if (m_spellQueue != NULL && mouse.buttonPressed(Mouse::BUTTON_LEFT)) {
+	if (m_spellQueue != NULL && mouse.buttonPressed(Mouse::BUTTON_LEFT) ) {
 		executeSpellQueue();
 	}
 
-	Keyboard &keyboard = Keyboard::instance();
-	if (keyboard.keyPressed(Keyboard::KEY_B)) {
-		m_spellbook.setVisible(!m_spellbook.isVisible());
-	}
-	m_spellbook.processInput();
-
-	if (keyboard.keyPressed(Keyboard::KEY_C)) {
-		m_characterInfo.setVisible(!m_characterInfo.isVisible());
-	}
-	m_characterInfo.processInput();
-
-	if (keyboard.keyPressed(Keyboard::KEY_I)) {
-		m_inventoryScreen.setVisible(!m_inventoryScreen.isVisible());
-	}
-	m_inventoryScreen.processInput();
 }
 
 void Interface::executeSpellQueue() {

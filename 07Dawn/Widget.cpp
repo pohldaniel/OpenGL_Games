@@ -28,7 +28,9 @@ void Widget::draw() {
 }
 
 void Widget::processInput() {
+
 	Mouse &mouse = Mouse::instance();
+
 	if (m_moveableFrame) {
 		if (mouse.buttonDown(Mouse::BUTTON_LEFT)) {
 			if (!m_movingFrame && isMouseOnTitlebar(mouse.xPosAbsolute(), mouse.yPosAbsolute())) {
@@ -48,6 +50,8 @@ void Widget::processInput() {
 		if (mouse.buttonPressed(Mouse::BUTTON_LEFT)) {
 			if (isMouseOnCloseButton(mouse.xPosAbsolute(), mouse.yPosAbsolute())) {
 				m_visible = false;
+				if (m_onClose)
+					m_onClose();
 			}
 		}
 	}
@@ -57,6 +61,16 @@ void Widget::processInput() {
 			m_childWidgets[w]->processInput();
 		}
 	}
+}
+
+void Widget::activate() {
+	if (m_onActivate)
+		m_onActivate();
+}
+
+void Widget::close() {
+	if(m_onClose)
+		m_onClose();
 }
 
 bool Widget::isMouseOnTitlebar(int mouseX, int mouseY) const {
@@ -86,6 +100,21 @@ bool Widget::isMouseOnCloseButton(int mouseX, int mouseY) const {
 		|| mouseY > static_cast<int>(ViewPort::get().getHeight()) - (m_posY + m_buttonOffsetY)) {
 		return false;
 	}
+	return true;
+}
+
+bool Widget::isMouseOnFrame(int mouseX, int mouseY) const {
+	if (!m_visible){
+		return false;
+	}
+
+	if (mouseX < m_posX + m_offsetX
+		|| mouseY < static_cast<int>(ViewPort::get().getHeight()) - (m_posY + m_offsetY + m_height)
+		|| mouseX >  m_posX + m_offsetX + m_width
+		|| mouseY >  static_cast<int>(ViewPort::get().getHeight()) - (m_posY + m_offsetY)) {
+		return false;
+	}
+
 	return true;
 }
 
@@ -173,4 +202,30 @@ bool Widget::isVisible() const {
 
 void Widget::setVisible(bool visible) {
 	m_visible = visible;
+}
+
+void Widget::resize(int deltaW, int deltaH) {
+	//top right corner
+	if (m_posX + m_titleWidth > static_cast<int>(ViewPort::get().getWidth()) && deltaW < 0)
+		m_posX += deltaW;
+
+	if (deltaH < 0 && m_posY > 0) {
+		m_posY += deltaH;
+	}
+
+	if (deltaH > 0) {
+		m_posY += deltaH;
+	}
+	////////////
+
+	//left bottom corner
+	//m_posX += deltaW;
+}
+
+void Widget::setOnClose(std::function<void()> fun) {
+	m_onClose = fun;
+}
+
+void  Widget::setOnActivate(std::function<void()> fun) {
+	m_onActivate = fun;
 }

@@ -42,7 +42,6 @@ public:
 	void setFloatingSpell(SpellActionBase* newFloatingSpell);
 	void unsetFloatingSpell();
 	void reloadSpellsFromPlayer();
-	void resize(int deltaW, int deltaH);
 	void clear();
 	//std::string getLuaSaveText() const;
 	

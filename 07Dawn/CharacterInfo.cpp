@@ -7,7 +7,7 @@ CharacterInfo & CharacterInfo::Get() {
 	return s_instance;
 }
 
-CharacterInfo::CharacterInfo() : Widget(25, 100, 434, 492, 0, 0){
+CharacterInfo::CharacterInfo() : Widget(25, 100, 434, 492, 13, 15){
 
 }
 

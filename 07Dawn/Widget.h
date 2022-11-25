@@ -1,5 +1,7 @@
 #pragma once
+
 #include <vector>
+#include <functional>
 #include "ViewPort.h"
 #include "Constants.h"
 
@@ -25,19 +27,28 @@ public:
 	void addMoveableFrame(unsigned short titleWidth, unsigned short titleHeight, short titleOffsetX, short titleOffsetY);
 	void addCloseButton(unsigned short buttonWidth, unsigned short buttonHeight, short buttonOffsetX, short buttonOffsetY);
 	std::vector<Widget*> getChildWidgets();
+	bool isMouseOnFrame(int mouseX, int mouseY) const;
 
 	void setPosition(int posX, int posY);
 	void setSize(int width, int height);
 
 	bool isVisible() const;
 	void setVisible(bool visible);
+	void resize(int deltaW, int deltaH);
+	void setOnClose(std::function<void()> fun);
+	void setOnActivate(std::function<void()> fun);
+	void activate(); 
+	void close();
 
 protected:
 
 	bool isMouseOnTitlebar(int mouseX, int mouseY) const;
 	bool isMouseOnCloseButton(int mouseX, int mouseY) const;
+	
 	void moveFrame(int mouseX, int mouseY);
 	void stopMovingFrame();
+	std::function<void()> m_onClose = 0;
+	std::function<void()> m_onActivate = 0;
 
 	short m_posX = 0;
 	short m_posY = 0;
@@ -49,7 +60,7 @@ protected:
 	short m_height;
 
 	bool m_visible = false;
-
+	bool m_active = false;
 	std::vector<Widget*> m_childWidgets;
 	Widget* m_parentWidget;
 

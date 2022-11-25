@@ -128,7 +128,6 @@ void Game::render(unsigned int &frameBuffer) {
 	}
 
 	dawnInterface->draw();
-	Spellbook::Get().drawFloatingSpell();
 	glDisable(GL_BLEND);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);

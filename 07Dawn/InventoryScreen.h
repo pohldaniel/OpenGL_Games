@@ -45,14 +45,14 @@ public:
 	~InventoryScreen();
 
 	void draw() override;
+	void processInput() override;
+
 	void drawCoins();
 	void drawSlot(Enums::ItemSlot curSlot);
 	void drawFloatingSelection();
 	void drawItemPlacement(int mouseX, int mouseY);
 	void drawItemTooltip(int mouseX, int mouseY);
-	void processInput() override;
 
-	void clicked(int clickX, int clickY, uint8_t mouseState);
 	void setTextureDependentPositions();
 
 	void init();

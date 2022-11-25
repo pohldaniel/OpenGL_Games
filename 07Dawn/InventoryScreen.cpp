@@ -43,7 +43,7 @@ TextureRect* InventoryScreenSlot::getTexture() {
 	return &texture;
 }
 
-InventoryScreen::InventoryScreen() : Widget(0, 80, 469, 654, 0, 0) {
+InventoryScreen::InventoryScreen() : Widget(0, 80, 469, 654, 15, 17) {
 	mySlots = new InventoryScreenSlot*[static_cast<size_t>(Enums::ItemSlot::COUNTIS)];
 	for (size_t curSlotNr = 0; curSlotNr < static_cast<size_t>(Enums::ItemSlot::COUNTIS); ++curSlotNr) {
 		mySlots[curSlotNr] = NULL;
@@ -121,9 +121,9 @@ void InventoryScreen::init() {
 	// load the font for coin text.
 	m_coinsFont = &Globals::fontManager.get("verdana_12");
 
-	m_visible = true;
 	addMoveableFrame(454, 21, 15, 650);
 	addCloseButton(22, 22, 447, 650);
+	setTextureDependentPositions();
 }
 
 void InventoryScreen::draw() {
@@ -138,7 +138,7 @@ void InventoryScreen::draw() {
 	}
 	drawItemPlacement(ViewPort::get().getCursorPosRelX(), ViewPort::get().getCursorPosRelY());
 	TextureManager::UnbindTexture(true);
-	drawItemTooltip(ViewPort::get().getCursorPosRelX(), ViewPort::get().getCursorPosRelY());
+	
 }
 
 void InventoryScreen::drawCoins() {
