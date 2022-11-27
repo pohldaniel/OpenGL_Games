@@ -238,13 +238,12 @@ void Interface::resize(int deltaW, int deltaH) {
 
 void Interface::draw() {
 
-	TextureManager::BindTexture(m_textureAtlas, true);
-	TextureManager::BindTexture(m_interfaceFont->spriteSheet, false, 1);
-
+	TextureManager::BindTexture(m_textureAtlas, true, 0);
+	TextureManager::BindTexture(Globals::spritesheetManager.getAssetPointer("font")->getAtlas(), true, 1);
 	TextureManager::SetShader(Globals::shaderManager.getAssetPointer("batch_font"));
 	Fontrenderer::Get().setRenderer(&Batchrenderer::Get());
 
-	TextureManager::DrawTexture(m_interfacetexture[14], 4, ViewPort::get().getHeight() - 68, false, false);
+	TextureManager::DrawTextureBatched(m_interfacetexture[14], 4, ViewPort::get().getHeight() - 68, false, false);
 	TextureManager::DrawTextureBatched(m_interfacetexture[11], 0, 50 + ViewPort::get().getHeight() - m_interfacetexture[11].height, false, false);
 
 	float lifeBarPercentage = static_cast<float>(m_player->getCurrentHealth()) / m_player->getModifiedMaxHealth();
@@ -289,15 +288,14 @@ void Interface::draw() {
 	//log window
 	TextureManager::DrawTextureBatched(m_interfacetexture[18], 0, 0, 390.0f, 150.0f, false, false);
 	for (unsigned int lineRow = 0; lineRow < m_textDatabase.size() && lineRow < 10; lineRow++) {
-		Fontrenderer::Get().addText(*m_interfaceFont, 10, 10 + (lineRow * m_interfaceFont->lineHeight), m_textDatabase[lineRow].text, m_textDatabase[lineRow].color, false, 10u);
+		Fontrenderer::Get().addText(*m_interfaceFont, 10, 10 + (lineRow * m_interfaceFont->lineHeight), m_textDatabase[lineRow].text, m_textDatabase[lineRow].color, false);
 	}
 
 	/// draw our level beside the experience bar
-	Fontrenderer::Get().addText(*m_interfaceFont, 60 - m_interfaceFont->getWidth(Fontrenderer::Get().FloatToString(static_cast<float>(m_player->getLevel()), 0)) / 2, ViewPort::get().getHeight() - 70, Fontrenderer::Get().FloatToString(static_cast<float>(m_player->getLevel()), 0), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), false, 10u);
-	TextureManager::DrawBuffer(false);
+	Fontrenderer::Get().addText(*m_interfaceFont, 60 - m_interfaceFont->getWidth(Fontrenderer::Get().FloatToString(static_cast<float>(m_player->getLevel()), 0)) / 2, ViewPort::get().getHeight() - 70, Fontrenderer::Get().FloatToString(static_cast<float>(m_player->getLevel()), 0), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), false);
 
 	//buff effect (it seems meaningless to render this symbol as an additinal frame)
-	TextureManager::BindTexture(m_shortcutFont->spriteSheet, false, 1);
+	//TextureManager::BindTexture(m_shortcutFont->spriteSheet, false, 1);
 	m_activeSpells = m_player->getActiveSpells();
 	for (unsigned int curSpell = 0; curSpell < m_activeSpells.size(); curSpell++) {
 		// only draw spells that has a duration.
@@ -309,12 +307,11 @@ void Interface::draw() {
 			TextureManager::DrawTextureBatched(m_interfacetexture[18], ViewPort::get().getWidth() - 204 + 36, ViewPort::get().getHeight() - 50 - 40 * curSpell, 168.0f, 36.0f, false, false);
 			m_activeSpells[curSpell]->drawSymbol(ViewPort::get().getWidth() - 204 + 2, ViewPort::get().getHeight() - 50 - 40 * curSpell + 2, 32.0f, 32.0f, Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
 
-			Fontrenderer::Get().addText(*m_shortcutFont, ViewPort::get().getWidth() - 204 + 40, ViewPort::get().getHeight() - 50 + 18 - 40 * curSpell, m_activeSpells[curSpell]->getName(), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), false, 10u);
-			Fontrenderer::Get().addText(*m_shortcutFont, ViewPort::get().getWidth() - 204 + 40, ViewPort::get().getHeight() - 50 + 8 - 40 * curSpell, Utils::ConvertTime(m_activeSpells[curSpell]->m_timer.getElapsedTimeSinceRestartSec(), m_activeSpells[curSpell]->getDuration()), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), false, 10u);
+			Fontrenderer::Get().addText(*m_shortcutFont, ViewPort::get().getWidth() - 204 + 40, ViewPort::get().getHeight() - 50 + 18 - 40 * curSpell, m_activeSpells[curSpell]->getName(), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), false);
+			Fontrenderer::Get().addText(*m_shortcutFont, ViewPort::get().getWidth() - 204 + 40, ViewPort::get().getHeight() - 50 + 8 - 40 * curSpell, Utils::ConvertTime(m_activeSpells[curSpell]->m_timer.getElapsedTimeSinceRestartSec(), m_activeSpells[curSpell]->getDuration()), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), false);
 		}
 	}
 
-	TextureManager::DrawBuffer(false);
 
 	//action bar
 	//Vector4f barColor = isMouseOver(ViewPort::get().getCursorPosRelX(), ViewPort::get().getCursorPosRelY()) ? Vector4f(0.0f, 0.0f, 0.0f, 0.8f) : Vector4f(0.0f, 0.0f, 0.0f, 1.0f);
@@ -322,7 +319,7 @@ void Interface::draw() {
 	for (unsigned int buttonId = 0; buttonId < 10; buttonId++) {
 		Vector4f borderColor = (m_button[buttonId].action != NULL && m_player->getCurrentSpellActionName() == m_button[buttonId].action->getName()) ? Vector4f(0.8f, 0.8f, 0.8f, 1.0f) : Vector4f(0.4f, 0.4f, 0.4f, 1.0f);
 		TextureManager::DrawTextureBatched(m_interfacetexture[19], ViewPort::get().getWidth() - 610 + buttonId * 60, 12, 50.0f, 50.0f, borderColor, false, false);
-		Fontrenderer::Get().addText(*m_shortcutFont, m_actionBarPosX + +20 + buttonId * 60 - 8, 54, m_button[buttonId].number.c_str(), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), false, 10u);
+		Fontrenderer::Get().addText(*m_shortcutFont, m_actionBarPosX + +20 + buttonId * 60 - 8, 54, m_button[buttonId].number.c_str(), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), false);
 	}
 
 	// draw the cursor if it's supposed to be drawn
@@ -330,14 +327,6 @@ void Interface::draw() {
 		TextureManager::DrawTextureBatched(m_interfacetexture[20], ViewPort::get().getCursorPosRelX() - m_cursorRadius, ViewPort::get().getCursorPosRelY() - m_cursorRadius, static_cast<float>(m_cursorRadius * 2), static_cast<float>(m_cursorRadius * 2), false, false);
 	}
 
-	drawCombatText();
-	TextureManager::DrawBuffer(false);
-
-	drawCharacterStates();
-	drawTargetedNPCText();
-	TextureManager::DrawBuffer(true);
-
-	TextureManager::BindTexture(m_cooldownFont->spriteSheet, false, 1);
 	m_cooldownSpells = m_player->getCooldownSpells();
 	for (unsigned int buttonId = 0; buttonId < 10; buttonId++) {
 		bool drawCooldownText = false;
@@ -359,18 +348,24 @@ void Interface::draw() {
 			if (drawCooldownText == true) {
 				
 				unsigned int xModifier = m_cooldownFont->getWidth(cooldownText);
-				Fontrenderer::Get().addText(*m_cooldownFont, ViewPort::get().getWidth() - 630 + 20 + buttonId * 60 + 6 + (50 - xModifier) / 2, 32, cooldownText, Vector4f(1.0f, 1.0f, 0.0f, 1.0f), false, 10u);
+				Fontrenderer::Get().addText(*m_cooldownFont, ViewPort::get().getWidth() - 630 + 20 + buttonId * 60 + 6 + (50 - xModifier) / 2, 32, cooldownText, Vector4f(1.0f, 1.0f, 0.0f, 1.0f), false);
 
 			}
 		}
 	}
 
-	Fontrenderer::Get().resetRenderer();
-
 	TextureManager::DrawBuffer(false);
-	TextureManager::SetShader(Globals::shaderManager.getAssetPointer("batch"));
-	TextureManager::UnbindTexture(false, 1);
-	TextureManager::UnbindTexture(true, 0);
+
+	drawCombatText();
+
+
+	drawCharacterStates();
+	drawTargetedNPCText();
+	TextureManager::DrawBuffer(true);
+
+	drawSpellTooltip(ViewPort::get().getCursorPosRelX(), ViewPort::get().getCursorPosRelY());
+
+	
 
 	SpellActionBase *spellUnderMouse = getSpellAtMouse(ViewPort::get().getCursorPosRelX(), ViewPort::get().getCursorPosRelY());
 	if (spellUnderMouse != NULL) {
@@ -384,8 +379,6 @@ void Interface::draw() {
 		}
 		m_tooltip->draw(ViewPort::get().getCursorPosRelX(), ViewPort::get().getCursorPosRelY());
 	}
-
-	drawSpellTooltip(ViewPort::get().getCursorPosRelX(), ViewPort::get().getCursorPosRelY());
 
 	for (size_t curFrame = 0; curFrame < m_widgets.size(); curFrame++) {
 		m_widgets[curFrame]->draw();
@@ -407,6 +400,11 @@ void Interface::draw() {
 
 	m_inventoryScreen.drawFloatingSelection();
 	m_spellbook.drawFloatingSpell();
+
+	Fontrenderer::Get().resetRenderer();
+	TextureManager::SetShader(Globals::shaderManager.getAssetPointer("batch"));
+	TextureManager::UnbindTexture(true, 1);
+	TextureManager::UnbindTexture(true, 0);
 
 }
 
@@ -483,7 +481,6 @@ void Interface::drawCombatText() {
 
 	TextureRect *fontTextures;
 	float reduce_amount;
-	TextureManager::BindTexture(m_textureAtlas, true);
 	for (size_t currentDamageDisplay = 0; currentDamageDisplay < m_damageDisplay.size(); currentDamageDisplay++) {
 
 		// cleaning up text that is already faded out.
@@ -520,14 +517,11 @@ void Interface::drawCombatText() {
 		Vector4f color = Vector4f(damageType[m_damageDisplay[currentDamageDisplay].damageType][0], damageType[m_damageDisplay[currentDamageDisplay].damageType][1], damageType[m_damageDisplay[currentDamageDisplay].damageType][2], m_damageDisplay[currentDamageDisplay].transparency);
 		TextureManager::DrawTexture(*fontTextures, m_damageDisplay[currentDamageDisplay].posX, m_damageDisplay[currentDamageDisplay].posY, color, false, !m_damageDisplay[currentDamageDisplay].update);
 	}
-	TextureManager::UnbindTexture(true);
 }
 
 void Interface::drawTargetedNPCText() {
 	if (m_player->getTarget() == nullptr) return;
 
-	TextureManager::BindTexture(m_interfaceFont->spriteSheet, false, 1);
-	
 	Npc* npc = dynamic_cast<Npc*>(m_player->getTarget());
 
 	uint8_t width = 40;
@@ -553,7 +547,7 @@ void Interface::drawTargetedNPCText() {
 		TextureManager::DrawTextureBatched(m_interfacetexture[0], npc->getXPos(), npc->getYPos() + npc->getHeight() - 12, static_cast<float>(npc->getWidth()), 8.0f, Vector4f(0.5f, 0.5f, 0.0f, 1.0f), true, true);
 		//then the actual castbar
 		TextureManager::DrawTextureBatched(m_interfacetexture[0], npc->getXPos(), npc->getYPos() + npc->getHeight() - 12, npc->getWidth()* npc->getPreparationPercentage(), 8.0f, Vector4f(0.8f, 0.8f, 0.0f, 1.0f), true, true);
-		Fontrenderer::Get().addText(*m_interfaceFont, npc->getXPos(), npc->getYPos() + npc->getHeight() - 24, npc->getCurrentSpellActionName(), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), true, 10u);
+		Fontrenderer::Get().addText(*m_interfaceFont, npc->getXPos(), npc->getYPos() + npc->getHeight() - 24, npc->getCurrentSpellActionName(), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), true);
 	}
 
 	Vector4f color;
@@ -569,7 +563,7 @@ void Interface::drawTargetedNPCText() {
 			break;
 	}
 
-	Fontrenderer::Get().addText(*m_interfaceFont, fontStart, npc->getYPos() + npc->getHeight() + 12, npc->getName(), color, true, 10u);
+	Fontrenderer::Get().addText(*m_interfaceFont, fontStart, npc->getYPos() + npc->getHeight() + 12, npc->getName(), color, true);
 
 	// load the active spells from the NPC
 	std::vector<SpellActionBase*> activeSpells = npc->getActiveSpells();

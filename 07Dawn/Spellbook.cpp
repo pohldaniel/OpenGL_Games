@@ -51,17 +51,17 @@ void Spellbook::init(unsigned int textureAtlas, std::vector<TextureRect> texture
 
 void Spellbook::draw() {
 	if (!m_visible) return;
+	TextureManager::BindTexture(m_textureAtlas, true, 0);
+
 	// draw spellbook base
-	TextureManager::BindTexture(m_textureAtlas, true);
-	TextureManager::DrawTexture(m_textures[0], m_posX, m_posY, false, false);
+	TextureManager::DrawTextureBatched(m_textures[0], m_posX, m_posY, false, false);
 	// draw placeholders, the actual spell symbol and title of the spell.
 	for (unsigned int x = 0; x < spellSlot.size(); x++) {		
-		//TextureManager::BindTexture(m_textureAtlas, true);
-		TextureManager::DrawTexture(m_textures[1], m_posX + spellSlot[x].posX, m_posY + spellSlot[x].posY, false, false);
+		TextureManager::DrawTextureBatched(m_textures[1], m_posX + spellSlot[x].posX, m_posY + spellSlot[x].posY, false, false);
 
 		if (spellSlot[x].action != NULL){			
-			spellSlot[x].action->drawSymbolSingle(m_posX + spellSlot[x].posX + 2, m_posY + spellSlot[x].posY + 2, 46.0f, 46.0f, Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 0u, false);
-			Fontrenderer::Get().drawText(*m_cooldownFont, m_posX + spellSlot[x].posX + 25 - m_cooldownFont->getWidth(spellSlot[x].action->getName()) / 2, m_posY + spellSlot[x].posY - m_cooldownFont->lineHeight - 5, spellSlot[x].action->getName(), Vector4f(0.35f, 0.0f, 0.0f, 1.0f), false);
+			spellSlot[x].action->drawSymbol(m_posX + spellSlot[x].posX + 2, m_posY + spellSlot[x].posY + 2, 46.0f, 46.0f, Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 0u, false);
+			Fontrenderer::Get().addText(*m_cooldownFont, m_posX + spellSlot[x].posX + 25 - m_cooldownFont->getWidth(spellSlot[x].action->getName()) / 2, m_posY + spellSlot[x].posY - m_cooldownFont->lineHeight - 5, spellSlot[x].action->getName(), Vector4f(0.35f, 0.0f, 0.0f, 1.0f), false);
 		}
 	}
 
@@ -69,36 +69,30 @@ void Spellbook::draw() {
 	unsigned int numSlots = static_cast<unsigned int>(spellSlot.size());
 	unsigned int numSpells = static_cast<unsigned int>(inscribedSpells.size());
 	if (numSlots * (curPage + 1) < numSpells) {
-		TextureManager::DrawTexture(m_textures[3], m_posX + nextPageButtonOffsetX, m_posY + nextPageButtonOffsetY, pageButtonWidth, pageButtonHeight, false, false);
+		TextureManager::DrawTextureBatched(m_textures[3], m_posX + nextPageButtonOffsetX, m_posY + nextPageButtonOffsetY, pageButtonWidth, pageButtonHeight, false, false);
 	}
 
 	// if we are on another page than first page, draw left arrowsymbol to show that there are spells on a previous page.
 	if (curPage > 0){
-		TextureManager::DrawTexture(m_textures[4], m_posX + previousPageButtonOffsetX, m_posY + previousPageButtonOffsetY, pageButtonWidth, pageButtonHeight, false, false);
+		TextureManager::DrawTextureBatched(m_textures[4], m_posX + previousPageButtonOffsetX, m_posY + previousPageButtonOffsetY, pageButtonWidth, pageButtonHeight, false, false);
 	}
-
-	TextureManager::UnbindTexture(true);
-
+	TextureManager::DrawBuffer(false);	
 }
 
 void Spellbook::drawSpellTooltip(int mouseX, int mouseY) {
+	if (!m_visible) return;
 	int spellSlotId = getMouseOverSpellSlotId(mouseX, mouseY);
 	if (spellSlotId >= 0 && spellSlot[spellSlotId].tooltip != NULL){
 		spellSlot[spellSlotId].tooltip->draw(mouseX, mouseY);
 	}
 }
 
-
 void Spellbook::drawFloatingSpell() {
 
 	if (m_floatingSpell != NULL) {
 		TextureManager::BindTexture(m_textureAtlas, true);
-		//TextureManager::DrawTexture(m_textures[1], ViewPort::get().getCursorPosX(), ViewPort::get().getCursorPosY() + 20, 50.0f, 50.0f, false, true);
-		m_floatingSpell->action->drawSymbolSingle(ViewPort::get().getCursorPosX() + 2, ViewPort::get().getCursorPosY() + 22, 46.0f, 46.0f, Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 0u, true);
-
-		TextureManager::UnbindTexture(true);
+		m_floatingSpell->action->drawSymbolSingle(ViewPort::get().getCursorPosX() + 2, ViewPort::get().getCursorPosY() + 22, 46.0f, 46.0f, Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 0u, true);		
 		Fontrenderer::Get().drawText(*m_cooldownFont, ViewPort::get().getCursorPosX() + 25 - m_cooldownFont->getWidth(m_floatingSpell->action->getName()) / 2, ViewPort::get().getCursorPosY() + 20 - m_cooldownFont->lineHeight - 5, m_floatingSpell->action->getName(), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), true);
-
 	}
 }
 

@@ -25,11 +25,12 @@ void DialogCanvas::initTextures() {
 	textureAtlas = TextureAtlasCreator::get().getAtlas();
 }
 
-void DialogCanvas::drawCanvas(int left, int bottom, int colummns, int rows, int tileWidth, int tileHeight, bool updateView) {
+void DialogCanvas::drawCanvas(int left, int bottom, int colummns, int rows, int tileWidth, int tileHeight, bool updateView, bool drawInChunk) {
 	float _tileWidth = static_cast<float>(tileWidth);
 	float _tileHeight = static_cast<float>(tileHeight);
 
-	TextureManager::BindTexture(textureAtlas, true);
+	TextureManager::BindTexture(textureAtlas, true, 0);
+
 	// draw the corners
 	TextureManager::DrawTextureBatched(m_textureBases[0], left, bottom, _tileWidth, _tileHeight,  false, updateView);
 	TextureManager::DrawTextureBatched(m_textureBases[1], left + tileWidth + (colummns * tileWidth), bottom, _tileWidth, _tileHeight, false, updateView);
@@ -55,8 +56,10 @@ void DialogCanvas::drawCanvas(int left, int bottom, int colummns, int rows, int 
 		}
 	}
 
-	TextureManager::DrawBuffer(updateView);
-	TextureManager::UnbindTexture(true);
+	if (!drawInChunk) {
+		TextureManager::DrawBuffer(updateView);
+		TextureManager::UnbindTexture(true, 0);
+	}
 }
 
 int DialogCanvas::calculateNeededBlockWidth(int width, int tileWidth) {

@@ -17,7 +17,7 @@ struct DialogCanvas {
 
 private:
 	
-	static void drawCanvas(int left, int bottom, int colummns, int rows, int tileWidth, int tileHeight, bool updateView = false);
+	static void drawCanvas(int left, int bottom, int colummns, int rows, int tileWidth, int tileHeight, bool updateView = false, bool drawInChunk = false);
 	static int calculateNeededBlockWidth(int width, int tileWidth);
 	static int calculateNeededBlockHeight(int height, int tileHeight);
 

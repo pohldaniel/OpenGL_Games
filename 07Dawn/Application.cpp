@@ -389,12 +389,24 @@ void Application::loadAssets() {
 	Globals::textureManager.createNullTexture("grey", 64, 64, 128);
 	Globals::spritesheetManager.createNullSpritesheet("null", 1024, 1024, 197);
 
-	Globals::fontManager.loadCharacterSet("verdana_20", "res/verdana.ttf", 20, 3, 20);
-	Globals::fontManager.loadCharacterSet("verdana_14", "res/verdana.ttf", 14, 3, 20);
-	Globals::fontManager.loadCharacterSet("verdana_13", "res/verdana.ttf", 13, 3, 20);
-	Globals::fontManager.loadCharacterSet("verdana_12", "res/verdana.ttf", 12, 3, 20);
-	Globals::fontManager.loadCharacterSet("verdana_11", "res/verdana.ttf", 11, 3, 20);
-	Globals::fontManager.loadCharacterSet("verdana_10", "res/verdana.ttf", 10, 3, 20);
-	Globals::fontManager.loadCharacterSet("verdana_9", "res/verdana.ttf", 9, 3, 20);
-	Globals::fontManager.loadCharacterSet("verdana_5", "res/verdana.ttf", 5, 3, 20);	
+	Globals::fontManager.loadCharacterSet("verdana_5", "res/verdana.ttf", 5, 3, 20, 128, true, 0u);
+	Globals::fontManager.loadCharacterSet("verdana_9", "res/verdana.ttf", 9, 3, 20, 128, true, 1u);
+	Globals::fontManager.loadCharacterSet("verdana_10", "res/verdana.ttf", 10, 3, 20, 128, true, 2u);
+	Globals::fontManager.loadCharacterSet("verdana_11", "res/verdana.ttf", 11, 3, 20, 128, true, 3u);
+	Globals::fontManager.loadCharacterSet("verdana_12", "res/verdana.ttf", 12, 3, 20, 128, true, 4u);
+	Globals::fontManager.loadCharacterSet("verdana_13", "res/verdana.ttf", 13, 3, 20, 128, true, 5u);
+	Globals::fontManager.loadCharacterSet("verdana_14", "res/verdana.ttf", 14, 3, 20, 128, true, 6u);
+	Globals::fontManager.loadCharacterSet("verdana_20", "res/verdana.ttf", 20, 3, 20, 128, true, 7u);
+
+	Globals::spritesheetManager.createSpritesheetFromTexture("font", Globals::fontManager.get("verdana_5").spriteSheet, GL_RED, GL_RED, 1);
+	Globals::spritesheetManager.getAssetPointer("font")->addToSpritesheet(Globals::fontManager.get("verdana_9").spriteSheet, GL_RED, GL_RED, 1);
+	Globals::spritesheetManager.getAssetPointer("font")->addToSpritesheet(Globals::fontManager.get("verdana_10").spriteSheet, GL_RED, GL_RED, 1);
+	Globals::spritesheetManager.getAssetPointer("font")->addToSpritesheet(Globals::fontManager.get("verdana_11").spriteSheet, GL_RED, GL_RED, 1);
+	Globals::spritesheetManager.getAssetPointer("font")->addToSpritesheet(Globals::fontManager.get("verdana_12").spriteSheet, GL_RED, GL_RED, 1);
+	Globals::spritesheetManager.getAssetPointer("font")->addToSpritesheet(Globals::fontManager.get("verdana_13").spriteSheet, GL_RED, GL_RED, 1);
+	Globals::spritesheetManager.getAssetPointer("font")->addToSpritesheet(Globals::fontManager.get("verdana_14").spriteSheet, GL_RED, GL_RED, 1);
+	Globals::spritesheetManager.getAssetPointer("font")->addToSpritesheet(Globals::fontManager.get("verdana_20").spriteSheet, GL_RED, GL_RED, 1);
+	Globals::spritesheetManager.getAssetPointer("font")->setLinear();
+	
+	//Spritesheet::Safe("font", Globals::spritesheetManager.getAssetPointer("font")->getAtlas());
 }

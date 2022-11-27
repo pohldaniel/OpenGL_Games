@@ -15,13 +15,14 @@ public:
 		std::array<float, 4> posTex;
 		std::array<float, 4> color;
 		unsigned int frame;
+		unsigned int sampler;
 	};
 
 	void init(size_t size = 400, bool drawSingle = false);
 	void shutdown();
 	void drawBuffer(bool updateView = true);
-	void addQuadAA(Vector4f posSize, Vector4f texPosSize, Vector4f color = Vector4f(1.0f, 1.0f, 1.0f, 1.0f), unsigned int frame = 0, bool updateView = true);
-	void drawSingleQuadAA(Vector4f posSize, Vector4f texPosSize, Vector4f color = Vector4f(1.0f, 1.0f, 1.0f, 1.0f), unsigned int frame = 0, bool updateView = true);
+	void addQuadAA(Vector4f posSize, Vector4f texPosSize, Vector4f color = Vector4f(1.0f, 1.0f, 1.0f, 1.0f), unsigned int frame = 0u, unsigned int sampler = 0u, bool updateView = true);
+	void drawSingleQuadAA(Vector4f posSize, Vector4f texPosSize, Vector4f color = Vector4f(1.0f, 1.0f, 1.0f, 1.0f), unsigned int frame = 0u, unsigned int sampler = 0u, bool updateView = true);
 	void processQuad(bool updateView);
 	void processSingleQuad(bool updateView);
 
@@ -40,6 +41,7 @@ public:
 	float(&getTexPos())[8];
 	float(&getColor())[4];
 	unsigned int& getFrame();
+	unsigned int& getSampler();
 
 	static Batchrenderer& Get();
 	
@@ -72,6 +74,7 @@ private:
 	float texPos[8];
 	float color[4];
 	unsigned int frame;
+	unsigned int sampler;
 
 	static Batchrenderer s_instance;	
 };

@@ -26,9 +26,9 @@ public:
 		m_assets[name].createPerlinTexture(width, height, seed);
 	}
 
-	void loadCharacterSet(const std::string& name, const std::string& path, const unsigned int characterSize, const unsigned int spacingX = 1, const unsigned int spacingY = 10, const bool flipVertical = true) {
+	void loadCharacterSet(const std::string& name, const std::string& path, const unsigned int characterSize, const unsigned int spacingX = 1, const unsigned int spacingY = 10, unsigned int minHeight = 0u, const bool flipVertical = true, unsigned int frame = 0u) {
 		m_assets.insert(std::pair<std::string, T>(name, T()));
-		m_assets[name].loadFromFile(path, characterSize, spacingX, spacingY, flipVertical);
+		m_assets[name].loadFromFile(path, characterSize, spacingX, spacingY, minHeight, flipVertical, frame);
 	}
 
 	void loadShader(const std::string& name, const std::string& vertex, const std::string& fragment) {
@@ -55,6 +55,15 @@ public:
 	void createSpritesheet(const std::string& name, unsigned int texture, unsigned int width, unsigned int height, unsigned int format = 0) {
 		m_assetPointer[name] = new T();
 		m_assetPointer[name]->createSpritesheet(texture, width, height, format);
+	}
+
+	void createSpritesheetFromTexture(const std::string& name, unsigned int texture, unsigned int format = 0u, unsigned int internalFormat = 0u, int unpackAlignment = 4) {
+		m_assetPointer[name] = new T();
+		m_assetPointer[name]->createSpritesheetFromTexture(texture, format, internalFormat, unpackAlignment);
+	}
+
+	void createSpritesheet(const std::string& name, unsigned int textureAtlas) {
+		m_assetPointer[name] = new T(textureAtlas);
 	}
 
 	void createNullSpritesheet(const std::string& name, unsigned int width = 2, unsigned int height = 2, unsigned short layer = 4) {

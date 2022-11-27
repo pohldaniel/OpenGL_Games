@@ -49,7 +49,7 @@ items["helmet1"] = DawnInterface.loadimage("res/items/Helmet1.tga");
 items["fang1"] = DawnInterface.loadimage("res/items/Fang1.tga");
 items["potion3"] = DawnInterface.loadimage("res/items/Potion3.tga");
 TextureManager:SetTextureAtlas("items", TextureAtlasCreator:get():getAtlas());
-TextureAtlasCreator:get():safeAtlas("tmp/items")
+--TextureAtlasCreator:get():safeAtlas("tmp/items")
 
 itemDatabase = {};
 

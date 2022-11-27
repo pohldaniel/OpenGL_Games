@@ -38,10 +38,6 @@ bool Tooltip::isTooltipSmall() {
 	return smallTooltip;
 }
 
-void Tooltip::loadTextures() {
-	//Frames::initFrameTextures();
-}
-
 void Tooltip::reloadTooltip() {
 	getTicketFromPlayer();
 	//shoppingState = player->isShopping();
@@ -62,7 +58,6 @@ SpellTooltip::SpellTooltip(SpellActionBase *parent_, Player *player_) : parent(p
 	blockWidth = 32;
 	blockHeight = 32;
 	smallTooltip = false;
-	loadTextures();
 	getParentText();
 }
 
@@ -93,17 +88,19 @@ void SpellTooltip::draw(int x, int y) {
 	// set the first font Y-position on the top of the first tooltip block excluding topborder
 	// (we could also center the text in the tooltip, but topaligned is probably bestlooking
 	int font_y = y + blockHeight + (curBlockNumberHeight)* blockHeight - toplineHeight;
-	
-	DialogCanvas::drawCanvas(x, y, curBlockNumberWidth, curBlockNumberHeight, blockWidth, blockHeight, false);
+
+	DialogCanvas::drawCanvas(x, y, curBlockNumberWidth, curBlockNumberHeight, blockWidth, blockHeight, false, true);
 	// loop through the text vector and print all the text.
 	for (unsigned int i = 0; i < tooltipText.size(); i++) {
 
-		Fontrenderer::Get().drawText(*tooltipText[i].charset, x + blockWidth , font_y, tooltipText[i].text, tooltipText[i].color, false);
+		Fontrenderer::Get().addText(*tooltipText[i].charset, x + blockWidth , font_y, tooltipText[i].text, tooltipText[i].color, false);
 		font_y -= tooltipText[i].charset->lineHeight + 11;
 		if (smallTooltip) {
 			break;
 		}
 	}
+
+	Fontrenderer::Get().drawBuffer();
 }
 
 void Tooltip::addTooltipText(Vector4f color, CharacterSet* charSet, std::string str, ...) {
@@ -166,8 +163,6 @@ void Tooltip::addTooltipText(Vector4f color, CharacterSet* charSet, std::string 
 
 	blockNumberHeight = ceil(static_cast<double>(height) / blockHeight);
 	blockNumberWidth = ceil(static_cast<double>(width) / blockWidth);
-
-	
 
 	blockNumberHeightSmall = ceil(static_cast<double>(heightSmall) / blockHeight);
 	blockNumberWidthSmall = ceil(static_cast<double>(widthSmall) / blockWidth);
@@ -362,7 +357,6 @@ ItemTooltip::ItemTooltip(Item *parent, InventoryItem *inventoryItem, Player *pla
 	blockNumberHeight = 1;
 	smallTooltip = false;
 	isShopItem = false;
-	loadTextures();
 	getParentText();
 }
 
@@ -409,21 +403,37 @@ void ItemTooltip::draw(int x, int y) {
 	// (we could also center the text in the tooltip, but topaligned is probably bestlooking
 	int font_y = y + blockHeight + (curBlockNumberHeight)* blockHeight - toplineHeight;
 
-	DialogCanvas::drawCanvas(x, y, curBlockNumberWidth, curBlockNumberHeight, blockWidth, blockHeight, false);
-	
+	DialogCanvas::drawCanvas(x, y, curBlockNumberWidth, curBlockNumberHeight, blockWidth, blockHeight, false, true);
+
+	// loop through the text vector and print all the text.
+	/*for (unsigned int i = 0; i < tooltipText.size(); i++) {
+
+		if (tooltipText[i].text.find("price:") != tooltipText[i].text.npos) {
+			drawCoinsLine(x + blockWidth, blockWidth*curBlockNumberWidth - 10, font_y, &tooltipText[i]);
+		}else {
+			Fontrenderer::Get().addText(*tooltipText[i].charset, x + blockWidth, font_y, tooltipText[i].text, tooltipText[i].color, false);
+		}
+		font_y -= tooltipText[i].charset->lineHeight + 11;
+		if (smallTooltip) {
+			break;
+		}
+	}*/
+
 	// loop through the text vector and print all the text.
 	for (unsigned int i = 0; i < tooltipText.size(); i++) {
 
 		if (tooltipText[i].text.find("price:") != tooltipText[i].text.npos) {
 			drawCoinsLine(x + blockWidth, blockWidth*curBlockNumberWidth - 10, font_y, &tooltipText[i]);
-		}else {
-			Fontrenderer::Get().drawText(*tooltipText[i].charset, x + blockWidth, font_y, tooltipText[i].text, tooltipText[i].color, false);
+		}
+		else {
+			Fontrenderer::Get().addText(*tooltipText[i].charset, x + blockWidth, font_y, tooltipText[i].text, tooltipText[i].color, false);
 		}
 		font_y -= tooltipText[i].charset->lineHeight + 11;
 		if (smallTooltip) {
 			break;
 		}
 	}
+	TextureManager::DrawBuffer(false);
 }
 
 void ItemTooltip::drawCoinsLine(int x, int frameWidth, int y, sTooltipText *tooltipText) {
@@ -435,12 +445,29 @@ void ItemTooltip::drawCoinsLine(int x, int frameWidth, int y, sTooltipText *tool
 		if (itemValue[i] != "0") {
 			DrawFunctions::drawCoin(x + frameWidth - xoffset, y + 1, i);
 			int stringWidth = tooltipText->charset->getWidth(itemValue[i]);
-			Fontrenderer::Get().drawText(*tooltipText->charset, x + frameWidth - xoffset - stringWidth, y, itemValue[i], Vector4f(1.0f, 1.0f, 1.0f, 1.0f), false);
+			Fontrenderer::Get().addText(*tooltipText->charset, x + frameWidth - xoffset - stringWidth, y, itemValue[i], Vector4f(1.0f, 1.0f, 1.0f, 1.0f), false);
 			xoffset = xoffset + 25 + stringWidth;
 		}
 	}
-	Fontrenderer::Get().drawText(*tooltipText->charset, x + frameWidth - xoffset + 20 - stringWidth, y, realString, Vector4f(1.0f, 1.0f, 1.0f, 1.0f), false);
+	Fontrenderer::Get().addText(*tooltipText->charset, x + frameWidth - xoffset + 20 - stringWidth, y, realString, Vector4f(1.0f, 1.0f, 1.0f, 1.0f), false);
 }
+
+
+/*void ItemTooltip::drawCoinsLine(int x, int frameWidth, int y, sTooltipText *tooltipText) {
+	std::string realString = tooltipText->text.substr(0, tooltipText->text.find_first_of(":") + 1);
+
+	int stringWidth = tooltipText->charset->getWidth(realString);
+	int xoffset = 0;
+	for (size_t i = 0; i < 3; i++) {
+		if (itemValue[i] != "0") {
+			DrawFunctions::drawCoin(x + frameWidth - xoffset, y + 1, i);
+			int stringWidth = tooltipText->charset->getWidth(itemValue[i]);
+			Fontrenderer::Get().addText(*tooltipText->charset, x + frameWidth - xoffset - stringWidth, y, itemValue[i], Vector4f(1.0f, 1.0f, 1.0f, 1.0f), false);
+			xoffset = xoffset + 25 + stringWidth;
+		}
+	}
+	Fontrenderer::Get().addText(*tooltipText->charset, x + frameWidth - xoffset + 20 - stringWidth, y, realString, Vector4f(1.0f, 1.0f, 1.0f, 1.0f), false);
+}*/
 
 void ItemTooltip::addTooltipTextForPercentageAttribute(std::string attributeName, double attributePercentage) {
 	
@@ -698,6 +725,10 @@ void ItemTooltip::getParentText() {
 			addTooltipText(white, 12, "Sell price: xxxxxxxxxxx");
 		}
 	}*/
+}
+
+Item* ItemTooltip::getParent() const {
+	return parent;
 }
 
 namespace DrawFunctions {

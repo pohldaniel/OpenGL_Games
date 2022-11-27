@@ -183,4 +183,5 @@ private:
 	static float(&TexPos)[8];
 	static float(&Color)[4];
 	static unsigned int& Frame;
+	static unsigned int& Sampler;
 };

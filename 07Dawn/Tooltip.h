@@ -61,11 +61,11 @@ private:
 	bool shoppingState;
 	Player *player;
 	std::vector<sTooltipText> tooltipText;
+	std::vector<sTooltipText> tooltipTextSmall;
 
 	uint32_t ticketFromPlayer;
 
-	void loadTextures();
-	void addTooltipText(Vector4f color, CharacterSet* fontSize, std::string str, ...);
+	void addTooltipText(Vector4f color, CharacterSet* charSet, std::string str, ...);
 };
 
 class SpellTooltip : public Tooltip {
@@ -73,7 +73,7 @@ class SpellTooltip : public Tooltip {
 public:
 	SpellTooltip(SpellActionBase *parent, Player *player);
 	void draw(int x, int y);
-	SpellActionBase *getParent() const;
+	SpellActionBase* getParent() const;
 
 private:
 	SpellActionBase *parent;
@@ -86,7 +86,7 @@ public:
 	ItemTooltip(Item *parent, InventoryItem *inventoryItem, Player *player);
 	void draw(int x, int y);
 	void setShopItem(bool isShopItem_);
-	Item *getParent() const;
+	Item* getParent() const;
 
 private:
 	Item *parent;

@@ -22,7 +22,7 @@ CharacterSet::~CharacterSet() {
 	}
 }
 
-void CharacterSet::loadFromFile(const std::string& path, unsigned int characterSize, unsigned int spacingX, unsigned int spacingY, const bool flipVertical) {
+void CharacterSet::loadFromFile(const std::string& path, unsigned int characterSize, unsigned int spacingX, unsigned int spacingY, unsigned int minHeight, const bool flipVertical, unsigned int _frame) {
 	spacingX = spacingX == 0 ? 1 : spacingX;
 
 	FT_Library ft;
@@ -80,14 +80,14 @@ void CharacterSet::loadFromFile(const std::string& path, unsigned int characterS
 		p = 1;
 		while (p < maxHeight)
 			p <<= 1;
-		maxHeight = p;
+		maxHeight = minHeight == 0 ? p : std::max(p, minHeight);
+
+		// We require 1 byte alignment when uploading texture data 
+		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
 		glGenTextures(1, &spriteSheet);
 		glBindTexture(GL_TEXTURE_2D, spriteSheet);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, maxWidth, maxHeight, 0, GL_RED, GL_UNSIGNED_BYTE, 0);
-
-		// We require 1 byte alignment when uploading texture data 
-		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
 		// Clamping to edges is important to prevent artifacts when scaling 
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -171,10 +171,10 @@ void CharacterSet::loadFromFile(const std::string& path, unsigned int characterS
 			ox += g->bitmap.width + spacingX;
 		}
 
-		glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
 		glBindTexture(GL_TEXTURE_2D, 0);
+		glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
 	}
-
+	frame = _frame;
 	//debugging 
 	//safeFont();
 }
@@ -194,9 +194,9 @@ void CharacterSet::safeFont() {
 
 	for (unsigned int i = 0; i < maxHeight; ++i) {
 
-	pSrcRow = &srcPixels[(maxHeight - 1 - i) * maxWidth];
-	pDestRow = &bytes[i * maxWidth];
-	memcpy(pDestRow, pSrcRow, maxWidth);
+		pSrcRow = &srcPixels[(maxHeight - 1 - i) * maxWidth];
+		pDestRow = &bytes[i * maxWidth];
+		memcpy(pDestRow, pSrcRow, maxWidth);
 	}
 
 	unsigned char* bytesNew = (unsigned char*)malloc(maxWidth * maxHeight * 4);

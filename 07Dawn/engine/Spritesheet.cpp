@@ -5,6 +5,19 @@
 
 #include "..\soil2\SOIL2.h"
 
+Spritesheet::Spritesheet(unsigned int textureAtlas) {
+	m_texture = textureAtlas;
+
+	int depth;
+	glBindTexture(GL_TEXTURE_2D_ARRAY, textureAtlas);
+	//glGetTexLevelParameteriv(GL_TEXTURE_2D_ARRAY, miplevel, GL_TEXTURE_WIDTH, &width1);
+	//glGetTexLevelParameteriv(GL_TEXTURE_2D_ARRAY, miplevel, GL_TEXTURE_HEIGHT, &height1);
+	glGetTexLevelParameteriv(GL_TEXTURE_2D_ARRAY, 0, GL_TEXTURE_DEPTH, &depth);
+	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
+
+	m_totalFrames = depth;
+}
+
 Spritesheet::Spritesheet(std::string fileName, unsigned short tileWidth, unsigned short tileHeight, unsigned short spacing, bool reverse, bool _flipVertical, int row, int minColumn, int maxColumn, unsigned int _format) {
 
 	int width, height, numCompontents;
@@ -180,7 +193,6 @@ void Spritesheet::createSpritesheet(unsigned int texture, unsigned int width, un
 	glBindTexture(GL_TEXTURE_2D_ARRAY, m_texture);
 	glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, internalFormat, width, height, m_totalFrames, 0, internalFormat == GL_RGBA8 ? GL_RGBA : internalFormat == GL_RGB8 ? GL_RGB : _format, GL_UNSIGNED_BYTE, NULL);
 
-
 	unsigned int fbo = 0;
 	glGenFramebuffers(1, &fbo);
 	glBindFramebuffer(GL_READ_FRAMEBUFFER, fbo);
@@ -201,14 +213,63 @@ void Spritesheet::createSpritesheet(unsigned int texture, unsigned int width, un
 
 }
 
-void Spritesheet::addToSpritesheet(unsigned int texture, unsigned int width, unsigned int height, unsigned int _format) {
+void Spritesheet::createSpritesheetFromTexture(unsigned int texture, unsigned int _format, unsigned int _internalFormat, int _unpackAlignment) {
+	int miplevel = 0;
+
+	int width, height;
+	glBindTexture(GL_TEXTURE_2D, texture);
+	glGetTexLevelParameteriv(GL_TEXTURE_2D, miplevel, GL_TEXTURE_WIDTH, &width);
+	glGetTexLevelParameteriv(GL_TEXTURE_2D, miplevel, GL_TEXTURE_HEIGHT, &height);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	unsigned internalFormat = _internalFormat == 0 ? GL_RGBA8 : _internalFormat;
+	unsigned format = _format == 0 ? GL_RGBA : _format;
+	m_totalFrames++;
+
+	glPixelStorei(GL_UNPACK_ALIGNMENT, _unpackAlignment);
+
+	glGenTextures(1, &m_texture);
+	glBindTexture(GL_TEXTURE_2D_ARRAY, m_texture);
+	glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, internalFormat, width, height, m_totalFrames, 0, format, GL_UNSIGNED_BYTE, NULL);
+
+	unsigned int fbo = 0;
+	glGenFramebuffers(1, &fbo);
+	glBindFramebuffer(GL_READ_FRAMEBUFFER, fbo);
+
+	glFramebufferTexture2D(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture, 0);
+	glReadBuffer(GL_COLOR_ATTACHMENT0);
+	glCopyTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, 0, 0, 0, width, height);
+	//glCopyTextureSubImage3D(m_texture, 0, 0, 0, 0, 0, 0, width, height);
+
+	glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+	glDeleteFramebuffers(1, &fbo);
+
+	glTexParameterf(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameterf(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
+
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+}
+
+void Spritesheet::addToSpritesheet(unsigned int texture, unsigned int _format, unsigned int _internalFormat, int _unpackAlignment) {
 	//It seems setLinear() isn't working when using glTexStorage3D so I go for glTexImage3D. 
 	//Of curse you can increase the mipmaplevel (level) but it decreases the performance.
 	//Unfortunately I wasn't able to use glCopyImageSubData with glTexImage3D. 
 
-	unsigned internalFormat = _format == 0 ? GL_RGBA8 : _format;
-	m_totalFrames++;
+	int miplevel = 0;
 
+	int width, height;
+	glBindTexture(GL_TEXTURE_2D, texture);
+	glGetTexLevelParameteriv(GL_TEXTURE_2D, miplevel, GL_TEXTURE_WIDTH, &width);
+	glGetTexLevelParameteriv(GL_TEXTURE_2D, miplevel, GL_TEXTURE_HEIGHT, &height);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	unsigned internalFormat = _internalFormat == 0 ? GL_RGBA8 : _internalFormat;
+	unsigned format = _format == 0 ? GL_RGBA : _format;
+	m_totalFrames++;
+	glPixelStorei(GL_UNPACK_ALIGNMENT, _unpackAlignment);
 	//OpenGL 4.3
 	/*unsigned int fbo = 0;
 	glGenFramebuffers(1, &fbo);
@@ -286,6 +347,8 @@ void Spritesheet::addToSpritesheet(unsigned int texture, unsigned int width, uns
 
 	glDeleteTextures(1, &m_texture);
 	m_texture = texture_new;
+
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
 }
 
 void Spritesheet::addToSpritesheet(unsigned char* bytes, unsigned int width, unsigned int height, unsigned int format) {
@@ -359,7 +422,7 @@ void Spritesheet::safe(std::string name) {
 	free(bytes);
 }
 
-unsigned int Spritesheet::Merge(unsigned int& atlas1, unsigned int& atlas2) {
+unsigned int Spritesheet::Merge(unsigned int& atlas1, unsigned int& atlas2, bool deleteAtlas1, bool deleteAtlas2) {
 	int miplevel = 0;
 	
 	int width1, height1, depth1;
@@ -407,8 +470,11 @@ unsigned int Spritesheet::Merge(unsigned int& atlas1, unsigned int& atlas2) {
 	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
 
-	glDeleteTextures(1, &atlas1);
-	glDeleteTextures(1, &atlas2);
+	if(deleteAtlas1)
+		glDeleteTextures(1, &atlas1);
+
+	if(deleteAtlas2)
+		glDeleteTextures(1, &atlas2);
 
 	return atlas_new;
 }
@@ -416,7 +482,7 @@ unsigned int Spritesheet::Merge(unsigned int& atlas1, unsigned int& atlas2) {
 void Spritesheet::Safe(std::string name, unsigned int textureAtlas) {
 	int width, height, depth;
 	int miplevel = 0;
-	
+
 	glBindTexture(GL_TEXTURE_2D_ARRAY, textureAtlas);
 	glGetTexLevelParameteriv(GL_TEXTURE_2D_ARRAY, miplevel, GL_TEXTURE_WIDTH, &width);
 	glGetTexLevelParameteriv(GL_TEXTURE_2D_ARRAY, miplevel, GL_TEXTURE_HEIGHT, &height);
@@ -459,6 +525,13 @@ void Spritesheet::setRepeat() {
 }
 
 void Spritesheet::setLinear() {
+	glBindTexture(GL_TEXTURE_2D_ARRAY, m_texture);
+	glTexParameterf(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameterf(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
+}
+
+void Spritesheet::setLinearMipMap() {
 	glBindTexture(GL_TEXTURE_2D_ARRAY, m_texture);
 	glTexParameterf(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 	glTexParameterf(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);

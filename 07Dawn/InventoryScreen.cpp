@@ -92,6 +92,10 @@ void InventoryScreen::init() {
 	TextureManager::Loadimage("res/interface/inventory/boots.tga", 17, m_textures);
 
 	m_textureAtlas = TextureAtlasCreator::get().getAtlas();
+	m_textureAtlas = Spritesheet::Merge(TextureManager::GetTextureAtlas("items"), m_textureAtlas, false, true);
+	for (unsigned short layer = 0; layer < m_textures.size(); layer++) {
+		m_textures[layer].frame++;
+	}
 
 	//Spritesheet::Safe("interface", m_textureAtlas);	
 	floatingSelection = NULL;
@@ -128,8 +132,9 @@ void InventoryScreen::init() {
 
 void InventoryScreen::draw() {
 	if (!m_visible) return;
-	TextureManager::BindTexture(m_textureAtlas, true);
-	TextureManager::DrawTexture(m_textures[0], m_posX, m_posY, false, false);
+	TextureManager::BindTexture(m_textureAtlas, true, 0);
+	
+	TextureManager::DrawTextureBatched(m_textures[0], m_posX, m_posY, false, false);
 
 	drawCoins();
 	drawBackpack();
@@ -137,8 +142,9 @@ void InventoryScreen::draw() {
 		drawSlot(static_cast<Enums::ItemSlot>(curSlotNr));
 	}
 	drawItemPlacement(ViewPort::get().getCursorPosRelX(), ViewPort::get().getCursorPosRelY());
-	TextureManager::UnbindTexture(true);
-	
+
+
+	TextureManager::DrawBuffer(false);	
 }
 
 void InventoryScreen::drawCoins() {
@@ -148,23 +154,21 @@ void InventoryScreen::drawCoins() {
 	std::string copper = currency::convertCoinsToString(currency::COPPER, m_player->getCoins());
 	
 	// gold coin
-	TextureManager::DrawTexture(m_textures[2], m_posX + 167, m_posY + 308, false, false);
+	TextureManager::DrawTextureBatched(m_textures[2], m_posX + 167, m_posY + 308, false, false);
 	// silver coin
-	TextureManager::DrawTexture(m_textures[3], m_posX + 167, m_posY + 286, false, false);
+	TextureManager::DrawTextureBatched(m_textures[3], m_posX + 167, m_posY + 286, false, false);
 	// copper coin
-	TextureManager::DrawTexture(m_textures[4], m_posX + 167, m_posY + 264, false, false);
+	TextureManager::DrawTextureBatched(m_textures[4], m_posX + 167, m_posY + 264, false, false);
 
-	Fontrenderer::Get().drawText(*m_coinsFont, m_posX + 160 - m_coinsFont->getWidth(gold), m_posY + 307, gold, Vector4f(1.0f, 1.0f, 1.0f, 1.0f), false);
-	Fontrenderer::Get().drawText(*m_coinsFont, m_posX + 160 - m_coinsFont->getWidth(silver), m_posY + 285, silver, Vector4f(1.0f, 1.0f, 1.0f, 1.0f), false);
-	Fontrenderer::Get().drawText(*m_coinsFont, m_posX + 160 - m_coinsFont->getWidth(copper), m_posY + 263, copper, Vector4f(1.0f, 1.0f, 1.0f, 1.0f), false);
+	Fontrenderer::Get().addText(*m_coinsFont, m_posX + 160 - m_coinsFont->getWidth(gold), m_posY + 307, gold, Vector4f(1.0f, 1.0f, 1.0f, 1.0f), false);
+	Fontrenderer::Get().addText(*m_coinsFont, m_posX + 160 - m_coinsFont->getWidth(silver), m_posY + 285, silver, Vector4f(1.0f, 1.0f, 1.0f, 1.0f), false);
+	Fontrenderer::Get().addText(*m_coinsFont, m_posX + 160 - m_coinsFont->getWidth(copper), m_posY + 263, copper, Vector4f(1.0f, 1.0f, 1.0f, 1.0f), false);
 }
 
 void InventoryScreen::drawBackpack() {
 	Inventory* inventory = m_player->getInventory();
 	std::vector<InventoryItem*> items = inventory->getBackpackItems();
 	size_t numItems = items.size();
-
-	TextureManager::BindTexture(TextureManager::GetTextureAtlas("items"), true);
 
 	for (size_t curItemNr = 0; curItemNr<numItems; ++curItemNr) {
 				
@@ -177,23 +181,35 @@ void InventoryScreen::drawBackpack() {
 		size_t sizeX = curItem->getSizeX();
 		size_t sizeY = curItem->getSizeY();
 
-		TextureManager::DrawTexture(*symbolTexture, m_posX + backpackOffsetX + invPosX * backpackFieldWidth + invPosX * backpackSeparatorWidth, m_posY + backpackOffsetY + invPosY * backpackFieldHeight + invPosY * backpackSeparatorHeight, backpackFieldWidth * sizeX + (sizeX - 1)*backpackSeparatorWidth, backpackFieldHeight * sizeY + (sizeY - 1)*backpackSeparatorHeight, false, false);		
+		TextureManager::DrawTextureBatched(*symbolTexture, m_posX + backpackOffsetX + invPosX * backpackFieldWidth + invPosX * backpackSeparatorWidth, m_posY + backpackOffsetY + invPosY * backpackFieldHeight + invPosY * backpackSeparatorHeight, backpackFieldWidth * sizeX + (sizeX - 1)*backpackSeparatorWidth, backpackFieldHeight * sizeY + (sizeY - 1)*backpackSeparatorHeight, false, false);		
 		// if we have an item that is stackable, and the stacksize is more than 1, we draw that number.
 		if (curInvItem->getCurrentStackSize() > 1)  {
-			Fontrenderer::Get().drawText(*m_coinsFont, m_posX + backpackOffsetX + backpackFieldWidth - m_coinsFont->getWidth(std::to_string(curInvItem->getCurrentStackSize())) + invPosX * backpackFieldWidth + invPosX * backpackSeparatorWidth, m_posY + backpackOffsetY + invPosY * backpackFieldHeight + invPosY * backpackSeparatorHeight, std::to_string(curInvItem->getCurrentStackSize()), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), false);
+			Fontrenderer::Get().addText(*m_coinsFont, m_posX + backpackOffsetX + backpackFieldWidth - m_coinsFont->getWidth(std::to_string(curInvItem->getCurrentStackSize())) + invPosX * backpackFieldWidth + invPosX * backpackSeparatorWidth, m_posY + backpackOffsetY + invPosY * backpackFieldHeight + invPosY * backpackSeparatorHeight, std::to_string(curInvItem->getCurrentStackSize()), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), false);
 		}
 	}
 }
 
-void InventoryScreen::drawFloatingSelection() {
-	// draw floating selection
-	if (floatingSelection != NULL) {
-		Item* floatingItem = floatingSelection->getItem();
-		size_t sizeX = floatingItem->getSizeX();
-		size_t sizeY = floatingItem->getSizeY();
-		TextureManager::BindTexture(TextureManager::GetTextureAtlas("items"), true);
-		TextureManager::DrawTexture(*floatingItem->getSymbolTexture(), ViewPort::get().getCursorPosRelX(), ViewPort::get().getCursorPosRelY() - 20, backpackFieldWidth * sizeX + (sizeX - 1) * backpackSeparatorWidth, backpackFieldHeight * sizeY + (sizeY - 1) * backpackSeparatorHeight, false, false);
-		TextureManager::BindTexture(true);
+void InventoryScreen::drawSlot(Enums::ItemSlot curSlot) {
+	Inventory* inventory = m_player->getInventory();
+	InventoryItem* invItem = inventory->getItemAtSlot(curSlot);
+	if (invItem != NULL) {
+		Item* item = invItem->getItem();
+		TextureRect* symbolTexture = item->getSymbolTexture();
+
+		InventoryScreenSlot* curScreenSlot = mySlots[static_cast<size_t>(curSlot)];
+
+		size_t drawSizeX = symbolTexture->width;
+		size_t drawSizeY = symbolTexture->height;
+
+		size_t centerOffsetX = (curScreenSlot->getSizeX() - drawSizeX) / 2;
+		size_t centerOffsetY = (curScreenSlot->getSizeY() - drawSizeY) / 2;
+		//TextureManager::BindTexture(m_textureAtlas, true);
+		// draw the plain background image of the item, hiding the item placeholder.
+		TextureManager::DrawTextureBatched(*curScreenSlot->getTexture(), m_posX + curScreenSlot->getOffsetX(), m_posY + curScreenSlot->getOffsetY(), curScreenSlot->getTexture()->width, curScreenSlot->getTexture()->height, false, false);
+
+		// we draw the two-handed weapons on our off-handslot with 50% transparency
+		Vector4f color = item->isTwoHandedWeapon() == true && curSlot == Enums::ItemSlot::OFF_HAND ? Vector4f(1.0f, 1.0f, 1.0f, 0.5f) : Vector4f(1.0f, 1.0f, 1.0f, 1.0f);
+		TextureManager::DrawTextureBatched(*symbolTexture, m_posX + curScreenSlot->getOffsetX() + centerOffsetX, m_posY + curScreenSlot->getOffsetY() + centerOffsetY, drawSizeX, drawSizeY, color, false, false);
 	}
 }
 
@@ -210,8 +226,6 @@ void InventoryScreen::drawItemPlacement(int mouseX, int mouseY){
 	}*/
 
 	if (floatingSelectionToDraw == NULL) return;
-	
-	TextureManager::BindTexture(m_textureAtlas, true);
 
 	if (isOnBackpackScreen(mouseX, mouseY)) {
 		Item* floatingItem = floatingSelectionToDraw->getItem();
@@ -257,7 +271,7 @@ void InventoryScreen::drawItemPlacement(int mouseX, int mouseY){
 				(sizeX - ((sizeX + fieldIndexX) - (numSlotsX - 1)))*backpackSeparatorHeight;
 		}
 
-		TextureManager::DrawTexture(m_textures[1], shadePosX, shadePosY, shadeWidth, shadeHeight, Vector4f(shade[0], shade[1], shade[2], shade[3]), false, false);
+		TextureManager::DrawTextureBatched(m_textures[1], shadePosX, shadePosY, shadeWidth, shadeHeight, Vector4f(shade[0], shade[1], shade[2], shade[3]), false, false);
 
 		return;
 	}
@@ -282,41 +296,26 @@ void InventoryScreen::drawItemPlacement(int mouseX, int mouseY){
 			}
 
 			InventoryScreenSlot* curScreenSlot = mySlots[curSlotNr];
-			TextureManager::DrawTexture(m_textures[1], m_posX + curScreenSlot->getOffsetX(), m_posY + curScreenSlot->getOffsetY(), curScreenSlot->getSizeX(), curScreenSlot->getSizeY(), Vector4f(shade[0], shade[1], shade[2], shade[3]), false, false);
+			TextureManager::DrawTextureBatched(m_textures[1], m_posX + curScreenSlot->getOffsetX(), m_posY + curScreenSlot->getOffsetY(), curScreenSlot->getSizeX(), curScreenSlot->getSizeY(), Vector4f(shade[0], shade[1], shade[2], shade[3]), false, false);
 			return;
 		}
 	}
-
-	TextureManager::UnbindTexture(true);
 }
 
-void InventoryScreen::drawSlot(Enums::ItemSlot curSlot) {
-	Inventory* inventory = m_player->getInventory();
-	InventoryItem* invItem = inventory->getItemAtSlot(curSlot);
-	if (invItem != NULL) {
-		Item* item = invItem->getItem();
-		TextureRect* symbolTexture = item->getSymbolTexture();
-
-		InventoryScreenSlot* curScreenSlot = mySlots[static_cast<size_t>(curSlot)];
-
-		size_t drawSizeX = symbolTexture->width;
-		size_t drawSizeY = symbolTexture->height;
-
-		size_t centerOffsetX = (curScreenSlot->getSizeX() - drawSizeX) / 2;
-		size_t centerOffsetY = (curScreenSlot->getSizeY() - drawSizeY) / 2;
-		TextureManager::BindTexture(m_textureAtlas, true);
-		// draw the plain background image of the item, hiding the item placeholder.
-		TextureManager::DrawTexture(*curScreenSlot->getTexture(), m_posX + curScreenSlot->getOffsetX(), m_posY + curScreenSlot->getOffsetY(), curScreenSlot->getTexture()->width, curScreenSlot->getTexture()->height, false, false);
-
+void InventoryScreen::drawFloatingSelection() {
+	// draw floating selection
+	if (floatingSelection != NULL) {
+		Item* floatingItem = floatingSelection->getItem();
+		size_t sizeX = floatingItem->getSizeX();
+		size_t sizeY = floatingItem->getSizeY();
 		TextureManager::BindTexture(TextureManager::GetTextureAtlas("items"), true);
-
-		// we draw the two-handed weapons on our off-handslot with 50% transparency
-		Vector4f color = item->isTwoHandedWeapon() == true && curSlot == Enums::ItemSlot::OFF_HAND ? Vector4f(1.0f, 1.0f, 1.0f, 0.5f) : Vector4f(1.0f, 1.0f, 1.0f, 1.0f);
-		TextureManager::DrawTexture(*symbolTexture, m_posX + curScreenSlot->getOffsetX() + centerOffsetX, m_posY + curScreenSlot->getOffsetY() + centerOffsetY, drawSizeX, drawSizeY, color, false, false);
+		TextureManager::DrawTexture(*floatingItem->getSymbolTexture(), ViewPort::get().getCursorPosRelX(), ViewPort::get().getCursorPosRelY() - 20, backpackFieldWidth * sizeX + (sizeX - 1) * backpackSeparatorWidth, backpackFieldHeight * sizeY + (sizeY - 1) * backpackSeparatorHeight, false, false);
+		TextureManager::BindTexture(true);
 	}
 }
 
 void InventoryScreen::drawItemTooltip(int mouseX, int mouseY) {
+	if (!m_visible) return;
 	// draws tooltip over item in the backpack
 	InventoryItem* floatingSelectionToHandle = floatingSelection;
 	/*if (floatingSelectionToHandle == NULL && shopWindow->hasFloatingSelection())
