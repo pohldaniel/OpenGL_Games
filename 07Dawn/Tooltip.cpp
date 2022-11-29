@@ -8,6 +8,7 @@
 #include "Statssystem.h"
 #include "Utils.h"
 #include "Constants.h"
+#include "InventoryScreen.h"
 
 Tooltip::~Tooltip() { }
 
@@ -40,7 +41,7 @@ bool Tooltip::isTooltipSmall() {
 
 void Tooltip::reloadTooltip() {
 	getTicketFromPlayer();
-	//shoppingState = player->isShopping();
+	shoppingState = player->isShopping();
 	tooltipText.clear();
 	getParentText();
 }
@@ -348,6 +349,9 @@ std::string Tooltip::parseInfoText(SpellActionBase *spell, const std::string inf
 SpellActionBase* SpellTooltip::getParent() const {
 	return parent;
 }
+/////////////////////////////////////////////////////////////////////////////////////////////
+std::vector<TextureRect> ItemTooltip::s_textures;
+unsigned int ItemTooltip::s_textureAtlas;
 
 ItemTooltip::ItemTooltip(Item *parent, InventoryItem *inventoryItem) : parent(parent), inventoryItem(inventoryItem) {
 	player = &Player::Get();
@@ -358,6 +362,14 @@ ItemTooltip::ItemTooltip(Item *parent, InventoryItem *inventoryItem) : parent(pa
 	smallTooltip = false;
 	isShopItem = false;
 	getParentText();
+
+	if (s_textures.size() == 0) {
+		TextureAtlasCreator::get().init(128, 128);		
+		TextureManager::Loadimage("res/interface/inventory/goldcoin.tga", 0, s_textures, true);
+		TextureManager::Loadimage("res/interface/inventory/silvercoin.tga", 1, s_textures, true);
+		TextureManager::Loadimage("res/interface/inventory/coppercoin.tga", 2, s_textures, true);
+		s_textureAtlas = TextureAtlasCreator::get().getAtlas();
+	}
 }
 
 void ItemTooltip::setShopItem(bool isShopItem_) {
@@ -403,29 +415,14 @@ void ItemTooltip::draw(int x, int y) {
 	// (we could also center the text in the tooltip, but topaligned is probably bestlooking
 	int font_y = y + blockHeight + (curBlockNumberHeight)* blockHeight - toplineHeight;
 
-	DialogCanvas::drawCanvas(x, y, curBlockNumberWidth, curBlockNumberHeight, blockWidth, blockHeight, false, true);
-
-	// loop through the text vector and print all the text.
-	/*for (unsigned int i = 0; i < tooltipText.size(); i++) {
-
-		if (tooltipText[i].text.find("price:") != tooltipText[i].text.npos) {
-			drawCoinsLine(x + blockWidth, blockWidth*curBlockNumberWidth - 10, font_y, &tooltipText[i]);
-		}else {
-			Fontrenderer::Get().addText(*tooltipText[i].charset, x + blockWidth, font_y, tooltipText[i].text, tooltipText[i].color, false);
-		}
-		font_y -= tooltipText[i].charset->lineHeight + 11;
-		if (smallTooltip) {
-			break;
-		}
-	}*/
+	DialogCanvas::drawCanvas(x, y, curBlockNumberWidth, curBlockNumberHeight, blockWidth, blockHeight, false, false);
 
 	// loop through the text vector and print all the text.
 	for (unsigned int i = 0; i < tooltipText.size(); i++) {
 
 		if (tooltipText[i].text.find("price:") != tooltipText[i].text.npos) {
 			drawCoinsLine(x + blockWidth, blockWidth*curBlockNumberWidth - 10, font_y, &tooltipText[i]);
-		}
-		else {
+		}else {
 			Fontrenderer::Get().addText(*tooltipText[i].charset, x + blockWidth, font_y, tooltipText[i].text, tooltipText[i].color, false);
 		}
 		font_y -= tooltipText[i].charset->lineHeight + 11;
@@ -443,7 +440,7 @@ void ItemTooltip::drawCoinsLine(int x, int frameWidth, int y, sTooltipText *tool
 	int xoffset = 0;
 	for (size_t i = 0; i < 3; i++) {
 		if (itemValue[i] != "0") {
-			DrawFunctions::drawCoin(x + frameWidth - xoffset, y + 1, i);
+			drawCoin(x + frameWidth - xoffset, y + 1, i);
 			int stringWidth = tooltipText->charset->getWidth(itemValue[i]);
 			Fontrenderer::Get().addText(*tooltipText->charset, x + frameWidth - xoffset - stringWidth, y, itemValue[i], Vector4f(1.0f, 1.0f, 1.0f, 1.0f), false);
 			xoffset = xoffset + 25 + stringWidth;
@@ -451,23 +448,6 @@ void ItemTooltip::drawCoinsLine(int x, int frameWidth, int y, sTooltipText *tool
 	}
 	Fontrenderer::Get().addText(*tooltipText->charset, x + frameWidth - xoffset + 20 - stringWidth, y, realString, Vector4f(1.0f, 1.0f, 1.0f, 1.0f), false);
 }
-
-
-/*void ItemTooltip::drawCoinsLine(int x, int frameWidth, int y, sTooltipText *tooltipText) {
-	std::string realString = tooltipText->text.substr(0, tooltipText->text.find_first_of(":") + 1);
-
-	int stringWidth = tooltipText->charset->getWidth(realString);
-	int xoffset = 0;
-	for (size_t i = 0; i < 3; i++) {
-		if (itemValue[i] != "0") {
-			DrawFunctions::drawCoin(x + frameWidth - xoffset, y + 1, i);
-			int stringWidth = tooltipText->charset->getWidth(itemValue[i]);
-			Fontrenderer::Get().addText(*tooltipText->charset, x + frameWidth - xoffset - stringWidth, y, itemValue[i], Vector4f(1.0f, 1.0f, 1.0f, 1.0f), false);
-			xoffset = xoffset + 25 + stringWidth;
-		}
-	}
-	Fontrenderer::Get().addText(*tooltipText->charset, x + frameWidth - xoffset + 20 - stringWidth, y, realString, Vector4f(1.0f, 1.0f, 1.0f, 1.0f), false);
-}*/
 
 void ItemTooltip::addTooltipTextForPercentageAttribute(std::string attributeName, double attributePercentage) {
 	
@@ -485,7 +465,7 @@ void ItemTooltip::getParentText() {
 	// remember what level we generated this tooltip
 	ticketFromPlayer = player->getTicketForItemTooltip();
 	shoppingState = player->isShopping();
-
+	std::cout << "-------------" << std::endl;
 
 	Vector4f grey = Vector4f(0.5f, 0.5f, 0.5f, 1.0f);
 	Vector4f white = Vector4f(1.0f, 1.0f, 1.0f, 1.0f);
@@ -711,51 +691,41 @@ void ItemTooltip::getParentText() {
 
 	int32_t coinsBuyPrice = parent->getValue() * inventoryItem->getCurrentStackSize();
 	int32_t coinsSellPrice = floor(parent->getValue() * 0.75) * inventoryItem->getCurrentStackSize();
-
-	/*if (player->isShopping()) {
-		if (isShopItem) {
+	
+	if (player->isShopping()) {
+		if (isShopItem) {	
+			std::cout << "11111" << std::endl;
 			itemValue[0] = currency::convertCoinsToString(currency::COPPER, coinsBuyPrice);
 			itemValue[1] = currency::convertCoinsToString(currency::SILVER, coinsBuyPrice);
 			itemValue[2] = currency::convertCoinsToString(currency::GOLD, coinsBuyPrice);
-			addTooltipText(white, 12, "Buy price: xxxxxxxxxxxx");
+			addTooltipText(white, &Globals::fontManager.get("verdana_12"), "Buy price: xxxxxxxxxxxx");
 		}else {
+			std::cout << "22222" << std::endl;
 			itemValue[0] = currency::convertCoinsToString(currency::COPPER, coinsSellPrice);
 			itemValue[1] = currency::convertCoinsToString(currency::SILVER, coinsSellPrice);
 			itemValue[2] = currency::convertCoinsToString(currency::GOLD, coinsSellPrice);
-			addTooltipText(white, 12, "Sell price: xxxxxxxxxxx");
+			addTooltipText(white, &Globals::fontManager.get("verdana_12"), "Sell price: xxxxxxxxxxx");
 		}
-	}*/
+	}
 }
 
 Item* ItemTooltip::getParent() const {
 	return parent;
 }
 
-namespace DrawFunctions {
-	//std::auto_ptr<CTexture> drawTextures(NULL);
-
-	void initDrawTextures() {
-		/*if (drawTextures.get() != NULL) {
-			return;
-		}
-
-		drawTextures = std::auto_ptr<CTexture>(new CTexture());
-		drawTextures->LoadIMG("data/interface/inventory/goldcoin.tga", 0);
-		drawTextures->LoadIMG("data/interface/inventory/silvercoin.tga", 1);
-		drawTextures->LoadIMG("data/interface/inventory/coppercoin.tga", 2);*/
+void ItemTooltip::drawCoin(int x, int y, int coin) {
+	TextureManager::BindTexture(s_textureAtlas, true, 0);
+	if (coin == currency::GOLD) {
+		TextureManager::DrawTexture(s_textures[0], x, y, 16, 16, false, false);
 	}
 
-	void drawCoin(int x, int y, int coin) {
-		/*if (coin == currency::GOLD) {
-			DrawingHelpers::mapTextureToRect(drawTextures->getTexture(0), x, 16, y, 16);
-		}
-
-		if (coin == currency::SILVER) {
-			DrawingHelpers::mapTextureToRect(drawTextures->getTexture(1), x, 16, y, 16);
-		}
-
-		if (coin == currency::COPPER) {
-			DrawingHelpers::mapTextureToRect(drawTextures->getTexture(2), x, 16, y, 16);
-		}*/
+	if (coin == currency::SILVER) {
+		TextureManager::DrawTexture(s_textures[1], x, y, 16, 16, false, false);
 	}
+
+	if (coin == currency::COPPER) {
+		TextureManager::DrawTexture(s_textures[2], x, y, 16, 16, false, false);
+	}
+
+	TextureManager::UnbindTexture(true, 0);
 }

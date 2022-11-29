@@ -13,8 +13,7 @@ $#include "Spells.h"
 $#include "Item.h"
 $#include "Shop.h"
 
-namespace Enums
-{
+namespace Enums {
 	enum TileClassificationType{
 		FLOOR,
 		ENVIRONMENT,
@@ -265,8 +264,7 @@ namespace DawnInterface{
 	Shop& addShop(std::string name);
 }
 
-namespace EditorInterface
-{
+namespace EditorInterface {
 	TileSet& getTileSet(Enums::TileClassificationType tileType);
 	void addGroundTile( int posX, int posY, int tile );
 	void addEnvironment( int posX, int posY, int posZ, int tile );
@@ -275,13 +273,11 @@ namespace EditorInterface
 	void addCollisionRect( int lrx, int lry, int width, int height );
 }
 
-class AdjacencyEquivalenceClass
-{
+class AdjacencyEquivalenceClass {
 	void addEquivalentTile( int tile, int offsetX, int offsetY );
 };
 
-class TileSet
-{
+class TileSet {
 	unsigned int addTile( std::string filename);
 	unsigned int addTileWithCollisionBox( std::string filename, int cbx, int cby, int cbw, int cbh );
 	void addAdjacency(unsigned int tile1, Enums::AdjacencyType adjacencyType, unsigned int tile2, int offsetX, int offsetY);
@@ -291,6 +287,7 @@ class TileSet
 };
 
 struct CharacterType {
+
 	void addMoveTexture(Enums::ActivityType activity, Enums::Direction direction, int index, std::string filename, unsigned int maxWidth = 0, unsigned int maxHeight = 0, bool reload = false, int paddingLeft = 0, int paddingRight = 0, int paddingTop = 0, int paddingBottom = 0);
 	void calcNumMoveTexturesPerDirection();
 	void baseOnType(std::string name);
@@ -328,8 +325,7 @@ struct CharacterType {
 	void modifyMaxFatigue(int maxFatigueModifier);
 }
 
-class Player : public Character
-{
+class Player : public Character {
 	static Player& Get();
 	
 	void setBoundingBox(int bbx, int bby, int bbw, int bbh);
@@ -350,29 +346,24 @@ class Player : public Character
 	Enums::CharacterClass getClass();
 }
 
-class Npc : public Character
-{
+class Npc : public Character {
 	void setAttitude( Enums::Attitude attitude );
 };
 
-class InteractionPoint
-{
+class InteractionPoint {
 	void setPosition( int posX, int posY, int width, int height );
 	void setInteractionType( Enums::InteractionType interactionType );
 	void setBackgroundTexture( std::string texturename );
 	void setInteractionCode( std::string interactionCode );
 };
 
-class InteractionRegion
-{
+class InteractionRegion {
 	void setPosition( int left, int bottom, int width, int height );
 	void setOnEnterText( std::string enterCode );
 	void setOnLeaveText( std::string leaveCode );
 };
 
-struct TextureAtlasCreator 
-{
-
+struct TextureAtlasCreator {
 	static TextureAtlasCreator& get();
 	void init(unsigned int width = 1024u, unsigned int height = 1024u);
 	void addFrame();
@@ -381,13 +372,11 @@ struct TextureAtlasCreator
 	void resetLine();
 };
 
-class TextureManager
-{
+class TextureManager {
 	static void SetTextureAtlas(std::string name, unsigned int value);
 };
 
-class SpellActionBase
-{
+class SpellActionBase {
 	void addAdditionalSpellOnTarget( SpellActionBase *spell, double chanceToExecute );
 	void addAdditionalSpellOnCreator( SpellActionBase *spell, double chanceToExecute );
 	void setRequiredClass( Enums::CharacterClass requiredClass );
@@ -403,16 +392,13 @@ class SpellActionBase
 	void setNeedTarget(bool needTarget);
 };
 
-class Action : public SpellActionBase
-{
+class Action : public SpellActionBase {
 };
 
-class Spell : public SpellActionBase
-{
+class Spell : public SpellActionBase {
 };
 
-class ConfigurableSpell : public Spell
-{
+class ConfigurableSpell : public Spell {
 	void setCastTime( int newCastTime );
 	void setCooldown( int newCooldown );
 	void setSpellCost( int spellCost );
@@ -421,8 +407,7 @@ class ConfigurableSpell : public Spell
 	void setRange( int minRange, int maxRange );
 };
 
-class ConfigurableAction : public Action
-{
+class ConfigurableAction : public Action {
 
 	void setCastTime( int newCastTime );
 	void setCooldown( int newCooldown );
@@ -432,38 +417,32 @@ class ConfigurableAction : public Action
 	void setRange( int minRange, int maxRange );
 };
 
-class GeneralDamageSpell : public ConfigurableSpell
-{
+class GeneralDamageSpell : public ConfigurableSpell {
 	void setDirectDamage( int newMinDirectDamage, int newMaxDirectDamage, Enums::ElementType newElementDirect );
 	void setContinuousDamage( double newMinContDamagePerSec, double newMaxContDamagePerSec, int newContDamageTime, Enums::ElementType newContDamageElement );
 	void addAnimationFrame(std::string file, int paddingLeft = 0, int paddingRight = 0, int paddingTop = 0, int paddingBottom = 0);
 };
 
-class GeneralRayDamageSpell : public GeneralDamageSpell
-{
+class GeneralRayDamageSpell : public GeneralDamageSpell {
 
 };
 
-class GeneralAreaDamageSpell : public GeneralDamageSpell
-{
+class GeneralAreaDamageSpell : public GeneralDamageSpell {
 	void setRadius( int newRadius );
 };
 
-class GeneralBoltDamageSpell : public GeneralDamageSpell
-{
+class GeneralBoltDamageSpell : public GeneralDamageSpell {
 	void setMoveSpeed( int newMoveSpeed );
 	void setExpireTime( int newExpireTime );
 };
 
-class GeneralHealingSpell : public ConfigurableSpell
-{
+class GeneralHealingSpell : public ConfigurableSpell {
 	void setEffectType( Enums::EffectType newEffectType );
 	void setDirectHealing( int healEffectMin, int healEffectMax, Enums::ElementType healEffectElement );
 	void setContinuousHealing( double minContinuousHealingPerSecond, double maxContinuousHealingPerSecond, int continuousHealingTime, Enums::ElementType elementContinuous );
 };
 
-class GeneralBuffSpell : public ConfigurableSpell
-{
+class GeneralBuffSpell : public ConfigurableSpell {
 	void setEffectType( Enums::EffectType newEffectType );
 	void setDuration( int newDuration );
 	void setStats( Enums::StatsType statsType, int amount );
@@ -472,21 +451,18 @@ class GeneralBuffSpell : public ConfigurableSpell
 
 };
 
-class MeleeDamageAction : public ConfigurableAction
-{
+class MeleeDamageAction : public ConfigurableAction {
 	void setDamageBonus( double damageBonus );
 };
 
-class RangedDamageAction : public ConfigurableAction
-{
+class RangedDamageAction : public ConfigurableAction {
 	void setDamageBonus( double damageBonus );
 	void setMoveSpeed( int newMoveSpeed );
 	void setExpireTime( int newExpireTime );
 	void addAnimationFrame(std::string file, int paddingLeft = 0, int paddingRight = 0, int paddingTop = 0, int paddingBottom = 0);
 };
 
-class Item
-{
+class Item {
 	void setDescription( std::string description );
 	void setStats( Enums::StatsType statsType, int amount );
 	void setResistElementModifierPoints( Enums::ElementType elementType, int resistModifierPoints );
@@ -502,13 +478,12 @@ class Item
 	void addTriggerSpellOnTarget( SpellActionBase *spellToTrigger, float chanceToTrigger, Enums::TriggerType triggerType );
 };
 
-class Shop{
+class Shop {
 	void addItem( Item *item );
 	void loadShopkeeperInventory();
 };
 
-class TextWindow
-{
+class TextWindow {
 	void setText( std::string text );
 	void setAutocloseTime( int autocloseTime );
 	void setPosition( Enums::PositionType, int x, int y );

@@ -147,6 +147,7 @@ void Interface::init() {
 	});
 
 	ShopCanvas::Get().setOnClose([&]() {
+		m_player->stopShopping();
 		for (size_t curFrame = 0; curFrame < m_widgets.size(); curFrame++) {
 			if (dynamic_cast<Widget*>(&ShopCanvas::Get()) == m_widgets[curFrame]) {
 				ShopCanvas::Get().setVisible(false);
@@ -158,7 +159,7 @@ void Interface::init() {
 	});
 
 	ShopCanvas::Get().setOnActivate([&]() {
-
+		m_player->startShopping();
 		if (ShopCanvas::Get().isVisible()) {
 			for (size_t curFrame = 0; curFrame < m_widgets.size(); curFrame++) {
 				if (dynamic_cast<Widget*>(&ShopCanvas::Get()) == m_widgets[curFrame]) {
@@ -414,6 +415,7 @@ void Interface::draw() {
 		m_widgets[curFrame]->draw();
 	}
 	ShopCanvas::Get().draw();
+	ShopCanvas::Get().drawItemTooltip(ViewPort::get().getCursorPosRelX(), ViewPort::get().getCursorPosRelY());
 	//if (m_widgets.size() > 0) {
 	//	if (m_widgets.back() == &m_spellbook && !m_spellbook.hasFloatingSpell()) {
 	//		m_spellbook.drawSpellTooltip(ViewPort::get().getCursorPosRelX(), ViewPort::get().getCursorPosRelY());		
@@ -434,8 +436,7 @@ void Interface::draw() {
 
 	m_inventoryScreen.drawFloatingSelection();
 	m_spellbook.drawFloatingSpell();
-
-	
+	ShopCanvas::Get().drawFloatingSelection();
 
 }
 
@@ -810,6 +811,7 @@ void Interface::processInput() {
 	}
 
 	if (m_activeWidget) m_activeWidget->processInput();
+	ShopCanvas::Get().processInput();
 }
 
 void Interface::processInputRightDrag() {
@@ -920,6 +922,7 @@ void Interface::processInputRightDrag() {
 
 	if (keyboard.keyPressed(Keyboard::KEY_U)) {
 		ShopCanvas::Get().isVisible() ? ShopCanvas::Get().close() : ShopCanvas::Get().activate();
+		
 	}
 
 	if (m_activeWidget) m_activeWidget->processInput();

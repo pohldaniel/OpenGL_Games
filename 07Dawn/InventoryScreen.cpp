@@ -2,6 +2,8 @@
 #include "Inventory.h"
 #include "Luainterface.h"
 #include "Spells.h"
+#include "Shop.h"
+#include "Zone.h"
 
 InventoryScreen InventoryScreen::s_instance;
 
@@ -69,9 +71,9 @@ void InventoryScreen::init() {
 	TextureAtlasCreator::get().init(1024, 1024);
 	TextureManager::Loadimage("res/interface/inventory/base.tga", 0, m_textures);
 	TextureManager::Loadimage("res/white2x2pixel.png", 1, m_textures, true);
-	TextureManager::Loadimage("res/interface/inventory/goldcoin.tga", 2, m_textures);
-	TextureManager::Loadimage("res/interface/inventory/silvercoin.tga", 3, m_textures);
-	TextureManager::Loadimage("res/interface/inventory/coppercoin.tga", 4, m_textures);
+	TextureManager::Loadimage("res/interface/inventory/goldcoin.tga", 2, m_textures, true);
+	TextureManager::Loadimage("res/interface/inventory/silvercoin.tga", 3, m_textures, true);
+	TextureManager::Loadimage("res/interface/inventory/coppercoin.tga", 4, m_textures, true);
 
 
 	TextureManager::Loadimage("res/interface/inventory/head.tga", 5, m_textures);
@@ -219,11 +221,10 @@ void InventoryScreen::drawItemPlacement(int mouseX, int mouseY){
 	bool floatingSelectionFromShop = false;
 
 	InventoryItem* floatingSelectionToDraw = floatingSelection;
-	/*if (floatingSelectionToDraw == NULL && shopWindow->hasFloatingSelection())
-	{
-		floatingSelectionToDraw = shopWindow->getFloatingSelection();
+	if (floatingSelectionToDraw == NULL && ShopCanvas::Get().hasFloatingSelection()){
+		floatingSelectionToDraw = ShopCanvas::Get().getFloatingSelection();
 		floatingSelectionFromShop = true;
-	}*/
+	}
 
 	if (floatingSelectionToDraw == NULL) return;
 
@@ -318,10 +319,9 @@ void InventoryScreen::drawItemTooltip(int mouseX, int mouseY) {
 	if (!m_visible) return;
 	// draws tooltip over item in the backpack
 	InventoryItem* floatingSelectionToHandle = floatingSelection;
-	/*if (floatingSelectionToHandle == NULL && shopWindow->hasFloatingSelection())
-	{
-		floatingSelectionToHandle = shopWindow->getFloatingSelection();
-	}*/
+	if (floatingSelectionToHandle == NULL && ShopCanvas::Get().hasFloatingSelection()) {
+		floatingSelectionToHandle = ShopCanvas::Get().getFloatingSelection();
+	}
 
 	if (isOnBackpackScreen(mouseX, mouseY) && isVisible() && floatingSelectionToHandle == NULL) {
 		Inventory* inventory = m_player->getInventory();
@@ -399,20 +399,17 @@ void InventoryScreen::processInput() {
 
 		InventoryItem* floatingSelectionToHandle = floatingSelection;
 		bool shopFloatingSelection = false;
-		/*if (floatingSelectionToHandle == NULL && shopWindow->hasFloatingSelection())
-		{
-			floatingSelectionToHandle = shopWindow->getFloatingSelection();
+		if (floatingSelectionToHandle == NULL && ShopCanvas::Get().hasFloatingSelection()){
+			floatingSelectionToHandle = ShopCanvas::Get().getFloatingSelection();
 			shopFloatingSelection = true;
 		}
 
-		if (!isMouseOnFrame(mouseX, mouseY) && !shopWindow->isMouseOnFrame(mouseX, mouseY)) {
+		if (!isMouseOnFrame(ViewPort::get().getCursorPosRelX(), ViewPort::get().getCursorPosRelY()) && !ShopCanvas::Get().isMouseOnFrame(ViewPort::get().getCursorPosRelX(), ViewPort::get().getCursorPosRelY())) {
 			// clicked outside inventory window
-			if (floatingSelection != NULL)
-			{
+			if (floatingSelection != NULL){
 				// drop item...
 				dropItemOnGround(floatingSelection);
-				if (inventory->containsItem(floatingSelection))
-				{
+				if (inventory->containsItem(floatingSelection)){
 					inventory->removeItem(floatingSelection);
 				}
 
@@ -420,7 +417,7 @@ void InventoryScreen::processInput() {
 
 				return;
 			}
-		}*/
+		}
 	
 		for (size_t curSlotNr = 0; curSlotNr < static_cast<size_t>(Enums::ItemSlot::COUNTIS); ++curSlotNr) {
 			Enums::ItemSlot curSlotEnum = static_cast<Enums::ItemSlot>(curSlotNr);
@@ -564,7 +561,7 @@ void InventoryScreen::processInput() {
 				}
 				floatingSelection = inventory->insertItemWithExchangeAt(floatingSelectionToHandle, fieldIndexX, fieldIndexY);
 				if (shopFloatingSelection) {
-					//shopWindow->buyFromShop();
+					ShopCanvas::Get().getShop()->buyFromShop();
 				}else {
 					//CommonSounds::playClickSound();
 				}
@@ -580,6 +577,10 @@ void InventoryScreen::processInput() {
 
 void InventoryScreen::setTextureDependentPositions() {
 	m_posX = ViewPort::get().getWidth() - m_textures[0].width - 50;
+}
+
+void InventoryScreen::dropItemOnGround(InventoryItem* inventoryItem) {
+	ZoneManager::Get().getCurrentZone()->getGroundLoot()->addItem(m_player->getXPos(), m_player->getYPos(), inventoryItem->getItem());
 }
 
 void InventoryScreen::addInventoryScreenSlot(InventoryScreenSlot** mySlots, Enums::ItemSlot slotToUse, size_t offsetX, size_t offsetY, size_t sizeX, size_t sizeY, TextureRect texture) {
@@ -657,6 +658,7 @@ void InventoryScreen::equipOnSlotOriginDependingAndPlaySound(Enums::ItemSlot slo
 		//CommonSounds::playClickSound();
 	}
 }
+
 
 std::string currency::getLongTextString(std::uint32_t coins) {
 	std::stringstream ss;

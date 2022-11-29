@@ -64,6 +64,7 @@ public:
 	bool isShopping() const;
 	Inventory* getInventory();
 	void clearInventory();
+	void reduceCoins(unsigned int amountOfCoins);
 
 	static Player& Get();
 

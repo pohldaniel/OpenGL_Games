@@ -10,6 +10,7 @@
 #include "Item.h"
 #include "Dialog.h"
 
+
 class Player;
 class InventoryItem;
 
@@ -101,9 +102,9 @@ private:
 	void getTicketFromPlayer();
 	void addTooltipTextForPercentageAttribute(std::string attributeName, double attributePercentage);
 	void drawCoinsLine(int x, int y, int frameWidth, sTooltipText *tooltipText);
-};
-
-namespace DrawFunctions {
-	void initDrawTextures();
 	void drawCoin(int x, int y, int coin);
-}
+
+	static std::vector<TextureRect> s_textures;
+	static unsigned int s_textureAtlas;
+
+};

@@ -515,3 +515,11 @@ Inventory* Player::getInventory() {
 void Player::clearInventory() {
 	inventory.clear();
 }
+
+void Player::reduceCoins(unsigned int amountOfCoins) {
+	if (coins >= amountOfCoins) {
+		coins -= amountOfCoins;
+	}else {
+		coins = 0;
+	}
+}

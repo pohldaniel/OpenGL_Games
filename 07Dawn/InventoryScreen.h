@@ -70,6 +70,7 @@ public:
 	void setFloatingSelection(InventoryItem* item);
 	void unsetFloatingSelection();
 
+
 	static InventoryScreen& Get();
 
 private:
