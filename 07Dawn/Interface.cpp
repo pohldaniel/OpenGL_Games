@@ -145,6 +145,36 @@ void Interface::init() {
 			m_activeWidget = m_widgets.back();
 		}
 	});
+
+	ShopCanvas::Get().setOnClose([&]() {
+		for (size_t curFrame = 0; curFrame < m_widgets.size(); curFrame++) {
+			if (dynamic_cast<Widget*>(&ShopCanvas::Get()) == m_widgets[curFrame]) {
+				ShopCanvas::Get().setVisible(false);
+				m_widgets.erase(m_widgets.begin() + curFrame);
+				if (m_widgets.size() == 0) m_activeWidget == nullptr;
+				return;
+			}
+		}
+	});
+
+	ShopCanvas::Get().setOnActivate([&]() {
+
+		if (ShopCanvas::Get().isVisible()) {
+			for (size_t curFrame = 0; curFrame < m_widgets.size(); curFrame++) {
+				if (dynamic_cast<Widget*>(&ShopCanvas::Get()) == m_widgets[curFrame]) {
+					m_widgets.erase(m_widgets.begin() + curFrame);
+					m_widgets.push_back(&ShopCanvas::Get());
+					m_activeWidget = m_widgets.back();
+					return;
+				}
+			}
+		}else {
+			// else add it to the frame vector and make it visible.
+			m_widgets.push_back(&ShopCanvas::Get());
+			ShopCanvas::Get().setVisible(true);
+			m_activeWidget = m_widgets.back();
+		}
+	});
 }
 
 void Interface::loadTextures() {
@@ -383,7 +413,7 @@ void Interface::draw() {
 	for (size_t curFrame = 0; curFrame < m_widgets.size(); curFrame++) {
 		m_widgets[curFrame]->draw();
 	}
-
+	ShopCanvas::Get().draw();
 	//if (m_widgets.size() > 0) {
 	//	if (m_widgets.back() == &m_spellbook && !m_spellbook.hasFloatingSpell()) {
 	//		m_spellbook.drawSpellTooltip(ViewPort::get().getCursorPosRelX(), ViewPort::get().getCursorPosRelY());		
@@ -397,14 +427,15 @@ void Interface::draw() {
 	}
 	m_inventoryScreen.drawItemTooltip(ViewPort::get().getCursorPosRelX(), ViewPort::get().getCursorPosRelY());
 	
-
-	m_inventoryScreen.drawFloatingSelection();
-	m_spellbook.drawFloatingSpell();
-
 	Fontrenderer::Get().resetRenderer();
 	TextureManager::SetShader(Globals::shaderManager.getAssetPointer("batch"));
 	TextureManager::UnbindTexture(true, 1);
 	TextureManager::UnbindTexture(true, 0);
+
+	m_inventoryScreen.drawFloatingSelection();
+	m_spellbook.drawFloatingSpell();
+
+	
 
 }
 
@@ -885,6 +916,10 @@ void Interface::processInputRightDrag() {
 
 	if (keyboard.keyPressed(Keyboard::KEY_I)) {
 		m_inventoryScreen.isVisible() ? m_inventoryScreen.close() : m_inventoryScreen.activate();
+	}
+
+	if (keyboard.keyPressed(Keyboard::KEY_U)) {
+		ShopCanvas::Get().isVisible() ? ShopCanvas::Get().close() : ShopCanvas::Get().activate();
 	}
 
 	if (m_activeWidget) m_activeWidget->processInput();

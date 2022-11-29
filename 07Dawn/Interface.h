@@ -8,6 +8,7 @@
 #include "Spellbook.h"
 #include "CharacterInfo.h"
 #include "InventoryScreen.h"
+#include "Shop.h"
 #include "Constants.h"
 
 class Character;

@@ -156,7 +156,7 @@ InventoryItem *GroundLoot::getFloatingSelection(int x, int y) {
 			y <= static_cast<int>(groundItems[curItem].ypos + groundItems[curItem].item->getSizeY() * 32)) {
 
 			if (PickUpLoot(player, groundItems[curItem], curItem)) {
-				InventoryItem *returnItem = new InventoryItem(groundItems[curItem].item, 0, 0, player);
+				InventoryItem *returnItem = new InventoryItem(groundItems[curItem].item, 0, 0);
 				removeItem(curItem);
 				return returnItem;
 			}

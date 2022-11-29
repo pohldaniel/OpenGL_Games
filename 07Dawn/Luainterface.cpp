@@ -10,6 +10,7 @@
 #include "Actions.h"
 #include "Spells.h"
 #include "Player.h"
+#include "Shop.h"
 #include "Interface.h"
 #include "Inventory.h"
 
@@ -87,7 +88,6 @@ namespace DawnInterface{
 	}
 
 	void addMobSpawnPoint(std::string characterType, std::string name, int x_pos, int y_pos, int respawn_rate, int do_respawn, Enums::Attitude attitude) {
-		
 		if (!CharacterTypeManager::Get().containsCaracterType(characterType)) {
 			return;
 		}
@@ -99,6 +99,10 @@ namespace DawnInterface{
 		newMob->setName(name);
 		//newMob->setActiveGUI(&GUI);
 		ZoneManager::Get().getCurrentZone()->addNPC(newMob);
+	}
+
+	const Zone& getCurrentZone() {
+		return *ZoneManager::Get().getCurrentZone();
 	}
 
 	const InteractionRegion& addInteractionRegion(){
@@ -142,7 +146,7 @@ namespace DawnInterface{
 		return "";
 	}
 
-	TextWindow *createTextWindow() {
+	TextWindow* createTextWindow() {
 		TextWindow::AddTextWindow(new TextWindow());
 		return TextWindow::GetTextWindows().back();
 	}
@@ -251,14 +255,14 @@ namespace DawnInterface{
 	}
 
 	void restoreItemInBackpack(Item* item, int inventoryPosX, int inventoryPosY, size_t stackSize) {
-		InventoryItem* invItem = new InventoryItem(item, inventoryPosX, inventoryPosY, &Player::Get());
+		InventoryItem* invItem = new InventoryItem(item, inventoryPosX, inventoryPosY);
 		invItem->setCurrentStackSize(stackSize);
 		Player::Get().getInventory()->insertItemWithExchangeAt(invItem, inventoryPosX, inventoryPosY);
 	}
 
 	void restoreWieldItem(int slot, Item* item) {
 		Enums::ItemSlot slotToUse = static_cast<Enums::ItemSlot>(slot);
-		InventoryItem* invItem = new InventoryItem(item, 0, 0, &Player::Get());
+		InventoryItem* invItem = new InventoryItem(item, 0, 0);
 		Player::Get().getInventory()->wieldItemAtSlot(slotToUse, invItem);
 	}
 
@@ -291,5 +295,9 @@ namespace DawnInterface{
 
 	Player& getPlayer() {
 		return Player::Get();
+	}
+
+	const Shop& addShop(std::string name){
+		return ShopManager::Get().getShop(name);
 	}
 }

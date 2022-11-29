@@ -9,22 +9,13 @@
 #include "Widget.h"
 #include "Dialog.h"
 #include "Luainterface.h"
-
-namespace PositionType {
-
-	enum PositionType {
-		BOTTOMLEFT,
-		BOTTOMCENTER,
-		LEFTCENTER,
-		CENTER
-	};
-}
+#include "Enums.h"
 
 class TextWindow {
 public:
 	void setText(std::string text);
 	void setAutocloseTime(unsigned int autocloseTime);
-	void setPosition(PositionType::PositionType, int x, int y);
+	void setPosition(Enums::PositionType, int x, int y);
 	void center();
 	void setOnCloseText(std::string onCloseText);
 	bool canBeDeleted() const;
@@ -34,10 +25,10 @@ public:
 	void draw();
 
 	static void FormatMultilineText(std::string textIn, std::vector< std::string > &textLines, int lineWidth, CharacterSet* font);
-	static std::vector<TextWindow*> GetTextWindows();
+	static std::vector<TextWindow*>& GetTextWindows();
 	static void AddTextWindow(TextWindow* textWindow);
 	static void RemoveTextWindow(unsigned short index);
-
+	
 private:
 	friend TextWindow* DawnInterface::createTextWindow();
 
@@ -45,7 +36,7 @@ private:
 
 	void updateFramesPosition();
 
-	PositionType::PositionType positionType;
+	Enums::PositionType positionType;
 	int x;
 	int y;
 	unsigned int autocloseTime;

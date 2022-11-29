@@ -282,7 +282,7 @@ void InventoryScreen::drawItemPlacement(int mouseX, int mouseY){
 			GLfloat shade[4] = { 0.0f, 0.0f, 0.0f, 0.3f };
 
 			// set the shade-color depending on if the item fits or not.
-			if (floatingSelectionToDraw->canPlayerUseItem() == true &&
+			if (floatingSelectionToDraw->canPlayerUseItem(*m_player) == true &&
 				floatingSelectionToDraw->getItem()->getEquipPosition() == Inventory::getEquipType(curSlotEnum)) {
 				if (floatingSelectionFromShop) {
 					// yellow color (item needs to be paid)
@@ -310,7 +310,7 @@ void InventoryScreen::drawFloatingSelection() {
 		size_t sizeY = floatingItem->getSizeY();
 		TextureManager::BindTexture(TextureManager::GetTextureAtlas("items"), true);
 		TextureManager::DrawTexture(*floatingItem->getSymbolTexture(), ViewPort::get().getCursorPosRelX(), ViewPort::get().getCursorPosRelY() - 20, backpackFieldWidth * sizeX + (sizeX - 1) * backpackSeparatorWidth, backpackFieldHeight * sizeY + (sizeY - 1) * backpackSeparatorHeight, false, false);
-		TextureManager::BindTexture(true);
+		TextureManager::UnbindTexture(true);
 	}
 }
 
@@ -425,7 +425,7 @@ void InventoryScreen::processInput() {
 		for (size_t curSlotNr = 0; curSlotNr < static_cast<size_t>(Enums::ItemSlot::COUNTIS); ++curSlotNr) {
 			Enums::ItemSlot curSlotEnum = static_cast<Enums::ItemSlot>(curSlotNr);
 			if (isOverSlot(curSlotEnum, ViewPort::get().getCursorPosRelX(), ViewPort::get().getCursorPosRelY())) {
-				if (floatingSelectionToHandle != NULL && floatingSelectionToHandle->canPlayerUseItem() == true) {
+				if (floatingSelectionToHandle != NULL && floatingSelectionToHandle->canPlayerUseItem(*m_player) == true) {
 					if (floatingSelectionToHandle->getItem()->getEquipPosition() == Inventory::getEquipType(curSlotEnum)) {
 						// special handler for when we are trying to wield a two-handed weapon and having items in BOTH mainhand and offhand-slot equipped.
 						if (floatingSelectionToHandle->getItem()->isTwoHandedWeapon() == true && inventory->isWieldingTwoHandedWeapon() == false && inventory->getItemAtSlot(Enums::ItemSlot::MAIN_HAND) != NULL && inventory->getItemAtSlot(Enums::ItemSlot::OFF_HAND) != NULL) {
@@ -488,7 +488,7 @@ void InventoryScreen::processInput() {
 						}
 					}
 				}
-				else if (floatingSelectionToHandle == NULL && useItem->canPlayerUseItem() == true) {
+				else if (floatingSelectionToHandle == NULL && useItem->canPlayerUseItem(*m_player) == true) {
 					// try to equip the item
 					std::vector<size_t> possibleSlots;
 					for (size_t curSlotNr = 0; curSlotNr < static_cast<size_t>(Enums::ItemSlot::COUNTIS); ++curSlotNr) {
@@ -560,7 +560,7 @@ void InventoryScreen::processInput() {
 		if (floatingSelectionToHandle != NULL) {
 			if (inventory->hasSufficientSpaceWithExchangeAt(fieldIndexX, fieldIndexY, floatingSelectionToHandle->getSizeX(), floatingSelectionToHandle->getSizeY())) {
 				if (shopFloatingSelection) {
-					floatingSelectionToHandle = new InventoryItem(floatingSelectionToHandle->getItem(), 0, 0, m_player, floatingSelectionToHandle);
+					floatingSelectionToHandle = new InventoryItem(floatingSelectionToHandle->getItem(), 0, 0, floatingSelectionToHandle);
 				}
 				floatingSelection = inventory->insertItemWithExchangeAt(floatingSelectionToHandle, fieldIndexX, fieldIndexY);
 				if (shopFloatingSelection) {
@@ -646,7 +646,7 @@ void InventoryScreen::equipOnSlotOriginDependingAndPlaySound(Enums::ItemSlot slo
 	Inventory* inventory = m_player->getInventory();
 	if (fromShop) {
 		// shop self-destroys its inventory items. Copy to new inventory item.
-		wieldItem = new InventoryItem(wieldItem->getItem(), 0, 0, m_player, wieldItem);
+		wieldItem = new InventoryItem(wieldItem->getItem(), 0, 0, wieldItem);
 	}
 
 	inventory->wieldItemAtSlot(slotToUse, wieldItem);

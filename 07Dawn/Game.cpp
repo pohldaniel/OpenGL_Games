@@ -1,6 +1,7 @@
 #include "Game.h"
 #include "Magic.h"
 #include "TextWindow.h"
+#include "Shop.h"
 
 Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_player(Player::Get()) {
 	EventDispatcher::AddMouseListener(this);
@@ -29,6 +30,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_player
 	LuaFunctions::executeLuaFile("res/_lua/gameinit.lua");
 	DawnInterface::clearLogWindow();
 	DialogCanvas::initTextures();
+	ShopCanvas::Get().init();
 
 	dawnInterface = &Interface::Get();
 	dawnInterface->init();
@@ -50,15 +52,19 @@ void Game::update() {
 
 	processInput();
 	dawnInterface->processInputRightDrag();
-	
-	for (auto it = TextWindow::GetTextWindows().begin(); it != TextWindow::GetTextWindows().end(); ++it) {
+		
+	for (auto it = TextWindow::GetTextWindows().begin(); it != TextWindow::GetTextWindows().end();) {
 		short index = static_cast<short>(std::distance(TextWindow::GetTextWindows().begin(), it));
 		TextWindow *curTextWindow = *it;		
+
 		if (curTextWindow->canBeDeleted() == true) {
 			curTextWindow->close();
 
 			delete curTextWindow;
-			TextWindow::RemoveTextWindow(index);
+			it = TextWindow::GetTextWindows().erase(TextWindow::GetTextWindows().begin() + index);
+			//TextWindow::Get().RemoveTextWindow(index);
+		}else {
+			++it;
 		}
 	}
 

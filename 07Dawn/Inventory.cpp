@@ -9,10 +9,8 @@
 InventoryItem::InventoryItem(Item* item,
 	size_t inventoryPosX,
 	size_t inventoryPosY,
-	Player* player,
 	InventoryItem* copyFrom)
 	: item(item),
-	player(player),
 	currentStackSize(1),
 	inventoryPosX(inventoryPosX),
 	inventoryPosY(inventoryPosY) {
@@ -21,7 +19,7 @@ InventoryItem::InventoryItem(Item* item,
 		copyAttributes(copyFrom);
 	}
 
-	tooltip = new ItemTooltip(item, this, player);
+	tooltip = new ItemTooltip(item, this);
 }
 
 InventoryItem::~InventoryItem() {
@@ -91,29 +89,29 @@ void InventoryItem::copyAttributes(InventoryItem* copyFrom) {
 	currentStackSize = copyFrom->getCurrentStackSize();
 }
 
-bool InventoryItem::canPlayerUseItem() const {
+bool InventoryItem::canPlayerUseItem(Player& player) const {
 	bool useableItem = true;
 
-	if (player->getLevel() < item->getRequiredLevel()) {
+	if (player.getLevel() < item->getRequiredLevel()) {
 		useableItem = false;
 	}
 
 	if (item->getArmorType() != Enums::ArmorType::NO_ARMOR) {
-		useableItem = player->canWearArmorType(item);
+		useableItem = player.canWearArmorType(item);
 	}
 
 	if (item->isUseable()) {
 
-		if (player->getLevel() < item->getSpell()->getRequiredLevel()) {
+		if (player.getLevel() < item->getSpell()->getRequiredLevel()) {
 			useableItem = false;
 		}
 
-		if (player->getClass() != item->getSpell()->getRequiredClass() && item->getSpell()->getRequiredClass() != Enums::CharacterClass::ANYCLASS) {
+		if (player.getClass() != item->getSpell()->getRequiredClass() && item->getSpell()->getRequiredClass() != Enums::CharacterClass::ANYCLASS) {
 			useableItem = false;
 		}
 
 		if (item->getItemType() == Enums::ItemType::NEWSPELL) {
-			if (player->isSpellInscribedInSpellbook(item->getSpell()) == true) {
+			if (player.isSpellInscribedInSpellbook(item->getSpell()) == true) {
 				useableItem = false;
 			}
 		}
@@ -215,7 +213,7 @@ bool Inventory::insertItem(Item* item, InventoryItem* oldInventoryItem) {
 		return false;
 	}
 
-	InventoryItem* newInvItem = new InventoryItem(item, foundX, foundY, player, oldInventoryItem);
+	InventoryItem* newInvItem = new InventoryItem(item, foundX, foundY, oldInventoryItem);
 	insertItemAt(newInvItem, foundX, foundY);
 	return true;
 }

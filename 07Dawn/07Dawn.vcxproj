@@ -180,6 +180,7 @@
     <ClCompile Include="Npc.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="Random.cpp" />
+    <ClCompile Include="Shop.cpp" />
     <ClCompile Include="SpellActionBase.cpp" />
     <ClCompile Include="Spellbook.cpp" />
     <ClCompile Include="Spells.cpp" />
@@ -252,6 +253,7 @@
     <ClInclude Include="Npc.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="Random.h" />
+    <ClInclude Include="Shop.h" />
     <ClInclude Include="SpellActionBase.h" />
     <ClInclude Include="Spellbook.h" />
     <ClInclude Include="Spells.h" />

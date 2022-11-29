@@ -236,6 +236,13 @@ namespace Enums {
 		TAKING_DAMAGE,
 		EXECUTING_ACTION
 	};
+
+	enum PositionType {
+		BOTTOMLEFT,
+		BOTTOMCENTER,
+		LEFTCENTER,
+		CENTER
+	};
 }
 
 namespace EquipPosition {

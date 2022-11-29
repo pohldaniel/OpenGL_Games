@@ -1,6 +1,6 @@
 directions = {'n', 'ne', 'e', 'se', 's', 'sw', 'w', 'nw'}
 
-TextureAtlasCreator:get():init(864, 768);
+TextureAtlasCreator:get():init(1152, 1024);
 wolfbase = DawnInterface.createNewMobType("Wolf");
 
 for direction = 1,8 do
@@ -30,7 +30,7 @@ for direction = 1,8 do
 	end
 end
 TextureAtlasCreator:get():addFrame();
-TextureManager:SetTextureAtlas("mobs", TextureAtlasCreator:get():getAtlas());
+
 --TextureAtlasCreator:get():safeAtlas("tmp/Wolf")
 
 wolfbase:calcNumMoveTexturesPerDirection();
@@ -92,3 +92,44 @@ giantwolf:setName("A giant wolf")
 giantwolf:setWanderRadius( 50 )
 giantwolf:setLevel( 5 )
 giantwolf:setExperienceValue( 40 );
+
+humanbase = DawnInterface.createNewMobType("Human")
+for direction = 1,8 do
+	for index=0,7,1 do
+		humanbase:addMoveTexture( Enums.Walking, direction, index, "res/character/swordsman/walking "..directions[direction].."000"..index..".tga", 768, 768);
+	end
+end
+TextureAtlasCreator:get():addFrame();
+
+for direction = 1,8 do
+	for index=0,8,1 do
+		humanbase:addMoveTexture( Enums.Dying, direction, index, "res/character/swordsman/dying "..directions[direction].."000"..index..".tga", 1152, 1024);
+	end
+end
+TextureAtlasCreator:get():addFrame();
+
+humanbase:calcNumMoveTexturesPerDirection();
+humanbase:setStrength( 15 )
+humanbase:setDexterity( 25 )
+humanbase:setVitality( 15 )
+humanbase:setIntellect( 10 )
+humanbase:setWisdom( 10 )
+humanbase:setMaxHealth( 250 )
+humanbase:setMaxMana( 500 )
+humanbase:setMaxFatigue( 100 )
+humanbase:setHealthRegen( 0 )
+humanbase:setManaRegen( 50 )
+humanbase:setFatigueRegen( 25 )
+humanbase:setMinDamage( 5 )
+humanbase:setMaxDamage( 10 )
+humanbase:setArmor( 20 )
+humanbase:setDamageModifierPoints( 0 )
+humanbase:setHitModifierPoints( 0 )
+humanbase:setEvadeModifierPoints( 0 )
+humanbase:setName("A swordsman")
+humanbase:setWanderRadius( 250 )
+humanbase:setLevel( 2 )
+humanbase:setClass( Enums.Warrior );
+humanbase:setExperienceValue( 25 );
+
+TextureManager:SetTextureAtlas("mobs", TextureAtlasCreator:get():getAtlas());

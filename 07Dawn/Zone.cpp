@@ -31,6 +31,7 @@ void Zone::loadZone(){
 	LuaFunctions::executeLuaFile(std::string(m_file).append(".shadow.lua"));
 	LuaFunctions::executeLuaFile(std::string(m_file).append(".collision.lua"));
 	LuaFunctions::executeLuaFile(std::string(m_file).append(".spawnpoints.lua"));
+	LuaFunctions::executeLuaFile(std::string(m_file).append(".init.lua"));
 	m_mapLoaded = true;
 }
 

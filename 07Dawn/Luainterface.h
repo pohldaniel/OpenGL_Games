@@ -33,6 +33,8 @@ class GeneralBuffSpell;
 class MeleeDamageAction;
 class RangedDamageAction;
 class Player;
+class Shop;
+class Zone;
 class Item;
 
 namespace EditorInterface{
@@ -59,7 +61,7 @@ namespace DawnInterface{
 	void removeInteractionRegion(InteractionRegion *regionToRemove);	
 	void removeInteractionPoint(InteractionPoint *pointToRemove);
 	std::string getItemReferenceRestore(Character *character);
-	TextWindow *createTextWindow();
+	TextWindow* createTextWindow();
 
 	GeneralRayDamageSpell* createGeneralRayDamageSpell();
 	GeneralAreaDamageSpell* createGeneralAreaDamageSpell();
@@ -84,4 +86,6 @@ namespace DawnInterface{
 	void giveItemToPlayer(Item* item);
 	Item* createNewItem(std::string name, int sizeX, int sizeY, std::string symbolFile, Enums::ItemQuality itemQuality, EquipPosition::EquipPosition equipPos, Enums::ItemType itemType, Enums::ArmorType armorType, Enums::WeaponType weaponType);
 	Player& getPlayer();
+	const Zone& getCurrentZone();
+	const Shop& addShop(std::string name);
 }

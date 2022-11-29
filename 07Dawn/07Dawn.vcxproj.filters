@@ -240,6 +240,9 @@
     <ClCompile Include="Groundloot.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Shop.cpp">
+      <Filter>Source Files\Interface</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine\input\Event.h">
@@ -448,6 +451,9 @@
     </ClInclude>
     <ClInclude Include="Groundloot.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Shop.h">
+      <Filter>Source Files\Interface</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

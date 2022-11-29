@@ -91,8 +91,9 @@ void Spellbook::drawFloatingSpell() {
 
 	if (m_floatingSpell != NULL) {
 		TextureManager::BindTexture(m_textureAtlas, true);
-		m_floatingSpell->action->drawSymbolSingle(ViewPort::get().getCursorPosX() + 2, ViewPort::get().getCursorPosY() + 22, 46.0f, 46.0f, Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 0u, true);		
+		m_floatingSpell->action->drawSymbolSingle(ViewPort::get().getCursorPosX() + 2, ViewPort::get().getCursorPosY() + 22, 46.0f, 46.0f, Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 0u, true);
 		Fontrenderer::Get().drawText(*m_cooldownFont, ViewPort::get().getCursorPosX() + 25 - m_cooldownFont->getWidth(m_floatingSpell->action->getName()) / 2, ViewPort::get().getCursorPosY() + 20 - m_cooldownFont->lineHeight - 5, m_floatingSpell->action->getName(), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), true);
+		TextureManager::UnbindTexture(true);
 	}
 }
 

@@ -349,8 +349,8 @@ SpellActionBase* SpellTooltip::getParent() const {
 	return parent;
 }
 
-ItemTooltip::ItemTooltip(Item *parent, InventoryItem *inventoryItem, Player *player_) : parent(parent), inventoryItem(inventoryItem) {
-	player = player_;
+ItemTooltip::ItemTooltip(Item *parent, InventoryItem *inventoryItem) : parent(parent), inventoryItem(inventoryItem) {
+	player = &Player::Get();
 	blockWidth = 32;
 	blockHeight = 32;
 	blockNumberWidth = 1;

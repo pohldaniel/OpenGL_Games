@@ -83,7 +83,7 @@ private:
 
 class ItemTooltip : public Tooltip {
 public:
-	ItemTooltip(Item *parent, InventoryItem *inventoryItem, Player *player);
+	ItemTooltip(Item *parent, InventoryItem *inventoryItem);
 	void draw(int x, int y);
 	void setShopItem(bool isShopItem_);
 	Item* getParent() const;

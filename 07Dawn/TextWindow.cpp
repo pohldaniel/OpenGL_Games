@@ -62,7 +62,7 @@ void TextWindow::FormatMultilineText(std::string textIn, std::vector< std::strin
 	}
 }
 
-std::vector<TextWindow*> TextWindow::GetTextWindows() {
+std::vector<TextWindow*>& TextWindow::GetTextWindows() {
 	return s_textWindows;
 }
 
@@ -75,7 +75,7 @@ void TextWindow::RemoveTextWindow(unsigned short index) {
 }
 
 TextWindow::TextWindow() :
-	positionType(PositionType::CENTER),
+	positionType(Enums::PositionType::CENTER),
 	x(0),
 	y(0),
 	autocloseTime(1),
@@ -102,7 +102,7 @@ void TextWindow::setAutocloseTime(unsigned int autocloseTime) {
 	m_timer.restart();
 }
 
-void TextWindow::setPosition(PositionType::PositionType positionType, int x, int y) {
+void TextWindow::setPosition(Enums::PositionType positionType, int x, int y) {
 	this->positionType = positionType;
 	this->x = x;
 	this->y = y;
@@ -111,7 +111,7 @@ void TextWindow::setPosition(PositionType::PositionType positionType, int x, int
 }
 
 void TextWindow::center() {
-	this->positionType = PositionType::CENTER;
+	this->positionType = Enums::PositionType::CENTER;
 	this->x = ViewPort::get().getWidth() / 2;
 	this->y = 280;
 
@@ -147,22 +147,22 @@ void TextWindow::updateFramesPosition() {
 	int bottomY = 0;
 
 	switch (positionType){
-	case PositionType::CENTER:
-		leftX = x - (neededInnerBlocksX * blockSizeX / 2);
-		bottomY = y - (neededInnerBlocksY * blockSizeY / 2);
-		break;
-	case PositionType::BOTTOMLEFT:
-		leftX = x;
-		bottomY = y;
-		break;
-	case PositionType::LEFTCENTER:
-		leftX = x;
-		bottomY = y - (neededInnerBlocksY * blockSizeY / 2);
-		break;
-	case PositionType::BOTTOMCENTER:
-		leftX = x + (neededInnerBlocksX * blockSizeX / 2);
-		bottomY = y;
-		break;
+		case Enums::PositionType::CENTER:
+			leftX = x - (neededInnerBlocksX * blockSizeX / 2);
+			bottomY = y - (neededInnerBlocksY * blockSizeY / 2);
+			break;
+		case Enums::PositionType::BOTTOMLEFT:
+			leftX = x;
+			bottomY = y;
+			break;
+		case Enums::PositionType::LEFTCENTER:
+			leftX = x;
+			bottomY = y - (neededInnerBlocksY * blockSizeY / 2);
+			break;
+		case Enums::PositionType::BOTTOMCENTER:
+			leftX = x + (neededInnerBlocksX * blockSizeX / 2);
+			bottomY = y;
+			break;
 	}
 }
 
@@ -211,22 +211,22 @@ void TextWindow::draw() {
 	int bottomY = 0;
 
 	switch (positionType) {
-	case PositionType::CENTER:
-		leftX = x - (neededInnerBlocksX * blockSizeX / 2);
-		bottomY = y - (neededInnerBlocksY * blockSizeY / 2);
-		break;
-	case PositionType::BOTTOMLEFT:
-		leftX = x;
-		bottomY = y;
-		break;
-	case PositionType::LEFTCENTER:
-		leftX = x;
-		bottomY = y - (neededInnerBlocksY * blockSizeY / 2);
-		break;
-	case PositionType::BOTTOMCENTER:
-		leftX = x + (neededInnerBlocksX * blockSizeX / 2);
-		bottomY = y;
-		break;
+		case Enums::PositionType::CENTER:
+			leftX = x - (neededInnerBlocksX * blockSizeX / 2);
+			bottomY = y - (neededInnerBlocksY * blockSizeY / 2);
+			break;
+		case Enums::PositionType::BOTTOMLEFT:
+			leftX = x;
+			bottomY = y;
+			break;
+		case Enums::PositionType::LEFTCENTER:
+			leftX = x;
+			bottomY = y - (neededInnerBlocksY * blockSizeY / 2);
+			break;
+		case Enums::PositionType::BOTTOMCENTER:
+			leftX = x + (neededInnerBlocksX * blockSizeX / 2);
+			bottomY = y;
+			break;
 	}
 	
 	leftX += ViewPort::get().getLeft();

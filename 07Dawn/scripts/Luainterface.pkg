@@ -11,6 +11,7 @@ $#include "Enums.h"
 $#include "Actions.h"
 $#include "Spells.h"
 $#include "Item.h"
+$#include "Shop.h"
 
 namespace Enums
 {
@@ -186,6 +187,13 @@ namespace Enums
 		TAKING_DAMAGE,
 		EXECUTING_ACTION
 	};
+	
+	enum PositionType {
+		BOTTOMLEFT,
+		BOTTOMCENTER,
+		LEFTCENTER,
+		CENTER
+	};
 }
 
 namespace EquipPosition {
@@ -220,7 +228,7 @@ namespace DawnInterface{
 	InteractionPoint& addCharacterInteractionPoint(Character *character);
 	void removeInteractionPoint(InteractionPoint *pointToRemove);
 	std::string getItemReferenceRestore(Character *character);
-	TextWindow *createTextWindow();
+	TextWindow* createTextWindow();
 	
 	GeneralRayDamageSpell* createGeneralRayDamageSpell();
 	GeneralAreaDamageSpell* createGeneralAreaDamageSpell();
@@ -252,7 +260,9 @@ namespace DawnInterface{
 	                    Enums::WeaponType weaponType );
 						
 	Player& getPlayer();
+	Zone& getCurrentZone();
 	void giveItemToPlayer( Item* item );
+	Shop& addShop(std::string name);
 }
 
 namespace EditorInterface
@@ -490,4 +500,18 @@ class Item
 	void setItemTextureRect(TextureRect& textureRect);
 	void addTriggerSpellOnSelf( SpellActionBase *spellToTrigger, float chanceToTrigger, Enums::TriggerType triggerType );
 	void addTriggerSpellOnTarget( SpellActionBase *spellToTrigger, float chanceToTrigger, Enums::TriggerType triggerType );
+};
+
+class Shop{
+	void addItem( Item *item );
+	void loadShopkeeperInventory();
+};
+
+class TextWindow
+{
+	void setText( std::string text );
+	void setAutocloseTime( int autocloseTime );
+	void setPosition( Enums::PositionType, int x, int y );
+	void center();
+	void setOnCloseText( std::string onCloseText );
 };
