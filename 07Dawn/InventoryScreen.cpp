@@ -387,7 +387,7 @@ void InventoryScreen::drawItemTooltip(int mouseX, int mouseY) {
 }
 
 void InventoryScreen::processInput() {
-	if (!m_visible) return;
+	if (!m_visible && !hasFloatingSelection()) return;
 	Widget::processInput();
 	
 	Mouse &mouse = Mouse::instance();
@@ -403,53 +403,57 @@ void InventoryScreen::processInput() {
 			floatingSelectionToHandle = ShopCanvas::Get().getFloatingSelection();
 			shopFloatingSelection = true;
 		}
+		if (mouse.buttonPressed(Mouse::BUTTON_LEFT)) {
+			if (!isMouseOnFrame(mouse.xPosAbsolute(), mouse.yPosAbsolute()) && !ShopCanvas::Get().isMouseOnFrame(mouse.xPosAbsolute(), mouse.yPosAbsolute())) {
 
-		if (!isMouseOnFrame(ViewPort::get().getCursorPosRelX(), ViewPort::get().getCursorPosRelY()) && !ShopCanvas::Get().isMouseOnFrame(ViewPort::get().getCursorPosRelX(), ViewPort::get().getCursorPosRelY())) {
-			// clicked outside inventory window
-			if (floatingSelection != NULL){
-				// drop item...
-				dropItemOnGround(floatingSelection);
-				if (inventory->containsItem(floatingSelection)){
-					inventory->removeItem(floatingSelection);
+				// clicked outside inventory window
+				if (floatingSelection != NULL) {
+					// drop item...
+					dropItemOnGround(floatingSelection);
+					if (inventory->containsItem(floatingSelection)) {
+						inventory->removeItem(floatingSelection);
+					}
+
+					unsetFloatingSelection();
+
+					return;
 				}
-
-				unsetFloatingSelection();
-
-				return;
 			}
-		}
-	
-		for (size_t curSlotNr = 0; curSlotNr < static_cast<size_t>(Enums::ItemSlot::COUNTIS); ++curSlotNr) {
-			Enums::ItemSlot curSlotEnum = static_cast<Enums::ItemSlot>(curSlotNr);
-			if (isOverSlot(curSlotEnum, ViewPort::get().getCursorPosRelX(), ViewPort::get().getCursorPosRelY())) {
-				if (floatingSelectionToHandle != NULL && floatingSelectionToHandle->canPlayerUseItem(*m_player) == true) {
-					if (floatingSelectionToHandle->getItem()->getEquipPosition() == Inventory::getEquipType(curSlotEnum)) {
-						// special handler for when we are trying to wield a two-handed weapon and having items in BOTH mainhand and offhand-slot equipped.
-						if (floatingSelectionToHandle->getItem()->isTwoHandedWeapon() == true && inventory->isWieldingTwoHandedWeapon() == false && inventory->getItemAtSlot(Enums::ItemSlot::MAIN_HAND) != NULL && inventory->getItemAtSlot(Enums::ItemSlot::OFF_HAND) != NULL) {
-							if (inventory->insertItem(inventory->getItemAtSlot(Enums::ItemSlot::OFF_HAND)->getItem()) == true) {
-								// successfully put the offhand in the inventory. now we just swap the floatingselection with the equipped item.
+
+			for (size_t curSlotNr = 0; curSlotNr < static_cast<size_t>(Enums::ItemSlot::COUNTIS); ++curSlotNr) {
+				Enums::ItemSlot curSlotEnum = static_cast<Enums::ItemSlot>(curSlotNr);
+				if (isOverSlot(curSlotEnum, ViewPort::get().getCursorPosRelX(), ViewPort::get().getCursorPosRelY())) {
+					if (floatingSelectionToHandle != NULL && floatingSelectionToHandle->canPlayerUseItem(*m_player) == true) {
+						if (floatingSelectionToHandle->getItem()->getEquipPosition() == Inventory::getEquipType(curSlotEnum)) {
+							// special handler for when we are trying to wield a two-handed weapon and having items in BOTH mainhand and offhand-slot equipped.
+							if (floatingSelectionToHandle->getItem()->isTwoHandedWeapon() == true && inventory->isWieldingTwoHandedWeapon() == false && inventory->getItemAtSlot(Enums::ItemSlot::MAIN_HAND) != NULL && inventory->getItemAtSlot(Enums::ItemSlot::OFF_HAND) != NULL) {
+								if (inventory->insertItem(inventory->getItemAtSlot(Enums::ItemSlot::OFF_HAND)->getItem()) == true) {
+									// successfully put the offhand in the inventory. now we just swap the floatingselection with the equipped item.
+									equipOnSlotOriginDependingAndPlaySound(curSlotEnum, floatingSelectionToHandle, shopFloatingSelection, inventory->getItemAtSlot(curSlotEnum));
+								}
+
+							}else if (floatingSelectionToHandle->getItem()->isTwoHandedWeapon() == true && inventory->isWieldingTwoHandedWeapon() == false && inventory->getItemAtSlot(Enums::ItemSlot::OFF_HAND) != NULL) {
+								// special handler for when we are trying to wield a two-handed weapon and having ONLY an item in offhand-slot equipped.
+								equipOnSlotOriginDependingAndPlaySound(curSlotEnum, floatingSelectionToHandle, shopFloatingSelection, inventory->getItemAtSlot(Enums::ItemSlot::OFF_HAND));
+
+							}else if (inventory->getItemAtSlot(curSlotEnum) == NULL) {
+								equipOnSlotOriginDependingAndPlaySound(curSlotEnum, floatingSelectionToHandle, shopFloatingSelection, NULL);
+							}else {
+
 								equipOnSlotOriginDependingAndPlaySound(curSlotEnum, floatingSelectionToHandle, shopFloatingSelection, inventory->getItemAtSlot(curSlotEnum));
 							}
-						} else if (floatingSelectionToHandle->getItem()->isTwoHandedWeapon() == true && inventory->isWieldingTwoHandedWeapon() == false && inventory->getItemAtSlot(Enums::ItemSlot::OFF_HAND) != NULL) {
-							// special handler for when we are trying to wield a two-handed weapon and having ONLY an item in offhand-slot equipped.
-							equipOnSlotOriginDependingAndPlaySound(curSlotEnum, floatingSelectionToHandle, shopFloatingSelection, inventory->getItemAtSlot(Enums::ItemSlot::OFF_HAND));
-						}else if (inventory->getItemAtSlot(curSlotEnum) == NULL) {
-							equipOnSlotOriginDependingAndPlaySound(curSlotEnum, floatingSelectionToHandle, shopFloatingSelection, NULL);
-						}else {
-							equipOnSlotOriginDependingAndPlaySound(curSlotEnum, floatingSelectionToHandle, shopFloatingSelection, inventory->getItemAtSlot(curSlotEnum));
 						}
+					}else if (floatingSelectionToHandle == NULL && inventory->getItemAtSlot(curSlotEnum) != NULL) {
+						equipOnSlotOriginDependingAndPlaySound(curSlotEnum, NULL, false, inventory->getItemAtSlot(curSlotEnum));
 					}
-				}else if (floatingSelectionToHandle == NULL && inventory->getItemAtSlot(curSlotEnum) != NULL) {
-					equipOnSlotOriginDependingAndPlaySound(curSlotEnum, NULL, false, inventory->getItemAtSlot(curSlotEnum));
+					return;
 				}
+			}
+
+			if (!isOnBackpackScreen(ViewPort::get().getCursorPosRelX(), ViewPort::get().getCursorPosRelY())) {
 				return;
 			}
 		}
-	
-		if (!isOnBackpackScreen(ViewPort::get().getCursorPosRelX(), ViewPort::get().getCursorPosRelY())){
-			return;
-		}
-	
 		// calculate field index under mouse
 		int fieldIndexX = (ViewPort::get().getCursorPosRelX() - (m_posX + backpackOffsetX)) / (backpackFieldWidth + backpackSeparatorWidth);
 		int fieldIndexY = (ViewPort::get().getCursorPosRelY() - (m_posY + backpackOffsetY)) / (backpackFieldHeight + backpackSeparatorHeight);
@@ -474,8 +478,7 @@ void InventoryScreen::processInput() {
 						GLfloat green[] = { 0.0f, 1.0f, 0.0f };
 						DawnInterface::addTextToLogWindow(green, "You inscribed %s (rank %d) in your spellbook.", useItem->getItem()->getSpell()->getName().c_str(), useItem->getItem()->getSpell()->getRank());
 						inventory->removeItem(useItem);
-					}
-					else {
+					}else {
 						// item is potion or scroll, use it.
 						if (m_player->castSpell(dynamic_cast<Spell*>(useItem->getItem()->getSpell()->cast(m_player, m_player, false))) == true) {
 							useItem->decreaseCurrentStack();
@@ -484,8 +487,7 @@ void InventoryScreen::processInput() {
 							}
 						}
 					}
-				}
-				else if (floatingSelectionToHandle == NULL && useItem->canPlayerUseItem(*m_player) == true) {
+				}else if (floatingSelectionToHandle == NULL && useItem->canPlayerUseItem(*m_player) == true) {
 					// try to equip the item
 					std::vector<size_t> possibleSlots;
 					for (size_t curSlotNr = 0; curSlotNr < static_cast<size_t>(Enums::ItemSlot::COUNTIS); ++curSlotNr) {
@@ -535,8 +537,7 @@ void InventoryScreen::processInput() {
 							else {
 								floatingSelection = tmp;
 							}
-						}
-						else {
+						}else {
 							InventoryItem* tmp = inventory->getItemAtSlot(curSlotEnum);
 							inventory->removeItem(useItem);
 							inventory->wieldItemAtSlot(curSlotEnum, useItem);

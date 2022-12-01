@@ -89,6 +89,8 @@ public:
 	void setShopItem(bool isShopItem_);
 	Item* getParent() const;
 
+	static void DrawCoin(int x, int y, int coin);
+
 private:
 	Item *parent;
 	InventoryItem *inventoryItem;
@@ -102,7 +104,7 @@ private:
 	void getTicketFromPlayer();
 	void addTooltipTextForPercentageAttribute(std::string attributeName, double attributePercentage);
 	void drawCoinsLine(int x, int y, int frameWidth, sTooltipText *tooltipText);
-	void drawCoin(int x, int y, int coin);
+	
 
 	static std::vector<TextureRect> s_textures;
 	static unsigned int s_textureAtlas;

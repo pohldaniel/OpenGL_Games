@@ -3,7 +3,7 @@
 #include "Player.h"
 #include "Item.h"
 #include "Random.h"
-
+#include "InventoryScreen.h"
 
 void sGroundItems::loadTooltip() {
 	tooltipXpos = xpos + (item->getSizeX() * 32) / 2 - tooltipWidth / 2;
@@ -41,10 +41,13 @@ void sGroundItems::loadTooltip() {
 }
 
 GroundLoot::GroundLoot(Player *player_) : player(player_), drawTooltips(false) {
-	/*font = FontCache::getFontFromCache("data/verdana.ttf", 11);
-	textures.LoadIMG("data/interface/tooltip/groundloot_background.tga", 0);
-	textures.LoadIMG("data/interface/tooltip/groundloot_left.tga", 1);
-	textures.LoadIMG("data/interface/tooltip/groundloot_right.tga", 2);*/
+	m_font = &Globals::fontManager.get("verdana_11");
+
+	TextureAtlasCreator::get().init(1024, 1024);
+	TextureManager::Loadimage("res/interface/tooltip/groundloot_background.tga", 0, m_textures);
+	TextureManager::Loadimage("res/interface/tooltip/groundloot_left.tga", 1, m_textures);
+	TextureManager::Loadimage("res/interface/tooltip/groundloot_right.tga", 2, m_textures);
+	m_textureAtlas = TextureAtlasCreator::get().getAtlas();
 }
 
 GroundLoot::~GroundLoot() {
@@ -100,23 +103,23 @@ bool GroundLoot::PickUpLoot(Player *player_, sGroundItems groundItem, size_t cur
 	return false;
 }
 
-void GroundLoot::searchForItems(int x, int y) {
+void GroundLoot::searchForItems(int mouseX, int mouseY) {
 	for (size_t curItem = 0; curItem < groundItems.size(); curItem++) {
 		// if we're holding left ALT down, we first check to see if player is looting by tooltips.
 		if (drawTooltips) {
-			if (x >= groundItems[curItem].tooltipXpos
-				&& x <= static_cast<int>(groundItems[curItem].tooltipXpos + groundItems[curItem].tooltipWidth + 16)
-				&& y >= groundItems[curItem].tooltipYpos
-				&& y <= static_cast<int>(groundItems[curItem].tooltipYpos + 16)) {
+			if (mouseX >= groundItems[curItem].tooltipXpos
+				&& mouseX <= static_cast<int>(groundItems[curItem].tooltipXpos + groundItems[curItem].tooltipWidth + 16)
+				&& mouseY >= groundItems[curItem].tooltipYpos
+				&& mouseY <= static_cast<int>(groundItems[curItem].tooltipYpos + 16)) {
 
 				if (PickUpLoot(player, groundItems[curItem], curItem))
 					lootItem(groundItems[curItem].item, curItem);
 			}
 		}else {
-			if (x >= groundItems[curItem].xpos
-				&& x <= static_cast<int>(groundItems[curItem].xpos + groundItems[curItem].item->getSizeX() * 32)
-				&& y >= groundItems[curItem].ypos
-				&& y <= static_cast<int>(groundItems[curItem].ypos + groundItems[curItem].item->getSizeY() * 32)) {
+			if (mouseX >= groundItems[curItem].xpos
+				&& mouseX <= static_cast<int>(groundItems[curItem].xpos + groundItems[curItem].item->getSizeX() * 32)
+				&& mouseY >= groundItems[curItem].ypos
+				&& mouseY <= static_cast<int>(groundItems[curItem].ypos + groundItems[curItem].item->getSizeY() * 32)) {
 
 				if (PickUpLoot(player, groundItems[curItem], curItem))
 					lootItem(groundItems[curItem].item, curItem);
@@ -167,7 +170,7 @@ InventoryItem *GroundLoot::getFloatingSelection(int x, int y) {
 
 void GroundLoot::addItem(int x, int y, Item *newItem) {
 	// we dont want items to be dropped at the exact the same position, therefor we do a little random here aswell.
-	/*groundItems.push_back(sGroundItems(x + RNG::randomSizeT(-20, 20), y + RNG::randomSizeT(-20, 20), newItem, font->calcStringWidth(newItem->getName())));
+	groundItems.push_back(sGroundItems(x + RNG::randomSizeT(-20, 20), y + RNG::randomSizeT(-20, 20), newItem, m_font->getWidth(newItem->getName())));
 
 	if (dynamic_cast<GoldHeap*>(newItem) != NULL) {
 
@@ -176,14 +179,14 @@ void GroundLoot::addItem(int x, int y, Item *newItem) {
 			groundItems[groundItems.size() - 1].itemValue[i] = currency::convertCoinsToString(static_cast<currency::currency>(i), dynamic_cast<GoldHeap*> (newItem)->numCoins());
 			if (groundItems[groundItems.size() - 1].itemValue[i] != "0") {
 				groundItems[groundItems.size() - 1].coinsOffset[i] = xoffset;
-				groundItems[groundItems.size() - 1].coinsTextOffset[i] = font->calcStringWidth(groundItems[groundItems.size() - 1].itemValue[i]);
+				groundItems[groundItems.size() - 1].coinsTextOffset[i] = m_font->getWidth(groundItems[groundItems.size() - 1].itemValue[i]);
 				xoffset = xoffset + 25 + groundItems[groundItems.size() - 1].coinsTextOffset[i];
 				groundItems[groundItems.size() - 1].tooltipWidth = xoffset - 25;
 			}
 		}
 		groundItems[groundItems.size() - 1].tooltipWidth += 8;
 	}
-	sortItems();*/
+	sortItems();
 }
 
 void GroundLoot::removeItem(size_t pos) {
@@ -229,8 +232,7 @@ void GroundLoot::sortItems() {
 	for (size_t curItemNr = 1; curItemNr < groundItems.size(); ++curItemNr) {
 		sGroundItems &curItem = groundItems[curItemNr];
 		bool fitsSpace;
-		do
-		{
+		do{
 			fitsSpace = true;
 			for (size_t previousItemNr = 0; previousItemNr < curItemNr; ++previousItemNr) {
 				sGroundItems &prevItem = groundItems[previousItemNr];
@@ -256,68 +258,58 @@ void GroundLoot::sortItems() {
 }
 
 void GroundLoot::draw() {
+	TextureManager::BindTexture(TextureManager::GetTextureAtlas("items"), true);
 	for (size_t curItem = 0; curItem < groundItems.size(); curItem++) {
-		/*DrawingHelpers::mapTextureToRect(groundItems[curItem].item->getSymbolTexture()->getTexture(0),
-			groundItems[curItem].xpos,
-			groundItems[curItem].item->getSizeX() * 32,
-			groundItems[curItem].ypos,
-			groundItems[curItem].item->getSizeY() * 32);*/
+		TextureManager::DrawTextureBatched(*groundItems[curItem].item->getSymbolTexture(), groundItems[curItem].xpos, groundItems[curItem].ypos, groundItems[curItem].item->getSizeX() * 32, groundItems[curItem].item->getSizeY() * 32, true, true);
 	}
+	TextureManager::DrawBuffer();
+	TextureManager::UnbindTexture(true);
 }
 
-void GroundLoot::drawTooltip() {
+void GroundLoot::drawTooltip(int mouseX, int mouseY) {
 
-	/*if (drawTooltips) {
-		for (size_t curItem = 0; curItem < groundItems.size(); curItem++)
-		{
-			if (groundItems[curItem].tooltipXpos < mouseX + world_x &&
-				groundItems[curItem].tooltipXpos + groundItems[curItem].tooltipWidth + 16 > mouseX + world_x &&
-				groundItems[curItem].tooltipYpos < mouseY + world_y &&
-				groundItems[curItem].tooltipYpos + 16 > mouseY + world_y)
-			{
-				glColor4f(0.1f, 0.1f, 0.1f, 1.0f);
+	if (drawTooltips) {
+
+		TextureManager::BindTexture(m_textureAtlas, true);
+		for (size_t curItem = 0; curItem < groundItems.size(); curItem++) {
+			Vector4f color = Vector4f(0.0f, 0.0f, 0.0f, 1.0f);
+
+			if (groundItems[curItem].tooltipXpos < mouseX &&
+				groundItems[curItem].tooltipXpos + groundItems[curItem].tooltipWidth + 16 >mouseX &&
+				groundItems[curItem].tooltipYpos < mouseY &&
+				groundItems[curItem].tooltipYpos + 16 > mouseY) {
+				color = Vector4f(0.1f, 0.1f, 0.1f, 1.0f);
 			}
-			else {
-				glColor4f(0.0f, 0.0f, 0.0f, 1.0f);
-			}
+			
 
 			// left border
-			DrawingHelpers::mapTextureToRect(textures.getTexture(1),
-				groundItems[curItem].tooltipXpos,
-				textures.getTexture(1).width,
-				groundItems[curItem].tooltipYpos,
-				textures.getTexture(1).height);
-			// background
-			DrawingHelpers::mapTextureToRect(textures.getTexture(0),
-				groundItems[curItem].tooltipXpos + 16,
-				groundItems[curItem].tooltipWidth - 16,
-				groundItems[curItem].tooltipYpos,
-				textures.getTexture(0).height);
-			// right border
-			DrawingHelpers::mapTextureToRect(textures.getTexture(2),
-				groundItems[curItem].tooltipXpos + groundItems[curItem].tooltipWidth,
-				textures.getTexture(2).width,
-				groundItems[curItem].tooltipYpos,
-				textures.getTexture(2).height);
+			TextureManager::DrawTextureBatched(m_textures[1], groundItems[curItem].tooltipXpos, groundItems[curItem].tooltipYpos, color, true, true);
 
-			glColor4fv(groundItems[curItem].color);
-			if (dynamic_cast<GoldHeap*>(groundItems[curItem].item) == NULL)
-			{
-				font->drawText(groundItems[curItem].tooltipXpos + 10,
-					groundItems[curItem].tooltipYpos + 2,
-					groundItems[curItem].item->getName());
-			}
-			else {
-				for (size_t i = 0; i < 3; i++)
-				{
-					if (groundItems[curItem].itemValue[i] != "0")
-					{
-						DrawFunctions::drawCoin(groundItems[curItem].tooltipXpos + groundItems[curItem].tooltipWidth - groundItems[curItem].coinsOffset[i], groundItems[curItem].tooltipYpos + 2, i);
-						font->drawText(groundItems[curItem].tooltipXpos + groundItems[curItem].tooltipWidth - groundItems[curItem].coinsOffset[i] - groundItems[curItem].coinsTextOffset[i], groundItems[curItem].tooltipYpos + 2, groundItems[curItem].itemValue[i]);
+			
+			// background
+			TextureManager::DrawTextureBatched(m_textures[0], groundItems[curItem].tooltipXpos + 16, groundItems[curItem].tooltipYpos, groundItems[curItem].tooltipWidth - 16, m_textures[0].height,  color, true, true);
+			
+			// right border
+			TextureManager::DrawTextureBatched(m_textures[2], groundItems[curItem].tooltipXpos + groundItems[curItem].tooltipWidth, groundItems[curItem].tooltipYpos, color, true, true);
+			TextureManager::DrawBuffer(true);
+			color[0] = groundItems[curItem].color[0];
+			color[1] = groundItems[curItem].color[1];
+			color[2] = groundItems[curItem].color[2];
+			color[3] = groundItems[curItem].color[3];
+		
+
+			if (dynamic_cast<GoldHeap*>(groundItems[curItem].item) == NULL) {
+				Fontrenderer::Get().drawText(*m_font, groundItems[curItem].tooltipXpos + 10, groundItems[curItem].tooltipYpos + 2, groundItems[curItem].item->getName(), color, true);
+			}else {
+
+				for (size_t i = 0; i < 3; i++) {
+					if (groundItems[curItem].itemValue[i] != "0") {
+						ItemTooltip::DrawCoin(groundItems[curItem].tooltipXpos + groundItems[curItem].tooltipWidth - groundItems[curItem].coinsOffset[i], groundItems[curItem].tooltipYpos + 2, i);
+						Fontrenderer::Get().drawText(*m_font, groundItems[curItem].tooltipXpos + groundItems[curItem].tooltipWidth - groundItems[curItem].coinsOffset[i] - groundItems[curItem].coinsTextOffset[i], groundItems[curItem].tooltipYpos + 2, groundItems[curItem].itemValue[i], color, true);
 					}
 				}
 			}
-			glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 		}
-	}*/
+	
+	}
 }

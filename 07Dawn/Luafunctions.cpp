@@ -69,10 +69,8 @@ namespace LuaFunctions{
 	std::string getIDFromLuaTable(const std::string &tableName, const void *value){
 		lua_State *lState = getGlobalLuaState();
 		lua_getglobal(lState, tableName.c_str());
-		if (lua_isnil(lState, -1) || !lua_istable(lState, -1))
-		{
+		if (lua_isnil(lState, -1) || !lua_istable(lState, -1)){
 			std::cout << std::string("table ").append(tableName).append(" does not exist in lua as global table").c_str() << std::endl;
-			//dawn_debug_fatal(std::string("table ").append(tableName).append(" does not exist in lua as global table"));
 		}
 		lua_pushnil(lState);
 
@@ -100,7 +98,6 @@ namespace LuaFunctions{
 					// still it should be a string in our case so we check that
 					if (!lua_isstring(lState, -2)){
 						std::cout << std::string("lua table ").append(tableName).append(" had a non-string key").c_str() << std::endl;
-						//dawn_debug_fatal(std::string("lua table ").append(tableName).append(" had a non-string key"));
 					}
 					found = true;
 					foundKey = lua_tostring(lState, -2);
@@ -117,7 +114,6 @@ namespace LuaFunctions{
 
 		if (!found){
 			std::cout << std::string("could not find searched value in table ").append(tableName).c_str() << std::endl;
-			//dawn_debug_fatal(std::string("could not find searched value in table ").append(tableName));
 		}
 
 		return foundKey;

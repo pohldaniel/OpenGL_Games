@@ -103,6 +103,7 @@ void Game::render(unsigned int &frameBuffer) {
 	glEnable(GL_BLEND);
 	
 	zone->drawZoneBatched();
+	zone->getGroundLoot()->draw();
 	// draw AoE spells
 	std::vector<std::pair<SpellActionBase*, uint32_t> > activeAoESpells = zone->getActiveAoESpells();
 	for (size_t curActiveAoESpellNr = 0; curActiveAoESpellNr < activeAoESpells.size(); ++curActiveAoESpellNr) {
@@ -133,6 +134,7 @@ void Game::render(unsigned int &frameBuffer) {
 		}
 	}
 
+	zone->getGroundLoot()->drawTooltip(ViewPort::get().getCursorPosX(), ViewPort::get().getCursorPosY());
 	dawnInterface->draw();
 	glDisable(GL_BLEND);
 
@@ -150,9 +152,11 @@ void Game::resize(int deltaW, int deltaH) {
 }
 
 void Game::processInput() {
+	
 	Mouse &mouse = Mouse::instance();
 	Keyboard &keyboard = Keyboard::instance();
 	if (mouse.buttonPressed(Mouse::BUTTON_LEFT)) {
+		zone->getGroundLoot()->searchForItems(ViewPort::get().getCursorPosX(), ViewPort::get().getCursorPosY());
 		// get and iterate through the NPCs
 		std::vector<Npc*> zoneNPCs = zone->getNPCs();
 		for (unsigned int x = 0; x < zoneNPCs.size(); x++) {
@@ -175,11 +179,17 @@ void Game::processInput() {
 		}
 	}
 
-	if (keyboard.keyDown(Keyboard::KEY_F)) {
+	if (keyboard.keyPressed(Keyboard::KEY_F)) {
 		Message::Get().addText(ViewPort::get().getWidth() / 2, ViewPort::get().getHeight() / 2, 1.0f, 0.625f, 0.71f, 1.0f, 15u, 3.0f, "Zone saved ...");
 		return;
 	}
 
+
+	if (keyboard.keyDown(Keyboard::KEY_LALT)){
+		zone->getGroundLoot()->enableTooltips();
+	}else {
+		zone->getGroundLoot()->disableTooltips();
+	}
 
 	
 }

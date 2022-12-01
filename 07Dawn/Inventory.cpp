@@ -130,7 +130,7 @@ void Inventory::init(size_t sizeX_, size_t sizeY_, Player* player_) {
 	for (size_t curEquippable = 0; curEquippable<numEquippable; ++curEquippable) {
 		equippedItems[curEquippable] = NULL;
 	}
-	//std::cout << "#########" << std::endl;
+
 	sizeX = sizeX_;
 	sizeY = sizeY_;
 

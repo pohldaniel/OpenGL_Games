@@ -440,7 +440,7 @@ void ItemTooltip::drawCoinsLine(int x, int frameWidth, int y, sTooltipText *tool
 	int xoffset = 0;
 	for (size_t i = 0; i < 3; i++) {
 		if (itemValue[i] != "0") {
-			drawCoin(x + frameWidth - xoffset, y + 1, i);
+			DrawCoin(x + frameWidth - xoffset, y + 1, i);
 			int stringWidth = tooltipText->charset->getWidth(itemValue[i]);
 			Fontrenderer::Get().addText(*tooltipText->charset, x + frameWidth - xoffset - stringWidth, y, itemValue[i], Vector4f(1.0f, 1.0f, 1.0f, 1.0f), false);
 			xoffset = xoffset + 25 + stringWidth;
@@ -465,7 +465,6 @@ void ItemTooltip::getParentText() {
 	// remember what level we generated this tooltip
 	ticketFromPlayer = player->getTicketForItemTooltip();
 	shoppingState = player->isShopping();
-	std::cout << "-------------" << std::endl;
 
 	Vector4f grey = Vector4f(0.5f, 0.5f, 0.5f, 1.0f);
 	Vector4f white = Vector4f(1.0f, 1.0f, 1.0f, 1.0f);
@@ -691,16 +690,14 @@ void ItemTooltip::getParentText() {
 
 	int32_t coinsBuyPrice = parent->getValue() * inventoryItem->getCurrentStackSize();
 	int32_t coinsSellPrice = floor(parent->getValue() * 0.75) * inventoryItem->getCurrentStackSize();
-	
-	if (player->isShopping()) {
+
+	if (player->isShopping() && parent->getValue() != 0) {
 		if (isShopItem) {	
-			std::cout << "11111" << std::endl;
 			itemValue[0] = currency::convertCoinsToString(currency::COPPER, coinsBuyPrice);
 			itemValue[1] = currency::convertCoinsToString(currency::SILVER, coinsBuyPrice);
 			itemValue[2] = currency::convertCoinsToString(currency::GOLD, coinsBuyPrice);
 			addTooltipText(white, &Globals::fontManager.get("verdana_12"), "Buy price: xxxxxxxxxxxx");
 		}else {
-			std::cout << "22222" << std::endl;
 			itemValue[0] = currency::convertCoinsToString(currency::COPPER, coinsSellPrice);
 			itemValue[1] = currency::convertCoinsToString(currency::SILVER, coinsSellPrice);
 			itemValue[2] = currency::convertCoinsToString(currency::GOLD, coinsSellPrice);
@@ -713,7 +710,7 @@ Item* ItemTooltip::getParent() const {
 	return parent;
 }
 
-void ItemTooltip::drawCoin(int x, int y, int coin) {
+void ItemTooltip::DrawCoin(int x, int y, int coin) {
 	TextureManager::BindTexture(s_textureAtlas, true, 0);
 	if (coin == currency::GOLD) {
 		TextureManager::DrawTexture(s_textures[0], x, y, 16, 16, false, false);

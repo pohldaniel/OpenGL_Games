@@ -36,14 +36,14 @@ public:
 
 	InventoryItem *getFloatingSelection(int x, int y);
 	bool PickUpLoot(Player *player_, sGroundItems groundItem, size_t curItem);
-	void searchForItems(int x, int y);
+	void searchForItems(int mouseX, int mouseY);
 	void lootItem(Item *item, size_t itemIndex);
 	void addItem(int x, int y, Item *newItem);
 	void removeItem(size_t pos);
 	void removeItem(Item *item);
 	void sortItems();
 	void draw();
-	void drawTooltip();
+	void drawTooltip(int mouseX, int mouseY);
 	void enableTooltips();
 	void disableTooltips();
 
@@ -51,6 +51,8 @@ private:
 	std::vector<sGroundItems> groundItems;
 
 	std::vector<TextureRect> m_textures;
+	unsigned int m_textureAtlas;
 	Player *player;
 	bool drawTooltips;
+	CharacterSet* m_font;
 };
