@@ -9,6 +9,7 @@
 #include "CharacterInfo.h"
 #include "InventoryScreen.h"
 #include "Shop.h"
+#include "Quest.h"
 #include "Constants.h"
 
 class Character;

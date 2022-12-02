@@ -39,6 +39,7 @@ struct EnvironmentMap {
 };
 
 class CMagic;
+class CallIndirection;
 
 class Zone{
 	friend class Editor;
@@ -106,6 +107,7 @@ public:
 	void clearActiveAoESpells();
 	void removeActiveAoESpell(SpellActionBase* activeSpell);
 	GroundLoot* getGroundLoot();
+	void addEventHandler(CallIndirection *newEventHandler);
 
 private:
 	std::vector< std::pair<SpellActionBase*, uint32_t> > activeAoESpells;
@@ -116,7 +118,7 @@ private:
 	std::vector <Npc*> m_npcs;
 	std::vector<InteractionRegion> m_interactionRegions;
 	std::vector<InteractionPoint> m_interactionPoints;
-
+	std::vector<CallIndirection*> eventHandlers;
 	std::string m_file;
 	bool m_mapLoaded = false;
 	unsigned int m_textureAtlas;

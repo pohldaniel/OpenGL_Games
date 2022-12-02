@@ -2,6 +2,7 @@
 
 #include <vector>
 
+#include "Callindirection.h"
 #include "Character.h"
 
 
@@ -31,6 +32,8 @@ public:
 	void setSpawnInfo(int _x_spawn_pos, int _y_spawn_pos, int _seconds_to_respawn, int _do_respawn);
 	void setAttitude(Enums::Attitude attitude);
 	std::string getLuaEditorSaveText() const;
+	void addOnDieEventHandler(CallIndirection *eventHandler);
+	bool hasOnDieEventHandler() const;
 
 private:
 
@@ -67,6 +70,6 @@ private:
 	
 	std::vector<std::array<int, 2>> waypoints;
 	//std::vector<sLootTable> lootTable;
-	//std::vector<CallIndirection*> onDieEventHandlers;
+	std::vector<CallIndirection*> onDieEventHandlers;
 	//std::vector<Point> waypoints;
 };

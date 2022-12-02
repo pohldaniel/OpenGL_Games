@@ -63,7 +63,7 @@ void Interface::init() {
 			if (dynamic_cast<Widget*>(&m_spellbook) == m_widgets[curFrame]) {
 				m_spellbook.setVisible(false);
 				m_widgets.erase(m_widgets.begin() + curFrame);
-				if (m_widgets.size() == 0) m_activeWidget == nullptr;
+				if (m_widgets.size() == 0) m_activeWidget = nullptr;
 				return;
 			}
 		}
@@ -92,7 +92,7 @@ void Interface::init() {
 			if (dynamic_cast<Widget*>(&m_characterInfo) == m_widgets[curFrame]) {
 				m_characterInfo.setVisible(false);
 				m_widgets.erase(m_widgets.begin() + curFrame);
-				if (m_widgets.size() == 0) m_activeWidget == nullptr;
+				if (m_widgets.size() == 0) m_activeWidget = nullptr;
 				return;
 			}
 		}
@@ -121,7 +121,7 @@ void Interface::init() {
 			if (dynamic_cast<Widget*>(&m_inventoryScreen) == m_widgets[curFrame]) {
 				m_inventoryScreen.setVisible(false);
 				m_widgets.erase(m_widgets.begin() + curFrame);
-				if (m_widgets.size() == 0) m_activeWidget == nullptr;
+				if (m_widgets.size() == 0) m_activeWidget = nullptr;
 				return;
 			}
 		}
@@ -153,7 +153,7 @@ void Interface::init() {
 			if (dynamic_cast<Widget*>(&ShopCanvas::Get()) == m_widgets[curFrame]) {
 				ShopCanvas::Get().setVisible(false);
 				m_widgets.erase(m_widgets.begin() + curFrame);
-				if (m_widgets.size() == 0) m_activeWidget == nullptr;
+				if (m_widgets.size() == 0) m_activeWidget = nullptr;
 				return;
 			}
 		}
@@ -171,10 +171,39 @@ void Interface::init() {
 					return;
 				}
 			}
-		}else {
+		} else {
 			// else add it to the frame vector and make it visible.
 			m_widgets.push_back(&ShopCanvas::Get());
 			ShopCanvas::Get().setVisible(true);
+			m_activeWidget = m_widgets.back();
+		}
+	});
+
+	QuestCanvas::Get().setOnClose([&]() {		
+		for (size_t curFrame = 0; curFrame < m_widgets.size(); curFrame++) {
+			if (dynamic_cast<Widget*>(&QuestCanvas::Get()) == m_widgets[curFrame]) {
+				QuestCanvas::Get().setVisible(false);
+				m_widgets.erase(m_widgets.begin() + curFrame);
+				if (m_widgets.size() == 0) m_activeWidget = nullptr;
+				return;
+			}
+		}
+	});
+
+	QuestCanvas::Get().setOnActivate([&]() {
+		if (QuestCanvas::Get().isVisible()) {
+			for (size_t curFrame = 0; curFrame < m_widgets.size(); curFrame++) {
+				if (dynamic_cast<Widget*>(&QuestCanvas::Get()) == m_widgets[curFrame]) {
+					m_widgets.erase(m_widgets.begin() + curFrame);
+					m_widgets.push_back(&QuestCanvas::Get());
+					m_activeWidget = m_widgets.back();
+					return;
+				}
+			}
+		} else {
+			// else add it to the frame vector and make it visible.
+			m_widgets.push_back(&QuestCanvas::Get());
+			QuestCanvas::Get().setVisible(true);
 			m_activeWidget = m_widgets.back();
 		}
 	});
@@ -816,6 +845,10 @@ void Interface::processInput() {
 		ShopCanvas::Get().isVisible() ? ShopCanvas::Get().close() : ShopCanvas::Get().activate();
 	}
 
+	if (keyboard.keyPressed(Keyboard::KEY_Q)) {
+		QuestCanvas::Get().isVisible() ? QuestCanvas::Get().close() : QuestCanvas::Get().activate();
+	}
+
 	if (m_activeWidget) m_activeWidget->processInput();
 
 }
@@ -929,6 +962,10 @@ void Interface::processInputRightDrag() {
 	if (keyboard.keyPressed(Keyboard::KEY_U)) {
 		ShopCanvas::Get().isVisible() ? ShopCanvas::Get().close() : ShopCanvas::Get().activate();
 		
+	}
+
+	if (keyboard.keyPressed(Keyboard::KEY_Q)) {
+		QuestCanvas::Get().isVisible() ? QuestCanvas::Get().close() : QuestCanvas::Get().activate();
 	}
 
 	if (m_activeWidget) m_activeWidget->processInput();

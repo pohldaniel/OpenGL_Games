@@ -13,6 +13,7 @@
 #include "Shop.h"
 #include "Interface.h"
 #include "Inventory.h"
+#include "Quest.h"
 
 namespace EditorInterface{
 	
@@ -87,9 +88,9 @@ namespace DawnInterface{
 		return CharacterTypeManager::Get().getCharacterType(characterType);
 	}
 
-	void addMobSpawnPoint(std::string characterType, std::string name, int x_pos, int y_pos, int respawn_rate, int do_respawn, Enums::Attitude attitude) {
+	Npc* addMobSpawnPoint(std::string characterType, std::string name, int x_pos, int y_pos, int respawn_rate, int do_respawn, Enums::Attitude attitude) {
 		if (!CharacterTypeManager::Get().containsCaracterType(characterType)) {
-			return;
+			return nullptr;
 		}
 
 		Npc* newMob = new Npc(0, 0, 0, 0, 0);	
@@ -99,6 +100,8 @@ namespace DawnInterface{
 		newMob->setName(name);
 		//newMob->setActiveGUI(&GUI);
 		ZoneManager::Get().getCurrentZone()->addNPC(newMob);
+
+		return ZoneManager::Get().getCurrentZone()->getNPCs().back();
 	}
 
 	const Zone& getCurrentZone() {
@@ -299,5 +302,18 @@ namespace DawnInterface{
 
 	const Shop& addShop(std::string name){
 		return ShopManager::Get().getShop(name);
+	}
+
+	Quest* addQuest(std::string questName, std::string questDescription) {
+		Quest* newQuest = new Quest(questName, questDescription);
+		QuestCanvas::Get().addQuest(newQuest);
+		return QuestCanvas::Get().getQuests().back();
+	}
+
+	LuaCallIndirection* createEventHandler(){
+		LuaCallIndirection *newEventHandler = new LuaCallIndirection();
+
+		ZoneManager::Get().getCurrentZone()->addEventHandler(newEventHandler);
+		return newEventHandler;
 	}
 }

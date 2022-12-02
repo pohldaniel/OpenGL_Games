@@ -25,7 +25,7 @@ end
 
 function quest_playHideAndSeek.testInteractionRegionLeave()
 	local textWindow = DawnInterface.createTextWindow();
-	textWindow:setPosition( PositionType.CENTER, 512, 382 );
+	textWindow:setPosition( Enums.CENTER, 512, 382 );
 	textWindow:setText( "Left test region." );
 	textWindow:setAutocloseTime( 1000 );
 end
@@ -43,6 +43,8 @@ function quest_playHideAndSeek.init()
 	john:setBackgroundTexture( "res/character/John.tga" );
 	john:setInteractionType( Enums.Quest );
 	john:setInteractionCode( "quest_playHideAndSeek.onActivateJohn()" );
+	
+	quest_playHideAndSeek.onActivateJohn();
 end
 
 function quest_playHideAndSeek.onActivateJohn()
@@ -51,8 +53,7 @@ function quest_playHideAndSeek.onActivateJohn()
 			quest_playHideAndSeek.added = true;
 			quest_playHideAndSeek.fulfilled = false;
 			quest_playHideAndSeek.rewardGot = false;
-			quest_playHideAndSeek.monsterSpawnPoint = DawnInterface.addMobSpawnPoint( "Giant Wolf", 3462, 557, 1, 0 );
-			quest_playHideAndSeek.monsterSpawnPoint:setAttitude ( Attitude.HOSTILE );
+			quest_playHideAndSeek.monsterSpawnPoint = DawnInterface.addMobSpawnPoint("Giant_Wolf", "Giant_Wolf", 3462, 557, 1, 0, Enums.HOSTILE);
 			onDieEventHandler = DawnInterface.createEventHandler();
 			onDieEventHandler:setExecuteText( "quest_playHideAndSeek.onKilledQuestMonster()" );
 			quest_playHideAndSeek.monsterSpawnPoint:addOnDieEventHandler( onDieEventHandler );
@@ -63,11 +64,11 @@ function quest_playHideAndSeek.onActivateJohn()
 		end
 		local textWindow = DawnInterface.createTextWindow();
 		textWindow:center();
-		textWindow:setText( "My little brother James is somewhere in this forest. I fear he got lost. Please find him and tell him to come to me." );
+		--textWindow:setText( "My little brother James is somewhere in this forest. I fear he got lost. Please find him and tell him to come to me." );
 		textWindow:setAutocloseTime( 4000 );
 	elseif( quest_playHideAndSeek.fulfilled and not quest_playHideAndSeek.rewardGot ) then
 		local textWindow = DawnInterface.createTextWindow();
-		textWindow:setPosition( PositionType.CENTER, 512, 382 );
+		textWindow:setPosition( Enums.CENTER, 512, 382 );
 		textWindow:setText( "Thank you for looking after my brother. We will leave for home now. Take this ring for your effords." );
 		textWindow:setAutocloseTime( 5000 );
 		quest_playHideAndSeek.rewardGot = true;
@@ -93,7 +94,7 @@ end
 function quest_playHideAndSeek.onActivateJames()
 	if( quest_playHideAndSeek == nil or quest_playHideAndSeek.fulfilled ) then
 		local textWindow = DawnInterface.createTextWindow();
-		textWindow:setPosition( PositionType.CENTER, 512, 382 );
+		textWindow:setPosition( Enums.CENTER, 512, 382 );
 		textWindow:setText( "This forest is so exciting." );
 		textWindow:setAutocloseTime( 2000 );
 	elseif( not quest_playHideAndSeek.fulfilled ) then

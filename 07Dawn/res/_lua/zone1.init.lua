@@ -6,3 +6,8 @@ zone1.leavePoint:setBackgroundTexture( "res/transparent2x2pixel.png" );
 zone1.leavePoint:setInteractionCode( 'DawnInterface.enterZone( "res/_lua/arinoxGeneralShop", -158, 0 );\nDawnInterface.setSavingAllowed( true );' );
 DawnInterface.enterZone( "res/_lua/arinoxGeneralShop", -158, 0 );
 --DawnInterface.setSavingAllowed( true );
+
+print("Init Quests")
+dofile("res/_lua/quests_wood.lua");
+dofile("res/_lua/quests_hexmaster.lua");
+dofile("res/_lua/quests_venomousveins.lua");

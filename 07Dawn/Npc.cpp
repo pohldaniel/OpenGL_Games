@@ -339,6 +339,19 @@ unsigned short Npc::getWanderRadiusSq() const {
 	return wander_radius * wander_radius;
 }
 
+void Npc::addOnDieEventHandler(CallIndirection *eventHandler) {
+	onDieEventHandlers.push_back(eventHandler);
+}
+
+bool Npc::hasOnDieEventHandler() const {
+
+	if (onDieEventHandlers.size() > 0) {
+		return true;
+	}else {
+		return false;
+	}
+}
+
 std::string Npc::getLuaEditorSaveText() const {
 	std::ostringstream oss;
 

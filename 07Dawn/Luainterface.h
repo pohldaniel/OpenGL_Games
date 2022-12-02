@@ -36,6 +36,8 @@ class Player;
 class Shop;
 class Zone;
 class Item;
+class Quest;
+class LuaCallIndirection;
 
 namespace EditorInterface{
 	TileSet& getTileSet(Enums::TileClassificationType tileType);
@@ -56,7 +58,7 @@ namespace DawnInterface{
 
 	void enterZone(std::string zoneName, int enterX, int enterY);
 	void setCurrentZone(std::string zoneName);	
-	void addMobSpawnPoint(std::string mobID, std::string name, int x_pos, int y_pos, int respawn_rate, int do_respawn, Enums::Attitude attitude);
+	Npc* addMobSpawnPoint(std::string mobID, std::string name, int x_pos, int y_pos, int respawn_rate, int do_respawn, Enums::Attitude attitude);
 	
 	void removeInteractionRegion(InteractionRegion *regionToRemove);	
 	void removeInteractionPoint(InteractionPoint *pointToRemove);
@@ -88,4 +90,6 @@ namespace DawnInterface{
 	Player& getPlayer();
 	const Zone& getCurrentZone();
 	const Shop& addShop(std::string name);
+	Quest* addQuest(std::string questName, std::string questDescription);
+	LuaCallIndirection* createEventHandler();
 }

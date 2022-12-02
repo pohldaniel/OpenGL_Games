@@ -1,6 +1,6 @@
 #include <iostream>
 #include "Zone.h"
-#include "Constants.h"
+#include "Callindirection.h"
 
 Zone::Zone() : groundLoot(&Player::Get()) { }
 
@@ -410,6 +410,9 @@ GroundLoot* Zone::getGroundLoot() {
 	return &groundLoot;
 }
 
+void Zone::addEventHandler(CallIndirection *newEventHandler) {
+	eventHandlers.push_back(newEventHandler);
+}
 
 ///////////////////////////////////////////////////////////////////
 ZoneManager ZoneManager::s_instance;

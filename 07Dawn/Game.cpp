@@ -21,7 +21,10 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_player
 	LuaFunctions::executeLuaFile("res/_lua/spells.lua");
 	LuaFunctions::executeLuaFile("res/_lua/mobdata_wolf.lua");
 	LuaFunctions::executeLuaFile("res/_lua/itemdatabase.lua");
-	
+
+	DialogCanvas::initTextures();
+	ShopCanvas::Get().init();
+	QuestCanvas::Get().init();
 
 	ZoneManager::Get().getZone("res/_lua/zone1").loadZone();
 	ZoneManager::Get().setCurrentZone(&ZoneManager::Get().getZone("res/_lua/zone1"));
@@ -29,8 +32,8 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_player
 
 	LuaFunctions::executeLuaFile("res/_lua/gameinit.lua");
 	DawnInterface::clearLogWindow();
-	DialogCanvas::initTextures();
-	ShopCanvas::Get().init();
+	
+	
 
 	dawnInterface = &Interface::Get();
 	dawnInterface->init();

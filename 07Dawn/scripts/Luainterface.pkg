@@ -12,6 +12,8 @@ $#include "Actions.h"
 $#include "Spells.h"
 $#include "Item.h"
 $#include "Shop.h"
+$#include "Quest.h"
+$#include "CallIndirection.h"
 
 namespace Enums {
 	enum TileClassificationType{
@@ -220,7 +222,7 @@ namespace DawnInterface{
 	void enterZone(std::string zoneName, int enterX, int enterY );
 	void setCurrentZone(std::string zoneName );
 	CharacterType& createNewMobType(std::string typeID);
-	void addMobSpawnPoint(std::string mobID, std::string name, int x_pos, int y_pos, int respawn_rate, int do_respawn, Enums::Attitude attitude);
+	Npc* addMobSpawnPoint(std::string mobID, std::string name, int x_pos, int y_pos, int respawn_rate, int do_respawn, Enums::Attitude attitude);
 	InteractionRegion& addInteractionRegion();
 	void removeInteractionRegion(InteractionRegion *regionToRemove);
 	InteractionPoint& addInteractionPoint();
@@ -262,6 +264,8 @@ namespace DawnInterface{
 	Zone& getCurrentZone();
 	void giveItemToPlayer( Item* item );
 	Shop& addShop(std::string name);
+	Quest* addQuest( std::string questName, std::string questDescription );
+	LuaCallIndirection* createEventHandler();
 }
 
 namespace EditorInterface {
@@ -348,6 +352,8 @@ class Player : public Character {
 
 class Npc : public Character {
 	void setAttitude( Enums::Attitude attitude );
+	void addOnDieEventHandler(CallIndirection *eventHandler);
+	void setWanderRadius(unsigned short newWanderRadius);
 };
 
 class InteractionPoint {
@@ -489,4 +495,20 @@ class TextWindow {
 	void setPosition( Enums::PositionType, int x, int y );
 	void center();
 	void setOnCloseText( std::string onCloseText );
+};
+
+class Quest{
+	void addRequiredItemForCompletion( Item* requiredItem, int quantity );
+	void setDescription( std::string );
+	void setExperienceReward( int experienceReward );
+	void setCoinReward( int coinReward );
+	void setItemReward( Item* itemReward );
+	bool finishQuest();
+};
+
+class CallIndirection {
+};
+
+class LuaCallIndirection : public CallIndirection {
+	void setExecuteText( std::string text );
 };

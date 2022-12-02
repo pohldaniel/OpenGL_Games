@@ -132,4 +132,43 @@ humanbase:setLevel( 2 )
 humanbase:setClass( Enums.Warrior );
 humanbase:setExperienceValue( 25 );
 
+witchbase = DawnInterface.createNewMobType("Witch")
+for direction = 1,8 do
+	for index=0,7,1 do
+		witchbase:addMoveTexture( Enums.Walking, direction, index, "res/character/witch/walking "..directions[direction].."000"..index..".tga", 768, 768);		
+	end
+end
+TextureAtlasCreator:get():addFrame();
+
+for direction = 1,8 do
+	for index=0,7,1 do
+		witchbase:addMoveTexture( Enums.Dying, direction, index, "res/character/witch/walking "..directions[direction].."000"..index..".tga", 768, 768);		
+	end
+end
+TextureAtlasCreator:get():addFrame();
+
+witchbase:calcNumMoveTexturesPerDirection();
+witchbase:setStrength( 15 )
+witchbase:setDexterity( 25 )
+witchbase:setVitality( 15 )
+witchbase:setIntellect( 10 )
+witchbase:setWisdom( 10 )
+witchbase:setMaxHealth( 250 )
+witchbase:setMaxMana( 500 )
+witchbase:setMaxFatigue( 100 )
+witchbase:setHealthRegen( 0 )
+witchbase:setManaRegen( 50 )
+witchbase:setFatigueRegen( 25 )
+witchbase:setMinDamage( 5 )
+witchbase:setMaxDamage( 10 )
+witchbase:setArmor( 20 )
+witchbase:setDamageModifierPoints( 0 )
+witchbase:setHitModifierPoints( 0 )
+witchbase:setEvadeModifierPoints( 0 )
+witchbase:setName("A witch")
+witchbase:setWanderRadius( 250 )
+witchbase:setLevel( 2 )
+witchbase:setClass( Enums.Warrior );
+witchbase:setExperienceValue( 25 );
+
 TextureManager:SetTextureAtlas("mobs", TextureAtlasCreator:get():getAtlas());
