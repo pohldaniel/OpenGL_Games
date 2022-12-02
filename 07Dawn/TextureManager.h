@@ -1,6 +1,7 @@
 #pragma once
 #define NOMINMAX
 #include <map>
+#include <unordered_map>
 #include <vector>
 #include <iostream>
 #include <algorithm>
@@ -12,32 +13,39 @@
 #include "engine/Instancerenderer.h"
 #include "engine/Spritesheet.h"
 
+struct pair_hash {
+	template <class T1, class T2>
+	std::size_t operator () (const std::pair<T1, T2> &p) const {
+		return std::hash<T1>{}(p.first) ^ std::hash<T2>{}(p.second);
+	}
+};
 
 class TextureCache {
 
 public:
 	static TextureCache& Get();
-	TextureRect& getTextureFromCache(std::string filename, unsigned int maxWidth = 0, unsigned maxHeight = 0, bool reload = false, bool transparent = false, int paddingLeft = 0, int paddingRight = 0, int paddingTop = 0, int paddingBottom = 0);
+	TextureRect& getTextureFromCache(std::string filename, unsigned int maxWidth = 0, unsigned maxHeight = 0, bool transparent = false, int paddingLeft = 0, int paddingRight = 0, int paddingTop = 0, int paddingBottom = 0);
 
 private:
 
 	TextureCache() = default;
 	~TextureCache() = default;
-
-	std::map< std::string, TextureRect> textures;
+	std::unordered_map<std::pair<std::string, std::string>, TextureRect, pair_hash> textures;
 	static TextureCache s_instance;
 };
 
 struct TextureAtlasCreator {
-	
+
+	friend class TextureCache;
+
 public:	
 
 	static TextureAtlasCreator& get() {
 		return s_instance;
 	}
 
-	void init(unsigned int _width = 1024u, unsigned int _height = 1024u) {
-
+	void init(std::string _name, int _width = 1024u, unsigned int _height = 1024u) {
+		name = _name;
 		width = _width;
 		height = _height;
 		curX = 0;
@@ -48,7 +56,7 @@ public:
 		bufferPtr = buffer;
 		memset(buffer, 0, width*height * 4);
 		spritesheet = Spritesheet();
-		frame = 0;
+		frame = 0;	
 	}
 
 	unsigned int getAtlas() {
@@ -56,6 +64,10 @@ public:
 		delete[] buffer;
 		buffer = nullptr;
 		return spritesheet.getAtlas();
+	}
+
+	std::string getName() {
+		return name;
 	}
 
 	void safeAtlas(std::string name) {
@@ -81,7 +93,7 @@ public:
 			return;
 		}
 
-		for (unsigned int row = 0; row<h; ++row){
+		for (unsigned int row = 0; row < h; ++row){
 			memcpy(bufferPtr + (((curY + row) * width + curX) * 4), texture + (w * row * 4), 4 * w);
 		}
 
@@ -117,7 +129,7 @@ public:
 private:
 
 	TextureAtlasCreator() = default;
-	static TextureAtlasCreator s_instance;
+	
 	unsigned char* buffer;
 	unsigned char* bufferPtr;
 	unsigned int width;
@@ -128,7 +140,9 @@ private:
 	unsigned int fillSpace;
 	Spritesheet spritesheet;
 	unsigned short frame;
+	std::string name;
 
+	static TextureAtlasCreator s_instance;
 };
 
 class TextureManager{
@@ -153,9 +167,9 @@ public:
 	static void DrawTextureInstanced(const TextureRect& textureRect, int x, int y, bool checkVieport = true);
 	static void DrawBuffer(bool updateView = true);
 
-	static TextureRect& Loadimage(std::string file, unsigned int maxWidth, unsigned maxHeight, bool reload, int paddingLeft, int paddingRight, int paddingTop, int paddingBottom);
+	static TextureRect& Loadimage(std::string file, unsigned int maxWidth, unsigned maxHeight, int paddingLeft, int paddingRight, int paddingTop, int paddingBottom);
 	static TextureRect& Loadimage(std::string file);
-	static void Loadimage(std::string file, int textureIndex, std::vector<TextureRect>& textureBase, bool reload = false, bool transparent = false);
+	static void Loadimage(std::string file, int textureIndex, std::vector<TextureRect>& textureBase, bool transparent = false);
 
 	static unsigned int& GetTextureAtlas(std::string name);
 	static void SetTextureAtlas(std::string name, unsigned int value);
@@ -170,8 +184,6 @@ public:
 
 	static void SetShader(Shader* shader);
 	static TextureManager& Get();
-
-	
 
 private:
 	TextureManager() = default;

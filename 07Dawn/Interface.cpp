@@ -211,7 +211,7 @@ void Interface::init() {
 
 void Interface::loadTextures() {
 
-	TextureAtlasCreator::get().init(1024, 1024);
+	TextureAtlasCreator::get().init("interface", 1024, 1024);
 
 	TextureManager::Loadimage("res/lifebar.tga", 0, m_interfacetexture);
 	TextureManager::Loadimage("res/interface/tooltip/NPCTarget_background.tga", 1, m_interfacetexture);

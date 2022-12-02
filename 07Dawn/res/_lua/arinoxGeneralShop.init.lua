@@ -4,7 +4,7 @@ then
 	dofile("res/_lua/arinoxGeneralShop.spawnpoints.lua");
 	arinoxGeneralShop.leavePoint = DawnInterface.addInteractionPoint();
 	arinoxGeneralShop.leavePoint:setPosition( -160, -94, 80, 80 );
-	arinoxGeneralShop.leavePoint:setBackgroundTexture( "res/transparent2x2pixel.tga" );
+	arinoxGeneralShop.leavePoint:setBackgroundTexture( "res/transparent4x4pixel.png", true);
 	arinoxGeneralShop.leavePoint:setInteractionType( Enums.Zone );
 	arinoxGeneralShop.leavePoint:setInteractionCode( 'DawnInterface.enterZone( "res/_lua/zone1", 747, 1530 );\nDawnInterface.setSavingAllowed( true );' );
 
@@ -37,5 +37,5 @@ function arinoxGeneralShop.onEnterMap(x,y)
 end
 
 function arinoxGeneralShop.onActivateTrader()
-	traderShop:toggle()
+	--traderShop:toggle()
 end

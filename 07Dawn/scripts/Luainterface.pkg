@@ -266,6 +266,8 @@ namespace DawnInterface{
 	Shop& addShop(std::string name);
 	Quest* addQuest( std::string questName, std::string questDescription );
 	LuaCallIndirection* createEventHandler();
+	bool isSavingAllowed();
+	void setSavingAllowed( bool savingAllowed );
 }
 
 namespace EditorInterface {
@@ -292,7 +294,7 @@ class TileSet {
 
 struct CharacterType {
 
-	void addMoveTexture(Enums::ActivityType activity, Enums::Direction direction, int index, std::string filename, unsigned int maxWidth = 0, unsigned int maxHeight = 0, bool reload = false, int paddingLeft = 0, int paddingRight = 0, int paddingTop = 0, int paddingBottom = 0);
+	void addMoveTexture(Enums::ActivityType activity, Enums::Direction direction, int index, std::string filename, unsigned int maxWidth = 0, unsigned int maxHeight = 0, int paddingLeft = 0, int paddingRight = 0, int paddingTop = 0, int paddingBottom = 0);
 	void calcNumMoveTexturesPerDirection();
 	void baseOnType(std::string name);
 	void inscribeSpellInSpellbook(SpellActionBase* spell);
@@ -371,11 +373,12 @@ class InteractionRegion {
 
 struct TextureAtlasCreator {
 	static TextureAtlasCreator& get();
-	void init(unsigned int width = 1024u, unsigned int height = 1024u);
+	void init(std::string name, unsigned int width = 1024u, unsigned int height = 1024u);
 	void addFrame();
 	unsigned int getAtlas();
 	void safeAtlas(std::string name);
 	void resetLine();
+	std::string getName();
 };
 
 class TextureManager {

@@ -14,19 +14,14 @@
 
 class TileSet;
 
-struct pair_hash {
-	template <class T1, class T2>
-	std::size_t operator () (const std::pair<T1, T2> &p) const {
-		return std::hash<T1>{}(p.first) ^ std::hash<T2>{}(p.second);
-	}
-};
+
 
 struct CharacterType {
 	friend class Character;
 	friend class Player;
 	friend class Npc;
 
-	void addMoveTexture(Enums::ActivityType activity, Enums::Direction direction, int index, std::string filename, unsigned int maxWidth = 0, unsigned int maxHeight = 0, bool reload = false, int paddingLeft = 0, int paddingRight = 0, int paddingTop = 0, int paddingBottom = 0);
+	void addMoveTexture(Enums::ActivityType activity, Enums::Direction direction, int index, std::string filename, unsigned int maxWidth = 0, unsigned int maxHeight = 0,  int paddingLeft = 0, int paddingRight = 0, int paddingTop = 0, int paddingBottom = 0);
 	void calcNumMoveTexturesPerDirection();
 	void baseOnType(std::string name);
 
@@ -160,6 +155,7 @@ public:
 	Enums::CharacterArchType getArchType() const;
 	Character* getTarget() const;
 	void setTarget(Character *target);
+	void setPosition(int xpos, int ypos);
 	
 	int getXPos() const;
 	int getYPos() const;

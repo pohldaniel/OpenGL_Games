@@ -167,7 +167,7 @@ void Player::update(float deltaTime) {
 void Player::init(int x, int y) {
 	x_pos = x;
 	y_pos = y;
-
+	std::cout << "Player Init: " << std::endl;
 
 	activeDirection = Enums::Direction::S;
 	lastActiveDirection = activeDirection;

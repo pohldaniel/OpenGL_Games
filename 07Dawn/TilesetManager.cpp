@@ -32,19 +32,19 @@ AdjacencyEquivalenceClass* TileSet::createAdjacencyEquivalenceClass(){
 TileSet::TileSet() {}
 
 // The following functions are in the LUA EditorInterface
-unsigned int TileSet::addTile(std::string filename, bool reload, int paddingLeft, int paddingRight, int paddingTop, int paddingBottom) {
+unsigned int TileSet::addTile(std::string filename, int paddingLeft, int paddingRight, int paddingTop, int paddingBottom) {
 
 	unsigned int tileId = static_cast<unsigned int>(m_tiles.size());
 	
-	m_tiles.push_back({ tileId , false, TextureManager::Loadimage(filename, 0, 0, reload, paddingLeft, paddingRight, paddingTop, paddingBottom), {} });
+	m_tiles.push_back({ tileId , false, TextureManager::Loadimage(filename, 0, 0, paddingLeft, paddingRight, paddingTop, paddingBottom), {} });
 	return tileId;
 }
 
-unsigned int TileSet::addTile(std::string filename, unsigned int maxWidth, unsigned int maxHeight, bool reload, int paddingLeft, int paddingRight, int paddingTop, int paddingBottom) {
+unsigned int TileSet::addTile(std::string filename, unsigned int maxWidth, unsigned int maxHeight, int paddingLeft, int paddingRight, int paddingTop, int paddingBottom) {
 
 	unsigned int tileId = static_cast<unsigned int>(m_tiles.size());
 
-	m_tiles.push_back({ tileId , false, TextureManager::Loadimage(filename, maxWidth, maxHeight, reload, paddingLeft, paddingRight, paddingTop, paddingBottom), {} });
+	m_tiles.push_back({ tileId , false, TextureManager::Loadimage(filename, maxWidth, maxHeight, paddingLeft, paddingRight, paddingTop, paddingBottom), {} });
 	return tileId;
 }
 
@@ -55,6 +55,14 @@ unsigned int TileSet::addTileWithCollisionBox(std::string filename, int cbx, int
 	newTile.collisionRect = { cbx, cby, cbw,cbh };
 
 	return tileId;
+}
+
+unsigned int TileSet::getOffset() const {
+	return m_offset;
+}
+
+void TileSet::setOffset(unsigned int offset) {
+	m_offset = offset;
 }
 
 void TileSet::addAdjacency(unsigned int tile1, Enums::AdjacencyType adjacencyType, unsigned int tile2, int offsetX, int offsetY) {

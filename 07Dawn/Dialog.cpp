@@ -9,7 +9,7 @@ void DialogCanvas::initTextures() {
 		return;
 	}
 
-	TextureAtlasCreator::get().init(576, 64);
+	TextureAtlasCreator::get().init("dialog", 576, 64);
 
 	TextureManager::Loadimage("res/interface/tooltip/lower_left2.tga", 0, m_textureBases);
 	TextureManager::Loadimage("res/interface/tooltip/lower_right2.tga", 1, m_textureBases);

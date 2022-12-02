@@ -34,6 +34,6 @@ namespace Globals {
 	extern AssetManager<CharacterSet> fontManager;
 
 	extern bool enableWireframe;
-
+	extern bool savingAllowed;
 	extern Clock clock;
 }

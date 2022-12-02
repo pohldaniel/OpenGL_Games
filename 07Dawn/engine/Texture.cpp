@@ -292,12 +292,20 @@ unsigned char* Texture::readPixel() {
 void Texture::addAlphaChannel(unsigned int value) {
 	unsigned char* bytes = (unsigned char*)malloc(m_width * m_height * m_channels);
 	
-	//it seems necessary to use glPixelStorei(GL_UNPACK_ALIGNMENT, 2) for reading GL_RGB
-	glPixelStorei(GL_UNPACK_ALIGNMENT, 2);
+	
 	glBindTexture(GL_TEXTURE_2D, m_texture);
 	glGetTexImage(GL_TEXTURE_2D, 0, m_format, GL_UNSIGNED_BYTE, bytes);
 	glBindTexture(GL_TEXTURE_2D, 0);
-	glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+
+	//unsigned char* data = (unsigned char*)malloc(m_width * m_height * m_channels);
+	//unsigned int fbo = 0;
+	//glGenFramebuffers(1, &fbo);
+	//glBindFramebuffer(GL_READ_FRAMEBUFFER, fbo);
+
+	//glFramebufferTexture2D(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_texture, 0);
+	//glReadPixels(0, 0, m_width, m_height, m_format, GL_UNSIGNED_BYTE, data);
+	//glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+	//glDeleteFramebuffers(1, &fbo);
 
 	m_channels = 4;
 	m_format = GL_RGBA;
@@ -319,12 +327,11 @@ void Texture::addAlphaChannel(unsigned int value) {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, m_width, m_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, bytesNew);
 
 	glBindTexture(GL_TEXTURE_2D, 0);
-
 	glDeleteTextures(1, &m_texture);
+
 	m_texture = texture_new;
 
 	free(bytes);

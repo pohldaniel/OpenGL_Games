@@ -92,4 +92,6 @@ namespace DawnInterface{
 	const Shop& addShop(std::string name);
 	Quest* addQuest(std::string questName, std::string questDescription);
 	LuaCallIndirection* createEventHandler();
+	bool isSavingAllowed();
+	void setSavingAllowed(bool savingAllowed);
 }

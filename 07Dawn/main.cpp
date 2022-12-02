@@ -17,6 +17,7 @@ extern AssetManager<Texture> Globals::textureManager = AssetManager<Texture>();
 extern AssetManager<Spritesheet> Globals::spritesheetManager = AssetManager<Spritesheet>();
 extern AssetManager<CharacterSet> Globals::fontManager = AssetManager<CharacterSet>();
 extern bool Globals::enableWireframe = false;
+extern bool Globals::savingAllowed = true;
 extern Clock Globals::clock = Clock();
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd) {

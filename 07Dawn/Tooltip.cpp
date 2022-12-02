@@ -364,7 +364,7 @@ ItemTooltip::ItemTooltip(Item *parent, InventoryItem *inventoryItem) : parent(pa
 	getParentText();
 
 	if (s_textures.size() == 0) {
-		TextureAtlasCreator::get().init(128, 128);		
+		TextureAtlasCreator::get().init("tooltip", 128, 128);		
 		TextureManager::Loadimage("res/interface/inventory/goldcoin.tga", 0, s_textures, true);
 		TextureManager::Loadimage("res/interface/inventory/silvercoin.tga", 1, s_textures, true);
 		TextureManager::Loadimage("res/interface/inventory/coppercoin.tga", 2, s_textures, true);

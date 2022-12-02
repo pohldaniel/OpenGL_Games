@@ -31,20 +31,20 @@ void InteractionPoint::setInteractionType(Enums::InteractionType interactionType
 	switch (interactionType){
 
 	case Enums::InteractionType::Quest:
-		TextureAtlasCreator::get().init(1024, 1024);
+		TextureAtlasCreator::get().init("interaction", 1024, 1024);
 		TextureManager::Loadimage("res/interaction/talk0.tga", 0, m_interactionTextures, true);
 		TextureManager::Loadimage("res/interaction/talk1.tga", 1, m_interactionTextures, true);
 		m_textureAtlas = TextureAtlasCreator::get().getAtlas();
 		break;
 	case Enums::InteractionType::Shop:
-		TextureAtlasCreator::get().init(1024, 1024);
+		TextureAtlasCreator::get().init("interaction", 1024, 1024);
 		TextureManager::Loadimage("res/interaction/shop0.tga", 0, m_interactionTextures, true);
 		TextureManager::Loadimage("res/interaction/shop1.tga", 1, m_interactionTextures, true);
 		m_textureAtlas = TextureAtlasCreator::get().getAtlas();
 		
 		break;
 	case Enums::InteractionType::Zone:
-		TextureAtlasCreator::get().init(1024, 1024);
+		TextureAtlasCreator::get().init("interaction", 1024, 1024);
 		TextureManager::Loadimage("res/interaction/zone0.tga", 0, m_interactionTextures, true);
 		TextureManager::Loadimage("res/interaction/zone1.tga", 1, m_interactionTextures, true);
 		m_textureAtlas = TextureAtlasCreator::get().getAtlas();		
@@ -53,14 +53,8 @@ void InteractionPoint::setInteractionType(Enums::InteractionType interactionType
 }
 
 void InteractionPoint::setBackgroundTexture(std::string texturename, bool transparent) {
-	// We explicitely want to allow a background texture to change
-	//if (backgroundTexture != NULL) {
-		//delete backgroundTexture;
-	//}
-
-
-	TextureAtlasCreator::get().init(1024, 1024);
-	TextureManager::Loadimage(texturename, 0, m_backgroundTextures, true, transparent);
+	TextureAtlasCreator::get().init("background", 1024, 1024);
+	TextureManager::Loadimage(texturename, 0, m_backgroundTextures, transparent);
 	m_textureAtlas2 = TextureAtlasCreator::get().getAtlas();
 }
 

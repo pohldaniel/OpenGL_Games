@@ -3,15 +3,21 @@
 Editor::Editor(StateMachine& machine) : State(machine, CurrentState::EDITOR) {
 	Mouse::SetCursorIcon("res/cursors/pointer.cur");
 
+	LuaFunctions::executeLuaFile("res/_lua/playerdata_w.lua");
+	Player::Get().setCharacterType("player_w");
+	Player::Get().setClass(Enums::CharacterClass::Liche);
+
+	LuaFunctions::executeLuaFile("res/_lua/spells.lua");
 	LuaFunctions::executeLuaFile("res/_lua/mobdata.lua");
+	LuaFunctions::executeLuaFile("res/_lua/itemdatabase.lua");
 	
-	ZoneManager::Get().getZone("res/_lua/zone1").loadZone();
-	ZoneManager::Get().setCurrentZone(&ZoneManager::Get().getZone("res/_lua/zone1"));
+	DawnInterface::enterZone("res/_lua/arinoxGeneralShop", -158, 0);
+
 	newZone = ZoneManager::Get().getCurrentZone();
 	
 	LuaFunctions::executeLuaFile("res/_lua/gameinit.lua");
 	LuaFunctions::executeLuaFile("res/_lua/tileAdjacency.lua"); 
-	
+
 	m_originalFocus = ViewPort::get().getBottomLeft();
 	m_editorFocus = ViewPort::get().getBottomLeft();
 	
@@ -644,7 +650,7 @@ void Editor::drawEditFrame(EnvironmentMap* editobject) {
 
 void Editor::initTextures() {
 
-	TextureAtlasCreator::get().init(1024, 1024);
+	TextureAtlasCreator::get().init("editor", 1024, 1024);
 
 	TextureManager::Loadimage("res/background_editor.tga", 0, m_interfacetexture);
 	TextureManager::Loadimage("res/current_tile_backdrop.tga", 1, m_interfacetexture);

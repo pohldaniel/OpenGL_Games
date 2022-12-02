@@ -6,21 +6,25 @@ Zone::Zone() : groundLoot(&Player::Get()) { }
 
 Zone::~Zone(){	 }
 
+int tmp = 0;
 void Zone::loadZone(){
 
 	if (m_mapLoaded) {
 		return;
 	}
-	
+	EditorInterface::getTileSet(Enums::TileClassificationType::FLOOR).setOffset(EditorInterface::getTileSet(Enums::TileClassificationType::FLOOR).getAllTiles().size());
+	EditorInterface::getTileSet(Enums::TileClassificationType::ENVIRONMENT).setOffset(EditorInterface::getTileSet(Enums::TileClassificationType::ENVIRONMENT).getAllTiles().size());
+	EditorInterface::getTileSet(Enums::TileClassificationType::SHADOW).setOffset(EditorInterface::getTileSet(Enums::TileClassificationType::SHADOW).getAllTiles().size());
+
 	LuaFunctions::executeLuaScript(std::string("if ( MapData == nil )\nthen\n    MapData={}\nend"));
 	LuaFunctions::executeLuaScript(std::string("if ( MapData.DontSave == nil )\nthen\n    MapData.DontSave={}\nend"));
 
-	TextureAtlasCreator::get().init();
+	TextureAtlasCreator::get().init(m_file);
 	LuaFunctions::executeLuaFile(std::string(m_file).append(".tiles_ground.lua"));
 	LuaFunctions::executeLuaFile(std::string(m_file).append(".tiles_environment.lua"));
 	LuaFunctions::executeLuaFile(std::string(m_file).append(".tiles_shadow.lua"));
 
-	TextureManager::SetTextureAtlas(m_file, TextureAtlasCreator::get().getAtlas());
+	TextureManager::SetTextureAtlas(TextureAtlasCreator::get().getName(), TextureAtlasCreator::get().getAtlas());
 	m_textureAtlas = TextureManager::GetTextureAtlas(m_file);
 	
 
@@ -33,6 +37,9 @@ void Zone::loadZone(){
 	LuaFunctions::executeLuaFile(std::string(m_file).append(".spawnpoints.lua"));
 	LuaFunctions::executeLuaFile(std::string(m_file).append(".init.lua"));
 	m_mapLoaded = true;
+
+	Spritesheet::Safe("tmp/" + std::to_string(tmp), m_textureAtlas);
+	tmp++;
 }
 
 std::vector<TileMap>& Zone::getTileMap() {

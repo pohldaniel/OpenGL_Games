@@ -1,6 +1,6 @@
 directions = {'n', 'ne', 'e', 'se', 's', 'sw', 'w', 'nw'}
 
-TextureAtlasCreator:get():init(1664, 1024);
+TextureAtlasCreator:get():init("mobs", 1664, 1024);
 wolfbase = DawnInterface.createNewMobType("Wolf");
 
 for direction = 1,8 do
@@ -386,7 +386,7 @@ for direction = 1,8 do
 	end
 end
 TextureAtlasCreator:get():addFrame();
-TextureManager:SetTextureAtlas("mobs", TextureAtlasCreator:get():getAtlas());
+TextureManager:SetTextureAtlas(TextureAtlasCreator:get():getName(), TextureAtlasCreator:get():getAtlas());
 --TextureAtlasCreator:get():safeAtlas("tmp/mobs")
 
 skeletonarcherbase:calcNumMoveTexturesPerDirection();

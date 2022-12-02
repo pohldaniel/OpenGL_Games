@@ -495,7 +495,7 @@ Enums::EffectType RangedDamageAction::getEffectType() const {
 }
 
 void RangedDamageAction::addAnimationFrame(std::string file, int paddingLeft, int paddingRight, int paddingTop, int paddingBottom) {
-	animation.addFrame(TextureManager::Loadimage(file, 0u, 0u, false, paddingLeft, paddingRight, paddingTop, paddingBottom));
+	animation.addFrame(TextureManager::Loadimage(file, 0u, 0u, paddingLeft, paddingRight, paddingTop, paddingBottom));
 }
 void RangedDamageAction::update(float deltatime) {
 	animation.update(deltatime);

@@ -7,7 +7,7 @@ LoadingScreen::LoadingScreen(StateMachine& machine) : State(machine, CurrentStat
 		return;
 	}
 
-	TextureAtlasCreator::get().init(1024, 1024);
+	TextureAtlasCreator::get().init("loadingscreen", 1024, 1024);
 
 	TextureManager::Loadimage("res/interface/LoadingScreen/SilverForest.tga", 0, m_backgroundTextures);
 	TextureManager::Loadimage("res/interface/LoadingScreen/BelemarMountains.tga", 1, m_backgroundTextures);

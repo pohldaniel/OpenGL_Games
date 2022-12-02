@@ -68,7 +68,7 @@ void InventoryScreen::setPlayer(Player* player) {
 
 void InventoryScreen::init() {
 
-	TextureAtlasCreator::get().init(1024, 1024);
+	TextureAtlasCreator::get().init("inventoryscreen", 1024, 1024);
 	TextureManager::Loadimage("res/interface/inventory/base.tga", 0, m_textures);
 	TextureManager::Loadimage("res/white2x2pixel.png", 1, m_textures, true);
 	TextureManager::Loadimage("res/interface/inventory/goldcoin.tga", 2, m_textures, true);

@@ -109,6 +109,10 @@ public:
 	GroundLoot* getGroundLoot();
 	void addEventHandler(CallIndirection *newEventHandler);
 
+	int groundOffset = 0;
+	int environmentOffset = 0;
+	int shadowOffset = 0;
+
 private:
 	std::vector< std::pair<SpellActionBase*, uint32_t> > activeAoESpells;
 	std::vector<TileMap> m_tileMap;

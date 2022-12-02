@@ -38,7 +38,7 @@ QuestCanvas::~QuestCanvas() {
 void QuestCanvas::init() {
 
 	font = &Globals::fontManager.get("verdana_14");
-	TextureAtlasCreator::get().init(1024, 1024);
+	TextureAtlasCreator::get().init("quest", 1024, 1024);
 	TextureManager::Loadimage("res/interface/QuestScreen/questscreen.tga", 0, m_textures);
 	m_textureAtlas = TextureAtlasCreator::get().getAtlas();
 

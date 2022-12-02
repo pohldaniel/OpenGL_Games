@@ -435,6 +435,11 @@ void Character::setTarget(Character *target) {
 	this->target = target;
 }
 
+void Character::setPosition(int xpos, int ypos) {
+	this->x_pos = xpos;
+	this->y_pos = ypos;
+}
+
 int Character::getXPos() const {
 	return x_pos;
 }
@@ -1248,9 +1253,9 @@ void Character::modifyMaxFatigue(short maxFatigueModifier) {
 
 
 ////////////////////////////////////////////////////////////////////////////////
-void CharacterType::addMoveTexture(Enums::ActivityType activity, Enums::Direction direction, int index, std::string filename, unsigned int maxWidth, unsigned int maxHeight, bool reload, int paddingLeft, int paddingRight, int paddingTop, int paddingBottom) {
+void CharacterType::addMoveTexture(Enums::ActivityType activity, Enums::Direction direction, int index, std::string filename, unsigned int maxWidth, unsigned int maxHeight, int paddingLeft, int paddingRight, int paddingTop, int paddingBottom) {
 	TileSet& tileSet = m_moveTileSets[{activity, direction}];
-	tileSet.addTile(filename, maxWidth, maxHeight, reload, paddingLeft, paddingRight, paddingTop, paddingBottom);
+	tileSet.addTile(filename, maxWidth, maxHeight, paddingLeft, paddingRight, paddingTop, paddingBottom);
 }
 
 void CharacterType::calcNumMoveTexturesPerDirection() {

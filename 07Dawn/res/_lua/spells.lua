@@ -45,7 +45,7 @@
 
 symbols = {};
 
-TextureAtlasCreator:get():init(1024, 1024);
+TextureAtlasCreator:get():init("symbols", 1024, 1024);
 symbols["magicmissile"] = DawnInterface.loadimage("res/spells/magicmissile/symbol.tga");
 symbols["venomspit"] = DawnInterface.loadimage("res/spells/venomspit/symbol.tga");
 symbols["electrocute"] = DawnInterface.loadimage("res/spells/electrocute/symbol.tga");
@@ -71,7 +71,7 @@ symbols["pindown"] = DawnInterface.loadimage("res/spells/pindown/symbol.tga");
 symbols["flamingarrow"] = DawnInterface.loadimage("res/spells/flamingarrow/symbol.tga");
 symbols["landyrsforce"] = DawnInterface.loadimage("res/spells/landyrsforce/symbol.tga");
 symbols["voiceoftheforest"] = DawnInterface.loadimage("res/spells/voiceoftheforest/symbol.tga");
-TextureManager:SetTextureAtlas("symbols", TextureAtlasCreator:get():getAtlas());
+TextureManager:SetTextureAtlas(TextureAtlasCreator:get():getName(), TextureAtlasCreator:get():getAtlas());
 --TextureAtlasCreator:get():safeAtlas("tmp/symbols")
 
 spellDatabase = {};

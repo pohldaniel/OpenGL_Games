@@ -38,8 +38,8 @@ public:
 	TileSet();
 
 	// The following functions are in the LUA EditorInterface
-	unsigned int addTile(std::string filename, bool reload = false, int paddingLeft = 0, int paddingRight = 0, int paddingTop = 0, int paddingBottom = 0);
-	unsigned int addTile(std::string filename, unsigned int maxWidth, unsigned int maxHeight, bool reload = false, int paddingLeft = 0, int paddingRight = 0, int paddingTop = 0, int paddingBottom = 0);
+	unsigned int addTile(std::string filename, int paddingLeft = 0, int paddingRight = 0, int paddingTop = 0, int paddingBottom = 0);
+	unsigned int addTile(std::string filename, unsigned int maxWidth, unsigned int maxHeight, int paddingLeft = 0, int paddingRight = 0, int paddingTop = 0, int paddingBottom = 0);
 	unsigned int addTileWithCollisionBox(std::string filename, int cbx, int cby, int cbw, int cbh);
 	void addEquivalenceAdjacency(AdjacencyEquivalenceClass* class1, Enums::AdjacencyType adjacencyType, AdjacencyEquivalenceClass* class2, int allOffsetX, int allOffsetY);
 	void addAdjacency(unsigned int tile1, Enums::AdjacencyType adjacencyType, unsigned int tile2, int offsetX, int offsetY);
@@ -53,11 +53,14 @@ public:
 	void getAllAdjacentTiles(const Tile& searchTile, std::vector<std::vector<Tile>> &matchingTiles, std::vector<std::vector<std::array<int,2>>> &matchOffsets) const;
 	unsigned int numberOfTiles();
 	void clearTiles();
+	unsigned int getOffset() const;
+	void setOffset(unsigned int offset);
 
 private:
 	std::vector<AdjacencyStruct> m_adjacencyList;
 	std::vector<AdjacencyEquivalenceClass*> m_equivalenceClasses;
 	std::vector<Tile> m_tiles;
+	unsigned int m_offset = 0;
 };
 
 class TileSetManager {

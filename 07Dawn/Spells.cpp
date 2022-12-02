@@ -249,7 +249,7 @@ double GeneralDamageSpell::calculateContinuousDamage(uint64_t timePassed) {
 }
 
 void GeneralDamageSpell::addAnimationFrame(std::string file, int paddingLeft, int paddingRight, int paddingTop, int paddingBottom) {
-	animation.addFrame(TextureManager::Loadimage(file, 0u, 0u, false, paddingLeft, paddingRight, paddingTop, paddingBottom));
+	animation.addFrame(TextureManager::Loadimage(file, 0u, 0u, paddingLeft, paddingRight, paddingTop, paddingBottom));
 }
 void GeneralDamageSpell::update(float deltatime) {
 	animation.update(deltatime);

@@ -18,7 +18,7 @@ void CharacterInfo::setPlayer(Player* player) {
 void CharacterInfo::init() {
 	m_infoFont = &Globals::fontManager.get("verdana_12");
 
-	TextureAtlasCreator::get().init(1024, 1024);
+	TextureAtlasCreator::get().init("infoscreen", 1024, 1024);
 
 	TextureManager::Loadimage("res/interface/CharacterInfoScreen/background.tga", 0, m_textures);
 	TextureManager::Loadimage("res/white2x2pixel.png", 1, m_textures, true);

@@ -29,7 +29,7 @@ Shop* ShopCanvas::getShop() {
 void ShopCanvas::init() {
 	m_itemStackFont = &Globals::fontManager.get("verdana_12");
 
-	TextureAtlasCreator::get().init(1024, 1024);
+	TextureAtlasCreator::get().init("shop", 1024, 1024);
 	TextureManager::Loadimage("res/interface/Shop/base.tga", 0, m_textures);
 	TextureManager::Loadimage("res/white2x2pixel.png", 1, m_textures, true);
 	TextureManager::Loadimage("res/interface/Shop/weapontab.tga", 2, m_textures);

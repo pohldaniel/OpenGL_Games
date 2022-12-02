@@ -1,43 +1,43 @@
 directions = {'n', 'ne', 'e', 'se', 's', 'sw', 'w', 'nw'}
 
-TextureAtlasCreator:get():init(1248, 768);
+TextureAtlasCreator:get():init("player", 1248, 768);
 
 wizard = DawnInterface.createNewMobType("player_w")
 for direction = 1,8 do
 	for index=0,7,1 do
-		wizard:addMoveTexture( Enums.Walking, direction, index, "res/character/wizard/walking "..directions[direction].."000"..index..".tga", 768, 768, true);
+		wizard:addMoveTexture( Enums.Walking, direction, index, "res/character/wizard/walking "..directions[direction].."000"..index..".tga", 768, 768);
 	end
 end
 TextureAtlasCreator:get():addFrame();
 
 for direction = 1,8 do
 	for index=0,12,1 do
-		wizard:addMoveTexture( Enums.Attacking, direction, index, "res/character/wizard/attacking "..directions[direction].."000"..index..".tga", 1248, 768, true);
+		wizard:addMoveTexture( Enums.Attacking, direction, index, "res/character/wizard/attacking "..directions[direction].."000"..index..".tga", 1248, 768);
 	end
 end
 TextureAtlasCreator:get():addFrame();
 
 for direction = 1,8 do
 	for index=0,12,1 do
-		wizard:addMoveTexture( Enums.Casting, direction, index, "res/character/wizard/attacking "..directions[direction].."000"..index..".tga", 1248, 768, true);
+		wizard:addMoveTexture( Enums.Casting, direction, index, "res/character/wizard/attacking "..directions[direction].."000"..index..".tga", 1248, 768);
 	end
 end
 TextureAtlasCreator:get():addFrame();
 
 for direction = 1,8 do
 	for index=0,12,1 do
-		wizard:addMoveTexture( Enums.Shooting, direction, index, "res/character/wizard/attacking "..directions[direction].."000"..index..".tga", 1248, 768, true);
+		wizard:addMoveTexture( Enums.Shooting, direction, index, "res/character/wizard/attacking "..directions[direction].."000"..index..".tga", 1248, 768);
 	end
 end
 TextureAtlasCreator:get():addFrame();
 
 for direction = 1,8 do
 	for index=0,12,1 do
-		wizard:addMoveTexture( Enums.Dying, direction, index, "res/character/wizard/dying "..directions[direction].."000"..index..".tga", 1248, 768, true, -16, -16, -12, -20);
+		wizard:addMoveTexture( Enums.Dying, direction, index, "res/character/wizard/dying "..directions[direction].."000"..index..".tga", 1248, 768, -16, -16, -12, -20);
 	end
 end
 TextureAtlasCreator:get():addFrame();
-TextureManager:SetTextureAtlas("player", TextureAtlasCreator:get():getAtlas());
+TextureManager:SetTextureAtlas(TextureAtlasCreator:get():getName(), TextureAtlasCreator:get():getAtlas());
 
 wizard:calcNumMoveTexturesPerDirection();
 

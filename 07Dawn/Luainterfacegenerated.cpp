@@ -1,6 +1,6 @@
 /*
 ** Lua binding: Luainterface
-** Generated automatically by tolua++-1.0.92 on Fri Dec  2 04:02:09 2022.
+** Generated automatically by tolua++-1.0.92 on Fri Dec  2 18:41:33 2022.
 */
 
 #ifndef __cplusplus
@@ -1115,6 +1115,61 @@ static int tolua_Luainterface_DawnInterface_createEventHandler00(lua_State* tolu
 }
 #endif //#ifndef TOLUA_DISABLE
 
+/* function: DawnInterface::isSavingAllowed */
+#ifndef TOLUA_DISABLE_tolua_Luainterface_DawnInterface_isSavingAllowed00
+static int tolua_Luainterface_DawnInterface_isSavingAllowed00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+	tolua_Error tolua_err;
+	if (
+		!tolua_isnoobj(tolua_S, 1, &tolua_err)
+		)
+		goto tolua_lerror;
+	else
+#endif
+	{
+		{
+			bool tolua_ret = (bool)DawnInterface::isSavingAllowed();
+			tolua_pushboolean(tolua_S, (bool)tolua_ret);
+		}
+	}
+	return 1;
+#ifndef TOLUA_RELEASE
+	tolua_lerror :
+				 tolua_error(tolua_S, "#ferror in function 'isSavingAllowed'.", &tolua_err);
+				 return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
+/* function: DawnInterface::setSavingAllowed */
+#ifndef TOLUA_DISABLE_tolua_Luainterface_DawnInterface_setSavingAllowed00
+static int tolua_Luainterface_DawnInterface_setSavingAllowed00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+	tolua_Error tolua_err;
+	if (
+		!tolua_isboolean(tolua_S, 1, 0, &tolua_err) ||
+		!tolua_isnoobj(tolua_S, 2, &tolua_err)
+		)
+		goto tolua_lerror;
+	else
+#endif
+	{
+		bool savingAllowed = ((bool)tolua_toboolean(tolua_S, 1, 0));
+		{
+			DawnInterface::setSavingAllowed(savingAllowed);
+		}
+	}
+	return 0;
+#ifndef TOLUA_RELEASE
+	tolua_lerror :
+				 tolua_error(tolua_S, "#ferror in function 'setSavingAllowed'.", &tolua_err);
+				 return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
 /* function: EditorInterface::getTileSet */
 #ifndef TOLUA_DISABLE_tolua_Luainterface_EditorInterface_getTileSet00
 static int tolua_Luainterface_EditorInterface_getTileSet00(lua_State* tolua_S)
@@ -1580,12 +1635,11 @@ static int tolua_Luainterface_CharacterType_addMoveTexture00(lua_State* tolua_S)
 		!tolua_iscppstring(tolua_S, 5, 0, &tolua_err) ||
 		!tolua_isnumber(tolua_S, 6, 1, &tolua_err) ||
 		!tolua_isnumber(tolua_S, 7, 1, &tolua_err) ||
-		!tolua_isboolean(tolua_S, 8, 1, &tolua_err) ||
+		!tolua_isnumber(tolua_S, 8, 1, &tolua_err) ||
 		!tolua_isnumber(tolua_S, 9, 1, &tolua_err) ||
 		!tolua_isnumber(tolua_S, 10, 1, &tolua_err) ||
 		!tolua_isnumber(tolua_S, 11, 1, &tolua_err) ||
-		!tolua_isnumber(tolua_S, 12, 1, &tolua_err) ||
-		!tolua_isnoobj(tolua_S, 13, &tolua_err)
+		!tolua_isnoobj(tolua_S, 12, &tolua_err)
 		)
 		goto tolua_lerror;
 	else
@@ -1598,16 +1652,15 @@ static int tolua_Luainterface_CharacterType_addMoveTexture00(lua_State* tolua_S)
 		std::string filename = ((std::string)  tolua_tocppstring(tolua_S, 5, 0));
 		unsigned int maxWidth = ((unsigned int)tolua_tonumber(tolua_S, 6, 0));
 		unsigned int maxHeight = ((unsigned int)tolua_tonumber(tolua_S, 7, 0));
-		bool reload = ((bool)tolua_toboolean(tolua_S, 8, false));
-		int paddingLeft = ((int)tolua_tonumber(tolua_S, 9, 0));
-		int paddingRight = ((int)tolua_tonumber(tolua_S, 10, 0));
-		int paddingTop = ((int)tolua_tonumber(tolua_S, 11, 0));
-		int paddingBottom = ((int)tolua_tonumber(tolua_S, 12, 0));
+		int paddingLeft = ((int)tolua_tonumber(tolua_S, 8, 0));
+		int paddingRight = ((int)tolua_tonumber(tolua_S, 9, 0));
+		int paddingTop = ((int)tolua_tonumber(tolua_S, 10, 0));
+		int paddingBottom = ((int)tolua_tonumber(tolua_S, 11, 0));
 #ifndef TOLUA_RELEASE
 		if (!self) tolua_error(tolua_S, "invalid 'self' in function 'addMoveTexture'", NULL);
 #endif
 		{
-			self->addMoveTexture(activity, direction, index, filename, maxWidth, maxHeight, reload, paddingLeft, paddingRight, paddingTop, paddingBottom);
+			self->addMoveTexture(activity, direction, index, filename, maxWidth, maxHeight, paddingLeft, paddingRight, paddingTop, paddingBottom);
 		}
 	}
 	return 0;
@@ -3583,22 +3636,24 @@ static int tolua_Luainterface_TextureAtlasCreator_init00(lua_State* tolua_S)
 	tolua_Error tolua_err;
 	if (
 		!tolua_isusertype(tolua_S, 1, "TextureAtlasCreator", 0, &tolua_err) ||
-		!tolua_isnumber(tolua_S, 2, 1, &tolua_err) ||
+		!tolua_iscppstring(tolua_S, 2, 0, &tolua_err) ||
 		!tolua_isnumber(tolua_S, 3, 1, &tolua_err) ||
-		!tolua_isnoobj(tolua_S, 4, &tolua_err)
+		!tolua_isnumber(tolua_S, 4, 1, &tolua_err) ||
+		!tolua_isnoobj(tolua_S, 5, &tolua_err)
 		)
 		goto tolua_lerror;
 	else
 #endif
 	{
 		TextureAtlasCreator* self = (TextureAtlasCreator*)tolua_tousertype(tolua_S, 1, 0);
-		unsigned int width = ((unsigned int)tolua_tonumber(tolua_S, 2, 1024u));
-		unsigned int height = ((unsigned int)tolua_tonumber(tolua_S, 3, 1024u));
+		std::string name = ((std::string)  tolua_tocppstring(tolua_S, 2, 0));
+		unsigned int width = ((unsigned int)tolua_tonumber(tolua_S, 3, 1024u));
+		unsigned int height = ((unsigned int)tolua_tonumber(tolua_S, 4, 1024u));
 #ifndef TOLUA_RELEASE
 		if (!self) tolua_error(tolua_S, "invalid 'self' in function 'init'", NULL);
 #endif
 		{
-			self->init(width, height);
+			self->init(name, width, height);
 		}
 	}
 	return 0;
@@ -3732,6 +3787,38 @@ static int tolua_Luainterface_TextureAtlasCreator_resetLine00(lua_State* tolua_S
 #ifndef TOLUA_RELEASE
 	tolua_lerror :
 				 tolua_error(tolua_S, "#ferror in function 'resetLine'.", &tolua_err);
+				 return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
+/* method: getName of class  TextureAtlasCreator */
+#ifndef TOLUA_DISABLE_tolua_Luainterface_TextureAtlasCreator_getName00
+static int tolua_Luainterface_TextureAtlasCreator_getName00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+	tolua_Error tolua_err;
+	if (
+		!tolua_isusertype(tolua_S, 1, "TextureAtlasCreator", 0, &tolua_err) ||
+		!tolua_isnoobj(tolua_S, 2, &tolua_err)
+		)
+		goto tolua_lerror;
+	else
+#endif
+	{
+		TextureAtlasCreator* self = (TextureAtlasCreator*)tolua_tousertype(tolua_S, 1, 0);
+#ifndef TOLUA_RELEASE
+		if (!self) tolua_error(tolua_S, "invalid 'self' in function 'getName'", NULL);
+#endif
+		{
+			std::string tolua_ret = (std::string)  self->getName();
+			tolua_pushcppstring(tolua_S, (const char*)tolua_ret);
+		}
+	}
+	return 1;
+#ifndef TOLUA_RELEASE
+	tolua_lerror :
+				 tolua_error(tolua_S, "#ferror in function 'getName'.", &tolua_err);
 				 return 0;
 #endif
 }
@@ -6368,6 +6455,8 @@ TOLUA_API int tolua_Luainterface_open(lua_State* tolua_S)
 	tolua_function(tolua_S, "addShop", tolua_Luainterface_DawnInterface_addShop00);
 	tolua_function(tolua_S, "addQuest", tolua_Luainterface_DawnInterface_addQuest00);
 	tolua_function(tolua_S, "createEventHandler", tolua_Luainterface_DawnInterface_createEventHandler00);
+	tolua_function(tolua_S, "isSavingAllowed", tolua_Luainterface_DawnInterface_isSavingAllowed00);
+	tolua_function(tolua_S, "setSavingAllowed", tolua_Luainterface_DawnInterface_setSavingAllowed00);
 	tolua_endmodule(tolua_S);
 	tolua_module(tolua_S, "EditorInterface", 0);
 	tolua_beginmodule(tolua_S, "EditorInterface");
@@ -6473,6 +6562,7 @@ TOLUA_API int tolua_Luainterface_open(lua_State* tolua_S)
 	tolua_function(tolua_S, "getAtlas", tolua_Luainterface_TextureAtlasCreator_getAtlas00);
 	tolua_function(tolua_S, "safeAtlas", tolua_Luainterface_TextureAtlasCreator_safeAtlas00);
 	tolua_function(tolua_S, "resetLine", tolua_Luainterface_TextureAtlasCreator_resetLine00);
+	tolua_function(tolua_S, "getName", tolua_Luainterface_TextureAtlasCreator_getName00);
 	tolua_endmodule(tolua_S);
 	tolua_cclass(tolua_S, "TextureManager", "TextureManager", "", NULL);
 	tolua_beginmodule(tolua_S, "TextureManager");

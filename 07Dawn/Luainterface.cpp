@@ -17,16 +17,17 @@
 
 namespace EditorInterface{
 	
-	void addGroundTile(int posX, int posY, int tile){		
+	void addGroundTile(int posX, int posY, int tile){	
+		
 		Zone *currentZone = ZoneManager::Get().getCurrentZone();
 		const TileSet& tileSet = EditorInterface::getTileSet(Enums::TileClassificationType::FLOOR);
-		currentZone->getTileMap().push_back({ posX, posY, tileSet.getTile(tile) });
+		currentZone->getTileMap().push_back({ posX, posY, tileSet.getTile(tile + tileSet.getOffset())  });
 	}
 
 	void addEnvironment(int posX, int posY, int posZ, int tile){
 		Zone *currentZone = ZoneManager::Get().getCurrentZone();
 		const TileSet& tileSet = EditorInterface::getTileSet(Enums::TileClassificationType::ENVIRONMENT);
-		currentZone->getEnvironmentMap().push_back({ posX, posY, posZ, tileSet.getTile(tile), 1.0f, 1.0f, 1.0f, 1.0f, static_cast<float>(tileSet.getTile(tile).textureRect.width), static_cast<float>(tileSet.getTile(tile).textureRect.height) });
+		currentZone->getEnvironmentMap().push_back({ posX, posY, posZ, tileSet.getTile(tile + tileSet.getOffset()), 1.0f, 1.0f, 1.0f, 1.0f, static_cast<float>(tileSet.getTile(tile + tileSet.getOffset()).textureRect.width), static_cast<float>(tileSet.getTile(tile + tileSet.getOffset()).textureRect.height) });
 	}
 
 	void adjustLastRGBA(float red, float green, float blue, float alpha){
@@ -67,7 +68,7 @@ namespace DawnInterface{
 		}
 		ZoneManager::Get().setCurrentZone(&newZone);
 		
-		//getPlayer()->setPosition(enterX, enterY);
+		Player::Get().setPosition(enterX, enterY);
 		std::ostringstream oss;
 		std::string zoneNameNoPrefix = zoneName;
 		if (zoneNameNoPrefix.find_last_of('/') != std::string::npos){
@@ -314,5 +315,13 @@ namespace DawnInterface{
 
 		ZoneManager::Get().getCurrentZone()->addEventHandler(newEventHandler);
 		return newEventHandler;
+	}
+
+	bool isSavingAllowed() {
+		return Globals::savingAllowed;
+	}
+
+	void setSavingAllowed(bool savingAllowed) {
+		Globals::savingAllowed = savingAllowed;
 	}
 }

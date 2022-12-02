@@ -25,8 +25,8 @@ public:
 	void OnMouseMotion(Event::MouseMoveEvent& event) override;
 	
 
-	Zone* zone;
-	Interface* dawnInterface;
+	//Zone* zone;
+	//Interface* dawnInterface;
 	Player& m_player;
 
 	bool m_drawInGameCursor = false;
