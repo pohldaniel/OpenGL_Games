@@ -29,7 +29,7 @@ Npc::Npc(int _x_spawn_pos, int _y_spawn_pos, int _NPC_id, int _seconds_to_respaw
 Npc::~Npc() {}
 
 void Npc::draw() {
-
+	//std::cout << "Name: " << name << std::endl;
 	//if (m_updated) {
 	Enums::ActivityType curActivity = getCurActivity();
 

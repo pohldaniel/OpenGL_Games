@@ -440,11 +440,11 @@ void Editor::render(unsigned int &frameBuffer) {
 		}
 
 		// Interaction Regions
-		std::vector<InteractionRegion>& zoneInteractionRegions = newZone->getInteractionRegions();
+		std::vector<InteractionRegion*>& zoneInteractionRegions = newZone->getInteractionRegions();
 		for (size_t curInteractionRegionNr = 0; curInteractionRegionNr < zoneInteractionRegions.size(); ++curInteractionRegionNr){
-			InteractionRegion& curInteractionRegion = zoneInteractionRegions[curInteractionRegionNr];
+			InteractionRegion* curInteractionRegion = zoneInteractionRegions[curInteractionRegionNr];
 			int left, bottom, width, height;
-			curInteractionRegion.getPosition(left, bottom, width, height);
+			curInteractionRegion->getPosition(left, bottom, width, height);
 			if (!TextureManager::IsRectOnScreen(left - 4, width + 8, bottom - 4, height + 8)){
 				continue;
 			}
@@ -462,8 +462,8 @@ void Editor::render(unsigned int &frameBuffer) {
 			int tinyFontHeight = Globals::fontManager.get("verdana_5").lineHeight;
 			if (width > 28 && height > tinyFontHeight * 3 + 8){
 
-				std::string curEnterText = curInteractionRegion.getOnEnterText();
-				std::string curLeaveText = curInteractionRegion.getOnLeaveText();
+				std::string curEnterText = curInteractionRegion->getOnEnterText();
+				std::string curLeaveText = curInteractionRegion->getOnLeaveText();
 				bool printEnterAndLeaveText = (curEnterText.size() > 0 && curLeaveText.size() > 0 && height > tinyFontHeight * 6);
 				if (curEnterText.size() > 0){
 

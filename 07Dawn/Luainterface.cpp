@@ -92,7 +92,7 @@ namespace DawnInterface{
 		if (!CharacterTypeManager::Get().containsCaracterType(characterType)) {
 			return nullptr;
 		}
-
+		
 		Npc* newMob = new Npc(0, 0, 0, 0, 0);	
 		newMob->setCharacterType(characterType);
 		newMob->setSpawnInfo(x_pos, y_pos, respawn_rate, do_respawn);
@@ -100,7 +100,6 @@ namespace DawnInterface{
 		newMob->setName(name);
 		//newMob->setActiveGUI(&GUI);
 		ZoneManager::Get().getCurrentZone()->addNPC(newMob);
-
 		return ZoneManager::Get().getCurrentZone()->getNPCs().back();
 	}
 
@@ -109,8 +108,8 @@ namespace DawnInterface{
 	}
 
 	const InteractionRegion& addInteractionRegion(){
-		ZoneManager::Get().getCurrentZone()->addInteractionRegion(InteractionRegion());
-		return ZoneManager::Get().getCurrentZone()->getInteractionRegions().back();
+		ZoneManager::Get().getCurrentZone()->addInteractionRegion(new InteractionRegion());
+		return *ZoneManager::Get().getCurrentZone()->getInteractionRegions().back();
 	}
 
 	void removeInteractionRegion(InteractionRegion *regionToRemove){
@@ -118,13 +117,13 @@ namespace DawnInterface{
 	}
 
 	const InteractionPoint& addInteractionPoint(){
-		ZoneManager::Get().getCurrentZone()->addInteractionPoint(InteractionPoint());
-		return ZoneManager::Get().getCurrentZone()->getInteractionPoints().back();
+		ZoneManager::Get().getCurrentZone()->addInteractionPoint(new InteractionPoint());
+		return *ZoneManager::Get().getCurrentZone()->getInteractionPoints().back();
 	}
 
 	const InteractionPoint& addCharacterInteractionPoint(Character *character){
-		ZoneManager::Get().getCurrentZone()->addInteractionPoint(CharacterInteractionPoint(character));
-		return ZoneManager::Get().getCurrentZone()->getInteractionPoints().back();
+		ZoneManager::Get().getCurrentZone()->addInteractionPoint(new CharacterInteractionPoint(character));
+		return *ZoneManager::Get().getCurrentZone()->getInteractionPoints().back();
 	}
 
 	void removeInteractionPoint(InteractionPoint *pointToRemove){

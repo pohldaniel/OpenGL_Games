@@ -1,6 +1,6 @@
 directions = {'n', 'ne', 'e', 'se', 's', 'sw', 'w', 'nw'}
 
-TextureAtlasCreator:get():init(1152, 1024);
+TextureAtlasCreator:get():init(1664, 1024);
 wolfbase = DawnInterface.createNewMobType("Wolf");
 
 for direction = 1,8 do
@@ -147,6 +147,7 @@ for direction = 1,8 do
 end
 TextureAtlasCreator:get():addFrame();
 
+
 witchbase:calcNumMoveTexturesPerDirection();
 witchbase:setStrength( 15 )
 witchbase:setDexterity( 25 )
@@ -170,5 +171,103 @@ witchbase:setWanderRadius( 250 )
 witchbase:setLevel( 2 )
 witchbase:setClass( Enums.Warrior );
 witchbase:setExperienceValue( 25 );
+
+wizardbase = DawnInterface.createNewMobType("Wizard")
+for direction = 1,8 do
+	for index=0,7,1 do
+		wizardbase:addMoveTexture( Enums.Walking, direction, index, "res/character/wizard/walking "..directions[direction].."000"..index..".tga", 768, 768);
+	end
+end
+TextureAtlasCreator:get():addFrame();
+
+for direction = 1,8 do
+	for index=0,12,1 do
+		wizardbase:addMoveTexture( Enums.Attacking, direction, index, "res/character/wizard/attacking "..directions[direction].."000"..index..".tga", 1248, 768);
+	end
+end
+TextureAtlasCreator:get():addFrame();
+
+for direction = 1,8 do
+	for index=0,12,1 do
+		wizardbase:addMoveTexture( Enums.Dying, direction, index, "res/character/wizard/dying "..directions[direction].."000"..index..".tga", 1664, 1024);
+	end
+end
+TextureAtlasCreator:get():addFrame();
+
+wizardbase:calcNumMoveTexturesPerDirection();
+wizardbase:setStrength( 10 )
+wizardbase:setDexterity( 10 )
+wizardbase:setVitality( 10 )
+wizardbase:setIntellect( 25 )
+wizardbase:setWisdom( 20 )
+wizardbase:setMaxHealth( 150 )
+wizardbase:setMaxMana( 100 )
+wizardbase:setHealthRegen( 0 )
+wizardbase:setManaRegen( 1 )
+wizardbase:setMinDamage( 2 )
+wizardbase:setMaxDamage( 3 )
+wizardbase:setArmor( 10 )
+wizardbase:setDamageModifierPoints( 0 )
+wizardbase:setHitModifierPoints( 0 )
+wizardbase:setEvadeModifierPoints( 0 )
+wizardbase:setName("A wizard")
+wizardbase:setWanderRadius( 250 )
+wizardbase:setLevel( 2 )
+wizardbase:setClass( Enums.Liche )
+wizardbase:setExperienceValue( 25 );
+
+skeletonbase = DawnInterface.createNewMobType("Skeleton")
+for direction = 1,8 do
+	for index=0,8,1 do
+		skeletonbase:addMoveTexture( Enums.Walking, direction, index, "res/character/skeleton/walking "..directions[direction].."000"..index..".tga", 864, 768);
+	end
+end
+TextureAtlasCreator:get():addFrame();
+
+for direction = 1,8 do
+	for index=0,9,1 do
+		skeletonbase:addMoveTexture( Enums.Attacking, direction, index, "res/character/skeleton/attacking "..directions[direction].."000"..index..".tga", 960, 768);
+	end
+end
+TextureAtlasCreator:get():addFrame();
+
+for direction = 1,8 do
+	for index=0,9,1 do
+		skeletonbase:addMoveTexture( Enums.Casting, direction, index, "res/character/skeleton/attacking "..directions[direction].."000"..index..".tga", 960, 768);
+	end
+end
+TextureAtlasCreator:get():addFrame();
+
+for direction = 1,8 do
+	for index=0,8,1 do
+		skeletonbase:addMoveTexture( Enums.Dying, direction, index, "res/character/skeleton/dying "..directions[direction].."000"..index..".tga", 864, 768);
+	end
+end
+TextureAtlasCreator:get():addFrame();
+
+skeletonbase:calcNumMoveTexturesPerDirection();
+skeletonbase:setStrength( 25 )
+skeletonbase:setDexterity( 40 )
+skeletonbase:setVitality( 45 )
+skeletonbase:setIntellect( 10 )
+skeletonbase:setWisdom( 10 )
+skeletonbase:setMaxHealth( 250 )
+skeletonbase:setMaxMana( 500 )
+skeletonbase:setMaxFatigue( 100 )
+skeletonbase:setHealthRegen( 0 )
+skeletonbase:setManaRegen( 50 )
+skeletonbase:setFatigueRegen( 25 )
+skeletonbase:setMinDamage( 15 )
+skeletonbase:setMaxDamage( 25 )
+skeletonbase:setArmor( 200 )
+skeletonbase:setDamageModifierPoints( 15 )
+skeletonbase:setHitModifierPoints( 15 )
+skeletonbase:setEvadeModifierPoints( 15 )
+skeletonbase:setName("Skeleton")
+skeletonbase:setWanderRadius( 250 )
+skeletonbase:setLevel( 3 )
+--skeletonbase:setCoinDrop( 25, 75, 0.75 );
+skeletonbase:setClass( Enums.Warrior );
+skeletonbase:setExperienceValue( 40 );
 
 TextureManager:SetTextureAtlas("mobs", TextureAtlasCreator:get():getAtlas());

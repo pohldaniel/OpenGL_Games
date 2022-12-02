@@ -1,6 +1,6 @@
 /*
 ** Lua binding: Luainterface
-** Generated automatically by tolua++-1.0.92 on Fri Dec  2 01:05:14 2022.
+** Generated automatically by tolua++-1.0.92 on Fri Dec  2 04:02:09 2022.
 */
 
 #ifndef __cplusplus
@@ -3383,7 +3383,8 @@ static int tolua_Luainterface_InteractionPoint_setBackgroundTexture00(lua_State*
 	if (
 		!tolua_isusertype(tolua_S, 1, "InteractionPoint", 0, &tolua_err) ||
 		!tolua_iscppstring(tolua_S, 2, 0, &tolua_err) ||
-		!tolua_isnoobj(tolua_S, 3, &tolua_err)
+		!tolua_isboolean(tolua_S, 3, 1, &tolua_err) ||
+		!tolua_isnoobj(tolua_S, 4, &tolua_err)
 		)
 		goto tolua_lerror;
 	else
@@ -3391,11 +3392,12 @@ static int tolua_Luainterface_InteractionPoint_setBackgroundTexture00(lua_State*
 	{
 		InteractionPoint* self = (InteractionPoint*)tolua_tousertype(tolua_S, 1, 0);
 		std::string texturename = ((std::string)  tolua_tocppstring(tolua_S, 2, 0));
+		bool transparent = ((bool)tolua_toboolean(tolua_S, 3, false));
 #ifndef TOLUA_RELEASE
 		if (!self) tolua_error(tolua_S, "invalid 'self' in function 'setBackgroundTexture'", NULL);
 #endif
 		{
-			self->setBackgroundTexture(texturename);
+			self->setBackgroundTexture(texturename, transparent);
 		}
 	}
 	return 0;

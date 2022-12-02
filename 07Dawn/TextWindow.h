@@ -21,7 +21,7 @@ public:
 	bool canBeDeleted() const;
 	void close();
 
-	void clicked(int mouseX, int mouseY, uint8_t mouseState);
+	void processInput();
 	void draw();
 
 	static void FormatMultilineText(std::string textIn, std::vector< std::string > &textLines, int lineWidth, CharacterSet* font);
@@ -33,7 +33,7 @@ private:
 	friend TextWindow* DawnInterface::createTextWindow();
 
 	TextWindow();
-
+	bool isMouseOnFrame(int mouseX, int mouseY) const;
 	void updateFramesPosition();
 
 	Enums::PositionType positionType;
@@ -48,4 +48,9 @@ private:
 	static std::vector<TextWindow*> s_textWindows;
 	static CharacterSet& Font;
 	Clock m_timer;
+
+	short m_posX = 0;
+	short m_posY = 0;
+	short m_width;
+	short m_height;
 };

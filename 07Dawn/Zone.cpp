@@ -260,23 +260,23 @@ int Zone::locateCollisionbox(int x, int y) {
 	return -1;
 }
 
-void Zone::addInteractionRegion(InteractionRegion interactionRegionToAdd){
+void Zone::addInteractionRegion(InteractionRegion* interactionRegionToAdd){
 	m_interactionRegions.push_back(interactionRegionToAdd);
 }
 
-std::vector<InteractionRegion>& Zone::getInteractionRegions() {
+std::vector<InteractionRegion*>& Zone::getInteractionRegions() {
 	return m_interactionRegions;
 }
 
-std::vector<InteractionPoint>& Zone::getInteractionPoints() {
+std::vector<InteractionPoint*>& Zone::getInteractionPoints() {
 	return m_interactionPoints;
 }
 
 bool Zone::findInteractionPointForCharacter(Character *character) const {
 	for (size_t curIP = 0; curIP < m_interactionPoints.size(); curIP++) {
-		const CharacterInteractionPoint& curCharacterIP = dynamic_cast<const CharacterInteractionPoint&>(m_interactionPoints[curIP]);
+		const CharacterInteractionPoint* curCharacterIP = dynamic_cast<const CharacterInteractionPoint*>(m_interactionPoints[curIP]);
 		if (&curCharacterIP != NULL) {
-			if (character == curCharacterIP.getCharacter()) {
+			if (character == curCharacterIP->getCharacter()) {
 				return true;
 			}
 		}
@@ -284,7 +284,7 @@ bool Zone::findInteractionPointForCharacter(Character *character) const {
 	return false;
 }
 
-void Zone::addInteractionPoint(InteractionPoint interactionPointToAdd) {
+void Zone::addInteractionPoint(InteractionPoint* interactionPointToAdd) {
 	m_interactionPoints.push_back(interactionPointToAdd);
 }
 
@@ -340,6 +340,7 @@ void Zone::drawShadowsBatched(){
 }
 
 void Zone::drawNpcsBatched() {
+	//std::cout << " Size: " << m_npcs.size() << std::endl;
 	TextureManager::BindTexture(TextureManager::GetTextureAtlas("mobs"), true);
 	for (unsigned int x = 0; x < m_npcs.size(); x++) {
 		m_npcs[x]->draw();

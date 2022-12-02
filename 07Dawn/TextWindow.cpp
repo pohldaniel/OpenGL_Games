@@ -3,7 +3,7 @@
 
 
 std::vector<TextWindow*> TextWindow::s_textWindows = std::vector<TextWindow*>();
-CharacterSet& TextWindow::Font = Globals::fontManager.get("verdana_9");
+CharacterSet& TextWindow::Font = Globals::fontManager.get("verdana_14");
 
 char *strtok_r(char *str, const char *delim, char **nextp){
 	char *ret;
@@ -167,7 +167,6 @@ void TextWindow::updateFramesPosition() {
 }
 
 bool TextWindow::canBeDeleted() const {
-
 	return (explicitClose || (autocloseTime > 0 && m_timer.getElapsedTimeSinceRestartMilli() > autocloseTime));
 }
 
@@ -177,10 +176,22 @@ void TextWindow::close() {
 	}
 }
 
-void TextWindow::clicked(int mouseX, int mouseY, uint8_t mouseState) {
-	/*if ((mouseState == SDL_BUTTON_LEFT) && isMouseOnFrame(mouseX, mouseY)) {
+bool TextWindow::isMouseOnFrame(int mouseX, int mouseY) const {
+	if (mouseX < m_posX
+		|| mouseY < m_posY
+		|| mouseX > m_posX + m_width
+		|| mouseY > m_posY + m_height) {
+		return false;
+	}
+	return true;
+}
+
+void TextWindow::processInput() {
+	Mouse &mouse = Mouse::instance();
+	
+	if (mouse.buttonDown(Mouse::BUTTON_LEFT) && isMouseOnFrame(ViewPort::get().getCursorPosX(), ViewPort::get().getCursorPosY())) {
 		explicitClose = true;
-	}*/
+	}
 }
 
 void TextWindow::draw() {
@@ -243,4 +254,9 @@ void TextWindow::draw() {
 		curY -= Font.lineHeight;
 		curY -= lineSpace;
 	}
+
+	m_posX = leftX;
+	m_posY = bottomY;
+	m_width = (neededInnerBlocksX + 2) * blockSizeX;
+	m_height = (neededInnerBlocksY + 2) * blockSizeY;
 }

@@ -22,7 +22,7 @@ function quest_venomousveins.init()
   sylphirwoodsEnter:setPosition( -1215, -1000, 100, 360 );
   sylphirwoodsEnter:setOnEnterText( "quest_venomousveins.enterWoods()" );
   
-  quest_venomousveins.speakWithEffrey();
+  --quest_venomousveins.speakWithEffrey();
 end
 
 function quest_venomousveins.enterWoods()

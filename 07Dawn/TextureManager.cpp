@@ -14,7 +14,7 @@ TextureCache& TextureCache::Get() {
 	return s_instance;
 }
 
-TextureRect& TextureCache::getTextureFromCache(std::string filename, unsigned int maxWidth, unsigned maxHeight, bool reload, int paddingLeft, int paddingRight, int paddingTop, int paddingBottom) {
+TextureRect& TextureCache::getTextureFromCache(std::string filename, unsigned int maxWidth, unsigned maxHeight, bool reload, bool transparent, int paddingLeft, int paddingRight, int paddingTop, int paddingBottom) {
 
 	if (textures.count(filename) > 0 && !reload) {
 		return textures[filename];
@@ -24,7 +24,7 @@ TextureRect& TextureCache::getTextureFromCache(std::string filename, unsigned in
 	(paddingLeft != 0 || paddingRight != 0 || paddingTop != 0 || paddingBottom != 0) ? tex.loadFromFile(filename, true, 0 , 0, paddingLeft, paddingRight, paddingTop, paddingBottom) : tex.loadFromFile(filename, true);
 	
 	if (tex.getChannels() == 3) {
-		tex.addAlphaChannel();
+		transparent ? tex.addAlphaChannel(0) : tex.addAlphaChannel();
 	}
 
 	textures[filename].width = tex.getWidth();
@@ -121,19 +121,19 @@ void TextureManager::DrawBuffer(bool updateView) {
 }
 
 TextureRect& TextureManager::Loadimage(std::string file, unsigned int maxWidth, unsigned maxHeight, bool reload, int paddingLeft, int paddingRight, int paddingTop, int paddingBottom) {
-	return TextureCache::Get().getTextureFromCache(file, maxWidth, maxHeight, reload, paddingLeft, paddingRight, paddingTop, paddingBottom);
+	return TextureCache::Get().getTextureFromCache(file, maxWidth, maxHeight, reload, false, paddingLeft, paddingRight, paddingTop, paddingBottom);
 }
 
 TextureRect& TextureManager::Loadimage(std::string file) {
-	return TextureCache::Get().getTextureFromCache(file, 0u, 0u, false, 0, 0, 0, 0);
+	return TextureCache::Get().getTextureFromCache(file, 0u, 0u, false, false, 0, 0, 0, 0);
 }
 
-void TextureManager::Loadimage(std::string file, int textureIndex, std::vector<TextureRect>& textureBase, bool reload) {
+void TextureManager::Loadimage(std::string file, int textureIndex, std::vector<TextureRect>& textureBase, bool reload, bool transparent) {
 	if (textureIndex >= textureBase.size()) {
 		textureBase.resize(textureIndex + 1);
 	}
 
-	textureBase[textureIndex] = TextureCache::Get().getTextureFromCache(file, 0u, 0u, reload, 0, 0, 0, 0);
+	textureBase[textureIndex] = TextureCache::Get().getTextureFromCache(file, 0u, 0u, reload, transparent, 0, 0, 0, 0);
 }
 
 unsigned int& TextureManager::GetTextureAtlas(std::string name) {

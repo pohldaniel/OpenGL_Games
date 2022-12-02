@@ -16,8 +16,9 @@ public:
 	~InteractionPoint();
 	void setPosition(int posX, int posY, int width, int height);
 	void setInteractionType(Enums::InteractionType interactionType);
-	void setBackgroundTexture(std::string texturename);
+	void setBackgroundTexture(std::string texturename, bool transparent = false);
 	void setInteractionCode(std::string interactionCode);
+	void processInput(int mouseX, int mouseY, int characterXpos, int characterYpos);
 
 	virtual bool isMouseOver(int mouseX, int mouseY) const;
 	virtual bool isInRange(int characterXpos, int characterYpos) const;

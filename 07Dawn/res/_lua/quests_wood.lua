@@ -44,7 +44,7 @@ function quest_playHideAndSeek.init()
 	john:setInteractionType( Enums.Quest );
 	john:setInteractionCode( "quest_playHideAndSeek.onActivateJohn()" );
 	
-	quest_playHideAndSeek.onActivateJohn();
+	--quest_playHideAndSeek.onActivateJohn();
 end
 
 function quest_playHideAndSeek.onActivateJohn()
@@ -64,7 +64,7 @@ function quest_playHideAndSeek.onActivateJohn()
 		end
 		local textWindow = DawnInterface.createTextWindow();
 		textWindow:center();
-		--textWindow:setText( "My little brother James is somewhere in this forest. I fear he got lost. Please find him and tell him to come to me." );
+		textWindow:setText( "My little brother James is somewhere in this forest. I fear he got lost. Please find him and tell him to come to me." );
 		textWindow:setAutocloseTime( 4000 );
 	elseif( quest_playHideAndSeek.fulfilled and not quest_playHideAndSeek.rewardGot ) then
 		local textWindow = DawnInterface.createTextWindow();

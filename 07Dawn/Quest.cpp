@@ -184,8 +184,7 @@ void QuestCanvas::processInput() {
 		if (!isMouseOnFrame(mouse.xPosAbsolute(), mouse.yPosAbsolute())) {
 			return;
 		}
-
-		size_t curEntryNr = (m_posY + m_height - 24 - ViewPort::get().getCursorPosY()) / (font->lineHeight * 1.5);
+		size_t curEntryNr = (m_posY + m_height - 24 - ViewPort::get().getCursorPosRelY()) / (font->lineHeight * 1.5);
 		if (curEntryNr < quests.size()) {
 			selectedQuestNr = curEntryNr;
 		}

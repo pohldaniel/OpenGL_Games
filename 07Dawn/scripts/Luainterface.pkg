@@ -359,7 +359,7 @@ class Npc : public Character {
 class InteractionPoint {
 	void setPosition( int posX, int posY, int width, int height );
 	void setInteractionType( Enums::InteractionType interactionType );
-	void setBackgroundTexture( std::string texturename );
+	void setBackgroundTexture( std::string texturename, bool transparent = false );
 	void setInteractionCode( std::string interactionCode );
 };
 

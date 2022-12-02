@@ -107,6 +107,14 @@ void Game::render(unsigned int &frameBuffer) {
 	
 	zone->drawZoneBatched();
 	zone->getGroundLoot()->draw();
+
+	// draw the interactions on screen
+	std::vector<InteractionPoint*> zoneInteractionPoints = zone->getInteractionPoints();
+	for (size_t curInteractionNr = 0; curInteractionNr<zoneInteractionPoints.size(); ++curInteractionNr){
+		InteractionPoint* curInteraction = zoneInteractionPoints[curInteractionNr];
+		curInteraction->draw();
+	}
+
 	// draw AoE spells
 	std::vector<std::pair<SpellActionBase*, uint32_t> > activeAoESpells = zone->getActiveAoESpells();
 	for (size_t curActiveAoESpellNr = 0; curActiveAoESpellNr < activeAoESpells.size(); ++curActiveAoESpellNr) {
@@ -138,6 +146,16 @@ void Game::render(unsigned int &frameBuffer) {
 	}
 
 	zone->getGroundLoot()->drawTooltip(ViewPort::get().getCursorPosX(), ViewPort::get().getCursorPosY());
+
+	for (size_t curInteractionNr = 0; curInteractionNr<zoneInteractionPoints.size(); ++curInteractionNr){
+		InteractionPoint *curInteraction = zoneInteractionPoints[curInteractionNr];
+		curInteraction->drawInteractionSymbol(ViewPort::get().getCursorPosX(), ViewPort::get().getCursorPosY(), m_player.getXPos(), m_player.getYPos());	
+	}
+
+	for (auto it = TextWindow::GetTextWindows().begin(); it != TextWindow::GetTextWindows().end(); ++it) {
+		(*it)->draw();
+	}
+
 	dawnInterface->draw();
 	glDisable(GL_BLEND);
 
@@ -194,5 +212,13 @@ void Game::processInput() {
 		zone->getGroundLoot()->disableTooltips();
 	}
 
-	
+	std::vector<InteractionPoint*> zoneInteractionPoints = zone->getInteractionPoints();
+	for (size_t curInteractionNr = 0; curInteractionNr< zoneInteractionPoints.size(); ++curInteractionNr) {
+		InteractionPoint *curInteraction = zoneInteractionPoints[curInteractionNr];
+		curInteraction->processInput(ViewPort::get().getCursorPosX(), ViewPort::get().getCursorPosY(), m_player.getXPos(), m_player.getYPos());
+	}
+
+	for (auto it = TextWindow::GetTextWindows().begin(); it != TextWindow::GetTextWindows().end(); ++it) {
+		(*it)->processInput();
+	}
 }

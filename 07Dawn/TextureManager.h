@@ -17,7 +17,7 @@ class TextureCache {
 
 public:
 	static TextureCache& Get();
-	TextureRect& getTextureFromCache(std::string filename, unsigned int maxWidth = 0, unsigned maxHeight = 0, bool reload = false, int paddingLeft = 0, int paddingRight = 0, int paddingTop = 0, int paddingBottom = 0);
+	TextureRect& getTextureFromCache(std::string filename, unsigned int maxWidth = 0, unsigned maxHeight = 0, bool reload = false, bool transparent = false, int paddingLeft = 0, int paddingRight = 0, int paddingTop = 0, int paddingBottom = 0);
 
 private:
 
@@ -155,7 +155,7 @@ public:
 
 	static TextureRect& Loadimage(std::string file, unsigned int maxWidth, unsigned maxHeight, bool reload, int paddingLeft, int paddingRight, int paddingTop, int paddingBottom);
 	static TextureRect& Loadimage(std::string file);
-	static void Loadimage(std::string file, int textureIndex, std::vector<TextureRect>& textureBase, bool reload = false);
+	static void Loadimage(std::string file, int textureIndex, std::vector<TextureRect>& textureBase, bool reload = false, bool transparent = false);
 
 	static unsigned int& GetTextureAtlas(std::string name);
 	static void SetTextureAtlas(std::string name, unsigned int value);

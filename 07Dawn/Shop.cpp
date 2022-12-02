@@ -134,6 +134,7 @@ void ShopCanvas::drawItems() {
 }
 
 void ShopCanvas::drawItemTooltip(int mouseX, int mouseY) {
+	if (!m_visible) return;
 	// draws tooltip over item in the shop
 	if (isOnSlotsScreen(mouseX, mouseY) && isVisible() && floatingSelection == NULL) {
 		InventoryItem *tooltipItem;

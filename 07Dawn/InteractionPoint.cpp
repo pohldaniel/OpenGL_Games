@@ -32,27 +32,27 @@ void InteractionPoint::setInteractionType(Enums::InteractionType interactionType
 
 	case Enums::InteractionType::Quest:
 		TextureAtlasCreator::get().init(1024, 1024);
-		TextureManager::Loadimage("res/interaction/talk0.tga", 0, m_interactionTextures);
-		TextureManager::Loadimage("res/interaction/talk1.tga", 1, m_interactionTextures);		
+		TextureManager::Loadimage("res/interaction/talk0.tga", 0, m_interactionTextures, true);
+		TextureManager::Loadimage("res/interaction/talk1.tga", 1, m_interactionTextures, true);
 		m_textureAtlas = TextureAtlasCreator::get().getAtlas();
 		break;
 	case Enums::InteractionType::Shop:
 		TextureAtlasCreator::get().init(1024, 1024);
-		TextureManager::Loadimage("res/interaction/shop0.tga", 0, m_interactionTextures);
-		TextureManager::Loadimage("res/interaction/shop1.tga", 1, m_interactionTextures);
+		TextureManager::Loadimage("res/interaction/shop0.tga", 0, m_interactionTextures, true);
+		TextureManager::Loadimage("res/interaction/shop1.tga", 1, m_interactionTextures, true);
 		m_textureAtlas = TextureAtlasCreator::get().getAtlas();
 		
 		break;
 	case Enums::InteractionType::Zone:
 		TextureAtlasCreator::get().init(1024, 1024);
-		TextureManager::Loadimage("res/interaction/zone0.tga", 0, m_interactionTextures);
-		TextureManager::Loadimage("res/interaction/zone1.tga", 1, m_interactionTextures);
+		TextureManager::Loadimage("res/interaction/zone0.tga", 0, m_interactionTextures, true);
+		TextureManager::Loadimage("res/interaction/zone1.tga", 1, m_interactionTextures, true);
 		m_textureAtlas = TextureAtlasCreator::get().getAtlas();		
 		break;
 	}
 }
 
-void InteractionPoint::setBackgroundTexture(std::string texturename) {
+void InteractionPoint::setBackgroundTexture(std::string texturename, bool transparent) {
 	// We explicitely want to allow a background texture to change
 	//if (backgroundTexture != NULL) {
 		//delete backgroundTexture;
@@ -60,8 +60,8 @@ void InteractionPoint::setBackgroundTexture(std::string texturename) {
 
 
 	TextureAtlasCreator::get().init(1024, 1024);
-	TextureManager::Loadimage(texturename, 0, m_backgroundTextures);
-	m_textureAtlas = TextureAtlasCreator::get().getAtlas();
+	TextureManager::Loadimage(texturename, 0, m_backgroundTextures, true, transparent);
+	m_textureAtlas2 = TextureAtlasCreator::get().getAtlas();
 }
 
 void InteractionPoint::setInteractionCode(std::string interactionCode)
@@ -70,10 +70,10 @@ void InteractionPoint::setInteractionCode(std::string interactionCode)
 }
 
 bool InteractionPoint::isMouseOver(int mouseX, int mouseY) const {
-	if (mouseX + ViewPort::get().getPosition()[0] > posX
-		&& mouseX + ViewPort::get().getPosition()[0] < posX + width
-		&& mouseY + ViewPort::get().getPosition()[1] > posY
-		&& mouseY + ViewPort::get().getPosition()[1] < posY + height) {
+	if (mouseX > posX
+		&& mouseX < posX + width
+		&& mouseY > posY
+		&& mouseY < posY + height) {
 		return true;
 	}
 	return false;
@@ -94,8 +94,9 @@ void InteractionPoint::draw() {
 	if (markedAsDeletable) {
 		return;
 	}
-
-	//DrawingHelpers::mapTextureToRect(backgroundTexture->getTexture(0), posX, width, posY, height);
+	TextureManager::BindTexture(m_textureAtlas2, true);
+	TextureManager::DrawTexture(m_backgroundTextures[0], posX, posY, width, height, true, true);
+	TextureManager::UnbindTexture(true);
 }
 
 void InteractionPoint::drawInteractionSymbol(int mouseX, int mouseY, int characterXpos, int characterYpos) {
@@ -111,16 +112,13 @@ void InteractionPoint::drawInteractionSymbol(int mouseX, int mouseY, int charact
 	uint8_t available_symbol = 0;
 
 
-	if (isInRange(characterXpos, characterYpos))
-	{
+	if (isInRange(characterXpos, characterYpos)){
 		available_symbol = 1;
 	}
 
-	//DrawingHelpers::mapTextureToRect(interactionTexture->getTexture(available_symbol),
-	//	mouseX + world_x,
-	//	interactionTexture->getTexture(available_symbol).width,
-	//	mouseY + world_y,
-	//	interactionTexture->getTexture(available_symbol).height);
+	TextureManager::BindTexture(m_textureAtlas, true);
+	TextureManager::DrawTexture(m_interactionTextures[available_symbol], mouseX, mouseY,  true, true);
+	TextureManager::UnbindTexture(true);
 }
 
 void InteractionPoint::startInteraction(int characterXpos, int characterYpos) {
@@ -139,6 +137,15 @@ bool InteractionPoint::isMarkedDeletable() const {
 
 void InteractionPoint::markAsDeletable() {
 	markedAsDeletable = true;
+}
+
+void InteractionPoint::processInput(int mouseX, int mouseY, int characterXpos, int characterYpos) {
+	Mouse &mouse = Mouse::instance();
+	if (mouse.buttonPressed(Mouse::BUTTON_RIGHT)) {
+		if (isMouseOver(mouseX, mouseY)){
+			startInteraction(characterXpos, characterYpos);
+		}
+	}
 }
 
 std::string toStringForLua(Enums::InteractionType interactionType) {
@@ -168,7 +175,7 @@ std::string InteractionPoint::getLuaSaveText() const {
 
 	return oss.str();
 }
-
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 CharacterInteractionPoint::CharacterInteractionPoint(Character *character_) : interactionCharacter(character_) {
 }
 
@@ -178,10 +185,10 @@ bool CharacterInteractionPoint::isMouseOver(int mouseX, int mouseY) const {
 	int width = interactionCharacter->getWidth();
 	int height = interactionCharacter->getHeight();
 
-	if (mouseX + ViewPort::get().getPosition()[0] > posX
-		&& mouseX + ViewPort::get().getPosition()[0] < posX + width
-		&& mouseY + ViewPort::get().getPosition()[1] > posY
-		&& mouseY + ViewPort::get().getPosition()[1] < posY + height) {
+	if (mouseX > posX
+		&& mouseX < posX + width
+		&& mouseY > posY
+		&& mouseY < posY + height) {
 		return true;
 	}
 	return false;
