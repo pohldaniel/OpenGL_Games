@@ -6,7 +6,6 @@ Zone::Zone() : groundLoot(&Player::Get()) { }
 
 Zone::~Zone(){	 }
 
-int tmp = 0;
 void Zone::loadZone(){
 
 	if (m_mapLoaded) {
@@ -27,7 +26,6 @@ void Zone::loadZone(){
 	TextureManager::SetTextureAtlas(TextureAtlasCreator::get().getName(), TextureAtlasCreator::get().getAtlas());
 	m_textureAtlas = TextureManager::GetTextureAtlas(m_file);
 	
-
 	//ZoneManager::Get().setCurrentZone(this);
 	LuaFunctions::executeLuaScript(std::string("DawnInterface.setCurrentZone( \"").append(m_file).append("\");"));
 	LuaFunctions::executeLuaFile(std::string(m_file).append(".ground.lua"));
@@ -37,9 +35,6 @@ void Zone::loadZone(){
 	LuaFunctions::executeLuaFile(std::string(m_file).append(".spawnpoints.lua"));
 	LuaFunctions::executeLuaFile(std::string(m_file).append(".init.lua"));
 	m_mapLoaded = true;
-
-	Spritesheet::Safe("tmp/" + std::to_string(tmp), m_textureAtlas);
-	tmp++;
 }
 
 std::vector<TileMap>& Zone::getTileMap() {
