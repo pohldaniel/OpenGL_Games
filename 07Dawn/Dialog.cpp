@@ -57,7 +57,7 @@ void DialogCanvas::drawCanvas(int left, int bottom, int colummns, int rows, int 
 	}
 
 	if (!drawInChunk) {
-		TextureManager::DrawBuffer(updateView);
+		TextureManager::DrawBuffer();
 		TextureManager::UnbindTexture(true, 0);
 	}
 }

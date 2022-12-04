@@ -462,7 +462,7 @@ void Editor::render(unsigned int &frameBuffer) {
 			if (width > 8 && height > 8){
 				TextureManager::DrawTextureBatched(m_interfacetexture[4], left + 4, bottom + 4, static_cast<float>(width - 8), static_cast<float>(height - 8), Vector4f(0.0f, 0.3f, 0.0f, 0.6f));
 			}
-			TextureManager::DrawBuffer(true);
+			TextureManager::DrawBuffer();
 
 			// draw text for region
 			int tinyFontHeight = Globals::fontManager.get("verdana_5").lineHeight;
@@ -511,13 +511,13 @@ void Editor::render(unsigned int &frameBuffer) {
 			TextureManager::DrawTextureBatched(m_interfacetexture[5], static_cast<int>(rootX - collisionRadius), static_cast<int>(rootY - collisionRadius), 2.0f * collisionRadius, 2.0f * collisionRadius, Vector4f(0.0f, 0.0f, 0.5f, 0.4f));
 		}
 
-		TextureManager::DrawBuffer(true);
+		TextureManager::DrawBuffer();
 	}
 
 	TextureManager::DrawTextureBatched(m_interfacetexture[0], 0, static_cast<int>(m_originalFocus[1]) + ViewPort::get().getHeight() - 100, static_cast<float>(ViewPort::get().getWidth()), 100.0f, false, false);
 	TextureManager::DrawTextureBatched(m_interfacetexture[0], 0, static_cast<int>(m_originalFocus[1]), static_cast<float>(ViewPort::get().getWidth()), 100.0f, false, false);
 	TextureManager::DrawTextureBatched(m_interfacetexture[1], ViewPort::get().getWidth() / 2 - 5, static_cast<int>(m_originalFocus[1] + ViewPort::get().getHeight() - 65), 50.0f, 50.0f, false, false);
-	TextureManager::DrawBuffer(false);
+	TextureManager::DrawBuffer();
 
 	if (m_selectedObjectId >= 0) { // we have selected an object to edit it's properties, show the edit-screen.
 		switch (m_selectedTileSet) {
@@ -548,7 +548,7 @@ void Editor::render(unsigned int &frameBuffer) {
 			TextureManager::DrawTextureBatched(curTile.textureRect, ViewPort::get().getWidth() / 2 + (m_tilepos * 50) + (m_tileposOffset * 50), ViewPort::get().getHeight() - 60, 40.0f, 40.0f, false, false);
 		}
 	}
-	TextureManager::DrawBuffer(false);
+	TextureManager::DrawBuffer();
 
 	
 
@@ -590,7 +590,7 @@ void Editor::drawEditFrame(EnvironmentMap* editobject) {
 
 	// Highlight the currently selected tile
 	TextureManager::DrawTextureBatched(m_interfacetexture[3], editobject->x_pos, editobject->y_pos, editobject->width, editobject->height, Vector4f(1.0f, 1.0f, 1.0f, 0.2f), false);
-	TextureManager::DrawBuffer(true);
+	TextureManager::DrawBuffer();
 
 	if (adjacencyModeEnabled) {
 		TextureManager::BindTexture(TextureManager::GetTextureAtlas(newZone->getName()), true);
@@ -628,10 +628,10 @@ void Editor::drawEditFrame(EnvironmentMap* editobject) {
 				TextureManager::DrawTextureBatched(adjacencyProposal.textureRect, drawX, drawY, mouseInAdjacencyRect ? Vector4f(1.0f, 0.8f, 0.8f, 1.0f) : Vector4f(1.0f, 0.8f, 0.8f, 0.5f), false, true);
 			}
 		}
-		TextureManager::DrawBuffer(true);
+		TextureManager::DrawBuffer();
 	}else {
 		TextureManager::DrawTextureBatched(m_interfacetexture[3], static_cast<int>(m_currentFocus[0]) + 50, static_cast<int>(m_currentFocus[1]) + ViewPort::get().getHeight() / 2 - 200, 350.0f, 200.0f, Vector4f(1.0f, 1.0f, 1.0f, 1.0f), false);
-		TextureManager::DrawBuffer(true);
+		TextureManager::DrawBuffer();
 		TextureManager::BindTexture(TextureManager::GetTextureAtlas(newZone->getName()), true);
 		TextureManager::DrawTexture(editobject->tile.textureRect, static_cast<int>(m_currentFocus[0]) + 55, static_cast<int>(m_currentFocus[1]) + ViewPort::get().getHeight() / 2 - editobject->tile.textureRect.height - 5, Vector4f(editobject->red, editobject->green, editobject->blue, editobject->transparency), false);
 
@@ -644,7 +644,7 @@ void Editor::drawEditFrame(EnvironmentMap* editobject) {
 		Fontrenderer::Get().addText(Globals::fontManager.get("verdana_10"), static_cast<int>(m_currentFocus[0]) + 242, static_cast<int>(m_currentFocus[1]) + ViewPort::get().getHeight() / 2 - 58 - fontHeight, "Width: " + Fontrenderer::Get().FloatToString(editobject->width, 2), Vector4f(0.0f, 0.0f, 0.0f, 1.0f), true);
 		Fontrenderer::Get().addText(Globals::fontManager.get("verdana_10"), static_cast<int>(m_currentFocus[0]) + 242, static_cast<int>(m_currentFocus[1]) + ViewPort::get().getHeight() / 2 - 70 - fontHeight, "Height: " + Fontrenderer::Get().FloatToString(editobject->height, 2), Vector4f(0.0f, 0.0f, 0.0f, 1.0f), true);
 		Fontrenderer::Get().addText(Globals::fontManager.get("verdana_10"), static_cast<int>(m_currentFocus[0]) + 242, static_cast<int>(m_currentFocus[1]) + ViewPort::get().getHeight() / 2 - 82 - fontHeight, "Z Position: " + Fontrenderer::Get().FloatToString(static_cast<float>(editobject->z_pos), 0), Vector4f(0.0f, 0.0f, 0.0f, 1.0f), true);
-		Fontrenderer::Get().drawBuffer(true);
+		Fontrenderer::Get().drawBuffer();
 	}
 }
 

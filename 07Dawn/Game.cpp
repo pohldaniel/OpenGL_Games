@@ -93,6 +93,7 @@ void Game::update() {
 }
 
 void Game::render(unsigned int &frameBuffer) {
+	
 	glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
 
 

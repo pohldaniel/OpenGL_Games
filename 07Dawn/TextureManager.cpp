@@ -10,6 +10,7 @@ float(&TextureManager::TexPos)[8] = Batchrenderer::Get().getTexPos();
 float(&TextureManager::Color)[4] = Batchrenderer::Get().getColor();
 unsigned int& TextureManager::Frame = Batchrenderer::Get().getFrame();
 unsigned int& TextureManager::Sampler = Batchrenderer::Get().getSampler();
+bool& TextureManager::UpdateView = Batchrenderer::Get().getUpdateView();
 
 TextureCache& TextureCache::Get() {
 	return s_instance;
@@ -56,21 +57,21 @@ void TextureManager::DrawTextureBatched(const TextureRect& textureRect, int x, i
 	if (!TextureManager::IsRectOnScreen(x, textureRect.width, y, textureRect.height) && cullVieport) {
 		return;
 	}
-	Batchrenderer::Get().addQuadAA(Vector4f(static_cast< float >(x), static_cast< float >(y), static_cast< float >(textureRect.width), static_cast< float >(textureRect.height)), Vector4f(textureRect.textureOffsetX, textureRect.textureOffsetY, textureRect.textureWidth, textureRect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), textureRect.frame, 0u, updateView);
+	Batchrenderer::Get().addQuadAA(Vector4f(static_cast< float >(x), static_cast< float >(y), static_cast< float >(textureRect.width), static_cast< float >(textureRect.height)), Vector4f(textureRect.textureOffsetX, textureRect.textureOffsetY, textureRect.textureWidth, textureRect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), updateView, 0u, textureRect.frame);
 }
 
 void TextureManager::DrawTextureBatched(const TextureRect& textureRect, int x, int y, Vector4f color, bool cullVieport, bool updateView) {
 	if (!TextureManager::IsRectOnScreen(x, textureRect.width, y, textureRect.height) && cullVieport) {
 		return;
 	}
-	Batchrenderer::Get().addQuadAA(Vector4f(static_cast< float >(x), static_cast< float >(y), static_cast< float >(textureRect.width), static_cast< float >(textureRect.height)), Vector4f(textureRect.textureOffsetX, textureRect.textureOffsetY, textureRect.textureWidth, textureRect.textureHeight), color, textureRect.frame, 0u, updateView);
+	Batchrenderer::Get().addQuadAA(Vector4f(static_cast< float >(x), static_cast< float >(y), static_cast< float >(textureRect.width), static_cast< float >(textureRect.height)), Vector4f(textureRect.textureOffsetX, textureRect.textureOffsetY, textureRect.textureWidth, textureRect.textureHeight), color, updateView, 0u, textureRect.frame);
 }
 
 void TextureManager::DrawTextureBatched(const TextureRect& textureRect, int x, int y, float width, float height, bool cullVieport, bool updateView) {
 	if (!TextureManager::IsRectOnScreen(x, static_cast<int>(width), y, static_cast<int>(height)) && cullVieport) {
 		return;
 	}
-	Batchrenderer::Get().addQuadAA(Vector4f(static_cast<float>(x), static_cast<float>(y), width, height), Vector4f(textureRect.textureOffsetX, textureRect.textureOffsetY, textureRect.textureWidth, textureRect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), textureRect.frame, 0u, updateView);
+	Batchrenderer::Get().addQuadAA(Vector4f(static_cast<float>(x), static_cast<float>(y), width, height), Vector4f(textureRect.textureOffsetX, textureRect.textureOffsetY, textureRect.textureWidth, textureRect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), updateView, 0u, textureRect.frame);
 }
 
 void TextureManager::DrawTextureBatched(const TextureRect& textureRect, int x, int y, float width, float height, Vector4f color, bool cullVieport, bool updateView) {
@@ -78,7 +79,7 @@ void TextureManager::DrawTextureBatched(const TextureRect& textureRect, int x, i
 		return;
 	}
 	
-	Batchrenderer::Get().addQuadAA(Vector4f(static_cast< float >(x), static_cast< float >(y), width, height), Vector4f(textureRect.textureOffsetX, textureRect.textureOffsetY, textureRect.textureWidth, textureRect.textureHeight), color, textureRect.frame, 0u, updateView);
+	Batchrenderer::Get().addQuadAA(Vector4f(static_cast< float >(x), static_cast< float >(y), width, height), Vector4f(textureRect.textureOffsetX, textureRect.textureOffsetY, textureRect.textureWidth, textureRect.textureHeight), color, updateView, 0u, textureRect.frame);
 }
 
 void TextureManager::DrawTexture(const TextureRect& textureRect, int x, int y, bool cullVieport, bool updateView) {
@@ -88,7 +89,7 @@ void TextureManager::DrawTexture(const TextureRect& textureRect, int x, int y, b
 
 	float balance[4] = { static_cast<float>(x), static_cast<float>(y), static_cast<float>(textureRect.width), static_cast<float>(textureRect.height) };
 
-	Batchrenderer::Get().drawSingleQuadAA(Vector4f(static_cast<float>(x), static_cast<float>(y), static_cast<float>(textureRect.width), static_cast<float>(textureRect.height)), Vector4f(textureRect.textureOffsetX, textureRect.textureOffsetY, textureRect.textureWidth, textureRect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), textureRect.frame, 0u, updateView);
+	Batchrenderer::Get().drawSingleQuadAA(Vector4f(static_cast<float>(x), static_cast<float>(y), static_cast<float>(textureRect.width), static_cast<float>(textureRect.height)), Vector4f(textureRect.textureOffsetX, textureRect.textureOffsetY, textureRect.textureWidth, textureRect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), updateView, 0u, textureRect.frame);
 
 }
 
@@ -96,21 +97,21 @@ void TextureManager::DrawTexture(const TextureRect& textureRect, int x, int y, V
 	if (!TextureManager::IsRectOnScreen(x, textureRect.width, y, textureRect.height) && cullVieport) {
 		return;
 	}
-	Batchrenderer::Get().drawSingleQuadAA(Vector4f(static_cast< float >(x), static_cast< float >(y), static_cast< float >(textureRect.width), static_cast< float >(textureRect.height)), Vector4f(textureRect.textureOffsetX, textureRect.textureOffsetY, textureRect.textureWidth, textureRect.textureHeight), color, textureRect.frame, 0u, updateView);
+	Batchrenderer::Get().drawSingleQuadAA(Vector4f(static_cast< float >(x), static_cast< float >(y), static_cast< float >(textureRect.width), static_cast< float >(textureRect.height)), Vector4f(textureRect.textureOffsetX, textureRect.textureOffsetY, textureRect.textureWidth, textureRect.textureHeight), color, updateView, 0u, textureRect.frame);
 }
 
 void TextureManager::DrawTexture(const TextureRect& textureRect, int x, int y, float width, float height, bool cullVieport, bool updateView) {
 	if (!TextureManager::IsRectOnScreen(x, static_cast<int>(width), y, static_cast<int>(height)) && cullVieport) {
 		return;
 	}
-	Batchrenderer::Get().drawSingleQuadAA(Vector4f(static_cast<float>(x), static_cast<float>(y), width, height), Vector4f(textureRect.textureOffsetX, textureRect.textureOffsetY, textureRect.textureWidth, textureRect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), textureRect.frame, 0u, updateView);
+	Batchrenderer::Get().drawSingleQuadAA(Vector4f(static_cast<float>(x), static_cast<float>(y), width, height), Vector4f(textureRect.textureOffsetX, textureRect.textureOffsetY, textureRect.textureWidth, textureRect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), updateView, 0u, textureRect.frame);
 }
 
 void TextureManager::DrawTexture(const TextureRect& textureRect, int x, int y, float width, float height, Vector4f color, bool cullVieport, bool updateView) {
 	if (!TextureManager::IsRectOnScreen(x, static_cast<int>(width), y, static_cast<int>(height)) && cullVieport) {
 		return;
 	}
-	Batchrenderer::Get().drawSingleQuadAA(Vector4f(static_cast< float >(x), static_cast< float >(y), width, height), Vector4f(textureRect.textureOffsetX, textureRect.textureOffsetY, textureRect.textureWidth, textureRect.textureHeight), color, textureRect.frame, 0u, updateView);
+	Batchrenderer::Get().drawSingleQuadAA(Vector4f(static_cast< float >(x), static_cast< float >(y), width, height), Vector4f(textureRect.textureOffsetX, textureRect.textureOffsetY, textureRect.textureWidth, textureRect.textureHeight), color, updateView, 0u, textureRect.frame);
 }
 
 void TextureManager::DrawTextureInstanced(const TextureRect& textureRect, int x, int y, bool checkVieport) {
@@ -121,8 +122,8 @@ void TextureManager::DrawTextureInstanced(const TextureRect& textureRect, int x,
 	Instancedrenderer::Get().addQuad(Vector4f(static_cast< float >(x), static_cast< float >(y), static_cast< float >(textureRect.width), static_cast< float >(textureRect.height)), Vector4f(textureRect.textureOffsetX, textureRect.textureOffsetY, textureRect.textureWidth, textureRect.textureHeight), textureRect.frame);
 }
 
-void TextureManager::DrawBuffer(bool updateView) {
-	Batchrenderer::Get().drawBuffer(updateView);
+void TextureManager::DrawBuffer() {
+	Batchrenderer::Get().drawBuffer();
 }
 
 TextureRect& TextureManager::Loadimage(std::string file, unsigned int maxWidth, unsigned maxHeight, int paddingLeft, int paddingRight, int paddingTop, int paddingBottom) {
@@ -230,9 +231,11 @@ void TextureManager::DrawRotatedTextureBatched(const TextureRect& textureRect, i
 	Color[2] = color[2];
 	Color[3] = color[3];
 
-	Frame = textureRect.frame;
+	UpdateView = updateView;
 	Sampler = 0u;
-	Batchrenderer::Get().processQuad(updateView);
+	Frame = textureRect.frame;
+
+	Batchrenderer::Get().processQuad();
 }
 
 void TextureManager::DrawRotatedTexture(const TextureRect& textureRect, int x, int y, float angle, float rotX, float rotY, Vector4f color, bool updateView) {
@@ -272,7 +275,9 @@ void TextureManager::DrawRotatedTexture(const TextureRect& textureRect, int x, i
 	Color[2] = color[2];
 	Color[3] = color[3];
 
-	Frame = textureRect.frame;
+	UpdateView = updateView;
 	Sampler = 0u;
-	Batchrenderer::Get().processSingleQuad(updateView);
+	Frame = textureRect.frame;
+
+	Batchrenderer::Get().processSingleQuad();
 }

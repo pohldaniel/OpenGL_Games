@@ -1,7 +1,7 @@
 #version 410 core
 
-flat in uint v_layer;
 flat in uint v_sampler;
+flat in uint v_layer;
 
 in vec2 v_texCoord;
 in vec4 v_color;

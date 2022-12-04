@@ -293,7 +293,7 @@ void GroundLoot::drawTooltip(int mouseX, int mouseY) {
 			
 			// right border
 			TextureManager::DrawTextureBatched(m_textures[2], groundItems[curItem].tooltipXpos + groundItems[curItem].tooltipWidth, groundItems[curItem].tooltipYpos, color, true, true);
-			TextureManager::DrawBuffer(true);
+			TextureManager::DrawBuffer();
 			color[0] = groundItems[curItem].color[0];
 			color[1] = groundItems[curItem].color[1];
 			color[2] = groundItems[curItem].color[2];

@@ -72,7 +72,7 @@ void QuestCanvas::draw() {
 			textY -= font->lineHeight * 1.5;
 		}
 	}
-	Fontrenderer::Get().drawBuffer(false);
+	Fontrenderer::Get().drawBuffer();
 }
 
 bool QuestCanvas::anyQuestNeedThis(Item *item) const {

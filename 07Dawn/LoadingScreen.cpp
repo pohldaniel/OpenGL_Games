@@ -60,7 +60,7 @@ void LoadingScreen::render(unsigned int &frameBuffer) {
 
 	TextureManager::DrawTextureBatched(m_backgroundTextures[2], progressBarPosX, progressBarPosY, m_progress * progressBarWidth, 16, Vector4f(0.75f, 0.2f, 0.2f, 1.0f), false, false);
 	TextureManager::DrawTextureBatched(m_backgroundTextures[2], progressBarPosX + static_cast<int>(m_progress * progressBarWidth), progressBarPosY, progressBarWidth - m_progress * progressBarWidth, 16, Vector4f(0.5f, 0.1f, 0.1f, 1.0f), false, false);
-	TextureManager::DrawBuffer(false);
+	TextureManager::DrawBuffer();
 
 	int textX = m_posX + m_width / 2 - m_characterSet.getWidth(m_curText) / 2;
 	int textY = 30 + m_characterSet.lineHeight;

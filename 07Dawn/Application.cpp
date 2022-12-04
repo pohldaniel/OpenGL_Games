@@ -43,6 +43,30 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 	shader->loadInt("u_sprite", 0);
 	shader->loadInt("u_font", 1);
 	glUseProgram(0);
+
+
+	glGenBuffers(1, &Globals::viewUbo);
+	glBindBuffer(GL_UNIFORM_BUFFER, Globals::viewUbo);
+	glBufferData(GL_UNIFORM_BUFFER, 64, NULL, GL_STATIC_DRAW);
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+	glBindBufferRange(GL_UNIFORM_BUFFER, Globals::viewBinding, Globals::viewUbo, 0, 64);
+
+	glUniformBlockBinding(shader->m_program, glGetUniformBlockIndex(shader->m_program, "u_view"), Globals::viewBinding);
+	glUseProgram(shader->m_program);
+	shader->loadMatrix("u_projection", ViewPort::get().getCamera().getOrthographicMatrix());
+	glUseProgram(0);
+
+	shader = Globals::shaderManager.getAssetPointer("font");
+	glUniformBlockBinding(shader->m_program, glGetUniformBlockIndex(shader->m_program, "u_view"), Globals::viewBinding);
+	glUseProgram(shader->m_program);
+	shader->loadMatrix("u_projection", ViewPort::get().getCamera().getOrthographicMatrix());
+	glUseProgram(0);
+
+	shader = Globals::shaderManager.getAssetPointer("batch");
+	glUniformBlockBinding(shader->m_program, glGetUniformBlockIndex(shader->m_program, "u_view"), Globals::viewBinding);
+	glUseProgram(shader->m_program);
+	shader->loadMatrix("u_projection", ViewPort::get().getCamera().getOrthographicMatrix());
+	glUseProgram(0);
 }
 
 Application::~Application() {
@@ -197,6 +221,25 @@ LRESULT Application::DisplayWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 				ViewPort::get().init(m_width, m_height);
 				m_machine->resize(m_width, m_height);
 				m_machine->m_states.top()->resize(deltaW, deltaH);
+
+				auto shader = Globals::shaderManager.getAssetPointer("batch_font");
+
+				glUseProgram(shader->m_program);
+				shader->loadMatrix("u_projection", ViewPort::get().getCamera().getOrthographicMatrix());
+				glUseProgram(0);
+
+				shader = Globals::shaderManager.getAssetPointer("batch");
+
+				glUseProgram(shader->m_program);
+				shader->loadMatrix("u_projection", ViewPort::get().getCamera().getOrthographicMatrix());
+				glUseProgram(0);
+
+				shader = Globals::shaderManager.getAssetPointer("font");
+
+				glUseProgram(shader->m_program);
+				shader->loadMatrix("u_projection", ViewPort::get().getCamera().getOrthographicMatrix());
+				glUseProgram(0);
+
 			}
 			
 			break;
@@ -313,6 +356,10 @@ bool Application::isRunning() {
 }
 
 void Application::render() {
+	glBindBuffer(GL_UNIFORM_BUFFER, Globals::viewUbo);
+	glBufferSubData(GL_UNIFORM_BUFFER, 0, 64, &ViewPort::get().getCamera().getViewMatrix()[0][0]);
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
 	m_machine->render();
 }
 

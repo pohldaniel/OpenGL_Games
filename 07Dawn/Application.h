@@ -52,4 +52,5 @@ private:
 	static EventDispatcher& s_eventDispatcher;
 	void processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 	bool m_mouseTracking = false;
+
 };

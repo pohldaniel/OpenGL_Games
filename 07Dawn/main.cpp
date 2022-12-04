@@ -20,6 +20,9 @@ extern bool Globals::enableWireframe = false;
 extern bool Globals::savingAllowed = true;
 extern Clock Globals::clock = Clock();
 
+extern const unsigned int Globals::viewBinding = 4;
+extern unsigned int Globals::viewUbo = 0;
+
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd) {
 
 	#if DEBUG

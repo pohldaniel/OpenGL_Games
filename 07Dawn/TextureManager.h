@@ -165,7 +165,7 @@ public:
 	static void DrawRotatedTexture(const TextureRect& textureRect, int x, int y, float angle, float rotX, float rotY, Vector4f color = Vector4f(1.0f, 1.0f, 1.0f, 1.0f), bool updateView = true);
 
 	static void DrawTextureInstanced(const TextureRect& textureRect, int x, int y, bool checkVieport = true);
-	static void DrawBuffer(bool updateView = true);
+	static void DrawBuffer();
 
 	static TextureRect& Loadimage(std::string file, unsigned int maxWidth, unsigned maxHeight, int paddingLeft, int paddingRight, int paddingTop, int paddingBottom);
 	static TextureRect& Loadimage(std::string file);
@@ -196,4 +196,5 @@ private:
 	static float(&Color)[4];
 	static unsigned int& Frame;
 	static unsigned int& Sampler;
+	static bool& UpdateView;
 };

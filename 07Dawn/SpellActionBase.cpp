@@ -64,14 +64,16 @@ bool SpellActionBase::isEffectComplete() const {
 	return finished;
 }
 
-void SpellActionBase::drawSymbol(int left, int bottom, float width, float height, Vector4f color, unsigned int layer, bool updateView) const {
-	TextureRect* texture = getSymbol();
-	Batchrenderer::Get().addQuadAA(Vector4f(static_cast< float >(left), static_cast< float >(bottom), width, height), Vector4f(texture->textureOffsetX, texture->textureOffsetY, texture->textureWidth, texture->textureHeight), color, layer, updateView);
+void SpellActionBase::drawSymbol(int left, int bottom, float width, float height, Vector4f color, bool updateView) const {
+	TextureRect *texture = getSymbol();
+	TextureManager::DrawTextureBatched(*texture, left, bottom, width, height, color, false, updateView);
+	//Batchrenderer::Get().addQuadAA(Vector4f(static_cast< float >(left), static_cast< float >(bottom), width, height), Vector4f(texture->textureOffsetX, texture->textureOffsetY, texture->textureWidth, texture->textureHeight), color, updateView, 0u, texture->frame);
 }
 
-void SpellActionBase::drawSymbolSingle(int left, int bottom, float width, float height, Vector4f color, unsigned int layer, bool updateView) const {
+void SpellActionBase::drawSymbolSingle(int left, int bottom, float width, float height, Vector4f color, bool updateView) const {
 	TextureRect* texture = getSymbol();
-	Batchrenderer::Get().drawSingleQuadAA(Vector4f(static_cast< float >(left), static_cast< float >(bottom), width, height), Vector4f(texture->textureOffsetX, texture->textureOffsetY, texture->textureWidth, texture->textureHeight), color, layer, updateView);
+	TextureManager::DrawTexture(*texture, left, bottom, width, height, color, false, updateView);
+	//Batchrenderer::Get().drawSingleQuadAA(Vector4f(static_cast< float >(left), static_cast< float >(bottom), width, height), Vector4f(texture->textureOffsetX, texture->textureOffsetY, texture->textureWidth, texture->textureHeight), color, updateView, 0u, texture->frame);
 }
 
 std::string SpellActionBase::getID() const {

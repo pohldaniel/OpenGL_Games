@@ -36,4 +36,8 @@ namespace Globals {
 	extern bool enableWireframe;
 	extern bool savingAllowed;
 	extern Clock clock;
+
+
+	extern unsigned int viewUbo;
+	extern const unsigned int viewBinding;
 }

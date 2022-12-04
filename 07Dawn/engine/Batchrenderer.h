@@ -14,21 +14,19 @@ public:
 	struct Vertex {
 		std::array<float, 4> posTex;
 		std::array<float, 4> color;
-		unsigned int frame;
-		unsigned int sampler;
+		std::array<unsigned int, 4> drawState;
 	};
 
 	void init(size_t size = 400, bool drawSingle = false);
 	void shutdown();
-	void drawBuffer(bool updateView = true);
-	void addQuadAA(Vector4f posSize, Vector4f texPosSize, Vector4f color = Vector4f(1.0f, 1.0f, 1.0f, 1.0f), unsigned int frame = 0u, unsigned int sampler = 0u, bool updateView = true);
-	void drawSingleQuadAA(Vector4f posSize, Vector4f texPosSize, Vector4f color = Vector4f(1.0f, 1.0f, 1.0f, 1.0f), unsigned int frame = 0u, unsigned int sampler = 0u, bool updateView = true);
-	void processQuad(bool updateView);
-	void processSingleQuad(bool updateView);
+	void drawBuffer();
+	void addQuadAA(Vector4f posSize, Vector4f texPosSize, Vector4f color = Vector4f(1.0f, 1.0f, 1.0f, 1.0f), bool updateView = true, unsigned int sampler = 0u, unsigned int frame = 0u);
+	void drawSingleQuadAA(Vector4f posSize, Vector4f texPosSize, Vector4f color = Vector4f(1.0f, 1.0f, 1.0f, 1.0f), bool updateView = true, unsigned int sampler = 0u, unsigned int frame = 0u);
+	void processQuad();
+	void processSingleQuad();
 
 	void setCamera(const Camera& camera);
 	void setShader(Shader* shader);
-	void updateModelMtx(const Matrix4f& mtx);
 
 	void bindTexture(unsigned int texture, bool isTextureArray = false);
 	void unbindTexture(bool isTextureArray = false);
@@ -40,8 +38,10 @@ public:
 	float(&getQuadPos())[8];
 	float(&getTexPos())[8];
 	float(&getColor())[4];
-	unsigned int& getFrame();
+
+	bool& getUpdateView();
 	unsigned int& getSampler();
+	unsigned int& getFrame();
 
 	static Batchrenderer& Get();
 	
@@ -75,6 +75,7 @@ private:
 	float color[4];
 	unsigned int frame;
 	unsigned int sampler;
+	bool updateView;
 
 	static Batchrenderer s_instance;	
 };

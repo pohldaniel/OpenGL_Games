@@ -60,7 +60,7 @@ void Spellbook::draw() {
 		TextureManager::DrawTextureBatched(m_textures[1], m_posX + spellSlot[x].posX, m_posY + spellSlot[x].posY, false, false);
 
 		if (spellSlot[x].action != NULL){			
-			spellSlot[x].action->drawSymbol(m_posX + spellSlot[x].posX + 2, m_posY + spellSlot[x].posY + 2, 46.0f, 46.0f, Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 0u, false);
+			spellSlot[x].action->drawSymbol(m_posX + spellSlot[x].posX + 2, m_posY + spellSlot[x].posY + 2, 46.0f, 46.0f, Vector4f(1.0f, 1.0f, 1.0f, 1.0f), false);
 			Fontrenderer::Get().addText(*m_cooldownFont, m_posX + spellSlot[x].posX + 25 - m_cooldownFont->getWidth(spellSlot[x].action->getName()) / 2, m_posY + spellSlot[x].posY - m_cooldownFont->lineHeight - 5, spellSlot[x].action->getName(), Vector4f(0.35f, 0.0f, 0.0f, 1.0f), false);
 		}
 	}
@@ -76,7 +76,7 @@ void Spellbook::draw() {
 	if (curPage > 0){
 		TextureManager::DrawTextureBatched(m_textures[4], m_posX + previousPageButtonOffsetX, m_posY + previousPageButtonOffsetY, pageButtonWidth, pageButtonHeight, false, false);
 	}
-	TextureManager::DrawBuffer(false);	
+	TextureManager::DrawBuffer();	
 }
 
 void Spellbook::drawSpellTooltip(int mouseX, int mouseY) {
@@ -91,7 +91,7 @@ void Spellbook::drawFloatingSpell() {
 
 	if (m_floatingSpell != NULL) {
 		TextureManager::BindTexture(m_textureAtlas, true);
-		m_floatingSpell->action->drawSymbolSingle(ViewPort::get().getCursorPosX() + 2, ViewPort::get().getCursorPosY() + 22, 46.0f, 46.0f, Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 0u, true);
+		m_floatingSpell->action->drawSymbolSingle(ViewPort::get().getCursorPosX() + 2, ViewPort::get().getCursorPosY() + 22, 46.0f, 46.0f, Vector4f(1.0f, 1.0f, 1.0f, 1.0f), true);
 		Fontrenderer::Get().drawText(*m_cooldownFont, ViewPort::get().getCursorPosX() + 25 - m_cooldownFont->getWidth(m_floatingSpell->action->getName()) / 2, ViewPort::get().getCursorPosY() + 20 - m_cooldownFont->lineHeight - 5, m_floatingSpell->action->getName(), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), true);
 		TextureManager::UnbindTexture(true);
 	}

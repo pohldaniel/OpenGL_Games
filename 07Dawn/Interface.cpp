@@ -407,25 +407,24 @@ void Interface::draw() {
 				}
 			}
 			
-			m_button[buttonId].action->drawSymbol(ViewPort::get().getWidth() - 608 + buttonId * 60, 14, 46.0f, 46.0f, useableSpell ? Vector4f(1.0f, 1.0f, 1.0f, 1.0f) : Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
+			m_button[buttonId].action->drawSymbol(ViewPort::get().getWidth() - 608 + buttonId * 60, 14, 46.0f, 46.0f, useableSpell ? Vector4f(1.0f, 1.0f, 1.0f, 1.0f) : Vector4f(1.0f, 0.0f, 0.0f, 1.0f), false);
 
 			if (drawCooldownText == true) {
 				
 				unsigned int xModifier = m_cooldownFont->getWidth(cooldownText);
 				Fontrenderer::Get().addText(*m_cooldownFont, ViewPort::get().getWidth() - 630 + 20 + buttonId * 60 + 6 + (50 - xModifier) / 2, 32, cooldownText, Vector4f(1.0f, 1.0f, 0.0f, 1.0f), false);
-
 			}
 		}
 	}
 
-	TextureManager::DrawBuffer(false);
+	TextureManager::DrawBuffer();
 
 	drawCombatText();
 
 
 	drawCharacterStates();
 	drawTargetedNPCText();
-	TextureManager::DrawBuffer(true);
+	TextureManager::DrawBuffer();
 
 	drawSpellTooltip(ViewPort::get().getCursorPosRelX(), ViewPort::get().getCursorPosRelY());
 
@@ -477,7 +476,7 @@ void Interface::drawCursor(bool drawInGameCursor) {
 	if (drawInGameCursor) {
 		TextureManager::BindTexture(m_textureAtlas, true);
 		TextureManager::DrawTextureBatched(m_interfacetexture[15], ViewPort::get().getCursorPosX(), ViewPort::get().getCursorPosY() - 19, false, false);
-		TextureManager::DrawBuffer(false);
+		TextureManager::DrawBuffer();
 		TextureManager::UnbindTexture(true);
 	}
 }

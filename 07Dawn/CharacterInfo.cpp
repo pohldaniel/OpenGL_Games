@@ -105,7 +105,7 @@ void CharacterInfo::draw() {
 	drawExpBar();
 	drawTabs();
 	
-	TextureManager::DrawBuffer(false);
+	TextureManager::DrawBuffer();
 }
 
 void CharacterInfo::drawExpBar() {

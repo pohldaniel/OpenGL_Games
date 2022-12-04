@@ -147,7 +147,7 @@ void InventoryCanvas::draw() {
 	drawItemPlacement(ViewPort::get().getCursorPosRelX(), ViewPort::get().getCursorPosRelY());
 
 
-	TextureManager::DrawBuffer(false);
+	TextureManager::DrawBuffer();
 }
 
 void InventoryCanvas::drawCoins() {

@@ -429,7 +429,7 @@ void ItemTooltip::draw(int x, int y) {
 			break;
 		}
 	}
-	TextureManager::DrawBuffer(false);
+	TextureManager::DrawBuffer();
 }
 
 void ItemTooltip::drawCoinsLine(int x, int frameWidth, int y, sTooltipText *tooltipText) {
