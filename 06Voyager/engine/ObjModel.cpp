@@ -440,6 +440,7 @@ void ObjModel::drawRawInstancedStacked() {
 void ObjModel::draw(Camera& camera) {
 	for (int i = 0; i < m_meshes.size(); i++) {
 		m_meshes[i]->updateMaterialUbo(BuiltInShader::materialUbo);
+
 		glUseProgram(m_shader[i]->m_program);
 
 		m_shader[i]->loadMatrix("u_projection", camera.getProjectionMatrix());
@@ -938,12 +939,12 @@ void ObjModel::initAssets(bool instanced) {
 	}
 
 	if (!BuiltInShader::viewUbo && instanced) {
-		glGenBuffers(1, &BuiltInShader::materialUbo);
-		glBindBuffer(GL_UNIFORM_BUFFER, BuiltInShader::materialUbo);
+		glGenBuffers(1, &BuiltInShader::viewUbo);
+		glBindBuffer(GL_UNIFORM_BUFFER, BuiltInShader::viewUbo);
 		glBufferData(GL_UNIFORM_BUFFER, 64, NULL, GL_STATIC_DRAW);
 		glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-		glBindBufferRange(GL_UNIFORM_BUFFER, BuiltInShader::viewBinding, BuiltInShader::viewUbo, 0, 52);
+		glBindBufferRange(GL_UNIFORM_BUFFER, BuiltInShader::viewBinding, BuiltInShader::viewUbo, 0, 64);
 	}
 
 	for (int i = 0; i < m_meshes.size(); i++) {
