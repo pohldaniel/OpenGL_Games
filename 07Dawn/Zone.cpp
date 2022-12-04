@@ -6,11 +6,10 @@ Zone::Zone() : groundLoot(&Player::Get()) { }
 
 Zone::~Zone(){	 }
 
-void Zone::loadZone(){
+void Zone::loadZone() {
 
-	if (m_mapLoaded) {
-		return;
-	}
+	if (m_mapLoaded) return;
+
 	EditorInterface::getTileSet(Enums::TileClassificationType::FLOOR).setOffset(EditorInterface::getTileSet(Enums::TileClassificationType::FLOOR).getAllTiles().size());
 	EditorInterface::getTileSet(Enums::TileClassificationType::ENVIRONMENT).setOffset(EditorInterface::getTileSet(Enums::TileClassificationType::ENVIRONMENT).getAllTiles().size());
 	EditorInterface::getTileSet(Enums::TileClassificationType::SHADOW).setOffset(EditorInterface::getTileSet(Enums::TileClassificationType::SHADOW).getAllTiles().size());

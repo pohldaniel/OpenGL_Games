@@ -3,12 +3,14 @@
 #include "Zone.h"
 #include "Player.h"
 #include "TextWindow.h"
-
+#include "Shop.h"
+#include "Quest.h"
+#include "InventoryCanvas.h"
 #include "Utils.h"
 
 Interface Interface::s_instance;
 
-Interface::Interface() : m_spellbook(Spellbook::Get()), m_characterInfo(CharacterInfo::Get()), m_inventoryScreen(InventoryScreen::Get()) {
+Interface::Interface() : m_spellbook(Spellbook::Get()), m_characterInfo(CharacterInfo::Get()) {
 
 }
 
@@ -22,7 +24,7 @@ Interface& Interface::Get() {
 void Interface::setPlayer(Player* player) {
 	m_player = player;	
 	m_characterInfo.setPlayer(m_player);
-	m_inventoryScreen.setPlayer(m_player);
+	InventoryCanvas::Get().setPlayer(m_player);
 }
 
 void Interface::init() {
@@ -56,7 +58,7 @@ void Interface::init() {
 
 	m_spellbook.init(m_textureAtlas, { m_interfacetexture[22], m_interfacetexture[23], m_interfacetexture[4], m_interfacetexture[24], m_interfacetexture[25]});	
 	m_characterInfo.init();
-	m_inventoryScreen.init();
+	InventoryCanvas::Get().init();
 
 	m_spellbook.setOnClose([&]() {
 		for (size_t curFrame = 0; curFrame < m_widgets.size(); curFrame++){
@@ -116,10 +118,10 @@ void Interface::init() {
 		}
 	});
 
-	m_inventoryScreen.setOnClose([&]() {
+	InventoryCanvas::Get().setOnClose([&]() {
 		for (size_t curFrame = 0; curFrame < m_widgets.size(); curFrame++) {
-			if (dynamic_cast<Widget*>(&m_inventoryScreen) == m_widgets[curFrame]) {
-				m_inventoryScreen.setVisible(false);
+			if (dynamic_cast<Widget*>(&InventoryCanvas::Get()) == m_widgets[curFrame]) {
+				InventoryCanvas::Get().setVisible(false);
 				m_widgets.erase(m_widgets.begin() + curFrame);
 				if (m_widgets.size() == 0) m_activeWidget = nullptr;
 				return;
@@ -127,21 +129,21 @@ void Interface::init() {
 		}
 	});
 
-	m_inventoryScreen.setOnActivate([&]() {
+	InventoryCanvas::Get().setOnActivate([&]() {
 		
-		if (m_inventoryScreen.isVisible()) {
+		if (InventoryCanvas::Get().isVisible()) {
 			for (size_t curFrame = 0; curFrame < m_widgets.size(); curFrame++) {
-				if (dynamic_cast<Widget*>(&m_inventoryScreen) == m_widgets[curFrame]) {
+				if (dynamic_cast<Widget*>(&InventoryCanvas::Get()) == m_widgets[curFrame]) {
 					m_widgets.erase(m_widgets.begin() + curFrame);
-					m_widgets.push_back(&m_inventoryScreen);
+					m_widgets.push_back(&InventoryCanvas::Get());
 					m_activeWidget = m_widgets.back();
 					return;
 				}
 			}
 		}else {
 			// else add it to the frame vector and make it visible.
-			m_widgets.push_back(&m_inventoryScreen);
-			m_inventoryScreen.setVisible(true);
+			m_widgets.push_back(&InventoryCanvas::Get());
+			InventoryCanvas::Get().setVisible(true);
 			m_activeWidget = m_widgets.back();
 		}
 	});
@@ -295,7 +297,7 @@ void Interface::resize(int deltaW, int deltaH) {
 	m_actionBarPosX = ViewPort::get().getWidth() - 630;
 	m_spellbook.resize(deltaW, deltaH);
 	m_characterInfo.resize(deltaW, deltaH);
-	m_inventoryScreen.resize(deltaW, deltaH);
+	InventoryCanvas::Get().resize(deltaW, deltaH);
 }
 
 void Interface::draw() {
@@ -458,14 +460,14 @@ void Interface::draw() {
 	if (!m_spellbook.hasFloatingSpell()) {
 		m_spellbook.drawSpellTooltip(ViewPort::get().getCursorPosRelX(), ViewPort::get().getCursorPosRelY());
 	}
-	m_inventoryScreen.drawItemTooltip(ViewPort::get().getCursorPosRelX(), ViewPort::get().getCursorPosRelY());
+	InventoryCanvas::Get().drawItemTooltip(ViewPort::get().getCursorPosRelX(), ViewPort::get().getCursorPosRelY());
 	
 	Fontrenderer::Get().resetRenderer();
 	TextureManager::SetShader(Globals::shaderManager.getAssetPointer("batch"));
 	TextureManager::UnbindTexture(true, 1);
 	TextureManager::UnbindTexture(true, 0);
 
-	m_inventoryScreen.drawFloatingSelection();
+	InventoryCanvas::Get().drawFloatingSelection();
 	m_spellbook.drawFloatingSpell();
 	ShopCanvas::Get().drawFloatingSelection();
 
@@ -721,7 +723,7 @@ void Interface::unbindAction(Button* button) {
 
 
 void Interface::dragSpell(Button* spellQueue) {
-	if (!m_spellbook.hasFloatingSpell() && !m_inventoryScreen.hasFloatingSelection()) {
+	if (!m_spellbook.hasFloatingSpell() && !InventoryCanvas::Get().hasFloatingSelection()) {
 		m_preparingAoESpell = false;
 		m_spellbook.setFloatingSpell(spellQueue->action);
 		unbindAction(spellQueue);
@@ -838,7 +840,7 @@ void Interface::processInput() {
 
 
 	if (keyboard.keyPressed(Keyboard::KEY_I)) {
-		m_inventoryScreen.isVisible() ? m_inventoryScreen.close() : m_inventoryScreen.activate();
+		InventoryCanvas::Get().isVisible() ? InventoryCanvas::Get().close() : InventoryCanvas::Get().activate();
 	}
 
 	if (keyboard.keyPressed(Keyboard::KEY_U)) {
@@ -856,7 +858,7 @@ void Interface::processInput() {
 void Interface::processInputRightDrag() {
 	Mouse &mouse = Mouse::instance();
 	bool widgetInteraction = false;
-	bool hasSelection = m_inventoryScreen.hasFloatingSelection();
+	bool hasSelection = InventoryCanvas::Get().hasFloatingSelection();
 	bool hasSpell = m_spellbook.hasFloatingSpell();
 
 	if (mouse.buttonPressed(Mouse::BUTTON_LEFT) || mouse.buttonPressed(Mouse::BUTTON_RIGHT)) {
@@ -956,7 +958,7 @@ void Interface::processInputRightDrag() {
 
 
 	if (keyboard.keyPressed(Keyboard::KEY_I)) {
-		m_inventoryScreen.isVisible() ? m_inventoryScreen.close() : m_inventoryScreen.activate();
+		InventoryCanvas::Get().isVisible() ? InventoryCanvas::Get().close() : InventoryCanvas::Get().activate();
 	}
 
 	if (keyboard.keyPressed(Keyboard::KEY_U)) {
@@ -970,7 +972,7 @@ void Interface::processInputRightDrag() {
 
 	if (m_activeWidget) m_activeWidget->processInput();
 
-	if (hasSpell && m_inventoryScreen.hasFloatingSelection()) {
+	if (hasSpell && InventoryCanvas::Get().hasFloatingSelection()) {
 		m_spellbook.unsetFloatingSpell();
 	}
 

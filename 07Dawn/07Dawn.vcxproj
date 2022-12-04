@@ -171,7 +171,7 @@
     <ClCompile Include="InteractionRegion.cpp" />
     <ClCompile Include="Interface.cpp" />
     <ClCompile Include="Inventory.cpp" />
-    <ClCompile Include="InventoryScreen.cpp" />
+    <ClCompile Include="InventoryCanvas.cpp" />
     <ClCompile Include="Item.cpp" />
     <ClCompile Include="Label.cpp" />
     <ClCompile Include="LoadingScreen.cpp" />
@@ -245,7 +245,7 @@
     <ClInclude Include="InteractionRegion.h" />
     <ClInclude Include="Interface.h" />
     <ClInclude Include="Inventory.h" />
-    <ClInclude Include="InventoryScreen.h" />
+    <ClInclude Include="InventoryCanvas.h" />
     <ClInclude Include="Item.h" />
     <ClInclude Include="Label.h" />
     <ClInclude Include="LoadingManager.h" />

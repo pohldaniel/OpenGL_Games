@@ -6,20 +6,8 @@
 #include "Widget.h"
 #include "TextureManager.h"
 #include "TextWindow.h"
-#include "InventoryScreen.h"
 #include "Zone.h"
-
-/*namespace DawnInterface
-{
-	void addTextToLogWindow(GLfloat color[], const char *text, ...);
-
-	Quest* addQuest(std::string questName, std::string questDescription)
-	{
-		Quest* newQuest = new Quest(questName, questDescription, questWindow.get());
-		questWindow->addQuest(newQuest);
-		return newQuest;
-	}
-}*/
+#include "Utils.h"
 
 QuestCanvas QuestCanvas::s_instance;
 

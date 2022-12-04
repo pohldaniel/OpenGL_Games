@@ -8,7 +8,6 @@
 #include "Statssystem.h"
 #include "Utils.h"
 #include "Constants.h"
-#include "InventoryScreen.h"
 
 Tooltip::~Tooltip() { }
 

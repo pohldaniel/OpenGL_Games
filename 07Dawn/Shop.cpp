@@ -1,6 +1,6 @@
 #include "Shop.h"
 #include "Inventory.h"
-#include "InventoryScreen.h"
+#include "InventoryCanvas.h"
 #include "Luainterface.h"
 
 ShopCanvas ShopCanvas::s_instance;
@@ -10,7 +10,7 @@ ShopCanvas& ShopCanvas::Get() {
 }
 
 
-ShopCanvas::ShopCanvas() : Widget(30, 80, 454, 404, 13, 15), m_inventoryScreen(InventoryScreen::Get()) {
+ShopCanvas::ShopCanvas() : Widget(30, 80, 454, 404, 13, 15) {
 	
 }
 
@@ -203,9 +203,9 @@ void ShopCanvas::processInput() {
 	if (mouse.buttonPressed(Mouse::BUTTON_LEFT) || mouse.buttonPressed(Mouse::BUTTON_RIGHT)) {
 		if (isOnSlotsScreen(ViewPort::get().getCursorPosRelX(), ViewPort::get().getCursorPosRelY())) {
 
-			if (m_inventoryScreen.hasFloatingSelection()) {			
-				m_shop->sellToShop(m_inventoryScreen.getFloatingSelection(), true);
-				m_inventoryScreen.unsetFloatingSelection();
+			if (InventoryCanvas::Get().hasFloatingSelection()) {
+				m_shop->sellToShop(InventoryCanvas::Get().getFloatingSelection(), true);
+				InventoryCanvas::Get().unsetFloatingSelection();
 			}
 
 			if (hasFloatingSelection()) {

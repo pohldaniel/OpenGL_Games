@@ -7,9 +7,7 @@
 #include "TextureManager.h"
 #include "Spellbook.h"
 #include "CharacterInfo.h"
-#include "InventoryScreen.h"
-#include "Shop.h"
-#include "Quest.h"
+
 #include "Constants.h"
 
 class Character;
@@ -140,7 +138,7 @@ private:
 
 	Spellbook& m_spellbook;
 	CharacterInfo& m_characterInfo;
-	InventoryScreen& m_inventoryScreen;
+
 
 	std::pair<int, int> m_lastMouseDown;
 	std::vector <Widget*> m_widgets;

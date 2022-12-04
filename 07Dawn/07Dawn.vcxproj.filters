@@ -228,9 +228,6 @@
     <ClCompile Include="CharacterInfo.cpp">
       <Filter>Source Files\Interface</Filter>
     </ClCompile>
-    <ClCompile Include="InventoryScreen.cpp">
-      <Filter>Source Files\Interface</Filter>
-    </ClCompile>
     <ClCompile Include="Inventory.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -248,6 +245,9 @@
     </ClCompile>
     <ClCompile Include="Callindirection.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="InventoryCanvas.cpp">
+      <Filter>Source Files\Interface</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -446,9 +446,6 @@
     <ClInclude Include="CharacterInfo.h">
       <Filter>Source Files\Interface</Filter>
     </ClInclude>
-    <ClInclude Include="InventoryScreen.h">
-      <Filter>Source Files\Interface</Filter>
-    </ClInclude>
     <ClInclude Include="Inventory.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -466,6 +463,9 @@
     </ClInclude>
     <ClInclude Include="Callindirection.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="InventoryCanvas.h">
+      <Filter>Source Files\Interface</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

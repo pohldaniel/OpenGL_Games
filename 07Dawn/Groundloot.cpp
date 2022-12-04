@@ -1,9 +1,11 @@
 #include <algorithm>
+
 #include "Groundloot.h"
+#include "Luainterface.h"
 #include "Player.h"
 #include "Item.h"
 #include "Random.h"
-#include "InventoryScreen.h"
+#include "Utils.h"
 
 void sGroundItems::loadTooltip() {
 	tooltipXpos = xpos + (item->getSizeX() * 32) / 2 - tooltipWidth / 2;
@@ -135,7 +137,7 @@ void GroundLoot::lootItem(Item *item, size_t itemIndex) {
 		// some gold heap
 		GoldHeap *goldHeap = dynamic_cast<GoldHeap*>(item);
 		player->giveCoins(goldHeap->numCoins());
-		//DawnInterface::addTextToLogWindow(blue, "You looted %s.", currency::getLongTextString(goldHeap->numCoins()).c_str());
+		DawnInterface::addTextToLogWindow(blue, "You looted %s.", currency::getLongTextString(goldHeap->numCoins()).c_str());
 		delete goldHeap;
 		removeItem(itemIndex);
 
@@ -143,9 +145,9 @@ void GroundLoot::lootItem(Item *item, size_t itemIndex) {
 		bool inserted = player->getInventory()->insertItem(item);
 		if (inserted) {
 			removeItem(itemIndex);
-			//DawnInterface::addTextToLogWindow(blue, "You looted %s.", item->getName().c_str());
+			DawnInterface::addTextToLogWindow(blue, "You looted %s.", item->getName().c_str());
 		} else {
-			//DawnInterface::addTextToLogWindow(yellow, "Inventory is full.");
+			DawnInterface::addTextToLogWindow(yellow, "Inventory is full.");
 		}
 	}
 }

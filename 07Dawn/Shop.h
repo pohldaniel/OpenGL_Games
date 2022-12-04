@@ -9,7 +9,6 @@ class InventoryItem;
 class Item;
 class Npc;
 class Shop;
-class InventoryScreen;
 
 class ShopCanvas : public Widget {
 
@@ -53,9 +52,9 @@ private:
 	size_t backpackSeparatorHeight;
 	size_t backpackOffsetX;
 	size_t backpackOffsetY;
+
 	InventoryItem *floatingSelection;
 	Shop* m_shop;
-	InventoryScreen& m_inventoryScreen;
 
 	static ShopCanvas s_instance;
 };

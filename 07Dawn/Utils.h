@@ -76,5 +76,83 @@ namespace Utils {
 		outputString = ss.str();
 		return outputString;
 	}
+}
+
+namespace currency {
+	enum currency {
+		COPPER, // 100 COPPER == 1 SILVER
+		SILVER, // 100 SILVER == 1 GOLD
+		GOLD
+	};
+
+	inline void exchangeCoins(std::uint32_t &copper, std::uint32_t &silver, std::uint32_t &gold, std::uint32_t &coins) {
+		// exchanging coins to copper coins.
+		copper = coins % 100;
+		coins -= copper;
+		if (coins == 0)
+			return;
+
+		coins /= 100;
+		silver = coins % 100;
+		coins -= silver;
+		if (coins == 0)
+			return;
+
+		gold = coins / 100;
+	}
+
+	inline std::string getLongTextString(std::uint32_t coins) {
+		std::stringstream ss;
+		ss.clear();
+
+		std::uint32_t copper = 0, silver = 0, gold = 0;
+		bool addComma = false;
+
+		exchangeCoins(copper, silver, gold, coins);
+		if (gold > 0) {
+			ss << gold << " gold";
+			addComma = true;
+		}
+
+		if (silver > 0) {
+			if (addComma == true) {
+				ss << ", ";
+			}
+			ss << silver << " silver";
+			addComma = true;
+		}
+
+		if (copper > 0) {
+			if (addComma == true) {
+				ss << ", ";
+			}
+			ss << copper << " copper";
+		}
+
+		return ss.str();;
+	}
+
+	inline std::string convertCoinsToString(currency currency, std::uint32_t coins) {
+		std::stringstream ss;
+		std::string output;
+
+		std::uint32_t copper = 0, silver = 0, gold = 0;
+
+		exchangeCoins(copper, silver, gold, coins);
+
+		switch (currency){
+			case currency::COPPER:
+				ss << copper;
+				break;
+			case currency::SILVER:
+				ss << silver;
+				break;
+			case currency::GOLD:
+				ss << gold;
+				break;
+		};
+
+		return ss.str();
+	}
 
 }

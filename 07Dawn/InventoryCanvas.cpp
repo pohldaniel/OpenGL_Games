@@ -1,13 +1,14 @@
-#include "InventoryScreen.h"
+#include "InventoryCanvas.h"
 #include "Inventory.h"
 #include "Luainterface.h"
 #include "Spells.h"
 #include "Shop.h"
 #include "Zone.h"
+#include "Utils.h"
 
-InventoryScreen InventoryScreen::s_instance;
+InventoryCanvas InventoryCanvas::s_instance;
 
-InventoryScreen& InventoryScreen::Get() {
+InventoryCanvas& InventoryCanvas::Get() {
 	return s_instance;
 }
 
@@ -45,28 +46,28 @@ TextureRect* InventoryScreenSlot::getTexture() {
 	return &texture;
 }
 
-InventoryScreen::InventoryScreen() : Widget(0, 80, 469, 654, 15, 17) {
+InventoryCanvas::InventoryCanvas() : Widget(0, 80, 469, 654, 15, 17) {
 	mySlots = new InventoryScreenSlot*[static_cast<size_t>(Enums::ItemSlot::COUNTIS)];
 	for (size_t curSlotNr = 0; curSlotNr < static_cast<size_t>(Enums::ItemSlot::COUNTIS); ++curSlotNr) {
 		mySlots[curSlotNr] = NULL;
 	}
 }
 
-InventoryScreen::~InventoryScreen() {
+InventoryCanvas::~InventoryCanvas() {
 
 	size_t count = static_cast<size_t>(Enums::ItemSlot::COUNTIS);
 	for (size_t curSlot = 0; curSlot < count; ++curSlot) {
 		delete mySlots[curSlot];
 	}
 	delete[] mySlots;
-	
+
 }
 
-void InventoryScreen::setPlayer(Player* player) {
+void InventoryCanvas::setPlayer(Player* player) {
 	m_player = player;
 }
 
-void InventoryScreen::init() {
+void InventoryCanvas::init() {
 
 	TextureAtlasCreator::get().init("inventoryscreen", 1024, 1024);
 	TextureManager::Loadimage("res/interface/inventory/base.tga", 0, m_textures);
@@ -132,10 +133,10 @@ void InventoryScreen::init() {
 	setTextureDependentPositions();
 }
 
-void InventoryScreen::draw() {
+void InventoryCanvas::draw() {
 	if (!m_visible) return;
 	TextureManager::BindTexture(m_textureAtlas, true, 0);
-	
+
 	TextureManager::DrawTextureBatched(m_textures[0], m_posX, m_posY, false, false);
 
 	drawCoins();
@@ -146,15 +147,15 @@ void InventoryScreen::draw() {
 	drawItemPlacement(ViewPort::get().getCursorPosRelX(), ViewPort::get().getCursorPosRelY());
 
 
-	TextureManager::DrawBuffer(false);	
+	TextureManager::DrawBuffer(false);
 }
 
-void InventoryScreen::drawCoins() {
+void InventoryCanvas::drawCoins() {
 	// draws our coins in gold, silver and copper.
 	std::string gold = currency::convertCoinsToString(currency::GOLD, m_player->getCoins());
 	std::string silver = currency::convertCoinsToString(currency::SILVER, m_player->getCoins());
 	std::string copper = currency::convertCoinsToString(currency::COPPER, m_player->getCoins());
-	
+
 	// gold coin
 	TextureManager::DrawTextureBatched(m_textures[2], m_posX + 167, m_posY + 308, false, false);
 	// silver coin
@@ -167,13 +168,13 @@ void InventoryScreen::drawCoins() {
 	Fontrenderer::Get().addText(*m_coinsFont, m_posX + 160 - m_coinsFont->getWidth(copper), m_posY + 263, copper, Vector4f(1.0f, 1.0f, 1.0f, 1.0f), false);
 }
 
-void InventoryScreen::drawBackpack() {
+void InventoryCanvas::drawBackpack() {
 	Inventory* inventory = m_player->getInventory();
 	std::vector<InventoryItem*> items = inventory->getBackpackItems();
 	size_t numItems = items.size();
 
 	for (size_t curItemNr = 0; curItemNr<numItems; ++curItemNr) {
-				
+
 		InventoryItem* curInvItem = items[curItemNr];
 		Item* curItem = curInvItem->getItem();
 		TextureRect* symbolTexture = curItem->getSymbolTexture();
@@ -183,15 +184,15 @@ void InventoryScreen::drawBackpack() {
 		size_t sizeX = curItem->getSizeX();
 		size_t sizeY = curItem->getSizeY();
 
-		TextureManager::DrawTextureBatched(*symbolTexture, m_posX + backpackOffsetX + invPosX * backpackFieldWidth + invPosX * backpackSeparatorWidth, m_posY + backpackOffsetY + invPosY * backpackFieldHeight + invPosY * backpackSeparatorHeight, backpackFieldWidth * sizeX + (sizeX - 1)*backpackSeparatorWidth, backpackFieldHeight * sizeY + (sizeY - 1)*backpackSeparatorHeight, false, false);		
+		TextureManager::DrawTextureBatched(*symbolTexture, m_posX + backpackOffsetX + invPosX * backpackFieldWidth + invPosX * backpackSeparatorWidth, m_posY + backpackOffsetY + invPosY * backpackFieldHeight + invPosY * backpackSeparatorHeight, backpackFieldWidth * sizeX + (sizeX - 1)*backpackSeparatorWidth, backpackFieldHeight * sizeY + (sizeY - 1)*backpackSeparatorHeight, false, false);
 		// if we have an item that is stackable, and the stacksize is more than 1, we draw that number.
-		if (curInvItem->getCurrentStackSize() > 1)  {
+		if (curInvItem->getCurrentStackSize() > 1) {
 			Fontrenderer::Get().addText(*m_coinsFont, m_posX + backpackOffsetX + backpackFieldWidth - m_coinsFont->getWidth(std::to_string(curInvItem->getCurrentStackSize())) + invPosX * backpackFieldWidth + invPosX * backpackSeparatorWidth, m_posY + backpackOffsetY + invPosY * backpackFieldHeight + invPosY * backpackSeparatorHeight, std::to_string(curInvItem->getCurrentStackSize()), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), false);
 		}
 	}
 }
 
-void InventoryScreen::drawSlot(Enums::ItemSlot curSlot) {
+void InventoryCanvas::drawSlot(Enums::ItemSlot curSlot) {
 	Inventory* inventory = m_player->getInventory();
 	InventoryItem* invItem = inventory->getItemAtSlot(curSlot);
 	if (invItem != NULL) {
@@ -215,13 +216,13 @@ void InventoryScreen::drawSlot(Enums::ItemSlot curSlot) {
 	}
 }
 
-void InventoryScreen::drawItemPlacement(int mouseX, int mouseY){
+void InventoryCanvas::drawItemPlacement(int mouseX, int mouseY) {
 	if (!m_visible) return;
 
 	bool floatingSelectionFromShop = false;
 
 	InventoryItem* floatingSelectionToDraw = floatingSelection;
-	if (floatingSelectionToDraw == NULL && ShopCanvas::Get().hasFloatingSelection()){
+	if (floatingSelectionToDraw == NULL && ShopCanvas::Get().hasFloatingSelection()) {
 		floatingSelectionToDraw = ShopCanvas::Get().getFloatingSelection();
 		floatingSelectionFromShop = true;
 	}
@@ -245,10 +246,12 @@ void InventoryScreen::drawItemPlacement(int mouseX, int mouseY){
 				// yellow color (item needs to be paid)
 				shade[0] = 1.0f;
 				shade[1] = 1.0f;
-			} else {
+			}
+			else {
 				shade[1] = 1.0f; // green color
 			}
-		} else {
+		}
+		else {
 			shade[0] = 1.0f; // red color
 		}
 
@@ -276,7 +279,7 @@ void InventoryScreen::drawItemPlacement(int mouseX, int mouseY){
 
 		return;
 	}
-	
+
 	for (size_t curSlotNr = 0; curSlotNr<static_cast<size_t>(Enums::ItemSlot::COUNTIS); ++curSlotNr) {
 		Enums::ItemSlot curSlotEnum = static_cast<Enums::ItemSlot>(curSlotNr);
 		if (isOverSlot(curSlotEnum, mouseX, mouseY)) {
@@ -289,10 +292,12 @@ void InventoryScreen::drawItemPlacement(int mouseX, int mouseY){
 					// yellow color (item needs to be paid)
 					shade[0] = 1.0f;
 					shade[1] = 1.0f;
-				}else {
+				}
+				else {
 					shade[1] = 1.0f; // green color
 				}
-			} else {
+			}
+			else {
 				shade[0] = 1.0f; // red color
 			}
 
@@ -303,7 +308,7 @@ void InventoryScreen::drawItemPlacement(int mouseX, int mouseY){
 	}
 }
 
-void InventoryScreen::drawFloatingSelection() {
+void InventoryCanvas::drawFloatingSelection() {
 	// draw floating selection
 	if (floatingSelection != NULL) {
 		Item* floatingItem = floatingSelection->getItem();
@@ -315,7 +320,7 @@ void InventoryScreen::drawFloatingSelection() {
 	}
 }
 
-void InventoryScreen::drawItemTooltip(int mouseX, int mouseY) {
+void InventoryCanvas::drawItemTooltip(int mouseX, int mouseY) {
 	if (!m_visible) return;
 	// draws tooltip over item in the backpack
 	InventoryItem* floatingSelectionToHandle = floatingSelection;
@@ -355,7 +360,8 @@ void InventoryScreen::drawItemTooltip(int mouseX, int mouseY) {
 						if (firstItemCompared == false) {
 							if (ViewPort::get().getWidth() - (mouseX + tooltipItem->getTooltip()->getTooltipWidth() + 60) > equippedItems[curItem]->getTooltip()->getTooltipWidth()) {
 								thisTooltipPosX = mouseX + tooltipItem->getTooltip()->getTooltipWidth() + 30;
-							}else {
+							}
+							else {
 								thisTooltipPosX = mouseX - 30 - equippedItems[curItem]->getTooltip()->getTooltipWidth();
 							}
 						}
@@ -368,7 +374,7 @@ void InventoryScreen::drawItemTooltip(int mouseX, int mouseY) {
 			}
 		}
 	}
-	
+
 	// draws tooltip over equipped item
 	if (isVisible() && floatingSelectionToHandle == NULL && !isOnBackpackScreen(mouseX, mouseY)) {
 		Enums::ItemSlot tooltipslot = getMouseOverSlot(mouseX, mouseY);
@@ -378,7 +384,7 @@ void InventoryScreen::drawItemTooltip(int mouseX, int mouseY) {
 			InventoryItem* tooltipItem;
 
 			tooltipItem = inventory->getItemAtSlot(tooltipslot);
-			if (tooltipItem){
+			if (tooltipItem) {
 				tooltipItem->getTooltip()->setShopItem(false);
 				tooltipItem->getTooltip()->draw(mouseX, mouseY);
 			}
@@ -386,20 +392,20 @@ void InventoryScreen::drawItemTooltip(int mouseX, int mouseY) {
 	}
 }
 
-void InventoryScreen::processInput() {
+void InventoryCanvas::processInput() {
 	if (!m_visible && !hasFloatingSelection()) return;
 	Widget::processInput();
-	
+
 	Mouse &mouse = Mouse::instance();
 	if (mouse.buttonPressed(Mouse::BUTTON_LEFT) || mouse.buttonPressed(Mouse::BUTTON_RIGHT)) {
-	
+
 		// Put Floating selection out of inventory.
 		// Check several positions here for equipping
 		Inventory* inventory = m_player->getInventory();
 
 		InventoryItem* floatingSelectionToHandle = floatingSelection;
 		bool shopFloatingSelection = false;
-		if (floatingSelectionToHandle == NULL && ShopCanvas::Get().hasFloatingSelection()){
+		if (floatingSelectionToHandle == NULL && ShopCanvas::Get().hasFloatingSelection()) {
 			floatingSelectionToHandle = ShopCanvas::Get().getFloatingSelection();
 			shopFloatingSelection = true;
 		}
@@ -432,18 +438,22 @@ void InventoryScreen::processInput() {
 									equipOnSlotOriginDependingAndPlaySound(curSlotEnum, floatingSelectionToHandle, shopFloatingSelection, inventory->getItemAtSlot(curSlotEnum));
 								}
 
-							}else if (floatingSelectionToHandle->getItem()->isTwoHandedWeapon() == true && inventory->isWieldingTwoHandedWeapon() == false && inventory->getItemAtSlot(Enums::ItemSlot::OFF_HAND) != NULL) {
+							}
+							else if (floatingSelectionToHandle->getItem()->isTwoHandedWeapon() == true && inventory->isWieldingTwoHandedWeapon() == false && inventory->getItemAtSlot(Enums::ItemSlot::OFF_HAND) != NULL) {
 								// special handler for when we are trying to wield a two-handed weapon and having ONLY an item in offhand-slot equipped.
 								equipOnSlotOriginDependingAndPlaySound(curSlotEnum, floatingSelectionToHandle, shopFloatingSelection, inventory->getItemAtSlot(Enums::ItemSlot::OFF_HAND));
 
-							}else if (inventory->getItemAtSlot(curSlotEnum) == NULL) {
+							}
+							else if (inventory->getItemAtSlot(curSlotEnum) == NULL) {
 								equipOnSlotOriginDependingAndPlaySound(curSlotEnum, floatingSelectionToHandle, shopFloatingSelection, NULL);
-							}else {
+							}
+							else {
 
 								equipOnSlotOriginDependingAndPlaySound(curSlotEnum, floatingSelectionToHandle, shopFloatingSelection, inventory->getItemAtSlot(curSlotEnum));
 							}
 						}
-					}else if (floatingSelectionToHandle == NULL && inventory->getItemAtSlot(curSlotEnum) != NULL) {
+					}
+					else if (floatingSelectionToHandle == NULL && inventory->getItemAtSlot(curSlotEnum) != NULL) {
 						equipOnSlotOriginDependingAndPlaySound(curSlotEnum, NULL, false, inventory->getItemAtSlot(curSlotEnum));
 					}
 					return;
@@ -478,7 +488,8 @@ void InventoryScreen::processInput() {
 						GLfloat green[] = { 0.0f, 1.0f, 0.0f };
 						DawnInterface::addTextToLogWindow(green, "You inscribed %s (rank %d) in your spellbook.", useItem->getItem()->getSpell()->getName().c_str(), useItem->getItem()->getSpell()->getRank());
 						inventory->removeItem(useItem);
-					}else {
+					}
+					else {
 						// item is potion or scroll, use it.
 						if (m_player->castSpell(dynamic_cast<Spell*>(useItem->getItem()->getSpell()->cast(m_player, m_player, false))) == true) {
 							useItem->decreaseCurrentStack();
@@ -487,7 +498,8 @@ void InventoryScreen::processInput() {
 							}
 						}
 					}
-				}else if (floatingSelectionToHandle == NULL && useItem->canPlayerUseItem(*m_player) == true) {
+				}
+				else if (floatingSelectionToHandle == NULL && useItem->canPlayerUseItem(*m_player) == true) {
 					// try to equip the item
 					std::vector<size_t> possibleSlots;
 					for (size_t curSlotNr = 0; curSlotNr < static_cast<size_t>(Enums::ItemSlot::COUNTIS); ++curSlotNr) {
@@ -537,7 +549,8 @@ void InventoryScreen::processInput() {
 							else {
 								floatingSelection = tmp;
 							}
-						}else {
+						}
+						else {
 							InventoryItem* tmp = inventory->getItemAtSlot(curSlotEnum);
 							inventory->removeItem(useItem);
 							inventory->wieldItemAtSlot(curSlotEnum, useItem);
@@ -563,11 +576,13 @@ void InventoryScreen::processInput() {
 				floatingSelection = inventory->insertItemWithExchangeAt(floatingSelectionToHandle, fieldIndexX, fieldIndexY);
 				if (shopFloatingSelection) {
 					ShopCanvas::Get().getShop()->buyFromShop();
-				}else {
+				}
+				else {
 					//CommonSounds::playClickSound();
 				}
 			}
-		} else if (!inventory->isPositionFree(fieldIndexX, fieldIndexY)) {
+		}
+		else if (!inventory->isPositionFree(fieldIndexX, fieldIndexY)) {
 			floatingSelection = inventory->getItemAt(fieldIndexX, fieldIndexY);
 			inventory->removeItem(floatingSelection);
 			//CommonSounds::playClickSound();
@@ -576,19 +591,19 @@ void InventoryScreen::processInput() {
 	}
 }
 
-void InventoryScreen::setTextureDependentPositions() {
+void InventoryCanvas::setTextureDependentPositions() {
 	m_posX = ViewPort::get().getWidth() - m_textures[0].width - 50;
 }
 
-void InventoryScreen::dropItemOnGround(InventoryItem* inventoryItem) {
+void InventoryCanvas::dropItemOnGround(InventoryItem* inventoryItem) {
 	ZoneManager::Get().getCurrentZone()->getGroundLoot()->addItem(m_player->getXPos(), m_player->getYPos(), inventoryItem->getItem());
 }
 
-void InventoryScreen::addInventoryScreenSlot(InventoryScreenSlot** mySlots, Enums::ItemSlot slotToUse, size_t offsetX, size_t offsetY, size_t sizeX, size_t sizeY, TextureRect texture) {
+void InventoryCanvas::addInventoryScreenSlot(InventoryScreenSlot** mySlots, Enums::ItemSlot slotToUse, size_t offsetX, size_t offsetY, size_t sizeX, size_t sizeY, TextureRect texture) {
 	mySlots[static_cast<size_t>(slotToUse)] = new InventoryScreenSlot(slotToUse, offsetX, offsetY, sizeX, sizeY, texture);
 }
 
-bool InventoryScreen::isOnBackpackScreen(int mouseX, int mouseY) const  {
+bool InventoryCanvas::isOnBackpackScreen(int mouseX, int mouseY) const {
 	if (mouseX < static_cast<int>(m_posX + backpackOffsetX) ||
 		mouseY < static_cast<int>(m_posY + backpackOffsetY) ||
 		mouseX > static_cast<int>(m_posX + backpackOffsetX + backpackFieldWidth * numSlotsX + (numSlotsX - 1)*backpackSeparatorWidth) ||
@@ -598,7 +613,7 @@ bool InventoryScreen::isOnBackpackScreen(int mouseX, int mouseY) const  {
 	return true;
 }
 
-bool InventoryScreen::isOverSlot(Enums::ItemSlot itemSlot, int mouseX, int mouseY) const {
+bool InventoryCanvas::isOverSlot(Enums::ItemSlot itemSlot, int mouseX, int mouseY) const {
 	InventoryScreenSlot* curSlot = mySlots[static_cast<size_t>(itemSlot)];
 	if (mouseX < static_cast<int>(m_posX + curSlot->getOffsetX()) ||
 		mouseY < static_cast<int>(m_posY + curSlot->getOffsetY()) ||
@@ -609,24 +624,24 @@ bool InventoryScreen::isOverSlot(Enums::ItemSlot itemSlot, int mouseX, int mouse
 	return true;
 }
 
-bool InventoryScreen::hasFloatingSelection() const {
+bool InventoryCanvas::hasFloatingSelection() const {
 	return floatingSelection != NULL;
 }
 
-void InventoryScreen::setFloatingSelection(InventoryItem* item) {
+void InventoryCanvas::setFloatingSelection(InventoryItem* item) {
 	floatingSelection = item;
 }
 
-void InventoryScreen::unsetFloatingSelection() {
+void InventoryCanvas::unsetFloatingSelection() {
 	delete floatingSelection;
 	floatingSelection = NULL;
 }
 
-InventoryItem* InventoryScreen::getFloatingSelection() const {
+InventoryItem* InventoryCanvas::getFloatingSelection() const {
 	return floatingSelection;
 }
 
-Enums::ItemSlot InventoryScreen::getMouseOverSlot(int mouseX, int mouseY) const {
+Enums::ItemSlot InventoryCanvas::getMouseOverSlot(int mouseX, int mouseY) const {
 
 	if (isOverSlot(Enums::ItemSlot::AMULET, mouseX, mouseY))    return Enums::ItemSlot::AMULET;
 	if (isOverSlot(Enums::ItemSlot::BELT, mouseX, mouseY))      return Enums::ItemSlot::BELT;
@@ -644,7 +659,7 @@ Enums::ItemSlot InventoryScreen::getMouseOverSlot(int mouseX, int mouseY) const 
 	return Enums::ItemSlot::COUNTIS;
 }
 
-void InventoryScreen::equipOnSlotOriginDependingAndPlaySound(Enums::ItemSlot slotToUse, InventoryItem* wieldItem, bool fromShop, InventoryItem *newFloatingSelection) {
+void InventoryCanvas::equipOnSlotOriginDependingAndPlaySound(Enums::ItemSlot slotToUse, InventoryItem* wieldItem, bool fromShop, InventoryItem *newFloatingSelection) {
 	Inventory* inventory = m_player->getInventory();
 	if (fromShop) {
 		// shop self-destroys its inventory items. Copy to new inventory item.
@@ -655,79 +670,10 @@ void InventoryScreen::equipOnSlotOriginDependingAndPlaySound(Enums::ItemSlot slo
 	floatingSelection = newFloatingSelection;
 	if (fromShop) {
 		//shopWindow->buyFromShop();
-	} else {
+	}
+	else {
 		//CommonSounds::playClickSound();
 	}
 }
 
 
-std::string currency::getLongTextString(std::uint32_t coins) {
-	std::stringstream ss;
-	ss.clear();
-
-	std::uint32_t copper = 0, silver = 0, gold = 0;
-	bool addComma = false;
-
-	exchangeCoins(copper, silver, gold, coins);
-	if (gold > 0) {
-		ss << gold << " gold";
-		addComma = true;
-	}
-
-	if (silver > 0) {
-		if (addComma == true) {
-			ss << ", ";
-		}
-		ss << silver << " silver";
-		addComma = true;
-	}
-
-	if (copper > 0) {
-		if (addComma == true) {
-			ss << ", ";
-		}
-		ss << copper << " copper";
-	}
-
-	return ss.str();;
-}
-
-void currency::exchangeCoins(std::uint32_t &copper, std::uint32_t &silver, std::uint32_t &gold, std::uint32_t &coins) {
-	// exchanging coins to copper coins.
-	copper = coins % 100;
-	coins -= copper;
-	if (coins == 0)
-		return;
-
-	coins /= 100;
-	silver = coins % 100;
-	coins -= silver;
-	if (coins == 0)
-		return;
-
-	gold = coins / 100;
-}
-
-std::string currency::convertCoinsToString(currency currency, std::uint32_t coins) {
-	std::stringstream ss;
-	std::string output;
-
-	std::uint32_t copper = 0, silver = 0, gold = 0;
-
-	exchangeCoins(copper, silver, gold, coins);
-
-	switch (currency)
-	{
-	case currency::COPPER:
-		ss << copper;
-		break;
-	case currency::SILVER:
-		ss << silver;
-		break;
-	case currency::GOLD:
-		ss << gold;
-		break;
-	};
-
-	return ss.str();
-}

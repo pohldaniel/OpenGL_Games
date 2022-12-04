@@ -2,6 +2,7 @@
 #include "Magic.h"
 #include "TextWindow.h"
 #include "Shop.h"
+#include "Quest.h"
 
 Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_player(Player::Get()) {
 	EventDispatcher::AddMouseListener(this);

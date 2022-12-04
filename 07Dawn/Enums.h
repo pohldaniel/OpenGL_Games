@@ -79,46 +79,48 @@ namespace Enums {
 
 	inline bool isStateConsideredHarmfull(CharacterStates characterState, float characterStateValue) {
 		switch (characterState) {
-		case CharacterStates::Channeling:
-			return false;
-			break;
-		case CharacterStates::Charmed:
-			return true;
-			break;
-		case CharacterStates::Confused:
-			return true;
-			break;
-		case CharacterStates::Feared:
-			return true;
-			break;
-		case CharacterStates::Invisible:
-			return false;
-			break;
-		case CharacterStates::Mesmerized:
-			return true;
-			break;
-		case CharacterStates::Movementspeed:
-			if (characterStateValue >= 1.0) {
+			case CharacterStates::Channeling:
 				return false;
-			}else {
+				break;
+			case CharacterStates::Charmed:
 				return true;
-			}
-			break;
-		case CharacterStates::SeeInvisible:
-			return false;
-			break;
-		case CharacterStates::SeeSneaking:
-			return false;
-			break;
-		case CharacterStates::Sneaking:
-			return false;
-			break;
-		case CharacterStates::Stunned:
-			return true;
-			break;
-		case CharacterStates::NOEFFECT:
-			return false;
-			break;
+				break;
+			case CharacterStates::Confused:
+				return true;
+				break;
+			case CharacterStates::Feared:
+				return true;
+				break;
+			case CharacterStates::Invisible:
+				return false;
+				break;
+			case CharacterStates::Mesmerized:
+				return true;
+				break;
+			case CharacterStates::Movementspeed:
+				if (characterStateValue >= 1.0) {
+					return false;
+				}else {
+					return true;
+				}
+				break;
+			case CharacterStates::SeeInvisible:
+				return false;
+				break;
+			case CharacterStates::SeeSneaking:
+				return false;
+				break;
+			case CharacterStates::Sneaking:
+				return false;
+				break;
+			case CharacterStates::Stunned:
+				return true;
+				break;
+			case CharacterStates::NOEFFECT:
+				return false;
+				break;
+			default:
+				return false;
 		}
 	}
 

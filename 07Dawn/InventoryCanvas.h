@@ -5,16 +5,6 @@
 #include "Widget.h"
 #include "Player.h"
 
-namespace currency {
-	enum currency {
-		COPPER, // 100 COPPER == 1 SILVER
-		SILVER, // 100 SILVER == 1 GOLD
-		GOLD
-	};
-	std::string getLongTextString(std::uint32_t coins);
-	void exchangeCoins(std::uint32_t &copper, std::uint32_t &silver, std::uint32_t &gold, std::uint32_t &coins);
-	std::string convertCoinsToString(currency currency, std::uint32_t coins);
-}
 
 class InventoryItem;
 
@@ -38,11 +28,11 @@ public:
 	Enums::ItemSlot getItemSlot() const;
 };
 
-class InventoryScreen : public Widget {
+class InventoryCanvas : public Widget {
 
 public:
-	
-	~InventoryScreen();
+
+	~InventoryCanvas();
 
 	void draw() override;
 	void processInput() override;
@@ -70,12 +60,11 @@ public:
 	void setFloatingSelection(InventoryItem* item);
 	void unsetFloatingSelection();
 
-
-	static InventoryScreen& Get();
+	static InventoryCanvas& Get();
 
 private:
 
-	InventoryScreen();
+	InventoryCanvas();
 
 	Player* m_player;
 
@@ -100,5 +89,5 @@ private:
 
 	void equipOnSlotOriginDependingAndPlaySound(Enums::ItemSlot slotToUse, InventoryItem* wieldItem, bool fromShop, InventoryItem* newFloatingSelection);
 	void addInventoryScreenSlot(InventoryScreenSlot** mySlots, Enums::ItemSlot slotToUse, size_t offsetX, size_t offsetY, size_t sizeX, size_t sizeY, TextureRect _texture);
-	static InventoryScreen s_instance;
+	static InventoryCanvas s_instance;
 };
