@@ -41,25 +41,24 @@ std::string InteractionRegion::getOnLeaveText() const {
 	return onLeaveCode;
 }
 
-/*void InteractionRegion::interactWithPlayer(Player *player) {
-	int px = player->getXPos();
-	int pw = player->getWidth();
-	int py = player->getYPos();
-	int ph = player->getWidth();
+void InteractionRegion::interactWithPlayer(Player& player) {
+	int px = player.getXPos();
+	int pw = player.getWidth();
+	int py = player.getYPos();
+	int ph = player.getWidth();
 	bool playerNowInside = (px >= left && px + pw <= left + width && py >= bottom && py + ph <= bottom + height);
 	if (playerNowInside && !playerInside) {
 		playerInside = true;
 		if (onEnterCode != "") {
 			LuaFunctions::executeLuaScript(onEnterCode);
 		}
-	}
-	else if (!playerNowInside && playerInside) {
+	}else if (!playerNowInside && playerInside) {
 		playerInside = false;
 		if (onLeaveCode != "") {
 			LuaFunctions::executeLuaScript(onLeaveCode);
 		}
 	}
-}*/
+}
 
 std::string InteractionRegion::getLuaSaveText() const {
 	std::ostringstream oss;

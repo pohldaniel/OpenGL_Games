@@ -4,40 +4,7 @@ then
 	quest_playHideAndSeek = {}
 end
 
-function quest_playHideAndSeek.enterTown()
-	if ( not DawnInterface.isSavingAllowed() )
-	then
-		DawnInterface.setSavingAllowed( true );
-
-		local textWindow = DawnInterface.createTextWindow();
-		textWindow:center();
-		textWindow:setText( "The town of Arinox." );
-		textWindow:setAutocloseTime( 1000 );
-	end
-end
-
-function quest_playHideAndSeek.leaveTown()
-	if ( DawnInterface.isSavingAllowed() )
-	then
-		DawnInterface.setSavingAllowed( false );
-	end
-end
-
-function quest_playHideAndSeek.testInteractionRegionLeave()
-	local textWindow = DawnInterface.createTextWindow();
-	textWindow:setPosition( Enums.CENTER, 512, 382 );
-	textWindow:setText( "Left test region." );
-	textWindow:setAutocloseTime( 1000 );
-end
-
 function quest_playHideAndSeek.init()
-	local townEnterRegion = DawnInterface.addInteractionRegion();
-	townEnterRegion:setPosition( 550, 1300, 300, 100 );
-	townEnterRegion:setOnEnterText( "quest_playHideAndSeek.enterTown()" );
-	local townLeaveRegion = DawnInterface.addInteractionRegion();
-	townLeaveRegion:setPosition( 550, 1200, 300, 100 );
-	townLeaveRegion:setOnEnterText( "quest_playHideAndSeek.leaveTown()" );
-
 	john = DawnInterface.addInteractionPoint();
 	john:setPosition( 820, 270, 64, 64 );
 	john:setBackgroundTexture( "res/character/John.tga" );

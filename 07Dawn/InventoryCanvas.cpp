@@ -69,7 +69,7 @@ void InventoryCanvas::setPlayer(Player* player) {
 
 void InventoryCanvas::init() {
 
-	TextureAtlasCreator::get().init("inventoryscreen", 1024, 1024);
+	TextureAtlasCreator::Get().init("inventoryscreen", 1024, 1024);
 	TextureManager::Loadimage("res/interface/inventory/base.tga", 0, m_textures);
 	TextureManager::Loadimage("res/white2x2pixel.png", 1, m_textures, true);
 	TextureManager::Loadimage("res/interface/inventory/goldcoin.tga", 2, m_textures, true);
@@ -94,7 +94,7 @@ void InventoryCanvas::init() {
 	TextureManager::Loadimage("res/interface/inventory/ring_two.tga", 16, m_textures);
 	TextureManager::Loadimage("res/interface/inventory/boots.tga", 17, m_textures);
 
-	m_textureAtlas = TextureAtlasCreator::get().getAtlas();
+	m_textureAtlas = TextureAtlasCreator::Get().getAtlas();
 	m_textureAtlas = Spritesheet::Merge(TextureManager::GetTextureAtlas("items"), m_textureAtlas, false, true);
 	for (unsigned short layer = 0; layer < m_textures.size(); layer++) {
 		m_textures[layer].frame++;
@@ -144,7 +144,7 @@ void InventoryCanvas::draw() {
 	for (size_t curSlotNr = 0; curSlotNr < static_cast<size_t>(Enums::ItemSlot::COUNTIS); ++curSlotNr) {
 		drawSlot(static_cast<Enums::ItemSlot>(curSlotNr));
 	}
-	drawItemPlacement(ViewPort::get().getCursorPosRelX(), ViewPort::get().getCursorPosRelY());
+	drawItemPlacement(ViewPort::Get().getCursorPosRelX(), ViewPort::Get().getCursorPosRelY());
 
 
 	TextureManager::DrawBuffer();
@@ -315,7 +315,7 @@ void InventoryCanvas::drawFloatingSelection() {
 		size_t sizeX = floatingItem->getSizeX();
 		size_t sizeY = floatingItem->getSizeY();
 		TextureManager::BindTexture(TextureManager::GetTextureAtlas("items"), true);
-		TextureManager::DrawTexture(*floatingItem->getSymbolTexture(), ViewPort::get().getCursorPosRelX(), ViewPort::get().getCursorPosRelY() - 20, backpackFieldWidth * sizeX + (sizeX - 1) * backpackSeparatorWidth, backpackFieldHeight * sizeY + (sizeY - 1) * backpackSeparatorHeight, false, false);
+		TextureManager::DrawTexture(*floatingItem->getSymbolTexture(), ViewPort::Get().getCursorPosRelX(), ViewPort::Get().getCursorPosRelY() - 20, backpackFieldWidth * sizeX + (sizeX - 1) * backpackSeparatorWidth, backpackFieldHeight * sizeY + (sizeY - 1) * backpackSeparatorHeight, false, false);
 		TextureManager::UnbindTexture(true);
 	}
 }
@@ -358,7 +358,7 @@ void InventoryCanvas::drawItemTooltip(int mouseX, int mouseY) {
 
 						// if this is the first (or only) item we're going to draw in the compare we check where it will fit.
 						if (firstItemCompared == false) {
-							if (ViewPort::get().getWidth() - (mouseX + tooltipItem->getTooltip()->getTooltipWidth() + 60) > equippedItems[curItem]->getTooltip()->getTooltipWidth()) {
+							if (ViewPort::Get().getWidth() - (mouseX + tooltipItem->getTooltip()->getTooltipWidth() + 60) > equippedItems[curItem]->getTooltip()->getTooltipWidth()) {
 								thisTooltipPosX = mouseX + tooltipItem->getTooltip()->getTooltipWidth() + 30;
 							}
 							else {
@@ -428,7 +428,7 @@ void InventoryCanvas::processInput() {
 
 			for (size_t curSlotNr = 0; curSlotNr < static_cast<size_t>(Enums::ItemSlot::COUNTIS); ++curSlotNr) {
 				Enums::ItemSlot curSlotEnum = static_cast<Enums::ItemSlot>(curSlotNr);
-				if (isOverSlot(curSlotEnum, ViewPort::get().getCursorPosRelX(), ViewPort::get().getCursorPosRelY())) {
+				if (isOverSlot(curSlotEnum, ViewPort::Get().getCursorPosRelX(), ViewPort::Get().getCursorPosRelY())) {
 					if (floatingSelectionToHandle != NULL && floatingSelectionToHandle->canPlayerUseItem(*m_player) == true) {
 						if (floatingSelectionToHandle->getItem()->getEquipPosition() == Inventory::getEquipType(curSlotEnum)) {
 							// special handler for when we are trying to wield a two-handed weapon and having items in BOTH mainhand and offhand-slot equipped.
@@ -460,13 +460,13 @@ void InventoryCanvas::processInput() {
 				}
 			}
 
-			if (!isOnBackpackScreen(ViewPort::get().getCursorPosRelX(), ViewPort::get().getCursorPosRelY())) {
+			if (!isOnBackpackScreen(ViewPort::Get().getCursorPosRelX(), ViewPort::Get().getCursorPosRelY())) {
 				return;
 			}
 		}
 		// calculate field index under mouse
-		int fieldIndexX = (ViewPort::get().getCursorPosRelX() - (m_posX + backpackOffsetX)) / (backpackFieldWidth + backpackSeparatorWidth);
-		int fieldIndexY = (ViewPort::get().getCursorPosRelY() - (m_posY + backpackOffsetY)) / (backpackFieldHeight + backpackSeparatorHeight);
+		int fieldIndexX = (ViewPort::Get().getCursorPosRelX() - (m_posX + backpackOffsetX)) / (backpackFieldWidth + backpackSeparatorWidth);
+		int fieldIndexY = (ViewPort::Get().getCursorPosRelY() - (m_posY + backpackOffsetY)) / (backpackFieldHeight + backpackSeparatorHeight);
 
 		if (mouse.buttonPressed(Mouse::BUTTON_RIGHT)) {
 			if (!inventory->isPositionFree(fieldIndexX, fieldIndexY)) {
@@ -592,7 +592,7 @@ void InventoryCanvas::processInput() {
 }
 
 void InventoryCanvas::setTextureDependentPositions() {
-	m_posX = ViewPort::get().getWidth() - m_textures[0].width - 50;
+	m_posX = ViewPort::Get().getWidth() - m_textures[0].width - 50;
 }
 
 void InventoryCanvas::dropItemOnGround(InventoryItem* inventoryItem) {

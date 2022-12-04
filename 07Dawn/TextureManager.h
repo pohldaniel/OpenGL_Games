@@ -40,7 +40,7 @@ struct TextureAtlasCreator {
 
 public:	
 
-	static TextureAtlasCreator& get() {
+	static TextureAtlasCreator& Get() {
 		return s_instance;
 	}
 

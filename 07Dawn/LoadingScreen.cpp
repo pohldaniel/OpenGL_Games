@@ -7,20 +7,20 @@ LoadingScreen::LoadingScreen(StateMachine& machine) : State(machine, CurrentStat
 		return;
 	}
 
-	TextureAtlasCreator::get().init("loadingscreen", 1024, 1024);
+	TextureAtlasCreator::Get().init("loadingscreen", 1024, 1024);
 
 	TextureManager::Loadimage("res/interface/LoadingScreen/SilverForest.tga", 0, m_backgroundTextures);
 	TextureManager::Loadimage("res/interface/LoadingScreen/BelemarMountains.tga", 1, m_backgroundTextures);
 	TextureManager::Loadimage("res/lifebar.tga", 2, m_backgroundTextures);
-	m_textureAtlas = TextureAtlasCreator::get().getAtlas();
+	m_textureAtlas = TextureAtlasCreator::Get().getAtlas();
 	
 	// randomly choose background and calculate positions for the background
 	m_backgroundToDraw = RNG::randomInt(0, 1);
 
 	m_width = m_backgroundTextures[m_backgroundToDraw].width;
 	m_height = m_backgroundTextures[m_backgroundToDraw].height;
-	m_posX = (static_cast<short>(ViewPort::get().getWidth()) - m_width) / 2;
-	m_posY = (static_cast<short>(ViewPort::get().getHeight()) - m_height) / 2;
+	m_posX = (static_cast<short>(ViewPort::Get().getWidth()) - m_width) / 2;
+	m_posY = (static_cast<short>(ViewPort::Get().getHeight()) - m_height) / 2;
 
 	m_curText = "";
 	m_progress = 0.0;
@@ -51,8 +51,8 @@ void LoadingScreen::render(unsigned int &frameBuffer) {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	glEnable(GL_BLEND);
 
-	int progressBarWidth = static_cast<int>(ViewPort::get().getWidth()) / 2;
-	int progressBarPosX = (static_cast<int>(ViewPort::get().getWidth()) - progressBarWidth) / 2;
+	int progressBarWidth = static_cast<int>(ViewPort::Get().getWidth()) / 2;
+	int progressBarPosX = (static_cast<int>(ViewPort::Get().getWidth()) - progressBarWidth) / 2;
 	int progressBarPosY = 20;
 
 	TextureManager::BindTexture(m_textureAtlas, true);

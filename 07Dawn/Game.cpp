@@ -21,13 +21,13 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_player
 	LuaFunctions::executeLuaFile("res/_lua/mobdata_wolf.lua");
 	LuaFunctions::executeLuaFile("res/_lua/itemdatabase.lua");
 
-	DialogCanvas::initTextures();
+	DialogCanvas::Init();
 	ShopCanvas::Get().init();
 	QuestCanvas::Get().init();
 	Interface::Get().init();
-	//DawnInterface::enterZone("res/_lua/zone1", 512, 400);
+	DawnInterface::enterZone("res/_lua/zone1", 512, 400);
 	//DawnInterface::enterZone("res/_lua/zone1", 747, 1530);	
-	DawnInterface::enterZone("res/_lua/arinoxGeneralShop", -158, 0);
+	//DawnInterface::enterZone("res/_lua/arinoxGeneralShop", -158, 0);
 	
 	LuaFunctions::executeLuaFile("res/_lua/gameinit.lua");
 	DawnInterface::clearLogWindow();
@@ -46,7 +46,7 @@ void Game::fixedUpdate() {
 }
 
 void Game::update() {
-	//ViewPort::get().update(m_dt);
+	//ViewPort::Get().update(m_dt);
 
 	processInput();
 	Interface::Get().processInputRightDrag();
@@ -80,14 +80,22 @@ void Game::update() {
 		npc->update(m_dt);	
 	}
 
+	m_player.update(m_dt);
+
 	// check all active spells for inEffects on our player.
 	std::vector<SpellActionBase*> activeSpellActions = m_player.getActiveSpells();
 	for (size_t curActiveSpellNr = 0; curActiveSpellNr < activeSpellActions.size(); ++curActiveSpellNr) {
 		activeSpellActions[curActiveSpellNr]->inEffect(m_dt);
 	}
 
-	m_player.update(m_dt);
-	ViewPort::get().setPosition(Player::Get().getPosition());
+	std::vector<InteractionRegion*> interactionRegions = ZoneManager::Get().getCurrentZone()->getInteractionRegions();
+	for (size_t curInteractionRegionNr = 0; curInteractionRegionNr<interactionRegions.size(); ++curInteractionRegionNr){
+		InteractionRegion* curInteractionRegion = interactionRegions[curInteractionRegionNr];
+		curInteractionRegion->interactWithPlayer(m_player);
+	}
+
+
+	ViewPort::Get().setPosition(Player::Get().getPosition());
 
 	
 }
@@ -141,11 +149,11 @@ void Game::render(unsigned int &frameBuffer) {
 		}
 	}
 
-	ZoneManager::Get().getCurrentZone()->getGroundLoot()->drawTooltip(ViewPort::get().getCursorPosX(), ViewPort::get().getCursorPosY());
+	ZoneManager::Get().getCurrentZone()->getGroundLoot()->drawTooltip(ViewPort::Get().getCursorPosX(), ViewPort::Get().getCursorPosY());
 
 	for (size_t curInteractionNr = 0; curInteractionNr<zoneInteractionPoints.size(); ++curInteractionNr){
 		InteractionPoint *curInteraction = zoneInteractionPoints[curInteractionNr];
-		curInteraction->drawInteractionSymbol(ViewPort::get().getCursorPosX(), ViewPort::get().getCursorPosY(), m_player.getXPos(), m_player.getYPos());	
+		curInteraction->drawInteractionSymbol(ViewPort::Get().getCursorPosX(), ViewPort::Get().getCursorPosY(), m_player.getXPos(), m_player.getYPos());	
 	}
 
 	for (auto it = TextWindow::GetTextWindows().begin(); it != TextWindow::GetTextWindows().end(); ++it) {
@@ -173,13 +181,13 @@ void Game::processInput() {
 	Mouse &mouse = Mouse::instance();
 	Keyboard &keyboard = Keyboard::instance();
 	if (mouse.buttonPressed(Mouse::BUTTON_LEFT)) {
-		ZoneManager::Get().getCurrentZone()->getGroundLoot()->searchForItems(ViewPort::get().getCursorPosX(), ViewPort::get().getCursorPosY());
+		ZoneManager::Get().getCurrentZone()->getGroundLoot()->searchForItems(ViewPort::Get().getCursorPosX(), ViewPort::Get().getCursorPosY());
 		// get and iterate through the NPCs
 		std::vector<Npc*> zoneNPCs = ZoneManager::Get().getCurrentZone()->getNPCs();
 		for (unsigned int x = 0; x < zoneNPCs.size(); x++) {
 			Npc* curNPC = zoneNPCs[x];
 			// is the mouse over a NPC and no AoE spell is being prepared?
-			if (curNPC->CheckMouseOver(ViewPort::get().getCursorPosX(), ViewPort::get().getCursorPosY())) {
+			if (curNPC->CheckMouseOver(ViewPort::Get().getCursorPosX(), ViewPort::Get().getCursorPosY())) {
 				// is the NPC friendly?
 				if (!curNPC->getAttitude() == Enums::Attitude::FRIENDLY) {
 					// set a target if the player has none
@@ -197,7 +205,7 @@ void Game::processInput() {
 	}
 
 	if (keyboard.keyPressed(Keyboard::KEY_F)) {
-		Message::Get().addText(ViewPort::get().getWidth() / 2, ViewPort::get().getHeight() / 2, 1.0f, 0.625f, 0.71f, 1.0f, 15u, 3.0f, "Zone saved ...");
+		Message::Get().addText(ViewPort::Get().getWidth() / 2, ViewPort::Get().getHeight() / 2, 1.0f, 0.625f, 0.71f, 1.0f, 15u, 3.0f, "Zone saved ...");
 		return;
 	}
 
@@ -211,7 +219,7 @@ void Game::processInput() {
 	std::vector<InteractionPoint*> zoneInteractionPoints = ZoneManager::Get().getCurrentZone()->getInteractionPoints();
 	for (size_t curInteractionNr = 0; curInteractionNr< zoneInteractionPoints.size(); ++curInteractionNr) {
 		InteractionPoint *curInteraction = zoneInteractionPoints[curInteractionNr];
-		curInteraction->processInput(ViewPort::get().getCursorPosX(), ViewPort::get().getCursorPosY(), m_player.getXPos(), m_player.getYPos());
+		curInteraction->processInput(ViewPort::Get().getCursorPosX(), ViewPort::Get().getCursorPosY(), m_player.getXPos(), m_player.getYPos());
 	}
 
 	for (auto it = TextWindow::GetTextWindows().begin(); it != TextWindow::GetTextWindows().end(); ++it) {

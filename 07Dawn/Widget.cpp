@@ -3,9 +3,9 @@
 Widget::Widget(short posX, short posY, short width, short height, short offsetX, short offsetY) : m_posX(posX), m_posY(posY), m_width(width), m_height(height), m_offsetX(offsetX), m_offsetY(offsetY) {
 
 	//To create the singeltons on startup the HEIGHT has to be known
-	//Don't use ViewPort::get().getHeight()
+	//Don't use ViewPort::Get().getHeight()
 	if(static_cast<unsigned short>(m_posY + m_height) > HEIGHT) {
-		m_posY = ViewPort::get().getHeight() - m_height;
+		m_posY = ViewPort::Get().getHeight() - m_height;
 	}
 }
 
@@ -80,9 +80,9 @@ bool Widget::isMouseOnTitlebar(int mouseX, int mouseY) const {
 	}
 
 	if (mouseX < m_posX + m_titleOffsetX
-		|| mouseY <  static_cast<int>(ViewPort::get().getHeight()) - (m_posY + m_titleOffsetY + m_titleHeight)
+		|| mouseY <  static_cast<int>(ViewPort::Get().getHeight()) - (m_posY + m_titleOffsetY + m_titleHeight)
 		|| mouseX > m_posX + m_titleOffsetX + m_titleWidth
-		|| mouseY > static_cast<int>(ViewPort::get().getHeight()) - (m_posY + m_titleOffsetY)) {
+		|| mouseY > static_cast<int>(ViewPort::Get().getHeight()) - (m_posY + m_titleOffsetY)) {
 		return false;
 	}
 	return true;
@@ -95,9 +95,9 @@ bool Widget::isMouseOnCloseButton(int mouseX, int mouseY) const {
 	}
 
 	if (mouseX < m_posX + m_buttonOffsetX
-		|| mouseY < static_cast<int>(ViewPort::get().getHeight()) - (m_posY + m_buttonOffsetY + m_buttonHeight)
+		|| mouseY < static_cast<int>(ViewPort::Get().getHeight()) - (m_posY + m_buttonOffsetY + m_buttonHeight)
 		|| mouseX > m_posX + m_buttonOffsetX + m_buttonWidth
-		|| mouseY > static_cast<int>(ViewPort::get().getHeight()) - (m_posY + m_buttonOffsetY)) {
+		|| mouseY > static_cast<int>(ViewPort::Get().getHeight()) - (m_posY + m_buttonOffsetY)) {
 		return false;
 	}
 	return true;
@@ -109,9 +109,9 @@ bool Widget::isMouseOnFrame(int mouseX, int mouseY) const {
 	}
 
 	if (mouseX < m_posX + m_offsetX
-		|| mouseY < static_cast<int>(ViewPort::get().getHeight()) - (m_posY + m_offsetY + m_height)
+		|| mouseY < static_cast<int>(ViewPort::Get().getHeight()) - (m_posY + m_offsetY + m_height)
 		|| mouseX >  m_posX + m_offsetX + m_width
-		|| mouseY >  static_cast<int>(ViewPort::get().getHeight()) - (m_posY + m_offsetY)) {
+		|| mouseY >  static_cast<int>(ViewPort::Get().getHeight()) - (m_posY + m_offsetY)) {
 		return false;
 	}
 
@@ -120,14 +120,14 @@ bool Widget::isMouseOnFrame(int mouseX, int mouseY) const {
 
 void Widget::moveFrame(int mouseX, int mouseY) {
 
-	m_posX = (mouseX < 0 || mouseX >  static_cast<int>(ViewPort::get().getWidth())) ? m_posX : m_posX + mouseX - m_startMovingXpos;
+	m_posX = (mouseX < 0 || mouseX >  static_cast<int>(ViewPort::Get().getWidth())) ? m_posX : m_posX + mouseX - m_startMovingXpos;
 	m_posY -= mouseY - m_startMovingYpos;
 
-	m_posX = (std::max)(-m_titleWidth + 11, (std::min)(static_cast<int>(m_posX), static_cast<int>(ViewPort::get().getWidth()) - 33));
-	m_posY = (std::max)(-m_titleOffsetY, (std::min)(static_cast<int>(m_posY), static_cast<int>(ViewPort::get().getHeight()) - (m_titleOffsetY + m_titleHeight)));
+	m_posX = (std::max)(-m_titleWidth + 11, (std::min)(static_cast<int>(m_posX), static_cast<int>(ViewPort::Get().getWidth()) - 33));
+	m_posY = (std::max)(-m_titleOffsetY, (std::min)(static_cast<int>(m_posY), static_cast<int>(ViewPort::Get().getHeight()) - (m_titleOffsetY + m_titleHeight)));
 
-	m_startMovingXpos = (std::max)(0, (std::min)(mouseX, static_cast<int>(ViewPort::get().getWidth())));
-	m_startMovingYpos = (std::max)(0, (std::min)(mouseY, static_cast<int>(ViewPort::get().getHeight())));
+	m_startMovingXpos = (std::max)(0, (std::min)(mouseX, static_cast<int>(ViewPort::Get().getWidth())));
+	m_startMovingYpos = (std::max)(0, (std::min)(mouseY, static_cast<int>(ViewPort::Get().getHeight())));
 }
 
 void Widget::stopMovingFrame() {
@@ -206,7 +206,7 @@ void Widget::setVisible(bool visible) {
 
 void Widget::resize(int deltaW, int deltaH) {
 	//top right corner
-	if (m_posX + m_titleWidth > static_cast<int>(ViewPort::get().getWidth()) && deltaW < 0)
+	if (m_posX + m_titleWidth > static_cast<int>(ViewPort::Get().getWidth()) && deltaW < 0)
 		m_posX += deltaW;
 
 	if (deltaH < 0 && m_posY > 0) {

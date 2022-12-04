@@ -1152,7 +1152,7 @@ void Character::giveToPreparation(SpellActionBase *toPrepare) {
 
 void Character::addDamageDisplayToGUI(int amount, bool critical, uint8_t damageType) {
 	if (m_isPlayer) {
-		Interface::Get().addCombatText(amount, critical, damageType, 140, ViewPort::get().getHeight() - 40, true);
+		Interface::Get().addCombatText(amount, critical, damageType, 140, ViewPort::Get().getHeight() - 40, true);
 	}
 	else {
 		Interface::Get().addCombatText(amount, critical, damageType, getXPos() + getWidth() / 2, getYPos() + getHeight() + 52, false);

@@ -25,8 +25,8 @@ void Label::draw(std::string text) {
 
 void Label::processInput() {
 
-	if (ViewPort::get().getCursorPosRelX() > m_parentWidget->getPosX() + getPosX() + 5 && ViewPort::get().getCursorPosRelX() < m_parentWidget->getPosX() + getPosX() + getWidth() &&
-		ViewPort::get().getCursorPosRelY() > m_parentWidget->getPosY() + getPosY() && ViewPort::get().getCursorPosRelY() < m_parentWidget->getPosY() + getPosY() + getHeight()) {
+	if (ViewPort::Get().getCursorPosRelX() > m_parentWidget->getPosX() + getPosX() + 5 && ViewPort::Get().getCursorPosRelX() < m_parentWidget->getPosX() + getPosX() + getWidth() &&
+		ViewPort::Get().getCursorPosRelY() > m_parentWidget->getPosY() + getPosY() && ViewPort::Get().getCursorPosRelY() < m_parentWidget->getPosY() + getPosY() + getHeight()) {
 
 		activeColor = hoverColor;
 		if (Mouse::instance().buttonPressed(Mouse::MouseButton::BUTTON_LEFT) && m_fun) {

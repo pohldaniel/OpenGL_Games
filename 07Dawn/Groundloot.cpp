@@ -45,11 +45,11 @@ void sGroundItems::loadTooltip() {
 GroundLoot::GroundLoot(Player *player_) : player(player_), drawTooltips(false) {
 	m_font = &Globals::fontManager.get("verdana_11");
 
-	TextureAtlasCreator::get().init("groundloot", 1024, 1024);
+	TextureAtlasCreator::Get().init("groundloot", 1024, 1024);
 	TextureManager::Loadimage("res/interface/tooltip/groundloot_background.tga", 0, m_textures);
 	TextureManager::Loadimage("res/interface/tooltip/groundloot_left.tga", 1, m_textures);
 	TextureManager::Loadimage("res/interface/tooltip/groundloot_right.tga", 2, m_textures);
-	m_textureAtlas = TextureAtlasCreator::get().getAtlas();
+	m_textureAtlas = TextureAtlasCreator::Get().getAtlas();
 }
 
 GroundLoot::~GroundLoot() {

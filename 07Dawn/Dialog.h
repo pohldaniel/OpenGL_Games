@@ -13,16 +13,16 @@ struct DialogCanvas {
 	friend class ItemTooltip;
 	friend class TextWindow;
 
-	static void initTextures();
+	static void Init();
 
 private:
 	
-	static void drawCanvas(int left, int bottom, int colummns, int rows, int tileWidth, int tileHeight, bool updateView = false, bool drawInChunk = false);
-	static int calculateNeededBlockWidth(int width, int tileWidth);
-	static int calculateNeededBlockHeight(int height, int tileHeight);
+	static void DrawCanvas(int left, int bottom, int colummns, int rows, int tileWidth, int tileHeight, bool updateView = false, bool drawInChunk = false);
+	static int CalculateNeededBlockWidth(int width, int tileWidth);
+	static int CalculateNeededBlockHeight(int height, int tileHeight);
 
-	static unsigned int textureAtlas;
-	static std::vector<TextureRect> m_textureBases;
+	static unsigned int TextureAtlas;
+	static std::vector<TextureRect> TextureBases;
 };
 
 class Dialog : public Widget {

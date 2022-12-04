@@ -1,6 +1,6 @@
 /*
 ** Lua binding: Luainterface
-** Generated automatically by tolua++-1.0.92 on Fri Dec  2 18:41:33 2022.
+** Generated automatically by tolua++-1.0.92 on Sun Dec  4 17:31:44 2022.
 */
 
 #ifndef __cplusplus
@@ -3600,9 +3600,9 @@ static int tolua_Luainterface_InteractionRegion_setOnLeaveText00(lua_State* tolu
 }
 #endif //#ifndef TOLUA_DISABLE
 
-/* method: get of class  TextureAtlasCreator */
-#ifndef TOLUA_DISABLE_tolua_Luainterface_TextureAtlasCreator_get00
-static int tolua_Luainterface_TextureAtlasCreator_get00(lua_State* tolua_S)
+/* method: Get of class  TextureAtlasCreator */
+#ifndef TOLUA_DISABLE_tolua_Luainterface_TextureAtlasCreator_Get00
+static int tolua_Luainterface_TextureAtlasCreator_Get00(lua_State* tolua_S)
 {
 #ifndef TOLUA_RELEASE
 	tolua_Error tolua_err;
@@ -3615,14 +3615,14 @@ static int tolua_Luainterface_TextureAtlasCreator_get00(lua_State* tolua_S)
 #endif
 	{
 		{
-			TextureAtlasCreator& tolua_ret = (TextureAtlasCreator&)TextureAtlasCreator::get();
+			TextureAtlasCreator& tolua_ret = (TextureAtlasCreator&)TextureAtlasCreator::Get();
 			tolua_pushusertype(tolua_S, (void*)&tolua_ret, "TextureAtlasCreator");
 		}
 	}
 	return 1;
 #ifndef TOLUA_RELEASE
 	tolua_lerror :
-				 tolua_error(tolua_S, "#ferror in function 'get'.", &tolua_err);
+				 tolua_error(tolua_S, "#ferror in function 'Get'.", &tolua_err);
 				 return 0;
 #endif
 }
@@ -6556,7 +6556,7 @@ TOLUA_API int tolua_Luainterface_open(lua_State* tolua_S)
 	tolua_endmodule(tolua_S);
 	tolua_cclass(tolua_S, "TextureAtlasCreator", "TextureAtlasCreator", "", NULL);
 	tolua_beginmodule(tolua_S, "TextureAtlasCreator");
-	tolua_function(tolua_S, "get", tolua_Luainterface_TextureAtlasCreator_get00);
+	tolua_function(tolua_S, "Get", tolua_Luainterface_TextureAtlasCreator_Get00);
 	tolua_function(tolua_S, "init", tolua_Luainterface_TextureAtlasCreator_init00);
 	tolua_function(tolua_S, "addFrame", tolua_Luainterface_TextureAtlasCreator_addFrame00);
 	tolua_function(tolua_S, "getAtlas", tolua_Luainterface_TextureAtlasCreator_getAtlas00);

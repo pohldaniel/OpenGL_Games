@@ -18,7 +18,7 @@ void CharacterInfo::setPlayer(Player* player) {
 void CharacterInfo::init() {
 	m_infoFont = &Globals::fontManager.get("verdana_12");
 
-	TextureAtlasCreator::get().init("infoscreen", 1024, 1024);
+	TextureAtlasCreator::Get().init("infoscreen", 1024, 1024);
 
 	TextureManager::Loadimage("res/interface/CharacterInfoScreen/background.tga", 0, m_textures);
 	TextureManager::Loadimage("res/white2x2pixel.png", 1, m_textures, true);
@@ -26,7 +26,7 @@ void CharacterInfo::init() {
 	TextureManager::Loadimage("res/interface/CharacterInfoScreen/defenseSelected.tga", 3, m_textures);
 	TextureManager::Loadimage("res/interface/CharacterInfoScreen/spellsSelected.tga", 4, m_textures);
 
-	m_textureAtlas = TextureAtlasCreator::get().getAtlas();
+	m_textureAtlas = TextureAtlasCreator::Get().getAtlas();
 
 	currentTab = 0;
 	tabs[0].tabimage = m_textures[2];
@@ -205,10 +205,10 @@ void CharacterInfo::processInput() {
 	Mouse &mouse = Mouse::instance();
 	if (mouse.buttonPressed(Mouse::BUTTON_LEFT)) {
 		for (size_t tabIndex = 0; tabIndex <= 2; tabIndex++) {
-			if (ViewPort::get().getCursorPosRelX() > tabs[tabIndex].posX + m_posX
-				&& ViewPort::get().getCursorPosRelY() > tabs[tabIndex].posY + m_posY
-				&& ViewPort::get().getCursorPosRelX() < tabs[tabIndex].posX + m_posX + tabs[tabIndex].width
-				&& ViewPort::get().getCursorPosRelY() < tabs[tabIndex].posY + m_posY + tabs[tabIndex].height) {
+			if (ViewPort::Get().getCursorPosRelX() > tabs[tabIndex].posX + m_posX
+				&& ViewPort::Get().getCursorPosRelY() > tabs[tabIndex].posY + m_posY
+				&& ViewPort::Get().getCursorPosRelX() < tabs[tabIndex].posX + m_posX + tabs[tabIndex].width
+				&& ViewPort::Get().getCursorPosRelY() < tabs[tabIndex].posY + m_posY + tabs[tabIndex].height) {
 				currentTab = tabIndex;
 			}
 		}

@@ -3,7 +3,7 @@
 
 #include "Luainterface.h"
 
-class InteractionRegion{
+class InteractionRegion {
 public:
 	
 
@@ -13,7 +13,7 @@ public:
 	std::string getOnEnterText() const;
 	void setOnLeaveText(std::string leaveCode);
 	std::string getOnLeaveText() const;
-	//void interactWithPlayer(Player *player);
+	void interactWithPlayer(Player& player);
 
 	std::string getLuaSaveText() const;
 

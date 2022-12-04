@@ -41,7 +41,7 @@ TextureRect& TextureCache::getTextureFromCache(std::string filename, unsigned in
 	textures[{TextureAtlasCreator::s_instance.name, filename}].textureHeight = 1.0f;
 
 	unsigned char* bytes = tex.readPixel();
-	TextureAtlasCreator::get().addTexture(textures[{TextureAtlasCreator::s_instance.name, filename}], reinterpret_cast<char*>(bytes), tex.getWidth(), tex.getHeight(), maxWidth, maxHeight, paddingLeft, paddingTop);
+	TextureAtlasCreator::Get().addTexture(textures[{TextureAtlasCreator::s_instance.name, filename}], reinterpret_cast<char*>(bytes), tex.getWidth(), tex.getHeight(), maxWidth, maxHeight, paddingLeft, paddingTop);
 	free(bytes);
 
 	return textures[{TextureAtlasCreator::s_instance.name, filename}];
@@ -175,7 +175,7 @@ void TextureManager::SetShader(Shader* shader) {
 }
 
 bool TextureManager::IsRectOnScreen(int left, int width, int bottom, int height) {
-	ViewPort& viewPort = ViewPort::get();
+	ViewPort& viewPort = ViewPort::Get();
 	float _left = viewPort.getLeft();
 	float _right = viewPort.getRight();
 	float _bottom = viewPort.getBottom();

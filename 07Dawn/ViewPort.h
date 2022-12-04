@@ -4,9 +4,9 @@
 #include "engine/Camera.h"
 
 class ViewPort {
+
 public:
 	
-	static ViewPort& get();
 	void init(unsigned int width, unsigned int height);
 	void update(float dt);
 	Camera& getCamera();
@@ -28,6 +28,8 @@ public:
 	unsigned int getHeight();
 
 	void setPosition(Vector3f& position);
+
+	static ViewPort& Get();
 
 private:
 	ViewPort();

@@ -112,7 +112,7 @@ void TextWindow::setPosition(Enums::PositionType positionType, int x, int y) {
 
 void TextWindow::center() {
 	this->positionType = Enums::PositionType::CENTER;
-	this->x = ViewPort::get().getWidth() / 2;
+	this->x = ViewPort::Get().getWidth() / 2;
 	this->y = 280;
 
 	updateFramesPosition();
@@ -189,7 +189,7 @@ bool TextWindow::isMouseOnFrame(int mouseX, int mouseY) const {
 void TextWindow::processInput() {
 	Mouse &mouse = Mouse::instance();
 	
-	if (mouse.buttonDown(Mouse::BUTTON_LEFT) && isMouseOnFrame(ViewPort::get().getCursorPosX(), ViewPort::get().getCursorPosY())) {
+	if (mouse.buttonDown(Mouse::BUTTON_LEFT) && isMouseOnFrame(ViewPort::Get().getCursorPosX(), ViewPort::Get().getCursorPosY())) {
 		explicitClose = true;
 	}
 }
@@ -240,11 +240,11 @@ void TextWindow::draw() {
 			break;
 	}
 	
-	leftX += ViewPort::get().getLeft();
-	bottomY += ViewPort::get().getBottom();
+	leftX += ViewPort::Get().getLeft();
+	bottomY += ViewPort::Get().getBottom();
 
 	// draw the frame
-	DialogCanvas::drawCanvas(leftX, bottomY, neededInnerBlocksX, neededInnerBlocksY, blockSizeX, blockSizeY, true);
+	DialogCanvas::DrawCanvas(leftX, bottomY, neededInnerBlocksX, neededInnerBlocksY, blockSizeX, blockSizeY, true);
 	// draw the text
 	int curX = leftX + blockSizeX;
 	int curY = bottomY + neededInnerBlocksY * blockSizeY + Font.lineHeight;

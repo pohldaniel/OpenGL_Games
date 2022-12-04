@@ -372,7 +372,7 @@ class InteractionRegion {
 };
 
 struct TextureAtlasCreator {
-	static TextureAtlasCreator& get();
+	static TextureAtlasCreator& Get();
 	void init(std::string name, unsigned int width = 1024u, unsigned int height = 1024u);
 	void addFrame();
 	unsigned int getAtlas();

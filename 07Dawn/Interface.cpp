@@ -46,7 +46,7 @@ void Interface::init() {
 	m_button.push_back({ 502, 14, 46, 46, "9", Keyboard::Key::KEY_9 });
 	m_button.push_back({ 562, 14, 46, 46, "0", Keyboard::Key::KEY_0 });
 
-	m_actionBarPosX = ViewPort::get().getWidth() - 630;
+	m_actionBarPosX = ViewPort::Get().getWidth() - 630;
 	m_actionBarPosY = 0;
 	m_preparingAoESpell = false;
 
@@ -213,7 +213,7 @@ void Interface::init() {
 
 void Interface::loadTextures() {
 
-	TextureAtlasCreator::get().init("interface", 1024, 1024);
+	TextureAtlasCreator::Get().init("interface", 1024, 1024);
 
 	TextureManager::Loadimage("res/lifebar.tga", 0, m_interfacetexture);
 	TextureManager::Loadimage("res/interface/tooltip/NPCTarget_background.tga", 1, m_interfacetexture);
@@ -246,7 +246,7 @@ void Interface::loadTextures() {
 	TextureManager::Loadimage("res/interface/spellbook/arrow_right.tga", 24, m_interfacetexture);
 	TextureManager::Loadimage("res/interface/spellbook/arrow_left.tga", 25, m_interfacetexture);
 
-	TextureAtlasCreator::get().addFrame();
+	TextureAtlasCreator::Get().addFrame();
 	TextureManager::Loadimage("res/interface/combattext/0small.tga", 0, m_damageDisplayTexturesSmall);
 	TextureManager::Loadimage("res/interface/combattext/1small.tga", 1, m_damageDisplayTexturesSmall);
 	TextureManager::Loadimage("res/interface/combattext/2small.tga", 2, m_damageDisplayTexturesSmall);
@@ -257,7 +257,7 @@ void Interface::loadTextures() {
 	TextureManager::Loadimage("res/interface/combattext/7small.tga", 7, m_damageDisplayTexturesSmall);
 	TextureManager::Loadimage("res/interface/combattext/8small.tga", 8, m_damageDisplayTexturesSmall);
 	TextureManager::Loadimage("res/interface/combattext/9small.tga", 9, m_damageDisplayTexturesSmall);
-	TextureAtlasCreator::get().addFrame();
+	TextureAtlasCreator::Get().addFrame();
 	TextureManager::Loadimage("res/interface/combattext/0big.tga", 0, m_damageDisplayTexturesBig);
 	TextureManager::Loadimage("res/interface/combattext/1big.tga", 1, m_damageDisplayTexturesBig);
 	TextureManager::Loadimage("res/interface/combattext/2big.tga", 2, m_damageDisplayTexturesBig);
@@ -269,7 +269,7 @@ void Interface::loadTextures() {
 	TextureManager::Loadimage("res/interface/combattext/8big.tga", 8, m_damageDisplayTexturesBig);
 	TextureManager::Loadimage("res/interface/combattext/9big.tga", 9, m_damageDisplayTexturesBig);
 
-	m_textureAtlas = TextureAtlasCreator::get().getAtlas();
+	m_textureAtlas = TextureAtlasCreator::Get().getAtlas();
 	m_textureAtlas = Spritesheet::Merge(TextureManager::GetTextureAtlas("symbols"), m_textureAtlas);
 
 	glBindTexture(GL_TEXTURE_2D_ARRAY, m_textureAtlas);
@@ -294,7 +294,7 @@ void Interface::loadTextures() {
 }
 
 void Interface::resize(int deltaW, int deltaH) {
-	m_actionBarPosX = ViewPort::get().getWidth() - 630;
+	m_actionBarPosX = ViewPort::Get().getWidth() - 630;
 	m_spellbook.resize(deltaW, deltaH);
 	m_characterInfo.resize(deltaW, deltaH);
 	InventoryCanvas::Get().resize(deltaW, deltaH);
@@ -307,8 +307,8 @@ void Interface::draw() {
 	TextureManager::SetShader(Globals::shaderManager.getAssetPointer("batch_font"));
 	Fontrenderer::Get().setRenderer(&Batchrenderer::Get());
 
-	TextureManager::DrawTextureBatched(m_interfacetexture[14], 4, ViewPort::get().getHeight() - 68, false, false);
-	TextureManager::DrawTextureBatched(m_interfacetexture[11], 0, 50 + ViewPort::get().getHeight() - m_interfacetexture[11].height, false, false);
+	TextureManager::DrawTextureBatched(m_interfacetexture[14], 4, ViewPort::Get().getHeight() - 68, false, false);
+	TextureManager::DrawTextureBatched(m_interfacetexture[11], 0, 50 + ViewPort::Get().getHeight() - m_interfacetexture[11].height, false, false);
 
 	float lifeBarPercentage = static_cast<float>(m_player->getCurrentHealth()) / m_player->getModifiedMaxHealth();
 	float manaBarPercentage = static_cast<float>(m_player->getCurrentMana()) / m_player->getModifiedMaxMana();
@@ -318,10 +318,10 @@ void Interface::draw() {
 	float experienceBarPercentage = static_cast<float>(currentXP) / neededXP;
 
 	// health bar
-	TextureManager::DrawTextureBatched(m_interfacetexture[12], 76, ViewPort::get().getHeight() - 35, lifeBarPercentage * 123.0f, static_cast<float>(m_interfacetexture[12].height), Vector4f(0.815f, 0.16f, 0.16f, 1.0f), false, false);
+	TextureManager::DrawTextureBatched(m_interfacetexture[12], 76, ViewPort::Get().getHeight() - 35, lifeBarPercentage * 123.0f, static_cast<float>(m_interfacetexture[12].height), Vector4f(0.815f, 0.16f, 0.16f, 1.0f), false, false);
 	// mana bar
 	if (m_player->getArchType() == Enums::CharacterArchType::Caster) {
-		TextureManager::DrawTextureBatched(m_interfacetexture[12], 76, ViewPort::get().getHeight() - 53, manaBarPercentage * 123.0f, static_cast<float>(m_interfacetexture[12].height), Vector4f(0.16f, 0.576f, 0.815f, 1.0f), false, false);
+		TextureManager::DrawTextureBatched(m_interfacetexture[12], 76, ViewPort::Get().getHeight() - 53, manaBarPercentage * 123.0f, static_cast<float>(m_interfacetexture[12].height), Vector4f(0.16f, 0.576f, 0.815f, 1.0f), false, false);
 	}
 
 	// fatigue bar
@@ -337,16 +337,16 @@ void Interface::draw() {
 			color = Vector4f(0.917f, 0.047f, 0.047f, 1.0f);
 
 		}
-		TextureManager::DrawTextureBatched(m_interfacetexture[12], 76, ViewPort::get().getHeight() - 53, fatigueBarPercentage * 123.0f, static_cast<float>(m_interfacetexture[12].height), color, false, false);
+		TextureManager::DrawTextureBatched(m_interfacetexture[12], 76, ViewPort::Get().getHeight() - 53, fatigueBarPercentage * 123.0f, static_cast<float>(m_interfacetexture[12].height), color, false, false);
 	}
 
 	// fatigue bar
-	TextureManager::DrawTextureBatched(m_interfacetexture[13], 76, ViewPort::get().getHeight() - 67, experienceBarPercentage * 123.0f, static_cast<float>(m_interfacetexture[13].height), false, false);
+	TextureManager::DrawTextureBatched(m_interfacetexture[13], 76, ViewPort::Get().getHeight() - 67, experienceBarPercentage * 123.0f, static_cast<float>(m_interfacetexture[13].height), false, false);
 
 	if (m_player->getIsPreparing()) {
 		// actual castbar
-		TextureManager::DrawTextureBatched(m_interfacetexture[0], ViewPort::get().getWidth() / 2 - 50, 100, 100.0f, 20.0f, Vector4f(0.5f, 0.5f, 0.0f, 1.0f), false, false);
-		TextureManager::DrawTextureBatched(m_interfacetexture[0], ViewPort::get().getWidth() / 2 - 50, 100, 100.0f * m_player->getPreparationPercentage(), 20.0f, Vector4f(0.8f, 0.8f, 0.0f, 1.0f), false, false);
+		TextureManager::DrawTextureBatched(m_interfacetexture[0], ViewPort::Get().getWidth() / 2 - 50, 100, 100.0f, 20.0f, Vector4f(0.5f, 0.5f, 0.0f, 1.0f), false, false);
+		TextureManager::DrawTextureBatched(m_interfacetexture[0], ViewPort::Get().getWidth() / 2 - 50, 100, 100.0f * m_player->getPreparationPercentage(), 20.0f, Vector4f(0.8f, 0.8f, 0.0f, 1.0f), false, false);
 	}
 
 	//log window
@@ -356,7 +356,7 @@ void Interface::draw() {
 	}
 
 	/// draw our level beside the experience bar
-	Fontrenderer::Get().addText(*m_interfaceFont, 60 - m_interfaceFont->getWidth(Fontrenderer::Get().FloatToString(static_cast<float>(m_player->getLevel()), 0)) / 2, ViewPort::get().getHeight() - 70, Fontrenderer::Get().FloatToString(static_cast<float>(m_player->getLevel()), 0), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), false);
+	Fontrenderer::Get().addText(*m_interfaceFont, 60 - m_interfaceFont->getWidth(Fontrenderer::Get().FloatToString(static_cast<float>(m_player->getLevel()), 0)) / 2, ViewPort::Get().getHeight() - 70, Fontrenderer::Get().FloatToString(static_cast<float>(m_player->getLevel()), 0), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), false);
 
 	//buff effect (it seems meaningless to render this symbol as an additinal frame)
 	//TextureManager::BindTexture(m_shortcutFont->spriteSheet, false, 1);
@@ -367,28 +367,28 @@ void Interface::draw() {
 			// here we draw the border and background for the spells we have affecting us.
 			// healing and buffs will be drawn with a green border and debuffs or hostile spells with a red border..
 			Vector4f borderColor = m_activeSpells[curSpell]->isSpellHostile() == true ? Vector4f(0.7f, 0.0f, 0.0f, 1.0f) : Vector4f(0.0f, 0.7f, 0.0f, 1.0f);
-			TextureManager::DrawTextureBatched(m_interfacetexture[16], ViewPort::get().getWidth() - 204, ViewPort::get().getHeight() - 50 - 40 * curSpell, borderColor, false, false);
-			TextureManager::DrawTextureBatched(m_interfacetexture[18], ViewPort::get().getWidth() - 204 + 36, ViewPort::get().getHeight() - 50 - 40 * curSpell, 168.0f, 36.0f, false, false);
-			m_activeSpells[curSpell]->drawSymbol(ViewPort::get().getWidth() - 204 + 2, ViewPort::get().getHeight() - 50 - 40 * curSpell + 2, 32.0f, 32.0f, Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+			TextureManager::DrawTextureBatched(m_interfacetexture[16], ViewPort::Get().getWidth() - 204, ViewPort::Get().getHeight() - 50 - 40 * curSpell, borderColor, false, false);
+			TextureManager::DrawTextureBatched(m_interfacetexture[18], ViewPort::Get().getWidth() - 204 + 36, ViewPort::Get().getHeight() - 50 - 40 * curSpell, 168.0f, 36.0f, false, false);
+			m_activeSpells[curSpell]->drawSymbol(ViewPort::Get().getWidth() - 204 + 2, ViewPort::Get().getHeight() - 50 - 40 * curSpell + 2, 32.0f, 32.0f, Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
 
-			Fontrenderer::Get().addText(*m_shortcutFont, ViewPort::get().getWidth() - 204 + 40, ViewPort::get().getHeight() - 50 + 18 - 40 * curSpell, m_activeSpells[curSpell]->getName(), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), false);
-			Fontrenderer::Get().addText(*m_shortcutFont, ViewPort::get().getWidth() - 204 + 40, ViewPort::get().getHeight() - 50 + 8 - 40 * curSpell, Utils::ConvertTime(m_activeSpells[curSpell]->m_timer.getElapsedTimeSinceRestartSec(), m_activeSpells[curSpell]->getDuration()), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), false);
+			Fontrenderer::Get().addText(*m_shortcutFont, ViewPort::Get().getWidth() - 204 + 40, ViewPort::Get().getHeight() - 50 + 18 - 40 * curSpell, m_activeSpells[curSpell]->getName(), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), false);
+			Fontrenderer::Get().addText(*m_shortcutFont, ViewPort::Get().getWidth() - 204 + 40, ViewPort::Get().getHeight() - 50 + 8 - 40 * curSpell, Utils::ConvertTime(m_activeSpells[curSpell]->m_timer.getElapsedTimeSinceRestartSec(), m_activeSpells[curSpell]->getDuration()), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), false);
 		}
 	}
 
 
 	//action bar
-	//Vector4f barColor = isMouseOver(ViewPort::get().getCursorPosRelX(), ViewPort::get().getCursorPosRelY()) ? Vector4f(0.0f, 0.0f, 0.0f, 0.8f) : Vector4f(0.0f, 0.0f, 0.0f, 1.0f);
-	TextureManager::DrawTextureBatched(m_interfacetexture[18], ViewPort::get().getWidth() - 630, 0, 630.0f, 80.0f, false, false);
+	//Vector4f barColor = isMouseOver(ViewPort::Get().getCursorPosRelX(), ViewPort::Get().getCursorPosRelY()) ? Vector4f(0.0f, 0.0f, 0.0f, 0.8f) : Vector4f(0.0f, 0.0f, 0.0f, 1.0f);
+	TextureManager::DrawTextureBatched(m_interfacetexture[18], ViewPort::Get().getWidth() - 630, 0, 630.0f, 80.0f, false, false);
 	for (unsigned int buttonId = 0; buttonId < 10; buttonId++) {
 		Vector4f borderColor = (m_button[buttonId].action != NULL && m_player->getCurrentSpellActionName() == m_button[buttonId].action->getName()) ? Vector4f(0.8f, 0.8f, 0.8f, 1.0f) : Vector4f(0.4f, 0.4f, 0.4f, 1.0f);
-		TextureManager::DrawTextureBatched(m_interfacetexture[19], ViewPort::get().getWidth() - 610 + buttonId * 60, 12, 50.0f, 50.0f, borderColor, false, false);
+		TextureManager::DrawTextureBatched(m_interfacetexture[19], ViewPort::Get().getWidth() - 610 + buttonId * 60, 12, 50.0f, 50.0f, borderColor, false, false);
 		Fontrenderer::Get().addText(*m_shortcutFont, m_actionBarPosX + +20 + buttonId * 60 - 8, 54, m_button[buttonId].number.c_str(), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), false);
 	}
 
 	// draw the cursor if it's supposed to be drawn
 	if (isPreparingAoESpell() == true) {
-		TextureManager::DrawTextureBatched(m_interfacetexture[20], ViewPort::get().getCursorPosRelX() - m_cursorRadius, ViewPort::get().getCursorPosRelY() - m_cursorRadius, static_cast<float>(m_cursorRadius * 2), static_cast<float>(m_cursorRadius * 2), false, false);
+		TextureManager::DrawTextureBatched(m_interfacetexture[20], ViewPort::Get().getCursorPosRelX() - m_cursorRadius, ViewPort::Get().getCursorPosRelY() - m_cursorRadius, static_cast<float>(m_cursorRadius * 2), static_cast<float>(m_cursorRadius * 2), false, false);
 	}
 
 	m_cooldownSpells = m_player->getCooldownSpells();
@@ -407,12 +407,12 @@ void Interface::draw() {
 				}
 			}
 			
-			m_button[buttonId].action->drawSymbol(ViewPort::get().getWidth() - 608 + buttonId * 60, 14, 46.0f, 46.0f, useableSpell ? Vector4f(1.0f, 1.0f, 1.0f, 1.0f) : Vector4f(1.0f, 0.0f, 0.0f, 1.0f), false);
+			m_button[buttonId].action->drawSymbol(ViewPort::Get().getWidth() - 608 + buttonId * 60, 14, 46.0f, 46.0f, useableSpell ? Vector4f(1.0f, 1.0f, 1.0f, 1.0f) : Vector4f(1.0f, 0.0f, 0.0f, 1.0f), false);
 
 			if (drawCooldownText == true) {
 				
 				unsigned int xModifier = m_cooldownFont->getWidth(cooldownText);
-				Fontrenderer::Get().addText(*m_cooldownFont, ViewPort::get().getWidth() - 630 + 20 + buttonId * 60 + 6 + (50 - xModifier) / 2, 32, cooldownText, Vector4f(1.0f, 1.0f, 0.0f, 1.0f), false);
+				Fontrenderer::Get().addText(*m_cooldownFont, ViewPort::Get().getWidth() - 630 + 20 + buttonId * 60 + 6 + (50 - xModifier) / 2, 32, cooldownText, Vector4f(1.0f, 1.0f, 0.0f, 1.0f), false);
 			}
 		}
 	}
@@ -426,11 +426,11 @@ void Interface::draw() {
 	drawTargetedNPCText();
 	TextureManager::DrawBuffer();
 
-	drawSpellTooltip(ViewPort::get().getCursorPosRelX(), ViewPort::get().getCursorPosRelY());
+	drawSpellTooltip(ViewPort::Get().getCursorPosRelX(), ViewPort::Get().getCursorPosRelY());
 
 	
 
-	SpellActionBase *spellUnderMouse = getSpellAtMouse(ViewPort::get().getCursorPosRelX(), ViewPort::get().getCursorPosRelY());
+	SpellActionBase *spellUnderMouse = getSpellAtMouse(ViewPort::Get().getCursorPosRelX(), ViewPort::Get().getCursorPosRelY());
 	if (spellUnderMouse != NULL) {
 		if (m_tooltip != NULL) {
 			if (dynamic_cast<SpellTooltip*>(m_tooltip)->getParent() != spellUnderMouse) {
@@ -440,26 +440,26 @@ void Interface::draw() {
 		}else {
 			m_tooltip = new SpellTooltip(spellUnderMouse, m_player);
 		}
-		m_tooltip->draw(ViewPort::get().getCursorPosRelX(), ViewPort::get().getCursorPosRelY());
+		m_tooltip->draw(ViewPort::Get().getCursorPosRelX(), ViewPort::Get().getCursorPosRelY());
 	}
 
 	for (size_t curFrame = 0; curFrame < m_widgets.size(); curFrame++) {
 		m_widgets[curFrame]->draw();
 	}
 
-	ShopCanvas::Get().drawItemTooltip(ViewPort::get().getCursorPosRelX(), ViewPort::get().getCursorPosRelY());
+	ShopCanvas::Get().drawItemTooltip(ViewPort::Get().getCursorPosRelX(), ViewPort::Get().getCursorPosRelY());
 	//if (m_widgets.size() > 0) {
 	//	if (m_widgets.back() == &m_spellbook && !m_spellbook.hasFloatingSpell()) {
-	//		m_spellbook.drawSpellTooltip(ViewPort::get().getCursorPosRelX(), ViewPort::get().getCursorPosRelY());		
+	//		m_spellbook.drawSpellTooltip(ViewPort::Get().getCursorPosRelX(), ViewPort::Get().getCursorPosRelY());		
 	//	}else if (m_widgets.back() == &m_inventoryScreen) {
-	//		m_inventoryScreen.drawItemTooltip(ViewPort::get().getCursorPosRelX(), ViewPort::get().getCursorPosRelY());
+	//		m_inventoryScreen.drawItemTooltip(ViewPort::Get().getCursorPosRelX(), ViewPort::Get().getCursorPosRelY());
 	//	}
 	//}
 
 	if (!m_spellbook.hasFloatingSpell()) {
-		m_spellbook.drawSpellTooltip(ViewPort::get().getCursorPosRelX(), ViewPort::get().getCursorPosRelY());
+		m_spellbook.drawSpellTooltip(ViewPort::Get().getCursorPosRelX(), ViewPort::Get().getCursorPosRelY());
 	}
-	InventoryCanvas::Get().drawItemTooltip(ViewPort::get().getCursorPosRelX(), ViewPort::get().getCursorPosRelY());
+	InventoryCanvas::Get().drawItemTooltip(ViewPort::Get().getCursorPosRelX(), ViewPort::Get().getCursorPosRelY());
 	
 	Fontrenderer::Get().resetRenderer();
 	TextureManager::SetShader(Globals::shaderManager.getAssetPointer("batch"));
@@ -475,7 +475,7 @@ void Interface::draw() {
 void Interface::drawCursor(bool drawInGameCursor) {
 	if (drawInGameCursor) {
 		TextureManager::BindTexture(m_textureAtlas, true);
-		TextureManager::DrawTextureBatched(m_interfacetexture[15], ViewPort::get().getCursorPosX(), ViewPort::get().getCursorPosY() - 19, false, false);
+		TextureManager::DrawTextureBatched(m_interfacetexture[15], ViewPort::Get().getCursorPosX(), ViewPort::Get().getCursorPosY() - 19, false, false);
 		TextureManager::DrawBuffer();
 		TextureManager::UnbindTexture(true);
 	}
@@ -756,7 +756,7 @@ void Interface::processInput() {
 
 	Mouse &mouse = Mouse::instance();
 	if (mouse.buttonPressed(Mouse::BUTTON_LEFT)) {
-		m_lastMouseDown = std::pair<int, int>(ViewPort::get().getCursorPosRelX(), ViewPort::get().getCursorPosRelY());
+		m_lastMouseDown = std::pair<int, int>(ViewPort::Get().getCursorPosRelX(), ViewPort::Get().getCursorPosRelY());
 		m_buttonId = getMouseOverButtonId(m_lastMouseDown.first, m_lastMouseDown.second);
 
 		if (m_buttonId >= 0) {
@@ -797,7 +797,7 @@ void Interface::processInput() {
 	}
 
 	if (mouse.buttonDown(Mouse::BUTTON_LEFT)) {
-		if ((sqrt(pow(m_lastMouseDown.first - ViewPort::get().getCursorPosRelX(), 2) + pow(m_lastMouseDown.second - ViewPort::get().getCursorPosRelY(), 2)) > 5) /*&& !sPreparingAoESpell()*/) {
+		if ((sqrt(pow(m_lastMouseDown.first - ViewPort::Get().getCursorPosRelX(), 2) + pow(m_lastMouseDown.second - ViewPort::Get().getCursorPosRelY(), 2)) > 5) /*&& !sPreparingAoESpell()*/) {
 			if (m_buttonId >= 0) {
 				dragSpell(&m_button[m_buttonId]);
 			}
@@ -807,7 +807,7 @@ void Interface::processInput() {
 	if (mouse.buttonPressed(Mouse::BUTTON_RIGHT)) {
 
 		//remove buff effect
-		SpellActionBase *spellUnderMouse = getSpellAtMouse(ViewPort::get().getCursorPosRelX(), ViewPort::get().getCursorPosRelY());
+		SpellActionBase *spellUnderMouse = getSpellAtMouse(ViewPort::Get().getCursorPosRelX(), ViewPort::Get().getCursorPosRelY());
 		if (spellUnderMouse != NULL) {
 			if (spellUnderMouse->isSpellHostile() == false) {
 				m_player->removeActiveSpell(spellUnderMouse);
@@ -821,7 +821,7 @@ void Interface::processInput() {
 	}
 
 	if (isPreparingAoESpell()) {
-		makeReadyToCast(ViewPort::get().getCursorPosX(), ViewPort::get().getCursorPosY());
+		makeReadyToCast(ViewPort::Get().getCursorPosX(), ViewPort::Get().getCursorPosY());
 	}
 
 	if (m_spellQueue != NULL && (mouse.buttonUp(Mouse::BUTTON_LEFT) && !isPreparingAoESpell() || mouse.buttonPressed(Mouse::BUTTON_LEFT) && isPreparingAoESpell())) {
@@ -872,7 +872,7 @@ void Interface::processInputRightDrag() {
 	}
 	
 	if (mouse.buttonPressed(Mouse::BUTTON_LEFT)) {
-		m_buttonId = getMouseOverButtonId(ViewPort::get().getCursorPosRelX(), ViewPort::get().getCursorPosRelY());
+		m_buttonId = getMouseOverButtonId(ViewPort::Get().getCursorPosRelX(), ViewPort::Get().getCursorPosRelY());
 		
 		if (m_buttonId >= 0 && !widgetInteraction) {
 			// we clicked a button which has an action and has no floating spell on the mouse (we're launching an action from the actionbar)
@@ -916,11 +916,11 @@ void Interface::processInputRightDrag() {
 	}
 
 	if (mouse.buttonPressed(Mouse::BUTTON_RIGHT)) {
-		m_lastMouseDown = std::pair<int, int>(ViewPort::get().getCursorPosRelX(), ViewPort::get().getCursorPosRelY());
+		m_lastMouseDown = std::pair<int, int>(ViewPort::Get().getCursorPosRelX(), ViewPort::Get().getCursorPosRelY());
 		m_buttonId = getMouseOverButtonId(m_lastMouseDown.first, m_lastMouseDown.second);
 
 		//remove buff effect
-		SpellActionBase *spellUnderMouse = getSpellAtMouse(ViewPort::get().getCursorPosRelX(), ViewPort::get().getCursorPosRelY());
+		SpellActionBase *spellUnderMouse = getSpellAtMouse(ViewPort::Get().getCursorPosRelX(), ViewPort::Get().getCursorPosRelY());
 		if (spellUnderMouse != NULL) {
 			if (spellUnderMouse->isSpellHostile() == false) {
 				m_player->removeActiveSpell(spellUnderMouse);
@@ -939,7 +939,7 @@ void Interface::processInputRightDrag() {
 			canDrag &= !(*it)->isMouseOnFrame(mouse.xPosAbsolute(), mouse.yPosAbsolute());			
 		}
 
-		if (canDrag && (sqrt(pow(m_lastMouseDown.first - ViewPort::get().getCursorPosRelX(), 2) + pow(m_lastMouseDown.second - ViewPort::get().getCursorPosRelY(), 2)) > 5) /*&& !sPreparingAoESpell()*/) {
+		if (canDrag && (sqrt(pow(m_lastMouseDown.first - ViewPort::Get().getCursorPosRelX(), 2) + pow(m_lastMouseDown.second - ViewPort::Get().getCursorPosRelY(), 2)) > 5) /*&& !sPreparingAoESpell()*/) {
 			if (m_buttonId >= 0) {
 				dragSpell(&m_button[m_buttonId]);
 			}
@@ -986,7 +986,7 @@ void Interface::processInputRightDrag() {
 	}
 
 	if (isPreparingAoESpell()) {
-		makeReadyToCast(ViewPort::get().getCursorPosX(), ViewPort::get().getCursorPosY());
+		makeReadyToCast(ViewPort::Get().getCursorPosX(), ViewPort::Get().getCursorPosY());
 	}
 
 	if (m_spellQueue != NULL && mouse.buttonPressed(Mouse::BUTTON_LEFT) ) {
@@ -1055,8 +1055,8 @@ SpellActionBase* Interface::getSpellAtMouse(int mouseX, int mouseY) {
 	for (unsigned int curSpell = 0; curSpell < m_activeSpells.size(); curSpell++) {
 		// only draw spells that has a duration.
 		if (m_activeSpells[curSpell]->getDuration() > 0) {
-			int spellPosYStart = (ViewPort::get().getHeight() - 50) - 40 * curSpell;
-			int spellPosXStart = ViewPort::get().getWidth() - 204;
+			int spellPosYStart = (ViewPort::Get().getHeight() - 50) - 40 * curSpell;
+			int spellPosXStart = ViewPort::Get().getWidth() - 204;
 			if (mouseY > spellPosYStart
 				&& mouseY < spellPosYStart + 36
 				&& mouseX > spellPosXStart

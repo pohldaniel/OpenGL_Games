@@ -29,14 +29,14 @@ Shop* ShopCanvas::getShop() {
 void ShopCanvas::init() {
 	m_itemStackFont = &Globals::fontManager.get("verdana_12");
 
-	TextureAtlasCreator::get().init("shop", 1024, 1024);
+	TextureAtlasCreator::Get().init("shop", 1024, 1024);
 	TextureManager::Loadimage("res/interface/Shop/base.tga", 0, m_textures);
 	TextureManager::Loadimage("res/white2x2pixel.png", 1, m_textures, true);
 	TextureManager::Loadimage("res/interface/Shop/weapontab.tga", 2, m_textures);
 	TextureManager::Loadimage("res/interface/Shop/armortab.tga", 3, m_textures);
 	TextureManager::Loadimage("res/interface/Shop/misctab.tga", 4, m_textures);
 
-	m_textureAtlas = TextureAtlasCreator::get().getAtlas();
+	m_textureAtlas = TextureAtlasCreator::Get().getAtlas();
 
 	currentTab = 0;
 	tabs[0].tabimage = m_textures[2];
@@ -165,7 +165,7 @@ void ShopCanvas::drawItemTooltip(int mouseX, int mouseY) {
 
 						// if this is the first (or only) item we're going to draw in the compare we check where it will fit.
 						if (firstItemCompared == false) {
-							if (ViewPort::get().getWidth() - (mouseX + tooltipItem->getTooltip()->getTooltipWidth() + 60) > equippedItems[curItem]->getTooltip()->getTooltipWidth()) {
+							if (ViewPort::Get().getWidth() - (mouseX + tooltipItem->getTooltip()->getTooltipWidth() + 60) > equippedItems[curItem]->getTooltip()->getTooltipWidth()) {
 								thisTooltipPosX = mouseX + tooltipItem->getTooltip()->getTooltipWidth() + 30;
 							}else {
 								thisTooltipPosX = mouseX - 30 - equippedItems[curItem]->getTooltip()->getTooltipWidth();
@@ -190,7 +190,7 @@ void ShopCanvas::drawFloatingSelection() {
 		size_t sizeY = floatingItem->getSizeY();
 
 		TextureManager::BindTexture(TextureManager::GetTextureAtlas("items"), true);
-		TextureManager::DrawTexture(*floatingItem->getSymbolTexture(), ViewPort::get().getCursorPosRelX(), ViewPort::get().getCursorPosRelY() - 20, backpackFieldWidth * sizeX + (sizeX - 1) * backpackSeparatorWidth, backpackFieldHeight * sizeY + (sizeY - 1) * backpackSeparatorHeight, false, false);
+		TextureManager::DrawTexture(*floatingItem->getSymbolTexture(), ViewPort::Get().getCursorPosRelX(), ViewPort::Get().getCursorPosRelY() - 20, backpackFieldWidth * sizeX + (sizeX - 1) * backpackSeparatorWidth, backpackFieldHeight * sizeY + (sizeY - 1) * backpackSeparatorHeight, false, false);
 		TextureManager::UnbindTexture(true);
 	}
 }
@@ -201,7 +201,7 @@ void ShopCanvas::processInput() {
 
 	Mouse &mouse = Mouse::instance();
 	if (mouse.buttonPressed(Mouse::BUTTON_LEFT) || mouse.buttonPressed(Mouse::BUTTON_RIGHT)) {
-		if (isOnSlotsScreen(ViewPort::get().getCursorPosRelX(), ViewPort::get().getCursorPosRelY())) {
+		if (isOnSlotsScreen(ViewPort::Get().getCursorPosRelX(), ViewPort::Get().getCursorPosRelY())) {
 
 			if (InventoryCanvas::Get().hasFloatingSelection()) {
 				m_shop->sellToShop(InventoryCanvas::Get().getFloatingSelection(), true);
@@ -214,8 +214,8 @@ void ShopCanvas::processInput() {
 				return;
 			}
 
-			int fieldIndexX = (ViewPort::get().getCursorPosRelX() - (m_posX + backpackOffsetX)) / (backpackFieldWidth + backpackSeparatorWidth);
-			int fieldIndexY = (ViewPort::get().getCursorPosRelY() - (m_posY + backpackOffsetY)) / (backpackFieldHeight + backpackSeparatorHeight);
+			int fieldIndexX = (ViewPort::Get().getCursorPosRelX() - (m_posX + backpackOffsetX)) / (backpackFieldWidth + backpackSeparatorWidth);
+			int fieldIndexY = (ViewPort::Get().getCursorPosRelY() - (m_posY + backpackOffsetY)) / (backpackFieldHeight + backpackSeparatorHeight);
 
 			if (!isPositionFree(fieldIndexX, fieldIndexY, currentTab)) {
 				
@@ -242,16 +242,16 @@ void ShopCanvas::processInput() {
 	
 		// loop through our tabs, see if any got clicked.
 		for (size_t tabIndex = 0; tabIndex <= 2; tabIndex++) {
-			if (ViewPort::get().getCursorPosRelX() > tabs[tabIndex].posX + m_posX
-				&& ViewPort::get().getCursorPosRelY() > tabs[tabIndex].posY + m_posY
-				&& ViewPort::get().getCursorPosRelX() < tabs[tabIndex].posX + m_posX + tabs[tabIndex].width
-				&& ViewPort::get().getCursorPosRelY() < tabs[tabIndex].posY + m_posY + tabs[tabIndex].height) {
+			if (ViewPort::Get().getCursorPosRelX() > tabs[tabIndex].posX + m_posX
+				&& ViewPort::Get().getCursorPosRelY() > tabs[tabIndex].posY + m_posY
+				&& ViewPort::Get().getCursorPosRelX() < tabs[tabIndex].posX + m_posX + tabs[tabIndex].width
+				&& ViewPort::Get().getCursorPosRelY() < tabs[tabIndex].posY + m_posY + tabs[tabIndex].height) {
 				currentTab = tabIndex;
 				return;
 			}
 		}
 
-		if (!isOnSlotsScreen(ViewPort::get().getCursorPosRelX(), ViewPort::get().getCursorPosRelY())) {
+		if (!isOnSlotsScreen(ViewPort::Get().getCursorPosRelX(), ViewPort::Get().getCursorPosRelY())) {
 			if (hasFloatingSelection()) {
 				m_shop->sellToShop(getFloatingSelection(), false);
 				unsetFloatingSelection();

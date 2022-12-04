@@ -77,19 +77,19 @@ void SpellTooltip::draw(int x, int y) {
 	}
 	
 	// make sure the tooltip doesnt go "off screen"
-	if (x + (curBlockNumberWidth + 2) * blockWidth > ViewPort::get().getWidth()) {
-		x = ViewPort::get().getWidth() - (curBlockNumberWidth + 2) * blockWidth;
+	if (x + (curBlockNumberWidth + 2) * blockWidth > ViewPort::Get().getWidth()) {
+		x = ViewPort::Get().getWidth() - (curBlockNumberWidth + 2) * blockWidth;
 	}
 
-	if (y + (curBlockNumberHeight + 2) * blockHeight > ViewPort::get().getHeight()) {
-		y = ViewPort::get().getHeight() - (curBlockNumberHeight + 2) * blockHeight;
+	if (y + (curBlockNumberHeight + 2) * blockHeight > ViewPort::Get().getHeight()) {
+		y = ViewPort::Get().getHeight() - (curBlockNumberHeight + 2) * blockHeight;
 	}
 
 	// set the first font Y-position on the top of the first tooltip block excluding topborder
 	// (we could also center the text in the tooltip, but topaligned is probably bestlooking
 	int font_y = y + blockHeight + (curBlockNumberHeight)* blockHeight - toplineHeight;
 
-	DialogCanvas::drawCanvas(x, y, curBlockNumberWidth, curBlockNumberHeight, blockWidth, blockHeight, false, true);
+	DialogCanvas::DrawCanvas(x, y, curBlockNumberWidth, curBlockNumberHeight, blockWidth, blockHeight, false, true);
 	// loop through the text vector and print all the text.
 	for (unsigned int i = 0; i < tooltipText.size(); i++) {
 
@@ -363,11 +363,11 @@ ItemTooltip::ItemTooltip(Item *parent, InventoryItem *inventoryItem) : parent(pa
 	getParentText();
 
 	if (s_textures.size() == 0) {
-		TextureAtlasCreator::get().init("tooltip", 128, 128);		
+		TextureAtlasCreator::Get().init("tooltip", 128, 128);		
 		TextureManager::Loadimage("res/interface/inventory/goldcoin.tga", 0, s_textures, true);
 		TextureManager::Loadimage("res/interface/inventory/silvercoin.tga", 1, s_textures, true);
 		TextureManager::Loadimage("res/interface/inventory/coppercoin.tga", 2, s_textures, true);
-		s_textureAtlas = TextureAtlasCreator::get().getAtlas();
+		s_textureAtlas = TextureAtlasCreator::Get().getAtlas();
 	}
 }
 
@@ -403,18 +403,18 @@ void ItemTooltip::draw(int x, int y) {
 	}
 
 	// make sure the tooltip doesnt go "off screen"
-	if (x + (curBlockNumberWidth + 2) * blockWidth > ViewPort::get().getWidth()) {
-		x = ViewPort::get().getWidth() - (curBlockNumberWidth + 2) * blockWidth;
+	if (x + (curBlockNumberWidth + 2) * blockWidth > ViewPort::Get().getWidth()) {
+		x = ViewPort::Get().getWidth() - (curBlockNumberWidth + 2) * blockWidth;
 	}
 
-	if (y + (curBlockNumberHeight + 2) * blockHeight > ViewPort::get().getHeight()) {
-		y = ViewPort::get().getHeight() - (curBlockNumberHeight + 2) * blockHeight;
+	if (y + (curBlockNumberHeight + 2) * blockHeight > ViewPort::Get().getHeight()) {
+		y = ViewPort::Get().getHeight() - (curBlockNumberHeight + 2) * blockHeight;
 	}
 	// set the first font Y-position on the top of the first tooltip block excluding topborder
 	// (we could also center the text in the tooltip, but topaligned is probably bestlooking
 	int font_y = y + blockHeight + (curBlockNumberHeight)* blockHeight - toplineHeight;
 
-	DialogCanvas::drawCanvas(x, y, curBlockNumberWidth, curBlockNumberHeight, blockWidth, blockHeight, false, false);
+	DialogCanvas::DrawCanvas(x, y, curBlockNumberWidth, curBlockNumberHeight, blockWidth, blockHeight, false, false);
 
 	// loop through the text vector and print all the text.
 	for (unsigned int i = 0; i < tooltipText.size(); i++) {

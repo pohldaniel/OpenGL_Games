@@ -45,7 +45,7 @@
 
 symbols = {};
 
-TextureAtlasCreator:get():init("symbols", 1024, 1024);
+TextureAtlasCreator:Get():init("symbols", 1024, 1024);
 symbols["magicmissile"] = DawnInterface.loadimage("res/spells/magicmissile/symbol.tga");
 symbols["venomspit"] = DawnInterface.loadimage("res/spells/venomspit/symbol.tga");
 symbols["electrocute"] = DawnInterface.loadimage("res/spells/electrocute/symbol.tga");
@@ -71,12 +71,12 @@ symbols["pindown"] = DawnInterface.loadimage("res/spells/pindown/symbol.tga");
 symbols["flamingarrow"] = DawnInterface.loadimage("res/spells/flamingarrow/symbol.tga");
 symbols["landyrsforce"] = DawnInterface.loadimage("res/spells/landyrsforce/symbol.tga");
 symbols["voiceoftheforest"] = DawnInterface.loadimage("res/spells/voiceoftheforest/symbol.tga");
-TextureManager:SetTextureAtlas(TextureAtlasCreator:get():getName(), TextureAtlasCreator:get():getAtlas());
---TextureAtlasCreator:get():safeAtlas("tmp/symbols")
+TextureManager:SetTextureAtlas(TextureAtlasCreator:Get():getName(), TextureAtlasCreator:Get():getAtlas());
+--TextureAtlasCreator:Get():safeAtlas("tmp/symbols")
 
 spellDatabase = {};
 
-TextureAtlasCreator:get():init(1024, 1024);
+TextureAtlasCreator:Get():init(1024, 1024);
 
 curSpell = DawnInterface.createGeneralRayDamageSpell();
 spellDatabase["electrocute"] = curSpell;
@@ -98,5 +98,5 @@ curSpell:addAnimationFrame("res/spells/lightning/5.tga");
 curSpell:setRequiredClass( Enums.Liche );
 DawnInterface.inscribeSpellInPlayerSpellbook( curSpell );
 
-TextureManager:SetTextureAtlas("spells", TextureAtlasCreator:get():getAtlas());
---TextureAtlasCreator:get():safeAtlas("tmp/spell")
+TextureManager:SetTextureAtlas("spells", TextureAtlasCreator:Get():getAtlas());
+--TextureAtlasCreator:Get():safeAtlas("tmp/spell")

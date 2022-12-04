@@ -26,9 +26,9 @@ QuestCanvas::~QuestCanvas() {
 void QuestCanvas::init() {
 
 	font = &Globals::fontManager.get("verdana_14");
-	TextureAtlasCreator::get().init("quest", 1024, 1024);
+	TextureAtlasCreator::Get().init("quest", 1024, 1024);
 	TextureManager::Loadimage("res/interface/QuestScreen/questscreen.tga", 0, m_textures);
-	m_textureAtlas = TextureAtlasCreator::get().getAtlas();
+	m_textureAtlas = TextureAtlasCreator::Get().getAtlas();
 
 	addMoveableFrame(375, 22, 20, 374);
 	addCloseButton(22, 22, 373, 376);
@@ -172,7 +172,7 @@ void QuestCanvas::processInput() {
 		if (!isMouseOnFrame(mouse.xPosAbsolute(), mouse.yPosAbsolute())) {
 			return;
 		}
-		size_t curEntryNr = (m_posY + m_height - 24 - ViewPort::get().getCursorPosRelY()) / (font->lineHeight * 1.5);
+		size_t curEntryNr = (m_posY + m_height - 24 - ViewPort::Get().getCursorPosRelY()) / (font->lineHeight * 1.5);
 		if (curEntryNr < quests.size()) {
 			selectedQuestNr = curEntryNr;
 		}

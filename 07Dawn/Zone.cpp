@@ -17,12 +17,12 @@ void Zone::loadZone() {
 	LuaFunctions::executeLuaScript(std::string("if ( MapData == nil )\nthen\n    MapData={}\nend"));
 	LuaFunctions::executeLuaScript(std::string("if ( MapData.DontSave == nil )\nthen\n    MapData.DontSave={}\nend"));
 
-	TextureAtlasCreator::get().init(m_file);
+	TextureAtlasCreator::Get().init(m_file);
 	LuaFunctions::executeLuaFile(std::string(m_file).append(".tiles_ground.lua"));
 	LuaFunctions::executeLuaFile(std::string(m_file).append(".tiles_environment.lua"));
 	LuaFunctions::executeLuaFile(std::string(m_file).append(".tiles_shadow.lua"));
 
-	TextureManager::SetTextureAtlas(TextureAtlasCreator::get().getName(), TextureAtlasCreator::get().getAtlas());
+	TextureManager::SetTextureAtlas(TextureAtlasCreator::Get().getName(), TextureAtlasCreator::Get().getAtlas());
 	m_textureAtlas = TextureManager::GetTextureAtlas(m_file);
 	
 	//ZoneManager::Get().setCurrentZone(this);

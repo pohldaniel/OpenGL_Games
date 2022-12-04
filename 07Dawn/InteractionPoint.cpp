@@ -31,31 +31,31 @@ void InteractionPoint::setInteractionType(Enums::InteractionType interactionType
 	switch (interactionType){
 
 	case Enums::InteractionType::Quest:
-		TextureAtlasCreator::get().init("interaction", 1024, 1024);
+		TextureAtlasCreator::Get().init("interaction", 1024, 1024);
 		TextureManager::Loadimage("res/interaction/talk0.tga", 0, m_interactionTextures, true);
 		TextureManager::Loadimage("res/interaction/talk1.tga", 1, m_interactionTextures, true);
-		m_textureAtlas = TextureAtlasCreator::get().getAtlas();
+		m_textureAtlas = TextureAtlasCreator::Get().getAtlas();
 		break;
 	case Enums::InteractionType::Shop:
-		TextureAtlasCreator::get().init("interaction", 1024, 1024);
+		TextureAtlasCreator::Get().init("interaction", 1024, 1024);
 		TextureManager::Loadimage("res/interaction/shop0.tga", 0, m_interactionTextures, true);
 		TextureManager::Loadimage("res/interaction/shop1.tga", 1, m_interactionTextures, true);
-		m_textureAtlas = TextureAtlasCreator::get().getAtlas();
+		m_textureAtlas = TextureAtlasCreator::Get().getAtlas();
 		
 		break;
 	case Enums::InteractionType::Zone:
-		TextureAtlasCreator::get().init("interaction", 1024, 1024);
+		TextureAtlasCreator::Get().init("interaction", 1024, 1024);
 		TextureManager::Loadimage("res/interaction/zone0.tga", 0, m_interactionTextures, true);
 		TextureManager::Loadimage("res/interaction/zone1.tga", 1, m_interactionTextures, true);
-		m_textureAtlas = TextureAtlasCreator::get().getAtlas();		
+		m_textureAtlas = TextureAtlasCreator::Get().getAtlas();		
 		break;
 	}
 }
 
 void InteractionPoint::setBackgroundTexture(std::string texturename, bool transparent) {
-	TextureAtlasCreator::get().init("background", 1024, 1024);
+	TextureAtlasCreator::Get().init("background", 1024, 1024);
 	TextureManager::Loadimage(texturename, 0, m_backgroundTextures, transparent);
-	m_textureAtlas2 = TextureAtlasCreator::get().getAtlas();
+	m_textureAtlas2 = TextureAtlasCreator::Get().getAtlas();
 }
 
 void InteractionPoint::setInteractionCode(std::string interactionCode)

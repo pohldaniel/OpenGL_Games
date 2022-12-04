@@ -1,11 +1,7 @@
-#include "Magic.h"
-
 #include <cmath>
-#include "zone.h"
 
-namespace DawnInterface {
-	//void addTextToLogWindow(GLfloat color[], const char *text, ...);
-}
+#include "Magic.h"
+#include "zone.h"
 
 CMagic::CMagic(SpellActionBase *spell) {
 	this->spell = spell;
@@ -60,7 +56,7 @@ bool CMagic::isDone() {
 	if (spell->isEffectComplete()) {
 		return true;
 
-	} else{
+	}else {
 		return false;
 
 	}

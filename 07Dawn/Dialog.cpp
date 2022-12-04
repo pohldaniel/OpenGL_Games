@@ -1,58 +1,58 @@
 #include "Dialog.h"
 
-unsigned int  DialogCanvas::textureAtlas;
-std::vector<TextureRect>  DialogCanvas::m_textureBases;
+unsigned int  DialogCanvas::TextureAtlas;
+std::vector<TextureRect>  DialogCanvas::TextureBases;
 
-void DialogCanvas::initTextures() {
+void DialogCanvas::Init() {
 
-	if (m_textureBases.size() > 0) {
+	if (TextureBases.size() > 0) {
 		return;
 	}
 
-	TextureAtlasCreator::get().init("dialog", 576, 64);
+	TextureAtlasCreator::Get().init("dialog", 576, 64);
 
-	TextureManager::Loadimage("res/interface/tooltip/lower_left2.tga", 0, m_textureBases);
-	TextureManager::Loadimage("res/interface/tooltip/lower_right2.tga", 1, m_textureBases);
-	TextureManager::Loadimage("res/interface/tooltip/upper_left2.tga", 2, m_textureBases);
-	TextureManager::Loadimage("res/interface/tooltip/upper_right2.tga", 3, m_textureBases);
-	TextureManager::Loadimage("res/interface/tooltip/background2.tga", 4, m_textureBases);
-	TextureManager::Loadimage("res/interface/tooltip/upper2.tga", 5, m_textureBases);
+	TextureManager::Loadimage("res/interface/tooltip/lower_left2.tga", 0, TextureBases);
+	TextureManager::Loadimage("res/interface/tooltip/lower_right2.tga", 1, TextureBases);
+	TextureManager::Loadimage("res/interface/tooltip/upper_left2.tga", 2, TextureBases);
+	TextureManager::Loadimage("res/interface/tooltip/upper_right2.tga", 3, TextureBases);
+	TextureManager::Loadimage("res/interface/tooltip/background2.tga", 4, TextureBases);
+	TextureManager::Loadimage("res/interface/tooltip/upper2.tga", 5, TextureBases);
 
-	TextureManager::Loadimage("res/interface/tooltip/lower2.tga", 6, m_textureBases);
-	TextureManager::Loadimage("res/interface/tooltip/left2.tga", 7, m_textureBases);
-	TextureManager::Loadimage("res/interface/tooltip/right2.tga", 8, m_textureBases);
+	TextureManager::Loadimage("res/interface/tooltip/lower2.tga", 6, TextureBases);
+	TextureManager::Loadimage("res/interface/tooltip/left2.tga", 7, TextureBases);
+	TextureManager::Loadimage("res/interface/tooltip/right2.tga", 8, TextureBases);
 
-	textureAtlas = TextureAtlasCreator::get().getAtlas();
+	TextureAtlas = TextureAtlasCreator::Get().getAtlas();
 }
 
-void DialogCanvas::drawCanvas(int left, int bottom, int colummns, int rows, int tileWidth, int tileHeight, bool updateView, bool drawInChunk) {
+void DialogCanvas::DrawCanvas(int left, int bottom, int colummns, int rows, int tileWidth, int tileHeight, bool updateView, bool drawInChunk) {
 	float _tileWidth = static_cast<float>(tileWidth);
 	float _tileHeight = static_cast<float>(tileHeight);
 
-	TextureManager::BindTexture(textureAtlas, true, 0);
+	TextureManager::BindTexture(TextureAtlas, true, 0);
 
 	// draw the corners
-	TextureManager::DrawTextureBatched(m_textureBases[0], left, bottom, _tileWidth, _tileHeight,  false, updateView);
-	TextureManager::DrawTextureBatched(m_textureBases[1], left + tileWidth + (colummns * tileWidth), bottom, _tileWidth, _tileHeight, false, updateView);
-	TextureManager::DrawTextureBatched(m_textureBases[2], left, bottom + tileHeight + (rows * tileHeight), _tileWidth, _tileHeight, false, updateView);
-	TextureManager::DrawTextureBatched(m_textureBases[3], left + tileWidth + (colummns * tileWidth), bottom + tileHeight + (rows * tileHeight), _tileWidth, _tileHeight, false, updateView);
+	TextureManager::DrawTextureBatched(TextureBases[0], left, bottom, _tileWidth, _tileHeight,  false, updateView);
+	TextureManager::DrawTextureBatched(TextureBases[1], left + tileWidth + (colummns * tileWidth), bottom, _tileWidth, _tileHeight, false, updateView);
+	TextureManager::DrawTextureBatched(TextureBases[2], left, bottom + tileHeight + (rows * tileHeight), _tileWidth, _tileHeight, false, updateView);
+	TextureManager::DrawTextureBatched(TextureBases[3], left + tileWidth + (colummns * tileWidth), bottom + tileHeight + (rows * tileHeight), _tileWidth, _tileHeight, false, updateView);
 
 	// draw the top and bottom borders
 	for (unsigned short column = 0; column < colummns; column++) {
-		TextureManager::DrawTextureBatched(m_textureBases[5], left + tileWidth + (column * tileWidth), bottom + tileHeight + (rows * tileHeight), _tileWidth, _tileHeight, false, updateView);
-		TextureManager::DrawTextureBatched(m_textureBases[6], left + tileWidth + (column * tileWidth), bottom, _tileWidth, _tileHeight, false, updateView);
+		TextureManager::DrawTextureBatched(TextureBases[5], left + tileWidth + (column * tileWidth), bottom + tileHeight + (rows * tileHeight), _tileWidth, _tileHeight, false, updateView);
+		TextureManager::DrawTextureBatched(TextureBases[6], left + tileWidth + (column * tileWidth), bottom, _tileWidth, _tileHeight, false, updateView);
 	}
 
 	// draw the right and left borders
 	for (unsigned short row = 0; row < rows; row++) {
-		TextureManager::DrawTextureBatched(m_textureBases[7], left, bottom + tileHeight + (row * tileHeight), _tileWidth, _tileHeight, false, updateView);
-		TextureManager::DrawTextureBatched(m_textureBases[8], left + tileWidth + (colummns * tileWidth), bottom + tileHeight + (row * tileHeight), _tileWidth, _tileHeight, false, updateView);
+		TextureManager::DrawTextureBatched(TextureBases[7], left, bottom + tileHeight + (row * tileHeight), _tileWidth, _tileHeight, false, updateView);
+		TextureManager::DrawTextureBatched(TextureBases[8], left + tileWidth + (colummns * tileWidth), bottom + tileHeight + (row * tileHeight), _tileWidth, _tileHeight, false, updateView);
 	}
 
 	// draw the background
 	for (unsigned short row = 0; row < rows; row++) {
 		for (int column = 0; column < colummns; column++) {
-			TextureManager::DrawTextureBatched(m_textureBases[4], left + tileWidth + (column * tileWidth), bottom + tileHeight + (row * tileHeight), _tileWidth, _tileHeight, false, updateView);
+			TextureManager::DrawTextureBatched(TextureBases[4], left + tileWidth + (column * tileWidth), bottom + tileHeight + (row * tileHeight), _tileWidth, _tileHeight, false, updateView);
 		}
 	}
 
@@ -62,7 +62,7 @@ void DialogCanvas::drawCanvas(int left, int bottom, int colummns, int rows, int 
 	}
 }
 
-int DialogCanvas::calculateNeededBlockWidth(int width, int tileWidth) {
+int DialogCanvas::CalculateNeededBlockWidth(int width, int tileWidth) {
 	if (width % tileWidth == 0) {
 		return (width / tileWidth);
 
@@ -71,7 +71,7 @@ int DialogCanvas::calculateNeededBlockWidth(int width, int tileWidth) {
 	}
 }
 
-int DialogCanvas::calculateNeededBlockHeight(int height, int tileHeight) {
+int DialogCanvas::CalculateNeededBlockHeight(int height, int tileHeight) {
 	if (height % tileHeight == 0) {
 		return (height / tileHeight);
 
@@ -82,20 +82,20 @@ int DialogCanvas::calculateNeededBlockHeight(int height, int tileHeight) {
 
 /////////////////////////////////////////////////////////////DIALOG///////////////////////////////////////////////////////////////////
 Dialog::Dialog(int posX, int posY, int width, int height)
-	: Widget(posX - TILE_WIDTH, posY - TILE_HEIGHT, DialogCanvas::calculateNeededBlockWidth(width, TILE_WIDTH) * TILE_WIDTH, DialogCanvas::calculateNeededBlockHeight(height, TILE_HEIGHT) * TILE_HEIGHT, 0, 0),
-	m_columns(DialogCanvas::calculateNeededBlockWidth(width, TILE_WIDTH)),
-	m_rows(DialogCanvas::calculateNeededBlockHeight(height, TILE_HEIGHT)),
+	: Widget(posX - TILE_WIDTH, posY - TILE_HEIGHT, DialogCanvas::CalculateNeededBlockWidth(width, TILE_WIDTH) * TILE_WIDTH, DialogCanvas::CalculateNeededBlockHeight(height, TILE_HEIGHT) * TILE_HEIGHT, 0, 0),
+	m_columns(DialogCanvas::CalculateNeededBlockWidth(width, TILE_WIDTH)),
+	m_rows(DialogCanvas::CalculateNeededBlockHeight(height, TILE_HEIGHT)),
 	autoResize(false),
 	centeringLayout(false),
 	centerOnScreen(false){
 	setPosition(posX, posY);
 
-	DialogCanvas::initTextures();
+	DialogCanvas::Init();
 }
 
 void Dialog::draw() {
 
-	DialogCanvas::drawCanvas(getPosX(), getPosY(), m_columns, m_rows, TILE_WIDTH, TILE_HEIGHT);
+	DialogCanvas::DrawCanvas(getPosX(), getPosY(), m_columns, m_rows, TILE_WIDTH, TILE_HEIGHT);
 	Widget::draw();
 }
 
@@ -172,14 +172,14 @@ void Dialog::applyLayout() {
 
 void Dialog::resize(int width, int height){
 
-	m_columns = DialogCanvas::calculateNeededBlockWidth(width, TILE_WIDTH);
-	m_rows = DialogCanvas::calculateNeededBlockHeight(height, TILE_HEIGHT);
+	m_columns = DialogCanvas::CalculateNeededBlockWidth(width, TILE_WIDTH);
+	m_rows = DialogCanvas::CalculateNeededBlockHeight(height, TILE_HEIGHT);
 	recalculatePosition();
 }
 
 void Dialog::recalculatePosition(){
 	if (centerOnScreen) {
-		setPosition((ViewPort::get().getWidth() - getWidth()) / 2, (ViewPort::get().getHeight() - getHeight()) / 2);
+		setPosition((ViewPort::Get().getWidth() - getWidth()) / 2, (ViewPort::Get().getHeight() - getHeight()) / 2);
 
 		/*std::vector<Widget*> childFrames = getChildWidgets();
 		for (size_t curChild = 0; curChild < childFrames.size(); ++curChild) {

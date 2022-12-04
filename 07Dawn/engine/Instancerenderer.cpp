@@ -1,6 +1,6 @@
 #include "Instancerenderer.h"
 
-Instancedrenderer Instancedrenderer::s_instance = Instancedrenderer(ViewPort::get().getCamera());
+Instancedrenderer Instancedrenderer::s_instance = Instancedrenderer(ViewPort::Get().getCamera());
 
 Instancedrenderer::Instancedrenderer(const Camera& camera) : m_camera(camera){}
 

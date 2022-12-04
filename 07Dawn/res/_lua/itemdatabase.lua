@@ -23,7 +23,7 @@
 
 items = {};
 
-TextureAtlasCreator:get():init("items", 1024, 1024);
+TextureAtlasCreator:Get():init("items", 1024, 1024);
 items["axe2"] = DawnInterface.loadimage("res/items/Axe2.tga");
 items["sword1"] = DawnInterface.loadimage("res/items/Sword1.tga");
 items["ring3"] = DawnInterface.loadimage("res/items/Ring3.tga");
@@ -48,8 +48,8 @@ items["spellbook2"] = DawnInterface.loadimage("res/items/Spellbook2.tga");
 items["helmet1"] = DawnInterface.loadimage("res/items/Helmet1.tga");
 items["fang1"] = DawnInterface.loadimage("res/items/Fang1.tga");
 items["potion3"] = DawnInterface.loadimage("res/items/Potion3.tga");
-TextureManager:SetTextureAtlas(TextureAtlasCreator:get():getName(), TextureAtlasCreator:get():getAtlas());
---TextureAtlasCreator:get():safeAtlas("tmp/items")
+TextureManager:SetTextureAtlas(TextureAtlasCreator:Get():getName(), TextureAtlasCreator:Get():getAtlas());
+--TextureAtlasCreator:Get():safeAtlas("tmp/items")
 
 itemDatabase = {};
 

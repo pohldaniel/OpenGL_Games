@@ -91,8 +91,8 @@ void Spellbook::drawFloatingSpell() {
 
 	if (m_floatingSpell != NULL) {
 		TextureManager::BindTexture(m_textureAtlas, true);
-		m_floatingSpell->action->drawSymbolSingle(ViewPort::get().getCursorPosX() + 2, ViewPort::get().getCursorPosY() + 22, 46.0f, 46.0f, Vector4f(1.0f, 1.0f, 1.0f, 1.0f), true);
-		Fontrenderer::Get().drawText(*m_cooldownFont, ViewPort::get().getCursorPosX() + 25 - m_cooldownFont->getWidth(m_floatingSpell->action->getName()) / 2, ViewPort::get().getCursorPosY() + 20 - m_cooldownFont->lineHeight - 5, m_floatingSpell->action->getName(), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), true);
+		m_floatingSpell->action->drawSymbolSingle(ViewPort::Get().getCursorPosX() + 2, ViewPort::Get().getCursorPosY() + 22, 46.0f, 46.0f, Vector4f(1.0f, 1.0f, 1.0f, 1.0f), true);
+		Fontrenderer::Get().drawText(*m_cooldownFont, ViewPort::Get().getCursorPosX() + 25 - m_cooldownFont->getWidth(m_floatingSpell->action->getName()) / 2, ViewPort::Get().getCursorPosY() + 20 - m_cooldownFont->lineHeight - 5, m_floatingSpell->action->getName(), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), true);
 		TextureManager::UnbindTexture(true);
 	}
 }
@@ -132,12 +132,12 @@ void Spellbook::processInput() {
 
 	Mouse &mouse = Mouse::instance();
 	if (mouse.buttonPressed(Mouse::BUTTON_LEFT)) {
-		int spellSlotIndex = getMouseOverSpellSlotId(ViewPort::get().getCursorPosRelX(), ViewPort::get().getCursorPosRelY());
+		int spellSlotIndex = getMouseOverSpellSlotId(ViewPort::Get().getCursorPosRelX(), ViewPort::Get().getCursorPosRelY());
 		if (spellSlotIndex >= 0 && spellSlot[spellSlotIndex].action != NULL) {
 			m_floatingSpell = &spellSlot[spellSlotIndex];
-		}else if (isMouseOverNextPageArea(ViewPort::get().getCursorPosRelX(), ViewPort::get().getCursorPosRelY())) {
+		}else if (isMouseOverNextPageArea(ViewPort::Get().getCursorPosRelX(), ViewPort::Get().getCursorPosRelY())) {
 			nextPage();
-		}else if (isMouseOverPreviousPageArea(ViewPort::get().getCursorPosRelX(), ViewPort::get().getCursorPosRelY())) {
+		}else if (isMouseOverPreviousPageArea(ViewPort::Get().getCursorPosRelX(), ViewPort::Get().getCursorPosRelY())) {
 			previousPage();
 
 		}else {

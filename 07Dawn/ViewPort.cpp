@@ -5,7 +5,7 @@ ViewPort ViewPort::s_instance;
 
 ViewPort::ViewPort() : m_postition(m_camera.getPosition()) {}
 
-ViewPort& ViewPort::get() {
+ViewPort& ViewPort::Get() {
 	return s_instance;
 }
 
