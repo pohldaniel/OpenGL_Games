@@ -121,9 +121,6 @@ void TextWindow::setOnCloseText(std::string onCloseText) {
 }
 
 void TextWindow::updateFramesPosition() {
-	const int blockSizeX = 32;
-	const int blockSizeY = 32;
-	const int lineWidth = 416;
 
 	int neededWidth = lineWidth;
 	int neededHeight = 0;
@@ -132,11 +129,13 @@ void TextWindow::updateFramesPosition() {
 		neededHeight = Font.lineHeight * static_cast<int>(textLines.size())
 			+ lineSpace * (static_cast<int>(textLines.size()) - 1);
 	}
-	int neededInnerBlocksX = neededWidth / blockSizeX;
+
+	neededInnerBlocksX = neededWidth / blockSizeX;
 	if (neededWidth % blockSizeX != 0) {
 		++neededInnerBlocksX;
 	}
-	int neededInnerBlocksY = neededHeight / blockSizeY;
+
+	neededInnerBlocksY = neededHeight / blockSizeY;
 	if (neededHeight % blockSizeY != 0) {
 		++neededInnerBlocksY;
 	}
@@ -162,6 +161,11 @@ void TextWindow::updateFramesPosition() {
 			bottomY = y;
 			break;
 	}
+
+	m_posX = leftX;
+	m_posY = bottomY;
+	m_width = (neededInnerBlocksX + 2) * blockSizeX;
+	m_height = (neededInnerBlocksY + 2) * blockSizeY;
 }
 
 bool TextWindow::canBeDeleted() const {
@@ -172,6 +176,7 @@ void TextWindow::close() {
 	if (executeTextOnClose != "") {
 		LuaFunctions::executeLuaScript(executeTextOnClose);
 	}
+	
 	Widget::close();
 }
 
@@ -193,66 +198,26 @@ bool TextWindow::isMouseOnFrame(int mouseX, int mouseY) const {
 void TextWindow::processInput() {
 	if (!m_visible) return;
 	Widget::processInput();
+
+	Mouse &mouse = Mouse::instance();
+	if (mouse.buttonPressed(Mouse::BUTTON_LEFT) && isMouseOnFrame(mouse.xPosAbsolute(), mouse.yPosAbsolute())) {
+		explicitClose = true;
+	}
 }
 
 void TextWindow::draw() {
-	
-	const int blockSizeX = 32;
-	const int blockSizeY = 32;
-	const int lineWidth = 416;
-	const int lineSpace = Font.lineHeight * 0.5;
-
-	int neededWidth = lineWidth;
-	int neededHeight = 0;
-	if (textLines.size() > 0) {
-		neededHeight = Font.lineHeight * textLines.size()
-			+ lineSpace * (textLines.size() - 1);
-	}
-	int neededInnerBlocksX = neededWidth / blockSizeX;
-	if (neededWidth % blockSizeX != 0) {
-		++neededInnerBlocksX;
-	}
-	int neededInnerBlocksY = neededHeight / blockSizeY;
-	if (neededHeight % blockSizeY != 0) {
-		++neededInnerBlocksY;
-	}
-
-	int leftX = 0;
-	int bottomY = 0;
-
-	switch (positionType) {
-		case Enums::PositionType::CENTER:
-			leftX = x - (neededInnerBlocksX * blockSizeX / 2);
-			bottomY = y - (neededInnerBlocksY * blockSizeY / 2);
-			break;
-		case Enums::PositionType::BOTTOMLEFT:
-			leftX = x;
-			bottomY = y;
-			break;
-		case Enums::PositionType::LEFTCENTER:
-			leftX = x;
-			bottomY = y - (neededInnerBlocksY * blockSizeY / 2);
-			break;
-		case Enums::PositionType::BOTTOMCENTER:
-			leftX = x + (neededInnerBlocksX * blockSizeX / 2);
-			bottomY = y;
-			break;
-	}
+	if (!m_visible) return;
 
 	// draw the frame
-	DialogCanvas::DrawCanvas(leftX, bottomY, neededInnerBlocksX, neededInnerBlocksY, blockSizeX, blockSizeY, false);
+	DialogCanvas::DrawCanvas(m_posX, m_posY, neededInnerBlocksX, neededInnerBlocksY, blockSizeX, blockSizeY, false);
 	// draw the text
-	int curX = leftX + blockSizeX;
-	int curY = bottomY + neededInnerBlocksY * blockSizeY + Font.lineHeight;
+	const int lineSpace = Font.lineHeight * 0.5;
+	int curX = m_posX + blockSizeX;
+	int curY = m_posY + neededInnerBlocksY * blockSizeY + Font.lineHeight;
 	for (size_t curLineNr = 0; curLineNr < textLines.size(); ++curLineNr) {
 		std::string curLine = textLines[curLineNr];
 		Fontrenderer::Get().drawText(Font, curX, curY, curLine, Vector4f(1.0f, 1.0f, 1.0f, 1.0f), false);
 		curY -= Font.lineHeight;
 		curY -= lineSpace;
 	}
-
-	m_posX = leftX;
-	m_posY = bottomY;
-	m_width = (neededInnerBlocksX + 2) * blockSizeX;
-	m_height = (neededInnerBlocksY + 2) * blockSizeY;
 }

@@ -4,10 +4,12 @@ if( quest_hexmaster == nil ) then
 end
 
 function quest_hexmaster.init()
+
 	-- this quest is initialized from zone zone1
-	quest_hexmaster.questStartRegion = DawnInterface.addInteractionRegion();
-	quest_hexmaster.questStartRegion:setPosition( 730, 2250, 400, 310 );
-	quest_hexmaster.questStartRegion:setOnEnterText( "quest_hexmaster.onQuestGiverRegionInteraction()" );
+	quest_hexmaster.isOpen = false
+	--quest_hexmaster.questStartRegion = DawnInterface.addInteractionRegion();
+	--quest_hexmaster.questStartRegion:setPosition( 730, 2250, 400, 310 );
+	--quest_hexmaster.questStartRegion:setOnEnterText( "quest_hexmaster.onQuestGiverRegionInteraction()" );
 
 	quest_hexmaster.ornadSaidor = DawnInterface.addMobSpawnPoint("Human", "Ornad Saidor", 900, 2350, 1, 0, Enums.FRIENDLY);
 	quest_hexmaster.ornadSaidor:setWanderRadius(50);
@@ -19,22 +21,22 @@ function quest_hexmaster.init()
 	quest_hexmaster.noviceLeaderInteraction = DawnInterface.addCharacterInteractionPoint( quest_hexmaster.noviceLeader );
 	quest_hexmaster.noviceLeaderInteraction:setInteractionType( Enums.Quest );
 	quest_hexmaster.noviceLeaderInteraction:setInteractionCode( "quest_hexmaster.onNoviceLeaderInteraction()" );
-
-	--quest_hexmaster.showStartText( 2 )
 end
 
 function quest_hexmaster.onQuestGiverRegionInteraction()
-	if( not quest_hexmaster.questGiven ) then
+	if( not quest_hexmaster.questGiven and not quest_hexmaster.isOpen) then
 		quest_hexmaster.showStartText( 1 )
 	end
 end
 
 function quest_hexmaster.onOrnadSaidorInteraction()
-	if( quest_hexmaster.doorTextRead and not quest_hexmaster.toldWholeStory ) then
+	if( not quest_hexmaster.questGiven and not quest_hexmaster.isOpen) then
+		quest_hexmaster.showStartText(1)
+	elseif( quest_hexmaster.doorTextRead and not quest_hexmaster.toldWholeStory ) then
 		quest_hexmaster.showStartText( 3 )
 	elseif( quest_hexmaster.metJorni ) then
 		quest_hexmaster.showStartText( 7 )
-	else
+	elseif(not quest_hexmaster.isOpen) then
 		local textWindow = DawnInterface.createTextWindow();
 		textWindow:setPosition( Enums.CENTER, 512, 382 );
 		textWindow:setAutocloseTime( 0 );
@@ -44,6 +46,7 @@ end
 
 function quest_hexmaster.showStartText( part )
 	if( part == 1 ) then
+		quest_hexmaster.isOpen = true
 		local textWindow = DawnInterface.createTextWindow();
 		textWindow:setPosition( Enums.CENTER, 512, 382 );
 		textWindow:setAutocloseTime( 0 );
@@ -51,13 +54,18 @@ function quest_hexmaster.showStartText( part )
 		textWindow:setOnCloseText( "quest_hexmaster.showStartText( 2 )" );
 	end
 	if( part == 2 ) then
+		quest_hexmaster.isOpen = false
 		local textWindow = DawnInterface.createTextWindow();
 		textWindow:setPosition( Enums.CENTER, 512, 382 );
 		textWindow:setAutocloseTime( 0 );
 		textWindow:setText("Two weeks ago Jorni, a wizard student here in Arinox, fled town because of the accusations against him. They say he was conducting horrible experiments on living beings - as the ancient Hexmasters were doing. I don't know if what they say is true, but I heard the magistrate is looking to question him. Late last night I think I saw Jorni on the streets, entering the catacombs in the northern part of the town. I know someone who will pay a good price to find out the location of Jorni. Would you be interested in helping me?");
-		-- DawnInterface.removeInteractionRegion( quest_hexmaster.questStartRegion );
-		-- quest_hexmaster.questStartRegion = nil;
-
+		
+		--if accepted
+		if(quest_hexmaster.questStartRegion ~= nil) then
+			DawnInterface.removeInteractionRegion( quest_hexmaster.questStartRegion );
+			quest_hexmaster.questStartRegion = nil;
+		end
+		
 		quest_hexmaster.quest = DawnInterface.addQuest(	"The Hexmaster", "Explore the catacombs underneath the town of Arinox and report back any trace of Jorni to Ornad Saidor." );
 		quest_hexmaster.questGiven = true;
 	end

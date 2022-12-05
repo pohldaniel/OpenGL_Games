@@ -47,4 +47,11 @@ private:
 	static std::vector<TextWindow*> s_textWindows;
 	static CharacterSet& Font;
 	Clock m_timer;
+
+	const int blockSizeX = 32;
+	const int blockSizeY = 32;
+	const int lineWidth = 416;
+	int neededInnerBlocksX;
+	int neededInnerBlocksY;
+
 };

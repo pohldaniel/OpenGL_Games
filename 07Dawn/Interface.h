@@ -82,7 +82,7 @@ public:
 	void addWidget(Widget& widget, bool activate = false);
 
 	static Interface& Get();
-
+	
 private:
 
 	Interface();
