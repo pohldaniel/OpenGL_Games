@@ -67,15 +67,6 @@ std::vector<TextWindow*>& TextWindow::GetTextWindows() {
 	return s_textWindows;
 }
 
-void TextWindow::AddTextWindow(TextWindow* textWindow) {
-	s_textWindows.push_back(textWindow);
-	Interface::Get().addWidget(*textWindow, true);
-}
-
-void TextWindow::RemoveTextWindow(unsigned short index) {
-	s_textWindows.erase(s_textWindows.begin() + index);
-}
-
 TextWindow::TextWindow() : Widget(0, 0, 0, 0, 0, 0),
 	positionType(Enums::PositionType::CENTER),
 	x(0),
@@ -220,4 +211,28 @@ void TextWindow::draw() {
 		curY -= Font.lineHeight;
 		curY -= lineSpace;
 	}
+}
+
+void TextWindow::Update() {
+	for (auto it = s_textWindows.begin(); it != s_textWindows.end();) {
+		short index = static_cast<short>(std::distance(s_textWindows.begin(), it));
+		TextWindow *curTextWindow = *it;
+
+		if (curTextWindow->canBeDeleted() == true) {
+			curTextWindow->close();
+			delete curTextWindow;
+			it = s_textWindows.erase(s_textWindows.begin() + index);
+		}else {
+			++it;
+		}
+	}
+}
+
+void TextWindow::AddTextWindow(TextWindow* textWindow) {
+	s_textWindows.push_back(textWindow);
+	Interface::Get().addWidget(*textWindow, true);
+}
+
+void TextWindow::RemoveTextWindow(unsigned short index) {
+	s_textWindows.erase(s_textWindows.begin() + index);
 }

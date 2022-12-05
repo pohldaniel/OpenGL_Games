@@ -261,18 +261,6 @@ int Zone::locateCollisionbox(int x, int y) {
 	return -1;
 }
 
-void Zone::addInteractionRegion(InteractionRegion* interactionRegionToAdd){
-	m_interactionRegions.push_back(interactionRegionToAdd);
-}
-
-std::vector<InteractionRegion*>& Zone::getInteractionRegions() {
-	return m_interactionRegions;
-}
-
-std::vector<InteractionPoint*>& Zone::getInteractionPoints() {
-	return m_interactionPoints;
-}
-
 bool Zone::findInteractionPointForCharacter(Character *character) const {
 	for (size_t curIP = 0; curIP < m_interactionPoints.size(); curIP++) {
 		const CharacterInteractionPoint* curCharacterIP = dynamic_cast<const CharacterInteractionPoint*>(m_interactionPoints[curIP]);
@@ -283,10 +271,6 @@ bool Zone::findInteractionPointForCharacter(Character *character) const {
 		}
 	}
 	return false;
-}
-
-void Zone::addInteractionPoint(InteractionPoint* interactionPointToAdd) {
-	m_interactionPoints.push_back(interactionPointToAdd);
 }
 
 void Zone::findCharacter(Character *character, bool &found, size_t &foundPos) const {
@@ -302,10 +286,10 @@ void Zone::findCharacter(Character *character, bool &found, size_t &foundPos) co
 
 void Zone::update(float deltaTime) {
 	for (unsigned int x = 0; x < m_npcs.size(); x++) {
-		
-		
 		m_npcs[x]->update(deltaTime);
 	}
+
+	updateInteractionRegion();
 }
 
 void Zone::drawZoneBatched() {
@@ -317,9 +301,14 @@ void Zone::drawZoneBatched() {
 	drawShadowsBatched();
 	TextureManager::DrawBuffer();
 
-	
-	//drawNpcsBatched();
-	
+	groundLoot.draw();
+
+	// draw the interactions on screen
+	for (size_t curInteractionNr = 0; curInteractionNr < m_interactionPoints.size(); ++curInteractionNr) {
+		InteractionPoint* curInteraction = m_interactionPoints[curInteractionNr];
+		curInteraction->draw();
+	}
+	//drawNpcsBatched();	
 }
 
 void Zone::drawTilesBatched() {
@@ -407,6 +396,47 @@ void Zone::removeActiveAoESpell(SpellActionBase* activeSpell) {
 		}
 	}
 }
+
+void Zone::updateInteractionRegion() {
+	for (size_t curInteractionRegionNr = 0; curInteractionRegionNr < m_interactionRegions.size(); ++curInteractionRegionNr) {
+		InteractionRegion* curInteractionRegion = m_interactionRegions[curInteractionRegionNr];
+		curInteractionRegion->interactWithPlayer();
+	}
+}
+
+void Zone::processInput(int mouseX, int mouseY, int characterXpos, int characterYpos) {
+	Mouse &mouse = Mouse::instance();
+
+	if (mouse.buttonPressed(Mouse::BUTTON_RIGHT)) {
+		for (size_t curInteractionNr = 0; curInteractionNr< m_interactionPoints.size(); ++curInteractionNr) {
+			InteractionPoint *curInteraction = m_interactionPoints[curInteractionNr];
+			if (curInteraction->isMouseOver(mouseX, mouseY)) {
+				curInteraction->startInteraction(characterXpos, characterYpos);
+			}
+		}
+	}
+}
+
+void Zone::addInteractionRegion(InteractionRegion* interactionRegion) {
+	m_interactionRegions.push_back(interactionRegion);
+}
+
+std::vector<InteractionRegion*>& Zone::getInteractionRegions() {
+	return m_interactionRegions;
+}
+
+void Zone::addInteractionPoint(InteractionPoint* interactionPoint) {
+	m_interactionPoints.push_back(interactionPoint);
+}
+
+std::vector<InteractionPoint*>& Zone::getInteractionPoints() {
+	return m_interactionPoints;
+}
+
+void Zone::addCharacterInteractionPoint(CharacterInteractionPoint *characterInteractionPoint) {
+	m_interactionPoints.push_back(characterInteractionPoint);
+}
+
 
 GroundLoot* Zone::getGroundLoot() {
 	return &groundLoot;

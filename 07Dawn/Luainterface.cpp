@@ -109,8 +109,8 @@ namespace DawnInterface{
 	}
 
 	const InteractionRegion& addInteractionRegion(){
-		ZoneManager::Get().getCurrentZone()->addInteractionRegion(new InteractionRegion());
-		return *ZoneManager::Get().getCurrentZone()->getInteractionRegions().back();
+		InteractionRegion::AddInteractionRegion(new InteractionRegion());
+		return *InteractionRegion::GetInteractionRegions().back();
 	}
 
 	void removeInteractionRegion(InteractionRegion *regionToRemove){
@@ -118,17 +118,17 @@ namespace DawnInterface{
 	}
 
 	const InteractionPoint& addInteractionPoint(){
-		ZoneManager::Get().getCurrentZone()->addInteractionPoint(new InteractionPoint());
-		return *ZoneManager::Get().getCurrentZone()->getInteractionPoints().back();
+		InteractionPoint::AddInteractionPoint(new InteractionPoint());
+		return *InteractionPoint::GetInteractionPoints().back();
 	}
 
 	const InteractionPoint& addCharacterInteractionPoint(Character *character){
-		ZoneManager::Get().getCurrentZone()->addInteractionPoint(new CharacterInteractionPoint(character));
-		return *ZoneManager::Get().getCurrentZone()->getInteractionPoints().back();
+		CharacterInteractionPoint::AddInteractionPoint(new CharacterInteractionPoint(character));
+		return *CharacterInteractionPoint::GetInteractionPoints().back();
 	}
 
 	void removeInteractionPoint(InteractionPoint *pointToRemove){
-		//pointToRemove->markAsDeletable();
+		pointToRemove->markAsDeletable();
 	}
 
 	std::string getItemReferenceRestore(Character *character){

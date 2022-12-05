@@ -133,15 +133,6 @@ void InteractionPoint::markAsDeletable() {
 	markedAsDeletable = true;
 }
 
-void InteractionPoint::processInput(int mouseX, int mouseY, int characterXpos, int characterYpos) {
-	Mouse &mouse = Mouse::instance();
-	if (mouse.buttonPressed(Mouse::BUTTON_RIGHT)) {
-		if (isMouseOver(mouseX, mouseY)){
-			startInteraction(characterXpos, characterYpos);
-		}
-	}
-}
-
 std::string toStringForLua(Enums::InteractionType interactionType) {
 	switch (interactionType) {
 		case Enums::InteractionType::Quest:
@@ -169,6 +160,15 @@ std::string InteractionPoint::getLuaSaveText() const {
 
 	return oss.str();
 }
+
+void InteractionPoint::AddInteractionPoint(InteractionPoint* interactionPoint) {
+	ZoneManager::Get().getCurrentZone()->addInteractionPoint(interactionPoint);
+}
+
+std::vector<InteractionPoint*>& InteractionPoint::GetInteractionPoints() {
+	return ZoneManager::Get().getCurrentZone()->getInteractionPoints();
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 CharacterInteractionPoint::CharacterInteractionPoint(Character *character_) : interactionCharacter(character_) {
 }
@@ -224,4 +224,8 @@ std::string CharacterInteractionPoint::getLuaSaveText() const {
 	oss << objectName << ":setInteractionCode( [[" << interactionCode << "]] );" << std::endl;
 
 	return oss.str();
+}
+
+void CharacterInteractionPoint::AddCharacterInteractionPoint(CharacterInteractionPoint *characterInteractionPoint) {
+	ZoneManager::Get().getCurrentZone()->addCharacterInteractionPoint(characterInteractionPoint);
 }

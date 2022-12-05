@@ -61,6 +61,7 @@ public:
 	void drawEnvironmentInstanced();
 
 	void update(float deltaTime);
+	void processInput(int mouseX, int mouseY, int characterXpos, int characterYpos);
 
 	void loadZone();
 	bool zoneDataLoaded() const;
@@ -86,11 +87,9 @@ public:
 	void removeNPC(Npc *npcToDelete);
 	void cleanupNPCList();
 	std::vector<Npc*> getNPCs();
-	void addInteractionRegion(InteractionRegion* interactionRegionToAdd);
-	
+
 
 	bool findInteractionPointForCharacter(Character *character) const;
-	void addInteractionPoint(InteractionPoint* interactionPointToAdd);
 	void findCharacter(Character *character, bool &found, size_t &foundPos) const;
 
 	std::vector<TileMap>& getTileMap();
@@ -99,6 +98,7 @@ public:
 	std::vector<CollisionRect>& getCollisionMap();
 	std::vector<InteractionRegion*>& getInteractionRegions();
 	std::vector<InteractionPoint*>& getInteractionPoints();
+
 
 	std::vector<CMagic*> MagicMap;
 	void addActiveAoESpell(SpellActionBase *spell);
@@ -113,7 +113,13 @@ public:
 	int environmentOffset = 0;
 	int shadowOffset = 0;
 
+	void updateInteractionRegion();
+	void addInteractionRegion(InteractionRegion* interactionRegion);	
+	void addInteractionPoint(InteractionPoint* interactionPoint);
+	void addCharacterInteractionPoint(CharacterInteractionPoint *characterInteractionPoint);
+
 private:
+
 	std::vector< std::pair<SpellActionBase*, uint32_t> > activeAoESpells;
 	std::vector<TileMap> m_tileMap;
 	std::vector<EnvironmentMap> m_environmentMap;
@@ -127,6 +133,7 @@ private:
 	bool m_mapLoaded = false;
 	unsigned int m_textureAtlas;
 	GroundLoot groundLoot;
+
 };
 
 class ZoneManager {

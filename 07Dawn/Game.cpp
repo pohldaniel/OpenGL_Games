@@ -9,7 +9,6 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_player
 	
 	Mouse::SetCursorIcon("res/cursors/pointer.cur");
 	
-	
 	LuaFunctions::executeLuaFile("res/_lua/playerdata_w.lua");
 	Player::Get().setCharacterType("player_w");
 	Player::Get().setClass(Enums::CharacterClass::Liche);
@@ -49,22 +48,8 @@ void Game::update() {
 	//ViewPort::Get().update(m_dt);
 
 	processInput();
-	Interface::Get().processInputRightDrag();
-		
-	for (auto it = TextWindow::GetTextWindows().begin(); it != TextWindow::GetTextWindows().end();) {
-		short index = static_cast<short>(std::distance(TextWindow::GetTextWindows().begin(), it));
-		TextWindow *curTextWindow = *it;		
 
-		if (curTextWindow->canBeDeleted() == true) {
-			curTextWindow->close();
-
-			delete curTextWindow;
-			it = TextWindow::GetTextWindows().erase(TextWindow::GetTextWindows().begin() + index);
-			//TextWindow::Get().RemoveTextWindow(index);
-		}else {
-			++it;
-		}
-	}
+	TextWindow::Update();
 
 	for (unsigned int i = 0; i < ZoneManager::Get().getCurrentZone()->MagicMap.size(); ++i) {
 		ZoneManager::Get().getCurrentZone()->MagicMap[i]->process();
@@ -76,9 +61,7 @@ void Game::update() {
 		}
 	}
 
-	for (const auto& npc : ZoneManager::Get().getCurrentZone()->getNPCs()) {
-		npc->update(m_dt);	
-	}
+	ZoneManager::Get().getCurrentZone()->update(m_dt);
 
 	m_player.update(m_dt);
 
@@ -86,12 +69,6 @@ void Game::update() {
 	std::vector<SpellActionBase*> activeSpellActions = m_player.getActiveSpells();
 	for (size_t curActiveSpellNr = 0; curActiveSpellNr < activeSpellActions.size(); ++curActiveSpellNr) {
 		activeSpellActions[curActiveSpellNr]->inEffect(m_dt);
-	}
-
-	std::vector<InteractionRegion*> interactionRegions = ZoneManager::Get().getCurrentZone()->getInteractionRegions();
-	for (size_t curInteractionRegionNr = 0; curInteractionRegionNr<interactionRegions.size(); ++curInteractionRegionNr){
-		InteractionRegion* curInteractionRegion = interactionRegions[curInteractionRegionNr];
-		curInteractionRegion->interactWithPlayer(m_player);
 	}
 
 	ViewPort::Get().setPosition(Player::Get().getPosition());	
@@ -107,15 +84,9 @@ void Game::render(unsigned int &frameBuffer) {
 	glEnable(GL_BLEND);
 	
 	ZoneManager::Get().getCurrentZone()->drawZoneBatched();
-	ZoneManager::Get().getCurrentZone()->getGroundLoot()->draw();
 
-	// draw the interactions on screen
-	std::vector<InteractionPoint*> zoneInteractionPoints = ZoneManager::Get().getCurrentZone()->getInteractionPoints();
-	for (size_t curInteractionNr = 0; curInteractionNr<zoneInteractionPoints.size(); ++curInteractionNr){
-		InteractionPoint* curInteraction = zoneInteractionPoints[curInteractionNr];
-		curInteraction->draw();
-	}
 
+	
 	// draw AoE spells
 	std::vector<std::pair<SpellActionBase*, uint32_t> > activeAoESpells = ZoneManager::Get().getCurrentZone()->getActiveAoESpells();
 	for (size_t curActiveAoESpellNr = 0; curActiveAoESpellNr < activeAoESpells.size(); ++curActiveAoESpellNr) {
@@ -148,14 +119,11 @@ void Game::render(unsigned int &frameBuffer) {
 
 	ZoneManager::Get().getCurrentZone()->getGroundLoot()->drawTooltip(ViewPort::Get().getCursorPosX(), ViewPort::Get().getCursorPosY());
 
-	for (size_t curInteractionNr = 0; curInteractionNr<zoneInteractionPoints.size(); ++curInteractionNr){
+	std::vector<InteractionPoint*> zoneInteractionPoints = InteractionPoint::GetInteractionPoints();
+	for (size_t curInteractionNr = 0; curInteractionNr < zoneInteractionPoints.size(); ++curInteractionNr){
 		InteractionPoint *curInteraction = zoneInteractionPoints[curInteractionNr];
 		curInteraction->drawInteractionSymbol(ViewPort::Get().getCursorPosX(), ViewPort::Get().getCursorPosY(), m_player.getXPos(), m_player.getYPos());	
 	}
-
-	/*for (auto it = TextWindow::GetTextWindows().begin(); it != TextWindow::GetTextWindows().end(); ++it) {
-		(*it)->draw();
-	}*/
 
 	Interface::Get().draw();
 	glDisable(GL_BLEND);
@@ -213,13 +181,7 @@ void Game::processInput() {
 		ZoneManager::Get().getCurrentZone()->getGroundLoot()->disableTooltips();
 	}
 
-	std::vector<InteractionPoint*> zoneInteractionPoints = ZoneManager::Get().getCurrentZone()->getInteractionPoints();
-	for (size_t curInteractionNr = 0; curInteractionNr< zoneInteractionPoints.size(); ++curInteractionNr) {
-		InteractionPoint *curInteraction = zoneInteractionPoints[curInteractionNr];
-		curInteraction->processInput(ViewPort::Get().getCursorPosX(), ViewPort::Get().getCursorPosY(), m_player.getXPos(), m_player.getYPos());
-	}
+	ZoneManager::Get().getCurrentZone()->processInput(ViewPort::Get().getCursorPosX(), ViewPort::Get().getCursorPosY(), m_player.getXPos(), m_player.getYPos());
 
-	/*for (auto it = TextWindow::GetTextWindows().begin(); it != TextWindow::GetTextWindows().end(); ++it) {
-		(*it)->processInput();
-	}*/
+	Interface::Get().processInputRightDrag();
 }

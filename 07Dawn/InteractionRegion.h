@@ -1,11 +1,13 @@
 #pragma once
 #include <string>
+#include <vector>
 
 #include "Luainterface.h"
 
 class InteractionRegion {
+
 public:
-	
+	InteractionRegion();
 
 	void setPosition(int left, int bottom, int width, int height);
 	void getPosition(int &left, int &bottom, int &width, int &height) const;
@@ -13,19 +15,17 @@ public:
 	std::string getOnEnterText() const;
 	void setOnLeaveText(std::string leaveCode);
 	std::string getOnLeaveText() const;
-	void interactWithPlayer(Player& player);
+	void interactWithPlayer();
 
 	std::string getLuaSaveText() const;
 
 	bool isMarkedDeletable() const;
+	void markAsDeletable();
+
+	static std::vector<InteractionRegion*>& GetInteractionRegions();
+	static void AddInteractionRegion(InteractionRegion* interactionRegion);
 
 private:
-	friend const InteractionRegion& DawnInterface::addInteractionRegion();
-	friend void DawnInterface::removeInteractionRegion(InteractionRegion *regionToRemove);
-
-	InteractionRegion();
-
-	void markAsDeletable();
 
 	int left;
 	int bottom;
@@ -38,4 +38,5 @@ private:
 	std::string onLeaveCode;
 
 	bool markedAsDeletable;
+	Player& m_player;
 };

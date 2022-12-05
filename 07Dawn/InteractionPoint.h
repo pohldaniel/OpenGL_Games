@@ -7,32 +7,35 @@
 #include "ViewPort.h"
 #include "TextureManager.h"
 
-class InteractionPoint;
-class CharacterInteractionPoint;
 class Character;
 
 class InteractionPoint {
+
 public:
+	InteractionPoint();
 	~InteractionPoint();
+
+	virtual void draw();
+	virtual bool isMouseOver(int mouseX, int mouseY) const;
+	virtual bool isInRange(int characterXpos, int characterYpos) const;
+
 	void setPosition(int posX, int posY, int width, int height);
 	void setInteractionType(Enums::InteractionType interactionType);
 	void setBackgroundTexture(std::string texturename, bool transparent = false);
 	void setInteractionCode(std::string interactionCode);
-	void processInput(int mouseX, int mouseY, int characterXpos, int characterYpos);
-
-	virtual bool isMouseOver(int mouseX, int mouseY) const;
-	virtual bool isInRange(int characterXpos, int characterYpos) const;
-	virtual void draw();
-	virtual void drawInteractionSymbol(int mouseX, int mouseY, int characterXpos, int characterYpos);
+	
+	void drawInteractionSymbol(int mouseX, int mouseY, int characterXpos, int characterYpos);
 	void startInteraction(int characterXpos, int characterYpos);
 
+	void markAsDeletable();
 	bool isMarkedDeletable() const;
 
 	virtual std::string getLuaSaveText() const;
 
-	
+	static void AddInteractionPoint(InteractionPoint* interactionPoint);
+	static  std::vector<InteractionPoint*>& InteractionPoint::GetInteractionPoints();
+
 protected:
-	InteractionPoint();
 
 	std::vector<TextureRect> m_interactionTextures;
 	unsigned int m_textureAtlas;
@@ -44,10 +47,6 @@ protected:
 	Enums::InteractionType interactionType;
 
 private:
-	friend const InteractionPoint& DawnInterface::addInteractionPoint();
-	friend void DawnInterface::removeInteractionPoint(InteractionPoint *pointToRemove);
-
-	void markAsDeletable();
 
 	int posX;
 	int posY;
@@ -58,16 +57,20 @@ private:
 };
 
 class CharacterInteractionPoint : public InteractionPoint {
+
 public:
-	virtual bool isMouseOver(int mouseX, int mouseY) const;
-	virtual bool isInRange(int characterXpos, int characterYpos) const;
-	virtual void draw();
-	virtual Character *getCharacter() const;
-
-	virtual std::string getLuaSaveText() const;
-private:
-	friend const InteractionPoint& DawnInterface::addCharacterInteractionPoint(Character *character);
-
 	CharacterInteractionPoint(Character *character);
+
+	void draw() override;
+	bool isMouseOver(int mouseX, int mouseY) const override;
+	bool isInRange(int characterXpos, int characterYpos) const override;
+	
+	std::string getLuaSaveText() const override;
+	Character *getCharacter() const;
+
+	static void AddCharacterInteractionPoint(CharacterInteractionPoint *characterInteractionPoint);
+
+private:
+
 	Character *interactionCharacter;
 };

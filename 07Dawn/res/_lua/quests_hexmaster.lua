@@ -7,9 +7,9 @@ function quest_hexmaster.init()
 
 	-- this quest is initialized from zone zone1
 	quest_hexmaster.isOpen = false
-	--quest_hexmaster.questStartRegion = DawnInterface.addInteractionRegion();
-	--quest_hexmaster.questStartRegion:setPosition( 730, 2250, 400, 310 );
-	--quest_hexmaster.questStartRegion:setOnEnterText( "quest_hexmaster.onQuestGiverRegionInteraction()" );
+	quest_hexmaster.questStartRegion = DawnInterface.addInteractionRegion();
+	quest_hexmaster.questStartRegion:setPosition( 730, 2250, 400, 310 );
+	quest_hexmaster.questStartRegion:setOnEnterText( "quest_hexmaster.onQuestGiverRegionInteraction()" );
 
 	quest_hexmaster.ornadSaidor = DawnInterface.addMobSpawnPoint("Human", "Ornad Saidor", 900, 2350, 1, 0, Enums.FRIENDLY);
 	quest_hexmaster.ornadSaidor:setWanderRadius(50);

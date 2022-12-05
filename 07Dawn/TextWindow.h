@@ -23,6 +23,8 @@ public:
 	void processInput();
 	void draw();
 	void close() override;
+
+	static void  Update();
 	static void FormatMultilineText(std::string textIn, std::vector< std::string > &textLines, int lineWidth, CharacterSet* font);
 	static std::vector<TextWindow*>& GetTextWindows();
 	static void AddTextWindow(TextWindow* textWindow);
@@ -44,8 +46,6 @@ private:
 	std::string executeTextOnClose;
 	bool explicitClose;
 
-	static std::vector<TextWindow*> s_textWindows;
-	static CharacterSet& Font;
 	Clock m_timer;
 
 	const int blockSizeX = 32;
@@ -54,4 +54,6 @@ private:
 	int neededInnerBlocksX;
 	int neededInnerBlocksY;
 
+	static std::vector<TextWindow*> s_textWindows;
+	static CharacterSet& Font;
 };

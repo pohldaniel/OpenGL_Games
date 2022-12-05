@@ -8,7 +8,7 @@ InteractionRegion::InteractionRegion()
 	width(0),
 	height(0),
 	playerInside(false),
-	markedAsDeletable(false) {
+	markedAsDeletable(false), m_player(Player::Get()) {
 }
 
 void InteractionRegion::setPosition(int left_, int bottom_, int width_, int height_) {
@@ -41,11 +41,11 @@ std::string InteractionRegion::getOnLeaveText() const {
 	return onLeaveCode;
 }
 
-void InteractionRegion::interactWithPlayer(Player& player) {
-	int px = player.getXPos();
-	int pw = player.getWidth();
-	int py = player.getYPos();
-	int ph = player.getWidth();
+void InteractionRegion::interactWithPlayer() {
+	int px = m_player.getXPos();
+	int pw = m_player.getWidth();
+	int py = m_player.getYPos();
+	int ph = m_player.getWidth();
 	bool playerNowInside = (px >= left && px + pw <= left + width && py >= bottom && py + ph <= bottom + height);
 	if (playerNowInside && !playerInside) {
 		playerInside = true;
@@ -80,4 +80,12 @@ bool InteractionRegion::isMarkedDeletable() const {
 
 void InteractionRegion::markAsDeletable() {
 	markedAsDeletable = true;
+}
+
+void InteractionRegion::AddInteractionRegion(InteractionRegion* interactionRegion) {
+	ZoneManager::Get().getCurrentZone()->addInteractionRegion(interactionRegion);
+}
+
+std::vector<InteractionRegion*>& InteractionRegion::GetInteractionRegions() {
+	return ZoneManager::Get().getCurrentZone()->getInteractionRegions();
 }

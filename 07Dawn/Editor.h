@@ -5,6 +5,7 @@
 #include "StateMachine.h"
 
 #include "Zone.h"
+#include "InteractionRegion.h"
 #include "Character.h"
 #include "Message.h"
 

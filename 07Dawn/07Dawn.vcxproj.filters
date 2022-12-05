@@ -168,9 +168,6 @@
     <ClCompile Include="InteractionRegion.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="TextWindow.cpp">
-      <Filter>Source Files\UI</Filter>
-    </ClCompile>
     <ClCompile Include="thread\EventClass.cpp">
       <Filter>thread</Filter>
     </ClCompile>
@@ -247,6 +244,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="InventoryCanvas.cpp">
+      <Filter>Source Files\Interface</Filter>
+    </ClCompile>
+    <ClCompile Include="TextWindow.cpp">
       <Filter>Source Files\Interface</Filter>
     </ClCompile>
   </ItemGroup>
@@ -374,9 +374,6 @@
     <ClInclude Include="InteractionRegion.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="TextWindow.h">
-      <Filter>Source Files\UI</Filter>
-    </ClInclude>
     <ClInclude Include="thread\EventClass.h">
       <Filter>thread</Filter>
     </ClInclude>
@@ -465,6 +462,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="InventoryCanvas.h">
+      <Filter>Source Files\Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="TextWindow.h">
       <Filter>Source Files\Interface</Filter>
     </ClInclude>
   </ItemGroup>
