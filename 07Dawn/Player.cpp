@@ -164,11 +164,7 @@ void Player::update(float deltaTime) {
 	continuePreparing();
 }
 
-void Player::init(int x, int y) {
-	x_pos = x;
-	y_pos = y;
-	std::cout << "Player Init: " << std::endl;
-
+void Player::init() {
 	activeDirection = Enums::Direction::S;
 	lastActiveDirection = activeDirection;
 	curActivity = Enums::ActivityType::Walking;

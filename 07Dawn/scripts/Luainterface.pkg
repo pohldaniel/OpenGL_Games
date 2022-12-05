@@ -348,7 +348,7 @@ class Player : public Character {
 	void setFatigueRegen(int newFatigueRegen);
 	void giveCoins(unsigned int amountOfCoins);
 	
-	void init(int x, int y);
+	void init();
 	Enums::CharacterClass getClass();
 }
 

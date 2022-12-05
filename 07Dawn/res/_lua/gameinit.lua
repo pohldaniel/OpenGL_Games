@@ -41,3 +41,19 @@ DawnInterface.giveItemToPlayer( itemDatabase["awaterpouch"] );
 DawnInterface.giveItemToPlayer( itemDatabase["awaterpouch"] );
 DawnInterface.giveItemToPlayer( itemDatabase["awaterpouch"] );
 --note: this is just for debug the items need to be copied not accessed directly else the same reference is used!!!
+
+traderShop = DawnInterface.addShop("shop1");
+traderShop:addItem( itemDatabase["leynorscap"] );
+traderShop:addItem( itemDatabase["smallhealingpotion"] );
+traderShop:addItem( itemDatabase["smallhealingpotion"] );
+traderShop:addItem( itemDatabase["smallhealingpotion"] );
+traderShop:addItem( itemDatabase["smallhealingpotion"] );
+traderShop:addItem( itemDatabase["smallhealingpotion"] );
+traderShop:addItem( itemDatabase["smallhealingpotion"] );
+traderShop:addItem( itemDatabase["smallhealingpotion"] );
+traderShop:addItem( itemDatabase["smallhealingpotion"] );
+traderShop:addItem( itemDatabase["smallhealingpotion"] );
+traderShop:addItem( itemDatabase["smallhealingpotion"] );
+traderShop:addItem( itemDatabase["bladeofstrength"] );
+traderShop:addItem( itemDatabase["bookofleatherskinrank2"] );
+traderShop:loadShopkeeperInventory();

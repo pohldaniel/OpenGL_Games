@@ -11,7 +11,8 @@
 #include "Luainterface.h"
 #include "Enums.h"
 
-class TextWindow {
+class TextWindow : public Widget{
+
 public:
 	void setText(std::string text);
 	void setAutocloseTime(unsigned int autocloseTime);
@@ -19,11 +20,9 @@ public:
 	void center();
 	void setOnCloseText(std::string onCloseText);
 	bool canBeDeleted() const;
-	void close();
-
 	void processInput();
 	void draw();
-
+	void close() override;
 	static void FormatMultilineText(std::string textIn, std::vector< std::string > &textLines, int lineWidth, CharacterSet* font);
 	static std::vector<TextWindow*>& GetTextWindows();
 	static void AddTextWindow(TextWindow* textWindow);
@@ -33,7 +32,7 @@ private:
 	friend TextWindow* DawnInterface::createTextWindow();
 
 	TextWindow();
-	bool isMouseOnFrame(int mouseX, int mouseY) const;
+	bool isMouseOnFrame(int mouseX, int mouseY) const override;
 	void updateFramesPosition();
 
 	Enums::PositionType positionType;
@@ -48,9 +47,4 @@ private:
 	static std::vector<TextWindow*> s_textWindows;
 	static CharacterSet& Font;
 	Clock m_timer;
-
-	short m_posX = 0;
-	short m_posY = 0;
-	short m_width;
-	short m_height;
 };

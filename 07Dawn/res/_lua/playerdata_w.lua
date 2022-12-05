@@ -55,5 +55,5 @@ player:setHealthRegen(1);
 player:setManaRegen(2);
 player:setFatigueRegen( 5 );
 player:giveCoins( 48576 );
-player:init(512, 400);
+player:init();
 --TextureAtlasCreator:Get():safeAtlas("tmp/player")

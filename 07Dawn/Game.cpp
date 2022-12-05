@@ -25,8 +25,8 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_player
 	ShopCanvas::Get().init();
 	QuestCanvas::Get().init();
 	Interface::Get().init();
-	DawnInterface::enterZone("res/_lua/zone1", 512, 400);
-	//DawnInterface::enterZone("res/_lua/zone1", 747, 1530);	
+	//DawnInterface::enterZone("res/_lua/zone1", 512, 400);
+	DawnInterface::enterZone("res/_lua/zone1", 747, 1530);	
 	//DawnInterface::enterZone("res/_lua/arinoxGeneralShop", -158, 0);
 	
 	LuaFunctions::executeLuaFile("res/_lua/gameinit.lua");
@@ -94,10 +94,7 @@ void Game::update() {
 		curInteractionRegion->interactWithPlayer(m_player);
 	}
 
-
-	ViewPort::Get().setPosition(Player::Get().getPosition());
-
-	
+	ViewPort::Get().setPosition(Player::Get().getPosition());	
 }
 
 void Game::render(unsigned int &frameBuffer) {
@@ -156,9 +153,9 @@ void Game::render(unsigned int &frameBuffer) {
 		curInteraction->drawInteractionSymbol(ViewPort::Get().getCursorPosX(), ViewPort::Get().getCursorPosY(), m_player.getXPos(), m_player.getYPos());	
 	}
 
-	for (auto it = TextWindow::GetTextWindows().begin(); it != TextWindow::GetTextWindows().end(); ++it) {
+	/*for (auto it = TextWindow::GetTextWindows().begin(); it != TextWindow::GetTextWindows().end(); ++it) {
 		(*it)->draw();
-	}
+	}*/
 
 	Interface::Get().draw();
 	glDisable(GL_BLEND);
@@ -222,7 +219,7 @@ void Game::processInput() {
 		curInteraction->processInput(ViewPort::Get().getCursorPosX(), ViewPort::Get().getCursorPosY(), m_player.getXPos(), m_player.getYPos());
 	}
 
-	for (auto it = TextWindow::GetTextWindows().begin(); it != TextWindow::GetTextWindows().end(); ++it) {
+	/*for (auto it = TextWindow::GetTextWindows().begin(); it != TextWindow::GetTextWindows().end(); ++it) {
 		(*it)->processInput();
-	}
+	}*/
 }

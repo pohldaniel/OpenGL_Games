@@ -18,16 +18,16 @@ public:
 	virtual void addChildWidget(int posX, int posY, std::auto_ptr<Widget> newChild);
 	virtual int getWidth() const;
 	virtual int getHeight() const;
+	virtual bool isMouseOnFrame(int mouseX, int mouseY) const;
+	virtual void close();
 
 	int getPosX() const;
 	int getPosY() const;
-	virtual void toggle();
 
 	void addToParent(int posX, int posY, Widget* parent);
 	void addMoveableFrame(unsigned short titleWidth, unsigned short titleHeight, short titleOffsetX, short titleOffsetY);
 	void addCloseButton(unsigned short buttonWidth, unsigned short buttonHeight, short buttonOffsetX, short buttonOffsetY);
 	std::vector<Widget*> getChildWidgets();
-	bool isMouseOnFrame(int mouseX, int mouseY) const;
 
 	void setPosition(int posX, int posY);
 	void setSize(int width, int height);
@@ -38,8 +38,7 @@ public:
 	void setOnClose(std::function<void()> fun);
 	void setOnActivate(std::function<void()> fun);
 	void activate(); 
-	void close();
-
+	
 protected:
 
 	bool isMouseOnTitlebar(int mouseX, int mouseY) const;

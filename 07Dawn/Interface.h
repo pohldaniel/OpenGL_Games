@@ -79,6 +79,7 @@ public:
 	void resize(int deltaW, int deltaH);
 	void addTextToLog(std::string text, Vector4f color);
 	void clearLogWindow();
+	void addWidget(Widget& widget, bool activate = false);
 
 	static Interface& Get();
 

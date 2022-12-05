@@ -176,10 +176,6 @@ std::vector<Widget*> Widget::getChildWidgets() {
 	return m_childWidgets;
 }
 
-void Widget::toggle() {
-
-}
-
 void Widget::addMoveableFrame(unsigned short titleWidth, unsigned short titleHeight, short titleOffsetX, short titleOffsetY) {
 	m_moveableFrame = true;
 	m_titleWidth = titleWidth;

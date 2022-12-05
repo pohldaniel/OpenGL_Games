@@ -60,94 +60,12 @@ void Interface::init() {
 	m_characterInfo.init();
 	InventoryCanvas::Get().init();
 
-	m_spellbook.setOnClose([&]() {
-		for (size_t curFrame = 0; curFrame < m_widgets.size(); curFrame++){
-			if (dynamic_cast<Widget*>(&m_spellbook) == m_widgets[curFrame]) {
-				m_spellbook.setVisible(false);
-				m_widgets.erase(m_widgets.begin() + curFrame);
-				if (m_widgets.size() == 0) m_activeWidget = nullptr;
-				return;
-			}
-		}
-	});
-
-	m_spellbook.setOnActivate([&]() {
-		if (m_spellbook.isVisible()) {
-			for (size_t curFrame = 0; curFrame < m_widgets.size(); curFrame++) {
-				if (dynamic_cast<Widget*>(&m_spellbook) == m_widgets[curFrame]) {
-					m_widgets.erase(m_widgets.begin() + curFrame);
-					m_widgets.push_back(&m_spellbook);
-					m_activeWidget = m_widgets.back();
-					return;
-				}
-			}
-		}else {
-			// else add it to the frame vector and make it visible.
-			m_widgets.push_back(&m_spellbook);
-			m_spellbook.setVisible(true);
-			m_activeWidget = m_widgets.back();
-		}
-	});
-
-	m_characterInfo.setOnClose([&]() {
-		for (size_t curFrame = 0; curFrame < m_widgets.size(); curFrame++) {
-			if (dynamic_cast<Widget*>(&m_characterInfo) == m_widgets[curFrame]) {
-				m_characterInfo.setVisible(false);
-				m_widgets.erase(m_widgets.begin() + curFrame);
-				if (m_widgets.size() == 0) m_activeWidget = nullptr;
-				return;
-			}
-		}
-	});
-
-	m_characterInfo.setOnActivate([&]() {
-		if (m_characterInfo.isVisible()) {
-			for (size_t curFrame = 0; curFrame < m_widgets.size(); curFrame++) {
-				if (dynamic_cast<Widget*>(&m_characterInfo) == m_widgets[curFrame]) {
-					m_widgets.erase(m_widgets.begin() + curFrame);
-					m_widgets.push_back(&m_characterInfo);
-					m_activeWidget = m_widgets.back();
-					return;
-				}
-			}
-		}else {
-			// else add it to the frame vector and make it visible.
-			m_widgets.push_back(&m_characterInfo);
-			m_characterInfo.setVisible(true);
-			m_activeWidget = m_widgets.back();
-		}
-	});
-
-	InventoryCanvas::Get().setOnClose([&]() {
-		for (size_t curFrame = 0; curFrame < m_widgets.size(); curFrame++) {
-			if (dynamic_cast<Widget*>(&InventoryCanvas::Get()) == m_widgets[curFrame]) {
-				InventoryCanvas::Get().setVisible(false);
-				m_widgets.erase(m_widgets.begin() + curFrame);
-				if (m_widgets.size() == 0) m_activeWidget = nullptr;
-				return;
-			}
-		}
-	});
-
-	InventoryCanvas::Get().setOnActivate([&]() {
-		
-		if (InventoryCanvas::Get().isVisible()) {
-			for (size_t curFrame = 0; curFrame < m_widgets.size(); curFrame++) {
-				if (dynamic_cast<Widget*>(&InventoryCanvas::Get()) == m_widgets[curFrame]) {
-					m_widgets.erase(m_widgets.begin() + curFrame);
-					m_widgets.push_back(&InventoryCanvas::Get());
-					m_activeWidget = m_widgets.back();
-					return;
-				}
-			}
-		}else {
-			// else add it to the frame vector and make it visible.
-			m_widgets.push_back(&InventoryCanvas::Get());
-			InventoryCanvas::Get().setVisible(true);
-			m_activeWidget = m_widgets.back();
-		}
-	});
-
+	addWidget(m_spellbook);
+	addWidget(m_characterInfo);
+	addWidget(m_characterInfo);
+	addWidget(InventoryCanvas::Get());
+	addWidget(QuestCanvas::Get());
+	
 	ShopCanvas::Get().setOnClose([&]() {
 		m_player->stopShopping();
 		m_player->setTicketForItemTooltip();
@@ -155,7 +73,7 @@ void Interface::init() {
 			if (dynamic_cast<Widget*>(&ShopCanvas::Get()) == m_widgets[curFrame]) {
 				ShopCanvas::Get().setVisible(false);
 				m_widgets.erase(m_widgets.begin() + curFrame);
-				if (m_widgets.size() == 0) m_activeWidget = nullptr;
+				m_widgets.size() == 0 ? m_activeWidget = nullptr : m_activeWidget = m_widgets.back();
 				return;
 			}
 		}
@@ -177,35 +95,6 @@ void Interface::init() {
 			// else add it to the frame vector and make it visible.
 			m_widgets.push_back(&ShopCanvas::Get());
 			ShopCanvas::Get().setVisible(true);
-			m_activeWidget = m_widgets.back();
-		}
-	});
-
-	QuestCanvas::Get().setOnClose([&]() {		
-		for (size_t curFrame = 0; curFrame < m_widgets.size(); curFrame++) {
-			if (dynamic_cast<Widget*>(&QuestCanvas::Get()) == m_widgets[curFrame]) {
-				QuestCanvas::Get().setVisible(false);
-				m_widgets.erase(m_widgets.begin() + curFrame);
-				if (m_widgets.size() == 0) m_activeWidget = nullptr;
-				return;
-			}
-		}
-	});
-
-	QuestCanvas::Get().setOnActivate([&]() {
-		if (QuestCanvas::Get().isVisible()) {
-			for (size_t curFrame = 0; curFrame < m_widgets.size(); curFrame++) {
-				if (dynamic_cast<Widget*>(&QuestCanvas::Get()) == m_widgets[curFrame]) {
-					m_widgets.erase(m_widgets.begin() + curFrame);
-					m_widgets.push_back(&QuestCanvas::Get());
-					m_activeWidget = m_widgets.back();
-					return;
-				}
-			}
-		} else {
-			// else add it to the frame vector and make it visible.
-			m_widgets.push_back(&QuestCanvas::Get());
-			QuestCanvas::Get().setVisible(true);
 			m_activeWidget = m_widgets.back();
 		}
 	});
@@ -1078,4 +967,37 @@ void Interface::addTextToLog(std::string text, Vector4f color) {
 
 void Interface::clearLogWindow() {
 	m_textDatabase.clear();
+}
+
+void Interface::addWidget(Widget& widget, bool activate) {
+
+	widget.setOnActivate([&]() {
+		if (widget.isVisible()) {
+			for (size_t curFrame = 0; curFrame < m_widgets.size(); curFrame++) {
+				if (&widget == m_widgets[curFrame]) {
+					m_widgets.erase(m_widgets.begin() + curFrame);
+					m_widgets.push_back(&widget);
+					m_activeWidget = m_widgets.back();
+					return;
+				}
+			}
+		}else {
+
+			m_widgets.push_back(&widget);
+			widget.setVisible(true);
+			m_activeWidget = m_widgets.back();
+		}
+	});
+	if(activate) widget.activate();
+
+	widget.setOnClose([&]() {
+		for (size_t curFrame = 0; curFrame < m_widgets.size(); curFrame++) {
+			if (&widget == m_widgets[curFrame]) {
+				widget.setVisible(false);
+				m_widgets.erase(m_widgets.begin() + curFrame);
+				m_widgets.size() == 0 ? m_activeWidget = nullptr : m_activeWidget = m_widgets.back();				
+				return;
+			}
+		}
+	});
 }

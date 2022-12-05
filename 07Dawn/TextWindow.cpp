@@ -1,4 +1,5 @@
 #include "TextWindow.h"
+#include "Interface.h"
 #include "Constants.h"
 
 
@@ -68,13 +69,14 @@ std::vector<TextWindow*>& TextWindow::GetTextWindows() {
 
 void TextWindow::AddTextWindow(TextWindow* textWindow) {
 	s_textWindows.push_back(textWindow);
+	Interface::Get().addWidget(*textWindow, true);
 }
 
 void TextWindow::RemoveTextWindow(unsigned short index) {
 	s_textWindows.erase(s_textWindows.begin() + index);
 }
 
-TextWindow::TextWindow() :
+TextWindow::TextWindow() : Widget(0, 0, 0, 0, 0, 0),
 	positionType(Enums::PositionType::CENTER),
 	x(0),
 	y(0),
@@ -85,15 +87,11 @@ TextWindow::TextWindow() :
 }
 
 void TextWindow::setText(std::string text) {
-	//initTextWindowFont();
-
 	textLines.clear();
 
 	// format the text.
 	const int lineWidth = 416;
-
 	FormatMultilineText(text, textLines, lineWidth, &Font);
-
 	updateFramesPosition();
 }
 
@@ -174,30 +172,31 @@ void TextWindow::close() {
 	if (executeTextOnClose != "") {
 		LuaFunctions::executeLuaScript(executeTextOnClose);
 	}
+	Widget::close();
 }
 
 bool TextWindow::isMouseOnFrame(int mouseX, int mouseY) const {
-	if (mouseX < m_posX
-		|| mouseY < m_posY
-		|| mouseX > m_posX + m_width
-		|| mouseY > m_posY + m_height) {
+
+	if (!m_visible) {
+		return false;
+	}
+	
+	if (mouseX < m_posX + 8
+		|| mouseY < static_cast<int>(ViewPort::Get().getHeight()) - (m_posY + m_height - 8)
+		|| mouseX >  m_posX + m_width - 10
+		|| mouseY >  static_cast<int>(ViewPort::Get().getHeight()) - (m_posY + 11)) {
 		return false;
 	}
 	return true;
 }
 
 void TextWindow::processInput() {
-	Mouse &mouse = Mouse::instance();
-	
-	if (mouse.buttonDown(Mouse::BUTTON_LEFT) && isMouseOnFrame(ViewPort::Get().getCursorPosX(), ViewPort::Get().getCursorPosY())) {
-		explicitClose = true;
-	}
+	if (!m_visible) return;
+	Widget::processInput();
 }
 
 void TextWindow::draw() {
-	if (explicitClose || (autocloseTime > 0 && m_timer.getElapsedTimeSinceRestartMilli() > autocloseTime)) {
-		return;
-	}
+	
 	const int blockSizeX = 32;
 	const int blockSizeY = 32;
 	const int lineWidth = 416;
@@ -239,18 +238,15 @@ void TextWindow::draw() {
 			bottomY = y;
 			break;
 	}
-	
-	leftX += ViewPort::Get().getLeft();
-	bottomY += ViewPort::Get().getBottom();
 
 	// draw the frame
-	DialogCanvas::DrawCanvas(leftX, bottomY, neededInnerBlocksX, neededInnerBlocksY, blockSizeX, blockSizeY, true);
+	DialogCanvas::DrawCanvas(leftX, bottomY, neededInnerBlocksX, neededInnerBlocksY, blockSizeX, blockSizeY, false);
 	// draw the text
 	int curX = leftX + blockSizeX;
 	int curY = bottomY + neededInnerBlocksY * blockSizeY + Font.lineHeight;
 	for (size_t curLineNr = 0; curLineNr < textLines.size(); ++curLineNr) {
 		std::string curLine = textLines[curLineNr];
-		Fontrenderer::Get().drawText(Font, curX, curY, curLine, Vector4f(1.0f, 1.0f, 1.0f, 1.0f), true);
+		Fontrenderer::Get().drawText(Font, curX, curY, curLine, Vector4f(1.0f, 1.0f, 1.0f, 1.0f), false);
 		curY -= Font.lineHeight;
 		curY -= lineSpace;
 	}

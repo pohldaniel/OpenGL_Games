@@ -15,7 +15,7 @@ public:
 	void draw() override;
 	void update(float deltaTime) override;
 	/////////////LUA/////////////
-	void init(int x, int y);
+	void init();
 
 	bool hasTarget(Character* target);
 
