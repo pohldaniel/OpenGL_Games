@@ -279,7 +279,7 @@ bool Quest::finishQuest() {
 	for (size_t requiredItemIndex = 0; requiredItemIndex < requiredItems.size(); requiredItemIndex++) {
 		ourPlayer->getInventory()->removeItem(requiredItems[requiredItemIndex].first);
 		Zone* curZone = ZoneManager::Get().getCurrentZone();
-		curZone->getGroundLoot()->removeItem(requiredItems[requiredItemIndex].first);
+		curZone->getGroundLoot().removeItem(requiredItems[requiredItemIndex].first);
 	}
 
 	m_questCanvas.addQuestToBeRemoved(this);

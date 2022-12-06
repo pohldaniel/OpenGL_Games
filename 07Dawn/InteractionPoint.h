@@ -34,6 +34,7 @@ public:
 
 	static void AddInteractionPoint(InteractionPoint* interactionPoint);
 	static  std::vector<InteractionPoint*>& InteractionPoint::GetInteractionPoints();
+	static void DrawSymbols();
 
 protected:
 

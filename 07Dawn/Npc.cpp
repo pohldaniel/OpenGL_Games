@@ -1,5 +1,6 @@
 #include "Npc.h"
 #include "TilesetManager.h"
+#include "Zone.h"
 #include "Constants.h"
 
 Npc::Npc(int _x_spawn_pos, int _y_spawn_pos, int _NPC_id, int _seconds_to_respawn, int _do_respawn) {
@@ -331,6 +332,31 @@ void Npc::processInput() {
 	}
 }
 
+void Npc::ProcessInput() {
+	Mouse &mouse = Mouse::instance();
+	if (mouse.buttonPressed(Mouse::BUTTON_LEFT)) {
+		// get and iterate through the NPCs
+		std::vector<Npc*> zoneNPCs = GetNPCs();
+		for (unsigned int x = 0; x < zoneNPCs.size(); x++) {
+			Npc* curNPC = zoneNPCs[x];
+			// is the mouse over a NPC and no AoE spell is being prepared?
+			if (curNPC->CheckMouseOver(ViewPort::Get().getCursorPosX(), ViewPort::Get().getCursorPosY())) {
+				// is the NPC friendly?
+				if (!curNPC->getAttitude() == Enums::Attitude::FRIENDLY) {
+					// set a target if the player has none
+					if (!Player::Get().hasTarget(curNPC)) {
+						Player::Get().setTarget(curNPC, curNPC->getAttitude());
+					}
+					else {
+						Player::Get().setTarget(NULL);
+					}
+					break;
+				}
+			}
+		}
+	}
+}
+
 unsigned short Npc::getWanderRadius() const {
 	return wander_radius;
 }
@@ -363,4 +389,25 @@ std::string Npc::getLuaEditorSaveText() const {
 		<< "Enums." << Character::AttitudeToString(attitudeTowardsPlayer) << " );" << std::endl;
 
 	return oss.str();
+}
+
+std::vector<Npc*>& Npc::GetNPCs() {
+	return ZoneManager::Get().getCurrentZone()->getNPCs();
+}
+
+void Npc::DrawActiveSpells() {
+	
+	std::vector<Npc*>& NPCs = GetNPCs();
+	for (unsigned int x = 0; x < NPCs.size(); x++) {
+		Npc *NPC = NPCs[x];
+		// draw the spell effects for our NPCs
+
+		std::vector<SpellActionBase*> activeSpellActions = NPC->getActiveSpells();
+		for (size_t curActiveSpellNr = 0; curActiveSpellNr < activeSpellActions.size(); ++curActiveSpellNr) {
+			if (!activeSpellActions[curActiveSpellNr]->isEffectComplete()) {
+	
+				activeSpellActions[curActiveSpellNr]->draw();
+			}
+		}
+	}
 }

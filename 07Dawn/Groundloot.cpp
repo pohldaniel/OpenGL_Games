@@ -2,6 +2,7 @@
 
 #include "Groundloot.h"
 #include "Luainterface.h"
+#include "Zone.h"
 #include "Player.h"
 #include "Item.h"
 #include "Random.h"
@@ -63,7 +64,7 @@ void GroundLoot::disableTooltips() {
 	drawTooltips = false;
 }
 
-bool GroundLoot::PickUpLoot(Player *player_, sGroundItems groundItem, size_t curItem) {
+bool GroundLoot::pickUpLoot(Player *player_, sGroundItems groundItem, size_t curItem) {
 	// additional variables for making the code more readable
 	int itemWidth = groundItem.item->getSizeX() * 32;
 	int itemHeight = groundItem.item->getSizeY() * 32;
@@ -114,7 +115,7 @@ void GroundLoot::searchForItems(int mouseX, int mouseY) {
 				&& mouseY >= groundItems[curItem].tooltipYpos
 				&& mouseY <= static_cast<int>(groundItems[curItem].tooltipYpos + 16)) {
 
-				if (PickUpLoot(player, groundItems[curItem], curItem))
+				if (pickUpLoot(player, groundItems[curItem], curItem))
 					lootItem(groundItems[curItem].item, curItem);
 			}
 		}else {
@@ -123,7 +124,7 @@ void GroundLoot::searchForItems(int mouseX, int mouseY) {
 				&& mouseY >= groundItems[curItem].ypos
 				&& mouseY <= static_cast<int>(groundItems[curItem].ypos + groundItems[curItem].item->getSizeY() * 32)) {
 
-				if (PickUpLoot(player, groundItems[curItem], curItem))
+				if (pickUpLoot(player, groundItems[curItem], curItem))
 					lootItem(groundItems[curItem].item, curItem);
 			}
 		}
@@ -160,7 +161,7 @@ InventoryItem *GroundLoot::getFloatingSelection(int x, int y) {
 			y >= groundItems[curItem].ypos &&
 			y <= static_cast<int>(groundItems[curItem].ypos + groundItems[curItem].item->getSizeY() * 32)) {
 
-			if (PickUpLoot(player, groundItems[curItem], curItem)) {
+			if (pickUpLoot(player, groundItems[curItem], curItem)) {
 				InventoryItem *returnItem = new InventoryItem(groundItems[curItem].item, 0, 0);
 				removeItem(curItem);
 				return returnItem;
@@ -314,4 +315,23 @@ void GroundLoot::drawTooltip(int mouseX, int mouseY) {
 		}
 	
 	}
+}
+
+GroundLoot&  GroundLoot::GetGroundLoot() {
+	return ZoneManager::Get().getCurrentZone()->getGroundLoot();
+}
+
+void GroundLoot::DrawTooltip(int mouseX, int mouseY) {
+	GetGroundLoot().drawTooltip(mouseX, mouseY);
+}
+
+void GroundLoot::ProcessInput(int mouseX, int mouseY) {
+	Mouse &mouse = Mouse::instance();
+	Keyboard &keyboard = Keyboard::instance();
+	
+	if (mouse.buttonPressed(Mouse::BUTTON_LEFT)) {
+		GetGroundLoot().searchForItems(mouseX, mouseY);
+	}
+
+	keyboard.keyDown(Keyboard::KEY_LALT) ? GroundLoot::GetGroundLoot().enableTooltips() : GroundLoot::GetGroundLoot().disableTooltips();
 }

@@ -1,5 +1,6 @@
 #include <iostream>
 #include "Zone.h"
+#include "Magic.h"
 #include "Callindirection.h"
 
 Zone::Zone() : groundLoot(&Player::Get()) { }
@@ -225,7 +226,7 @@ int Zone::locateNPC(int x, int y) {
 	return -1;
 }
 
-std::vector<Npc*> Zone::getNPCs() {
+std::vector<Npc*>& Zone::getNPCs() {
 	return m_npcs;
 }
 
@@ -285,6 +286,16 @@ void Zone::findCharacter(Character *character, bool &found, size_t &foundPos) co
 }
 
 void Zone::update(float deltaTime) {
+	for (unsigned int i = 0; i < MagicMap.size(); ++i) {
+		MagicMap[i]->process();
+		MagicMap[i]->getSpell()->inEffect(deltaTime);
+		cleanupActiveAoESpells();
+
+		if (MagicMap[i]->isDone()) {
+			MagicMap.erase(ZoneManager::Get().getCurrentZone()->MagicMap.begin() + i);
+		}
+	}
+
 	for (unsigned int x = 0; x < m_npcs.size(); x++) {
 		m_npcs[x]->update(deltaTime);
 	}
@@ -308,7 +319,15 @@ void Zone::drawZoneBatched() {
 		InteractionPoint* curInteraction = m_interactionPoints[curInteractionNr];
 		curInteraction->draw();
 	}
-	//drawNpcsBatched();	
+
+	// draw AoE spells
+	for (size_t curActiveAoESpellNr = 0; curActiveAoESpellNr < activeAoESpells.size(); ++curActiveAoESpellNr) {
+		if (!activeAoESpells[curActiveAoESpellNr].first->isEffectComplete()) {
+			activeAoESpells[curActiveAoESpellNr].first->draw();
+		}
+	}
+
+	drawNpcsBatched();	
 }
 
 void Zone::drawTilesBatched() {
@@ -437,9 +456,8 @@ void Zone::addCharacterInteractionPoint(CharacterInteractionPoint *characterInte
 	m_interactionPoints.push_back(characterInteractionPoint);
 }
 
-
-GroundLoot* Zone::getGroundLoot() {
-	return &groundLoot;
+GroundLoot& Zone::getGroundLoot() {
+	return groundLoot;
 }
 
 void Zone::addEventHandler(CallIndirection *newEventHandler) {

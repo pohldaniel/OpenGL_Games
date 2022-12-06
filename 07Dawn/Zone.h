@@ -38,7 +38,7 @@ struct EnvironmentMap {
 
 };
 
-class CMagic;
+class Magic;
 class CallIndirection;
 
 class Zone{
@@ -86,7 +86,7 @@ public:
 	int deleteNPC(int x, int y);
 	void removeNPC(Npc *npcToDelete);
 	void cleanupNPCList();
-	std::vector<Npc*> getNPCs();
+	std::vector<Npc*>& getNPCs();
 
 
 	bool findInteractionPointForCharacter(Character *character) const;
@@ -100,13 +100,13 @@ public:
 	std::vector<InteractionPoint*>& getInteractionPoints();
 
 
-	std::vector<CMagic*> MagicMap;
+	std::vector<Magic*> MagicMap;
 	void addActiveAoESpell(SpellActionBase *spell);
 	std::vector<std::pair<SpellActionBase*, uint32_t> > getActiveAoESpells();
 	void cleanupActiveAoESpells();
 	void clearActiveAoESpells();
 	void removeActiveAoESpell(SpellActionBase* activeSpell);
-	GroundLoot* getGroundLoot();
+	GroundLoot& getGroundLoot();
 	void addEventHandler(CallIndirection *newEventHandler);
 
 	int groundOffset = 0;

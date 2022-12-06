@@ -35,7 +35,7 @@ public:
 	~GroundLoot();
 
 	InventoryItem *getFloatingSelection(int x, int y);
-	bool PickUpLoot(Player *player_, sGroundItems groundItem, size_t curItem);
+	bool pickUpLoot(Player *player_, sGroundItems groundItem, size_t curItem);
 	void searchForItems(int mouseX, int mouseY);
 	void lootItem(Item *item, size_t itemIndex);
 	void addItem(int x, int y, Item *newItem);
@@ -46,6 +46,10 @@ public:
 	void drawTooltip(int mouseX, int mouseY);
 	void enableTooltips();
 	void disableTooltips();
+
+	static void DrawTooltip(int mouseX, int mouseY);
+	static GroundLoot& GetGroundLoot();
+	static void ProcessInput(int mouseX, int mouseY);
 
 private:
 	std::vector<sGroundItems> groundItems;

@@ -1,12 +1,13 @@
 #include "Game.h"
-#include "Magic.h"
-#include "TextWindow.h"
+#include "Interface.h"
+#include "Player.h"
+#include "Spells.h"
+#include "Zone.h"
 #include "Shop.h"
 #include "Quest.h"
+#include "TextWindow.h"
 
-Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_player(Player::Get()) {
-	EventDispatcher::AddMouseListener(this);
-	
+Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	Mouse::SetCursorIcon("res/cursors/pointer.cur");
 	
 	LuaFunctions::executeLuaFile("res/_lua/playerdata_w.lua");
@@ -24,18 +25,18 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_player
 	ShopCanvas::Get().init();
 	QuestCanvas::Get().init();
 	Interface::Get().init();
-	//DawnInterface::enterZone("res/_lua/zone1", 512, 400);
-	DawnInterface::enterZone("res/_lua/zone1", 747, 1530);	
+
+	DawnInterface::enterZone("res/_lua/zone1", 512, 400);
+	//DawnInterface::enterZone("res/_lua/zone1", 747, 1530);	
 	//DawnInterface::enterZone("res/_lua/arinoxGeneralShop", -158, 0);
 	
 	LuaFunctions::executeLuaFile("res/_lua/gameinit.lua");
 	DawnInterface::clearLogWindow();
 
-
 	Spellbook::Get().reloadSpellsFromPlayer();
 
 	GLfloat color[] = { 1.0f, 1.0f, 0.0f };
-	DawnInterface::addTextToLogWindow(color, "Welcome to the world of Dawn, %s.", m_player.getName().c_str());
+	DawnInterface::addTextToLogWindow(color, "Welcome to the world of Dawn, %s.", Player::Get().getName().c_str());
 }
 
 Game::~Game() {}
@@ -45,32 +46,11 @@ void Game::fixedUpdate() {
 }
 
 void Game::update() {
-	//ViewPort::Get().update(m_dt);
-
 	processInput();
 
 	TextWindow::Update();
-
-	for (unsigned int i = 0; i < ZoneManager::Get().getCurrentZone()->MagicMap.size(); ++i) {
-		ZoneManager::Get().getCurrentZone()->MagicMap[i]->process();
-		ZoneManager::Get().getCurrentZone()->MagicMap[i]->getSpell()->inEffect(m_dt);
-		ZoneManager::Get().getCurrentZone()->cleanupActiveAoESpells();
-
-		if (ZoneManager::Get().getCurrentZone()->MagicMap[i]->isDone()) {
-			ZoneManager::Get().getCurrentZone()->MagicMap.erase(ZoneManager::Get().getCurrentZone()->MagicMap.begin() + i);
-		}
-	}
-
 	ZoneManager::Get().getCurrentZone()->update(m_dt);
-
-	m_player.update(m_dt);
-
-	// check all active spells for inEffects on our player.
-	std::vector<SpellActionBase*> activeSpellActions = m_player.getActiveSpells();
-	for (size_t curActiveSpellNr = 0; curActiveSpellNr < activeSpellActions.size(); ++curActiveSpellNr) {
-		activeSpellActions[curActiveSpellNr]->inEffect(m_dt);
-	}
-
+	Player::Get().update(m_dt);
 	ViewPort::Get().setPosition(Player::Get().getPosition());	
 }
 
@@ -78,63 +58,19 @@ void Game::render(unsigned int &frameBuffer) {
 	
 	glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
 
-
 	glClearColor(0.0f, 0.0f, 1.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	glEnable(GL_BLEND);
 	
 	ZoneManager::Get().getCurrentZone()->drawZoneBatched();
-
-
-	
-	// draw AoE spells
-	std::vector<std::pair<SpellActionBase*, uint32_t> > activeAoESpells = ZoneManager::Get().getCurrentZone()->getActiveAoESpells();
-	for (size_t curActiveAoESpellNr = 0; curActiveAoESpellNr < activeAoESpells.size(); ++curActiveAoESpellNr) {
-		if (!activeAoESpells[curActiveAoESpellNr].first->isEffectComplete()) {
-			activeAoESpells[curActiveAoESpellNr].first->draw();
-		}
-	}
-	ZoneManager::Get().getCurrentZone()->drawNpcsBatched();
-	m_player.draw();
-	
-	std::vector<Npc*> zoneNPCs = ZoneManager::Get().getCurrentZone()->getNPCs();
-	for (unsigned int x = 0; x < zoneNPCs.size(); x++){
-		Npc *curNPC = zoneNPCs[x];
-		
-		// draw the spell effects for our NPCs
-		std::vector<SpellActionBase*> activeSpellActions = curNPC->getActiveSpells();
-		for (size_t curActiveSpellNr = 0; curActiveSpellNr < activeSpellActions.size(); ++curActiveSpellNr){
-			if (!activeSpellActions[curActiveSpellNr]->isEffectComplete()){
-				activeSpellActions[curActiveSpellNr]->draw();
-			}
-		}
-	}
-
-	std::vector<SpellActionBase*> activeSpellActions = m_player.getActiveSpells();
-	for (size_t curActiveSpellNr = 0; curActiveSpellNr < activeSpellActions.size(); ++curActiveSpellNr) {
-		if (!activeSpellActions[curActiveSpellNr]->isEffectComplete()){
-			activeSpellActions[curActiveSpellNr]->draw();
-		}
-	}
-
-	ZoneManager::Get().getCurrentZone()->getGroundLoot()->drawTooltip(ViewPort::Get().getCursorPosX(), ViewPort::Get().getCursorPosY());
-
-	std::vector<InteractionPoint*> zoneInteractionPoints = InteractionPoint::GetInteractionPoints();
-	for (size_t curInteractionNr = 0; curInteractionNr < zoneInteractionPoints.size(); ++curInteractionNr){
-		InteractionPoint *curInteraction = zoneInteractionPoints[curInteractionNr];
-		curInteraction->drawInteractionSymbol(ViewPort::Get().getCursorPosX(), ViewPort::Get().getCursorPosY(), m_player.getXPos(), m_player.getYPos());	
-	}
-
+	Player::Get().draw();
+	Npc::DrawActiveSpells();
+	GroundLoot::DrawTooltip(ViewPort::Get().getCursorPosX(), ViewPort::Get().getCursorPosY());
+	InteractionPoint::DrawSymbols();
 	Interface::Get().draw();
 	glDisable(GL_BLEND);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-}
-
-void Game::OnMouseMotion(Event::MouseMoveEvent& event) {
-	//m_drawInGameCursor = !event.titleBar;
-	//Mouse::instance().hideCursor(m_drawInGameCursor);
-
 }
 
 void Game::resize(int deltaW, int deltaH) {
@@ -142,46 +78,13 @@ void Game::resize(int deltaW, int deltaH) {
 }
 
 void Game::processInput() {
-	
-	Mouse &mouse = Mouse::instance();
 	Keyboard &keyboard = Keyboard::instance();
-	if (mouse.buttonPressed(Mouse::BUTTON_LEFT)) {
-		ZoneManager::Get().getCurrentZone()->getGroundLoot()->searchForItems(ViewPort::Get().getCursorPosX(), ViewPort::Get().getCursorPosY());
-		// get and iterate through the NPCs
-		std::vector<Npc*> zoneNPCs = ZoneManager::Get().getCurrentZone()->getNPCs();
-		for (unsigned int x = 0; x < zoneNPCs.size(); x++) {
-			Npc* curNPC = zoneNPCs[x];
-			// is the mouse over a NPC and no AoE spell is being prepared?
-			if (curNPC->CheckMouseOver(ViewPort::Get().getCursorPosX(), ViewPort::Get().getCursorPosY())) {
-				// is the NPC friendly?
-				if (!curNPC->getAttitude() == Enums::Attitude::FRIENDLY) {
-					// set a target if the player has none
-					if (!m_player.hasTarget(curNPC)) {
-						m_player.setTarget(curNPC, curNPC->getAttitude());
-					}else {
-						m_player.setTarget(NULL);
-					}
-					break;
-				}
-			}
-
-
-		}
-	}
-
 	if (keyboard.keyPressed(Keyboard::KEY_F)) {
 		Message::Get().addText(ViewPort::Get().getWidth() / 2, ViewPort::Get().getHeight() / 2, 1.0f, 0.625f, 0.71f, 1.0f, 15u, 3.0f, "Zone saved ...");
-		return;
 	}
 
-
-	if (keyboard.keyDown(Keyboard::KEY_LALT)){
-		ZoneManager::Get().getCurrentZone()->getGroundLoot()->enableTooltips();
-	}else {
-		ZoneManager::Get().getCurrentZone()->getGroundLoot()->disableTooltips();
-	}
-
-	ZoneManager::Get().getCurrentZone()->processInput(ViewPort::Get().getCursorPosX(), ViewPort::Get().getCursorPosY(), m_player.getXPos(), m_player.getYPos());
-
+	Npc::ProcessInput();
+	GroundLoot::ProcessInput(ViewPort::Get().getCursorPosX(), ViewPort::Get().getCursorPosY());
+	ZoneManager::Get().getCurrentZone()->processInput(ViewPort::Get().getCursorPosX(), ViewPort::Get().getCursorPosY(), Player::Get().getXPos(), Player::Get().getYPos());
 	Interface::Get().processInputRightDrag();
 }

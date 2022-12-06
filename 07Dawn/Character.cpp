@@ -1119,7 +1119,7 @@ void Character::startSpellAction() {
 
 	// are we casting an AoE spell?
 	if (curSpellAction->getRadius() > 0) {
-		ZoneManager::Get().getCurrentZone()->MagicMap.push_back(new CMagic(curSpellAction));
+		ZoneManager::Get().getCurrentZone()->MagicMap.push_back(new Magic(curSpellAction));
 		ZoneManager::Get().getCurrentZone()->MagicMap.back()->setCreator(this);
 		ZoneManager::Get().getCurrentZone()->MagicMap.back()->getSpell()->startEffect();
 

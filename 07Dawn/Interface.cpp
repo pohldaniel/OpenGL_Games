@@ -530,7 +530,7 @@ void Interface::drawTargetedNPCText() {
 			Vector4f color = activeSpells[curSpell]->isSpellHostile() == true ? Vector4f(0.7f, 0.0f, 0.0f, 1.0f) : Vector4f(0.0f, 0.7f, 0.0f, 1.0f);
 			TextureManager::DrawTextureBatched(m_interfacetexture[5], npc->getXPos() + (19 * curSpell) + 2, npc->getYPos() + npc->getHeight() + 30, 18.0f, 18.0f, color, true, true);
 			TextureManager::DrawTextureBatched(m_interfacetexture[6], npc->getXPos() + (19 * curSpell) + 2, npc->getYPos() + npc->getHeight() + 30, 18.0f, 18.0f, color, true, true);
-			activeSpells[curSpell]->drawSymbol(npc->getXPos() + (19 * curSpell) + 3, npc->getYPos() + npc->getHeight() + 31, 16.0f, 16.0f, Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+			activeSpells[curSpell]->drawSymbol(npc->getXPos() + (19 * curSpell) + 3, npc->getYPos() + npc->getHeight() + 31, 16.0f, 16.0f, Vector4f(1.0f, 1.0f, 1.0f, 1.0f), true);
 		}
 	}
 }

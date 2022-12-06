@@ -9,6 +9,7 @@
 class Npc : public Character {
 
 	friend class Editor;
+
 public:
 
 	Npc(int _x_spawn_pos, int _y_spawn_pos, int _NPC_id, int _seconds_to_respawn, int _do_respawn);
@@ -34,6 +35,10 @@ public:
 	std::string getLuaEditorSaveText() const;
 	void addOnDieEventHandler(CallIndirection *eventHandler);
 	bool hasOnDieEventHandler() const;
+
+	static void DrawActiveSpells();
+	static std::vector<Npc*>& GetNPCs();
+	static void ProcessInput();
 
 private:
 

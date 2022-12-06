@@ -3,20 +3,20 @@
 #include "Magic.h"
 #include "zone.h"
 
-CMagic::CMagic(SpellActionBase *spell) {
+Magic::Magic(SpellActionBase *spell) {
 	this->spell = spell;
 	creator = NULL;
 }
 
-SpellActionBase *CMagic::getSpell() {
+SpellActionBase *Magic::getSpell() {
 	return spell;
 }
 
-void CMagic::setCreator(Character *c) {
+void Magic::setCreator(Character *c) {
 	creator = c;
 }
 
-void CMagic::process() {
+void Magic::process() {
 	int a = 0;
 
 	std::vector<Npc*> zoneNPCs = ZoneManager::Get().getCurrentZone()->getNPCs();
@@ -52,7 +52,7 @@ void CMagic::process() {
 	}
 }
 
-bool CMagic::isDone() {
+bool Magic::isDone() {
 	if (spell->isEffectComplete()) {
 		return true;
 
@@ -62,7 +62,7 @@ bool CMagic::isDone() {
 	}
 }
 
-bool CMagic::collision(Npc *npc) {
+bool Magic::collision(Npc *npc) {
 	if (npc == NULL) {
 		return false;
 	}

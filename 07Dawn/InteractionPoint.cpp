@@ -169,6 +169,15 @@ std::vector<InteractionPoint*>& InteractionPoint::GetInteractionPoints() {
 	return ZoneManager::Get().getCurrentZone()->getInteractionPoints();
 }
 
+void InteractionPoint::DrawSymbols() {
+
+	std::vector<InteractionPoint*> interactionPoints = InteractionPoint::GetInteractionPoints();
+	for (size_t curInteractionNr = 0; curInteractionNr < interactionPoints.size(); ++curInteractionNr) {
+		InteractionPoint *curInteraction = interactionPoints[curInteractionNr];
+		curInteraction->drawInteractionSymbol(ViewPort::Get().getCursorPosX(), ViewPort::Get().getCursorPosY(), Player::Get().getXPos(), Player::Get().getYPos());
+	}
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 CharacterInteractionPoint::CharacterInteractionPoint(Character *character_) : interactionCharacter(character_) {
 }

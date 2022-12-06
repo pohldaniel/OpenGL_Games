@@ -1,4 +1,6 @@
 #include "MainMenu.h"
+#include "Interface.h"
+#include "Spellbook.h"
 #include "Player.h"
 
 MainMenu::MainMenu(StateMachine& machine) : State(machine, CurrentState::MAINMENU) {
@@ -38,9 +40,7 @@ MainMenu::MainMenu(StateMachine& machine) : State(machine, CurrentState::MAINMEN
 
 	dynamic_cast<Label*>(m_dialog.getChildWidgets()[3])->setFunction([&]() {
 		m_isRunning = false;
-		Game* game = new Game(m_machine);
-		EventDispatcher::AddMouseListener(game);
-		m_machine.addStateAtTop(game);
+		m_machine.addStateAtTop(new Game(m_machine));
 	});
 }
 

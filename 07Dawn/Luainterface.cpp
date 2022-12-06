@@ -274,7 +274,7 @@ namespace DawnInterface{
 		bool wasInserted = playerInventory->insertItem(item);
 		if (!wasInserted) {
 			Player* player = &Player::Get();
-			ZoneManager::Get().getCurrentZone()->getGroundLoot()->addItem(player->getXPos(), player->getYPos(), item);
+			ZoneManager::Get().getCurrentZone()->getGroundLoot().addItem(player->getXPos(), player->getYPos(), item);
 		} else {
 			GLfloat blue[] = { 0.4f, 0.4f, 0.8f };
 			DawnInterface::addTextToLogWindow(blue, "You receive %s.", item->getName().c_str());

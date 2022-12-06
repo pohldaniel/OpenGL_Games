@@ -3,10 +3,10 @@
 #include "SpellActionBase.h"
 #include "Npc.h"
 
-class CMagic {
+class Magic {
 
 public:
-	CMagic(SpellActionBase *spell);
+	Magic(SpellActionBase *spell);
 	SpellActionBase *getSpell();
 	void setCreator(Character *c);
 

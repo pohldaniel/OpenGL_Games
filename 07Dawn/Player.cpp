@@ -136,6 +136,13 @@ void Player::draw() {
 	TextureManager::BindTexture(TextureManager::GetTextureAtlas("player"), true);
 	TextureManager::DrawTexture(*rect, drawX, drawY, Vector4f(1.0f, 1.0f, 1.0f, 1.0f), true, true);
 	TextureManager::UnbindTexture(true);
+
+	for (size_t curActiveSpellNr = 0; curActiveSpellNr < activeSpells.size(); ++curActiveSpellNr) {
+		if (!activeSpells[curActiveSpellNr]->isEffectComplete()) {
+			activeSpells[curActiveSpellNr]->draw();
+		}
+	}
+
 }
 
 void Player::update(float deltaTime) {
@@ -162,6 +169,11 @@ void Player::update(float deltaTime) {
 	lastActiveDirection = activeDirection != Enums::Direction::STOP ? activeDirection : lastActiveDirection;
 	Animate(deltaTime);
 	continuePreparing();
+
+	// check all active spells for inEffects on our player.
+	for (size_t curActiveSpellNr = 0; curActiveSpellNr < activeSpells.size(); ++curActiveSpellNr) {
+		activeSpells[curActiveSpellNr]->inEffect(deltaTime);
+	}
 }
 
 void Player::init() {

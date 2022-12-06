@@ -596,7 +596,7 @@ void InventoryCanvas::setTextureDependentPositions() {
 }
 
 void InventoryCanvas::dropItemOnGround(InventoryItem* inventoryItem) {
-	ZoneManager::Get().getCurrentZone()->getGroundLoot()->addItem(m_player->getXPos(), m_player->getYPos(), inventoryItem->getItem());
+	ZoneManager::Get().getCurrentZone()->getGroundLoot().addItem(m_player->getXPos(), m_player->getYPos(), inventoryItem->getItem());
 }
 
 void InventoryCanvas::addInventoryScreenSlot(InventoryScreenSlot** mySlots, Enums::ItemSlot slotToUse, size_t offsetX, size_t offsetY, size_t sizeX, size_t sizeY, TextureRect texture) {
