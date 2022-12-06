@@ -236,3 +236,9 @@ void TextWindow::AddTextWindow(TextWindow* textWindow) {
 void TextWindow::RemoveTextWindow(unsigned short index) {
 	s_textWindows.erase(s_textWindows.begin() + index);
 }
+
+void TextWindow::Resize(int deltaW, int deltaH) {
+	for (size_t curWindow = 0; curWindow < s_textWindows.size(); curWindow++) {
+		s_textWindows[curWindow]->resize(deltaW, deltaH);
+	}
+}

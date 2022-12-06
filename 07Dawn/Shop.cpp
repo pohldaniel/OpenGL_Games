@@ -9,7 +9,6 @@ ShopCanvas& ShopCanvas::Get() {
 	return s_instance;
 }
 
-
 ShopCanvas::ShopCanvas() : Widget(30, 80, 454, 404, 13, 15) {
 	
 }

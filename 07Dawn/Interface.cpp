@@ -186,7 +186,8 @@ void Interface::resize(int deltaW, int deltaH) {
 	m_actionBarPosX = ViewPort::Get().getWidth() - 630;
 	m_spellbook.resize(deltaW, deltaH);
 	m_characterInfo.resize(deltaW, deltaH);
-	InventoryCanvas::Get().resize(deltaW, deltaH);
+	InventoryCanvas::Get().resize(deltaW, deltaH); 
+	ShopCanvas::Get().resize(deltaW, deltaH);
 }
 
 void Interface::draw() {

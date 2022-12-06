@@ -24,12 +24,14 @@ public:
 	void draw();
 	void close() override;
 
+
 	static void  Update();
 	static void FormatMultilineText(std::string textIn, std::vector< std::string > &textLines, int lineWidth, CharacterSet* font);
 	static std::vector<TextWindow*>& GetTextWindows();
 	static void AddTextWindow(TextWindow* textWindow);
 	static void RemoveTextWindow(unsigned short index);
-	
+	static void Resize(int deltaW, int deltaH);
+
 private:
 	friend TextWindow* DawnInterface::createTextWindow();
 

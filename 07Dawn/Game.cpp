@@ -75,6 +75,7 @@ void Game::render(unsigned int &frameBuffer) {
 
 void Game::resize(int deltaW, int deltaH) {
 	Interface::Get().resize(deltaW, deltaH);
+	TextWindow::Resize(deltaW, deltaH);
 }
 
 void Game::processInput() {

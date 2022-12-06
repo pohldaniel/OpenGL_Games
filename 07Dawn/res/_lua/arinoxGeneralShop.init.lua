@@ -12,7 +12,7 @@ then
 	traderInteraction = DawnInterface.addCharacterInteractionPoint( trader );
 	traderInteraction:setInteractionType( Enums.Shop );
 	traderInteraction:setInteractionCode( "arinoxGeneralShop.onActivateTrader()" );
-	traderShop = DawnInterface.addShop("shop1");
+	traderShop = DawnInterface.addShop("shop2");
 	traderShop:addItem( itemDatabase["leynorscap"] );
 	traderShop:addItem( itemDatabase["smallhealingpotion"] );
 	traderShop:addItem( itemDatabase["smallhealingpotion"] );
@@ -37,5 +37,5 @@ function arinoxGeneralShop.onEnterMap(x,y)
 end
 
 function arinoxGeneralShop.onActivateTrader()
-	--traderShop:toggle()
+	ShopCanvas:Get():activate();
 end

@@ -14,6 +14,7 @@ $#include "Item.h"
 $#include "Shop.h"
 $#include "Quest.h"
 $#include "CallIndirection.h"
+$#include "Shop.h"
 
 namespace Enums {
 	enum TileClassificationType{
@@ -514,4 +515,9 @@ class CallIndirection {
 
 class LuaCallIndirection : public CallIndirection {
 	void setExecuteText( std::string text );
+};
+
+class ShopCanvas {
+	static ShopCanvas& Get();
+	void activate(); 
 };

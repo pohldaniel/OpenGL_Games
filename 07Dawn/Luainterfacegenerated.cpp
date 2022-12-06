@@ -1,6 +1,6 @@
 /*
 ** Lua binding: Luainterface
-** Generated automatically by tolua++-1.0.92 on Mon Dec  5 16:17:11 2022.
+** Generated automatically by tolua++-1.0.92 on Tue Dec  6 02:28:46 2022.
 */
 
 #ifndef __cplusplus
@@ -29,6 +29,7 @@ TOLUA_API int  tolua_Luainterface_open(lua_State* tolua_S);
 #include "Shop.h"
 #include "Quest.h"
 #include "CallIndirection.h"
+#include "Shop.h"
 
 /* function to register type */
 static void tolua_reg_types(lua_State* tolua_S)
@@ -37,6 +38,7 @@ static void tolua_reg_types(lua_State* tolua_S)
 	tolua_usertype(tolua_S, "TextureManager");
 	tolua_usertype(tolua_S, "Action");
 	tolua_usertype(tolua_S, "Zone");
+	tolua_usertype(tolua_S, "ShopCanvas");
 	tolua_usertype(tolua_S, "GeneralBoltDamageSpell");
 	tolua_usertype(tolua_S, "Npc");
 	tolua_usertype(tolua_S, "TextureRect");
@@ -6261,6 +6263,65 @@ static int tolua_Luainterface_LuaCallIndirection_setExecuteText00(lua_State* tol
 }
 #endif //#ifndef TOLUA_DISABLE
 
+/* method: Get of class  ShopCanvas */
+#ifndef TOLUA_DISABLE_tolua_Luainterface_ShopCanvas_Get00
+static int tolua_Luainterface_ShopCanvas_Get00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+	tolua_Error tolua_err;
+	if (
+		!tolua_isusertable(tolua_S, 1, "ShopCanvas", 0, &tolua_err) ||
+		!tolua_isnoobj(tolua_S, 2, &tolua_err)
+		)
+		goto tolua_lerror;
+	else
+#endif
+	{
+		{
+			ShopCanvas& tolua_ret = (ShopCanvas&)ShopCanvas::Get();
+			tolua_pushusertype(tolua_S, (void*)&tolua_ret, "ShopCanvas");
+		}
+	}
+	return 1;
+#ifndef TOLUA_RELEASE
+	tolua_lerror :
+				 tolua_error(tolua_S, "#ferror in function 'Get'.", &tolua_err);
+				 return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
+/* method: activate of class  ShopCanvas */
+#ifndef TOLUA_DISABLE_tolua_Luainterface_ShopCanvas_activate00
+static int tolua_Luainterface_ShopCanvas_activate00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+	tolua_Error tolua_err;
+	if (
+		!tolua_isusertype(tolua_S, 1, "ShopCanvas", 0, &tolua_err) ||
+		!tolua_isnoobj(tolua_S, 2, &tolua_err)
+		)
+		goto tolua_lerror;
+	else
+#endif
+	{
+		ShopCanvas* self = (ShopCanvas*)tolua_tousertype(tolua_S, 1, 0);
+#ifndef TOLUA_RELEASE
+		if (!self) tolua_error(tolua_S, "invalid 'self' in function 'activate'", NULL);
+#endif
+		{
+			self->activate();
+		}
+	}
+	return 0;
+#ifndef TOLUA_RELEASE
+	tolua_lerror :
+				 tolua_error(tolua_S, "#ferror in function 'activate'.", &tolua_err);
+				 return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
 /* Open function */
 TOLUA_API int tolua_Luainterface_open(lua_State* tolua_S)
 {
@@ -6691,6 +6752,11 @@ TOLUA_API int tolua_Luainterface_open(lua_State* tolua_S)
 	tolua_cclass(tolua_S, "LuaCallIndirection", "LuaCallIndirection", "CallIndirection", NULL);
 	tolua_beginmodule(tolua_S, "LuaCallIndirection");
 	tolua_function(tolua_S, "setExecuteText", tolua_Luainterface_LuaCallIndirection_setExecuteText00);
+	tolua_endmodule(tolua_S);
+	tolua_cclass(tolua_S, "ShopCanvas", "ShopCanvas", "", NULL);
+	tolua_beginmodule(tolua_S, "ShopCanvas");
+	tolua_function(tolua_S, "Get", tolua_Luainterface_ShopCanvas_Get00);
+	tolua_function(tolua_S, "activate", tolua_Luainterface_ShopCanvas_activate00);
 	tolua_endmodule(tolua_S);
 	tolua_endmodule(tolua_S);
 	return 1;
