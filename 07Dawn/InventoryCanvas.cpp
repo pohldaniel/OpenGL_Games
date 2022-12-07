@@ -133,9 +133,45 @@ void InventoryCanvas::init() {
 	setTextureDependentPositions();
 }
 
+void InventoryCanvas::init(unsigned int textureAtlas, std::vector<TextureRect> textures) {
+	m_textureAtlas = textureAtlas;
+	m_textures = textures;
+
+	floatingSelection = NULL;
+	backpackFieldWidth = 32;
+	backpackFieldHeight = 32;
+	backpackSeparatorWidth = 3;
+	backpackSeparatorHeight = 3;
+	backpackOffsetX = 69;
+	backpackOffsetY = 59;
+	numSlotsX = 10;
+	numSlotsY = 4;
+
+	addInventoryScreenSlot(mySlots, Enums::ItemSlot::HEAD, 210, 556, 64, 64, m_textures[5]);
+	addInventoryScreenSlot(mySlots, Enums::ItemSlot::AMULET, 171, 532, 32, 32, m_textures[6]);
+	addInventoryScreenSlot(mySlots, Enums::ItemSlot::MAIN_HAND, 97, 412, 64, 96, m_textures[7]);
+	addInventoryScreenSlot(mySlots, Enums::ItemSlot::CHEST, 210, 450, 64, 96, m_textures[8]);
+	addInventoryScreenSlot(mySlots, Enums::ItemSlot::BELT, 210, 408, 64, 32, m_textures[9]);
+	addInventoryScreenSlot(mySlots, Enums::ItemSlot::LEGS, 210, 302, 64, 96, m_textures[10]);
+	addInventoryScreenSlot(mySlots, Enums::ItemSlot::SHOULDER, 281, 493, 64, 64, m_textures[11]);
+	addInventoryScreenSlot(mySlots, Enums::ItemSlot::CLOAK, 294, 284, 64, 64, m_textures[12]);
+	addInventoryScreenSlot(mySlots, Enums::ItemSlot::GLOVES, 284, 376, 64, 64, m_textures[13]);
+	addInventoryScreenSlot(mySlots, Enums::ItemSlot::OFF_HAND, 354, 412, 64, 96, m_textures[14]);
+	addInventoryScreenSlot(mySlots, Enums::ItemSlot::RING_ONE, 117, 362, 32, 32, m_textures[15]);
+	addInventoryScreenSlot(mySlots, Enums::ItemSlot::RING_TWO, 159, 362, 32, 32, m_textures[16]);
+	addInventoryScreenSlot(mySlots, Enums::ItemSlot::BOOTS, 210, 229, 64, 64, m_textures[17]);
+
+	// load the font for coin text.
+	m_coinsFont = &Globals::fontManager.get("verdana_12");
+
+	addMoveableFrame(454, 21, 15, 650);
+	addCloseButton(22, 22, 447, 650);
+	setTextureDependentPositions();
+}
+
 void InventoryCanvas::draw() {
 	if (!m_visible) return;
-	TextureManager::BindTexture(m_textureAtlas, true, 0);
+	//TextureManager::BindTexture(m_textureAtlas, true, 0);
 	TextureManager::DrawTextureBatched(m_textures[0], m_posX, m_posY, false, false);
 
 	drawCoins();
@@ -146,7 +182,7 @@ void InventoryCanvas::draw() {
 	drawItemPlacement(ViewPort::Get().getCursorPosRelX(), ViewPort::Get().getCursorPosRelY());
 
 
-	TextureManager::DrawBuffer();
+	//TextureManager::DrawBuffer();
 }
 
 void InventoryCanvas::drawCoins() {
@@ -313,9 +349,9 @@ void InventoryCanvas::drawFloatingSelection() {
 		Item* floatingItem = floatingSelection->getItem();
 		size_t sizeX = floatingItem->getSizeX();
 		size_t sizeY = floatingItem->getSizeY();
-		TextureManager::BindTexture(TextureManager::GetTextureAtlas("items"), true);
-		TextureManager::DrawTexture(*floatingItem->getSymbolTexture(), ViewPort::Get().getCursorPosRelX(), ViewPort::Get().getCursorPosRelY() - 20, backpackFieldWidth * sizeX + (sizeX - 1) * backpackSeparatorWidth, backpackFieldHeight * sizeY + (sizeY - 1) * backpackSeparatorHeight, false, false);
-		TextureManager::UnbindTexture(true);
+		//TextureManager::BindTexture(TextureManager::GetTextureAtlas("items"), true);
+		TextureManager::DrawTextureBatched(*floatingItem->getSymbolTexture(), ViewPort::Get().getCursorPosRelX(), ViewPort::Get().getCursorPosRelY() - 20, backpackFieldWidth * sizeX + (sizeX - 1) * backpackSeparatorWidth, backpackFieldHeight * sizeY + (sizeY - 1) * backpackSeparatorHeight, false, false);
+		//TextureManager::UnbindTexture(true);
 	}
 }
 

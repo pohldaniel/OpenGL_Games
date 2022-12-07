@@ -168,7 +168,7 @@ public:
 	static void DrawBuffer();
 
 	static TextureRect& Loadimage(std::string file, unsigned int maxWidth, unsigned maxHeight, int paddingLeft, int paddingRight, int paddingTop, int paddingBottom);
-	static TextureRect& Loadimage(std::string file);
+	static TextureRect& Loadimage(std::string file, bool transparent = false);
 	static void Loadimage(std::string file, int textureIndex, std::vector<TextureRect>& textureBase, bool transparent = false);
 
 	static unsigned int& GetTextureAtlas(std::string name);

@@ -51,7 +51,7 @@ void Spellbook::init(unsigned int textureAtlas, std::vector<TextureRect> texture
 
 void Spellbook::draw() {
 	if (!m_visible) return;
-	TextureManager::BindTexture(m_textureAtlas, true, 0);
+	//TextureManager::BindTexture(m_textureAtlas, true, 0);
 	// draw spellbook base
 	TextureManager::DrawTextureBatched(m_textures[0], m_posX, m_posY, false, false);
 	// draw placeholders, the actual spell symbol and title of the spell.
@@ -75,11 +75,11 @@ void Spellbook::draw() {
 	if (curPage > 0){
 		TextureManager::DrawTextureBatched(m_textures[4], m_posX + previousPageButtonOffsetX, m_posY + previousPageButtonOffsetY, pageButtonWidth, pageButtonHeight, false, false);
 	}
-	TextureManager::DrawBuffer();	
+	//TextureManager::DrawBuffer();	
 }
 
 void Spellbook::drawSpellTooltip(int mouseX, int mouseY) {
-	if (!m_visible) return;
+	if (!m_visible || hasFloatingSpell()) return;
 	int spellSlotId = getMouseOverSpellSlotId(mouseX, mouseY);
 	if (spellSlotId >= 0 && spellSlot[spellSlotId].tooltip != NULL){
 		spellSlot[spellSlotId].tooltip->draw(mouseX, mouseY);
@@ -89,10 +89,10 @@ void Spellbook::drawSpellTooltip(int mouseX, int mouseY) {
 void Spellbook::drawFloatingSpell() {
 
 	if (m_floatingSpell != NULL) {
-		TextureManager::BindTexture(m_textureAtlas, true);
-		m_floatingSpell->action->drawSymbolSingle(ViewPort::Get().getCursorPosX() + 2, ViewPort::Get().getCursorPosY() + 22, 46.0f, 46.0f, Vector4f(1.0f, 1.0f, 1.0f, 1.0f), true);
-		Fontrenderer::Get().drawText(*m_cooldownFont, ViewPort::Get().getCursorPosX() + 25 - m_cooldownFont->getWidth(m_floatingSpell->action->getName()) / 2, ViewPort::Get().getCursorPosY() + 20 - m_cooldownFont->lineHeight - 5, m_floatingSpell->action->getName(), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), true);
-		TextureManager::UnbindTexture(true);
+		//TextureManager::BindTexture(m_textureAtlas, true);
+		m_floatingSpell->action->drawSymbol(ViewPort::Get().getCursorPosX() + 2, ViewPort::Get().getCursorPosY() + 22, 46.0f, 46.0f, Vector4f(1.0f, 1.0f, 1.0f, 1.0f), true);
+		Fontrenderer::Get().addText(*m_cooldownFont, ViewPort::Get().getCursorPosX() + 25 - m_cooldownFont->getWidth(m_floatingSpell->action->getName()) / 2, ViewPort::Get().getCursorPosY() + 20 - m_cooldownFont->lineHeight - 5, m_floatingSpell->action->getName(), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), true);
+		//TextureManager::UnbindTexture(true);
 	}
 }
 

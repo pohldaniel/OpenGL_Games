@@ -5,6 +5,7 @@
 #include "Zone.h"
 #include "Shop.h"
 #include "Quest.h"
+#include "InventoryCanvas.h"
 #include "TextWindow.h"
 #include "Message.h"
 
@@ -22,9 +23,10 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	LuaFunctions::executeLuaFile("res/_lua/mobdata_wolf.lua");
 	LuaFunctions::executeLuaFile("res/_lua/itemdatabase.lua");
 
-	DialogCanvas::Init();
-	ShopCanvas::Get().init();
-	QuestCanvas::Get().init();
+	//DialogCanvas::Init();
+	//InventoryCanvas::Get().init();
+	//ShopCanvas::Get().init();
+	//QuestCanvas::Get().init();
 	Interface::Get().init();
 
 	DawnInterface::enterZone("res/_lua/zone1", 512, 400);
@@ -63,11 +65,14 @@ void Game::render() {
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	ZoneManager::Get().getCurrentZone()->drawZoneBatched();
+	Zone::Draw();
+	GroundLoot::Draw();
+	InteractionPoint::Draw();
+	Zone::DrawActiveAoESpells();
+	Zone::DrawNpcs();
 	Player::Get().draw();
 	Npc::DrawActiveSpells();
-	GroundLoot::DrawTooltip(ViewPort::Get().getCursorPosX(), ViewPort::Get().getCursorPosY());
-	InteractionPoint::DrawSymbols();
+	
 	Interface::Get().draw();
 	Message::Get().draw();
 }

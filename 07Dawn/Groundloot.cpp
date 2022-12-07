@@ -42,15 +42,18 @@ void sGroundItems::loadTooltip() {
 			break;
 	}
 }
+////////////////////////////////////////////////////////////////////////////////////
+unsigned int GroundLoot::TextureAtlas;
+std::vector<TextureRect> GroundLoot::Textures;
 
 GroundLoot::GroundLoot(Player *player_) : player(player_), drawTooltips(false) {
 	m_font = &Globals::fontManager.get("verdana_11");
 
-	TextureAtlasCreator::Get().init("groundloot", 1024, 1024);
+	/*TextureAtlasCreator::Get().init("groundloot", 1024, 1024);
 	TextureManager::Loadimage("res/interface/tooltip/groundloot_background.tga", 0, m_textures);
 	TextureManager::Loadimage("res/interface/tooltip/groundloot_left.tga", 1, m_textures);
 	TextureManager::Loadimage("res/interface/tooltip/groundloot_right.tga", 2, m_textures);
-	m_textureAtlas = TextureAtlasCreator::Get().getAtlas();
+	m_textureAtlas = TextureAtlasCreator::Get().getAtlas();*/
 }
 
 GroundLoot::~GroundLoot() {
@@ -228,8 +231,8 @@ void GroundLoot::sortItems() {
 	std::sort(groundItems.begin(), groundItems.end(), groundItemYPosCompareFunction);
 
 	// this needs to be added because drawing tooltipWidth isn't exact and height not set
-	size_t tooltipAddSpaceX = m_textures[0].width + m_textures[2].width - 16;
-	size_t tooltipAddSpaceY = m_textures[1].height;
+	size_t tooltipAddSpaceX = Textures[0].width + Textures[2].width - 16;
+	size_t tooltipAddSpaceY = Textures[1].height;
 
 	// Check each item for collision against already placed items and move up until it no longer collides
 	for (size_t curItemNr = 1; curItemNr < groundItems.size(); ++curItemNr) {
@@ -273,7 +276,6 @@ void GroundLoot::drawTooltip(int mouseX, int mouseY) {
 
 	if (drawTooltips) {
 
-		TextureManager::BindTexture(m_textureAtlas, true);
 		for (size_t curItem = 0; curItem < groundItems.size(); curItem++) {
 			Vector4f color = Vector4f(0.0f, 0.0f, 0.0f, 1.0f);
 
@@ -283,18 +285,17 @@ void GroundLoot::drawTooltip(int mouseX, int mouseY) {
 				groundItems[curItem].tooltipYpos + 16 > mouseY) {
 				color = Vector4f(0.1f, 0.1f, 0.1f, 1.0f);
 			}
-			
-
+	
 			// left border
-			TextureManager::DrawTextureBatched(m_textures[1], groundItems[curItem].tooltipXpos, groundItems[curItem].tooltipYpos, color, true, true);
+			TextureManager::DrawTextureBatched(Textures[1], groundItems[curItem].tooltipXpos, groundItems[curItem].tooltipYpos, color, true, true);
 
 			
 			// background
-			TextureManager::DrawTextureBatched(m_textures[0], groundItems[curItem].tooltipXpos + 16, groundItems[curItem].tooltipYpos, groundItems[curItem].tooltipWidth - 16, m_textures[0].height,  color, true, true);
+			TextureManager::DrawTextureBatched(Textures[0], groundItems[curItem].tooltipXpos + 16, groundItems[curItem].tooltipYpos, groundItems[curItem].tooltipWidth - 16, Textures[0].height,  color, true, true);
 			
 			// right border
-			TextureManager::DrawTextureBatched(m_textures[2], groundItems[curItem].tooltipXpos + groundItems[curItem].tooltipWidth, groundItems[curItem].tooltipYpos, color, true, true);
-			TextureManager::DrawBuffer();
+			TextureManager::DrawTextureBatched(Textures[2], groundItems[curItem].tooltipXpos + groundItems[curItem].tooltipWidth, groundItems[curItem].tooltipYpos, color, true, true);
+			
 			color[0] = groundItems[curItem].color[0];
 			color[1] = groundItems[curItem].color[1];
 			color[2] = groundItems[curItem].color[2];
@@ -302,13 +303,13 @@ void GroundLoot::drawTooltip(int mouseX, int mouseY) {
 		
 
 			if (dynamic_cast<GoldHeap*>(groundItems[curItem].item) == NULL) {
-				Fontrenderer::Get().drawText(*m_font, groundItems[curItem].tooltipXpos + 10, groundItems[curItem].tooltipYpos + 2, groundItems[curItem].item->getName(), color, true);
+				Fontrenderer::Get().addText(*m_font, groundItems[curItem].tooltipXpos + 10, groundItems[curItem].tooltipYpos + 2, groundItems[curItem].item->getName(), color, true);
 			}else {
 
 				for (size_t i = 0; i < 3; i++) {
 					if (groundItems[curItem].itemValue[i] != "0") {
-						ItemTooltip::DrawCoin(groundItems[curItem].tooltipXpos + groundItems[curItem].tooltipWidth - groundItems[curItem].coinsOffset[i], groundItems[curItem].tooltipYpos + 2, i);
-						Fontrenderer::Get().drawText(*m_font, groundItems[curItem].tooltipXpos + groundItems[curItem].tooltipWidth - groundItems[curItem].coinsOffset[i] - groundItems[curItem].coinsTextOffset[i], groundItems[curItem].tooltipYpos + 2, groundItems[curItem].itemValue[i], color, true);
+						ItemTooltip::DrawCoin(groundItems[curItem].tooltipXpos + groundItems[curItem].tooltipWidth - groundItems[curItem].coinsOffset[i], groundItems[curItem].tooltipYpos, i, true);
+						Fontrenderer::Get().addText(*m_font, groundItems[curItem].tooltipXpos + groundItems[curItem].tooltipWidth - groundItems[curItem].coinsOffset[i] - groundItems[curItem].coinsTextOffset[i], groundItems[curItem].tooltipYpos + 2, groundItems[curItem].itemValue[i], color, true);
 					}
 				}
 			}
@@ -317,8 +318,17 @@ void GroundLoot::drawTooltip(int mouseX, int mouseY) {
 	}
 }
 
-GroundLoot&  GroundLoot::GetGroundLoot() {
+void GroundLoot::Init(unsigned int textureAtlas, std::vector<TextureRect> textures) {
+	TextureAtlas = textureAtlas;
+	Textures = textures;
+}
+
+GroundLoot& GroundLoot::GetGroundLoot() {
 	return ZoneManager::Get().getCurrentZone()->getGroundLoot();
+}
+
+void GroundLoot::Draw() {
+	GetGroundLoot().draw();
 }
 
 void GroundLoot::DrawTooltip(int mouseX, int mouseY) {

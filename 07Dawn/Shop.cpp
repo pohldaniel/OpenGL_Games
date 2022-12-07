@@ -26,16 +26,55 @@ Shop* ShopCanvas::getShop() {
 }
 
 void ShopCanvas::init() {
-	m_itemStackFont = &Globals::fontManager.get("verdana_12");
+	
 
 	TextureAtlasCreator::Get().init("shop", 1024, 1024);
 	TextureManager::Loadimage("res/interface/Shop/base.tga", 0, m_textures);
-	TextureManager::Loadimage("res/white2x2pixel.png", 1, m_textures, true);
+	TextureManager::Loadimage("res/white2x2pixel.png", 1, m_textures);
 	TextureManager::Loadimage("res/interface/Shop/weapontab.tga", 2, m_textures);
 	TextureManager::Loadimage("res/interface/Shop/armortab.tga", 3, m_textures);
 	TextureManager::Loadimage("res/interface/Shop/misctab.tga", 4, m_textures);
 
 	m_textureAtlas = TextureAtlasCreator::Get().getAtlas();
+
+	m_itemStackFont = &Globals::fontManager.get("verdana_12");
+
+	currentTab = 0;
+	tabs[0].tabimage = m_textures[2];
+	tabs[0].height = 128;
+	tabs[0].width = 128;
+
+	tabs[0].posX = 61;
+	tabs[0].posY = 264;
+
+	tabs[1].tabimage = m_textures[3];
+	tabs[1].height = 128;
+	tabs[1].width = 128;
+	tabs[1].posX = 202;
+	tabs[1].posY = 264;
+
+	tabs[2].tabimage = m_textures[4];
+	tabs[2].height = 128;
+	tabs[2].width = 128;
+	tabs[2].posX = 343;
+	tabs[2].posY = 264;
+
+	addMoveableFrame(454, 21, 13, 398);
+	addCloseButton(22, 22, 444, 398);
+
+	backpackFieldWidth = 32;
+	backpackFieldHeight = 32;
+	backpackSeparatorWidth = 3;
+	backpackSeparatorHeight = 3;
+	backpackOffsetX = 67;
+	backpackOffsetY = 56;
+}
+
+void ShopCanvas::init(unsigned int textureAtlas, std::vector<TextureRect> textures) {
+	m_textureAtlas = textureAtlas;
+	m_textures = textures;
+
+	m_itemStackFont = &Globals::fontManager.get("verdana_12");
 
 	currentTab = 0;
 	tabs[0].tabimage = m_textures[2];
@@ -70,15 +109,15 @@ void ShopCanvas::init() {
 
 void ShopCanvas::draw() {
 	if (!m_visible) return;
-	TextureManager::BindTexture(m_textureAtlas, true, 0);
-	TextureManager::DrawTexture(m_textures[0], m_posX, m_posY, false, false);
+	//TextureManager::BindTexture(m_textureAtlas, true, 0);
+	TextureManager::DrawTextureBatched(m_textures[0], m_posX, m_posY, false, false);
 	drawTabs();
 	drawItems();
 	//TextureManager::DrawBuffer(false);
 }
 
 void ShopCanvas::drawTabs() {
-	TextureManager::DrawTexture(tabs[currentTab].tabimage, m_posX + tabs[currentTab].posX, m_posY + tabs[currentTab].posY, tabs[currentTab].width, tabs[currentTab].height, false, false);
+	TextureManager::DrawTextureBatched(tabs[currentTab].tabimage, m_posX + tabs[currentTab].posX, m_posY + tabs[currentTab].posY, tabs[currentTab].width, tabs[currentTab].height, false, false);
 }
 
 void ShopCanvas::drawItems() {
@@ -102,8 +141,8 @@ void ShopCanvas::drawItems() {
 		}else {
 			shade[0] = 1.0f; // red color
 		}
-		TextureManager::BindTexture(m_textureAtlas, true, 0);
-		TextureManager::DrawTexture(m_textures[1],
+		//TextureManager::BindTexture(m_textureAtlas, true, 0);
+		TextureManager::DrawTextureBatched(m_textures[1],
 			m_posX + backpackOffsetX + invPosX * backpackFieldWidth + invPosX * backpackSeparatorWidth,
 			m_posY + backpackOffsetY + invPosY * backpackFieldHeight + invPosY * backpackSeparatorHeight,
 			backpackFieldWidth * sizeX + (sizeX - 1)*backpackSeparatorWidth,
@@ -112,15 +151,15 @@ void ShopCanvas::drawItems() {
 			false,
 			false);
 
-		TextureManager::BindTexture(TextureManager::GetTextureAtlas("items"), true, 0);
-		TextureManager::DrawTexture(*symbolTexture,
+		//TextureManager::BindTexture(TextureManager::GetTextureAtlas("items"), true, 0);
+		TextureManager::DrawTextureBatched(*symbolTexture,
 			m_posX + backpackOffsetX + invPosX * backpackFieldWidth + invPosX * backpackSeparatorWidth,
 			m_posY + backpackOffsetY + invPosY * backpackFieldHeight + invPosY * backpackSeparatorHeight,
 			backpackFieldWidth * sizeX + (sizeX - 1)*backpackSeparatorWidth,
 			backpackFieldHeight * sizeY + (sizeY - 1)*backpackSeparatorHeight,
 			false,
 			false);
-		TextureManager::UnbindTexture(true);
+		//TextureManager::UnbindTexture(true);
 	
 		// if we have an item that is stackable, and the stacksize is more than 1, we draw that number.
 		if (curInvItem->getCurrentStackSize() > 1) {
@@ -188,9 +227,7 @@ void ShopCanvas::drawFloatingSelection() {
 		size_t sizeX = floatingItem->getSizeX();
 		size_t sizeY = floatingItem->getSizeY();
 
-		TextureManager::BindTexture(TextureManager::GetTextureAtlas("items"), true);
-		TextureManager::DrawTexture(*floatingItem->getSymbolTexture(), ViewPort::Get().getCursorPosRelX(), ViewPort::Get().getCursorPosRelY() - 20, backpackFieldWidth * sizeX + (sizeX - 1) * backpackSeparatorWidth, backpackFieldHeight * sizeY + (sizeY - 1) * backpackSeparatorHeight, false, false);
-		TextureManager::UnbindTexture(true);
+		TextureManager::DrawTextureBatched(*floatingItem->getSymbolTexture(), ViewPort::Get().getCursorPosRelX(), ViewPort::Get().getCursorPosRelY() - 20, backpackFieldWidth * sizeX + (sizeX - 1) * backpackSeparatorWidth, backpackFieldHeight * sizeY + (sizeY - 1) * backpackSeparatorHeight, false, false);
 	}
 }
 

@@ -14,7 +14,7 @@ struct DialogCanvas {
 	friend class TextWindow;
 
 	static void Init();
-
+	static void Init(unsigned int textureAtlas, std::vector<TextureRect> textures);
 private:
 	
 	static void DrawCanvas(int left, int bottom, int colummns, int rows, int tileWidth, int tileHeight, bool updateView = false, bool drawInChunk = false);

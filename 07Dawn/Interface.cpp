@@ -57,8 +57,42 @@ void Interface::init() {
 	}
 
 	m_spellbook.init(m_textureAtlas, { m_interfacetexture[22], m_interfacetexture[23], m_interfacetexture[4], m_interfacetexture[24], m_interfacetexture[25]});	
-	m_characterInfo.init();
-	InventoryCanvas::Get().init();
+	m_characterInfo.init(m_textureAtlas, { m_interfacetexture[44], m_interfacetexture[45], m_interfacetexture[46], m_interfacetexture[47], m_interfacetexture[48] });
+
+	InventoryCanvas::Get().init(m_textureAtlas, { m_interfacetexture[26], 
+												  m_interfacetexture[27], 
+												  m_interfacetexture[28], 
+												  m_interfacetexture[29], 
+												  m_interfacetexture[30],
+												  m_interfacetexture[31],
+												  m_interfacetexture[32],
+												  m_interfacetexture[33],
+												  m_interfacetexture[34],
+												  m_interfacetexture[35], 
+												  m_interfacetexture[36],
+												  m_interfacetexture[37],
+												  m_interfacetexture[38],
+												  m_interfacetexture[39],
+												  m_interfacetexture[40],
+												  m_interfacetexture[41],
+												  m_interfacetexture[42],
+												  m_interfacetexture[43] });
+
+	QuestCanvas::Get().init(m_textureAtlas, { m_interfacetexture[49] });
+	DialogCanvas::Init(m_textureAtlas, { m_interfacetexture[50],
+										 m_interfacetexture[51],
+										 m_interfacetexture[52],
+										 m_interfacetexture[53],
+										 m_interfacetexture[54],
+										 m_interfacetexture[55],
+										 m_interfacetexture[56],
+										 m_interfacetexture[57],
+										 m_interfacetexture[58]});
+
+	ShopCanvas::Get().init(m_textureAtlas, { m_interfacetexture[59], m_interfacetexture[60], m_interfacetexture[61], m_interfacetexture[62], m_interfacetexture[63] });
+	ItemTooltip::Init(m_textureAtlas, { m_interfacetexture[28], m_interfacetexture[29], m_interfacetexture[30] });
+	InteractionPoint::Init(m_textureAtlas, { m_interfacetexture[64], m_interfacetexture[65], m_interfacetexture[66], m_interfacetexture[67], m_interfacetexture[68], m_interfacetexture[69] });
+	GroundLoot::Init(m_textureAtlas, { m_interfacetexture[70], m_interfacetexture[71],  m_interfacetexture[72] });
 
 	addWidget(m_spellbook);
 	addWidget(m_characterInfo);
@@ -135,6 +169,65 @@ void Interface::loadTextures() {
 	TextureManager::Loadimage("res/interface/spellbook/arrow_right.tga", 24, m_interfacetexture);
 	TextureManager::Loadimage("res/interface/spellbook/arrow_left.tga", 25, m_interfacetexture);
 
+	TextureManager::Loadimage("res/interface/inventory/base.tga", 26, m_interfacetexture);
+	TextureManager::Loadimage("res/white2x2pixel.png", 27, m_interfacetexture);
+	TextureManager::Loadimage("res/interface/inventory/goldcoin.tga", 28, m_interfacetexture);
+	TextureManager::Loadimage("res/interface/inventory/silvercoin.tga", 29, m_interfacetexture);
+	TextureManager::Loadimage("res/interface/inventory/coppercoin.tga", 30, m_interfacetexture);
+
+
+	TextureManager::Loadimage("res/interface/inventory/head.tga", 31, m_interfacetexture);
+	TextureManager::Loadimage("res/interface/inventory/amulet.tga", 32, m_interfacetexture);
+	TextureManager::Loadimage("res/interface/inventory/main_hand.tga", 33, m_interfacetexture);
+	TextureManager::Loadimage("res/interface/inventory/chest.tga", 34, m_interfacetexture);
+	TextureManager::Loadimage("res/interface/inventory/belt.tga", 35, m_interfacetexture);
+
+
+	TextureManager::Loadimage("res/interface/inventory/legs.tga", 36, m_interfacetexture);
+	TextureManager::Loadimage("res/interface/inventory/shoulder.tga", 37, m_interfacetexture);
+	TextureManager::Loadimage("res/interface/inventory/cloak.tga", 38, m_interfacetexture);
+	TextureManager::Loadimage("res/interface/inventory/gloves.tga", 39, m_interfacetexture);
+	TextureManager::Loadimage("res/interface/inventory/off_hand.tga", 40, m_interfacetexture);
+
+	TextureManager::Loadimage("res/interface/inventory/ring_one.tga", 41, m_interfacetexture);
+	TextureManager::Loadimage("res/interface/inventory/ring_two.tga", 42, m_interfacetexture);
+	TextureManager::Loadimage("res/interface/inventory/boots.tga", 43, m_interfacetexture);
+
+	TextureManager::Loadimage("res/interface/CharacterInfoScreen/background.tga", 44, m_interfacetexture);
+	TextureManager::Loadimage("res/white2x2pixel.png", 45, m_interfacetexture);
+	TextureManager::Loadimage("res/interface/CharacterInfoScreen/meleeSelected.tga", 46, m_interfacetexture);
+	TextureManager::Loadimage("res/interface/CharacterInfoScreen/defenseSelected.tga", 47, m_interfacetexture);
+	TextureManager::Loadimage("res/interface/CharacterInfoScreen/spellsSelected.tga", 48, m_interfacetexture);
+
+	TextureManager::Loadimage("res/interface/QuestScreen/questscreen.tga", 49, m_interfacetexture);
+
+	TextureManager::Loadimage("res/interface/tooltip/lower_left2.tga", 50, m_interfacetexture);
+	TextureManager::Loadimage("res/interface/tooltip/lower_right2.tga", 51, m_interfacetexture);
+	TextureManager::Loadimage("res/interface/tooltip/upper_left2.tga", 52, m_interfacetexture);
+	TextureManager::Loadimage("res/interface/tooltip/upper_right2.tga", 53, m_interfacetexture);
+	TextureManager::Loadimage("res/interface/tooltip/background2.tga", 54, m_interfacetexture);
+	TextureManager::Loadimage("res/interface/tooltip/upper2.tga", 55, m_interfacetexture);
+	TextureManager::Loadimage("res/interface/tooltip/lower2.tga", 56, m_interfacetexture);
+	TextureManager::Loadimage("res/interface/tooltip/left2.tga", 57, m_interfacetexture);
+	TextureManager::Loadimage("res/interface/tooltip/right2.tga", 58, m_interfacetexture);
+
+	TextureManager::Loadimage("res/interface/Shop/base.tga", 59, m_interfacetexture);
+	TextureManager::Loadimage("res/white2x2pixel.png", 60, m_interfacetexture);
+	TextureManager::Loadimage("res/interface/Shop/weapontab.tga", 61, m_interfacetexture);
+	TextureManager::Loadimage("res/interface/Shop/armortab.tga", 62, m_interfacetexture);
+	TextureManager::Loadimage("res/interface/Shop/misctab.tga", 63, m_interfacetexture);
+
+	TextureManager::Loadimage("res/interaction/talk0.tga", 64, m_interfacetexture);
+	TextureManager::Loadimage("res/interaction/talk1.tga", 65, m_interfacetexture);
+	TextureManager::Loadimage("res/interaction/shop0.tga", 66, m_interfacetexture);
+	TextureManager::Loadimage("res/interaction/shop1.tga", 67, m_interfacetexture);
+	TextureManager::Loadimage("res/interaction/zone0.tga", 68, m_interfacetexture);
+	TextureManager::Loadimage("res/interaction/zone1.tga", 69, m_interfacetexture);
+
+	TextureManager::Loadimage("res/interface/tooltip/groundloot_background.tga", 70, m_interfacetexture);
+	TextureManager::Loadimage("res/interface/tooltip/groundloot_left.tga", 71, m_interfacetexture);
+	TextureManager::Loadimage("res/interface/tooltip/groundloot_right.tga", 72, m_interfacetexture);
+
 	TextureAtlasCreator::Get().addFrame();
 	TextureManager::Loadimage("res/interface/combattext/0small.tga", 0, m_damageDisplayTexturesSmall);
 	TextureManager::Loadimage("res/interface/combattext/1small.tga", 1, m_damageDisplayTexturesSmall);
@@ -160,7 +253,8 @@ void Interface::loadTextures() {
 
 	m_textureAtlas = TextureAtlasCreator::Get().getAtlas();
 	m_textureAtlas = Spritesheet::Merge(TextureManager::GetTextureAtlas("symbols"), m_textureAtlas);
-	//m_textureAtlas = Spritesheet::Merge(TextureManager::GetTextureAtlas("items"), m_textureAtlas, true, false);
+	m_textureAtlas = Spritesheet::Merge(TextureManager::GetTextureAtlas("items"), m_textureAtlas, false, false);
+
 	glBindTexture(GL_TEXTURE_2D_ARRAY, m_textureAtlas);
 	glTexParameterf(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
 	glTexParameterf(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -168,19 +262,19 @@ void Interface::loadTextures() {
 	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
 
 	for (unsigned short layer = 0; layer < m_interfacetexture.size(); layer++) {
-		m_interfacetexture[layer].frame++;
+		m_interfacetexture[layer].frame += 2;
 	}
 
 	for (unsigned short layer = 0; layer < m_damageDisplayTexturesSmall.size(); layer++) {
-		m_damageDisplayTexturesSmall[layer].frame++;
+		m_damageDisplayTexturesSmall[layer].frame += 2;
 	}
 
 	for (unsigned short layer = 0; layer < m_damageDisplayTexturesBig.size(); layer++) {
-		m_damageDisplayTexturesBig[layer].frame++;
+		m_damageDisplayTexturesBig[layer].frame += 2;
 	}
 
-	//LuaFunctions::incrementTableRects("symbols");
-	//Spritesheet::Safe("tmp/interface", m_textureAtlas);	
+	LuaFunctions::incrementTableRects("symbols");
+	Spritesheet::Safe("tmp/interface", m_textureAtlas);	
 }
 
 void Interface::resize(int deltaW, int deltaH) {
@@ -192,11 +286,15 @@ void Interface::resize(int deltaW, int deltaH) {
 }
 
 void Interface::draw() {
+	//Batchrenderer::ResetStatistic();
 
 	TextureManager::BindTexture(m_textureAtlas, true, 0);
 	TextureManager::BindTexture(Globals::spritesheetManager.getAssetPointer("font")->getAtlas(), true, 1);
 	TextureManager::SetShader(Globals::shaderManager.getAssetPointer("batch_font"));
 	Fontrenderer::Get().setRenderer(&Batchrenderer::Get());
+
+	GroundLoot::DrawTooltip(ViewPort::Get().getCursorPosX(), ViewPort::Get().getCursorPosY());
+	InteractionPoint::DrawSymbols();
 
 	TextureManager::DrawTextureBatched(m_interfacetexture[14], 4, ViewPort::Get().getHeight() - 68, false, false);
 	TextureManager::DrawTextureBatched(m_interfacetexture[11], 0, 50 + ViewPort::Get().getHeight() - m_interfacetexture[11].height, false, false);
@@ -308,14 +406,10 @@ void Interface::draw() {
 		}
 	}
 
-	TextureManager::DrawBuffer();
-
 	drawCombatText();
-
-
 	drawCharacterStates();
 	drawTargetedNPCText();
-	TextureManager::DrawBuffer();
+
 
 	drawSpellTooltip(ViewPort::Get().getCursorPosRelX(), ViewPort::Get().getCursorPosRelY());
 
@@ -338,7 +432,7 @@ void Interface::draw() {
 	for (size_t curFrame = 0; curFrame < m_widgets.size(); curFrame++) {
 		m_widgets[curFrame]->draw();
 	}
-
+	
 	ShopCanvas::Get().drawItemTooltip(ViewPort::Get().getCursorPosRelX(), ViewPort::Get().getCursorPosRelY());
 	//if (m_widgets.size() > 0) {
 	//	if (m_widgets.back() == &m_spellbook && !m_spellbook.hasFloatingSpell()) {
@@ -348,19 +442,23 @@ void Interface::draw() {
 	//	}
 	//}
 
-	if (!m_spellbook.hasFloatingSpell()) {
-		m_spellbook.drawSpellTooltip(ViewPort::Get().getCursorPosRelX(), ViewPort::Get().getCursorPosRelY());
-	}
-	InventoryCanvas::Get().drawItemTooltip(ViewPort::Get().getCursorPosRelX(), ViewPort::Get().getCursorPosRelY());
 
+	m_spellbook.drawSpellTooltip(ViewPort::Get().getCursorPosRelX(), ViewPort::Get().getCursorPosRelY());
+	
+	InventoryCanvas::Get().drawItemTooltip(ViewPort::Get().getCursorPosRelX(), ViewPort::Get().getCursorPosRelY());
+	
+
+	InventoryCanvas::Get().drawFloatingSelection();
+	m_spellbook.drawFloatingSpell();
+	ShopCanvas::Get().drawFloatingSelection();
+
+	TextureManager::DrawBuffer();
 	Fontrenderer::Get().resetRenderer();
 	TextureManager::SetShader(Globals::shaderManager.getAssetPointer("batch"));
 	TextureManager::UnbindTexture(true, 1);
 	TextureManager::UnbindTexture(true, 0);
 
-	InventoryCanvas::Get().drawFloatingSelection();
-	m_spellbook.drawFloatingSpell();
-	ShopCanvas::Get().drawFloatingSelection();
+	//Batchrenderer::PrintStatistic();
 }
 
 void Interface::drawCursor(bool drawInGameCursor) {
@@ -470,7 +568,7 @@ void Interface::drawCombatText() {
 
 		//sets the color of the text we're drawing based on what type of damage type we're displaying.
 		Vector4f color = Vector4f(damageType[m_damageDisplay[currentDamageDisplay].damageType][0], damageType[m_damageDisplay[currentDamageDisplay].damageType][1], damageType[m_damageDisplay[currentDamageDisplay].damageType][2], m_damageDisplay[currentDamageDisplay].transparency);
-		TextureManager::DrawTexture(*fontTextures, m_damageDisplay[currentDamageDisplay].posX, m_damageDisplay[currentDamageDisplay].posY, color, false, !m_damageDisplay[currentDamageDisplay].update);
+		TextureManager::DrawTextureBatched(*fontTextures, m_damageDisplay[currentDamageDisplay].posX, m_damageDisplay[currentDamageDisplay].posY, color, false, !m_damageDisplay[currentDamageDisplay].update);
 	}
 }
 

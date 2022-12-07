@@ -25,25 +25,35 @@ QuestCanvas::~QuestCanvas() {
 
 void QuestCanvas::init() {
 
-	font = &Globals::fontManager.get("verdana_14");
+	
 	TextureAtlasCreator::Get().init("quest", 1024, 1024);
 	TextureManager::Loadimage("res/interface/QuestScreen/questscreen.tga", 0, m_textures);
 	m_textureAtlas = TextureAtlasCreator::Get().getAtlas();
 
+	font = &Globals::fontManager.get("verdana_14");
+	addMoveableFrame(375, 22, 20, 374);
+	addCloseButton(22, 22, 373, 376);
+}
+
+void QuestCanvas::init(unsigned int textureAtlas, std::vector<TextureRect> textures) {
+	m_textureAtlas = textureAtlas;
+	m_textures = textures;
+
+	font = &Globals::fontManager.get("verdana_14");
 	addMoveableFrame(375, 22, 20, 374);
 	addCloseButton(22, 22, 373, 376);
 }
 
 void QuestCanvas::draw() {
 	if (!m_visible) return;
-	TextureManager::BindTexture(m_textureAtlas, true, 0);
-	TextureManager::DrawTexture(m_textures[0], m_posX,  m_posY, false, false);
+	//TextureManager::BindTexture(m_textureAtlas, true, 0);
+	TextureManager::DrawTextureBatched(m_textures[0], m_posX,  m_posY, false, false);
 
 	int textX = m_posX + 64;
 	int textY = m_posY + m_height - 24 - font->lineHeight;
 
 	Vector4f color = Vector4f(1.0f, 1.0f, 1.0f, 1.0f);
-	Fontrenderer::Get().bindTexture(Globals::fontManager.get("verdana_14"));
+	//Fontrenderer::Get().bindTexture(Globals::fontManager.get("verdana_14"));
 	for (size_t curQuestNameNr = 0; curQuestNameNr<quests.size(); ++curQuestNameNr) {
 		if (static_cast<int>(curQuestNameNr) == selectedQuestNr) {
 			// draw selected text in yellow
@@ -72,7 +82,7 @@ void QuestCanvas::draw() {
 			textY -= font->lineHeight * 1.5;
 		}
 	}
-	Fontrenderer::Get().drawBuffer();
+	//Fontrenderer::Get().drawBuffer();
 }
 
 bool QuestCanvas::anyQuestNeedThis(Item *item) const {

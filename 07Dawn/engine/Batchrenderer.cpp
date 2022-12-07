@@ -2,6 +2,8 @@
 #include <algorithm>
 
 Batchrenderer Batchrenderer::s_instance;
+unsigned int Batchrenderer::s_drawCallCount = 0;
+unsigned int Batchrenderer::s_quadCount = 0;
 
 void Batchrenderer::setCamera(const Camera& camera) {
 	m_camera = &camera;
@@ -149,6 +151,7 @@ void Batchrenderer::shutdown() {
 void Batchrenderer::addQuadAA(Vector4f posSize, Vector4f texPosSize, Vector4f color, bool updateView, unsigned int sampler, unsigned int frame) {
 
 	if (indexCount >= m_maxIndex) {
+		//s_drawCallCount++;
 		drawBuffer();
 	}
 
@@ -173,6 +176,7 @@ void Batchrenderer::addQuadAA(Vector4f posSize, Vector4f texPosSize, Vector4f co
 	bufferPtr++;
 
 	indexCount += 6;
+	//s_quadCount++;
 }
 
 void Batchrenderer::drawBuffer() {
@@ -315,4 +319,16 @@ void Batchrenderer::unbindTexture(bool isTextureArray) {
 
 void Batchrenderer::activeTexture(unsigned int unit) {
 	glActiveTexture(GL_TEXTURE0 + unit);
+}
+
+void Batchrenderer::ResetStatistic() {
+	s_drawCallCount = 0;
+	s_quadCount = 0;
+}
+
+void Batchrenderer::PrintStatistic() {
+	std::cout << "Draw Calls: " << s_drawCallCount << std::endl;
+	std::cout << "Quad Count: " << s_quadCount << std::endl;
+
+	ResetStatistic();
 }

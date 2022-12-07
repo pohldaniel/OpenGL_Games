@@ -128,8 +128,8 @@ TextureRect& TextureManager::Loadimage(std::string file, unsigned int maxWidth, 
 	return TextureCache::Get().getTextureFromCache(file, maxWidth, maxHeight, false, paddingLeft, paddingRight, paddingTop, paddingBottom);
 }
 
-TextureRect& TextureManager::Loadimage(std::string file) {
-	return TextureCache::Get().getTextureFromCache(file, 0u, 0u, false, 0, 0, 0, 0);
+TextureRect& TextureManager::Loadimage(std::string file, bool transparent) {
+	return TextureCache::Get().getTextureFromCache(file, 0u, 0u, transparent, 0, 0, 0, 0);
 }
 
 void TextureManager::Loadimage(std::string file, int textureIndex, std::vector<TextureRect>& textureBase, bool transparent) {

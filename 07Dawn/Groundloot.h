@@ -47,16 +47,21 @@ public:
 	void enableTooltips();
 	void disableTooltips();
 
+	static void Draw();
 	static void DrawTooltip(int mouseX, int mouseY);
 	static GroundLoot& GetGroundLoot();
 	static void ProcessInput(int mouseX, int mouseY);
+	static void Init(unsigned int textureAtlas, std::vector<TextureRect> textures);
 
 private:
 	std::vector<sGroundItems> groundItems;
 
-	std::vector<TextureRect> m_textures;
+
 	unsigned int m_textureAtlas;
 	Player *player;
 	bool drawTooltips;
 	CharacterSet* m_font;
+
+	static unsigned int TextureAtlas;
+	static std::vector<TextureRect> Textures;
 };

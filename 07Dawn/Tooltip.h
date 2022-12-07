@@ -89,7 +89,8 @@ public:
 	void setShopItem(bool isShopItem_);
 	Item* getParent() const;
 
-	static void DrawCoin(int x, int y, int coin);
+	static void DrawCoin(int x, int y, int coin, bool updateView = false);
+	static void Init(unsigned int textureAtlas, std::vector<TextureRect> textures);
 
 private:
 	Item *parent;

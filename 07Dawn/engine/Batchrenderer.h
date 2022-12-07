@@ -43,6 +43,8 @@ public:
 	unsigned int& getSampler();
 	unsigned int& getFrame();
 
+	static void ResetStatistic();
+	static void PrintStatistic();
 	static Batchrenderer& Get();
 	
 private:
@@ -77,6 +79,8 @@ private:
 	unsigned int sampler;
 	bool updateView;
 
+	static unsigned int s_drawCallCount;
+	static unsigned int s_quadCount;
 	static Batchrenderer s_instance;	
 };
 #endif

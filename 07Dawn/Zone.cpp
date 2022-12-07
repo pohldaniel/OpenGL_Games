@@ -312,20 +312,16 @@ void Zone::drawZoneBatched() {
 	drawShadowsBatched();
 	TextureManager::DrawBuffer();
 
-	groundLoot.draw();
+	/*groundLoot.draw();
 
 	// draw the interactions on screen
 	for (size_t curInteractionNr = 0; curInteractionNr < m_interactionPoints.size(); ++curInteractionNr) {
 		InteractionPoint* curInteraction = m_interactionPoints[curInteractionNr];
 		curInteraction->draw();
-	}
+	}*/
 
 	// draw AoE spells
-	for (size_t curActiveAoESpellNr = 0; curActiveAoESpellNr < activeAoESpells.size(); ++curActiveAoESpellNr) {
-		if (!activeAoESpells[curActiveAoESpellNr].first->isEffectComplete()) {
-			activeAoESpells[curActiveAoESpellNr].first->draw();
-		}
-	}
+	
 
 	drawNpcsBatched();	
 }
@@ -388,7 +384,7 @@ void Zone::addActiveAoESpell(SpellActionBase *spell) {
 	activeAoESpells.push_back(std::pair<SpellActionBase*, uint32_t>(spell, Globals::clock.getElapsedTimeMilli()));
 }
 
-std::vector<std::pair<SpellActionBase*, uint32_t> > Zone::getActiveAoESpells() {
+std::vector<std::pair<SpellActionBase*, uint32_t>>& Zone::getActiveAoESpells() {
 	return activeAoESpells;
 }
 
@@ -462,6 +458,23 @@ GroundLoot& Zone::getGroundLoot() {
 
 void Zone::addEventHandler(CallIndirection *newEventHandler) {
 	eventHandlers.push_back(newEventHandler);
+}
+
+void Zone::Draw() {
+	ZoneManager::Get().getCurrentZone()->drawZoneBatched();
+}
+
+void Zone::DrawActiveAoESpells() {
+	std::vector<std::pair<SpellActionBase*, uint32_t>>& activeAoESpells = ZoneManager::Get().getCurrentZone()->getActiveAoESpells();
+	for (size_t curActiveAoESpellNr = 0; curActiveAoESpellNr < activeAoESpells.size(); ++curActiveAoESpellNr) {
+		if (!activeAoESpells[curActiveAoESpellNr].first->isEffectComplete()) {
+			activeAoESpells[curActiveAoESpellNr].first->draw();
+		}
+	}
+}
+
+void Zone::DrawNpcs() {
+	ZoneManager::Get().getCurrentZone()->drawNpcsBatched();
 }
 
 ///////////////////////////////////////////////////////////////////

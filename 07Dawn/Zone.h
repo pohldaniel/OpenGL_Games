@@ -102,7 +102,7 @@ public:
 
 	std::vector<Magic*> MagicMap;
 	void addActiveAoESpell(SpellActionBase *spell);
-	std::vector<std::pair<SpellActionBase*, uint32_t> > getActiveAoESpells();
+	std::vector<std::pair<SpellActionBase*, uint32_t>>& getActiveAoESpells();
 	void cleanupActiveAoESpells();
 	void clearActiveAoESpells();
 	void removeActiveAoESpell(SpellActionBase* activeSpell);
@@ -117,6 +117,10 @@ public:
 	void addInteractionRegion(InteractionRegion* interactionRegion);	
 	void addInteractionPoint(InteractionPoint* interactionPoint);
 	void addCharacterInteractionPoint(CharacterInteractionPoint *characterInteractionPoint);
+
+	static void Draw();
+	static void DrawActiveAoESpells();
+	static void DrawNpcs();
 
 private:
 

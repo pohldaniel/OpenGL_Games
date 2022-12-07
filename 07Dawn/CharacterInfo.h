@@ -22,6 +22,7 @@ public:
 	void processInput() override;
 
 	void init();
+	void init(unsigned int textureAtlas, std::vector<TextureRect> textures);
 	void setPlayer(Player* player);
 
 	static CharacterInfo& Get();

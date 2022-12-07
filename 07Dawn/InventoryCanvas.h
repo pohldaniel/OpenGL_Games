@@ -46,6 +46,7 @@ public:
 	void setTextureDependentPositions();
 
 	void init();
+	void init(unsigned int textureAtlas, std::vector<TextureRect> textures);
 
 	void setPlayer(Player* player);
 

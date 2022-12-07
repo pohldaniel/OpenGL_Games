@@ -2,6 +2,9 @@
 #include "Character.h"
 #include "Zone.h"
 
+unsigned int InteractionPoint::TextureAtlas;
+std::vector<TextureRect> InteractionPoint::Textures;
+
 InteractionPoint::InteractionPoint()
 	: interactionCode(""),
 	posX(0),
@@ -9,6 +12,7 @@ InteractionPoint::InteractionPoint()
 	width(0),
 	height(0),
 	markedAsDeletable(false) {
+	m_interactionTextures.reserve(2);
 }
 
 InteractionPoint::~InteractionPoint() {
@@ -22,40 +26,30 @@ void InteractionPoint::setPosition(int posX, int posY, int width, int height) {
 }
 
 void InteractionPoint::setInteractionType(Enums::InteractionType interactionType) {
-	// We explicitely want to allow an interaction texture to change
-	//if (interactionTexture != NULL) {
-		//delete interactionTexture;
-	//}
 	this->interactionType = interactionType;
-	//interactionTexture = new CTexture();
+
 	switch (interactionType){
 
 	case Enums::InteractionType::Quest:
-		TextureAtlasCreator::Get().init("interaction", 1024, 1024);
-		TextureManager::Loadimage("res/interaction/talk0.tga", 0, m_interactionTextures, true);
-		TextureManager::Loadimage("res/interaction/talk1.tga", 1, m_interactionTextures, true);
-		m_textureAtlas = TextureAtlasCreator::Get().getAtlas();
+		m_interactionTextures[0] = Textures[0];
+		m_interactionTextures[1] = Textures[1];
 		break;
 	case Enums::InteractionType::Shop:
-		TextureAtlasCreator::Get().init("interaction", 1024, 1024);
-		TextureManager::Loadimage("res/interaction/shop0.tga", 0, m_interactionTextures, true);
-		TextureManager::Loadimage("res/interaction/shop1.tga", 1, m_interactionTextures, true);
-		m_textureAtlas = TextureAtlasCreator::Get().getAtlas();
+		m_interactionTextures[0] = Textures[2];
+		m_interactionTextures[1] = Textures[3];
 		
 		break;
 	case Enums::InteractionType::Zone:
-		TextureAtlasCreator::Get().init("interaction", 1024, 1024);
-		TextureManager::Loadimage("res/interaction/zone0.tga", 0, m_interactionTextures, true);
-		TextureManager::Loadimage("res/interaction/zone1.tga", 1, m_interactionTextures, true);
-		m_textureAtlas = TextureAtlasCreator::Get().getAtlas();		
+		m_interactionTextures[0] = Textures[4];
+		m_interactionTextures[1] = Textures[5];
 		break;
 	}
 }
 
 void InteractionPoint::setBackgroundTexture(std::string texturename, bool transparent) {
-	TextureAtlasCreator::Get().init("background", 1024, 1024);
-	TextureManager::Loadimage(texturename, 0, m_backgroundTextures, transparent);
-	m_textureAtlas2 = TextureAtlasCreator::Get().getAtlas();
+	TextureAtlasCreator::Get().init("background", 128, 128);
+	m_backgroundTexture = TextureManager::Loadimage(texturename, transparent);
+	m_backgroundAtlas = TextureAtlasCreator::Get().getAtlas();
 }
 
 void InteractionPoint::setInteractionCode(std::string interactionCode)
@@ -88,8 +82,8 @@ void InteractionPoint::draw() {
 	if (markedAsDeletable) {
 		return;
 	}
-	TextureManager::BindTexture(m_textureAtlas2, true);
-	TextureManager::DrawTexture(m_backgroundTextures[0], posX, posY, width, height, true, true);
+	TextureManager::BindTexture(m_backgroundAtlas, true);
+	TextureManager::DrawTexture(m_backgroundTexture, posX, posY, width, height, true, true);
 	TextureManager::UnbindTexture(true);
 }
 
@@ -110,9 +104,8 @@ void InteractionPoint::drawInteractionSymbol(int mouseX, int mouseY, int charact
 		available_symbol = 1;
 	}
 
-	TextureManager::BindTexture(m_textureAtlas, true);
-	TextureManager::DrawTexture(m_interactionTextures[available_symbol], mouseX, mouseY,  true, true);
-	TextureManager::UnbindTexture(true);
+	TextureManager::DrawTextureBatched(m_interactionTextures[available_symbol], mouseX, mouseY,  true, true);
+
 }
 
 void InteractionPoint::startInteraction(int characterXpos, int characterYpos) {
@@ -169,13 +162,25 @@ std::vector<InteractionPoint*>& InteractionPoint::GetInteractionPoints() {
 	return ZoneManager::Get().getCurrentZone()->getInteractionPoints();
 }
 
-void InteractionPoint::DrawSymbols() {
+void InteractionPoint::Draw() {
+	std::vector<InteractionPoint*> interactionPoints = GetInteractionPoints();
+	for (size_t curInteractionNr = 0; curInteractionNr < interactionPoints.size(); ++curInteractionNr) {
+		InteractionPoint *curInteraction = interactionPoints[curInteractionNr];
+		curInteraction->draw();
+	}
+}
 
-	std::vector<InteractionPoint*> interactionPoints = InteractionPoint::GetInteractionPoints();
+void InteractionPoint::DrawSymbols() {
+	std::vector<InteractionPoint*> interactionPoints = GetInteractionPoints();
 	for (size_t curInteractionNr = 0; curInteractionNr < interactionPoints.size(); ++curInteractionNr) {
 		InteractionPoint *curInteraction = interactionPoints[curInteractionNr];
 		curInteraction->drawInteractionSymbol(ViewPort::Get().getCursorPosX(), ViewPort::Get().getCursorPosY(), Player::Get().getXPos(), Player::Get().getYPos());
 	}
+}
+
+void InteractionPoint::Init(unsigned int textureAtlas, std::vector<TextureRect> textures) {
+	TextureAtlas = textureAtlas;
+	Textures = textures;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

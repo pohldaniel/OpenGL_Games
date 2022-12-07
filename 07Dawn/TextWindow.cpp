@@ -200,14 +200,14 @@ void TextWindow::draw() {
 	if (!m_visible) return;
 
 	// draw the frame
-	DialogCanvas::DrawCanvas(m_posX, m_posY, neededInnerBlocksX, neededInnerBlocksY, blockSizeX, blockSizeY, false);
+	DialogCanvas::DrawCanvas(m_posX, m_posY, neededInnerBlocksX, neededInnerBlocksY, blockSizeX, blockSizeY, false, true);
 	// draw the text
 	const int lineSpace = Font.lineHeight * 0.5;
 	int curX = m_posX + blockSizeX;
 	int curY = m_posY + neededInnerBlocksY * blockSizeY + Font.lineHeight;
 	for (size_t curLineNr = 0; curLineNr < textLines.size(); ++curLineNr) {
 		std::string curLine = textLines[curLineNr];
-		Fontrenderer::Get().drawText(Font, curX, curY, curLine, Vector4f(1.0f, 1.0f, 1.0f, 1.0f), false);
+		Fontrenderer::Get().addText(Font, curX, curY, curLine, Vector4f(1.0f, 1.0f, 1.0f, 1.0f), false);
 		curY -= Font.lineHeight;
 		curY -= lineSpace;
 	}

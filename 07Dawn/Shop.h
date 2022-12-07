@@ -22,6 +22,7 @@ public:
 	void drawFloatingSelection();
 
 	void init();
+	void init(unsigned int textureAtlas, std::vector<TextureRect> textures);
 	void setShop(Shop* shop);
 	InventoryItem *getFloatingSelection() const;
 	bool hasFloatingSelection() const;

@@ -100,7 +100,7 @@ void SpellTooltip::draw(int x, int y) {
 		}
 	}
 
-	Fontrenderer::Get().drawBuffer();
+	//Fontrenderer::Get().drawBuffer();
 }
 
 void Tooltip::addTooltipText(Vector4f color, CharacterSet* charSet, std::string str, ...) {
@@ -364,11 +364,16 @@ ItemTooltip::ItemTooltip(Item *parent, InventoryItem *inventoryItem) : parent(pa
 
 	if (s_textures.size() == 0) {
 		TextureAtlasCreator::Get().init("tooltip", 128, 128);		
-		TextureManager::Loadimage("res/interface/inventory/goldcoin.tga", 0, s_textures, true);
-		TextureManager::Loadimage("res/interface/inventory/silvercoin.tga", 1, s_textures, true);
-		TextureManager::Loadimage("res/interface/inventory/coppercoin.tga", 2, s_textures, true);
+		TextureManager::Loadimage("res/interface/inventory/goldcoin.tga", 0, s_textures);
+		TextureManager::Loadimage("res/interface/inventory/silvercoin.tga", 1, s_textures);
+		TextureManager::Loadimage("res/interface/inventory/coppercoin.tga", 2, s_textures);
 		s_textureAtlas = TextureAtlasCreator::Get().getAtlas();
 	}
+}
+
+void ItemTooltip::Init(unsigned int textureAtlas, std::vector<TextureRect> textures) {
+	s_textures = textures;
+	s_textureAtlas = textureAtlas;
 }
 
 void ItemTooltip::setShopItem(bool isShopItem_) {
@@ -414,7 +419,7 @@ void ItemTooltip::draw(int x, int y) {
 	// (we could also center the text in the tooltip, but topaligned is probably bestlooking
 	int font_y = y + blockHeight + (curBlockNumberHeight)* blockHeight - toplineHeight;
 
-	DialogCanvas::DrawCanvas(x, y, curBlockNumberWidth, curBlockNumberHeight, blockWidth, blockHeight, false, false);
+	DialogCanvas::DrawCanvas(x, y, curBlockNumberWidth, curBlockNumberHeight, blockWidth, blockHeight, false, true);
 
 	// loop through the text vector and print all the text.
 	for (unsigned int i = 0; i < tooltipText.size(); i++) {
@@ -429,7 +434,7 @@ void ItemTooltip::draw(int x, int y) {
 			break;
 		}
 	}
-	TextureManager::DrawBuffer();
+	//TextureManager::DrawBuffer();
 }
 
 void ItemTooltip::drawCoinsLine(int x, int frameWidth, int y, sTooltipText *tooltipText) {
@@ -709,19 +714,19 @@ Item* ItemTooltip::getParent() const {
 	return parent;
 }
 
-void ItemTooltip::DrawCoin(int x, int y, int coin) {
-	TextureManager::BindTexture(s_textureAtlas, true, 0);
+void ItemTooltip::DrawCoin(int x, int y, int coin, bool updateView) {
+	//TextureManager::BindTexture(s_textureAtlas, true, 0);
 	if (coin == currency::GOLD) {
-		TextureManager::DrawTexture(s_textures[0], x, y, 16, 16, false, false);
+		TextureManager::DrawTextureBatched(s_textures[0], x, y, 16, 16, false, updateView);
 	}
 
 	if (coin == currency::SILVER) {
-		TextureManager::DrawTexture(s_textures[1], x, y, 16, 16, false, false);
+		TextureManager::DrawTextureBatched(s_textures[1], x, y, 16, 16, false, updateView);
 	}
 
 	if (coin == currency::COPPER) {
-		TextureManager::DrawTexture(s_textures[2], x, y, 16, 16, false, false);
+		TextureManager::DrawTextureBatched(s_textures[2], x, y, 16, 16, false, updateView);
 	}
 
-	TextureManager::UnbindTexture(true, 0);
+	//TextureManager::UnbindTexture(true, 0);
 }

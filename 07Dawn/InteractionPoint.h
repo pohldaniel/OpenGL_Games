@@ -35,14 +35,16 @@ public:
 	static void AddInteractionPoint(InteractionPoint* interactionPoint);
 	static  std::vector<InteractionPoint*>& InteractionPoint::GetInteractionPoints();
 	static void DrawSymbols();
+	static void Draw();
+	static void Init(unsigned int textureAtlas, std::vector<TextureRect> textures);
 
 protected:
 
 	std::vector<TextureRect> m_interactionTextures;
 	unsigned int m_textureAtlas;
 
-	std::vector<TextureRect> m_backgroundTextures;
-	unsigned int m_textureAtlas2;
+	TextureRect m_backgroundTexture;
+	unsigned int m_backgroundAtlas;
 	
 	std::string interactionCode;
 	Enums::InteractionType interactionType;
@@ -55,6 +57,9 @@ private:
 	int height;
 
 	bool markedAsDeletable;
+
+	static unsigned int TextureAtlas;
+	static std::vector<TextureRect> Textures;
 };
 
 class CharacterInteractionPoint : public InteractionPoint {

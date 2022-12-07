@@ -19,6 +19,7 @@ public:
 	void draw() override;
 	void processInput() override;
 	void init();
+	void init(unsigned int textureAtlas, std::vector<TextureRect> textures);
 	void addQuest(Quest *quest);
 	std::vector<Quest*>& getQuests();
 

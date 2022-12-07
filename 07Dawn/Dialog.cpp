@@ -23,13 +23,21 @@ void DialogCanvas::Init() {
 	TextureManager::Loadimage("res/interface/tooltip/right2.tga", 8, TextureBases);
 
 	TextureAtlas = TextureAtlasCreator::Get().getAtlas();
+
+}
+
+void DialogCanvas::Init(unsigned int textureAtlas, std::vector<TextureRect> textures) {
+	TextureAtlas = textureAtlas;
+	TextureBases = textures;
 }
 
 void DialogCanvas::DrawCanvas(int left, int bottom, int colummns, int rows, int tileWidth, int tileHeight, bool updateView, bool drawInChunk) {
 	float _tileWidth = static_cast<float>(tileWidth);
 	float _tileHeight = static_cast<float>(tileHeight);
 
-	TextureManager::BindTexture(TextureAtlas, true, 0);
+	if (!drawInChunk) {
+		TextureManager::BindTexture(TextureAtlas, true, 0);
+	}
 
 	// draw the corners
 	TextureManager::DrawTextureBatched(TextureBases[0], left, bottom, _tileWidth, _tileHeight,  false, updateView);
