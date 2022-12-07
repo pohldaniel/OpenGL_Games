@@ -126,10 +126,6 @@ uint16_t ConfigurableSpell::getDuration() const {
 	return duration;
 }
 
-TextureRect* ConfigurableSpell::getSymbol() const {
-	return spellSymbol;
-}
-
 /// GeneralDamageSpell
 GeneralDamageSpell::GeneralDamageSpell() : currentFrame(animation.getFrame()) {
 	minDirectDamage = 0;

@@ -11,7 +11,7 @@ public:
 
 	void fixedUpdate() override;
 	void update() override;
-	void render(unsigned int &frameBuffer) override;
+	void render() override;
 
 private:
 	std::vector<TextureRect> m_backgroundTextures;

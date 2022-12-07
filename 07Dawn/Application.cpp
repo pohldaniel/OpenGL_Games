@@ -42,11 +42,9 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 	shader->loadInt("u_font", 1);
 	glUseProgram(0);
 
-
 	glGenBuffers(1, &Globals::viewUbo);
 	glBindBuffer(GL_UNIFORM_BUFFER, Globals::viewUbo);
 	glBufferData(GL_UNIFORM_BUFFER, 64, NULL, GL_STATIC_DRAW);
-	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 	glBindBufferRange(GL_UNIFORM_BUFFER, Globals::viewBinding, Globals::viewUbo, 0, 64);
 
 	glUniformBlockBinding(shader->m_program, glGetUniformBlockIndex(shader->m_program, "u_view"), Globals::viewBinding);
@@ -65,6 +63,7 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 	glUseProgram(shader->m_program);
 	shader->loadMatrix("u_projection", ViewPort::Get().getCamera().getOrthographicMatrix());
 	glUseProgram(0);
+
 }
 
 Application::~Application() {
@@ -275,8 +274,8 @@ void Application::initOpenGL() {
 		0,								// ignore shift bit
 		0,								// no accumulation buffer
 		0, 0, 0, 0,						// ignore accumulation bits
-		24,								// 24 bit z-buffer size
-		8,								// 8 bit stencil buffer
+		0,								// 24 bit z-buffer size
+		0,								// 8 bit stencil buffer
 		0,								// no auxiliary buffer
 		PFD_MAIN_PLANE,					// main drawing plane
 		0,								// reserved
@@ -290,38 +289,9 @@ void Application::initOpenGL() {
 	wglMakeCurrent(hDC, hRC);
 	enableVerticalSync(true);
 
-	//glAlphaFunc(GL_NEVER, 0.0f);
-
-	glDepthFunc(GL_ALWAYS);
-	//glDepthFunc(GL_LESS);
-	//glDepthFunc(GL_NEVER);
-	//alpha test for cutting border of the quads
-	//glEnable(GL_ALPHA_TEST);
-	//glAlphaFunc(GL_LEQUAL, 0.81f);
-
-	//glAlphaFunc(GL_GEQUAL, 0.5);
-
-	
 	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-	//glDisable(GL_ALPHA_TEST);
-	//button transparency, fog and light
-	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	
-	//https://stackoverflow.com/questions/2171085/opengl-blending-with-previous-contents-of-framebuffer
-	//glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 	glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-	//glBlendEquation(GL_FUNC_ADD);
-	// enable blending
-
-	//outline
-	//glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
-
-	//glEnable(GL_CLIP_DISTANCE0);
-	
-	//glCullFace(GL_BACK);
-	//glFrontFace(GL_CCW);
-	//glEnable(GL_CULL_FACE);
+	glEnable(GL_BLEND);
 }
 
 void Application::enableVerticalSync(bool enableVerticalSync) {
@@ -354,10 +324,7 @@ bool Application::isRunning() {
 }
 
 void Application::render() {
-	glBindBuffer(GL_UNIFORM_BUFFER, Globals::viewUbo);
 	glBufferSubData(GL_UNIFORM_BUFFER, 0, 64, &ViewPort::Get().getCamera().getViewMatrix()[0][0]);
-	glBindBuffer(GL_UNIFORM_BUFFER, 0);
-
 	m_machine->render();
 }
 
@@ -425,6 +392,7 @@ void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 }
 
 void Application::loadAssets() {
+
 	Globals::shaderManager.loadShader("quad", "res/shader/quad.vs", "res/shader/quad.fs");
 	Globals::shaderManager.loadShader("quad_array", "res/shader/quad_array.vs", "res/shader/quad_array.fs");
 	Globals::shaderManager.loadShader("batch", "res/shader/batch.vs", "res/shader/batch.fs");

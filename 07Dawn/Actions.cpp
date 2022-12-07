@@ -147,11 +147,6 @@ uint16_t ConfigurableAction::getDuration() const {
 	return duration;
 }
 
-TextureRect* ConfigurableAction::getSymbol() const {
-	return spellSymbol;
-}
-
-
 /// MeleeDamageAction
 
 MeleeDamageAction::MeleeDamageAction() {

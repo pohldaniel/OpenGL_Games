@@ -42,7 +42,6 @@ public:
 	virtual std::string getName() const = 0;
 	virtual std::string getID() const;
 	virtual std::string getInfo() const = 0;
-	virtual TextureRect* getSymbol() const = 0;
 	virtual Enums::EffectType getEffectType() const = 0;
 
 	/// Note: The following functions may only be called on spells that where really created,
@@ -118,7 +117,7 @@ public:
 	/// will be inscribed in the spell database so it will get an ID.
 	void unsetLuaID();
 	void setSymbolTextureRect(TextureRect& textureRect);
-
+	TextureRect* getSymbol() const;
 	Clock m_timer;
 
 protected:
@@ -140,6 +139,6 @@ protected:
 	std::vector< std::pair<SpellActionBase*, double> > additionalSpellsOnCreator;
 	std::pair<Enums::CharacterStates, float> characterStateEffects;
 
-	TextureRect* spellSymbol;
+	TextureRect* spellSymbol = nullptr;
 	bool needTarget;
 };

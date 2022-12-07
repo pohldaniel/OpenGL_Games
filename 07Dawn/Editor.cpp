@@ -427,12 +427,10 @@ void Editor::printShortText(const CharacterSet& characterSet, const std::string 
 	}
 }
 
-void Editor::render(unsigned int &frameBuffer) {
-	glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
-	
+void Editor::render() {
+
 	glClearColor(0.0f, 0.0f, 1.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-	glEnable(GL_BLEND);
 
 	newZone->drawZoneBatched();
 		
@@ -581,9 +579,6 @@ void Editor::render(unsigned int &frameBuffer) {
 
 	Fontrenderer::Get().unbindTexture();
 	TextureManager::UnbindTexture(true);
-	
-	glDisable(GL_BLEND);
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void Editor::drawEditFrame(EnvironmentMap* editobject) {

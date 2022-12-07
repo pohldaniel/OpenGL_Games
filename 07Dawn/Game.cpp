@@ -6,6 +6,7 @@
 #include "Shop.h"
 #include "Quest.h"
 #include "TextWindow.h"
+#include "Message.h"
 
 Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	Mouse::SetCursorIcon("res/cursors/pointer.cur");
@@ -29,7 +30,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	DawnInterface::enterZone("res/_lua/zone1", 512, 400);
 	//DawnInterface::enterZone("res/_lua/zone1", 747, 1530);	
 	//DawnInterface::enterZone("res/_lua/arinoxGeneralShop", -158, 0);
-	
+
 	LuaFunctions::executeLuaFile("res/_lua/gameinit.lua");
 	DawnInterface::clearLogWindow();
 
@@ -37,6 +38,8 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 
 	GLfloat color[] = { 1.0f, 1.0f, 0.0f };
 	DawnInterface::addTextToLogWindow(color, "Welcome to the world of Dawn, %s.", Player::Get().getName().c_str());
+
+
 }
 
 Game::~Game() {}
@@ -52,25 +55,21 @@ void Game::update() {
 	ZoneManager::Get().getCurrentZone()->update(m_dt);
 	Player::Get().update(m_dt);
 	ViewPort::Get().setPosition(Player::Get().getPosition());	
+	Message::Get().deleteDecayed();
 }
 
-void Game::render(unsigned int &frameBuffer) {
-	
-	glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
+void Game::render() {
 
-	glClearColor(0.0f, 0.0f, 1.0f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-	glEnable(GL_BLEND);
-	
+	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+	glClear(GL_COLOR_BUFFER_BIT);
+
 	ZoneManager::Get().getCurrentZone()->drawZoneBatched();
 	Player::Get().draw();
 	Npc::DrawActiveSpells();
 	GroundLoot::DrawTooltip(ViewPort::Get().getCursorPosX(), ViewPort::Get().getCursorPosY());
 	InteractionPoint::DrawSymbols();
 	Interface::Get().draw();
-	glDisable(GL_BLEND);
-
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	Message::Get().draw();
 }
 
 void Game::resize(int deltaW, int deltaH) {

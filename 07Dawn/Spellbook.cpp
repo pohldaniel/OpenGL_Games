@@ -52,7 +52,6 @@ void Spellbook::init(unsigned int textureAtlas, std::vector<TextureRect> texture
 void Spellbook::draw() {
 	if (!m_visible) return;
 	TextureManager::BindTexture(m_textureAtlas, true, 0);
-
 	// draw spellbook base
 	TextureManager::DrawTextureBatched(m_textures[0], m_posX, m_posY, false, false);
 	// draw placeholders, the actual spell symbol and title of the spell.

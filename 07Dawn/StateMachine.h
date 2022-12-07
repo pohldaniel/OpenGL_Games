@@ -5,7 +5,6 @@
 #include "engine/Shader.h"
 #include "engine/Quad.h"
 #include "Constants.h"
-#include "Message.h"
 
 enum CurrentState {
 	GAME,
@@ -30,6 +29,7 @@ public:
 	void fixedUpdate();
 	void update();
 	void render();
+	void renderPostprocess();
 	void resize(unsigned int width, unsigned int height);
 
 	void clearAndPush(State* state);
@@ -62,7 +62,7 @@ public:
 
 	virtual void fixedUpdate() = 0;
 	virtual void update() = 0;
-	virtual void render(unsigned int &m_frameBuffer) = 0;
+	virtual void render() = 0;
 	virtual void resize(int deltaW, int deltaH) {};
 
 	const bool isRunning() const;

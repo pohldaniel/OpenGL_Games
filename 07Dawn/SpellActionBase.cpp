@@ -76,6 +76,11 @@ void SpellActionBase::drawSymbolSingle(int left, int bottom, float width, float 
 	//Batchrenderer::Get().drawSingleQuadAA(Vector4f(static_cast< float >(left), static_cast< float >(bottom), width, height), Vector4f(texture->textureOffsetX, texture->textureOffsetY, texture->textureWidth, texture->textureHeight), color, updateView, 0u, texture->frame);
 }
 
+TextureRect* SpellActionBase::getSymbol() const {
+	return spellSymbol;
+}
+
+
 std::string SpellActionBase::getID() const {
 	if (luaID.size() == 0) {
 		luaID = LuaFunctions::getIDFromLuaTable("spellDatabase", this);

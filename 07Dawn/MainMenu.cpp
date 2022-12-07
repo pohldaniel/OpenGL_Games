@@ -52,19 +52,11 @@ void MainMenu::update() {
 	m_dialog.processInput();
 }
 
-void MainMenu::render(unsigned int &frameBuffer) {
-
-	glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
+void MainMenu::render() {
 
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-	glEnable(GL_BLEND);
-
 	m_dialog.draw();
-
-	glDisable(GL_BLEND);
-
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);	
 }
 
 void MainMenu::resize(int deltaW, int deltaH) {

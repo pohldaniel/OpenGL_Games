@@ -45,8 +45,6 @@ public:
 	void setDuration(uint16_t newDuration);
 	virtual uint16_t getDuration() const;
 
-	TextureRect* getSymbol() const;
-
 protected:
 	ConfigurableAction();
 	ConfigurableAction(ConfigurableAction *other);

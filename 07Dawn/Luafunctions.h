@@ -10,4 +10,5 @@ namespace LuaFunctions{
 	void executeLuaFile(std::string filename);
 	void executeLuaScript(std::string scripttext);
 	std::string getIDFromLuaTable(const std::string &tableName, const void *value);
+	void incrementTableRects(const std::string &tableName);
 }

@@ -16,7 +16,7 @@ public:
 
 	virtual void fixedUpdate() override;
 	virtual void update() override;
-	virtual void render(unsigned int &frameBuffer) override;
+	virtual void render() override;
 
 private:
 	void printShortText(const CharacterSet& characterSet, const std::string &printText, int left, int width, int bottom, int height);

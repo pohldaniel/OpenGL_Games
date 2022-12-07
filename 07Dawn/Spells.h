@@ -50,10 +50,7 @@ public:
 	virtual std::string getInfo() const;
 	void setDuration(uint16_t newDuration);
 	virtual uint16_t getDuration() const;
-	TextureRect* getSymbol() const;
 
-	
-	
 
 protected:
 	ConfigurableSpell();

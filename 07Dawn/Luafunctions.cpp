@@ -1,10 +1,12 @@
 #include <cstdlib>
 #include <iostream>
+#include <unordered_set>
 
 #include <tolua++.h>
 #include <lua.hpp>
-
+#include "engine/Rect.h"
 #include "Luainterfacegenerated.h"
+
 
 namespace LuaFunctions{
 
@@ -106,16 +108,45 @@ namespace LuaFunctions{
 			// pop the value from the stack
 			lua_pop(lState, 1);
 		}
-		// pop the last key from the stack
-		lua_pop(lState, 1);
 
-		// pop the table from the stack
-		lua_pop(lState, 1);
+		if (found) {
+			// pop the last key from the stack
+			lua_pop(lState, 1);
 
-		if (!found){
+			// pop the table from the stack
+			lua_pop(lState, 1);
+		}else{
 			std::cout << std::string("could not find searched value in table ").append(tableName).c_str() << std::endl;
 		}
 
 		return foundKey;
+	}
+
+	void incrementTableRects(const std::string &tableName) {
+		lua_State *lState = getGlobalLuaState();
+		lua_getglobal(lState, tableName.c_str());
+		if (lua_isnil(lState, -1) || !lua_istable(lState, -1)) {
+			std::cout << std::string("table ").append(tableName).append(" does not exist in lua as global table").c_str() << std::endl;
+		}
+
+		lua_pushnil(lState);
+
+		// lua-stack layout now:
+		// -1 nil
+		// -2 table
+
+		while (lua_next(lState, -2) != 0) {
+			// lua-stack layout now:
+			// -1 value
+			// -2 key
+			// -3 table
+			if (lua_isuserdata(lState, -1)) {
+				// tolua stores userdata in a strange way so we need to retrieve it as *(void**)
+				void *curUserData = *(void**)lua_touserdata(lState, -1);
+				((TextureRect*)curUserData)->frame++;
+			}
+			// pop the value from the stack
+			lua_pop(lState, 1);
+		}
 	}
 }

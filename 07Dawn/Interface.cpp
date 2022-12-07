@@ -160,7 +160,7 @@ void Interface::loadTextures() {
 
 	m_textureAtlas = TextureAtlasCreator::Get().getAtlas();
 	m_textureAtlas = Spritesheet::Merge(TextureManager::GetTextureAtlas("symbols"), m_textureAtlas);
-
+	//m_textureAtlas = Spritesheet::Merge(TextureManager::GetTextureAtlas("items"), m_textureAtlas, true, false);
 	glBindTexture(GL_TEXTURE_2D_ARRAY, m_textureAtlas);
 	glTexParameterf(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
 	glTexParameterf(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -168,18 +168,19 @@ void Interface::loadTextures() {
 	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
 
 	for (unsigned short layer = 0; layer < m_interfacetexture.size(); layer++) {
-		m_interfacetexture[layer].frame++;
+		m_interfacetexture[layer].frame += 1;
 	}
 
 	for (unsigned short layer = 0; layer < m_damageDisplayTexturesSmall.size(); layer++) {
-		m_damageDisplayTexturesSmall[layer].frame++;
+		m_interfacetexture[layer].frame += 1;
 	}
 
 	for (unsigned short layer = 0; layer < m_damageDisplayTexturesBig.size(); layer++) {
-		m_damageDisplayTexturesBig[layer].frame++;
+		m_interfacetexture[layer].frame += 1;
 	}
 
-	//Spritesheet::Safe("interface", m_textureAtlas);	
+	//LuaFunctions::incrementTableRects("symbols");
+	//Spritesheet::Safe("tmp/interface", m_textureAtlas);	
 }
 
 void Interface::resize(int deltaW, int deltaH) {

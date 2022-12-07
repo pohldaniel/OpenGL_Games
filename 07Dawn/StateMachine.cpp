@@ -80,21 +80,27 @@ void StateMachine::update() {
 
 void StateMachine::render() {
 	if (!m_states.empty()) {
+		//glPolygonMode(GL_FRONT_AND_BACK, Globals::enableWireframe ? GL_LINE : GL_FILL);
+		m_states.top()->render();
+		//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	}
+}
+
+
+void StateMachine::renderPostprocess() {
+	if (!m_states.empty()) {
 		glPolygonMode(GL_FRONT_AND_BACK, Globals::enableWireframe ? GL_LINE : GL_FILL);
-		m_states.top()->render(m_frameBuffer);
+		glBindFramebuffer(GL_FRAMEBUFFER, m_frameBuffer);
+		m_states.top()->render();
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	}
 
-	glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-	glEnable(GL_BLEND);
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT);
 	glUseProgram(m_shader->m_program);
-	//m_shader->loadMatrix("u_transform", Matrix4f::IDENTITY);
 	m_quad->render(m_frameTexture);
 	glUseProgram(0);
-	Message::Get().draw();
-	Message::Get().deleteDecayed();
-	glDisable(GL_BLEND);
 }
 
 void StateMachine::clearAndPush(State* state) {

@@ -44,12 +44,11 @@ void LoadingScreen::update() {
 	}
 }
 
-void LoadingScreen::render(unsigned int &frameBuffer) {
-	glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
+void LoadingScreen::render() {
 
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-	glEnable(GL_BLEND);
+
 
 	int progressBarWidth = static_cast<int>(ViewPort::Get().getWidth()) / 2;
 	int progressBarPosX = (static_cast<int>(ViewPort::Get().getWidth()) - progressBarWidth) / 2;
@@ -66,7 +65,4 @@ void LoadingScreen::render(unsigned int &frameBuffer) {
 	int textY = 30 + m_characterSet.lineHeight;
 	Fontrenderer::Get().drawText(m_characterSet, textX, textY, m_curText);
 	TextureManager::UnbindTexture(true);
-
-	glDisable(GL_BLEND);
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }

@@ -22,10 +22,7 @@ TextureRect& TextureCache::getTextureFromCache(std::string filename, unsigned in
 		return textures[{TextureAtlasCreator::s_instance.name, filename}];
 	}*/
 	
-	/*if (TextureAtlasCreator::s_instance.name.compare("res/_lua/arinoxGeneralShop") == 0 || TextureAtlasCreator::s_instance.name.compare("res/_lua/zone1") == 0) {
-		std::cout << "File Name: " << filename << std::endl;
-	}*/
-
+	
 	Texture tex;
 	(paddingLeft != 0 || paddingRight != 0 || paddingTop != 0 || paddingBottom != 0) ? tex.loadFromFile(filename, true, 0 , 0, paddingLeft, paddingRight, paddingTop, paddingBottom) : tex.loadFromFile(filename, true);
 	
@@ -33,16 +30,28 @@ TextureRect& TextureCache::getTextureFromCache(std::string filename, unsigned in
 		transparent ? tex.addAlphaChannel(0) : tex.addAlphaChannel();
 	}
 
+	/*if (TextureAtlasCreator::s_instance.name.compare("symbols") == 0) {
+		std::cout << "File: " << filename << std::endl;
+	}*/
+
 	textures[{TextureAtlasCreator::s_instance.name, filename}].width = tex.getWidth();
 	textures[{TextureAtlasCreator::s_instance.name, filename}].height = tex.getHeight();
 	textures[{TextureAtlasCreator::s_instance.name, filename}].textureOffsetX = 0.0f;;
 	textures[{TextureAtlasCreator::s_instance.name, filename}].textureWidth = 1.0f;
 	textures[{TextureAtlasCreator::s_instance.name, filename}].textureOffsetY = 0.0f;
 	textures[{TextureAtlasCreator::s_instance.name, filename}].textureHeight = 1.0f;
+	textures[{TextureAtlasCreator::s_instance.name, filename}].frame = 0;
 
 	unsigned char* bytes = tex.readPixel();
 	TextureAtlasCreator::Get().addTexture(textures[{TextureAtlasCreator::s_instance.name, filename}], reinterpret_cast<char*>(bytes), tex.getWidth(), tex.getHeight(), maxWidth, maxHeight, paddingLeft, paddingTop);
 	free(bytes);
+
+	if (TextureAtlasCreator::s_instance.name.compare("symbols") == 0) {
+		/*textures[{TextureAtlasCreator::s_instance.name, filename}].width = 12;
+		textures[{TextureAtlasCreator::s_instance.name, filename}].frame = 0;
+		std::cout << "Frame 2: " << textures[{TextureAtlasCreator::s_instance.name, filename}].frame << std::endl;
+		std::cout << "Widht 2: " << textures[{TextureAtlasCreator::s_instance.name, filename}].width << std::endl;*/
+	}
 
 	return textures[{TextureAtlasCreator::s_instance.name, filename}];
 }
