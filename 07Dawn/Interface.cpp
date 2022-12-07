@@ -168,15 +168,15 @@ void Interface::loadTextures() {
 	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
 
 	for (unsigned short layer = 0; layer < m_interfacetexture.size(); layer++) {
-		m_interfacetexture[layer].frame += 1;
+		m_interfacetexture[layer].frame++;
 	}
 
 	for (unsigned short layer = 0; layer < m_damageDisplayTexturesSmall.size(); layer++) {
-		m_interfacetexture[layer].frame += 1;
+		m_damageDisplayTexturesSmall[layer].frame++;
 	}
 
 	for (unsigned short layer = 0; layer < m_damageDisplayTexturesBig.size(); layer++) {
-		m_interfacetexture[layer].frame += 1;
+		m_damageDisplayTexturesBig[layer].frame++;
 	}
 
 	//LuaFunctions::incrementTableRects("symbols");
@@ -319,7 +319,7 @@ void Interface::draw() {
 
 	drawSpellTooltip(ViewPort::Get().getCursorPosRelX(), ViewPort::Get().getCursorPosRelY());
 
-	
+
 
 	SpellActionBase *spellUnderMouse = getSpellAtMouse(ViewPort::Get().getCursorPosRelX(), ViewPort::Get().getCursorPosRelY());
 	if (spellUnderMouse != NULL) {
@@ -328,7 +328,8 @@ void Interface::draw() {
 				delete m_tooltip;
 				m_tooltip = new SpellTooltip(spellUnderMouse, m_player);
 			}
-		}else {
+		}
+		else {
 			m_tooltip = new SpellTooltip(spellUnderMouse, m_player);
 		}
 		m_tooltip->draw(ViewPort::Get().getCursorPosRelX(), ViewPort::Get().getCursorPosRelY());
@@ -351,7 +352,7 @@ void Interface::draw() {
 		m_spellbook.drawSpellTooltip(ViewPort::Get().getCursorPosRelX(), ViewPort::Get().getCursorPosRelY());
 	}
 	InventoryCanvas::Get().drawItemTooltip(ViewPort::Get().getCursorPosRelX(), ViewPort::Get().getCursorPosRelY());
-	
+
 	Fontrenderer::Get().resetRenderer();
 	TextureManager::SetShader(Globals::shaderManager.getAssetPointer("batch"));
 	TextureManager::UnbindTexture(true, 1);
@@ -360,7 +361,6 @@ void Interface::draw() {
 	InventoryCanvas::Get().drawFloatingSelection();
 	m_spellbook.drawFloatingSpell();
 	ShopCanvas::Get().drawFloatingSelection();
-
 }
 
 void Interface::drawCursor(bool drawInGameCursor) {
