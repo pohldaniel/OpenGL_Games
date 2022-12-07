@@ -157,7 +157,6 @@ void TileSet::getAllAdjacentTiles(const Tile& searchTile, std::vector< std::vect
 				matchOffsets[Enums::AdjacencyType::RIGHT].push_back({ curAdjacency.offset[0], curAdjacency.offset[1] });
 
 			}else {
-				assert(curAdjacency->adjacencyType == AdjacencyType::TOP);
 				result[Enums::AdjacencyType::TOP].push_back(m_tiles[curAdjacency.adjacentTile]);
 				matchOffsets[Enums::AdjacencyType::TOP].push_back({ curAdjacency.offset[0], curAdjacency.offset[1] });
 			}
@@ -168,7 +167,6 @@ void TileSet::getAllAdjacentTiles(const Tile& searchTile, std::vector< std::vect
 				result[Enums::AdjacencyType::LEFT].push_back(m_tiles[curAdjacency.baseTile]);
 				matchOffsets[Enums::AdjacencyType::LEFT].push_back({ -curAdjacency.offset[0], -curAdjacency.offset[1] });
 			}else {
-				assert(curAdjacency->adjacencyType == AdjacencyType::TOP);
 				result[Enums::AdjacencyType::BOTTOM].push_back(m_tiles[curAdjacency.baseTile]);
 				matchOffsets[Enums::AdjacencyType::BOTTOM].push_back({ -curAdjacency.offset[0], -curAdjacency.offset[1] });
 			}

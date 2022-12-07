@@ -829,9 +829,9 @@ void Interface::processInputRightDrag() {
 		for (auto it = m_widgets.rbegin(); it != m_widgets.rend(); ++it) {
 			canDrag &= !(*it)->isMouseOnFrame(mouse.xPosAbsolute(), mouse.yPosAbsolute());			
 		}
-
 		if (canDrag && (sqrt(pow(m_lastMouseDown.first - ViewPort::Get().getCursorPosRelX(), 2) + pow(m_lastMouseDown.second - ViewPort::Get().getCursorPosRelY(), 2)) > 5) /*&& !sPreparingAoESpell()*/) {
 			if (m_buttonId >= 0) {
+				
 				dragSpell(&m_button[m_buttonId]);
 			}
 		}
@@ -862,14 +862,14 @@ void Interface::processInputRightDrag() {
 
 	if (m_activeWidget) m_activeWidget->processInput();
 
-	if (hasSpell && InventoryCanvas::Get().hasFloatingSelection()) {
+	/*if (hasSpell && InventoryCanvas::Get().hasFloatingSelection()) {
 		m_spellbook.unsetFloatingSpell();
 	}
 
 	if (hasSelection && m_spellbook.hasFloatingSpell()) {
 		//m_inventoryScreen.unsetFloatingSelection();
 		m_spellbook.unsetFloatingSpell();
-	}
+	}*/
 
 	if (widgetInteraction) {
 		m_spellQueue = NULL;

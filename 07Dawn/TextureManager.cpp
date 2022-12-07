@@ -30,10 +30,6 @@ TextureRect& TextureCache::getTextureFromCache(std::string filename, unsigned in
 		transparent ? tex.addAlphaChannel(0) : tex.addAlphaChannel();
 	}
 
-	/*if (TextureAtlasCreator::s_instance.name.compare("symbols") == 0) {
-		std::cout << "File: " << filename << std::endl;
-	}*/
-
 	textures[{TextureAtlasCreator::s_instance.name, filename}].width = tex.getWidth();
 	textures[{TextureAtlasCreator::s_instance.name, filename}].height = tex.getHeight();
 	textures[{TextureAtlasCreator::s_instance.name, filename}].textureOffsetX = 0.0f;;
@@ -45,13 +41,6 @@ TextureRect& TextureCache::getTextureFromCache(std::string filename, unsigned in
 	unsigned char* bytes = tex.readPixel();
 	TextureAtlasCreator::Get().addTexture(textures[{TextureAtlasCreator::s_instance.name, filename}], reinterpret_cast<char*>(bytes), tex.getWidth(), tex.getHeight(), maxWidth, maxHeight, paddingLeft, paddingTop);
 	free(bytes);
-
-	if (TextureAtlasCreator::s_instance.name.compare("symbols") == 0) {
-		/*textures[{TextureAtlasCreator::s_instance.name, filename}].width = 12;
-		textures[{TextureAtlasCreator::s_instance.name, filename}].frame = 0;
-		std::cout << "Frame 2: " << textures[{TextureAtlasCreator::s_instance.name, filename}].frame << std::endl;
-		std::cout << "Widht 2: " << textures[{TextureAtlasCreator::s_instance.name, filename}].width << std::endl;*/
-	}
 
 	return textures[{TextureAtlasCreator::s_instance.name, filename}];
 }

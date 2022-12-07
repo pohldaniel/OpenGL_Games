@@ -116,7 +116,7 @@ Player& Player::Get() {
 	return s_instance;
 }
 
-Player::Player() : inventory(Inventory()) {
+Player::Player() {
 }
 
 Player::~Player() {
@@ -196,7 +196,8 @@ void Player::init() {
 
 	m_isPlayer = true;
 
-	inventory.init(10, 4, this);
+	inventory = new Inventory();
+	inventory->init(10, 4, this);
 }
 
 bool Player::hasTarget(Character* target) {
@@ -517,11 +518,11 @@ bool Player::isShopping() const {
 }
 
 Inventory* Player::getInventory() {
-	return &inventory;
+	return inventory;
 }
 
 void Player::clearInventory() {
-	inventory.clear();
+	inventory->clear();
 }
 
 void Player::reduceCoins(unsigned int amountOfCoins) {

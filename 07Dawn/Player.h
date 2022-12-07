@@ -95,7 +95,7 @@ private:
 	Enums::Attitude targetAttitude;
 	int dx, dy;
 	bool isCurrentlyShopping;
-	Inventory& inventory;
+	Inventory* inventory;
 
 	static Player s_instance;
 };

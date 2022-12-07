@@ -136,7 +136,6 @@ void InventoryCanvas::init() {
 void InventoryCanvas::draw() {
 	if (!m_visible) return;
 	TextureManager::BindTexture(m_textureAtlas, true, 0);
-
 	TextureManager::DrawTextureBatched(m_textures[0], m_posX, m_posY, false, false);
 
 	drawCoins();

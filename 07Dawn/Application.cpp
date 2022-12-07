@@ -11,7 +11,6 @@ EventDispatcher& Application::s_eventDispatcher = EventDispatcher::Get();
 
 Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fdt) {
 	ViewPort::Get().init(WIDTH, HEIGHT);
-	
 	initWindow();
 	initOpenGL();
 	loadAssets();
@@ -27,6 +26,7 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 		return true;
 	});
 
+	
 	Fontrenderer::Get().init();
 	Fontrenderer::Get().setShader(Globals::shaderManager.getAssetPointer("font"));
 	Batchrenderer::Get().init(400, true);
