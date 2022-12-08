@@ -16,3 +16,5 @@ The project 03Marvin will be a refactoring of https://github.com/TylerSandman/Ma
 The project 04Virtueror will be a refactoring of https://github.com/vivaladav/iso-rts
 
 The project 06Voyager needs some assets (Woman.gltf, Woman.png) from https://github.com/gszauer/GameAnimationProgramming I am pretty sure there is a Copyright on it. By my own I managed the basics of "Additive Animation Blending" following the source of Chapter 12 from this repository but using Assimp as model loader.
+
+The project 07Dawn will be a refactoring of https://github.com/iamCode/Dawn. Using glew and batchrendering gives me a similar gpu profiling in compariosn with the origin. The coreengine is almost running.
