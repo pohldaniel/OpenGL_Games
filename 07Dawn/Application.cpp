@@ -1,6 +1,6 @@
 #include <iostream>
 #include "Application.h"
-
+#include "GL.H"
 #include "MainMenu.h"
 #include "Game.h"
 #include "Editor.h"
@@ -303,6 +303,9 @@ void Application::initOpenGL() {
 
 	hRC = wglCreateContext(hDC);				// create rendering context and make it current
 	wglMakeCurrent(hDC, hRC);
+	
+	glewInit();
+	
 	enableVerticalSync(true);
 
 	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);

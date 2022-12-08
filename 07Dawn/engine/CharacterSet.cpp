@@ -186,11 +186,11 @@ void CharacterSet::safeFont() {
 	glGetTexImage(GL_TEXTURE_2D, 0, GL_RED, GL_UNSIGNED_BYTE, bytes);
 	glBindTexture(GL_TEXTURE_2D, 0);
 
-	std::vector<BYTE> srcPixels(maxWidth * maxHeight);
+	std::vector<unsigned char> srcPixels(maxWidth * maxHeight);
 	memcpy(&srcPixels[0], bytes, maxWidth * maxHeight);
 
-	BYTE *pSrcRow = 0;
-	BYTE *pDestRow = 0;
+	unsigned char *pSrcRow = 0;
+	unsigned char *pDestRow = 0;
 
 	for (unsigned int i = 0; i < maxHeight; ++i) {
 

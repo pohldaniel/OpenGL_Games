@@ -228,12 +228,6 @@ void Game::Init() {
 	TextureManager::GetTextureAtlas("interface") = Spritesheet::Merge(TextureManager::GetTextureAtlas("symbols"), TextureManager::GetTextureAtlas("interface"));
 	TextureManager::GetTextureAtlas("interface") = Spritesheet::Merge(TextureManager::GetTextureAtlas("items"), TextureManager::GetTextureAtlas("interface"), false, false);
 
-	/*glBindTexture(GL_TEXTURE_2D_ARRAY, TextureManager::GetTextureAtlas("interface"));
-	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
-	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);*/
-
 	for (unsigned short layer = 0; layer < TextureRects.size(); layer++) {
 		TextureRects[layer].frame += 2;
 	}

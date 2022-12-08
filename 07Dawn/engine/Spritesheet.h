@@ -2,7 +2,6 @@
 #define __spritesheetH__
 #include <string>
 
-
 class Spritesheet {
 
 public:

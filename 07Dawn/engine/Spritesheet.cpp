@@ -1,9 +1,10 @@
 #include <iostream>
+#include "glew/glew.h"
 #include "Extension.h"
 #include "Spritesheet.h"
 #include "Texture.h"
 
-#include "..\soil2\SOIL2.h"
+#include "../soil2/SOIL2.h"
 
 Spritesheet::Spritesheet(unsigned int textureAtlas) {
 	m_texture = textureAtlas;

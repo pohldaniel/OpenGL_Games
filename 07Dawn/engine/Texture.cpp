@@ -1,6 +1,8 @@
 #include "Texture.h"
+
+#include "glew/glew.h"
 #include "Extension.h"
-#include "..\soil2\SOIL2.h"
+#include "../soil2/SOIL2.h"
 #include <iostream>
 
 Texture::Texture(std::string fileName, const bool _flipVertical, unsigned int _format) {
@@ -29,11 +31,11 @@ Texture::Texture(std::string fileName, const bool _flipVertical, unsigned int _f
 }
 
 void Texture::flipVertical(unsigned char* data, unsigned int padWidth, unsigned int height) {
-	std::vector<BYTE> srcPixels(padWidth * height);
+	std::vector<unsigned char> srcPixels(padWidth * height);
 	memcpy(&srcPixels[0], data, padWidth * height);
 
-	BYTE *pSrcRow = 0;
-	BYTE *pDestRow = 0;
+	unsigned char *pSrcRow = 0;
+	unsigned char *pDestRow = 0;
 	
 	for (unsigned int i = 0; i < height; ++i) {
 
@@ -44,11 +46,11 @@ void Texture::flipVertical(unsigned char* data, unsigned int padWidth, unsigned 
 }
 
 void Texture::FlipVertical(unsigned char* data, unsigned int padWidth, unsigned int height) {
-	std::vector<BYTE> srcPixels(padWidth * height);
+	std::vector<unsigned char> srcPixels(padWidth * height);
 	memcpy(&srcPixels[0], data, padWidth * height);
 
-	BYTE *pSrcRow = 0;
-	BYTE *pDestRow = 0;
+	unsigned char *pSrcRow = 0;
+	unsigned char *pDestRow = 0;
 
 	for (unsigned int i = 0; i < height; ++i) {
 

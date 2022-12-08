@@ -2,7 +2,7 @@
 #define _INSTANCERENDERER_H
 
 #include <array>
-
+#include "glew/glew.h"
 #include "Extension.h"
 #include "Shader.h"
 #include "Camera.h"

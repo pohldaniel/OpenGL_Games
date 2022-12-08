@@ -1,4 +1,4 @@
-#if !defined(EXTENSION_H)
+/*#if !defined(EXTENSION_H)
 #define EXTENSION_H
 #define NOMINMAX
 #include <windows.h>
@@ -251,4 +251,4 @@ typedef char GLchar;
 	extern void glBindSampler(GLuint unit, GLuint sampler);
 
 } // extern "C"
-#endif
+#endif*/
