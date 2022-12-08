@@ -27,9 +27,11 @@ void Interface::setPlayer(Player* player) {
 	InventoryCanvas::Get().setPlayer(m_player);
 }
 
-void Interface::init() {
+void Interface::init(std::vector<TextureRect> textures) {
+	m_textures = textures;
 
-	loadTextures();
+	m_displayOffsetSmall = 22;
+	m_displayOffsetBig = 32;
 
 	m_shortcutFont = &Globals::fontManager.get("verdana_10");
 	m_cooldownFont = &Globals::fontManager.get("verdana_11");
@@ -55,51 +57,13 @@ void Interface::init() {
 	for (short curEntry = 0; curEntry <= 9 && curEntry < inscribedSpells.size(); ++curEntry) {
 		bindActionToButtonNr(curEntry, inscribedSpells[curEntry]);
 	}
-
-	m_spellbook.init(m_textureAtlas, { m_interfacetexture[22], m_interfacetexture[23], m_interfacetexture[4], m_interfacetexture[24], m_interfacetexture[25]});	
-	m_characterInfo.init(m_textureAtlas, { m_interfacetexture[44], m_interfacetexture[45], m_interfacetexture[46], m_interfacetexture[47], m_interfacetexture[48] });
-
-	InventoryCanvas::Get().init(m_textureAtlas, { m_interfacetexture[26], 
-												  m_interfacetexture[27], 
-												  m_interfacetexture[28], 
-												  m_interfacetexture[29], 
-												  m_interfacetexture[30],
-												  m_interfacetexture[31],
-												  m_interfacetexture[32],
-												  m_interfacetexture[33],
-												  m_interfacetexture[34],
-												  m_interfacetexture[35], 
-												  m_interfacetexture[36],
-												  m_interfacetexture[37],
-												  m_interfacetexture[38],
-												  m_interfacetexture[39],
-												  m_interfacetexture[40],
-												  m_interfacetexture[41],
-												  m_interfacetexture[42],
-												  m_interfacetexture[43] });
-
-	QuestCanvas::Get().init(m_textureAtlas, { m_interfacetexture[49] });
-	DialogCanvas::Init(m_textureAtlas, { m_interfacetexture[50],
-										 m_interfacetexture[51],
-										 m_interfacetexture[52],
-										 m_interfacetexture[53],
-										 m_interfacetexture[54],
-										 m_interfacetexture[55],
-										 m_interfacetexture[56],
-										 m_interfacetexture[57],
-										 m_interfacetexture[58]});
-
-	ShopCanvas::Get().init(m_textureAtlas, { m_interfacetexture[59], m_interfacetexture[60], m_interfacetexture[61], m_interfacetexture[62], m_interfacetexture[63] });
-	ItemTooltip::Init(m_textureAtlas, { m_interfacetexture[28], m_interfacetexture[29], m_interfacetexture[30] });
-	InteractionPoint::Init(m_textureAtlas, { m_interfacetexture[64], m_interfacetexture[65], m_interfacetexture[66], m_interfacetexture[67], m_interfacetexture[68], m_interfacetexture[69] });
-	GroundLoot::Init(m_textureAtlas, { m_interfacetexture[70], m_interfacetexture[71],  m_interfacetexture[72] });
-
+	
 	addWidget(m_spellbook);
 	addWidget(m_characterInfo);
 	addWidget(m_characterInfo);
 	addWidget(InventoryCanvas::Get());
 	addWidget(QuestCanvas::Get());
-	
+
 	ShopCanvas::Get().setOnClose([&]() {
 		m_player->stopShopping();
 		m_player->setTicketForItemTooltip();
@@ -125,156 +89,14 @@ void Interface::init() {
 					return;
 				}
 			}
-		} else {
+		}
+		else {
 			// else add it to the frame vector and make it visible.
 			m_widgets.push_back(&ShopCanvas::Get());
 			ShopCanvas::Get().setVisible(true);
 			m_activeWidget = m_widgets.back();
 		}
 	});
-}
-
-void Interface::loadTextures() {
-
-	TextureAtlasCreator::Get().init("interface", 1024, 1024);
-
-	TextureManager::Loadimage("res/lifebar.tga", 0, m_interfacetexture);
-	TextureManager::Loadimage("res/interface/tooltip/NPCTarget_background.tga", 1, m_interfacetexture);
-	TextureManager::Loadimage("res/interface/tooltip/NPCTarget_left.tga", 2, m_interfacetexture);
-	TextureManager::Loadimage("res/interface/tooltip/NPCTarget_right.tga", 3, m_interfacetexture);
-	TextureManager::Loadimage("res/white2x2pixel.png", 4, m_interfacetexture);
-	TextureManager::Loadimage("res/interface/BuffWindow/frame.tga", 5, m_interfacetexture);
-
-	TextureManager::Loadimage("res/interface/BuffWindow/background.tga", 6, m_interfacetexture);
-	TextureManager::Loadimage("res/fear.tga", 7, m_interfacetexture);
-	TextureManager::Loadimage("res/stun.tga", 8, m_interfacetexture);
-	TextureManager::Loadimage("res/confused.tga", 9, m_interfacetexture);
-	TextureManager::Loadimage("res/mesmerized.tga", 10, m_interfacetexture);
-
-	TextureManager::Loadimage("res/interface/Portrait/base.tga", 11, m_interfacetexture);
-	TextureManager::Loadimage("res/interface/Portrait/bar.tga", 12, m_interfacetexture);
-	TextureManager::Loadimage("res/interface/Portrait/bar_small.tga", 13, m_interfacetexture);
-	TextureManager::Loadimage("res/interface/Portrait/Warrior.tga", 14, m_interfacetexture);
-	TextureManager::Loadimage("res/cursors/pointer2.png", 15, m_interfacetexture);
-	TextureManager::Loadimage("res/interface/BuffWindow/frame.tga", 16, m_interfacetexture);
-	TextureManager::Loadimage("res/interface/BuffWindow/background.tga", 17, m_interfacetexture);
-	TextureManager::Loadimage("res/interface/blended_bg.tga", 18, m_interfacetexture);
-
-	TextureManager::Loadimage("res/border.tga", 19, m_interfacetexture);
-	TextureManager::Loadimage("res/cursors/circle1_enabled.tga", 20, m_interfacetexture);
-	TextureManager::Loadimage("res/cursors/circle1_disabled.tga", 21, m_interfacetexture);
-
-	TextureManager::Loadimage("res/interface/spellbook/base.tga", 22, m_interfacetexture);
-	TextureManager::Loadimage("res/interface/spellbook/placeholder.tga", 23, m_interfacetexture);
-	TextureManager::Loadimage("res/interface/spellbook/arrow_right.tga", 24, m_interfacetexture);
-	TextureManager::Loadimage("res/interface/spellbook/arrow_left.tga", 25, m_interfacetexture);
-
-	TextureManager::Loadimage("res/interface/inventory/base.tga", 26, m_interfacetexture);
-	TextureManager::Loadimage("res/white2x2pixel.png", 27, m_interfacetexture);
-	TextureManager::Loadimage("res/interface/inventory/goldcoin.tga", 28, m_interfacetexture);
-	TextureManager::Loadimage("res/interface/inventory/silvercoin.tga", 29, m_interfacetexture);
-	TextureManager::Loadimage("res/interface/inventory/coppercoin.tga", 30, m_interfacetexture);
-
-
-	TextureManager::Loadimage("res/interface/inventory/head.tga", 31, m_interfacetexture);
-	TextureManager::Loadimage("res/interface/inventory/amulet.tga", 32, m_interfacetexture);
-	TextureManager::Loadimage("res/interface/inventory/main_hand.tga", 33, m_interfacetexture);
-	TextureManager::Loadimage("res/interface/inventory/chest.tga", 34, m_interfacetexture);
-	TextureManager::Loadimage("res/interface/inventory/belt.tga", 35, m_interfacetexture);
-
-
-	TextureManager::Loadimage("res/interface/inventory/legs.tga", 36, m_interfacetexture);
-	TextureManager::Loadimage("res/interface/inventory/shoulder.tga", 37, m_interfacetexture);
-	TextureManager::Loadimage("res/interface/inventory/cloak.tga", 38, m_interfacetexture);
-	TextureManager::Loadimage("res/interface/inventory/gloves.tga", 39, m_interfacetexture);
-	TextureManager::Loadimage("res/interface/inventory/off_hand.tga", 40, m_interfacetexture);
-
-	TextureManager::Loadimage("res/interface/inventory/ring_one.tga", 41, m_interfacetexture);
-	TextureManager::Loadimage("res/interface/inventory/ring_two.tga", 42, m_interfacetexture);
-	TextureManager::Loadimage("res/interface/inventory/boots.tga", 43, m_interfacetexture);
-
-	TextureManager::Loadimage("res/interface/CharacterInfoScreen/background.tga", 44, m_interfacetexture);
-	TextureManager::Loadimage("res/white2x2pixel.png", 45, m_interfacetexture);
-	TextureManager::Loadimage("res/interface/CharacterInfoScreen/meleeSelected.tga", 46, m_interfacetexture);
-	TextureManager::Loadimage("res/interface/CharacterInfoScreen/defenseSelected.tga", 47, m_interfacetexture);
-	TextureManager::Loadimage("res/interface/CharacterInfoScreen/spellsSelected.tga", 48, m_interfacetexture);
-
-	TextureManager::Loadimage("res/interface/QuestScreen/questscreen.tga", 49, m_interfacetexture);
-
-	TextureManager::Loadimage("res/interface/tooltip/lower_left2.tga", 50, m_interfacetexture);
-	TextureManager::Loadimage("res/interface/tooltip/lower_right2.tga", 51, m_interfacetexture);
-	TextureManager::Loadimage("res/interface/tooltip/upper_left2.tga", 52, m_interfacetexture);
-	TextureManager::Loadimage("res/interface/tooltip/upper_right2.tga", 53, m_interfacetexture);
-	TextureManager::Loadimage("res/interface/tooltip/background2.tga", 54, m_interfacetexture);
-	TextureManager::Loadimage("res/interface/tooltip/upper2.tga", 55, m_interfacetexture);
-	TextureManager::Loadimage("res/interface/tooltip/lower2.tga", 56, m_interfacetexture);
-	TextureManager::Loadimage("res/interface/tooltip/left2.tga", 57, m_interfacetexture);
-	TextureManager::Loadimage("res/interface/tooltip/right2.tga", 58, m_interfacetexture);
-
-	TextureManager::Loadimage("res/interface/Shop/base.tga", 59, m_interfacetexture);
-	TextureManager::Loadimage("res/white2x2pixel.png", 60, m_interfacetexture);
-	TextureManager::Loadimage("res/interface/Shop/weapontab.tga", 61, m_interfacetexture);
-	TextureManager::Loadimage("res/interface/Shop/armortab.tga", 62, m_interfacetexture);
-	TextureManager::Loadimage("res/interface/Shop/misctab.tga", 63, m_interfacetexture);
-
-	TextureManager::Loadimage("res/interaction/talk0.tga", 64, m_interfacetexture);
-	TextureManager::Loadimage("res/interaction/talk1.tga", 65, m_interfacetexture);
-	TextureManager::Loadimage("res/interaction/shop0.tga", 66, m_interfacetexture);
-	TextureManager::Loadimage("res/interaction/shop1.tga", 67, m_interfacetexture);
-	TextureManager::Loadimage("res/interaction/zone0.tga", 68, m_interfacetexture);
-	TextureManager::Loadimage("res/interaction/zone1.tga", 69, m_interfacetexture);
-
-	TextureManager::Loadimage("res/interface/tooltip/groundloot_background.tga", 70, m_interfacetexture);
-	TextureManager::Loadimage("res/interface/tooltip/groundloot_left.tga", 71, m_interfacetexture);
-	TextureManager::Loadimage("res/interface/tooltip/groundloot_right.tga", 72, m_interfacetexture);
-
-	TextureAtlasCreator::Get().addFrame();
-	TextureManager::Loadimage("res/interface/combattext/0small.tga", 0, m_damageDisplayTexturesSmall);
-	TextureManager::Loadimage("res/interface/combattext/1small.tga", 1, m_damageDisplayTexturesSmall);
-	TextureManager::Loadimage("res/interface/combattext/2small.tga", 2, m_damageDisplayTexturesSmall);
-	TextureManager::Loadimage("res/interface/combattext/3small.tga", 3, m_damageDisplayTexturesSmall);
-	TextureManager::Loadimage("res/interface/combattext/4small.tga", 4, m_damageDisplayTexturesSmall);
-	TextureManager::Loadimage("res/interface/combattext/5small.tga", 5, m_damageDisplayTexturesSmall);
-	TextureManager::Loadimage("res/interface/combattext/6small.tga", 6, m_damageDisplayTexturesSmall);
-	TextureManager::Loadimage("res/interface/combattext/7small.tga", 7, m_damageDisplayTexturesSmall);
-	TextureManager::Loadimage("res/interface/combattext/8small.tga", 8, m_damageDisplayTexturesSmall);
-	TextureManager::Loadimage("res/interface/combattext/9small.tga", 9, m_damageDisplayTexturesSmall);
-	TextureAtlasCreator::Get().addFrame();
-	TextureManager::Loadimage("res/interface/combattext/0big.tga", 0, m_damageDisplayTexturesBig);
-	TextureManager::Loadimage("res/interface/combattext/1big.tga", 1, m_damageDisplayTexturesBig);
-	TextureManager::Loadimage("res/interface/combattext/2big.tga", 2, m_damageDisplayTexturesBig);
-	TextureManager::Loadimage("res/interface/combattext/3big.tga", 3, m_damageDisplayTexturesBig);
-	TextureManager::Loadimage("res/interface/combattext/4big.tga", 4, m_damageDisplayTexturesBig);
-	TextureManager::Loadimage("res/interface/combattext/5big.tga", 5, m_damageDisplayTexturesBig);
-	TextureManager::Loadimage("res/interface/combattext/6big.tga", 6, m_damageDisplayTexturesBig);
-	TextureManager::Loadimage("res/interface/combattext/7big.tga", 7, m_damageDisplayTexturesBig);
-	TextureManager::Loadimage("res/interface/combattext/8big.tga", 8, m_damageDisplayTexturesBig);
-	TextureManager::Loadimage("res/interface/combattext/9big.tga", 9, m_damageDisplayTexturesBig);
-
-	m_textureAtlas = TextureAtlasCreator::Get().getAtlas();
-	m_textureAtlas = Spritesheet::Merge(TextureManager::GetTextureAtlas("symbols"), m_textureAtlas);
-	m_textureAtlas = Spritesheet::Merge(TextureManager::GetTextureAtlas("items"), m_textureAtlas, false, false);
-
-	glBindTexture(GL_TEXTURE_2D_ARRAY, m_textureAtlas);
-	glTexParameterf(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
-	glTexParameterf(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
-	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
-
-	for (unsigned short layer = 0; layer < m_interfacetexture.size(); layer++) {
-		m_interfacetexture[layer].frame += 2;
-	}
-
-	for (unsigned short layer = 0; layer < m_damageDisplayTexturesSmall.size(); layer++) {
-		m_damageDisplayTexturesSmall[layer].frame += 2;
-	}
-
-	for (unsigned short layer = 0; layer < m_damageDisplayTexturesBig.size(); layer++) {
-		m_damageDisplayTexturesBig[layer].frame += 2;
-	}
-
-	LuaFunctions::incrementTableRects("symbols");
-	Spritesheet::Safe("tmp/interface", m_textureAtlas);	
 }
 
 void Interface::resize(int deltaW, int deltaH) {
@@ -286,18 +108,9 @@ void Interface::resize(int deltaW, int deltaH) {
 }
 
 void Interface::draw() {
-	//Batchrenderer::ResetStatistic();
 
-	TextureManager::BindTexture(m_textureAtlas, true, 0);
-	TextureManager::BindTexture(Globals::spritesheetManager.getAssetPointer("font")->getAtlas(), true, 1);
-	TextureManager::SetShader(Globals::shaderManager.getAssetPointer("batch_font"));
-	Fontrenderer::Get().setRenderer(&Batchrenderer::Get());
-
-	GroundLoot::DrawTooltip(ViewPort::Get().getCursorPosX(), ViewPort::Get().getCursorPosY());
-	InteractionPoint::DrawSymbols();
-
-	TextureManager::DrawTextureBatched(m_interfacetexture[14], 4, ViewPort::Get().getHeight() - 68, false, false);
-	TextureManager::DrawTextureBatched(m_interfacetexture[11], 0, 50 + ViewPort::Get().getHeight() - m_interfacetexture[11].height, false, false);
+	TextureManager::DrawTextureBatched(m_textures[14], 4, ViewPort::Get().getHeight() - 68, false, false);
+	TextureManager::DrawTextureBatched(m_textures[11], 0, 50 + ViewPort::Get().getHeight() - m_textures[11].height, false, false);
 
 	float lifeBarPercentage = static_cast<float>(m_player->getCurrentHealth()) / m_player->getModifiedMaxHealth();
 	float manaBarPercentage = static_cast<float>(m_player->getCurrentMana()) / m_player->getModifiedMaxMana();
@@ -307,10 +120,10 @@ void Interface::draw() {
 	float experienceBarPercentage = static_cast<float>(currentXP) / neededXP;
 
 	// health bar
-	TextureManager::DrawTextureBatched(m_interfacetexture[12], 76, ViewPort::Get().getHeight() - 35, lifeBarPercentage * 123.0f, static_cast<float>(m_interfacetexture[12].height), Vector4f(0.815f, 0.16f, 0.16f, 1.0f), false, false);
+	TextureManager::DrawTextureBatched(m_textures[12], 76, ViewPort::Get().getHeight() - 35, lifeBarPercentage * 123.0f, static_cast<float>(m_textures[12].height), Vector4f(0.815f, 0.16f, 0.16f, 1.0f), false, false);
 	// mana bar
 	if (m_player->getArchType() == Enums::CharacterArchType::Caster) {
-		TextureManager::DrawTextureBatched(m_interfacetexture[12], 76, ViewPort::Get().getHeight() - 53, manaBarPercentage * 123.0f, static_cast<float>(m_interfacetexture[12].height), Vector4f(0.16f, 0.576f, 0.815f, 1.0f), false, false);
+		TextureManager::DrawTextureBatched(m_textures[12], 76, ViewPort::Get().getHeight() - 53, manaBarPercentage * 123.0f, static_cast<float>(m_textures[12].height), Vector4f(0.16f, 0.576f, 0.815f, 1.0f), false, false);
 	}
 
 	// fatigue bar
@@ -326,20 +139,20 @@ void Interface::draw() {
 			color = Vector4f(0.917f, 0.047f, 0.047f, 1.0f);
 
 		}
-		TextureManager::DrawTextureBatched(m_interfacetexture[12], 76, ViewPort::Get().getHeight() - 53, fatigueBarPercentage * 123.0f, static_cast<float>(m_interfacetexture[12].height), color, false, false);
+		TextureManager::DrawTextureBatched(m_textures[12], 76, ViewPort::Get().getHeight() - 53, fatigueBarPercentage * 123.0f, static_cast<float>(m_textures[12].height), color, false, false);
 	}
 
 	// fatigue bar
-	TextureManager::DrawTextureBatched(m_interfacetexture[13], 76, ViewPort::Get().getHeight() - 67, experienceBarPercentage * 123.0f, static_cast<float>(m_interfacetexture[13].height), false, false);
+	TextureManager::DrawTextureBatched(m_textures[13], 76, ViewPort::Get().getHeight() - 67, experienceBarPercentage * 123.0f, static_cast<float>(m_textures[13].height), false, false);
 
 	if (m_player->getIsPreparing()) {
 		// actual castbar
-		TextureManager::DrawTextureBatched(m_interfacetexture[0], ViewPort::Get().getWidth() / 2 - 50, 100, 100.0f, 20.0f, Vector4f(0.5f, 0.5f, 0.0f, 1.0f), false, false);
-		TextureManager::DrawTextureBatched(m_interfacetexture[0], ViewPort::Get().getWidth() / 2 - 50, 100, 100.0f * m_player->getPreparationPercentage(), 20.0f, Vector4f(0.8f, 0.8f, 0.0f, 1.0f), false, false);
+		TextureManager::DrawTextureBatched(m_textures[0], ViewPort::Get().getWidth() / 2 - 50, 100, 100.0f, 20.0f, Vector4f(0.5f, 0.5f, 0.0f, 1.0f), false, false);
+		TextureManager::DrawTextureBatched(m_textures[0], ViewPort::Get().getWidth() / 2 - 50, 100, 100.0f * m_player->getPreparationPercentage(), 20.0f, Vector4f(0.8f, 0.8f, 0.0f, 1.0f), false, false);
 	}
 
 	//log window
-	TextureManager::DrawTextureBatched(m_interfacetexture[18], 0, 0, 390.0f, 150.0f, false, false);
+	TextureManager::DrawTextureBatched(m_textures[18], 0, 0, 390.0f, 150.0f, false, false);
 	for (unsigned int lineRow = 0; lineRow < m_textDatabase.size() && lineRow < 10; lineRow++) {
 		Fontrenderer::Get().addText(*m_interfaceFont, 10, 10 + (lineRow * m_interfaceFont->lineHeight), m_textDatabase[lineRow].text, m_textDatabase[lineRow].color, false);
 	}
@@ -356,8 +169,8 @@ void Interface::draw() {
 			// here we draw the border and background for the spells we have affecting us.
 			// healing and buffs will be drawn with a green border and debuffs or hostile spells with a red border..
 			Vector4f borderColor = m_activeSpells[curSpell]->isSpellHostile() == true ? Vector4f(0.7f, 0.0f, 0.0f, 1.0f) : Vector4f(0.0f, 0.7f, 0.0f, 1.0f);
-			TextureManager::DrawTextureBatched(m_interfacetexture[16], ViewPort::Get().getWidth() - 204, ViewPort::Get().getHeight() - 50 - 40 * curSpell, borderColor, false, false);
-			TextureManager::DrawTextureBatched(m_interfacetexture[18], ViewPort::Get().getWidth() - 204 + 36, ViewPort::Get().getHeight() - 50 - 40 * curSpell, 168.0f, 36.0f, false, false);
+			TextureManager::DrawTextureBatched(m_textures[16], ViewPort::Get().getWidth() - 204, ViewPort::Get().getHeight() - 50 - 40 * curSpell, borderColor, false, false);
+			TextureManager::DrawTextureBatched(m_textures[18], ViewPort::Get().getWidth() - 204 + 36, ViewPort::Get().getHeight() - 50 - 40 * curSpell, 168.0f, 36.0f, false, false);
 			m_activeSpells[curSpell]->drawSymbol(ViewPort::Get().getWidth() - 204 + 2, ViewPort::Get().getHeight() - 50 - 40 * curSpell + 2, 32.0f, 32.0f, Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
 
 			Fontrenderer::Get().addText(*m_shortcutFont, ViewPort::Get().getWidth() - 204 + 40, ViewPort::Get().getHeight() - 50 + 18 - 40 * curSpell, m_activeSpells[curSpell]->getName(), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), false);
@@ -368,16 +181,16 @@ void Interface::draw() {
 
 	//action bar
 	//Vector4f barColor = isMouseOver(ViewPort::Get().getCursorPosRelX(), ViewPort::Get().getCursorPosRelY()) ? Vector4f(0.0f, 0.0f, 0.0f, 0.8f) : Vector4f(0.0f, 0.0f, 0.0f, 1.0f);
-	TextureManager::DrawTextureBatched(m_interfacetexture[18], ViewPort::Get().getWidth() - 630, 0, 630.0f, 80.0f, false, false);
+	TextureManager::DrawTextureBatched(m_textures[18], ViewPort::Get().getWidth() - 630, 0, 630.0f, 80.0f, false, false);
 	for (unsigned int buttonId = 0; buttonId < 10; buttonId++) {
 		Vector4f borderColor = (m_button[buttonId].action != NULL && m_player->getCurrentSpellActionName() == m_button[buttonId].action->getName()) ? Vector4f(0.8f, 0.8f, 0.8f, 1.0f) : Vector4f(0.4f, 0.4f, 0.4f, 1.0f);
-		TextureManager::DrawTextureBatched(m_interfacetexture[19], ViewPort::Get().getWidth() - 610 + buttonId * 60, 12, 50.0f, 50.0f, borderColor, false, false);
+		TextureManager::DrawTextureBatched(m_textures[19], ViewPort::Get().getWidth() - 610 + buttonId * 60, 12, 50.0f, 50.0f, borderColor, false, false);
 		Fontrenderer::Get().addText(*m_shortcutFont, m_actionBarPosX + +20 + buttonId * 60 - 8, 54, m_button[buttonId].number.c_str(), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), false);
 	}
 
 	// draw the cursor if it's supposed to be drawn
 	if (isPreparingAoESpell() == true) {
-		TextureManager::DrawTextureBatched(m_interfacetexture[20], ViewPort::Get().getCursorPosRelX() - m_cursorRadius, ViewPort::Get().getCursorPosRelY() - m_cursorRadius, static_cast<float>(m_cursorRadius * 2), static_cast<float>(m_cursorRadius * 2), false, false);
+		TextureManager::DrawTextureBatched(m_textures[20], ViewPort::Get().getCursorPosRelX() - m_cursorRadius, ViewPort::Get().getCursorPosRelY() - m_cursorRadius, static_cast<float>(m_cursorRadius * 2), static_cast<float>(m_cursorRadius * 2), false, false);
 	}
 
 	m_cooldownSpells = m_player->getCooldownSpells();
@@ -410,10 +223,7 @@ void Interface::draw() {
 	drawCharacterStates();
 	drawTargetedNPCText();
 
-
 	drawSpellTooltip(ViewPort::Get().getCursorPosRelX(), ViewPort::Get().getCursorPosRelY());
-
-
 
 	SpellActionBase *spellUnderMouse = getSpellAtMouse(ViewPort::Get().getCursorPosRelX(), ViewPort::Get().getCursorPosRelY());
 	if (spellUnderMouse != NULL) {
@@ -452,21 +262,14 @@ void Interface::draw() {
 	m_spellbook.drawFloatingSpell();
 	ShopCanvas::Get().drawFloatingSelection();
 
-	TextureManager::DrawBuffer();
-	Fontrenderer::Get().resetRenderer();
-	TextureManager::SetShader(Globals::shaderManager.getAssetPointer("batch"));
-	TextureManager::UnbindTexture(true, 1);
-	TextureManager::UnbindTexture(true, 0);
-
-	//Batchrenderer::PrintStatistic();
+	
 }
 
 void Interface::drawCursor(bool drawInGameCursor) {
 	if (drawInGameCursor) {
-		TextureManager::BindTexture(m_textureAtlas, true);
-		TextureManager::DrawTextureBatched(m_interfacetexture[15], ViewPort::Get().getCursorPosX(), ViewPort::Get().getCursorPosY() - 19, false, false);
+		TextureManager::DrawTextureBatched(m_textures[15], ViewPort::Get().getCursorPosX(), ViewPort::Get().getCursorPosY() - 19, false, false);
 		TextureManager::DrawBuffer();
-		TextureManager::UnbindTexture(true);
+
 	}
 }
 
@@ -484,20 +287,20 @@ void Interface::drawCharacterStates() {
 	for (size_t curCharacter = 0; curCharacter < allCharacters.size(); curCharacter++) {
 		/// draws fear symbol
 		if (allCharacters[curCharacter]->isFeared() == true) {
-			TextureManager::DrawTextureBatched(m_interfacetexture[7], allCharacters[curCharacter]->getXPos() + allCharacters[curCharacter]->getWidth() / 2 - m_interfacetexture[7].width / 2, allCharacters[curCharacter]->getYPos() + allCharacters[curCharacter]->getHeight() / 2, false, true);
+			TextureManager::DrawTextureBatched(m_textures[7], allCharacters[curCharacter]->getXPos() + allCharacters[curCharacter]->getWidth() / 2 - m_textures[7].width / 2, allCharacters[curCharacter]->getYPos() + allCharacters[curCharacter]->getHeight() / 2, false, true);
 		}
 		/// draws stun symbol
 		if (allCharacters[curCharacter]->isStunned() == true) {
-			TextureManager::DrawTextureBatched(m_interfacetexture[8], allCharacters[curCharacter]->getXPos() + allCharacters[curCharacter]->getWidth() / 2 - m_interfacetexture[7].width / 2, allCharacters[curCharacter]->getYPos() + allCharacters[curCharacter]->getHeight() / 2, false, true);
+			TextureManager::DrawTextureBatched(m_textures[8], allCharacters[curCharacter]->getXPos() + allCharacters[curCharacter]->getWidth() / 2 - m_textures[7].width / 2, allCharacters[curCharacter]->getYPos() + allCharacters[curCharacter]->getHeight() / 2, false, true);
 		}
 		/// draws confused symbol
 		if (allCharacters[curCharacter]->isConfused() == true) {
-			TextureManager::DrawTextureBatched(m_interfacetexture[9], allCharacters[curCharacter]->getXPos() + allCharacters[curCharacter]->getWidth() / 2 - m_interfacetexture[7].width / 2, allCharacters[curCharacter]->getYPos() + allCharacters[curCharacter]->getHeight() / 2, false, true);
+			TextureManager::DrawTextureBatched(m_textures[9], allCharacters[curCharacter]->getXPos() + allCharacters[curCharacter]->getWidth() / 2 - m_textures[7].width / 2, allCharacters[curCharacter]->getYPos() + allCharacters[curCharacter]->getHeight() / 2, false, true);
 
 		}
 		/// draws mesmerized symbol
 		if (allCharacters[curCharacter]->isMesmerized() == true) {
-			TextureManager::DrawTextureBatched(m_interfacetexture[10], allCharacters[curCharacter]->getXPos() + allCharacters[curCharacter]->getWidth() / 2 - m_interfacetexture[7].width / 2, allCharacters[curCharacter]->getYPos() + allCharacters[curCharacter]->getHeight() / 2, false, true);
+			TextureManager::DrawTextureBatched(m_textures[10], allCharacters[curCharacter]->getXPos() + allCharacters[curCharacter]->getWidth() / 2 - m_textures[7].width / 2, allCharacters[curCharacter]->getYPos() + allCharacters[curCharacter]->getHeight() / 2, false, true);
 		}
 	}
 }
@@ -545,10 +348,10 @@ void Interface::drawCombatText() {
 		}
 
 		if (m_damageDisplay[currentDamageDisplay].critical == true) {
-			fontTextures = &m_damageDisplayTexturesBig[m_damageDisplay[currentDamageDisplay].digitToDisplay];
+			fontTextures = &m_textures[m_damageDisplay[currentDamageDisplay].digitToDisplay + m_displayOffsetBig];
 			reduce_amount = 0.04f;
 		}else {
-			fontTextures = &m_damageDisplayTexturesSmall[m_damageDisplay[currentDamageDisplay].digitToDisplay];
+			fontTextures = &m_textures[m_damageDisplay[currentDamageDisplay].digitToDisplay + m_displayOffsetSmall];
 			reduce_amount = 0.06f;
 		}
 
@@ -587,19 +390,19 @@ void Interface::drawTargetedNPCText() {
 	int fontStart = npc->getXPos() + npc->getWidth() / 2 - stringWidth / 2;
 	int tooltipStart = npc->getXPos() + npc->getWidth() / 2 - (width + 64) / 2;
 
-	TextureManager::DrawTextureBatched(m_interfacetexture[2], tooltipStart, npc->getYPos() + npc->getHeight() - 3, 32.0f, 32.0f, true, true);
-	TextureManager::DrawTextureBatched(m_interfacetexture[1], tooltipStart + 32, npc->getYPos() + npc->getHeight() - 3, 40.0f, 32.0f, true, true);
-	TextureManager::DrawTextureBatched(m_interfacetexture[3], tooltipStart + 32 + 40, npc->getYPos() + npc->getHeight() - 3, 32.0f, 32.0f, true, true);
+	TextureManager::DrawTextureBatched(m_textures[2], tooltipStart, npc->getYPos() + npc->getHeight() - 3, 32.0f, 32.0f, true, true);
+	TextureManager::DrawTextureBatched(m_textures[1], tooltipStart + 32, npc->getYPos() + npc->getHeight() - 3, 40.0f, 32.0f, true, true);
+	TextureManager::DrawTextureBatched(m_textures[3], tooltipStart + 32 + 40, npc->getYPos() + npc->getHeight() - 3, 32.0f, 32.0f, true, true);
 
 
 	float life_percentage = static_cast<float>(npc->getCurrentHealth()) / static_cast<float>(npc->getModifiedMaxHealth());
-	TextureManager::DrawTextureBatched(m_interfacetexture[0], npc->getXPos(), npc->getYPos() + npc->getHeight(), npc->getWidth()*life_percentage, 8.0f, Vector4f(1.0f - life_percentage, life_percentage, 0.0f, 1.0f), true, true);
+	TextureManager::DrawTextureBatched(m_textures[0], npc->getXPos(), npc->getYPos() + npc->getHeight(), npc->getWidth()*life_percentage, 8.0f, Vector4f(1.0f - life_percentage, life_percentage, 0.0f, 1.0f), true, true);
 
 	if (npc->continuePreparing()) {
 		// draw backdrop first
-		TextureManager::DrawTextureBatched(m_interfacetexture[0], npc->getXPos(), npc->getYPos() + npc->getHeight() - 12, static_cast<float>(npc->getWidth()), 8.0f, Vector4f(0.5f, 0.5f, 0.0f, 1.0f), true, true);
+		TextureManager::DrawTextureBatched(m_textures[0], npc->getXPos(), npc->getYPos() + npc->getHeight() - 12, static_cast<float>(npc->getWidth()), 8.0f, Vector4f(0.5f, 0.5f, 0.0f, 1.0f), true, true);
 		//then the actual castbar
-		TextureManager::DrawTextureBatched(m_interfacetexture[0], npc->getXPos(), npc->getYPos() + npc->getHeight() - 12, npc->getWidth()* npc->getPreparationPercentage(), 8.0f, Vector4f(0.8f, 0.8f, 0.0f, 1.0f), true, true);
+		TextureManager::DrawTextureBatched(m_textures[0], npc->getXPos(), npc->getYPos() + npc->getHeight() - 12, npc->getWidth()* npc->getPreparationPercentage(), 8.0f, Vector4f(0.8f, 0.8f, 0.0f, 1.0f), true, true);
 		Fontrenderer::Get().addText(*m_interfaceFont, npc->getXPos(), npc->getYPos() + npc->getHeight() - 24, npc->getCurrentSpellActionName(), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), true);
 	}
 
@@ -628,8 +431,8 @@ void Interface::drawTargetedNPCText() {
 			// healing and buffs will be drawn with a green border and debuffs or hostile spells with a red border..
 
 			Vector4f color = activeSpells[curSpell]->isSpellHostile() == true ? Vector4f(0.7f, 0.0f, 0.0f, 1.0f) : Vector4f(0.0f, 0.7f, 0.0f, 1.0f);
-			TextureManager::DrawTextureBatched(m_interfacetexture[5], npc->getXPos() + (19 * curSpell) + 2, npc->getYPos() + npc->getHeight() + 30, 18.0f, 18.0f, color, true, true);
-			TextureManager::DrawTextureBatched(m_interfacetexture[6], npc->getXPos() + (19 * curSpell) + 2, npc->getYPos() + npc->getHeight() + 30, 18.0f, 18.0f, color, true, true);
+			TextureManager::DrawTextureBatched(m_textures[5], npc->getXPos() + (19 * curSpell) + 2, npc->getYPos() + npc->getHeight() + 30, 18.0f, 18.0f, color, true, true);
+			TextureManager::DrawTextureBatched(m_textures[6], npc->getXPos() + (19 * curSpell) + 2, npc->getYPos() + npc->getHeight() + 30, 18.0f, 18.0f, color, true, true);
 			activeSpells[curSpell]->drawSymbol(npc->getXPos() + (19 * curSpell) + 3, npc->getYPos() + npc->getHeight() + 31, 16.0f, 16.0f, Vector4f(1.0f, 1.0f, 1.0f, 1.0f), true);
 		}
 	}
@@ -681,11 +484,11 @@ bool Interface::isSpellUseable(SpellActionBase* action) {
 	}
 
 	// does the spell / action require a weapon of any sort?
-	/*if (action->getRequiredWeapons() != 0) {
-	if ((action->getRequiredWeapons() & (player->getInventory()->getWeaponTypeBySlot(ItemSlot::MAIN_HAND) | player->getInventory()->getWeaponTypeBySlot(ItemSlot::OFF_HAND))) == 0) {
-	return false;
+	if (action->getRequiredWeapons() != 0) {
+		if ((action->getRequiredWeapons() & (m_player->getInventory()->getWeaponTypeBySlot(Enums::ItemSlot::MAIN_HAND) | m_player->getInventory()->getWeaponTypeBySlot(Enums::ItemSlot::OFF_HAND))) == 0) {
+			return false;
+		}
 	}
-	}*/
 
 	return true;
 }

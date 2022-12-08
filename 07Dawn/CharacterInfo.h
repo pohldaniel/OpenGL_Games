@@ -21,8 +21,7 @@ public:
 	void drawTabs();
 	void processInput() override;
 
-	void init();
-	void init(unsigned int textureAtlas, std::vector<TextureRect> textures);
+	void init(std::vector<TextureRect> textures);
 	void setPlayer(Player* player);
 
 	static CharacterInfo& Get();
@@ -33,9 +32,7 @@ private:
 
 	Player* m_player;
 	unsigned short currentTab;
-
 	std::vector<TextureRect> m_textures;
-	unsigned int m_textureAtlas;
 
 	CharacterSet* m_infoFont;
 	Tabs tabs[3];

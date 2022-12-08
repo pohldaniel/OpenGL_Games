@@ -43,17 +43,10 @@ void sGroundItems::loadTooltip() {
 	}
 }
 ////////////////////////////////////////////////////////////////////////////////////
-unsigned int GroundLoot::TextureAtlas;
 std::vector<TextureRect> GroundLoot::Textures;
 
 GroundLoot::GroundLoot(Player *player_) : player(player_), drawTooltips(false) {
 	m_font = &Globals::fontManager.get("verdana_11");
-
-	/*TextureAtlasCreator::Get().init("groundloot", 1024, 1024);
-	TextureManager::Loadimage("res/interface/tooltip/groundloot_background.tga", 0, m_textures);
-	TextureManager::Loadimage("res/interface/tooltip/groundloot_left.tga", 1, m_textures);
-	TextureManager::Loadimage("res/interface/tooltip/groundloot_right.tga", 2, m_textures);
-	m_textureAtlas = TextureAtlasCreator::Get().getAtlas();*/
 }
 
 GroundLoot::~GroundLoot() {
@@ -318,8 +311,7 @@ void GroundLoot::drawTooltip(int mouseX, int mouseY) {
 	}
 }
 
-void GroundLoot::Init(unsigned int textureAtlas, std::vector<TextureRect> textures) {
-	TextureAtlas = textureAtlas;
+void GroundLoot::Init(std::vector<TextureRect> textures) {
 	Textures = textures;
 }
 

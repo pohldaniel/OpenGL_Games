@@ -18,8 +18,7 @@ public:
 	~QuestCanvas();
 	void draw() override;
 	void processInput() override;
-	void init();
-	void init(unsigned int textureAtlas, std::vector<TextureRect> textures);
+	void init(std::vector<TextureRect> textures);
 	void addQuest(Quest *quest);
 	std::vector<Quest*>& getQuests();
 
@@ -36,12 +35,10 @@ private:
 	void changeQuestDescription(Quest *quest, std::string newDescription);
 
 	std::vector<Quest*> quests;
-	/// \brief For each quest the description. Formatted for multiline output.
-	std::vector< std::vector< std::string > > questDescriptions;
+	std::vector<std::vector< std::string >> questDescriptions;
 	std::vector<Quest*> questsToBeRemoved;
 	int selectedQuestNr;
 	std::vector<TextureRect> m_textures;
-	unsigned int m_textureAtlas;
 	CharacterSet *font;
 
 	static QuestCanvas s_instance;

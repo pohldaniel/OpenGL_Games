@@ -245,5 +245,10 @@ typedef char GLchar;
 	extern void glGetTextureParameterfv(GLuint texture, GLenum pname, GLfloat *params);
 	extern void glGetTextureParameteriv(GLuint texture, GLenum pname, GLint *params);
 
+	extern void glGenSamplers(GLsizei n, GLuint *samplers);
+	extern void glSamplerParameterf(GLuint sampler, GLenum pname, GLfloat param);
+	extern void glSamplerParameteri(GLuint sampler, GLenum pname, GLint param);
+	extern void glBindSampler(GLuint unit, GLuint sampler);
+
 } // extern "C"
 #endif

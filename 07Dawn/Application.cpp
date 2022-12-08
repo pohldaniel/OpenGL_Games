@@ -38,8 +38,9 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 	auto shader = Globals::shaderManager.getAssetPointer("batch_font");
 
 	glUseProgram(shader->m_program);
-	shader->loadInt("u_sprite", 0);
-	shader->loadInt("u_font", 1);
+	shader->loadInt("u_nearest", 0);
+	shader->loadInt("u_linear", 1);
+	shader->loadInt("u_font", 2);
 	glUseProgram(0);
 
 	glGenBuffers(1, &Globals::viewUbo);
@@ -63,6 +64,21 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 	glUseProgram(shader->m_program);
 	shader->loadMatrix("u_projection", ViewPort::Get().getCamera().getOrthographicMatrix());
 	glUseProgram(0);
+
+	unsigned int samplers[2];
+	glGenSamplers(2, samplers);
+	glSamplerParameteri(samplers[0], GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glSamplerParameteri(samplers[0], GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glSamplerParameteri(samplers[0], GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glSamplerParameteri(samplers[0], GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+	glSamplerParameteri(samplers[1], GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glSamplerParameteri(samplers[1], GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glSamplerParameteri(samplers[1], GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glSamplerParameteri(samplers[1], GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	glBindSampler(0, samplers[0]);
+	glBindSampler(1, samplers[1]);
 
 }
 

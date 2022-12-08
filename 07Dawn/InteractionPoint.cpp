@@ -2,7 +2,6 @@
 #include "Character.h"
 #include "Zone.h"
 
-unsigned int InteractionPoint::TextureAtlas;
 std::vector<TextureRect> InteractionPoint::Textures;
 
 InteractionPoint::InteractionPoint()
@@ -12,7 +11,6 @@ InteractionPoint::InteractionPoint()
 	width(0),
 	height(0),
 	markedAsDeletable(false) {
-	m_interactionTextures.reserve(2);
 }
 
 InteractionPoint::~InteractionPoint() {
@@ -31,17 +29,13 @@ void InteractionPoint::setInteractionType(Enums::InteractionType interactionType
 	switch (interactionType){
 
 	case Enums::InteractionType::Quest:
-		m_interactionTextures[0] = Textures[0];
-		m_interactionTextures[1] = Textures[1];
+		symbolIndex = 0;
 		break;
 	case Enums::InteractionType::Shop:
-		m_interactionTextures[0] = Textures[2];
-		m_interactionTextures[1] = Textures[3];
-		
+		symbolIndex = 2;	
 		break;
 	case Enums::InteractionType::Zone:
-		m_interactionTextures[0] = Textures[4];
-		m_interactionTextures[1] = Textures[5];
+		symbolIndex = 4;
 		break;
 	}
 }
@@ -52,8 +46,7 @@ void InteractionPoint::setBackgroundTexture(std::string texturename, bool transp
 	m_backgroundAtlas = TextureAtlasCreator::Get().getAtlas();
 }
 
-void InteractionPoint::setInteractionCode(std::string interactionCode)
-{
+void InteractionPoint::setInteractionCode(std::string interactionCode) {
 	this->interactionCode = interactionCode;
 }
 
@@ -97,14 +90,14 @@ void InteractionPoint::drawInteractionSymbol(int mouseX, int mouseY, int charact
 		return;
 	}
 
-	uint8_t available_symbol = 0;
+	uint8_t available_symbol = symbolIndex;
 
 
 	if (isInRange(characterXpos, characterYpos)){
-		available_symbol = 1;
+		available_symbol += 1;
 	}
 
-	TextureManager::DrawTextureBatched(m_interactionTextures[available_symbol], mouseX, mouseY,  true, true);
+	TextureManager::DrawTextureBatched(Textures[available_symbol], mouseX, mouseY,  true, true);
 
 }
 
@@ -178,8 +171,7 @@ void InteractionPoint::DrawSymbols() {
 	}
 }
 
-void InteractionPoint::Init(unsigned int textureAtlas, std::vector<TextureRect> textures) {
-	TextureAtlas = textureAtlas;
+void InteractionPoint::Init(std::vector<TextureRect> textures) {
 	Textures = textures;
 }
 

@@ -35,7 +35,7 @@ public:
 
 	void setPlayer(Player* player);
 	bool hasFloatingSpell() const;
-	void init(unsigned int textureAtlas, std::vector<TextureRect> textures);
+	void init(std::vector<TextureRect> textures);
 
 	short getMouseOverSpellSlotId(int mouseX, int mouseY) const;
 	SpellSlot* getFloatingSpell() const;
@@ -76,7 +76,6 @@ private:
 
 	CharacterSet* m_cooldownFont;
 	std::vector<TextureRect> m_textures;
-	unsigned int m_textureAtlas;
 
 	static Spellbook s_instance;	
 };

@@ -21,8 +21,7 @@ public:
 	void drawItemTooltip(int mouseX, int mouseY);
 	void drawFloatingSelection();
 
-	void init();
-	void init(unsigned int textureAtlas, std::vector<TextureRect> textures);
+	void init(std::vector<TextureRect> textures);
 	void setShop(Shop* shop);
 	InventoryItem *getFloatingSelection() const;
 	bool hasFloatingSelection() const;
@@ -44,7 +43,7 @@ private:
 	
 	CharacterSet* m_itemStackFont;
 	std::vector<TextureRect> m_textures;
-	unsigned int m_textureAtlas;
+
 	unsigned short currentTab;
 	Tabs tabs[3];
 	size_t backpackFieldWidth;

@@ -73,7 +73,7 @@ public:
 	void processInput();
 	void processInputRightDrag();
 
-	void init();
+	void init(std::vector<TextureRect> textures);
 	void setPlayer(Player* player);
 	void addCombatText(int amount, bool critical, unsigned short damageType, int posX, int posY, bool update);
 	void resize(int deltaW, int deltaH);
@@ -94,13 +94,11 @@ private:
 	
 	void drawSpellTooltip(int x, int y);
 
-	void loadTextures();
 	bool isButtonUsed(Button *button) const;
 	bool isSpellUseable(SpellActionBase* action);
 	bool isMouseOver(int x, int y);
 	SpellActionBase* getSpellAtMouse(int mouseX, int mouseY);
 
-	
 	void setSpellQueue(Button &button, bool actionReadyToCast = true);
 	void dragSpell(Button* spellQueue);
 	short getMouseOverButtonId(int x, int y);
@@ -117,18 +115,16 @@ private:
 	std::vector<SpellActionBase*> m_cooldownSpells;
 	std::vector<SpellActionBase*> m_activeSpells;
 	std::vector<Button> m_button;
+	std::vector<TextureRect> m_textures;
 
-	std::vector<TextureRect> m_interfacetexture;
-	std::vector<TextureRect> m_damageDisplayTexturesSmall;
-	std::vector<TextureRect> m_damageDisplayTexturesBig;
-
-	unsigned int m_textureAtlas;
 	short m_buttonId;
 	bool m_execute;
 	int m_actionBarPosX;
 	int m_actionBarPosY;
 	int m_cursorRadius;
 	bool m_preparingAoESpell;
+	unsigned short m_displayOffsetSmall;
+	unsigned short m_displayOffsetBig;
 
 	Player* m_player;
 	CharacterSet* m_shortcutFont;

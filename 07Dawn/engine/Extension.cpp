@@ -729,5 +729,32 @@ void glGetTextureParameteriv(GLuint texture, GLenum pname, GLint *params) {
 	static PFNGLGETTEXTUREPARAMETERIVPROC glGetTextureParameteriv = 0;
 	LOAD_ENTRYPOINT("glGetTextureParameteriv", glGetTextureParameteriv, PFNGLGETTEXTUREPARAMETERIVPROC);
 	glGetTextureParameteriv(texture, pname, params);
+}
 
+void glGenSamplers(GLsizei n, GLuint *samplers) {
+	typedef void(APIENTRY * PFNGLGENSAMPLERSPROC)(GLsizei n, GLuint *samplers);
+	static PFNGLGENSAMPLERSPROC glGenSamplers = 0;
+	LOAD_ENTRYPOINT("glGenSamplers", glGenSamplers, PFNGLGENSAMPLERSPROC);
+	glGenSamplers(n, samplers);
+}
+
+extern void glSamplerParameterf(GLuint sampler, GLenum pname, GLfloat param) {
+	typedef void(APIENTRY * PFNGLSAMPLERPARAMETERFPROC)(GLuint sampler, GLenum pname, GLfloat param);
+	static PFNGLSAMPLERPARAMETERFPROC glSamplerParameterf = 0;
+	LOAD_ENTRYPOINT("glSamplerParameterf", glSamplerParameterf, PFNGLSAMPLERPARAMETERFPROC);
+	glSamplerParameterf(sampler, pname, param);
+}
+
+extern void glSamplerParameteri(GLuint sampler, GLenum pname, GLint param) {
+	typedef void(APIENTRY * PFNGLSAMPLERPARAMETERIPROC)(GLuint sampler, GLenum pname, GLint param);
+	static PFNGLSAMPLERPARAMETERIPROC glSamplerParameteri = 0;
+	LOAD_ENTRYPOINT("glSamplerParameteri", glSamplerParameteri, PFNGLSAMPLERPARAMETERIPROC);
+	glSamplerParameteri(sampler, pname, param);
+}
+
+extern void glBindSampler(GLuint unit, GLuint sampler) {
+	typedef void(APIENTRY * PFN´GLBINDSAMPLERPROC)(GLuint unit, GLuint sampler);
+	static PFN´GLBINDSAMPLERPROC glBindSampler = 0;
+	LOAD_ENTRYPOINT("glBindSampler", glBindSampler, PFN´GLBINDSAMPLERPROC);
+	glBindSampler(unit, sampler);
 }

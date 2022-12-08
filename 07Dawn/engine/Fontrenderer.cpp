@@ -45,7 +45,7 @@ void Fontrenderer::drawText(const CharacterSet& characterSet, int posX, int posY
 
 		const Char& ch = characterSet.getCharacter(*c);
 
-		m_batchrenderer->addQuadAA(Vector4f(static_cast<float>(posX), static_cast<float>(posY), static_cast<float>(ch.size[0]), static_cast<float>(ch.size[1])), Vector4f(ch.textureOffset[0], ch.textureOffset[1], ch.textureSize[0], ch.textureSize[1]), color, updateView, 1u, characterSet.frame);
+		m_batchrenderer->addQuadAA(Vector4f(static_cast<float>(posX), static_cast<float>(posY), static_cast<float>(ch.size[0]), static_cast<float>(ch.size[1])), Vector4f(ch.textureOffset[0], ch.textureOffset[1], ch.textureSize[0], ch.textureSize[1]), color, updateView, 2u, characterSet.frame);
 		posX = posX + ch.advance;
 	}
 	m_batchrenderer->drawBuffer();
@@ -59,7 +59,7 @@ void Fontrenderer::addText(const CharacterSet& characterSet, int posX, int posY,
 
 		const Char& ch = characterSet.getCharacter(*c);
 
-		m_batchrenderer->addQuadAA(Vector4f(static_cast<float>(posX), static_cast<float>(posY), static_cast<float>(ch.size[0]), static_cast<float>(ch.size[1])), Vector4f(ch.textureOffset[0], ch.textureOffset[1], ch.textureSize[0], ch.textureSize[1]), color, updateView, 1u, characterSet.frame);
+		m_batchrenderer->addQuadAA(Vector4f(static_cast<float>(posX), static_cast<float>(posY), static_cast<float>(ch.size[0]), static_cast<float>(ch.size[1])), Vector4f(ch.textureOffset[0], ch.textureOffset[1], ch.textureSize[0], ch.textureSize[1]), color, updateView, 2u, characterSet.frame);
 		posX = posX + ch.advance;
 	}
 }

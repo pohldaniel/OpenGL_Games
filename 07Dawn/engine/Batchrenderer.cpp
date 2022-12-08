@@ -151,7 +151,6 @@ void Batchrenderer::shutdown() {
 void Batchrenderer::addQuadAA(Vector4f posSize, Vector4f texPosSize, Vector4f color, bool updateView, unsigned int sampler, unsigned int frame) {
 
 	if (indexCount >= m_maxIndex) {
-		//s_drawCallCount++;
 		drawBuffer();
 	}
 
@@ -180,7 +179,7 @@ void Batchrenderer::addQuadAA(Vector4f posSize, Vector4f texPosSize, Vector4f co
 }
 
 void Batchrenderer::drawBuffer() {
-	
+	//s_drawCallCount++;
 	GLsizeiptr size = (uint8_t*)bufferPtr - (uint8_t*)buffer;
 	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
 	glBufferSubData(GL_ARRAY_BUFFER, 0, size, buffer);

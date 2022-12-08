@@ -45,8 +45,7 @@ public:
 
 	void setTextureDependentPositions();
 
-	void init();
-	void init(unsigned int textureAtlas, std::vector<TextureRect> textures);
+	void init(std::vector<TextureRect> textures);
 
 	void setPlayer(Player* player);
 
@@ -71,7 +70,6 @@ private:
 
 	CharacterSet* m_coinsFont;
 	std::vector<TextureRect> m_textures;
-	unsigned int m_textureAtlas;
 
 	InventoryItem* floatingSelection;
 	InventoryScreenSlot** mySlots;

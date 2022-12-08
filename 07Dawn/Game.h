@@ -1,5 +1,7 @@
 #pragma once
+#include <vector>
 
+#include "engine/Rect.h"
 #include "engine/Batchrenderer.h"
 #include "StateMachine.h"
 
@@ -15,7 +17,9 @@ public:
 	void render() override;
 	void resize(int deltaW, int deltaH) override;
 
+	static std::vector<TextureRect> TextureRects;
+	static void Init();
 private:
-
+	
 	void processInput();
 };

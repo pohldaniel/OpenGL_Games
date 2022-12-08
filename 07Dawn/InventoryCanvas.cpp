@@ -67,74 +67,7 @@ void InventoryCanvas::setPlayer(Player* player) {
 	m_player = player;
 }
 
-void InventoryCanvas::init() {
-
-	TextureAtlasCreator::Get().init("inventoryscreen", 1024, 1024);
-	TextureManager::Loadimage("res/interface/inventory/base.tga", 0, m_textures);
-	TextureManager::Loadimage("res/white2x2pixel.png", 1, m_textures, true);
-	TextureManager::Loadimage("res/interface/inventory/goldcoin.tga", 2, m_textures, true);
-	TextureManager::Loadimage("res/interface/inventory/silvercoin.tga", 3, m_textures, true);
-	TextureManager::Loadimage("res/interface/inventory/coppercoin.tga", 4, m_textures, true);
-
-
-	TextureManager::Loadimage("res/interface/inventory/head.tga", 5, m_textures);
-	TextureManager::Loadimage("res/interface/inventory/amulet.tga", 6, m_textures);
-	TextureManager::Loadimage("res/interface/inventory/main_hand.tga", 7, m_textures);
-	TextureManager::Loadimage("res/interface/inventory/chest.tga", 8, m_textures);
-	TextureManager::Loadimage("res/interface/inventory/belt.tga", 9, m_textures);
-
-
-	TextureManager::Loadimage("res/interface/inventory/legs.tga", 10, m_textures);
-	TextureManager::Loadimage("res/interface/inventory/shoulder.tga", 11, m_textures);
-	TextureManager::Loadimage("res/interface/inventory/cloak.tga", 12, m_textures);
-	TextureManager::Loadimage("res/interface/inventory/gloves.tga", 13, m_textures);
-	TextureManager::Loadimage("res/interface/inventory/off_hand.tga", 14, m_textures);
-
-	TextureManager::Loadimage("res/interface/inventory/ring_one.tga", 15, m_textures);
-	TextureManager::Loadimage("res/interface/inventory/ring_two.tga", 16, m_textures);
-	TextureManager::Loadimage("res/interface/inventory/boots.tga", 17, m_textures);
-
-	m_textureAtlas = TextureAtlasCreator::Get().getAtlas();
-	m_textureAtlas = Spritesheet::Merge(TextureManager::GetTextureAtlas("items"), m_textureAtlas, false, true);
-	for (unsigned short layer = 0; layer < m_textures.size(); layer++) {
-		m_textures[layer].frame++;
-	}
-
-	//Spritesheet::Safe("interface", m_textureAtlas);	
-	floatingSelection = NULL;
-	backpackFieldWidth = 32;
-	backpackFieldHeight = 32;
-	backpackSeparatorWidth = 3;
-	backpackSeparatorHeight = 3;
-	backpackOffsetX = 69;
-	backpackOffsetY = 59;
-	numSlotsX = 10;
-	numSlotsY = 4;
-
-	addInventoryScreenSlot(mySlots, Enums::ItemSlot::HEAD, 210, 556, 64, 64, m_textures[5]);
-	addInventoryScreenSlot(mySlots, Enums::ItemSlot::AMULET, 171, 532, 32, 32, m_textures[6]);
-	addInventoryScreenSlot(mySlots, Enums::ItemSlot::MAIN_HAND, 97, 412, 64, 96, m_textures[7]);
-	addInventoryScreenSlot(mySlots, Enums::ItemSlot::CHEST, 210, 450, 64, 96, m_textures[8]);
-	addInventoryScreenSlot(mySlots, Enums::ItemSlot::BELT, 210, 408, 64, 32, m_textures[9]);
-	addInventoryScreenSlot(mySlots, Enums::ItemSlot::LEGS, 210, 302, 64, 96, m_textures[10]);
-	addInventoryScreenSlot(mySlots, Enums::ItemSlot::SHOULDER, 281, 493, 64, 64, m_textures[11]);
-	addInventoryScreenSlot(mySlots, Enums::ItemSlot::CLOAK, 294, 284, 64, 64, m_textures[12]);
-	addInventoryScreenSlot(mySlots, Enums::ItemSlot::GLOVES, 284, 376, 64, 64, m_textures[13]);
-	addInventoryScreenSlot(mySlots, Enums::ItemSlot::OFF_HAND, 354, 412, 64, 96, m_textures[14]);
-	addInventoryScreenSlot(mySlots, Enums::ItemSlot::RING_ONE, 117, 362, 32, 32, m_textures[15]);
-	addInventoryScreenSlot(mySlots, Enums::ItemSlot::RING_TWO, 159, 362, 32, 32, m_textures[16]);
-	addInventoryScreenSlot(mySlots, Enums::ItemSlot::BOOTS, 210, 229, 64, 64, m_textures[17]);
-
-	// load the font for coin text.
-	m_coinsFont = &Globals::fontManager.get("verdana_12");
-
-	addMoveableFrame(454, 21, 15, 650);
-	addCloseButton(22, 22, 447, 650);
-	setTextureDependentPositions();
-}
-
-void InventoryCanvas::init(unsigned int textureAtlas, std::vector<TextureRect> textures) {
-	m_textureAtlas = textureAtlas;
+void InventoryCanvas::init(std::vector<TextureRect> textures) {
 	m_textures = textures;
 
 	floatingSelection = NULL;

@@ -15,12 +15,11 @@ void Spellbook::setPlayer(Player* player) {
 	m_player = player;
 }
 
-void Spellbook::init(unsigned int textureAtlas, std::vector<TextureRect> textures) {
+void Spellbook::init(std::vector<TextureRect> textures) {
 
 	m_cooldownFont = &Globals::fontManager.get("verdana_11");
-	m_textureAtlas = textureAtlas;
 	m_textures = textures;
-
+	
 	spellSlot.push_back(SpellSlot(139, 539, 50, 50));
 	spellSlot.push_back(SpellSlot(291, 539, 50, 50));
 
@@ -51,7 +50,7 @@ void Spellbook::init(unsigned int textureAtlas, std::vector<TextureRect> texture
 
 void Spellbook::draw() {
 	if (!m_visible) return;
-	//TextureManager::BindTexture(m_textureAtlas, true, 0);
+
 	// draw spellbook base
 	TextureManager::DrawTextureBatched(m_textures[0], m_posX, m_posY, false, false);
 	// draw placeholders, the actual spell symbol and title of the spell.
@@ -68,14 +67,13 @@ void Spellbook::draw() {
 	unsigned int numSlots = static_cast<unsigned int>(spellSlot.size());
 	unsigned int numSpells = static_cast<unsigned int>(inscribedSpells.size());
 	if (numSlots * (curPage + 1) < numSpells) {
-		TextureManager::DrawTextureBatched(m_textures[3], m_posX + nextPageButtonOffsetX, m_posY + nextPageButtonOffsetY, pageButtonWidth, pageButtonHeight, false, false);
+		TextureManager::DrawTextureBatched(m_textures[2], m_posX + nextPageButtonOffsetX, m_posY + nextPageButtonOffsetY, pageButtonWidth, pageButtonHeight, false, false);
 	}
 
 	// if we are on another page than first page, draw left arrowsymbol to show that there are spells on a previous page.
 	if (curPage > 0){
-		TextureManager::DrawTextureBatched(m_textures[4], m_posX + previousPageButtonOffsetX, m_posY + previousPageButtonOffsetY, pageButtonWidth, pageButtonHeight, false, false);
+		TextureManager::DrawTextureBatched(m_textures[3], m_posX + previousPageButtonOffsetX, m_posY + previousPageButtonOffsetY, pageButtonWidth, pageButtonHeight, false, false);
 	}
-	//TextureManager::DrawBuffer();	
 }
 
 void Spellbook::drawSpellTooltip(int mouseX, int mouseY) {

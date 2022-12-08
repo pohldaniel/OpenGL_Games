@@ -36,12 +36,11 @@ public:
 	static  std::vector<InteractionPoint*>& InteractionPoint::GetInteractionPoints();
 	static void DrawSymbols();
 	static void Draw();
-	static void Init(unsigned int textureAtlas, std::vector<TextureRect> textures);
+	static void Init(std::vector<TextureRect> textures);
 
 protected:
 
-	std::vector<TextureRect> m_interactionTextures;
-	unsigned int m_textureAtlas;
+	unsigned short symbolIndex;
 
 	TextureRect m_backgroundTexture;
 	unsigned int m_backgroundAtlas;
@@ -58,7 +57,6 @@ private:
 
 	bool markedAsDeletable;
 
-	static unsigned int TextureAtlas;
 	static std::vector<TextureRect> Textures;
 };
 

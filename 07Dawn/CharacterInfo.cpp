@@ -15,45 +15,7 @@ void CharacterInfo::setPlayer(Player* player) {
 	m_player = player;
 }
 
-void CharacterInfo::init() {
-	TextureAtlasCreator::Get().init("infoscreen", 1024, 1024);
-
-	TextureManager::Loadimage("res/interface/CharacterInfoScreen/background.tga", 0, m_textures);
-	TextureManager::Loadimage("res/white2x2pixel.png", 1, m_textures, true);
-	TextureManager::Loadimage("res/interface/CharacterInfoScreen/meleeSelected.tga", 2, m_textures);
-	TextureManager::Loadimage("res/interface/CharacterInfoScreen/defenseSelected.tga", 3, m_textures);
-	TextureManager::Loadimage("res/interface/CharacterInfoScreen/spellsSelected.tga", 4, m_textures);
-
-	m_textureAtlas = TextureAtlasCreator::Get().getAtlas();
-
-	m_infoFont = &Globals::fontManager.get("verdana_12");
-
-	currentTab = 0;
-	tabs[0].tabimage = m_textures[2];
-	tabs[0].height = 32;
-	tabs[0].width = 58;
-	tabs[0].posX = 61;
-	tabs[0].posY = 242;
-
-	tabs[1].tabimage = m_textures[3];
-	tabs[1].height = 32;
-	tabs[1].width = 72;
-	tabs[1].posX = 196;
-	tabs[1].posY = 242;
-
-	tabs[2].tabimage = m_textures[4];
-	tabs[2].height = 32;
-	tabs[2].width = 59;
-	tabs[2].posX = 340;
-	tabs[2].posY = 242;
-
-	addMoveableFrame(434, 21, 13, 486);
-	addCloseButton(22, 22, 422, 483);
-}
-
-void CharacterInfo::init(unsigned int textureAtlas, std::vector<TextureRect> textures){
-
-	m_textureAtlas = textureAtlas;
+void CharacterInfo::init(std::vector<TextureRect> textures){
 	m_textures = textures;
 
 	m_infoFont = &Globals::fontManager.get("verdana_12");
@@ -83,7 +45,7 @@ void CharacterInfo::init(unsigned int textureAtlas, std::vector<TextureRect> tex
 
 void CharacterInfo::draw() {
 	if (!m_visible) return;
-	//TextureManager::BindTexture(m_textureAtlas, true, 0);
+
 	TextureManager::DrawTextureBatched(m_textures[0], m_posX, m_posY, false, false);
 
 	unsigned short descriptionTextStart = 60;
@@ -134,8 +96,6 @@ void CharacterInfo::draw() {
 	
 	drawExpBar();
 	drawTabs();
-	
-	//TextureManager::DrawBuffer();
 }
 
 void CharacterInfo::drawExpBar() {

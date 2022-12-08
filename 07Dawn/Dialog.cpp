@@ -1,34 +1,33 @@
 #include "Dialog.h"
 
 unsigned int  DialogCanvas::TextureAtlas;
-std::vector<TextureRect>  DialogCanvas::TextureBases;
+std::vector<TextureRect>  DialogCanvas::Textures;
 
 void DialogCanvas::Init() {
 
-	if (TextureBases.size() > 0) {
+	if (Textures.size() > 0) {
 		return;
 	}
 
 	TextureAtlasCreator::Get().init("dialog", 576, 64);
 
-	TextureManager::Loadimage("res/interface/tooltip/lower_left2.tga", 0, TextureBases);
-	TextureManager::Loadimage("res/interface/tooltip/lower_right2.tga", 1, TextureBases);
-	TextureManager::Loadimage("res/interface/tooltip/upper_left2.tga", 2, TextureBases);
-	TextureManager::Loadimage("res/interface/tooltip/upper_right2.tga", 3, TextureBases);
-	TextureManager::Loadimage("res/interface/tooltip/background2.tga", 4, TextureBases);
-	TextureManager::Loadimage("res/interface/tooltip/upper2.tga", 5, TextureBases);
+	TextureManager::Loadimage("res/interface/tooltip/lower_left2.tga", 0, Textures);
+	TextureManager::Loadimage("res/interface/tooltip/lower_right2.tga", 1, Textures);
+	TextureManager::Loadimage("res/interface/tooltip/upper_left2.tga", 2, Textures);
+	TextureManager::Loadimage("res/interface/tooltip/upper_right2.tga", 3, Textures);
+	TextureManager::Loadimage("res/interface/tooltip/background2.tga", 4, Textures);
+	TextureManager::Loadimage("res/interface/tooltip/upper2.tga", 5, Textures);
 
-	TextureManager::Loadimage("res/interface/tooltip/lower2.tga", 6, TextureBases);
-	TextureManager::Loadimage("res/interface/tooltip/left2.tga", 7, TextureBases);
-	TextureManager::Loadimage("res/interface/tooltip/right2.tga", 8, TextureBases);
+	TextureManager::Loadimage("res/interface/tooltip/lower2.tga", 6, Textures);
+	TextureManager::Loadimage("res/interface/tooltip/left2.tga", 7, Textures);
+	TextureManager::Loadimage("res/interface/tooltip/right2.tga", 8, Textures);
 
 	TextureAtlas = TextureAtlasCreator::Get().getAtlas();
 
 }
 
-void DialogCanvas::Init(unsigned int textureAtlas, std::vector<TextureRect> textures) {
-	TextureAtlas = textureAtlas;
-	TextureBases = textures;
+void DialogCanvas::Init(std::vector<TextureRect> textures) {
+	Textures = textures;
 }
 
 void DialogCanvas::DrawCanvas(int left, int bottom, int colummns, int rows, int tileWidth, int tileHeight, bool updateView, bool drawInChunk) {
@@ -40,27 +39,27 @@ void DialogCanvas::DrawCanvas(int left, int bottom, int colummns, int rows, int 
 	}
 
 	// draw the corners
-	TextureManager::DrawTextureBatched(TextureBases[0], left, bottom, _tileWidth, _tileHeight,  false, updateView);
-	TextureManager::DrawTextureBatched(TextureBases[1], left + tileWidth + (colummns * tileWidth), bottom, _tileWidth, _tileHeight, false, updateView);
-	TextureManager::DrawTextureBatched(TextureBases[2], left, bottom + tileHeight + (rows * tileHeight), _tileWidth, _tileHeight, false, updateView);
-	TextureManager::DrawTextureBatched(TextureBases[3], left + tileWidth + (colummns * tileWidth), bottom + tileHeight + (rows * tileHeight), _tileWidth, _tileHeight, false, updateView);
+	TextureManager::DrawTextureBatched(Textures[0], left, bottom, _tileWidth, _tileHeight,  false, updateView);
+	TextureManager::DrawTextureBatched(Textures[1], left + tileWidth + (colummns * tileWidth), bottom, _tileWidth, _tileHeight, false, updateView);
+	TextureManager::DrawTextureBatched(Textures[2], left, bottom + tileHeight + (rows * tileHeight), _tileWidth, _tileHeight, false, updateView);
+	TextureManager::DrawTextureBatched(Textures[3], left + tileWidth + (colummns * tileWidth), bottom + tileHeight + (rows * tileHeight), _tileWidth, _tileHeight, false, updateView);
 
 	// draw the top and bottom borders
 	for (unsigned short column = 0; column < colummns; column++) {
-		TextureManager::DrawTextureBatched(TextureBases[5], left + tileWidth + (column * tileWidth), bottom + tileHeight + (rows * tileHeight), _tileWidth, _tileHeight, false, updateView);
-		TextureManager::DrawTextureBatched(TextureBases[6], left + tileWidth + (column * tileWidth), bottom, _tileWidth, _tileHeight, false, updateView);
+		TextureManager::DrawTextureBatched(Textures[5], left + tileWidth + (column * tileWidth), bottom + tileHeight + (rows * tileHeight), _tileWidth, _tileHeight, false, updateView);
+		TextureManager::DrawTextureBatched(Textures[6], left + tileWidth + (column * tileWidth), bottom, _tileWidth, _tileHeight, false, updateView);
 	}
 
 	// draw the right and left borders
 	for (unsigned short row = 0; row < rows; row++) {
-		TextureManager::DrawTextureBatched(TextureBases[7], left, bottom + tileHeight + (row * tileHeight), _tileWidth, _tileHeight, false, updateView);
-		TextureManager::DrawTextureBatched(TextureBases[8], left + tileWidth + (colummns * tileWidth), bottom + tileHeight + (row * tileHeight), _tileWidth, _tileHeight, false, updateView);
+		TextureManager::DrawTextureBatched(Textures[7], left, bottom + tileHeight + (row * tileHeight), _tileWidth, _tileHeight, false, updateView);
+		TextureManager::DrawTextureBatched(Textures[8], left + tileWidth + (colummns * tileWidth), bottom + tileHeight + (row * tileHeight), _tileWidth, _tileHeight, false, updateView);
 	}
 
 	// draw the background
 	for (unsigned short row = 0; row < rows; row++) {
 		for (int column = 0; column < colummns; column++) {
-			TextureManager::DrawTextureBatched(TextureBases[4], left + tileWidth + (column * tileWidth), bottom + tileHeight + (row * tileHeight), _tileWidth, _tileHeight, false, updateView);
+			TextureManager::DrawTextureBatched(Textures[4], left + tileWidth + (column * tileWidth), bottom + tileHeight + (row * tileHeight), _tileWidth, _tileHeight, false, updateView);
 		}
 	}
 

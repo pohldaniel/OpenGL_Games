@@ -53,56 +53,6 @@ int Tooltip::getTooltipHeight() const {
 	return blockHeight * curBlockNumberHeight + blockHeight;
 }
 
-SpellTooltip::SpellTooltip(SpellActionBase *parent_, Player *player_) : parent(parent_) {
-	player = player_;
-	blockWidth = 32;
-	blockHeight = 32;
-	smallTooltip = false;
-	getParentText();
-}
-
-void SpellTooltip::getTicketFromPlayer() {
-	ticketFromPlayer = player->getTicketForSpellTooltip();
-}
-
-void SpellTooltip::draw(int x, int y) {
-	if (tooltipText.empty()) {
-		return;
-	}
-
-	// check to see if the ticket we got from the player is the same ticket as the player is offering.
-	// if not, we reload our tooltip.
-	if (ticketFromPlayer != player->getTicketForSpellTooltip()) {
-		reloadTooltip();
-	}
-	
-	// make sure the tooltip doesnt go "off screen"
-	if (x + (curBlockNumberWidth + 2) * blockWidth > ViewPort::Get().getWidth()) {
-		x = ViewPort::Get().getWidth() - (curBlockNumberWidth + 2) * blockWidth;
-	}
-
-	if (y + (curBlockNumberHeight + 2) * blockHeight > ViewPort::Get().getHeight()) {
-		y = ViewPort::Get().getHeight() - (curBlockNumberHeight + 2) * blockHeight;
-	}
-
-	// set the first font Y-position on the top of the first tooltip block excluding topborder
-	// (we could also center the text in the tooltip, but topaligned is probably bestlooking
-	int font_y = y + blockHeight + (curBlockNumberHeight)* blockHeight - toplineHeight;
-
-	DialogCanvas::DrawCanvas(x, y, curBlockNumberWidth, curBlockNumberHeight, blockWidth, blockHeight, false, true);
-	// loop through the text vector and print all the text.
-	for (unsigned int i = 0; i < tooltipText.size(); i++) {
-
-		Fontrenderer::Get().addText(*tooltipText[i].charset, x + blockWidth , font_y, tooltipText[i].text, tooltipText[i].color, false);
-		font_y -= tooltipText[i].charset->lineHeight + 11;
-		if (smallTooltip) {
-			break;
-		}
-	}
-
-	//Fontrenderer::Get().drawBuffer();
-}
-
 void Tooltip::addTooltipText(Vector4f color, CharacterSet* charSet, std::string str, ...) {
 	std::va_list args;
 	char buf[1024];
@@ -118,7 +68,7 @@ void Tooltip::addTooltipText(Vector4f color, CharacterSet* charSet, std::string 
 	}else if (str.find("price:") != str.npos) {
 		// else check to see if the text contains price information. if so we dont wordwrap.
 		tooltipText.push_back(sTooltipText(buf, color, charSet));
-		
+
 	}else {
 		// format the text into several lines so that the tooltip doesnt get too wide,
 		//then push all the text lines to our vector.
@@ -128,7 +78,7 @@ void Tooltip::addTooltipText(Vector4f color, CharacterSet* charSet, std::string 
 			tooltipText.push_back(sTooltipText(formattedLines[curLine], color, charSet));
 		}
 	}
-	
+
 	// adjust width and height depending on the content of the tooltip.
 	int width = 0;
 	int height = 0;
@@ -155,6 +105,7 @@ void Tooltip::addTooltipText(Vector4f color, CharacterSet* charSet, std::string 
 		if (i + 1 < tooltipText.size()) {
 			height += 11;
 		}
+
 		if (i == 0) {
 			widthSmall = width;
 			heightSmall = height;
@@ -168,69 +119,6 @@ void Tooltip::addTooltipText(Vector4f color, CharacterSet* charSet, std::string 
 	blockNumberWidthSmall = ceil(static_cast<double>(widthSmall) / blockWidth);
 
 	updateBlockNumbers();
-}
-
-void SpellTooltip::getParentText() {
-	// remember what level we generated this tooltip
-	ticketFromPlayer = player->getTicketForSpellTooltip();
-
-	Vector4f white = Vector4f(1.0f, 1.0f, 1.0f, 1.0f);
-	Vector4f grey = Vector4f(0.7f, 0.7f, 0.7f, 1.0f);
-	Vector4f blue = Vector4f(0.3f, 0.3f, 1.0f, 1.0f);
-	Vector4f green = Vector4f(0.0f, 1.0f, 0.0f, 1.0f);
-	Vector4f yellow = Vector4f(1.0f, 1.0f, 0.0f, 1.0f);
-
-	// name of the spell and rank
-	addTooltipText(white, &Globals::fontManager.get("verdana_14"), parent->getName());
-	addTooltipText(white, &Globals::fontManager.get("verdana_12"), "");
-	addTooltipText(grey, &Globals::fontManager.get("verdana_12"), "Rank %d", parent->getRank());
-
-	// display mana or fatigue-cost, if any.
-	if (parent->getSpellCost() > 0) {
-		if (player->getArchType() == Enums::CharacterArchType::Caster) {
-			addTooltipText(blue, &Globals::fontManager.get("verdana_12"), "Mana: %d", parent->getSpellCost());
-		}else if (player->getArchType() == Enums::CharacterArchType::Fighter) {
-			addTooltipText(yellow, &Globals::fontManager.get("verdana_12"), "Fatigue: %d", parent->getSpellCost());
-		}
-	}
-
-	/// display required weapons
-	/*if (parent->getRequiredWeapons() != 0) {
-		int numberOfRequiredWeapons = 0;
-		std::string reqWeaponString = "Requires: ";
-
-		for (size_t curWeaponType = 0; curWeaponType < getNumBitsToUse(WeaponType::COUNT); curWeaponType++) {
-			if (parent->getRequiredWeapons() & static_cast<WeaponType::WeaponType>(1 << curWeaponType)) {
-				if (numberOfRequiredWeapons > 0) { reqWeaponString.append(", "); }
-				reqWeaponString.append(WeaponType::getWeaponTypeText(static_cast<WeaponType::WeaponType>(1 << curWeaponType)));
-				numberOfRequiredWeapons++;
-			}
-		}
-		if (numberOfRequiredWeapons > 1) {
-			reqWeaponString.replace(reqWeaponString.find_last_of(","), 1, " or");
-		}
-		addTooltipText(blue, 12, reqWeaponString);
-	}*/
-
-	// display duration if we have any
-	if (parent->getDuration() > 0) {
-		addTooltipText(white, &Globals::fontManager.get("verdana_12"), "Duration: %s", Utils::ConvertTime(parent->getDuration()).c_str());
-	}
-
-	if (parent->getCooldown() > 0) {
-		addTooltipText(white, &Globals::fontManager.get("verdana_12"), "Cooldown: %s", Utils::ConvertTime(parent->getCooldown()).c_str());
-	}
-
-	// display cast time
-	if (parent->getCastTime() == 0){
-		addTooltipText(white, &Globals::fontManager.get("verdana_12"), "Casttime: Instant");
-	}else {
-		addTooltipText(white, &Globals::fontManager.get("verdana_12"), "Casttime: %.2f sec", static_cast<float>(parent->getCastTime()) / 1000);
-	}
-
-	// display description.
-	addTooltipText(white, &Globals::fontManager.get("verdana_12"), ""); // newline
-	addTooltipText(green, &Globals::fontManager.get("verdana_12"), parseInfoText(parent, parent->getInfo()));
 }
 
 std::string Tooltip::getDynamicValues(SpellActionBase *spell, size_t val) const {
@@ -345,12 +233,127 @@ std::string Tooltip::parseInfoText(SpellActionBase *spell, const std::string inf
 	return toReturn;
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////
+SpellTooltip::SpellTooltip(SpellActionBase *parent_, Player *player_) : parent(parent_) {
+	player = player_;
+	blockWidth = 32;
+	blockHeight = 32;
+	smallTooltip = false;
+	getParentText();
+}
+
+void SpellTooltip::getTicketFromPlayer() {
+	ticketFromPlayer = player->getTicketForSpellTooltip();
+}
+
+void SpellTooltip::draw(int x, int y) {
+	if (tooltipText.empty()) {
+		return;
+	}
+
+	// check to see if the ticket we got from the player is the same ticket as the player is offering.
+	// if not, we reload our tooltip.
+	if (ticketFromPlayer != player->getTicketForSpellTooltip()) {
+		reloadTooltip();
+	}
+	
+	// make sure the tooltip doesnt go "off screen"
+	if (x + (curBlockNumberWidth + 2) * blockWidth > ViewPort::Get().getWidth()) {
+		x = ViewPort::Get().getWidth() - (curBlockNumberWidth + 2) * blockWidth;
+	}
+
+	if (y + (curBlockNumberHeight + 2) * blockHeight > ViewPort::Get().getHeight()) {
+		y = ViewPort::Get().getHeight() - (curBlockNumberHeight + 2) * blockHeight;
+	}
+
+	// set the first font Y-position on the top of the first tooltip block excluding topborder
+	// (we could also center the text in the tooltip, but topaligned is probably bestlooking
+	int font_y = y + blockHeight + (curBlockNumberHeight)* blockHeight - toplineHeight;
+
+	DialogCanvas::DrawCanvas(x, y, curBlockNumberWidth, curBlockNumberHeight, blockWidth, blockHeight, false, true);
+	// loop through the text vector and print all the text.
+	for (unsigned int i = 0; i < tooltipText.size(); i++) {
+
+		Fontrenderer::Get().addText(*tooltipText[i].charset, x + blockWidth , font_y, tooltipText[i].text, tooltipText[i].color, false);
+		font_y -= tooltipText[i].charset->lineHeight + 11;
+		if (smallTooltip) {
+			break;
+		}
+	}
+}
+
+unsigned long SpellTooltip::getNumBitsToUse(unsigned long maxBitValue) {
+	return log(maxBitValue) / log(2);
+}
+
+void SpellTooltip::getParentText() {
+	// remember what level we generated this tooltip
+	ticketFromPlayer = player->getTicketForSpellTooltip();
+
+	Vector4f white = Vector4f(1.0f, 1.0f, 1.0f, 1.0f);
+	Vector4f grey = Vector4f(0.7f, 0.7f, 0.7f, 1.0f);
+	Vector4f blue = Vector4f(0.3f, 0.3f, 1.0f, 1.0f);
+	Vector4f green = Vector4f(0.0f, 1.0f, 0.0f, 1.0f);
+	Vector4f yellow = Vector4f(1.0f, 1.0f, 0.0f, 1.0f);
+
+	// name of the spell and rank
+	addTooltipText(white, &Globals::fontManager.get("verdana_14"), parent->getName());
+	addTooltipText(white, &Globals::fontManager.get("verdana_12"), "");
+	addTooltipText(grey, &Globals::fontManager.get("verdana_12"), "Rank %d", parent->getRank());
+
+	// display mana or fatigue-cost, if any.
+	if (parent->getSpellCost() > 0) {
+		if (player->getArchType() == Enums::CharacterArchType::Caster) {
+			addTooltipText(blue, &Globals::fontManager.get("verdana_12"), "Mana: %d", parent->getSpellCost());
+		}else if (player->getArchType() == Enums::CharacterArchType::Fighter) {
+			addTooltipText(yellow, &Globals::fontManager.get("verdana_12"), "Fatigue: %d", parent->getSpellCost());
+		}
+	}
+
+	/// display required weapons
+	if (parent->getRequiredWeapons() != 0) {
+		int numberOfRequiredWeapons = 0;
+		std::string reqWeaponString = "Requires: ";
+
+		for (size_t curWeaponType = 0; curWeaponType < getNumBitsToUse(Enums::WeaponType::COUNTWT); curWeaponType++) {
+			if (parent->getRequiredWeapons() & static_cast<Enums::WeaponType>(1 << curWeaponType)) {
+				if (numberOfRequiredWeapons > 0) { reqWeaponString.append(", "); }
+				reqWeaponString.append(WeaponType::getWeaponTypeText(static_cast<Enums::WeaponType>(1 << curWeaponType)));
+				numberOfRequiredWeapons++;
+			}
+		}
+		if (numberOfRequiredWeapons > 1) {
+			reqWeaponString.replace(reqWeaponString.find_last_of(","), 1, " or");
+		}
+		addTooltipText(blue, &Globals::fontManager.get("verdana_12"), reqWeaponString);
+	}
+
+	// display duration if we have any
+	if (parent->getDuration() > 0) {
+		addTooltipText(white, &Globals::fontManager.get("verdana_12"), "Duration: %s", Utils::ConvertTime(parent->getDuration()).c_str());
+	}
+
+	if (parent->getCooldown() > 0) {
+		addTooltipText(white, &Globals::fontManager.get("verdana_12"), "Cooldown: %s", Utils::ConvertTime(parent->getCooldown()).c_str());
+	}
+
+	// display cast time
+	if (parent->getCastTime() == 0){
+		addTooltipText(white, &Globals::fontManager.get("verdana_12"), "Casttime: Instant");
+	}else {
+		addTooltipText(white, &Globals::fontManager.get("verdana_12"), "Casttime: %.2f sec", static_cast<float>(parent->getCastTime()) / 1000);
+	}
+
+	// display description.
+	addTooltipText(white, &Globals::fontManager.get("verdana_12"), ""); // newline
+	addTooltipText(green, &Globals::fontManager.get("verdana_12"), parseInfoText(parent, parent->getInfo()));
+}
+
 SpellActionBase* SpellTooltip::getParent() const {
 	return parent;
 }
 /////////////////////////////////////////////////////////////////////////////////////////////
-std::vector<TextureRect> ItemTooltip::s_textures;
-unsigned int ItemTooltip::s_textureAtlas;
+std::vector<TextureRect> ItemTooltip::Textures;
 
 ItemTooltip::ItemTooltip(Item *parent, InventoryItem *inventoryItem) : parent(parent), inventoryItem(inventoryItem) {
 	player = &Player::Get();
@@ -362,18 +365,10 @@ ItemTooltip::ItemTooltip(Item *parent, InventoryItem *inventoryItem) : parent(pa
 	isShopItem = false;
 	getParentText();
 
-	if (s_textures.size() == 0) {
-		TextureAtlasCreator::Get().init("tooltip", 128, 128);		
-		TextureManager::Loadimage("res/interface/inventory/goldcoin.tga", 0, s_textures);
-		TextureManager::Loadimage("res/interface/inventory/silvercoin.tga", 1, s_textures);
-		TextureManager::Loadimage("res/interface/inventory/coppercoin.tga", 2, s_textures);
-		s_textureAtlas = TextureAtlasCreator::Get().getAtlas();
-	}
 }
 
-void ItemTooltip::Init(unsigned int textureAtlas, std::vector<TextureRect> textures) {
-	s_textures = textures;
-	s_textureAtlas = textureAtlas;
+void ItemTooltip::Init(std::vector<TextureRect> textures) {
+	Textures = textures;
 }
 
 void ItemTooltip::setShopItem(bool isShopItem_) {
@@ -715,18 +710,16 @@ Item* ItemTooltip::getParent() const {
 }
 
 void ItemTooltip::DrawCoin(int x, int y, int coin, bool updateView) {
-	//TextureManager::BindTexture(s_textureAtlas, true, 0);
+
 	if (coin == currency::GOLD) {
-		TextureManager::DrawTextureBatched(s_textures[0], x, y, 16, 16, false, updateView);
+		TextureManager::DrawTextureBatched(Textures[0], x, y, 16, 16, false, updateView);
 	}
 
 	if (coin == currency::SILVER) {
-		TextureManager::DrawTextureBatched(s_textures[1], x, y, 16, 16, false, updateView);
+		TextureManager::DrawTextureBatched(Textures[1], x, y, 16, 16, false, updateView);
 	}
 
 	if (coin == currency::COPPER) {
-		TextureManager::DrawTextureBatched(s_textures[2], x, y, 16, 16, false, updateView);
+		TextureManager::DrawTextureBatched(Textures[2], x, y, 16, 16, false, updateView);
 	}
-
-	//TextureManager::UnbindTexture(true, 0);
 }

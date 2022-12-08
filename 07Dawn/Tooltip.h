@@ -77,9 +77,11 @@ public:
 	SpellActionBase* getParent() const;
 
 private:
+
 	SpellActionBase *parent;
 	void getParentText();
 	void getTicketFromPlayer();
+	unsigned long getNumBitsToUse(unsigned long maxBitValue);
 };
 
 class ItemTooltip : public Tooltip {
@@ -90,7 +92,7 @@ public:
 	Item* getParent() const;
 
 	static void DrawCoin(int x, int y, int coin, bool updateView = false);
-	static void Init(unsigned int textureAtlas, std::vector<TextureRect> textures);
+	static void Init(std::vector<TextureRect> textures);
 
 private:
 	Item *parent;
@@ -106,8 +108,5 @@ private:
 	void addTooltipTextForPercentageAttribute(std::string attributeName, double attributePercentage);
 	void drawCoinsLine(int x, int y, int frameWidth, sTooltipText *tooltipText);
 	
-
-	static std::vector<TextureRect> s_textures;
-	static unsigned int s_textureAtlas;
-
+	static std::vector<TextureRect> Textures;
 };
