@@ -43,9 +43,6 @@
     <Filter Include="glew">
       <UniqueIdentifier>{5fef9db7-d6a1-4376-adf2-a57eae89f980}</UniqueIdentifier>
     </Filter>
-    <Filter Include="engine\glew">
-      <UniqueIdentifier>{5e075da7-b42d-40e5-9eaf-1f1d622a5973}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Application.cpp">
@@ -254,9 +251,6 @@
     </ClCompile>
     <ClCompile Include="TextWindow.cpp">
       <Filter>Source Files\Interface</Filter>
-    </ClCompile>
-    <ClCompile Include="engine\glew\glew.c">
-      <Filter>engine\glew</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

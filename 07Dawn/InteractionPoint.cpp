@@ -3,6 +3,7 @@
 #include "Zone.h"
 
 std::vector<TextureRect> InteractionPoint::Textures;
+std::unordered_map<std::string, TextureRect> InteractionPoint::BackgroundTextures;
 
 InteractionPoint::InteractionPoint()
 	: interactionCode(""),
@@ -41,9 +42,19 @@ void InteractionPoint::setInteractionType(Enums::InteractionType interactionType
 }
 
 void InteractionPoint::setBackgroundTexture(std::string texturename, bool transparent) {
+
+	if (BackgroundTextures.count(texturename) > 0) {
+		m_backgroundTexture = BackgroundTextures[texturename];
+		return;
+	}
+	
 	TextureAtlasCreator::Get().init("background", 128, 128);
-	m_backgroundTexture = TextureManager::Loadimage(texturename, transparent);
-	m_backgroundAtlas = TextureAtlasCreator::Get().getAtlas();
+	BackgroundTextures[texturename] = TextureManager::Loadimage(texturename, transparent);
+	BackgroundTextures[texturename].frame = BackgroundTextures.size() - 1;
+
+	m_backgroundTexture = BackgroundTextures[texturename];
+	m_backgroundAtlas = Spritesheet::Merge(Globals::spritesheetManager.getAssetPointer("background")->getAtlas(), TextureAtlasCreator::Get().getAtlas(), false, false);
+	Globals::spritesheetManager.getAssetPointer("background")->setAtlas(m_backgroundAtlas);
 }
 
 void InteractionPoint::setInteractionCode(std::string interactionCode) {
@@ -75,9 +86,9 @@ void InteractionPoint::draw() {
 	if (markedAsDeletable) {
 		return;
 	}
-	TextureManager::BindTexture(m_backgroundAtlas, true);
-	TextureManager::DrawTexture(m_backgroundTexture, posX, posY, width, height, true, true);
-	TextureManager::UnbindTexture(true);
+
+	TextureManager::BindTexture(Globals::spritesheetManager.getAssetPointer("background")->getAtlas(), true, 7);
+	TextureManager::DrawTextureBatched(m_backgroundTexture, posX, posY, width, height, true, true, 7u);
 }
 
 void InteractionPoint::drawInteractionSymbol(int mouseX, int mouseY, int characterXpos, int characterYpos) {

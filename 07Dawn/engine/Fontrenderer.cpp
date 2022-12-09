@@ -6,10 +6,18 @@ Fontrenderer& Fontrenderer::Get() {
 	return s_instance;
 }
 
-Fontrenderer::Fontrenderer() : m_batchrenderer(new Batchrenderer()) {}
+Fontrenderer::Fontrenderer() : m_batchrenderer(new Batchrenderer()) {
+	batchrenderer = m_batchrenderer;
+}
 
 Fontrenderer::~Fontrenderer() {
-	delete m_batchrenderer;
+	if (batchrenderer == m_batchrenderer) {
+		delete m_batchrenderer;
+		m_batchrenderer = batchrenderer = nullptr;
+	}else {
+		delete batchrenderer;
+		batchrenderer = nullptr;
+	}
 }
 
 void Fontrenderer::shutdown() {
@@ -45,7 +53,7 @@ void Fontrenderer::drawText(const CharacterSet& characterSet, int posX, int posY
 
 		const Char& ch = characterSet.getCharacter(*c);
 
-		m_batchrenderer->addQuadAA(Vector4f(static_cast<float>(posX), static_cast<float>(posY), static_cast<float>(ch.size[0]), static_cast<float>(ch.size[1])), Vector4f(ch.textureOffset[0], ch.textureOffset[1], ch.textureSize[0], ch.textureSize[1]), color, updateView, 2u, characterSet.frame);
+		m_batchrenderer->addQuadAA(Vector4f(static_cast<float>(posX), static_cast<float>(posY), static_cast<float>(ch.size[0]), static_cast<float>(ch.size[1])), Vector4f(ch.textureOffset[0], ch.textureOffset[1], ch.textureSize[0], ch.textureSize[1]), color, updateView, 0u, characterSet.frame);
 		posX = posX + ch.advance;
 	}
 	m_batchrenderer->drawBuffer();
@@ -59,7 +67,7 @@ void Fontrenderer::addText(const CharacterSet& characterSet, int posX, int posY,
 
 		const Char& ch = characterSet.getCharacter(*c);
 
-		m_batchrenderer->addQuadAA(Vector4f(static_cast<float>(posX), static_cast<float>(posY), static_cast<float>(ch.size[0]), static_cast<float>(ch.size[1])), Vector4f(ch.textureOffset[0], ch.textureOffset[1], ch.textureSize[0], ch.textureSize[1]), color, updateView, 2u, characterSet.frame);
+		m_batchrenderer->addQuadAA(Vector4f(static_cast<float>(posX), static_cast<float>(posY), static_cast<float>(ch.size[0]), static_cast<float>(ch.size[1])), Vector4f(ch.textureOffset[0], ch.textureOffset[1], ch.textureSize[0], ch.textureSize[1]), color, updateView, 0u, characterSet.frame);
 		posX = posX + ch.advance;
 	}
 }

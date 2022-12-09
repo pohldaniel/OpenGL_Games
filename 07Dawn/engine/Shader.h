@@ -7,7 +7,6 @@
 #include <string>
 #include <vector>
 
-#include "glew/glew.h"
 #include "Extension.h"
 #include "Vector.h"
 

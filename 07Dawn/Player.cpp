@@ -133,9 +133,9 @@ void Player::draw() {
 		drawY -= getBoundingBoxY();
 	}
 
-	TextureManager::BindTexture(TextureManager::GetTextureAtlas("player"), true);
-	TextureManager::DrawTexture(*rect, drawX, drawY, Vector4f(1.0f, 1.0f, 1.0f, 1.0f), true, true);
-	TextureManager::UnbindTexture(true);
+	//TextureManager::BindTexture(TextureManager::GetTextureAtlas("player"), true);
+	TextureManager::DrawTextureBatched(*rect, drawX, drawY, Vector4f(1.0f, 1.0f, 1.0f, 1.0f), true, true, 4u);
+	//TextureManager::UnbindTexture(true);
 
 	for (size_t curActiveSpellNr = 0; curActiveSpellNr < activeSpells.size(); ++curActiveSpellNr) {
 		if (!activeSpells[curActiveSpellNr]->isEffectComplete()) {

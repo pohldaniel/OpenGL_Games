@@ -66,6 +66,11 @@ public:
 		m_assetPointer[name] = new T(textureAtlas);
 	}
 
+	void createEmptySpritesheet(const std::string& name, unsigned int width, unsigned int height, unsigned int format = 0u) {
+		m_assetPointer[name] = new T();
+		m_assetPointer[name]->createEmptySpritesheet(width, height, format);
+	}
+
 	void createNullSpritesheet(const std::string& name, unsigned int width = 2, unsigned int height = 2, unsigned short layer = 4) {
 		m_assetPointer[name] = new T();
 		m_assetPointer[name]->createNullSpritesheet(width, height, layer);

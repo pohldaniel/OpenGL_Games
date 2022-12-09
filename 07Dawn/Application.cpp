@@ -14,7 +14,7 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 	initWindow();
 	initOpenGL();
 	loadAssets();
-	initStates();
+	
 	m_enableVerticalSync = true;
 
 	Application::s_eventDispatcher.setProcessOSEvents([&]() {
@@ -26,10 +26,9 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 		return true;
 	});
 
-	
 	Fontrenderer::Get().init();
 	Fontrenderer::Get().setShader(Globals::shaderManager.getAssetPointer("font"));
-	Batchrenderer::Get().init(400, true);
+	Batchrenderer::Get().init(800, true);
 	Batchrenderer::Get().setShader(Globals::shaderManager.getAssetPointer("batch"));
 
 	Instancedrenderer::Get().init();
@@ -38,9 +37,14 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 	auto shader = Globals::shaderManager.getAssetPointer("batch_font");
 
 	glUseProgram(shader->m_program);
-	shader->loadInt("u_nearest", 0);
-	shader->loadInt("u_linear", 1);
-	shader->loadInt("u_font", 2);
+	shader->loadInt("u_font", 0);		//font					sampler
+	shader->loadInt("u_sampler[0]", 1); //linear interface		sampler
+	shader->loadInt("u_sampler[1]", 2); //nearest interface		sampler
+	shader->loadInt("u_sampler[2]", 3); //spells				sampler
+	shader->loadInt("u_sampler[3]", 4); //player				sampler
+	shader->loadInt("u_sampler[4]", 5); //npc					sampler
+	shader->loadInt("u_sampler[5]", 6);	//zone					sampler
+	shader->loadInt("u_sampler[6]", 7);	//interaction background sampler
 	glUseProgram(0);
 
 	glGenBuffers(1, &Globals::viewUbo);
@@ -65,21 +69,15 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 	shader->loadMatrix("u_projection", ViewPort::Get().getCamera().getOrthographicMatrix());
 	glUseProgram(0);
 
-	unsigned int samplers[2];
-	glGenSamplers(2, samplers);
-	glSamplerParameteri(samplers[0], GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glSamplerParameteri(samplers[0], GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glSamplerParameteri(samplers[0], GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glSamplerParameteri(samplers[0], GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	unsigned int sampler;
+	glGenSamplers(1, &sampler);
+	glSamplerParameteri(sampler, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glSamplerParameteri(sampler, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glSamplerParameteri(sampler, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glSamplerParameteri(sampler, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glBindSampler(1, sampler);
 
-	glSamplerParameteri(samplers[1], GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glSamplerParameteri(samplers[1], GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glSamplerParameteri(samplers[1], GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glSamplerParameteri(samplers[1], GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-	glBindSampler(0, samplers[0]);
-	glBindSampler(1, samplers[1]);
-
+	initStates();
 }
 
 Application::~Application() {
@@ -304,7 +302,7 @@ void Application::initOpenGL() {
 	hRC = wglCreateContext(hDC);				// create rendering context and make it current
 	wglMakeCurrent(hDC, hRC);
 	
-	glewInit();
+	//glewInit();
 	
 	enableVerticalSync(true);
 
@@ -420,6 +418,8 @@ void Application::loadAssets() {
 	Globals::shaderManager.loadShader("instanced", "res/shader/instanced.vs", "res/shader/instanced.fs");
 	Globals::textureManager.createNullTexture("grey", 64, 64, 128);
 	Globals::spritesheetManager.createNullSpritesheet("null", 1024, 1024, 197);
+
+	Globals::spritesheetManager.createEmptySpritesheet("background", 128, 128);
 
 	Globals::fontManager.loadCharacterSet("verdana_5", "res/verdana.ttf", 5, 3, 20, 128, true, 0u);
 	Globals::fontManager.loadCharacterSet("verdana_9", "res/verdana.ttf", 9, 3, 20, 128, true, 1u);

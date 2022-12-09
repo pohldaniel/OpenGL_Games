@@ -8,8 +8,12 @@ Zone::Zone() : groundLoot(&Player::Get()) { }
 Zone::~Zone(){	 }
 
 void Zone::loadZone() {
+	
 
-	if (m_mapLoaded) return;
+	if (m_mapLoaded) {
+		TextureManager::BindTexture(TextureManager::GetTextureAtlas(m_file), true, 6);
+		return;
+	} 
 
 	EditorInterface::getTileSet(Enums::TileClassificationType::FLOOR).setOffset(EditorInterface::getTileSet(Enums::TileClassificationType::FLOOR).getAllTiles().size());
 	EditorInterface::getTileSet(Enums::TileClassificationType::ENVIRONMENT).setOffset(EditorInterface::getTileSet(Enums::TileClassificationType::ENVIRONMENT).getAllTiles().size());
@@ -23,8 +27,8 @@ void Zone::loadZone() {
 	LuaFunctions::executeLuaFile(std::string(m_file).append(".tiles_environment.lua"));
 	LuaFunctions::executeLuaFile(std::string(m_file).append(".tiles_shadow.lua"));
 
-	TextureManager::SetTextureAtlas(TextureAtlasCreator::Get().getName(), TextureAtlasCreator::Get().getAtlas());
-	m_textureAtlas = TextureManager::GetTextureAtlas(m_file);
+	m_textureAtlas = TextureAtlasCreator::Get().getAtlas();
+	TextureManager::SetTextureAtlas(m_file, m_textureAtlas);
 	
 	//ZoneManager::Get().setCurrentZone(this);
 	LuaFunctions::executeLuaScript(std::string("DawnInterface.setCurrentZone( \"").append(m_file).append("\");"));
@@ -35,6 +39,8 @@ void Zone::loadZone() {
 	LuaFunctions::executeLuaFile(std::string(m_file).append(".spawnpoints.lua"));
 	LuaFunctions::executeLuaFile(std::string(m_file).append(".init.lua"));
 	m_mapLoaded = true;
+	
+	TextureManager::BindTexture(m_textureAtlas, true, 6);
 }
 
 std::vector<TileMap>& Zone::getTileMap() {
@@ -305,55 +311,34 @@ void Zone::update(float deltaTime) {
 
 void Zone::drawZoneBatched() {
 
-	TextureManager::BindTexture(m_textureAtlas, true);
-
 	drawTilesBatched();
 	drawEnvironmentBatched();
 	drawShadowsBatched();
-	TextureManager::DrawBuffer();
-
-	/*groundLoot.draw();
-
-	// draw the interactions on screen
-	for (size_t curInteractionNr = 0; curInteractionNr < m_interactionPoints.size(); ++curInteractionNr) {
-		InteractionPoint* curInteraction = m_interactionPoints[curInteractionNr];
-		curInteraction->draw();
-	}*/
-
-	// draw AoE spells
-	
-
-	drawNpcsBatched();	
 }
 
 void Zone::drawTilesBatched() {
 	for (unsigned int x = 0; x < m_tileMap.size(); x++) {
-		TextureManager::DrawTextureBatched(m_tileMap[x].tile.textureRect, m_tileMap[x].x_pos, m_tileMap[x].y_pos);
+		TextureManager::DrawTextureBatched(m_tileMap[x].tile.textureRect, m_tileMap[x].x_pos, m_tileMap[x].y_pos, true, true, 6u);
 	}
 }
 
 void Zone::drawEnvironmentBatched() {
 	for (unsigned int x = 0; x < m_environmentMap.size(); x++) {
-		TextureManager::DrawTextureBatched(m_environmentMap[x].tile.textureRect, m_environmentMap[x].x_pos, m_environmentMap[x].y_pos, m_environmentMap[x].width, m_environmentMap[x].height, Vector4f(m_environmentMap[x].red, m_environmentMap[x].green, m_environmentMap[x].blue, m_environmentMap[x].transparency));
+		TextureManager::DrawTextureBatched(m_environmentMap[x].tile.textureRect, m_environmentMap[x].x_pos, m_environmentMap[x].y_pos, m_environmentMap[x].width, m_environmentMap[x].height, Vector4f(m_environmentMap[x].red, m_environmentMap[x].green, m_environmentMap[x].blue, m_environmentMap[x].transparency), true, true, 6u);
 	}
 }
 
 void Zone::drawShadowsBatched(){
 	for (unsigned int x = 0; x < m_shadowMap.size(); x++) {
-		TextureManager::DrawTextureBatched(m_shadowMap[x].tile.textureRect, m_shadowMap[x].x_pos, m_shadowMap[x].y_pos);
+		TextureManager::DrawTextureBatched(m_shadowMap[x].tile.textureRect, m_shadowMap[x].x_pos, m_shadowMap[x].y_pos, true, true, 6u);
 	}
 }
 
 void Zone::drawNpcsBatched() {
-	//std::cout << " Size: " << m_npcs.size() << std::endl;
-	TextureManager::BindTexture(TextureManager::GetTextureAtlas("mobs"), true);
+
 	for (unsigned int x = 0; x < m_npcs.size(); x++) {
 		m_npcs[x]->draw();
 	}	
-
-	TextureManager::DrawBuffer();
-
-	TextureManager::UnbindTexture(true);
 }
 
 void Zone::drawZoneInstanced() {

@@ -1,5 +1,4 @@
 #include <iostream>
-#include "glew/glew.h"
 #include "Extension.h"
 #include "Spritesheet.h"
 #include "Texture.h"
@@ -174,12 +173,28 @@ void Spritesheet::createNullSpritesheet(unsigned int width, unsigned int height,
 	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
 }
 
+void Spritesheet::createEmptySpritesheet(unsigned int width, unsigned int height, unsigned int _format) {
+	unsigned int internalFormat = _format == 0 ? GL_RGBA8 : _format;
+	m_totalFrames = 0;
+
+	glGenTextures(1, &m_texture);
+	glBindTexture(GL_TEXTURE_2D_ARRAY, m_texture);
+	glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, internalFormat, width, height, m_totalFrames, 0, internalFormat == GL_RGBA8 ? GL_RGBA : internalFormat == GL_RGB8 ? GL_RGB : _format, GL_UNSIGNED_BYTE, NULL);
+
+
+	glTexParameterf(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameterf(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
+}
+
 void Spritesheet::createSpritesheet(unsigned int texture, unsigned int width, unsigned int height, unsigned int _format) {
 	//It seems setLinear() isn't working when using glTexStorage3D so I go for glTexImage3D. 
 	//Of curse you can increase the mipmaplevel (level) but it decreases the performance.
 	//Unfortunately I wasn't able to use glCopyImageSubData with glTexImage3D. 
 
-	unsigned internalFormat = _format == 0 ? GL_RGBA8 : _format;
+	unsigned int internalFormat = _format == 0 ? GL_RGBA8 : _format;
 	m_totalFrames++;
 
 	//OpenGL 4.3
@@ -403,6 +418,10 @@ unsigned short Spritesheet::getTotalFrames() {
 	return m_totalFrames;
 }
 
+void Spritesheet::setAtlas(unsigned int texture) {
+	m_texture = texture;
+}
+
 //https://stackoverflow.com/questions/60247269/can-glreadpixels-be-used-to-read-layers-from-gl-texture-3d
 void Spritesheet::safe(std::string name) {
 	int width, height, depth;
@@ -423,7 +442,8 @@ void Spritesheet::safe(std::string name) {
 	free(bytes);
 }
 
-unsigned int Spritesheet::Merge(unsigned int& atlas1, unsigned int& atlas2, bool deleteAtlas1, bool deleteAtlas2) {
+unsigned int Spritesheet::Merge(const unsigned int& atlas1, const unsigned int& atlas2, bool deleteAtlas1, bool deleteAtlas2) {
+	
 	int miplevel = 0;
 	
 	int width1, height1, depth1;
@@ -471,11 +491,11 @@ unsigned int Spritesheet::Merge(unsigned int& atlas1, unsigned int& atlas2, bool
 	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
 
-	if(deleteAtlas1)
+	if (deleteAtlas1) 
+		glDeleteTextures(1, &atlas1); 
+		
+	if(deleteAtlas2) 
 		glDeleteTextures(1, &atlas1);
-
-	if(deleteAtlas2)
-		glDeleteTextures(1, &atlas2);
 
 	return atlas_new;
 }
@@ -495,7 +515,6 @@ void Spritesheet::Safe(std::string name, unsigned int textureAtlas) {
 	for (unsigned short layer = 0; layer < depth; ++layer) {
 		glGetTextureSubImage(textureAtlas, 0, 0, 0, layer, width, height, 1, GL_RGBA, GL_UNSIGNED_BYTE, sizeof(unsigned char) * width * 4 * height, bytes);
 		SOIL_save_image((name + "_" + std::to_string(layer) + ".png").c_str(), SOIL_SAVE_TYPE_PNG, width, height, 4, bytes);
-
 	}
 
 	free(bytes);

@@ -328,6 +328,6 @@ void Batchrenderer::ResetStatistic() {
 void Batchrenderer::PrintStatistic() {
 	std::cout << "Draw Calls: " << s_drawCallCount << std::endl;
 	std::cout << "Quad Count: " << s_quadCount << std::endl;
-
+	std::cout << "------------------" << std::endl;
 	ResetStatistic();
 }

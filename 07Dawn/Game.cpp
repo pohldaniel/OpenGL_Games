@@ -31,7 +31,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	DawnInterface::enterZone("res/_lua/zone1", 512, 400);
 	//DawnInterface::enterZone("res/_lua/zone1", 747, 1530);	
 	//DawnInterface::enterZone("res/_lua/arinoxGeneralShop", -158, 0);
-
+	
 	LuaFunctions::executeLuaFile("res/_lua/gameinit.lua");
 	DawnInterface::clearLogWindow();
 
@@ -39,6 +39,18 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 
 	GLfloat color[] = { 1.0f, 1.0f, 0.0f };
 	DawnInterface::addTextToLogWindow(color, "Welcome to the world of Dawn, %s.", Player::Get().getName().c_str());
+
+	TextureManager::SetShader(Globals::shaderManager.getAssetPointer("batch_font"));
+	Fontrenderer::Get().setRenderer(&Batchrenderer::Get());
+	
+	//becarefull bind the textures atfer the last glDeleteTextures() call
+	TextureManager::BindTexture(Globals::spritesheetManager.getAssetPointer("font")->getAtlas(), true, 0);
+	TextureManager::BindTexture(TextureManager::GetTextureAtlas("interface"), true, 1);
+	TextureManager::BindTexture(TextureManager::GetTextureAtlas("interface"), true, 2);
+	TextureManager::BindTexture(TextureManager::GetTextureAtlas("spells"), true, 3);
+	TextureManager::BindTexture(TextureManager::GetTextureAtlas("player"), true, 4);
+	TextureManager::BindTexture(TextureManager::GetTextureAtlas("mobs"), true, 5);
+
 }
 
 Game::~Game() {}
@@ -61,7 +73,7 @@ void Game::render() {
 
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
-	//Batchrenderer::ResetStatistic();
+
 	Zone::Draw();
 	GroundLoot::Draw();
 	InteractionPoint::Draw();
@@ -69,27 +81,11 @@ void Game::render() {
 	Zone::DrawNpcs();
 	Player::Get().draw();
 	Npc::DrawActiveSpells();
-	
-	
-	TextureManager::BindTexture(TextureManager::GetTextureAtlas("interface"), true, 0);
-	TextureManager::BindTexture(TextureManager::GetTextureAtlas("interface"), true, 1);
-	TextureManager::BindTexture(Globals::spritesheetManager.getAssetPointer("font")->getAtlas(), true, 2);
-	TextureManager::SetShader(Globals::shaderManager.getAssetPointer("batch_font"));
-	Fontrenderer::Get().setRenderer(&Batchrenderer::Get());
-
 	GroundLoot::DrawTooltip(ViewPort::Get().getCursorPosX(), ViewPort::Get().getCursorPosY());
 	InteractionPoint::DrawSymbols();
-
 	Interface::Get().draw();
-
-	TextureManager::DrawBuffer();
-	Fontrenderer::Get().resetRenderer();
-	TextureManager::SetShader(Globals::shaderManager.getAssetPointer("batch"));
-	TextureManager::UnbindTexture(true, 2);
-	TextureManager::UnbindTexture(true, 1);
-	TextureManager::UnbindTexture(true, 0);
-
 	Message::Get().draw();
+	TextureManager::DrawBuffer();
 	//Batchrenderer::PrintStatistic();
 }
 
@@ -223,11 +219,10 @@ void Game::Init() {
 	TextureManager::Loadimage("res/interface/tooltip/groundloot_left.tga", 91, TextureRects);
 	TextureManager::Loadimage("res/interface/tooltip/groundloot_right.tga", 92, TextureRects);
 
-	TextureManager::SetTextureAtlas(TextureAtlasCreator::Get().getName(), TextureAtlasCreator::Get().getAtlas());
+	TextureManager::SetTextureAtlas(TextureAtlasCreator::Get().getName(), 
+									Spritesheet::Merge(TextureManager::GetTextureAtlas("items"), Spritesheet::Merge(TextureManager::GetTextureAtlas("symbols"), TextureAtlasCreator::Get().getAtlas(), true, true), true, true)
+									);
 	
-	TextureManager::GetTextureAtlas("interface") = Spritesheet::Merge(TextureManager::GetTextureAtlas("symbols"), TextureManager::GetTextureAtlas("interface"));
-	TextureManager::GetTextureAtlas("interface") = Spritesheet::Merge(TextureManager::GetTextureAtlas("items"), TextureManager::GetTextureAtlas("interface"), false, false);
-
 	for (unsigned short layer = 0; layer < TextureRects.size(); layer++) {
 		TextureRects[layer].frame += 2;
 	}
@@ -244,6 +239,4 @@ void Game::Init() {
 	InteractionPoint::Init({ TextureRects.begin() + 84, TextureRects.begin() + 90 });
 	GroundLoot::Init({ TextureRects.begin() + 90, TextureRects.begin() + 93 });
 	ItemTooltip::Init({ TextureRects.begin() + 53, TextureRects.begin() + 56 });
-
-	//Spritesheet::Safe("tmp/interface", TextureManager::GetTextureAtlas("interface"));
 }

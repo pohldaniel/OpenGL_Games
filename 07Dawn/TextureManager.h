@@ -25,7 +25,6 @@ class TextureCache {
 public:
 	static TextureCache& Get();
 	TextureRect& getTextureFromCache(std::string filename, unsigned int maxWidth = 0, unsigned maxHeight = 0, bool transparent = false, int paddingLeft = 0, int paddingRight = 0, int paddingTop = 0, int paddingBottom = 0);
-
 private:
 
 	TextureCache() = default;
@@ -59,7 +58,7 @@ public:
 		frame = 0;	
 	}
 
-	unsigned int getAtlas() {
+	 unsigned int getAtlas(){
 		addFrame();
 		delete[] buffer;
 		buffer = nullptr;
@@ -152,17 +151,19 @@ public:
 	static bool IsRectOnScreen(int left, int width, int bottom, int height);
 	static bool CheckPointInRect(float px, float py, int left, int width, int bottom, int height);
 	
-	static void DrawTextureBatched(const TextureRect& textureRect, int x, int y, bool cullVieport, bool updateView);
-	static void DrawTextureBatched(const TextureRect& textureRect, int x, int y, Vector4f color = Vector4f(1.0f, 1.0f, 1.0f, 1.0f), bool cullVieport = true, bool updateView = true);
-	static void DrawTextureBatched(const TextureRect& textureRect, int x, int y, float width, float height, bool cullVieport, bool updateView);
-	static void DrawTextureBatched(const TextureRect& textureRect, int x, int y, float width, float height, Vector4f color = Vector4f(1.0f, 1.0f, 1.0f, 1.0f), bool cullVieport = true, bool updateView = true);
-	static void DrawRotatedTextureBatched(const TextureRect& textureRect, int x, int y, float angle, float rotX, float rotY, Vector4f color = Vector4f(1.0f, 1.0f, 1.0f, 1.0f), bool updateView = true);
+	static void DrawTextureBatched(const TextureRect& textureRect, int x, int y, bool cullVieport, bool updateView, unsigned int sampler = 2u);
+	static void DrawTextureBatched(const TextureRect& textureRect, int x, int y, Vector4f color = Vector4f(1.0f, 1.0f, 1.0f, 1.0f), bool cullVieport = true, bool updateView = true, unsigned int sampler = 2u);
+	static void DrawTextureBatched(const TextureRect& textureRect, int x, int y, float width, float height, bool cullVieport, bool updateView, unsigned int sampler = 2u);
+	static void DrawTextureBatched(const TextureRect& textureRect, int x, int y, float width, float height, Vector4f color = Vector4f(1.0f, 1.0f, 1.0f, 1.0f), bool cullVieport = true, bool updateView = true, unsigned int sampler = 2u);
+	static void DrawRotatedTextureBatched(const TextureRect& textureRect, int x, int y, float angle, float rotX, float rotY, bool updateView = true, unsigned int sampler = 2u);
+	static void DrawRotatedTextureBatched(const TextureRect& textureRect, int x, int y, float angle, float rotX, float rotY, Vector4f color = Vector4f(1.0f, 1.0f, 1.0f, 1.0f), bool updateView = true, unsigned int sampler = 2u);
 
-	static void DrawTexture(const TextureRect& textureRect, int x, int y, bool cullVieport, bool updateView);
-	static void DrawTexture(const TextureRect& textureRect, int x, int y, Vector4f color = Vector4f(1.0f, 1.0f, 1.0f, 1.0f), bool cullVieport = true, bool updateView = true);
-	static void DrawTexture(const TextureRect& textureRect, int x, int y, float width, float height, bool cullVieport, bool updateView);
-	static void DrawTexture(const TextureRect& textureRect, int x, int y, float width, float height, Vector4f color = Vector4f(1.0f, 1.0f, 1.0f, 1.0f), bool cullVieport = true, bool updateView = true);
-	static void DrawRotatedTexture(const TextureRect& textureRect, int x, int y, float angle, float rotX, float rotY, Vector4f color = Vector4f(1.0f, 1.0f, 1.0f, 1.0f), bool updateView = true);
+	static void DrawTexture(const TextureRect& textureRect, int x, int y, bool cullVieport, bool updateView, unsigned int sampler = 2u);
+	static void DrawTexture(const TextureRect& textureRect, int x, int y, Vector4f color = Vector4f(1.0f, 1.0f, 1.0f, 1.0f), bool cullVieport = true, bool updateView = true, unsigned int sampler = 2u);
+	static void DrawTexture(const TextureRect& textureRect, int x, int y, float width, float height, bool cullVieport, bool updateView, unsigned int sampler = 2u);
+	static void DrawTexture(const TextureRect& textureRect, int x, int y, float width, float height, Vector4f color = Vector4f(1.0f, 1.0f, 1.0f, 1.0f), bool cullVieport = true, bool updateView = true, unsigned int sampler = 2u);
+	static void DrawRotatedTexture(const TextureRect& textureRect, int x, int y, float angle, float rotX, float rotY, bool updateView = true, unsigned int sampler = 2u);
+	static void DrawRotatedTexture(const TextureRect& textureRect, int x, int y, float angle, float rotX, float rotY, Vector4f color = Vector4f(1.0f, 1.0f, 1.0f, 1.0f), bool updateView = true, unsigned int sampler = 2u);
 
 	static void DrawTextureInstanced(const TextureRect& textureRect, int x, int y, bool checkVieport = true);
 	static void DrawBuffer();

@@ -37,6 +37,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	std::cout << "i : open inventory" << std::endl;
 	std::cout << "u : open shop" << std::endl;
 	std::cout << "q : open questlog" << std::endl;
+	std::cout << "f : test message" << std::endl;
 	#endif
 	
 	float deltaTime = 0.0f;

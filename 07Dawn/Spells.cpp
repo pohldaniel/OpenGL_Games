@@ -369,10 +369,9 @@ void GeneralRayDamageSpell::draw() {
 			degrees = -degrees;
 		}
 
-		TextureManager::BindTexture(TextureManager::GetTextureAtlas("spells"), true);
 		const TextureRect& rect = currentFrame;	
-		TextureManager::DrawRotatedTexture(rect, static_cast<float>(Player::Get().getXPos() - 128), static_cast<float>(Player::Get().getYPos() + 32), degrees, rect.width * 0.5f + offsetRadius, -offsetRadius);
-		TextureManager::UnbindTexture(true);
+		TextureManager::DrawRotatedTextureBatched(rect, static_cast<float>(Player::Get().getXPos() - 128), static_cast<float>(Player::Get().getYPos() + 32), degrees, rect.width * 0.5f + offsetRadius, -offsetRadius, true, 3u);
+
 	}
 }
 
@@ -538,11 +537,11 @@ void GeneralAreaDamageSpell::finishEffect() {
 
 void GeneralAreaDamageSpell::draw() {
 	if (!isEffectComplete() && !child) {
-		TextureManager::BindTexture(TextureManager::GetTextureAtlas("spells"), true);
+		//TextureManager::BindTexture(TextureManager::GetTextureAtlas("spells"), true);
 		const TextureRect& rect = currentFrame;
-		
-		TextureManager::DrawTexture(rect, centerX - radius, centerY - radius, radius * 2, radius * 2, Vector4f(1.0f, 1.0f, 1.0f, 1.0f), false, true);
-		TextureManager::UnbindTexture(true);
+
+		TextureManager::DrawTextureBatched(rect, centerX - radius, centerY - radius, radius * 2, radius * 2, Vector4f(1.0f, 1.0f, 1.0f, 1.0f), false, true, 3u);
+		//TextureManager::UnbindTexture(true);
 	}
 }
 
@@ -682,10 +681,9 @@ void GeneralBoltDamageSpell::draw() {
 			degrees = -degrees;
 		}
 
-		TextureManager::BindTexture(TextureManager::GetTextureAtlas("spells"), true);
 		const TextureRect& rect = currentFrame;
-		TextureManager::DrawRotatedTexture(rect, static_cast<float>(posx - rect.width * 0.5f), static_cast<float>(posy - rect.height * 0.5f), degrees, rect.width * 0.5f, rect.height * 0.5f);
-		TextureManager::UnbindTexture(true);		
+		TextureManager::DrawRotatedTextureBatched(rect, static_cast<float>(posx - rect.width * 0.5f), static_cast<float>(posy - rect.height * 0.5f), degrees, rect.width * 0.5f, rect.height * 0.5f, true, 3u);
+	
 	}
 }
 

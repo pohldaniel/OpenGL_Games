@@ -23,7 +23,7 @@ void Message::draw() {
 			}
 		}
 
-		Fontrenderer::Get().drawText(Globals::fontManager.get("verdana_12"), m_messages[book].x_pos, m_messages[book].y_pos, m_messages[book].string, Vector4f(m_messages[book].red, m_messages[book].green, m_messages[book].blue, m_messages[book].transparency));
+		Fontrenderer::Get().addText(Globals::fontManager.get("verdana_12"), m_messages[book].x_pos, m_messages[book].y_pos, m_messages[book].string, Vector4f(m_messages[book].red, m_messages[book].green, m_messages[book].blue, m_messages[book].transparency));
 	}
 }
 

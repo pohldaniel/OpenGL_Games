@@ -257,12 +257,9 @@ void GroundLoot::sortItems() {
 }
 
 void GroundLoot::draw() {
-	TextureManager::BindTexture(TextureManager::GetTextureAtlas("items"), true);
 	for (size_t curItem = 0; curItem < groundItems.size(); curItem++) {
 		TextureManager::DrawTextureBatched(*groundItems[curItem].item->getSymbolTexture(), groundItems[curItem].xpos, groundItems[curItem].ypos, groundItems[curItem].item->getSizeX() * 32, groundItems[curItem].item->getSizeY() * 32, true, true);
 	}
-	TextureManager::DrawBuffer();
-	TextureManager::UnbindTexture(true);
 }
 
 void GroundLoot::drawTooltip(int mouseX, int mouseY) {

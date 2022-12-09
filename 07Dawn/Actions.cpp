@@ -422,10 +422,9 @@ void RangedDamageAction::draw() {
 			degrees = -degrees;
 		}
 
-		TextureManager::BindTexture(TextureManager::GetTextureAtlas("spells"), true);
 		const TextureRect& rect = currentFrame;
-		TextureManager::DrawRotatedTexture(rect, static_cast<float>(posx - rect.width * 0.5f), static_cast<float>(posy - rect.height * 0.5f), degrees, rect.width * 0.5f, rect.height * 0.5f);
-		TextureManager::UnbindTexture(true);
+		TextureManager::DrawRotatedTextureBatched(rect, static_cast<float>(posx - rect.width * 0.5f), static_cast<float>(posy - rect.height * 0.5f), degrees, rect.width * 0.5f, rect.height * 0.5f, true, 3u);
+
 	}
 }
 

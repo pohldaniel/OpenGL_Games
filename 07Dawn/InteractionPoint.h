@@ -48,6 +48,8 @@ protected:
 	std::string interactionCode;
 	Enums::InteractionType interactionType;
 
+
+
 private:
 
 	int posX;
@@ -58,6 +60,7 @@ private:
 	bool markedAsDeletable;
 
 	static std::vector<TextureRect> Textures;
+	static std::unordered_map<std::string, TextureRect> BackgroundTextures;
 };
 
 class CharacterInteractionPoint : public InteractionPoint {

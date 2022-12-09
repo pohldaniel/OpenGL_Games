@@ -35,7 +35,7 @@ TileSet::TileSet() {}
 unsigned int TileSet::addTile(std::string filename, int paddingLeft, int paddingRight, int paddingTop, int paddingBottom) {
 
 	unsigned int tileId = static_cast<unsigned int>(m_tiles.size());
-	
+
 	m_tiles.push_back({ tileId , false, TextureManager::Loadimage(filename, 0, 0, paddingLeft, paddingRight, paddingTop, paddingBottom), {} });
 	return tileId;
 }

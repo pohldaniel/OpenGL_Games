@@ -7,7 +7,6 @@
 #include <algorithm>
 #include <ft2build.h>
 #include FT_FREETYPE_H
-#include "glew/glew.h"
 #include "Extension.h"
 #include "Texture.h"
 

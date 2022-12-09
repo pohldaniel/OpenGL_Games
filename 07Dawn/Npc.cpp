@@ -36,7 +36,7 @@ void Npc::draw() {
 
 	int drawX = getXPos();
 	int drawY = getYPos();
-	TextureManager::DrawTextureBatched(*rect, drawX, drawY, true, true);
+	TextureManager::DrawTextureBatched(*rect, drawX, drawY, true, true, 5u);
 	//}
 }
 

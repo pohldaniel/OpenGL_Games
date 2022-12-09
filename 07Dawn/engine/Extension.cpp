@@ -1,4 +1,4 @@
-/*#include <cassert>
+#include <cassert>
 
 #include "Extension.h"
 
@@ -757,4 +757,4 @@ extern void glBindSampler(GLuint unit, GLuint sampler) {
 	static PFN´GLBINDSAMPLERPROC glBindSampler = 0;
 	LOAD_ENTRYPOINT("glBindSampler", glBindSampler, PFN´GLBINDSAMPLERPROC);
 	glBindSampler(unit, sampler);
-}*/
+}

@@ -76,7 +76,7 @@ TextureManager:SetTextureAtlas(TextureAtlasCreator:Get():getName(), TextureAtlas
 
 spellDatabase = {};
 
-TextureAtlasCreator:Get():init(1024, 1024);
+TextureAtlasCreator:Get():init("spells", 1024, 1024);
 
 curSpell = DawnInterface.createGeneralBoltDamageSpell();
 spellDatabase["magicmissile"] = curSpell;

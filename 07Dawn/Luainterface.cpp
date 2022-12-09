@@ -63,9 +63,8 @@ namespace DawnInterface{
 
 	void enterZone(std::string zoneName, int enterX, int enterY){
 		Zone& newZone = ZoneManager::Get().getZone(zoneName);
-		if (!newZone.zoneDataLoaded()) {
-			newZone.loadZone();
-		}
+		newZone.loadZone();
+
 		ZoneManager::Get().setCurrentZone(&newZone);
 		
 		Player::Get().setPosition(enterX, enterY);

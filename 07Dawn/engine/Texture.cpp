@@ -1,6 +1,5 @@
 #include "Texture.h"
 
-#include "glew/glew.h"
 #include "Extension.h"
 #include "../soil2/SOIL2.h"
 #include <iostream>
