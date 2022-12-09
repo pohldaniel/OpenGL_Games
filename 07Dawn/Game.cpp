@@ -40,9 +40,6 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	GLfloat color[] = { 1.0f, 1.0f, 0.0f };
 	DawnInterface::addTextToLogWindow(color, "Welcome to the world of Dawn, %s.", Player::Get().getName().c_str());
 
-	TextureManager::SetShader(Globals::shaderManager.getAssetPointer("batch_font"));
-	Fontrenderer::Get().setRenderer(&Batchrenderer::Get());
-	
 	//becarefull bind the textures atfer the last glDeleteTextures() call
 	TextureManager::BindTexture(Globals::spritesheetManager.getAssetPointer("font")->getAtlas(), true, 0);
 	TextureManager::BindTexture(TextureManager::GetTextureAtlas("interface"), true, 1);
@@ -50,7 +47,6 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	TextureManager::BindTexture(TextureManager::GetTextureAtlas("spells"), true, 3);
 	TextureManager::BindTexture(TextureManager::GetTextureAtlas("player"), true, 4);
 	TextureManager::BindTexture(TextureManager::GetTextureAtlas("mobs"), true, 5);
-
 }
 
 Game::~Game() {}
@@ -74,10 +70,10 @@ void Game::render() {
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	Zone::Draw();
+	Zone::Draw();	
+	Zone::DrawActiveAoESpells();
 	GroundLoot::Draw();
 	InteractionPoint::Draw();
-	Zone::DrawActiveAoESpells();
 	Zone::DrawNpcs();
 	Player::Get().draw();
 	Npc::DrawActiveSpells();

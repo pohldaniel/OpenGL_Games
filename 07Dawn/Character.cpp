@@ -384,7 +384,6 @@ bool Character::continuePreparing() {
 	if (isPreparing) {
 		bool preparationFinished = (curSpellAction->getCastTime() == 0);
 		if (!preparationFinished) {
-			preparationCurrentTime = Globals::clock.getElapsedTimeMilli();
 
 			// casting_percentage is mostly just for the castbar display, guess we could alter this code.
 			uint16_t spellCastTime = curSpellAction->getCastTime();
@@ -393,7 +392,8 @@ bool Character::continuePreparing() {
 			if (isConfused() == true) {
 				spellCastTime *= 1.35;
 			}
-			preparationPercentage = (static_cast<float>(preparationCurrentTime - preparationStartTime)) / spellCastTime;
+	
+			preparationPercentage = static_cast<float>(m_preparationTimer.getElapsedTimeMilli()) / spellCastTime;
 			preparationFinished = (preparationPercentage >= 1.0f);
 
 		}
@@ -694,6 +694,7 @@ void Character::inscribeSpellInSpellbook(SpellActionBase *spell) {
 					if (m_isPlayer == true) {
 						// this will seed a new ticket for the itemtooltip, causing it to reload. We might need this because of the tooltip message displaying already known spells and ranks.
 						//dynamic_cast<Player*>(this)->setTicketForItemTooltip();
+						dynamic_cast<Player*>(this)->m_reloadItemTooltip = true;
 					}
 				}
 				return;
@@ -704,6 +705,7 @@ void Character::inscribeSpellInSpellbook(SpellActionBase *spell) {
 		if (m_isPlayer == true) {
 			// this will seed a new ticket for the itemtooltip, causing it to reload. We might need this because of the tooltip message displaying already known spells and ranks.
 			//dynamic_cast<Player*>(this)->setTicketForItemTooltip();
+			dynamic_cast<Player*>(this)->m_reloadItemTooltip = true;
 		}
 	}
 }
@@ -1060,11 +1062,10 @@ void Character::cleanupCooldownSpells() {
 			cooldownSpells.erase(cooldownSpells.begin() + curSpell);
 			if (m_isPlayer == true) {
 				// this will seed a new ticket for the itemtooltip and spelltooltips, causing them to reload.
-				dynamic_cast<Player*>(this)->setTicketForItemTooltip();
-				dynamic_cast<Player*>(this)->setTicketForSpellTooltip();
+				dynamic_cast<Player*>(this)->m_reloadItemTooltip = true;
+				dynamic_cast<Player*>(this)->m_reloadSpellTooltip = true;
 			}
-		}
-		else {
+		} else {
 			curSpell++;
 		}
 	}
@@ -1076,8 +1077,7 @@ void Character::cleanupActiveSpells() {
 		if (activeSpells[curSpell]->isEffectComplete() == true) {
 			delete activeSpells[curSpell];
 			activeSpells.erase(activeSpells.begin() + curSpell);
-		}
-		else {
+		} else {
 			curSpell++;
 		}
 	}
@@ -1085,37 +1085,34 @@ void Character::cleanupActiveSpells() {
 ////////////////////////////////////////////////////PRIVATE/////////////////////////////////////
 void Character::startSpellAction() {
 	isPreparing = false;
-	preparationCurrentTime = 0;
-	preparationStartTime = 0;
+	m_preparationTimer.restart();
 
 	/// here we check for equipped items if they have any trigger spells which is used in TriggerType::EXECUTING_ACTION
-	/*if (isPlayer() == true) {
-	std::vector<InventoryItem*> inventory = Globals::getPlayer()->getInventory()->getEquippedItems();
-	for (size_t curItem = 0; curItem < inventory.size(); curItem++) {
-	std::vector<TriggerSpellOnItem*> triggerSpells = inventory[curItem]->getItem()->getTriggerSpells();
-	for (size_t curSpell = 0; curSpell < triggerSpells.size(); curSpell++)
-	{
-	/// searches for spells on the item with the triggertype EXECUTING_ACTION.
-	if (triggerSpells[curSpell]->getTriggerType() == TriggerType::EXECUTING_ACTION) {
-	/// found one, check to see if we manages to trigger the spell.
+	if (m_isPlayer == true) {
+		std::vector<InventoryItem*> inventory = dynamic_cast<Player*>(this)->getInventory()->getEquippedItems();
+		for (size_t curItem = 0; curItem < inventory.size(); curItem++) {
+			std::vector<TriggerSpellOnItem*> triggerSpells = inventory[curItem]->getItem()->getTriggerSpells();
+			for (size_t curSpell = 0; curSpell < triggerSpells.size(); curSpell++) {
+				/// searches for spells on the item with the triggertype EXECUTING_ACTION.
+				if (triggerSpells[curSpell]->getTriggerType() == Enums::TriggerType::EXECUTING_ACTION) {
+					/// found one, check to see if we manages to trigger the spell.
 
-	if ((RNG::randomSizeT(0, 10000) <= triggerSpells[curSpell]->getChanceToTrigger() * 10000) == true) {
-	/// we triggered this spell, now we cast it based on if it's a self-cast spell or a cast on our target spell.
-	if (triggerSpells[curSpell]->getCastOnSelf() == true) {
-	/// cast spell on self
-	executeSpellWithoutCasting(triggerSpells[curSpell]->getSpellToTrigger(), this);
+					if ((RNG::randomSizeT(0, 10000) <= triggerSpells[curSpell]->getChanceToTrigger() * 10000) == true) {
+						/// we triggered this spell, now we cast it based on if it's a self-cast spell or a cast on our target spell.
+						if (triggerSpells[curSpell]->getCastOnSelf() == true) {
+							/// cast spell on self
+							executeSpellWithoutCasting(triggerSpells[curSpell]->getSpellToTrigger(), this);
+						} else {
+							if (this->getTarget() != NULL) {
+								/// cast spell on the character's target.
+								executeSpellWithoutCasting(triggerSpells[curSpell]->getSpellToTrigger(), this->getTarget());
+							}
+						}
+					}
+				}
+			}
+		}
 	}
-	else {
-	if (this->getTarget() != NULL) {
-	/// cast spell on the character's target.
-	executeSpellWithoutCasting(triggerSpells[curSpell]->getSpellToTrigger(), this->getTarget());
-	}
-	}
-	}
-	}
-	}
-	}
-	}*/
 
 	// are we casting an AoE spell?
 	if (curSpellAction->getRadius() > 0) {
@@ -1124,11 +1121,9 @@ void Character::startSpellAction() {
 		ZoneManager::Get().getCurrentZone()->MagicMap.back()->getSpell()->startEffect();
 
 		isPreparing = false;
-		preparationCurrentTime = 0;
-		preparationStartTime = 0;
+		m_preparationTimer.restart();
 
-	}
-	else {
+	}else {
 		curSpellAction->stopSoundSpellCasting();
 		curSpellAction->startEffect();
 	}
@@ -1138,14 +1133,13 @@ void Character::giveToPreparation(SpellActionBase *toPrepare) {
 	if (curSpellAction != NULL) {
 		// don't cast / execute. Enqueue in the list of coming actions / spells ?
 		delete toPrepare;
-	}
-	else {
+	} else {
 		// setup all variables for casting / executing
 		isPreparing = true;
 		curSpellAction = toPrepare;
 		curSpellAction->playSoundSpellCasting();
 		toPrepare->beginPreparationOfSpellAction();
-		preparationStartTime = Globals::clock.getElapsedTimeMilli();
+		m_preparationTimer.reset();
 		continuePreparing();
 	}
 }
@@ -1153,8 +1147,7 @@ void Character::giveToPreparation(SpellActionBase *toPrepare) {
 void Character::addDamageDisplayToGUI(int amount, bool critical, uint8_t damageType) {
 	if (m_isPlayer) {
 		Interface::Get().addCombatText(amount, critical, damageType, 140, ViewPort::Get().getHeight() - 40, true);
-	}
-	else {
+	} else {
 		Interface::Get().addCombatText(amount, critical, damageType, getXPos() + getWidth() / 2, getYPos() + getHeight() + 52, false);
 	}
 }

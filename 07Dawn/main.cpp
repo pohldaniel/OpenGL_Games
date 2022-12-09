@@ -46,8 +46,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	RNG::initRNG(time(0));
 
-	
-
 	Application application(deltaTime, fixedDeltaTime);
 
 	HWND hwnd = application.getWindow();

@@ -366,18 +366,18 @@ void Zone::drawEnvironmentInstanced() {
 }
 
 void Zone::addActiveAoESpell(SpellActionBase *spell) {
-	activeAoESpells.push_back(std::pair<SpellActionBase*, uint32_t>(spell, Globals::clock.getElapsedTimeMilli()));
+	activeAoESpells.push_back(spell);
 }
 
-std::vector<std::pair<SpellActionBase*, uint32_t>>& Zone::getActiveAoESpells() {
+std::vector<SpellActionBase*>& Zone::getActiveAoESpells() {
 	return activeAoESpells;
 }
 
 void Zone::cleanupActiveAoESpells() {
 	size_t curSpell = 0;
 	while (curSpell < activeAoESpells.size()) {
-		if (activeAoESpells[curSpell].first->isEffectComplete() == true) {
-			delete activeAoESpells[curSpell].first;
+		if (activeAoESpells[curSpell]->isEffectComplete() == true) {
+			delete activeAoESpells[curSpell];
 			activeAoESpells.erase(activeAoESpells.begin() + curSpell);
 		}else {
 			curSpell++;
@@ -391,8 +391,8 @@ void Zone::clearActiveAoESpells() {
 
 void Zone::removeActiveAoESpell(SpellActionBase* activeSpell) {
 	for (size_t curSpell = 0; curSpell < activeAoESpells.size(); curSpell++) {
-		if (activeAoESpells[curSpell].first == activeSpell) {
-			activeAoESpells[curSpell].first->markSpellActionAsFinished();
+		if (activeAoESpells[curSpell] == activeSpell) {
+			activeAoESpells[curSpell]->markSpellActionAsFinished();
 		}
 	}
 }
@@ -450,10 +450,10 @@ void Zone::Draw() {
 }
 
 void Zone::DrawActiveAoESpells() {
-	std::vector<std::pair<SpellActionBase*, uint32_t>>& activeAoESpells = ZoneManager::Get().getCurrentZone()->getActiveAoESpells();
+	std::vector<SpellActionBase*>& activeAoESpells = ZoneManager::Get().getCurrentZone()->getActiveAoESpells();
 	for (size_t curActiveAoESpellNr = 0; curActiveAoESpellNr < activeAoESpells.size(); ++curActiveAoESpellNr) {
-		if (!activeAoESpells[curActiveAoESpellNr].first->isEffectComplete()) {
-			activeAoESpells[curActiveAoESpellNr].first->draw();
+		if (!activeAoESpells[curActiveAoESpellNr]->isEffectComplete()) {
+			activeAoESpells[curActiveAoESpellNr]->draw();
 		}
 	}
 }

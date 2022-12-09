@@ -22,7 +22,6 @@ public:
 	using Character::setTarget;
 	void setTarget(Character *target, Enums::Attitude attitude);
 
-	
 	Vector3f getPosition();
 	int getDeltaX();
 	int getDeltaY();
@@ -35,12 +34,7 @@ public:
 	unsigned long getExperience() const;
 	unsigned long getExpNeededForLevel(unsigned short level) const;
 
-	unsigned int getTicketForItemTooltip() const;
-	unsigned int getTicketForSpellTooltip() const;
 	unsigned int getTicksOnCooldownSpell(std::string spellName) const;
-	
-	void setTicketForItemTooltip();
-	void setTicketForSpellTooltip();
 
 	unsigned short getModifiedMinDamage() const;
 	unsigned short getModifiedMaxDamage() const;
@@ -55,6 +49,17 @@ public:
 	unsigned short getModifiedParryModifierPoints() const;
 	unsigned short getModifiedResistElementModifierPoints(Enums::ElementType elementType) const;
 	unsigned short getModifiedSpellCriticalModifierPoints() const;
+	unsigned short getModifiedDexterity() const;
+	unsigned short getModifiedVitality() const;
+	unsigned short getModifiedIntellect() const;
+	unsigned short getModifiedWisdom() const;
+	unsigned short getModifiedMaxHealth() const;
+	unsigned short getModifiedMaxMana() const;
+	unsigned short getModifiedMaxFatigue() const;
+	unsigned short getModifiedHealthRegen() const;
+	unsigned short getModifiedManaRegen() const;
+	unsigned short getModifiedFatigueRegen() const;
+
 	bool canWearArmorType(Item* item) const;
 	bool isSpellInscribedInSpellbook(SpellActionBase* spell) const;
 	bool isSpellOnCooldown(std::string spellName) const;
@@ -68,6 +73,9 @@ public:
 
 	static Player& Get();
 
+	bool m_reloadItemTooltip = true;
+	bool m_reloadSpellTooltip = true;
+
 private:
 
 	void Move(float deltaTime);
@@ -76,8 +84,7 @@ private:
 
 	void clearCooldownSpells();
 	void clearActiveSpells();
-	
-	
+
 	bool canRaiseLevel() const;
 	void raiseLevel();
 	void setExperience(unsigned long experience);

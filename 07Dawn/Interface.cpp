@@ -66,7 +66,8 @@ void Interface::init(std::vector<TextureRect> textures) {
 
 	ShopCanvas::Get().setOnClose([&]() {
 		m_player->stopShopping();
-		m_player->setTicketForItemTooltip();
+		//m_player->setTicketForItemTooltip();
+		m_player->m_reloadItemTooltip = true;
 		for (size_t curFrame = 0; curFrame < m_widgets.size(); curFrame++) {
 			if (dynamic_cast<Widget*>(&ShopCanvas::Get()) == m_widgets[curFrame]) {
 				ShopCanvas::Get().setVisible(false);
@@ -79,7 +80,8 @@ void Interface::init(std::vector<TextureRect> textures) {
 
 	ShopCanvas::Get().setOnActivate([&]() {
 		m_player->startShopping();
-		m_player->setTicketForItemTooltip();
+		//m_player->setTicketForItemTooltip();
+		m_player->m_reloadItemTooltip = true;
 		if (ShopCanvas::Get().isVisible()) {
 			for (size_t curFrame = 0; curFrame < m_widgets.size(); curFrame++) {
 				if (dynamic_cast<Widget*>(&ShopCanvas::Get()) == m_widgets[curFrame]) {

@@ -88,7 +88,6 @@ public:
 	void cleanupNPCList();
 	std::vector<Npc*>& getNPCs();
 
-
 	bool findInteractionPointForCharacter(Character *character) const;
 	void findCharacter(Character *character, bool &found, size_t &foundPos) const;
 
@@ -99,10 +98,9 @@ public:
 	std::vector<InteractionRegion*>& getInteractionRegions();
 	std::vector<InteractionPoint*>& getInteractionPoints();
 
-
 	std::vector<Magic*> MagicMap;
 	void addActiveAoESpell(SpellActionBase *spell);
-	std::vector<std::pair<SpellActionBase*, uint32_t>>& getActiveAoESpells();
+	std::vector<SpellActionBase*>& getActiveAoESpells();
 	void cleanupActiveAoESpells();
 	void clearActiveAoESpells();
 	void removeActiveAoESpell(SpellActionBase* activeSpell);
@@ -124,12 +122,12 @@ public:
 
 private:
 
-	std::vector< std::pair<SpellActionBase*, uint32_t> > activeAoESpells;
+	std::vector<SpellActionBase*> activeAoESpells;
 	std::vector<TileMap> m_tileMap;
 	std::vector<EnvironmentMap> m_environmentMap;
 	std::vector<EnvironmentMap> m_shadowMap;
 	std::vector<CollisionRect> m_collisionMap;
-	std::vector <Npc*> m_npcs;
+	std::vector<Npc*> m_npcs;
 	std::vector<InteractionRegion*> m_interactionRegions;
 	std::vector<InteractionPoint*> m_interactionPoints;
 	std::vector<CallIndirection*> eventHandlers;

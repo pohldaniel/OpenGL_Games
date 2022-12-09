@@ -38,7 +38,6 @@ public:
 	bool isTooltipSmall();
 	virtual void getParentText() = 0;
 	virtual void draw(int x, int y) = 0;
-	virtual void getTicketFromPlayer() = 0;
 	int getTooltipWidth() const;
 	int getTooltipHeight() const;
 	void reloadTooltip();
@@ -64,8 +63,6 @@ private:
 	std::vector<sTooltipText> tooltipText;
 	std::vector<sTooltipText> tooltipTextSmall;
 
-	uint32_t ticketFromPlayer;
-
 	void addTooltipText(Vector4f color, CharacterSet* charSet, std::string str, ...);
 };
 
@@ -80,7 +77,6 @@ private:
 
 	SpellActionBase *parent;
 	void getParentText();
-	void getTicketFromPlayer();
 	unsigned long getNumBitsToUse(unsigned long maxBitValue);
 };
 
@@ -104,7 +100,6 @@ private:
 	std::string itemValue[3];
 
 	void getParentText();
-	void getTicketFromPlayer();
 	void addTooltipTextForPercentageAttribute(std::string attributeName, double attributePercentage);
 	void drawCoinsLine(int x, int y, int frameWidth, sTooltipText *tooltipText);
 	

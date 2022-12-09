@@ -183,7 +183,6 @@ public:
 
 	static void ActiveTexture(unsigned int unit);
 
-	static void SetShader(Shader* shader);
 	static TextureManager& Get();
 
 private:

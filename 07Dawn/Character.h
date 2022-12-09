@@ -274,12 +274,10 @@ protected:
 	bool hasChoosenFearDirection;
 	bool isPreparing = false;
 
-	// timers
-	float dyingStartFrame, reduceDyingTranspFrame;
-
 	int x_pos, y_pos;
 	float preparationPercentage;
-	unsigned int preparationStartTime, preparationCurrentTime;
+	Clock m_preparationTimer;
+
 	float progress = 0.0f;
 	float m_regenerationRate = 0.0f;
 

@@ -326,8 +326,8 @@ void Inventory::wieldItemAtSlot(Enums::ItemSlot slotToUse, InventoryItem* item) 
 
 	/* this will seed a new ticket to the item and spell tooltips, telling
 	them to reload their data. */
-	player->setTicketForItemTooltip();
-	player->setTicketForSpellTooltip();
+	player->m_reloadItemTooltip = true;
+	player->m_reloadSpellTooltip = true;
 }
 
 InventoryItem* Inventory::getItemAtSlot(Enums::ItemSlot slotToUse) {

@@ -167,10 +167,6 @@ void TextureManager::ActiveTexture(unsigned int unit) {
 	Batchrenderer::Get().activeTexture(unit);
 }
 
-void TextureManager::SetShader(Shader* shader) {
-	Batchrenderer::Get().setShader(shader);
-}
-
 bool TextureManager::IsRectOnScreen(int left, int width, int bottom, int height) {
 	ViewPort& viewPort = ViewPort::Get();
 	float _left = viewPort.getLeft();

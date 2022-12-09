@@ -14,7 +14,7 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 	initWindow();
 	initOpenGL();
 	loadAssets();
-	
+	initStates();
 	m_enableVerticalSync = true;
 
 	Application::s_eventDispatcher.setProcessOSEvents([&]() {
@@ -29,7 +29,8 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 	Fontrenderer::Get().init();
 	Fontrenderer::Get().setShader(Globals::shaderManager.getAssetPointer("font"));
 	Batchrenderer::Get().init(800, true);
-	Batchrenderer::Get().setShader(Globals::shaderManager.getAssetPointer("batch"));
+	Batchrenderer::Get().setShader(Globals::shaderManager.getAssetPointer("batch_font"));
+	Fontrenderer::Get().setRenderer(&Batchrenderer::Get());
 
 	Instancedrenderer::Get().init();
 	Instancedrenderer::Get().setShader(Globals::shaderManager.getAssetPointer("instanced"));
@@ -37,14 +38,14 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 	auto shader = Globals::shaderManager.getAssetPointer("batch_font");
 
 	glUseProgram(shader->m_program);
-	shader->loadInt("u_font", 0);		//font					sampler
-	shader->loadInt("u_sampler[0]", 1); //linear interface		sampler
-	shader->loadInt("u_sampler[1]", 2); //nearest interface		sampler
-	shader->loadInt("u_sampler[2]", 3); //spells				sampler
-	shader->loadInt("u_sampler[3]", 4); //player				sampler
-	shader->loadInt("u_sampler[4]", 5); //npc					sampler
-	shader->loadInt("u_sampler[5]", 6);	//zone					sampler
-	shader->loadInt("u_sampler[6]", 7);	//interaction background sampler
+	shader->loadInt("u_sampler[0]", 0); //font                   sampler
+	shader->loadInt("u_sampler[1]", 1); //linear spell symbols   sampler
+	shader->loadInt("u_sampler[2]", 2); //nearest interface      sampler
+	shader->loadInt("u_sampler[3]", 3); //spells                 sampler
+	shader->loadInt("u_sampler[4]", 4); //player                 sampler
+	shader->loadInt("u_sampler[5]", 5); //npc                    sampler
+	shader->loadInt("u_sampler[6]", 6); //zone                   sampler
+	shader->loadInt("u_sampler[7]", 7); //interaction background sampler
 	glUseProgram(0);
 
 	glGenBuffers(1, &Globals::viewUbo);
@@ -77,7 +78,7 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 	glSamplerParameteri(sampler, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glBindSampler(1, sampler);
 
-	initStates();
+	
 }
 
 Application::~Application() {
@@ -147,7 +148,6 @@ bool Application::initWindow() {
 	ShowWindow(m_window, SW_SHOW);
 	UpdateWindow(m_window);
 
-	
 	m_init = true;
 
 	return true;
@@ -250,7 +250,6 @@ LRESULT Application::DisplayWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 				glUseProgram(shader->m_program);
 				shader->loadMatrix("u_projection", ViewPort::Get().getCamera().getOrthographicMatrix());
 				glUseProgram(0);
-
 			}
 			
 			break;

@@ -39,7 +39,6 @@ bool Tooltip::isTooltipSmall() {
 }
 
 void Tooltip::reloadTooltip() {
-	getTicketFromPlayer();
 	shoppingState = player->isShopping();
 	tooltipText.clear();
 	getParentText();
@@ -242,10 +241,6 @@ SpellTooltip::SpellTooltip(SpellActionBase *parent_, Player *player_) : parent(p
 	getParentText();
 }
 
-void SpellTooltip::getTicketFromPlayer() {
-	ticketFromPlayer = player->getTicketForSpellTooltip();
-}
-
 void SpellTooltip::draw(int x, int y) {
 	if (tooltipText.empty()) {
 		return;
@@ -253,7 +248,8 @@ void SpellTooltip::draw(int x, int y) {
 
 	// check to see if the ticket we got from the player is the same ticket as the player is offering.
 	// if not, we reload our tooltip.
-	if (ticketFromPlayer != player->getTicketForSpellTooltip()) {
+	if (player->m_reloadSpellTooltip) {
+		player->m_reloadSpellTooltip = false;
 		reloadTooltip();
 	}
 	
@@ -288,8 +284,6 @@ unsigned long SpellTooltip::getNumBitsToUse(unsigned long maxBitValue) {
 
 void SpellTooltip::getParentText() {
 	// remember what level we generated this tooltip
-	ticketFromPlayer = player->getTicketForSpellTooltip();
-
 	Vector4f white = Vector4f(1.0f, 1.0f, 1.0f, 1.0f);
 	Vector4f grey = Vector4f(0.7f, 0.7f, 0.7f, 1.0f);
 	Vector4f blue = Vector4f(0.3f, 0.3f, 1.0f, 1.0f);
@@ -378,19 +372,14 @@ void ItemTooltip::setShopItem(bool isShopItem_) {
 	}
 }
 
-void ItemTooltip::getTicketFromPlayer() {
-	ticketFromPlayer = player->getTicketForItemTooltip();
-}
-
 void ItemTooltip::draw(int x, int y) {
 	if (tooltipText.empty()) {
 		return;
 	}
-
-	// check to see if the ticket we got from the player is the same ticket as the player is offering.
-	// if not, we reload our tooltip.
-	if (ticketFromPlayer != player->getTicketForItemTooltip()) {
-		reloadTooltip();
+	
+	if (player->m_reloadItemTooltip) {
+		player->m_reloadItemTooltip = false;
+		reloadTooltip();	
 	}
 	
 	// we also check to see if the bound spell has changed the displayed cooldown.
@@ -462,7 +451,6 @@ void ItemTooltip::addTooltipTextForPercentageAttribute(std::string attributeName
 
 void ItemTooltip::getParentText() {
 	// remember what level we generated this tooltip
-	ticketFromPlayer = player->getTicketForItemTooltip();
 	shoppingState = player->isShopping();
 
 	Vector4f grey = Vector4f(0.5f, 0.5f, 0.5f, 1.0f);
