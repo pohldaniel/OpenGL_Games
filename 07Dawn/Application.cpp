@@ -7,7 +7,9 @@
 #include "LoadingScreen.h"
 
 EventDispatcher& Application::s_eventDispatcher = EventDispatcher::Get();
-
+HGLRC Application::MainContext;
+HGLRC Application::LoaderContext;
+HDC Application::s_HDC;
 
 Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fdt) {
 	ViewPort::Get().init(WIDTH, HEIGHT);
@@ -78,8 +80,6 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 	glSamplerParameteri(sampler, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glSamplerParameteri(sampler, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glBindSampler(1, sampler);
-
-	
 }
 
 Application::~Application() {
@@ -240,10 +240,7 @@ LRESULT Application::DisplayWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 
 void Application::initOpenGL() {
 
-	static HGLRC hRC;					// rendering context
-	static HDC hDC;						// device context
-
-	hDC = GetDC(m_window);
+	s_HDC = GetDC(m_window);
 	int nPixelFormat;					// our pixel format index
 
 	static PIXELFORMATDESCRIPTOR pfd = {
@@ -266,15 +263,15 @@ void Application::initOpenGL() {
 		0,								// reserved
 		0, 0, 0 };						// layer masks ignored
 
-	nPixelFormat = ChoosePixelFormat(hDC, &pfd);	// choose best matching pixel format
-	SetPixelFormat(hDC, nPixelFormat, &pfd);		// set pixel format to device context
+	nPixelFormat = ChoosePixelFormat(s_HDC, &pfd);	// choose best matching pixel format
+	SetPixelFormat(s_HDC, nPixelFormat, &pfd);		// set pixel format to device context
 
 
-	hRC = wglCreateContext(hDC);				// create rendering context and make it current
-	wglMakeCurrent(hDC, hRC);
-	
-	//glewInit();
-	
+	MainContext = wglCreateContext(s_HDC);				// create rendering context and make it current
+	LoaderContext = wglCreateContext(s_HDC);
+	wglShareLists(LoaderContext, MainContext);
+	wglMakeCurrent(s_HDC, MainContext);
+		
 	enableVerticalSync(true);
 
 	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -332,11 +329,11 @@ void Application::fixedUpdate() {
 
 void Application::initStates() {
 	m_machine = new StateMachine(m_dt, m_fdt);
-	m_machine->addStateAtTop(new Game(*m_machine));
+	//m_machine->addStateAtTop(new Game(*m_machine));
 
-	//m_machine->addStateAtTop(new MainMenu(*m_machine));
-	//m_machine->addStateAtTop(new Editor(*m_machine));
 	//m_machine->addStateAtTop(new LoadingScreen(*m_machine));
+	//m_machine->addStateAtTop(new Editor(*m_machine));
+	m_machine->addStateAtTop(new MainMenu(*m_machine));
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
@@ -447,6 +444,7 @@ void Application::toggleFullScreen() {
 		deltaH = m_height - deltaH;
 
 		SetWindowPos(m_window, HWND_TOPMOST, 0, 0, m_width, m_height, SWP_SHOWWINDOW);
+
 	}else{
 
 		SetWindowLong(m_window, GWL_EXSTYLE, savedExStyle);

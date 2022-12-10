@@ -38,7 +38,7 @@ function zone1.init()
 	townLeaveRegion:setOnEnterText( "zone1.leaveTown()" );
 end
 
-print("Init Quests")
+--print("Init Quests")
 dofile("res/_lua/quests_wood.lua");
 dofile("res/_lua/quests_hexmaster.lua");
 dofile("res/_lua/quests_venomousveins.lua");

@@ -39,8 +39,10 @@ void Zone::loadZone() {
 	LuaFunctions::executeLuaFile(std::string(m_file).append(".spawnpoints.lua"));
 	LuaFunctions::executeLuaFile(std::string(m_file).append(".init.lua"));
 	m_mapLoaded = true;
-	
-	TextureManager::BindTexture(m_textureAtlas, true, 6);
+}
+
+unsigned int Zone::getTetureAtlas(){
+	return m_textureAtlas;
 }
 
 std::vector<TileMap>& Zone::getTileMap() {

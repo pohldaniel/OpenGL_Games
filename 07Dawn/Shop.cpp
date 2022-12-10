@@ -317,10 +317,6 @@ Shop::Shop() : m_shopCanvas(ShopCanvas::Get()) {
 
 Shop::~Shop() {}
 
-void Shop::setPlayer(Player* player) {
-	m_player = player;
-}
-
 void Shop::addItem(Item *item) {
 	InventoryItem invItem(item, 0, 0);
 	sellToShop(&invItem, false);

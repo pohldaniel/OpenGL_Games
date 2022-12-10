@@ -6,21 +6,6 @@
 MainMenu::MainMenu(StateMachine& machine) : State(machine, CurrentState::MAINMENU) {
 	Mouse::SetCursorIcon("res/cursors/black.cur");
 
-	LuaFunctions::executeLuaFile("res/_lua/playerdata_w.lua");
-	Player::Get().setCharacterType("player_w");
-	Player::Get().setClass(Enums::CharacterClass::Liche);
-
-
-	Interface::Get().setPlayer(&Player::Get());
-	Spellbook::Get().setPlayer(&Player::Get());
-
-	LuaFunctions::executeLuaFile("res/_lua/spells_l.lua");
-	LuaFunctions::executeLuaFile("res/_lua/mobdata_wolf.lua");
-	
-
-	ZoneManager::Get().getZone("res/_lua/zone1").loadZone();
-	ZoneManager::Get().setCurrentZone(&ZoneManager::Get().getZone("res/_lua/zone1"));
-	
 	m_dialog = Dialog(0, 0, 0, 0);
 	m_dialog.setPosition(0, 0);
 
@@ -35,13 +20,15 @@ MainMenu::MainMenu(StateMachine& machine) : State(machine, CurrentState::MAINMEN
 
 	dynamic_cast<Label*>(m_dialog.getChildWidgets()[2])->setFunction([&]() {
 		m_isRunning = false;
-		m_machine.addStateAtTop(new LoadingScreen(m_machine));
+		m_machine.addStateAtTop(new Editor(m_machine));
 	});
 
 	dynamic_cast<Label*>(m_dialog.getChildWidgets()[3])->setFunction([&]() {
 		m_isRunning = false;
-		m_machine.addStateAtTop(new Game(m_machine));
+		m_machine.addStateAtTop(new LoadingScreen(m_machine));
 	});
+
+	TextureManager::BindTexture(Globals::spritesheetManager.getAssetPointer("font")->getAtlas(), true, 0);
 }
 
 MainMenu::~MainMenu() {}

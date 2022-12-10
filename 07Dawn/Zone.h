@@ -91,6 +91,7 @@ public:
 	bool findInteractionPointForCharacter(Character *character) const;
 	void findCharacter(Character *character, bool &found, size_t &foundPos) const;
 
+	unsigned int getTetureAtlas();
 	std::vector<TileMap>& getTileMap();
 	std::vector<EnvironmentMap>& getEnvironmentMap();
 	std::vector<EnvironmentMap>& getShadowMap();

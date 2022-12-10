@@ -17,7 +17,7 @@ TextureCache& TextureCache::Get() {
 }
 
 TextureRect& TextureCache::getTextureFromCache(std::string filename, unsigned int maxWidth, unsigned maxHeight, bool transparent, int paddingLeft, int paddingRight, int paddingTop, int paddingBottom) {
-	
+
 	/*if (textures.count({TextureAtlasCreator::s_instance.name, filename}) > 0) {
 		return textures[{TextureAtlasCreator::s_instance.name, filename}];
 	}*/

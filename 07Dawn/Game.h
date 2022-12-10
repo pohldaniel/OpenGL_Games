@@ -19,6 +19,8 @@ public:
 
 	static std::vector<TextureRect> TextureRects;
 	static void Init();
+	static bool s_init;
+
 private:
 	
 	void processInput();

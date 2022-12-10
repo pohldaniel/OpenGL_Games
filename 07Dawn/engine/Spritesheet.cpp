@@ -377,6 +377,7 @@ void Spritesheet::addToSpritesheet(unsigned char* bytes, unsigned int width, uns
 
 	unsigned int texture_new;
 	glGenTextures(1, &texture_new);
+
 	glBindTexture(GL_TEXTURE_2D_ARRAY, texture_new);
 	glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_RGBA8, width, height, m_totalFrames, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 
@@ -399,7 +400,7 @@ void Spritesheet::addToSpritesheet(unsigned char* bytes, unsigned int width, uns
 	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
 
 	glDeleteTextures(1, &m_texture);
-	m_texture = texture_new;
+	m_texture = texture_new;	
 }
 
 unsigned int Spritesheet::getAtlas() {

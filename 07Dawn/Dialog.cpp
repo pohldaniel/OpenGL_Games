@@ -35,7 +35,7 @@ void DialogCanvas::DrawCanvas(int left, int bottom, int colummns, int rows, int 
 	float _tileHeight = static_cast<float>(tileHeight);
 
 	if (!drawInChunk) {
-		TextureManager::BindTexture(TextureAtlas, true, 0);
+		TextureManager::BindTexture(TextureAtlas, true, 2);
 	}
 
 	// draw the corners
@@ -65,7 +65,7 @@ void DialogCanvas::DrawCanvas(int left, int bottom, int colummns, int rows, int 
 
 	if (!drawInChunk) {
 		TextureManager::DrawBuffer();
-		TextureManager::UnbindTexture(true, 0);
+		TextureManager::UnbindTexture(true, 2);
 	}
 }
 

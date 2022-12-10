@@ -70,7 +70,6 @@ public:
 
 	void loadShopkeeperInventory();
 	void addItem(Item *item);
-	void setPlayer(Player* player);
 	void buyFromShop();
 
 private:

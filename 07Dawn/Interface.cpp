@@ -23,8 +23,6 @@ Interface& Interface::Get() {
 
 void Interface::setPlayer(Player* player) {
 	m_player = player;	
-	m_characterInfo.setPlayer(m_player);
-	InventoryCanvas::Get().setPlayer(m_player);
 }
 
 void Interface::init(std::vector<TextureRect> textures) {

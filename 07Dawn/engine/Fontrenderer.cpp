@@ -47,7 +47,7 @@ void Fontrenderer::setCamera(const Camera& camera) {
 }
 
 void Fontrenderer::drawText(const CharacterSet& characterSet, int posX, int posY, std::string text, Vector4f color, bool updateView) {
-	glBindTexture(GL_TEXTURE_2D, characterSet.spriteSheet);
+	glBindTexture(GL_TEXTURE_2D_ARRAY, characterSet.spriteSheet);
 	std::string::const_iterator c;
 	for (c = text.begin(); c != text.end(); c++) {
 
@@ -57,7 +57,7 @@ void Fontrenderer::drawText(const CharacterSet& characterSet, int posX, int posY
 		posX = posX + ch.advance;
 	}
 	m_batchrenderer->drawBuffer();
-	glBindTexture(GL_TEXTURE_2D, 0);
+	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
 }
 
 void Fontrenderer::addText(const CharacterSet& characterSet, int posX, int posY, std::string text, Vector4f color, bool updateView) {

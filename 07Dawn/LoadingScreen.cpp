@@ -1,6 +1,5 @@
 #include "LoadingScreen.h"
 #include "LoadingManager.h"
-#include "Editor.h"
 
 LoadingScreen::LoadingScreen(StateMachine& machine) : State(machine, CurrentState::LOADINGSCREEN), m_characterSet(Globals::fontManager.get("verdana_20")) {
 	if (m_backgroundTextures.size() > 0) {
@@ -14,7 +13,6 @@ LoadingScreen::LoadingScreen(StateMachine& machine) : State(machine, CurrentStat
 	TextureManager::Loadimage("res/lifebar.tga", 2, m_backgroundTextures);
 	m_textureAtlas = TextureAtlasCreator::Get().getAtlas();
 	
-	// randomly choose background and calculate positions for the background
 	m_backgroundToDraw = RNG::randomInt(0, 1);
 
 	m_width = m_backgroundTextures[m_backgroundToDraw].width;
@@ -24,6 +22,9 @@ LoadingScreen::LoadingScreen(StateMachine& machine) : State(machine, CurrentStat
 
 	m_curText = "";
 	m_progress = 0.0;
+
+	TextureManager::BindTexture(Globals::spritesheetManager.getAssetPointer("font")->getAtlas(), true, 0);
+	TextureManager::BindTexture(m_textureAtlas, true, 2);
 
 	LoadingManager::Get().startBackgroundThread();
 }
@@ -40,7 +41,7 @@ void LoadingScreen::update() {
 		m_progress = LoadingManager::Get().getProgress();
 	}else{
 		m_isRunning = false;
-		m_machine.addStateAtTop(new Editor(m_machine));
+		m_machine.addStateAtTop(new Game(m_machine));
 	}
 }
 
@@ -54,15 +55,12 @@ void LoadingScreen::render() {
 	int progressBarPosX = (static_cast<int>(ViewPort::Get().getWidth()) - progressBarWidth) / 2;
 	int progressBarPosY = 20;
 
-	TextureManager::BindTexture(m_textureAtlas, true);
 	TextureManager::DrawTextureBatched(m_backgroundTextures[m_backgroundToDraw], m_posX, m_posY, m_width, m_height, false, false);
-
 	TextureManager::DrawTextureBatched(m_backgroundTextures[2], progressBarPosX, progressBarPosY, m_progress * progressBarWidth, 16, Vector4f(0.75f, 0.2f, 0.2f, 1.0f), false, false);
 	TextureManager::DrawTextureBatched(m_backgroundTextures[2], progressBarPosX + static_cast<int>(m_progress * progressBarWidth), progressBarPosY, progressBarWidth - m_progress * progressBarWidth, 16, Vector4f(0.5f, 0.1f, 0.1f, 1.0f), false, false);
-	TextureManager::DrawBuffer();
 
 	int textX = m_posX + m_width / 2 - m_characterSet.getWidth(m_curText) / 2;
 	int textY = 30 + m_characterSet.lineHeight;
-	Fontrenderer::Get().drawText(m_characterSet, textX, textY, m_curText);
-	TextureManager::UnbindTexture(true);
+	Fontrenderer::Get().addText(m_characterSet, textX, textY, m_curText);
+	TextureManager::DrawBuffer();
 }

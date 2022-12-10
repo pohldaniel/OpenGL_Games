@@ -24,6 +24,10 @@ public:
 	bool isRunning();
 	HWND getWindow();
 	
+	static HGLRC MainContext;
+	static HGLRC LoaderContext;
+	static HDC s_HDC;
+
 private:
 	static LRESULT CALLBACK StaticWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 	LRESULT DisplayWndProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lParam);
@@ -52,6 +56,9 @@ private:
 	StateMachine* m_machine;
 
 	static EventDispatcher& s_eventDispatcher;
+
+	
+
 	void processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 	bool m_mouseTracking = false;
 
