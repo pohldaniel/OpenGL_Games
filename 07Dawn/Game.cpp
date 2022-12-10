@@ -88,9 +88,6 @@ void Game::render() {
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	
-	//becarefull bind the textures atfer the last glDeleteTextures() call
-
 	Zone::Draw();	
 	Zone::DrawActiveAoESpells();
 	GroundLoot::Draw();

@@ -9,7 +9,7 @@
 EventDispatcher& Application::s_eventDispatcher = EventDispatcher::Get();
 HGLRC Application::MainContext;
 HGLRC Application::LoaderContext;
-HDC Application::s_HDC;
+HWND Application::Window;
 
 Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fdt) {
 	ViewPort::Get().init(WIDTH, HEIGHT);
@@ -31,7 +31,7 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 
 	Fontrenderer::Get().init();
 	Fontrenderer::Get().setShader(Globals::shaderManager.getAssetPointer("font"));
-	Batchrenderer::Get().init(800, true);
+	Batchrenderer::Get().init(1200, true);
 	Batchrenderer::Get().setShader(Globals::shaderManager.getAssetPointer("batch_font"));
 	Fontrenderer::Get().setRenderer(&Batchrenderer::Get());
 
@@ -92,10 +92,10 @@ Application::~Application() {
 	Globals::spritesheetManager.clear();
 
 	//release OpenGL context
-	HDC hdc = GetDC(m_window);
-	wglMakeCurrent(GetDC(m_window), 0);
+	HDC hdc = GetDC(Window);
+	wglMakeCurrent(GetDC(Window), 0);
 	wglDeleteContext(wglGetCurrentContext());
-	ReleaseDC(m_window, hdc);
+	ReleaseDC(Window, hdc);
 	//release OpenAL context
 	//SoundDevice::shutDown();
 
@@ -122,7 +122,7 @@ bool Application::initWindow() {
 	if (!RegisterClassEx(&windowClass))
 		return false;
 
-	m_window = CreateWindowEx(
+	Window = CreateWindowEx(
 		NULL,
 		"WINDOWCLASS",
 		"Dawn",
@@ -135,19 +135,19 @@ bool Application::initWindow() {
 		windowClass.hInstance,
 		this);
 
-	if (!m_window)
+	if (!Window)
 		return false;
 
 	// Adjust it so the client area is RESOLUTION_X/RESOLUTION_Y
 	RECT rect1;
-	GetWindowRect(m_window, &rect1);
+	GetWindowRect(Window, &rect1);
 	RECT rect2;
-	GetClientRect(m_window, &rect2);
+	GetClientRect(Window, &rect2);
 
-	SetWindowPos(m_window, NULL, rect1.left, rect1.top, WIDTH + ((rect1.right - rect1.left) - (rect2.right - rect2.left)), HEIGHT + ((rect1.bottom - rect1.top) - (rect2.bottom - rect2.top)), NULL);
+	SetWindowPos(Window, NULL, rect1.left, rect1.top, WIDTH + ((rect1.right - rect1.left) - (rect2.right - rect2.left)), HEIGHT + ((rect1.bottom - rect1.top) - (rect2.bottom - rect2.top)), NULL);
 
-	ShowWindow(m_window, SW_SHOW);
-	UpdateWindow(m_window);
+	ShowWindow(Window, SW_SHOW);
+	UpdateWindow(Window);
 
 	m_init = true;
 
@@ -240,7 +240,7 @@ LRESULT Application::DisplayWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 
 void Application::initOpenGL() {
 
-	s_HDC = GetDC(m_window);
+	HDC hDC = GetDC(Window);
 	int nPixelFormat;					// our pixel format index
 
 	static PIXELFORMATDESCRIPTOR pfd = {
@@ -263,15 +263,16 @@ void Application::initOpenGL() {
 		0,								// reserved
 		0, 0, 0 };						// layer masks ignored
 
-	nPixelFormat = ChoosePixelFormat(s_HDC, &pfd);	// choose best matching pixel format
-	SetPixelFormat(s_HDC, nPixelFormat, &pfd);		// set pixel format to device context
+	nPixelFormat = ChoosePixelFormat(hDC, &pfd);	// choose best matching pixel format
+	SetPixelFormat(hDC, nPixelFormat, &pfd);		// set pixel format to device context
 
 
-	MainContext = wglCreateContext(s_HDC);				// create rendering context and make it current
-	LoaderContext = wglCreateContext(s_HDC);
+	MainContext = wglCreateContext(hDC);				// create rendering context and make it current
+	LoaderContext = wglCreateContext(hDC);
 	wglShareLists(LoaderContext, MainContext);
-	wglMakeCurrent(s_HDC, MainContext);
-		
+	wglMakeCurrent(hDC, MainContext);
+	ReleaseDC(Window, hDC);
+
 	enableVerticalSync(true);
 
 	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -293,7 +294,7 @@ void Application::enableVerticalSync(bool enableVerticalSync) {
 }
 
 HWND Application::getWindow() {
-	return m_window;
+	return Window;
 }
 
 bool Application::isRunning() {
@@ -332,8 +333,8 @@ void Application::initStates() {
 	//m_machine->addStateAtTop(new Game(*m_machine));
 
 	//m_machine->addStateAtTop(new LoadingScreen(*m_machine));
-	//m_machine->addStateAtTop(new Editor(*m_machine));
 	m_machine->addStateAtTop(new MainMenu(*m_machine));
+	//m_machine->addStateAtTop(new Editor(*m_machine));
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
@@ -429,13 +430,13 @@ void Application::toggleFullScreen() {
 
 	if (m_isFullScreen){
 
-		savedExStyle = GetWindowLong(m_window, GWL_EXSTYLE);
-		savedStyle = GetWindowLong(m_window, GWL_STYLE);
-		GetWindowRect(m_window, &rcSaved);
+		savedExStyle = GetWindowLong(Window, GWL_EXSTYLE);
+		savedStyle = GetWindowLong(Window, GWL_STYLE);
+		GetWindowRect(Window, &rcSaved);
 
-		SetWindowLong(m_window, GWL_EXSTYLE, 0);
-		SetWindowLong(m_window, GWL_STYLE, WS_POPUP | WS_CLIPCHILDREN | WS_CLIPSIBLINGS);
-		SetWindowPos(m_window, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_FRAMECHANGED | SWP_SHOWWINDOW);
+		SetWindowLong(Window, GWL_EXSTYLE, 0);
+		SetWindowLong(Window, GWL_STYLE, WS_POPUP | WS_CLIPCHILDREN | WS_CLIPSIBLINGS);
+		SetWindowPos(Window, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_FRAMECHANGED | SWP_SHOWWINDOW);
 
 		m_width = GetSystemMetrics(SM_CXSCREEN);
 		m_height = GetSystemMetrics(SM_CYSCREEN);
@@ -443,13 +444,13 @@ void Application::toggleFullScreen() {
 		deltaW = m_width - deltaW;
 		deltaH = m_height - deltaH;
 
-		SetWindowPos(m_window, HWND_TOPMOST, 0, 0, m_width, m_height, SWP_SHOWWINDOW);
+		SetWindowPos(Window, HWND_TOPMOST, 0, 0, m_width, m_height, SWP_SHOWWINDOW);
 
 	}else{
 
-		SetWindowLong(m_window, GWL_EXSTYLE, savedExStyle);
-		SetWindowLong(m_window, GWL_STYLE, savedStyle);
-		SetWindowPos(m_window, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_FRAMECHANGED | SWP_SHOWWINDOW);
+		SetWindowLong(Window, GWL_EXSTYLE, savedExStyle);
+		SetWindowLong(Window, GWL_STYLE, savedStyle);
+		SetWindowPos(Window, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_FRAMECHANGED | SWP_SHOWWINDOW);
 
 		m_width = rcSaved.right - rcSaved.left;
 		m_height = rcSaved.bottom - rcSaved.top;
@@ -457,7 +458,7 @@ void Application::toggleFullScreen() {
 		deltaW = m_width - deltaW;
 		deltaH = m_height - deltaH;
 
-		SetWindowPos(m_window, HWND_NOTOPMOST, rcSaved.left, rcSaved.top, m_width, m_height, SWP_SHOWWINDOW);
+		SetWindowPos(Window, HWND_NOTOPMOST, rcSaved.left, rcSaved.top, m_width, m_height, SWP_SHOWWINDOW);
 	}
 
 	resize(deltaW, deltaH);

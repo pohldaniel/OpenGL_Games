@@ -215,9 +215,9 @@ void Widget::resize(int deltaW, int deltaH) {
 		m_posY += deltaH;
 
 		if (ViewPort::Get().getTop() - (m_posY + m_titleOffsetY) < 10) {
-			m_posY -= 38;
+			m_posY -= 40;
 		}else if (ViewPort::Get().getTop() - (m_posY + m_titleOffsetY) < 31) {
-			m_posY -= 30;
+			m_posY -= 50;
 		}
 	}
 }

@@ -14,6 +14,8 @@
 #include "ViewPort.h"
 
 class Application {
+	friend class LoadingManager;
+
 public:
 	Application(const float& dt, const float& fdt);
 	~Application();
@@ -24,12 +26,8 @@ public:
 	bool isRunning();
 	HWND getWindow();
 	
-	static HGLRC MainContext;
-	static HGLRC LoaderContext;
-	static HDC s_HDC;
-
 private:
-	static LRESULT CALLBACK StaticWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+	
 	LRESULT DisplayWndProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lParam);
 
 	bool initWindow();
@@ -37,6 +35,7 @@ private:
 	void loadAssets();
 	void initStates();
 	void resize(int deltaW, int deltaH);
+	void processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 	void enableVerticalSync(bool enableVerticalSync);
 	void toggleFullScreen();
@@ -44,8 +43,6 @@ private:
 	bool m_enableVerticalSync;
 	bool m_isFullScreen;
 	MSG msg;
-	HWND m_window;
-	
 
 	const float& m_fdt;
 	const float& m_dt;
@@ -54,12 +51,12 @@ private:
 	unsigned int m_height;
 
 	StateMachine* m_machine;
-
-	static EventDispatcher& s_eventDispatcher;
-
-	
-
-	void processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 	bool m_mouseTracking = false;
 
+	static LRESULT CALLBACK StaticWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+
+	static EventDispatcher& s_eventDispatcher;
+	static HGLRC MainContext;
+	static HGLRC LoaderContext;
+	static HWND Window;
 };

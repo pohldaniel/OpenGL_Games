@@ -40,13 +40,16 @@ public:
 
 	void startBackgroundThread() {
 		do {
+			
 			this->Event();
-			//Sleep(10);
+			Sleep(10);
 		} while (!started);
 	}
 
 	void init() {
-		wglMakeCurrent(Application::s_HDC, Application::LoaderContext);
+		HDC hDC = GetDC(Application::Window);
+		wglMakeCurrent(hDC, Application::LoaderContext);
+		ReleaseDC(Application::Window, hDC);
 
 		progressString = "Initializing Player";
 		LuaFunctions::executeLuaFile("res/_lua/playerdata_w.lua");
