@@ -32,11 +32,13 @@ private:
 	void initOpenGL();
 	void loadAssets();
 	void initStates();
+	void resize(int deltaW, int deltaH);
 
 	void enableVerticalSync(bool enableVerticalSync);
+	void toggleFullScreen();
 
 	bool m_enableVerticalSync;
-
+	bool m_isFullScreen;
 	MSG msg;
 	HWND m_window;
 	

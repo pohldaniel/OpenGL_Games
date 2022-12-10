@@ -16,6 +16,7 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 	loadAssets();
 	initStates();
 	m_enableVerticalSync = true;
+	m_isFullScreen = false;
 
 	Application::s_eventDispatcher.setProcessOSEvents([&]() {
 		while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
@@ -222,36 +223,7 @@ LRESULT Application::DisplayWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 				m_height = 1;
 			}
 			
-			glViewport(0, 0, m_width, m_height);
-			Globals::projection = Matrix4f::GetPerspective(Globals::projection, 45.0f, static_cast<float>(m_width) / static_cast<float>(m_height), 1.0f, 5000.0f);
-			Globals::invProjection = Matrix4f::GetInvPerspective(Globals::invProjection, 45.0f, static_cast<float>(m_width) / static_cast<float>(m_height), 1.0f, 5000.0f);
-			Globals::orthographic = Matrix4f::GetOrthographic(Globals::orthographic, 0.0f, static_cast<float>(m_width), 0.0f, static_cast<float>(m_height), -1.0f, 1.0f);
-			Globals::invOrthographic = Matrix4f::GetInvOrthographic(Globals::invOrthographic, 0.0f, static_cast<float>(m_width), 0.0f, static_cast<float>(m_height), -1.0f, 1.0f);
-						
-			if (m_init) {
-				ViewPort::Get().init(m_width, m_height);
-				m_machine->resize(m_width, m_height);
-				m_machine->m_states.top()->resize(deltaW, deltaH);
-
-				auto shader = Globals::shaderManager.getAssetPointer("batch_font");
-
-				glUseProgram(shader->m_program);
-				shader->loadMatrix("u_projection", ViewPort::Get().getCamera().getOrthographicMatrix());
-				glUseProgram(0);
-
-				shader = Globals::shaderManager.getAssetPointer("batch");
-
-				glUseProgram(shader->m_program);
-				shader->loadMatrix("u_projection", ViewPort::Get().getCamera().getOrthographicMatrix());
-				glUseProgram(0);
-
-				shader = Globals::shaderManager.getAssetPointer("font");
-
-				glUseProgram(shader->m_program);
-				shader->loadMatrix("u_projection", ViewPort::Get().getCamera().getOrthographicMatrix());
-				glUseProgram(0);
-			}
-			
+			resize(deltaW, deltaH);
 			break;
 		}case WM_GETMINMAXINFO:{			
 			LPMINMAXINFO lpMMI = (LPMINMAXINFO)lParam;
@@ -334,6 +306,12 @@ bool Application::isRunning() {
 
 	if (Keyboard::instance().keyDown(Keyboard::KEY_ESCAPE)) {
 		return false;
+	}
+
+	if (Keyboard::instance().keyDown(Keyboard::KEY_LALT) || Keyboard::instance().keyDown(Keyboard::KEY_RALT)) {
+		if (Keyboard::instance().keyPressed(Keyboard::KEY_ENTER)) {
+			toggleFullScreen();
+		}
 	}
 	
 	return s_eventDispatcher.update();
@@ -440,4 +418,81 @@ void Application::loadAssets() {
 	Globals::spritesheetManager.getAssetPointer("font")->setLinear();
 	
 	//Spritesheet::Safe("font", Globals::spritesheetManager.getAssetPointer("font")->getAtlas());
+}
+
+void Application::toggleFullScreen() {
+	static DWORD savedExStyle;
+	static DWORD savedStyle;
+	static RECT rcSaved;
+
+	int deltaW = m_width;
+	int deltaH = m_height;
+
+	m_isFullScreen = !m_isFullScreen;
+
+	if (m_isFullScreen){
+
+		savedExStyle = GetWindowLong(m_window, GWL_EXSTYLE);
+		savedStyle = GetWindowLong(m_window, GWL_STYLE);
+		GetWindowRect(m_window, &rcSaved);
+
+		SetWindowLong(m_window, GWL_EXSTYLE, 0);
+		SetWindowLong(m_window, GWL_STYLE, WS_POPUP | WS_CLIPCHILDREN | WS_CLIPSIBLINGS);
+		SetWindowPos(m_window, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_FRAMECHANGED | SWP_SHOWWINDOW);
+
+		m_width = GetSystemMetrics(SM_CXSCREEN);
+		m_height = GetSystemMetrics(SM_CYSCREEN);
+
+		deltaW = m_width - deltaW;
+		deltaH = m_height - deltaH;
+
+		SetWindowPos(m_window, HWND_TOPMOST, 0, 0, m_width, m_height, SWP_SHOWWINDOW);
+	}else{
+
+		SetWindowLong(m_window, GWL_EXSTYLE, savedExStyle);
+		SetWindowLong(m_window, GWL_STYLE, savedStyle);
+		SetWindowPos(m_window, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_FRAMECHANGED | SWP_SHOWWINDOW);
+
+		m_width = rcSaved.right - rcSaved.left;
+		m_height = rcSaved.bottom - rcSaved.top;
+
+		deltaW = m_width - deltaW;
+		deltaH = m_height - deltaH;
+
+		SetWindowPos(m_window, HWND_NOTOPMOST, rcSaved.left, rcSaved.top, m_width, m_height, SWP_SHOWWINDOW);
+	}
+
+	resize(deltaW, deltaH);
+}
+
+void Application::resize(int deltaW, int deltaH) {
+	glViewport(0, 0, m_width, m_height);
+	Globals::projection = Matrix4f::GetPerspective(Globals::projection, 45.0f, static_cast<float>(m_width) / static_cast<float>(m_height), 1.0f, 5000.0f);
+	Globals::invProjection = Matrix4f::GetInvPerspective(Globals::invProjection, 45.0f, static_cast<float>(m_width) / static_cast<float>(m_height), 1.0f, 5000.0f);
+	Globals::orthographic = Matrix4f::GetOrthographic(Globals::orthographic, 0.0f, static_cast<float>(m_width), 0.0f, static_cast<float>(m_height), -1.0f, 1.0f);
+	Globals::invOrthographic = Matrix4f::GetInvOrthographic(Globals::invOrthographic, 0.0f, static_cast<float>(m_width), 0.0f, static_cast<float>(m_height), -1.0f, 1.0f);
+
+	if (m_init) {
+		ViewPort::Get().init(m_width, m_height);
+		m_machine->resize(m_width, m_height);
+		m_machine->m_states.top()->resize(deltaW, deltaH);
+
+		auto shader = Globals::shaderManager.getAssetPointer("batch_font");
+
+		glUseProgram(shader->m_program);
+		shader->loadMatrix("u_projection", ViewPort::Get().getCamera().getOrthographicMatrix());
+		glUseProgram(0);
+
+		shader = Globals::shaderManager.getAssetPointer("batch");
+
+		glUseProgram(shader->m_program);
+		shader->loadMatrix("u_projection", ViewPort::Get().getCamera().getOrthographicMatrix());
+		glUseProgram(0);
+
+		shader = Globals::shaderManager.getAssetPointer("font");
+
+		glUseProgram(shader->m_program);
+		shader->loadMatrix("u_projection", ViewPort::Get().getCamera().getOrthographicMatrix());
+		glUseProgram(0);
+	}
 }

@@ -64,7 +64,7 @@ void Widget::processInput() {
 }
 
 void Widget::activate() {
-	if (m_onActivate)
+	if (m_onActivate) 
 		m_onActivate();
 }
 
@@ -123,7 +123,7 @@ void Widget::moveFrame(int mouseX, int mouseY) {
 	m_posX = (mouseX < 0 || mouseX >  static_cast<int>(ViewPort::Get().getWidth())) ? m_posX : m_posX + mouseX - m_startMovingXpos;
 	m_posY -= mouseY - m_startMovingYpos;
 
-	m_posX = (std::max)(-m_titleWidth + 11, (std::min)(static_cast<int>(m_posX), static_cast<int>(ViewPort::Get().getWidth()) - 33));
+	m_posX = (std::max)(-m_titleWidth + 11, (std::min)(static_cast<int>(m_posX), static_cast<int>(ViewPort::Get().getWidth()) - 200));
 	m_posY = (std::max)(-m_titleOffsetY, (std::min)(static_cast<int>(m_posY), static_cast<int>(ViewPort::Get().getHeight()) - (m_titleOffsetY + m_titleHeight)));
 
 	m_startMovingXpos = (std::max)(0, (std::min)(mouseX, static_cast<int>(ViewPort::Get().getWidth())));
@@ -134,6 +134,7 @@ void Widget::stopMovingFrame() {
 	m_movingFrame = false;
 	m_startMovingXpos = 0;
 	m_startMovingYpos = 0;
+
 }
 
 void Widget::addToParent(int posX, int posY, Widget* parent) {
@@ -201,9 +202,10 @@ void Widget::setVisible(bool visible) {
 }
 
 void Widget::resize(int deltaW, int deltaH) {
-	//top right corner
-	if (m_posX + m_titleWidth > static_cast<int>(ViewPort::Get().getWidth()) && deltaW < 0)
-		m_posX += deltaW;
+
+	if (deltaW < 0 && m_posX + 200 > static_cast<int>(ViewPort::Get().getWidth())) {
+		m_posX = static_cast<int>(ViewPort::Get().getWidth()) - 200;		
+	}
 
 	if (deltaH < 0 && m_posY > 0) {
 		m_posY += deltaH;
@@ -211,11 +213,13 @@ void Widget::resize(int deltaW, int deltaH) {
 
 	if (deltaH > 0) {
 		m_posY += deltaH;
-	}
-	////////////
 
-	//left bottom corner
-	//m_posX += deltaW;
+		if (ViewPort::Get().getTop() - (m_posY + m_titleOffsetY) < 10) {
+			m_posY -= 38;
+		}else if (ViewPort::Get().getTop() - (m_posY + m_titleOffsetY) < 31) {
+			m_posY -= 30;
+		}
+	}
 }
 
 void Widget::setOnClose(std::function<void()> fun) {

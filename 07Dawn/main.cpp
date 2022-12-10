@@ -31,13 +31,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	freopen("CON", "w", stdout);
 	SetConsoleTitle("Debug console");
 	MoveWindow(GetConsoleWindow(), 1300, 0, 550, 300, true);
-	std::cout << "w, a, s, d : move character" << std::endl;
-	std::cout << "c : open character info" << std::endl;
-	std::cout << "b : open spellbook" << std::endl;
-	std::cout << "i : open inventory" << std::endl;
-	std::cout << "u : open shop" << std::endl;
-	std::cout << "q : open questlog" << std::endl;
-	std::cout << "f : test message" << std::endl;
+	std::cout << "w, a, s, d  : move character" << std::endl;
+	std::cout << "c           : open character info" << std::endl;
+	std::cout << "b           : open spellbook" << std::endl;
+	std::cout << "i           : open inventory" << std::endl;
+	std::cout << "u           : open shop" << std::endl;
+	std::cout << "q           : open questlog" << std::endl;
+	std::cout << "f           : test message" << std::endl;
+	std::cout << "alt + enter : fullscreen" << std::endl;
 	#endif
 	
 	float deltaTime = 0.0f;
@@ -49,7 +50,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	Application application(deltaTime, fixedDeltaTime);
 
 	HWND hwnd = application.getWindow();
-	HDC hdc;
+	HDC hdc = GetDC(hwnd);
 
 	Clock deltaClock;
 	Clock fixedDeltaClock;
@@ -57,7 +58,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	int frames = 0;
 	float framesTime = 0;
 
-	
 	while (application.isRunning()) {
 		physicsElapsedTime += deltaTime;
 		while (physicsElapsedTime > PHYSICS_STEP) {
@@ -86,11 +86,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 			deltaClock.restart();
 		}
 
-
 		#endif
-		hdc = GetDC(hwnd);
+
 		SwapBuffers(hdc);
-		ReleaseDC(hwnd, hdc);
 	}
 	
 }
