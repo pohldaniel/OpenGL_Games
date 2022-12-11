@@ -1385,6 +1385,14 @@ void CharacterType::setExperienceValue(unsigned short experienceValue) {
 	CharacterType::experienceValue = experienceValue;
 }
 
+unsigned short CharacterType::getLevel() {
+	return level;
+}
+
+Enums::CharacterClass CharacterType::getClass() {
+	return characterClass;
+}
+
 void CharacterType::modifyStrength(int strengthModifier) {
 	strength += strengthModifier;
 }

@@ -20,12 +20,12 @@ MainMenu::MainMenu(StateMachine& machine) : State(machine, CurrentState::MAINMEN
 
 	dynamic_cast<Label*>(m_dialog.getChildWidgets()[2])->setFunction([&]() {
 		m_isRunning = false;
-		m_machine.addStateAtTop(new Editor(m_machine));
+		m_machine.addStateAtTop(new LoadingScreen(m_machine, true));
 	});
 
 	dynamic_cast<Label*>(m_dialog.getChildWidgets()[3])->setFunction([&]() {
 		m_isRunning = false;
-		m_machine.addStateAtTop(new LoadingScreen(m_machine));
+		m_machine.addStateAtTop(new LoadingScreen(m_machine, false));
 	});
 
 	TextureManager::BindTexture(Globals::spritesheetManager.getAssetPointer("font")->getAtlas(), true, 0);

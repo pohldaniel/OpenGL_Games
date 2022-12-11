@@ -14,6 +14,7 @@ Mouse &Mouse::instance(){
 
 void Mouse::SetCursorIcon(std::string file) {
 	Mouse::s_cursor = LoadCursorFromFileA(file.c_str());
+	SetCursor(s_cursor);
 }
 
 HCURSOR Mouse::GetCursorIcon() {

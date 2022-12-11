@@ -51,6 +51,8 @@ struct CharacterType {
 	void setLevel(unsigned short newLevel);
 	void setExperienceValue(unsigned short experienceValue);
 
+	unsigned short getLevel();
+	Enums::CharacterClass getClass();
 	void modifyStrength(int strengthModifier);
 	void modifyDexterity(int dexterityModifier);
 	void modifyVitality(int vitalityModifier);

@@ -1,4 +1,5 @@
 #include "Game.h"
+#include "Editor.h"
 #include "Interface.h"
 #include "Player.h"
 #include "Spells.h"
@@ -14,8 +15,8 @@ bool Game::s_init = false;
 
 Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	Mouse::SetCursorIcon("res/cursors/pointer.cur");
-	
-	if (!s_init) {
+
+	if (!s_init && !Editor::s_init) {
 		LuaFunctions::executeLuaFile("res/_lua/playerdata_w.lua");
 		Player::Get().setCharacterType("player_w");
 		Player::Get().setClass(Enums::CharacterClass::Liche);
@@ -23,7 +24,9 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 		LuaFunctions::executeLuaFile("res/_lua/spells.lua");
 		LuaFunctions::executeLuaFile("res/_lua/itemdatabase.lua");
 		LuaFunctions::executeLuaFile("res/_lua/mobdata_wolf.lua");
-		
+	}
+
+	if(!s_init){
 
 		Init();
 
@@ -55,6 +58,8 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 		DawnInterface::enterZone("res/_lua/zone1", 512, 400);
 		//DawnInterface::enterZone("res/_lua/zone1", 747, 1530);	
 		//DawnInterface::enterZone("res/_lua/arinoxGeneralShop", -158, 0);
+
+		s_init = true;
 	}
 
 	//becarefull bind the textures atfer the last glDeleteTextures() call

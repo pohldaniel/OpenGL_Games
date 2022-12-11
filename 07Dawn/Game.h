@@ -7,6 +7,9 @@
 
 class Game : public State {
 
+	friend class LoadingManager;
+	friend class Editor;
+
 public:
 
 	Game(StateMachine& machine);
@@ -19,9 +22,9 @@ public:
 
 	static std::vector<TextureRect> TextureRects;
 	static void Init();
-	static bool s_init;
 
 private:
 	
 	void processInput();
+	static bool s_init;
 };

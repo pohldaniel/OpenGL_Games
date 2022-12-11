@@ -333,8 +333,8 @@ void Application::initStates() {
 	//m_machine->addStateAtTop(new Game(*m_machine));
 
 	//m_machine->addStateAtTop(new LoadingScreen(*m_machine));
-	m_machine->addStateAtTop(new MainMenu(*m_machine));
-	//m_machine->addStateAtTop(new Editor(*m_machine));
+	//m_machine->addStateAtTop(new MainMenu(*m_machine));
+	m_machine->addStateAtTop(new Editor(*m_machine));
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {

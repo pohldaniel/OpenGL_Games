@@ -10,6 +10,10 @@
 #include "Message.h"
 
 class Editor : public State {
+
+	friend class LoadingManager;
+	friend class Game;
+
 public:
 	Editor(StateMachine& machine);
 	~Editor();
@@ -18,6 +22,9 @@ public:
 	virtual void update() override;
 	virtual void render() override;
 
+	static std::vector<TextureRect> TextureRects;
+	static void Init();
+
 private:
 	void printShortText(const CharacterSet& characterSet, const std::string &printText, int left, int width, int bottom, int height);
 	void drawEditFrame(EnvironmentMap* editobject);
@@ -25,15 +32,12 @@ private:
 	void placeAdjacentTile();
 	void applyAdjacencyModification(int modification);
 	void saveZone();
-	void initTextures();
 	void loadNPCs();
 	void incTilepos();
 	void decTilepos();
 
 	Zone* newZone;
 
-	unsigned int m_textureAtlas;
-	std::vector<TextureRect> m_interfacetexture;
 	Vector2f m_editorFocus;
 	Vector2f m_originalFocus;
 	Vector2f m_currentFocus;
@@ -47,4 +51,6 @@ private:
 	std::vector<std::vector<Tile>> curAdjacentTiles;
 	std::vector<std::vector<std::array<int, 2>>> curAdjacencyOffsets;
 	unsigned int curDirectionAdjacencySelection[Enums::AdjacencyType::BOTTOM + 1];
+
+	static bool s_init;
 };

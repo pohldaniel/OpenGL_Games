@@ -3,6 +3,7 @@
 #include <string>
 #include "thread/Thread.h"
 #include "Game.h"
+#include "Editor.h"
 #include "Player.h"
 #include "Interface.h"
 #include "Spellbook.h"
@@ -38,7 +39,8 @@ public:
 		return progressString;
 	}
 
-	void startBackgroundThread() {
+	void startBackgroundThread(bool initEditor) {
+		m_initEditor = initEditor;
 		do {
 			
 			this->Event();
@@ -136,6 +138,39 @@ public:
 		accessMutex.Unlock();
 	}
 
+	void initEditor() {
+		HDC hDC = GetDC(Application::Window);
+		wglMakeCurrent(hDC, Application::LoaderContext);
+		ReleaseDC(Application::Window, hDC);
+
+		progressString = "Initializing Player";
+		LuaFunctions::executeLuaFile("res/_lua/playerdata_w.lua");
+		Player::Get().setCharacterType("player_w");
+		Player::Get().setClass(Enums::CharacterClass::Liche);
+
+		setProgress(0.025f);
+		progressString = "Loading Spell Data";
+		LuaFunctions::executeLuaFile("res/_lua/spells.lua");
+
+		setProgress(0.05f);
+		progressString = "Loading Item Data";
+		LuaFunctions::executeLuaFile("res/_lua/itemdatabase.lua");
+
+		setProgress(0.075f);
+		progressString = "Loading Mob Data";
+		LuaFunctions::executeLuaFile("res/_lua/mobdata_wolf.lua");
+
+		setProgress(1.0f);
+		progressString = "Loading Interface Data";
+		Editor::Init();
+
+		accessMutex.Lock();
+		finished = true;
+		Editor::s_init = true;
+		wglDeleteContext(Application::LoaderContext);
+		accessMutex.Unlock();
+	}
+
 	static LoadingManager& Get() {
 		static LoadingManager instance;
 		return instance;
@@ -153,7 +188,7 @@ private:
 		}
 
 		started = true;
-		init();
+		m_initEditor ? initEditor() : init();
 		return true;
 	}
 
@@ -162,4 +197,5 @@ private:
 	std::string progressString;
 	float progress;
 	CMutexClass accessMutex;
+	bool m_initEditor;
 };

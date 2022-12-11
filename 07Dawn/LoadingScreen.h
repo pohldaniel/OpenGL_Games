@@ -6,7 +6,7 @@
 class LoadingScreen : public State {
 
 public:
-	LoadingScreen(StateMachine& machine);
+	LoadingScreen(StateMachine& machine, bool initEditor);
 	~LoadingScreen();
 
 	void fixedUpdate() override;
@@ -25,4 +25,5 @@ private:
 	std::string m_curText;
 	float m_progress;
 	const CharacterSet& m_characterSet;
+	bool m_initEditor;
 };
