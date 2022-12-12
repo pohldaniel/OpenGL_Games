@@ -56,11 +56,11 @@ void Interface::init(std::vector<TextureRect> textures) {
 		bindActionToButtonNr(curEntry, inscribedSpells[curEntry]);
 	}
 	
-	addWidget(m_spellbook);
-	addWidget(m_characterInfo);
-	addWidget(m_characterInfo);
-	addWidget(InventoryCanvas::Get());
-	addWidget(QuestCanvas::Get());
+	connectWidget(m_spellbook);
+	connectWidget(m_characterInfo);
+	connectWidget(m_characterInfo);
+	connectWidget(InventoryCanvas::Get());
+	connectWidget(QuestCanvas::Get());
 
 	ShopCanvas::Get().setOnClose([&]() {
 		m_player->stopShopping();
@@ -872,7 +872,7 @@ void Interface::clearLogWindow() {
 	m_textDatabase.clear();
 }
 
-void Interface::addWidget(Widget& widget, bool activate) {
+void Interface::connectWidget(Widget& widget, bool activate, bool keepInputHandling) {
 
 	widget.setOnActivate([&]() {
 		if (widget.isVisible()) {
@@ -880,7 +880,7 @@ void Interface::addWidget(Widget& widget, bool activate) {
 				if (&widget == m_widgets[curFrame]) {
 					m_widgets.erase(m_widgets.begin() + curFrame);
 					m_widgets.push_back(&widget);
-					m_activeWidget = m_widgets.back();
+					keepInputHandling ? m_activeWidget = nullptr : m_activeWidget = m_widgets.back();
 					return;
 				}
 			}
@@ -888,7 +888,7 @@ void Interface::addWidget(Widget& widget, bool activate) {
 
 			m_widgets.push_back(&widget);
 			widget.setVisible(true);
-			m_activeWidget = m_widgets.back();
+			keepInputHandling ? m_activeWidget = nullptr : m_activeWidget = m_widgets.back();
 		}
 	});
 	if(activate) widget.activate();
@@ -903,4 +903,20 @@ void Interface::addWidget(Widget& widget, bool activate) {
 			}
 		}
 	});
+}
+
+void Interface::closeAll() {
+	for (auto it = m_widgets.rbegin(); it != m_widgets.rend(); ++it) {
+		if (!(*it)->m_keepInputHandling) {
+			(*it)->close();
+		}
+	}
+}
+
+Widget* Interface::getActiveWidget() {
+	return m_activeWidget;
+}
+
+std::vector<Widget*>& Interface::getWidgets() {
+	return m_widgets;
 }

@@ -230,7 +230,7 @@ void TextWindow::Update() {
 
 void TextWindow::AddTextWindow(TextWindow* textWindow) {
 	s_textWindows.push_back(textWindow);
-	Interface::Get().addWidget(*textWindow, true);
+	Interface::Get().connectWidget(*textWindow, true);
 }
 
 void TextWindow::RemoveTextWindow(unsigned short index) {

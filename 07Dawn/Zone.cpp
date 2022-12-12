@@ -3,13 +3,17 @@
 #include "Magic.h"
 #include "Callindirection.h"
 
-Zone::Zone() : groundLoot(&Player::Get()) { }
+Zone::Zone() : groundLoot(&Player::Get()) { 
 
-Zone::~Zone(){	 }
+	m_tileSetManger = new TileSetManager();
+}
+
+Zone::~Zone(){	
+	delete m_tileSetManger;
+}
 
 void Zone::loadZone() {
 	
-
 	if (m_mapLoaded) {
 		TextureManager::BindTexture(TextureManager::GetTextureAtlas(m_file), true, 6);
 		return;
@@ -26,10 +30,24 @@ void Zone::loadZone() {
 	LuaFunctions::executeLuaFile(std::string(m_file).append(".tiles_ground.lua"));
 	LuaFunctions::executeLuaFile(std::string(m_file).append(".tiles_environment.lua"));
 	LuaFunctions::executeLuaFile(std::string(m_file).append(".tiles_shadow.lua"));
-
 	m_textureAtlas = TextureAtlasCreator::Get().getAtlas();
-	TextureManager::SetTextureAtlas(m_file, m_textureAtlas);
+	TextureManager::SetTextureAtlas(m_file, TextureAtlasCreator::Get().getAtlas());
 	
+	const std::vector<Tile>& tilesF = EditorInterface::getTileSet(Enums::TileClassificationType::FLOOR).getAllTiles();
+	int offset = EditorInterface::getTileSet(Enums::TileClassificationType::FLOOR).getOffset();
+	int length = EditorInterface::getTileSet(Enums::TileClassificationType::FLOOR).getAllTiles().size() - offset;
+	m_tileSetManger->getTileSet(Enums::TileClassificationType::FLOOR).setTiles({ tilesF.begin() + offset , tilesF.begin() + offset + length});
+
+	const std::vector<Tile>& tilesE = EditorInterface::getTileSet(Enums::TileClassificationType::ENVIRONMENT).getAllTiles();
+	offset = EditorInterface::getTileSet(Enums::TileClassificationType::ENVIRONMENT).getOffset();
+	length = EditorInterface::getTileSet(Enums::TileClassificationType::ENVIRONMENT).getAllTiles().size() - offset;
+	m_tileSetManger->getTileSet(Enums::TileClassificationType::ENVIRONMENT).setTiles({ tilesE.begin() + offset ,tilesE.begin() + offset + length });
+
+	const std::vector<Tile>& tilesS = EditorInterface::getTileSet(Enums::TileClassificationType::SHADOW).getAllTiles();
+	offset = EditorInterface::getTileSet(Enums::TileClassificationType::SHADOW).getOffset();
+	length = EditorInterface::getTileSet(Enums::TileClassificationType::SHADOW).getAllTiles().size() - offset;
+	m_tileSetManger->getTileSet(Enums::TileClassificationType::SHADOW).setTiles({ tilesS.begin() + offset ,tilesS.begin() + offset + length});
+
 	//ZoneManager::Get().setCurrentZone(this);
 	LuaFunctions::executeLuaScript(std::string("DawnInterface.setCurrentZone( \"").append(m_file).append("\");"));
 	LuaFunctions::executeLuaFile(std::string(m_file).append(".ground.lua"));
@@ -39,6 +57,8 @@ void Zone::loadZone() {
 	LuaFunctions::executeLuaFile(std::string(m_file).append(".spawnpoints.lua"));
 	LuaFunctions::executeLuaFile(std::string(m_file).append(".init.lua"));
 	m_mapLoaded = true;
+
+	TextureManager::BindTexture(TextureManager::GetTextureAtlas(m_file), true, 6);
 }
 
 unsigned int Zone::getTetureAtlas(){
@@ -441,6 +461,14 @@ void Zone::addCharacterInteractionPoint(CharacterInteractionPoint *characterInte
 
 GroundLoot& Zone::getGroundLoot() {
 	return groundLoot;
+}
+
+/*TileSetManager& Zone::getTileSetManager() {
+	return m_tileSetManger;
+}*/
+
+TileSet& Zone::getTileSet(Enums::TileClassificationType tileType) {
+	return m_tileSetManger->getTileSet(tileType);
 }
 
 void Zone::addEventHandler(CallIndirection *newEventHandler) {

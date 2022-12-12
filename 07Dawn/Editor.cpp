@@ -22,12 +22,12 @@ Editor::Editor(StateMachine& machine) : State(machine, CurrentState::EDITOR) {
 		s_init = true;
 	}
 
-	DawnInterface::enterZone("res/_lua/zone1", 512, 400);
+	Game::s_init ? DawnInterface::enterZone() : DawnInterface::enterZone("res/_lua/zone1", 512, 400);
+	
 	LuaFunctions::executeLuaFile("res/_lua/tileAdjacency.lua");
 	loadNPCs();
 
 	newZone = ZoneManager::Get().getCurrentZone();
-	m_originalFocus = ViewPort::Get().getBottomLeft();
 	m_editorFocus = ViewPort::Get().getBottomLeft();
 	
 	m_tileposOffset = 0;
@@ -118,15 +118,15 @@ void Editor::update() {
 	
 		switch (m_selectedTileSet) {
 			case Enums::TileClassificationType::FLOOR: {
-				const Tile& currentTile = EditorInterface::getTileSet(m_selectedTileSet).getAllTiles()[m_currentTilepos];
+				const Tile& currentTile = newZone->getTileSet(m_selectedTileSet).getAllTiles()[m_currentTilepos];
 				newZone->replaceTile(newZone->locateTile(ViewPort::Get().getCursorPosX(), ViewPort::Get().getCursorPosY()), currentTile);
 				break;
 			}case Enums::TileClassificationType::ENVIRONMENT: {
-				const Tile& currentTile = EditorInterface::getTileSet(m_selectedTileSet).getAllTiles()[m_currentTilepos];
+				const Tile& currentTile = newZone->getTileSet(m_selectedTileSet).getAllTiles()[m_currentTilepos];
 				newZone->addEnvironment(ViewPort::Get().getCursorPosX(), ViewPort::Get().getCursorPosY(), currentTile, true /* centered on pos */);
 				break;
 			}case Enums::TileClassificationType::SHADOW: {
-				const Tile& currentTile = EditorInterface::getTileSet(m_selectedTileSet).getAllTiles()[m_currentTilepos];
+				const Tile& currentTile = newZone->getTileSet(m_selectedTileSet).getAllTiles()[m_currentTilepos];
 				newZone->addShadow(ViewPort::Get().getCursorPosX(), ViewPort::Get().getCursorPosY(), currentTile);
 				break;
 			}case Enums::TileClassificationType::COLLISION: {
@@ -377,6 +377,7 @@ void Editor::update() {
 		
 		}
 	}
+
 	if (keyboard.keyPressed(Keyboard::KEY_F1)) {
 		m_currentTilepos = 0;
 		m_tileposOffset = 0;
@@ -401,6 +402,10 @@ void Editor::update() {
 	if (keyboard.keyPressed(Keyboard::KEY_C)) {
 		saveZone();
 		Message::Get().addText(ViewPort::Get().getWidth() / 2, ViewPort::Get().getHeight() / 2, 1.0f, 0.625f, 0.71f, 1.0f, 15, 3.0f, "Zone saved ...");
+	}
+
+	if (keyboard.keyPressed(Keyboard::KEY_L)) {
+		m_machine.addStateAtTop(new Game(m_machine));
 	}
 }
 
@@ -525,9 +530,9 @@ void Editor::render() {
 
 	}
 
-	TextureManager::DrawTextureBatched(TextureRects[0], 0, static_cast<int>(m_originalFocus[1]) + ViewPort::Get().getHeight() - 100, static_cast<float>(ViewPort::Get().getWidth()), 100.0f, false, false);
-	TextureManager::DrawTextureBatched(TextureRects[0], 0, static_cast<int>(m_originalFocus[1]), static_cast<float>(ViewPort::Get().getWidth()), 100.0f, false, false);
-	TextureManager::DrawTextureBatched(TextureRects[1], ViewPort::Get().getWidth() / 2 - 5, static_cast<int>(m_originalFocus[1] + ViewPort::Get().getHeight() - 65), 50.0f, 50.0f, false, false);
+	TextureManager::DrawTextureBatched(TextureRects[0], 0,  ViewPort::Get().getHeight() - 100, static_cast<float>(ViewPort::Get().getWidth()), 100.0f, false, false);
+	TextureManager::DrawTextureBatched(TextureRects[0], 0, 0, static_cast<float>(ViewPort::Get().getWidth()), 100.0f, false, false);
+	TextureManager::DrawTextureBatched(TextureRects[1], ViewPort::Get().getWidth() / 2 - 5, static_cast<int>(ViewPort::Get().getHeight() - 65u), 50.0f, 50.0f, false, false);
 
 	if (m_selectedObjectId >= 0) { // we have selected an object to edit it's properties, show the edit-screen.
 		switch (m_selectedTileSet) {
@@ -551,7 +556,7 @@ void Editor::render() {
 		
 	}else {
 
-		const std::vector<Tile>& curTiles = EditorInterface::getTileSet(m_selectedTileSet).getAllTiles();
+		const std::vector<Tile>& curTiles = newZone->getTileSet(m_selectedTileSet).getAllTiles();
 		for (m_tilepos = 0; m_tilepos < curTiles.size(); ++m_tilepos) {
 			const Tile& curTile = curTiles[m_tilepos];
 			TextureManager::DrawTextureBatched(curTile.textureRect, ViewPort::Get().getWidth() / 2 + (m_tilepos * 50) + (m_tileposOffset * 50), ViewPort::Get().getHeight() - 60, 40.0f, 40.0f, false, false, 6u);
@@ -586,7 +591,6 @@ void Editor::render() {
 
 	Message::Get().draw();
 	TextureManager::DrawBuffer();
-
 }
 
 void Editor::drawEditFrame(EnvironmentMap* editobject) {
@@ -661,7 +665,7 @@ void Editor::incTilepos(){
 
 	switch (m_selectedTileSet) {
 		case Enums::TileClassificationType::FLOOR: case Enums::TileClassificationType::ENVIRONMENT: case Enums::TileClassificationType::SHADOW: {
-			TileSet& curTileSet = EditorInterface::getTileSet(m_selectedTileSet);
+			TileSet& curTileSet = newZone->getTileSet(m_selectedTileSet);
 
 			if (m_currentTilepos + 1 < curTileSet.numberOfTiles()) {
 				m_currentTilepos++;

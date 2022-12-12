@@ -8,6 +8,7 @@
 #include "Quest.h"
 #include "InventoryCanvas.h"
 #include "TextWindow.h"
+#include "OptionsWindow.h"
 #include "Message.h"
 
 std::vector<TextureRect> Game::TextureRects;
@@ -48,6 +49,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 		ShopCanvas::Get().init({ TextureRects.begin() + 79, TextureRects.begin() + 84 });
 		InteractionPoint::Init({ TextureRects.begin() + 84, TextureRects.begin() + 90 });
 		GroundLoot::Init({ TextureRects.begin() + 90, TextureRects.begin() + 93 });
+		OptionsWindow::Get().init({ TextureRects[93] });
 		ItemTooltip::Init({ TextureRects.begin() + 53, TextureRects.begin() + 56 });
 
 		LuaFunctions::executeLuaFile("res/_lua/gameinit.lua");
@@ -55,12 +57,12 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 		GLfloat color[] = { 1.0f, 1.0f, 0.0f };
 		DawnInterface::addTextToLogWindow(color, "Welcome to the world of Dawn, %s.", Player::Get().getName().c_str());
 
-		DawnInterface::enterZone("res/_lua/zone1", 512, 400);
-		//DawnInterface::enterZone("res/_lua/zone1", 747, 1530);	
-		//DawnInterface::enterZone("res/_lua/arinoxGeneralShop", -158, 0);
-
 		s_init = true;
 	}
+
+	//DawnInterface::enterZone("res/_lua/zone1", 747, 1530);	
+	//DawnInterface::enterZone("res/_lua/arinoxGeneralShop", -158, 0);
+	Editor::s_init ? DawnInterface::enterZone() : DawnInterface::enterZone("res/_lua/zone1", 747, 1530);
 
 	//becarefull bind the textures atfer the last glDeleteTextures() call
 	TextureManager::BindTexture(Globals::spritesheetManager.getAssetPointer("font")->getAtlas(), true, 0);
@@ -69,7 +71,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	TextureManager::BindTexture(TextureManager::GetTextureAtlas("spells"), true, 3);
 	TextureManager::BindTexture(TextureManager::GetTextureAtlas("player"), true, 4);
 	TextureManager::BindTexture(TextureManager::GetTextureAtlas("mobs"), true, 5);
-	TextureManager::BindTexture(ZoneManager::Get().getCurrentZone()->getTetureAtlas(), true, 6);
+	//TextureManager::BindTexture(ZoneManager::Get().getCurrentZone()->getTetureAtlas(), true, 6);
 }
 
 Game::~Game() {}
@@ -123,6 +125,13 @@ void Game::processInput() {
 	GroundLoot::ProcessInput(ViewPort::Get().getCursorPosX(), ViewPort::Get().getCursorPosY());
 	ZoneManager::Get().getCurrentZone()->processInput(ViewPort::Get().getCursorPosX(), ViewPort::Get().getCursorPosY(), Player::Get().getXPos(), Player::Get().getYPos());
 	Interface::Get().processInputRightDrag();
+	OptionsWindow::Get().processInput();
+
+	if (keyboard.keyPressed(Keyboard::KEY_L)) {
+		Interface::Get().closeAll();
+		OptionsWindow::Get().close();
+		m_machine.addStateAtTop(new Editor(m_machine));
+	}
 }
 
 void Game::Init() {
@@ -239,6 +248,8 @@ void Game::Init() {
 	TextureManager::Loadimage("res/interface/tooltip/groundloot_background.tga", 90, TextureRects);
 	TextureManager::Loadimage("res/interface/tooltip/groundloot_left.tga", 91, TextureRects);
 	TextureManager::Loadimage("res/interface/tooltip/groundloot_right.tga", 92, TextureRects);
+	TextureManager::Loadimage("res/interface/OptionsScreen/classScreen.tga", 93, TextureRects);
+
 
 	TextureManager::SetTextureAtlas(TextureAtlasCreator::Get().getName(),
 		Spritesheet::Merge(TextureManager::GetTextureAtlas("items"), Spritesheet::Merge(TextureManager::GetTextureAtlas("symbols"), TextureAtlasCreator::Get().getAtlas(), true, true), true, true)

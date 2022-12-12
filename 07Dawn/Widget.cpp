@@ -54,6 +54,11 @@ void Widget::processInput() {
 					m_onClose();
 			}
 		}
+
+		/*if (Keyboard::instance().keyPressed(Keyboard::KEY_1)) {
+			if (m_onClose)
+				m_onClose();
+		}*/
 	}
 
 	if (m_childWidgets.size() > 0) {

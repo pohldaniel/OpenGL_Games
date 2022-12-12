@@ -11,9 +11,10 @@
 #include "Luainterface.h"
 #include "Enums.h"
 
-class TextWindow : public Widget{
+class TextWindow : public Widget {
 
 public:
+
 	void setText(std::string text);
 	void setAutocloseTime(unsigned int autocloseTime);
 	void setPosition(Enums::PositionType, int x, int y);
@@ -23,7 +24,6 @@ public:
 	void processInput();
 	void draw();
 	void close() override;
-
 
 	static void  Update();
 	static void FormatMultilineText(std::string textIn, std::vector< std::string > &textLines, int lineWidth, CharacterSet* font);

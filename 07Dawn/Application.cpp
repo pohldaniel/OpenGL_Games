@@ -7,6 +7,7 @@
 #include "LoadingScreen.h"
 
 EventDispatcher& Application::s_eventDispatcher = EventDispatcher::Get();
+StateMachine* Application::s_machine = nullptr;
 HGLRC Application::MainContext;
 HGLRC Application::LoaderContext;
 HWND Application::Window;
@@ -199,7 +200,7 @@ LRESULT Application::DisplayWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 					enableVerticalSync(!m_enableVerticalSync);
 					break;
 				}case 'Z': {
-					m_machine->toggleWireframe();
+					s_machine->toggleWireframe();
 					break;
 				}case VK_SPACE: {
 					Mouse::instance().detach2();
@@ -317,24 +318,25 @@ bool Application::isRunning() {
 
 void Application::render() {
 	glBufferSubData(GL_UNIFORM_BUFFER, 0, 64, &ViewPort::Get().getCamera().getViewMatrix()[0][0]);
-	m_machine->render();
+	s_machine->render();
 }
 
 void Application::update() {
-	m_machine->update();
+	s_machine->update();
 }
 
 void Application::fixedUpdate() {
-	m_machine->fixedUpdate();
+	s_machine->fixedUpdate();
 }
 
 void Application::initStates() {
-	m_machine = new StateMachine(m_dt, m_fdt);
-	//m_machine->addStateAtTop(new Game(*m_machine));
+	s_machine = new StateMachine(m_dt, m_fdt);
+
+	s_machine->addStateAtTop(new Game(*s_machine));
 
 	//m_machine->addStateAtTop(new LoadingScreen(*m_machine));
 	//m_machine->addStateAtTop(new MainMenu(*m_machine));
-	m_machine->addStateAtTop(new Editor(*m_machine));
+	//m_machine->addStateAtTop(new Editor(*m_machine));
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
@@ -473,8 +475,8 @@ void Application::resize(int deltaW, int deltaH) {
 
 	if (m_init) {
 		ViewPort::Get().init(m_width, m_height);
-		m_machine->resize(m_width, m_height);
-		m_machine->m_states.top()->resize(deltaW, deltaH);
+		s_machine->resize(m_width, m_height);
+		s_machine->m_states.top()->resize(deltaW, deltaH);
 
 		auto shader = Globals::shaderManager.getAssetPointer("batch_font");
 
@@ -494,4 +496,12 @@ void Application::resize(int deltaW, int deltaH) {
 		shader->loadMatrix("u_projection", ViewPort::Get().getCamera().getOrthographicMatrix());
 		glUseProgram(0);
 	}
+}
+
+void Application::AddStateAtTop(State* state) {
+	s_machine->addStateAtTop(state);
+}
+
+StateMachine& Application::GetStateMachine() {
+	return *s_machine;
 }

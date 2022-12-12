@@ -79,8 +79,10 @@ public:
 	void resize(int deltaW, int deltaH);
 	void addTextToLog(std::string text, Vector4f color);
 	void clearLogWindow();
-	void addWidget(Widget& widget, bool activate = false);
-
+	void connectWidget(Widget& widget, bool activate = false, bool keepInputHandling = false);
+	void closeAll();
+	Widget* getActiveWidget();
+	std::vector<Widget*>& getWidgets();
 	static Interface& Get();
 	
 private:
@@ -138,7 +140,7 @@ private:
 
 
 	std::pair<int, int> m_lastMouseDown;
-	std::vector <Widget*> m_widgets;
+	std::vector<Widget*> m_widgets;
 	Widget* m_activeWidget;
 
 	static Interface s_instance;

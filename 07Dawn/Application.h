@@ -26,6 +26,9 @@ public:
 	bool isRunning();
 	HWND getWindow();
 	
+	static void AddStateAtTop(State* state);
+	static StateMachine& GetStateMachine();
+
 private:
 	
 	LRESULT DisplayWndProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lParam);
@@ -50,11 +53,12 @@ private:
 	unsigned int m_width;
 	unsigned int m_height;
 
-	StateMachine* m_machine;
+	
 	bool m_mouseTracking = false;
 
 	static LRESULT CALLBACK StaticWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
-
+	
+	static StateMachine* s_machine;
 	static EventDispatcher& s_eventDispatcher;
 	static HGLRC MainContext;
 	static HGLRC LoaderContext;

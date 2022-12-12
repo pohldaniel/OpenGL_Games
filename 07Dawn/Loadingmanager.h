@@ -12,6 +12,7 @@
 #include "Quest.h"
 #include "InteractionPoint.h"
 #include "Groundloot.h"
+#include "OptionsWindow.h"
 #include "Luainterface.h"
 #include "Application.h"
 
@@ -124,6 +125,7 @@ public:
 		ItemTooltip::Init({ Game::TextureRects.begin() + 53, Game::TextureRects.begin() + 56 });
 
 		setProgress(1.0f);
+		OptionsWindow::Get().init({ Game::TextureRects[93] });
 		progressString = "Initialize Game";
 		LuaFunctions::executeLuaFile("res/_lua/gameinit.lua");
 		DawnInterface::clearLogWindow();

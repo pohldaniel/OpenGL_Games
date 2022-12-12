@@ -68,7 +68,7 @@ public:
 	void addEnvironment(int x_pos, int y_pos, Tile tile, bool centeredOnPos);
 	void replaceEnvironment(int x_pos, int y_pos, Tile& tile, bool centeredOnPos, int replaceId);
 	std::string getZoneName() const;
-
+	
 	int deleteEnvironment(int x, int y);
 	int locateEnvironment(int x, int y);
 	int locateShadow(int x, int y);
@@ -116,6 +116,8 @@ public:
 	void addInteractionRegion(InteractionRegion* interactionRegion);	
 	void addInteractionPoint(InteractionPoint* interactionPoint);
 	void addCharacterInteractionPoint(CharacterInteractionPoint *characterInteractionPoint);
+	//TileSetManager& getTileSetManager();
+	TileSet& getTileSet(Enums::TileClassificationType tileType);
 
 	static void Draw();
 	static void DrawActiveAoESpells();
@@ -136,7 +138,7 @@ private:
 	bool m_mapLoaded = false;
 	unsigned int m_textureAtlas;
 	GroundLoot groundLoot;
-
+	TileSetManager* m_tileSetManger;
 };
 
 class ZoneManager {

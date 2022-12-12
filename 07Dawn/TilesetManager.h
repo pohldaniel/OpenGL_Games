@@ -17,6 +17,7 @@ struct Tile{
 	bool containsCollisionRect;
 	TextureRect textureRect;
 	CollisionRect collisionRect;
+	std::string filename;
 };
 
 struct AdjacencyStruct{
@@ -50,6 +51,7 @@ public:
 	const Tile& getTile(int tileID) const;
 	const Tile& getEmptyTile();
 	const std::vector<Tile>& getAllTiles() const;
+	void setTiles(std::vector<Tile> tiles);
 	void getAllAdjacentTiles(const Tile& searchTile, std::vector<std::vector<Tile>> &matchingTiles, std::vector<std::vector<std::array<int,2>>> &matchOffsets) const;
 	unsigned int numberOfTiles();
 	void clearTiles();
@@ -66,18 +68,18 @@ private:
 class TileSetManager {
 
 public:
+	TileSetManager() = default;
 
 	TileSet& getTileSet(Enums::ActivityType activityType, Enums::Direction direction);
 	TileSet& getTileSet(Enums::TileClassificationType tileType);
 	static TileSetManager& Get();
 	
 private:
-	TileSetManager() = default;
+	
 	
 	std::unordered_map<int, TileSet> m_tileSets;
 	std::unordered_map<std::pair<int, int>, TileSet, pair_hash> m_moveTileSets;
 
-	unsigned int textureAtlas;
 	static TileSetManager s_instance;
 };
 

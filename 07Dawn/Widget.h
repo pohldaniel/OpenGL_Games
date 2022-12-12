@@ -20,6 +20,7 @@ public:
 	virtual int getHeight() const;
 	virtual bool isMouseOnFrame(int mouseX, int mouseY) const;
 	virtual void close();
+	virtual void resize(int deltaW, int deltaH);
 
 	int getPosX() const;
 	int getPosY() const;
@@ -34,11 +35,13 @@ public:
 
 	bool isVisible() const;
 	void setVisible(bool visible);
-	void resize(int deltaW, int deltaH);
+	
 	void setOnClose(std::function<void()> fun);
 	void setOnActivate(std::function<void()> fun);
 	void activate(); 
 	
+	bool m_keepInputHandling;
+
 protected:
 
 	bool isMouseOnTitlebar(int mouseX, int mouseY) const;

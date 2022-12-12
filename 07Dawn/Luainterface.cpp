@@ -54,6 +54,14 @@ namespace EditorInterface{
 	TileSet& getTileSet(Enums::TileClassificationType tileType) {
 		return TileSetManager::Get().getTileSet(tileType);
 	}
+
+	/*TileSet& getTileSet(Enums::TileClassificationType tileType) {
+		Zone* currentZone = ZoneManager::Get().getCurrentZone();
+		std::cout << "Zone: " << currentZone << std::endl;
+		TileSet& tileSet = ZoneManager::Get().getCurrentZone()->getTileSetManager().getTileSet(tileType);
+		std::cout << "Manager: " << &tileSet << std::endl;
+		return ZoneManager::Get().getCurrentZone()->getTileSetManager().getTileSet(tileType);
+	}*/
 }
 namespace DawnInterface{
 
@@ -74,6 +82,19 @@ namespace DawnInterface{
 			zoneNameNoPrefix = zoneNameNoPrefix.substr(zoneNameNoPrefix.find_last_of('/') + 1);
 		}
 		oss << "if (" << zoneNameNoPrefix << ".onEnterMap ~= nil)\nthen\n    " << zoneNameNoPrefix << ".onEnterMap(" << enterX << "," << enterY << ");\nelse    print \"" << zoneNameNoPrefix << ".onEnterMap was not defined\";\nend";
+		std::string onEnterCall = oss.str();
+		LuaFunctions::executeLuaScript(onEnterCall);
+	}
+
+	void enterZone() {
+		Zone* zone = ZoneManager::Get().getCurrentZone();
+		zone->loadZone();
+		std::ostringstream oss;
+		std::string zoneNameNoPrefix = zone->getZoneName();
+		if (zoneNameNoPrefix.find_last_of('/') != std::string::npos) {
+			zoneNameNoPrefix = zoneNameNoPrefix.substr(zoneNameNoPrefix.find_last_of('/') + 1);
+		}
+		oss << "if (" << zoneNameNoPrefix << ".onEnterMap ~= nil)\nthen\n    " << zoneNameNoPrefix << ".onEnterMap(" << Player::Get().getXPos() << "," << Player::Get().getYPos() << ");\nelse    print \"" << zoneNameNoPrefix << ".onEnterMap was not defined\";\nend";
 		std::string onEnterCall = oss.str();
 		LuaFunctions::executeLuaScript(onEnterCall);
 	}

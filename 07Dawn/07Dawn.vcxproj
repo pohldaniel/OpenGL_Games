@@ -179,6 +179,7 @@
     <ClCompile Include="MainMenu.cpp" />
     <ClCompile Include="Message.cpp" />
     <ClCompile Include="Npc.cpp" />
+    <ClCompile Include="OptionsWindow.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="Quest.cpp" />
     <ClCompile Include="Random.cpp" />
@@ -254,6 +255,7 @@
     <ClInclude Include="MainMenu.h" />
     <ClInclude Include="Message.h" />
     <ClInclude Include="Npc.h" />
+    <ClInclude Include="OptionsWindow.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="Quest.h" />
     <ClInclude Include="Random.h" />

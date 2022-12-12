@@ -57,6 +57,7 @@ namespace DawnInterface{
 	const InteractionPoint& addCharacterInteractionPoint(Character *character);
 
 	void enterZone(std::string zoneName, int enterX, int enterY);
+	void enterZone();
 	void setCurrentZone(std::string zoneName);	
 	Npc* addMobSpawnPoint(std::string mobID, std::string name, int x_pos, int y_pos, int respawn_rate, int do_respawn, Enums::Attitude attitude);
 	
