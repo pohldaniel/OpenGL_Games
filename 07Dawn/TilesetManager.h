@@ -17,7 +17,6 @@ struct Tile{
 	bool containsCollisionRect;
 	TextureRect textureRect;
 	CollisionRect collisionRect;
-	std::string filename;
 };
 
 struct AdjacencyStruct{

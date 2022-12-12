@@ -5,6 +5,7 @@
 #include "Game.h"
 #include "Editor.h"
 #include "LoadingScreen.h"
+#include "ChooseClassMenu.h"
 
 EventDispatcher& Application::s_eventDispatcher = EventDispatcher::Get();
 StateMachine* Application::s_machine = nullptr;
@@ -331,12 +332,13 @@ void Application::fixedUpdate() {
 
 void Application::initStates() {
 	s_machine = new StateMachine(m_dt, m_fdt);
+	//s_machine->addStateAtTop(new Game(*s_machine));
 
-	s_machine->addStateAtTop(new Game(*s_machine));
+	//s_machine->addStateAtTop(new LoadingScreen(*s_machine));
+	s_machine->addStateAtTop(new MainMenu(*s_machine));
+	//s_machine->addStateAtTop(new Editor(*s_machine));
 
-	//m_machine->addStateAtTop(new LoadingScreen(*m_machine));
-	//m_machine->addStateAtTop(new MainMenu(*m_machine));
-	//m_machine->addStateAtTop(new Editor(*m_machine));
+	//s_machine->addStateAtTop(new ChooseClassMenu(*s_machine));
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {

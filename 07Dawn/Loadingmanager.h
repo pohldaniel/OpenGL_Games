@@ -55,9 +55,7 @@ public:
 		ReleaseDC(Application::Window, hDC);
 
 		progressString = "Initializing Player";
-		LuaFunctions::executeLuaFile("res/_lua/playerdata_w.lua");
-		Player::Get().setCharacterType("player_w");
-		Player::Get().setClass(Enums::CharacterClass::Liche);
+		LuaFunctions::executeLuaFile("res/_lua/playerdata.lua");
 
 		setProgress(0.025f);
 		progressString = "Loading Spell Data";
@@ -146,10 +144,10 @@ public:
 		ReleaseDC(Application::Window, hDC);
 
 		progressString = "Initializing Player";
-		LuaFunctions::executeLuaFile("res/_lua/playerdata_w.lua");
 		Player::Get().setCharacterType("player_w");
 		Player::Get().setClass(Enums::CharacterClass::Liche);
-
+		LuaFunctions::executeLuaFile("res/_lua/playerdata_w.lua");
+		
 		setProgress(0.025f);
 		progressString = "Loading Spell Data";
 		LuaFunctions::executeLuaFile("res/_lua/spells.lua");

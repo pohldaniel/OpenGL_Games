@@ -63,8 +63,7 @@ Character::Character() : strength(1),
 }
 
 void Character::setCharacterType(std::string characterType) {
-	m_characterType = &CharacterTypeManager::Get().getCharacterType(characterType);
-	rect = &m_characterType->m_moveTileSets.at({ getCurActivity(), activeDirection }).getAllTiles()[0].textureRect;
+	
 }
 
 void Character::Damage(int amount, bool criticalHit) {

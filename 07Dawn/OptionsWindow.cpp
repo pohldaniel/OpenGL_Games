@@ -1,0 +1,162 @@
+#include "OptionsWindow.h"
+#include "Interface.h"
+#include "Editor.h"
+#include "Application.h"
+
+OptionsWindow OptionsWindow::s_instance;
+
+OptionsWindow & OptionsWindow::Get() {
+	return s_instance;
+}
+
+OptionsWindow::OptionsWindow() : Widget(0, 0, 279, 217, 20, 19) {
+}
+
+OptionsWindow::~OptionsWindow(){}
+
+void OptionsWindow::init(std::vector<TextureRect> textures) {
+	m_textures = textures;
+	m_font = &Globals::fontManager.get("verdana_20");
+	m_visible = false;
+	m_keepInputHandling = true;
+	setTextureDependentPositions();
+	Interface::Get().connectWidget(*this, false, true);
+}
+
+void OptionsWindow::draw() {
+	if (!m_visible) return;
+	TextureManager::DrawTextureBatched(m_textures[0], m_posX, m_posY, false, false);
+
+	// show option names (continue, quit, load, save, pause)
+	int textX = m_posX + 64;
+	int textY = m_posY + m_height - 64 - m_font->lineHeight;
+
+	int selectedEntry = -1;
+	if (ViewPort::Get().getCursorPosRelX() < m_posX + 64 || ViewPort::Get().getCursorPosRelX() > m_posX + m_width - 64 || m_posY + m_height - 64 < ViewPort::Get().getCursorPosRelY()) {
+		selectedEntry = -1;
+	}else {
+		selectedEntry = (m_posY + m_height - 64 - ViewPort::Get().getCursorPosRelY()) / static_cast<int>(m_font->lineHeight * 1.5);
+		if ((m_posY + m_height - 64 - ViewPort::Get().getCursorPosRelY()) % static_cast<int>(m_font->lineHeight*1.5) > static_cast<int>(m_font->lineHeight)) {
+			selectedEntry = -1;
+		}
+	}
+
+	Fontrenderer::Get().addText(*m_font, textX, textY, "Quit Game", (selectedEntry == 0) ? Vector4f(1.0f, 1.0f, 0.0f, 1.0f) : Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+	textY -= static_cast<int>(m_font->lineHeight * 1.5);
+	Fontrenderer::Get().addText(*m_font, textX, textY, "Load Game", (selectedEntry == 1) ? Vector4f(1.0f, 0.0f, 0.0f, 1.0f) : Vector4f(0.5f, 0.5f, 0.5f, 1.0f));
+	textY -= static_cast<int>(m_font->lineHeight * 1.5);
+	Fontrenderer::Get().addText(*m_font, textX, textY, "Save Game", (selectedEntry == 2) ? Vector4f(1.0f, 0.0f, 0.0f, 1.0f) : Vector4f(0.5f, 0.5f, 0.5f, 1.0f));
+	textY -= static_cast<int>(m_font->lineHeight * 1.5);
+	Fontrenderer::Get().addText(*m_font, textX, textY, "Editor", (selectedEntry == 3) ? Vector4f(1.0f, 1.0f, 0.0f, 1.0f) : Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+	textY -= static_cast<int>(m_font->lineHeight * 1.5);
+	Fontrenderer::Get().addText(*m_font, textX, textY, "Continue", (selectedEntry == 4) ? Vector4f(1.0f, 1.0f, 0.0f, 1.0f) : Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+	textY -= static_cast<int>(m_font->lineHeight * 1.5);
+	Fontrenderer::Get().addText(*m_font, textX, textY, "Pause", (selectedEntry == 5) ? Vector4f(1.0f, 1.0f, 0.0f, 1.0f) : Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+	
+}
+
+void OptionsWindow::processInput() {
+
+	if (Keyboard::instance().keyPressed(Keyboard::KEY_1)) {	
+		
+		if (Interface::Get().getWidgets().size() > 0) {
+			Interface::Get().closeAll();
+			close();
+		}else {
+			activate();
+		}	
+	}
+
+	if (!m_visible) return;
+	Widget::processInput();	
+
+	// check for quit and the other options
+	//if (!isMouseOnFrame(mouseX, mouseY)) {
+	//return;
+	//}
+
+	int selectedEntry = -1;
+	if (ViewPort::Get().getCursorPosRelX() < m_posX + 64 || ViewPort::Get().getCursorPosRelX() > m_posX + m_width - 64 || m_posY + m_height - 64 < ViewPort::Get().getCursorPosRelY()) {
+		selectedEntry = -1;
+
+	}else {
+		selectedEntry = Mouse::instance().buttonPressed(Mouse::BUTTON_LEFT) ? (m_posY + m_height - 64 - ViewPort::Get().getCursorPosRelY()) / static_cast<int>(m_font->lineHeight * 1.5) : -1;
+		if ((m_posY + m_height - 64 - ViewPort::Get().getCursorPosRelY()) % static_cast<int>(m_font->lineHeight*1.5) > static_cast<int>(m_font->lineHeight)) {
+			selectedEntry = -1;
+		}
+	}
+
+	if (selectedEntry == 0){
+		//setQuitGame();
+	} else if (selectedEntry == 1 /*&& utils::file_exists("savegame.lua") == true*/) {
+		// Load Game
+
+		// clear current game data
+		/*Globals::getCurrentZone()->purgeInteractionList();
+		Globals::getCurrentZone()->purgeInteractionRegionList();
+		questWindow->removeAllQuests();
+		for (std::map< std::string, CZone* >::iterator it = Globals::allZones.begin(); it != Globals::allZones.end(); ++it) {
+			delete it->second;
+			it->second = NULL;
+		}
+		Globals::allZones.clear();
+
+		Globals::getPlayer()->clearInventory();
+		// clear shop data
+		shopWindow = std::auto_ptr<Shop>(new Shop(Globals::getPlayer(), NULL));
+		// clear spellbook
+		spellbook->clear();
+		// clear action bar
+		actionBar->clear();
+		// clear cooldowns
+		Globals::getPlayer()->clearCooldownSpells();
+		// clear buffs
+		Globals::getPlayer()->clearActiveSpells();
+
+		// reenter map
+		// 1. Load all zones
+		// TODO: Load all zones
+		// 2. Restore lua variables
+		LuaFunctions::executeLuaScript("loadGame( 'savegame' )");
+		//CZone *newZone = Globals::allZones["data/zone1"];
+		//newZone->LoadZone("data/zone1");
+		LuaFunctions::executeLuaFile("data/quests_wood.lua");
+		DawnInterface::clearLogWindow();*/
+
+	}else if (selectedEntry == 2) {
+		/*if (Globals::isSavingAllowed()) {
+			// save Game
+			LuaFunctions::executeLuaScript("saveGame( 'savegame' )");
+			GLfloat yellow[] = { 1.0f, 1.0f, 0.0f };
+			DawnInterface::addTextToLogWindow(yellow, "Game saved.");
+		}*/
+	}else if (selectedEntry == 3){
+		Interface::Get().closeAll();
+		close();
+		Application::AddStateAtTop(new Editor(Application::GetStateMachine()));
+
+	}else if (selectedEntry == 4) {
+		/*GLfloat yellow[] = { 1.0f, 1.0f, 0.0f };
+		if (Globals::isPaused()) {
+			Globals::setPaused(false);
+			DawnInterface::addTextToLogWindow(yellow, "Game unpaused.");
+
+		}else {
+			Globals::setPaused(true);
+			DawnInterface::addTextToLogWindow(yellow, "Game paused.");
+
+		}*/
+	}
+}
+
+void OptionsWindow::setTextureDependentPositions() {
+	m_width = m_textures[0].width;
+	m_height = m_textures[0].height;
+	// center on screen
+	m_posX = (ViewPort::Get().getWidth() - m_width) / 2;
+	m_posY = (ViewPort::Get().getHeight() - m_height) / 2;
+}
+
+void  OptionsWindow::resize(int deltaW, int deltaH) {
+	setTextureDependentPositions();
+}

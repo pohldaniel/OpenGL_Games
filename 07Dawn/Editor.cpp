@@ -8,9 +8,9 @@ Editor::Editor(StateMachine& machine) : State(machine, CurrentState::EDITOR) {
 	Mouse::SetCursorIcon("res/cursors/pointer.cur");
 
 	if (!s_init && !Game::s_init) {
-		LuaFunctions::executeLuaFile("res/_lua/playerdata_w.lua");
 		Player::Get().setCharacterType("player_w");
 		Player::Get().setClass(Enums::CharacterClass::Liche);
+		LuaFunctions::executeLuaFile("res/_lua/playerdata_w.lua");
 
 		LuaFunctions::executeLuaFile("res/_lua/spells_l.lua");
 		LuaFunctions::executeLuaFile("res/_lua/itemdatabase.lua");

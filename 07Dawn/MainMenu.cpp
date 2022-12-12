@@ -1,7 +1,5 @@
 #include "MainMenu.h"
-#include "Interface.h"
-#include "Spellbook.h"
-#include "Player.h"
+#include "ChooseClassMenu.h"
 
 MainMenu::MainMenu(StateMachine& machine) : State(machine, CurrentState::MAINMENU) {
 	Mouse::SetCursorIcon("res/cursors/black.cur");
@@ -25,7 +23,7 @@ MainMenu::MainMenu(StateMachine& machine) : State(machine, CurrentState::MAINMEN
 
 	dynamic_cast<Label*>(m_dialog.getChildWidgets()[3])->setFunction([&]() {
 		m_isRunning = false;
-		m_machine.addStateAtTop(new LoadingScreen(m_machine, false));
+		m_machine.addStateAtTop(new ChooseClassMenu(m_machine));
 	});
 
 	TextureManager::BindTexture(Globals::spritesheetManager.getAssetPointer("font")->getAtlas(), true, 0);
@@ -42,7 +40,7 @@ void MainMenu::update() {
 void MainMenu::render() {
 
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT);
 	m_dialog.draw();
 }
 

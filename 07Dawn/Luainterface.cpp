@@ -54,14 +54,6 @@ namespace EditorInterface{
 	TileSet& getTileSet(Enums::TileClassificationType tileType) {
 		return TileSetManager::Get().getTileSet(tileType);
 	}
-
-	/*TileSet& getTileSet(Enums::TileClassificationType tileType) {
-		Zone* currentZone = ZoneManager::Get().getCurrentZone();
-		std::cout << "Zone: " << currentZone << std::endl;
-		TileSet& tileSet = ZoneManager::Get().getCurrentZone()->getTileSetManager().getTileSet(tileType);
-		std::cout << "Manager: " << &tileSet << std::endl;
-		return ZoneManager::Get().getCurrentZone()->getTileSetManager().getTileSet(tileType);
-	}*/
 }
 namespace DawnInterface{
 

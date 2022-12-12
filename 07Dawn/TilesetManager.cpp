@@ -34,16 +34,9 @@ TileSet::TileSet() {}
 // The following functions are in the LUA EditorInterface
 unsigned int TileSet::addTile(std::string filename, int paddingLeft, int paddingRight, int paddingTop, int paddingBottom) {
 
-	/*for (size_t curTileNr = 0; curTileNr < m_tiles.size(); ++curTileNr) {
-		Tile& curTile = m_tiles[curTileNr];
-		if (curTile.filename == filename ) {
-			return curTileNr;
-		}
-	}*/
-
 	unsigned int tileId = static_cast<unsigned int>(m_tiles.size());
 
-	m_tiles.push_back({ tileId , false, TextureManager::Loadimage(filename, 0, 0, paddingLeft, paddingRight, paddingTop, paddingBottom), {}, filename });
+	m_tiles.push_back({ tileId , false, TextureManager::Loadimage(filename, 0, 0, paddingLeft, paddingRight, paddingTop, paddingBottom), {}});
 	return tileId;
 }
 
@@ -51,7 +44,7 @@ unsigned int TileSet::addTile(std::string filename, unsigned int maxWidth, unsig
 
 	unsigned int tileId = static_cast<unsigned int>(m_tiles.size());
 
-	m_tiles.push_back({ tileId , false, TextureManager::Loadimage(filename, maxWidth, maxHeight, paddingLeft, paddingRight, paddingTop, paddingBottom), {}, filename });
+	m_tiles.push_back({ tileId , false, TextureManager::Loadimage(filename, maxWidth, maxHeight, paddingLeft, paddingRight, paddingTop, paddingBottom), {}});
 	return tileId;
 }
 
@@ -60,7 +53,6 @@ unsigned int TileSet::addTileWithCollisionBox(std::string filename, int cbx, int
 	Tile& newTile = m_tiles[tileId];
 	newTile.containsCollisionRect = true;
 	newTile.collisionRect = { cbx, cby, cbw,cbh };
-	newTile.filename = filename;
 
 	return tileId;
 }

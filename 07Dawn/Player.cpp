@@ -196,7 +196,14 @@ void Player::update(float deltaTime) {
 	}
 }
 
+void Player::setCharacterType(std::string characterTypeStr) {
+	m_characterTypeStr = characterTypeStr;
+}
+
 void Player::init() {
+	m_characterType = &CharacterTypeManager::Get().getCharacterType(m_characterTypeStr);
+	rect = &m_characterType->m_moveTileSets.at({ getCurActivity(), activeDirection }).getAllTiles()[0].textureRect;
+
 	activeDirection = Enums::Direction::S;
 	lastActiveDirection = activeDirection;
 	curActivity = Enums::ActivityType::Walking;

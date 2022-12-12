@@ -14,6 +14,7 @@ public:
 
 	void draw() override;
 	void update(float deltaTime) override;
+	void setCharacterType(std::string characterType) override;
 	/////////////LUA/////////////
 	void init();
 
@@ -103,6 +104,7 @@ private:
 	int dx, dy;
 	bool isCurrentlyShopping;
 	Inventory* inventory;
+	std::string m_characterTypeStr;
 
 	static Player s_instance;
 };

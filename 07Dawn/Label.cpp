@@ -57,3 +57,12 @@ int Label::getHeight() const {
 void Label::setFunction(std::function<void()> fun) {
 	m_fun = fun;
 }
+
+void Label::setDefaultColor(Vector4f color) {
+	defaultColor = color;
+	activeColor = defaultColor;
+}
+
+void Label::setHoverColor(Vector4f color) {
+	hoverColor = color;
+}
