@@ -177,9 +177,13 @@ namespace DawnInterface{
 		pointToRemove->markAsDeletable();
 	}
 
+	std::string getItemReferenceRestore(std::string varName, void *ignore) {
+		return "";
+	}
+
 	std::string getItemReferenceRestore(std::string varName, Character *character){
 		if (character == NULL) {
-			return "nil;";
+			return "";
 		}
 		std::unordered_map<std::string, Zone>& allZones = ZoneManager::Get().getAllZones();
 		for (std::unordered_map< std::string, Zone>::iterator it = allZones.begin(); it != allZones.end(); ++it) {
@@ -196,7 +200,7 @@ namespace DawnInterface{
 		return "";
 	}
 
-	std::string getItemReferenceRestore(std::string varName, InteractionPoint *interactionPoint) {
+	/*std::string getItemReferenceRestore(std::string varName, InteractionPoint *interactionPoint) {
 		if (interactionPoint == NULL) {
 			return "nil;";
 		}
@@ -234,7 +238,7 @@ namespace DawnInterface{
 		}
 		// not found
 		return "";
-	}
+	}*/
 
 	std::string getItemReferenceRestore(std::string varName, CallIndirection *eventHandler) {
 		if (eventHandler == NULL) {
@@ -279,13 +283,13 @@ namespace DawnInterface{
 		return oss.str();
 	}
 
-	std::string getItemReferenceRestore(std::string varName, TextWindow *textWindow) {
+	/*std::string getItemReferenceRestore(std::string varName, TextWindow *textWindow) {
 		return "DawnInterface.createTextWindow(); -- text windows are not restored";
 	}
 
 	std::string getItemReferenceRestore(std::string varName, Zone* zone) {
 		return "DawnInterface.getCurrentZone()";
-	}
+	}*/
 
 	std::string getReinitialisationString(std::string fullVarName, Quest* quest) {
 		if (quest == NULL) {
@@ -315,7 +319,7 @@ namespace DawnInterface{
 	}
 
 	std::string getReinitialisationString(std::string fullVarName, void *ignore) {
-		return "";
+		return "nil";
 	}
 
 	Character* restoreCharacterReference(std::string zoneName, int posInArray) {

@@ -66,14 +66,16 @@ namespace DawnInterface{
 	void removeInteractionRegion(InteractionRegion *regionToRemove);	
 	void removeInteractionPoint(InteractionPoint *pointToRemove);
 
-	std::string getItemReferenceRestore(std::string varName, Character *character);
-	std::string getItemReferenceRestore(std::string varName, InteractionPoint *interactionPoint);
-	std::string getItemReferenceRestore(std::string varName, InteractionRegion *interactionRegion);
-	std::string getItemReferenceRestore(std::string varName, CallIndirection *eventHandler);
+	std::string getItemReferenceRestore(std::string varName, void *ignore);
 	std::string getItemReferenceRestore(std::string varName, Quest* quest);
 	std::string getItemReferenceRestore(std::string varName, Shop *shop);
-	std::string getItemReferenceRestore(std::string varName, TextWindow *textWindow);
-	std::string getItemReferenceRestore(std::string varName, Zone* zone);
+	
+	std::string getItemReferenceRestore(std::string varName, Character *character);
+	//std::string getItemReferenceRestore(std::string varName, InteractionPoint *interactionPoint);
+	//std::string getItemReferenceRestore(std::string varName, InteractionRegion *interactionRegion);
+	std::string getItemReferenceRestore(std::string varName, CallIndirection *eventHandler);
+	//std::string getItemReferenceRestore(std::string varName, TextWindow *textWindow);
+	//std::string getItemReferenceRestore(std::string varName, Zone* zone);
 
 	std::string getReinitialisationString(std::string fullVarName, Quest* quest);
 	std::string getReinitialisationString(std::string fullVarName, void *ignore);

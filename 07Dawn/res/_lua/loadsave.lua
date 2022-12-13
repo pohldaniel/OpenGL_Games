@@ -32,9 +32,11 @@ function printValue( surroundingName, varname, value )
 		end
 	elseif( type(value) == "userdata" ) then
 		local restoreString = DawnInterface.getItemReferenceRestore(prefix..varname, value );
-		io.write( prefix..varname.."="..restoreString..'\n' );
-		local furtherReinitializationString = DawnInterface.getReinitialisationString( prefix..varname, value );
-		io.write( furtherReinitializationString );
+		if(restoreString ~= "") then
+			io.write( prefix..varname.."="..restoreString..'\n' );
+		end
+		--local furtherReinitializationString = DawnInterface.getReinitialisationString( prefix..varname, value );
+		--io.write( furtherReinitializationString );
 	end
 end
 
