@@ -352,7 +352,7 @@ class Player : public Character {
 	
 	void setBoundingBox(int bbx, int bby, int bbw, int bbh);
 	void setClass(Enums::CharacterClass characterClass);
-	void setName(std::string newName);
+	void setName(std::string name);
 	void setStrength(unsigned short newStrength);
 	void setDexterity(unsigned short newDexterity);
 	void setVitality(unsigned short newVitality);
@@ -383,6 +383,7 @@ class Player : public Character {
 	void giveCoins(unsigned int amountOfCoins);
 	void setCoins(unsigned int amountOfCoins);
 	void setPosition(int xpos, int ypos);
+	void setCharacterType(std::string characterType);
 	void init();
 	Enums::CharacterClass getClass();
 	std::string getSaveText();
@@ -419,6 +420,11 @@ struct TextureAtlasCreator {
 
 class TextureManager {
 	static void SetTextureAtlas(std::string name, unsigned int value);
+};
+
+class Zone {
+	void loadZone();
+	void setInit(bool flag);
 };
 
 class SpellActionBase {

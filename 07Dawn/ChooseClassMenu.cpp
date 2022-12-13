@@ -27,21 +27,21 @@ ChooseClassMenu::ChooseClassMenu(StateMachine& machine) : State(machine, Current
 		Player::Get().setCharacterType("player_s");
 		Player::Get().setClass(Enums::CharacterClass::Warrior);
 		m_isRunning = false;
-		m_machine.addStateAtTop(new LoadingScreen(m_machine, false));
+		m_machine.addStateAtTop(new LoadingScreen(m_machine));
 	});
 
 	dynamic_cast<Label*>(m_dialog.getChildWidgets()[2])->setFunction([&]() {
 		Player::Get().setCharacterType("player_r");
 		Player::Get().setClass(Enums::CharacterClass::Ranger);
 		m_isRunning = false;
-		m_machine.addStateAtTop(new LoadingScreen(m_machine, false));
+		m_machine.addStateAtTop(new LoadingScreen(m_machine));
 	});
 
 	dynamic_cast<Label*>(m_dialog.getChildWidgets()[3])->setFunction([&]() {
 		Player::Get().setCharacterType("player_w");
 		Player::Get().setClass(Enums::CharacterClass::Liche);
 		m_isRunning = false;
-		m_machine.addStateAtTop(new LoadingScreen(m_machine, false));
+		m_machine.addStateAtTop(new LoadingScreen(m_machine));
 	});
 
 	TextureManager::BindTexture(Globals::spritesheetManager.getAssetPointer("font")->getAtlas(), true, 0);

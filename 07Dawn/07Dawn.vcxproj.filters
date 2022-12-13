@@ -329,9 +329,6 @@
     <ClInclude Include="Zone.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="StateMachine.h">
-      <Filter>Source Files\States</Filter>
-    </ClInclude>
     <ClInclude Include="Game.h">
       <Filter>Source Files\States</Filter>
     </ClInclude>
@@ -480,6 +477,9 @@
       <Filter>Source Files\Interface</Filter>
     </ClInclude>
     <ClInclude Include="ChooseClassMenu.h">
+      <Filter>Source Files\States</Filter>
+    </ClInclude>
+    <ClInclude Include="StateMachine.h">
       <Filter>Source Files\States</Filter>
     </ClInclude>
   </ItemGroup>

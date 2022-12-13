@@ -124,7 +124,7 @@ public:
 	void purgeInteractionRegionList();
 	void purgeNpcList();
 	std::string getLuaSaveText() const;
-
+	void setInit(bool flag);
 	Character* getCharacterPointer(size_t posInArray) const;
 	InteractionPoint* getInteractionPointPointer(size_t posInArray) const;
 	InteractionRegion* getInteractionRegionPointer(size_t posInArray) const;
@@ -151,6 +151,7 @@ private:
 	GroundLoot groundLoot;
 	TileSetManager* m_tileSetManger;
 	bool m_mapLoaded = false;
+	bool m_init = false;
 };
 
 class ZoneManager {

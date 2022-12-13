@@ -15,10 +15,21 @@
 #include "OptionsWindow.h"
 #include "Luainterface.h"
 #include "Application.h"
+#include "LoadingManager.h"
+
 
 class LoadingManager : public CThread {
 
 public:
+	
+	enum Entry {
+		GAME = 0,
+		EDITOR = 1,
+		LOAD = 2,
+	};
+
+
+
 	void setProgress(float newProgress) {
 		progress = newProgress;
 		Sleep(1);
@@ -40,8 +51,9 @@ public:
 		return progressString;
 	}
 
-	void startBackgroundThread(bool initEditor) {
-		m_initEditor = initEditor;
+	void startBackgroundThread(Entry entry) {
+		m_entry = entry;
+
 		do {
 			
 			this->Event();
@@ -56,6 +68,7 @@ public:
 
 		progressString = "Initializing Player";
 		LuaFunctions::executeLuaFile("res/_lua/playerdata.lua");
+		Player::Get().init();
 
 		setProgress(0.025f);
 		progressString = "Loading Spell Data";
@@ -125,7 +138,7 @@ public:
 		setProgress(1.0f);
 		OptionsWindow::Get().init({ Game::TextureRects[93] });
 		progressString = "Initialize Game";
-		
+
 		LuaFunctions::executeLuaFile("res/_lua/loadsave.lua");
 		LuaFunctions::executeLuaFile("res/_lua/gameinit.lua");
 
@@ -137,20 +150,22 @@ public:
 		accessMutex.Lock();
 		finished = true;
 		Game::s_init = true;
+		DawnInterface::enterZone("res/_lua/arinoxGeneralShop", -158, 0);
 		wglDeleteContext(Application::LoaderContext);
 		accessMutex.Unlock();
 	}
+
 
 	void initEditor() {
 		HDC hDC = GetDC(Application::Window);
 		wglMakeCurrent(hDC, Application::LoaderContext);
 		ReleaseDC(Application::Window, hDC);
 
-		progressString = "Initializing Player";
-		Player::Get().setCharacterType("player_w");
-		Player::Get().setClass(Enums::CharacterClass::Liche);
+		progressString = "Initializing Player";	
 		LuaFunctions::executeLuaFile("res/_lua/playerdata_w.lua");
-		
+		Player::Get().setCharacterType("player_w");
+		Player::Get().init();
+
 		setProgress(0.025f);
 		progressString = "Loading Spell Data";
 		LuaFunctions::executeLuaFile("res/_lua/spells.lua");
@@ -174,6 +189,98 @@ public:
 		accessMutex.Unlock();
 	}
 
+	void initLoad() {
+		HDC hDC = GetDC(Application::Window);
+		wglMakeCurrent(hDC, Application::LoaderContext);
+		ReleaseDC(Application::Window, hDC);
+
+		progressString = "Initializing Player";
+		LuaFunctions::executeLuaFile("res/_lua/playerdata.lua");
+
+		setProgress(0.025f);
+		progressString = "Loading Spell Data";
+		LuaFunctions::executeLuaFile("res/_lua/spells.lua");
+
+		setProgress(0.05f);
+		progressString = "Loading Item Data";
+		LuaFunctions::executeLuaFile("res/_lua/itemdatabase.lua");
+
+		setProgress(0.075f);
+		progressString = "Loading Mob Data";
+		LuaFunctions::executeLuaFile("res/_lua/mobdata.lua");
+
+		setProgress(0.1f);
+		progressString = "Loading Interface Data";
+		Game::Init();
+
+		setProgress(0.125f);
+		progressString = "Initializing Interface";
+		Interface::Get().setPlayer(&Player::Get());
+		Interface::Get().init({ Game::TextureRects.begin(), Game::TextureRects.begin() + 42 });
+		std::cout << "###########" << std::endl;
+		setProgress(0.15f);
+		progressString = "Initializing Spellbook";
+		Spellbook::Get().setPlayer(&Player::Get());
+		Spellbook::Get().init({ Game::TextureRects.begin() + 42, Game::TextureRects.begin() + 46 });
+		Spellbook::Get().reloadSpellsFromPlayer();
+
+		setProgress(0.16f);
+		progressString = "Initializing Character Info Canvas";
+		CharacterInfo::Get().setPlayer(&Player::Get());
+		CharacterInfo::Get().init({ Game::TextureRects.begin() + 46, Game::TextureRects.begin() + 51 });
+
+		setProgress(0.175f);
+		progressString = "Initializing Inventory Canvas";
+		InventoryCanvas::Get().setPlayer(&Player::Get());
+		InventoryCanvas::Get().init({ Game::TextureRects.begin() + 51, Game::TextureRects.begin() + 69 });
+
+		setProgress(0.2f);
+		progressString = "Initializing Quest Canvas";
+		QuestCanvas::Get().init({ Game::TextureRects[69] });
+
+		setProgress(0.3f);
+		progressString = "Initializing Dialog Canvas";
+		DialogCanvas::Init({ Game::TextureRects.begin() + 70, Game::TextureRects.begin() + 79 });
+
+		setProgress(0.4f);
+		progressString = "Initializing Shop Canvas";
+		ShopCanvas::Get().init({ Game::TextureRects.begin() + 79, Game::TextureRects.begin() + 84 });
+
+		setProgress(0.5f);
+		progressString = "Initializing Shop Canvas";
+		ShopCanvas::Get().init({ Game::TextureRects.begin() + 79, Game::TextureRects.begin() + 84 });
+
+		setProgress(0.6f);
+		progressString = "Initializing Interaction Points";
+		InteractionPoint::Init({ Game::TextureRects.begin() + 84, Game::TextureRects.begin() + 90 });
+
+		setProgress(0.8f);
+		progressString = "Initializing GroundLoot";
+		GroundLoot::Init({ Game::TextureRects.begin() + 90, Game::TextureRects.begin() + 93 });
+
+		setProgress(0.9f);
+		progressString = "Initializing Tooltips";
+		ItemTooltip::Init({ Game::TextureRects.begin() + 53, Game::TextureRects.begin() + 56 });
+
+		setProgress(1.0f);
+		OptionsWindow::Get().init({ Game::TextureRects[93] });
+		progressString = "Initialize Game";
+
+		LuaFunctions::executeLuaFile("res/_lua/loadsave.lua");
+
+		
+		DawnInterface::clearLogWindow();
+		GLfloat color[] = { 1.0f, 1.0f, 0.0f };
+		DawnInterface::addTextToLogWindow(color, "Welcome to the world of Dawn, %s.", Player::Get().getName().c_str());
+
+		accessMutex.Lock();
+		finished = true;
+		Game::s_init = true;
+		LuaFunctions::executeLuaScript("loadGame( 'savegame' )");
+		wglDeleteContext(Application::LoaderContext);
+		accessMutex.Unlock();
+	}
+
 	static LoadingManager& Get() {
 		static LoadingManager instance;
 		return instance;
@@ -191,7 +298,20 @@ private:
 		}
 
 		started = true;
-		m_initEditor ? initEditor() : init();
+
+		switch (m_entry) {
+			case Entry::GAME:
+				init();
+				break;
+			case Entry::EDITOR:
+				initEditor();
+				break;
+			case Entry::LOAD:
+				initLoad();
+				break;
+			default:
+				break;
+		}
 		return true;
 	}
 
@@ -200,5 +320,5 @@ private:
 	std::string progressString;
 	float progress;
 	CMutexClass accessMutex;
-	bool m_initEditor;
+	Entry m_entry;
 };

@@ -1,12 +1,14 @@
 #pragma once
 
-#include "engine/Rect.h"
+#include "LoadingManager.h"
 #include "StateMachine.h"
+
 
 class LoadingScreen : public State {
 
 public:
-	LoadingScreen(StateMachine& machine, bool initEditor);
+
+	LoadingScreen(StateMachine& machine, LoadingManager::Entry entry = LoadingManager::Entry::GAME);
 	~LoadingScreen();
 
 	void fixedUpdate() override;
@@ -26,4 +28,5 @@ private:
 	float m_progress;
 	const CharacterSet& m_characterSet;
 	bool m_initEditor;
+	LoadingManager::Entry m_entry;
 };

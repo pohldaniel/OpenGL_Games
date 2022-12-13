@@ -16,7 +16,7 @@ Zone::~Zone(){
 void Zone::loadZone() {
 
 	LuaFunctions::executeLuaScript(std::string("DawnInterface.setCurrentZone( \"").append(m_file).append("\");"));
-
+	
 	if (!m_mapLoaded) {
 
 		EditorInterface::getTileSet(Enums::TileClassificationType::FLOOR).setOffset(EditorInterface::getTileSet(Enums::TileClassificationType::FLOOR).getAllTiles().size());
@@ -53,9 +53,14 @@ void Zone::loadZone() {
 		LuaFunctions::executeLuaFile(std::string(m_file).append(".environment.lua"));
 		LuaFunctions::executeLuaFile(std::string(m_file).append(".shadow.lua"));
 		LuaFunctions::executeLuaFile(std::string(m_file).append(".collision.lua"));
+		
+		m_mapLoaded = true;
+	}
+
+	if (!m_init) {
 		LuaFunctions::executeLuaFile(std::string(m_file).append(".spawnpoints.lua"));
 		LuaFunctions::executeLuaFile(std::string(m_file).append(".init.lua"));
-		m_mapLoaded = true;
+		m_init = true;
 	}
 
 	TextureManager::BindTexture(TextureManager::GetTextureAtlas(m_file), true, 6);
@@ -368,6 +373,7 @@ void Zone::update(float deltaTime) {
 }
 
 void Zone::drawZoneBatched() {
+	
 	drawTilesBatched();
 	drawEnvironmentBatched();
 	drawShadowsBatched();
@@ -537,40 +543,27 @@ void Zone::DrawNpcs() {
 	ZoneManager::Get().getCurrentZone()->drawNpcsBatched();
 }
 
-///////////////////////////////////////////////////////////////////
-ZoneManager ZoneManager::s_instance;
-
-ZoneManager& ZoneManager::Get() {
-	return s_instance;
-}
-
-Zone& ZoneManager::getZone(std::string zoneName) {
-	Zone& zone = m_zones[zoneName];
-	zone.m_file = zoneName;
-	return m_zones[zoneName];
-}
-
-void ZoneManager::setCurrentZone(Zone* zone) {
-	m_currentZone = zone;
-}
-
-Zone* ZoneManager::getCurrentZone() {
-	return m_currentZone;
-}
-
-std::unordered_map<std::string, Zone>& ZoneManager::getAllZones() {
-	return m_zones;
+void Zone::setInit(bool flag) {
+	m_init = flag;
 }
 
 std::string Zone::getLuaSaveText() const {
-	
+
+	std::string zoneNameNoPrefix = m_file;
+	if (zoneNameNoPrefix.find_last_of('/') != std::string::npos) {
+		zoneNameNoPrefix = zoneNameNoPrefix.substr(zoneNameNoPrefix.find_last_of('/') + 1);
+	}
+
 	std::ostringstream oss;
 	oss << "DawnInterface.setCurrentZone( \"" << m_file << "\" );" << std::endl;
-	oss << "dofile( \"" << std::string(m_file).append(".spawnpoints.lua") << "\" );" << std::endl;
-	oss << "DawnInterface.getCurrentZone().inited = nil;" << std::endl;
-	oss << "dofile( \"" << std::string(m_file).append(".init.lua") << "\" );" << std::endl;
+	oss << zoneNameNoPrefix << "=DawnInterface.getCurrentZone();" << std::endl;
+	oss << zoneNameNoPrefix << ".inited = nil;" << std::endl;
+	oss << zoneNameNoPrefix << ":setInit(false);" << std::endl;
+	oss << zoneNameNoPrefix << ":loadZone();" << std::endl << std::endl;
+
+
 	// save call indirections (must be added before spawnpoints since used there)
-	oss << "-- event handlers" << std::endl;
+	oss << "-- " << zoneNameNoPrefix << " event handlers" << std::endl;
 	for (size_t curEventHandlerNr = 0; curEventHandlerNr<eventHandlers.size(); ++curEventHandlerNr) {
 		CallIndirection *curEventHandler = eventHandlers[curEventHandlerNr];
 		std::string eventHandlerSaveText = curEventHandler->getLuaSaveText();
@@ -580,70 +573,70 @@ std::string Zone::getLuaSaveText() const {
 	// save all spawnpoints
 	/*oss << "-- spawnpoints" << std::endl;
 	for (size_t curNpcNr = 0; curNpcNr < m_npcs.size(); ++curNpcNr) {
-		Npc *curNPC = m_npcs[curNpcNr];
-		// save cur npc
-		std::string npcSaveText = curNPC->getLuaSaveText();
-		oss << npcSaveText;
+	Npc *curNPC = m_npcs[curNpcNr];
+	// save cur npc
+	std::string npcSaveText = curNPC->getLuaSaveText();
+	oss << npcSaveText;
 	}
 
-	
+
 
 	// save interaction points
 	oss << "-- interaction points" << std::endl;
 	for (size_t curInteractionNr = 0; curInteractionNr < m_interactionPoints.size(); ++curInteractionNr) {
-		InteractionPoint *curInteractionPoint = m_interactionPoints[curInteractionNr];	
-		std::string interactionSaveText = curInteractionPoint->getLuaSaveText();
-		oss << interactionSaveText;
+	InteractionPoint *curInteractionPoint = m_interactionPoints[curInteractionNr];
+	std::string interactionSaveText = curInteractionPoint->getLuaSaveText();
+	oss << interactionSaveText;
 	}
 
 	// save interaction regions
 	oss << "-- interaction regions" << std::endl;
 	for (size_t curInteractionNr = 0; curInteractionNr < m_interactionRegions.size(); ++curInteractionNr) {
-		InteractionRegion *curInteractionRegion = m_interactionRegions[curInteractionNr];
-		std::string interactionSaveText = curInteractionRegion->getLuaSaveText();
-		oss << interactionSaveText;
+	InteractionRegion *curInteractionRegion = m_interactionRegions[curInteractionNr];
+	std::string interactionSaveText = curInteractionRegion->getLuaSaveText();
+	oss << interactionSaveText;
 	}*/
 
 	// save shop data (this ought to be put into the shop somehow as soon as shops are customizable)
 	/*std::unordered_map<std::string, Zone>& allZones = ZoneManager::Get().getAllZones();
 	for (std::unordered_map<std::string, Zone>::iterator it = allZones.begin(); it != allZones.end(); ++it) {
 
-		Zone& currentZone = ZoneManager::Get().getZone(it->first);
-		currentZone.purgeInteractionList();
-		currentZone.purgeInteractionRegionList();
-		currentZone.purgeNpcList();
+	Zone& currentZone = ZoneManager::Get().getZone(it->first);
+	currentZone.purgeInteractionList();
+	currentZone.purgeInteractionRegionList();
+	currentZone.purgeNpcList();
 	}*/
 	/*oss << "-- shops" << std::endl;
 	std::unordered_map<std::string, Shop*>& allShop = ShopManager::Get().getAllShops();
 	for (std::unordered_map<std::string, Shop*>::iterator it = allShop.begin(); it != allShop.end(); ++it) {
-		Shop& currentShop = ShopManager::Get().getShop(it->first);
-		//currentShop.purgeShopkeeperInventory();
+	Shop& currentShop = ShopManager::Get().getShop(it->first);
+	//currentShop.purgeShopkeeperInventory();
 
-		oss << "local curShop = DawnInterface.addShop( \"" << currentShop.m_name << "\" );" << std::endl;
-		for (size_t curTab = 0; curTab<3; ++curTab) {
-			for (size_t curItemNr = 0; curItemNr < currentShop.shopkeeperInventory[curTab].size(); ++curItemNr) {
-				oss << "curShop:addItem( itemDatabase[\"" << currentShop.shopkeeperInventory[curTab][curItemNr]->getItem()->getID() << "\"] );" << std::endl;
-			}
-		}
+	oss << "local curShop = DawnInterface.addShop( \"" << currentShop.m_name << "\" );" << std::endl;
+	for (size_t curTab = 0; curTab<3; ++curTab) {
+	for (size_t curItemNr = 0; curItemNr < currentShop.shopkeeperInventory[curTab].size(); ++curItemNr) {
+	oss << "curShop:addItem( itemDatabase[\"" << currentShop.shopkeeperInventory[curTab][curItemNr]->getItem()->getID() << "\"] );" << std::endl;
+	}
+	}
 	}*/
 	/*oss << "-- shops" << std::endl;
 	std::unordered_map<std::string, Shop*>& allShop = ShopManager::Get().getAllShops();
 	for (std::unordered_map<std::string, Shop*>::iterator it = allShop.begin(); it != allShop.end(); ++it) {
-		Shop& currentShop = ShopManager::Get().getShop(it->first);
-		oss << "DawnInterface.addShop( \"" << currentShop.m_name << "\" , true ); -- shops not really searchable, yet" << std::endl;;
-		for (size_t curTab = 0; curTab < 3; ++curTab) {
-			for (size_t curItemNr = 0; curItemNr < currentShop.shopkeeperInventory[curTab].size(); ++curItemNr) {
-				oss << "traderShop:addItem( itemDatabase[\"" << currentShop.shopkeeperInventory[curTab][curItemNr]->getItem()->getID() << "\"] );" << std::endl;
-			}
-		}
+	Shop& currentShop = ShopManager::Get().getShop(it->first);
+	oss << "DawnInterface.addShop( \"" << currentShop.m_name << "\" , true ); -- shops not really searchable, yet" << std::endl;;
+	for (size_t curTab = 0; curTab < 3; ++curTab) {
+	for (size_t curItemNr = 0; curItemNr < currentShop.shopkeeperInventory[curTab].size(); ++curItemNr) {
+	oss << "traderShop:addItem( itemDatabase[\"" << currentShop.shopkeeperInventory[curTab][curItemNr]->getItem()->getID() << "\"] );" << std::endl;
+	}
+	}
 	}
 
 	oss << "traderShop:loadShopkeeperInventory();" << std::endl;*/
 	oss << std::endl;
 	return oss.str();
-	
-	
-	
+
+
+
 	// save ground loot
 	oss << "-- ground loot" << std::endl;
 	for (size_t curGroundItemNr = 0; curGroundItemNr < groundLoot.groundItems.size(); ++curGroundItemNr) {
@@ -655,7 +648,8 @@ std::string Zone::getLuaSaveText() const {
 				<< goldHeap->numCoins() << ", "
 				<< curGroundItem.xpos << ", "
 				<< curGroundItem.ypos << " );" << std::endl;
-		} else {
+		}
+		else {
 			oss << "DawnInterface.restoreGroundLootItem( "
 				<< "itemDatabase[ \"" << item->getID() << "\" ], "
 				<< curGroundItem.xpos << ", "
@@ -681,3 +675,27 @@ CallIndirection* Zone::getEventHandlerPointer(size_t posInArray) const {
 	return eventHandlers.at(posInArray);
 }
 
+///////////////////////////////////////////////////////////////////
+ZoneManager ZoneManager::s_instance;
+
+ZoneManager& ZoneManager::Get() {
+	return s_instance;
+}
+
+Zone& ZoneManager::getZone(std::string zoneName) {
+	Zone& zone = m_zones[zoneName];
+	zone.m_file = zoneName;
+	return m_zones[zoneName];
+}
+
+void ZoneManager::setCurrentZone(Zone* zone) {
+	m_currentZone = zone;
+}
+
+Zone* ZoneManager::getCurrentZone() {
+	return m_currentZone;
+}
+
+std::unordered_map<std::string, Zone>& ZoneManager::getAllZones() {
+	return m_zones;
+}

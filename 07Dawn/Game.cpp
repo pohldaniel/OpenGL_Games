@@ -62,7 +62,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 
 	//DawnInterface::enterZone("res/_lua/zone1", 747, 1530);	
 	//DawnInterface::enterZone("res/_lua/arinoxGeneralShop", -158, 0);
-	Editor::s_init ? DawnInterface::enterZone() : DawnInterface::enterZone("res/_lua/zone1", 747, 1530);
+	//Editor::s_init ? DawnInterface::enterZone() : DawnInterface::enterZone("res/_lua/zone1", 747, 1530);
 
 	//becarefull bind the textures atfer the last glDeleteTextures() call
 	TextureManager::BindTexture(Globals::spritesheetManager.getAssetPointer("font")->getAtlas(), true, 0);
@@ -71,7 +71,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	TextureManager::BindTexture(TextureManager::GetTextureAtlas("spells"), true, 3);
 	TextureManager::BindTexture(TextureManager::GetTextureAtlas("player"), true, 4);
 	TextureManager::BindTexture(TextureManager::GetTextureAtlas("mobs"), true, 5);
-	//TextureManager::BindTexture(ZoneManager::Get().getCurrentZone()->getTetureAtlas(), true, 6);
+	TextureManager::BindTexture(ZoneManager::Get().getCurrentZone()->getTetureAtlas(), true, 6);
 }
 
 Game::~Game() {}

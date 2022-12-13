@@ -1,8 +1,8 @@
 #include "LoadingScreen.h"
-#include "LoadingManager.h"
 
-LoadingScreen::LoadingScreen(StateMachine& machine, bool initEditor) : State(machine, CurrentState::LOADINGSCREEN), m_characterSet(Globals::fontManager.get("verdana_20")) {
-	m_initEditor = initEditor;
+
+LoadingScreen::LoadingScreen(StateMachine& machine, LoadingManager::Entry entry) : State(machine, CurrentState::LOADINGSCREEN), m_characterSet(Globals::fontManager.get("verdana_20")) {
+	m_entry = entry;
 
 	TextureAtlasCreator::Get().init("loadingscreen", 1024, 1024);
 
@@ -24,7 +24,7 @@ LoadingScreen::LoadingScreen(StateMachine& machine, bool initEditor) : State(mac
 	TextureManager::BindTexture(Globals::spritesheetManager.getAssetPointer("font")->getAtlas(), true, 0);
 	TextureManager::BindTexture(m_textureAtlas, true, 2);
 
-	LoadingManager::Get().startBackgroundThread(initEditor);
+	LoadingManager::Get().startBackgroundThread(m_entry);
 }
 
 LoadingScreen::~LoadingScreen() {}
@@ -39,7 +39,17 @@ void LoadingScreen::update() {
 		m_progress = LoadingManager::Get().getProgress();
 	}else{
 		m_isRunning = false;
-		m_initEditor ? m_machine.addStateAtTop(new Editor(m_machine)) : m_machine.addStateAtTop(new Game(m_machine));
+
+		switch (m_entry) {
+			case LoadingManager::Entry::GAME: case LoadingManager::Entry::LOAD:
+				m_machine.addStateAtTop(new Game(m_machine));
+				break;
+			case LoadingManager::Entry::EDITOR:
+				m_machine.addStateAtTop(new Editor(m_machine));
+				break;
+			default:
+				break;
+		}
 	}
 }
 

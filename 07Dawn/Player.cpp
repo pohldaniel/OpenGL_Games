@@ -626,13 +626,13 @@ std::string Player::getSaveText() const {
 	oss << objectName << ":setLevel( " << static_cast<size_t>(getLevel()) << " );" << std::endl;
 	oss << objectName << ":setExperience( " << getExperience() << " );" << std::endl;
 	oss << objectName << ":setClass( Enums." << getClassName() << " );" << std::endl;
-
+	oss << objectName << ":setCharacterType(" << m_characterTypeStr << " );" << std::endl;
 	oss << "-- coins" << std::endl;
 	oss << objectName << ":setCoins( " << getCoins() << " );" << std::endl;
 
 	oss << "-- position" << std::endl;
 	oss << objectName << ":setPosition( " << getXPos() << ", " << getYPos() << " );" << std::endl;
-
+	oss << objectName << ":init();" << std::endl << std::endl;
 	// no current attributes are set here because after reloading the player is completely refreshed again
 
 	return oss.str();

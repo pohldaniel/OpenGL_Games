@@ -18,7 +18,12 @@ MainMenu::MainMenu(StateMachine& machine) : State(machine, CurrentState::MAINMEN
 
 	dynamic_cast<Label*>(m_dialog.getChildWidgets()[1])->setFunction([&]() {
 		m_isRunning = false;
-		m_machine.addStateAtTop(new LoadingScreen(m_machine, true));
+		m_machine.addStateAtTop(new LoadingScreen(m_machine, LoadingManager::Entry::EDITOR));
+	});
+
+	dynamic_cast<Label*>(m_dialog.getChildWidgets()[2])->setFunction([&]() {
+		m_isRunning = false;
+		m_machine.addStateAtTop(new LoadingScreen(m_machine, LoadingManager::Entry::LOAD));
 	});
 
 	dynamic_cast<Label*>(m_dialog.getChildWidgets()[3])->setFunction([&]() {

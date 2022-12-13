@@ -1,6 +1,6 @@
 /*
 ** Lua binding: Luainterface
-** Generated automatically by tolua++-1.0.92 on Tue Dec 13 19:30:36 2022.
+** Generated automatically by tolua++-1.0.92 on Tue Dec 13 23:59:42 2022.
 */
 
 #ifndef __cplusplus
@@ -37,7 +37,7 @@ static void tolua_reg_types(lua_State* tolua_S)
 	tolua_usertype(tolua_S, "GeneralRayDamageSpell");
 	tolua_usertype(tolua_S, "TextureManager");
 	tolua_usertype(tolua_S, "Action");
-	tolua_usertype(tolua_S, "Zone");
+	tolua_usertype(tolua_S, "CharacterType");
 	tolua_usertype(tolua_S, "ShopCanvas");
 	tolua_usertype(tolua_S, "GeneralBoltDamageSpell");
 	tolua_usertype(tolua_S, "Npc");
@@ -63,8 +63,8 @@ static void tolua_reg_types(lua_State* tolua_S)
 	tolua_usertype(tolua_S, "ConfigurableAction");
 	tolua_usertype(tolua_S, "ConfigurableSpell");
 	tolua_usertype(tolua_S, "AdjacencyEquivalenceClass");
-	tolua_usertype(tolua_S, "CharacterType");
 	tolua_usertype(tolua_S, "SpellActionBase");
+	tolua_usertype(tolua_S, "Zone");
 	tolua_usertype(tolua_S, "InteractionRegion");
 }
 
@@ -3219,12 +3219,12 @@ static int tolua_Luainterface_Player_setName00(lua_State* tolua_S)
 #endif
 	{
 		Player* self = (Player*)tolua_tousertype(tolua_S, 1, 0);
-		std::string newName = ((std::string)  tolua_tocppstring(tolua_S, 2, 0));
+		std::string name = ((std::string)  tolua_tocppstring(tolua_S, 2, 0));
 #ifndef TOLUA_RELEASE
 		if (!self) tolua_error(tolua_S, "invalid 'self' in function 'setName'", NULL);
 #endif
 		{
-			self->setName(newName);
+			self->setName(name);
 		}
 	}
 	return 0;
@@ -4232,6 +4232,39 @@ static int tolua_Luainterface_Player_setPosition00(lua_State* tolua_S)
 }
 #endif //#ifndef TOLUA_DISABLE
 
+/* method: setCharacterType of class  Player */
+#ifndef TOLUA_DISABLE_tolua_Luainterface_Player_setCharacterType00
+static int tolua_Luainterface_Player_setCharacterType00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+	tolua_Error tolua_err;
+	if (
+		!tolua_isusertype(tolua_S, 1, "Player", 0, &tolua_err) ||
+		!tolua_iscppstring(tolua_S, 2, 0, &tolua_err) ||
+		!tolua_isnoobj(tolua_S, 3, &tolua_err)
+		)
+		goto tolua_lerror;
+	else
+#endif
+	{
+		Player* self = (Player*)tolua_tousertype(tolua_S, 1, 0);
+		std::string characterType = ((std::string)  tolua_tocppstring(tolua_S, 2, 0));
+#ifndef TOLUA_RELEASE
+		if (!self) tolua_error(tolua_S, "invalid 'self' in function 'setCharacterType'", NULL);
+#endif
+		{
+			self->setCharacterType(characterType);
+		}
+	}
+	return 0;
+#ifndef TOLUA_RELEASE
+	tolua_lerror :
+				 tolua_error(tolua_S, "#ferror in function 'setCharacterType'.", &tolua_err);
+				 return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
 /* method: init of class  Player */
 #ifndef TOLUA_DISABLE_tolua_Luainterface_Player_init00
 static int tolua_Luainterface_Player_init00(lua_State* tolua_S)
@@ -4921,6 +4954,70 @@ static int tolua_Luainterface_TextureManager_SetTextureAtlas00(lua_State* tolua_
 #ifndef TOLUA_RELEASE
 	tolua_lerror :
 				 tolua_error(tolua_S, "#ferror in function 'SetTextureAtlas'.", &tolua_err);
+				 return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
+/* method: loadZone of class  Zone */
+#ifndef TOLUA_DISABLE_tolua_Luainterface_Zone_loadZone00
+static int tolua_Luainterface_Zone_loadZone00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+	tolua_Error tolua_err;
+	if (
+		!tolua_isusertype(tolua_S, 1, "Zone", 0, &tolua_err) ||
+		!tolua_isnoobj(tolua_S, 2, &tolua_err)
+		)
+		goto tolua_lerror;
+	else
+#endif
+	{
+		Zone* self = (Zone*)tolua_tousertype(tolua_S, 1, 0);
+#ifndef TOLUA_RELEASE
+		if (!self) tolua_error(tolua_S, "invalid 'self' in function 'loadZone'", NULL);
+#endif
+		{
+			self->loadZone();
+		}
+	}
+	return 0;
+#ifndef TOLUA_RELEASE
+	tolua_lerror :
+				 tolua_error(tolua_S, "#ferror in function 'loadZone'.", &tolua_err);
+				 return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
+/* method: setInit of class  Zone */
+#ifndef TOLUA_DISABLE_tolua_Luainterface_Zone_setInit00
+static int tolua_Luainterface_Zone_setInit00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+	tolua_Error tolua_err;
+	if (
+		!tolua_isusertype(tolua_S, 1, "Zone", 0, &tolua_err) ||
+		!tolua_isboolean(tolua_S, 2, 0, &tolua_err) ||
+		!tolua_isnoobj(tolua_S, 3, &tolua_err)
+		)
+		goto tolua_lerror;
+	else
+#endif
+	{
+		Zone* self = (Zone*)tolua_tousertype(tolua_S, 1, 0);
+		bool flag = ((bool)tolua_toboolean(tolua_S, 2, 0));
+#ifndef TOLUA_RELEASE
+		if (!self) tolua_error(tolua_S, "invalid 'self' in function 'setInit'", NULL);
+#endif
+		{
+			self->setInit(flag);
+		}
+	}
+	return 0;
+#ifndef TOLUA_RELEASE
+	tolua_lerror :
+				 tolua_error(tolua_S, "#ferror in function 'setInit'.", &tolua_err);
 				 return 0;
 #endif
 }
@@ -7695,6 +7792,7 @@ TOLUA_API int tolua_Luainterface_open(lua_State* tolua_S)
 	tolua_function(tolua_S, "giveCoins", tolua_Luainterface_Player_giveCoins00);
 	tolua_function(tolua_S, "setCoins", tolua_Luainterface_Player_setCoins00);
 	tolua_function(tolua_S, "setPosition", tolua_Luainterface_Player_setPosition00);
+	tolua_function(tolua_S, "setCharacterType", tolua_Luainterface_Player_setCharacterType00);
 	tolua_function(tolua_S, "init", tolua_Luainterface_Player_init00);
 	tolua_function(tolua_S, "getClass", tolua_Luainterface_Player_getClass00);
 	tolua_function(tolua_S, "getSaveText", tolua_Luainterface_Player_getSaveText00);
@@ -7731,6 +7829,11 @@ TOLUA_API int tolua_Luainterface_open(lua_State* tolua_S)
 	tolua_cclass(tolua_S, "TextureManager", "TextureManager", "", NULL);
 	tolua_beginmodule(tolua_S, "TextureManager");
 	tolua_function(tolua_S, "SetTextureAtlas", tolua_Luainterface_TextureManager_SetTextureAtlas00);
+	tolua_endmodule(tolua_S);
+	tolua_cclass(tolua_S, "Zone", "Zone", "", NULL);
+	tolua_beginmodule(tolua_S, "Zone");
+	tolua_function(tolua_S, "loadZone", tolua_Luainterface_Zone_loadZone00);
+	tolua_function(tolua_S, "setInit", tolua_Luainterface_Zone_setInit00);
 	tolua_endmodule(tolua_S);
 	tolua_cclass(tolua_S, "SpellActionBase", "SpellActionBase", "", NULL);
 	tolua_beginmodule(tolua_S, "SpellActionBase");
