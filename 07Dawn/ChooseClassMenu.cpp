@@ -1,7 +1,7 @@
 #include "ChooseClassMenu.h"
 #include "MainMenu.h"
 
-ChooseClassMenu::ChooseClassMenu(StateMachine& machine) : State(machine, CurrentState::MAINMENU) {
+ChooseClassMenu::ChooseClassMenu(StateMachine& machine) : State(machine, CurrentState::CHOOSECLASSMENU) {
 	m_dialog = Dialog(0, 0, 0, 0);
 	m_dialog.setPosition(0, 0);
 

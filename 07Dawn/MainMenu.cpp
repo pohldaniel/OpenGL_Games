@@ -12,11 +12,11 @@ MainMenu::MainMenu(StateMachine& machine) : State(machine, CurrentState::MAINMEN
 	m_dialog.setCenterOnScreen();
 
 	m_dialog.addChildWidget(0, 0, std::auto_ptr<Widget>(new Label(Globals::fontManager.get("verdana_20"), "Quit Game")));
-	m_dialog.addChildWidget(0, 20, std::auto_ptr<Widget>(new Label(Globals::fontManager.get("verdana_20"), "Options")));
-	m_dialog.addChildWidget(0, 40, std::auto_ptr<Widget>(new Label(Globals::fontManager.get("verdana_20"), "Editor")));
+	m_dialog.addChildWidget(0, 20, std::auto_ptr<Widget>(new Label(Globals::fontManager.get("verdana_20"), "Editor")));
+	m_dialog.addChildWidget(0, 40, std::auto_ptr<Widget>(new Label(Globals::fontManager.get("verdana_20"), "Load Game")));
 	m_dialog.addChildWidget(0, 60, std::auto_ptr<Widget>(new Label(Globals::fontManager.get("verdana_20"), "New Game")));
 
-	dynamic_cast<Label*>(m_dialog.getChildWidgets()[2])->setFunction([&]() {
+	dynamic_cast<Label*>(m_dialog.getChildWidgets()[1])->setFunction([&]() {
 		m_isRunning = false;
 		m_machine.addStateAtTop(new LoadingScreen(m_machine, true));
 	});

@@ -40,7 +40,7 @@ public:
 	void setOnActivate(std::function<void()> fun);
 	void activate(); 
 	
-	bool m_keepInputHandling;
+	bool m_keepInputHandling = false;
 
 protected:
 

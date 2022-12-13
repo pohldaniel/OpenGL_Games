@@ -76,6 +76,14 @@ namespace Utils {
 		outputString = ss.str();
 		return outputString;
 	}
+
+	static inline bool file_exists(const std::string& file){
+		std::ifstream temp(file.c_str());
+
+		if (!temp)
+			return false;
+		return true;
+	}
 }
 
 namespace currency {

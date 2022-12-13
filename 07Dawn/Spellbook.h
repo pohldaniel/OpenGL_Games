@@ -43,7 +43,7 @@ public:
 	void unsetFloatingSpell();
 	void reloadSpellsFromPlayer();
 	void clear();
-	//std::string getLuaSaveText() const;
+	std::string getLuaSaveText() const;
 	
 	static Spellbook& Get();
 

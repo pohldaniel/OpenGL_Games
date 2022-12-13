@@ -61,6 +61,26 @@ namespace DawnInterface{
 		return TextureManager::Loadimage(file);
 	}
 
+	std::string getSpellbookSaveText(){
+		return Spellbook::Get().getLuaSaveText();
+	}
+
+	std::string getActionbarSaveText(){
+		return Interface::Get().getActionBarLuaSaveText();
+	}
+
+	void restoreActionBar(int buttonNr, SpellActionBase *action) {
+		
+		Interface::Get().bindActionToButtonNr(buttonNr, action);	
+	}
+
+	std::string getReenterCurrentZoneText(){
+		std::ostringstream oss;
+		oss << "DawnInterface.enterZone( \"" << ZoneManager::Get().getCurrentZone()->getZoneName() << "\", " << Player::Get().getXPos() << ", " << Player::Get().getYPos() << " );" << std::endl;
+
+		return oss.str();
+	}
+
 	void enterZone(std::string zoneName, int enterX, int enterY){
 		Zone& newZone = ZoneManager::Get().getZone(zoneName);
 		newZone.loadZone();
@@ -73,6 +93,7 @@ namespace DawnInterface{
 		if (zoneNameNoPrefix.find_last_of('/') != std::string::npos){
 			zoneNameNoPrefix = zoneNameNoPrefix.substr(zoneNameNoPrefix.find_last_of('/') + 1);
 		}
+
 		oss << "if (" << zoneNameNoPrefix << ".onEnterMap ~= nil)\nthen\n    " << zoneNameNoPrefix << ".onEnterMap(" << enterX << "," << enterY << ");\nelse    print \"" << zoneNameNoPrefix << ".onEnterMap was not defined\";\nend";
 		std::string onEnterCall = oss.str();
 		LuaFunctions::executeLuaScript(onEnterCall);
@@ -97,15 +118,28 @@ namespace DawnInterface{
 		ZoneManager::Get().setCurrentZone(&newCurZone);
 	}
 
+	std::string getAllZonesSaveText(){
+
+		std::unordered_map<std::string, Zone>& allZones = ZoneManager::Get().getAllZones();
+		std::ostringstream oss;
+		for (std::unordered_map<std::string, Zone>::iterator it = allZones.begin(); it != allZones.end(); ++it) {
+			oss << (it->second).getLuaSaveText();
+		}
+		return oss.str();
+	}
+
 	const CharacterType& createNewMobType(std::string characterType) {
 		return CharacterTypeManager::Get().getCharacterType(characterType);
 	}
 
 	Npc* addMobSpawnPoint(std::string characterType, std::string name, int x_pos, int y_pos, int respawn_rate, int do_respawn, Enums::Attitude attitude) {
+		
+		
 		if (!CharacterTypeManager::Get().containsCaracterType(characterType)) {
+
 			return nullptr;
 		}
-		
+
 		Npc* newMob = new Npc(0, 0, 0, 0, 0);	
 		newMob->setCharacterType(characterType);
 		newMob->setSpawnInfo(x_pos, y_pos, respawn_rate, do_respawn);
@@ -143,11 +177,12 @@ namespace DawnInterface{
 		pointToRemove->markAsDeletable();
 	}
 
-	std::string getItemReferenceRestore(Character *character){
+	std::string getItemReferenceRestore(std::string varName, Character *character){
 		if (character == NULL) {
 			return "nil;";
 		}
-		for (std::unordered_map< std::string, Zone >::iterator it = ZoneManager::Get().getAllZones().begin(); it != ZoneManager::Get().getAllZones().end(); ++it) {
+		std::unordered_map<std::string, Zone>& allZones = ZoneManager::Get().getAllZones();
+		for (std::unordered_map< std::string, Zone>::iterator it = allZones.begin(); it != allZones.end(); ++it) {
 			Zone curZone = it->second;
 			bool found;
 			size_t foundPos;
@@ -159,6 +194,149 @@ namespace DawnInterface{
 			}
 		}
 		return "";
+	}
+
+	std::string getItemReferenceRestore(std::string varName, InteractionPoint *interactionPoint) {
+		if (interactionPoint == NULL) {
+			return "nil;";
+		}
+		std::unordered_map<std::string, Zone>& allZones = ZoneManager::Get().getAllZones();
+		for (std::unordered_map<std::string, Zone>::iterator it = allZones.begin(); it != allZones.end(); ++it) {
+			Zone curZone = it->second;
+			bool found;
+			size_t foundPos;
+			curZone.findInteractionPoint(interactionPoint, found, foundPos);
+			if (found) {
+				std::ostringstream oss;
+				oss << "DawnInterface.restoreInteractionPointReference( \"" << curZone.getZoneName() << "\", " << foundPos << " )";
+				return oss.str();
+			}
+		}
+		// not found
+		return "";
+	}
+
+	std::string getItemReferenceRestore(std::string varName, InteractionRegion *interactionRegion) {
+		if (interactionRegion == NULL) {
+			return "nil;";
+		}
+		std::unordered_map<std::string, Zone>& allZones = ZoneManager::Get().getAllZones();
+		for (std::unordered_map<std::string, Zone>::iterator it = allZones.begin(); it != allZones.end(); ++it) {
+			Zone curZone = it->second;
+			bool found;
+			size_t foundPos;
+			curZone.findInteractionRegion(interactionRegion, found, foundPos);
+			if (found) {
+				std::ostringstream oss;
+				oss << "DawnInterface.restoreInteractionRegionReference( \"" << curZone.getZoneName() << "\", " << foundPos << " )";
+				return oss.str();
+			}
+		}
+		// not found
+		return "";
+	}
+
+	std::string getItemReferenceRestore(std::string varName, CallIndirection *eventHandler) {
+		if (eventHandler == NULL) {
+			return "nil;";
+		}
+		std::unordered_map<std::string, Zone>& allZones = ZoneManager::Get().getAllZones();
+		for (std::unordered_map<std::string, Zone>::iterator it = allZones.begin(); it != allZones.end(); ++it) {
+			Zone curZone = it->second;
+			bool found;
+			size_t foundPos;
+			curZone.findEventHandler(eventHandler, found, foundPos);
+			if (found) {
+				std::ostringstream oss;
+				oss << "DawnInterface.restoreEventHandlerReference( \"" << curZone.getZoneName() << "\", " << foundPos << " )";
+				return oss.str();
+			}
+		}
+		// not found
+		return "";
+	}
+
+	std::string getItemReferenceRestore(std::string varName, Quest* quest) {
+		if (quest == NULL) {
+			return "nil;";
+		}
+
+		std::ostringstream oss;
+		oss << "DawnInterface.addQuest( \"" << quest->getName() << "\",\"" << quest->getDescription() << "\" );";
+		return oss.str();
+	}
+
+	std::string getItemReferenceRestore(std::string varName, Shop *shop) {
+		std::ostringstream oss;
+		oss << "DawnInterface.addShop( \"" << shop->m_name << "\" , true );" << std::endl;;
+		for (size_t curTab = 0; curTab < 3; ++curTab) {
+			for (size_t curItemNr = 0; curItemNr < shop->shopkeeperInventory[curTab].size(); ++curItemNr) {
+				oss << varName << ":addItem( itemDatabase[\"" << shop->shopkeeperInventory[curTab][curItemNr]->getItem()->getID() << "\"] );" << std::endl;
+			}
+		}
+
+		oss << varName << ":loadShopkeeperInventory();" << std::endl;
+		return oss.str();
+	}
+
+	std::string getItemReferenceRestore(std::string varName, TextWindow *textWindow) {
+		return "DawnInterface.createTextWindow(); -- text windows are not restored";
+	}
+
+	std::string getItemReferenceRestore(std::string varName, Zone* zone) {
+		return "DawnInterface.getCurrentZone()";
+	}
+
+	std::string getReinitialisationString(std::string fullVarName, Quest* quest) {
+		if (quest == NULL) {
+			return "";
+		}
+
+		std::ostringstream oss;
+		if (quest->getExperienceReward() > 0) {
+			oss << fullVarName << ":setExperienceReward( " << static_cast<int>(quest->getExperienceReward()) << " );" << std::endl;
+		}
+
+		if (quest->getCoinReward() > 0) {
+			oss << fullVarName << ":setCoinReward( " << static_cast<int>(quest->getCoinReward()) << " );" << std::endl;
+		}
+
+		if (quest->getItemReward() != NULL) {
+			oss << fullVarName << ":setItemReward( itemDatabase[\"" << quest->getItemReward()->getID() << "\"] );" << std::endl;
+		}
+
+		std::vector<std::pair< Item*, int8_t>>& requiredItems = quest->getRequiredItems();
+		for (size_t curReqItemNr = 0; curReqItemNr < requiredItems.size(); ++curReqItemNr) {
+			const std::pair< Item*, uint8_t > &curReqItem = requiredItems[curReqItemNr];
+			oss << fullVarName << ":addRequiredItemForCompletion( itemDatabase[\"" << curReqItem.first->getID() << "\"], " << static_cast<int>(curReqItem.second) << " );" << std::endl;
+		}
+
+		return oss.str();
+	}
+
+	std::string getReinitialisationString(std::string fullVarName, void *ignore) {
+		return "";
+	}
+
+	Character* restoreCharacterReference(std::string zoneName, int posInArray) {
+		Zone *correctZone = &ZoneManager::Get().getZone(zoneName);
+		return correctZone->getCharacterPointer(posInArray);
+	}
+
+	InteractionPoint* restoreInteractionPointReference(std::string zoneName, int posInArray) {
+		Zone *correctZone = &ZoneManager::Get().getZone(zoneName);
+		return correctZone->getInteractionPointPointer(posInArray);
+	}
+
+	InteractionRegion* restoreInteractionRegionReference(std::string zoneName, int posInArray) {
+		Zone *correctZone = &ZoneManager::Get().getZone(zoneName);
+		return correctZone->getInteractionRegionPointer(posInArray);
+	}
+
+
+	CallIndirection* restoreEventHandlerReference(std::string zoneName, int posInArray) {
+		Zone *correctZone = &ZoneManager::Get().getZone(zoneName);
+		return correctZone->getEventHandlerPointer(posInArray);
 	}
 
 	TextWindow* createTextWindow() {
@@ -312,8 +490,8 @@ namespace DawnInterface{
 		return Player::Get();
 	}
 
-	const Shop& addShop(std::string name){
-		return ShopManager::Get().getShop(name);
+	const Shop& addShop(std::string name, bool replace){
+		return ShopManager::Get().getShop(name, replace);
 	}
 
 	Quest* addQuest(std::string questName, std::string questDescription) {

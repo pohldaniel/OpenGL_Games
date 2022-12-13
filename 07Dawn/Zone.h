@@ -90,6 +90,9 @@ public:
 
 	bool findInteractionPointForCharacter(Character *character) const;
 	void findCharacter(Character *character, bool &found, size_t &foundPos) const;
+	void findInteractionPoint(InteractionPoint *interactionPoint, bool &found, size_t &foundPos) const;
+	void findInteractionRegion(InteractionRegion *interactionRegion, bool &found, size_t &foundPos) const;
+	void findEventHandler(CallIndirection *eventHandler, bool &found, size_t &foundPos) const;
 
 	unsigned int getTetureAtlas();
 	std::vector<TileMap>& getTileMap();
@@ -116,13 +119,21 @@ public:
 	void addInteractionRegion(InteractionRegion* interactionRegion);	
 	void addInteractionPoint(InteractionPoint* interactionPoint);
 	void addCharacterInteractionPoint(CharacterInteractionPoint *characterInteractionPoint);
-	//TileSetManager& getTileSetManager();
 	TileSet& getTileSet(Enums::TileClassificationType tileType);
+	void purgeInteractionList();
+	void purgeInteractionRegionList();
+	void purgeNpcList();
+	std::string getLuaSaveText() const;
+
+	Character* getCharacterPointer(size_t posInArray) const;
+	InteractionPoint* getInteractionPointPointer(size_t posInArray) const;
+	InteractionRegion* getInteractionRegionPointer(size_t posInArray) const;
+	CallIndirection* getEventHandlerPointer(size_t posInArray) const;
 
 	static void Draw();
 	static void DrawActiveAoESpells();
 	static void DrawNpcs();
-
+	
 private:
 
 	std::vector<SpellActionBase*> activeAoESpells;
@@ -135,10 +146,11 @@ private:
 	std::vector<InteractionPoint*> m_interactionPoints;
 	std::vector<CallIndirection*> eventHandlers;
 	std::string m_file;
-	bool m_mapLoaded = false;
+	
 	unsigned int m_textureAtlas;
 	GroundLoot groundLoot;
 	TileSetManager* m_tileSetManger;
+	bool m_mapLoaded = false;
 };
 
 class ZoneManager {
@@ -150,7 +162,7 @@ public:
 
 	void setCurrentZone(Zone* zone);
 	Zone* getCurrentZone();
-	std::unordered_map<std::string, Zone> getAllZones();
+	std::unordered_map<std::string, Zone>& getAllZones();
 
 private:
 	ZoneManager() = default;

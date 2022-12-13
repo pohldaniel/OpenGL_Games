@@ -60,6 +60,7 @@ void Npc::update(float deltaTime) {
 
 void Npc::setCharacterType(std::string characterType) {
 	m_characterType = &CharacterTypeManager::Get().getCharacterType(characterType);
+	m_characterTypeStr = characterType;
 
 	setStrength(m_characterType->strength);
 	setDexterity(m_characterType->dexterity);
@@ -381,7 +382,7 @@ bool Npc::hasOnDieEventHandler() const {
 std::string Npc::getLuaEditorSaveText() const {
 	std::ostringstream oss;
 
-	oss << "DawnInterface.addMobSpawnPoint( \"" << "Wolf" << "\", "
+	oss << "DawnInterface.addMobSpawnPoint( \"" << m_characterTypeStr << "\", "
 		<< x_spawn_pos << ", "
 		<< y_spawn_pos << ", "
 		<< seconds_to_respawn << ", "
@@ -390,6 +391,28 @@ std::string Npc::getLuaEditorSaveText() const {
 
 	return oss.str();
 }
+
+std::string Npc::getLuaSaveText() const {
+	std::ostringstream oss;
+	std::string objectName = "curNPC";
+	oss << "local " << objectName << " = DawnInterface.addMobSpawnPoint( \"" << m_characterTypeStr << "\", " << "\"" << name << "\", "
+		<< x_spawn_pos << ", "
+		<< y_spawn_pos << ", "
+		<< seconds_to_respawn << ", "
+		<< do_respawn << ", "
+		<< "Enums." << Character::AttitudeToString(attitudeTowardsPlayer) << " );" << std::endl;
+	// add onDieEventHandlers for this npc
+	for (size_t curOnDieHandlerNr = 0; curOnDieHandlerNr<onDieEventHandlers.size(); ++curOnDieHandlerNr) {
+		LuaCallIndirection *luaHandler = dynamic_cast<LuaCallIndirection*>(onDieEventHandlers[curOnDieHandlerNr]);
+		if (luaHandler != NULL) {
+			// a real LuaCallIndirection
+			oss << objectName << ":addOnDieEventHandler( " << DawnInterface::getItemReferenceRestore("",luaHandler) << " );" << std::endl;
+		}
+		
+	}
+	return oss.str();
+}
+
 
 std::vector<Npc*>& Npc::GetNPCs() {
 	return ZoneManager::Get().getCurrentZone()->getNPCs();

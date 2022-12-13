@@ -37,6 +37,7 @@ class Shop;
 class Zone;
 class Item;
 class Quest;
+class CallIndirection;
 class LuaCallIndirection;
 
 namespace EditorInterface{
@@ -59,11 +60,34 @@ namespace DawnInterface{
 	void enterZone(std::string zoneName, int enterX, int enterY);
 	void enterZone();
 	void setCurrentZone(std::string zoneName);	
+	std::string getAllZonesSaveText();
 	Npc* addMobSpawnPoint(std::string mobID, std::string name, int x_pos, int y_pos, int respawn_rate, int do_respawn, Enums::Attitude attitude);
 	
 	void removeInteractionRegion(InteractionRegion *regionToRemove);	
 	void removeInteractionPoint(InteractionPoint *pointToRemove);
-	std::string getItemReferenceRestore(Character *character);
+
+	std::string getItemReferenceRestore(std::string varName, Character *character);
+	std::string getItemReferenceRestore(std::string varName, InteractionPoint *interactionPoint);
+	std::string getItemReferenceRestore(std::string varName, InteractionRegion *interactionRegion);
+	std::string getItemReferenceRestore(std::string varName, CallIndirection *eventHandler);
+	std::string getItemReferenceRestore(std::string varName, Quest* quest);
+	std::string getItemReferenceRestore(std::string varName, Shop *shop);
+	std::string getItemReferenceRestore(std::string varName, TextWindow *textWindow);
+	std::string getItemReferenceRestore(std::string varName, Zone* zone);
+
+	std::string getReinitialisationString(std::string fullVarName, Quest* quest);
+	std::string getReinitialisationString(std::string fullVarName, void *ignore);
+	std::string getInventorySaveText();
+	std::string getSpellbookSaveText();
+	std::string getActionbarSaveText();
+	std::string getReenterCurrentZoneText();
+	void restoreActionBar(int buttonNr, SpellActionBase *action);
+
+	Character* restoreCharacterReference(std::string zoneName, int posInArray);
+	InteractionPoint* restoreInteractionPointReference(std::string zoneName, int posInArray);
+	InteractionRegion* restoreInteractionRegionReference(std::string zoneName, int posInArray);
+	CallIndirection* restoreEventHandlerReference(std::string zoneName, int posInArray);
+
 	TextWindow* createTextWindow();
 
 	GeneralRayDamageSpell* createGeneralRayDamageSpell();
@@ -83,16 +107,17 @@ namespace DawnInterface{
 	void inscribeSpellInPlayerSpellbook(SpellActionBase *inscribedSpell);
 	void addTextToLogWindow(float color[], const char *text, ...);
 	void clearLogWindow();
-	std::string getInventorySaveText();
+
 	void restoreItemInBackpack(Item* item, int inventoryPosX, int inventoryPosY, size_t stackSize);
 	void restoreWieldItem(int slot, Item* item);
 	void giveItemToPlayer(Item* item);
 	Item* createNewItem(std::string name, int sizeX, int sizeY, std::string symbolFile, Enums::ItemQuality itemQuality, EquipPosition::EquipPosition equipPos, Enums::ItemType itemType, Enums::ArmorType armorType, Enums::WeaponType weaponType);
 	Player& getPlayer();
 	const Zone& getCurrentZone();
-	const Shop& addShop(std::string name);
+	const Shop& addShop(std::string name, bool replace = false);
 	Quest* addQuest(std::string questName, std::string questDescription);
 	LuaCallIndirection* createEventHandler();
 	bool isSavingAllowed();
 	void setSavingAllowed(bool savingAllowed);
+	
 }

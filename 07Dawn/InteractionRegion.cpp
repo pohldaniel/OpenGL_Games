@@ -70,7 +70,6 @@ std::string InteractionRegion::getLuaSaveText() const {
 	if (onLeaveCode != "") {
 		oss << "curInteractionRegion:setOnLeaveText( [[" << onLeaveCode << "]] );" << std::endl;
 	}
-
 	return oss.str();
 }
 

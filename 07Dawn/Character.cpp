@@ -834,12 +834,48 @@ void Character::setEvadeModifierPoints(unsigned short newEvadeModifierPoints) {
 	evadeModifierPoints = newEvadeModifierPoints;
 }
 
+void Character::setParryModifierPoints(unsigned short newParryModifierPoints){
+	parryModifierPoints = newParryModifierPoints;
+}
+
+void Character::setBlockModifierPoints(unsigned short newBlockModifierPoints){
+	blockModifierPoints = newBlockModifierPoints;
+}
+
+void Character::setMeleeCriticalModifierPoints(unsigned short newMeleeCriticalModifierPoints){
+	meleeCriticalModifierPoints = newMeleeCriticalModifierPoints;
+}
+
+void Character::setResistElementModifierPoints(Enums::ElementType elementType, unsigned short newResistElementModifierPoints){
+	resistElementModifierPoints[static_cast<size_t>(elementType)] = newResistElementModifierPoints;
+}
+
+void Character::setResistAllModifierPoints(unsigned short newResistAllModifierPoints){
+	resistAllModifierPoints = newResistAllModifierPoints;
+}
+
+void Character::setSpellEffectElementModifierPoints(Enums::ElementType elementType, unsigned short newSpellEffectElementModifierPoints){
+	spellEffectElementModifierPoints[static_cast<size_t>(elementType)] = newSpellEffectElementModifierPoints;
+}
+
+void Character::setSpellEffectAllModifierPoints(unsigned short newSpellEffectAllModifierPoints) {
+	spellEffectAllModifierPoints = newSpellEffectAllModifierPoints;
+}
+
+void Character::setSpellCriticalModifierPoints(unsigned short newSpellCriticalModifierPoints) {
+	spellCriticalModifierPoints = newSpellCriticalModifierPoints;
+}
+
 void Character::setLevel(unsigned short newLevel) {
 	level = newLevel;
 }
 
 void Character::setExperienceValue(unsigned short experienceValue) {
 	Character::experienceValue = experienceValue;
+}
+
+void Character::setCoins(unsigned int amountOfCoins) {
+	coins = amountOfCoins;
 }
 ////////////////////////////////////////////////////LUA-END/////////////////////////////////////
 

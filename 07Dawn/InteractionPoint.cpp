@@ -42,7 +42,7 @@ void InteractionPoint::setInteractionType(Enums::InteractionType interactionType
 }
 
 void InteractionPoint::setBackgroundTexture(std::string texturename, bool transparent) {
-
+	m_file = texturename;
 	if (BackgroundTextures.count(texturename) > 0) {
 		m_backgroundTexture = BackgroundTextures[texturename];
 		return;
@@ -133,11 +133,11 @@ void InteractionPoint::markAsDeletable() {
 std::string toStringForLua(Enums::InteractionType interactionType) {
 	switch (interactionType) {
 		case Enums::InteractionType::Quest:
-			return "InteractionType.Quest";
+			return "Enums.Quest";
 		case Enums::InteractionType::Shop:
-			return "InteractionType.Shop";
+			return "Enums.Shop";
 		case Enums::InteractionType::Zone:
-			return "InteractionType.Zone";
+			return "Enums.Zone";
 	}
 }
 
@@ -147,12 +147,13 @@ std::string InteractionPoint::getLuaSaveText() const {
 
 	oss << "local " << objectName << " = DawnInterface.addInteractionPoint();" << std::endl;
 	oss << objectName << ":setPosition( " << posX << ", " << posY << ", " << width << ", " << height << " );" << std::endl;
-	//if (backgroundTexture != NULL) {
-	//	oss << objectName << ":setBackgroundTexture( \"" << backgroundTexture->getTexture(0).textureFile << "\" );" << std::endl;
-	//}
-	//if (interactionTexture != NULL) {
-	//	oss << objectName << ":setInteractionType( " << toStringForLua(interactionType) << " );" << std::endl;
-	//}
+	if (m_backgroundTexture.width >  0) {
+		oss << objectName << ":setBackgroundTexture( \"" << m_file << "\" );" << std::endl;
+	}
+
+	if (Textures.size() > 0) {
+		oss << objectName << ":setInteractionType( " << toStringForLua(interactionType) << " );" << std::endl;
+	}
 	oss << objectName << ":setInteractionCode( [[" << interactionCode << "]] );" << std::endl;
 
 	return oss.str();
@@ -224,20 +225,16 @@ void CharacterInteractionPoint::draw() {
 }
 
 std::string CharacterInteractionPoint::getLuaSaveText() const {
+
 	std::ostringstream oss;
 	std::string objectName = "curInteractionPoint";
-	std::string characterReference = DawnInterface::getItemReferenceRestore(interactionCharacter);
+	std::string characterReference = DawnInterface::getItemReferenceRestore("", interactionCharacter);
+
 	oss << "local " << objectName << " = DawnInterface.addCharacterInteractionPoint( " << characterReference << " );" << std::endl;
 
-	//if (backgroundTexture != NULL)
-	//{
-	//	oss << objectName << ":setBackgroundTexture( \"" << backgroundTexture->getTexture(0).textureFile << "\" );" << std::endl;
-	//}
-
-	//if (interactionTexture != NULL)
-	//{
-	//	oss << objectName << ":setInteractionType( " << toStringForLua(interactionType) << " );" << std::endl;
-	//}
+	if (Textures.size() > 0) {
+		oss << objectName << ":setInteractionType( " << toStringForLua(interactionType) << " );" << std::endl;
+	}
 	oss << objectName << ":setInteractionCode( [[" << interactionCode << "]] );" << std::endl;
 
 	return oss.str();

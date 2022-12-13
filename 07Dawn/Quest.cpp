@@ -279,3 +279,7 @@ bool Quest::finishQuest() {
 	m_questCanvas.addQuestToBeRemoved(this);
 	return true;
 }
+
+std::vector<std::pair< Item*, int8_t>>& Quest::getRequiredItems() {
+	return requiredItems;
+}

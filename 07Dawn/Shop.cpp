@@ -327,6 +327,17 @@ void Shop::loadShopkeeperInventory() {
 	m_shopCanvas.setShop(this);
 }
 
+void Shop::purgeShopkeeperInventory() {
+	shopkeeperInventory[0].clear();
+	shopkeeperInventory[0].shrink_to_fit();
+
+	shopkeeperInventory[1].clear();
+	shopkeeperInventory[1].shrink_to_fit();
+
+	shopkeeperInventory[2].clear();
+	shopkeeperInventory[2].shrink_to_fit();
+}
+
 void Shop::sellToShop(InventoryItem *sellItem, bool givePlayerMoney) {
 
 	Item *item = sellItem->getItem();
@@ -481,10 +492,15 @@ ShopManager& ShopManager::Get() {
 	return s_instance;
 }
 
-Shop& ShopManager::getShop(std::string shopName) {
-	if (m_shops.find(shopName) == m_shops.end()) {
+Shop& ShopManager::getShop(std::string shopName, bool replace) {
+	if (m_shops.find(shopName) == m_shops.end() || replace) {
 		m_shops[shopName] = new Shop();
+		m_shops[shopName]->m_name = shopName;
 	}
 
 	return  *m_shops[shopName];
+}
+
+std::unordered_map<std::string, Shop*>& ShopManager::getAllShops() {
+	return m_shops;
 }

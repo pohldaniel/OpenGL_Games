@@ -1,7 +1,10 @@
 #include "OptionsWindow.h"
 #include "Interface.h"
 #include "Editor.h"
+#include "Quest.h"
 #include "Application.h"
+#include "Utils.h"
+#include "Constants.h"
 
 OptionsWindow OptionsWindow::s_instance;
 
@@ -20,7 +23,7 @@ void OptionsWindow::init(std::vector<TextureRect> textures) {
 	m_visible = false;
 	m_keepInputHandling = true;
 	setTextureDependentPositions();
-	Interface::Get().connectWidget(*this, false, true);
+	Interface::Get().connectWidget(*this, false);
 }
 
 void OptionsWindow::draw() {
@@ -88,30 +91,31 @@ void OptionsWindow::processInput() {
 
 	if (selectedEntry == 0){
 		//setQuitGame();
-	} else if (selectedEntry == 1 /*&& utils::file_exists("savegame.lua") == true*/) {
+	} else if (selectedEntry == 1 && Utils::file_exists("savegame.lua") == true) {
 		// Load Game
 
 		// clear current game data
-		/*Globals::getCurrentZone()->purgeInteractionList();
-		Globals::getCurrentZone()->purgeInteractionRegionList();
-		questWindow->removeAllQuests();
-		for (std::map< std::string, CZone* >::iterator it = Globals::allZones.begin(); it != Globals::allZones.end(); ++it) {
-			delete it->second;
-			it->second = NULL;
-		}
-		Globals::allZones.clear();
+		QuestCanvas::Get().removeAllQuests();
+		std::unordered_map<std::string, Zone>& allZones = ZoneManager::Get().getAllZones();
+		for (std::unordered_map<std::string, Zone>::iterator it = allZones.begin(); it != allZones.end(); ++it) {
 
-		Globals::getPlayer()->clearInventory();
+			Zone& currentZone = ZoneManager::Get().getZone(it->first);
+			currentZone.purgeInteractionList();
+			currentZone.purgeInteractionRegionList();
+			currentZone.purgeNpcList();
+		}
+
+		Player::Get().clearInventory();
 		// clear shop data
-		shopWindow = std::auto_ptr<Shop>(new Shop(Globals::getPlayer(), NULL));
+		//shopWindow = std::auto_ptr<Shop>(new Shop(Globals::getPlayer(), NULL));
 		// clear spellbook
-		spellbook->clear();
+		Spellbook::Get().clear();
 		// clear action bar
-		actionBar->clear();
+		Interface::Get().clear();
 		// clear cooldowns
-		Globals::getPlayer()->clearCooldownSpells();
+		Player::Get().clearCooldownSpells();
 		// clear buffs
-		Globals::getPlayer()->clearActiveSpells();
+		Player::Get().clearActiveSpells();
 
 		// reenter map
 		// 1. Load all zones
@@ -120,16 +124,16 @@ void OptionsWindow::processInput() {
 		LuaFunctions::executeLuaScript("loadGame( 'savegame' )");
 		//CZone *newZone = Globals::allZones["data/zone1"];
 		//newZone->LoadZone("data/zone1");
-		LuaFunctions::executeLuaFile("data/quests_wood.lua");
-		DawnInterface::clearLogWindow();*/
+		//LuaFunctions::executeLuaFile("data/quests_wood.lua");
+		DawnInterface::clearLogWindow();
 
 	}else if (selectedEntry == 2) {
-		/*if (Globals::isSavingAllowed()) {
+		if (Globals::savingAllowed) {
 			// save Game
 			LuaFunctions::executeLuaScript("saveGame( 'savegame' )");
 			GLfloat yellow[] = { 1.0f, 1.0f, 0.0f };
 			DawnInterface::addTextToLogWindow(yellow, "Game saved.");
-		}*/
+		}
 	}else if (selectedEntry == 3){
 		Interface::Get().closeAll();
 		close();

@@ -2,6 +2,7 @@
 #include "Zone.h"
 #include "Magic.h"
 #include "Callindirection.h"
+#include "Shop.h"
 
 Zone::Zone() : groundLoot(&Player::Get()) { 
 
@@ -9,54 +10,53 @@ Zone::Zone() : groundLoot(&Player::Get()) {
 }
 
 Zone::~Zone(){	
-	delete m_tileSetManger;
+	//delete m_tileSetManger;
 }
 
 void Zone::loadZone() {
-	
-	if (m_mapLoaded) {
-		TextureManager::BindTexture(TextureManager::GetTextureAtlas(m_file), true, 6);
-		return;
-	} 
 
-	EditorInterface::getTileSet(Enums::TileClassificationType::FLOOR).setOffset(EditorInterface::getTileSet(Enums::TileClassificationType::FLOOR).getAllTiles().size());
-	EditorInterface::getTileSet(Enums::TileClassificationType::ENVIRONMENT).setOffset(EditorInterface::getTileSet(Enums::TileClassificationType::ENVIRONMENT).getAllTiles().size());
-	EditorInterface::getTileSet(Enums::TileClassificationType::SHADOW).setOffset(EditorInterface::getTileSet(Enums::TileClassificationType::SHADOW).getAllTiles().size());
-
-	LuaFunctions::executeLuaScript(std::string("if ( MapData == nil )\nthen\n    MapData={}\nend"));
-	LuaFunctions::executeLuaScript(std::string("if ( MapData.DontSave == nil )\nthen\n    MapData.DontSave={}\nend"));
-
-	TextureAtlasCreator::Get().init(m_file);
-	LuaFunctions::executeLuaFile(std::string(m_file).append(".tiles_ground.lua"));
-	LuaFunctions::executeLuaFile(std::string(m_file).append(".tiles_environment.lua"));
-	LuaFunctions::executeLuaFile(std::string(m_file).append(".tiles_shadow.lua"));
-	m_textureAtlas = TextureAtlasCreator::Get().getAtlas();
-	TextureManager::SetTextureAtlas(m_file, TextureAtlasCreator::Get().getAtlas());
-	
-	const std::vector<Tile>& tilesF = EditorInterface::getTileSet(Enums::TileClassificationType::FLOOR).getAllTiles();
-	int offset = EditorInterface::getTileSet(Enums::TileClassificationType::FLOOR).getOffset();
-	int length = EditorInterface::getTileSet(Enums::TileClassificationType::FLOOR).getAllTiles().size() - offset;
-	m_tileSetManger->getTileSet(Enums::TileClassificationType::FLOOR).setTiles({ tilesF.begin() + offset , tilesF.begin() + offset + length});
-
-	const std::vector<Tile>& tilesE = EditorInterface::getTileSet(Enums::TileClassificationType::ENVIRONMENT).getAllTiles();
-	offset = EditorInterface::getTileSet(Enums::TileClassificationType::ENVIRONMENT).getOffset();
-	length = EditorInterface::getTileSet(Enums::TileClassificationType::ENVIRONMENT).getAllTiles().size() - offset;
-	m_tileSetManger->getTileSet(Enums::TileClassificationType::ENVIRONMENT).setTiles({ tilesE.begin() + offset ,tilesE.begin() + offset + length });
-
-	const std::vector<Tile>& tilesS = EditorInterface::getTileSet(Enums::TileClassificationType::SHADOW).getAllTiles();
-	offset = EditorInterface::getTileSet(Enums::TileClassificationType::SHADOW).getOffset();
-	length = EditorInterface::getTileSet(Enums::TileClassificationType::SHADOW).getAllTiles().size() - offset;
-	m_tileSetManger->getTileSet(Enums::TileClassificationType::SHADOW).setTiles({ tilesS.begin() + offset ,tilesS.begin() + offset + length});
-
-	//ZoneManager::Get().setCurrentZone(this);
 	LuaFunctions::executeLuaScript(std::string("DawnInterface.setCurrentZone( \"").append(m_file).append("\");"));
-	LuaFunctions::executeLuaFile(std::string(m_file).append(".ground.lua"));
-	LuaFunctions::executeLuaFile(std::string(m_file).append(".environment.lua"));
-	LuaFunctions::executeLuaFile(std::string(m_file).append(".shadow.lua"));
-	LuaFunctions::executeLuaFile(std::string(m_file).append(".collision.lua"));
-	LuaFunctions::executeLuaFile(std::string(m_file).append(".spawnpoints.lua"));
-	LuaFunctions::executeLuaFile(std::string(m_file).append(".init.lua"));
-	m_mapLoaded = true;
+
+	if (!m_mapLoaded) {
+
+		EditorInterface::getTileSet(Enums::TileClassificationType::FLOOR).setOffset(EditorInterface::getTileSet(Enums::TileClassificationType::FLOOR).getAllTiles().size());
+		EditorInterface::getTileSet(Enums::TileClassificationType::ENVIRONMENT).setOffset(EditorInterface::getTileSet(Enums::TileClassificationType::ENVIRONMENT).getAllTiles().size());
+		EditorInterface::getTileSet(Enums::TileClassificationType::SHADOW).setOffset(EditorInterface::getTileSet(Enums::TileClassificationType::SHADOW).getAllTiles().size());
+
+		LuaFunctions::executeLuaScript(std::string("if ( MapData == nil )\nthen\n    MapData={}\nend"));
+		LuaFunctions::executeLuaScript(std::string("if ( MapData.DontSave == nil )\nthen\n    MapData.DontSave={}\nend"));
+
+		TextureAtlasCreator::Get().init(m_file);
+		LuaFunctions::executeLuaFile(std::string(m_file).append(".tiles_ground.lua"));
+		LuaFunctions::executeLuaFile(std::string(m_file).append(".tiles_environment.lua"));
+		LuaFunctions::executeLuaFile(std::string(m_file).append(".tiles_shadow.lua"));
+		m_textureAtlas = TextureAtlasCreator::Get().getAtlas();
+		TextureManager::SetTextureAtlas(m_file, TextureAtlasCreator::Get().getAtlas());
+
+		const std::vector<Tile>& tilesF = EditorInterface::getTileSet(Enums::TileClassificationType::FLOOR).getAllTiles();
+		int offset = EditorInterface::getTileSet(Enums::TileClassificationType::FLOOR).getOffset();
+		int length = EditorInterface::getTileSet(Enums::TileClassificationType::FLOOR).getAllTiles().size() - offset;
+
+		m_tileSetManger->getTileSet(Enums::TileClassificationType::FLOOR).setTiles({ tilesF.begin() + offset , tilesF.begin() + offset + length });
+
+		const std::vector<Tile>& tilesE = EditorInterface::getTileSet(Enums::TileClassificationType::ENVIRONMENT).getAllTiles();
+		offset = EditorInterface::getTileSet(Enums::TileClassificationType::ENVIRONMENT).getOffset();
+		length = EditorInterface::getTileSet(Enums::TileClassificationType::ENVIRONMENT).getAllTiles().size() - offset;
+		m_tileSetManger->getTileSet(Enums::TileClassificationType::ENVIRONMENT).setTiles({ tilesE.begin() + offset ,tilesE.begin() + offset + length });
+
+		const std::vector<Tile>& tilesS = EditorInterface::getTileSet(Enums::TileClassificationType::SHADOW).getAllTiles();
+		offset = EditorInterface::getTileSet(Enums::TileClassificationType::SHADOW).getOffset();
+		length = EditorInterface::getTileSet(Enums::TileClassificationType::SHADOW).getAllTiles().size() - offset;
+		m_tileSetManger->getTileSet(Enums::TileClassificationType::SHADOW).setTiles({ tilesS.begin() + offset ,tilesS.begin() + offset + length });
+
+		LuaFunctions::executeLuaFile(std::string(m_file).append(".ground.lua"));
+		LuaFunctions::executeLuaFile(std::string(m_file).append(".environment.lua"));
+		LuaFunctions::executeLuaFile(std::string(m_file).append(".shadow.lua"));
+		LuaFunctions::executeLuaFile(std::string(m_file).append(".collision.lua"));
+		LuaFunctions::executeLuaFile(std::string(m_file).append(".spawnpoints.lua"));
+		LuaFunctions::executeLuaFile(std::string(m_file).append(".init.lua"));
+		m_mapLoaded = true;
+	}
 
 	TextureManager::BindTexture(TextureManager::GetTextureAtlas(m_file), true, 6);
 }
@@ -313,8 +313,42 @@ void Zone::findCharacter(Character *character, bool &found, size_t &foundPos) co
 	found = false;
 }
 
+void Zone::findInteractionPoint(InteractionPoint *interactionPoint, bool &found, size_t &foundPos) const {
+	for (size_t curInteractionNr = 0; curInteractionNr < m_interactionPoints.size(); ++curInteractionNr) {
+		if (m_interactionPoints[curInteractionNr] == interactionPoint) {
+			found = true;
+			foundPos = curInteractionNr;
+			return;
+		}
+	}
+	found = false;
+}
+
+void Zone::findInteractionRegion(InteractionRegion *interactionRegion, bool &found, size_t &foundPos) const {
+	for (size_t curInteractionNr = 0; curInteractionNr < m_interactionRegions.size(); ++curInteractionNr) {
+		if (m_interactionRegions[curInteractionNr] == interactionRegion) {
+			found = true;
+			foundPos = curInteractionNr;
+			return;
+		}
+	}
+	found = false;
+}
+
+void Zone::findEventHandler(CallIndirection *eventHandler, bool &found, size_t &foundPos) const {
+	for (size_t curEventHandlerNr = 0; curEventHandlerNr < eventHandlers.size(); ++curEventHandlerNr) {
+		if (eventHandlers[curEventHandlerNr] == eventHandler) {
+			found = true;
+			foundPos = curEventHandlerNr;
+			return;
+		}
+	}
+	found = false;
+}
+
 void Zone::update(float deltaTime) {
-	for (unsigned int i = 0; i < MagicMap.size(); ++i) {
+
+ 	for (unsigned int i = 0; i < MagicMap.size(); ++i) {
 		MagicMap[i]->process();
 		MagicMap[i]->getSpell()->inEffect(deltaTime);
 		cleanupActiveAoESpells();
@@ -324,15 +358,16 @@ void Zone::update(float deltaTime) {
 		}
 	}
 
+
 	for (unsigned int x = 0; x < m_npcs.size(); x++) {
 		m_npcs[x]->update(deltaTime);
 	}
 
 	updateInteractionRegion();
+	
 }
 
 void Zone::drawZoneBatched() {
-
 	drawTilesBatched();
 	drawEnvironmentBatched();
 	drawShadowsBatched();
@@ -357,7 +392,6 @@ void Zone::drawShadowsBatched(){
 }
 
 void Zone::drawNpcsBatched() {
-
 	for (unsigned int x = 0; x < m_npcs.size(); x++) {
 		m_npcs[x]->draw();
 	}	
@@ -463,16 +497,27 @@ GroundLoot& Zone::getGroundLoot() {
 	return groundLoot;
 }
 
-/*TileSetManager& Zone::getTileSetManager() {
-	return m_tileSetManger;
-}*/
-
 TileSet& Zone::getTileSet(Enums::TileClassificationType tileType) {
 	return m_tileSetManger->getTileSet(tileType);
 }
 
 void Zone::addEventHandler(CallIndirection *newEventHandler) {
 	eventHandlers.push_back(newEventHandler);
+}
+
+void Zone::purgeInteractionList() {
+	m_interactionPoints.clear();
+	m_interactionPoints.shrink_to_fit();
+}
+
+void Zone::purgeInteractionRegionList() {
+	m_interactionRegions.clear();
+	m_interactionRegions.shrink_to_fit();
+}
+
+void Zone::purgeNpcList() {
+	m_npcs.clear();
+	m_npcs.shrink_to_fit();
 }
 
 void Zone::Draw() {
@@ -502,7 +547,7 @@ ZoneManager& ZoneManager::Get() {
 Zone& ZoneManager::getZone(std::string zoneName) {
 	Zone& zone = m_zones[zoneName];
 	zone.m_file = zoneName;
-	return zone;
+	return m_zones[zoneName];
 }
 
 void ZoneManager::setCurrentZone(Zone* zone) {
@@ -513,6 +558,126 @@ Zone* ZoneManager::getCurrentZone() {
 	return m_currentZone;
 }
 
-std::unordered_map<std::string, Zone> ZoneManager::getAllZones() {
+std::unordered_map<std::string, Zone>& ZoneManager::getAllZones() {
 	return m_zones;
 }
+
+std::string Zone::getLuaSaveText() const {
+	
+	std::ostringstream oss;
+	oss << "DawnInterface.setCurrentZone( \"" << m_file << "\" );" << std::endl;
+	oss << "dofile( \"" << std::string(m_file).append(".spawnpoints.lua") << "\" );" << std::endl;
+	oss << "DawnInterface.getCurrentZone().inited = nil;" << std::endl;
+	oss << "dofile( \"" << std::string(m_file).append(".init.lua") << "\" );" << std::endl;
+	// save call indirections (must be added before spawnpoints since used there)
+	oss << "-- event handlers" << std::endl;
+	for (size_t curEventHandlerNr = 0; curEventHandlerNr<eventHandlers.size(); ++curEventHandlerNr) {
+		CallIndirection *curEventHandler = eventHandlers[curEventHandlerNr];
+		std::string eventHandlerSaveText = curEventHandler->getLuaSaveText();
+		oss << eventHandlerSaveText;
+	}
+
+	// save all spawnpoints
+	/*oss << "-- spawnpoints" << std::endl;
+	for (size_t curNpcNr = 0; curNpcNr < m_npcs.size(); ++curNpcNr) {
+		Npc *curNPC = m_npcs[curNpcNr];
+		// save cur npc
+		std::string npcSaveText = curNPC->getLuaSaveText();
+		oss << npcSaveText;
+	}
+
+	
+
+	// save interaction points
+	oss << "-- interaction points" << std::endl;
+	for (size_t curInteractionNr = 0; curInteractionNr < m_interactionPoints.size(); ++curInteractionNr) {
+		InteractionPoint *curInteractionPoint = m_interactionPoints[curInteractionNr];	
+		std::string interactionSaveText = curInteractionPoint->getLuaSaveText();
+		oss << interactionSaveText;
+	}
+
+	// save interaction regions
+	oss << "-- interaction regions" << std::endl;
+	for (size_t curInteractionNr = 0; curInteractionNr < m_interactionRegions.size(); ++curInteractionNr) {
+		InteractionRegion *curInteractionRegion = m_interactionRegions[curInteractionNr];
+		std::string interactionSaveText = curInteractionRegion->getLuaSaveText();
+		oss << interactionSaveText;
+	}*/
+
+	// save shop data (this ought to be put into the shop somehow as soon as shops are customizable)
+	/*std::unordered_map<std::string, Zone>& allZones = ZoneManager::Get().getAllZones();
+	for (std::unordered_map<std::string, Zone>::iterator it = allZones.begin(); it != allZones.end(); ++it) {
+
+		Zone& currentZone = ZoneManager::Get().getZone(it->first);
+		currentZone.purgeInteractionList();
+		currentZone.purgeInteractionRegionList();
+		currentZone.purgeNpcList();
+	}*/
+	/*oss << "-- shops" << std::endl;
+	std::unordered_map<std::string, Shop*>& allShop = ShopManager::Get().getAllShops();
+	for (std::unordered_map<std::string, Shop*>::iterator it = allShop.begin(); it != allShop.end(); ++it) {
+		Shop& currentShop = ShopManager::Get().getShop(it->first);
+		//currentShop.purgeShopkeeperInventory();
+
+		oss << "local curShop = DawnInterface.addShop( \"" << currentShop.m_name << "\" );" << std::endl;
+		for (size_t curTab = 0; curTab<3; ++curTab) {
+			for (size_t curItemNr = 0; curItemNr < currentShop.shopkeeperInventory[curTab].size(); ++curItemNr) {
+				oss << "curShop:addItem( itemDatabase[\"" << currentShop.shopkeeperInventory[curTab][curItemNr]->getItem()->getID() << "\"] );" << std::endl;
+			}
+		}
+	}*/
+	/*oss << "-- shops" << std::endl;
+	std::unordered_map<std::string, Shop*>& allShop = ShopManager::Get().getAllShops();
+	for (std::unordered_map<std::string, Shop*>::iterator it = allShop.begin(); it != allShop.end(); ++it) {
+		Shop& currentShop = ShopManager::Get().getShop(it->first);
+		oss << "DawnInterface.addShop( \"" << currentShop.m_name << "\" , true ); -- shops not really searchable, yet" << std::endl;;
+		for (size_t curTab = 0; curTab < 3; ++curTab) {
+			for (size_t curItemNr = 0; curItemNr < currentShop.shopkeeperInventory[curTab].size(); ++curItemNr) {
+				oss << "traderShop:addItem( itemDatabase[\"" << currentShop.shopkeeperInventory[curTab][curItemNr]->getItem()->getID() << "\"] );" << std::endl;
+			}
+		}
+	}
+
+	oss << "traderShop:loadShopkeeperInventory();" << std::endl;*/
+	oss << std::endl;
+	return oss.str();
+	
+	
+	
+	// save ground loot
+	oss << "-- ground loot" << std::endl;
+	for (size_t curGroundItemNr = 0; curGroundItemNr < groundLoot.groundItems.size(); ++curGroundItemNr) {
+		sGroundItems curGroundItem = groundLoot.groundItems[curGroundItemNr];
+		Item *item = curGroundItem.item;
+		if (dynamic_cast<GoldHeap*>(item) != NULL) {
+			GoldHeap *goldHeap = dynamic_cast<GoldHeap*>(item);
+			oss << "DawnInterface.restoreGroundGold( "
+				<< goldHeap->numCoins() << ", "
+				<< curGroundItem.xpos << ", "
+				<< curGroundItem.ypos << " );" << std::endl;
+		} else {
+			oss << "DawnInterface.restoreGroundLootItem( "
+				<< "itemDatabase[ \"" << item->getID() << "\" ], "
+				<< curGroundItem.xpos << ", "
+				<< curGroundItem.ypos << " );" << std::endl;
+		}
+	}
+	return oss.str();
+}
+
+Character* Zone::getCharacterPointer(size_t posInArray) const {
+	return m_npcs.at(posInArray);
+}
+
+InteractionPoint* Zone::getInteractionPointPointer(size_t posInArray) const {
+	return m_interactionPoints.at(posInArray);
+}
+
+InteractionRegion* Zone::getInteractionRegionPointer(size_t posInArray) const {
+	return m_interactionRegions.at(posInArray);
+}
+
+CallIndirection* Zone::getEventHandlerPointer(size_t posInArray) const {
+	return eventHandlers.at(posInArray);
+}
+

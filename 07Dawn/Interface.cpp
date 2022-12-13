@@ -872,15 +872,16 @@ void Interface::clearLogWindow() {
 	m_textDatabase.clear();
 }
 
-void Interface::connectWidget(Widget& widget, bool activate, bool keepInputHandling) {
+void Interface::connectWidget(Widget& widget, bool activate) {
 
 	widget.setOnActivate([&]() {
+
 		if (widget.isVisible()) {
 			for (size_t curFrame = 0; curFrame < m_widgets.size(); curFrame++) {
 				if (&widget == m_widgets[curFrame]) {
 					m_widgets.erase(m_widgets.begin() + curFrame);
 					m_widgets.push_back(&widget);
-					keepInputHandling ? m_activeWidget = nullptr : m_activeWidget = m_widgets.back();
+					widget.m_keepInputHandling ? m_activeWidget = nullptr : m_activeWidget = m_widgets.back();
 					return;
 				}
 			}
@@ -888,7 +889,7 @@ void Interface::connectWidget(Widget& widget, bool activate, bool keepInputHandl
 
 			m_widgets.push_back(&widget);
 			widget.setVisible(true);
-			keepInputHandling ? m_activeWidget = nullptr : m_activeWidget = m_widgets.back();
+			widget.m_keepInputHandling ? m_activeWidget = nullptr : m_activeWidget = m_widgets.back();
 		}
 	});
 	if(activate) widget.activate();
@@ -919,4 +920,25 @@ Widget* Interface::getActiveWidget() {
 
 std::vector<Widget*>& Interface::getWidgets() {
 	return m_widgets;
+}
+
+void Interface::clear() {
+	for (size_t curButtonNr = 0; curButtonNr < m_button.size(); ++curButtonNr) {
+		if (isButtonUsed(&m_button[curButtonNr]))
+			unbindAction(&m_button[curButtonNr]);
+	}
+}
+
+std::string Interface::getActionBarLuaSaveText() {
+	std::ostringstream oss;
+	oss << "-- action bar" << std::endl;
+
+	for (size_t curButtonNr = 0; curButtonNr< m_button.size(); ++curButtonNr) {
+		if (isButtonUsed(&m_button[curButtonNr])) {
+			oss << "DawnInterface.restoreActionBar( " << curButtonNr << ", "
+				<< "spellDatabase[ \"" << m_button[curButtonNr].action->getID() << "\" ] );" << std::endl;
+		}
+	}
+
+	return oss.str();
 }

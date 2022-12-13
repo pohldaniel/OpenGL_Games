@@ -47,8 +47,8 @@ protected:
 	
 	std::string interactionCode;
 	Enums::InteractionType interactionType;
-
-
+	std::string m_file;
+	static std::vector<TextureRect> Textures;
 
 private:
 
@@ -59,7 +59,7 @@ private:
 
 	bool markedAsDeletable;
 
-	static std::vector<TextureRect> Textures;
+	
 	static std::unordered_map<std::string, TextureRect> BackgroundTextures;
 };
 

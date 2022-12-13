@@ -11,7 +11,8 @@ enum CurrentState {
 	EDITOR,
 	PAUSE,
 	MAINMENU,
-	LOADINGSCREEN
+	LOADINGSCREEN,
+	CHOOSECLASSMENU,
 };
 
 //base for holding the Framebuffer

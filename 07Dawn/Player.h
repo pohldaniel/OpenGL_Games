@@ -61,6 +61,8 @@ public:
 	unsigned short getModifiedManaRegen() const;
 	unsigned short getModifiedFatigueRegen() const;
 
+	void setExperience(unsigned long experience);
+
 	bool canWearArmorType(Item* item) const;
 	bool isSpellInscribedInSpellbook(SpellActionBase* spell) const;
 	bool isSpellOnCooldown(std::string spellName) const;
@@ -70,8 +72,10 @@ public:
 	bool isShopping() const;
 	Inventory* getInventory();
 	void clearInventory();
+	void clearCooldownSpells();
+	void clearActiveSpells();
 	void reduceCoins(unsigned int amountOfCoins);
-
+	std::string getSaveText() const;
 	static Player& Get();
 
 	bool m_reloadItemTooltip = true;
@@ -83,12 +87,8 @@ private:
 	void Animate(float deltaTime);
 	void processInput();
 
-	void clearCooldownSpells();
-	void clearActiveSpells();
-
 	bool canRaiseLevel() const;
 	void raiseLevel();
-	void setExperience(unsigned long experience);
 
 	unsigned short  movementSpeed;
 	unsigned int ticketForItemTooltip;

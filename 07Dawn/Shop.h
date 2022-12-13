@@ -71,7 +71,9 @@ public:
 	void loadShopkeeperInventory();
 	void addItem(Item *item);
 	void buyFromShop();
-
+	void purgeShopkeeperInventory();
+	std::vector<InventoryItem*> shopkeeperInventory[3];
+	std::string m_name;
 private:
 	
 	void sellToShop(InventoryItem *sellItem, bool givePlayerMoney);
@@ -83,7 +85,7 @@ private:
 	Player *m_player;
 	Npc *m_shopkeeper;
 
-	std::vector<InventoryItem*> shopkeeperInventory[3];
+	
 
 	unsigned short numSlotsX;
 	unsigned short numSlotsY;
@@ -96,7 +98,8 @@ class ShopManager {
 
 public:
 
-	Shop& getShop(std::string zoneName);
+	Shop& getShop(std::string zoneName, bool replace = false);
+	std::unordered_map<std::string, Shop*>& getAllShops();
 	static ShopManager& Get();
 
 private:

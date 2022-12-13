@@ -4,7 +4,6 @@ if( quest_hexmaster == nil ) then
 end
 
 function quest_hexmaster.init()
-
 	-- this quest is initialized from zone zone1
 	quest_hexmaster.isOpen = false
 	quest_hexmaster.questStartRegion = DawnInterface.addInteractionRegion();
@@ -344,8 +343,7 @@ end
 
 
 -- init quest if this has not been done yet
-if ( quest_hexmaster.inited == nil )
-then
+if ( quest_hexmaster.inited == nil ) then
 	quest_hexmaster.inited = true;
 	quest_hexmaster.init();
 end

@@ -215,3 +215,13 @@ void Spellbook::refreshPage() {
 		}
 	}
 }
+
+std::string Spellbook::getLuaSaveText() const {
+	std::ostringstream oss;
+	for (size_t curSpellNr = 0; curSpellNr < inscribedSpells.size(); ++curSpellNr) {
+		SpellActionBase *curSpell = inscribedSpells[curSpellNr];
+		oss << "DawnInterface.inscribeSpellInPlayerSpellbook( "
+			<< "spellDatabase[ \"" << curSpell->getID() << "\" ] );" << std::endl;
+	}
+	return oss.str();
+}

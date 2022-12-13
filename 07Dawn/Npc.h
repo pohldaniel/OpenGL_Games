@@ -33,6 +33,7 @@ public:
 	void setSpawnInfo(int _x_spawn_pos, int _y_spawn_pos, int _seconds_to_respawn, int _do_respawn);
 	void setAttitude(Enums::Attitude attitude);
 	std::string getLuaEditorSaveText() const;
+	std::string getLuaSaveText() const;
 	void addOnDieEventHandler(CallIndirection *eventHandler);
 	bool hasOnDieEventHandler() const;
 
@@ -72,7 +73,7 @@ private:
 	int NPC_id;
 	int seconds_to_respawn;
 	bool wandering, moving, in_combat;
-	
+	std::string m_characterTypeStr;
 	std::vector<std::array<int, 2>> waypoints;
 	//std::vector<sLootTable> lootTable;
 	std::vector<CallIndirection*> onDieEventHandlers;

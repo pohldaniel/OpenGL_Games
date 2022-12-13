@@ -79,10 +79,13 @@ public:
 	void resize(int deltaW, int deltaH);
 	void addTextToLog(std::string text, Vector4f color);
 	void clearLogWindow();
-	void connectWidget(Widget& widget, bool activate = false, bool keepInputHandling = false);
+	void connectWidget(Widget& widget, bool activate = false);
 	void closeAll();
 	Widget* getActiveWidget();
 	std::vector<Widget*>& getWidgets();
+	void clear();
+	std::string getActionBarLuaSaveText();
+	void bindActionToButtonNr(int buttonNr, SpellActionBase *action);
 	static Interface& Get();
 	
 private:
@@ -105,7 +108,7 @@ private:
 	void dragSpell(Button* spellQueue);
 	short getMouseOverButtonId(int x, int y);
 
-	void bindActionToButtonNr(int buttonNr, SpellActionBase *action);
+	
 	void bindAction(Button *button, SpellActionBase* action);
 	void unbindAction(Button *button);
 

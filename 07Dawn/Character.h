@@ -242,8 +242,17 @@ public:
 	void setDamageModifierPoints(unsigned short newDamageModifierPoints);
 	void setHitModifierPoints(unsigned short newHitModifierPoints);
 	void setEvadeModifierPoints(unsigned short newEvadeModifierPoints);
+	void setParryModifierPoints(unsigned short newParryModifierPoints);
+	void setBlockModifierPoints(unsigned short newBlockModifierPoints);
+	void setMeleeCriticalModifierPoints(unsigned short newMeleeCriticalModifierPoints);
+	void setResistElementModifierPoints(Enums::ElementType elementType, unsigned short newResistElementModifierPoints);
+	void setResistAllModifierPoints(unsigned short newResistAllModifierPoints);
+	void setSpellEffectElementModifierPoints(Enums::ElementType elementType, unsigned short newSpellEffectElementModifierPoints);
+	void setSpellEffectAllModifierPoints(unsigned short newSpellEffectAllModifierPoints);
+	void setSpellCriticalModifierPoints(unsigned short newSpellCriticalModifierPoints);
 	void setLevel(unsigned short newLevel);
 	void setExperienceValue(unsigned short experienceValue);
+	void setCoins(unsigned int amountOfCoins);
 	/////////////////////////////////////////////////////////////////////
 
 	static std::string AttitudeToString(Enums::Attitude attitude);

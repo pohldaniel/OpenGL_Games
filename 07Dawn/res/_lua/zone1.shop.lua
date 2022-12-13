@@ -1,0 +1,15 @@
+traderShop = DawnInterface.addShop("shop1");
+traderShop:addItem( itemDatabase["leynorscap"] );
+traderShop:addItem( itemDatabase["smallhealingpotion"] );
+traderShop:addItem( itemDatabase["smallhealingpotion"] );
+traderShop:addItem( itemDatabase["smallhealingpotion"] );
+traderShop:addItem( itemDatabase["smallhealingpotion"] );
+traderShop:addItem( itemDatabase["smallhealingpotion"] );
+traderShop:addItem( itemDatabase["smallhealingpotion"] );
+traderShop:addItem( itemDatabase["smallhealingpotion"] );
+traderShop:addItem( itemDatabase["smallhealingpotion"] );
+traderShop:addItem( itemDatabase["smallhealingpotion"] );
+traderShop:addItem( itemDatabase["smallhealingpotion"] );
+traderShop:addItem( itemDatabase["bladeofstrength"] );
+traderShop:addItem( itemDatabase["bookofleatherskinrank2"] );
+traderShop:loadShopkeeperInventory();

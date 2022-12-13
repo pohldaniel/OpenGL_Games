@@ -67,7 +67,7 @@ public:
 
 		setProgress(0.075f);
 		progressString = "Loading Mob Data";
-		LuaFunctions::executeLuaFile("res/_lua/mobdata_wolf.lua");
+		LuaFunctions::executeLuaFile("res/_lua/mobdata.lua");
 
 		setProgress(0.1f);
 		progressString = "Loading Interface Data";
@@ -125,11 +125,14 @@ public:
 		setProgress(1.0f);
 		OptionsWindow::Get().init({ Game::TextureRects[93] });
 		progressString = "Initialize Game";
+		
+		LuaFunctions::executeLuaFile("res/_lua/loadsave.lua");
 		LuaFunctions::executeLuaFile("res/_lua/gameinit.lua");
+
 		DawnInterface::clearLogWindow();
 		GLfloat color[] = { 1.0f, 1.0f, 0.0f };
 		DawnInterface::addTextToLogWindow(color, "Welcome to the world of Dawn, %s.", Player::Get().getName().c_str());
-		DawnInterface::enterZone("res/_lua/zone1", 512, 400);
+
 
 		accessMutex.Lock();
 		finished = true;
@@ -158,7 +161,7 @@ public:
 
 		setProgress(0.075f);
 		progressString = "Loading Mob Data";
-		LuaFunctions::executeLuaFile("res/_lua/mobdata_wolf.lua");
+		LuaFunctions::executeLuaFile("res/_lua/mobdata.lua");
 
 		setProgress(1.0f);
 		progressString = "Loading Interface Data";

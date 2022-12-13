@@ -5,11 +5,11 @@ then
 end
 
 function quest_playHideAndSeek.init()
-	john = DawnInterface.addInteractionPoint();
-	john:setPosition( 820, 270, 64, 64 );
-	john:setBackgroundTexture( "res/character/John.tga" );
-	john:setInteractionType( Enums.Quest );
-	john:setInteractionCode( "quest_playHideAndSeek.onActivateJohn()" );
+	quest_playHideAndSeek.john = DawnInterface.addInteractionPoint();
+	quest_playHideAndSeek.john:setPosition( 820, 270, 64, 64 );
+	quest_playHideAndSeek.john:setBackgroundTexture( "res/character/John.tga" );
+	quest_playHideAndSeek.john:setInteractionType( Enums.Quest );
+	quest_playHideAndSeek.john:setInteractionCode( "quest_playHideAndSeek.onActivateJohn()" );
 	
 	--quest_playHideAndSeek.onActivateJohn();
 end

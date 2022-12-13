@@ -21,6 +21,7 @@ public:
 	void init(std::vector<TextureRect> textures);
 	void addQuest(Quest *quest);
 	std::vector<Quest*>& getQuests();
+	void removeAllQuests();
 
 	static QuestCanvas& Get();
 
@@ -31,7 +32,7 @@ private:
 	void addQuestToBeRemoved(Quest *quest);
 	void tryToPurgeQuests();
 	void removeQuest(Quest *quest);
-	void removeAllQuests();
+	
 	void changeQuestDescription(Quest *quest, std::string newDescription);
 
 	std::vector<Quest*> quests;
@@ -69,6 +70,7 @@ public:
 	void setDescription(std::string description);
 	std::string getDescription() const;
 	std::string getName() const;
+	std::vector<std::pair< Item*, int8_t>>& getRequiredItems();
 
 private:
 
@@ -78,11 +80,9 @@ private:
 
 	bool questFinished;
 
-	std::vector< std::pair< Item*, int8_t > > requiredItems;
+	std::vector<std::pair< Item*, int8_t>> requiredItems;
 
 	std::string name;
 	std::string description;
 	QuestCanvas& m_questCanvas;
-
-	//friend std::string DawnInterface::getReinitialisationString(std::string fullVarName, Quest* quest);
 };

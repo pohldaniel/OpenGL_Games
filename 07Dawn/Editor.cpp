@@ -568,7 +568,7 @@ void Editor::render() {
 	Fontrenderer::Get().addText(Globals::fontManager.get("verdana_9"), 10, 80 - fontHeight, "[ F1 ]  Next set of objects", Vector4f(1.0f, 1.0f, 0.13f, 1.0f));
 	Fontrenderer::Get().addText(Globals::fontManager.get("verdana_9"), 10, 70 - fontHeight, "[ DEL ]  Delete object at mouse position", Vector4f(1.0f, 1.0f, 0.13f, 1.0f));
 	Fontrenderer::Get().addText(Globals::fontManager.get("verdana_9"), 10, 60 - fontHeight, "[ ENTER ]  Place object at mouse position", Vector4f(1.0f, 1.0f, 0.13f, 1.0f));
-	Fontrenderer::Get().addText(Globals::fontManager.get("verdana_9"), 10, 50 - fontHeight, "[ C ]  Saves the changes into zone1-files", Vector4f(1.0f, 1.0f, 0.13f, 1.0f));
+	Fontrenderer::Get().addText(Globals::fontManager.get("verdana_9"), 10, 50 - fontHeight, "[ C ]  Saves the changes into zone-files", Vector4f(1.0f, 1.0f, 0.13f, 1.0f));
 	Fontrenderer::Get().addText(Globals::fontManager.get("verdana_9"), 10, 40 - fontHeight, "[ O ]  Load a different zone (not yet implemented)", Vector4f(1.0f, 1.0f, 0.13f, 1.0f));
 	Fontrenderer::Get().addText(Globals::fontManager.get("verdana_9"), 10,30 - fontHeight, "[ L ]  Exit the editor", Vector4f(1.0f, 1.0f, 0.13f, 1.0f));
 	//Fontrenderer::Get().addText(Globals::fontManager.get("verdana_9"), 10, 20 - fontHeight, "//Press the left mouse button near the sides to scroll around ;-)", Vector4f(1.0f, 1.0f, 0.13f, 1.0f));
