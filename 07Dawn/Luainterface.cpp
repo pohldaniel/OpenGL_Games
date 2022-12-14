@@ -70,8 +70,11 @@ namespace DawnInterface{
 	}
 
 	void restoreActionBar(int buttonNr, SpellActionBase *action) {
-		
 		Interface::Get().bindActionToButtonNr(buttonNr, action);	
+	}
+
+	void restoreGroundLootItem(Item *item, int xPos, int yPos) {
+		ZoneManager::Get().getCurrentZone()->getGroundLoot().addItem(xPos, yPos, item);
 	}
 
 	std::string getReenterCurrentZoneText(){
@@ -425,7 +428,10 @@ namespace DawnInterface{
 
 	void inscribeSpellInPlayerSpellbook(SpellActionBase* inscribedSpell) {
 		Player::Get().inscribeSpellInSpellbook(inscribedSpell);
-		//Spellbook::Get().reloadSpellsFromPlayer();
+	}
+
+	void reloadSpellsFromPlayer() {
+		Spellbook::Get().reloadSpellsFromPlayer();
 	}
 
 	void addTextToLogWindow(float color[], const char *text, ...){

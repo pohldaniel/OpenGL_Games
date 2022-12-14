@@ -10,8 +10,6 @@ function quest_playHideAndSeek.init()
 	quest_playHideAndSeek.john:setBackgroundTexture( "res/character/John.tga" );
 	quest_playHideAndSeek.john:setInteractionType( Enums.Quest );
 	quest_playHideAndSeek.john:setInteractionCode( "quest_playHideAndSeek.onActivateJohn()" );
-	
-	--quest_playHideAndSeek.onActivateJohn();
 end
 
 function quest_playHideAndSeek.onActivateJohn()

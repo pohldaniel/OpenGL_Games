@@ -28,8 +28,6 @@ public:
 		LOAD = 2,
 	};
 
-
-
 	void setProgress(float newProgress) {
 		progress = newProgress;
 		Sleep(1);
@@ -89,31 +87,32 @@ public:
 		setProgress(0.125f);
 		progressString = "Initializing Interface";
 		Interface::Get().setPlayer(&Player::Get());
-		Interface::Get().init({ Game::TextureRects.begin(), Game::TextureRects.begin() + 42 });
+		Interface::Get().init({ Game::TextureRects.begin(), Game::TextureRects.begin() + 44 });
+		Interface::Get().inscribeActionsToActionsbar();
 
 		setProgress(0.15f);
 		progressString = "Initializing Spellbook";
 		Spellbook::Get().setPlayer(&Player::Get());
-		Spellbook::Get().init({ Game::TextureRects.begin() + 42, Game::TextureRects.begin() + 46 });
+		Spellbook::Get().init({ Game::TextureRects.begin() + 44, Game::TextureRects.begin() + 48 });
 		Spellbook::Get().reloadSpellsFromPlayer();
 
 		setProgress(0.16f);
 		progressString = "Initializing Character Info Canvas";
 		CharacterInfo::Get().setPlayer(&Player::Get());
-		CharacterInfo::Get().init({ Game::TextureRects.begin() + 46, Game::TextureRects.begin() + 51 });
+		CharacterInfo::Get().init({ Game::TextureRects.begin() + 48, Game::TextureRects.begin() + 53 });
 
 		setProgress(0.175f);
 		progressString = "Initializing Inventory Canvas";
 		InventoryCanvas::Get().setPlayer(&Player::Get());
-		InventoryCanvas::Get().init({ Game::TextureRects.begin() + 51, Game::TextureRects.begin() + 69 });
+		InventoryCanvas::Get().init({ Game::TextureRects.begin() + 53, Game::TextureRects.begin() + 71 });
 
 		setProgress(0.2f);
 		progressString = "Initializing Quest Canvas";
-		QuestCanvas::Get().init({ Game::TextureRects[69] });
+		QuestCanvas::Get().init({ Game::TextureRects[71] });
 
 		setProgress(0.3f);
 		progressString = "Initializing Dialog Canvas";
-		DialogCanvas::Init({ Game::TextureRects.begin() + 70, Game::TextureRects.begin() + 79 });
+		DialogCanvas::Init({ Game::TextureRects.begin() + 72, Game::TextureRects.begin() + 81 });
 
 		setProgress(0.4f);
 		progressString = "Initializing Shop Canvas";
@@ -121,22 +120,22 @@ public:
 
 		setProgress(0.5f);
 		progressString = "Initializing Shop Canvas";
-		ShopCanvas::Get().init({ Game::TextureRects.begin() + 79, Game::TextureRects.begin() + 84 });
+		ShopCanvas::Get().init({ Game::TextureRects.begin() + 81, Game::TextureRects.begin() + 86 });
 
 		setProgress(0.6f);
 		progressString = "Initializing Interaction Points";
-		InteractionPoint::Init({ Game::TextureRects.begin() + 84, Game::TextureRects.begin() + 90 });
+		InteractionPoint::Init({ Game::TextureRects.begin() + 86, Game::TextureRects.begin() + 92 });
 
 		setProgress(0.8f);
 		progressString = "Initializing GroundLoot";
-		GroundLoot::Init({ Game::TextureRects.begin() + 90, Game::TextureRects.begin() + 93 });
+		GroundLoot::Init({ Game::TextureRects.begin() + 92, Game::TextureRects.begin() + 95 });
 
 		setProgress(0.9f);
 		progressString = "Initializing Tooltips";
-		ItemTooltip::Init({ Game::TextureRects.begin() + 53, Game::TextureRects.begin() + 56 });
+		ItemTooltip::Init({ Game::TextureRects.begin() + 55, Game::TextureRects.begin() + 58 });
 
 		setProgress(1.0f);
-		OptionsWindow::Get().init({ Game::TextureRects[93] });
+		OptionsWindow::Get().init({ Game::TextureRects[95] });
 		progressString = "Initialize Game";
 
 		LuaFunctions::executeLuaFile("res/_lua/loadsave.lua");
@@ -164,6 +163,7 @@ public:
 		progressString = "Initializing Player";	
 		LuaFunctions::executeLuaFile("res/_lua/playerdata_w.lua");
 		Player::Get().setCharacterType("player_w");
+		Player::Get().setClass(Enums::CharacterClass::Liche);
 		Player::Get().init();
 
 		setProgress(0.025f);
@@ -185,6 +185,7 @@ public:
 		accessMutex.Lock();
 		finished = true;
 		Editor::s_init = true;
+		DawnInterface::enterZone("res/_lua/zone1", 512, 400);
 		wglDeleteContext(Application::LoaderContext);
 		accessMutex.Unlock();
 	}
@@ -216,67 +217,58 @@ public:
 		setProgress(0.125f);
 		progressString = "Initializing Interface";
 		Interface::Get().setPlayer(&Player::Get());
-		Interface::Get().init({ Game::TextureRects.begin(), Game::TextureRects.begin() + 42 });
-		std::cout << "###########" << std::endl;
+		Interface::Get().init({ Game::TextureRects.begin(), Game::TextureRects.begin() + 44 });
+
 		setProgress(0.15f);
 		progressString = "Initializing Spellbook";
 		Spellbook::Get().setPlayer(&Player::Get());
-		Spellbook::Get().init({ Game::TextureRects.begin() + 42, Game::TextureRects.begin() + 46 });
-		Spellbook::Get().reloadSpellsFromPlayer();
+		Spellbook::Get().init({ Game::TextureRects.begin() + 44, Game::TextureRects.begin() + 48 });
 
 		setProgress(0.16f);
 		progressString = "Initializing Character Info Canvas";
 		CharacterInfo::Get().setPlayer(&Player::Get());
-		CharacterInfo::Get().init({ Game::TextureRects.begin() + 46, Game::TextureRects.begin() + 51 });
+		CharacterInfo::Get().init({ Game::TextureRects.begin() + 48, Game::TextureRects.begin() + 53 });
 
 		setProgress(0.175f);
 		progressString = "Initializing Inventory Canvas";
 		InventoryCanvas::Get().setPlayer(&Player::Get());
-		InventoryCanvas::Get().init({ Game::TextureRects.begin() + 51, Game::TextureRects.begin() + 69 });
+		InventoryCanvas::Get().init({ Game::TextureRects.begin() + 53, Game::TextureRects.begin() + 71 });
 
 		setProgress(0.2f);
 		progressString = "Initializing Quest Canvas";
-		QuestCanvas::Get().init({ Game::TextureRects[69] });
+		QuestCanvas::Get().init({ Game::TextureRects[71] });
 
 		setProgress(0.3f);
 		progressString = "Initializing Dialog Canvas";
-		DialogCanvas::Init({ Game::TextureRects.begin() + 70, Game::TextureRects.begin() + 79 });
+		DialogCanvas::Init({ Game::TextureRects.begin() + 72, Game::TextureRects.begin() + 81 });
 
 		setProgress(0.4f);
 		progressString = "Initializing Shop Canvas";
-		ShopCanvas::Get().init({ Game::TextureRects.begin() + 79, Game::TextureRects.begin() + 84 });
+		ShopCanvas::Get().init({ Game::TextureRects.begin() + 81, Game::TextureRects.begin() + 86 });
 
 		setProgress(0.5f);
-		progressString = "Initializing Shop Canvas";
-		ShopCanvas::Get().init({ Game::TextureRects.begin() + 79, Game::TextureRects.begin() + 84 });
-
-		setProgress(0.6f);
 		progressString = "Initializing Interaction Points";
-		InteractionPoint::Init({ Game::TextureRects.begin() + 84, Game::TextureRects.begin() + 90 });
+		InteractionPoint::Init({ Game::TextureRects.begin() + 86, Game::TextureRects.begin() + 92 });
 
 		setProgress(0.8f);
 		progressString = "Initializing GroundLoot";
-		GroundLoot::Init({ Game::TextureRects.begin() + 90, Game::TextureRects.begin() + 93 });
+		GroundLoot::Init({ Game::TextureRects.begin() + 92, Game::TextureRects.begin() + 95 });
 
 		setProgress(0.9f);
 		progressString = "Initializing Tooltips";
-		ItemTooltip::Init({ Game::TextureRects.begin() + 53, Game::TextureRects.begin() + 56 });
+		ItemTooltip::Init({ Game::TextureRects.begin() + 55, Game::TextureRects.begin() + 58 });
 
 		setProgress(1.0f);
-		OptionsWindow::Get().init({ Game::TextureRects[93] });
+		OptionsWindow::Get().init({ Game::TextureRects[95] });
 		progressString = "Initialize Game";
 
 		LuaFunctions::executeLuaFile("res/_lua/loadsave.lua");
 
-		
-		DawnInterface::clearLogWindow();
-		GLfloat color[] = { 1.0f, 1.0f, 0.0f };
-		DawnInterface::addTextToLogWindow(color, "Welcome to the world of Dawn, %s.", Player::Get().getName().c_str());
-
 		accessMutex.Lock();
 		finished = true;
 		Game::s_init = true;
-		LuaFunctions::executeLuaScript("loadGame( 'savegame' )");
+		LuaFunctions::executeLuaScript("loadGame( 'res/_lua/save/savegame' )");
+		DawnInterface::clearLogWindow();
 		wglDeleteContext(Application::LoaderContext);
 		accessMutex.Unlock();
 	}

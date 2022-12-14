@@ -46,16 +46,15 @@ void OptionsWindow::draw() {
 
 	Fontrenderer::Get().addText(*m_font, textX, textY, "Quit Game", (selectedEntry == 0) ? Vector4f(1.0f, 1.0f, 0.0f, 1.0f) : Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
 	textY -= static_cast<int>(m_font->lineHeight * 1.5);
-	Fontrenderer::Get().addText(*m_font, textX, textY, "Load Game", (selectedEntry == 1) ? Vector4f(1.0f, 0.0f, 0.0f, 1.0f) : Vector4f(0.5f, 0.5f, 0.5f, 1.0f));
+	Fontrenderer::Get().addText(*m_font, textX, textY, "Load Game", (selectedEntry == 1) && !Utils::file_exists("res/_lua/save/savegame.lua") ? Vector4f(1.0f, 0.0f, 0.0f, 1.0f) : !Utils::file_exists("res/_lua/save/savegame.lua") ? Vector4f(0.5f, 0.5f, 0.5f, 1.0f) : (selectedEntry == 1) ? Vector4f(1.0f, 1.0f, 0.0f, 1.0f) : Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
 	textY -= static_cast<int>(m_font->lineHeight * 1.5);
-	Fontrenderer::Get().addText(*m_font, textX, textY, "Save Game", (selectedEntry == 2) ? Vector4f(1.0f, 0.0f, 0.0f, 1.0f) : Vector4f(0.5f, 0.5f, 0.5f, 1.0f));
+	Fontrenderer::Get().addText(*m_font, textX, textY, "Save Game", (selectedEntry == 2) && !Globals::savingAllowed ? Vector4f(1.0f, 0.0f, 0.0f, 1.0f) : !Globals::savingAllowed ? Vector4f(0.5f, 0.5f, 0.5f, 1.0f) : (selectedEntry == 2 ) ? Vector4f(1.0f, 1.0f, 0.0f, 1.0f) : Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
 	textY -= static_cast<int>(m_font->lineHeight * 1.5);
 	Fontrenderer::Get().addText(*m_font, textX, textY, "Editor", (selectedEntry == 3) ? Vector4f(1.0f, 1.0f, 0.0f, 1.0f) : Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
 	textY -= static_cast<int>(m_font->lineHeight * 1.5);
 	Fontrenderer::Get().addText(*m_font, textX, textY, "Continue", (selectedEntry == 4) ? Vector4f(1.0f, 1.0f, 0.0f, 1.0f) : Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
 	textY -= static_cast<int>(m_font->lineHeight * 1.5);
 	Fontrenderer::Get().addText(*m_font, textX, textY, "Pause", (selectedEntry == 5) ? Vector4f(1.0f, 1.0f, 0.0f, 1.0f) : Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
-	
 }
 
 void OptionsWindow::processInput() {
@@ -73,11 +72,12 @@ void OptionsWindow::processInput() {
 	if (!m_visible) return;
 	Widget::processInput();	
 
-	// check for quit and the other options
-	//if (!isMouseOnFrame(mouseX, mouseY)) {
-	//return;
-	//}
 
+	if (!isMouseOnFrame(Mouse::instance().xPosAbsolute(), Mouse::instance().yPosAbsolute())) {
+		return;
+	}
+
+	// check for quit and the other options
 	int selectedEntry = -1;
 	if (ViewPort::Get().getCursorPosRelX() < m_posX + 64 || ViewPort::Get().getCursorPosRelX() > m_posX + m_width - 64 || m_posY + m_height - 64 < ViewPort::Get().getCursorPosRelY()) {
 		selectedEntry = -1;
@@ -91,7 +91,7 @@ void OptionsWindow::processInput() {
 
 	if (selectedEntry == 0){
 		//setQuitGame();
-	} else if (selectedEntry == 1 && Utils::file_exists("savegame.lua") == true) {
+	} else if (selectedEntry == 1 && Utils::file_exists("res/_lua/save/savegame.lua") == true) {
 		// Load Game
 
 		// clear current game data
@@ -105,32 +105,23 @@ void OptionsWindow::processInput() {
 			currentZone.purgeNpcList();
 		}
 
-		Player::Get().clearInventory();
-		// clear shop data
-		//shopWindow = std::auto_ptr<Shop>(new Shop(Globals::getPlayer(), NULL));
-		// clear spellbook
+		Player::Get().clearInventory();	
 		Spellbook::Get().clear();
-		// clear action bar
 		Interface::Get().clear();
-		// clear cooldowns
 		Player::Get().clearCooldownSpells();
-		// clear buffs
 		Player::Get().clearActiveSpells();
 
 		// reenter map
 		// 1. Load all zones
 		// TODO: Load all zones
 		// 2. Restore lua variables
-		LuaFunctions::executeLuaScript("loadGame( 'savegame' )");
-		//CZone *newZone = Globals::allZones["data/zone1"];
-		//newZone->LoadZone("data/zone1");
-		//LuaFunctions::executeLuaFile("data/quests_wood.lua");
+		LuaFunctions::executeLuaScript("loadGame( 'res/_lua/save/savegame' )");
 		DawnInterface::clearLogWindow();
 
 	}else if (selectedEntry == 2) {
 		if (Globals::savingAllowed) {
 			// save Game
-			LuaFunctions::executeLuaScript("saveGame( 'savegame' )");
+			LuaFunctions::executeLuaScript("saveGame( 'res/_lua/save/savegame' )");
 			GLfloat yellow[] = { 1.0f, 1.0f, 0.0f };
 			DawnInterface::addTextToLogWindow(yellow, "Game saved.");
 		}
@@ -139,17 +130,20 @@ void OptionsWindow::processInput() {
 		close();
 		Application::AddStateAtTop(new Editor(Application::GetStateMachine()));
 
-	}else if (selectedEntry == 4) {
-		/*GLfloat yellow[] = { 1.0f, 1.0f, 0.0f };
-		if (Globals::isPaused()) {
-			Globals::setPaused(false);
-			DawnInterface::addTextToLogWindow(yellow, "Game unpaused.");
+	} else if (selectedEntry == 4) {
+		close();
+
+	} else if (selectedEntry == 5) {
+		GLfloat yellow[] = { 1.0f, 1.0f, 0.0f };
+		if (Globals::isPaused) {
+			Globals::isPaused = false;
+			DawnInterface::addTextToLogWindow(yellow, "Game unpaused. (not implemented)");
 
 		}else {
-			Globals::setPaused(true);
-			DawnInterface::addTextToLogWindow(yellow, "Game paused.");
+			Globals::isPaused = true;
+			DawnInterface::addTextToLogWindow(yellow, "Game paused. (not implemented)");
 
-		}*/
+		}
 	}
 }
 

@@ -633,12 +633,9 @@ std::string Zone::getLuaSaveText() const {
 
 	oss << "traderShop:loadShopkeeperInventory();" << std::endl;*/
 	oss << std::endl;
-	return oss.str();
-
-
 
 	// save ground loot
-	oss << "-- ground loot" << std::endl;
+	oss << "-- " << zoneNameNoPrefix << " ground loot" << std::endl;
 	for (size_t curGroundItemNr = 0; curGroundItemNr < groundLoot.groundItems.size(); ++curGroundItemNr) {
 		sGroundItems curGroundItem = groundLoot.groundItems[curGroundItemNr];
 		Item *item = curGroundItem.item;
@@ -653,7 +650,7 @@ std::string Zone::getLuaSaveText() const {
 			oss << "DawnInterface.restoreGroundLootItem( "
 				<< "itemDatabase[ \"" << item->getID() << "\" ], "
 				<< curGroundItem.xpos << ", "
-				<< curGroundItem.ypos << " );" << std::endl;
+				<< curGroundItem.ypos << " );" << std::endl << std::endl;
 		}
 	}
 	return oss.str();

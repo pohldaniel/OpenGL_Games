@@ -1,6 +1,6 @@
 /*
 ** Lua binding: Luainterface
-** Generated automatically by tolua++-1.0.92 on Tue Dec 13 23:59:42 2022.
+** Generated automatically by tolua++-1.0.92 on Wed Dec 14 05:39:11 2022.
 */
 
 #ifndef __cplusplus
@@ -644,6 +644,38 @@ static int tolua_Luainterface_DawnInterface_restoreActionBar00(lua_State* tolua_
 }
 #endif //#ifndef TOLUA_DISABLE
 
+/* function: DawnInterface::restoreGroundLootItem */
+#ifndef TOLUA_DISABLE_tolua_Luainterface_DawnInterface_restoreGroundLootItem00
+static int tolua_Luainterface_DawnInterface_restoreGroundLootItem00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+	tolua_Error tolua_err;
+	if (
+		!tolua_isusertype(tolua_S, 1, "Item", 0, &tolua_err) ||
+		!tolua_isnumber(tolua_S, 2, 0, &tolua_err) ||
+		!tolua_isnumber(tolua_S, 3, 0, &tolua_err) ||
+		!tolua_isnoobj(tolua_S, 4, &tolua_err)
+		)
+		goto tolua_lerror;
+	else
+#endif
+	{
+		Item* item = ((Item*)tolua_tousertype(tolua_S, 1, 0));
+		int xPos = ((int)tolua_tonumber(tolua_S, 2, 0));
+		int yPos = ((int)tolua_tonumber(tolua_S, 3, 0));
+		{
+			DawnInterface::restoreGroundLootItem(item, xPos, yPos);
+		}
+	}
+	return 0;
+#ifndef TOLUA_RELEASE
+	tolua_lerror :
+				 tolua_error(tolua_S, "#ferror in function 'restoreGroundLootItem'.", &tolua_err);
+				 return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
 /* function: DawnInterface::createTextWindow */
 #ifndef TOLUA_DISABLE_tolua_Luainterface_DawnInterface_createTextWindow00
 static int tolua_Luainterface_DawnInterface_createTextWindow00(lua_State* tolua_S)
@@ -1056,6 +1088,32 @@ static int tolua_Luainterface_DawnInterface_inscribeSpellInPlayerSpellbook00(lua
 #ifndef TOLUA_RELEASE
 	tolua_lerror :
 				 tolua_error(tolua_S, "#ferror in function 'inscribeSpellInPlayerSpellbook'.", &tolua_err);
+				 return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
+/* function: DawnInterface::reloadSpellsFromPlayer */
+#ifndef TOLUA_DISABLE_tolua_Luainterface_DawnInterface_reloadSpellsFromPlayer00
+static int tolua_Luainterface_DawnInterface_reloadSpellsFromPlayer00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+	tolua_Error tolua_err;
+	if (
+		!tolua_isnoobj(tolua_S, 1, &tolua_err)
+		)
+		goto tolua_lerror;
+	else
+#endif
+	{
+		{
+			DawnInterface::reloadSpellsFromPlayer();
+		}
+	}
+	return 0;
+#ifndef TOLUA_RELEASE
+	tolua_lerror :
+				 tolua_error(tolua_S, "#ferror in function 'reloadSpellsFromPlayer'.", &tolua_err);
 				 return 0;
 #endif
 }
@@ -7665,6 +7723,7 @@ TOLUA_API int tolua_Luainterface_open(lua_State* tolua_S)
 	tolua_function(tolua_S, "getActionbarSaveText", tolua_Luainterface_DawnInterface_getActionbarSaveText00);
 	tolua_function(tolua_S, "getReenterCurrentZoneText", tolua_Luainterface_DawnInterface_getReenterCurrentZoneText00);
 	tolua_function(tolua_S, "restoreActionBar", tolua_Luainterface_DawnInterface_restoreActionBar00);
+	tolua_function(tolua_S, "restoreGroundLootItem", tolua_Luainterface_DawnInterface_restoreGroundLootItem00);
 	tolua_function(tolua_S, "createTextWindow", tolua_Luainterface_DawnInterface_createTextWindow00);
 	tolua_function(tolua_S, "createGeneralRayDamageSpell", tolua_Luainterface_DawnInterface_createGeneralRayDamageSpell00);
 	tolua_function(tolua_S, "createGeneralAreaDamageSpell", tolua_Luainterface_DawnInterface_createGeneralAreaDamageSpell00);
@@ -7681,6 +7740,7 @@ TOLUA_API int tolua_Luainterface_open(lua_State* tolua_S)
 	tolua_function(tolua_S, "copySpell", tolua_Luainterface_DawnInterface_copySpell05);
 	tolua_function(tolua_S, "copySpell", tolua_Luainterface_DawnInterface_copySpell06);
 	tolua_function(tolua_S, "inscribeSpellInPlayerSpellbook", tolua_Luainterface_DawnInterface_inscribeSpellInPlayerSpellbook00);
+	tolua_function(tolua_S, "reloadSpellsFromPlayer", tolua_Luainterface_DawnInterface_reloadSpellsFromPlayer00);
 	tolua_function(tolua_S, "getInventorySaveText", tolua_Luainterface_DawnInterface_getInventorySaveText00);
 	tolua_function(tolua_S, "restoreItemInBackpack", tolua_Luainterface_DawnInterface_restoreItemInBackpack00);
 	tolua_function(tolua_S, "restoreWieldItem", tolua_Luainterface_DawnInterface_restoreWieldItem00);

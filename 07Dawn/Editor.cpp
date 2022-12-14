@@ -6,24 +6,33 @@ bool Editor::s_init = false;
 
 Editor::Editor(StateMachine& machine) : State(machine, CurrentState::EDITOR) {
 	Mouse::SetCursorIcon("res/cursors/pointer.cur");
+	ViewPort::Get().setPosition(Player::Get().getPosition());
 
 	if (!s_init && !Game::s_init) {
+
+		LuaFunctions::executeLuaFile("res/_lua/playerdata_w.lua");
 		Player::Get().setCharacterType("player_w");
 		Player::Get().setClass(Enums::CharacterClass::Liche);
-		LuaFunctions::executeLuaFile("res/_lua/playerdata_w.lua");
+		Player::Get().init();
 
-		LuaFunctions::executeLuaFile("res/_lua/spells_l.lua");
+
+		LuaFunctions::executeLuaFile("res/_lua/spells.lua");
 		LuaFunctions::executeLuaFile("res/_lua/itemdatabase.lua");
-		LuaFunctions::executeLuaFile("res/_lua/mobdata_wolf.lua");
+		LuaFunctions::executeLuaFile("res/_lua/mobdata_wolf.lua");	
+
+		DawnInterface::enterZone("res/_lua/zone1", 512, 400);
 	}
 
 	if (!s_init) {
 		Init();
 		s_init = true;
+
 	}
 
-	Game::s_init ? DawnInterface::enterZone() : DawnInterface::enterZone("res/_lua/zone1", 512, 400);
-	
+	if (Game::s_init) {
+		DawnInterface::enterZone();
+	}
+
 	LuaFunctions::executeLuaFile("res/_lua/tileAdjacency.lua");
 	loadNPCs();
 

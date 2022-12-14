@@ -86,8 +86,9 @@ public:
 	void clear();
 	std::string getActionBarLuaSaveText();
 	void bindActionToButtonNr(int buttonNr, SpellActionBase *action);
+	void inscribeActionsToActionsbar();
 	static Interface& Get();
-	
+
 private:
 
 	Interface();
@@ -130,7 +131,7 @@ private:
 	bool m_preparingAoESpell;
 	unsigned short m_displayOffsetSmall;
 	unsigned short m_displayOffsetBig;
-
+	
 	Player* m_player;
 	CharacterSet* m_shortcutFont;
 	CharacterSet* m_cooldownFont;

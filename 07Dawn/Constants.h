@@ -35,6 +35,7 @@ namespace Globals {
 
 	extern bool enableWireframe;
 	extern bool savingAllowed;
+	extern bool isPaused;
 	extern Clock clock;
 
 

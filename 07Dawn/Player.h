@@ -60,7 +60,8 @@ public:
 	unsigned short getModifiedHealthRegen() const;
 	unsigned short getModifiedManaRegen() const;
 	unsigned short getModifiedFatigueRegen() const;
-
+	unsigned short getPortraitOffset() const;
+	void updatePortraitOffset();
 	void setExperience(unsigned long experience);
 
 	bool canWearArmorType(Item* item) const;
@@ -91,6 +92,7 @@ private:
 	void raiseLevel();
 
 	unsigned short  movementSpeed;
+	unsigned short m_portraitOffset;
 	unsigned int ticketForItemTooltip;
 	unsigned int ticketForSpellTooltip;
 

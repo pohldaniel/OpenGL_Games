@@ -28,8 +28,8 @@ void Interface::setPlayer(Player* player) {
 void Interface::init(std::vector<TextureRect> textures) {
 	m_textures = textures;
 
-	m_displayOffsetSmall = 22;
-	m_displayOffsetBig = 32;
+	m_displayOffsetSmall = 24;
+	m_displayOffsetBig = 34;
 
 	m_shortcutFont = &Globals::fontManager.get("verdana_10");
 	m_cooldownFont = &Globals::fontManager.get("verdana_11");
@@ -50,12 +50,6 @@ void Interface::init(std::vector<TextureRect> textures) {
 	m_actionBarPosY = 0;
 	m_preparingAoESpell = false;
 
-	// setting initial actions in the action bar
-	const std::vector<SpellActionBase*> inscribedSpells = m_player->getSpellbook();
-	for (short curEntry = 0; curEntry <= 9 && curEntry < inscribedSpells.size(); ++curEntry) {
-		bindActionToButtonNr(curEntry, inscribedSpells[curEntry]);
-	}
-	
 	connectWidget(m_spellbook);
 	connectWidget(m_characterInfo);
 	connectWidget(m_characterInfo);
@@ -99,6 +93,16 @@ void Interface::init(std::vector<TextureRect> textures) {
 	});
 }
 
+void Interface::inscribeActionsToActionsbar() {
+	// setting initial actions in the action bar
+	const std::vector<SpellActionBase*> inscribedSpells = m_player->getSpellbook();
+
+	for (short curEntry = 0; curEntry <= 9 && curEntry < inscribedSpells.size(); ++curEntry) {
+		bindActionToButtonNr(curEntry, inscribedSpells[curEntry]);
+	}
+
+}
+
 void Interface::resize(int deltaW, int deltaH) {
 	m_actionBarPosX = ViewPort::Get().getWidth() - 630;
 	m_spellbook.resize(deltaW, deltaH);
@@ -109,7 +113,7 @@ void Interface::resize(int deltaW, int deltaH) {
 
 void Interface::draw() {
 
-	TextureManager::DrawTextureBatched(m_textures[14], 4, ViewPort::Get().getHeight() - 68, false, false);
+	TextureManager::DrawTextureBatched(m_textures[m_player->getPortraitOffset()], 4, ViewPort::Get().getHeight() - 68, false, false);
 	TextureManager::DrawTextureBatched(m_textures[11], 0, 50 + ViewPort::Get().getHeight() - m_textures[11].height, false, false);
 
 	float lifeBarPercentage = static_cast<float>(m_player->getCurrentHealth()) / m_player->getModifiedMaxHealth();
@@ -152,7 +156,7 @@ void Interface::draw() {
 	}
 
 	//log window
-	TextureManager::DrawTextureBatched(m_textures[18], 0, 0, 390.0f, 150.0f, false, false);
+	TextureManager::DrawTextureBatched(m_textures[20], 0, 0, 390.0f, 150.0f, false, false);
 	for (unsigned int lineRow = 0; lineRow < m_textDatabase.size() && lineRow < 10; lineRow++) {
 		Fontrenderer::Get().addText(*m_interfaceFont, 10, 10 + (lineRow * m_interfaceFont->lineHeight), m_textDatabase[lineRow].text, m_textDatabase[lineRow].color, false);
 	}
@@ -169,8 +173,8 @@ void Interface::draw() {
 			// here we draw the border and background for the spells we have affecting us.
 			// healing and buffs will be drawn with a green border and debuffs or hostile spells with a red border..
 			Vector4f borderColor = m_activeSpells[curSpell]->isSpellHostile() == true ? Vector4f(0.7f, 0.0f, 0.0f, 1.0f) : Vector4f(0.0f, 0.7f, 0.0f, 1.0f);
-			TextureManager::DrawTextureBatched(m_textures[16], ViewPort::Get().getWidth() - 204, ViewPort::Get().getHeight() - 50 - 40 * curSpell, borderColor, false, false);
-			TextureManager::DrawTextureBatched(m_textures[18], ViewPort::Get().getWidth() - 204 + 36, ViewPort::Get().getHeight() - 50 - 40 * curSpell, 168.0f, 36.0f, false, false);
+			TextureManager::DrawTextureBatched(m_textures[18], ViewPort::Get().getWidth() - 204, ViewPort::Get().getHeight() - 50 - 40 * curSpell, borderColor, false, false);
+			TextureManager::DrawTextureBatched(m_textures[20], ViewPort::Get().getWidth() - 204 + 36, ViewPort::Get().getHeight() - 50 - 40 * curSpell, 168.0f, 36.0f, false, false);
 			m_activeSpells[curSpell]->drawSymbol(ViewPort::Get().getWidth() - 204 + 2, ViewPort::Get().getHeight() - 50 - 40 * curSpell + 2, 32.0f, 32.0f, Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
 
 			Fontrenderer::Get().addText(*m_shortcutFont, ViewPort::Get().getWidth() - 204 + 40, ViewPort::Get().getHeight() - 50 + 18 - 40 * curSpell, m_activeSpells[curSpell]->getName(), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), false);
@@ -181,16 +185,16 @@ void Interface::draw() {
 
 	//action bar
 	//Vector4f barColor = isMouseOver(ViewPort::Get().getCursorPosRelX(), ViewPort::Get().getCursorPosRelY()) ? Vector4f(0.0f, 0.0f, 0.0f, 0.8f) : Vector4f(0.0f, 0.0f, 0.0f, 1.0f);
-	TextureManager::DrawTextureBatched(m_textures[18], ViewPort::Get().getWidth() - 630, 0, 630.0f, 80.0f, false, false);
+	TextureManager::DrawTextureBatched(m_textures[20], ViewPort::Get().getWidth() - 630, 0, 630.0f, 80.0f, false, false);
 	for (unsigned int buttonId = 0; buttonId < 10; buttonId++) {
 		Vector4f borderColor = (m_button[buttonId].action != NULL && m_player->getCurrentSpellActionName() == m_button[buttonId].action->getName()) ? Vector4f(0.8f, 0.8f, 0.8f, 1.0f) : Vector4f(0.4f, 0.4f, 0.4f, 1.0f);
-		TextureManager::DrawTextureBatched(m_textures[19], ViewPort::Get().getWidth() - 610 + buttonId * 60, 12, 50.0f, 50.0f, borderColor, false, false);
+		TextureManager::DrawTextureBatched(m_textures[21], ViewPort::Get().getWidth() - 610 + buttonId * 60, 12, 50.0f, 50.0f, borderColor, false, false);
 		Fontrenderer::Get().addText(*m_shortcutFont, m_actionBarPosX + +20 + buttonId * 60 - 8, 54, m_button[buttonId].number.c_str(), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), false);
 	}
 
 	// draw the cursor if it's supposed to be drawn
 	if (isPreparingAoESpell() == true) {
-		TextureManager::DrawTextureBatched(m_textures[20], ViewPort::Get().getCursorPosRelX() - m_cursorRadius, ViewPort::Get().getCursorPosRelY() - m_cursorRadius, static_cast<float>(m_cursorRadius * 2), static_cast<float>(m_cursorRadius * 2), false, false);
+		TextureManager::DrawTextureBatched(m_textures[22], ViewPort::Get().getCursorPosRelX() - m_cursorRadius, ViewPort::Get().getCursorPosRelY() - m_cursorRadius, static_cast<float>(m_cursorRadius * 2), static_cast<float>(m_cursorRadius * 2), false, false);
 	}
 
 	m_cooldownSpells = m_player->getCooldownSpells();
@@ -267,7 +271,7 @@ void Interface::draw() {
 
 void Interface::drawCursor(bool drawInGameCursor) {
 	if (drawInGameCursor) {
-		TextureManager::DrawTextureBatched(m_textures[15], ViewPort::Get().getCursorPosX(), ViewPort::Get().getCursorPosY() - 19, false, false);
+		TextureManager::DrawTextureBatched(m_textures[17], ViewPort::Get().getCursorPosX(), ViewPort::Get().getCursorPosY() - 19, false, false);
 		TextureManager::DrawBuffer();
 
 	}

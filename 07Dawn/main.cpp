@@ -18,6 +18,7 @@ extern AssetManager<Spritesheet> Globals::spritesheetManager = AssetManager<Spri
 extern AssetManager<CharacterSet> Globals::fontManager = AssetManager<CharacterSet>();
 extern bool Globals::enableWireframe = false;
 extern bool Globals::savingAllowed = true;
+extern bool Globals::isPaused = false;
 extern Clock Globals::clock = Clock();
 
 extern const unsigned int Globals::viewBinding = 4;
@@ -38,6 +39,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	std::cout << "u           : open shop" << std::endl;
 	std::cout << "q           : open questlog" << std::endl;
 	std::cout << "f           : test message" << std::endl;
+	std::cout << "1           : in game option" << std::endl;
 	std::cout << "alt + enter : fullscreen" << std::endl;
 	#endif
 	

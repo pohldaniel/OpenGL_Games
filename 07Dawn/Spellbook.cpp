@@ -223,5 +223,6 @@ std::string Spellbook::getLuaSaveText() const {
 		oss << "DawnInterface.inscribeSpellInPlayerSpellbook( "
 			<< "spellDatabase[ \"" << curSpell->getID() << "\" ] );" << std::endl;
 	}
+	oss << "DawnInterface.reloadSpellsFromPlayer()" << std::endl;
 	return oss.str();
 }

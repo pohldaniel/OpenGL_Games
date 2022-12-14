@@ -11,6 +11,7 @@ const unsigned short NON_NULLABLE_ATTRIBUTE_MIN = 1;
 
 static unsigned short getModifiedAttribute(const Inventory& inventory, const Character* character, unsigned short basicAttributeValue, unsigned short(*getItemAttribute)(Item*), unsigned short(*getSpellAttribute)(GeneralBuffSpell*), unsigned short minValue = std::numeric_limits<unsigned short>::min(), unsigned short maxValue = std::numeric_limits<unsigned short>::max()) {
 	int attributeModifier = 0;
+
 	std::vector<InventoryItem*> equippedItems = inventory.getEquippedItems();
 	size_t numItems = equippedItems.size();
 	bool readTwoHandedWeapon = false;
@@ -48,6 +49,7 @@ static unsigned short getModifiedAttribute(const Inventory& inventory, const Cha
 
 static unsigned short getModifiedAttribute(Enums::ElementType elementType, const Inventory &inventory, const Character *character, unsigned short basicAttributeValue, unsigned short(*getItemAttribute)(Enums::ElementType, Item*), unsigned short(*getSpellAttribute)(Enums::ElementType, GeneralBuffSpell*), unsigned short minValue = std::numeric_limits<unsigned short>::min(), unsigned short maxValue = std::numeric_limits<unsigned short>::max()) {
 	int attributeModifier = 0;
+
 	std::vector<InventoryItem*> equippedItems = inventory.getEquippedItems();
 	size_t numItems = equippedItems.size();
 
@@ -202,7 +204,7 @@ void Player::setCharacterType(std::string characterTypeStr) {
 
 void Player::init() {
 	m_characterType = &CharacterTypeManager::Get().getCharacterType(m_characterTypeStr);
-	rect = &m_characterType->m_moveTileSets.at({ getCurActivity(), activeDirection }).getAllTiles()[0].textureRect;
+	rect = &m_characterType->m_moveTileSets.at({ Enums::ActivityType::Walking, Enums::Direction::S }).getAllTiles()[0].textureRect;
 
 	activeDirection = Enums::Direction::S;
 	lastActiveDirection = activeDirection;
@@ -222,6 +224,7 @@ void Player::init() {
 	setName("Enylyn");
 
 	m_isPlayer = true;
+	updatePortraitOffset();
 
 	inventory = new Inventory();
 	inventory->init(10, 4, this);
@@ -538,6 +541,14 @@ unsigned short Player::getModifiedFatigueRegen() const {
 	return getModifiedAttribute(*inventory, this, getFatigueRegen(), &getItemFatigueRegenHelper, &getSpellFatigueRegenHelper, NULLABLE_ATTRIBUTE_MIN);
 }
 
+void Player::updatePortraitOffset() {
+	m_portraitOffset = getClass() == Enums::CharacterClass::Warrior ? 14 : getClass() == Enums::CharacterClass::Liche ? 15 : 16;
+}
+
+unsigned short Player::getPortraitOffset() const {
+	return m_portraitOffset;
+}
+
 bool Player::canWearArmorType(Item* item) const {
 	if (ArmorType::getHighestArmorTypeByClass(getClass()) < item->getArmorType()) {
 		return false;
@@ -626,7 +637,7 @@ std::string Player::getSaveText() const {
 	oss << objectName << ":setLevel( " << static_cast<size_t>(getLevel()) << " );" << std::endl;
 	oss << objectName << ":setExperience( " << getExperience() << " );" << std::endl;
 	oss << objectName << ":setClass( Enums." << getClassName() << " );" << std::endl;
-	oss << objectName << ":setCharacterType(" << m_characterTypeStr << " );" << std::endl;
+	oss << objectName << ":setCharacterType(\"" << m_characterTypeStr << "\" );" << std::endl;
 	oss << "-- coins" << std::endl;
 	oss << objectName << ":setCoins( " << getCoins() << " );" << std::endl;
 

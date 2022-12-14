@@ -1,5 +1,6 @@
 #include "MainMenu.h"
 #include "ChooseClassMenu.h"
+#include "Utils.h"
 
 MainMenu::MainMenu(StateMachine& machine) : State(machine, CurrentState::MAINMENU) {
 	Mouse::SetCursorIcon("res/cursors/black.cur");
@@ -22,8 +23,10 @@ MainMenu::MainMenu(StateMachine& machine) : State(machine, CurrentState::MAINMEN
 	});
 
 	dynamic_cast<Label*>(m_dialog.getChildWidgets()[2])->setFunction([&]() {
-		m_isRunning = false;
-		m_machine.addStateAtTop(new LoadingScreen(m_machine, LoadingManager::Entry::LOAD));
+		if (Utils::file_exists("res/_lua/save/savegame.lua")) {
+			m_isRunning = false;
+			m_machine.addStateAtTop(new LoadingScreen(m_machine, LoadingManager::Entry::LOAD));
+		}
 	});
 
 	dynamic_cast<Label*>(m_dialog.getChildWidgets()[3])->setFunction([&]() {
@@ -39,6 +42,10 @@ MainMenu::~MainMenu() {}
 void MainMenu::fixedUpdate() {}
 
 void MainMenu::update() {
+	
+	dynamic_cast<Label*>(m_dialog.getChildWidgets()[2])->setDefaultColor(Utils::file_exists("res/_lua/save/savegame.lua") ? Vector4f(1.0f, 1.0f, 1.0f, 1.0f) : Vector4f(0.5f, 0.5f, 0.5f, 1.0f));
+	dynamic_cast<Label*>(m_dialog.getChildWidgets()[2])->setHoverColor(Utils::file_exists("res/_lua/save/savegame.lua") ? Vector4f(1.0f, 1.0f, 0.0f, 1.0f) : Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
+
 	m_dialog.processInput();
 }
 

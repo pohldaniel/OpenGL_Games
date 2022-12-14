@@ -685,6 +685,7 @@ unsigned short Character::getExperienceValue() const {
 }
 
 void Character::inscribeSpellInSpellbook(SpellActionBase *spell) {
+
 	if (spell->getRequiredClass() == getClass() || spell->getRequiredClass() == Enums::CharacterClass::ANYCLASS) {
 		for (size_t curSpell = 0; curSpell < spellbook.size(); curSpell++) {
 			if (spellbook[curSpell]->getName() == spell->getName()) {

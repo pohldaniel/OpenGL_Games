@@ -339,7 +339,7 @@ void Shop::purgeShopkeeperInventory() {
 }
 
 void Shop::sellToShop(InventoryItem *sellItem, bool givePlayerMoney) {
-
+	
 	Item *item = sellItem->getItem();
 
 	size_t itemSizeX = item->getSizeX();
@@ -350,7 +350,7 @@ void Shop::sellToShop(InventoryItem *sellItem, bool givePlayerMoney) {
 	bool foundPosition = false;
 	size_t foundX = 0;
 	size_t foundY = 0;
-
+	
 	// look for next free position
 	for (size_t freeX = 0; freeX < numSlotsX - itemSizeX + 1 && !foundPosition; ++freeX) {
 		for (size_t freeY = 0; freeY< numSlotsY - itemSizeY + 1 && !foundPosition; ++freeY) {

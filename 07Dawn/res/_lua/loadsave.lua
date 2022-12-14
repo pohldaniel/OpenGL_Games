@@ -45,8 +45,10 @@ function saveGame( fileprefix )
 	local oldOut = io.output()
 	io.output( fileprefix..'.lua' )
 	-- save all zones (needed for variable lookups on user types)
+	local player = DawnInterface.getPlayer();
+	io.write( player:getSaveText() );
 	io.write( DawnInterface.getAllZonesSaveText() );
-
+	
 	for varname,value in pairs(_G) do
 		if( not initialGlobals[varname] and (varname ~= "zone1" and varname ~= "arinoxGeneralShop" and varname ~= "MapData")) then
 		--if( not initialGlobals[varname]) then
@@ -55,10 +57,9 @@ function saveGame( fileprefix )
 	end
 
 	io.write( DawnInterface.getInventorySaveText() );
-	local player = DawnInterface.getPlayer();
-	io.write( player:getSaveText() );
 	io.write( DawnInterface.getSpellbookSaveText() );
 	io.write( DawnInterface.getActionbarSaveText() );
+
 	io.write( DawnInterface.getReenterCurrentZoneText() );
 	local saveAllowedBoolText = "false";
 	if ( DawnInterface.isSavingAllowed() ) then

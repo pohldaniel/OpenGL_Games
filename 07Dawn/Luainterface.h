@@ -84,6 +84,7 @@ namespace DawnInterface{
 	std::string getActionbarSaveText();
 	std::string getReenterCurrentZoneText();
 	void restoreActionBar(int buttonNr, SpellActionBase *action);
+	void restoreGroundLootItem(Item *item, int xPos, int yPos);
 
 	Character* restoreCharacterReference(std::string zoneName, int posInArray);
 	InteractionPoint* restoreInteractionPointReference(std::string zoneName, int posInArray);
@@ -107,6 +108,7 @@ namespace DawnInterface{
 	MeleeDamageAction* copySpell(MeleeDamageAction *other);
 	RangedDamageAction* copySpell(RangedDamageAction *other);
 	void inscribeSpellInPlayerSpellbook(SpellActionBase *inscribedSpell);
+	void reloadSpellsFromPlayer();
 	void addTextToLogWindow(float color[], const char *text, ...);
 	void clearLogWindow();
 
