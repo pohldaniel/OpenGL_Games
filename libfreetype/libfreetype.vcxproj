@@ -62,9 +62,9 @@
     <ClCompile Include="src\winfonts\winfnt.c" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{226B0B2B-3832-476B-AE69-1A03C4FEDD10}</ProjectGuid>
+    <ProjectGuid>{40019CFF-D32E-4BCF-9831-17F1F15690C5}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>freetype</RootNamespace>
+    <RootNamespace>libfreetype</RootNamespace>
     <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
