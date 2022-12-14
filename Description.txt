@@ -1,0 +1,28 @@
+OpenAl
+
+rename lpc.cpp in libvorbis
+rename analysis.cpp in libvorbis
+rename mdct.cpp in libvorbis
+rename null.cpp in openal\Alc\backends
+
+be careful by static linking openal the project has additionally linked with winmm.lib
+
+Assimp 
+
+DefaultIOStream 152 _WIN64 -> _WIN32
+
+C/C++ -> Optimization 
+  ->Optimization 					MamximizeSpeed(/O2)
+  ->Inline Function Expansion 		Any Suitable(/Ob2)
+  ->Enable Intrinsic Functions 		No
+  ->Favor Size Or Speed 			either
+  ->Omit Frame Pointers				-
+  ->Enable Fiber-Safe Optimization	NO
+  ->Whole Program Optimization		NO
+  
+  (Minimize the .lib File and speed up the builds wich using it)
+  
+  Debug builds
+  
+C/C++ -> Command line
+  ->add /bigobj to the Addidional Options

@@ -21,7 +21,7 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{2960C69F-C728-452D-A08F-42A7436567FE}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>OpenAL32</RootNamespace>
+    <RootNamespace>openal</RootNamespace>
     <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -97,7 +97,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <OutputFile>..\libd\x86\OpenAL32.dll</OutputFile>
+      <OutputFile>..\libd\x86\openal.dll</OutputFile>
       <AdditionalDependencies>winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
@@ -117,7 +117,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <OutputFile>..\libd\x64\OpenAL32.dll</OutputFile>
+      <OutputFile>..\libd\x64\openal.dll</OutputFile>
       <AdditionalDependencies>winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
@@ -143,7 +143,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>..\lib\x86\OpenAL32.dll</OutputFile>
+      <OutputFile>..\lib\x86\openal.dll</OutputFile>
     </Link>
     <PostBuildEvent>
       <Command>
@@ -168,7 +168,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <OutputFile>..\lib\x64\OpenAL32.dll</OutputFile>
+      <OutputFile>..\lib\x64\openal.dll</OutputFile>
       <AdditionalDependencies>winmm.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
@@ -235,10 +235,6 @@
     <ClCompile Include="src\alState.c" />
     <ClCompile Include="src\event.c" />
     <ClCompile Include="src\sample_cvt.c" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="default-44100.mhr.h" />
-    <ClInclude Include="default-48000.mhr.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
