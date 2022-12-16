@@ -6,7 +6,7 @@
 
 void SoundBuffer::loadFromFile(const std::string& path) {
 	ALenum err, format;
-	ALuint buffer;
+
 	SNDFILE* sndfile;
 	SF_INFO sfinfo;
 	short* membuf;
@@ -60,9 +60,9 @@ void SoundBuffer::loadFromFile(const std::string& path) {
 	/* Buffer the audio data into a new buffer object, then free the data and
 	* close the file.
 	*/
-	buffer = 0;
-	alGenBuffers(1, &buffer);
-	alBufferData(buffer, format, membuf, num_bytes, sfinfo.samplerate);
+
+	alGenBuffers(1, &m_buffer);
+	alBufferData(m_buffer, format, membuf, num_bytes, sfinfo.samplerate);
 
 	free(membuf);
 	sf_close(sndfile);
@@ -71,12 +71,10 @@ void SoundBuffer::loadFromFile(const std::string& path) {
 	err = alGetError();
 	if (err != AL_NO_ERROR) {
 		fprintf(stderr, "OpenAL Error: %s\n", alGetString(err));
-		if (buffer && alIsBuffer(buffer))
-			alDeleteBuffers(1, &buffer);
+		if (m_buffer && alIsBuffer(m_buffer))
+			alDeleteBuffers(1, &m_buffer);
 		return;
 	}
-	
-	m_buffer = buffer;
 }
 
 unsigned int SoundBuffer::getBuffer() {

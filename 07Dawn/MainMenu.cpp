@@ -35,6 +35,8 @@ MainMenu::MainMenu(StateMachine& machine) : State(machine, CurrentState::MAINMEN
 	});
 
 	TextureManager::BindTexture(Globals::spritesheetManager.getAssetPointer("font")->getAtlas(), true, 0);
+
+	Globals::musicManager.get("background").play("res/music/Early_Dawn_Simple.ogg");
 }
 
 MainMenu::~MainMenu() {}
@@ -42,7 +44,7 @@ MainMenu::~MainMenu() {}
 void MainMenu::fixedUpdate() {}
 
 void MainMenu::update() {
-	
+	processInput();
 	dynamic_cast<Label*>(m_dialog.getChildWidgets()[2])->setDefaultColor(Utils::file_exists("res/_lua/save/savegame.lua") ? Vector4f(1.0f, 1.0f, 1.0f, 1.0f) : Vector4f(0.5f, 0.5f, 0.5f, 1.0f));
 	dynamic_cast<Label*>(m_dialog.getChildWidgets()[2])->setHoverColor(Utils::file_exists("res/_lua/save/savegame.lua") ? Vector4f(1.0f, 1.0f, 0.0f, 1.0f) : Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
 
@@ -54,6 +56,29 @@ void MainMenu::render() {
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 	m_dialog.draw();
+}
+
+void MainMenu::processInput() {
+	Keyboard &keyboard = Keyboard::instance();
+	
+	if (keyboard.keyPressed(Keyboard::KEY_1)) {
+		
+		Globals::musicManager.get("background").play("res/music/loading.ogg");
+	}
+	
+	if (keyboard.keyPressed(Keyboard::KEY_2)) {
+
+		Globals::musicManager.get("background").play("res/music/Early_Dawn_Simple.ogg");
+	}
+	if (keyboard.keyPressed(Keyboard::KEY_3)) {
+
+		Globals::musicManager.get("background").play("res/music/mika_FallToPieces_Silence.ogg");
+	}
+	if (keyboard.keyPressed(Keyboard::KEY_4)) {
+
+		Globals::musicManager.get("background").play("res/music/ratsrats_0.ogg");
+	}
+	
 }
 
 void MainMenu::resize(int deltaW, int deltaH) {

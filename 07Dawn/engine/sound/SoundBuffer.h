@@ -1,6 +1,6 @@
 #pragma once
-#include "AL/al.h"
-#include <vector>
+#include <AL/al.h>
+#include <string>
 
 class SoundBuffer{
 public:

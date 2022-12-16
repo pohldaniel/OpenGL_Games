@@ -10,6 +10,8 @@
 #include "engine\Spritesheet.h"
 #include "engine\CharacterSet.h"
 #include "engine\Clock.h"
+#include "engine\sound\SoundBuffer.h"
+#include "engine\sound\MusicBuffer.h"
 
 //#define WIDTH 1600
 //#define HEIGHT 900
@@ -32,6 +34,8 @@ namespace Globals {
 	extern AssetManager<Texture> textureManager;
 	extern AssetManager<Spritesheet> spritesheetManager;
 	extern AssetManager<CharacterSet> fontManager;
+	extern AssetManager<SoundBuffer> soundManager;
+	extern AssetManager<MusicBuffer> musicManager;
 
 	extern bool enableWireframe;
 	extern bool savingAllowed;

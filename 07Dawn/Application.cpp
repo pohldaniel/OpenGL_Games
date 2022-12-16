@@ -17,6 +17,7 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 	ViewPort::Get().init(WIDTH, HEIGHT);
 	initWindow();
 	initOpenGL();
+	initOpenAL();
 	loadAssets();
 	initStates();
 	m_enableVerticalSync = true;
@@ -282,6 +283,10 @@ void Application::initOpenGL() {
 	glEnable(GL_BLEND);
 }
 
+void Application::initOpenAL() {
+	SoundDevice::init();
+}
+
 void Application::enableVerticalSync(bool enableVerticalSync) {
 
 	// WGL_EXT_swap_control.
@@ -323,6 +328,12 @@ void Application::render() {
 }
 
 void Application::update() {
+	Globals::musicManager.get("background").updateBufferStream();
+
+	//Globals::musicManager.get("background_1").updateBufferStream();
+	//Globals::musicManager.get("background_2").updateBufferStream();
+	//Globals::musicManager.get("background_3").updateBufferStream();
+
 	s_machine->update();
 }
 
@@ -417,6 +428,17 @@ void Application::loadAssets() {
 	Globals::spritesheetManager.getAssetPointer("font")->setLinear();
 	
 	//Spritesheet::Safe("font", Globals::spritesheetManager.getAssetPointer("font")->getAtlas());
+
+	Globals::musicManager.loadMusic("background");
+	Globals::musicManager.get("background").setVolume(0.1f);
+
+	/*Globals::musicManager.loadMusic("background_1", "res/music/Early_Dawn_Simple.ogg");
+	Globals::musicManager.loadMusic("background_2", "res/music/loading.ogg");
+	Globals::musicManager.loadMusic("background_3", "res/music/mika_FallToPieces_Silence.ogg");*/
+
+	/*Globals::musicManager.get("background_1").setVolume(0.1f);
+	Globals::musicManager.get("background_2").setVolume(0.1f);
+	Globals::musicManager.get("background_3").setVolume(0.1f);*/
 }
 
 void Application::toggleFullScreen() {

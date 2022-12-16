@@ -2,6 +2,7 @@
 #include "engine/input/EventDispatcher.h"
 #include "engine/input/Mouse.h"
 
+
 #include "StateMachine.h"
 #include "LoadingScreen.h"
 #include "Editor.h"
@@ -18,8 +19,10 @@ public:
 	void update() override;
 	void render() override;
 	void resize(int deltaW, int deltaH) override;
-
+	void processInput();
 	Dialog m_dialog;
 
 	std::vector<TextureRect> m_interfacetexture;
+
+	bool m_toggle = false;
 };

@@ -6,6 +6,7 @@
 #include "engine/input/EventDispatcher.h"
 #include "engine/input/KeyBorad.h"
 #include "engine/input/Mouse.h"
+#include "engine/sound/SoundDevice.h"
 #include "engine/Batchrenderer.h"
 #include "engine/Fontrenderer.h"
 
@@ -35,6 +36,7 @@ private:
 
 	bool initWindow();
 	void initOpenGL();
+	void initOpenAL();
 	void loadAssets();
 	void initStates();
 	void resize(int deltaW, int deltaH);
