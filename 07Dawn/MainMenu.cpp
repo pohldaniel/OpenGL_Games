@@ -36,7 +36,7 @@ MainMenu::MainMenu(StateMachine& machine) : State(machine, CurrentState::MAINMEN
 
 	TextureManager::BindTexture(Globals::spritesheetManager.getAssetPointer("font")->getAtlas(), true, 0);
 
-	Globals::musicManager.get("background").play("res/music/Early_Dawn_Simple.ogg");
+	//Globals::musicManager.get("background").play("res/music/Early_Dawn_Simple.ogg");
 }
 
 MainMenu::~MainMenu() {}
@@ -62,23 +62,37 @@ void MainMenu::processInput() {
 	Keyboard &keyboard = Keyboard::instance();
 	
 	if (keyboard.keyPressed(Keyboard::KEY_1)) {
-		
-		Globals::musicManager.get("background").play("res/music/loading.ogg");
+		//Globals::musicManager.get("background").play("res/music/loading.ogg");
+		//Globals::soundManager.get("player").play("res/sound/arrowHit06.ogg");
+		Globals::soundEffectsPlayer.get("effect_2").play();
 	}
 	
 	if (keyboard.keyPressed(Keyboard::KEY_2)) {
-
 		Globals::musicManager.get("background").play("res/music/Early_Dawn_Simple.ogg");
+		//Globals::soundManager.get("player").play("res/sound/click.ogg");
 	}
+
 	if (keyboard.keyPressed(Keyboard::KEY_3)) {
-
-		Globals::musicManager.get("background").play("res/music/mika_FallToPieces_Silence.ogg");
+		Globals::musicManager.get("foreground").play("res/music/mika_FallToPieces_Silence.ogg");
+		//Globals::soundManager.get("player").play("res/sound/quiet_click.ogg");
 	}
-	if (keyboard.keyPressed(Keyboard::KEY_4)) {
 
-		Globals::musicManager.get("background").play("res/music/ratsrats_0.ogg");
+	if (keyboard.keyPressed(Keyboard::KEY_4)) {
+		Globals::musicManager.get("foreground").play("res/music/ratsrats_0.ogg");
+		//Globals::soundManager.get("player").playChanneled("res/sound/sell_buy_item.ogg");
 	}
 	
+	if (keyboard.keyPressed(Keyboard::KEY_5)) {
+		Globals::soundManager.get("effect").playChanneled("res/sound/spellcast.ogg");
+	}
+
+	if (keyboard.keyPressed(Keyboard::KEY_6)) {
+		Globals::soundManager.get("effect").playChanneled("res/sound/sword_01.ogg");
+	}
+
+	if (keyboard.keyPressed(Keyboard::KEY_7)) {
+		Globals::soundManager.get("effect").playChanneled("res/sound/walking.ogg");
+	}
 }
 
 void MainMenu::resize(int deltaW, int deltaH) {

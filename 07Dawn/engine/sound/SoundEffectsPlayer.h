@@ -1,28 +1,19 @@
 #pragma once
+#include <sndfile.h>
 #include <AL\al.h>
 #include <AL\alext.h>
-#include <sndfile.h>
-#include <malloc.h>
-#include <string>
+#include <inttypes.h>
+#include <iostream>
 
-#include "Cache.h"
-
-struct CacheEntry2 {
-
-	ALuint buffer;
-	CacheEntry2(const std::string& path);
-	~CacheEntry2();
-};
-
-class SoundEffectsPlayer{
+class SoundEffectsPlayer {
 
 public:
 	SoundEffectsPlayer() = default;
 	~SoundEffectsPlayer();
-	void init();
-	void play(const ALuint& buffer_to_play);
-	void play(const std::string& file);
 
+	void loadFromFile(const std::string& path);
+	void init();
+	void play();
 	void stop();
 	void pause();
 	void resume();
@@ -33,11 +24,8 @@ public:
 
 private:
 	ALuint m_source;
-	ALuint m_buffer = 0;
-
+	ALuint m_buffer;
 	ALint state;
 
-	const CacheEntry2* m_cacheEntry;
-	static CacheLRU<std::string, CacheEntry2> SoundBufferCache;
+	bool m_sourceInit = false;
 };
-

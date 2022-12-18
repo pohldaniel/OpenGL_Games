@@ -18,6 +18,8 @@ extern AssetManager<Spritesheet> Globals::spritesheetManager = AssetManager<Spri
 extern AssetManager<CharacterSet> Globals::fontManager = AssetManager<CharacterSet>();
 extern AssetManager<SoundBuffer> Globals::soundManager = AssetManager<SoundBuffer>();
 extern AssetManager<MusicBuffer> Globals::musicManager = AssetManager<MusicBuffer>();
+extern AssetManager<SoundEffectsPlayer> Globals::soundEffectsPlayer = AssetManager<SoundEffectsPlayer>();
+
 extern bool Globals::enableWireframe = false;
 extern bool Globals::savingAllowed = true;
 extern bool Globals::isPaused = false;

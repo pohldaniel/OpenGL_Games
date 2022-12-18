@@ -1,107 +1,119 @@
-#include <iostream>
 #include "SoundEffectsPlayer.h"
 
-
-CacheLRU<std::string, CacheEntry2> SoundEffectsPlayer::SoundBufferCache = CacheLRU<std::string, CacheEntry2>(10);
-
 void SoundEffectsPlayer::init() {
-	alGenSources(1, &m_source);
+	if (!m_sourceInit) {
+		alGenSources(1, &m_source);
+		m_sourceInit = true;
+	}
 }
 
-SoundEffectsPlayer::~SoundEffectsPlayer(){
-	alDeleteSources(1, &m_source);
+SoundEffectsPlayer::~SoundEffectsPlayer() {
+	if (m_sourceInit) {
+		alDeleteSources(1, &m_source);
+		alDeleteBuffers(1, &m_buffer);
+	}
 }
 
-void SoundEffectsPlayer::play(const ALuint& buffer_to_play){
-	m_buffer = buffer_to_play;
+void SoundEffectsPlayer::play() {
 	alSourcei(m_source, AL_BUFFER, (ALint)m_buffer);
 	alSourcePlay(m_source);
-}
-
-void SoundEffectsPlayer::play(const std::string& file){
-	SoundBufferCache.Put(file);
-	const CacheEntry2* cacheEntry = SoundBufferCache.Get(file);
-
-	if (m_cacheEntry != cacheEntry) {
-	
-	}
 }
 
 void SoundEffectsPlayer::setVolume(float volume) {
 	alSourcef(m_source, AL_GAIN, volume);
 }
 
-void SoundEffectsPlayer::stop(){
+void SoundEffectsPlayer::stop() {
 	alSourceStop(m_source);
 }
 
-void SoundEffectsPlayer::pause(){
+void SoundEffectsPlayer::pause() {
 	alSourcePause(m_source);
 }
 
-void SoundEffectsPlayer::resume(){
+void SoundEffectsPlayer::resume() {
 	alSourcePlay(m_source);
 }
 
-void SoundEffectsPlayer::setLooping(const bool& loop){
+void SoundEffectsPlayer::setLooping(const bool& loop) {
 	alSourcei(m_source, AL_LOOPING, (ALint)loop);
 }
 
-bool SoundEffectsPlayer::isPlaying(){	
+bool SoundEffectsPlayer::isPlaying() {
 	ALint playState;
 	alGetSourcei(m_source, AL_SOURCE_STATE, &playState);
 	return (playState == AL_PLAYING);
 }
 
-CacheEntry2::CacheEntry2(const std::string& path) {
+void SoundEffectsPlayer::loadFromFile(const std::string& path) {
 	ALenum err, format;
-	
+	SNDFILE* sndfile;
 	SF_INFO sfinfo;
-	SNDFILE* sndFile = sf_open(path.c_str(), SFM_READ, &sfinfo);
 	short* membuf;
 	sf_count_t num_frames;
 	ALsizei num_bytes;
 
-	if (!sndFile) {
-		throw("could not open provided music file -- check path");
+	/* Open the audio file and check that it's usable. */
+	sndfile = sf_open(path.c_str(), SFM_READ, &sfinfo);
+	if (!sndfile) {
+		fprintf(stderr, "Could not open audio in %s: %s\n", path.c_str(), sf_strerror(sndfile));
+		return;
 	}
 
-	// Get the sound format, and figure out the OpenAL format
+	if (sfinfo.frames < 1 || sfinfo.frames >(sf_count_t)(INT_MAX / sizeof(short)) / sfinfo.channels) {
+		fprintf(stderr, "Bad sample count in %s (%" PRId64 ")\n", path.c_str(), sfinfo.frames);
+		sf_close(sndfile);
+		return;
+	}
+
+	/* Get the sound format, and figure out the OpenAL format */
+	format = AL_NONE;
 	if (sfinfo.channels == 1)
 		format = AL_FORMAT_MONO16;
 	else if (sfinfo.channels == 2)
 		format = AL_FORMAT_STEREO16;
 	else if (sfinfo.channels == 3) {
-		if (sf_command(sndFile, SFC_WAVEX_GET_AMBISONIC, NULL, 0) == SF_AMBISONIC_B_FORMAT)
+		if (sf_command(sndfile, SFC_WAVEX_GET_AMBISONIC, NULL, 0) == SF_AMBISONIC_B_FORMAT)
 			format = AL_FORMAT_BFORMAT2D_16;
-	}
-	else if (sfinfo.channels == 4) {
-		if (sf_command(sndFile, SFC_WAVEX_GET_AMBISONIC, NULL, 0) == SF_AMBISONIC_B_FORMAT)
+	} else if (sfinfo.channels == 4) {
+		if (sf_command(sndfile, SFC_WAVEX_GET_AMBISONIC, NULL, 0) == SF_AMBISONIC_B_FORMAT)
 			format = AL_FORMAT_BFORMAT3D_16;
 	}
+
 	if (!format) {
-		sf_close(sndFile);
-		sndFile = NULL;
-		throw("Unsupported channel count from file");
+		fprintf(stderr, "Unsupported channel count: %d\n", sfinfo.channels);
+		sf_close(sndfile);
+		return;
 	}
 
 	/* Decode the whole audio file to a buffer. */
 	membuf = static_cast<short*>(malloc((size_t)(sfinfo.frames * sfinfo.channels) * sizeof(short)));
-	num_frames = sf_readf_short(sndFile, membuf, sfinfo.frames);
+
+	num_frames = sf_readf_short(sndfile, membuf, sfinfo.frames);
+	if (num_frames < 1) {
+		free(membuf);
+		sf_close(sndfile);
+		fprintf(stderr, "Failed to read samples in %s (%" PRId64 ")\n", path.c_str(), num_frames);
+		return;
+	}
 	num_bytes = (ALsizei)(num_frames * sfinfo.channels) * (ALsizei)sizeof(short);
 
-	alGenBuffers(1, &buffer);
-	alBufferData(buffer, format, membuf, num_bytes, sfinfo.samplerate);
+	/* Buffer the audio data into a new buffer object, then free the data and
+	* close the file.
+	*/
+	m_buffer = 0;
+	alGenBuffers(1, &m_buffer);
+	alBufferData(m_buffer, format, membuf, num_bytes, sfinfo.samplerate);
 
 	free(membuf);
-	sf_close(sndFile);
-}
+	sf_close(sndfile);
 
-CacheEntry2::~CacheEntry2() {
-	/*if (sndFile) {
-		sf_close(sndFile);
-		sndFile = nullptr;
-	}*/
-
-	
+	/* Check if an error occured, and clean up if so. */
+	err = alGetError();
+	if (err != AL_NO_ERROR) {
+		fprintf(stderr, "OpenAL Error: %s\n", alGetString(err));
+		if (m_buffer && alIsBuffer(m_buffer))
+			alDeleteBuffers(1, &m_buffer);
+		return;
+	}
 }

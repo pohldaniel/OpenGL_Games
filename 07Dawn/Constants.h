@@ -12,6 +12,7 @@
 #include "engine\Clock.h"
 #include "engine\sound\SoundBuffer.h"
 #include "engine\sound\MusicBuffer.h"
+#include "engine\sound\SoundEffectsPlayer.h"
 
 //#define WIDTH 1600
 //#define HEIGHT 900
@@ -36,7 +37,7 @@ namespace Globals {
 	extern AssetManager<CharacterSet> fontManager;
 	extern AssetManager<SoundBuffer> soundManager;
 	extern AssetManager<MusicBuffer> musicManager;
-
+	extern AssetManager<SoundEffectsPlayer> soundEffectsPlayer;
 	extern bool enableWireframe;
 	extern bool savingAllowed;
 	extern bool isPaused;

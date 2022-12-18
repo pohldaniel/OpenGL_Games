@@ -1,6 +1,9 @@
 #pragma once
-#include "AL\al.h"
-class SoundEffectsPlayer{
+
+#include <iostream>
+#include <AL\al.h>
+
+class SoundEffectsPlayer {
 
 public:
 	SoundEffectsPlayer() = default;
@@ -21,4 +24,3 @@ private:
 
 	ALint state;
 };
-

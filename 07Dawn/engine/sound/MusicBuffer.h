@@ -3,25 +3,30 @@
 #include <AL\alext.h>
 #include <sndfile.h>
 #include <malloc.h>
+#include <iostream>
 
 #include "Cache.h"
 
-
-struct CacheEntry {
-	SNDFILE* sndFile = nullptr;
-	SF_INFO sfinfo;
-	short* membuf = nullptr;
-	std::size_t frameSize = 0;
-	ALenum format;
-	const int BUFFER_SAMPLES = 8192;
-
-	CacheEntry(const std::string& path);
-	~CacheEntry();
-};
+template<typename T>
+class AssetManager;
 
 class MusicBuffer{
 
+	friend class AssetManager<MusicBuffer>;
+
 public:
+
+	struct CacheEntry {
+		SNDFILE* sndFile = nullptr;
+		SF_INFO sfinfo;
+		short* membuf = nullptr;
+		std::size_t frameSize = 0;
+		ALenum format;
+		const int BUFFER_SAMPLES = 8192;
+
+		CacheEntry(const std::string& path);
+		~CacheEntry();
+	};
 
 	MusicBuffer();
 	MusicBuffer(MusicBuffer const& rhs);
@@ -44,7 +49,10 @@ public:
 	void setVolume(float volume);
 
 private:
-	ALuint m_source;
+	void init();
+
+	ALuint m_source = 0;
+	bool m_sourceInit = false;
 	static const int BUFFER_SAMPLES = 8192;
 	static const int NUM_BUFFERS = 4;
 	ALuint m_buffers[NUM_BUFFERS];
@@ -57,6 +65,6 @@ private:
 	ALenum m_format;
 
 	const CacheEntry* m_cacheEntry;
-	CacheLRU<std::string, CacheEntry> m_musicBufferCache;
+	static CacheLRUP<std::string, CacheEntry> MusicBufferCache;
 };
 

@@ -329,11 +329,7 @@ void Application::render() {
 
 void Application::update() {
 	Globals::musicManager.get("background").updateBufferStream();
-
-	//Globals::musicManager.get("background_1").updateBufferStream();
-	//Globals::musicManager.get("background_2").updateBufferStream();
-	//Globals::musicManager.get("background_3").updateBufferStream();
-
+	Globals::musicManager.get("foreground").updateBufferStream();
 	s_machine->update();
 }
 
@@ -428,17 +424,18 @@ void Application::loadAssets() {
 	Globals::spritesheetManager.getAssetPointer("font")->setLinear();
 	
 	//Spritesheet::Safe("font", Globals::spritesheetManager.getAssetPointer("font")->getAtlas());
+	
+	Globals::musicManager.initMusicBuffer("background");
+	Globals::musicManager.initMusicBuffer("foreground");
 
-	Globals::musicManager.loadMusic("background");
-	Globals::musicManager.get("background").setVolume(0.1f);
+	Globals::soundManager.initSoundBuffer("player");
+	Globals::soundManager.get("player").setVolume(0.1f);
+	Globals::soundManager.initSoundBuffer("effect");
+	Globals::soundManager.get("effect").setVolume(1.0f);
 
-	/*Globals::musicManager.loadMusic("background_1", "res/music/Early_Dawn_Simple.ogg");
-	Globals::musicManager.loadMusic("background_2", "res/music/loading.ogg");
-	Globals::musicManager.loadMusic("background_3", "res/music/mika_FallToPieces_Silence.ogg");*/
+	Globals::soundEffectsPlayer.loadSoundEffect("effect_2", "res/sound/arrowHit06.ogg");
 
-	/*Globals::musicManager.get("background_1").setVolume(0.1f);
-	Globals::musicManager.get("background_2").setVolume(0.1f);
-	Globals::musicManager.get("background_3").setVolume(0.1f);*/
+	
 }
 
 void Application::toggleFullScreen() {
