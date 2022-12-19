@@ -19,7 +19,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 
 	if (!s_init && !Editor::s_init) {
 
-		LuaFunctions::executeLuaFile("res/_lua/playerdata_w.lua");
+		LuaFunctions::executeLuaFile("res/_lua/playerdata.lua");
 		Player::Get().setCharacterType("player_w");
 		Player::Get().setClass(Enums::CharacterClass::Liche);
 		Player::Get().init();
