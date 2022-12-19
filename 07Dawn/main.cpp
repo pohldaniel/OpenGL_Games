@@ -28,6 +28,9 @@ extern Clock Globals::clock = Clock();
 extern const unsigned int Globals::viewBinding = 4;
 extern unsigned int Globals::viewUbo = 0;
 
+extern float Globals::soundVolume = 0.2f;
+extern float Globals::musicVolume = 0.2f;
+
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd) {
 
 	#if DEBUG

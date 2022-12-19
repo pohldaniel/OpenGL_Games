@@ -1,6 +1,6 @@
 #include "MusicBuffer.h"
 
-CacheLRUP<std::string, MusicBuffer::CacheEntry> MusicBuffer::MusicBufferCache = CacheLRUP<std::string, MusicBuffer::CacheEntry>(3);
+CacheLRUP<std::string, MusicBuffer::CacheEntry> MusicBuffer::MusicBufferCache;
 
 MusicBuffer::MusicBuffer(MusicBuffer const& rhs) {
 
@@ -31,10 +31,14 @@ MusicBuffer& MusicBuffer::operator=(const MusicBuffer& rhs) {
 
 MusicBuffer::MusicBuffer() {}
 
-void MusicBuffer::init() {
+void MusicBuffer::init(unsigned short cacheSize, float volume) {
 	if (!m_sourceInit) {
+		MusicBufferCache.Init(cacheSize);
+
 		alGenSources(1, &m_source);
 		alGenBuffers(NUM_BUFFERS, m_buffers);
+
+		setVolume(volume);
 		m_sourceInit = true;
 	}
 }

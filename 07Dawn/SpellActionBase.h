@@ -72,11 +72,11 @@ public:
 	void setSoundSpellStart(std::string soundSpellStart);
 	void setSoundSpellHit(std::string soundSpellHit);
 	void playSoundSpellCasting();
-	void playSoundSpellStart();
-	void playSoundSpellHit();
+	//void playSoundSpellStart();
+	//void playSoundSpellHit();
 	void stopSoundSpellCasting();
-	void stopSoundSpellStart();
-	void stopSoundSpellHit();
+	//void stopSoundSpellStart();
+	//void stopSoundSpellHit();
 
 	/// add additional spells to this spell, to be executed based on chance when the spell is finished.
 	void addAdditionalSpellOnTarget(SpellActionBase *spell, double chanceToExecute);

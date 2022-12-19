@@ -1,5 +1,6 @@
 #pragma once
-
+#define NOMINMAX
+#include <algorithm>
 #include "Widget.h"
 #include "Dialog.h"
 
@@ -22,5 +23,7 @@ private:
 	OptionsWindow();
 	std::vector<TextureRect> m_textures;
 	CharacterSet* m_font;
+	
+
 	static OptionsWindow s_instance;
 };

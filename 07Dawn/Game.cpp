@@ -29,6 +29,8 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 		LuaFunctions::executeLuaFile("res/_lua/mobdata_wolf.lua");
 
 		DawnInterface::enterZone("res/_lua/zone1", 512, 400);
+
+		LuaFunctions::executeLuaFile("res/_lua/loadsave.lua");
 	}
 
 	if(!s_init){
@@ -53,7 +55,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 		ShopCanvas::Get().init({ TextureRects.begin() + 81, TextureRects.begin() + 86 });
 		InteractionPoint::Init({ TextureRects.begin() + 86, TextureRects.begin() + 92 });
 		GroundLoot::Init({ TextureRects.begin() + 92, TextureRects.begin() + 95 });
-		OptionsWindow::Get().init({ TextureRects[95] });
+		OptionsWindow::Get().init({ TextureRects[95], TextureRects[47], TextureRects[46], TextureRects[4] });
 		ItemTooltip::Init({ TextureRects.begin() + 55, TextureRects.begin() + 58 });
 
 		LuaFunctions::executeLuaFile("res/_lua/gameinit.lua");
@@ -80,6 +82,9 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	TextureManager::BindTexture(TextureManager::GetTextureAtlas("player"), true, 4);
 	TextureManager::BindTexture(TextureManager::GetTextureAtlas("mobs"), true, 5);
 	TextureManager::BindTexture(ZoneManager::Get().getCurrentZone()->getTetureAtlas(), true, 6);
+
+	Globals::musicManager.get("background").play("res/music/loading.ogg");
+
 }
 
 Game::~Game() {}
@@ -258,7 +263,7 @@ void Game::Init() {
 	TextureManager::Loadimage("res/interface/tooltip/groundloot_background.tga", 92, TextureRects);
 	TextureManager::Loadimage("res/interface/tooltip/groundloot_left.tga", 93, TextureRects);
 	TextureManager::Loadimage("res/interface/tooltip/groundloot_right.tga", 94, TextureRects);
-	TextureManager::Loadimage("res/interface/OptionsScreen/classScreen.tga", 95, TextureRects);
+	TextureManager::Loadimage("res/interface/OptionsScreen/optionsScreen_big.tga", 95, TextureRects);
 
 
 	TextureManager::SetTextureAtlas(TextureAtlasCreator::Get().getName(),

@@ -4,8 +4,8 @@
 #include "AL\alext.h"
 #include <iostream>
 
-CacheLRU<std::string, SoundBuffer::CacheEntryBuffer> SoundBuffer::SoundBufferCache = CacheLRU<std::string, SoundBuffer::CacheEntryBuffer>(20);
-std::vector<ALuint> SoundBuffer::Buffer = std::vector<ALuint>(20);
+CacheLRU<std::string, SoundBuffer::CacheEntryBuffer> SoundBuffer::SoundBufferCache;
+std::vector<ALuint> SoundBuffer::Buffer;
 bool SoundBuffer::CacheInit = false;
 unsigned short SoundBuffer::Instances = 0;
 
@@ -16,21 +16,28 @@ SoundBuffer& SoundBuffer::operator=(const SoundBuffer& rhs) {
 	return *this;
 }
 
-SoundBuffer::SoundBuffer() :m_soundSourceCache(CacheLRU<std::string, SoundBuffer::CacheEntrySource>(10)) {
+SoundBuffer::SoundBuffer() {
 	Instances++;
 }
 
-void SoundBuffer::init() {
+void SoundBuffer::init(unsigned short cacheSizeBuffer, unsigned short cacheSizeSources, unsigned short channelSize, float volume) {
 
 	if (!m_sourceInit) {
-		m_sources = std::vector<ALuint>(10);
-		alGenSources(10, m_sources.data());
+		m_soundSourceCache.Init(cacheSizeSources);
+
+		m_sources = std::vector<ALuint>(channelSize);
+		alGenSources(channelSize, m_sources.data());
+
+		setVolume(volume);
 		m_source = m_sources[0];
 		m_sourceInit = true;
 	}
 
 	if (!CacheInit) {
-		alGenBuffers(10, Buffer.data());
+		SoundBufferCache.Init(cacheSizeBuffer);
+		Buffer = std::vector<ALuint>(cacheSizeBuffer);
+
+		alGenBuffers(cacheSizeBuffer, Buffer.data());
 		CacheInit = true;
 	}
 	
@@ -75,7 +82,7 @@ void SoundBuffer::play(const std::string& file) {
 	alSourcePlay(m_source);
 }
 
-void SoundBuffer::playChanneled(const std::string& file) {
+void SoundBuffer::playParallel(const std::string& file) {
 	SoundBufferCache.Put(file);
 	const CacheEntryBuffer& cacheEntryBuffer = SoundBufferCache.Get(file);
 
@@ -85,7 +92,6 @@ void SoundBuffer::playChanneled(const std::string& file) {
 
 	if (m_bufferIndex != cacheEntryBuffer.index) {
 		m_bufferIndex = cacheEntryBuffer.index;
-		//m_buffer = cacheEntry.m_buffer;
 	}
 
 	if (m_sourceIndex != cacheEntrySource.index) {
@@ -102,16 +108,131 @@ void SoundBuffer::playChanneled(const std::string& file) {
 }
 
 void SoundBuffer::setVolume(float volume) {
-
+	
 	for (auto const& source : m_sources) {
 		alSourcef(source, AL_GAIN, volume);
 	}
 }
 
-SoundBuffer::CacheEntryBuffer::CacheEntryBuffer(const std::string& path, const size_t _index) {
+void SoundBuffer::stop(const std::string& file) {
+	const CacheEntrySource& cacheEntrySource = m_soundSourceCache.Get(file);
+	alSourceStop(m_sources[cacheEntrySource.index]);
+}
+
+void SoundBuffer::pause(const std::string& file) {
+	const CacheEntrySource& cacheEntrySource = m_soundSourceCache.Get(file);
+	alSourcePause(m_sources[cacheEntrySource.index]);
+}
+
+void SoundBuffer::resume(const std::string& file) {
+	const CacheEntrySource& cacheEntrySource = m_soundSourceCache.Get(file);
+	alSourcePlay(m_sources[cacheEntrySource.index]);
+}
+
+void SoundBuffer::playChannel(unsigned int channel) {
+	
+	ALint playState;
+	alGetSourcei(m_sources[channel], AL_SOURCE_STATE, &playState);
+
+	if (playState != AL_PLAYING) {
+		alSourcePlay(m_sources[channel]);
+	}
+}
+
+void SoundBuffer::stopChannel(unsigned int channel) {	
+	alSourceStop(m_sources[channel]);
+}
+
+void SoundBuffer::pauseChannel(unsigned int channel) {
+	alSourcePause(m_sources[channel]);
+}
+
+void SoundBuffer::resumeChannel(unsigned int channel) {
+	alSourcePlay(m_sources[channel]);
+}
+
+void SoundBuffer::setVolumeChannel(unsigned int channel, float volume){
+	alSourcef(m_sources[channel], AL_GAIN, volume);
+}
+
+void SoundBuffer::loadChannel(const std::string& file, unsigned int channel) {
+	ALenum err, format;
+	SNDFILE* sndfile;
+	SF_INFO sfinfo;
+	short* membuf;
+	sf_count_t num_frames;
+	ALsizei num_bytes;
+	ALuint buffer;
+
+	// Open the audio file and check that it's usable.
+	sndfile = sf_open(file.c_str(), SFM_READ, &sfinfo);
+	if (!sndfile) {
+		fprintf(stderr, "Could not open audio in %s: %s\n", file.c_str(), sf_strerror(sndfile));
+		return;
+	}
+
+	if (sfinfo.frames < 1 || sfinfo.frames >(sf_count_t)(INT_MAX / sizeof(short)) / sfinfo.channels) {
+		fprintf(stderr, "Bad sample count in %s (%" PRId64 ")\n", file.c_str(), sfinfo.frames);
+		sf_close(sndfile);
+		return;
+	}
+
+	// Get the sound format, and figure out the OpenAL format */
+	format = AL_NONE;
+	if (sfinfo.channels == 1)
+		format = AL_FORMAT_MONO16;
+	else if (sfinfo.channels == 2)
+		format = AL_FORMAT_STEREO16;
+	else if (sfinfo.channels == 3) {
+		if (sf_command(sndfile, SFC_WAVEX_GET_AMBISONIC, NULL, 0) == SF_AMBISONIC_B_FORMAT)
+			format = AL_FORMAT_BFORMAT2D_16;
+	} else if (sfinfo.channels == 4) {
+		if (sf_command(sndfile, SFC_WAVEX_GET_AMBISONIC, NULL, 0) == SF_AMBISONIC_B_FORMAT)
+			format = AL_FORMAT_BFORMAT3D_16;
+	}
+
+	if (!format) {
+		fprintf(stderr, "Unsupported channel count: %d\n", sfinfo.channels);
+		sf_close(sndfile);
+		return;
+	}
+
+	// Decode the whole audio file to a buffer.
+	membuf = static_cast<short*>(malloc((size_t)(sfinfo.frames * sfinfo.channels) * sizeof(short)));
+
+	num_frames = sf_readf_short(sndfile, membuf, sfinfo.frames);
+	if (num_frames < 1) {
+		free(membuf);
+		sf_close(sndfile);
+		fprintf(stderr, "Failed to read samples in %s (%" PRId64 ")\n", file.c_str(), num_frames);
+		return;
+	}
+	num_bytes = (ALsizei)(num_frames * sfinfo.channels) * (ALsizei)sizeof(short);
+
+	// Buffer the audio data into a new buffer object, then free the data and close the file.
+
+	alGenBuffers(1, &buffer);
+	alBufferData(buffer, format, membuf, num_bytes, sfinfo.samplerate);
+	alSourcei(m_sources[channel], AL_BUFFER, (ALint)buffer);
+	
+	alDeleteBuffers(1, &buffer);
+	free(membuf);
+	sf_close(sndfile);
+
+	// Check if an error occured, and clean up if so.
+	err = alGetError();
+	if (err != AL_NO_ERROR) {
+		fprintf(stderr, "OpenAL Error: %s\n", alGetString(err));
+		if (buffer && alIsBuffer(buffer))
+			alDeleteBuffers(1, &buffer);
+		return;
+	}
+}
+
+SoundBuffer::CacheEntryBuffer::CacheEntryBuffer(const std::string& file, const size_t _index) {
 	ALenum format;
 	SF_INFO sfinfo;
-	SNDFILE* sndFile = sf_open(path.c_str(), SFM_READ, &sfinfo);
+	SNDFILE* sndFile = sf_open(file.c_str(), SFM_READ, &sfinfo);
 	short* membuf;
 	sf_count_t num_frames;
 	ALsizei num_bytes;
@@ -139,7 +260,7 @@ SoundBuffer::CacheEntryBuffer::CacheEntryBuffer(const std::string& path, const s
 		throw("Unsupported channel count from file");
 	}
 
-	/* Decode the whole audio file to a buffer. */
+	// Decode the whole audio file to a buffer.
 	membuf = static_cast<short*>(malloc((size_t)(sfinfo.frames * sfinfo.channels) * sizeof(short)));
 
 	num_frames = sf_readf_short(sndFile, membuf, sfinfo.frames);
@@ -152,6 +273,6 @@ SoundBuffer::CacheEntryBuffer::CacheEntryBuffer(const std::string& path, const s
 	sf_close(sndFile);
 }
 
-SoundBuffer::CacheEntrySource::CacheEntrySource(const std::string& path, const size_t _index) {
+SoundBuffer::CacheEntrySource::CacheEntrySource(const std::string& file, const size_t _index) {
 	index = static_cast<unsigned short>(_index);
 }

@@ -34,6 +34,7 @@ public:
 
 	~MusicBuffer();
 
+	void init(unsigned short cacheSize = 3u, float volume = 1.0f);
 	void play(const std::string& file);
 	void pause();
 	void stop();
@@ -45,11 +46,10 @@ public:
 
 	bool isPlaying();
 	void setLooping(const bool& loop);
-	void loadFromFile(const std::string& path);
 	void setVolume(float volume);
 
 private:
-	void init();
+	
 
 	ALuint m_source = 0;
 	bool m_sourceInit = false;

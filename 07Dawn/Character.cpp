@@ -555,6 +555,14 @@ unsigned short Character::getModifiedWisdom() const {
 	return getWisdom();
 }
 
+unsigned short Character::getModifiedMinDamage() const {
+	return getMinDamage();
+}
+
+unsigned short Character::getModifiedMaxDamage() const {
+	return getMaxDamage();
+}
+
 unsigned short Character::getModifiedSpellEffectElementModifierPoints(Enums::ElementType elementType) const {
 	return getSpellEffectElementModifierPoints(elementType) + getSpellEffectAllModifierPoints() + StatsSystem::getStatsSystem()->calculateSpellEffectElementModifierPoints(elementType, this);
 }
@@ -565,6 +573,34 @@ unsigned short Character::getModifiedResistElementModifierPoints(Enums::ElementT
 
 unsigned short Character::getModifiedSpellCriticalModifierPoints() const {
 	return getSpellCriticalModifierPoints() + StatsSystem::getStatsSystem()->calculateSpellCriticalModifierPoints(this);
+}
+
+unsigned short Character::getModifiedDamageModifierPoints() const {
+	return getDamageModifierPoints() + StatsSystem::getStatsSystem()->calculateDamageModifierPoints(this);
+}
+
+unsigned short Character::getModifiedHitModifierPoints() const {
+	return getHitModifierPoints() + StatsSystem::getStatsSystem()->calculateHitModifierPoints(this);
+}
+
+unsigned short Character::getModifiedMeleeCriticalModifierPoints() const {
+	return getMeleeCriticalModifierPoints() + StatsSystem::getStatsSystem()->calculateMeleeCriticalModifierPoints(this);
+}
+
+unsigned short Character::getModifiedEvadeModifierPoints() const {
+	return getEvadeModifierPoints() + StatsSystem::getStatsSystem()->calculateEvadeModifierPoints(this);
+}
+
+unsigned short Character::getModifiedParryModifierPoints() const {
+	return getParryModifierPoints() + StatsSystem::getStatsSystem()->calculateParryModifierPoints(this);
+}
+
+unsigned short Character::getModifiedBlockModifierPoints() const {
+	return getBlockModifierPoints() + StatsSystem::getStatsSystem()->calculateBlockModifierPoints(this);
+}
+
+unsigned short Character::getModifiedArmor() const {
+	return getArmor() + StatsSystem::getStatsSystem()->calculateDamageReductionPoints(this);
 }
 
 unsigned short Character::getParryModifierPoints() const {

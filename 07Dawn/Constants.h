@@ -46,4 +46,7 @@ namespace Globals {
 
 	extern unsigned int viewUbo;
 	extern const unsigned int viewBinding;
+
+	extern float soundVolume;
+	extern float musicVolume;
 }

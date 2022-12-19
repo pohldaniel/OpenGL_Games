@@ -339,9 +339,9 @@ void Application::fixedUpdate() {
 
 void Application::initStates() {
 	s_machine = new StateMachine(m_dt, m_fdt);
-	//s_machine->addStateAtTop(new Game(*s_machine));
+	s_machine->addStateAtTop(new Game(*s_machine));
 
-	s_machine->addStateAtTop(new MainMenu(*s_machine));
+	//s_machine->addStateAtTop(new MainMenu(*s_machine));
 	//s_machine->addStateAtTop(new Editor(*s_machine));
 }
 
@@ -424,18 +424,18 @@ void Application::loadAssets() {
 	Globals::spritesheetManager.getAssetPointer("font")->setLinear();
 	
 	//Spritesheet::Safe("font", Globals::spritesheetManager.getAssetPointer("font")->getAtlas());
-	
+	//Globals::soundEffectsPlayer.loadSoundEffect("effect_2", "res/sound/arrowHit06.ogg");
+
 	Globals::musicManager.initMusicBuffer("background");
 	Globals::musicManager.initMusicBuffer("foreground");
 
 	Globals::soundManager.initSoundBuffer("player");
-	Globals::soundManager.get("player").setVolume(0.1f);
 	Globals::soundManager.initSoundBuffer("effect");
-	Globals::soundManager.get("effect").setVolume(1.0f);
 
-	Globals::soundEffectsPlayer.loadSoundEffect("effect_2", "res/sound/arrowHit06.ogg");
-
-	
+	Globals::musicManager.get("background").setVolume(Globals::musicVolume);
+	Globals::soundManager.get("effect").setVolume(Globals::soundVolume);
+	Globals::soundManager.get("player").setVolume(Globals::soundVolume);
+	Globals::musicManager.get("background").setLooping(true);
 }
 
 void Application::toggleFullScreen() {

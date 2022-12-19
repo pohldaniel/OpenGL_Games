@@ -186,9 +186,18 @@ public:
 	unsigned short getModifiedVitality() const;
 	unsigned short getModifiedIntellect() const;
 	unsigned short getModifiedWisdom() const;
+	unsigned short getModifiedMaxDamage() const;
+	unsigned short getModifiedMinDamage() const;
 	unsigned short getModifiedSpellEffectElementModifierPoints(Enums::ElementType elementType) const;
 	unsigned short getModifiedResistElementModifierPoints(Enums::ElementType elementType) const;
 	unsigned short getModifiedSpellCriticalModifierPoints() const;
+	unsigned short getModifiedDamageModifierPoints() const;
+	unsigned short getModifiedHitModifierPoints() const;
+	unsigned short getModifiedMeleeCriticalModifierPoints() const;
+	unsigned short getModifiedEvadeModifierPoints() const;
+	unsigned short getModifiedParryModifierPoints() const;
+	unsigned short getModifiedBlockModifierPoints() const;
+	unsigned short getModifiedArmor() const;
 	unsigned short getParryModifierPoints() const;
 	unsigned short getBlockModifierPoints() const;
 	unsigned short getMeleeCriticalModifierPoints() const;

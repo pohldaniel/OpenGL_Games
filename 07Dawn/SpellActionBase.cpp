@@ -2,7 +2,8 @@
 
 #include "Luafunctions.h"
 #include "TextureManager.h"
-#include"Character.h"
+#include "Character.h"
+#include "Constants.h"
 
 SpellActionBase::SpellActionBase()
 	: boundToCreator(false),
@@ -154,17 +155,17 @@ void SpellActionBase::setSoundSpellHit(std::string soundSpellHit) {
 
 void SpellActionBase::playSoundSpellCasting() {
 	if (soundSpellCasting != "") {
-		//SoundEngine::playSound(soundSpellCasting);
+		Globals::soundManager.get("effect").playParallel(soundSpellCasting);
 	}
 }
 
 void SpellActionBase::stopSoundSpellCasting() {
 	if (soundSpellCasting != "") {
-		//SoundEngine::stopSound(soundSpellCasting);
+		Globals::soundManager.get("effect").stop(soundSpellCasting);
 	}
 }
 
-void SpellActionBase::playSoundSpellStart() {
+/*void SpellActionBase::playSoundSpellStart() {
 	if (soundSpellStart != "") {
 		//SoundEngine::playSound(soundSpellStart);
 	}
@@ -186,7 +187,7 @@ void SpellActionBase::stopSoundSpellHit() {
 	if (soundSpellHit != "") {
 		//SoundEngine::stopSound(soundSpellHit);
 	}
-}
+}*/
 
 bool SpellActionBase::isSpellHostile() const {
 	return hostileSpell;

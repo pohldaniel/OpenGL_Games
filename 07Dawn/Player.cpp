@@ -228,6 +228,8 @@ void Player::init() {
 
 	inventory = new Inventory();
 	inventory->init(10, 4, this);
+
+	Globals::soundManager.get("player").loadChannel("res/sound/walking.ogg", 10);
 }
 
 bool Player::hasTarget(Character* target) {
@@ -341,7 +343,9 @@ void Player::setExperience(unsigned long experience) {
 
 ////////////////////////PRIVATE//////////////////////////////////
 void Player::Move(float deltaTime) {
-	
+	int oldX = getXPos();
+	int oldY = getYPos();
+
 	// moves one step per movePerStep ms
 	float movePerStep = 0.01f * m_currentspeed;
 
@@ -356,6 +360,16 @@ void Player::Move(float deltaTime) {
 	while (m_elapsedTime > movePerStep) {
 		m_elapsedTime -= movePerStep;
 		Character::Move(activeDirection);
+	}
+
+	dx = getXPos() - oldX;
+	dy = getYPos() - oldY;
+
+	// if the character has moved, enable walking sound
+	if (oldX != getXPos() || oldY != getYPos()) {
+		Globals::soundManager.get("player").playChannel(10);
+	} else {
+		Globals::soundManager.get("player").pauseChannel(10);
 	}
 }
 

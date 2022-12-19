@@ -15,9 +15,19 @@ public:
 	using value_it = typename std::list<value_type>::iterator;
 	//using operation_guard = typename std::lock_guard<std::mutex>;
 
+	CacheLRU() = default;
 	CacheLRU(size_t max_size) : max_cache_size{ max_size } {
 		if (max_size == 0) {
 			max_cache_size = std::numeric_limits<size_t>::max();
+		}
+	}
+
+	void Init(size_t max_size = 0) {
+		if (max_size == 0) {
+			max_cache_size = std::numeric_limits<size_t>::max();
+		}
+		else {
+			max_cache_size = max_size;
 		}
 	}
 
@@ -101,9 +111,19 @@ public:
 	using value_it = typename std::list<value_type>::iterator;
 	//using operation_guard = typename std::lock_guard<std::mutex>;
 
+	CacheLRUP() = default;
 	CacheLRUP(size_t max_size) : max_cache_size{ max_size } {
 		if (max_size == 0) {
 			max_cache_size = std::numeric_limits<size_t>::max();
+		}
+	}
+
+	void Init(size_t max_size = 0) {
+		if (max_size == 0) {
+			max_cache_size = std::numeric_limits<size_t>::max();
+		}
+		else {
+			max_cache_size = max_size;
 		}
 	}
 

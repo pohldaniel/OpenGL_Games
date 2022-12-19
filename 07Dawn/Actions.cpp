@@ -1,17 +1,18 @@
-#include "Actions.h"
-#include "Enums.h"
-#include "Constants.h"
-
 #include <iostream>
 #include <cstdlib>
+#include <cassert>
 #include <memory>
+#include "Actions.h"
+
 #include "Character.h"
 #include "Player.h"
 #include "Luafunctions.h"
 #include "random.h"
 #include "TextureManager.h"
+#include "Enums.h"
+#include "Statssystem.h"
+#include "Constants.h"
 
-#include <cassert>
 
 namespace DawnInterface {
 	//void addTextToLogWindow(GLfloat color[], const char *text, ...);
@@ -181,19 +182,18 @@ double MeleeDamageAction::getDamageBonus() const {
 
 void MeleeDamageAction::dealDamage() {
 
-	/*const StatsSystem *statsSystem = StatsSystem::getStatsSystem();
+	const StatsSystem *statsSystem = StatsSystem::getStatsSystem();
 
 	double fatigueDamageFactor = 1.0;
 
 	// here we recalculate the damage if we're a fighter class with high fatigue
 	if (creator->getArchType() == Enums::CharacterArchType::Fighter) {
-	fatigueDamageFactor = 1.0 - (floor(((static_cast<double>(creator->getMaxFatigue()) - creator->getCurrentFatigue() - getSpellCost() - 1) / creator->getMaxFatigue()) / 0.25) / 10);
-	if (fatigueDamageFactor > 1.0) {
-	fatigueDamageFactor = 1.0;
-	}
-	else if (fatigueDamageFactor < 0.7) {
-	fatigueDamageFactor = 0.7;
-	}
+		fatigueDamageFactor = 1.0 - (floor(((static_cast<double>(creator->getMaxFatigue()) - creator->getCurrentFatigue() - getSpellCost() - 1) / creator->getMaxFatigue()) / 0.25) / 10);
+		if (fatigueDamageFactor > 1.0) {
+			fatigueDamageFactor = 1.0;
+		} else if (fatigueDamageFactor < 0.7) {
+			fatigueDamageFactor = 0.7;
+		}
 	}
 
 	double minDamage = creator->getModifiedMinDamage() * statsSystem->complexGetDamageModifier(creator->getLevel(), creator->getModifiedDamageModifierPoints(), target->getLevel());
@@ -216,17 +216,17 @@ void MeleeDamageAction::dealDamage() {
 	double blockFactor = 0.5;
 
 	if (hasHit && !targetEvaded && !targetParried) {
-	int damageDone = damage * (1.0 - damageReduction) * fatigueDamageFactor * (targetBlocked ? blockFactor : 1.0) * (criticalHit ? criticalHitFactor : 1);
-	if (damageDone < 1) {
-	damageDone = 1;
-	}
-	target->Damage(damageDone, criticalHit);
+		int damageDone = damage * (1.0 - damageReduction) * fatigueDamageFactor * (targetBlocked ? blockFactor : 1.0) * (criticalHit ? criticalHitFactor : 1);
+		if (damageDone < 1) {
+			damageDone = 1;
+		}
+		target->Damage(damageDone, criticalHit);
 
-	/// play the hit sound effect for the spell, if we have any.
-	if (soundSpellHit != "") {
-	//SoundEngine::playSound(soundSpellHit);
+		/// play the hit sound effect for the spell, if we have any.
+		if (soundSpellHit != "") {
+			Globals::soundManager.get("effect").playParallel(soundSpellHit);
+		}
 	}
-	}*/
 }
 
 double MeleeDamageAction::getProgress() const {
@@ -241,7 +241,7 @@ void MeleeDamageAction::startEffect() {
 
 	/// play the start sound effect for the spell, if we have any.
 	if (soundSpellStart != "") {
-		//SoundEngine::playSound(soundSpellStart);
+		Globals::soundManager.get("effect").playParallel(soundSpellStart);
 	}
 	m_timer.restart();
 	finished = false;
@@ -328,7 +328,7 @@ void RangedDamageAction::setExpireTime(int newExpireTime) {
 void RangedDamageAction::startEffect() {
 	/// play the start sound effect for the spell, if we have any.
 	if (soundSpellStart != "") {
-		//SoundEngine::playSound(soundSpellStart);
+		Globals::soundManager.get("effect").playParallel(soundSpellStart);
 	}
 	const Player& player = Player::Get();
 	finished = false;
@@ -438,19 +438,18 @@ double RangedDamageAction::getDamageBonus() const {
 
 void RangedDamageAction::dealDamage() {
 
-	/*const StatsSystem *statsSystem = StatsSystem::getStatsSystem();
+	const StatsSystem *statsSystem = StatsSystem::getStatsSystem();
 
 	double fatigueDamageFactor = 1.0;
 
 	// here we recalculate the damage if we're a fighter class with high fatigue
 	if (creator->getArchType() == Enums::CharacterArchType::Fighter) {
-	fatigueDamageFactor = 1.0 - (floor(((static_cast<double>(creator->getMaxFatigue()) - creator->getCurrentFatigue() - getSpellCost() - 1) / creator->getMaxFatigue()) / 0.25) / 10);
-	if (fatigueDamageFactor > 1.0) {
-	fatigueDamageFactor = 1.0;
-	}
-	else if (fatigueDamageFactor < 0.7) {
-	fatigueDamageFactor = 0.7;
-	}
+		fatigueDamageFactor = 1.0 - (floor(((static_cast<double>(creator->getMaxFatigue()) - creator->getCurrentFatigue() - getSpellCost() - 1) / creator->getMaxFatigue()) / 0.25) / 10);
+		if (fatigueDamageFactor > 1.0) {
+			fatigueDamageFactor = 1.0;
+		} else if (fatigueDamageFactor < 0.7) {
+			fatigueDamageFactor = 0.7;
+		}
 	}
 
 	double minDamage = creator->getModifiedMinDamage() * statsSystem->complexGetDamageModifier(creator->getLevel(), creator->getModifiedDamageModifierPoints(), target->getLevel());
@@ -471,17 +470,17 @@ void RangedDamageAction::dealDamage() {
 	double blockFactor = 0.5;
 
 	if (hasHit && !targetEvaded) {
-	int damageDone = damage * (1.0 - damageReduction) * fatigueDamageFactor * (targetBlocked ? blockFactor : 1.0) * (criticalHit ? criticalHitFactor : 1);
-	if (damageDone < 1) {
-	damageDone = 1;
-	}
-	target->Damage(damageDone, criticalHit);
+		int damageDone = damage * (1.0 - damageReduction) * fatigueDamageFactor * (targetBlocked ? blockFactor : 1.0) * (criticalHit ? criticalHitFactor : 1);
+		if (damageDone < 1) {
+			damageDone = 1;
+		}
+		target->Damage(damageDone, criticalHit);
 
-	/// play the hit sound effect for the spell, if we have any.
-	if (soundSpellHit != "") {
-	//SoundEngine::playSound(soundSpellHit);
+		/// play the hit sound effect for the spell, if we have any.
+		if (soundSpellHit != "") {
+			Globals::soundManager.get("effect").playParallel(soundSpellHit);
+		}
 	}
-	}*/
 }
 
 Enums::EffectType RangedDamageAction::getEffectType() const {

@@ -199,7 +199,7 @@ void GeneralDamageSpell::dealDirectDamage() {
 	
 		/// play the hit sound effect for the spell, if we have any.
 		if (soundSpellHit != "") {
-		//SoundEngine::playSound(soundSpellHit);
+			Globals::soundManager.get("effect").playParallel(soundSpellHit);
 		}
 
 		int damage = getDirectDamageMin() + RNG::randomInt(0, getDirectDamageMax() - getDirectDamageMin());
@@ -289,8 +289,9 @@ void GeneralRayDamageSpell::startEffect() {
 	if (!isEffectComplete()) return;
 	/// play the start sound effect for the spell, if we have any.
 	if (soundSpellStart != "") {
-		//SoundEngine::playSound(soundSpellStart);
+		Globals::soundManager.get("effect").playParallel(soundSpellStart);
 	}
+
 	animation.start();
 	m_timer.restart();
 
@@ -460,7 +461,7 @@ void GeneralAreaDamageSpell::startEffect() {
 	if (!isEffectComplete()) return;
 	/// play the start sound effect for the spell, if we have any.
 	if (soundSpellStart != "") {
-		//SoundEngine::playSound(soundSpellStart);
+		Globals::soundManager.get("effect").playParallel(soundSpellStart);
 	}
 
 	radius = 50;
@@ -590,7 +591,7 @@ void GeneralBoltDamageSpell::setExpireTime(int newExpireTime) {
 void GeneralBoltDamageSpell::startEffect() {
 	/// play the start sound effect for the spell, if we have any.
 	if (soundSpellStart != "") {
-		//SoundEngine::playSound(soundSpellStart);
+		Globals::soundManager.get("effect").playParallel(soundSpellStart);
 	}
 
 	if(animation.getNumberOfFrames() > 1u)
@@ -790,7 +791,7 @@ double GeneralHealingSpell::calculateContinuousHealing(uint64_t timePassed) {
 void GeneralHealingSpell::startEffect() {
 	/// play the start sound effect for the spell, if we have any.
 	if (soundSpellStart != "") {
-		//SoundEngine::playSound(soundSpellStart);
+		Globals::soundManager.get("effect").playParallel(soundSpellStart);
 	}
 
 	finished = false;
@@ -965,7 +966,7 @@ void GeneralBuffSpell::setSpellEffectElementModifierPoints(Enums::ElementType el
 void GeneralBuffSpell::startEffect() {
 	/// play the start sound effect for the spell, if we have any.
 	if (soundSpellStart != "") {
-		//SoundEngine::playSound(soundSpellStart);
+		Globals::soundManager.get("effect").playParallel(soundSpellStart);
 	}
 	m_timer.restart();
 	finished = false;

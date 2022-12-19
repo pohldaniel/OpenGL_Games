@@ -55,9 +55,42 @@ void OptionsWindow::draw() {
 	Fontrenderer::Get().addText(*m_font, textX, textY, "Continue", (selectedEntry == 4) ? Vector4f(1.0f, 1.0f, 0.0f, 1.0f) : Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
 	textY -= static_cast<int>(m_font->lineHeight * 1.5);
 	Fontrenderer::Get().addText(*m_font, textX, textY, "Pause", (selectedEntry == 5) ? Vector4f(1.0f, 1.0f, 0.0f, 1.0f) : Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+		
+	textY -= static_cast<int>(m_font->lineHeight * 2.0f);
+	/*Vector4f color = Vector4f(1.0f, 0.0f, 0.0f, 1.0f);
+	if (textX < ViewPort::Get().getCursorPosRelX() && ViewPort::Get().getCursorPosRelX() < (textX + m_textures[1].width) &&
+		textY < ViewPort::Get().getCursorPosRelY() && ViewPort::Get().getCursorPosRelY() < textY + m_textures[1].height) {
+		color = colorLeft;
+	}
+
+	if (textX + 150 < ViewPort::Get().getCursorPosRelX() && ViewPort::Get().getCursorPosRelX() < (textX + 150 + m_textures[2].width) &&
+		textY < ViewPort::Get().getCursorPosRelY() && ViewPort::Get().getCursorPosRelY() < textY + m_textures[2].height) {
+		color = colorRight;
+	}*/
+		
+	TextureManager::DrawTextureBatched(m_textures[1], textX, textY, false, false);
+	TextureManager::DrawTextureBatched(m_textures[2], textX + 150, textY, false, false);
+	TextureManager::DrawTextureBatched(m_textures[3], textX + m_textures[2].width, textY + 5, (150.0f - static_cast<float>(m_textures[1].width)) * Globals::soundVolume, static_cast<float>(m_textures[1].height) - 10.0f, false, false);
+
+	textY -= static_cast<int>(m_font->lineHeight * 2.0f);
+	/*color = Vector4f(1.0f, 0.0f, 0.0f, 1.0f);
+	if (textX < ViewPort::Get().getCursorPosRelX() && ViewPort::Get().getCursorPosRelX() < (textX + m_textures[1].width) &&
+		textY < ViewPort::Get().getCursorPosRelY() && ViewPort::Get().getCursorPosRelY() < textY + m_textures[1].height) {
+		color = colorLeft;
+	}
+
+	if (textX + 150 < ViewPort::Get().getCursorPosRelX() && ViewPort::Get().getCursorPosRelX() < (textX + 150 + m_textures[2].width) &&
+		textY < ViewPort::Get().getCursorPosRelY() && ViewPort::Get().getCursorPosRelY() < textY + m_textures[2].height) {
+		color = colorRight;
+	}*/
+
+	TextureManager::DrawTextureBatched(m_textures[1], textX, textY, false, false);
+	TextureManager::DrawTextureBatched(m_textures[2], textX + 150, textY, false, false);
+	TextureManager::DrawTextureBatched(m_textures[3], textX + m_textures[2].width, textY + 5, (150.0f - static_cast<float>(m_textures[1].width)) * Globals::musicVolume, static_cast<float>(m_textures[1].height) - 10.0f, false, false);
 }
 
 void OptionsWindow::processInput() {
+
 
 	if (Keyboard::instance().keyPressed(Keyboard::KEY_1)) {	
 		
@@ -90,7 +123,7 @@ void OptionsWindow::processInput() {
 	}
 
 	if (selectedEntry == 0){
-		//setQuitGame();
+		 //setQuitGame();
 	} else if (selectedEntry == 1 && Utils::file_exists("res/_lua/save/savegame.lua") == true) {
 		// Load Game
 
@@ -143,6 +176,48 @@ void OptionsWindow::processInput() {
 			Globals::isPaused = true;
 			DawnInterface::addTextToLogWindow(yellow, "Game paused. (not implemented)");
 
+		}
+	}
+
+	int textX = m_posX + 64;
+	int textY = m_posY + m_height - 64 - static_cast<int>(m_font->lineHeight * 10.5f);
+	
+	if (Mouse::instance().buttonPressed(Mouse::BUTTON_LEFT)) {
+		if (textX < ViewPort::Get().getCursorPosRelX() && ViewPort::Get().getCursorPosRelX() < (textX + m_textures[1].width) &&
+			textY < ViewPort::Get().getCursorPosRelY() && ViewPort::Get().getCursorPosRelY() < textY + m_textures[1].height) {
+			Globals::soundVolume -= 0.1f;
+			Globals::soundVolume = std::max(0.0f, std::min(Globals::soundVolume, 1.0f));
+
+			Globals::soundManager.get("effect").setVolume(Globals::soundVolume);
+			Globals::soundManager.get("player").setVolume(Globals::soundVolume);
+			Globals::soundManager.get("player").setVolumeChannel(10, Globals::soundVolume);
+		}
+
+		if (textX + 150 < ViewPort::Get().getCursorPosRelX() && ViewPort::Get().getCursorPosRelX() < (textX + 150 + m_textures[2].width) &&
+			textY < ViewPort::Get().getCursorPosRelY() && ViewPort::Get().getCursorPosRelY() < textY + m_textures[2].height) {
+			Globals::soundVolume += 0.1f;
+			Globals::soundVolume = std::max(0.0f, std::min(Globals::soundVolume, 1.0f));
+
+			Globals::soundManager.get("effect").setVolume(Globals::soundVolume);
+			Globals::soundManager.get("player").setVolume(Globals::soundVolume);
+			Globals::soundManager.get("player").setVolumeChannel(10, Globals::soundVolume);
+		}
+
+		textY -= static_cast<int>(m_font->lineHeight * 2.0);
+
+		if (textX < ViewPort::Get().getCursorPosRelX() && ViewPort::Get().getCursorPosRelX() < (textX + m_textures[1].width) &&
+			textY < ViewPort::Get().getCursorPosRelY() && ViewPort::Get().getCursorPosRelY() < textY + m_textures[1].height) {
+			Globals::musicVolume -= 0.1f;
+			Globals::musicVolume = std::max(0.0f, std::min(Globals::musicVolume, 1.0f));
+
+			Globals::musicManager.get("background").setVolume(Globals::musicVolume);
+		}
+
+		if (textX + 150 < ViewPort::Get().getCursorPosRelX() && ViewPort::Get().getCursorPosRelX() < (textX + 150 + m_textures[2].width) &&
+			textY < ViewPort::Get().getCursorPosRelY() && ViewPort::Get().getCursorPosRelY() < textY + m_textures[2].height) {
+			Globals::musicVolume += 0.1f;
+			Globals::musicVolume = std::max(0.0f, std::min(Globals::musicVolume, 1.0f));
+			Globals::musicManager.get("background").setVolume(Globals::musicVolume);
 		}
 	}
 }

@@ -83,15 +83,15 @@ void MainMenu::processInput() {
 	}
 	
 	if (keyboard.keyPressed(Keyboard::KEY_5)) {
-		Globals::soundManager.get("effect").playChanneled("res/sound/spellcast.ogg");
+		Globals::soundManager.get("effect").playParallel("res/sound/spellcast.ogg");
 	}
 
 	if (keyboard.keyPressed(Keyboard::KEY_6)) {
-		Globals::soundManager.get("effect").playChanneled("res/sound/sword_01.ogg");
+		Globals::soundManager.get("effect").playParallel("res/sound/sword_01.ogg");
 	}
 
 	if (keyboard.keyPressed(Keyboard::KEY_7)) {
-		Globals::soundManager.get("effect").playChanneled("res/sound/walking.ogg");
+		Globals::soundManager.get("effect").playParallel("res/sound/walking.ogg");
 	}
 }
 
