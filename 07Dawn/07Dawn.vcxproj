@@ -159,6 +159,7 @@
     <ClCompile Include="Callindirection.cpp" />
     <ClCompile Include="Character.cpp" />
     <ClCompile Include="CharacterInfo.cpp" />
+    <ClCompile Include="CheckBox.cpp" />
     <ClCompile Include="ChooseClassMenu.cpp" />
     <ClCompile Include="Dialog.cpp" />
     <ClCompile Include="Editor.cpp" />
@@ -184,10 +185,13 @@
     <ClCompile Include="MainMenu.cpp" />
     <ClCompile Include="Message.cpp" />
     <ClCompile Include="Npc.cpp" />
+    <ClCompile Include="Options.cpp" />
     <ClCompile Include="OptionsWindow.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="Quest.cpp" />
     <ClCompile Include="Random.cpp" />
+    <ClCompile Include="SeekerBar.cpp" />
+    <ClCompile Include="SelectionBox.cpp" />
     <ClCompile Include="Shop.cpp" />
     <ClCompile Include="SpellActionBase.cpp" />
     <ClCompile Include="Spellbook.cpp" />
@@ -236,6 +240,7 @@
     <ClInclude Include="Callindirection.h" />
     <ClInclude Include="Character.h" />
     <ClInclude Include="CharacterInfo.h" />
+    <ClInclude Include="CheckBox.h" />
     <ClInclude Include="ChooseClassMenu.h" />
     <ClInclude Include="Constants.h" />
     <ClInclude Include="Dialog.h" />
@@ -266,10 +271,13 @@
     <ClInclude Include="MainMenu.h" />
     <ClInclude Include="Message.h" />
     <ClInclude Include="Npc.h" />
+    <ClInclude Include="Options.h" />
     <ClInclude Include="OptionsWindow.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="Quest.h" />
     <ClInclude Include="Random.h" />
+    <ClInclude Include="SeekerBar.h" />
+    <ClInclude Include="SelectionBox.h" />
     <ClInclude Include="Shop.h" />
     <ClInclude Include="SpellActionBase.h" />
     <ClInclude Include="Spellbook.h" />

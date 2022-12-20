@@ -14,6 +14,7 @@
 #include "StateMachine.h"
 #include "ViewPort.h"
 
+
 class Application {
 	friend class LoadingManager;
 
@@ -29,6 +30,11 @@ public:
 	
 	static void AddStateAtTop(State* state);
 	static StateMachine& GetStateMachine();
+	static void GetScreenMode(std::vector<DEVMODE>& list);
+	static void SetFullScreen(int widht, int height);
+	static void ResetFullScreen();
+	static void ToggleFullScreen(bool isFullScreen);
+	static void SetFullScreen(DEVMODE settings);
 
 private:
 	
@@ -39,21 +45,18 @@ private:
 	void initOpenAL();
 	void loadAssets();
 	void initStates();
-	void resize(int deltaW, int deltaH);
+	static void resize(int deltaW, int deltaH);
 	void processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 	void enableVerticalSync(bool enableVerticalSync);
-	void toggleFullScreen();
+
 
 	bool m_enableVerticalSync;
-	bool m_isFullScreen;
 	MSG msg;
 
 	const float& m_fdt;
 	const float& m_dt;
-	bool m_init = false;
-	unsigned int m_width;
-	unsigned int m_height;
+	
 
 	
 	bool m_mouseTracking = false;
@@ -65,4 +68,9 @@ private:
 	static HGLRC MainContext;
 	static HGLRC LoaderContext;
 	static HWND Window;
+	
+	static bool m_init;
+	static bool m_isFullScreen;
+	static unsigned int m_width;
+	static unsigned int m_height;
 };

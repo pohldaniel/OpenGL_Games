@@ -13,6 +13,7 @@ enum CurrentState {
 	MAINMENU,
 	LOADINGSCREEN,
 	CHOOSECLASSMENU,
+	OPTIONS,
 };
 
 //base for holding the Framebuffer

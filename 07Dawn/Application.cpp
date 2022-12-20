@@ -6,12 +6,17 @@
 #include "Editor.h"
 #include "LoadingScreen.h"
 #include "ChooseClassMenu.h"
+#include "Options.h"
 
 EventDispatcher& Application::s_eventDispatcher = EventDispatcher::Get();
 StateMachine* Application::s_machine = nullptr;
 HGLRC Application::MainContext;
 HGLRC Application::LoaderContext;
 HWND Application::Window;
+unsigned int Application::m_width;
+unsigned int Application::m_height;
+bool Application::m_init = false;
+bool Application::m_isFullScreen = false;
 
 Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fdt) {
 	ViewPort::Get().init(WIDTH, HEIGHT);
@@ -315,10 +320,15 @@ bool Application::isRunning() {
 
 	if (Keyboard::instance().keyDown(Keyboard::KEY_LALT) || Keyboard::instance().keyDown(Keyboard::KEY_RALT)) {
 		if (Keyboard::instance().keyPressed(Keyboard::KEY_ENTER)) {
-			toggleFullScreen();
+			ToggleFullScreen(!m_isFullScreen);
+
 		}
 	}
-	
+
+	if (Keyboard::instance().keyDown(Keyboard::KEY_2)) {
+		ChangeDisplaySettings(NULL, 0);
+	}
+
 	return s_eventDispatcher.update();
 }
 
@@ -330,6 +340,7 @@ void Application::render() {
 void Application::update() {
 	Globals::musicManager.get("background").updateBufferStream();
 	Globals::musicManager.get("foreground").updateBufferStream();
+
 	s_machine->update();
 }
 
@@ -341,7 +352,8 @@ void Application::initStates() {
 	s_machine = new StateMachine(m_dt, m_fdt);
 	//s_machine->addStateAtTop(new Game(*s_machine));
 
-	s_machine->addStateAtTop(new MainMenu(*s_machine));
+	//s_machine->addStateAtTop(new MainMenu(*s_machine));
+	s_machine->addStateAtTop(new Options(*s_machine));
 	//s_machine->addStateAtTop(new Editor(*s_machine));
 }
 
@@ -438,51 +450,6 @@ void Application::loadAssets() {
 	Globals::musicManager.get("background").setLooping(true);
 }
 
-void Application::toggleFullScreen() {
-	static DWORD savedExStyle;
-	static DWORD savedStyle;
-	static RECT rcSaved;
-
-	int deltaW = m_width;
-	int deltaH = m_height;
-
-	m_isFullScreen = !m_isFullScreen;
-
-	if (m_isFullScreen){
-
-		savedExStyle = GetWindowLong(Window, GWL_EXSTYLE);
-		savedStyle = GetWindowLong(Window, GWL_STYLE);
-		GetWindowRect(Window, &rcSaved);
-
-		SetWindowLong(Window, GWL_EXSTYLE, 0);
-		SetWindowLong(Window, GWL_STYLE, WS_POPUP | WS_CLIPCHILDREN | WS_CLIPSIBLINGS);
-		SetWindowPos(Window, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_FRAMECHANGED | SWP_SHOWWINDOW);
-
-		m_width = GetSystemMetrics(SM_CXSCREEN);
-		m_height = GetSystemMetrics(SM_CYSCREEN);
-
-		deltaW = m_width - deltaW;
-		deltaH = m_height - deltaH;
-
-		SetWindowPos(Window, HWND_TOPMOST, 0, 0, m_width, m_height, SWP_SHOWWINDOW);
-
-	}else{
-
-		SetWindowLong(Window, GWL_EXSTYLE, savedExStyle);
-		SetWindowLong(Window, GWL_STYLE, savedStyle);
-		SetWindowPos(Window, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_FRAMECHANGED | SWP_SHOWWINDOW);
-
-		m_width = rcSaved.right - rcSaved.left;
-		m_height = rcSaved.bottom - rcSaved.top;
-
-		deltaW = m_width - deltaW;
-		deltaH = m_height - deltaH;
-
-		SetWindowPos(Window, HWND_NOTOPMOST, rcSaved.left, rcSaved.top, m_width, m_height, SWP_SHOWWINDOW);
-	}
-
-	resize(deltaW, deltaH);
-}
 
 void Application::resize(int deltaW, int deltaH) {
 	glViewport(0, 0, m_width, m_height);
@@ -522,4 +489,107 @@ void Application::AddStateAtTop(State* state) {
 
 StateMachine& Application::GetStateMachine() {
 	return *s_machine;
+}
+
+void Application::GetScreenMode(std::vector<DEVMODE>& list) {
+	DEVMODE Screen;
+	Screen.dmSize = sizeof(DEVMODE);
+	for (int i = 0; EnumDisplaySettings(NULL, i, &Screen); i++) {
+		if(Screen.dmDisplayFrequency == 60) continue;
+		if(Screen.dmDefaultSource != 0) continue;
+		if (Screen.dmPelsWidth < 1024) continue;
+		if (static_cast<float>(Screen.dmPelsHeight) / static_cast<float>(Screen.dmPelsWidth) != 0.75f) continue;
+		list.push_back(Screen);
+	}
+}
+
+void Application::SetFullScreen(DEVMODE settings) {
+
+	// This function actually changes the screen to full screen
+	// CDS_FULLSCREEN Gets Rid Of Start Bar.
+	// We always want to get a result from this function to check if we failed*
+	int result = ChangeDisplaySettings(&settings, CDS_FULLSCREEN);
+
+	if (result != DISP_CHANGE_SUCCESSFUL) {
+		std::cout << "Could Not Apply Display Settings: "  << std::endl;
+	}else {
+		ToggleFullScreen(true);
+	}
+}
+
+void Application::SetFullScreen(int widht, int height) {
+
+	DEVMODE dmSettings;									// Device Mode variable - Needed to change modes
+	memset(&dmSettings, 0, sizeof(dmSettings));			// Makes Sure Memory's Cleared
+
+														// Get the current display settings.  This function fills our the settings.
+	if (!EnumDisplaySettings(NULL, ENUM_CURRENT_SETTINGS, &dmSettings)) {
+
+		std::cout << "Could Not Enum Display Settings" << std::endl;
+		return;
+	}
+
+	dmSettings.dmPelsWidth = widht;					// Set the desired Screen Width
+	dmSettings.dmPelsHeight = height;					// Set the desired Screen Height
+	dmSettings.dmFields = DM_PELSWIDTH | DM_PELSHEIGHT;	// Set the flags saying we're changing the Screen Width and Height
+
+														// This function actually changes the screen to full screen
+														// CDS_FULLSCREEN Gets Rid Of Start Bar.
+														// We always want to get a result from this function to check if we failed*
+	int result = ChangeDisplaySettings(&dmSettings, CDS_FULLSCREEN);
+
+	if (result != DISP_CHANGE_SUCCESSFUL) {
+		std::cout << "Could Not Apply Display Settings: " << widht << "  " << height << std::endl;
+	} else {
+		ToggleFullScreen(true);
+	}
+}
+
+void Application::ResetFullScreen() {
+	ChangeDisplaySettings(NULL, 0);
+	ToggleFullScreen(false);
+}
+
+void Application::ToggleFullScreen(bool isFullScreen) {
+	static DWORD savedExStyle;
+	static DWORD savedStyle;
+	static RECT rcSaved;
+
+	int deltaW = m_width;
+	int deltaH = m_height;
+
+	if (isFullScreen) {
+		m_isFullScreen = true;
+		savedExStyle = GetWindowLong(Window, GWL_EXSTYLE);
+		savedStyle = GetWindowLong(Window, GWL_STYLE);
+		GetWindowRect(Window, &rcSaved);
+
+		SetWindowLong(Window, GWL_EXSTYLE, 0);
+		SetWindowLong(Window, GWL_STYLE, WS_POPUP | WS_CLIPCHILDREN | WS_CLIPSIBLINGS);
+		SetWindowPos(Window, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_FRAMECHANGED | SWP_SHOWWINDOW);
+
+		m_width = GetSystemMetrics(SM_CXSCREEN);
+		m_height = GetSystemMetrics(SM_CYSCREEN);
+
+		deltaW = m_width - deltaW;
+		deltaH = m_height - deltaH;
+
+		SetWindowPos(Window, HWND_TOPMOST, 0, 0, m_width, m_height, SWP_SHOWWINDOW);
+
+	} else {
+		m_isFullScreen = false;
+		SetWindowLong(Window, GWL_EXSTYLE, savedExStyle);
+		SetWindowLong(Window, GWL_STYLE, savedStyle);
+		SetWindowPos(Window, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_FRAMECHANGED | SWP_SHOWWINDOW);
+
+		m_width = rcSaved.right - rcSaved.left;
+		m_height = rcSaved.bottom - rcSaved.top;
+
+		deltaW = m_width - deltaW;
+		deltaH = m_height - deltaH;
+
+		SetWindowPos(Window, HWND_NOTOPMOST, rcSaved.left, rcSaved.top, m_width, m_height, SWP_SHOWWINDOW);
+	}
+
+	resize(deltaW, deltaH);
 }

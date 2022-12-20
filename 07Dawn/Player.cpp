@@ -323,8 +323,8 @@ bool Player::canRaiseLevel() const {
 
 void Player::raiseLevel() {
 	if (canRaiseLevel()) {
-		setMaxHealth(getMaxHealth() * 1.1);
-		setStrength(getStrength() * 1.1);
+		setMaxHealth(getMaxHealth() * 1.1f);
+		setStrength(getStrength() * 1.1f);
 		setLevel(getLevel() + 1);
 		GLfloat yellow[] = { 1.0f, 1.0f, 0.0f };
 		if (m_isPlayer == true){
@@ -332,8 +332,7 @@ void Player::raiseLevel() {
 			dynamic_cast<Player*>(this)->m_reloadSpellTooltip = true;
 		}
 
-		DawnInterface::addTextToLogWindow(yellow, "You are now a level %d %s.", getLevel(), getClassName().c_str());
-	
+		DawnInterface::addTextToLogWindow(yellow, "You are now a level %d %s.", getLevel(), getClassName().c_str());	
 	}
 }
 

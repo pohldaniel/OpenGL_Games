@@ -1,4 +1,6 @@
 #pragma once
+#include "engine/input/EventDispatcher.h"
+#include "engine/input/Mouse.h"
 
 #include "StateMachine.h"
 #include "LoadingScreen.h"
@@ -7,11 +9,11 @@
 #include "Dialog.h"
 #include "Label.h"
 
-class ChooseClassMenu : public State {
+class Options : public State {
 
 public:
-	ChooseClassMenu(StateMachine& machine);
-	~ChooseClassMenu();
+	Options(StateMachine& machine);
+	~Options();
 
 	void fixedUpdate() override;
 	void update() override;
@@ -24,5 +26,6 @@ private:
 	unsigned int m_textureAtlas;
 	CharacterSet* m_font;
 	Dialog m_dialog;
-	
+	std::vector<DEVMODE> m_screenModes;
+	int m_selected;
 };

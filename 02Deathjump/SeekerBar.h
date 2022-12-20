@@ -3,7 +3,9 @@
 #include "Button.h"
 
 class SeekerBar{
+
 	friend class Settings;
+
 public:
 	SeekerBar() = default;
 	SeekerBar(Vector2f position, const unsigned blocks, const unsigned currentBlock);

@@ -28,8 +28,8 @@ public:
 	int getWidth() const override;
 	int getHeight() const override;
 
-	void setDefaultColor(Vector4f color);
-	void setHoverColor(Vector4f color);
+	void setDefaultColor(const Vector4f &color);
+	void setHoverColor(const Vector4f &color);
 
 private:
 	void draw(std::string text);

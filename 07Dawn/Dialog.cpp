@@ -1,7 +1,7 @@
 #include "Dialog.h"
 
 unsigned int  DialogCanvas::TextureAtlas;
-std::vector<TextureRect>  DialogCanvas::Textures;
+std::vector<TextureRect> DialogCanvas::Textures;
 
 void DialogCanvas::Init() {
 
@@ -21,6 +21,7 @@ void DialogCanvas::Init() {
 	TextureManager::Loadimage("res/interface/tooltip/lower2.tga", 6, Textures);
 	TextureManager::Loadimage("res/interface/tooltip/left2.tga", 7, Textures);
 	TextureManager::Loadimage("res/interface/tooltip/right2.tga", 8, Textures);
+	TextureManager::Loadimage("res/white2x2pixel.png", 9, Textures);
 
 	TextureAtlas = TextureAtlasCreator::Get().getAtlas();
 
@@ -155,9 +156,10 @@ void Dialog::applyLayout() {
 		int maxX = 0;
 		int maxY = 0;
 		for (size_t curChild = 0; curChild < childFrames.size(); ++curChild){
-			maxX = std::max(maxX, childFrames[curChild]->getPosX()  + childFrames[curChild]->getWidth());
-			maxY = std::max(maxY, childFrames[curChild]->getPosY()  + childFrames[curChild]->getHeight());
+			maxX = std::max(maxX, childFrames[curChild]->getWidth());
+			maxY = std::max(maxY, childFrames[curChild]->getHeight());
 		}
+		
 		resize(maxX, maxY);
 	}
 
@@ -179,8 +181,8 @@ void Dialog::applyLayout() {
 
 void Dialog::resize(int width, int height){
 
-	m_columns = DialogCanvas::CalculateNeededBlockWidth(width, TILE_WIDTH);
-	m_rows = DialogCanvas::CalculateNeededBlockHeight(height, TILE_HEIGHT);
+	m_columns = std::max(m_columns, DialogCanvas::CalculateNeededBlockWidth(width, TILE_WIDTH));
+	m_rows = std::max(m_rows, DialogCanvas::CalculateNeededBlockHeight(height, TILE_HEIGHT));
 	recalculatePosition();
 }
 
