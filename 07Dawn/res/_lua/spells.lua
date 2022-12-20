@@ -72,7 +72,6 @@ symbols["flamingarrow"] = DawnInterface.loadimage("res/spells/flamingarrow/symbo
 symbols["landyrsforce"] = DawnInterface.loadimage("res/spells/landyrsforce/symbol.tga");
 symbols["voiceoftheforest"] = DawnInterface.loadimage("res/spells/voiceoftheforest/symbol.tga");
 TextureManager:SetTextureAtlas(TextureAtlasCreator:Get():getName(), TextureAtlasCreator:Get():getAtlas());
---TextureAtlasCreator:Get():safeAtlas("tmp/symbols")
 
 spellDatabase = {};
 
@@ -731,4 +730,3 @@ curSpell:addAdditionalSpellOnTarget( spellDatabase["sylphiricacideffect1"], 1.0 
 curSpell:setRequiredClass( Enums.Ranger );
 
 TextureManager:SetTextureAtlas("spells", TextureAtlasCreator:Get():getAtlas());
---TextureAtlasCreator:Get():safeAtlas("tmp/spell")

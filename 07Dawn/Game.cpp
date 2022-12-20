@@ -20,16 +20,14 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	if (!s_init && !Editor::s_init) {
 
 		LuaFunctions::executeLuaFile("res/_lua/playerdata.lua");
-		Player::Get().setCharacterType("player_w");
+		Player::Get().setCharacterType("player");
 		Player::Get().setClass(Enums::CharacterClass::Liche);
 		Player::Get().init();
 		
 		LuaFunctions::executeLuaFile("res/_lua/spells.lua");
 		LuaFunctions::executeLuaFile("res/_lua/itemdatabase.lua");
 		LuaFunctions::executeLuaFile("res/_lua/mobdata_wolf.lua");
-
 		DawnInterface::enterZone("res/_lua/zone1", 512, 400);
-
 		LuaFunctions::executeLuaFile("res/_lua/loadsave.lua");
 	}
 

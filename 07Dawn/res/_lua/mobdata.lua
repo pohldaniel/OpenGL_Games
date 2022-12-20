@@ -446,7 +446,6 @@ for direction = 1,8 do
 end
 TextureAtlasCreator:Get():addFrame();
 TextureManager:SetTextureAtlas(TextureAtlasCreator:Get():getName(), TextureAtlasCreator:Get():getAtlas());
---TextureAtlasCreator:Get():safeAtlas("tmp/mobs")
 
 skeletonarcherbase:calcNumMoveTexturesPerDirection();
 skeletonarcherbase:setStrength( 25 )

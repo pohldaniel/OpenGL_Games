@@ -415,7 +415,6 @@ struct TextureAtlasCreator {
 	void init(std::string name, unsigned int width = 1024u, unsigned int height = 1024u);
 	void addFrame();
 	unsigned int getAtlas();
-	void safeAtlas(std::string name);
 	void resetLine();
 	std::string getName();
 };

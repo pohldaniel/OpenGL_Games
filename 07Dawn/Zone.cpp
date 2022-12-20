@@ -18,7 +18,6 @@ void Zone::loadZone() {
 	LuaFunctions::executeLuaScript(std::string("DawnInterface.setCurrentZone( \"").append(m_file).append("\");"));
 	
 	if (!m_mapLoaded) {
-
 		EditorInterface::getTileSet(Enums::TileClassificationType::FLOOR).setOffset(EditorInterface::getTileSet(Enums::TileClassificationType::FLOOR).getAllTiles().size());
 		EditorInterface::getTileSet(Enums::TileClassificationType::ENVIRONMENT).setOffset(EditorInterface::getTileSet(Enums::TileClassificationType::ENVIRONMENT).getAllTiles().size());
 		EditorInterface::getTileSet(Enums::TileClassificationType::SHADOW).setOffset(EditorInterface::getTileSet(Enums::TileClassificationType::SHADOW).getAllTiles().size());
@@ -31,7 +30,7 @@ void Zone::loadZone() {
 		LuaFunctions::executeLuaFile(std::string(m_file).append(".tiles_environment.lua"));
 		LuaFunctions::executeLuaFile(std::string(m_file).append(".tiles_shadow.lua"));
 		m_textureAtlas = TextureAtlasCreator::Get().getAtlas();
-		TextureManager::SetTextureAtlas(m_file, TextureAtlasCreator::Get().getAtlas());
+		TextureManager::SetTextureAtlas(m_file, m_textureAtlas);
 
 		const std::vector<Tile>& tilesF = EditorInterface::getTileSet(Enums::TileClassificationType::FLOOR).getAllTiles();
 		int offset = EditorInterface::getTileSet(Enums::TileClassificationType::FLOOR).getOffset();

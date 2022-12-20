@@ -72,7 +72,6 @@ symbols["flamingarrow"] = DawnInterface.loadimage("res/spells/flamingarrow/symbo
 symbols["landyrsforce"] = DawnInterface.loadimage("res/spells/landyrsforce/symbol.tga");
 symbols["voiceoftheforest"] = DawnInterface.loadimage("res/spells/voiceoftheforest/symbol.tga");
 TextureManager:SetTextureAtlas(TextureAtlasCreator:Get():getName(), TextureAtlasCreator:Get():getAtlas());
---TextureAtlasCreator:Get():safeAtlas("tmp/symbols")
 
 spellDatabase = {};
 
@@ -99,4 +98,3 @@ curSpell:setRequiredClass( Enums.Liche );
 DawnInterface.inscribeSpellInPlayerSpellbook( curSpell );
 
 TextureManager:SetTextureAtlas("spells", TextureAtlasCreator:Get():getAtlas());
---TextureAtlasCreator:Get():safeAtlas("tmp/spell")

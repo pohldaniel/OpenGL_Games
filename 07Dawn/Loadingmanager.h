@@ -135,7 +135,7 @@ public:
 		ItemTooltip::Init({ Game::TextureRects.begin() + 55, Game::TextureRects.begin() + 58 });
 
 		setProgress(1.0f);
-		OptionsWindow::Get().init({ Game::TextureRects[95] });
+		OptionsWindow::Get().init({ Game::TextureRects[95], Game::TextureRects[47], Game::TextureRects[46], Game::TextureRects[4] });
 		progressString = "Initialize Game";
 
 		LuaFunctions::executeLuaFile("res/_lua/loadsave.lua");
@@ -259,7 +259,7 @@ public:
 		ItemTooltip::Init({ Game::TextureRects.begin() + 55, Game::TextureRects.begin() + 58 });
 
 		setProgress(1.0f);
-		OptionsWindow::Get().init({ Game::TextureRects[95] });
+		OptionsWindow::Get().init({ Game::TextureRects[95], Game::TextureRects[47], Game::TextureRects[46], Game::TextureRects[4] });
 		progressString = "Initialize Game";
 
 		LuaFunctions::executeLuaFile("res/_lua/loadsave.lua");

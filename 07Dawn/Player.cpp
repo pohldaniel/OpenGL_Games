@@ -278,8 +278,7 @@ void Player::gainExperience(unsigned long addExp) {
 		if (std::numeric_limits<unsigned long>::max() - addExp < experience) {
 			experience = std::numeric_limits<unsigned long>::max();
 
-		}
-		else {
+		} else {
 			experience += addExp;
 			GLfloat yellow[] = { 1.0f, 1.0f, 0.0f };
 			DawnInterface::addTextToLogWindow(yellow, "You gain %d experience.", addExp);
@@ -333,7 +332,8 @@ void Player::raiseLevel() {
 			dynamic_cast<Player*>(this)->m_reloadSpellTooltip = true;
 		}
 
-		DawnInterface::addTextToLogWindow(yellow, "Welcome to the world of Dawn, %s.", getLevel(), getClassName().c_str());
+		DawnInterface::addTextToLogWindow(yellow, "You are now a level %d %s.", getLevel(), getClassName().c_str());
+	
 	}
 }
 

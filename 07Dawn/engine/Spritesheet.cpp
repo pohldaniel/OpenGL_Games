@@ -443,6 +443,22 @@ void Spritesheet::safe(std::string name) {
 	free(bytes);
 }
 
+unsigned int Spritesheet::CreateSpritesheet(unsigned char* bytes, unsigned int width, unsigned int height, unsigned int layer, unsigned int format) {
+	unsigned int texture;
+
+	glGenTextures(1, &texture);
+	glBindTexture(GL_TEXTURE_2D_ARRAY, texture);
+	glTexStorage3D(GL_TEXTURE_2D_ARRAY, 1, GL_RGBA8, width, height, layer);
+	glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, 0, width, height, layer, GL_RGBA, GL_UNSIGNED_BYTE, &bytes[0]);
+	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
+
+	return texture;
+}
+
 unsigned int Spritesheet::Merge(const unsigned int& atlas1, const unsigned int& atlas2, bool deleteAtlas1, bool deleteAtlas2) {
 	
 	int miplevel = 0;

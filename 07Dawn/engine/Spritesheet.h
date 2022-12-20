@@ -24,6 +24,7 @@ public:
 	
 	void addToSpritesheet(unsigned int texture, unsigned int format = 0, unsigned int internalFormat = 0, int _unpackAlignment = 4);
 	void addToSpritesheet(unsigned char* bytes, unsigned int width, unsigned int height, unsigned int format = 0);
+	
 	void createNullSpritesheet(unsigned int width, unsigned int height, unsigned short layer);
 	void createEmptySpritesheet(unsigned int width, unsigned int height, unsigned int format = 0);
 
@@ -37,6 +38,7 @@ public:
 	static void Unbind();
 	static void Safe(std::string name, unsigned int textureAtlas);
 	static unsigned int Merge(const unsigned int& atlas1, const unsigned int& atlas2, bool deleteAtlas1 = true, bool deleteAtlas2 = true);
+	static unsigned int CreateSpritesheet(unsigned char* bytes, unsigned int width, unsigned int height, unsigned int layer, unsigned int format = 0);
 private:
 
 	unsigned int m_texture;

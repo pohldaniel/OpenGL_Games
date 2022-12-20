@@ -18,28 +18,18 @@ TextureCache& TextureCache::Get() {
 
 TextureRect& TextureCache::getTextureFromCache(std::string filename, unsigned int maxWidth, unsigned maxHeight, bool transparent, int paddingLeft, int paddingRight, int paddingTop, int paddingBottom) {
 
-	/*if (textures.count({TextureAtlasCreator::s_instance.name, filename}) > 0) {
-		return textures[{TextureAtlasCreator::s_instance.name, filename}];
-	}*/
-	
-	
-	Texture tex;
-	(paddingLeft != 0 || paddingRight != 0 || paddingTop != 0 || paddingBottom != 0) ? tex.loadFromFile(filename, true, 0 , 0, paddingLeft, paddingRight, paddingTop, paddingBottom) : tex.loadFromFile(filename, true);
-	
-	if (tex.getChannels() == 3) {
-		transparent ? tex.addAlphaChannel(0) : tex.addAlphaChannel();
-	}
-
-	textures[{TextureAtlasCreator::s_instance.name, filename}].width = tex.getWidth();
-	textures[{TextureAtlasCreator::s_instance.name, filename}].height = tex.getHeight();
+	int width, height;
+	unsigned char* bytes = Texture::LoadFromFile(filename, width, height, true, transparent, paddingLeft, paddingRight, paddingTop, paddingBottom);
+		
+	textures[{TextureAtlasCreator::s_instance.name, filename}].width = width;
+	textures[{TextureAtlasCreator::s_instance.name, filename}].height = height;
 	textures[{TextureAtlasCreator::s_instance.name, filename}].textureOffsetX = 0.0f;;
 	textures[{TextureAtlasCreator::s_instance.name, filename}].textureWidth = 1.0f;
 	textures[{TextureAtlasCreator::s_instance.name, filename}].textureOffsetY = 0.0f;
 	textures[{TextureAtlasCreator::s_instance.name, filename}].textureHeight = 1.0f;
 	textures[{TextureAtlasCreator::s_instance.name, filename}].frame = 0;
 
-	unsigned char* bytes = tex.readPixel();
-	TextureAtlasCreator::Get().addTexture(textures[{TextureAtlasCreator::s_instance.name, filename}], reinterpret_cast<char*>(bytes), tex.getWidth(), tex.getHeight(), maxWidth, maxHeight, paddingLeft, paddingTop);
+	TextureAtlasCreator::Get().addTexture(textures[{TextureAtlasCreator::s_instance.name, filename}], reinterpret_cast<char*>(bytes), width, height, maxWidth, maxHeight, paddingLeft, paddingTop);
 	free(bytes);
 
 	return textures[{TextureAtlasCreator::s_instance.name, filename}];

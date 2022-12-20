@@ -1,6 +1,6 @@
 /*
 ** Lua binding: Luainterface
-** Generated automatically by tolua++-1.0.92 on Wed Dec 14 05:39:11 2022.
+** Generated automatically by tolua++-1.0.92 on Tue Dec 20 01:49:33 2022.
 */
 
 #ifndef __cplusplus
@@ -4890,39 +4890,6 @@ static int tolua_Luainterface_TextureAtlasCreator_getAtlas00(lua_State* tolua_S)
 }
 #endif //#ifndef TOLUA_DISABLE
 
-/* method: safeAtlas of class  TextureAtlasCreator */
-#ifndef TOLUA_DISABLE_tolua_Luainterface_TextureAtlasCreator_safeAtlas00
-static int tolua_Luainterface_TextureAtlasCreator_safeAtlas00(lua_State* tolua_S)
-{
-#ifndef TOLUA_RELEASE
-	tolua_Error tolua_err;
-	if (
-		!tolua_isusertype(tolua_S, 1, "TextureAtlasCreator", 0, &tolua_err) ||
-		!tolua_iscppstring(tolua_S, 2, 0, &tolua_err) ||
-		!tolua_isnoobj(tolua_S, 3, &tolua_err)
-		)
-		goto tolua_lerror;
-	else
-#endif
-	{
-		TextureAtlasCreator* self = (TextureAtlasCreator*)tolua_tousertype(tolua_S, 1, 0);
-		std::string name = ((std::string)  tolua_tocppstring(tolua_S, 2, 0));
-#ifndef TOLUA_RELEASE
-		if (!self) tolua_error(tolua_S, "invalid 'self' in function 'safeAtlas'", NULL);
-#endif
-		{
-			self->safeAtlas(name);
-		}
-	}
-	return 0;
-#ifndef TOLUA_RELEASE
-	tolua_lerror :
-				 tolua_error(tolua_S, "#ferror in function 'safeAtlas'.", &tolua_err);
-				 return 0;
-#endif
-}
-#endif //#ifndef TOLUA_DISABLE
-
 /* method: resetLine of class  TextureAtlasCreator */
 #ifndef TOLUA_DISABLE_tolua_Luainterface_TextureAtlasCreator_resetLine00
 static int tolua_Luainterface_TextureAtlasCreator_resetLine00(lua_State* tolua_S)
@@ -7882,7 +7849,6 @@ TOLUA_API int tolua_Luainterface_open(lua_State* tolua_S)
 	tolua_function(tolua_S, "init", tolua_Luainterface_TextureAtlasCreator_init00);
 	tolua_function(tolua_S, "addFrame", tolua_Luainterface_TextureAtlasCreator_addFrame00);
 	tolua_function(tolua_S, "getAtlas", tolua_Luainterface_TextureAtlasCreator_getAtlas00);
-	tolua_function(tolua_S, "safeAtlas", tolua_Luainterface_TextureAtlasCreator_safeAtlas00);
 	tolua_function(tolua_S, "resetLine", tolua_Luainterface_TextureAtlasCreator_resetLine00);
 	tolua_function(tolua_S, "getName", tolua_Luainterface_TextureAtlasCreator_getName00);
 	tolua_endmodule(tolua_S);

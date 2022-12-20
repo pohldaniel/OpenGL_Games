@@ -31,8 +31,6 @@ for direction = 1,8 do
 end
 TextureAtlasCreator:Get():addFrame();
 
---TextureAtlasCreator:Get():safeAtlas("tmp/Wolf")
-
 wolfbase:calcNumMoveTexturesPerDirection();
 wolfbase:setStrength( 15 )
 wolfbase:setDexterity( 25 )

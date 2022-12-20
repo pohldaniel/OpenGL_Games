@@ -87,7 +87,6 @@ namespace DawnInterface{
 	void enterZone(std::string zoneName, int enterX, int enterY){
 		Zone& newZone = ZoneManager::Get().getZone(zoneName);
 		newZone.loadZone();
-
 		Player::Get().setPosition(enterX, enterY);
 		std::ostringstream oss;
 		std::string zoneNameNoPrefix = zoneName;

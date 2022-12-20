@@ -53,8 +53,7 @@ public:
 		fillSpace = 0;
 		buffer = new unsigned char[width * height * 4];
 		bufferPtr = buffer;
-		memset(buffer, 0, width*height * 4);
-		spritesheet = Spritesheet();
+		memset(buffer, 0, width * height * 4);
 		frame = 0;	
 	}
 
@@ -62,15 +61,18 @@ public:
 		addFrame();
 		delete[] buffer;
 		buffer = nullptr;
-		return spritesheet.getAtlas();
+
+		unsigned int texture = Spritesheet::CreateSpritesheet(spritesheetPtr, width, height, frame);
+
+		delete[] spritesheetPtr;
+		spritesheet = nullptr;
+		spritesheetPtr = nullptr;
+
+		return texture;	
 	}
 
 	std::string getName() {
 		return name;
-	}
-
-	void safeAtlas(std::string name) {
-		spritesheet.safe(name);
 	}
 
 	void addTexture(TextureRect& stexture, char *texture, unsigned int w, unsigned int h, unsigned int _maxWidth = 0, unsigned int _maxHeight = 0, unsigned int textureOffsetX = 0, unsigned int textureOffsetY = 0){
@@ -102,7 +104,7 @@ public:
 		stexture.textureHeight = static_cast<float>(h) / static_cast<float>(height);
 		stexture.width = w;
 		stexture.height = h;
-		stexture.frame = spritesheet.getTotalFrames();
+		stexture.frame = frame;
 		
 		curX += w;
 		maxY = (std::max)(maxY, curY + h);
@@ -115,14 +117,21 @@ public:
 
 	void addFrame() {
 		if (curX == 0 && curY == 0) return;
-		spritesheet.addToSpritesheet(bufferPtr, width, height);
-		memset(bufferPtr, 0, width*height * 4);
-		bufferPtr = buffer;
+
 		curX = 0;
 		curY = 0;
 		maxY = 0;
 		fillSpace = 0;
+
 		frame++;
+
+		spritesheet = new unsigned char[width * height * 4 * frame];
+		memcpy(spritesheet, spritesheetPtr, width * height * 4 * (frame - 1) * sizeof(unsigned char));
+		memcpy(spritesheet + (width * height * 4 * (frame - 1) * sizeof(unsigned char)), bufferPtr, width * height * 4 * sizeof(unsigned char) );
+		spritesheetPtr = spritesheet;
+
+		memset(bufferPtr, 0, width * height * 4);
+		bufferPtr = buffer;
 	}
 
 private:
@@ -131,13 +140,15 @@ private:
 	
 	unsigned char* buffer;
 	unsigned char* bufferPtr;
+	unsigned char* spritesheetPtr;
+	unsigned char* spritesheet = nullptr;
+
 	unsigned int width;
 	unsigned int height;
 	unsigned int curX;
 	unsigned int curY;
 	unsigned int maxY;
 	unsigned int fillSpace;
-	Spritesheet spritesheet;
 	unsigned short frame;
 	std::string name;
 

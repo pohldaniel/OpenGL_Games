@@ -339,9 +339,9 @@ void Application::fixedUpdate() {
 
 void Application::initStates() {
 	s_machine = new StateMachine(m_dt, m_fdt);
-	s_machine->addStateAtTop(new Game(*s_machine));
+	//s_machine->addStateAtTop(new Game(*s_machine));
 
-	//s_machine->addStateAtTop(new MainMenu(*s_machine));
+	s_machine->addStateAtTop(new MainMenu(*s_machine));
 	//s_machine->addStateAtTop(new Editor(*s_machine));
 }
 

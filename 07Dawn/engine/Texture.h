@@ -40,10 +40,12 @@ public:
 	static void Safe(std::string fileOut, unsigned int& texture, unsigned int width, unsigned int height, unsigned int channels, unsigned int format = 0);
 	static void Safe(std::string fileOut, unsigned char* bytes, unsigned int width, unsigned int height, unsigned int channels);
 
-	static  unsigned char* AddRemoveBottomPadding(unsigned char* imageData, int width, int& height, int numCompontents, int padding);
-	static  unsigned char* AddRemoveTopPadding(unsigned char* imageData, int width, int& height, int numCompontents, int padding);
-	static  unsigned char* AddRemoveRightPadding(unsigned char* imageData, int& width, int height, int numCompontents, int padding);
-	static  unsigned char* AddRemoveLeftPadding(unsigned char* imageData, int& width, int height, int numCompontents, int padding);
+	static unsigned char* AddRemoveBottomPadding(unsigned char* imageData, int width, int& height, int numCompontents, int padding);
+	static unsigned char* AddRemoveTopPadding(unsigned char* imageData, int width, int& height, int numCompontents, int padding);
+	static unsigned char* AddRemoveRightPadding(unsigned char* imageData, int& width, int height, int numCompontents, int padding);
+	static unsigned char* AddRemoveLeftPadding(unsigned char* imageData, int& width, int height, int numCompontents, int padding);
+	static unsigned char* LoadFromFile(std::string fileName, int& width, int& height, const bool _flipVertical = true, bool transparent = false, int paddingLeft = 0, int paddingRight = 0, int paddingTop = 0, int paddingBottom = 0);
+
 private:
 	void flipVertical(unsigned char* data, unsigned int padWidth, unsigned int height);
 	

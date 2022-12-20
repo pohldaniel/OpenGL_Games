@@ -603,6 +603,44 @@ unsigned char* Texture::AddRemoveBottomPadding(unsigned char* imageData, int wid
 	return bytes;
 }
 
+unsigned char* Texture::LoadFromFile(std::string fileName, int& width, int& height, const bool _flipVertical, bool transparent, int paddingLeft, int paddingRight, int paddingTop, int paddingBottom) {
+	int numCompontents;
+	unsigned char* imageData = SOIL_load_image(fileName.c_str(), &width, &height, &numCompontents, SOIL_LOAD_AUTO);
+	
+	if (numCompontents == 3) {
+		
+		unsigned char* bytesNew = (unsigned char*)malloc(width * height * 4);
+
+		for (unsigned int i = 0, k = 0; i < static_cast<unsigned int>(width * height * 4); i = i + 4, k = k + 3) {
+			bytesNew[i] = imageData[k];
+			bytesNew[i + 1] = imageData[k + 1];
+			bytesNew[i + 2] = imageData[k + 2];
+			bytesNew[i + 3] = transparent ? 0 : 255;
+		}
+
+		SOIL_free_image_data(imageData);
+		imageData = bytesNew;
+		numCompontents = 4;
+	}
+
+	if (_flipVertical)
+		FlipVertical(imageData, numCompontents * width, height);
+
+	if(paddingLeft != 0)
+		imageData = AddRemoveLeftPadding(imageData, width, height, numCompontents, paddingLeft);
+
+	if (paddingRight != 0)
+		imageData = AddRemoveRightPadding(imageData, width, height, numCompontents, paddingRight);
+
+	if (paddingTop != 0)
+		imageData = AddRemoveTopPadding(imageData, width, height, numCompontents, paddingTop);
+
+	if (paddingBottom != 0)
+		imageData = AddRemoveBottomPadding(imageData, width, height, numCompontents, paddingBottom);
+
+	return imageData;
+}
+
 unsigned int Texture::getTexture(){
 	return m_texture;
 }
