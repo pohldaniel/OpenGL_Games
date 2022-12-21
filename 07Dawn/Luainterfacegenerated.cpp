@@ -1,6 +1,6 @@
 /*
 ** Lua binding: Luainterface
-** Generated automatically by tolua++-1.0.92 on Tue Dec 20 01:49:33 2022.
+** Generated automatically by tolua++-1.0.92 on Wed Dec 21 21:41:20 2022.
 */
 
 #ifndef __cplusplus
@@ -30,6 +30,7 @@ TOLUA_API int  tolua_Luainterface_open(lua_State* tolua_S);
 #include "Quest.h"
 #include "CallIndirection.h"
 #include "Shop.h"
+#include "Constants.h"
 
 /* function to register type */
 static void tolua_reg_types(lua_State* tolua_S)
@@ -67,6 +68,120 @@ static void tolua_reg_types(lua_State* tolua_S)
 	tolua_usertype(tolua_S, "Zone");
 	tolua_usertype(tolua_S, "InteractionRegion");
 }
+
+/* function: Globals::useDisplaymode */
+#ifndef TOLUA_DISABLE_tolua_Luainterface_Globals_useDisplaymode00
+static int tolua_Luainterface_Globals_useDisplaymode00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+	tolua_Error tolua_err;
+	if (
+		!tolua_isboolean(tolua_S, 1, 0, &tolua_err) ||
+		!tolua_isnoobj(tolua_S, 2, &tolua_err)
+		)
+		goto tolua_lerror;
+	else
+#endif
+	{
+		bool flag = ((bool)tolua_toboolean(tolua_S, 1, 0));
+		{
+			Globals::useDisplaymode(flag);
+		}
+	}
+	return 0;
+#ifndef TOLUA_RELEASE
+	tolua_lerror :
+				 tolua_error(tolua_S, "#ferror in function 'useDisplaymode'.", &tolua_err);
+				 return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
+/* function: Globals::setSoundVolume */
+#ifndef TOLUA_DISABLE_tolua_Luainterface_Globals_setSoundVolume00
+static int tolua_Luainterface_Globals_setSoundVolume00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+	tolua_Error tolua_err;
+	if (
+		!tolua_isnumber(tolua_S, 1, 0, &tolua_err) ||
+		!tolua_isnoobj(tolua_S, 2, &tolua_err)
+		)
+		goto tolua_lerror;
+	else
+#endif
+	{
+		float soundVolume = ((float)tolua_tonumber(tolua_S, 1, 0));
+		{
+			Globals::setSoundVolume(soundVolume);
+		}
+	}
+	return 0;
+#ifndef TOLUA_RELEASE
+	tolua_lerror :
+				 tolua_error(tolua_S, "#ferror in function 'setSoundVolume'.", &tolua_err);
+				 return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
+/* function: Globals::setMusicVolume */
+#ifndef TOLUA_DISABLE_tolua_Luainterface_Globals_setMusicVolume00
+static int tolua_Luainterface_Globals_setMusicVolume00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+	tolua_Error tolua_err;
+	if (
+		!tolua_isnumber(tolua_S, 1, 0, &tolua_err) ||
+		!tolua_isnoobj(tolua_S, 2, &tolua_err)
+		)
+		goto tolua_lerror;
+	else
+#endif
+	{
+		float musicVolume = ((float)tolua_tonumber(tolua_S, 1, 0));
+		{
+			Globals::setMusicVolume(musicVolume);
+		}
+	}
+	return 0;
+#ifndef TOLUA_RELEASE
+	tolua_lerror :
+				 tolua_error(tolua_S, "#ferror in function 'setMusicVolume'.", &tolua_err);
+				 return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
+/* function: Globals::setResolution */
+#ifndef TOLUA_DISABLE_tolua_Luainterface_Globals_setResolution00
+static int tolua_Luainterface_Globals_setResolution00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+	tolua_Error tolua_err;
+	if (
+		!tolua_isnumber(tolua_S, 1, 0, &tolua_err) ||
+		!tolua_isnumber(tolua_S, 2, 0, &tolua_err) ||
+		!tolua_isnoobj(tolua_S, 3, &tolua_err)
+		)
+		goto tolua_lerror;
+	else
+#endif
+	{
+		unsigned int width = ((unsigned int)tolua_tonumber(tolua_S, 1, 0));
+		unsigned int height = ((unsigned int)tolua_tonumber(tolua_S, 2, 0));
+		{
+			Globals::setResolution(width, height);
+		}
+	}
+	return 0;
+#ifndef TOLUA_RELEASE
+	tolua_lerror :
+				 tolua_error(tolua_S, "#ferror in function 'setResolution'.", &tolua_err);
+				 return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
 
 /* function: DawnInterface::loadimage */
 #ifndef TOLUA_DISABLE_tolua_Luainterface_DawnInterface_loadimage00
@@ -7667,6 +7782,13 @@ TOLUA_API int tolua_Luainterface_open(lua_State* tolua_S)
 	tolua_constant(tolua_S, "AMULET", EquipPosition::AMULET);
 	tolua_constant(tolua_S, "SHOULDER", EquipPosition::SHOULDER);
 	tolua_constant(tolua_S, "NONE", EquipPosition::NONE);
+	tolua_endmodule(tolua_S);
+	tolua_module(tolua_S, "Globals", 0);
+	tolua_beginmodule(tolua_S, "Globals");
+	tolua_function(tolua_S, "useDisplaymode", tolua_Luainterface_Globals_useDisplaymode00);
+	tolua_function(tolua_S, "setSoundVolume", tolua_Luainterface_Globals_setSoundVolume00);
+	tolua_function(tolua_S, "setMusicVolume", tolua_Luainterface_Globals_setMusicVolume00);
+	tolua_function(tolua_S, "setResolution", tolua_Luainterface_Globals_setResolution00);
 	tolua_endmodule(tolua_S);
 	tolua_module(tolua_S, "DawnInterface", 0);
 	tolua_beginmodule(tolua_S, "DawnInterface");

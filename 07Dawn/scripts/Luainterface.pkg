@@ -15,6 +15,7 @@ $#include "Shop.h"
 $#include "Quest.h"
 $#include "CallIndirection.h"
 $#include "Shop.h"
+$#include "Constants.h"
 
 namespace Enums {
 	enum TileClassificationType{
@@ -216,6 +217,13 @@ namespace EquipPosition {
 		NONE
 	};
 }
+
+namespace Globals {
+    void useDisplaymode(bool flag);
+	void setSoundVolume(float soundVolume);
+	void setMusicVolume(float musicVolume);
+	void setResolution(unsigned int width, unsigned int height);
+};
 
 namespace DawnInterface{
 	TextureRect& loadimage(std::string file);

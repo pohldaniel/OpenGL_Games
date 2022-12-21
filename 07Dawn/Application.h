@@ -32,9 +32,11 @@ public:
 	static void AddStateAtTop(State* state);
 	static StateMachine& GetStateMachine();
 	static void GetScreenMode(std::vector<DEVMODE>& list);
-	static void ResetFullScreen();
-	static void ToggleFullScreen(bool isFullScreen);
-	static void SetFullScreen(DEVMODE& settings);
+	static void ResetDisplayMode();
+	static void SetDisplayMode(DEVMODE& settings);
+	static void SetDisplayMode(unsigned int width, unsigned int height);
+	static void ToggleFullScreen(bool isFullScreen, unsigned int width = 0, unsigned int height = 0);
+	static void WriteConfigurationToFile();
 
 private:
 	
@@ -53,6 +55,7 @@ private:
 
 	bool m_enableVerticalSync;
 	MSG msg;
+	
 
 	const float& m_fdt;
 	const float& m_dt;
@@ -68,7 +71,9 @@ private:
 	static HWND Window;
 	
 	static bool Init;
-	static bool IsFullScreen;
 	static unsigned int Width;
 	static unsigned int Height;
+	static bool Fullscreen;
+	static DWORD SavedExStyle;
+	static DWORD SavedStyle;
 };

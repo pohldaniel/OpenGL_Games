@@ -181,7 +181,7 @@ void Dialog::applyLayout() {
 }
 
 void Dialog::resize(int width, int height){
-
+	
 	m_columns = std::max(m_columns, DialogCanvas::CalculateNeededBlockWidth(width, TILE_WIDTH));
 	m_rows = std::max(m_rows, DialogCanvas::CalculateNeededBlockHeight(height, TILE_HEIGHT));
 	recalculatePosition();

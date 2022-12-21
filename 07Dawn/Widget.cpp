@@ -4,7 +4,7 @@ Widget::Widget(short posX, short posY, short width, short height, short offsetX,
 
 	//To create the singeltons on startup the HEIGHT has to be known
 	//Don't use ViewPort::Get().getHeight()
-	if(static_cast<unsigned short>(m_posY + m_height) > HEIGHT) {
+	if(static_cast<unsigned short>(m_posY + m_height) > Globals::height) {
 		m_posY = ViewPort::Get().getHeight() - m_height;
 	}
 }

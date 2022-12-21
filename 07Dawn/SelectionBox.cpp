@@ -47,13 +47,12 @@ int SelectionBox::getSelected() const {
 void SelectionBox::setSelected(int selected) {
 	state = CLOSED;
 
-	if (m_selected == selected)
-		return;
-
-	m_selected = selected;
+	
 	if (m_onSelected) {
 		m_onSelected(selected);
 	}
+
+	m_selected = selected;
 }
 
 void SelectionBox::setOnSelected(std::function<void(int)> fun) {

@@ -17,11 +17,7 @@
 //#define WIDTH 1600
 //#define HEIGHT 900
 
-#define WIDTH 1024
-#define HEIGHT 768
-
 #define DEBUG 1
-
 #define PHYSICS_STEP 0.0166666f
 
 namespace Globals {
@@ -49,4 +45,13 @@ namespace Globals {
 
 	extern float soundVolume;
 	extern float musicVolume;
+	extern bool applyDisplaymode;
+	extern unsigned int width;
+	extern unsigned int height;
+
+	extern void setResolution(unsigned int width, unsigned int height);
+	extern void useDisplaymode(bool flag);
+	extern void setSoundVolume(float soundVolume);
+	extern void setMusicVolume(float musicVolume);
 }
+
