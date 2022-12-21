@@ -19,6 +19,7 @@ class Application {
 	friend class LoadingManager;
 
 public:
+
 	Application(const float& dt, const float& fdt);
 	~Application();
 
@@ -31,10 +32,9 @@ public:
 	static void AddStateAtTop(State* state);
 	static StateMachine& GetStateMachine();
 	static void GetScreenMode(std::vector<DEVMODE>& list);
-	static void SetFullScreen(int widht, int height);
 	static void ResetFullScreen();
 	static void ToggleFullScreen(bool isFullScreen);
-	static void SetFullScreen(DEVMODE settings);
+	static void SetFullScreen(DEVMODE& settings);
 
 private:
 	
@@ -69,8 +69,8 @@ private:
 	static HGLRC LoaderContext;
 	static HWND Window;
 	
-	static bool m_init;
-	static bool m_isFullScreen;
-	static unsigned int m_width;
-	static unsigned int m_height;
+	static bool Init;
+	static bool IsFullScreen;
+	static unsigned int Width;
+	static unsigned int Height;
 };

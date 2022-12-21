@@ -13,10 +13,19 @@ StateMachine* Application::s_machine = nullptr;
 HGLRC Application::MainContext;
 HGLRC Application::LoaderContext;
 HWND Application::Window;
-unsigned int Application::m_width;
-unsigned int Application::m_height;
-bool Application::m_init = false;
-bool Application::m_isFullScreen = false;
+unsigned int Application::Width;
+unsigned int Application::Height;
+bool Application::Init = false;
+bool Application::IsFullScreen = false;
+
+
+bool compareDeviceMode(DEVMODE const& s1, DEVMODE const& s2) {
+	return s1.dmPelsWidth == s2.dmPelsWidth && s1.dmPelsHeight == s2.dmPelsHeight && s1.dmDefaultSource == s2.dmDefaultSource && s1.dmDisplayFrequency == s2.dmDisplayFrequency;
+}
+
+auto sortDeviceMode = [](DEVMODE const& s1, DEVMODE const& s2) -> bool {
+	return s1.dmPelsWidth == s2.dmPelsWidth ? s1.dmPelsHeight < s2.dmPelsHeight : s1.dmPelsWidth < s2.dmPelsWidth;
+};
 
 Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fdt) {
 	ViewPort::Get().init(WIDTH, HEIGHT);
@@ -26,7 +35,6 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 	loadAssets();
 	initStates();
 	m_enableVerticalSync = true;
-	m_isFullScreen = false;
 
 	Application::s_eventDispatcher.setProcessOSEvents([&]() {
 		while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
@@ -157,7 +165,7 @@ bool Application::initWindow() {
 	ShowWindow(Window, SW_SHOW);
 	UpdateWindow(Window);
 
-	m_init = true;
+	Init = true;
 
 	return true;
 }
@@ -218,17 +226,17 @@ LRESULT Application::DisplayWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 			break;
 		}case WM_SIZE: {
 			
-			int deltaW = m_width;
-			int deltaH = m_height;
+			int deltaW = Width;
+			int deltaH = Height;
 
-			m_height = HIWORD(lParam);		// retrieve width and height
-			m_width = LOWORD(lParam);
+			Height = HIWORD(lParam);		// retrieve width and height
+			Width = LOWORD(lParam);
 
-			deltaW = m_width - deltaW;
-			deltaH = m_height - deltaH;
+			deltaW = Width - deltaW;
+			deltaH = Height - deltaH;
 
-			if (m_height == 0) {					// avoid divide by zero
-				m_height = 1;
+			if (Height == 0) {					// avoid divide by zero
+				Height = 1;
 			}
 			
 			resize(deltaW, deltaH);
@@ -320,8 +328,7 @@ bool Application::isRunning() {
 
 	if (Keyboard::instance().keyDown(Keyboard::KEY_LALT) || Keyboard::instance().keyDown(Keyboard::KEY_RALT)) {
 		if (Keyboard::instance().keyPressed(Keyboard::KEY_ENTER)) {
-			ToggleFullScreen(!m_isFullScreen);
-
+			ToggleFullScreen(!IsFullScreen);
 		}
 	}
 
@@ -452,15 +459,15 @@ void Application::loadAssets() {
 
 
 void Application::resize(int deltaW, int deltaH) {
-	glViewport(0, 0, m_width, m_height);
-	Globals::projection = Matrix4f::GetPerspective(Globals::projection, 45.0f, static_cast<float>(m_width) / static_cast<float>(m_height), 1.0f, 5000.0f);
-	Globals::invProjection = Matrix4f::GetInvPerspective(Globals::invProjection, 45.0f, static_cast<float>(m_width) / static_cast<float>(m_height), 1.0f, 5000.0f);
-	Globals::orthographic = Matrix4f::GetOrthographic(Globals::orthographic, 0.0f, static_cast<float>(m_width), 0.0f, static_cast<float>(m_height), -1.0f, 1.0f);
-	Globals::invOrthographic = Matrix4f::GetInvOrthographic(Globals::invOrthographic, 0.0f, static_cast<float>(m_width), 0.0f, static_cast<float>(m_height), -1.0f, 1.0f);
+	glViewport(0, 0, Width, Height);
+	Globals::projection = Matrix4f::GetPerspective(Globals::projection, 45.0f, static_cast<float>(Width) / static_cast<float>(Height), 1.0f, 5000.0f);
+	Globals::invProjection = Matrix4f::GetInvPerspective(Globals::invProjection, 45.0f, static_cast<float>(Width) / static_cast<float>(Height), 1.0f, 5000.0f);
+	Globals::orthographic = Matrix4f::GetOrthographic(Globals::orthographic, 0.0f, static_cast<float>(Width), 0.0f, static_cast<float>(Height), -1.0f, 1.0f);
+	Globals::invOrthographic = Matrix4f::GetInvOrthographic(Globals::invOrthographic, 0.0f, static_cast<float>(Width), 0.0f, static_cast<float>(Height), -1.0f, 1.0f);
 
-	if (m_init) {
-		ViewPort::Get().init(m_width, m_height);
-		s_machine->resize(m_width, m_height);
+	if (Init) {
+		ViewPort::Get().init(Width, Height);
+		s_machine->resize(Width, Height);
 		s_machine->m_states.top()->resize(deltaW, deltaH);
 
 		auto shader = Globals::shaderManager.getAssetPointer("batch_font");
@@ -492,57 +499,38 @@ StateMachine& Application::GetStateMachine() {
 }
 
 void Application::GetScreenMode(std::vector<DEVMODE>& list) {
-	DEVMODE Screen;
-	Screen.dmSize = sizeof(DEVMODE);
-	for (int i = 0; EnumDisplaySettings(NULL, i, &Screen); i++) {
-		if(Screen.dmDisplayFrequency == 60) continue;
-		if(Screen.dmDefaultSource != 0) continue;
-		if (Screen.dmPelsWidth < 1024) continue;
-		if (static_cast<float>(Screen.dmPelsHeight) / static_cast<float>(Screen.dmPelsWidth) != 0.75f) continue;
-		list.push_back(Screen);
+	DEVMODE screen;
+	screen.dmSize = sizeof(DEVMODE);
+	for (int i = 0; EnumDisplaySettings(NULL, i, &screen); i++) {
+		if(screen.dmDisplayFrequency == 60) continue;
+		if(screen.dmDefaultSource != 0) continue;
+		if (screen.dmPelsWidth < 1024) continue;
+		if (static_cast<float>(screen.dmPelsHeight) / static_cast<float>(screen.dmPelsWidth) != 0.75f) continue;
+		list.push_back(screen);
 	}
+
+	DEVMODE curScreen;
+	memset(&curScreen, 0, sizeof(curScreen));
+	EnumDisplaySettings(NULL, ENUM_CURRENT_SETTINGS, &curScreen);
+
+	std::vector<DEVMODE>::iterator it = std::find_if(list.begin(), list.end(), std::bind(compareDeviceMode, std::placeholders::_1, curScreen));
+	if(it == list.end()) {
+		list.push_back(curScreen);
+		std::sort(list.begin(), list.end(), sortDeviceMode);
+	};		
 }
 
-void Application::SetFullScreen(DEVMODE settings) {
+void Application::SetFullScreen(DEVMODE& settings) {
+	DEVMODE curScreen;
+	memset(&curScreen, 0, sizeof(curScreen));
+	EnumDisplaySettings(NULL, ENUM_CURRENT_SETTINGS, &curScreen);
 
-	// This function actually changes the screen to full screen
-	// CDS_FULLSCREEN Gets Rid Of Start Bar.
-	// We always want to get a result from this function to check if we failed*
-	int result = ChangeDisplaySettings(&settings, CDS_FULLSCREEN);
-
-	if (result != DISP_CHANGE_SUCCESSFUL) {
-		std::cout << "Could Not Apply Display Settings: "  << std::endl;
-	}else {
+	if (compareDeviceMode(settings, curScreen) || ChangeDisplaySettings(&settings, CDS_FULLSCREEN) == DISP_CHANGE_SUCCESSFUL) {
 		ToggleFullScreen(true);
-	}
-}
-
-void Application::SetFullScreen(int widht, int height) {
-
-	DEVMODE dmSettings;									// Device Mode variable - Needed to change modes
-	memset(&dmSettings, 0, sizeof(dmSettings));			// Makes Sure Memory's Cleared
-
-														// Get the current display settings.  This function fills our the settings.
-	if (!EnumDisplaySettings(NULL, ENUM_CURRENT_SETTINGS, &dmSettings)) {
-
-		std::cout << "Could Not Enum Display Settings" << std::endl;
 		return;
 	}
-
-	dmSettings.dmPelsWidth = widht;					// Set the desired Screen Width
-	dmSettings.dmPelsHeight = height;					// Set the desired Screen Height
-	dmSettings.dmFields = DM_PELSWIDTH | DM_PELSHEIGHT;	// Set the flags saying we're changing the Screen Width and Height
-
-														// This function actually changes the screen to full screen
-														// CDS_FULLSCREEN Gets Rid Of Start Bar.
-														// We always want to get a result from this function to check if we failed*
-	int result = ChangeDisplaySettings(&dmSettings, CDS_FULLSCREEN);
-
-	if (result != DISP_CHANGE_SUCCESSFUL) {
-		std::cout << "Could Not Apply Display Settings: " << widht << "  " << height << std::endl;
-	} else {
-		ToggleFullScreen(true);
-	}
+	
+	std::cout << "Could Not Apply Display Settings: " << std::endl;
 }
 
 void Application::ResetFullScreen() {
@@ -555,11 +543,11 @@ void Application::ToggleFullScreen(bool isFullScreen) {
 	static DWORD savedStyle;
 	static RECT rcSaved;
 
-	int deltaW = m_width;
-	int deltaH = m_height;
+	int deltaW = Width;
+	int deltaH = Height;
 
 	if (isFullScreen) {
-		m_isFullScreen = true;
+		IsFullScreen = true;
 		savedExStyle = GetWindowLong(Window, GWL_EXSTYLE);
 		savedStyle = GetWindowLong(Window, GWL_STYLE);
 		GetWindowRect(Window, &rcSaved);
@@ -568,27 +556,27 @@ void Application::ToggleFullScreen(bool isFullScreen) {
 		SetWindowLong(Window, GWL_STYLE, WS_POPUP | WS_CLIPCHILDREN | WS_CLIPSIBLINGS);
 		SetWindowPos(Window, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_FRAMECHANGED | SWP_SHOWWINDOW);
 
-		m_width = GetSystemMetrics(SM_CXSCREEN);
-		m_height = GetSystemMetrics(SM_CYSCREEN);
+		Width = GetSystemMetrics(SM_CXSCREEN);
+		Height = GetSystemMetrics(SM_CYSCREEN);
 
-		deltaW = m_width - deltaW;
-		deltaH = m_height - deltaH;
+		deltaW = Width - deltaW;
+		deltaH = Height - deltaH;
 
-		SetWindowPos(Window, HWND_TOPMOST, 0, 0, m_width, m_height, SWP_SHOWWINDOW);
+		SetWindowPos(Window, HWND_TOPMOST, 0, 0, Width, Height, SWP_SHOWWINDOW);
 
 	} else {
-		m_isFullScreen = false;
+		IsFullScreen = false;
 		SetWindowLong(Window, GWL_EXSTYLE, savedExStyle);
 		SetWindowLong(Window, GWL_STYLE, savedStyle);
 		SetWindowPos(Window, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_FRAMECHANGED | SWP_SHOWWINDOW);
 
-		m_width = rcSaved.right - rcSaved.left;
-		m_height = rcSaved.bottom - rcSaved.top;
+		Width = rcSaved.right - rcSaved.left;
+		Height = rcSaved.bottom - rcSaved.top;
 
-		deltaW = m_width - deltaW;
-		deltaH = m_height - deltaH;
+		deltaW = Width - deltaW;
+		deltaH = Height - deltaH;
 
-		SetWindowPos(Window, HWND_NOTOPMOST, rcSaved.left, rcSaved.top, m_width, m_height, SWP_SHOWWINDOW);
+		SetWindowPos(Window, HWND_NOTOPMOST, rcSaved.left, rcSaved.top, Width, Height, SWP_SHOWWINDOW);
 	}
 
 	resize(deltaW, deltaH);
