@@ -57,8 +57,6 @@ private:
 	const float& m_fdt;
 	const float& m_dt;
 	
-
-	
 	bool m_mouseTracking = false;
 
 	static LRESULT CALLBACK StaticWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);

@@ -22,7 +22,7 @@ Options::Options(StateMachine& machine) : State(machine, CurrentState::OPTIONS) 
 		m_machine.addStateAtTop(new MainMenu(m_machine));
 	});
 
-	std::auto_ptr<CheckBox> checkBox(new CheckBox());
+	std::auto_ptr<CheckBox> checkBox(new CheckBox(m_checked));
 
 	checkBox->setOnChecked([&]() {
 		Application::SetFullScreen(m_screenModes[m_selected]);
@@ -34,13 +34,19 @@ Options::Options(StateMachine& machine) : State(machine, CurrentState::OPTIONS) 
 
 	m_dialog.addChildWidget(230, 110, std::auto_ptr<Widget>(checkBox));
 
-	std::auto_ptr<SelectionBox> optionsFrameResolutionSelection(new SelectionBox(Globals::fontManager.get("verdana_20"), Globals::fontManager.get("verdana_10")));
+	std::auto_ptr<SelectionBox> optionsFrameResolutionSelection(new SelectionBox(Globals::fontManager.get("verdana_20"), Globals::fontManager.get("verdana_10"), m_selected));
 	optionsFrameResolutionSelection->setBaseColor(Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
 	optionsFrameResolutionSelection->setSelectColor(Vector4f(1.0f, 1.0f, 0.0f, 1.0f));
+	
+	optionsFrameResolutionSelection->setOnSelected([&](int selected) {
+		if(m_checked)
+			Application::SetFullScreen(m_screenModes[m_selected]);
+	});
 
 	Application::GetScreenMode(m_screenModes);
 	std::vector<std::string> resTexts;
-	int selected = 0;
+
+	m_selected = 0;
 	for (size_t curResNr = 0; curResNr < m_screenModes.size(); ++curResNr) {
 		DEVMODE& screen = m_screenModes[curResNr];
 		std::ostringstream oss;
@@ -48,8 +54,8 @@ Options::Options(StateMachine& machine) : State(machine, CurrentState::OPTIONS) 
 		resTexts.push_back(oss.str());
 	}
 
-	optionsFrameResolutionSelection->setEntries(resTexts, selected);
-	m_selected = selected;
+	optionsFrameResolutionSelection->setEntries(resTexts, m_selected);
+
 
 	m_dialog.addChildWidget(230, 140, std::auto_ptr<Widget>(optionsFrameResolutionSelection.release()));
 
@@ -63,7 +69,6 @@ void Options::fixedUpdate() {}
 
 void Options::update() {
 	m_dialog.processInput();
-	m_selected = dynamic_cast<SelectionBox*>(m_dialog.getChildWidgets()[5])->getSelected();
 }
 
 void Options::render() {

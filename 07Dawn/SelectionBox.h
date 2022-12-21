@@ -7,7 +7,7 @@
 
 class SelectionBox : public Widget {
 public:
-	SelectionBox(const CharacterSet& font, const CharacterSet& selectFont);
+	SelectionBox(const CharacterSet& font, const CharacterSet& selectFont, int& selected);
 	~SelectionBox();
 
 	void draw() override;
@@ -25,7 +25,7 @@ public:
 	void setEntries(std::vector<std::string> entries, int initialSelected);
 	int getSelected() const;
 	void setSelected(int selected);
-	int selected;
+
 private:
 	const CharacterSet* font;
 	const CharacterSet* selectFont;
@@ -37,4 +37,6 @@ private:
 	int maxSelectedWidth;
 	enum State { OPEN, CLOSED } state;
 	std::function<void(int)> m_onSelected = 0;
+
+	int& m_selected;
 };

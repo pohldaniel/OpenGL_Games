@@ -156,7 +156,7 @@ void Interface::draw() {
 	}
 
 	//log window
-	TextureManager::DrawTextureBatched(m_textures[20], 0, 0, 390.0f, 150.0f, false, false);
+	TextureManager::DrawTextureBatched(m_textures[20], 0, 0, 370.0f, 150.0f, false, false);
 	for (unsigned int lineRow = 0; lineRow < m_textDatabase.size() && lineRow < 10; lineRow++) {
 		Fontrenderer::Get().addText(*m_interfaceFont, 10, 10 + (lineRow * m_interfaceFont->lineHeight), m_textDatabase[lineRow].text, m_textDatabase[lineRow].color, false);
 	}

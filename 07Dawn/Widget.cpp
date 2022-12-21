@@ -218,12 +218,7 @@ void Widget::resize(int deltaW, int deltaH) {
 
 	if (deltaH > 0) {
 		m_posY += deltaH;
-
-		if (ViewPort::Get().getTop() - (m_posY + m_titleOffsetY) < 10) {
-			m_posY -= 40;
-		}else if (ViewPort::Get().getTop() - (m_posY + m_titleOffsetY) < 31) {
-			m_posY -= 50;
-		}
+		m_posY = (std::max)(-m_titleOffsetY, (std::min)(static_cast<int>(m_posY), static_cast<int>(ViewPort::Get().getHeight()) - (m_titleOffsetY + m_titleHeight)));
 	}
 }
 

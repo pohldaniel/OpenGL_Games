@@ -28,4 +28,5 @@ private:
 	Dialog m_dialog;
 	std::vector<DEVMODE> m_screenModes;
 	int m_selected;
+	bool m_checked = false;
 };

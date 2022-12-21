@@ -5,7 +5,7 @@
 class CheckBox : public Widget {
 
 public:
-	CheckBox();
+	CheckBox(bool& checked);
 	~CheckBox();
 
 	void draw() override;
@@ -21,7 +21,7 @@ private:
 
 	Vector4f baseColor;
 	Vector4f selectColor;
-	bool m_checked = false;
+	bool& m_checked;
 	std::function<void()> m_onChecked = 0;
 	std::function<void()> m_onUnchecked = 0;
 };

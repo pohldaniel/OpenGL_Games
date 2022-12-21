@@ -1,7 +1,7 @@
 #include "CheckBox.h"
 #include "Dialog.h"
 
-CheckBox::CheckBox() {
+CheckBox::CheckBox(bool& checked) : m_checked(checked) {
 	baseColor = Vector4f(0.0f, 0.0f, 0.0f, 0.0f);
 	selectColor = Vector4f(0.0f, 0.0f, 0.0f, 0.0f);	
 

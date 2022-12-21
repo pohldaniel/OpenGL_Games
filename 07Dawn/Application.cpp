@@ -243,8 +243,10 @@ LRESULT Application::DisplayWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 			break;
 		}case WM_GETMINMAXINFO:{			
 			LPMINMAXINFO lpMMI = (LPMINMAXINFO)lParam;
-			lpMMI->ptMinTrackSize.x = 1024 + 16;
-			lpMMI->ptMinTrackSize.y = 768 + 39;
+			//logwindow + actionbar width
+			lpMMI->ptMinTrackSize.x = 1000 + 16;
+			//inventory height
+			lpMMI->ptMinTrackSize.y = 670 + 39;
 			break;
 		}default: {
 			Mouse::instance().handleMsg(hWnd, message, wParam, lParam);
@@ -547,11 +549,13 @@ void Application::ToggleFullScreen(bool isFullScreen) {
 	int deltaH = Height;
 
 	if (isFullScreen) {
-		IsFullScreen = true;
-		savedExStyle = GetWindowLong(Window, GWL_EXSTYLE);
-		savedStyle = GetWindowLong(Window, GWL_STYLE);
-		GetWindowRect(Window, &rcSaved);
+		if (!IsFullScreen) {
+			savedExStyle = GetWindowLong(Window, GWL_EXSTYLE);
+			savedStyle = GetWindowLong(Window, GWL_STYLE);
+			GetWindowRect(Window, &rcSaved);
+		}
 
+		IsFullScreen = true;
 		SetWindowLong(Window, GWL_EXSTYLE, 0);
 		SetWindowLong(Window, GWL_STYLE, WS_POPUP | WS_CLIPCHILDREN | WS_CLIPSIBLINGS);
 		SetWindowPos(Window, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_FRAMECHANGED | SWP_SHOWWINDOW);
@@ -563,8 +567,10 @@ void Application::ToggleFullScreen(bool isFullScreen) {
 		deltaH = Height - deltaH;
 
 		SetWindowPos(Window, HWND_TOPMOST, 0, 0, Width, Height, SWP_SHOWWINDOW);
-
-	} else {
+		resize(deltaW, deltaH);
+	}
+	
+	if(!isFullScreen && IsFullScreen) {
 		IsFullScreen = false;
 		SetWindowLong(Window, GWL_EXSTYLE, savedExStyle);
 		SetWindowLong(Window, GWL_STYLE, savedStyle);
@@ -577,7 +583,6 @@ void Application::ToggleFullScreen(bool isFullScreen) {
 		deltaH = Height - deltaH;
 
 		SetWindowPos(Window, HWND_NOTOPMOST, rcSaved.left, rcSaved.top, Width, Height, SWP_SHOWWINDOW);
+		resize(deltaW, deltaH);
 	}
-
-	resize(deltaW, deltaH);
 }

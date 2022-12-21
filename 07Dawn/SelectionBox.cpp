@@ -1,7 +1,7 @@
 #include "SelectionBox.h"
 #include "Dialog.h"
 
-SelectionBox::SelectionBox(const CharacterSet& font, const CharacterSet& selectFont) {
+SelectionBox::SelectionBox(const CharacterSet& font, const CharacterSet& selectFont, int& selected) : m_selected(selected) {
 	setFont(font);
 	setSelectFont(selectFont);
 	entries.clear();
@@ -10,8 +10,6 @@ SelectionBox::SelectionBox(const CharacterSet& font, const CharacterSet& selectF
 	m_onSelected = NULL;
 	maxWidth = 0;
 	maxSelectedWidth = 0;
-	selected = -1;
-	//state = CLOSED;
 	state = OPEN;
 }
 
@@ -29,7 +27,7 @@ void SelectionBox::setSelectFont(const CharacterSet& selectFont) {
 
 void SelectionBox::setEntries(std::vector<std::string> entries, int initialSelected) {
 	this->entries = entries;
-	this->selected = initialSelected;
+	m_selected = initialSelected;
 	maxWidth = 0;
 	maxSelectedWidth = 0;
 	for (size_t curEntryNr = 0; curEntryNr<entries.size(); ++curEntryNr) {
@@ -43,19 +41,19 @@ void SelectionBox::setEntries(std::vector<std::string> entries, int initialSelec
 }
 
 int SelectionBox::getSelected() const {
-	return selected;
+	return m_selected;
 }
 
 void SelectionBox::setSelected(int selected) {
 	state = CLOSED;
 
-	if (this->selected == selected)
+	if (m_selected == selected)
 		return;
 
-	this->selected = selected;
-	/*if (m_onSelected) {
+	m_selected = selected;
+	if (m_onSelected) {
 		m_onSelected(selected);
-	}*/
+	}
 }
 
 void SelectionBox::setOnSelected(std::function<void(int)> fun) {
@@ -80,10 +78,10 @@ void SelectionBox::setSelectColor(const Vector4f &color) {
 
 void SelectionBox::draw() {
 
-	if (selected >= 0) {
+	if (m_selected >= 0) {
 		bool mouseInsideBox = (ViewPort::Get().getCursorPosRelX() >= getPosX() && ViewPort::Get().getCursorPosRelX() < getPosX() + getWidth() && ViewPort::Get().getCursorPosRelY() >= getPosY() && ViewPort::Get().getCursorPosRelY() < getPosY() + getHeight());
 		Vector4f color = mouseInsideBox ? selectColor : baseColor;
-		Fontrenderer::Get().drawText(*font, m_parentWidget->getPosX() + getPosX(), m_parentWidget->getPosY() + getPosY(), entries[selected], color);
+		Fontrenderer::Get().drawText(*font, m_parentWidget->getPosX() + getPosX(), m_parentWidget->getPosY() + getPosY(), entries[m_selected], color);
 	}
 
 	if (state == OPEN) {
