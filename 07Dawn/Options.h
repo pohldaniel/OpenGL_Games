@@ -29,4 +29,7 @@ private:
 	std::vector<DEVMODE> m_screenModes;
 	int m_selected;
 	bool m_checked = false;
+
+	float m_soundVolume = 0.2f;
+	float m_musicVolume = 1.0f;
 };

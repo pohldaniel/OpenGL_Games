@@ -22,9 +22,10 @@ void DialogCanvas::Init() {
 	TextureManager::Loadimage("res/interface/tooltip/left2.tga", 7, Textures);
 	TextureManager::Loadimage("res/interface/tooltip/right2.tga", 8, Textures);
 	TextureManager::Loadimage("res/white2x2pixel.png", 9, Textures);
-
+	TextureManager::Loadimage("res/interface/spellbook/arrow_left.tga", 10, Textures);
+	TextureManager::Loadimage("res/interface/spellbook/arrow_right.tga", 11, Textures);
 	TextureAtlas = TextureAtlasCreator::Get().getAtlas();
-
+	TextureManager::SetTextureAtlas("dialog", TextureAtlas);
 }
 
 void DialogCanvas::Init(std::vector<TextureRect> textures) {
@@ -103,7 +104,7 @@ Dialog::Dialog(int posX, int posY, int width, int height)
 
 void Dialog::draw() {
 
-	DialogCanvas::DrawCanvas(getPosX(), getPosY(), m_columns, m_rows, TILE_WIDTH, TILE_HEIGHT);
+	DialogCanvas::DrawCanvas(getPosX(), getPosY(), m_columns, m_rows, TILE_WIDTH, TILE_HEIGHT, false, true);	
 	Widget::draw();
 }
 

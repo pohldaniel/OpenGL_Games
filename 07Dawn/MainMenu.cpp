@@ -42,7 +42,7 @@ MainMenu::MainMenu(StateMachine& machine) : State(machine, CurrentState::MAINMEN
 	});
 
 	TextureManager::BindTexture(Globals::spritesheetManager.getAssetPointer("font")->getAtlas(), true, 0);
-
+	TextureManager::BindTexture(TextureManager::GetTextureAtlas("dialog"), true, 2);
 	//Globals::musicManager.get("background").play("res/music/Early_Dawn_Simple.ogg");
 }
 
@@ -63,6 +63,7 @@ void MainMenu::render() {
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 	m_dialog.draw();
+	TextureManager::DrawBuffer();
 }
 
 void MainMenu::processInput() {

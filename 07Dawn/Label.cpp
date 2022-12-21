@@ -20,7 +20,7 @@ void Label::draw() {
 }
 
 void Label::draw(std::string text) {
-	Fontrenderer::Get().drawText(*m_characterSet, m_parentWidget->getPosX() + getPosX(), m_parentWidget->getPosY() + getPosY(), text, activeColor);
+	Fontrenderer::Get().addText(*m_characterSet, m_parentWidget->getPosX() + getPosX(), m_parentWidget->getPosY() + getPosY(), text, activeColor);
 }
 
 void Label::processInput() {

@@ -14,6 +14,8 @@ struct DialogCanvas {
 	friend class TextWindow;
 	friend class SelectionBox;
 	friend class CheckBox;
+	friend class SeekerBar;
+	friend class Options;
 
 	static void Init();
 	static void Init(std::vector<TextureRect> textures);

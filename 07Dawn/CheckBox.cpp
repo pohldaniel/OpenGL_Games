@@ -23,12 +23,12 @@ void CheckBox::setSelectColor(const Vector4f &color) {
 
 void CheckBox::draw() {
 
-	TextureManager::BindTexture(DialogCanvas::TextureAtlas, true, 2);
-	TextureManager::DrawTexture(DialogCanvas::Textures[9], m_parentWidget->getPosX() + getPosX(), m_parentWidget->getPosY() + getPosY(), 16.0f, 16.0f, Vector4f(1.0f, 1.0f, 0.0f, 1.0f), false, false);
+	//TextureManager::BindTexture(DialogCanvas::TextureAtlas, true, 2);
+	TextureManager::DrawTextureBatched(DialogCanvas::Textures[9], m_parentWidget->getPosX() + getPosX(), m_parentWidget->getPosY() + getPosY(), 16.0f, 16.0f, Vector4f(1.0f, 1.0f, 0.0f, 1.0f), false, false);
 	
 	if(m_checked)
-		TextureManager::DrawTexture(DialogCanvas::Textures[9], m_parentWidget->getPosX() + getPosX() + 2, m_parentWidget->getPosY() + getPosY() + 2, 12.0f, 12.0f, Vector4f(0.0f, 1.0f, 0.0f, 1.0f), false, false);
-	TextureManager::UnbindTexture(true, 2);
+		TextureManager::DrawTextureBatched(DialogCanvas::Textures[9], m_parentWidget->getPosX() + getPosX() + 2, m_parentWidget->getPosY() + getPosY() + 2, 12.0f, 12.0f, Vector4f(0.0f, 1.0f, 0.0f, 1.0f), false, false);
+	//TextureManager::UnbindTexture(true, 2);
 	
 }
 

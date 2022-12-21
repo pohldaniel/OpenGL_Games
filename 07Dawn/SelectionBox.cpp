@@ -81,12 +81,12 @@ void SelectionBox::draw() {
 	if (m_selected >= 0) {
 		bool mouseInsideBox = (ViewPort::Get().getCursorPosRelX() >= getPosX() && ViewPort::Get().getCursorPosRelX() < getPosX() + getWidth() && ViewPort::Get().getCursorPosRelY() >= getPosY() && ViewPort::Get().getCursorPosRelY() < getPosY() + getHeight());
 		Vector4f color = mouseInsideBox ? selectColor : baseColor;
-		Fontrenderer::Get().drawText(*font, m_parentWidget->getPosX() + getPosX(), m_parentWidget->getPosY() + getPosY(), entries[m_selected], color);
+		Fontrenderer::Get().addText(*font, m_parentWidget->getPosX() + getPosX(), m_parentWidget->getPosY() + getPosY(), entries[m_selected], color);
 	}
 
 	if (state == OPEN) {
-		TextureManager::BindTexture(DialogCanvas::TextureAtlas, true, 2);
-		TextureManager::DrawTexture(DialogCanvas::Textures[4], m_parentWidget->getPosX() + getPosX(), m_parentWidget->getPosY() + getPosY() - selectFont->lineHeight * 1.2f * (entries.size() - 1) - 15, std::max(maxSelectedWidth + 10, getWidth() - 15), selectFont->lineHeight * 1.2f * (entries.size() - 1) + 15, false, false);
+		//TextureManager::BindTexture(DialogCanvas::TextureAtlas, true, 2);
+		TextureManager::DrawTextureBatched(DialogCanvas::Textures[4], m_parentWidget->getPosX() + getPosX(), m_parentWidget->getPosY() + getPosY() - selectFont->lineHeight * 1.2f * (entries.size() - 1) - 15, std::max(maxSelectedWidth + 10, getWidth() - 15), selectFont->lineHeight * 1.2f * (entries.size() - 1) + 15, false, false);
 		// draw the entries and highlight the one the mouse is over (if any)
 		int curX = m_parentWidget->getPosX() + getPosX() + 10;
 		int curY = m_parentWidget->getPosY() + getPosY() - selectFont->lineHeight * 1.2f;
@@ -94,10 +94,10 @@ void SelectionBox::draw() {
 			bool mouseOverEntry = (ViewPort::Get().getCursorPosRelX() > curX && ViewPort::Get().getCursorPosRelX() <= curX + maxSelectedWidth && ViewPort::Get().getCursorPosRelY() > curY && ViewPort::Get().getCursorPosRelY() < curY + (selectFont->lineHeight * 1.2f));
 			
 			Vector4f color = mouseOverEntry ? selectColor : baseColor;
-			Fontrenderer::Get().drawText(*selectFont, curX, curY, entries[curEntryNr], color);
+			Fontrenderer::Get().addText(*selectFont, curX, curY, entries[curEntryNr], color);
 			curY -= (selectFont->lineHeight * 1.2f);
 		}
-		TextureManager::UnbindTexture(true, 2);
+		//TextureManager::UnbindTexture(true, 2);
 	}
 }
 

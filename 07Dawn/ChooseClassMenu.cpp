@@ -45,6 +45,7 @@ ChooseClassMenu::ChooseClassMenu(StateMachine& machine) : State(machine, Current
 	});
 
 	TextureManager::BindTexture(Globals::spritesheetManager.getAssetPointer("font")->getAtlas(), true, 0);
+	TextureManager::BindTexture(TextureManager::GetTextureAtlas("dialog"), true, 2);
 }
 
 ChooseClassMenu::~ChooseClassMenu() {}
@@ -60,6 +61,7 @@ void ChooseClassMenu::render() {
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 	m_dialog.draw();
+	TextureManager::DrawBuffer();
 }
 
 void ChooseClassMenu::resize(int deltaW, int deltaH) {
