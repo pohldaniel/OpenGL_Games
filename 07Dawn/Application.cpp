@@ -19,6 +19,7 @@ bool Application::Fullscreen;
 bool Application::Init = false;
 DWORD Application::SavedExStyle;
 DWORD Application::SavedStyle;
+RECT Application::Savedrc;
 
 bool compareDeviceMode(DEVMODE const& s1, DEVMODE const& s2) {
 	return s1.dmPelsWidth == s2.dmPelsWidth && s1.dmPelsHeight == s2.dmPelsHeight && s1.dmDefaultSource == s2.dmDefaultSource && s1.dmDisplayFrequency == s2.dmDisplayFrequency;
@@ -35,13 +36,10 @@ auto sortDeviceMode = [](DEVMODE const& s1, DEVMODE const& s2) -> bool {
 Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fdt) {
 	LuaFunctions::executeLuaFile("res/_lua/save/settings.lua");
 
-	Fullscreen = Globals::applyDisplaymode;
+	Fullscreen = Globals::fullscreen;
 	Width = !Fullscreen ? 1024u : Globals::width;
 	Height = !Fullscreen ? 768u : Globals::height;
 
-	int width = Globals::width;
-	int height = Globals::height;
-	
 	initWindow();
 	ViewPort::Get().init(Width, Height);
 	initOpenGL();
@@ -117,9 +115,13 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 
 	SavedExStyle = GetWindowLong(Window, GWL_EXSTYLE);
 	SavedStyle = GetWindowLong(Window, GWL_STYLE);
+	GetWindowRect(Window, &Savedrc);
 
-	if (Fullscreen)
-		Application::SetDisplayMode(width, height);
+	if (Globals::applyDisplaymode)
+		Application::SetDisplayMode(Globals::width, Globals::height);
+
+	if(Fullscreen && !Globals::applyDisplaymode)
+		ToggleFullScreen(Fullscreen);
 }
 
 Application::~Application() {
@@ -262,8 +264,8 @@ LRESULT Application::DisplayWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 			if (Height == 0) {					// avoid divide by zero
 				Height = 1;
 			}
-			
-			resize(deltaW, deltaH);
+
+			Resize(deltaW, deltaH);
 			break;
 		}case WM_GETMINMAXINFO:{			
 			LPMINMAXINFO lpMMI = (LPMINMAXINFO)lParam;
@@ -484,7 +486,7 @@ void Application::loadAssets() {
 }
 
 
-void Application::resize(int deltaW, int deltaH) {
+void Application::Resize(int deltaW, int deltaH) {
 	if (deltaW == 0 && deltaH == 0) return;
 
 	glViewport(0, 0, Width, Height);
@@ -552,47 +554,46 @@ void Application::SetDisplayMode(DEVMODE& settings) {
 	DEVMODE curScreen;
 	memset(&curScreen, 0, sizeof(curScreen));
 	EnumDisplaySettings(NULL, ENUM_CURRENT_SETTINGS, &curScreen);
+	bool resize = true;
+	if (!compareDeviceMode(settings, curScreen)) {
 
-	if(!compareDeviceMode(settings, curScreen))
-		if(!ChangeDisplaySettings(&settings, CDS_FULLSCREEN) == DISP_CHANGE_SUCCESSFUL)
+		if (!ChangeDisplaySettings(&settings, CDS_FULLSCREEN) == DISP_CHANGE_SUCCESSFUL) {
 			std::cout << "Could Not Apply Display Settings: " << std::endl;
+			return;
+		}
+	}
+	Globals::width = settings.dmPelsWidth;
+	Globals::height = settings.dmPelsHeight;
 
-	ToggleFullScreen(true);	
+	ToggleFullScreen(Globals::fullscreen, !Globals::fullscreen ? 1024 : 0u, !Globals::fullscreen ? 768 : 0u, Globals::fullscreen);
 }
 
 void Application::SetDisplayMode(unsigned int width, unsigned int height) {
 	std::vector<DEVMODE> list;
 	GetScreenMode(list);
-
 	std::vector<DEVMODE>::iterator it = std::find_if(list.begin(), list.end(), std::bind(&findDeviceMode, std::placeholders::_1, width, height));
 	if (it != list.end()) {
 		SetDisplayMode(*it);
 	} else {
 		Fullscreen = false;
+		Globals::applyDisplaymode = false;
 	}
 }
 
 void Application::ResetDisplayMode() {
 	ChangeDisplaySettings(NULL, 0);
-	ToggleFullScreen(false, 1024u, 768u);
-
-	Globals::width = 1024u;
-	Globals::height = 768u;
 }
 
-void Application::ToggleFullScreen(bool isFullScreen, unsigned int width, unsigned int height) {
-	
-	static RECT rcSaved;
+void Application::ToggleFullScreen(bool isFullScreen, unsigned int width, unsigned int height, bool resize) {
 
 	int deltaW = width == 0u ? Width : width;
 	int deltaH = height == 0u ? Height : height;
 
 	if (isFullScreen) {
-		if (!Fullscreen) {
-			
-			GetWindowRect(Window, &rcSaved);
+		if (!Fullscreen) {			
+			GetWindowRect(Window, &Savedrc);
 		}
-
+		Globals::fullscreen = true;
 		Fullscreen = true;
 		SetWindowLong(Window, GWL_EXSTYLE, 0);
 		SetWindowLong(Window, GWL_STYLE, WS_POPUP | WS_CLIPCHILDREN | WS_CLIPSIBLINGS);
@@ -605,23 +606,28 @@ void Application::ToggleFullScreen(bool isFullScreen, unsigned int width, unsign
 		deltaH = Height - deltaH;
 
 		SetWindowPos(Window, HWND_TOPMOST, 0, 0, Width, Height, SWP_SHOWWINDOW);
-		resize(deltaW, deltaH);
+
+		if(resize)
+			Resize(deltaW, deltaH);
 	}
 	
 	if (!isFullScreen) {
+		Globals::fullscreen = false;
 		Fullscreen = false;
 		SetWindowLong(Window, GWL_EXSTYLE, SavedExStyle);
 		SetWindowLong(Window, GWL_STYLE, SavedStyle);
 		SetWindowPos(Window, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_FRAMECHANGED | SWP_SHOWWINDOW);
 
-		Width = width == 0u ? rcSaved.right - rcSaved.left : width;
-		Height = height == 0u ? rcSaved.bottom - rcSaved.top : height;
+		Width = width == 0u ? Savedrc.right - Savedrc.left : width;
+		Height = height == 0u ? Savedrc.bottom - Savedrc.top : height;
 
 		deltaW = Width - deltaW;
 		deltaH = Height - deltaH;
 
-		SetWindowPos(Window, HWND_NOTOPMOST, rcSaved.left, rcSaved.top, Width, Height, SWP_SHOWWINDOW);
-		resize(deltaW, deltaH);
+		SetWindowPos(Window, HWND_NOTOPMOST, 0, 0, Width, Height, SWP_SHOWWINDOW);
+
+		if(resize)
+			Resize(deltaW, deltaH);
 	}
 }
 
@@ -630,6 +636,7 @@ void Application::WriteConfigurationToFile() {
 	oss << "setfenv(1, Globals);" << std::endl;
 	oss << "setResolution(" << Globals::width << ", " << Globals::height << ");" << std::endl;
 	oss << "useDisplaymode(" << std::boolalpha << Globals::applyDisplaymode << ");" << std::endl;
+	oss << "isFullscreen(" << std::boolalpha << Fullscreen << ");" << std::endl;
 	oss << "setSoundVolume(" << Globals::soundVolume << ");" << std::endl;
 	oss << "setMusicVolume(" << Globals::soundVolume << ");" << std::endl;
 }

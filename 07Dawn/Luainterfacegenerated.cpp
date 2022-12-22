@@ -1,6 +1,6 @@
 /*
 ** Lua binding: Luainterface
-** Generated automatically by tolua++-1.0.92 on Wed Dec 21 21:41:20 2022.
+** Generated automatically by tolua++-1.0.92 on Thu Dec 22 13:47:19 2022.
 */
 
 #ifndef __cplusplus
@@ -92,6 +92,34 @@ static int tolua_Luainterface_Globals_useDisplaymode00(lua_State* tolua_S)
 #ifndef TOLUA_RELEASE
 	tolua_lerror :
 				 tolua_error(tolua_S, "#ferror in function 'useDisplaymode'.", &tolua_err);
+				 return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
+/* function: Globals::isFullscreen */
+#ifndef TOLUA_DISABLE_tolua_Luainterface_Globals_isFullscreen00
+static int tolua_Luainterface_Globals_isFullscreen00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+	tolua_Error tolua_err;
+	if (
+		!tolua_isboolean(tolua_S, 1, 0, &tolua_err) ||
+		!tolua_isnoobj(tolua_S, 2, &tolua_err)
+		)
+		goto tolua_lerror;
+	else
+#endif
+	{
+		bool flag = ((bool)tolua_toboolean(tolua_S, 1, 0));
+		{
+			Globals::isFullscreen(flag);
+		}
+	}
+	return 0;
+#ifndef TOLUA_RELEASE
+	tolua_lerror :
+				 tolua_error(tolua_S, "#ferror in function 'isFullscreen'.", &tolua_err);
 				 return 0;
 #endif
 }
@@ -7786,6 +7814,7 @@ TOLUA_API int tolua_Luainterface_open(lua_State* tolua_S)
 	tolua_module(tolua_S, "Globals", 0);
 	tolua_beginmodule(tolua_S, "Globals");
 	tolua_function(tolua_S, "useDisplaymode", tolua_Luainterface_Globals_useDisplaymode00);
+	tolua_function(tolua_S, "isFullscreen", tolua_Luainterface_Globals_isFullscreen00);
 	tolua_function(tolua_S, "setSoundVolume", tolua_Luainterface_Globals_setSoundVolume00);
 	tolua_function(tolua_S, "setMusicVolume", tolua_Luainterface_Globals_setMusicVolume00);
 	tolua_function(tolua_S, "setResolution", tolua_Luainterface_Globals_setResolution00);

@@ -35,7 +35,7 @@ public:
 	static void ResetDisplayMode();
 	static void SetDisplayMode(DEVMODE& settings);
 	static void SetDisplayMode(unsigned int width, unsigned int height);
-	static void ToggleFullScreen(bool isFullScreen, unsigned int width = 0, unsigned int height = 0);
+	static void ToggleFullScreen(bool isFullScreen, unsigned int width = 0, unsigned int height = 0, bool resize = true);
 	static void WriteConfigurationToFile();
 
 private:
@@ -47,23 +47,20 @@ private:
 	void initOpenAL();
 	void loadAssets();
 	void initStates();
-	static void resize(int deltaW, int deltaH);
+	
 	void processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 	void enableVerticalSync(bool enableVerticalSync);
-
-
 	bool m_enableVerticalSync;
 	MSG msg;
 	
-
 	const float& m_fdt;
 	const float& m_dt;
 	
 	bool m_mouseTracking = false;
 
 	static LRESULT CALLBACK StaticWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
-	
+	static void Resize(int deltaW, int deltaH);
 	static StateMachine* s_machine;
 	static EventDispatcher& s_eventDispatcher;
 	static HGLRC MainContext;
@@ -76,4 +73,5 @@ private:
 	static bool Fullscreen;
 	static DWORD SavedExStyle;
 	static DWORD SavedStyle;
+	static RECT Savedrc;
 };

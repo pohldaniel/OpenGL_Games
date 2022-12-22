@@ -220,6 +220,7 @@ namespace EquipPosition {
 
 namespace Globals {
     void useDisplaymode(bool flag);
+	void isFullscreen(bool flag);
 	void setSoundVolume(float soundVolume);
 	void setMusicVolume(float musicVolume);
 	void setResolution(unsigned int width, unsigned int height);

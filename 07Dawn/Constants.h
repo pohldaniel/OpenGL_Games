@@ -46,11 +46,13 @@ namespace Globals {
 	extern float soundVolume;
 	extern float musicVolume;
 	extern bool applyDisplaymode;
+	extern bool fullscreen;
 	extern unsigned int width;
 	extern unsigned int height;
 
 	extern void setResolution(unsigned int width, unsigned int height);
 	extern void useDisplaymode(bool flag);
+	extern void isFullscreen(bool flag);
 	extern void setSoundVolume(float soundVolume);
 	extern void setMusicVolume(float musicVolume);
 }

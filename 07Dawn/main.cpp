@@ -31,6 +31,7 @@ extern unsigned int Globals::viewUbo = 0;
 extern float Globals::soundVolume = 0.2f;
 extern float Globals::musicVolume = 0.2f;
 extern bool Globals::applyDisplaymode = false;
+extern bool Globals::fullscreen = false;
 extern unsigned int Globals::width = 1024;
 extern unsigned int Globals::height = 768;
 
@@ -49,6 +50,10 @@ extern void Globals::setMusicVolume(float musicVolume) {
 extern void Globals::setResolution(unsigned int width, unsigned int height) {
 	Globals::width = width;
 	Globals::height = height;
+}
+
+extern void  Globals::isFullscreen(bool flag) {
+	Globals::fullscreen = flag;
 }
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd) {
