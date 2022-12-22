@@ -4,6 +4,7 @@
 #include "Utils.h"
 
 MainMenu::MainMenu(StateMachine& machine) : State(machine, CurrentState::MAINMENU) {
+	Mouse::SetCursorIcon("res/cursors/black.cur");
 	EventDispatcher::AddMouseListener(this);
 
 	m_dialog = Dialog(0, 0, 0, 0);
@@ -18,6 +19,10 @@ MainMenu::MainMenu(StateMachine& machine) : State(machine, CurrentState::MAINMEN
 	m_dialog.addChildWidget(0, 40, std::auto_ptr<Widget>(new Label(Globals::fontManager.get("verdana_20"), "Options")));
 	m_dialog.addChildWidget(0, 60, std::auto_ptr<Widget>(new Label(Globals::fontManager.get("verdana_20"), "Load Game")));
 	m_dialog.addChildWidget(0, 80, std::auto_ptr<Widget>(new Label(Globals::fontManager.get("verdana_20"), "New Game")));
+
+	dynamic_cast<Label*>(m_dialog.getChildWidgets()[0])->setFunction([&]() {
+		m_isRunning = false;
+	});
 
 	dynamic_cast<Label*>(m_dialog.getChildWidgets()[1])->setFunction([&]() {
 		m_isRunning = false;

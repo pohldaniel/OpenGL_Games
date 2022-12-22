@@ -117,6 +117,14 @@ const bool StateMachine::isRunning() const {
 	return m_isRunning;
 }
 
+void StateMachine::toggleWireframe() {
+	Globals::enableWireframe = !Globals::enableWireframe;
+}
+
+void StateMachine::stopTop() {
+	m_states.top()->stop();
+}
+
 State::State(StateMachine& machine, CurrentState currentState) : m_machine(machine), m_dt(machine.m_dt), m_fdt(machine.m_fdt) {
 	m_currentState = currentState;
 }
@@ -126,4 +134,8 @@ State::~State() {
 
 const bool State::isRunning() const {
 	return m_isRunning;
+}
+
+const void State::stop() {
+	m_isRunning = false;
 }

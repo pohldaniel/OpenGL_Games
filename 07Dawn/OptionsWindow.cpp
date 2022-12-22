@@ -91,8 +91,7 @@ void OptionsWindow::draw() {
 
 void OptionsWindow::processInput() {
 
-
-	if (Keyboard::instance().keyPressed(Keyboard::KEY_1)) {	
+	if (Keyboard::instance().keyPressed(Keyboard::KEY_ESCAPE)) {
 		
 		if (Interface::Get().getWidgets().size() > 0) {
 			Interface::Get().closeAll();
@@ -123,7 +122,7 @@ void OptionsWindow::processInput() {
 	}
 
 	if (selectedEntry == 0){
-		 //setQuitGame();
+		Application::StopTop();
 	} else if (selectedEntry == 1 && Utils::file_exists("res/_lua/save/savegame.lua") == true) {
 		// Load Game
 

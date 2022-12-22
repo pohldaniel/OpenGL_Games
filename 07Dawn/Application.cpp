@@ -346,7 +346,11 @@ bool Application::isRunning() {
 	Keyboard::instance().update();
 	Mouse::instance().update();
 
-	if (Keyboard::instance().keyDown(Keyboard::KEY_ESCAPE)) {
+	if (Keyboard::instance().keyDown(Keyboard::KEY_ESCAPE) && s_machine->m_states.top()->m_currentState == CurrentState::MAINMENU) {
+		return false;
+	}
+
+	if (!s_machine->isRunning()) {
 		return false;
 	}
 
@@ -354,10 +358,6 @@ bool Application::isRunning() {
 		if (Keyboard::instance().keyPressed(Keyboard::KEY_ENTER)) {
 			ToggleFullScreen(!Globals::fullscreen);
 		}
-	}
-
-	if (Keyboard::instance().keyDown(Keyboard::KEY_2)) {
-		ChangeDisplaySettings(NULL, 0);
 	}
 
 	return s_eventDispatcher.update();
@@ -531,6 +531,10 @@ void Application::AddStateAtBottom(State* state) {
 
 void Application::ClearAndPush(State* state) {
 	s_machine->clearAndPush(state);
+}
+
+void Application::StopTop() {
+	s_machine->stopTop();
 }
 
 StateMachine& Application::GetStateMachine() {

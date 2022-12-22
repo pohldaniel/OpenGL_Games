@@ -17,7 +17,6 @@ enum CurrentState {
 	OPTIONSWINDOW
 };
 
-//base for holding the Framebuffer
 class State;
 
 class StateMachine {
@@ -36,9 +35,8 @@ public:
 	void resize(unsigned int width, unsigned int height);
 
 	void clearAndPush(State* state);
-	void toggleWireframe() {
-		Globals::enableWireframe = !Globals::enableWireframe;
-	}
+	void toggleWireframe();
+	void stopTop();
 	const bool isRunning() const;
 
 	const float& m_fdt;
@@ -69,7 +67,7 @@ public:
 	virtual void resize(int deltaW, int deltaH) {};
 
 	const bool isRunning() const;
-
+	const void stop();
 	CurrentState m_currentState;
 
 protected:

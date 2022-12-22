@@ -40,9 +40,6 @@
     <Filter Include="Source Files\Interface">
       <UniqueIdentifier>{4d5fadce-2539-45bd-bd8f-7ff3ffbd3a61}</UniqueIdentifier>
     </Filter>
-    <Filter Include="glew">
-      <UniqueIdentifier>{5fef9db7-d6a1-4376-adf2-a57eae89f980}</UniqueIdentifier>
-    </Filter>
     <Filter Include="engine\sound">
       <UniqueIdentifier>{46bc9840-a1d9-4bc4-89c1-23a4505d202f}</UniqueIdentifier>
     </Filter>

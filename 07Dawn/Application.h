@@ -32,7 +32,10 @@ public:
 	static void AddStateAtTop(State* state);
 	static void AddStateAtBottom(State* state);
 	static void ClearAndPush(State* state);
+	static void StopTop();
 	static StateMachine& GetStateMachine();
+
+
 	static void GetScreenMode(std::vector<DEVMODE>& list);
 	static void ResetDisplayMode();
 	static void SetDisplayMode(DEVMODE& settings);
