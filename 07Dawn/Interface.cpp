@@ -658,7 +658,7 @@ void Interface::processInputRightDrag() {
 
 	if (mouse.buttonPressed(Mouse::BUTTON_LEFT) || mouse.buttonPressed(Mouse::BUTTON_RIGHT)) {
 		for (auto it = m_widgets.rbegin(); it != m_widgets.rend(); ++it) {
-			if ((*it)->isMouseOnFrame(mouse.xPosAbsolute(), mouse.yPosAbsolute())) {
+			if ((*it)->isMouseOnFrame(ViewPort::Get().getCursorPosRelX(), ViewPort::Get().getCursorPosRelY())) {
 				(*it)->activate();
 				widgetInteraction = true;
 				break;
@@ -732,7 +732,7 @@ void Interface::processInputRightDrag() {
 	if (mouse.buttonDown(Mouse::BUTTON_RIGHT)) {
 		bool canDrag = true;
 		for (auto it = m_widgets.rbegin(); it != m_widgets.rend(); ++it) {
-			canDrag &= !(*it)->isMouseOnFrame(mouse.xPosAbsolute(), mouse.yPosAbsolute());			
+			canDrag &= !(*it)->isMouseOnFrame(ViewPort::Get().getCursorPosRelX(), ViewPort::Get().getCursorPosRelY());
 		}
 		if (canDrag && (sqrt(pow(m_lastMouseDown.first - ViewPort::Get().getCursorPosRelX(), 2) + pow(m_lastMouseDown.second - ViewPort::Get().getCursorPosRelY(), 2)) > 5) /*&& !sPreparingAoESpell()*/) {
 			if (m_buttonId >= 0) {

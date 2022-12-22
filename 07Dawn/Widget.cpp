@@ -5,7 +5,7 @@ Widget::Widget(short posX, short posY, short width, short height, short offsetX,
 	//To create the singeltons on startup the HEIGHT has to be known
 	//Don't use ViewPort::Get().getHeight()
 	if(static_cast<unsigned short>(m_posY + m_height) > Globals::height) {
-		m_posY = ViewPort::Get().getHeight() - m_height;
+		m_posY = Globals::height - m_height;
 	}
 }
 
@@ -33,37 +33,66 @@ void Widget::processInput() {
 
 	if (m_moveableFrame) {
 		if (mouse.buttonDown(Mouse::BUTTON_LEFT)) {
-			if (!m_movingFrame && isMouseOnTitlebar(mouse.xPosAbsolute(), mouse.yPosAbsolute())) {
+			if (!m_movingFrame && isMouseOnTitlebar(ViewPort::Get().getCursorPosRelX(), ViewPort::Get().getCursorPosRelY())) {
 				m_movingFrame = true;
-				m_startMovingXpos = mouse.xPosAbsolute();
-				m_startMovingYpos = mouse.yPosAbsolute();
+				m_startMovingXpos = ViewPort::Get().getCursorPosRelX();
+				m_startMovingYpos = ViewPort::Get().getCursorPosRelY();
 			}
 		}else {
 			stopMovingFrame();
 		}
 
 		if (m_movingFrame)
-			moveFrame(mouse.xPosAbsolute(), mouse.yPosAbsolute());
+			moveFrame(ViewPort::Get().getCursorPosRelX(), ViewPort::Get().getCursorPosRelY());
 	}
 
 	if (m_closeButton) {
 		if (mouse.buttonPressed(Mouse::BUTTON_LEFT)) {
-			if (isMouseOnCloseButton(mouse.xPosAbsolute(), mouse.yPosAbsolute())) {
+			if (isMouseOnCloseButton(ViewPort::Get().getCursorPosRelX(), ViewPort::Get().getCursorPosRelY())) {
 				m_visible = false;
 				if (m_onClose)
 					m_onClose();
 			}
 		}
-
-		/*if (Keyboard::instance().keyPressed(Keyboard::KEY_1)) {
-			if (m_onClose)
-				m_onClose();
-		}*/
 	}
 
 	if (m_childWidgets.size() > 0) {
 		for (unsigned short w = 0; w < m_childWidgets.size(); ++w) {
 			m_childWidgets[w]->processInput();
+		}
+	}
+}
+
+void Widget::processInput(const int mouseX, const int mouseY, const Event::MouseButtonEvent::MouseButton button) {
+	if (m_moveableFrame) {
+		if (button == Event::MouseButtonEvent::MouseButton::BUTTON_LEFT) {
+			if (!m_movingFrame && isMouseOnTitlebar(mouseX, mouseY)) {
+				m_movingFrame = true;
+				m_startMovingXpos = mouseX;
+				m_startMovingYpos = ViewPort::Get().getHeight() - mouseY;
+			}
+		}
+		else {
+			stopMovingFrame();
+		}
+
+		if (m_movingFrame)
+			moveFrame(mouseX, mouseY);
+	}
+
+	if (m_closeButton) {
+		if (button == Event::MouseButtonEvent::MouseButton::BUTTON_LEFT) {
+			if (isMouseOnCloseButton(mouseX, mouseY)) {
+				m_visible = false;
+				if (m_onClose)
+					m_onClose();
+			}
+		}
+	}
+
+	if (m_childWidgets.size() > 0) {
+		for (unsigned short w = 0; w < m_childWidgets.size(); ++w) {
+			m_childWidgets[w]->processInput(mouseX, mouseY, button);
 		}
 	}
 }
@@ -85,9 +114,9 @@ bool Widget::isMouseOnTitlebar(int mouseX, int mouseY) const {
 	}
 
 	if (mouseX < m_posX + m_titleOffsetX
-		|| mouseY <  static_cast<int>(ViewPort::Get().getHeight()) - (m_posY + m_titleOffsetY + m_titleHeight)
+		|| mouseY > m_posY + m_titleOffsetY + m_titleHeight
 		|| mouseX > m_posX + m_titleOffsetX + m_titleWidth
-		|| mouseY > static_cast<int>(ViewPort::Get().getHeight()) - (m_posY + m_titleOffsetY)) {
+		|| mouseY < m_posY + m_titleOffsetY) {
 		return false;
 	}
 	return true;
@@ -100,9 +129,9 @@ bool Widget::isMouseOnCloseButton(int mouseX, int mouseY) const {
 	}
 
 	if (mouseX < m_posX + m_buttonOffsetX
-		|| mouseY < static_cast<int>(ViewPort::Get().getHeight()) - (m_posY + m_buttonOffsetY + m_buttonHeight)
+		|| mouseY > m_posY + m_buttonOffsetY + m_buttonHeight
 		|| mouseX > m_posX + m_buttonOffsetX + m_buttonWidth
-		|| mouseY > static_cast<int>(ViewPort::Get().getHeight()) - (m_posY + m_buttonOffsetY)) {
+		|| mouseY < m_posY + m_buttonOffsetY) {
 		return false;
 	}
 	return true;
@@ -114,9 +143,9 @@ bool Widget::isMouseOnFrame(int mouseX, int mouseY) const {
 	}
 
 	if (mouseX < m_posX + m_offsetX
-		|| mouseY < static_cast<int>(ViewPort::Get().getHeight()) - (m_posY + m_offsetY + m_height)
-		|| mouseX >  m_posX + m_offsetX + m_width
-		|| mouseY >  static_cast<int>(ViewPort::Get().getHeight()) - (m_posY + m_offsetY)) {
+		|| mouseY > m_posY + m_offsetY + m_height
+		|| mouseX > m_posX + m_offsetX + m_width
+		|| mouseY < m_posY + m_offsetY) {
 		return false;
 	}
 
@@ -126,7 +155,7 @@ bool Widget::isMouseOnFrame(int mouseX, int mouseY) const {
 void Widget::moveFrame(int mouseX, int mouseY) {
 
 	m_posX = (mouseX < 0 || mouseX >  static_cast<int>(ViewPort::Get().getWidth())) ? m_posX : m_posX + mouseX - m_startMovingXpos;
-	m_posY -= mouseY - m_startMovingYpos;
+	m_posY += mouseY - m_startMovingYpos;
 
 	m_posX = (std::max)(-m_titleWidth + 11, (std::min)(static_cast<int>(m_posX), static_cast<int>(ViewPort::Get().getWidth()) - 200));
 	m_posY = (std::max)(-m_titleOffsetY, (std::min)(static_cast<int>(m_posY), static_cast<int>(ViewPort::Get().getHeight()) - (m_titleOffsetY + m_titleHeight)));

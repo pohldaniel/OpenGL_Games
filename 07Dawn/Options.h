@@ -1,6 +1,6 @@
 #pragma once
 #include "engine/input/EventDispatcher.h"
-#include "engine/input/Mouse.h"
+#include "engine/input/MouseEventListener.h"
 
 #include "StateMachine.h"
 #include "LoadingScreen.h"
@@ -9,7 +9,7 @@
 #include "Dialog.h"
 #include "Label.h"
 
-class Options : public State {
+class Options : public State, public MouseEventListener {
 
 public:
 	Options(StateMachine& machine);
@@ -29,4 +29,6 @@ private:
 	std::vector<DEVMODE> m_screenModes;
 	int m_selected;
 	
+	void OnMouseMotion(Event::MouseMoveEvent& event) override;
+	void OnMouseButtonDown(Event::MouseButtonEvent& event) override;
 };

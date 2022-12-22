@@ -1,6 +1,6 @@
 setfenv(1, Globals);
-setResolution(1600, 1200);
+setResolution(1025, 768);
 useDisplaymode(false);
 isFullscreen(false);
-setSoundVolume(0.1);
-setMusicVolume(0.1);
+setSoundVolume(0);
+setMusicVolume(0.2);

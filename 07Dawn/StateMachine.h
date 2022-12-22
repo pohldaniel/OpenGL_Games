@@ -14,6 +14,7 @@ enum CurrentState {
 	LOADINGSCREEN,
 	CHOOSECLASSMENU,
 	OPTIONS,
+	OPTIONSWINDOW
 };
 
 //base for holding the Framebuffer

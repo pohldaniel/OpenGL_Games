@@ -15,7 +15,6 @@ HGLRC Application::LoaderContext;
 HWND Application::Window;
 unsigned int Application::Width;
 unsigned int Application::Height;
-bool Application::Fullscreen;
 bool Application::Init = false;
 DWORD Application::SavedExStyle;
 DWORD Application::SavedStyle;
@@ -36,9 +35,8 @@ auto sortDeviceMode = [](DEVMODE const& s1, DEVMODE const& s2) -> bool {
 Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fdt) {
 	LuaFunctions::executeLuaFile("res/_lua/save/settings.lua");
 
-	Fullscreen = Globals::fullscreen;
-	Width = !Fullscreen ? 1024u : Globals::width;
-	Height = !Fullscreen ? 768u : Globals::height;
+	Width = !Globals::fullscreen ? 1024u : Globals::width;
+	Height = !Globals::fullscreen ? 768u : Globals::height;
 
 	initWindow();
 	ViewPort::Get().init(Width, Height);
@@ -115,13 +113,12 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 
 	SavedExStyle = GetWindowLong(Window, GWL_EXSTYLE);
 	SavedStyle = GetWindowLong(Window, GWL_STYLE);
-	GetWindowRect(Window, &Savedrc);
 
 	if (Globals::applyDisplaymode)
 		Application::SetDisplayMode(Globals::width, Globals::height);
 
-	if(Fullscreen && !Globals::applyDisplaymode)
-		ToggleFullScreen(Fullscreen);
+	if(Globals::fullscreen && !Globals::applyDisplaymode)
+		ToggleFullScreen(true);
 }
 
 Application::~Application() {
@@ -144,7 +141,7 @@ Application::~Application() {
 	UnregisterClass("WINDOWCLASS", (HINSTANCE)GetModuleHandle(NULL));
 }
 
-bool Application::initWindow() {
+void Application::initWindow() {
 
 	WNDCLASSEX windowClass;
 
@@ -162,7 +159,7 @@ bool Application::initWindow() {
 	windowClass.hIconSm = LoadIcon(NULL, IDI_WINLOGO);
 
 	if (!RegisterClassEx(&windowClass))
-		return false;
+		return;
 
 	Window = CreateWindowEx(
 		NULL,
@@ -178,7 +175,7 @@ bool Application::initWindow() {
 		this);
 
 	if (!Window)
-		return false;
+		return;
 
 	// Adjust it so the client area is RESOLUTION_X/RESOLUTION_Y
 	RECT rect1;
@@ -193,7 +190,6 @@ bool Application::initWindow() {
 
 	Init = true;
 
-	return true;
 }
 
 LRESULT CALLBACK Application::StaticWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
@@ -356,7 +352,7 @@ bool Application::isRunning() {
 
 	if (Keyboard::instance().keyDown(Keyboard::KEY_LALT) || Keyboard::instance().keyDown(Keyboard::KEY_RALT)) {
 		if (Keyboard::instance().keyPressed(Keyboard::KEY_ENTER)) {
-			ToggleFullScreen(!Fullscreen, Fullscreen ? 1024u : 0u, Fullscreen ? 768u : 0u);
+			ToggleFullScreen(!Globals::fullscreen);
 		}
 	}
 
@@ -387,8 +383,8 @@ void Application::initStates() {
 	s_machine = new StateMachine(m_dt, m_fdt);
 	//s_machine->addStateAtTop(new Game(*s_machine));
 
-	//s_machine->addStateAtTop(new MainMenu(*s_machine));
-	s_machine->addStateAtTop(new Options(*s_machine));
+	s_machine->addStateAtTop(new MainMenu(*s_machine));
+	//s_machine->addStateAtTop(new Options(*s_machine));
 	//s_machine->addStateAtTop(new Editor(*s_machine));
 }
 
@@ -435,6 +431,11 @@ void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 			s_eventDispatcher.pushEvent(event);
 			break;
 		}*/
+		case WM_WINDOWPOSCHANGING: {
+			if (Init) {
+				Globals::musicManager.get("background").updateBufferStream();
+			}
+		}
 	}
 }
 
@@ -524,6 +525,14 @@ void Application::AddStateAtTop(State* state) {
 	s_machine->addStateAtTop(state);
 }
 
+void Application::AddStateAtBottom(State* state) {
+	s_machine->addStateAtBottom(state);
+}
+
+void Application::ClearAndPush(State* state) {
+	s_machine->clearAndPush(state);
+}
+
 StateMachine& Application::GetStateMachine() {
 	return *s_machine;
 }
@@ -565,7 +574,7 @@ void Application::SetDisplayMode(DEVMODE& settings) {
 	Globals::width = settings.dmPelsWidth;
 	Globals::height = settings.dmPelsHeight;
 
-	ToggleFullScreen(Globals::fullscreen, !Globals::fullscreen ? 1024 : 0u, !Globals::fullscreen ? 768 : 0u, Globals::fullscreen);
+	ToggleFullScreen(Globals::fullscreen, Globals::fullscreen ? 0u : 1024u, Globals::fullscreen ? 0u : 768u);
 }
 
 void Application::SetDisplayMode(unsigned int width, unsigned int height) {
@@ -575,26 +584,28 @@ void Application::SetDisplayMode(unsigned int width, unsigned int height) {
 	if (it != list.end()) {
 		SetDisplayMode(*it);
 	} else {
-		Fullscreen = false;
+
 		Globals::applyDisplaymode = false;
 	}
 }
 
 void Application::ResetDisplayMode() {
 	ChangeDisplaySettings(NULL, 0);
+
+	if(!Globals::fullscreen)
+		ToggleFullScreen(false, 1024u, 768u);
 }
 
-void Application::ToggleFullScreen(bool isFullScreen, unsigned int width, unsigned int height, bool resize) {
+void Application::ToggleFullScreen(bool isFullScreen, unsigned int width, unsigned int height) {
 
 	int deltaW = width == 0u ? Width : width;
 	int deltaH = height == 0u ? Height : height;
 
 	if (isFullScreen) {
-		if (!Fullscreen) {			
+		if (!Globals::fullscreen) {
 			GetWindowRect(Window, &Savedrc);
 		}
 		Globals::fullscreen = true;
-		Fullscreen = true;
 		SetWindowLong(Window, GWL_EXSTYLE, 0);
 		SetWindowLong(Window, GWL_STYLE, WS_POPUP | WS_CLIPCHILDREN | WS_CLIPSIBLINGS);
 		SetWindowPos(Window, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_FRAMECHANGED | SWP_SHOWWINDOW);
@@ -607,13 +618,12 @@ void Application::ToggleFullScreen(bool isFullScreen, unsigned int width, unsign
 
 		SetWindowPos(Window, HWND_TOPMOST, 0, 0, Width, Height, SWP_SHOWWINDOW);
 
-		if(resize)
-			Resize(deltaW, deltaH);
+		Resize(deltaW, deltaH);
 	}
 	
 	if (!isFullScreen) {
 		Globals::fullscreen = false;
-		Fullscreen = false;
+
 		SetWindowLong(Window, GWL_EXSTYLE, SavedExStyle);
 		SetWindowLong(Window, GWL_STYLE, SavedStyle);
 		SetWindowPos(Window, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_FRAMECHANGED | SWP_SHOWWINDOW);
@@ -626,8 +636,7 @@ void Application::ToggleFullScreen(bool isFullScreen, unsigned int width, unsign
 
 		SetWindowPos(Window, HWND_NOTOPMOST, 0, 0, Width, Height, SWP_SHOWWINDOW);
 
-		if(resize)
-			Resize(deltaW, deltaH);
+		Resize(deltaW, deltaH);
 	}
 }
 
@@ -636,7 +645,7 @@ void Application::WriteConfigurationToFile() {
 	oss << "setfenv(1, Globals);" << std::endl;
 	oss << "setResolution(" << Globals::width << ", " << Globals::height << ");" << std::endl;
 	oss << "useDisplaymode(" << std::boolalpha << Globals::applyDisplaymode << ");" << std::endl;
-	oss << "isFullscreen(" << std::boolalpha << Fullscreen << ");" << std::endl;
+	oss << "isFullscreen(" << std::boolalpha << Globals::fullscreen << ");" << std::endl;
 	oss << "setSoundVolume(" << Globals::soundVolume << ");" << std::endl;
-	oss << "setMusicVolume(" << Globals::soundVolume << ");" << std::endl;
+	oss << "setMusicVolume(" << Globals::musicVolume << ");" << std::endl;
 }

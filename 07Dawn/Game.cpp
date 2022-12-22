@@ -141,7 +141,8 @@ void Game::processInput() {
 	if (keyboard.keyPressed(Keyboard::KEY_L)) {
 		Interface::Get().closeAll();
 		OptionsWindow::Get().close();
-		m_machine.addStateAtTop(new Editor(m_machine));
+		m_isRunning = false;
+		m_machine.addStateAtBottom(new Editor(m_machine));
 	}
 }
 
@@ -273,4 +274,8 @@ void Game::Init() {
 	}
 
 	LuaFunctions::incrementTableRects("symbols");
+}
+
+void Game::stop() {
+	m_isRunning = false;
 }

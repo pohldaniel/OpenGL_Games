@@ -10,7 +10,7 @@ public:
 
 	void draw() override;
 	void processInput() override;
-
+	void processInput(const int mouseX, const int mouseY, const Event::MouseButtonEvent::MouseButton button = Event::MouseButtonEvent::MouseButton::NONE) override;
 
 	void setBaseColor(const Vector4f &color);
 	void setSelectColor(const Vector4f &color);

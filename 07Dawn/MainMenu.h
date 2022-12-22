@@ -1,7 +1,6 @@
 #pragma once
 #include "engine/input/EventDispatcher.h"
-#include "engine/input/Mouse.h"
-
+#include "engine/input/MouseEventListener.h"
 
 #include "StateMachine.h"
 #include "LoadingScreen.h"
@@ -10,7 +9,8 @@
 #include "Dialog.h"
 #include "Label.h"
 
-class MainMenu : public State {
+class MainMenu : public State, public MouseEventListener {
+
 public:
 	MainMenu(StateMachine& machine);
 	~MainMenu();
@@ -20,9 +20,11 @@ public:
 	void render() override;
 	void resize(int deltaW, int deltaH) override;
 	void processInput();
+
+private:
+
 	Dialog m_dialog;
 
-	std::vector<TextureRect> m_interfacetexture;
-
-	bool m_toggle = false;
+	void OnMouseMotion(Event::MouseMoveEvent& event) override;
+	void OnMouseButtonDown(Event::MouseButtonEvent& event) override;
 };

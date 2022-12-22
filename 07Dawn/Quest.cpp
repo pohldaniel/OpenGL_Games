@@ -163,7 +163,7 @@ void QuestCanvas::processInput() {
 	Mouse &mouse = Mouse::instance();
 	if (mouse.buttonPressed(Mouse::BUTTON_LEFT)) {
 
-		if (!isMouseOnFrame(mouse.xPosAbsolute(), mouse.yPosAbsolute())) {
+		if (!isMouseOnFrame(ViewPort::Get().getCursorPosRelX(), ViewPort::Get().getCursorPosRelY())) {
 			return;
 		}
 		size_t curEntryNr = (m_posY + m_height - 24 - ViewPort::Get().getCursorPosRelY()) / (font->lineHeight * 1.5);

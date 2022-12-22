@@ -1,13 +1,12 @@
 #pragma once
 
+#include "engine/input/MouseEventListener.h"
+
 #include "StateMachine.h"
 #include "LoadingScreen.h"
-#include "Editor.h"
-#include "Game.h"
 #include "Dialog.h"
-#include "Label.h"
 
-class ChooseClassMenu : public State {
+class ChooseClassMenu : public State, public MouseEventListener {
 
 public:
 	ChooseClassMenu(StateMachine& machine);
@@ -20,9 +19,9 @@ public:
 
 private:
 
-	std::vector<TextureRect> m_textures;
-	unsigned int m_textureAtlas;
-	CharacterSet* m_font;
+
 	Dialog m_dialog;
-	
+
+	void OnMouseMotion(Event::MouseMoveEvent& event) override;
+	void OnMouseButtonDown(Event::MouseButtonEvent& event) override;
 };

@@ -106,7 +106,7 @@ void OptionsWindow::processInput() {
 	Widget::processInput();	
 
 
-	if (!isMouseOnFrame(Mouse::instance().xPosAbsolute(), Mouse::instance().yPosAbsolute())) {
+	if (!isMouseOnFrame(ViewPort::Get().getCursorPosRelX(), ViewPort::Get().getCursorPosRelY())) {
 		return;
 	}
 
@@ -161,7 +161,7 @@ void OptionsWindow::processInput() {
 	}else if (selectedEntry == 3){
 		Interface::Get().closeAll();
 		close();
-		Application::AddStateAtTop(new Editor(Application::GetStateMachine()));
+		Application::ClearAndPush(new Editor(Application::GetStateMachine()));
 
 	} else if (selectedEntry == 4) {
 		close();

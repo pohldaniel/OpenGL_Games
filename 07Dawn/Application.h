@@ -30,19 +30,21 @@ public:
 	HWND getWindow();
 	
 	static void AddStateAtTop(State* state);
+	static void AddStateAtBottom(State* state);
+	static void ClearAndPush(State* state);
 	static StateMachine& GetStateMachine();
 	static void GetScreenMode(std::vector<DEVMODE>& list);
 	static void ResetDisplayMode();
 	static void SetDisplayMode(DEVMODE& settings);
 	static void SetDisplayMode(unsigned int width, unsigned int height);
-	static void ToggleFullScreen(bool isFullScreen, unsigned int width = 0, unsigned int height = 0, bool resize = true);
+	static void ToggleFullScreen(bool isFullScreen, unsigned int width = 0, unsigned int height = 0);
 	static void WriteConfigurationToFile();
 
 private:
 	
 	LRESULT DisplayWndProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lParam);
 
-	bool initWindow();
+	void initWindow();
 	void initOpenGL();
 	void initOpenAL();
 	void loadAssets();
@@ -70,7 +72,7 @@ private:
 	static bool Init;
 	static unsigned int Width;
 	static unsigned int Height;
-	static bool Fullscreen;
+	//static bool Fullscreen;
 	static DWORD SavedExStyle;
 	static DWORD SavedStyle;
 	static RECT Savedrc;

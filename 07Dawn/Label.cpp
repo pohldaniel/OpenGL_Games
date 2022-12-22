@@ -36,7 +36,22 @@ void Label::processInput() {
 	}else {
 		activeColor = defaultColor;
 
-	}		
+	}	
+}
+
+void Label::processInput(const int mouseX, const int mouseY, const Event::MouseButtonEvent::MouseButton button) {
+	if (mouseX > m_parentWidget->getPosX() + getPosX() + 5 && mouseX < m_parentWidget->getPosX() + getPosX() + getWidth() &&
+		mouseY > m_parentWidget->getPosY() + getPosY() && mouseY < m_parentWidget->getPosY() + getPosY() + getHeight()) {
+
+		activeColor = hoverColor;
+		if (button == Event::MouseButtonEvent::MouseButton::BUTTON_LEFT && m_fun) {
+			m_fun();
+		}
+
+	} else {
+		activeColor = defaultColor;
+
+	}
 }
 
 int Label::getWidth() const {

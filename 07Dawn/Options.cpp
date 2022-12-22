@@ -5,6 +5,8 @@
 #include "SeekerBar.h"
 
 Options::Options(StateMachine& machine) : State(machine, CurrentState::OPTIONS) {
+	EventDispatcher::AddMouseListener(this);
+	
 	m_dialog = Dialog(0, 0, 370, 150);
 	m_dialog.setPosition(0, 0);
 
@@ -22,7 +24,7 @@ Options::Options(StateMachine& machine) : State(machine, CurrentState::OPTIONS) 
 	dynamic_cast<Label*>(m_dialog.getChildWidgets()[0])->setHoverColor(Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
 	dynamic_cast<Label*>(m_dialog.getChildWidgets()[5])->setFunction([&]() {
 		m_isRunning = false;
-		m_machine.addStateAtTop(new MainMenu(m_machine));
+		m_machine.addStateAtBottom(new MainMenu(m_machine));
 	});
 
 	std::auto_ptr<CheckBox> checkBox(new CheckBox(Globals::applyDisplaymode));
@@ -88,13 +90,13 @@ Options::Options(StateMachine& machine) : State(machine, CurrentState::OPTIONS) 
 }
 
 
-Options::~Options() {}
+Options::~Options() {
+	EventDispatcher::RemoveMouseListener(this);
+}
 
 void Options::fixedUpdate() {}
 
-void Options::update() {
-	m_dialog.processInput();
-}
+void Options::update() {}
 
 void Options::render() {
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -104,6 +106,13 @@ void Options::render() {
 }
 
 void Options::resize(int deltaW, int deltaH) {
-	
 	m_dialog.applyLayout();
+}
+
+void Options::OnMouseMotion(Event::MouseMoveEvent& event) {
+	m_dialog.processInput(event.x, ViewPort::Get().getHeight() - event.y);
+}
+
+void Options::OnMouseButtonDown(Event::MouseButtonEvent& event) {
+	m_dialog.processInput(event.x, ViewPort::Get().getHeight() - event.y, event.button);
 }

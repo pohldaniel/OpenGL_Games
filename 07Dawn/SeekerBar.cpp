@@ -40,6 +40,28 @@ void SeekerBar::processInput() {
 	}
 }
 
+void SeekerBar::processInput(const int mouseX, const int mouseY, const Event::MouseButtonEvent::MouseButton button) {
+
+	if (button == Event::MouseButtonEvent::MouseButton::BUTTON_LEFT) {
+		float value = m_value;
+		if (m_parentWidget->getPosX() + getPosX() < mouseX && mouseX < m_parentWidget->getPosX() + getPosX() + 22 &&
+			m_parentWidget->getPosY() + getPosY() < mouseY && mouseY < m_parentWidget->getPosY() + getPosY() + 22) {
+			m_value -= 0.1f;
+			m_value = std::max(0.0f, std::min(m_value, 1.0f));
+		}
+
+		if (m_parentWidget->getPosX() + getPosX() + 150 < mouseX && mouseX < m_parentWidget->getPosX() + getPosX() + 150 + 22 &&
+			m_parentWidget->getPosY() + getPosY() < mouseY && mouseY < m_parentWidget->getPosY() + getPosY() + 22) {
+			m_value += 0.1f;
+			m_value = std::max(0.0f, std::min(m_value, 1.0f));
+
+		}
+
+		if (value != m_value)
+			m_onClicked();
+	}
+}
+
 void SeekerBar::setOnClicked(std::function<void()> fun) {
 	m_onClicked = fun;
 }

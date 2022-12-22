@@ -46,6 +46,19 @@ void CheckBox::processInput() {
 	}
 }
 
+void CheckBox::processInput(const int mouseX, const int mouseY, const Event::MouseButtonEvent::MouseButton button) {
+	if (button == Event::MouseButtonEvent::MouseButton::BUTTON_LEFT) {
+		if (mouseX > m_parentWidget->getPosX() + getPosX() + 2 && mouseX < m_parentWidget->getPosX() + getPosX() + 16 &&
+			mouseY > m_parentWidget->getPosY() + getPosY() + 2 && mouseY < m_parentWidget->getPosY() + getPosY() + getHeight() + 10) {
+			m_checked = !m_checked;
+			if (m_checked)
+				m_onChecked();
+			else
+				m_onUnchecked();
+		}
+	}
+}
+
 void CheckBox::setOnChecked(std::function<void()> fun) {
 	m_onChecked = fun;
 }

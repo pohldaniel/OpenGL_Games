@@ -13,9 +13,7 @@ SelectionBox::SelectionBox(const CharacterSet& font, const CharacterSet& selectF
 	state = OPEN;
 }
 
-SelectionBox::~SelectionBox() {
-	
-}
+SelectionBox::~SelectionBox() {}
 
 void SelectionBox::setFont(const CharacterSet& font) {
 	this->font = &font;
@@ -84,7 +82,6 @@ void SelectionBox::draw() {
 	}
 
 	if (state == OPEN) {
-		//TextureManager::BindTexture(DialogCanvas::TextureAtlas, true, 2);
 		TextureManager::DrawTextureBatched(DialogCanvas::Textures[4], m_parentWidget->getPosX() + getPosX(), m_parentWidget->getPosY() + getPosY() - selectFont->lineHeight * 1.2f * (entries.size() - 1) - 15, std::max(maxSelectedWidth + 10, getWidth() - 15), selectFont->lineHeight * 1.2f * (entries.size() - 1) + 15, false, false);
 		// draw the entries and highlight the one the mouse is over (if any)
 		int curX = m_parentWidget->getPosX() + getPosX() + 10;
@@ -96,7 +93,6 @@ void SelectionBox::draw() {
 			Fontrenderer::Get().addText(*selectFont, curX, curY, entries[curEntryNr], color);
 			curY -= (selectFont->lineHeight * 1.2f);
 		}
-		//TextureManager::UnbindTexture(true, 2);
 	}
 }
 
@@ -114,6 +110,29 @@ void SelectionBox::processInput() {
 			int curY = m_parentWidget->getPosY() + getPosY() - selectFont->lineHeight * 1.2f;
 			for (size_t curEntryNr = 0; curEntryNr<entries.size(); ++curEntryNr) {
 				bool mouseOverEntry = (ViewPort::Get().getCursorPosRelX() > curX && ViewPort::Get().getCursorPosRelX() <= curX + maxSelectedWidth && ViewPort::Get().getCursorPosRelY() > curY && ViewPort::Get().getCursorPosRelY() < curY + (selectFont->lineHeight * 1.2f));
+				if (mouseOverEntry) {
+					setSelected(curEntryNr);
+					break;
+				}
+				curY -= (selectFont->lineHeight * 1.2f);
+			}
+		}
+	}
+}
+
+void SelectionBox::processInput(const int mouseX, const int mouseY, const Event::MouseButtonEvent::MouseButton button) {
+
+	if (button == Event::MouseButtonEvent::MouseButton::BUTTON_LEFT) {
+		if (mouseX > m_parentWidget->getPosX() + getPosX() + 5 && mouseX < m_parentWidget->getPosX() + getPosX() + getWidth() &&
+			mouseY > m_parentWidget->getPosY() + getPosY() && mouseY < m_parentWidget->getPosY() + getPosY() + getHeight()) {
+			state = state == OPEN ? CLOSED : OPEN;
+		}
+
+		if (state == OPEN) {
+			int curX = m_parentWidget->getPosX() + getPosX() + 10;
+			int curY = m_parentWidget->getPosY() + getPosY() - selectFont->lineHeight * 1.2f;
+			for (size_t curEntryNr = 0; curEntryNr<entries.size(); ++curEntryNr) {
+				bool mouseOverEntry = (mouseX > curX && mouseX <= curX + maxSelectedWidth && ViewPort::Get().getCursorPosRelY() > curY && mouseY < curY + (selectFont->lineHeight * 1.2f));
 				if (mouseOverEntry) {
 					setSelected(curEntryNr);
 					break;

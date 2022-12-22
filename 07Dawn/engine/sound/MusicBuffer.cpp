@@ -108,6 +108,12 @@ void MusicBuffer::stop() {
 }
 
 void MusicBuffer::resume() {
+
+	alGetSourcei(m_source, AL_SOURCE_STATE, &m_playState);
+
+	if (m_playState == AL_PLAYING) {
+		return;
+	}
 	alSourcePlay(m_source);
 }
 

@@ -42,10 +42,10 @@ void LoadingScreen::update() {
 
 		switch (m_entry) {
 			case LoadingManager::Entry::GAME: case LoadingManager::Entry::LOAD:
-				m_machine.addStateAtTop(new Game(m_machine));
+				m_machine.addStateAtBottom(new Game(m_machine));
 				break;
 			case LoadingManager::Entry::EDITOR:
-				m_machine.addStateAtTop(new Editor(m_machine));
+				m_machine.addStateAtBottom(new Editor(m_machine));
 				break;
 			default:
 				break;

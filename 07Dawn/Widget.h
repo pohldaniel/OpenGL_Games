@@ -15,6 +15,7 @@ public:
 
 	virtual void draw();
 	virtual void processInput();
+	virtual void processInput(const int mouseX, const int mouseY, const Event::MouseButtonEvent::MouseButton button = Event::MouseButtonEvent::MouseButton::NONE);
 	virtual void addChildWidget(int posX, int posY, std::auto_ptr<Widget> newChild);
 	virtual int getWidth() const;
 	virtual int getHeight() const;

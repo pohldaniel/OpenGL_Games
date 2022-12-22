@@ -191,7 +191,7 @@ void TextWindow::processInput() {
 	Widget::processInput();
 
 	Mouse &mouse = Mouse::instance();
-	if (mouse.buttonPressed(Mouse::BUTTON_LEFT) && isMouseOnFrame(mouse.xPosAbsolute(), mouse.yPosAbsolute())) {
+	if (mouse.buttonPressed(Mouse::BUTTON_LEFT) && isMouseOnFrame(ViewPort::Get().getCursorPosRelX(), ViewPort::Get().getCursorPosRelY())) {
 		explicitClose = true;
 	}
 }

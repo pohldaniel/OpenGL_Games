@@ -378,7 +378,7 @@ void InventoryCanvas::processInput() {
 			shopFloatingSelection = true;
 		}
 		if (mouse.buttonPressed(Mouse::BUTTON_LEFT)) {
-			if (!isMouseOnFrame(mouse.xPosAbsolute(), mouse.yPosAbsolute()) && !ShopCanvas::Get().isMouseOnFrame(mouse.xPosAbsolute(), mouse.yPosAbsolute())) {
+			if (!isMouseOnFrame(ViewPort::Get().getCursorPosRelX(), ViewPort::Get().getCursorPosRelY()) && !ShopCanvas::Get().isMouseOnFrame(ViewPort::Get().getCursorPosRelX(), ViewPort::Get().getCursorPosRelY())) {
 
 				// clicked outside inventory window
 				if (floatingSelection != NULL) {

@@ -414,7 +414,8 @@ void Editor::update() {
 	}
 
 	if (keyboard.keyPressed(Keyboard::KEY_L)) {
-		m_machine.addStateAtTop(new Game(m_machine));
+		m_isRunning = false;
+		m_machine.addStateAtBottom(new Game(m_machine));
 	}
 }
 

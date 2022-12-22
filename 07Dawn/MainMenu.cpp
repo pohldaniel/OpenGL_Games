@@ -4,7 +4,7 @@
 #include "Utils.h"
 
 MainMenu::MainMenu(StateMachine& machine) : State(machine, CurrentState::MAINMENU) {
-	Mouse::SetCursorIcon("res/cursors/black.cur");
+	EventDispatcher::AddMouseListener(this);
 
 	m_dialog = Dialog(0, 0, 0, 0);
 	m_dialog.setPosition(0, 0);
@@ -21,24 +21,27 @@ MainMenu::MainMenu(StateMachine& machine) : State(machine, CurrentState::MAINMEN
 
 	dynamic_cast<Label*>(m_dialog.getChildWidgets()[1])->setFunction([&]() {
 		m_isRunning = false;
-		m_machine.addStateAtTop(new LoadingScreen(m_machine, LoadingManager::Entry::EDITOR));
+		m_machine.addStateAtBottom(new LoadingScreen(m_machine, LoadingManager::Entry::EDITOR));
 	});
 
 	dynamic_cast<Label*>(m_dialog.getChildWidgets()[2])->setFunction([&]() {
 		m_isRunning = false;
-		m_machine.addStateAtTop(new Options(m_machine));
+		m_machine.addStateAtBottom(new Options(m_machine));
 	});
+
+	dynamic_cast<Label*>(m_dialog.getChildWidgets()[2])->setDefaultColor(Utils::file_exists("res/_lua/save/savegame.lua") ? Vector4f(1.0f, 1.0f, 1.0f, 1.0f) : Vector4f(0.5f, 0.5f, 0.5f, 1.0f));
+	dynamic_cast<Label*>(m_dialog.getChildWidgets()[2])->setHoverColor(Utils::file_exists("res/_lua/save/savegame.lua") ? Vector4f(1.0f, 1.0f, 0.0f, 1.0f) : Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
 
 	dynamic_cast<Label*>(m_dialog.getChildWidgets()[3])->setFunction([&]() {
 		if (Utils::file_exists("res/_lua/save/savegame.lua")) {
 			m_isRunning = false;
-			m_machine.addStateAtTop(new LoadingScreen(m_machine, LoadingManager::Entry::LOAD));
+			m_machine.addStateAtBottom(new LoadingScreen(m_machine, LoadingManager::Entry::LOAD));
 		}
 	});
 
 	dynamic_cast<Label*>(m_dialog.getChildWidgets()[4])->setFunction([&]() {
 		m_isRunning = false;
-		m_machine.addStateAtTop(new ChooseClassMenu(m_machine));
+		m_machine.addStateAtBottom(new ChooseClassMenu(m_machine));
 	});
 
 	TextureManager::BindTexture(Globals::spritesheetManager.getAssetPointer("font")->getAtlas(), true, 0);
@@ -46,17 +49,13 @@ MainMenu::MainMenu(StateMachine& machine) : State(machine, CurrentState::MAINMEN
 	//Globals::musicManager.get("background").play("res/music/Early_Dawn_Simple.ogg");
 }
 
-MainMenu::~MainMenu() {}
+MainMenu::~MainMenu() {
+	EventDispatcher::RemoveMouseListener(this);
+}
 
 void MainMenu::fixedUpdate() {}
 
-void MainMenu::update() {
-	processInput();
-	dynamic_cast<Label*>(m_dialog.getChildWidgets()[2])->setDefaultColor(Utils::file_exists("res/_lua/save/savegame.lua") ? Vector4f(1.0f, 1.0f, 1.0f, 1.0f) : Vector4f(0.5f, 0.5f, 0.5f, 1.0f));
-	dynamic_cast<Label*>(m_dialog.getChildWidgets()[2])->setHoverColor(Utils::file_exists("res/_lua/save/savegame.lua") ? Vector4f(1.0f, 1.0f, 0.0f, 1.0f) : Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
-
-	m_dialog.processInput();
-}
+void MainMenu::update() {}
 
 void MainMenu::render() {
 
@@ -105,4 +104,12 @@ void MainMenu::processInput() {
 
 void MainMenu::resize(int deltaW, int deltaH) {
 	m_dialog.applyLayout();
+}
+
+void MainMenu::OnMouseMotion(Event::MouseMoveEvent& event) {
+	m_dialog.processInput(event.x, ViewPort::Get().getHeight() - event.y);
+}
+
+void MainMenu::OnMouseButtonDown(Event::MouseButtonEvent& event) {
+	m_dialog.processInput(event.x, ViewPort::Get().getHeight() - event.y, event.button);
 }

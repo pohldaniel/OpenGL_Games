@@ -63,6 +63,7 @@ private:
 	short* m_membuf = nullptr;
 	std::size_t m_frameSize = 0;
 	ALenum m_format;
+	ALint m_playState;
 
 	const CacheEntry* m_cacheEntry;
 	static CacheLRUP<std::string, CacheEntry> MusicBufferCache;

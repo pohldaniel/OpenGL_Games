@@ -112,6 +112,10 @@ void Dialog::processInput() {
 	Widget::processInput();
 }
 
+void Dialog::processInput(const int mouseX, const int mouseY, const Event::MouseButtonEvent::MouseButton button) {
+	Widget::processInput(mouseX, mouseY, button);
+}
+
 void Dialog::setAutoresize(){
 	autoResize = true;
 	applyLayout();
