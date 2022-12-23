@@ -178,9 +178,9 @@ bool TextWindow::isMouseOnFrame(int mouseX, int mouseY) const {
 	}
 	
 	if (mouseX < m_posX + 8
-		|| mouseY < static_cast<int>(ViewPort::Get().getHeight()) - (m_posY + m_height - 8)
+		|| mouseY > m_posY + m_height - 8
 		|| mouseX >  m_posX + m_width - 10
-		|| mouseY >  static_cast<int>(ViewPort::Get().getHeight()) - (m_posY + 11)) {
+		|| mouseY < m_posY + 11) {
 		return false;
 	}
 	return true;

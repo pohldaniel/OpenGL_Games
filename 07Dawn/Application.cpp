@@ -19,6 +19,7 @@ bool Application::Init = false;
 DWORD Application::SavedExStyle;
 DWORD Application::SavedStyle;
 RECT Application::Savedrc;
+DEVMODE Application::DefaultScreen;
 
 bool compareDeviceMode(DEVMODE const& s1, DEVMODE const& s2) {
 	return s1.dmPelsWidth == s2.dmPelsWidth && s1.dmPelsHeight == s2.dmPelsHeight && s1.dmDefaultSource == s2.dmDefaultSource && s1.dmDisplayFrequency == s2.dmDisplayFrequency;
@@ -114,10 +115,13 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 	SavedExStyle = GetWindowLong(Window, GWL_EXSTYLE);
 	SavedStyle = GetWindowLong(Window, GWL_STYLE);
 
+	memset(&DefaultScreen, 0, sizeof(DefaultScreen));
+	EnumDisplaySettings(NULL, ENUM_CURRENT_SETTINGS, &DefaultScreen);
+
 	if (Globals::applyDisplaymode)
 		Application::SetDisplayMode(Globals::width, Globals::height);
 
-	if(Globals::fullscreen && !Globals::applyDisplaymode)
+	if(Globals::fullscreen)
 		ToggleFullScreen(true);
 }
 
@@ -488,8 +492,7 @@ void Application::loadAssets() {
 
 
 void Application::Resize(int deltaW, int deltaH) {
-	if (deltaW == 0 && deltaH == 0) return;
-
+	//if (deltaW == 0 && deltaH == 0) return;
 	glViewport(0, 0, Width, Height);
 	Globals::projection = Matrix4f::GetPerspective(Globals::projection, 45.0f, static_cast<float>(Width) / static_cast<float>(Height), 1.0f, 5000.0f);
 	Globals::invProjection = Matrix4f::GetInvPerspective(Globals::invProjection, 45.0f, static_cast<float>(Width) / static_cast<float>(Height), 1.0f, 5000.0f);
@@ -552,13 +555,9 @@ void Application::GetScreenMode(std::vector<DEVMODE>& list) {
 		list.push_back(screen);
 	}
 
-	DEVMODE curScreen;
-	memset(&curScreen, 0, sizeof(curScreen));
-	EnumDisplaySettings(NULL, ENUM_CURRENT_SETTINGS, &curScreen);
-
-	std::vector<DEVMODE>::iterator it = std::find_if(list.begin(), list.end(), std::bind(compareDeviceMode, std::placeholders::_1, curScreen));
+	std::vector<DEVMODE>::iterator it = std::find_if(list.begin(), list.end(), std::bind(compareDeviceMode, std::placeholders::_1, DefaultScreen));
 	if(it == list.end()) {
-		list.push_back(curScreen);
+		list.push_back(DefaultScreen);
 		std::sort(list.begin(), list.end(), sortDeviceMode);
 	};		
 }
@@ -606,6 +605,7 @@ void Application::ToggleFullScreen(bool isFullScreen, unsigned int width, unsign
 	int deltaH = height == 0u ? Height : height;
 
 	if (isFullScreen) {
+
 		if (!Globals::fullscreen) {
 			GetWindowRect(Window, &Savedrc);
 		}
@@ -638,8 +638,7 @@ void Application::ToggleFullScreen(bool isFullScreen, unsigned int width, unsign
 		deltaW = Width - deltaW;
 		deltaH = Height - deltaH;
 
-		SetWindowPos(Window, HWND_NOTOPMOST, 0, 0, Width, Height, SWP_SHOWWINDOW);
-
+		SetWindowPos(Window, HWND_NOTOPMOST, 0, 0, Width + 16u, Height + 39u, SWP_SHOWWINDOW);
 		Resize(deltaW, deltaH);
 	}
 }

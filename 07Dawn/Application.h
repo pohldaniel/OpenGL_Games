@@ -59,6 +59,7 @@ private:
 	bool m_enableVerticalSync;
 	MSG msg;
 	
+
 	const float& m_fdt;
 	const float& m_dt;
 	
@@ -79,4 +80,5 @@ private:
 	static DWORD SavedExStyle;
 	static DWORD SavedStyle;
 	static RECT Savedrc;
+	static DEVMODE DefaultScreen;
 };

@@ -51,7 +51,7 @@ MainMenu::MainMenu(StateMachine& machine) : State(machine, CurrentState::MAINMEN
 
 	TextureManager::BindTexture(Globals::spritesheetManager.getAssetPointer("font")->getAtlas(), true, 0);
 	TextureManager::BindTexture(TextureManager::GetTextureAtlas("dialog"), true, 2);
-	//Globals::musicManager.get("background").play("res/music/Early_Dawn_Simple.ogg");
+	Globals::musicManager.get("background").play("res/music/Early_Dawn_Simple.ogg");
 }
 
 MainMenu::~MainMenu() {
