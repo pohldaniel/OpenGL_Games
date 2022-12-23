@@ -13,8 +13,8 @@
 
 
 class TileSet;
-
-
+struct LootTable;
+class Item;
 
 struct CharacterType {
 	friend class Character;
@@ -26,7 +26,8 @@ struct CharacterType {
 	void baseOnType(std::string name);
 
 	void inscribeSpellInSpellbook(SpellActionBase* spell);
-	//void addItemToLootTable(Item* item, double dropChance);
+	void addItemToLootTable(Item *item, double dropChance);
+	void setCoinDrop(unsigned int minCoinDrop, unsigned int maxCoinDrop, double dropChance);
 	void setClass(Enums::CharacterClass);
 	void setName(std::string newName);
 
@@ -91,6 +92,10 @@ private:
 	Enums::CharacterClass characterClass;
 
 	std::vector<SpellActionBase*> spellbook;
+	std::vector<LootTable> lootTable;
+	unsigned int minCoinDrop;
+	unsigned int maxCoinDrop;
+	double coinDropChance;
 };
 
 class CharacterTypeManager {
@@ -126,7 +131,7 @@ public:
 
 	void Damage(int amount, bool criticalHit);
 	void Heal(int amount);
-	void Die();
+	virtual void Die();
 	
 	bool castSpell(SpellActionBase *spell);
 	void executeSpellWithoutCasting(SpellActionBase *spell, Character *target);
@@ -154,6 +159,7 @@ public:
 	std::string getClassName() const;
 	std::vector<SpellActionBase*> getSpellbook() const;
 	std::vector<SpellActionBase*> getActiveSpells() const;
+	std::vector<SpellActionBase*>& getCooldownSpells();
 	Enums::CharacterArchType getArchType() const;
 	Character* getTarget() const;
 	void setTarget(Character *target);
@@ -282,12 +288,15 @@ protected:
 	void MoveRight(unsigned short n);
 	void Move(Enums::Direction direction, unsigned short n = 1);
 	void CastingAborted();
-
+	bool mayDoAnythingAffectingSpellActionWithoutAborting() const;
 	void interruptCurrentActivityWith(Enums::ActivityType activity);
 	
 	Enums::ActivityType getCurActivity() const;
 	void cleanupCooldownSpells();
 	void cleanupActiveSpells();
+
+	void setCurrentHealth(unsigned short newCurrentHealth);
+	void setCurrentMana(unsigned short newCurrentMana);
 
 	bool alive;
 	bool m_isPlayer;
@@ -368,14 +377,10 @@ private:
 	void startSpellAction();
 	void giveToPreparation(SpellActionBase *toPrepare);
 	void addDamageDisplayToGUI(int amount, bool critical, uint8_t damageType);
-	
-	void abortCurrentSpellAction();
-	bool mayDoAnythingAffectingSpellActionWithoutAborting() const;
+	void abortCurrentSpellAction();	
 	bool mayDoAnythingAffectingSpellActionWithAborting() const;
 	float getMovementSpeed() const;
-
-	void setCurrentHealth(unsigned short newCurrentHealth);
-	void setCurrentMana(unsigned short newCurrentMana);
+	
 	void setCurrentFatigue(unsigned short newCurrentFatigue);
 
 	void modifyMaxHealth(short maxHealthModifier);
@@ -384,4 +389,9 @@ private:
 	void modifyCurrentHealth(short currentHealthModifier);
 	void modifyCurrentMana(short currentManaModifier);
 	void modifyCurrentFatigue(short currentFatigueModifier);
+
+	int CheckForCollision(int x_pos, int y_pos);
+	int CollisionCheck(Enums::Direction direction);
+
+	bool hasIntersection(int r1_l, int r1_r, int r1_b, int r1_t, int r2_l, int r2_r, int r2_b, int r2_t);
 };

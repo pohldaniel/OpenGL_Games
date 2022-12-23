@@ -5,6 +5,16 @@
 #include "Callindirection.h"
 #include "Character.h"
 
+class Item;
+
+struct LootTable{
+	Item* item;
+	double dropChance;
+	LootTable(Item* item_, double dropChance_) {
+		item = item_;
+		dropChance = dropChance_;
+	}
+};
 
 class Npc : public Character {
 
@@ -12,22 +22,30 @@ class Npc : public Character {
 
 public:
 
-	Npc(int _x_spawn_pos, int _y_spawn_pos, int _NPC_id, int _seconds_to_respawn, int _do_respawn);
+	Npc();
 	~Npc();
 
 	void draw() override;
 	void update(float deltaTime) override;	
 	void setCharacterType(std::string characterType) override;
+	void Die() override;
 	bool canBeDamaged() const override;
+	void Damage(int amount, bool criticalHit);
+	void dropItems();
+	void onDie();
+	void Respawn();
 
 	bool CheckMouseOver(int _x_pos, int _y_pos);
 	void chasePlayer(Character *player);
 	Enums::Direction GetDirectionRNG();	
+	Enums::Direction GetDirection();
 	Enums::Direction GetOppositeDirection(Enums::Direction direction);
 	Enums::Attitude getAttitude() const;
 	void markAsDeleted();
 	bool isMarkedAsDeletable() const;
-	
+	bool canSeeInvisible() const;
+	bool canSeeSneaking() const;
+
 	////////////////LUA///////////////////
 	void setWanderRadius(unsigned short newWanderRadius);
 	void setSpawnInfo(int _x_spawn_pos, int _y_spawn_pos, int _seconds_to_respawn, int _do_respawn);
@@ -36,6 +54,18 @@ public:
 	std::string getLuaSaveText() const;
 	void addOnDieEventHandler(CallIndirection *eventHandler);
 	bool hasOnDieEventHandler() const;
+	void addItemToLootTable(Item* item, double dropChance);
+	void setCoinDrop(unsigned int minCoinDrop, unsigned int maxCoinDrop, double dropChance);
+
+	std::vector<LootTable> lootTable;
+	unsigned int minCoinDrop;
+	unsigned int maxCoinDrop;
+	double coinDropChance;
+
+	bool hasDrawnDyingOnce = false;
+	bool hasChoosenFearDirection = false;
+	bool hasChoosenDyingDirection = false;
+	float dyingTransparency = 1.0f;
 
 	static void DrawActiveSpells();
 	static std::vector<Npc*>& GetNPCs();
@@ -51,8 +81,11 @@ private:
 	unsigned short getWanderRadius() const;
 	unsigned short getWanderRadiusSq() const;
 
+	Enums::Direction getDirectionTowardsWaypointAt(int x_pos, int y_pos) const;
+	Enums::Direction getDirectionTowards(int x_pos, int y_pos) const;
+
 	Enums::Attitude attitudeTowardsPlayer;
-	Enums::Direction WanderDirection;
+	Enums::Direction WanderDirection, MovingDirection;
 	unsigned int lastPathCalculated;
 	
 	bool m_updated = false;

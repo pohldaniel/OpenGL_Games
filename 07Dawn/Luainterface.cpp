@@ -136,11 +136,10 @@ namespace DawnInterface{
 		
 		
 		if (!CharacterTypeManager::Get().containsCaracterType(characterType)) {
-
 			return nullptr;
 		}
 
-		Npc* newMob = new Npc(0, 0, 0, 0, 0);	
+		Npc* newMob = new Npc();	
 		newMob->setCharacterType(characterType);
 		newMob->setSpawnInfo(x_pos, y_pos, respawn_rate, do_respawn);
 		newMob->setAttitude(attitude);

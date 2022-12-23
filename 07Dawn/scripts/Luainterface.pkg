@@ -325,6 +325,8 @@ struct CharacterType {
 	void calcNumMoveTexturesPerDirection();
 	void baseOnType(std::string name);
 	void inscribeSpellInSpellbook(SpellActionBase* spell);
+	void addItemToLootTable(Item* item, double dropChance);
+	void setCoinDrop(unsigned int minCoinDrop, unsigned int maxCoinDrop, double dropChance);
 	
 	void setStrength(int newStrength);
 	void setDexterity(int newDexterity);

@@ -1,9 +1,13 @@
 #include "Npc.h"
 #include "TilesetManager.h"
 #include "Zone.h"
+#include "Groundloot.h"
+#include "Quest.h"
+#include "Item.h"
 #include "Constants.h"
+#include "Astar.h"
 
-Npc::Npc(int _x_spawn_pos, int _y_spawn_pos, int _NPC_id, int _seconds_to_respawn, int _do_respawn) {
+Npc::Npc() {
 	alive = true;
 	respawn_thisframe = 0.0f;
 	respawn_lastframe = 0.0f; // helps us count when to respawn the NPC.
@@ -12,11 +16,11 @@ Npc::Npc(int _x_spawn_pos, int _y_spawn_pos, int _NPC_id, int _seconds_to_respaw
 	wander_every_seconds = 3; // this mob wanders every 1 seconds.
 	wandering = false;
 
+	MovingDirection = Enums::Direction::STOP;
 	WanderDirection = Enums::Direction::STOP;
 	activeDirection = Enums::Direction::STOP;
 	lastActiveDirection = activeDirection;
 	curActivity = Enums::ActivityType::Walking;
-
 	attitudeTowardsPlayer = Enums::Attitude::NEUTRAL;
 	chasingPlayer = false;
 	setTarget(NULL);
@@ -30,20 +34,23 @@ Npc::Npc(int _x_spawn_pos, int _y_spawn_pos, int _NPC_id, int _seconds_to_respaw
 Npc::~Npc() {}
 
 void Npc::draw() {
-	//std::cout << "Name: " << name << std::endl;
-	//if (m_updated) {
-	Enums::ActivityType curActivity = getCurActivity();
 
-	int drawX = getXPos();
-	int drawY = getYPos();
-	TextureManager::DrawTextureBatched(*rect, drawX, drawY, true, true, 5u);
-	//}
+	if (m_updated) {
+
+		curActivity = getCurActivity();
+		int drawX = getXPos();
+		int drawY = getYPos();
+		TextureManager::DrawTextureBatched(*rect, drawX, drawY, true, true, 5u);
+
+
+	}
 }
 
 void Npc::update(float deltaTime) {
 	m_updated = TextureManager::IsRectOnScreen(getXPos(), rect->width, getYPos(), rect->height);
 	regenerateLifeManaFatigue(deltaTime);
 	if (m_updated) {
+		
 		processInput();
 		lastActiveDirection = activeDirection != Enums::Direction::STOP ? activeDirection : lastActiveDirection;
 		Move(deltaTime);
@@ -54,6 +61,7 @@ void Npc::update(float deltaTime) {
 			activeSpellActions[curActiveSpellNr]->inEffect(deltaTime);
 		}
 		cleanupActiveSpells();
+		cleanupCooldownSpells();
 	}
 
 }
@@ -84,17 +92,28 @@ void Npc::setCharacterType(std::string characterType) {
 	setName(m_characterType->name);
 	setLevel(m_characterType->level);
 	setExperienceValue(m_characterType->experienceValue);
+	setCoinDrop(m_characterType->minCoinDrop, m_characterType->maxCoinDrop, m_characterType->coinDropChance);
 
 	for (const auto& spell : m_characterType->spellbook) {
 		inscribeSpellInSpellbook(spell);
+	}
+
+	for (const auto& loot : m_characterType->lootTable) {
+		addItemToLootTable(loot.item, loot.dropChance);
 	}
 
 	rect = &m_characterType->m_moveTileSets.at({ getCurActivity(), GetDirectionRNG() }).getAllTiles()[0].textureRect;
 	wander_radius = m_characterType->wander_radius;
 }
 
-bool Npc::canBeDamaged() const {
-	return attitudeTowardsPlayer != Enums::Attitude::FRIENDLY;
+void Npc::addItemToLootTable(Item *item, double dropChance) {
+	lootTable.push_back(LootTable(item, dropChance));
+}
+
+void Npc::setCoinDrop(unsigned int minCoinDrop, unsigned int maxCoinDrop, double dropChance) {
+	this->minCoinDrop = minCoinDrop;
+	this->maxCoinDrop = maxCoinDrop;
+	this->coinDropChance = dropChance;
 }
 
 bool Npc::CheckMouseOver(int _x_pos, int _y_pos) {
@@ -109,45 +128,6 @@ bool Npc::CheckMouseOver(int _x_pos, int _y_pos) {
 	}
 }
 
-void Npc::chasePlayer(Character *player) {
-	chasingPlayer = true;
-	setTarget(player);
-
-	// This can be used to deactivate pathfinding, because it might cause performance problems
-	bool dontUsePathfinding = false;
-	if (!dontUsePathfinding) {
-		// check whether we need to calculate a path for this NPC
-		// if so calculate the path and set a list of waypoints
-
-		// don't calculate a path too often
-		bool neverCalculatePath = dontUsePathfinding || (Globals::clock.getElapsedTimeMilli() - lastPathCalculated < 2000);
-		// don't calculate a path if we are very close to the player
-		int rawDistance = ((std::sqrt(std::pow(getXPos() + getWidth() / 2 - (player->getXPos() + player->getWidth() / 2), 2)
-			+ std::pow(getYPos() + getHeight() / 2 - (player->getYPos() + player->getHeight() / 2), 2)))
-			- std::sqrt(std::pow((getWidth() + player->getWidth()) / 2, 2)
-				+ std::pow((getHeight() + player->getHeight()) / 2, 2)));
-		if (rawDistance < 50) {
-			waypoints.clear();
-			neverCalculatePath = true;
-		}
-		bool calculatePath = (waypoints.size() == 0);
-		// recalculate the path if the player has moved too far from the endpoint of the path
-		if (!calculatePath && !neverCalculatePath) {
-			std::array<int, 2> lastPoint = waypoints.front();
-			if (std::pow(lastPoint[0] - player->getXPos(), 2) + std::pow(lastPoint[1] - player->getYPos(), 2) > std::max(waypoints.size() * 100, static_cast<size_t>(1000))) {
-				calculatePath = true;
-			}
-		}
-		if (calculatePath && !neverCalculatePath) {
-
-			//waypoints = aStar(Point(getXPos(), getYPos()), Point(player->getXPos() + player->getWidth() / 2, player->getYPos() + player->getHeight() / 2), getWidth(), getHeight());
-			if (waypoints.size() > 0) {
-				waypoints.pop_back();
-				lastPathCalculated = Globals::clock.getElapsedTimeMilli();
-			}
-		}
-	}
-}
 
 Enums::Direction Npc::GetDirectionRNG() {
 	return static_cast<Enums::Direction>(RNG::randomSizeT(1, 8));
@@ -185,6 +165,226 @@ Enums::Direction Npc::GetOppositeDirection(Enums::Direction direction) {
 	}
 }
 
+Enums::Direction Npc::GetDirection() {
+	Player *player = &Player::Get();
+	if (chasingPlayer == true) {
+		if (waypoints.size() > 0) {
+			// follow waypoints
+			std::array<int,2> nextWP = waypoints.back();
+			return getDirectionTowardsWaypointAt(nextWP[0], nextWP[1]);
+		}else {
+			// run directly towards the player
+			return getDirectionTowards((player->getXPos() + player->getWidth()) / 2, (player->getYPos() + player->getHeight()) / 2);
+		}
+	}
+	if (wandering) {
+		return WanderDirection;
+	} else {
+		return MovingDirection;
+	}
+}
+
+Enums::Direction Npc::getDirectionTowardsWaypointAt(int x_pos, int y_pos) const {
+	int dx = x_pos - this->x_pos;
+	int dy = y_pos - this->y_pos;
+
+	if (dx > 0) {
+		if (dy > 0) {
+			return Enums::NE;
+		}
+		else if (dy < 0) {
+			return Enums::SE;
+		}
+		else {
+			return Enums::E;
+		}
+	}
+	else if (dx < 0) {
+		if (dy > 0) {
+			return Enums::NW;
+		}
+		else if (dy < 0) {
+			return Enums::SW;
+		}
+		else {
+			return Enums::W;
+		}
+	}
+	else {
+		if (dy > 0) {
+			return Enums::N;
+		}
+		else if (dy < 0) {
+			return Enums::S;
+		}
+		else {
+			return Enums::STOP;
+		}
+	}
+}
+
+Enums::Direction Npc::getDirectionTowards(int x_pos, int y_pos) const {
+	int dx = x_pos - (this->x_pos + this->getWidth()) / 2;
+	int dy = y_pos - (this->y_pos + this->getHeight()) / 2;
+
+	if (dx > 0) {
+		if (dy > 0) {
+			return Enums::NE;
+		}
+		else if (dy < 0) {
+			return Enums::SE;
+		}
+		else {
+			return Enums::E;
+		}
+	}
+	else if (dx < 0) {
+		if (dy > 0) {
+			return Enums::NW;
+		}
+		else if (dy < 0) {
+			return Enums::SW;
+		}
+		else {
+			return Enums::W;
+		}
+	}
+	else {
+		if (dy > 0) {
+			return Enums::N;
+		}
+		else if (dy < 0) {
+			return Enums::S;
+		}
+		else {
+			return Enums::STOP;
+		}
+	}
+}
+
+void Npc::chasePlayer(Character *player) {
+	chasingPlayer = true;
+	setTarget(player);
+
+	// This can be used to deactivate pathfinding, because it might cause performance problems
+	bool dontUsePathfinding = false;
+	if (!dontUsePathfinding) {
+		// check whether we need to calculate a path for this NPC
+		// if so calculate the path and set a list of waypoints
+
+		// don't calculate a path too often
+		bool neverCalculatePath = dontUsePathfinding || (Globals::clock.getElapsedTimeMilli() - lastPathCalculated < 2000);
+		// don't calculate a path if we are very close to the player
+		int rawDistance = ((std::sqrt(std::pow(getXPos() + getWidth() / 2 - (player->getXPos() + player->getWidth() / 2), 2)
+			+ std::pow(getYPos() + getHeight() / 2 - (player->getYPos() + player->getHeight() / 2), 2)))
+			- std::sqrt(std::pow((getWidth() + player->getWidth()) / 2, 2)
+				+ std::pow((getHeight() + player->getHeight()) / 2, 2)));
+		if (rawDistance < 50) {
+			waypoints.clear();
+			neverCalculatePath = true;
+		}
+		bool calculatePath = (waypoints.size() == 0);
+		// recalculate the path if the player has moved too far from the endpoint of the path
+		if (!calculatePath && !neverCalculatePath) {
+			std::array<int, 2> lastPoint = waypoints.front();
+			if (std::pow(lastPoint[0] - player->getXPos(), 2) + std::pow(lastPoint[1] - player->getYPos(), 2) > std::max(waypoints.size() * 100, static_cast<size_t>(1000))) {
+				calculatePath = true;
+			}
+		}
+		if (calculatePath && !neverCalculatePath) {
+			waypoints = aStar(std::array<int, 2>{getXPos(), getYPos()}, std::array<int, 2>{player->getXPos() + player->getWidth() / 2, player->getYPos() + player->getHeight() / 2}, getWidth(), getHeight());
+			if (waypoints.size() > 0) {
+				waypoints.pop_back();
+				lastPathCalculated = Globals::clock.getElapsedTimeMilli();
+			}
+		}
+	}
+}
+
+bool Npc::canBeDamaged() const {
+	return attitudeTowardsPlayer != Enums::Attitude::FRIENDLY;
+}
+
+void Npc::Damage(int amount, bool criticalHit) {
+	// don't damage quest characters etc.
+	if (!canBeDamaged())
+		return;
+
+	chasePlayer(&Player::Get());
+	Character::Damage(amount, criticalHit);
+}
+
+void Npc::Die() {
+	Character::Die();
+	dropItems();
+	alive = false;
+	respawn_lastframe = Globals::clock.getElapsedTimeMilli();
+	onDie();
+}
+
+void Npc::dropItems() {
+	// iterate through the loot table and see if we should drop any items.
+	Zone *curZone = ZoneManager::Get().getCurrentZone();
+
+	for (size_t tableID = 0; tableID < lootTable.size(); ++tableID) {
+		// if the item in the table is a questitem, we first need to see if we have a quest which will generate such a drop
+		if (lootTable[tableID].item->getItemType() == Enums::ItemType::QUESTITEM) {
+			if (QuestCanvas::Get().anyQuestNeedThis(lootTable[tableID].item) == false) {
+				// yes, it's a quest item, but not needed in any quest so aborting here.
+				break;
+			}
+		}
+
+		double dropChance = RNG::randomDouble(0, 1);;
+		if (dropChance <= lootTable[tableID].dropChance) {
+			curZone->getGroundLoot().addItem(getXPos(), getYPos(), lootTable[tableID].item);
+		}
+	}
+
+	
+	double dropChance = RNG::randomDouble(0, 1);
+	if (dropChance <= coinDropChance) {
+		curZone->getGroundLoot().addItem(getXPos(), getYPos(), new GoldHeap(RNG::randomSizeT(minCoinDrop, maxCoinDrop)));
+	}
+}
+
+void Npc::onDie() {
+	for (size_t curEventHandlerNr = 0; curEventHandlerNr < onDieEventHandlers.size(); ++curEventHandlerNr) {
+		onDieEventHandlers[curEventHandlerNr]->call();
+	}
+}
+
+void Npc::Respawn() {
+	if (alive == false && do_respawn == true) {
+		respawn_thisframe = Globals::clock.getElapsedTimeMilli();
+		if ((respawn_thisframe - respawn_lastframe) >(seconds_to_respawn * 1000)) {
+			setTarget(NULL);
+			alive = true;
+			chasingPlayer = false;
+			waypoints.clear();
+			x_pos = x_spawn_pos;
+			y_pos = y_spawn_pos;
+			respawn_thisframe = 0.0f;
+			respawn_lastframe = 0.0f;
+			setCurrentHealth(getModifiedMaxHealth());
+			setCurrentMana(getModifiedMaxMana());
+
+			activeDirection = Enums::Direction::S;
+			lastActiveDirection = activeDirection;
+			curActivity = Enums::ActivityType::Walking;
+
+			isPreparing = false;
+			alive = true;
+			hasDrawnDyingOnce = false;
+			hasChoosenFearDirection = false;
+			hasChoosenDyingDirection = false;
+			curSpellAction = NULL;
+			coins = 0;
+			dyingTransparency = 1.0f;
+		}
+	}
+}
+
 Enums::Attitude Npc::getAttitude() const {
 	return this->attitudeTowardsPlayer;
 }
@@ -216,8 +416,131 @@ void Npc::setAttitude(Enums::Attitude attitude) {
 
 /////////////////////////////PRIVATE/////////////////////////////////
 void Npc::Move(float deltaTime) {
+	std::vector<SpellActionBase*> curSpellbook = getSpellbook();
+	for (size_t spellIndex = 0; spellIndex < curSpellbook.size(); spellIndex++) {
+
+		/// \todo better AI to determine what spells to be cast.
+		///
+		/// As of now, we just check if the spell is within range,
+		/// has enough mana and isn't on cooldown...
+		bool castableSpell = true;
+
+		if (dynamic_cast<GeneralBuffSpell*>(curSpellbook[spellIndex]) == NULL) {
+			castableSpell = false;
+		}
+
+		if (dynamic_cast<Spell*>(curSpellbook[spellIndex]) != NULL) {
+			if (curSpellbook[spellIndex]->getSpellCost() > getCurrentMana()) {
+				/// can't cast. not enough mana.
+				castableSpell = false;
+			}
+		}
+
+		if (curSpellbook[spellIndex]->getEffectType() != Enums::EffectType::SelfAffectingSpell && getTarget() != NULL) {
+			uint16_t distance = sqrt(pow((getXPos() + getWidth() / 2) - (getTarget()->getXPos() + getTarget()->getWidth() / 2), 2) + pow((getYPos() + getHeight() / 2) - (getTarget()->getYPos() + getTarget()->getHeight() / 2), 2));
+			if (curSpellbook[spellIndex]->isInRange(distance) == false) {
+				/// can't cast, not in range.
+				castableSpell = false;
+			}
+		}
+
 		
-	if (!m_stopped) {
+		for (size_t curSpell = 0; curSpell < cooldownSpells.size(); curSpell++) {
+			if (cooldownSpells[curSpell]->getID() == curSpellbook[spellIndex]->getID()){
+				if (cooldownSpells[curSpell]->m_timer.getElapsedTimeMilli() > cooldownSpells[curSpell]->getCooldown() * 1000u) {
+					/// can't cast, spell has a cooldown on it.
+					castableSpell = false;
+				}
+			}
+		}
+
+		if (castableSpell == true) {
+
+			SpellActionBase *curAction = NULL;
+
+			Enums::EffectType effectType = curSpellbook[spellIndex]->getEffectType();
+
+			if (effectType == Enums::EffectType::SingleTargetSpell && getTarget() != NULL) {
+
+				curAction = curSpellbook[spellIndex]->cast(this, getTarget(), false);
+
+			} else if (effectType == Enums::EffectType::SelfAffectingSpell) {
+				curAction = curSpellbook[spellIndex]->cast(this, this, false);
+			}
+
+			if (curAction != NULL) {
+				castSpell(dynamic_cast<SpellActionBase*>(curAction));
+			}
+		}
+	}
+
+	if (mayDoAnythingAffectingSpellActionWithoutAborting() && chasingPlayer == true) {
+		std::vector<SpellActionBase*> curSpellbook = getSpellbook();
+		for (size_t spellIndex = 0; spellIndex < curSpellbook.size(); spellIndex++) {
+
+			/// \todo better AI to determine what spells to be cast.
+			///
+			/// As of now, we just check if the spell is within range,
+			/// has enough mana and isn't on cooldown...
+			bool castableSpell = true;
+
+			if (dynamic_cast<Action*>(curSpellbook[spellIndex]) != NULL) {
+				if (curSpellbook[spellIndex]->getSpellCost() > getCurrentFatigue()) {
+					/// can't cast. cost more fatigue than we can afford.
+					castableSpell = false;
+				}
+			} else if (dynamic_cast<Spell*>(curSpellbook[spellIndex]) != NULL) {
+				if (curSpellbook[spellIndex]->getSpellCost() > getCurrentMana()) {
+					/// can't cast. not enough mana.
+					castableSpell = false;
+				}
+			}
+			
+			if (curSpellbook[spellIndex]->getEffectType() != Enums::EffectType::SelfAffectingSpell && getTarget() != NULL) {
+				uint16_t distance = sqrt(pow((getXPos() + getWidth() / 2) - (getTarget()->getXPos() + getTarget()->getWidth() / 2), 2) + pow((getYPos() + getHeight() / 2) - (getTarget()->getYPos() + getTarget()->getHeight() / 2), 2));
+				if (curSpellbook[spellIndex]->isInRange(distance) == false) {
+					/// can't cast, not in range.
+					castableSpell = false;
+				}
+			}
+
+			for (size_t curSpell = 0; curSpell < cooldownSpells.size(); curSpell++) {
+				if (cooldownSpells[curSpell]->getID() == curSpellbook[spellIndex]->getID()) {
+					if (cooldownSpells[curSpell]->m_timer.getElapsedTimeMilli() > cooldownSpells[curSpell]->getCooldown() * 1000u) {
+						/// can't cast, spell has a cooldown on it.
+						castableSpell = false;
+					}
+				}
+			}
+
+			if (castableSpell == true) {
+				SpellActionBase *curAction = NULL;
+				
+				Enums::EffectType effectType = curSpellbook[spellIndex]->getEffectType();
+
+				if (effectType == Enums::EffectType::SingleTargetSpell && getTarget() != NULL) {
+					curAction = curSpellbook[spellIndex]->cast(this, getTarget(), false);
+				} else if (effectType == Enums::EffectType::SelfAffectingSpell) {
+					curAction = curSpellbook[spellIndex]->cast(this, this, false);
+				}
+
+				if (curAction != NULL) {
+					castSpell(dynamic_cast<SpellActionBase*>(curAction));
+				}
+			}
+		}
+	}
+	
+	Player *player = &Player::Get();
+	double distance = sqrt(pow((getXPos() + getWidth() / 2) - (player->getXPos() + player->getWidth() / 2), 2) + pow((getYPos() + getHeight() / 2) - (player->getYPos() + player->getHeight() / 2), 2));
+	// if player is inside agro range of NPC, we set NPC to attack mode.
+	if (distance < 200 && getAttitude() == Enums::Attitude::HOSTILE && (player->isInvisible() == false || canSeeInvisible() == true) && (player->isSneaking() == false || canSeeSneaking() == true)) {
+		chasingPlayer = true;
+	} else if (distance < 80 && getAttitude() == Enums::Attitude::HOSTILE && player->isSneaking() == true) { // do this if player is sneaking and NPC is near the character.
+		chasingPlayer = true;
+	}
+
+	if (!m_stopped && !chasingPlayer) {
 		if (activeDirection != Enums::Direction::STOP || (wander_points_left > 0)) {
 			wander_points_left--;
 			m_canWander = (pow(x_pos - x_spawn_pos, 2) + pow(y_pos - y_spawn_pos, 2)) < getWanderRadiusSq();
@@ -264,6 +587,23 @@ void Npc::Move(float deltaTime) {
 			Move(deltaTime, lastActiveDirection);
 		}
 	}
+
+	
+
+	if (chasingPlayer) {
+		chasePlayer(player);
+		activeDirection = GetDirection();
+		lastActiveDirection = activeDirection;
+
+		Move(deltaTime, lastActiveDirection);
+		if (waypoints.size() > 0) {
+			std::array<int, 2> nextWP = waypoints.back();
+			if (getXPos() == nextWP[0] && getYPos() == nextWP[1]) {
+				waypoints.pop_back();
+			}
+		}
+	}
+		
 }
 
 void Npc::Move(float deltaTime, Enums::Direction direction) {
@@ -281,7 +621,6 @@ void Npc::Move(float deltaTime, Enums::Direction direction) {
 }
 
 void Npc::Animate(float deltaTime) {
-	
 	if (activeDirection != Enums::Direction::STOP || (m_handleAnimation || m_waitForAnimation)) {
 		const TileSet& tileSet = m_characterType->m_moveTileSets.at({ curActivity, lastActiveDirection });
 		unsigned short numActivityTextures = m_characterType->m_numMoveTexturesPerDirection.at(curActivity);
@@ -290,7 +629,7 @@ void Npc::Animate(float deltaTime) {
 		currentFrame = static_cast<unsigned short>(floor(m_animationTime));
 		if (++currentFrame > numActivityTextures - 1) {
 			currentFrame = curActivity == Enums::ActivityType::Dying ? numActivityTextures - 1 : 0;
-			m_handleAnimation = activeDirection != Enums::Direction::STOP;
+			m_handleAnimation = activeDirection != Enums::Direction::STOP && !chasingPlayer;
 			m_waitForAnimation = false;
 
 		}	
@@ -377,6 +716,25 @@ bool Npc::hasOnDieEventHandler() const {
 	}else {
 		return false;
 	}
+}
+
+bool Npc::canSeeInvisible() const {
+	for (size_t activeSpell = 0; activeSpell < activeSpells.size(); activeSpell++) {
+		if (activeSpells[activeSpell]->getCharacterState().first == Enums::CharacterStates::SeeInvisible) {
+			return true;
+		}
+	}
+	return false;
+}
+
+bool Npc::canSeeSneaking() const {
+	for (size_t activeSpell = 0; activeSpell < activeSpells.size(); activeSpell++) {
+		if (activeSpells[activeSpell]->getCharacterState().first == Enums::CharacterStates::SeeSneaking) {
+			return true;
+		}
+	}
+	return false;
+
 }
 
 std::string Npc::getLuaEditorSaveText() const {

@@ -22,13 +22,12 @@ public:
 	void addQuest(Quest *quest);
 	std::vector<Quest*>& getQuests();
 	void removeAllQuests();
+	bool anyQuestNeedThis(Item *item) const;
 
 	static QuestCanvas& Get();
 
 private:
 
-	bool anyQuestNeedThis(Item *item) const;
-	
 	void addQuestToBeRemoved(Quest *quest);
 	void tryToPurgeQuests();
 	void removeQuest(Quest *quest);

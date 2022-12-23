@@ -399,7 +399,8 @@ bool Character::continuePreparing() {
 
 		if (preparationFinished) {
 			startSpellAction();
-			interruptCurrentActivityWith(Enums::ActivityType::Walking);
+			if(m_isPlayer)
+				interruptCurrentActivityWith(Enums::ActivityType::Walking);
 		}
 	}
 
@@ -420,6 +421,10 @@ std::vector<SpellActionBase*> Character::getSpellbook() const {
 
 std::vector<SpellActionBase*> Character::getActiveSpells() const {
 	return activeSpells;
+}
+
+std::vector<SpellActionBase*>& Character::getCooldownSpells() {
+	return cooldownSpells;
 }
 
 Enums::CharacterArchType Character::getArchType() const {
@@ -1034,28 +1039,114 @@ void Character::regenerateLifeManaFatigue(float deltaTime) {
 	}
 }
 
+bool Character::hasIntersection(int r1_l, int r1_r, int r1_b, int r1_t, int r2_l, int r2_r, int r2_b, int r2_t) {
+	return (!((r1_t < r2_b) || (r1_b > r2_t) || (r1_l > r2_r) || (r1_r < r2_l)));
+}
+
+int Character::CheckForCollision(int x_pos, int y_pos) {
+	std::vector<CollisionRect>& collisionMap = ZoneManager::Get().getCurrentZone()->getCollisionMap();
+
+	int character_l = x_pos, character_r = x_pos + getWidth(), character_b = y_pos, character_t = y_pos + getHeight();
+	for (unsigned int t = 0; t < collisionMap.size(); t++) {
+		int other_l = collisionMap[t].x, other_r = collisionMap[t].x + collisionMap[t].w;
+		int other_b = collisionMap[t].y, other_t = collisionMap[t].y + collisionMap[t].h;
+		if (hasIntersection(other_l, other_r, other_b, other_t,
+			character_l, character_r, character_b, character_t)) {
+			return 1;
+		}
+	}
+
+	// check for collision with other characters
+	std::vector<Npc*>& zoneNPCs = ZoneManager::Get().getCurrentZone()->getNPCs();
+	for (size_t curNPCNr = 0; curNPCNr < zoneNPCs.size(); ++curNPCNr) {
+		Character *curNPC = zoneNPCs[curNPCNr];
+		if (curNPC == this || !curNPC->isAlive())
+			continue;
+
+		int other_l = curNPC->getXPos(), other_r = curNPC->getXPos() + curNPC->getWidth();
+		int other_b = curNPC->getYPos(), other_t = curNPC->getYPos() + curNPC->getHeight();
+
+		if (hasIntersection(other_l, other_r, other_b, other_t,
+			character_l, character_r, character_b, character_t)) {
+			return 1;
+		}
+
+	}
+
+	// check for collision with player
+	Character *curNPC = &Player::Get();
+	if (curNPC != this && curNPC->isAlive()) {
+		int other_l = curNPC->getXPos(), other_r = curNPC->getXPos() + curNPC->getWidth();
+		int other_b = curNPC->getYPos(), other_t = curNPC->getYPos() + curNPC->getHeight();
+
+		if (hasIntersection(other_l, other_r, other_b, other_t,
+			character_l, character_r, character_b, character_t)) {
+			return 1;
+		}
+	}
+	
+	return 0;
+}
+
+int Character::CollisionCheck(Enums::Direction direction) {
+
+	switch (direction) {
+	case Enums::Direction::N:
+		// check upper left corner
+		if (CheckForCollision(x_pos, y_pos + 1) == 1) {
+			return 1;
+		}
+		break;
+
+	case Enums::Direction::E:
+		// check upper right corner
+		if (CheckForCollision(x_pos + 1, y_pos) == 1) {
+			return 1;
+		}
+		break;
+
+	case Enums::Direction::S:
+		// check lower left corner
+		if (CheckForCollision(x_pos, y_pos - 1) == 1) {
+			return 1;
+		}
+		break;
+
+	case Enums::Direction::W:
+		// check upper left corner
+		if (CheckForCollision(x_pos - 1, y_pos) == 1) {
+			return 1;
+		}
+		break;
+
+	default:
+		break;
+	}
+	return 0;
+}
+
 void Character::MoveUp(unsigned short n) {
-	//if (CollisionCheck(N) == 0) {
+	if (CollisionCheck(Enums::Direction::N) == 0) {
 	y_pos += n;
-	//}
+	}
 }
 
 void Character::MoveDown(unsigned short n) {
-	//if (CollisionCheck(S) == 0) {
+	if (CollisionCheck(Enums::Direction::S) == 0) {
 	y_pos -= n;
-	//}
+	}
 }
 
 void Character::MoveLeft(unsigned short n) {
-	//if (CollisionCheck(W) == 0) {
+	if (CollisionCheck(Enums::Direction::W) == 0) {
 	x_pos -= n;
-	//}
+	}
 }
 
 void Character::MoveRight(unsigned short n) {
-	//if (CollisionCheck(E) == 0) {
+	if (CollisionCheck(Enums::Direction::E) == 0) {
 	x_pos += n;
-	//}
+	}
 }
 
 void Character::Move(Enums::Direction direction, unsigned short n) {
@@ -1106,7 +1197,7 @@ void Character::interruptCurrentActivityWith(Enums::ActivityType activity) {
 }
 
 Enums::ActivityType Character::getCurActivity() const {
-	//Enums::ActivityType curActivity = Enums::ActivityType::Walking;
+	Enums::ActivityType curActivity = Enums::ActivityType::Walking;
 	if (curSpellAction != NULL) {
 		if (dynamic_cast<Spell*>(curSpellAction) != NULL) {
 			return Enums::ActivityType::Casting;
@@ -1154,6 +1245,8 @@ void Character::cleanupActiveSpells() {
 		}
 	}
 }
+
+
 ////////////////////////////////////////////////////PRIVATE/////////////////////////////////////
 void Character::startSpellAction() {
 	isPreparing = false;
@@ -1367,6 +1460,16 @@ void CharacterType::baseOnType(std::string name) {
 
 void CharacterType::inscribeSpellInSpellbook(SpellActionBase *spell) {
 	spellbook.push_back(spell);
+}
+
+void CharacterType::addItemToLootTable(Item *item, double dropChance) {
+	lootTable.push_back(LootTable(item, dropChance));
+}
+
+void CharacterType::setCoinDrop(unsigned int minCoinDrop, unsigned int maxCoinDrop, double dropChance) {
+	this->minCoinDrop = minCoinDrop;
+	this->maxCoinDrop = maxCoinDrop;
+	this->coinDropChance = dropChance;
 }
 
 void CharacterType::setClass(Enums::CharacterClass characterClass) {

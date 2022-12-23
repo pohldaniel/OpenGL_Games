@@ -53,10 +53,10 @@ wolfbase:setName("A wolf")
 wolfbase:setWanderRadius( 250 )
 wolfbase:setLevel( 2 )
 wolfbase:setClass( Enums.Warrior );
---wolfbase:inscribeSpellInSpellbook( spellDatabase["wolfbite"] );
---wolfbase:inscribeSpellInSpellbook( spellDatabase["rabidbite"] );
---wolfbase:addItemToLootTable( itemDatabase["patchofwolfskin"], 0.25 )
---wolfbase:addItemToLootTable( itemDatabase["wolfmeat"], 0.10 )
+wolfbase:inscribeSpellInSpellbook( spellDatabase["wolfbite"] );
+wolfbase:inscribeSpellInSpellbook( spellDatabase["rabidbite"] );
+wolfbase:addItemToLootTable( itemDatabase["patchofwolfskin"], 0.25 )
+wolfbase:addItemToLootTable( itemDatabase["wolfmeat"], 0.10 )
 wolfbase:setExperienceValue( 25 );
 
 wolfbase:calcNumMoveTexturesPerDirection();
@@ -81,10 +81,10 @@ wolfbase:setName("A wolf")
 wolfbase:setWanderRadius( 250 )
 wolfbase:setLevel( 2 )
 wolfbase:setClass( Enums.Warrior );
---wolfbase:inscribeSpellInSpellbook( spellDatabase["wolfbite"] );
---wolfbase:inscribeSpellInSpellbook( spellDatabase["rabidbite"] );
---wolfbase:addItemToLootTable( itemDatabase["patchofwolfskin"], 0.25 )
---wolfbase:addItemToLootTable( itemDatabase["wolfmeat"], 0.10 )
+wolfbase:inscribeSpellInSpellbook( spellDatabase["wolfbite"] );
+wolfbase:inscribeSpellInSpellbook( spellDatabase["rabidbite"] );
+wolfbase:addItemToLootTable( itemDatabase["patchofwolfskin"], 0.25 )
+wolfbase:addItemToLootTable( itemDatabase["wolfmeat"], 0.10 )
 wolfbase:setExperienceValue( 25 );
 
 wolfpup = DawnInterface.createNewMobType("Wolf_Pup")
@@ -293,10 +293,10 @@ spiderlingbase:setName("Spiderling")
 spiderlingbase:setWanderRadius( 250 )
 spiderlingbase:setLevel( 2 )
 spiderlingbase:setClass( Enums.Ranger );
---spiderlingbase:inscribeSpellInSpellbook( spellDatabase["sylphiricacid"] );
---spiderlingbase:inscribeSpellInSpellbook( spellDatabase["venomspit"] );
---spiderlingbase:addItemToLootTable( itemDatabase["spidersilk"], 0.30 );
---spiderlingbase:addItemToLootTable( itemDatabase["sylphirfang"], 0.40 );
+spiderlingbase:inscribeSpellInSpellbook( spellDatabase["sylphiricacid"] );
+spiderlingbase:inscribeSpellInSpellbook( spellDatabase["venomspit"] );
+spiderlingbase:addItemToLootTable( itemDatabase["spidersilk"], 0.30 );
+spiderlingbase:addItemToLootTable( itemDatabase["sylphirfang"], 0.40 );
 spiderlingbase:setExperienceValue( 30 );
 
 spiderbase = DawnInterface.createNewMobType("Spider")
@@ -350,10 +350,10 @@ spiderbase:setName("Spider")
 spiderbase:setWanderRadius( 250 )
 spiderbase:setLevel( 2 )
 spiderbase:setClass( Enums.Warrior );
---spiderbase:inscribeSpellInSpellbook( spellDatabase["spiderbite"] );
---spiderbase:inscribeSpellInSpellbook( spellDatabase["venomweave"] );
---spiderbase:addItemToLootTable( itemDatabase["spidersilk"], 0.30 );
---spiderbase:addItemToLootTable( itemDatabase["pristinesylphirsilk"], 0.20 );
+spiderbase:inscribeSpellInSpellbook( spellDatabase["spiderbite"] );
+spiderbase:inscribeSpellInSpellbook( spellDatabase["venomweave"] );
+spiderbase:addItemToLootTable( itemDatabase["spidersilk"], 0.30 );
+spiderbase:addItemToLootTable( itemDatabase["pristinesylphirsilk"], 0.20 );
 spiderbase:setExperienceValue( 27 );
 
 skeletonbase = DawnInterface.createNewMobType("Skeleton")
@@ -406,7 +406,7 @@ skeletonbase:setEvadeModifierPoints( 15 )
 skeletonbase:setName("Skeleton")
 skeletonbase:setWanderRadius( 250 )
 skeletonbase:setLevel( 3 )
---skeletonbase:setCoinDrop( 25, 75, 0.75 );
+skeletonbase:setCoinDrop( 25, 75, 0.75 );
 skeletonbase:setClass( Enums.Warrior );
 skeletonbase:setExperienceValue( 40 );
 
@@ -468,8 +468,8 @@ skeletonarcherbase:setEvadeModifierPoints( 15 )
 skeletonarcherbase:setName("Skeleton Archer")
 skeletonarcherbase:setWanderRadius( 250 )
 skeletonarcherbase:setLevel( 3 )
---skeletonarcherbase:setCoinDrop( 25, 75, 0.75 );
+skeletonarcherbase:setCoinDrop( 25, 75, 0.75 );
 skeletonarcherbase:setClass( Enums.Ranger );
---skeletonarcherbase:inscribeSpellInSpellbook( spellDatabase["shoot"] );
---skeletonarcherbase:addItemToLootTable( itemDatabase["weakenedbow"], 0.25 );
+skeletonarcherbase:inscribeSpellInSpellbook( spellDatabase["shoot"] );
+skeletonarcherbase:addItemToLootTable( itemDatabase["weakenedbow"], 0.25 );
 skeletonarcherbase:setExperienceValue( 40 );

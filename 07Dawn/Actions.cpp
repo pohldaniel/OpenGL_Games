@@ -162,7 +162,6 @@ SpellActionBase* MeleeDamageAction::cast(Character *creator, Character *target, 
 	std::auto_ptr<MeleeDamageAction> newAction(new MeleeDamageAction(this));
 	newAction->creator = creator;
 	newAction->target = target;
-
 	return newAction.release();
 }
 
@@ -221,7 +220,6 @@ void MeleeDamageAction::dealDamage() {
 			damageDone = 1;
 		}
 		target->Damage(damageDone, criticalHit);
-
 		/// play the hit sound effect for the spell, if we have any.
 		if (soundSpellHit != "") {
 			Globals::soundManager.get("effect").playParallel(soundSpellHit);
@@ -238,7 +236,6 @@ Enums::EffectType MeleeDamageAction::getEffectType() const {
 }
 
 void MeleeDamageAction::startEffect() {
-
 	/// play the start sound effect for the spell, if we have any.
 	if (soundSpellStart != "") {
 		Globals::soundManager.get("effect").playParallel(soundSpellStart);
@@ -246,6 +243,7 @@ void MeleeDamageAction::startEffect() {
 	m_timer.restart();
 	finished = false;
 	target->addActiveSpell(this);
+
 	creator->addCooldownSpell(dynamic_cast<SpellActionBase*> (cast(nullptr, nullptr, false)));
 }
 

@@ -1,6 +1,6 @@
 /*
 ** Lua binding: Luainterface
-** Generated automatically by tolua++-1.0.92 on Thu Dec 22 13:47:19 2022.
+** Generated automatically by tolua++-1.0.92 on Fri Dec 23 16:21:58 2022.
 */
 
 #ifndef __cplusplus
@@ -2342,6 +2342,78 @@ static int tolua_Luainterface_CharacterType_inscribeSpellInSpellbook00(lua_State
 #ifndef TOLUA_RELEASE
 	tolua_lerror :
 				 tolua_error(tolua_S, "#ferror in function 'inscribeSpellInSpellbook'.", &tolua_err);
+				 return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
+/* method: addItemToLootTable of class  CharacterType */
+#ifndef TOLUA_DISABLE_tolua_Luainterface_CharacterType_addItemToLootTable00
+static int tolua_Luainterface_CharacterType_addItemToLootTable00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+	tolua_Error tolua_err;
+	if (
+		!tolua_isusertype(tolua_S, 1, "CharacterType", 0, &tolua_err) ||
+		!tolua_isusertype(tolua_S, 2, "Item", 0, &tolua_err) ||
+		!tolua_isnumber(tolua_S, 3, 0, &tolua_err) ||
+		!tolua_isnoobj(tolua_S, 4, &tolua_err)
+		)
+		goto tolua_lerror;
+	else
+#endif
+	{
+		CharacterType* self = (CharacterType*)tolua_tousertype(tolua_S, 1, 0);
+		Item* item = ((Item*)tolua_tousertype(tolua_S, 2, 0));
+		double dropChance = ((double)tolua_tonumber(tolua_S, 3, 0));
+#ifndef TOLUA_RELEASE
+		if (!self) tolua_error(tolua_S, "invalid 'self' in function 'addItemToLootTable'", NULL);
+#endif
+		{
+			self->addItemToLootTable(item, dropChance);
+		}
+	}
+	return 0;
+#ifndef TOLUA_RELEASE
+	tolua_lerror :
+				 tolua_error(tolua_S, "#ferror in function 'addItemToLootTable'.", &tolua_err);
+				 return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
+/* method: setCoinDrop of class  CharacterType */
+#ifndef TOLUA_DISABLE_tolua_Luainterface_CharacterType_setCoinDrop00
+static int tolua_Luainterface_CharacterType_setCoinDrop00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+	tolua_Error tolua_err;
+	if (
+		!tolua_isusertype(tolua_S, 1, "CharacterType", 0, &tolua_err) ||
+		!tolua_isnumber(tolua_S, 2, 0, &tolua_err) ||
+		!tolua_isnumber(tolua_S, 3, 0, &tolua_err) ||
+		!tolua_isnumber(tolua_S, 4, 0, &tolua_err) ||
+		!tolua_isnoobj(tolua_S, 5, &tolua_err)
+		)
+		goto tolua_lerror;
+	else
+#endif
+	{
+		CharacterType* self = (CharacterType*)tolua_tousertype(tolua_S, 1, 0);
+		unsigned int minCoinDrop = ((unsigned int)tolua_tonumber(tolua_S, 2, 0));
+		unsigned int maxCoinDrop = ((unsigned int)tolua_tonumber(tolua_S, 3, 0));
+		double dropChance = ((double)tolua_tonumber(tolua_S, 4, 0));
+#ifndef TOLUA_RELEASE
+		if (!self) tolua_error(tolua_S, "invalid 'self' in function 'setCoinDrop'", NULL);
+#endif
+		{
+			self->setCoinDrop(minCoinDrop, maxCoinDrop, dropChance);
+		}
+	}
+	return 0;
+#ifndef TOLUA_RELEASE
+	tolua_lerror :
+				 tolua_error(tolua_S, "#ferror in function 'setCoinDrop'.", &tolua_err);
 				 return 0;
 #endif
 }
@@ -7904,6 +7976,8 @@ TOLUA_API int tolua_Luainterface_open(lua_State* tolua_S)
 	tolua_function(tolua_S, "calcNumMoveTexturesPerDirection", tolua_Luainterface_CharacterType_calcNumMoveTexturesPerDirection00);
 	tolua_function(tolua_S, "baseOnType", tolua_Luainterface_CharacterType_baseOnType00);
 	tolua_function(tolua_S, "inscribeSpellInSpellbook", tolua_Luainterface_CharacterType_inscribeSpellInSpellbook00);
+	tolua_function(tolua_S, "addItemToLootTable", tolua_Luainterface_CharacterType_addItemToLootTable00);
+	tolua_function(tolua_S, "setCoinDrop", tolua_Luainterface_CharacterType_setCoinDrop00);
 	tolua_function(tolua_S, "setStrength", tolua_Luainterface_CharacterType_setStrength00);
 	tolua_function(tolua_S, "setDexterity", tolua_Luainterface_CharacterType_setDexterity00);
 	tolua_function(tolua_S, "setVitality", tolua_Luainterface_CharacterType_setVitality00);

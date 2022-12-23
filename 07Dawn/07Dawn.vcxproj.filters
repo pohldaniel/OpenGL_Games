@@ -282,6 +282,9 @@
     <ClCompile Include="SeekerBar.cpp">
       <Filter>Source Files\UI</Filter>
     </ClCompile>
+    <ClCompile Include="Astar.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine\input\Event.h">
@@ -532,6 +535,9 @@
     </ClInclude>
     <ClInclude Include="SeekerBar.h">
       <Filter>Source Files\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="Astar.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

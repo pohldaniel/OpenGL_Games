@@ -149,7 +149,8 @@ public:
 		accessMutex.Lock();
 		finished = true;
 		Game::s_init = true;
-		DawnInterface::enterZone("res/_lua/arinoxGeneralShop", -158, 0);
+		//DawnInterface::enterZone("res/_lua/arinoxGeneralShop", -158, 0);
+		DawnInterface::enterZone("res/_lua/zone1", 512, 400);
 		wglDeleteContext(Application::LoaderContext);
 		accessMutex.Unlock();
 	}
