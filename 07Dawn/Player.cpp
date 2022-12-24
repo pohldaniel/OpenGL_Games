@@ -28,7 +28,7 @@ static unsigned short getModifiedAttribute(const Inventory& inventory, const Cha
 		}
 	}
 
-	std::vector<SpellActionBase*> activeSpells = character->getActiveSpells();
+	const std::vector<SpellActionBase*>& activeSpells = character->getActiveSpells();
 	size_t numSpells = activeSpells.size();
 	for (size_t curSpellNr = 0; curSpellNr<numSpells; ++curSpellNr) {
 		GeneralBuffSpell *curSpell = dynamic_cast<GeneralBuffSpell*> (activeSpells[curSpellNr]);
@@ -58,8 +58,8 @@ static unsigned short getModifiedAttribute(Enums::ElementType elementType, const
 		attributeModifier += getItemAttribute(elementType, curItem);
 	}
 
-	std::vector<SpellActionBase*> activeSpells;
-	activeSpells = character->getActiveSpells();
+	const std::vector<SpellActionBase*>& activeSpells = character->getActiveSpells();
+
 	size_t numSpells = activeSpells.size();
 	for (size_t curSpellNr = 0; curSpellNr<numSpells; ++curSpellNr) {
 		GeneralBuffSpell* curSpell = dynamic_cast<GeneralBuffSpell*> (activeSpells[curSpellNr]);
@@ -138,12 +138,9 @@ Player& Player::Get() {
 	return s_instance;
 }
 
-Player::Player() {
-}
+Player::Player() { }
 
-Player::~Player() {
-
-}
+Player::~Player() {}
 
 void Player::draw() {
 
@@ -155,21 +152,23 @@ void Player::draw() {
 		drawY -= getBoundingBoxY();
 	}
 
-	//TextureManager::BindTexture(TextureManager::GetTextureAtlas("player"), true);
-	TextureManager::DrawTextureBatched(*rect, drawX, drawY, Vector4f(1.0f, 1.0f, 1.0f, 1.0f), true, true, 4u);
-	//TextureManager::UnbindTexture(true);
+	Vector4f color = { 1.0f, 1.0f, 1.0f, 1.0f };
 
-	for (size_t curActiveSpellNr = 0; curActiveSpellNr < activeSpells.size(); ++curActiveSpellNr) {
-		if (!activeSpells[curActiveSpellNr]->isEffectComplete()) {
-			activeSpells[curActiveSpellNr]->draw();
-		}
+	// if player is invisible we draw at 0.2 transparency.. if sneaking we draw at 0.5 and with darker colors (shade)
+	if (isSneaking() == true){
+		color[0] = 0.7f;
+		color[1] = 0.7f;
+		color[2] = 0.7f;
+		color[3] = 0.5f;
+	}else if (isInvisible() == true) {
+		color[3] = 0.2f;
 	}
 
+	TextureManager::DrawTextureBatched(*rect, drawX, drawY, color, true, true, 4u);
 }
 
 void Player::update(float deltaTime) {
-	//std::cout << "Activity: " << ActivityToString(curActivity) << std::endl;
-
+	CalculateStats();
 	cleanupActiveSpells();
 	cleanupCooldownSpells();
 
@@ -202,6 +201,10 @@ void Player::setCharacterType(std::string characterTypeStr) {
 	m_characterTypeStr = characterTypeStr;
 }
 
+void Player::Die(){
+	alive = false;
+}
+
 void Player::init() {
 	m_characterType = &CharacterTypeManager::Get().getCharacterType(m_characterTypeStr);
 	rect = &m_characterType->m_moveTileSets.at({ Enums::ActivityType::Walking, Enums::Direction::S }).getAllTiles()[0].textureRect;
@@ -210,16 +213,11 @@ void Player::init() {
 	lastActiveDirection = activeDirection;
 	curActivity = Enums::ActivityType::Walking;
 
-	//remainingMovePoints = 0;
 	isPreparing = false;
 	alive = true;
-	//hasDrawnDyingOnce = false;
-	hasChoosenFearDirection = false;
-	//hasChoosenDyingDirection = false;
-	//curSpellAction = NULL;
-	//experience = 0;
-	//coins = 0;
-	//dyingTransparency = 1.0f;
+	curSpellAction = NULL;
+	experience = 0;
+	coins = 0;
 	movementSpeed = 1;
 	setName("Enylyn");
 
@@ -346,16 +344,24 @@ void Player::Move(float deltaTime) {
 	int oldY = getYPos();
 
 	// moves one step per movePerStep ms
-	float movePerStep = 0.01f * m_currentspeed;
+	float movePerStep = 0.01f * getMovementSpeed() * m_currentspeed;
 
 	// To balance moving diagonally boost, movePerStep = 10*sqrt(2)
 	if (activeDirection == Enums::Direction::NW || activeDirection == Enums::Direction::NE || activeDirection == Enums::Direction::SW || activeDirection == Enums::Direction::SE)
-		movePerStep = 0.014f * m_currentspeed;
+		movePerStep = 0.014f * getMovementSpeed() * m_currentspeed;
 
 	// synch with animation
 	m_duration = movePerStep * 10.0f;
 	m_elapsedTime += deltaTime;
 	
+	if (isFeared() == true) {
+		if (hasChoosenFearDirection == false) {
+			fearDirection = static_cast<Enums::Direction>(RNG::randomSizeT(1, 8));
+			hasChoosenFearDirection = true;
+		}
+		activeDirection = fearDirection;
+	}
+
 	while (m_elapsedTime > movePerStep) {
 		m_elapsedTime -= movePerStep;
 		Character::Move(activeDirection);
@@ -660,4 +666,13 @@ std::string Player::getSaveText() const {
 	// no current attributes are set here because after reloading the player is completely refreshed again
 
 	return oss.str();
+}
+
+void Player::DrawActiveSpells() {
+	const std::vector<SpellActionBase*>& activeSpells = Player::Get().getActiveSpells();
+	for (size_t curActiveSpellNr = 0; curActiveSpellNr < activeSpells.size(); ++curActiveSpellNr) {
+		if (!activeSpells[curActiveSpellNr]->isEffectComplete()) {
+			activeSpells[curActiveSpellNr]->draw();
+		}
+	}
 }

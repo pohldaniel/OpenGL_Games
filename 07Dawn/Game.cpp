@@ -96,6 +96,19 @@ void Game::update() {
 
 	TextWindow::Update();
 	ZoneManager::Get().getCurrentZone()->update(m_dt);
+
+	// making sure our target is still alive, not invisible and still in range while stealthed. if not well set our target to NULL.
+	if (Player::Get().getTarget()) {
+		double distance = sqrt(pow((Player::Get().getTarget()->getXPos() + Player::Get().getTarget()->getWidth() / 2) - (Player::Get().getXPos() + Player::Get().getWidth() / 2), 2)
+			+ pow((Player::Get().getTarget()->getYPos() + Player::Get().getTarget()->getHeight() / 2) - (Player::Get().getYPos() + Player::Get().getHeight() / 2), 2));
+
+		if (Player::Get().getTarget()->isAlive() == false ||
+			(Player::Get().getTarget()->isInvisible() == true && Player::Get().canSeeInvisible() == false) ||
+			(Player::Get().getTarget()->isSneaking() == true && distance > 260 && Player::Get().canSeeSneaking() == false)) {
+			Player::Get().setTarget(NULL);
+		}
+	}
+
 	Player::Get().update(m_dt);
 	ViewPort::Get().setPosition(Player::Get().getPosition());	
 	Message::Get().deleteDecayed();
@@ -112,6 +125,7 @@ void Game::render() {
 	InteractionPoint::Draw();
 	Zone::DrawNpcs();
 	Player::Get().draw();
+	Player::DrawActiveSpells();
 	Npc::DrawActiveSpells();
 	GroundLoot::DrawTooltip(ViewPort::Get().getCursorPosX(), ViewPort::Get().getCursorPosY());
 	InteractionPoint::DrawSymbols();
@@ -143,6 +157,58 @@ void Game::processInput() {
 		OptionsWindow::Get().close();
 		m_isRunning = false;
 		m_machine.addStateAtBottom(new Editor(m_machine));
+	}
+
+	if (keyboard.keyPressed(Keyboard::KEY_TAB)){
+
+		bool FoundNewTarget = false;
+		std::vector<Npc*> NPClist;
+
+		// select next npc on screen
+		std::vector<Npc*> zoneNPCs = ZoneManager::Get().getCurrentZone()->getNPCs();
+		for (size_t curNPCNr = 0; curNPCNr < zoneNPCs.size(); ++curNPCNr) {
+			// if NPC is in on screen (might be changed to line of sight or something)
+			// this makes a list of all visible NPCs, easier to select next target this way.
+			// also makes sure the NPC isn't invisible or sneaking outside of our vision range.
+			Npc* curNPC = zoneNPCs[curNPCNr];
+			double distance = sqrt(pow((curNPC->getXPos() + curNPC->getWidth() / 2) - (Player::Get().getXPos() + Player::Get().getWidth() / 2), 2)
+				+ pow((curNPC->getYPos() + curNPC->getHeight() / 2) - (Player::Get().getYPos() + Player::Get().getHeight() / 2), 2));
+
+			if (TextureManager::IsRectOnScreen(curNPC->getXPos(), 1, curNPC->getYPos(), 1) &&
+				curNPC->isAlive() &&
+				(curNPC->isInvisible() == false || (curNPC->isInvisible() == true && Player::Get().canSeeInvisible() == true)) &&
+				(curNPC->isSneaking() == false || (curNPC->isSneaking() == true && (distance < 260 || Player::Get().canSeeSneaking() == true)))) {
+				NPClist.push_back(curNPC);
+			}
+		}
+		// selects next target in the list, if target = NULL, set target to first NPC on the visible list.
+		for (size_t curNPC = 0; curNPC < NPClist.size(); ++curNPC) {
+			if (!Player::Get().getTarget()) {
+				Player::Get().setTarget(NPClist[0], NPClist[0]->getAttitude());
+			}
+
+			if (Player::Get().getTarget() == NPClist[curNPC]) {
+
+				if (curNPC + 1 == NPClist.size()) {
+					Player::Get().setTarget(NPClist[0], NPClist[0]->getAttitude());
+
+				} else {
+					Player::Get().setTarget(NPClist[curNPC + 1], NPClist[curNPC + 1]->getAttitude());
+				}
+				FoundNewTarget = true;
+				break;
+			}
+		}
+
+		if (!FoundNewTarget && NPClist.size() > 0) {
+			Player::Get().setTarget(NPClist[0], NPClist[0]->getAttitude());
+		}
+	}
+
+	if (keyboard.keyPressed(Keyboard::KEY_P)){
+		GLfloat color[] = { 100, 100, 255, 255 };
+		DawnInterface::addTextToLogWindow(color, "Player X: %d", Player::Get().getXPos());
+		DawnInterface::addTextToLogWindow(color, "Player Y: %d", Player::Get().getYPos());
 	}
 }
 

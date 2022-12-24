@@ -62,7 +62,7 @@ void Editor::fixedUpdate() {
 }
 
 void Editor::update() {
-	//newZone->update(m_dt);
+	newZone->update(m_dt);
 
 	ViewPort::Get().update(m_dt);
 	m_editorFocus = ViewPort::Get().getBottomLeft();

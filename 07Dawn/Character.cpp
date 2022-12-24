@@ -66,6 +66,8 @@ void Character::setCharacterType(std::string characterType) {
 	
 }
 
+void Character::Die() {}
+
 void Character::Damage(int amount, bool criticalHit) {
 	if (isFeared() == true) { // if we're feared and taking damage, we have a 20% chance to break from the fear
 		if (RNG::randomSizeT(0, 100) <= 20) {
@@ -90,33 +92,31 @@ void Character::Damage(int amount, bool criticalHit) {
 	}
 
 	/// here we check for equipped items if they have any trigger spells which is used in TriggerType::TAKING_DAMAGE
-	/*if (isPlayer() == true) {
-	std::vector<InventoryItem*> inventory = Globals::getPlayer()->getInventory()->getEquippedItems();
-	for (size_t curItem = 0; curItem < inventory.size(); curItem++) {
-	std::vector<TriggerSpellOnItem*> triggerSpells = inventory[curItem]->getItem()->getTriggerSpells();
-	for (size_t curSpell = 0; curSpell < triggerSpells.size(); curSpell++)
-	{
-	/// searches for spells on the item with the triggertype TAKING_DAMAGE.
-	if (triggerSpells[curSpell]->getTriggerType() == TriggerType::TAKING_DAMAGE) {
-	/// found one, check to see if we manages to trigger the spell.
+	if (m_isPlayer == true) {
+		std::vector<InventoryItem*> inventory = Player::Get().getInventory()->getEquippedItems();
+		for (size_t curItem = 0; curItem < inventory.size(); curItem++) {
+			std::vector<TriggerSpellOnItem*> triggerSpells = inventory[curItem]->getItem()->getTriggerSpells();
+			for (size_t curSpell = 0; curSpell < triggerSpells.size(); curSpell++) {
+				/// searches for spells on the item with the triggertype TAKING_DAMAGE.
+				if (triggerSpells[curSpell]->getTriggerType() == Enums::TriggerType::TAKING_DAMAGE) {
+					/// found one, check to see if we manages to trigger the spell.
 
-	if ((RNG::randomSizeT(0, 10000) <= triggerSpells[curSpell]->getChanceToTrigger() * 10000) == true) {
-	/// we triggered this spell, now we cast it based on if it's a self-cast spell or a cast on our target spell.
-	if (triggerSpells[curSpell]->getCastOnSelf() == true) {
-	/// cast spell on self
-	executeSpellWithoutCasting(triggerSpells[curSpell]->getSpellToTrigger(), this);
+					if ((RNG::randomSizeT(0, 10000) <= triggerSpells[curSpell]->getChanceToTrigger() * 10000) == true) {
+						/// we triggered this spell, now we cast it based on if it's a self-cast spell or a cast on our target spell.
+						if (triggerSpells[curSpell]->getCastOnSelf() == true) {
+							/// cast spell on self
+							executeSpellWithoutCasting(triggerSpells[curSpell]->getSpellToTrigger(), this);
+						} else {
+							if (this->getTarget() != NULL) {
+								/// cast spell on the character's target.
+								executeSpellWithoutCasting(triggerSpells[curSpell]->getSpellToTrigger(), this->getTarget());
+							}
+						}
+					}
+				}
+			}
+		}
 	}
-	else {
-	if (this->getTarget() != NULL) {
-	/// cast spell on the character's target.
-	executeSpellWithoutCasting(triggerSpells[curSpell]->getSpellToTrigger(), this->getTarget());
-	}
-	}
-	}
-	}
-	}
-	}
-	}*/
 
 	if (alive) {
 
@@ -128,8 +128,7 @@ void Character::Damage(int amount, bool criticalHit) {
 				Player *player = &Player::Get();
 				player->gainExperience(getExperienceValue());
 			}
-		}
-		else {
+		}else {
 			modifyCurrentHealth(-amount);
 		}
 	}
@@ -146,13 +145,11 @@ void Character::Heal(int amount) {
 	}
 }
 
-void Character::Die() {
-	/*if (hasChoosenDyingDirection == false) {
-	dyingDirection = static_cast<Direction>(activeDirection);
-	dyingStartFrame = SDL_GetTicks();
-	reduceDyingTranspFrame = SDL_GetTicks() + 7000;
-	}*/
-	curActivity = Enums::ActivityType::Dying;
+
+
+void Character::CalculateStats() {
+	life_percentage = static_cast<float>(getCurrentHealth()) / static_cast<float>(getModifiedMaxHealth());
+	mana_percentage = static_cast<float>(getCurrentMana()) / static_cast<float>(getModifiedMaxMana());
 }
 
 bool Character::castSpell(SpellActionBase *spell) {
@@ -369,6 +366,25 @@ bool Character::isInvisible() const {
 	return false;
 }
 
+bool Character::canSeeInvisible() const {
+	for (size_t activeSpell = 0; activeSpell < activeSpells.size(); activeSpell++) {
+		if (activeSpells[activeSpell]->getCharacterState().first == Enums::CharacterStates::SeeInvisible) {
+			return true;
+		}
+	}
+	return false;
+}
+
+bool Character::canSeeSneaking() const {
+	for (size_t activeSpell = 0; activeSpell < activeSpells.size(); activeSpell++) {
+		if (activeSpells[activeSpell]->getCharacterState().first == Enums::CharacterStates::SeeSneaking) {
+			return true;
+		}
+	}
+	return false;
+}
+
+
 bool Character::isAlive() const {
 	return alive;
 }
@@ -419,7 +435,7 @@ std::vector<SpellActionBase*> Character::getSpellbook() const {
 	return spellbook;
 }
 
-std::vector<SpellActionBase*> Character::getActiveSpells() const {
+const std::vector<SpellActionBase*>& Character::getActiveSpells() const {
 	return activeSpells;
 }
 
@@ -1197,7 +1213,7 @@ void Character::interruptCurrentActivityWith(Enums::ActivityType activity) {
 }
 
 Enums::ActivityType Character::getCurActivity() const {
-	Enums::ActivityType curActivity = Enums::ActivityType::Walking;
+	//Enums::ActivityType curActivity = m_waitForAnimation ? curActivity : Enums::ActivityType::Walking;
 	if (curSpellAction != NULL) {
 		if (dynamic_cast<Spell*>(curSpellAction) != NULL) {
 			return Enums::ActivityType::Casting;
@@ -1208,6 +1224,8 @@ Enums::ActivityType Character::getCurActivity() const {
 		else if (dynamic_cast<MeleeDamageAction*>(curSpellAction) != NULL) {
 			return Enums::ActivityType::Attacking;
 		}
+	} else if (curActivity == Enums::ActivityType::Attacking) {
+		return Enums::ActivityType::Walking;
 	}
 
 	/*if (isAlive() == false && (dyingStartFrame < SDL_GetTicks() + 10000)) {
@@ -1330,6 +1348,7 @@ bool Character::mayDoAnythingAffectingSpellActionWithoutAborting() const {
 	return (curSpellAction == NULL);
 }
 
+
 bool Character::mayDoAnythingAffectingSpellActionWithAborting() const {
 	if (m_isPlayer) {
 		return (curSpellAction == NULL || isPreparing);
@@ -1346,29 +1365,26 @@ float Character::getMovementSpeed() const {
 	// if we have no spell lowering the movement, we look for enhancers and return that. If that's not found, 1.0 is returned.
 	float lowestMovementSpeed = 1.0f;
 	float highestMovementSpeed = 1.0f;
-	/*for (size_t activeSpell = 0; activeSpell < activeSpells.size(); activeSpell++) {
-	if (activeSpells[activeSpell].first->getCharacterState().first == CharacterStates::Movementspeed) {
-	if (lowestMovementSpeed > activeSpells[activeSpell].first->getCharacterState().second) {
-	lowestMovementSpeed = activeSpells[activeSpell].first->getCharacterState().second;
-	}
-	if (highestMovementSpeed < activeSpells[activeSpell].first->getCharacterState().second) {
-	highestMovementSpeed = activeSpells[activeSpell].first->getCharacterState().second;
-	}
-	}
-	}*/
+	for (size_t activeSpell = 0; activeSpell < activeSpells.size(); activeSpell++) {
+		if (activeSpells[activeSpell]->getCharacterState().first == Enums::CharacterStates::Movementspeed) {
+			if (lowestMovementSpeed > activeSpells[activeSpell]->getCharacterState().second) {
+				lowestMovementSpeed = activeSpells[activeSpell]->getCharacterState().second;
+			}
 
+			if (highestMovementSpeed < activeSpells[activeSpell]->getCharacterState().second) {
+				highestMovementSpeed = activeSpells[activeSpell]->getCharacterState().second;
+			}
+		}
+	}
 
 	if (lowestMovementSpeed < 1.0) {
-		return lowestMovementSpeed;
-	}
-	else if (isFeared() == true) { // if we are feared, we reduce the movementspeed. Mostly so we dont run too far away.
-		return 0.60f;
-	}
-	else if (isSneaking() == true) { // if we are sneaking, we reduce the movementspeed aswell of the character. good place to do that is here
-		return 0.75f;
-	}
-	else {
-		return highestMovementSpeed;
+		return 1.0f / lowestMovementSpeed;
+	} else if (isFeared() == true) { // if we are feared, we reduce the movementspeed. Mostly so we dont run too far away.
+		return 6.3f;
+	} else if (isSneaking() == true) { // if we are sneaking, we reduce the movementspeed aswell of the character. good place to do that is here
+		return 2.2;
+	} else {
+		return 1.0f / highestMovementSpeed;
 	}
 }
 

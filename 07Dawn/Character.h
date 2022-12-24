@@ -128,11 +128,11 @@ public:
 	virtual void setCharacterType(std::string characterType);
 	virtual void draw() = 0;
 	virtual void update(float deltaTime) = 0;	
-
-	void Damage(int amount, bool criticalHit);
-	void Heal(int amount);
 	virtual void Die();
-	
+	virtual void Damage(int amount, bool criticalHit);
+	void Heal(int amount);
+	void Character::CalculateStats();
+
 	bool castSpell(SpellActionBase *spell);
 	void executeSpellWithoutCasting(SpellActionBase *spell, Character *target);
 	void addCooldownSpell(SpellActionBase *spell);
@@ -153,12 +153,14 @@ public:
 	bool isSneaking() const;
 	bool isInvisible() const;
 	bool isAlive() const;
+	bool canSeeInvisible() const;
+	bool canSeeSneaking() const;
 	bool continuePreparing();
 
 	const CharacterType* getCharacterType();
 	std::string getClassName() const;
 	std::vector<SpellActionBase*> getSpellbook() const;
-	std::vector<SpellActionBase*> getActiveSpells() const;
+	const std::vector<SpellActionBase*>& getActiveSpells() const;
 	std::vector<SpellActionBase*>& getCooldownSpells();
 	Enums::CharacterArchType getArchType() const;
 	Character* getTarget() const;
@@ -280,6 +282,7 @@ public:
 protected:
 
 	virtual bool canBeDamaged() const;
+	float getMovementSpeed() const;
 	void regenerateLifeManaFatigue(float deltaTime);
 
 	void MoveUp(unsigned short n);
@@ -289,6 +292,7 @@ protected:
 	void Move(Enums::Direction direction, unsigned short n = 1);
 	void CastingAborted();
 	bool mayDoAnythingAffectingSpellActionWithoutAborting() const;
+	bool mayDoAnythingAffectingSpellActionWithAborting() const;
 	void interruptCurrentActivityWith(Enums::ActivityType activity);
 	
 	Enums::ActivityType getCurActivity() const;
@@ -300,8 +304,8 @@ protected:
 
 	bool alive;
 	bool m_isPlayer;
-	bool hasChoosenFearDirection;
 	bool isPreparing = false;
+	bool hasChoosenFearDirection = false;
 
 	int x_pos, y_pos;
 	float preparationPercentage;
@@ -309,6 +313,7 @@ protected:
 
 	float progress = 0.0f;
 	float m_regenerationRate = 0.0f;
+	float life_percentage, mana_percentage, fatigue_percentage;
 
 	std::vector<SpellActionBase*> spellbook;
 	std::vector<SpellActionBase*> activeSpells;
@@ -319,8 +324,8 @@ protected:
 	SpellActionBase* curSpellAction = nullptr;
 	Enums::Direction activeDirection;
 	Enums::Direction lastActiveDirection;
-	Enums::Direction fearDirection, dyingDirection;
-	Enums::ActivityType curActivity;
+	Enums::Direction fearDirection;
+	Enums::ActivityType curActivity, lastActivity;
 	Enums::CharacterArchType characterArchType;
 
 	const TextureRect* rect;
@@ -378,8 +383,7 @@ private:
 	void giveToPreparation(SpellActionBase *toPrepare);
 	void addDamageDisplayToGUI(int amount, bool critical, uint8_t damageType);
 	void abortCurrentSpellAction();	
-	bool mayDoAnythingAffectingSpellActionWithAborting() const;
-	float getMovementSpeed() const;
+	
 	
 	void setCurrentFatigue(unsigned short newCurrentFatigue);
 

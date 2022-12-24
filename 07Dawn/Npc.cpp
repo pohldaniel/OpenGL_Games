@@ -34,34 +34,73 @@ Npc::Npc() {
 Npc::~Npc() {}
 
 void Npc::draw() {
-
 	if (m_updated) {
-
-		curActivity = getCurActivity();
+		
 		int drawX = getXPos();
 		int drawY = getYPos();
-		TextureManager::DrawTextureBatched(*rect, drawX, drawY, true, true, 5u);
 
+		if (getUseBoundingBox()) {
+			drawX -= getBoundingBoxX();
+			drawY -= getBoundingBoxY();
+		}
 
+		Vector4f color = { 1.0f, 1.0f, 1.0f, 1.0f };
+
+		// if sneaking and character is less than 260 pixels away we draw at 0.5 and with darker colors (shade)
+		// if NPC is invisible or sneaking with more than 260 pixels away we don't draw the NPC at all.
+		// if the character can see invisible or sneaking, we draw with 0.5 transparency.
+		Player& player = Player::Get();
+		double distance = sqrt(pow((getXPos() + getWidth() / 2) - (player.getXPos() + player.getWidth() / 2), 2)
+			+ pow((getYPos() + getHeight() / 2) - (player.getYPos() + player.getHeight() / 2), 2));
+
+		if (isSneaking() == true && (distance < 260 || player.canSeeSneaking() == true)) {
+			color[0] = 0.7f;
+			color[1] = 0.7f;
+			color[2] = 0.7f;
+			color[3] = 0.5f;
+		}
+
+		if (isInvisible() == true && player.canSeeInvisible() == true) {
+			color[3] = 0.5f;
+		}
+
+		if ((isInvisible() == true && player.canSeeInvisible() == false) || (isSneaking() == true && distance > 260 && player.canSeeSneaking() == false)) {
+			return;
+		}
+
+		if (curActivity == Enums::ActivityType::Dying) {
+			if (reduceDyingTranspFrame < Globals::clock.getElapsedTimeMilli() - 50) {
+				dyingTransparency -= 0.025;
+				reduceDyingTranspFrame = Globals::clock.getElapsedTimeMilli();
+			}
+			color[3] = dyingTransparency;
+		}
+
+		TextureManager::DrawTextureBatched(*rect, drawX, drawY, color, true, true, 5u);
 	}
 }
 
 void Npc::update(float deltaTime) {
+	
 	m_updated = TextureManager::IsRectOnScreen(getXPos(), rect->width, getYPos(), rect->height);
 	regenerateLifeManaFatigue(deltaTime);
 	if (m_updated) {
-		
-		processInput();
+		CalculateStats();
+		cleanupActiveSpells();
+		cleanupCooldownSpells();
+		Respawn();
+		curActivity = m_waitForAnimation ? curActivity : getCurActivity();
 		lastActiveDirection = activeDirection != Enums::Direction::STOP ? activeDirection : lastActiveDirection;
+
+		processInput();
 		Move(deltaTime);
 		Animate(deltaTime);
 
-		std::vector<SpellActionBase*> activeSpellActions = getActiveSpells();
+		const std::vector<SpellActionBase*>& activeSpellActions = getActiveSpells();
 		for (size_t curActiveSpellNr = 0; curActiveSpellNr < activeSpellActions.size(); ++curActiveSpellNr) {
 			activeSpellActions[curActiveSpellNr]->inEffect(deltaTime);
 		}
-		cleanupActiveSpells();
-		cleanupCooldownSpells();
+		
 	}
 
 }
@@ -315,7 +354,20 @@ void Npc::Damage(int amount, bool criticalHit) {
 }
 
 void Npc::Die() {
-	Character::Die();
+
+	if (hasChoosenDyingDirection == false) {
+		dyingStartFrame = Globals::clock.getElapsedTimeMilli();
+		reduceDyingTranspFrame = Globals::clock.getElapsedTimeMilli() + 7000;
+	}
+
+	curActivity = Enums::ActivityType::Dying;
+	currentFrame = 0;
+	m_animationTime = 0.0f;
+	m_waitForAnimation = true;
+	m_stopped = true;
+	wander_points_left = 0;
+	chasingPlayer = false;
+	waypoints.clear();
 	dropItems();
 	alive = false;
 	respawn_lastframe = Globals::clock.getElapsedTimeMilli();
@@ -360,8 +412,7 @@ void Npc::Respawn() {
 		if ((respawn_thisframe - respawn_lastframe) >(seconds_to_respawn * 1000)) {
 			setTarget(NULL);
 			alive = true;
-			chasingPlayer = false;
-			waypoints.clear();
+			
 			x_pos = x_spawn_pos;
 			y_pos = y_spawn_pos;
 			respawn_thisframe = 0.0f;
@@ -369,10 +420,13 @@ void Npc::Respawn() {
 			setCurrentHealth(getModifiedMaxHealth());
 			setCurrentMana(getModifiedMaxMana());
 
-			activeDirection = Enums::Direction::S;
+			activeDirection = Enums::Direction::STOP;
 			lastActiveDirection = activeDirection;
+			wandering = false;
 			curActivity = Enums::ActivityType::Walking;
-
+			m_handleAnimation = false;
+			m_waitForAnimation = false;
+			m_stopped = false;
 			isPreparing = false;
 			alive = true;
 			hasDrawnDyingOnce = false;
@@ -535,9 +589,9 @@ void Npc::Move(float deltaTime) {
 	double distance = sqrt(pow((getXPos() + getWidth() / 2) - (player->getXPos() + player->getWidth() / 2), 2) + pow((getYPos() + getHeight() / 2) - (player->getYPos() + player->getHeight() / 2), 2));
 	// if player is inside agro range of NPC, we set NPC to attack mode.
 	if (distance < 200 && getAttitude() == Enums::Attitude::HOSTILE && (player->isInvisible() == false || canSeeInvisible() == true) && (player->isSneaking() == false || canSeeSneaking() == true)) {
-		chasingPlayer = true;
+		chasingPlayer = alive;
 	} else if (distance < 80 && getAttitude() == Enums::Attitude::HOSTILE && player->isSneaking() == true) { // do this if player is sneaking and NPC is near the character.
-		chasingPlayer = true;
+		chasingPlayer = alive;
 	}
 
 	if (!m_stopped && !chasingPlayer) {
@@ -588,8 +642,6 @@ void Npc::Move(float deltaTime) {
 		}
 	}
 
-	
-
 	if (chasingPlayer) {
 		chasePlayer(player);
 		activeDirection = GetDirection();
@@ -606,8 +658,36 @@ void Npc::Move(float deltaTime) {
 		
 }
 
-void Npc::Move(float deltaTime, Enums::Direction direction) {
+void Npc::Move(float deltaTime, Enums::Direction& direction) {
 	
+	if (isStunned() == true || isMesmerized() == true) {
+		return;
+	}
+
+	if (isFeared() == false) {
+		hasChoosenFearDirection = false;
+	}
+
+	if (!mayDoAnythingAffectingSpellActionWithoutAborting()) {
+		if (!mayDoAnythingAffectingSpellActionWithAborting()) {
+			return;
+		}
+	}
+
+	if (direction != Enums::Direction::STOP && isChanneling() == true) {
+		removeSpellsWithCharacterState(Enums::CharacterStates::Channeling);
+	}
+
+
+	/// if we are feared (fleeing) we run at a random direction. Only choose a direction once for each fear effect.
+	if (isFeared() == true) {
+		if (hasChoosenFearDirection == false) {
+			fearDirection = GetDirectionRNG();
+			hasChoosenFearDirection = true;
+		}
+		direction = fearDirection;
+	}
+
 	float movePerStep = 0.01f;
 	if (direction == Enums::Direction::NW || direction == Enums::Direction::NE || direction == Enums::Direction::SW || direction == Enums::Direction::SE)
 		movePerStep = 0.014f;
@@ -631,6 +711,7 @@ void Npc::Animate(float deltaTime) {
 			currentFrame = curActivity == Enums::ActivityType::Dying ? numActivityTextures - 1 : 0;
 			m_handleAnimation = activeDirection != Enums::Direction::STOP && !chasingPlayer;
 			m_waitForAnimation = false;
+			activeDirection = curActivity == Enums::ActivityType::Dying ? Enums::Direction::STOP : activeDirection;
 
 		}	
 		rect = &tileSet.getAllTiles()[currentFrame].textureRect;
@@ -783,7 +864,7 @@ void Npc::DrawActiveSpells() {
 		Npc *NPC = NPCs[x];
 		// draw the spell effects for our NPCs
 
-		std::vector<SpellActionBase*> activeSpellActions = NPC->getActiveSpells();
+		const std::vector<SpellActionBase*>& activeSpellActions = NPC->getActiveSpells();
 		for (size_t curActiveSpellNr = 0; curActiveSpellNr < activeSpellActions.size(); ++curActiveSpellNr) {
 			if (!activeSpellActions[curActiveSpellNr]->isEffectComplete()) {
 	

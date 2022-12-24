@@ -3,9 +3,9 @@
 
 Animation2D::~Animation2D() {}
 
-
 void Animation2D::update(const float deltaTime) {
-	
+	if (m_frames.size() == 0) return;
+
 	if (m_waitForAnimation) {
 		
 		m_elapsedTime = m_elapsedTime >= m_frameCount ? 0.0f : m_elapsedTime + deltaTime * 12;

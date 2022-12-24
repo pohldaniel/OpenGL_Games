@@ -30,7 +30,7 @@ public:
 	void setCharacterType(std::string characterType) override;
 	void Die() override;
 	bool canBeDamaged() const override;
-	void Damage(int amount, bool criticalHit);
+	void Damage(int amount, bool criticalHit) override;;
 	void dropItems();
 	void onDie();
 	void Respawn();
@@ -63,7 +63,7 @@ public:
 	double coinDropChance;
 
 	bool hasDrawnDyingOnce = false;
-	bool hasChoosenFearDirection = false;
+
 	bool hasChoosenDyingDirection = false;
 	float dyingTransparency = 1.0f;
 
@@ -74,7 +74,7 @@ public:
 private:
 
 	void Move(float deltaTime);
-	void Move(float deltaTime, Enums::Direction direction);
+	void Move(float deltaTime, Enums::Direction& direction);
 	void Animate(float deltaTime);
 	void processInput();
 
@@ -101,6 +101,7 @@ private:
 	float wander_thisframe, wander_lastframe;
 	float respawn_thisframe, respawn_lastframe;
 	int wander_every_seconds, wander_points_left;
+	float dyingStartFrame, reduceDyingTranspFrame;
 	bool do_respawn;
 	int x_spawn_pos, y_spawn_pos;
 	int NPC_id;

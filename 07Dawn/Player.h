@@ -15,6 +15,7 @@ public:
 	void draw() override;
 	void update(float deltaTime) override;
 	void setCharacterType(std::string characterType) override;
+	void Die() override;
 	/////////////LUA/////////////
 	void init();
 
@@ -81,6 +82,8 @@ public:
 
 	bool m_reloadItemTooltip = true;
 	bool m_reloadSpellTooltip = true;
+
+	static void DrawActiveSpells();
 
 private:
 
