@@ -1,6 +1,6 @@
 /*
 ** Lua binding: Luainterface
-** Generated automatically by tolua++-1.0.92 on Mon Dec 26 18:26:41 2022.
+** Generated automatically by tolua++-1.0.92 on Mon Dec 26 18:42:50 2022.
 */
 
 #ifndef __cplusplus
@@ -748,63 +748,6 @@ static int tolua_Luainterface_DawnInterface_getItemReferenceRestore06(lua_State*
 	return 1;
 tolua_lerror:
 	return tolua_Luainterface_DawnInterface_getItemReferenceRestore05(tolua_S);
-}
-#endif //#ifndef TOLUA_DISABLE
-
-/* function: DawnInterface::getReinitialisationString */
-#ifndef TOLUA_DISABLE_tolua_Luainterface_DawnInterface_getReinitialisationString00
-static int tolua_Luainterface_DawnInterface_getReinitialisationString00(lua_State* tolua_S)
-{
-#ifndef TOLUA_RELEASE
-	tolua_Error tolua_err;
-	if (
-		!tolua_iscppstring(tolua_S, 1, 0, &tolua_err) ||
-		!tolua_isusertype(tolua_S, 2, "Quest", 0, &tolua_err) ||
-		!tolua_isnoobj(tolua_S, 3, &tolua_err)
-		)
-		goto tolua_lerror;
-	else
-#endif
-	{
-		std::string fullVarName = ((std::string)  tolua_tocppstring(tolua_S, 1, 0));
-		Quest* quest = ((Quest*)tolua_tousertype(tolua_S, 2, 0));
-		{
-			std::string tolua_ret = (std::string)  DawnInterface::getReinitialisationString(fullVarName, quest);
-			tolua_pushcppstring(tolua_S, (const char*)tolua_ret);
-		}
-	}
-	return 1;
-#ifndef TOLUA_RELEASE
-	tolua_lerror :
-				 tolua_error(tolua_S, "#ferror in function 'getReinitialisationString'.", &tolua_err);
-				 return 0;
-#endif
-}
-#endif //#ifndef TOLUA_DISABLE
-
-/* function: DawnInterface::getReinitialisationString */
-#ifndef TOLUA_DISABLE_tolua_Luainterface_DawnInterface_getReinitialisationString01
-static int tolua_Luainterface_DawnInterface_getReinitialisationString01(lua_State* tolua_S)
-{
-	tolua_Error tolua_err;
-	if (
-		!tolua_iscppstring(tolua_S, 1, 0, &tolua_err) ||
-		!tolua_isuserdata(tolua_S, 2, 0, &tolua_err) ||
-		!tolua_isnoobj(tolua_S, 3, &tolua_err)
-		)
-		goto tolua_lerror;
-	else
-	{
-		std::string fullVarName = ((std::string)  tolua_tocppstring(tolua_S, 1, 0));
-		void* ignore = ((void*)tolua_touserdata(tolua_S, 2, 0));
-		{
-			std::string tolua_ret = (std::string)  DawnInterface::getReinitialisationString(fullVarName, ignore);
-			tolua_pushcppstring(tolua_S, (const char*)tolua_ret);
-		}
-	}
-	return 1;
-tolua_lerror:
-	return tolua_Luainterface_DawnInterface_getReinitialisationString00(tolua_S);
 }
 #endif //#ifndef TOLUA_DISABLE
 
@@ -8176,8 +8119,6 @@ TOLUA_API int tolua_Luainterface_open(lua_State* tolua_S)
 	tolua_function(tolua_S, "getItemReferenceRestore", tolua_Luainterface_DawnInterface_getItemReferenceRestore04);
 	tolua_function(tolua_S, "getItemReferenceRestore", tolua_Luainterface_DawnInterface_getItemReferenceRestore05);
 	tolua_function(tolua_S, "getItemReferenceRestore", tolua_Luainterface_DawnInterface_getItemReferenceRestore06);
-	tolua_function(tolua_S, "getReinitialisationString", tolua_Luainterface_DawnInterface_getReinitialisationString00);
-	tolua_function(tolua_S, "getReinitialisationString", tolua_Luainterface_DawnInterface_getReinitialisationString01);
 	tolua_function(tolua_S, "getSpellbookSaveText", tolua_Luainterface_DawnInterface_getSpellbookSaveText00);
 	tolua_function(tolua_S, "getActionbarSaveText", tolua_Luainterface_DawnInterface_getActionbarSaveText00);
 	tolua_function(tolua_S, "getReenterCurrentZoneText", tolua_Luainterface_DawnInterface_getReenterCurrentZoneText00);

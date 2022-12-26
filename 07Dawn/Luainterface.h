@@ -74,12 +74,6 @@ namespace DawnInterface{
 	std::string getItemReferenceRestore(std::string varName, InteractionRegion *interactionRegion);
 	std::string getItemReferenceRestore(std::string varName, Npc* npc);
 
-
-	//std::string getItemReferenceRestore(std::string varName, TextWindow *textWindow);
-	//std::string getItemReferenceRestore(std::string varName, Zone* zone);
-
-	std::string getReinitialisationString(std::string fullVarName, Quest* quest);
-	std::string getReinitialisationString(std::string fullVarName, void *ignore);
 	std::string getInventorySaveText();
 	std::string getSpellbookSaveText();
 	std::string getActionbarSaveText();

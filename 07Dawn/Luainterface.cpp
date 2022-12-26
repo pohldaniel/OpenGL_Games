@@ -183,46 +183,6 @@ namespace DawnInterface{
 		return "";
 	}
 
-	/*std::string getItemReferenceRestore(std::string varName, InteractionPoint *interactionPoint) {
-		if (interactionPoint == NULL) {
-			return "nil;";
-		}
-		std::unordered_map<std::string, Zone>& allZones = ZoneManager::Get().getAllZones();
-		for (std::unordered_map<std::string, Zone>::iterator it = allZones.begin(); it != allZones.end(); ++it) {
-			Zone curZone = it->second;
-			bool found;
-			size_t foundPos;
-			curZone.findInteractionPoint(interactionPoint, found, foundPos);
-			if (found) {
-				std::ostringstream oss;
-				oss << "DawnInterface.restoreInteractionPointReference( \"" << curZone.getZoneName() << "\", " << foundPos << " )";
-				return oss.str();
-			}
-		}
-		// not found
-		return "";
-	}
-
-	std::string getItemReferenceRestore(std::string varName, InteractionRegion *interactionRegion) {
-		if (interactionRegion == NULL) {
-			return "nil;";
-		}
-		std::unordered_map<std::string, Zone>& allZones = ZoneManager::Get().getAllZones();
-		for (std::unordered_map<std::string, Zone>::iterator it = allZones.begin(); it != allZones.end(); ++it) {
-			Zone curZone = it->second;
-			bool found;
-			size_t foundPos;
-			curZone.findInteractionRegion(interactionRegion, found, foundPos);
-			if (found) {
-				std::ostringstream oss;
-				oss << "DawnInterface.restoreInteractionRegionReference( \"" << curZone.getZoneName() << "\", " << foundPos << " )";
-				return oss.str();
-			}
-		}
-		// not found
-		return "";
-	}*/
-
 	std::string getItemReferenceRestore(std::string varName, InteractionPoint* interactionPoint) {
 		if (interactionPoint == NULL) {
 			return "nil;";
@@ -236,7 +196,6 @@ namespace DawnInterface{
 				zoneName = (it->first);
 			}
 		}
-	
 		
 		std::ostringstream oss;
 		oss << "DawnInterface.setCurrentZone(\"" << zoneName << "\")" << std::endl;
@@ -333,7 +292,6 @@ namespace DawnInterface{
 		return oss.str();
 	}
 
-
 	std::string getItemReferenceRestore(std::string varName, Quest* quest) {
 		if (quest == NULL) {
 			return "nil;";
@@ -371,45 +329,6 @@ namespace DawnInterface{
 
 		oss << varName << ":loadShopkeeperInventory();" << std::endl;
 		return oss.str();
-	}
-
-	/*std::string getItemReferenceRestore(std::string varName, TextWindow *textWindow) {
-		return "DawnInterface.createTextWindow(); -- text windows are not restored";
-	}
-
-	std::string getItemReferenceRestore(std::string varName, Zone* zone) {
-		return "DawnInterface.getCurrentZone()";
-	}*/
-
-	std::string getReinitialisationString(std::string fullVarName, Quest* quest) {
-		if (quest == NULL) {
-			return "";
-		}
-
-		std::ostringstream oss;
-		if (quest->getExperienceReward() > 0) {
-			oss << fullVarName << ":setExperienceReward( " << static_cast<int>(quest->getExperienceReward()) << " );" << std::endl;
-		}
-
-		if (quest->getCoinReward() > 0) {
-			oss << fullVarName << ":setCoinReward( " << static_cast<int>(quest->getCoinReward()) << " );" << std::endl;
-		}
-
-		if (quest->getItemReward() != NULL) {
-			oss << fullVarName << ":setItemReward( itemDatabase[\"" << quest->getItemReward()->getID() << "\"] );" << std::endl;
-		}
-
-		std::vector<std::pair< Item*, int8_t>>& requiredItems = quest->getRequiredItems();
-		for (size_t curReqItemNr = 0; curReqItemNr < requiredItems.size(); ++curReqItemNr) {
-			const std::pair< Item*, uint8_t > &curReqItem = requiredItems[curReqItemNr];
-			oss << fullVarName << ":addRequiredItemForCompletion( itemDatabase[\"" << curReqItem.first->getID() << "\"], " << static_cast<int>(curReqItem.second) << " );" << std::endl;
-		}
-
-		return oss.str();
-	}
-
-	std::string getReinitialisationString(std::string fullVarName, void *ignore) {
-		return "nil";
 	}
 
 	Character* restoreCharacterReference(std::string zoneName, int posInArray) {

@@ -33,13 +33,13 @@ thePlayer:setSpellEffectElementModifierPoints( 5, 0 );
 thePlayer:setSpellCriticalModifierPoints( 0 );
 thePlayer:setName( "Enylyn" );
 thePlayer:setLevel( 1 );
-thePlayer:setExperience( 40 );
+thePlayer:setExperience( 0 );
 thePlayer:setClass( Enums.Liche );
 thePlayer:setCharacterType("player_w" );
 thePlayer:setCoins( 576 );
-thePlayer:setPosition( 3310, 533 );
-thePlayer:setCurrentHealth(84);
-thePlayer:setCurrentMana(168);
+thePlayer:setPosition( 512, 400 );
+thePlayer:setCurrentHealth(400);
+thePlayer:setCurrentMana(250);
 thePlayer:setCurrentFatigue(100);
 thePlayer:init();
 
@@ -69,22 +69,13 @@ InteractionRegions.quest_hexmaster={}
 
 Zones.zone1.path="res/_lua/zone1.init.lua"
 Zones.zone1.inited=true
-Quests.quest_playHideAndSeek.rewardGot=false
 Quests.quest_playHideAndSeek.path="res/_lua/quests_wood.lua"
-Quests.quest_playHideAndSeek.fulfilled=false
-Quests.quest_playHideAndSeek.added=true
 Quests.quest_playHideAndSeek.inited=true
 Quests.quest_venomousveins.path="res/_lua/quests_venomousveins.lua"
 Quests.quest_venomousveins.inited=true
 Quests.quest_hexmaster.inited=true
 Quests.quest_hexmaster.isOpen=false
 Quests.quest_hexmaster.path="res/_lua/quests_hexmaster.lua"
-Quests.quest_playHideAndSeek.quest=DawnInterface.addQuest( "Hide and Seek","My little brother James is somewhere in this forest. I fear he got lost. Please find him and tell him to come to me." );
-Quests.quest_playHideAndSeek.quest:setExperienceReward( 150 );
-Quests.quest_playHideAndSeek.quest:setCoinReward( 821 );
-Quests.quest_playHideAndSeek.quest:setItemReward( itemDatabase["ringofdefense"] );
-
-
 dofile('res/_lua/zone1.init.lua')
 dofile('res/_lua/quests_wood.lua')
 dofile('res/_lua/quests_venomousveins.lua')
@@ -108,13 +99,6 @@ InteractionPoints.quest_playHideAndSeek.john:setPosition(820,270,64,64)
 InteractionPoints.quest_playHideAndSeek.john:setBackgroundTexture("res/character/John.tga",false)
 InteractionPoints.quest_playHideAndSeek.john:setInteractionType(Enums.Quest)
 InteractionPoints.quest_playHideAndSeek.john:setInteractionCode("Quests.quest_playHideAndSeek.onActivateJohn()");
-
-DawnInterface.setCurrentZone("res/_lua/zone1")
-InteractionPoints.quest_playHideAndSeek.james=DawnInterface.addInteractionPoint();
-InteractionPoints.quest_playHideAndSeek.james:setPosition(3783,640,64,64)
-InteractionPoints.quest_playHideAndSeek.james:setBackgroundTexture("res/character/James.tga",false)
-InteractionPoints.quest_playHideAndSeek.james:setInteractionType(Enums.Quest)
-InteractionPoints.quest_playHideAndSeek.james:setInteractionCode("Quests.quest_playHideAndSeek.onActivateJames()");
 
 DawnInterface.setCurrentZone("res/_lua/zone1")
 InteractionPoints.quest_venomousveins.jemmaInteraction=DawnInterface.addCharacterInteractionPoint(SpawnPoints.quest_venomousveins.jemma);
@@ -236,5 +220,5 @@ DawnInterface.restoreActionBar( 6, spellDatabase[ "hymnofrestoration" ] );
 DawnInterface.restoreActionBar( 7, spellDatabase[ "callingofthegrave" ] );
 DawnInterface.restoreActionBar( 8, spellDatabase[ "manavortex" ] );
 DawnInterface.restoreActionBar( 9, spellDatabase[ "earthenseeds" ] );
-DawnInterface.enterZone( "res/_lua/zone1", 3310, 533 );
+DawnInterface.enterZone( "res/_lua/zone1", 512, 400 );
 DawnInterface.setSavingAllowed( true );
