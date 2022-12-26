@@ -22,6 +22,11 @@ public:
 	bool isMarkedDeletable() const;
 	void markAsDeletable();
 
+	int getLeft();
+	int getBottom();
+	int getWidth();
+	int getHeight();
+
 	static std::vector<InteractionRegion*>& GetInteractionRegions();
 	static void AddInteractionRegion(InteractionRegion* interactionRegion);
 

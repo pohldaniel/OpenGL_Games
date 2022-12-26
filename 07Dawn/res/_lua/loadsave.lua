@@ -1,6 +1,32 @@
 function saveGlobals( t )	
-	for name, value in pairs(_G) do		
+	for name, value in pairs(_G) do	
 		t[name] = 1
+	end
+end
+
+restoreQuest = {};
+restoreInit = {};
+hash = {};
+restoreTables = {};
+hashTables = {};
+
+function printTables( surroundingName, varname, value )
+local prefix=''
+	if( surroundingName ) then
+		prefix=surroundingName..'.'
+	end
+
+	if( type(value) == "table" ) then
+		if (not hashTables[value]) then
+				restoreTables[#restoreTables+1] = prefix..varname..'='..'{}'
+				hashTables[value] = true
+		end
+		
+		if( varname ~= "DontSave" ) then
+			for innervarname,innervalue in pairs(value) do
+				printTables(prefix..varname, innervarname, innervalue )
+			end
+		end
 	end
 end
 
@@ -10,6 +36,12 @@ function printValue( surroundingName, varname, value )
 		prefix=surroundingName..'.'
 	end
 
+	if(varname == "quest" or varname == "quest_one" or varname == "quest_two") then
+		local restoreString = DawnInterface.getItemReferenceRestore(prefix..varname, value );
+		restoreQuest[prefix..varname]=restoreString;
+		return
+	end
+	
 	if( value == nil ) then
 		io.write( prefix..varname..'='..'nil'..'\n' )
 	elseif( type(value) == "number" ) then
@@ -17,13 +49,21 @@ function printValue( surroundingName, varname, value )
 	elseif( type(value) == "boolean" ) then
 		if( value == true ) then
 			io.write( prefix..varname..'='..'true'..'\n' )
+			if(varname == "additionalload") then
+				io.write(prefix..'additionalinit()\n')
+			end
 		else
 			io.write( prefix..varname..'='..'false'..'\n' )
 		end
 	elseif( type(value) == "string" ) then
 		io.write( prefix..varname..'='..'"'..value..'"'..'\n' )
+		if(varname == "path") then
+			if (not hash[value]) then
+				restoreInit[#restoreInit+1] = "dofile('"..value.."')"
+				hash[value] = true
+			end
+		end
 	elseif( type(value) == "table" ) then
-		--io.write( prefix..varname..'='..'{}'..'\n' )
 		-- all variables in tables/namespaces with name DontSave are not saved. This allows for some temporary data
 		if( varname ~= "DontSave" ) then
 			for innervarname,innervalue in pairs(value) do
@@ -33,7 +73,7 @@ function printValue( surroundingName, varname, value )
 	elseif( type(value) == "userdata" ) then
 		local restoreString = DawnInterface.getItemReferenceRestore(prefix..varname, value );
 		if(restoreString ~= "") then
-			io.write( prefix..varname.."="..restoreString..'\n' );
+			io.write(restoreString..'\n' );
 		end
 		--local furtherReinitializationString = DawnInterface.getReinitialisationString( prefix..varname, value );
 		--io.write( furtherReinitializationString );
@@ -41,21 +81,105 @@ function printValue( surroundingName, varname, value )
 end
 
 function saveGame( fileprefix )
-	print( "saving lua game data to " .. fileprefix..'.lua' )
 	local oldOut = io.output()
 	io.output( fileprefix..'.lua' )
-	-- save all zones (needed for variable lookups on user types)
+
 	local player = DawnInterface.getPlayer();
 	io.write( player:getSaveText() );
-	io.write( DawnInterface.getAllZonesSaveText() );
 	
 	for varname,value in pairs(_G) do
-		if( not initialGlobals[varname] and (varname ~= "zone1" and varname ~= "arinoxGeneralShop" and varname ~= "MapData")) then
-		--if( not initialGlobals[varname]) then
+		if( varname == "Zones") then
+			printTables(nil,varname,value)
+		end
+	end
+	
+	for varname,value in pairs(_G) do
+		if( varname == "Quests") then
+			printTables(nil,varname,value)
+		end
+	end
+	
+	for varname,value in pairs(_G) do
+		if( varname == "Eventhandlers") then
+			printTables(nil,varname,value)
+		end
+	end
+	
+	for varname,value in pairs(_G) do
+		if( varname == "SpawnPoints") then
+			printTables(nil,varname,value)
+		end
+	end
+	
+	for varname,value in pairs(_G) do
+		if( varname == "InteractionPoints") then
+			printTables(nil,varname,value)
+		end
+	end
+	
+	for varname,value in pairs(_G) do
+		if( varname == "InteractionRegions") then
+			printTables(nil,varname,value)
+		end
+	end
+	
+	for k,v in pairs(restoreTables) do
+		io.write(v..'\n');
+	end
+	
+	io.write('\n')
+	for varname,value in pairs(_G) do
+		if( varname == "Zones") then
+			printValue(nil,varname,value)
+		end
+	end
+	
+	for varname,value in pairs(_G) do
+		if( varname == "Quests") then
+			printValue(nil,varname,value)
+		end
+	end
+		
+	for k,v in pairs(restoreQuest) do
+		io.write( v..'\n' );
+	end
+	
+	for k,v in pairs(restoreInit) do
+		io.write(v..'\n');
+	end
+	
+	
+	io.write('\n')
+	for varname,value in pairs(_G) do
+		if( varname == "Eventhandlers") then
+			printValue(nil,varname,value)
+		end
+	end
+	
+	for varname,value in pairs(_G) do
+		if( varname == "SpawnPoints") then
+			printValue(nil,varname,value)
+		end
+	end
+	
+	for varname,value in pairs(_G) do
+		if( varname == "InteractionPoints") then
+			printValue(nil,varname,value)
+		end
+	end
+	
+	for varname,value in pairs(_G) do
+		if( varname == "InteractionRegions") then
 			printValue(nil,varname,value)
 		end
 	end
 
+	for varname,value in pairs(_G) do
+		if( not initialGlobals[varname] and (varname ~= "zone1" and varname ~= "arinoxGeneralShop" and varname ~= "MapData" and varname ~= "Eventhandlers" and varname ~= "InteractionPoints" and varname ~= "SpawnPoints" and varname ~= "Quests" and varname ~= "Zones" and varname ~= "InteractionRegions")) then
+			printValue(nil,varname,value)
+		end
+	end
+	
 	io.write( DawnInterface.getInventorySaveText() );
 	io.write( DawnInterface.getSpellbookSaveText() );
 	io.write( DawnInterface.getActionbarSaveText() );
@@ -98,9 +222,8 @@ function reinitGlobalsRecursive( surroundingName, varname, value )
 end
 
 function loadGame( fileprefix )
-	print( "loading lua game data from " .. fileprefix..'.lua' )
 	for varname,value in pairs(_G) do
-		if( not initialGlobals[varname] ) then
+		if( not initialGlobals[varname] and varname ~= "MapData") then
 			_G[''..varname..'']=nil
 		end
 	end
@@ -108,4 +231,4 @@ function loadGame( fileprefix )
 end
 
 initialGlobals = {}
-saveGlobals( initialGlobals )
+saveGlobals(initialGlobals)

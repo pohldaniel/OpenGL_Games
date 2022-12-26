@@ -1143,25 +1143,25 @@ int Character::CollisionCheck(Enums::Direction direction) {
 
 void Character::MoveUp(unsigned short n) {
 	if (CollisionCheck(Enums::Direction::N) == 0) {
-	y_pos += n;
+		y_pos += n;
 	}
 }
 
 void Character::MoveDown(unsigned short n) {
 	if (CollisionCheck(Enums::Direction::S) == 0) {
-	y_pos -= n;
+		y_pos -= n;
 	}
 }
 
 void Character::MoveLeft(unsigned short n) {
 	if (CollisionCheck(Enums::Direction::W) == 0) {
-	x_pos -= n;
+		x_pos -= n;
 	}
 }
 
 void Character::MoveRight(unsigned short n) {
 	if (CollisionCheck(Enums::Direction::E) == 0) {
-	x_pos += n;
+		x_pos += n;
 	}
 }
 

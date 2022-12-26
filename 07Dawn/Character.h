@@ -215,6 +215,9 @@ public:
 	unsigned short getResistElementModifierPoints(Enums::ElementType elementType) const;
 	unsigned short getResistAllModifierPoints() const;
 	
+	void setCurrentHealth(unsigned short newCurrentHealth);
+	void setCurrentMana(unsigned short newCurrentMana);
+	void setCurrentFatigue(unsigned short newCurrentFatigue);
     ////////////////////LUA STATES/////////
 	Enums::CharacterClass getClass() const;
 	std::string getName() const;
@@ -299,9 +302,6 @@ protected:
 	void cleanupCooldownSpells();
 	void cleanupActiveSpells();
 
-	void setCurrentHealth(unsigned short newCurrentHealth);
-	void setCurrentMana(unsigned short newCurrentMana);
-
 	bool alive;
 	bool m_isPlayer;
 	bool isPreparing = false;
@@ -384,9 +384,6 @@ private:
 	void addDamageDisplayToGUI(int amount, bool critical, uint8_t damageType);
 	void abortCurrentSpellAction();	
 	
-	
-	void setCurrentFatigue(unsigned short newCurrentFatigue);
-
 	void modifyMaxHealth(short maxHealthModifier);
 	void modifyMaxMana(short maxManaModifier);
 	void modifyMaxFatigue(short maxFatigueModifier);

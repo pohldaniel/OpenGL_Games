@@ -22,7 +22,7 @@ Editor::Editor(StateMachine& machine) : State(machine, CurrentState::EDITOR) {
 
 		DawnInterface::enterZone("res/_lua/zone1", 512, 400);
 	}
-
+	
 	if (!s_init) {
 		Init();
 		s_init = true;

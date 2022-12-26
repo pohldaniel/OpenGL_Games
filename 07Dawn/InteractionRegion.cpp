@@ -25,6 +25,22 @@ void InteractionRegion::getPosition(int &left_, int &bottom_, int &width_, int &
 	height_ = height;
 }
 
+int InteractionRegion::getLeft() {
+	return left;
+}
+
+int InteractionRegion::getBottom() {
+	return bottom;
+}
+
+int InteractionRegion::getWidth() {
+	return width;
+}
+
+int InteractionRegion::getHeight() {
+	return height;
+}
+
 void InteractionRegion::setOnEnterText(std::string enterCode) {	
 	this->onEnterCode = enterCode;
 }

@@ -52,13 +52,15 @@ void Zone::loadZone() {
 		LuaFunctions::executeLuaFile(std::string(m_file).append(".environment.lua"));
 		LuaFunctions::executeLuaFile(std::string(m_file).append(".shadow.lua"));
 		LuaFunctions::executeLuaFile(std::string(m_file).append(".collision.lua"));
-		
+		LuaFunctions::executeLuaFile(std::string(m_file).append(".tables.lua"));
+		LuaFunctions::executeLuaFile(std::string(m_file).append(".init.lua"));
 		m_mapLoaded = true;
 	}
 
 	if (!m_init) {
+
 		LuaFunctions::executeLuaFile(std::string(m_file).append(".spawnpoints.lua"));
-		LuaFunctions::executeLuaFile(std::string(m_file).append(".init.lua"));
+		
 		m_init = true;
 	}
 
@@ -372,7 +374,6 @@ void Zone::update(float deltaTime) {
 }
 
 void Zone::drawZoneBatched() {
-	
 	drawTilesBatched();
 	drawEnvironmentBatched();
 	drawShadowsBatched();
@@ -494,6 +495,10 @@ std::vector<InteractionPoint*>& Zone::getInteractionPoints() {
 	return m_interactionPoints;
 }
 
+std::vector<CallIndirection*>& Zone::getEventHandlers() {
+	return eventHandlers;
+}
+
 void Zone::addCharacterInteractionPoint(CharacterInteractionPoint *characterInteractionPoint) {
 	m_interactionPoints.push_back(characterInteractionPoint);
 }
@@ -557,12 +562,13 @@ std::string Zone::getLuaSaveText() const {
 	oss << "DawnInterface.setCurrentZone( \"" << m_file << "\" );" << std::endl;
 	oss << zoneNameNoPrefix << "=DawnInterface.getCurrentZone();" << std::endl;
 	oss << zoneNameNoPrefix << ".inited = nil;" << std::endl;
+	oss << zoneNameNoPrefix << ".Questsinited = true;" << std::endl;
 	oss << zoneNameNoPrefix << ":setInit(false);" << std::endl;
 	oss << zoneNameNoPrefix << ":loadZone();" << std::endl << std::endl;
 
 
 	// save call indirections (must be added before spawnpoints since used there)
-	oss << "-- " << zoneNameNoPrefix << " event handlers" << std::endl;
+	/*oss << "-- " << zoneNameNoPrefix << " event handlers" << std::endl;
 	for (size_t curEventHandlerNr = 0; curEventHandlerNr<eventHandlers.size(); ++curEventHandlerNr) {
 		CallIndirection *curEventHandler = eventHandlers[curEventHandlerNr];
 		std::string eventHandlerSaveText = curEventHandler->getLuaSaveText();
@@ -570,7 +576,7 @@ std::string Zone::getLuaSaveText() const {
 	}
 
 	// save all spawnpoints
-	/*oss << "-- spawnpoints" << std::endl;
+	oss << "-- spawnpoints" << std::endl;
 	for (size_t curNpcNr = 0; curNpcNr < m_npcs.size(); ++curNpcNr) {
 	Npc *curNPC = m_npcs[curNpcNr];
 	// save cur npc

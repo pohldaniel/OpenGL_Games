@@ -14,6 +14,7 @@
 #include "Interface.h"
 #include "Inventory.h"
 #include "Quest.h"
+#include "Utils.h"
 
 namespace EditorInterface{
 	
@@ -94,7 +95,7 @@ namespace DawnInterface{
 			zoneNameNoPrefix = zoneNameNoPrefix.substr(zoneNameNoPrefix.find_last_of('/') + 1);
 		}
 
-		oss << "if (" << zoneNameNoPrefix << ".onEnterMap ~= nil)\nthen\n    " << zoneNameNoPrefix << ".onEnterMap(" << enterX << "," << enterY << ");\nelse    print \"" << zoneNameNoPrefix << ".onEnterMap was not defined\";\nend";
+		oss << "if (" << "Zones." << zoneNameNoPrefix << ".onEnterMap ~= nil)\nthen\n    "<< "Zones." << zoneNameNoPrefix << ".onEnterMap(" << enterX << "," << enterY << ");\nelse    print \"" << "Zones." << zoneNameNoPrefix << ".onEnterMap was not defined\";\nend";
 		std::string onEnterCall = oss.str();
 		LuaFunctions::executeLuaScript(onEnterCall);
 	}
@@ -134,7 +135,6 @@ namespace DawnInterface{
 
 	Npc* addMobSpawnPoint(std::string characterType, std::string name, int x_pos, int y_pos, int respawn_rate, int do_respawn, Enums::Attitude attitude) {
 		
-		
 		if (!CharacterTypeManager::Get().containsCaracterType(characterType)) {
 			return nullptr;
 		}
@@ -144,9 +144,12 @@ namespace DawnInterface{
 		newMob->setSpawnInfo(x_pos, y_pos, respawn_rate, do_respawn);
 		newMob->setAttitude(attitude);
 		newMob->setName(name);
-		//newMob->setActiveGUI(&GUI);
 		ZoneManager::Get().getCurrentZone()->addNPC(newMob);
 		return ZoneManager::Get().getCurrentZone()->getNPCs().back();
+	}
+
+	void removeMobSpawnPoint(Npc* mobSpawnPoint) {
+		ZoneManager::Get().getCurrentZone()->removeNPC(mobSpawnPoint);
 	}
 
 	const Zone& getCurrentZone() {
@@ -177,25 +180,6 @@ namespace DawnInterface{
 	}
 
 	std::string getItemReferenceRestore(std::string varName, void *ignore) {
-		return "";
-	}
-
-	std::string getItemReferenceRestore(std::string varName, Character *character){
-		if (character == NULL) {
-			return "";
-		}
-		std::unordered_map<std::string, Zone>& allZones = ZoneManager::Get().getAllZones();
-		for (std::unordered_map< std::string, Zone>::iterator it = allZones.begin(); it != allZones.end(); ++it) {
-			Zone curZone = it->second;
-			bool found;
-			size_t foundPos;
-			curZone.findCharacter(character, found, foundPos);
-			if (found) {
-				std::ostringstream oss;
-				oss << "DawnInterface.restoreCharacterReference( \"" << curZone.getZoneName() << "\", " << foundPos << " )";
-				return oss.str();
-			}
-		}
 		return "";
 	}
 
@@ -239,25 +223,116 @@ namespace DawnInterface{
 		return "";
 	}*/
 
+	std::string getItemReferenceRestore(std::string varName, InteractionPoint* interactionPoint) {
+		if (interactionPoint == NULL) {
+			return "nil;";
+		}
+
+		std::string zoneName = "";
+		std::unordered_map<std::string, Zone>& allZones = ZoneManager::Get().getAllZones();
+		for (std::unordered_map<std::string, Zone>::iterator it = allZones.begin(); it != allZones.end(); ++it) {
+			std::vector<InteractionPoint*>& interactionPoints = (it->second).getInteractionPoints();
+			if (std::find(interactionPoints.begin(), interactionPoints.end(), interactionPoint) != interactionPoints.end()) {
+				zoneName = (it->first);
+			}
+		}
+	
+		
+		std::ostringstream oss;
+		oss << "DawnInterface.setCurrentZone(\"" << zoneName << "\")" << std::endl;
+		if (dynamic_cast<CharacterInteractionPoint*>(interactionPoint) != nullptr) {
+			
+			oss << varName << "=DawnInterface.addCharacterInteractionPoint(" << LuaFunctions::getSpawnPointName("SpawnPoints", dynamic_cast<Npc*>(dynamic_cast<CharacterInteractionPoint*>(interactionPoint)->getCharacter())) << ");" << std::endl;
+			oss << varName << ":setInteractionType(" << interactionPoint->toStringForLua(interactionPoint->getInteractionType()) << ")" << std::endl;
+			oss << varName << ":setInteractionCode( \"" << Utils::replaceEscape(interactionPoint->getInteractionCode()) << "\" );" << std::endl;
+			return oss.str();
+
+		} else {
+
+			oss << varName << "=DawnInterface.addInteractionPoint();" << std::endl;
+			oss << varName << ":setPosition(" << interactionPoint->getPosX() << "," << interactionPoint->getPosY() << "," << interactionPoint->getWidth() << "," << interactionPoint->getHeight() << ")" << std::endl;
+
+			if (!interactionPoint->getBackgroundTextureName().empty())
+				oss << varName << ":setBackgroundTexture(\"" << interactionPoint->getBackgroundTextureName() << "\"," << std::boolalpha << interactionPoint->getBackgroundTextureTransparent() << ")" << std::endl;
+			oss << varName << ":setInteractionType(" << interactionPoint->toStringForLua(interactionPoint->getInteractionType()) << ")" << std::endl;
+			oss << varName << ":setInteractionCode(\"" << Utils::replaceEscape(interactionPoint->getInteractionCode()) << "\");" << std::endl;
+			return oss.str();
+		}
+	}
+
+	std::string getItemReferenceRestore(std::string varName, InteractionRegion *interactionRegion) {
+		if (interactionRegion == NULL) {
+			return "nil;";
+		}
+
+		std::string zoneName = "";
+		std::unordered_map<std::string, Zone>& allZones = ZoneManager::Get().getAllZones();
+		for (std::unordered_map<std::string, Zone>::iterator it = allZones.begin(); it != allZones.end(); ++it) {
+			std::vector<InteractionRegion*>& interactionRegions = (it->second).getInteractionRegions();
+			if (std::find(interactionRegions.begin(), interactionRegions.end(), interactionRegion) != interactionRegions.end()) {
+				zoneName = (it->first);
+			}
+		}
+
+		std::ostringstream oss;
+		oss << "DawnInterface.setCurrentZone(\"" << zoneName << "\")" << std::endl;
+		oss << varName << "=DawnInterface.addInteractionRegion();" << std::endl;
+		oss << varName << ":setPosition(" << interactionRegion->getLeft() << "," << interactionRegion->getBottom() << "," << interactionRegion->getWidth() << "," << interactionRegion->getHeight() << ")" << std::endl;
+		if (!interactionRegion->getOnEnterText().empty())
+			oss << varName << ":setOnEnterText(\"" << Utils::replaceEscape(interactionRegion->getOnEnterText()) << "\");" << std::endl;
+
+		if (!interactionRegion->getOnLeaveText().empty())
+			oss << varName << ":setOnLeaveText(\"" << Utils::replaceEscape(interactionRegion->getOnLeaveText()) << "\");" << std::endl;
+
+		return oss.str();
+	}
+
 	std::string getItemReferenceRestore(std::string varName, CallIndirection *eventHandler) {
 		if (eventHandler == NULL) {
 			return "nil;";
 		}
+
+		std::string zoneName = "";
 		std::unordered_map<std::string, Zone>& allZones = ZoneManager::Get().getAllZones();
 		for (std::unordered_map<std::string, Zone>::iterator it = allZones.begin(); it != allZones.end(); ++it) {
-			Zone curZone = it->second;
-			bool found;
-			size_t foundPos;
-			curZone.findEventHandler(eventHandler, found, foundPos);
-			if (found) {
-				std::ostringstream oss;
-				oss << "DawnInterface.restoreEventHandlerReference( \"" << curZone.getZoneName() << "\", " << foundPos << " )";
-				return oss.str();
+			std::vector<CallIndirection*>& eventHandlers = (it->second).getEventHandlers();
+
+			if (std::find(eventHandlers.begin(), eventHandlers.end(), eventHandler) != eventHandlers.end()) {
+				zoneName = (it->first);
 			}
 		}
-		// not found
-		return "";
+
+		std::ostringstream oss;
+		oss << "DawnInterface.setCurrentZone(\"" << zoneName << "\");" << std::endl;
+		oss << varName << "=DawnInterface.createEventHandler();" << std::endl;
+		oss << varName << ":setExecuteText(\"" << Utils::replaceEscape(eventHandler->getExecuteText()) <<"\");" << std::endl;
+		return oss.str();
 	}
+
+	std::string getItemReferenceRestore(std::string varName, Npc* npc) {
+		if (npc == NULL) {
+			return "";
+		}
+
+		std::string zoneName = "";
+		std::unordered_map<std::string, Zone>& allZones = ZoneManager::Get().getAllZones();
+		for (std::unordered_map<std::string, Zone>::iterator it = allZones.begin(); it != allZones.end(); ++it) {
+			std::vector<Npc*>& npcs = (it->second).getNPCs();
+			if (std::find(npcs.begin(), npcs.end(), npc) != npcs.end()) {
+				zoneName = (it->first);
+			}
+		}
+
+		std::ostringstream oss;
+		oss << "DawnInterface.setCurrentZone(\"" << zoneName << "\");" << std::endl;
+		oss << varName << "=DawnInterface.addMobSpawnPoint(\"" << npc->getCharacterTypeStr() << "\",\""  << npc->getName() << "\"," << npc->getSpawnPosX() << "," << npc->getSpawnPosY() << "," << npc->getSecondsToRespawn() << "," << npc->getDoRespawn() << "," << npc->getAttitudeStr() <<  ");" << std::endl;
+
+		for (size_t curOnDieHandlerNr = 0; curOnDieHandlerNr < npc->getOnDieEventHandlers().size(); ++curOnDieHandlerNr) {
+			oss << varName << ":addOnDieEventHandler(" << LuaFunctions::getEventHandlerName("Eventhandlers", npc->getOnDieEventHandlers()[curOnDieHandlerNr]) << ");" << std::endl;
+		}
+		return oss.str();
+	}
+
 
 	std::string getItemReferenceRestore(std::string varName, Quest* quest) {
 		if (quest == NULL) {
@@ -265,13 +340,29 @@ namespace DawnInterface{
 		}
 
 		std::ostringstream oss;
-		oss << "DawnInterface.addQuest( \"" << quest->getName() << "\",\"" << quest->getDescription() << "\" );";
+		oss << varName << "=DawnInterface.addQuest( \"" << quest->getName() << "\",\"" << quest->getDescription() << "\" );" << std::endl;
+
+		if (quest->getExperienceReward() > 0) 
+			oss << varName << ":setExperienceReward( " << static_cast<int>(quest->getExperienceReward()) << " );" << std::endl;
+		
+		if (quest->getCoinReward() > 0) 
+			oss << varName << ":setCoinReward( " << static_cast<int>(quest->getCoinReward()) << " );" << std::endl;
+		
+		if (quest->getItemReward() != NULL)
+			oss << varName << ":setItemReward( itemDatabase[\"" << quest->getItemReward()->getID() << "\"] );" << std::endl;
+		
+		std::vector<std::pair< Item*, int8_t>>& requiredItems = quest->getRequiredItems();
+		for (size_t curReqItemNr = 0; curReqItemNr < requiredItems.size(); ++curReqItemNr) {
+			const std::pair< Item*, uint8_t > &curReqItem = requiredItems[curReqItemNr];
+			oss << varName << ":addRequiredItemForCompletion( itemDatabase[\"" << curReqItem.first->getID() << "\"], " << static_cast<int>(curReqItem.second) << " );" << std::endl;
+		}
+		oss << std::endl;
 		return oss.str();
 	}
 
 	std::string getItemReferenceRestore(std::string varName, Shop *shop) {
 		std::ostringstream oss;
-		oss << "DawnInterface.addShop( \"" << shop->m_name << "\" , true );" << std::endl;;
+		oss << varName << "=DawnInterface.addShop( \"" << shop->m_name << "\" , true );" << std::endl;
 		for (size_t curTab = 0; curTab < 3; ++curTab) {
 			for (size_t curItemNr = 0; curItemNr < shop->shopkeeperInventory[curTab].size(); ++curItemNr) {
 				oss << varName << ":addItem( itemDatabase[\"" << shop->shopkeeperInventory[curTab][curItemNr]->getItem()->getID() << "\"] );" << std::endl;

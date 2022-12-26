@@ -25,3 +25,7 @@ std::string LuaCallIndirection::getLuaSaveText() const {
 void LuaCallIndirection::setExecuteText(std::string text) {
 	this->luaText = text;
 }
+
+std::string LuaCallIndirection::getExecuteText() const {
+	return luaText;
+}

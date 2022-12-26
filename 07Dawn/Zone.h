@@ -86,7 +86,7 @@ public:
 	int deleteNPC(int x, int y);
 	void removeNPC(Npc *npcToDelete);
 	void cleanupNPCList();
-	std::vector<Npc*>& getNPCs();
+	
 
 	bool findInteractionPointForCharacter(Character *character) const;
 	void findCharacter(Character *character, bool &found, size_t &foundPos) const;
@@ -101,7 +101,8 @@ public:
 	std::vector<CollisionRect>& getCollisionMap();
 	std::vector<InteractionRegion*>& getInteractionRegions();
 	std::vector<InteractionPoint*>& getInteractionPoints();
-
+	std::vector<CallIndirection*>& getEventHandlers();
+	std::vector<Npc*>& getNPCs();
 	std::vector<Magic*> MagicMap;
 	void addActiveAoESpell(SpellActionBase *spell);
 	std::vector<SpellActionBase*>& getActiveAoESpells();

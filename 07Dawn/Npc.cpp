@@ -145,6 +145,34 @@ void Npc::setCharacterType(std::string characterType) {
 	wander_radius = m_characterType->wander_radius;
 }
 
+std::string Npc::getCharacterTypeStr() {
+	return m_characterTypeStr;
+}
+
+int Npc::getSpawnPosX() {
+	return x_spawn_pos;
+}
+
+int Npc::getSpawnPosY() {
+	return y_spawn_pos;
+}
+
+int Npc::getDoRespawn() {
+	return do_respawn;
+}
+
+int Npc::getSecondsToRespawn() {
+	return seconds_to_respawn;
+}
+
+std::string Npc::getAttitudeStr() {
+	return "Enums." + Character::AttitudeToString(attitudeTowardsPlayer);
+}
+
+std::vector<CallIndirection*>& Npc::getOnDieEventHandlers() {
+	return onDieEventHandlers;
+}
+
 void Npc::addItemToLootTable(Item *item, double dropChance) {
 	lootTable.push_back(LootTable(item, dropChance));
 }
@@ -786,8 +814,19 @@ unsigned short Npc::getWanderRadiusSq() const {
 	return wander_radius * wander_radius;
 }
 
-void Npc::addOnDieEventHandler(CallIndirection *eventHandler) {
+void Npc::addOnDieEventHandler(CallIndirection* eventHandler) {
 	onDieEventHandlers.push_back(eventHandler);
+
+	auto it = std::find(onDieEventHandlers.begin(), onDieEventHandlers.end(), eventHandler);
+
+	if (onDieEventHandlers.end() == it) {
+		onDieEventHandlers.emplace_back(eventHandler);
+	}
+}
+
+void Npc::removeOnDieEventHandler(CallIndirection* eventHandler) {
+	auto it = std::find(onDieEventHandlers.begin(), onDieEventHandlers.end(), eventHandler);
+	if (it != onDieEventHandlers.end()) { onDieEventHandlers.erase(it); }
 }
 
 bool Npc::hasOnDieEventHandler() const {

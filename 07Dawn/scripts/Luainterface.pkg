@@ -233,6 +233,7 @@ namespace DawnInterface{
 	void setCurrentZone(std::string zoneName );
 	CharacterType& createNewMobType(std::string typeID);
 	Npc* addMobSpawnPoint(std::string mobID, std::string name, int x_pos, int y_pos, int respawn_rate, int do_respawn, Enums::Attitude attitude);
+	void removeMobSpawnPoint(Npc* mobSpawnPoint);
 	InteractionRegion& addInteractionRegion();
 	void removeInteractionRegion(InteractionRegion *regionToRemove);
 	InteractionPoint& addInteractionPoint();
@@ -243,7 +244,11 @@ namespace DawnInterface{
 	std::string getItemReferenceRestore(std::string varName, void *ignore);
 	std::string getItemReferenceRestore(std::string varName, Quest* quest);
 	std::string getItemReferenceRestore(std::string varName, Shop *shop);
-
+	std::string getItemReferenceRestore(std::string varName, CallIndirection *eventHandler);
+	std::string getItemReferenceRestore(std::string varName, InteractionPoint *interactionPoint);
+	std::string getItemReferenceRestore(std::string varName, InteractionRegion *interactionRegion);
+	std::string getItemReferenceRestore(std::string varName, Npc* npc);
+	
 	std::string getReinitialisationString(std::string fullVarName, Quest* quest);
 	std::string getReinitialisationString( std::string fullVarName, void *ignore );
 	std::string getSpellbookSaveText();
@@ -400,11 +405,16 @@ class Player : public Character {
 	void init();
 	Enums::CharacterClass getClass();
 	std::string getSaveText();
+	
+	void setCurrentHealth(unsigned short currentHealth);
+	void setCurrentMana(unsigned short currentMana);
+	void setCurrentFatigue(unsigned short currentFatigue);
 }
 
 class Npc : public Character {
 	void setAttitude( Enums::Attitude attitude );
 	void addOnDieEventHandler(CallIndirection *eventHandler);
+	void removeOnDieEventHandler(CallIndirection *eventHandler);
 	void setWanderRadius(unsigned short newWanderRadius);
 };
 

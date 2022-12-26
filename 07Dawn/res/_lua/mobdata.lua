@@ -59,34 +59,6 @@ wolfbase:addItemToLootTable( itemDatabase["patchofwolfskin"], 0.25 )
 wolfbase:addItemToLootTable( itemDatabase["wolfmeat"], 0.10 )
 wolfbase:setExperienceValue( 25 );
 
-wolfbase:calcNumMoveTexturesPerDirection();
-wolfbase:setStrength( 15 )
-wolfbase:setDexterity( 25 )
-wolfbase:setVitality( 15 )
-wolfbase:setIntellect( 10 )
-wolfbase:setWisdom( 10 )
-wolfbase:setMaxHealth( 250 )
-wolfbase:setMaxMana( 500 )
-wolfbase:setMaxFatigue( 100 )
-wolfbase:setHealthRegen( 0 )
-wolfbase:setManaRegen( 50 )
-wolfbase:setFatigueRegen( 25 )
-wolfbase:setMinDamage( 5 )
-wolfbase:setMaxDamage( 10 )
-wolfbase:setArmor( 20 )
-wolfbase:setDamageModifierPoints( 0 )
-wolfbase:setHitModifierPoints( 0 )
-wolfbase:setEvadeModifierPoints( 0 )
-wolfbase:setName("A wolf")
-wolfbase:setWanderRadius( 250 )
-wolfbase:setLevel( 2 )
-wolfbase:setClass( Enums.Warrior );
-wolfbase:inscribeSpellInSpellbook( spellDatabase["wolfbite"] );
-wolfbase:inscribeSpellInSpellbook( spellDatabase["rabidbite"] );
-wolfbase:addItemToLootTable( itemDatabase["patchofwolfskin"], 0.25 )
-wolfbase:addItemToLootTable( itemDatabase["wolfmeat"], 0.10 )
-wolfbase:setExperienceValue( 25 );
-
 wolfpup = DawnInterface.createNewMobType("Wolf_Pup")
 wolfpup:baseOnType("Wolf")
 wolfpup:modifyStrength( -2 )
@@ -110,7 +82,7 @@ giantwolf:modifyDexterity( 5 )
 giantwolf:modifyVitality( 20 )
 giantwolf:modifyIntellect( 10 )
 giantwolf:modifyWisdom( 4 )
-giantwolf:modifyMaxHealth( 150 )
+giantwolf:modifyMaxHealth( -150 )
 giantwolf:setMinDamage( 10 )
 giantwolf:setMaxDamage( 20 )
 giantwolf:setArmor( 50 )

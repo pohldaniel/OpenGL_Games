@@ -1,17 +1,19 @@
-arinoxGeneralShop = DawnInterface.getCurrentZone();
+function Zones.arinoxGeneralShop.init()
+	if(not Zones.arinoxGeneralShop.inited) then
+		InteractionPoints.arinoxGeneralShop.leavePoint = DawnInterface.addInteractionPoint();
+		InteractionPoints.arinoxGeneralShop.leavePoint:setPosition( -160, -94, 80, 80 );
+		InteractionPoints.arinoxGeneralShop.leavePoint:setBackgroundTexture( "res/transparent4x4pixel.png", true);
+		InteractionPoints.arinoxGeneralShop.leavePoint:setInteractionType( Enums.Zone );
+		InteractionPoints.arinoxGeneralShop.leavePoint:setInteractionCode( "DawnInterface.enterZone( 'res/_lua/zone1', 747, 1530 );\nDawnInterface.setSavingAllowed( true );" );
 
-function arinoxGeneralShop.init()
-
-	arinoxGeneralShop.leavePoint = DawnInterface.addInteractionPoint();
-	arinoxGeneralShop.leavePoint:setPosition( -160, -94, 80, 80 );
-	arinoxGeneralShop.leavePoint:setBackgroundTexture( "res/transparent4x4pixel.png", true);
-	arinoxGeneralShop.leavePoint:setInteractionType( Enums.Zone );
-	arinoxGeneralShop.leavePoint:setInteractionCode( 'DawnInterface.enterZone( "res/_lua/zone1", 747, 1530 );\nDawnInterface.setSavingAllowed( true );' );
-
-	arinoxGeneralShop.trader = DawnInterface.addMobSpawnPoint( "Human", "Rake Fleetwood", -344, 180, 1, 0, Enums.FRIENDLY);
-	arinoxGeneralShop.traderInteraction = DawnInterface.addCharacterInteractionPoint( arinoxGeneralShop.trader );
-	arinoxGeneralShop.traderInteraction:setInteractionType( Enums.Shop );
-	arinoxGeneralShop.traderInteraction:setInteractionCode( "arinoxGeneralShop.onActivateTrader()" );
+		SpawnPoints.arinoxGeneralShop.trader = DawnInterface.addMobSpawnPoint( "Human", "Rake Fleetwood", -344, 180, 1, 0, Enums.FRIENDLY);
+		InteractionPoints.arinoxGeneralShop.traderInteraction = DawnInterface.addCharacterInteractionPoint( SpawnPoints.arinoxGeneralShop.trader );
+		InteractionPoints.arinoxGeneralShop.traderInteraction:setInteractionType( Enums.Shop );
+		InteractionPoints.arinoxGeneralShop.traderInteraction:setInteractionCode( "Zones.arinoxGeneralShop.onActivateTrader()" );
+		
+		Zones.arinoxGeneralShop.inited = true;
+		Zones.arinoxGeneralShop.path = "res/_lua/arinoxGeneralShop.init.lua"
+	end
 	
 	traderShop2 = DawnInterface.addShop("shop2");
 	traderShop2:addItem( itemDatabase["leynorscap"] );
@@ -30,19 +32,15 @@ function arinoxGeneralShop.init()
 	traderShop2:loadShopkeeperInventory();
 end
 
-
-function arinoxGeneralShop.onEnterMap(x,y)
+function Zones.arinoxGeneralShop.onEnterMap(x,y)
 	local textWindow = DawnInterface.createTextWindow();
 	textWindow:center();
 	textWindow:setText( "Arinox general shop" );
 	textWindow:setAutocloseTime( 1000 );
 end
 
-function arinoxGeneralShop.onActivateTrader()
+function Zones.arinoxGeneralShop.onActivateTrader()
 	ShopCanvas:Get():activate();
 end
 
-if( arinoxGeneralShop.inited == nil ) then
-	arinoxGeneralShop.inited = true
-	arinoxGeneralShop.init()
-end
+Zones.arinoxGeneralShop.init()

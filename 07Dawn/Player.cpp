@@ -168,6 +168,18 @@ void Player::draw() {
 }
 
 void Player::update(float deltaTime) {
+	// making sure our target is still alive, not invisible and still in range while stealthed. if not well set our target to NULL.
+	if (getTarget()) {
+		double distance = sqrt(pow((getTarget()->getXPos() + getTarget()->getWidth() / 2) - (getXPos() + getWidth() / 2), 2)
+			+ pow((getTarget()->getYPos() + getTarget()->getHeight() / 2) - (getYPos() + getHeight() / 2), 2));
+
+		if(getTarget()->isAlive() == false ||
+			(getTarget()->isInvisible() == true && canSeeInvisible() == false) ||
+			(getTarget()->isSneaking() == true && distance > 260 && canSeeSneaking() == false)) {
+			setTarget(NULL);
+		}
+	}
+	
 	CalculateStats();
 	cleanupActiveSpells();
 	cleanupCooldownSpells();
@@ -176,9 +188,9 @@ void Player::update(float deltaTime) {
 
 	regenerateLifeManaFatigue(deltaTime);
 
-	//if (curActivity != Enums::ActivityType::Dying) {
-	processInput();
-	//}
+	if (curActivity != Enums::ActivityType::Dying) {
+		processInput();
+	}
 
 	if (activeDirection != Enums::Direction::STOP && curActivity != Enums::ActivityType::Walking) {
 		interruptCurrentActivityWith(Enums::ActivityType::Walking);
@@ -201,8 +213,11 @@ void Player::setCharacterType(std::string characterTypeStr) {
 	m_characterTypeStr = characterTypeStr;
 }
 
-void Player::Die(){
+void Player::Die() {
 	alive = false;
+	curActivity = Enums::ActivityType::Dying;
+	currentFrame = 0;
+	m_waitForAnimation = true;
 }
 
 void Player::init() {
@@ -216,11 +231,7 @@ void Player::init() {
 	isPreparing = false;
 	alive = true;
 	curSpellAction = NULL;
-	experience = 0;
-	coins = 0;
-	movementSpeed = 1;
-	setName("Enylyn");
-
+	
 	m_isPlayer = true;
 	updatePortraitOffset();
 
@@ -657,11 +668,11 @@ std::string Player::getSaveText() const {
 	oss << objectName << ":setExperience( " << getExperience() << " );" << std::endl;
 	oss << objectName << ":setClass( Enums." << getClassName() << " );" << std::endl;
 	oss << objectName << ":setCharacterType(\"" << m_characterTypeStr << "\" );" << std::endl;
-	oss << "-- coins" << std::endl;
 	oss << objectName << ":setCoins( " << getCoins() << " );" << std::endl;
-
-	oss << "-- position" << std::endl;
 	oss << objectName << ":setPosition( " << getXPos() << ", " << getYPos() << " );" << std::endl;
+	oss << objectName << ":setCurrentHealth(" << getCurrentHealth() << ");" << std::endl;
+	oss << objectName << ":setCurrentMana(" << getCurrentMana() << ");" << std::endl;
+	oss << objectName << ":setCurrentFatigue(" << getCurrentFatigue() << ");" << std::endl;
 	oss << objectName << ":init();" << std::endl << std::endl;
 	// no current attributes are set here because after reloading the player is completely refreshed again
 

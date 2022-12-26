@@ -5,6 +5,9 @@
 #include <tolua++.h>
 #include <lua.hpp>
 #include "engine/Rect.h"
+#include "Callindirection.h"
+#include "Quest.h"
+#include "Npc.h"
 #include "Luainterfacegenerated.h"
 
 
@@ -148,5 +151,170 @@ namespace LuaFunctions{
 			// pop the value from the stack
 			lua_pop(lState, 1);
 		}
+	}
+
+	std::string getEventHandlerName(const std::string &tableName, const CallIndirection* eventHandler) {
+		lua_State *lState = getGlobalLuaState();
+		lua_getglobal(lState, tableName.c_str());
+		if (lua_isnil(lState, -1) || !lua_istable(lState, -1)) {
+			std::cout << std::string("table ").append(tableName).append(" does not exist in lua as global table").c_str() << std::endl;
+		}
+
+		lua_pushnil(lState);
+		std::string result = "";
+
+		bool found = false;
+		while (lua_next(lState, -2) != 0) {
+			if (lua_isstring(lState, -2)) {
+				size_t s_len = 0;
+				const char *s = lua_tolstring(lState, -2, &s_len);
+				std::string nameSubtable = std::string(s, s_len);
+				lua_getfield(lState, -1, nameSubtable.c_str());
+				while (lua_next(lState, -2) != 0) {
+					if (lua_isuserdata(lState, -1)) {
+						void *curUserData = *(void**)lua_touserdata(lState, -1);
+
+						if (static_cast<CallIndirection*>(curUserData) == eventHandler) {
+							if (lua_isstring(lState, -2)) {
+								size_t s_len = 0;
+								const char *s = lua_tolstring(lState, -2, &s_len);
+								std::string nameHandler(s, s_len);
+								result = tableName + "." + nameSubtable + "." + nameHandler;
+								found = true;
+							}
+
+							found = true;
+							break;
+						}
+					}
+					lua_pop(lState, 1);
+				}
+				if (found) break;
+			}
+
+			lua_pop(lState, 1);
+		}
+
+		if (found) {
+			lua_pop(lState, 1);
+			lua_pop(lState, 1);
+		}
+
+		return result;
+	}
+
+	std::string getSpawnPointName(const std::string &tableName, const Npc* npc) {
+		lua_State *lState = getGlobalLuaState();
+		lua_getglobal(lState, tableName.c_str());
+		if (lua_isnil(lState, -1) || !lua_istable(lState, -1)) {
+			std::cout << std::string("table ").append(tableName).append(" does not exist in lua as global table").c_str() << std::endl;
+		}
+
+		lua_pushnil(lState);
+		std::string result = "";
+
+		bool found = false;
+		while (lua_next(lState, -2) != 0) {
+			if (lua_isstring(lState, -2)) {
+				size_t s_len = 0;
+				const char *s = lua_tolstring(lState, -2, &s_len);
+				std::string nameSubtable = std::string(s, s_len);
+				lua_getfield(lState, -1, nameSubtable.c_str());
+				while (lua_next(lState, -2) != 0) {
+					if (lua_isuserdata(lState, -1)) {
+						void *curUserData = *(void**)lua_touserdata(lState, -1);
+
+						if (static_cast<Npc*>(curUserData) == npc) {
+							if (lua_isstring(lState, -2)) {
+								size_t s_len = 0;
+								const char *s = lua_tolstring(lState, -2, &s_len);
+								std::string nameHandler(s, s_len);
+								result = tableName + "." + nameSubtable + "." + nameHandler;
+								found = true;
+							}
+
+							found = true;
+							break;
+						}
+					}
+					lua_pop(lState, 1);
+				}
+				if (found) break;
+			}
+
+			lua_pop(lState, 1);
+		}
+
+		if (found) {
+			lua_pop(lState, 1);
+			lua_pop(lState, 1);
+		}
+		
+		return result;
+	}
+
+	std::string getPath(const std::string &tableName, const Quest *quest) {
+		lua_State *lState = getGlobalLuaState();
+		lua_getglobal(lState, tableName.c_str());
+		if (lua_isnil(lState, -1) || !lua_istable(lState, -1)) {
+			std::cout << std::string("table ").append(tableName).append(" does not exist in lua as global table").c_str() << std::endl;
+		}
+
+		lua_pushnil(lState);
+
+		std::string nameSubtable;
+		bool found = false;
+		while (lua_next(lState, -2) != 0) {
+			if (lua_isstring(lState, -2)) {
+				size_t s_len = 0;
+				const char *s = lua_tolstring(lState, -2, &s_len);
+				nameSubtable = std::string(s, s_len);
+				lua_getfield(lState, -1, nameSubtable.c_str());
+				while (lua_next(lState, -2) != 0) {
+					if (lua_isuserdata(lState, -1)) {
+						void *curUserData = *(void**)lua_touserdata(lState, -1);
+						if (static_cast<Quest*>(curUserData) == quest) {
+							found = true;
+							break;
+						}
+					}
+					lua_pop(lState, 1);
+				}
+				if (found) break;
+			}
+
+			lua_pop(lState, 1);
+		}
+
+		if (found) {
+			lua_pop(lState, 1);
+			lua_pop(lState, 1);
+		}
+
+		found = false;
+		std::string result = "";
+
+		lua_getfield(lState, -1, nameSubtable.c_str());
+		while (lua_next(lState, -2) != 0) {
+			if (lua_isstring(lState, -1)) {
+				size_t s_len = 0;
+				const char *s = lua_tolstring(lState, -2, &s_len);
+				std::string path(s, s_len);
+				if (path.compare("path") == 0) {
+					const char *s2 = lua_tolstring(lState, -1, &s_len);
+					result = std::string(s2, s_len);
+					found = true;
+				}
+			}
+
+			lua_pop(lState, 1);
+		}
+
+		if (found) {
+			lua_pop(lState, 1);
+			lua_pop(lState, 1);
+		}
+
+		return result;
 	}
 }

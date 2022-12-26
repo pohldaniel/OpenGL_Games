@@ -62,18 +62,19 @@ namespace DawnInterface{
 	void setCurrentZone(std::string zoneName);	
 	std::string getAllZonesSaveText();
 	Npc* addMobSpawnPoint(std::string mobID, std::string name, int x_pos, int y_pos, int respawn_rate, int do_respawn, Enums::Attitude attitude);
-	
+	void removeMobSpawnPoint(Npc* spawnPointToRemove);
 	void removeInteractionRegion(InteractionRegion *regionToRemove);	
 	void removeInteractionPoint(InteractionPoint *pointToRemove);
 
 	std::string getItemReferenceRestore(std::string varName, void *ignore);
 	std::string getItemReferenceRestore(std::string varName, Quest* quest);
 	std::string getItemReferenceRestore(std::string varName, Shop *shop);
-	
-	std::string getItemReferenceRestore(std::string varName, Character *character);
-	//std::string getItemReferenceRestore(std::string varName, InteractionPoint *interactionPoint);
-	//std::string getItemReferenceRestore(std::string varName, InteractionRegion *interactionRegion);
 	std::string getItemReferenceRestore(std::string varName, CallIndirection *eventHandler);
+	std::string getItemReferenceRestore(std::string varName, InteractionPoint *interactionPoint);
+	std::string getItemReferenceRestore(std::string varName, InteractionRegion *interactionRegion);
+	std::string getItemReferenceRestore(std::string varName, Npc* npc);
+
+
 	//std::string getItemReferenceRestore(std::string varName, TextWindow *textWindow);
 	//std::string getItemReferenceRestore(std::string varName, Zone* zone);
 

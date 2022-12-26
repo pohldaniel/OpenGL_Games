@@ -170,4 +170,7 @@ player:setIntellect(10);
 player:setHealthRegen(1);
 player:setManaRegen(2);
 player:setFatigueRegen( 5 );
+player:setName("Enylyn");
+player:setLevel( 1 );
+player:setExperience( 0 );
 player:giveCoins( 576 );

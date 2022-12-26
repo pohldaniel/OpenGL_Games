@@ -24,6 +24,38 @@ void InteractionPoint::setPosition(int posX, int posY, int width, int height) {
 	this->height = height;
 }
 
+int InteractionPoint::getPosX() {
+	return posX;
+}
+
+int InteractionPoint::getPosY() {
+	return posY;
+}
+
+int InteractionPoint::getWidth() {
+	return width;
+}
+
+int InteractionPoint::getHeight() {
+	return height;
+}
+
+std::string InteractionPoint::getBackgroundTextureName() {
+	return m_file;
+}
+
+bool InteractionPoint::getBackgroundTextureTransparent() {
+	return m_transparent;
+}
+
+Enums::InteractionType InteractionPoint::getInteractionType() {
+	return interactionType;
+}
+
+std::string InteractionPoint::getInteractionCode() {
+	return interactionCode;
+}
+
 void InteractionPoint::setInteractionType(Enums::InteractionType interactionType) {
 	this->interactionType = interactionType;
 
@@ -43,6 +75,7 @@ void InteractionPoint::setInteractionType(Enums::InteractionType interactionType
 
 void InteractionPoint::setBackgroundTexture(std::string texturename, bool transparent) {
 	m_file = texturename;
+	m_transparent = transparent;
 	if (BackgroundTextures.count(texturename) > 0) {
 		m_backgroundTexture = BackgroundTextures[texturename];
 		return;
@@ -130,7 +163,7 @@ void InteractionPoint::markAsDeletable() {
 	markedAsDeletable = true;
 }
 
-std::string toStringForLua(Enums::InteractionType interactionType) {
+std::string InteractionPoint::toStringForLua(Enums::InteractionType interactionType) const {
 	switch (interactionType) {
 		case Enums::InteractionType::Quest:
 			return "Enums.Quest";
@@ -216,7 +249,7 @@ bool CharacterInteractionPoint::isInRange(int characterXpos, int characterYpos) 
 	return true;
 }
 
-Character *CharacterInteractionPoint::getCharacter() const{
+Character* CharacterInteractionPoint::getCharacter() const{
 	return interactionCharacter;
 }
 

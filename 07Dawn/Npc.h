@@ -45,7 +45,13 @@ public:
 	bool isMarkedAsDeletable() const;
 	bool canSeeInvisible() const;
 	bool canSeeSneaking() const;
-
+	std::string Npc::getCharacterTypeStr();
+	int getSpawnPosX();
+	int getSpawnPosY();
+	int getDoRespawn();
+	int getSecondsToRespawn();
+	std::string getAttitudeStr();
+	std::vector<CallIndirection*>& getOnDieEventHandlers();
 	////////////////LUA///////////////////
 	void setWanderRadius(unsigned short newWanderRadius);
 	void setSpawnInfo(int _x_spawn_pos, int _y_spawn_pos, int _seconds_to_respawn, int _do_respawn);
@@ -53,6 +59,7 @@ public:
 	std::string getLuaEditorSaveText() const;
 	std::string getLuaSaveText() const;
 	void addOnDieEventHandler(CallIndirection *eventHandler);
+	void removeOnDieEventHandler(CallIndirection *eventHandler);
 	bool hasOnDieEventHandler() const;
 	void addItemToLootTable(Item* item, double dropChance);
 	void setCoinDrop(unsigned int minCoinDrop, unsigned int maxCoinDrop, double dropChance);
@@ -109,7 +116,5 @@ private:
 	bool wandering, moving, in_combat;
 	std::string m_characterTypeStr;
 	std::vector<std::array<int, 2>> waypoints;
-	//std::vector<sLootTable> lootTable;
 	std::vector<CallIndirection*> onDieEventHandlers;
-	//std::vector<Point> waypoints;
 };

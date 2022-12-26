@@ -4,6 +4,7 @@
 #include <sstream>
 #include <algorithm>
 #include <iostream>
+#include <numeric>
 
 namespace Utils {
 
@@ -84,6 +85,20 @@ namespace Utils {
 		if (!temp)
 			return false;
 		return true;
+	}
+
+	static inline std::string replaceEscape(const std::string& input) {
+		
+		std::vector<std::string> tokens;
+		std::string::size_type pos = 0;
+		std::string::size_type prev = 0;
+		while ((pos = input.find('\n', prev)) != std::string::npos) {
+			tokens.push_back(input.substr(prev, pos - prev) + "\\n");
+			prev = pos + 1;
+		}
+		tokens.push_back(input.substr(prev));
+
+		return std::accumulate(tokens.begin(), tokens.end(), std::string(""));
 	}
 }
 

@@ -23,12 +23,21 @@ public:
 	void setInteractionType(Enums::InteractionType interactionType);
 	void setBackgroundTexture(std::string texturename, bool transparent = false);
 	void setInteractionCode(std::string interactionCode);
-	
+	int getPosX();
+	int getPosY();
+	int getWidth();
+	int getHeight();
+	std::string getBackgroundTextureName();
+	bool getBackgroundTextureTransparent();
+	Enums::InteractionType getInteractionType();
+	std::string getInteractionCode();
+
 	void drawInteractionSymbol(int mouseX, int mouseY, int characterXpos, int characterYpos);
 	void startInteraction(int characterXpos, int characterYpos);
 
 	void markAsDeletable();
 	bool isMarkedDeletable() const;
+	std::string toStringForLua(Enums::InteractionType interactionType) const;
 
 	virtual std::string getLuaSaveText() const;
 
@@ -48,6 +57,7 @@ protected:
 	std::string interactionCode;
 	Enums::InteractionType interactionType;
 	std::string m_file;
+	bool m_transparent;
 	static std::vector<TextureRect> Textures;
 
 private:

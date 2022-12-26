@@ -1,6 +1,4 @@
-zone1 = DawnInterface.getCurrentZone();
-
-function zone1.enterTown()
+function Zones.zone1.enterTown()
 	if ( not DawnInterface.isSavingAllowed() )
 	then
 		DawnInterface.setSavingAllowed( true );
@@ -12,52 +10,53 @@ function zone1.enterTown()
 	end
 end
 
-function zone1.leaveTown()
+function Zones.zone1.leaveTown()
 	if ( DawnInterface.isSavingAllowed() )
 	then
 		DawnInterface.setSavingAllowed( false );
 	end
 end
 
-function zone1.onEnterMap(x,y)
+function Zones.zone1.onEnterMap(x,y)
     --DawnInterface.setBackgroundMusic("res/music/Early_Dawn_Simple.ogg");
 end
 
-function zone1.init()
-	zone1.leavePoint = DawnInterface.addInteractionPoint();
-	zone1.leavePoint:setPosition( 747, 1588, 56, 80 );
-	zone1.leavePoint:setInteractionType( Enums.Zone );
-	zone1.leavePoint:setBackgroundTexture( "res/transparent4x4pixel.png", true);
-	zone1.leavePoint:setInteractionCode( "DawnInterface.enterZone('res/_lua/arinoxGeneralShop', -158, 0);\nDawnInterface.setSavingAllowed( true );" );
+function Zones.zone1.init()
+	if(not Zones.zone1.inited) then
+		InteractionRegions.zone1.leavePoint1 = DawnInterface.addInteractionPoint();
+		InteractionRegions.zone1.leavePoint1:setPosition( 747, 1588, 56, 80 );
+		InteractionRegions.zone1.leavePoint1:setInteractionType( Enums.Zone );
+		InteractionRegions.zone1.leavePoint1:setBackgroundTexture( "res/transparent4x4pixel.png", true);
+		InteractionRegions.zone1.leavePoint1:setInteractionCode( "DawnInterface.enterZone('res/_lua/arinoxGeneralShop', -158, 0);\nDawnInterface.setSavingAllowed( true );" );
+		
+		InteractionPoints.zone1.leavePoint2 = DawnInterface.addInteractionPoint();
+		InteractionPoints.zone1.leavePoint2:setPosition( 822, 2570, 128, 128 );
+		InteractionPoints.zone1.leavePoint2:setBackgroundTexture( "res/village/stairs.tga" );
+		InteractionPoints.zone1.leavePoint2:setInteractionType( Enums.Zone );
+		InteractionPoints.zone1.leavePoint2:setInteractionCode( "DawnInterface.enterZone( 'res/_lua/arinoxDungeonLevel1', 2020, 1880 );\nDawnInterface.setSavingAllowed( false );" );
 
-	zone1.leavePoint = DawnInterface.addInteractionPoint();
-	zone1.leavePoint:setPosition( 822, 2570, 128, 128 );
-	zone1.leavePoint:setBackgroundTexture( "res/village/stairs.tga" );
-	zone1.leavePoint:setInteractionType( Enums.Zone );
-	zone1.leavePoint:setInteractionCode( 'DawnInterface.enterZone( "res/_lua/arinoxDungeonLevel1", 2020, 1880 );\nDawnInterface.setSavingAllowed( false );' );
+		InteractionPoints.zone1.leavePoint3 = DawnInterface.addInteractionPoint();
+		InteractionPoints.zone1.leavePoint3:setPosition( 428, 2060, 56, 80 );
+		InteractionPoints.zone1.leavePoint3:setInteractionType( Enums.Zone );
+		InteractionPoints.zone1.leavePoint3:setBackgroundTexture( "res/transparent4x4pixel.png", true);
+		InteractionPoints.zone1.leavePoint3:setInteractionCode( "DawnInterface.enterZone( 'res/_lua/arinoxMagesGuild', -158, 0 );\nDawnInterface.setSavingAllowed( true );" );
 
-	zone1.leavePoint = DawnInterface.addInteractionPoint();
-	zone1.leavePoint:setPosition( 428, 2060, 56, 80 );
-	zone1.leavePoint:setInteractionType( Enums.Zone );
-	zone1.leavePoint:setBackgroundTexture( "res/transparent4x4pixel.png", true);
-	zone1.leavePoint:setInteractionCode( 'DawnInterface.enterZone( "res/_lua/arinoxMagesGuild", -158, 0 );\nDawnInterface.setSavingAllowed( true );' );
+		InteractionRegions.zone1.townEnterRegion = DawnInterface.addInteractionRegion();
+		InteractionRegions.zone1.townEnterRegion:setPosition( 550, 1300, 300, 100 );
+		InteractionRegions.zone1.townEnterRegion:setOnEnterText( "Zones.zone1.enterTown()" );
+	
+		InteractionRegions.zone1.townLeaveRegion = DawnInterface.addInteractionRegion();
+		InteractionRegions.zone1.townLeaveRegion:setPosition( 550, 1200, 300, 100 );
+		InteractionRegions.zone1.townLeaveRegion:setOnEnterText( "Zones.zone1.leaveTown()" );
+	
+		dofile("res/_lua/quests_wood.lua");
+		dofile("res/_lua/quests_hexmaster.lua");
+		dofile("res/_lua/quests_venomousveins.lua");
+	
+		Zones.zone1.inited = true;
+		Zones.zone1.path = "res/_lua/zone1.init.lua"
 
-	zone1.townEnterRegion = DawnInterface.addInteractionRegion();
-	zone1.townEnterRegion:setPosition( 550, 1300, 300, 100 );
-	zone1.townEnterRegion:setOnEnterText( "zone1.enterTown()" );
-	zone1.townLeaveRegion = DawnInterface.addInteractionRegion();
-	zone1.townLeaveRegion:setPosition( 550, 1200, 300, 100 );
-	zone1.townLeaveRegion:setOnEnterText( "zone1.leaveTown()" );
+	end
 end
 
---print("Init Quests")
-dofile("res/_lua/quests_wood.lua");
-dofile("res/_lua/quests_hexmaster.lua");
-dofile("res/_lua/quests_venomousveins.lua");
-
-if( zone1.inited == nil ) then
-	zone1.inited = true
-	zone1.init()
-end
-
-
+Zones.zone1.init()
