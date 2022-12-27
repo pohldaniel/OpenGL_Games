@@ -1,8 +1,9 @@
 #pragma once
 #include <stdint.h>
 #include <string>
+#include <vector>
 
-#include "Widget.h"
+
 #include "CharacterInfo.h"
 
 class InventoryItem;

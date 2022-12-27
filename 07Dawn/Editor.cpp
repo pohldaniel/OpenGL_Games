@@ -1,5 +1,6 @@
 #include "Editor.h"
 #include "Game.h"
+#include "Player.h"
 
 std::vector<TextureRect> Editor::TextureRects;
 bool Editor::s_init = false;

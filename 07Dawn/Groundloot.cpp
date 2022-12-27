@@ -5,8 +5,10 @@
 #include "Zone.h"
 #include "Player.h"
 #include "Item.h"
+#include "Tooltip.h"
 #include "Random.h"
 #include "Utils.h"
+#include "Constants.h"
 
 void sGroundItems::loadTooltip() {
 	tooltipXpos = xpos + (item->getSizeX() * 32) / 2 - tooltipWidth / 2;
@@ -58,6 +60,10 @@ void GroundLoot::enableTooltips() {
 
 void GroundLoot::disableTooltips() {
 	drawTooltips = false;
+}
+
+std::vector<sGroundItems>& GroundLoot::getGroundItems() {
+	return groundItems;
 }
 
 bool GroundLoot::pickUpLoot(Player *player_, sGroundItems groundItem, size_t curItem) {
@@ -139,7 +145,7 @@ void GroundLoot::lootItem(Item *item, size_t itemIndex) {
 		removeItem(itemIndex);
 
 	} else {
-		bool inserted = player->getInventory()->insertItem(item);
+		bool inserted = player->getInventory().insertItem(item);
 		if (inserted) {
 			removeItem(itemIndex);
 			DawnInterface::addTextToLogWindow(blue, "You looted %s.", item->getName().c_str());

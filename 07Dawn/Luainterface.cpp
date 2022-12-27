@@ -12,7 +12,6 @@
 #include "Player.h"
 #include "Shop.h"
 #include "Interface.h"
-#include "Inventory.h"
 #include "Quest.h"
 #include "Utils.h"
 
@@ -74,14 +73,10 @@ namespace DawnInterface{
 		Interface::Get().bindActionToButtonNr(buttonNr, action);	
 	}
 
-	void restoreGroundLootItem(Item *item, int xPos, int yPos) {
-		ZoneManager::Get().getCurrentZone()->getGroundLoot().addItem(xPos, yPos, item);
-	}
-
+	
 	std::string getReenterCurrentZoneText(){
 		std::ostringstream oss;
 		oss << "DawnInterface.enterZone( \"" << ZoneManager::Get().getCurrentZone()->getZoneName() << "\", " << Player::Get().getXPos() << ", " << Player::Get().getYPos() << " );" << std::endl;
-
 		return oss.str();
 	}
 
@@ -117,16 +112,6 @@ namespace DawnInterface{
 
 		Zone& newCurZone = ZoneManager::Get().getZone(zoneName);
 		ZoneManager::Get().setCurrentZone(&newCurZone);
-	}
-
-	std::string getAllZonesSaveText(){
-
-		std::unordered_map<std::string, Zone>& allZones = ZoneManager::Get().getAllZones();
-		std::ostringstream oss;
-		for (std::unordered_map<std::string, Zone>::iterator it = allZones.begin(); it != allZones.end(); ++it) {
-			oss << (it->second).getLuaSaveText();
-		}
-		return oss.str();
 	}
 
 	const CharacterType& createNewMobType(std::string characterType) {
@@ -194,11 +179,12 @@ namespace DawnInterface{
 			std::vector<InteractionPoint*>& interactionPoints = (it->second).getInteractionPoints();
 			if (std::find(interactionPoints.begin(), interactionPoints.end(), interactionPoint) != interactionPoints.end()) {
 				zoneName = (it->first);
+				break;
 			}
 		}
 		
 		std::ostringstream oss;
-		oss << "DawnInterface.setCurrentZone(\"" << zoneName << "\")" << std::endl;
+		oss << "DawnInterface.setCurrentZone(\"" << zoneName << "\")" << std::endl;	
 		if (dynamic_cast<CharacterInteractionPoint*>(interactionPoint) != nullptr) {
 			
 			oss << varName << "=DawnInterface.addCharacterInteractionPoint(" << LuaFunctions::getSpawnPointName("SpawnPoints", dynamic_cast<Npc*>(dynamic_cast<CharacterInteractionPoint*>(interactionPoint)->getCharacter())) << ");" << std::endl;
@@ -230,9 +216,11 @@ namespace DawnInterface{
 			std::vector<InteractionRegion*>& interactionRegions = (it->second).getInteractionRegions();
 			if (std::find(interactionRegions.begin(), interactionRegions.end(), interactionRegion) != interactionRegions.end()) {
 				zoneName = (it->first);
+				break;
 			}
 		}
-
+		
+			
 		std::ostringstream oss;
 		oss << "DawnInterface.setCurrentZone(\"" << zoneName << "\")" << std::endl;
 		oss << varName << "=DawnInterface.addInteractionRegion();" << std::endl;
@@ -258,11 +246,12 @@ namespace DawnInterface{
 
 			if (std::find(eventHandlers.begin(), eventHandlers.end(), eventHandler) != eventHandlers.end()) {
 				zoneName = (it->first);
+				break;
 			}
 		}
 
 		std::ostringstream oss;
-		oss << "DawnInterface.setCurrentZone(\"" << zoneName << "\");" << std::endl;
+		oss << "DawnInterface.setCurrentZone(\"" << zoneName << "\")" << std::endl;		
 		oss << varName << "=DawnInterface.createEventHandler();" << std::endl;
 		oss << varName << ":setExecuteText(\"" << Utils::replaceEscape(eventHandler->getExecuteText()) <<"\");" << std::endl;
 		return oss.str();
@@ -279,13 +268,14 @@ namespace DawnInterface{
 			std::vector<Npc*>& npcs = (it->second).getNPCs();
 			if (std::find(npcs.begin(), npcs.end(), npc) != npcs.end()) {
 				zoneName = (it->first);
+				break;
 			}
 		}
 
 		std::ostringstream oss;
-		oss << "DawnInterface.setCurrentZone(\"" << zoneName << "\");" << std::endl;
+		oss << "DawnInterface.setCurrentZone(\"" << zoneName << "\")" << std::endl;
 		oss << varName << "=DawnInterface.addMobSpawnPoint(\"" << npc->getCharacterTypeStr() << "\",\""  << npc->getName() << "\"," << npc->getSpawnPosX() << "," << npc->getSpawnPosY() << "," << npc->getSecondsToRespawn() << "," << npc->getDoRespawn() << "," << npc->getAttitudeStr() <<  ");" << std::endl;
-
+		oss << varName << ":setWanderRadius(" << npc->getWanderRadius() << ");" << std::endl;
 		for (size_t curOnDieHandlerNr = 0; curOnDieHandlerNr < npc->getOnDieEventHandlers().size(); ++curOnDieHandlerNr) {
 			oss << varName << ":addOnDieEventHandler(" << LuaFunctions::getEventHandlerName("Eventhandlers", npc->getOnDieEventHandlers()[curOnDieHandlerNr]) << ");" << std::endl;
 		}
@@ -329,6 +319,49 @@ namespace DawnInterface{
 
 		oss << varName << ":loadShopkeeperInventory();" << std::endl;
 		return oss.str();
+	}
+
+	std::string storeGroundloot() {
+
+		std::unordered_map<std::string, Zone>& allZones = ZoneManager::Get().getAllZones();
+		std::ostringstream oss;
+		for (std::unordered_map<std::string, Zone>::iterator it = allZones.begin(); it != allZones.end(); ++it) {
+			std::string zoneNameNoPrefix = it->first;
+			if (zoneNameNoPrefix.find_last_of('/') != std::string::npos) {
+				zoneNameNoPrefix = zoneNameNoPrefix.substr(zoneNameNoPrefix.find_last_of('/') + 1);
+			}
+			oss << "-- " << zoneNameNoPrefix << " ground loot" << std::endl;
+			if((it->second).getGroundLoot().getGroundItems().size() == 0)
+				return oss.str();
+
+			oss << "DawnInterface.setCurrentZone( \"" << it->first << "\" );" << std::endl;
+			for (size_t curGroundItemNr = 0; curGroundItemNr < (it->second).getGroundLoot().getGroundItems().size(); ++curGroundItemNr) {
+				sGroundItems curGroundItem = (it->second).getGroundLoot().getGroundItems()[curGroundItemNr];
+				Item *item = curGroundItem.item;
+				if (dynamic_cast<GoldHeap*>(item) != NULL) {
+					GoldHeap *goldHeap = dynamic_cast<GoldHeap*>(item);
+					oss << "DawnInterface.restoreGroundGold( "
+						<< goldHeap->numCoins() << ", "
+						<< curGroundItem.xpos << ", "
+						<< curGroundItem.ypos << " );" << std::endl;
+				}
+				else {
+					oss << "DawnInterface.restoreGroundLootItem( "
+						<< "itemDatabase[ \"" << item->getID() << "\" ], "
+						<< curGroundItem.xpos << ", "
+						<< curGroundItem.ypos << " );" << std::endl << std::endl;
+				}
+			}
+		}
+		return oss.str();
+	}
+
+	void restoreGroundLootItem(Item *item, int xPos, int yPos) {
+		ZoneManager::Get().getCurrentZone()->getGroundLoot().addItem(xPos, yPos, item);
+	}
+
+	void restoreGroundGold(int amount, int xPos, int yPos){
+		ZoneManager::Get().getCurrentZone()->getGroundLoot().addItem(xPos, yPos, new GoldHeap(amount));
 	}
 
 	Character* restoreCharacterReference(std::string zoneName, int posInArray) {
@@ -460,24 +493,24 @@ namespace DawnInterface{
 	}
 
 	std::string getInventorySaveText() {
-		return  Player::Get().getInventory()->getReloadText();
+		return  Player::Get().getInventory().getReloadText();
 	}
 
 	void restoreItemInBackpack(Item* item, int inventoryPosX, int inventoryPosY, size_t stackSize) {
 		InventoryItem* invItem = new InventoryItem(item, inventoryPosX, inventoryPosY);
 		invItem->setCurrentStackSize(stackSize);
-		Player::Get().getInventory()->insertItemWithExchangeAt(invItem, inventoryPosX, inventoryPosY);
+		Player::Get().getInventory().insertItemWithExchangeAt(invItem, inventoryPosX, inventoryPosY);
 	}
 
 	void restoreWieldItem(int slot, Item* item) {
 		Enums::ItemSlot slotToUse = static_cast<Enums::ItemSlot>(slot);
 		InventoryItem* invItem = new InventoryItem(item, 0, 0);
-		Player::Get().getInventory()->wieldItemAtSlot(slotToUse, invItem);
+		Player::Get().getInventory().wieldItemAtSlot(slotToUse, invItem);
 	}
 
 	void giveItemToPlayer(Item* item) {
-		Inventory* playerInventory = Player::Get().getInventory();
-		bool wasInserted = playerInventory->insertItem(item);
+		Inventory& playerInventory = Player::Get().getInventory();
+		bool wasInserted = playerInventory.insertItem(item);
 		if (!wasInserted) {
 			Player* player = &Player::Get();
 			ZoneManager::Get().getCurrentZone()->getGroundLoot().addItem(player->getXPos(), player->getYPos(), item);

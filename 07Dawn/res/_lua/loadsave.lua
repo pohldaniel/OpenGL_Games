@@ -17,9 +17,9 @@ local prefix=''
 	end
 
 	if( type(value) == "table" ) then
-		if (not hashTables[value]) then
+		if (not hashTables[prefix..varname]) then
 				restoreTables[#restoreTables+1] = prefix..varname..'='..'{}'
-				hashTables[value] = true
+				hashTables[prefix..varname] = true
 		end
 		
 		if( varname ~= "DontSave" ) then
@@ -147,7 +147,7 @@ function saveGame( fileprefix )
 	for k,v in pairs(restoreInit) do
 		io.write(v..'\n');
 	end
-	
+	io.write( DawnInterface.storeGroundloot());
 	
 	io.write('\n')
 	for varname,value in pairs(_G) do

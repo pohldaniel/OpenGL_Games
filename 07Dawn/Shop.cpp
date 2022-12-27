@@ -1,5 +1,8 @@
 #include "Shop.h"
+#include "Item.h"
 #include "Inventory.h"
+#include "Tooltip.h"
+#include "Player.h"
 #include "InventoryCanvas.h"
 #include "Luainterface.h"
 
@@ -142,7 +145,7 @@ void ShopCanvas::drawItemTooltip(int mouseX, int mouseY) {
 			bool firstItemCompared = false;
 			Keyboard &keyboard = Keyboard::instance();
 			if (keyboard.keyDown(Keyboard::KEY_LSHIFT)) {
-				std::vector<InventoryItem*> equippedItems = m_shop->m_player->getInventory()->getEquippedItems();
+				std::vector<InventoryItem*> equippedItems = m_shop->m_player->getInventory().getEquippedItems();
 				for (size_t curItem = 0; curItem < equippedItems.size(); curItem++) {
 
 					if (equippedItems[curItem]->getItem()->getEquipPosition() == tooltipItem->getItem()->getEquipPosition()) {
@@ -210,7 +213,7 @@ void ShopCanvas::processInput() {
 				if (m_shop->m_player->getCoins() >= curItem->getItem()->getValue()) {
 					if (mouse.buttonPressed(Mouse::BUTTON_RIGHT)) {
 						// direct buy on right button
-						bool inserted = m_shop->m_player->getInventory()->insertItem(curItem->getItem(), curItem);
+						bool inserted = m_shop->m_player->getInventory().insertItem(curItem->getItem(), curItem);
 						if (inserted) {
 							floatingSelection = curItem;
 							m_shop->removeItem(floatingSelection);

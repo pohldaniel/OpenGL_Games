@@ -238,7 +238,6 @@ namespace DawnInterface{
 	void removeInteractionRegion(InteractionRegion *regionToRemove);
 	InteractionPoint& addInteractionPoint();
 	InteractionPoint& addCharacterInteractionPoint(Character *character);
-	std::string getAllZonesSaveText();
 	void removeInteractionPoint(InteractionPoint *pointToRemove);
 	
 	std::string getItemReferenceRestore(std::string varName, void *ignore);
@@ -248,12 +247,13 @@ namespace DawnInterface{
 	std::string getItemReferenceRestore(std::string varName, InteractionPoint *interactionPoint);
 	std::string getItemReferenceRestore(std::string varName, InteractionRegion *interactionRegion);
 	std::string getItemReferenceRestore(std::string varName, Npc* npc);
-	
+	std::string storeGroundloot();
 	std::string getSpellbookSaveText();
 	std::string getActionbarSaveText();
 	std::string getReenterCurrentZoneText();
 	void restoreActionBar(int buttonNr, SpellActionBase *action);
 	void restoreGroundLootItem(Item *item, int xPos, int yPos);
+	void restoreGroundGold( int amount, int xPos, int yPos );
 	TextWindow* createTextWindow();
 	
 	GeneralRayDamageSpell* createGeneralRayDamageSpell();

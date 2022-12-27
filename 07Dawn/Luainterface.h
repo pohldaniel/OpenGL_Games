@@ -50,6 +50,7 @@ namespace EditorInterface{
 }
 
 namespace DawnInterface{
+
 	TextureRect& loadimage(std::string file);
 
 	const CharacterType& createNewMobType(std::string typeID);
@@ -60,7 +61,6 @@ namespace DawnInterface{
 	void enterZone(std::string zoneName, int enterX, int enterY);
 	void enterZone();
 	void setCurrentZone(std::string zoneName);	
-	std::string getAllZonesSaveText();
 	Npc* addMobSpawnPoint(std::string mobID, std::string name, int x_pos, int y_pos, int respawn_rate, int do_respawn, Enums::Attitude attitude);
 	void removeMobSpawnPoint(Npc* spawnPointToRemove);
 	void removeInteractionRegion(InteractionRegion *regionToRemove);	
@@ -73,13 +73,15 @@ namespace DawnInterface{
 	std::string getItemReferenceRestore(std::string varName, InteractionPoint *interactionPoint);
 	std::string getItemReferenceRestore(std::string varName, InteractionRegion *interactionRegion);
 	std::string getItemReferenceRestore(std::string varName, Npc* npc);
-
+	std::string storeGroundloot();
+	void restoreGroundLootItem(Item *item, int xPos, int yPos);
+	void restoreGroundGold(int amount, int xPos, int yPos);
 	std::string getInventorySaveText();
 	std::string getSpellbookSaveText();
 	std::string getActionbarSaveText();
 	std::string getReenterCurrentZoneText();
 	void restoreActionBar(int buttonNr, SpellActionBase *action);
-	void restoreGroundLootItem(Item *item, int xPos, int yPos);
+	
 
 	Character* restoreCharacterReference(std::string zoneName, int posInArray);
 	InteractionPoint* restoreInteractionPointReference(std::string zoneName, int posInArray);

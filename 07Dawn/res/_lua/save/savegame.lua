@@ -80,18 +80,26 @@ dofile('res/_lua/zone1.init.lua')
 dofile('res/_lua/quests_wood.lua')
 dofile('res/_lua/quests_venomousveins.lua')
 dofile('res/_lua/quests_hexmaster.lua')
+-- zone1 ground loot
+DawnInterface.setCurrentZone( "res/_lua/zone1" );
+DawnInterface.restoreGroundLootItem( itemDatabase[ "moldytome" ], 502, 397 );
 
-DawnInterface.setCurrentZone("res/_lua/zone1");
+
+DawnInterface.setCurrentZone("res/_lua/zone1")
 SpawnPoints.quest_venomousveins.jemma=DawnInterface.addMobSpawnPoint("Witch","Jemma",-2162,-4580,1,0,Enums.FRIENDLY);
+SpawnPoints.quest_venomousveins.jemma:setWanderRadius(50);
 
-DawnInterface.setCurrentZone("res/_lua/zone1");
+DawnInterface.setCurrentZone("res/_lua/zone1")
 SpawnPoints.quest_venomousveins.effreyLongback=DawnInterface.addMobSpawnPoint("Human","Effrey Longback",-1510,500,1,0,Enums.FRIENDLY);
+SpawnPoints.quest_venomousveins.effreyLongback:setWanderRadius(50);
 
-DawnInterface.setCurrentZone("res/_lua/zone1");
+DawnInterface.setCurrentZone("res/_lua/zone1")
 SpawnPoints.quest_hexmaster.ornadSaidor=DawnInterface.addMobSpawnPoint("Human","Ornad Saidor",900,2350,1,0,Enums.FRIENDLY);
+SpawnPoints.quest_hexmaster.ornadSaidor:setWanderRadius(50);
 
-DawnInterface.setCurrentZone("res/_lua/zone1");
+DawnInterface.setCurrentZone("res/_lua/zone1")
 SpawnPoints.quest_hexmaster.noviceLeader=DawnInterface.addMobSpawnPoint("Wizard","Novice Leader",0,2100,1,0,Enums.FRIENDLY);
+SpawnPoints.quest_hexmaster.noviceLeader:setWanderRadius(250);
 
 DawnInterface.setCurrentZone("res/_lua/zone1")
 InteractionPoints.quest_playHideAndSeek.john=DawnInterface.addInteractionPoint();
@@ -180,7 +188,7 @@ traderShop:loadShopkeeperInventory();
 -- Player's inventory
 -- Items in Backpack
 DawnInterface.restoreItemInBackpack( itemDatabase["bookofmagicmissilerank2"], 0, 0, 1 );
-DawnInterface.restoreItemInBackpack( itemDatabase["moldytome"], 0, 2, 1 );
+DawnInterface.restoreItemInBackpack( itemDatabase["awaterpouch"], 8, 2, 5 );
 DawnInterface.restoreItemInBackpack( itemDatabase["daggerofflowingthought"], 2, 0, 1 );
 DawnInterface.restoreItemInBackpack( itemDatabase["swordofkhazom"], 3, 0, 1 );
 DawnInterface.restoreItemInBackpack( itemDatabase["eyeoflicor"], 2, 2, 1 );
@@ -194,7 +202,6 @@ DawnInterface.restoreItemInBackpack( itemDatabase["tornleatherbelt"], 5, 3, 1 );
 DawnInterface.restoreItemInBackpack( itemDatabase["coppernecklace"], 5, 2, 1 );
 DawnInterface.restoreItemInBackpack( itemDatabase["fungalboots"], 8, 0, 1 );
 DawnInterface.restoreItemInBackpack( itemDatabase["ajuicyapple"], 7, 3, 2 );
-DawnInterface.restoreItemInBackpack( itemDatabase["awaterpouch"], 8, 2, 5 );
 -- equipped Items
 DawnInterface.inscribeSpellInPlayerSpellbook( spellDatabase[ "magicmissile" ] );
 DawnInterface.inscribeSpellInPlayerSpellbook( spellDatabase[ "electrocute" ] );

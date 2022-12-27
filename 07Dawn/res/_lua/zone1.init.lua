@@ -55,7 +55,6 @@ function Zones.zone1.init()
 	
 		Zones.zone1.inited = true;
 		Zones.zone1.path = "res/_lua/zone1.init.lua"
-
 	end
 end
 

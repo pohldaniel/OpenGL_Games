@@ -52,6 +52,7 @@ public:
 	int getSecondsToRespawn();
 	std::string getAttitudeStr();
 	std::vector<CallIndirection*>& getOnDieEventHandlers();
+	unsigned short getWanderRadius() const;
 	////////////////LUA///////////////////
 	void setWanderRadius(unsigned short newWanderRadius);
 	void setSpawnInfo(int _x_spawn_pos, int _y_spawn_pos, int _seconds_to_respawn, int _do_respawn);
@@ -85,7 +86,6 @@ private:
 	void Animate(float deltaTime);
 	void processInput();
 
-	unsigned short getWanderRadius() const;
 	unsigned short getWanderRadiusSq() const;
 
 	Enums::Direction getDirectionTowardsWaypointAt(int x_pos, int y_pos) const;

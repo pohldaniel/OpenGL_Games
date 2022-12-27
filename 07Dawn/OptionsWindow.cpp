@@ -135,6 +135,8 @@ void OptionsWindow::processInput() {
 			currentZone.purgeInteractionList();
 			currentZone.purgeInteractionRegionList();
 			currentZone.purgeNpcList();
+			currentZone.purgeGroundloot();
+			currentZone.setInit(false);
 		}
 
 		Player::Get().clearInventory();	

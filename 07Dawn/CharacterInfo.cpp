@@ -1,5 +1,6 @@
 #include "CharacterInfo.h"
 #include "Statssystem.h"
+#include "Player.h"
 
 CharacterInfo  CharacterInfo::s_instance;
 

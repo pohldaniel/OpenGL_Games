@@ -1,9 +1,11 @@
 #pragma once
+#include <vector>
 
 #include "engine/Fontrenderer.h"
-
+#include "engine/Rect.h"
 #include "Widget.h"
-#include "Player.h"
+
+class Player;
 
 struct Tabs{
 	int posX, posY, width, height;

@@ -1,10 +1,9 @@
 #include <cassert>
 
 #include "Inventory.h"
-
-#include "Item.h"
-#include "Character.h"
 #include "Player.h"
+#include "Tooltip.h"
+#include "Item.h"
 
 InventoryItem::InventoryItem(Item* item,
 	size_t inventoryPosX,
@@ -120,11 +119,7 @@ bool InventoryItem::canPlayerUseItem(Player& player) const {
 	return useableItem;
 }
 ///////////////////////////////////////////////////////////////////////////////////////
-Inventory::Inventory() {
-	
-}
-
-void Inventory::init(size_t sizeX_, size_t sizeY_, Player* player_) {
+Inventory::Inventory(size_t sizeX_, size_t sizeY_, Player* player_) {
 	size_t numEquippable = static_cast<size_t>(Enums::ItemSlot::COUNTIS);
 	equippedItems = new InventoryItem*[numEquippable];
 	for (size_t curEquippable = 0; curEquippable<numEquippable; ++curEquippable) {

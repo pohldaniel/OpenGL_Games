@@ -1,8 +1,10 @@
 #pragma once
+#include <vector>
 #include <string>
-#include "character.h"
+#include "engine/Rect.h"
 #include "Enums.h"
 
+class SpellActionBase;
 class Spell;
 
 namespace ArmorType {

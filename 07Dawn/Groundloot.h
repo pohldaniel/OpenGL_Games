@@ -3,6 +3,8 @@
 #include "Item.h"
 #include "Inventory.h"
 
+#include "engine/CharacterSet.h"
+
 class Player;
 
 struct sGroundItems {
@@ -46,6 +48,7 @@ public:
 	void drawTooltip(int mouseX, int mouseY);
 	void enableTooltips();
 	void disableTooltips();
+	std::vector<sGroundItems>& getGroundItems();
 
 	static void Draw();
 	static void DrawTooltip(int mouseX, int mouseY);

@@ -4,6 +4,9 @@
 #include "Groundloot.h"
 #include "Quest.h"
 #include "Item.h"
+#include "SpellActionBase.h"
+#include "Spells.h"
+#include "Actions.h"
 #include "Constants.h"
 #include "Astar.h"
 

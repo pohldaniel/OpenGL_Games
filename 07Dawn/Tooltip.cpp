@@ -1,13 +1,14 @@
 #include <memory>
 
 #include "Tooltip.h"
-#include "TextWindow.h"
-#include "Character.h"
 #include "Player.h"
-#include "Inventory.h"
+#include "Item.h"
+#include "Dialog.h"
 #include "Statssystem.h"
+#include "TextWindow.h"
 #include "Utils.h"
 #include "Constants.h"
+
 
 Tooltip::~Tooltip() { }
 

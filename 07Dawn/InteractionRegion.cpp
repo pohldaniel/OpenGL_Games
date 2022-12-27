@@ -1,6 +1,7 @@
 #include "InteractionRegion.h"
 #include "Luafunctions.h"
 #include "Zone.h"
+#include "Player.h"
 
 InteractionRegion::InteractionRegion()
 	: left(0),

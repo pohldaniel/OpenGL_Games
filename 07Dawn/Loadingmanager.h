@@ -63,7 +63,6 @@ public:
 		HDC hDC = GetDC(Application::Window);
 		wglMakeCurrent(hDC, Application::LoaderContext);
 		ReleaseDC(Application::Window, hDC);
-
 		progressString = "Initializing Player";
 		LuaFunctions::executeLuaFile("res/_lua/playerdata.lua");
 		Player::Get().init();

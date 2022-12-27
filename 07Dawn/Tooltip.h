@@ -1,15 +1,13 @@
 #pragma once
+#include <vector>
 #include <cstdarg>
-
+#include "engine/Rect.h"
 #include "engine/Fontrenderer.h"
-
+#include "Enums.h"
 #include "ViewPort.h"
 #include "SpellActionBase.h"
 #include "Spells.h"
 #include "Actions.h"
-#include "Item.h"
-#include "Dialog.h"
-
 
 class Player;
 class InventoryItem;

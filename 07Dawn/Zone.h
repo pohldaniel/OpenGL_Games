@@ -124,6 +124,7 @@ public:
 	void purgeInteractionList();
 	void purgeInteractionRegionList();
 	void purgeNpcList();
+	void purgeGroundloot();
 	std::string getLuaSaveText() const;
 	void setInit(bool flag);
 	Character* getCharacterPointer(size_t posInArray) const;

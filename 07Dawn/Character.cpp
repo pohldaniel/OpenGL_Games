@@ -93,7 +93,7 @@ void Character::Damage(int amount, bool criticalHit) {
 
 	/// here we check for equipped items if they have any trigger spells which is used in TriggerType::TAKING_DAMAGE
 	if (m_isPlayer == true) {
-		std::vector<InventoryItem*> inventory = Player::Get().getInventory()->getEquippedItems();
+		std::vector<InventoryItem*> inventory = Player::Get().getInventory().getEquippedItems();
 		for (size_t curItem = 0; curItem < inventory.size(); curItem++) {
 			std::vector<TriggerSpellOnItem*> triggerSpells = inventory[curItem]->getItem()->getTriggerSpells();
 			for (size_t curSpell = 0; curSpell < triggerSpells.size(); curSpell++) {
@@ -161,7 +161,6 @@ bool Character::castSpell(SpellActionBase *spell) {
 
 	if (dynamic_cast<Action*>(spell) != NULL) {
 		if (spell->getSpellCost() > getCurrentFatigue()) {
-
 			/// can't cast. cost more fatigue than we can afford. Display message here about it.
 			return false;
 		}
@@ -184,10 +183,10 @@ bool Character::castSpell(SpellActionBase *spell) {
 
 	if (m_isPlayer == true) {
 		if (spell->getRequiredWeapons() != 0) {
-			//if ((spell->getRequiredWeapons() & (dynamic_cast<Player*>(this)->getInventory()->getWeaponTypeBySlot(Enums::ItemSlot::MAIN_HAND) | dynamic_cast<Player*>(this)->getInventory()->getWeaponTypeBySlot(Enums::ItemSlot::OFF_HAND))) == 0) {
-			/// can't cast spell, not wielding required weapon. Display message here about it...
-			return false;
-			//}
+			if ((spell->getRequiredWeapons() & (dynamic_cast<Player*>(this)->getInventory().getWeaponTypeBySlot(Enums::ItemSlot::MAIN_HAND) | dynamic_cast<Player*>(this)->getInventory().getWeaponTypeBySlot(Enums::ItemSlot::OFF_HAND))) == 0) {
+				/// can't cast spell, not wielding required weapon. Display message here about it...
+				return false;
+			}
 		}
 	}
 
@@ -1272,7 +1271,7 @@ void Character::startSpellAction() {
 
 	/// here we check for equipped items if they have any trigger spells which is used in TriggerType::EXECUTING_ACTION
 	if (m_isPlayer == true) {
-		std::vector<InventoryItem*> inventory = dynamic_cast<Player*>(this)->getInventory()->getEquippedItems();
+		std::vector<InventoryItem*> inventory = dynamic_cast<Player*>(this)->getInventory().getEquippedItems();
 		for (size_t curItem = 0; curItem < inventory.size(); curItem++) {
 			std::vector<TriggerSpellOnItem*> triggerSpells = inventory[curItem]->getItem()->getTriggerSpells();
 			for (size_t curSpell = 0; curSpell < triggerSpells.size(); curSpell++) {

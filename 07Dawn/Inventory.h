@@ -1,8 +1,11 @@
 #pragma once
-
-#include "Tooltip.h"
+#include <stddef.h>
+#include <vector>
+#include "Enums.h"
 
 class Player;
+class ItemTooltip;
+class Item;
 
 class InventoryItem {
 public:
@@ -41,10 +44,9 @@ private:
 class Inventory {
 
 public:
-	Inventory();
+	Inventory(size_t sizeX_, size_t sizeY_, Player* player_);
 	~Inventory();
 
-	void init(size_t sizeX, size_t sizeY, Player* player);
 	bool insertItem(Item* item, InventoryItem* oldInventoryItem = NULL);
 	bool hasSufficientSpaceAt(size_t invPosX, size_t invPosY, size_t itemSizeX, size_t itemSizeY) const;
 	bool hasSufficientSpaceWithExchangeAt(size_t inventoryPosX, size_t inventoryPosY, size_t itemSizeX, size_t itemSizeY);

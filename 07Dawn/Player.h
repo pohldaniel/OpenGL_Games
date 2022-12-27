@@ -2,9 +2,7 @@
 
 #include "Character.h"
 #include "TilesetManager.h"
-
-class Item;
-class Inventory;
+#include "Inventory.h"
 
 class Player : public Character {
 
@@ -38,29 +36,29 @@ public:
 
 	unsigned int getTicksOnCooldownSpell(std::string spellName) const;
 
-	unsigned short getModifiedMinDamage() const;
-	unsigned short getModifiedMaxDamage() const;
-	unsigned short getModifiedDamageModifierPoints() const;
-	unsigned short getModifiedSpellEffectElementModifierPoints(Enums::ElementType elementType) const;
-	unsigned short getModifiedStrength() const;
-	unsigned short getModifiedHitModifierPoints() const;
-	unsigned short getModifiedMeleeCriticalModifierPoints() const;
-	unsigned short getModifiedArmor() const;
-	unsigned short getModifiedBlockModifierPoints() const;
-	unsigned short getModifiedEvadeModifierPoints() const;
-	unsigned short getModifiedParryModifierPoints() const;
-	unsigned short getModifiedResistElementModifierPoints(Enums::ElementType elementType) const;
-	unsigned short getModifiedSpellCriticalModifierPoints() const;
-	unsigned short getModifiedDexterity() const;
-	unsigned short getModifiedVitality() const;
-	unsigned short getModifiedIntellect() const;
-	unsigned short getModifiedWisdom() const;
-	unsigned short getModifiedMaxHealth() const;
-	unsigned short getModifiedMaxMana() const;
+	unsigned short getModifiedMinDamage() const override;
+	unsigned short getModifiedMaxDamage() const override;
+	unsigned short getModifiedDamageModifierPoints() const override;
+	unsigned short getModifiedSpellEffectElementModifierPoints(Enums::ElementType elementType) const override;
+	unsigned short getModifiedStrength() const override;
+	unsigned short getModifiedHitModifierPoints() const override;
+	unsigned short getModifiedMeleeCriticalModifierPoints() const override;
+	unsigned short getModifiedArmor() const override;
+	unsigned short getModifiedBlockModifierPoints() const override;
+	unsigned short getModifiedEvadeModifierPoints() const override;
+	unsigned short getModifiedParryModifierPoints() const override;
+	unsigned short getModifiedResistElementModifierPoints(Enums::ElementType elementType) const override;
+	unsigned short getModifiedSpellCriticalModifierPoints() const override;
+	unsigned short getModifiedDexterity() const override;
+	unsigned short getModifiedVitality() const override;
+	unsigned short getModifiedIntellect() const override;
+	unsigned short getModifiedWisdom() const override;
+	unsigned short getModifiedMaxHealth() const override;
+	unsigned short getModifiedMaxMana() const override;
 	unsigned short getModifiedMaxFatigue() const;
-	unsigned short getModifiedHealthRegen() const;
-	unsigned short getModifiedManaRegen() const;
-	unsigned short getModifiedFatigueRegen() const;
+	unsigned short getModifiedHealthRegen() const override;
+	unsigned short getModifiedManaRegen() const override;
+	unsigned short getModifiedFatigueRegen() const override;
 	unsigned short getPortraitOffset() const;
 	void updatePortraitOffset();
 	void setExperience(unsigned long experience);
@@ -72,7 +70,7 @@ public:
 	void startShopping();
 	void stopShopping();
 	bool isShopping() const;
-	Inventory* getInventory();
+	Inventory& getInventory();
 	void clearInventory();
 	void clearCooldownSpells();
 	void clearActiveSpells();
@@ -108,7 +106,7 @@ private:
 	Enums::Attitude targetAttitude;
 	int dx, dy;
 	bool isCurrentlyShopping;
-	Inventory* inventory;
+	Inventory m_inventory;
 	std::string m_characterTypeStr;
 
 	static Player s_instance;

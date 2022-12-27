@@ -249,7 +249,7 @@ bool Quest::finishQuest() {
 
 	// make sure we have all items required in the quest, if not we return false and doesn't finish the quest.
 	for (size_t requiredItemIndex = 0; requiredItemIndex < requiredItems.size(); requiredItemIndex++) {
-		if (ourPlayer->getInventory()->doesItemExistInBackpack(requiredItems[requiredItemIndex].first, requiredItems[requiredItemIndex].second) == false) {
+		if (ourPlayer->getInventory().doesItemExistInBackpack(requiredItems[requiredItemIndex].first, requiredItems[requiredItemIndex].second) == false) {
 			return false;
 		}
 	}
@@ -271,7 +271,7 @@ bool Quest::finishQuest() {
 	
 	// remove all quest items from the game that was needed for this quest.
 	for (size_t requiredItemIndex = 0; requiredItemIndex < requiredItems.size(); requiredItemIndex++) {
-		ourPlayer->getInventory()->removeItem(requiredItems[requiredItemIndex].first);
+		ourPlayer->getInventory().removeItem(requiredItems[requiredItemIndex].first);
 		Zone* curZone = ZoneManager::Get().getCurrentZone();
 		curZone->getGroundLoot().removeItem(requiredItems[requiredItemIndex].first);
 	}

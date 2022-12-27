@@ -1,6 +1,7 @@
 #include "InteractionPoint.h"
-#include "Character.h"
+#include "Player.h"
 #include "Zone.h"
+#include "Constants.h"
 
 std::vector<TextureRect> InteractionPoint::Textures;
 std::unordered_map<std::string, TextureRect> InteractionPoint::BackgroundTextures;

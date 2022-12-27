@@ -1,6 +1,6 @@
 /*
 ** Lua binding: Luainterface
-** Generated automatically by tolua++-1.0.92 on Mon Dec 26 18:42:50 2022.
+** Generated automatically by tolua++-1.0.92 on Tue Dec 27 22:14:10 2022.
 */
 
 #ifndef __cplusplus
@@ -509,33 +509,6 @@ static int tolua_Luainterface_DawnInterface_addCharacterInteractionPoint00(lua_S
 }
 #endif //#ifndef TOLUA_DISABLE
 
-/* function: DawnInterface::getAllZonesSaveText */
-#ifndef TOLUA_DISABLE_tolua_Luainterface_DawnInterface_getAllZonesSaveText00
-static int tolua_Luainterface_DawnInterface_getAllZonesSaveText00(lua_State* tolua_S)
-{
-#ifndef TOLUA_RELEASE
-	tolua_Error tolua_err;
-	if (
-		!tolua_isnoobj(tolua_S, 1, &tolua_err)
-		)
-		goto tolua_lerror;
-	else
-#endif
-	{
-		{
-			std::string tolua_ret = (std::string)  DawnInterface::getAllZonesSaveText();
-			tolua_pushcppstring(tolua_S, (const char*)tolua_ret);
-		}
-	}
-	return 1;
-#ifndef TOLUA_RELEASE
-	tolua_lerror :
-				 tolua_error(tolua_S, "#ferror in function 'getAllZonesSaveText'.", &tolua_err);
-				 return 0;
-#endif
-}
-#endif //#ifndef TOLUA_DISABLE
-
 /* function: DawnInterface::removeInteractionPoint */
 #ifndef TOLUA_DISABLE_tolua_Luainterface_DawnInterface_removeInteractionPoint00
 static int tolua_Luainterface_DawnInterface_removeInteractionPoint00(lua_State* tolua_S)
@@ -751,6 +724,33 @@ tolua_lerror:
 }
 #endif //#ifndef TOLUA_DISABLE
 
+/* function: DawnInterface::storeGroundloot */
+#ifndef TOLUA_DISABLE_tolua_Luainterface_DawnInterface_storeGroundloot00
+static int tolua_Luainterface_DawnInterface_storeGroundloot00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+	tolua_Error tolua_err;
+	if (
+		!tolua_isnoobj(tolua_S, 1, &tolua_err)
+		)
+		goto tolua_lerror;
+	else
+#endif
+	{
+		{
+			std::string tolua_ret = (std::string)  DawnInterface::storeGroundloot();
+			tolua_pushcppstring(tolua_S, (const char*)tolua_ret);
+		}
+	}
+	return 1;
+#ifndef TOLUA_RELEASE
+	tolua_lerror :
+				 tolua_error(tolua_S, "#ferror in function 'storeGroundloot'.", &tolua_err);
+				 return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
 /* function: DawnInterface::getSpellbookSaveText */
 #ifndef TOLUA_DISABLE_tolua_Luainterface_DawnInterface_getSpellbookSaveText00
 static int tolua_Luainterface_DawnInterface_getSpellbookSaveText00(lua_State* tolua_S)
@@ -889,6 +889,38 @@ static int tolua_Luainterface_DawnInterface_restoreGroundLootItem00(lua_State* t
 #ifndef TOLUA_RELEASE
 	tolua_lerror :
 				 tolua_error(tolua_S, "#ferror in function 'restoreGroundLootItem'.", &tolua_err);
+				 return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
+/* function: DawnInterface::restoreGroundGold */
+#ifndef TOLUA_DISABLE_tolua_Luainterface_DawnInterface_restoreGroundGold00
+static int tolua_Luainterface_DawnInterface_restoreGroundGold00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+	tolua_Error tolua_err;
+	if (
+		!tolua_isnumber(tolua_S, 1, 0, &tolua_err) ||
+		!tolua_isnumber(tolua_S, 2, 0, &tolua_err) ||
+		!tolua_isnumber(tolua_S, 3, 0, &tolua_err) ||
+		!tolua_isnoobj(tolua_S, 4, &tolua_err)
+		)
+		goto tolua_lerror;
+	else
+#endif
+	{
+		int amount = ((int)tolua_tonumber(tolua_S, 1, 0));
+		int xPos = ((int)tolua_tonumber(tolua_S, 2, 0));
+		int yPos = ((int)tolua_tonumber(tolua_S, 3, 0));
+		{
+			DawnInterface::restoreGroundGold(amount, xPos, yPos);
+		}
+	}
+	return 0;
+#ifndef TOLUA_RELEASE
+	tolua_lerror :
+				 tolua_error(tolua_S, "#ferror in function 'restoreGroundGold'.", &tolua_err);
 				 return 0;
 #endif
 }
@@ -8110,7 +8142,6 @@ TOLUA_API int tolua_Luainterface_open(lua_State* tolua_S)
 	tolua_function(tolua_S, "removeInteractionRegion", tolua_Luainterface_DawnInterface_removeInteractionRegion00);
 	tolua_function(tolua_S, "addInteractionPoint", tolua_Luainterface_DawnInterface_addInteractionPoint00);
 	tolua_function(tolua_S, "addCharacterInteractionPoint", tolua_Luainterface_DawnInterface_addCharacterInteractionPoint00);
-	tolua_function(tolua_S, "getAllZonesSaveText", tolua_Luainterface_DawnInterface_getAllZonesSaveText00);
 	tolua_function(tolua_S, "removeInteractionPoint", tolua_Luainterface_DawnInterface_removeInteractionPoint00);
 	tolua_function(tolua_S, "getItemReferenceRestore", tolua_Luainterface_DawnInterface_getItemReferenceRestore00);
 	tolua_function(tolua_S, "getItemReferenceRestore", tolua_Luainterface_DawnInterface_getItemReferenceRestore01);
@@ -8119,11 +8150,13 @@ TOLUA_API int tolua_Luainterface_open(lua_State* tolua_S)
 	tolua_function(tolua_S, "getItemReferenceRestore", tolua_Luainterface_DawnInterface_getItemReferenceRestore04);
 	tolua_function(tolua_S, "getItemReferenceRestore", tolua_Luainterface_DawnInterface_getItemReferenceRestore05);
 	tolua_function(tolua_S, "getItemReferenceRestore", tolua_Luainterface_DawnInterface_getItemReferenceRestore06);
+	tolua_function(tolua_S, "storeGroundloot", tolua_Luainterface_DawnInterface_storeGroundloot00);
 	tolua_function(tolua_S, "getSpellbookSaveText", tolua_Luainterface_DawnInterface_getSpellbookSaveText00);
 	tolua_function(tolua_S, "getActionbarSaveText", tolua_Luainterface_DawnInterface_getActionbarSaveText00);
 	tolua_function(tolua_S, "getReenterCurrentZoneText", tolua_Luainterface_DawnInterface_getReenterCurrentZoneText00);
 	tolua_function(tolua_S, "restoreActionBar", tolua_Luainterface_DawnInterface_restoreActionBar00);
 	tolua_function(tolua_S, "restoreGroundLootItem", tolua_Luainterface_DawnInterface_restoreGroundLootItem00);
+	tolua_function(tolua_S, "restoreGroundGold", tolua_Luainterface_DawnInterface_restoreGroundGold00);
 	tolua_function(tolua_S, "createTextWindow", tolua_Luainterface_DawnInterface_createTextWindow00);
 	tolua_function(tolua_S, "createGeneralRayDamageSpell", tolua_Luainterface_DawnInterface_createGeneralRayDamageSpell00);
 	tolua_function(tolua_S, "createGeneralAreaDamageSpell", tolua_Luainterface_DawnInterface_createGeneralAreaDamageSpell00);

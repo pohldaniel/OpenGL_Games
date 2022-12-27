@@ -1,6 +1,5 @@
 #include <memory>
 #include <cassert>
-
 #include "Item.h"
 #include "Spells.h"
 

@@ -489,7 +489,7 @@ bool Interface::isSpellUseable(SpellActionBase* action) {
 
 	// does the spell / action require a weapon of any sort?
 	if (action->getRequiredWeapons() != 0) {
-		if ((action->getRequiredWeapons() & (m_player->getInventory()->getWeaponTypeBySlot(Enums::ItemSlot::MAIN_HAND) | m_player->getInventory()->getWeaponTypeBySlot(Enums::ItemSlot::OFF_HAND))) == 0) {
+		if ((action->getRequiredWeapons() & (m_player->getInventory().getWeaponTypeBySlot(Enums::ItemSlot::MAIN_HAND) | m_player->getInventory().getWeaponTypeBySlot(Enums::ItemSlot::OFF_HAND))) == 0) {
 			return false;
 		}
 	}
@@ -794,7 +794,7 @@ void Interface::processInputRightDrag() {
 void Interface::executeSpellQueue() {
 	Enums::EffectType effectType = m_spellQueue->action->getEffectType();
 
-	if (m_spellQueue->action != NULL && m_spellQueue->actionReadyToCast == true) {
+ 	if (m_spellQueue->action != NULL && m_spellQueue->actionReadyToCast == true) {
 		
 		SpellActionBase *curAction = NULL;
 		if (effectType == Enums::EffectType::SingleTargetSpell && m_player->getTarget() != NULL) {

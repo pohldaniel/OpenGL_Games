@@ -1,10 +1,10 @@
 #include "Player.h"
-#include "Spells.h"
-#include "Actions.h"
+#include "Inventory.h"
+#include "Tooltip.h"
+#include "Item.h"
 #include "Statssystem.h"
 #include "Luainterface.h"
-#include "Item.h"
-#include "Inventory.h"
+#include "Constants.h"
 
 const unsigned short NULLABLE_ATTRIBUTE_MIN = 0;
 const unsigned short NON_NULLABLE_ATTRIBUTE_MIN = 1;
@@ -138,7 +138,7 @@ Player& Player::Get() {
 	return s_instance;
 }
 
-Player::Player() { }
+Player::Player() : m_inventory(Inventory(10, 4, this)) { }
 
 Player::~Player() {}
 
@@ -168,6 +168,7 @@ void Player::draw() {
 }
 
 void Player::update(float deltaTime) {
+	//std::cout << Character::ActivityToString(curActivity) << std::endl;
 	// making sure our target is still alive, not invisible and still in range while stealthed. if not well set our target to NULL.
 	if (getTarget()) {
 		double distance = sqrt(pow((getTarget()->getXPos() + getTarget()->getWidth() / 2) - (getXPos() + getWidth() / 2), 2)
@@ -221,6 +222,7 @@ void Player::Die() {
 }
 
 void Player::init() {
+	
 	m_characterType = &CharacterTypeManager::Get().getCharacterType(m_characterTypeStr);
 	rect = &m_characterType->m_moveTileSets.at({ Enums::ActivityType::Walking, Enums::Direction::S }).getAllTiles()[0].textureRect;
 
@@ -235,8 +237,8 @@ void Player::init() {
 	m_isPlayer = true;
 	updatePortraitOffset();
 
-	inventory = new Inventory();
-	inventory->init(10, 4, this);
+	//m_inventory = new Inventory();
+	//m_inventory->init(10, 4, this);
 
 	Globals::soundManager.get("player").loadChannel("res/sound/walking.ogg", 10);
 }
@@ -406,7 +408,7 @@ void Player::Animate(float deltaTime) {
 		}
 		rect = &tileSet.getAllTiles()[currentFrame].textureRect;
 
-	}else if (curActivity == Enums::ActivityType::Casting) {
+	}else if (curActivity == Enums::ActivityType::Casting || curActivity == Enums::ActivityType::Shooting) {
 		unsigned short numActivityTextures = m_characterType->m_numMoveTexturesPerDirection.at(curActivity);
 		currentFrame = static_cast<unsigned short>(floor(getPreparationPercentage() * numActivityTextures));		
 		rect = &tileSet.getAllTiles()[currentFrame].textureRect;
@@ -461,7 +463,7 @@ void Player::processInput() {
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_E) && !m_waitForAnimation) {
-		curActivity = Enums::ActivityType::Dying;
+		curActivity = Enums::ActivityType::Attacking;
 		currentFrame = 0;
 		m_waitForAnimation = true;
 	}
@@ -478,97 +480,97 @@ void Player::clearActiveSpells() {
 }
 
 unsigned short Player::getModifiedArmor() const {
-	return getModifiedAttribute(*inventory, this, getArmor(), &getItemArmorHelper, &getSpellArmorHelper, NULLABLE_ATTRIBUTE_MIN) + StatsSystem::getStatsSystem()->calculateDamageReductionPoints(this);
+	return getModifiedAttribute(m_inventory, this, getArmor(), &getItemArmorHelper, &getSpellArmorHelper, NULLABLE_ATTRIBUTE_MIN) + StatsSystem::getStatsSystem()->calculateDamageReductionPoints(this);
 }
 
 unsigned short Player::getModifiedDamageModifierPoints() const {
-	return getModifiedAttribute(*inventory, this, getDamageModifierPoints(), &getItemDamageModifierPointsHelper, &getSpellDamageModifierPointsHelper, NULLABLE_ATTRIBUTE_MIN) + StatsSystem::getStatsSystem()->calculateDamageModifierPoints(this);
+	return getModifiedAttribute(m_inventory, this, getDamageModifierPoints(), &getItemDamageModifierPointsHelper, &getSpellDamageModifierPointsHelper, NULLABLE_ATTRIBUTE_MIN) + StatsSystem::getStatsSystem()->calculateDamageModifierPoints(this);
 }
 
 unsigned short Player::getModifiedHitModifierPoints() const {
-	return getModifiedAttribute(*inventory, this, getHitModifierPoints(), &getItemHitModifierPointsHelper, &getSpellHitModifierPointsHelper, NULLABLE_ATTRIBUTE_MIN) + StatsSystem::getStatsSystem()->calculateHitModifierPoints(this);
+	return getModifiedAttribute(m_inventory, this, getHitModifierPoints(), &getItemHitModifierPointsHelper, &getSpellHitModifierPointsHelper, NULLABLE_ATTRIBUTE_MIN) + StatsSystem::getStatsSystem()->calculateHitModifierPoints(this);
 }
 
 unsigned short Player::getModifiedEvadeModifierPoints() const {
-	return getModifiedAttribute(*inventory, this, getEvadeModifierPoints(), &getItemEvadeModifierPointsHelper, &getSpellEvadeModifierPointsHelper, NULLABLE_ATTRIBUTE_MIN) + StatsSystem::getStatsSystem()->calculateEvadeModifierPoints(this);
+	return getModifiedAttribute(m_inventory, this, getEvadeModifierPoints(), &getItemEvadeModifierPointsHelper, &getSpellEvadeModifierPointsHelper, NULLABLE_ATTRIBUTE_MIN) + StatsSystem::getStatsSystem()->calculateEvadeModifierPoints(this);
 }
 
 unsigned short Player::getModifiedParryModifierPoints() const {
-	return getModifiedAttribute(*inventory, this, getParryModifierPoints(), &getItemParryModifierPointsHelper, &getSpellParryModifierPointsHelper, NULLABLE_ATTRIBUTE_MIN) + StatsSystem::getStatsSystem()->calculateParryModifierPoints(this);
+	return getModifiedAttribute(m_inventory, this, getParryModifierPoints(), &getItemParryModifierPointsHelper, &getSpellParryModifierPointsHelper, NULLABLE_ATTRIBUTE_MIN) + StatsSystem::getStatsSystem()->calculateParryModifierPoints(this);
 }
 
 unsigned short Player::getModifiedBlockModifierPoints() const {
-	return getModifiedAttribute(*inventory, this, getBlockModifierPoints(), &getItemBlockModifierPointsHelper, &getSpellBlockModifierPointsHelper, NULLABLE_ATTRIBUTE_MIN) + StatsSystem::getStatsSystem()->calculateBlockModifierPoints(this);
+	return getModifiedAttribute(m_inventory, this, getBlockModifierPoints(), &getItemBlockModifierPointsHelper, &getSpellBlockModifierPointsHelper, NULLABLE_ATTRIBUTE_MIN) + StatsSystem::getStatsSystem()->calculateBlockModifierPoints(this);
 }
 
 unsigned short Player::getModifiedMeleeCriticalModifierPoints() const {
-	return getModifiedAttribute(*inventory, this, getMeleeCriticalModifierPoints(), &getItemMeleeCriticalModifierPointsHelper, &getSpellMeleeCriticalModifierPointsHelper, NULLABLE_ATTRIBUTE_MIN) + StatsSystem::getStatsSystem()->calculateMeleeCriticalModifierPoints(this);
+	return getModifiedAttribute(m_inventory, this, getMeleeCriticalModifierPoints(), &getItemMeleeCriticalModifierPointsHelper, &getSpellMeleeCriticalModifierPointsHelper, NULLABLE_ATTRIBUTE_MIN) + StatsSystem::getStatsSystem()->calculateMeleeCriticalModifierPoints(this);
 }
 
 unsigned short Player::getModifiedResistElementModifierPoints(Enums::ElementType elementType) const {
-	return getModifiedAttribute(elementType, *inventory, this, getResistElementModifierPoints(elementType) + getResistAllModifierPoints(), &getItemResistElementModifierPointsHelper, &getSpellResistElementModifierPointsHelper, NULLABLE_ATTRIBUTE_MIN) + StatsSystem::getStatsSystem()->calculateResistElementModifierPoints(elementType, this);
+	return getModifiedAttribute(elementType, m_inventory, this, getResistElementModifierPoints(elementType) + getResistAllModifierPoints(), &getItemResistElementModifierPointsHelper, &getSpellResistElementModifierPointsHelper, NULLABLE_ATTRIBUTE_MIN) + StatsSystem::getStatsSystem()->calculateResistElementModifierPoints(elementType, this);
 }
 
 unsigned short Player::getModifiedSpellEffectElementModifierPoints(Enums::ElementType elementType) const {
-	return getModifiedAttribute(elementType, *inventory, this, getSpellEffectElementModifierPoints(elementType) + getSpellEffectAllModifierPoints(), &getItemSpellEffectElementModifierPointsHelper, &getSpellSpellEffectElementModifierPointsHelper, NULLABLE_ATTRIBUTE_MIN) + StatsSystem::getStatsSystem()->calculateSpellEffectElementModifierPoints(elementType, this);
+	return getModifiedAttribute(elementType, m_inventory, this, getSpellEffectElementModifierPoints(elementType) + getSpellEffectAllModifierPoints(), &getItemSpellEffectElementModifierPointsHelper, &getSpellSpellEffectElementModifierPointsHelper, NULLABLE_ATTRIBUTE_MIN) + StatsSystem::getStatsSystem()->calculateSpellEffectElementModifierPoints(elementType, this);
 }
 
 unsigned short Player::getModifiedSpellCriticalModifierPoints() const {
-	return getModifiedAttribute(*inventory, this, getSpellCriticalModifierPoints(), &getItemSpellCriticalModifierPointsHelper, &getSpellSpellCriticalModifierPointsHelper, NULLABLE_ATTRIBUTE_MIN) + StatsSystem::getStatsSystem()->calculateSpellCriticalModifierPoints(this);
+	return getModifiedAttribute(m_inventory, this, getSpellCriticalModifierPoints(), &getItemSpellCriticalModifierPointsHelper, &getSpellSpellCriticalModifierPointsHelper, NULLABLE_ATTRIBUTE_MIN) + StatsSystem::getStatsSystem()->calculateSpellCriticalModifierPoints(this);
 }
 
 unsigned short Player::getModifiedStrength() const {
-	return getModifiedAttribute(*inventory, this, getStrength(), &getItemStrengthHelper, &getSpellStrengthHelper, NON_NULLABLE_ATTRIBUTE_MIN);
+	return getModifiedAttribute(m_inventory, this, getStrength(), &getItemStrengthHelper, &getSpellStrengthHelper, NON_NULLABLE_ATTRIBUTE_MIN);
 }
 
 unsigned short Player::getModifiedDexterity() const {
-	return getModifiedAttribute(*inventory, this, getDexterity(), &getItemDexterityHelper, &getSpellDexterityHelper, NON_NULLABLE_ATTRIBUTE_MIN);
+	return getModifiedAttribute(m_inventory, this, getDexterity(), &getItemDexterityHelper, &getSpellDexterityHelper, NON_NULLABLE_ATTRIBUTE_MIN);
 }
 
 unsigned short Player::getModifiedVitality() const {
-	return getModifiedAttribute(*inventory, this, getVitality(), &getItemVitalityHelper, &getSpellVitalityHelper, NON_NULLABLE_ATTRIBUTE_MIN);
+	return getModifiedAttribute(m_inventory, this, getVitality(), &getItemVitalityHelper, &getSpellVitalityHelper, NON_NULLABLE_ATTRIBUTE_MIN);
 }
 
 unsigned short Player::getModifiedIntellect() const {
-	return getModifiedAttribute(*inventory, this, getIntellect(), &getItemIntellectHelper, &getSpellIntellectHelper, NON_NULLABLE_ATTRIBUTE_MIN);
+	return getModifiedAttribute(m_inventory, this, getIntellect(), &getItemIntellectHelper, &getSpellIntellectHelper, NON_NULLABLE_ATTRIBUTE_MIN);
 }
 
 unsigned short Player::getModifiedWisdom() const {
-	return getModifiedAttribute(*inventory, this, getWisdom(), &getItemWisdomHelper, &getSpellWisdomHelper, NON_NULLABLE_ATTRIBUTE_MIN);
+	return getModifiedAttribute(m_inventory, this, getWisdom(), &getItemWisdomHelper, &getSpellWisdomHelper, NON_NULLABLE_ATTRIBUTE_MIN);
 }
 
 unsigned short Player::getModifiedMaxHealth() const {
-	return getModifiedAttribute(*inventory, this, getMaxHealth(), &getItemHealthHelper, &getSpellHealthHelper, NON_NULLABLE_ATTRIBUTE_MIN);
+	return getModifiedAttribute(m_inventory, this, getMaxHealth(), &getItemHealthHelper, &getSpellHealthHelper, NON_NULLABLE_ATTRIBUTE_MIN);
 }
 
 unsigned short Player::getModifiedMaxMana() const {
-	return getModifiedAttribute(*inventory, this, getMaxMana(), &getItemManaHelper, &getSpellManaHelper, NULLABLE_ATTRIBUTE_MIN);
+	return getModifiedAttribute(m_inventory, this, getMaxMana(), &getItemManaHelper, &getSpellManaHelper, NULLABLE_ATTRIBUTE_MIN);
 }
 
 unsigned short Player::getModifiedMaxFatigue() const {
-	return getModifiedAttribute(*inventory, this, getMaxFatigue(), &getItemFatigueHelper, &getSpellFatigueHelper, NULLABLE_ATTRIBUTE_MIN);
+	return getModifiedAttribute(m_inventory, this, getMaxFatigue(), &getItemFatigueHelper, &getSpellFatigueHelper, NULLABLE_ATTRIBUTE_MIN);
 }
 
 unsigned short Player::getModifiedMinDamage() const {
-	unsigned short  inventoryMinDamage = getModifiedAttribute(*inventory, this, 0, &getItemMinDamageHelper, &getSpellMinDamageHelper, NON_NULLABLE_ATTRIBUTE_MIN);
+	unsigned short  inventoryMinDamage = getModifiedAttribute(m_inventory, this, 0, &getItemMinDamageHelper, &getSpellMinDamageHelper, NON_NULLABLE_ATTRIBUTE_MIN);
 	return inventoryMinDamage;
 }
 
 unsigned short  Player::getModifiedMaxDamage() const {
-	unsigned short  inventoryMaxDamage = getModifiedAttribute(*inventory, this, 0, &getItemMaxDamageHelper, &getSpellMaxDamageHelper, getModifiedMinDamage());
+	unsigned short  inventoryMaxDamage = getModifiedAttribute(m_inventory, this, 0, &getItemMaxDamageHelper, &getSpellMaxDamageHelper, getModifiedMinDamage());
 	return inventoryMaxDamage;
 }
 
 unsigned short Player::getModifiedHealthRegen() const {
-	return getModifiedAttribute(*inventory, this, getHealthRegen(), &getItemHealthRegenHelper, &getSpellHealthRegenHelper, NULLABLE_ATTRIBUTE_MIN);
+	return getModifiedAttribute(m_inventory, this, getHealthRegen(), &getItemHealthRegenHelper, &getSpellHealthRegenHelper, NULLABLE_ATTRIBUTE_MIN);
 }
 
 unsigned short Player::getModifiedManaRegen() const {
-	return getModifiedAttribute(*inventory, this, getManaRegen(), &getItemManaRegenHelper, &getSpellManaRegenHelper, NULLABLE_ATTRIBUTE_MIN);
+	return getModifiedAttribute(m_inventory, this, getManaRegen(), &getItemManaRegenHelper, &getSpellManaRegenHelper, NULLABLE_ATTRIBUTE_MIN);
 }
 
 unsigned short Player::getModifiedFatigueRegen() const {
-	return getModifiedAttribute(*inventory, this, getFatigueRegen(), &getItemFatigueRegenHelper, &getSpellFatigueRegenHelper, NULLABLE_ATTRIBUTE_MIN);
+	return getModifiedAttribute(m_inventory, this, getFatigueRegen(), &getItemFatigueRegenHelper, &getSpellFatigueRegenHelper, NULLABLE_ATTRIBUTE_MIN);
 }
 
 void Player::updatePortraitOffset() {
@@ -609,12 +611,12 @@ bool Player::isShopping() const {
 	return isCurrentlyShopping;
 }
 
-Inventory* Player::getInventory() {
-	return inventory;
+Inventory& Player::getInventory() {
+	return m_inventory;
 }
 
 void Player::clearInventory() {
-	inventory->clear();
+	m_inventory.clear();
 }
 
 void Player::reduceCoins(unsigned int amountOfCoins) {

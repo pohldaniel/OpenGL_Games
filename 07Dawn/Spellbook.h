@@ -2,6 +2,7 @@
 #include "Spells.h"
 #include "Actions.h"
 #include "Tooltip.h"
+#include "Widget.h"
 
 struct SpellSlot {
 	int posX;
