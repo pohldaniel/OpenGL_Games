@@ -90,7 +90,7 @@ void StateMachine::render() {
 	//glDisable(GL_BLEND);
 
 	/*glUseProgram(m_shaderArray->m_program);
-	//m_shaderArray->loadMatrix("u_transform", m_transform * Globals::projection);
+	//m_shaderArray->loadMatrix("u_transform", Globals::projection * m_transform);
 	m_shaderArray->loadInt("u_layer", 0);
 	m_quad->render(m_spriteSheet->getAtlas(), true);
 	glUseProgram(0);*/

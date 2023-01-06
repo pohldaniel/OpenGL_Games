@@ -9,7 +9,7 @@ public:
 	Spritesheet(std::string pictureFile, unsigned short tileWidth, unsigned short tileHeight, bool reverse = false, bool flipVertical = false);
 	~Spritesheet();
 	
-		unsigned int getAtlas();
+	unsigned int getAtlas();
 	unsigned short getTileCountX();
 	unsigned short getTileCountY();
 

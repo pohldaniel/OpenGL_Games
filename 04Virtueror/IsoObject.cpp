@@ -63,7 +63,7 @@ void IsoObject::SetColor(unsigned int color) {  }
 
 void IsoObject::Render(Matrix4f& transform) {
 	glUseProgram(m_shaderArray->m_program);
-	m_shaderArray->loadMatrix("u_transform", m_transform * transform *  Globals::projection);
+	m_shaderArray->loadMatrix("u_transform", Globals::projection * transform * m_transform);
 	m_shaderArray->loadInt("u_layer", m_currentFrame);
 	m_quad->render(m_spriteSheet->getAtlas(), true);
 	glUseProgram(0);

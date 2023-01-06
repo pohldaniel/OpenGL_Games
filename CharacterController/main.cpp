@@ -10,14 +10,14 @@
 extern float Globals::offset = 0.0f;
 extern unsigned long Globals::CONTROLLS = 0;
 extern unsigned long Globals::CONTROLLSHOLD = 0;
-extern unsigned char Globals::pKeyBuffer[256] = {0};
+extern unsigned char Globals::pKeyBuffer[256] = { 0 };
 extern Matrix4f Globals::projection = Matrix4f::IDENTITY;
 
 extern b2World* Globals::world = NULL;
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd) {
-	
-	#if DEBUG
+
+#if DEBUG
 	AllocConsole();
 	AttachConsole(GetCurrentProcessId());
 	freopen("CON", "w", stdout);
@@ -28,7 +28,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	std::cout << "q             : change state" << std::endl;
 	std::cout << "v             : toggle vsync" << std::endl;
 	std::cout << "z             : toggle wireframe" << std::endl;
-	#endif
+#endif
 
 	float deltaTime = 0.0f;
 	float fixedDeltaTime = 0.0f;
@@ -39,7 +39,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	Globals::world = new b2World(gravity);
 
 	Application application(deltaTime, fixedDeltaTime);
-		
+
 	HWND hwnd = application.getWindow();
 	HDC hdc;
 
@@ -48,7 +48,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	int frames = 0;
 	double framesTime = 0;
-	
+
 	while (application.isRunning()) {
 
 		physicsElapsedTime += deltaTime;
@@ -64,8 +64,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		application.update();
 		application.render();
 		deltaTime = deltaClock.restartSec();
-		
-		#if DEBUG
+
+#if DEBUG
 		framesTime += deltaTime;
 		frames++;
 		if (framesTime > 1) {
@@ -75,10 +75,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 			frames = 0;
 			framesTime = 0;
 		}
-		#endif
+#endif
 		hdc = GetDC(hwnd);
 		SwapBuffers(hdc);
-		ReleaseDC(hwnd, hdc);		
-	} 
+		ReleaseDC(hwnd, hdc);
+	}
 	return 0;
 }

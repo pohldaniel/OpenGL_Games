@@ -257,5 +257,3 @@ private:
 	Matrix4f mtx;
 };
 #endif
-
-

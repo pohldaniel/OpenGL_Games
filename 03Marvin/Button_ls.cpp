@@ -22,14 +22,14 @@ void ButtonLS::update() {}
 
 void ButtonLS::render() {
 	glUseProgram(m_shaderArray->m_program);
-	m_shaderArray->loadMatrix("u_transform", m_transform * Globals::projection);
+	m_shaderArray->loadMatrix("u_transform", Globals::projection * m_transform);
 	m_shaderArray->loadInt("u_layer", 0);
 	m_quad->render(m_textureAtlas, true);
 	glUseProgram(0);
 	
 	if (m_state == State::SELECTED) {
 		glUseProgram(m_shader->m_program);
-		m_shader->loadMatrix("u_transform", m_transformPointer * Globals::projection);
+		m_shader->loadMatrix("u_transform", Globals::projection * m_transformPointer);
 		m_quadPointer->render(m_sprites["pointer"]);
 		glUseProgram(0);
 	}

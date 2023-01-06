@@ -7,12 +7,13 @@
 //-----------------------------------------------------------------------------
 // Common math functions and constants.
 //-----------------------------------------------------------------------------
-#define PI  3.1415926535897932384
-#define HALF_PI  1.57079632679
-#define TWO_PI  6.2831853071795864769 
-#define PI_ON_180  0.0174532925199432957
-#define invPI  0.3183098861837906715
-#define	invTWO_PI  0.1591549430918953358
+#define PI  3.1415926535897932384f
+#define HALF_PI  1.57079632679f
+#define TWO_PI  6.2831853071795864769f 
+#define PI_ON_180  0.0174532925199432957f
+#define _180_ON_PI  57.2957795131f
+#define invPI  0.3183098861837906715f
+#define	invTWO_PI  0.1591549430918953358f
 
 class Vector2f {
 
@@ -31,7 +32,7 @@ public:
 
 	//Vector2f &operator^(const Vector2f &rhs);
 	Vector2f& operator= (const Vector2f& rhs);
-	
+
 
 	Vector2f &operator+=(const Vector2f &rhs);
 	Vector2f &operator-=(const Vector2f &rhs);
@@ -79,7 +80,7 @@ public:
 	Vector3f &operator+=(const Vector3f &rhs);
 	Vector3f &operator-=(const Vector3f &rhs);
 
-	Vector3f &operator+(const Vector3f &rhs) const;
+	Vector3f operator+(const Vector3f &rhs) const;
 	Vector3f operator-(const Vector3f &rhs) const;
 
 	Vector3f operator*(float scalar) const;
@@ -118,7 +119,6 @@ class Matrix4f {
 
 	friend Vector3f operator*(const Vector4f &lhs, const Matrix4f &rhs);
 	friend Vector3f operator*(const Matrix4f &rhs, const Vector4f &lhs);
-	//friend Vector3f operator&(const Matrix4f &rhs, const Vector4f &lhs);
 	friend Vector3f operator*(const Vector3f &lhs, const Matrix4f &rhs);
 	friend Vector3f operator*(const Matrix4f &lhs, const Vector3f &rhs);
 	friend Vector4f operator^(const Vector4f &rhs, const Matrix4f &lhs);
@@ -135,6 +135,7 @@ public:
 		float m21, float m22, float m23, float m24,
 		float m31, float m32, float m33, float m34,
 		float m41, float m42, float m43, float m44);
+	//Matrix4f(const Matrix4f& rhs);
 	~Matrix4f();
 
 	float *operator[](int row);
@@ -142,10 +143,12 @@ public:
 	Matrix4f &operator+=(const Matrix4f &rhs);
 	Matrix4f &operator*=(const Matrix4f &rhs);
 	Matrix4f &operator^=(const Matrix4f &rhs);
+	//Matrix4f &operator= (const Matrix4f &rhs);
+
 	Matrix4f operator+(const Matrix4f &rhs) const;
 	Matrix4f operator*(const Matrix4f &rhs) const;
 	Matrix4f operator^(const Matrix4f &rhs) const;
-	Matrix4f transpose();
+	void transpose();
 	Matrix4f inverse() const;
 	float determinant() const;
 
@@ -170,33 +173,32 @@ public:
 
 	void print();
 
-	static Matrix4f &GetNormalMatrix(const Matrix4f &modelViewMatrix);
+	static Matrix4f GetNormalMatrix(const Matrix4f &modelViewMatrix);
 	static Matrix4f &GetNormalMatrix(Matrix4f &mtx, const Matrix4f &modelViewMatrix);
 
-	static Matrix4f &Scale(float x, float y, float z);
+	static Matrix4f Scale(float x, float y, float z);
 	static Matrix4f &Scale(Matrix4f &mtx, float x, float y, float z);
 
-	static Matrix4f &Translate(const float dx, const float dy, const float dz);
+	static Matrix4f Translate(const float dx, const float dy, const float dz);
 	static Matrix4f &Translate(Matrix4f &mtx, const float dx, const float dy, const float dz);
 
-	static Matrix4f &GetPerspective(float fovx, float aspect, float znear, float zfar);
+	static Matrix4f GetPerspective(float fovx, float aspect, float znear, float zfar);
 	static Matrix4f &GetPerspective(Matrix4f &mtx, float fovx, float aspect, float znear, float zfar);
 
-	static Matrix4f &GetInvPerspective(float fovx, float aspect, float znear, float zfar);
+	static Matrix4f GetInvPerspective(float fovx, float aspect, float znear, float zfar);
 	static Matrix4f &GetInvPerspective(Matrix4f &mtx, float fovx, float aspect, float znear, float zfar);
 
-	static Matrix4f &GetOrthographic(float left, float right, float bottom, float top, float znear, float zfar);
+	static Matrix4f GetOrthographic(float left, float right, float bottom, float top, float znear, float zfar);
 	static Matrix4f &GetOrthographic(Matrix4f &mtx, float left, float right, float bottom, float top, float znear, float zfar);
 
-	static Matrix4f &GetInvOrthographic(float left, float right, float bottom, float top, float znear, float zfar);
+	static Matrix4f GetInvOrthographic(float left, float right, float bottom, float top, float znear, float zfar);
 	static Matrix4f &GetInvOrthographic(Matrix4f &mtx, float left, float right, float bottom, float top, float znear, float zfar);
 
-	static void Transpose(Matrix4f &p);
+	static Matrix4f &Transpose(Matrix4f &m);
 
 private:
 	float mtx[4][4];
 };
-
 
 class Quaternion {
 
@@ -234,8 +236,8 @@ public:
 	float length() const;
 	void normalize();
 	void set(float x, float y, float z, float w);
-	Quaternion conjugate() const;
-	Quaternion inverse() const;
+	void conjugate();
+	void inverse();
 
 	void fromAxisAngle(const Vector3f &axis, float degrees);
 	void fromMatrix(const Matrix4f &m);
@@ -243,15 +245,15 @@ public:
 	void fromHeadPitchRoll(float headDegrees, float pitchDegrees, float rollDegrees);
 
 	void toAxisAngle(Vector3f &axis, float &degrees) const;
-	Matrix4f toMatrix4f() const;
+	Matrix4f& toMatrix4f();
 	void toHeadPitchRoll(float &headDegrees, float &pitchDegrees, float &rollDegrees) const;
 
-	static Quaternion &FromMatrix(const Matrix4f &m);
-	static Quaternion &FromMatrix(Quaternion &quat, const Matrix4f &m);
+	static Quaternion& FromMatrix(Quaternion &quat, const Matrix4f &m);
+	static Quaternion& Conjugate(Quaternion &quat);
+	static Quaternion& Inverse(Quaternion &quat);
 	static void Normalize(Quaternion &p);
 private:
 	float quat[4];
+	Matrix4f mtx;
 };
 #endif
-
-

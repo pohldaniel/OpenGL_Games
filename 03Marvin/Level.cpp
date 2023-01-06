@@ -55,7 +55,7 @@ void Level::render() {
 	glUseProgram(0);
 
 	glUseProgram(m_shaderArray->m_program);
-	m_shaderArray->loadMatrix("u_transform", ViewEffect::get().getView() *  Globals::projection);
+	m_shaderArray->loadMatrix("u_transform", Globals::projection * ViewEffect::get().getView());
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D_ARRAY, m_spriteSheet->getAtlas());
 	glBindVertexArray(m_vao);
@@ -78,16 +78,13 @@ void Level::render() {
 
 	#if DEBUGCOLLISION
 	int index = 0;
-	Matrix4f transProj = Globals::projection.transpose();
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	glLoadMatrixf(&transProj[0][0]);
+	glLoadMatrixf(&Globals::projection[0][0]);
 
-	Matrix4f transView = ViewEffect::get().getView();
-	transView = transView.transpose();
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-	glLoadMatrixf(&transView[0][0]);
+	glLoadMatrixf(&ViewEffect::get().getView()[0][0]);
 	
 	for (const auto& b : m_mapLoader.m_contours) {
 		for (b2Fixture *fixture = b->GetFixtureList(); fixture; fixture = fixture->GetNext()) {

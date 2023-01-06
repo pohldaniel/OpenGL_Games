@@ -6,6 +6,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <unordered_map>
 
 #include "Extension.h"
 #include "Vector.h"
@@ -32,7 +33,9 @@ public:
 	void loadVector(const char* location, Vector3f vector);
 	void loadVector(const char* location, Vector2f vector);
 	void loadFloat(const char* location, float value);
-	void loadFloat(const char* location, float value[4]);
+	void loadFloat2(const char* location, float value[2]);
+	void loadFloat3(const char* location, float value[3]);
+	void loadFloat4(const char* location, float value[4]);
 	void loadFloatArray(const char* location, float *value, const unsigned short count);
 	void loadBool(const char* location, bool value);
 	void loadInt(const char* location, int value);
@@ -55,6 +58,10 @@ protected:
 	GLuint linkShaders(GLuint vertShader, GLuint fragShader, GLuint geoShader);
 	void cleanup();
 
+private:
 
+	unsigned int getUnifromLocation(const std::string& name) const;
+
+	mutable std::unordered_map<std::string, unsigned int> m_uniformLocationCache;
 };
 #endif // __shaderH__

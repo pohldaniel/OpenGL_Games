@@ -364,10 +364,9 @@ void Level::render() {
 	
 	#if DEBUGCOLLISION
 	int index = 0;
-	Matrix4f transProj = Globals::projection.transpose();
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	glLoadMatrixf(&transProj[0][0]);
+	glLoadMatrixf(&Globals::projection[0][0]);
 
 	for (const auto& b : m_contours) {
 		for (b2Fixture *fixture = b->GetFixtureList(); fixture; fixture = fixture->GetNext()) {

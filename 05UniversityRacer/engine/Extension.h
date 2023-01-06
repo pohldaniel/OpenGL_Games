@@ -8,18 +8,19 @@
 extern "C" {
 #define GL_TEXTURE_2D_ARRAY 0x8C1A
 #define GL_DYNAMIC_DRAW 0x88E8
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// OpenGL 1.2
-//
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// OpenGL 1.2
+	//
 #define GL_BGR							  0x80E0
 #define GL_BGRA                           0x80E1
+#define GL_RGB8I						  0x8D8F
 #define GL_CLAMP_TO_EDGE                  0x812F
 #define GL_R8                             0x8229
 #define GL_RGB32F_ARB					  0x8815
 #define GL_RG							  0x8227
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// OpenGL 1.4
-//
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// OpenGL 1.4
+	//
 #define GL_ARRAY_BUFFER                   0x8892
 #define GL_STATIC_DRAW                    0x88E4
 #define GL_DEPTH_COMPONENT16              0x81A5
@@ -45,9 +46,9 @@ extern "C" {
 #define GL_TEXTURE_COMPARE_MODE           0x884C
 #define GL_COMPARE_REF_TO_TEXTURE         0x884E
 #define GL_TEXTURE_COMPARE_FUNC           0x884D
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// OpenGL 1.5
-//
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// OpenGL 1.5
+	//
 #define GL_ELEMENT_ARRAY_BUFFER                   0x8893
 #define GL_BUFFER_SIZE                            0x8764
 
@@ -66,10 +67,10 @@ extern "C" {
 
 	extern void glCompressedTexImage2D(GLenum target, GLint level, GLenum internalformat, GLsizei width, GLsizei height, GLint border, GLsizei imageSize, const GLvoid * data);
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// OpenGL 2.0
-//
-typedef char GLchar;
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// OpenGL 2.0
+	//
+	typedef char GLchar;
 
 #define GL_COMPILE_STATUS                 0x8B81
 #define GL_INFO_LOG_LENGTH                0x8B84
@@ -79,7 +80,7 @@ typedef char GLchar;
 #define GL_FRAGMENT_SHADER                0x8B30
 #define GL_GEOMETRY_SHADER				  0x8DD9
 #define GL_RENDERBUFFER                   0x8D41
-	
+
 	extern void glAttachShader(GLuint program, GLuint shader);
 	extern void glCompileShader(GLuint shader);
 	extern GLuint glCreateProgram();
@@ -97,6 +98,7 @@ typedef char GLchar;
 	extern void glShaderSource(GLuint shader, GLsizei count, const char* *string, const GLint *length);
 	extern void glUseProgram(GLuint program);
 	extern void glUniform1i(GLint location, GLint v0);
+	extern void glUniform1ui(GLint location, GLuint v0);
 	extern void glUniform3f(GLint location, GLfloat v0, GLfloat v1, GLfloat v2);
 	extern void glUniform1f(GLint location, GLfloat v0);
 	extern void glEnableVertexAttribArray(GLuint index);
@@ -115,9 +117,9 @@ typedef char GLchar;
 	extern void glUniform4fv(GLint location, GLsizei count, const GLfloat *value);
 	extern void glBindAttribLocation(GLuint program, GLuint index, const GLchar *name);
 	extern GLint glGetAttribLocation(GLuint program, const GLchar *name);
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// OpenGL 4.0
-//
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// OpenGL 4.0
+	//
 #define GL_FRAMEBUFFER                    0x8D40
 #define GL_RGBA32F                        0x8814
 #define GL_RGB32F						  0x8815
@@ -151,9 +153,9 @@ typedef char GLchar;
 	extern void glBlitFramebuffer(GLint srcX0, GLint srcY0, GLint srcX1, GLint srcY1, GLint dstX0, GLint dstY0, GLint dstX1, GLint dstY1, GLbitfield mask, GLenum filter);
 	extern void glGenerateMipmap(GLenum target);
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// 3D Texture
-//
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// 3D Texture
+	//
 #define GL_TEXTURE_3D 0x806F
 #define GL_TEXTURE_WRAP_R 0x8072
 #define GL_FRAMEBUFFER_COMPLETE 0x8CD5
@@ -164,7 +166,7 @@ typedef char GLchar;
 	extern void glDrawBuffers(GLsizei n, const GLenum *bufs);
 	extern GLenum glCheckFramebufferStatus(GLenum target);
 	extern void glFramebufferTextureLayer(GLenum target, GLenum attachment, GLuint texture, GLint level, GLint layer);
-	
+
 
 
 
@@ -172,7 +174,35 @@ typedef char GLchar;
 #define GL_TEXTURE1_ARB 0x84C1
 #define GL_TEXTURE_MAX_ANISOTROPY_EXT 0x84FE
 #define GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT 0x84FF
-#define GL_WRITE_ONLY   0x88B9
+#define GL_READ_ONLY 0x88B8
+#define GL_WRITE_ONLY 0x88B9
+#define GL_READ_WRITE 0x88BA
+#define GL_UNIFORM_BUFFER 0x8A11
+#define GL_UNIFORM_BUFFER_BINDING 0x8A28
+#define GL_UNIFORM_BUFFER_START 0x8A29
+#define GL_UNIFORM_BUFFER_SIZE 0x8A2A
+#define GL_CLIP_DISTANCE0 GL_CLIP_PLANE0
+#define GL_CLIP_DISTANCE1 GL_CLIP_PLANE1
+#define GL_CLIP_DISTANCE2 GL_CLIP_PLANE2
+#define GL_CLIP_DISTANCE3 GL_CLIP_PLANE3
+#define GL_CLIP_DISTANCE4 GL_CLIP_PLANE4
+#define GL_CLIP_DISTANCE5 GL_CLIP_PLANE5
+#define GL_DEPTH_COMPONENT32 0x81A7
+#define GL_UNSIGNED_INT_24_8 0x84FA
+#define GL_STENCIL_ATTACHMENT 0x8D20
+#define GL_STENCIL_INDEX8 0x8D48
+#define GL_TEXTURE_SWIZZLE_RGBA 0x8E46
+#define GL_PIXEL_PACK_BUFFER 0x88EB
+#define GL_STREAM_READ 0x88E1
+#define GL_STREAM_DRAW 0x88E0
+#define GL_FUNC_ADD 0x8006
+#define GL_MIN 0x8007
+#define GL_MAX 0x8008
+#define GL_FUNC_SUBTRACT 0x800A
+#define GL_FUNC_REVERSE_SUBTRACT 0x800B
+#define GL_GPU_MEM_INFO_TOTAL_AVAILABLE_MEM_NVX 0x9048
+#define GL_GPU_MEM_INFO_CURRENT_AVAILABLE_MEM_NVX 0x9049
+#define GL_TEXTURE_DEPTH 0x8071
 
 	extern void glActiveTextureARB(GLenum texture);
 	extern void glMultiTexCoord2fARB(GLenum target, GLfloat s, GLfloat t);
@@ -185,6 +215,7 @@ typedef char GLchar;
 	extern void glBlendFuncSeparate(GLenum srcRGB, GLenum dstRGB, GLenum srcAlpha, GLenum dstAlpha);
 
 	extern void glCopyTexSubImage3D(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLint x, GLint y, GLsizei width, GLsizei height);
+	extern void glCopyTextureSubImage3D(GLuint texture, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLint x, GLint y, GLsizei width, GLsizei height);
 
 	extern void glDeleteFramebuffers(GLsizei n, const GLuint * framebuffers);
 
@@ -195,6 +226,29 @@ typedef char GLchar;
 
 	extern void glVertexAttribDivisor(GLuint index, GLuint divisor);
 	extern void glDrawElementsInstanced(GLenum mode, GLsizei count, GLenum type, const void * indices, GLsizei instancecount);
+	extern void glDrawElementsBaseVertex(GLenum mode, GLsizei count, GLenum type, void *indices, GLint basevertex);
+	extern void glDrawElementsInstancedBaseVertexBaseInstance(GLenum mode, GLsizei count, GLenum type, void *indices, GLsizei instancecount, GLint basevertex, GLuint baseinstance);
+	extern void glDrawArraysInstanced(GLenum mode, GLint first, GLsizei count, GLsizei instancecount);
+
+	extern void glFramebufferTexture(GLenum target, GLenum attachment, GLuint texture, GLint level);
+	extern void glBindImageTexture(GLuint unit, GLuint texture, GLint level, GLboolean layered, GLint layer, GLenum access, GLenum format);
+	extern void glCopyTextureSubImage2D(GLuint texture, GLint level, GLint xoffset, GLint yoffset, GLint x, GLint y, GLsizei width, GLsizei height);
+	extern void glGetTextureSubImage(GLuint texture, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLsizei width, GLsizei height, GLsizei depth, GLenum format, GLenum type, GLsizei bufSize, void *pixels);
+
+	extern void glGetTextureImage(GLuint texture, GLint level, GLenum format, GLenum type, GLsizei bufSize, void *pixels);
+	extern GLuint glGetUniformBlockIndex(GLuint program, const GLchar *uniformBlockName);
+	extern void glUniformBlockBinding(GLuint program, GLuint uniformBlockIndex, GLuint uniformBlockBinding);
+	extern void glBindBufferRange(GLenum target, GLuint index, GLuint buffer, GLintptr offset, GLsizeiptr size);
+
+	extern void glBlendEquation(GLenum mode);
+
+	extern void glGetTextureParameterfv(GLuint texture, GLenum pname, GLfloat *params);
+	extern void glGetTextureParameteriv(GLuint texture, GLenum pname, GLint *params);
+
+	extern void glGenSamplers(GLsizei n, GLuint *samplers);
+	extern void glSamplerParameterf(GLuint sampler, GLenum pname, GLfloat param);
+	extern void glSamplerParameteri(GLuint sampler, GLenum pname, GLint param);
+	extern void glBindSampler(GLuint unit, GLuint sampler);
 
 } // extern "C"
 #endif

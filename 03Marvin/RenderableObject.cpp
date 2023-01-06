@@ -35,7 +35,7 @@ bool RenderableObject::isDisabled() {
 
 void RenderableObject::render() {
 	glUseProgram(m_shader->m_program);
-	m_shader->loadMatrix("u_transform", m_transform * ViewEffect::get().getView() * Globals::projection);
+	m_shader->loadMatrix("u_transform", Globals::projection * ViewEffect::get().getView() * m_transform);
 	m_quad->render(m_sprites["gem"]);
 	glUseProgram(0);
 }

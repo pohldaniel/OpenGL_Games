@@ -118,14 +118,14 @@ void Button::render() {
 	glStencilMask(0xFF);
 
 	glUseProgram(m_shader->m_program);
-	m_shader->loadMatrix("u_transform", m_transform * Globals::projection);
+	m_shader->loadMatrix("u_transform", Globals::projection * m_transform);
 	m_shader->loadVector("u_color", m_fillColor);
 	m_quad->render();
 
 	glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
 	glStencilMask(0x00);
 	
-	m_shader->loadMatrix("u_transform", m_transformOutline * m_transform * Globals::projection);
+	m_shader->loadMatrix("u_transform", Globals::projection * m_transform * m_transformOutline);
 	m_shader->loadVector("u_color", m_outlineColor);
 	m_quad->render();
 	glUseProgram(0);

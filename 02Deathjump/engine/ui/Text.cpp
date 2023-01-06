@@ -171,7 +171,7 @@ void Text::addChar(const Vector2f& pos, unsigned int _c, std::vector<float>& ver
 void Text::render() {
 	
 	glUseProgram(s_shaderText->m_program);
-	s_shaderText->loadMatrix("u_transform", m_transform * Globals::projection);
+	s_shaderText->loadMatrix("u_transform", Globals::projection * m_transform);
 	s_shaderText->loadVector("textColor", m_color);
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, m_charset.spriteSheet);
@@ -262,7 +262,7 @@ void Text::render(std::string label) {
 
 
 	glUseProgram(s_shaderText->m_program);
-	s_shaderText->loadMatrix("u_transform", m_transform * Globals::projection);
+	s_shaderText->loadMatrix("u_transform", Globals::projection * m_transform);
 	s_shaderText->loadVector("textColor", m_color);
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, m_charset.spriteSheet);

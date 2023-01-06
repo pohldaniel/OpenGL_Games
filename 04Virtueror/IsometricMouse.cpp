@@ -21,7 +21,7 @@ void IsometricMouse::Render(float x, float y) {
 	m_transform.translate(x + (rendW * 0.5f), y + (rendH *  0.5f), 0.0f);
 
 	glUseProgram(m_shaderArray->m_program);
-	m_shaderArray->loadMatrix("u_transform", m_transform * Globals::projection);
+	m_shaderArray->loadMatrix("u_transform", Globals::projection * m_transform);
 	m_shaderArray->loadInt("u_layer", 13);
 	m_quad->render(m_spriteSheet->getAtlas(), true);
 	glUseProgram(0);

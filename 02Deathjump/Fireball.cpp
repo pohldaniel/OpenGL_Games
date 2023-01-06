@@ -111,13 +111,13 @@ void Fireball::render(float deltaTime) {
 
 	if (!m_blowUp) {
 		glUseProgram(m_shader->m_program);
-		m_shader->loadMatrix("u_transform", m_transform * Globals::projection);
+		m_shader->loadMatrix("u_transform", Globals::projection * m_transform);
 		m_quad->render(m_sprites.at("fireball"));
 		glUseProgram(0);
 	}else {
 		m_blowTrans.translate((m_collider.position[0] - originBlow[0]), (HEIGHT - m_collider.position[1] + originBlow[1]), 0.0f);
 		glUseProgram(m_shaderArray->m_program);
-		m_shaderArray->loadMatrix("u_transform", m_blowTrans * Globals::projection);
+		m_shaderArray->loadMatrix("u_transform", Globals::projection * m_blowTrans);
 		m_shaderArray->loadInt("u_layer", *m_currentFrame);
 		m_shaderArray->loadVector("u_blendColor", Vector4f(1.0f, 1.0f, 1.0f, 0.6f));
 		m_quadBlow->render(*m_textureAtlas, true);
@@ -133,10 +133,9 @@ void Fireball::render(float deltaTime) {
 
 	//Debug colider
 	#if DEBUGCOLLISION
-	Matrix4f transProj = Globals::projection.transpose();
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	glLoadMatrixf(&transProj[0][0]);
+	glLoadMatrixf(&Globals::projection[0][0]);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	glBegin(GL_QUADS);
 	glColor3f(1, 1, 0);

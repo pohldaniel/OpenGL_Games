@@ -28,10 +28,9 @@ void CharacterControllerOld::render() {
 
 
 #if DEBUGCOLLISION
-	Matrix4f transProj = Globals::projection.transpose();
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	glLoadMatrixf(&transProj[0][0]);
+	glLoadMatrixf(&Globals::projection[0][0]);
 	if (m_callback.m_hit) {
 		m_target = m_callback.m_point;
 		glBegin(GL_LINES);

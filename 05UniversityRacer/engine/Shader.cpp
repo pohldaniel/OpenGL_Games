@@ -1,10 +1,17 @@
 #include "Shader.h"
 
 Shader::Shader(std::string vertex, std::string fragment, bool fromFile) {
-	if (fromFile) 
+	if (fromFile)
 		m_program = createProgramFromFile(vertex, fragment);
-	else 
-		m_program = createProgram(vertex, fragment);		
+	else
+		m_program = createProgram(vertex, fragment);
+}
+
+Shader::Shader(std::string vertex, std::string fragment, std::string geometry, bool fromFile) {
+	if (fromFile)
+		m_program = createProgramFromFile(vertex, fragment, geometry);
+	else
+		m_program = createProgram(vertex, fragment, geometry);
 }
 
 Shader::Shader(Shader* shader) {
@@ -23,70 +30,79 @@ void Shader::loadFromResource(std::string vertex, std::string fragment) {
 	m_program = createProgram(vertex, fragment);
 }
 
+void Shader::loadFromFile(std::string vertex, std::string fragment, std::string geometry) {
+	m_program = createProgramFromFile(vertex, fragment, geometry);
+}
+
+void Shader::loadFromResource(std::string vertex, std::string fragment, std::string geometry) {
+	m_program = createProgram(vertex, fragment, geometry);
+}
+
 
 Shader& Shader::get() {
 	return *this;
 }
 
-//OpenGL specifies matrices as column-major to get row-major just transpose it
-void Shader::loadMatrix(const char* location, const Matrix4f matrix, bool trans) {
-	glUniformMatrix4fv(glGetUniformLocation(m_program, location), 1, trans, &matrix[0][0]);
+unsigned int Shader::getUnifromLocation(const std::string& name) const {
+
+	if (m_uniformLocationCache.find(name) != m_uniformLocationCache.end())
+		return m_uniformLocationCache[name];
+
+	unsigned int location = glGetUniformLocation(m_program, name.c_str());
+	m_uniformLocationCache[name] = location;
+	return location;
 }
 
-void Shader::loadMatrixArray(const char* location, const std::vector<Matrix4f> matrixArray, const short count) {
-	glUniformMatrix4fv(glGetUniformLocation(m_program, location), count, GL_FALSE, matrixArray[0][0]);
+void Shader::loadMatrix(const char* location, const Matrix4f& matrix, bool trans) {
+	glUniformMatrix4fv(getUnifromLocation(location), 1, trans, &matrix[0][0]);
+}
+
+void Shader::loadMatrixArray(const char* location, const std::vector<Matrix4f> matrixArray, const unsigned short count, bool trans) {
+	glUniformMatrix4fv(getUnifromLocation(location), count, trans, matrixArray[0][0]);
 }
 
 void Shader::loadVector(const char* location, Vector4f vector) {
-	glUniform4fv(glGetUniformLocation(m_program, location), 1, &vector[0]);
+	glUniform4fv(getUnifromLocation(location), 1, &vector[0]);
 }
 
 void Shader::loadVector(const char* location, Vector3f vector) {
-	glUniform3fv(glGetUniformLocation(m_program, location), 1, &vector[0]);
+	glUniform3fv(getUnifromLocation(location), 1, &vector[0]);
 }
 
 void Shader::loadVector(const char* location, Vector2f vector) {
-	glUniform2fv(glGetUniformLocation(m_program, location), 1, &vector[0]);
-}
-
-void Shader::loadFloat4(const char* location, float value[4]) {
-	glUniform1fv(glGetUniformLocation(m_program, location), 4, value);
-}
-
-void Shader::loadFloat3(const char* location, float value[3]) {
-	glUniform1fv(glGetUniformLocation(m_program, location), 3, value);
-}
-
-void Shader::loadFloat2(const char* location, float value[2]) {
-	glUniform1fv(glGetUniformLocation(m_program, location), 2, value);
-}
-
-void Shader::loadFloat1(const char* location, float value[1]) {
-	glUniform1fv(glGetUniformLocation(m_program, location), 1, value);
+	glUniform2fv(getUnifromLocation(location), 1, &vector[0]);
 }
 
 void Shader::loadFloat(const char* location, float value) {
-	glUniform1f(glGetUniformLocation(m_program, location), value);
+	glUniform1f(getUnifromLocation(location), value);
 }
 
-/*void Shader::loadFloat(const char* location, float value[2]) {
-	glUniform2f(glGetUniformLocation(m_program, location), value[0], value[1]);
+void Shader::loadFloat2(const char* location, float value[2]) {
+	glUniform2f(getUnifromLocation(location), value[0], value[1]);
 }
 
-void Shader::loadFloat(const char* location, float value[3]) {
-	glUniform3f(glGetUniformLocation(m_program, location), value[0], value[1], value[2]);
-}*/
+void Shader::loadFloat3(const char* location, float value[3]) {
+	glUniform1fv(getUnifromLocation(location), 3, value);
+}
 
-void Shader::loadFloat(const char* location, float value[4]) {
-	glUniform4f(glGetUniformLocation(m_program, location), value[0], value[1], value[2], value[3]);
+void Shader::loadFloat4(const char* location, float value[4]) {
+	glUniform4f(getUnifromLocation(location), value[0], value[1], value[2], value[3]);
+}
+
+void Shader::loadFloatArray(const char* location, float *value, const unsigned short count) {
+	glUniform1fv(getUnifromLocation(location), count, value);
 }
 
 void Shader::loadInt(const char* location, int value) {
-	glUniform1i(glGetUniformLocation(m_program, location), value);
+	glUniform1i(getUnifromLocation(location), value);
+}
+
+void Shader::loadUnsignedInt(const char* location, unsigned int value) {
+	glUniform1ui(getUnifromLocation(location), value);
 }
 
 void Shader::loadBool(const char* location, bool value) {
-	glUniform1i(glGetUniformLocation(m_program, location), value);
+	glUniform1i(getUnifromLocation(location), value);
 }
 
 GLuint Shader::createProgramFromFile(std::string vertex, std::string fragment) {
@@ -101,6 +117,19 @@ GLuint Shader::createProgram(std::string vertex, std::string fragment) {
 	return linkShaders(vshader, fshader);
 }
 
+GLuint Shader::createProgramFromFile(std::string vertex, std::string fragment, std::string geometry) {
+	GLuint vshader = loadShaderProgram(GL_VERTEX_SHADER, vertex.c_str());
+	GLuint fshader = loadShaderProgram(GL_FRAGMENT_SHADER, fragment.c_str());
+	GLuint gshader = loadShaderProgram(GL_GEOMETRY_SHADER, geometry.c_str());
+	return linkShaders(vshader, fshader, gshader);
+}
+
+GLuint Shader::createProgram(std::string vertex, std::string fragment, std::string geometry) {
+	GLuint vshader = loadShaderProgram(GL_VERTEX_SHADER, vertex);
+	GLuint fshader = loadShaderProgram(GL_FRAGMENT_SHADER, fragment);
+	GLuint gshader = loadShaderProgram(GL_GEOMETRY_SHADER, geometry);
+	return linkShaders(vshader, fshader, gshader);
+}
 
 
 void Shader::readTextFile(const char *pszFilename, std::string &buffer) {
@@ -125,7 +154,7 @@ GLuint Shader::loadShaderProgram(GLenum type, std::string buffer) {
 	return shader;
 }
 
-GLuint Shader::loadShaderProgram(GLenum type, const char *pszFilename){
+GLuint Shader::loadShaderProgram(GLenum type, const char *pszFilename) {
 
 	GLuint shader = 0;
 	std::string buffer;
@@ -198,6 +227,55 @@ GLuint Shader::linkShaders(GLuint vertShader, GLuint fragShader) {
 
 		if (fragShader)
 			glDeleteShader(fragShader);
+	}
+	return program;
+}
+
+GLuint Shader::linkShaders(GLuint vertShader, GLuint fragShader, GLuint geoShader) {
+	GLuint program = glCreateProgram();
+
+	if (program) {
+
+		GLint linked = 0;
+
+		if (vertShader)
+			glAttachShader(program, vertShader);
+
+		if (fragShader)
+			glAttachShader(program, fragShader);
+
+		if (geoShader)
+			glAttachShader(program, geoShader);
+
+		glLinkProgram(program);
+
+		glGetProgramiv(program, GL_LINK_STATUS, &linked);
+
+		if (!linked) {
+
+			GLsizei infoLogSize = 0;
+			std::string infoLog;
+
+			glGetShaderiv(program, GL_INFO_LOG_LENGTH, &infoLogSize);
+			infoLog.resize(infoLogSize);
+			glGetShaderInfoLog(program, infoLogSize, &infoLogSize, &infoLog[0]);
+			std::cout << "Compile status: \n" << &infoLog << std::endl;
+		}
+
+		// Mark the three attached shaders for deletion. These three shaders aren't
+		// deleted right now because both are already attached to a shader
+		// program. When the shader program is deleted these three shaders will
+		// be automatically detached and deleted.
+
+		if (vertShader)
+			glDeleteShader(vertShader);
+
+		if (fragShader)
+			glDeleteShader(fragShader);
+
+		if (geoShader)
+			glDeleteShader(geoShader);
+
 	}
 	return program;
 }

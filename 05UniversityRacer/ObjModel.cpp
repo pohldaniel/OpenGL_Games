@@ -633,9 +633,9 @@ void Mesh::draw(const Camera camera) {
 
 		glUseProgram(m_material.shader->m_program);
 
-		m_material.shader->loadFloat("material.ambient", m_material.ambient);
-		m_material.shader->loadFloat("material.diffuse", m_material.diffuse);
-		m_material.shader->loadFloat("material.specular", m_material.specular);
+		m_material.shader->loadFloat4("material.ambient", m_material.ambient);
+		m_material.shader->loadFloat4("material.diffuse", m_material.diffuse);
+		m_material.shader->loadFloat4("material.specular", m_material.specular);
 		m_material.shader->loadFloat("material.shininess", m_material.shininess);
 
 		m_material.shader->loadMatrix("u_modelView", camera.getViewMatrix() * m_model->m_modelMatrix, false);
@@ -651,9 +651,9 @@ void Mesh::draw(const Camera camera) {
 		
 		glUseProgram(m_material.shader->m_program);
 
-		m_material.shader->loadFloat("material.ambient", m_material.ambient);
-		m_material.shader->loadFloat("material.diffuse", m_material.diffuse);
-		m_material.shader->loadFloat("material.specular", m_material.specular);
+		m_material.shader->loadFloat4("material.ambient", m_material.ambient);
+		m_material.shader->loadFloat4("material.diffuse", m_material.diffuse);
+		m_material.shader->loadFloat4("material.specular", m_material.specular);
 		m_material.shader->loadFloat("material.shininess", m_material.shininess);
 
 		//m_material.shader->loadFloat("diffuse", m_material.diffuse);
@@ -671,9 +671,9 @@ void Mesh::draw(const Camera camera) {
 	}else if (m_material.materialID == Material::MaterialID::DIFFUSE) {
 		glUseProgram(m_material.shader->m_program);
 
-		m_material.shader->loadFloat("material.ambient", m_material.ambient);
-		m_material.shader->loadFloat("material.diffuse", m_material.diffuse);
-		m_material.shader->loadFloat("material.specular", m_material.specular);
+		m_material.shader->loadFloat4("material.ambient", m_material.ambient);
+		m_material.shader->loadFloat4("material.diffuse", m_material.diffuse);
+		m_material.shader->loadFloat4("material.specular", m_material.specular);
 		m_material.shader->loadFloat("material.shininess", m_material.shininess);
 
 		m_material.shader->loadMatrix("u_modelView", camera.getViewMatrix() * m_model->m_modelMatrix, false);
@@ -687,9 +687,9 @@ void Mesh::draw(const Camera camera) {
 	}else if (m_material.materialID == Material::MaterialID::NONE_TEXTURE) {
 		glUseProgram(m_material.shader->m_program);
 
-		m_material.shader->loadFloat("material.ambient", m_material.ambient);
-		m_material.shader->loadFloat("material.diffuse", m_material.diffuse);
-		m_material.shader->loadFloat("material.specular", m_material.specular);
+		m_material.shader->loadFloat4("material.ambient", m_material.ambient);
+		m_material.shader->loadFloat4("material.diffuse", m_material.diffuse);
+		m_material.shader->loadFloat4("material.specular", m_material.specular);
 		m_material.shader->loadFloat("material.shininess", m_material.shininess);
 
 		m_material.shader->loadMatrix("u_modelView", camera.getViewMatrix() * m_model->m_modelMatrix, false);
@@ -708,9 +708,9 @@ void Mesh::draw(const Camera camera) {
 	}else if (m_material.materialID == Material::MaterialID::GLOSSY_TEXTURE) {
 		glUseProgram(m_material.shader->m_program);
 
-		m_material.shader->loadFloat("material.ambient", m_material.ambient);
-		m_material.shader->loadFloat("material.diffuse", m_material.diffuse);
-		m_material.shader->loadFloat("material.specular", m_material.specular);
+		m_material.shader->loadFloat4("material.ambient", m_material.ambient);
+		m_material.shader->loadFloat4("material.diffuse", m_material.diffuse);
+		m_material.shader->loadFloat4("material.specular", m_material.specular);
 		m_material.shader->loadFloat("material.shininess", m_material.shininess);
 
 		m_material.shader->loadMatrix("u_modelView", camera.getViewMatrix() * m_model->m_modelMatrix, false);
@@ -729,9 +729,9 @@ void Mesh::draw(const Camera camera) {
 	}else if (m_material.materialID == Material::MaterialID::DIFFUSE_TEXTURE) {
 		glUseProgram(m_material.shader->m_program);
 
-		m_material.shader->loadFloat("material.ambient", m_material.ambient);
-		m_material.shader->loadFloat("material.diffuse", m_material.diffuse);
-		m_material.shader->loadFloat("material.specular", m_material.specular);
+		m_material.shader->loadFloat4("material.ambient", m_material.ambient);
+		m_material.shader->loadFloat4("material.diffuse", m_material.diffuse);
+		m_material.shader->loadFloat4("material.specular", m_material.specular);
 		m_material.shader->loadFloat("material.shininess", m_material.shininess);
 		
 		m_material.shader->loadMatrix("u_modelView", camera.getViewMatrix() * m_model->m_modelMatrix, false);
@@ -767,9 +767,9 @@ void Mesh::drawInstanced(const Camera camera) {
 
 		glUseProgram(m_material.shader->m_program);
 
-		m_material.shader->loadFloat("material.ambient", m_material.ambient);
-		m_material.shader->loadFloat("material.diffuse", m_material.diffuse);
-		m_material.shader->loadFloat("material.specular", m_material.specular);
+		m_material.shader->loadFloat4("material.ambient", m_material.ambient);
+		m_material.shader->loadFloat4("material.diffuse", m_material.diffuse);
+		m_material.shader->loadFloat4("material.specular", m_material.specular);
 		m_material.shader->loadFloat("material.shininess", m_material.shininess);
 
 		m_material.shader->loadMatrix("u_modelView", camera.getViewMatrix(), false);
@@ -784,9 +784,9 @@ void Mesh::drawInstanced(const Camera camera) {
 	}else if (m_material.materialID == Material::MaterialID::GLOSSY) {
 		glUseProgram(m_material.shader->m_program);
 
-		m_material.shader->loadFloat("material.ambient", m_material.ambient);
-		m_material.shader->loadFloat("material.diffuse", m_material.diffuse);
-		m_material.shader->loadFloat("material.specular", m_material.specular);
+		m_material.shader->loadFloat4("material.ambient", m_material.ambient);
+		m_material.shader->loadFloat4("material.diffuse", m_material.diffuse);
+		m_material.shader->loadFloat4("material.specular", m_material.specular);
 		m_material.shader->loadFloat("material.shininess", m_material.shininess);
 
 		m_material.shader->loadMatrix("u_modelView", camera.getViewMatrix(), false);
@@ -801,9 +801,9 @@ void Mesh::drawInstanced(const Camera camera) {
 	}else if (m_material.materialID == Material::MaterialID::DIFFUSE) {
 		glUseProgram(m_material.shader->m_program);
 
-		m_material.shader->loadFloat("material.ambient", m_material.ambient);
-		m_material.shader->loadFloat("material.diffuse", m_material.diffuse);
-		m_material.shader->loadFloat("material.specular", m_material.specular);
+		m_material.shader->loadFloat4("material.ambient", m_material.ambient);
+		m_material.shader->loadFloat4("material.diffuse", m_material.diffuse);
+		m_material.shader->loadFloat4("material.specular", m_material.specular);
 		m_material.shader->loadFloat("material.shininess", m_material.shininess);
 
 		m_material.shader->loadMatrix("u_modelView", camera.getViewMatrix(), false);
@@ -818,9 +818,9 @@ void Mesh::drawInstanced(const Camera camera) {
 	}else if (m_material.materialID == Material::MaterialID::NONE_TEXTURE) {
 		glUseProgram(m_material.shader->m_program);
 
-		m_material.shader->loadFloat("material.ambient", m_material.ambient);
-		m_material.shader->loadFloat("material.diffuse", m_material.diffuse);
-		m_material.shader->loadFloat("material.specular", m_material.specular);
+		m_material.shader->loadFloat4("material.ambient", m_material.ambient);
+		m_material.shader->loadFloat4("material.diffuse", m_material.diffuse);
+		m_material.shader->loadFloat4("material.specular", m_material.specular);
 		m_material.shader->loadFloat("material.shininess", m_material.shininess);
 
 		m_material.shader->loadMatrix("u_modelView", camera.getViewMatrix(), false);
@@ -836,9 +836,9 @@ void Mesh::drawInstanced(const Camera camera) {
 	}else if (m_material.materialID == Material::MaterialID::GLOSSY_TEXTURE) {
 		glUseProgram(m_material.shader->m_program);
 
-		m_material.shader->loadFloat("material.ambient", m_material.ambient);
-		m_material.shader->loadFloat("material.diffuse", m_material.diffuse);
-		m_material.shader->loadFloat("material.specular", m_material.specular);
+		m_material.shader->loadFloat4("material.ambient", m_material.ambient);
+		m_material.shader->loadFloat4("material.diffuse", m_material.diffuse);
+		m_material.shader->loadFloat4("material.specular", m_material.specular);
 		m_material.shader->loadFloat("material.shininess", m_material.shininess);
 
 		m_material.shader->loadMatrix("u_modelView", camera.getViewMatrix(), false);
@@ -855,9 +855,9 @@ void Mesh::drawInstanced(const Camera camera) {
 	}else if (m_material.materialID == Material::MaterialID::DIFFUSE_TEXTURE) {
 		glUseProgram(m_material.shader->m_program);
 
-		m_material.shader->loadFloat("material.ambient", m_material.ambient);
-		m_material.shader->loadFloat("material.diffuse", m_material.diffuse);
-		m_material.shader->loadFloat("material.specular", m_material.specular);
+		m_material.shader->loadFloat4("material.ambient", m_material.ambient);
+		m_material.shader->loadFloat4("material.diffuse", m_material.diffuse);
+		m_material.shader->loadFloat4("material.specular", m_material.specular);
 		m_material.shader->loadFloat("material.shininess", m_material.shininess);
 
 		m_material.shader->loadMatrix("u_modelView", camera.getViewMatrix(), false);

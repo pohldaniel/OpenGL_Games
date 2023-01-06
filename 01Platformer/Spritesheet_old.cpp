@@ -43,7 +43,7 @@ SpritesheetOld::SpritesheetOld(std::string pictureFile, unsigned short tileWidth
 Matrix4f SpritesheetOld::calcTileFrameTransform(unsigned short id, float tileScaleX, float tileScaleY, unsigned short tileCountX) {
 	Matrix4f scale = Matrix4f::Scale(tileScaleX, tileScaleY, 0.0f);
 	Matrix4f trans = Matrix4f::Translate((float)(id % tileCountX), (float)(id / tileCountX), 0.0f);
-	return trans * scale;
+	return scale * trans;
 }
 
 unsigned int SpritesheetOld::getTexture() {

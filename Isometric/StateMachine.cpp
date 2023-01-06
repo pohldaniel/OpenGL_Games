@@ -1,7 +1,7 @@
 #include "StateMachine.h"
 
 StateMachine::StateMachine(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fdt) {
-	
+
 	float pointX;
 	float pointY;
 
@@ -9,7 +9,7 @@ StateMachine::StateMachine(const float& dt, const float& fdt) : m_dt(dt), m_fdt(
 	float pointYTrans;
 
 	for (int i = 4; i >= 0; i--) {
-		for (int j = 4; j >= 0; j--) {			
+		for (int j = 4; j >= 0; j--) {
 			pointX = j * 0.5f;
 			pointY = i * 0.5f;
 
@@ -33,7 +33,7 @@ StateMachine::StateMachine(const float& dt, const float& fdt) : m_dt(dt), m_fdt(
 	m_spriteSheet = Globals::spritesheetManager.getAssetPointer("tiles");
 	m_spriteSheet2 = Globals::spritesheetManager.getAssetPointer("tiles2");
 	m_sprites["tile"] = Globals::textureManager.get("tile").getTexture();
-	
+
 
 	glGenTextures(1, &m_frameTexture);
 	glBindTexture(GL_TEXTURE_2D, m_frameTexture);
@@ -49,7 +49,7 @@ StateMachine::StateMachine(const float& dt, const float& fdt) : m_dt(dt), m_fdt(
 	glGenFramebuffers(1, &m_frameBuffer);
 	glBindFramebuffer(GL_FRAMEBUFFER, m_frameBuffer);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_frameTexture, 0);
-	
+
 	// buffer for depth and stencil
 	glGenRenderbuffers(1, &m_rbDepthStencil);
 	glBindRenderbuffer(GL_RENDERBUFFER, m_rbDepthStencil);
@@ -57,18 +57,18 @@ StateMachine::StateMachine(const float& dt, const float& fdt) : m_dt(dt), m_fdt(
 	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_rbDepthStencil);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-	
+
 	m_projection = Matrix4f::GetOrthographic(m_projection, -static_cast<float>(WIDTH) * 0.5f, static_cast<float>(WIDTH) * 0.5f, -static_cast<float>(HEIGHT) * 0.5f, static_cast<float>(HEIGHT)  * 0.5f, -1000.0f, 1000.0f);
 	m_view.lookAt(Vector3f(dist, dist, dist), Vector3f(0.0f, 0.8f, 0.0f), Vector3f(0.0f, 1.0f, 0.0f));
-	
+
 	Matrix4f rot, trans;
-	rot.rotate(Vector3f(1.0, 0.0, 0.0), -90.0f);
+	rot.rotate(Vector3f(1.0, 0.0, 0.0), 90.0f);
 
 	float offsetX2 = m_offsetX;
 	float offsetY2 = 0.5 + (m_offsetY * ((float)TILE_HEIGHT / TILE_WIDTH) * 2.0f);
 
 	trans.translate((offsetX2 - offsetY2) * (TILE_WIDTH * scale + dist), (offsetX2 + offsetY2) * (TILE_WIDTH * scale + dist), 0.0f);
-	m_transform2 = trans * rot;
+	m_transform2 = rot * trans;
 
 	offsetX2 = m_offsetX * TILE_WIDTH * 0.99f;
 	offsetY2 = m_offsetY * (TILE_HEIGHT);
@@ -98,7 +98,8 @@ void StateMachine::addStateAtTop(State* state) {
 void StateMachine::addStateAtBottom(State* state) {
 	if (m_states.empty()) {
 		m_states.push(state);
-	}else {
+	}
+	else {
 		State* temp = m_states.top();
 		m_states.pop();
 		addStateAtBottom(state);
@@ -112,14 +113,15 @@ void StateMachine::fixedUpdate() {
 }
 
 void StateMachine::update() {
-	
+
 	if (!m_states.empty()) {
 		m_states.top()->update();
 		if (!m_states.top()->isRunning()) {
 			delete m_states.top();
 			m_states.pop();
 		}
-	}else {
+	}
+	else {
 		m_isRunning = false;
 	}
 
@@ -127,15 +129,15 @@ void StateMachine::update() {
 		m_offsetX = m_offsetX - 0.1f;
 
 		Matrix4f rot, trans;
-		rot.rotate(Vector3f(1.0, 0.0, 0.0), -90.0f);
-			
+		rot.rotate(Vector3f(1.0, 0.0, 0.0), 90.0f);
+
 		float offsetX2 = m_offsetX;
 		float offsetY2 = 0.5 + (m_offsetY * ((float)TILE_HEIGHT / TILE_WIDTH) * 2.0f);
 
 		trans.translate((offsetX2 - offsetY2) * (TILE_WIDTH * scale + dist), (offsetX2 + offsetY2) * (TILE_WIDTH * scale + dist), 0.0f);
-		m_transform2 = trans * rot;
+		m_transform2 = rot * trans;
 
-		offsetX2 = (m_offsetX) * TILE_WIDTH * 0.99f;
+		offsetX2 = (m_offsetX)* TILE_WIDTH * 0.99f;
 		offsetY2 = m_offsetY * (TILE_HEIGHT);
 
 		trans.translate(offsetX2, offsetY2, 0.0f);
@@ -146,13 +148,13 @@ void StateMachine::update() {
 		m_offsetX = m_offsetX + 0.1f;
 
 		Matrix4f rot, trans;
-		rot.rotate(Vector3f(1.0, 0.0, 0.0), -90.0f);
-		
+		rot.rotate(Vector3f(1.0, 0.0, 0.0), 90.0f);
+
 		float offsetX2 = m_offsetX;
 		float offsetY2 = 0.5 + (m_offsetY * ((float)TILE_HEIGHT / TILE_WIDTH) * 2.0f);
 
 		trans.translate((offsetX2 - offsetY2) * (TILE_WIDTH * scale + dist), (offsetX2 + offsetY2) * (TILE_WIDTH * scale + dist), 0.0f);
-		m_transform2 = trans * rot;
+		m_transform2 = rot * trans;
 
 		offsetX2 = (m_offsetX)* TILE_WIDTH * 0.99f;
 		offsetY2 = m_offsetY * (TILE_HEIGHT);
@@ -165,13 +167,13 @@ void StateMachine::update() {
 		m_offsetY = m_offsetY + 0.1f;
 
 		Matrix4f rot, trans;
-		rot.rotate(Vector3f(1.0, 0.0, 0.0), -90.0f);
+		rot.rotate(Vector3f(1.0, 0.0, 0.0), 90.0f);
 
 		float offsetX2 = m_offsetX;
 		float offsetY2 = 0.5 + (m_offsetY * ((float)TILE_HEIGHT / TILE_WIDTH) * 2.0f);
 
 		trans.translate((offsetX2 - offsetY2) * (TILE_WIDTH * scale + dist), (offsetX2 + offsetY2) * (TILE_WIDTH * scale + dist), 0.0f);
-		m_transform2 = trans * rot;
+		m_transform2 = rot * trans;
 
 		offsetX2 = (m_offsetX)* TILE_WIDTH * 0.99f;
 		offsetY2 = m_offsetY * (TILE_HEIGHT);
@@ -184,13 +186,13 @@ void StateMachine::update() {
 		m_offsetY = m_offsetY - 0.1f;
 
 		Matrix4f rot, trans;
-		rot.rotate(Vector3f(1.0, 0.0, 0.0), -90.0f);
+		rot.rotate(Vector3f(1.0, 0.0, 0.0), 90.0f);
 
 		float offsetX2 = m_offsetX;
 		float offsetY2 = 0.5 + (m_offsetY * ((float)TILE_HEIGHT / TILE_WIDTH) * 2.0f);
 
 		trans.translate((offsetX2 - offsetY2) * (TILE_WIDTH * scale + dist), (offsetX2 + offsetY2) * (TILE_WIDTH * scale + dist), 0.0f);
-		m_transform2 = trans * rot;
+		m_transform2 = rot * trans;
 
 		offsetX2 = (m_offsetX)* TILE_WIDTH * 0.99f;
 		offsetY2 = m_offsetY * (TILE_HEIGHT);
@@ -201,20 +203,20 @@ void StateMachine::update() {
 }
 
 void StateMachine::render() {
-		
+
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	glUseProgram(m_shaderArray->m_program);
-	
+
 	glUseProgram(m_shaderArray->m_program);
 	m_shaderArray->loadInt("u_layer", 1);
-	m_shaderArray->loadMatrix("u_transform", m_transform * m_projection);
+	m_shaderArray->loadMatrix("u_transform", m_projection * m_transform);
 	for (int i = 0; i < m_quads.size(); i++) {
 		m_quads[i]->render(m_spriteSheet2->getAtlas(), true);
 	}
 	glUseProgram(0);
 
 	glUseProgram(m_shader->m_program);
-	m_shader->loadMatrix("u_transform", m_transform2 * m_view * m_projection);
+	m_shader->loadMatrix("u_transform", m_projection * m_view * m_transform2);
 	for (int i = 0; i < m_quads2.size(); i++) {
 		m_quads2[i]->render(m_sprites["tile"]);
 	}
@@ -238,7 +240,7 @@ const bool StateMachine::isRunning() const {
 	return m_isRunning;
 }
 
-State::State(StateMachine& machine, CurrentState currentState) : m_machine(machine), m_dt(machine.m_dt), m_fdt(machine.m_fdt){
+State::State(StateMachine& machine, CurrentState currentState) : m_machine(machine), m_dt(machine.m_dt), m_fdt(machine.m_fdt) {
 	m_currentState = currentState;
 }
 

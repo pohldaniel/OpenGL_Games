@@ -107,15 +107,12 @@ void CharacterControllerCS::render() {
 
 
 #if DEBUGCOLLISION
-	Matrix4f transProj = Globals::projection.transpose();
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	glLoadMatrixf(&transProj[0][0]);
-	Matrix4f transView = ViewEffect::get().getView();
-	transView = transView.transpose();
+	glLoadMatrixf(&Globals::projection[0][0]);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-	glLoadMatrixf(&transView[0][0]);
+	glLoadMatrixf(&ViewEffect::get().getView()[0][0]);
 
 	//if (m_callback.m_hit){
 	/*m_target = m_callback.m_point;

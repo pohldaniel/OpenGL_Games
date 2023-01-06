@@ -29,7 +29,7 @@ void Barnacle::render() {
 
 	//glEnable(GL_BLEND);	
 	glUseProgram(m_shaderArray->m_program);
-	m_shaderArray->loadMatrix("u_transform", m_transform * ViewEffect::get().getView() * Globals::projection);
+	m_shaderArray->loadMatrix("u_transform", Globals::projection * ViewEffect::get().getView() * m_transform);
 	m_shaderArray->loadInt("u_layer", *m_currentFrame);
 	m_quad->render(*m_textureAtlas, true);
 	glUseProgram(0);

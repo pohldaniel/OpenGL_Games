@@ -19,10 +19,9 @@ void Wall::initCollider(const Vector2f& position, const Vector2f& size) {
 
 void Wall::render() {
 	//Debug colider
-	Matrix4f transProj = Globals::projection.transpose();
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	glLoadMatrixf(&transProj[0][0]);
+	glLoadMatrixf(&Globals::projection[0][0]);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	glBegin(GL_QUADS);
 	glColor3f(1, 1, 0);

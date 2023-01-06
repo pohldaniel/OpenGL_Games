@@ -43,48 +43,66 @@ Shader& Shader::get() {
 	return *this;
 }
 
+unsigned int Shader::getUnifromLocation(const std::string& name) const {
+
+	if (m_uniformLocationCache.find(name) != m_uniformLocationCache.end())
+		return m_uniformLocationCache[name];
+
+	unsigned int location = glGetUniformLocation(m_program, name.c_str());
+	m_uniformLocationCache[name] = location;
+	return location;
+}
+
 void Shader::loadMatrix(const char* location, const Matrix4f& matrix, bool trans) {
-	glUniformMatrix4fv(glGetUniformLocation(m_program, location), 1, trans, &matrix[0][0]);
+	glUniformMatrix4fv(getUnifromLocation(location), 1, trans, &matrix[0][0]);
 }
 
 void Shader::loadMatrixArray(const char* location, const std::vector<Matrix4f> matrixArray, const unsigned short count, bool trans) {
-	glUniformMatrix4fv(glGetUniformLocation(m_program, location), count, trans, matrixArray[0][0]);
+	glUniformMatrix4fv(getUnifromLocation(location), count, trans, matrixArray[0][0]);
 }
 
 void Shader::loadVector(const char* location, Vector4f vector) {
-	glUniform4fv(glGetUniformLocation(m_program, location), 1, &vector[0]);
+	glUniform4fv(getUnifromLocation(location), 1, &vector[0]);
 }
 
 void Shader::loadVector(const char* location, Vector3f vector) {
-	glUniform3fv(glGetUniformLocation(m_program, location), 1, &vector[0]);
+	glUniform3fv(getUnifromLocation(location), 1, &vector[0]);
 }
 
 void Shader::loadVector(const char* location, Vector2f vector) {
-	glUniform2fv(glGetUniformLocation(m_program, location), 1, &vector[0]);
+	glUniform2fv(getUnifromLocation(location), 1, &vector[0]);
 }
 
 void Shader::loadFloat(const char* location, float value) {
-	glUniform1f(glGetUniformLocation(m_program, location), value);
+	glUniform1f(getUnifromLocation(location), value);
 }
 
-void Shader::loadFloat(const char* location, float value[4]) {
-	glUniform4f(glGetUniformLocation(m_program, location), value[0], value[1], value[2], value[3]);
+void Shader::loadFloat2(const char* location, float value[2]) {
+	glUniform2f(getUnifromLocation(location), value[0], value[1]);
+}
+
+void Shader::loadFloat3(const char* location, float value[3]) {
+	glUniform1fv(getUnifromLocation(location), 3, value);
+}
+
+void Shader::loadFloat4(const char* location, float value[4]) {
+	glUniform4f(getUnifromLocation(location), value[0], value[1], value[2], value[3]);
 }
 
 void Shader::loadFloatArray(const char* location, float *value, const unsigned short count) {
-	glUniform1fv(glGetUniformLocation(m_program, location), count, value);
+	glUniform1fv(getUnifromLocation(location), count, value);
 }
 
 void Shader::loadInt(const char* location, int value) {
-	glUniform1i(glGetUniformLocation(m_program, location), value);
+	glUniform1i(getUnifromLocation(location), value);
 }
 
 void Shader::loadUnsignedInt(const char* location, unsigned int value) {
-	glUniform1ui(glGetUniformLocation(m_program, location), value);
+	glUniform1ui(getUnifromLocation(location), value);
 }
 
 void Shader::loadBool(const char* location, bool value) {
-	glUniform1i(glGetUniformLocation(m_program, location), value);
+	glUniform1i(getUnifromLocation(location), value);
 }
 
 GLuint Shader::createProgramFromFile(std::string vertex, std::string fragment) {

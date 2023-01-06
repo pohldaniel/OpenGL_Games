@@ -42,7 +42,7 @@ void Light::setOrigin(const Vector2f &origin) {
 
 void Light::render() const {
 	glUseProgram(m_shader->m_program);
-	m_shader->loadMatrix("u_transform", m_transform * Globals::projection);
+	m_shader->loadMatrix("u_transform", Globals::projection * m_transform);
 	m_shader->loadFloat("u_move", m_move);
 	m_quad->render();
 	glUseProgram(0);

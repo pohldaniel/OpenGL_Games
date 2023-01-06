@@ -9,7 +9,7 @@ IsoMap::~IsoMap() {}
 
 void IsoMap::render(Matrix4f& transform) {
 	glUseProgram(m_shaderLevel->m_program);
-	m_shaderLevel->loadMatrix("u_transform", transform * Globals::projection);
+	m_shaderLevel->loadMatrix("u_transform", Globals::projection * transform);
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D_ARRAY, m_spriteSheet->getAtlas());
 	glBindVertexArray(m_vao);

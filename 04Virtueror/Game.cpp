@@ -107,7 +107,7 @@ void Game::CenterCameraOverCell(int row, int col) {
 void Game::HandleSelectionClick(Event::MouseButtonEvent& event) {
 	float cursorPosNDCX = (2.0f * event.x) / (float)WIDTH - 1.0f;
 	float cursorPosNDCY = 1.0f - (2.0f * event.y) / (float)HEIGHT;
-	Vector4f m_cursorPosEye = Globals::invProjection * Vector4f(cursorPosNDCX, cursorPosNDCY, -1.0f, 1.0f);
+	Vector4f m_cursorPosEye = Vector4f(cursorPosNDCX, cursorPosNDCY, -1.0f, 1.0f) ^ Globals::invProjection;
 
 	const Camera * cam = m_camController->GetCamera();
 	const int worldX = cam->GetScreenToWorldX(m_cursorPosEye[0]);
@@ -160,7 +160,7 @@ void Game::HandleActionClick(Event::MouseButtonEvent& event){
 	
 	float cursorPosNDCX = (2.0f * event.x) / (float)WIDTH - 1.0f;
 	float cursorPosNDCY = 1.0f - (2.0f * event.y) / (float)HEIGHT;
-	Vector4f m_cursorPosEye = Globals::invProjection * Vector4f(cursorPosNDCX, cursorPosNDCY, -1.0f, 1.0f);
+	Vector4f m_cursorPosEye = Vector4f(cursorPosNDCX, cursorPosNDCY, -1.0f, 1.0f) ^ Globals::invProjection;
 
 	const Camera * cam = m_camController->GetCamera();
 	const int worldX = cam->GetScreenToWorldX(m_cursorPosEye[0]);

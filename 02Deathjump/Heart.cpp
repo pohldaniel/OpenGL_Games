@@ -102,7 +102,7 @@ void Heart::render(float deltaTime) {
 	glUseProgram(0);
 
 	glUseProgram(m_shaderArray->m_program);
-	m_shaderArray->loadMatrix("u_transform", m_transform * Globals::projection);
+	m_shaderArray->loadMatrix("u_transform", Globals::projection * m_transform);
 	m_shaderArray->loadInt("u_layer", *m_currentFrame);
 	m_shaderArray->loadVector("u_blendColor", m_blendColor);
 	m_quad->render(*m_textureAtlas, true);
@@ -110,10 +110,9 @@ void Heart::render(float deltaTime) {
 	glDisable(GL_BLEND);
 
 	#if DEBUGCOLLISION
-	Matrix4f transProj = Globals::projection.transpose();
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	glLoadMatrixf(&transProj[0][0]);
+	glLoadMatrixf(&Globals::projection[0][0]);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	glBegin(GL_QUADS);
 	glColor3f(1, 1, 0);
