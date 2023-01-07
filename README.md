@@ -18,3 +18,5 @@ The project 04Virtueror will be a refactoring of https://github.com/vivaladav/is
 The project 06Voyager needs some assets (Woman.gltf, Woman.png) from https://github.com/gszauer/GameAnimationProgramming I am pretty sure there is a Copyright on it. By my own I managed the basics of "Additive Animation Blending" following the source of Chapter 12 from this repository but using Assimp as model loader.
 
 The project 07Dawn will be a refactoring of https://github.com/iamCode/Dawn using modern OpenGL and batchrendering. Finally the core engine is running, becareful at the moment the code is full of memoryleaks.
+
+The project 08Decals_texture is based on https://github.com/diharaw/texture-space-decals.
