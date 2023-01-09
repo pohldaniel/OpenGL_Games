@@ -71,8 +71,8 @@ private:
 	static EventDispatcher& s_eventDispatcher;
 	static HGLRC MainContext;
 	static HGLRC LoaderContext;
+
 	static HWND Window;
-	
 	static bool Init;
 	static unsigned int Width;
 	static unsigned int Height;

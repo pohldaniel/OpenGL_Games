@@ -116,11 +116,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libopenal", "libopenal\libo
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "openal", "openal\openal.vcxproj", "{2960C69F-C728-452D-A08F-42A7436567FE}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "08Decals_texture", "08Decals_texture\08Decals_texture.vcxproj", "{725AE08F-6A32-4D7A-A359-96716B96DD3D}"
-	ProjectSection(ProjectDependencies) = postProject
-		{8376EB68-6E32-483B-A918-190832C7C7CB} = {8376EB68-6E32-483B-A918-190832C7C7CB}
-		{3EDA72B4-0BF1-4D04-ADE4-B6ED77CDB985} = {3EDA72B4-0BF1-4D04-ADE4-B6ED77CDB985}
-	EndProjectSection
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "08Decals", "08Decals\08Decals.vcxproj", "{725AE08F-6A32-4D7A-A359-96716B96DD3D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

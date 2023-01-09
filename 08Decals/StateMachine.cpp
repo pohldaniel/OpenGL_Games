@@ -1,4 +1,5 @@
 #include "StateMachine.h"
+#include "Application.h"
 
 StateMachine::StateMachine(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fdt) {
 
@@ -11,7 +12,7 @@ StateMachine::StateMachine(const float& dt, const float& fdt) : m_dt(dt), m_fdt(
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, Globals::width, Globals::height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, Application::Width, Application::Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 	glBindTexture(GL_TEXTURE_2D, 0);
 
 	glGenFramebuffers(1, &m_frameBuffer);
@@ -21,7 +22,7 @@ StateMachine::StateMachine(const float& dt, const float& fdt) : m_dt(dt), m_fdt(
 	// buffer for depth and stencil
 	glGenRenderbuffers(1, &m_rbDepthStencil);
 	glBindRenderbuffer(GL_RENDERBUFFER, m_rbDepthStencil);
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, Globals::width, Globals::height);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, Application::Width, Application::Height);
 	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_rbDepthStencil);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
@@ -32,7 +33,6 @@ StateMachine::~StateMachine() {
 }
 
 void StateMachine::resize(unsigned int width, unsigned int height) {
-
 	glBindTexture(GL_TEXTURE_2D, m_frameTexture);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 	glBindTexture(GL_TEXTURE_2D, 0);
@@ -50,7 +50,8 @@ State* StateMachine::addStateAtTop(State* state) {
 void StateMachine::addStateAtBottom(State* state) {
 	if (m_states.empty()) {
 		m_states.push(state);
-	}else {
+	}
+	else {
 		State* temp = m_states.top();
 		m_states.pop();
 		addStateAtBottom(state);
@@ -77,28 +78,21 @@ void StateMachine::update() {
 }
 
 void StateMachine::render() {
-	if (!m_states.empty()) {
-		//glPolygonMode(GL_FRONT_AND_BACK, Globals::enableWireframe ? GL_LINE : GL_FILL);
-		m_states.top()->render();
-		//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	}
-}
-
-
-void StateMachine::renderPostprocess() {
-	if (!m_states.empty()) {
+	
+	if (!m_states.empty()) {	
 		glPolygonMode(GL_FRONT_AND_BACK, Globals::enableWireframe ? GL_LINE : GL_FILL);
-		glBindFramebuffer(GL_FRAMEBUFFER, m_frameBuffer);
-		m_states.top()->render();
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		m_states.top()->render(m_frameBuffer);
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);		
 	}
-
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT);
+	
+	glClearColor(0.3f, 0.5f, 0.9f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+	//glEnable(GL_BLEND);
 	glUseProgram(m_shader->m_program);
+	m_shader->loadMatrix("u_transform", Matrix4f::IDENTITY);
 	m_quad->render(m_frameTexture);
 	glUseProgram(0);
+	//glDisable(GL_BLEND);	
 }
 
 void StateMachine::clearAndPush(State* state) {
@@ -117,14 +111,6 @@ const bool StateMachine::isRunning() const {
 	return m_isRunning;
 }
 
-void StateMachine::toggleWireframe() {
-	Globals::enableWireframe = !Globals::enableWireframe;
-}
-
-void StateMachine::stopTop() {
-	m_states.top()->stop();
-}
-
 State::State(StateMachine& machine, CurrentState currentState) : m_machine(machine), m_dt(machine.m_dt), m_fdt(machine.m_fdt) {
 	m_currentState = currentState;
 }
@@ -134,8 +120,4 @@ State::~State() {
 
 const bool State::isRunning() const {
 	return m_isRunning;
-}
-
-const void State::stop() {
-	m_isRunning = false;
 }
