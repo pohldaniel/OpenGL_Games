@@ -82,6 +82,8 @@ public:
 	void combinerPass();
 	void renderDeferred();
 
+	void runInvertFilter(GLuint inputTex, GLuint outputTex, int width, int height);
+
 	Camera m_camera;
 	SkyBox m_skybox;
 	AssimpModel m_teapot;
@@ -120,7 +122,8 @@ public:
 	Quad *m_leftTop;
 	Quad *m_rightTop;
 	Quad *m_quad;
-	bool m_debug =false;
+	bool m_debug = false;
+	bool m_useFilter = false;
 
 	std::vector<float> m_vertices;
 	unsigned int m_vbo, m_vao;

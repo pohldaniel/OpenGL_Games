@@ -37,6 +37,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	std::cout << "n                : fade day night" << std::endl;
 	std::cout << "c                : clear decals" << std::endl;
 	std::cout << "m                : switch rendermode" << std::endl;
+	std::cout << "i                : invert texture" << std::endl;
+	std::cout << "alt + enter : fullscreen" << std::endl;
 	#endif
 	
 	Globals::physics = new Physics(PHYSICS_STEP);
@@ -59,7 +61,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	while (application.isRunning()) {
 		physicsElapsedTime += deltaTime;
 		while (physicsElapsedTime > PHYSICS_STEP) {
-			fixedDeltaTime = fixedDeltaClock.restartSec();
+			fixedDeltaTime = fixedDeltaClock.resetSec();
 			if (fixedDeltaTime > PHYSICS_STEP * 5.0f)
 				fixedDeltaTime = PHYSICS_STEP;
 
@@ -71,7 +73,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		application.render();
 
 
-		deltaTime = deltaClock.restartSec();
+		deltaTime = deltaClock.resetSec();
 
 		#if DEBUG
 		framesTime += deltaTime;

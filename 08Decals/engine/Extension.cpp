@@ -753,8 +753,36 @@ extern void glSamplerParameteri(GLuint sampler, GLenum pname, GLint param) {
 }
 
 extern void glBindSampler(GLuint unit, GLuint sampler) {
-	typedef void(APIENTRY * PFN´GLBINDSAMPLERPROC)(GLuint unit, GLuint sampler);
-	static PFN´GLBINDSAMPLERPROC glBindSampler = 0;
-	LOAD_ENTRYPOINT("glBindSampler", glBindSampler, PFN´GLBINDSAMPLERPROC);
+	typedef void(APIENTRY * PFNGLBINDSAMPLERPROC)(GLuint unit, GLuint sampler);
+	static PFNGLBINDSAMPLERPROC glBindSampler = 0;
+	LOAD_ENTRYPOINT("glBindSampler", glBindSampler, PFNGLBINDSAMPLERPROC);
 	glBindSampler(unit, sampler);
+}
+
+extern void glTexStorage2D(GLenum target, GLsizei levels, GLenum internalformat, GLsizei width, GLsizei height) {
+	typedef void(APIENTRY * PFNGLTEXSTORAGE2DPROC)(GLenum target, GLsizei levels, GLenum internalformat, GLsizei width, GLsizei height);
+	static PFNGLTEXSTORAGE2DPROC glTexStorage2D = 0;
+	LOAD_ENTRYPOINT("glTexStorage2D", glTexStorage2D, PFNGLTEXSTORAGE2DPROC);
+	glTexStorage2D(target, levels, internalformat, width, height);
+}
+
+extern void glTextureStorage2D(GLuint texture, GLsizei levels, GLenum internalformat, GLsizei width, GLsizei height) {
+	typedef void(APIENTRY * PFNGLTEXTURESTORAGE2DPROC)(GLuint texture, GLsizei levels, GLenum internalformat, GLsizei width, GLsizei height);
+	static PFNGLTEXTURESTORAGE2DPROC glTextureStorage2D = 0;
+	LOAD_ENTRYPOINT("glTextureStorage2D", glTextureStorage2D, PFNGLTEXTURESTORAGE2DPROC);
+	glTextureStorage2D(texture, levels, internalformat, width, height);
+}
+
+extern void glDispatchCompute(GLuint num_groups_x, GLuint num_groups_y, GLuint num_groups_z) {
+	typedef void(APIENTRY * PFNGLDISPATCHCOMPUTEPROC)(GLuint num_groups_x, GLuint num_groups_y, GLuint num_groups_z);
+	static PFNGLDISPATCHCOMPUTEPROC glDispatchCompute = 0;
+	LOAD_ENTRYPOINT("glDispatchCompute", glDispatchCompute, PFNGLDISPATCHCOMPUTEPROC);
+	glDispatchCompute(num_groups_x, num_groups_y, num_groups_z);
+}
+
+extern void glMemoryBarrier(GLbitfield barriers) {
+	typedef void(APIENTRY * PFNGLMEMORYBARRIERPROC)(GLbitfield barriers);
+	static PFNGLMEMORYBARRIERPROC glMemoryBarrier = 0;
+	LOAD_ENTRYPOINT("glMemoryBarrier", glMemoryBarrier, PFNGLMEMORYBARRIERPROC);
+	glMemoryBarrier(barriers);
 }

@@ -79,6 +79,7 @@ extern "C" {
 #define GL_VERTEX_SHADER                  0x8B31
 #define GL_FRAGMENT_SHADER                0x8B30
 #define GL_GEOMETRY_SHADER				  0x8DD9
+#define GL_COMPUTE_SHADER				  0x91B9
 #define GL_RENDERBUFFER                   0x8D41
 
 	extern void glAttachShader(GLuint program, GLuint shader);
@@ -204,6 +205,7 @@ extern "C" {
 #define GL_GPU_MEM_INFO_TOTAL_AVAILABLE_MEM_NVX 0x9048
 #define GL_GPU_MEM_INFO_CURRENT_AVAILABLE_MEM_NVX 0x9049
 #define GL_TEXTURE_DEPTH 0x8071
+#define GL_SHADER_IMAGE_ACCESS_BARRIER_BIT 0x00000020
 
 	extern void glActiveTextureARB(GLenum texture);
 	extern void glMultiTexCoord2fARB(GLenum target, GLfloat s, GLfloat t);
@@ -250,6 +252,12 @@ extern "C" {
 	extern void glSamplerParameterf(GLuint sampler, GLenum pname, GLfloat param);
 	extern void glSamplerParameteri(GLuint sampler, GLenum pname, GLint param);
 	extern void glBindSampler(GLuint unit, GLuint sampler);
+
+	extern void glTexStorage2D(GLenum target, GLsizei levels, GLenum internalformat, GLsizei width, GLsizei height);
+	extern void glTextureStorage2D(GLuint texture, GLsizei levels, GLenum internalformat, GLsizei width, GLsizei height);
+
+	extern void glDispatchCompute(GLuint num_groups_x, GLuint num_groups_y, GLuint num_groups_z);
+	extern void glMemoryBarrier(GLbitfield barriers);
 
 } // extern "C"
 #endif

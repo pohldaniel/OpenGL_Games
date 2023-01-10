@@ -17,6 +17,7 @@ public:
 	Shader() = default;
 	Shader(std::string vertex, std::string fragment, bool fromFile = true);
 	Shader(std::string vertex, std::string fragment, std::string geometry, bool fromFile = true);
+	Shader(std::string compute, bool fromFile = true);
 	Shader(Shader* shader);
 	~Shader();
 
@@ -24,6 +25,8 @@ public:
 	void loadFromResource(std::string vertex, std::string fragment);
 	void loadFromFile(std::string vertex, std::string fragment, std::string geometry);
 	void loadFromResource(std::string vertex, std::string fragment, std::string geometry);
+	void loadFromFile(std::string compute);
+	void loadFromResource(std::string compute);
 	Shader& get();
 
 	void loadMatrix(const char* location, const Matrix4f& matrix, bool trans = false);
@@ -49,6 +52,8 @@ protected:
 	GLuint createProgram(std::string vertex, std::string fragment);
 	GLuint createProgramFromFile(std::string vertex, std::string fragment, std::string geometry);
 	GLuint createProgram(std::string vertex, std::string fragment, std::string geometry);
+	GLuint createProgramFromFile(std::string compute);
+	GLuint createProgram(std::string compute);
 
 	void readTextFile(const char *pszFilename, std::string &buffer);
 	GLuint loadShaderProgram(GLenum type, const char *pszFilename);
@@ -56,6 +61,7 @@ protected:
 	GLuint compileShader(GLenum type, const char *pszSource);
 	GLuint linkShaders(GLuint vertShader, GLuint fragShader);
 	GLuint linkShaders(GLuint vertShader, GLuint fragShader, GLuint geoShader);
+	GLuint linkShaders(GLuint compShader);
 	void cleanup();
 
 private:

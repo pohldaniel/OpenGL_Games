@@ -400,15 +400,22 @@ void Application::loadAssets() {
 	Globals::shaderManager.loadShader("combiner", "res/shader/deferred/combiner.vs", "res/shader/deferred/combiner.fs");
 	Globals::shaderManager.loadShader("deferred", "res/shader/deferred/deferred.vs", "res/shader/deferred/deferred.fs");
 
+	Globals::shaderManager.loadShader("invert", "res/shader/compute/invert.cs");
+
 	Globals::textureManager.createNullTexture("null");
 	Globals::textureManager.createNullTexture("grey", 2, 2, 128);
 	Globals::textureManager.loadTexture("boots", "res/textures/Boots1.tga", true);
 
-	Globals::textureManager.loadTexture("decal", "res/textures/Decal_04_Albedo.tga", true);
-	Globals::textureManager.loadTexture("decal_n", "res/textures/Decal_04_Normal.png", true);
+	Globals::textureManager.loadTexture("decal", "res/textures/Decal_00_Albedo.tga", true);
+	Globals::textureManager.loadTexture("decal_n", "res/textures/Decal_00_Normal.png", true);
+	Globals::textureManager.get("decal").setLinear();
+	Globals::textureManager.get("decal").setRepeat();
+	Globals::textureManager.get("decal_n").setLinear();
+	Globals::textureManager.get("decal_n").setRepeat();
 
 	Globals::textureManager.loadTexture("stone", "res/textures/Stylized_Stone_Floor_005_basecolor.jpg", true);
 	Globals::textureManager.loadTexture("stone_normal", "res/textures/Stylized_Stone_Floor_005_normal.jpg", true);
+	Globals::textureManager.get("stone").addAlphaChannel(0);
 	Globals::textureManager.get("stone").setLinear();
 	Globals::textureManager.get("stone").setRepeat();
 	Globals::textureManager.get("stone_normal").setLinear();

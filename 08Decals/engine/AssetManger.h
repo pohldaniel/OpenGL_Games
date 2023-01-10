@@ -2,19 +2,20 @@
 #include <unordered_map>
 #include <string>
 #include <iostream>
+
 template<typename T>
 class AssetManager {
 public:
 
-	void loadTexture(const std::string& name, const std::string& path, const bool flipVertical = true, unsigned int format = -1) {
-		m_assets[name].loadFromFile(path, flipVertical, format);
+	void loadTexture(const std::string& name, const std::string& path, const bool flipVertical = true, unsigned int internalFormat = 0, unsigned int format = 0) {
+		m_assets[name].loadFromFile(path, flipVertical, internalFormat, format);
 	}
 
-	void loadTexture(const std::string& name, const std::string& path, unsigned short tileWidth, unsigned short tileHeight, unsigned short spacing, unsigned int posY, unsigned int posX, const bool flipVertical = true, unsigned int format = -1) {
+	void loadTexture(const std::string& name, const std::string& path, unsigned short tileWidth, unsigned short tileHeight, unsigned short spacing, unsigned int posY, unsigned int posX, const bool flipVertical = true, unsigned int format = 0) {
 		m_assets[name].loadFromFile(path, tileWidth, tileHeight, spacing, posY, posX, flipVertical, format);
 	}
 
-	void loadTexture(const std::string& name, const std::string& path, unsigned int offsetX, unsigned int offsetY, unsigned int width, unsigned int height, const bool flipVertical = true, unsigned int format = -1) {
+	void loadTexture(const std::string& name, const std::string& path, unsigned int offsetX, unsigned int offsetY, unsigned int width, unsigned int height, const bool flipVertical = true, unsigned int format = 0) {
 		m_assets[name].loadFromFile(path, offsetX, offsetY, width, height, flipVertical, format);
 	}
 
@@ -24,6 +25,10 @@ public:
 
 	void createPerlinTexture(const std::string& name, unsigned int width = 2, unsigned int height = 2, unsigned int seed = 0) {
 		m_assets[name].createPerlinTexture(width, height, seed);
+	}
+
+	void createEmptyTexture(const std::string& name, unsigned int width, unsigned int height, unsigned int internalFormat = 0, unsigned int format = 0, unsigned int type = 0) {
+		m_assets[name].createEmptyTexture(width, height, internalFormat, format, type);
 	}
 
 	void loadCharacterSet(const std::string& name, const std::string& path, const float characterSize) {
@@ -40,12 +45,20 @@ public:
 		m_assetPointer[name] = new T(vertex, fragment, geometry, true);
 	}
 
+	void loadShader(const std::string& name, const std::string& compute) {
+		m_assetPointer[name] = new T(compute, true);
+	}
+
 	void loadShaderFromString(const std::string& name, const std::string& vertex, const std::string& fragment) {
 		m_assetPointer[name] = new T(vertex, fragment, false);
 	}
 
 	void loadShaderFromString(const std::string& name, const std::string& vertex, const std::string& fragment, const std::string& geometry) {
 		m_assetPointer[name] = new T(vertex, fragment, geometry, false);
+	}
+
+	void loadShaderFromString(const std::string& name, const std::string& compute) {
+		m_assetPointer[name] = new T(compute, false);
 	}
 
 	void loadSpritesheet(const std::string& name, const std::string& path, unsigned short tileWidth, unsigned short tileHeight, unsigned short spacing, unsigned int yStart, unsigned int xStart, unsigned int xLength, unsigned int format = -1) {

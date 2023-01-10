@@ -14,6 +14,13 @@ Shader::Shader(std::string vertex, std::string fragment, std::string geometry, b
 		m_program = createProgram(vertex, fragment, geometry);
 }
 
+Shader::Shader(std::string compute, bool fromFile) {
+	if (fromFile)
+		m_program = createProgramFromFile(compute);
+	else
+		m_program = createProgram(compute);
+}
+
 Shader::Shader(Shader* shader) {
 	m_program = shader->m_program;
 }
@@ -38,6 +45,13 @@ void Shader::loadFromResource(std::string vertex, std::string fragment, std::str
 	m_program = createProgram(vertex, fragment, geometry);
 }
 
+void  Shader::loadFromFile(std::string compute) {
+	m_program = createProgram(compute);
+}
+
+void  Shader::loadFromResource(std::string compute) {
+	m_program = createProgram(compute);
+}
 
 Shader& Shader::get() {
 	return *this;
@@ -129,6 +143,16 @@ GLuint Shader::createProgram(std::string vertex, std::string fragment, std::stri
 	GLuint fshader = loadShaderProgram(GL_FRAGMENT_SHADER, fragment);
 	GLuint gshader = loadShaderProgram(GL_GEOMETRY_SHADER, geometry);
 	return linkShaders(vshader, fshader, gshader);
+}
+
+GLuint Shader::createProgramFromFile(std::string compute) {
+	GLuint cshader = loadShaderProgram(GL_COMPUTE_SHADER, compute.c_str());
+	return linkShaders(cshader);
+}
+
+GLuint Shader::createProgram(std::string compute) {
+	GLuint cshader = loadShaderProgram(GL_COMPUTE_SHADER, compute);
+	return linkShaders(cshader);
 }
 
 
@@ -275,6 +299,41 @@ GLuint Shader::linkShaders(GLuint vertShader, GLuint fragShader, GLuint geoShade
 
 		if (geoShader)
 			glDeleteShader(geoShader);
+
+	}
+	return program;
+}
+
+GLuint Shader::linkShaders(GLuint compShader) {
+
+	GLuint program = glCreateProgram();
+
+	if (program) {
+		GLint linked = 0;
+
+		if (compShader)
+			glAttachShader(program, compShader);
+
+		glLinkProgram(program);
+
+		glGetProgramiv(program, GL_LINK_STATUS, &linked);
+
+		if (!linked) {
+			GLsizei infoLogSize = 0;
+			std::string infoLog;
+
+			glGetShaderiv(program, GL_INFO_LOG_LENGTH, &infoLogSize);
+			infoLog.resize(infoLogSize);
+			glGetShaderInfoLog(program, infoLogSize, &infoLogSize, &infoLog[0]);
+			std::cout << "Compile status: \n" << &infoLog << std::endl;
+		}
+
+		// Mark the two attached shaders for deletion. These two shaders aren't
+		// deleted right now because both are already attached to a shader
+		// program. When the shader program is deleted these two shaders will
+		// be automatically detached and deleted.
+		if (compShader)
+			glDeleteShader(compShader);
 
 	}
 	return program;

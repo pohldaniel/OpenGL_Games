@@ -132,6 +132,13 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_skybox
 
 	m_finalBuffer.create(Application::Width, Application::Height);
 	m_finalBuffer.attachTexture(Framebuffer::Attachments::RGBA);
+
+	Globals::textureManager.createEmptyTexture("destination", 
+												Globals::textureManager.get("stone").getWidth(),
+												Globals::textureManager.get("stone").getHeight(),
+												Globals::textureManager.get("stone").getInternalFormat(),
+												Globals::textureManager.get("stone").getFormat(),
+												Globals::textureManager.get("stone").getType());
 }
 
 Game::~Game() {}
@@ -190,6 +197,10 @@ void Game::update() {
 
 	if (keyboard.keyPressed(Keyboard::KEY_T)) {
 		m_debug = !m_debug;
+	}
+
+	if (keyboard.keyPressed(Keyboard::KEY_I)) {
+		m_useFilter = !m_useFilter;
 	}
 
 	if (keyboard.keyPressed(Keyboard::KEY_M)) {
@@ -315,6 +326,8 @@ void Game::update() {
 
 
 void Game::render(unsigned int &frameBuffer) {
+	if(m_useFilter)
+		runInvertFilter(Globals::textureManager.get("stone").getTexture(), Globals::textureManager.get("destination").getTexture(), Globals::textureManager.get("stone").getWidth(), Globals::textureManager.get("stone").getHeight());
 
 	if (renderMode == RenderMode::TEXTURE)
 		shdowPass();
@@ -325,7 +338,7 @@ void Game::render(unsigned int &frameBuffer) {
 		combinerPass();
 		renderDeferred();
 	}
-
+	
 	glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
 
 	glClearColor(1.0f, 0.5f, 0.5f, 1.0f);
@@ -551,7 +564,7 @@ void Game::renderGBuffer() {
 	shader->loadMatrix("u_view", m_camera.getViewMatrix());
 
 	shader->loadInt("s_Albedo", 0);
-	Globals::textureManager.get("stone").bind(0);
+	m_useFilter ? Globals::textureManager.get("destination").bind(0) : Globals::textureManager.get("stone").bind(0);
 
 	shader->loadInt("s_Normal", 1);
 	Globals::textureManager.get("stone_normal").bind(1);
@@ -670,6 +683,22 @@ void Game::renderDeferred() {
 	glUseProgram(0);
 
 	m_finalBuffer.unbind();
+}
+
+void Game::runInvertFilter(GLuint inputTex, GLuint outputTex, int width, int height) {
+	
+	auto shader = Globals::shaderManager.getAssetPointer("invert");
+	glUseProgram(shader->m_program);
+
+	glBindImageTexture(0, inputTex, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA8);
+	glBindImageTexture(1, outputTex, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA8);
+
+	glDispatchCompute(width / 16, height / 16, 1);
+
+	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+
+	glUseProgram(0);
+
 }
 
 void Game::resize(int deltaW, int deltaH) {
