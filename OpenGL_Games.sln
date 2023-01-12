@@ -122,6 +122,12 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "08Decals", "08Decals\08Deca
 		{3EDA72B4-0BF1-4D04-ADE4-B6ED77CDB985} = {3EDA72B4-0BF1-4D04-ADE4-B6ED77CDB985}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "09HDRBloom", "09HDRBloom\09HDRBloom.vcxproj", "{9CEBACBA-4FD5-43CB-B3D1-912975E86F63}"
+	ProjectSection(ProjectDependencies) = postProject
+		{8376EB68-6E32-483B-A918-190832C7C7CB} = {8376EB68-6E32-483B-A918-190832C7C7CB}
+		{3EDA72B4-0BF1-4D04-ADE4-B6ED77CDB985} = {3EDA72B4-0BF1-4D04-ADE4-B6ED77CDB985}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -402,6 +408,14 @@ Global
 		{725AE08F-6A32-4D7A-A359-96716B96DD3D}.Release|x64.Build.0 = Release|x64
 		{725AE08F-6A32-4D7A-A359-96716B96DD3D}.Release|x86.ActiveCfg = Release|Win32
 		{725AE08F-6A32-4D7A-A359-96716B96DD3D}.Release|x86.Build.0 = Release|Win32
+		{9CEBACBA-4FD5-43CB-B3D1-912975E86F63}.Debug|x64.ActiveCfg = Debug|x64
+		{9CEBACBA-4FD5-43CB-B3D1-912975E86F63}.Debug|x64.Build.0 = Debug|x64
+		{9CEBACBA-4FD5-43CB-B3D1-912975E86F63}.Debug|x86.ActiveCfg = Debug|Win32
+		{9CEBACBA-4FD5-43CB-B3D1-912975E86F63}.Debug|x86.Build.0 = Debug|Win32
+		{9CEBACBA-4FD5-43CB-B3D1-912975E86F63}.Release|x64.ActiveCfg = Release|x64
+		{9CEBACBA-4FD5-43CB-B3D1-912975E86F63}.Release|x64.Build.0 = Release|x64
+		{9CEBACBA-4FD5-43CB-B3D1-912975E86F63}.Release|x86.ActiveCfg = Release|Win32
+		{9CEBACBA-4FD5-43CB-B3D1-912975E86F63}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

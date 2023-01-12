@@ -19,6 +19,7 @@ class Vector2f {
 
 	friend Vector2f operator-(const Vector2f &v);
 	friend bool operator ==(Vector2f lhs, Vector2f rhs);
+
 public:
 	Vector2f();
 	Vector2f(float x_, float y_);
@@ -42,7 +43,8 @@ public:
 
 	Vector2f operator*(float scalar) const;
 	Vector2f operator/(float scalar) const;
-
+	Vector2f &operator*=(float scalar);
+	Vector2f &operator/=(float scalar);
 private:
 
 	float vec[2];

@@ -19,7 +19,8 @@ public:
 	void rotate(const Vector3f &axis, float degrees);
 	void translate(float dx, float dy, float dz);
 	void scale(float a, float b, float c);
-	
+	void reset();
+
 	void fromMatrix(const Matrix4f &m);
 	void fromMatrix(const Matrix4f &m, const Vector3f& startPosition);
 

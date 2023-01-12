@@ -9,6 +9,14 @@ Transform::Transform() {
 	startPosition = Vector3f(0.0, 0.0, 0.0);
 }
 
+void Transform::reset() {
+	pos = false;
+	T.identity();
+	invT.identity();
+
+	startPosition = Vector3f(0.0, 0.0, 0.0);
+}
+
 Transform::Transform(const Matrix4f &m) {
 	fromMatrix(m);
 }

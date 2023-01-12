@@ -206,6 +206,7 @@ extern "C" {
 #define GL_GPU_MEM_INFO_CURRENT_AVAILABLE_MEM_NVX 0x9049
 #define GL_TEXTURE_DEPTH 0x8071
 #define GL_SHADER_IMAGE_ACCESS_BARRIER_BIT 0x00000020
+#define GL_R11F_G11F_B10F 0x8C3A
 
 	extern void glActiveTextureARB(GLenum texture);
 	extern void glMultiTexCoord2fARB(GLenum target, GLfloat s, GLfloat t);

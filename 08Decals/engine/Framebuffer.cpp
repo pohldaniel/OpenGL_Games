@@ -61,8 +61,44 @@ void Framebuffer::attachTexture(Attachments attachments) {
 		std::get<2>(m_resizeTexture[m_colorTextureAttachments - 1]) = type;
 
 		break;
+	case Framebuffer::RGBA16F:
+		internalFormat = GL_RGBA16F;
+		format = GL_RGBA;
+		type = GL_FLOAT;
+		m_colorAttachments++;
+		m_colorTextureAttachments++;
+
+		m_colorTextures.push_back(tex);
+		texture = &m_colorTextures[m_colorTextureAttachments - 1];
+
+		m_attachments.push_back(GL_COLOR_ATTACHMENT0 + (m_colorAttachments - 1));
+
+		m_resizeTexture.push_back(std::tuple<unsigned int, unsigned int, unsigned int>());
+		std::get<0>(m_resizeTexture[m_colorTextureAttachments - 1]) = internalFormat;
+		std::get<1>(m_resizeTexture[m_colorTextureAttachments - 1]) = format;
+		std::get<2>(m_resizeTexture[m_colorTextureAttachments - 1]) = type;
+
+		break;
 	case Framebuffer::RGB32F:
 		internalFormat = GL_RGB32F;
+		format = GL_RGB;
+		type = GL_FLOAT;
+		m_colorAttachments++;
+		m_colorTextureAttachments++;
+
+		m_colorTextures.push_back(tex);
+		texture = &m_colorTextures[m_colorTextureAttachments - 1];
+
+		m_attachments.push_back(GL_COLOR_ATTACHMENT0 + (m_colorAttachments - 1));
+
+		m_resizeTexture.push_back(std::tuple<unsigned int, unsigned int, unsigned int>());
+		std::get<0>(m_resizeTexture[m_colorTextureAttachments - 1]) = internalFormat;
+		std::get<1>(m_resizeTexture[m_colorTextureAttachments - 1]) = format;
+		std::get<2>(m_resizeTexture[m_colorTextureAttachments - 1]) = type;
+
+		break;
+	case Framebuffer::RGB16F:
+		internalFormat = GL_RGB16F;
 		format = GL_RGB;
 		type = GL_FLOAT;
 		m_colorAttachments++;
@@ -356,7 +392,7 @@ void Framebuffer::attachRenderbuffer(Attachments attachments) {
 		m_depthRBFormat = internalFormat;
 		break;
 	case Framebuffer::DEPTH32:
-		internalFormat = GL_DEPTH_COMPONENT32;
+		internalFormat = GL_DEPTH_COMPONENT24;
 		attachment = GL_DEPTH_ATTACHMENT;
 		rb = &m_depthRB;
 		m_depthRBFormat = internalFormat;

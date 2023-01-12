@@ -1218,6 +1218,15 @@ Vector2f &Vector2f::operator+=(const Vector2f &rhs) {
 	return *this;
 }
 
+Vector2f &Vector2f::operator*=(float scalar) {
+	vec[0] *= scalar, vec[1] *= scalar;
+	return *this;
+}
+
+Vector2f &Vector2f::operator/=(float scalar) {
+	vec[0] /= scalar, vec[1] /= scalar;
+	return *this;
+}
 
 Vector2f Vector2f::operator+(const Vector2f &rhs) const {
 	Vector2f tmp(*this);
