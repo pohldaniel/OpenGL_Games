@@ -20,3 +20,5 @@ The project 06Voyager needs some assets (Woman.gltf, Woman.png) from https://git
 The project 07Dawn will be a refactoring of https://github.com/iamCode/Dawn using modern OpenGL and batchrendering. Finally the core engine is running, becareful at the moment the code is full of memoryleaks.
 
 The project 08Decals is based on https://github.com/diharaw/texture-space-decals and https://github.com/diharaw/deferred-decals.
+
+The project 09HDRBloom is based on https://learnopengl.com/Guest-Articles/2022/Phys.-Based-Bloom.
