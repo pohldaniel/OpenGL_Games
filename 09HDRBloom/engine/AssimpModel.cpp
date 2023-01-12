@@ -68,7 +68,7 @@ bool AssimpModel::loadModel(const char* a_filename, bool isStacked, bool generat
 	bool exportTangents = generateTangents;
 
 	m_numberOfMeshes = pScene->mNumMeshes;
-	m_isStacked = !(pScene->mNumMeshes == 1);
+	m_isStacked = !(pScene->mNumMeshes == 1) && isStacked;
 
 	float xmin = FLT_MAX; float ymin = FLT_MAX; float zmin = FLT_MAX;
 	float xmax = -FLT_MAX; float ymax = -FLT_MAX; float zmax = -FLT_MAX;
