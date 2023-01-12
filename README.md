@@ -13,7 +13,9 @@ The project 03Marvin will be a refactoring of https://github.com/TylerSandman/Ma
 -> at line 663 in b2_body.h  define the function "void SetCollide(bool flag){m_flags |= e_collideFlag;}"  
 -> at line 397 in b2_body.cpp change the "return false" to "return (m_flags & b2Body::e_collideFlag)"
 
-The project 04Virtueror will be a refactoring of https://github.com/vivaladav/iso-rts
+The project 04Virtueror will be a refactoring of https://github.com/vivaladav/iso-rts.
+
+The project 05UniversityRacer is based on https://github.com/david-sabata/UniversityRacer.
 
 The project 06Voyager needs some assets (Woman.gltf, Woman.png) from https://github.com/gszauer/GameAnimationProgramming I am pretty sure there is a Copyright on it. By my own I managed the basics of "Additive Animation Blending" following the source of Chapter 12 from this repository but using Assimp as model loader.
 
