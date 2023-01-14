@@ -51,7 +51,6 @@ BoundingBox& AssimpModel::getAABB() {
 }
 
 bool AssimpModel::loadModel(const char* a_filename, bool isStacked) {
-	m_isStacked = isStacked;
 
 	std::string filename(a_filename);
 

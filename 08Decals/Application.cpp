@@ -223,7 +223,7 @@ void Application::initOpenGL() {
 	wglMakeCurrent(hDC, hRC);
 	enableVerticalSync(true);
 
-	glEnable(GL_DEPTH_TEST);
+	//glEnable(GL_DEPTH_TEST);
 	//glDepthFunc(GL_LESS);
 
 	glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
