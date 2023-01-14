@@ -27,4 +27,5 @@ The project 09HDRBloom is based on https://learnopengl.com/Guest-Articles/2022/P
 
 The project 10SSS is my second attempt on porting https://github.com/iryoku/separable-sss to OpenGl.
 ![sss2](https://user-images.githubusercontent.com/30089026/212480333-1af139e9-85cb-4611-bfe9-b6b526633fc5.png)
+
 The Transmittance pass "right" and the blur pass "middle right" seems ok for now. But unfrotunataly I have some major issues with the specularities and applying the "Beckmann-Texture" in a correct way.
