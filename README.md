@@ -24,3 +24,5 @@ The project 07Dawn will be a refactoring of https://github.com/iamCode/Dawn usin
 The project 08Decals is based on https://github.com/diharaw/texture-space-decals and https://github.com/diharaw/deferred-decals.
 
 The project 09HDRBloom is based on https://learnopengl.com/Guest-Articles/2022/Phys.-Based-Bloom.
+
+The project 10SSS is my second attempt on porting https://github.com/iryoku/separable-sss to OpenGl.
