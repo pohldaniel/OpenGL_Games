@@ -5,9 +5,7 @@
 #include "engine\Shader.h"
 #include "engine\Texture.h"
 #include "engine\Spritesheet.h"
-#include "engine\animation\AssimpAnimation.h"
 #include "Cubemap.h"
-#include "Physics.h"
 
 #define WIDTH 1600
 #define HEIGHT 900
@@ -25,9 +23,6 @@ namespace Globals {
 	extern AssetManager<Texture> textureManager;
 	extern AssetManager<Spritesheet> spritesheetManager;
 	extern AssetManager<Cubemap> cubemapManager;
-	extern AssetManager<AssimpAnimation> animationManager;
-
-	extern Physics *physics;
 
 	extern bool enableWireframe;
 }

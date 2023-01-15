@@ -1,5 +1,5 @@
 #pragma once
-#include "engine/animation/Animator.h"
+#include "engine/animation/Animator2D.h"
 #include "engine/Spritesheet.h"
 #include "engine/Clock.h"
 #include "engine/Random.h"
@@ -21,7 +21,7 @@ public:
 
 	bool m_isAlive = true;
 	bool m_blowUp = false;
-	Animator m_animator;
+	Animator2D m_animator;
 	ParticleEmitter* m_emitter;
 	bool m_left = false;
 

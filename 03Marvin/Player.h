@@ -24,7 +24,7 @@ private:
 
 	unsigned int *m_textureAtlas;
 	unsigned int *m_currentFrame;
-	std::unordered_map<std::string, Animator> m_Animations;
+	std::unordered_map<std::string, Animator2D> m_Animations;
 
 	
 

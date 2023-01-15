@@ -3,16 +3,6 @@
 #include "engine/input/EventDispatcher.h"
 #include "Application.h"
 
-const float HEIGHTMAP_ROUGHNESS = 1.2f;
-const float HEIGHTMAP_SCALE = 2.0f;
-
-const int HEIGHTMAP_RESOLUTION = 128;
-const int HEIGHTMAP_WIDTH = 8192;
-const float CAMERA_Y_OFFSET = 100.0f;
-const Vector3f CAMERA_ACCELERATION(400.0f, 400.0f, 400.0f);
-const Vector3f CAMERA_VELOCITY(200.0f, 200.0f, 200.0f);
-Vector3f LIGHT_DIRECTION(-100.0f, 100.0f, -100.0f);
-
 Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 
 	EventDispatcher::AddMouseListener(this);
@@ -37,8 +27,6 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	m_camera = Camera();
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 1.0f, 100.0f);
 	m_camera.lookAt(Vector3f(0.0f, 0.0f, 5.0f), Vector3f(0.0f, 0.0f, -5.0f), Vector3f(0.0f, 1.0f, 0.0f));
-	m_camera.setAcceleration(CAMERA_ACCELERATION);
-	m_camera.setVelocity(CAMERA_VELOCITY);
 	m_camera.setRotationSpeed(0.1f);
 
 	m_hdrBuffer.create(Application::Width, Application::Height);

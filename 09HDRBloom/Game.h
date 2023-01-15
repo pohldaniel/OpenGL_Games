@@ -10,32 +10,11 @@
 #include "engine/MeshObject/MeshCube.h"
 #include "engine/Cube.h"
 #include "engine/ObjModel.h"
-#include "engine/AssimpModel.h"
-#include "engine/animation/AnimatedModel/AnimatedModel.h"
-#include "engine/animation/AssimpAnimatedModel.h"
 
 #include "Constants.h"
 #include "StateMachine.h"
 #include "Skybox.h"
 #include "Bloom.h"
-
-#define PROJECTOR_BACK_OFF_DISTANCE 10.0f;
-#define ALBEDO_TEXTURE_SIZE 4096
-#define DEPTH_TEXTURE_SIZE 512
-
-class RayResultCallback : public btCollisionWorld::ClosestRayResultCallback {
-public:
-
-	RayResultCallback(const btVector3& origin, const btVector3& target, int collisionFilterGroup, int collisionFilterMask) : btCollisionWorld::ClosestRayResultCallback(origin, target) {
-		m_collisionFilterGroup = collisionFilterGroup;
-		m_collisionFilterMask = collisionFilterMask;
-	}
-
-	btScalar addSingleResult(btCollisionWorld::LocalRayResult& rayResult, bool normalInWorldSpace) {
-		return ClosestRayResultCallback::addSingleResult(rayResult, normalInWorldSpace);
-	}
-
-};
 
 class Game : public State, public MouseEventListener {
 

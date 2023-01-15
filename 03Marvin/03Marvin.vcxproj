@@ -208,7 +208,7 @@
     <ClCompile Include="CharacterController_cs.cpp" />
     <ClCompile Include="CharacterController_old.cpp" />
     <ClCompile Include="CollisionHandler.cpp" />
-    <ClCompile Include="engine\animation\Animator.cpp" />
+    <ClCompile Include="engine\animation\Animator2D.cpp" />
     <ClCompile Include="engine\Batchrenderer.cpp" />
     <ClCompile Include="engine\CharacterSet.cpp" />
     <ClCompile Include="engine\collision\Collision.cpp" />
@@ -264,7 +264,7 @@
     <ClInclude Include="CollisionHandler.h" />
     <ClInclude Include="Constants.h" />
     <ClInclude Include="ContactFilter.h" />
-    <ClInclude Include="engine\animation\Animator.h" />
+    <ClInclude Include="engine\animation\Animator2D.h" />
     <ClInclude Include="engine\AssetManger.h" />
     <ClInclude Include="engine\Batchrenderer.h" />
     <ClInclude Include="engine\CharacterSet.h" />

@@ -6,7 +6,6 @@
 #include "Animation.h"
 
 class AnimatedModel;
-class AssimpAnimatedModel;
 
 class Animator{
 

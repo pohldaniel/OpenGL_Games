@@ -1,5 +1,5 @@
 #pragma once
-#include "engine/animation/Animator.h"
+#include "engine/animation/Animator2D.h"
 #include "engine/Spritesheet.h"
 #include "engine/Quad.h"
 #include "engine/Shader.h"
@@ -22,7 +22,7 @@ protected:
 
 	unsigned int *m_textureAtlas;
 	unsigned int *m_currentFrame;
-	std::unordered_map<std::string, Animator> m_Animations;
+	std::unordered_map<std::string, Animator2D> m_Animations;
 
 	Quad *m_quad;
 	Shader *m_shaderArray;

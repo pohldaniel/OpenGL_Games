@@ -1,5 +1,5 @@
 #pragma once
-#include "engine/animation/Animator.h"
+#include "engine/animation/Animator2D.h"
 #include "engine/Spritesheet.h"
 #include "engine/Random.h"
 
@@ -34,7 +34,7 @@ private:
 	Matrix4f m_blowTrans = Matrix4f::IDENTITY;
 	Vector2f originBlow;
 
-	std::unordered_map<std::string, Animator> m_Animations;
+	std::unordered_map<std::string, Animator2D> m_Animations;
 	std::unordered_map<std::string, unsigned int> m_sprites;
 	Light* m_light;
 

@@ -72,9 +72,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="engine\animation\Animator.cpp">
-      <Filter>engine\animation</Filter>
-    </ClCompile>
     <ClCompile Include="engine\collision\Collision.cpp">
       <Filter>engine\collision</Filter>
     </ClCompile>
@@ -336,13 +333,13 @@
     <ClCompile Include="SnakeSlime.cpp">
       <Filter>Source Files\Entities</Filter>
     </ClCompile>
+    <ClCompile Include="engine\animation\Animator2D.cpp">
+      <Filter>engine\animation</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stb\stb_image.h">
       <Filter>stb</Filter>
-    </ClInclude>
-    <ClInclude Include="engine\animation\Animator.h">
-      <Filter>engine\animation</Filter>
     </ClInclude>
     <ClInclude Include="engine\collision\Collider.h">
       <Filter>engine\collision</Filter>
@@ -514,6 +511,9 @@
     </ClInclude>
     <ClInclude Include="SnakeSlime.h">
       <Filter>Source Files\Entities</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\animation\Animator2D.h">
+      <Filter>engine\animation</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

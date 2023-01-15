@@ -1,5 +1,5 @@
 #pragma once
-#include "engine/animation/Animator.h"
+#include "engine/animation/Animator2D.h"
 #include "engine/Clock.h"
 #include "engine/Random.h"
 
@@ -31,7 +31,7 @@ private:
 
 	Light* m_light;
 
-	Animator m_animation;
+	Animator2D m_animation;
 
 	Clock m_deSpawnClock;
 	Clock m_realDeSpawnClock;

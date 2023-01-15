@@ -1,17 +1,18 @@
 #define NOMINMAX
 #pragma once
 #include <algorithm>
+
+#include "engine/animation/AnimatedModel/AnimatedModel.h"
+#include "engine/animation/AssimpAnimatedModel.h"
 #include "engine/input/MouseEventListener.h"
 #include "engine/input/KeyBorad.h"
 #include "engine/input/Mouse.h"
-#include "engine/Framebuffer.h"
-#include "engine/Camera.h"
 #include "engine/MeshObject/MeshQuad.h"
 #include "engine/MeshObject/MeshCube.h"
+#include "engine/Framebuffer.h"
+#include "engine/Camera.h"
 #include "engine/ObjModel.h"
 #include "engine/AssimpModel.h"
-#include "engine/animation/AnimatedModel/AnimatedModel.h"
-#include "engine/animation/AssimpAnimatedModel.h"
 #include "CharacterSetBmp.h"
 #include "Text.h"
 

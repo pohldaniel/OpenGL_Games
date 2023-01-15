@@ -14,9 +14,7 @@ extern AssetManager<Shader> Globals::shaderManager = AssetManager<Shader>();
 extern AssetManager<Texture> Globals::textureManager = AssetManager<Texture>();
 extern AssetManager<Spritesheet> Globals::spritesheetManager = AssetManager<Spritesheet>();
 extern AssetManager<Cubemap> Globals::cubemapManager = AssetManager<Cubemap>();
-extern AssetManager<AssimpAnimation> Globals::animationManager = AssetManager<AssimpAnimation>();
 
-extern Physics* Globals::physics = NULL;
 extern bool Globals::enableWireframe = false;
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd) {
@@ -40,8 +38,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	std::cout << "- / +            : increase decrease sss width" << std::endl;
 	std::cout << "alt + enter      : fullscreen" << std::endl;
 	#endif
-	
-	Globals::physics = new Physics(PHYSICS_STEP);
 
 	float deltaTime = 0.0f;
 	float fixedDeltaTime = 0.0f;

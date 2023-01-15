@@ -1,7 +1,4 @@
 #pragma once
-#include "engine/animation/Animator.h"
-#include "engine/Spritesheet.h"
-#include "engine/Shader.h"
 
 #include "RenderableObject.h"
 

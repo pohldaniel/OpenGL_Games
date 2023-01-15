@@ -1,7 +1,7 @@
 #pragma once
 #include <unordered_map>
 #include <vector>
-#include "engine/animation/Animator.h"
+#include "engine/animation/Animator2D.h"
 #include "engine/Spritesheet.h"
 
 #include "Constants.h"
@@ -64,7 +64,7 @@ private:
 	unsigned m_currentHitTake = 10;
 	Vector4f m_blendColor = Vector4f(1.0f, 1.0f, 1.0f, 1.0f);
 
-	std::unordered_map<std::string, Animator> m_Animations;	
+	std::unordered_map<std::string, Animator2D> m_Animations;
 
 	ParticleEmitter* m_emitter;
 	ParticleEmitter* m_fallEmitter;
