@@ -173,9 +173,9 @@ LRESULT Application::DisplayWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 				Height = 1;
 			}
 
-			glViewport(0, 0, Width, 300);
-			Globals::projection = Matrix4f::GetPerspective(Globals::projection, 45.0f, static_cast<float>(Width) / static_cast<float>(Height), 1.0f, 100.0f);
-			Globals::invProjection = Matrix4f::GetInvPerspective(Globals::invProjection, 45.0f, static_cast<float>(Width) / static_cast<float>(Height), 1.0f, 100.0f);
+			glViewport(0, 0, Width, Height);
+			Globals::projection = Matrix4f::GetPerspective(Globals::projection, 45.0f, static_cast<float>(Width) / static_cast<float>(Height), 1.0f, 1000.0f);
+			Globals::invProjection = Matrix4f::GetInvPerspective(Globals::invProjection, 45.0f, static_cast<float>(Width) / static_cast<float>(Height), 1.0f, 1000.0f);
 			Globals::orthographic = Matrix4f::GetOrthographic(Globals::orthographic, 0.0f, static_cast<float>(Width), 0.0f, static_cast<float>(Height), -1.0f, 1.0f);
 	
 			break;
@@ -228,8 +228,9 @@ void Application::initOpenGL() {
 
 	//glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 	//glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-	
-	
+	glEnable(GL_ALPHA_TEST);
+	//glEnable(GL_CULL_FACE);
+	glEnable(GL_DEPTH_TEST);
 }
 
 void Application::enableVerticalSync(bool enableVerticalSync) {
@@ -325,9 +326,9 @@ void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 
 
 void Application::Resize(int deltaW, int deltaH) {
-	glViewport(0, 0, Width, 300);
-	Globals::projection = Matrix4f::GetPerspective(Globals::projection, 45.0f, static_cast<float>(Width) / static_cast<float>(Height), 1.0f, 100.0f);
-	Globals::invProjection = Matrix4f::GetInvPerspective(Globals::invProjection, 45.0f, static_cast<float>(Width) / static_cast<float>(Height), 1.0f, 100.0f);
+	glViewport(0, 0, Width, Height);
+	Globals::projection = Matrix4f::GetPerspective(Globals::projection, 45.0f, static_cast<float>(Width) / static_cast<float>(Height), 1.0f, 1000.0f);
+	Globals::invProjection = Matrix4f::GetInvPerspective(Globals::invProjection, 45.0f, static_cast<float>(Width) / static_cast<float>(Height), 1.0f, 1000.0f);
 	Globals::orthographic = Matrix4f::GetOrthographic(Globals::orthographic, 0.0f, static_cast<float>(Width), 0.0f, static_cast<float>(Height), -1.0f, 1.0f);
 	
 	if (Init) {
@@ -385,7 +386,8 @@ void Application::loadAssets() {
 
 	Globals::shaderManager.loadShader("quad", "res/shader/quad.vs", "res/shader/quad.fs");
 	Globals::shaderManager.loadShader("quad_shadow", "res/shader/quad_shadow.vs", "res/shader/quad_shadow.fs");
-	
+	Globals::shaderManager.loadShader("texture", "res/shader/texture.vs", "res/shader/texture.fs");
+
 	Globals::shaderManager.loadShader("normal_map", "res/shader/normal_map.vs", "res/shader/normal_map.fs");
 
 	Globals::shaderManager.loadShader("depth", "res/shader/sss/depth.vs", "res/shader/sss/depth.fs");
@@ -404,6 +406,8 @@ void Application::loadAssets() {
 	//Globals::textureManager.get("normal").setRepeat();
 
 	Globals::textureManager.get("beckmann").setLinear();
+
+	Globals::textureManager.loadTexture("dirt", "res/textures/dirt01.dds", true);
 
 	Globals::textureManager.createNullTexture("null");
 	Globals::textureManager.createNullTexture("grey", 2, 2, 128);
