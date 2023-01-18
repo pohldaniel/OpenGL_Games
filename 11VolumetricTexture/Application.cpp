@@ -16,7 +16,8 @@ RECT Application::Savedrc;
 Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fdt){
 	Width = WIDTH;
 	Height = HEIGHT;
-	
+	Framebuffer::SetDefaultSize(Width, Height);
+
 	initWindow();
 	initOpenGL();
 	loadAssets();
@@ -34,8 +35,7 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 	});
 
 	SavedExStyle = GetWindowLong(Window, GWL_EXSTYLE);
-	SavedStyle = GetWindowLong(Window, GWL_STYLE);
-	Framebuffer::SetDefaultSize(Width, Height);
+	SavedStyle = GetWindowLong(Window, GWL_STYLE);	
 }
 
 Application::~Application() {
@@ -174,8 +174,8 @@ LRESULT Application::DisplayWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 			}
 
 			glViewport(0, 0, Width, Height);
-			Globals::projection = Matrix4f::GetPerspective(Globals::projection, 45.0f, static_cast<float>(Width) / static_cast<float>(Height), 1.0f, 5000.0f);
-			Globals::invProjection = Matrix4f::GetInvPerspective(Globals::invProjection, 45.0f, static_cast<float>(Width) / static_cast<float>(Height), 1.0f, 5000.0f);
+			Globals::projection = Matrix4f::GetPerspective(Globals::projection, 45.0f, static_cast<float>(Width) / static_cast<float>(Height), 1.0f, 1000.0f);
+			Globals::invProjection = Matrix4f::GetInvPerspective(Globals::invProjection, 45.0f, static_cast<float>(Width) / static_cast<float>(Height), 1.0f, 1000.0f);
 			Globals::orthographic = Matrix4f::GetOrthographic(Globals::orthographic, 0.0f, static_cast<float>(Width), 0.0f, static_cast<float>(Height), -1.0f, 1.0f);
 	
 			break;
@@ -223,16 +223,9 @@ void Application::initOpenGL() {
 	wglMakeCurrent(hDC, hRC);
 	enableVerticalSync(true);
 
-	//glEnable(GL_DEPTH_TEST);
-	//glDepthFunc(GL_LESS);
 
-	//glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-	//glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-	
-	//glCullFace(GL_BACK);
-	//glFrontFace(GL_CCW);
-
-	//glDisable(GL_CULL_FACE);
+	glEnable(GL_ALPHA_TEST);
+	glEnable(GL_DEPTH_TEST);
 }
 
 void Application::enableVerticalSync(bool enableVerticalSync) {
@@ -289,48 +282,38 @@ void Application::initStates() {
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
 	switch (message) {
-		/*case WM_CLOSE: case WM_QUIT: {
-			Event event;
-			event.type = Event::CLOSED;
-			m_eventDispatcher->pushEvent(event);
-			break;
-		}*/case WM_MOUSEMOVE: {
+		case WM_MOUSEMOVE: {
 			Event event;
 			event.type = Event::MOUSEMOTION;
 			event.data.mouseMove.x = static_cast<int>(static_cast<short>(LOWORD(lParam)));
 			event.data.mouseMove.y = static_cast<int>(static_cast<short>(HIWORD(lParam)));
 			EventDispatcher.pushEvent(event);
-			/*if (!m_mouseTracking) {
-				TRACKMOUSEEVENT trackMouseEvent;
-				trackMouseEvent.cbSize = sizeof(TRACKMOUSEEVENT);
-				trackMouseEvent.dwFlags = TME_LEAVE;
-				trackMouseEvent.hwndTrack = hWnd;
-				TrackMouseEvent(&trackMouseEvent);
-				m_mouseTracking = true;
-			}*/
 			break;
-		}/*case WM_MOUSELEAVE: {
-			m_mouseTracking = false;
-
-			POINT cursor;
-			GetCursorPos(&cursor);
-			ScreenToClient(hWnd, &cursor);
-
+		}case WM_LBUTTONDOWN: {
 			Event event;
-			event.type = Event::MOUSEMOTION;
-			event.mouseMove.x = cursor.x;
-			event.mouseMove.y = cursor.y;
-			m_eventDispatcher->pushEvent(event);
+			event.type = Event::MOUSEBUTTONDOWN;
+			event.data.mouseButton.x = static_cast<int>(static_cast<short>(LOWORD(lParam)));
+			event.data.mouseButton.y = static_cast<int>(static_cast<short>(HIWORD(lParam)));
+			event.data.mouseButton.button = Event::MouseButtonEvent::MouseButton::BUTTON_LEFT;
+			EventDispatcher.pushEvent(event);
 			break;
-		}*/
+		}case WM_LBUTTONUP: {
+			Event event;
+			event.type = Event::MOUSEBUTTONUP;
+			event.data.mouseButton.x = static_cast<int>(static_cast<short>(LOWORD(lParam)));
+			event.data.mouseButton.y = static_cast<int>(static_cast<short>(HIWORD(lParam)));
+			event.data.mouseButton.button = Event::MouseButtonEvent::MouseButton::BUTTON_LEFT;
+			EventDispatcher.pushEvent(event);
+			break;
+		}
 	}
 }
 
 
 void Application::Resize(int deltaW, int deltaH) {
 	glViewport(0, 0, Width, Height);
-	Globals::projection = Matrix4f::GetPerspective(Globals::projection, 45.0f, static_cast<float>(Width) / static_cast<float>(Height), 1.0f, 5000.0f);
-	Globals::invProjection = Matrix4f::GetInvPerspective(Globals::invProjection, 45.0f, static_cast<float>(Width) / static_cast<float>(Height), 1.0f, 5000.0f);
+	Globals::projection = Matrix4f::GetPerspective(Globals::projection, 45.0f, static_cast<float>(Width) / static_cast<float>(Height), 1.0f, 1000.0f);
+	Globals::invProjection = Matrix4f::GetInvPerspective(Globals::invProjection, 45.0f, static_cast<float>(Width) / static_cast<float>(Height), 1.0f, 1000.0f);
 	Globals::orthographic = Matrix4f::GetOrthographic(Globals::orthographic, 0.0f, static_cast<float>(Width), 0.0f, static_cast<float>(Height), -1.0f, 1.0f);
 	
 	if (Init) {
@@ -386,44 +369,11 @@ void Application::ToggleFullScreen(bool isFullScreen, unsigned int width, unsign
 
 void Application::loadAssets() {
 
-	Globals::shaderManager.loadShader("quad", "res/shader/quad.vs", "res/shader/quad.fs");
-	Globals::shaderManager.loadShader("quad_shadow", "res/shader/quad_shadow.vs", "res/shader/quad_shadow.fs");
-	Globals::shaderManager.loadShader("skybox", "res/shader/skybox.vs", "res/shader/skybox.fs");
-	
-	Globals::shaderManager.loadShader("decals", "res/shader/decals/uv_space_vs.glsl", "res/shader/decals/decal_project_fs.glsl");
-	Globals::shaderManager.loadShader("texture_init", "res/shader/decals/uv_space_vs.glsl", "res/shader/decals/texture_init_fs.glsl");
-	Globals::shaderManager.loadShader("depth_dec", "res/shader/decals/depth_vs.glsl", "res/shader/decals/depth_fs.glsl");
-	Globals::shaderManager.loadShader("mesh", "res/shader/decals/mesh.vs", "res/shader/decals/mesh.fs");
+	Globals::shaderManager.loadShader("simulate", "res/shader/compute/simulate.cs");
+	Globals::shaderManager.loadShader("splat", "res/shader/compute/splat.cs");
+	Globals::shaderManager.loadShader("waves", "res/shader/compute/waves.cs");
+	Globals::shaderManager.loadShader("copy", "res/shader/compute/copy.cs");
 
-	Globals::shaderManager.loadShader("g_buffer", "res/shader/deferred/g_buffer.vs", "res/shader/deferred/g_buffer.fs");
-	Globals::shaderManager.loadShader("decals_defferred", "res/shader/deferred/decals.vs", "res/shader/deferred/decals.fs");
-	Globals::shaderManager.loadShader("combiner", "res/shader/deferred/combiner.vs", "res/shader/deferred/combiner.fs");
-	Globals::shaderManager.loadShader("deferred", "res/shader/deferred/deferred.vs", "res/shader/deferred/deferred.fs");
-
-	Globals::shaderManager.loadShader("invert", "res/shader/compute/invert.cs");
-
-	Globals::textureManager.createNullTexture("null");
-	Globals::textureManager.createNullTexture("grey", 2, 2, 128);
-	Globals::textureManager.loadTexture("boots", "res/textures/Boots1.tga", true);
-
-	Globals::textureManager.loadTexture("decal", "res/textures/Decal_00_Albedo.tga", true);
-	Globals::textureManager.loadTexture("decal_n", "res/textures/Decal_00_Normal.png", true);
-	Globals::textureManager.get("decal").setLinear();
-	Globals::textureManager.get("decal").setRepeat();
-	Globals::textureManager.get("decal_n").setLinear();
-	Globals::textureManager.get("decal_n").setRepeat();
-
-	Globals::textureManager.loadTexture("stone", "res/textures/Stylized_Stone_Floor_005_basecolor.jpg", true);
-	Globals::textureManager.loadTexture("stone_normal", "res/textures/Stylized_Stone_Floor_005_normal.jpg", true);
-	Globals::textureManager.get("stone").addAlphaChannel(0);
-	Globals::textureManager.get("stone").setLinear();
-	Globals::textureManager.get("stone").setRepeat();
-	Globals::textureManager.get("stone_normal").setLinear();
-	Globals::textureManager.get("stone_normal").setRepeat();
-
-	std::string facesDay[] = { "res/cubemap/day/right.png", "res/cubemap/day/left.png", "res/cubemap/day/top.png", "res/cubemap/day/bottom.png", "res/cubemap/day/back.png", "res/cubemap/day/front.png", };
-	Globals::cubemapManager.loadCubeMap("day", facesDay, false);
-
-	std::string facesNight[] = { "res/cubemap/night/right.png", "res/cubemap/night/left.png", "res/cubemap/night/top.png", "res/cubemap/night/bottom.png", "res/cubemap/night/back.png", "res/cubemap/night/front.png", };
-	Globals::cubemapManager.loadCubeMap("night", facesNight, false);
+	Globals::shaderManager.loadShader("cube", "res/shader/compute/cube.vs", "res/shader/compute/cube.fs");
+	Globals::shaderManager.loadShader("ray_march", "res/shader/compute/raymarch.vert", "res/shader/compute/raymarch.frag");	
 }
