@@ -29,3 +29,5 @@ The project 10SSS is my second attempt on porting https://github.com/iryoku/sepa
 ![sss2](https://user-images.githubusercontent.com/30089026/212480333-1af139e9-85cb-4611-bfe9-b6b526633fc5.png)
 
 The transmittance pass "right" and the blur pass "middle right" seems ok for now. But unfrotunataly I have some major issues with the specularities "left" and applying the "Beckmann-Texture" in a correct way.
+
+The project 11VolumetircTexture is a port of https://developer.download.nvidia.com/SDK/10.5/opengl/screenshots/samples/render_texture_3D.html I was abel to exchange some of the "CG-Shader" with "Compute-Shader". To get the same trackball behavior I add for the moment some header out of the Nvidia SDK, the copyright is written down in every file. To get rid of the "glut32.lib" I had to do some slightly modifications to this files.
