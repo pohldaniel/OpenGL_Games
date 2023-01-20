@@ -46,7 +46,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	const float HalfWidth = 0.5f;
 	const float HalfHeight = HalfWidth * PEZ_VIEWPORT_HEIGHT / PEZ_VIEWPORT_WIDTH;
 
-	m_projection = Matrix4f::GetPerspective(-HalfWidth, +HalfWidth, -HalfHeight, +HalfHeight, 2.0f, 70.0f);	
+	m_projection = Matrix4f::GetPerspective(-HalfWidth, +HalfWidth, -HalfHeight, +HalfHeight, 2.0f, 70.0f);
 }
 
 Game::~Game() {}
@@ -121,13 +121,12 @@ void Game::update() {
 
 void Game::render(unsigned int &frameBuffer) {
 
-	//glClearColor(0.576f, 0.709f, 0.949f, 0.0f);
-	//glClearColor(0.2f, 0.2f, 0.2f, 0.0f);
-	//glClear(GL_COLOR_BUFFER_BIT);
+	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 
-	/*if ( ((rand() & 0xff) > 220)) {
-	fluidSys->splat();
+	if (((rand() & 0xff) > 220)) {
+		fluidSys->splat();
 	}
 	fluidSys->getStateBuffer()->setFiltering(GL_NEAREST);
 	fluidSys->step(1.0f);
@@ -135,7 +134,6 @@ void Game::render(unsigned int &frameBuffer) {
 
 	fluidSys->getStateBuffer()->setFiltering(GL_LINEAR);
 	auto shader = Globals::shaderManager.getAssetPointer("ray_march");
-
 	glUseProgram(shader->m_program);
 	shader->loadMatrix("u_projection", m_camera.getProjectionMatrix());
 	shader->loadMatrix("u_modelView", m_camera.getViewMatrix() * m_model);
@@ -149,8 +147,9 @@ void Game::render(unsigned int &frameBuffer) {
 	glBindTexture(GL_TEXTURE_3D, fluidSys->getStateBuffer()->getTexture());
 
 	m_cube->drawRaw();
-	glUseProgram(0);*/
+	glUseProgram(0);
 
+	///////////////////////////////////////////////////////////////////////////////////
 	/*shader = Globals::shaderManager.getAssetPointer("ray_march_c");
 	glUseProgram(shader->m_program);
 	shader->loadMatrix("u_projection", m_camera.getProjectionMatrix());
@@ -177,9 +176,14 @@ void Game::render(unsigned int &frameBuffer) {
 
 	m_cube->drawRaw();
 	glUseProgram(0);*/
-
-
-	/*auto shader = Globals::shaderManager.getAssetPointer("singlepass");
+	///////////////////////////////////////////////////////////////////////////////////
+	/*glClearColor(0.2f, 0.2f, 0.2f, 0.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glDisable(GL_DEPTH_TEST);
+	glEnable(GL_BLEND);
+	glEnable(GL_CULL_FACE);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	auto shader = Globals::shaderManager.getAssetPointer("singlepass");
 	glUseProgram(shader->m_program);
 	shader->loadMatrix("u_modelviewProjection", m_camera.getProjectionMatrix() * m_camera.getViewMatrix() * m_model);
 	shader->loadMatrix("u_invModelView", m_invModel * m_camera.getInvViewMatrix());
@@ -194,10 +198,12 @@ void Game::render(unsigned int &frameBuffer) {
 	glDrawArrays(GL_POINTS, 0, 1);
 
 	glDisableVertexAttribArray(0);
-	glUseProgram(0);*/
+	glUseProgram(0);
 
-
-	/*auto shader = Globals::shaderManager.getAssetPointer("ray_march");
+	glEnable(GL_ALPHA_TEST);
+	glEnable(GL_DEPTH_TEST);
+	glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+	shader = Globals::shaderManager.getAssetPointer("ray_march");
 	glUseProgram(shader->m_program);
 	shader->loadMatrix("u_projection", m_camera.getProjectionMatrix());
 	shader->loadMatrix("u_modelView", m_camera.getViewMatrix() * m_model);
@@ -228,14 +234,7 @@ void Game::render(unsigned int &frameBuffer) {
 	shader->loadInt("RayStartPoints", 1);
 	shader->loadInt("RayStopPoints", 2);
 	shader->loadVector("EyePosition", m_camera.getPosition());
-
-	Vector4f rayOrigin(Matrix4f::Transpose(m_camera.getViewMatrix()) * m_camera.getPosition());
-	shader->loadVector("RayOrigin", Vector3f(rayOrigin[0], rayOrigin[1], rayOrigin[2]));
-
-	float _focalLength = 1.0f / std::tan(0.7f / 2);
-	shader->loadFloat("FocalLength", _focalLength);
-	shader->loadVector("WindowSize", Vector2f(float(Application::Width), float(Application::Height)));
-
+	
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, m_intervalls[0].getColorTexture());
 	glActiveTexture(GL_TEXTURE2);
@@ -247,14 +246,13 @@ void Game::render(unsigned int &frameBuffer) {
 	glUseProgram(0);*/
 
 
-	glClearColor(0, 0.25f, 0.5f, 1);
+	/*glClearColor(0, 0.25f, 0.5f, 1);
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	glBlendFunc(GL_ONE, GL_ONE);
 	glDisable(GL_DEPTH_TEST);
 
 	// Update the ray start & stop surfaces:
-	//BindProgram(RayEndpointsProgram);
 	glUseProgram(m_endpoit->m_program);
 	m_endpoit->loadMatrix("ModelviewProjection", m_projection * m_camera.getViewMatrix() * m_model);
 
@@ -271,7 +269,7 @@ void Game::render(unsigned int &frameBuffer) {
 
 	glUseProgram(m_ray->m_program);
 
-	m_ray->loadMatrix("NormalMatrix", Matrix4f::GetNormalMatrix(m_camera.getViewMatrix()));
+	m_ray->loadMatrix("NormalMatrix", Matrix4f::GetNormalMatrix(m_camera.getViewMatrix() * m_model));
 	m_ray->loadVector("LightPosition", Vector3f(0.25f, 0.25f, 1.0f));
 	m_ray->loadVector("DiffuseMaterial", Vector3f(1.0f, 1.0f, 0.5f));
 
@@ -309,13 +307,13 @@ void Game::render(unsigned int &frameBuffer) {
 		//BindProgram(WireframeProgram);
 		glUseProgram(m_wireframe->m_program);
 		m_wireframe->loadMatrix("ModelviewProjection", m_projection * m_camera.getViewMatrix() * m_model);
-		m_wireframe->loadMatrix("NormalMatrix", Matrix4f::GetNormalMatrix(m_camera.getViewMatrix()));
+		m_wireframe->loadMatrix("NormalMatrix", Matrix4f::GetNormalMatrix(m_camera.getViewMatrix() * m_model));
 		m_wireframe->loadVector("LightPosition", Vector3f(0.25f, 0.25f, 1.0f));
 
 
 		glBindVertexArray(CubeVao);
 		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_SHORT, 0);
-	}
+	}*/
 }
 
 void Game::OnMouseMotion(Event::MouseMoveEvent& event) {
