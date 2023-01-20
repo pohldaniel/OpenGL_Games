@@ -265,5 +265,8 @@ extern "C" {
 	extern void glMemoryBarrier(GLbitfield barriers);
 	extern void glClearTexImage(GLuint texture, GLint level, GLenum format, GLenum type, const void * data);
 
+	extern void glUniformMatrix3fv(GLint location, GLsizei count, GLboolean transpose, const GLfloat *value);
+
+
 } // extern "C"
 #endif

@@ -717,6 +717,7 @@ void Texture::CreateEmptyTexture3D(unsigned int& textureRef, unsigned int width,
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_BORDER);
 	glTexImage3D(GL_TEXTURE_3D, 0, internalFormat, width, height, depth, 0, format, type, 0);
+	glBindTexture(GL_TEXTURE_3D, 0);
 }
 
 void Texture::Resize(unsigned int& textureRef, unsigned int width, unsigned int height, unsigned int internalFormat, unsigned int format, unsigned int type) {

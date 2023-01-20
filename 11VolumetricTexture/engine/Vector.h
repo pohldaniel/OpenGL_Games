@@ -168,6 +168,7 @@ public:
 	void scale(float a, float b, float c);
 	void invScale(float a, float b, float c);
 	void perspective(float fovx, float aspect, float znear, float zfar);
+	//void perspective(float left, float right, float bottom, float top, float znear, float zfar);
 	void orthographic(float left, float right, float bottom, float top, float znear, float zfar);
 	void perspectiveD3D(float fovx, float aspect, float znear, float zfar);
 	void linearPerspectiveD3D(float fovx, float aspect, float znear, float zfar);
@@ -195,6 +196,7 @@ public:
 
 	static Matrix4f GetPerspective(float fovx, float aspect, float znear, float zfar);
 	static Matrix4f &GetPerspective(Matrix4f &mtx, float fovx, float aspect, float znear, float zfar);
+	static Matrix4f GetPerspective(float left, float right, float bottom, float top, float znear, float zfar);
 
 	static Matrix4f GetInvPerspective(float fovx, float aspect, float znear, float zfar);
 	static Matrix4f &GetInvPerspective(Matrix4f &mtx, float fovx, float aspect, float znear, float zfar);
@@ -206,6 +208,7 @@ public:
 	static Matrix4f &GetInvOrthographic(Matrix4f &mtx, float left, float right, float bottom, float top, float znear, float zfar);
 
 	static Matrix4f &Transpose(Matrix4f &m);
+	static Matrix4f Transpose(const Matrix4f &m);
 	static Matrix4f Inverse(Matrix4f &m);
 
 private:

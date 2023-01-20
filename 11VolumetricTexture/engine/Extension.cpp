@@ -738,58 +738,65 @@ void glGenSamplers(GLsizei n, GLuint *samplers) {
 	glGenSamplers(n, samplers);
 }
 
-extern void glSamplerParameterf(GLuint sampler, GLenum pname, GLfloat param) {
+void glSamplerParameterf(GLuint sampler, GLenum pname, GLfloat param) {
 	typedef void(APIENTRY * PFNGLSAMPLERPARAMETERFPROC)(GLuint sampler, GLenum pname, GLfloat param);
 	static PFNGLSAMPLERPARAMETERFPROC glSamplerParameterf = 0;
 	LOAD_ENTRYPOINT("glSamplerParameterf", glSamplerParameterf, PFNGLSAMPLERPARAMETERFPROC);
 	glSamplerParameterf(sampler, pname, param);
 }
 
-extern void glSamplerParameteri(GLuint sampler, GLenum pname, GLint param) {
+void glSamplerParameteri(GLuint sampler, GLenum pname, GLint param) {
 	typedef void(APIENTRY * PFNGLSAMPLERPARAMETERIPROC)(GLuint sampler, GLenum pname, GLint param);
 	static PFNGLSAMPLERPARAMETERIPROC glSamplerParameteri = 0;
 	LOAD_ENTRYPOINT("glSamplerParameteri", glSamplerParameteri, PFNGLSAMPLERPARAMETERIPROC);
 	glSamplerParameteri(sampler, pname, param);
 }
 
-extern void glBindSampler(GLuint unit, GLuint sampler) {
+void glBindSampler(GLuint unit, GLuint sampler) {
 	typedef void(APIENTRY * PFNGLBINDSAMPLERPROC)(GLuint unit, GLuint sampler);
 	static PFNGLBINDSAMPLERPROC glBindSampler = 0;
 	LOAD_ENTRYPOINT("glBindSampler", glBindSampler, PFNGLBINDSAMPLERPROC);
 	glBindSampler(unit, sampler);
 }
 
-extern void glTexStorage2D(GLenum target, GLsizei levels, GLenum internalformat, GLsizei width, GLsizei height) {
+ void glTexStorage2D(GLenum target, GLsizei levels, GLenum internalformat, GLsizei width, GLsizei height) {
 	typedef void(APIENTRY * PFNGLTEXSTORAGE2DPROC)(GLenum target, GLsizei levels, GLenum internalformat, GLsizei width, GLsizei height);
 	static PFNGLTEXSTORAGE2DPROC glTexStorage2D = 0;
 	LOAD_ENTRYPOINT("glTexStorage2D", glTexStorage2D, PFNGLTEXSTORAGE2DPROC);
 	glTexStorage2D(target, levels, internalformat, width, height);
 }
 
-extern void glTextureStorage2D(GLuint texture, GLsizei levels, GLenum internalformat, GLsizei width, GLsizei height) {
+ void glTextureStorage2D(GLuint texture, GLsizei levels, GLenum internalformat, GLsizei width, GLsizei height) {
 	typedef void(APIENTRY * PFNGLTEXTURESTORAGE2DPROC)(GLuint texture, GLsizei levels, GLenum internalformat, GLsizei width, GLsizei height);
 	static PFNGLTEXTURESTORAGE2DPROC glTextureStorage2D = 0;
 	LOAD_ENTRYPOINT("glTextureStorage2D", glTextureStorage2D, PFNGLTEXTURESTORAGE2DPROC);
 	glTextureStorage2D(texture, levels, internalformat, width, height);
 }
 
-extern void glDispatchCompute(GLuint num_groups_x, GLuint num_groups_y, GLuint num_groups_z) {
+ void glDispatchCompute(GLuint num_groups_x, GLuint num_groups_y, GLuint num_groups_z) {
 	typedef void(APIENTRY * PFNGLDISPATCHCOMPUTEPROC)(GLuint num_groups_x, GLuint num_groups_y, GLuint num_groups_z);
 	static PFNGLDISPATCHCOMPUTEPROC glDispatchCompute = 0;
 	LOAD_ENTRYPOINT("glDispatchCompute", glDispatchCompute, PFNGLDISPATCHCOMPUTEPROC);
 	glDispatchCompute(num_groups_x, num_groups_y, num_groups_z);
 }
 
-extern void glMemoryBarrier(GLbitfield barriers) {
+ void glMemoryBarrier(GLbitfield barriers) {
 	typedef void(APIENTRY * PFNGLMEMORYBARRIERPROC)(GLbitfield barriers);
 	static PFNGLMEMORYBARRIERPROC glMemoryBarrier = 0;
 	LOAD_ENTRYPOINT("glMemoryBarrier", glMemoryBarrier, PFNGLMEMORYBARRIERPROC);
 	glMemoryBarrier(barriers);
 }
 
-extern void glClearTexImage(GLuint texture, GLint level, GLenum format, GLenum type, const void * data) {
+ void glClearTexImage(GLuint texture, GLint level, GLenum format, GLenum type, const void * data) {
 	typedef void(APIENTRY * PFNGLCLEARTEXIMAGEPROC)(GLuint texture, GLint level, GLenum format, GLenum type, const void * data);
 	static PFNGLCLEARTEXIMAGEPROC glClearTexImage = 0;
 	LOAD_ENTRYPOINT("glClearTexImage", glClearTexImage, PFNGLCLEARTEXIMAGEPROC);
 	glClearTexImage(texture, level, format, type, data);
+}
+
+void glUniformMatrix3fv(GLint location, GLsizei count, GLboolean transpose, const GLfloat *value) {
+	typedef void(APIENTRY * PFNGLUNIFORMMATRIX3FVPROC)(GLint location, GLsizei count, GLboolean transpose, const GLfloat *value);
+	static PFNGLUNIFORMMATRIX3FVPROC glUniformMatrix3fv = 0;
+	LOAD_ENTRYPOINT("glClearTexImage", glUniformMatrix3fv, PFNGLUNIFORMMATRIX3FVPROC);
+	glUniformMatrix3fv(location, count, transpose, value);
 }

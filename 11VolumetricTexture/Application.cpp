@@ -222,10 +222,6 @@ void Application::initOpenGL() {
 	hRC = wglCreateContext(hDC);				// create rendering context and make it current
 	wglMakeCurrent(hDC, hRC);
 	enableVerticalSync(true);
-
-
-	glEnable(GL_ALPHA_TEST);
-	glEnable(GL_DEPTH_TEST);
 }
 
 void Application::enableVerticalSync(bool enableVerticalSync) {
@@ -373,7 +369,20 @@ void Application::loadAssets() {
 	Globals::shaderManager.loadShader("splat", "res/shader/compute/splat.cs");
 	Globals::shaderManager.loadShader("waves", "res/shader/compute/waves.cs");
 	Globals::shaderManager.loadShader("copy", "res/shader/compute/copy.cs");
+	Globals::shaderManager.loadShader("ray_march_c", "res/shader/compute/raymarch.cs");
 
 	Globals::shaderManager.loadShader("cube", "res/shader/compute/cube.vs", "res/shader/compute/cube.fs");
 	Globals::shaderManager.loadShader("ray_march", "res/shader/compute/raymarch.vert", "res/shader/compute/raymarch.frag");	
+
+	Globals::shaderManager.loadShader("singlepass", "res/shader/compute/singlepass.vs", "res/shader/compute/singlepass.fs", "res/shader/compute/singlepass.gs");
+
+	Globals::shaderManager.loadShader("twopass_int", "res/shader/compute/twopass_int.vs", "res/shader/compute/twopass_int.fs", "res/shader/compute/twopass_int.gs");
+	Globals::shaderManager.loadShader("twopass_ray", "res/shader/compute/twopass_ray.vs", "res/shader/compute/twopass_ray.fs", "res/shader/compute/twopass_ray.gs");
+
+
+	Globals::shaderManager.loadShader("endpoint", "res/shader/compute/endpoint.vs", "res/shader/compute/endpoint.fs");
+	Globals::shaderManager.loadShader("ray", "res/shader/compute/ray.vs", "res/shader/compute/ray.fs");
+	Globals::shaderManager.loadShader("wireframe", "res/shader/compute/wireframe.vs", "res/shader/compute/wireframe.fs", "res/shader/compute/wireframe.gs");
+	Globals::shaderManager.loadShader("streamline", "res/shader/compute/streamline.vs", "res/shader/compute/streamline.fs", "res/shader/compute/streamline.gs");
+	Globals::shaderManager.loadShader("splat2", "res/shader/compute/splat2.vs", "res/shader/compute/splat2.fs", "res/shader/compute/splat2.gs");
 }

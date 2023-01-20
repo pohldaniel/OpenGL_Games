@@ -69,15 +69,15 @@ void main(void){
 	// march along ray, accumulating color
     vec4 c = vec4(0);
 
-#ifdef FRONT_TO_BACK
-    // use front-to-back rendering
-    vec3 P = Pnear;
-    vec3 Pstep = eyerayd * stepsize;
-#else
-    // use back-to-front rendering
-    vec3 P = Pfar;
-    vec3 Pstep = -eyerayd * stepsize;
-#endif
+	#ifdef FRONT_TO_BACK
+	// use front-to-back rendering
+	vec3 P = Pnear;
+	vec3 Pstep = eyerayd * stepsize;
+	#else
+	// use back-to-front rendering
+	vec3 P = Pfar;
+	vec3 Pstep = -eyerayd * stepsize;
+	#endif
 
 
 	for(int i=0; i<steps; i++) {
@@ -87,15 +87,15 @@ void main(void){
         s.a = clamp(s.a, 0, 1);
         s.a *= density;
 
-#ifdef FRONT_TO_BACK
-        s.rgb *= s.a;   // premultiply alpha
-        c = (1 - c.a)*s + c;
-        // early exit if opaque
-        if (c.a > threshold)
-            break;
-#else
-        c = lerp(c, s, s.a);
-#endif
+		#ifdef FRONT_TO_BACK
+		s.rgb *= s.a;   // premultiply alpha
+		c = (1 - c.a)*s + c;
+		// early exit if opaque
+		if (c.a > threshold)
+			break;
+		#else
+		c = lerp(c, s, s.a);
+		#endif
 
         P += Pstep;
     }

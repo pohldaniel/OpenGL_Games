@@ -65,7 +65,6 @@ protected:
     void rotateFirstPerson(float yaw, float pitch);
 	void updateViewMatrix(bool orthogonalizeAxes);
 	void updateViewMatrix(const Vector3f &eye, const Vector3f &target, const Vector3f &up);
-	void updateVelocity(const Vector3f &direction, float elapsedTimeSec);
 
     Vector3f WORLD_XAXIS;
 	Vector3f WORLD_YAXIS;

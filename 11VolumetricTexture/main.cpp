@@ -29,7 +29,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	std::cout << "w, a, s, d, q, e : move camera" << std::endl;
 	std::cout << "right mouse      : rotate camera" << std::endl;
 	std::cout << "left mouse       : rotate model" << std::endl;
-	std::cout << "left mouse       : throw decal" << std::endl;
 	std::cout << "ESC              : quit" << std::endl;
 	std::cout << "v                : toggle vsync" << std::endl;
 	std::cout << "z                : toggle wireframe" << std::endl;

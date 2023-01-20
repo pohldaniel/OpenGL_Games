@@ -687,6 +687,43 @@ Matrix4f Matrix4f::GetPerspective(float fovx, float aspect, float znear, float z
 	return perspective;
 }
 
+Matrix4f Matrix4f::GetPerspective(float left, float right, float bottom, float top, float znear, float zfar) {
+	Matrix4f perspective;
+
+	float sum_rl, sum_tb, sum_nf, inv_rl, inv_tb, inv_nf, n2;
+	sum_rl = (right + left);
+	sum_tb = (top + bottom);
+	sum_nf = (znear + zfar);
+	inv_rl = (1.0f / (right - left));
+	inv_tb = (1.0f / (top - bottom));
+	inv_nf = (1.0f / (znear - zfar));
+	n2 = (znear + znear);
+
+
+
+	perspective[0][0] = (n2 * inv_rl);
+	perspective[0][1] = 0.0f;
+	perspective[0][2] = 0.0f;
+	perspective[0][3] = 0.0f;
+
+	perspective[1][0] = 0.0f;
+	perspective[1][1] = (n2 * inv_tb);
+	perspective[1][2] = 0.0f;
+	perspective[1][3] = 0.0f;
+
+	perspective[2][0] = sum_rl * inv_rl;
+	perspective[2][1] = sum_tb * inv_tb;
+	perspective[2][2] = sum_nf * inv_nf;
+	perspective[2][3] = -1.0f;
+
+	perspective[3][0] = 0.0f;
+	perspective[3][1] = 0.0f;
+	perspective[3][2] = (n2 * inv_nf) * zfar;
+	perspective[3][3] = 0.0f;
+
+	return perspective;
+}
+
 Matrix4f &Matrix4f::GetPerspective(Matrix4f &mtx, float fovx, float aspect, float znear, float zfar) {
 	float e = tanf(PI_ON_180 * fovx * 0.5f);
 	float xScale = 1 / (e * aspect);
@@ -1026,6 +1063,15 @@ Matrix4f& Matrix4f::Transpose(Matrix4f &m) {
 	tmp = m[2][3]; m[2][3] = m[3][2]; m[3][2] = tmp;
 
 	return m;
+}
+
+Matrix4f Matrix4f::Transpose(const Matrix4f &m) {
+	Matrix4f tmp;
+	tmp[0][0] = m[0][0]; tmp[0][1] = m[1][0]; tmp[0][2] = m[2][0]; tmp[0][3] = m[3][0];
+	tmp[1][0] = m[0][1]; tmp[1][1] = m[1][1]; tmp[1][2] = m[2][1]; tmp[1][3] = m[3][1];
+	tmp[2][0] = m[0][2]; tmp[2][1] = m[1][2]; tmp[2][2] = m[2][2]; tmp[2][3] = m[3][2];
+	tmp[3][0] = m[0][3]; tmp[3][1] = m[1][3]; tmp[3][2] = m[2][3]; tmp[3][3] = m[3][3];
+	return tmp;
 }
 
 float Matrix4f::determinant() const {

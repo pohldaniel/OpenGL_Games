@@ -61,6 +61,9 @@
     <Filter Include="Nvidia">
       <UniqueIdentifier>{ce5087f1-579c-4602-abb3-8dd64a2d622f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="vectormath">
+      <UniqueIdentifier>{a9d57d40-ec63-41d1-8e5c-db789c7eacd2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine\input\Event.h">
@@ -255,6 +258,27 @@
     <ClInclude Include="engine\animation\Animator2D.h">
       <Filter>engine\animation</Filter>
     </ClInclude>
+    <ClInclude Include="Perlin.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="vectormath\mat_aos.h">
+      <Filter>vectormath</Filter>
+    </ClInclude>
+    <ClInclude Include="vectormath\quat_aos.h">
+      <Filter>vectormath</Filter>
+    </ClInclude>
+    <ClInclude Include="vectormath\vec_aos.h">
+      <Filter>vectormath</Filter>
+    </ClInclude>
+    <ClInclude Include="vectormath\vectormath_aos.h">
+      <Filter>vectormath</Filter>
+    </ClInclude>
+    <ClInclude Include="VectorMath.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Trackball.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine\input\EventDispatcher.cpp">
@@ -433,6 +457,12 @@
     </ClCompile>
     <ClCompile Include="engine\animation\Animator2D.cpp">
       <Filter>engine\animation</Filter>
+    </ClCompile>
+    <ClCompile Include="Perlin.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="Trackball.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
