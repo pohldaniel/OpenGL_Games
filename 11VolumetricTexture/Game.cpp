@@ -10,7 +10,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	m_cube = new Cube();
 	m_camera = Camera();
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 1.0f, 100.0f);
-	m_camera.lookAt(Vector3f(0.0f, 0.0f, 10.0f), Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
+	m_camera.lookAt(Vector3f(0.0f, 0.0f, 5.0f), Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
 	m_camera.setRotationSpeed(0.1f);
 
 	fluidSys = new FluidSystem(m_width, m_height, m_depth);
@@ -40,13 +40,19 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	m_streamline = new Shader("res/shader/compute/streamline.vs", "res/shader/compute/streamline.fs", "res/shader/compute/streamline.gs");
 	m_splat2 = new Shader("res/shader/compute/splat2.vs", "res/shader/compute/splat2.fs", "res/shader/compute/splat2.gs");
 
-	fbo2 = CreateSurface(PEZ_VIEWPORT_WIDTH, PEZ_VIEWPORT_HEIGHT, texture1, texture2);
-	SplatTexture = CreateCpuSplat(QuadVao);
+	fbo2 = CreateSurface(Application::Width, Application::Height, texture1, texture2);
+	
+	PointList positions = CreatePathline();
+	SplatTexture = CreateSplat(QuadVao, positions);
+	SplatTextureCpu = CreateCpuSplat(QuadVao);
+	NoiseTexture = CreateNoise();
 
 	const float HalfWidth = 0.5f;
-	const float HalfHeight = HalfWidth * PEZ_VIEWPORT_HEIGHT / PEZ_VIEWPORT_WIDTH;
+	const float HalfHeight = HalfWidth * Application::Height / Application::Width;
 
-	m_projection = Matrix4f::GetPerspective(-HalfWidth, +HalfWidth, -HalfHeight, +HalfHeight, 2.0f, 70.0f);
+	//m_model2.translate(2.5f, -2.5f, 0.0f);
+
+	//m_projection = Matrix4f::GetPerspective(-HalfWidth, +HalfWidth, -HalfHeight, +HalfHeight, 2.0f, 70.0f);
 }
 
 Game::~Game() {}
@@ -96,6 +102,14 @@ void Game::update() {
 		fluidSys->reset();
 	}
 
+	if (keyboard.keyPressed(Keyboard::KEY_M)) {
+		m_cpuSplat = !m_cpuSplat;
+	}
+
+	if (keyboard.keyPressed(Keyboard::KEY_B)) {
+		m_drawBorder = !m_drawBorder;
+	}
+
 	Mouse &mouse = Mouse::instance();
 
 	if (mouse.buttonDown(Mouse::MouseButton::BUTTON_RIGHT)) {
@@ -121,10 +135,40 @@ void Game::update() {
 
 void Game::render(unsigned int &frameBuffer) {
 
-	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+	glClearColor(0, 0.25f, 0.5f, 1);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	
+	renderOffscreen();
 
+	glDisable(GL_DEPTH_TEST);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+	auto shader = Globals::shaderManager.getAssetPointer("twopass_ray");
+	glUseProgram(shader->m_program);
+	shader->loadMatrix("ModelviewProjection", m_camera.getProjectionMatrix() * m_camera.getViewMatrix() * m_tranformCloud2.getTransformationMatrix());
+	shader->loadMatrix("Modelview", m_camera.getViewMatrix()* m_tranformCloud2.getTransformationMatrix());
+	shader->loadMatrix("ViewMatrix", m_camera.getViewMatrix());
+	shader->loadMatrix("ProjectionMatrix", m_camera.getProjectionMatrix());
+	shader->loadVector("backgroundColor", Vector4f(0.0f, 0.25f, 0.5f, 1.0f));
+	shader->loadInt("RayStartPoints", 0);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, m_intervalls[0].getColorTexture());
+	shader->loadInt("RayStopPoints", 1);
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, m_intervalls[1].getColorTexture());
+
+	shader->loadInt("Density", 2);
+	glActiveTexture(GL_TEXTURE2);
+	glBindTexture(GL_TEXTURE_3D, cloudTexture);
+
+	shader->loadVector("EyePosition", m_camera.getPosition());
+
+	glDrawArrays(GL_POINTS, 0, 1);
+	glUseProgram(0);
+	
+	
+	glDisable(GL_BLEND);
 	if (((rand() & 0xff) > 220)) {
 		fluidSys->splat();
 	}
@@ -133,12 +177,11 @@ void Game::render(unsigned int &frameBuffer) {
 
 
 	fluidSys->getStateBuffer()->setFiltering(GL_LINEAR);
-	auto shader = Globals::shaderManager.getAssetPointer("ray_march");
+	shader = Globals::shaderManager.getAssetPointer("ray_march");
 	glUseProgram(shader->m_program);
 	shader->loadMatrix("u_projection", m_camera.getProjectionMatrix());
-	shader->loadMatrix("u_modelView", m_camera.getViewMatrix() * m_model);
-	shader->loadMatrix("u_invModelView", m_invModel * m_camera.getInvViewMatrix());
-
+	shader->loadMatrix("u_modelView", m_camera.getViewMatrix() * m_tranformFluid.getTransformationMatrix());
+	shader->loadMatrix("u_invModelView", m_tranformFluid.getInvTransformationMatrix() * m_camera.getInvViewMatrix());
 	shader->loadFloat("density", 0.01f);
 	shader->loadFloat("brightness", 2.0f);
 
@@ -149,8 +192,8 @@ void Game::render(unsigned int &frameBuffer) {
 	m_cube->drawRaw();
 	glUseProgram(0);
 
-	///////////////////////////////////////////////////////////////////////////////////
-	/*shader = Globals::shaderManager.getAssetPointer("ray_march_c");
+	/////////////////////////////////Compute Raymarcher//////////////////////////////////////////////////
+	/**shader = Globals::shaderManager.getAssetPointer("ray_march_c");
 	glUseProgram(shader->m_program);
 	shader->loadMatrix("u_projection", m_camera.getProjectionMatrix());
 	shader->loadMatrix("u_modelView", m_camera.getViewMatrix() * m_model);
@@ -177,84 +220,55 @@ void Game::render(unsigned int &frameBuffer) {
 	m_cube->drawRaw();
 	glUseProgram(0);*/
 	///////////////////////////////////////////////////////////////////////////////////
-	/*glClearColor(0.2f, 0.2f, 0.2f, 0.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glDisable(GL_DEPTH_TEST);
-	glEnable(GL_BLEND);
-	glEnable(GL_CULL_FACE);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	auto shader = Globals::shaderManager.getAssetPointer("singlepass");
-	glUseProgram(shader->m_program);
-	shader->loadMatrix("u_modelviewProjection", m_camera.getProjectionMatrix() * m_camera.getViewMatrix() * m_model);
-	shader->loadMatrix("u_invModelView", m_invModel * m_camera.getInvViewMatrix());
-	shader->loadInt("Density", 0);
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_3D, cloudTexture);
-
-	glBindBuffer(GL_ARRAY_BUFFER, cubeCenterVbo);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), 0);
-	glEnableVertexAttribArray(0);
-
-	glDrawArrays(GL_POINTS, 0, 1);
-
-	glDisableVertexAttribArray(0);
-	glUseProgram(0);
-
-	glEnable(GL_ALPHA_TEST);
-	glEnable(GL_DEPTH_TEST);
-	glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-	shader = Globals::shaderManager.getAssetPointer("ray_march");
-	glUseProgram(shader->m_program);
-	shader->loadMatrix("u_projection", m_camera.getProjectionMatrix());
-	shader->loadMatrix("u_modelView", m_camera.getViewMatrix() * m_model);
-	shader->loadMatrix("u_invModelView", m_invModel * m_camera.getInvViewMatrix());
-
-	shader->loadFloat("density", 0.01f);
-	shader->loadFloat("brightness", 2.0f);
-
-	shader->loadInt("u_texture", 0);
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_3D, cloudTexture);
-
-	m_cube->drawRaw();
-	glUseProgram(0);*/
-
-	/*renderOffscreen();
-
-	glBindTexture(GL_TEXTURE_3D, cloudTexture);
-	glDisable(GL_DEPTH_TEST);
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	auto shader = Globals::shaderManager.getAssetPointer("twopass_ray");
-	glUseProgram(shader->m_program);
-	shader->loadMatrix("ModelviewProjection", m_camera.getProjectionMatrix() * m_camera.getViewMatrix() * m_model);
-	shader->loadMatrix("Modelview", m_camera.getViewMatrix()* m_model);
-	shader->loadMatrix("ViewMatrix", m_camera.getViewMatrix());
-	shader->loadMatrix("ProjectionMatrix", m_camera.getProjectionMatrix());
-	shader->loadInt("RayStartPoints", 1);
-	shader->loadInt("RayStopPoints", 2);
-	shader->loadVector("EyePosition", m_camera.getPosition());
 	
-	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, m_intervalls[0].getColorTexture());
-	glActiveTexture(GL_TEXTURE2);
-	glBindTexture(GL_TEXTURE_2D, m_intervalls[1].getColorTexture());
-	glClearColor(0.2f, 0.2f, 0.2f, 0);
-	glClear(GL_COLOR_BUFFER_BIT);
+	if (!m_drawBorder) {
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glEnable(GL_CULL_FACE);
+		auto shader = Globals::shaderManager.getAssetPointer("singlepass");
+		glUseProgram(shader->m_program);
+		shader->loadMatrix("u_modelviewProjection", m_camera.getProjectionMatrix() * m_camera.getViewMatrix() * m_tranformCloud1.getTransformationMatrix());
+		shader->loadMatrix("u_invModelView", m_tranformCloud1.getInvTransformationMatrix() * m_camera.getInvViewMatrix());
+		shader->loadInt("Density", 0);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_3D, cloudTexture);
 
-	glDrawArrays(GL_POINTS, 0, 1);
-	glUseProgram(0);*/
+		glBindVertexArray(cubeCenterVbo);
+		//glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), 0);
+		//glEnableVertexAttribArray(0);
 
+		glDrawArrays(GL_POINTS, 0, 1);
 
-	/*glClearColor(0, 0.25f, 0.5f, 1);
-	glClear(GL_COLOR_BUFFER_BIT);
+		glDisableVertexAttribArray(0);
+		glUseProgram(0);
+		glDisable(GL_CULL_FACE);
+
+	}else {
+		////////////////////////////////////////////////////////////////////////////////////
+		auto shader = Globals::shaderManager.getAssetPointer("ray_march");
+		glUseProgram(shader->m_program);
+		shader->loadMatrix("u_projection", m_camera.getProjectionMatrix());
+		shader->loadMatrix("u_modelView", m_camera.getViewMatrix() * m_tranformCloud1.getTransformationMatrix());
+		shader->loadMatrix("u_invModelView", m_tranformCloud1.getInvTransformationMatrix() * m_camera.getInvViewMatrix());
+
+		shader->loadFloat("density", 0.01f);
+		shader->loadFloat("brightness", 2.0f);
+
+		shader->loadInt("u_texture", 0);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_3D, cloudTexture);
+
+		m_cube->drawRaw();
+		glUseProgram(0);
+	}
+	////////////////////////////////////////////////////////////////////////////////////
 
 	glBlendFunc(GL_ONE, GL_ONE);
 	glDisable(GL_DEPTH_TEST);
 
 	// Update the ray start & stop surfaces:
 	glUseProgram(m_endpoit->m_program);
-	m_endpoit->loadMatrix("ModelviewProjection", m_projection * m_camera.getViewMatrix() * m_model);
+	m_endpoit->loadMatrix("ModelviewProjection", m_camera.getProjectionMatrix() * m_camera.getViewMatrix() * m_tranformSplat.getTransformationMatrix());
 
 	glEnable(GL_BLEND);
 	glBindFramebuffer(GL_FRAMEBUFFER, fbo2);
@@ -263,13 +277,14 @@ void Game::render(unsigned int &frameBuffer) {
 	glBindVertexArray(CubeVao);
 
 	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_SHORT, 0);
+
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glDisable(GL_BLEND);
 	glUseProgram(0);
 
 	glUseProgram(m_ray->m_program);
 
-	m_ray->loadMatrix("NormalMatrix", Matrix4f::GetNormalMatrix(m_camera.getViewMatrix() * m_model));
+	m_ray->loadMatrix("NormalMatrix", Matrix4f::GetNormalMatrix(m_camera.getViewMatrix() * m_tranformSplat.getTransformationMatrix()));
 	m_ray->loadVector("LightPosition", Vector3f(0.25f, 0.25f, 1.0f));
 	m_ray->loadVector("DiffuseMaterial", Vector3f(1.0f, 1.0f, 0.5f));
 
@@ -278,17 +293,19 @@ void Game::render(unsigned int &frameBuffer) {
 	glBindTexture(GL_TEXTURE_2D, texture1);
 
 	m_ray->loadInt("RayStop", 1);
-	glBindTexture(GL_TEXTURE_2D, texture2);
 	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, texture2);
+
 
 	m_ray->loadInt("Volume", 2);
 	glActiveTexture(GL_TEXTURE2);
-	glBindTexture(GL_TEXTURE_3D, SplatTexture);
+	glBindTexture(GL_TEXTURE_3D, m_cpuSplat ? SplatTextureCpu : SplatTexture);
 
 
-	glActiveTexture(GL_TEXTURE0); glBindTexture(GL_TEXTURE_2D, texture1);
-	glActiveTexture(GL_TEXTURE1); glBindTexture(GL_TEXTURE_2D, texture2);
-	glActiveTexture(GL_TEXTURE2); glBindTexture(GL_TEXTURE_3D, SplatTexture);
+	m_ray->loadInt("Noise", 3);
+	glActiveTexture(GL_TEXTURE3);
+	glBindTexture(GL_TEXTURE_2D, NoiseTexture);
+
 	glBindVertexArray(QuadVao);
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
@@ -296,7 +313,7 @@ void Game::render(unsigned int &frameBuffer) {
 	glEnable(GL_BLEND);
 	m_streamline = Globals::shaderManager.getAssetPointer("streamline");
 	glUseProgram(m_streamline->m_program);
-	m_streamline->loadMatrix("ModelviewProjection", m_projection * m_camera.getViewMatrix() * m_model);
+	m_streamline->loadMatrix("ModelviewProjection", m_camera.getProjectionMatrix() * m_camera.getViewMatrix() * m_tranformSplat.getTransformationMatrix());
 	m_streamline->loadInt("Volume", 2);
 	glBindVertexArray(GridVao);
 	glDrawArrays(GL_POINTS, 0, GridDensity * GridDensity * GridDensity);
@@ -306,14 +323,14 @@ void Game::render(unsigned int &frameBuffer) {
 	if (true) {
 		//BindProgram(WireframeProgram);
 		glUseProgram(m_wireframe->m_program);
-		m_wireframe->loadMatrix("ModelviewProjection", m_projection * m_camera.getViewMatrix() * m_model);
-		m_wireframe->loadMatrix("NormalMatrix", Matrix4f::GetNormalMatrix(m_camera.getViewMatrix() * m_model));
+		m_wireframe->loadMatrix("ModelviewProjection", m_camera.getProjectionMatrix() * m_camera.getViewMatrix() * m_tranformSplat.getTransformationMatrix());
+		m_wireframe->loadMatrix("NormalMatrix", Matrix4f::GetNormalMatrix(m_camera.getViewMatrix() * m_tranformSplat.getTransformationMatrix()));
 		m_wireframe->loadVector("LightPosition", Vector3f(0.25f, 0.25f, 1.0f));
 
 
-		glBindVertexArray(CubeVao);
+		glBindVertexArray(CubeVao);		
 		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_SHORT, 0);
-	}*/
+	}
 }
 
 void Game::OnMouseMotion(Event::MouseMoveEvent& event) {
@@ -341,12 +358,24 @@ void Game::applyTransformation(nv::matrix4f& mtx) {
 		mtx._31, mtx._32, mtx._33, mtx._34,
 		mtx._41, mtx._42, mtx._43, mtx._44);
 
-	m_invModel.set(m_model[0][0], m_model[1][0], m_model[2][0], 0.0f,
+	m_tranformSplat.fromMatrix(m_model);
+	m_tranformSplat.translate(2.5f, -2.0f, 0.0f);
+
+	m_tranformFluid.fromMatrix(m_model);
+	m_tranformFluid.translate(-2.5f, 2.0f, 0.0f);
+
+	m_tranformCloud1.fromMatrix(m_model);
+	m_tranformCloud1.translate(2.5f, 2.0f, 0.0f);
+
+	m_tranformCloud2.fromMatrix(m_model);
+	m_tranformCloud2.translate(-2.5f, -2.0f, 0.0f);
+
+	/*m_invModel.set(m_model[0][0], m_model[1][0], m_model[2][0], 0.0f,
 		m_model[0][1], m_model[1][1], m_model[2][1], 0.0f,
 		m_model[0][2], m_model[1][2], m_model[2][2], 0.0f,
 		-(m_model[3][0] * m_model[0][0] + m_model[3][1] * m_model[0][1] + m_model[3][2] * m_model[0][2]),
 		-(m_model[3][0] * m_model[1][0] + m_model[3][1] * m_model[1][1] + m_model[3][2] * m_model[1][2]),
-		-(m_model[3][0] * m_model[2][0] + m_model[3][1] * m_model[2][1] + m_model[3][2] * m_model[2][2]), 1.0f);
+		-(m_model[3][0] * m_model[2][0] + m_model[3][1] * m_model[2][1] + m_model[3][2] * m_model[2][2]), 1.0f);*/
 
 }
 
@@ -400,22 +429,33 @@ unsigned int Game::createPyroclasticVolume(int n, float r) {
 
 unsigned int Game::createPointVbo(float x, float y, float z) {
 	float p[] = { x, y, z };
+	
+	GLuint vao;
+	glGenVertexArrays(1, &vao);
+	glBindVertexArray(vao);
+	
 	GLuint vbo;
 	glGenBuffers(1, &vbo);
+
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(p), &p[0], GL_STATIC_DRAW);
-	return vbo;
-}
 
-void Game::renderOffscreen() {
-	glEnable(GL_CULL_FACE);
-	glBindBuffer(GL_ARRAY_BUFFER, cubeCenterVbo);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), 0);
 	glEnableVertexAttribArray(0);
 
+	return vao;
+}
+
+void Game::renderOffscreen() {
+	
+	m_intervalls[0].bind();
+
+	glBindVertexArray(cubeCenterVbo);
+
+	glEnable(GL_CULL_FACE);
 	auto shader = Globals::shaderManager.getAssetPointer("twopass_int");
 	glUseProgram(shader->m_program);
-	shader->loadMatrix("ModelviewProjection", m_camera.getProjectionMatrix() * m_camera.getViewMatrix()* m_model);
+	shader->loadMatrix("ModelviewProjection", m_camera.getProjectionMatrix() * m_camera.getViewMatrix()* m_tranformCloud2.getTransformationMatrix());
 	shader->loadMatrix("Modelview", m_camera.getViewMatrix()* m_model);
 	shader->loadMatrix("ViewMatrix", m_camera.getViewMatrix());
 	shader->loadMatrix("ProjectionMatrix", m_camera.getProjectionMatrix());
@@ -423,20 +463,9 @@ void Game::renderOffscreen() {
 	shader->loadInt("RayStopPoints", 2);
 	shader->loadVector("EyePosition", m_camera.getPosition());
 
-	Vector4f rayOrigin(Matrix4f::Transpose(m_camera.getViewMatrix()) * m_camera.getPosition());
-	shader->loadVector("RayOrigin", Vector3f(rayOrigin[0], rayOrigin[1], rayOrigin[2]));
-
-	float _focalLength = 1.0f / std::tan(0.7f / 2);
-	shader->loadFloat("FocalLength", _focalLength);
-	shader->loadVector("WindowSize", Vector2f(float(Application::Width), float(Application::Height)));
-
-	m_intervalls[0].bind();
-
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 	glCullFace(GL_FRONT);
 	glDrawArrays(GL_POINTS, 0, 1);
-
 
 	m_intervalls[1].bind();
 	glClear(GL_COLOR_BUFFER_BIT);
@@ -444,9 +473,8 @@ void Game::renderOffscreen() {
 	glDrawArrays(GL_POINTS, 0, 1);
 
 
-
-	m_intervalls[1].unbind();
 	glDisable(GL_CULL_FACE);
+	m_intervalls[1].unbind();	
 }
 
 GLenum* Game::EnumArray(GLenum a, GLenum b) {
@@ -544,6 +572,7 @@ GLuint Game::CreateCube()
 
 	// Create the VBO for positions:
 	{
+
 		GLuint vbo;
 		GLsizeiptr size = sizeof(positions);
 		glGenBuffers(1, &vbo);
@@ -553,17 +582,16 @@ GLuint Game::CreateCube()
 
 	// Create the VBO for indices:
 	{
-		GLuint vbo;
+		GLuint ibo;
 		GLsizeiptr size = sizeof(indices);
-		glGenBuffers(1, &vbo);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo);
+		glGenBuffers(1, &ibo);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, size, indices, GL_STATIC_DRAW);
 	}
 
 	// Set up the vertex layout:
-	GLsizeiptr stride = 3 * sizeof(positions[0]);
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, 0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), 0);
 
 	return vao;
 }
@@ -644,4 +672,102 @@ GLuint Game::CreatePoints() {
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, 0);
 
 	return vao;
+}
+
+GLuint Game::CreateSplat(GLuint quadVao, PointList positions) {
+	const int Size = 64;
+	unsigned int m_texture;
+	glGenTextures(1, &m_texture);
+	glBindTexture(GL_TEXTURE_3D, m_texture);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	glGenFramebuffers(1, &fbo);
+	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+	glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA16F, Size, Size, Size, 0, GL_RGBA, GL_HALF_FLOAT, 0);
+	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, m_texture, 0);
+
+	glClearColor(0, 0, 0, 0);
+	glClear(GL_COLOR_BUFFER_BIT);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	const float innerScale = 0.4f;
+
+	auto shader = Globals::shaderManager.getAssetPointer("splat2");
+	glUseProgram(shader->m_program);
+	shader->loadFloat("InverseSize", 1.0f / (float)Size);
+	shader->loadFloat("InverseVariance", -1.0f / (2.0f * innerScale * innerScale));
+	shader->loadFloat("NormalizationConstant", 1.0f / std::pow(std::sqrt(TWO_PI) * innerScale, 3.0f));
+
+	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+	glBindTexture(GL_TEXTURE_3D, 0);
+	glViewport(0, 0, Size, Size);
+	glBindVertexArray(quadVao);
+
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_ONE, GL_ONE);
+
+	PointList::const_iterator i = positions.begin();
+	for (; i != positions.end(); ++i) {
+
+		PointList::const_iterator next = i;
+		if (++next == positions.end())
+			next = positions.begin();
+		VectorMath::Vector3 velocity = (*next - *i);
+
+		shader->loadVector("Center", Vector4f(i->getX(), i->getY(), i->getZ(), 0.0f));
+		shader->loadVector("Color", Vector3f(velocity[0], velocity[1], velocity[2]));
+		glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, Size);
+	}
+
+	glViewport(0, 0, Application::Width, Application::Height);
+	glDisable(GL_BLEND);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glUseProgram(0);
+	return m_texture;
+}
+
+GLuint Game::CreateNoise() {
+
+	int Width = 256;
+	int Height = 256;
+
+	char* pixels = new char[Width * Height];
+
+	char* pDest = pixels;
+	for (int i = 0; i < Width * Height; i++) {
+		*pDest++ = rand() % 256;
+	}
+
+	GLuint textureHandle;
+	glGenTextures(1, &textureHandle);
+	glBindTexture(GL_TEXTURE_2D, textureHandle);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_R8, Width, Height, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, pixels);
+	glBindTexture(GL_TEXTURE_2D, 0);
+	delete[] pixels;
+
+	return textureHandle;
+}
+
+PointList Game::CreatePathline() {
+	PointList path(64);
+
+	const float dtheta = TWO_PI / float(path.size());
+	const float r = 0.5f;
+
+	PointList::iterator i = path.begin();
+	for (float theta = 0; i != path.end(); ++i, theta += dtheta) {
+		i->setX(r * std::cos(theta));
+		i->setY(r * std::sin(theta));
+		i->setZ(0);
+	}
+
+	return path;
 }

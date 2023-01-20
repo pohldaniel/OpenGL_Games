@@ -222,6 +222,9 @@ void Application::initOpenGL() {
 	hRC = wglCreateContext(hDC);				// create rendering context and make it current
 	wglMakeCurrent(hDC, hRC);
 	enableVerticalSync(true);
+
+	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 }
 
 void Application::enableVerticalSync(bool enableVerticalSync) {

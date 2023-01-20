@@ -28,10 +28,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	MoveWindow(GetConsoleWindow(), 1300, 0, 550, 300, true);
 	std::cout << "w, a, s, d, q, e : move camera" << std::endl;
 	std::cout << "right mouse      : rotate camera" << std::endl;
-	std::cout << "left mouse       : rotate model" << std::endl;
+	std::cout << "left mouse       : rotate models" << std::endl;
 	std::cout << "ESC              : quit" << std::endl;
 	std::cout << "v                : toggle vsync" << std::endl;
 	std::cout << "z                : toggle wireframe" << std::endl;
+	std::cout << "b                : draw border" << std::endl;
+	std::cout << "m                : change splat" << std::endl;
 	std::cout << "alt + enter      : fullscreen" << std::endl;
 	#endif
 

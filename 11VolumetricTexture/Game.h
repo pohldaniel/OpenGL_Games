@@ -16,14 +16,10 @@
 #include "engine/ObjModel.h"
 #include "engine/Cube.h"
 
-
 #include "Constants.h"
 #include "StateMachine.h"
 #include "FluidSystem.h"
 #include "VectorMath.h"
-
-#define PEZ_VIEWPORT_WIDTH (1600)
-#define PEZ_VIEWPORT_HEIGHT (900)
 
 typedef std::vector<VectorMath::Point3> PointList;
 
@@ -46,6 +42,8 @@ public:
 	unsigned int createPointVbo(float x, float y, float z);
 	void renderOffscreen();
 
+;
+
 	Camera m_camera;
 	Cube* m_cube;
 
@@ -56,6 +54,12 @@ public:
 	nv::GlutExamine trackball;
 	Matrix4f m_model;
 	Matrix4f m_invModel;
+
+	Transform m_tranformSplat;
+	Transform m_tranformFluid;
+	Transform m_tranformCloud1;
+	Transform m_tranformCloud2;
+
 	unsigned int m_result;
 	unsigned int cloudTexture; 
 	unsigned int cubeCenterVbo;
@@ -70,16 +74,21 @@ public:
 	GLuint CreatePoints();
 	GLuint CreateCube();
 
-
+	GLuint CreateSplat(GLuint quadVao, PointList positions);
 	GLuint CreateCpuSplat(GLuint quadVao);
 	GLuint CreateSurface(GLsizei width, GLsizei height, unsigned int& tex1, unsigned int& tex2);
+	GLuint CreateNoise();
+	PointList CreatePathline();
 
 	GLuint QuadVao;
 	GLuint CubeVao;
 	GLuint GridVao;
-	 GLuint SplatTexture;
+	GLuint SplatTexture;
+	GLuint SplatTextureCpu;
+	GLuint NoiseTexture;
 	GLenum* EnumArray(GLenum a, GLenum b);
-	Matrix4f m_projection;
+	//Matrix4f m_projection;
+
 
 	Shader* m_endpoit;
 	Shader* m_ray;
@@ -91,5 +100,8 @@ public:
 	unsigned int fbo2;
 	unsigned int texture1;
 	unsigned int texture2;
+
+	bool m_cpuSplat = false;
+	bool m_drawBorder = true;
 };
 

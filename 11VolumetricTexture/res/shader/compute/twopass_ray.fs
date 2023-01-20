@@ -12,6 +12,7 @@ uniform vec3 LightIntensity = vec3(15);
 uniform float Absorption = 1.0;
 uniform mat4 Modelview;
 uniform mat4 ViewMatrix;
+uniform vec4 backgroundColor = vec4(0.5);
 
 const float maxDist = sqrt(2.0);
 const int numSamples = 128;
@@ -27,7 +28,7 @@ void main()
 
     if (rayStart == rayStop)
     {
-        FragColor = vec4(1);
+        FragColor = backgroundColor;
         return;
     }
 
