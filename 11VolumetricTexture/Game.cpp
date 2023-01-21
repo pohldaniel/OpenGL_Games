@@ -45,6 +45,8 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	PointList positions = CreatePathline();
 	SplatTexture = CreateSplat(QuadVao, positions);
 	SplatTextureCpu = CreateCpuSplat(QuadVao);
+	Teapot = CreateTexture("res/boston_teapot_256x256x178.raw", 256, 256, 178);
+	Bonsai = CreateTexture("res/bonsai_256x256x256.raw", 256, 256, 256, false);
 	NoiseTexture = CreateNoise();
 
 	const float HalfWidth = 0.5f;
@@ -175,7 +177,7 @@ void Game::render(unsigned int &frameBuffer) {
 	fluidSys->getStateBuffer()->setFiltering(GL_NEAREST);
 	fluidSys->step(1.0f);
 
-
+	glEnable(GL_DEPTH_TEST);
 	fluidSys->getStateBuffer()->setFiltering(GL_LINEAR);
 	shader = Globals::shaderManager.getAssetPointer("ray_march");
 	glUseProgram(shader->m_program);
@@ -188,6 +190,20 @@ void Game::render(unsigned int &frameBuffer) {
 	shader->loadInt("u_texture", 0);
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_3D, fluidSys->getStateBuffer()->getTexture());
+
+	m_cube->drawRaw();
+	glUseProgram(0);
+
+	glUseProgram(shader->m_program);
+	shader->loadMatrix("u_projection", m_camera.getProjectionMatrix());
+	shader->loadMatrix("u_modelView", m_camera.getViewMatrix() * m_tranformModel.getTransformationMatrix());
+	shader->loadMatrix("u_invModelView", m_tranformModel.getInvTransformationMatrix() * m_camera.getInvViewMatrix());
+	shader->loadFloat("density", 0.01f);
+	shader->loadFloat("brightness", 2.0f);
+
+	shader->loadInt("u_texture", 0);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_3D, m_cpuSplat ? Bonsai : Teapot);
 
 	m_cube->drawRaw();
 	glUseProgram(0);
@@ -265,7 +281,6 @@ void Game::render(unsigned int &frameBuffer) {
 
 	glBlendFunc(GL_ONE, GL_ONE);
 	glDisable(GL_DEPTH_TEST);
-
 	// Update the ray start & stop surfaces:
 	glUseProgram(m_endpoit->m_program);
 	m_endpoit->loadMatrix("ModelviewProjection", m_camera.getProjectionMatrix() * m_camera.getViewMatrix() * m_tranformSplat.getTransformationMatrix());
@@ -359,16 +374,18 @@ void Game::applyTransformation(nv::matrix4f& mtx) {
 		mtx._41, mtx._42, mtx._43, mtx._44);
 
 	m_tranformSplat.fromMatrix(m_model);
-	m_tranformSplat.translate(2.5f, -2.0f, 0.0f);
+	m_tranformSplat.translate(3.0f, -2.0f, 0.0f);
 
 	m_tranformFluid.fromMatrix(m_model);
-	m_tranformFluid.translate(-2.5f, 2.0f, 0.0f);
+	m_tranformFluid.translate(-3.0f, 2.0f, 0.0f);
 
 	m_tranformCloud1.fromMatrix(m_model);
-	m_tranformCloud1.translate(2.5f, 2.0f, 0.0f);
+	m_tranformCloud1.translate(3.0f, 2.0f, 0.0f);
 
 	m_tranformCloud2.fromMatrix(m_model);
-	m_tranformCloud2.translate(-2.5f, -2.0f, 0.0f);
+	m_tranformCloud2.translate(-3.0f, -2.0f, 0.0f);
+
+	m_tranformModel.fromMatrix(m_model);
 
 	/*m_invModel.set(m_model[0][0], m_model[1][0], m_model[2][0], 0.0f,
 		m_model[0][1], m_model[1][1], m_model[2][1], 0.0f,
@@ -770,4 +787,51 @@ PointList Game::CreatePathline() {
 	}
 
 	return path;
+}
+
+GLuint Game::CreateTexture(const char *filename, int width, int height, int slices, bool flipvertical) {
+	FILE *filePtr;
+
+	// open filename in "read binary" mode
+	filePtr = fopen(filename, "rb");
+	if (filePtr == NULL)
+		return 0;
+
+	// File has only image data. The dimension of the data should be known.
+	unsigned char* data = (unsigned char*)malloc(width*height*slices);
+
+	// verify memory allocation
+	if (!data) {
+		free(data);
+		fclose(filePtr);
+		return 0;
+	}
+
+	fread(data, 1, width*height*slices, filePtr);
+	std::vector<unsigned char> pixel;
+	if (flipvertical) {
+		for (int i = 0; i < slices - 1; i++) {
+			std::vector<unsigned char> subimage(data + width*height * i, data + width*height * (i + 1));
+			Texture::FlipVertical(subimage.data(), width, height);
+			pixel.insert(pixel.end(), subimage.begin(), subimage.end());
+		}
+	}else {
+		pixel = std::vector<unsigned char>(data, data + width*height* slices);
+	}
+
+	GLuint textureHandle;
+	glGenTextures(1, &textureHandle);
+	glBindTexture(GL_TEXTURE_3D, textureHandle);
+	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_BORDER);
+
+	glTexImage3D(GL_TEXTURE_3D, 0, GL_R8, width, height, slices, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, &pixel[0]);
+
+	free(data);
+
+	return textureHandle;
 }

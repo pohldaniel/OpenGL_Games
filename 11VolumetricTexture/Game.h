@@ -59,6 +59,7 @@ public:
 	Transform m_tranformFluid;
 	Transform m_tranformCloud1;
 	Transform m_tranformCloud2;
+	Transform m_tranformModel;
 
 	unsigned int m_result;
 	unsigned int cloudTexture; 
@@ -73,6 +74,7 @@ public:
 	GLuint CreateQuad();
 	GLuint CreatePoints();
 	GLuint CreateCube();
+	GLuint CreateTexture(const char *filename, int width, int height, int slices, bool flipvertical = true);
 
 	GLuint CreateSplat(GLuint quadVao, PointList positions);
 	GLuint CreateCpuSplat(GLuint quadVao);
@@ -85,9 +87,11 @@ public:
 	GLuint GridVao;
 	GLuint SplatTexture;
 	GLuint SplatTextureCpu;
+	GLuint Teapot;
+	GLuint Bonsai;
 	GLuint NoiseTexture;
 	GLenum* EnumArray(GLenum a, GLenum b);
-	//Matrix4f m_projection;
+
 
 
 	Shader* m_endpoit;
