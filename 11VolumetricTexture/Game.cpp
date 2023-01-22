@@ -45,16 +45,15 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	PointList positions = CreatePathline();
 	SplatTexture = CreateSplat(QuadVao, positions);
 	SplatTextureCpu = CreateCpuSplat(QuadVao);
-	Teapot = CreateTexture("res/boston_teapot_256x256x178.raw", 256, 256, 178);
-	Bonsai = CreateTexture("res/bonsai_256x256x256.raw", 256, 256, 256, false);
+	
+	scan[0] = CreateTexture("res/boston_teapot_256x256x178.raw", 256, 256, 178);
+	scan[1] = CreateTexture("res/bonsai_256x256x256.raw", 256, 256, 256, false);
+	scan[2] = CreateTexture("res/suzanne_128x128x128.raw", 128, 128, 128);
+
+	//approach to generate volume data using blende
+	//scan[2] = Create("res/suzanne", 128, 128, 128);
+	
 	NoiseTexture = CreateNoise();
-
-	const float HalfWidth = 0.5f;
-	const float HalfHeight = HalfWidth * Application::Height / Application::Width;
-
-	//m_model2.translate(2.5f, -2.5f, 0.0f);
-
-	//m_projection = Matrix4f::GetPerspective(-HalfWidth, +HalfWidth, -HalfHeight, +HalfHeight, 2.0f, 70.0f);
 }
 
 Game::~Game() {}
@@ -110,6 +109,18 @@ void Game::update() {
 
 	if (keyboard.keyPressed(Keyboard::KEY_B)) {
 		m_drawBorder = !m_drawBorder;
+	}
+
+	if (keyboard.keyPressed(Keyboard::KEY_1)) {
+		m_currentModel = 0;
+	}
+
+	if (keyboard.keyPressed(Keyboard::KEY_2)) {
+		m_currentModel = 1;
+	}
+
+	if (keyboard.keyPressed(Keyboard::KEY_3)) {
+		m_currentModel = 2;
 	}
 
 	Mouse &mouse = Mouse::instance();
@@ -203,7 +214,7 @@ void Game::render(unsigned int &frameBuffer) {
 
 	shader->loadInt("u_texture", 0);
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_3D, m_cpuSplat ? Bonsai : Teapot);
+	glBindTexture(GL_TEXTURE_3D, scan[m_currentModel]);
 
 	m_cube->drawRaw();
 	glUseProgram(0);
@@ -789,7 +800,7 @@ PointList Game::CreatePathline() {
 	return path;
 }
 
-GLuint Game::CreateTexture(const char *filename, int width, int height, int slices, bool flipvertical) {
+GLuint Game::CreateTexture(const char *filename, int width, int height, int depth, bool flipvertical) {
 	FILE *filePtr;
 
 	// open filename in "read binary" mode
@@ -798,7 +809,7 @@ GLuint Game::CreateTexture(const char *filename, int width, int height, int slic
 		return 0;
 
 	// File has only image data. The dimension of the data should be known.
-	unsigned char* data = (unsigned char*)malloc(width*height*slices);
+	unsigned char* data = (unsigned char*)malloc(width * height * depth);
 
 	// verify memory allocation
 	if (!data) {
@@ -807,16 +818,16 @@ GLuint Game::CreateTexture(const char *filename, int width, int height, int slic
 		return 0;
 	}
 
-	fread(data, 1, width*height*slices, filePtr);
+	fread(data, 1, width * height * depth, filePtr);
 	std::vector<unsigned char> pixel;
 	if (flipvertical) {
-		for (int i = 0; i < slices - 1; i++) {
+		for (int i = 0; i < depth - 1; i++) {
 			std::vector<unsigned char> subimage(data + width*height * i, data + width*height * (i + 1));
 			Texture::FlipVertical(subimage.data(), width, height);
 			pixel.insert(pixel.end(), subimage.begin(), subimage.end());
 		}
 	}else {
-		pixel = std::vector<unsigned char>(data, data + width*height* slices);
+		pixel = std::vector<unsigned char>(data, data + width*height * depth);
 	}
 
 	GLuint textureHandle;
@@ -829,9 +840,73 @@ GLuint Game::CreateTexture(const char *filename, int width, int height, int slic
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_BORDER);
 
-	glTexImage3D(GL_TEXTURE_3D, 0, GL_R8, width, height, slices, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, &pixel[0]);
+	glTexImage3D(GL_TEXTURE_3D, 0, GL_R8, width, height, depth, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, &pixel[0]);
 
 	free(data);
 
 	return textureHandle;
+}
+
+GLuint Game::Create(const char *path, int width, int height, int slices, bool flipvertical) {
+	FILE *filePtr;
+
+	std::vector<unsigned char> pixel;
+	std::vector<std::string> names;
+	std::string search_path = std::string(path) + "/*.*";
+	WIN32_FIND_DATA fd;
+	HANDLE hFind = FindFirstFile(search_path.c_str(), &fd);
+	if (hFind != INVALID_HANDLE_VALUE) {
+		do {
+			if (!(fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
+				
+				unsigned char* data = Texture::LoadFromFile(std::string(path) + "/" + fd.cFileName, false);
+				if(flipvertical)
+					Texture::FlipVertical(data, width * 4, height);
+
+				pixel.insert(pixel.end(), data , data + width * height * 4);
+				free(data);
+			}
+		} while (FindNextFile(hFind, &fd));
+		FindClose(hFind);
+	}
+
+	if (true) {
+		std::vector<unsigned char> pixelNew(width * height * slices);
+		for (int i = 0, k = 0; k < width * height * slices * 4; k = k + 4, i++) {
+			pixelNew[i] = pixel[k];
+		}
+
+		GLuint textureHandle;
+		glGenTextures(1, &textureHandle);
+		glBindTexture(GL_TEXTURE_3D, textureHandle);
+		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_BORDER);
+
+		glTexImage3D(GL_TEXTURE_3D, 0, GL_R8, width, height, slices, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, &pixelNew[0]);
+
+		std::ofstream binFile("suzanne.raw", std::ios::out | std::ios::binary);
+		if (binFile.is_open()){
+			binFile.write((char*)pixelNew.data(), width * height * slices * sizeof(char));
+			binFile.close();
+		}
+
+		return textureHandle;
+	}else {
+		GLuint textureHandle;
+		glGenTextures(1, &textureHandle);
+		glBindTexture(GL_TEXTURE_3D, textureHandle);
+		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_BORDER);
+
+		glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA8, width, height, slices, 0, GL_RGBA, GL_UNSIGNED_BYTE, &pixel[0]);
+		return textureHandle;
+	}	
 }

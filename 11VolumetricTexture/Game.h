@@ -74,7 +74,8 @@ public:
 	GLuint CreateQuad();
 	GLuint CreatePoints();
 	GLuint CreateCube();
-	GLuint CreateTexture(const char *filename, int width, int height, int slices, bool flipvertical = true);
+	GLuint CreateTexture(const char *filename, int width, int height, int depth, bool flipvertical = true);
+	GLuint Create(const char *path, int width, int height, int slices, bool flipvertical = true);
 
 	GLuint CreateSplat(GLuint quadVao, PointList positions);
 	GLuint CreateCpuSplat(GLuint quadVao);
@@ -87,8 +88,11 @@ public:
 	GLuint GridVao;
 	GLuint SplatTexture;
 	GLuint SplatTextureCpu;
-	GLuint Teapot;
-	GLuint Bonsai;
+	GLuint scan[3];
+
+	//GLuint Teapot;
+	//GLuint Bonsai;
+	//GLuint Suzanne;
 	GLuint NoiseTexture;
 	GLenum* EnumArray(GLenum a, GLenum b);
 
@@ -107,5 +111,7 @@ public:
 
 	bool m_cpuSplat = false;
 	bool m_drawBorder = true;
+
+	int m_currentModel = 0;
 };
 

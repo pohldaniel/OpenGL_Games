@@ -613,7 +613,7 @@ unsigned char* Texture::AddRemoveBottomPadding(unsigned char* imageData, int wid
 unsigned char* Texture::LoadFromFile(std::string pictureFile, const bool _flipVertical, short alphaChannel) {
 	int width, height, numCompontents;
 	unsigned char* bytes = SOIL_load_image(pictureFile.c_str(), &width, &height, &numCompontents, SOIL_LOAD_AUTO);
-	
+
 	if (_flipVertical)
 		FlipVertical(bytes, numCompontents * width, height);
 

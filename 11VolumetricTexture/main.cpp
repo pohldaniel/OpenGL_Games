@@ -34,6 +34,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	std::cout << "z                : toggle wireframe" << std::endl;
 	std::cout << "b                : draw border" << std::endl;
 	std::cout << "m                : change splat" << std::endl;
+	std::cout << "1, 2, 3          : change model" << std::endl;
 	std::cout << "alt + enter      : fullscreen" << std::endl;
 	#endif
 
