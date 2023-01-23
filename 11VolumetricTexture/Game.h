@@ -19,9 +19,8 @@
 #include "Constants.h"
 #include "StateMachine.h"
 #include "FluidSystem.h"
-#include "VectorMath.h"
 
-typedef std::vector<VectorMath::Point3> PointList;
+typedef std::vector<Vector3f> PointList;
 
 class Game : public State, public MouseEventListener {
 
@@ -42,11 +41,9 @@ public:
 	unsigned int createPointVbo(float x, float y, float z);
 	void renderOffscreen();
 
-;
-
 	Camera m_camera;
 	Cube* m_cube;
-
+	Quad* m_quad;
 
 	int m_depth = 128, m_width = 128, m_height = 128;
 	FluidSystem *fluidSys;
@@ -66,48 +63,24 @@ public:
 	unsigned int cubeCenterVbo;
 
 	Framebuffer m_intervalls[2];
-
+	Framebuffer m_surface;
 
 	const int PositionSlot = 0;
 	const int GridDensity = 16;
 
-	GLuint CreateQuad();
 	GLuint CreatePoints();
-	GLuint CreateCube();
 	GLuint CreateTexture(const char *filename, int width, int height, int depth, bool flipvertical = true);
 	GLuint Create(const char *path, int width, int height, int slices, bool flipvertical = true);
 
-	GLuint CreateSplat(GLuint quadVao, PointList positions);
-	GLuint CreateCpuSplat(GLuint quadVao);
-	GLuint CreateSurface(GLsizei width, GLsizei height, unsigned int& tex1, unsigned int& tex2);
-	GLuint CreateNoise();
+	GLuint CreateSplat(PointList positions);
+	GLuint CreateCpuSplat();
+
 	PointList CreatePathline();
 
-	GLuint QuadVao;
-	GLuint CubeVao;
 	GLuint GridVao;
 	GLuint SplatTexture;
 	GLuint SplatTextureCpu;
 	GLuint scan[3];
-
-	//GLuint Teapot;
-	//GLuint Bonsai;
-	//GLuint Suzanne;
-	GLuint NoiseTexture;
-	GLenum* EnumArray(GLenum a, GLenum b);
-
-
-
-	Shader* m_endpoit;
-	Shader* m_ray;
-	Shader* m_wireframe;
-	Shader* m_streamline;
-	Shader* m_splat2;
-
-	unsigned int fbo;
-	unsigned int fbo2;
-	unsigned int texture1;
-	unsigned int texture2;
 
 	bool m_cpuSplat = false;
 	bool m_drawBorder = true;

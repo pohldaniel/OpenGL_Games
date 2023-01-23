@@ -7,7 +7,8 @@
 namespace Target {
 	typedef enum Target {
 		TEXTURE2D,
-		TEXTURE3D
+		TEXTURE3D,
+		TEXTURE
 	} Target;
 }
 

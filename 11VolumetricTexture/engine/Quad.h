@@ -14,6 +14,7 @@ public:
 
 	void draw(unsigned int texture, bool array = false);
 	void drawRaw();
+	void drawRawInstanced(unsigned int instanceCount);
 	void setFlipped(bool flipped);
 
 	const Vector2f &getScale() const;

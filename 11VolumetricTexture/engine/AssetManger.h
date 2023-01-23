@@ -23,8 +23,12 @@ public:
 		m_assets[name].createNullTexture(width, height, color);
 	}
 
-	void createPerlinTexture(const std::string& name, unsigned int width = 2, unsigned int height = 2, unsigned int seed = 0) {
-		m_assets[name].createPerlinTexture(width, height, seed);
+	void createPerlinNoise(const std::string& name, unsigned int width = 2, unsigned int height = 2, unsigned int seed = 0) {
+		m_assets[name].createPerlinNoise(width, height, seed);
+	}
+
+	void createNoise(const std::string& name, unsigned int width = 2, unsigned int height = 2) {
+		m_assets[name].createNoise(width, height);
 	}
 
 	void createEmptyTexture(const std::string& name, unsigned int width, unsigned int height, unsigned int internalFormat = 0, unsigned int format = 0, unsigned int type = 0) {

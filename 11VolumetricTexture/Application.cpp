@@ -388,4 +388,6 @@ void Application::loadAssets() {
 	Globals::shaderManager.loadShader("wireframe", "res/shader/compute/wireframe.vs", "res/shader/compute/wireframe.fs", "res/shader/compute/wireframe.gs");
 	Globals::shaderManager.loadShader("streamline", "res/shader/compute/streamline.vs", "res/shader/compute/streamline.fs", "res/shader/compute/streamline.gs");
 	Globals::shaderManager.loadShader("splat2", "res/shader/compute/splat2.vs", "res/shader/compute/splat2.fs", "res/shader/compute/splat2.gs");
+
+	Globals::textureManager.createNoise("noise", 256, 256);
 }

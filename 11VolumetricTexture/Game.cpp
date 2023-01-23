@@ -1,13 +1,15 @@
-#include "Game.h"
 #include "engine/input/EventDispatcher.h"
+
+#include "Game.h"
 #include "Application.h"
-#include "Perlin.h"
 
 Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 
 	EventDispatcher::AddMouseListener(this);
 
 	m_cube = new Cube();
+	m_quad = new Quad();
+
 	m_camera = Camera();
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 1.0f, 100.0f);
 	m_camera.lookAt(Vector3f(0.0f, 0.0f, 5.0f), Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
@@ -18,8 +20,8 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	trackball.reshape(Application::Width, Application::Height);
 	trackball.setDollyPosition(-5.0f);
 	applyTransformation(trackball.getTransform());
-	Texture::CreateEmptyTexture3D(m_result, m_width, m_height, m_depth, GL_RGBA16F, GL_RGBA, GL_HALF_FLOAT);
-	Texture::SetLFilter3D(m_result, GL_LINEAR);
+	Texture::CreateTexture3D(m_result, m_width, m_height, m_depth, GL_RGBA16F, GL_RGBA, GL_HALF_FLOAT);
+	Texture::SetFilter3D(m_result, GL_LINEAR);
 
 	cubeCenterVbo = createPointVbo(0, 0, 0);
 	cloudTexture = createPyroclasticVolume(128, 0.025f);
@@ -31,20 +33,15 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	m_intervalls[1].attachTexture(AttachmentTex::RGBA16F);
 
 	GridVao = CreatePoints();
-	QuadVao = CreateQuad();
-	CubeVao = CreateCube();
 
-	m_endpoit = new Shader("res/shader/compute/endpoint.vs", "res/shader/compute/endpoint.fs");
-	m_ray = new Shader("res/shader/compute/ray.vs", "res/shader/compute/ray.fs");
-	m_wireframe = new Shader("res/shader/compute/wireframe.vs", "res/shader/compute/wireframe.fs", "res/shader/compute/wireframe.gs");
-	m_streamline = new Shader("res/shader/compute/streamline.vs", "res/shader/compute/streamline.fs", "res/shader/compute/streamline.gs");
-	m_splat2 = new Shader("res/shader/compute/splat2.vs", "res/shader/compute/splat2.fs", "res/shader/compute/splat2.gs");
 
-	fbo2 = CreateSurface(Application::Width, Application::Height, texture1, texture2);
-	
+	m_surface.create(Application::Width, Application::Height);
+	m_surface.attachTexture(AttachmentTex::RGB16F);
+	m_surface.attachTexture(AttachmentTex::RGB16F);
+
 	PointList positions = CreatePathline();
-	SplatTexture = CreateSplat(QuadVao, positions);
-	SplatTextureCpu = CreateCpuSplat(QuadVao);
+	SplatTexture = CreateSplat(positions);
+	SplatTextureCpu = CreateCpuSplat();
 	
 	scan[0] = CreateTexture("res/boston_teapot_256x256x178.raw", 256, 256, 178);
 	scan[1] = CreateTexture("res/bonsai_256x256x256.raw", 256, 256, 256, false);
@@ -52,8 +49,6 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 
 	//approach to generate volume data using blende
 	//scan[2] = Create("res/suzanne", 128, 128, 128);
-	
-	NoiseTexture = CreateNoise();
 }
 
 Game::~Game() {}
@@ -261,8 +256,6 @@ void Game::render(unsigned int &frameBuffer) {
 		glBindTexture(GL_TEXTURE_3D, cloudTexture);
 
 		glBindVertexArray(cubeCenterVbo);
-		//glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), 0);
-		//glEnableVertexAttribArray(0);
 
 		glDrawArrays(GL_POINTS, 0, 1);
 
@@ -292,70 +285,68 @@ void Game::render(unsigned int &frameBuffer) {
 
 	glBlendFunc(GL_ONE, GL_ONE);
 	glDisable(GL_DEPTH_TEST);
+
 	// Update the ray start & stop surfaces:
-	glUseProgram(m_endpoit->m_program);
-	m_endpoit->loadMatrix("ModelviewProjection", m_camera.getProjectionMatrix() * m_camera.getViewMatrix() * m_tranformSplat.getTransformationMatrix());
+	shader = Globals::shaderManager.getAssetPointer("endpoint");
+	glUseProgram(shader->m_program);
+	shader->loadMatrix("ModelviewProjection", m_camera.getProjectionMatrix() * m_camera.getViewMatrix() * m_tranformSplat.getTransformationMatrix());
 
 	glEnable(GL_BLEND);
-	glBindFramebuffer(GL_FRAMEBUFFER, fbo2);
+
+	m_surface.bind();
 	glClearColor(0, 0, 0, 0);
 	glClear(GL_COLOR_BUFFER_BIT);
-	glBindVertexArray(CubeVao);
+	m_cube->drawRaw();
+	m_surface.unbind();
 
-	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_SHORT, 0);
-
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glDisable(GL_BLEND);
 	glUseProgram(0);
 
-	glUseProgram(m_ray->m_program);
+	shader = Globals::shaderManager.getAssetPointer("ray");
+	glUseProgram(shader->m_program);
 
-	m_ray->loadMatrix("NormalMatrix", Matrix4f::GetNormalMatrix(m_camera.getViewMatrix() * m_tranformSplat.getTransformationMatrix()));
-	m_ray->loadVector("LightPosition", Vector3f(0.25f, 0.25f, 1.0f));
-	m_ray->loadVector("DiffuseMaterial", Vector3f(1.0f, 1.0f, 0.5f));
+	shader->loadMatrix("NormalMatrix", Matrix4f::GetNormalMatrix(m_camera.getViewMatrix() * m_tranformSplat.getTransformationMatrix()));
+	shader->loadVector("LightPosition", Vector3f(0.25f, 0.25f, 1.0f));
+	shader->loadVector("DiffuseMaterial", Vector3f(1.0f, 1.0f, 0.5f));
 
-	m_ray->loadInt("RayStart", 0);
+	shader->loadInt("RayStart", 0);
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, texture1);
+	glBindTexture(GL_TEXTURE_2D, m_surface.getColorTexture(0));
 
-	m_ray->loadInt("RayStop", 1);
+	shader->loadInt("RayStop", 1);
 	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, texture2);
+	glBindTexture(GL_TEXTURE_2D, m_surface.getColorTexture(1));
 
 
-	m_ray->loadInt("Volume", 2);
+	shader->loadInt("Volume", 2);
 	glActiveTexture(GL_TEXTURE2);
 	glBindTexture(GL_TEXTURE_3D, m_cpuSplat ? SplatTextureCpu : SplatTexture);
 
-
-	m_ray->loadInt("Noise", 3);
+	shader->loadInt("Noise", 3);
 	glActiveTexture(GL_TEXTURE3);
-	glBindTexture(GL_TEXTURE_2D, NoiseTexture);
-
-	glBindVertexArray(QuadVao);
-	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+	glBindTexture(GL_TEXTURE_2D, Globals::textureManager.get("noise").getTexture());
+	m_quad->drawRaw();
+	glUseProgram(0);
 
 	// Draw the point grid:
 	glEnable(GL_BLEND);
-	m_streamline = Globals::shaderManager.getAssetPointer("streamline");
-	glUseProgram(m_streamline->m_program);
-	m_streamline->loadMatrix("ModelviewProjection", m_camera.getProjectionMatrix() * m_camera.getViewMatrix() * m_tranformSplat.getTransformationMatrix());
-	m_streamline->loadInt("Volume", 2);
+	shader = Globals::shaderManager.getAssetPointer("streamline");
+	glUseProgram(shader->m_program);
+	shader->loadMatrix("ModelviewProjection", m_camera.getProjectionMatrix() * m_camera.getViewMatrix() * m_tranformSplat.getTransformationMatrix());
+	shader->loadInt("Volume", 2);
 	glBindVertexArray(GridVao);
 	glDrawArrays(GL_POINTS, 0, GridDensity * GridDensity * GridDensity);
 	glDisable(GL_BLEND);
 	glUseProgram(0);
+
 	// Draw the cube:
 	if (true) {
-		//BindProgram(WireframeProgram);
-		glUseProgram(m_wireframe->m_program);
-		m_wireframe->loadMatrix("ModelviewProjection", m_camera.getProjectionMatrix() * m_camera.getViewMatrix() * m_tranformSplat.getTransformationMatrix());
-		m_wireframe->loadMatrix("NormalMatrix", Matrix4f::GetNormalMatrix(m_camera.getViewMatrix() * m_tranformSplat.getTransformationMatrix()));
-		m_wireframe->loadVector("LightPosition", Vector3f(0.25f, 0.25f, 1.0f));
-
-
-		glBindVertexArray(CubeVao);		
-		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_SHORT, 0);
+		shader = Globals::shaderManager.getAssetPointer("wireframe");
+		glUseProgram(shader->m_program);
+		shader->loadMatrix("ModelviewProjection", m_camera.getProjectionMatrix() * m_camera.getViewMatrix() * m_tranformSplat.getTransformationMatrix());
+		shader->loadMatrix("NormalMatrix", Matrix4f::GetNormalMatrix(m_camera.getViewMatrix() * m_tranformSplat.getTransformationMatrix()));
+		shader->loadVector("LightPosition", Vector3f(0.25f, 0.25f, 1.0f));
+		m_cube->drawRaw();
 	}
 }
 
@@ -412,22 +403,12 @@ void Game::resize(int deltaW, int deltaH) {
 }
 
 unsigned int Game::createPyroclasticVolume(int n, float r) {
-	GLuint handle;
-	glGenTextures(1, &handle);
-	glBindTexture(GL_TEXTURE_3D, handle);
-	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-	init();
 	unsigned char *data = new unsigned char[n*n*n];
 	unsigned char *ptr = data;
 
 	float frequency = 3.0f / n;
 	float center = n / 2.0f + 0.5f;
-
+	PerlinNoise pn = PerlinNoise();
 	for (int x = 0; x < n; ++x) {
 		for (int y = 0; y < n; ++y) {
 			for (int z = 0; z < n; ++z) {
@@ -435,7 +416,7 @@ unsigned int Game::createPyroclasticVolume(int n, float r) {
 				float dy = center - y;
 				float dz = center - z;
 
-				float off = fabsf((float)PerlinNoise3D(
+				float off = fabsf((float)pn.cloudNoise(
 					x*frequency,
 					y*frequency,
 					z*frequency,
@@ -449,7 +430,12 @@ unsigned int Game::createPyroclasticVolume(int n, float r) {
 		}
 	}
 
-	glTexImage3D(GL_TEXTURE_3D, 0, GL_LUMINANCE, n, n, n, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, data);
+	GLuint handle;
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+	Texture::CreateTexture3D(handle, n, n, n, GL_LUMINANCE8, GL_LUMINANCE, GL_UNSIGNED_BYTE, data);
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+
+	Texture::SetFilter3D(handle, GL_LINEAR);
 
 	delete[] data;
 	return handle;
@@ -505,169 +491,6 @@ void Game::renderOffscreen() {
 	m_intervalls[1].unbind();	
 }
 
-GLenum* Game::EnumArray(GLenum a, GLenum b) {
-	static GLenum enums[2];
-	enums[0] = a;
-	enums[1] = b;
-	return &enums[0];
-}
-
-GLuint Game::CreateSurface(GLsizei width, GLsizei height, unsigned int& tex1, unsigned int& tex2) {
-	unsigned int m_fbo;
-
-	glGenFramebuffers(1, &m_fbo);
-	glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
-
-	glGenTextures(1, &tex1);
-	glBindTexture(GL_TEXTURE_2D, tex1);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, width, height, 0, GL_RGB, GL_HALF_FLOAT, 0);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tex1, 0);
-	glBindTexture(GL_TEXTURE_2D, 0);
-
-	glGenTextures(1, &tex2);
-	glBindTexture(GL_TEXTURE_2D, tex2);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, width, height, 0, GL_RGB, GL_HALF_FLOAT, 0);
-
-
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, tex2, 0);
-	glBindTexture(GL_TEXTURE_2D, 0);
-	glDrawBuffers(2, EnumArray(GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1));
-	glClearColor(0, 0, 0, 0);
-	glClear(GL_COLOR_BUFFER_BIT);
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-	return  m_fbo;
-}
-
-GLuint Game::CreateQuad()
-{
-	short positions[] = {
-		-1, -1,
-		1, -1,
-		-1,  1,
-		1,  1,
-	};
-
-	// Create the VAO:
-	GLuint vao;
-	glGenVertexArrays(1, &vao);
-	glBindVertexArray(vao);
-
-	// Create the VBO:
-	GLuint vbo;
-	GLsizeiptr size = sizeof(positions);
-	glGenBuffers(1, &vbo);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, size, positions, GL_STATIC_DRAW);
-
-	// Set up the vertex layout:
-	GLsizeiptr stride = 2 * sizeof(positions[0]);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 2, GL_SHORT, GL_FALSE, stride, 0);
-
-	return vao;
-}
-
-GLuint Game::CreateCube()
-{
-#define O -1.0f,
-#define X +1.0f,
-	float positions[] = { O O O O O X O X O O X X X O O X O X X X O X X X };
-#undef O
-#undef X
-
-	short indices[] = {
-		7, 3, 1, 1, 5, 7, // Z+
-		0, 2, 6, 6, 4, 0, // Z-
-		6, 2, 3, 3, 7, 6, // Y+
-		1, 0, 4, 4, 5, 1, // Y-
-		3, 2, 0, 0, 1, 3, // X-
-		4, 6, 7, 7, 5, 4, // X+
-	};
-
-	// Create the VAO:
-	GLuint vao;
-	glGenVertexArrays(1, &vao);
-	glBindVertexArray(vao);
-
-	// Create the VBO for positions:
-	{
-
-		GLuint vbo;
-		GLsizeiptr size = sizeof(positions);
-		glGenBuffers(1, &vbo);
-		glBindBuffer(GL_ARRAY_BUFFER, vbo);
-		glBufferData(GL_ARRAY_BUFFER, size, positions, GL_STATIC_DRAW);
-	}
-
-	// Create the VBO for indices:
-	{
-		GLuint ibo;
-		GLsizeiptr size = sizeof(indices);
-		glGenBuffers(1, &ibo);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, size, indices, GL_STATIC_DRAW);
-	}
-
-	// Set up the vertex layout:
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), 0);
-
-	return vao;
-}
-
-GLuint Game::CreateCpuSplat(GLuint quadVao)
-{
-	const int Size = 64;
-	const float InnerScale = 0.4f;
-	const float RadiusScale = 0.001f;
-
-	char* pixels = new char[Size*Size*Size];
-	{
-		// http://www.stat.wisc.edu/~mchung/teaching/MIA/reading/diffusion.gaussian.kernel.pdf.pdf
-		float doubleVariance = 2.0f * InnerScale * InnerScale;
-		float normalizationConstant = 1.0f / std::pow(std::sqrt(TWO_PI) * InnerScale, 3.0f);
-		char* pDest = pixels;
-		float maxDensity = 0;
-		float sumDensity = 0;
-		float minDensity = 100.0f;
-		for (int z = 0; z < Size; ++z) {
-			for (int y = 0; y < Size; ++y) {
-				for (int x = 0; x < Size; ++x) {
-					int cx = x - Size / 2;
-					int cy = y - Size / 2;
-					int cz = z - Size / 2;
-					float r2 = RadiusScale * float(cx*cx + cy*cy + cz*cz);
-					float density = normalizationConstant * std::exp(-r2 / doubleVariance);
-					maxDensity = std::max(maxDensity, density);
-					minDensity = std::min(minDensity, density);
-					sumDensity += density;
-					*pDest++ = (char)(255.0f * density);
-				}
-			}
-		}
-	}
-
-	GLuint textureHandle;
-	glGenTextures(1, &textureHandle);
-	glBindTexture(GL_TEXTURE_3D, textureHandle);
-	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexImage3D(GL_TEXTURE_3D, 0, GL_R8, Size, Size, Size, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, pixels);
-
-	delete[] pixels;
-
-	return textureHandle;
-}
-
 GLuint Game::CreatePoints() {
 	const int size = GridDensity;
 	std::vector<float> pointGrid(size * size * size * 3);
@@ -689,40 +512,33 @@ GLuint Game::CreatePoints() {
 
 	// Create the VBO:
 	GLuint vbo;
-	GLsizeiptr byteCount = pointGrid.size() * sizeof(float);
 	glGenBuffers(1, &vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, byteCount, &pointGrid[0], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, pointGrid.size() * sizeof(float), &pointGrid[0], GL_STATIC_DRAW);
 
 	// Set up the vertex layout:
-	GLsizeiptr stride = 3 * sizeof(float);
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, 0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), 0);
 
 	return vao;
 }
 
-GLuint Game::CreateSplat(GLuint quadVao, PointList positions) {
+GLuint Game::CreateSplat(PointList positions) {
 	const int Size = 64;
 	unsigned int m_texture;
-	glGenTextures(1, &m_texture);
-	glBindTexture(GL_TEXTURE_3D, m_texture);
-	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-	glGenFramebuffers(1, &fbo);
-	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-	glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA16F, Size, Size, Size, 0, GL_RGBA, GL_HALF_FLOAT, 0);
-	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, m_texture, 0);
+	Texture::CreateTexture3D(m_texture, Size, Size, Size, GL_RGBA16F, GL_RGBA, GL_HALF_FLOAT);
+	Texture::SetFilter3D(m_texture, GL_LINEAR);
+	Framebuffer splatFbo;
 
-	glClearColor(0, 0, 0, 0);
-	glClear(GL_COLOR_BUFFER_BIT);
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	splatFbo.create(64, 64);
+	splatFbo.attachTexture(m_texture, Attachment::COLOR, Target::TEXTURE);
 
 	const float innerScale = 0.4f;
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_ONE, GL_ONE);
+
+	splatFbo.bind();
 
 	auto shader = Globals::shaderManager.getAssetPointer("splat2");
 	glUseProgram(shader->m_program);
@@ -730,59 +546,65 @@ GLuint Game::CreateSplat(GLuint quadVao, PointList positions) {
 	shader->loadFloat("InverseVariance", -1.0f / (2.0f * innerScale * innerScale));
 	shader->loadFloat("NormalizationConstant", 1.0f / std::pow(std::sqrt(TWO_PI) * innerScale, 3.0f));
 
-	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-	glBindTexture(GL_TEXTURE_3D, 0);
-	glViewport(0, 0, Size, Size);
-	glBindVertexArray(quadVao);
-
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_ONE, GL_ONE);
-
 	PointList::const_iterator i = positions.begin();
 	for (; i != positions.end(); ++i) {
 
 		PointList::const_iterator next = i;
 		if (++next == positions.end())
 			next = positions.begin();
-		VectorMath::Vector3 velocity = (*next - *i);
+		Vector3f velocity = (*next - *i);
 
-		shader->loadVector("Center", Vector4f(i->getX(), i->getY(), i->getZ(), 0.0f));
-		shader->loadVector("Color", Vector3f(velocity[0], velocity[1], velocity[2]));
-		glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, Size);
+		shader->loadVector("Center", Vector4f((*i)[0], (*i)[1], (*i)[2], 0.0f));
+		shader->loadVector("Color", velocity);
+		m_quad->drawRawInstanced(Size);
 	}
 
-	glViewport(0, 0, Application::Width, Application::Height);
-	glDisable(GL_BLEND);
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glUseProgram(0);
+
+	splatFbo.unbind();
+	glDisable(GL_BLEND);
+	
 	return m_texture;
 }
 
-GLuint Game::CreateNoise() {
+GLuint Game::CreateCpuSplat() {
+	const int Size = 64;
+	const float InnerScale = 0.4f;
+	const float RadiusScale = 0.001f;
 
-	int Width = 256;
-	int Height = 256;
-
-	char* pixels = new char[Width * Height];
-
-	char* pDest = pixels;
-	for (int i = 0; i < Width * Height; i++) {
-		*pDest++ = rand() % 256;
+	unsigned char* pixels = new unsigned char[Size*Size*Size];
+	
+	// http://www.stat.wisc.edu/~mchung/teaching/MIA/reading/diffusion.gaussian.kernel.pdf.pdf
+	float doubleVariance = 2.0f * InnerScale * InnerScale;
+	float normalizationConstant = 1.0f / std::pow(std::sqrt(TWO_PI) * InnerScale, 3.0f);
+	unsigned char* pDest = pixels;
+	float maxDensity = 0;
+	float sumDensity = 0;
+	float minDensity = 100.0f;
+	for (int z = 0; z < Size; ++z) {
+		for (int y = 0; y < Size; ++y) {
+			for (int x = 0; x < Size; ++x) {
+				int cx = x - Size / 2;
+				int cy = y - Size / 2;
+				int cz = z - Size / 2;
+				float r2 = RadiusScale * float(cx*cx + cy*cy + cz*cz);
+				float density = normalizationConstant * std::exp(-r2 / doubleVariance);
+				maxDensity = std::max(maxDensity, density);
+				minDensity = std::min(minDensity, density);
+				sumDensity += density;
+				*pDest++ = (unsigned char)(255.0f * density);
+			}
+		}
 	}
-
+	
 	GLuint textureHandle;
-	glGenTextures(1, &textureHandle);
-	glBindTexture(GL_TEXTURE_2D, textureHandle);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_R8, Width, Height, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, pixels);
-	glBindTexture(GL_TEXTURE_2D, 0);
-	delete[] pixels;
+	Texture::CreateTexture3D(textureHandle, Size, Size, Size, GL_R8, GL_RED, GL_UNSIGNED_BYTE, pixels);
+	Texture::SetFilter3D(textureHandle, GL_LINEAR);
 
+	delete[] pixels;
 	return textureHandle;
 }
+
 
 PointList Game::CreatePathline() {
 	PointList path(64);
@@ -792,9 +614,9 @@ PointList Game::CreatePathline() {
 
 	PointList::iterator i = path.begin();
 	for (float theta = 0; i != path.end(); ++i, theta += dtheta) {
-		i->setX(r * std::cos(theta));
-		i->setY(r * std::sin(theta));
-		i->setZ(0);
+		(*i)[0] = r * std::cos(theta);
+		(*i)[1] = r * std::sin(theta);
+		(*i)[2] = 0.0f;
 	}
 
 	return path;
@@ -840,7 +662,7 @@ GLuint Game::CreateTexture(const char *filename, int width, int height, int dept
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_BORDER);
 
-	glTexImage3D(GL_TEXTURE_3D, 0, GL_R8, width, height, depth, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, &pixel[0]);
+	glTexImage3D(GL_TEXTURE_3D, 0, GL_LUMINANCE8, width, height, depth, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, &pixel[0]);
 
 	free(data);
 
@@ -886,7 +708,7 @@ GLuint Game::Create(const char *path, int width, int height, int slices, bool fl
 		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_BORDER);
 
-		glTexImage3D(GL_TEXTURE_3D, 0, GL_R8, width, height, slices, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, &pixelNew[0]);
+		glTexImage3D(GL_TEXTURE_3D, 0, GL_LUMINANCE8, width, height, slices, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, &pixelNew[0]);
 
 		std::ofstream binFile("suzanne.raw", std::ios::out | std::ios::binary);
 		if (binFile.is_open()){

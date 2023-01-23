@@ -205,7 +205,6 @@
     <ClInclude Include="Nvidia\nvQuaternion.h" />
     <ClInclude Include="Nvidia\nvVector.h" />
     <ClInclude Include="Object.h" />
-    <ClInclude Include="Perlin.h" />
     <ClInclude Include="QuadTree.h" />
     <ClInclude Include="Ray.h" />
     <ClInclude Include="RenderableObject.h" />
@@ -216,13 +215,8 @@
     <ClInclude Include="Text.h" />
     <ClInclude Include="tinyxml\tinystr.h" />
     <ClInclude Include="tinyxml\tinyxml.h" />
-    <ClInclude Include="Trackball.h" />
     <ClInclude Include="Tree.h" />
     <ClInclude Include="VectorMath.h" />
-    <ClInclude Include="vectormath\mat_aos.h" />
-    <ClInclude Include="vectormath\quat_aos.h" />
-    <ClInclude Include="vectormath\vectormath_aos.h" />
-    <ClInclude Include="vectormath\vec_aos.h" />
     <ClInclude Include="VolumeBuffer.h" />
     <ClInclude Include="Water.h" />
   </ItemGroup>
@@ -267,7 +261,6 @@
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Object.cpp" />
-    <ClCompile Include="Perlin.cpp" />
     <ClCompile Include="QuadTree.cpp" />
     <ClCompile Include="Ray.cpp" />
     <ClCompile Include="RenderableObject.cpp" />
@@ -284,7 +277,6 @@
     <ClCompile Include="tinyxml\tinyxml.cpp" />
     <ClCompile Include="tinyxml\tinyxmlerror.cpp" />
     <ClCompile Include="tinyxml\tinyxmlparser.cpp" />
-    <ClCompile Include="Trackball.cpp" />
     <ClCompile Include="Tree.cpp" />
     <ClCompile Include="VolumeBuffer.cpp" />
     <ClCompile Include="Water.cpp" />

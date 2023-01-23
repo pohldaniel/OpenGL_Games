@@ -246,7 +246,7 @@ void Texture::createNullTexture(unsigned int width, unsigned int height, unsigne
 }
 
 //https://github.com/sol-prog/Perlin_Noise
-void Texture::createPerlinTexture(unsigned int width, unsigned int height, unsigned int seed) {
+void Texture::createPerlinNoise(unsigned int width, unsigned int height, unsigned int seed) {
 	PerlinNoise pn = seed ? PerlinNoise(seed) : PerlinNoise();
 	
 	unsigned short numComponents = 4;
@@ -289,6 +289,35 @@ void Texture::createPerlinTexture(unsigned int width, unsigned int height, unsig
 	m_format = GL_RGBA;
 	m_type = GL_UNSIGNED_BYTE;
 
+	free(pixels);
+}
+
+void Texture::createNoise(unsigned int width, unsigned int height) {
+	
+	unsigned char* pixels = (unsigned char*)malloc(width * height);
+
+	unsigned char* pDest = pixels;
+	for (int i = 0; i < width * height; i++) {
+		*pDest++ = rand() % 256;
+	}
+
+	GLuint textureHandle;
+	glGenTextures(1, &textureHandle);
+	glBindTexture(GL_TEXTURE_2D, textureHandle);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_R8, width, height, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, pixels);
+	glBindTexture(GL_TEXTURE_2D, 0);
+	
+	m_width = width;
+	m_height = height;
+	m_channels = 1;
+	m_internalFormat = GL_R8;
+	m_format = GL_LUMINANCE;
+	m_type = GL_UNSIGNED_BYTE;
+	
 	free(pixels);
 }
 
@@ -707,7 +736,7 @@ void Texture::CreateEmptyTexture(unsigned int& textureRef, unsigned int width, u
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-void Texture::CreateEmptyTexture3D(unsigned int& textureRef, unsigned int width, unsigned int height, unsigned int depth, unsigned int internalFormat, unsigned int format, unsigned int type) {
+void Texture::CreateTexture3D(unsigned int& textureRef, unsigned int width, unsigned int height, unsigned int depth, unsigned int internalFormat, unsigned int format, unsigned int type, unsigned char* data) {
 	glGenTextures(1, &textureRef);
 	glBindTexture(GL_TEXTURE_3D, textureRef);
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -716,7 +745,7 @@ void Texture::CreateEmptyTexture3D(unsigned int& textureRef, unsigned int width,
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_BORDER);
-	glTexImage3D(GL_TEXTURE_3D, 0, internalFormat, width, height, depth, 0, format, type, 0);
+	glTexImage3D(GL_TEXTURE_3D, 0, internalFormat, width, height, depth, 0, format, type, data);
 	glBindTexture(GL_TEXTURE_3D, 0);
 }
 
@@ -779,9 +808,17 @@ void Texture::setLinear() {
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-void Texture::SetLFilter3D(unsigned int& textureRef, unsigned int mode) {
+void Texture::SetFilter3D(unsigned int& textureRef, unsigned int mode) {
 	glBindTexture(GL_TEXTURE_3D, textureRef);
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, mode);
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, mode);
+	glBindTexture(GL_TEXTURE_3D, 0);
+}
+
+void Texture::SetWrapMode3D(unsigned int& textureRef, unsigned int mode) {
+	glBindTexture(GL_TEXTURE_3D, textureRef);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, mode);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, mode);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, mode);
 	glBindTexture(GL_TEXTURE_3D, 0);
 }

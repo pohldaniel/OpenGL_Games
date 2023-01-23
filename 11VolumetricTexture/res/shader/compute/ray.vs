@@ -1,10 +1,11 @@
 #version 430 core
 
-in vec4 Position;
+layout(location = 0) in vec3 position;
+layout(location = 1) in vec2 texCoords;
+
 out vec3 vPosition;
 
-void main()
-{
-    gl_Position = Position;
-    vPosition = Position.xyz;
+void main() {
+    gl_Position = vec4(position, 1.0);
+    vPosition = position;
 }

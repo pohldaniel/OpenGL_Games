@@ -7,8 +7,7 @@ uniform mat4 ModelviewProjection;
 in vec4 vPosition[1];
 uniform sampler3D Volume;
 
-void main()
-{
+void main() {
     vec3 coord = 0.5 * (vPosition[0].xyz + 1.0);
     vec4 V = vec4(texture(Volume, coord).xyz, 0.0);
 

@@ -319,8 +319,10 @@ void Framebuffer::attachTexture(unsigned int& texture, Attachment::Attachment at
 
 		if (target == Target::TEXTURE3D) {
 			glFramebufferTexture3D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + (m_colorAttachments - 1), GL_TEXTURE_3D, texture, 0, layer);
-		}else {
+		}else if (target == Target::TEXTURE2D){
 			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + (m_colorAttachments - 1), GL_TEXTURE_2D, texture, 0);
+		}else {
+			glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + (m_colorAttachments - 1), texture, 0);
 		}
 
 		glDrawBuffers(m_colorAttachments, &m_attachments[0]);
@@ -333,8 +335,10 @@ void Framebuffer::attachTexture(unsigned int& texture, Attachment::Attachment at
 
 		if (target == Target::TEXTURE3D) {
 			glFramebufferTexture3D(GL_FRAMEBUFFER, attachment, GL_TEXTURE_3D, texture, 0, layer);
-		}else {
+		}else if (target == Target::TEXTURE2D) {
 			glFramebufferTexture2D(GL_FRAMEBUFFER, attachment, GL_TEXTURE_2D, texture, 0);
+		}else {
+			glFramebufferTexture(GL_FRAMEBUFFER, attachment, texture, 0);
 		}
 
 		if (m_colorAttachments == 0) {

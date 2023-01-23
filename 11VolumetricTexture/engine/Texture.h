@@ -27,7 +27,8 @@ public:
 	void loadFromFile(std::string pictureFile, unsigned short tileWidth, unsigned short tileHeight, unsigned short spacing = 0, unsigned int posY = 0, unsigned int posX = 0, const bool flipVertical = false, unsigned int _internalFormat = 0, unsigned int format = 0);
 	void loadFromFile(std::string pictureFile, unsigned int offsetX, unsigned int offsetY, unsigned int width = 0, unsigned int height = 0, const bool flipVertical = false, unsigned int _internalFormat = 0, unsigned int format = 0);
 	void createNullTexture(unsigned int width, unsigned int height, unsigned int color = 255);
-	void createPerlinTexture(unsigned int width, unsigned int height, unsigned int seed = 0);
+	void createPerlinNoise(unsigned int width, unsigned int height, unsigned int seed = 0);
+	void createNoise(unsigned int width, unsigned int height);
 	void createEmptyTexture(unsigned int width, unsigned int height, unsigned int internalFormat = 0, unsigned int format = 0, unsigned int type = 0);
 	void addAlphaChannel(unsigned int value = 255);
 	unsigned char* readPixel();
@@ -54,8 +55,10 @@ public:
 	static void CreateEmptyTexture(unsigned int& textureRef, unsigned int width, unsigned int height, unsigned int internalFormat = 0, unsigned int format = 0, unsigned int type = 0);
 	static void Resize(unsigned int& textureRef, unsigned int width, unsigned int height, unsigned int internalFormat = 0, unsigned int format = 0, unsigned int type = 0);
 
-	static void CreateEmptyTexture3D(unsigned int& textureRef, unsigned int width, unsigned int height, unsigned int depth, unsigned int internalFormat = 0, unsigned int format = 0, unsigned int type = 0);
-	static void SetLFilter3D(unsigned int& textureRef, unsigned int mode);
+	static void CreateTexture3D(unsigned int& textureRef, unsigned int width, unsigned int height, unsigned int depth, unsigned int internalFormat = 0, unsigned int format = 0, unsigned int type = 0, unsigned char* data = NULL);
+	static void SetFilter3D(unsigned int& textureRef, unsigned int mode);
+	static void SetWrapMode3D(unsigned int& textureRef, unsigned int mode);
+	
 private:
 	void flipVertical(unsigned char* data, unsigned int padWidth, unsigned int height);
 	

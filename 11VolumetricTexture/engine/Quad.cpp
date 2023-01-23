@@ -2,6 +2,8 @@
 #include <iostream>
 
 Quad::Quad() {
+	m_position = Vector2f(-1.0f, -1.0f);
+	m_size = Vector2f(2.0f, 2.0f);
 	createBuffer();
 }
 
@@ -170,14 +172,20 @@ void Quad::draw(unsigned int texture, bool array) {
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(array ? GL_TEXTURE_2D_ARRAY : GL_TEXTURE_2D, texture);
 	glBindVertexArray(m_vao);
-	glDrawElements(GL_TRIANGLES, 2 * 3, GL_UNSIGNED_SHORT, 0);
+	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, 0);
 	glBindVertexArray(0);
 	glBindTexture(array ? GL_TEXTURE_2D_ARRAY : GL_TEXTURE_2D, 0);
 }
 
 void Quad::drawRaw() {
 	glBindVertexArray(m_vao);
-	glDrawElements(GL_TRIANGLES, 2 * 3, GL_UNSIGNED_SHORT, 0);
+	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, 0);
+	glBindVertexArray(0);
+}
+
+void Quad::drawRawInstanced(unsigned int instanceCount) {
+	glBindVertexArray(m_vao);
+	glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, 0, instanceCount);
 	glBindVertexArray(0);
 }
 
