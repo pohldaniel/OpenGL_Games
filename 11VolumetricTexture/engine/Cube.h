@@ -34,4 +34,4 @@ private:
 	Vector3f m_size;
 
 };
-#endif // __quadH__
+#endif // __cubeH__

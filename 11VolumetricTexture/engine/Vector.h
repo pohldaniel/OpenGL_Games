@@ -80,6 +80,8 @@ public:
 
 	Vector3f &operator+=(const Vector3f &rhs);
 	Vector3f &operator-=(const Vector3f &rhs);
+	Vector3f &operator*=(float scalar);
+	Vector3f &operator/=(float scalar);
 
 	Vector3f operator+(const Vector3f &rhs) const;
 	Vector3f operator-(const Vector3f &rhs) const;
@@ -251,6 +253,7 @@ public:
 	float length() const;
 	void normalize();
 	void set(float x, float y, float z, float w);
+	void set(const Vector3f &axis, float degrees);
 	void conjugate();
 	void inverse();
 

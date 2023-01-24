@@ -1343,15 +1343,23 @@ const float Vector3f::operator[](int index) const {
 	return vec[index];
 }
 
-Vector3f &Vector3f::operator-=(const Vector3f &rhs) {
+Vector3f &Vector3f::operator+=(const Vector3f &rhs) {
+	vec[0] += rhs.vec[0], vec[1] += rhs.vec[1], vec[2] += rhs.vec[2];
+	return *this;
+}
 
+Vector3f &Vector3f::operator-=(const Vector3f &rhs) {
 	vec[0] -= rhs.vec[0], vec[1] -= rhs.vec[1], vec[2] -= rhs.vec[2];
 	return *this;
 }
 
-Vector3f &Vector3f::operator+=(const Vector3f &rhs) {
+Vector3f &Vector3f::operator*=(float scalar) {
+	vec[0] *= scalar, vec[1] *= scalar, vec[2] *= scalar;
+	return *this;
+}
 
-	vec[0] += rhs.vec[0], vec[1] += rhs.vec[1], vec[2] += rhs.vec[2];
+Vector3f &Vector3f::operator/=(float scalar) {
+	vec[0] /= scalar, vec[1] /= scalar, vec[2] /= scalar;
 	return *this;
 }
 
@@ -1386,8 +1394,8 @@ bool Vector3f::zero() {
 Vector3f Vector3f::Cross(const Vector3f &p, const Vector3f &q) {
 
 	return Vector3f((p.vec[1] * q.vec[2]) - (p.vec[2] * q.vec[1]),
-		(p.vec[2] * q.vec[0]) - (p.vec[0] * q.vec[2]),
-		(p.vec[0] * q.vec[1]) - (p.vec[1] * q.vec[0]));
+					(p.vec[2] * q.vec[0]) - (p.vec[0] * q.vec[2]),
+					(p.vec[0] * q.vec[1]) - (p.vec[1] * q.vec[0]));
 }
 
 float Vector3f::Dot(const Vector3f &p, const Vector3f &q) {
@@ -1635,6 +1643,14 @@ void Quaternion::set(float x, float y, float z, float w) {
 	quat[0] = x, quat[1] = y, quat[2] = z, quat[3] = w;
 }
 
+void Quaternion::set(const Vector3f &axis, float degrees) {
+	if (axis.lengthSq() == 0.0f) {
+		quat[0] = 0.0f, quat[1] = 0.0f, quat[2] = 0.0f, quat[3] = 1.0f;
+	}else {
+		fromAxisAngle(axis, degrees);
+	}
+}
+
 void Quaternion::conjugate() {
 	quat[0] = -quat[0]; quat[1] = -quat[1]; quat[2] = -quat[2]; 
 }
@@ -1746,7 +1762,7 @@ Matrix4f& Quaternion::toMatrix4f(){
 	float wy = quat[3] * y2;
 	float wz = quat[3] * z2;
 
-	mtx[0][0] = 1.0f - (yy + zz);
+	mtx[0][0] = 1.0f - (yy + zz);	
 	mtx[0][1] = xy - wz;
 	mtx[0][2] = xz + wy;
 	mtx[0][3] = 0.0f;

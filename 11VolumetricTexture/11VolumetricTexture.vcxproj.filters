@@ -258,6 +258,9 @@
     <ClInclude Include="VectorMath.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="engine\TrackBall.h">
+      <Filter>engine</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine\input\EventDispatcher.cpp">
@@ -436,6 +439,9 @@
     </ClCompile>
     <ClCompile Include="engine\animation\Animator2D.cpp">
       <Filter>engine\animation</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\TrackBall.cpp">
+      <Filter>engine</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

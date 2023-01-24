@@ -3,7 +3,6 @@
 #include <algorithm>
 #include <array>
 #include <random>
-#include <nvGlutManipulators.h>
 
 #include "engine/input/MouseEventListener.h"
 #include "engine/input/KeyBorad.h"
@@ -15,6 +14,7 @@
 #include "engine/Camera.h"
 #include "engine/ObjModel.h"
 #include "engine/Cube.h"
+#include "engine/TrackBall.h"
 
 #include "Constants.h"
 #include "StateMachine.h"
@@ -36,7 +36,7 @@ public:
 	void OnMouseMotion(Event::MouseMoveEvent& event) override;	
 	void OnMouseButtonDown(Event::MouseButtonEvent& event) override;
 	void OnMouseButtonUp(Event::MouseButtonEvent& event) override;
-	void applyTransformation(nv::matrix4f& mtx);
+	void applyTransformation(Matrix4f& mtx);
 	unsigned int createPyroclasticVolume(int n, float r);
 	unsigned int createPointVbo(float x, float y, float z);
 	void renderOffscreen();
@@ -48,10 +48,10 @@ public:
 	int m_depth = 128, m_width = 128, m_height = 128;
 	FluidSystem *fluidSys;
 
-	nv::GlutExamine trackball;
 	Matrix4f m_model;
 	Matrix4f m_invModel;
 
+	TrackBall m_trackball;
 	Transform m_tranformSplat;
 	Transform m_tranformFluid;
 	Transform m_tranformCloud1;

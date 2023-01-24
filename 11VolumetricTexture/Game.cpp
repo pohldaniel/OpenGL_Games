@@ -17,9 +17,11 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 
 	fluidSys = new FluidSystem(m_width, m_height, m_depth);
 	fluidSys->splat();
-	trackball.reshape(Application::Width, Application::Height);
-	trackball.setDollyPosition(-5.0f);
-	applyTransformation(trackball.getTransform());
+
+	m_trackball.reshape(Application::Width, Application::Height);
+	m_trackball.setDollyPosition(-5.0f);
+	applyTransformation(m_trackball.getTransform());
+
 	Texture::CreateTexture3D(m_result, m_width, m_height, m_depth, GL_RGBA16F, GL_RGBA, GL_HALF_FLOAT);
 	Texture::SetFilter3D(m_result, GL_LINEAR);
 
@@ -136,8 +138,8 @@ void Game::update() {
 		}
 	}
 
-	trackball.idle();
-	applyTransformation(trackball.getTransform());
+	m_trackball.idle();
+	applyTransformation(m_trackball.getTransform());
 
 };
 
@@ -351,50 +353,47 @@ void Game::render(unsigned int &frameBuffer) {
 }
 
 void Game::OnMouseMotion(Event::MouseMoveEvent& event) {
-	trackball.motion(event.x, event.y);
-	nv::matrix4f mtx = trackball.getTransform();
-	applyTransformation(trackball.getTransform());
+	m_trackball.motion(event.x, event.y);
+	applyTransformation(m_trackball.getTransform());
 
 }
 
 void Game::OnMouseButtonDown(Event::MouseButtonEvent& event) {
-	trackball.mouse(0, 0, event.x, event.y);
-	nv::matrix4f mtx = trackball.getTransform();
-	applyTransformation(trackball.getTransform());
+	m_trackball.mouse(TrackBall::Button::ELeftButton, TrackBall::Modifier::ENoModifier, true, event.x, event.y);
+	applyTransformation(m_trackball.getTransform());
 }
 
 void Game::OnMouseButtonUp(Event::MouseButtonEvent& event) {
-	trackball.mouse(0, 1, event.x, event.y);
-	nv::matrix4f mtx = trackball.getTransform();
-	applyTransformation(trackball.getTransform());
+	m_trackball.mouse(TrackBall::Button::ELeftButton, TrackBall::Modifier::ENoModifier, false, event.x, event.y);
+	applyTransformation(m_trackball.getTransform());
 }
 
-void Game::applyTransformation(nv::matrix4f& mtx) {
-	m_model.set(mtx._11, mtx._12, mtx._13, mtx._14,
-		mtx._21, mtx._22, mtx._23, mtx._24,
-		mtx._31, mtx._32, mtx._33, mtx._34,
-		mtx._41, mtx._42, mtx._43, mtx._44);
+void Game::applyTransformation(Matrix4f& mtx) {
+	m_model.set(mtx[0][0], mtx[0][1], mtx[0][2], mtx[0][3],
+		mtx[1][0], mtx[1][1], mtx[1][2], mtx[1][3],
+		mtx[2][0], mtx[2][1], mtx[2][2], mtx[2][3],
+		mtx[3][0], mtx[3][1], mtx[3][2], mtx[3][3]);
 
-	m_tranformSplat.fromMatrix(m_model);
+	m_tranformSplat.fromMatrix(mtx);
 	m_tranformSplat.translate(3.0f, -2.0f, 0.0f);
 
-	m_tranformFluid.fromMatrix(m_model);
+	m_tranformFluid.fromMatrix(mtx);
 	m_tranformFluid.translate(-3.0f, 2.0f, 0.0f);
 
-	m_tranformCloud1.fromMatrix(m_model);
+	m_tranformCloud1.fromMatrix(mtx);
 	m_tranformCloud1.translate(3.0f, 2.0f, 0.0f);
 
-	m_tranformCloud2.fromMatrix(m_model);
+	m_tranformCloud2.fromMatrix(mtx);
 	m_tranformCloud2.translate(-3.0f, -2.0f, 0.0f);
 
-	m_tranformModel.fromMatrix(m_model);
+	m_tranformModel.fromMatrix(mtx);
 
 	/*m_invModel.set(m_model[0][0], m_model[1][0], m_model[2][0], 0.0f,
-		m_model[0][1], m_model[1][1], m_model[2][1], 0.0f,
-		m_model[0][2], m_model[1][2], m_model[2][2], 0.0f,
-		-(m_model[3][0] * m_model[0][0] + m_model[3][1] * m_model[0][1] + m_model[3][2] * m_model[0][2]),
-		-(m_model[3][0] * m_model[1][0] + m_model[3][1] * m_model[1][1] + m_model[3][2] * m_model[1][2]),
-		-(m_model[3][0] * m_model[2][0] + m_model[3][1] * m_model[2][1] + m_model[3][2] * m_model[2][2]), 1.0f);*/
+	m_model[0][1], m_model[1][1], m_model[2][1], 0.0f,
+	m_model[0][2], m_model[1][2], m_model[2][2], 0.0f,
+	-(m_model[3][0] * m_model[0][0] + m_model[3][1] * m_model[0][1] + m_model[3][2] * m_model[0][2]),
+	-(m_model[3][0] * m_model[1][0] + m_model[3][1] * m_model[1][1] + m_model[3][2] * m_model[1][2]),
+	-(m_model[3][0] * m_model[2][0] + m_model[3][1] * m_model[2][1] + m_model[3][2] * m_model[2][2]), 1.0f);*/
 
 }
 
@@ -589,8 +588,8 @@ GLuint Game::CreateCpuSplat() {
 				int cz = z - Size / 2;
 				float r2 = RadiusScale * float(cx*cx + cy*cy + cz*cz);
 				float density = normalizationConstant * std::exp(-r2 / doubleVariance);
-				maxDensity = std::max(maxDensity, density);
-				minDensity = std::min(minDensity, density);
+				maxDensity = (std::max)(maxDensity, density);
+				minDensity = (std::max)(minDensity, density);
 				sumDensity += density;
 				*pDest++ = (unsigned char)(255.0f * density);
 			}
