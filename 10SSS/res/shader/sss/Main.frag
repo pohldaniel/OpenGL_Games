@@ -110,15 +110,14 @@ vec3 SSSSTransmittance( float translucency, float sssWidth, vec3 worldNormal, ve
 	//float zIn = texture2D(shadowMap, ndc.xy ).r;
 	//float zOut = ndc.z;
 	
-	
-
 	vec4 ndc = shadowPos/shadowPos.w;
 	float zIn =  texture2D(shadowMap, ndc.xy ).r;
 	float zOut = ndc.z;
 
 	zIn = getDepthPassSpaceZ(zIn, 1.0, 100.0);
 	zOut = getDepthPassSpaceZ(zOut, 1.0, 100.0);
- 
+
+	//float d =  scale * texture2D(shadowMap, ndc.xy ).r * 100.0;
 	float d = scale *( zOut - zIn); 
 
 	float dd = -d * d;

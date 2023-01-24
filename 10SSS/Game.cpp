@@ -280,6 +280,43 @@ void Game::shdowPass() {
 	glDisable(GL_DEPTH_TEST);
 }
 
+void Game::shdowPassAdditive() {
+	glDisable(GL_DEPTH_TEST);
+	for (int i = 0; i < 4; i++) {
+
+		lights[i].m_depthRT.bind();
+
+		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+		glClearDepth(1.0);
+		glClear(GL_COLOR_BUFFER_BIT);
+
+		auto shader = Globals::shaderManager.getAssetPointer("depthAdd");
+		glUseProgram(shader->m_program);
+		shader->loadMatrix("u_viewProjection", lights[i].m_shadowProjection * lights[i].m_shadowView);
+		shader->loadMatrix("u_model", m_transform.getTransformationMatrix());
+
+		glEnable(GL_BLEND);
+		glEnable(GL_CULL_FACE);
+
+		//additve blending output_color = 1 * source_color + 1 * destination_color
+		glBlendFunc(GL_ONE, GL_ONE);
+		shader->loadFloat("depthScale", 1.0f);
+
+		glCullFace(GL_FRONT);
+		m_statue.drawRaw();
+
+		shader->loadFloat("depthScale", -1.0f);
+		glCullFace(GL_BACK);
+		m_statue.drawRaw();
+
+		glDisable(GL_CULL_FACE);
+		glDisable(GL_BLEND);
+
+		
+		lights[i].m_depthRT.unbind();
+	}
+}
+
 void Game::renderGBuffer() {
 	glEnable(GL_DEPTH_TEST);
 
@@ -323,6 +360,7 @@ void Game::renderGBuffer() {
 		shader->loadInt(std::string("u_shadowMap[" + std::to_string(i) + "]").c_str(), i);
 		glActiveTexture(GL_TEXTURE0 + i);
 		glBindTexture(GL_TEXTURE_2D, lights[i].m_depthRT.getDepthTexture());
+		//glBindTexture(GL_TEXTURE_2D, lights[i].m_depthRT.getColorTexture());
 	}
 
 	shader->loadInt("u_albedo", 4);

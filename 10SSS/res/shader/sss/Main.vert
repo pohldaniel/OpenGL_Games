@@ -57,7 +57,7 @@ void main(){
 	v_prevPosition.xy = v_prevPosition.xy * 0.5 + vec2(0.5) * v_prevPosition.w;
 	
 	
-	vec3 shrinkedPos = i_position - 0.005 * normalize(i_normal);
+	vec3 shrinkedPos = i_position - 0.05 * normalize(i_normal);
 	
 	for(int i = 0; i < 4; i++){
 		sc[i] = u_projectionShadow[i]   * u_viewShadow[i] * u_model * vec4(shrinkedPos, 1.0);

@@ -389,6 +389,7 @@ void Application::loadAssets() {
 	Globals::shaderManager.loadShader("normal_map", "res/shader/normal_map.vs", "res/shader/normal_map.fs");
 
 	Globals::shaderManager.loadShader("depth", "res/shader/sss/depth.vs", "res/shader/sss/depth.fs");
+	Globals::shaderManager.loadShader("depthAdd", "res/shader/sss/depthAdd.vs", "res/shader/sss/depthAdd.fs");
 	Globals::shaderManager.loadShader("Main", "res/shader/sss/Main.vert", "res/shader/sss/Main.frag");
 	Globals::shaderManager.loadShader("sss", "res/shader/sss/SparableSSS.vert", "res/shader/sss/SparableSSS.frag");
 	

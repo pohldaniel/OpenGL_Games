@@ -211,7 +211,6 @@
     <ClInclude Include="tinyxml\tinystr.h" />
     <ClInclude Include="tinyxml\tinyxml.h" />
     <ClInclude Include="Tree.h" />
-    <ClInclude Include="VectorMath.h" />
     <ClInclude Include="VolumeBuffer.h" />
     <ClInclude Include="Water.h" />
   </ItemGroup>

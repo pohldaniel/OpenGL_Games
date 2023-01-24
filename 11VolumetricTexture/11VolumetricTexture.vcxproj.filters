@@ -230,9 +230,6 @@
     <ClInclude Include="engine\animation\Animator2D.h">
       <Filter>engine\animation</Filter>
     </ClInclude>
-    <ClInclude Include="VectorMath.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="engine\TrackBall.h">
       <Filter>engine</Filter>
     </ClInclude>

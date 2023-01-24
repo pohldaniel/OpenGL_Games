@@ -46,6 +46,7 @@ public:
 	void resize(int deltaW, int deltaH) override;
 	void OnMouseMotion(Event::MouseMoveEvent& event) override;	
 	void shdowPass();
+	void shdowPassAdditive();
 	void renderGBuffer();
 	void sssPass();
 
