@@ -48,9 +48,6 @@ public:
 	int m_depth = 128, m_width = 128, m_height = 128;
 	FluidSystem *fluidSys;
 
-	Matrix4f m_model;
-	Matrix4f m_invModel;
-
 	TrackBall m_trackball;
 	Transform m_tranformSplat;
 	Transform m_tranformFluid;

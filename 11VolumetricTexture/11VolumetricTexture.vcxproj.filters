@@ -9,10 +9,6 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
     </Filter>
-    <Filter Include="Resource Files">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
-    </Filter>
     <Filter Include="engine">
       <UniqueIdentifier>{0bb92a76-8a68-4f68-8cad-03b57ed434f6}</UniqueIdentifier>
     </Filter>
@@ -57,9 +53,6 @@
     </Filter>
     <Filter Include="tinyxml">
       <UniqueIdentifier>{5747a425-01ea-4d6f-98d7-b237601e9996}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Nvidia">
-      <UniqueIdentifier>{ce5087f1-579c-4602-abb3-8dd64a2d622f}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -233,24 +226,6 @@
     </ClInclude>
     <ClInclude Include="FluidSystem.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Nvidia\nvGlutManipulators.h">
-      <Filter>Nvidia</Filter>
-    </ClInclude>
-    <ClInclude Include="Nvidia\nvManipulators.h">
-      <Filter>Nvidia</Filter>
-    </ClInclude>
-    <ClInclude Include="Nvidia\nvMath.h">
-      <Filter>Nvidia</Filter>
-    </ClInclude>
-    <ClInclude Include="Nvidia\nvMatrix.h">
-      <Filter>Nvidia</Filter>
-    </ClInclude>
-    <ClInclude Include="Nvidia\nvQuaternion.h">
-      <Filter>Nvidia</Filter>
-    </ClInclude>
-    <ClInclude Include="Nvidia\nvVector.h">
-      <Filter>Nvidia</Filter>
     </ClInclude>
     <ClInclude Include="engine\animation\Animator2D.h">
       <Filter>engine\animation</Filter>

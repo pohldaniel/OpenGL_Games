@@ -199,12 +199,6 @@
     <ClInclude Include="FluidSystem.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="Miniball\Miniball.h" />
-    <ClInclude Include="Nvidia\nvGlutManipulators.h" />
-    <ClInclude Include="Nvidia\nvManipulators.h" />
-    <ClInclude Include="Nvidia\nvMath.h" />
-    <ClInclude Include="Nvidia\nvMatrix.h" />
-    <ClInclude Include="Nvidia\nvQuaternion.h" />
-    <ClInclude Include="Nvidia\nvVector.h" />
     <ClInclude Include="Object.h" />
     <ClInclude Include="QuadTree.h" />
     <ClInclude Include="Ray.h" />

@@ -369,11 +369,6 @@ void Game::OnMouseButtonUp(Event::MouseButtonEvent& event) {
 }
 
 void Game::applyTransformation(Matrix4f& mtx) {
-	m_model.set(mtx[0][0], mtx[0][1], mtx[0][2], mtx[0][3],
-		mtx[1][0], mtx[1][1], mtx[1][2], mtx[1][3],
-		mtx[2][0], mtx[2][1], mtx[2][2], mtx[2][3],
-		mtx[3][0], mtx[3][1], mtx[3][2], mtx[3][3]);
-
 	m_tranformSplat.fromMatrix(mtx);
 	m_tranformSplat.translate(3.0f, -2.0f, 0.0f);
 
@@ -387,20 +382,13 @@ void Game::applyTransformation(Matrix4f& mtx) {
 	m_tranformCloud2.translate(-3.0f, -2.0f, 0.0f);
 
 	m_tranformModel.fromMatrix(mtx);
-
-	/*m_invModel.set(m_model[0][0], m_model[1][0], m_model[2][0], 0.0f,
-	m_model[0][1], m_model[1][1], m_model[2][1], 0.0f,
-	m_model[0][2], m_model[1][2], m_model[2][2], 0.0f,
-	-(m_model[3][0] * m_model[0][0] + m_model[3][1] * m_model[0][1] + m_model[3][2] * m_model[0][2]),
-	-(m_model[3][0] * m_model[1][0] + m_model[3][1] * m_model[1][1] + m_model[3][2] * m_model[1][2]),
-	-(m_model[3][0] * m_model[2][0] + m_model[3][1] * m_model[2][1] + m_model[3][2] * m_model[2][2]), 1.0f);*/
-
 }
 
 void Game::resize(int deltaW, int deltaH) {
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 1.0f, 1000.0f);
 }
 
+//http://magnuswrenninge.com/volumetricmethods
 unsigned int Game::createPyroclasticVolume(int n, float r) {
 	unsigned char *data = new unsigned char[n*n*n];
 	unsigned char *ptr = data;
@@ -443,13 +431,13 @@ unsigned int Game::createPyroclasticVolume(int n, float r) {
 unsigned int Game::createPointVbo(float x, float y, float z) {
 	float p[] = { x, y, z };
 	
+	GLuint vbo;
+	glGenBuffers(1, &vbo);
+
 	GLuint vao;
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
 	
-	GLuint vbo;
-	glGenBuffers(1, &vbo);
-
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(p), &p[0], GL_STATIC_DRAW);
 
@@ -468,8 +456,8 @@ void Game::renderOffscreen() {
 	glEnable(GL_CULL_FACE);
 	auto shader = Globals::shaderManager.getAssetPointer("twopass_int");
 	glUseProgram(shader->m_program);
-	shader->loadMatrix("ModelviewProjection", m_camera.getProjectionMatrix() * m_camera.getViewMatrix()* m_tranformCloud2.getTransformationMatrix());
-	shader->loadMatrix("Modelview", m_camera.getViewMatrix()* m_model);
+	shader->loadMatrix("ModelviewProjection", m_camera.getProjectionMatrix() * m_camera.getViewMatrix() * m_tranformCloud2.getTransformationMatrix());
+	shader->loadMatrix("Modelview", m_camera.getViewMatrix()* m_tranformCloud2.getTransformationMatrix());
 	shader->loadMatrix("ViewMatrix", m_camera.getViewMatrix());
 	shader->loadMatrix("ProjectionMatrix", m_camera.getProjectionMatrix());
 	shader->loadInt("RayStartPoints", 1);
