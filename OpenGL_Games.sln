@@ -133,6 +133,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "11VolumetricTexture", "11Vo
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "12Thikness", "12Thikness\12Thikness.vcxproj", "{C1B9621B-0390-4DBD-B513-8E30872F3E4A}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "13DepthPeeling", "13DepthPeeling\13DepthPeeling.vcxproj", "{A45C121F-22A9-490C-BFE3-CC8965FB435D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -453,6 +455,14 @@ Global
 		{C1B9621B-0390-4DBD-B513-8E30872F3E4A}.Release|x64.Build.0 = Release|x64
 		{C1B9621B-0390-4DBD-B513-8E30872F3E4A}.Release|x86.ActiveCfg = Release|Win32
 		{C1B9621B-0390-4DBD-B513-8E30872F3E4A}.Release|x86.Build.0 = Release|Win32
+		{A45C121F-22A9-490C-BFE3-CC8965FB435D}.Debug|x64.ActiveCfg = Debug|x64
+		{A45C121F-22A9-490C-BFE3-CC8965FB435D}.Debug|x64.Build.0 = Debug|x64
+		{A45C121F-22A9-490C-BFE3-CC8965FB435D}.Debug|x86.ActiveCfg = Debug|Win32
+		{A45C121F-22A9-490C-BFE3-CC8965FB435D}.Debug|x86.Build.0 = Debug|Win32
+		{A45C121F-22A9-490C-BFE3-CC8965FB435D}.Release|x64.ActiveCfg = Release|x64
+		{A45C121F-22A9-490C-BFE3-CC8965FB435D}.Release|x64.Build.0 = Release|x64
+		{A45C121F-22A9-490C-BFE3-CC8965FB435D}.Release|x86.ActiveCfg = Release|Win32
+		{A45C121F-22A9-490C-BFE3-CC8965FB435D}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,0 +1,419 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="engine">
+      <UniqueIdentifier>{0bb92a76-8a68-4f68-8cad-03b57ed434f6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="engine\input">
+      <UniqueIdentifier>{a803132e-9a0f-4258-a710-ced3a399ddd0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\States">
+      <UniqueIdentifier>{ac791a0f-f1ac-4fa7-9b54-33d3e7983f6a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="soil2">
+      <UniqueIdentifier>{e400f14a-e809-4ff7-ba25-ba27a250f275}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Entities">
+      <UniqueIdentifier>{3f360783-808b-49bc-a891-9d407484998a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Objects">
+      <UniqueIdentifier>{c435985b-31a5-4630-b76d-d72d81efa816}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="engine\MeshObject">
+      <UniqueIdentifier>{c5f18a53-081b-4114-9ad3-73652de82b8b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="miniball">
+      <UniqueIdentifier>{c6538365-9410-495a-b0f2-dea18c52d443}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="convhull">
+      <UniqueIdentifier>{1371a72c-34c3-44a8-a506-a830abf194bc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="engine\animation">
+      <UniqueIdentifier>{f04175df-6c48-48d5-974f-c6e572ed1e6e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="engine\animation\AnimatedModel">
+      <UniqueIdentifier>{4b170087-c238-4000-a069-42c31f107ea8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="engine\animation\Animator">
+      <UniqueIdentifier>{30aae57b-7850-4002-9a47-bf63cb8df0f0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="engine\animation\ColladaLoader">
+      <UniqueIdentifier>{bb3552e7-955d-48d6-9b5f-3bb2a54ccbe8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="engine\animation\Render">
+      <UniqueIdentifier>{e215bffc-deb3-489a-b618-920f438247c9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tinyxml">
+      <UniqueIdentifier>{5747a425-01ea-4d6f-98d7-b237601e9996}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="engine\input\Event.h">
+      <Filter>engine\input</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\input\EventDispatcher.h">
+      <Filter>engine\input</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\input\KeyboardEventListener.h">
+      <Filter>engine\input</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\input\KeyBorad.h">
+      <Filter>engine\input</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\input\Mouse.h">
+      <Filter>engine\input</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\input\MouseEventListener.h">
+      <Filter>engine\input</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\AssetManger.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\Clock.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\Extension.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\Shader.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\Vector.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Game.h">
+      <Filter>Source Files\States</Filter>
+    </ClInclude>
+    <ClInclude Include="StateMachine.h">
+      <Filter>Source Files\States</Filter>
+    </ClInclude>
+    <ClInclude Include="Application.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Constants.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\Quad.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Terrain.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\Texture.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Object.h">
+      <Filter>Source Files\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderableObject.h">
+      <Filter>Source Files\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="Entity.h">
+      <Filter>Source Files\Entities</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\Spritesheet.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Water.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\Framebuffer.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\ObjModel.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\PerlinNoise.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\Camera.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\MeshObject\MeshQuad.h">
+      <Filter>engine\MeshObject</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\MeshObject\MeshCube.h">
+      <Filter>engine\MeshObject</Filter>
+    </ClInclude>
+    <ClInclude Include="Tree.h">
+      <Filter>Source Files\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="Fern.h">
+      <Filter>Source Files\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="CharacterSetBmp.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Text.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Cubemap.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Skybox.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Barrel.h">
+      <Filter>Source Files\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="Ray.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Miniball\Miniball.h">
+      <Filter>miniball</Filter>
+    </ClInclude>
+    <ClInclude Include="convhull\convhull_3d.h">
+      <Filter>convhull</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\Transform_old.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\Transform.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\animation\AnimatedModel\AnimatedMesh.h">
+      <Filter>engine\animation\AnimatedModel</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\animation\AnimatedModel\AnimatedModel.h">
+      <Filter>engine\animation\AnimatedModel</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\animation\Animator\Animation.h">
+      <Filter>engine\animation\Animator</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\animation\Animator\Animator.h">
+      <Filter>engine\animation\Animator</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\animation\ColladaLoader\ColladaLoader.h">
+      <Filter>engine\animation\ColladaLoader</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\animation\Render\AnimationShader.h">
+      <Filter>engine\animation\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="tinyxml\tinystr.h">
+      <Filter>tinyxml</Filter>
+    </ClInclude>
+    <ClInclude Include="tinyxml\tinyxml.h">
+      <Filter>tinyxml</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\BuiltInShader.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\input\ApplicationEventListener.h">
+      <Filter>engine\input</Filter>
+    </ClInclude>
+    <ClInclude Include="Bloom.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\Cube.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="QuadTree.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Terrain2.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VolumeBuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FluidSystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\animation\Animator2D.h">
+      <Filter>engine\animation</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\TrackBall.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="engine\input\EventDispatcher.cpp">
+      <Filter>engine\input</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\input\KeyBoard.cpp">
+      <Filter>engine\input</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\input\KeyboardEventListener.cpp">
+      <Filter>engine\input</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\input\Mouse.cpp">
+      <Filter>engine\input</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\input\MouseEventListener.cpp">
+      <Filter>engine\input</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\Extension.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\Shader.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\Vector.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="Application.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="StateMachine.cpp">
+      <Filter>Source Files\States</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\Quad.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="Terrain.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\Texture.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="soil2\image_DXT.c">
+      <Filter>soil2</Filter>
+    </ClCompile>
+    <ClCompile Include="soil2\image_helper.c">
+      <Filter>soil2</Filter>
+    </ClCompile>
+    <ClCompile Include="soil2\SOIL2.c">
+      <Filter>soil2</Filter>
+    </ClCompile>
+    <ClCompile Include="soil2\wfETC.c">
+      <Filter>soil2</Filter>
+    </ClCompile>
+    <ClCompile Include="Object.cpp">
+      <Filter>Source Files\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderableObject.cpp">
+      <Filter>Source Files\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="Entity.cpp">
+      <Filter>Source Files\Entities</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\Spritesheet.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="Water.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\Framebuffer.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\ObjModel.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\PerlinNoise.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\Camera.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="Game.cpp">
+      <Filter>Source Files\States</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\MeshObject\MeshQuad.cpp">
+      <Filter>engine\MeshObject</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\MeshObject\MeshCube.cpp">
+      <Filter>engine\MeshObject</Filter>
+    </ClCompile>
+    <ClCompile Include="Tree.cpp">
+      <Filter>Source Files\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="Fern.cpp">
+      <Filter>Source Files\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="CharacterSetBmp.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="Text.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Cubemap.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="Skybox.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Barrel.cpp">
+      <Filter>Source Files\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="Ray.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\Transform_old.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\Transform.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\animation\AnimatedModel\AnimatedMesh.cpp">
+      <Filter>engine\animation\AnimatedModel</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\animation\AnimatedModel\AnimatedModel.cpp">
+      <Filter>engine\animation\AnimatedModel</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\animation\Animator\Animation.cpp">
+      <Filter>engine\animation\Animator</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\animation\Animator\Animator.cpp">
+      <Filter>engine\animation\Animator</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\animation\ColladaLoader\ColladaLoader.cpp">
+      <Filter>engine\animation\ColladaLoader</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\animation\Render\AnimationShader.cpp">
+      <Filter>engine\animation\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="tinyxml\tinystr.cpp">
+      <Filter>tinyxml</Filter>
+    </ClCompile>
+    <ClCompile Include="tinyxml\tinyxml.cpp">
+      <Filter>tinyxml</Filter>
+    </ClCompile>
+    <ClCompile Include="tinyxml\tinyxmlerror.cpp">
+      <Filter>tinyxml</Filter>
+    </ClCompile>
+    <ClCompile Include="tinyxml\tinyxmlparser.cpp">
+      <Filter>tinyxml</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\BuiltInShader.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\input\ApplicationEventListener.cpp">
+      <Filter>engine\input</Filter>
+    </ClCompile>
+    <ClCompile Include="Bloom.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\Cube.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="QuadTree.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Terrain2.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="VolumeBuffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FluidSystem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\animation\Animator2D.cpp">
+      <Filter>engine\animation</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\TrackBall.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
