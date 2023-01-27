@@ -34,3 +34,7 @@ The project 11VolumetircTexture is a port of https://developer.download.nvidia.c
 The project also contains some code from https://prideout.net/blog/old/blog/index.html@p=60.html and https://prideout.net/blog/old/blog/index.html@p=64.html. The models are from https://klacansky.com/open-scivis-datasets
 
 ![Volume](https://user-images.githubusercontent.com/30089026/213771775-9ea01f87-61a1-4ad5-b60d-87a6a65e5181.png)
+
+The project 12Thikness is based on https://prideout.net/blog/old/blog/index.html@p=51.html
+
+The project 13DepthPeeling is a port of https://developer.download.nvidia.com/SDK/10.5/opengl/screenshots/samples/dual_depth_peeling.html using modern OpenGl.
