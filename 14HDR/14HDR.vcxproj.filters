@@ -245,6 +245,15 @@
     <ClInclude Include="nvidia\rgbe.h">
       <Filter>engine\nvidia</Filter>
     </ClInclude>
+    <ClInclude Include="engine\MeshObject\MeshSphere.h">
+      <Filter>engine\MeshObject</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\MeshObject\MeshSpiral.h">
+      <Filter>engine\MeshObject</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\MeshObject\MeshTorus.h">
+      <Filter>engine\MeshObject</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine\input\EventDispatcher.cpp">
@@ -435,6 +444,15 @@
     </ClCompile>
     <ClCompile Include="nvidia\rgbe.cpp">
       <Filter>engine\nvidia</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\MeshObject\MeshSphere.cpp">
+      <Filter>engine\MeshObject</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\MeshObject\MeshSpiral.cpp">
+      <Filter>engine\MeshObject</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\MeshObject\MeshTorus.cpp">
+      <Filter>engine\MeshObject</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -1,6 +1,7 @@
 #include <imgui.h>
 #include <imgui_impl_win32.h>
 #include <imgui_impl_opengl3.h>
+#include <imgui_internal.h>
 
 #include "engine/input/EventDispatcher.h"
 
@@ -13,6 +14,9 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 
 	m_quad = new Quad();
 	m_cube = new Cube();
+	m_sphere = new MeshSphere(false, true, false, false);
+	m_torus = new MeshTorus(false, true, false, false);
+	m_spiral = new MeshSpiral(false, true, false, false);
 
 	m_camera = Camera();
 	m_camera.perspective(45.0f * _180_ON_PI, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
@@ -29,13 +33,10 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 
 	m_cubemap.setTexture(m_texture);
 
-	float *weights;
-	int width;
-	weights = generateGaussianWeights(blur_width, width);
+	
 	vertex = Shader::LoadShaderProgram(GL_VERTEX_SHADER, "res/gauss.vert");
 
-	generate1DConvolutionFP_filter(blurH, weights, width, false, true, Application::Width / 2, Application::Height / 2);
-	generate1DConvolutionFP_filter(blurV, weights, width, true, true, Application::Width / 2, Application::Height / 2);
+	recompileShader();
 
 	object = new Shader("res/object.vert", "res/object.frag");
 	tone = new Shader("res/tonemap.vert", "res/tonemap.frag");	
@@ -140,14 +141,16 @@ void Game::render(unsigned int &frameBuffer) {
 
 	renderScene();
 
-	downsample4(sceneBuffer, downsampleBuffer[0]);
-	downsample4(downsampleBuffer[0], downsampleBuffer[1]);
-	blurPass(downsampleBuffer[1]);
+	if (m_glow || m_rays) {
+		downsample4(sceneBuffer, downsampleBuffer[0]);
+		downsample4(downsampleBuffer[0], downsampleBuffer[1]);
+		blurPass(downsampleBuffer[1]);
+	}
 
 	glUseProgram(tone->m_program);
 
-	tone->loadFloat("blurAmount", blur_amount);
-	tone->loadFloat("effectAmount", effect_amount);
+	tone->loadFloat("blurAmount", m_glow ? m_blurAmount : 0.0f);
+	tone->loadFloat("effectAmount", m_glow ? effect_amount : 0.0f);
 	tone->loadVector("windowSize", Vector2f(2.0f / (float)Application::Width, 2.0f / (float)Application::Height));
 	tone->loadFloat("exposure", exposure);
 
@@ -162,17 +165,7 @@ void Game::render(unsigned int &frameBuffer) {
 	m_quad->drawRaw();
 	glUseProgram(0);
 
-	ImGui_ImplOpenGL3_NewFrame();
-	ImGui_ImplWin32_NewFrame();
-	ImGui::NewFrame();
-
-	// renderer and other code before this point
-	{std::array<float, 3> tmp = { 0.0f, 0.0f, 0.0f };
-		ImGui::SliderFloat3("Model Matrix Translation", tmp.data(), 0.0f, 960.0f);
-	}
-
-	ImGui::Render();
-	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+	renderUi();
 }
 
 void Game::OnMouseMotion(Event::MouseMoveEvent& event) {
@@ -211,11 +204,7 @@ void Game::resize(int deltaW, int deltaH) {
 		downsampleBuffer[i].resize(w, h);
 	}
 
-	float *weights;
-	int width;
-	weights = generateGaussianWeights(blur_width, width);
-	generate1DConvolutionFP_filter(blurH, weights, width, false, true, Application::Width / 2, Application::Height / 2);
-	generate1DConvolutionFP_filter(blurV, weights, width, true, true, Application::Width / 2, Application::Height / 2);
+	recompileShader();
 }
 
 GLuint Game::createCubemapTexture(HDRImage &img, GLint internalformat) {
@@ -265,6 +254,7 @@ void Game::renderScene() {
 	}
 
 	glEnable(GL_DEPTH_TEST);
+	glPolygonMode(GL_FRONT_AND_BACK, m_wireframe ? GL_LINE : GL_FILL);
 	glUseProgram(object->m_program);
 	object->loadMatrix("u_model", m_transform.getTransformationMatrix());
 	object->loadMatrix("u_projection", m_camera.getProjectionMatrix());
@@ -281,11 +271,29 @@ void Game::renderScene() {
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, m_texture);
 
-	venus.drawRaw();
+	switch (model) {
+		case Model::SPHERE:
+			m_sphere->drawRaw();
+			break;
+		case Model::TETRA:
+			break;
+		case Model::CUBE:
+			m_cube->drawRaw();
+			break;
+		case Model::TORUS:
+			m_torus->drawRaw();
+			break;
+		case Model::SPIRAL:
+			m_spiral->drawRaw();
+			break;
+		case Model::VENUS:
+			venus.drawRaw();
+			break;
+	}
 
 	glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 	glUseProgram(0);
-
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	sceneBuffer.unbind();
 }
 
@@ -349,6 +357,14 @@ void Game::downsample4(Framebuffer& src, Framebuffer& dest) {
 
 	glUseProgram(0);
 	dest.unbind();
+}
+
+void Game::recompileShader() {
+	float *weights;
+	int width;
+	weights = generateGaussianWeights(m_blurWidth, width);
+	generate1DConvolutionFP_filter(blurH, weights, width, false, true, Application::Width / 2, Application::Height / 2);
+	generate1DConvolutionFP_filter(blurV, weights, width, true, true, Application::Width / 2, Application::Height / 2);
 }
 
 // 1d Gaussian distribution, s is standard deviation
@@ -448,4 +464,65 @@ void Game::generate1DConvolutionFP_filter(Shader*& shader, float *weights, int w
 	shader->attachShader(vertex);
 	shader->attachShader(Shader::LoadShaderProgram(GL_FRAGMENT_SHADER, ost.str()));
 	shader->linkShaders();
+}
+
+void Game::renderUi() {
+	ImGui_ImplOpenGL3_NewFrame();
+	ImGui_ImplWin32_NewFrame();
+	ImGui::NewFrame();
+
+	ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoTitleBar |
+		ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove |
+		ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus |
+		ImGuiWindowFlags_NoBackground;
+
+	ImGuiViewport* viewport = ImGui::GetMainViewport();
+	ImGui::SetNextWindowPos(viewport->Pos);
+	ImGui::SetNextWindowSize(viewport->Size);
+	ImGui::SetNextWindowViewport(viewport->ID);
+
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+	ImGui::Begin("InvisibleWindow", nullptr, windowFlags);
+	ImGui::PopStyleVar(3);
+
+	ImGuiID dockSpaceId = ImGui::GetID("MainDockSpace");
+	ImGui::DockSpace(dockSpaceId, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_PassthruCentralNode);
+	ImGui::End();
+
+	if (m_initUi) {
+		m_initUi = false;
+		ImGuiID dock_id_left = ImGui::DockBuilderSplitNode(dockSpaceId, ImGuiDir_Left, 0.2f, nullptr, &dockSpaceId);
+		ImGui::DockBuilderDockWindow("Settings", dock_id_left);
+	}
+
+	// render widgets
+	ImGui::Begin("Settings", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
+
+	ImGui::Checkbox("Glow", &m_glow);
+	if (ImGui::Checkbox("Rays", &m_rays)) {
+		effect_amount = m_rays ? 0.1f : 0.0f;
+	}
+	ImGui::Checkbox("Draw Skybox", &m_drawSkaybox);
+	ImGui::Checkbox("Draw Wirframe", &m_wireframe);
+
+	if (ImGui::SliderFloat("Blur Width", &m_blurWidth, 1.0f, 10.0f)) {
+		recompileShader();
+	}
+
+	ImGui::SliderFloat("Blur Amount", &m_blurAmount, 0.0f, 1.0f);
+
+	
+	int currentModel = model;
+	if (ImGui::Combo("Model", &currentModel, "Sphere\0Tetra\0Cube\0Torus\0Spiral\0Venus\0\0")) {
+		model = static_cast<Model>(currentModel);
+	}
+
+	ImGui::End();
+
+	
+
+	ImGui::Render();
+	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }

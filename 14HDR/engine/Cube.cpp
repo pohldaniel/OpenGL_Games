@@ -3,7 +3,7 @@
 Cube::Cube() {
 	m_position = Vector3f(-1.0f, -1.0f, -1.0f);
 	m_size = Vector3f(2.0f, 2.0f, 2.0f);
-	createBuffer();
+	createBufferTexNormal();
 }
 
 Cube::Cube(Vector3f& position, Vector3f size) {

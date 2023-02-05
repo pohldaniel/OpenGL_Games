@@ -106,6 +106,11 @@ void Application::initWindow() {
 	
 	ImGui::CreateContext();
 	ImGui_ImplWin32_Init(Window);
+	ImGuiIO& io = ImGui::GetIO();
+	io.IniFilename = NULL;
+
+	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;           // Enable Docking
+	
 
 	Init = true;
 }

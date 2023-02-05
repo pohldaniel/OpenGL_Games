@@ -10,7 +10,6 @@
 #include "../Shader.h"
 #include "../Vector.h"
 #include "../Transform.h"
-#include "../../Constants.h"
 
 class MeshQuad {
 

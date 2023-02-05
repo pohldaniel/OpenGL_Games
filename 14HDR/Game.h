@@ -10,6 +10,9 @@
 
 #include "engine/MeshObject/MeshQuad.h"
 #include "engine/MeshObject/MeshCube.h"
+#include "engine/MeshObject/MeshSphere.h"
+#include "engine/MeshObject/MeshTorus.h"
+#include "engine/MeshObject/MeshSpiral.h"
 #include "engine/Framebuffer.h"
 #include "engine/Camera.h"
 #include "engine/ObjModel.h"
@@ -25,6 +28,15 @@
 #define DOWNSAMPLE_BUFFERS 2
 #define BLUR_BUFFERS 2
 
+enum Model {	
+	SPHERE,
+	TETRA, 
+	CUBE,
+	TORUS,
+	SPIRAL,
+	VENUS
+};
+
 class Game : public State, public MouseEventListener {
 
 public:
@@ -39,6 +51,7 @@ public:
 	void OnMouseMotion(Event::MouseMoveEvent& event) override;	
 	void OnMouseButtonDown(Event::MouseButtonEvent& event) override;
 	void OnMouseButtonUp(Event::MouseButtonEvent& event) override;
+	void renderUi();
 	void applyTransformation(Matrix4f& mtx);
 	void drawModel();
 	GLuint createCubemapTexture(HDRImage &img, GLint internalformat);
@@ -46,12 +59,16 @@ public:
 	void blurPass(Framebuffer& src);
 	void downsample2(Framebuffer& src, Framebuffer& dest);
 	void downsample4(Framebuffer& src, Framebuffer& dest);
+	void recompileShader();
 	void generate1DConvolutionFP_filter(Shader*& shader, float *weights, int width, bool vertical, bool tex2D, int img_width, int img_height);
 	float *generateGaussianWeights(float s, int &width);
 
 	Camera m_camera;
 	Quad* m_quad;
 	Cube* m_cube;
+	MeshSphere* m_sphere;
+	MeshTorus* m_torus;
+	MeshSpiral* m_spiral;
 
 	TrackBall m_trackball;
 	Transform m_transform;
@@ -74,12 +91,19 @@ public:
 	Framebuffer blurBuffer[2];
 	Framebuffer downsampleBuffer[2];
 
-	float exposure = 16.0;
-	float aniso = 2.0;
-	float blur_width = 3.0;
-	float blur_amount = 0.5;
-	float effect_amount = 0.2;
+	float exposure = 16.0f;
+	float aniso = 2.0f;
+	float m_blurWidth = 3.0f;
+	float m_blurAmount = 0.5f;
+	float effect_amount = 0.2f;
 
+	bool m_glow = true;
+	bool m_rays = true;
 	bool m_drawSkaybox = false;
+	bool m_wireframe = false;
+
+	bool m_initUi = true;
+
+	Model model = Model::VENUS;
 };
 
