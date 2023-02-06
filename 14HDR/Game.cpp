@@ -14,6 +14,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 
 	m_quad = new Quad();
 	m_cube = new Cube();
+	m_tetraedron = new Tetraedron();
 	m_sphere = new MeshSphere(false, true, false, false);
 	m_torus = new MeshTorus(false, true, false, false);
 	m_spiral = new MeshSpiral(false, true, false, false);
@@ -276,6 +277,7 @@ void Game::renderScene() {
 			m_sphere->drawRaw();
 			break;
 		case Model::TETRA:
+			m_tetraedron->drawRaw();
 			break;
 		case Model::CUBE:
 			m_cube->drawRaw();
@@ -294,6 +296,7 @@ void Game::renderScene() {
 	glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 	glUseProgram(0);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
 	sceneBuffer.unbind();
 }
 

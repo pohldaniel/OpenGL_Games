@@ -1,0 +1,64 @@
+#ifndef _MESHTORUS_H
+#define _MESHTORUS_H
+#include <GL/glew.h>
+#include <vector>
+#include <memory>
+
+#include "..\Texture.h"
+#include "..\Camera.h"
+#include "..\Shader.h"
+#include "..\Vector.h"
+
+class MeshTorus {
+
+public:
+
+	MeshTorus(bool generateTexels, bool generateNormals, bool generateTangents, bool generateNormalDerivatives);
+	MeshTorus(const Vector3f &position, float radius, float tubeRadius, bool generateTexels, bool generateNormals, bool generateTangents, bool generateNormalDerivatives);
+
+	MeshTorus(float radius, float tubeRadius, const std::string &texture);
+	MeshTorus(const Vector3f &position, float radius, float tubeRadius, const std::string &texture);
+	MeshTorus(const Vector3f &position, float radius, float tubeRadius, bool generateTexels, bool generateNormals, bool generateTangents, bool generateNormalDerivatives, const std::string &texture);
+	~MeshTorus();
+
+	void setPrecision(int uResolution, int vResolution);
+	void buildMesh();
+	void draw(const Camera camera);
+	void drawRaw();
+	void setTransformation(const Matrix4f &transformation) { m_model = transformation; }
+
+	std::vector<unsigned int> m_indexBuffer;
+	std::vector<Vector3f> m_positions;
+	std::vector<Vector2f> m_texels;
+	std::vector<Vector3f> m_normals;
+
+private:
+
+	int m_mainSegments;
+	int m_tubeSegments;
+	float m_radius;
+	float m_tubeRadius;
+	Vector3f m_position;
+
+	bool m_generateNormals;
+	bool m_generateTexels;
+	bool m_generateTangents;
+	bool m_generateNormalDerivatives;
+
+	bool m_isInitialized;
+	bool m_hasTexels;
+	bool m_hasNormals;
+	bool m_hasTangents;
+	bool m_hasNormalDerivatives;
+
+	short m_numBuffers;
+	unsigned int m_vao;
+	unsigned int m_vbo[5];
+	unsigned int m_drawCount;
+
+	std::shared_ptr<Shader> m_shader;
+	std::shared_ptr<Texture> m_texture;
+
+	Matrix4f m_model;
+};
+#endif

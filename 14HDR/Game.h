@@ -17,6 +17,7 @@
 #include "engine/Camera.h"
 #include "engine/ObjModel.h"
 #include "engine/Cube.h"
+#include "engine/Tetraedron.h"
 #include "engine/TrackBall.h"
 #include "Cubemap.h"
 
@@ -66,6 +67,8 @@ public:
 	Camera m_camera;
 	Quad* m_quad;
 	Cube* m_cube;
+	Tetraedron* m_tetraedron;
+
 	MeshSphere* m_sphere;
 	MeshTorus* m_torus;
 	MeshSpiral* m_spiral;
@@ -82,6 +85,7 @@ public:
 	Shader* object;
 	Shader* down2;
 	Shader* down4;
+
 	GLuint vertex;
 
 	ObjModel venus;

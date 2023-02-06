@@ -186,6 +186,7 @@
     <ClInclude Include="engine\MeshObject\MeshSphere.h" />
     <ClInclude Include="engine\MeshObject\MeshSpiral.h" />
     <ClInclude Include="engine\MeshObject\MeshTorus.h" />
+    <ClInclude Include="engine\Tetraedron.h" />
     <ClInclude Include="engine\TrackBall.h" />
     <ClInclude Include="engine\Transform.h" />
     <ClInclude Include="engine\Transform_old.h" />
@@ -248,6 +249,7 @@
     <ClCompile Include="engine\MeshObject\MeshSphere.cpp" />
     <ClCompile Include="engine\MeshObject\MeshSpiral.cpp" />
     <ClCompile Include="engine\MeshObject\MeshTorus.cpp" />
+    <ClCompile Include="engine\Tetraedron.cpp" />
     <ClCompile Include="engine\TrackBall.cpp" />
     <ClCompile Include="engine\Transform.cpp" />
     <ClCompile Include="engine\Transform_old.cpp" />

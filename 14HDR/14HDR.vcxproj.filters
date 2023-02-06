@@ -254,6 +254,9 @@
     <ClInclude Include="engine\MeshObject\MeshTorus.h">
       <Filter>engine\MeshObject</Filter>
     </ClInclude>
+    <ClInclude Include="engine\Tetraedron.h">
+      <Filter>engine</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine\input\EventDispatcher.cpp">
@@ -453,6 +456,9 @@
     </ClCompile>
     <ClCompile Include="engine\MeshObject\MeshTorus.cpp">
       <Filter>engine\MeshObject</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\Tetraedron.cpp">
+      <Filter>engine</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
