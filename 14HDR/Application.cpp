@@ -198,12 +198,8 @@ LRESULT Application::DisplayWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 			if (Height == 0) {					// avoid divide by zero
 				Height = 1;
 			}
-
-			glViewport(0, 0, Width, Height);
-			Globals::projection = Matrix4f::GetPerspective(Globals::projection, 45.0f, static_cast<float>(Width) / static_cast<float>(Height), 1.0f, 1000.0f);
-			Globals::invProjection = Matrix4f::GetInvPerspective(Globals::invProjection, 45.0f, static_cast<float>(Width) / static_cast<float>(Height), 1.0f, 1000.0f);
-			Globals::orthographic = Matrix4f::GetOrthographic(Globals::orthographic, 0.0f, static_cast<float>(Width), 0.0f, static_cast<float>(Height), -1.0f, 1.0f);
-	
+			Resize(deltaW, deltaH);
+			
 			break;
 		}default: {
 			//Mouse::instance().handleMsg(hWnd, message, wParam, lParam);
@@ -251,6 +247,10 @@ void Application::initOpenGL() {
 	enableVerticalSync(true);
 
 	ImGui_ImplOpenGL3_Init("#version 410 core");
+
+	//Default Values
+	glCullFace(GL_BACK);
+	glFrontFace(GL_CW);
 }
 
 void Application::enableVerticalSync(bool enableVerticalSync) {
@@ -335,14 +335,13 @@ void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 	}
 }
 
-
 void Application::Resize(int deltaW, int deltaH) {
 	glViewport(0, 0, Width, Height);
 	Globals::projection = Matrix4f::GetPerspective(Globals::projection, 45.0f, static_cast<float>(Width) / static_cast<float>(Height), 1.0f, 1000.0f);
 	Globals::invProjection = Matrix4f::GetInvPerspective(Globals::invProjection, 45.0f, static_cast<float>(Width) / static_cast<float>(Height), 1.0f, 1000.0f);
 	Globals::orthographic = Matrix4f::GetOrthographic(Globals::orthographic, 0.0f, static_cast<float>(Width), 0.0f, static_cast<float>(Height), -1.0f, 1.0f);
-	
-	if (Init) {
+
+	if (Init) {	
 		Machine->resize(Width, Height);
 		Machine->m_states.top()->resize(deltaW, deltaH);
 		Framebuffer::SetDefaultSize(Width, Height);

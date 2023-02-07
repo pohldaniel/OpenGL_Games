@@ -38,6 +38,17 @@ enum Model {
 	VENUS
 };
 
+enum Culling {
+	NONE,
+	FRONT,
+	BACK
+};
+
+struct aaInfo {
+	int samples;
+	int coverage_samples;
+};
+
 class Game : public State, public MouseEventListener {
 
 public:
@@ -63,6 +74,7 @@ public:
 	void recompileShader();
 	void generate1DConvolutionFP_filter(Shader*& shader, float *weights, int width, bool vertical, bool tex2D, int img_width, int img_height);
 	float *generateGaussianWeights(float s, int &width);
+	void createBuffers(AttachmentTex::AttachmentTex texFormat, AttachmentRB::AttachmentRB rbFormat, aaInfo aaMode);
 
 	Camera m_camera;
 	Quad* m_quad;
@@ -94,20 +106,39 @@ public:
 	Framebuffer sceneBuffer;
 	Framebuffer blurBuffer[2];
 	Framebuffer downsampleBuffer[2];
+	Framebuffer msaaBuffer;
 
-	float exposure = 16.0f;
-	float aniso = 2.0f;
+	float m_exposure = 16.0f;
+	float m_aniso = 2.0f;
 	float m_blurWidth = 3.0f;
 	float m_blurAmount = 0.5f;
-	float effect_amount = 0.2f;
+	float m_effectAmount = 0.2f;
+	float m_blendAmout = 0.5f;
+	float m_scale = 1.0f;
 
 	bool m_glow = true;
 	bool m_rays = true;
 	bool m_drawSkaybox = false;
 	bool m_wireframe = false;
-
+	bool m_blend = false;
 	bool m_initUi = true;
 
 	Model model = Model::VENUS;
+	int currentBuffer = 1;
+
+	AttachmentTex::AttachmentTex bufferTokens[4] = { AttachmentTex::AttachmentTex::RGBA, AttachmentTex::AttachmentTex::RGBA16F, AttachmentTex::AttachmentTex::RGBA32F, AttachmentTex::AttachmentTex::R11FG11FB10F };
+	AttachmentRB::AttachmentRB rbTokens[4] = { AttachmentRB::AttachmentRB::RGBA, AttachmentRB::AttachmentRB::RGBA16F, AttachmentRB::AttachmentRB::RGBA32F, AttachmentRB::AttachmentRB::R11FG11FB10F };
+
+	int currentMode = 2;
+	aaInfo aaModes[6] = { { 0,0 },{ 2,2 },{ 4,4 },{ 4,8 },{ 8,8 },{ 8,16 } };
+	const char* aaModesLabel[6] = { "None", "2x", "4x", "8xCSAA", "8x", "16xCSAA" };
+
+	int currentAnsio = 1;
+	float ansio[5] = {1.0f, 2.0f, 4.0f, 8.0f, 16.0f};
+	const char* ansioLabel[5] = { "1.0", "2.0", "4.0", "8.0", "16.0"};
+
+	Culling cullMode = Culling::NONE;
+
+	float m_color[3] = {0.05f, 0.2f, 0.05f};
 };
 

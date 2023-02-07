@@ -1,6 +1,8 @@
 #version 410 core
 
 uniform samplerCube envMap;
+uniform float u_alpha = 0.5;
+uniform vec3 u_color = vec3(0.05, 0.2, 0.05);
 
 in vec4 P; // position
 in vec3 N; // normal
@@ -23,9 +25,9 @@ void main(){
 	
 	vec3 Creflect =texture(envMap, R).rgb;
 	vec3 Crefract =texture(envMap, T).rgb;
-	Crefract *= vec3(0.05, 0.2, 0.05);
+	Crefract *= u_color;
 
 	vec3 Cout = mix(Crefract, Creflect, 0.02);
 
-    color = vec4(Cout, 1.0);
+    color = vec4(Cout, u_alpha);
 }

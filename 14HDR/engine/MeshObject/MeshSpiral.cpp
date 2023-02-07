@@ -279,8 +279,8 @@ void MeshSpiral::buildMesh() {
 				vertexIndexF = currentVertexOffset + m_tubeSegments + 2;
 				vertexIndexE = currentVertexOffset + 1;
 
-				m_indexBuffer.push_back(vertexIndexA); m_indexBuffer.push_back(vertexIndexB); m_indexBuffer.push_back(vertexIndexC);
-				m_indexBuffer.push_back(vertexIndexD); m_indexBuffer.push_back(vertexIndexF); m_indexBuffer.push_back(vertexIndexE);
+				m_indexBuffer.push_back(vertexIndexA); m_indexBuffer.push_back(vertexIndexC); m_indexBuffer.push_back(vertexIndexB);
+				m_indexBuffer.push_back(vertexIndexD); m_indexBuffer.push_back(vertexIndexE); m_indexBuffer.push_back(vertexIndexF);
 				currentVertexOffset++;
 			}
 		}

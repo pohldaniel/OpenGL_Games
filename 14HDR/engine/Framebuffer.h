@@ -8,6 +8,7 @@ namespace Target {
 	typedef enum Target {
 		TEXTURE2D,
 		TEXTURE3D,
+		ARRAY,
 		TEXTURE
 	} Target;
 }
@@ -32,6 +33,7 @@ namespace AttachmentTex {
 		RGB32F,
 		RGB16F,
 		RG16F,
+		R11FG11FB10F,
 		DEPTH24,
 		DEPTH32,
 		DEPTH32F,
@@ -41,9 +43,13 @@ namespace AttachmentTex {
 	} AttachmentTex;
 }
 
+//https://registry.khronos.org/OpenGL-Refpages/es3.0/html/glRenderbufferStorage.xhtml
 namespace AttachmentRB {
 	typedef enum AttachmentRB {
 		RGBA,
+		RGBA32F,
+		RGBA16F,
+		R11FG11FB10F,
 		DEPTH16,
 		DEPTH24,
 		DEPTH32F,
@@ -65,7 +71,7 @@ public:
 	void attachTexture(unsigned int& texture, Attachment::Attachment attachments = Attachment::Attachment::COLOR, Target::Target target = Target::Target::TEXTURE2D, unsigned short layer = 0);
 
 	void attachLayerdTexture(AttachmentTex::AttachmentTex attachments, unsigned short layer);
-	void attachRenderbuffer(AttachmentRB::AttachmentRB attachments);
+	void attachRenderbuffer(AttachmentRB::AttachmentRB attachments, unsigned int samples = 0, unsigned int coverageSamples = 0);
 	void bindVP(unsigned int width, unsigned int height);
 
 	void unbind();
@@ -107,9 +113,10 @@ private:
 	unsigned int m_stencilRB = 0;
 	unsigned int m_depthStencilRB = 0;
 
-	unsigned int m_depthRBFormat = 0;
-	unsigned int m_stencilRBFormat = 0;
-	unsigned int m_depthStencilRBFormat = 0;
+	//format | sample | coverageSamples
+	std::tuple<unsigned int, unsigned int, unsigned int> depthRB;
+	std::tuple<unsigned int, unsigned int, unsigned int> stencilRB;
+	std::tuple<unsigned int, unsigned int, unsigned int> depthStencilRB;
 
 	unsigned short m_colorAttachments = 0;
 	unsigned short m_colorTextureAttachments = 0;
@@ -121,12 +128,14 @@ private:
 	static unsigned int Height;
 
 	std::vector<unsigned int> m_attachments;
+
 	std::vector<unsigned int> m_colorTextures;
 	std::vector<std::tuple<unsigned int, unsigned int, unsigned int>> m_resizeTexture;
 
 	std::vector<unsigned int> m_colorRB;
-	std::vector<unsigned int> m_resizeRB;
+	std::vector<std::tuple<unsigned int, unsigned int, unsigned int>> m_resizeRB;
 
+	//internalFormat | format | type
 	std::tuple<unsigned int, unsigned int, unsigned int> depth;
 	std::tuple<unsigned int, unsigned int, unsigned int> stencil;
 	std::tuple<unsigned int, unsigned int, unsigned int> depthStencil;

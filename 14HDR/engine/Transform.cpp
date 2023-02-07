@@ -135,6 +135,10 @@ void Transform::translate(float dx, float dy, float dz) {
 	position[0] = position[0] + dx; position[1] = position[1] + dy; position[2] = position[2] + dz;
 }
 
+void Transform::scale(float s) {
+	scale(s, s, s);
+}
+
 void Transform::scale(float a, float b, float c) {
 
 	if (a == 0) a = 1.0;
