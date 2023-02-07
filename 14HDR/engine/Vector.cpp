@@ -1,7 +1,9 @@
 #include "vector.h"
 #include <iostream>
 
-Matrix4f::Matrix4f() {}
+Matrix4f::Matrix4f() {
+	identity();
+}
 
 /*Matrix4f::Matrix4f(const Matrix4f& rhs) {
 	mtx[0][0] = rhs[0][0]; mtx[0][1] = rhs[0][1]; mtx[0][2] = rhs[0][2]; mtx[0][3] = rhs[0][3];
@@ -30,7 +32,7 @@ const Matrix4f Matrix4f::BiasMatrix(0.5f, 0.0f, 0.0f, 0.0f,
 	0.0f, 0.0f, 0.5f, 0.0f,
 	0.5f, 0.5f, 0.5f, 1.0f);
 
-void Matrix4f::rotate(const Vector3f &axis, float degrees) {
+void Matrix4f::invRotate(const Vector3f &axis, float degrees) {
 
 	float rad = degrees * PI_ON_180;
 	float magnitude = axis.length();
@@ -42,27 +44,58 @@ void Matrix4f::rotate(const Vector3f &axis, float degrees) {
 	float s = sinf(rad);
 
 	mtx[0][0] = (x * x) * (1.0f - c) + c;
-	mtx[1][0] = (x * y) * (1.0f - c) + (z * s);
-	mtx[2][0] = (x * z) * (1.0f - c) - (y * s);
-	mtx[3][0] = 0.0f;
-
 	mtx[0][1] = (y * x) * (1.0f - c) - (z * s);
-	mtx[1][1] = (y * y) * (1.0f - c) + c;
-	mtx[2][1] = (y * z) * (1.0f - c) + (x * s);
-	mtx[3][1] = 0.0f;
-
 	mtx[0][2] = (z * x) * (1.0f - c) + (y * s);
-	mtx[1][2] = (z * y) * (1.0f - c) - (x * s);
-	mtx[2][2] = (z * z) * (1.0f - c) + c;
-	mtx[3][2] = 0.0f;
-
 	mtx[0][3] = 0.0f;
+
+	mtx[1][0] = (x * y) * (1.0f - c) + (z * s);
+	mtx[1][1] = (y * y) * (1.0f - c) + c;
+	mtx[1][2] = (z * y) * (1.0f - c) - (x * s);
 	mtx[1][3] = 0.0f;
+
+	mtx[2][0] = (x * z) * (1.0f - c) - (y * s);
+	mtx[2][1] = (y * z) * (1.0f - c) + (x * s);
+	mtx[2][2] = (z * z) * (1.0f - c) + c;
 	mtx[2][3] = 0.0f;
+
+	mtx[3][0] = 0.0f;
+	mtx[3][1] = 0.0f;
+	mtx[3][2] = 0.0f;
 	mtx[3][3] = 1.0f;
 }
 
-void Matrix4f::invRotate(const Vector3f &axis, float degrees) {
+void Matrix4f::invRotate(const Vector3f &axis, float degrees, const Vector3f &centerOfRotation) {
+	float rad = degrees * PI_ON_180;
+	float magnitude = axis.length();
+
+	float x = axis[0] * (1.0f / magnitude);
+	float y = axis[1] * (1.0f / magnitude);
+	float z = axis[2] * (1.0f / magnitude);
+	float c = cosf(rad);
+	float s = sinf(rad);
+
+	mtx[0][0] = (x * x) * (1.0f - c) + c;
+	mtx[0][1] = (y * x) * (1.0f - c) - (z * s);
+	mtx[0][2] = (z * x) * (1.0f - c) + (y * s);
+	mtx[0][3] = 0.0f;
+
+	mtx[1][0] = (x * y) * (1.0f - c) + (z * s);
+	mtx[1][1] = (y * y) * (1.0f - c) + c;
+	mtx[1][2] = (z * y) * (1.0f - c) - (x * s);
+	mtx[1][3] = 0.0f;
+
+	mtx[2][0] = (x * z) * (1.0f - c) - (y * s);
+	mtx[2][1] = (y * z) * (1.0f - c) + (x * s);
+	mtx[2][2] = (z * z) * (1.0f - c) + c;
+	mtx[2][3] = 0.0f;
+
+	mtx[3][0] = centerOfRotation[0] * (1.0f - mtx[0][0]) - centerOfRotation[1] * mtx[1][0] - centerOfRotation[2] * mtx[2][0];
+	mtx[3][1] = centerOfRotation[1] * (1.0f - mtx[1][1]) - centerOfRotation[0] * mtx[0][1] - centerOfRotation[2] * mtx[2][1];
+	mtx[3][2] = centerOfRotation[2] * (1.0f - mtx[2][2]) - centerOfRotation[0] * mtx[0][2] - centerOfRotation[1] * mtx[1][2];
+	mtx[3][3] = -centerOfRotation[0] * mtx[0][3] - centerOfRotation[1] * mtx[1][3] - centerOfRotation[2] * mtx[2][3] + 1.0f;
+}
+
+void Matrix4f::rotate(const Vector3f &axis, float degrees) {
 
 	float rad = degrees * PI_ON_180;
 	float magnitude = axis.length();
@@ -92,6 +125,38 @@ void Matrix4f::invRotate(const Vector3f &axis, float degrees) {
 	mtx[3][1] = 0.0f;
 	mtx[3][2] = 0.0f;
 	mtx[3][3] = 1.0f;
+}
+
+void Matrix4f::rotate(const Vector3f &axis, float degrees, const Vector3f &centerOfRotation) {
+
+	float rad = degrees * PI_ON_180;
+	float magnitude = axis.length();
+
+	float x = axis[0] * (1.0f / magnitude);
+	float y = axis[1] * (1.0f / magnitude);
+	float z = axis[2] * (1.0f / magnitude);
+	float c = cosf(rad);
+	float s = sinf(rad);
+
+	mtx[0][0] = (x * x) * (1.0f - c) + c;
+	mtx[0][1] = (x * y) * (1.0f - c) + (z * s);
+	mtx[0][2] = (x * z) * (1.0f - c) - (y * s);
+	mtx[0][3] = 0.0f;
+
+	mtx[1][0] = (y * x) * (1.0f - c) - (z * s);
+	mtx[1][1] = (y * y) * (1.0f - c) + c;
+	mtx[1][2] = (y * z) * (1.0f - c) + (x * s);
+	mtx[1][3] = 0.0f;
+
+	mtx[2][0] = (z * x) * (1.0f - c) + (y * s);
+	mtx[2][1] = (z * y) * (1.0f - c) - (x * s);
+	mtx[2][2] = (z * z) * (1.0f - c) + c;
+	mtx[2][3] = 0.0f;
+
+	mtx[3][0] = centerOfRotation[0] * (1.0f - mtx[0][0]) - centerOfRotation[1] * mtx[1][0] - centerOfRotation[2] * mtx[2][0];
+	mtx[3][1] = centerOfRotation[1] * (1.0f - mtx[1][1]) - centerOfRotation[0] * mtx[0][1] - centerOfRotation[2] * mtx[2][1];
+	mtx[3][2] = centerOfRotation[2] * (1.0f - mtx[2][2]) - centerOfRotation[0] * mtx[0][2] - centerOfRotation[1] * mtx[1][2];
+	mtx[3][3] = -centerOfRotation[0] * mtx[0][3] - centerOfRotation[1] * mtx[1][3] - centerOfRotation[2] * mtx[2][3] + 1.0f;
 }
 
 void Matrix4f::translate(float dx, float dy, float dz) {
@@ -143,9 +208,9 @@ void Matrix4f::invTranslate(float dx, float dy, float dz) {
 
 void Matrix4f::scale(float a, float b, float c) {
 
-	if (a == 0) a = 1.0;
-	if (b == 0) b = 1.0;
-	if (c == 0) c = 1.0;
+	//if (a == 0) a = 1.0;
+	//if (b == 0) b = 1.0;
+	//if (c == 0) c = 1.0;
 
 	mtx[0][0] = 1.0f * a;
 	mtx[1][0] = 0.0f;
@@ -165,6 +230,32 @@ void Matrix4f::scale(float a, float b, float c) {
 	mtx[0][3] = 0.0f;
 	mtx[1][3] = 0.0f;
 	mtx[2][3] = 0.0f;
+	mtx[3][3] = 1.0f;
+}
+
+void Matrix4f::scale(float a, float b, float c, const Vector3f &centerOfScale) {
+	//if (a == 0) a = 1.0;
+	//if (b == 0) b = 1.0;
+	//if (c == 0) c = 1.0;
+
+	mtx[0][0] = 1.0f * a;
+	mtx[1][0] = 0.0f;
+	mtx[2][0] = 0.0f;
+	mtx[3][0] = centerOfScale[0] * (1.0f - mtx[0][0]);
+
+	mtx[0][1] = 0.0f;
+	mtx[1][1] = 1.0f * b;
+	mtx[2][1] = 0.0f;
+	mtx[3][1] = centerOfScale[1] * (1.0f - mtx[1][1]);
+
+	mtx[0][2] = 0.0f;
+	mtx[1][2] = 0.0f;
+	mtx[2][2] = 1.0f * c;
+	mtx[3][2] = centerOfScale[2] * (1.0f - mtx[2][2]);
+	
+	//mtx[0][3] = 0.0f;
+	//mtx[1][3] = 0.0f;
+	//mtx[2][3] = 0.0f;	
 	mtx[3][3] = 1.0f;
 }
 
@@ -194,6 +285,34 @@ void Matrix4f::invScale(float a, float b, float c) {
 	mtx[2][3] = 0.0f;
 	mtx[3][3] = 1.0f;
 }
+
+void Matrix4f::invScale(float a, float b, float c, const Vector3f &centerOfScale) {
+
+	if (a == 0) a = 1.0;
+	if (b == 0) b = 1.0;
+	if (c == 0) c = 1.0;
+
+	mtx[0][0] = 1.0f / a;
+	mtx[1][0] = 0.0f;
+	mtx[2][0] = 0.0f;
+	mtx[3][0] = 0.0f;
+
+	mtx[0][1] = 0.0f;
+	mtx[1][1] = 1.0f / b;
+	mtx[2][1] = 0.0f;
+	mtx[3][1] = 0.0f;
+
+	mtx[0][2] = 0.0f;
+	mtx[1][2] = 0.0f;
+	mtx[2][2] = 1.0f / c;
+	mtx[3][2] = 0.0f;
+
+	mtx[3][0] = centerOfScale[0] * (1.0f - mtx[0][0]) - centerOfScale[1] * mtx[1][0] - centerOfScale[2] * mtx[2][0];
+	mtx[3][1] = centerOfScale[1] * (1.0f - mtx[1][1]) - centerOfScale[0] * mtx[0][1] - centerOfScale[2] * mtx[2][1];
+	mtx[3][2] = centerOfScale[2] * (1.0f - mtx[2][2]) - centerOfScale[0] * mtx[0][2] - centerOfScale[1] * mtx[1][2];
+	mtx[3][3] = -centerOfScale[0] * mtx[0][3] - centerOfScale[1] * mtx[1][3] - centerOfScale[2] * mtx[2][3] + 1.0f;
+}
+
 
 void Matrix4f::lookAt(const Vector3f &eye, const Vector3f &target, const Vector3f &up) {
 
@@ -1051,6 +1170,14 @@ void Matrix4f::transpose() {
 	tmp = mtx[2][3]; mtx[2][3] = mtx[3][2]; mtx[3][2] = tmp;
 }
 
+void Matrix4f::transpose3() {
+
+	float tmp = mtx[0][1]; mtx[0][1] = mtx[1][0]; mtx[1][0] = tmp;
+	tmp = mtx[0][2]; mtx[0][2] = mtx[2][0]; mtx[2][0] = tmp;
+
+	tmp = mtx[2][1]; mtx[2][1] = mtx[1][2]; mtx[1][2] = tmp;
+}
+
 Matrix4f& Matrix4f::Transpose(Matrix4f &m) {
 
 	float tmp = m[0][1]; m[0][1] = m[1][0]; m[1][0] = tmp;
@@ -1781,6 +1908,50 @@ Matrix4f& Quaternion::toMatrix4f(){
 	mtx[3][1] = 0.0f;
 	mtx[3][2] = 0.0f;
 	mtx[3][3] = 1.0f;
+
+	return mtx;
+}
+
+Matrix4f& Quaternion::toMatrix4f(const Vector3f &centerOfRotation) {
+	// Converts this quaternion to a rotation matrix.
+	//
+	//  | 1 - 2(y^2 + z^2)	2(xy - wz)			2(xz + wy)			0  |
+	//  | 2(xy + wz)		1 - 2(x^2 + z^2)	2(yz - wx)			0  |
+	//  | 2(xz - wy)		2(yz + wx)			1 - 2(x^2 + y^2)	0  |
+	//  | 0					0					0					1  |
+
+	float x2 = quat[0] + quat[0];
+	float y2 = quat[1] + quat[1];
+	float z2 = quat[2] + quat[2];
+	float xx = quat[0] * x2;
+	float xy = quat[0] * y2;
+	float xz = quat[0] * z2;
+	float yy = quat[1] * y2;
+	float yz = quat[1] * z2;
+	float zz = quat[2] * z2;
+	float wx = quat[3] * x2;
+	float wy = quat[3] * y2;
+	float wz = quat[3] * z2;
+
+	mtx[0][0] = 1.0f - (yy + zz);
+	mtx[0][1] = xy - wz;
+	mtx[0][2] = xz + wy;
+	mtx[0][3] = 0.0f;
+
+	mtx[1][0] = xy + wz;
+	mtx[1][1] = 1.0f - (xx + zz);
+	mtx[1][2] = yz - wx;
+	mtx[1][3] = 0.0f;
+
+	mtx[2][0] = xz - wy;
+	mtx[2][1] = yz + wx;
+	mtx[2][2] = 1.0f - (xx + yy);
+	mtx[2][3] = 0.0f;
+
+	mtx[3][0] = centerOfRotation[0] * (1.0f - mtx[0][0]) - centerOfRotation[1] * mtx[1][0] - centerOfRotation[2] * mtx[2][0];
+	mtx[3][1] = centerOfRotation[1] * (1.0f - mtx[1][1]) - centerOfRotation[0] * mtx[0][1] - centerOfRotation[2] * mtx[2][1];
+	mtx[3][2] = centerOfRotation[2] * (1.0f - mtx[2][2]) - centerOfRotation[0] * mtx[0][2] - centerOfRotation[1] * mtx[1][2];
+	mtx[3][3] = -centerOfRotation[0] * mtx[0][3] - centerOfRotation[1] * mtx[1][3] - centerOfRotation[2] * mtx[2][3] + 1.0f;
 
 	return mtx;
 }

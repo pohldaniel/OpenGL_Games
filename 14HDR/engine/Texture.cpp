@@ -3,7 +3,7 @@
 
 #include "Texture.h"
 #include "../soil2/SOIL2.h"
-
+#include "../soil2/stb_image.h"
 
 Texture::Texture(std::string fileName, const bool _flipVertical, unsigned int _format) {
 	
@@ -103,7 +103,6 @@ void Texture::loadFromFile(std::string fileName, const bool _flipVertical, unsig
 	if (_flipVertical)
 		flipVertical(imageData, numCompontents * width, height);
 
-
 	imageData = AddRemoveLeftPadding(imageData, width, height, numCompontents, paddingLeft);
 	imageData = AddRemoveRightPadding(imageData, width, height, numCompontents, paddingRight);
 	imageData = AddRemoveTopPadding(imageData, width, height, numCompontents, paddingTop);
@@ -124,7 +123,126 @@ void Texture::loadFromFile(std::string fileName, const bool _flipVertical, unsig
 	m_width = width;
 	m_height = height;
 	m_channels = numCompontents;
+}
 
+void Texture::loadHDRIFromFile(std::string fileName, const bool _flipVertical, unsigned int internalFormat, unsigned int format, int paddingLeft, int paddingRight, int paddingTop, int paddingBottom) {
+	int width, height, numCompontents;
+	unsigned char* imageData = reinterpret_cast<unsigned char *>(stbi_loadf(fileName.c_str(), &width, &height, &numCompontents, 0));
+	
+	m_internalFormat = internalFormat == 0 && numCompontents == 3 ? GL_RGB32F : internalFormat == 0 ? GL_RGBA32F : internalFormat;
+	m_format = format == 0 && numCompontents == 3 ? GL_RGB : format == 0 ? GL_RGBA : format;
+	m_type = GL_FLOAT;
+
+	if (_flipVertical)
+		FlipVertical(imageData, numCompontents * sizeof(float) * width, height);
+
+	imageData = AddRemoveLeftPadding(imageData, width, height, numCompontents, paddingLeft);
+	imageData = AddRemoveRightPadding(imageData, width, height, numCompontents, paddingRight);
+	imageData = AddRemoveTopPadding(imageData, width, height, numCompontents, paddingTop);
+	imageData = AddRemoveBottomPadding(imageData, width, height, numCompontents, paddingBottom);
+
+	m_width = width;
+	m_height = height;
+	m_channels = numCompontents;
+
+	//pointers to the levels
+	std::vector<unsigned char*> facData;
+
+	//get the source data
+	unsigned char *data = imageData;
+
+	int fWidth = m_width / 3;
+	int fHeight = m_height / 4;
+	int elementSize = 3 * sizeof(float);
+
+	unsigned char *face = new unsigned char[fWidth * fHeight * elementSize];
+	unsigned char *ptr;
+
+	//extract the faces
+
+	// positive X
+	ptr = face;
+	for (int j = 0; j<fHeight; j++) {
+		memcpy(ptr, &data[((m_height - (fHeight + j + 1))*m_width + 2 * fWidth) * elementSize], fWidth * elementSize);
+		ptr += fWidth * elementSize;
+	}
+	facData.push_back(face);
+
+	// negative X
+	face = new unsigned char[fWidth * fHeight * elementSize];
+	ptr = face;
+	for (int j = 0; j<fHeight; j++) {
+		memcpy(ptr, &data[(m_height - (fHeight + j + 1))*m_width * elementSize], fWidth * elementSize);
+		ptr += fWidth * elementSize;
+	}
+	facData.push_back(face);
+
+	// positive Y
+	face = new unsigned char[fWidth * fHeight * elementSize];
+	ptr = face;
+	for (int j = 0; j<fHeight; j++) {
+		memcpy(ptr, &data[((4 * fHeight - j - 1)*m_width + fWidth) * elementSize], fWidth * elementSize);
+		ptr += fWidth * elementSize;
+	}
+	facData.push_back(face);
+
+	// negative Y
+	face = new unsigned char[fWidth * fHeight * elementSize];
+	ptr = face;
+	for (int j = 0; j<fHeight; j++) {
+		memcpy(ptr, &data[((2 * fHeight - j - 1)*m_width + fWidth) * elementSize], fWidth * elementSize);
+		ptr += fWidth * elementSize;
+	}
+	facData.push_back(face);
+
+	// positive Z
+	face = new unsigned char[fWidth * fHeight * elementSize];
+	ptr = face;
+	for (int j = 0; j<fHeight; j++) {
+		memcpy(ptr, &data[((m_height - (fHeight + j + 1))*m_width + fWidth) * elementSize], fWidth * elementSize);
+		ptr += fWidth * elementSize;
+	}
+	facData.push_back(face);
+
+	// negative Z
+	face = new unsigned char[fWidth * fHeight * elementSize];
+	ptr = face;
+	for (int j = 0; j<fHeight; j++) {
+		for (int i = 0; i<fWidth; i++) {
+			memcpy(ptr, &data[(j*m_width + 2 * fWidth - (i + 1)) * elementSize], elementSize);
+			ptr += elementSize;
+		}
+	}
+	facData.push_back(face);
+
+	//set the new # of faces, width and height
+	m_width = fWidth;
+	m_height = fHeight;
+
+	glGenTextures(1, &m_texture);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, m_texture);
+
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
+
+	// load face data
+	for (int i = 0; i < 6; i++) {
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA16F, m_width, m_height, 0, GL_RGB, GL_FLOAT, facData[i]);
+	}
+
+	glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+
+	for (int i = 0; i < 6; i++) {
+		free(facData[i]);
+	}
+
+	stbi_image_free(imageData);
 }
 
 void Texture::loadFromFile(std::string pictureFile, unsigned short tileWidth, unsigned short tileHeight, unsigned short spacing, unsigned int _posY, unsigned int _posX, const bool _flipVertical, unsigned int _internalFormat, unsigned int _format) {
@@ -701,6 +819,29 @@ unsigned char* Texture::LoadFromFile(std::string fileName, int& width, int& heig
 
 	return imageData;
 }
+
+unsigned char* Texture::LoadHDRIFromFile(std::string fileName, int& width, int& height, const bool flipVertical, unsigned int internalFormat, unsigned int format, int paddingLeft, int paddingRight, int paddingTop, int paddingBottom) {
+	int numCompontents;
+	unsigned char* imageData = reinterpret_cast<unsigned char *>(stbi_loadf(fileName.c_str(), &width, &height, &numCompontents, 0));
+
+	if (flipVertical)
+		FlipVertical(imageData, numCompontents * sizeof(float) * width, height);
+
+	if (paddingLeft != 0)
+		imageData = AddRemoveLeftPadding(imageData, width, height, numCompontents, paddingLeft);
+
+	if (paddingRight != 0)
+		imageData = AddRemoveRightPadding(imageData, width, height, numCompontents, paddingRight);
+
+	if (paddingTop != 0)
+		imageData = AddRemoveTopPadding(imageData, width, height, numCompontents, paddingTop);
+
+	if (paddingBottom != 0)
+		imageData = AddRemoveBottomPadding(imageData, width, height, numCompontents, paddingBottom);
+
+	return imageData;
+}
+
 
 void Texture::Safe(std::string fileOut, unsigned int& texture) {
 	int width, height, depth;

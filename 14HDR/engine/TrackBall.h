@@ -171,16 +171,12 @@ public:
 	//
 	//////////////////////////////////////////////////////////////////
 	Matrix4f getTransform() {
-		Matrix4f trans_, invTrans_, rotation_;
-		Matrix4f pan_, dolly_;
-		
-		rotation_ = _r.toMatrix4f();
-		pan_.translate(_pan[0], _pan[1], _pan[2]);
-		dolly_.translate(_dolly[0], _dolly[1], _dolly[2]);		
-		trans_.translate(-_centroid[0], -_centroid[1], -_centroid[2]);
-		invTrans_.translate(_centroid[0], _centroid[1], _centroid[2]);
+		m_transform.reset();
+		m_transform.rotate(_r);
+		m_transform.translate(_pan[0], _pan[1], _pan[2]);
+		m_transform.translate(_dolly[0], _dolly[1], _dolly[2]);
 
-		return pan_ * dolly_ * trans_ * rotation_ * invTrans_;
+		return m_transform.getTransformationMatrix();
 	}
 
 	//
@@ -232,6 +228,16 @@ public:
 		_dolly[2] = pos;
 	}
 
+	void setDollyPosition(float posx, float posy, float posz) {
+		_dolly[0] = posx;
+		_dolly[1] = posy;
+		_dolly[2] = posz;
+	}
+
+	void setDollyPosition(const Vector3f& position) {
+		_dolly = position;
+	}
+
 	//
 	//  setPanActivate
 	//
@@ -258,7 +264,7 @@ public:
 	//    Set the point around which the trackball will rotate.
 	//////////////////////////////////////////////////////////////////
 	void setCenterOfRotation(const Vector3f& c) {
-		_centroid = c;
+		m_transform.setCenterOfRotation(c);
 	}
 
 	// get the rotation quaternion
@@ -286,12 +292,13 @@ protected:
 	Quaternion _r;
 	Vector3f _pan;
 	Vector3f _dolly;
+	Transform m_transform;
 
 	float _tbScale; //trackball scale
 	float _dScale;  //dolly scale
-	float _pScale;   //pan scale
+	float _pScale;  //pan scale
 	Quaternion _incr;
-	Vector3f _centroid;
+
 };
 
 #endif // __cubeH__

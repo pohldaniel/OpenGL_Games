@@ -19,12 +19,11 @@
 #include "engine/Cube.h"
 #include "engine/Tetraedron.h"
 #include "engine/TrackBall.h"
+#include "engine/Texture.h"
 #include "Cubemap.h"
 
 #include "Constants.h"
 #include "StateMachine.h"
-#include "FluidSystem.h"
-#include "nvidia/HDRImages.h"
 
 #define DOWNSAMPLE_BUFFERS 2
 #define BLUR_BUFFERS 2
@@ -64,9 +63,9 @@ public:
 	void OnMouseButtonDown(Event::MouseButtonEvent& event) override;
 	void OnMouseButtonUp(Event::MouseButtonEvent& event) override;
 	void renderUi();
-	void applyTransformation(Matrix4f& mtx);
+	void applyTransformation(TrackBall& mtx);
 	void drawModel();
-	GLuint createCubemapTexture(HDRImage &img, GLint internalformat);
+
 	void renderScene();
 	void blurPass(Framebuffer& src);
 	void downsample2(Framebuffer& src, Framebuffer& dest);
@@ -84,12 +83,13 @@ public:
 	MeshSphere* m_sphere;
 	MeshTorus* m_torus;
 	MeshSpiral* m_spiral;
+	MeshCube* m_mcube;
 
 	TrackBall m_trackball;
 	Transform m_transform;
 
-	HDRImage image;
 	Cubemap m_cubemap;
+	Texture m_hdri;
 
 	Shader* tone;
 	Shader* blurH = nullptr;
@@ -97,11 +97,10 @@ public:
 	Shader* object;
 	Shader* down2;
 	Shader* down4;
+	Shader* normal;
 
 	GLuint vertex;
-
 	ObjModel venus;
-	GLuint m_texture;
 
 	Framebuffer sceneBuffer;
 	Framebuffer blurBuffer[2];
@@ -118,12 +117,12 @@ public:
 
 	bool m_glow = true;
 	bool m_rays = true;
-	bool m_drawSkaybox = false;
+	bool m_drawSkaybox = true;
 	bool m_wireframe = false;
 	bool m_blend = false;
 	bool m_initUi = true;
 
-	Model model = Model::VENUS;
+	Model model = Model::CUBE;
 	int currentBuffer = 1;
 
 	AttachmentTex::AttachmentTex bufferTokens[4] = { AttachmentTex::AttachmentTex::RGBA, AttachmentTex::AttachmentTex::RGBA16F, AttachmentTex::AttachmentTex::RGBA32F, AttachmentTex::AttachmentTex::R11FG11FB10F };
@@ -140,5 +139,8 @@ public:
 	Culling cullMode = Culling::NONE;
 
 	float m_color[3] = {0.05f, 0.2f, 0.05f};
+
+	Vector3f m_translate;
+	Vector3f m_centerOfRotation;
 };
 

@@ -189,7 +189,6 @@
     <ClInclude Include="engine\Tetraedron.h" />
     <ClInclude Include="engine\TrackBall.h" />
     <ClInclude Include="engine\Transform.h" />
-    <ClInclude Include="engine\Transform_old.h" />
     <ClInclude Include="engine\ObjModel.h" />
     <ClInclude Include="engine\PerlinNoise.h" />
     <ClInclude Include="engine\Quad.h" />
@@ -202,10 +201,6 @@
     <ClInclude Include="FluidSystem.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="Miniball\Miniball.h" />
-    <ClInclude Include="nvidia\FileLoader.h" />
-    <ClInclude Include="nvidia\HDRImages.h" />
-    <ClInclude Include="nvidia\NvAssetLoader.h" />
-    <ClInclude Include="nvidia\rgbe.h" />
     <ClInclude Include="Object.h" />
     <ClInclude Include="QuadTree.h" />
     <ClInclude Include="Ray.h" />
@@ -252,7 +247,6 @@
     <ClCompile Include="engine\Tetraedron.cpp" />
     <ClCompile Include="engine\TrackBall.cpp" />
     <ClCompile Include="engine\Transform.cpp" />
-    <ClCompile Include="engine\Transform_old.cpp" />
     <ClCompile Include="engine\ObjModel.cpp" />
     <ClCompile Include="engine\PerlinNoise.cpp" />
     <ClCompile Include="engine\Quad.cpp" />
@@ -265,10 +259,6 @@
     <ClCompile Include="FluidSystem.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="nvidia\FileLoader.cpp" />
-    <ClCompile Include="nvidia\HDRImages.cpp" />
-    <ClCompile Include="nvidia\NvAssetLoaderWin.cpp" />
-    <ClCompile Include="nvidia\rgbe.cpp" />
     <ClCompile Include="Object.cpp" />
     <ClCompile Include="QuadTree.cpp" />
     <ClCompile Include="Ray.cpp" />

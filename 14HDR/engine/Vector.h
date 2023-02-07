@@ -159,16 +159,22 @@ public:
 	Matrix4f operator*(const Matrix4f &rhs) const;
 	Matrix4f operator^(const Matrix4f &rhs) const;
 	void transpose();
+	void transpose3();
 	Matrix4f inverse() const;
 	float determinant() const;
 
 	void identity();
 	void rotate(const Vector3f &axis, float degrees);
+	void rotate(const Vector3f &axis, float degrees, const Vector3f &centerOfRotation);
 	void invRotate(const Vector3f &axis, float degrees);
+	void invRotate(const Vector3f &axis, float degrees, const Vector3f &centerOfRotation);
+
 	void translate(float dx, float dy, float dz);
 	void invTranslate(float dx, float dy, float dz);
 	void scale(float a, float b, float c);
+	void scale(float a, float b, float c, const Vector3f &centerOfScale);
 	void invScale(float a, float b, float c);
+	void invScale(float a, float b, float c, const Vector3f &centerOfScale);
 	void perspective(float fovx, float aspect, float znear, float zfar);
 	//void perspective(float left, float right, float bottom, float top, float znear, float zfar);
 	void orthographic(float left, float right, float bottom, float top, float znear, float zfar);
@@ -264,6 +270,7 @@ public:
 
 	void toAxisAngle(Vector3f &axis, float &degrees) const;
 	Matrix4f& toMatrix4f();
+	Matrix4f& toMatrix4f(const Vector3f &centerOfRotation);
 	void toHeadPitchRoll(float &headDegrees, float &pitchDegrees, float &rollDegrees) const;
 
 	static Quaternion& FromMatrix(Quaternion &quat, const Matrix4f &m);

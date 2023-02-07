@@ -23,6 +23,7 @@ public:
 
 	void bind(unsigned int unit);
 	void loadFromFile(std::string fileName, const bool flipVertical = false, unsigned int internalFormat = 0, unsigned int format = 0, int paddingLeft = 0, int paddingRight = 0, int paddingTop = 0, int paddingBottom = 0);
+	void loadHDRIFromFile(std::string fileName, const bool flipVertical = true, unsigned int internalFormat = 0, unsigned int format = 0, int paddingLeft = 0, int paddingRight = 0, int paddingTop = 0, int paddingBottom = 0);
 
 	void loadFromFile(std::string pictureFile, unsigned short tileWidth, unsigned short tileHeight, unsigned short spacing = 0, unsigned int posY = 0, unsigned int posX = 0, const bool flipVertical = false, unsigned int _internalFormat = 0, unsigned int format = 0);
 	void loadFromFile(std::string pictureFile, unsigned int offsetX, unsigned int offsetY, unsigned int width = 0, unsigned int height = 0, const bool flipVertical = false, unsigned int _internalFormat = 0, unsigned int format = 0);
@@ -48,6 +49,8 @@ public:
 	static unsigned char* AddRemoveLeftPadding(unsigned char* imageData, int& width, int height, int numCompontents, int padding);
 	static unsigned char* LoadFromFile(std::string pictureFile, const bool flipVertical = false, short alphaChannel = -1);
 	static unsigned char* LoadFromFile(std::string fileName, int& width, int& height, const bool _flipVertical = true, bool transparent = false, int paddingLeft = 0, int paddingRight = 0, int paddingTop = 0, int paddingBottom = 0);
+	static unsigned char* LoadHDRIFromFile(std::string fileName, int& width, int& height, const bool flipVertical = true, unsigned int internalFormat = 0, unsigned int format = 0, int paddingLeft = 0, int paddingRight = 0, int paddingTop = 0, int paddingBottom = 0);
+
 
 	static void Safe(std::string fileOut, unsigned int& texture);
 	static void Safe(std::string fileOut, unsigned char* bytes, unsigned int width, unsigned int height, unsigned int channels);
@@ -59,7 +62,7 @@ public:
 	static void CreateTexture3D(unsigned int& textureRef, unsigned int width, unsigned int height, unsigned int depth, unsigned int internalFormat = 0, unsigned int format = 0, unsigned int type = 0, unsigned char* data = NULL);
 	static void SetFilter3D(unsigned int& textureRef, unsigned int mode);
 	static void SetWrapMode3D(unsigned int& textureRef, unsigned int mode);
-	
+
 private:
 	void flipVertical(unsigned char* data, unsigned int padWidth, unsigned int height);
 	

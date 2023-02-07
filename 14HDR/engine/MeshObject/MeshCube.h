@@ -15,39 +15,40 @@
 class MeshCube {
 
 public:
-
-	MeshCube(float width, float height, float depth);
-	MeshCube(const Vector3f &position, float width, float height, float depth);
-	MeshCube(const Vector3f &position, float width, float height, float depth, bool generateTexels, bool generateNormals);
+	MeshCube(bool generateTexels, bool generateNormals);
+	MeshCube(const Vector3f& size);
+	MeshCube(const Vector3f &position, const Vector3f& size);
+	MeshCube(const Vector3f &position, const Vector3f& size, bool generateTexels, bool generateNormals);
 	~MeshCube();
 
 	void setPrecision(int uResolution, int vResolution);
 	void buildMesh();
 	void buildMesh4Q();
-	void draw(const Camera camera);
-	void drawShadow(const Camera camera);
-	void update(float dt);
-	void dissolve();
+	void draw(const Camera& camera);
+	void drawRaw();
 
 	void setShader(Shader* shader);
 	void setTexture(Texture* texture);
 	int getNumberOfTriangles();
 
+	const Vector3f &getPosition() const;
+	const Vector3f &getSize() const;
+	const Vector3f &getCenter() const;
+
 	std::vector<unsigned int> m_indexBuffer;
 	std::vector<Vector3f> m_positions;
 	std::vector<Vector2f> m_texels;
 	std::vector<Vector3f> m_normals;
-	Vector3f m_offset;
 
 private:
 
 	int m_uResolution;
 	int m_vResolution;
 
-	float m_width;
-	float m_height;
-	float m_depth;
+	
 	Vector3f m_position;
+	Vector3f m_size;
+	Vector3f m_center;
 
 	bool m_generateNormals;
 	bool m_generateTexels;
@@ -62,20 +63,13 @@ private:
 
 	short m_numBuffers;
 	unsigned int m_vao;
-	unsigned int m_vbo[4];
+	unsigned int m_vbo[5];
 	unsigned int m_drawCount;
 	unsigned int m_numberOfTriangle;
-	Transform m_transform;
 
 	std::shared_ptr<Shader> m_shader;
 	std::shared_ptr<Texture> m_texture;
 
-	Texture* m_gradient;
-
-	const float m_transitionSpeed = 1.5f;
-	bool m_transitionEnd = false;
-	bool m_fadeIn = false;	
-	bool m_fadeOut = true;
-	float m_dissolveAmount = 0.0f;
+	Matrix4f m_model;
 };
 #endif

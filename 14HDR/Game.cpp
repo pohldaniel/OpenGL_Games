@@ -15,6 +15,8 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	m_quad = new Quad();
 	m_cube = new Cube();
 	m_tetraedron = new Tetraedron();
+
+	m_mcube = new MeshCube(Vector3f(-2.5f, -2.5f, -2.5f), Vector3f(1.0f, 1.0f, 1.0f), false, true);
 	m_sphere = new MeshSphere(false, true, false, false);
 	m_torus = new MeshTorus(false, true, false, false);
 	m_spiral = new MeshSpiral(false, true, false, false);
@@ -25,25 +27,25 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 
 	m_trackball.reshape(Application::Width, Application::Height);
 	m_trackball.setDollyPosition(-2.5f);
-	applyTransformation(m_trackball.getTransform());
 
-	image.loadHDRIFromFile("res/grace_new_cross.hdr");
-	image.convertCrossToCubemap();
+	applyTransformation(m_trackball);
 
-	m_texture = createCubemapTexture(image, GL_RGBA16F);
+	m_hdri.loadHDRIFromFile("res/grace_new_cross.hdr");
 
-	m_cubemap.setTexture(m_texture);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, m_hdri.getTexture());
+	glTexParameterf(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAX_ANISOTROPY, m_aniso);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 
-	
+	m_cubemap.setTexture(m_hdri.getTexture());
+
 	vertex = Shader::LoadShaderProgram(GL_VERTEX_SHADER, "res/gauss.vert");
-
 	recompileShader();
 
 	object = new Shader("res/object.vert", "res/object.frag");
 	tone = new Shader("res/tonemap.vert", "res/tonemap.frag");	
 	down2 = new Shader("res/down2.vert", "res/down2.frag");
 	down4 = new Shader("res/down4.vert", "res/down4.frag");
-
+	normal = new Shader("res/normal.vs", "res/normal.fs");
 	venus.loadModel("res/models/venusm.obj");
 
 	createBuffers(bufferTokens[currentBuffer], rbTokens[currentBuffer], aaModes[currentMode]);
@@ -115,7 +117,7 @@ void Game::update() {
 	}
 
 	m_trackball.idle();
-	applyTransformation(m_trackball.getTransform());
+	applyTransformation(m_trackball);
 
 };
 
@@ -160,27 +162,65 @@ void Game::render(unsigned int &frameBuffer) {
 	m_quad->drawRaw();
 	glUseProgram(0);
 
+	/*glEnable(GL_DEPTH_TEST);
+	glDisable(GL_CULL_FACE);
+	glUseProgram(normal->m_program);
+	normal->loadMatrix("u_transform", m_camera.getProjectionMatrix() * m_camera.getViewMatrix());
+	normal->loadMatrix("u_normal", Matrix4f::GetNormalMatrix(m_camera.getViewMatrix() * m_transform.getTransformationMatrix()));
+	switch (model) {
+	case Model::SPHERE:
+		m_sphere->drawRaw();
+		break;
+	case Model::TETRA:
+		m_tetraedron->drawRaw();
+		break;
+	case Model::CUBE:
+		m_mcube->drawRaw();
+		break;
+	case Model::TORUS:
+		m_torus->drawRaw();
+		break;
+	case Model::SPIRAL:
+		m_spiral->drawRaw();
+		break;
+	case Model::VENUS:
+		venus.drawRaw();
+		break;
+	}
+	glUseProgram(0);*/
 	renderUi();
 }
 
 void Game::OnMouseMotion(Event::MouseMoveEvent& event) {
+	
 	m_trackball.motion(event.x, event.y);
-	applyTransformation(m_trackball.getTransform());
+	applyTransformation(m_trackball);
 }
 
 void Game::OnMouseButtonDown(Event::MouseButtonEvent& event) {
+	
 	m_trackball.mouse(TrackBall::Button::ELeftButton, TrackBall::Modifier::ENoModifier, true, event.x, event.y);
-	applyTransformation(m_trackball.getTransform());
+	applyTransformation(m_trackball);
 }
 
 void Game::OnMouseButtonUp(Event::MouseButtonEvent& event) {
+	
 	m_trackball.mouse(TrackBall::Button::ELeftButton, TrackBall::Modifier::ENoModifier, false, event.x, event.y);
-	applyTransformation(m_trackball.getTransform());
+	applyTransformation(m_trackball);
 }
 
-void Game::applyTransformation(Matrix4f& mtx) {
-	m_transform.fromMatrix(mtx);
+void Game::applyTransformation(TrackBall& arc) {
+	m_trackball.setCenterOfRotation(m_centerOfRotation);
+	if (model == Model::CUBE) {	
+		m_transform.fromMatrix(arc.getTransform());
+		m_transform.setCenterOfScale(m_mcube->getCenter());		
+	} else {
+		m_transform.fromMatrix(arc.getTransform());
+		m_transform.setCenterOfScale(Vector3f(0.0f, 0.0f, 0.0f));
+	}
+
 	m_transform.scale(m_scale, m_scale, m_scale);
+	m_transform.translate(m_translate[0], m_translate[1], m_translate[2]);
 }
 
 void Game::resize(int deltaW, int deltaH) {
@@ -201,28 +241,6 @@ void Game::resize(int deltaW, int deltaH) {
 	}
 
 	recompileShader();
-}
-
-GLuint Game::createCubemapTexture(HDRImage &img, GLint internalformat) {
-	GLuint tex;
-	glGenTextures(1, &tex);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, tex);
-
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexParameterf(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAX_ANISOTROPY, m_aniso);
-
-	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
-
-	// load face data
-	for (int i = 0; i<6; i++) {
-		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, internalformat, img.getWidth(), img.getHeight(), 0, GL_RGB, GL_FLOAT, img.getLevel(0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i));
-	}
-
-	return tex;
 }
 
 void Game::renderScene() {
@@ -273,7 +291,7 @@ void Game::renderScene() {
 	object->loadVector("u_eyePos", m_camera.getPosition());
 
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, m_texture);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, m_hdri.getTexture());
 
 	// bias LOD to blur cubemap a little
 	glTexEnvf(GL_TEXTURE_FILTER_CONTROL_EXT, GL_TEXTURE_LOD_BIAS_EXT, 2.0f);
@@ -298,7 +316,7 @@ void Game::renderScene() {
 			m_tetraedron->drawRaw();
 			break;
 		case Model::CUBE:
-			m_cube->drawRaw();
+			m_mcube->drawRaw();
 			break;
 		case Model::TORUS:
 			m_torus->drawRaw();
@@ -579,6 +597,8 @@ void Game::renderUi() {
 	ImGui::SliderFloat("Exposure", &m_exposure, 0.0f, 512.0f);
 	ImGui::SliderFloat("Blend Amount", &m_blendAmout, 0.0f, 1.0f);
 	ImGui::SliderFloat("Scale", &m_scale, -2.0f, 2.0f);
+	ImGui::SliderFloat3("Translate", &m_translate[0], -10.0f, 10.0f);
+	ImGui::SliderFloat3("Center of Rot", &m_centerOfRotation[0], -2.0f, 2.0f);
 	int currentModel = model;
 	
 	if (ImGui::Combo("Framebuffer format", &currentBuffer, "RGBA8\0RGBA16F\0RGBA32F\0R11F_G11F_B10F\0\0") || ImGui::Combo("Multisample level", &currentMode, aaModesLabel, IM_ARRAYSIZE(aaModesLabel))) {
@@ -593,7 +613,7 @@ void Game::renderUi() {
 	}
 
 	if (ImGui::Combo("Ansio", &currentAnsio, ansioLabel, IM_ARRAYSIZE(ansioLabel))) {
-		glBindTexture(GL_TEXTURE_CUBE_MAP, m_texture);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, m_hdri.getTexture());
 		glTexParameterf(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAX_ANISOTROPY, ansio[currentAnsio]);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 	}
