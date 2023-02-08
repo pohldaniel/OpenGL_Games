@@ -252,11 +252,6 @@ void Matrix4f::scale(float a, float b, float c, const Vector3f &centerOfScale) {
 	mtx[1][2] = 0.0f;
 	mtx[2][2] = 1.0f * c;
 	mtx[3][2] = centerOfScale[2] * (1.0f - c);
-	
-	//mtx[0][3] = 0.0f;
-	//mtx[1][3] = 0.0f;
-	//mtx[2][3] = 0.0f;	
-	mtx[3][3] = 1.0f;
 }
 
 void Matrix4f::invScale(float a, float b, float c) {
@@ -295,22 +290,17 @@ void Matrix4f::invScale(float a, float b, float c, const Vector3f &centerOfScale
 	mtx[0][0] = 1.0f / a;
 	mtx[1][0] = 0.0f;
 	mtx[2][0] = 0.0f;
-	mtx[3][0] = 0.0f;
+	mtx[3][0] = centerOfScale[0] * (1.0f - a);
 
 	mtx[0][1] = 0.0f;
 	mtx[1][1] = 1.0f / b;
 	mtx[2][1] = 0.0f;
-	mtx[3][1] = 0.0f;
+	mtx[3][1] = centerOfScale[1] * (1.0f - b);
 
 	mtx[0][2] = 0.0f;
 	mtx[1][2] = 0.0f;
 	mtx[2][2] = 1.0f / c;
-	mtx[3][2] = 0.0f;
-
-	mtx[3][0] = centerOfScale[0] * (1.0f - mtx[0][0]) - centerOfScale[1] * mtx[1][0] - centerOfScale[2] * mtx[2][0];
-	mtx[3][1] = centerOfScale[1] * (1.0f - mtx[1][1]) - centerOfScale[0] * mtx[0][1] - centerOfScale[2] * mtx[2][1];
-	mtx[3][2] = centerOfScale[2] * (1.0f - mtx[2][2]) - centerOfScale[0] * mtx[0][2] - centerOfScale[1] * mtx[1][2];
-	mtx[3][3] = -centerOfScale[0] * mtx[0][3] - centerOfScale[1] * mtx[1][3] - centerOfScale[2] * mtx[2][3] + 1.0f;
+	mtx[3][2] = centerOfScale[2] * (1.0f - c);
 }
 
 

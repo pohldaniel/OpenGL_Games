@@ -193,6 +193,20 @@ void Transform::scale(float a, float b, float c, const Vector3f& centerOfScale) 
 	T[0][0] = T[0][0] * a;  T[1][0] = T[1][0] * b; T[2][0] = T[2][0] * c;
 	T[0][1] = T[0][1] * a;  T[1][1] = T[1][1] * b; T[2][1] = T[2][1] * c;
 	T[0][2] = T[0][2] * a;  T[1][2] = T[1][2] * b; T[2][2] = T[2][2] * c;
+
+	//if (a == 0) a = 1.0;
+	//if (b == 0) b = 1.0;
+	//if (c == 0) c = 1.0;
+
+	//invT[3][0] = invT[0][0] * centerOfScale[0] * (1.0f - a) + invT[1][0] * centerOfScale[1] * (1.0f - b) + invT[2][0] * centerOfScale[2] * (1.0f - c) + invT[3][0];
+	//invT[3][1] = invT[0][1] * centerOfScale[0] * (1.0f - a) + invT[1][1] * centerOfScale[1] * (1.0f - b) + invT[2][1] * centerOfScale[2] * (1.0f - c) + invT[3][1];
+	//invT[3][2] = invT[0][2] * centerOfScale[0] * (1.0f - a) + invT[1][2] * centerOfScale[1] * (1.0f - b) + invT[2][2] * centerOfScale[2] * (1.0f - c) + invT[3][2];
+	/**invT[3][3] = invT[0][3] * centerOfScale[0] * (1.0f - a) + invT[1][3] * centerOfScale[1] * (1.0f - b) + invT[2][3] * centerOfScale[2] * (1.0f - c) + invT[3][3];*/
+
+	//invT[0][0] = invT[0][0] * (1.0 / a); invT[0][1] = invT[0][1] * (1.0 / b); invT[0][2] = invT[0][2] * (1.0 / c);
+	//invT[1][0] = invT[1][0] * (1.0 / a); invT[1][1] = invT[1][1] * (1.0 / b); invT[1][2] = invT[1][2] * (1.0 / c);
+	//invT[2][0] = invT[2][0] * (1.0 / a); invT[2][1] = invT[2][1] * (1.0 / b); invT[2][2] = invT[2][2] * (1.0 / c);
+	//invT[3][0] = invT[3][0] * (1.0 / a); invT[3][1] = invT[3][1] * (1.0 / b); invT[3][2] = invT[3][2] * (1.0 / c);
 }
 
 const Matrix4f& Transform::getTransformationMatrix() const {
