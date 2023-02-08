@@ -31,7 +31,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	std::cout << "left mouse       : rotate models" << std::endl;
 	std::cout << "ESC              : quit" << std::endl;
 	std::cout << "v                : toggle vsync" << std::endl;
-	std::cout << "z                : toggle wireframe" << std::endl;
 	std::cout << "m                : render background" << std::endl;
 	std::cout << "alt + enter      : fullscreen" << std::endl;
 	#endif

@@ -16,11 +16,11 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	m_cube = new Cube();
 	m_tetraedron = new Tetraedron();
 
-	m_mcube = new MeshCube(Vector3f(-2.5f, -2.5f, -2.5f), Vector3f(1.0f, 1.0f, 1.0f), false, true);
+	m_mcube = new MeshCube(Vector3f(-2.25f, -0.25f, -0.25f), Vector3f(0.5f, 0.5f, 0.5f), false, true);
 	m_sphere = new MeshSphere(false, true, false, false);
 	m_torus = new MeshTorus(false, true, false, false);
 	m_spiral = new MeshSpiral(false, true, false, false);
-
+	m_midpoint = new MeshSphere(Vector3f(0.0f, 0.0f, 0.0f), 0.2f, false, true, false, false);
 	m_camera = Camera();
 	m_camera.perspective(45.0f * _180_ON_PI, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
 	m_camera.lookAt(Vector3f(0.0f, 0.0f, 1.5f), Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
@@ -211,11 +211,14 @@ void Game::OnMouseButtonUp(Event::MouseButtonEvent& event) {
 
 void Game::applyTransformation(TrackBall& arc) {
 	m_trackball.setCenterOfRotation(m_centerOfRotation);
+	m_transform.fromMatrix(arc.getTransform());
+
 	if (model == Model::CUBE) {	
-		m_transform.fromMatrix(arc.getTransform());
 		m_transform.setCenterOfScale(m_mcube->getCenter());		
-	} else {
-		m_transform.fromMatrix(arc.getTransform());
+	}else if (model == Model::VENUS) {
+		m_transform.setCenterOfScale(venus.getCenter());
+	}else {
+
 		m_transform.setCenterOfScale(Vector3f(0.0f, 0.0f, 0.0f));
 	}
 
@@ -224,22 +227,8 @@ void Game::applyTransformation(TrackBall& arc) {
 }
 
 void Game::resize(int deltaW, int deltaH) {
-	m_camera.perspective(45.0f * _180_ON_PI, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
-	
-	sceneBuffer.resize(Application::Width, Application::Height);
-
-	for (int i = 0; i<BLUR_BUFFERS; i++) {
-		blurBuffer[i].resize(Application::Width / 4, Application::Height / 4);
-	}
-	
-	int w = Application::Width;
-	int h = Application::Height;
-	for (int i = 0; i < DOWNSAMPLE_BUFFERS; i++) {
-		w /= 2;
-		h /= 2;
-		downsampleBuffer[i].resize(w, h);
-	}
-
+	m_camera.perspective(45.0f * _180_ON_PI, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);	
+	createBuffers(bufferTokens[currentBuffer], rbTokens[currentBuffer], aaModes[currentMode]);
 	recompileShader();
 }
 
@@ -316,6 +305,7 @@ void Game::renderScene() {
 			m_tetraedron->drawRaw();
 			break;
 		case Model::CUBE:
+			m_midpoint->drawRaw();
 			m_mcube->drawRaw();
 			break;
 		case Model::TORUS:

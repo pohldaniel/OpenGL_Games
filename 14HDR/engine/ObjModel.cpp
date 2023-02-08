@@ -267,7 +267,6 @@ bool ObjModel::loadModel(const char* a_filename, Vector3f& axis, float degree, V
 	fclose(pFile);
 
 	m_center = Vector3f((xmax + xmin) * 0.5f, (ymax + ymin) * 0.5f, (zmax + zmin) * 0.5f);
-
 	///////////////////////Rescale/////////////////////////////
 	Vector3f r = 0.5f * (Vector3f(xmax, ymax, zmax) - Vector3f(xmin, ymin, zmin));
 	Vector3f center = Vector3f(xmin, ymin, zmin) + r;
@@ -275,12 +274,25 @@ bool ObjModel::loadModel(const char* a_filename, Vector3f& axis, float degree, V
 	float oldRadius = (std::max)(r[0], (std::max)(r[1], r[2]));
 	float _scale = scale / oldRadius;
 
+	xmin = FLT_MAX; ymin = FLT_MAX; zmin = FLT_MAX;
+	xmax = -FLT_MAX; ymax = -FLT_MAX; zmax = -FLT_MAX;
+
 	for (std::vector<float>::iterator pit = vertexCoords.begin(); pit != vertexCoords.end(); pit += 3) {
 		*(pit + 0) = _scale * (*(pit + 0) - center[0]);
 		*(pit + 1) = _scale * (*(pit + 1) - center[1]);
 		*(pit + 2) = _scale * (*(pit + 2) - center[2]);
-	}
 
+		xmin = (std::min)(*(pit + 0), xmin);
+		ymin = (std::min)(*(pit + 1), ymin);
+		zmin = (std::min)(*(pit + 2), zmin);
+		
+		xmax = (std::max)(*(pit + 0), xmax);
+		ymax = (std::max)(*(pit + 1), ymax);
+		zmax = (std::max)(*(pit + 2), zmax);
+	}
+	
+	m_center = Vector3f((xmax + xmin) * 0.5f, (ymax + ymin) * 0.5f, (zmax + zmin) * 0.5f);
+	
 	aabb.position = Vector3f(xmin, ymin, zmin);
 	aabb.size = Vector3f(xmax, ymax, zmax) - Vector3f(xmin, ymin, zmin);
 

@@ -81,6 +81,7 @@ public:
 	Tetraedron* m_tetraedron;
 
 	MeshSphere* m_sphere;
+	MeshSphere* m_midpoint;
 	MeshTorus* m_torus;
 	MeshSpiral* m_spiral;
 	MeshCube* m_mcube;
@@ -122,7 +123,7 @@ public:
 	bool m_blend = false;
 	bool m_initUi = true;
 
-	Model model = Model::CUBE;
+	Model model = Model::VENUS;
 	int currentBuffer = 1;
 
 	AttachmentTex::AttachmentTex bufferTokens[4] = { AttachmentTex::AttachmentTex::RGBA, AttachmentTex::AttachmentTex::RGBA16F, AttachmentTex::AttachmentTex::RGBA32F, AttachmentTex::AttachmentTex::R11FG11FB10F };
