@@ -92,7 +92,7 @@ void Matrix4f::invRotate(const Vector3f &axis, float degrees, const Vector3f &ce
 	mtx[3][0] = centerOfRotation[0] * (1.0f - mtx[0][0]) - centerOfRotation[1] * mtx[1][0] - centerOfRotation[2] * mtx[2][0];
 	mtx[3][1] = centerOfRotation[1] * (1.0f - mtx[1][1]) - centerOfRotation[0] * mtx[0][1] - centerOfRotation[2] * mtx[2][1];
 	mtx[3][2] = centerOfRotation[2] * (1.0f - mtx[2][2]) - centerOfRotation[0] * mtx[0][2] - centerOfRotation[1] * mtx[1][2];
-	mtx[3][3] = -centerOfRotation[0] * mtx[0][3] - centerOfRotation[1] * mtx[1][3] - centerOfRotation[2] * mtx[2][3] + 1.0f;
+	mtx[3][3] = 1.0f;
 }
 
 void Matrix4f::rotate(const Vector3f &axis, float degrees) {
@@ -156,7 +156,7 @@ void Matrix4f::rotate(const Vector3f &axis, float degrees, const Vector3f &cente
 	mtx[3][0] = centerOfRotation[0] * (1.0f - mtx[0][0]) - centerOfRotation[1] * mtx[1][0] - centerOfRotation[2] * mtx[2][0];
 	mtx[3][1] = centerOfRotation[1] * (1.0f - mtx[1][1]) - centerOfRotation[0] * mtx[0][1] - centerOfRotation[2] * mtx[2][1];
 	mtx[3][2] = centerOfRotation[2] * (1.0f - mtx[2][2]) - centerOfRotation[0] * mtx[0][2] - centerOfRotation[1] * mtx[1][2];
-	mtx[3][3] = -centerOfRotation[0] * mtx[0][3] - centerOfRotation[1] * mtx[1][3] - centerOfRotation[2] * mtx[2][3] + 1.0f;
+	mtx[3][3] = 1.0f;
 }
 
 void Matrix4f::translate(float dx, float dy, float dz) {
@@ -241,17 +241,17 @@ void Matrix4f::scale(float a, float b, float c, const Vector3f &centerOfScale) {
 	mtx[0][0] = 1.0f * a;
 	mtx[1][0] = 0.0f;
 	mtx[2][0] = 0.0f;
-	mtx[3][0] = centerOfScale[0] * (1.0f - mtx[0][0]);
+	mtx[3][0] = centerOfScale[0] * (1.0f - a);
 
 	mtx[0][1] = 0.0f;
 	mtx[1][1] = 1.0f * b;
 	mtx[2][1] = 0.0f;
-	mtx[3][1] = centerOfScale[1] * (1.0f - mtx[1][1]);
+	mtx[3][1] = centerOfScale[1] * (1.0f - b);
 
 	mtx[0][2] = 0.0f;
 	mtx[1][2] = 0.0f;
 	mtx[2][2] = 1.0f * c;
-	mtx[3][2] = centerOfScale[2] * (1.0f - mtx[2][2]);
+	mtx[3][2] = centerOfScale[2] * (1.0f - c);
 	
 	//mtx[0][3] = 0.0f;
 	//mtx[1][3] = 0.0f;
@@ -1951,7 +1951,7 @@ Matrix4f& Quaternion::toMatrix4f(const Vector3f &centerOfRotation) {
 	mtx[3][0] = centerOfRotation[0] * (1.0f - mtx[0][0]) - centerOfRotation[1] * mtx[1][0] - centerOfRotation[2] * mtx[2][0];
 	mtx[3][1] = centerOfRotation[1] * (1.0f - mtx[1][1]) - centerOfRotation[0] * mtx[0][1] - centerOfRotation[2] * mtx[2][1];
 	mtx[3][2] = centerOfRotation[2] * (1.0f - mtx[2][2]) - centerOfRotation[0] * mtx[0][2] - centerOfRotation[1] * mtx[1][2];
-	mtx[3][3] = -centerOfRotation[0] * mtx[0][3] - centerOfRotation[1] * mtx[1][3] - centerOfRotation[2] * mtx[2][3] + 1.0f;
+	mtx[3][3] = 1.0f;
 
 	return mtx;
 }

@@ -172,7 +172,7 @@ public:
 	//////////////////////////////////////////////////////////////////
 	Matrix4f getTransform() {
 		m_transform.reset();
-		m_transform.rotate(_r);
+		m_transform.rotate(_r, _centroid);
 		m_transform.translate(_pan[0], _pan[1], _pan[2]);
 		m_transform.translate(_dolly[0], _dolly[1], _dolly[2]);
 
@@ -264,7 +264,7 @@ public:
 	//    Set the point around which the trackball will rotate.
 	//////////////////////////////////////////////////////////////////
 	void setCenterOfRotation(const Vector3f& c) {
-		m_transform.setCenterOfRotation(c);
+		_centroid = c;
 	}
 
 	// get the rotation quaternion
@@ -292,6 +292,7 @@ protected:
 	Quaternion _r;
 	Vector3f _pan;
 	Vector3f _dolly;
+	Vector3f _centroid;
 	Transform m_transform;
 
 	float _tbScale; //trackball scale

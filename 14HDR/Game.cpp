@@ -213,16 +213,15 @@ void Game::applyTransformation(TrackBall& arc) {
 	m_trackball.setCenterOfRotation(m_centerOfRotation);
 	m_transform.fromMatrix(arc.getTransform());
 
-	if (model == Model::CUBE) {	
-		m_transform.setCenterOfScale(m_mcube->getCenter());		
+	if (model == Model::CUBE) {		
+		m_transform.scale(m_scale, m_scale, m_scale, m_mcube->getCenter());
+
 	}else if (model == Model::VENUS) {
-		m_transform.setCenterOfScale(venus.getCenter());
+		m_transform.scale(m_scale, m_scale, m_scale, venus.getCenter());
 	}else {
-
-		m_transform.setCenterOfScale(Vector3f(0.0f, 0.0f, 0.0f));
+		m_transform.scale(m_scale, m_scale, m_scale);
 	}
-
-	m_transform.scale(m_scale, m_scale, m_scale);
+	
 	m_transform.translate(m_translate[0], m_translate[1], m_translate[2]);
 }
 
