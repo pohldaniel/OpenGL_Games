@@ -274,11 +274,12 @@ void Transform::getOrientation(Quaternion& orientation) {
 }
 
 void Transform::fromMatrix(const Matrix4f& m) {
+
 	T[0][0] = m[0][0]; T[0][1] = m[0][1]; T[0][2] = m[0][2]; T[0][3] = m[0][3];
 	T[1][0] = m[1][0]; T[1][1] = m[1][1]; T[1][2] = m[1][2]; T[1][3] = m[1][3];
 	T[2][0] = m[2][0]; T[2][1] = m[2][1]; T[2][2] = m[2][2]; T[2][3] = m[2][3];
 	T[3][0] = m[3][0]; T[3][1] = m[3][1]; T[3][2] = m[3][2]; T[3][3] = m[3][3];
-
+	
 	//float sx = Vector3f(T[0][0], T[1][0], T[2][0]).length();
 	//float sy = Vector3f(T[0][1], T[1][1], T[2][1]).length();
 	//float sz = Vector3f(T[0][2], T[1][2], T[2][2]).length();
@@ -298,3 +299,4 @@ void Transform::fromMatrix(const Matrix4f& m) {
 	//invT[0][3] = 0.0f;					 invT[1][3] = 0.0f;					  invT[2][3] = 0.0f;				   invT[3][3] = 1.0f;
 	
 }
+

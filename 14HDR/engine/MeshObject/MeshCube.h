@@ -10,15 +10,15 @@
 #include "../Shader.h"
 #include "../Vector.h"
 #include "../Transform.h"
-#include "../../Constants.h"
 
 class MeshCube {
 
 public:
-	MeshCube(bool generateTexels, bool generateNormals);
+
+	MeshCube(bool generateTexels, bool generateNormals, bool generateTangents, bool generateNormalDerivatives);
 	MeshCube(const Vector3f& size);
 	MeshCube(const Vector3f &position, const Vector3f& size);
-	MeshCube(const Vector3f &position, const Vector3f& size, bool generateTexels, bool generateNormals);
+	MeshCube(const Vector3f &position, const Vector3f& size, bool generateTexels, bool generateNormals, bool generateTangents, bool generateNormalDerivatives);
 	~MeshCube();
 
 	void setPrecision(int uResolution, int vResolution);
@@ -35,17 +35,11 @@ public:
 	const Vector3f &getSize() const;
 	const Vector3f &getCenter() const;
 
-	std::vector<unsigned int> m_indexBuffer;
-	std::vector<Vector3f> m_positions;
-	std::vector<Vector2f> m_texels;
-	std::vector<Vector3f> m_normals;
-
 private:
 
 	int m_uResolution;
 	int m_vResolution;
 
-	
 	Vector3f m_position;
 	Vector3f m_size;
 	Vector3f m_center;
@@ -63,9 +57,15 @@ private:
 
 	short m_numBuffers;
 	unsigned int m_vao;
-	unsigned int m_vbo[5];
+	unsigned int m_vbo[7];
 	unsigned int m_drawCount;
 	unsigned int m_numberOfTriangle;
+
+	std::vector<unsigned int> m_indexBuffer;
+	std::vector<Vector3f> m_positions;
+	std::vector<Vector2f> m_texels;
+	std::vector<Vector3f> m_normals;
+
 
 	std::shared_ptr<Shader> m_shader;
 	std::shared_ptr<Texture> m_texture;

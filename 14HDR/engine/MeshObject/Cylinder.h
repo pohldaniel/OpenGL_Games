@@ -1,5 +1,6 @@
-#ifndef _MESHTORUS_H
-#define _MESHTORUS_H
+
+#ifndef GEOMETRY_CYLINDER_H
+#define GEOMETRY_CYLINDER_H
 #include <GL/glew.h>
 #include <vector>
 #include <memory>
@@ -9,30 +10,30 @@
 #include "../Shader.h"
 #include "../Vector.h"
 
-class MeshTorus {
-
+class Cylinder {
 public:
-
-	MeshTorus(bool generateTexels, bool generateNormals, bool generateTangents, bool generateNormalDerivatives);
-	MeshTorus(const Vector3f &position, float radius, float tubeRadius, bool generateTexels, bool generateNormals, bool generateTangents, bool generateNormalDerivatives);
-
-	MeshTorus(float radius, float tubeRadius, const std::string &texture);
-	MeshTorus(const Vector3f &position, float radius, float tubeRadius, const std::string &texture);
-	MeshTorus(const Vector3f &position, float radius, float tubeRadius, bool generateTexels, bool generateNormals, bool generateTangents, bool generateNormalDerivatives, const std::string &texture);
-	~MeshTorus();
+   
+	Cylinder(bool generateTexels, bool generateNormals, bool generateTangents, bool generateNormalDerivatives);
+	Cylinder(const Vector3f &position, float baseRadius, float topRadius, float length, bool generateTexels, bool generateNormals, bool generateTangents, bool generateNormalDerivatives);
+	~Cylinder();
 
 	void setPrecision(int uResolution, int vResolution);
 	void buildMesh();
-	void draw(const Camera camera);
+	void draw(const Camera& camera);
 	void drawRaw();
 	void setTransformation(const Matrix4f &transformation) { m_model = transformation; }
 
 private:
 
-	int m_mainSegments;
-	int m_tubeSegments;
-	float m_radius;
-	float m_tubeRadius;
+	std::vector<float> getSideNormals();
+
+    int m_tubeSegments;
+    int m_mainSegments;
+
+	float baseRadius;
+	float topRadius;
+	float height;
+
 	Vector3f m_position;
 
 	bool m_generateNormals;
@@ -51,14 +52,15 @@ private:
 	unsigned int m_vbo[7];
 	unsigned int m_drawCount;
 
-	std::vector<unsigned int> m_indexBuffer;
 	std::vector<Vector3f> m_positions;
 	std::vector<Vector2f> m_texels;
 	std::vector<Vector3f> m_normals;
+	std::vector<unsigned int> m_indexBuffer;
 
 	std::shared_ptr<Shader> m_shader;
 	std::shared_ptr<Texture> m_texture;
 
 	Matrix4f m_model;
 };
+
 #endif

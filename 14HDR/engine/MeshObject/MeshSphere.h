@@ -4,10 +4,10 @@
 #include <vector>
 #include <memory>
 
-#include "..\Texture.h"
-#include "..\Camera.h"
-#include "..\Shader.h"
-#include "..\Vector.h"
+#include "../Texture.h"
+#include "../Camera.h"
+#include "../Shader.h"
+#include "../Vector.h"
 
 class MeshSphere {
 
@@ -25,15 +25,6 @@ public:
 	void draw(const Camera camera);
 	void drawRaw();
 	void setTransformation(const Matrix4f &transformation) {m_model = transformation;}
-
-
-	std::vector<unsigned int> m_indexBuffer;
-	std::vector<Vector3f> m_positions;
-	std::vector<Vector2f> m_texels;
-	std::vector<Vector3f> m_normals;
-
-	Vector3f m_min;
-	Vector3f m_max;
 
 private:
 
@@ -57,8 +48,17 @@ private:
 
 	short m_numBuffers;
 	unsigned int m_vao;
-	unsigned int m_vbo[5];
+	unsigned int m_vbo[7];
 	unsigned int m_drawCount;
+
+	std::vector<unsigned int> m_indexBuffer;
+	std::vector<Vector3f> m_positions;
+	std::vector<Vector2f> m_texels;
+	std::vector<Vector3f> m_normals;
+
+	Vector3f m_min;
+	Vector3f m_max;
+
 
 	std::shared_ptr<Shader> m_shader;
 	std::shared_ptr<Texture> m_texture;

@@ -399,4 +399,7 @@ void Application::loadAssets() {
 
 	Globals::shaderManager.loadShader("sky", "res/skybox.vert", "res/skybox.frag");
 	Globals::shaderManager.loadShader("quad", "res/quad.vert", "res/quad.frag");
+
+	Globals::textureManager.loadTexture("grid", "res/grid512.png", true);
+	Globals::textureManager.get("grid").setRepeat();
 }

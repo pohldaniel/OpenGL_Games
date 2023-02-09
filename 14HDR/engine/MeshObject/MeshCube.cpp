@@ -1,29 +1,36 @@
 #include "MeshCube.h"
 
-MeshCube::MeshCube(bool generateTexels, bool generateNormals) : MeshCube(Vector3f(-1.0f, -1.0f, -1.0f), Vector3f(2.0f, 2.0f, 2.0f), generateTexels, generateNormals) { }
+MeshCube::MeshCube(bool generateTexels, bool generateNormals, bool generateTangents, bool generateNormalDerivatives) : MeshCube(Vector3f(-1.0f, -1.0f, -1.0f), Vector3f(2.0f, 2.0f, 2.0f), generateTexels, generateNormals, generateTangents, generateNormalDerivatives) { }
 
-MeshCube::MeshCube(const Vector3f &position, const Vector3f& size, bool generateTexels, bool generateNormals) {
-
-	m_numBuffers = 4;
+MeshCube::MeshCube(const Vector3f &position, const Vector3f& size, bool generateTexels, bool generateNormals, bool generateTangents, bool generateNormalDerivatives) {
 
 	m_position = position;
 	m_size = size;
-	m_generateTexels = generateTexels;
 	m_generateNormals = generateNormals;
+	m_generateTexels = generateTexels;
+	m_generateTangents = generateTangents;
+	m_generateNormalDerivatives = generateNormalDerivatives;
 
 	m_hasTexels = false;
+	m_hasNormals = false;
+	m_hasTangents = false;
+	m_hasNormalDerivatives = false;
+
+	m_isInitialized = false;
 
 	m_uResolution = 1;
 	m_vResolution = 1;
+
+	m_numBuffers = 1 + generateTexels + generateNormals + 2 * generateTangents + 2 * generateNormalDerivatives;
 
 	m_center = m_position + m_size * 0.5f;
 
 	buildMesh4Q();
 }
 
-MeshCube::MeshCube(const Vector3f &position, const Vector3f& size) : MeshCube(position, size, true, true) {}
+MeshCube::MeshCube(const Vector3f &position, const Vector3f& size) : MeshCube(position, size, true, true, false, false) {}
 
-MeshCube::MeshCube(const Vector3f& size) : MeshCube(-size * 0.5f, size, true, true) {}
+MeshCube::MeshCube(const Vector3f& size) : MeshCube(-size * 0.5f, size, true, true, false, false) {}
 
 MeshCube::~MeshCube() {}
 
@@ -66,8 +73,8 @@ void MeshCube::buildMesh() {
 
 			// Calculate vertex position on the surface of a quad
 			float x = j * uStep;
-			float y = i * vStep - m_size[1] * 0.5f;
-			float z = m_size[2] * 0.5f;
+			float y = i * vStep;
+			float z = m_size[2];
 
 			Vector3f position = Vector3f(x, y, z) + m_position;
 			m_positions.push_back(position);
@@ -93,9 +100,9 @@ void MeshCube::buildMesh() {
 		for (unsigned int j = m_uResolution; j > 0; j--) {
 
 			// Calculate vertex position on the surface of a quad
-			float x = m_size[0] * 0.5f;
-			float y = i * vStep - m_size[1] * 0.5f;
-			float z = j * uStep - m_size[2] * 0.5f;
+			float x = m_size[0];
+			float y = i * vStep;
+			float z = j * uStep;
 
 			Vector3f position = Vector3f(x, y, z) + m_position;
 			m_positions.push_back(position);
@@ -120,9 +127,9 @@ void MeshCube::buildMesh() {
 	for (unsigned int i = 0; i <= m_vResolution; i++) {
 		for (unsigned int j = m_uResolution; j > 0; j--) {
 			// Calculate vertex position on the surface of a quad
-			float x = j * uStep - m_size[0] * 0.5f;
-			float y = i * vStep - m_size[1] * 0.5f;
-			float z = -m_size[2] * 0.5f;
+			float x = j * uStep;
+			float y = i * vStep;
+			float z = 0.0f;
 
 			Vector3f position = Vector3f(x, y, z) + m_position;
 			m_positions.push_back(position);
@@ -149,9 +156,9 @@ void MeshCube::buildMesh() {
 	for (unsigned int i = 0; i <= m_vResolution; i++) {
 		for (unsigned int j = 0; j < m_uResolution; j++) {
 			// Calculate vertex position on the surface of a quad
-			float x = -m_size[0] * 0.5f;
-			float y = i * vStep - m_size[1] * 0.5f;
-			float z = j * uStep - m_size[2] * 0.5f;
+			float x = 0.0f;
+			float y = i * vStep;
+			float z = j * uStep;
 
 			Vector3f position = Vector3f(x, y, z) + m_position;
 			m_positions.push_back(position);
@@ -177,9 +184,9 @@ void MeshCube::buildMesh() {
 	for (unsigned int i = 0; i <= m_vResolution ; i++) {
 		for (unsigned int j = 0; j <= m_uResolution ; j++) {
 			// Calculate vertex position on the surface of a quad
-			float x = j * uStep - m_size[0] * 0.5f;
-			float y = -m_size[1] * 0.5f;
-			float z = i * vStep - m_size[2] * 0.5f;
+			float x = j * uStep;
+			float y = 0.0f;
+			float z = i * vStep;
 
 			Vector3f position = Vector3f(x, y, z) + m_position;
 			m_positions.push_back(position);
@@ -206,9 +213,9 @@ void MeshCube::buildMesh() {
 		for (unsigned int j = 0; j <= m_uResolution; j++) {
 
 			// Calculate vertex position on the surface of a quad
-			float x = j * uStep - m_size[0] * 0.5f;
-			float y = m_size[1] * 0.5f;
-			float z = i * vStep - m_size[2] * 0.5f;
+			float x = j * uStep;
+			float y = m_size[1];
+			float z = i * vStep;
 
 			Vector3f position = Vector3f(x, y, z) + m_position;
 			m_positions.push_back(position);
@@ -553,7 +560,7 @@ void MeshCube::buildMesh4Q() {
 				float u = (float)j / m_uResolution;
 				float v = (float)i / m_vResolution;
 
-				Vector2f textureCoordinate = Vector2f(u, v);
+				Vector2f textureCoordinate = Vector2f(u, 1.0f - v);
 				m_texels.push_back(textureCoordinate);
 			}
 		}

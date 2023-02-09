@@ -160,7 +160,7 @@ void MeshSphere::buildMesh() {
 				float u = (float)j / m_uResolution;
 				float v = (float)i / m_vResolution;
 
-				Vector2f textureCoordinate = Vector2f(u, v);
+				Vector2f textureCoordinate = Vector2f(1.0f - u, 1.0f - v);
 				m_texels.push_back(textureCoordinate);
 			}
 		}

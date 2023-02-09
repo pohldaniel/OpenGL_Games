@@ -16,11 +16,15 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	m_cube = new Cube();
 	m_tetraedron = new Tetraedron();
 
-	m_mcube = new MeshCube(Vector3f(-2.25f, -0.25f, -0.25f), Vector3f(0.5f, 0.5f, 0.5f), false, true);
-	m_sphere = new MeshSphere(false, true, false, false);
-	m_torus = new MeshTorus(false, true, false, false);
-	m_spiral = new MeshSpiral(false, true, false, false);
-	m_midpoint = new MeshSphere(Vector3f(0.0f, 0.0f, 0.0f), 0.2f, false, true, false, false);
+	m_mquad = new MeshQuad(Vector3f(-1.0f, -1.0f, -1.0f), Vector2f(2.0f, 2.0f), true, true, false, false);
+	m_mcube = new MeshCube(Vector3f(-2.25f, -0.25f, -0.25f), Vector3f(0.5f, 0.5f, 0.5f), true, true, false, false);
+	m_sphere = new MeshSphere(true, true, false, false);
+	m_torus = new MeshTorus(true, true, false, false);
+	m_spiral = new MeshSpiral(true, true, false, false);
+	m_cylinder = new MeshCylinder(Vector3f(0.0f, 0.0f, 0.0f), 1.0f, 1.0f, 2.0f, true, true, false, false);
+	m_cone = new MeshCylinder(Vector3f(0.0f, 0.0f, 0.0f), 1.0f, 0.0f, 1.0f, true, true, false, false);
+	m_midpoint = new MeshSphere(Vector3f(0.0f, 0.0f, 0.0f), 0.2f, true, true, false, false);
+
 	m_camera = Camera();
 	m_camera.perspective(45.0f * _180_ON_PI, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
 	m_camera.lookAt(Vector3f(0.0f, 0.0f, 1.5f), Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
@@ -45,7 +49,9 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	tone = new Shader("res/tonemap.vert", "res/tonemap.frag");	
 	down2 = new Shader("res/down2.vert", "res/down2.frag");
 	down4 = new Shader("res/down4.vert", "res/down4.frag");
-	normal = new Shader("res/normal.vs", "res/normal.fs");
+	normal = new Shader("res/normal.vert", "res/normal.frag");
+	texture = new Shader("res/texture.vert", "res/texture.frag");
+
 	venus.loadModel("res/models/venusm.obj");
 
 	createBuffers(bufferTokens[currentBuffer], rbTokens[currentBuffer], aaModes[currentMode]);
@@ -126,68 +132,125 @@ void Game::render(unsigned int &frameBuffer) {
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	renderScene();
+	if (renderMode == RenderMode::HDR) {
+		renderScene();
 
-	if (aaModes[currentMode].samples > 0) {
-		// blit from multisampled fbo to scene buffer
-		glBindFramebuffer(GL_READ_FRAMEBUFFER, msaaBuffer.getFramebuffer());
-		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, sceneBuffer.getFramebuffer());
-		glBlitFramebuffer(0, 0, Application::Width - 1, Application::Height - 1, 0, 0, Application::Width - 1, Application::Height - 1, GL_COLOR_BUFFER_BIT, GL_LINEAR);
+		if (aaModes[currentMode].samples > 0) {
+			// blit from multisampled fbo to scene buffer
+			glBindFramebuffer(GL_READ_FRAMEBUFFER, msaaBuffer.getFramebuffer());
+			glBindFramebuffer(GL_DRAW_FRAMEBUFFER, sceneBuffer.getFramebuffer());
+			glBlitFramebuffer(0, 0, Application::Width - 1, Application::Height - 1, 0, 0, Application::Width - 1, Application::Height - 1, GL_COLOR_BUFFER_BIT, GL_LINEAR);
 
-		Framebuffer::UnbindWrite();
-		Framebuffer::UnbindRead();
+			Framebuffer::UnbindWrite();
+			Framebuffer::UnbindRead();
+		}
+
+		if (m_glow || m_rays) {
+			downsample4(sceneBuffer, downsampleBuffer[0]);
+			downsample4(downsampleBuffer[0], downsampleBuffer[1]);
+			blurPass(downsampleBuffer[1]);
+		}
+
+		glUseProgram(tone->m_program);
+
+		tone->loadFloat("blurAmount", m_glow ? m_blurAmount : 0.0f);
+		tone->loadFloat("effectAmount", m_glow ? m_effectAmount : 0.0f);
+		tone->loadVector("windowSize", Vector2f(2.0f / (float)Application::Width, 2.0f / (float)Application::Height));
+		tone->loadFloat("exposure", m_exposure);
+
+		tone->loadInt("sceneTex", 0);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, sceneBuffer.getColorTexture(0));
+
+		tone->loadInt("blurTex", 1);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, blurBuffer[1].getColorTexture(0));
+
+		m_quad->drawRaw();
+		glUseProgram(0);
 	}
 
-	if (m_glow || m_rays) {
-		downsample4(sceneBuffer, downsampleBuffer[0]);
-		downsample4(downsampleBuffer[0], downsampleBuffer[1]);
-		blurPass(downsampleBuffer[1]);
+	glPolygonMode(GL_FRONT_AND_BACK, m_wireframe ? GL_LINE : GL_FILL);
+	if (renderMode == RenderMode::NORMAL) {
+
+		glEnable(GL_DEPTH_TEST);
+		glDisable(GL_CULL_FACE);
+		glUseProgram(normal->m_program);
+		normal->loadMatrix("u_transform", m_camera.getProjectionMatrix() * m_camera.getViewMatrix() * m_transform.getTransformationMatrix());
+		normal->loadMatrix("u_normal", Matrix4f::GetNormalMatrix(m_camera.getViewMatrix() * m_transform.getTransformationMatrix()));
+		switch (model) {
+		case Model::QUAD:
+			m_mquad->drawRaw();
+			break;
+		case Model::SPHERE:
+			m_sphere->drawRaw();
+			break;
+		case Model::TETRA:
+			m_tetraedron->drawRaw();
+			break;
+		case Model::CUBE:
+			m_midpoint->drawRaw();
+			m_mcube->drawRaw();
+			break;
+		case Model::TORUS:
+			m_torus->drawRaw();
+			break;
+		case Model::SPIRAL:
+			m_spiral->drawRaw();
+			break;
+		case Model::CYLINDER:
+			m_cylinder->drawRaw();
+			break;
+		case Model::CONE:
+			m_cone->drawRaw();
+			break;
+		case Model::VENUS:
+			venus.drawRaw();
+			break;
+		}
 	}
 
-	glUseProgram(tone->m_program);
+	if (renderMode == RenderMode::TEXTURE) {
+		glEnable(GL_DEPTH_TEST);
+		glDisable(GL_CULL_FACE);
+		glUseProgram(texture->m_program);
+		texture->loadMatrix("u_transform", m_camera.getProjectionMatrix() * m_camera.getViewMatrix() * m_transform.getTransformationMatrix());
+		texture->loadMatrix("u_normal", Matrix4f::GetNormalMatrix(m_camera.getViewMatrix() * m_transform.getTransformationMatrix()));
 
-	tone->loadFloat("blurAmount", m_glow ? m_blurAmount : 0.0f);
-	tone->loadFloat("effectAmount", m_glow ? m_effectAmount : 0.0f);
-	tone->loadVector("windowSize", Vector2f(2.0f / (float)Application::Width, 2.0f / (float)Application::Height));
-	tone->loadFloat("exposure", m_exposure);
+		Globals::textureManager.get("grid").bind(0);
 
-	tone->loadInt("sceneTex", 0);
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, sceneBuffer.getColorTexture(0));
-
-	tone->loadInt("blurTex", 1);
-	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, blurBuffer[1].getColorTexture(0));
-
-	m_quad->drawRaw();
-	glUseProgram(0);
-
-	/*glEnable(GL_DEPTH_TEST);
-	glDisable(GL_CULL_FACE);
-	glUseProgram(normal->m_program);
-	normal->loadMatrix("u_transform", m_camera.getProjectionMatrix() * m_camera.getViewMatrix());
-	normal->loadMatrix("u_normal", Matrix4f::GetNormalMatrix(m_camera.getViewMatrix() * m_transform.getTransformationMatrix()));
-	switch (model) {
-	case Model::SPHERE:
-		m_sphere->drawRaw();
-		break;
-	case Model::TETRA:
-		m_tetraedron->drawRaw();
-		break;
-	case Model::CUBE:
-		m_mcube->drawRaw();
-		break;
-	case Model::TORUS:
-		m_torus->drawRaw();
-		break;
-	case Model::SPIRAL:
-		m_spiral->drawRaw();
-		break;
-	case Model::VENUS:
-		venus.drawRaw();
-		break;
+		switch (model) {
+			case Model::QUAD:
+				m_mquad->drawRaw();
+				break;
+			case Model::SPHERE:
+				m_sphere->drawRaw();
+				break;
+			case Model::TETRA:
+				m_tetraedron->drawRaw();
+				break;
+			case Model::CUBE:
+				m_midpoint->drawRaw();
+				m_mcube->drawRaw();
+				break;
+			case Model::TORUS:
+				m_torus->drawRaw();
+				break;
+			case Model::SPIRAL:
+				m_spiral->drawRaw();
+				break;
+			case Model::CYLINDER:
+				m_cylinder->drawRaw();
+				break;
+			case Model::CONE:
+				m_cone->drawRaw();
+				break;
+			case Model::VENUS:
+				venus.drawRaw();
+				break;
+		}
 	}
-	glUseProgram(0);*/
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	renderUi();
 }
 
@@ -210,18 +273,17 @@ void Game::OnMouseButtonUp(Event::MouseButtonEvent& event) {
 }
 
 void Game::applyTransformation(TrackBall& arc) {
-	m_trackball.setCenterOfRotation(m_centerOfRotation);
+	
 	m_transform.fromMatrix(arc.getTransform());
 
 	if (model == Model::CUBE) {		
 		m_transform.scale(m_scale, m_scale, m_scale, m_mcube->getCenter());
-
 	}else if (model == Model::VENUS) {
 		m_transform.scale(m_scale, m_scale, m_scale, venus.getCenter());
 	}else {
 		m_transform.scale(m_scale, m_scale, m_scale);
 	}
-	
+
 	m_transform.translate(m_translate[0], m_translate[1], m_translate[2]);
 }
 
@@ -290,13 +352,15 @@ void Game::renderScene() {
 	if (m_blend) {
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		//glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 		glDisable(GL_DEPTH_TEST);
 	}else {
 		glEnable(GL_DEPTH_TEST);
 	}
 
 	switch (model) {
+		case Model::QUAD:
+			m_mquad->drawRaw();
+			break;
 		case Model::SPHERE:
 			m_sphere->drawRaw();
 			break;
@@ -312,6 +376,12 @@ void Game::renderScene() {
 			break;
 		case Model::SPIRAL:
 			m_spiral->drawRaw();
+			break;
+		case Model::CYLINDER:
+			m_cylinder->drawRaw();
+			break;
+		case Model::CONE:
+			m_cone->drawRaw();
 			break;
 		case Model::VENUS:
 			venus.drawRaw();
@@ -587,9 +657,10 @@ void Game::renderUi() {
 	ImGui::SliderFloat("Blend Amount", &m_blendAmout, 0.0f, 1.0f);
 	ImGui::SliderFloat("Scale", &m_scale, -2.0f, 2.0f);
 	ImGui::SliderFloat3("Translate", &m_translate[0], -10.0f, 10.0f);
-	ImGui::SliderFloat3("Center of Rot", &m_centerOfRotation[0], -2.0f, 2.0f);
-	int currentModel = model;
-	
+	if (ImGui::SliderFloat3("Center of Rot", &m_centerOfRotation[0], -2.0f, 2.0f)) {
+		m_trackball.setCenterOfRotation(m_centerOfRotation);
+	}
+		
 	if (ImGui::Combo("Framebuffer format", &currentBuffer, "RGBA8\0RGBA16F\0RGBA32F\0R11F_G11F_B10F\0\0") || ImGui::Combo("Multisample level", &currentMode, aaModesLabel, IM_ARRAYSIZE(aaModesLabel))) {
 		createBuffers(bufferTokens[currentBuffer], rbTokens[currentBuffer], aaModes[currentMode]);
 
@@ -607,7 +678,8 @@ void Game::renderUi() {
 		glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 	}
 
-	if (ImGui::Combo("Model", &currentModel, "Sphere\0Tetra\0Cube\0Torus\0Spiral\0Venus\0\0")) {
+	int currentModel = model;
+	if (ImGui::Combo("Model", &currentModel, "Quad\0Sphere\0Tetra\0Cube\0Torus\0Spiral\0Cylinder\0Cone\0Venus\0\0")) {
 		model = static_cast<Model>(currentModel);
 	}
 
@@ -621,6 +693,12 @@ void Game::renderUi() {
 		if (cullMode == Culling::FRONT)
 			glCullFace(GL_FRONT);
 	}
+
+	int currentRenderMode = renderMode;
+	if (ImGui::Combo("Render", &currentRenderMode, "Hdr\0Normal\0Texture\0\0")) {
+		renderMode = static_cast<RenderMode>(currentRenderMode);
+	}
+
 	ImGui::ColorEdit3("color", m_color);
 	ImGui::End();
 

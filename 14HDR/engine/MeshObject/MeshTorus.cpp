@@ -71,35 +71,6 @@ void MeshTorus::buildMesh() {
 
 	if (m_isInitialized) return;
 
-
-	//calculate the indices
-	unsigned int currentVertexOffset = 0;
-	for (unsigned int i = 0; i < m_mainSegments; i++) {
-
-		for (unsigned int j = 0; j <= m_tubeSegments; j++) {
-
-			unsigned int vertexIndexA, vertexIndexB, vertexIndexC, vertexIndexD, vertexIndexE, vertexIndexF;
-
-			if ((j > 0) && ((j + 1) % (m_tubeSegments + 1)) == 0) {
-				currentVertexOffset = ((i + 1) * (m_tubeSegments + 1));
-			}
-			else {
-
-				vertexIndexA = currentVertexOffset;
-				vertexIndexB = currentVertexOffset + m_tubeSegments + 1;
-				vertexIndexC = currentVertexOffset + 1;
-
-				vertexIndexD = currentVertexOffset + m_tubeSegments + 1;
-				vertexIndexF = currentVertexOffset + m_tubeSegments + 2;
-				vertexIndexE = currentVertexOffset + 1;
-
-				m_indexBuffer.push_back(vertexIndexA); m_indexBuffer.push_back(vertexIndexC); m_indexBuffer.push_back(vertexIndexB);
-				m_indexBuffer.push_back(vertexIndexD); m_indexBuffer.push_back(vertexIndexE); m_indexBuffer.push_back(vertexIndexF);
-				currentVertexOffset++;
-			}
-		}
-	}
-	
 	std::vector<Vector3f> tangents;
 	std::vector<Vector3f> bitangents;
 	std::vector<Vector3f> normalsDu;
@@ -143,12 +114,12 @@ void MeshTorus::buildMesh() {
 		float tubeSegmentTextureStep = 1.0f / (float(m_tubeSegments));
 
 		//rotate the texture to get the same mapping like the primitive
-		float currentMainSegmentTexCoordV = 0.0 - 0.25;
+		float currentMainSegmentTexCoordV = -0.25;
 
 		for (unsigned int i = 0; i <= m_mainSegments; i++) {
 
 			//rotate the texture to get the same mapping like the primitive
-			float currentTubeSegmentTexCoordU = 0.0 - 0.5f;
+			float currentTubeSegmentTexCoordU = 0.5;
 
 			for (unsigned int j = 0; j <= m_tubeSegments; j++) {
 
@@ -289,7 +260,33 @@ void MeshTorus::buildMesh() {
 		m_hasNormalDerivatives = true;
 	}
 
-	
+	//calculate the indices
+	unsigned int currentVertexOffset = 0;
+	for (unsigned int i = 0; i < m_mainSegments; i++) {
+
+		for (unsigned int j = 0; j <= m_tubeSegments; j++) {
+
+			unsigned int vertexIndexA, vertexIndexB, vertexIndexC, vertexIndexD, vertexIndexE, vertexIndexF;
+
+			if ((j > 0) && ((j + 1) % (m_tubeSegments + 1)) == 0) {
+				currentVertexOffset = ((i + 1) * (m_tubeSegments + 1));
+			} else {
+
+				vertexIndexA = currentVertexOffset;
+				vertexIndexB = currentVertexOffset + m_tubeSegments + 1;
+				vertexIndexC = currentVertexOffset + 1;
+
+				vertexIndexD = currentVertexOffset + m_tubeSegments + 1;
+				vertexIndexF = currentVertexOffset + m_tubeSegments + 2;
+				vertexIndexE = currentVertexOffset + 1;
+
+				m_indexBuffer.push_back(vertexIndexA); m_indexBuffer.push_back(vertexIndexC); m_indexBuffer.push_back(vertexIndexB);
+				m_indexBuffer.push_back(vertexIndexD); m_indexBuffer.push_back(vertexIndexE); m_indexBuffer.push_back(vertexIndexF);
+				currentVertexOffset++;
+			}
+		}
+	}
+
 
 	m_drawCount = m_indexBuffer.size();
 
@@ -352,7 +349,6 @@ void MeshTorus::buildMesh() {
 
 	m_isInitialized = true;
 }
-
 
 void MeshTorus::draw(const Camera camera) {
 

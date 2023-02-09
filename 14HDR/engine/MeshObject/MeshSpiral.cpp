@@ -29,7 +29,7 @@ MeshSpiral::MeshSpiral(const Vector3f &position, float radius, float tubeRadius,
 	buildMesh();
 }
 
-MeshSpiral::MeshSpiral(bool generateTexels, bool generateNormals, bool generateTangents, bool generateNormalDerivatives) : MeshSpiral(Vector3f(0.0f, -0.75f, 0.0f), 0.5f, 0.25f, 2, 1.5f, false, generateTexels, generateNormals, generateTangents, generateNormalDerivatives) {
+MeshSpiral::MeshSpiral(bool generateTexels, bool generateNormals, bool generateTangents, bool generateNormalDerivatives) : MeshSpiral(Vector3f(0.0f, -0.75f, 0.0f), 0.5f, 0.25f, 2, 1.5f, true, generateTexels, generateNormals, generateTangents, generateNormalDerivatives) {
 
 }
 
@@ -179,26 +179,28 @@ void MeshSpiral::buildMesh() {
 		float mainSegmentTextureStep = 1.0 / (float(foo));
 		float tubeSegmentTextureStep = 1.0f / float(m_tubeSegments);
 
-		//rotate the texture to like the meshTorus
-		float currentMainSegmentTexCoordU = 0.0;
+		float currentMainSegmentTexCoordU = 0.0f;
+		bool flip = false;
 
 		for (unsigned int i = 0; i <= m_mainSegments * m_numRotations + offset; i++) {
 
 			if (m_repeatTexture && i > 0 && i % (m_mainSegments + 1) == 0) {
-
-				currentMainSegmentTexCoordU = 0.0;
+				flip = !flip;
+				currentMainSegmentTexCoordU = flip ? 1.0f : 0.0;
 			}
 			//rotate the texture to like the meshTorus
-			float currentTubeSegmentTexCoordV = 0.0 - 0.5f;
+			float currentTubeSegmentTexCoordV = 0.5f;
 			for (unsigned int j = 0; j <= m_tubeSegments; j++) {
-
-				Vector2f textureCoordinate = Vector2f((1.0 - currentMainSegmentTexCoordU), currentTubeSegmentTexCoordV);
+				Vector2f textureCoordinate = Vector2f(1.0 - currentMainSegmentTexCoordU, currentTubeSegmentTexCoordV);
 				m_texels.push_back(textureCoordinate);
 
 				currentTubeSegmentTexCoordV += tubeSegmentTextureStep;
 			}
 			// Update texture coordinate of main segment
-			currentMainSegmentTexCoordU += mainSegmentTextureStep;
+			if(flip)
+				currentMainSegmentTexCoordU -= mainSegmentTextureStep;
+			else
+				currentMainSegmentTexCoordU += mainSegmentTextureStep;
 		}
 		m_hasTexels = true;
 	}

@@ -13,6 +13,7 @@
 #include "engine/MeshObject/MeshSphere.h"
 #include "engine/MeshObject/MeshTorus.h"
 #include "engine/MeshObject/MeshSpiral.h"
+#include "engine/MeshObject/MeshCylinder.h"
 #include "engine/Framebuffer.h"
 #include "engine/Camera.h"
 #include "engine/ObjModel.h"
@@ -29,11 +30,14 @@
 #define BLUR_BUFFERS 2
 
 enum Model {	
+	QUAD,
 	SPHERE,
 	TETRA, 
 	CUBE,
 	TORUS,
 	SPIRAL,
+	CYLINDER,
+	CONE,
 	VENUS
 };
 
@@ -41,6 +45,12 @@ enum Culling {
 	NONE,
 	FRONT,
 	BACK
+};
+
+enum RenderMode {
+	HDR,
+	NORMAL,
+	TEXTURE
 };
 
 struct aaInfo {
@@ -85,6 +95,9 @@ public:
 	MeshTorus* m_torus;
 	MeshSpiral* m_spiral;
 	MeshCube* m_mcube;
+	MeshQuad* m_mquad;
+	MeshCylinder* m_cylinder;
+	MeshCylinder* m_cone;
 
 	TrackBall m_trackball;
 	Transform m_transform;
@@ -99,6 +112,7 @@ public:
 	Shader* down2;
 	Shader* down4;
 	Shader* normal;
+	Shader* texture;
 
 	GLuint vertex;
 	ObjModel venus;
@@ -138,6 +152,8 @@ public:
 	const char* ansioLabel[5] = { "1.0", "2.0", "4.0", "8.0", "16.0"};
 
 	Culling cullMode = Culling::NONE;
+
+	RenderMode renderMode = RenderMode::HDR;
 
 	float m_color[3] = {0.05f, 0.2f, 0.05f};
 
