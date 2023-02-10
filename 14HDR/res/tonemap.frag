@@ -11,7 +11,6 @@ uniform float blurAmount;
 uniform float effectAmount = 0.1;
 uniform float exposure;
 uniform float gamma = 1.0 / 2.0;
-uniform vec2 windowSize;
 
 out vec4 color;
 

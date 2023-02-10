@@ -128,6 +128,32 @@ void Texture::loadFromFile(std::string fileName, const bool _flipVertical, unsig
 void Texture::loadHDRIFromFile(std::string fileName, const bool _flipVertical, unsigned int internalFormat, unsigned int format, int paddingLeft, int paddingRight, int paddingTop, int paddingBottom) {
 	int width, height, numCompontents;
 	unsigned char* imageData = reinterpret_cast<unsigned char *>(stbi_loadf(fileName.c_str(), &width, &height, &numCompontents, 0));
+
+	m_internalFormat = internalFormat == 0 && numCompontents == 3 ? GL_RGB32F : internalFormat == 0 ? GL_RGBA32F : internalFormat;
+	m_format = format == 0 && numCompontents == 3 ? GL_RGB : format == 0 ? GL_RGBA : format;
+	m_type = GL_FLOAT;
+
+	if (_flipVertical)
+		FlipVertical(imageData, numCompontents * sizeof(float) * width, height);
+
+	glGenTextures(1, &m_texture);
+	glBindTexture(GL_TEXTURE_2D, m_texture);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_REPEAT);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_REPEAT);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexImage2D(GL_TEXTURE_2D, 0, m_internalFormat, width, height, 0, m_format, m_type, imageData);
+	glGenerateMipmap(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	m_width = width;
+	m_height = height;
+	m_channels = numCompontents;
+}
+
+void Texture::loadCrossHDRIFromFile(std::string fileName, const bool _flipVertical, unsigned int internalFormat, unsigned int format, int paddingLeft, int paddingRight, int paddingTop, int paddingBottom) {
+	int width, height, numCompontents;
+	unsigned char* imageData = reinterpret_cast<unsigned char *>(stbi_loadf(fileName.c_str(), &width, &height, &numCompontents, 0));
 	
 	m_internalFormat = internalFormat == 0 && numCompontents == 3 ? GL_RGB32F : internalFormat == 0 ? GL_RGBA32F : internalFormat;
 	m_format = format == 0 && numCompontents == 3 ? GL_RGB : format == 0 ? GL_RGBA : format;
@@ -136,10 +162,10 @@ void Texture::loadHDRIFromFile(std::string fileName, const bool _flipVertical, u
 	if (_flipVertical)
 		FlipVertical(imageData, numCompontents * sizeof(float) * width, height);
 
-	imageData = AddRemoveLeftPadding(imageData, width, height, numCompontents, paddingLeft);
-	imageData = AddRemoveRightPadding(imageData, width, height, numCompontents, paddingRight);
-	imageData = AddRemoveTopPadding(imageData, width, height, numCompontents, paddingTop);
-	imageData = AddRemoveBottomPadding(imageData, width, height, numCompontents, paddingBottom);
+	//imageData = AddRemoveLeftPadding(imageData, width, height, numCompontents, paddingLeft);
+	//imageData = AddRemoveRightPadding(imageData, width, height, numCompontents, paddingRight);
+	//imageData = AddRemoveTopPadding(imageData, width, height, numCompontents, paddingTop);
+	//imageData = AddRemoveBottomPadding(imageData, width, height, numCompontents, paddingBottom);
 
 	m_width = width;
 	m_height = height;

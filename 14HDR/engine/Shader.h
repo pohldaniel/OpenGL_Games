@@ -43,10 +43,9 @@ public:
 	void loadBool(const char* location, bool value);
 	void loadInt(const char* location, int value);
 	void loadUnsignedInt(const char* location, unsigned int value);
-
-	
 	void attachShader(GLuint compShader);
 	void linkShaders();
+
 	static GLuint LoadShaderProgram(GLenum type, const char *pszFilename);
 	static GLuint LoadShaderProgram(GLenum type, std::string buffer);
 	GLuint m_program;

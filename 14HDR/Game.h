@@ -51,7 +51,8 @@ enum Culling {
 };
 
 enum RenderMode {
-	HDR,
+	HDR1,
+	HDR2,
 	NORMAL,
 	TEXTURE
 };
@@ -87,6 +88,7 @@ public:
 	void generate1DConvolutionFP_filter(Shader*& shader, float *weights, int width, bool vertical, bool tex2D, int img_width, int img_height);
 	float *generateGaussianWeights(float s, int &width);
 	void createBuffers(AttachmentTex::AttachmentTex texFormat, AttachmentRB::AttachmentRB rbFormat, aaInfo aaMode);
+	void panoramaToCubemap();
 
 	Camera m_camera;
 	Quad* m_quad;
@@ -107,7 +109,10 @@ public:
 	Transform m_transform;
 
 	Cubemap m_cubemap;
-	Texture m_hdri;
+	Texture m_hdriCross;
+	Texture m_hdriEnv;
+	unsigned int m_cubemapEnv;
+	unsigned int cubemap;
 
 	Shader* tone;
 	Shader* blurH = nullptr;
@@ -117,6 +122,7 @@ public:
 	Shader* down4;
 	Shader* normal;
 	Shader* texture;
+	Shader* panToCube;
 
 	GLuint vertex;
 	ObjModel venus;
@@ -125,6 +131,7 @@ public:
 	Framebuffer blurBuffer[2];
 	Framebuffer downsampleBuffer[2];
 	Framebuffer msaaBuffer;
+	Framebuffer cubeBuffer;
 
 	float m_exposure = 16.0f;
 	float m_aniso = 2.0f;
@@ -157,11 +164,12 @@ public:
 
 	Culling cullMode = Culling::NONE;
 
-	RenderMode renderMode = RenderMode::HDR;
+	RenderMode renderMode = RenderMode::HDR1;
 
 	float m_color[3] = {0.05f, 0.2f, 0.05f};
 
 	Vector3f m_translate;
 	Vector3f m_centerOfRotation;
+	float m_exposureMax = 512.0f;
 };
 

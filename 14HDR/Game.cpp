@@ -35,14 +35,6 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 
 	applyTransformation(m_trackball);
 
-	m_hdri.loadHDRIFromFile("res/grace_new_cross.hdr");
-
-	glBindTexture(GL_TEXTURE_CUBE_MAP, m_hdri.getTexture());
-	glTexParameterf(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAX_ANISOTROPY, m_aniso);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
-
-	m_cubemap.setTexture(m_hdri.getTexture());
-
 	vertex = Shader::LoadShaderProgram(GL_VERTEX_SHADER, "res/gauss.vert");
 	recompileShader();
 
@@ -52,10 +44,29 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	down4 = new Shader("res/down4.vert", "res/down4.frag");
 	normal = new Shader("res/normal.vert", "res/normal.frag");
 	texture = new Shader("res/texture.vert", "res/texture.frag");
+	panToCube = new Shader("res/panToCube.vert", "res/panToCube.frag");
 
 	venus.loadModel("res/models/venusm.obj");
 
 	createBuffers(bufferTokens[currentBuffer], rbTokens[currentBuffer], aaModes[currentMode]);
+
+	m_hdriCross.loadCrossHDRIFromFile("res/grace_new_cross.hdr");
+	m_hdriEnv.loadHDRIFromFile("res/uffizi-large.hdr", false);
+	Cubemap::CreateEmptyCubemap(m_cubemapEnv, m_hdriEnv.getHeight() / 2, m_hdriEnv.getHeight() / 2, GL_RGB32F, GL_RGB, GL_FLOAT);
+
+	cubeBuffer.create(m_hdriEnv.getHeight() / 2, m_hdriEnv.getHeight() / 2);
+	panoramaToCubemap();
+	
+	glBindTexture(GL_TEXTURE_CUBE_MAP, m_hdriCross.getTexture());
+	glTexParameterf(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAX_ANISOTROPY, m_aniso);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+
+	glBindTexture(GL_TEXTURE_CUBE_MAP, m_cubemapEnv);
+	glTexParameterf(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAX_ANISOTROPY, m_aniso);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+
+	cubemap = m_hdriCross.getTexture();
+	m_cubemap.setTexture(cubemap);
 }
 
 Game::~Game() {}
@@ -132,8 +143,9 @@ void Game::render(unsigned int &frameBuffer) {
 
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	if (renderMode == RenderMode::HDR) {
+	
+	
+	if (renderMode == RenderMode::HDR1 || renderMode == RenderMode::HDR2) {
 		renderScene();
 
 		if (aaModes[currentMode].samples > 0) {
@@ -156,7 +168,6 @@ void Game::render(unsigned int &frameBuffer) {
 
 		tone->loadFloat("blurAmount", m_glow ? m_blurAmount : 0.0f);
 		tone->loadFloat("effectAmount", m_glow ? m_effectAmount : 0.0f);
-		tone->loadVector("windowSize", Vector2f(2.0f / (float)Application::Width, 2.0f / (float)Application::Height));
 		tone->loadFloat("exposure", m_exposure);
 
 		tone->loadInt("sceneTex", 0);
@@ -190,7 +201,7 @@ void Game::render(unsigned int &frameBuffer) {
 			m_tetraedron->drawRaw();
 			break;
 		case Model::CUBE:
-			//m_midpoint->drawRaw();
+			m_midpoint->drawRaw();
 			m_mcube->drawRaw();
 			break;
 		case Model::TORUS:
@@ -234,7 +245,7 @@ void Game::render(unsigned int &frameBuffer) {
 				m_tetraedron->drawRaw();
 				break;
 			case Model::CUBE:
-				//m_midpoint->drawRaw();
+				m_midpoint->drawRaw();
 				m_mcube->drawRaw();
 				break;
 			case Model::TORUS:
@@ -348,7 +359,7 @@ void Game::renderScene() {
 	object->loadVector("u_eyePos", m_camera.getPosition());
 
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, m_hdri.getTexture());
+	glBindTexture(GL_TEXTURE_CUBE_MAP, cubemap);
 
 	// bias LOD to blur cubemap a little
 	glTexEnvf(GL_TEXTURE_FILTER_CONTROL_EXT, GL_TEXTURE_LOD_BIAS_EXT, 2.0f);
@@ -375,7 +386,7 @@ void Game::renderScene() {
 			m_tetraedron->drawRaw();
 			break;
 		case Model::CUBE:
-			//m_midpoint->drawRaw();
+			m_midpoint->drawRaw();
 			m_mcube->drawRaw();
 			break;
 		case Model::TORUS:
@@ -612,8 +623,32 @@ void Game::createBuffers(AttachmentTex::AttachmentTex texFormat, AttachmentRB::A
 		downsampleBuffer[i].create(w, h);
 		downsampleBuffer[i].attachTexture(texFormat);
 	}
+
+
 }
 
+void Game::panoramaToCubemap() {
+	cubeBuffer.bind();
+	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	
+	glUseProgram(panToCube->m_program);
+	for (int i = 0; i < 6; ++i) {	
+		
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, m_cubemapEnv, 0);
+		
+
+		panToCube->loadInt("u_currentFace", i);
+		panToCube->loadInt("u_panorama", 0);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, m_hdriEnv.getTexture());
+
+		m_quad->drawRaw();
+	}
+	glUseProgram(0);
+	cubeBuffer.unbind();	
+}
 
 void Game::renderUi() {
 	ImGui_ImplOpenGL3_NewFrame();
@@ -663,7 +698,7 @@ void Game::renderUi() {
 	}
 
 	ImGui::SliderFloat("Blur Amount", &m_blurAmount, 0.0f, 1.0f);
-	ImGui::SliderFloat("Exposure", &m_exposure, 0.0f, 512.0f);
+	ImGui::SliderFloat("Exposure", &m_exposure, 0.0f, m_exposureMax);
 	ImGui::SliderFloat("Blend Amount", &m_blendAmout, 0.0f, 1.0f);
 	ImGui::SliderFloat("Scale", &m_scale, -2.0f, 2.0f);
 	ImGui::SliderFloat3("Translate", &m_translate[0], -10.0f, 10.0f);
@@ -683,7 +718,7 @@ void Game::renderUi() {
 	}
 
 	if (ImGui::Combo("Ansio", &currentAnsio, ansioLabel, IM_ARRAYSIZE(ansioLabel))) {
-		glBindTexture(GL_TEXTURE_CUBE_MAP, m_hdri.getTexture());
+		glBindTexture(GL_TEXTURE_CUBE_MAP, cubemap);
 		glTexParameterf(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAX_ANISOTROPY, ansio[currentAnsio]);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 	}
@@ -705,8 +740,20 @@ void Game::renderUi() {
 	}
 
 	int currentRenderMode = renderMode;
-	if (ImGui::Combo("Render", &currentRenderMode, "Hdr\0Normal\0Texture\0\0")) {
+	if (ImGui::Combo("Render", &currentRenderMode, "Hdr Cross\0Hdr Env\0Normal\0Texture\0\0")) {
 		renderMode = static_cast<RenderMode>(currentRenderMode);
+		if (renderMode == RenderMode::HDR2) {
+			cubemap = m_cubemapEnv;
+			m_cubemap.setTexture(cubemap);
+			m_exposure = 3.0f;
+			m_exposureMax = 16.0f;
+		}
+
+		if (renderMode == RenderMode::HDR1) {
+			cubemap = m_hdriCross.getTexture();
+			m_cubemap.setTexture(cubemap);
+			m_exposureMax = 512.0f;
+		}
 	}
 
 	ImGui::ColorEdit3("color", m_color);

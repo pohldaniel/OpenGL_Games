@@ -16,6 +16,10 @@ void Framebuffer::create() {
 	bind = std::bind(&Framebuffer::bindNoneVP, this);
 	bindWrite = std::bind(&Framebuffer::bindWriteNoneVP, this);
 	bindRead = std::bind(&Framebuffer::bindReadNoneVP, this);
+
+	if (!m_fbo) {
+		glGenFramebuffers(1, &m_fbo);
+	}
 }
 
 void Framebuffer::create(unsigned int width, unsigned int height) {
@@ -25,6 +29,10 @@ void Framebuffer::create(unsigned int width, unsigned int height) {
 	bind = std::function<void()>{ [&]() {bindVP(); } };
 	bindWrite = std::bind(&Framebuffer::bindWriteVP, this);
 	bindRead = std::bind(&Framebuffer::bindReadVP, this);
+
+	if (!m_fbo) {
+		glGenFramebuffers(1, &m_fbo);
+	}
 }
 
 void Framebuffer::attachTexture(AttachmentTex::AttachmentTex attachments) {

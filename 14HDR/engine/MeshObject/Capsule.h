@@ -33,7 +33,6 @@ private:
 	int m_uResolution;
 	int m_vResolution;
 	float m_radius;
-	float m_invRadius;
 	float m_length;
 	Vector3f m_position;
 	Matrix4f m_model;

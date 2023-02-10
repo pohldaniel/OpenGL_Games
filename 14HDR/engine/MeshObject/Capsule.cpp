@@ -1,8 +1,8 @@
 #include "Capsule.h"
 
 Capsule::Capsule(const Vector3f &position, float radius, float length, bool generateTexels, bool generateNormals, bool generateTangents, bool generateNormalDerivatives) {
+	
 	m_radius = radius;
-	m_invRadius = 1.0 / radius;
 	m_length = length;
 	m_position = position;
 	m_generateNormals = generateNormals;
@@ -34,7 +34,6 @@ Capsule::Capsule(bool generateTexels, bool generateNormals, bool generateTangent
 Capsule::Capsule(const Vector3f &position, float radius, float length, bool generateTexels, bool generateNormals, bool generateTangents, bool generateNormalDerivatives, const std::string &texture) {
 
 	m_radius = radius;
-	m_invRadius = 1.0 / radius;
 	m_length = length;
 	m_position = position;
 	m_generateNormals = generateNormals;
@@ -51,7 +50,7 @@ Capsule::Capsule(const Vector3f &position, float radius, float length, bool gene
 	m_uResolution = 49;
 	m_vResolution = 49;
 
-	m_numBuffers = 2 + generateTexels + generateNormals + generateTangents * 2 + generateNormalDerivatives * 2;
+	m_numBuffers = 1 + generateTexels + generateNormals + generateTangents * 2 + generateNormalDerivatives * 2;
 
 	m_model = Matrix4f::IDENTITY;
 
@@ -79,7 +78,8 @@ void Capsule::setPrecision(int uResolution, int vResolution) {
 void Capsule::buildMesh() {
 	
 	buildHemisphere(Vector3f(0.0f, m_length * 0.5f, 0.0f), true);
-	buildCylinder();
+	if(m_length != 0)
+		buildCylinder();
 	buildHemisphere(Vector3f(0.0f, -m_length * 0.5f, 0.0f), false);
 
 	m_drawCount = m_indexBuffer.size();
@@ -161,15 +161,21 @@ void Capsule::buildHemisphere(const Vector3f &offset, bool north) {
 
 			m_positions.push_back(north ? Vector3f(m_radius * x, m_radius * y, m_radius * z) + offset : Vector3f(m_radius * x, -m_radius * y, m_radius * z) + offset);
 
-			if (m_generateTexels) {
+			if (m_generateTexels)
 				m_texels.push_back(Vector2f(1.0f - (float)j / m_uResolution, north ? (float)i / m_vResolution : 1.0f - (float)i / m_vResolution));
-			}
-
+			
 			if (m_generateNormals)
 				m_normals.push_back(north ? Vector3f(x, y, z): Vector3f(x, -y, z));
+
+			//improvte texture mapping
+			//if (i == m_vResolution) {
+			//	break;
+			//}
 		}
 	}
 
+	//improvte texture mapping
+	//int cutoff = (m_vResolution + 1) * m_uResolution;
 	for (unsigned int i = 0; i < m_vResolution; i++) {
 
 		int k1 = i * (m_uResolution + 1);
@@ -177,14 +183,30 @@ void Capsule::buildHemisphere(const Vector3f &offset, bool north) {
 
 		for (unsigned int j = 0; j < m_uResolution; j++) {
 
-			m_indexBuffer.push_back(k1 + j + 1 + baseIndex);
-			m_indexBuffer.push_back(k2 + j + baseIndex);
+			m_indexBuffer.push_back(k1 + j + 1 + baseIndex );
+			m_indexBuffer.push_back(k2 + j + baseIndex );
 			m_indexBuffer.push_back(k1 + j + baseIndex);
 
-			m_indexBuffer.push_back(k2 + j + 1 + baseIndex);
-			m_indexBuffer.push_back(k2 + j + baseIndex);
-			m_indexBuffer.push_back(k1 + j + 1 + baseIndex);
+			if (i < m_vResolution - 1) {
+				m_indexBuffer.push_back(k2 + j + 1 + baseIndex);
+				m_indexBuffer.push_back(k2 + j + baseIndex);
+				m_indexBuffer.push_back(k1 + j + 1 + baseIndex);
+			}
 		}
+
+		//improvte texture mapping
+		//for (unsigned int j = 0; j < m_uResolution; j++) {
+		//
+		//	m_indexBuffer.push_back(k1 + j + 1 + baseIndex >= cutoff ? cutoff : k1 + j + 1 + baseIndex);
+		//	m_indexBuffer.push_back(k2 + j + baseIndex >= cutoff ? cutoff : k2 + j + baseIndex);
+		//	m_indexBuffer.push_back(k1 + j + baseIndex >= cutoff ? cutoff : k1 + j + baseIndex);
+		//
+		//	if (i < m_vResolution - 1) {
+		//		m_indexBuffer.push_back(k2 + j + 1 + baseIndex >= cutoff ? cutoff : k2 + j + 1 + baseIndex);
+		//		m_indexBuffer.push_back(k2 + j + baseIndex >= cutoff ? cutoff : k2 + j + baseIndex);
+		//		m_indexBuffer.push_back(k1 + j + 1 + baseIndex >= cutoffp ? cutoff : k1 + j + 1 + baseIndex);
+		//	}
+		//}
 	}
 }
 

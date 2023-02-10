@@ -56,6 +56,8 @@ MeshSphere::MeshSphere(const Vector3f &position, float radius, bool generateTexe
 
 	m_min = Vector3f(FLT_MAX, FLT_MAX, FLT_MAX);
 	m_max = Vector3f(FLT_MIN, FLT_MIN, FLT_MIN);
+
+	buildMesh();
 }
 
 MeshSphere::MeshSphere(const Vector3f &position, float radius, const std::string &texture) : MeshSphere(position, radius, true, true, false, false, texture) {}

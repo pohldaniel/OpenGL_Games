@@ -5,8 +5,7 @@ VolumeBuffer::VolumeBuffer(unsigned int internalFormat, int width, int height, i
 	Texture::CreateTexture3D(m_texture, m_width, m_height, m_depth, internalFormat, GL_RGBA, GL_FLOAT);
 
 	m_fbo.create(width, height);
-	m_fbo.attachTexture(m_texture, Attachment::COLOR, Target::TEXTURE3D, 0);
-
+	//m_fbo.attachTexture(m_texture, Attachment::COLOR, Target::TEXTURE3D, 0);
 	createSlicedCube();
 }
 
