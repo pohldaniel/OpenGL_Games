@@ -6,9 +6,9 @@ MeshCylinder::MeshCylinder(bool generateTexels, bool generateNormals, bool gener
 
 MeshCylinder::MeshCylinder(const Vector3f &position, float baseRadius, float topRadius, float length, bool generateTexels, bool generateNormals, bool generateTangents, bool generateNormalDerivatives) {
 
-	this->baseRadius = baseRadius;
-	this->topRadius = topRadius;
-	height = length;
+	m_baseRadius = baseRadius;
+	m_topRadius = topRadius;
+	m_length = length;
 	m_position = position;
 
 	m_generateNormals = generateNormals;
@@ -49,8 +49,8 @@ void MeshCylinder::buildMesh() {
 
 	// put vertices of side cylinder to array by scaling unit circle
 	for (int i = 0; i <= m_mainSegments; ++i) {
-		y = -(height * 0.5f) + (float)i / m_mainSegments * height;      // vertex position z
-		radius = baseRadius + (float)i / m_mainSegments * (topRadius - baseRadius);     // lerp
+		y = -(m_length * 0.5f) + (float)i / m_mainSegments * m_length;      // vertex position z
+		radius = m_baseRadius + (float)i / m_mainSegments * (m_topRadius - m_baseRadius);     // lerp
 		float t = 1.0f - (float)i / m_mainSegments;   // top-to-bottom
 
 		float sectorStep = 2 * PI / m_tubeSegments;
@@ -70,7 +70,7 @@ void MeshCylinder::buildMesh() {
 	unsigned int baseVertexIndex = (unsigned int)m_positions.size();
 
 	// put vertices of base of cylinder
-	y = -height * 0.5f;
+	y = -m_length * 0.5f;
 
 	m_positions.push_back(Vector3f(0.0f, y, 0.0f) + m_position);
 	m_texels.push_back(Vector2f(0.5f, 0.5f));
@@ -84,7 +84,7 @@ void MeshCylinder::buildMesh() {
 		x = cos(sectorAngle);
 		z = sin(sectorAngle);
 
-		m_positions.push_back(Vector3f(x * baseRadius, y, z * baseRadius) + m_position);
+		m_positions.push_back(Vector3f(x * m_baseRadius, y, z * m_baseRadius) + m_position);
 		m_texels.push_back(Vector2f(-x * 0.5f + 0.5f,  z * 0.5f + 0.5f));
 		m_normals.push_back(Vector3f(0.0f, -1.0f, 0.0f));
 	}
@@ -93,7 +93,7 @@ void MeshCylinder::buildMesh() {
 	unsigned int topVertexIndex = (unsigned int)m_positions.size();
 
 	// put vertices of top of cylinder
-	y = height * 0.5f;
+	y = m_length * 0.5f;
 
 	m_positions.push_back(Vector3f(0.0f, y, 0.0f) + m_position);
 	m_texels.push_back(Vector2f(0.5f, 0.5f));
@@ -107,7 +107,7 @@ void MeshCylinder::buildMesh() {
 		x = cos(sectorAngle);
 		z = sin(sectorAngle);
 
-		m_positions.push_back(Vector3f(x * topRadius, y, z * topRadius) + m_position);
+		m_positions.push_back(Vector3f(x * m_topRadius, y, z * m_topRadius) + m_position);
 		m_texels.push_back(Vector2f(x * 0.5f + 0.5f, -z * 0.5f + 0.5f));
 		m_normals.push_back(Vector3f(0.0f, 1.0f, 0.0f));
 	}
@@ -208,9 +208,9 @@ std::vector<float> MeshCylinder::getSideNormals() {
 	float sectorStep = 2 * PI / m_tubeSegments;
 	float sectorAngle;  // radian
 
-						// compute the normal vector at 0 degree first
-						// tanA = (baseRadius-topRadius) / height
-	float zAngle = atan2(baseRadius - topRadius, height);
+	// compute the normal vector at 0 degree first
+	// tanA = (baseRadius-topRadius) / height
+	float zAngle = atan2(m_baseRadius - m_topRadius, m_length);
 	float x0 = cos(zAngle);     // nx
 	float y0 = sin(zAngle);     // ny
 

@@ -14,6 +14,8 @@
 #include "engine/MeshObject/MeshTorus.h"
 #include "engine/MeshObject/MeshSpiral.h"
 #include "engine/MeshObject/MeshCylinder.h"
+#include "engine/MeshObject/Capsule.h"
+
 #include "engine/Framebuffer.h"
 #include "engine/Camera.h"
 #include "engine/ObjModel.h"
@@ -38,6 +40,7 @@ enum Model {
 	SPIRAL,
 	CYLINDER,
 	CONE,
+	CAPSULE,
 	VENUS
 };
 
@@ -98,6 +101,7 @@ public:
 	MeshQuad* m_mquad;
 	MeshCylinder* m_cylinder;
 	MeshCylinder* m_cone;
+	Capsule* m_capsule;
 
 	TrackBall m_trackball;
 	Transform m_transform;

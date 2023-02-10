@@ -189,7 +189,7 @@ void MeshSpiral::buildMesh() {
 				currentMainSegmentTexCoordU = flip ? 1.0f : 0.0;
 			}
 			//rotate the texture to like the meshTorus
-			float currentTubeSegmentTexCoordV = 0.5f;
+			float currentTubeSegmentTexCoordV = 0.0f;
 			for (unsigned int j = 0; j <= m_tubeSegments; j++) {
 				Vector2f textureCoordinate = Vector2f(1.0 - currentMainSegmentTexCoordU, currentTubeSegmentTexCoordV);
 				m_texels.push_back(textureCoordinate);

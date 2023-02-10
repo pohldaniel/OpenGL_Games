@@ -12,6 +12,7 @@
 class MeshSphere {
 
 public:
+
 	MeshSphere(bool generateTexels, bool generateNormals, bool generateTangents, bool generateNormalDerivatives);
 	MeshSphere(const Vector3f &position, float radius, bool generateTexels, bool generateNormals, bool generateTangents, bool generateNormalDerivatives);
 
@@ -24,14 +25,14 @@ public:
 	void buildMesh();
 	void draw(const Camera camera);
 	void drawRaw();
-	void setTransformation(const Matrix4f &transformation) {m_model = transformation;}
+	void setTransformation(const Matrix4f &transformation) { m_model = transformation; }
 
 private:
 
 	int m_uResolution;
 	int m_vResolution;
 	float m_radius;
-	float m_invRadius;
+
 	Vector3f m_position;
 	Matrix4f m_model;
 

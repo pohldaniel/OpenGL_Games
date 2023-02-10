@@ -393,13 +393,9 @@ void Application::ToggleFullScreen(bool isFullScreen, unsigned int width, unsign
 }
 
 void Application::loadAssets() {
-	//Globals::shaderManager.loadShader("depth", "res/shader/thikness/depth.vs", "res/shader/thikness/depth.fs");
-	//Globals::shaderManager.loadShader("absorbtion", "res/shader/thikness/absorbtion.vs", "res/shader/thikness/absorbtion.fs");
-
-
 	Globals::shaderManager.loadShader("sky", "res/skybox.vert", "res/skybox.frag");
 	Globals::shaderManager.loadShader("quad", "res/quad.vert", "res/quad.frag");
 
 	Globals::textureManager.loadTexture("grid", "res/grid512.png", true);
-	Globals::textureManager.get("grid").setRepeat();
+	//Globals::textureManager.get("grid").setRepeat();
 }

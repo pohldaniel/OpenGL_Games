@@ -18,12 +18,13 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 
 	m_mquad = new MeshQuad(Vector3f(-1.0f, -1.0f, -1.0f), Vector2f(2.0f, 2.0f), true, true, false, false);
 	m_mcube = new MeshCube(Vector3f(-2.25f, -0.25f, -0.25f), Vector3f(0.5f, 0.5f, 0.5f), true, true, false, false);
-	m_sphere = new MeshSphere(true, true, false, false);
+	m_sphere = new MeshSphere (true, true, false, false);
 	m_torus = new MeshTorus(true, true, false, false);
 	m_spiral = new MeshSpiral(true, true, false, false);
 	m_cylinder = new MeshCylinder(Vector3f(0.0f, 0.0f, 0.0f), 1.0f, 1.0f, 2.0f, true, true, false, false);
 	m_cone = new MeshCylinder(Vector3f(0.0f, 0.0f, 0.0f), 1.0f, 0.0f, 1.0f, true, true, false, false);
 	m_midpoint = new MeshSphere(Vector3f(0.0f, 0.0f, 0.0f), 0.2f, true, true, false, false);
+	m_capsule = new Capsule (Vector3f(0.0f, 0.0f, 0.0f), 0.5f, 1.0f, true, true, false, false);
 
 	m_camera = Camera();
 	m_camera.perspective(45.0f * _180_ON_PI, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
@@ -189,7 +190,7 @@ void Game::render(unsigned int &frameBuffer) {
 			m_tetraedron->drawRaw();
 			break;
 		case Model::CUBE:
-			m_midpoint->drawRaw();
+			//m_midpoint->drawRaw();
 			m_mcube->drawRaw();
 			break;
 		case Model::TORUS:
@@ -203,6 +204,9 @@ void Game::render(unsigned int &frameBuffer) {
 			break;
 		case Model::CONE:
 			m_cone->drawRaw();
+			break;
+		case Model::CAPSULE:
+			m_capsule->drawRaw();
 			break;
 		case Model::VENUS:
 			venus.drawRaw();
@@ -230,7 +234,7 @@ void Game::render(unsigned int &frameBuffer) {
 				m_tetraedron->drawRaw();
 				break;
 			case Model::CUBE:
-				m_midpoint->drawRaw();
+				//m_midpoint->drawRaw();
 				m_mcube->drawRaw();
 				break;
 			case Model::TORUS:
@@ -244,6 +248,9 @@ void Game::render(unsigned int &frameBuffer) {
 				break;
 			case Model::CONE:
 				m_cone->drawRaw();
+				break;
+			case Model::CAPSULE:
+				m_capsule->drawRaw();
 				break;
 			case Model::VENUS:
 				venus.drawRaw();
@@ -368,7 +375,7 @@ void Game::renderScene() {
 			m_tetraedron->drawRaw();
 			break;
 		case Model::CUBE:
-			m_midpoint->drawRaw();
+			//m_midpoint->drawRaw();
 			m_mcube->drawRaw();
 			break;
 		case Model::TORUS:
@@ -382,6 +389,9 @@ void Game::renderScene() {
 			break;
 		case Model::CONE:
 			m_cone->drawRaw();
+			break;
+		case Model::CAPSULE:
+			m_capsule->drawRaw();
 			break;
 		case Model::VENUS:
 			venus.drawRaw();
@@ -679,7 +689,7 @@ void Game::renderUi() {
 	}
 
 	int currentModel = model;
-	if (ImGui::Combo("Model", &currentModel, "Quad\0Sphere\0Tetra\0Cube\0Torus\0Spiral\0Cylinder\0Cone\0Venus\0\0")) {
+	if (ImGui::Combo("Model", &currentModel, "Quad\0Sphere\0Tetra\0Cube\0Torus\0Spiral\0Cylinder\0Cone\0Capsule\0Venus\0\0")) {
 		model = static_cast<Model>(currentModel);
 	}
 

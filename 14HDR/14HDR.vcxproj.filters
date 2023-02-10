@@ -242,6 +242,9 @@
     <ClInclude Include="engine\MeshObject\MeshCylinder.h">
       <Filter>engine\MeshObject</Filter>
     </ClInclude>
+    <ClInclude Include="engine\MeshObject\Capsule.h">
+      <Filter>engine\MeshObject</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine\input\EventDispatcher.cpp">
@@ -431,6 +434,9 @@
       <Filter>engine</Filter>
     </ClCompile>
     <ClCompile Include="engine\MeshObject\MeshCylinder.cpp">
+      <Filter>engine\MeshObject</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\MeshObject\Capsule.cpp">
       <Filter>engine\MeshObject</Filter>
     </ClCompile>
   </ItemGroup>

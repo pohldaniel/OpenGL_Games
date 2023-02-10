@@ -30,9 +30,9 @@ private:
 	int m_tubeSegments;
 	int m_mainSegments;
 
-	float baseRadius;
-	float topRadius;
-	float height;
+	float m_baseRadius;
+	float m_topRadius;
+	float m_length;
 
 	Vector3f m_position;
 

@@ -114,20 +114,18 @@ void MeshTorus::buildMesh() {
 		float tubeSegmentTextureStep = 1.0f / (float(m_tubeSegments));
 
 		//rotate the texture to get the same mapping like the primitive
-		float currentMainSegmentTexCoordV = -0.25;
+		float currentMainSegmentTexCoordV = 0.0f;
 
 		for (unsigned int i = 0; i <= m_mainSegments; i++) {
 
 			//rotate the texture to get the same mapping like the primitive
-			float currentTubeSegmentTexCoordU = 0.5;
+			float currentTubeSegmentTexCoordU = 0.0f;
 
 			for (unsigned int j = 0; j <= m_tubeSegments; j++) {
-
 				Vector2f textureCoordinate = Vector2f(1.0 - currentMainSegmentTexCoordV, currentTubeSegmentTexCoordU);
 				m_texels.push_back(textureCoordinate);
 				currentTubeSegmentTexCoordU += tubeSegmentTextureStep;
 			}
-
 			// Update texture coordinate of main segment
 			currentMainSegmentTexCoordV += mainSegmentTextureStep;
 		}

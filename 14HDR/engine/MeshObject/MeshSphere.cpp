@@ -2,7 +2,6 @@
 
 MeshSphere::MeshSphere(const Vector3f &position, float radius, bool generateTexels, bool generateNormals, bool generateTangents, bool generateNormalDerivatives) {
 	m_radius = radius;
-	m_invRadius = 1.0 / radius;
 	m_position = position;
 	m_generateNormals = generateNormals;
 	m_generateTexels = generateTexels;
@@ -33,7 +32,6 @@ MeshSphere::MeshSphere(bool generateTexels, bool generateNormals, bool generateT
 MeshSphere::MeshSphere(const Vector3f &position, float radius, bool generateTexels, bool generateNormals, bool generateTangents, bool generateNormalDerivatives, const std::string &texture) {
 
 	m_radius = radius;
-	m_invRadius = 1.0 / radius;
 	m_position = position;
 	m_generateNormals = generateNormals;
 	m_generateTexels = generateTexels;
@@ -60,16 +58,13 @@ MeshSphere::MeshSphere(const Vector3f &position, float radius, bool generateTexe
 	m_max = Vector3f(FLT_MIN, FLT_MIN, FLT_MIN);
 }
 
-MeshSphere::MeshSphere(const Vector3f &position, float radius, const std::string &texture) : MeshSphere(position, radius, true, true, false, false, texture) {
-
-}
+MeshSphere::MeshSphere(const Vector3f &position, float radius, const std::string &texture) : MeshSphere(position, radius, true, true, false, false, texture) {}
 
 MeshSphere::MeshSphere(float radius, const std::string &texture) : MeshSphere(Vector3f(0.0f, 0.0f, 0.0f), radius, true, true, false, false, texture) { }
 
 MeshSphere::~MeshSphere() {}
 
 void MeshSphere::setPrecision(int uResolution, int vResolution) {
-
 	m_uResolution = uResolution;
 	m_vResolution = vResolution;
 }
@@ -85,159 +80,41 @@ void MeshSphere::buildMesh() {
 
 	float uAngleStep = (2.0f * PI) / float(m_uResolution);
 	float vAngleStep = PI / float(m_vResolution);
+	float vSegmentAngle, uSegmentAngle;
 
-	float vSegmentAngle;
-	for (unsigned int i = 0; i <= m_vResolution; i++) {
-
-		vSegmentAngle = i * vAngleStep;
+	for (int i = 0; i <= m_vResolution; ++i) {
+		vSegmentAngle = PI * 0.5f - i * vAngleStep;
+		
 		float cosVSegment = cosf(vSegmentAngle);
 		float sinVSegment = sinf(vSegmentAngle);
-
-		for (int j = 0; j <= m_uResolution; j++) {
-
-			float uSegmentAngle = j * uAngleStep;
-
+													
+		for (int j = 0; j <= m_uResolution; ++j) {
+			uSegmentAngle = j * uAngleStep;
+			
 			float cosUSegment = cosf(uSegmentAngle);
 			float sinUSegment = sinf(uSegmentAngle);
 
-			// Calculate vertex position on the surface of a sphere
-			float x = m_radius * sinVSegment * cosUSegment + m_position[0];
-			float y = m_radius * cosVSegment + m_position[1];
-			float z = m_radius * sinVSegment * sinUSegment + m_position[2];
-			
+			float x = cosVSegment * cosUSegment;
+			float z = cosVSegment * sinUSegment;
+			m_positions.push_back(Vector3f(m_radius * x, m_radius * sinVSegment, m_radius * z) + m_position);
 
-			m_min[0] = std::min(x, m_min[0]); m_min[1] = std::min(y, m_min[1]); m_min[2] = std::min(z, m_min[2]);
-			m_max[0] = std::max(x, m_max[0]); m_max[1] = std::max(y, m_max[1]); m_max[2] = std::max(z, m_max[2]);
+			if (m_generateTexels)
+				m_texels.push_back(Vector2f(1.0f - (float)j / m_uResolution, 1.0f - (float)i / m_vResolution));
 
-			Vector3f surfacePosition = Vector3f(x, y, z);
-			m_positions.push_back(surfacePosition);
-		}
-	}
+			if (m_generateNormals)
+				m_normals.push_back(Vector3f(x, sinVSegment, z));
 
-	if (m_generateNormals) {
-
-		for (unsigned int i = 0; i <= m_vResolution; i++) {
-
-			// starting from pi/2 to -pi/2
-			vSegmentAngle = i * vAngleStep;
-
-			float cosVSegment = cosf(vSegmentAngle);
-			float sinVSegment = sinf(vSegmentAngle);
-
-			for (int j = 0; j <= m_uResolution; j++) {
-
-				float uSegmentAngle = j * uAngleStep;
-
-				float cosUSegment = cosf(uSegmentAngle);
-				float sinUSegment = sinf(uSegmentAngle);
-
-				// Calculate vertex position on the surface of the sphere
-				float n1 = sinVSegment * cosUSegment;
-				float n2 = cosVSegment;
-				float n3 = sinVSegment * sinUSegment;
-
-				Vector3f normal = Vector3f(n1, n2, n3);
-				m_normals.push_back(normal);
-
-				/*float n1 = cosVSegment * cosVSegment * cosUSegment;
-				float n2 = sinVSegment;
-				float n3 = cosVSegment * cosVSegment * sinUSegment;
-
-				Vector3f normal = Vector3f(n1 , n2, n3).normalize();
-				m_normals.push_back(normal);*/
-			}
-		}
-		m_hasNormals = true;
-	}
-
-	if (m_generateTexels) {
-
-		for (unsigned int i = 0; i <= m_vResolution; i++) {
-
-			for (int j = 0; j <= m_uResolution; j++) {
-
-				// Calculate vertex position on the surface of torus
-				float u = (float)j / m_uResolution;
-				float v = (float)i / m_vResolution;
-
-				Vector2f textureCoordinate = Vector2f(1.0f - u, 1.0f - v);
-				m_texels.push_back(textureCoordinate);
-			}
-		}
-		m_hasTexels = true;
-	}
-
-
-	if (m_generateTangents) {
-
-		for (unsigned int i = 0; i <= m_vResolution; i++) {
-
-			vSegmentAngle = i * vAngleStep;
-
-			float cosVSegment = cosf(vSegmentAngle);
-			float sinVSegment = sinf(vSegmentAngle);
-
-			for (int j = 0; j <= m_uResolution; j++) {
-
-				float uSegmentAngle = j * uAngleStep;
-
-				float cosUSegment = cosf(uSegmentAngle);
-				float sinUSegment = sinf(uSegmentAngle);
-
+			if (m_generateTangents) {
 				tangents.push_back(Vector3f(-sinUSegment * sinVSegment, 0.0, cosUSegment* sinVSegment).normalize());
 				bitangents.push_back(Vector3f(cosVSegment*cosUSegment, -sinVSegment, cosVSegment*sinUSegment).normalize());
 			}
-		}
 
-		m_hasTangents = true;
-	}
-
-	if (m_generateNormalDerivatives) {
-
-		for (unsigned int i = 0; i <= m_vResolution; i++) {
-
-			vSegmentAngle = i * vAngleStep;
-
-			float cosVSegment = cosf(vSegmentAngle);
-			float sinVSegment = sinf(vSegmentAngle);
-
-			for (int j = 0; j <= m_uResolution; j++) {
-
-				float uSegmentAngle = j * uAngleStep;
-
-				float cosUSegment = cosf(uSegmentAngle);
-				float sinUSegment = sinf(uSegmentAngle);
-
-
-				/*Vector3f tangent = Vector3f(-sinUSegment * sinVSegment, 0.0, cosUSegment* sinVSegment).normalize();
-				Vector3f bitangent = Vector3f(cosVSegment*cosUSegment, -sinVSegment, cosVSegment*sinUSegment).normalize();
-				Vector3f normal = Vector3f::cross(tangent, bitangent);
-
-				Vector3f d2Pduu = -Vector3f(sinVSegment * cosUSegment, 0.0, sinVSegment * sinUSegment);
-				Vector3f d2Pdvv = -Vector3f(sinVSegment * cosUSegment, cosVSegment, sinVSegment * sinUSegment);
-				Vector3f d2Pduv = Vector3f(-cosVSegment * sinUSegment, 0.0, cosVSegment * cosUSegment);
-
-				float E = Vector3f::dot(tangent, tangent);
-				float F = Vector3f::dot(tangent, bitangent);
-				float G = Vector3f::dot(bitangent, bitangent);
-
-				float e = Vector3f::dot(normal, d2Pduu);
-				float f = Vector3f::dot(normal, d2Pduv);
-				float g = Vector3f::dot(normal, d2Pdvv);
-
-				float invEGF2 = 1.0 / (E * G - F * F);
-				Vector3f dndu = ((f * F - e * G) * invEGF2 * tangent + (e * F - f * E) * invEGF2 * bitangent).normalize();
-				Vector3f dndv = ((g * F - f * G) * invEGF2 * tangent + (f * F - g * E) * invEGF2 * bitangent).normalize();
-
-				normalsDu.push_back(dndu);
-				normalsDv.push_back(dndv);*/
-
+			if (m_generateNormalDerivatives) {
 				float n1u = -sinVSegment * sinUSegment;
 				float n3u = sinVSegment * cosUSegment;
 
 				Vector3f dndu = Vector3f(n1u, 0.0, n3u).normalize();
 				normalsDu.push_back(dndu);
-
 
 				float n1v = cosVSegment  * cosUSegment;
 				float n2v = -sinVSegment;
@@ -245,102 +122,27 @@ void MeshSphere::buildMesh() {
 
 				Vector3f dndv = Vector3f(n1v, n2v, n3v).normalize();
 				normalsDv.push_back(dndv);
-
 			}
 		}
-
-		m_hasNormalDerivatives = true;
 	}
 
-	//calculate the indices
-	//north pole
-	for (unsigned int j = 0; j < m_uResolution; j++) {
+	unsigned int k1, k2;
+	for (int i = 0; i < m_vResolution; ++i){
+		k1 = i * (m_uResolution + 1);
+		k2 = k1 + m_uResolution + 1;
 
-		m_indexBuffer.push_back(0);
-		m_indexBuffer.push_back((m_uResolution + 1) + j + 1);
-		m_indexBuffer.push_back((m_uResolution + 1) + j);
-			
-		//Connect the penultimate vertex to the first
-		//if (j == (m_uResolution - 1)) {
-		//
-		//	m_indexBuffer.push_back(0);			
-		//	m_indexBuffer.push_back((m_uResolution + 1));
-		//	m_indexBuffer.push_back((m_uResolution + 1) + j);
-		//
-		//}else {
-		//	m_indexBuffer.push_back(0);		
-		//	m_indexBuffer.push_back((m_uResolution + 1) + j + 1);
-		//	m_indexBuffer.push_back((m_uResolution + 1) + j);
-		//}
-	}
+		for (int j = 0; j < m_uResolution; ++j, ++k1, ++k2) {
 
-	for (unsigned int i = 1; i < m_vResolution - 1; i++) {
+			if (i != 0) {
+				m_indexBuffer.push_back(k1); m_indexBuffer.push_back(k2); m_indexBuffer.push_back(k1 + 1);
+			}
 
-		int k1 = i * (m_uResolution + 1);
-		int k2 = k1 + (m_uResolution + 1);
-
-		for (unsigned int j = 0; j < m_uResolution; j++) {
-
-			m_indexBuffer.push_back(k1 + j + 1);
-			m_indexBuffer.push_back(k2 + j);
-			m_indexBuffer.push_back(k1 + j);
-			
-			
-
-			m_indexBuffer.push_back(k2 + j + 1);
-			m_indexBuffer.push_back(k2 + j);
-			m_indexBuffer.push_back(k1 + j + 1);
-			
-			
-
-			//Connect the penultimate vertex to the first
-			//if (j == (m_uResolution - 1)) {
-			//
-			//	m_indexBuffer.push_back(k1 + j);				
-			//	m_indexBuffer.push_back(k1);
-			//	m_indexBuffer.push_back(k2 + j);
-			//
-			//	m_indexBuffer.push_back(k1);				
-			//	m_indexBuffer.push_back(k2);
-			//	m_indexBuffer.push_back(k2 + j);
-			//
-			//}else {
-			//
-			//	m_indexBuffer.push_back(k1 + j);
-			//	m_indexBuffer.push_back(k1 + j + 1);
-			//	m_indexBuffer.push_back(k2 + j);
-			//	
-			//	m_indexBuffer.push_back(k1 + j + 1);
-			//	m_indexBuffer.push_back(k2 + j + 1);
-			//	m_indexBuffer.push_back(k2 + j);
-			//	
-			//}
+			if (i != (m_vResolution - 1)) {
+				m_indexBuffer.push_back(k1 + 1); m_indexBuffer.push_back(k2); m_indexBuffer.push_back(k2 + 1);
+			}	
 		}
 	}
 
-	//south pole
-	for (unsigned int j = 0; j < m_uResolution; j++) {
-
-		m_indexBuffer.push_back((m_vResolution - 1) * (m_uResolution + 1) + j);
-		m_indexBuffer.push_back((m_vResolution - 1) * (m_uResolution + 1) + j + 1);
-		m_indexBuffer.push_back(m_vResolution * (m_uResolution + 1));
-
-		//Connect the penultimate vertex to the first
-		//if (j == (m_uResolution - 1)) {
-		//	
-		//	m_indexBuffer.push_back((m_vResolution - 1) * (m_uResolution + 1) + j);
-		//	m_indexBuffer.push_back((m_vResolution - 1) * (m_uResolution + 1));			
-		//	m_indexBuffer.push_back(m_vResolution * (m_uResolution + 1));
-		//
-		//}else {
-		//	
-		//	m_indexBuffer.push_back((m_vResolution - 1) * (m_uResolution + 1) + j);
-		//	m_indexBuffer.push_back((m_vResolution - 1) * (m_uResolution + 1) + j + 1);			
-		//	m_indexBuffer.push_back(m_vResolution * (m_uResolution + 1));
-		//}
-	}
-
-	
 	m_drawCount = m_indexBuffer.size();
 
 	unsigned int ibo;
@@ -374,7 +176,7 @@ void MeshSphere::buildMesh() {
 		glEnableVertexAttribArray(2);
 		glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, 0);
 	}
-	
+
 	//Indices
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_indexBuffer.size() * sizeof(m_indexBuffer[0]), &m_indexBuffer[0], GL_STATIC_DRAW);

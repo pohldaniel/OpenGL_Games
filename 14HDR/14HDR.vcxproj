@@ -181,6 +181,7 @@
     <ClInclude Include="engine\input\KeyBorad.h" />
     <ClInclude Include="engine\input\Mouse.h" />
     <ClInclude Include="engine\input\MouseEventListener.h" />
+    <ClInclude Include="engine\MeshObject\Capsule.h" />
     <ClInclude Include="engine\MeshObject\MeshCube.h" />
     <ClInclude Include="engine\MeshObject\MeshCylinder.h" />
     <ClInclude Include="engine\MeshObject\MeshQuad.h" />
@@ -240,6 +241,7 @@
     <ClCompile Include="engine\input\KeyboardEventListener.cpp" />
     <ClCompile Include="engine\input\Mouse.cpp" />
     <ClCompile Include="engine\input\MouseEventListener.cpp" />
+    <ClCompile Include="engine\MeshObject\Capsule.cpp" />
     <ClCompile Include="engine\MeshObject\MeshCube.cpp" />
     <ClCompile Include="engine\MeshObject\MeshCylinder.cpp" />
     <ClCompile Include="engine\MeshObject\MeshQuad.cpp" />
