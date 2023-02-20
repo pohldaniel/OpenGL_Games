@@ -148,6 +148,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libimgui", "libimgui\libimg
 		{9DBCE6B3-8CBD-4A62-BFD1-315A8459C8B0} = {9DBCE6B3-8CBD-4A62-BFD1-315A8459C8B0}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "15Tessellation", "15Tessellation\15Tessellation.vcxproj", "{35E4A7BF-68CA-4906-AF7D-F230FCD73315}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -500,6 +502,14 @@ Global
 		{3160706F-23B1-4D5F-83DE-7F33577325FB}.Release|x64.Build.0 = Release|x64
 		{3160706F-23B1-4D5F-83DE-7F33577325FB}.Release|x86.ActiveCfg = Release|Win32
 		{3160706F-23B1-4D5F-83DE-7F33577325FB}.Release|x86.Build.0 = Release|Win32
+		{35E4A7BF-68CA-4906-AF7D-F230FCD73315}.Debug|x64.ActiveCfg = Debug|x64
+		{35E4A7BF-68CA-4906-AF7D-F230FCD73315}.Debug|x64.Build.0 = Debug|x64
+		{35E4A7BF-68CA-4906-AF7D-F230FCD73315}.Debug|x86.ActiveCfg = Debug|Win32
+		{35E4A7BF-68CA-4906-AF7D-F230FCD73315}.Debug|x86.Build.0 = Debug|Win32
+		{35E4A7BF-68CA-4906-AF7D-F230FCD73315}.Release|x64.ActiveCfg = Release|x64
+		{35E4A7BF-68CA-4906-AF7D-F230FCD73315}.Release|x64.Build.0 = Release|x64
+		{35E4A7BF-68CA-4906-AF7D-F230FCD73315}.Release|x86.ActiveCfg = Release|Win32
+		{35E4A7BF-68CA-4906-AF7D-F230FCD73315}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

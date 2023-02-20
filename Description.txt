@@ -26,3 +26,8 @@ C/C++ -> Optimization
   
 C/C++ -> Command line
   ->add /bigobj to the Addidional Options
+  
+https://gamedev.stackexchange.com/questions/83739/how-do-i-ensure-my-skybox-is-always-in-the-background-with-opengl
+ 
+https://developer.download.nvidia.com/SDK/10.5/opengl/samples.html
+https://polyhaven.com/a/vestibule
