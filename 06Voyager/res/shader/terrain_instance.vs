@@ -14,7 +14,7 @@ uniform mat4 u_transform = mat4(1.0);
 uniform mat4 u_normal = mat4(1.0);
 
 void main(void) {
-    gl_Position =  u_transform *i_model * vec4(i_position, 1.0);
+    gl_Position =  u_transform * i_model * vec4(i_position, 1.0);
 	
 	normal = normalize((u_normal * vec4(i_normal, 0.0)));
 	normal.w = i_position.y;
