@@ -7,8 +7,6 @@
 
 #include "Game.h"
 #include "Application.h"
-#include "teapot.h"
-
 
 Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 
