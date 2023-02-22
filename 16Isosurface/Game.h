@@ -71,11 +71,11 @@ public:
 	void drawTetrahedra();
 	void drawLayers();
 
-	GLuint prim = GL_LINES_ADJACENCY_EXT;
+	GLuint prim = GL_LINES_ADJACENCY;
 	int nprims = CELLS_COUNT * 24;
 
 	float isovalue = 1.0f;
-	float anim = 0.0;
+	float anim = 0.0f;
 	RenderMode renderMode = RenderMode::PROG0;
 	bool m_drawLayers = false;
 	bool m_withFrag = true;

@@ -85,20 +85,15 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	// create edge table texture
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 	glGenTextures(1, &edge_tex);
-	glBindTexture(GL_TEXTURE_RECTANGLE_ARB, edge_tex);
-	glTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexImage2D(GL_TEXTURE_RECTANGLE_ARB, 0, GL_RGBA8, 15, 2, 0, GL_RGBA, GL_UNSIGNED_BYTE, edge_table);
-	//	glTexImage2D(GL_TEXTURE_RECTANGLE_ARB, 0, GL_RGB8UI_EXT, 15, 2, 0, GL_RGBA_INTEGER_EXT, GL_UNSIGNED_BYTE, edge_table);
+	glBindTexture(GL_TEXTURE_RECTANGLE, edge_tex);
+	glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexImage2D(GL_TEXTURE_RECTANGLE, 0, GL_RGBA8, 15, 2, 0, GL_RGBA, GL_UNSIGNED_BYTE, edge_table);
+	//glTexImage2D(GL_TEXTURE_RECTANGLE, 0, GL_RGB8UI, 15, 2, 0, GL_RGBA_INTEGER, GL_UNSIGNED_BYTE, edge_table);
 
 	volume_tex = loadRawVolume("res/Bucky.raw", 32, 32, 32);
-	noise_tex = create_noise_texture(GL_RGBA16F_ARB, 64, 64, 64);
+	noise_tex = create_noise_texture(GL_RGBA16F, 64, 64, 64);
 	glEnable(GL_DEPTH_TEST);
-	
-
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	glLoadMatrixf(&m_camera.getProjectionMatrix()[0][0]);
 }
 
 Game::~Game() {}
@@ -169,10 +164,6 @@ void Game::update() {
 
 void Game::render(unsigned int &frameBuffer) {
 
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-	glLoadMatrixf(&(m_camera.getViewMatrix() * m_transform.getTransformationMatrix())[0][0]);
-
 	glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -207,7 +198,7 @@ void Game::render(unsigned int &frameBuffer) {
 	if (m_withGeom) {
 		shader->loadInt("edgeTex", 0);
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_RECTANGLE_ARB, edge_tex);
+		glBindTexture(GL_TEXTURE_RECTANGLE, edge_tex);
 	}
 
 	shader->loadBool("u_withFrag", m_withFrag);
@@ -419,11 +410,11 @@ GLuint Game::create_noise_texture(GLenum format, int w, int h, int d) {
 //////////////////////////////////////////////////////////////////////
 void Game::drawTetrahedra() {
 	glBindBuffer(GL_ARRAY_BUFFER, position_vbo);
-	glVertexAttribPointerARB(0, 4, GL_FLOAT, GL_FALSE, 0, 0);
-	glEnableVertexAttribArrayARB(0);
+	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, 0);
+	glEnableVertexAttribArray(0);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_vbo);
 	glDrawElements(prim, nprims, GL_UNSIGNED_INT, 0);
-	glDisableVertexAttribArrayARB(0);
+	glDisableVertexAttribArray(0);
 }
 
 //
@@ -502,7 +493,7 @@ void Game::renderUi() {
 	ImGui::Checkbox("With Geometry", &m_withGeom);
 	ImGui::Checkbox("With Fragment", &m_withFrag);
 	if (ImGui::Checkbox("Use Points", &m_usePoints)) {
-		prim = m_usePoints ? GL_POINTS : GL_LINES_ADJACENCY_EXT;
+		prim = m_usePoints ? GL_POINTS : GL_LINES_ADJACENCY;
 	}
 	ImGui::Checkbox("Draw Wirframe", &Globals::enableWireframe);
 	ImGui::End();
