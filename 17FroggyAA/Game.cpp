@@ -198,8 +198,7 @@ void Game::update() {
 };
 
 void Game::render(unsigned int &frameBuffer) {
-	glEnable(GL_LIGHTING);
-	glEnable(GL_LIGHT0);
+
 	glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
