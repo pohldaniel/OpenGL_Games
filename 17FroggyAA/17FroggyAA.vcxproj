@@ -154,6 +154,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="AABox.h" />
     <ClInclude Include="Application.h" />
     <ClInclude Include="Barrel.h" />
     <ClInclude Include="Bloom.h" />
@@ -219,6 +220,7 @@
     <ClInclude Include="Water.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="AABox.cpp" />
     <ClCompile Include="Application.cpp" />
     <ClCompile Include="Barrel.cpp" />
     <ClCompile Include="Bloom.cpp" />

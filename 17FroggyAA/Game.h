@@ -16,7 +16,21 @@
 
 #include "Constants.h"
 #include "StateMachine.h"
+#include "AABox.h"
 
+enum RenderMode {
+	PROG0,
+	PROG1,
+	PROG2
+};
+
+enum AAMode {
+	FOUR,
+	EIGHT,
+	EIGHTQ,
+	SIXTEEN,
+	SIXTEENQ
+};
 
 class Game : public State, public MouseEventListener {
 
@@ -52,6 +66,11 @@ public:
 	GLfloat* genLineSphere(int sphslices, int* bufferSize, float scale);
 	int	m_sphereBufferSize;
 	GLuint m_sphereVBO;
-	float g_curSSSize = 1.0f;
+	float g_curSSSize = 2.0f;
+	float g_newSSSize = 2.0f;
+	AABox* g_pAABox = nullptr;
+	AAMode aaMode = AAMode::SIXTEENQ;
+	bool m_doAA = true;
+	RenderMode renderMode = RenderMode::PROG0;
 };
 

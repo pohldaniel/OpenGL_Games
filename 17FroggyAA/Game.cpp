@@ -8,6 +8,27 @@
 #include "Game.h"
 #include "Application.h"
 
+#define MSAA_4x 4, 0, "MSAA_4x"
+#define CSAA_8x 4, 8, "CSAA_8x"
+#define CSAA_8xQ 8, 8, "CSAA_8xQ"
+#define CSAA_16x 4, 16, "CSAA_16x"
+#define CSAA_16xQ 8, 16, "CSAA_16xQ"
+
+struct SAAMode {
+	int ds;
+	int cs;
+	const char * name;
+};
+
+int g_numAAModes = 5;
+SAAMode g_aaModes[] = {
+	{ MSAA_4x },
+	{ CSAA_8x },
+	{ CSAA_8xQ },
+	{ CSAA_16x },
+	{ CSAA_16xQ }
+};
+
 Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 
 	EventDispatcher::AddMouseListener(this);
@@ -85,6 +106,10 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 
 	glEnable(GL_DEPTH_TEST);
 	glDisable(GL_CULL_FACE);
+
+	if (g_pAABox) delete g_pAABox;
+	g_pAABox = new AABox();
+	g_pAABox->Initialize(Application::Width, Application::Height, g_curSSSize, g_aaModes[aaMode].ds, g_aaModes[aaMode].cs);
 }
 
 Game::~Game() {}
@@ -130,6 +155,26 @@ void Game::update() {
 		move |= true;
 	}
 
+	if (keyboard.keyDown(Keyboard::KEY_1)) {
+		aaMode = static_cast<AAMode>(0);
+	}
+
+	if (keyboard.keyDown(Keyboard::KEY_2)) {
+		aaMode = static_cast<AAMode>(1);
+	}
+
+	if (keyboard.keyDown(Keyboard::KEY_3)) {
+		aaMode = static_cast<AAMode>(2);
+	}
+
+	if (keyboard.keyDown(Keyboard::KEY_4)) {
+		aaMode = static_cast<AAMode>(3);
+	}
+
+	if (keyboard.keyDown(Keyboard::KEY_5)) {
+		aaMode = static_cast<AAMode>(4);
+	}
+
 	Mouse &mouse = Mouse::instance();
 
 	if (mouse.buttonDown(Mouse::MouseButton::BUTTON_RIGHT)) {
@@ -158,15 +203,18 @@ void Game::render(unsigned int &frameBuffer) {
 	glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+	if (m_doAA){
+		g_pAABox->Activate();
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	}
 	
-
 	glUseProgram(lineProg->m_program);
 	lineProg->loadMatrix("u_projection", m_camera.getProjectionMatrix());
 	lineProg->loadMatrix("u_modelView", m_camera.getViewMatrix() * m_transform.getTransformationMatrix());
 	lineProg->loadMatrix("u_normal", Matrix4f::GetNormalMatrix(m_camera.getViewMatrix() * m_transform.getTransformationMatrix()));
-	lineProg->loadVector("color", Vector4f(0.2f, 0.2f, 0.2f, 1.0f));
+	lineProg->loadVector("color", Vector4f(0.2f, 0.2f, 0.2f, 0.0f));
 	
-	glLineWidth(g_curSSSize);
+	glLineWidth(m_doAA ? g_curSSSize : 1.0);
 
 	glBindBuffer(GL_ARRAY_BUFFER, m_sphereVBO);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
@@ -182,9 +230,11 @@ void Game::render(unsigned int &frameBuffer) {
 	instanceProg->loadMatrix("u_normal", Matrix4f::GetNormalMatrix(m_camera.getViewMatrix() * m_transform.getTransformationMatrix()));
 	instanceProg->loadVector("u_viewPos", m_camera.getPosition());
 	
+	glLineWidth(1.0);
 	instanceProg->loadVector("color", Vector4f(0.6f, 0.8f, 1.0f, 1.0f));
 	m_torus->drawRawInstanced();
 
+	glLineWidth(m_doAA ? g_curSSSize : 1.0);
 	instanceProg->loadVector("color", Vector4f(0.7f, 0.5f, 0.7f, 1.0f));
 	m_cone->drawRawInstanced();
 
@@ -195,6 +245,14 @@ void Game::render(unsigned int &frameBuffer) {
 	m_coneBottom->drawRawInstanced();
 
 	glUseProgram(0);
+
+	if (m_doAA) {
+		g_pAABox->Deactivate();
+		g_pAABox->Draw(renderMode);
+	}
+	///////////////////////////////////////////////////////////
+	glLineWidth(1.0);
+
 	renderUi();
 }
 
@@ -303,8 +361,22 @@ void Game::renderUi() {
 
 	// render widgets
 	ImGui::Begin("Settings", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
+	ImGui::Checkbox("Do AA", &m_doAA);
 
-	
+	int currentAA = aaMode;
+	if (ImGui::Combo("AA Mode", &currentAA, "FOUR\0EIGHT\0EIGHTQ\0SIXTEEN\0SIXTEENQ\0\0")) {
+		aaMode = static_cast<AAMode>(currentAA);
+		g_pAABox->Initialize(Application::Width, Application::Height, g_curSSSize, g_aaModes[aaMode].ds, g_aaModes[aaMode].cs);
+	}
+
+	int currentRenderMode = renderMode;
+	if (ImGui::Combo("Program", &currentRenderMode, "simple bilinear downsampling\0downsampling 5 taps\0kernels 2 on alpha + downsampling 5 taps\0\0")) {
+		renderMode = static_cast<RenderMode>(currentRenderMode);
+		
+	}
+	if (ImGui::SliderFloat("SS factor", &g_curSSSize, 1.0f, 2.0f)) {
+		g_pAABox->Initialize(Application::Width, Application::Height, g_curSSSize, g_aaModes[aaMode].ds, g_aaModes[aaMode].cs);
+	}
 	ImGui::End();
 
 	ImGui::Render();

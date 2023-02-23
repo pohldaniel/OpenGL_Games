@@ -32,11 +32,11 @@ void main(void) {
 	//vec4 specular = specMat * specLight * pow(max(dot(H, N), 0.0), 0.0);
 	
 	//glEnable(GL_COLOR_MATERIAL);
-	vec4 ambient = color * ambLight;
-	vec4 diffuse = color * diffLight * max(dot(L, N), 0.0);
-	vec4 specular = specMat * specLight * pow(max(dot(H, N), 0.0), 0.0);
+	vec3 ambient = color.xyz * ambLight.xyz;
+	vec3 diffuse = color.xyz * diffLight.xyz * max(dot(L, N), 0.0);
+	vec3 specular = specMat.xyz * specLight.xyz * pow(max(dot(H, N), 0.0), 0.0);
 
-	outColor = ambient + diffuse + specular;
+	outColor = vec4(ambient + diffuse + specular, color.a);
 }
 //https://registry.khronos.org/OpenGL-Refpages/gl2.1/xhtml/glMaterial.xml
 //https://registry.khronos.org/OpenGL-Refpages/gl2.1/xhtml/glLight.xml

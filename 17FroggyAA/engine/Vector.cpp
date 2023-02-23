@@ -741,6 +741,8 @@ Matrix4f& Matrix4f::Rotate(Matrix4f &mtx, const Vector3f &axis, float degrees) {
 	mtx[3][1] = 0.0f;
 	mtx[3][2] = 0.0f;
 	mtx[3][3] = 1.0f;
+
+	return mtx;
 }
 
 Matrix4f Matrix4f::GetNormalMatrix(const Matrix4f &modelViewMatrix) {
