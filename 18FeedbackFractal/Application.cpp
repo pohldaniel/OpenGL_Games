@@ -27,7 +27,7 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 	Framebuffer::SetDefaultSize(Width, Height);
 
 	createWindow();
-	initOpenGL(4);
+	initOpenGL(0);
 	showWindow();
 	initImGUI();
 	loadAssets();
@@ -288,8 +288,8 @@ void Application::initOpenGL(int msaaSamples) {
 	enableVerticalSync(true);
 
 	//Default Values
-	glCullFace(GL_BACK);
-	glFrontFace(GL_CCW);
+	//glCullFace(GL_BACK);
+	//glFrontFace(GL_CCW);
 }
 
 void Application::initImGUI() {

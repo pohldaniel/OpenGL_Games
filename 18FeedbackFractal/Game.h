@@ -10,14 +10,13 @@
 #include "engine/Camera.h"
 #include "engine/TrackBall.h"
 
-
 #include "Constants.h"
 #include "StateMachine.h"
 
-enum RenderMode {
-	PROG0,
-	PROG1,
-	PROG2
+enum Program {
+	KOCH,
+	LEAVE,
+	TERRAIN
 };
 
 class Game : public State, public MouseEventListener {
@@ -45,9 +44,10 @@ public:
 	bool m_initUi = true;	
 
 	Shader* prog[3];
-
+	Shader* draw[2];
 	float frand();
 	GLuint create_rand_texture(GLenum target, GLenum format, int w, int h);
+	void init();
 	void init_koch();
 	void init_terrain();
 	void subdivideBuffer(GLuint buffer, GLenum prim, int verts);
@@ -69,10 +69,14 @@ public:
 	float rand_xform_scale = 0.5;
 	float rand_xform_offset = 0.5;
 
-	int mode = 2;
 	int step = 0;
-	int max_steps = 9;
-	int steps = 8;
+	int max_steps = 8;
+	int m_steps = 8;
 	int seed = 1973;
+
+	bool m_enableLighting = true;
+	bool m_continuousSubdivision = true;
+	Program program = Program::KOCH;
+	Shader* activeProgram;
 };
 

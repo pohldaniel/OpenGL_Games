@@ -360,6 +360,7 @@ void Game::renderUi() {
 
 	// render widgets
 	ImGui::Begin("Settings", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
+	ImGui::Checkbox("Draw Wirframe", &Globals::enableWireframe);
 	ImGui::Checkbox("Do AA", &m_doAA);
 
 	int currentAA = aaMode;

@@ -1,0 +1,82 @@
+#version 410 core
+
+layout (lines_adjacency) in;
+layout (points, max_vertices = 16) out;
+
+in vec4 position[];
+
+out vec4 outValue;
+
+uniform float rand_scale = 1.0;
+uniform vec2 rand_xform = vec2(0.5, 0.5);
+uniform sampler2D rand_tex;
+
+/*
+    diamond-square subdivision
+
+      e0
+    0---1
+    | | |
+ e3 |-m-| e1
+    | | |
+    3---2
+      e2
+*/
+
+void main(){
+
+	vec4 e0 = (position[0] + position[1]) * 0.5;
+    vec4 e1 = (position[1] + position[2]) * 0.5;
+    vec4 e2 = (position[2] + position[3]) * 0.5;
+    vec4 e3 = (position[3] + position[0]) * 0.5;
+    vec4 m  = (position[0] + position[1] + position[2] + position[3]) * 0.25;
+	
+	// add random offsets
+    e0.y += texture2D(rand_tex, e0.xz*rand_xform.x+rand_xform.y).x*rand_scale;
+    e1.y += texture2D(rand_tex, e1.xz*rand_xform.x+rand_xform.y).x*rand_scale;
+    e2.y += texture2D(rand_tex, e2.xz*rand_xform.x+rand_xform.y).x*rand_scale;
+    e3.y += texture2D(rand_tex, e3.xz*rand_xform.x+rand_xform.y).x*rand_scale;
+    m.y += texture2D(rand_tex, m.xz*rand_xform.x+rand_xform.y).x*rand_scale;
+
+    //e0.y += frand(e0.xz*0.5+0.5)*rand_scale;
+    //e1.y += frand(e1.xz*0.5+0.5)*rand_scale;
+    //e2.y += frand(e2.xz*0.5+0.5)*rand_scale;
+    //e3.y += frand(e3.xz*0.5+0.5)*rand_scale;
+    //m.y += frand(m.xz*0.5+0.5)*rand_scale;
+	
+	outValue = position[0];
+	EmitVertex();
+	outValue = e0;
+	EmitVertex();
+	outValue = m;
+	EmitVertex();
+	outValue = e3;
+	EmitVertex();
+	
+	outValue = e0;
+	EmitVertex();
+	outValue = position[1];
+	EmitVertex();
+	outValue = e1;
+	EmitVertex();
+	outValue = m;
+	EmitVertex();
+	
+	outValue = m;
+	EmitVertex();
+	outValue = e1;
+	EmitVertex();
+	outValue = position[2];
+	EmitVertex();
+	outValue = e2;
+	EmitVertex();
+	
+	outValue = e3;
+	EmitVertex();
+	outValue = m;
+	EmitVertex();
+	outValue = e2;
+	EmitVertex();
+	outValue = position[3];
+	EmitVertex();
+}

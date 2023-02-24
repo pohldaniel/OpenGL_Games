@@ -14,19 +14,36 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 
 	m_camera = Camera();
 	m_camera.perspective(60.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 10.0f);
-	m_camera.lookAt(Vector3f(0.0f, 0.0f, 3.0f), Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
+	m_camera.lookAt(Vector3f(0.0f, 0.0f, 0.0f), Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
 
 	m_trackball.reshape(Application::Width, Application::Height);
+	m_trackball.setDollyPosition(-3.0f);
 	applyTransformation(m_trackball);
 
-	prog[0] = new Shader();
-	prog[0]->attachShader(Shader::LoadShaderProgram(GL_VERTEX_SHADER, "res/prog0.vert"));
-	prog[0]->attachShader(Shader::LoadShaderProgram(GL_GEOMETRY_SHADER, "res/prog0.gem"));
+	GLuint vertex = Shader::LoadShaderProgram(GL_VERTEX_SHADER, "res/prog.vert");
 	const GLchar* feedbackVaryings[] = { "outValue" };
+
+	prog[0] = new Shader();
+	prog[0]->attachShader(vertex);
+	prog[0]->attachShader(Shader::LoadShaderProgram(GL_GEOMETRY_SHADER, "res/prog0.gem"));
 	glTransformFeedbackVaryings(prog[0]->m_program, 1, feedbackVaryings, GL_INTERLEAVED_ATTRIBS);
 	prog[0]->linkShaders();
 
-	prog[1] = new Shader("res/prog1.vert", "res/prog1.frag");
+	prog[1] = new Shader();
+	prog[1]->attachShader(vertex);
+	prog[1]->attachShader(Shader::LoadShaderProgram(GL_GEOMETRY_SHADER, "res/prog1.gem"));
+	glTransformFeedbackVaryings(prog[1]->m_program, 1, feedbackVaryings, GL_INTERLEAVED_ATTRIBS);
+	prog[1]->linkShaders();
+
+	prog[2] = new Shader();
+	prog[2]->attachShader(vertex);
+	prog[2]->attachShader(Shader::LoadShaderProgram(GL_GEOMETRY_SHADER, "res/prog2.gem"));
+	glTransformFeedbackVaryings(prog[2]->m_program, 1, feedbackVaryings, GL_INTERLEAVED_ATTRIBS);
+	prog[2]->linkShaders();
+
+	draw[0] = new Shader("res/draw0.vert", "res/draw0.frag");
+	draw[1] = new Shader("res/draw1.vert", "res/draw1.frag", "res/draw1.gem");
+
 
 	// create buffer objects
 	glGenBuffers(2, vbo);
@@ -47,9 +64,11 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	glGenQueries(1, &query);
 
 	rand_tex = create_rand_texture(GL_TEXTURE_2D, GL_RGBA16F_ARB, 256, 256);
-	init_koch();
-	init_terrain();
-	
+
+	init();
+	activeProgram = prog[program];
+
+	glEnable(GL_DEPTH_TEST);
 }
 
 Game::~Game() {}
@@ -119,17 +138,21 @@ void Game::update() {
 
 void Game::render(unsigned int &frameBuffer) {
 
-	glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
+	glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	srand(seed);
-	init_terrain();
-	for (int i = 0; i < steps; i++) {		
+	init();
+	for (int i = 0; i < m_steps; i++) {		
 		do_feedback();
 	}
-	
-	drawBuffer(vbo[current_buffer], render_prim, primitives_written*verts_per_prim / prim_output_div);
 
+	auto shader = (m_enableLighting && program == Program::TERRAIN) ? draw[1] : draw[0];
+	glUseProgram(shader->m_program);
+	shader->loadMatrix("u_projection", m_camera.getProjectionMatrix());
+	shader->loadMatrix("u_modelView", m_camera.getViewMatrix() * m_transform.getTransformationMatrix());	
+	drawBuffer(vbo[current_buffer], m_enableLighting ? input_prim : render_prim, primitives_written*verts_per_prim / prim_output_div);
+	glUseProgram(0);
 	renderUi();
 }
 
@@ -150,7 +173,7 @@ void Game::OnMouseButtonUp(Event::MouseButtonEvent& event) {
 
 void Game::applyTransformation(TrackBall& arc) {
 
-	m_transform.fromMatrix(arc.getTransform());
+	m_transform.fromMatrix(arc.getTransform(Vector3f(0.0f, 1.0f, 0.0f), 180.0f));
 }
 
 void Game::resize(int deltaW, int deltaH) {
@@ -242,7 +265,7 @@ void Game::init_terrain() {
 	current_buffer = 0;
 	verts_per_prim = 4;
 	prim_output_div = 4;
-	input_prim = GL_LINES_ADJACENCY_EXT;
+	input_prim = GL_LINES_ADJACENCY;
 	render_prim = GL_QUADS;
 	feedback_prim = GL_POINTS;
 	primitives_written = 4;
@@ -252,37 +275,25 @@ void Game::init_terrain() {
 //
 //
 //////////////////////////////////////////////////////////////////////
-/*void Game::init() {
-	switch (mode) {
-	case 0:
-		init_koch();
-		options[OPTION_ENABLE_LIGHTING] = false;
-		break;
-	case 1:
-		init_koch();
-		subdivide_gprog = branch_gprog;
-		options[OPTION_ENABLE_LIGHTING] = false;
-		break;
-	case 2:
-		init_terrain();
-		options[OPTION_ENABLE_LIGHTING] = true;
-		break;
+void Game::init() {
+
+	switch (program){
+		case KOCH: case LEAVE:
+			init_koch();
+			break;
+		case TERRAIN:
+			init_terrain();
+			break;
 	}
-}*/
+}
 
 void Game::drawBuffer(GLuint buffer, GLenum prim, int verts) {
-	glUseProgram(prog[1]->m_program);
-	prog[1]->loadMatrix("u_projection", m_camera.getProjectionMatrix());
-	prog[1]->loadMatrix("u_modelView", m_camera.getViewMatrix() * m_transform.getTransformationMatrix());
-
 	glBindBuffer(GL_ARRAY_BUFFER, buffer);
 	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, 0);
 	glEnableVertexAttribArray(0);
 	glDrawArrays(prim, 0, verts);
 	glDisableVertexAttribArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-	glUseProgram(0);
 }
 
 //
@@ -291,22 +302,16 @@ void Game::drawBuffer(GLuint buffer, GLenum prim, int verts) {
 //////////////////////////////////////////////////////////////////////
 void Game::subdivideBuffer(GLuint buffer, GLenum prim, int verts) {
 
-	glUseProgram(prog[0]->m_program);
-	prog[0]->loadFloat("rand_scale", rand_scale);
-	prog[0]->loadVector("rand_xform", Vector2f(rand_xform_scale, rand_xform_offset));
+	glUseProgram(activeProgram->m_program);
+	activeProgram->loadFloat("rand_scale", rand_scale);
+	activeProgram->loadVector("rand_xform", Vector2f(rand_xform_scale, rand_xform_offset));
 
-	prog[0]->loadInt("rand_tex", 0);
+	activeProgram->loadInt("rand_tex", 0);
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, rand_tex);
 
 	glBeginTransformFeedback(feedback_prim);
-
-	glBindBuffer(GL_ARRAY_BUFFER, buffer);
-	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, 0);
-	glEnableVertexAttribArray(0);
-	glDrawArrays(prim, 0, verts);
-	glDisableVertexAttribArray(0);
-
+	drawBuffer(buffer, prim, verts);
 	glEndTransformFeedback();
 
 	glUseProgram(0);
@@ -369,7 +374,45 @@ void Game::renderUi() {
 
 	// render widgets
 	ImGui::Begin("Settings", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
-	
+	ImGui::Checkbox("Draw Wirframe", &Globals::enableWireframe);
+	ImGui::Checkbox("Enable Lighting", &m_enableLighting);
+	if (ImGui::Checkbox("Continuous Subdivision", &m_continuousSubdivision)) {
+		m_steps = !m_continuousSubdivision ? 0 : m_steps;
+	}
+
+	int currentRenderMode = program;
+	if (ImGui::Combo("Program", &currentRenderMode, "Koch\0Leave\0Terrain\0\0")) {
+		program = static_cast<Program>(currentRenderMode);
+		activeProgram = prog[program];	
+
+		switch (program) {
+			case KOCH:
+				max_steps = 8;
+				break;
+			case LEAVE:
+				max_steps = 7;
+				break;
+			case TERRAIN:
+				max_steps = 9;
+				break;
+		}
+		m_steps = m_steps > max_steps ? max_steps : m_steps;
+	}
+	if(m_continuousSubdivision)
+		ImGui::SliderInt("Steps", &m_steps, 0, max_steps);
+	else {
+		if (ImGui::Button("-")) {
+			m_steps--;
+			m_steps = (std::max)(0, (std::min)(m_steps, max_steps));
+		}
+		ImGui::SameLine();
+		ImGui::Text(std::to_string(m_steps).c_str());
+		ImGui::SameLine();
+		if (ImGui::Button("+")) {
+			m_steps++;
+			m_steps = (std::max)(0, (std::min)(m_steps, max_steps));
+		}
+	}
 	ImGui::End();
 
 	ImGui::Render();

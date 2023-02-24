@@ -1,0 +1,48 @@
+#version 410 core
+#define shadeSmooth 0
+
+layout (lines_adjacency) in;
+layout (triangle_strip, max_vertices = 4) out;
+
+in vec4 v_gFragPos[];
+
+uniform vec3 lightDir = vec3( 0, 0, -1 );
+
+#if shadeSmooth
+	smooth out vec4 v_color;
+#else
+	flat out vec4 v_color;
+#endif
+
+// calculate triangle normal
+vec3 calcNormal(vec3 v0, vec3 v1, vec3 v2) {
+    vec3 edge0 = v1 - v0;
+    vec3 edge1 = v2 - v0;
+    return normalize(cross(edge0, edge1));
+}
+
+void main(){
+	vec3 n = calcNormal(v_gFragPos[0].xyz, v_gFragPos[1].xyz, v_gFragPos[3].xyz);
+    float col = dot(n, lightDir);
+
+    vec3 n2 = calcNormal(v_gFragPos[1].xyz, v_gFragPos[2].xyz, v_gFragPos[3].xyz);
+    float col2 = dot(n2, lightDir);
+	
+	gl_Position = gl_in[0].gl_Position;
+	v_color = vec4(col);
+	EmitVertex();
+	
+	gl_Position = gl_in[1].gl_Position;
+	v_color = vec4(col);
+	EmitVertex();
+	
+	gl_Position = gl_in[3].gl_Position;
+	v_color = vec4(col);
+	EmitVertex();
+	
+	gl_Position = gl_in[2].gl_Position;
+	v_color = vec4(col2);
+	EmitVertex();
+	
+	EndPrimitive();
+}
