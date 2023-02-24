@@ -166,6 +166,12 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "17FroggyAA", "17FroggyAA\17
 		{9DBCE6B3-8CBD-4A62-BFD1-315A8459C8B0} = {9DBCE6B3-8CBD-4A62-BFD1-315A8459C8B0}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "18FeedbackFractal", "18FeedbackFractal\18FeedbackFractal.vcxproj", "{8CBF0B91-8089-4E78-A1DF-D7BEBFBD2E5A}"
+	ProjectSection(ProjectDependencies) = postProject
+		{3160706F-23B1-4D5F-83DE-7F33577325FB} = {3160706F-23B1-4D5F-83DE-7F33577325FB}
+		{9DBCE6B3-8CBD-4A62-BFD1-315A8459C8B0} = {9DBCE6B3-8CBD-4A62-BFD1-315A8459C8B0}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -542,6 +548,14 @@ Global
 		{120042FE-FEBD-4E78-A2FA-351482ADD781}.Release|x64.Build.0 = Release|x64
 		{120042FE-FEBD-4E78-A2FA-351482ADD781}.Release|x86.ActiveCfg = Release|Win32
 		{120042FE-FEBD-4E78-A2FA-351482ADD781}.Release|x86.Build.0 = Release|Win32
+		{8CBF0B91-8089-4E78-A1DF-D7BEBFBD2E5A}.Debug|x64.ActiveCfg = Debug|x64
+		{8CBF0B91-8089-4E78-A1DF-D7BEBFBD2E5A}.Debug|x64.Build.0 = Debug|x64
+		{8CBF0B91-8089-4E78-A1DF-D7BEBFBD2E5A}.Debug|x86.ActiveCfg = Debug|Win32
+		{8CBF0B91-8089-4E78-A1DF-D7BEBFBD2E5A}.Debug|x86.Build.0 = Debug|Win32
+		{8CBF0B91-8089-4E78-A1DF-D7BEBFBD2E5A}.Release|x64.ActiveCfg = Release|x64
+		{8CBF0B91-8089-4E78-A1DF-D7BEBFBD2E5A}.Release|x64.Build.0 = Release|x64
+		{8CBF0B91-8089-4E78-A1DF-D7BEBFBD2E5A}.Release|x86.ActiveCfg = Release|Win32
+		{8CBF0B91-8089-4E78-A1DF-D7BEBFBD2E5A}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

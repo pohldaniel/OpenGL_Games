@@ -267,6 +267,9 @@ bool AABox::Initialize(int w, int h, float ssfact, int depthSamples, int coverag
 	//
 	initRT(depthSamples, coverageSamples);
 
+	m_buffer.create(w, h);
+	m_buffer.attachTexture(AttachmentTex::RGBA);
+
 	CheckFramebufferStatus();
 	
 	glUseProgram(prog[1]->m_program);

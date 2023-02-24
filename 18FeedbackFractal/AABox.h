@@ -3,6 +3,7 @@
 #include <GL/glew.h>
 #include "engine/Shader.h"
 #include "engine/Quad.h"
+#include "engine/Framebuffer.h"
 
 #define FB_SS 0
 class AABox {
@@ -36,6 +37,7 @@ protected:
 
 	Shader* prog[3];
 	Quad* m_quad;
+	Framebuffer m_buffer;
 
 	bool          initRT(int depthSamples, int coverageSamples);
 };
