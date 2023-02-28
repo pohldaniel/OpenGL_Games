@@ -27,14 +27,16 @@ void main(void) {
 	vec3 H = normalize(L + V);
 
 	//glDisable(GL_COLOR_MATERIAL);
-	//vec4 ambient = ambMat * ambLight;
-	//vec4 diffuse = diffMat * diffLight * max(dot(L, N), 0.0);
-	//vec4 specular = specMat * specLight * pow(max(dot(H, N), 0.0), 0.0);
+	vec4 ambient = ambMat * ambLight;
+	vec4 diffuse = diffMat * diffLight * max(dot(L, N), 0.0);
+	vec4 specular = specMat * specLight * pow(max(dot(H, N), 0.0), 0.0);
 	
 	//glEnable(GL_COLOR_MATERIAL);
-	vec3 ambient = color.xyz * ambLight.xyz;
-	vec3 diffuse = color.xyz * diffLight.xyz * max(dot(L, N), 0.0);
-	vec3 specular = specMat.xyz * specLight.xyz * pow(max(dot(H, N), 0.0), 0.0);
+	//vec3 ambient = color.xyz * ambLight.xyz;
+	//vec3 diffuse = color.xyz * diffLight.xyz * max(dot(L, N), 0.0);
+	//vec3 specular = specMat.xyz * specLight.xyz * pow(max(dot(H, N), 0.0), 0.0);
 
-	outColor = color;
+	//outColor = color;
+	outColor = ambient + diffuse + specular;
+	//outColor = vec4(N, 1.0);
 }

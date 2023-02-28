@@ -1,13 +1,5 @@
 #include "TerrainNV.h"
 
-#ifndef max
-#define max(a,b)            (((a) > (b)) ? (a) : (b))
-#endif
-
-#ifndef min
-#define min(a,b)            (((a) < (b)) ? (a) : (b))
-#endif
-
 float cam_pos[3] = { 75.5, 30.0f, -110 };
 float cam_view[3] = { -0.7f, 0.0f, 0.7f };
 GLfloat light_dir[4] = { 0.2f, 0.99f, 0.0f , 0.0f };
@@ -100,17 +92,19 @@ void TerrainNV::Draw(const Camera& camera) {
 }
 
 void TerrainNV::Draw(float minCamZ, const Camera& camera){
+
 	auto shader = Globals::shaderManager.getAssetPointer("instance");
 	glUseProgram(shader->m_program);
 	shader->loadMatrix("u_projection", camera.getProjectionMatrix());
 	shader->loadMatrix("u_modelView", camera.getViewMatrix());
 	shader->loadMatrix("u_view", camera.getViewMatrix());
 	shader->loadMatrix("u_normal", Matrix4f::GetNormalMatrix(camera.getViewMatrix()));
-	
-	shader->loadVector("color", Vector4f(0.917647f, 0.776471f, 0.576471f, 1.0f));
+	//shader->loadVector("u_viewPos", camera.getPosition());
+
+	shader->loadVector("color", Vector4f(0.917647f, 0.776471f, 0.576471f, 0.0f));
 	modelT.drawRawInstanced();
 
-	shader->loadVector("color", Vector4f(0.301961f, 0.588235f, 0.309804f, 1.0f));
+	shader->loadVector("color", Vector4f(0.301961f, 0.588235f, 0.309804f, 0.0f));
 	modelL.drawRawInstanced();
 
 	glUseProgram(0);
@@ -120,7 +114,8 @@ void TerrainNV::Draw(float minCamZ, const Camera& camera){
 	shader->loadMatrix("u_projection", camera.getProjectionMatrix());
 	shader->loadMatrix("u_modelView", camera.getViewMatrix());
 	shader->loadMatrix("u_normal", Matrix4f::GetNormalMatrix(camera.getViewMatrix()));
-	
+	//shader->loadVector("u_viewPos", camera.getPosition());
+
 	shader->loadInt("u_texture", 0);
 	glActiveTexture(GL_TEXTURE0 );
 	glBindTexture(GL_TEXTURE_2D, tex);
@@ -129,7 +124,7 @@ void TerrainNV::Draw(float minCamZ, const Camera& camera){
 	glDrawElements(GL_TRIANGLE_STRIP, m_totalIndices, GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
 
-	glUseProgram(0);
+	glUseProgram(0);	
 }
 
 void TerrainNV::DrawCoarse() {
@@ -171,44 +166,48 @@ void TerrainNV::MakeTerrain() {
 	const float inv_width = 1.0f / (float)width;
 
 	std::vector<float> vertexBuffer;
-	for (int z = 1; z < height - 2; z++) {
+	for (int z = 1; z < height - 1; z++) {
 		for (int x = 1; x < width - 1; x++) {
 			float fx = (float)x;
 			float fz = (float)z;
 			vertexBuffer.push_back(fx - half_width); vertexBuffer.push_back(heights[x + z*width]); vertexBuffer.push_back(fz - half_height);
 			vertexBuffer.push_back(fx*inv_width); vertexBuffer.push_back(fz*inv_height);
-			vertexBuffer.push_back(normals[3 * (x + z*width)]); vertexBuffer.push_back(normals[3 * (x + z*width) + 1]); vertexBuffer.push_back(normals[3 * (x + z*width) + 2]);
+			vertexBuffer.push_back(normals[3 * (x + z*width)]); vertexBuffer.push_back(normals[3 * (x + z*width) + 1]); vertexBuffer.push_back(normals[3 * (x + z*width) + 2]);		
 		}
 	}
 
-	int resolutionZ = (height - 3); //from the veretex for loop
+	int resolutionZ = (height - 2); //from the veretex for loop
 	int resolutionX = (width - 2); //from the veretex for loop
 
 	std::vector<unsigned int> indexBuffer;
 	for (int z = 0; z < resolutionZ - 1; ++z) {
+		
 		if (z % 2 == 0) {
 
-			for (int x = 0; x < resolutionX; ++x) {
-				indexBuffer.push_back(x + (z + 1) * resolutionX);
-				indexBuffer.push_back(x + z * (resolutionX));
-
-			}
-
-			// Add degenerate triangles to stitch strips together.
-			indexBuffer.push_back((resolutionX -1) + (z + 1) * resolutionX);
-		}else {
 			for (int x = resolutionX - 1; x >= 0; --x) {
 				indexBuffer.push_back(x + (z + 1) * resolutionX);
 				indexBuffer.push_back(x + z * resolutionX);
-
+				
 			}
 
 			// Add degenerate triangles to stitch strips together.
 			indexBuffer.push_back((z + 1) * resolutionX);
+
+		} else {
+			for (int x = 0; x < resolutionX; ++x) {
+				indexBuffer.push_back(x + (z + 1) * resolutionX);
+				indexBuffer.push_back(x + z * (resolutionX));
+			}
+
+			// Add degenerate triangles to stitch strips together.
+			indexBuffer.push_back((resolutionX - 1) + (z + 1) * resolutionX);
+
 		}
 	}
-
+	
+	
 	m_totalIndices = indexBuffer.size();
+	//m_totalIndices = (resolutionZ - 1)* (2 * resolutionX + 1);
 
 	glGenBuffers(1, &m_vbo);
 	
@@ -222,10 +221,10 @@ void TerrainNV::MakeTerrain() {
 	//Positions
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
-	//Texccord
+	//Texccords
 	glEnableVertexAttribArray(1);
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
-	//Normal
+	//Normals
 	glEnableVertexAttribArray(2);
 	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(5 * sizeof(float)));
 

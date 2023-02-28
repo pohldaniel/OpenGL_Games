@@ -27,7 +27,7 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 	Framebuffer::SetDefaultSize(Width, Height);
 
 	createWindow();
-	initOpenGL(0);
+	initOpenGL(4);
 	showWindow();
 	initImGUI();
 	loadAssets();

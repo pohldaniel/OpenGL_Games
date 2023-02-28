@@ -33,8 +33,8 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	obj_BSphere[3].radius = 1.0f;
 
 	glEnable(GL_DEPTH_TEST);
-	glCullFace(GL_BACK);
-	glFrontFace(GL_CW);
+	glEnable(GL_CULL_FACE);
+	
 }
 
 Game::~Game() {}
@@ -112,7 +112,7 @@ void Game::render(unsigned int &frameBuffer) {
 	glLoadIdentity();
 	glLoadMatrixf(&m_camera.getViewMatrix()[0][0]);
 
-	glClearColor(0.2f, 0.2f, 0.2f, 0.0f);
+	glClearColor(0.8f, 0.8f, 0.9f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	renderScene();
 	//renderUi();
