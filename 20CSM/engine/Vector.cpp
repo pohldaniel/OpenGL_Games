@@ -550,6 +550,13 @@ void Matrix4f::set(float m11, float m12, float m13, float m14,
 	mtx[3][0] = m41, mtx[3][1] = m42, mtx[3][2] = m43, mtx[3][3] = m44;
 }
 
+void Matrix4f::set(const Matrix4f &rhs) {
+	mtx[0][0] = rhs[0][0], mtx[0][1] = rhs[0][1], mtx[0][2] = rhs[0][2], mtx[0][3] = rhs[0][3];
+	mtx[1][0] = rhs[1][0], mtx[1][1] = rhs[1][1], mtx[1][2] = rhs[1][2], mtx[1][3] = rhs[1][3];
+	mtx[2][0] = rhs[2][0], mtx[2][1] = rhs[2][1], mtx[2][2] = rhs[2][2], mtx[2][3] = rhs[2][3];
+	mtx[3][0] = rhs[3][0], mtx[3][1] = rhs[3][1], mtx[3][2] = rhs[3][2], mtx[3][3] = rhs[3][3];
+}
+
 void Matrix4f::fromHeadPitchRoll(float headDegrees, float pitchDegrees, float rollDegrees) {
 	// Constructs a rotation matrix based on a Euler Transform.
 	// I use the popular NASA standard airplane convention of 

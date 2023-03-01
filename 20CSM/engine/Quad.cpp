@@ -58,8 +58,8 @@ void Quad::createBuffer(unsigned int& vao, bool flippable, float leftEdge, float
 	}
 
 	static const GLushort index[] = {
-		0, 1, 2,
-		0, 2, 3
+		0, 2, 1,
+		0, 3, 2
 	};
 
 	short stride = flippable ? 7 : 5;
@@ -115,8 +115,8 @@ void Quad::createBuffer() {
 	vertex.push_back(pos[0] + w); vertex.push_back(pos[1]); vertex.push_back(0.0f); vertex.push_back(1.0f); vertex.push_back(0.0f);
 
 	static const GLushort index[] = {
-		0, 1, 2,
-		0, 2, 3
+		0, 2, 1,
+		0, 3, 2
 	};
 
 	short stride = 5;

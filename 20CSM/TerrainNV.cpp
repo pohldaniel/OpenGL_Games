@@ -88,17 +88,17 @@ bool TerrainNV::Load() {
 }
 
 void TerrainNV::Draw(const Camera& camera) {
-	Draw(-10000.0f, camera);
+	Draw(-10000.0f, camera.getProjectionMatrix(), camera.getViewMatrix());
 }
 
-void TerrainNV::Draw(float minCamZ, const Camera& camera){
+void TerrainNV::Draw(float minCamZ, const Matrix4f& proj, const Matrix4f& view){
 
 	auto shader = Globals::shaderManager.getAssetPointer("instance");
 	glUseProgram(shader->m_program);
-	shader->loadMatrix("u_projection", camera.getProjectionMatrix());
-	shader->loadMatrix("u_modelView", camera.getViewMatrix());
-	shader->loadMatrix("u_view", camera.getViewMatrix());
-	shader->loadMatrix("u_normal", Matrix4f::GetNormalMatrix(camera.getViewMatrix()));
+	shader->loadMatrix("u_projection", proj);
+	shader->loadMatrix("u_modelView", view);
+	shader->loadMatrix("u_view", view);
+	shader->loadMatrix("u_normal", Matrix4f::GetNormalMatrix(view));
 	//shader->loadVector("u_viewPos", camera.getPosition());
 
 	shader->loadVector("color", Vector4f(0.917647f, 0.776471f, 0.576471f, 0.0f));
@@ -111,9 +111,9 @@ void TerrainNV::Draw(float minCamZ, const Camera& camera){
 	
 	shader = Globals::shaderManager.getAssetPointer("mesh");
 	glUseProgram(shader->m_program);
-	shader->loadMatrix("u_projection", camera.getProjectionMatrix());
-	shader->loadMatrix("u_modelView", camera.getViewMatrix());
-	shader->loadMatrix("u_normal", Matrix4f::GetNormalMatrix(camera.getViewMatrix()));
+	shader->loadMatrix("u_projection", proj);
+	shader->loadMatrix("u_modelView", view);
+	shader->loadMatrix("u_normal", Matrix4f::GetNormalMatrix(view));
 	//shader->loadVector("u_viewPos", camera.getPosition());
 
 	shader->loadInt("u_texture", 0);
@@ -125,6 +125,22 @@ void TerrainNV::Draw(float minCamZ, const Camera& camera){
 	glBindVertexArray(0);
 
 	glUseProgram(0);	
+}
+
+void TerrainNV::DrawRawTerrain() {
+	
+
+	glBindVertexArray(m_vao);
+	glDrawElements(GL_TRIANGLE_STRIP, m_totalIndices, GL_UNSIGNED_INT, 0);
+	glBindVertexArray(0);
+}
+
+void TerrainNV::DrawRawTrunk() {
+	modelT.drawRawInstanced();
+}
+
+void TerrainNV::DrawRawLeave() {
+	modelL.drawRawInstanced();
 }
 
 void TerrainNV::DrawCoarse() {
@@ -247,6 +263,9 @@ void TerrainNV::LoadTree() {
 	//}
 	modelT.createInstancesStatic(m_instances);
 	modelL.createInstancesStatic(m_instances);
+
+	//modelT.addInstance(Matrix4f::IDENTITY);
+	//modelL.addInstance(Matrix4f::IDENTITY);
 }
 
 

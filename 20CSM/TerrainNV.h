@@ -10,7 +10,7 @@
 #include "Constants.h"
 
 #define FAR_DIST 200.0f
-#define MAX_SPLITS 4
+#define MAX_SPLITS 8
 #define NUM_OBJECTS 4
 #define LIGHT_FOV 45.0
 
@@ -30,7 +30,10 @@ public:
 	~TerrainNV();
 	bool	Load();
 	void	Draw(const Camera& camera);
-	void	Draw(float minCamZ, const Camera& camera);
+	void	Draw(float minCamZ, const Matrix4f& proj, const Matrix4f& view);
+	void    DrawRawTerrain();
+	void    DrawRawTrunk();
+	void    DrawRawLeave();
 	void	DrawCoarse();
 	int		getDim() { return (width>height) ? width : height; }
 
