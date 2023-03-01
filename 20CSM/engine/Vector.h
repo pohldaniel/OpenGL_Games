@@ -138,7 +138,7 @@ public:
 
 
 	static const Matrix4f IDENTITY;
-	static const Matrix4f BiasMatrix;
+	static const Matrix4f BIAS;
 
 	Matrix4f();
 	Matrix4f(float m11, float m12, float m13, float m14,
@@ -214,12 +214,16 @@ public:
 
 	static Matrix4f InvPerspective(float fovx, float aspect, float znear, float zfar);
 	static Matrix4f &InvPerspective(Matrix4f &mtx, float fovx, float aspect, float znear, float zfar);
+	static Matrix4f InvPerspective(const Matrix4f &pers);
 
 	static Matrix4f Orthographic(float left, float right, float bottom, float top, float znear, float zfar);
 	static Matrix4f &Orthographic(Matrix4f &mtx, float left, float right, float bottom, float top, float znear, float zfar);
 
 	static Matrix4f InvOrthographic(float left, float right, float bottom, float top, float znear, float zfar);
 	static Matrix4f &InvOrthographic(Matrix4f &mtx, float left, float right, float bottom, float top, float znear, float zfar);
+	static Matrix4f InvOrthographic(const Matrix4f &ortho);
+
+	static Matrix4f InvViewMatrix(const Matrix4f &viewMatrix);
 
 	static Matrix4f &Transpose(Matrix4f &m);
 	static Matrix4f Transpose(const Matrix4f &m);

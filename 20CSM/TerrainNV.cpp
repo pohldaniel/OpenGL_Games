@@ -88,7 +88,7 @@ bool TerrainNV::Load() {
 }
 
 void TerrainNV::Draw(const Camera& camera) {
-	Draw(-10000.0f, camera.getProjectionMatrix(), camera.getViewMatrix());
+	Draw(-10000.0f, camera.getPerspectiveMatrix(), camera.getViewMatrix());
 }
 
 void TerrainNV::Draw(float minCamZ, const Matrix4f& proj, const Matrix4f& view){

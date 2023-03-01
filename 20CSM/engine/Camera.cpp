@@ -22,7 +22,7 @@ Camera::Camera(){
     m_zAxis.set(0.0f, 0.0f, 1.0f);
     m_viewDir.set(0.0f, 0.0f, -1.0f);
     
-    m_projMatrix.identity();
+    m_persMatrix.identity();
 	m_orthMatrix.identity();
 	
 	updateViewMatrix(false);
@@ -36,7 +36,7 @@ Camera::Camera(){
 Camera::Camera(const Vector3f &eye, const Vector3f &target, const Vector3f &up) {
 	m_accumPitchDegrees = 0.0f;
 	m_eye = eye;
-	m_projMatrix.identity();
+	m_persMatrix.identity();
 	m_orthMatrix.identity();
 	updateViewMatrix(eye, target, up);
 }
@@ -152,25 +152,25 @@ void Camera::perspective(float fovx, float aspect, float znear, float zfar){
 	float xScale = e / aspect;
 	float yScale = e;
 
-	m_projMatrix[0][0] = xScale;
-	m_projMatrix[0][1] = 0.0f;
-	m_projMatrix[0][2] = 0.0f;
-	m_projMatrix[0][3] = 0.0f;
+	m_persMatrix[0][0] = xScale;
+	m_persMatrix[0][1] = 0.0f;
+	m_persMatrix[0][2] = 0.0f;
+	m_persMatrix[0][3] = 0.0f;
 
-	m_projMatrix[1][0] = 0.0f;
-	m_projMatrix[1][1] = yScale;
-	m_projMatrix[1][2] = 0.0f;
-	m_projMatrix[1][3] = 0.0f;
+	m_persMatrix[1][0] = 0.0f;
+	m_persMatrix[1][1] = yScale;
+	m_persMatrix[1][2] = 0.0f;
+	m_persMatrix[1][3] = 0.0f;
 
-	m_projMatrix[2][0] = 0.0f;
-	m_projMatrix[2][1] = 0.0f;
-	m_projMatrix[2][2] = (zfar + znear) / (znear - zfar);
-	m_projMatrix[2][3] = -1.0f;
+	m_persMatrix[2][0] = 0.0f;
+	m_persMatrix[2][1] = 0.0f;
+	m_persMatrix[2][2] = (zfar + znear) / (znear - zfar);
+	m_persMatrix[2][3] = -1.0f;
 
-	m_projMatrix[3][0] = 0.0f;
-	m_projMatrix[3][1] = 0.0f;
-	m_projMatrix[3][2] = (2.0f * zfar * znear) / (znear - zfar);
-	m_projMatrix[3][3] = 0.0f;
+	m_persMatrix[3][0] = 0.0f;
+	m_persMatrix[3][1] = 0.0f;
+	m_persMatrix[3][2] = (2.0f * zfar * znear) / (znear - zfar);
+	m_persMatrix[3][3] = 0.0f;
 
 	m_fovx = fovx;
 	m_aspectRatio = aspect;
@@ -402,19 +402,47 @@ void Camera::rotateFirstPerson(float yaw, float pitch){
 }
 
 const float Camera::getFar() const {
-	return m_projMatrix[3][2] / (m_projMatrix[2][2] + 1);
+	return m_persMatrix[3][2] / (m_persMatrix[2][2] + 1);
 }
 
 const float Camera::getNear() const {
-	return m_projMatrix[2][2] / (m_projMatrix[2][2] - 1);
+	return m_persMatrix[3][2] / (m_persMatrix[2][2] - 1);
 }
 
 const float Camera::getFovXDeg() const {
-	return 2 * atanf(1.0f / m_projMatrix[1][1]) * _180_ON_PI;
+	return 2 * atanf(1.0f / m_persMatrix[1][1]) * _180_ON_PI;
 }
 
-const float  Camera::getFovXRad() const {
-	return 2 * atanf(1.0f / m_projMatrix[1][1]);
+const float Camera::getFovXRad() const {
+	return 2 * atanf(1.0f / m_persMatrix[1][1]);
+}
+
+const float Camera::getAspect() const {
+	return m_persMatrix[1][1] / m_persMatrix[0][0];
+}
+
+const float Camera::getLeftOrthographic() const {
+	return -(1.0f / m_orthMatrix[0][0]) * (1.0f + m_orthMatrix[3][0]);
+}
+
+const float Camera::getRightOrthographic() const {
+	return (1.0f / m_orthMatrix[0][0]) * (1.0f - m_orthMatrix[3][0]);
+}
+
+const float Camera::getBottomOrthographic() const {
+	return -(1.0f / m_orthMatrix[1][1]) * (1.0f + m_orthMatrix[3][1]);
+}
+
+const float Camera::getTopOrthographic() const {
+	return (1.0f / m_orthMatrix[1][1]) * (1.0f - m_orthMatrix[3][1]);
+}
+
+const float Camera::getNearOrthographic() const {
+	return (1.0f / m_orthMatrix[2][2]) * (1.0f - m_orthMatrix[3][2]);
+}
+
+const float Camera::getFarOrthographic() const {
+	return -(1.0f / m_orthMatrix[2][2]) * (1.0f + m_orthMatrix[3][2]);
 }
 
 void Camera::calcLightTransformation(Vector3f &direction) {
@@ -552,7 +580,7 @@ void Camera::calcLightTransformation(Vector3f &direction) {
 		maxZ = std::max(maxZ, transforms[i][2]);
 	}
 
-	lightProjection.orthographic(minX, maxX, minY, maxY, minZ, maxZ);
+	lightPerspective.orthographic(minX, maxX, minY, maxY, minZ, maxZ);
 }
 
 void Camera::calcLightTransformation(Vector3f &direction, float near, float far, Matrix4f& viewMatrix, Matrix4f& projectionMatrix) {
@@ -619,7 +647,7 @@ void Camera::calcLightTransformation(Vector3f &direction, float near, float far,
 
 void Camera::calcLightTransformation2(Vector3f &direction) {
 	for (unsigned short i = 0; i < m_numberCascades; i++) {	
-		calcLightTransformation(direction, m_bounds[i][0], m_bounds[i][1], lightViews[i], lightProjections[i]);
+		calcLightTransformation(direction, m_bounds[i][0], m_bounds[i][1], lightViews[i], lightPerspectives[i]);
 	}
 }
 
@@ -635,7 +663,7 @@ void Camera::setUpLightTransformation(float distance) {
 	far = getFar();
 
 	lightViews.resize(m_numberCascades);
-	lightProjections.resize(m_numberCascades);
+	lightPerspectives.resize(m_numberCascades);
 	
 	float _near = getNear();
 	float _far = distance >= far ? far : distance;
@@ -646,7 +674,7 @@ void Camera::setUpLightTransformation(float distance) {
 	for (unsigned short numberCascades = 0; numberCascades < m_numberCascades; numberCascades++) {		
 		m_bounds.push_back(Vector2f(_near, _far));
 
-		Vector4f vClip = Vector4f(0.0f, 0.0f, -_far, 1.0f) ^ m_projMatrix;
+		Vector4f vClip = Vector4f(0.0f, 0.0f, -_far, 1.0f) ^ m_persMatrix;
 		
 		//clipSpace
 		m_cascadeEndClipSpace[numberCascades] = vClip[2];
@@ -668,13 +696,13 @@ void Camera::setUpLightTransformation(std::vector<Vector2f>& bounds) {
 	m_bounds = bounds;
 	m_numberCascades = bounds.size();
 	lightViews.resize(m_numberCascades);
-	lightProjections.resize(m_numberCascades);
+	lightPerspectives.resize(m_numberCascades);
 	m_cascadeEndClipSpace = new float[m_numberCascades];
 
 	for (unsigned short numberCascades = 0; numberCascades < m_numberCascades; numberCascades++) {
 		//Vector4f vClip = m_projMatrix ^ Vector4f(0.0f, 0.0f, -bounds[numberCascades][1], 1.0f);
 
-		Vector4f vClip =  Vector4f(0.0f, 0.0f, -bounds[numberCascades][1], 1.0f) ^ m_projMatrix;
+		Vector4f vClip =  Vector4f(0.0f, 0.0f, -bounds[numberCascades][1], 1.0f) ^ m_persMatrix;
 
 		//clipSpace
 		m_cascadeEndClipSpace[numberCascades] = vClip[2];
@@ -723,12 +751,12 @@ const Vector3f &Camera::getViewDirection() const{
 	return m_viewDir;
 }
 
-const Matrix4f &Camera::getProjectionMatrix() const{
-	return m_projMatrix;
+const Matrix4f &Camera::getPerspectiveMatrix() const{
+	return m_persMatrix;
 }
 
-const Matrix4f &Camera::getInvProjectionMatrix() const{
-	return  m_invProjMatrix;
+const Matrix4f &Camera::getInvPerspectiveMatrix() const{
+	return  m_invPersMatrix;
 }
 
 const Matrix4f &Camera::getOrthographicMatrix() const{
@@ -741,4 +769,38 @@ const Matrix4f &Camera::getViewMatrix() const{
 
 const Matrix4f &Camera::getInvViewMatrix() const{
 	return m_invViewMatrix;
+}
+
+const Matrix4f Camera::getInvViewMatrixNew() const {
+	return Matrix4f(m_viewMatrix[0][0], m_viewMatrix[1][0], m_viewMatrix[2][0], 0.0f,
+					m_viewMatrix[0][1], m_viewMatrix[1][1], m_viewMatrix[2][1], 0.0f,
+					m_viewMatrix[0][2], m_viewMatrix[1][2], m_viewMatrix[2][2], 0.0f,
+				   -(m_viewMatrix[3][0] * m_viewMatrix[0][0]) - (m_viewMatrix[3][1] * m_viewMatrix[0][1]) - (m_viewMatrix[3][2] * m_viewMatrix[0][2]), 
+				   -(m_viewMatrix[3][0] * m_viewMatrix[1][0]) - (m_viewMatrix[3][1] * m_viewMatrix[1][1]) - (m_viewMatrix[3][2] * m_viewMatrix[1][2]),
+				   -(m_viewMatrix[3][0] * m_viewMatrix[2][0]) - (m_viewMatrix[3][1] * m_viewMatrix[2][1]) - (m_viewMatrix[3][2] * m_viewMatrix[2][2]), 1.0);
+}
+
+const Matrix4f Camera::getInvOrthographicMatrixNew() const {
+	float left = -(1.0f / m_orthMatrix[0][0]) * (1.0f + m_orthMatrix[3][0]);
+	float right = (1.0f / m_orthMatrix[0][0]) * (1.0f - m_orthMatrix[3][0]);
+	float bottom = -(1.0f / m_orthMatrix[1][1]) * (1.0f + m_orthMatrix[3][1]);
+	float top = (1.0f / m_orthMatrix[1][1]) * (1.0f - m_orthMatrix[3][1]);
+	float near = (1.0f / m_orthMatrix[2][2]) * (1.0f - m_orthMatrix[3][2]);
+	float far = -(1.0f / m_orthMatrix[2][2]) * (1.0f + m_orthMatrix[3][2]);
+	
+	return Matrix4f((right - left) * 0.5f, 0.0f, 0.0f, 0.0f,
+					 0.0f, (top - bottom) * 0.5f, 0.0f, 0.0f,
+					 0.0f, 0.0f, (near - far) * 0.5f, 0.0f,
+					 (right + left) * 0.5f, (top + bottom) * 0.5f, -(far + near) * 0.5f, 1.0f);
+}
+
+const Matrix4f Camera::getInvPerspectiveMatrixNew() const {
+	float e = 1.0f / m_persMatrix[1][1];
+	float aspect = m_persMatrix[1][1] / m_persMatrix[0][0];
+	float near = m_persMatrix[3][2] / (m_persMatrix[2][2] - 1);
+	float far = m_persMatrix[3][2] / (m_persMatrix[2][2] + 1);
+	return Matrix4f(e * aspect, 0.0f, 0.0f, 0.0f,
+					0.0f, e, 0.0f, 0.0f,
+					0.0f, 0.0f, 0.0f, (near - far) / (2 * far * near),
+					0.0f, 0.0f, -1.0f , (near + far) / (2 * far * near));	
 }

@@ -199,7 +199,7 @@ void MeshQuad::draw(const Camera camera) {
 	glUseProgram(m_shader->m_program);
 	
 	m_texture->bind(0);
-	m_shader->loadMatrix("u_projection", camera.getProjectionMatrix());
+	m_shader->loadMatrix("u_projection", camera.getPerspectiveMatrix());
 	m_shader->loadMatrix("u_view", camera.getViewMatrix());
 	m_shader->loadMatrix("u_model", m_model);
 

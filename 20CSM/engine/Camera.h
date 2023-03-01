@@ -26,18 +26,30 @@ public:
 	void setUpLightTransformation(float distance);
 	void setUpLightTransformation(std::vector<Vector2f>& bounds);
 	
-	void calcLightTransformation(Vector3f &direction, float near, float far, Matrix4f& viewMatrix, Matrix4f& projectionMatrix);
+	void calcLightTransformation(Vector3f &direction, float near, float far, Matrix4f& viewMatrix, Matrix4f& perspectiveMatrix);
 
 	const float getFar() const;
 	const float getNear() const;
 	const float getFovXDeg() const;
 	const float getFovXRad() const;
+	const float getAspect() const;
+
+	const float getLeftOrthographic() const;
+	const float getRightOrthographic() const;
+	const float getBottomOrthographic() const;
+	const float getTopOrthographic() const;
+	const float getNearOrthographic() const;
+	const float getFarOrthographic() const;
 
 	const Matrix4f &getViewMatrix() const;
 	const Matrix4f &getInvViewMatrix() const;
-	const Matrix4f &getProjectionMatrix() const;
-	const Matrix4f &getInvProjectionMatrix() const;
+	const Matrix4f getInvViewMatrixNew() const;
+	const Matrix4f &getPerspectiveMatrix() const;
+	const Matrix4f &getInvPerspectiveMatrix() const;
+	const Matrix4f getInvPerspectiveMatrixNew() const;
+
 	const Matrix4f &getOrthographicMatrix() const;
+	const Matrix4f getInvOrthographicMatrixNew() const;
 	const Vector3f &getPosition() const;
 	const Vector3f &getCamX() const;
 	const Vector3f &getCamY() const;
@@ -53,13 +65,14 @@ public:
 	void setRotationSpeed(float rotationSpeed);
 
 	Matrix4f lightView;
-	Matrix4f lightProjection;
+	Matrix4f lightPerspective;
 
 	std::vector<Matrix4f> lightViews;
-	std::vector<Matrix4f> lightProjections;
+	std::vector<Matrix4f> lightPerspectives;
 	std::vector<Vector2f> m_bounds;
 	short m_numberCascades = 0;
 	float* m_cascadeEndClipSpace;
+
 protected:
 
     void rotateFirstPerson(float yaw, float pitch);
@@ -89,8 +102,8 @@ protected:
 	Matrix4f		m_viewMatrix;
 	Matrix4f		m_invViewMatrix;
 
-	Matrix4f		m_projMatrix;
-	Matrix4f		m_invProjMatrix;
+	Matrix4f		m_persMatrix;
+	Matrix4f		m_invPersMatrix;
 	Matrix4f		m_orthMatrix;
 };
 #endif // __cameraH__

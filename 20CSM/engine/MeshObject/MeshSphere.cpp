@@ -212,7 +212,7 @@ void MeshSphere::draw(const Camera camera) {
 
 	m_texture->bind(0);
 	m_shader->loadMatrix("u_modelView", m_model * camera.getViewMatrix());
-	m_shader->loadMatrix("u_projection", camera.getProjectionMatrix());
+	m_shader->loadMatrix("u_projection", camera.getPerspectiveMatrix());
 
 	glBindVertexArray(m_vao);
 	glDrawElements(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0);

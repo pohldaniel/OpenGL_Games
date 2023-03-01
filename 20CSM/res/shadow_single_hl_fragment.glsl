@@ -1,21 +1,6 @@
-//https://www.mbsoftworks.sk/tutorials/opengl4/020-fog/
-
 #version 410 core
 
 const int NUM_CASCADES = 10;
-
-in vec4 scs[NUM_CASCADES];
-in vec4 vPos;
-in vec2 v_texCoord;
-in vec4 v_color;
-
-uniform sampler2DArray stex;
-uniform sampler2D tex;
-uniform float far_d[NUM_CASCADES];
-uniform mat4 u_shadow[NUM_CASCADES];
-uniform vec4 u_color;
-
-out vec4 outColor;
 
 struct FogParameters {
 	vec3 color;
@@ -24,6 +9,23 @@ struct FogParameters {
 	float density;
 	int equation;
 };
+
+in vec4 scs[NUM_CASCADES];
+in vec4 vPos;
+in vec2 v_texCoord;
+in vec4 v_color;
+
+uniform sampler2DArray stex;
+uniform float far_d[NUM_CASCADES];
+uniform mat4 u_shadow[NUM_CASCADES];
+uniform vec4 u_color;
+uniform vec4 color[4] = vec4[4](	vec4(0.7, 0.7, 1.0, 1.0),
+									vec4(0.7, 1.0, 0.7, 1.0),
+									vec4(1.0, 0.7, 0.7, 1.0),
+									vec4(1.0, 1.0, 1.0, 1.0));
+out vec4 outColor;
+
+
 
 uniform FogParameters u_fogParameter = FogParameters(vec3(0.8, 0.8, 0.8), 16.0, 200.0, 0.4, 0);
 
@@ -44,7 +46,7 @@ float getFogFactor(FogParameters params, float fogCoordinate) {
 	return result;
 }
 
-float shadowCoef(){
+vec4 shadowCoef() {
 	int index = 3;
 	
 	// find the appropriate depth map to look up in based on the depth of this fragment
@@ -55,28 +57,20 @@ float shadowCoef(){
 	else if(gl_FragCoord.z < far_d[2])
 		index = 2;
 	
-	// transform this fragment's position from view space to scaled light clip space
-	// such that the xy coordinates are in [0;1]
-	// note there is no need to divide by w for othogonal light sources
-    //vec3 ndc = (scs[index].xyz/ scs[index].w);
-	vec4 ndc = u_shadow[index]*vPos;
+	vec4 shadow_coord = u_shadow[index]*vPos;
+	float shadow_d = texture(stex, vec3(shadow_coord.xy, index)).r;
 	
-	// get the stored depth
-	float shadow_d = texture(stex, vec3(ndc.xy, index)).r;
-	
-	// get the difference of the stored depth and the distance of this fragment to the light
-	float diff = shadow_d - ndc.z;
-	
-	// smoothen the result a bit, to avoid aliasing at shadow contact point
-	return clamp( diff*250.0 + 1.0, 0.0, 1.0);
+	float diff = shadow_d - shadow_coord.z;
+	return clamp( diff*250.0 + 1.0, 0.0, 1.0)*color[index];
 }
 
-void main(){
-	const float shadow_ambient = 0.9;
-	float shadow_coef = shadowCoef();
-	vec4 color_tex = texture2D(tex, v_texCoord);
-	outColor = shadow_ambient * shadow_coef * v_color * color_tex + (1.0 - shadow_ambient) * color_tex;
+void main() {
 
+    const float shadow_ambient = 0.9;
+	vec4 color_tex = vec4(1.0); //texture2D(tex, gl_TexCoord[0].st);
+	vec4 shadow_coef = shadowCoef();
+	outColor = shadow_ambient * shadow_coef * v_color * color_tex + (1.0 - shadow_ambient) * color_tex;
+	
 	float fogCoordinate = abs(vPos.z / vPos.w);
 	outColor = mix(outColor, vec4(u_fogParameter.color, 1.0), getFogFactor(u_fogParameter, fogCoordinate));	
 }

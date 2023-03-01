@@ -472,7 +472,7 @@ void ObjModel::draw(Camera& camera) {
 
 		glUseProgram(m_shader[i]->m_program);
 
-		m_shader[i]->loadMatrix("u_projection", camera.getProjectionMatrix());
+		m_shader[i]->loadMatrix("u_projection", camera.getPerspectiveMatrix());
 		m_shader[i]->loadMatrix("u_view", camera.getViewMatrix());
 		m_shader[i]->loadMatrix("u_model", m_transform.getTransformationMatrix());
 
@@ -491,7 +491,7 @@ void ObjModel::drawInstanced(Camera& camera) {
 
 		glUseProgram(m_shader[i]->m_program);
 		
-		m_shader[i]->loadMatrix("u_projection", camera.getProjectionMatrix());
+		m_shader[i]->loadMatrix("u_projection", camera.getPerspectiveMatrix());
 
 		m_textures[i].bind(0);
 		m_meshes[i]->drawRawInstanced();
@@ -509,7 +509,7 @@ void ObjModel::drawStacked(Camera& camera) {
 
 		glUseProgram(m_shader[i]->m_program);
 
-		m_shader[i]->loadMatrix("u_projection", camera.getProjectionMatrix());
+		m_shader[i]->loadMatrix("u_projection", camera.getPerspectiveMatrix());
 		m_shader[i]->loadMatrix("u_view", camera.getViewMatrix());
 		m_shader[i]->loadMatrix("u_model", m_transform.getTransformationMatrix());
 
@@ -528,7 +528,7 @@ void ObjModel::drawInstancedStacked(Camera& camera) {
 
 		glUseProgram(m_shader[i]->m_program);
 
-		m_shader[i]->loadMatrix("u_projection", camera.getProjectionMatrix());
+		m_shader[i]->loadMatrix("u_projection", camera.getPerspectiveMatrix());
 		m_textures[i].bind(0);
 		glDrawElementsInstancedBaseVertexBaseInstance(GL_TRIANGLES, m_meshes[i]->m_drawCount, GL_UNSIGNED_INT, (void*)(sizeof(unsigned int) * m_meshes[i]->m_baseIndex), m_instanceCount, m_meshes[i]->m_baseVertex, 0);
 			

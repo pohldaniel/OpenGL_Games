@@ -16,14 +16,31 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	m_camera = Camera();
 	m_camera.perspective(45.0, (double)Application::Width / (double)Application::Height, 1.0f, FAR_DIST);
 	m_camera.lookAt(Vector3f(75.5f, 30.0f, -110.0f), Vector3f(75.5f - 0.7f, 30.0f, -110.0f + 0.7f), Vector3f(0.0f, 1.0f, 0.0f));
+	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -10.0f, 10.0f);
 
 	m_trackball.reshape(Application::Width, Application::Height);
 	applyTransformation(m_trackball);
-
+	
 	quad = new Shader("res/quad.vs", "res/quad.fs");
 	progTerrain[0] = new Shader("res/shadow_vertex.glsl", "res/shadow_single_fragment.glsl");
+	progTerrain[1] = new Shader("res/shadow_vertex.glsl", "res/shadow_single_hl_fragment.glsl");
+	progTerrain[2] = new Shader("res/shadow_vertex.glsl", "res/shadow_multi_leak_fragment.glsl");
+	progTerrain[3] = new Shader("res/shadow_vertex.glsl", "res/shadow_multi_noleak_fragment.glsl");
+	progTerrain[4] = new Shader("res/shadow_vertex.glsl", "res/shadow_pcf_fragment.glsl");
+	progTerrain[5] = new Shader("res/shadow_vertex.glsl", "res/shadow_pcf_trilinear_fragment.glsl");
+	progTerrain[6] = new Shader("res/shadow_vertex.glsl", "res/shadow_pcf_4tap_fragment.glsl");
+	progTerrain[7] = new Shader("res/shadow_vertex.glsl", "res/shadow_pcf_8tap_random_fragment.glsl");
+	progTerrain[8] = new Shader("res/shadow_vertex.glsl", "res/shadow_pcf_gaussian_fragment.glsl");
 
 	progTree[0] = new Shader("res/shadow_vertex_ins.glsl", "res/shadow_single_fragment.glsl");
+	progTree[1] = new Shader("res/shadow_vertex_ins.glsl", "res/shadow_single_hl_fragment.glsl");
+	progTree[2] = new Shader("res/shadow_vertex_ins.glsl", "res/shadow_multi_leak_fragment.glsl");
+	progTree[3] = new Shader("res/shadow_vertex_ins.glsl", "res/shadow_multi_noleak_fragment.glsl");
+	progTree[4] = new Shader("res/shadow_vertex_ins.glsl", "res/shadow_pcf_fragment.glsl");
+	progTree[5] = new Shader("res/shadow_vertex_ins.glsl", "res/shadow_pcf_trilinear_fragment.glsl");
+	progTree[6] = new Shader("res/shadow_vertex_ins.glsl", "res/shadow_pcf_4tap_fragment.glsl");
+	progTree[7] = new Shader("res/shadow_vertex_ins.glsl", "res/shadow_pcf_8tap_random_fragment.glsl");
+	progTree[8] = new Shader("res/shadow_vertex_ins.glsl", "res/shadow_pcf_gaussian_fragment.glsl");
 
 	terrain = new TerrainNV();
 	terrain->Load();
@@ -40,7 +57,8 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
-	
+	glPolygonOffset(1.0f, 4096.0f);
+
 	for (int i = 0; i<MAX_SPLITS; i++) {
 		f[i].fov = 45.0 / 57.2957795 + 0.2f;
 		f[i].ratio = (double)Application::Width / (double)Application::Height;
@@ -51,7 +69,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 		far_bound[i] = 0;
 
 	for (int i = 0; i < cur_num_splits; i++) {
-		far_bound[i] = 0.5f*(-f[i].fard * m_camera.getProjectionMatrix()[2][2] + m_camera.getProjectionMatrix()[3][2]) / f[i].fard + 0.5f;
+		far_bound[i] = 0.5f*(-f[i].fard * m_camera.getPerspectiveMatrix()[2][2] + m_camera.getPerspectiveMatrix()[3][2]) / f[i].fard + 0.5f;
 	}
 
 	glGenFramebuffersEXT(1, &depth_fb);
@@ -68,13 +86,26 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	glTexParameteri(GL_TEXTURE_2D_ARRAY_EXT, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D_ARRAY_EXT, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D_ARRAY_EXT, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
-
+	
 	shad_cpm.resize(MAX_SPLITS);
+	shadow.resize(MAX_SPLITS);
 
 	m_canyi.loadDDSRawFromFile("res/gcanyon.dds", GL_COMPRESSED_RGBA_S3TC_DXT1_ANGLE);
 	m_canyi.setLinear(GL_LINEAR_MIPMAP_NEAREST);
 
 	tex = m_canyi.getTexture();
+	activeProgramTerrain = progTerrain[program];
+	activeProgramTree = progTree[program];
+
+	glBindTexture(GL_TEXTURE_2D_ARRAY_EXT, depth_tex_ar);
+	if (program < 4) {
+		glDisable(GL_POLYGON_OFFSET_FILL);
+		glTexParameteri(GL_TEXTURE_2D_ARRAY_EXT, GL_TEXTURE_COMPARE_MODE, GL_NONE);
+	} else {
+		glEnable(GL_POLYGON_OFFSET_FILL);
+		glTexParameteri(GL_TEXTURE_2D_ARRAY_EXT, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
+	}
+	glBindTexture(GL_TEXTURE_2D_ARRAY_EXT, 0);
 }
 
 Game::~Game() {}
@@ -197,60 +228,66 @@ void Game::resize(int deltaW, int deltaH) {
 }
 
 void Game::renderScene() {	
-	
-	
 	// approximate the atmosphere's filtering effect as a linear function
 	float sky_color[4] = { 0.8f, light_dir[1] * 0.1f + 0.7f, light_dir[1] * 0.4f + 0.5f, 1.0f };
 	glClearColor(sky_color[0], sky_color[1], sky_color[2], sky_color[3]);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 	
-	
-	glUseProgram(progTerrain[0]->m_program);
+	for (int i = 0; i < cur_num_splits; i++){
+		shadow[i] = Matrix4f::BIAS * shadow[i] * m_camera.getInvViewMatrix();
+	}
+	auto shader = activeProgramTerrain;
+	glUseProgram(shader->m_program);
 
-	progTerrain[0]->loadMatrix("u_projection", m_camera.getProjectionMatrix());
-	progTerrain[0]->loadMatrix("u_modelView", m_camera.getViewMatrix());
-	progTerrain[0]->loadMatrix("u_normal", Matrix4f::GetNormalMatrix(m_camera.getViewMatrix()));
-	progTerrain[0]->loadMatrixArray("u_viewProjectionShadows", shad_cpm, cur_num_splits);
-	progTerrain[0]->loadFloatArray("far_d", far_bound, cur_num_splits);
-	progTerrain[0]->loadUnsignedInt("u_numCascades", cur_num_splits);
-	progTerrain[0]->loadVector("u_fogParameter.color", Vector3f(sky_color[0], sky_color[1], sky_color[2]));
+	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
+	shader->loadMatrix("u_modelView", m_camera.getViewMatrix());
+	shader->loadMatrix("u_normal", Matrix4f::GetNormalMatrix(m_camera.getViewMatrix()));
+	shader->loadMatrixArray("u_viewProjectionShadows", shad_cpm, cur_num_splits);
+	shader->loadMatrixArray("u_shadow", shadow, cur_num_splits);
+	shader->loadFloatArray("far_d", far_bound, cur_num_splits);
+	shader->loadUnsignedInt("u_numCascades", cur_num_splits);
+	shader->loadVector("u_fogParameter.color", Vector3f(sky_color[0], sky_color[1], sky_color[2]));
+	shader->loadVector("texSize", Vector2f((float)depth_size, 1.0f / (float)depth_size));
 
-	progTerrain[0]->loadInt("stex", 0);
+	shader->loadInt("stex", 0);
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D_ARRAY, depth_tex_ar);
 
-	progTerrain[0]->loadInt("tex", 1);
+	shader->loadInt("tex", 1);
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, tex);
 
-	progTerrain[0]->loadVector("u_color", Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+	shader->loadVector("u_color", Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
 
 	terrain->DrawRawTerrain();
 	glUseProgram(0);
 
-	glUseProgram(progTree[0]->m_program);
 
-	progTree[0]->loadMatrix("u_projection", m_camera.getProjectionMatrix());
-	progTree[0]->loadMatrix("u_modelView", m_camera.getViewMatrix());
-	progTree[0]->loadMatrix("u_normal", Matrix4f::GetNormalMatrix(m_camera.getViewMatrix()));
-	progTree[0]->loadMatrixArray("u_viewProjectionShadows", shad_cpm, cur_num_splits);
-	progTree[0]->loadFloatArray("far_d", far_bound, cur_num_splits);
-	progTree[0]->loadUnsignedInt("u_numCascades", cur_num_splits);
-	progTree[0]->loadVector("u_fogParameter.color", Vector3f(sky_color[0], sky_color[1], sky_color[2]));
+	shader = activeProgramTree;
+	glUseProgram(shader->m_program);
 
-	progTree[0]->loadInt("stex", 0);
+	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
+	shader->loadMatrix("u_modelView", m_camera.getViewMatrix());
+	shader->loadMatrix("u_normal", Matrix4f::GetNormalMatrix(m_camera.getViewMatrix()));
+	shader->loadMatrixArray("u_viewProjectionShadows", shad_cpm, cur_num_splits);
+	shader->loadMatrixArray("u_shadow", shadow, cur_num_splits);
+	shader->loadFloatArray("far_d", far_bound, cur_num_splits);
+	shader->loadUnsignedInt("u_numCascades", cur_num_splits);
+	shader->loadVector("u_fogParameter.color", Vector3f(sky_color[0], sky_color[1], sky_color[2]));
+	shader->loadVector("texSize", Vector2f((float)depth_size, 1.0f / (float)depth_size));
+
+	shader->loadInt("stex", 0);
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D_ARRAY, depth_tex_ar);
 
-	progTree[0]->loadInt("tex", 1);
+	shader->loadInt("tex", 1);
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, tex);
 
-	progTree[0]->loadVector("u_color", Vector4f(0.917647f, 0.776471f, 0.576471f, 1.0f) * 0.2f);
+	shader->loadVector("u_color", Vector4f(0.917647f, 0.776471f, 0.576471f, 1.0f) * 0.2f);
 	terrain->DrawRawTrunk();
 
-	progTree[0]->loadVector("u_color", Vector4f(0.301961f, 0.588235f, 0.309804f, 1.0f) * 0.2f);
+	shader->loadVector("u_color", Vector4f(0.301961f, 0.588235f, 0.309804f, 1.0f) * 0.2f);
 	terrain->DrawRawLeave();
 
 	glUseProgram(0);
@@ -266,9 +303,7 @@ void Game::shadowPass() {
 	// and render only to the shadowmap
 	// offset the geometry slightly to prevent z-fighting
 	// note that this introduces some light-leakage artifacts
-	//glPolygonOffset(1.0f, 4096.0f);
-	//glEnable(GL_POLYGON_OFFSET_FILL);
-
+	
 	// draw all faces since our terrain is not closed.
 	//glDisable(GL_CULL_FACE);
 	// for all shadow maps:
@@ -289,10 +324,11 @@ void Game::shadowPass() {
 		terrain->Draw(minZ, lightProj, lightView);
 
 		shad_cpm[i] = lightProj * lightView;
+		shadow[i] = lightProj * lightView;
 	}
 
 	//glEnable(GL_CULL_FACE);
-	//glDisable(GL_POLYGON_OFFSET_FILL);
+	
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 	glViewport(0, 0, Application::Width, Application::Height);
 }
@@ -459,9 +495,27 @@ void Game::renderUi() {
 		setUpSplitDist(f, 1.0f, FAR_DIST);
 
 		for (int i = 0; i < cur_num_splits; i++) {
-			far_bound[i] = 0.5f*(-f[i].fard * m_camera.getProjectionMatrix()[2][2] + m_camera.getProjectionMatrix()[3][2]) / f[i].fard + 0.5f;
+			far_bound[i] = 0.5f*(-f[i].fard * m_camera.getPerspectiveMatrix()[2][2] + m_camera.getPerspectiveMatrix()[3][2]) / f[i].fard + 0.5f;
 		}
 	}
+
+	int currentRenderMode = program;
+	if (ImGui::Combo("Program", &currentRenderMode, "Base\0Splits\0Smooth Shadow\0Smooth Shadow no leak\0PCF\0PCF Trilinear\0PCF taps\0PCF random taps\0PCF gaussian\0\0")) {
+		program = static_cast<Program>(currentRenderMode);
+		activeProgramTerrain = progTerrain[program];
+		activeProgramTree = progTree[program];
+
+		glBindTexture(GL_TEXTURE_2D_ARRAY_EXT, depth_tex_ar);
+		if (currentRenderMode < 4) {
+			glDisable(GL_POLYGON_OFFSET_FILL);
+			glTexParameteri(GL_TEXTURE_2D_ARRAY_EXT, GL_TEXTURE_COMPARE_MODE, GL_NONE);
+		}else {
+			glEnable(GL_POLYGON_OFFSET_FILL);
+			glTexParameteri(GL_TEXTURE_2D_ARRAY_EXT, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
+		}
+		glBindTexture(GL_TEXTURE_2D_ARRAY_EXT, 0);
+	}
+
 	ImGui::End();
 
 	ImGui::Render();

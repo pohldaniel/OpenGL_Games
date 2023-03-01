@@ -10,7 +10,7 @@
 #include "Constants.h"
 
 #define FAR_DIST 200.0f
-#define MAX_SPLITS 8
+#define MAX_SPLITS 4
 #define NUM_OBJECTS 4
 #define LIGHT_FOV 45.0
 

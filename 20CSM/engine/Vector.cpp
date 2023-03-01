@@ -27,7 +27,7 @@ const Matrix4f Matrix4f::IDENTITY(1.0f, 0.0f, 0.0f, 0.0f,
 	0.0f, 0.0f, 1.0f, 0.0f,
 	0.0f, 0.0f, 0.0f, 1.0f);
 
-const Matrix4f Matrix4f::BiasMatrix(0.5f, 0.0f, 0.0f, 0.0f,
+const Matrix4f Matrix4f::BIAS(0.5f, 0.0f, 0.0f, 0.0f,
 	0.0f, 0.5f, 0.0f, 0.0f,
 	0.0f, 0.0f, 0.5f, 0.0f,
 	0.5f, 0.5f, 0.5f, 1.0f);
@@ -971,6 +971,18 @@ Matrix4f &Matrix4f::InvPerspective(Matrix4f &mtx, float fovx, float aspect, floa
 	return mtx;
 }
 
+Matrix4f Matrix4f::InvPerspective(const Matrix4f &pers){
+	float e = 1.0f / pers[1][1];
+	float aspect = pers[1][1] / pers[0][0];
+	float near = pers[3][2] / (pers[2][2] - 1);
+	float far = pers[3][2] / (pers[2][2] + 1);
+	
+	return Matrix4f(e * aspect, 0.0f, 0.0f, 0.0f,
+					0.0f, e, 0.0f, 0.0f,
+					0.0f, 0.0f, 0.0f, (near - far) / (2 * far * near),
+					0.0f, 0.0f, -1.0f, (near + far) / (2 * far * near));
+}
+
 Matrix4f Matrix4f::Orthographic(float left, float right, float bottom, float top, float znear, float zfar) {
 	Matrix4f ortho;
 
@@ -1070,6 +1082,29 @@ Matrix4f &Matrix4f::InvOrthographic(Matrix4f &mtx, float left, float right, floa
 	mtx[3][3] = 1.0f;
 
 	return mtx;
+}
+
+Matrix4f Matrix4f::InvOrthographic(const Matrix4f &ortho) {
+	float left = -(1.0f / ortho[0][0]) * (1.0f + ortho[3][0]);
+	float right = (1.0f / ortho[0][0]) * (1.0f - ortho[3][0]);
+	float bottom = -(1.0f / ortho[1][1]) * (1.0f + ortho[3][1]);
+	float top = (1.0f / ortho[1][1]) * (1.0f - ortho[3][1]);
+	float near = (1.0f / ortho[2][2]) * (1.0f - ortho[3][2]);
+	float far = -(1.0f / ortho[2][2]) * (1.0f + ortho[3][2]);
+
+	return Matrix4f((right - left) * 0.5f, 0.0f, 0.0f, 0.0f,
+					 0.0f, (top - bottom) * 0.5f, 0.0f, 0.0f,
+					 0.0f, 0.0f, (near - far) * 0.5f, 0.0f,
+					(right + left) * 0.5f, (top + bottom) * 0.5f, -(far + near) * 0.5f, 1.0f);
+}
+
+Matrix4f Matrix4f::InvViewMatrix(const Matrix4f &viewMatrix) {
+	return Matrix4f(viewMatrix[0][0], viewMatrix[1][0], viewMatrix[2][0], 0.0f,
+		viewMatrix[0][1], viewMatrix[1][1], viewMatrix[2][1], 0.0f,
+		viewMatrix[0][2], viewMatrix[1][2], viewMatrix[2][2], 0.0f,
+		-(viewMatrix[3][0] * viewMatrix[0][0]) - (viewMatrix[3][1] * viewMatrix[0][1]) - (viewMatrix[3][2] * viewMatrix[0][2]),
+		-(viewMatrix[3][0] * viewMatrix[1][0]) - (viewMatrix[3][1] * viewMatrix[1][1]) - (viewMatrix[3][2] * viewMatrix[1][2]),
+		-(viewMatrix[3][0] * viewMatrix[2][0]) - (viewMatrix[3][1] * viewMatrix[2][1]) - (viewMatrix[3][2] * viewMatrix[2][2]), 1.0);
 }
 
 float *Matrix4f::operator[](int row) {

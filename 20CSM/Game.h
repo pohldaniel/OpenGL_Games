@@ -16,6 +16,18 @@
 #include "XTree.h"
 #include "TerrainNV.h"
 
+enum Program {
+	BASE,
+	SPLITS,
+	SMOOTHSHADOW,
+	SMOOTHSHADOWNL,
+	PCF,
+	PCFTRILINEAR,
+	PCFTAP4,
+	PCFTAPRANDOM,
+	PCFGAUSSIAN
+};
+
 struct obj_BoundingSphere {
 	Vector3f center;
 	float radius;
@@ -59,15 +71,16 @@ public:
 	Quad* m_quad;
 	bool m_initUi = true;	
 	Shader* quad;
-	Shader* progTerrain[5];
-	Shader* progTree[5];
+	Shader* progTerrain[9];
+	Shader* progTree[9];
 	Texture m_canyi;
 
 	TerrainNV *terrain;
 	obj_BoundingSphere obj_BSphere[NUM_OBJECTS];
 	frustum f[MAX_SPLITS];
 	std::vector<Matrix4f> shad_cpm;
-	int cur_num_splits = 2;
+	std::vector<Matrix4f> shadow;
+	int cur_num_splits = 4;
 
 	float* m_cascadeEndClipSpace;
 	float far_bound[MAX_SPLITS];
@@ -78,6 +91,10 @@ public:
 	GLuint depth_tex_ar;
 	GLuint	tex;
 
-	bool m_showDepthTex = true;
+	bool m_showDepthTex = false;
+
+	Program program = Program::PCF;
+	Shader* activeProgramTerrain;
+	Shader* activeProgramTree;
 };
 

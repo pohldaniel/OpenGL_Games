@@ -13,7 +13,7 @@ void AnimationShader::update(const AnimatedModel& model, const Camera& camera, s
 	loadMatrixArray("jointTransforms", jointVector, jointVector.size() < MAX_JOINTS ? jointVector.size() : MAX_JOINTS);
 	loadMatrix("u_model", model.getTransformationMatrix());
 	loadMatrix("u_view", camera.getViewMatrix());
-	loadMatrix("u_projection", camera.getProjectionMatrix());
+	loadMatrix("u_projection", camera.getPerspectiveMatrix());
 }
 
 void AnimationShader::bind(){

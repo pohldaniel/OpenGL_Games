@@ -33,6 +33,8 @@ void main(void) {
 	v_texCoord = i_texCoord;
 	v_color = u_color * diffLight * vec4(max(dot(v_normal, u_lightPos), 0.0));
 	
+	vec3 shrinkedPos = i_position - 0.005 * normalize(i_normal);
+	
 	numCascades = u_numCascades;
 	for(uint i = 0; i < numCascades; i++){
 		scs[i] = u_viewProjectionShadows[i] * i_model * vec4(i_position, 1.0);
