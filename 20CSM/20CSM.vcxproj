@@ -150,7 +150,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>..\lib\x64;..\OpenGL\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>OpenGL32.lib;libglew.lib;libimgui.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>OpenGL32.lib;libglew.lib;libimgui.lib;Glu32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -175,6 +175,7 @@
     <ClInclude Include="engine\Clock.h" />
     <ClInclude Include="engine\Cube.h" />
     <ClInclude Include="engine\Framebuffer.h" />
+    <ClInclude Include="engine\Frustum.h" />
     <ClInclude Include="engine\input\ApplicationEventListener.h" />
     <ClInclude Include="engine\input\Event.h" />
     <ClInclude Include="engine\input\EventDispatcher.h" />
@@ -239,6 +240,7 @@
     <ClCompile Include="engine\Camera.cpp" />
     <ClCompile Include="engine\Cube.cpp" />
     <ClCompile Include="engine\Framebuffer.cpp" />
+    <ClCompile Include="engine\Frustum.cpp" />
     <ClCompile Include="engine\input\ApplicationEventListener.cpp" />
     <ClCompile Include="engine\input\EventDispatcher.cpp" />
     <ClCompile Include="engine\input\KeyBoard.cpp" />

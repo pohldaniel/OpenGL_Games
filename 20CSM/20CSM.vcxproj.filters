@@ -254,6 +254,9 @@
     <ClInclude Include="TerrainNV.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="engine\Frustum.h">
+      <Filter>engine</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine\input\EventDispatcher.cpp">
@@ -456,6 +459,9 @@
     </ClCompile>
     <ClCompile Include="TerrainNV.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\Frustum.cpp">
+      <Filter>engine</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

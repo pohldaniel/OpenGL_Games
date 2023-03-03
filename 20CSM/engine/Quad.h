@@ -8,7 +8,7 @@ class Quad {
 
 public:
 	Quad();
-	Quad(Vector2f& position, Vector2f size);
+	Quad(const Vector2f& position, const Vector2f size);
 	Quad(bool flippable, float leftEdge = -1.0f, float rightEdge = 1.0f, float bottomEdge = -1.0f, float topEdge = 1.0f, float sizeX = 1.0f, float sizeY = 1.0f, float offsetX = 0.0f, float offsetY = 0.0f, float sizeTexX = 1.0f, float sizeTexY = 1.0f,  short x = 0, short y = 0);
 	~Quad();
 
@@ -25,11 +25,12 @@ public:
 	const Vector2f &getPosition() const;
 	const Vector2f &getSize() const;
 	const Vector2f &getOrigin() const;
-
+	void createBuffer(const Vector3f& position, const Vector3f size);
 private:
 
 	void createBuffer(unsigned int& vao, bool flippable, float leftEdge = -1.0f, float rightEdge = 1.0f, float bottomEdge = -1.0f, float topEdge = 1.0f, float sizeX = 1.0f, float sizeY = 1.0f, float offsetX = 0.0f, float offsetY = 0.0f, float sizeTexX = 1.0f, float sizeTexY = 1.0f, short x = 0, short y = 0);
 	void createBuffer();
+	
 	void mapBuffer();
 
 	unsigned int m_vao = 0;

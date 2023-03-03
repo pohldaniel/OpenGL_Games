@@ -16,6 +16,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	m_camera = Camera();
 	m_camera.perspective(45.0, (double)Application::Width / (double)Application::Height, 1.0f, FAR_DIST);
 	m_camera.lookAt(Vector3f(75.5f, 30.0f, -110.0f), Vector3f(75.5f - 0.7f, 30.0f, -110.0f + 0.7f), Vector3f(0.0f, 1.0f, 0.0f));
+	//m_camera.lookAt(Vector3f(0.0f, 0.0f, 0.0f), Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -10.0f, 10.0f);
 
 	m_trackball.reshape(Application::Width, Application::Height);
@@ -106,6 +107,24 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 		glTexParameteri(GL_TEXTURE_2D_ARRAY_EXT, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
 	}
 	glBindTexture(GL_TEXTURE_2D_ARRAY_EXT, 0);
+
+	float heightNear = 2 * tanf(0.5 * m_camera.getFovXRad()) * m_camera.getNear();
+	float widthNear = heightNear *  m_camera.getAspect();
+	float heightFar = 2 * tanf(0.5 * m_camera.getFovXRad()) * m_camera.getFar() * 0.02f;
+	float widthFar = heightFar  * m_camera.getAspect();
+	
+	Vector3f nearBottomLeft = Vector3f(-0.5f * widthNear , -0.5f * heightNear,-m_camera.getNear());
+	Vector3f nearTopRight = Vector3f(0.5f * widthNear, 0.5f * heightNear, -m_camera.getNear());
+	Vector3f farBottomLeft = Vector3f(-0.5f * widthFar, -0.5f * heightFar, -m_camera.getFar()* 0.02f);
+	Vector3f farTopRight = Vector3f(0.5f * widthFar, 0.5f * heightFar, -m_camera.getFar()* 0.02f);
+
+	m_quad2 = new Quad();
+	m_quad2->createBuffer(nearBottomLeft, nearTopRight- nearBottomLeft);
+
+	m_quad3 = new Quad();
+	m_quad3->createBuffer(farBottomLeft, farTopRight - farBottomLeft);
+
+	m_frustum = new Frustum(m_camera.getPerspectiveMatrix(), 0.02f);
 }
 
 Game::~Game() {}
@@ -192,9 +211,18 @@ void Game::render(unsigned int &frameBuffer) {
 			m_quad->drawRaw();
 		}
 		glUseProgram(0);
-	}
 
-	renderUi();
+		/*glEnable(GL_SCISSOR_TEST);
+		glScissor(Application::Width - 129, 0, 128, 128);
+		glClearColor(1.0f, 0.0f, 1.0f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);*/
+		
+
+		//glDisable(GL_SCISSOR_TEST);
+		
+	}
+	overviewCam();
+	/*renderUi();*/	
 }
 
 void Game::OnMouseMotion(Event::MouseMoveEvent& event) {
@@ -349,6 +377,34 @@ void Game::setUpSplitDist(frustum f[MAX_SPLITS], float nd, float fd) {
 
 // Compute the 8 corner points of the current view frustum
 void Game::updateFrustumPoints(frustum& f, const Vector3f& center, const Vector3f& view_dir) {
+	
+	Vector3f direction = m_camera.getViewDirection();
+	Vector3f xaxis = Vector3f::Cross(direction, Vector3f(0.0f, 1.0f, 0.0f));
+	Vector3f::Normalize(xaxis);
+
+	Vector3f yaxis = Vector3f::Cross(xaxis, direction);
+	Vector3f::Normalize(yaxis);
+	Matrix4f lightView;
+	lightView[0][0] = xaxis[0];
+	lightView[1][0] = yaxis[0];
+	lightView[2][0] = direction[0];
+	lightView[3][0] = center[0];
+
+	lightView[0][1] = xaxis[1];
+	lightView[1][1] = yaxis[1];
+	lightView[2][1] = direction[1];
+	lightView[3][1] = center[1];
+
+	lightView[0][2] = xaxis[2];
+	lightView[1][2] = yaxis[2];
+	lightView[2][2] = direction[2];
+	lightView[3][2] = center[2];
+
+	lightView[0][3] = 0.0f;
+	lightView[1][3] = 0.0f;
+	lightView[2][3] = 0.0f;
+	lightView[3][3] = 1.0f;
+
 	Vector3f up(0.0f, 1.0f, 0.0f);
 	Vector3f right = Vector3f::Cross(view_dir, up);
 
@@ -364,6 +420,15 @@ void Game::updateFrustumPoints(frustum& f, const Vector3f& center, const Vector3
 	float near_width = near_height * f.ratio;
 	float far_height = tan(f.fov / 2.0f) * f.fard;
 	float far_width = far_height * f.ratio;
+	
+	Vector4f nearBottomLeft = Vector4f(-near_width, -near_height, f.neard, 1.0f);
+	Vector4f nearTopLeft = Vector4f(-near_width, near_height, f.neard, 1.0f);
+	Vector4f nearTopRight = Vector4f(near_width, near_height, f.neard, 1.0f);
+	Vector4f nearBottomRight = Vector4f(near_width, -near_height, f.neard, 1.0f);
+
+	Vector4f point0 = nearBottomLeft * lightView;
+
+	
 
 	f.point[0] = nc - up*near_height - right*near_width;
 	f.point[1] = nc + up*near_height - right*near_width;
@@ -374,7 +439,11 @@ void Game::updateFrustumPoints(frustum& f, const Vector3f& center, const Vector3
 	f.point[5] = fc + up*far_height - right*far_width;
 	f.point[6] = fc + up*far_height + right*far_width;
 	f.point[7] = fc - up*far_height + right*far_width;
-}
+
+	//std::cout << point0[0] << "  " << point0[1] << "  " << point0[2] << std::endl;
+	//std::cout << f.point[0][0] << "  " << f.point[0][1] << "  " << f.point[0][2] << std::endl;
+	//std::cout << "-----------" << std::endl;
+} 
 
 
 // this function builds a projection matrix for rendering from the shadow's POV.
@@ -455,6 +524,21 @@ float Game::applyCropMatrix(frustum &f, const Matrix4f& lightView, Matrix4f& lig
 	return minZ;
 }
 
+void Game::regenerateDepthTex(GLuint depth_size) {
+	
+	glBindTexture(GL_TEXTURE_2D_ARRAY_EXT, depth_tex_ar);
+	glTexImage3D(GL_TEXTURE_2D_ARRAY_EXT, 0, GL_DEPTH_COMPONENT24, depth_size, depth_size, MAX_SPLITS, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+	glBindTexture(GL_TEXTURE_2D_ARRAY_EXT, 0);
+}
+
+void Game::overviewCam() {
+
+	Vector3f campos = m_camera.getPosition();
+	//std::cout << campos[0] << "  " << campos[1] << "  " << campos[2] << std::endl;
+
+	m_frustum->draw(m_camera, Vector3f(0.5f, -0.5f, -2.0f), Vector3f(0.1f, 0.1f, 0.1f));
+}
+
 
 void Game::renderUi() {
 	ImGui_ImplOpenGL3_NewFrame();
@@ -515,7 +599,13 @@ void Game::renderUi() {
 		}
 		glBindTexture(GL_TEXTURE_2D_ARRAY_EXT, 0);
 	}
+	
 
+	if (ImGui::SliderInt("slider int 2", &v, 0, 3, items[v])) {
+		depth_size = static_cast<int>(pow(2, 9 + v));
+		regenerateDepthTex(depth_size);
+		std::cout << depth_size << std::endl;
+	}
 	ImGui::End();
 
 	ImGui::Render();

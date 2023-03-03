@@ -254,6 +254,46 @@ void Camera::pitchReflection(const float distance) {
 	m_viewMatrix[3][1] = 2 * distance + m_viewMatrix[3][1];
 }
 
+const float Camera::getPitchAngle() const {
+	return -asinf(m_viewMatrix[2][1]) * _180_ON_PI;
+}
+
+const float Camera::getYawAngle() const {
+
+	/*if (m_viewMatrix[2][1] < 1.0f) {
+
+		if (m_viewMatrix[2][1] > - 1.0f) {
+			return atan2f(-m_viewMatrix[0][2], m_viewMatrix[2][2])* _180_ON_PI;
+			
+		} else {
+			return 0.0f;
+			
+		}
+
+	}else {
+
+		return 0.0f;
+	}*/
+	return atan2f(-m_viewMatrix[0][2], m_viewMatrix[2][2])* _180_ON_PI;
+}
+
+const float Camera::getRollAngle() const {
+
+	if (m_viewMatrix[2][1] < 1.0f) {
+
+		if (m_viewMatrix[2][1] > -1.0f) {
+			return  atan2f(m_viewMatrix[2][0], m_viewMatrix[0][0]) * _180_ON_PI;
+
+		} else {
+			return -atan2f(m_viewMatrix[2][0], m_viewMatrix[0][0]) * _180_ON_PI;
+
+		}
+	}else {
+
+		return atan2f(m_viewMatrix[2][0], m_viewMatrix[0][0]) * _180_ON_PI;
+	}
+}
+
 void Camera::move(float dx, float dy, float dz){
 	Vector3f eye = m_eye;
 	eye += m_xAxis * dx;
@@ -373,7 +413,7 @@ void Camera::rotateSmoothly(float yaw, float pitch, float roll) {
 void Camera::rotateFirstPerson(float yaw, float pitch){
 
 	m_accumPitchDegrees += pitch;
-
+	
 	if (m_accumPitchDegrees > 90.0f){
 		pitch = 90.0f - (m_accumPitchDegrees - pitch);
 		m_accumPitchDegrees = 90.0f;
@@ -383,7 +423,7 @@ void Camera::rotateFirstPerson(float yaw, float pitch){
 		pitch = -90.0f - (m_accumPitchDegrees - pitch);
 		m_accumPitchDegrees = -90.0f;
 	}
-
+	
 	Matrix4f rotMtx;
 
 	// Rotate camera's existing x and z axes about the world y axis.
@@ -803,4 +843,20 @@ const Matrix4f Camera::getInvPerspectiveMatrixNew() const {
 					0.0f, e, 0.0f, 0.0f,
 					0.0f, 0.0f, 0.0f, (near - far) / (2 * far * near),
 					0.0f, 0.0f, -1.0f , (near + far) / (2 * far * near));	
+}
+
+const Matrix4f Camera::getRotationMatrix(const Vector3f &centerOfRotation) const {
+	/*return Matrix4f(m_viewMatrix[0][0], m_viewMatrix[0][1], m_viewMatrix[0][2], 0.0f,
+					m_viewMatrix[1][0], m_viewMatrix[1][1], m_viewMatrix[1][2], 0.0f,
+					m_viewMatrix[2][0], m_viewMatrix[2][1], m_viewMatrix[2][2], 0.0f,
+		centerOfRotation[0] * (1.0f - m_viewMatrix[0][0]) - centerOfRotation[1] * m_viewMatrix[1][0] - centerOfRotation[2] * m_viewMatrix[2][0],
+		centerOfRotation[1] * (1.0f - m_viewMatrix[1][1]) - centerOfRotation[0] * m_viewMatrix[0][1] - centerOfRotation[2] * m_viewMatrix[2][1],
+		centerOfRotation[2] * (1.0f - m_viewMatrix[2][2]) - centerOfRotation[0] * m_viewMatrix[0][2] - centerOfRotation[1] * m_viewMatrix[1][2], 1.0);*/
+
+	return Matrix4f(m_viewMatrix[0][0], m_viewMatrix[1][0], m_viewMatrix[2][0], 0.0f,
+		m_viewMatrix[0][1], m_viewMatrix[1][1], m_viewMatrix[2][1], 0.0f,
+		m_viewMatrix[0][2], m_viewMatrix[1][2], m_viewMatrix[2][2], 0.0f,
+		0.0f,
+		0.0f,
+		0.0f, 1.0);
 }

@@ -10,6 +10,7 @@
 #include "engine/Camera.h"
 #include "engine/TrackBall.h"
 #include "engine/Cube.h"
+#include "engine/Frustum.h"
 
 #include "Constants.h"
 #include "StateMachine.h"
@@ -57,7 +58,8 @@ public:
 	void OnMouseButtonUp(Event::MouseButtonEvent& event) override;
 	void renderUi();
 	void applyTransformation(TrackBall& mtx);
-
+	void regenerateDepthTex(GLuint depth_size);
+	void overviewCam();
 	void shadowPass();
 
 	void setUpSplitDist(frustum f[MAX_SPLITS], float nd, float fd);
@@ -69,6 +71,11 @@ public:
 	TrackBall m_trackball;
 	Transform m_transform;
 	Quad* m_quad;
+
+	Quad* m_quad2;
+	Quad* m_quad3;
+	Frustum* m_frustum;
+
 	bool m_initUi = true;	
 	Shader* quad;
 	Shader* progTerrain[9];
@@ -80,7 +87,7 @@ public:
 	frustum f[MAX_SPLITS];
 	std::vector<Matrix4f> shad_cpm;
 	std::vector<Matrix4f> shadow;
-	int cur_num_splits = 4;
+	int cur_num_splits = 2;
 
 	float* m_cascadeEndClipSpace;
 	float far_bound[MAX_SPLITS];
@@ -93,8 +100,13 @@ public:
 
 	bool m_showDepthTex = false;
 
-	Program program = Program::PCF;
+	Program program = Program::BASE;
 	Shader* activeProgramTerrain;
 	Shader* activeProgramTree;
+	int v = 2;
+
+	char * items[4] = { "512", "1024", "2048" , "4096" };
+	Vector3f centerNear;
+	float degree;
 };
 

@@ -20,24 +20,26 @@ Quad::Quad(bool flippable, float leftEdge, float rightEdge, float bottomEdge, fl
 	}
 }
 
-Quad::Quad(Vector2f& position, Vector2f size) {
+Quad::Quad(const Vector2f& position, const Vector2f size) {
 	m_position = position;
 	m_size = size;
 	createBuffer();
 }
 
 Quad::~Quad() {
-	if (m_vbo) {
-		glDeleteBuffers(1, &m_vbo);
-	}
-
 	if (m_vao) {
 		glDeleteVertexArrays(1, &m_vao);
+		m_vao = 0;
 	}
 
 	if (m_vaoFlipped) {
 		glDeleteVertexArrays(1, &m_vaoFlipped);
 		m_vaoFlipped = 0;
+	}
+	
+	if (m_vbo) {
+		glDeleteBuffers(1, &m_vbo);
+		m_vbo = 0;
 	}
 }
 
@@ -113,6 +115,65 @@ void Quad::createBuffer() {
 	vertex.push_back(pos[0]); vertex.push_back(pos[1] + h); vertex.push_back(0.0f); vertex.push_back(0.0f); vertex.push_back(1.0f);
 	vertex.push_back(pos[0] + w); vertex.push_back(pos[1] + h); vertex.push_back(0.0f); vertex.push_back(1.0f); vertex.push_back(1.0f);
 	vertex.push_back(pos[0] + w); vertex.push_back(pos[1]); vertex.push_back(0.0f); vertex.push_back(1.0f); vertex.push_back(0.0f);
+
+	static const GLushort index[] = {
+		0, 2, 1,
+		0, 3, 2
+	};
+
+	short stride = 5;
+	short offset = 3;
+
+	unsigned int ibo;
+	glGenBuffers(1, &ibo);
+	glGenBuffers(1, &m_vbo);
+
+	glGenVertexArrays(1, &m_vao);
+	glBindVertexArray(m_vao);
+
+	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+	glBufferData(GL_ARRAY_BUFFER, vertex.size() * sizeof(float), &vertex[0], GL_STATIC_DRAW);
+
+	//Position
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)0);
+
+	//Texture Coordinates
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)(offset * sizeof(float)));
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(index), index, GL_STATIC_DRAW);
+
+	glBindVertexArray(0);
+	glDeleteBuffers(1, &ibo);
+
+	vertex.clear();
+	vertex.shrink_to_fit();
+}
+
+void Quad::createBuffer(const Vector3f& position, const Vector3f size) {
+	if (m_vao) {
+		glDeleteVertexArrays(1, &m_vao);
+		m_vao = 0;
+	}
+	
+	if (m_vbo) {
+		glDeleteBuffers(1, &m_vbo);
+		m_vbo = 0;
+	}
+
+	std::vector<float> vertex;
+
+	Vector3f pos = position;
+	float w = size[0];
+	float h = size[1];
+	float d = size[2];
+
+	vertex.push_back(pos[0]); vertex.push_back(pos[1]); vertex.push_back(pos[2] + d); vertex.push_back(0.0f); vertex.push_back(0.0f);
+	vertex.push_back(pos[0]); vertex.push_back(pos[1] + h); vertex.push_back(pos[2] + d); vertex.push_back(0.0f); vertex.push_back(1.0f);
+	vertex.push_back(pos[0] + w); vertex.push_back(pos[1] + h); vertex.push_back(pos[2] + d); vertex.push_back(1.0f); vertex.push_back(1.0f);
+	vertex.push_back(pos[0] + w); vertex.push_back(pos[1]); vertex.push_back(pos[2] + d); vertex.push_back(1.0f); vertex.push_back(0.0f);
 
 	static const GLushort index[] = {
 		0, 2, 1,

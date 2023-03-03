@@ -33,6 +33,9 @@ public:
 	const float getFovXDeg() const;
 	const float getFovXRad() const;
 	const float getAspect() const;
+	const float getPitchAngle() const;
+	const float getYawAngle() const;
+	const float getRollAngle() const;
 
 	const float getLeftOrthographic() const;
 	const float getRightOrthographic() const;
@@ -47,6 +50,7 @@ public:
 	const Matrix4f &getPerspectiveMatrix() const;
 	const Matrix4f &getInvPerspectiveMatrix() const;
 	const Matrix4f getInvPerspectiveMatrixNew() const;
+	const Matrix4f getRotationMatrix(const Vector3f &centerOfRotation) const;
 
 	const Matrix4f &getOrthographicMatrix() const;
 	const Matrix4f getInvOrthographicMatrixNew() const;

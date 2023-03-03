@@ -139,6 +139,7 @@ public:
 
 	static const Matrix4f IDENTITY;
 	static const Matrix4f BIAS;
+	static const Matrix4f SIGN;
 
 	Matrix4f();
 	Matrix4f(float m11, float m12, float m13, float m14,
@@ -201,16 +202,20 @@ public:
 
 	static Matrix4f Scale(float x, float y, float z);
 	static Matrix4f &Scale(Matrix4f &mtx, float x, float y, float z);
+	static Matrix4f Scale(float x, float y, float z, const Vector3f &centerOfScale);
 
 	static Matrix4f Translate(float dx, float dy, float dz);
 	static Matrix4f &Translate(Matrix4f &mtx, float dx, float dy, float dz);
 
 	static Matrix4f Rotate(const Vector3f &axis, float degrees);
+	static Matrix4f Rotate(const Vector3f &axis, float degrees, const Vector3f &centerOfRotation);
 	static Matrix4f &Rotate(Matrix4f &mtx, const Vector3f &axis, float degrees);
 
 	static Matrix4f Perspective(float fovx, float aspect, float znear, float zfar);
 	static Matrix4f &Perspective(Matrix4f &mtx, float fovx, float aspect, float znear, float zfar);
 	static Matrix4f Perspective(float left, float right, float bottom, float top, float znear, float zfar);
+
+	static Matrix4f LookAt(const Vector3f &eye, const Vector3f &target, const Vector3f &up);
 
 	static Matrix4f InvPerspective(float fovx, float aspect, float znear, float zfar);
 	static Matrix4f &InvPerspective(Matrix4f &mtx, float fovx, float aspect, float znear, float zfar);
