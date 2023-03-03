@@ -31,6 +31,23 @@
 							color = v_color;	\n \
 							}"    
 
+struct Plane {
+	Vector3f normal; 
+	float d;
+	Vector3f p1;
+	Vector3f p2;
+
+	void normalize(){
+		Plane Result;
+		float distance = sqrtf(normal[0] * normal[0] + normal[1] * normal[1] + normal[2] * normal[2]);
+		normal[0] = normal[0] * (1.0f / distance);
+		normal[1] = normal[1] * (1.0f / distance);
+		normal[2] = normal[2] * (1.0f / distance);
+		d = d * (1.0f / distance);
+	}
+};
+
+
 class Frustum {
 
 public:
@@ -38,16 +55,25 @@ public:
 	~Frustum();
 
 	void drawRaw();
+	void drawPlane(const Camera& camera, const Vector3f& position, const Vector3f& scale, const Vector4f& color, const Plane& plane);
 	void draw(const Camera& camera, const Vector3f& position, const Vector3f& scale);
+
+	Plane m_planes[6];
+
 private:
 
 	void createBuffer(const Matrix4f& perspective, float scale);
 
 	unsigned int m_vao = 0;
-	unsigned int m_vaoFlipped = 0;
 	unsigned int m_vbo = 0;
+
+	unsigned int m_vao2 = 0;
+	unsigned int m_vbo2 = 0;
 
 	static std::unique_ptr<Shader> s_shaderFrustum;
 	Vector3f m_center;
+	
+
+	
 };
 #endif

@@ -179,7 +179,7 @@ void Game::update() {
 void Game::render(unsigned int &frameBuffer) {
 	
 	shadowPass();
-	renderScene();
+	/*renderScene();
 	
 	if (m_showDepthTex) {
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -195,18 +195,14 @@ void Game::render(unsigned int &frameBuffer) {
 			m_quad->drawRaw();
 		}
 		glUseProgram(0);
-
-		/*glEnable(GL_SCISSOR_TEST);
-		glScissor(Application::Width - 129, 0, 128, 128);
-		glClearColor(1.0f, 0.0f, 1.0f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);*/
 		
+	}*/
 
-		//glDisable(GL_SCISSOR_TEST);
-		
-	}
+	glClearColor(1.0f, 0.0f, 0.0f, 0.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 	overviewCam();
-	renderUi();	
+	//renderUi();	
 }
 
 void Game::OnMouseMotion(Event::MouseMoveEvent& event) {
@@ -473,6 +469,8 @@ void Game::overviewCam() {
 	//std::cout << campos[0] << "  " << campos[1] << "  " << campos[2] << std::endl;
 
 	m_frustum->draw(m_camera, Vector3f(0.5f, -0.5f, -2.0f), Vector3f(0.1f, 0.1f, 0.1f));
+	m_frustum->drawPlane(m_camera, Vector3f(0.0f, 0.0f, -2.0f), Vector3f(0.1f, 0.1f, 0.1f), Vector4f(0.0f, 1.0f, 0.0f, 1.0f), m_frustum->m_planes[0]);
+	m_frustum->drawPlane(m_camera, Vector3f(0.0f, 0.0f, -2.0f), Vector3f(0.1f, 0.1f, 0.1f), Vector4f(0.0f, 1.0f, 1.0f, 1.0f), m_frustum->m_planes[1]);
 }
 
 
