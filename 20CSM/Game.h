@@ -71,9 +71,6 @@ public:
 	TrackBall m_trackball;
 	Transform m_transform;
 	Quad* m_quad;
-
-	Quad* m_quad2;
-	Quad* m_quad3;
 	Frustum* m_frustum;
 
 	bool m_initUi = true;	

@@ -845,18 +845,10 @@ const Matrix4f Camera::getInvPerspectiveMatrixNew() const {
 					0.0f, 0.0f, -1.0f , (near + far) / (2 * far * near));	
 }
 
-const Matrix4f Camera::getRotationMatrix(const Vector3f &centerOfRotation) const {
-	/*return Matrix4f(m_viewMatrix[0][0], m_viewMatrix[0][1], m_viewMatrix[0][2], 0.0f,
-					m_viewMatrix[1][0], m_viewMatrix[1][1], m_viewMatrix[1][2], 0.0f,
-					m_viewMatrix[2][0], m_viewMatrix[2][1], m_viewMatrix[2][2], 0.0f,
-		centerOfRotation[0] * (1.0f - m_viewMatrix[0][0]) - centerOfRotation[1] * m_viewMatrix[1][0] - centerOfRotation[2] * m_viewMatrix[2][0],
-		centerOfRotation[1] * (1.0f - m_viewMatrix[1][1]) - centerOfRotation[0] * m_viewMatrix[0][1] - centerOfRotation[2] * m_viewMatrix[2][1],
-		centerOfRotation[2] * (1.0f - m_viewMatrix[2][2]) - centerOfRotation[0] * m_viewMatrix[0][2] - centerOfRotation[1] * m_viewMatrix[1][2], 1.0);*/
-
+const Matrix4f Camera::getRotationMatrix(const Vector3f &position) const {
+	
 	return Matrix4f(m_viewMatrix[0][0], m_viewMatrix[1][0], m_viewMatrix[2][0], 0.0f,
-		m_viewMatrix[0][1], m_viewMatrix[1][1], m_viewMatrix[2][1], 0.0f,
-		m_viewMatrix[0][2], m_viewMatrix[1][2], m_viewMatrix[2][2], 0.0f,
-		0.0f,
-		0.0f,
-		0.0f, 1.0);
+					m_viewMatrix[0][1], m_viewMatrix[1][1], m_viewMatrix[2][1], 0.0f,
+					m_viewMatrix[0][2], m_viewMatrix[1][2], m_viewMatrix[2][2], 0.0f,
+					position[0], position[1], position[2], 1.0);
 }

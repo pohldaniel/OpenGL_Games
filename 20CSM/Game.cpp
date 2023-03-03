@@ -108,22 +108,6 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	}
 	glBindTexture(GL_TEXTURE_2D_ARRAY_EXT, 0);
 
-	float heightNear = 2 * tanf(0.5 * m_camera.getFovXRad()) * m_camera.getNear();
-	float widthNear = heightNear *  m_camera.getAspect();
-	float heightFar = 2 * tanf(0.5 * m_camera.getFovXRad()) * m_camera.getFar() * 0.02f;
-	float widthFar = heightFar  * m_camera.getAspect();
-	
-	Vector3f nearBottomLeft = Vector3f(-0.5f * widthNear , -0.5f * heightNear,-m_camera.getNear());
-	Vector3f nearTopRight = Vector3f(0.5f * widthNear, 0.5f * heightNear, -m_camera.getNear());
-	Vector3f farBottomLeft = Vector3f(-0.5f * widthFar, -0.5f * heightFar, -m_camera.getFar()* 0.02f);
-	Vector3f farTopRight = Vector3f(0.5f * widthFar, 0.5f * heightFar, -m_camera.getFar()* 0.02f);
-
-	m_quad2 = new Quad();
-	m_quad2->createBuffer(nearBottomLeft, nearTopRight- nearBottomLeft);
-
-	m_quad3 = new Quad();
-	m_quad3->createBuffer(farBottomLeft, farTopRight - farBottomLeft);
-
 	m_frustum = new Frustum(m_camera.getPerspectiveMatrix(), 0.02f);
 }
 
@@ -222,7 +206,7 @@ void Game::render(unsigned int &frameBuffer) {
 		
 	}
 	overviewCam();
-	/*renderUi();*/	
+	renderUi();	
 }
 
 void Game::OnMouseMotion(Event::MouseMoveEvent& event) {
@@ -377,42 +361,7 @@ void Game::setUpSplitDist(frustum f[MAX_SPLITS], float nd, float fd) {
 
 // Compute the 8 corner points of the current view frustum
 void Game::updateFrustumPoints(frustum& f, const Vector3f& center, const Vector3f& view_dir) {
-	
-	Vector3f direction = m_camera.getViewDirection();
-	Vector3f xaxis = Vector3f::Cross(direction, Vector3f(0.0f, 1.0f, 0.0f));
-	Vector3f::Normalize(xaxis);
-
-	Vector3f yaxis = Vector3f::Cross(xaxis, direction);
-	Vector3f::Normalize(yaxis);
-	Matrix4f lightView;
-	lightView[0][0] = xaxis[0];
-	lightView[1][0] = yaxis[0];
-	lightView[2][0] = direction[0];
-	lightView[3][0] = center[0];
-
-	lightView[0][1] = xaxis[1];
-	lightView[1][1] = yaxis[1];
-	lightView[2][1] = direction[1];
-	lightView[3][1] = center[1];
-
-	lightView[0][2] = xaxis[2];
-	lightView[1][2] = yaxis[2];
-	lightView[2][2] = direction[2];
-	lightView[3][2] = center[2];
-
-	lightView[0][3] = 0.0f;
-	lightView[1][3] = 0.0f;
-	lightView[2][3] = 0.0f;
-	lightView[3][3] = 1.0f;
-
-	Vector3f up(0.0f, 1.0f, 0.0f);
-	Vector3f right = Vector3f::Cross(view_dir, up);
-
-	Vector3f fc = center + view_dir*f.fard;
-	Vector3f nc = center + view_dir*f.neard;
-
-	right = Vector3f::Normalize(right);
-	up = Vector3f::Normalize(Vector3f::Cross(right, view_dir));
+	Matrix4f lightView = Matrix4f::Rotate(view_dir, center);
 
 	// these heights and widths are half the heights and widths of
 	// the near and far plane rectangles
@@ -420,29 +369,16 @@ void Game::updateFrustumPoints(frustum& f, const Vector3f& center, const Vector3
 	float near_width = near_height * f.ratio;
 	float far_height = tan(f.fov / 2.0f) * f.fard;
 	float far_width = far_height * f.ratio;
-	
-	Vector4f nearBottomLeft = Vector4f(-near_width, -near_height, f.neard, 1.0f);
-	Vector4f nearTopLeft = Vector4f(-near_width, near_height, f.neard, 1.0f);
-	Vector4f nearTopRight = Vector4f(near_width, near_height, f.neard, 1.0f);
-	Vector4f nearBottomRight = Vector4f(near_width, -near_height, f.neard, 1.0f);
 
-	Vector4f point0 = nearBottomLeft * lightView;
+	f.point[0] = Vector4f(-near_width, -near_height, f.neard, 1.0f) * lightView;
+	f.point[1] = Vector4f(-near_width, near_height, f.neard, 1.0f) * lightView;
+	f.point[2] = Vector4f(near_width, near_height, f.neard, 1.0f) * lightView;
+	f.point[3] = Vector4f(near_width, -near_height, f.neard, 1.0f) * lightView;
 
-	
-
-	f.point[0] = nc - up*near_height - right*near_width;
-	f.point[1] = nc + up*near_height - right*near_width;
-	f.point[2] = nc + up*near_height + right*near_width;
-	f.point[3] = nc - up*near_height + right*near_width;
-
-	f.point[4] = fc - up*far_height - right*far_width;
-	f.point[5] = fc + up*far_height - right*far_width;
-	f.point[6] = fc + up*far_height + right*far_width;
-	f.point[7] = fc - up*far_height + right*far_width;
-
-	//std::cout << point0[0] << "  " << point0[1] << "  " << point0[2] << std::endl;
-	//std::cout << f.point[0][0] << "  " << f.point[0][1] << "  " << f.point[0][2] << std::endl;
-	//std::cout << "-----------" << std::endl;
+	f.point[4] = Vector4f(-far_width, -far_height, f.fard, 1.0f) * lightView;
+	f.point[5] = Vector4f(-far_width, far_height, f.fard, 1.0f) * lightView;
+	f.point[6] = Vector4f(far_width, far_height, f.fard, 1.0f) * lightView;
+	f.point[7] = Vector4f(far_width, -far_height, f.fard, 1.0f) * lightView;
 } 
 
 

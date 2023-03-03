@@ -799,6 +799,35 @@ Matrix4f& Matrix4f::Rotate(Matrix4f &mtx, const Vector3f &axis, float degrees) {
 	return mtx;
 }
 
+Matrix4f Matrix4f::Rotate(const Vector3f &direction) {
+	
+	Vector3f xaxis = Vector3f::Cross(direction, Vector3f(0.0f, 1.0f, 0.0f));
+	Vector3f::Normalize(xaxis);
+
+	Vector3f yaxis = Vector3f::Cross(xaxis, direction);
+	Vector3f::Normalize(yaxis);
+
+	return Matrix4f(xaxis[0], xaxis[1], xaxis[2], 0.0f,
+					yaxis[0], yaxis[1], yaxis[2], 0.0f,
+					direction[0], direction[1], direction[2], 0.0f,
+					0.0f, 0.0f, 0.0f, 1.0f);
+
+}
+
+Matrix4f Matrix4f::Rotate(const Vector3f &direction, const Vector3f &poisiton) {
+	Vector3f xaxis = Vector3f::Cross(direction, Vector3f(0.0f, 1.0f, 0.0f));
+	Vector3f::Normalize(xaxis);
+
+	Vector3f yaxis = Vector3f::Cross(xaxis, direction);
+	Vector3f::Normalize(yaxis);
+
+	return Matrix4f(xaxis[0], xaxis[1], xaxis[2], 0.0f,
+		yaxis[0], yaxis[1], yaxis[2], 0.0f,
+		direction[0], direction[1], direction[2], 0.0f,
+		poisiton[0], poisiton[1], poisiton[2], 1.0f);
+}
+
+
 Matrix4f Matrix4f::GetNormalMatrix(const Matrix4f &modelViewMatrix) {
 
 	Matrix4f normalMatrix;
