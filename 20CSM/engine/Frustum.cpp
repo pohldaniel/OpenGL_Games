@@ -120,14 +120,17 @@ void Frustum::drawRaw() {
 }
 
 void Frustum::draw(const Camera& camera, const Vector3f& position, const Vector3f& scale) {
+	//Matrix4f lightView = Matrix4f::Rotate(camera.getViewDirection(), position) * Matrix4f::SIGN;
+
 	glDisable(GL_CULL_FACE);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	
 	glUseProgram(s_shaderFrustum->m_program);
-	s_shaderFrustum->loadMatrix("u_transform", camera.getPerspectiveMatrix() * Matrix4f::Rotate(Vector3f(1.0f, 0.0f, 0.0f), 90.0f, position)  * Matrix4f::Scale(scale[0], scale[1], scale[2], position) * camera.getRotationMatrix(position));
+	s_shaderFrustum->loadMatrix("u_transform", camera.getPerspectiveMatrix() * Matrix4f::Rotate(Vector3f(1.0f, 0.0f, 0.0f), 90.0f, position)  * Matrix4f::Scale(scale[0], scale[1], scale[2], position) * camera.getRotationMatrix(position) );
 	s_shaderFrustum->loadVector("u_color", Vector4f(0.0f, 1.0f, 0.0f, 1.0f));
 	drawRaw();
-
 	glUseProgram(0);
+
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	glEnable(GL_CULL_FACE);
 }

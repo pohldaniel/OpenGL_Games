@@ -147,7 +147,6 @@ void Camera::updateViewMatrix(const Vector3f &eye, const Vector3f &target, const
 void Camera::perspective(float fovx, float aspect, float znear, float zfar){
 	// Construct a projection matrix based on the horizontal field of view
 	// 'fovx' rather than the more traditional vertical field of view 'fovy'.
-
 	float e = 1.0f /tanf(PI_ON_180 * fovx * 0.5f);
 	float xScale = e / aspect;
 	float yScale = e;
