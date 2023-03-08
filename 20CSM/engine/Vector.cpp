@@ -1778,11 +1778,11 @@ Vector4f::Vector4f(float x_, float y_, float z_, float w_){
 	vec[3] = w_;
 }
 
-Vector4f::Vector4f(const Vector3f &rhs) {
+Vector4f::Vector4f(const Vector3f &rhs, float w) {
 	vec[0] = rhs[0];
 	vec[1] = rhs[1];
 	vec[2] = rhs[2];
-	vec[3] = 1.0;
+	vec[3] = w;
 }
 
 float &Vector4f::operator[](int index) {
@@ -1804,6 +1804,12 @@ Vector4f Vector4f::operator+(const Vector4f &rhs) const {
 	tmp += rhs;
 	return tmp;
 }
+
+float Vector4f::Dot(const Vector4f &p, const Vector4f &q) {
+
+	return (p[0] * q[0]) + (p[1] * q[1]) + (p[2] * q[2]) + (p[3] * q[3]);
+}
+
 //friend operator
 Vector4f operator*(float lhs, const Vector4f &rhs) {
 	return Vector4f(lhs * rhs[0], lhs * rhs[1], lhs * rhs[2], lhs * rhs[3]);

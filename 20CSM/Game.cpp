@@ -12,11 +12,11 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 
 	EventDispatcher::AddMouseListener(this);
 	m_quad = new Quad();
-	
+	m_cube = new MeshCube(false, false, false, false);
+
 	m_camera = Camera();
 	m_camera.perspective(45.0, (double)Application::Width / (double)Application::Height, 1.0f, FAR_DIST);
 	m_camera.lookAt(Vector3f(75.5f, 30.0f, -110.0f), Vector3f(75.5f - 0.7f, 30.0f, -110.0f + 0.7f), Vector3f(0.0f, 1.0f, 0.0f));
-	//m_camera.lookAt(Vector3f(0.0f, 0.0f, 0.0f), Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -10.0f, 10.0f);
 
 	m_trackball.reshape(Application::Width, Application::Height);
@@ -42,6 +42,8 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	progTree[6] = new Shader("res/shadow_vertex_ins.glsl", "res/shadow_pcf_4tap_fragment.glsl");
 	progTree[7] = new Shader("res/shadow_vertex_ins.glsl", "res/shadow_pcf_8tap_random_fragment.glsl");
 	progTree[8] = new Shader("res/shadow_vertex_ins.glsl", "res/shadow_pcf_gaussian_fragment.glsl");
+
+	prog0 = new Shader("res/prog0.vs", "res/prog0.fs");
 
 	terrain = new TerrainNV();
 	terrain->Load();
@@ -109,6 +111,9 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	glBindTexture(GL_TEXTURE_2D_ARRAY_EXT, 0);
 
 	m_frustum = new Frustum(m_camera.getPerspectiveMatrix(), 0.02f);
+	
+	m_transform.fromMatrix(m_camera.getRotationMatrix() * Matrix4f::SIGN);
+	m_transform.translate(Vector3f(75.5f, 30.0f, -110.0f) + m_camera.getViewDirection() * 20);
 }
 
 Game::~Game() {}
@@ -154,6 +159,10 @@ void Game::update() {
 		move |= true;
 	}
 
+	if (keyboard.keyPressed(Keyboard::KEY_LSHIFT)) {
+		m_rotateLight = !m_rotateLight;
+	}
+
 	Mouse &mouse = Mouse::instance();
 
 	if (mouse.buttonDown(Mouse::MouseButton::BUTTON_RIGHT)) {
@@ -163,8 +172,10 @@ void Game::update() {
 
 	if (move || dx != 0.0f || dy != 0.0f) {
 		if (dx || dy) {
-			m_camera.rotateSmoothly(dx, dy, 0.0f);
-
+			if(!m_rotateLight)
+				m_camera.rotateSmoothly(dx, dy, 0.0f);
+			else
+				rotateLight(light_dir, -dx * 0.001f, m_camera.getViewDirection());
 		}
 
 		if (move) {
@@ -179,7 +190,7 @@ void Game::update() {
 void Game::render(unsigned int &frameBuffer) {
 	
 	shadowPass();
-	/*renderScene();
+	renderScene();
 	
 	if (m_showDepthTex) {
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -195,14 +206,11 @@ void Game::render(unsigned int &frameBuffer) {
 			m_quad->drawRaw();
 		}
 		glUseProgram(0);
+		overviewCam();
 		
-	}*/
+	}
 
-	glClearColor(1.0f, 0.0f, 0.0f, 0.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	overviewCam();
-	//renderUi();	
+	renderUi();	
 }
 
 void Game::OnMouseMotion(Event::MouseMoveEvent& event) {
@@ -222,11 +230,11 @@ void Game::OnMouseButtonUp(Event::MouseButtonEvent& event) {
 
 void Game::applyTransformation(TrackBall& arc) {
 
-	m_transform.fromMatrix(arc.getTransform(Vector3f(0.0f, 1.0f, 0.0f), 180.0f));
+	
 }
 
 void Game::resize(int deltaW, int deltaH) {
-	m_camera.perspective(40.0, (double)Application::Width / (double)Application::Height, 1.0, 100.0);
+	m_camera.perspective(45.0, (double)Application::Width / (double)Application::Height, 0.1f, FAR_DIST);
 	m_trackball.reshape(Application::Width, Application::Height);
 
 	for (int i = 0; i<MAX_SPLITS; i++) {
@@ -465,14 +473,50 @@ void Game::regenerateDepthTex(GLuint depth_size) {
 
 void Game::overviewCam() {
 
-	Vector3f campos = m_camera.getPosition();
-	//std::cout << campos[0] << "  " << campos[1] << "  " << campos[2] << std::endl;
+	m_frustum->updatePlane(m_camera, Matrix4f::Perspective(15.0f, (double)Application::Width / (double)Application::Height, 15.0f, 20.0f), m_transform.getTransformationMatrix());
+	
+	m_frustum->draw(m_camera, Vector3f(1.1f, -0.6f, -2.0f), Vector3f(0.05f, 0.05f, 0.05f));
+	m_frustum->drawFrustm(m_camera);
+	
+	Vector4f color = Vector4f(1.0f, 1.0f, 1.0f, 1.0f);
+	if (m_frustum->intersectAABBFrustum(m_cube->getPosition(), m_cube->getSize()))
+		color = Vector4f(0.0f, 0.0f, 0.0f, 0.0f);
 
-	m_frustum->draw(m_camera, Vector3f(0.5f, -0.5f, -2.0f), Vector3f(0.1f, 0.1f, 0.1f));
-	m_frustum->drawPlane(m_camera, Vector3f(0.0f, 0.0f, -2.0f), Vector3f(0.1f, 0.1f, 0.1f), Vector4f(0.0f, 1.0f, 0.0f, 1.0f), m_frustum->m_planes[0]);
-	m_frustum->drawPlane(m_camera, Vector3f(0.0f, 0.0f, -2.0f), Vector3f(0.1f, 0.1f, 0.1f), Vector4f(0.0f, 1.0f, 1.0f, 1.0f), m_frustum->m_planes[1]);
+	Matrix4f trans = m_transform.getTransformationMatrix();
+
+	glUseProgram(prog0->m_program);
+	prog0->loadMatrix("u_transform", m_camera.getPerspectiveMatrix() * m_camera.getViewMatrix() * m_transform.getTransformationMatrix());
+	prog0->loadVector("u_color", color);
+	m_cube->drawRaw();
+	glUseProgram(0);
 }
 
+void Game::rotateLight(Vector3f& light, float angle, const Vector3f& direction) {
+	float new_x;
+	float new_y;
+	float new_z;
+
+	float c = cos(angle);
+	float s = sin(angle);
+
+	new_x =  (direction[0] * direction[0] * (1 - c) + c) * light[0];
+	new_x += (direction[0] * direction[1] * (1 - c) - direction[2] *s) * light[1];
+	new_x += (direction[0] * direction[2] * (1 - c) + direction[1] *s) * light[2];
+
+	new_y =  (direction[1] * direction[0] * (1 - c) + direction[2] * s) * light[0];
+	new_y += (direction[1] * direction[1] * (1 - c) + c) * light[1];
+	new_y += (direction[1] * direction[2] * (1 - c) - direction[0] * s)	* light[2];
+
+	new_z =  (direction[0] * direction[2] * (1 - c) - direction[1] * s)	* light[0];
+	new_z += (direction[1] * direction[2] * (1 - c) + direction[0] * s)	* light[1];
+	new_z += (direction[2] * direction[2] * (1 - c) + c) * light[2];
+
+	light[0] = new_x;
+	light[1] = new_y;
+	light[2] = new_z;
+
+	Vector3f::Normalize(light);
+}
 
 void Game::renderUi() {
 	ImGui_ImplOpenGL3_NewFrame();
@@ -538,8 +582,9 @@ void Game::renderUi() {
 	if (ImGui::SliderInt("slider int 2", &v, 0, 3, items[v])) {
 		depth_size = static_cast<int>(pow(2, 9 + v));
 		regenerateDepthTex(depth_size);
-		std::cout << depth_size << std::endl;
 	}
+
+	ImGui::Checkbox("Rotate Light", &m_rotateLight);
 	ImGui::End();
 
 	ImGui::Render();

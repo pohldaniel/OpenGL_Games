@@ -2,7 +2,7 @@
 
 float cam_pos[3] = { 75.5, 30.0f, -110 };
 float cam_view[3] = { -0.7f, 0.0f, 0.7f };
-GLfloat light_dir[4] = { 0.2f, 0.99f, 0.0f , 0.0f };
+
 int depth_size = 2048;
 
 const float sensitivity = 0.005;

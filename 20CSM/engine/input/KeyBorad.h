@@ -1,9 +1,9 @@
 #pragma once
 #include <windows.h>
 
-class Keyboard{
+class Keyboard {
 public:
-	enum Key{
+	enum Key {
 		KEY_0 = 48,
 		KEY_1 = 49,
 		KEY_2 = 50,
@@ -74,10 +74,15 @@ public:
 		KEY_RBRACKET = 221,
 		KEY_APOSTROPHE = 222,
 
+
 		KEY_SHIFT = 16,
 		KEY_CTRL = 17,
 		KEY_LWIN = 91,
 		KEY_RWIN = 92,
+		KEY_LSHIFT = 160, /*VK_LSHIFT*/
+		KEY_RSHIFT = 161, /*VK_RSHIFT*/
+		KEY_LCTRL = 162,  /*VK_LCONTROL*/
+		KEY_RCTRL = 163,  /*VK_RCONTROL*/
 		KEY_LALT = 164,
 		KEY_RALT = 165,
 
@@ -113,19 +118,19 @@ public:
 
 	static Keyboard &instance();
 
-	int getLastChar() const{
+	int getLastChar() const {
 		return m_lastChar;
 	}
 
-	bool keyDown(Key key) const{
+	bool keyDown(Key key) const {
 		return (m_pCurrKeyStates[key] & 0x80) ? true : false;
 	}
 
-	bool keyUp(Key key) const{
+	bool keyUp(Key key) const {
 		return (m_pCurrKeyStates[key] & 0x80) ? false : true;
 	}
 
-	bool keyPressed(Key key) const{
+	bool keyPressed(Key key) const {
 		return ((m_pCurrKeyStates[key] & 0x80)
 			&& !(m_pPrevKeyStates[key] & 0x80)) ? true : false;
 	}

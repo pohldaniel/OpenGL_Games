@@ -50,7 +50,7 @@ public:
 	const Matrix4f &getPerspectiveMatrix() const;
 	const Matrix4f &getInvPerspectiveMatrix() const;
 	const Matrix4f getInvPerspectiveMatrixNew() const;
-	const Matrix4f getRotationMatrix(const Vector3f &position) const;
+	const Matrix4f getRotationMatrix(const Vector3f &position = Vector3f(0.0f, 0.0f, 0.0f)) const;
 
 	const Matrix4f &getOrthographicMatrix() const;
 	const Matrix4f getInvOrthographicMatrixNew() const;

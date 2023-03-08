@@ -40,52 +40,9 @@ void Frustum::createBuffer(const Matrix4f& perspective, float scale) {
 	Vector3f farTopRight = Vector3f(0.5f * widthFar, 0.5f * heightFar, far);
 	m_center = Vector3f(0.0f, 0.0f, (far + near) * 0.5f);
 	
-
-	m_planes[0].normal = Vector3f::Normalize(Vector3f::Cross(nearBottomRight - nearBottomLeft, nearTopRight - nearBottomLeft));
-
-	//std::cout << m_planes[0].normal[0] << "  " << m_planes[0].normal[1] << "  " << m_planes[0].normal[2] << std::endl;
-
-	m_planes[0].normal[0] = perspective[3][0] + perspective[2][0];
-	m_planes[0].normal[1] = perspective[3][1] + perspective[2][1];
-	m_planes[0].normal[2] = perspective[3][2] + perspective[2][2];
-	m_planes[0].d = perspective[3][3] + perspective[2][3];
-	m_planes[0].p1 = nearBottomLeft;
-	m_planes[0].p2 = nearBottomRight;
-	m_planes[0].normalize();
-
-
-	m_planes[1].normal[0] = perspective[3][0] - perspective[2][0];
-	m_planes[1].normal[1] = perspective[3][1] - perspective[2][1];
-	m_planes[1].normal[2] = perspective[3][2] - perspective[2][2];
-	m_planes[1].d = perspective[3][3] - perspective[2][3];
-	m_planes[1].p1 = farBottomLeft;
-	m_planes[1].p2 = farBottomRight;
-	m_planes[1].normalize();
-
-	//std::cout << m_planes[0].normal[0] << "  " << m_planes[0].normal[1] << "  " << m_planes[0].normal[2] << std::endl;
-
-	Vector3f tangent = Vector3f::Normalize(m_planes[0].p2 - m_planes[0].p1);
-	Vector3f bitangent = Vector3f::Cross(tangent, m_planes[0].normal);
-
-	//std::cout << tangent[0] << "  " << tangent[1] << "  " << tangent[2] << std::endl;
-	//std::cout << bitangent[0] << "  " << bitangent[1] << "  " << bitangent[2] << std::endl;
-
-	const Vector3f v1 = -tangent - bitangent + m_planes[0].normal * m_planes[0].d;
-	const Vector3f v2 = -tangent + bitangent + m_planes[0].normal * m_planes[0].d;
-	const Vector3f v3 = tangent + bitangent + m_planes[0].normal * m_planes[0].d;
-	const Vector3f v4 = tangent - bitangent + m_planes[0].normal * m_planes[0].d;
-
-	std::cout << v1[0] << "  " << v1[1] << "  " << v1[2] << std::endl;
-	std::cout << v2[0] << "  " << v2[1] << "  " << v2[2] << std::endl;
-	std::cout << v3[0] << "  " << v3[1] << "  " << v3[2] << std::endl;
-	std::cout << v4[0] << "  " << v4[1] << "  " << v4[2] << std::endl;
-	std::cout << "########" << std::endl;
-
 	std::vector<float> vertex;
 	Vector3f pos = nearBottomLeft;
 	Vector3f size = nearTopRight - nearBottomLeft;
-	
-	std::cout << pos[0] << "  " << pos[1] << "  " << pos[2] + size[2] << std::endl;
 
 	vertex.push_back(pos[0]); vertex.push_back(pos[1]); vertex.push_back(pos[2] + size[2]);
 	vertex.push_back(pos[0] + size[0]); vertex.push_back(pos[1]); vertex.push_back(pos[2] + size[2]);
@@ -156,9 +113,125 @@ void Frustum::createBuffer(const Matrix4f& perspective, float scale) {
 	vertex.clear();
 	vertex.shrink_to_fit();
 
+}
 
-	
+void Frustum::updatePlane(const Camera& camera, const Matrix4f& perspective, const Matrix4f& model){
+	Matrix4f mvp = perspective * camera.getViewMatrix() * model;
+	//Near
+	m_planes[0].normal[0] = mvp[0][3] + mvp[0][2];
+	m_planes[0].normal[1] = mvp[1][3] + mvp[1][2];
+	m_planes[0].normal[2] = mvp[2][3] + mvp[2][2];
+	m_planes[0].d = mvp[3][3] + mvp[3][2];
+	m_planes[0].normalize();
 
+	//Far
+	m_planes[1].normal[0] = mvp[0][3] - mvp[0][2];
+	m_planes[1].normal[1] = mvp[1][3] - mvp[1][2];
+	m_planes[1].normal[2] = mvp[2][3] - mvp[2][2];
+	m_planes[1].d = mvp[3][3] - mvp[3][2];
+	m_planes[1].normalize();
+
+	//Left
+	m_planes[2].normal[0] = mvp[0][3] + mvp[0][0];
+	m_planes[2].normal[1] = mvp[1][3] + mvp[1][0];
+	m_planes[2].normal[2] = mvp[2][3] + mvp[2][0];
+	m_planes[2].d = mvp[3][3] + mvp[3][0];
+	m_planes[2].normalize();
+
+	//Right
+	m_planes[3].normal[0] = mvp[0][3] - mvp[0][0];
+	m_planes[3].normal[1] = mvp[1][3] - mvp[1][0];
+	m_planes[3].normal[2] = mvp[2][3] - mvp[2][0];
+	m_planes[3].d = mvp[3][3] - mvp[3][0];
+	m_planes[3].normalize();
+
+	//Bottom
+	m_planes[4].normal[0] = mvp[0][3] + mvp[0][1];
+	m_planes[4].normal[1] = mvp[1][3] + mvp[1][1];
+	m_planes[4].normal[2] = mvp[2][3] + mvp[2][1];
+	m_planes[4].d = mvp[3][3] + mvp[3][1];
+	m_planes[4].normalize();
+
+	//Top
+	m_planes[5].normal[0] = mvp[0][3] - mvp[0][1];
+	m_planes[5].normal[1] = mvp[1][3] - mvp[1][1];
+	m_planes[5].normal[2] = mvp[2][3] - mvp[2][1];
+	m_planes[5].d = mvp[3][3] - mvp[3][1];
+	m_planes[5].normalize();
+
+	if (m_debug) {
+		float near = perspective[3][2] / (perspective[2][2] - 1);
+		float heightNear = (2.0f / perspective[1][1]) * near;
+		float widthNear = (heightNear *  perspective[1][1]) / perspective[0][0];
+
+		float far = perspective[3][2] / (perspective[2][2] + 1);
+		float heightFar = (2.0f / perspective[1][1]) * far;
+		float widthFar = (heightFar  * perspective[1][1]) / perspective[0][0];
+		const Vector3f& pos = camera.getPosition();
+		const Vector3f& up = camera.getCamY();
+		const Vector3f& right = camera.getCamX();
+		const Vector3f& viewDirection = camera.getViewDirection();
+
+		//worldSpace
+		Vector3f centerNear = pos + viewDirection * near;
+		Vector3f centerFar = pos + viewDirection * far;
+		Vector3f nearBottomLeft = centerNear - up * (heightNear * 0.5f) - right * (widthNear * 0.5f);
+		Vector3f nearTopLeft = centerNear + up * (heightNear * 0.5f) - right * (widthNear * 0.5f);
+		Vector3f nearTopRight = centerNear + up * (heightNear * 0.5f) + right * (widthNear * 0.5f);
+		Vector3f nearBottomRight = centerNear - up * (heightNear * 0.5f) + right * (widthNear * 0.5f);
+
+		Vector3f farBottomLeft = centerFar - up * (heightFar * 0.5f) - right * (widthFar * 0.5f);
+		Vector3f farTopLeft = centerFar + up * (heightFar * 0.5f) - right * (widthFar * 0.5f);
+		Vector3f farTopRight = centerFar + up * (heightFar * 0.5f) + right * (widthFar * 0.5f);
+		Vector3f farBottomRight = centerFar - up * (heightFar * 0.5f) + right * (widthFar * 0.5f);
+
+		std::vector<float> vertex;
+
+		vertex.push_back(nearBottomLeft[0]); vertex.push_back(nearBottomLeft[1]); vertex.push_back(nearBottomLeft[2]);
+		vertex.push_back(nearBottomRight[0]); vertex.push_back(nearBottomRight[1]); vertex.push_back(nearBottomRight[2]);
+		vertex.push_back(nearTopRight[0]); vertex.push_back(nearTopRight[1]); vertex.push_back(nearTopRight[2]);
+		vertex.push_back(nearTopLeft[0]); vertex.push_back(nearTopLeft[1]); vertex.push_back(nearTopLeft[2]);
+
+		vertex.push_back(farBottomLeft[0]); vertex.push_back(farBottomLeft[1]); vertex.push_back(farBottomLeft[2]);
+		vertex.push_back(farBottomRight[0]); vertex.push_back(farBottomRight[1]); vertex.push_back(farBottomRight[2]);
+		vertex.push_back(farTopRight[0]); vertex.push_back(farTopRight[1]); vertex.push_back(farTopRight[2]);
+		vertex.push_back(farTopLeft[0]); vertex.push_back(farTopLeft[1]); vertex.push_back(farTopLeft[2]);
+
+		if (!m_vaoFrustum) {
+			const GLushort indicesFrustum[] = {
+				0, 1, 2, 3,
+				4, 5, 6, 7,
+				1, 2, 6, 5,
+				0, 3, 7, 4,
+				0, 1, 5, 4,
+				2, 3, 7, 6
+			};
+
+			unsigned int iboFrustum;
+			glGenBuffers(1, &iboFrustum);
+			glGenBuffers(1, &m_vboFrustum);
+
+			glGenVertexArrays(1, &m_vaoFrustum);
+			glBindVertexArray(m_vaoFrustum);
+
+			glBindBuffer(GL_ARRAY_BUFFER, m_vboFrustum);
+			glBufferData(GL_ARRAY_BUFFER, 24 * sizeof(float), nullptr, GL_DYNAMIC_DRAW);
+
+			//Position
+			glEnableVertexAttribArray(0);
+			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, iboFrustum);
+			glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indicesFrustum), indicesFrustum, GL_STATIC_DRAW);
+
+			glBindVertexArray(0);
+			glDeleteBuffers(1, &iboFrustum);
+		}
+
+		glBindBuffer(GL_ARRAY_BUFFER, m_vboFrustum);
+		glBufferSubData(GL_ARRAY_BUFFER, 0, 24 * sizeof(float), &vertex[0]);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+	}
 }
 
 void Frustum::drawRaw() {
@@ -183,64 +256,55 @@ void Frustum::draw(const Camera& camera, const Vector3f& position, const Vector3
 	glEnable(GL_CULL_FACE);
 }
 
-void Frustum::drawPlane(const Camera& camera, const Vector3f& position, const Vector3f& scale, const Vector4f& color, const Plane& plane) {
-	
-	Vector3f tangent = Vector3f::Normalize(plane.p2 - plane.p1);
-	Vector3f bitangent = Vector3f::Cross(tangent, plane.normal);
-
-	const Vector3f v1 = -tangent - bitangent + plane.normal * plane.d;
-	const Vector3f v2 = -tangent + bitangent + plane.normal * plane.d;
-	const Vector3f v3 = tangent + bitangent + plane.normal * plane.d;
-	const Vector3f v4 = tangent - bitangent + plane.normal * plane.d;
-
-	/*std::cout << v1[0] << "  " << v1[1] << "  " << v1[2] << std::endl;
-	std::cout << v2[0] << "  " << v2[1] << "  " << v2[2] << std::endl;
-	std::cout << v3[0] << "  " << v3[1] << "  " << v3[2] << std::endl;
-	std::cout << v4[0] << "  " << v4[1] << "  " << v4[2] << std::endl;
-	std::cout << "------------" << std::endl;*/
-
-	std::vector<float> vertex;
-	vertex.push_back(v1[0]); vertex.push_back(v1[1]); vertex.push_back(v1[2]);
-	vertex.push_back(v2[0]); vertex.push_back(v2[1]); vertex.push_back(v2[2]);
-	vertex.push_back(v3[0]); vertex.push_back(v3[1]); vertex.push_back(v3[2]);
-	vertex.push_back(v4[0]); vertex.push_back(v4[1]); vertex.push_back(v4[2]);
-
-	const GLushort indices[] = { 0,1,2, 3 };
-
-	unsigned int ibo2;
-	glGenBuffers(1, &ibo2);
-	glGenBuffers(1, &m_vbo2);
-
-	glGenVertexArrays(1, &m_vao2);
-	glBindVertexArray(m_vao2);
-
-	glBindBuffer(GL_ARRAY_BUFFER, m_vbo2);
-	glBufferData(GL_ARRAY_BUFFER, vertex.size() * sizeof(float), &vertex[0], GL_STATIC_DRAW);
-
-	//Position
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo2);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
-	glBindVertexArray(0);
-	glDeleteBuffers(1, &ibo2);
-
+void Frustum::drawFrustm(const Camera& camera) {
+	if (!m_debug) return;
 	glDisable(GL_CULL_FACE);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
 	glUseProgram(s_shaderFrustum->m_program);
-	s_shaderFrustum->loadMatrix("u_transform", camera.getPerspectiveMatrix() * Matrix4f::Rotate(Vector3f(1.0f, 0.0f, 0.0f), 90.0f, position) * Matrix4f::Scale(scale[0], scale[1], scale[2], position) * camera.getRotationMatrix(position) * Matrix4f::SIGN);
-	s_shaderFrustum->loadVector("u_color", color);
+	s_shaderFrustum->loadMatrix("u_transform", camera.getPerspectiveMatrix() * camera.getViewMatrix() * Matrix4f::Translate(0.0f, 0.0f, -1.0f));
+	s_shaderFrustum->loadVector("u_color", Vector4f(0.0f, 1.0f, 1.0f, 1.0f));
 
-	//glVertexPointer(3, GL_FLOAT, 0, &vertex[0]);
-	glBindVertexArray(m_vao2);
-	glDrawElements(GL_QUADS, 4, GL_UNSIGNED_SHORT, 0);
+	glBindVertexArray(m_vaoFrustum);
+	glDrawElements(GL_QUADS, 24, GL_UNSIGNED_SHORT, 0);
 	glBindVertexArray(0);
 
 	glUseProgram(0);
 
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	glEnable(GL_CULL_FACE);
+}
+
+bool Frustum::intersectAABBFrustum(const Vector3f& position, const Vector3f& size) {
+	Vector3f max = position + size;
+	Vector3f min = position;
+	
+	// check box outside/inside of frustum
+	for (int i = 0; i < 6; i++) {
+		int out = 0;
+		out += ((Vector4f::Dot(Vector4f(m_planes[i].normal, m_planes[i].d), Vector4f(min[0], min[1], min[2], 1.0f)) < 0.0) ? 1 : 0);
+		out += ((Vector4f::Dot(Vector4f(m_planes[i].normal, m_planes[i].d), Vector4f(max[0], min[1], min[2], 1.0f)) < 0.0) ? 1 : 0);
+		out += ((Vector4f::Dot(Vector4f(m_planes[i].normal, m_planes[i].d), Vector4f(min[0], max[1], min[2], 1.0f)) < 0.0) ? 1 : 0);
+		out += ((Vector4f::Dot(Vector4f(m_planes[i].normal, m_planes[i].d), Vector4f(max[0], max[1], min[2], 1.0f)) < 0.0) ? 1 : 0);
+		out += ((Vector4f::Dot(Vector4f(m_planes[i].normal, m_planes[i].d), Vector4f(min[0], min[1], max[2], 1.0f)) < 0.0) ? 1 : 0);
+		out += ((Vector4f::Dot(Vector4f(m_planes[i].normal, m_planes[i].d), Vector4f(max[0], min[1], max[2], 1.0f)) < 0.0) ? 1 : 0);
+		out += ((Vector4f::Dot(Vector4f(m_planes[i].normal, m_planes[i].d), Vector4f(min[0], max[1], max[2], 1.0f)) < 0.0) ? 1 : 0);
+		out += ((Vector4f::Dot(Vector4f(m_planes[i].normal, m_planes[i].d), Vector4f(max[0], max[1], max[2], 1.0f)) < 0.0) ? 1 : 0);
+		if (out == 8) return false;
+	}
+
+	return true;
+}
+
+bool Frustum::IntersectAABBPlane(const Vector3f& position, const Vector3f& size, const Plane& plane) {
+	Vector3f max = position + size;
+	Vector3f min = position;
+	Vector3f center = (max + min) * 0.5f;
+	Vector3f extents = max - center;
+
+	float r = extents[0] * abs(plane.normal[0]) + extents[1] * abs(plane.normal[1]) + extents[2] * abs(plane.normal[2]);
+	float s = Vector3f::Dot(plane.normal, center) - plane.d;
+	return abs(s) <= r;
+
+
 }

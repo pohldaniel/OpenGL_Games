@@ -34,8 +34,6 @@
 struct Plane {
 	Vector3f normal; 
 	float d;
-	Vector3f p1;
-	Vector3f p2;
 
 	void normalize(){
 		Plane Result;
@@ -55,10 +53,15 @@ public:
 	~Frustum();
 
 	void drawRaw();
-	void drawPlane(const Camera& camera, const Vector3f& position, const Vector3f& scale, const Vector4f& color, const Plane& plane);
 	void draw(const Camera& camera, const Vector3f& position, const Vector3f& scale);
+	void drawFrustm(const Camera& camera);
 
 	Plane m_planes[6];
+
+	void updatePlane(const Camera& camera, const Matrix4f& perspective, const Matrix4f& model = Matrix4f::IDENTITY);
+	bool intersectAABBFrustum(const Vector3f& position, const Vector3f& size);
+
+	static bool IntersectAABBPlane(const Vector3f& position, const Vector3f& size, const Plane& plane);
 
 private:
 
@@ -67,13 +70,11 @@ private:
 	unsigned int m_vao = 0;
 	unsigned int m_vbo = 0;
 
-	unsigned int m_vao2 = 0;
-	unsigned int m_vbo2 = 0;
+	unsigned int m_vaoFrustum = 0;
+	unsigned int m_vboFrustum = 0;
+	bool m_debug = true;
 
 	static std::unique_ptr<Shader> s_shaderFrustum;
-	Vector3f m_center;
-	
-
-	
+	Vector3f m_center;	
 };
 #endif

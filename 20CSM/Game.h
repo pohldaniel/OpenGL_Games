@@ -11,6 +11,7 @@
 #include "engine/TrackBall.h"
 #include "engine/Cube.h"
 #include "engine/Frustum.h"
+#include "engine/MeshObject/MeshCube.h"
 
 #include "Constants.h"
 #include "StateMachine.h"
@@ -63,6 +64,7 @@ public:
 	void shadowPass();
 
 	void setUpSplitDist(frustum f[MAX_SPLITS], float nd, float fd);
+	void rotateLight(Vector3f& light, float angle, const Vector3f& direction);
 
 	void updateFrustumPoints(frustum& f, const Vector3f& center, const Vector3f& view_dir);
 	float applyCropMatrix(frustum &f, const Matrix4f& lightView, Matrix4f& lightProj);
@@ -71,12 +73,14 @@ public:
 	TrackBall m_trackball;
 	Transform m_transform;
 	Quad* m_quad;
+	MeshCube* m_cube;
 	Frustum* m_frustum;
 
 	bool m_initUi = true;	
 	Shader* quad;
 	Shader* progTerrain[9];
 	Shader* progTree[9];
+	Shader* prog0;
 	Texture m_canyi;
 
 	TerrainNV *terrain;
@@ -96,6 +100,7 @@ public:
 	GLuint	tex;
 
 	bool m_showDepthTex = false;
+	bool m_rotateLight = false;
 
 	Program program = Program::BASE;
 	Shader* activeProgramTerrain;
@@ -105,5 +110,6 @@ public:
 	char * items[4] = { "512", "1024", "2048" , "4096" };
 	Vector3f centerNear;
 	float degree;
+	Vector3f light_dir = Vector3f( 0.2f, 0.99f, 0.0f);
 };
 

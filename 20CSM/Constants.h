@@ -7,8 +7,8 @@
 #include "engine\Spritesheet.h"
 #include "Cubemap.h"
 
-#define WIDTH 1024
-#define HEIGHT 768
+#define WIDTH 1600
+#define HEIGHT 900
 #define DEBUG 1
 
 #define PHYSICS_STEP 0.0166666f

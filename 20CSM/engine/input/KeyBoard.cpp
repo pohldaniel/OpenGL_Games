@@ -1,11 +1,11 @@
 #include "KeyBorad.h"
 
-Keyboard &Keyboard::instance(){
+Keyboard &Keyboard::instance() {
 	static Keyboard theInstance;
 	return theInstance;
 }
 
-Keyboard::Keyboard(){
+Keyboard::Keyboard() {
 	m_lastChar = 0;
 	m_pCurrKeyStates = m_keyStates[0];
 	m_pPrevKeyStates = m_keyStates[1];
@@ -16,8 +16,8 @@ Keyboard::Keyboard(){
 
 Keyboard::~Keyboard() {}
 
-void Keyboard::handleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam){
-	switch (msg){
+void Keyboard::handleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
+	switch (msg) {
 	case WM_CHAR:
 		m_lastChar = static_cast<int>(wParam);
 		break;
@@ -27,7 +27,7 @@ void Keyboard::handleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam){
 	}
 }
 
-void Keyboard::update(){
+void Keyboard::update() {
 	BYTE *pTempKeyStates = m_pPrevKeyStates;
 
 	m_pPrevKeyStates = m_pCurrKeyStates;
@@ -35,7 +35,8 @@ void Keyboard::update(){
 
 	if (!m_disabled) {
 		GetKeyboardState(reinterpret_cast<BYTE*>(m_pCurrKeyStates));
-	}else {
+	}
+	else {
 		memset(m_pCurrKeyStates, 0, 256);
 		memset(m_pPrevKeyStates, 0, 256);
 	}
