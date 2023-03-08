@@ -15,7 +15,6 @@
 
 #include "Constants.h"
 #include "StateMachine.h"
-#include "XTree.h"
 #include "TerrainNV.h"
 
 enum Program {
