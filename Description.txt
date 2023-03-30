@@ -31,3 +31,8 @@ https://gamedev.stackexchange.com/questions/83739/how-do-i-ensure-my-skybox-is-a
  
 https://developer.download.nvidia.com/SDK/10.5/opengl/samples.html
 https://polyhaven.com/a/vestibule
+
+https://stackoverflow.com/questions/21210036/how-to-correctly-make-a-depth-cubemap-for-shadow-mapping?noredirect=1&lq=1
+
+http://www.lighthouse3d.com/tutorials/view-frustum-culling/clip-space-approach-extracting-the-planes/
+https://stackoverflow.com/questions/62468005/how-to-implement-interactive-rotation-operations-in-a-decent-way

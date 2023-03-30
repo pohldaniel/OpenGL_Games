@@ -1,0 +1,323 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{9F9CA101-088C-46BF-BF27-2A10D239A92E}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>21Lugaru</RootNamespace>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;FREEGLUT_STATIC;GLEW_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>.\;dirent\include;..\libpng\include;..\libjpeg\include;..\openal\include;..\vorbis\include;..\vorbisfile\include;..\ogg\include;..\libjsoncpp\include;..\libfreeglut\include;..\libglew;..\libimgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>..\libd\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>OpenGl32.lib;libfreeglut.lib;libjpeg.lib;libjsoncpp.lib;libogg.lib;libopenal.lib;libvorbis.lib;libvorbisfile.lib;libpng.lib;libzlib.lib;libglew.lib;libimgui.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;FREEGLUT_STATIC;GLEW_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>.\;dirent\include;..\libpng\include;..\libjpeg\include;..\openal\include;..\vorbis\include;..\vorbisfile\include;..\ogg\include;..\libjsoncpp\include;..\libfreeglut\include;..\libglew;..\libimgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>..\libd\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>OpenGl32.lib;libfreeglut.lib;libjpeg.lib;libjsoncpp.lib;libogg.lib;libopenal.lib;libvorbis.lib;libvorbisfile.lib;libpng.lib;libzlib.lib;libglew.lib;libimgui.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;FREEGLUT_STATIC;GLEW_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>.\;dirent\include;..\libpng\include;..\libjpeg\include;..\openal\include;..\vorbis\include;..\vorbisfile\include;..\ogg\include;..\libjsoncpp\include;..\libfreeglut\include;..\libglew;..\libimgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>..\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>OpenGl32.lib;libfreeglut.lib;libjpeg.lib;libjsoncpp.lib;libogg.lib;libopenal.lib;libvorbis.lib;libvorbisfile.lib;libpng.lib;libzlib.lib;libglew.lib;libimgui.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;FREEGLUT_STATIC;GLEW_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>.\;dirent\include;..\libpng\include;..\libjpeg\include;..\openal\include;..\vorbis\include;..\vorbisfile\include;..\ogg\include;..\libjsoncpp\include;..\libfreeglut\include;..\libglew;..\libimgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>..\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>OpenGl32.lib;libfreeglut.lib;libjpeg.lib;libjsoncpp.lib;libogg.lib;libopenal.lib;libvorbis.lib;libvorbisfile.lib;libpng.lib;libzlib.lib;libglew.lib;libimgui.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="Animation\AnimationLu.cpp" />
+    <ClCompile Include="Animation\JointLu.cpp" />
+    <ClCompile Include="Animation\Muscle.cpp" />
+    <ClCompile Include="Animation\Skeleton.cpp" />
+    <ClCompile Include="Application.cpp" />
+    <ClCompile Include="Audio\openal_wrapper.cpp" />
+    <ClCompile Include="Audio\Sounds.cpp" />
+    <ClCompile Include="Devtools\ConsoleCmds.cpp" />
+    <ClCompile Include="engine\Batchrenderer.cpp" />
+    <ClCompile Include="engine\BuiltInShader.cpp" />
+    <ClCompile Include="engine\Camera.cpp" />
+    <ClCompile Include="engine\Cube.cpp" />
+    <ClCompile Include="engine\Cubemap.cpp" />
+    <ClCompile Include="engine\Framebuffer.cpp" />
+    <ClCompile Include="engine\Frustum.cpp" />
+    <ClCompile Include="engine\input\ApplicationEventListener.cpp" />
+    <ClCompile Include="engine\input\EventDispatcher.cpp" />
+    <ClCompile Include="engine\input\KeyBoard.cpp" />
+    <ClCompile Include="engine\input\KeyboardEventListener.cpp" />
+    <ClCompile Include="engine\input\Mouse.cpp" />
+    <ClCompile Include="engine\input\MouseEventListener.cpp" />
+    <ClCompile Include="engine\ObjModel.cpp" />
+    <ClCompile Include="engine\PerlinNoise.cpp" />
+    <ClCompile Include="engine\Quad.cpp" />
+    <ClCompile Include="engine\Random.cpp" />
+    <ClCompile Include="engine\Shader.cpp" />
+    <ClCompile Include="engine\Spritesheet.cpp" />
+    <ClCompile Include="engine\Tetraedron.cpp" />
+    <ClCompile Include="engine\Texture.cpp" />
+    <ClCompile Include="engine\Timer.cpp" />
+    <ClCompile Include="engine\TrackBall.cpp" />
+    <ClCompile Include="engine\Transform.cpp" />
+    <ClCompile Include="engine\Vector.cpp" />
+    <ClCompile Include="Environment\Lights.cpp" />
+    <ClCompile Include="Environment\SkyboxLu.cpp" />
+    <ClCompile Include="Environment\Terrain.cpp" />
+    <ClCompile Include="Game.cpp" />
+    <ClCompile Include="GameLu.cpp" />
+    <ClCompile Include="GameDraw.cpp" />
+    <ClCompile Include="GameInitDispose.cpp" />
+    <ClCompile Include="GameTick.cpp" />
+    <ClCompile Include="Globals.cpp" />
+    <ClCompile Include="Graphic\Decal.cpp" />
+    <ClCompile Include="Graphic\ModelLu.cpp" />
+    <ClCompile Include="Graphic\Sprite.cpp" />
+    <ClCompile Include="Graphic\Stereo.cpp" />
+    <ClCompile Include="Graphic\Text.cpp" />
+    <ClCompile Include="Graphic\TextureLu.cpp" />
+    <ClCompile Include="Level\Awards.cpp" />
+    <ClCompile Include="Level\Campaign.cpp" />
+    <ClCompile Include="Level\Dialog.cpp" />
+    <ClCompile Include="Level\Hotspot.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="Math\FrustumLu.cpp" />
+    <ClCompile Include="Math\XYZ.cpp" />
+    <ClCompile Include="Menu\Menu.cpp" />
+    <ClCompile Include="Objects\Object.cpp" />
+    <ClCompile Include="Objects\Person.cpp" />
+    <ClCompile Include="Objects\PersonType.cpp" />
+    <ClCompile Include="Objects\Weapons.cpp" />
+    <ClCompile Include="Platform\PlatformUnix.cpp" />
+    <ClCompile Include="Platform\PlatformWindows.cpp" />
+    <ClCompile Include="soil2\image_DXT.c" />
+    <ClCompile Include="soil2\image_helper.c" />
+    <ClCompile Include="soil2\SOIL2.c" />
+    <ClCompile Include="soil2\wfETC.c" />
+    <ClCompile Include="StateMachine.cpp" />
+    <ClCompile Include="tinyxml\tinystr.cpp" />
+    <ClCompile Include="tinyxml\tinyxml.cpp" />
+    <ClCompile Include="tinyxml\tinyxmlerror.cpp" />
+    <ClCompile Include="tinyxml\tinyxmlparser.cpp" />
+    <ClCompile Include="Tutorial.cpp" />
+    <ClCompile Include="User\Account.cpp" />
+    <ClCompile Include="User\Settings.cpp" />
+    <ClCompile Include="Utils\Folders.cpp" />
+    <ClCompile Include="Utils\ImageIO.cpp" />
+    <ClCompile Include="Utils\Input.cpp" />
+    <ClCompile Include="Utils\pack.c" />
+    <ClCompile Include="Utils\private.c" />
+    <ClCompile Include="Utils\unpack.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Animation\AnimationLu.hpp" />
+    <ClInclude Include="Animation\JointLu.hpp" />
+    <ClInclude Include="Animation\Muscle.hpp" />
+    <ClInclude Include="Animation\Skeleton.hpp" />
+    <ClInclude Include="Application.h" />
+    <ClInclude Include="Audio\openal_wrapper.hpp" />
+    <ClInclude Include="Audio\Sounds.hpp" />
+    <ClInclude Include="Constants.h" />
+    <ClInclude Include="convhull\convhull_3d.h" />
+    <ClInclude Include="Devtools\ConsoleCmds.hpp" />
+    <ClInclude Include="engine\AssetManger.h" />
+    <ClInclude Include="engine\Batchrenderer.h" />
+    <ClInclude Include="engine\BuiltInShader.h" />
+    <ClInclude Include="engine\Camera.h" />
+    <ClInclude Include="engine\Clock.h" />
+    <ClInclude Include="engine\Cube.h" />
+    <ClInclude Include="engine\Cubemap.h" />
+    <ClInclude Include="engine\Framebuffer.h" />
+    <ClInclude Include="engine\Frustum.h" />
+    <ClInclude Include="engine\input\ApplicationEventListener.h" />
+    <ClInclude Include="engine\input\Event.h" />
+    <ClInclude Include="engine\input\EventDispatcher.h" />
+    <ClInclude Include="engine\input\KeyboardEventListener.h" />
+    <ClInclude Include="engine\input\KeyBorad.h" />
+    <ClInclude Include="engine\input\Mouse.h" />
+    <ClInclude Include="engine\input\MouseEventListener.h" />
+    <ClInclude Include="engine\ObjModel.h" />
+    <ClInclude Include="engine\PerlinNoise.h" />
+    <ClInclude Include="engine\Quad.h" />
+    <ClInclude Include="engine\Random.h" />
+    <ClInclude Include="engine\Shader.h" />
+    <ClInclude Include="engine\Spritesheet.h" />
+    <ClInclude Include="engine\Tetraedron.h" />
+    <ClInclude Include="engine\Texture.h" />
+    <ClInclude Include="engine\Timer.h" />
+    <ClInclude Include="engine\TrackBall.h" />
+    <ClInclude Include="engine\Transform.h" />
+    <ClInclude Include="engine\Vector.h" />
+    <ClInclude Include="Environment\Lights.hpp" />
+    <ClInclude Include="Environment\SkyboxLu.hpp" />
+    <ClInclude Include="Environment\Terrain.hpp" />
+    <ClInclude Include="Game.h" />
+    <ClInclude Include="GameLu.hpp" />
+    <ClInclude Include="Graphic\Decal.hpp" />
+    <ClInclude Include="Graphic\gamegl.hpp" />
+    <ClInclude Include="Graphic\ModelLu.hpp" />
+    <ClInclude Include="Graphic\Sprite.hpp" />
+    <ClInclude Include="Graphic\Stereo.hpp" />
+    <ClInclude Include="Graphic\Text.hpp" />
+    <ClInclude Include="Graphic\TextureLu.hpp" />
+    <ClInclude Include="Level\Awards.hpp" />
+    <ClInclude Include="Level\Campaign.hpp" />
+    <ClInclude Include="Level\Dialog.hpp" />
+    <ClInclude Include="Level\Hotspot.hpp" />
+    <ClInclude Include="Math\FrustumLu.hpp" />
+    <ClInclude Include="Math\RandomLu.hpp" />
+    <ClInclude Include="Math\XYZ.hpp" />
+    <ClInclude Include="Menu\Menu.hpp" />
+    <ClInclude Include="Miniball\Miniball.h" />
+    <ClInclude Include="Objects\Object.hpp" />
+    <ClInclude Include="Objects\Person.hpp" />
+    <ClInclude Include="Objects\PersonType.hpp" />
+    <ClInclude Include="Objects\Weapons.hpp" />
+    <ClInclude Include="Platform\Platform.hpp" />
+    <ClInclude Include="StateMachine.h" />
+    <ClInclude Include="Thirdparty\optionparser.h" />
+    <ClInclude Include="tinyxml\tinystr.h" />
+    <ClInclude Include="tinyxml\tinyxml.h" />
+    <ClInclude Include="Tutorial.hpp" />
+    <ClInclude Include="User\Account.hpp" />
+    <ClInclude Include="User\Settings.hpp" />
+    <ClInclude Include="Utils\binio.h" />
+    <ClInclude Include="Utils\Folders.hpp" />
+    <ClInclude Include="Utils\ImageIO.hpp" />
+    <ClInclude Include="Utils\Input.hpp" />
+    <ClInclude Include="Utils\private.h" />
+    <ClInclude Include="Version.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Lugaru.rc" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
