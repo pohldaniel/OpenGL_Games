@@ -38,3 +38,5 @@ The project also contains some code from https://prideout.net/blog/old/blog/inde
 The project 12Thikness is based on https://prideout.net/blog/old/blog/index.html@p=51.html
 
 The project 13DepthPeeling is a port of https://developer.download.nvidia.com/SDK/10.5/opengl/screenshots/samples/dual_depth_peeling.html using modern OpenGl.
+
+The project 21Lugaru is heavily based on https://gitlab.com/osslugaru/lugaru.
