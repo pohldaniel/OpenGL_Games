@@ -1,5 +1,5 @@
-#include "Mouse.h"
 #include <iostream>
+#include "Mouse.h"
 
 const float Mouse::WEIGHT_MODIFIER = 0.2f;
 BYTE Mouse::m_tempBuffer[TEMP_BUFFER_SIZE];
@@ -33,10 +33,10 @@ Mouse::Mouse(){
 }
 
 Mouse::~Mouse(){
-	detach();
+	detachRaw();
 }
 
-bool Mouse::attach(HWND hWnd){
+bool Mouse::attachRaw(HWND hWnd){
 
 	if (!hWnd)
 		return false;
@@ -74,7 +74,7 @@ bool Mouse::attach(HWND hWnd){
 	return true;
 }
 
-void Mouse::detach(){
+void Mouse::detachRaw(){
 
 	if (!m_cursorVisible){
 
@@ -176,8 +176,8 @@ void Mouse::handleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam){
 		int x = static_cast<int>(static_cast<short>(LOWORD(lParam)));
 		int y = static_cast<int>(static_cast<short>(HIWORD(lParam)));
 	
-		m_xPosRelative = centerX - x;
-		m_yPosRelative = centerY - y;
+		m_xPosRelative = x - centerX;
+		m_yPosRelative = y - centerY;
 
 
 		m_xPosAbsolute = x;
@@ -192,16 +192,13 @@ void Mouse::handleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam){
 }
 
 void Mouse::handleEvent(Event event) {
-	RAWINPUT *pRaw = 0;
-	UINT size = TEMP_BUFFER_SIZE;
-
 	switch (event.type) {
 		case Event::MOUSEMOTION: {
 			int x = event.data.mouseMove.x;
 			int y = event.data.mouseMove.y;
 
-			m_xPosRelative = centerX - x;
-			m_yPosRelative = centerY - y;
+			m_xPosRelative = x - centerX;
+			m_yPosRelative = y - centerY;
 
 			m_xPosAbsolute = x;
 			m_yPosAbsolute = y;
@@ -244,12 +241,10 @@ void Mouse::setCursorToMiddle() {
 }
 
 void Mouse::setWeightModifier(float weightModifier){
-
 	m_weightModifier = weightModifier;
 }
 
 void Mouse::smoothMouse(bool smooth){
-
 	m_enableFiltering = smooth;
 }
 
@@ -267,17 +262,16 @@ void Mouse::update(){
 	m_mouseWheel = static_cast<float>(m_wheelDelta - m_prevWheelDelta) / static_cast<float>(WHEEL_DELTA);
 	m_prevWheelDelta = m_wheelDelta;
 	
-	if (m_attached) {
-		
+	if (m_attached) {	
 		POINT        CursorPos;
 		GetCursorPos(&CursorPos);		
-		m_xPosRelative = (centerX - CursorPos.x);
-		m_yPosRelative = (centerY - CursorPos.y);
+		m_xPosRelative = (CursorPos.x - centerX);
+		m_yPosRelative = (CursorPos.y - centerY);
 		setCursorToMiddle();
 	}
 }
 
-void Mouse::attach2(HWND hWnd) {
+void Mouse::attach(HWND hWnd) {
 	if (m_attached) return;
 	m_hWnd = hWnd;
 
@@ -298,7 +292,7 @@ void Mouse::attach2(HWND hWnd) {
 	m_attached = true;
 }
 
-void Mouse::detach2() {
+void Mouse::detach() {
 	if (!m_attached) return;
 
 	SetCursorPos(m_xLastPos, m_yLastPos);

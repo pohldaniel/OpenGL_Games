@@ -1,16 +1,16 @@
-#include "Mouse.h"
 #include <iostream>
+#include "Mouse.h"
 
 const float Mouse::WEIGHT_MODIFIER = 0.2f;
 BYTE Mouse::m_tempBuffer[TEMP_BUFFER_SIZE];
 
-Mouse &Mouse::instance(){
+Mouse &Mouse::instance() {
 
 	static Mouse theInstance;
 	return theInstance;
 }
 
-Mouse::Mouse(){
+Mouse::Mouse() {
 
 	m_hWnd = 0;
 	m_cursorVisible = true;
@@ -32,16 +32,16 @@ Mouse::Mouse(){
 	m_pPrevButtonStates = m_buttonStates[1];
 }
 
-Mouse::~Mouse(){
+Mouse::~Mouse() {
 	detach();
 }
 
-bool Mouse::attach(HWND hWnd){
+bool Mouse::attach(HWND hWnd) {
 
 	if (!hWnd)
 		return false;
 
-	if (!m_hWnd){
+	if (!m_hWnd) {
 
 		RAWINPUTDEVICE rid[1] = { 0 };
 
@@ -74,9 +74,9 @@ bool Mouse::attach(HWND hWnd){
 	return true;
 }
 
-void Mouse::detach(){
+void Mouse::detach() {
 
-	if (!m_cursorVisible){
+	if (!m_cursorVisible) {
 
 		hideCursor(false);
 		// Save the cursor visibility state in case attach() is called later.
@@ -86,7 +86,7 @@ void Mouse::detach(){
 	m_hWnd = 0;
 }
 
-void Mouse::performMouseFiltering(float x, float y){
+void Mouse::performMouseFiltering(float x, float y) {
 
 	// Filter the relative mouse movement based on a weighted sum of the mouse
 	// movement from previous frames to ensure that the mouse movement this
@@ -97,7 +97,7 @@ void Mouse::performMouseFiltering(float x, float y){
 	//  http://www.flipcode.com/cgi-bin/fcarticles.cgi?show=64462
 
 	// Newer mouse entries towards front and older mouse entries towards end.
-	for (int i = m_historyBufferSize - 1; i > 0; --i){
+	for (int i = m_historyBufferSize - 1; i > 0; --i) {
 		m_history[i * 2] = m_history[(i - 1) * 2];
 		m_history[i * 2 + 1] = m_history[(i - 1) * 2 + 1];
 	}
@@ -112,7 +112,7 @@ void Mouse::performMouseFiltering(float x, float y){
 	float currentWeight = 1.0f;
 
 	// Filter the mouse.
-	for (int i = 0; i < m_historyBufferSize; ++i){
+	for (int i = 0; i < m_historyBufferSize; ++i) {
 		averageX += m_history[i * 2] * currentWeight;
 		averageY += m_history[i * 2 + 1] * currentWeight;
 		averageTotal += 1.0f * currentWeight;
@@ -123,7 +123,7 @@ void Mouse::performMouseFiltering(float x, float y){
 	m_filtered[1] = averageY / averageTotal;
 }
 
-void Mouse::performMouseSmoothing(float x, float y){
+void Mouse::performMouseSmoothing(float x, float y) {
 	// Smooth out the mouse movement by averaging the distance the mouse
 	// has moved over a couple of frames.
 
@@ -138,26 +138,26 @@ void Mouse::performMouseSmoothing(float x, float y){
 	m_mouseMovementY[m_mouseIndex] = 0.0f;
 }
 
-void Mouse::handleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam){
-	
+void Mouse::handleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
+
 	RAWINPUT *pRaw = 0;
 	UINT size = TEMP_BUFFER_SIZE;
-	switch (msg){
+	switch (msg) {
 
 	default: {
-		
+
 		break;
 	}
 	case WM_INPUT:
 		GetRawInputData(reinterpret_cast<HRAWINPUT>(lParam), RID_INPUT, m_tempBuffer, &size, sizeof(RAWINPUTHEADER));
 		pRaw = reinterpret_cast<RAWINPUT*>(m_tempBuffer);
-		if (pRaw->header.dwType == RIM_TYPEMOUSE){
+		if (pRaw->header.dwType == RIM_TYPEMOUSE) {
 
 			m_xPosRelative = static_cast<float>(pRaw->data.mouse.lLastX);
 			m_yPosRelative = static_cast<float>(pRaw->data.mouse.lLastY);
 
-			if (m_enableFiltering){
-				
+			if (m_enableFiltering) {
+
 				performMouseFiltering(m_xPosRelative, m_yPosRelative);
 
 				m_xPosRelative = m_filtered[0];
@@ -175,14 +175,14 @@ void Mouse::handleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam){
 	case WM_MOUSEMOVE: {
 		int x = static_cast<int>(static_cast<short>(LOWORD(lParam)));
 		int y = static_cast<int>(static_cast<short>(HIWORD(lParam)));
-	
-		m_xPosRelative = centerX - x;
-		m_yPosRelative = centerY - y;
+
+		m_xPosRelative = x - centerX;
+		m_yPosRelative = y - centerY;
 
 
 		m_xPosAbsolute = x;
 		m_yPosAbsolute = y;
-		
+
 		break;
 
 	}case WM_MOUSEWHEEL:
@@ -196,28 +196,29 @@ void Mouse::handleEvent(Event event) {
 	UINT size = TEMP_BUFFER_SIZE;
 
 	switch (event.type) {
-		case Event::MOUSEMOTION: {
-			int x = event.data.mouseMove.x;
-			int y = event.data.mouseMove.y;
+	case Event::MOUSEMOTION: {
+		int x = event.data.mouseMove.x;
+		int y = event.data.mouseMove.y;
 
-			m_xPosRelative = centerX - x;
-			m_yPosRelative = centerY - y;
+		m_xPosRelative = x - centerX;
+		m_yPosRelative = y - centerY;
 
-			m_xPosAbsolute = x;
-			m_yPosAbsolute = y;
-			break;
-		}
+		m_xPosAbsolute = x;
+		m_yPosAbsolute = y;
+		break;
+	}
 	}
 }
 
-void Mouse::hideCursor(bool hideCursor){
+void Mouse::hideCursor(bool hideCursor) {
 
 	if (hideCursor) {
 		m_cursorVisible = false;
 
 		while (ShowCursor(FALSE) >= 0)
 			; // do nothing
-	}else {
+	}
+	else {
 		m_cursorVisible = true;
 
 		while (ShowCursor(TRUE) < 0)
@@ -225,17 +226,17 @@ void Mouse::hideCursor(bool hideCursor){
 	}
 }
 
-void Mouse::setPosition(UINT x, UINT y){
+void Mouse::setPosition(UINT x, UINT y) {
 	POINT pt = { x, y };
 
-	if (ClientToScreen(m_hWnd, &pt)){
+	if (ClientToScreen(m_hWnd, &pt)) {
 		SetCursorPos(pt.x, pt.y);
 
 		m_xPosAbsolute = x;
 		m_yPosAbsolute = y;
 
 		m_xPosRelative = 0.0f;
-		m_yPosRelative = 0.0f;	
+		m_yPosRelative = 0.0f;
 	}
 }
 
@@ -243,17 +244,17 @@ void Mouse::setCursorToMiddle() {
 	SetCursorPos(centerX, centerY);
 }
 
-void Mouse::setWeightModifier(float weightModifier){
+void Mouse::setWeightModifier(float weightModifier) {
 
 	m_weightModifier = weightModifier;
 }
 
-void Mouse::smoothMouse(bool smooth){
+void Mouse::smoothMouse(bool smooth) {
 
 	m_enableFiltering = smooth;
 }
 
-void Mouse::update(){
+void Mouse::update() {
 
 	bool *pTempMouseStates = m_pPrevButtonStates;
 
@@ -266,13 +267,13 @@ void Mouse::update(){
 
 	m_mouseWheel = static_cast<float>(m_wheelDelta - m_prevWheelDelta) / static_cast<float>(WHEEL_DELTA);
 	m_prevWheelDelta = m_wheelDelta;
-	
+
 	if (m_attached) {
-		
+
 		POINT        CursorPos;
-		GetCursorPos(&CursorPos);		
-		m_xPosRelative = (centerX - CursorPos.x);
-		m_yPosRelative = (centerY - CursorPos.y);
+		GetCursorPos(&CursorPos);
+		m_xPosRelative = (CursorPos.x - centerX);
+		m_yPosRelative = (CursorPos.y - centerY);
 		setCursorToMiddle();
 	}
 }

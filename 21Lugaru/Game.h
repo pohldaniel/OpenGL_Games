@@ -25,7 +25,6 @@ public:
 	void renderUi();
 	bool m_initUi = true;
 	
-
-	static void ToogleUi();
-	static bool DrawUi;
+	void DoMouse();
+	void initGL();
 };

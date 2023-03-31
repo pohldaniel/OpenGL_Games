@@ -21,7 +21,9 @@ along with Lugaru.  If not, see <http://www.gnu.org/licenses/>.
 #include "Graphic/Stereo.hpp"
 #include "Math/XYZ.hpp"
 #include "Objects/Weapons.hpp"
-
+#include "Thirdparty/optionparser.h"
+#include "GameLu.hpp"
+#include <set>
 #include <string>
 
 bool visibleloading = false;
@@ -47,7 +49,7 @@ float realmultiplier = 0;
 float screenwidth = 0, screenheight = 0;
 float minscreenwidth = 640, minscreenheight = 480;
 float maxscreenwidth = 3000, maxscreenheight = 3000;
-bool fullscreen = 0;
+
 float viewdistance = 0;
 XYZ viewer;
 XYZ viewerfacing;
@@ -135,3 +137,11 @@ StereoMode stereomode = stereoNone;
 StereoMode newstereomode = stereoNone;
 float stereoseparation = 0.05;
 bool stereoreverse = false;
+
+set<pair<int, int>> resolutions;
+int kContextWidth;
+int kContextHeight;
+
+
+option::Option commandLineOptions[commandLineOptionsNumber];
+option::Option* commandLineOptionsBuffer;

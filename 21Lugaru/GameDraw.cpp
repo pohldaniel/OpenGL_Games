@@ -853,9 +853,6 @@ int GameLu::DrawGLScene(StereoSide side)
             glColor4f(.5, .5, .5, 1);
 
             if ((texttoggle || editorenabled) && devtools && !mainmenu) {
-                string = "The framespersecond is " + to_string(int(fps));
-                text->glPrint(10, 30, string, 0, .8, 1024, 768);
-
                 if (editorenabled) {
                     string = "Map editor enabled.";
                 } else {

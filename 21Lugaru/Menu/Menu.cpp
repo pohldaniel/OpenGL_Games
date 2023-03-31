@@ -26,6 +26,7 @@ along with Lugaru.  If not, see <http://www.gnu.org/licenses/>.
 #include "User/Settings.hpp"
 #include "Utils/Input.hpp"
 #include "Version.hpp"
+#include "Application.h"
 
 // Should not be needed, Menu should call methods from other classes to launch maps and challenges and so on
 #include "Level/Awards.hpp"
@@ -298,7 +299,7 @@ void Menu::updateSettingsMenu()
         sbuf += " (widescreen)";
     }
     setText(0, sbuf);
-    setText(14, fullscreen ? "Fullscreen: On" : "Fullscreen: Off");
+    setText(14, Application::Fullscreen ? "Fullscreen: On" : "Fullscreen: Off");
     if (newdetail == 0) {
         setText(1, "Detail: Low");
     }

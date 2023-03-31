@@ -23,7 +23,7 @@ along with Lugaru.  If not, see <http://www.gnu.org/licenses/>.
 #include "GameLu.hpp"
 #include "Utils/Folders.hpp"
 #include "Utils/Input.hpp"
-
+#include "Application.h"
 using namespace GameLu;
 
 void DefaultSettings()
@@ -33,7 +33,7 @@ void DefaultSettings()
     usermousesensitivity = 1;
     newscreenwidth = kContextWidth = 1024;
     newscreenheight = kContextHeight = 768;
-    fullscreen = 0;
+    Application::Fullscreen = 0;
     floatjump = 0;
     autoslomo = 1;
     decalstoggle = true;
@@ -92,7 +92,7 @@ void SaveSettings()
     opstream << "\nScreenheight:\n";
     opstream << newscreenheight;
     opstream << "\nFullscreen:\n";
-    opstream << fullscreen;
+    opstream << Application::Fullscreen;
     opstream << "\nMouse sensitivity:\n";
     opstream << usermousesensitivity;
     opstream << "\nBlur(0,1):\n";
@@ -209,7 +209,7 @@ bool LoadSettings()
                kContextHeight = (int)minscreenheight;
             }
         } else if (!strncmp(setting, "Fullscreen", 10)) {
-            ipstream >> fullscreen;
+            ipstream >> Application::Fullscreen;
         } else if (!strncmp(setting, "Mouse sensitivity", 17)) {
             ipstream >> usermousesensitivity;
         } else if (!strncmp(setting, "Blur", 4)) {

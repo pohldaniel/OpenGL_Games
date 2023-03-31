@@ -49,6 +49,7 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 }
 
 Application::~Application() {
+	delete Machine;
 	//release OpenGL context
 	HDC hdc = GetDC(Window);
 	wglMakeCurrent(GetDC(Window), 0);
@@ -157,11 +158,9 @@ LRESULT Application::DisplayWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 			Mouse::instance().setAbsolute(LOWORD(lParam), HIWORD(lParam));
 			break;
 		}case WM_RBUTTONDOWN: {
-			Mouse::instance().attach2(hWnd);
-			Game::ToogleUi();
+			Mouse::instance().attach(hWnd);
+			Globals::drawUi = false;
 			Keyboard::instance().enable();
-			break;
-		}case WM_RBUTTONUP: {
 			break;
 		}case WM_KEYDOWN: {
 
@@ -173,8 +172,8 @@ LRESULT Application::DisplayWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 					StateMachine::ToggleWireframe();
 					break;
 				}case VK_SPACE: {
-					Mouse::instance().detach2();
-					Game::ToogleUi();
+					Mouse::instance().detach();
+					Globals::drawUi = true;
 					Keyboard::instance().disable();
 					break;
 				}
@@ -356,30 +355,30 @@ void Application::initStates() {
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
 
 	switch (message) {
-	case WM_MOUSEMOVE: {
-		Event event;
-		event.type = Event::MOUSEMOTION;
-		event.data.mouseMove.x = static_cast<int>(static_cast<short>(LOWORD(lParam)));
-		event.data.mouseMove.y = static_cast<int>(static_cast<short>(HIWORD(lParam)));
-		EventDispatcher.pushEvent(event);
-		break;
-	}case WM_LBUTTONDOWN: {
-		Event event;
-		event.type = Event::MOUSEBUTTONDOWN;
-		event.data.mouseButton.x = static_cast<int>(static_cast<short>(LOWORD(lParam)));
-		event.data.mouseButton.y = static_cast<int>(static_cast<short>(HIWORD(lParam)));
-		event.data.mouseButton.button = Event::MouseButtonEvent::MouseButton::BUTTON_LEFT;
-		EventDispatcher.pushEvent(event);
-		break;
-	}case WM_LBUTTONUP: {
-		Event event;
-		event.type = Event::MOUSEBUTTONUP;
-		event.data.mouseButton.x = static_cast<int>(static_cast<short>(LOWORD(lParam)));
-		event.data.mouseButton.y = static_cast<int>(static_cast<short>(HIWORD(lParam)));
-		event.data.mouseButton.button = Event::MouseButtonEvent::MouseButton::BUTTON_LEFT;
-		EventDispatcher.pushEvent(event);
-		break;
-	}
+		case WM_MOUSEMOVE: {
+			Event event;
+			event.type = Event::MOUSEMOTION;
+			event.data.mouseMove.x = static_cast<int>(static_cast<short>(LOWORD(lParam)));
+			event.data.mouseMove.y = static_cast<int>(static_cast<short>(HIWORD(lParam)));
+			EventDispatcher.pushEvent(event);
+			break;
+		}case WM_LBUTTONDOWN: {
+			Event event;
+			event.type = Event::MOUSEBUTTONDOWN;
+			event.data.mouseButton.x = static_cast<int>(static_cast<short>(LOWORD(lParam)));
+			event.data.mouseButton.y = static_cast<int>(static_cast<short>(HIWORD(lParam)));
+			event.data.mouseButton.button = Event::MouseButtonEvent::MouseButton::BUTTON_LEFT;
+			EventDispatcher.pushEvent(event);
+			break;
+		}case WM_LBUTTONUP: {
+			Event event;
+			event.type = Event::MOUSEBUTTONUP;
+			event.data.mouseButton.x = static_cast<int>(static_cast<short>(LOWORD(lParam)));
+			event.data.mouseButton.y = static_cast<int>(static_cast<short>(HIWORD(lParam)));
+			event.data.mouseButton.button = Event::MouseButtonEvent::MouseButton::BUTTON_LEFT;
+			EventDispatcher.pushEvent(event);
+			break;
+		}
 	}
 }
 

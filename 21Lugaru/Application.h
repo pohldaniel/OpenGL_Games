@@ -23,6 +23,8 @@ public:
 	static void ToggleFullScreen(bool isFullScreen, unsigned int width = 0, unsigned int height = 0);
 	static unsigned int Width;
 	static unsigned int Height;
+	static bool Fullscreen;
+
 private:
 
 	static LRESULT CALLBACK StaticWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
@@ -52,8 +54,7 @@ private:
 	static EventDispatcher& EventDispatcher;
 
 	static HWND Window;
-	static bool InitWindow;
-	static bool Fullscreen;
+	static bool InitWindow;	
 	static DWORD SavedExStyle;
 	static DWORD SavedStyle;
 	static RECT Savedrc;

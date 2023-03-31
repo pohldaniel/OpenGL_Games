@@ -50,7 +50,6 @@ extern int detail;
 extern int kContextWidth;
 extern int kContextHeight;
 extern float screenwidth, screenheight;
-extern bool fullscreen;
 extern float minscreenwidth, minscreenheight;
 extern float maxscreenwidth, maxscreenheight;
 

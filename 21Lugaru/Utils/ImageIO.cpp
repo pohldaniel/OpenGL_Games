@@ -321,7 +321,7 @@ save_png_done:
         fclose(fp);
     }
     if (!retval) {
-        unlink(file_name);
+        _unlink(file_name);
     }
     return retval;
 }

@@ -55,7 +55,7 @@ void StateMachine::render() {
 	if (!m_states.empty()) {	
 		glPolygonMode(GL_FRONT_AND_BACK, EnableWireframe ? GL_LINE : GL_FILL);
 		m_states.top()->render(m_frameBuffer);
-		//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);		
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);		
 	}
 }
 

@@ -58,10 +58,10 @@ public:
 		return m_mouseWheel;
 	}
 
-	bool attach(HWND hWnd);
-	void attach2(HWND hWnd);
+	bool attachRaw(HWND hWnd);
+	void detachRaw();
+	void attach(HWND hWnd);
 	void detach();
-	void detach2();
 	void handleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 	void handleEvent(Event event);
 

@@ -28,7 +28,7 @@ along with Lugaru.  If not, see <http://www.gnu.org/licenses/>.
 #include <stdio.h>
 
 #if defined(WIN32) && !defined(strcasecmp)
-#define strcasecmp(a, b) stricmp(a, b)
+#define strcasecmp(a, b) _stricmp(a, b)
 #endif
 
 struct Point

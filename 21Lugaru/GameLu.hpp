@@ -98,7 +98,6 @@ extern float mapradius;
 
 extern Text* text;
 extern Text* textmono;
-extern float fps;
 
 extern bool editorenabled;
 extern int editortype;
