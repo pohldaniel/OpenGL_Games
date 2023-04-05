@@ -22,7 +22,7 @@ extern int detail;
 std::vector<MenuItem> MainMenu::items;
 
 MainMenu::MainMenu(StateMachine& machine) : State(machine, CurrentState::MAINMENU) {
-	Mouse::SetCursorIcon("Data/Cursors/black.cur");
+	Application::SetCursorIcon("Data/Cursors/black.cur");
 	EventDispatcher::AddMouseListener(this);
 
 	Mainmenuitems[0].load("Textures/Lugaru.png", 0);

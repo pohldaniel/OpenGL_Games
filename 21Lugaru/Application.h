@@ -24,7 +24,7 @@ public:
 	static unsigned int Width;
 	static unsigned int Height;
 	static bool Fullscreen;
-
+	static void SetCursorIcon(std::string file);
 private:
 
 	static LRESULT CALLBACK StaticWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);

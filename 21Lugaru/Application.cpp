@@ -133,7 +133,6 @@ LRESULT CALLBACK Application::StaticWndProc(HWND hWnd, UINT message, WPARAM wPar
 		case WM_CREATE: {
 			application = static_cast<Application*>(reinterpret_cast<CREATESTRUCT*>(lParam)->lpCreateParams);
 			SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(application));
-
 			break;
 		}default: {
 			application = reinterpret_cast<Application*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
@@ -503,6 +502,12 @@ void Application::ToggleFullScreen(bool isFullScreen, unsigned int width, unsign
 		SetWindowPos(Window, HWND_NOTOPMOST, 0, 0, Width + 16u, Height + 39u, SWP_SHOWWINDOW);
 		Resize(deltaW, deltaH);
 	}
+}
+
+void Application::SetCursorIcon(std::string file) {
+	HCURSOR cursor = LoadCursorFromFileA(file.c_str());
+	SetCursor(cursor);
+	SetClassLongPtr(Window, GCLP_HCURSOR, (DWORD)cursor);
 }
 
 void Application::loadAssets() {
