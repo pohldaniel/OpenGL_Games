@@ -8,12 +8,12 @@
 
 #include "StateMachine.h"
 
-class Game : public State, public MouseEventListener {
+class Tutorial : public State, public MouseEventListener {
 
 public:
 
-	Game(StateMachine& machine);
-	~Game();
+	Tutorial(StateMachine& machine);
+	~Tutorial();
 
 	void fixedUpdate() override;
 	void update() override;
@@ -22,6 +22,9 @@ public:
 	void OnMouseMotion(Event::MouseMoveEvent& event) override;
 	void OnMouseButtonDown(Event::MouseButtonEvent& event) override;
 	void OnMouseButtonUp(Event::MouseButtonEvent& event) override;
-
+	
+	void renderUi();
 	void DoMouse();
+
+	bool m_initUi = true;
 };

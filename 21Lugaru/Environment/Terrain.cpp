@@ -22,7 +22,7 @@ along with Lugaru.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "GameLu.hpp"
 #include "Objects/Object.hpp"
-#include "Tutorial.hpp"
+#include "TutorialLu.hpp"
 #include "Utils/Folders.hpp"
 
 extern XYZ viewer;
@@ -1358,7 +1358,7 @@ void Terrain::DoShadows()
         lightloc.x = 0;
         lightloc.z = 0;
     }
-    if (skyboxtexture && Tutorial::active) {
+    if (skyboxtexture && TutorialLu::active) {
         lightloc.x *= .4;
         lightloc.z *= .4;
     }

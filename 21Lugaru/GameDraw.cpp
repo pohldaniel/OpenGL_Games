@@ -25,7 +25,7 @@ along with Lugaru.  If not, see <http://www.gnu.org/licenses/>.
 #include "Level/Dialog.hpp"
 #include "Level/Hotspot.hpp"
 #include "Menu/Menu.hpp"
-#include "Tutorial.hpp"
+#include "TutorialLu.hpp"
 #include "Utils/Input.hpp"
 
 extern XYZ viewer;
@@ -321,7 +321,7 @@ int GameLu::DrawGLScene(StereoSide side)
                             point = DoRotation(Person::players[k]->skeleton.joints[i].position, 0, Person::players[k]->yaw, 0) * Person::players[k]->scale + Person::players[k]->coords;
                             size = .4f;
                             opacity = .4 - Person::players[k]->skeleton.joints[i].position.y * Person::players[k]->scale / 5 - (Person::players[k]->coords.y - terrain.getHeight(Person::players[k]->coords.x, Person::players[k]->coords.z)) / 10;
-                            if (k != 0 && Tutorial::active) {
+                            if (k != 0 && TutorialLu::active) {
                                 opacity = .2 + .2 * sin(smoketex * 6 + i) - Person::players[k]->skeleton.joints[i].position.y * Person::players[k]->scale / 5 - (Person::players[k]->coords.y - terrain.getHeight(Person::players[k]->coords.x, Person::players[k]->coords.z)) / 10;
                             }
                             terrain.MakeDecal(shadowdecal, point, size, opacity, rotation);
@@ -331,7 +331,7 @@ int GameLu::DrawGLScene(StereoSide side)
                                     point = DoRotation(DoRotation(Person::players[k]->skeleton.joints[i].position, 0, Person::players[k]->yaw, 0) * Person::players[k]->scale + Person::players[k]->coords - Object::objects[j]->position, 0, -Object::objects[j]->yaw, 0);
                                     size = .4f;
                                     opacity = .4f;
-                                    if (k != 0 && Tutorial::active) {
+                                    if (k != 0 && TutorialLu::active) {
                                         opacity = .2 + .2 * sin(smoketex * 6 + i);
                                     }
                                     Object::objects[j]->model.MakeDecal(shadowdecal, &point, &size, &opacity, &rotation);
@@ -352,7 +352,7 @@ int GameLu::DrawGLScene(StereoSide side)
                             }
                             size = .4f;
                             opacity = .4 - Person::players[k]->skeleton.joints[i].position.y * Person::players[k]->scale / 5 - (Person::players[k]->coords.y - terrain.getHeight(Person::players[k]->coords.x, Person::players[k]->coords.z)) / 5;
-                            if (k != 0 && Tutorial::active) {
+                            if (k != 0 && TutorialLu::active) {
                                 opacity = .2 + .2 * sin(smoketex * 6 + i) - Person::players[k]->skeleton.joints[i].position.y * Person::players[k]->scale / 5 - (Person::players[k]->coords.y - terrain.getHeight(Person::players[k]->coords.x, Person::players[k]->coords.z)) / 10;
                             }
                             terrain.MakeDecal(shadowdecal, point, size, opacity * .7, rotation);
@@ -366,7 +366,7 @@ int GameLu::DrawGLScene(StereoSide side)
                                     }
                                     size = .4f;
                                     opacity = .4f;
-                                    if (k != 0 && Tutorial::active) {
+                                    if (k != 0 && TutorialLu::active) {
                                         opacity = .2 + .2 * sin(smoketex * 6 + i);
                                     }
                                     Object::objects[j]->model.MakeDecal(shadowdecal, &point, &size, &opacity, &rotation);
@@ -424,7 +424,7 @@ int GameLu::DrawGLScene(StereoSide side)
             glCullFace(GL_FRONT);
             glDepthMask(1);
             for (unsigned k = 0; k < Person::players.size(); k++) {
-                if (k == 0 || !Tutorial::active) {
+                if (k == 0 || !TutorialLu::active) {
                     glEnable(GL_BLEND);
                     glEnable(GL_LIGHTING);
                     terrainlight = terrain.getLighting(Person::players[k]->coords.x, Person::players[k]->coords.z);
@@ -496,7 +496,7 @@ int GameLu::DrawGLScene(StereoSide side)
         glCullFace(GL_FRONT);
         glDepthMask(1);
         for (unsigned k = 0; k < Person::players.size(); k++) {
-            if (!(k == 0 || !Tutorial::active)) {
+            if (!(k == 0 || !TutorialLu::active)) {
                 glEnable(GL_BLEND);
                 glEnable(GL_LIGHTING);
                 terrainlight = terrain.getLighting(Person::players[k]->coords.x, Person::players[k]->coords.z);
@@ -587,7 +587,7 @@ int GameLu::DrawGLScene(StereoSide side)
         glEnable(GL_TEXTURE_2D);
         glColor4f(.5, .5, .5, 1);
         if (!console) {
-            if (!Tutorial::active) {
+            if (!TutorialLu::active) {
                 if (bonus > 0 && bonustime < 1 && !winfreeze && !Dialog::inDialog()) {
                     const char* bonus_name;
                     if (bonus < bonus_count) {
@@ -604,12 +604,12 @@ int GameLu::DrawGLScene(StereoSide side)
                 }
             }
 
-            if (Tutorial::active) {
-                Tutorial::DrawTextInfo();
+            if (TutorialLu::active) {
+				TutorialLu::DrawTextInfo();
             }
 
             //Hot spots
-            if (Hotspot::hotspots.size() && (bonustime >= 1 || bonus <= 0 || bonustime < 0) && !Tutorial::active) {
+            if (Hotspot::hotspots.size() && (bonustime >= 1 || bonus <= 0 || bonustime < 0) && !TutorialLu::active) {
                 float closestdist = -1;
                 int closest = Hotspot::current;
                 for (unsigned i = 0; i < Hotspot::hotspots.size(); i++) {
@@ -625,10 +625,10 @@ int GameLu::DrawGLScene(StereoSide side)
                     Hotspot::current = closest;
                     if (Hotspot::hotspots[closest].type <= 10) {
                         if (distsq(&Person::players[0]->coords, &Hotspot::hotspots[closest].position) < Hotspot::hotspots[closest].size) {
-                            Tutorial::stagetime = 0;
+							TutorialLu::stagetime = 0;
                         }
-                        Tutorial::maxtime = 1;
-                        tutorialopac = Tutorial::maxtime - Tutorial::stagetime;
+						TutorialLu::maxtime = 1;
+                        tutorialopac = TutorialLu::maxtime - TutorialLu::stagetime;
                         if (tutorialopac > 1) {
                             tutorialopac = 1;
                         }
@@ -756,7 +756,7 @@ int GameLu::DrawGLScene(StereoSide side)
                 }
             }
 
-            if (!Tutorial::active && !winfreeze && !Dialog::inDialog() && !mainmenu) {
+            if (!TutorialLu::active && !winfreeze && !Dialog::inDialog() && !mainmenu) {
                 if (campaign) {
                     if (scoreadded) {
                         string = "Score: " + to_string(int(Account::active().getCampaignScore()));

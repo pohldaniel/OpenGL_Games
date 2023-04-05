@@ -23,7 +23,7 @@ along with Lugaru.  If not, see <http://www.gnu.org/licenses/>.
 #include "GameLu.hpp"
 #include "Level/Dialog.hpp"
 #include "Level/Hotspot.hpp"
-#include "Tutorial.hpp"
+#include "TutorialLu.hpp"
 #include "Utils/Folders.hpp"
 #include <json/value.h>
 #include <json/writer.h>
@@ -582,7 +582,7 @@ void ch_sizemin(const char*)
 
 void ch_tutorial(const char* args)
 {
-    Tutorial::active = atoi(args);
+	TutorialLu::active = atoi(args);
 }
 
 void ch_hostile(const char* args)

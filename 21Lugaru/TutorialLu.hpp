@@ -21,7 +21,7 @@ along with Lugaru.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef _TUTORIAL_HPP_
 #define _TUTORIAL_HPP_
 
-class Tutorial
+class TutorialLu
 {
 public:
     static bool active;

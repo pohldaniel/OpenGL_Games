@@ -147,9 +147,6 @@
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Tutorial.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Application.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -282,6 +279,12 @@
     <ClCompile Include="MainMenu.cpp">
       <Filter>Source Files\States</Filter>
     </ClCompile>
+    <ClCompile Include="TutorialLu.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Tutorial.cpp">
+      <Filter>Source Files\States</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Animation\Muscle.hpp">
@@ -375,9 +378,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Utils\private.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Tutorial.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Version.hpp">
@@ -520,6 +520,12 @@
     </ClInclude>
     <ClInclude Include="Resource.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TutorialLu.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Tutorial.h">
+      <Filter>Source Files\States</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

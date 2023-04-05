@@ -1,4 +1,5 @@
 #include <iostream>
+#include <time.h>
 #include <GL/glew.h>
 #include <GL/wglew.h>
 #include <imgui.h>
@@ -10,10 +11,9 @@
 #include "Constants.h"
 #include "Game.h"
 #include "MainMenu.h"
+#include "Tutorial.h"
 
-#include <time.h>
 #include "GameLu.hpp"
-#include "Game.h"
 #include "User/Settings.hpp"
 
 using namespace GameLu;
@@ -420,7 +420,9 @@ void Application::initStates() {
 
 	Machine = new StateMachine(m_dt, m_fdt);
 	//Machine->addStateAtTop(new Game(*Machine));
-	Machine->addStateAtTop(new MainMenu(*Machine));
+	//Mouse::instance().attach(Window);
+	Machine->addStateAtTop(new Tutorial(*Machine));
+	//Machine->addStateAtTop(new MainMenu(*Machine));
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {

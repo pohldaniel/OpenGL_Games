@@ -31,7 +31,7 @@ along with Lugaru.  If not, see <http://www.gnu.org/licenses/>.
 #include "Level/Dialog.hpp"
 #include "Level/Hotspot.hpp"
 #include "Menu/Menu.hpp"
-#include "Tutorial.hpp"
+#include "TutorialLu.hpp"
 #include "User/Settings.hpp"
 #include "Utils/Folders.hpp"
 #include "Utils/Input.hpp"
@@ -54,12 +54,6 @@ along with Lugaru.  If not, see <http://www.gnu.org/licenses/>.
 
 using namespace std;
 using namespace GameLu;
-
-// Added more evilness needed for MSVC
-#ifdef _MSC_VER
-#define strncasecmp(s1, s2, n) _strnicmp(s1, s2, n)
-#define snprintf(buf, size, format, ...) _sprintf_p(buf, size, format)
-#endif
 
 extern float multiplier;
 extern XYZ viewer;
@@ -476,22 +470,31 @@ void Setenvironment(int which)
 
 bool GameLu::LoadLevel(int which)
 {
-    stealthloading = 0;
-    whichlevel = which;
+	stealthloading = 0;
+	whichlevel = which;
 
-	return LoadLevel("tutorial", true);
+	if (which == -1) {
+		return LoadLevel("tutorial", true);
+	} else if (which >= 0 && which <= 15) {
+		char buf[32];
+		snprintf(buf, 32, "map%d", which + 1); // challenges
+		return LoadLevel(buf);
+	}
+	else {
+		return LoadLevel("mapsave");
+	}
 }
 
 void GameLu::ResetBeforeLevelLoad(bool tutorial)
 {
-    Tutorial::active = tutorial;
+	TutorialLu::active = tutorial;
 
-    if (Tutorial::active) {
-        Tutorial::stage = 0;
+    if (TutorialLu::active) {
+		TutorialLu::stage = 0;
     }
-    if (Tutorial::stage == 0) {
-        Tutorial::stagetime = 0;
-        Tutorial::maxtime = 1;
+    if (TutorialLu::stage == 0) {
+		TutorialLu::stagetime = 0;
+		TutorialLu::maxtime = 1;
     }
 
     scoreadded = 0;
@@ -1216,11 +1219,11 @@ void GameLu::ProcessInput() {
     }
 
     /* Tutorial mode hotkeys */
-    if (Tutorial::active) {
+    if (TutorialLu::active) {
         // Skip current tutorial stage
         if (Input::isKeyPressed(Keyboard::KEY_TAB)) {
-            if (Tutorial::stage != 51) {
-                Tutorial::stagetime = Tutorial::maxtime;
+            if (TutorialLu::stage != 51) {
+				TutorialLu::stagetime = TutorialLu::maxtime;
             }
             emit_sound_np(consolefailsound, 128.);
         }
@@ -2606,7 +2609,7 @@ void doAttacks()
                                                 }
                                                 if (attackweapon) {
                                                     //sweep
-                                                    if ((!Tutorial::active || !attackweapon) &&
+                                                    if ((!TutorialLu::active || !attackweapon) &&
                                                         distance < 2.5 * sq(Person::players[k]->scale * 5) &&
                                                         randattack == 0 &&
 														AnimationLu::animations[Person::players[i]->animTarget].height != lowheight) {
@@ -2640,7 +2643,7 @@ void doAttacks()
                                                                randattack >= 3) {
                                                         Person::players[k]->animTarget = staffspinhitanim;
                                                         //spinkick
-                                                    } else if ((!Tutorial::active || !attackweapon) &&
+                                                    } else if ((!TutorialLu::active || !attackweapon) &&
                                                                distance < 2.5 * sq(Person::players[k]->scale * 5) &&
                                                                randattack == 1 &&
                                                                AnimationLu::animations[Person::players[i]->animTarget].height != lowheight) {
@@ -2660,7 +2663,7 @@ void doAttacks()
                                         }
                                     }
                                     //sneak attacks
-                                    if ((k == 0) && (!Tutorial::active || Tutorial::stage == 22) &&
+                                    if ((k == 0) && (!TutorialLu::active || TutorialLu::stage == 22) &&
                                         Person::players[i]->howactive < typedead1 &&
                                         distance < 1.5 * sq(Person::players[k]->scale * 5) &&
                                         !Person::players[i]->skeleton.free &&
@@ -2784,7 +2787,7 @@ void doAttacks()
                                               distance < 1.5 * sq(Person::players[k]->scale * 5)))) {
                                             Person::players[k]->victim = Person::players[i];
                                             Person::players[k]->hasvictim = 1;
-                                            if (attackweapon && !Tutorial::active) {
+                                            if (attackweapon && !TutorialLu::active) {
                                                 //crouchstab
                                                 if (Person::players[k]->crouchkeydown && attackweapon == knife && distance < 1.5 * sq(Person::players[k]->scale * 5)) {
                                                     Person::players[k]->animTarget = crouchstabanim;
@@ -3052,7 +3055,7 @@ void doPlayerCollisions()
                                                                                     (k != 0 || Person::players[k]->skeleton.free) ||
                                                                                 (AnimationLu::animations[Person::players[i]->animTarget].height == highheight &&
                                                                                  AnimationLu::animations[Person::players[k]->animTarget].height == highheight)) {
-                                                                                if (!Tutorial::active) {
+                                                                                if (!TutorialLu::active) {
                                                                                     emit_sound_at(heavyimpactsound, Person::players[i]->coords);
                                                                                 }
 
@@ -3276,7 +3279,7 @@ void GameLu::Tick()
 
             windvar += multiplier;
             smoketex += multiplier;
-            Tutorial::stagetime += multiplier;
+			TutorialLu::stagetime += multiplier;
 
             //hotspots
             static float hotspotvisual[40];
@@ -3308,12 +3311,12 @@ void GameLu::Tick()
             }
 
             //Tutorial
-            if (Tutorial::active) {
-                Tutorial::Do(multiplier);
+            if (TutorialLu::active) {
+				TutorialLu::Do(multiplier);
             }
 
             //bonuses
-            if (!Tutorial::active) {
+            if (!TutorialLu::active) {
                 if (bonustime == 0 &&
                     bonus != solidhit &&
                     bonus != spinecrusher &&
@@ -3335,7 +3338,7 @@ void GameLu::Tick()
                 } else {
                     bonusnum[bonus] += 0.15;
                 }
-                if (Tutorial::active) {
+                if (TutorialLu::active) {
                     bonusvalue = 0;
                 }
                 if (bonusvalue > 0) {
@@ -3881,7 +3884,7 @@ void GameLu::Tick()
                                     if (Person::players.size() > 1) {
                                         for (unsigned j = 0; j < Person::players.size(); j++) {
                                             if (i != j) {
-                                                if (!Tutorial::active || Tutorial::stage == 49) {
+                                                if (!TutorialLu::active || TutorialLu::stage == 49) {
                                                     if (hostile) {
                                                         if (normaldotproduct(Person::players[i]->facing, Person::players[i]->coords - Person::players[j]->coords) < 0 &&
                                                             distsq(&Person::players[i]->coords, &Person::players[j]->coords) < 100 &&
@@ -4467,8 +4470,8 @@ void GameLu::Tick()
             }
             OPENAL_SetFrequency(OPENAL_ALL, slomo);
 
-            if (Tutorial::active) {
-                Tutorial::DoStuff(multiplier);
+            if (TutorialLu::active) {
+				TutorialLu::DoStuff(multiplier);
             }
 
             //3d sound
@@ -4708,7 +4711,7 @@ void GameLu::TickOnceAfter()
             maxalarmed = numalarmed;
         }
 
-        if (changedelay <= 0 && !loading && !editorenabled && gameon && !Tutorial::active && changedelay != -999 && !won) {
+        if (changedelay <= 0 && !loading && !editorenabled && gameon && !TutorialLu::active && changedelay != -999 && !won) {
             if (Person::players[0]->dead) {
                 changedelay = 1;
                 targetlevel = whichlevel;

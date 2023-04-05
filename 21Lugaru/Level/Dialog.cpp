@@ -75,6 +75,7 @@ Dialog::Dialog(FILE* tfile)
         funpackf(tfile, "Bf", &participantyaw[l]);
     }
     for (int l = 0; l < numdialogscenes; l++) {
+		std::cout << "......" << std::endl;
         scenes.push_back(DialogScene(tfile));
     }
 }

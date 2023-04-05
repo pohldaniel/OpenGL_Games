@@ -26,7 +26,7 @@ along with Lugaru.  If not, see <http://www.gnu.org/licenses/>.
 #include "GameLu.hpp"
 #include "Level/Awards.hpp"
 #include "Level/Dialog.hpp"
-#include "Tutorial.hpp"
+#include "TutorialLu.hpp"
 #include "Utils/Folders.hpp"
 
 extern float multiplier;
@@ -512,7 +512,7 @@ void Person::CheckKick()
 
         victim->spurt = 1;
         DoBlood(.2, 250);
-        if (!Tutorial::active) {
+        if (!TutorialLu::active) {
             emit_sound_at(heavyimpactsound, victim->coords);
         }
         victim->RagDoll(0);
@@ -713,7 +713,7 @@ void Person::DoBlood(float howmuch, int which)
     // FIXME: should abstract out inputs
     static int bleedxint, bleedyint;
     static XYZ bloodvel;
-    if (bloodtoggle && !Tutorial::active) {
+    if (bloodtoggle && !TutorialLu::active) {
         if (bleeding <= 0 && spurt) {
             spurt = 0;
             for (int i = 0; i < 3; i++) {
@@ -789,7 +789,7 @@ void Person::DoBloodBig(float howmuch, int which)
         blooddimamount = 1;
     }
 
-    if (!Tutorial::active || id == 0) {
+    if (!TutorialLu::active || id == 0) {
         if (!isPlayerControlled() && howmuch > 0) {
             // play pain sounds
             int whichsound = -1;
@@ -824,7 +824,7 @@ void Person::DoBloodBig(float howmuch, int which)
 		GameLu::flash(.5, 0);
     }
 
-    if (bloodtoggle && decalstoggle && !Tutorial::active) {
+    if (bloodtoggle && decalstoggle && !TutorialLu::active) {
         if (bleeding <= 0 && spurt) {
             spurt = 0;
             for (int i = 0; i < 3; i++) {
@@ -970,7 +970,7 @@ void Person::DoBloodBig(float howmuch, int which)
     deathbleeding += bleeding;
     bloodloss += bleeding * 3;
 
-    if (!Tutorial::active && !isPlayerControlled() && bloodloss > damagetolerance * 2 / 3 && bloodloss < damagetolerance && creature == rabbittype) {
+    if (!TutorialLu::active && !isPlayerControlled() && bloodloss > damagetolerance * 2 / 3 && bloodloss < damagetolerance && creature == rabbittype) {
         if (abs(Random() % 2) == 0) {
             aitype = gethelptype;
             lastseentime = 12;
@@ -1000,7 +1000,7 @@ bool Person::DoBloodBigWhere(float howmuch, int which, XYZ where)
     float coordsx, coordsy;
     float total;
 
-    if (bloodtoggle && decalstoggle && !Tutorial::active) {
+    if (bloodtoggle && decalstoggle && !TutorialLu::active) {
         where -= coords;
         if (!skeleton.free) {
             where = DoRotation(where, 0, -yaw, 0);
@@ -1178,7 +1178,7 @@ bool Person::DoBloodBigWhere(float howmuch, int which, XYZ where)
     deathbleeding += bleeding;
     bloodloss += bleeding * 3;
 
-    if (!Tutorial::active && !isPlayerControlled() && bloodloss > damagetolerance * 2 / 3 && bloodloss < damagetolerance && creature == rabbittype) {
+    if (!TutorialLu::active && !isPlayerControlled() && bloodloss > damagetolerance * 2 / 3 && bloodloss < damagetolerance && creature == rabbittype) {
         if (abs(Random() % 2) == 0) {
             aitype = gethelptype;
             lastseentime = 12;
@@ -1198,7 +1198,7 @@ bool Person::DoBloodBigWhere(float howmuch, int which, XYZ where)
  */
 void Person::Reverse()
 {
-    if (!((victim->isPlayerControlled() || hostiletime > 1 || staggerdelay <= 0) && victim->animTarget != jumpupanim && victim->animTarget != jumpdownanim && (!Tutorial::active || cananger) && hostile)) {
+    if (!((victim->isPlayerControlled() || hostiletime > 1 || staggerdelay <= 0) && victim->animTarget != jumpupanim && victim->animTarget != jumpdownanim && (!TutorialLu::active || cananger) && hostile)) {
         return;
     }
 
@@ -1529,7 +1529,7 @@ void Person::DoDamage(float howmuch)
     }
 
     // subtract health
-    if (!Tutorial::active) {
+    if (!TutorialLu::active) {
         damage += howmuch / power;
         permanentdamage += howmuch / 2 / power;
         superpermanentdamage += howmuch / 4 / power;
@@ -1553,10 +1553,10 @@ void Person::DoDamage(float howmuch)
     }
 
     // cancel attack?
-    if (aitype == passivetype && damage < damagetolerance && ((!Tutorial::active || cananger) && hostile)) {
+    if (aitype == passivetype && damage < damagetolerance && ((!TutorialLu::active || cananger) && hostile)) {
         aitype = attacktypecutoff;
     }
-    if (!Tutorial::active && !isPlayerControlled() && damage < damagetolerance && damage > damagetolerance * 2 / 3 && creature == rabbittype) {
+    if (!TutorialLu::active && !isPlayerControlled() && damage < damagetolerance && damage > damagetolerance * 2 / 3 && creature == rabbittype) {
         if (abs(Random() % 2) == 0) {
             aitype = gethelptype;
             lastseentime = 12;
@@ -1598,7 +1598,7 @@ void Person::DoDamage(float howmuch)
     }
 
     // play sounds
-    if (!Tutorial::active || id == 0) {
+    if (!TutorialLu::active || id == 0) {
         if (speechdelay <= 0 && !dead && !isPlayerControlled()) {
             int whichsound = -1;
 
@@ -2117,7 +2117,7 @@ void Person::DoAnimations()
                 drawtogglekeydown = 1;
             }
             //Footstep sounds
-            if (!Tutorial::active || id == 0) {
+            if (!TutorialLu::active || id == 0) {
                 if ((targetFrame().label && (targetFrame().label < 5 || targetFrame().label == 8))) {
                     int whichsound = -1;
                     if (onterrain) {
@@ -2172,7 +2172,7 @@ void Person::DoAnimations()
                     } else if (targetFrame().label == 4) {
                         whichsound = knifeswishsound;
                     }
-                    if (targetFrame().label == 8 && !Tutorial::active) {
+                    if (targetFrame().label == 8 && !TutorialLu::active) {
                         whichsound = landsound2;
                     }
 
@@ -2198,7 +2198,7 @@ void Person::DoAnimations()
             }
 
             //Combat sounds
-            if (!Tutorial::active || id == 0) {
+            if (!TutorialLu::active || id == 0) {
                 if (speechdelay <= 0) {
                     if (animTarget != crouchstabanim && animTarget != swordgroundstabanim && animTarget != staffgroundsmashanim) {
                         if ((targetFrame().label && (targetFrame().label < 5 || targetFrame().label == 8))) {
@@ -2446,7 +2446,7 @@ void Person::DoAnimations()
                                 DoBloodBig(0, 250);
                             }
                         }
-                        if (!Tutorial::active) {
+                        if (!TutorialLu::active) {
                             emit_sound_at(heavyimpactsound, victim->coords, 128.);
                         }
                         if (PersonType::types[creature].hasClaws) {
@@ -2514,7 +2514,7 @@ void Person::DoAnimations()
                         }
                         victim->spurt = 1;
                         DoBlood(.2, 250);
-                        if (!Tutorial::active) {
+                        if (!TutorialLu::active) {
                             emit_sound_at(heavyimpactsound, victim->coords, 160.);
                         }
                         if (PersonType::types[creature].hasClaws) {
@@ -2551,7 +2551,7 @@ void Person::DoAnimations()
                         }
                         victim->spurt = 1;
                         DoBlood(.2, 250);
-                        if (!Tutorial::active) {
+                        if (!TutorialLu::active) {
                             emit_sound_at(heavyimpactsound, victim->coords, 160.);
                         }
                         if (PersonType::types[creature].hasClaws) {
@@ -2646,7 +2646,7 @@ void Person::DoAnimations()
                         if (id == 0) {
                             camerashake += .4;
                         }
-                        if (!Tutorial::active) {
+                        if (!TutorialLu::active) {
                             emit_sound_at(heavyimpactsound, coords, 128.);
                         }
                         XYZ relative;
@@ -2672,7 +2672,7 @@ void Person::DoAnimations()
                         if (id == 0) {
                             camerashake += .4;
                         }
-                        if (!Tutorial::active) {
+                        if (!TutorialLu::active) {
                             emit_sound_at(thudsound, coords);
                         }
 
@@ -2919,7 +2919,7 @@ void Person::DoAnimations()
                             victim->spurt = 1;
                             DoBlood(.2, 235);
                         }
-                        if (!Tutorial::active) {
+                        if (!TutorialLu::active) {
                             emit_sound_at(heavyimpactsound, victim->coords, 128);
                         }
 
@@ -2954,15 +2954,15 @@ void Person::DoAnimations()
                             camerashake += .4;
                         }
                         if (victim->damage <= victim->damagetolerance - 60 && normaldotproduct(victim->facing, victim->coords - coords) < (scale * 5) * (scale * 5) * 0 && AnimationLu::animations[victim->animTarget].height != lowheight) {
-                            if (!Tutorial::active) {
+                            if (!TutorialLu::active) {
                                 emit_sound_at(thudsound, victim->coords);
                             }
                         } else if (victim->damage <= victim->damagetolerance - 60 && normaldotproduct(victim->facing, victim->coords - coords) < (scale * 5) * (scale * 5) * 0 && AnimationLu::animations[victim->animTarget].height == lowheight) {
-                            if (!Tutorial::active) {
+                            if (!TutorialLu::active) {
                                 emit_sound_at(whooshhitsound, victim->coords);
                             }
                         } else {
-                            if (!Tutorial::active) {
+                            if (!TutorialLu::active) {
                                 emit_sound_at(heavyimpactsound, victim->coords);
                             }
                         }
@@ -3049,12 +3049,12 @@ void Person::DoAnimations()
                     if (hasvictim) {
                         if (distsq(&coords, &victim->coords) < (scale * 5) * (scale * 5) * 4.5 && victim->animTarget != dodgebackanim && victim->animTarget != rollanim) {
                             escapednum = 0;
-                            if (!Tutorial::active) {
+                            if (!TutorialLu::active) {
                                 victim->DoBloodBig(1.5 / victim->armorhigh, 225);
                             }
 
                             award_bonus(id, Slicebonus);
-                            if (!Tutorial::active) {
+                            if (!TutorialLu::active) {
                                 emit_sound_at(knifeslicesound, victim->coords);
                             }
                             //victim->jointVel(abdomen)+=relative*damagemult*200;
@@ -3072,7 +3072,7 @@ void Person::DoAnimations()
                                 weaponmissdelay = .6;
                             }
 
-                            if (!Tutorial::active) {
+                            if (!TutorialLu::active) {
                                 if (bloodtoggle && !weapons[weaponids[weaponactive]].bloody) {
                                     weapons[weaponids[weaponactive]].bloody = 1;
                                 }
@@ -3086,7 +3086,7 @@ void Person::DoAnimations()
                             } else {
                                 footpoint = DoRotation((victim->jointPos(abdomen) + victim->jointPos(neck)) / 2, 0, victim->yaw, 0) * victim->scale + victim->coords;
                             }
-                            if (Tutorial::active) {
+                            if (TutorialLu::active) {
                                 Sprite::MakeSprite(cloudimpactsprite, footpoint, footvel, 1, 1, 1, .6, .3);
                             } else {
                                 if (bloodtoggle) {
@@ -3107,7 +3107,7 @@ void Person::DoAnimations()
                         if (!victim->hasWeapon() || normaldotproduct(victim->facing, victim->coords - coords) > 0 || (Random() % 2 == 0)) {
                             award_bonus(id, Slashbonus);
                             escapednum = 0;
-                            if (!Tutorial::active) {
+                            if (!TutorialLu::active) {
                                 if (normaldotproduct(victim->facing, victim->coords - coords) < 0) {
                                     victim->DoBloodBig(2 / victim->armorhigh, 190);
                                 } else {
@@ -3189,7 +3189,7 @@ void Person::DoAnimations()
 
                 if (animCurrent == staffhitanim && currentFrame().label == 5 && victim->animTarget != rollanim) {
                     if (distsq(&coords, &victim->coords) < (scale * 5) * (scale * 5) * 6.5 && victim->animTarget != dodgebackanim && victim->animTarget != sweepanim) {
-                        if (!Tutorial::active) {
+                        if (!TutorialLu::active) {
                             weapons[weaponids[0]].damage += .4 + float(abs(Random() % 100) - 50) / 250;
                             escapednum = 0;
                             if (id == 0) {
@@ -3214,7 +3214,7 @@ void Person::DoAnimations()
                         victim->jointVel(head) += relative * damagemult * 230;
                         victim->jointVel(neck) += relative * damagemult * 230;
                         victim->Puff(head);
-                        if (!Tutorial::active) {
+                        if (!TutorialLu::active) {
                             victim->DoDamage(damagemult * 120 / victim->protectionhigh);
 
                             award_bonus(id, solidhit, 30);
@@ -3224,7 +3224,7 @@ void Person::DoAnimations()
 
                 if (animCurrent == staffspinhitanim && currentFrame().label == 5 && victim->animTarget != rollanim) {
                     if (distsq(&coords, &victim->coords) < (scale * 5) * (scale * 5) * 6.5 && victim->animTarget != dodgebackanim && victim->animTarget != sweepanim) {
-                        if (!Tutorial::active) {
+                        if (!TutorialLu::active) {
                             weapons[weaponids[0]].damage += .6 + float(abs(Random() % 100) - 50) / 250;
                             escapednum = 0;
                             if (id == 0) {
@@ -3247,7 +3247,7 @@ void Person::DoAnimations()
                         victim->jointVel(head) += relative * damagemult * 220;
                         victim->jointVel(neck) += relative * damagemult * 220;
                         victim->Puff(head);
-                        if (!Tutorial::active) {
+                        if (!TutorialLu::active) {
                             victim->DoDamage(damagemult * 350 / victim->protectionhead);
 
                             award_bonus(id, solidhit, 60);
@@ -3258,7 +3258,7 @@ void Person::DoAnimations()
                 if (animCurrent == staffgroundsmashanim && currentFrame().label == 5) {
                     if (distsq(&coords, &victim->coords) < (scale * 5) * (scale * 5) * 6.5) {
                         escapednum = 0;
-                        if (!Tutorial::active) {
+                        if (!TutorialLu::active) {
                             if (!victim->dead) {
                                 weapons[weaponids[0]].damage += .4 + float(abs(Random() % 100) - 50) / 500;
                             }
@@ -3297,7 +3297,7 @@ void Person::DoAnimations()
                             }
                         }
                         victim->Puff(abdomen);
-                        if (!Tutorial::active) {
+                        if (!TutorialLu::active) {
                             victim->DoDamage(damagemult * 100 / victim->protectionhigh);
 
                             if (!victim->dead) {
@@ -3330,7 +3330,7 @@ void Person::DoAnimations()
                                 victim->skeleton.joints[i].velocity += relative * damagemult * 40;
                             }
                             victim->jointVel(head) += relative * damagemult * 200;
-                            if (!Tutorial::active) {
+                            if (!TutorialLu::active) {
                                 emit_sound_at(heavyimpactsound, victim->coords, 128.);
                             }
                             victim->Puff(head);
@@ -3355,7 +3355,7 @@ void Person::DoAnimations()
                             victim->animTarget = staggerbackhighanim;
                             victim->targetyaw = targetyaw + 180;
                             victim->target = 0;
-                            if (!Tutorial::active) {
+                            if (!TutorialLu::active) {
                                 emit_sound_at(landsound2, victim->coords, 128.);
                             }
                             victim->Puff(abdomen);
@@ -3377,7 +3377,7 @@ void Person::DoAnimations()
                         if (id == 0) {
                             camerashake += .2;
                         }
-                        if (!Tutorial::active) {
+                        if (!TutorialLu::active) {
                             emit_sound_at(landsound2, victim->coords, 128.);
                         }
                         XYZ relative;
@@ -3419,7 +3419,7 @@ void Person::DoAnimations()
                             victim->animTarget = staggerbackhighanim;
                             victim->targetyaw = targetyaw + 180;
                             victim->target = 0;
-                            if (!Tutorial::active) {
+                            if (!TutorialLu::active) {
                                 emit_sound_at(landsound2, victim->coords, 128.);
                             }
                             victim->Puff(abdomen);
@@ -3440,7 +3440,7 @@ void Person::DoAnimations()
                         victim->spurt = 1;
                         DoBlood(.2, 230);
                     }
-                    if (!Tutorial::active) {
+                    if (!TutorialLu::active) {
                         emit_sound_at(heavyimpactsound, victim->coords, 128.);
                     }
                     if (PersonType::types[creature].hasClaws) {
@@ -3511,7 +3511,7 @@ void Person::DoAnimations()
 
                     award_bonus(id, staffreversebonus);
 
-                    if (!Tutorial::active) {
+                    if (!TutorialLu::active) {
                         emit_sound_at(heavyimpactsound, victim->coords, 128.);
                     }
                     victim->RagDoll(0);
@@ -3608,7 +3608,7 @@ void Person::DoAnimations()
                         victim->spurt = 1;
                         DoBlood(.2, 230);
                     }
-                    if (!Tutorial::active) {
+                    if (!TutorialLu::active) {
                         emit_sound_at(heavyimpactsound, victim->coords, 128.);
                     }
                     victim->RagDoll(0);
@@ -3810,7 +3810,7 @@ void Person::DoAnimations()
                         DoBlood(.2, 240);
                     }
                     if (!hasWeapon()) {
-                        if (!Tutorial::active) {
+                        if (!TutorialLu::active) {
                             emit_sound_at(heavyimpactsound, victim->coords, 128.);
                         }
                     }
@@ -4593,7 +4593,7 @@ void Person::DoStuff()
         Sprite::MakeSprite(flamesprite, flatfacing, flatvelocity, 1, 1, 1, .6 + (float)abs(Random() % 100) / 200 - .25, 1);
     }
 
-    while (flamedelay < 0 && !onfire && Tutorial::active && id != 0) {
+    while (flamedelay < 0 && !onfire && TutorialLu::active && id != 0) {
         flamedelay += .05;
         int howmany = fabs(Random() % (skeleton.joints.size()));
         if (skeleton.free) {
@@ -5685,7 +5685,7 @@ void Person::DoStuff()
                 play = 1;
             }
         }
-        if (Tutorial::active && id != 0) {
+        if (TutorialLu::active && id != 0) {
             play = 0;
         }
         if (play && !isPlayerControlled()) {
@@ -6694,7 +6694,7 @@ int Person::DrawSkeleton()
                 glEnable(GL_LIGHTING);
                 glEnable(GL_BLEND);
             }
-            if (Tutorial::active && id != 0) {
+            if (TutorialLu::active && id != 0) {
                 glColor4f(.7, .7, .7, 0.6);
                 glDepthMask(0);
                 glEnable(GL_LIGHTING);
@@ -6712,7 +6712,7 @@ int Person::DrawSkeleton()
             }
             if (playerdetail) {
                 if (!showpoints) {
-                    if (Tutorial::active && (id != 0)) {
+                    if (TutorialLu::active && (id != 0)) {
                         skeleton.drawmodel.drawdifftex(Sprite::cloudimpacttexture);
                     } else {
                         skeleton.drawmodel.draw();
@@ -6720,7 +6720,7 @@ int Person::DrawSkeleton()
                 }
             }
             if (!playerdetail) {
-                if (Tutorial::active && (id != 0)) {
+                if (TutorialLu::active && (id != 0)) {
                     skeleton.drawmodellow.drawdifftex(Sprite::cloudimpacttexture);
                 } else {
                     skeleton.drawmodellow.drawdifftex(skeleton.drawmodel.textureptr);
@@ -6728,7 +6728,7 @@ int Person::DrawSkeleton()
             }
 
             if (!(AnimationLu::animations[animTarget].attack == normalattack || AnimationLu::animations[animTarget].attack == reversed)) {
-                if (Tutorial::active && id != 0) {
+                if (TutorialLu::active && id != 0) {
                     glPopMatrix();
                     glMatrixMode(GL_MODELVIEW);
                     glEnable(GL_TEXTURE_2D);
@@ -6748,7 +6748,7 @@ int Person::DrawSkeleton()
                     glTranslatef(smoketex * .6, 0, 0);
                     if (playerdetail) {
                         if (!showpoints) {
-                            if (Tutorial::active && (id != 0)) {
+                            if (TutorialLu::active && (id != 0)) {
                                 skeleton.drawmodel.drawdifftex(Sprite::cloudimpacttexture);
                             } else {
                                 skeleton.drawmodel.draw();
@@ -6756,7 +6756,7 @@ int Person::DrawSkeleton()
                         }
                     }
                     if (!playerdetail) {
-                        if (Tutorial::active && (id != 0)) {
+                        if (TutorialLu::active && (id != 0)) {
                             skeleton.drawmodellow.drawdifftex(Sprite::cloudimpacttexture);
                         } else {
                             skeleton.drawmodellow.drawdifftex(skeleton.drawmodel.textureptr);
@@ -6765,7 +6765,7 @@ int Person::DrawSkeleton()
                 }
             }
 
-            if (Tutorial::active && id != 0) {
+            if (TutorialLu::active && id != 0) {
                 glPopMatrix();
                 glMatrixMode(GL_MODELVIEW);
                 glEnable(GL_TEXTURE_2D);
@@ -7488,7 +7488,7 @@ void Person::doAI()
                 jumpkeydown = 1;
             }
 
-            if ((!Tutorial::active || cananger) &&
+            if ((!TutorialLu::active || cananger) &&
                 hostile &&
                 !Person::players[0]->dead &&
                 distsq(&coords, &Person::players[0]->coords) < 400 &&
@@ -7607,7 +7607,7 @@ void Person::doAI()
             //hearing sounds
             if (!GameLu::editorenabled) {
                 if (howactive <= typesleeping) {
-                    if (numenvsounds > 0 && (!Tutorial::active || cananger) && hostile) {
+                    if (numenvsounds > 0 && (!TutorialLu::active || cananger) && hostile) {
                         for (int j = 0; j < numenvsounds; j++) {
                             float vol = howactive == typesleeping ? envsoundvol[j] - 14 : envsoundvol[j];
                             if (vol > 0 && distsq(&coords, &envsound[j]) < 2 * (vol + vol * (creature == rabbittype) * 3)) {
@@ -7626,7 +7626,7 @@ void Person::doAI()
             }
 
             if (howactive < typesleeping &&
-                ((!Tutorial::active || cananger) && hostile) &&
+                ((!TutorialLu::active || cananger) && hostile) &&
                 !Person::players[0]->dead &&
                 distsq(&coords, &Person::players[0]->coords) < 400 &&
                 occluded < 25) {
@@ -7805,7 +7805,7 @@ void Person::doAI()
                 jumpkeydown = 1;
             }
 
-            if (numenvsounds > 0 && ((!Tutorial::active || cananger) && hostile)) {
+            if (numenvsounds > 0 && ((!TutorialLu::active || cananger) && hostile)) {
                 for (int k = 0; k < numenvsounds; k++) {
                     if (distsq(&coords, &envsound[k]) < 2 * (envsoundvol[k] + envsoundvol[k] * (creature == rabbittype) * 3)) {
                         aitype = attacktypecutoff;
@@ -7817,7 +7817,7 @@ void Person::doAI()
                 losupdatedelay < 0 &&
                 !GameLu::editorenabled &&
                 occluded < 2 &&
-                ((!Tutorial::active || cananger) && hostile)) {
+                ((!TutorialLu::active || cananger) && hostile)) {
                 losupdatedelay = .2;
                 if (distsq(&coords, &Person::players[0]->coords) < 4 && AnimationLu::animations[animTarget].height != lowheight) {
                     aitype = attacktypecutoff;
@@ -7999,7 +7999,7 @@ void Person::doAI()
 
                 lastseentime = 12;
 
-                if (!Person::players[0]->dead && ((!Tutorial::active || cananger) && hostile)) {
+                if (!Person::players[0]->dead && ((!TutorialLu::active || cananger) && hostile)) {
                     if (ally < 0 || hasWeapon() || lastchecktime <= 0) {
                         aitype = attacktypecutoff;
                         lastseentime = 1;
@@ -8261,7 +8261,7 @@ void Person::doAI()
                     for (unsigned j = 0; j < Person::players.size(); j++) {
                         if (j != id && !Person::players[j]->skeleton.free &&
                             Person::players[j]->hasvictim &&
-                            (Tutorial::active && reversaltrain ||
+                            (TutorialLu::active && reversaltrain ||
                              Random() % 2 == 0 && difficulty == 2 ||
                              Random() % 4 == 0 && difficulty == 1 ||
                              Random() % 8 == 0 && difficulty == 0 ||
@@ -8321,7 +8321,7 @@ void Person::doAI()
                     attackkeydown = 0;
                 }
 
-                if (Tutorial::active) {
+                if (TutorialLu::active) {
                     if (!canattack) {
                         attackkeydown = 0;
                     }

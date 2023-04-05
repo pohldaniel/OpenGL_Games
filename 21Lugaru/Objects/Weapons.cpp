@@ -27,7 +27,7 @@ along with Lugaru.  If not, see <http://www.gnu.org/licenses/>.
 #include "Audio/openal_wrapper.hpp"
 #include "GameLu.hpp"
 #include "Level/Awards.hpp"
-#include "Tutorial.hpp"
+#include "TutorialLu.hpp"
 
 extern float multiplier;
 extern Terrain terrain;
@@ -287,19 +287,19 @@ void Weapon::doStuff(int i)
                             Person::players[j]->jointVel(neck) += velocity * 2;
                             Person::players[j]->jointVel(rightshoulder) += velocity * 2;
                             Person::players[j]->jointVel(leftshoulder) += velocity * 2;
-                            if (bloodtoggle && !Tutorial::active) {
+                            if (bloodtoggle && !TutorialLu::active) {
                                 Sprite::MakeSprite(cloudimpactsprite, footpoint, footvel, 1, 0, 0, .8, .3);
                             }
-                            if (Tutorial::active) {
+                            if (TutorialLu::active) {
                                 Sprite::MakeSprite(cloudimpactsprite, footpoint, footvel, 1, 1, 1, .8, .3);
                             }
                             footvel = tippoint - position;
                             Normalise(&footvel);
-                            if (bloodtoggle && !Tutorial::active) {
+                            if (bloodtoggle && !TutorialLu::active) {
                                 Sprite::MakeSprite(bloodflamesprite, footpoint, footvel * -1, 1, 0, 0, .6, 1);
                             }
 
-                            if (!Tutorial::active) {
+                            if (!TutorialLu::active) {
                                 if (Person::players[j]->weaponstuckwhere == 0) {
                                     Person::players[j]->DoBloodBig(2, 205);
                                 }

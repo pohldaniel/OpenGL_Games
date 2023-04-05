@@ -227,6 +227,7 @@
     <ClCompile Include="tinyxml\tinyxmlerror.cpp" />
     <ClCompile Include="tinyxml\tinyxmlparser.cpp" />
     <ClCompile Include="Tutorial.cpp" />
+    <ClCompile Include="TutorialLu.cpp" />
     <ClCompile Include="User\Account.cpp" />
     <ClCompile Include="User\Settings.cpp" />
     <ClCompile Include="Utils\Folders.cpp" />
@@ -307,7 +308,8 @@
     <ClInclude Include="Thirdparty\optionparser.h" />
     <ClInclude Include="tinyxml\tinystr.h" />
     <ClInclude Include="tinyxml\tinyxml.h" />
-    <ClInclude Include="Tutorial.hpp" />
+    <ClInclude Include="Tutorial.h" />
+    <ClInclude Include="TutorialLu.hpp" />
     <ClInclude Include="User\Account.hpp" />
     <ClInclude Include="User\Settings.hpp" />
     <ClInclude Include="Utils\binio.h" />
