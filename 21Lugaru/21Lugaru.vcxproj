@@ -302,6 +302,7 @@
     <ClInclude Include="Objects\PersonType.hpp" />
     <ClInclude Include="Objects\Weapons.hpp" />
     <ClInclude Include="Platform\Platform.hpp" />
+    <ClInclude Include="Resource.h" />
     <ClInclude Include="StateMachine.h" />
     <ClInclude Include="Thirdparty\optionparser.h" />
     <ClInclude Include="tinyxml\tinystr.h" />

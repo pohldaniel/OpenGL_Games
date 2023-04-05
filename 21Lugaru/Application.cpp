@@ -5,6 +5,7 @@
 #include <imgui_impl_win32.h>
 #include <imgui_impl_opengl3.h>
 
+#include "Resource.h"
 #include "Application.h"
 #include "Constants.h"
 #include "Game.h"
@@ -74,7 +75,7 @@ Application::~Application() {
 }
 
 void Application::createWindow() {
-
+	HANDLE hIcon = LoadImage(NULL, "Lugaru.ico", IMAGE_ICON, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
 
 	WNDCLASSEX windowClass;
 
@@ -84,12 +85,12 @@ void Application::createWindow() {
 	windowClass.cbClsExtra = 0;
 	windowClass.cbWndExtra = 0;
 	windowClass.hInstance = (HINSTANCE)GetModuleHandle(NULL);
-	windowClass.hIcon = LoadIcon(NULL, IDI_APPLICATION);
+	windowClass.hIcon = (HICON)hIcon;
 	windowClass.hCursor = LoadCursor(NULL, IDC_ARROW);
 	windowClass.hbrBackground = (HBRUSH)GetStockObject(WHITE_BRUSH);
 	windowClass.lpszMenuName = NULL;
 	windowClass.lpszClassName = "WINDOWCLASS";
-	windowClass.hIconSm = LoadIcon(NULL, IDI_WINLOGO);
+	windowClass.hIconSm = LoadIcon(windowClass.hInstance, MAKEINTRESOURCE(LUGARU_ICON));
 
 	if (!RegisterClassEx(&windowClass))
 		return;
