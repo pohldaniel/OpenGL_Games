@@ -34,6 +34,7 @@ bool Application::Fullscreen = false;
 DWORD Application::SavedExStyle;
 DWORD Application::SavedStyle;
 RECT Application::Savedrc;
+HCURSOR Application::Cursor = LoadCursor(nullptr, IDC_ARROW);
 
 Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fdt) {
 	Width = WIDTH;
@@ -505,9 +506,9 @@ void Application::ToggleFullScreen(bool isFullScreen, unsigned int width, unsign
 }
 
 void Application::SetCursorIcon(std::string file) {
-	HCURSOR cursor = LoadCursorFromFileA(file.c_str());
-	SetCursor(cursor);
-	SetClassLongPtr(Window, GCLP_HCURSOR, (DWORD)cursor);
+	Application::Cursor = LoadCursorFromFileA(file.c_str());
+	SetCursor(Cursor);
+	SetClassLongPtr(Window, GCLP_HCURSOR, (DWORD)Cursor);
 }
 
 void Application::loadAssets() {

@@ -76,10 +76,6 @@ void MainMenu::processInput() {
 	if (keyboard.keyPressed(Keyboard::KEY_F)) {
 		flash();
 	}
-
-	if (keyboard.keyPressed(Keyboard::KEY_M)) {
-		Mouse::SetCursorIcon("Data/Cursors/black.cur");
-	}
 }
 
 void MainMenu::resize(int deltaW, int deltaH) {

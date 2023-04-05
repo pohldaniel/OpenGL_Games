@@ -25,6 +25,7 @@ public:
 	static unsigned int Height;
 	static bool Fullscreen;
 	static void SetCursorIcon(std::string file);
+
 private:
 
 	static LRESULT CALLBACK StaticWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
@@ -59,4 +60,5 @@ private:
 	static DWORD SavedStyle;
 	static RECT Savedrc;
 	static DEVMODE DefaultScreen;
+	static HCURSOR Cursor;
 };
