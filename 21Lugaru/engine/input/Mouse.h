@@ -72,7 +72,10 @@ public:
 	void setWeightModifier(float weightModifier);
 	void smoothMouse(bool smooth);
 	void update();
-	
+
+	static void SetCursorIcon(std::string file);
+	static HCURSOR GetCursorIcon();
+
 private:
 	Mouse();
 	Mouse(const Mouse &);
@@ -110,6 +113,8 @@ private:
 	bool *m_pPrevButtonStates;
 	bool m_attached;
 
-	int centerX;
-	int centerY;
+	int m_centerX;
+	int m_centerY;
+
+	static HCURSOR Cursor;
 };

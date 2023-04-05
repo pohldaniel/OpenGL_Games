@@ -623,7 +623,7 @@ void ch_hs(const char* args)
     Hotspot::hotspots.back().text = std::string(args + shift);
 }
 
-void ch_dialog(const char* args)
+/*void ch_dialog(const char* args)
 {
     int type;
     char buf1[32];
@@ -636,7 +636,7 @@ void ch_dialog(const char* args)
     Dialog::directing = true;
     Dialog::indialogue = 0;
     Dialog::whichdialogue = Dialog::dialogs.size();
-}
+}*/
 
 void ch_fixdialog(const char* args)
 {

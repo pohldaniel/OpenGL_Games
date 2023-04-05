@@ -23,33 +23,7 @@ extern float texdetail;
 extern float slomofreq;
 
 Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
-
-	newGame();
-
-	cellophane = 0;
-	texdetail = 4;
-	slomospeed = 0.25;
-	slomofreq = 8012;
-
-	DefaultSettings();
-
-	initGL();
-	GLint width = kContextWidth;
-	GLint height = kContextHeight;
-	screenwidth = width;
-	screenheight = height;
-
-	newdetail = detail;
-	newscreenwidth = screenwidth;
-	newscreenheight = screenheight;
-
-	InitGame();
-
-	bool gameDone = false;
-	bool gameFocused = true;
-
-	srand(time(nullptr));
-	Menu::startChallengeLevel(1);
+	//Menu::startChallengeLevel(1);
 }
 
 Game::~Game() {
@@ -101,8 +75,8 @@ void Game::update() {
 
 };
 
-void Game::render(unsigned int &frameBuffer) {
-
+void Game::render() {
+	
 	if (stereomode == stereoNone) {
 		DrawGLScene(stereoCenter);
 	} else {
@@ -190,51 +164,5 @@ void Game::DoMouse() {
 		else if (mousecoordv >= kContextHeight) {
 			mousecoordv = kContextHeight - 1;
 		}
-	}
-}
-
-void Game::initGL() {
-
-	// clear all states
-	glDisable(GL_ALPHA_TEST);
-	glDisable(GL_BLEND);
-	glDisable(GL_DEPTH_TEST);
-	glDisable(GL_FOG);
-	glDisable(GL_LIGHTING);
-	glDisable(GL_LOGIC_OP);
-	glDisable(GL_TEXTURE_1D);
-	glDisable(GL_TEXTURE_2D);
-	glPixelTransferi(GL_MAP_COLOR, GL_FALSE);
-	glPixelTransferi(GL_RED_SCALE, 1);
-	glPixelTransferi(GL_RED_BIAS, 0);
-	glPixelTransferi(GL_GREEN_SCALE, 1);
-	glPixelTransferi(GL_GREEN_BIAS, 0);
-	glPixelTransferi(GL_BLUE_SCALE, 1);
-	glPixelTransferi(GL_BLUE_BIAS, 0);
-	glPixelTransferi(GL_ALPHA_SCALE, 1);
-	glPixelTransferi(GL_ALPHA_BIAS, 0);
-
-	// set initial rendering states
-	glShadeModel(GL_SMOOTH);
-	glClearDepth(1.0f);
-	glDepthFunc(GL_LEQUAL);
-	glDepthMask(GL_TRUE);
-	glEnable(GL_DEPTH_TEST);
-	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
-	glCullFace(GL_FRONT);
-	glEnable(GL_CULL_FACE);
-	glEnable(GL_LIGHTING);
-	glEnable(GL_DITHER);
-	glEnable(GL_COLOR_MATERIAL);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glAlphaFunc(GL_GREATER, 0.5f);
-
-	if (CanInitStereo(stereomode)) {
-		InitStereo(stereomode);
-	}
-	else {
-		fprintf(stderr, "Failed to initialize stereo, disabling.\n");
-		stereomode = stereoNone;
 	}
 }

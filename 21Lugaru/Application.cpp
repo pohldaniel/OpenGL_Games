@@ -8,6 +8,19 @@
 #include "Application.h"
 #include "Constants.h"
 #include "Game.h"
+#include "MainMenu.h"
+
+#include <time.h>
+#include "GameLu.hpp"
+#include "Game.h"
+#include "User/Settings.hpp"
+
+using namespace GameLu;
+
+extern float slomospeed;
+extern float slomofreq;
+extern bool cellophane;
+extern float texdetail;
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -285,9 +298,47 @@ void Application::initOpenGL(int msaaSamples) {
 	}
 	enableVerticalSync(true);
 
-	//Default Values
-	//glCullFace(GL_BACK);
-	//glFrontFace(GL_CCW);
+	glDisable(GL_ALPHA_TEST);
+	glDisable(GL_BLEND);
+	glDisable(GL_DEPTH_TEST);
+	glDisable(GL_FOG);
+	glDisable(GL_LIGHTING);
+	glDisable(GL_LOGIC_OP);
+	glDisable(GL_TEXTURE_1D);
+	glDisable(GL_TEXTURE_2D);
+	glPixelTransferi(GL_MAP_COLOR, GL_FALSE);
+	glPixelTransferi(GL_RED_SCALE, 1);
+	glPixelTransferi(GL_RED_BIAS, 0);
+	glPixelTransferi(GL_GREEN_SCALE, 1);
+	glPixelTransferi(GL_GREEN_BIAS, 0);
+	glPixelTransferi(GL_BLUE_SCALE, 1);
+	glPixelTransferi(GL_BLUE_BIAS, 0);
+	glPixelTransferi(GL_ALPHA_SCALE, 1);
+	glPixelTransferi(GL_ALPHA_BIAS, 0);
+
+	// set initial rendering states
+	glShadeModel(GL_SMOOTH);
+	glClearDepth(1.0f);
+	glDepthFunc(GL_LEQUAL);
+	glDepthMask(GL_TRUE);
+	glEnable(GL_DEPTH_TEST);
+	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+	glCullFace(GL_FRONT);
+	glEnable(GL_CULL_FACE);
+	glEnable(GL_LIGHTING);
+	glEnable(GL_DITHER);
+	glEnable(GL_COLOR_MATERIAL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glAlphaFunc(GL_GREATER, 0.5f);
+
+	if (CanInitStereo(stereomode)) {
+		InitStereo(stereomode);
+	}
+	else {
+		fprintf(stderr, "Failed to initialize stereo, disabling.\n");
+		stereomode = stereoNone;
+	}
 }
 
 void Application::initImGUI() {
@@ -348,8 +399,27 @@ void Application::fixedUpdate() {
 }
 
 void Application::initStates() {
+	newGame();
+
+	cellophane = 0;
+	texdetail = 4;
+	slomospeed = 0.25;
+	slomofreq = 8012;
+
+	DefaultSettings();
+
+	screenwidth = kContextWidth;
+	screenheight = kContextHeight;
+
+	newdetail = detail;
+	newscreenwidth = screenwidth;
+	newscreenheight = screenheight;	
+	srand(time(nullptr));
+	InitGame();
+
 	Machine = new StateMachine(m_dt, m_fdt);
-	Machine->addStateAtTop(new Game(*Machine));
+	//Machine->addStateAtTop(new Game(*Machine));
+	Machine->addStateAtTop(new MainMenu(*Machine));
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {

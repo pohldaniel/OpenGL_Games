@@ -1,6 +1,8 @@
 #include <iostream>
 #include "Mouse.h"
 
+HCURSOR Mouse::Cursor = LoadCursor(nullptr, IDC_ARROW);
+
 const float Mouse::WEIGHT_MODIFIER = 0.2f;
 BYTE Mouse::m_tempBuffer[TEMP_BUFFER_SIZE];
 
@@ -8,6 +10,15 @@ Mouse &Mouse::instance(){
 
 	static Mouse theInstance;
 	return theInstance;
+}
+
+void Mouse::SetCursorIcon(std::string file) {
+	Mouse::Cursor = LoadCursorFromFileA(file.c_str());
+	SetCursor(Cursor);
+}
+
+HCURSOR Mouse::GetCursorIcon() {
+	return Mouse::Cursor;
 }
 
 Mouse::Mouse(){
@@ -176,8 +187,8 @@ void Mouse::handleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam){
 		int x = static_cast<int>(static_cast<short>(LOWORD(lParam)));
 		int y = static_cast<int>(static_cast<short>(HIWORD(lParam)));
 	
-		m_xPosRelative = x - centerX;
-		m_yPosRelative = y - centerY;
+		m_xPosRelative = x - m_centerX;
+		m_yPosRelative = y - m_centerY;
 
 
 		m_xPosAbsolute = x;
@@ -197,8 +208,8 @@ void Mouse::handleEvent(Event event) {
 			int x = event.data.mouseMove.x;
 			int y = event.data.mouseMove.y;
 
-			m_xPosRelative = x - centerX;
-			m_yPosRelative = y - centerY;
+			m_xPosRelative = x - m_centerX;
+			m_yPosRelative = y - m_centerY;
 
 			m_xPosAbsolute = x;
 			m_yPosAbsolute = y;
@@ -237,7 +248,7 @@ void Mouse::setPosition(UINT x, UINT y){
 }
 
 void Mouse::setCursorToMiddle() {
-	SetCursorPos(centerX, centerY);
+	SetCursorPos(m_centerX, m_centerY);
 }
 
 void Mouse::setWeightModifier(float weightModifier){
@@ -265,8 +276,8 @@ void Mouse::update(){
 	if (m_attached) {	
 		POINT        CursorPos;
 		GetCursorPos(&CursorPos);		
-		m_xPosRelative = (CursorPos.x - centerX);
-		m_yPosRelative = (CursorPos.y - centerY);
+		m_xPosRelative = (CursorPos.x - m_centerX);
+		m_yPosRelative = (CursorPos.y - m_centerY);
 		setCursorToMiddle();
 	}
 }
@@ -284,8 +295,8 @@ void Mouse::attach(HWND hWnd) {
 	GetWindowRect(m_hWnd, &rectWindow);
 
 	GetClientRect(m_hWnd, &rectClient);
-	centerX = rectWindow.left + rectClient.right / 2;
-	centerY = rectWindow.top + rectClient.bottom / 2;
+	m_centerX = rectWindow.left + rectClient.right / 2;
+	m_centerY = rectWindow.top + rectClient.bottom / 2;
 
 	setCursorToMiddle();
 	hideCursor(true);

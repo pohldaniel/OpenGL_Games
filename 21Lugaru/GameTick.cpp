@@ -3397,208 +3397,51 @@ void GameLu::Tick()
             }
 
             if (Dialog::inDialog()) {
-                cameramode = 1;
-                if (Dialog::directing) {
-                    facing = 0;
-                    facing.z = -1;
+                cameramode = 1;             
+				pause_sound(whooshsound);
+				viewer = Dialog::currentScene().camera;
+				viewer.y = max((double)viewer.y, terrain.getHeight(viewer.x, viewer.z) + .1);
+				yaw = Dialog::currentScene().camerayaw;
+				pitch = Dialog::currentScene().camerapitch;
+				if (Dialog::dialoguetime > 0.5) {
+					if (Input::isMousePressed(static_cast<Mouse::MouseButton>(attackkey))) {
+						Dialog::indialogue++;
+						if (Dialog::indialogue < int(Dialog::currentDialog().scenes.size())) {
+							if (Dialog::currentScene().sound != 0) {
+								playdialoguescenesound();
+								if (Dialog::currentScene().sound == -5) {
+									Hotspot::hotspots.emplace_back(Person::players[0]->coords, -1, 10);
+								}
+								if (Dialog::currentScene().sound == -6) {
+									hostile = 1;
+								}
 
-                    facing = DoRotation(facing, -pitch, 0, 0);
-                    facing = DoRotation(facing, 0, 0 - yaw, 0);
-
-                    flatfacing = 0;
-                    flatfacing.z = -1;
-
-                    flatfacing = DoRotation(flatfacing, 0, -yaw, 0);
-
-                    if (Input::isKeyDown(static_cast<Keyboard::Key>(forwardkey))) {
-                        viewer += facing * multiplier * 4;
-                    }
-                    if (Input::isKeyDown(static_cast<Keyboard::Key>(backkey))) {
-                        viewer -= facing * multiplier * 4;
-                    }
-                    if (Input::isKeyDown(static_cast<Keyboard::Key>(leftkey))) {
-                        viewer += DoRotation(flatfacing * multiplier, 0, 90, 0) * 4;
-                    }
-                    if (Input::isKeyDown(static_cast<Keyboard::Key>(rightkey))) {
-                        viewer += DoRotation(flatfacing * multiplier, 0, -90, 0) * 4;
-                    }
-                    if (Input::isKeyDown(static_cast<Keyboard::Key>(jumpkey))) {
-                        viewer.y += multiplier * 4;
-                    }
-                    if (Input::isKeyDown(static_cast<Keyboard::Key>(crouchkey))) {
-                        viewer.y -= multiplier * 4;
-                    }
-                    if (Input::isKeyPressed(Keyboard::KEY_1) ||
-                        Input::isKeyPressed(Keyboard::KEY_2) ||
-                        Input::isKeyPressed(Keyboard::KEY_3) ||
-                        Input::isKeyPressed(Keyboard::KEY_4) ||
-                        Input::isKeyPressed(Keyboard::KEY_5) ||
-                        Input::isKeyPressed(Keyboard::KEY_6) ||
-                        Input::isKeyPressed(Keyboard::KEY_7) ||
-                        Input::isKeyPressed(Keyboard::KEY_8) ||
-                        Input::isKeyPressed(Keyboard::KEY_9) ||
-                        Input::isKeyPressed(Keyboard::KEY_0) ||
-                        Input::isKeyPressed(Keyboard::KEY_SUBTRACT)) {
-                        int whichend;
-                        if (Input::isKeyPressed(Keyboard::KEY_1)) {
-                            whichend = 1;
-                        }
-                        if (Input::isKeyPressed(Keyboard::KEY_2)) {
-                            whichend = 2;
-                        }
-                        if (Input::isKeyPressed(Keyboard::KEY_3)) {
-                            whichend = 3;
-                        }
-                        if (Input::isKeyPressed(Keyboard::KEY_4)) {
-                            whichend = 4;
-                        }
-                        if (Input::isKeyPressed(Keyboard::KEY_5)) {
-                            whichend = 5;
-                        }
-                        if (Input::isKeyPressed(Keyboard::KEY_6)) {
-                            whichend = 6;
-                        }
-                        if (Input::isKeyPressed(Keyboard::KEY_7)) {
-                            whichend = 7;
-                        }
-                        if (Input::isKeyPressed(Keyboard::KEY_8)) {
-                            whichend = 8;
-                        }
-                        if (Input::isKeyPressed(Keyboard::KEY_9)) {
-                            whichend = 9;
-                        }
-                        if (Input::isKeyPressed(Keyboard::KEY_0)) {
-                            whichend = 0;
-                        }
-                        if (Input::isKeyPressed(Keyboard::KEY_SUBTRACT)) {
-                            whichend = -1;
-                        }
-                        if (whichend != -1) {
-                            Dialog::currentScene().participantfocus = whichend;
-                            Dialog::currentDialog().participantlocation[whichend] = Person::players[whichend]->coords;
-                            Dialog::currentDialog().participantyaw[whichend] = Person::players[whichend]->yaw;
-                        }
-                        if (whichend == -1) {
-                            Dialog::currentScene().participantfocus = -1;
-                        }
-                        /* FIXME: potentially accessing -1 in Person::players! */
-                        if (Person::players[Dialog::currentScene().participantfocus]->dead) {
-                            Dialog::indialogue = -1;
-                            Dialog::directing = false;
-                            cameramode = 0;
-                        }
-                        Dialog::currentScene().camera = viewer;
-                        Dialog::currentScene().camerayaw = yaw;
-                        Dialog::currentScene().camerapitch = pitch;
-                        Dialog::indialogue++;
-                        if (Dialog::indialogue < int(Dialog::currentDialog().scenes.size())) {
-                            if (Dialog::currentScene().sound != 0) {
-                                playdialoguescenesound();
-                            }
-                        }
-
-                        for (unsigned j = 0; j < Person::players.size(); j++) {
-                            Dialog::currentScene().participantfacing[j] = Dialog::currentDialog().scenes[Dialog::indialogue - 1].participantfacing[j];
-                        }
-                    }
-                    //TODO: should these be KeyDown or KeyPressed?
-                    if (Input::isKeyDown(Keyboard::KEY_NUMPAD_1) ||
-                        Input::isKeyDown(Keyboard::KEY_NUMPAD_2) ||
-                        Input::isKeyDown(Keyboard::KEY_NUMPAD_3) ||
-                        Input::isKeyDown(Keyboard::KEY_NUMPAD_4) ||
-                        Input::isKeyDown(Keyboard::KEY_NUMPAD_5) ||
-                        Input::isKeyDown(Keyboard::KEY_NUMPAD_6) ||
-                        Input::isKeyDown(Keyboard::KEY_NUMPAD_7) ||
-                        Input::isKeyDown(Keyboard::KEY_NUMPAD_8) ||
-                        Input::isKeyDown(Keyboard::KEY_NUMPAD_9) ||
-                        Input::isKeyDown(Keyboard::KEY_NUMPAD_0)) {
-                        int whichend;
-                        if (Input::isKeyDown(Keyboard::KEY_NUMPAD_1)) {
-                            whichend = 1;
-                        }
-                        if (Input::isKeyDown(Keyboard::KEY_NUMPAD_2)) {
-                            whichend = 2;
-                        }
-                        if (Input::isKeyDown(Keyboard::KEY_NUMPAD_3)) {
-                            whichend = 3;
-                        }
-                        if (Input::isKeyDown(Keyboard::KEY_NUMPAD_4)) {
-                            whichend = 4;
-                        }
-                        if (Input::isKeyDown(Keyboard::KEY_NUMPAD_5)) {
-                            whichend = 5;
-                        }
-                        if (Input::isKeyDown(Keyboard::KEY_NUMPAD_6)) {
-                            whichend = 6;
-                        }
-                        if (Input::isKeyDown(Keyboard::KEY_NUMPAD_7)) {
-                            whichend = 7;
-                        }
-                        if (Input::isKeyDown(Keyboard::KEY_NUMPAD_8)) {
-                            whichend = 8;
-                        }
-                        if (Input::isKeyDown(Keyboard::KEY_NUMPAD_9)) {
-                            whichend = 9;
-                        }
-                        if (Input::isKeyDown(Keyboard::KEY_NUMPAD_0)) {
-                            whichend = 0;
-                        }
-                        Dialog::currentScene().participantfacing[whichend] = facing;
-                    }
-                    if (Dialog::indialogue >= int(Dialog::currentDialog().scenes.size())) {
-                        Dialog::indialogue = -1;
-                        Dialog::directing = false;
-                        cameramode = 0;
-                    }
-                }
-                if (!Dialog::directing) {
-                    pause_sound(whooshsound);
-                    viewer = Dialog::currentScene().camera;
-                    viewer.y = max((double)viewer.y, terrain.getHeight(viewer.x, viewer.z) + .1);
-                    yaw = Dialog::currentScene().camerayaw;
-                    pitch = Dialog::currentScene().camerapitch;
-                    if (Dialog::dialoguetime > 0.5) {
-                        if (Input::isMousePressed(static_cast<Mouse::MouseButton>(attackkey))) {
-                            Dialog::indialogue++;
-                            if (Dialog::indialogue < int(Dialog::currentDialog().scenes.size())) {
-                                if (Dialog::currentScene().sound != 0) {
-                                    playdialoguescenesound();
-                                    if (Dialog::currentScene().sound == -5) {
-                                        Hotspot::hotspots.emplace_back(Person::players[0]->coords, -1, 10);
-                                    }
-                                    if (Dialog::currentScene().sound == -6) {
-                                        hostile = 1;
-                                    }
-
-                                    if (Person::players.at(Dialog::currentScene().participantfocus)->dead) {
-                                        Dialog::indialogue = -1;
-                                        Dialog::directing = false;
-                                        cameramode = 0;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    if (Dialog::indialogue >= int(Dialog::currentDialog().scenes.size())) {
-                        Dialog::indialogue = -1;
-                        Dialog::directing = false;
-                        cameramode = 0;
-                        if (Dialog::currentDialog().type > 19 && Dialog::currentDialog().type < 30) {
-                            hostile = 1;
-                        }
-                        if (Dialog::currentDialog().type > 29 && Dialog::currentDialog().type < 40) {
-                            windialogue = true;
-                        }
-                        if (Dialog::currentDialog().type > 49 && Dialog::currentDialog().type < 60) {
-                            hostile = 1;
-                            for (unsigned i = 1; i < Person::players.size(); i++) {
+								if (Person::players.at(Dialog::currentScene().participantfocus)->dead) {
+									Dialog::indialogue = -1;
+									cameramode = 0;
+								}
+							}
+						}
+					}
+				}
+				if (Dialog::indialogue >= int(Dialog::currentDialog().scenes.size())) {
+					Dialog::indialogue = -1;
+					cameramode = 0;
+					if (Dialog::currentDialog().type > 19 && Dialog::currentDialog().type < 30) {
+						hostile = 1;
+					}
+					if (Dialog::currentDialog().type > 29 && Dialog::currentDialog().type < 40) {
+						windialogue = true;
+					}
+					if (Dialog::currentDialog().type > 49 && Dialog::currentDialog().type < 60) {
+						hostile = 1;
+						for (unsigned i = 1; i < Person::players.size(); i++) {
                                 Person::players[i]->aitype = attacktypecutoff;
-                            }
-                        }
-                    }
-                }
-            }
-
+						}
+					}
+				}
+			}
+            
             if (!Person::players[0]->jumpkeydown) {
                 Person::players[0]->jumptogglekeydown = 0;
             }
@@ -4672,7 +4515,7 @@ void GameLu::TickOnce()
 {
     if (mainmenu) {
         yaw += multiplier * 5;
-    } else if (Dialog::directing || !Dialog::inDialog()) {
+    } else if (!Dialog::inDialog()) {
         yaw += deltah * .7;
         if (invertmouse) {
             pitch -= deltav * .7;

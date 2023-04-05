@@ -54,9 +54,9 @@ unsigned newuserselected = 0;
 float newuserblinkdelay = 0;
 bool newuserblink = false;
 
-std::vector<MenuItem> Menu::items;
+std::vector<MenuItemLu> Menu::items;
 
-MenuItem::MenuItem(MenuItemType _type, int _id, const string& _text, TextureLu _texture,
+MenuItemLu::MenuItemLu(MenuItemTypeLu _type, int _id, const string& _text, TextureLu _texture,
                    int _x, int _y, int _w, int _h, float _r, float _g, float _b,
                    float _linestartsize, float _lineendsize)
     : type(_type)
@@ -74,7 +74,7 @@ MenuItem::MenuItem(MenuItemType _type, int _id, const string& _text, TextureLu _
     , linestartsize(_linestartsize)
     , lineendsize(_lineendsize)
 {
-    if (type == MenuItem::BUTTON) {
+    if (type == MenuItemLu::BUTTON) {
         if (w == -1) {
             w = text.length() * 10;
         }
@@ -91,36 +91,36 @@ void Menu::clearMenu()
 
 void Menu::addLabel(int id, const string& text, int x, int y, float r, float g, float b)
 {
-    items.emplace_back(MenuItem::LABEL, id, text, TextureLu(), x, y, -1, -1, r, g, b);
+    items.emplace_back(MenuItemLu::LABEL, id, text, TextureLu(), x, y, -1, -1, r, g, b);
 }
 void Menu::addButton(int id, const string& text, int x, int y, float r, float g, float b)
 {
-    items.emplace_back(MenuItem::BUTTON, id, text, TextureLu(), x, y, -1, -1, r, g, b);
+    items.emplace_back(MenuItemLu::BUTTON, id, text, TextureLu(), x, y, -1, -1, r, g, b);
 }
 void Menu::addImage(int id, TextureLu texture, int x, int y, int w, int h, float r, float g, float b)
 {
-    items.emplace_back(MenuItem::IMAGE, id, "", texture, x, y, w, h, r, g, b);
+    items.emplace_back(MenuItemLu::IMAGE, id, "", texture, x, y, w, h, r, g, b);
 }
 void Menu::addButtonImage(int id, TextureLu texture, int x, int y, int w, int h, float r, float g, float b)
 {
-    items.emplace_back(MenuItem::IMAGEBUTTON, id, "", texture, x, y, w, h, r, g, b);
+    items.emplace_back(MenuItemLu::IMAGEBUTTON, id, "", texture, x, y, w, h, r, g, b);
 }
 void Menu::addMapLine(int x, int y, int w, int h, float startsize, float endsize, float r, float g, float b)
 {
-    items.emplace_back(MenuItem::MAPLINE, -1, "", TextureLu(), x, y, w, h, r, g, b, startsize, endsize);
+    items.emplace_back(MenuItemLu::MAPLINE, -1, "", TextureLu(), x, y, w, h, r, g, b, startsize, endsize);
 }
 void Menu::addMapMarker(int id, TextureLu texture, int x, int y, int w, int h, float r, float g, float b)
 {
-    items.emplace_back(MenuItem::MAPMARKER, id, "", texture, x, y, w, h, r, g, b);
+    items.emplace_back(MenuItemLu::MAPMARKER, id, "", texture, x, y, w, h, r, g, b);
 }
 void Menu::addMapLabel(int id, const string& text, int x, int y, float r, float g, float b)
 {
-    items.emplace_back(MenuItem::MAPLABEL, id, text, TextureLu(), x, y, -1, -1, r, g, b);
+    items.emplace_back(MenuItemLu::MAPLABEL, id, text, TextureLu(), x, y, -1, -1, r, g, b);
 }
 
 void Menu::setText(int id, const string& text)
 {
-    for (vector<MenuItem>::iterator it = items.begin(); it != items.end(); it++) {
+    for (vector<MenuItemLu>::iterator it = items.begin(); it != items.end(); it++) {
         if (it->id == id) {
             it->text = text;
             it->w = it->text.length() * 10;
@@ -131,7 +131,7 @@ void Menu::setText(int id, const string& text)
 
 void Menu::setText(int id, const string& text, int x, int y, int w, int h)
 {
-    for (vector<MenuItem>::iterator it = items.begin(); it != items.end(); it++) {
+    for (vector<MenuItemLu>::iterator it = items.begin(); it != items.end(); it++) {
         if (it->id == id) {
             it->text = text;
             it->x = x;
@@ -149,11 +149,11 @@ void Menu::setText(int id, const string& text, int x, int y, int w, int h)
 
 int Menu::getSelected(int mousex, int mousey)
 {
-    for (vector<MenuItem>::reverse_iterator it = items.rbegin(); it != items.rend(); it++) {
-        if (it->type == MenuItem::BUTTON || it->type == MenuItem::IMAGEBUTTON || it->type == MenuItem::MAPMARKER) {
+    for (vector<MenuItemLu>::reverse_iterator it = items.rbegin(); it != items.rend(); it++) {
+        if (it->type == MenuItemLu::BUTTON || it->type == MenuItemLu::IMAGEBUTTON || it->type == MenuItemLu::MAPMARKER) {
             int mx = mousex;
             int my = mousey;
-            if (it->type == MenuItem::MAPMARKER) {
+            if (it->type == MenuItemLu::MAPMARKER) {
                 mx -= 1;
                 my += 2;
             }
@@ -167,7 +167,7 @@ int Menu::getSelected(int mousex, int mousey)
 
 void Menu::handleFadeEffect()
 {
-    for (vector<MenuItem>::iterator it = items.begin(); it != items.end(); it++) {
+    for (vector<MenuItemLu>::iterator it = items.begin(); it != items.end(); it++) {
         if (it->id == GameLu::selected) {
             it->effectfade += multiplier * 5;
             if (it->effectfade > 1) {
@@ -188,14 +188,14 @@ void Menu::drawItems()
     glEnable(GL_TEXTURE_2D);
     glEnable(GL_ALPHA_TEST);
     glEnable(GL_BLEND);
-    for (vector<MenuItem>::iterator it = items.begin(); it != items.end(); it++) {
+    for (vector<MenuItemLu>::iterator it = items.begin(); it != items.end(); it++) {
         switch (it->type) {
-            case MenuItem::IMAGE:
-            case MenuItem::IMAGEBUTTON:
-            case MenuItem::MAPMARKER:
+            case MenuItemLu::IMAGE:
+            case MenuItemLu::IMAGEBUTTON:
+            case MenuItemLu::MAPMARKER:
                 glColor4f(it->r, it->g, it->b, 1);
                 glPushMatrix();
-                if (it->type == MenuItem::MAPMARKER) {
+                if (it->type == MenuItemLu::MAPMARKER) {
                     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
                     glTranslatef(2.5, -4.5, 0); //from old code
                 } else {
@@ -214,7 +214,7 @@ void Menu::drawItems()
                 glTexCoord2f(0, 1);
                 glVertex3f(it->x, it->y + it->h, 0);
                 glEnd();
-                if (it->type != MenuItem::IMAGE) {
+                if (it->type != MenuItemLu::IMAGE) {
                     //mouseover highlight
                     for (int i = 0; i < 10; i++) {
                         if (1 - ((float)i) / 10 - (1 - it->effectfade) > 0) {
@@ -234,12 +234,12 @@ void Menu::drawItems()
                 }
                 glPopMatrix();
                 break;
-            case MenuItem::LABEL:
-            case MenuItem::BUTTON:
+            case MenuItemLu::LABEL:
+            case MenuItemLu::BUTTON:
                 glColor4f(it->r, it->g, it->b, 1);
                 glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 				GameLu::text->glPrint(it->x, it->y, it->text.c_str(), 0, 1, 640, 480);
-                if (it->type != MenuItem::LABEL) {
+                if (it->type != MenuItemLu::LABEL) {
                     //mouseover highlight
                     glBlendFunc(GL_SRC_ALPHA, GL_ONE);
                     for (int i = 0; i < 15; i++) {
@@ -250,10 +250,10 @@ void Menu::drawItems()
                     }
                 }
                 break;
-            case MenuItem::MAPLABEL:
+            case MenuItemLu::MAPLABEL:
 				GameLu::text->glPrintOutlined(0.9, 0, 0, 1, it->x, it->y, it->text.c_str(), 0, 0.6, 640, 480);
                 break;
-            case MenuItem::MAPLINE: {
+            case MenuItemLu::MAPLINE: {
                 XYZ linestart;
                 linestart.x = it->x;
                 linestart.y = it->y;
@@ -286,7 +286,7 @@ void Menu::drawItems()
                 glEnable(GL_TEXTURE_2D);
             } break;
             default:
-            case MenuItem::NONE:
+            case MenuItemLu::NONE:
                 break;
         }
     }

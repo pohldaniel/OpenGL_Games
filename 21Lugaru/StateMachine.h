@@ -8,17 +8,15 @@
 
 enum CurrentState {
 	GAME,
-	SETTINGS,
-	PAUSE,
-	MENU,
-	LEVELSELECT
+	MAINMENU,
 };
 
-//base for holding the Framebuffer
 class State;
 
 class StateMachine {
+
 	friend class Application;
+
 public:
 	StateMachine(const float& dt, const float& fdt);
 	~StateMachine();
@@ -40,7 +38,9 @@ public:
 
 	static void ToggleWireframe();
 	static bool& GetEnableWireframe();
+
 private:
+
 	void clearStates();
 
 	std::stack<State*> m_states;
@@ -63,7 +63,7 @@ public:
 
 	virtual void fixedUpdate() = 0;
 	virtual void update() = 0;
-	virtual void render(unsigned int &m_frameBuffer) = 0;
+	virtual void render() = 0;
 	virtual void resize(int deltaW, int deltaH) {};
 
 	const bool isRunning() const;
@@ -71,6 +71,7 @@ public:
 	CurrentState m_currentState;
 
 protected:
+
 	StateMachine& m_machine;
 	const float& m_fdt;
 	const float& m_dt;

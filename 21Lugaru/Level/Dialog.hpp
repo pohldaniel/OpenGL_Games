@@ -78,7 +78,7 @@ public:
 
     static int indialogue;
     static int whichdialogue;
-    static bool directing;
+    //static bool directing;
     static float dialoguetime;
     static std::vector<Dialog> dialogs;
 };

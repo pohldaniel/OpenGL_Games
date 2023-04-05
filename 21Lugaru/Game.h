@@ -17,7 +17,7 @@ public:
 
 	void fixedUpdate() override;
 	void update() override;
-	void render(unsigned int &frameBuffer) override;
+	void render() override;
 	void resize(int deltaW, int deltaH) override;
 	void OnMouseMotion(Event::MouseMoveEvent& event) override;
 	void OnMouseButtonDown(Event::MouseButtonEvent& event) override;
@@ -26,5 +26,4 @@ public:
 	bool m_initUi = true;
 	
 	void DoMouse();
-	void initGL();
 };

@@ -207,6 +207,7 @@
     <ClCompile Include="Level\Dialog.cpp" />
     <ClCompile Include="Level\Hotspot.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="MainMenu.cpp" />
     <ClCompile Include="Math\FrustumLu.cpp" />
     <ClCompile Include="Math\XYZ.cpp" />
     <ClCompile Include="Menu\Menu.cpp" />
@@ -290,6 +291,7 @@
     <ClInclude Include="Level\Campaign.hpp" />
     <ClInclude Include="Level\Dialog.hpp" />
     <ClInclude Include="Level\Hotspot.hpp" />
+    <ClInclude Include="MainMenu.h" />
     <ClInclude Include="Math\FrustumLu.hpp" />
     <ClInclude Include="Math\RandomLu.hpp" />
     <ClInclude Include="Math\XYZ.hpp" />

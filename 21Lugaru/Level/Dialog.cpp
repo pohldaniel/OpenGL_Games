@@ -30,7 +30,7 @@ extern int hostile;
 
 int Dialog::indialogue;
 int Dialog::whichdialogue;
-bool Dialog::directing;
+//bool Dialog::directing;
 float Dialog::dialoguetime;
 std::vector<Dialog> Dialog::dialogs;
 
@@ -227,7 +227,7 @@ void Dialog::play()
         Person::players[playerId]->frameTarget = 0;
     }
 
-    Dialog::directing = false;
+    //Dialog::directing = false;
     Dialog::indialogue = 0;
 
     if (scenes[indialogue].sound != 0) {

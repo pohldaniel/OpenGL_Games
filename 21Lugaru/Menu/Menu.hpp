@@ -23,10 +23,9 @@ along with Lugaru.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "GameLu.hpp"
 
-struct MenuItem
-{
-    enum MenuItemType
-    {
+struct MenuItemLu {
+
+    enum MenuItemTypeLu {
         NONE,
         LABEL,
         BUTTON,
@@ -46,7 +45,7 @@ struct MenuItem
     float linestartsize;
     float lineendsize;
 
-    MenuItem(MenuItemType _type, int _id, const string& _text, TextureLu _texture,
+	MenuItemLu(MenuItemTypeLu _type, int _id, const string& _text, TextureLu _texture,
              int _x, int _y, int _w, int _h, float _r, float _g, float _b,
              float _linestartsize = 1, float _lineendsize = 1);
 };
@@ -76,7 +75,7 @@ public:
 private:
     static void handleFadeEffect();
 
-    static std::vector<MenuItem> items;
+    static std::vector<MenuItemLu> items;
 };
 
 #endif
