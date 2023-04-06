@@ -13,6 +13,8 @@ public:
     static bool MouseClicked();
 	static bool isMousePressed(Mouse::MouseButton button);
 	static bool isMouseDown(Mouse::MouseButton button);
+
+	static string GetCharsFromKeys(unsigned short key, bool shift = false, bool altGr = false);
 };
 
 #endif

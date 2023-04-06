@@ -70,6 +70,7 @@ public:
     static void Tick();
     static void updateSettingsMenu();
     static void updateStereoConfigMenu();
+	static void updateControlsMenu();
     static void startChallengeLevel(int selected);
 
 private:

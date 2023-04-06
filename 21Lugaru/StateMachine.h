@@ -58,6 +58,7 @@ private:
 };
 
 class State {
+
 public:
 	State(StateMachine& machine, CurrentState currentState);
 	virtual ~State();
@@ -68,13 +69,13 @@ public:
 	virtual void resize(int deltaW, int deltaH) {};
 
 	const bool isRunning() const;
-
-	CurrentState m_currentState;
-
+	CurrentState getCurrentState();
+	
 protected:
 
 	StateMachine& m_machine;
 	const float& m_fdt;
 	const float& m_dt;
 	bool m_isRunning = true;
+	CurrentState m_currentState;
 };

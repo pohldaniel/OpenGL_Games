@@ -94,3 +94,7 @@ State::~State() {
 const bool State::isRunning() const {
 	return m_isRunning;
 }
+
+CurrentState State::getCurrentState() {
+	return m_currentState;
+}

@@ -61,4 +61,5 @@ private:
 	static RECT Savedrc;
 	static DEVMODE DefaultScreen;
 	static HCURSOR Cursor;
+	static HANDLE Icon;
 };

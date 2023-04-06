@@ -339,6 +339,22 @@ void Menu::updateStereoConfigMenu()
     setText(2, std::string("Reverse stereo: ") + (stereoreverse ? "Yes" : "No"));
 }
 
+void Menu::updateControlsMenu()
+{
+	setText(0, (string) "Forwards: " + (keyselect == 0 ? "_" : Input::GetCharsFromKeys(forwardkey)));
+	setText(1, (string) "Back: " + (keyselect == 1 ? "_" : Input::GetCharsFromKeys(backkey)));
+	setText(2, (string) "Left: " + (keyselect == 2 ? "_" : Input::GetCharsFromKeys(leftkey)));
+	setText(3, (string) "Right: " + (keyselect == 3 ? "_" : Input::GetCharsFromKeys(rightkey)));
+	setText(4, (string) "Crouch: " + (keyselect == 4 ? "_" : Input::GetCharsFromKeys(crouchkey)));
+	setText(5, (string) "Jump: " + (keyselect == 5 ? "_" : Input::GetCharsFromKeys(jumpkey)));
+	setText(6, (string) "Draw: " + (keyselect == 6 ? "_" : Input::GetCharsFromKeys(drawkey)));
+	setText(7, (string) "Throw: " + (keyselect == 7 ? "_" : Input::GetCharsFromKeys(throwkey)));
+	setText(8, (string) "Attack: " + (keyselect == 8 ? "_" : Input::GetCharsFromKeys(attackkey)));
+	if (devtools) {
+		setText(9, (string) "Console: " + (keyselect == 9 ? "_" : Input::GetCharsFromKeys(consolekey)));
+	}
+}
+
 /*
 Values of mainmenu :
 1 Main menu
@@ -726,7 +742,10 @@ void Menu::Tick()
                     if (selected < (devtools ? 10 : 9) && keyselect == -1) {
                         keyselect = selected;
                     }
-                    
+
+//					if (keyselect != -1) {
+//						setKeySelected();
+//					}                  
                     if (selected == (devtools ? 10 : 9)) {
                         flash();
                         mainmenu = 3;
@@ -894,7 +913,8 @@ void Menu::Tick()
     OPENAL_SetFrequency(channels[stream_menutheme]);
 
     if (entername) {
-
+		//inputText(newusername, &newuserselected);
+		newusername = "knagge";
         if (!waiting) {                 // the input as finished
             if (!newusername.empty()) { // with enter
                 Account::add(string(newusername));

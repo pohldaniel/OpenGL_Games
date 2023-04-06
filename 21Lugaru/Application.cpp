@@ -36,6 +36,7 @@ DWORD Application::SavedExStyle;
 DWORD Application::SavedStyle;
 RECT Application::Savedrc;
 HCURSOR Application::Cursor = LoadCursor(nullptr, IDC_ARROW);
+HANDLE Application::Icon = LoadImage(NULL, "Lugaru.ico", IMAGE_ICON, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
 
 Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fdt) {
 	Width = WIDTH;
@@ -52,7 +53,7 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 
 	EventDispatcher.setProcessOSEvents([&]() {
 		while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
-			if (msg.message == WM_QUIT) return false;
+			if (msg.message == WM_QUIT) return false;		
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 		}
@@ -75,17 +76,15 @@ Application::~Application() {
 }
 
 void Application::createWindow() {
-	HANDLE hIcon = LoadImage(NULL, "Lugaru.ico", IMAGE_ICON, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
-
+	
 	WNDCLASSEX windowClass;
-
 	windowClass.cbSize = sizeof(WNDCLASSEX);
 	windowClass.style = CS_HREDRAW | CS_VREDRAW;
 	windowClass.lpfnWndProc = StaticWndProc;
 	windowClass.cbClsExtra = 0;
 	windowClass.cbWndExtra = 0;
 	windowClass.hInstance = (HINSTANCE)GetModuleHandle(NULL);
-	windowClass.hIcon = (HICON)hIcon;
+	windowClass.hIcon = (HICON)Icon;
 	windowClass.hCursor = LoadCursor(NULL, IDC_ARROW);
 	windowClass.hbrBackground = (HBRUSH)GetStockObject(WHITE_BRUSH);
 	windowClass.lpszMenuName = NULL;
@@ -374,7 +373,7 @@ bool Application::isRunning() {
 
 	Keyboard::instance().update();
 	Mouse::instance().update();
-	if (Keyboard::instance().keyDown(Keyboard::KEY_ESCAPE)) {
+	if ((Keyboard::instance().keyDown(Keyboard::KEY_ESCAPE) && Machine->m_states.top()->getCurrentState() != CurrentState::GAME) || tryquit) {
 		return false;
 	}
 
@@ -419,9 +418,9 @@ void Application::initStates() {
 	InitGame();
 
 	Machine = new StateMachine(m_dt, m_fdt);
-	//Machine->addStateAtTop(new Game(*Machine));
-	//Mouse::instance().attach(Window);
-	Machine->addStateAtTop(new Tutorial(*Machine));
+	Machine->addStateAtTop(new Game(*Machine));
+	Mouse::instance().attach(Window);
+	//Machine->addStateAtTop(new Tutorial(*Machine));
 	//Machine->addStateAtTop(new MainMenu(*Machine));
 }
 
