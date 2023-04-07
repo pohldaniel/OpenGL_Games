@@ -311,8 +311,7 @@ void Application::initOpenGL(int msaaSamples) {
 
 	if (CanInitStereo(stereomode)) {
 		InitStereo(stereomode);
-	}
-	else {
+	} else {
 		fprintf(stderr, "Failed to initialize stereo, disabling.\n");
 		stereomode = stereoNone;
 	}
@@ -395,9 +394,9 @@ void Application::initStates() {
 	InitGame();
 
 	Machine = new StateMachine(m_dt, m_fdt);
-	Machine->addStateAtTop(new Game(*Machine));
-	Mouse::instance().attach(Window);
-	//Machine->addStateAtTop(new Tutorial(*Machine));
+	//Machine->addStateAtTop(new Game(*Machine));
+	//Mouse::instance().attach(Window);
+	Machine->addStateAtTop(new Tutorial(*Machine));
 	//Machine->addStateAtTop(new MainMenu(*Machine));
 }
 

@@ -89,7 +89,7 @@ int numboundaries = 0;
 XYZ boundary[360];
 int change = 0;
 
-enum drawmodes
+enum drawmodesLu
 {
     normalmode,
     motionblurmode,

@@ -7,6 +7,16 @@
 #include "engine/TrackBall.h"
 
 #include "StateMachine.h"
+#include "Math/XYZ.hpp"
+
+enum drawmodes{
+	normalmode,
+	motionblurmode,
+	radialzoommode,
+	realmotionblurmode,
+	doublevisionmode,
+	glowmode,
+};
 
 class Tutorial : public State, public MouseEventListener {
 
@@ -27,4 +37,9 @@ public:
 	void DoMouse();
 
 	bool m_initUi = true;
+
+	int numboundaries = 0;
+	XYZ boundary[360];
+	int change = 0;
+	int drawtoggle = 0;
 };
