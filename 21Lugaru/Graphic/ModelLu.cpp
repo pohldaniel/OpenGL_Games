@@ -944,7 +944,7 @@ void ModelLu::drawdecals(TextureLu shadowtexture, TextureLu bloodtexture, Textur
         glDisable(GL_LIGHTING);
         glDisable(GL_CULL_FACE);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        glDepthMask(0);
+        glDepthMask(GL_FALSE);
         for (unsigned int i = 0; i < decals.size(); i++) {
             if (decals[i].type == blooddecalfast && decals[i].alivetime < 2) {
                 decals[i].alivetime = 2;

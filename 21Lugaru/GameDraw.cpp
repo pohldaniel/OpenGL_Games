@@ -251,7 +251,7 @@ int GameLu::DrawGLScene(StereoSide side)
             glViewport(0, 0, texviewwidth, texviewheight);
         }
         glDepthFunc(GL_LEQUAL);
-        glDepthMask(1);
+        glDepthMask(GL_TRUE);
         glAlphaFunc(GL_GREATER, 0.0001f);
         glEnable(GL_ALPHA_TEST);
         glClearColor(0.25f, 0.25f, 0.25f, 1.0f);
@@ -396,7 +396,7 @@ int GameLu::DrawGLScene(StereoSide side)
 
         //Terrain
         glEnable(GL_TEXTURE_2D);
-        glDepthMask(1);
+        glDepthMask(GL_TRUE);
         glEnable(GL_DEPTH_TEST);
         glEnable(GL_CULL_FACE);
         glDisable(GL_BLEND);
@@ -414,7 +414,7 @@ int GameLu::DrawGLScene(StereoSide side)
         glEnable(GL_LIGHTING);
         glDisable(GL_BLEND);
         glEnable(GL_TEXTURE_2D);
-        glDepthMask(1);
+        glDepthMask(GL_TRUE);
 
         glEnable(GL_COLOR_MATERIAL);
 
@@ -422,7 +422,7 @@ int GameLu::DrawGLScene(StereoSide side)
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
             glEnable(GL_CULL_FACE);
             glCullFace(GL_FRONT);
-            glDepthMask(1);
+            glDepthMask(GL_TRUE);
             for (unsigned k = 0; k < Person::players.size(); k++) {
                 if (k == 0 || !TutorialLu::active) {
                     glEnable(GL_BLEND);
@@ -473,7 +473,7 @@ int GameLu::DrawGLScene(StereoSide side)
         glPushMatrix();
         if (frustum.SphereInFrustum(realhawkcoords.x + hawk.boundingspherecenter.x, realhawkcoords.y + hawk.boundingspherecenter.y, realhawkcoords.z + hawk.boundingspherecenter.z, 2)) {
             glAlphaFunc(GL_GREATER, 0.0001f);
-            glDepthMask(1);
+            glDepthMask(GL_TRUE);
             glDisable(GL_CULL_FACE);
             glDisable(GL_LIGHTING);
             glEnable(GL_BLEND);
@@ -494,7 +494,7 @@ int GameLu::DrawGLScene(StereoSide side)
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         glEnable(GL_CULL_FACE);
         glCullFace(GL_FRONT);
-        glDepthMask(1);
+        glDepthMask(GL_TRUE);
         for (unsigned k = 0; k < Person::players.size(); k++) {
             if (!(k == 0 || !TutorialLu::active)) {
                 glEnable(GL_BLEND);
@@ -540,7 +540,7 @@ int GameLu::DrawGLScene(StereoSide side)
         glDisable(GL_LIGHTING);
         glDisable(GL_TEXTURE_2D);
 
-        glDepthMask(0);
+        glDepthMask(GL_FALSE);
 
         Sprite::Draw();
 
@@ -670,7 +670,7 @@ int GameLu::DrawGLScene(StereoSide side)
                 glDisable(GL_CULL_FACE);
                 glDisable(GL_LIGHTING);
                 glDisable(GL_TEXTURE_2D);
-                glDepthMask(0);
+                glDepthMask(GL_FALSE);
                 glMatrixMode(GL_PROJECTION);
                 glPushMatrix();
                 glLoadIdentity();
@@ -699,7 +699,7 @@ int GameLu::DrawGLScene(StereoSide side)
                 glEnable(GL_DEPTH_TEST);
                 glEnable(GL_CULL_FACE);
                 glDisable(GL_BLEND);
-                glDepthMask(1);
+                glDepthMask(GL_TRUE);
                 glEnable(GL_TEXTURE_2D);
 
                 tutorialopac = 1;
@@ -772,7 +772,7 @@ int GameLu::DrawGLScene(StereoSide side)
                     glDisable(GL_CULL_FACE);
                     glDisable(GL_LIGHTING);
                     glDisable(GL_TEXTURE_2D);
-                    glDepthMask(0);
+                    glDepthMask(GL_FALSE);
                     glMatrixMode(GL_PROJECTION);
                     glPushMatrix();
                     glLoadIdentity();
@@ -841,7 +841,7 @@ int GameLu::DrawGLScene(StereoSide side)
                     glEnable(GL_DEPTH_TEST);
                     glEnable(GL_CULL_FACE);
                     glDisable(GL_BLEND);
-                    glDepthMask(1);
+                    glDepthMask(GL_TRUE);
                     glEnable(GL_TEXTURE_2D);
 
                     // writing the numbers :
@@ -931,7 +931,7 @@ int GameLu::DrawGLScene(StereoSide side)
             glDisable(GL_CULL_FACE);
             glDisable(GL_LIGHTING);
             glDisable(GL_TEXTURE_2D);
-            glDepthMask(0);
+            glDepthMask(GL_FALSE);
             glMatrixMode(GL_PROJECTION);
             glPushMatrix();
             glLoadIdentity();
@@ -956,7 +956,7 @@ int GameLu::DrawGLScene(StereoSide side)
             glEnable(GL_DEPTH_TEST);
             glEnable(GL_CULL_FACE);
             glDisable(GL_BLEND);
-            glDepthMask(1);
+            glDepthMask(GL_TRUE);
         }
 
         if ((((blackout && damageeffects) || (Person::players[0]->bloodloss > 0 && damageeffects && Person::players[0]->blooddimamount > 0) || Person::players[0]->dead) && !cameramode) || console) {
@@ -964,7 +964,7 @@ int GameLu::DrawGLScene(StereoSide side)
             glDisable(GL_CULL_FACE);
             glDisable(GL_LIGHTING);
             glDisable(GL_TEXTURE_2D);
-            glDepthMask(0);
+            glDepthMask(GL_FALSE);
             glMatrixMode(GL_PROJECTION);
             glPushMatrix();
             glLoadIdentity();
@@ -1010,7 +1010,7 @@ int GameLu::DrawGLScene(StereoSide side)
             glEnable(GL_DEPTH_TEST);
             glEnable(GL_CULL_FACE);
             glDisable(GL_BLEND);
-            glDepthMask(1);
+            glDepthMask(GL_TRUE);
         }
 
         if (flashamount > 0 && damageeffects) {
@@ -1027,7 +1027,7 @@ int GameLu::DrawGLScene(StereoSide side)
             glDisable(GL_DEPTH_TEST);
             glDisable(GL_CULL_FACE);
             glDisable(GL_LIGHTING);
-            glDepthMask(0);
+            glDepthMask(GL_FALSE);
             glMatrixMode(GL_PROJECTION);
             glPushMatrix();
             glLoadIdentity();
@@ -1052,7 +1052,7 @@ int GameLu::DrawGLScene(StereoSide side)
             glEnable(GL_DEPTH_TEST);
             glEnable(GL_CULL_FACE);
             glDisable(GL_BLEND);
-            glDepthMask(1);
+            glDepthMask(GL_TRUE);
         }
 
         if (difficulty < 2 && !Dialog::inDialog()) { // minimap
@@ -1067,7 +1067,7 @@ int GameLu::DrawGLScene(StereoSide side)
             glDisable(GL_DEPTH_TEST);
             glDisable(GL_CULL_FACE);
             glDisable(GL_LIGHTING);
-            glDepthMask(0);
+            glDepthMask(GL_FALSE);
             glMatrixMode(GL_PROJECTION);
             glPushMatrix();
             glLoadIdentity();
@@ -1205,7 +1205,7 @@ int GameLu::DrawGLScene(StereoSide side)
             glEnable(GL_DEPTH_TEST);
             glEnable(GL_CULL_FACE);
             glDisable(GL_BLEND);
-            glDepthMask(1);
+            glDepthMask(GL_TRUE);
         }
 
         if (loading && !stealthloading && (!campaign || Person::players[0]->dead)) {
@@ -1213,7 +1213,7 @@ int GameLu::DrawGLScene(StereoSide side)
             glDisable(GL_CULL_FACE);
             glDisable(GL_LIGHTING);
             glDisable(GL_TEXTURE_2D);
-            glDepthMask(0);
+            glDepthMask(GL_FALSE);
             glMatrixMode(GL_PROJECTION);
             glPushMatrix();
             glLoadIdentity();
@@ -1238,7 +1238,7 @@ int GameLu::DrawGLScene(StereoSide side)
             glEnable(GL_DEPTH_TEST);
             glEnable(GL_CULL_FACE);
             glDisable(GL_BLEND);
-            glDepthMask(1);
+            glDepthMask(GL_TRUE);
 
             //logo
             glDisable(GL_DEPTH_TEST);
@@ -1263,7 +1263,7 @@ int GameLu::DrawGLScene(StereoSide side)
             glDisable(GL_CULL_FACE);
             glDisable(GL_LIGHTING);
             glDisable(GL_TEXTURE_2D);
-            glDepthMask(0);
+            glDepthMask(GL_FALSE);
             glMatrixMode(GL_PROJECTION);
             glPushMatrix();
             glLoadIdentity();
@@ -1288,7 +1288,7 @@ int GameLu::DrawGLScene(StereoSide side)
             glEnable(GL_DEPTH_TEST);
             glEnable(GL_CULL_FACE);
             glDisable(GL_BLEND);
-            glDepthMask(1);
+            glDepthMask(GL_TRUE);
 
             //logo
             glDisable(GL_DEPTH_TEST);
@@ -1383,7 +1383,7 @@ int GameLu::DrawGLScene(StereoSide side)
             glDisable(GL_DEPTH_TEST);
             glDisable(GL_CULL_FACE);
             glDisable(GL_LIGHTING);
-            glDepthMask(0);
+            glDepthMask(GL_FALSE);
             glMatrixMode(GL_PROJECTION);
             glPushMatrix();
             glLoadIdentity();
@@ -1573,7 +1573,7 @@ int GameLu::DrawGLScene(StereoSide side)
             glEnable(GL_DEPTH_TEST);
             glEnable(GL_CULL_FACE);
             glDisable(GL_BLEND);
-            glDepthMask(1);
+            glDepthMask(GL_TRUE);
         }
 
         if (console) {
@@ -1643,7 +1643,7 @@ void DrawMenu() {
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_CULL_FACE);
     glDisable(GL_LIGHTING);
-    glDepthMask(0);
+    glDepthMask(GL_FALSE);
     glMatrixMode(GL_PROJECTION);
     glPushMatrix();
     glLoadIdentity();
@@ -1764,7 +1764,7 @@ void DrawMenu() {
         glDisable(GL_CULL_FACE);
         glDisable(GL_LIGHTING);
         glDisable(GL_TEXTURE_2D);
-        glDepthMask(0);
+        glDepthMask(GL_FALSE);
         glMatrixMode(GL_PROJECTION);
         glPushMatrix();
         glLoadIdentity();
@@ -1789,6 +1789,6 @@ void DrawMenu() {
         glEnable(GL_DEPTH_TEST);
         glEnable(GL_CULL_FACE);
         glDisable(GL_BLEND);
-        glDepthMask(1);
+        glDepthMask(GL_TRUE);
     }
 }

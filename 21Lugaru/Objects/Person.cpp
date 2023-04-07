@@ -6690,13 +6690,13 @@ int Person::DrawSkeleton()
             if (cellophane) {
                 glDisable(GL_TEXTURE_2D);
                 glColor4f(.7, .35, 0, .5);
-                glDepthMask(0);
+                glDepthMask(GL_FALSE);
                 glEnable(GL_LIGHTING);
                 glEnable(GL_BLEND);
             }
             if (TutorialLu::active && id != 0) {
                 glColor4f(.7, .7, .7, 0.6);
-                glDepthMask(0);
+                glDepthMask(GL_FALSE);
                 glEnable(GL_LIGHTING);
                 glEnable(GL_BLEND);
                 if (canattack && cananger) {
@@ -6733,7 +6733,7 @@ int Person::DrawSkeleton()
                     glMatrixMode(GL_MODELVIEW);
                     glEnable(GL_TEXTURE_2D);
                     glColor4f(.7, .7, .7, 0.6);
-                    glDepthMask(0);
+                    glDepthMask(GL_FALSE);
                     glEnable(GL_LIGHTING);
                     glEnable(GL_BLEND);
                     if (canattack && cananger) {
@@ -6771,7 +6771,7 @@ int Person::DrawSkeleton()
                 glEnable(GL_TEXTURE_2D);
             }
             if (skeleton.clothes) {
-                glDepthMask(0);
+                glDepthMask(GL_FALSE);
                 glEnable(GL_BLEND);
                 if (!immediate) {
                     skeleton.drawmodelclothes.draw();
@@ -6779,7 +6779,7 @@ int Person::DrawSkeleton()
                 if (immediate) {
                     skeleton.drawmodelclothes.drawimmediate();
                 }
-                glDepthMask(1);
+                glDepthMask(GL_TRUE);
             }
         }
         glPopMatrix();

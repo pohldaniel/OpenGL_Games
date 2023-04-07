@@ -209,7 +209,7 @@ void GameLu::LoadingScreen()
         glDisable(GL_DEPTH_TEST);
         glDisable(GL_CULL_FACE);
         glDisable(GL_LIGHTING);
-        glDepthMask(0);
+        glDepthMask(GL_FALSE);
         glMatrixMode(GL_PROJECTION);
         glPushMatrix();
         glLoadIdentity();
@@ -253,7 +253,7 @@ void GameLu::LoadingScreen()
         glMatrixMode(GL_MODELVIEW);
         glPopMatrix();
         glDisable(GL_BLEND);
-        glDepthMask(1);
+        glDepthMask(GL_TRUE);
 
         glEnable(GL_TEXTURE_2D);
         loadscreentexture.bind();
@@ -262,7 +262,7 @@ void GameLu::LoadingScreen()
         glDisable(GL_DEPTH_TEST);
         glDisable(GL_CULL_FACE);
         glDisable(GL_LIGHTING);
-        glDepthMask(0);
+        glDepthMask(GL_FALSE);
         glMatrixMode(GL_PROJECTION);
         glPushMatrix();
         glLoadIdentity();
@@ -293,7 +293,7 @@ void GameLu::LoadingScreen()
         glMatrixMode(GL_MODELVIEW);
         glPopMatrix();
         glDisable(GL_BLEND);
-        glDepthMask(1);
+        glDepthMask(GL_TRUE);
 
         glEnable(GL_TEXTURE_2D);
         loadscreentexture.bind();
@@ -302,7 +302,7 @@ void GameLu::LoadingScreen()
         glDisable(GL_DEPTH_TEST);
         glDisable(GL_CULL_FACE);
         glDisable(GL_LIGHTING);
-        glDepthMask(0);
+        glDepthMask(GL_FALSE);
         glMatrixMode(GL_PROJECTION);
         glPushMatrix();
         glLoadIdentity();
@@ -333,7 +333,7 @@ void GameLu::LoadingScreen()
         glMatrixMode(GL_MODELVIEW);
         glPopMatrix();
         glDisable(GL_BLEND);
-        glDepthMask(1);
+        glDepthMask(GL_TRUE);
 
         //Text
 
@@ -352,7 +352,7 @@ void GameLu::LoadingScreen()
             glDisable(GL_CULL_FACE);
             glDisable(GL_LIGHTING);
             glDisable(GL_TEXTURE_2D);
-            glDepthMask(0);
+            glDepthMask(GL_FALSE);
             glMatrixMode(GL_PROJECTION);
             glPushMatrix();
             glLoadIdentity();
@@ -377,7 +377,7 @@ void GameLu::LoadingScreen()
             glEnable(GL_DEPTH_TEST);
             glEnable(GL_CULL_FACE);
             glDisable(GL_BLEND);
-            glDepthMask(1);
+            glDepthMask(GL_TRUE);
         }
     }
 }
@@ -401,7 +401,7 @@ void FadeLoadingScreen(float howmuch)
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_CULL_FACE);
     glDisable(GL_LIGHTING);
-    glDepthMask(0);
+    glDepthMask(GL_FALSE);
     glMatrixMode(GL_PROJECTION);
     glPushMatrix();
     glLoadIdentity();
@@ -432,7 +432,7 @@ void FadeLoadingScreen(float howmuch)
     glMatrixMode(GL_MODELVIEW);
     glPopMatrix();
     glDisable(GL_BLEND);
-    glDepthMask(1);
+    glDepthMask(GL_TRUE);
     //Text
 }
 

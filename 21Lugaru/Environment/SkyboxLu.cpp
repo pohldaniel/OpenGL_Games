@@ -62,7 +62,7 @@ void SkyBox::draw()
         glDisable(GL_TEXTURE_2D);
         glColor3f(skyboxr * .8, skyboxg * .8, skyboxb * .8);
     }
-    glDepthMask(0);
+    glDepthMask(GL_FALSE);
     glDisable(GL_CULL_FACE);
     glEnable(GL_BLEND);
     glDisable(GL_LIGHTING);
@@ -156,6 +156,6 @@ void SkyBox::draw()
     glVertex3f(-size, size, -size);
     glEnd();
     glEnable(GL_CULL_FACE);
-    glDepthMask(1);
+    glDepthMask(GL_TRUE);
     glPopMatrix();
 }

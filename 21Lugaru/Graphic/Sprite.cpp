@@ -95,7 +95,7 @@ void Sprite::Draw()
     glEnable(GL_TEXTURE_2D);
     blend = 1;
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glDepthMask(0);
+    glDepthMask(GL_FALSE);
     glAlphaFunc(GL_GREATER, 0.0001);
     for (unsigned i = 0; i < sprites.size(); i++) {
         if (lasttype != sprites[i]->type) {

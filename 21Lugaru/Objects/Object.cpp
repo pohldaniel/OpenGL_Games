@@ -360,7 +360,7 @@ void Object::draw()
                     } else {
                         glDisable(GL_LIGHTING);
                     }
-                    glDepthMask(1);
+                    glDepthMask(GL_TRUE);
                     glTranslatef(position.x, position.y, position.z);
                     if (type == bushtype) {
                         handleRot(1);
@@ -470,7 +470,7 @@ void Object::drawSecondPass()
             glMatrixMode(GL_MODELVIEW);
             glPushMatrix();
             glEnable(GL_LIGHTING);
-            glDepthMask(1);
+            glDepthMask(GL_TRUE);
             glTranslatef(position.x, position.y, position.z);
             if (type == bushtype) {
                 handleRot(1);
@@ -506,7 +506,7 @@ void Object::drawSecondPass()
                 glDisable(GL_CULL_FACE);
                 glDisable(GL_LIGHTING);
                 terrainlight = terrain.getLighting(position.x, position.z);
-                glDepthMask(0);
+                glDepthMask(GL_FALSE);
                 glEnable(GL_BLEND);
                 glColor4f(terrainlight.x, terrainlight.y, terrainlight.z, .3);
                 glAlphaFunc(GL_GREATER, 0);
@@ -517,7 +517,7 @@ void Object::drawSecondPass()
                 glDisable(GL_CULL_FACE);
                 glDisable(GL_LIGHTING);
                 terrainlight = terrain.getLighting(position.x, position.z);
-                glDepthMask(0);
+                glDepthMask(GL_FALSE);
                 glEnable(GL_BLEND);
                 glColor4f(terrainlight.x, terrainlight.y, terrainlight.z, .3);
                 glAlphaFunc(GL_GREATER, 0);
