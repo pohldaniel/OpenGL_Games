@@ -198,6 +198,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libfreeglut", "libfreeglut\
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "21Lugaru", "21Lugaru\21Lugaru.vcxproj", "{9F9CA101-088C-46BF-BF27-2A10D239A92E}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "22Voyager", "22Voyager\22Voyager.vcxproj", "{8B7DD922-C2B3-45FB-B61B-C5CFB75F55F1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -638,6 +640,14 @@ Global
 		{9F9CA101-088C-46BF-BF27-2A10D239A92E}.Release|x64.Build.0 = Release|x64
 		{9F9CA101-088C-46BF-BF27-2A10D239A92E}.Release|x86.ActiveCfg = Release|Win32
 		{9F9CA101-088C-46BF-BF27-2A10D239A92E}.Release|x86.Build.0 = Release|Win32
+		{8B7DD922-C2B3-45FB-B61B-C5CFB75F55F1}.Debug|x64.ActiveCfg = Debug|x64
+		{8B7DD922-C2B3-45FB-B61B-C5CFB75F55F1}.Debug|x64.Build.0 = Debug|x64
+		{8B7DD922-C2B3-45FB-B61B-C5CFB75F55F1}.Debug|x86.ActiveCfg = Debug|Win32
+		{8B7DD922-C2B3-45FB-B61B-C5CFB75F55F1}.Debug|x86.Build.0 = Debug|Win32
+		{8B7DD922-C2B3-45FB-B61B-C5CFB75F55F1}.Release|x64.ActiveCfg = Release|x64
+		{8B7DD922-C2B3-45FB-B61B-C5CFB75F55F1}.Release|x64.Build.0 = Release|x64
+		{8B7DD922-C2B3-45FB-B61B-C5CFB75F55F1}.Release|x86.ActiveCfg = Release|Win32
+		{8B7DD922-C2B3-45FB-B61B-C5CFB75F55F1}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
