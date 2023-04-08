@@ -6253,7 +6253,7 @@ void Person::DoStuff()
 /* EFFECT
  * inverse kinematics helper function
  */
-void IKHelper(Person* p, float interp)
+void Person::IKHelper(Person* p, float interp)
 {
     XYZ point, change, change2;
     float heightleft, heightright;
@@ -6297,741 +6297,875 @@ void IKHelper(Person* p, float interp)
  */
 int Person::DrawSkeleton()
 {
-    int oldplayerdetail;
-    if ((frustum.SphereInFrustum(coords.x, coords.y + scale * 3, coords.z, scale * 8) && distsq(&viewer, &coords) < viewdistance * viewdistance) || skeleton.free == 3) {
-        if (onterrain && (isIdle() || isCrouch() || wasIdle() || wasCrouch()) && !skeleton.free) {
-            calcrot = 1;
-        }
+	int oldplayerdetail;
+	if ((frustum.SphereInFrustum(coords.x, coords.y + scale * 3, coords.z, scale * 8) && distsq(&viewer, &coords) < viewdistance * viewdistance) || skeleton.free == 3) {
+		if (onterrain && (isIdle() || isCrouch() || wasIdle() || wasCrouch()) && !skeleton.free) {
+			calcrot = 1;
+		}
 
-        if (headless) {
-            headmorphness = 0;
-            headmorphstart = 6;
-            headmorphend = 6;
-        }
+		if (headless) {
+			headmorphness = 0;
+			headmorphstart = 6;
+			headmorphend = 6;
+		}
 
-        glAlphaFunc(GL_GREATER, 0.0001);
-        XYZ terrainlight;
-        float terrainheight;
-        float distance;
-        if (!isnormal(yaw)) {
-            yaw = 0;
-        }
-        if (!isnormal(tilt)) {
-            tilt = 0;
-        }
-        if (!isnormal(tilt2)) {
-            tilt2 = 0;
-        }
-        oldplayerdetail = playerdetail;
-        playerdetail = 0;
-        if (distsq(&viewer, &coords) < viewdistance * viewdistance / 32 && detail == 2) {
-            playerdetail = 1;
-        }
-        if (distsq(&viewer, &coords) < viewdistance * viewdistance / 128 && detail == 1) {
-            playerdetail = 1;
-        }
-        if (distsq(&viewer, &coords) < viewdistance * viewdistance / 256 && (detail != 1 && detail != 2)) {
-            playerdetail = 1;
-        }
-        if (id == 0) {
-            playerdetail = 1;
-        }
-        if (playerdetail != oldplayerdetail) {
-            updatedelay = 0;
-            normalsupdatedelay = 0;
-        }
-        static float updatedelaychange;
-        static float morphness;
-        static float framemult;
-        if (calcrot) {
-            skeleton.FindForwards();
-            if (howactive == typesittingwall) {
-                skeleton.specialforward[1] = 0;
-                skeleton.specialforward[1].z = 1;
-            }
-        }
-        static XYZ mid;
-        static float M[16];
-        static int k;
-        static int weaponattachmuscle;
-        static int weaponrotatemuscle;
-        static XYZ weaponpoint;
-        static int start, endthing;
-        if ((dead != 2 || skeleton.free != 2) && updatedelay <= 0) {
-            if (!isSleeping() && !isSitting()) {
-                // TODO: give these meaningful names
-                const bool cond1 = (isIdle() || isCrouch() || isLanding() || isLandhard() || animTarget == drawrightanim || animTarget == drawleftanim || animTarget == crouchdrawrightanim);
-                const bool cond2 = (wasIdle() || wasCrouch() || wasLanding() || wasLandhard() || animCurrent == drawrightanim || animCurrent == drawleftanim || animCurrent == crouchdrawrightanim);
+		glAlphaFunc(GL_GREATER, 0.0001);
+		XYZ terrainlight;
+		float terrainheight;
+		float distance;
+		if (!isnormal(yaw)) {
+			yaw = 0;
+		}
+		if (!isnormal(tilt)) {
+			tilt = 0;
+		}
+		if (!isnormal(tilt2)) {
+			tilt2 = 0;
+		}
+		oldplayerdetail = playerdetail;
+		playerdetail = 0;
+		if (distsq(&viewer, &coords) < viewdistance * viewdistance / 32 && detail == 2) {
+			playerdetail = 1;
+		}
+		if (distsq(&viewer, &coords) < viewdistance * viewdistance / 128 && detail == 1) {
+			playerdetail = 1;
+		}
+		if (distsq(&viewer, &coords) < viewdistance * viewdistance / 256 && (detail != 1 && detail != 2)) {
+			playerdetail = 1;
+		}
+		if (id == 0) {
+			playerdetail = 1;
+		}
+		if (playerdetail != oldplayerdetail) {
+			updatedelay = 0;
+			normalsupdatedelay = 0;
+		}
+		static float updatedelaychange;
+		static float morphness;
+		static float framemult;
+		if (calcrot) {
+			skeleton.FindForwards();
+			if (howactive == typesittingwall) {
+				skeleton.specialforward[1] = 0;
+				skeleton.specialforward[1].z = 1;
+			}
+		}
+		static XYZ mid;
+		static float M[16];
+		static int k;
+		static int weaponattachmuscle;
+		static int weaponrotatemuscle;
+		static XYZ weaponpoint;
+		static int start, endthing;
+		if ((dead != 2 || skeleton.free != 2) && updatedelay <= 0) {
+			if (!isSleeping() && !isSitting()) {
+				// TODO: give these meaningful names
+				const bool cond1 = (isIdle() || isCrouch() || isLanding() || isLandhard() || animTarget == drawrightanim || animTarget == drawleftanim || animTarget == crouchdrawrightanim);
+				const bool cond2 = (wasIdle() || wasCrouch() || wasLanding() || wasLandhard() || animCurrent == drawrightanim || animCurrent == drawleftanim || animCurrent == crouchdrawrightanim);
 
-                if (onterrain && (cond1 && cond2) && !skeleton.free) {
-                    IKHelper(this, 1);
-                    if (creature == wolftype) {
-                        IKHelper(this, 1);
-                    }
-                }
+				if (onterrain && (cond1 && cond2) && !skeleton.free) {
+					IKHelper(this, 1);
+					if (creature == wolftype) {
+						IKHelper(this, 1);
+					}
+				}
 
-                if (onterrain && (cond1 && !cond2) && !skeleton.free) {
-                    IKHelper(this, target);
-                    if (creature == wolftype) {
-                        IKHelper(this, target);
-                    }
-                }
+				if (onterrain && (cond1 && !cond2) && !skeleton.free) {
+					IKHelper(this, target);
+					if (creature == wolftype) {
+						IKHelper(this, target);
+					}
+				}
 
-                if (onterrain && (!cond1 && cond2) && !skeleton.free) {
-                    IKHelper(this, 1 - target);
-                    if (creature == wolftype) {
-                        IKHelper(this, 1 - target);
-                    }
-                }
-            }
+				if (onterrain && (!cond1 && cond2) && !skeleton.free) {
+					IKHelper(this, 1 - target);
+					if (creature == wolftype) {
+						IKHelper(this, 1 - target);
+					}
+				}
+			}
 
-            if (!skeleton.free && (!AnimationLu::animations[animTarget].attack && animTarget != getupfrombackanim && ((animTarget != rollanim && !isFlip()) || targetFrame().label == 6) && animTarget != getupfromfrontanim && animTarget != wolfrunninganim && animTarget != rabbitrunninganim && animTarget != backhandspringanim && animTarget != walljumpfrontanim && animTarget != hurtidleanim && !isLandhard() && !isSleeping())) {
-                DoHead();
-            } else {
-                targetheadyaw = -targetyaw;
-                targetheadpitch = 0;
-                if (AnimationLu::animations[animTarget].attack == 3) {
-                    targetheadyaw += 180;
-                }
-            }
-            for (int i = 0; i < skeleton.drawmodel.vertexNum; i++) {
-                skeleton.drawmodel.vertex[i] = 0;
-                skeleton.drawmodel.vertex[i].y = 999;
-            }
-            for (int i = 0; i < skeleton.drawmodellow.vertexNum; i++) {
-                skeleton.drawmodellow.vertex[i] = 0;
-                skeleton.drawmodellow.vertex[i].y = 999;
-            }
-            for (int i = 0; i < skeleton.drawmodelclothes.vertexNum; i++) {
-                skeleton.drawmodelclothes.vertex[i] = 0;
-                skeleton.drawmodelclothes.vertex[i].y = 999;
-            }
-            for (unsigned int i = 0; i < skeleton.muscles.size(); i++) {
-                // convenience renames
-                const int p1 = skeleton.muscles[i].parent1->label;
-                const int p2 = skeleton.muscles[i].parent2->label;
+			if (!skeleton.free && (!AnimationLu::animations[animTarget].attack && animTarget != getupfrombackanim && ((animTarget != rollanim && !isFlip()) || targetFrame().label == 6) && animTarget != getupfromfrontanim && animTarget != wolfrunninganim && animTarget != rabbitrunninganim && animTarget != backhandspringanim && animTarget != walljumpfrontanim && animTarget != hurtidleanim && !isLandhard() && !isSleeping())) {
+				DoHead();
+			}
+			else {
+				targetheadyaw = -targetyaw;
+				targetheadpitch = 0;
+				if (AnimationLu::animations[animTarget].attack == 3) {
+					targetheadyaw += 180;
+				}
+			}
+			for (int i = 0; i < skeleton.drawmodel.vertexNum; i++) {
+				skeleton.drawmodel.vertex[i] = 0;
+				skeleton.drawmodel.vertex[i].y = 999;
+			}
+			for (int i = 0; i < skeleton.drawmodellow.vertexNum; i++) {
+				skeleton.drawmodellow.vertex[i] = 0;
+				skeleton.drawmodellow.vertex[i].y = 999;
+			}
+			for (int i = 0; i < skeleton.drawmodelclothes.vertexNum; i++) {
+				skeleton.drawmodelclothes.vertex[i] = 0;
+				skeleton.drawmodelclothes.vertex[i].y = 999;
+			}
+			for (unsigned int i = 0; i < skeleton.muscles.size(); i++) {
+				// convenience renames
+				const int p1 = skeleton.muscles[i].parent1->label;
+				const int p2 = skeleton.muscles[i].parent2->label;
 
-                if ((skeleton.muscles[i].vertices.size() > 0 && playerdetail) || (skeleton.muscles[i].verticeslow.size() > 0 && !playerdetail)) {
-                    morphness = 0;
-                    start = 0;
-                    endthing = 0;
+				if ((skeleton.muscles[i].vertices.size() > 0 && playerdetail) || (skeleton.muscles[i].verticeslow.size() > 0 && !playerdetail)) {
+					morphness = 0;
+					start = 0;
+					endthing = 0;
 
-                    if (p1 == righthand || p2 == righthand) {
-                        morphness = righthandmorphness;
-                        start = righthandmorphstart;
-                        endthing = righthandmorphend;
-                    }
-                    if (p1 == lefthand || p2 == lefthand) {
-                        morphness = lefthandmorphness;
-                        start = lefthandmorphstart;
-                        endthing = lefthandmorphend;
-                    }
-                    if (p1 == head || p2 == head) {
-                        morphness = headmorphness;
-                        start = headmorphstart;
-                        endthing = headmorphend;
-                    }
-                    if ((p1 == neck && p2 == abdomen) || (p2 == neck && p1 == abdomen)) {
-                        morphness = chestmorphness;
-                        start = chestmorphstart;
-                        endthing = chestmorphend;
-                    }
-                    if ((p1 == groin && p2 == abdomen) || (p2 == groin && p1 == abdomen)) {
-                        morphness = tailmorphness;
-                        start = tailmorphstart;
-                        endthing = tailmorphend;
-                    }
-                    if (calcrot) {
-                        skeleton.FindRotationMuscle(i, animTarget);
-                    }
-                    mid = (skeleton.muscles[i].parent1->position + skeleton.muscles[i].parent2->position) / 2;
-                    glMatrixMode(GL_MODELVIEW);
-                    glPushMatrix();
-                    glLoadIdentity();
-                    if (!skeleton.free) {
-                        glRotatef(tilt2, 1, 0, 0);
-                    }
-                    if (!skeleton.free) {
-                        glRotatef(tilt, 0, 0, 1);
-                    }
+					if (p1 == righthand || p2 == righthand) {
+						morphness = righthandmorphness;
+						start = righthandmorphstart;
+						endthing = righthandmorphend;
+					}
+					if (p1 == lefthand || p2 == lefthand) {
+						morphness = lefthandmorphness;
+						start = lefthandmorphstart;
+						endthing = lefthandmorphend;
+					}
+					if (p1 == head || p2 == head) {
+						morphness = headmorphness;
+						start = headmorphstart;
+						endthing = headmorphend;
+					}
+					if ((p1 == neck && p2 == abdomen) || (p2 == neck && p1 == abdomen)) {
+						morphness = chestmorphness;
+						start = chestmorphstart;
+						endthing = chestmorphend;
+					}
+					if ((p1 == groin && p2 == abdomen) || (p2 == groin && p1 == abdomen)) {
+						morphness = tailmorphness;
+						start = tailmorphstart;
+						endthing = tailmorphend;
+					}
+					if (calcrot) {
+						skeleton.FindRotationMuscle(i, animTarget);
+					}
+					mid = (skeleton.muscles[i].parent1->position + skeleton.muscles[i].parent2->position) / 2;
+					glMatrixMode(GL_MODELVIEW);
+					glPushMatrix();
+					glLoadIdentity();
+					if (!skeleton.free) {
+						glRotatef(tilt2, 1, 0, 0);
+					}
+					if (!skeleton.free) {
+						glRotatef(tilt, 0, 0, 1);
+					}
 
-                    glTranslatef(mid.x, mid.y, mid.z);
+					glTranslatef(mid.x, mid.y, mid.z);
 
-                    skeleton.muscles[i].lastrotate1 = skeleton.muscles[i].rotate1;
-                    glRotatef(-skeleton.muscles[i].lastrotate1 + 90, 0, 1, 0);
+					skeleton.muscles[i].lastrotate1 = skeleton.muscles[i].rotate1;
+					glRotatef(-skeleton.muscles[i].lastrotate1 + 90, 0, 1, 0);
 
-                    skeleton.muscles[i].lastrotate2 = skeleton.muscles[i].rotate2;
-                    glRotatef(-skeleton.muscles[i].lastrotate2 + 90, 0, 0, 1);
+					skeleton.muscles[i].lastrotate2 = skeleton.muscles[i].rotate2;
+					glRotatef(-skeleton.muscles[i].lastrotate2 + 90, 0, 0, 1);
 
-                    skeleton.muscles[i].lastrotate3 = skeleton.muscles[i].rotate3;
-                    glRotatef(-skeleton.muscles[i].lastrotate3, 0, 1, 0);
+					skeleton.muscles[i].lastrotate3 = skeleton.muscles[i].rotate3;
+					glRotatef(-skeleton.muscles[i].lastrotate3, 0, 1, 0);
 
-                    if (playerdetail || skeleton.free == 3) {
-                        for (unsigned j = 0; j < skeleton.muscles[i].vertices.size(); j++) {
-                            XYZ& v0 = skeleton.model[start].vertex[skeleton.muscles[i].vertices[j]];
-                            XYZ& v1 = skeleton.model[endthing].vertex[skeleton.muscles[i].vertices[j]];
-                            glMatrixMode(GL_MODELVIEW);
-                            glPushMatrix();
-                            if (p1 == abdomen || p2 == abdomen) {
-                                glTranslatef((v0.x * (1 - morphness) + v1.x * morphness) * getProportionXYZ(1).x,
-                                             (v0.y * (1 - morphness) + v1.y * morphness) * getProportionXYZ(1).y,
-                                             (v0.z * (1 - morphness) + v1.z * morphness) * getProportionXYZ(1).z);
-                            }
-                            if (p1 == lefthand || p1 == righthand || p1 == leftwrist || p1 == rightwrist || p1 == leftelbow || p1 == rightelbow || p2 == leftelbow || p2 == rightelbow) {
-                                glTranslatef((v0.x * (1 - morphness) + v1.x * morphness) * getProportionXYZ(2).x,
-                                             (v0.y * (1 - morphness) + v1.y * morphness) * getProportionXYZ(2).y,
-                                             (v0.z * (1 - morphness) + v1.z * morphness) * getProportionXYZ(2).z);
-                            }
-                            if (p1 == leftfoot || p1 == rightfoot || p1 == leftankle || p1 == rightankle || p1 == leftknee || p1 == rightknee || p2 == leftknee || p2 == rightknee) {
-                                glTranslatef((v0.x * (1 - morphness) + v1.x * morphness) * getProportionXYZ(3).x,
-                                             (v0.y * (1 - morphness) + v1.y * morphness) * getProportionXYZ(3).y,
-                                             (v0.z * (1 - morphness) + v1.z * morphness) * getProportionXYZ(3).z);
-                            }
-                            if (p1 == head || p2 == head) {
-                                glTranslatef((v0.x * (1 - morphness) + v1.x * morphness) * getProportionXYZ(0).x,
-                                             (v0.y * (1 - morphness) + v1.y * morphness) * getProportionXYZ(0).y,
-                                             (v0.z * (1 - morphness) + v1.z * morphness) * getProportionXYZ(0).z);
-                            }
-                            glGetFloatv(GL_MODELVIEW_MATRIX, M);
-                            skeleton.drawmodel.vertex[skeleton.muscles[i].vertices[j]].x = M[12] * scale;
-                            skeleton.drawmodel.vertex[skeleton.muscles[i].vertices[j]].y = M[13] * scale;
-                            skeleton.drawmodel.vertex[skeleton.muscles[i].vertices[j]].z = M[14] * scale;
-                            glPopMatrix();
-                        }
-                    }
-                    if (!playerdetail || skeleton.free == 3) {
-                        for (unsigned j = 0; j < skeleton.muscles[i].verticeslow.size(); j++) {
-                            XYZ& v0 = skeleton.modellow.vertex[skeleton.muscles[i].verticeslow[j]];
-                            glMatrixMode(GL_MODELVIEW);
-                            glPushMatrix();
-                            if (p1 == abdomen || p2 == abdomen) {
-                                glTranslatef(v0.x * getProportionXYZ(1).x,
-                                             v0.y * getProportionXYZ(1).y,
-                                             v0.z * getProportionXYZ(1).z);
-                            }
-                            if (p1 == lefthand || p1 == righthand || p1 == leftwrist || p1 == rightwrist || p1 == leftelbow || p1 == rightelbow || p2 == leftelbow || p2 == rightelbow) {
-                                glTranslatef(v0.x * getProportionXYZ(2).x,
-                                             v0.y * getProportionXYZ(2).y,
-                                             v0.z * getProportionXYZ(2).z);
-                            }
-                            if (p1 == leftfoot || p1 == rightfoot || p1 == leftankle || p1 == rightankle || p1 == leftknee || p1 == rightknee || p2 == leftknee || p2 == rightknee) {
-                                glTranslatef(v0.x * getProportionXYZ(3).x,
-                                             v0.y * getProportionXYZ(3).y,
-                                             v0.z * getProportionXYZ(3).z);
-                            }
-                            if (p1 == head || p2 == head) {
-                                glTranslatef(v0.x * getProportionXYZ(0).x,
-                                             v0.y * getProportionXYZ(0).y,
-                                             v0.z * getProportionXYZ(0).z);
-                            }
+					if (playerdetail || skeleton.free == 3) {
+						for (unsigned j = 0; j < skeleton.muscles[i].vertices.size(); j++) {
+							XYZ& v0 = skeleton.model[start].vertex[skeleton.muscles[i].vertices[j]];
+							XYZ& v1 = skeleton.model[endthing].vertex[skeleton.muscles[i].vertices[j]];
+							glMatrixMode(GL_MODELVIEW);
+							glPushMatrix();
+							if (p1 == abdomen || p2 == abdomen) {
+								glTranslatef((v0.x * (1 - morphness) + v1.x * morphness) * getProportionXYZ(1).x,
+									(v0.y * (1 - morphness) + v1.y * morphness) * getProportionXYZ(1).y,
+									(v0.z * (1 - morphness) + v1.z * morphness) * getProportionXYZ(1).z);
+							}
+							if (p1 == lefthand || p1 == righthand || p1 == leftwrist || p1 == rightwrist || p1 == leftelbow || p1 == rightelbow || p2 == leftelbow || p2 == rightelbow) {
+								glTranslatef((v0.x * (1 - morphness) + v1.x * morphness) * getProportionXYZ(2).x,
+									(v0.y * (1 - morphness) + v1.y * morphness) * getProportionXYZ(2).y,
+									(v0.z * (1 - morphness) + v1.z * morphness) * getProportionXYZ(2).z);
+							}
+							if (p1 == leftfoot || p1 == rightfoot || p1 == leftankle || p1 == rightankle || p1 == leftknee || p1 == rightknee || p2 == leftknee || p2 == rightknee) {
+								glTranslatef((v0.x * (1 - morphness) + v1.x * morphness) * getProportionXYZ(3).x,
+									(v0.y * (1 - morphness) + v1.y * morphness) * getProportionXYZ(3).y,
+									(v0.z * (1 - morphness) + v1.z * morphness) * getProportionXYZ(3).z);
+							}
+							if (p1 == head || p2 == head) {
+								glTranslatef((v0.x * (1 - morphness) + v1.x * morphness) * getProportionXYZ(0).x,
+									(v0.y * (1 - morphness) + v1.y * morphness) * getProportionXYZ(0).y,
+									(v0.z * (1 - morphness) + v1.z * morphness) * getProportionXYZ(0).z);
+							}
+							glGetFloatv(GL_MODELVIEW_MATRIX, M);
+							skeleton.drawmodel.vertex[skeleton.muscles[i].vertices[j]].x = M[12] * scale;
+							skeleton.drawmodel.vertex[skeleton.muscles[i].vertices[j]].y = M[13] * scale;
+							skeleton.drawmodel.vertex[skeleton.muscles[i].vertices[j]].z = M[14] * scale;
+							glPopMatrix();
+						}
+					}
+					if (!playerdetail || skeleton.free == 3) {
+						for (unsigned j = 0; j < skeleton.muscles[i].verticeslow.size(); j++) {
+							XYZ& v0 = skeleton.modellow.vertex[skeleton.muscles[i].verticeslow[j]];
+							glMatrixMode(GL_MODELVIEW);
+							glPushMatrix();
+							if (p1 == abdomen || p2 == abdomen) {
+								glTranslatef(v0.x * getProportionXYZ(1).x,
+									v0.y * getProportionXYZ(1).y,
+									v0.z * getProportionXYZ(1).z);
+							}
+							if (p1 == lefthand || p1 == righthand || p1 == leftwrist || p1 == rightwrist || p1 == leftelbow || p1 == rightelbow || p2 == leftelbow || p2 == rightelbow) {
+								glTranslatef(v0.x * getProportionXYZ(2).x,
+									v0.y * getProportionXYZ(2).y,
+									v0.z * getProportionXYZ(2).z);
+							}
+							if (p1 == leftfoot || p1 == rightfoot || p1 == leftankle || p1 == rightankle || p1 == leftknee || p1 == rightknee || p2 == leftknee || p2 == rightknee) {
+								glTranslatef(v0.x * getProportionXYZ(3).x,
+									v0.y * getProportionXYZ(3).y,
+									v0.z * getProportionXYZ(3).z);
+							}
+							if (p1 == head || p2 == head) {
+								glTranslatef(v0.x * getProportionXYZ(0).x,
+									v0.y * getProportionXYZ(0).y,
+									v0.z * getProportionXYZ(0).z);
+							}
 
-                            glGetFloatv(GL_MODELVIEW_MATRIX, M);
-                            skeleton.drawmodellow.vertex[skeleton.muscles[i].verticeslow[j]].x = M[12] * scale;
-                            skeleton.drawmodellow.vertex[skeleton.muscles[i].verticeslow[j]].y = M[13] * scale;
-                            skeleton.drawmodellow.vertex[skeleton.muscles[i].verticeslow[j]].z = M[14] * scale;
-                            glPopMatrix();
-                        }
-                    }
-                    glPopMatrix();
-                }
-                if (skeleton.clothes && skeleton.muscles[i].verticesclothes.size() > 0) {
-                    mid = (skeleton.muscles[i].parent1->position + skeleton.muscles[i].parent2->position) / 2;
+							glGetFloatv(GL_MODELVIEW_MATRIX, M);
+							skeleton.drawmodellow.vertex[skeleton.muscles[i].verticeslow[j]].x = M[12] * scale;
+							skeleton.drawmodellow.vertex[skeleton.muscles[i].verticeslow[j]].y = M[13] * scale;
+							skeleton.drawmodellow.vertex[skeleton.muscles[i].verticeslow[j]].z = M[14] * scale;
+							glPopMatrix();
+						}
+					}
+					glPopMatrix();
+				}
+				if (skeleton.clothes && skeleton.muscles[i].verticesclothes.size() > 0) {
+					mid = (skeleton.muscles[i].parent1->position + skeleton.muscles[i].parent2->position) / 2;
 
-                    glMatrixMode(GL_MODELVIEW);
-                    glPushMatrix();
-                    glLoadIdentity();
-                    if (!skeleton.free) {
-                        glRotatef(tilt2, 1, 0, 0);
-                    }
-                    if (!skeleton.free) {
-                        glRotatef(tilt, 0, 0, 1);
-                    }
-                    glTranslatef(mid.x, mid.y, mid.z);
-                    skeleton.muscles[i].lastrotate1 = skeleton.muscles[i].rotate1;
-                    glRotatef(-skeleton.muscles[i].lastrotate1 + 90, 0, 1, 0);
+					glMatrixMode(GL_MODELVIEW);
+					glPushMatrix();
+					glLoadIdentity();
+					if (!skeleton.free) {
+						glRotatef(tilt2, 1, 0, 0);
+					}
+					if (!skeleton.free) {
+						glRotatef(tilt, 0, 0, 1);
+					}
+					glTranslatef(mid.x, mid.y, mid.z);
+					skeleton.muscles[i].lastrotate1 = skeleton.muscles[i].rotate1;
+					glRotatef(-skeleton.muscles[i].lastrotate1 + 90, 0, 1, 0);
 
-                    skeleton.muscles[i].lastrotate2 = skeleton.muscles[i].rotate2;
-                    glRotatef(-skeleton.muscles[i].lastrotate2 + 90, 0, 0, 1);
+					skeleton.muscles[i].lastrotate2 = skeleton.muscles[i].rotate2;
+					glRotatef(-skeleton.muscles[i].lastrotate2 + 90, 0, 0, 1);
 
-                    skeleton.muscles[i].lastrotate3 = skeleton.muscles[i].rotate3;
-                    glRotatef(-skeleton.muscles[i].lastrotate3, 0, 1, 0);
+					skeleton.muscles[i].lastrotate3 = skeleton.muscles[i].rotate3;
+					glRotatef(-skeleton.muscles[i].lastrotate3, 0, 1, 0);
 
-                    for (unsigned j = 0; j < skeleton.muscles[i].verticesclothes.size(); j++) {
-                        XYZ& v0 = skeleton.modelclothes.vertex[skeleton.muscles[i].verticesclothes[j]];
-                        glMatrixMode(GL_MODELVIEW);
-                        glPushMatrix();
-                        if (p1 == abdomen || p2 == abdomen) {
-                            glTranslatef(v0.x * getProportionXYZ(1).x,
-                                         v0.y * getProportionXYZ(1).y,
-                                         v0.z * getProportionXYZ(1).z);
-                        }
-                        if (p1 == lefthand || p1 == righthand || p1 == leftwrist || p1 == rightwrist || p1 == leftelbow || p1 == rightelbow || p2 == leftelbow || p2 == rightelbow) {
-                            glTranslatef(v0.x * getProportionXYZ(2).x,
-                                         v0.y * getProportionXYZ(2).y,
-                                         v0.z * getProportionXYZ(2).z);
-                        }
-                        if (p1 == leftfoot || p1 == rightfoot || p1 == leftankle || p1 == rightankle || p1 == leftknee || p1 == rightknee || p2 == leftknee || p2 == rightknee) {
-                            glTranslatef(v0.x * getProportionXYZ(3).x,
-                                         v0.y * getProportionXYZ(3).y,
-                                         v0.z * getProportionXYZ(3).z);
-                        }
-                        if (p1 == head || p2 == head) {
-                            glTranslatef(v0.x * getProportionXYZ(0).x,
-                                         v0.y * getProportionXYZ(0).y,
-                                         v0.z * getProportionXYZ(0).z);
-                        }
-                        glGetFloatv(GL_MODELVIEW_MATRIX, M);
-                        skeleton.drawmodelclothes.vertex[skeleton.muscles[i].verticesclothes[j]].x = M[12] * scale;
-                        skeleton.drawmodelclothes.vertex[skeleton.muscles[i].verticesclothes[j]].y = M[13] * scale;
-                        skeleton.drawmodelclothes.vertex[skeleton.muscles[i].verticesclothes[j]].z = M[14] * scale;
-                        glPopMatrix();
-                    }
-                    glPopMatrix();
-                }
-                updatedelay = 1 + (float)(Random() % 100) / 1000;
-            }
-            if (skeleton.free != 2 && (skeleton.free == 1 || skeleton.free == 3 || id == 0 || (normalsupdatedelay <= 0) || animTarget == getupfromfrontanim || animTarget == getupfrombackanim || animCurrent == getupfromfrontanim || animCurrent == getupfrombackanim)) {
-                normalsupdatedelay = 1;
-                if (playerdetail || skeleton.free == 3) {
-                    skeleton.drawmodel.CalculateNormals(0);
-                }
-                if (!playerdetail || skeleton.free == 3) {
-                    skeleton.drawmodellow.CalculateNormals(0);
-                }
-                if (skeleton.clothes) {
-                    skeleton.drawmodelclothes.CalculateNormals(0);
-                }
-            } else {
-                if (playerdetail || skeleton.free == 3) {
-                    skeleton.drawmodel.UpdateVertexArrayNoTexNoNorm();
-                }
-                if (!playerdetail || skeleton.free == 3) {
-                    skeleton.drawmodellow.UpdateVertexArrayNoTexNoNorm();
-                }
-                if (skeleton.clothes) {
-                    skeleton.drawmodelclothes.UpdateVertexArrayNoTexNoNorm();
-                }
-            }
-        }
-        framemult = .01;
-        updatedelaychange = -framemult * 4 * (45 - findDistance(&viewer, &coords) * 1);
-        if (updatedelaychange > -realmultiplier * 30) {
-            updatedelaychange = -realmultiplier * 30;
-        }
-        if (updatedelaychange > -framemult * 4) {
-            updatedelaychange = -framemult * 4;
-        }
-        if (skeleton.free == 1) {
-            updatedelaychange *= 6;
-        }
-        if (id == 0) {
-            updatedelaychange *= 8;
-        }
-        updatedelay += updatedelaychange;
+					for (unsigned j = 0; j < skeleton.muscles[i].verticesclothes.size(); j++) {
+						XYZ& v0 = skeleton.modelclothes.vertex[skeleton.muscles[i].verticesclothes[j]];
+						glMatrixMode(GL_MODELVIEW);
+						glPushMatrix();
+						if (p1 == abdomen || p2 == abdomen) {
+							glTranslatef(v0.x * getProportionXYZ(1).x,
+								v0.y * getProportionXYZ(1).y,
+								v0.z * getProportionXYZ(1).z);
+						}
+						if (p1 == lefthand || p1 == righthand || p1 == leftwrist || p1 == rightwrist || p1 == leftelbow || p1 == rightelbow || p2 == leftelbow || p2 == rightelbow) {
+							glTranslatef(v0.x * getProportionXYZ(2).x,
+								v0.y * getProportionXYZ(2).y,
+								v0.z * getProportionXYZ(2).z);
+						}
+						if (p1 == leftfoot || p1 == rightfoot || p1 == leftankle || p1 == rightankle || p1 == leftknee || p1 == rightknee || p2 == leftknee || p2 == rightknee) {
+							glTranslatef(v0.x * getProportionXYZ(3).x,
+								v0.y * getProportionXYZ(3).y,
+								v0.z * getProportionXYZ(3).z);
+						}
+						if (p1 == head || p2 == head) {
+							glTranslatef(v0.x * getProportionXYZ(0).x,
+								v0.y * getProportionXYZ(0).y,
+								v0.z * getProportionXYZ(0).z);
+						}
+						glGetFloatv(GL_MODELVIEW_MATRIX, M);
+						skeleton.drawmodelclothes.vertex[skeleton.muscles[i].verticesclothes[j]].x = M[12] * scale;
+						skeleton.drawmodelclothes.vertex[skeleton.muscles[i].verticesclothes[j]].y = M[13] * scale;
+						skeleton.drawmodelclothes.vertex[skeleton.muscles[i].verticesclothes[j]].z = M[14] * scale;
+						glPopMatrix();
+					}
+					glPopMatrix();
+				}
+				updatedelay = 1 + (float)(Random() % 100) / 1000;
+			}
+			if (skeleton.free != 2 && (skeleton.free == 1 || skeleton.free == 3 || id == 0 || (normalsupdatedelay <= 0) || animTarget == getupfromfrontanim || animTarget == getupfrombackanim || animCurrent == getupfromfrontanim || animCurrent == getupfrombackanim)) {
+				normalsupdatedelay = 1;
+				if (playerdetail || skeleton.free == 3) {
+					skeleton.drawmodel.CalculateNormals(0);
+				}
+				if (!playerdetail || skeleton.free == 3) {
+					skeleton.drawmodellow.CalculateNormals(0);
+				}
+				if (skeleton.clothes) {
+					skeleton.drawmodelclothes.CalculateNormals(0);
+				}
+			}
+			else {
+				if (playerdetail || skeleton.free == 3) {
+					skeleton.drawmodel.UpdateVertexArrayNoTexNoNorm();
+				}
+				if (!playerdetail || skeleton.free == 3) {
+					skeleton.drawmodellow.UpdateVertexArrayNoTexNoNorm();
+				}
+				if (skeleton.clothes) {
+					skeleton.drawmodelclothes.UpdateVertexArrayNoTexNoNorm();
+				}
+			}
+		}
+		framemult = .01;
+		updatedelaychange = -framemult * 4 * (45 - findDistance(&viewer, &coords) * 1);
+		if (updatedelaychange > -realmultiplier * 30) {
+			updatedelaychange = -realmultiplier * 30;
+		}
+		if (updatedelaychange > -framemult * 4) {
+			updatedelaychange = -framemult * 4;
+		}
+		if (skeleton.free == 1) {
+			updatedelaychange *= 6;
+		}
+		if (id == 0) {
+			updatedelaychange *= 8;
+		}
+		updatedelay += updatedelaychange;
 
-        glMatrixMode(GL_MODELVIEW);
-        glPushMatrix();
-        glTranslatef(coords.x, coords.y - .02, coords.z);
-        if (!skeleton.free) {
-            glTranslatef(offset.x * scale, offset.y * scale, offset.z * scale);
-            glRotatef(yaw, 0, 1, 0);
-        }
-        if (showpoints) {
-            glPointSize(5);
-            glColor4f(.4, 1, .4, 1);
-            glDisable(GL_LIGHTING);
-            glDisable(GL_TEXTURE_2D);
-            glBegin(GL_POINTS);
-            if (playerdetail) {
-                for (int i = 0; i < skeleton.drawmodel.vertexNum; i++) {
-                    XYZ& v0 = skeleton.drawmodel.vertex[i];
-                    glVertex3f(v0.x, v0.y, v0.z);
-                }
-            }
-            glEnd();
-            glBegin(GL_LINES);
+		glMatrixMode(GL_MODELVIEW);
+		glPushMatrix();
+		glTranslatef(coords.x, coords.y - .02, coords.z);
+		if (!skeleton.free) {
+			glTranslatef(offset.x * scale, offset.y * scale, offset.z * scale);
+			glRotatef(yaw, 0, 1, 0);
+		}
+		if (showpoints) {
+			glPointSize(5);
+			glColor4f(.4, 1, .4, 1);
+			glDisable(GL_LIGHTING);
+			glDisable(GL_TEXTURE_2D);
+			glBegin(GL_POINTS);
+			if (playerdetail) {
+				for (int i = 0; i < skeleton.drawmodel.vertexNum; i++) {
+					XYZ& v0 = skeleton.drawmodel.vertex[i];
+					glVertex3f(v0.x, v0.y, v0.z);
+				}
+			}
+			glEnd();
+			glBegin(GL_LINES);
 
-            if (playerdetail) {
-                for (unsigned int i = 0; i < skeleton.drawmodel.Triangles.size(); i++) {
-                    const XYZ& v0 = skeleton.drawmodel.getTriangleVertex(i, 0);
-                    const XYZ& v1 = skeleton.drawmodel.getTriangleVertex(i, 1);
-                    const XYZ& v2 = skeleton.drawmodel.getTriangleVertex(i, 2);
-                    glVertex3f(v0.x, v0.y, v0.z);
-                    glVertex3f(v1.x, v1.y, v1.z);
-                    glVertex3f(v1.x, v1.y, v1.z);
-                    glVertex3f(v2.x, v2.y, v2.z);
-                    glVertex3f(v2.x, v2.y, v2.z);
-                    glVertex3f(v0.x, v0.y, v0.z);
-                }
-            }
+			if (playerdetail) {
+				for (unsigned int i = 0; i < skeleton.drawmodel.Triangles.size(); i++) {
+					const XYZ& v0 = skeleton.drawmodel.getTriangleVertex(i, 0);
+					const XYZ& v1 = skeleton.drawmodel.getTriangleVertex(i, 1);
+					const XYZ& v2 = skeleton.drawmodel.getTriangleVertex(i, 2);
+					glVertex3f(v0.x, v0.y, v0.z);
+					glVertex3f(v1.x, v1.y, v1.z);
+					glVertex3f(v1.x, v1.y, v1.z);
+					glVertex3f(v2.x, v2.y, v2.z);
+					glVertex3f(v2.x, v2.y, v2.z);
+					glVertex3f(v0.x, v0.y, v0.z);
+				}
+			}
 
-            glEnd();
-        }
+			glEnd();
+		}
 
-        terrainlight = terrain.getLighting(coords.x, coords.z);
-        distance = distsq(&viewer, &coords);
-        distance = (viewdistance * viewdistance - (distance - (viewdistance * viewdistance * fadestart)) * (1 / (1 - fadestart))) / viewdistance / viewdistance;
-        if (distance > 1) {
-            distance = 1;
-        }
-        if (distance > 0) {
-            terrainheight = (coords.y - terrain.getHeight(coords.x, coords.z)) / 3 + 1;
-            if (terrainheight < 1) {
-                terrainheight = 1;
-            }
-            if (terrainheight > 1.7) {
-                terrainheight = 1.7;
-            }
+		terrainlight = terrain.getLighting(coords.x, coords.z);
+		distance = distsq(&viewer, &coords);
+		distance = (viewdistance * viewdistance - (distance - (viewdistance * viewdistance * fadestart)) * (1 / (1 - fadestart))) / viewdistance / viewdistance;
+		if (distance > 1) {
+			distance = 1;
+		}
+		if (distance > 0) {
+			terrainheight = (coords.y - terrain.getHeight(coords.x, coords.z)) / 3 + 1;
+			if (terrainheight < 1) {
+				terrainheight = 1;
+			}
+			if (terrainheight > 1.7) {
+				terrainheight = 1.7;
+			}
 
-            glColor4f((1 - (1 - terrainlight.x) / terrainheight) - burnt, (1 - (1 - terrainlight.y) / terrainheight) - burnt, (1 - (1 - terrainlight.z) / terrainheight) - burnt, distance);
-            glDisable(GL_BLEND);
-            glAlphaFunc(GL_GREATER, 0.0001);
-            glEnable(GL_TEXTURE_2D);
-            if (cellophane) {
-                glDisable(GL_TEXTURE_2D);
-                glColor4f(.7, .35, 0, .5);
-                glDepthMask(GL_FALSE);
-                glEnable(GL_LIGHTING);
-                glEnable(GL_BLEND);
-            }
-            if (TutorialLu::active && id != 0) {
-                glColor4f(.7, .7, .7, 0.6);
-                glDepthMask(GL_FALSE);
-                glEnable(GL_LIGHTING);
-                glEnable(GL_BLEND);
-                if (canattack && cananger) {
-                    if (AnimationLu::animations[animTarget].attack == normalattack || AnimationLu::animations[animTarget].attack == reversed) {
-                        glDisable(GL_TEXTURE_2D);
-                        glColor4f(1, 0, 0, 0.8);
-                    }
-                }
-                glMatrixMode(GL_TEXTURE);
-                glPushMatrix();
-                glTranslatef(0, -smoketex, 0);
-                glTranslatef(-smoketex, 0, 0);
-            }
-            if (playerdetail) {
-                if (!showpoints) {
-                    if (TutorialLu::active && (id != 0)) {
-                        skeleton.drawmodel.drawdifftex(Sprite::cloudimpacttexture);
-                    } else {
-                        skeleton.drawmodel.draw();
-                    }
-                }
-            }
-            if (!playerdetail) {
-                if (TutorialLu::active && (id != 0)) {
-                    skeleton.drawmodellow.drawdifftex(Sprite::cloudimpacttexture);
-                } else {
-                    skeleton.drawmodellow.drawdifftex(skeleton.drawmodel.textureptr);
-                }
-            }
+			glColor4f((1 - (1 - terrainlight.x) / terrainheight) - burnt, (1 - (1 - terrainlight.y) / terrainheight) - burnt, (1 - (1 - terrainlight.z) / terrainheight) - burnt, distance);
+			glDisable(GL_BLEND);
+			glAlphaFunc(GL_GREATER, 0.0001);
+			glEnable(GL_TEXTURE_2D);
+			if (cellophane) {
+				glDisable(GL_TEXTURE_2D);
+				glColor4f(.7, .35, 0, .5);
+				glDepthMask(0);
+				glEnable(GL_LIGHTING);
+				glEnable(GL_BLEND);
+			}
+			if (TutorialLu::active && id != 0) {
+				glColor4f(.7, .7, .7, 0.6);
+				glDepthMask(0);
+				glEnable(GL_LIGHTING);
+				glEnable(GL_BLEND);
+				if (canattack && cananger) {
+					if (AnimationLu::animations[animTarget].attack == normalattack || AnimationLu::animations[animTarget].attack == reversed) {
+						glDisable(GL_TEXTURE_2D);
+						glColor4f(1, 0, 0, 0.8);
+					}
+				}
+				glMatrixMode(GL_TEXTURE);
+				glPushMatrix();
+				glTranslatef(0, -smoketex, 0);
+				glTranslatef(-smoketex, 0, 0);
+			}
+			if (playerdetail) {
+				if (!showpoints) {
+					if (TutorialLu::active && (id != 0)) {
+						skeleton.drawmodel.drawdifftex(Sprite::cloudimpacttexture);
+					}
+					else {
+						skeleton.drawmodel.draw();
+					}
+				}
+			}
+			if (!playerdetail) {
+				if (TutorialLu::active && (id != 0)) {
+					skeleton.drawmodellow.drawdifftex(Sprite::cloudimpacttexture);
+				}
+				else {
+					skeleton.drawmodellow.drawdifftex(skeleton.drawmodel.textureptr);
+				}
+			}
 
-            if (!(AnimationLu::animations[animTarget].attack == normalattack || AnimationLu::animations[animTarget].attack == reversed)) {
-                if (TutorialLu::active && id != 0) {
-                    glPopMatrix();
-                    glMatrixMode(GL_MODELVIEW);
-                    glEnable(GL_TEXTURE_2D);
-                    glColor4f(.7, .7, .7, 0.6);
-                    glDepthMask(GL_FALSE);
-                    glEnable(GL_LIGHTING);
-                    glEnable(GL_BLEND);
-                    if (canattack && cananger) {
-                        if (AnimationLu::animations[animTarget].attack == normalattack || AnimationLu::animations[animTarget].attack == reversed) {
-                            glDisable(GL_TEXTURE_2D);
-                            glColor4f(1, 0, 0, 0.8);
-                        }
-                    }
-                    glMatrixMode(GL_TEXTURE);
-                    glPushMatrix();
-                    glTranslatef(0, -smoketex * .6, 0);
-                    glTranslatef(smoketex * .6, 0, 0);
-                    if (playerdetail) {
-                        if (!showpoints) {
-                            if (TutorialLu::active && (id != 0)) {
-                                skeleton.drawmodel.drawdifftex(Sprite::cloudimpacttexture);
-                            } else {
-                                skeleton.drawmodel.draw();
-                            }
-                        }
-                    }
-                    if (!playerdetail) {
-                        if (TutorialLu::active && (id != 0)) {
-                            skeleton.drawmodellow.drawdifftex(Sprite::cloudimpacttexture);
-                        } else {
-                            skeleton.drawmodellow.drawdifftex(skeleton.drawmodel.textureptr);
-                        }
-                    }
-                }
-            }
+			if (!(AnimationLu::animations[animTarget].attack == normalattack || AnimationLu::animations[animTarget].attack == reversed)) {
+				if (TutorialLu::active && id != 0) {
+					glPopMatrix();
+					glMatrixMode(GL_MODELVIEW);
+					glEnable(GL_TEXTURE_2D);
+					glColor4f(.7, .7, .7, 0.6);
+					glDepthMask(0);
+					glEnable(GL_LIGHTING);
+					glEnable(GL_BLEND);
+					if (canattack && cananger) {
+						if (AnimationLu::animations[animTarget].attack == normalattack || AnimationLu::animations[animTarget].attack == reversed) {
+							glDisable(GL_TEXTURE_2D);
+							glColor4f(1, 0, 0, 0.8);
+						}
+					}
+					glMatrixMode(GL_TEXTURE);
+					glPushMatrix();
+					glTranslatef(0, -smoketex * .6, 0);
+					glTranslatef(smoketex * .6, 0, 0);
+					if (playerdetail) {
+						if (!showpoints) {
+							if (TutorialLu::active && (id != 0)) {
+								skeleton.drawmodel.drawdifftex(Sprite::cloudimpacttexture);
+							}
+							else {
+								skeleton.drawmodel.draw();
+							}
+						}
+					}
+					if (!playerdetail) {
+						if (TutorialLu::active && (id != 0)) {
+							skeleton.drawmodellow.drawdifftex(Sprite::cloudimpacttexture);
+						}
+						else {
+							skeleton.drawmodellow.drawdifftex(skeleton.drawmodel.textureptr);
+						}
+					}
+				}
+			}
 
-            if (TutorialLu::active && id != 0) {
-                glPopMatrix();
-                glMatrixMode(GL_MODELVIEW);
-                glEnable(GL_TEXTURE_2D);
-            }
-            if (skeleton.clothes) {
-                glDepthMask(GL_FALSE);
-                glEnable(GL_BLEND);
-                if (!immediate) {
-                    skeleton.drawmodelclothes.draw();
-                }
-                if (immediate) {
-                    skeleton.drawmodelclothes.drawimmediate();
-                }
-                glDepthMask(GL_TRUE);
-            }
-        }
-        glPopMatrix();
+			if (TutorialLu::active && id != 0) {
+				glPopMatrix();
+				glMatrixMode(GL_MODELVIEW);
+				glEnable(GL_TEXTURE_2D);
+			}
+			if (skeleton.clothes) {
+				glDepthMask(0);
+				glEnable(GL_BLEND);
+				if (!immediate) {
+					skeleton.drawmodelclothes.draw();
+				}
+				if (immediate) {
+					skeleton.drawmodelclothes.drawimmediate();
+				}
+				glDepthMask(1);
+			}
+		}
+		glPopMatrix();
 
-        if (num_weapons > 0) {
-            for (k = 0; k < num_weapons; k++) {
-                int i = weaponids[k];
-                if (weaponactive == k) {
-                    if (weapons[i].getType() != staff) {
-                        for (unsigned j = 0; j < skeleton.muscles.size(); j++) {
-                            if ((skeleton.muscles[j].parent1->label == righthand || skeleton.muscles[j].parent2->label == righthand) && skeleton.muscles[j].vertices.size() > 0) {
-                                weaponattachmuscle = j;
-                            }
-                        }
-                        for (unsigned j = 0; j < skeleton.muscles.size(); j++) {
-                            if ((skeleton.muscles[j].parent1->label == rightwrist || skeleton.muscles[j].parent2->label == rightwrist) && (skeleton.muscles[j].parent1->label != righthand && skeleton.muscles[j].parent2->label != righthand) && skeleton.muscles[j].vertices.size() > 0) {
-                                weaponrotatemuscle = j;
-                            }
-                        }
-                        weaponpoint = (skeleton.muscles[weaponattachmuscle].parent1->position + skeleton.muscles[weaponattachmuscle].parent2->position) / 2;
-                        if (creature == wolftype) {
-                            weaponpoint = (jointPos(rightwrist) * .7 + jointPos(righthand) * .3);
-                        }
-                    }
-                    if (weapons[i].getType() == staff) {
-                        for (unsigned j = 0; j < skeleton.muscles.size(); j++) {
-                            if ((skeleton.muscles[j].parent1->label == righthand || skeleton.muscles[j].parent2->label == righthand) && skeleton.muscles[j].vertices.size() > 0) {
-                                weaponattachmuscle = j;
-                            }
-                        }
-                        for (unsigned j = 0; j < skeleton.muscles.size(); j++) {
-                            if ((skeleton.muscles[j].parent1->label == rightelbow || skeleton.muscles[j].parent2->label == rightelbow) && (skeleton.muscles[j].parent1->label != rightshoulder && skeleton.muscles[j].parent2->label != rightshoulder) && skeleton.muscles[j].vertices.size() > 0) {
-                                weaponrotatemuscle = j;
-                            }
-                        }
-                        //weaponpoint=jointPos(rightwrist);
-                        weaponpoint = (skeleton.muscles[weaponattachmuscle].parent1->position + skeleton.muscles[weaponattachmuscle].parent2->position) / 2;
-                        //weaponpoint+=skeleton.specialforward[1]*.1+(jointPos(rightwrist)-jointPos(rightelbow));
-                        XYZ tempnormthing, vec1, vec2;
-                        vec1 = (jointPos(rightwrist) - jointPos(rightelbow));
-                        vec2 = (jointPos(rightwrist) - jointPos(rightshoulder));
-                        CrossProduct(&vec1, &vec2, &tempnormthing);
-                        Normalise(&tempnormthing);
-                        if (animTarget != staffhitanim && animCurrent != staffhitanim && animTarget != staffgroundsmashanim && animCurrent != staffgroundsmashanim && animTarget != staffspinhitanim && animCurrent != staffspinhitanim) {
-                            weaponpoint += tempnormthing * .1 - skeleton.specialforward[1] * .3 + (jointPos(rightwrist) - jointPos(rightelbow));
-                        }
-                    }
-                }
-                if (weaponactive != k && weaponstuck != k) {
-                    if (weapons[i].getType() == knife) {
-                        weaponpoint = jointPos(abdomen) + (jointPos(righthip) - jointPos(lefthip)) * .1 + (jointPos(rightshoulder) - jointPos(leftshoulder)) * .35;
-                    }
-                    if (weapons[i].getType() == sword) {
-                        weaponpoint = jointPos(abdomen) + (jointPos(lefthip) - jointPos(righthip)) * .09 + (jointPos(leftshoulder) - jointPos(rightshoulder)) * .33;
-                    }
-                    if (weapons[i].getType() == staff) {
-                        weaponpoint = jointPos(abdomen) + (jointPos(lefthip) - jointPos(righthip)) * .09 + (jointPos(leftshoulder) - jointPos(rightshoulder)) * .33;
-                    }
-                    for (unsigned j = 0; j < skeleton.muscles.size(); j++) {
-                        if ((skeleton.muscles[j].parent1->label == abdomen || skeleton.muscles[j].parent2->label == abdomen) && (skeleton.muscles[j].parent1->label == neck || skeleton.muscles[j].parent2->label == neck) && skeleton.muscles[j].vertices.size() > 0) {
-                            weaponrotatemuscle = j;
-                        }
-                    }
-                }
-                if (weaponstuck == k) {
-                    if (weaponstuckwhere == 0) {
-                        weaponpoint = jointPos(abdomen) * .5 + jointPos(neck) * .5 - skeleton.forward * .8;
-                    } else {
-                        weaponpoint = jointPos(abdomen) * .5 + jointPos(neck) * .5 + skeleton.forward * .8;
-                    }
-                    for (unsigned j = 0; j < skeleton.muscles.size(); j++) {
-                        if ((skeleton.muscles[j].parent1->label == abdomen || skeleton.muscles[j].parent2->label == abdomen) && (skeleton.muscles[j].parent1->label == neck || skeleton.muscles[j].parent2->label == neck) && skeleton.muscles[j].vertices.size() > 0) {
-                            weaponrotatemuscle = j;
-                        }
-                    }
-                }
-                if (skeleton.free) {
-                    weapons[i].position = weaponpoint * scale + coords;
-                    weapons[i].bigrotation = 0;
-                    weapons[i].bigtilt = 0;
-                    weapons[i].bigtilt2 = 0;
-                } else {
-                    weapons[i].position = DoRotation(DoRotation(DoRotation(weaponpoint, 0, 0, tilt), tilt2, 0, 0), 0, yaw, 0) * scale + coords + currentoffset * (1 - target) * scale + targetoffset * target * scale;
-                    weapons[i].bigrotation = yaw;
-                    weapons[i].bigtilt = tilt;
-                    weapons[i].bigtilt2 = tilt2;
-                }
-                weapons[i].rotation1 = skeleton.muscles[weaponrotatemuscle].lastrotate1;
-                weapons[i].rotation2 = skeleton.muscles[weaponrotatemuscle].lastrotate2;
-                weapons[i].rotation3 = skeleton.muscles[weaponrotatemuscle].lastrotate3;
-                if (weaponactive == k) {
-                    if (weapons[i].getType() == knife) {
-                        weapons[i].smallrotation = 180;
-                        weapons[i].smallrotation2 = 0;
-                        if (isCrouch() || wasCrouch()) {
-                            weapons[i].smallrotation2 = 20;
-                        }
-                        if (animTarget == hurtidleanim) {
-                            weapons[i].smallrotation2 = 50;
-                        }
-                        if ((animCurrent == crouchstabanim && animTarget == crouchstabanim) || (animCurrent == backhandspringanim && animTarget == backhandspringanim)) {
-                            XYZ temppoint1, temppoint2;
-                            float distance;
+		if (num_weapons > 0) {
+			for (k = 0; k < num_weapons; k++) {
+				int i = weaponids[k];
+				if (weaponactive == k) {
+					if (weapons[i].getType() != staff) {
+						for (unsigned j = 0; j < skeleton.muscles.size(); j++) {
+							if ((skeleton.muscles[j].parent1->label == righthand || skeleton.muscles[j].parent2->label == righthand) && skeleton.muscles[j].vertices.size() > 0) {
+								weaponattachmuscle = j;
+							}
+						}
+						for (unsigned j = 0; j < skeleton.muscles.size(); j++) {
+							if ((skeleton.muscles[j].parent1->label == rightwrist || skeleton.muscles[j].parent2->label == rightwrist) && (skeleton.muscles[j].parent1->label != righthand && skeleton.muscles[j].parent2->label != righthand) && skeleton.muscles[j].vertices.size() > 0) {
+								weaponrotatemuscle = j;
+							}
+						}
+						weaponpoint = (skeleton.muscles[weaponattachmuscle].parent1->position + skeleton.muscles[weaponattachmuscle].parent2->position) / 2;
+						if (creature == wolftype) {
+							weaponpoint = (jointPos(rightwrist) * .7 + jointPos(righthand) * .3);
+						}
+					}
+					if (weapons[i].getType() == staff) {
+						for (unsigned j = 0; j < skeleton.muscles.size(); j++) {
+							if ((skeleton.muscles[j].parent1->label == righthand || skeleton.muscles[j].parent2->label == righthand) && skeleton.muscles[j].vertices.size() > 0) {
+								weaponattachmuscle = j;
+							}
+						}
+						for (unsigned j = 0; j < skeleton.muscles.size(); j++) {
+							if ((skeleton.muscles[j].parent1->label == rightelbow || skeleton.muscles[j].parent2->label == rightelbow) && (skeleton.muscles[j].parent1->label != rightshoulder && skeleton.muscles[j].parent2->label != rightshoulder) && skeleton.muscles[j].vertices.size() > 0) {
+								weaponrotatemuscle = j;
+							}
+						}
+						//weaponpoint=jointPos(rightwrist);
+						weaponpoint = (skeleton.muscles[weaponattachmuscle].parent1->position + skeleton.muscles[weaponattachmuscle].parent2->position) / 2;
+						//weaponpoint+=skeleton.specialforward[1]*.1+(jointPos(rightwrist)-jointPos(rightelbow));
+						XYZ tempnormthing, vec1, vec2;
+						vec1 = (jointPos(rightwrist) - jointPos(rightelbow));
+						vec2 = (jointPos(rightwrist) - jointPos(rightshoulder));
+						CrossProduct(&vec1, &vec2, &tempnormthing);
+						Normalise(&tempnormthing);
+						if (animTarget != staffhitanim && animCurrent != staffhitanim && animTarget != staffgroundsmashanim && animCurrent != staffgroundsmashanim && animTarget != staffspinhitanim && animCurrent != staffspinhitanim) {
+							weaponpoint += tempnormthing * .1 - skeleton.specialforward[1] * .3 + (jointPos(rightwrist) - jointPos(rightelbow));
+						}
+					}
+				}
+				if (weaponactive != k && weaponstuck != k) {
+					if (weapons[i].getType() == knife) {
+						weaponpoint = jointPos(abdomen) + (jointPos(righthip) - jointPos(lefthip)) * .1 + (jointPos(rightshoulder) - jointPos(leftshoulder)) * .35;
+					}
+					if (weapons[i].getType() == sword) {
+						weaponpoint = jointPos(abdomen) + (jointPos(lefthip) - jointPos(righthip)) * .09 + (jointPos(leftshoulder) - jointPos(rightshoulder)) * .33;
+					}
+					if (weapons[i].getType() == staff) {
+						weaponpoint = jointPos(abdomen) + (jointPos(lefthip) - jointPos(righthip)) * .09 + (jointPos(leftshoulder) - jointPos(rightshoulder)) * .33;
+					}
+					for (unsigned j = 0; j < skeleton.muscles.size(); j++) {
+						if ((skeleton.muscles[j].parent1->label == abdomen || skeleton.muscles[j].parent2->label == abdomen) && (skeleton.muscles[j].parent1->label == neck || skeleton.muscles[j].parent2->label == neck) && skeleton.muscles[j].vertices.size() > 0) {
+							weaponrotatemuscle = j;
+						}
+					}
+				}
+				if (weaponstuck == k) {
+					if (weaponstuckwhere == 0) {
+						weaponpoint = jointPos(abdomen) * .5 + jointPos(neck) * .5 - skeleton.forward * .8;
+					}
+					else {
+						weaponpoint = jointPos(abdomen) * .5 + jointPos(neck) * .5 + skeleton.forward * .8;
+					}
+					for (unsigned j = 0; j < skeleton.muscles.size(); j++) {
+						if ((skeleton.muscles[j].parent1->label == abdomen || skeleton.muscles[j].parent2->label == abdomen) && (skeleton.muscles[j].parent1->label == neck || skeleton.muscles[j].parent2->label == neck) && skeleton.muscles[j].vertices.size() > 0) {
+							weaponrotatemuscle = j;
+						}
+					}
+				}
+				if (skeleton.free) {
+					weapons[i].position = weaponpoint * scale + coords;
+					weapons[i].bigrotation = 0;
+					weapons[i].bigtilt = 0;
+					weapons[i].bigtilt2 = 0;
+				}
+				else {
+					weapons[i].position = DoRotation(DoRotation(DoRotation(weaponpoint, 0, 0, tilt), tilt2, 0, 0), 0, yaw, 0) * scale + coords + currentoffset * (1 - target) * scale + targetoffset * target * scale;
+					weapons[i].bigrotation = yaw;
+					weapons[i].bigtilt = tilt;
+					weapons[i].bigtilt2 = tilt2;
+				}
+				weapons[i].rotation1 = skeleton.muscles[weaponrotatemuscle].lastrotate1;
+				weapons[i].rotation2 = skeleton.muscles[weaponrotatemuscle].lastrotate2;
+				weapons[i].rotation3 = skeleton.muscles[weaponrotatemuscle].lastrotate3;
+				if (weaponactive == k) {
+					if (weapons[i].getType() == knife) {
+						weapons[i].smallrotation = 180;
+						weapons[i].smallrotation2 = 0;
+						if (isCrouch() || wasCrouch()) {
+							weapons[i].smallrotation2 = 20;
+						}
+						if (animTarget == hurtidleanim) {
+							weapons[i].smallrotation2 = 50;
+						}
+						if ((animCurrent == crouchstabanim && animTarget == crouchstabanim) || (animCurrent == backhandspringanim && animTarget == backhandspringanim)) {
+							XYZ temppoint1, temppoint2;
+							float distance;
 
-                            temppoint1 = jointPos(righthand);
-                            temppoint2 = currentFrame().weapontarget * (1 - target) + targetFrame().weapontarget * (target);
-                            distance = findDistance(&temppoint1, &temppoint2);
-                            weapons[i].rotation2 = asin((temppoint1.y - temppoint2.y) / distance);
-                            weapons[i].rotation2 *= 360 / 6.28;
-                            temppoint1.y = 0;
-                            temppoint2.y = 0;
-                            weapons[i].rotation1 = acos((temppoint1.z - temppoint2.z) / findDistance(&temppoint1, &temppoint2));
-                            weapons[i].rotation1 *= 360 / 6.28;
-                            weapons[i].rotation3 = 0;
-                            weapons[i].smallrotation = -90;
-                            weapons[i].smallrotation2 = 0;
-                            if (temppoint1.x > temppoint2.x) {
-                                weapons[i].rotation1 = 360 - weapons[i].rotation1;
-                            }
-                        }
-                        if ((animCurrent == knifeslashreversalanim && animTarget == knifeslashreversalanim) || (animCurrent == knifeslashreversedanim && animTarget == knifeslashreversedanim)) {
-                            XYZ temppoint1, temppoint2;
-                            float distance;
+							temppoint1 = jointPos(righthand);
+							temppoint2 = currentFrame().weapontarget * (1 - target) + targetFrame().weapontarget * (target);
+							distance = findDistance(&temppoint1, &temppoint2);
+							weapons[i].rotation2 = asin((temppoint1.y - temppoint2.y) / distance);
+							weapons[i].rotation2 *= 360 / 6.28;
+							temppoint1.y = 0;
+							temppoint2.y = 0;
+							weapons[i].rotation1 = acos((temppoint1.z - temppoint2.z) / findDistance(&temppoint1, &temppoint2));
+							weapons[i].rotation1 *= 360 / 6.28;
+							weapons[i].rotation3 = 0;
+							weapons[i].smallrotation = -90;
+							weapons[i].smallrotation2 = 0;
+							if (temppoint1.x > temppoint2.x) {
+								weapons[i].rotation1 = 360 - weapons[i].rotation1;
+							}
+						}
+						if ((animCurrent == knifeslashreversalanim && animTarget == knifeslashreversalanim) || (animCurrent == knifeslashreversedanim && animTarget == knifeslashreversedanim)) {
+							XYZ temppoint1, temppoint2;
+							float distance;
 
-                            temppoint1 = jointPos(righthand);
-                            temppoint2 = currentFrame().weapontarget * (1 - target) + targetFrame().weapontarget * (target);
-                            distance = findDistance(&temppoint1, &temppoint2);
-                            weapons[i].rotation2 = asin((temppoint1.y - temppoint2.y) / distance);
-                            weapons[i].rotation2 *= 360 / 6.28;
-                            temppoint1.y = 0;
-                            temppoint2.y = 0;
-                            weapons[i].rotation1 = acos((temppoint1.z - temppoint2.z) / findDistance(&temppoint1, &temppoint2));
-                            weapons[i].rotation1 *= 360 / 6.28;
-                            weapons[i].rotation3 = 0;
-                            weapons[i].smallrotation = 90;
-                            weapons[i].smallrotation2 = 0;
-                            if (temppoint1.x > temppoint2.x) {
-                                weapons[i].rotation1 = 360 - weapons[i].rotation1;
-                            }
-                        }
-                        if (animTarget == knifethrowanim) {
-                            weapons[i].smallrotation = 90;
-                            //weapons[i].smallrotation2=-90;
-                            weapons[i].smallrotation2 = 0;
-                            weapons[i].rotation1 = 0;
-                            weapons[i].rotation2 = 0;
-                            weapons[i].rotation3 = 0;
-                        }
-                        if (animTarget == knifesneakattackanim && frameTarget < 5) {
-                            weapons[i].smallrotation = -90;
-                            weapons[i].rotation1 = 0;
-                            weapons[i].rotation2 = 0;
-                            weapons[i].rotation3 = 0;
-                        }
-                    }
-                    if (weapons[i].getType() == sword) {
-                        weapons[i].smallrotation = 0;
-                        weapons[i].smallrotation2 = 0;
-                        if (animTarget == knifethrowanim) {
-                            weapons[i].smallrotation = -90;
-                            weapons[i].smallrotation2 = 0;
-                            weapons[i].rotation1 = 0;
-                            weapons[i].rotation2 = 0;
-                            weapons[i].rotation3 = 0;
-                        }
-                        if ((animTarget == swordgroundstabanim && animCurrent == swordgroundstabanim) || (animTarget == swordsneakattackanim && animCurrent == swordsneakattackanim) || (animTarget == swordslashparryanim && animCurrent == swordslashparryanim) || (animTarget == swordslashparriedanim && animCurrent == swordslashparriedanim) || (animTarget == swordslashreversalanim && animCurrent == swordslashreversalanim) || (animTarget == swordslashreversedanim && animCurrent == swordslashreversedanim) || (animTarget == knifeslashreversalanim && animCurrent == knifeslashreversalanim) || (animTarget == knifeslashreversedanim && animCurrent == knifeslashreversedanim) || (animTarget == swordslashanim && animCurrent == swordslashanim) || (animTarget == drawleftanim && animCurrent == drawleftanim) || (animCurrent == backhandspringanim && animTarget == backhandspringanim)) {
-                            XYZ temppoint1, temppoint2;
-                            float distance;
+							temppoint1 = jointPos(righthand);
+							temppoint2 = currentFrame().weapontarget * (1 - target) + targetFrame().weapontarget * (target);
+							distance = findDistance(&temppoint1, &temppoint2);
+							weapons[i].rotation2 = asin((temppoint1.y - temppoint2.y) / distance);
+							weapons[i].rotation2 *= 360 / 6.28;
+							temppoint1.y = 0;
+							temppoint2.y = 0;
+							weapons[i].rotation1 = acos((temppoint1.z - temppoint2.z) / findDistance(&temppoint1, &temppoint2));
+							weapons[i].rotation1 *= 360 / 6.28;
+							weapons[i].rotation3 = 0;
+							weapons[i].smallrotation = 90;
+							weapons[i].smallrotation2 = 0;
+							if (temppoint1.x > temppoint2.x) {
+								weapons[i].rotation1 = 360 - weapons[i].rotation1;
+							}
+						}
+						if (animTarget == knifethrowanim) {
+							weapons[i].smallrotation = 90;
+							//weapons[i].smallrotation2=-90;
+							weapons[i].smallrotation2 = 0;
+							weapons[i].rotation1 = 0;
+							weapons[i].rotation2 = 0;
+							weapons[i].rotation3 = 0;
+						}
+						if (animTarget == knifesneakattackanim && frameTarget < 5) {
+							weapons[i].smallrotation = -90;
+							weapons[i].rotation1 = 0;
+							weapons[i].rotation2 = 0;
+							weapons[i].rotation3 = 0;
+						}
+					}
+					if (weapons[i].getType() == sword) {
+						weapons[i].smallrotation = 0;
+						weapons[i].smallrotation2 = 0;
+						if (animTarget == knifethrowanim) {
+							weapons[i].smallrotation = -90;
+							weapons[i].smallrotation2 = 0;
+							weapons[i].rotation1 = 0;
+							weapons[i].rotation2 = 0;
+							weapons[i].rotation3 = 0;
+						}
+						if ((animTarget == swordgroundstabanim && animCurrent == swordgroundstabanim) || (animTarget == swordsneakattackanim && animCurrent == swordsneakattackanim) || (animTarget == swordslashparryanim && animCurrent == swordslashparryanim) || (animTarget == swordslashparriedanim && animCurrent == swordslashparriedanim) || (animTarget == swordslashreversalanim && animCurrent == swordslashreversalanim) || (animTarget == swordslashreversedanim && animCurrent == swordslashreversedanim) || (animTarget == knifeslashreversalanim && animCurrent == knifeslashreversalanim) || (animTarget == knifeslashreversedanim && animCurrent == knifeslashreversedanim) || (animTarget == swordslashanim && animCurrent == swordslashanim) || (animTarget == drawleftanim && animCurrent == drawleftanim) || (animCurrent == backhandspringanim && animTarget == backhandspringanim)) {
+							XYZ temppoint1, temppoint2;
+							float distance;
 
-                            temppoint1 = currentFrame().joints[skeleton.jointlabels[righthand]].position * (1 - target) + targetFrame().joints[skeleton.jointlabels[righthand]].position * (target); //jointPos(righthand);
-                            temppoint2 = currentFrame().weapontarget * (1 - target) + targetFrame().weapontarget * (target);
-                            distance = findDistance(&temppoint1, &temppoint2);
-                            weapons[i].rotation2 = asin((temppoint1.y - temppoint2.y) / distance);
-                            weapons[i].rotation2 *= 360 / 6.28;
-                            temppoint1.y = 0;
-                            temppoint2.y = 0;
-                            weapons[i].rotation1 = acos((temppoint1.z - temppoint2.z) / findDistance(&temppoint1, &temppoint2));
-                            weapons[i].rotation1 *= 360 / 6.28;
-                            weapons[i].rotation3 = 0;
-                            weapons[i].smallrotation = 90;
-                            weapons[i].smallrotation2 = 0;
-                            if (temppoint1.x > temppoint2.x) {
-                                weapons[i].rotation1 = 360 - weapons[i].rotation1;
-                            }
-                        }
-                    }
-                    if (weapons[i].getType() == staff) {
-                        weapons[i].smallrotation = 100;
-                        weapons[i].smallrotation2 = 0;
-                        if ((animTarget == staffhitanim && animCurrent == staffhitanim) || (animTarget == staffhitreversedanim && animCurrent == staffhitreversedanim) || (animTarget == staffspinhitreversedanim && animCurrent == staffspinhitreversedanim) || (animTarget == staffgroundsmashanim && animCurrent == staffgroundsmashanim) || (animTarget == staffspinhitanim && animCurrent == staffspinhitanim)) {
-                            XYZ temppoint1, temppoint2;
-                            float distance;
+							temppoint1 = currentFrame().joints[skeleton.jointlabels[righthand]].position * (1 - target) + targetFrame().joints[skeleton.jointlabels[righthand]].position * (target); //jointPos(righthand);
+							temppoint2 = currentFrame().weapontarget * (1 - target) + targetFrame().weapontarget * (target);
+							distance = findDistance(&temppoint1, &temppoint2);
+							weapons[i].rotation2 = asin((temppoint1.y - temppoint2.y) / distance);
+							weapons[i].rotation2 *= 360 / 6.28;
+							temppoint1.y = 0;
+							temppoint2.y = 0;
+							weapons[i].rotation1 = acos((temppoint1.z - temppoint2.z) / findDistance(&temppoint1, &temppoint2));
+							weapons[i].rotation1 *= 360 / 6.28;
+							weapons[i].rotation3 = 0;
+							weapons[i].smallrotation = 90;
+							weapons[i].smallrotation2 = 0;
+							if (temppoint1.x > temppoint2.x) {
+								weapons[i].rotation1 = 360 - weapons[i].rotation1;
+							}
+						}
+					}
+					if (weapons[i].getType() == staff) {
+						weapons[i].smallrotation = 100;
+						weapons[i].smallrotation2 = 0;
+						if ((animTarget == staffhitanim && animCurrent == staffhitanim) || (animTarget == staffhitreversedanim && animCurrent == staffhitreversedanim) || (animTarget == staffspinhitreversedanim && animCurrent == staffspinhitreversedanim) || (animTarget == staffgroundsmashanim && animCurrent == staffgroundsmashanim) || (animTarget == staffspinhitanim && animCurrent == staffspinhitanim)) {
+							XYZ temppoint1, temppoint2;
+							float distance;
 
-                            temppoint1 = currentFrame().joints[skeleton.jointlabels[righthand]].position * (1 - target) + targetFrame().joints[skeleton.jointlabels[righthand]].position * (target); //jointPos(righthand);
-                            temppoint2 = currentFrame().weapontarget * (1 - target) + targetFrame().weapontarget * (target);
-                            distance = findDistance(&temppoint1, &temppoint2);
-                            weapons[i].rotation2 = asin((temppoint1.y - temppoint2.y) / distance);
-                            weapons[i].rotation2 *= 360 / 6.28;
-                            temppoint1.y = 0;
-                            temppoint2.y = 0;
-                            weapons[i].rotation1 = acos((temppoint1.z - temppoint2.z) / findDistance(&temppoint1, &temppoint2));
-                            weapons[i].rotation1 *= 360 / 6.28;
-                            weapons[i].rotation3 = 0;
-                            weapons[i].smallrotation = 90;
-                            weapons[i].smallrotation2 = 0;
-                            if (temppoint1.x > temppoint2.x) {
-                                weapons[i].rotation1 = 360 - weapons[i].rotation1;
-                            }
-                        }
-                    }
-                }
-                if (weaponactive != k && weaponstuck != k) {
-                    if (weapons[i].getType() == knife) {
-                        weapons[i].smallrotation = -70;
-                        weapons[i].smallrotation2 = 10;
-                    }
-                    if (weapons[i].getType() == sword) {
-                        weapons[i].smallrotation = -100;
-                        weapons[i].smallrotation2 = -8;
-                    }
-                    if (weapons[i].getType() == staff) {
-                        weapons[i].smallrotation = -100;
-                        weapons[i].smallrotation2 = -8;
-                    }
-                }
-                if (weaponstuck == k) {
-                    if (weaponstuckwhere == 0) {
-                        weapons[i].smallrotation = 180;
-                    } else {
-                        weapons[i].smallrotation = 0;
-                    }
-                    weapons[i].smallrotation2 = 10;
-                }
-            }
-        }
-    }
+							temppoint1 = currentFrame().joints[skeleton.jointlabels[righthand]].position * (1 - target) + targetFrame().joints[skeleton.jointlabels[righthand]].position * (target); //jointPos(righthand);
+							temppoint2 = currentFrame().weapontarget * (1 - target) + targetFrame().weapontarget * (target);
+							distance = findDistance(&temppoint1, &temppoint2);
+							weapons[i].rotation2 = asin((temppoint1.y - temppoint2.y) / distance);
+							weapons[i].rotation2 *= 360 / 6.28;
+							temppoint1.y = 0;
+							temppoint2.y = 0;
+							weapons[i].rotation1 = acos((temppoint1.z - temppoint2.z) / findDistance(&temppoint1, &temppoint2));
+							weapons[i].rotation1 *= 360 / 6.28;
+							weapons[i].rotation3 = 0;
+							weapons[i].smallrotation = 90;
+							weapons[i].smallrotation2 = 0;
+							if (temppoint1.x > temppoint2.x) {
+								weapons[i].rotation1 = 360 - weapons[i].rotation1;
+							}
+						}
+					}
+				}
+				if (weaponactive != k && weaponstuck != k) {
+					if (weapons[i].getType() == knife) {
+						weapons[i].smallrotation = -70;
+						weapons[i].smallrotation2 = 10;
+					}
+					if (weapons[i].getType() == sword) {
+						weapons[i].smallrotation = -100;
+						weapons[i].smallrotation2 = -8;
+					}
+					if (weapons[i].getType() == staff) {
+						weapons[i].smallrotation = -100;
+						weapons[i].smallrotation2 = -8;
+					}
+				}
+				if (weaponstuck == k) {
+					if (weaponstuckwhere == 0) {
+						weapons[i].smallrotation = 180;
+					}
+					else {
+						weapons[i].smallrotation = 0;
+					}
+					weapons[i].smallrotation2 = 10;
+				}
+			}
+		}
+	}
 
-    calcrot = 0;
-    if (skeleton.free) {
-        calcrot = 1;
-    }
-    if (AnimationLu::animations[animTarget].attack || isRun() || animTarget == staggerbackhardanim || isFlip() || animTarget == climbanim || animTarget == sneakanim || animTarget == rollanim || animTarget == walkanim || animTarget == backhandspringanim || isWallJump()) {
-        calcrot = 1;
-    }
-    if (animCurrent != animTarget) {
-        calcrot = 1;
-    }
-    if (skeleton.free == 2) {
-        calcrot = 0;
-    }
+	calcrot = 0;
+	if (skeleton.free) {
+		calcrot = 1;
+	}
+	if (AnimationLu::animations[animTarget].attack || isRun() || animTarget == staggerbackhardanim || isFlip() || animTarget == climbanim || animTarget == sneakanim || animTarget == rollanim || animTarget == walkanim || animTarget == backhandspringanim || isWallJump()) {
+		calcrot = 1;
+	}
+	if (animCurrent != animTarget) {
+		calcrot = 1;
+	}
+	if (skeleton.free == 2) {
+		calcrot = 0;
+	}
 
-    return 0;
+	return 0;
+}
+
+int Person::DrawSkeletonSmall()
+{
+	int oldplayerdetail;
+	if ((frustum.SphereInFrustum(coords.x, coords.y + scale * 3, coords.z, scale * 8) && distsq(&viewer, &coords) < viewdistance * viewdistance) || skeleton.free == 3) {
+		calcrot = 1;
+		playerdetail = 1;
+
+		glAlphaFunc(GL_GREATER, 0.0001);
+		static XYZ mid;
+		static float M[16];
+		static int k;
+		static int weaponattachmuscle;
+		static int weaponrotatemuscle;
+		static XYZ weaponpoint;
+		static int start, endthing;
+		static float updatedelaychange;
+		static float morphness;
+		static float framemult;
+
+		if ((dead != 2 || skeleton.free != 2) && updatedelay <= 0) {
+
+
+
+			for (unsigned int i = 0; i < skeleton.muscles.size(); i++) {
+				// convenience renames
+				const int p1 = skeleton.muscles[i].parent1->label;
+				const int p2 = skeleton.muscles[i].parent2->label;
+
+				morphness = 0;
+				start = 0;
+				endthing = 0;
+
+				mid = (skeleton.muscles[i].parent1->position + skeleton.muscles[i].parent2->position) / 2;
+				glMatrixMode(GL_MODELVIEW);
+				glPushMatrix();
+				glLoadIdentity();
+
+				glTranslatef(mid.x, mid.y, mid.z);
+
+				skeleton.muscles[i].lastrotate1 = skeleton.muscles[i].rotate1;
+				glRotatef(-skeleton.muscles[i].lastrotate1 + 90, 0, 1, 0);
+
+				skeleton.muscles[i].lastrotate2 = skeleton.muscles[i].rotate2;
+				glRotatef(-skeleton.muscles[i].lastrotate2 + 90, 0, 0, 1);
+
+				skeleton.muscles[i].lastrotate3 = skeleton.muscles[i].rotate3;
+				glRotatef(-skeleton.muscles[i].lastrotate3, 0, 1, 0);
+				morphness = 0.0f;
+				if (playerdetail || skeleton.free == 3) {
+					for (unsigned j = 0; j < skeleton.muscles[i].vertices.size(); j++) {
+						XYZ& v0 = skeleton.model[start].vertex[skeleton.muscles[i].vertices[j]];
+						XYZ& v1 = skeleton.model[endthing].vertex[skeleton.muscles[i].vertices[j]];
+						glMatrixMode(GL_MODELVIEW);
+						glPushMatrix();
+						if (p1 == abdomen || p2 == abdomen) {
+							glTranslatef(v0.x,
+								v0.y,
+								v0.z);
+						}
+						if (p1 == lefthand || p1 == righthand || p1 == leftwrist || p1 == rightwrist || p1 == leftelbow || p1 == rightelbow || p2 == leftelbow || p2 == rightelbow) {
+							glTranslatef(v0.x,
+								v0.y,
+								v0.z);
+						}
+						if (p1 == leftfoot || p1 == rightfoot || p1 == leftankle || p1 == rightankle || p1 == leftknee || p1 == rightknee || p2 == leftknee || p2 == rightknee) {
+							glTranslatef(v0.x,
+								v0.y,
+								v0.z);
+						}
+						if (p1 == head || p2 == head) {
+							glTranslatef(v0.x,
+								v0.y,
+								v0.z);
+						}
+						glGetFloatv(GL_MODELVIEW_MATRIX, M);
+						skeleton.drawmodel.vertex[skeleton.muscles[i].vertices[j]].x = M[12] * scale;
+						skeleton.drawmodel.vertex[skeleton.muscles[i].vertices[j]].y = M[13] * scale;
+						skeleton.drawmodel.vertex[skeleton.muscles[i].vertices[j]].z = M[14] * scale;
+						glPopMatrix();
+					}
+				}
+
+				glPopMatrix();
+			}
+
+			updatedelay = 1 + (float)(Random() % 100) / 1000;
+			skeleton.drawmodel.UpdateVertexArrayNoTexNoNorm();
+
+		}
+		framemult = .01;
+		updatedelaychange = -framemult * 4 * (45 - findDistance(&viewer, &coords) * 1);
+		if (updatedelaychange > -realmultiplier * 30) {
+			updatedelaychange = -realmultiplier * 30;
+		}
+		if (updatedelaychange > -framemult * 4) {
+			updatedelaychange = -framemult * 4;
+		}
+		if (skeleton.free == 1) {
+			updatedelaychange *= 6;
+		}
+		if (id == 0) {
+			updatedelaychange *= 8;
+		}
+		updatedelay += updatedelaychange;
+
+		glMatrixMode(GL_MODELVIEW);
+		glPushMatrix();
+		glTranslatef(coords.x, coords.y - .02, coords.z);
+		if (!skeleton.free) {
+			glTranslatef(offset.x * scale, offset.y * scale, offset.z * scale);
+			glRotatef(yaw, 0, 1, 0);
+		}
+
+
+		glDisable(GL_BLEND);
+		glAlphaFunc(GL_GREATER, 0.0001);
+		glEnable(GL_TEXTURE_2D);
+
+		skeleton.drawmodel.draw();
+		glPopMatrix();
+
+	}
+	return 0;
 }
 
 /* FUNCTION?

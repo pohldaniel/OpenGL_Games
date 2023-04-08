@@ -42,4 +42,20 @@ public:
 	XYZ boundary[360];
 	int change = 0;
 	int drawtoggle = 0;
+
+	XYZ terrainlight;
+	float terrainheight;
+	float distance;
+
+	float updatedelaychange;
+	float morphness;
+	float framemult;
+
+	XYZ mid;
+	float M[16];
+	int k;
+	int weaponattachmuscle;
+	int weaponrotatemuscle;
+	XYZ weaponpoint;
+	int start, endthing;
 };

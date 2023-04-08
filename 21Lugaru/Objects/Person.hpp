@@ -384,6 +384,7 @@ public:
 
     int SphereCheck(XYZ* p1, float radius, XYZ* p, XYZ* move, float* rotate, ModelLu* model);
     int DrawSkeleton();
+	int DrawSkeletonSmall();
     void Puff(int whichlabel);
     void FootLand(bodypart whichfoot, float opacity);
     void DoStuff();
@@ -404,6 +405,9 @@ public:
     bool isPlayerControlled() { return (aitype == playercontrolled); }
 
     operator Json::Value();
+
+	static void IKHelper(Person* p, float interp);
+	
 };
 
 const int maxplayers = 10;
