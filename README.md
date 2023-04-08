@@ -40,3 +40,5 @@ The project 12Thikness is based on https://prideout.net/blog/old/blog/index.html
 The project 13DepthPeeling is a port of https://developer.download.nvidia.com/SDK/10.5/opengl/screenshots/samples/dual_depth_peeling.html using modern OpenGl.
 
 The project 21Lugaru is heavily based on https://gitlab.com/osslugaru/lugaru.
+
+The project 22Voyager is heavily based on https://github.com/OnixMarble/Titan-Voyager-Custom-Game-Engine.
