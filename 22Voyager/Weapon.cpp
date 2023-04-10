@@ -14,9 +14,9 @@ Weapon::Weapon() :
 Weapon::~Weapon()
 {}
 
-void Weapon::Init(GLchar* path, CameraVo& camera, char* vs, char* fs)
+void Weapon::Init(GLchar* path, char* vs, char* fs)
 {
-	m_model.Init(path, camera, vs, fs, false);
+	m_model.Init(path, vs, fs, false);
 }
 
 void Weapon::Configure(int maxAmmo, float fireRate, float reloadTime, int damage)
@@ -34,7 +34,7 @@ void Weapon::RestartWeapon()
 	m_ammoCount = m_maxAmmo;
 }
 
-void Weapon::Update(CameraVo& cam, float dt)
+void Weapon::Update(float dt)
 {
 	if (m_currFireRateTime > m_fireRate)
 	{
@@ -46,14 +46,14 @@ void Weapon::Update(CameraVo& cam, float dt)
 	}
 }
 
-void Weapon::Fire(Model& weapon, CameraVo& cam, float dt, bool& firing, bool& reloading)
+void Weapon::Fire(Model& weapon, Camera& camera, float dt, bool& firing, bool& reloading)
 {
-	m_animator.PlayIdleFPS(weapon, cam, dt);
+	m_animator.PlayIdleFPS(weapon, camera, dt);
 
 	if (m_currFireRateTime > m_fireRate)
 	{
 		Physics::GetInstance().CastRay();
-		m_animator.PlayFireFPS(weapon, cam, dt);
+		m_animator.PlayFireFPS(weapon, camera, dt);
 
 		--m_ammoCount;
 
@@ -69,16 +69,27 @@ void Weapon::Fire(Model& weapon, CameraVo& cam, float dt, bool& firing, bool& re
 		glm::mat4 translation = glm::translate(glm::vec3(0.9f, -1.4f, -6.5f));
 		glm::mat4 rotation = glm::rotate(Utils::GetInstance().RandomNumBetweenTwo(1.0f, 360.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 		glm::mat4 scaleMat = glm::scale(glm::vec3(Utils::GetInstance().RandomNumBetweenTwo(2.0f, 2.5f), Utils::GetInstance().RandomNumBetweenTwo(2.0f, 2.5f), 1.0f));
-		glm::mat4 invViewMat = glm::inverse(cam.GetViewMatrix());
+		//glm::mat4 invViewMat = glm::inverse(cam.GetViewMatrix());
+
+		Matrix4f _invView = camera.getInvViewMatrix();
+
+		glm::mat4 invViewMat;
+
+
+		invViewMat[0][0] = _invView[0][0]; invViewMat[0][1] = _invView[0][1]; invViewMat[0][2] = _invView[0][2]; invViewMat[0][3] = _invView[0][3];
+		invViewMat[1][0] = _invView[1][0]; invViewMat[1][1] = _invView[1][1]; invViewMat[1][2] = _invView[1][2]; invViewMat[1][3] = _invView[1][3];
+		invViewMat[2][0] = _invView[2][0]; invViewMat[2][1] = _invView[2][1]; invViewMat[2][2] = _invView[2][2]; invViewMat[2][3] = _invView[2][3];
+		invViewMat[3][0] = _invView[3][0]; invViewMat[3][1] = _invView[3][1]; invViewMat[3][2] = _invView[3][2]; invViewMat[3][3] = _invView[3][3];
+
 		model = invViewMat * translation * rotation * scaleMat;
 		//Renderer::GetInstance().GetComponent(8).Draw(model, cam, glm::vec3(0.0f, 0.0f, 0.0f));
 		m_currFireRateTime = 0.0f;
 	}
 }
 
-void Weapon::Reload(Model& weapon, CameraVo& cam, float dt, bool& reloading)
+void Weapon::Reload(Model& weapon, Camera& camera, float dt, bool& reloading)
 {
-	m_animator.PlayReloadFPS(weapon, cam, dt);
+	m_animator.PlayReloadFPS(weapon, camera, dt);
 	m_currReloadTime += 0.4f * dt;
 
 	if (m_currReloadTime >= m_maxReloadTimer)

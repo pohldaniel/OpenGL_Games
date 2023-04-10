@@ -31,6 +31,7 @@ Camera::Camera(){
 	m_currentVelocity.set(0.0f, 0.0f, 0.0f);
 	m_velocity.set(0.0f, 0.0f, 0.0f);
 	m_rotationSpeed = 0.1f;
+	m_movingSpeed = 1.0f;
 }
 
 Camera::Camera(const Vector3f &eye, const Vector3f &target, const Vector3f &up) {
@@ -295,20 +296,37 @@ const float Camera::getRollAngle() const {
 
 void Camera::move(float dx, float dy, float dz){
 	Vector3f eye = m_eye;
-	eye += m_xAxis * dx;
-	eye += WORLD_YAXIS * dy;
-	eye += m_viewDir * dz;
+	eye += m_xAxis * dx * m_movingSpeed;
+	eye += WORLD_YAXIS * dy * m_movingSpeed;
+	eye += m_viewDir * dz * m_movingSpeed;
 	setPosition(eye);
 }
 
 void Camera::move(Vector3f &direction) {
 	Vector3f eye = m_eye;
-	eye += m_xAxis * direction[0];
-	eye += WORLD_YAXIS * direction[1];
-	eye += m_viewDir * direction[2];
+	eye += m_xAxis * direction[0] * m_movingSpeed;
+	eye += WORLD_YAXIS * direction[1] * m_movingSpeed;
+	eye += m_viewDir * direction[2] * m_movingSpeed;
 	setPosition(eye);
 }
 
+void Camera::moveX(float dx) {
+	m_eye[0] = (dx * m_movingSpeed) + m_eye[0];
+	m_viewMatrix[3][0] = -(m_xAxis[0] * m_eye[0] + m_xAxis[1] * m_eye[1] + m_xAxis[2] * m_eye[2]);
+	m_invViewMatrix[3][0] = m_eye[0];
+}
+
+void Camera::moveY(float dy) {
+	m_eye[1] = (dy * m_movingSpeed) + m_eye[1];
+	m_viewMatrix[3][1] = -(m_yAxis[0] * m_eye[0] + m_yAxis[1] * m_eye[1] + m_yAxis[2] * m_eye[2]);
+	m_invViewMatrix[3][1] = m_eye[1];
+}
+
+void Camera::moveZ(float dz) {
+	m_eye[2] = (dz * m_movingSpeed) + m_eye[2];
+	m_viewMatrix[3][2] = -(m_zAxis[0] * m_eye[0] + m_zAxis[1] * m_eye[1] + m_zAxis[2] * m_eye[2]);
+	m_invViewMatrix[3][2] = m_eye[2];
+}
 
 void Camera::updatePosition(const Vector3f &direction, float m_dt) {
 
@@ -427,14 +445,14 @@ void Camera::rotateFirstPerson(float yaw, float pitch){
 
 	// Rotate camera's existing x and z axes about the world y axis.
 	if (yaw != 0.0f){
-		rotMtx.invRotate(WORLD_YAXIS, yaw);
+		rotMtx.rotate(WORLD_YAXIS, yaw);
 		m_xAxis = rotMtx * m_xAxis;
 		m_zAxis = rotMtx * m_zAxis;
 	}
 
 	// Rotate camera's existing y and z axes about its existing x axis.
 	if (pitch != 0.0f){
-		rotMtx.invRotate(m_xAxis, pitch);
+		rotMtx.rotate(m_xAxis, pitch);
 		m_yAxis = rotMtx * m_yAxis;
 		m_zAxis = rotMtx * m_zAxis;
 	}
@@ -758,6 +776,24 @@ void Camera::setPosition(const Vector3f &position){
 	updateViewMatrix(false);
 }
 
+void Camera::setPositionX(float x) {
+	m_eye[0] = x;
+	m_viewMatrix[3][0] = -(m_xAxis[0] * x + m_xAxis[1] * m_eye[1] + m_xAxis[2] * m_eye[2]);
+	m_invViewMatrix[3][0] = x;
+}
+
+void Camera::setPositionY(float y) {
+	m_eye[1] = y;
+	m_viewMatrix[3][1] = -(m_yAxis[0] * m_eye[0] + m_yAxis[1] * y + m_yAxis[2] * m_eye[2]);
+	m_invViewMatrix[3][1] = y;
+}
+
+void Camera::setPositionZ(float z) {
+	m_eye[2] = z;
+	m_viewMatrix[3][2] = -(m_zAxis[0] * m_eye[0] + m_zAxis[1] * m_eye[1] + m_zAxis[2] * z);
+	m_invViewMatrix[3][2] = z;
+}
+
 void Camera::setAcceleration(const Vector3f &acceleration) {
 	m_acceleration = acceleration;
 }
@@ -770,8 +806,27 @@ void Camera::setRotationSpeed(float rotationSpeed){
 	m_rotationSpeed = rotationSpeed;
 }
 
+void Camera::setMovingSpeed(float movingSpeed) {
+	m_movingSpeed = movingSpeed;
+}
+
 const Vector3f &Camera::getPosition() const{
 	return m_eye;
+}
+
+const float Camera::getPositionX() const {
+	//return -((m_viewMatrix[3][0] * m_viewMatrix[0][0]) - (m_viewMatrix[3][1] * m_viewMatrix[0][1]) - (m_viewMatrix[3][2] * m_viewMatrix[0][2]));
+	return m_eye[0];
+}
+
+const float Camera::getPositionY() const {
+	//return -((m_viewMatrix[3][0] * m_viewMatrix[1][0]) + (m_viewMatrix[3][1] * m_viewMatrix[1][1]) + (m_viewMatrix[3][2] * m_viewMatrix[1][2]));
+	return m_eye[1];
+}
+
+const float Camera::getPositionZ() const {
+	//return -((m_viewMatrix[3][0] * m_viewMatrix[2][0]) - (m_viewMatrix[3][1] * m_viewMatrix[2][1]) - (m_viewMatrix[3][2] * m_viewMatrix[2][2]));
+	return m_eye[2];
 }
 
 const Vector3f &Camera::getCamX() const{
@@ -786,8 +841,20 @@ const Vector3f &Camera::getCamZ() const {
 	return m_zAxis;
 }
 
-const Vector3f &Camera::getViewDirection() const{
+const Vector3f &Camera::getViewDirection() const {
 	return m_viewDir;
+}
+
+const float Camera::getViewDirectionX() const {
+	return m_viewDir[0];
+}
+
+const float Camera::getViewDirectionY() const {
+	return m_viewDir[1];
+}
+
+const float Camera::getViewDirectionZ() const {
+	return m_viewDir[2];
 }
 
 const Matrix4f &Camera::getPerspectiveMatrix() const{

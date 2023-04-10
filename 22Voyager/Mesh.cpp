@@ -10,7 +10,7 @@ Mesh::Mesh(std::vector<MeshVertex> vertices, std::vector<GLuint> indices, std::v
 	CreateMesh(instancing);
 }
 
-void Mesh::Draw(CameraVo& camera, ShaderVo shaderProgram, bool instancing, glm::vec3& pos, glm::vec3& rot, float amountOfRotation, glm::vec3& scale, bool bDrawRelativeToCamera, bool bUseSpotlight)
+void Mesh::Draw(Camera& camera, ShaderVo shaderProgram, bool instancing, glm::vec3& pos, glm::vec3& rot, float amountOfRotation, glm::vec3& scale, bool bDrawRelativeToCamera, bool bUseSpotlight)
 {
 	shaderProgram.ActivateProgram();
 
@@ -21,7 +21,16 @@ void Mesh::Draw(CameraVo& camera, ShaderVo shaderProgram, bool instancing, glm::
 
 	if (bDrawRelativeToCamera)
 	{
-		glm::mat4 invViewMat = glm::inverse(camera.GetViewMatrix());
+		Matrix4f _invView = camera.getInvViewMatrix();
+
+		glm::mat4 invViewMat;
+
+
+		invViewMat[0][0] = _invView[0][0]; invViewMat[0][1] = _invView[0][1]; invViewMat[0][2] = _invView[0][2]; invViewMat[0][3] = _invView[0][3];
+		invViewMat[1][0] = _invView[1][0]; invViewMat[1][1] = _invView[1][1]; invViewMat[1][2] = _invView[1][2]; invViewMat[1][3] = _invView[1][3];
+		invViewMat[2][0] = _invView[2][0]; invViewMat[2][1] = _invView[2][1]; invViewMat[2][2] = _invView[2][2]; invViewMat[2][3] = _invView[2][3];
+		invViewMat[3][0] = _invView[3][0]; invViewMat[3][1] = _invView[3][1]; invViewMat[3][2] = _invView[3][2]; invViewMat[3][3] = _invView[3][3];
+
 		model = invViewMat * translation * rotation * scaleMat;
 	}
 	else
@@ -30,8 +39,11 @@ void Mesh::Draw(CameraVo& camera, ShaderVo shaderProgram, bool instancing, glm::
 	}
 
 	shaderProgram.SetMat4("model", model);
-	shaderProgram.SetVec3("lightPos", glm::vec3(camera.GetCameraPos().x, camera.GetCameraPos().y + 5.0f, camera.GetCameraPos().z));
-	shaderProgram.SetVec3("viewPos", glm::vec3(camera.GetCameraPos().x, camera.GetCameraPos().y, camera.GetCameraPos().z));
+	//shaderProgram.SetVec3("lightPos", glm::vec3(cam.GetCameraPos().x, cam.GetCameraPos().y + 5.0f, cam.GetCameraPos().z));
+	//shaderProgram.SetVec3("viewPos", glm::vec3(cam.GetCameraPos().x, cam.GetCameraPos().y, cam.GetCameraPos().z));
+	shaderProgram.loadVector("lightPos", Vector3f(camera.getPosition()[0], camera.getPosition()[1] + 5.0f, camera.getPosition()[2]));
+	shaderProgram.loadVector("viewPos", camera.getPosition());
+
 	shaderProgram.SetBool("EnableSpotlight", bUseSpotlight);
 
 	if (Player::GetInstance().GetSpotLight() != nullptr && bUseSpotlight)
@@ -50,8 +62,7 @@ void Mesh::Draw(CameraVo& camera, ShaderVo shaderProgram, bool instancing, glm::
 	unsigned int diffuseNr = 1;
 	unsigned int specularNr = 1;
 	
-	for (unsigned int i = 0; i < m_textures.size(); ++i)
-	{
+	for (unsigned int i = 0; i < m_textures.size(); ++i){
 		glActiveTexture(GL_TEXTURE0 + i);
 	
 		std::string number;
@@ -62,11 +73,10 @@ void Mesh::Draw(CameraVo& camera, ShaderVo shaderProgram, bool instancing, glm::
 		else if (name == "texture_specular")
 			number = std::to_string(specularNr++);
 	
-		glm::mat4 projMat = camera.GetProjectionMatrix();
-		glm::mat4 viewMat = camera.GetViewMatrix();
+		
+		shaderProgram.loadMatrix("projection", camera.getPerspectiveMatrix());
+		shaderProgram.loadMatrix("view", camera.getViewMatrix());
 
-		shaderProgram.SetMat4("projection", projMat);
-		shaderProgram.SetMat4("view", viewMat);
 		glUniform1i(glGetUniformLocation(shaderProgram.GetShaderProgram(), (name + number).c_str()), i);
 		glBindTexture(GL_TEXTURE_2D, m_textures[i].m_id);
 	}

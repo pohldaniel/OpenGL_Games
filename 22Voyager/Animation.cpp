@@ -23,7 +23,7 @@ void Animation::SetWeaponZOffset(float zOffset)
 	m_defWeaponZOffset = zOffset;
 }
 
-void Animation::PlaySprintFPS(Model& weapon, CameraVo& cam, float dt)
+void Animation::PlaySprintFPS(Model& weapon, Camera& camera, float dt)
 {
 	const float MAX_ROTATION = 4.5f;
 	const float MAX_Y_OFFSET = -2.0f;
@@ -55,10 +55,10 @@ void Animation::PlaySprintFPS(Model& weapon, CameraVo& cam, float dt)
 		}
 	}
 
-	weapon.Draw(cam, glm::vec3(1.7f, m_defWeaponYOffset, m_sprintWeaponZOffset), glm::vec3(0.0f, 1.0f, 0.0f), m_defWeaponRotation, glm::vec3(1.0f, 1.0f, 1.0f), true);
+	weapon.Draw(camera, glm::vec3(1.7f, m_defWeaponYOffset, m_sprintWeaponZOffset), glm::vec3(0.0f, 1.0f, 0.0f), m_defWeaponRotation, glm::vec3(1.0f, 1.0f, 1.0f), true);
 }
 
-void Animation::PlayWalkFPS(Model& weapon, CameraVo& cam, float dt)
+void Animation::PlayWalkFPS(Model& weapon, Camera& camera, float dt)
 {
 	const float MAX_Z_OFFSET = m_originalWeaponZOffset - 0.4f;
 	const float MIN_Z_OFFSET = m_originalWeaponZOffset;
@@ -95,10 +95,10 @@ void Animation::PlayWalkFPS(Model& weapon, CameraVo& cam, float dt)
 			m_defWeaponZOffset = MIN_Z_OFFSET;
 	}
 
-	weapon.Draw(cam, glm::vec3(1.7f, -2.0f, m_defWeaponZOffset), glm::vec3(0.0f, 1.0f, 0.0f), m_defWeaponRotation, glm::vec3(1.0f, 1.0f, 1.0f), true);
+	weapon.Draw(camera, glm::vec3(1.7f, -2.0f, m_defWeaponZOffset), glm::vec3(0.0f, 1.0f, 0.0f), m_defWeaponRotation, glm::vec3(1.0f, 1.0f, 1.0f), true);
 }
 
-void Animation::PlayIdleFPS(Model& weapon, CameraVo& cam, float dt)
+void Animation::PlayIdleFPS(Model& weapon, Camera& camera, float dt)
 {
 	// Bring weapon back to original Z position
 	if (m_defWeaponZOffset <= m_originalWeaponZOffset)
@@ -150,10 +150,10 @@ void Animation::PlayIdleFPS(Model& weapon, CameraVo& cam, float dt)
 		}
 	}
 
-	weapon.Draw(cam, glm::vec3(1.7f, m_idleYOffset, m_defWeaponZOffset), glm::vec3(0.0f, 1.0f, 0.0f), m_defWeaponRotation, glm::vec3(1.0f, 1.0f, 1.0f), true);
+	weapon.Draw(camera, glm::vec3(1.7f, m_idleYOffset, m_defWeaponZOffset), glm::vec3(0.0f, 1.0f, 0.0f), m_defWeaponRotation, glm::vec3(1.0f, 1.0f, 1.0f), true);
 }
 
-void Animation::PlayFireFPS(Model& weapon, CameraVo& cam, float dt)
+void Animation::PlayFireFPS(Model& weapon, Camera& camera, float dt)
 {
 	const float MAX_Z_OFFSET = -2.5f;
 	const float MIN_Z_OFFSET = -1.5f;
@@ -190,10 +190,10 @@ void Animation::PlayFireFPS(Model& weapon, CameraVo& cam, float dt)
 			m_defWeaponZOffset = MIN_Z_OFFSET;
 	}
 
-	weapon.Draw(cam, glm::vec3(1.7f, m_idleYOffset, m_defWeaponZOffset), glm::vec3(0.0f, 1.0f, 0.0f), m_defWeaponRotation, glm::vec3(1.0f, 1.0f, 1.0f), true);
+	weapon.Draw(camera, glm::vec3(1.7f, m_idleYOffset, m_defWeaponZOffset), glm::vec3(0.0f, 1.0f, 0.0f), m_defWeaponRotation, glm::vec3(1.0f, 1.0f, 1.0f), true);
 }
 
-void Animation::PlayReloadFPS(Model& weapon, CameraVo& cam, float dt)
+void Animation::PlayReloadFPS(Model& weapon, Camera& camera, float dt)
 {
 	const float MAX_ROTATION = 4.0f;
 	const float MAX_Y_OFFSET = -2.2f;
@@ -225,10 +225,10 @@ void Animation::PlayReloadFPS(Model& weapon, CameraVo& cam, float dt)
 		}
 	}
 
-	weapon.Draw(cam, glm::vec3(1.7f, m_defWeaponYOffset, m_defWeaponZOffset), glm::vec3(-0.2f, 1.0f, -0.2f), m_defWeaponRotation, glm::vec3(1.0f, 1.0f, 1.0f), true);
+	weapon.Draw(camera, glm::vec3(1.7f, m_defWeaponYOffset, m_defWeaponZOffset), glm::vec3(-0.2f, 1.0f, -0.2f), m_defWeaponRotation, glm::vec3(1.0f, 1.0f, 1.0f), true);
 }
 
-void Animation::PlaySwapTwoWeapons(Model& weaponA, Model& weaponB, CameraVo& cam, float dt, bool& swapped)
+void Animation::PlaySwapTwoWeapons(Model& weaponA, Model& weaponB, Camera& camera, float dt, bool& swapped)
 {
 	const float MAX_ROTATION = 4.5f;
 	const float MAX_Y_OFFSET = -2.0f;
@@ -242,7 +242,7 @@ void Animation::PlaySwapTwoWeapons(Model& weaponA, Model& weaponB, CameraVo& cam
 			m_defWeaponRotation = MAX_ROTATION;
 
 		m_defWeaponYOffset -= 7.0f * dt;
-		weaponA.Draw(cam, glm::vec3(1.7f, m_defWeaponYOffset, m_defWeaponZOffset), glm::vec3(0.0f, 1.0f, 0.0f), m_defWeaponRotation, glm::vec3(1.0f, 1.0f, 1.0f), true);
+		weaponA.Draw(camera, glm::vec3(1.7f, m_defWeaponYOffset, m_defWeaponZOffset), glm::vec3(0.0f, 1.0f, 0.0f), m_defWeaponRotation, glm::vec3(1.0f, 1.0f, 1.0f), true);
 
 		if (m_defWeaponYOffset < -6.0f)
 		{
@@ -279,7 +279,7 @@ void Animation::PlaySwapTwoWeapons(Model& weaponA, Model& weaponB, CameraVo& cam
 			}
 
 			m_defWeaponYOffset += 7.0f * dt;
-			weaponB.Draw(cam, glm::vec3(1.7f, m_defWeaponYOffset, m_defWeaponZOffset), glm::vec3(0.0f, 1.0f, 0.0f), m_defWeaponRotation, glm::vec3(1.0f, 1.0f, 1.0f), true);
+			weaponB.Draw(camera, glm::vec3(1.7f, m_defWeaponYOffset, m_defWeaponZOffset), glm::vec3(0.0f, 1.0f, 0.0f), m_defWeaponRotation, glm::vec3(1.0f, 1.0f, 1.0f), true);
 		}
 		else
 		{
@@ -289,7 +289,7 @@ void Animation::PlaySwapTwoWeapons(Model& weaponA, Model& weaponB, CameraVo& cam
 	}
 }
 
-void Animation::PlayFreezeFPS(Model& weapon, CameraVo& cam, float dt)
+void Animation::PlayFreezeFPS(Model& weapon, Camera& camera, float dt)
 {
-	//weapon.Draw(cam, glm::vec3(1.7f, -2.0f, m_defWeaponZOffset), glm::vec3(0.0f, 1.0f, 0.0f), m_defWeaponRotation, glm::vec3(1.0f, 1.0f, 1.0f), true);
+	//weapon.Draw(camera, glm::vec3(1.7f, -2.0f, m_defWeaponZOffset), glm::vec3(0.0f, 1.0f, 0.0f), m_defWeaponRotation, glm::vec3(1.0f, 1.0f, 1.0f), true);
 }

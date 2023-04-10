@@ -7,8 +7,10 @@
 #include <glm/glm/glm.hpp>
 #include <glm/glm/gtc/type_ptr.hpp>
 #include <glm/glm/gtx/transform.hpp>
-
+#include <unordered_map>
 #include <string>
+
+#include "engine/Vector.h"
 
 class ShaderVo {
 public:
@@ -29,6 +31,8 @@ public:
 	void SetVec4(GLchar* name, glm::vec4 value) const;
 	void SetMat4(GLchar* name, glm::mat4 value) const;
 
+	void loadMatrix(const char* location, const Matrix4f& matrix, bool trans = false);
+	void loadVector(const char* location, Vector3f vector);
 	GLuint GetShaderProgram() { return m_program; }
 
 private:
@@ -38,6 +42,10 @@ private:
 
 	std::string LoadShaderFromFile(char* shaderFile);
 	GLuint CreateShader(GLenum, std::string);
+
+	unsigned int getUnifromLocation(const std::string& name) const;
+
+	mutable std::unordered_map<std::string, unsigned int> m_uniformLocationCache;
 };
 
 #endif // !__SHADER_H__

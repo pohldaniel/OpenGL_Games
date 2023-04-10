@@ -3,7 +3,6 @@
 #define __TERRAIN_H__
 
 #include <vector>
-#include "CameraVo.h"
 #include <GL/glew.h>
 #include <glm/glm/glm.hpp>
 #include <glm/glm/gtx/transform.hpp>
@@ -13,6 +12,7 @@
 #include "DirectionalLight.h"
 #include "PointLight.h"
 #include "SpotLight.h"
+#include "engine/Camera.h"
 
 class Terrain
 {
@@ -28,7 +28,7 @@ public:
 	glm::vec3 CalculateNormal(unsigned int x, unsigned int z);
 	void SetFog(bool fogState) { m_fog = fogState; }
 
-	void Draw(CameraVo& cam, DirectionalLight* directionLight, PointLight* lamp, SpotLight* spotlight);
+	void Draw(const Camera& camera, DirectionalLight* directionLight, PointLight* lamp, SpotLight* spotlight);
 
 private:
 	ShaderVo m_terrainShader;

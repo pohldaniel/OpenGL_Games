@@ -261,19 +261,20 @@ void Mouse::smoothMouse(bool smooth){
 
 void Mouse::update(){
 
-	bool *pTempMouseStates = m_pPrevButtonStates;
+	if (m_attached) {
 
-	m_pPrevButtonStates = m_pCurrButtonStates;
-	m_pCurrButtonStates = pTempMouseStates;
+		bool *pTempMouseStates = m_pPrevButtonStates;
 
-	m_pCurrButtonStates[0] = (GetKeyState(VK_LBUTTON) & 0x8000) ? true : false;
-	m_pCurrButtonStates[1] = (GetKeyState(VK_RBUTTON) & 0x8000) ? true : false;
-	m_pCurrButtonStates[2] = (GetKeyState(VK_MBUTTON) & 0x8000) ? true : false;
+		m_pPrevButtonStates = m_pCurrButtonStates;
+		m_pCurrButtonStates = pTempMouseStates;
 
-	m_mouseWheel = static_cast<float>(m_wheelDelta - m_prevWheelDelta) / static_cast<float>(WHEEL_DELTA);
-	m_prevWheelDelta = m_wheelDelta;
-	
-	if (m_attached) {	
+		m_pCurrButtonStates[0] = (GetKeyState(VK_LBUTTON) & 0x8000) ? true : false;
+		m_pCurrButtonStates[1] = (GetKeyState(VK_RBUTTON) & 0x8000) ? true : false;
+		m_pCurrButtonStates[2] = (GetKeyState(VK_MBUTTON) & 0x8000) ? true : false;
+
+		m_mouseWheel = static_cast<float>(m_wheelDelta - m_prevWheelDelta) / static_cast<float>(WHEEL_DELTA);
+		m_prevWheelDelta = m_wheelDelta;
+
 		POINT        CursorPos;
 		GetCursorPos(&CursorPos);		
 		m_xPosRelative = (CursorPos.x - m_centerX);

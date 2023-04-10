@@ -191,7 +191,7 @@ public:
 	void fromHeadPitchRoll(float headDegrees, float pitchDegrees, float rollDegrees);
 	void toHeadPitchRoll(float &headDegrees, float &pitchDegrees, float &rollDegrees) const;
 
-	void print();
+	void print() const;
 	void set(float m11, float m12, float m13, float m14,
 			 float m21, float m22, float m23, float m24,
 			 float m31, float m32, float m33, float m34,

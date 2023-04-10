@@ -9,6 +9,7 @@
 #include "ResourceManager.h"
 #include "Physics.h"
 #include "Player.h"
+#include "Application.h"
 
 Tutorial::Tutorial(StateMachine& machine) : State(machine, CurrentState::TUTORIAL) {
 	bool bUnitTest;
@@ -79,7 +80,7 @@ Tutorial::Tutorial(StateMachine& machine) : State(machine, CurrentState::TUTORIA
 	m_pointLight.SetPosition(glm::vec3(256.0f, 50.0f, 300.0f));
 	m_pointLight.SetLightColour(glm::vec3(0.0f, 0.0f, 1.0f));
 
-	Player::GetInstance().Init(m_camera, glm::vec3(256.0f, 0.0f, 300.0f));
+	Player::GetInstance().Init();
 }
 
 Tutorial::~Tutorial() {
@@ -91,24 +92,17 @@ void Tutorial::fixedUpdate() {
 }
 
 void Tutorial::update() {
-	
-
-	m_camera.UpdateLookAt();
-	Player::GetInstance().Update(m_camera, m_terrain, m_dt);
+	Player::GetInstance().Update(m_terrain, m_dt);
 
 	// Update physics component
-	Physics::GetInstance().Update(m_camera, m_dt);
+	//Physics::GetInstance().Update(m_cameraVo, m_dt);
 };
 
 void Tutorial::render() {
 	glClearColor(0.2f, 0.2f, 0.2f, 0.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	m_camera.InitCameraPerspective(80.0f, 1440.0f / 900.0f, 0.1f, 5000.0f);
-	m_camera.SetCameraSpeed(20.0f);
-	m_camera.SetCameraSensitivity(7.0f);
-
-	Player::GetInstance().GetCurrWeapon().GetAnimComponent().PlayIdleFPS(Player::GetInstance().GetCurrWeapon().GetModel(), m_camera, m_dt);
+	
+	Player::GetInstance().Animate(m_dt);
 
 	RenderScene();
 
@@ -179,6 +173,7 @@ void Tutorial::RenderScene() {
 	//m_flag.WindForce(glm::vec3(0.7f, 0.1f, 0.2f) * 0.25f);
 	//m_flag.Update();
 	//m_flag.Draw(m_camera);
+	const Camera& camera = Player::GetInstance().getCamera();
 
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
@@ -229,7 +224,7 @@ void Tutorial::RenderScene() {
 	glDisable(GL_CULL_FACE);
 
 	m_terrain.SetFog(m_atmosphere.GetDayTime() <= 0.3f ? false : true);
-	m_terrain.Draw(m_camera, &m_dirLight, &m_pointLight, Player::GetInstance().GetSpotLight());
+	m_terrain.Draw(camera, &m_dirLight, &m_pointLight, Player::GetInstance().GetSpotLight());
 
 	/*Renderer::GetInstance().GetComponent(SKYBOX).GetTransformComponent().GetRot().y += 0.5f * m_deltaTime;
 	Renderer::GetInstance().GetComponent(SKYBOX).Draw(m_camera);

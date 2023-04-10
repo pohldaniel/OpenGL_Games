@@ -10,11 +10,11 @@ public:
 	Weapon();
 	~Weapon();
 
-	void Init(GLchar* path, CameraVo& camera, char* vs, char* fs);
+	void Init(GLchar* path, char* vs, char* fs);
 	void Configure(int maxAmmo, float fireRate, float reloadTime, int damage);
-	void Update(CameraVo& cam, float dt);
-	void Fire(Model& weapon, CameraVo& cam, float dt, bool& firing, bool& reloading);
-	void Reload(Model& weapon, CameraVo& cam, float dt, bool& reloading);
+	void Update(float dt);
+	void Fire(Model& weapon, Camera& camera, float dt, bool& firing, bool& reloading);
+	void Reload(Model& weapon, Camera& camera, float dt, bool& reloading);
 	void RestartWeapon();
 
 	inline void SetMaxAmmo(int maxAmmo) { m_maxAmmo = maxAmmo; }
@@ -38,6 +38,8 @@ private:
 	int m_ammoCount, m_maxAmmo, m_damage;
 	Animation m_animator;
 	Model m_model;
+
+
 };
 
 #endif // !__WEAPON_H__

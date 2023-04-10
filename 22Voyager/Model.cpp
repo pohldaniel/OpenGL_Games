@@ -27,35 +27,33 @@ GLint Model::TextureFromFile(const char* path, std::string directory)
 	return textureID;
 }
 
-void Model::Init(GLchar* path, CameraVo& camera, char* vs, char* fs, bool instancing)
-{
+void Model::Init(GLchar* path, char* vs, char* fs, bool instancing) {
 	m_shader.CreateProgram(vs, fs);
-	m_camera = camera;
 	m_instancing = instancing;
 	loadModel(path);
 }
 
-void Model::Draw(CameraVo& cam, bool bDrawRelativeToCamera)
+void Model::Draw(Camera& camera, bool bDrawRelativeToCamera)
 {
 	for (GLuint i = 0; i < meshes.size(); ++i)
 	{
-		meshes[i].Draw(cam, m_shader, false, m_position, m_rotation, m_rotationAngle, m_scale, bDrawRelativeToCamera, m_useSpotlight);
+		meshes[i].Draw(camera, m_shader, false, m_position, m_rotation, m_rotationAngle, m_scale, bDrawRelativeToCamera, m_useSpotlight);
 	}
 }
 
-void Model::Draw(CameraVo& cam, glm::vec3& pos, glm::vec3& rot, float amountOfRotation, glm::vec3& scale, bool bDrawRelativeToCamera)
+void Model::Draw(Camera& camera, glm::vec3& pos, glm::vec3& rot, float amountOfRotation, glm::vec3& scale, bool bDrawRelativeToCamera)
 {
 	for (GLuint i = 0; i < meshes.size(); ++i)
 	{
-		meshes[i].Draw(cam, m_shader, false, pos, rot, amountOfRotation, scale, bDrawRelativeToCamera, m_useSpotlight);
+		meshes[i].Draw(camera, m_shader, false, pos, rot, amountOfRotation, scale, bDrawRelativeToCamera, m_useSpotlight);
 	}
 }
 
-void Model::DrawInstanced(CameraVo& cam)
+void Model::DrawInstanced(Camera& camera)
 {
 	for (GLuint i = 0; i < meshes.size(); ++i)
 	{
-		meshes[i].Draw(cam, m_shader, true);
+		meshes[i].Draw(camera, m_shader, true);
 	}
 }
 

@@ -382,7 +382,7 @@ float Terrain::BarryCentric(glm::vec3 p1, glm::vec3 p2, glm::vec3 p3, glm::vec2 
 // Author: Rony Hanna
 // Description: Function that binds the terrain vertex array object (VAO) and draws its vertex data
 // -------------------
-void Terrain::Draw(CameraVo& _cam, DirectionalLight* directionLight, PointLight* lamp, SpotLight* spotlight)
+void Terrain::Draw(const Camera& camera, DirectionalLight* directionLight, PointLight* lamp, SpotLight* spotlight)
 {
 	m_terrainShader.ActivateProgram();
 
@@ -400,9 +400,9 @@ void Terrain::Draw(CameraVo& _cam, DirectionalLight* directionLight, PointLight*
 
 	// MVP transformation matrix
 	m_terrainShader.SetMat4("model", m_model);
-	m_terrainShader.SetMat4("view", _cam.GetViewMatrix());
-	m_terrainShader.SetMat4("projection", _cam.GetProjectionMatrix());
-	m_terrainShader.SetVec3("viewPos", _cam.GetCameraPos());
+	m_terrainShader.loadMatrix("view", camera.getViewMatrix());
+	m_terrainShader.loadMatrix("projection", camera.getPerspectiveMatrix());
+	m_terrainShader.loadVector("viewPos", camera.getPosition());
 
 	// ----------------------
 	// Lighting properties 

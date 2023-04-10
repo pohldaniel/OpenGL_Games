@@ -10,11 +10,11 @@
 #include <vector>
 #include "ShaderVo.h"
 #include <sstream>
-#include "CameraVo.h"
 #include <cstdlib>
 #include <ctime>
 #include "Transformation.h"
 #include <memory>
+#include "engine/Camera.h"
 
 struct MeshVertex 
 {
@@ -46,7 +46,7 @@ public:
 	glm::mat4* GetModelMatIns() { return m_modelMatricesIns; }
 
 	void SetTransform(TransformVo& transform) { m_transform = transform; }
-	void Draw(CameraVo& camera, ShaderVo program, bool instancing, glm::vec3& pos = glm::vec3(1.0f), glm::vec3& rot = glm::vec3(1.0f), float amountOfRotation = 1.0f,
+	void Draw(Camera& camera, ShaderVo program, bool instancing, glm::vec3& pos = glm::vec3(1.0f), glm::vec3& rot = glm::vec3(1.0f), float amountOfRotation = 1.0f,
 			  glm::vec3& scale = glm::vec3(1.0f), bool bDrawRelativeToCamera = false, bool bUseSpotlight = false);
 
 private:

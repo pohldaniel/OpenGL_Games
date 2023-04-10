@@ -353,8 +353,8 @@ void Application::initStates() {
 	
 	Machine = new StateMachine(m_dt, m_fdt);
 	//Machine->addStateAtTop(new Game(*Machine));
-	//Mouse::instance().attach(Window);
 	Machine->addStateAtTop(new Tutorial(*Machine));
+	Mouse::instance().attach(Window);
 	//Machine->addStateAtTop(new MainMenu(*Machine));
 }
 

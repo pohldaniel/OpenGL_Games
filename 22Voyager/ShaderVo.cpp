@@ -44,6 +44,24 @@ void ShaderVo::SetMat4(GLchar* name, glm::mat4 value) const
 	glUniformMatrix4fv(glGetUniformLocation(m_program, name), 1, GL_FALSE, glm::value_ptr(value));
 }
 
+void ShaderVo::loadMatrix(const char* location, const Matrix4f& matrix, bool trans) {
+	glUniformMatrix4fv(getUnifromLocation(location), 1, trans, &matrix[0][0]);
+}
+
+void ShaderVo::loadVector(const char* location, Vector3f vector) {
+	glUniform3fv(getUnifromLocation(location), 1, &vector[0]);
+}
+
+unsigned int ShaderVo::getUnifromLocation(const std::string& name) const {
+
+	if (m_uniformLocationCache.find(name) != m_uniformLocationCache.end())
+		return m_uniformLocationCache[name];
+
+	unsigned int location = glGetUniformLocation(m_program, name.c_str());
+	m_uniformLocationCache[name] = location;
+	return location;
+}
+
 // -------------------
 // Author: Rony Hanna
 // Description: Function that creates a program with vertex and fragment shaders

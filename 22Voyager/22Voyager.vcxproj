@@ -157,7 +157,6 @@
     <ClCompile Include="Animation.cpp" />
     <ClCompile Include="Application.cpp" />
     <ClCompile Include="Atmosphere.cpp" />
-    <ClCompile Include="CameraVo.cpp" />
     <ClCompile Include="DirectionalLight.cpp" />
     <ClCompile Include="Enemy.cpp" />
     <ClCompile Include="engine\Batchrenderer.cpp" />
@@ -212,7 +211,6 @@
     <ClInclude Include="Animation.h" />
     <ClInclude Include="Application.h" />
     <ClInclude Include="Atmosphere.h" />
-    <ClInclude Include="CameraVo.h" />
     <ClInclude Include="Constants.h" />
     <ClInclude Include="convhull\convhull_3d.h" />
     <ClInclude Include="DirectionalLight.h" />

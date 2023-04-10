@@ -1527,7 +1527,7 @@ Vector4f operator^(const Vector4f &lhs, const Matrix4f &rhs) {
 	);
 }
 
-void Matrix4f::print() {
+void Matrix4f::print() const {
 	std::cout << mtx[0][0] << "  " << mtx[0][1] << "  " << mtx[0][2] << "  " << mtx[0][3] << std::endl;
 	std::cout << mtx[1][0] << "  " << mtx[1][1] << "  " << mtx[1][2] << "  " << mtx[1][3] << std::endl;
 	std::cout << mtx[2][0] << "  " << mtx[2][1] << "  " << mtx[2][2] << "  " << mtx[2][3] << std::endl;

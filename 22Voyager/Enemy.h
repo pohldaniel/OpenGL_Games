@@ -1,20 +1,19 @@
 #pragma once
 #ifndef __ENEMY_H__
 #define __ENEMY_H__
-
+#include "engine/Camera.h"
 #include "Model.h"
-#include "CameraVo.h"
 
 
-class Enemy
-{
+
+class Enemy {
 public:
-	Enemy(CameraVo& cam);
+	Enemy(Camera& cam);
 	~Enemy();
 
 	void Draw(short int id, short int enemyProjectileId);
 	void DrawShockwave(short int enemyDroneBlastId);
-	void Update(CameraVo& cam, float dt);
+	void Update(Camera& cam, float dt);
 	void ReduceHealth(int amount);
 	
 	void SetPos(glm::vec3& pos) { m_pos = pos; }
@@ -33,7 +32,7 @@ public:
 	bool GetRespawnStatus() { return m_canRespawn; }
 
 private:
-	CameraVo m_camera;
+	Camera m_camera;
 	glm::vec3 m_pos, m_velocity, m_fireDir, m_dronePos, m_oldPlayerPos;
  
 	float m_maximumSpeed, m_maximumDroneSpeed;
@@ -46,8 +45,8 @@ private:
 
 
 	// Private functions
-	void Seek(CameraVo& target, const float dt);
-	void Flee(CameraVo& target, const float dt);
+	void Seek(Camera& target, const float dt);
+	void Flee(Camera& target, const float dt);
 	
 	void Respawn();
 };

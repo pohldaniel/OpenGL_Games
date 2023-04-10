@@ -4,11 +4,9 @@
 #include "engine/input/MouseEventListener.h"
 #include "engine/input/KeyBorad.h"
 #include "engine/input/Mouse.h"
-#include "engine/Camera.h"
 #include "engine/TrackBall.h"
 
 #include "StateMachine.h"
-#include "CameraVo.h"
 #include "Weapon.h"
 #include "SpotLight.h"
 #include "Atmosphere.h"
@@ -38,7 +36,7 @@ public:
 	Animation m_animationComponent;
 	Weapon* m_currWeapon, *m_assaultRifle, *m_sniperRifle;
 	bool m_walking, m_sprinting, m_jumping, m_isInAir, m_firing, m_reloading, m_muzzleFlash, m_usingAR, m_swapping, m_swapped;
-	CameraVo m_camera;
+
 	Terrain m_terrain;
 	Atmosphere m_atmosphere;
 	DirectionalLight m_dirLight;

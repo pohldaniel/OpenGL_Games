@@ -3,7 +3,7 @@
 #include "Utils.h"
 #include "Player.h"
 
-Enemy::Enemy(CameraVo& cam) :
+Enemy::Enemy(Camera& cam) :
 	m_pos(Utils::GetInstance().RandomNumBetweenTwo(50.0f, 450.0f), 0.0f, Utils::GetInstance().RandomNumBetweenTwo(0.0f, 450.0f)),
 	m_maximumSpeed(15.0f),
 	m_maximumDroneSpeed(100.0f),
@@ -110,8 +110,7 @@ void Enemy::DrawShockwave(short int enemyDroneBlastId)
 	}
 }
 
-void Enemy::Update(CameraVo& cam, float dt)
-{
+void Enemy::Update(Camera& cam, float dt) {
 	
 }
 
@@ -127,56 +126,52 @@ void Enemy::ReduceHealth(int amount) {
 }
 
 // Function that finds the distance between two vectors
-inline float Enemy::CalcDistance(glm::vec3& enemyPos, glm::vec3& playerPos)
-{
+inline float Enemy::CalcDistance(glm::vec3& enemyPos, glm::vec3& playerPos) {
 	return sqrt(powf(enemyPos.x - playerPos.x, 2.0f) + powf(enemyPos.y - playerPos.y, 2.0f) + powf(enemyPos.z - playerPos.z, 2.0f));
 }
 
 // Function that finds the distance between two vectors without taking the y-axis into consideration (XZ plane only)
-inline float Enemy::CalcDistanceNoHeight(glm::vec3& enemyPos, glm::vec3& playerPos)
-{
+inline float Enemy::CalcDistanceNoHeight(glm::vec3& enemyPos, glm::vec3& playerPos) {
 	return sqrt(powf(enemyPos.x - playerPos.x, 2.0f) + powf(enemyPos.z - playerPos.z, 2.0f));
 }
 
-void Enemy::SetRespawnStatus(bool canRespawn)
-{
+void Enemy::SetRespawnStatus(bool canRespawn) {
 	m_canRespawn = canRespawn;
 }
 
-void Enemy::Seek(CameraVo& target, const float dt)
-{
-	glm::vec3 desiredVelocity = target.GetCameraPos() - m_pos;
+void Enemy::Seek(Camera& target, const float dt) {
+
+	/*glm::vec3 desiredVelocity = target.GetCameraPos() - m_pos;
 	desiredVelocity = glm::normalize(desiredVelocity);
 	desiredVelocity *= m_maximumSpeed;
 
 	glm::vec3 steering = desiredVelocity - m_velocity;
 	steering = glm::clamp(steering, -m_maximumSpeed, m_maximumSpeed);
 
-	m_pos += steering * dt;
+	m_pos += steering * dt;*/
 }
 
-void Enemy::Flee(CameraVo& target, const float dt)
-{
-	glm::vec3 desiredVelocity = target.GetCameraPos() - m_pos;
+void Enemy::Flee(Camera& target, const float dt) {
+
+	/*glm::vec3 desiredVelocity = target.GetCameraPos() - m_pos;
 	desiredVelocity = glm::normalize(desiredVelocity);
 	desiredVelocity *= m_maximumSpeed;
 
 	glm::vec3 steering = desiredVelocity - m_velocity;
 	steering = glm::clamp(steering, -m_maximumSpeed, m_maximumSpeed);
 
-	m_pos -= steering * dt;
+	m_pos -= steering * dt;*/
 }
 
-void Enemy::Respawn()
-{
-	if (m_canRespawn)
-	{
+void Enemy::Respawn() {
+
+	if (m_canRespawn) {
+
 		m_pos = glm::vec3(0.0f, 0.0f, 0.0f);
 		m_dronePos = m_pos;
 		m_respawnTimer += 1.0f * m_deltaTime;
 
-		if (m_respawnTimer >= 15.0f)
-		{
+		if (m_respawnTimer >= 15.0f) {
 			// Restart some properties
 			m_respawnTimer = 0.0f;
 			m_currLifeTimer = 0.0f;
