@@ -6,8 +6,8 @@ PointLight::PointLight()
 PointLight::~PointLight()
 {}
 
-void PointLight::Configure(glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 specular, float constant, float linear, float quadratic)
-{
+void PointLight::configure(const Vector3f& ambient, const Vector3f& diffuse, const Vector3f& specular, float constant, float linear, float quadratic) {
+
 	m_ambient = ambient;
 	m_diffuse = diffuse;
 	m_specular = specular;

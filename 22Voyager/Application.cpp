@@ -448,5 +448,5 @@ void Application::SetCursorIcon(std::string file) {
 }
 
 void Application::loadAssets() {
-
+	Globals::shaderManager.loadShader("terrain", "res/Shaders/TerrainVertexShader.vs", "res/Shaders/TerrainFragmentShader.fs");
 }

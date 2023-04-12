@@ -43,7 +43,7 @@ void Player::Init() {
 	m_usingAR = true;
 
 	m_spotLight = new SpotLight();
-	m_spotLight->Configure(glm::vec3(5.0f, 5.0f, 5.0f), glm::vec3(1.0f, 1.0f, 1.0f), 1.0f, 0.027f, 0.0028f, 22.5f, 25.0f);
+	m_spotLight->configure(Vector3f(5.0f, 5.0f, 5.0f), Vector3f(1.0f, 1.0f, 1.0f), 1.0f, 0.027f, 0.0028f, 22.5f, 25.0f);
 
 	m_camera = Camera();
 	m_camera.perspective(80.0f, (float)Application::Width / (float)Application::Height, 1.0f, 1000.0f);
@@ -104,21 +104,21 @@ void Player::Update(Terrain& terrain, float dt) {
 
 		m_camera.moveY(m_upwardSpeed * dt);
 
-		if (m_camera.getPositionY() < terrain.GetHeightOfTerrain(m_camera.getPositionX(), m_camera.getPositionZ()) + 10.0f) {
+		if (m_camera.getPositionY() < terrain.getHeightOfTerrain(m_camera.getPositionX(), m_camera.getPositionZ()) + 10.0f) {
 			m_upwardSpeed = 0.0f;
-			m_camera.setPositionY(terrain.GetHeightOfTerrain(m_camera.getPositionX(), m_camera.getPositionZ()) + 10.0f);
+			m_camera.setPositionY(terrain.getHeightOfTerrain(m_camera.getPositionX(), m_camera.getPositionZ()) + 10.0f);
 			m_jumping = false;
 		}
 
 	} else{		
-		m_camera.setPositionY(terrain.GetHeightOfTerrain(m_camera.getPositionX(), m_camera.getPositionZ()) + 10.0f);
+		m_camera.setPositionY(terrain.getHeightOfTerrain(m_camera.getPositionX(), m_camera.getPositionZ()) + 10.0f);
 		m_isInAir = false;
 	}
 
 	// Check if player is using a flashlight 
 	if (m_toggleFlashlight){
-		m_spotLight->SetPosition(glm::vec3(m_camera.getPositionX(), m_camera.getPositionY(), m_camera.getPositionZ()));
-		m_spotLight->SetDirection(glm::vec3(m_camera.getViewDirectionX(), m_camera.getViewDirectionY(), m_camera.getViewDirectionZ()));
+		m_spotLight->setPosition(m_camera.getPosition());
+		m_spotLight->setDirection(m_camera.getViewDirection());
 	}
 }
 

@@ -1,51 +1,61 @@
-#include "Terrain.h"
+#include <iostream>
 #include <fstream>
-#include <soil2/SOIL2.h>
 #include <cstdlib>
 #include <ctime>
+#include <soil2/SOIL2.h>
+
+#include "Terrain.h"
 #include "ResourceManager.h"
-#include <iostream>
+#include "Constants.h"
 
-// -------------------
-// Author: Rony Hanna
-// Description: Constructor that initializes terrain components 
-// -------------------
 Terrain::Terrain() :
-	m_fTerrainHeight(70.0f), m_cellSpacing(3.0f),
-	m_terrainLength(256), m_terrainWidth(256),
-	m_model(1.0f),
+	m_fTerrainHeight(70.0f), 
+	m_cellSpacing(3.0f),
+	m_terrainLength(256), 
+	m_terrainWidth(256),
 	m_terrainXPos(0.0f),
-	m_terrainZPos(0.0f)
-{
-	m_model = glm::translate(glm::vec3(m_terrainXPos, 0.0f, m_terrainZPos));
+	m_terrainZPos(0.0f) {
+
+	m_model.translate(m_terrainXPos, 0.0f, m_terrainZPos);
 }
 
-// -------------------
-// Author: Rony Hanna
-// Description: Destructor that deallocates allocated memory on the heap 
-// -------------------
-Terrain::~Terrain()
-{}
+Terrain::~Terrain(){
 
-// -------------------
-// Author: Rony Hanna
-// Description: Function that creates the terrain's shader program and initializes the terrain's textures
-// -------------------
-void Terrain::InitTerrain(char* vs, char* fs)
-{
-	m_terrainShader.CreateProgram(vs, fs);
-	std::vector<char*> images{ "soil", "soil2", "grass", "soil4", "blendMap", "grassNormalMap" };
-	m_terrainTexture.GenerateMultipleTextures(images);
 }
 
-// -------------------
-// Author: Rony Hanna
-// Description: Function that reads a heightmap (a 2D grid of values) and sends the data to the GPU
-// -------------------
-void Terrain::LoadHeightmapImage(const char* FileName)
-{
+void Terrain::init() {
+
+	m_textures.resize(6);
+
+	m_textures[0].loadFromFile("res/Textures/soil01.jpg", false);
+	m_textures[0].setFilter(GL_LINEAR);
+	m_textures[0].setWrapMode(GL_REPEAT);
+
+	m_textures[1].loadFromFile("res/Textures/soil02.jpg", false);
+	m_textures[1].setFilter(GL_LINEAR);
+	m_textures[1].setWrapMode(GL_REPEAT);
+
+	m_textures[2].loadFromFile("res/Textures/soil03.jpg", false);
+	m_textures[2].setFilter(GL_LINEAR);
+	m_textures[2].setWrapMode(GL_REPEAT);
+
+	m_textures[3].loadFromFile("res/Textures/soil04.jpg", false);
+	m_textures[3].setFilter(GL_LINEAR);
+	m_textures[3].setWrapMode(GL_REPEAT);
+
+	m_textures[4].loadFromFile("res/Textures/blendMap.png", false);
+	m_textures[4].setFilter(GL_LINEAR);
+	m_textures[4].setWrapMode(GL_REPEAT);
+
+	m_textures[5].loadFromFile("res/Textures/soil03_NormalMap.jpg", false);
+	m_textures[5].setFilter(GL_LINEAR);
+	m_textures[5].setWrapMode(GL_REPEAT);
+}
+
+void Terrain::loadHeightmapImage(const char* fileName){
+
 	int width, height, numCompontents;
-	unsigned char* imageData = SOIL_load_image(FileName, &width, &height, &numCompontents, SOIL_LOAD_AUTO);
+	unsigned char* imageData = SOIL_load_image(fileName, &width, &height, &numCompontents, SOIL_LOAD_AUTO);
 
 	if (imageData == nullptr) {
 		std::cerr << "ERROR: Unable to load heightmap.\n";
@@ -67,29 +77,28 @@ void Terrain::LoadHeightmapImage(const char* FileName)
 	float loadingCount = 0.0f;
 	int iTotalLoadingCycles = height * width;
 
-	std::vector<glm::vec3> Vertices;
-	std::vector<glm::vec2> Textures;
-	std::vector<glm::vec3> Normals;
+	std::vector<Vector3f> vertices;
+	std::vector<Vector2f> textures;
+	std::vector<Vector3f> normals;
 
-	for (unsigned int i = 0; i < m_vHeights.size(); ++i)
-	{
-		for (unsigned int j = 0; j < m_vHeights[0].size(); ++j)
-		{
-			if (m_vHeights[i][j] <= 0.0)
-			{
+	for (unsigned int i = 0; i < m_vHeights.size(); ++i) {
+
+		for (unsigned int j = 0; j < m_vHeights[0].size(); ++j) {
+
+			if (m_vHeights[i][j] <= 0.0) {
 				continue;
 			}
 
-			Vertices.push_back(glm::vec3(i * m_cellSpacing, m_vHeights[i][j] * m_fTerrainHeight, j * m_cellSpacing));
-			Textures.push_back(glm::vec2(i * 1.0f / m_vHeights.size(), j * 1.0f / m_vHeights[0].size()));
-			Normals.push_back(glm::vec3(0.0f, 1.0f, 0.0f));
+			vertices.push_back(Vector3f(i * m_cellSpacing, m_vHeights[i][j] * m_fTerrainHeight, j * m_cellSpacing));
+			textures.push_back(Vector2f(i * 1.0f / m_vHeights.size(), j * 1.0f / m_vHeights[0].size()));
+			normals.push_back(Vector3f(0.0f, 1.0f, 0.0f));
 		}
 	}
 
-	for (unsigned int i = 0; i < m_vHeights.size() - 1; ++i)
-	{
-		for (unsigned int j = 0; j < m_vHeights.size() - 1; ++j)
-		{
+	for (unsigned int i = 0; i < m_vHeights.size() - 1; ++i) {
+
+		for (unsigned int j = 0; j < m_vHeights.size() - 1; ++j){
+
 			++loadingCount;
 			m_indices.push_back((i * m_vHeights[0].size()) + j);
 			m_indices.push_back((i * m_vHeights[0].size()) + j + 1);
@@ -110,21 +119,21 @@ void Terrain::LoadHeightmapImage(const char* FileName)
 
 	glGenBuffers(1, &m_VBO[VERTEX_BUFFER]);
 	glBindBuffer(GL_ARRAY_BUFFER, m_VBO[VERTEX_BUFFER]);
-	glBufferData(GL_ARRAY_BUFFER, Vertices.size() * sizeof(glm::vec3), &Vertices[0], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vector3f), &vertices[0], GL_STATIC_DRAW);
 
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0);
 
 	glGenBuffers(1, &m_VBO[TEXTURE_BUFFER]);
 	glBindBuffer(GL_ARRAY_BUFFER, m_VBO[TEXTURE_BUFFER]);
-	glBufferData(GL_ARRAY_BUFFER, Textures.size() * sizeof(glm::vec2), &Textures[0], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, textures.size() * sizeof(Vector2f), &textures[0], GL_STATIC_DRAW);
 
 	glEnableVertexAttribArray(2);
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0);
 
 	glGenBuffers(1, &m_VBO[NORMAL_BUFFER]);
 	glBindBuffer(GL_ARRAY_BUFFER, m_VBO[NORMAL_BUFFER]);
-	glBufferData(GL_ARRAY_BUFFER, Normals.size() * sizeof(glm::vec3), &Normals[0], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(Vector3f), &normals[0], GL_STATIC_DRAW);
 
 	glEnableVertexAttribArray(3);
 	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0);
@@ -140,12 +149,8 @@ void Terrain::LoadHeightmapImage(const char* FileName)
 	std::cout << "Terrain loaded successfully!\n";
 }
 
-// -------------------
-// Author: Rony Hanna
-// Description: Function that creates a heightmap (procedurally) using the Perlin Noise algorithm
-// -------------------
-void Terrain::CreateTerrainWithPerlinNoise()
-{
+void Terrain::createTerrainWithPerlinNoise() {
+
 	// Set the seed of the noise so that it is different every time
 	noise.SetSeed(static_cast<unsigned int>(time(0)));
 	double frequency = 4.2;
@@ -155,10 +160,10 @@ void Terrain::CreateTerrainWithPerlinNoise()
 	const double fy = 256.0 / frequency;
 
 	std::vector<float> tmp;
-	for (unsigned int y = 0; y < 256; ++y)
-	{
-		for (unsigned int x = 0; x < 256; ++x)
-		{
+	for (unsigned int y = 0; y < 256; ++y) {
+
+		for (unsigned int x = 0; x < 256; ++x) {
+
 			const _RGB color(noise.OctaveNoise(x / fx, y / fy, octaves));
 			tmp.push_back((float)color.r);
 		}
@@ -167,10 +172,10 @@ void Terrain::CreateTerrainWithPerlinNoise()
 		tmp.clear();
 	}
 
-	std::vector<glm::vec3> Vertices;
-	std::vector<glm::vec2> Textures;
-	std::vector<glm::vec3> Normals;
-	std::vector<glm::vec3> tangents;
+	std::vector<Vector3f> vertices;
+	std::vector<Vector2f> textures;
+	std::vector<Vector3f> normals;
+	std::vector<Vector3f> tangents;
 
 	// Calculate vertices
 	int terrainHeightOffsetFront = 50;
@@ -178,8 +183,7 @@ void Terrain::CreateTerrainWithPerlinNoise()
 	int terrainHeightOffsetLeftSide = 50;
 	int terrainHeightOffsetRightSide = 0;
 
-	for (unsigned int i = 0; i < m_vHeights.size(); ++i)
-	{
+	for (unsigned int i = 0; i < m_vHeights.size(); ++i) {
 		terrainHeightOffsetFront = 50;
 		terrainHeightOffsetBack = 0;
 		terrainHeightOffsetLeftSide -= 4;
@@ -187,47 +191,42 @@ void Terrain::CreateTerrainWithPerlinNoise()
 		if (i > 245)
 			terrainHeightOffsetRightSide += 4;
 
-		for (unsigned int j = 0; j < m_vHeights[0].size(); ++j)
-		{
-			if (i < 12)
-			{
-				Vertices.push_back(glm::vec3(i * m_cellSpacing, m_vHeights[i][j] * m_fTerrainHeight + terrainHeightOffsetLeftSide, j * m_cellSpacing));
-			}
-			else if (i > 245)
-			{
-				Vertices.push_back(glm::vec3(i * m_cellSpacing, m_vHeights[i][j] * m_fTerrainHeight + terrainHeightOffsetRightSide, j * m_cellSpacing));
-			}
-			else if (j < 12)
-			{
-				Vertices.push_back(glm::vec3(i * m_cellSpacing, m_vHeights[i][j] * m_fTerrainHeight + terrainHeightOffsetFront, j * m_cellSpacing));
+		for (unsigned int j = 0; j < m_vHeights[0].size(); ++j) {
+
+			if (i < 12) {
+				vertices.push_back(Vector3f(i * m_cellSpacing, m_vHeights[i][j] * m_fTerrainHeight + terrainHeightOffsetLeftSide, j * m_cellSpacing));
+
+			}else if (i > 245) {
+				vertices.push_back(Vector3f(i * m_cellSpacing, m_vHeights[i][j] * m_fTerrainHeight + terrainHeightOffsetRightSide, j * m_cellSpacing));
+
+			}else if (j < 12) {
+				vertices.push_back(Vector3f(i * m_cellSpacing, m_vHeights[i][j] * m_fTerrainHeight + terrainHeightOffsetFront, j * m_cellSpacing));
 				terrainHeightOffsetFront -= 4;
-			}
-			else if (j > 245)
-			{
+
+			}else if (j > 245) {
 				terrainHeightOffsetBack += 4;
 
 				if (terrainHeightOffsetBack > 70)
 					terrainHeightOffsetBack = 70;
 
-				Vertices.push_back(glm::vec3(i * m_cellSpacing, m_vHeights[i][j] * m_fTerrainHeight + terrainHeightOffsetBack, j * m_cellSpacing));
-			}
-			else
-			{
+				vertices.push_back(Vector3f(i * m_cellSpacing, m_vHeights[i][j] * m_fTerrainHeight + terrainHeightOffsetBack, j * m_cellSpacing));
+
+			}else{
 				terrainHeightOffsetFront = 50;
-				Vertices.push_back(glm::vec3(i * m_cellSpacing, m_vHeights[i][j] * m_fTerrainHeight, j * m_cellSpacing));
+				vertices.push_back(Vector3f(i * m_cellSpacing, m_vHeights[i][j] * m_fTerrainHeight, j * m_cellSpacing));
 			}
 
 			//Vertices.push_back(glm::vec3(i * m_cellSpacing, m_vHeights[i][j] * m_fTerrainHeight, j * m_cellSpacing));
-			Textures.push_back(glm::vec2(i * 1.0f / m_vHeights.size(), j * 1.0f / m_vHeights[0].size()));
-			Normals.push_back(CalculateNormal(i, j));
+			textures.push_back(Vector2f(i * 1.0f / m_vHeights.size(), j * 1.0f / m_vHeights[0].size()));
+			normals.push_back(calculateNormal(i, j));
 		}
 	}
 
 	// Calculate indices
-	for (unsigned int i = 0; i < m_vHeights.size() - 1; ++i)
-	{
-		for (unsigned int j = 0; j < m_vHeights.size() - 1; ++j)
-		{
+	for (unsigned int i = 0; i < m_vHeights.size() - 1; ++i) {
+
+		for (unsigned int j = 0; j < m_vHeights.size() - 1; ++j){
+
 			m_indices.push_back((i * m_vHeights[0].size()) + j);
 			m_indices.push_back((i * m_vHeights[0].size()) + j + 1);
 			m_indices.push_back(((i + 1) * m_vHeights[0].size()) + j);
@@ -239,25 +238,22 @@ void Terrain::CreateTerrainWithPerlinNoise()
 	}
 
 	// Calculate tangents
-	for (unsigned int i = 0; i < m_vHeights.size(); ++i)
-	{
-		for (unsigned int j = 0; j < m_vHeights[0].size(); ++j)
-		{
-			int vertexIndex = j + i * 256;
-			glm::vec3 v1 = Vertices[vertexIndex];
+	for (unsigned int i = 0; i < m_vHeights.size(); ++i) {
 
-			if (j < 255)
-			{
-				glm::vec3 v2 = Vertices[vertexIndex + 1];
-				glm::vec3 result = v1 - v2;
-				result = glm::normalize(result);
+		for (unsigned int j = 0; j < m_vHeights[0].size(); ++j) {
+			int vertexIndex = j + i * 256;
+			Vector3f v1 = vertices[vertexIndex];
+
+			if (j < 255) {
+				Vector3f v2 = vertices[vertexIndex + 1];
+				Vector3f result = v1 - v2;
+				result = Vector3f::Normalize(result);
 				tangents.push_back(result);
-			}
-			else
-			{
-				glm::vec3 v2 = Vertices[vertexIndex - 1];
-				glm::vec3 result = v1 - v2;
-				result = glm::normalize(result);
+
+			} else {
+				Vector3f v2 = vertices[vertexIndex - 1];
+				Vector3f result = v1 - v2;
+				result = Vector3f::Normalize(result);
 				tangents.push_back(result);
 			}
 		}
@@ -269,22 +265,22 @@ void Terrain::CreateTerrainWithPerlinNoise()
 	glGenBuffers(TOTAL_BUFFERS, m_VBO);
 
 	glBindBuffer(GL_ARRAY_BUFFER, m_VBO[VERTEX_BUFFER]);
-	glBufferData(GL_ARRAY_BUFFER, Vertices.size() * sizeof(glm::vec3), &Vertices[0], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vector3f), &vertices[0], GL_STATIC_DRAW);
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0);
 
 	glBindBuffer(GL_ARRAY_BUFFER, m_VBO[TEXTURE_BUFFER]);
-	glBufferData(GL_ARRAY_BUFFER, Textures.size() * sizeof(glm::vec2), &Textures[0], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, textures.size() * sizeof(Vector2f), &textures[0], GL_STATIC_DRAW);
 	glEnableVertexAttribArray(2);
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0);
 
 	glBindBuffer(GL_ARRAY_BUFFER, m_VBO[NORMAL_BUFFER]);
-	glBufferData(GL_ARRAY_BUFFER, Normals.size() * sizeof(glm::vec3), &Normals[0], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(Vector3f), &normals[0], GL_STATIC_DRAW);
 	glEnableVertexAttribArray(3);
 	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0);
 
 	glBindBuffer(GL_ARRAY_BUFFER, m_VBO[TANGENT_BUFFER]);
-	glBufferData(GL_ARRAY_BUFFER, tangents.size() * sizeof(glm::vec3), &tangents[0], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, tangents.size() * sizeof(Vector3f), &tangents[0], GL_STATIC_DRAW);
 	glEnableVertexAttribArray(4);
 	glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0);
 
@@ -297,37 +293,29 @@ void Terrain::CreateTerrainWithPerlinNoise()
 	glBindVertexArray(0);
 }
 
-// -------------------
-// Author: Rony Hanna
-// Description: Function that calculate the normals for the terrain
-// -------------------
-glm::vec3 Terrain::CalculateNormal(unsigned int x, unsigned int z)
-{
-	if (x >= 0 && x < m_terrainWidth - 1 && z >= 0 && z < m_terrainLength - 1)
-	{
-		float heightL = GetHeightOfTerrain((float)x - 1, (float)z);
-		float heightR = GetHeightOfTerrain((float)x + 1, (float)z);
-		float heightD = GetHeightOfTerrain((float)x, (float)z - 1);
-		float heightU = GetHeightOfTerrain((float)x, (float)z + 1);
+Vector3f Terrain::calculateNormal(unsigned int x, unsigned int z){
 
-		glm::vec3 normal(heightL - heightR, 2.0f, heightD - heightU);
-		normal = glm::normalize(normal);
+	if (x >= 0 && x < m_terrainWidth - 1 && z >= 0 && z < m_terrainLength - 1){
+
+		float heightL = getHeightOfTerrain((float)x - 1, (float)z);
+		float heightR = getHeightOfTerrain((float)x + 1, (float)z);
+		float heightD = getHeightOfTerrain((float)x, (float)z - 1);
+		float heightU = getHeightOfTerrain((float)x, (float)z + 1);
+
+		Vector3f normal(heightL - heightR, 2.0f, heightD - heightU);
+		normal = Vector3f::Normalize(normal);
 		return normal;
 	}
 
-	return glm::vec3(0.0f, 0.0f, 0.0f);
+	return Vector3f(0.0f, 0.0f, 0.0f);
 }
 
-// -------------------
-// Author: Rony Hanna
-// Description: Function that gets the heights of the terrain grids
-// -------------------
-float Terrain::GetHeightOfTerrain(float _X, float _Z)
-{
+float Terrain::getHeightOfTerrain(float x, float z){
+
 	float result = 0.0f;
 
-	float terrainX = _X - m_terrainXPos;
-	float terrainZ = _Z - m_terrainZPos;
+	float terrainX = x - m_terrainXPos;
+	float terrainZ = z - m_terrainZPos;
 
 	// calculate length of grid square
 	float gridSquareLength = m_terrainLength * m_cellSpacing / ((float)m_terrainWidth - 1);
@@ -337,8 +325,7 @@ float Terrain::GetHeightOfTerrain(float _X, float _Z)
 	int gridZ = (int)std::floor(terrainZ / gridSquareLength);
 
 	// Check if position is on the terrain
-	if (gridX >= m_terrainWidth - 1 || gridZ >= m_terrainLength - 1 || gridX < 0 || gridZ < 0)
-	{
+	if (gridX >= m_terrainWidth - 1 || gridZ >= m_terrainLength - 1 || gridX < 0 || gridZ < 0){
 		return 0.0f;
 	}
 
@@ -347,19 +334,17 @@ float Terrain::GetHeightOfTerrain(float _X, float _Z)
 	float zCoord = std::fmod(terrainZ, gridSquareLength) / gridSquareLength;
 
 	// Top triangle of the quad, else the bottom triangle of the quad
-	if (xCoord <= (1 - zCoord))
-	{
-		result = BarryCentric(glm::vec3(0, m_vHeights[gridX][gridZ] * m_fTerrainHeight, 0),
-			glm::vec3(1, m_vHeights[gridX + 1][gridZ] * m_fTerrainHeight, 0),
-			glm::vec3(0, m_vHeights[gridX][gridZ + 1] * m_fTerrainHeight, 1),
-			glm::vec2(xCoord, zCoord));
-	}
-	else
-	{
-		result = BarryCentric(glm::vec3(1, m_vHeights[gridX + 1][gridZ] * m_fTerrainHeight, 0),
-			glm::vec3(1, m_vHeights[gridX + 1][gridZ + 1] * m_fTerrainHeight, 1),
-			glm::vec3(0, m_vHeights[gridX][gridZ + 1] * m_fTerrainHeight, 1),
-			glm::vec2(xCoord, zCoord));
+	if (xCoord <= (1 - zCoord)){
+		result = barryCentric(Vector3f(0, m_vHeights[gridX][gridZ] * m_fTerrainHeight, 0),
+			Vector3f(1, m_vHeights[gridX + 1][gridZ] * m_fTerrainHeight, 0),
+			Vector3f(0, m_vHeights[gridX][gridZ + 1] * m_fTerrainHeight, 1),
+			Vector2f(xCoord, zCoord));
+
+	}else {
+		result = barryCentric(Vector3f(1, m_vHeights[gridX + 1][gridZ] * m_fTerrainHeight, 0),
+			Vector3f(1, m_vHeights[gridX + 1][gridZ + 1] * m_fTerrainHeight, 1),
+			Vector3f(0, m_vHeights[gridX][gridZ + 1] * m_fTerrainHeight, 1),
+			Vector2f(xCoord, zCoord));
 	}
 
 	return result;
@@ -369,78 +354,66 @@ float Terrain::GetHeightOfTerrain(float _X, float _Z)
 // Author: Rony Hanna
 // Description: Helper function used to find the height of a triangle the player is currently on
 // -------------------
-float Terrain::BarryCentric(glm::vec3 p1, glm::vec3 p2, glm::vec3 p3, glm::vec2 pos)
-{
-	float det = (p2.z - p3.z) * (p1.x - p3.x) + (p3.x - p2.x) * (p1.z - p3.z);
-	float l1 = ((p2.z - p3.z) * (pos.x - p3.x) + (p3.x - p2.x) * (pos.y - p3.z)) / det;
-	float l2 = ((p3.z - p1.z) * (pos.x - p3.x) + (p1.x - p3.x) * (pos.y - p3.z)) / det;
+float Terrain::barryCentric(const Vector3f& p1, const Vector3f& p2, const Vector3f& p3, const Vector2f& pos) {
+	float det = (p2[2] - p3[2]) * (p1[0] - p3[0]) + (p3[0] - p2[0]) * (p1[2] - p3[2]);
+	float l1 = ((p2[2] - p3[2]) * (pos[0] - p3[0]) + (p3[0] - p2[0]) * (pos[1] - p3[2])) / det;
+	float l2 = ((p3[2] - p1[2]) * (pos[0] - p3[0]) + (p1[0] - p3[0]) * (pos[1] - p3[2])) / det;
 	float l3 = 1.0f - l1 - l2;
-	return l1 * p1.y + l2 * p2.y + l3 * p3.y;
+	return l1 * p1[1] + l2 * p2[1] + l3 * p3[1];
 }
 
-// -------------------
-// Author: Rony Hanna
-// Description: Function that binds the terrain vertex array object (VAO) and draws its vertex data
-// -------------------
-void Terrain::Draw(const Camera& camera, DirectionalLight* directionLight, PointLight* lamp, SpotLight* spotlight)
-{
-	m_terrainShader.ActivateProgram();
+void Terrain::draw(const Camera& camera, DirectionalLight* directionLight, PointLight* pointLight, SpotLight* spotLight) {
 
-	// Texture properties
-	m_terrainShader.SetInt("meshTexture", 0);
-	m_terrainShader.SetInt("rTexture", 1);
-	m_terrainShader.SetInt("gTexture", 2);
-	m_terrainShader.SetInt("bTexture", 3);
-	m_terrainShader.SetInt("blendMap", 4);
-	m_terrainShader.SetInt("grassNormalMap", 5);
+	auto shader = Globals::shaderManager.getAssetPointer("terrain");
+
+	glUseProgram(shader->m_program);
+	shader->loadInt("meshTexture", 0);
+	shader->loadInt("rTexture", 1);
+	shader->loadInt("gTexture", 2);
+	shader->loadInt("bTexture", 3);
+	shader->loadInt("blendMap", 4);
+	shader->loadInt("grassNormalMap", 5);
 
 	// Activate all the textures
-	for (unsigned int i = 0; i < 6; ++i)
-		m_terrainTexture.ActivateTextures(i);
+	for (unsigned int i = 0; i < 6; ++i) {
+		m_textures[i].bind(i);
+	}
 
-	// MVP transformation matrix
-	m_terrainShader.SetMat4("model", m_model);
-	m_terrainShader.loadMatrix("view", camera.getViewMatrix());
-	m_terrainShader.loadMatrix("projection", camera.getPerspectiveMatrix());
-	m_terrainShader.loadVector("viewPos", camera.getPosition());
+	shader->loadMatrix("model", m_model);
+	shader->loadMatrix("view", camera.getViewMatrix());
+	shader->loadMatrix("projection", camera.getPerspectiveMatrix());
+	shader->loadVector("viewPos", camera.getPosition());
 
-	// ----------------------
-	// Lighting properties 
-	// ----------------------
+	shader->loadVector("dirLight.direction", directionLight->getDirection());
+	shader->loadVector("dirLight.ambient", directionLight->getAmbient());
+	shader->loadVector("dirLight.diffuse", directionLight->getDiffuse());
+	shader->loadVector("dirLight.specular", directionLight->getSpecular());
+	shader->loadVector("dirLight.lightColour", directionLight->getColour());
 
-	// a. Directional Light
-	m_terrainShader.SetVec3("dirLight.direction", directionLight->GetDirection());
-	m_terrainShader.SetVec3("dirLight.ambient", directionLight->GetAmbient());
-	m_terrainShader.SetVec3("dirLight.diffuse", directionLight->GetDiffuse());
-	m_terrainShader.SetVec3("dirLight.specular", directionLight->GetSpecular());
-	m_terrainShader.SetVec3("dirLight.lightColour", directionLight->GetColour());
+	shader->loadVector("pointLight.position", pointLight->getPosition());
+	shader->loadVector("pointLight.ambient", pointLight->getAmbient());
+	shader->loadVector("pointLight.diffuse", pointLight->getDiffuse());
+	shader->loadVector("pointLight.specular", pointLight->getSpecular());
+	shader->loadVector("pointLight.lightColour", pointLight->getColour());
+	shader->loadFloat("pointLight.constant", pointLight->getConstant());
+	shader->loadFloat("pointLight.linear", pointLight->getLinear());
+	shader->loadFloat("pointLight.quadratic", pointLight->getQuadratic());
 
-	// b. Some light bulbs
-	m_terrainShader.SetVec3("pointLight.position", lamp->GetPos());
-	m_terrainShader.SetVec3("pointLight.ambient", lamp->GetAmbient());
-	m_terrainShader.SetVec3("pointLight.diffuse", lamp->GetDiffuse());
-	m_terrainShader.SetVec3("pointLight.specular", lamp->GetSpecular());
-	m_terrainShader.SetVec3("pointLight.lightColour", lamp->GetColour());
-	m_terrainShader.SetFloat("pointLight.constant", lamp->GetConstant());
-	m_terrainShader.SetFloat("pointLight.linear", lamp->GetLinear());
-	m_terrainShader.SetFloat("pointLight.quadratic", lamp->GetQuadratic());
-
-	// c. Spotlight
-	m_terrainShader.SetVec3("spotlight.position", spotlight->GetPosition());
-	m_terrainShader.SetVec3("spotlight.direction", spotlight->GetDirection());
-	m_terrainShader.SetVec3("spotlight.diffuse", spotlight->GetDiffuse());
-	m_terrainShader.SetVec3("spotlight.specular", spotlight->GetSpecular());
-	m_terrainShader.SetFloat("spotlight.constant", spotlight->GetConstant());
-	m_terrainShader.SetFloat("spotlight.linear", spotlight->GetLinear());
-	m_terrainShader.SetFloat("spotlight.quadratic", spotlight->GetQuadratic());
-	m_terrainShader.SetFloat("spotlight.cutOff", glm::cos(glm::radians(spotlight->GetCutOff())));
-	m_terrainShader.SetFloat("spotlight.outerCutOff", glm::cos(glm::radians(spotlight->GetOuterCutOff())));
+	shader->loadVector("spotlight.position", spotLight->getPosition());
+	shader->loadVector("spotlight.direction", spotLight->getDirection());
+	shader->loadVector("spotlight.diffuse", spotLight->getDiffuse());
+	shader->loadVector("spotlight.specular", spotLight->getSpecular());
+	shader->loadFloat("spotlight.constant", spotLight->getConstant());
+	shader->loadFloat("spotlight.linear", spotLight->getLinear());
+	shader->loadFloat("spotlight.quadratic", spotLight->getQuadratic());
+	shader->loadFloat("spotlight.cutOff", cosf(spotLight->getCutOff() * PI_ON_180));
+	shader->loadFloat("spotlight.outerCutOff", cosf(spotLight->getOuterCutOff()* PI_ON_180));
 
 	// Fog effect
 	if (m_fog)
-		m_terrainShader.SetBool("fogActive", true);
+		shader->loadBool("fogActive", true);
 	else
-		m_terrainShader.SetBool("fogActive", false);
+		shader->loadBool("fogActive", false);
 
 	// Draw the terrain
 	glBindVertexArray(m_VAO);
@@ -449,5 +422,5 @@ void Terrain::Draw(const Camera& camera, DirectionalLight* directionLight, Point
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 
-	m_terrainShader.DeactivateProgram();
+	glUseProgram(0);
 }

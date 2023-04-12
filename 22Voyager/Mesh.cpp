@@ -48,15 +48,15 @@ void Mesh::Draw(Camera& camera, ShaderVo shaderProgram, bool instancing, glm::ve
 
 	if (Player::GetInstance().GetSpotLight() != nullptr && bUseSpotlight)
 	{
-		shaderProgram.SetVec3("spotlight.position", Player::GetInstance().GetSpotLight()->GetPosition());
-		shaderProgram.SetVec3("spotlight.direction", Player::GetInstance().GetSpotLight()->GetDirection());
-		shaderProgram.SetVec3("spotlight.diffuse", Player::GetInstance().GetSpotLight()->GetDiffuse());
-		shaderProgram.SetVec3("spotlight.specular", Player::GetInstance().GetSpotLight()->GetSpecular());
-		shaderProgram.SetFloat("spotlight.constant", Player::GetInstance().GetSpotLight()->GetConstant());
-		shaderProgram.SetFloat("spotlight.linear", Player::GetInstance().GetSpotLight()->GetLinear());
-		shaderProgram.SetFloat("spotlight.quadratic", Player::GetInstance().GetSpotLight()->GetQuadratic());
-		shaderProgram.SetFloat("spotlight.cutOff", glm::cos(glm::radians(Player::GetInstance().GetSpotLight()->GetCutOff())));
-		shaderProgram.SetFloat("spotlight.outerCutOff", glm::cos(glm::radians(Player::GetInstance().GetSpotLight()->GetOuterCutOff())));
+		shaderProgram.loadVector("spotlight.position", Player::GetInstance().GetSpotLight()->getPosition());
+		shaderProgram.loadVector("spotlight.direction", Player::GetInstance().GetSpotLight()->getDirection());
+		shaderProgram.loadVector("spotlight.diffuse", Player::GetInstance().GetSpotLight()->getDiffuse());
+		shaderProgram.loadVector("spotlight.specular", Player::GetInstance().GetSpotLight()->getSpecular());
+		shaderProgram.SetFloat("spotlight.constant", Player::GetInstance().GetSpotLight()->getConstant());
+		shaderProgram.SetFloat("spotlight.linear", Player::GetInstance().GetSpotLight()->getLinear());
+		shaderProgram.SetFloat("spotlight.quadratic", Player::GetInstance().GetSpotLight()->getQuadratic());
+		shaderProgram.SetFloat("spotlight.cutOff", glm::cos(glm::radians(Player::GetInstance().GetSpotLight()->getCutOff())));
+		shaderProgram.SetFloat("spotlight.outerCutOff", glm::cos(glm::radians(Player::GetInstance().GetSpotLight()->getOuterCutOff())));
 	}
 
 	unsigned int diffuseNr = 1;

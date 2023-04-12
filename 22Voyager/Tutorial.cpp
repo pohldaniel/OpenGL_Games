@@ -34,14 +34,6 @@ Tutorial::Tutorial(StateMachine& machine) : State(machine, CurrentState::TUTORIA
 	bUnitTest = ResourceManager::GetInstance().LoadTextureImagesFromFile("res/Textures/PlayerDeathScreen.png", "playerDead"); assert(bUnitTest);
 	bUnitTest = ResourceManager::GetInstance().LoadTextureImagesFromFile("res/Textures/VictoryScreen.png", "victorious"); assert(bUnitTest);
 
-	// Terrain textures
-	bUnitTest = ResourceManager::GetInstance().LoadTextureImagesFromFile("res/Textures/soil01.jpg", "soil"); assert(bUnitTest);
-	bUnitTest = ResourceManager::GetInstance().LoadTextureImagesFromFile("res/Textures/soil02.jpg", "soil2"); assert(bUnitTest);
-	bUnitTest = ResourceManager::GetInstance().LoadTextureImagesFromFile("res/Textures/soil03.jpg", "grass"); assert(bUnitTest);
-	bUnitTest = ResourceManager::GetInstance().LoadTextureImagesFromFile("res/Textures/soil03_NormalMap.jpg", "grassNormalMap"); assert(bUnitTest);
-	bUnitTest = ResourceManager::GetInstance().LoadTextureImagesFromFile("res/Textures/soil04.jpg", "soil4"); assert(bUnitTest);
-	bUnitTest = ResourceManager::GetInstance().LoadTextureImagesFromFile("res/Textures/blendMap.png", "blendMap"); assert(bUnitTest);
-
 	std::vector<char*> skyboxFaces =
 	{
 		"res/Textures/Skyboxes/TitanMoon/right.png", "res/Textures/Skyboxes/TitanMoon/left.png",
@@ -69,16 +61,16 @@ Tutorial::Tutorial(StateMachine& machine) : State(machine, CurrentState::TUTORIA
 	std::vector<char*> postProcessingShader{ "res/Shaders/PostProcessingVertexShader.vs", "res/Shaders/PostProcessingFragmentShader.fs" };
 
 	// Initialize game models
-	m_terrain.InitTerrain("res/Shaders/TerrainVertexShader.vs", "res/Shaders/TerrainFragmentShader.fs");
-	m_terrain.CreateTerrainWithPerlinNoise();
+	m_terrain.init();
+	m_terrain.createTerrainWithPerlinNoise();
 
-	m_dirLight.Configure(glm::vec3(-0.1f, -0.1f, -0.1f), glm::vec3(0.1f, 0.1f, 0.1f), glm::vec3(0.5f, 0.5f, 0.5f));
-	m_dirLight.SetDirection(glm::vec3(0.2f, 1.0f, 0.5f));
-	m_dirLight.SetColour(glm::vec3(0.97f, 0.88f, 0.70f));
+	m_dirLight.configure(Vector3f(-0.1f, -0.1f, -0.1f), Vector3f(0.1f, 0.1f, 0.1f), Vector3f(0.5f, 0.5f, 0.5f));
+	m_dirLight.setDirection(Vector3f(0.2f, 1.0f, 0.5f));
+	m_dirLight.setColour(Vector3f(0.97f, 0.88f, 0.70f));
 
-	m_pointLight.Configure(glm::vec3(0.05f, 0.05f, 0.05f), glm::vec3(10.0f, 10.0f, 10.0f), glm::vec3(1.0f, 1.0f, 1.0f), 1.0f, 0.045f, 0.0075f);
-	m_pointLight.SetPosition(glm::vec3(256.0f, 50.0f, 300.0f));
-	m_pointLight.SetLightColour(glm::vec3(0.0f, 0.0f, 1.0f));
+	m_pointLight.configure(Vector3f(0.05f, 0.05f, 0.05f), Vector3f(10.0f, 10.0f, 10.0f), Vector3f(1.0f, 1.0f, 1.0f), 1.0f, 0.045f, 0.0075f);
+	m_pointLight.setPosition(Vector3f(256.0f, 50.0f, 300.0f));
+	m_pointLight.setColour(Vector3f(0.0f, 0.0f, 1.0f));
 
 	Player::GetInstance().Init();
 }
@@ -223,8 +215,8 @@ void Tutorial::RenderScene() {
 
 	glDisable(GL_CULL_FACE);
 
-	m_terrain.SetFog(m_atmosphere.GetDayTime() <= 0.3f ? false : true);
-	m_terrain.Draw(camera, &m_dirLight, &m_pointLight, Player::GetInstance().GetSpotLight());
+	m_terrain.setFog(m_atmosphere.GetDayTime() <= 0.3f ? false : true);
+	m_terrain.draw(camera, &m_dirLight, &m_pointLight, Player::GetInstance().GetSpotLight());
 
 	/*Renderer::GetInstance().GetComponent(SKYBOX).GetTransformComponent().GetRot().y += 0.5f * m_deltaTime;
 	Renderer::GetInstance().GetComponent(SKYBOX).Draw(m_camera);

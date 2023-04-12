@@ -1,32 +1,27 @@
 #pragma once
-#ifndef __DIRECTIONALLIGHT_H__
-#define __DIRECTIONALLIGHT_H__
+#include "engine/Vector.h"
 
-#include <glm/glm/glm.hpp>
-#include <glm/glm/gtx/transform.hpp>
+class DirectionalLight {
 
-class DirectionalLight
-{
 public:
 	DirectionalLight();
 	~DirectionalLight();
 
-	void Configure(glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 specular);
+	void configure(const Vector3f& ambient, const Vector3f& diffuse, const Vector3f& specular);
 
-	void SetDirection(glm::vec3 dir) { m_direction = dir; }
-	void SetColour(glm::vec3 col)	 { m_colour = col; }
+	void setDirection(const Vector3f& direction) { m_direction = direction; }
+	void setColour(const Vector3f& colour)	 { m_colour = colour; }
 
-	glm::vec3& GetDirection()		 { return m_direction; }				 
-	glm::vec3& GetAmbient()			 { return m_ambient; }
-	glm::vec3& GetDiffuse()			 { return m_diffuse; }
-	glm::vec3& GetSpecular()		 { return m_specular; }
-	glm::vec3& GetColour()			 { return m_colour; }
+	const Vector3f& getDirection()		 { return m_direction; }
+	const Vector3f& getAmbient()			 { return m_ambient; }
+	const Vector3f& getDiffuse()			 { return m_diffuse; }
+	const Vector3f& getSpecular()		 { return m_specular; }
+	const Vector3f& getColour()			 { return m_colour; }
+
 private:
-	glm::vec3 m_direction;
-	glm::vec3 m_ambient;
-	glm::vec3 m_diffuse;
-	glm::vec3 m_specular;
-	glm::vec3 m_colour;
+	Vector3f m_direction;
+	Vector3f m_ambient;
+	Vector3f m_diffuse;
+	Vector3f m_specular;
+	Vector3f m_colour;
 };
-
-#endif // !__DIRECTIONALLIGHT_H__

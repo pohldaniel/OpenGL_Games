@@ -240,7 +240,8 @@ private:
 	void createInstancesDynamic(unsigned int numberOfInstances);
 	void addInstance(ObjModel& model);
 	void updateInstances(std::vector<Matrix4f>& modelMTX);
-	
+	void updateMaterialUbo(unsigned int& ubo);
+
 	unsigned int m_vao = 0;
 	unsigned int m_vbo[5] = { 0 };
 	unsigned int m_vboInstances = 0;
@@ -253,7 +254,5 @@ private:
 	std::vector<unsigned int> m_indexBuffer;
 
 	bool m_hasTextureCoords, m_hasNormals, m_hasTangents;
-	unsigned int m_triangleOffset, m_numberOfTriangles, m_stride, m_baseVertex, m_baseIndex;
-
-	void updateMaterialUbo(unsigned int& ubo);
+	unsigned int m_triangleOffset, m_numberOfTriangles, m_stride, m_baseVertex, m_baseIndex;	
 };

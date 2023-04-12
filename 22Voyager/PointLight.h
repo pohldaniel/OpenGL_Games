@@ -1,40 +1,33 @@
 #pragma once
-#ifndef __POINTLIGHT_H__
-#define __POINTLIGHT_H__
+#include "engine/Vector.h"
 
-#include <glm/glm/glm.hpp>
-#include <glm/glm/gtx/transform.hpp>
-
-class PointLight
-{
+class PointLight {
 public:
 	PointLight();
 	~PointLight();
 
-	void Configure(glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 specular, float constant, float linear, float quadratic);
+	void configure(const Vector3f& ambient, const Vector3f& diffuse, const Vector3f& specular, float constant, float linear, float quadratic);
 
-	void SetPosition(glm::vec3 pos)		{ m_position = pos; }
-	void SetLightColour(glm::vec3 col)	{ m_lightColour = col; }
+	void setPosition(const Vector3f& position)		{ m_position = position; }
+	void setColour(const Vector3f& colour)	{ m_colour = colour; }
 
-	glm::vec3& GetPos()				{ return m_position; }
-	glm::vec3& GetColour()			{ return m_lightColour; }
-	glm::vec3& GetAmbient()			{ return m_ambient; }
-	glm::vec3& GetDiffuse()			{ return m_diffuse; }
-	glm::vec3& GetSpecular()		{ return m_specular; }
-	float& GetConstant()			{ return m_constant; }
-	float& GetLinear()				{ return m_linear; }
-	float& GetQuadratic()			{ return m_quadratic; }
+	const Vector3f& getPosition()	{ return m_position; }
+	const Vector3f& getColour()		{ return m_colour; }
+	const Vector3f& getAmbient()	{ return m_ambient; }
+	const Vector3f& getDiffuse()	{ return m_diffuse; }
+	const Vector3f& getSpecular()	{ return m_specular; }
+	float getConstant()				{ return m_constant; }
+	float getLinear()				{ return m_linear; }
+	float getQuadratic()			{ return m_quadratic; }
 
 private:
-	glm::vec3 m_position;
-	glm::vec3 m_ambient;
-	glm::vec3 m_diffuse;
-	glm::vec3 m_specular;
-	glm::vec3 m_lightColour;
+	Vector3f m_position;
+	Vector3f m_ambient;
+	Vector3f m_diffuse;
+	Vector3f m_specular;
+	Vector3f m_colour;
 
 	float m_constant;
 	float m_linear;
 	float m_quadratic;
 };
-
-#endif // !__POINTLIGHT_H__

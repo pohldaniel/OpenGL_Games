@@ -1,15 +1,14 @@
 #include "DirectionalLight.h"
 
-DirectionalLight::DirectionalLight()
-{
+DirectionalLight::DirectionalLight() {
+
 }
 
-DirectionalLight::~DirectionalLight()
-{
+DirectionalLight::~DirectionalLight() {
+
 }
 
-void DirectionalLight::Configure(glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 specular)
-{
+void DirectionalLight::configure(const Vector3f& ambient, const Vector3f& diffuse, const Vector3f& specular) {
 	m_ambient = ambient;
 	m_diffuse = diffuse;
 	m_specular = specular;

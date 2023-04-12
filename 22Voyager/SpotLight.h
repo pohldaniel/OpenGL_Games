@@ -1,35 +1,33 @@
 #pragma once
-#ifndef __SPOTLIGHT_H__
-#define __SPOTLIGHT_H__
+#include "engine/Vector.h"
 
-#include <glm/glm/glm.hpp>
-#include <glm/glm/gtx/transform.hpp>
+class SpotLight {
 
-class SpotLight
-{
 public:
 	SpotLight();
 	~SpotLight();
 
-	void Configure(glm::vec3 diffuse, glm::vec3 specular, float constant, float linear, float quadratic, float cutOff, float outerCutOff);
-	void SetPosition(glm::vec3 pos) { m_position = pos; }
-	void SetDirection(glm::vec3 dir) { m_direction = dir; }
+	void configure(const Vector3f& diffuse, const Vector3f& specular, float constant, float linear, float quadratic, float cutOff, float outerCutOff);
+	void setPosition(const Vector3f& position) { m_position = position; }
+	void setDirection(const Vector3f& direction) { m_direction = direction; }
 
-	glm::vec3& GetPosition()		{ return m_position; }
-	glm::vec3& GetDirection()		{ return m_direction; }
-	glm::vec3& GetDiffuse()			{ return m_diffuse; }
-	glm::vec3& GetSpecular()		{ return m_specular; }
-	float& GetCutOff()				{ return m_cutOff; }
-	float& GetOuterCutOff()			{ return m_outerCutOff; }
-	float& GetConstant()			{ return m_constant; }
-	float& GetLinear()				{ return m_linear; }
-	float& GetQuadratic()			{ return m_quadratic; }
+	const Vector3f& getPosition()		{ return m_position; }
+	const Vector3f& getDirection()		{ return m_direction; }
+	const Vector3f& getDiffuse()		{ return m_diffuse; }
+	const Vector3f& getSpecular()		{ return m_specular; }
+
+
+	float& getCutOff()				{ return m_cutOff; }
+	float& getOuterCutOff()			{ return m_outerCutOff; }
+	float& getConstant()			{ return m_constant; }
+	float& getLinear()				{ return m_linear; }
+	float& getQuadratic()			{ return m_quadratic; }
 
 private:
-	glm::vec3 m_position;
-	glm::vec3 m_direction;
-	glm::vec3 m_diffuse;
-	glm::vec3 m_specular;
+	Vector3f m_position;
+	Vector3f m_direction;
+	Vector3f m_diffuse;
+	Vector3f m_specular;
 
 	float m_cutOff;
 	float m_outerCutOff;
@@ -37,5 +35,3 @@ private:
 	float m_linear;
 	float m_quadratic;
 };
-
-#endif // !__SPOTLIGHT_H__

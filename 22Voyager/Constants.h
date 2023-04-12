@@ -1,8 +1,8 @@
 #pragma once
 
-#include "engine\AssetManger.h"
-#include "engine\Shader.h"
-#include "engine\Texture.h"
+#include "engine/AssetManger.h"
+#include "engine/Shader.h"
+#include "engine/Texture.h"
 
 #define WIDTH 1024
 #define HEIGHT 768
