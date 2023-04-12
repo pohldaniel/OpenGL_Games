@@ -159,6 +159,7 @@
     <ClCompile Include="Atmosphere.cpp" />
     <ClCompile Include="DirectionalLight.cpp" />
     <ClCompile Include="Enemy.cpp" />
+    <ClCompile Include="engine\AssimpModel.cpp" />
     <ClCompile Include="engine\Batchrenderer.cpp" />
     <ClCompile Include="engine\BuiltInShader.cpp" />
     <ClCompile Include="engine\Camera.cpp" />
@@ -216,6 +217,7 @@
     <ClInclude Include="DirectionalLight.h" />
     <ClInclude Include="Enemy.h" />
     <ClInclude Include="engine\AssetManger.h" />
+    <ClInclude Include="engine\AssimpModel.h" />
     <ClInclude Include="engine\Batchrenderer.h" />
     <ClInclude Include="engine\BuiltInShader.h" />
     <ClInclude Include="engine\Camera.h" />

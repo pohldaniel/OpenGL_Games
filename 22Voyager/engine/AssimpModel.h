@@ -8,7 +8,6 @@
 #include <assimp/postprocess.h>
 
 #include "Vector.h"
-#include "Extension.h"
 #include "Shader.h"
 #include "Texture.h"
 #include "Camera.h"
@@ -30,8 +29,8 @@ public:
 		float specular[4];
 		float shininess;
 		std::string diffuseTexPath;
-		std::string bumpMapPath;
-		std::string displacementMapPath;
+		std::string normalMapPath;
+		std::string specularMapPath;
 	};
 
 	AssimpModel();

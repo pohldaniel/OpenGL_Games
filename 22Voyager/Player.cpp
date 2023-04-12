@@ -39,6 +39,10 @@ void Player::Init() {
 	m_sniperRifle->Init("res/Models3D/Sci-fi_SniperRifle/SniperRifle.obj", "res/Shaders/SingleModelLoader.vs", "res/Shaders/SingleModelLoader.fs");
 	m_sniperRifle->Configure(7, 1.0f, 1.5f, 100);
 
+
+	m_model.loadModel("res/Models3D/Sci-fi_AssaultRifle/AssaultRifle.dae");
+	m_shader.CreateProgram("res/Shaders/SingleModelLoader.vs", "res/Shaders/SingleModelLoader.fs");
+
 	m_currWeapon = m_assaultRifle;
 	m_usingAR = true;
 
@@ -164,7 +168,7 @@ void Player::Animate(float dt) {
 			m_currWeapon->GetAnimComponent().PlaySprintFPS(m_currWeapon->GetModel(), m_camera, dt);
 
 		} else {
-			m_currWeapon->GetAnimComponent().PlayIdleFPS(m_currWeapon->GetModel(), m_camera, dt);
+			m_currWeapon->GetAnimComponent().PlayIdleFPS(m_currWeapon->GetModel(), m_model, m_camera, dt);
 
 		}
 	}

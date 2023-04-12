@@ -253,7 +253,7 @@ void AssimpModel::draw(Camera& camera) {
 		m_meshes[i]->updateMaterialUbo(BuiltInShader::materialUbo);
 		glUseProgram(m_shader[i]->m_program);
 
-		m_shader[i]->loadMatrix("u_projection", camera.getProjectionMatrix());
+		m_shader[i]->loadMatrix("u_projection", camera.getPerspectiveMatrix());
 		m_shader[i]->loadMatrix("u_view", camera.getViewMatrix());
 		m_shader[i]->loadMatrix("u_model", m_transform.getTransformationMatrix());
 
@@ -272,7 +272,7 @@ void AssimpModel::drawInstanced(Camera& camera) {
 
 		glUseProgram(m_shader[i]->m_program);
 
-		m_shader[i]->loadMatrix("u_projection", camera.getProjectionMatrix());
+		m_shader[i]->loadMatrix("u_projection", camera.getPerspectiveMatrix());
 
 		m_textures[i].bind(0);
 		m_meshes[i]->drawRawInstanced();
@@ -290,7 +290,7 @@ void AssimpModel::drawStacked(Camera& camera) {
 
 		glUseProgram(m_shader[i]->m_program);
 
-		m_shader[i]->loadMatrix("u_projection", camera.getProjectionMatrix());
+		m_shader[i]->loadMatrix("u_projection", camera.getPerspectiveMatrix());
 		m_shader[i]->loadMatrix("u_view", camera.getViewMatrix());
 		m_shader[i]->loadMatrix("u_model", m_transform.getTransformationMatrix());
 
@@ -309,7 +309,7 @@ void AssimpModel::drawInstancedStacked(Camera& camera) {
 
 		glUseProgram(m_shader[i]->m_program);
 
-		m_shader[i]->loadMatrix("u_projection", camera.getProjectionMatrix());
+		m_shader[i]->loadMatrix("u_projection", camera.getPerspectiveMatrix());
 		m_textures[i].bind(0);
 		glDrawElementsInstancedBaseVertexBaseInstance(GL_TRIANGLES, m_meshes[i]->m_drawCount, GL_UNSIGNED_INT, (void*)(sizeof(unsigned int) * m_meshes[i]->m_baseIndex), m_instanceCount, m_meshes[i]->m_baseVertex, 0);
 
@@ -541,6 +541,8 @@ void AssimpModel::CreateBuffer(std::vector<float>& vertexBuffer, std::vector<uns
 }
 
 void AssimpModel::ReadAiMaterial(const aiMaterial* aiMaterial, Material& material) {
+	std::cout << "Read Material: " << std::endl;
+	
 	float shininess = 0.0f;
 	aiColor4D diffuse = aiColor4D(0.0f, 0.0f, 0.0f, 0.0f);
 	aiColor4D ambient = aiColor4D(0.0f, 0.0f, 0.0f, 0.0f);
@@ -579,12 +581,29 @@ void AssimpModel::ReadAiMaterial(const aiMaterial* aiMaterial, Material& materia
 
 	material.shininess = shininess;
 
-	int numDiffuseTextures = aiMaterial->GetTextureCount(aiTextureType_DIFFUSE);
-	if (numDiffuseTextures > 0) {
+	int numTextures = aiMaterial->GetTextureCount(aiTextureType_DIFFUSE);
+	if (numTextures > 0) {
 		aiString name;
 		aiMaterial->Get(AI_MATKEY_TEXTURE(aiTextureType_DIFFUSE, 0), name);
 		material.diffuseTexPath = name.data;
+
+		std::cout << material.diffuseTexPath << std::endl;
 	}
+
+	numTextures = aiMaterial->GetTextureCount(aiTextureType_NORMALS);
+	if (numTextures > 0) {
+		aiString name;
+		aiMaterial->Get(AI_MATKEY_TEXTURE(aiTextureType_NORMALS, 0), name);
+		material.normalMapPath = name.data;
+	}
+
+	numTextures = aiMaterial->GetTextureCount(aiTextureType_SPECULAR);
+	if (numTextures > 0) {
+		aiString name;
+		aiMaterial->Get(AI_MATKEY_TEXTURE(aiTextureType_SPECULAR, 0), name);
+		material.specularMapPath = name.data;
+	}
+
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

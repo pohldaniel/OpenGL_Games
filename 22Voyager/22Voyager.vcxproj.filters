@@ -192,6 +192,9 @@
     <ClCompile Include="Atmosphere.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="engine\AssimpModel.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h">
@@ -355,6 +358,9 @@
     </ClInclude>
     <ClInclude Include="Atmosphere.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\AssimpModel.h">
+      <Filter>engine</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

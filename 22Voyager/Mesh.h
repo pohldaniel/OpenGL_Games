@@ -22,9 +22,9 @@ public:
 	MeshVertex() {};
 	~MeshVertex() {};
 
-	glm::vec3 m_Position;
-	glm::vec3 m_Normal;
+	glm::vec3 m_Position;	
 	glm::vec2 m_TexCoords;
+	glm::vec3 m_Normal;
 };
 
 struct MeshTexture 

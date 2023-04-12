@@ -1,6 +1,7 @@
 #pragma once
 
 #include "engine/Camera.h"
+#include "engine/AssimpModel.h"
 #include "Model.h"
 
 class Animation {
@@ -10,7 +11,7 @@ public:
 
 	void PlaySprintFPS(Model& weapon, Camera& camera, float dt);
 	void PlayWalkFPS(Model& weapon, Camera& camera, float dt);
-	void PlayIdleFPS(Model& weapon, Camera& camera, float dt);
+	void PlayIdleFPS(Model& weapon, AssimpModel& model, Camera& camera, float dt);
 	void PlayFireFPS(Model& weapon, Camera& camera, float dt);
 	void PlayReloadFPS(Model& weapon, Camera& camera, float dt);
 	void PlaySwapTwoWeapons(Model& weaponA, Model& weaponB, Camera& camera, float dt, bool& swapped);

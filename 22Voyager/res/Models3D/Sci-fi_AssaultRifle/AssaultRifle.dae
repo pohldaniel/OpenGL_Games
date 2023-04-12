@@ -46,6 +46,26 @@
             <source>file9-surface</source>
           </sampler2D>
         </newparam>
+		<newparam sid="normal-surface">
+		   <surface type="2D">
+            <init_from>file10</init_from>
+          </surface>
+		</newparam>
+		<newparam sid="normal-sampler">
+          <sampler2D>
+            <source>normal-surface</source>
+          </sampler2D>
+        </newparam>		
+		<newparam sid="specular-surface">
+		   <surface type="2D">
+            <init_from>file12</init_from>
+          </surface>
+		</newparam>
+		<newparam sid="specular-sampler">
+          <sampler2D>
+            <source>specular-surface</source>
+          </sampler2D>
+        </newparam>	
         <technique sid="common">
           <phong>
             <emission>
@@ -76,7 +96,17 @@
               <float sid="index_of_refraction">1</float>
             </index_of_refraction>
           </phong>
-        </technique>
+		  <extra>
+			<technique profile="FCOLLADA">
+			  <bump bumptype="NORMALMAP">
+			    <texture texture="normal-sampler" texcoord="UVMap"/>
+			  </bump>			  			
+			  <specular bumptype="SPECULARMAP">
+			    <texture texture="specular-sampler" texcoord="UVMap"/>
+			  </specular>			  
+			</technique>		
+		  </extra>
+        </technique>		
       </profile_COMMON>
     </effect>
     <effect id="Material_002-effect">

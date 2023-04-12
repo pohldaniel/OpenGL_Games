@@ -48,7 +48,7 @@ void Weapon::Update(float dt)
 
 void Weapon::Fire(Model& weapon, Camera& camera, float dt, bool& firing, bool& reloading)
 {
-	m_animator.PlayIdleFPS(weapon, camera, dt);
+	//m_animator.PlayIdleFPS(weapon, camera, dt);
 
 	if (m_currFireRateTime > m_fireRate)
 	{

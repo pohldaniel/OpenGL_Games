@@ -3,6 +3,7 @@
 #define __PLAYER_H__
 
 #include <GL/glew.h>
+#include "engine/AssimpModel.h"
 #include "Physics.h"
 #include "Weapon.h"
 #include "SpotLight.h"
@@ -39,6 +40,9 @@ public:
 	SpotLight* GetSpotLight()			{ return m_spotLight;}
 	void Animate(float dt);
 	const Camera& getCamera() const { return m_camera; }
+	AssimpModel m_model;
+
+	ShaderVo m_shader;
 
 private:
 	Player();

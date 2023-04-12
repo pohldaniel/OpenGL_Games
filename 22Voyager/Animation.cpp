@@ -1,4 +1,5 @@
 #include "Animation.h"
+#include "Player.h"
 
 const float WEAPON_ROTATION_190_DEG = 3.31613f;
 
@@ -98,7 +99,7 @@ void Animation::PlayWalkFPS(Model& weapon, Camera& camera, float dt)
 	weapon.Draw(camera, glm::vec3(1.7f, -2.0f, m_defWeaponZOffset), glm::vec3(0.0f, 1.0f, 0.0f), m_defWeaponRotation, glm::vec3(1.0f, 1.0f, 1.0f), true);
 }
 
-void Animation::PlayIdleFPS(Model& weapon, Camera& camera, float dt)
+void Animation::PlayIdleFPS(Model& weapon, AssimpModel& model, Camera& camera, float dt)
 {
 	// Bring weapon back to original Z position
 	if (m_defWeaponZOffset <= m_originalWeaponZOffset)
@@ -150,7 +151,83 @@ void Animation::PlayIdleFPS(Model& weapon, Camera& camera, float dt)
 		}
 	}
 
-	weapon.Draw(camera, glm::vec3(1.7f, m_idleYOffset, m_defWeaponZOffset), glm::vec3(0.0f, 1.0f, 0.0f), m_defWeaponRotation, glm::vec3(1.0f, 1.0f, 1.0f), true);
+	//weapon.Draw(camera, glm::vec3(1.7f, m_idleYOffset, m_defWeaponZOffset), glm::vec3(0.0f, 1.0f, 0.0f), m_defWeaponRotation, glm::vec3(1.0f, 1.0f, 1.0f), true);
+	
+
+	Player::GetInstance().m_shader.ActivateProgram();
+
+	glm::mat4 _model(1.0f);
+	glm::mat4 translation = glm::translate(glm::vec3(1.7f, m_idleYOffset, m_defWeaponZOffset));
+	glm::mat4 rotation = glm::rotate(m_defWeaponRotation, glm::vec3(0.0f, 1.0f, 0.0f));
+	glm::mat4 scaleMat = glm::scale(glm::vec3(1.0f, 1.0f, 1.0f));
+
+	if (true)
+	{
+		Matrix4f _invView = camera.getInvViewMatrix();
+
+		glm::mat4 invViewMat;
+
+
+		invViewMat[0][0] = _invView[0][0]; invViewMat[0][1] = _invView[0][1]; invViewMat[0][2] = _invView[0][2]; invViewMat[0][3] = _invView[0][3];
+		invViewMat[1][0] = _invView[1][0]; invViewMat[1][1] = _invView[1][1]; invViewMat[1][2] = _invView[1][2]; invViewMat[1][3] = _invView[1][3];
+		invViewMat[2][0] = _invView[2][0]; invViewMat[2][1] = _invView[2][1]; invViewMat[2][2] = _invView[2][2]; invViewMat[2][3] = _invView[2][3];
+		invViewMat[3][0] = _invView[3][0]; invViewMat[3][1] = _invView[3][1]; invViewMat[3][2] = _invView[3][2]; invViewMat[3][3] = _invView[3][3];
+
+		_model = invViewMat * translation * rotation * scaleMat;
+	}
+	else
+	{
+		_model = translation * rotation * scaleMat;
+	}
+
+	Player::GetInstance().m_shader.SetMat4("model", _model);
+	Player::GetInstance().m_shader.loadVector("lightPos", Vector3f(camera.getPosition()[0], camera.getPosition()[1] + 5.0f, camera.getPosition()[2]));
+	Player::GetInstance().m_shader.loadVector("viewPos", camera.getPosition());
+
+	Player::GetInstance().m_shader.SetBool("EnableSpotlight", false);
+
+	if (Player::GetInstance().GetSpotLight() != nullptr && false){
+		Player::GetInstance().m_shader.loadVector("spotlight.position", Player::GetInstance().GetSpotLight()->getPosition());
+		Player::GetInstance().m_shader.loadVector("spotlight.direction", Player::GetInstance().GetSpotLight()->getDirection());
+		Player::GetInstance().m_shader.loadVector("spotlight.diffuse", Player::GetInstance().GetSpotLight()->getDiffuse());
+		Player::GetInstance().m_shader.loadVector("spotlight.specular", Player::GetInstance().GetSpotLight()->getSpecular());
+		Player::GetInstance().m_shader.SetFloat("spotlight.constant", Player::GetInstance().GetSpotLight()->getConstant());
+		Player::GetInstance().m_shader.SetFloat("spotlight.linear", Player::GetInstance().GetSpotLight()->getLinear());
+		Player::GetInstance().m_shader.SetFloat("spotlight.quadratic", Player::GetInstance().GetSpotLight()->getQuadratic());
+		Player::GetInstance().m_shader.SetFloat("spotlight.cutOff", glm::cos(glm::radians(Player::GetInstance().GetSpotLight()->getCutOff())));
+		Player::GetInstance().m_shader.SetFloat("spotlight.outerCutOff", glm::cos(glm::radians(Player::GetInstance().GetSpotLight()->getOuterCutOff())));
+	}
+
+	Player::GetInstance().m_shader.loadMatrix("projection", camera.getPerspectiveMatrix());
+	Player::GetInstance().m_shader.loadMatrix("view", camera.getViewMatrix());
+
+	unsigned int diffuseNr = 1;
+	unsigned int specularNr = 1;
+
+	/*for (unsigned int i = 0; i < m_textures.size(); ++i) {
+		glActiveTexture(GL_TEXTURE0 + i);
+
+		std::string number;
+		std::string name = m_textures[i].m_type;
+
+		if (name == "texture_diffuse")
+			number = std::to_string(diffuseNr++);
+		else if (name == "texture_specular")
+			number = std::to_string(specularNr++);
+
+		glUniform1i(glGetUniformLocation(shaderProgram.GetShaderProgram(), (name + number).c_str()), i);
+		glBindTexture(GL_TEXTURE_2D, m_textures[i].m_id);
+	}*/
+
+	model.drawRaw();
+
+	// Unbind textures 
+	/*for (GLuint i = 0; i < m_textures.size(); ++i){
+		glActiveTexture(GL_TEXTURE0 + i);
+		glBindTexture(GL_TEXTURE_2D, 0);
+	}*/
+	Player::GetInstance().m_shader.DeactivateProgram();
+
 }
 
 void Animation::PlayFireFPS(Model& weapon, Camera& camera, float dt)
