@@ -11,3 +11,5 @@ Ni 1.000000
 d 1.000000
 illum 2
 map_Kd sniper_1001_Base_Color.png
+map_Kn 1001_Normal.png
+map_Ks sniper1001_Roughness.png

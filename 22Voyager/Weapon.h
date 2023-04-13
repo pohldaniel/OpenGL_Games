@@ -13,8 +13,8 @@ public:
 	void Init(GLchar* path, char* vs, char* fs);
 	void Configure(int maxAmmo, float fireRate, float reloadTime, int damage);
 	void Update(float dt);
-	void Fire(Model& weapon, Camera& camera, float dt, bool& firing, bool& reloading);
-	void Reload(Model& weapon, Camera& camera, float dt, bool& reloading);
+	void Fire(Weapon* weapon, Camera& camera, float dt, bool& firing, bool& reloading);
+	void Reload(Weapon* weapon, Camera& camera, float dt, bool& reloading);
 	void RestartWeapon();
 
 	inline void SetMaxAmmo(int maxAmmo) { m_maxAmmo = maxAmmo; }
@@ -32,6 +32,9 @@ public:
 
 	inline Animation& GetAnimComponent() { return m_animator; }
 	inline Model& GetModel() { return m_model; }
+	unsigned short m_materialIndex;
+
+	AssimpModel m_mesh;
 
 private:
 	float m_currFireRateTime, m_fireRate, m_currReloadTime, m_maxReloadTimer;

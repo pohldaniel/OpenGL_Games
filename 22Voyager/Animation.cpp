@@ -1,5 +1,6 @@
 #include "Animation.h"
 #include "Player.h"
+#include "Weapon.h"
 
 const float WEAPON_ROTATION_190_DEG = 3.31613f;
 
@@ -24,7 +25,7 @@ void Animation::SetWeaponZOffset(float zOffset)
 	m_defWeaponZOffset = zOffset;
 }
 
-void Animation::PlaySprintFPS(Model& weapon, Camera& camera, float dt)
+void Animation::PlaySprintFPS(Weapon* weapon, Camera& camera, float dt)
 {
 	const float MAX_ROTATION = 4.5f;
 	const float MAX_Y_OFFSET = -2.0f;
@@ -56,10 +57,10 @@ void Animation::PlaySprintFPS(Model& weapon, Camera& camera, float dt)
 		}
 	}
 
-	weapon.Draw(camera, glm::vec3(1.7f, m_defWeaponYOffset, m_sprintWeaponZOffset), glm::vec3(0.0f, 1.0f, 0.0f), m_defWeaponRotation, glm::vec3(1.0f, 1.0f, 1.0f), true);
+	weapon->GetModel().Draw(camera, glm::vec3(1.7f, m_defWeaponYOffset, m_sprintWeaponZOffset), glm::vec3(0.0f, 1.0f, 0.0f), m_defWeaponRotation, glm::vec3(1.0f, 1.0f, 1.0f), true);
 }
 
-void Animation::PlayWalkFPS(Model& weapon, Camera& camera, float dt)
+void Animation::PlayWalkFPS(Weapon* weapon, Camera& camera, float dt)
 {
 	const float MAX_Z_OFFSET = m_originalWeaponZOffset - 0.4f;
 	const float MIN_Z_OFFSET = m_originalWeaponZOffset;
@@ -96,10 +97,10 @@ void Animation::PlayWalkFPS(Model& weapon, Camera& camera, float dt)
 			m_defWeaponZOffset = MIN_Z_OFFSET;
 	}
 
-	weapon.Draw(camera, glm::vec3(1.7f, -2.0f, m_defWeaponZOffset), glm::vec3(0.0f, 1.0f, 0.0f), m_defWeaponRotation, glm::vec3(1.0f, 1.0f, 1.0f), true);
+	weapon->GetModel().Draw(camera, glm::vec3(1.7f, -2.0f, m_defWeaponZOffset), glm::vec3(0.0f, 1.0f, 0.0f), m_defWeaponRotation, glm::vec3(1.0f, 1.0f, 1.0f), true);
 }
 
-void Animation::PlayIdleFPS(Model& weapon, AssimpModel& model, Camera& camera, float dt)
+void Animation::PlayIdleFPS(Weapon* weapon, Camera& camera, float dt)
 {
 	// Bring weapon back to original Z position
 	if (m_defWeaponZOffset <= m_originalWeaponZOffset)
@@ -151,10 +152,10 @@ void Animation::PlayIdleFPS(Model& weapon, AssimpModel& model, Camera& camera, f
 		}
 	}
 
-	//weapon.Draw(camera, glm::vec3(1.7f, m_idleYOffset, m_defWeaponZOffset), glm::vec3(0.0f, 1.0f, 0.0f), m_defWeaponRotation, glm::vec3(1.0f, 1.0f, 1.0f), true);
+	weapon->GetModel().Draw(camera, glm::vec3(1.7f, m_idleYOffset, m_defWeaponZOffset), glm::vec3(0.0f, 1.0f, 0.0f), m_defWeaponRotation, glm::vec3(1.0f, 1.0f, 1.0f), true);
 	
 
-	Player::GetInstance().m_shader.ActivateProgram();
+	/*Player::GetInstance().m_shader.ActivateProgram();
 
 	glm::mat4 _model(1.0f);
 	glm::mat4 translation = glm::translate(glm::vec3(1.7f, m_idleYOffset, m_defWeaponZOffset));
@@ -200,37 +201,17 @@ void Animation::PlayIdleFPS(Model& weapon, AssimpModel& model, Camera& camera, f
 
 	Player::GetInstance().m_shader.loadMatrix("projection", camera.getPerspectiveMatrix());
 	Player::GetInstance().m_shader.loadMatrix("view", camera.getViewMatrix());
+	Player::GetInstance().m_shader.loadInt("texture_diffuse1", 0);
 
-	unsigned int diffuseNr = 1;
-	unsigned int specularNr = 1;
-
-	/*for (unsigned int i = 0; i < m_textures.size(); ++i) {
-		glActiveTexture(GL_TEXTURE0 + i);
-
-		std::string number;
-		std::string name = m_textures[i].m_type;
-
-		if (name == "texture_diffuse")
-			number = std::to_string(diffuseNr++);
-		else if (name == "texture_specular")
-			number = std::to_string(specularNr++);
-
-		glUniform1i(glGetUniformLocation(shaderProgram.GetShaderProgram(), (name + number).c_str()), i);
-		glBindTexture(GL_TEXTURE_2D, m_textures[i].m_id);
-	}*/
-
-	model.drawRaw();
-
-	// Unbind textures 
-	/*for (GLuint i = 0; i < m_textures.size(); ++i){
-		glActiveTexture(GL_TEXTURE0 + i);
-		glBindTexture(GL_TEXTURE_2D, 0);
-	}*/
-	Player::GetInstance().m_shader.DeactivateProgram();
+	AssimpModel::GetMaterials()[weapon->m_materialIndex].bind(1);
+	weapon->m_mesh.drawRaw();
+	AssimpModel::GetMaterials()[weapon->m_materialIndex].unbind(1);
+	
+	Player::GetInstance().m_shader.DeactivateProgram();*/
 
 }
 
-void Animation::PlayFireFPS(Model& weapon, Camera& camera, float dt)
+void Animation::PlayFireFPS(Weapon* weapon, Camera& camera, float dt)
 {
 	const float MAX_Z_OFFSET = -2.5f;
 	const float MIN_Z_OFFSET = -1.5f;
@@ -267,10 +248,10 @@ void Animation::PlayFireFPS(Model& weapon, Camera& camera, float dt)
 			m_defWeaponZOffset = MIN_Z_OFFSET;
 	}
 
-	weapon.Draw(camera, glm::vec3(1.7f, m_idleYOffset, m_defWeaponZOffset), glm::vec3(0.0f, 1.0f, 0.0f), m_defWeaponRotation, glm::vec3(1.0f, 1.0f, 1.0f), true);
+	weapon->GetModel().Draw(camera, glm::vec3(1.7f, m_idleYOffset, m_defWeaponZOffset), glm::vec3(0.0f, 1.0f, 0.0f), m_defWeaponRotation, glm::vec3(1.0f, 1.0f, 1.0f), true);
 }
 
-void Animation::PlayReloadFPS(Model& weapon, Camera& camera, float dt)
+void Animation::PlayReloadFPS(Weapon* weapon, Camera& camera, float dt)
 {
 	const float MAX_ROTATION = 4.0f;
 	const float MAX_Y_OFFSET = -2.2f;
@@ -302,10 +283,10 @@ void Animation::PlayReloadFPS(Model& weapon, Camera& camera, float dt)
 		}
 	}
 
-	weapon.Draw(camera, glm::vec3(1.7f, m_defWeaponYOffset, m_defWeaponZOffset), glm::vec3(-0.2f, 1.0f, -0.2f), m_defWeaponRotation, glm::vec3(1.0f, 1.0f, 1.0f), true);
+	weapon->GetModel().Draw(camera, glm::vec3(1.7f, m_defWeaponYOffset, m_defWeaponZOffset), glm::vec3(-0.2f, 1.0f, -0.2f), m_defWeaponRotation, glm::vec3(1.0f, 1.0f, 1.0f), true);
 }
 
-void Animation::PlaySwapTwoWeapons(Model& weaponA, Model& weaponB, Camera& camera, float dt, bool& swapped)
+void Animation::PlaySwapTwoWeapons(Weapon* weaponA, Weapon* weaponB, Camera& camera, float dt, bool& swapped)
 {
 	const float MAX_ROTATION = 4.5f;
 	const float MAX_Y_OFFSET = -2.0f;
@@ -319,7 +300,7 @@ void Animation::PlaySwapTwoWeapons(Model& weaponA, Model& weaponB, Camera& camer
 			m_defWeaponRotation = MAX_ROTATION;
 
 		m_defWeaponYOffset -= 7.0f * dt;
-		weaponA.Draw(camera, glm::vec3(1.7f, m_defWeaponYOffset, m_defWeaponZOffset), glm::vec3(0.0f, 1.0f, 0.0f), m_defWeaponRotation, glm::vec3(1.0f, 1.0f, 1.0f), true);
+		weaponA->GetModel().Draw(camera, glm::vec3(1.7f, m_defWeaponYOffset, m_defWeaponZOffset), glm::vec3(0.0f, 1.0f, 0.0f), m_defWeaponRotation, glm::vec3(1.0f, 1.0f, 1.0f), true);
 
 		if (m_defWeaponYOffset < -6.0f)
 		{
@@ -356,7 +337,7 @@ void Animation::PlaySwapTwoWeapons(Model& weaponA, Model& weaponB, Camera& camer
 			}
 
 			m_defWeaponYOffset += 7.0f * dt;
-			weaponB.Draw(camera, glm::vec3(1.7f, m_defWeaponYOffset, m_defWeaponZOffset), glm::vec3(0.0f, 1.0f, 0.0f), m_defWeaponRotation, glm::vec3(1.0f, 1.0f, 1.0f), true);
+			weaponB->GetModel().Draw(camera, glm::vec3(1.7f, m_defWeaponYOffset, m_defWeaponZOffset), glm::vec3(0.0f, 1.0f, 0.0f), m_defWeaponRotation, glm::vec3(1.0f, 1.0f, 1.0f), true);
 		}
 		else
 		{
@@ -366,7 +347,7 @@ void Animation::PlaySwapTwoWeapons(Model& weaponA, Model& weaponB, Camera& camer
 	}
 }
 
-void Animation::PlayFreezeFPS(Model& weapon, Camera& camera, float dt)
+void Animation::PlayFreezeFPS(Weapon* weapon, Camera& camera, float dt)
 {
 	//weapon.Draw(camera, glm::vec3(1.7f, -2.0f, m_defWeaponZOffset), glm::vec3(0.0f, 1.0f, 0.0f), m_defWeaponRotation, glm::vec3(1.0f, 1.0f, 1.0f), true);
 }

@@ -10,7 +10,8 @@ class Texture{
 
 public:
 	Texture() = default;
-	Texture(std::string pictureFile, const bool flipVertical = false, unsigned int format = 0);
+	Texture(std::string pictureFile, const bool flipVertical = false, unsigned int internalFormat = 0, unsigned int format = 0);
+	Texture(Texture const& rhs);
 	~Texture();
 
 	unsigned int& getTexture();
@@ -40,10 +41,11 @@ public:
 	void setRepeat();
 	void setLinear(unsigned int mode = 9987 /*GL_LINEAR_MIPMAP_LINEAR*/);
 	void setAnisotropy(float aniso);
-	void setFilter(unsigned int mode);
+	void setFilter(unsigned int minFilter, unsigned int magFilter = 0);
 	void setWrapMode(unsigned int mode);
 	void setFilter3D(unsigned int mode);
 	void setWrapMode3D(unsigned int mode);
+	void cleanup();
 
 	static void Unbind();
 	static void CutSubimage(std::string fileIn, std::string fileOut, unsigned int offsetX, unsigned int offsetY, unsigned int width = 0, unsigned int height = 0, const bool flipVertical = false);
@@ -64,7 +66,7 @@ public:
 	static void CreateEmptyTexture(unsigned int& textureRef, unsigned int width, unsigned int height, unsigned int internalFormat = 0, unsigned int format = 0, unsigned int type = 0);
 	static void Resize(unsigned int& textureRef, unsigned int width, unsigned int height, unsigned int internalFormat = 0, unsigned int format = 0, unsigned int type = 0);
 
-	static void SetFilter(unsigned int& textureRef, unsigned int mode);
+	static void SetFilter(unsigned int& textureRef, unsigned int minFilter, unsigned int magFilter = 0);
 	static void SetWrapMode(unsigned int& textureRef, unsigned int mode);
 
 	static void CreateTexture3D(unsigned int& textureRef, unsigned int width, unsigned int height, unsigned int depth, unsigned int internalFormat = 0, unsigned int format = 0, unsigned int type = 0, unsigned char* data = NULL);

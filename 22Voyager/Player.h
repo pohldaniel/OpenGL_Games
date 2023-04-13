@@ -40,7 +40,7 @@ public:
 	SpotLight* GetSpotLight()			{ return m_spotLight;}
 	void Animate(float dt);
 	const Camera& getCamera() const { return m_camera; }
-	AssimpModel m_model;
+	
 
 	ShaderVo m_shader;
 

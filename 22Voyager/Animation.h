@@ -4,18 +4,19 @@
 #include "engine/AssimpModel.h"
 #include "Model.h"
 
+class Weapon;
 class Animation {
 public:
 	Animation();
 	~Animation();
 
-	void PlaySprintFPS(Model& weapon, Camera& camera, float dt);
-	void PlayWalkFPS(Model& weapon, Camera& camera, float dt);
-	void PlayIdleFPS(Model& weapon, AssimpModel& model, Camera& camera, float dt);
-	void PlayFireFPS(Model& weapon, Camera& camera, float dt);
-	void PlayReloadFPS(Model& weapon, Camera& camera, float dt);
-	void PlaySwapTwoWeapons(Model& weaponA, Model& weaponB, Camera& camera, float dt, bool& swapped);
-	void PlayFreezeFPS(Model& weapon, Camera& camera, float dt);
+	void PlaySprintFPS(Weapon* weapon, Camera& camera, float dt);
+	void PlayWalkFPS(Weapon* weapon, Camera& camera, float dt);
+	void PlayIdleFPS(Weapon* weapon, Camera& camera, float dt);
+	void PlayFireFPS(Weapon* weapon, Camera& camera, float dt);
+	void PlayReloadFPS(Weapon* weapon, Camera& camera, float dt);
+	void PlaySwapTwoWeapons(Weapon* weaponA, Weapon* weaponB, Camera& camera, float dt, bool& swapped);
+	void PlayFreezeFPS(Weapon* weapon, Camera& camera, float dt);
 
 	void SetWeaponZOffset(float zOffset);
 	void SetWeaponYOffset(float yOffset) { m_defWeaponYOffset = yOffset; }

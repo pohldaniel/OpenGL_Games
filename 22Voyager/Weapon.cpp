@@ -46,9 +46,9 @@ void Weapon::Update(float dt)
 	}
 }
 
-void Weapon::Fire(Model& weapon, Camera& camera, float dt, bool& firing, bool& reloading)
+void Weapon::Fire(Weapon* weapon, Camera& camera, float dt, bool& firing, bool& reloading)
 {
-	//m_animator.PlayIdleFPS(weapon, camera, dt);
+	m_animator.PlayIdleFPS(this, camera, dt);
 
 	if (m_currFireRateTime > m_fireRate)
 	{
@@ -87,7 +87,7 @@ void Weapon::Fire(Model& weapon, Camera& camera, float dt, bool& firing, bool& r
 	}
 }
 
-void Weapon::Reload(Model& weapon, Camera& camera, float dt, bool& reloading)
+void Weapon::Reload(Weapon* weapon, Camera& camera, float dt, bool& reloading)
 {
 	m_animator.PlayReloadFPS(weapon, camera, dt);
 	m_currReloadTime += 0.4f * dt;

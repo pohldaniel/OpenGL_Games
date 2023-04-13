@@ -33,14 +33,18 @@ void Player::Init() {
 
 	m_assaultRifle = new Weapon();
 	m_assaultRifle->Init("res/Models3D/Sci-fi_AssaultRifle/AssaultRifle.dae", "res/Shaders/SingleModelLoader.vs", "res/Shaders/SingleModelLoader.fs");
+	m_assaultRifle->m_mesh.loadModel("res/Models3D/Sci-fi_AssaultRifle/AssaultRifle.dae");
 	m_assaultRifle->Configure(35, 0.12f, 1.0f, 35);
+	m_assaultRifle->m_materialIndex = 0;
 
 	m_sniperRifle = new Weapon();
 	m_sniperRifle->Init("res/Models3D/Sci-fi_SniperRifle/SniperRifle.obj", "res/Shaders/SingleModelLoader.vs", "res/Shaders/SingleModelLoader.fs");
+	m_sniperRifle->m_mesh.loadModel("res/Models3D/Sci-fi_SniperRifle/SniperRifle.obj");
 	m_sniperRifle->Configure(7, 1.0f, 1.5f, 100);
+	m_sniperRifle->m_materialIndex = 1;
 
-
-	m_model.loadModel("res/Models3D/Sci-fi_AssaultRifle/AssaultRifle.dae");
+	
+	
 	m_shader.CreateProgram("res/Shaders/SingleModelLoader.vs", "res/Shaders/SingleModelLoader.fs");
 
 	m_currWeapon = m_assaultRifle;
@@ -132,7 +136,7 @@ void Player::Animate(float dt) {
 		// Check if the current weapon is an assault rifle, if so switch to sniper rifle
 		if (!m_usingAR) {
 			// Play swap animation
-			m_currWeapon->GetAnimComponent().PlaySwapTwoWeapons(m_assaultRifle->GetModel(), m_sniperRifle->GetModel(), m_camera, dt, m_swapped);
+			m_currWeapon->GetAnimComponent().PlaySwapTwoWeapons(m_assaultRifle, m_sniperRifle, m_camera, dt, m_swapped);
 
 			// Swap the weapons
 			m_sniperRifle->GetAnimComponent().SetWeaponZOffset(-4.0f);
@@ -146,7 +150,7 @@ void Player::Animate(float dt) {
 				m_swapping = false;
 			}
 		} else if (m_usingAR) {
-			m_currWeapon->GetAnimComponent().PlaySwapTwoWeapons(m_sniperRifle->GetModel(), m_assaultRifle->GetModel(), m_camera, dt, m_swapped);
+			m_currWeapon->GetAnimComponent().PlaySwapTwoWeapons(m_sniperRifle, m_assaultRifle, m_camera, dt, m_swapped);
 			m_assaultRifle->GetAnimComponent().SetWeaponZOffset(-2.5f);
 			m_assaultRifle->GetAnimComponent().SetSprintWeaponZOffset(-2.5f);
 			m_currWeapon = m_assaultRifle;
@@ -161,26 +165,26 @@ void Player::Animate(float dt) {
 	// Check if the player is not firing, reloading or swapping weapons
 	if (!m_firing && !m_reloading && !m_swapping) {
 		// Proceed to playing one of the following animations: Walking - Sprinting - Idle
-		if (m_move) {
-			m_currWeapon->GetAnimComponent().PlayWalkFPS(m_currWeapon->GetModel(), m_camera, dt);
+		if (m_sprinting) {
+			m_currWeapon->GetAnimComponent().PlaySprintFPS(m_currWeapon, m_camera, dt);
 
-		} else if (m_sprinting) {
-			m_currWeapon->GetAnimComponent().PlaySprintFPS(m_currWeapon->GetModel(), m_camera, dt);
+		}else if (m_move) {
+			m_currWeapon->GetAnimComponent().PlayWalkFPS(m_currWeapon, m_camera, dt);
 
 		} else {
-			m_currWeapon->GetAnimComponent().PlayIdleFPS(m_currWeapon->GetModel(), m_model, m_camera, dt);
+			m_currWeapon->GetAnimComponent().PlayIdleFPS(m_currWeapon, m_camera, dt);
 
 		}
 	}
 
 	// Check if player is firing
 	if (m_firing && !m_reloading && !m_swapping) {
-		m_currWeapon->Fire(m_currWeapon->GetModel(), m_camera, dt, m_firing, m_reloading);
+		m_currWeapon->Fire(m_currWeapon, m_camera, dt, m_firing, m_reloading);
 	}
 
 	// Check if player is reloading
 	if (m_reloading && !m_swapping) {
-		m_currWeapon->Reload(m_currWeapon->GetModel(), m_camera, dt, m_reloading);
+		m_currWeapon->Reload(m_currWeapon, m_camera, dt, m_reloading);
 	}
 
 }

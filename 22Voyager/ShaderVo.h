@@ -33,6 +33,7 @@ public:
 
 	void loadMatrix(const char* location, const Matrix4f& matrix, bool trans = false);
 	void loadVector(const char* location, Vector3f vector);
+	void loadInt(const char* location, int value);
 	GLuint GetShaderProgram() { return m_program; }
 
 private:

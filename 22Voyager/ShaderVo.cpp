@@ -52,6 +52,10 @@ void ShaderVo::loadVector(const char* location, Vector3f vector) {
 	glUniform3fv(getUnifromLocation(location), 1, &vector[0]);
 }
 
+void ShaderVo::loadInt(const char* location, int value) {
+	glUniform1i(getUnifromLocation(location), value);
+}
+
 unsigned int ShaderVo::getUnifromLocation(const std::string& name) const {
 
 	if (m_uniformLocationCache.find(name) != m_uniformLocationCache.end())
