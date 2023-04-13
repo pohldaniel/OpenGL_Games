@@ -1,7 +1,5 @@
 #include "AssimpModel.h"
 
-std::vector<AssimpModel::Material> AssimpModel::Materials;
-
 AssimpModel::AssimpModel() {
 	m_hasTextureCoords = false;
 	m_hasNormals = false;
@@ -252,7 +250,7 @@ void AssimpModel::drawRawInstancedStacked() {
 
 void AssimpModel::draw(Camera& camera) {
 	for (int i = 0; i < m_meshes.size(); i++) {
-		Material& material = Materials[m_meshes[i]->m_materialIndex];
+		Material& material = Material::GetMaterials()[m_meshes[i]->m_materialIndex];
 		material.updateMaterialUbo(BuiltInShader::materialUbo);
 
 		glUseProgram(m_shader[i]->m_program);
@@ -272,7 +270,7 @@ void AssimpModel::draw(Camera& camera) {
 
 void AssimpModel::drawInstanced(Camera& camera) {
 	for (int i = 0; i < m_meshes.size(); i++) {
-		Material& material = Materials[m_meshes[i]->m_materialIndex];
+		Material& material = Material::GetMaterials()[m_meshes[i]->m_materialIndex];
 		material.updateMaterialUbo(BuiltInShader::materialUbo);
 
 		glUseProgram(m_shader[i]->m_program);
@@ -291,7 +289,7 @@ void AssimpModel::drawInstanced(Camera& camera) {
 void AssimpModel::drawStacked(Camera& camera) {
 	glBindVertexArray(m_vao);
 	for (int i = 0; i < m_meshes.size(); i++) {
-		Material& material = Materials[m_meshes[i]->m_materialIndex];
+		Material& material = Material::GetMaterials()[m_meshes[i]->m_materialIndex];
 		material.updateMaterialUbo(BuiltInShader::materialUbo);
 
 		glUseProgram(m_shader[i]->m_program);
@@ -311,7 +309,7 @@ void AssimpModel::drawStacked(Camera& camera) {
 void AssimpModel::drawInstancedStacked(Camera& camera) {
 	glBindVertexArray(m_vao);
 	for (int i = 0; i < m_meshes.size(); i++) {
-		Material& material = Materials[m_meshes[i]->m_materialIndex];
+		Material& material = Material::GetMaterials()[m_meshes[i]->m_materialIndex];
 		material.updateMaterialUbo(BuiltInShader::materialUbo);
 
 		glUseProgram(m_shader[i]->m_program);
@@ -506,9 +504,9 @@ std::string AssimpModel::GetTexturePath(std::string texPath, std::string modelDi
 
 void AssimpModel::ReadAiMaterial(const aiMaterial* aiMaterial, short& index, std::string modelDirectory) {
 
-	Materials.resize(Materials.size() + 1);
-	index = Materials.size() - 1;
-	Material& material = Materials.back();
+	Material::GetMaterials().resize(Material::GetMaterials().size() + 1);
+	index = Material::GetMaterials().size() - 1;
+	Material& material = Material::GetMaterials().back();
 
 	float shininess = 0.0f;
 	aiColor4D diffuse = aiColor4D(0.0f, 0.0f, 0.0f, 0.0f);
@@ -576,46 +574,6 @@ void AssimpModel::ReadAiMaterial(const aiMaterial* aiMaterial, short& index, std
 	}
 }
 
-std::vector<AssimpModel::Material>& AssimpModel::GetMaterials() {
-	return Materials;
-}
-
-void AssimpModel::Material::updateMaterialUbo(unsigned int& ubo) {
-	glBindBuffer(GL_UNIFORM_BUFFER, ubo);
-	glBufferSubData(GL_UNIFORM_BUFFER, 0, 16, &ambient);
-	glBufferSubData(GL_UNIFORM_BUFFER, 16, 32, &diffuse);
-	glBufferSubData(GL_UNIFORM_BUFFER, 32, 48, &specular);
-	glBufferSubData(GL_UNIFORM_BUFFER, 48, 52, &shininess);
-	glBindBuffer(GL_UNIFORM_BUFFER, 0);
-}
-
-void AssimpModel::Material::bind() {
-	for (unsigned short i = 0; i < textures.size(); i++) {
-		glActiveTexture(GL_TEXTURE0 + i);
-		glBindTexture(GL_TEXTURE_2D, textures[i].getTexture());
-	}
-}
-
-void AssimpModel::Material::unbind() {
-	for (unsigned short i = 0; textures.size() < 1; i++) {
-		glActiveTexture(GL_TEXTURE0 + i);
-		glBindTexture(GL_TEXTURE_2D, 0);
-	}
-}
-
-void AssimpModel::Material::bind(unsigned short index) {
-	for (unsigned short i = 0; i < index; i++) {
-		glActiveTexture(GL_TEXTURE0 + i);
-		glBindTexture(GL_TEXTURE_2D, textures[i].getTexture());
-	}
-}
-
-void AssimpModel::Material::unbind(unsigned short index) {
-	for (unsigned short i = 0; i < index; i++) {
-		glActiveTexture(GL_TEXTURE0 + i);
-		glBindTexture(GL_TEXTURE_2D, 0);
-	}
-}
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 AssimpMesh::AssimpMesh(AssimpModel* model) {
 	m_model = model;

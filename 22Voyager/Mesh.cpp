@@ -10,8 +10,7 @@ Mesh::Mesh(std::vector<MeshVertex> vertices, std::vector<GLuint> indices, std::v
 	CreateMesh(instancing);
 }
 
-void Mesh::Draw(Camera& camera, ShaderVo shaderProgram, bool instancing, glm::vec3& pos, glm::vec3& rot, float amountOfRotation, glm::vec3& scale, bool bDrawRelativeToCamera, bool bUseSpotlight)
-{
+void Mesh::Draw(Camera& camera, ShaderVo shaderProgram, bool instancing, glm::vec3& pos, glm::vec3& rot, float amountOfRotation, glm::vec3& scale, bool bDrawRelativeToCamera, bool bUseSpotlight){
 	shaderProgram.ActivateProgram();
 
 	glm::mat4 model(1.0f);
@@ -19,23 +18,15 @@ void Mesh::Draw(Camera& camera, ShaderVo shaderProgram, bool instancing, glm::ve
 	glm::mat4 rotation = glm::rotate(amountOfRotation, rot);
 	glm::mat4 scaleMat = glm::scale(scale);
 
-	if (bDrawRelativeToCamera)
-	{
-		Matrix4f _invView = camera.getInvViewMatrix();
-
-		glm::mat4 invViewMat;
-
-
-		invViewMat[0][0] = _invView[0][0]; invViewMat[0][1] = _invView[0][1]; invViewMat[0][2] = _invView[0][2]; invViewMat[0][3] = _invView[0][3];
-		invViewMat[1][0] = _invView[1][0]; invViewMat[1][1] = _invView[1][1]; invViewMat[1][2] = _invView[1][2]; invViewMat[1][3] = _invView[1][3];
-		invViewMat[2][0] = _invView[2][0]; invViewMat[2][1] = _invView[2][1]; invViewMat[2][2] = _invView[2][2]; invViewMat[2][3] = _invView[2][3];
-		invViewMat[3][0] = _invView[3][0]; invViewMat[3][1] = _invView[3][1]; invViewMat[3][2] = _invView[3][2]; invViewMat[3][3] = _invView[3][3];
-
-		model = invViewMat * translation * rotation * scaleMat;
+	if (bDrawRelativeToCamera){
+		model = translation * rotation * scaleMat;
+		shaderProgram.loadMatrix("view", Matrix4f::IDENTITY);
 	}
 	else
 	{
 		model = translation * rotation * scaleMat;
+
+		shaderProgram.loadMatrix("view", camera.getViewMatrix());
 	}
 
 	shaderProgram.SetMat4("model", model);
@@ -75,7 +66,7 @@ void Mesh::Draw(Camera& camera, ShaderVo shaderProgram, bool instancing, glm::ve
 	
 		
 		shaderProgram.loadMatrix("projection", camera.getPerspectiveMatrix());
-		shaderProgram.loadMatrix("view", camera.getViewMatrix());
+		
 
 		glUniform1i(glGetUniformLocation(shaderProgram.GetShaderProgram(), (name + number).c_str()), i);
 		glBindTexture(GL_TEXTURE_2D, m_textures[i].m_id);

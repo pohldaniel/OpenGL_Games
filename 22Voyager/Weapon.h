@@ -1,16 +1,19 @@
 #pragma once
-#ifndef __WEAPON_H__
-#define __WEAPON_H__
 
+#include <glm/glm/glm.hpp>
+#include <glm/glm/gtx/transform.hpp>
+#include "engine/AssimpModel.h"
 #include "Animation.h"
 
-class Weapon
-{
+class Weapon {
+
 public:
+
 	Weapon();
 	~Weapon();
 
-	void Init(GLchar* path, char* vs, char* fs);
+	void draw(Camera& camera, const Matrix4f& model, bool bDrawRelativeToCamera = false);
+	void init(GLchar* path);
 	void Configure(int maxAmmo, float fireRate, float reloadTime, int damage);
 	void Update(float dt);
 	void Fire(Weapon* weapon, Camera& camera, float dt, bool& firing, bool& reloading);
@@ -31,18 +34,14 @@ public:
 	inline int GetDamage() { return m_damage; }
 
 	inline Animation& GetAnimComponent() { return m_animator; }
-	inline Model& GetModel() { return m_model; }
+
 	unsigned short m_materialIndex;
 
 	AssimpModel m_mesh;
 
 private:
+
 	float m_currFireRateTime, m_fireRate, m_currReloadTime, m_maxReloadTimer;
 	int m_ammoCount, m_maxAmmo, m_damage;
 	Animation m_animator;
-	Model m_model;
-
-
 };
-
-#endif // !__WEAPON_H__

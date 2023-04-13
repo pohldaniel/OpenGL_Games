@@ -3,7 +3,7 @@
 #define __PLAYER_H__
 
 #include <GL/glew.h>
-#include "engine/AssimpModel.h"
+
 #include "Physics.h"
 #include "Weapon.h"
 #include "SpotLight.h"

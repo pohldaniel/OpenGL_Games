@@ -2,6 +2,7 @@
 #include "engine/Vector.h"
 
 class PointLight {
+
 public:
 	PointLight();
 	~PointLight();

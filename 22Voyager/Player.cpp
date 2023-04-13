@@ -14,11 +14,10 @@ Player::Player() :
 	m_swapped(false),
 	m_sniperAiming(false),
 	m_toggleFlashlight(false),
-	m_dead(false)
-{}
+	m_dead(false){
+}
 
-Player::~Player()
-{
+Player::~Player() {
 	delete m_assaultRifle;
 	m_assaultRifle = nullptr;
 
@@ -32,19 +31,15 @@ Player::~Player()
 void Player::Init() {
 
 	m_assaultRifle = new Weapon();
-	m_assaultRifle->Init("res/Models3D/Sci-fi_AssaultRifle/AssaultRifle.dae", "res/Shaders/SingleModelLoader.vs", "res/Shaders/SingleModelLoader.fs");
-	m_assaultRifle->m_mesh.loadModel("res/Models3D/Sci-fi_AssaultRifle/AssaultRifle.dae");
+	m_assaultRifle->init("res/Models3D/Sci-fi_AssaultRifle/AssaultRifle.dae");
 	m_assaultRifle->Configure(35, 0.12f, 1.0f, 35);
 	m_assaultRifle->m_materialIndex = 0;
 
 	m_sniperRifle = new Weapon();
-	m_sniperRifle->Init("res/Models3D/Sci-fi_SniperRifle/SniperRifle.obj", "res/Shaders/SingleModelLoader.vs", "res/Shaders/SingleModelLoader.fs");
-	m_sniperRifle->m_mesh.loadModel("res/Models3D/Sci-fi_SniperRifle/SniperRifle.obj");
+	m_sniperRifle->init("res/Models3D/Sci-fi_SniperRifle/SniperRifle.obj");
 	m_sniperRifle->Configure(7, 1.0f, 1.5f, 100);
 	m_sniperRifle->m_materialIndex = 1;
 
-	
-	
 	m_shader.CreateProgram("res/Shaders/SingleModelLoader.vs", "res/Shaders/SingleModelLoader.fs");
 
 	m_currWeapon = m_assaultRifle;

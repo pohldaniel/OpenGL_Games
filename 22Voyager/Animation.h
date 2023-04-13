@@ -1,8 +1,7 @@
 #pragma once
 
 #include "engine/Camera.h"
-#include "engine/AssimpModel.h"
-#include "Model.h"
+#include "engine/Transform.h"
 
 class Weapon;
 class Animation {
@@ -32,4 +31,5 @@ private:
 	bool m_weaponMoveForward;
 	bool m_swapping;
 	float m_idleYOffset;
+	Transform m_transform;
 };

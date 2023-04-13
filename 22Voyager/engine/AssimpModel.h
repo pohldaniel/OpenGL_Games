@@ -14,6 +14,7 @@
 #include "Transform.h"
 #include "AssetManger.h"
 #include "BuiltInShader.h"
+#include "Material.h"
 #include "ObjModel.h"
 
 #define ASSIMP_LOAD_FLAGS (aiProcess_JoinIdenticalVertices | aiProcess_RemoveRedundantMaterials | aiProcess_PreTransformVertices | aiProcess_Triangulate)
@@ -22,20 +23,6 @@ class AssimpMesh;
 class AssimpModel {
 
 public:
-
-	struct Material {
-		float ambient[4];
-		float diffuse[4];
-		float specular[4];
-		float shininess;
-		//avoid unwanted copy costructor calls using std::unordered_ma over std::vector
-		std::unordered_map<unsigned short, Texture> textures;
-		void updateMaterialUbo(unsigned int& ubo);
-		void bind();		
-		void bind(unsigned short index);
-		void unbind();
-		void unbind(unsigned short index);
-	};
 
 	AssimpModel();
 	~AssimpModel();
@@ -76,8 +63,6 @@ public:
 	void initShader(bool instanced = false);
 	void initShader(AssetManager<Shader>& shaderManager, bool instanced = false);
 	
-	static std::vector<AssimpModel::Material>& GetMaterials();
-
 private:
 	
 	unsigned int m_numberOfVertices, m_numberOfTriangles, m_numberOfMeshes, m_stride;
@@ -112,8 +97,6 @@ private:
 	void static CreateBuffer(std::vector<float>& vertexBuffer, std::vector<unsigned int> indexBuffer, unsigned int& vao, unsigned int(&vbo)[5], unsigned int& ibo, unsigned int stride);
 	void static ReadAiMaterial(const aiMaterial* aiMaterial, short& index, std::string modelDirectory);
 	std::string static GetTexturePath(std::string texPath, std::string modelDirectory);
-
-	static std::vector<AssimpModel::Material> Materials;
 };
 
 class AssimpMesh {
