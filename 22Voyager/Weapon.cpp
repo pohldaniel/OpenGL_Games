@@ -18,6 +18,7 @@ Weapon::~Weapon(){
 
 void Weapon::init(GLchar* path) {
 	m_mesh.loadModel(path);
+	m_muzzle = new RenderableObject(Vector3f(2.0f, -2.5f, -2.5f), Vector3f(1.0f, 1.0f, 1.0f), "muzzle", "muzzleFlash");
 }
 
 void Weapon::Configure(int maxAmmo, float fireRate, float reloadTime, int damage) {
@@ -62,11 +63,13 @@ void Weapon::Fire(Weapon* weapon, Camera& camera, float dt, bool& firing, bool& 
 		}
 
 		// Play muzzle flash effect (render textured quad in eye space in front of weapon)
-		glm::mat4 model(1.0f);
+		/*glm::mat4 model(1.0f);
 		glm::mat4 translation = glm::translate(glm::vec3(0.9f, -1.4f, -6.5f));
 		glm::mat4 rotation = glm::rotate(Utils::GetInstance().RandomNumBetweenTwo(1.0f, 360.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 		glm::mat4 scaleMat = glm::scale(glm::vec3(Utils::GetInstance().RandomNumBetweenTwo(2.0f, 2.5f), Utils::GetInstance().RandomNumBetweenTwo(2.0f, 2.5f), 1.0f));
 		//glm::mat4 invViewMat = glm::inverse(cam.GetViewMatrix());
+
+		
 
 		Matrix4f _invView = camera.getInvViewMatrix();
 
@@ -78,8 +81,16 @@ void Weapon::Fire(Weapon* weapon, Camera& camera, float dt, bool& firing, bool& 
 		invViewMat[2][0] = _invView[2][0]; invViewMat[2][1] = _invView[2][1]; invViewMat[2][2] = _invView[2][2]; invViewMat[2][3] = _invView[2][3];
 		invViewMat[3][0] = _invView[3][0]; invViewMat[3][1] = _invView[3][1]; invViewMat[3][2] = _invView[3][2]; invViewMat[3][3] = _invView[3][3];
 
-		model = invViewMat * translation * rotation * scaleMat;
+		model = invViewMat * translation * rotation * scaleMat;*/
 		//Renderer::GetInstance().GetComponent(8).Draw(model, cam, glm::vec3(0.0f, 0.0f, 0.0f));
+
+		m_transform.reset();
+		m_transform.scale(Utils::GetInstance().RandomNumBetweenTwo(2.0f, 2.5f), Utils::GetInstance().RandomNumBetweenTwo(2.0f, 2.5f), 1.0f);
+		m_transform.rotate(Vector3f(0.0f, 0.0f, 1.0f), Utils::GetInstance().RandomNumBetweenTwo(1.0f, 360.0f) * _180_ON_PI);
+		m_transform.translate(0.9f, -1.4f, -6.5f);
+
+		m_muzzle->draw(camera, m_transform.getTransformationMatrix());
+
 		m_currFireRateTime = 0.0f;
 	}
 }

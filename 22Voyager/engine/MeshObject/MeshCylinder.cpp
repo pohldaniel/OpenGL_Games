@@ -1,10 +1,10 @@
 #include "MeshCylinder.h"
 
-MeshCylinder::MeshCylinder(bool generateTexels, bool generateNormals, bool generateTangents, bool generateNormalDerivatives) : MeshCylinder(Vector3f(0.0f, 0.0f, 0.0f), 1.0f, 1.0f, 1.0f, generateTexels, generateNormals, generateTangents, generateNormalDerivatives) {
+MeshCylinder::MeshCylinder(int uResolution, int vResolution) : MeshCylinder(Vector3f(0.0f, 0.0f, 0.0f), 1.0f, 1.0f, 1.0f, true, true, false, false, uResolution, vResolution) { }
 
-}
+MeshCylinder::MeshCylinder(bool generateTexels, bool generateNormals, bool generateTangents, bool generateNormalDerivatives, int uResolution, int vResolution) : MeshCylinder(Vector3f(0.0f, 0.0f, 0.0f), 1.0f, 1.0f, 1.0f, generateTexels, generateNormals, generateTangents, generateNormalDerivatives, uResolution, vResolution) { }
 
-MeshCylinder::MeshCylinder(const Vector3f &position, float baseRadius, float topRadius, float length, bool generateTexels, bool generateNormals, bool generateTangents, bool generateNormalDerivatives) {
+MeshCylinder::MeshCylinder(const Vector3f &position, float baseRadius, float topRadius, float length, bool generateTexels, bool generateNormals, bool generateTangents, bool generateNormalDerivatives, int uResolution, int vResolution) {
 
 	m_baseRadius = baseRadius;
 	m_topRadius = topRadius;
@@ -22,12 +22,10 @@ MeshCylinder::MeshCylinder(const Vector3f &position, float baseRadius, float top
 	m_hasNormalDerivatives = false;
 
 	m_isInitialized = false;
-	m_mainSegments = 10;
-	m_tubeSegments = 10;
+	m_uResolution = uResolution;
+	m_vResolution = vResolution;
 
 	m_numBuffers = 1 + generateTexels + generateNormals + 2 * generateTangents + 2 * generateNormalDerivatives;
-
-	m_model = Matrix4f::IDENTITY;
 
 	buildMesh();
 }
@@ -35,8 +33,8 @@ MeshCylinder::MeshCylinder(const Vector3f &position, float baseRadius, float top
 MeshCylinder::~MeshCylinder() {}
 
 void MeshCylinder::setPrecision(int uResolution, int vResolution) {
-	m_mainSegments = uResolution;
-	m_tubeSegments = vResolution;
+	m_uResolution = uResolution;
+	m_vResolution = vResolution;
 }
 
 void MeshCylinder::buildMesh() {
@@ -48,20 +46,20 @@ void MeshCylinder::buildMesh() {
 	std::vector<float> sideNormals = getSideNormals();
 
 	// put vertices of side cylinder to array by scaling unit circle
-	for (int i = 0; i <= m_mainSegments; ++i) {
-		y = -(m_length * 0.5f) + (float)i / m_mainSegments * m_length;      // vertex position z
-		radius = m_baseRadius + (float)i / m_mainSegments * (m_topRadius - m_baseRadius);     // lerp
-		float t = 1.0f - (float)i / m_mainSegments;   // top-to-bottom
+	for (int i = 0; i <= m_uResolution; ++i) {
+		y = -(m_length * 0.5f) + (float)i / m_uResolution * m_length;      // vertex position z
+		radius = m_baseRadius + (float)i / m_uResolution * (m_topRadius - m_baseRadius);     // lerp
+		float t = 1.0f - (float)i / m_uResolution;   // top-to-bottom
 
-		float sectorStep = 2 * PI / m_tubeSegments;
+		float sectorStep = 2 * PI / m_vResolution;
 		float sectorAngle;  // radian
 
-		for (int j = 0, k = 0; j <= m_tubeSegments; ++j, k += 3) {
+		for (int j = 0, k = 0; j <= m_vResolution; ++j, k += 3) {
 			sectorAngle = j * sectorStep;
 			x = cos(sectorAngle);
 			z = sin(sectorAngle);
 			m_positions.push_back(Vector3f(x * radius, y, z * radius) + m_position);
-			m_texels.push_back(Vector2f(1.0f - (float)j / m_tubeSegments, 1.0f - t));
+			m_texels.push_back(Vector2f(1.0f - (float)j / m_vResolution, 1.0f - t));
 			m_normals.push_back(Vector3f(sideNormals[k], sideNormals[k + 1], sideNormals[k + 2]));
 		}
 	}
@@ -76,10 +74,10 @@ void MeshCylinder::buildMesh() {
 	m_texels.push_back(Vector2f(0.5f, 0.5f));
 	m_normals.push_back(Vector3f(0.0f, -1.0f, 0.0f));
 
-	float sectorStep = 2 * PI / m_tubeSegments;
+	float sectorStep = 2 * PI / m_vResolution;
 	float sectorAngle;  // radian
 
-	for (int i = 0; i < m_tubeSegments; ++i) {
+	for (int i = 0; i < m_vResolution; ++i) {
 		sectorAngle = i * sectorStep;
 		x = cos(sectorAngle);
 		z = sin(sectorAngle);
@@ -99,10 +97,10 @@ void MeshCylinder::buildMesh() {
 	m_texels.push_back(Vector2f(0.5f, 0.5f));
 	m_normals.push_back(Vector3f(0.0f, 1.0f, 0.0f));
 
-	sectorStep = 2 * PI / m_tubeSegments;
+	sectorStep = 2 * PI / m_vResolution;
 	sectorAngle;  // radian
 
-	for (int i = 0; i < m_tubeSegments; ++i) {
+	for (int i = 0; i < m_vResolution; ++i) {
 		sectorAngle = i * sectorStep;
 		x = cos(sectorAngle);
 		z = sin(sectorAngle);
@@ -114,11 +112,11 @@ void MeshCylinder::buildMesh() {
 
 	// put indices for sides
 	unsigned int k1, k2;
-	for (int i = 0; i < m_mainSegments; ++i) {
-		k1 = i * (m_tubeSegments + 1);     // bebinning of current stack
-		k2 = k1 + m_tubeSegments + 1;      // beginning of next stack
+	for (int i = 0; i < m_uResolution; ++i) {
+		k1 = i * (m_vResolution + 1);     // bebinning of current stack
+		k2 = k1 + m_vResolution + 1;      // beginning of next stack
 
-		for (int j = 0; j < m_tubeSegments; ++j, ++k1, ++k2) {
+		for (int j = 0; j < m_vResolution; ++j, ++k1, ++k2) {
 			// 2 trianles per sector
 			m_indexBuffer.push_back(k1);	m_indexBuffer.push_back(k1 + 1);	m_indexBuffer.push_back(k2);
 			m_indexBuffer.push_back(k2);	m_indexBuffer.push_back(k1 + 1);	m_indexBuffer.push_back(k2 + 1);
@@ -129,8 +127,8 @@ void MeshCylinder::buildMesh() {
 	unsigned int baseIndex = (unsigned int)m_indexBuffer.size();
 
 	// put indices for base
-	for (int i = 0, k = baseVertexIndex + 1; i < m_tubeSegments; ++i, ++k) {
-		if (i < (m_tubeSegments - 1)) {
+	for (int i = 0, k = baseVertexIndex + 1; i < m_vResolution; ++i, ++k) {
+		if (i < (m_vResolution - 1)) {
 			m_indexBuffer.push_back(baseVertexIndex);	m_indexBuffer.push_back(k + 1);	m_indexBuffer.push_back(k);
 		}
 		else {
@@ -141,8 +139,8 @@ void MeshCylinder::buildMesh() {
 	// remember where the base indices start
 	unsigned int topIndex = (unsigned int)m_indexBuffer.size();
 
-	for (int i = 0, k = topVertexIndex + 1; i < m_tubeSegments; ++i, ++k) {
-		if (i < (m_tubeSegments - 1)) {
+	for (int i = 0, k = topVertexIndex + 1; i < m_vResolution; ++i, ++k) {
+		if (i < (m_vResolution - 1)) {
 			m_indexBuffer.push_back(topVertexIndex);	m_indexBuffer.push_back(k);	m_indexBuffer.push_back(k + 1);
 		}
 		else {
@@ -205,7 +203,7 @@ void MeshCylinder::buildMesh() {
 }
 
 std::vector<float> MeshCylinder::getSideNormals() {
-	float sectorStep = 2 * PI / m_tubeSegments;
+	float sectorStep = 2 * PI / m_vResolution;
 	float sectorAngle;  // radian
 
 	// compute the normal vector at 0 degree first
@@ -215,7 +213,7 @@ std::vector<float> MeshCylinder::getSideNormals() {
 	float y0 = sin(zAngle);     // ny
 
 	std::vector<float> normals;
-	for (int i = 0; i <= m_tubeSegments; ++i) {
+	for (int i = 0; i <= m_vResolution; ++i) {
 		sectorAngle = i * sectorStep;
 		normals.push_back(cos(sectorAngle)*x0);   // nx
 		normals.push_back(y0);					  // ny
@@ -223,21 +221,6 @@ std::vector<float> MeshCylinder::getSideNormals() {
 	}
 
 	return normals;
-}
-
-void MeshCylinder::draw(const Camera& camera) {
-
-	glUseProgram(m_shader->m_program);
-
-	m_texture->bind(0);
-	m_shader->loadMatrix("u_modelView", m_model * camera.getViewMatrix());
-	m_shader->loadMatrix("u_projection", camera.getPerspectiveMatrix());
-
-	glBindVertexArray(m_vao);
-	glDrawElements(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0);
-	glBindVertexArray(0);
-
-	glUseProgram(0);
 }
 
 void MeshCylinder::drawRaw() {

@@ -17,7 +17,7 @@ public:
 	void setRotPos(const Vector3f& axis, float degrees, float dx, float dy, float dz);
 	void setRotPosScale(const Vector3f& axis, float degrees, float dx, float dy, float dz, float x = 1.0f, float y = 1.0f, float z = 1.0f);
 
-
+	void setPosition(float x, float y, float z);
 	void setPosition(const Vector3f& position);
 
 	void translate(float dx, float dy, float dz);

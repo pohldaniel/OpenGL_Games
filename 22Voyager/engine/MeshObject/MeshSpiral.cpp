@@ -1,6 +1,11 @@
 #include "MeshSpiral.h"
 
-MeshSpiral::MeshSpiral(const Vector3f &position, float radius, float tubeRadius, int numRotations, float length, bool repeatTexture, bool generateTexels, bool generateNormals, bool generateTangents, bool generateNormalDerivatives) {
+MeshSpiral::MeshSpiral(int uResolution, int vResolution) : MeshSpiral(Vector3f(0.0f, -0.75f, 0.0f), 0.5f, 0.25f, 2, 1.5f, true, true, true, false, false, uResolution, vResolution) { }
+
+MeshSpiral::MeshSpiral(bool generateTexels, bool generateNormals, bool generateTangents, bool generateNormalDerivatives, int uResolution, int vResolution) : MeshSpiral(Vector3f(0.0f, -0.75f, 0.0f), 0.5f, 0.25f, 2, 1.5f, true, generateTexels, generateNormals, generateTangents, generateNormalDerivatives, uResolution, vResolution) { }
+
+MeshSpiral::MeshSpiral(const Vector3f &position, float radius, float tubeRadius, int numRotations, float length, bool repeatTexture, bool generateTexels, bool generateNormals, bool generateTangents, bool generateNormalDerivatives, int uResolution, int vResolution) {
+	
 	m_radius = radius;
 	m_tubeRadius = tubeRadius;
 	m_numRotations = numRotations;
@@ -19,80 +24,37 @@ MeshSpiral::MeshSpiral(const Vector3f &position, float radius, float tubeRadius,
 	m_hasNormalDerivatives = false;
 
 	m_isInitialized = false;
-	m_mainSegments = 49;
-	m_tubeSegments = 49;
+	m_uResolution = uResolution;
+	m_vResolution = vResolution;
 
 	m_numBuffers = 1 + generateTexels + generateNormals + 2 * generateTangents + 2 * generateNormalDerivatives;
-
-	m_model = Matrix4f::IDENTITY;
 
 	buildMesh();
 }
 
-MeshSpiral::MeshSpiral(bool generateTexels, bool generateNormals, bool generateTangents, bool generateNormalDerivatives) : MeshSpiral(Vector3f(0.0f, -0.75f, 0.0f), 0.5f, 0.25f, 2, 1.5f, true, generateTexels, generateNormals, generateTangents, generateNormalDerivatives) {
-
-}
-
-
-MeshSpiral::MeshSpiral(const Vector3f &position, float radius, float tubeRadius, int numRotations, float length, bool repeatTexture, bool generateTexels, bool generateNormals, bool generateTangents, bool generateNormalDerivatives, const std::string &texture) {
-
-	m_radius = radius;
-	m_tubeRadius = tubeRadius;
-	m_numRotations = numRotations;
-	m_length = length;
-	m_repeatTexture = repeatTexture;
-	m_position = position;
-
-	m_generateNormals = generateNormals;
-	m_generateTexels = generateTexels;
-	m_generateTangents = generateTangents;
-	m_generateNormalDerivatives = generateNormalDerivatives;
-
-	m_hasTexels = false;
-	m_hasNormals = false;
-	m_hasTangents = false;
-	m_hasNormalDerivatives = false;
-
-	m_isInitialized = false;
-	m_mainSegments = 49;
-	m_tubeSegments = 49;
-
-	m_numBuffers = 2 + generateTexels + generateNormals + 2 * generateTangents + 2 * generateNormalDerivatives;
-
-	m_model = Matrix4f::IDENTITY;
-
-	m_texture = std::make_shared<Texture>(texture);
-	m_shader = std::make_shared<Shader>("shader/textureN.vert", "shader/textureN.frag");
-
-}
-
-MeshSpiral::MeshSpiral(const Vector3f &position, float radius, float tubeRadius, int numRotations, float length, const std::string &texture) : MeshSpiral(position, radius, tubeRadius, numRotations, length, false, true, true, false, false, texture) {}
-
-MeshSpiral::MeshSpiral(float radius, float tubeRadius, int numRotations, float length, const std::string &texture) : MeshSpiral(Vector3f(0.0f, 0.0f, 0.0f), radius, tubeRadius, numRotations, length, false, true, true, false, false, texture) { }
 
 MeshSpiral::~MeshSpiral() {}
 
 void MeshSpiral::setPrecision(int uResolution, int vResolution) {
 
-	m_mainSegments = uResolution;
-	m_tubeSegments = vResolution;
+	m_uResolution = uResolution;
+	m_vResolution = vResolution;
 }
 
 void MeshSpiral::buildMesh() {
 
 	if (m_isInitialized) return;
 
-	
 	std::vector<Vector3f> tangents;
 	std::vector<Vector3f> bitangents;
 	
-	float mainSegmentAngleStep = (2.0f * PI) / float(m_mainSegments);
-	float tubeSegmentAngleStep = (2.0f * PI) / float(m_tubeSegments);
+	float mainSegmentAngleStep = (2.0f * PI) / float(m_uResolution);
+	float tubeSegmentAngleStep = (2.0f * PI) / float(m_vResolution);
 	float pitch = m_length / m_numRotations;
 
 	float currentMainSegmentAngle = 0.0f;
 
-	for (unsigned int i = 0; i <= m_mainSegments * m_numRotations; i++) {
+	for (unsigned int i = 0; i <= m_uResolution * m_numRotations; i++) {
 
 		// Calculate sine and cosine of main segment angle
 		float sinMainSegment = sinf(currentMainSegmentAngle);
@@ -100,9 +62,9 @@ void MeshSpiral::buildMesh() {
 
 		float currentTubeSegmentAngle = 0.0f;
 
-		if (i > 0 && (m_mainSegments + 1) % i == 0) currentTubeSegmentAngle = 0.0f;
+		if (i > 0 && (m_uResolution + 1) % i == 0) currentTubeSegmentAngle = 0.0f;
 
-		for (unsigned int j = 0; j <= m_tubeSegments; j++) {
+		for (unsigned int j = 0; j <= m_vResolution; j++) {
 
 			// Calculate sine and cosine of tube segment angle
 			float sinTubeSegment = sinf(currentTubeSegmentAngle);
@@ -131,7 +93,7 @@ void MeshSpiral::buildMesh() {
 	if (m_generateNormals) {
 
 		float currentMainSegmentAngle = 0.0f;
-		for (unsigned int i = 0; i <= m_mainSegments * m_numRotations; i++) {
+		for (unsigned int i = 0; i <= m_uResolution * m_numRotations; i++) {
 
 			// Calculate sine and cosine of main segment angle
 			float sinMainSegment = sin(currentMainSegmentAngle);
@@ -139,9 +101,9 @@ void MeshSpiral::buildMesh() {
 
 			float currentTubeSegmentAngle = 0.0f;
 
-			if (i > 0 && (m_mainSegments + 1) % i == 0) currentTubeSegmentAngle = 0.0f;
+			if (i > 0 && (m_uResolution + 1) % i == 0) currentTubeSegmentAngle = 0.0f;
 
-			for (unsigned int j = 0; j <= m_tubeSegments; j++) {
+			for (unsigned int j = 0; j <= m_vResolution; j++) {
 
 				// Calculate sine and cosine of tube segment angle
 				float sinTubeSegment = sin(currentTubeSegmentAngle);
@@ -173,24 +135,24 @@ void MeshSpiral::buildMesh() {
 
 	if (m_generateTexels && m_numRotations > 0) {
 
-		int foo = (m_repeatTexture) ? m_mainSegments : m_mainSegments * m_numRotations;
+		int foo = (m_repeatTexture) ? m_uResolution : m_uResolution * m_numRotations;
 		int offset = (m_repeatTexture) ? m_numRotations - 1 : 0;
 
 		float mainSegmentTextureStep = 1.0 / (float(foo));
-		float tubeSegmentTextureStep = 1.0f / float(m_tubeSegments);
+		float tubeSegmentTextureStep = 1.0f / float(m_vResolution);
 
 		float currentMainSegmentTexCoordU = 0.0f;
 		bool flip = false;
 
-		for (unsigned int i = 0; i <= m_mainSegments * m_numRotations + offset; i++) {
+		for (unsigned int i = 0; i <= m_uResolution * m_numRotations + offset; i++) {
 
-			if (m_repeatTexture && i > 0 && i % (m_mainSegments + 1) == 0) {
+			if (m_repeatTexture && i > 0 && i % (m_uResolution + 1) == 0) {
 				flip = !flip;
 				currentMainSegmentTexCoordU = flip ? 1.0f : 0.0;
 			}
 			//rotate the texture to like the meshTorus
 			float currentTubeSegmentTexCoordV = 0.0f;
-			for (unsigned int j = 0; j <= m_tubeSegments; j++) {
+			for (unsigned int j = 0; j <= m_vResolution; j++) {
 				Vector2f textureCoordinate = Vector2f(1.0 - currentMainSegmentTexCoordU, currentTubeSegmentTexCoordV);
 				m_texels.push_back(textureCoordinate);
 
@@ -209,9 +171,8 @@ void MeshSpiral::buildMesh() {
 
 	if (m_generateTangents) {
 
-
 		float currentMainSegmentAngle = 0.0f;
-		for (unsigned int i = 0; i <= m_mainSegments * m_numRotations; i++) {
+		for (unsigned int i = 0; i <= m_uResolution * m_numRotations; i++) {
 
 			// Calculate sine and cosine of main segment angle
 			float sinMainSegment = sin(currentMainSegmentAngle);
@@ -219,9 +180,9 @@ void MeshSpiral::buildMesh() {
 
 			float currentTubeSegmentAngle = 0.0f;
 
-			if (i > 0 && (m_mainSegments + 1) % i == 0) currentTubeSegmentAngle = 0.0f;
+			if (i > 0 && (m_uResolution + 1) % i == 0) currentTubeSegmentAngle = 0.0f;
 
-			for (unsigned int j = 0; j <= m_tubeSegments; j++) {
+			for (unsigned int j = 0; j <= m_vResolution; j++) {
 
 				// Calculate sine and cosine of tube segment angle
 				float sinTubeSegment = sin(currentTubeSegmentAngle);
@@ -263,22 +224,22 @@ void MeshSpiral::buildMesh() {
 
 	//calculate the indices
 	unsigned int currentVertexOffset = 0;
-	for (unsigned int i = 0; i < m_mainSegments * m_numRotations; i++) {
+	for (unsigned int i = 0; i < m_uResolution * m_numRotations; i++) {
 
-		for (unsigned int j = 0; j < m_tubeSegments; j++) {
+		for (unsigned int j = 0; j < m_vResolution; j++) {
 
 			unsigned int vertexIndexA, vertexIndexB, vertexIndexC, vertexIndexD, vertexIndexE, vertexIndexF;
 
-			if ((j > 0) && ((j + 1) % (m_tubeSegments + 1)) == 0) {
-				currentVertexOffset = ((i + 1) * (m_tubeSegments + 1));
+			if ((j > 0) && ((j + 1) % (m_vResolution + 1)) == 0) {
+				currentVertexOffset = ((i + 1) * (m_vResolution + 1));
 			}else {
 
 				vertexIndexA = currentVertexOffset;
-				vertexIndexB = currentVertexOffset + m_tubeSegments + 1;
+				vertexIndexB = currentVertexOffset + m_vResolution + 1;
 				vertexIndexC = currentVertexOffset + 1;
 
-				vertexIndexD = currentVertexOffset + m_tubeSegments + 1;
-				vertexIndexF = currentVertexOffset + m_tubeSegments + 2;
+				vertexIndexD = currentVertexOffset + m_vResolution + 1;
+				vertexIndexF = currentVertexOffset + m_vResolution + 2;
 				vertexIndexE = currentVertexOffset + 1;
 
 				m_indexBuffer.push_back(vertexIndexA); m_indexBuffer.push_back(vertexIndexC); m_indexBuffer.push_back(vertexIndexB);
@@ -346,23 +307,6 @@ void MeshSpiral::buildMesh() {
 	bitangents.shrink_to_fit();
 	
 	m_isInitialized = true;
-}
-
-
-void MeshSpiral::draw(const Camera camera) {
-	glDisable(GL_CULL_FACE);
-	glUseProgram(m_shader->m_program);
-
-	m_texture->bind(0);
-	m_shader->loadMatrix("u_modelView", m_model * camera.getViewMatrix());
-	m_shader->loadMatrix("u_projection", camera.getPerspectiveMatrix());
-
-	glBindVertexArray(m_vao);
-	glDrawElements(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0);
-	glBindVertexArray(0);
-
-	glUseProgram(0);
-	glEnable(GL_CULL_FACE);
 }
 
 void MeshSpiral::drawRaw() {

@@ -3,27 +3,24 @@
 
 #include <GL/glew.h>
 #include <vector>
-#include <memory>
 
-#include "../Texture.h"
-#include "../Camera.h"
-#include "../Shader.h"
 #include "../Vector.h"
 
 class MeshCylinder {
+
 public:
 
-	MeshCylinder(bool generateTexels, bool generateNormals, bool generateTangents, bool generateNormalDerivatives);
-	MeshCylinder(const Vector3f &position, float baseRadius, float topRadius, float length, bool generateTexels, bool generateNormals, bool generateTangents, bool generateNormalDerivatives);
+	MeshCylinder(int uResolution = 10, int vResolution = 10);
+	MeshCylinder(bool generateTexels, bool generateNormals, bool generateTangents, bool generateNormalDerivatives, int uResolution = 10, int vResolution = 10);
+	MeshCylinder(const Vector3f &position, float baseRadius, float topRadius, float length, bool generateTexels, bool generateNormals, bool generateTangents, bool generateNormalDerivatives, int uResolution = 10, int vResolution = 10);
 	~MeshCylinder();
 
 	void setPrecision(int uResolution, int vResolution);
 	void buildMesh();
-	void draw(const Camera& camera);
+
 	void drawRaw();
 	void drawRawInstanced();
 
-	void setTransformation(const Matrix4f &transformation) { m_model = transformation; }
 	void createInstancesStatic(const std::vector<Matrix4f>& modelMTX);
 	void addInstance(const Matrix4f& modelMTX);
 
@@ -31,13 +28,12 @@ private:
 
 	std::vector<float> getSideNormals();
 
-	int m_tubeSegments;
-	int m_mainSegments;
+	int m_uResolution;
+	int m_vResolution;
 
 	float m_baseRadius;
 	float m_topRadius;
 	float m_length;
-
 	Vector3f m_position;
 
 	bool m_generateNormals;
@@ -63,11 +59,6 @@ private:
 	std::vector<Vector2f> m_texels;
 	std::vector<Vector3f> m_normals;
 	std::vector<Matrix4f> m_instances;
-
-	std::shared_ptr<Shader> m_shader;
-	std::shared_ptr<Texture> m_texture;
-
-	Matrix4f m_model;
 };
 
 #endif

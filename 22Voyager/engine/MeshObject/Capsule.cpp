@@ -1,6 +1,10 @@
 #include "Capsule.h"
 
-Capsule::Capsule(const Vector3f &position, float radius, float length, bool generateTexels, bool generateNormals, bool generateTangents, bool generateNormalDerivatives) {
+Capsule::Capsule(int uResolution, int vResolution) : Capsule(Vector3f(0.0f, 0.0f, 0.0f), 1.0f, 1.0f, true, true, false, false, uResolution, vResolution) { }
+
+Capsule::Capsule(bool generateTexels, bool generateNormals, bool generateTangents, bool generateNormalDerivatives, int uResolution, int vResolution) : Capsule(Vector3f(0.0f, 0.0f, 0.0f), 1.0f, 1.0f, generateTexels, generateNormals, generateTangents, generateNormalDerivatives, uResolution, vResolution) { }
+
+Capsule::Capsule(const Vector3f &position, float radius, float length, bool generateTexels, bool generateNormals, bool generateTangents, bool generateNormalDerivatives, int uResolution, int vResolution) {
 	
 	m_radius = radius;
 	m_length = length;
@@ -16,56 +20,16 @@ Capsule::Capsule(const Vector3f &position, float radius, float length, bool gene
 	m_hasNormalDerivatives = false;
 
 	m_isInitialized = false;
-	m_uResolution = 20;
-	m_vResolution = 20;
+	m_uResolution = uResolution;
+	m_vResolution = vResolution;
 
 	m_numBuffers = 1 + generateTexels + generateNormals + generateTangents * 2 + generateNormalDerivatives * 2;
-
-	m_model = Matrix4f::IDENTITY;
 
 	m_min = Vector3f(FLT_MAX, FLT_MAX, FLT_MAX);
 	m_max = Vector3f(FLT_MIN, FLT_MIN, FLT_MIN);
 
-	buildMesh();
+	BuildMesh(m_position, m_radius, m_length, m_uResolution, m_vResolution, m_generateTexels, m_generateNormals, m_positions, m_texels, m_normals, m_indexBuffer);
 }
-
-Capsule::Capsule(bool generateTexels, bool generateNormals, bool generateTangents, bool generateNormalDerivatives) : Capsule(Vector3f(0.0f, 0.0f, 0.0f), 1.0f, 1.0f, generateTexels, generateNormals, generateTangents, generateNormalDerivatives) { }
-
-Capsule::Capsule(const Vector3f &position, float radius, float length, bool generateTexels, bool generateNormals, bool generateTangents, bool generateNormalDerivatives, const std::string &texture) {
-
-	m_radius = radius;
-	m_length = length;
-	m_position = position;
-	m_generateNormals = generateNormals;
-	m_generateTexels = generateTexels;
-	m_generateTangents = generateTangents;
-	m_generateNormalDerivatives = generateNormalDerivatives;
-
-	m_hasTexels = false;
-	m_hasNormals = false;
-	m_hasTangents = false;
-	m_hasNormalDerivatives = false;
-
-	m_isInitialized = false;
-	m_uResolution = 49;
-	m_vResolution = 49;
-
-	m_numBuffers = 1 + generateTexels + generateNormals + generateTangents * 2 + generateNormalDerivatives * 2;
-
-	m_model = Matrix4f::IDENTITY;
-
-	m_texture = std::make_shared<Texture>(texture);
-	m_shader = std::make_shared<Shader>("shader/texture.vert", "shader/texture.frag");
-
-	m_min = Vector3f(FLT_MAX, FLT_MAX, FLT_MAX);
-	m_max = Vector3f(FLT_MIN, FLT_MIN, FLT_MIN);
-}
-
-Capsule::Capsule(const Vector3f &position, float radius, float length, const std::string &texture) : Capsule(position, radius, length, true, true, false, false, texture) {
-
-}
-
-Capsule::Capsule(float radius, float length, const std::string &texture) : Capsule(Vector3f(0.0f, 0.0f, 0.0f), radius, 1.0f, true, true, false, false, texture) { }
 
 Capsule::~Capsule() {}
 
@@ -74,14 +38,7 @@ void Capsule::setPrecision(int uResolution, int vResolution) {
 	m_vResolution = vResolution;
 }
 
-
-void Capsule::buildMesh() {
-	
-	buildHemisphere(Vector3f(0.0f, m_length * 0.5f, 0.0f), true);
-	if(m_length != 0)
-		buildCylinder();
-	buildHemisphere(Vector3f(0.0f, -m_length * 0.5f, 0.0f), false);
-
+void Capsule::createBuffer() {
 	m_drawCount = m_indexBuffer.size();
 
 	unsigned int ibo;
@@ -136,20 +93,41 @@ void Capsule::buildMesh() {
 	m_isInitialized = true;
 }
 
-void Capsule::buildHemisphere(const Vector3f &offset, bool north) {
 
-	float uAngleStep = (2.0f * PI) / float(m_uResolution);
-	float vAngleStep = (0.5f * PI) / float(m_vResolution);
+int Capsule::getNumberOfTriangles() {
+	return m_drawCount / 3;
+}
+
+void Capsule::drawRaw() {
+	glBindVertexArray(m_vao);
+	glDrawElements(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0);
+	glBindVertexArray(0);
+}
+
+void Capsule::BuildMesh(const Vector3f& position, float radius, float length, int uResolution, int vResolution, bool generateTexels, bool generateNormals, std::vector<Vector3f>& positions, std::vector<Vector2f>& texels, std::vector<Vector3f>& normals, std::vector<unsigned int>& indexBuffer) {
+
+	BuildHemisphere(position, radius, length, Vector3f(0.0f, length * 0.5f, 0.0f), true, uResolution, vResolution, generateTexels, generateNormals, positions, texels, normals, indexBuffer);
+	if (length != 0)
+		BuildCylinder(position, radius, length, uResolution, vResolution, generateTexels, generateNormals, positions, texels, normals, indexBuffer);
+	BuildHemisphere(position, radius, length, Vector3f(0.0f, -length * 0.5f, 0.0f), false, uResolution, vResolution, generateTexels, generateNormals, positions, texels, normals, indexBuffer);
+
+
+}
+
+void Capsule::BuildHemisphere(const Vector3f& position, float radius, float length, const Vector3f &offset, bool north, int uResolution, int vResolution, bool generateTexels, bool generateNormals, std::vector<Vector3f>& positions, std::vector<Vector2f>& texels, std::vector<Vector3f>& normals, std::vector<unsigned int>& indexBuffer) {
+
+	float uAngleStep = (2.0f * PI) / float(uResolution);
+	float vAngleStep = (0.5f * PI) / float(vResolution);
 	float vSegmentAngle, uSegmentAngle;
 
-	unsigned int baseIndex = m_positions.size();
+	unsigned int baseIndex = positions.size();
 
-	for (int i = 0; i <= m_vResolution; ++i) {
+	for (int i = 0; i <= vResolution; ++i) {
 		vSegmentAngle = i * vAngleStep;
 		float cosVSegment = cosf(vSegmentAngle);
 		float sinVSegment = sinf(vSegmentAngle);
 
-		for (int j = 0; j <= m_uResolution; ++j) {
+		for (int j = 0; j <= uResolution; ++j) {
 			uSegmentAngle = j * uAngleStep;
 
 			float cosUSegment = cosf(uSegmentAngle);
@@ -159,13 +137,13 @@ void Capsule::buildHemisphere(const Vector3f &offset, bool north) {
 			float y = sinVSegment;
 			float z = cosVSegment * sinUSegment;
 
-			m_positions.push_back(north ? Vector3f(m_radius * x, m_radius * y, m_radius * z) + offset : Vector3f(m_radius * x, -m_radius * y, m_radius * z) + offset);
+			positions.push_back((north ? Vector3f(radius * x, radius * y, radius * z) + offset : Vector3f(radius * x, -radius * y, radius * z) + offset) + position);
 
-			if (m_generateTexels)
-				m_texels.push_back(Vector2f(1.0f - (float)j / m_uResolution, north ? (float)i / m_vResolution : 1.0f - (float)i / m_vResolution));
-			
-			if (m_generateNormals)
-				m_normals.push_back(north ? Vector3f(x, y, z): Vector3f(x, -y, z));
+			if (generateTexels)
+				texels.push_back(Vector2f(1.0f - (float)j / uResolution, north ? (float)i / vResolution : 1.0f - (float)i / vResolution));
+
+			if (generateNormals)
+				normals.push_back(north ? Vector3f(x, y, z) : Vector3f(x, -y, z));
 
 			//improvte texture mapping
 			//if (i == m_vResolution) {
@@ -176,21 +154,21 @@ void Capsule::buildHemisphere(const Vector3f &offset, bool north) {
 
 	//improvte texture mapping
 	//int cutoff = (m_vResolution + 1) * m_uResolution;
-	for (unsigned int i = 0; i < m_vResolution; i++) {
+	for (unsigned int i = 0; i < vResolution; i++) {
 
-		int k1 = i * (m_uResolution + 1);
-		int k2 = k1 + (m_uResolution + 1);
+		int k1 = i * (uResolution + 1);
+		int k2 = k1 + (uResolution + 1);
 
-		for (unsigned int j = 0; j < m_uResolution; j++) {
+		for (unsigned int j = 0; j < uResolution; j++) {
 
-			m_indexBuffer.push_back(k1 + j + 1 + baseIndex );
-			m_indexBuffer.push_back(k2 + j + baseIndex );
-			m_indexBuffer.push_back(k1 + j + baseIndex);
+			indexBuffer.push_back(k1 + j + 1 + baseIndex);
+			indexBuffer.push_back(k2 + j + baseIndex);
+			indexBuffer.push_back(k1 + j + baseIndex);
 
-			if (i < m_vResolution - 1) {
-				m_indexBuffer.push_back(k2 + j + 1 + baseIndex);
-				m_indexBuffer.push_back(k2 + j + baseIndex);
-				m_indexBuffer.push_back(k1 + j + 1 + baseIndex);
+			if (i < vResolution - 1) {
+				indexBuffer.push_back(k2 + j + 1 + baseIndex);
+				indexBuffer.push_back(k2 + j + baseIndex);
+				indexBuffer.push_back(k1 + j + 1 + baseIndex);
 			}
 		}
 
@@ -210,67 +188,59 @@ void Capsule::buildHemisphere(const Vector3f &offset, bool north) {
 	}
 }
 
-std::vector<float> Capsule::getSideNormals() {
-	
-	float sectorStep = 2 * PI / m_uResolution;
+std::vector<float> Capsule::GetSideNormals(int uResolution) {
+
+	float sectorStep = 2 * PI / uResolution;
 	float sectorAngle;
 	std::vector<float> normals;
-	for (int i = 0; i <= m_uResolution; ++i) {
+	for (int i = 0; i <= uResolution; ++i) {
 		sectorAngle = i * sectorStep;
 		normals.push_back(cos(sectorAngle));
 		normals.push_back(0.0f);
-		normals.push_back(sin(sectorAngle));						
+		normals.push_back(sin(sectorAngle));
 	}
 
 	return normals;
 }
 
-void Capsule::buildCylinder() {
-	unsigned int baseIndex = m_positions.size();
+void Capsule::BuildCylinder(const Vector3f& position, float radius, float length, int uResolution, int vResolution, bool generateTexels, bool generateNormals, std::vector<Vector3f>& positions, std::vector<Vector2f>& texels, std::vector<Vector3f>& normals, std::vector<unsigned int>& indexBuffer) {
+	unsigned int baseIndex = positions.size();
 	float x, y, z;                                  // vertex position
-	float radius;                                   // radius for each stack
-
 													// get normals for cylinder sides
-	std::vector<float> sideNormals = getSideNormals();
+	std::vector<float> sideNormals = GetSideNormals(uResolution);
 
 	// put vertices of side cylinder to array by scaling unit circle
-	for (int i = 0; i <= m_vResolution; ++i) {
-		y = -(m_length * 0.5f) + (float)i / m_vResolution * m_length;      // vertex position z
-		radius = m_radius;
-		float t = 1.0f - (float)i / m_vResolution;   // top-to-bottom
+	for (int i = 0; i <= vResolution; ++i) {
+		y = -(length * 0.5f) + (float)i / vResolution * length;      // vertex position z
+		float t = 1.0f - (float)i / vResolution;   // top-to-bottom
 
-		float sectorStep = 2 * PI / m_uResolution;
+		float sectorStep = 2 * PI / uResolution;
 		float sectorAngle;  // radian
 
-		for (int j = 0, k = 0; j <= m_uResolution; ++j, k += 3) {
+		for (int j = 0, k = 0; j <= uResolution; ++j, k += 3) {
 			sectorAngle = j * sectorStep;
 			x = cos(sectorAngle);
 			z = sin(sectorAngle);
-			m_positions.push_back(Vector3f(x * radius, y, z * radius) + m_position);
-			m_texels.push_back(Vector2f(1.0f - (float)j / m_uResolution, 1.0f - t));
-			m_normals.push_back(Vector3f(sideNormals[k], sideNormals[k + 1], sideNormals[k + 2]));
+			positions.push_back(Vector3f(x * radius, y, z * radius) + position);
+
+			if (generateTexels)
+				texels.push_back(Vector2f(1.0f - (float)j / uResolution, 1.0f - t));
+
+			if (generateNormals)
+				normals.push_back(Vector3f(sideNormals[k], sideNormals[k + 1], sideNormals[k + 2]));
 		}
 	}
-
 
 	// put indices for sides
 	unsigned int k1, k2;
-	for (int i = 0; i < m_vResolution; ++i) {
-		k1 = i * (m_uResolution + 1);     // bebinning of current stack
-		k2 = k1 + m_uResolution + 1;      // beginning of next stack
+	for (int i = 0; i < vResolution; ++i) {
+		k1 = i * (uResolution + 1);     // bebinning of current stack
+		k2 = k1 + uResolution + 1;      // beginning of next stack
 
-		for (int j = 0; j < m_uResolution; ++j, ++k1, ++k2) {
+		for (int j = 0; j < uResolution; ++j, ++k1, ++k2) {
 			// 2 trianles per sector
-			m_indexBuffer.push_back(k1 + baseIndex);	m_indexBuffer.push_back(k1 + 1 + baseIndex);	m_indexBuffer.push_back(k2 + baseIndex);
-			m_indexBuffer.push_back(k2 + baseIndex);	m_indexBuffer.push_back(k1 + 1 + baseIndex);	m_indexBuffer.push_back(k2 + 1 + baseIndex);
+			indexBuffer.push_back(k1 + baseIndex);	indexBuffer.push_back(k1 + 1 + baseIndex);	indexBuffer.push_back(k2 + baseIndex);
+			indexBuffer.push_back(k2 + baseIndex);	indexBuffer.push_back(k1 + 1 + baseIndex);	indexBuffer.push_back(k2 + 1 + baseIndex);
 		}
 	}
-
-
-}
-
-void Capsule::drawRaw() {
-	glBindVertexArray(m_vao);
-	glDrawElements(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0);
-	glBindVertexArray(0);
 }

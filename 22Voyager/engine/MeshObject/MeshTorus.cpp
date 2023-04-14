@@ -1,6 +1,11 @@
 #include "MeshTorus.h"
 
-MeshTorus::MeshTorus(const Vector3f &position, float radius, float tubeRadius, bool generateTexels, bool generateNormals, bool generateTangents, bool generateNormalDerivatives) {
+MeshTorus::MeshTorus(int uResolution, int vResolution) : MeshTorus(Vector3f(0.0f, 0.0f, 0.0f), 0.5f, 0.25f, true, true, false, false, uResolution, vResolution) {}
+
+MeshTorus::MeshTorus(bool generateTexels, bool generateNormals, bool generateTangents, bool generateNormalDerivatives, int uResolution, int vResolution) : MeshTorus(Vector3f(0.0f, 0.0f, 0.0f), 0.5f, 0.25f, generateTexels, generateNormals, generateTangents, generateNormalDerivatives, uResolution, vResolution) {}
+
+MeshTorus::MeshTorus(const Vector3f &position, float radius, float tubeRadius, bool generateTexels, bool generateNormals, bool generateTangents, bool generateNormalDerivatives, int uResolution, int vResolution) {
+	
 	m_radius = radius;
 	m_tubeRadius = tubeRadius;
 	m_position = position;
@@ -15,56 +20,18 @@ MeshTorus::MeshTorus(const Vector3f &position, float radius, float tubeRadius, b
 	m_hasNormalDerivatives = false;
 
 	m_isInitialized = false;
-	m_mainSegments = 49;
-	m_tubeSegments = 49;
+	m_uResolution = uResolution;
+	m_vResolution = vResolution;
 
 	m_numBuffers = 1 + generateTexels + generateNormals + 2 * generateTangents + 2 * generateNormalDerivatives;
-
-	m_model = Matrix4f::IDENTITY;
-
 	buildMesh();
 }
-
-MeshTorus::MeshTorus(bool generateTexels, bool generateNormals, bool generateTangents, bool generateNormalDerivatives) : MeshTorus(Vector3f(0.0f, 0.0f, 0.0f), 0.5f, 0.25f, generateTexels, generateNormals, generateTangents, generateNormalDerivatives) {}
-
-
-MeshTorus::MeshTorus(const Vector3f &position, float radius, float tubeRadius, bool generateTexels, bool generateNormals, bool generateTangents, bool generateNormalDerivatives, const std::string &texture) {
-
-	m_radius = radius;
-	m_tubeRadius = tubeRadius;
-	m_position = position;
-	m_generateNormals = generateNormals;
-	m_generateTexels = generateTexels;
-	m_generateTangents = generateTangents;
-	m_generateNormalDerivatives = generateNormalDerivatives;
-
-	m_hasTexels = false;
-	m_hasNormals = false;
-	m_hasTangents = false;
-	m_hasNormalDerivatives = false;
-
-	m_isInitialized = false;
-	m_mainSegments = 49;
-	m_tubeSegments = 49;
-
-	m_numBuffers = 1 + generateTexels + generateNormals + 2 * generateTangents + 2 * generateNormalDerivatives;
-
-	m_model = Matrix4f::IDENTITY;
-
-	m_texture = std::make_shared<Texture>(texture);
-	m_shader = std::make_shared<Shader>("shader/texture.vert", "shader/texture.frag");
-}
-
-MeshTorus::MeshTorus(const Vector3f &position, float radius, float tubeRadius, const std::string &texture) : MeshTorus(position, radius, tubeRadius, true, true, false, false, texture) {}
-
-MeshTorus::MeshTorus(float radius, float tubeRadius, const std::string &texture) : MeshTorus(Vector3f(0.0f, 0.0f, 0.0f), radius, tubeRadius, true, true, false, false, texture) { }
 
 MeshTorus::~MeshTorus() {}
 
 void MeshTorus::setPrecision(int uResolution, int vResolution) {
-
-	m_mainSegments = uResolution;
-	m_tubeSegments = vResolution;
+	m_uResolution = uResolution;
+	m_vResolution = vResolution;
 }
 
 void MeshTorus::buildMesh() {
@@ -76,18 +43,18 @@ void MeshTorus::buildMesh() {
 	std::vector<Vector3f> normalsDu;
 	std::vector<Vector3f> normalsDv;
 
-	float mainSegmentAngleStep = (2.0f * PI) / float(m_mainSegments);
-	float tubeSegmentAngleStep = (2.0f * PI) / float(m_tubeSegments);
+	float mainSegmentAngleStep = (2.0f * PI) / float(m_uResolution);
+	float tubeSegmentAngleStep = (2.0f * PI) / float(m_vResolution);
 
 	float currentMainSegmentAngle = 0.0f;
-	for (unsigned int i = 0; i <= m_mainSegments; i++) {
+	for (unsigned int i = 0; i <= m_uResolution; i++) {
 
 		// Calculate sine and cosine of main segment angle
 		float sinMainSegment = sinf(currentMainSegmentAngle);
 		float cosMainSegment = cosf(currentMainSegmentAngle);
 		float currentTubeSegmentAngle = 0.0f;
 
-		for (unsigned int j = 0; j <= m_tubeSegments; j++) {
+		for (unsigned int j = 0; j <= m_vResolution; j++) {
 
 			// Calculate sine and cosine of tube segment angle
 			float sinTubeSegment = sinf(currentTubeSegmentAngle);
@@ -110,18 +77,18 @@ void MeshTorus::buildMesh() {
 
 	if (m_generateTexels) {
 
-		float mainSegmentTextureStep = 1.0f / (float(m_mainSegments));
-		float tubeSegmentTextureStep = 1.0f / (float(m_tubeSegments));
+		float mainSegmentTextureStep = 1.0f / (float(m_uResolution));
+		float tubeSegmentTextureStep = 1.0f / (float(m_vResolution));
 
 		//rotate the texture to get the same mapping like the primitive
 		float currentMainSegmentTexCoordV = 0.0f;
 
-		for (unsigned int i = 0; i <= m_mainSegments; i++) {
+		for (unsigned int i = 0; i <= m_uResolution; i++) {
 
 			//rotate the texture to get the same mapping like the primitive
 			float currentTubeSegmentTexCoordU = 0.0f;
 
-			for (unsigned int j = 0; j <= m_tubeSegments; j++) {
+			for (unsigned int j = 0; j <= m_vResolution; j++) {
 				Vector2f textureCoordinate = Vector2f(1.0 - currentMainSegmentTexCoordV, currentTubeSegmentTexCoordU);
 				m_texels.push_back(textureCoordinate);
 				currentTubeSegmentTexCoordU += tubeSegmentTextureStep;
@@ -136,7 +103,7 @@ void MeshTorus::buildMesh() {
 	if (m_generateNormals) {
 
 		float currentMainSegmentAngle = 0.0f;
-		for (unsigned int i = 0; i <= m_mainSegments; i++) {
+		for (unsigned int i = 0; i <= m_uResolution; i++) {
 
 			// Calculate sine and cosine of main segment angle
 			float sinMainSegment = sin(currentMainSegmentAngle);
@@ -144,7 +111,7 @@ void MeshTorus::buildMesh() {
 
 			float currentTubeSegmentAngle = 0.0f;
 
-			for (unsigned int j = 0; j <= m_tubeSegments; j++) {
+			for (unsigned int j = 0; j <= m_vResolution; j++) {
 
 				// Calculate sine and cosine of tube segment angle
 				float sinTubeSegment = sin(currentTubeSegmentAngle);
@@ -168,7 +135,7 @@ void MeshTorus::buildMesh() {
 	if (m_generateTangents) {
 
 		float currentMainSegmentAngle = 0.0f;
-		for (unsigned int i = 0; i <= m_mainSegments; i++) {
+		for (unsigned int i = 0; i <= m_uResolution; i++) {
 
 			// Calculate sine and cosine of main segment angle
 			float sinMainSegment = sin(currentMainSegmentAngle);
@@ -176,7 +143,7 @@ void MeshTorus::buildMesh() {
 
 			float currentTubeSegmentAngle = 0.0f;
 
-			for (unsigned int j = 0; j <= m_tubeSegments; j++) {
+			for (unsigned int j = 0; j <= m_vResolution; j++) {
 
 				// Calculate sine and cosine of tube segment angle
 				float sinTubeSegment = sin(currentTubeSegmentAngle);
@@ -196,7 +163,7 @@ void MeshTorus::buildMesh() {
 	if (m_generateNormalDerivatives) {
 
 		float currentMainSegmentAngle = 0.0f;
-		for (unsigned int i = 0; i <= m_mainSegments; i++) {
+		for (unsigned int i = 0; i <= m_uResolution; i++) {
 
 			// Calculate sine and cosine of main segment angle
 			float sinMainSegment = sin(currentMainSegmentAngle);
@@ -204,7 +171,7 @@ void MeshTorus::buildMesh() {
 
 			float currentTubeSegmentAngle = 0.0f;
 
-			for (unsigned int j = 0; j <= m_tubeSegments; j++) {
+			for (unsigned int j = 0; j <= m_vResolution; j++) {
 
 				// Calculate sine and cosine of tube segment angle
 				float sinTubeSegment = sin(currentTubeSegmentAngle);
@@ -260,22 +227,22 @@ void MeshTorus::buildMesh() {
 
 	//calculate the indices
 	unsigned int currentVertexOffset = 0;
-	for (unsigned int i = 0; i < m_mainSegments; i++) {
+	for (unsigned int i = 0; i < m_uResolution; i++) {
 
-		for (unsigned int j = 0; j <= m_tubeSegments; j++) {
+		for (unsigned int j = 0; j <= m_vResolution; j++) {
 
 			unsigned int vertexIndexA, vertexIndexB, vertexIndexC, vertexIndexD, vertexIndexE, vertexIndexF;
 
-			if ((j > 0) && ((j + 1) % (m_tubeSegments + 1)) == 0) {
-				currentVertexOffset = ((i + 1) * (m_tubeSegments + 1));
+			if ((j > 0) && ((j + 1) % (m_vResolution + 1)) == 0) {
+				currentVertexOffset = ((i + 1) * (m_vResolution + 1));
 			} else {
 
 				vertexIndexA = currentVertexOffset;
-				vertexIndexB = currentVertexOffset + m_tubeSegments + 1;
+				vertexIndexB = currentVertexOffset + m_vResolution + 1;
 				vertexIndexC = currentVertexOffset + 1;
 
-				vertexIndexD = currentVertexOffset + m_tubeSegments + 1;
-				vertexIndexF = currentVertexOffset + m_tubeSegments + 2;
+				vertexIndexD = currentVertexOffset + m_vResolution + 1;
+				vertexIndexF = currentVertexOffset + m_vResolution + 2;
 				vertexIndexE = currentVertexOffset + 1;
 
 				m_indexBuffer.push_back(vertexIndexA); m_indexBuffer.push_back(vertexIndexC); m_indexBuffer.push_back(vertexIndexB);
@@ -346,21 +313,6 @@ void MeshTorus::buildMesh() {
 	m_indexBuffer.shrink_to_fit();*/
 
 	m_isInitialized = true;
-}
-
-void MeshTorus::draw(const Camera camera) {
-
-	glUseProgram(m_shader->m_program);
-
-	m_texture->bind(0);
-	m_shader->loadMatrix("u_modelView", m_model * camera.getViewMatrix());
-	m_shader->loadMatrix("u_projection", camera.getPerspectiveMatrix());
-
-	glBindVertexArray(m_vao);
-	glDrawElements(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0);
-	glBindVertexArray(0);
-
-	glUseProgram(0);
 }
 
 void MeshTorus::drawRaw() {

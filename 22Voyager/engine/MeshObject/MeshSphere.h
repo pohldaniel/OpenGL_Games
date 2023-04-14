@@ -1,31 +1,23 @@
 #ifndef _MESHSPHERE_H
 #define _MESHSPHERE_H
+
 #include <GL/glew.h>
 #include <vector>
-#include <memory>
 
-#include "../Texture.h"
-#include "../Camera.h"
-#include "../Shader.h"
 #include "../Vector.h"
 
 class MeshSphere {
 
 public:
 
-	MeshSphere(bool generateTexels, bool generateNormals, bool generateTangents, bool generateNormalDerivatives);
-	MeshSphere(const Vector3f &position, float radius, bool generateTexels, bool generateNormals, bool generateTangents, bool generateNormalDerivatives);
-
-	MeshSphere(float radius, const std::string &texture);
-	MeshSphere(const Vector3f &position, float radius, const std::string &texture);
-	MeshSphere(const Vector3f &position, float radius, bool generateTexels, bool generateNormals, bool generateTangents, bool generateNormalDerivatives, const std::string &texture);
+	MeshSphere(int uResolution = 49, int vResolution = 49);
+	MeshSphere(bool generateTexels, bool generateNormals, bool generateTangents, bool generateNormalDerivatives, int uResolution = 49, int vResolution = 49);
+	MeshSphere(const Vector3f &position, float radius, bool generateTexels, bool generateNormals, bool generateTangents, bool generateNormalDerivatives, int uResolution = 49, int vResolution = 49);
 	~MeshSphere();
 
 	void setPrecision(int uResolution, int vResolution);
 	void buildMesh();
-	void draw(const Camera camera);
 	void drawRaw();
-	void setTransformation(const Matrix4f &transformation) { m_model = transformation; }
 
 private:
 
@@ -59,9 +51,5 @@ private:
 
 	Vector3f m_min;
 	Vector3f m_max;
-
-
-	std::shared_ptr<Shader> m_shader;
-	std::shared_ptr<Texture> m_texture;
 };
 #endif

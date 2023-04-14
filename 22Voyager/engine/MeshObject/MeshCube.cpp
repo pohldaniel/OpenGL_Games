@@ -1,8 +1,10 @@
 #include "MeshCube.h"
 
-MeshCube::MeshCube(bool generateTexels, bool generateNormals, bool generateTangents, bool generateNormalDerivatives) : MeshCube(Vector3f(-1.0f, -1.0f, -1.0f), Vector3f(2.0f, 2.0f, 2.0f), generateTexels, generateNormals, generateTangents, generateNormalDerivatives) { }
+MeshCube::MeshCube(int uResolution, int vResolution) : MeshCube(Vector3f(-1.0f, -1.0f, -1.0f), Vector3f(2.0f, 2.0f, 2.0f), true, true, false, false, uResolution, vResolution) { }
 
-MeshCube::MeshCube(const Vector3f &position, const Vector3f& size, bool generateTexels, bool generateNormals, bool generateTangents, bool generateNormalDerivatives) {
+MeshCube::MeshCube(bool generateTexels, bool generateNormals, bool generateTangents, bool generateNormalDerivatives, int uResolution, int vResolution) : MeshCube(Vector3f(-1.0f, -1.0f, -1.0f), Vector3f(2.0f, 2.0f, 2.0f), generateTexels, generateNormals, generateTangents, generateNormalDerivatives, uResolution, vResolution) { }
+
+MeshCube::MeshCube(const Vector3f &position, const Vector3f& size, bool generateTexels, bool generateNormals, bool generateTangents, bool generateNormalDerivatives, int uResolution, int vResolution) {
 
 	m_position = position;
 	m_size = size;
@@ -18,8 +20,8 @@ MeshCube::MeshCube(const Vector3f &position, const Vector3f& size, bool generate
 
 	m_isInitialized = false;
 
-	m_uResolution = 1;
-	m_vResolution = 1;
+	m_uResolution = uResolution;
+	m_vResolution = vResolution;
 
 	m_numBuffers = 1 + generateTexels + generateNormals + 2 * generateTangents + 2 * generateNormalDerivatives;
 
@@ -28,19 +30,7 @@ MeshCube::MeshCube(const Vector3f &position, const Vector3f& size, bool generate
 	buildMesh4Q();
 }
 
-MeshCube::MeshCube(const Vector3f &position, const Vector3f& size) : MeshCube(position, size, true, true, false, false) {}
-
-MeshCube::MeshCube(const Vector3f& size) : MeshCube(-size * 0.5f, size, true, true, false, false) {}
-
 MeshCube::~MeshCube() {}
-
-void MeshCube::setShader(Shader* shader) {
-	m_shader = std::make_shared<Shader>(shader);
-}
-
-void MeshCube::setTexture(Texture* texture) {
-	m_texture.reset(texture);
-}
 
 void MeshCube::setPrecision(int uResolution, int vResolution) {
 
@@ -61,8 +51,6 @@ const Vector3f& MeshCube::getCenter() const {
 }
 
 void MeshCube::buildMesh() {
-
-	
 
 	float vStep = (1.0f / m_vResolution) * m_size[1];
 	float uStep = (1.0f / m_uResolution) * m_size[0];
@@ -648,18 +636,8 @@ void MeshCube::buildMesh4Q() {
 	m_isInitialized = true;
 }
 
-void MeshCube::draw(const Camera& camera) {
-	glUseProgram(m_shader->m_program);
-
-	m_texture->bind(0);
-	m_shader->loadMatrix("u_modelView", m_model * camera.getViewMatrix());
-	m_shader->loadMatrix("u_projection", camera.getPerspectiveMatrix());
-
-	glBindVertexArray(m_vao);
-	glDrawElements(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0);
-	glBindVertexArray(0);
-
-	glUseProgram(0);
+int MeshCube::getNumberOfTriangles() {
+	return m_drawCount / 3;
 }
 
 void MeshCube::drawRaw() {

@@ -1,10 +1,11 @@
+#include <iostream>
 #include "MeshQuad.h"
 
-MeshQuad::MeshQuad(bool generateTexels, bool generateNormals, bool generateTangents, bool generateNormalDerivatives) : MeshQuad(Vector3f(-1.0f, 0.0f, -1.0f), Vector2f(2.0f, 2.0f), generateTexels, generateNormals, generateTangents, generateNormalDerivatives) {
+MeshQuad::MeshQuad(int uResolution, int vResolution) : MeshQuad(Vector3f(-1.0f, -1.0f, 0.0f), Vector2f(2.0f, 2.0f), true, true, false, false, uResolution, vResolution) { }
 
-}
+MeshQuad::MeshQuad(bool generateTexels, bool generateNormals, bool generateTangents, bool generateNormalDerivatives, int uResolution, int vResolution) : MeshQuad(Vector3f(-1.0f, -1.0f, 0.0f), Vector2f(2.0f, 2.0f), generateTexels, generateNormals, generateTangents, generateNormalDerivatives, uResolution, vResolution) { }
 
-MeshQuad::MeshQuad(const Vector3f &position, const Vector2f& size, bool generateTexels, bool generateNormals, bool generateTangents, bool generateNormalDerivatives) {
+MeshQuad::MeshQuad(const Vector3f &position, const Vector2f& size, bool generateTexels, bool generateNormals, bool generateTangents, bool generateNormalDerivatives, int uResolution, int vResolution) {
 
 	m_position = position;
 	m_size = size;
@@ -21,31 +22,16 @@ MeshQuad::MeshQuad(const Vector3f &position, const Vector2f& size, bool generate
 
 	m_isInitialized = false;
 
-	m_uResolution = 49;
-	m_vResolution = 49;
+	m_uResolution = uResolution;
+	m_vResolution = vResolution;
 
 	m_numBuffers = 1 + generateTexels + generateNormals + 2 * generateTangents + 2 * generateNormalDerivatives;
-
-	m_transform = Transform();
-	m_model = Matrix4f::IDENTITY;
 
 	m_center = m_position + Vector3f(m_size[0], 0.0f, m_size[1]) * 0.5f;
 	buildMesh();
 }
 
-MeshQuad::MeshQuad(const Vector3f &position, const Vector2f& size) : MeshQuad(position, size, true, true, false, false) {
-
-}
-
 MeshQuad::~MeshQuad() {}
-
-void MeshQuad::setShader(Shader* shader) {
-	m_shader = std::make_shared<Shader>(shader);
-}
-
-void MeshQuad::setTexture(Texture* texture) {
-	m_texture.reset(texture);
-}
 
 void MeshQuad::setPrecision(int uResolution, int vResolution) {
 
@@ -55,22 +41,6 @@ void MeshQuad::setPrecision(int uResolution, int vResolution) {
 
 int MeshQuad::getNumberOfTriangles() {
 	return m_numberOfTriangle;
-}
-
-void MeshQuad::rotate(const Vector3f &axis, float degrees) {
-	m_transform.rotate(axis, degrees);
-}
-
-void MeshQuad::translate(float dx, float dy, float dz) {
-	m_model.translate(dx, dy, dz);
-}
-
-void MeshQuad::scale(float a, float b, float c) {
-	m_model.scale(a, b, c);
-}
-
-void MeshQuad::setTransformation(const Matrix4f& model) {
-	m_model = model;
 }
 
 const Vector3f& MeshQuad::getPosition() const {
@@ -93,33 +63,24 @@ void MeshQuad::buildMesh(){
 		for (unsigned int j = 0; j <= m_uResolution; j++) {
 			
 			// Calculate vertex position on the surface of a quad
-			float x = j * uStep;
-			float z = i * vStep;
-			float y = 0.0f;
+			float x = j * uStep;		
+			float y = i * vStep;
+			float z = 0.0f;
 
 			Vector3f position = Vector3f(x, y, z) + m_position;
 			m_positions.push_back(position);
 
 			if (m_generateNormals) {
-				m_normals.push_back(Vector3f(0.0f, 1.0f, 0.0f));
+				m_normals.push_back(Vector3f(0.0f, 0.0f, 1.0f));
 			}
-		}
-	}
 
-	if (m_generateTexels) {
-
-		for (unsigned int i = 0; i <= m_vResolution; i++) {
-			for (int j = 0; j <= m_uResolution; j++) {
-
+			if (m_generateTexels) {
 				// Calculate texels on the surface of a quad
 				float u = (float)j / m_uResolution;
 				float v = (float)i / m_vResolution;
-
-				Vector2f textureCoordinate = Vector2f(u, 1.0f - v);
-				m_texels.push_back(textureCoordinate);
+				m_texels.push_back(Vector2f(u, 1.0f - v));
 			}
 		}
-		m_hasTexels = true;
 	}
 
 	//calculate the indices
@@ -192,24 +153,6 @@ void MeshQuad::buildMesh(){
 	//m_indexBuffer.shrink_to_fit();
 
 	m_isInitialized = true;
-}
-
-void MeshQuad::draw(const Camera camera) {
-
-	glUseProgram(m_shader->m_program);
-	
-	m_texture->bind(0);
-	m_shader->loadMatrix("u_projection", camera.getPerspectiveMatrix());
-	m_shader->loadMatrix("u_view", camera.getViewMatrix());
-	m_shader->loadMatrix("u_model", m_model);
-
-	glBindVertexArray(m_vao);
-	glDrawElements(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0);
-	glBindVertexArray(0);
-	Texture::Unbind();
-
-	glUseProgram(0);
-
 }
 
 void MeshQuad::drawRaw() {

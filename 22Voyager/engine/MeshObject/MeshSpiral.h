@@ -1,36 +1,29 @@
 #ifndef _MESHSPIRAL_H
 #define _MESHSPIRA_H
+
 #include <GL/glew.h>
 #include <vector>
-#include <memory>
 
-#include "../Texture.h"
-#include "../Camera.h"
-#include "../Shader.h"
 #include "../Vector.h"
 
 class MeshSpiral {
 
 public:
 
-	MeshSpiral(bool generateTexels, bool generateNormals, bool generateTangents, bool generateNormalDerivatives);
-	MeshSpiral(const Vector3f &position, float radius, float tubeRadius, int numRotations, float length, bool repeatTexture, bool generateTexels, bool generateNormals, bool generateTangents, bool generateNormalDerivatives);
+	MeshSpiral(int uResolution = 49, int vResolution = 49);
+	MeshSpiral(bool generateTexels, bool generateNormals, bool generateTangents, bool generateNormalDerivatives, int uResolution = 49, int vResolution = 49);
+	MeshSpiral(const Vector3f &position, float radius, float tubeRadius, int numRotations, float length, bool repeatTexture, bool generateTexels, bool generateNormals, bool generateTangents, bool generateNormalDerivatives, int uResolution = 49, int vResolution = 49);
 
-	MeshSpiral(float radius, float tubeRadius, int numRotations, float length, const std::string &texture);
-	MeshSpiral(const Vector3f &position, float radius, float tubeRadius, int numRotations, float length, const std::string &texture);
-	MeshSpiral(const Vector3f &position, float radius, float tubeRadius, int numRotations, float length, bool repeatTexture, bool generateTexels, bool generateNormals, bool generateTangents, bool generateNormalDerivatives, const std::string &texture);
 	~MeshSpiral();
 
 	void setPrecision(int uResolution, int vResolution);
 	void buildMesh();
-	void draw(const Camera camera);
 	void drawRaw();
-	void setTransformation(const Matrix4f &transformation) { m_model = transformation; }
 
 private:
 
-	int m_mainSegments;
-	int m_tubeSegments;
+	int m_uResolution;
+	int m_vResolution;
 
 	int m_numRotations;
 	float m_length;
@@ -60,10 +53,5 @@ private:
 	std::vector<Vector3f> m_positions;
 	std::vector<Vector2f> m_texels;
 	std::vector<Vector3f> m_normals;
-
-	std::shared_ptr<Shader> m_shader;
-	std::shared_ptr<Texture> m_texture;
-
-	Matrix4f m_model;
 };
 #endif

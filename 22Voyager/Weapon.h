@@ -3,6 +3,7 @@
 #include <glm/glm/glm.hpp>
 #include <glm/glm/gtx/transform.hpp>
 #include "engine/AssimpModel.h"
+#include "RenderableObject.h"
 #include "Animation.h"
 
 class Weapon {
@@ -38,10 +39,11 @@ public:
 	unsigned short m_materialIndex;
 
 	AssimpModel m_mesh;
-
+	RenderableObject* m_muzzle;
 private:
 
 	float m_currFireRateTime, m_fireRate, m_currReloadTime, m_maxReloadTimer;
 	int m_ammoCount, m_maxAmmo, m_damage;
 	Animation m_animator;
+	Transform m_transform;
 };

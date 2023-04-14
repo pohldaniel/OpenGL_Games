@@ -1,7 +1,7 @@
 #version 440 core
 
 out vec4 FragColor;
-in vec4 vertexColor;
+
 in vec2 vertexUv;
 in vec3 vertexNorms;
 in vec3 fragPos;

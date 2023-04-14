@@ -3,32 +3,23 @@
 
 #include <GL/glew.h>
 #include <vector>
-#include <memory>
 
-#include "../Texture.h"
-#include "../Camera.h"
-#include "../Shader.h"
 #include "../Vector.h"
-#include "../Transform.h"
 
 class MeshCube {
 
 public:
 
-	MeshCube(bool generateTexels, bool generateNormals, bool generateTangents, bool generateNormalDerivatives);
-	MeshCube(const Vector3f& size);
-	MeshCube(const Vector3f &position, const Vector3f& size);
-	MeshCube(const Vector3f &position, const Vector3f& size, bool generateTexels, bool generateNormals, bool generateTangents, bool generateNormalDerivatives);
+	MeshCube(int uResolution = 1, int vResolution = 1);
+	MeshCube(bool generateTexels, bool generateNormals, bool generateTangents, bool generateNormalDerivatives, int uResolution = 1, int vResolution = 1);
+	MeshCube(const Vector3f &position, const Vector3f& size, bool generateTexels, bool generateNormals, bool generateTangents, bool generateNormalDerivatives, int uResolution = 1, int vResolution = 1);
 	~MeshCube();
 
 	void setPrecision(int uResolution, int vResolution);
 	void buildMesh();
 	void buildMesh4Q();
-	void draw(const Camera& camera);
 	void drawRaw();
 
-	void setShader(Shader* shader);
-	void setTexture(Texture* texture);
 	int getNumberOfTriangles();
 
 	const Vector3f &getPosition() const;
@@ -65,11 +56,5 @@ private:
 	std::vector<Vector3f> m_positions;
 	std::vector<Vector2f> m_texels;
 	std::vector<Vector3f> m_normals;
-
-
-	std::shared_ptr<Shader> m_shader;
-	std::shared_ptr<Texture> m_texture;
-
-	Matrix4f m_model;
 };
 #endif

@@ -2,13 +2,14 @@
 #define __quadH__
 
 #include <vector>
-#include "Shader.h"
+#include "engine/Vector.h"
 
 class Quad {
 
 public:
+
 	Quad();
-	Quad(const Vector2f& position, const Vector2f size);
+	Quad(const Vector3f& position, const Vector3f& size);
 	Quad(bool flippable, float leftEdge = -1.0f, float rightEdge = 1.0f, float bottomEdge = -1.0f, float topEdge = 1.0f, float sizeX = 1.0f, float sizeY = 1.0f, float offsetX = 0.0f, float offsetY = 0.0f, float sizeTexX = 1.0f, float sizeTexY = 1.0f,  short x = 0, short y = 0);
 	~Quad();
 
@@ -17,15 +18,14 @@ public:
 	void drawRawInstanced(unsigned int instanceCount);
 	void setFlipped(bool flipped);
 
-	const Vector2f &getScale() const;
-	void setPosition(const Vector2f &position);
-	void setSize(const Vector2f &size);
-	void setOrigin(const Vector2f &origin);
+	void setPosition(const Vector3f& position);
+	void setSize(const Vector3f& size);
 
-	const Vector2f &getPosition() const;
-	const Vector2f &getSize() const;
-	const Vector2f &getOrigin() const;
-	void createBuffer(const Vector3f& position, const Vector3f size);
+	const Vector3f& getPosition() const;
+	const Vector3f& getSize() const;
+
+	void createBuffer(const Vector3f& position, const Vector3f& size);
+
 private:
 
 	void createBuffer(unsigned int& vao, bool flippable, float leftEdge = -1.0f, float rightEdge = 1.0f, float bottomEdge = -1.0f, float topEdge = 1.0f, float sizeX = 1.0f, float sizeY = 1.0f, float offsetX = 0.0f, float offsetY = 0.0f, float sizeTexX = 1.0f, float sizeTexY = 1.0f, short x = 0, short y = 0);
@@ -40,9 +40,8 @@ private:
 	bool m_flippable = false;
 	bool m_flipped = false;
 
-	Vector2f m_scale;
-	Vector2f m_position;
-	Vector2f m_size;
-	Vector2f m_origin;
+	Vector3f m_position;
+	Vector3f m_size;
+
 };
 #endif // __quadH__

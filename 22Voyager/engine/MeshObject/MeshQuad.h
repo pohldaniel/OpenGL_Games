@@ -3,28 +3,17 @@
 
 #include <GL/glew.h>
 #include <vector>
-#include <memory>
 
-#include "../Texture.h"
-#include "../Camera.h"
-#include "../Shader.h"
 #include "../Vector.h"
-#include "../Transform.h"
 
 class MeshQuad {
 
 public:
 
-	MeshQuad(bool generateTexels, bool generateNormals, bool generateTangents, bool generateNormalDerivatives);
-
-	MeshQuad(const Vector3f &position, const Vector2f& size);
-	MeshQuad(const Vector3f &position, const Vector2f& size, bool generateTexels, bool generateNormals, bool generateTangents, bool generateNormalDerivatives);
+	MeshQuad(int uResolution = 1, int vResolution = 1);
+	MeshQuad(bool generateTexels, bool generateNormals, bool generateTangents, bool generateNormalDerivatives, int uResolution = 1, int vResolution = 1);
+	MeshQuad(const Vector3f &position, const Vector2f& size, bool generateTexels, bool generateNormals, bool generateTangents, bool generateNormalDerivatives, int uResolution = 1, int vResolution = 1);
 	~MeshQuad();
-
-	void rotate(const Vector3f &axis, float degrees);
-	void translate(float dx, float dy, float dz);
-	void scale(float a, float b, float c);
-	void setTransformation(const Matrix4f& model);
 
 	const Vector3f &getPosition() const;
 	const Vector2f &getSize() const;
@@ -32,10 +21,7 @@ public:
 
 	void setPrecision(int uResolution, int vResolution);
 	void buildMesh();
-	void draw(const Camera camera);
 	void drawRaw();
-	void setShader(Shader* shader);
-	void setTexture(Texture* texture);
 	int getNumberOfTriangles();
 
 private:
@@ -68,13 +54,5 @@ private:
 	std::vector<Vector3f> m_positions;
 	std::vector<Vector2f> m_texels;
 	std::vector<Vector3f> m_normals;
-
-
-	Transform m_transform;
-	Matrix4f m_model;
-
-	std::shared_ptr<Shader> m_shader;
-	std::shared_ptr<Texture> m_texture;
-
 };
 #endif

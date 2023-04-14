@@ -294,6 +294,10 @@ void Transform::getPosition(Vector3f& position) {
 	position = Vector3f(T[3][0], T[3][1], T[3][2]);
 }
 
+void Transform::setPosition(float x, float y, float z) {
+	T[3][0] = x; T[3][1] = y; T[3][2] = z;
+}
+
 void Transform::setPosition(const Vector3f& _position) {
 	T[3][0] = _position[0]; T[3][1] = _position[1]; T[3][2] = _position[2];
 }

@@ -1,6 +1,10 @@
 #include "MeshSphere.h"
 
-MeshSphere::MeshSphere(const Vector3f &position, float radius, bool generateTexels, bool generateNormals, bool generateTangents, bool generateNormalDerivatives) {
+MeshSphere::MeshSphere(int uResolution, int vResolution) : MeshSphere(Vector3f(0.0f, 0.0f, 0.0f), 1.0f, true, true, false, false) { }
+
+MeshSphere::MeshSphere(bool generateTexels, bool generateNormals, bool generateTangents, bool generateNormalDerivatives, int uResolution, int vResolution) : MeshSphere(Vector3f(0.0f, 0.0f, 0.0f), 1.0f, generateTexels, generateNormals, generateTangents, generateNormalDerivatives, uResolution, vResolution) { }
+
+MeshSphere::MeshSphere(const Vector3f &position, float radius, bool generateTexels, bool generateNormals, bool generateTangents, bool generateNormalDerivatives, int uResolution, int vResolution) {
 	m_radius = radius;
 	m_position = position;
 	m_generateNormals = generateNormals;
@@ -14,8 +18,8 @@ MeshSphere::MeshSphere(const Vector3f &position, float radius, bool generateTexe
 	m_hasNormalDerivatives = false;
 
 	m_isInitialized = false;
-	m_uResolution = 49;
-	m_vResolution = 49;
+	m_uResolution = uResolution;
+	m_vResolution = vResolution;
 
 	m_numBuffers = 1 + generateTexels + generateNormals + generateTangents * 2 + generateNormalDerivatives * 2;
 
@@ -27,42 +31,6 @@ MeshSphere::MeshSphere(const Vector3f &position, float radius, bool generateTexe
 	buildMesh();
 }
 
-MeshSphere::MeshSphere(bool generateTexels, bool generateNormals, bool generateTangents, bool generateNormalDerivatives) : MeshSphere(Vector3f(0.0f, 0.0f, 0.0f), 1.0f, generateTexels, generateNormals, generateTangents, generateNormalDerivatives) { }
-
-MeshSphere::MeshSphere(const Vector3f &position, float radius, bool generateTexels, bool generateNormals, bool generateTangents, bool generateNormalDerivatives, const std::string &texture) {
-
-	m_radius = radius;
-	m_position = position;
-	m_generateNormals = generateNormals;
-	m_generateTexels = generateTexels;
-	m_generateTangents = generateTangents;
-	m_generateNormalDerivatives = generateNormalDerivatives;
-
-	m_hasTexels = false;
-	m_hasNormals = false;
-	m_hasTangents = false;
-	m_hasNormalDerivatives = false;
-
-	m_isInitialized = false;
-	m_uResolution = 49;
-	m_vResolution = 49;
-
-	m_numBuffers = 2 + generateTexels + generateNormals + generateTangents * 2 + generateNormalDerivatives * 2;
-
-	m_model = Matrix4f::IDENTITY;
-
-	m_texture = std::make_shared<Texture>(texture);
-	m_shader = std::make_shared<Shader>("shader/texture.vert", "shader/texture.frag");
-
-	m_min = Vector3f(FLT_MAX, FLT_MAX, FLT_MAX);
-	m_max = Vector3f(FLT_MIN, FLT_MIN, FLT_MIN);
-
-	buildMesh();
-}
-
-MeshSphere::MeshSphere(const Vector3f &position, float radius, const std::string &texture) : MeshSphere(position, radius, true, true, false, false, texture) {}
-
-MeshSphere::MeshSphere(float radius, const std::string &texture) : MeshSphere(Vector3f(0.0f, 0.0f, 0.0f), radius, true, true, false, false, texture) { }
 
 MeshSphere::~MeshSphere() {}
 
@@ -205,20 +173,6 @@ void MeshSphere::buildMesh() {
 	m_indexBuffer.shrink_to_fit();*/
 
 	m_isInitialized = true;
-}
-
-void MeshSphere::draw(const Camera camera) {
-	glUseProgram(m_shader->m_program);
-
-	m_texture->bind(0);
-	m_shader->loadMatrix("u_modelView", m_model * camera.getViewMatrix());
-	m_shader->loadMatrix("u_projection", camera.getPerspectiveMatrix());
-
-	glBindVertexArray(m_vao);
-	glDrawElements(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0);
-	glBindVertexArray(0);
-
-	glUseProgram(0);
 }
 
 void MeshSphere::drawRaw() {

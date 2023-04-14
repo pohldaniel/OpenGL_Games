@@ -1,40 +1,33 @@
 #ifndef _MESHTORUS_H
 #define _MESHTORUS_H
+
 #include <GL/glew.h>
 #include <vector>
-#include <memory>
 
-#include "../Texture.h"
-#include "../Camera.h"
-#include "../Shader.h"
 #include "../Vector.h"
 
 class MeshTorus {
 
 public:
 
-	MeshTorus(bool generateTexels, bool generateNormals, bool generateTangents, bool generateNormalDerivatives);
-	MeshTorus(const Vector3f &position, float radius, float tubeRadius, bool generateTexels, bool generateNormals, bool generateTangents, bool generateNormalDerivatives);
-
-	MeshTorus(float radius, float tubeRadius, const std::string &texture);
-	MeshTorus(const Vector3f &position, float radius, float tubeRadius, const std::string &texture);
-	MeshTorus(const Vector3f &position, float radius, float tubeRadius, bool generateTexels, bool generateNormals, bool generateTangents, bool generateNormalDerivatives, const std::string &texture);
+	MeshTorus(int uResolution = 49, int vResolution = 49);
+	MeshTorus(bool generateTexels, bool generateNormals, bool generateTangents, bool generateNormalDerivatives, int uResolution = 49, int vResolution = 49);
+	MeshTorus(const Vector3f &position, float radius, float tubeRadius, bool generateTexels, bool generateNormals, bool generateTangents, bool generateNormalDerivatives, int uResolution = 49, int vResolution = 49);
 	~MeshTorus();
 
 	void setPrecision(int uResolution, int vResolution);
 	void buildMesh();
-	void draw(const Camera camera);
+
 	void drawRaw();
 	void drawRawInstanced();
 
-	void setTransformation(const Matrix4f &transformation) { m_model = transformation; }
 	void createInstancesStatic(const std::vector<Matrix4f>& modelMTX);
 	void addInstance(const Matrix4f& modelMTX);
 
 private:
 
-	int m_mainSegments;
-	int m_tubeSegments;
+	int m_uResolution;
+	int m_vResolution;
 	float m_radius;
 	float m_tubeRadius;
 	Vector3f m_position;
@@ -63,9 +56,5 @@ private:
 	std::vector<Vector3f> m_normals;
 	std::vector<Matrix4f> m_instances;
 
-	std::shared_ptr<Shader> m_shader;
-	std::shared_ptr<Texture> m_texture;
-
-	Matrix4f m_model;
 };
 #endif

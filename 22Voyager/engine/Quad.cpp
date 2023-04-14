@@ -1,9 +1,10 @@
-#include "Quad.h"
+#include <GL/glew.h>
 #include <iostream>
+#include "Quad.h"
 
 Quad::Quad() {
-	m_position = Vector2f(-1.0f, -1.0f);
-	m_size = Vector2f(2.0f, 2.0f);
+	m_position = Vector3f(-1.0f, -1.0f, 0.0f);
+	m_size = Vector3f(2.0f, 2.0f, 0.0f);
 	createBuffer();
 }
 
@@ -20,7 +21,7 @@ Quad::Quad(bool flippable, float leftEdge, float rightEdge, float bottomEdge, fl
 	}
 }
 
-Quad::Quad(const Vector2f& position, const Vector2f size) {
+Quad::Quad(const Vector3f& position, const Vector3f& size) {
 	m_position = position;
 	m_size = size;
 	createBuffer();
@@ -67,9 +68,6 @@ void Quad::createBuffer(unsigned int& vao, bool flippable, float leftEdge, float
 	short stride = flippable ? 7 : 5;
 	short offset = 3;
 
-	m_scale[0] = (vertex[stride * 2] - vertex[0]) / sizeX;
-	m_scale[1] = (vertex[stride + 1] - vertex[1]) / sizeY;
-
 	unsigned int ibo;
 	glGenBuffers(1, &ibo);
 	glGenBuffers(1, &m_vbo);
@@ -106,15 +104,10 @@ void Quad::createBuffer(unsigned int& vao, bool flippable, float leftEdge, float
 
 void Quad::createBuffer() {
 	std::vector<float> vertex;
-
-	Vector2f pos = m_position;
-	float w = m_size[0];
-	float h = m_size[1];
-	
-	vertex.push_back(pos[0]); vertex.push_back(pos[1]); vertex.push_back(0.0f); vertex.push_back(0.0f); vertex.push_back(0.0f);
-	vertex.push_back(pos[0]); vertex.push_back(pos[1] + h); vertex.push_back(0.0f); vertex.push_back(0.0f); vertex.push_back(1.0f);
-	vertex.push_back(pos[0] + w); vertex.push_back(pos[1] + h); vertex.push_back(0.0f); vertex.push_back(1.0f); vertex.push_back(1.0f);
-	vertex.push_back(pos[0] + w); vertex.push_back(pos[1]); vertex.push_back(0.0f); vertex.push_back(1.0f); vertex.push_back(0.0f);
+	vertex.push_back(m_position[0]);			 vertex.push_back(m_position[1]);			  vertex.push_back(m_position[2] + m_size[2]); vertex.push_back(0.0f); vertex.push_back(0.0f);
+	vertex.push_back(m_position[0]);			 vertex.push_back(m_position[1] + m_size[1]); vertex.push_back(m_position[2] + m_size[2]); vertex.push_back(0.0f); vertex.push_back(1.0f);
+	vertex.push_back(m_position[0] + m_size[0]); vertex.push_back(m_position[1] + m_size[1]); vertex.push_back(m_position[2] + m_size[2]); vertex.push_back(1.0f); vertex.push_back(1.0f);
+	vertex.push_back(m_position[0] + m_size[0]); vertex.push_back(m_position[1]);			  vertex.push_back(m_position[2] + m_size[2]); vertex.push_back(1.0f); vertex.push_back(0.0f);
 
 	static const GLushort index[] = {
 		0, 2, 1,
@@ -152,7 +145,7 @@ void Quad::createBuffer() {
 	vertex.shrink_to_fit();
 }
 
-void Quad::createBuffer(const Vector3f& position, const Vector3f size) {
+void Quad::createBuffer(const Vector3f& position, const Vector3f& size) {
 	if (m_vao) {
 		glDeleteVertexArrays(1, &m_vao);
 		m_vao = 0;
@@ -164,16 +157,10 @@ void Quad::createBuffer(const Vector3f& position, const Vector3f size) {
 	}
 
 	std::vector<float> vertex;
-
-	Vector3f pos = position;
-	float w = size[0];
-	float h = size[1];
-	float d = size[2];
-
-	vertex.push_back(pos[0]); vertex.push_back(pos[1]); vertex.push_back(pos[2] + d); vertex.push_back(0.0f); vertex.push_back(0.0f);
-	vertex.push_back(pos[0]); vertex.push_back(pos[1] + h); vertex.push_back(pos[2] + d); vertex.push_back(0.0f); vertex.push_back(1.0f);
-	vertex.push_back(pos[0] + w); vertex.push_back(pos[1] + h); vertex.push_back(pos[2] + d); vertex.push_back(1.0f); vertex.push_back(1.0f);
-	vertex.push_back(pos[0] + w); vertex.push_back(pos[1]); vertex.push_back(pos[2] + d); vertex.push_back(1.0f); vertex.push_back(0.0f);
+	vertex.push_back(position[0]);			 vertex.push_back(position[1]);			  vertex.push_back(position[2] + size[2]); vertex.push_back(0.0f); vertex.push_back(0.0f);
+	vertex.push_back(position[0]);			 vertex.push_back(position[1] + size[1]); vertex.push_back(position[2] + size[2]); vertex.push_back(0.0f); vertex.push_back(1.0f);
+	vertex.push_back(position[0] + size[0]); vertex.push_back(position[1] + size[1]); vertex.push_back(position[2] + size[2]); vertex.push_back(1.0f); vertex.push_back(1.0f);
+	vertex.push_back(position[0] + size[0]); vertex.push_back(position[1]);			  vertex.push_back(position[2] + size[2]); vertex.push_back(1.0f); vertex.push_back(0.0f);
 
 	static const GLushort index[] = {
 		0, 2, 1,
@@ -213,10 +200,10 @@ void Quad::createBuffer(const Vector3f& position, const Vector3f size) {
 
 void Quad::mapBuffer() {
 	float data[] = {
-		m_position[0] - m_origin[0], m_position[1] - m_origin[1],						  0.0f, 0.0f, 0.0f,
-		m_position[0] - m_origin[0], m_position[1] - m_origin[1] + m_size[1],			  0.0f, 0.0f, 1.0f,
-		m_position[0] - m_origin[0] + m_size[0], m_position[1] - m_origin[1] + m_size[1], 0.0f, 1.0f, 1.0f,
-		m_position[0] - m_origin[0] + m_size[0], m_position[1] - m_origin[1],			  0.0f, 1.0f, 0.0f
+		m_position[0],			   m_position[1],			  m_position[2] + m_size[2], 0.0f, 0.0f,
+		m_position[0],			   m_position[1] + m_size[1], m_position[2] + m_size[2], 0.0f, 1.0f,
+		m_position[0] + m_size[0], m_position[1] + m_size[1], m_position[2] + m_size[2], 1.0f, 1.0f,
+		m_position[0] + m_size[0], m_position[1],			  m_position[2] + m_size[2], 1.0f, 0.0f
 	};
 
 	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
@@ -262,47 +249,20 @@ void Quad::setFlipped(bool flipped) {
 	glBindVertexArray(0);
 }
 
-/*void  Quad::render(unsigned int texture, bool array) {
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(array ? GL_TEXTURE_2D_ARRAY : GL_TEXTURE_2D, texture);
-	glBindVertexArray(m_flipped ? m_vaoFlipped : m_vao);
-	glDrawElements(GL_TRIANGLES, 2 * 3, GL_UNSIGNED_SHORT, 0);
-	glBindVertexArray(0);
-	glBindTexture(array ? GL_TEXTURE_2D_ARRAY : GL_TEXTURE_2D, 0);
-}
-
-void Quad::setFlipped(bool flipped) {
-	if (m_flipped == flipped) return;
-	m_flipped = flipped;
-}*/
-
-const Vector2f &Quad::getScale() const {
-	return m_scale;
-}
-
-void Quad::setPosition(const Vector2f &position) {
+void Quad::setPosition(const Vector3f& position) {
 	m_position = position;
 	mapBuffer();
 }
 
-void Quad::setSize(const Vector2f &size) {
+void Quad::setSize(const Vector3f& size) {
 	m_size = size;
 	mapBuffer();
 }
 
-void Quad::setOrigin(const Vector2f &origin) {
-	m_origin = origin;
-	mapBuffer();
-}
-
-const Vector2f &Quad::getPosition() const {
+const Vector3f& Quad::getPosition() const {
 	return m_position;
 }
 
-const Vector2f &Quad::getSize() const {
+const Vector3f& Quad::getSize() const {
 	return m_size;
-}
-
-const Vector2f &Quad::getOrigin() const {
-	return m_origin;
 }

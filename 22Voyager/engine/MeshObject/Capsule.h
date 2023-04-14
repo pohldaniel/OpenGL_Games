@@ -3,39 +3,35 @@
 
 #include <GL/glew.h>
 #include <vector>
-#include <memory>
 
-#include "../Texture.h"
-#include "../Camera.h"
-#include "../Shader.h"
 #include "../Vector.h"
 
 class Capsule {
+
 public:
 
-	Capsule(const Vector3f &position, float radius, float length, bool generateTexels, bool generateNormals, bool generateTangents, bool generateNormalDerivatives);	
-	Capsule(bool generateTexels, bool generateNormals, bool generateTangents, bool generateNormalDerivatives);
-	Capsule(const Vector3f &position, float radius, float length, bool generateTexels, bool generateNormals, bool generateTangents, bool generateNormalDerivatives, const std::string &texture);
-	Capsule(const Vector3f &position, float radius, float length, const std::string &texture);
-	Capsule(float radius, float length, const std::string &texture);
+	Capsule(int uResolution = 20, int vResolution = 20);
+	Capsule(bool generateTexels, bool generateNormals, bool generateTangents, bool generateNormalDerivatives, int uResolution = 20, int vResolution = 20);
+	Capsule(const Vector3f &position, float radius, float length, bool generateTexels, bool generateNormals, bool generateTangents, bool generateNormalDerivatives, int uResolution = 20, int vResolution = 20);
+	
 	~Capsule();
 
 	void drawRaw();
 	void setPrecision(int uResolution, int vResolution);
+	
+
+	int getNumberOfTriangles();
+
+
+	static void BuildMesh(const Vector3f& position, float radius, float length, int uResolution, int vResolution, bool generateTexels, bool generateNormals, std::vector<Vector3f>& positions, std::vector<Vector2f>& texels, std::vector<Vector3f>& normals, std::vector<unsigned int>& indexBuffer);
 
 private:
-
-	void buildMesh();
-	void buildHemisphere(const Vector3f &offset, bool north);
-	void buildCylinder();
-	std::vector<float> getSideNormals();
 
 	int m_uResolution;
 	int m_vResolution;
 	float m_radius;
 	float m_length;
 	Vector3f m_position;
-	Matrix4f m_model;
 
 	bool m_generateNormals;
 	bool m_generateTexels;
@@ -61,8 +57,11 @@ private:
 	Vector3f m_min;
 	Vector3f m_max;
 
-	std::shared_ptr<Shader> m_shader;
-	std::shared_ptr<Texture> m_texture;
+	void createBuffer();
+
+	static void BuildHemisphere(const Vector3f& position, float radius, float length, const Vector3f &offset, bool north, int uResolution, int vResolution, bool generateTexels, bool generateNormals, std::vector<Vector3f>& positions, std::vector<Vector2f>& texels, std::vector<Vector3f>& normals, std::vector<unsigned int>& indexBuffer);
+	static void BuildCylinder(const Vector3f& position, float radius, float length, int uResolution, int vResolution, bool generateTexels, bool generateNormals, std::vector<Vector3f>& positions, std::vector<Vector2f>& texels, std::vector<Vector3f>& normals, std::vector<unsigned int>& indexBuffer);
+	static std::vector<float> GetSideNormals(int uResolution);
 };
 
 #endif

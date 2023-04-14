@@ -449,4 +449,6 @@ void Application::SetCursorIcon(std::string file) {
 
 void Application::loadAssets() {
 	Globals::shaderManager.loadShader("terrain", "res/Shaders/TerrainVertexShader.vs", "res/Shaders/TerrainFragmentShader.fs");
+	Globals::shaderManager.loadShader("muzzle", "res/Shaders/Muzzle Flash Shader/VertexShaderMuzzleFlash.vs", "res/Shaders/Muzzle Flash Shader/FragmentShaderMuzzleFlash.fs");
+	Globals::textureManager.loadTexture("muzzleFlash", "res/Textures/muzzleFlash.png", true);
 }
