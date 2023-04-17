@@ -28,7 +28,7 @@ Capsule::Capsule(const Vector3f &position, float radius, float length, bool gene
 	m_min = Vector3f(FLT_MAX, FLT_MAX, FLT_MAX);
 	m_max = Vector3f(FLT_MIN, FLT_MIN, FLT_MIN);
 
-	BuildMesh(m_position, m_radius, m_length, m_uResolution, m_vResolution, m_generateTexels, m_generateNormals, m_positions, m_texels, m_normals, m_indexBuffer);
+	BuildMesh(m_radius, m_length, m_position, m_uResolution, m_vResolution, m_generateTexels, m_generateNormals, m_positions, m_texels, m_normals, m_indexBuffer);
 }
 
 Capsule::~Capsule() {}
@@ -81,14 +81,14 @@ void Capsule::createBuffer() {
 
 	glDeleteBuffers(1, &ibo);
 
-	/*m_positions.clear();
-	m_positions.shrink_to_fit();*/
+	//m_positions.clear();
+	//m_positions.shrink_to_fit();
+	//m_indexBuffer.clear();
+	//m_indexBuffer.shrink_to_fit();
 	m_texels.clear();
 	m_texels.shrink_to_fit();
 	m_normals.clear();
 	m_normals.shrink_to_fit();
-	/*m_indexBuffer.clear();
-	m_indexBuffer.shrink_to_fit();*/
 
 	m_isInitialized = true;
 }
@@ -104,17 +104,17 @@ void Capsule::drawRaw() {
 	glBindVertexArray(0);
 }
 
-void Capsule::BuildMesh(const Vector3f& position, float radius, float length, int uResolution, int vResolution, bool generateTexels, bool generateNormals, std::vector<Vector3f>& positions, std::vector<Vector2f>& texels, std::vector<Vector3f>& normals, std::vector<unsigned int>& indexBuffer) {
+void Capsule::BuildMesh(float radius, float length, const Vector3f& position, int uResolution, int vResolution, bool generateTexels, bool generateNormals, std::vector<Vector3f>& positions, std::vector<Vector2f>& texels, std::vector<Vector3f>& normals, std::vector<unsigned int>& indexBuffer) {
 
-	BuildHemisphere(position, radius, length, Vector3f(0.0f, length * 0.5f, 0.0f), true, uResolution, vResolution, generateTexels, generateNormals, positions, texels, normals, indexBuffer);
+	BuildHemisphere(radius, length, position + Vector3f(0.0f, length * 0.5f, 0.0f), true, uResolution, vResolution, generateTexels, generateNormals, positions, texels, normals, indexBuffer);
 	if (length != 0)
-		BuildCylinder(position, radius, length, uResolution, vResolution, generateTexels, generateNormals, positions, texels, normals, indexBuffer);
-	BuildHemisphere(position, radius, length, Vector3f(0.0f, -length * 0.5f, 0.0f), false, uResolution, vResolution, generateTexels, generateNormals, positions, texels, normals, indexBuffer);
+		BuildCylinder(radius, length, position, uResolution, vResolution, generateTexels, generateNormals, positions, texels, normals, indexBuffer);
+	BuildHemisphere(radius, length, position + Vector3f(0.0f, -length * 0.5f, 0.0f), false, uResolution, vResolution, generateTexels, generateNormals, positions, texels, normals, indexBuffer);
 
 
 }
 
-void Capsule::BuildHemisphere(const Vector3f& position, float radius, float length, const Vector3f &offset, bool north, int uResolution, int vResolution, bool generateTexels, bool generateNormals, std::vector<Vector3f>& positions, std::vector<Vector2f>& texels, std::vector<Vector3f>& normals, std::vector<unsigned int>& indexBuffer) {
+void Capsule::BuildHemisphere(float radius, float length, const Vector3f& position, bool north, int uResolution, int vResolution, bool generateTexels, bool generateNormals, std::vector<Vector3f>& positions, std::vector<Vector2f>& texels, std::vector<Vector3f>& normals, std::vector<unsigned int>& indexBuffer) {
 
 	float uAngleStep = (2.0f * PI) / float(uResolution);
 	float vAngleStep = (0.5f * PI) / float(vResolution);
@@ -137,7 +137,7 @@ void Capsule::BuildHemisphere(const Vector3f& position, float radius, float leng
 			float y = sinVSegment;
 			float z = cosVSegment * sinUSegment;
 
-			positions.push_back((north ? Vector3f(radius * x, radius * y, radius * z) + offset : Vector3f(radius * x, -radius * y, radius * z) + offset) + position);
+			positions.push_back(north ? Vector3f(radius * x, radius * y, radius * z) + position : Vector3f(radius * x, -radius * y, radius * z) + position);
 
 			if (generateTexels)
 				texels.push_back(Vector2f(1.0f - (float)j / uResolution, north ? (float)i / vResolution : 1.0f - (float)i / vResolution));
@@ -203,7 +203,7 @@ std::vector<float> Capsule::GetSideNormals(int uResolution) {
 	return normals;
 }
 
-void Capsule::BuildCylinder(const Vector3f& position, float radius, float length, int uResolution, int vResolution, bool generateTexels, bool generateNormals, std::vector<Vector3f>& positions, std::vector<Vector2f>& texels, std::vector<Vector3f>& normals, std::vector<unsigned int>& indexBuffer) {
+void Capsule::BuildCylinder(float radius, float length, const Vector3f& position, int uResolution, int vResolution, bool generateTexels, bool generateNormals, std::vector<Vector3f>& positions, std::vector<Vector2f>& texels, std::vector<Vector3f>& normals, std::vector<unsigned int>& indexBuffer) {
 	unsigned int baseIndex = positions.size();
 	float x, y, z;                                  // vertex position
 													// get normals for cylinder sides

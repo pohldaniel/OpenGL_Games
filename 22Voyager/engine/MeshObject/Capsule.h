@@ -23,7 +23,7 @@ public:
 	int getNumberOfTriangles();
 
 
-	static void BuildMesh(const Vector3f& position, float radius, float length, int uResolution, int vResolution, bool generateTexels, bool generateNormals, std::vector<Vector3f>& positions, std::vector<Vector2f>& texels, std::vector<Vector3f>& normals, std::vector<unsigned int>& indexBuffer);
+	static void BuildMesh(float radius, float length, const Vector3f& position, int uResolution, int vResolution, bool generateTexels, bool generateNormals, std::vector<Vector3f>& positions, std::vector<Vector2f>& texels, std::vector<Vector3f>& normals, std::vector<unsigned int>& indexBuffer);
 
 private:
 
@@ -59,8 +59,8 @@ private:
 
 	void createBuffer();
 
-	static void BuildHemisphere(const Vector3f& position, float radius, float length, const Vector3f &offset, bool north, int uResolution, int vResolution, bool generateTexels, bool generateNormals, std::vector<Vector3f>& positions, std::vector<Vector2f>& texels, std::vector<Vector3f>& normals, std::vector<unsigned int>& indexBuffer);
-	static void BuildCylinder(const Vector3f& position, float radius, float length, int uResolution, int vResolution, bool generateTexels, bool generateNormals, std::vector<Vector3f>& positions, std::vector<Vector2f>& texels, std::vector<Vector3f>& normals, std::vector<unsigned int>& indexBuffer);
+	static void BuildHemisphere(float radius, float length, const Vector3f& position, bool north, int uResolution, int vResolution, bool generateTexels, bool generateNormals, std::vector<Vector3f>& positions, std::vector<Vector2f>& texels, std::vector<Vector3f>& normals, std::vector<unsigned int>& indexBuffer);
+	static void BuildCylinder(float radius, float length, const Vector3f& position, int uResolution, int vResolution, bool generateTexels, bool generateNormals, std::vector<Vector3f>& positions, std::vector<Vector2f>& texels, std::vector<Vector3f>& normals, std::vector<unsigned int>& indexBuffer);
 	static std::vector<float> GetSideNormals(int uResolution);
 };
 

@@ -16,13 +16,13 @@ public:
 	~MeshTorus();
 
 	void setPrecision(int uResolution, int vResolution);
-	void buildMesh();
-
 	void drawRaw();
 	void drawRawInstanced();
 
 	void createInstancesStatic(const std::vector<Matrix4f>& modelMTX);
 	void addInstance(const Matrix4f& modelMTX);
+
+	static void BuildMesh(float radius, float tubeRadius, const Vector3f& position, int uResolution, int vResolution, bool generateTexels, bool generateNormals, bool generateTangents, bool generateNormalDerivatives, std::vector<Vector3f>& positions, std::vector<Vector2f>& texels, std::vector<Vector3f>& normals, std::vector<unsigned int>& indexBuffer, std::vector<Vector3f>& tangents, std::vector<Vector3f>& bitangents, std::vector<Vector3f>& normalsDu,	std::vector<Vector3f>& normalsDv);
 
 private:
 
@@ -37,12 +37,6 @@ private:
 	bool m_generateTangents;
 	bool m_generateNormalDerivatives;
 
-	bool m_isInitialized;
-	bool m_hasTexels;
-	bool m_hasNormals;
-	bool m_hasTangents;
-	bool m_hasNormalDerivatives;
-
 	short m_numBuffers;
 	unsigned int m_vao;
 	unsigned int m_vbo[7];
@@ -54,7 +48,14 @@ private:
 	std::vector<Vector3f> m_positions;
 	std::vector<Vector2f> m_texels;
 	std::vector<Vector3f> m_normals;
+	std::vector<Vector3f> m_tangents;
+	std::vector<Vector3f> m_bitangents;
+	std::vector<Vector3f> m_normalsDu;
+	std::vector<Vector3f> m_normalsDv;
+
 	std::vector<Matrix4f> m_instances;
+
+	void createBuffer();
 
 };
 #endif

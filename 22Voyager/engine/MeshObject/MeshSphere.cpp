@@ -1,10 +1,11 @@
 #include "MeshSphere.h"
 
-MeshSphere::MeshSphere(int uResolution, int vResolution) : MeshSphere(Vector3f(0.0f, 0.0f, 0.0f), 1.0f, true, true, false, false) { }
+MeshSphere::MeshSphere(int uResolution, int vResolution) : MeshSphere(Vector3f(0.0f, 0.0f, 0.0f), 1.0f, true, true, false, false, uResolution, vResolution) { }
 
 MeshSphere::MeshSphere(bool generateTexels, bool generateNormals, bool generateTangents, bool generateNormalDerivatives, int uResolution, int vResolution) : MeshSphere(Vector3f(0.0f, 0.0f, 0.0f), 1.0f, generateTexels, generateNormals, generateTangents, generateNormalDerivatives, uResolution, vResolution) { }
 
 MeshSphere::MeshSphere(const Vector3f &position, float radius, bool generateTexels, bool generateNormals, bool generateTangents, bool generateNormalDerivatives, int uResolution, int vResolution) {
+	
 	m_radius = radius;
 	m_position = position;
 	m_generateNormals = generateNormals;
@@ -28,7 +29,8 @@ MeshSphere::MeshSphere(const Vector3f &position, float radius, bool generateTexe
 	m_min = Vector3f(FLT_MAX, FLT_MAX, FLT_MAX);
 	m_max = Vector3f(FLT_MIN, FLT_MIN, FLT_MIN);
 
-	buildMesh();
+	BuildMesh(m_radius, m_position, m_uResolution, m_vResolution, m_generateTexels, m_generateNormals, m_generateTangents, m_generateNormalDerivatives, m_positions, m_texels, m_normals, m_indexBuffer, m_tangents, m_bitangents, m_normalsDu, m_normalsDv);
+	createBuffer();
 }
 
 
@@ -39,26 +41,20 @@ void MeshSphere::setPrecision(int uResolution, int vResolution) {
 	m_vResolution = vResolution;
 }
 
-void MeshSphere::buildMesh() {
+void MeshSphere::BuildMesh(float radius, const Vector3f& position, int uResolution, int vResolution, bool generateTexels, bool generateNormals, bool generateTangents, bool generateNormalDerivatives, std::vector<Vector3f>& positions, std::vector<Vector2f>& texels, std::vector<Vector3f>& normals, std::vector<unsigned int>& indexBuffer, std::vector<Vector3f>& tangents, std::vector<Vector3f>& bitangents, std::vector<Vector3f>& normalsDu, std::vector<Vector3f>& normalsDv) {
 
-	if (m_isInitialized) return;
 
-	std::vector<Vector3f> tangents;
-	std::vector<Vector3f> bitangents;
-	std::vector<Vector3f> normalsDu;
-	std::vector<Vector3f> normalsDv;
-
-	float uAngleStep = (2.0f * PI) / float(m_uResolution);
-	float vAngleStep = PI / float(m_vResolution);
+	float uAngleStep = (2.0f * PI) / float(uResolution);
+	float vAngleStep = PI / float(vResolution);
 	float vSegmentAngle, uSegmentAngle;
 
-	for (int i = 0; i <= m_vResolution; ++i) {
+	for (int i = 0; i <= vResolution; ++i) {
 		vSegmentAngle = PI * 0.5f - i * vAngleStep;
 		
 		float cosVSegment = cosf(vSegmentAngle);
 		float sinVSegment = sinf(vSegmentAngle);
 													
-		for (int j = 0; j <= m_uResolution; ++j) {
+		for (int j = 0; j <= uResolution; ++j) {
 			uSegmentAngle = j * uAngleStep;
 			
 			float cosUSegment = cosf(uSegmentAngle);
@@ -66,53 +62,54 @@ void MeshSphere::buildMesh() {
 
 			float x = cosVSegment * cosUSegment;
 			float z = cosVSegment * sinUSegment;
-			m_positions.push_back(Vector3f(m_radius * x, m_radius * sinVSegment, m_radius * z) + m_position);
+			positions.push_back(Vector3f(radius * x, radius * sinVSegment, radius * z) + position);
 
-			if (m_generateTexels)
-				m_texels.push_back(Vector2f(1.0f - (float)j / m_uResolution, 1.0f - (float)i / m_vResolution));
+			if (generateTexels)
+				texels.push_back(Vector2f(1.0f - (float)j / uResolution, 1.0f - (float)i / vResolution));
 
-			if (m_generateNormals)
-				m_normals.push_back(Vector3f(x, sinVSegment, z));
+			if (generateNormals)
+				normals.push_back(Vector3f(x, sinVSegment, z));
 
-			if (m_generateTangents) {
-				tangents.push_back(Vector3f(-sinUSegment * sinVSegment, 0.0, cosUSegment* sinVSegment).normalize());
-				bitangents.push_back(Vector3f(cosVSegment*cosUSegment, -sinVSegment, cosVSegment*sinUSegment).normalize());
+			if (generateTangents) {
+				tangents.push_back(Vector3f(sinUSegment , 0.0, cosUSegment)); // rotate 180 z Axis to match texture space
+				bitangents.push_back(Vector3f(-sinVSegment*cosUSegment, cosVSegment, -sinVSegment*sinUSegment).normalize());
 			}
 
-			if (m_generateNormalDerivatives) {
-				float n1u = -sinVSegment * sinUSegment;
-				float n3u = sinVSegment * cosUSegment;
+			if (generateNormalDerivatives) {
+				float n1u = sinUSegment; // rotate 180 z Axis to match texture space
+				float n3u = cosUSegment;
 
-				Vector3f dndu = Vector3f(n1u, 0.0, n3u).normalize();
-				normalsDu.push_back(dndu);
+				normalsDu.push_back(Vector3f(n1u, 0.0, n3u));
 
-				float n1v = cosVSegment  * cosUSegment;
-				float n2v = -sinVSegment;
-				float n3v = cosVSegment  * sinUSegment;
+				float n1v = -sinVSegment  * cosUSegment;
+				float n2v = cosVSegment;
+				float n3v = -sinVSegment  * sinUSegment;
 
-				Vector3f dndv = Vector3f(n1v, n2v, n3v).normalize();
+				Vector3f dndv = Vector3f(n1v, n2v, n3v);
 				normalsDv.push_back(dndv);
 			}
 		}
 	}
 
 	unsigned int k1, k2;
-	for (int i = 0; i < m_vResolution; ++i){
-		k1 = i * (m_uResolution + 1);
-		k2 = k1 + m_uResolution + 1;
+	for (int i = 0; i < vResolution; ++i){
+		k1 = i * (uResolution + 1);
+		k2 = k1 + uResolution + 1;
 
-		for (int j = 0; j < m_uResolution; ++j, ++k1, ++k2) {
+		for (int j = 0; j < uResolution; ++j, ++k1, ++k2) {
 
 			if (i != 0) {
-				m_indexBuffer.push_back(k1); m_indexBuffer.push_back(k2); m_indexBuffer.push_back(k1 + 1);
+				indexBuffer.push_back(k1); indexBuffer.push_back(k2); indexBuffer.push_back(k1 + 1);
 			}
 
-			if (i != (m_vResolution - 1)) {
-				m_indexBuffer.push_back(k1 + 1); m_indexBuffer.push_back(k2); m_indexBuffer.push_back(k2 + 1);
+			if (i != (vResolution - 1)) {
+				indexBuffer.push_back(k1 + 1); indexBuffer.push_back(k2); indexBuffer.push_back(k2 + 1);
 			}	
 		}
 	}
+}
 
+void MeshSphere::createBuffer() {
 	m_drawCount = m_indexBuffer.size();
 
 	unsigned int ibo;
@@ -140,11 +137,40 @@ void MeshSphere::buildMesh() {
 
 	//Normals
 	if (m_generateNormals) {
-		glBindBuffer(GL_ARRAY_BUFFER, m_generateTexels ? m_vbo[2] : m_vbo[1]);
+		glBindBuffer(GL_ARRAY_BUFFER, m_vbo[2]);
 		glBufferData(GL_ARRAY_BUFFER, m_normals.size() * sizeof(m_normals[0]), &m_normals[0], GL_STATIC_DRAW);
 
 		glEnableVertexAttribArray(2);
 		glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	}
+
+	//Normals
+	if (m_generateTangents) {
+		glBindBuffer(GL_ARRAY_BUFFER, m_vbo[3]);
+		glBufferData(GL_ARRAY_BUFFER, m_tangents.size() * sizeof(m_tangents[0]), &m_tangents[0], GL_STATIC_DRAW);
+
+		glEnableVertexAttribArray(3);
+		glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+		glBindBuffer(GL_ARRAY_BUFFER, m_vbo[4]);
+		glBufferData(GL_ARRAY_BUFFER, m_bitangents.size() * sizeof(m_bitangents[0]), &m_bitangents[0], GL_STATIC_DRAW);
+
+		glEnableVertexAttribArray(4);
+		glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	}
+
+	if (m_generateNormalDerivatives) {
+		glBindBuffer(GL_ARRAY_BUFFER, m_vbo[5]);
+		glBufferData(GL_ARRAY_BUFFER, m_normalsDu.size() * sizeof(m_normalsDu[0]), &m_normalsDu[0], GL_STATIC_DRAW);
+
+		glEnableVertexAttribArray(5);
+		glVertexAttribPointer(5, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+		glBindBuffer(GL_ARRAY_BUFFER, m_vbo[6]);
+		glBufferData(GL_ARRAY_BUFFER, m_normalsDv.size() * sizeof(m_normalsDv[0]), &m_normalsDv[0], GL_STATIC_DRAW);
+
+		glEnableVertexAttribArray(6);
+		glVertexAttribPointer(6, 3, GL_FLOAT, GL_FALSE, 0, 0);
 	}
 
 	//Indices
@@ -155,24 +181,22 @@ void MeshSphere::buildMesh() {
 
 	glDeleteBuffers(1, &ibo);
 
-	/*m_positions.clear();
-	m_positions.shrink_to_fit();*/
+	//m_positions.clear();
+	//m_positions.shrink_to_fit();
+	//m_indexBuffer.clear();
+	//m_indexBuffer.shrink_to_fit();
 	m_texels.clear();
 	m_texels.shrink_to_fit();
 	m_normals.clear();
 	m_normals.shrink_to_fit();
-	tangents.clear();
-	tangents.shrink_to_fit();
-	bitangents.clear();
-	bitangents.shrink_to_fit();
-	normalsDu.clear();
-	normalsDu.shrink_to_fit();
-	normalsDv.clear();
-	normalsDv.shrink_to_fit();
-	/*m_indexBuffer.clear();
-	m_indexBuffer.shrink_to_fit();*/
-
-	m_isInitialized = true;
+	m_tangents.clear();
+	m_tangents.shrink_to_fit();
+	m_bitangents.clear();
+	m_bitangents.shrink_to_fit();
+	m_normalsDu.clear();
+	m_normalsDu.shrink_to_fit();
+	m_normalsDv.clear();
+	m_normalsDv.shrink_to_fit();
 }
 
 void MeshSphere::drawRaw() {

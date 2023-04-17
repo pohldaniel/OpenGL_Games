@@ -106,6 +106,18 @@ public:
 		m_assetPointer[name]->loadAnimationFbx(path, sourceName, destName, looping, animationOffset, animationCuttOff, timeShift);
 	}
 
+	void buildCapsule(const std::string& name, float radius = 1.0f, float length = 1.0f, const Vector3f& position = Vector3f(0.0f, 0.0f, 0.0f), int uResolution = 20, int vResolution = 20, bool generateTexels = true, bool generateNormals = true, bool generateTangents = false, bool generateNormalDerivatives = false) {
+		m_assets[name].buildCapsule(radius, length, position, uResolution, vResolution, generateTexels, generateNormals, generateTangents, generateNormalDerivatives);
+	}
+
+	void buildTorus(const std::string& name, float radius = 0.5f, float tubeRadius = 0.25f, const Vector3f& position = Vector3f(0.0f, 0.0f, 0.0f), int uResolution = 49, int vResolution = 49, bool generateTexels = true, bool generateNormals = true, bool generateTangents = false, bool generateNormalDerivatives = false) {
+		m_assets[name].buildTorus(radius, tubeRadius, position, uResolution, vResolution, generateTexels, generateNormals, generateTangents, generateNormalDerivatives);
+	}
+
+	void buildSphere(const std::string& name, float radius = 1.0f, const Vector3f& position = Vector3f(0.0f, 0.0f, 0.0f), int uResolution = 49, int vResolution = 49, bool generateTexels = true, bool generateNormals = true, bool generateTangents = false, bool generateNormalDerivatives = false) {
+		m_assets[name].buildSphere(radius, position, uResolution, vResolution, generateTexels, generateNormals, generateTangents, generateNormalDerivatives);
+	}
+
 	T& get(const std::string& name) {
 		return m_assets[name];
 	}

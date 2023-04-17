@@ -77,7 +77,7 @@ public:
 	void OnMouseButtonDown(Event::MouseButtonEvent& event) override;
 	void OnMouseButtonUp(Event::MouseButtonEvent& event) override;
 	void renderUi();
-	void applyTransformation(TrackBall& mtx);
+	void applyTransformation(TrackBall& arc);
 	void drawModel();
 
 	void renderScene();
