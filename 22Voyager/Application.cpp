@@ -461,7 +461,8 @@ void Application::loadAssets() {
 	Globals::textureManager.loadTexture("grid", "res/grid512.png", true);
 
 	Globals::shapeManager.buildCapsule("capsule", 0.5f, 1.0f);
-	Globals::shapeManager.buildTorus("torus", 0.5f, 0.25f, Vector3f(0.0f, 0.0f, 0.0f), 49, 49, true, true, true, true);
-	Globals::shapeManager.buildSphere("sphere", 1.0f, Vector3f(0.0f, 0.0f, 0.0f), 49, 49, true, true, true, true);
-	Globals::shapeManager.buildSpiral("spiral", 0.5f, 0.25f, 1.5f, 1, true, Vector3f(0.0f, -0.75f, 0.0f), 49, 49, true, true, true, true);
+	Globals::shapeManager.buildTorus("torus", 0.5f, 0.25f, Vector3f(0.0f, 0.0f, 0.0f), 49, 49, true, true, true);
+	Globals::shapeManager.buildSphere("sphere", 1.0f, Vector3f(0.0f, 0.0f, 0.0f), 49, 49, true, true, true);
+	Globals::shapeManager.buildSpiral("spiral", 0.5f, 0.25f, 1.5f, 2, true, Vector3f(0.0f, -0.75f, 0.0f), 49, 49, true, true, true);
+	Globals::shapeManager.buildCylinder("cylinder", 1.0f, 0.2f, 1.0f, Vector3f(0.0f, 0.0f, 0.0f), 20, 20, true, true, true);
 }

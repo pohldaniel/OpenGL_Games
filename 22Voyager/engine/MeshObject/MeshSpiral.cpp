@@ -182,11 +182,11 @@ void MeshSpiral::BuildMesh(float radius, float tubeRadius, float length, int num
 				//	[t1] = [-(R + rcos(u))sin(v)]
 				//	[t2] = [h/(2PI)]
 				//	[t3] = [(R + rcos(u))cos(v)]
-				float t1 = -(radius + tubeRadius*cosTubeSegment)*sinMainSegment;
+				float t1 = (radius + tubeRadius*cosTubeSegment)*sinMainSegment;
 				float t2 = pitch * invTWO_PI;
 				float t3 = (radius + tubeRadius*cosTubeSegment)*cosMainSegment;
 
-				Vector3f tangent = Vector3f(-t1, -t2, t3).normalize();
+				Vector3f tangent = Vector3f(t1, -t2, t3).normalize();
 				tangents.push_back(tangent);
 
 				//u = mainSegmentAngle	v = tubeSegmentAngle	R = m_radius	r = m_tubeRadius
@@ -205,7 +205,6 @@ void MeshSpiral::BuildMesh(float radius, float tubeRadius, float length, int num
 			// Update main segment angle
 			currentMainSegmentAngle += mainSegmentAngleStep;
 		}
-
 	}
 
 	//calculate the indices

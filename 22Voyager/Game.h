@@ -13,7 +13,8 @@ enum Model {
 	TORUS,
 	CAPSULE,
 	SPHERE,
-	SPIRAL
+	SPIRAL,
+	CYLINDER
 };
 
 enum RenderMode {
@@ -45,7 +46,7 @@ public:
 	TrackBall m_trackball;
 	Transform m_transform;
 	bool m_initUi = true;
-	Model model = Model::TORUS;
+	Model model = Model::CYLINDER;
 	RenderMode renderMode = RenderMode::TEXTURE;
 
 	Shape m_currentShape;

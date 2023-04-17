@@ -106,20 +106,24 @@ public:
 		m_assetPointer[name]->loadAnimationFbx(path, sourceName, destName, looping, animationOffset, animationCuttOff, timeShift);
 	}
 
-	void buildCapsule(const std::string& name, float radius = 1.0f, float length = 1.0f, const Vector3f& position = Vector3f(0.0f, 0.0f, 0.0f), int uResolution = 20, int vResolution = 20, bool generateTexels = true, bool generateNormals = true, bool generateTangents = false, bool generateNormalDerivatives = false) {
+	void buildCapsule(const std::string& name, float radius = 1.0f, float length = 1.0f, const Vector3f& position = Vector3f(0.0f, 0.0f, 0.0f), int uResolution = 20, int vResolution = 20, bool generateTexels = true, bool generateNormals = true, bool generateTangents = false) {
 		m_assets[name].buildCapsule(radius, length, position, uResolution, vResolution, generateTexels, generateNormals, generateTangents);
 	}
 
-	void buildTorus(const std::string& name, float radius = 0.5f, float tubeRadius = 0.25f, const Vector3f& position = Vector3f(0.0f, 0.0f, 0.0f), int uResolution = 49, int vResolution = 49, bool generateTexels = true, bool generateNormals = true, bool generateTangents = false, bool generateNormalDerivatives = false) {
+	void buildTorus(const std::string& name, float radius = 0.5f, float tubeRadius = 0.25f, const Vector3f& position = Vector3f(0.0f, 0.0f, 0.0f), int uResolution = 49, int vResolution = 49, bool generateTexels = true, bool generateNormals = true, bool generateTangents = false) {
 		m_assets[name].buildTorus(radius, tubeRadius, position, uResolution, vResolution, generateTexels, generateNormals, generateTangents);
 	}
 
-	void buildSphere(const std::string& name, float radius = 1.0f, const Vector3f& position = Vector3f(0.0f, 0.0f, 0.0f), int uResolution = 49, int vResolution = 49, bool generateTexels = true, bool generateNormals = true, bool generateTangents = false, bool generateNormalDerivatives = false) {
+	void buildSphere(const std::string& name, float radius = 1.0f, const Vector3f& position = Vector3f(0.0f, 0.0f, 0.0f), int uResolution = 49, int vResolution = 49, bool generateTexels = true, bool generateNormals = true, bool generateTangents = false) {
 		m_assets[name].buildSphere(radius, position, uResolution, vResolution, generateTexels, generateNormals, generateTangents);
 	}
 
-	void buildSpiral(const std::string& name, float radius = 0.5f, float tubeRadius = 0.25f, float length = 1.5f, int numRotations = 2, bool repeatTexture = true, const Vector3f& position = Vector3f(0.0f, -0.75f, 0.0f), int uResolution = 49, int vResolution = 49, bool generateTexels = true, bool generateNormals = true, bool generateTangents = false, bool generateNormalDerivatives = false) {
+	void buildSpiral(const std::string& name, float radius = 0.5f, float tubeRadius = 0.25f, float length = 1.5f, int numRotations = 2, bool repeatTexture = true, const Vector3f& position = Vector3f(0.0f, -0.75f, 0.0f), int uResolution = 49, int vResolution = 49, bool generateTexels = true, bool generateNormals = true, bool generateTangents = false) {
 		m_assets[name].buildSpiral(radius, tubeRadius, length, numRotations, repeatTexture, position, uResolution, vResolution, generateTexels, generateNormals, generateTangents);
+	}
+
+	void buildCylinder(const std::string& name, float baseRadius = 1.0f, float topRadius = 1.0f, float length = 1.0f, const Vector3f& position = Vector3f(0.0f, 0.0f, 0.0f), int uResolution = 10, int vResolution = 10, bool generateTexels = true, bool generateNormals = true, bool generateTangents = false) {
+		m_assets[name].buildCylinder(baseRadius, topRadius, length, position, uResolution, vResolution, generateTexels, generateNormals, generateTangents);
 	}
 
 	T& get(const std::string& name) {

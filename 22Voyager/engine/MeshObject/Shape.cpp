@@ -3,6 +3,7 @@
 #include "MeshTorus.h"
 #include "MeshSphere.h"
 #include "MeshSpiral.h"
+#include "MeshCylinder.h"
 #include <iostream>
 
 Shape::Shape() { }
@@ -52,6 +53,18 @@ void Shape::buildSpiral(float radius, float tubeRadius, float length, int numRot
 	m_vResolution = vResolution;
 	m_numBuffers = 1 + m_generateTexels + m_generateNormals + 2 * m_generateTangents;
 	MeshSpiral::BuildMesh(radius, tubeRadius, length, numRotations, repeatTexture, m_position, m_uResolution, m_vResolution, m_generateTexels, m_generateNormals, m_generateTangents, m_positions, m_texels, m_normals, m_indexBuffer, m_tangents, m_bitangents);
+	createBuffer();
+}
+
+void Shape::buildCylinder(float baseRadius, float topRadius, float length, const Vector3f& position, int uResolution, int vResolution, bool generateTexels, bool generateNormals, bool generateTangents) {
+	m_position = position;
+	m_generateNormals = generateNormals;
+	m_generateTexels = generateTexels;
+	m_generateTangents = generateTangents;
+	m_uResolution = uResolution;
+	m_vResolution = vResolution;
+	m_numBuffers = 1 + m_generateTexels + m_generateNormals + 2 * m_generateTangents;
+	MeshCylinder::BuildMesh(baseRadius, topRadius, length, m_position, m_uResolution, m_vResolution, m_generateTexels, m_generateNormals, m_generateTangents, m_positions, m_texels, m_normals, m_indexBuffer, m_tangents, m_bitangents);
 	createBuffer();
 }
 

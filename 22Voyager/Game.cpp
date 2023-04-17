@@ -19,7 +19,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	m_trackball.setDollyPosition(-2.5f);
 	applyTransformation(m_trackball);
 
-	m_currentShape = Globals::shapeManager.get("spiral");
+	m_currentShape = Globals::shapeManager.get("cylinder");
 	m_currentShader = Globals::shaderManager.getAssetPointer("texture");
 }
 
@@ -168,7 +168,7 @@ void Game::renderUi() {
 	ImGui::Begin("Settings", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
 	ImGui::Checkbox("Draw Wirframe", &StateMachine::GetEnableWireframe());
 	int currentModel = model;
-	if (ImGui::Combo("Model", &currentModel, "Torus\0Capsule\0Sphere\0Spiral\0\0")) {
+	if (ImGui::Combo("Model", &currentModel, "Torus\0Capsule\0Sphere\0Spiral\0Cylinder\0\0")) {
 		model = static_cast<Model>(currentModel);
 		switch (model) {			
 			case Model::TORUS:
@@ -183,8 +183,12 @@ void Game::renderUi() {
 			case Model::SPIRAL:
 				m_currentShape = Globals::shapeManager.get("spiral");
 				break;
+			case Model::CYLINDER:
+				m_currentShape = Globals::shapeManager.get("cylinder");
+				break;
 		}
 	}
+
 	int currentRenderMode = renderMode;
 	if (ImGui::Combo("Render", &currentRenderMode, "Texture\0Normal\0Tangent\0Bitangent\0Geometry\0\0")) {
 		renderMode = static_cast<RenderMode>(currentRenderMode);
