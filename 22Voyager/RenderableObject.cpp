@@ -3,18 +3,17 @@
 
 Transform RenderableObject::Transform;
 
-RenderableObject::RenderableObject(const Vector3f &position, const Vector3f &scale, std::string shader, std::string texture)  {
+RenderableObject::RenderableObject(const Vector3f &position, const Vector3f &scale, std::string shape, std::string shader, std::string texture)  {
 	m_position = position;
 	m_scale = scale;
 	m_shader = shader;
 	m_texture = texture;
-	m_quad = new Quad();
-	m_meshQuad = new MeshQuad();
+	m_shape = shape;
 }
 
-/*RenderableObject::~RenderableObject() {
+RenderableObject::~RenderableObject() {
 
-}*/
+}
 
 void RenderableObject::setDisabled(bool disabled) {
 	m_disabled = disabled;
@@ -38,9 +37,7 @@ void RenderableObject::draw(const Camera& camera) {
 	shader->loadInt("meshTexture", 0);
 
 	Globals::textureManager.get(m_texture).bind(0);
-
-	//m_quad->drawRaw();
-	m_meshQuad->drawRaw();
+	Globals::shapeManager.get(m_shape).drawRaw();
 	glUseProgram(0);
 }
 
@@ -57,7 +54,6 @@ void RenderableObject::draw(const Camera& camera, const Matrix4f& model) {
 
 	Globals::textureManager.get(m_texture).bind(0);
 
-	//m_quad->drawRaw();
-	m_meshQuad->drawRaw();
+	Globals::shapeManager.get(m_shape).drawRaw();
 	glUseProgram(0);
 }

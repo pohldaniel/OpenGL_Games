@@ -120,25 +120,9 @@ void Capsule::BuildHemisphere(float radius, float length, const Vector3f& positi
 	}
 }
 
-std::vector<float> Capsule::GetSideNormals(int uResolution) {
-
-	float sectorStep = 2 * PI / uResolution;
-	float sectorAngle;
-	std::vector<float> normals;
-	for (int i = 0; i <= uResolution; ++i) {
-		sectorAngle = i * sectorStep;
-		normals.push_back(cos(sectorAngle));
-		normals.push_back(0.0f);
-		normals.push_back(sin(sectorAngle));
-	}
-
-	return normals;
-}
-
 void Capsule::BuildCylinder(float radius, float length, const Vector3f& position, int uResolution, int vResolution, bool generateTexels, bool generateNormals, bool generateTangents, std::vector<Vector3f>& positions, std::vector<Vector2f>& texels, std::vector<Vector3f>& normals, std::vector<unsigned int>& indexBuffer, std::vector<Vector3f>& tangents, std::vector<Vector3f>& bitangents) {
 	unsigned int baseIndex = positions.size();
-	float x, y, z;                                  // vertex position
-													// get normals for cylinder sides
+	float x, y, z;
 	
 	// put vertices of side cylinder to array by scaling unit circle
 	for (int i = 0; i <= vResolution; ++i) {

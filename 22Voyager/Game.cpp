@@ -19,7 +19,23 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	m_trackball.setDollyPosition(-2.5f);
 	applyTransformation(m_trackball);
 
-	m_currentShape = Globals::shapeManager.get("cube");
+	Globals::shaderManager.loadShader("texture", "res/program.vert", "res/texture.frag");
+	Globals::shaderManager.loadShader("normal", "res/program.vert", "res/normal.frag");
+	Globals::shaderManager.loadShader("tangent", "res/program.vert", "res/tangent.frag");
+	Globals::shaderManager.loadShader("bitangent", "res/program.vert", "res/bitangent.frag");
+	Globals::shaderManager.loadShader("geometry", "res/normalGS.vs", "res/normalGS.fs", "res/normalGS.gs");
+
+	Globals::textureManager.loadTexture("grid", "res/grid512.png", true);
+
+	Globals::shapeManager.buildCapsule("capsule", 0.5f, 1.0f, Vector3f(0.0f, 0.0f, 0.0f), 20, 20, true, true, true);
+	Globals::shapeManager.buildTorus("torus", 0.5f, 0.25f, Vector3f(0.0f, 0.0f, 0.0f), 49, 49, true, true, true);
+	Globals::shapeManager.buildSphere("sphere", 1.0f, Vector3f(0.0f, 0.0f, 0.0f), 49, 49, true, true, true);
+	Globals::shapeManager.buildSpiral("spiral", 0.5f, 0.25f, 1.5f, 2, true, Vector3f(0.0f, -0.75f, 0.0f), 49, 49, true, true, true);
+	Globals::shapeManager.buildCylinder("cylinder", 1.0f, 0.2f, 1.0f, Vector3f(0.0f, 0.0f, 0.0f), 20, 20, true, true, true);
+	Globals::shapeManager.buildQuad("quad", Vector2f(2.0f, 2.0f), Vector3f(-1.0f, -1.0f, 0.0f), 10, 10, true, true, true);
+	Globals::shapeManager.buildCube("cube", Vector3f(2.0f, 2.0f, 2.0f), Vector3f(-1.0f, -1.0f, -1.0f), 10, 10, true, true, true);
+
+	m_currentShape = Globals::shapeManager.get("cylinder");
 	m_currentShader = Globals::shaderManager.getAssetPointer("texture");
 }
 

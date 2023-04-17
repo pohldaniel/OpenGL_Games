@@ -176,7 +176,7 @@ void Shape::createBuffer() {
 	m_bitangents.shrink_to_fit();
 }
 
-void Shape::drawRaw() {
+void Shape::drawRaw() const {
 	glBindVertexArray(m_vao);
 	glDrawElements(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
@@ -246,7 +246,7 @@ void Shape::addInstance(const Matrix4f& modelMTX) {
 	}
 }
 
-void Shape::drawRawInstanced() {
+void Shape::drawRawInstanced() const {
 	glBindVertexArray(m_vao);
 	glDrawElementsInstanced(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0, m_instanceCount);
 	glBindVertexArray(0);

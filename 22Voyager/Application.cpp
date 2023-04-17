@@ -352,9 +352,9 @@ void Application::fixedUpdate() {
 void Application::initStates() {
 	
 	Machine = new StateMachine(m_dt, m_fdt);
-	Machine->addStateAtTop(new Game(*Machine));
-	//Machine->addStateAtTop(new Tutorial(*Machine));
-	//Mouse::instance().attach(Window);
+	//Machine->addStateAtTop(new Game(*Machine));
+	Machine->addStateAtTop(new Tutorial(*Machine));
+	Mouse::instance().attach(Window);
 	//Machine->addStateAtTop(new MainMenu(*Machine));
 }
 
@@ -450,21 +450,7 @@ void Application::SetCursorIcon(std::string file) {
 void Application::loadAssets() {
 	Globals::shaderManager.loadShader("terrain", "res/Shaders/TerrainVertexShader.vs", "res/Shaders/TerrainFragmentShader.fs");
 	Globals::shaderManager.loadShader("muzzle", "res/Shaders/Muzzle Flash Shader/VertexShaderMuzzleFlash.vs", "res/Shaders/Muzzle Flash Shader/FragmentShaderMuzzleFlash.fs");
-	
-	Globals::shaderManager.loadShader("texture", "res/program.vert", "res/texture.frag");
-	Globals::shaderManager.loadShader("normal", "res/program.vert", "res/normal.frag");
-	Globals::shaderManager.loadShader("tangent", "res/program.vert", "res/tangent.frag");
-	Globals::shaderManager.loadShader("bitangent", "res/program.vert", "res/bitangent.frag");
-	Globals::shaderManager.loadShader("geometry", "res/normalGS.vs", "res/normalGS.fs", "res/normalGS.gs");
-
 	Globals::textureManager.loadTexture("muzzleFlash", "res/Textures/muzzleFlash.png", true);
-	Globals::textureManager.loadTexture("grid", "res/grid512.png", true);
 
-	Globals::shapeManager.buildCapsule("capsule", 0.5f, 1.0f, Vector3f(0.0f, 0.0f, 0.0f), 20, 20, true, true, true);
-	Globals::shapeManager.buildTorus("torus", 0.5f, 0.25f, Vector3f(0.0f, 0.0f, 0.0f), 49, 49, true, true, true);
-	Globals::shapeManager.buildSphere("sphere", 1.0f, Vector3f(0.0f, 0.0f, 0.0f), 49, 49, true, true, true);
-	Globals::shapeManager.buildSpiral("spiral", 0.5f, 0.25f, 1.5f, 2, true, Vector3f(0.0f, -0.75f, 0.0f), 49, 49, true, true, true);
-	Globals::shapeManager.buildCylinder("cylinder", 1.0f, 0.2f, 1.0f, Vector3f(0.0f, 0.0f, 0.0f), 20, 20, true, true, true);
-	Globals::shapeManager.buildQuad("quad", Vector2f(2.0f, 2.0f), Vector3f(-1.0f, -1.0f, 0.0f), 10, 10, true, true, true);
-	Globals::shapeManager.buildCube("cube", Vector3f(2.0f, 2.0f, 2.0f), Vector3f(-1.0f, -1.0f, -1.0f), 10, 10, true, true, true);
+	Globals::shapeManager.buildQuad("quad", Vector2f(2.0f, 2.0f), Vector3f(-1.0f, -1.0f, 0.0f), 1, 1, true, false, false);
 }

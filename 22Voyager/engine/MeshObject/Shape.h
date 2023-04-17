@@ -20,8 +20,8 @@ public:
 	void buildQuad(const Vector2f&  size = Vector2f(2.0f, 2.0f), const Vector3f& position = Vector3f(-1.0f, -1.0f, 0.0f), int uResolution = 1, int vResolution = 1, bool generateTexels = true, bool generateNormals = true, bool generateTangents = false);
 	void buildCube(const Vector3f&  size = Vector3f(2.0f, 2.0f, 2.0f), const Vector3f& position = Vector3f(-1.0f, -1.0f, -1.0f), int uResolution = 1, int vResolution = 1, bool generateTexels = true, bool generateNormals = true, bool generateTangents = false);
 
-	void drawRaw();
-	void drawRawInstanced();
+	void drawRaw() const;
+	void drawRawInstanced() const;
 	void createInstancesStatic(const std::vector<Matrix4f>& modelMTX);
 	void addInstance(const Matrix4f& modelMTX);
 	void setPrecision(int uResolution, int vResolution);
