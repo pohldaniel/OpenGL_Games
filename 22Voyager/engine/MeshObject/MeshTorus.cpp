@@ -1,10 +1,10 @@
 #include "MeshTorus.h"
 
-MeshTorus::MeshTorus(int uResolution, int vResolution) : MeshTorus(Vector3f(0.0f, 0.0f, 0.0f), 0.5f, 0.25f, true, true, false, false, uResolution, vResolution) {}
+MeshTorus::MeshTorus(int uResolution, int vResolution) : MeshTorus(Vector3f(0.0f, 0.0f, 0.0f), 0.5f, 0.25f, true, true, false, uResolution, vResolution) {}
 
-MeshTorus::MeshTorus(bool generateTexels, bool generateNormals, bool generateTangents, bool generateNormalDerivatives, int uResolution, int vResolution) : MeshTorus(Vector3f(0.0f, 0.0f, 0.0f), 0.5f, 0.25f, generateTexels, generateNormals, generateTangents, generateNormalDerivatives, uResolution, vResolution) {}
+MeshTorus::MeshTorus(bool generateTexels, bool generateNormals, bool generateTangents, int uResolution, int vResolution) : MeshTorus(Vector3f(0.0f, 0.0f, 0.0f), 0.5f, 0.25f, generateTexels, generateNormals, generateTangents, uResolution, vResolution) {}
 
-MeshTorus::MeshTorus(const Vector3f &position, float radius, float tubeRadius, bool generateTexels, bool generateNormals, bool generateTangents, bool generateNormalDerivatives, int uResolution, int vResolution) {
+MeshTorus::MeshTorus(const Vector3f &position, float radius, float tubeRadius, bool generateTexels, bool generateNormals, bool generateTangents, int uResolution, int vResolution) {
 	
 	m_radius = radius;
 	m_tubeRadius = tubeRadius;
@@ -13,12 +13,12 @@ MeshTorus::MeshTorus(const Vector3f &position, float radius, float tubeRadius, b
 	m_generateNormals = generateNormals;
 	m_generateTexels = generateTexels;
 	m_generateTangents = generateTangents;
-	m_generateNormalDerivatives = generateNormalDerivatives;
+
 	m_uResolution = uResolution;
 	m_vResolution = vResolution;
 
-	m_numBuffers = 1 + generateTexels + generateNormals + 2 * generateTangents + 2 * generateNormalDerivatives;
-	BuildMesh(m_radius, m_tubeRadius, m_position, m_uResolution, m_vResolution, m_generateTexels, m_generateNormals, m_generateTangents, m_generateNormalDerivatives, m_positions, m_texels, m_normals, m_indexBuffer, m_tangents, m_bitangents, m_normalsDu, m_normalsDv);
+	m_numBuffers = 1 + generateTexels + generateNormals + 2 * generateTangents;
+	BuildMesh(m_radius, m_tubeRadius, m_position, m_uResolution, m_vResolution, m_generateTexels, m_generateNormals, m_generateTangents, m_positions, m_texels, m_normals, m_indexBuffer, m_tangents, m_bitangents);
 	createBuffer();
 }
 
@@ -29,7 +29,7 @@ void MeshTorus::setPrecision(int uResolution, int vResolution) {
 	m_vResolution = vResolution;
 }
 
-void MeshTorus::BuildMesh(float radius, float tubeRadius, const Vector3f& position, int uResolution, int vResolution, bool generateTexels, bool generateNormals, bool generateTangents, bool generateNormalDerivatives, std::vector<Vector3f>& positions, std::vector<Vector2f>& texels, std::vector<Vector3f>& normals, std::vector<unsigned int>& indexBuffer, std::vector<Vector3f>& tangents, std::vector<Vector3f>& bitangents, std::vector<Vector3f>& normalsDu, std::vector<Vector3f>& normalsDv) {
+void MeshTorus::BuildMesh(float radius, float tubeRadius, const Vector3f& position, int uResolution, int vResolution, bool generateTexels, bool generateNormals, bool generateTangents, std::vector<Vector3f>& positions, std::vector<Vector2f>& texels, std::vector<Vector3f>& normals, std::vector<unsigned int>& indexBuffer, std::vector<Vector3f>& tangents, std::vector<Vector3f>& bitangents) {
 	
 	float mainSegmentAngleStep = 1.0f / float(uResolution);
 	float tubeSegmentAngleStep = 1.0f / float(vResolution);
@@ -73,17 +73,6 @@ void MeshTorus::BuildMesh(float radius, float tubeRadius, const Vector3f& positi
 				
 			}
 
-			if(generateNormalDerivatives) {
-				normalsDu.push_back(Vector3f(-sinMainSegment, 0.0, cosMainSegment));
-
-				float n1v = -cosMainSegment * sinTubeSegment;
-				float n2v = cosTubeSegment;
-				float n3v = -sinMainSegment * sinTubeSegment;
-
-				normalsDv.push_back(Vector3f(n1v, n2v, n3v));
-				
-			}
-
 			// Update current tube angle
 			currentTubeSegmentAngle += tubeSegmentAngleStep;
 		}
@@ -118,6 +107,10 @@ void MeshTorus::BuildMesh(float radius, float tubeRadius, const Vector3f& positi
 			}
 		}
 	}
+}
+
+int MeshTorus::getNumberOfTriangles() {
+	return m_drawCount / 3;
 }
 
 void MeshTorus::createBuffer() {
@@ -170,20 +163,6 @@ void MeshTorus::createBuffer() {
 		glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, 0, 0);
 	}
 
-	if (m_generateNormalDerivatives) {
-		glBindBuffer(GL_ARRAY_BUFFER, m_vbo[5]);
-		glBufferData(GL_ARRAY_BUFFER, m_normalsDu.size() * sizeof(m_normalsDu[0]), &m_normalsDu[0], GL_STATIC_DRAW);
-
-		glEnableVertexAttribArray(5);
-		glVertexAttribPointer(5, 3, GL_FLOAT, GL_FALSE, 0, 0);
-
-		glBindBuffer(GL_ARRAY_BUFFER, m_vbo[6]);
-		glBufferData(GL_ARRAY_BUFFER, m_normalsDv.size() * sizeof(m_normalsDv[0]), &m_normalsDv[0], GL_STATIC_DRAW);
-
-		glEnableVertexAttribArray(6);
-		glVertexAttribPointer(6, 3, GL_FLOAT, GL_FALSE, 0, 0);
-	}
-
 	//Indices
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_indexBuffer.size() * sizeof(m_indexBuffer[0]), &m_indexBuffer[0], GL_STATIC_DRAW);
@@ -204,10 +183,6 @@ void MeshTorus::createBuffer() {
 	m_tangents.shrink_to_fit();
 	m_bitangents.clear();
 	m_bitangents.shrink_to_fit();
-	m_normalsDu.clear();
-	m_normalsDu.shrink_to_fit();
-	m_normalsDv.clear();
-	m_normalsDv.shrink_to_fit();
 }
 
 void MeshTorus::drawRaw() {
@@ -230,19 +205,19 @@ void MeshTorus::createInstancesStatic(const std::vector<Matrix4f>& modelMTX) {
 	glBindBuffer(GL_ARRAY_BUFFER, m_vboInstances);
 	glBufferData(GL_ARRAY_BUFFER, m_instances.size() * sizeof(float) * 4 * 4, m_instances[0][0], GL_STATIC_DRAW);
 
-	glEnableVertexAttribArray(3);
-	glEnableVertexAttribArray(4);
 	glEnableVertexAttribArray(5);
 	glEnableVertexAttribArray(6);
-	glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(float) * 4 * 4, (void*)(0));
-	glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(float) * 4 * 4, (void*)(sizeof(float) * 4));
-	glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(float) * 4 * 4, (void*)(sizeof(float) * 8));
-	glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(float) * 4 * 4, (void*)(sizeof(float) * 12));
+	glEnableVertexAttribArray(7);
+	glEnableVertexAttribArray(8);
+	glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(float) * 4 * 4, (void*)(0));
+	glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(float) * 4 * 4, (void*)(sizeof(float) * 4));
+	glVertexAttribPointer(7, 4, GL_FLOAT, GL_FALSE, sizeof(float) * 4 * 4, (void*)(sizeof(float) * 8));
+	glVertexAttribPointer(8, 4, GL_FLOAT, GL_FALSE, sizeof(float) * 4 * 4, (void*)(sizeof(float) * 12));
 
-	glVertexAttribDivisor(3, 1);
-	glVertexAttribDivisor(4, 1);
 	glVertexAttribDivisor(5, 1);
 	glVertexAttribDivisor(6, 1);
+	glVertexAttribDivisor(7, 1);
+	glVertexAttribDivisor(8, 1);
 
 	glBindVertexArray(0);
 }
@@ -262,19 +237,19 @@ void MeshTorus::addInstance(const Matrix4f& modelMTX){
 		glBindBuffer(GL_ARRAY_BUFFER, m_vboInstances);
 		glBufferData(GL_ARRAY_BUFFER, m_instances.size() * sizeof(float) * 4 * 4, m_instances[0][0], GL_STATIC_DRAW);
 
-		glEnableVertexAttribArray(3);
-		glEnableVertexAttribArray(4);
 		glEnableVertexAttribArray(5);
 		glEnableVertexAttribArray(6);
-		glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(float) * 4 * 4, (void*)(0));
-		glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(float) * 4 * 4, (void*)(sizeof(float) * 4));
-		glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(float) * 4 * 4, (void*)(sizeof(float) * 8));
-		glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(float) * 4 * 4, (void*)(sizeof(float) * 12));
+		glEnableVertexAttribArray(7);
+		glEnableVertexAttribArray(8);
+		glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(float) * 4 * 4, (void*)(0));
+		glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(float) * 4 * 4, (void*)(sizeof(float) * 4));
+		glVertexAttribPointer(7, 4, GL_FLOAT, GL_FALSE, sizeof(float) * 4 * 4, (void*)(sizeof(float) * 8));
+		glVertexAttribPointer(8, 4, GL_FLOAT, GL_FALSE, sizeof(float) * 4 * 4, (void*)(sizeof(float) * 12));
 
-		glVertexAttribDivisor(3, 1);
-		glVertexAttribDivisor(4, 1);
 		glVertexAttribDivisor(5, 1);
 		glVertexAttribDivisor(6, 1);
+		glVertexAttribDivisor(7, 1);
+		glVertexAttribDivisor(8, 1);
 
 		glBindVertexArray(0);
 	}

@@ -455,8 +455,6 @@ void Application::loadAssets() {
 	Globals::shaderManager.loadShader("normal", "res/program.vert", "res/normal.frag");
 	Globals::shaderManager.loadShader("tangent", "res/program.vert", "res/tangent.frag");
 	Globals::shaderManager.loadShader("bitangent", "res/program.vert", "res/bitangent.frag");
-	Globals::shaderManager.loadShader("normaldu", "res/program.vert", "res/normaldu.frag");
-	Globals::shaderManager.loadShader("normaldv", "res/program.vert", "res/normaldv.frag");
 	Globals::shaderManager.loadShader("geometry", "res/normalGS.vs", "res/normalGS.fs", "res/normalGS.gs");
 
 	Globals::textureManager.loadTexture("muzzleFlash", "res/Textures/muzzleFlash.png", true);
@@ -465,4 +463,5 @@ void Application::loadAssets() {
 	Globals::shapeManager.buildCapsule("capsule", 0.5f, 1.0f);
 	Globals::shapeManager.buildTorus("torus", 0.5f, 0.25f, Vector3f(0.0f, 0.0f, 0.0f), 49, 49, true, true, true, true);
 	Globals::shapeManager.buildSphere("sphere", 1.0f, Vector3f(0.0f, 0.0f, 0.0f), 49, 49, true, true, true, true);
+	Globals::shapeManager.buildSpiral("spiral", 0.5f, 0.25f, 1.5f, 1, true, Vector3f(0.0f, -0.75f, 0.0f), 49, 49, true, true, true, true);
 }

@@ -12,7 +12,8 @@
 enum Model {
 	TORUS,
 	CAPSULE,
-	SPHERE
+	SPHERE,
+	SPIRAL
 };
 
 enum RenderMode {
@@ -20,8 +21,6 @@ enum RenderMode {
 	NORMAL,
 	TANGENT,
 	BITANGENT,
-	NORMALDU,
-	NORMALDV,
 	GEOMETRY
 };
 

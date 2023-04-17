@@ -19,7 +19,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	m_trackball.setDollyPosition(-2.5f);
 	applyTransformation(m_trackball);
 
-	m_currentShape = Globals::shapeManager.get("torus");
+	m_currentShape = Globals::shapeManager.get("spiral");
 	m_currentShader = Globals::shaderManager.getAssetPointer("texture");
 }
 
@@ -168,7 +168,7 @@ void Game::renderUi() {
 	ImGui::Begin("Settings", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
 	ImGui::Checkbox("Draw Wirframe", &StateMachine::GetEnableWireframe());
 	int currentModel = model;
-	if (ImGui::Combo("Model", &currentModel, "Torus\0Capsule\0Sphere\0\0")) {
+	if (ImGui::Combo("Model", &currentModel, "Torus\0Capsule\0Sphere\0Spiral\0\0")) {
 		model = static_cast<Model>(currentModel);
 		switch (model) {			
 			case Model::TORUS:
@@ -180,10 +180,13 @@ void Game::renderUi() {
 			case Model::SPHERE:
 				m_currentShape = Globals::shapeManager.get("sphere");
 				break;
+			case Model::SPIRAL:
+				m_currentShape = Globals::shapeManager.get("spiral");
+				break;
 		}
 	}
 	int currentRenderMode = renderMode;
-	if (ImGui::Combo("Render", &currentRenderMode, "Texture\0Normal\0Tangent\0Bitangent\0NormalDu\0NormalDv\0Geometry\0\0")) {
+	if (ImGui::Combo("Render", &currentRenderMode, "Texture\0Normal\0Tangent\0Bitangent\0Geometry\0\0")) {
 		renderMode = static_cast<RenderMode>(currentRenderMode);
 		switch (renderMode) {			
 			case RenderMode::TEXTURE:
@@ -197,13 +200,7 @@ void Game::renderUi() {
 				break;
 			case RenderMode::BITANGENT:
 				m_currentShader = Globals::shaderManager.getAssetPointer("bitangent");
-				break;
-			case RenderMode::NORMALDU:
-				m_currentShader = Globals::shaderManager.getAssetPointer("normaldu");
-				break;
-			case RenderMode::NORMALDV:
-				m_currentShader = Globals::shaderManager.getAssetPointer("normaldv");
-				break;
+				break;			
 			case RenderMode::GEOMETRY:
 				m_currentShader = Globals::shaderManager.getAssetPointer("geometry");
 				break;

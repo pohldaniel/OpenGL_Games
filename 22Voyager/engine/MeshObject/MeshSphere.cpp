@@ -1,35 +1,28 @@
 #include "MeshSphere.h"
 
-MeshSphere::MeshSphere(int uResolution, int vResolution) : MeshSphere(Vector3f(0.0f, 0.0f, 0.0f), 1.0f, true, true, false, false, uResolution, vResolution) { }
+MeshSphere::MeshSphere(int uResolution, int vResolution) : MeshSphere(Vector3f(0.0f, 0.0f, 0.0f), 1.0f, true, true, false, uResolution, vResolution) { }
 
-MeshSphere::MeshSphere(bool generateTexels, bool generateNormals, bool generateTangents, bool generateNormalDerivatives, int uResolution, int vResolution) : MeshSphere(Vector3f(0.0f, 0.0f, 0.0f), 1.0f, generateTexels, generateNormals, generateTangents, generateNormalDerivatives, uResolution, vResolution) { }
+MeshSphere::MeshSphere(bool generateTexels, bool generateNormals, bool generateTangents, int uResolution, int vResolution) : MeshSphere(Vector3f(0.0f, 0.0f, 0.0f), 1.0f, generateTexels, generateNormals, generateTangents, uResolution, vResolution) { }
 
-MeshSphere::MeshSphere(const Vector3f &position, float radius, bool generateTexels, bool generateNormals, bool generateTangents, bool generateNormalDerivatives, int uResolution, int vResolution) {
+MeshSphere::MeshSphere(const Vector3f &position, float radius, bool generateTexels, bool generateNormals, bool generateTangents, int uResolution, int vResolution) {
 	
 	m_radius = radius;
 	m_position = position;
 	m_generateNormals = generateNormals;
 	m_generateTexels = generateTexels;
 	m_generateTangents = generateTangents;
-	m_generateNormalDerivatives = generateNormalDerivatives;
 
-	m_hasTexels = false;
-	m_hasNormals = false;
-	m_hasTangents = false;
-	m_hasNormalDerivatives = false;
-
-	m_isInitialized = false;
 	m_uResolution = uResolution;
 	m_vResolution = vResolution;
 
-	m_numBuffers = 1 + generateTexels + generateNormals + generateTangents * 2 + generateNormalDerivatives * 2;
+	m_numBuffers = 1 + generateTexels + generateNormals + generateTangents * 2;
 
-	m_model = Matrix4f::IDENTITY;
+
 
 	m_min = Vector3f(FLT_MAX, FLT_MAX, FLT_MAX);
 	m_max = Vector3f(FLT_MIN, FLT_MIN, FLT_MIN);
 
-	BuildMesh(m_radius, m_position, m_uResolution, m_vResolution, m_generateTexels, m_generateNormals, m_generateTangents, m_generateNormalDerivatives, m_positions, m_texels, m_normals, m_indexBuffer, m_tangents, m_bitangents, m_normalsDu, m_normalsDv);
+	BuildMesh(m_radius, m_position, m_uResolution, m_vResolution, m_generateTexels, m_generateNormals, m_generateTangents, m_positions, m_texels, m_normals, m_indexBuffer, m_tangents, m_bitangents);
 	createBuffer();
 }
 
@@ -41,7 +34,7 @@ void MeshSphere::setPrecision(int uResolution, int vResolution) {
 	m_vResolution = vResolution;
 }
 
-void MeshSphere::BuildMesh(float radius, const Vector3f& position, int uResolution, int vResolution, bool generateTexels, bool generateNormals, bool generateTangents, bool generateNormalDerivatives, std::vector<Vector3f>& positions, std::vector<Vector2f>& texels, std::vector<Vector3f>& normals, std::vector<unsigned int>& indexBuffer, std::vector<Vector3f>& tangents, std::vector<Vector3f>& bitangents, std::vector<Vector3f>& normalsDu, std::vector<Vector3f>& normalsDv) {
+void MeshSphere::BuildMesh(float radius, const Vector3f& position, int uResolution, int vResolution, bool generateTexels, bool generateNormals, bool generateTangents, std::vector<Vector3f>& positions, std::vector<Vector2f>& texels, std::vector<Vector3f>& normals, std::vector<unsigned int>& indexBuffer, std::vector<Vector3f>& tangents, std::vector<Vector3f>& bitangents) {
 
 
 	float uAngleStep = (2.0f * PI) / float(uResolution);
@@ -74,20 +67,6 @@ void MeshSphere::BuildMesh(float radius, const Vector3f& position, int uResoluti
 				tangents.push_back(Vector3f(sinUSegment , 0.0, cosUSegment)); // rotate 180 z Axis to match texture space
 				bitangents.push_back(Vector3f(-sinVSegment*cosUSegment, cosVSegment, -sinVSegment*sinUSegment).normalize());
 			}
-
-			if (generateNormalDerivatives) {
-				float n1u = sinUSegment; // rotate 180 z Axis to match texture space
-				float n3u = cosUSegment;
-
-				normalsDu.push_back(Vector3f(n1u, 0.0, n3u));
-
-				float n1v = -sinVSegment  * cosUSegment;
-				float n2v = cosVSegment;
-				float n3v = -sinVSegment  * sinUSegment;
-
-				Vector3f dndv = Vector3f(n1v, n2v, n3v);
-				normalsDv.push_back(dndv);
-			}
 		}
 	}
 
@@ -107,6 +86,10 @@ void MeshSphere::BuildMesh(float radius, const Vector3f& position, int uResoluti
 			}	
 		}
 	}
+}
+
+int MeshSphere::getNumberOfTriangles() {
+	return m_drawCount / 3;
 }
 
 void MeshSphere::createBuffer() {
@@ -159,20 +142,6 @@ void MeshSphere::createBuffer() {
 		glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, 0, 0);
 	}
 
-	if (m_generateNormalDerivatives) {
-		glBindBuffer(GL_ARRAY_BUFFER, m_vbo[5]);
-		glBufferData(GL_ARRAY_BUFFER, m_normalsDu.size() * sizeof(m_normalsDu[0]), &m_normalsDu[0], GL_STATIC_DRAW);
-
-		glEnableVertexAttribArray(5);
-		glVertexAttribPointer(5, 3, GL_FLOAT, GL_FALSE, 0, 0);
-
-		glBindBuffer(GL_ARRAY_BUFFER, m_vbo[6]);
-		glBufferData(GL_ARRAY_BUFFER, m_normalsDv.size() * sizeof(m_normalsDv[0]), &m_normalsDv[0], GL_STATIC_DRAW);
-
-		glEnableVertexAttribArray(6);
-		glVertexAttribPointer(6, 3, GL_FLOAT, GL_FALSE, 0, 0);
-	}
-
 	//Indices
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_indexBuffer.size() * sizeof(m_indexBuffer[0]), &m_indexBuffer[0], GL_STATIC_DRAW);
@@ -193,14 +162,80 @@ void MeshSphere::createBuffer() {
 	m_tangents.shrink_to_fit();
 	m_bitangents.clear();
 	m_bitangents.shrink_to_fit();
-	m_normalsDu.clear();
-	m_normalsDu.shrink_to_fit();
-	m_normalsDv.clear();
-	m_normalsDv.shrink_to_fit();
 }
 
 void MeshSphere::drawRaw() {
 	glBindVertexArray(m_vao);
 	glDrawElements(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0);
+	glBindVertexArray(0);
+}
+
+void MeshSphere::createInstancesStatic(const std::vector<Matrix4f>& modelMTX) {
+	m_instances.clear();
+	m_instances.shrink_to_fit();
+	m_instances = modelMTX;
+
+	m_instanceCount = m_instances.size();
+
+	glGenBuffers(1, &m_vboInstances);
+
+	glBindVertexArray(m_vao);
+
+	glBindBuffer(GL_ARRAY_BUFFER, m_vboInstances);
+	glBufferData(GL_ARRAY_BUFFER, m_instances.size() * sizeof(float) * 4 * 4, m_instances[0][0], GL_STATIC_DRAW);
+
+	glEnableVertexAttribArray(5);
+	glEnableVertexAttribArray(6);
+	glEnableVertexAttribArray(7);
+	glEnableVertexAttribArray(8);
+	glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(float) * 4 * 4, (void*)(0));
+	glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(float) * 4 * 4, (void*)(sizeof(float) * 4));
+	glVertexAttribPointer(7, 4, GL_FLOAT, GL_FALSE, sizeof(float) * 4 * 4, (void*)(sizeof(float) * 8));
+	glVertexAttribPointer(8, 4, GL_FLOAT, GL_FALSE, sizeof(float) * 4 * 4, (void*)(sizeof(float) * 12));
+
+	glVertexAttribDivisor(5, 1);
+	glVertexAttribDivisor(6, 1);
+	glVertexAttribDivisor(7, 1);
+	glVertexAttribDivisor(8, 1);
+
+	glBindVertexArray(0);
+}
+
+void MeshSphere::addInstance(const Matrix4f& modelMTX) {
+	m_instances.push_back(modelMTX);
+	m_instanceCount = m_instances.size();
+
+	if (m_vboInstances) {
+		glBindBuffer(GL_ARRAY_BUFFER, m_vboInstances);
+		glBufferData(GL_ARRAY_BUFFER, m_instances.size() * sizeof(float) * 4 * 4, m_instances[0][0], GL_STATIC_DRAW);
+
+	} else {
+		glGenBuffers(1, &m_vboInstances);
+		glBindVertexArray(m_vao);
+
+		glBindBuffer(GL_ARRAY_BUFFER, m_vboInstances);
+		glBufferData(GL_ARRAY_BUFFER, m_instances.size() * sizeof(float) * 4 * 4, m_instances[0][0], GL_STATIC_DRAW);
+
+		glEnableVertexAttribArray(5);
+		glEnableVertexAttribArray(6);
+		glEnableVertexAttribArray(7);
+		glEnableVertexAttribArray(8);
+		glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(float) * 4 * 4, (void*)(0));
+		glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(float) * 4 * 4, (void*)(sizeof(float) * 4));
+		glVertexAttribPointer(7, 4, GL_FLOAT, GL_FALSE, sizeof(float) * 4 * 4, (void*)(sizeof(float) * 8));
+		glVertexAttribPointer(8, 4, GL_FLOAT, GL_FALSE, sizeof(float) * 4 * 4, (void*)(sizeof(float) * 12));
+
+		glVertexAttribDivisor(5, 1);
+		glVertexAttribDivisor(6, 1);
+		glVertexAttribDivisor(7, 1);
+		glVertexAttribDivisor(8, 1);
+
+		glBindVertexArray(0);
+	}
+}
+
+void MeshSphere::drawRawInstanced() {
+	glBindVertexArray(m_vao);
+	glDrawElementsInstanced(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0, m_instanceCount);
 	glBindVertexArray(0);
 }
