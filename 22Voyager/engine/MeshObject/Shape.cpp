@@ -4,6 +4,8 @@
 #include "MeshSphere.h"
 #include "MeshSpiral.h"
 #include "MeshCylinder.h"
+#include "MeshQuad.h"
+#include "MeshCube.h"
 #include <iostream>
 
 Shape::Shape() { }
@@ -65,6 +67,30 @@ void Shape::buildCylinder(float baseRadius, float topRadius, float length, const
 	m_vResolution = vResolution;
 	m_numBuffers = 1 + m_generateTexels + m_generateNormals + 2 * m_generateTangents;
 	MeshCylinder::BuildMesh(baseRadius, topRadius, length, m_position, m_uResolution, m_vResolution, m_generateTexels, m_generateNormals, m_generateTangents, m_positions, m_texels, m_normals, m_indexBuffer, m_tangents, m_bitangents);
+	createBuffer();
+}
+
+void Shape::buildQuad(const Vector2f&  size, const Vector3f& position, int uResolution, int vResolution, bool generateTexels, bool generateNormals, bool generateTangents) {
+	m_position = position;
+	m_generateNormals = generateNormals;
+	m_generateTexels = generateTexels;
+	m_generateTangents = generateTangents;
+	m_uResolution = uResolution;
+	m_vResolution = vResolution;
+	m_numBuffers = 1 + m_generateTexels + m_generateNormals + 2 * m_generateTangents;
+	MeshQuad::BuildMesh(size, position, m_uResolution, m_vResolution, m_generateTexels, m_generateNormals, m_generateTangents, m_positions, m_texels, m_normals, m_indexBuffer, m_tangents, m_bitangents);
+	createBuffer();
+}
+
+void Shape::buildCube(const Vector3f&  size, const Vector3f& position, int uResolution, int vResolution, bool generateTexels, bool generateNormals, bool generateTangents) {
+	m_position = position;
+	m_generateNormals = generateNormals;
+	m_generateTexels = generateTexels;
+	m_generateTangents = generateTangents;
+	m_uResolution = uResolution;
+	m_vResolution = vResolution;
+	m_numBuffers = 1 + m_generateTexels + m_generateNormals + 2 * m_generateTangents;
+	MeshCube::BuildMesh4Q(size, position, m_uResolution, m_vResolution, m_generateTexels, m_generateNormals, m_generateTangents, m_positions, m_texels, m_normals, m_indexBuffer, m_tangents, m_bitangents);
 	createBuffer();
 }
 
@@ -195,8 +221,7 @@ void Shape::addInstance(const Matrix4f& modelMTX) {
 		glBindBuffer(GL_ARRAY_BUFFER, m_vboInstances);
 		glBufferData(GL_ARRAY_BUFFER, m_instances.size() * sizeof(float) * 4 * 4, m_instances[0][0], GL_STATIC_DRAW);
 
-	}
-	else {
+	}else {
 		glGenBuffers(1, &m_vboInstances);
 		glBindVertexArray(m_vao);
 

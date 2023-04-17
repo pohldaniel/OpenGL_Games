@@ -184,6 +184,10 @@ void MeshCylinder::BuildMesh(float baseRadius, float topRadius, float length, co
 	}
 }
 
+int MeshCylinder::getNumberOfTriangles() {
+	return m_drawCount / 3;
+}
+
 void MeshCylinder::createBuffer() {
 	m_drawCount = m_indexBuffer.size();
 

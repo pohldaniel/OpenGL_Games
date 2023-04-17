@@ -14,7 +14,9 @@ enum Model {
 	CAPSULE,
 	SPHERE,
 	SPIRAL,
-	CYLINDER
+	CYLINDER,
+	QUAD,
+	CUBE
 };
 
 enum RenderMode {

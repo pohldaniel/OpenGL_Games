@@ -126,6 +126,14 @@ public:
 		m_assets[name].buildCylinder(baseRadius, topRadius, length, position, uResolution, vResolution, generateTexels, generateNormals, generateTangents);
 	}
 
+	void buildQuad(const std::string& name, const Vector2f& size = Vector2f(2.0f, 2.0f), const Vector3f& position = Vector3f(-1.0f, -1.0f, 0.0f), int uResolution = 1, int vResolution = 1, bool generateTexels = true, bool generateNormals = true, bool generateTangents = false) {
+		m_assets[name].buildQuad(size, position, uResolution, vResolution, generateTexels, generateNormals, generateTangents);
+	}
+
+	void buildCube(const std::string& name, const Vector3f&  size = Vector3f(2.0f, 2.0f, 2.0f), const Vector3f& position = Vector3f(-1.0f, -1.0f, -1.0f), int uResolution = 1, int vResolution = 1, bool generateTexels = true, bool generateNormals = true, bool generateTangents = false) {
+		m_assets[name].buildCube(size, position, uResolution, vResolution, generateTexels, generateNormals, generateTangents);
+	}
+
 	T& get(const std::string& name) {
 		return m_assets[name];
 	}

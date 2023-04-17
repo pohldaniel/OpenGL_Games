@@ -1,11 +1,11 @@
 #include <iostream>
 #include "MeshQuad.h"
 
-MeshQuad::MeshQuad(int uResolution, int vResolution) : MeshQuad(Vector3f(-1.0f, -1.0f, 0.0f), Vector2f(2.0f, 2.0f), true, true, false, false, uResolution, vResolution) { }
+MeshQuad::MeshQuad(int uResolution, int vResolution) : MeshQuad(Vector3f(-1.0f, -1.0f, 0.0f), Vector2f(2.0f, 2.0f), true, true, false, uResolution, vResolution) { }
 
-MeshQuad::MeshQuad(bool generateTexels, bool generateNormals, bool generateTangents, bool generateNormalDerivatives, int uResolution, int vResolution) : MeshQuad(Vector3f(-1.0f, -1.0f, 0.0f), Vector2f(2.0f, 2.0f), generateTexels, generateNormals, generateTangents, generateNormalDerivatives, uResolution, vResolution) { }
+MeshQuad::MeshQuad(bool generateTexels, bool generateNormals, bool generateTangents, int uResolution, int vResolution) : MeshQuad(Vector3f(-1.0f, -1.0f, 0.0f), Vector2f(2.0f, 2.0f), generateTexels, generateNormals, generateTangents, uResolution, vResolution) { }
 
-MeshQuad::MeshQuad(const Vector3f &position, const Vector2f& size, bool generateTexels, bool generateNormals, bool generateTangents, bool generateNormalDerivatives, int uResolution, int vResolution) {
+MeshQuad::MeshQuad(const Vector3f &position, const Vector2f& size, bool generateTexels, bool generateNormals, bool generateTangents, int uResolution, int vResolution) {
 
 	m_position = position;
 	m_size = size;
@@ -13,34 +13,26 @@ MeshQuad::MeshQuad(const Vector3f &position, const Vector2f& size, bool generate
 	m_generateNormals = generateNormals;
 	m_generateTexels = generateTexels;
 	m_generateTangents = generateTangents;
-	m_generateNormalDerivatives = generateNormalDerivatives;
-
-	m_hasTexels = false;
-	m_hasNormals = false;
-	m_hasTangents = false;
-	m_hasNormalDerivatives = false;
-
-	m_isInitialized = false;
 
 	m_uResolution = uResolution;
 	m_vResolution = vResolution;
 
-	m_numBuffers = 1 + generateTexels + generateNormals + 2 * generateTangents + 2 * generateNormalDerivatives;
+	m_numBuffers = 1 + generateTexels + generateNormals + 2 * generateTangents;
 
 	m_center = m_position + Vector3f(m_size[0], 0.0f, m_size[1]) * 0.5f;
-	buildMesh();
+	BuildMesh(m_size, m_position, m_uResolution, m_vResolution, m_generateTexels, m_generateNormals, m_generateTangents, m_positions, m_texels, m_normals, m_indexBuffer, m_tangents, m_bitangents);
+	createBuffer();
 }
 
 MeshQuad::~MeshQuad() {}
 
 void MeshQuad::setPrecision(int uResolution, int vResolution) {
-
 	m_uResolution = uResolution;
 	m_vResolution = vResolution;
 }
 
 int MeshQuad::getNumberOfTriangles() {
-	return m_numberOfTriangle;
+	return m_drawCount / 3;
 }
 
 const Vector3f& MeshQuad::getPosition() const {
@@ -55,53 +47,59 @@ const Vector3f& MeshQuad::getCenter() const {
 	return m_center;
 }
 
-void MeshQuad::buildMesh(){
-	float vStep = (1.0f / m_vResolution) * m_size[1];
-	float uStep = (1.0f /m_uResolution) * m_size[0];
+void MeshQuad::BuildMesh(const Vector2f& size, const Vector3f& _position, int uResolution, int vResolution, bool generateTexels, bool generateNormals, bool generateTangents, std::vector<Vector3f>& positions, std::vector<Vector2f>& texels, std::vector<Vector3f>& normals, std::vector<unsigned int>& indexBuffer, std::vector<Vector3f>& tangents, std::vector<Vector3f>& bitangents){
+	float vStep = (1.0f / vResolution) * size[1];
+	float uStep = (1.0f /uResolution) * size[0];
 
-	for (unsigned int i = 0; i <= m_vResolution; i++) {
-		for (unsigned int j = 0; j <= m_uResolution; j++) {
+	for (unsigned int i = 0; i <= vResolution; i++) {
+		for (unsigned int j = 0; j <= uResolution; j++) {
 			
 			// Calculate vertex position on the surface of a quad
 			float x = j * uStep;		
 			float y = i * vStep;
 			float z = 0.0f;
 
-			Vector3f position = Vector3f(x, y, z) + m_position;
-			m_positions.push_back(position);
+			Vector3f position = Vector3f(x, y, z) + _position;
+			positions.push_back(position);
 
-			if (m_generateNormals) {
-				m_normals.push_back(Vector3f(0.0f, 0.0f, 1.0f));
+			if (generateTexels) {
+				// Calculate texels on the surface of a quad
+				float u = (float)j / uResolution;
+				float v = (float)i / vResolution;
+				texels.push_back(Vector2f(u, v));
 			}
 
-			if (m_generateTexels) {
-				// Calculate texels on the surface of a quad
-				float u = (float)j / m_uResolution;
-				float v = (float)i / m_vResolution;
-				m_texels.push_back(Vector2f(u, 1.0f - v));
+			if (generateNormals) {
+				normals.push_back(Vector3f(0.0f, 0.0f, 1.0f));
+			}
+
+			if (generateTangents) {
+				tangents.push_back(Vector3f(1.0f, 0.0f, 0.0f));
+				bitangents.push_back(Vector3f(0.0f, 1.0f, 0.0f));
 			}
 		}
 	}
 
 	//calculate the indices
-	for (int z = 0; z < m_vResolution ; z++) {
-		for (int x = 0; x < m_uResolution; x++) {
+	for (int z = 0; z < vResolution ; z++) {
+		for (int x = 0; x < uResolution; x++) {
 			// 0 *- 1		0
 			//	\	*		|  *
 			//	 *	|		*	\
 			//      4		3 -* 4
-			m_indexBuffer.push_back(z * (m_uResolution + 1) + x);
-			m_indexBuffer.push_back((z + 1) * (m_uResolution + 1) + x + 1);			
-			m_indexBuffer.push_back(z * (m_uResolution + 1) + x + 1);
+			indexBuffer.push_back(z * (uResolution + 1) + x);
+			indexBuffer.push_back((z + 1) * (uResolution + 1) + x + 1);			
+			indexBuffer.push_back(z * (uResolution + 1) + x + 1);
 
-			m_indexBuffer.push_back(z * (m_uResolution + 1) + x);
-			m_indexBuffer.push_back((z + 1) * (m_uResolution + 1) + x);			
-			m_indexBuffer.push_back((z + 1) * (m_uResolution + 1) + x + 1);
+			indexBuffer.push_back(z * (uResolution + 1) + x);
+			indexBuffer.push_back((z + 1) * (uResolution + 1) + x);			
+			indexBuffer.push_back((z + 1) * (uResolution + 1) + x + 1);
 		}
 	}
+}
 
+void MeshQuad::createBuffer() {
 	m_drawCount = m_indexBuffer.size();
-	m_numberOfTriangle = m_drawCount / 3;
 
 	unsigned int ibo;
 	glGenBuffers(1, &ibo);
@@ -128,11 +126,26 @@ void MeshQuad::buildMesh(){
 
 	//Normals
 	if (m_generateNormals) {
-		glBindBuffer(GL_ARRAY_BUFFER, m_generateTexels ? m_vbo[2] : m_vbo[1]);
+		glBindBuffer(GL_ARRAY_BUFFER, m_vbo[2]);
 		glBufferData(GL_ARRAY_BUFFER, m_normals.size() * sizeof(m_normals[0]), &m_normals[0], GL_STATIC_DRAW);
 
 		glEnableVertexAttribArray(2);
 		glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	}
+
+	//Tangents
+	if (m_generateTangents) {
+		glBindBuffer(GL_ARRAY_BUFFER, m_vbo[3]);
+		glBufferData(GL_ARRAY_BUFFER, m_tangents.size() * sizeof(m_tangents[0]), &m_tangents[0], GL_STATIC_DRAW);
+
+		glEnableVertexAttribArray(3);
+		glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+		glBindBuffer(GL_ARRAY_BUFFER, m_vbo[4]);
+		glBufferData(GL_ARRAY_BUFFER, m_bitangents.size() * sizeof(m_bitangents[0]), &m_bitangents[0], GL_STATIC_DRAW);
+
+		glEnableVertexAttribArray(4);
+		glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, 0, 0);
 	}
 
 	//Indices
@@ -145,14 +158,16 @@ void MeshQuad::buildMesh(){
 
 	//m_positions.clear();
 	//m_positions.shrink_to_fit();
+	//m_indexBuffer.clear();
+	//m_indexBuffer.shrink_to_fit();
 	m_texels.clear();
 	m_texels.shrink_to_fit();
 	m_normals.clear();
 	m_normals.shrink_to_fit();
-	//m_indexBuffer.clear();
-	//m_indexBuffer.shrink_to_fit();
-
-	m_isInitialized = true;
+	m_tangents.clear();
+	m_tangents.shrink_to_fit();
+	m_bitangents.clear();
+	m_bitangents.shrink_to_fit();
 }
 
 void MeshQuad::drawRaw() {
@@ -161,3 +176,72 @@ void MeshQuad::drawRaw() {
 	glBindVertexArray(0);
 }
 
+void MeshQuad::createInstancesStatic(const std::vector<Matrix4f>& modelMTX) {
+	m_instances.clear();
+	m_instances.shrink_to_fit();
+	m_instances = modelMTX;
+
+	m_instanceCount = m_instances.size();
+
+	glGenBuffers(1, &m_vboInstances);
+
+	glBindVertexArray(m_vao);
+
+	glBindBuffer(GL_ARRAY_BUFFER, m_vboInstances);
+	glBufferData(GL_ARRAY_BUFFER, m_instances.size() * sizeof(float) * 4 * 4, m_instances[0][0], GL_STATIC_DRAW);
+
+	glEnableVertexAttribArray(5);
+	glEnableVertexAttribArray(6);
+	glEnableVertexAttribArray(7);
+	glEnableVertexAttribArray(8);
+	glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(float) * 4 * 4, (void*)(0));
+	glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(float) * 4 * 4, (void*)(sizeof(float) * 4));
+	glVertexAttribPointer(7, 4, GL_FLOAT, GL_FALSE, sizeof(float) * 4 * 4, (void*)(sizeof(float) * 8));
+	glVertexAttribPointer(8, 4, GL_FLOAT, GL_FALSE, sizeof(float) * 4 * 4, (void*)(sizeof(float) * 12));
+
+	glVertexAttribDivisor(5, 1);
+	glVertexAttribDivisor(6, 1);
+	glVertexAttribDivisor(7, 1);
+	glVertexAttribDivisor(8, 1);
+
+	glBindVertexArray(0);
+}
+
+void MeshQuad::addInstance(const Matrix4f& modelMTX) {
+	m_instances.push_back(modelMTX);
+	m_instanceCount = m_instances.size();
+
+	if (m_vboInstances) {
+		glBindBuffer(GL_ARRAY_BUFFER, m_vboInstances);
+		glBufferData(GL_ARRAY_BUFFER, m_instances.size() * sizeof(float) * 4 * 4, m_instances[0][0], GL_STATIC_DRAW);
+
+	} else {
+		glGenBuffers(1, &m_vboInstances);
+		glBindVertexArray(m_vao);
+
+		glBindBuffer(GL_ARRAY_BUFFER, m_vboInstances);
+		glBufferData(GL_ARRAY_BUFFER, m_instances.size() * sizeof(float) * 4 * 4, m_instances[0][0], GL_STATIC_DRAW);
+
+		glEnableVertexAttribArray(5);
+		glEnableVertexAttribArray(6);
+		glEnableVertexAttribArray(7);
+		glEnableVertexAttribArray(8);
+		glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(float) * 4 * 4, (void*)(0));
+		glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(float) * 4 * 4, (void*)(sizeof(float) * 4));
+		glVertexAttribPointer(7, 4, GL_FLOAT, GL_FALSE, sizeof(float) * 4 * 4, (void*)(sizeof(float) * 8));
+		glVertexAttribPointer(8, 4, GL_FLOAT, GL_FALSE, sizeof(float) * 4 * 4, (void*)(sizeof(float) * 12));
+
+		glVertexAttribDivisor(5, 1);
+		glVertexAttribDivisor(6, 1);
+		glVertexAttribDivisor(7, 1);
+		glVertexAttribDivisor(8, 1);
+
+		glBindVertexArray(0);
+	}
+}
+
+void MeshQuad::drawRawInstanced() {
+	glBindVertexArray(m_vao);
+	glDrawElementsInstanced(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0, m_instanceCount);
+	glBindVertexArray(0);
+}

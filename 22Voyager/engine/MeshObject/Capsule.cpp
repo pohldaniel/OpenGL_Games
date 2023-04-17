@@ -72,6 +72,11 @@ void Capsule::BuildHemisphere(float radius, float length, const Vector3f& positi
 			if (generateNormals)
 				normals.push_back(north ? Vector3f(x, y, z) : Vector3f(x, -y, z));
 
+			if (generateTangents) {
+				tangents.push_back(Vector3f(sinUSegment, 0.0, cosUSegment)); // rotate 180 z Axis to match texture space
+				bitangents.push_back(Vector3f(-sinVSegment*cosUSegment, cosVSegment, -sinVSegment*sinUSegment).normalize());
+			}
+
 			//improvte texture mapping
 			//if (i == m_vResolution) {
 			//	break;
@@ -134,8 +139,7 @@ void Capsule::BuildCylinder(float radius, float length, const Vector3f& position
 	unsigned int baseIndex = positions.size();
 	float x, y, z;                                  // vertex position
 													// get normals for cylinder sides
-	std::vector<float> sideNormals = GetSideNormals(uResolution);
-
+	
 	// put vertices of side cylinder to array by scaling unit circle
 	for (int i = 0; i <= vResolution; ++i) {
 		y = -(length * 0.5f) + (float)i / vResolution * length;      // vertex position z
@@ -151,10 +155,17 @@ void Capsule::BuildCylinder(float radius, float length, const Vector3f& position
 			positions.push_back(Vector3f(x * radius, y, z * radius) + position);
 
 			if (generateTexels)
-				texels.push_back(Vector2f(1.0f - (float)j / uResolution, 1.0f - t));
+				texels.push_back(Vector2f(1.0f - (float)j / vResolution, 1.0f - t));
 
-			if (generateNormals)
-				normals.push_back(Vector3f(sideNormals[k], sideNormals[k + 1], sideNormals[k + 2]));
+			if (generateNormals) {
+				normals.push_back(Vector3f(x, 0.0f, z));
+			}
+
+			if (generateTangents) {
+				tangents.push_back(Vector3f(-z, 0.0f, x));
+				bitangents.push_back(Vector3f::Cross(tangents.back(), normals.back()));
+				//bitangents.push_back(Vector3f(x, 1.0f, z) * 0.5f);
+			}
 		}
 	}
 
