@@ -86,7 +86,7 @@ void Physics::CheckRaySphereCollision(Camera& cam, std::vector<Enemy*> enemies) 
 }
 
 inline void Physics::OnEnemyHit(Enemy* enemy) {
-	enemy->ReduceHealth(Player::GetInstance().GetCurrWeapon().GetDamage());
+	enemy->ReduceHealth(Player::GetInstance().GetCurrWeapon().getDamage());
 }
 
  void Physics::OnPlayerHit(float damage) {

@@ -25,18 +25,16 @@ Enemy::Enemy(Camera& cam) :
 	m_droneStatus(true),
 	m_damageToken(true),
 	m_canRespawn(true),
-	m_dronePos(m_pos)
-{
+	m_dronePos(m_pos) {
 	
 }
 
-Enemy::~Enemy()
-{}
+Enemy::~Enemy() {
 
-void Enemy::Draw(short int enemyId, short int enemyDroneId)
-{
-	if (!m_dead)
-	{
+}
+
+void Enemy::Draw(short int enemyId, short int enemyDroneId) {
+	if (!m_dead){
 		// Activate enemy's shader program
 		/*Renderer::GetInstance().GetComponent(enemyId).GetShaderComponent().ActivateProgram();
 
@@ -66,9 +64,7 @@ void Enemy::Draw(short int enemyId, short int enemyDroneId)
 				Physics::GetInstance().OnPlayerHit(m_attackDamage);
 			}
 		}*/
-	}
-	else
-	{
+	} else {
 		m_currLifeTimer = 0.0f;
 		Respawn();
 	}

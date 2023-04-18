@@ -3,9 +3,20 @@
 
 Transform RenderableObject::Transform;
 
+RenderableObject::RenderableObject(const Vector3f &position, const Vector3f &scale) {
+	m_position = position;
+	m_scale = scale;
+}
+
 RenderableObject::RenderableObject(const Vector3f &position, const Vector3f &scale, std::string shape, std::string shader, std::string texture)  {
 	m_position = position;
 	m_scale = scale;
+	m_shader = shader;
+	m_texture = texture;
+	m_shape = shape;
+}
+
+void RenderableObject::setAttributes(std::string shape, std::string shader, std::string texture) {
 	m_shader = shader;
 	m_texture = texture;
 	m_shape = shape;

@@ -22,7 +22,7 @@ public:
 	unsigned int getFormat();
 	unsigned int getType();
 
-	void bind(unsigned int unit);
+	void bind(unsigned int unit) const;
 	void loadFromFile(std::string fileName, const bool flipVertical = false, unsigned int internalFormat = 0, unsigned int format = 0, int paddingLeft = 0, int paddingRight = 0, int paddingTop = 0, int paddingBottom = 0);
 	void loadCrossHDRIFromFile(std::string fileName, const bool flipVertical = true, unsigned int internalFormat = 0, unsigned int format = 0, int paddingLeft = 0, int paddingRight = 0, int paddingTop = 0, int paddingBottom = 0);
 	void loadHDRIFromFile(std::string fileName, const bool flipVertical = true, unsigned int internalFormat = 0, unsigned int format = 0, int paddingLeft = 0, int paddingRight = 0, int paddingTop = 0, int paddingBottom = 0);

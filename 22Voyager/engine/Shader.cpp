@@ -71,59 +71,67 @@ unsigned int Shader::getUnifromLocation(const std::string& name) const {
 	return location;
 }
 
-void Shader::loadMatrix(const char* location, const Matrix4f& matrix, bool trans) {
+void Shader::use() const {
+	glUseProgram(m_program);
+}
+
+void Shader::unuse() const {
+	glUseProgram(0);
+}
+
+void Shader::loadMatrix(const char* location, const Matrix4f& matrix, bool trans) const {
 	glUniformMatrix4fv(getUnifromLocation(location), 1, trans, &matrix[0][0]);
 }
 
-void Shader::loadMatrixArray(const char* location, const std::vector<Matrix4f> matrixArray, const unsigned short count, bool trans) {
+void Shader::loadMatrixArray(const char* location, const std::vector<Matrix4f> matrixArray, const unsigned short count, bool trans) const {
 	glUniformMatrix4fv(getUnifromLocation(location), count, trans, matrixArray[0][0]);
 }
 
-void Shader::loadVector(const char* location, Vector4f vector) {
+void Shader::loadVector(const char* location, Vector4f vector) const {
 	glUniform4fv(getUnifromLocation(location), 1, &vector[0]);
 }
 
-void Shader::loadVector(const char* location, Vector3f vector) {
+void Shader::loadVector(const char* location, Vector3f vector) const {
 	glUniform3fv(getUnifromLocation(location), 1, &vector[0]);
 }
 
-void Shader::loadVector(const char* location, Vector2f vector) {
+void Shader::loadVector(const char* location, Vector2f vector) const {
 	glUniform2fv(getUnifromLocation(location), 1, &vector[0]);
 }
 
-void Shader::loadVector(const char* location, std::array<int, 3> vector) {
+void Shader::loadVector(const char* location, std::array<int, 3> vector) const {
 	glUniform3iv(getUnifromLocation(location), 1, &vector[0]);
 }
 
-void Shader::loadFloat(const char* location, float value) {
+void Shader::loadFloat(const char* location, float value) const {
 	glUniform1f(getUnifromLocation(location), value);
 }
 
-void Shader::loadFloat2(const char* location, float value[2]) {
+void Shader::loadFloat2(const char* location, float value[2]) const {
 	glUniform2f(getUnifromLocation(location), value[0], value[1]);
 }
 
-void Shader::loadFloat3(const char* location, float value[3]) {
+void Shader::loadFloat3(const char* location, float value[3]) const {
 	glUniform1fv(getUnifromLocation(location), 3, value);
 }
 
-void Shader::loadFloat4(const char* location, float value[4]) {
+void Shader::loadFloat4(const char* location, float value[4]) const {
 	glUniform4f(getUnifromLocation(location), value[0], value[1], value[2], value[3]);
 }
 
-void Shader::loadFloatArray(const char* location, float *value, const unsigned short count) {
+void Shader::loadFloatArray(const char* location, float *value, const unsigned short count) const {
 	glUniform1fv(getUnifromLocation(location), count, value);
 }
 
-void Shader::loadInt(const char* location, int value) {
+void Shader::loadInt(const char* location, int value) const {
 	glUniform1i(getUnifromLocation(location), value);
 }
 
-void Shader::loadUnsignedInt(const char* location, unsigned int value) {
+void Shader::loadUnsignedInt(const char* location, unsigned int value) const {
 	glUniform1ui(getUnifromLocation(location), value);
 }
 
-void Shader::loadBool(const char* location, bool value) {
+void Shader::loadBool(const char* location, bool value) const {
 	glUniform1i(getUnifromLocation(location), value);
 }
 
@@ -376,4 +384,8 @@ void Shader::cleanup() {
 		glDeleteProgram(m_program);
 		m_program = 0;
 	}
+}
+
+void  Shader::Unuse() {
+	glUseProgram(0);
 }

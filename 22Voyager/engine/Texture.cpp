@@ -963,7 +963,7 @@ unsigned int Texture::getType() {
 	return m_type;
 }
 
-void Texture::bind(unsigned int unit){
+void Texture::bind(unsigned int unit) const {
 	glActiveTexture(GL_TEXTURE0 + unit);
 	glBindTexture(GL_TEXTURE_2D, m_texture);
 }

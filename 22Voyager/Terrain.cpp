@@ -366,7 +366,7 @@ void Terrain::draw(const Camera& camera, DirectionalLight* directionLight, Point
 
 	auto shader = Globals::shaderManager.getAssetPointer("terrain");
 
-	glUseProgram(shader->m_program);
+	shader->use();
 	shader->loadInt("meshTexture", 0);
 	shader->loadInt("rTexture", 1);
 	shader->loadInt("gTexture", 2);
@@ -422,5 +422,5 @@ void Terrain::draw(const Camera& camera, DirectionalLight* directionLight, Point
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 
-	glUseProgram(0);
+	shader->unuse();
 }

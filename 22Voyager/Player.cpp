@@ -5,6 +5,7 @@
 #include "engine/input/Mouse.h"
 #include <iostream>
 #include "Application.h"
+#include "Constants.h"
 
 Player::Player() :
 	m_jumpHeight(50.0f),
@@ -31,16 +32,14 @@ Player::~Player() {
 void Player::Init() {
 
 	m_assaultRifle = new Weapon();
-	m_assaultRifle->init("res/Models3D/Sci-fi_AssaultRifle/AssaultRifle.dae");
-	m_assaultRifle->Configure(35, 0.12f, 1.0f, 35);
+	m_assaultRifle->init("res/Models3D/Sci-fi_AssaultRifle/AssaultRifle.dae", Globals::shaderManager.getAssetPointer("weapon"));
+	m_assaultRifle->configure(35, 0.12f, 1.0f, 35);
 	m_assaultRifle->m_materialIndex = 0;
 
 	m_sniperRifle = new Weapon();
-	m_sniperRifle->init("res/Models3D/Sci-fi_SniperRifle/SniperRifle.obj");
-	m_sniperRifle->Configure(7, 1.0f, 1.5f, 100);
+	m_sniperRifle->init("res/Models3D/Sci-fi_SniperRifle/SniperRifle.obj", Globals::shaderManager.getAssetPointer("weapon"));
+	m_sniperRifle->configure(7, 1.0f, 1.5f, 100);
 	m_sniperRifle->m_materialIndex = 1;
-
-	m_shader.CreateProgram("res/Shaders/SingleModelLoader.vs", "res/Shaders/SingleModelLoader.fs");
 
 	m_currWeapon = m_assaultRifle;
 	m_usingAR = true;
@@ -49,7 +48,7 @@ void Player::Init() {
 	m_spotLight->configure(Vector3f(5.0f, 5.0f, 5.0f), Vector3f(1.0f, 1.0f, 1.0f), 1.0f, 0.027f, 0.0028f, 22.5f, 25.0f);
 
 	m_camera = Camera();
-	m_camera.perspective(80.0f, (float)Application::Width / (float)Application::Height, 1.0f, 1000.0f);
+	m_camera.perspective(80.0f, (float)Application::Width / (float)Application::Height, 1.0f, 1500.0f);
 	m_camera.lookAt(Vector3f(256.0f, 0.0f, 300.0f), Vector3f(256.0f, 0.0f, 300.0f) + Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
 }
 
@@ -96,10 +95,8 @@ void Player::Update(Terrain& terrain, float dt) {
 	if (m_camera.getPositionX() > 730.0f)
 		m_camera.setPositionX(730.0f);
 
-	
-	
 	// Update current weapon
-	m_currWeapon->Update(dt);
+	m_currWeapon->update(dt);
 
 	// Check if player is jumping
 	if (m_jumping){
@@ -131,11 +128,11 @@ void Player::Animate(float dt) {
 		// Check if the current weapon is an assault rifle, if so switch to sniper rifle
 		if (!m_usingAR) {
 			// Play swap animation
-			m_currWeapon->GetAnimComponent().PlaySwapTwoWeapons(m_assaultRifle, m_sniperRifle, m_camera, dt, m_swapped);
+			m_currWeapon->getAnimComponent().PlaySwapTwoWeapons(m_assaultRifle, m_sniperRifle, m_camera, dt, m_swapped);
 
 			// Swap the weapons
-			m_sniperRifle->GetAnimComponent().SetWeaponZOffset(-4.0f);
-			m_sniperRifle->GetAnimComponent().SetSprintWeaponZOffset(-2.5f);
+			m_sniperRifle->getAnimComponent().SetWeaponZOffset(-4.0f);
+			m_sniperRifle->getAnimComponent().SetSprintWeaponZOffset(-2.5f);
 			m_currWeapon = m_sniperRifle;
 			m_sniperEquipped = true;
 
@@ -145,9 +142,9 @@ void Player::Animate(float dt) {
 				m_swapping = false;
 			}
 		} else if (m_usingAR) {
-			m_currWeapon->GetAnimComponent().PlaySwapTwoWeapons(m_sniperRifle, m_assaultRifle, m_camera, dt, m_swapped);
-			m_assaultRifle->GetAnimComponent().SetWeaponZOffset(-2.5f);
-			m_assaultRifle->GetAnimComponent().SetSprintWeaponZOffset(-2.5f);
+			m_currWeapon->getAnimComponent().PlaySwapTwoWeapons(m_sniperRifle, m_assaultRifle, m_camera, dt, m_swapped);
+			m_assaultRifle->getAnimComponent().SetWeaponZOffset(-2.5f);
+			m_assaultRifle->getAnimComponent().SetSprintWeaponZOffset(-2.5f);
 			m_currWeapon = m_assaultRifle;
 			m_sniperEquipped = false;
 
@@ -161,25 +158,25 @@ void Player::Animate(float dt) {
 	if (!m_firing && !m_reloading && !m_swapping) {
 		// Proceed to playing one of the following animations: Walking - Sprinting - Idle
 		if (m_sprinting) {
-			m_currWeapon->GetAnimComponent().PlaySprintFPS(m_currWeapon, m_camera, dt);
+			m_currWeapon->getAnimComponent().PlaySprintFPS(m_currWeapon, m_camera, dt);
 
 		}else if (m_move) {
-			m_currWeapon->GetAnimComponent().PlayWalkFPS(m_currWeapon, m_camera, dt);
+			m_currWeapon->getAnimComponent().PlayWalkFPS(m_currWeapon, m_camera, dt);
 
 		} else {
-			m_currWeapon->GetAnimComponent().PlayIdleFPS(m_currWeapon, m_camera, dt);
+			m_currWeapon->getAnimComponent().PlayIdleFPS(m_currWeapon, m_camera, dt);
 
 		}
 	}
 
 	// Check if player is firing
 	if (m_firing && !m_reloading && !m_swapping) {
-		m_currWeapon->Fire(m_currWeapon, m_camera, dt, m_firing, m_reloading);
+		m_currWeapon->fire(m_currWeapon, m_camera, dt, m_firing, m_reloading);
 	}
 
 	// Check if player is reloading
 	if (m_reloading && !m_swapping) {
-		m_currWeapon->Reload(m_currWeapon, m_camera, dt, m_reloading);
+		m_currWeapon->reload(m_currWeapon, m_camera, dt, m_reloading);
 	}
 
 }
@@ -195,8 +192,8 @@ void Player::Respawn() {
 	m_dead = false;
 	m_health = 100;
 	m_camera.setPosition(256.0f, 0.0f, 300.0f);
-	m_assaultRifle->RestartWeapon();
-	m_sniperRifle->RestartWeapon();
+	m_assaultRifle->restartWeapon();
+	m_sniperRifle->restartWeapon();
 }
 
 void Player::ProcessInput() {

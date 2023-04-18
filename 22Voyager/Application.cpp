@@ -287,9 +287,19 @@ void Application::initOpenGL(int msaaSamples) {
 	}
 	enableVerticalSync(true);
 
-	glEnable(GL_BLEND);
+	/*glEnable(GL_BLEND);
 	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
+	glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);*/
+
+	glEnable(GL_DEPTH_TEST);
+	//glDepthFunc(GL_LEQUAL);
+	glDepthFunc(GL_LESS);
+	//glDepthFunc(GL_ALWAYS);
+	//alpha test for cutting border of the quads
+	//glEnable(GL_ALPHA_TEST);
+	//glAlphaFunc(GL_GREATER, 0.0);
+
+	glAlphaFunc(GL_GEQUAL, 0.5);
 }
 
 void Application::initImGUI() {
@@ -352,9 +362,9 @@ void Application::fixedUpdate() {
 void Application::initStates() {
 	
 	Machine = new StateMachine(m_dt, m_fdt);
-	Machine->addStateAtTop(new Game(*Machine));
-	//Machine->addStateAtTop(new Tutorial(*Machine));
-	//Mouse::instance().attach(Window);
+	//Machine->addStateAtTop(new Game(*Machine));
+	Machine->addStateAtTop(new Tutorial(*Machine));
+	Mouse::instance().attach(Window);
 	//Machine->addStateAtTop(new MainMenu(*Machine));
 }
 
@@ -450,7 +460,13 @@ void Application::SetCursorIcon(std::string file) {
 void Application::loadAssets() {
 	Globals::shaderManager.loadShader("terrain", "res/Shaders/TerrainVertexShader.vs", "res/Shaders/TerrainFragmentShader.fs");
 	Globals::shaderManager.loadShader("muzzle", "res/Shaders/Muzzle Flash Shader/VertexShaderMuzzleFlash.vs", "res/Shaders/Muzzle Flash Shader/FragmentShaderMuzzleFlash.fs");
+	Globals::shaderManager.loadShader("weapon", "res/Shaders/SingleModelLoader.vs", "res/Shaders/SingleModelLoader.fs");
+	Globals::shaderManager.loadShader("skybox", "res/Shaders/SkyboxVertexShader.vs", "res/Shaders/SkyboxFragmentShader.fs");
 	Globals::textureManager.loadTexture("muzzleFlash", "res/Textures/muzzleFlash.png", true);
 
 	Globals::shapeManager.buildQuadXY("quad", Vector3f(-1.0f, -1.0f, 0.0f), Vector2f(2.0f, 2.0f), 1, 1, true, false, false);
+	Globals::shapeManager.buildCube("skybox", Vector3f(-750.0f, -750.0f, -750.0f), Vector3f(1500.0f, 1500.0f, 1500.0f), 1, 1, false, false, false);
+
+	std::string faces[] = { "res/Textures/Skyboxes/TitanMoon/right.png", "res/Textures/Skyboxes/TitanMoon/left.png", "res/Textures/Skyboxes/TitanMoon/top.png", "res/Textures/Skyboxes/TitanMoon/bottom.png", "res/Textures/Skyboxes/TitanMoon/back.png", "res/Textures/Skyboxes/TitanMoon/front.png", };
+	Globals::cubemapManager.loadCubeMap("saturn", faces, false);
 }

@@ -1,8 +1,7 @@
 #pragma once
 
-#include <glm/glm/glm.hpp>
-#include <glm/glm/gtx/transform.hpp>
 #include "engine/AssimpModel.h"
+#include "engine/Shader.h"
 #include "RenderableObject.h"
 #include "Animation.h"
 
@@ -14,32 +13,34 @@ public:
 	~Weapon();
 
 	void draw(Camera& camera, const Matrix4f& model, bool bDrawRelativeToCamera = false);
-	void init(GLchar* path);
-	void Configure(int maxAmmo, float fireRate, float reloadTime, int damage);
-	void Update(float dt);
-	void Fire(Weapon* weapon, Camera& camera, float dt, bool& firing, bool& reloading);
-	void Reload(Weapon* weapon, Camera& camera, float dt, bool& reloading);
-	void RestartWeapon();
+	void init(GLchar* path, const Shader* shader);
+	void configure(int maxAmmo, float fireRate, float reloadTime, int damage);
+	void update(float dt);
+	void fire(Weapon* weapon, Camera& camera, float dt, bool& firing, bool& reloading);
+	void reload(Weapon* weapon, Camera& camera, float dt, bool& reloading);
+	void restartWeapon();
 
-	inline void SetMaxAmmo(int maxAmmo) { m_maxAmmo = maxAmmo; }
-	inline int GetMaxAmmoCount() { return m_maxAmmo; }
-	inline int GetAmmoCount() { return m_ammoCount; }
+	inline void setMaxAmmo(int maxAmmo) { m_maxAmmo = maxAmmo; }
+	inline int getMaxAmmoCount() { return m_maxAmmo; }
+	inline int getAmmoCount() { return m_ammoCount; }
 
-	inline void SetFireRate(float fireRate) { m_fireRate = fireRate; }
-	inline float GetFireRate() { return m_fireRate; }
+	inline void setFireRate(float fireRate) { m_fireRate = fireRate; }
+	inline float getFireRate() { return m_fireRate; }
 
-	inline void SetReloadTime(float reloadTime) { m_maxReloadTimer = reloadTime; }
-	inline float GetReloadTime() { return m_maxReloadTimer; }
+	inline void setReloadTime(float reloadTime) { m_maxReloadTimer = reloadTime; }
+	inline float getReloadTime() { return m_maxReloadTimer; }
 
-	inline void SetDamage(int dmg) { m_damage = dmg; }
-	inline int GetDamage() { return m_damage; }
+	inline void setDamage(int dmg) { m_damage = dmg; }
+	inline int getDamage() { return m_damage; }
 
-	inline Animation& GetAnimComponent() { return m_animator; }
+	inline Animation& getAnimComponent() { return m_animator; }
 
 	unsigned short m_materialIndex;
 
 	AssimpModel m_mesh;
 	RenderableObject* m_muzzle;
+	const Shader* m_shader;
+
 private:
 
 	float m_currFireRateTime, m_fireRate, m_currReloadTime, m_maxReloadTimer;

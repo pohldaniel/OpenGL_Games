@@ -41,9 +41,6 @@ public:
 	void Animate(float dt);
 	const Camera& getCamera() const { return m_camera; }
 	
-
-	ShaderVo m_shader;
-
 private:
 	Player();
 
@@ -60,7 +57,6 @@ private:
 
 	float dx = 0.0f;
 	float dy = 0.0f;
-	//bool move = false;
 	Vector3f directrion;
 };
 

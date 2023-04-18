@@ -16,12 +16,13 @@ Weapon::~Weapon(){
 
 }
 
-void Weapon::init(GLchar* path) {
+void Weapon::init(GLchar* path, const Shader* shader) {
 	m_mesh.loadModel(path);
 	m_muzzle = new RenderableObject(Vector3f(2.0f, -2.5f, -2.5f), Vector3f(1.0f, 1.0f, 1.0f), "quad", "muzzle", "muzzleFlash");
+	m_shader = shader;
 }
 
-void Weapon::Configure(int maxAmmo, float fireRate, float reloadTime, int damage) {
+void Weapon::configure(int maxAmmo, float fireRate, float reloadTime, int damage) {
 	m_maxAmmo = maxAmmo;
 	m_fireRate = fireRate;
 	m_maxReloadTimer = reloadTime;
@@ -30,22 +31,20 @@ void Weapon::Configure(int maxAmmo, float fireRate, float reloadTime, int damage
 	m_damage = damage;
 }
 
-void Weapon::RestartWeapon() {
+void Weapon::restartWeapon() {
 	m_ammoCount = m_maxAmmo;
 }
 
-void Weapon::Update(float dt) {
+void Weapon::update(float dt) {
 
 	if (m_currFireRateTime > m_fireRate) {
-
 		m_currFireRateTime = m_fireRate;
-
 	}else {
 		m_currFireRateTime += 0.79f * dt;
 	}
 }
 
-void Weapon::Fire(Weapon* weapon, Camera& camera, float dt, bool& firing, bool& reloading) {
+void Weapon::fire(Weapon* weapon, Camera& camera, float dt, bool& firing, bool& reloading) {
 	m_animator.PlayIdleFPS(this, camera, dt);
 
 	if (m_currFireRateTime > m_fireRate) {
@@ -73,7 +72,7 @@ void Weapon::Fire(Weapon* weapon, Camera& camera, float dt, bool& firing, bool& 
 	}
 }
 
-void Weapon::Reload(Weapon* weapon, Camera& camera, float dt, bool& reloading) {
+void Weapon::reload(Weapon* weapon, Camera& camera, float dt, bool& reloading) {
 	m_animator.PlayReloadFPS(weapon, camera, dt);
 	m_currReloadTime += 0.4f * dt;
 
@@ -86,32 +85,31 @@ void Weapon::Reload(Weapon* weapon, Camera& camera, float dt, bool& reloading) {
 
 void Weapon::draw(Camera& camera, const Matrix4f& model, bool bDrawRelativeToCamera) {
 	
-	Player::GetInstance().m_shader.ActivateProgram();
-	Player::GetInstance().m_shader.loadMatrix("model", model);
-	Player::GetInstance().m_shader.loadVector("lightPos", Vector3f(camera.getPosition()[0], camera.getPosition()[1] + 5.0f, camera.getPosition()[2]));
-	Player::GetInstance().m_shader.loadVector("viewPos", camera.getPosition());
-
-	Player::GetInstance().m_shader.SetBool("EnableSpotlight", false);
+	m_shader->use();
+	m_shader->loadMatrix("model", model);
+	m_shader->loadVector("lightPos", Vector3f(camera.getPosition()[0], camera.getPosition()[1] + 5.0f, camera.getPosition()[2]));
+	m_shader->loadVector("viewPos", camera.getPosition());
+	m_shader->loadBool("EnableSpotlight", false);
 
 	if (Player::GetInstance().GetSpotLight() != nullptr && false) {
-		Player::GetInstance().m_shader.loadVector("spotlight.position", Player::GetInstance().GetSpotLight()->getPosition());
-		Player::GetInstance().m_shader.loadVector("spotlight.direction", Player::GetInstance().GetSpotLight()->getDirection());
-		Player::GetInstance().m_shader.loadVector("spotlight.diffuse", Player::GetInstance().GetSpotLight()->getDiffuse());
-		Player::GetInstance().m_shader.loadVector("spotlight.specular", Player::GetInstance().GetSpotLight()->getSpecular());
-		Player::GetInstance().m_shader.SetFloat("spotlight.constant", Player::GetInstance().GetSpotLight()->getConstant());
-		Player::GetInstance().m_shader.SetFloat("spotlight.linear", Player::GetInstance().GetSpotLight()->getLinear());
-		Player::GetInstance().m_shader.SetFloat("spotlight.quadratic", Player::GetInstance().GetSpotLight()->getQuadratic());
-		Player::GetInstance().m_shader.SetFloat("spotlight.cutOff", glm::cos(glm::radians(Player::GetInstance().GetSpotLight()->getCutOff())));
-		Player::GetInstance().m_shader.SetFloat("spotlight.outerCutOff", glm::cos(glm::radians(Player::GetInstance().GetSpotLight()->getOuterCutOff())));
+		m_shader->loadVector("spotlight.position", Player::GetInstance().GetSpotLight()->getPosition());
+		m_shader->loadVector("spotlight.direction", Player::GetInstance().GetSpotLight()->getDirection());
+		m_shader->loadVector("spotlight.diffuse", Player::GetInstance().GetSpotLight()->getDiffuse());
+		m_shader->loadVector("spotlight.specular", Player::GetInstance().GetSpotLight()->getSpecular());
+		m_shader->loadFloat("spotlight.constant", Player::GetInstance().GetSpotLight()->getConstant());
+		m_shader->loadFloat("spotlight.linear", Player::GetInstance().GetSpotLight()->getLinear());
+		m_shader->loadFloat("spotlight.quadratic", Player::GetInstance().GetSpotLight()->getQuadratic());
+		m_shader->loadFloat("spotlight.cutOff", glm::cos(glm::radians(Player::GetInstance().GetSpotLight()->getCutOff())));
+		m_shader->loadFloat("spotlight.outerCutOff", glm::cos(glm::radians(Player::GetInstance().GetSpotLight()->getOuterCutOff())));
 	}
 
-	Player::GetInstance().m_shader.loadMatrix("projection", camera.getPerspectiveMatrix());
-	Player::GetInstance().m_shader.loadMatrix("view", bDrawRelativeToCamera ? Matrix4f::IDENTITY : camera.getViewMatrix());
-	Player::GetInstance().m_shader.loadInt("texture_diffuse1", 0);
+	m_shader->loadMatrix("projection", camera.getPerspectiveMatrix());
+	m_shader->loadMatrix("view", bDrawRelativeToCamera ? Matrix4f::IDENTITY : camera.getViewMatrix());
+	m_shader->loadInt("texture_diffuse1", 0);
 
 	Material::GetMaterials()[m_materialIndex].bind(1);
 	m_mesh.drawRaw();
 	Material::GetMaterials()[m_materialIndex].unbind(1);
 
-	Player::GetInstance().m_shader.DeactivateProgram();
+	m_shader->unuse();
 }

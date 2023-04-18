@@ -1,10 +1,7 @@
 #pragma once
-#ifndef __ENEMY_H__
-#define __ENEMY_H__
+#include <glm/glm/glm.hpp>
+#include <glm/glm/gtx/transform.hpp>
 #include "engine/Camera.h"
-#include "Model.h"
-
-
 
 class Enemy {
 public:
@@ -50,5 +47,3 @@ private:
 	
 	void Respawn();
 };
-
-#endif // !__ENEMY_H__

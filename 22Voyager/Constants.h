@@ -4,6 +4,7 @@
 #include "engine/Shader.h"
 #include "engine/Texture.h"
 #include "engine/MeshObject/Shape.h"
+#include "engine/Cubemap.h"
 
 #define WIDTH 1024
 #define HEIGHT 768
@@ -15,5 +16,6 @@ namespace Globals {
 	extern AssetManager<Shader> shaderManager;
 	extern AssetManager<Texture> textureManager;
 	extern AssetManager<Shape> shapeManager;
+	extern AssetManager<Cubemap> cubemapManager;
 	extern bool drawUi;
 }

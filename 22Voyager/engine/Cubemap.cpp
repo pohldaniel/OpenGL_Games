@@ -1,7 +1,5 @@
 #include <GL/glew.h>
-#include <iostream>
 #include <soil2/SOIL2.h>
-
 #include "Cubemap.h"
 
 Cubemap::~Cubemap() {
@@ -51,7 +49,6 @@ void Cubemap::loadFromFile(std::string* textureFiles, const bool _flipVertical, 
 	for (unsigned short i = 0; i < 6; i++) {
 		imageData = SOIL_load_image(textureFiles[i].c_str(), &width, &height, &numCompontents, SOIL_LOAD_AUTO);
 		unsigned int internalFormat = _format == 0 && numCompontents == 3 ? GL_RGB8 : _format == 0 ? GL_RGBA8 : _format;
-		
 		if (_flipVertical)
 			flipVertical(imageData, numCompontents * width, height);
 
@@ -114,7 +111,7 @@ unsigned int Cubemap::getChannels() {
 	return m_channels;
 }
 
-void Cubemap::bind(unsigned int unit) {
+void Cubemap::bind(unsigned int unit) const {
 	glActiveTexture(GL_TEXTURE0 + unit);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, m_texture);
 }

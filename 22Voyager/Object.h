@@ -1,6 +1,6 @@
 #pragma once
 
-#include "engine/Transform.h"
+#include "engine/Vector.h"
 
 class Object {
 
@@ -18,5 +18,4 @@ public:
 protected:
 	Vector3f m_position;
 	Vector3f m_scale;
-	//Transform m_transform;
 };

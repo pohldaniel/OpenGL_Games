@@ -5,12 +5,14 @@
 #include "engine/input/KeyBorad.h"
 #include "engine/input/Mouse.h"
 #include "engine/TrackBall.h"
+#include "engine/Cube.h"
 
 #include "StateMachine.h"
 #include "Weapon.h"
 #include "SpotLight.h"
 #include "Atmosphere.h"
 #include "Terrain.h"
+#include "Entity.h"
 
 class Tutorial : public State, public MouseEventListener {
 
@@ -41,4 +43,6 @@ public:
 	Atmosphere m_atmosphere;
 	DirectionalLight m_dirLight;
 	PointLight m_pointLight;
+	Entity m_skybox;
+	Cube* m_cube;
 };

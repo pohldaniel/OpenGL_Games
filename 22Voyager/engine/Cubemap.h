@@ -12,7 +12,7 @@ public:
 	unsigned int getWidth();
 	unsigned int getHeight();
 	unsigned int getChannels();
-	void bind(unsigned int unit);
+	void bind(unsigned int unit) const;
 	void loadFromFile(std::string* textureFiles, const bool flipVertical = false, unsigned int format = 0u);
 	void createNullCubemap(unsigned int width, unsigned int height, unsigned int color = 255);
 	void setRepeat();

@@ -30,29 +30,34 @@ public:
 	void loadFromResource(std::string compute);
 	Shader& get();
 
-	void loadMatrix(const char* location, const Matrix4f& matrix, bool trans = false);
-	void loadMatrixArray(const char* location, const std::vector<Matrix4f> matrixArray, const unsigned short count, bool trans = false);
+	void use() const;
+	void unuse() const;
+	void loadMatrix(const char* location, const Matrix4f& matrix, bool trans = false) const;
+	void loadMatrixArray(const char* location, const std::vector<Matrix4f> matrixArray, const unsigned short count, bool trans = false) const;
 
-	void loadVector(const char* location, Vector4f vector);
-	void loadVector(const char* location, Vector3f vector);
-	void loadVector(const char* location, Vector2f vector);
-	void loadVector(const char* location, std::array<int, 3> vector);
+	void loadVector(const char* location, Vector4f vector) const;
+	void loadVector(const char* location, Vector3f vector) const;
+	void loadVector(const char* location, Vector2f vector) const;
+	void loadVector(const char* location, std::array<int, 3> vector) const;
 	
 
-	void loadFloat(const char* location, float value);
-	void loadFloat2(const char* location, float value[2]);
-	void loadFloat3(const char* location, float value[3]);
-	void loadFloat4(const char* location, float value[4]);
-	void loadFloatArray(const char* location, float *value, const unsigned short count);
-	void loadBool(const char* location, bool value);
-	void loadInt(const char* location, int value);
-	void loadUnsignedInt(const char* location, unsigned int value);
+	void loadFloat(const char* location, float value) const;
+	void loadFloat2(const char* location, float value[2]) const;
+	void loadFloat3(const char* location, float value[3]) const;
+	void loadFloat4(const char* location, float value[4]) const;
+	void loadFloatArray(const char* location, float *value, const unsigned short count) const;
+	void loadBool(const char* location, bool value) const;
+	void loadInt(const char* location, int value) const;
+	void loadUnsignedInt(const char* location, unsigned int value) const;
 	void attachShader(GLuint compShader);
 	void linkShaders();
 
+	
+	GLuint m_program;
+
 	static GLuint LoadShaderProgram(GLenum type, const char *pszFilename);
 	static GLuint LoadShaderProgram(GLenum type, std::string buffer);
-	GLuint m_program;
+	static void Unuse();
 
 protected:
 

@@ -194,11 +194,10 @@
     <ClCompile Include="engine\TrackBall.cpp" />
     <ClCompile Include="engine\Transform.cpp" />
     <ClCompile Include="engine\Vector.cpp" />
+    <ClCompile Include="Entity.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MainMenu.cpp" />
-    <ClCompile Include="Mesh.cpp" />
-    <ClCompile Include="Model.cpp" />
     <ClCompile Include="Object.cpp" />
     <ClCompile Include="PerlinNoiseVo.cpp" />
     <ClCompile Include="Physics.cpp" />
@@ -206,7 +205,6 @@
     <ClCompile Include="PointLight.cpp" />
     <ClCompile Include="RenderableObject.cpp" />
     <ClCompile Include="ResourceManager.cpp" />
-    <ClCompile Include="ShaderVo.cpp" />
     <ClCompile Include="soil2\image_DXT.c" />
     <ClCompile Include="soil2\image_helper.c" />
     <ClCompile Include="soil2\SOIL2.c" />
@@ -265,11 +263,10 @@
     <ClInclude Include="engine\TrackBall.h" />
     <ClInclude Include="engine\Transform.h" />
     <ClInclude Include="engine\Vector.h" />
+    <ClInclude Include="Entity.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="MainMenu.h" />
-    <ClInclude Include="Mesh.h" />
     <ClInclude Include="Miniball\Miniball.h" />
-    <ClInclude Include="Model.h" />
     <ClInclude Include="Object.h" />
     <ClInclude Include="PerlinNoiseVo.h" />
     <ClInclude Include="Physics.h" />
@@ -277,7 +274,6 @@
     <ClInclude Include="PointLight.h" />
     <ClInclude Include="RenderableObject.h" />
     <ClInclude Include="ResourceManager.h" />
-    <ClInclude Include="ShaderVo.h" />
     <ClInclude Include="SpotLight.h" />
     <ClInclude Include="StateMachine.h" />
     <ClInclude Include="Terrain.h" />
