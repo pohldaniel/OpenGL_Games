@@ -32,8 +32,8 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	Globals::shapeManager.buildSphere("sphere", 1.0f, Vector3f(0.0f, 0.0f, 0.0f), 49, 49, true, true, true);
 	Globals::shapeManager.buildSpiral("spiral", 0.5f, 0.25f, 1.5f, 2, true, Vector3f(0.0f, -0.75f, 0.0f), 49, 49, true, true, true);
 	Globals::shapeManager.buildCylinder("cylinder", 1.0f, 0.2f, 1.0f, Vector3f(0.0f, 0.0f, 0.0f), 20, 20, true, true, true);
-	Globals::shapeManager.buildQuad("quad", Vector2f(2.0f, 2.0f), Vector3f(-1.0f, -1.0f, 0.0f), 10, 10, true, true, true);
-	Globals::shapeManager.buildCube("cube", Vector3f(2.0f, 2.0f, 2.0f), Vector3f(-1.0f, -1.0f, -1.0f), 10, 10, true, true, true);
+	Globals::shapeManager.buildQuadXY("quad_", Vector3f(-1.0f, -1.0f, 0.0f), Vector2f(2.0f, 2.0f), 10, 10, true, true, true);
+	Globals::shapeManager.buildCube("cube", Vector3f(-1.0f, -1.0f, -1.0f), Vector3f(2.0f, 2.0f, 2.0f),  10, 10, true, true, true);
 
 	m_currentShape = Globals::shapeManager.get("cylinder");
 	m_currentShader = Globals::shaderManager.getAssetPointer("texture");
@@ -203,7 +203,7 @@ void Game::renderUi() {
 				m_currentShape = Globals::shapeManager.get("cylinder");
 				break;
 			case Model::QUAD:
-				m_currentShape = Globals::shapeManager.get("quad");
+				m_currentShape = Globals::shapeManager.get("quad_");
 				break;
 			case Model::CUBE:
 				m_currentShape = Globals::shapeManager.get("cube");

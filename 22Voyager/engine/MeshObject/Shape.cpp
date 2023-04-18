@@ -70,7 +70,7 @@ void Shape::buildCylinder(float baseRadius, float topRadius, float length, const
 	createBuffer();
 }
 
-void Shape::buildQuad(const Vector2f&  size, const Vector3f& position, int uResolution, int vResolution, bool generateTexels, bool generateNormals, bool generateTangents) {
+void Shape::buildQuadXY(const Vector3f& position, const Vector2f&  size, int uResolution, int vResolution, bool generateTexels, bool generateNormals, bool generateTangents) {
 	m_position = position;
 	m_generateNormals = generateNormals;
 	m_generateTexels = generateTexels;
@@ -78,11 +78,11 @@ void Shape::buildQuad(const Vector2f&  size, const Vector3f& position, int uReso
 	m_uResolution = uResolution;
 	m_vResolution = vResolution;
 	m_numBuffers = 1 + m_generateTexels + m_generateNormals + 2 * m_generateTangents;
-	MeshQuad::BuildMesh(size, position, m_uResolution, m_vResolution, m_generateTexels, m_generateNormals, m_generateTangents, m_positions, m_texels, m_normals, m_indexBuffer, m_tangents, m_bitangents);
+	MeshQuad::BuildMeshXY(position, size, m_uResolution, m_vResolution, m_generateTexels, m_generateNormals, m_generateTangents, m_positions, m_texels, m_normals, m_indexBuffer, m_tangents, m_bitangents);
 	createBuffer();
 }
 
-void Shape::buildCube(const Vector3f&  size, const Vector3f& position, int uResolution, int vResolution, bool generateTexels, bool generateNormals, bool generateTangents) {
+void Shape::buildCube(const Vector3f& position, const Vector3f&  size, int uResolution, int vResolution, bool generateTexels, bool generateNormals, bool generateTangents) {
 	m_position = position;
 	m_generateNormals = generateNormals;
 	m_generateTexels = generateTexels;
@@ -90,7 +90,7 @@ void Shape::buildCube(const Vector3f&  size, const Vector3f& position, int uReso
 	m_uResolution = uResolution;
 	m_vResolution = vResolution;
 	m_numBuffers = 1 + m_generateTexels + m_generateNormals + 2 * m_generateTangents;
-	MeshCube::BuildMesh4Q(size, position, m_uResolution, m_vResolution, m_generateTexels, m_generateNormals, m_generateTangents, m_positions, m_texels, m_normals, m_indexBuffer, m_tangents, m_bitangents);
+	MeshCube::BuildMesh4Q(position, size, m_uResolution, m_vResolution, m_generateTexels, m_generateNormals, m_generateTangents, m_positions, m_texels, m_normals, m_indexBuffer, m_tangents, m_bitangents);
 	createBuffer();
 }
 
@@ -102,6 +102,29 @@ void Shape::setPrecision(int uResolution, int vResolution) {
 
 int Shape::getNumberOfTriangles() {
 	return m_drawCount / 3;
+}
+
+Shape::~Shape() {
+	if (m_vao)
+		glDeleteVertexArrays(1, &m_vao);
+
+	if (m_vbo[0])
+		glDeleteBuffers(1, &m_vbo[0]);
+
+	if (m_vbo[1])
+		glDeleteBuffers(1, &m_vbo[1]);
+
+	if (m_vbo[2])
+		glDeleteBuffers(1, &m_vbo[2]);
+
+	if (m_vbo[3])
+		glDeleteBuffers(1, &m_vbo[3]);
+
+	if (m_vbo[4])
+		glDeleteBuffers(1, &m_vbo[4]);
+
+	if (m_vboInstances)
+		glDeleteBuffers(1, &m_vboInstances);
 }
 
 void Shape::createBuffer() {
@@ -132,7 +155,7 @@ void Shape::createBuffer() {
 
 	//Normals
 	if (m_generateNormals) {
-		glBindBuffer(GL_ARRAY_BUFFER, m_vbo[2]);
+		glBindBuffer(GL_ARRAY_BUFFER, m_generateTexels ? m_vbo[2] : m_vbo[1]);
 		glBufferData(GL_ARRAY_BUFFER, m_normals.size() * sizeof(m_normals[0]), &m_normals[0], GL_STATIC_DRAW);
 
 		glEnableVertexAttribArray(2);
@@ -141,13 +164,13 @@ void Shape::createBuffer() {
 
 	//tangents
 	if (m_generateTangents) {
-		glBindBuffer(GL_ARRAY_BUFFER, m_vbo[3]);
+		glBindBuffer(GL_ARRAY_BUFFER, (m_generateTexels && m_generateNormals) ? m_vbo[3] : (m_generateTexels || m_generateNormals) ? m_vbo[2] : m_vbo[1]);
 		glBufferData(GL_ARRAY_BUFFER, m_tangents.size() * sizeof(m_tangents[0]), &m_tangents[0], GL_STATIC_DRAW);
 
 		glEnableVertexAttribArray(3);
 		glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
-		glBindBuffer(GL_ARRAY_BUFFER, m_vbo[4]);
+		glBindBuffer(GL_ARRAY_BUFFER, (m_generateTexels && m_generateNormals) ? m_vbo[4] : (m_generateTexels || m_generateNormals) ? m_vbo[3] : m_vbo[2]);
 		glBufferData(GL_ARRAY_BUFFER, m_bitangents.size() * sizeof(m_bitangents[0]), &m_bitangents[0], GL_STATIC_DRAW);
 
 		glEnableVertexAttribArray(4);

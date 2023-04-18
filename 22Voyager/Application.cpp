@@ -352,9 +352,9 @@ void Application::fixedUpdate() {
 void Application::initStates() {
 	
 	Machine = new StateMachine(m_dt, m_fdt);
-	//Machine->addStateAtTop(new Game(*Machine));
-	Machine->addStateAtTop(new Tutorial(*Machine));
-	Mouse::instance().attach(Window);
+	Machine->addStateAtTop(new Game(*Machine));
+	//Machine->addStateAtTop(new Tutorial(*Machine));
+	//Mouse::instance().attach(Window);
 	//Machine->addStateAtTop(new MainMenu(*Machine));
 }
 
@@ -452,5 +452,5 @@ void Application::loadAssets() {
 	Globals::shaderManager.loadShader("muzzle", "res/Shaders/Muzzle Flash Shader/VertexShaderMuzzleFlash.vs", "res/Shaders/Muzzle Flash Shader/FragmentShaderMuzzleFlash.fs");
 	Globals::textureManager.loadTexture("muzzleFlash", "res/Textures/muzzleFlash.png", true);
 
-	Globals::shapeManager.buildQuad("quad", Vector2f(2.0f, 2.0f), Vector3f(-1.0f, -1.0f, 0.0f), 1, 1, true, false, false);
+	Globals::shapeManager.buildQuadXY("quad", Vector3f(-1.0f, -1.0f, 0.0f), Vector2f(2.0f, 2.0f), 1, 1, true, false, false);
 }

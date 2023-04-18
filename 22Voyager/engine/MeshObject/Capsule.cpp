@@ -24,7 +24,28 @@ Capsule::Capsule(const Vector3f &position, float radius, float length, bool gene
 	BuildMesh(m_radius, m_length, m_position, m_uResolution, m_vResolution, m_generateTexels, m_generateNormals, m_generateTangents, m_positions, m_texels, m_normals, m_indexBuffer, m_tangents, m_bitangents);
 }
 
-Capsule::~Capsule() {}
+Capsule::~Capsule() {
+	if (m_vao)
+		glDeleteVertexArrays(1, &m_vao);
+
+	if (m_vbo[0])
+		glDeleteBuffers(1, &m_vbo[0]);
+
+	if (m_vbo[1])
+		glDeleteBuffers(1, &m_vbo[1]);
+
+	if (m_vbo[2])
+		glDeleteBuffers(1, &m_vbo[2]);
+
+	if (m_vbo[3])
+		glDeleteBuffers(1, &m_vbo[3]);
+
+	if (m_vbo[4])
+		glDeleteBuffers(1, &m_vbo[4]);
+
+	if (m_vboInstances)
+		glDeleteBuffers(1, &m_vboInstances);
+}
 
 void Capsule::setPrecision(int uResolution, int vResolution) {
 	m_uResolution = uResolution;
@@ -199,22 +220,22 @@ void Capsule::createBuffer() {
 
 	//Normals
 	if (m_generateNormals) {
-		glBindBuffer(GL_ARRAY_BUFFER, m_vbo[2]);
+		glBindBuffer(GL_ARRAY_BUFFER, m_generateTexels ? m_vbo[2] : m_vbo[1]);
 		glBufferData(GL_ARRAY_BUFFER, m_normals.size() * sizeof(m_normals[0]), &m_normals[0], GL_STATIC_DRAW);
 
 		glEnableVertexAttribArray(2);
 		glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, 0);
 	}
 
-	//Normals
+	//tangents
 	if (m_generateTangents) {
-		glBindBuffer(GL_ARRAY_BUFFER, m_vbo[3]);
+		glBindBuffer(GL_ARRAY_BUFFER, (m_generateTexels && m_generateNormals) ? m_vbo[3] : (m_generateTexels || m_generateNormals) ? m_vbo[2] : m_vbo[1]);
 		glBufferData(GL_ARRAY_BUFFER, m_tangents.size() * sizeof(m_tangents[0]), &m_tangents[0], GL_STATIC_DRAW);
 
 		glEnableVertexAttribArray(3);
 		glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
-		glBindBuffer(GL_ARRAY_BUFFER, m_vbo[4]);
+		glBindBuffer(GL_ARRAY_BUFFER, (m_generateTexels && m_generateNormals) ? m_vbo[4] : (m_generateTexels || m_generateNormals) ? m_vbo[3] : m_vbo[2]);
 		glBufferData(GL_ARRAY_BUFFER, m_bitangents.size() * sizeof(m_bitangents[0]), &m_bitangents[0], GL_STATIC_DRAW);
 
 		glEnableVertexAttribArray(4);

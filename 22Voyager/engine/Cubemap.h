@@ -13,7 +13,7 @@ public:
 	unsigned int getHeight();
 	unsigned int getChannels();
 	void bind(unsigned int unit);
-	void loadFromFile(std::string* textureFiles, const bool flipVertical = false, unsigned int format = -1);
+	void loadFromFile(std::string* textureFiles, const bool flipVertical = false, unsigned int format = 0u);
 	void createNullCubemap(unsigned int width, unsigned int height, unsigned int color = 255);
 	void setRepeat();
 	void setNearest();
@@ -21,7 +21,7 @@ public:
 	void setFilter(unsigned int mode);
 	void setWrapMode(unsigned int mode);
 
-	static void CreateEmptyCubemap(unsigned int& textureRef, unsigned int width, unsigned int height, unsigned int internalFormat = 0, unsigned int format = 0, unsigned int type = 0);
+	static void CreateEmptyCubemap(unsigned int& textureRef, unsigned int width, unsigned int height, unsigned int internalFormat = 0u, unsigned int format = 0u, unsigned int type = 0u);
 	static void FlipVertical(unsigned char* data, unsigned int padWidth, unsigned int height);
 	static void Unbind();
 	static void Resize(unsigned int& textureRef, unsigned int width, unsigned int height, unsigned int internalFormat = 0u, unsigned int format = 0u, unsigned int type = 0u);

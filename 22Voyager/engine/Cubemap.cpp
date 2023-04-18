@@ -50,7 +50,7 @@ void Cubemap::loadFromFile(std::string* textureFiles, const bool _flipVertical, 
 
 	for (unsigned short i = 0; i < 6; i++) {
 		imageData = SOIL_load_image(textureFiles[i].c_str(), &width, &height, &numCompontents, SOIL_LOAD_AUTO);
-		unsigned internalFormat = _format == -1 && numCompontents == 3 ? GL_RGB8 : _format == -1 ? GL_RGBA8 : _format;
+		unsigned int internalFormat = _format == 0 && numCompontents == 3 ? GL_RGB8 : _format == 0 ? GL_RGBA8 : _format;
 		
 		if (_flipVertical)
 			flipVertical(imageData, numCompontents * width, height);
