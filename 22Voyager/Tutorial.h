@@ -12,7 +12,6 @@
 #include "SpotLight.h"
 #include "Atmosphere.h"
 #include "Terrain.h"
-#include "Entity.h"
 
 class Tutorial : public State, public MouseEventListener {
 
@@ -43,6 +42,7 @@ public:
 	Atmosphere m_atmosphere;
 	DirectionalLight m_dirLight;
 	PointLight m_pointLight;
-	Entity m_skybox;
+	RenderableObject m_skybox;
+
 	Cube* m_cube;
 };

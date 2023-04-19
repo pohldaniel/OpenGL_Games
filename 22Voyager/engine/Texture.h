@@ -21,34 +21,36 @@ public:
 	unsigned int getInternalFormat();
 	unsigned int getFormat();
 	unsigned int getType();
+	unsigned int getTarget();
 
 	void bind(unsigned int unit) const;
-	void loadFromFile(std::string fileName, const bool flipVertical = false, unsigned int internalFormat = 0, unsigned int format = 0, int paddingLeft = 0, int paddingRight = 0, int paddingTop = 0, int paddingBottom = 0);
-	void loadCrossHDRIFromFile(std::string fileName, const bool flipVertical = true, unsigned int internalFormat = 0, unsigned int format = 0, int paddingLeft = 0, int paddingRight = 0, int paddingTop = 0, int paddingBottom = 0);
-	void loadHDRIFromFile(std::string fileName, const bool flipVertical = true, unsigned int internalFormat = 0, unsigned int format = 0, int paddingLeft = 0, int paddingRight = 0, int paddingTop = 0, int paddingBottom = 0);
+	void loadFromFile(std::string fileName, const bool flipVertical = false, unsigned int internalFormat = 0u, unsigned int format = 0u, int paddingLeft = 0, int paddingRight = 0, int paddingTop = 0, int paddingBottom = 0);
+	void loadCrossHDRIFromFile(std::string fileName, const bool flipVertical = true, unsigned int internalFormat = 0u, unsigned int format = 0u, int paddingLeft = 0, int paddingRight = 0, int paddingTop = 0, int paddingBottom = 0);
+	void loadHDRIFromFile(std::string fileName, const bool flipVertical = true, unsigned int internalFormat = 0u, unsigned int format = 0u, int paddingLeft = 0, int paddingRight = 0, int paddingTop = 0, int paddingBottom = 0);
 	void loadCrossDDSFromFile(std::string fileName);
 	void loadDDSRawFromFile(std::string fileName, const int knownInternal = NULL);
+	void loadCubeFromFile(std::string* textureFiles, const bool flipVertical = false, unsigned int internalFormat = 0u, unsigned int format = 0u);
 
-	void loadFromFile(std::string fileName, unsigned short tileWidth, unsigned short tileHeight, unsigned short spacing = 0, unsigned int posY = 0, unsigned int posX = 0, const bool flipVertical = false, unsigned int _internalFormat = 0, unsigned int format = 0);
-	void loadFromFile(std::string fileName, unsigned int offsetX, unsigned int offsetY, unsigned int width = 0, unsigned int height = 0, const bool flipVertical = false, unsigned int _internalFormat = 0, unsigned int format = 0);
-	void createNullTexture(unsigned int width, unsigned int height, unsigned int color = 255);
-	void createPerlinNoise(unsigned int width, unsigned int height, unsigned int seed = 0);
+	void loadFromFile(std::string fileName, unsigned short tileWidth, unsigned short tileHeight, unsigned short spacing = 0u, unsigned int posY = 0u, unsigned int posX = 0u, const bool flipVertical = false, unsigned int _internalFormat = 0u, unsigned int format = 0u);
+	void loadFromFile(std::string fileName, unsigned int offsetX, unsigned int offsetY, unsigned int width = 0u, unsigned int height = 0u, const bool flipVertical = false, unsigned int _internalFormat = 0, unsigned int format = 0u);
+	void createNullTexture(unsigned int width, unsigned int height, unsigned int color = 255u);
+	void createEmptyTexture(unsigned int width, unsigned int heightu, unsigned int internalFormat = 0u, unsigned int format = 0u, unsigned int type = 0u);
+	void createPerlinNoise(unsigned int width, unsigned int height, unsigned int seed = 0u);
 	void createNoise(unsigned int width, unsigned int height);
-	void createEmptyTexture(unsigned int width, unsigned int height, unsigned int internalFormat = 0, unsigned int format = 0, unsigned int type = 0);
-	void addAlphaChannel(unsigned int value = 255);
+	void createNullCubemap(unsigned int width, unsigned int height, unsigned int color = 255);
+	
+	void addAlphaChannel(unsigned int value = 255u);
 	unsigned char* readPixel();
 
-	void setRepeat();
-	void setLinear(unsigned int mode = 9987 /*GL_LINEAR_MIPMAP_LINEAR*/);
+	void setLinear(unsigned int mode = 9987u /*GL_LINEAR_MIPMAP_LINEAR*/);
+	void setNearest();
+	void setFilter(unsigned int minFilter, unsigned int magFilter = 0u);
+	void setWrapMode(unsigned int mode = 10497);
 	void setAnisotropy(float aniso);
-	void setFilter(unsigned int minFilter, unsigned int magFilter = 0);
-	void setWrapMode(unsigned int mode);
-	void setFilter3D(unsigned int mode);
-	void setWrapMode3D(unsigned int mode);
 	void cleanup();
 
-	static void Unbind();
-	static void CutSubimage(std::string fileIn, std::string fileOut, unsigned int offsetX, unsigned int offsetY, unsigned int width = 0, unsigned int height = 0, const bool flipVertical = false);
+	static void Unbind(unsigned int target = 3553u);
+	static void CutSubimage(std::string fileIn, std::string fileOut, unsigned int offsetX, unsigned int offsetY, unsigned int width = 0u, unsigned int height = 0u, const bool flipVertical = false);
 	static void AddHorizontally(std::string fileIn1, std::string fileIn2, std::string fileOut, const bool flipVertical = false);
 	static void FlipVertical(unsigned char* data, unsigned int padWidth, unsigned int height);
 	
@@ -63,15 +65,14 @@ public:
 	static void Safe(std::string fileOut, unsigned int& texture);
 	static void Safe(std::string fileOut, unsigned char* bytes, unsigned int width, unsigned int height, unsigned int channels);
 
-	static void CreateEmptyTexture(unsigned int& textureRef, unsigned int width, unsigned int height, unsigned int internalFormat = 0, unsigned int format = 0, unsigned int type = 0);
-	static void Resize(unsigned int& textureRef, unsigned int width, unsigned int height, unsigned int internalFormat = 0, unsigned int format = 0, unsigned int type = 0);
+	static void CreateEmptyTexture(unsigned int& textureRef, unsigned int width, unsigned int height, unsigned int internalFormat = 0u, unsigned int format = 0, unsigned int type = 0u);
+	static void CreateEmptyCubemap(unsigned int& textureRef, unsigned int width, unsigned int height, unsigned int internalFormat = 0u, unsigned int format = 0u, unsigned int type = 0u);
+	static void CreateTexture3D(unsigned int& textureRef, unsigned int width, unsigned int height, unsigned int depth, unsigned int internalFormat = 0u, unsigned int format = 0u, unsigned int type = 0u, unsigned char* data = NULL);
 
-	static void SetFilter(unsigned int& textureRef, unsigned int minFilter, unsigned int magFilter = 0);
-	static void SetWrapMode(unsigned int& textureRef, unsigned int mode);
+	static void Resize(unsigned int& textureRef, unsigned int width, unsigned int height, unsigned int internalFormat = 0u, unsigned int format = 0u, unsigned int type = 0u, unsigned int target = 3553u, unsigned int depth = 0u);
 
-	static void CreateTexture3D(unsigned int& textureRef, unsigned int width, unsigned int height, unsigned int depth, unsigned int internalFormat = 0, unsigned int format = 0, unsigned int type = 0, unsigned char* data = NULL);
-	static void SetFilter3D(unsigned int& textureRef, unsigned int mode);
-	static void SetWrapMode3D(unsigned int& textureRef, unsigned int mode);
+	static void SetFilter(unsigned int& textureRef, unsigned int minFilter, unsigned int magFilter = 0u, unsigned int target = 3553u);
+	static void SetWrapMode(unsigned int& textureRef, unsigned int mode, unsigned int target = 3553u);
 
 private:
 
@@ -85,6 +86,7 @@ private:
 	unsigned int m_format = 0;
 	unsigned int m_internalFormat = 0;
 	unsigned int m_type = 0;
+	unsigned int m_target;
 };
 
 #endif

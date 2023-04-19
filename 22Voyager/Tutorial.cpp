@@ -10,7 +10,7 @@
 #include "Player.h"
 #include "Application.h"
 
-Tutorial::Tutorial(StateMachine& machine) : State(machine, CurrentState::TUTORIAL) , m_skybox(Globals::shapeManager.get("skybox"), Globals::shaderManager.getAssetPointer("skybox"), Globals::cubemapManager.get("saturn")) {
+Tutorial::Tutorial(StateMachine& machine) : State(machine, CurrentState::TUTORIAL) {
 	bool bUnitTest;
 
 	bUnitTest = ResourceManager::GetInstance().LoadTextureImagesFromFile("res/Textures/cubeTex.png", "cubeTex"); assert(bUnitTest);
@@ -73,6 +73,31 @@ Tutorial::Tutorial(StateMachine& machine) : State(machine, CurrentState::TUTORIA
 
 	Player::GetInstance().Init();
 	m_cube = new Cube();
+
+	m_skybox = RenderableObject("cube", "skybox", "saturn");
+	m_skybox.setDrawFunction([&](const Camera& camera, bool viewIndependent) {
+		if (m_skybox.isDisabled()) return;
+
+		glDisable(GL_DEPTH_TEST);
+		auto shader = Globals::shaderManager.getAssetPointer("skybox");
+		Matrix4f view = camera.getViewMatrix();
+		view[3][0] = 0.0f; view[3][1] = 0.0f; view[3][2] = 0.0f;
+		shader->use();
+		shader->loadMatrix("projection", camera.getPerspectiveMatrix());
+		shader->loadMatrix("view", view);
+		shader->loadMatrix("model", Matrix4f::Scale(750.0f, 750.0f, 750.0f));
+		shader->loadVector("lightPos", Vector3f(0.0f, 0.0f, 0.0f));
+		shader->loadVector("viewPos", camera.getPosition());
+		shader->loadInt("cubemap", 0);
+
+		Globals::textureManager.get("saturn").bind(0);
+		Globals::shapeManager.get("cube").drawRaw();
+
+		Texture::Unbind(GL_TEXTURE_CUBE_MAP);
+
+		shader->unuse();
+		glEnable(GL_DEPTH_TEST);
+	});	
 }
 
 Tutorial::~Tutorial() {
@@ -84,6 +109,11 @@ void Tutorial::fixedUpdate() {
 }
 
 void Tutorial::update() {
+	Keyboard &keyboard = Keyboard::instance();
+	if (keyboard.keyPressed(Keyboard::KEY_F)) {
+		m_skybox.setDisabled(!m_skybox.isDisabled());
+	}
+
 	Player::GetInstance().Update(m_terrain, m_dt);
 
 	// Update physics component
@@ -94,27 +124,7 @@ void Tutorial::render() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
 	const Camera& camera = Player::GetInstance().getCamera();
-	
-	glDisable(GL_DEPTH_TEST);
-	auto shader = Globals::shaderManager.getAssetPointer("skybox");
-	Matrix4f view = camera.getViewMatrix();
-	view[3][0] = 0.0f; view[3][1] = 0.0f; view[3][2] = 0.0f;
-	shader->use();
-	shader->loadMatrix("projection", camera.getPerspectiveMatrix());
-	shader->loadMatrix("view", view);
-	shader->loadMatrix("model", Matrix4f::IDENTITY);
-	shader->loadVector("lightPos", Vector3f(0.0f, 0.0f, 0.0f));
-	shader->loadVector("viewPos", camera.getPosition());
-	shader->loadInt("cubemap", 0);
-
-	Globals::cubemapManager.get("saturn").bind(0);
-	Globals::shapeManager.get("skybox").drawRaw();
-
-	Cubemap::Unbind();
-
-	shader->unuse();
-	glEnable(GL_DEPTH_TEST);
-
+	m_skybox.draw(camera);
 	Player::GetInstance().Animate(m_dt);
 
 	RenderScene();

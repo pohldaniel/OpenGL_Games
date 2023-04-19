@@ -164,7 +164,6 @@
     <ClCompile Include="engine\BuiltInShader.cpp" />
     <ClCompile Include="engine\Camera.cpp" />
     <ClCompile Include="engine\Cube.cpp" />
-    <ClCompile Include="engine\Cubemap.cpp" />
     <ClCompile Include="engine\Framebuffer.cpp" />
     <ClCompile Include="engine\Frustum.cpp" />
     <ClCompile Include="engine\input\ApplicationEventListener.cpp" />
@@ -194,7 +193,6 @@
     <ClCompile Include="engine\TrackBall.cpp" />
     <ClCompile Include="engine\Transform.cpp" />
     <ClCompile Include="engine\Vector.cpp" />
-    <ClCompile Include="Entity.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MainMenu.cpp" />
@@ -232,7 +230,6 @@
     <ClInclude Include="engine\Camera.h" />
     <ClInclude Include="engine\Clock.h" />
     <ClInclude Include="engine\Cube.h" />
-    <ClInclude Include="engine\Cubemap.h" />
     <ClInclude Include="engine\Framebuffer.h" />
     <ClInclude Include="engine\Frustum.h" />
     <ClInclude Include="engine\input\ApplicationEventListener.h" />
@@ -263,7 +260,6 @@
     <ClInclude Include="engine\TrackBall.h" />
     <ClInclude Include="engine\Transform.h" />
     <ClInclude Include="engine\Vector.h" />
-    <ClInclude Include="Entity.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="MainMenu.h" />
     <ClInclude Include="Miniball\Miniball.h" />

@@ -79,8 +79,8 @@ public:
 		m_assetPointer[name]->createNullSpritesheet(width, height, layer);
 	}
 
-	void loadCubeMap(const std::string& name, std::string* textureFiles, const bool flipVertical = true, unsigned int format = 0) {
-		m_assets[name].loadFromFile(textureFiles, flipVertical, format);
+	void loadCubeMap(const std::string& name, std::string* textureFiles, const bool flipVertical = true, unsigned int internalFormat = 0u, unsigned int format = 0u) {
+		m_assets[name].loadCubeFromFile(textureFiles, flipVertical, internalFormat, format);
 	}
 
 	void createNullCubemap(const std::string& name, unsigned int width = 2, unsigned int height = 2, unsigned int color = 255) {

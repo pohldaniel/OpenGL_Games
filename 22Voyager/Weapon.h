@@ -37,14 +37,15 @@ public:
 
 	unsigned short m_materialIndex;
 
-	AssimpModel m_mesh;
-	RenderableObject* m_muzzle;
-	const Shader* m_shader;
+	
 
 private:
 
 	float m_currFireRateTime, m_fireRate, m_currReloadTime, m_maxReloadTimer;
 	int m_ammoCount, m_maxAmmo, m_damage;
 	Animation m_animator;
+	RenderableObject m_muzzle;
+	AssimpModel m_mesh;
+	const Shader* m_shader;
 	Transform m_transform;
 };

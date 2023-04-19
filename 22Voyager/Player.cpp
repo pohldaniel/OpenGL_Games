@@ -36,10 +36,10 @@ void Player::Init() {
 	m_assaultRifle->configure(35, 0.12f, 1.0f, 35);
 	m_assaultRifle->m_materialIndex = 0;
 
-	m_sniperRifle = new Weapon();
+	/*m_sniperRifle = new Weapon();
 	m_sniperRifle->init("res/Models3D/Sci-fi_SniperRifle/SniperRifle.obj", Globals::shaderManager.getAssetPointer("weapon"));
 	m_sniperRifle->configure(7, 1.0f, 1.5f, 100);
-	m_sniperRifle->m_materialIndex = 1;
+	m_sniperRifle->m_materialIndex = 1;*/
 
 	m_currWeapon = m_assaultRifle;
 	m_usingAR = true;

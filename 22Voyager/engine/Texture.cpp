@@ -12,18 +12,19 @@ Texture::Texture(std::string fileName, const bool _flipVertical, unsigned int _i
 	m_internalFormat = _internalFormat == 0 && numCompontents == 1 ? GL_R8 : _internalFormat == 0 && numCompontents == 3 ? GL_RGB8 : _internalFormat == 0 ? GL_RGBA8 : _internalFormat;
 	m_format = _format == 0 && numCompontents == 1 ? GL_R : _format == 0 && numCompontents == 3 ? GL_RGB : _format == 0 ? GL_RGBA : _format;
 	m_type = GL_UNSIGNED_BYTE;
-	
+	m_target = GL_TEXTURE_2D;
+
 	if(_flipVertical) 
 		flipVertical(imageData, numCompontents * width, height);
 
 	glGenTextures(1, &m_texture);
-	glBindTexture(GL_TEXTURE_2D, m_texture);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexImage2D(GL_TEXTURE_2D, 0, m_internalFormat, width, height, 0, m_format, m_type, imageData);
-	glBindTexture(GL_TEXTURE_2D, 0);
+	glBindTexture(m_target, m_texture);
+	glTexParameterf(m_target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameterf(m_target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(m_target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(m_target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexImage2D(m_target, 0, m_internalFormat, width, height, 0, m_format, m_type, imageData);
+	glBindTexture(m_target, 0);
 
 	SOIL_free_image_data(imageData);
 
@@ -90,6 +91,7 @@ void Texture::loadFromFile(std::string fileName, const bool _flipVertical, unsig
 	m_internalFormat = _internalFormat == 0 && numCompontents == 1 ? GL_R8 : _internalFormat == 0 && numCompontents == 3 ? GL_RGB8 : _internalFormat == 0 ? GL_RGBA8 : _internalFormat;
 	m_format = _format == 0 && numCompontents == 1 ? GL_R : _format == 0 && numCompontents == 3 ? GL_RGB : _format == 0 ? GL_RGBA : _format;
 	m_type = GL_UNSIGNED_BYTE;
+	m_target = GL_TEXTURE_2D;
 
 	if (_flipVertical)
 		flipVertical(imageData, numCompontents * width, height);
@@ -101,13 +103,13 @@ void Texture::loadFromFile(std::string fileName, const bool _flipVertical, unsig
 
 
 	glGenTextures(1, &m_texture);
-	glBindTexture(GL_TEXTURE_2D, m_texture);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexImage2D(GL_TEXTURE_2D, 0, m_internalFormat, width, height, 0, m_format, GL_UNSIGNED_BYTE, imageData);
-	glBindTexture(GL_TEXTURE_2D, 0);
+	glBindTexture(m_target, m_texture);
+	glTexParameterf(m_target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameterf(m_target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(m_target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(m_target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexImage2D(m_target, 0, m_internalFormat, width, height, 0, m_format, m_type, imageData);
+	glBindTexture(m_target, 0);
 
 	SOIL_free_image_data(imageData);
 
@@ -123,19 +125,20 @@ void Texture::loadHDRIFromFile(std::string fileName, const bool _flipVertical, u
 	m_internalFormat = internalFormat == 0 && numCompontents == 3 ? GL_RGB32F : internalFormat == 0 ? GL_RGBA32F : internalFormat;
 	m_format = format == 0 && numCompontents == 3 ? GL_RGB : format == 0 ? GL_RGBA : format;
 	m_type = GL_FLOAT;
+	m_target = GL_TEXTURE_2D;
 
 	if (_flipVertical)
 		FlipVertical(imageData, numCompontents * sizeof(float) * width, height);
 
 	glGenTextures(1, &m_texture);
-	glBindTexture(GL_TEXTURE_2D, m_texture);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_REPEAT);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_REPEAT);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexImage2D(GL_TEXTURE_2D, 0, m_internalFormat, width, height, 0, m_format, m_type, imageData);
-	glGenerateMipmap(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, 0);
+	glBindTexture(m_target, m_texture);
+	glTexParameterf(m_target, GL_TEXTURE_MIN_FILTER, GL_REPEAT);
+	glTexParameterf(m_target, GL_TEXTURE_MAG_FILTER, GL_REPEAT);
+	glTexParameterf(m_target, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glTexParameterf(m_target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexImage2D(m_target, 0, m_internalFormat, width, height, 0, m_format, m_type, imageData);
+	glGenerateMipmap(m_target);
+	glBindTexture(m_target, 0);
 
 	m_width = width;
 	m_height = height;
@@ -143,32 +146,72 @@ void Texture::loadHDRIFromFile(std::string fileName, const bool _flipVertical, u
 }
 
 void Texture::loadCrossDDSFromFile(std::string fileName) {
+	m_target = GL_TEXTURE_CUBE_MAP;
 	m_texture = SOIL_load_OGL_single_cubemap(fileName.c_str(), SOIL_DDS_CUBEMAP_FACE_ORDER, SOIL_LOAD_AUTO, m_texture, SOIL_FLAG_MIPMAPS | SOIL_FLAG_DDS_LOAD_DIRECT);
 }
 
 void Texture::loadDDSRawFromFile(std::string fileName, const int knownInternal) {
 	m_texture = SOIL_direct_load_DDS(fileName.c_str(), m_texture, NULL, false);
+	m_target = GL_TEXTURE_2D;
 
 	int width, height;
 	int miplevel = 0;
 
-	glBindTexture(GL_TEXTURE_2D, m_texture);
+	glBindTexture(m_target, m_texture);
 	glGetTexLevelParameteriv(GL_TEXTURE_2D, miplevel, GL_TEXTURE_WIDTH, &width);
 	glGetTexLevelParameteriv(GL_TEXTURE_2D, miplevel, GL_TEXTURE_HEIGHT, &height);
-	glBindTexture(GL_TEXTURE_2D, 0);
+	glBindTexture(m_target, 0);
 
 	m_width = width;
 	m_height = height;
 	m_internalFormat = knownInternal;
 }
 
+void Texture::loadCubeFromFile(std::string* textureFiles, const bool _flipVertical, unsigned int _internalFormat, unsigned int _format) {
+	int width, height, numCompontents;
+	unsigned char* imageData;
+	m_internalFormat = _internalFormat == 0 && numCompontents == 1 ? GL_R8 : _internalFormat == 0 && numCompontents == 3 ? GL_RGB8 : _internalFormat == 0 ? GL_RGBA8 : _internalFormat;
+	m_format = _format == 0 && numCompontents == 1 ? GL_R : _format == 0 && numCompontents == 3 ? GL_RGB : _format == 0 ? GL_RGBA : _format;
+	m_type = GL_UNSIGNED_BYTE;
+	m_target = GL_TEXTURE_CUBE_MAP;
+
+	glGenTextures(1, &m_texture);
+	glBindTexture(m_target, m_texture);
+
+	for (unsigned short i = 0; i < 6; i++) {	
+		imageData = SOIL_load_image(textureFiles[i].c_str(), &width, &height, &numCompontents, SOIL_LOAD_AUTO);
+		unsigned int internalFormat = _format == 0 && numCompontents == 3 ? GL_RGB8 : _format == 0 ? GL_RGBA8 : _format;
+		if (_flipVertical)
+			flipVertical(imageData, numCompontents * width, height);
+
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, m_internalFormat, width, height, 0, m_format, m_type, imageData);
+
+		SOIL_free_image_data(imageData);
+	}
+
+	glTexParameterf(m_target, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glTexParameterf(m_target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glGenerateMipmap(m_target);
+	glTexParameteri(m_target, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+	glTexParameteri(m_target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(m_target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glBindTexture(m_target, 0);
+
+	m_width = width;
+	m_height = height;
+	m_channels = numCompontents;
+}
+
 void Texture::loadCrossHDRIFromFile(std::string fileName, const bool _flipVertical, unsigned int internalFormat, unsigned int format, int paddingLeft, int paddingRight, int paddingTop, int paddingBottom) {
 	int width, height, numCompontents;
 	unsigned char* imageData = reinterpret_cast<unsigned char *>(stbi_loadf(fileName.c_str(), &width, &height, &numCompontents, 0));
 
-	m_internalFormat = internalFormat == 0 && numCompontents == 3 ? GL_RGB32F : internalFormat == 0 ? GL_RGBA32F : internalFormat;
-	m_format = format == 0 && numCompontents == 3 ? GL_RGB : format == 0 ? GL_RGBA : format;
+	//m_internalFormat = internalFormat == 0 && numCompontents == 3 ? GL_RGB16F : internalFormat == 0 ? GL_RGBA32F : internalFormat;
+	//m_format = format == 0 && numCompontents == 3 ? GL_RGB : format == 0 ? GL_RGBA : format;
+	m_internalFormat = GL_RGBA16F;
+	m_format = GL_RGB;
 	m_type = GL_FLOAT;
+	m_target = GL_TEXTURE_CUBE_MAP;
 
 	if (_flipVertical)
 		FlipVertical(imageData, numCompontents * sizeof(float) * width, height);
@@ -257,22 +300,22 @@ void Texture::loadCrossHDRIFromFile(std::string fileName, const bool _flipVertic
 	m_height = fHeight;
 
 	glGenTextures(1, &m_texture);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, m_texture);
+	glBindTexture(m_target, m_texture);
 
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(m_target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(m_target, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glTexParameteri(m_target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(m_target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
+	glTexParameteri(m_target, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
 
 	// load face data
 	for (int i = 0; i < 6; i++) {
-		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA16F, m_width, m_height, 0, GL_RGB, GL_FLOAT, facData[i]);
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, m_internalFormat, m_width, m_height, 0, m_format, GL_FLOAT, facData[i]);
 	}
 
-	glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+	glBindTexture(m_target, 0);
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
 
 	for (int i = 0; i < 6; i++) {
@@ -289,6 +332,7 @@ void Texture::loadFromFile(std::string fileName, unsigned short tileWidth, unsig
 	m_internalFormat = _internalFormat == 0 && numCompontents == 1 ? GL_R8 : _internalFormat == 0 && numCompontents == 3 ? GL_RGB8 : _internalFormat == 0 ? GL_RGBA8 : _internalFormat;
 	m_format = _format == 0 && numCompontents == 1 ? GL_R : _format == 0 && numCompontents == 3 ? GL_RGB : _format == 0 ? GL_RGBA : _format;
 	m_type = GL_UNSIGNED_BYTE;
+	m_target = GL_TEXTURE_2D;
 
 	if (_flipVertical)
 		flipVertical(imageData, numCompontents * width, height);
@@ -314,13 +358,13 @@ void Texture::loadFromFile(std::string fileName, unsigned short tileWidth, unsig
 	}
 
 	glGenTextures(1, &m_texture);
-	glBindTexture(GL_TEXTURE_2D, m_texture);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexImage2D(GL_TEXTURE_2D, 0, m_internalFormat, tileWidth, tileHeight, 0, m_format, GL_UNSIGNED_BYTE, subImage);
-	glBindTexture(GL_TEXTURE_2D, 0);
+	glBindTexture(m_target, m_texture);
+	glTexParameterf(m_target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameterf(m_target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(m_target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(m_target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexImage2D(m_target, 0, m_internalFormat, tileWidth, tileHeight, 0, m_format, m_type, subImage);
+	glBindTexture(m_target, 0);
 
 	free(subImage);
 
@@ -338,6 +382,7 @@ void Texture::loadFromFile(std::string fileName, unsigned int _offsetX, unsigned
 	m_internalFormat = _internalFormat == 0 && numCompontents == 1 ? GL_R8 : _internalFormat == 0 && numCompontents == 3 ? GL_RGB8 : _internalFormat == 0 ? GL_RGBA8 : _internalFormat;
 	m_format = _format == 0 && numCompontents == 1 ? GL_R : _format == 0 && numCompontents == 3 ? GL_RGB : _format == 0 ? GL_RGBA : _format;
 	m_type = GL_UNSIGNED_BYTE;
+	m_target = GL_TEXTURE_2D;
 
 	if (_flipVertical)
 		flipVertical(imageData, numCompontents * width, height);
@@ -361,13 +406,13 @@ void Texture::loadFromFile(std::string fileName, unsigned int _offsetX, unsigned
 	}
 
 	glGenTextures(1, &m_texture);
-	glBindTexture(GL_TEXTURE_2D, m_texture);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexImage2D(GL_TEXTURE_2D, 0, m_internalFormat, _width, _height, 0, m_format, GL_UNSIGNED_BYTE, subImage);
-	glBindTexture(GL_TEXTURE_2D, 0);
+	glBindTexture(m_target, m_texture);
+	glTexParameterf(m_target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameterf(m_target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(m_target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(m_target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexImage2D(m_target, 0, m_internalFormat, _width, _height, 0, m_format, GL_UNSIGNED_BYTE, subImage);
+	glBindTexture(m_target, 0);
 
 	free(subImage);
 	SOIL_free_image_data(imageData);
@@ -400,6 +445,7 @@ void Texture::createNullTexture(unsigned int width, unsigned int height, unsigne
 	m_internalFormat = GL_RGBA8;
 	m_format = GL_RGBA;
 	m_type = GL_UNSIGNED_BYTE;
+	m_target = GL_TEXTURE_2D;
 }
 
 //https://github.com/sol-prog/Perlin_Noise
@@ -445,7 +491,7 @@ void Texture::createPerlinNoise(unsigned int width, unsigned int height, unsigne
 	m_internalFormat = GL_RGBA8;
 	m_format = GL_RGBA;
 	m_type = GL_UNSIGNED_BYTE;
-
+	m_target = GL_TEXTURE_2D;
 	free(pixels);
 }
 
@@ -474,7 +520,7 @@ void Texture::createNoise(unsigned int width, unsigned int height) {
 	m_internalFormat = GL_R8;
 	m_format = GL_LUMINANCE;
 	m_type = GL_UNSIGNED_BYTE;
-	
+	m_target = GL_TEXTURE_2D;
 	free(pixels);
 }
 
@@ -482,25 +528,54 @@ void Texture::createEmptyTexture(unsigned int width, unsigned int height, unsign
 	m_internalFormat = _internalFormat == 0 ? GL_RGBA8 : _internalFormat;
 	m_format = _format == 0 ? GL_RGBA : _format;
 	m_type = _type == 0 ? GL_UNSIGNED_BYTE : _type;
+	m_target = GL_TEXTURE_2D;
 
 	glGenTextures(1, &m_texture);
-	glBindTexture(GL_TEXTURE_2D, m_texture);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexImage2D(GL_TEXTURE_2D, 0, m_internalFormat, width, height, 0, m_format, m_type, NULL);
-	glBindTexture(GL_TEXTURE_2D, 0);
+	glBindTexture(m_target, m_texture);
+	glTexParameteri(m_target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(m_target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(m_target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(m_target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexImage2D(m_target, 0, m_internalFormat, width, height, 0, m_format, m_type, NULL);
+	glBindTexture(m_target, 0);
 
 	m_width = width;
 	m_height = height;
+}
+
+void Texture::createNullCubemap(unsigned int width, unsigned int height, unsigned int color) {
+	int pitch = ((width * 32 + 31) & ~31) >> 3; // align to 4-byte boundaries
+	std::vector<unsigned char> pixels(pitch * height, color);
+
+	glGenTextures(1, &m_texture);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, m_texture);
+
+	for (unsigned short i = 0; i < 6; i++) {
+
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, &pixels[0]);
+	}
+
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+
+	m_width = width;
+	m_height = height;
+	m_channels = 4;
+
+	m_internalFormat = GL_RGBA8;
+	m_format = GL_RGBA;
+	m_type = GL_UNSIGNED_BYTE;
+	m_target = GL_TEXTURE_CUBE_MAP;
 }
 
 void Texture::addAlphaChannel(unsigned int value) {
 	unsigned char* bytes = (unsigned char*)malloc(m_width * m_height * m_channels);
 	int magFilter, minFilter, wrapS, wrapT;
 	
-
 	glBindTexture(GL_TEXTURE_2D, m_texture);
 	glGetTexImage(GL_TEXTURE_2D, 0, m_format, GL_UNSIGNED_BYTE, bytes);
 	glGetTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, &magFilter);
@@ -540,7 +615,7 @@ void Texture::addAlphaChannel(unsigned int value) {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapS);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapT);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, m_width, m_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, bytesNew);
+	glTexImage2D(GL_TEXTURE_2D, 0, m_internalFormat, m_width, m_height, 0, m_format, m_type, bytesNew);
 
 	glBindTexture(GL_TEXTURE_2D, 0);
 	glDeleteTextures(1, &m_texture);
@@ -916,6 +991,23 @@ void Texture::CreateEmptyTexture(unsigned int& textureRef, unsigned int width, u
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
+void Texture::CreateEmptyCubemap(unsigned int& textureRef, unsigned int width, unsigned int height, unsigned int internalFormat, unsigned int format, unsigned int type) {
+	glGenTextures(1, &textureRef);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, textureRef);
+	for (unsigned short i = 0; i < 6; i++) {
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, internalFormat, width, height, 0, format, type, NULL);
+	}
+
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+	glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+}
+
 void Texture::CreateTexture3D(unsigned int& textureRef, unsigned int width, unsigned int height, unsigned int depth, unsigned int internalFormat, unsigned int format, unsigned int type, unsigned char* data) {
 	glGenTextures(1, &textureRef);
 	glBindTexture(GL_TEXTURE_3D, textureRef);
@@ -929,10 +1021,22 @@ void Texture::CreateTexture3D(unsigned int& textureRef, unsigned int width, unsi
 	glBindTexture(GL_TEXTURE_3D, 0);
 }
 
-void Texture::Resize(unsigned int& textureRef, unsigned int width, unsigned int height, unsigned int internalFormat, unsigned int format, unsigned int type) {
-	glBindTexture(GL_TEXTURE_2D, textureRef);
-	glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, format, type, NULL);
-	glBindTexture(GL_TEXTURE_2D, 0);
+void Texture::Resize(unsigned int& textureRef, unsigned int width, unsigned int height, unsigned int internalFormat, unsigned int format, unsigned int type, unsigned int target, unsigned int depth) {
+	if (target == GL_TEXTURE_CUBE_MAP) {
+		glBindTexture(target, textureRef);
+		for (unsigned short i = 0; i < 6; i++) {
+			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, internalFormat, width, height, 0, format, type, NULL);
+		}
+		glBindTexture(target, 0);
+	}else if (target == GL_TEXTURE_3D) {
+		glBindTexture(target, textureRef);
+		glTexImage3D(GL_TEXTURE_3D, 0, internalFormat, width, height, depth, 0, format, type, NULL);
+		glBindTexture(target, 0);
+	}else {
+		glBindTexture(target, textureRef);
+		glTexImage2D(target, 0, internalFormat, width, height, 0, format, type, NULL);
+		glBindTexture(target, 0);
+	}
 }
 
 unsigned int& Texture::getTexture(){
@@ -963,102 +1067,92 @@ unsigned int Texture::getType() {
 	return m_type;
 }
 
+unsigned int Texture::getTarget() {
+	return m_target;
+}
+
 void Texture::bind(unsigned int unit) const {
 	glActiveTexture(GL_TEXTURE0 + unit);
-	glBindTexture(GL_TEXTURE_2D, m_texture);
-}
-
-void Texture::Unbind() {
-	glBindTexture(GL_TEXTURE_2D, 0);
-	glActiveTexture(GL_TEXTURE0);
-}
-
-void Texture::setRepeat() {
-	glBindTexture(GL_TEXTURE_2D, m_texture);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glBindTexture(GL_TEXTURE_2D, 0);
+	glBindTexture(m_target, m_texture);
 }
 
 void Texture::setLinear(unsigned int mode) {
-	glBindTexture(GL_TEXTURE_2D, m_texture);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, mode);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glBindTexture(m_target, m_texture);
+	glTexParameterf(m_target, GL_TEXTURE_MIN_FILTER, mode);
+	glTexParameterf(m_target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	if(mode == 9987)
-		glGenerateMipmap(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, 0);
+		glGenerateMipmap(m_target);
+	glBindTexture(m_target, 0);
 }
 
-void Texture::setAnisotropy(float aniso) {
-	glBindTexture(GL_TEXTURE_2D, m_texture);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY, aniso);
-	glBindTexture(GL_TEXTURE_2D, 0);
+void Texture::setNearest() {
+	glBindTexture(m_target, m_texture);
+	glTexParameterf(m_target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameterf(m_target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glBindTexture(m_target, 0);
 }
 
 void Texture::setFilter(unsigned int minFilter, unsigned int magFilter) {
 	if (magFilter == 0)
 		magFilter = minFilter == 9985 | minFilter == 9987 ? GL_LINEAR : minFilter == 9984 | minFilter == 9986 ? GL_NEAREST : minFilter;
 
-	glBindTexture(GL_TEXTURE_2D, m_texture);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilter);
+	glBindTexture(m_target, m_texture);
+	glTexParameteri(m_target, GL_TEXTURE_MIN_FILTER, minFilter);
+	glTexParameteri(m_target, GL_TEXTURE_MAG_FILTER, magFilter);
 	if (minFilter == 9987)
-		glGenerateMipmap(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, 0);
+		glGenerateMipmap(m_target);
+	glBindTexture(m_target, 0);
 }
 
 void Texture::setWrapMode(unsigned int mode) {
-	glBindTexture(GL_TEXTURE_2D, m_texture);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, mode);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, mode);
-	glBindTexture(GL_TEXTURE_2D, 0);
+	if (m_target == GL_TEXTURE_CUBE_MAP || m_target == GL_TEXTURE_3D) {
+		glBindTexture(m_target, m_texture);
+		glTexParameteri(m_target, GL_TEXTURE_WRAP_R, mode);
+		glTexParameteri(m_target, GL_TEXTURE_WRAP_S, mode);
+		glTexParameteri(m_target, GL_TEXTURE_WRAP_T, mode);
+		glBindTexture(m_target, 0);
+	} else {
+		glBindTexture(m_target, m_texture);
+		glTexParameteri(m_target, GL_TEXTURE_WRAP_S, mode);
+		glTexParameteri(m_target, GL_TEXTURE_WRAP_T, mode);
+		glBindTexture(m_target, 0);
+	}
 }
 
-void Texture::setFilter3D(unsigned int mode) {
-	glBindTexture(GL_TEXTURE_3D, m_texture);
-	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, mode);
-	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, mode);
-	glBindTexture(GL_TEXTURE_3D, 0);
+void Texture::setAnisotropy(float aniso) {
+	glBindTexture(m_target, m_texture);
+	glTexParameterf(m_target, GL_TEXTURE_MAX_ANISOTROPY, aniso);
+	glBindTexture(m_target, 0);
 }
 
-void Texture::setWrapMode3D(unsigned int mode) {
-	glBindTexture(GL_TEXTURE_3D, m_texture);
-	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, mode);
-	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, mode);
-	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, mode);
-	glBindTexture(GL_TEXTURE_3D, 0);
+void Texture::Unbind(unsigned int target) {
+	glBindTexture(target, 0);
+	glActiveTexture(GL_TEXTURE0);
 }
 
-void Texture::SetFilter(unsigned int& textureRef, unsigned int minFilter, unsigned int magFilter) {
+void Texture::SetFilter(unsigned int& textureRef, unsigned int minFilter, unsigned int magFilter, unsigned int target) {
 	if (magFilter == 0)
 		magFilter = minFilter == 9985 | minFilter == 9987 ? GL_LINEAR : minFilter == 9984 | minFilter == 9986 ? GL_NEAREST : minFilter;
 
-	glBindTexture(GL_TEXTURE_2D, textureRef);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilter);
+	glBindTexture(target, textureRef);
+	glTexParameteri(target, GL_TEXTURE_MIN_FILTER, minFilter);
+	glTexParameteri(target, GL_TEXTURE_MAG_FILTER, magFilter);
 	if (minFilter == 9987)
-		glGenerateMipmap(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, 0);
+		glGenerateMipmap(target);
+	glBindTexture(target, 0);
 }
 
-void Texture::SetWrapMode(unsigned int& textureRef, unsigned int mode) {
-	glBindTexture(GL_TEXTURE_2D, textureRef);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, mode);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, mode);
-	glBindTexture(GL_TEXTURE_2D, 0);
-}
+void Texture::SetWrapMode(unsigned int& textureRef, unsigned int mode, unsigned int target) {
+	if (target == GL_TEXTURE_CUBE_MAP || target == GL_TEXTURE_3D) {
 
-void Texture::SetFilter3D(unsigned int& textureRef, unsigned int mode) {
-	glBindTexture(GL_TEXTURE_3D, textureRef);
-	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, mode);
-	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, mode);
-	glBindTexture(GL_TEXTURE_3D, 0);
-}
-
-void Texture::SetWrapMode3D(unsigned int& textureRef, unsigned int mode) {
-	glBindTexture(GL_TEXTURE_3D, textureRef);
-	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, mode);
-	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, mode);
-	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, mode);
-	glBindTexture(GL_TEXTURE_3D, 0);
+		glBindTexture(target, textureRef);
+		glTexParameteri(target, GL_TEXTURE_WRAP_S, mode);
+		glTexParameteri(target, GL_TEXTURE_WRAP_T, mode);
+		glBindTexture(target, 0);
+	} else {
+		glBindTexture(target, textureRef);
+		glTexParameteri(target, GL_TEXTURE_WRAP_S, mode);
+		glTexParameteri(target, GL_TEXTURE_WRAP_T, mode);
+		glBindTexture(target, 0);
+	}
 }

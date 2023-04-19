@@ -2,6 +2,7 @@
 #include "Utils.h"
 #include "Physics.h"
 #include "Player.h"
+#include "Constants.h"
 
 Weapon::Weapon() :
 	m_maxAmmo(0),
@@ -17,9 +18,9 @@ Weapon::~Weapon(){
 }
 
 void Weapon::init(GLchar* path, const Shader* shader) {
-	m_mesh.loadModel(path);
-	m_muzzle = new RenderableObject(Vector3f(2.0f, -2.5f, -2.5f), Vector3f(1.0f, 1.0f, 1.0f), "quad", "muzzle", "muzzleFlash");
+	m_mesh.loadModel(path);	
 	m_shader = shader;
+	m_muzzle = RenderableObject("quad", "muzzle", "muzzleFlash");
 }
 
 void Weapon::configure(int maxAmmo, float fireRate, float reloadTime, int damage) {
@@ -61,12 +62,10 @@ void Weapon::fire(Weapon* weapon, Camera& camera, float dt, bool& firing, bool& 
 		}
 
 		// Play muzzle flash effect (render textured quad in eye space in front of weapon)
-		m_transform.reset();
-		m_transform.scale(Utils::GetInstance().RandomNumBetweenTwo(2.0f, 2.5f), Utils::GetInstance().RandomNumBetweenTwo(2.0f, 2.5f), 1.0f);
-		m_transform.rotate(Vector3f(0.0f, 0.0f, 1.0f), Utils::GetInstance().RandomNumBetweenTwo(1.0f, 360.0f) * _180_ON_PI);
-		m_transform.translate(0.9f, -1.4f, -6.5f);
-
-		m_muzzle->draw(camera, m_transform.getTransformationMatrix());
+		m_muzzle.setScale(Utils::GetInstance().RandomNumBetweenTwo(2.0f, 2.5f), Utils::GetInstance().RandomNumBetweenTwo(2.0f, 2.5f), 1.0f);
+		m_muzzle.setOrientation(Vector3f(0.0f, 0.0f, 1.0f), Utils::GetInstance().RandomNumBetweenTwo(1.0f, 360.0f) * _180_ON_PI);
+		m_muzzle.setPosition(0.9f, -1.4f, -6.5f);
+		m_muzzle.draw(camera, true);
 
 		m_currFireRateTime = 0.0f;
 	}

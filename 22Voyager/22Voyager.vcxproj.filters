@@ -99,9 +99,6 @@
     <ClCompile Include="engine\Cube.cpp">
       <Filter>engine</Filter>
     </ClCompile>
-    <ClCompile Include="engine\Cubemap.cpp">
-      <Filter>engine</Filter>
-    </ClCompile>
     <ClCompile Include="engine\Framebuffer.cpp">
       <Filter>engine</Filter>
     </ClCompile>
@@ -222,9 +219,6 @@
     <ClCompile Include="engine\MeshObject\Shape.cpp">
       <Filter>engine\MeshObject</Filter>
     </ClCompile>
-    <ClCompile Include="Entity.cpp">
-      <Filter>Source Files\Objects</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h">
@@ -288,9 +282,6 @@
       <Filter>engine</Filter>
     </ClInclude>
     <ClInclude Include="engine\Cube.h">
-      <Filter>engine</Filter>
-    </ClInclude>
-    <ClInclude Include="engine\Cubemap.h">
       <Filter>engine</Filter>
     </ClInclude>
     <ClInclude Include="engine\Framebuffer.h">
@@ -415,9 +406,6 @@
     </ClInclude>
     <ClInclude Include="engine\MeshObject\Shape.h">
       <Filter>engine\MeshObject</Filter>
-    </ClInclude>
-    <ClInclude Include="Entity.h">
-      <Filter>Source Files\Objects</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

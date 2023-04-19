@@ -9,7 +9,6 @@
 extern AssetManager<Shader> Globals::shaderManager = AssetManager<Shader>();
 extern AssetManager<Texture> Globals::textureManager = AssetManager<Texture>();
 extern AssetManager<Shape> Globals::shapeManager = AssetManager<Shape>();
-extern AssetManager<Cubemap> Globals::cubemapManager = AssetManager<Cubemap>();
 extern bool Globals::drawUi = false;
 
 

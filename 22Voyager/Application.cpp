@@ -465,8 +465,8 @@ void Application::loadAssets() {
 	Globals::textureManager.loadTexture("muzzleFlash", "res/Textures/muzzleFlash.png", true);
 
 	Globals::shapeManager.buildQuadXY("quad", Vector3f(-1.0f, -1.0f, 0.0f), Vector2f(2.0f, 2.0f), 1, 1, true, false, false);
-	Globals::shapeManager.buildCube("skybox", Vector3f(-750.0f, -750.0f, -750.0f), Vector3f(1500.0f, 1500.0f, 1500.0f), 1, 1, false, false, false);
+	Globals::shapeManager.buildCube("cube", Vector3f(-1.0f, -1.0f, -1.0f), Vector3f(2.0f, 2.0f, 2.0f), 1, 1, false, false, false);
 
 	std::string faces[] = { "res/Textures/Skyboxes/TitanMoon/right.png", "res/Textures/Skyboxes/TitanMoon/left.png", "res/Textures/Skyboxes/TitanMoon/top.png", "res/Textures/Skyboxes/TitanMoon/bottom.png", "res/Textures/Skyboxes/TitanMoon/back.png", "res/Textures/Skyboxes/TitanMoon/front.png", };
-	Globals::cubemapManager.loadCubeMap("saturn", faces, false);
+	Globals::textureManager.loadCubeMap("saturn", faces, false);
 }
