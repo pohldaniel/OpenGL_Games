@@ -2042,34 +2042,26 @@ void Quaternion::fromPitchYawRoll(float pitch, float yaw, float roll) {
 void Quaternion::toPitchYawRoll(float& pitch, float& yaw, float& roll) const {
 	//Matrix4f m = toMatrix4f();
 	//m.toHeadPitchRoll(yaw, pitch, roll);
+	//yaw = yaw < 0.0f ? yaw + 360.0f : yaw;
 	
-	float t0 = 1.0 - 2.0 * (quat[2] * quat[2] + quat[3] * quat[3]) ;
+
+	float yy = quat[1] * quat[1];
+	float zz = quat[2] * quat[2];
+	float ww = quat[2] * quat[2];
+
+	float t5 = 1.0f - 2 * (quat[0] * quat[0] + yy);
+	float t4 = 2 * (quat[0] * quat[2] - quat[3] * quat[1]);
+
+	float t0 = 1.0 - 2.0 * (zz + ww) ;
 	float t1 = 2.0 * (quat[1] * quat[2] + quat[0] * quat[3]);
-	float t2 = -2.0 * (quat[1] * quat[3] - quat[0] * quat[2]);
-	float t3 = 2.0 * (quat[2] * quat[3] + quat[0] * quat[1]);
-	float t4 = 1.0 -2.0 * (quat[2] * quat[2] + quat[1] * quat[1]) ;
 
-	t2 = t2 > 1.0 ? 1.0 : t2;
-	t2 = t2 < -1.0 ? -1.0 : t2;
+	float t3 = 1.0 - 2.0 * (zz + yy);
+	float t2 = 2.0 * (quat[2] * quat[3] + quat[0] * quat[1]);
 
-	yaw = asinf(t2) * _180_ON_PI + 90.0f;
-	roll = fmod(360.0f - atan2f(t3, t4) * _180_ON_PI, 360.0f);
-	//pitch = fmod(atan2f(t1, t0) * _180_ON_PI + 180.0f, 360.0f);
-
-	// roll (x-axis rotation)
-	/*double sinr_cosp = 2 * (quat[3] * quat[0] + quat[1] * quat[2]);
-	double cosr_cosp = 1 - 2 * (quat[0] * quat[0] + quat[1] * quat[1]);
-	roll = std::atan2(sinr_cosp, cosr_cosp)* _180_ON_PI;*/
-
-	// pitch (y-axis rotation)
-	/*double sinp = std::sqrt(1 + 2 * (quat[3] * quat[1] - quat[0] * quat[2]));
-	double cosp = std::sqrt(1 - 2 * (quat[3] * quat[1] - quat[0] * quat[2]));
-	pitch = (2 * std::atan2(sinp, cosp) - PI / 2)* _180_ON_PI;*/
-
-	// yaw (z-axis rotation)
-	/*double siny_cosp = 2 * (quat[3] * quat[2] + quat[0] * quat[1]);
-	double cosy_cosp = 1 - 2 * (quat[1] * quat[1] + quat[2] * quat[2]);
-	yaw = std::atan2(siny_cosp, cosy_cosp)* _180_ON_PI; */
+	roll = fmod(360.0f - atan2f(t2, t3) * _180_ON_PI, 360.0f);
+	pitch = fmod(atan2f(t1, t0) * _180_ON_PI + 180.0f, 360.0f);
+	yaw = atan2f(t4, t5) * _180_ON_PI;
+	yaw = yaw < 0.0f ? yaw + 360.0f : yaw;
 }
 
 float Quaternion::getPitch() const {
@@ -2077,7 +2069,8 @@ float Quaternion::getPitch() const {
 }
 
 float Quaternion::getYaw() const {
-	return 0.0f;
+	float yaw = atan2f(2 * (quat[0] * quat[2] - quat[3] * quat[1]), 1.0f - 2 * (quat[0] * quat[0] + quat[1] * quat[1])) * _180_ON_PI;
+	return yaw < 0.0f ? yaw + 360.0f : yaw;
 }
 
 float Quaternion::getRoll() const {

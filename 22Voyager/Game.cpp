@@ -106,13 +106,13 @@ void Game::update() {
 	
 
 	degree += 10.0f * m_dt;
-	orientation.fromPitchYawRoll( 0.0f, degree,   0.0f);
-	//std::cout << "Degree: " << degree << std::endl;
+	orientation.fromPitchYawRoll(0.0f, degree, 0.0f);
+
 	float pitch, yaw, roll;
 	orientation.toPitchYawRoll(pitch, yaw, roll);
-	//std::cout << "Pitch: " << pitch << "  " << "Yaw: " << yaw << "  " << "Roll: " << roll << std::endl;
-
-	std::cout << degree << "  "  << yaw  << std::endl;
+	
+	std::cout << degree << "  " << orientation.getPitch() << "  "  << orientation.getYaw() << "  " << orientation.getRoll() << std::endl;
+	//std::cout << degree << "  " << pitch << "  " << yaw << "  " << roll << std::endl;
 };
 
 void Game::render() {
