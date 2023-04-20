@@ -16,7 +16,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	m_camera.lookAt(Vector3f(0.0f, 0.0f, 1.5f), Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
 
 	m_trackball.reshape(Application::Width, Application::Height);
-	m_trackball.setDollyPosition(-2.5f);
+	//m_trackball.setDollyPosition(-2.5f);
 	applyTransformation(m_trackball);
 
 	Globals::shaderManager.loadShader("texture", "res/program.vert", "res/texture.frag");
@@ -29,13 +29,13 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 
 	Globals::shapeManager.buildCapsule("capsule", 0.5f, 1.0f, Vector3f(0.0f, 0.0f, 0.0f), 20, 20, true, true, true);
 	Globals::shapeManager.buildTorus("torus", 0.5f, 0.25f, Vector3f(0.0f, 0.0f, 0.0f), 49, 49, true, true, true);
-	Globals::shapeManager.buildSphere("sphere", 1.0f, Vector3f(0.0f, 0.0f, 0.0f), 49, 49, true, true, true);
+	Globals::shapeManager.buildSphere("sphere_", 1.0f, Vector3f(0.0f, 0.0f, 0.0f), 49, 49, true, true, true);
 	Globals::shapeManager.buildSpiral("spiral", 0.5f, 0.25f, 1.5f, 2, true, Vector3f(0.0f, -0.75f, 0.0f), 49, 49, true, true, true);
 	Globals::shapeManager.buildCylinder("cylinder", 1.0f, 0.2f, 1.0f, Vector3f(0.0f, 0.0f, 0.0f), 20, 20, true, true, true);
 	Globals::shapeManager.buildQuadXY("quad_", Vector3f(-1.0f, -1.0f, 0.0f), Vector2f(2.0f, 2.0f), 10, 10, true, true, true);
-	Globals::shapeManager.buildCube("cube", Vector3f(-1.0f, -1.0f, -1.0f), Vector3f(2.0f, 2.0f, 2.0f),  10, 10, true, true, true);
+	Globals::shapeManager.buildCube("cube_", Vector3f(-1.0f, -1.0f, -1.0f), Vector3f(2.0f, 2.0f, 2.0f),  10, 10, true, true, true);
 
-	m_currentShape = Globals::shapeManager.get("cylinder");
+	m_currentShape = Globals::shapeManager.get("cube_");
 	m_currentShader = Globals::shaderManager.getAssetPointer("texture");
 }
 
@@ -101,9 +101,18 @@ void Game::update() {
 			m_camera.move(directrion * 5.0f * m_dt);
 		}
 	}
-
 	m_trackball.idle();
 	applyTransformation(m_trackball);
+	
+
+	degree += 10.0f * m_dt;
+	orientation.fromPitchYawRoll( 0.0f, degree,   0.0f);
+	//std::cout << "Degree: " << degree << std::endl;
+	float pitch, yaw, roll;
+	orientation.toPitchYawRoll(pitch, yaw, roll);
+	//std::cout << "Pitch: " << pitch << "  " << "Yaw: " << yaw << "  " << "Roll: " << roll << std::endl;
+
+	std::cout << degree << "  "  << yaw  << std::endl;
 };
 
 void Game::render() {
@@ -147,6 +156,7 @@ void Game::resize(int deltaW, int deltaH) {
 
 void Game::applyTransformation(TrackBall& arc) {
 	m_transform.fromMatrix(arc.getTransform());	
+	m_transform.rotate(orientation);
 }
 
 void Game::renderUi() {
@@ -194,7 +204,7 @@ void Game::renderUi() {
 				m_currentShape = Globals::shapeManager.get("capsule");
 				break;
 			case Model::SPHERE:
-				m_currentShape = Globals::shapeManager.get("sphere");
+				m_currentShape = Globals::shapeManager.get("sphere_");
 				break;
 			case Model::SPIRAL:
 				m_currentShape = Globals::shapeManager.get("spiral");
@@ -206,7 +216,7 @@ void Game::renderUi() {
 				m_currentShape = Globals::shapeManager.get("quad_");
 				break;
 			case Model::CUBE:
-				m_currentShape = Globals::shapeManager.get("cube");
+				m_currentShape = Globals::shapeManager.get("cube_");
 				break;
 		}
 	}

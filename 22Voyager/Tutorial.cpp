@@ -74,7 +74,7 @@ Tutorial::Tutorial(StateMachine& machine) : State(machine, CurrentState::TUTORIA
 	Player::GetInstance().Init();
 	m_cube = new Cube();
 
-	m_skybox = RenderableObject("cube", "skybox", "saturn");
+	m_skybox = RenderableObject("cube", "skybox", "titan");
 	m_skybox.setDrawFunction([&](const Camera& camera, bool viewIndependent) {
 		if (m_skybox.isDisabled()) return;
 
@@ -98,6 +98,11 @@ Tutorial::Tutorial(StateMachine& machine) : State(machine, CurrentState::TUTORIA
 		shader->unuse();
 		glEnable(GL_DEPTH_TEST);
 	});	
+	//glm::vec3(200.0f, 350.0f, -700.0f), glm::vec3(25.0f, 90.0f, 0.0f), glm::vec3(95.0f, 95.0f, 95.0f)
+	m_saturn = RenderableObject("sphere", "default", "saturn");
+	m_saturn.setPosition(200.0f, 350.0f, -700.0f);
+	m_saturn.setScale(95.0f, 95.0f, 95.0f);
+	//m_saturn.setOrientation();
 }
 
 Tutorial::~Tutorial() {
@@ -127,7 +132,12 @@ void Tutorial::render() {
 	m_skybox.draw(camera);
 	Player::GetInstance().Animate(m_dt);
 
-	RenderScene();
+	glDisable(GL_CULL_FACE);
+
+	m_terrain.setFog(m_atmosphere.GetDayTime() <= 0.3f ? false : true);
+	m_terrain.draw(camera, &m_dirLight, &m_pointLight, Player::GetInstance().GetSpotLight());
+
+	//RenderScene();
 
 	if (Globals::drawUi)
 		renderUi();

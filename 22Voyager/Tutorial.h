@@ -43,6 +43,6 @@ public:
 	DirectionalLight m_dirLight;
 	PointLight m_pointLight;
 	RenderableObject m_skybox;
-
+	RenderableObject m_saturn;
 	Cube* m_cube;
 };

@@ -26,6 +26,10 @@ void Object::setOrientation(const Vector3f &axis, float degrees) {
 	m_orientation.set(axis, degrees);
 }
 
+void Object::setOrientation(const float degreesX, const float degreesY, const float degreesZ) {
+	m_orientation.fromPitchYawRoll(degreesX, degreesY, degreesZ);
+}
+
 const Vector3f &Object::getPosition() {
 	return m_position;
 }

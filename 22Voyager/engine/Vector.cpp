@@ -1825,7 +1825,7 @@ Quaternion::Quaternion() {
 	quat[0] = 0.0f;
 	quat[1] = 0.0f;
 	quat[2] = 0.0f;
-	quat[3] = 0.0f;
+	quat[3] = 1.0f;
 }
 
 Quaternion::Quaternion(float x, float y, float z, float w) {
@@ -1835,8 +1835,8 @@ Quaternion::Quaternion(float x, float y, float z, float w) {
 	quat[3] = w;
 }
 
-Quaternion::Quaternion(float headDegrees, float pitchDegrees, float rollDegrees) {
-	fromHeadPitchRoll(headDegrees, pitchDegrees, rollDegrees);
+Quaternion::Quaternion(float pitch, float roll, float yaw) {
+	fromPitchYawRoll(pitch, roll, yaw);
 }
 
 Quaternion::Quaternion(const Vector3f &axis, float degrees) {
@@ -2020,13 +2020,69 @@ void Quaternion::fromMatrix(const Matrix4f &m) {
 	//}
 }
 
+//https://math.stackexchange.com/questions/2975109/how-to-convert-euler-angles-to-quaternions-and-get-the-same-euler-angles-back-fr
+void Quaternion::fromPitchYawRoll(float pitch, float yaw, float roll) {
+	//Matrix4f m;
+	//m.fromHeadPitchRoll(yaw, pitch, roll);
+	//fromMatrix(m);
 
-void Quaternion::fromHeadPitchRoll(float headDegrees, float pitchDegrees, float rollDegrees) {
-	Matrix4f m;
-	m.fromHeadPitchRoll(headDegrees, pitchDegrees, rollDegrees);
-	fromMatrix(m);
+	float cosP = cosf(pitch * HALF_PI_ON_180);
+	float sinP = sinf(pitch * HALF_PI_ON_180);
+	float cosH = cosf(yaw * HALF_PI_ON_180);
+	float sinH = sinf(yaw * HALF_PI_ON_180);
+	float cosR = cosf(roll * HALF_PI_ON_180);
+	float sinR = sinf(roll * HALF_PI_ON_180);
+
+	quat[0] = -(sinP * cosH * cosR + cosP * sinH * sinR);
+	quat[1] = sinP * cosH * sinR - cosP * sinH * cosR;
+	quat[2] = -(sinP * sinH * cosR + cosP * cosH * sinR);
+	quat[3] = cosP * cosH * cosR - sinP * sinH * sinR;
 }
 
+void Quaternion::toPitchYawRoll(float& pitch, float& yaw, float& roll) const {
+	//Matrix4f m = toMatrix4f();
+	//m.toHeadPitchRoll(yaw, pitch, roll);
+	
+	float t0 = 1.0 - 2.0 * (quat[2] * quat[2] + quat[3] * quat[3]) ;
+	float t1 = 2.0 * (quat[1] * quat[2] + quat[0] * quat[3]);
+	float t2 = -2.0 * (quat[1] * quat[3] - quat[0] * quat[2]);
+	float t3 = 2.0 * (quat[2] * quat[3] + quat[0] * quat[1]);
+	float t4 = 1.0 -2.0 * (quat[2] * quat[2] + quat[1] * quat[1]) ;
+
+	t2 = t2 > 1.0 ? 1.0 : t2;
+	t2 = t2 < -1.0 ? -1.0 : t2;
+
+	yaw = asinf(t2) * _180_ON_PI + 90.0f;
+	roll = fmod(360.0f - atan2f(t3, t4) * _180_ON_PI, 360.0f);
+	//pitch = fmod(atan2f(t1, t0) * _180_ON_PI + 180.0f, 360.0f);
+
+	// roll (x-axis rotation)
+	/*double sinr_cosp = 2 * (quat[3] * quat[0] + quat[1] * quat[2]);
+	double cosr_cosp = 1 - 2 * (quat[0] * quat[0] + quat[1] * quat[1]);
+	roll = std::atan2(sinr_cosp, cosr_cosp)* _180_ON_PI;*/
+
+	// pitch (y-axis rotation)
+	/*double sinp = std::sqrt(1 + 2 * (quat[3] * quat[1] - quat[0] * quat[2]));
+	double cosp = std::sqrt(1 - 2 * (quat[3] * quat[1] - quat[0] * quat[2]));
+	pitch = (2 * std::atan2(sinp, cosp) - PI / 2)* _180_ON_PI;*/
+
+	// yaw (z-axis rotation)
+	/*double siny_cosp = 2 * (quat[3] * quat[2] + quat[0] * quat[1]);
+	double cosy_cosp = 1 - 2 * (quat[1] * quat[1] + quat[2] * quat[2]);
+	yaw = std::atan2(siny_cosp, cosy_cosp)* _180_ON_PI; */
+}
+
+float Quaternion::getPitch() const {
+	return fmod(atan2f(2.0*(quat[1] * quat[2] + quat[0] * quat[3]), -2.0 * (quat[2] * quat[2] + quat[3] * quat[3]) + 1.0) * _180_ON_PI + 180.0f, 360.0f);
+}
+
+float Quaternion::getYaw() const {
+	return 0.0f;
+}
+
+float Quaternion::getRoll() const {
+	return  fmod(360.0f - atan2f(2.0 * (quat[2] * quat[3] + quat[0] * quat[1]), -2.0 * (quat[1] * quat[1] + quat[2] * quat[2]) + 1.0) * _180_ON_PI, 360.0f);
+}
 
 void Quaternion::toAxisAngle(Vector3f &axis, float &degrees) const {
 	// Converts this quaternion to an axis and an angle.

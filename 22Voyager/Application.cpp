@@ -362,9 +362,9 @@ void Application::fixedUpdate() {
 void Application::initStates() {
 	
 	Machine = new StateMachine(m_dt, m_fdt);
-	//Machine->addStateAtTop(new Game(*Machine));
-	Machine->addStateAtTop(new Tutorial(*Machine));
-	Mouse::instance().attach(Window);
+	Machine->addStateAtTop(new Game(*Machine));
+	//Machine->addStateAtTop(new Tutorial(*Machine));
+	//Mouse::instance().attach(Window);
 	//Machine->addStateAtTop(new MainMenu(*Machine));
 }
 
@@ -462,11 +462,14 @@ void Application::loadAssets() {
 	Globals::shaderManager.loadShader("muzzle", "res/Shaders/Muzzle Flash Shader/VertexShaderMuzzleFlash.vs", "res/Shaders/Muzzle Flash Shader/FragmentShaderMuzzleFlash.fs");
 	Globals::shaderManager.loadShader("weapon", "res/Shaders/SingleModelLoader.vs", "res/Shaders/SingleModelLoader.fs");
 	Globals::shaderManager.loadShader("skybox", "res/Shaders/SkyboxVertexShader.vs", "res/Shaders/SkyboxFragmentShader.fs");
-	Globals::textureManager.loadTexture("muzzleFlash", "res/Textures/muzzleFlash.png", true);
-
+	Globals::shaderManager.loadShader("default", "res/Shaders/DefaultVertexShader.vs", "res/Shaders/DefaultFragmentShader.fs");
+	
 	Globals::shapeManager.buildQuadXY("quad", Vector3f(-1.0f, -1.0f, 0.0f), Vector2f(2.0f, 2.0f), 1, 1, true, false, false);
 	Globals::shapeManager.buildCube("cube", Vector3f(-1.0f, -1.0f, -1.0f), Vector3f(2.0f, 2.0f, 2.0f), 1, 1, false, false, false);
+	Globals::shapeManager.buildSphere("sphere", 3.0f, Vector3f(0.0f, 0.0f, 0.0f), 75, 75, true, true, false);
 
 	std::string faces[] = { "res/Textures/Skyboxes/TitanMoon/right.png", "res/Textures/Skyboxes/TitanMoon/left.png", "res/Textures/Skyboxes/TitanMoon/top.png", "res/Textures/Skyboxes/TitanMoon/bottom.png", "res/Textures/Skyboxes/TitanMoon/back.png", "res/Textures/Skyboxes/TitanMoon/front.png", };
-	Globals::textureManager.loadCubeMap("saturn", faces, false);
+	Globals::textureManager.loadCubeMap("titan", faces, false);
+	Globals::textureManager.loadTexture("muzzleFlash", "res/Textures/muzzleFlash.png", true);
+	Globals::textureManager.loadTexture("saturn", "res/Textures/saturnTex.jpg", true);
 }

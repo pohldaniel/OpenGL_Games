@@ -8,10 +8,11 @@
 // Common math functions and constants.
 //-----------------------------------------------------------------------------
 #define PI  3.1415926535897932384f
-#define HALF_PI  1.57079632679f
+#define HALF_PI  1.5707963267948966192f
 #define TWO_PI  6.2831853071795864769f 
 #define PI_ON_180  0.0174532925199432957f
-#define _180_ON_PI  57.2957795131f
+#define HALF_PI_ON_180  0.0087266462599716479f
+#define _180_ON_PI  57.295779513082320877f
 #define invPI  0.3183098861837906715f
 #define	invTWO_PI  0.1591549430918953358f
 #define	EPSILON  1e-6f
@@ -252,7 +253,7 @@ public:
 
 	Quaternion();
 	Quaternion(float x, float y, float z, float w);
-	Quaternion(float headDegrees, float pitchDegrees, float rollDegrees);
+	Quaternion(float pitch, float yaw, float roll);
 	Quaternion(const Vector3f &axis, float degrees);
 	explicit Quaternion(const Matrix4f &m);
 	~Quaternion() {}
@@ -284,13 +285,15 @@ public:
 
 	void fromAxisAngle(const Vector3f &axis, float degrees);
 	void fromMatrix(const Matrix4f &m);
-
-	void fromHeadPitchRoll(float headDegrees, float pitchDegrees, float rollDegrees);
+	void fromPitchYawRoll(float pitch, float yaw, float roll);
 	
+	void toPitchYawRoll(float& pitch, float& yaw, float& roll) const;
 	void toAxisAngle(Vector3f &axis, float &degrees) const;
 	const Matrix4f toMatrix4f() const;
 	const Matrix4f toMatrix4f(const Vector3f &centerOfRotation) const;
-	//void toHeadPitchRoll(float &headDegrees, float &pitchDegrees, float &rollDegrees) const;
+	float getPitch() const;
+	float getYaw() const;
+	float getRoll() const;
 
 	static Quaternion& FromMatrix(Quaternion &quat, const Matrix4f &m);
 	static Quaternion& Conjugate(Quaternion &quat);
