@@ -1,8 +1,6 @@
 #include "RenderableObject.h"
 #include "Constants.h"
 
-Transform RenderableObject::Transform;
-
 RenderableObject::RenderableObject(const Vector3f &position, const Vector3f &scale) : Object() {
 	m_position = position;
 	m_scale = scale;
@@ -10,7 +8,6 @@ RenderableObject::RenderableObject(const Vector3f &position, const Vector3f &sca
 	//m_draw = std::bind(&RenderableObject::drawDefault, this, std::placeholders::_1, std::placeholders::_2);
 	//m_draw = std::function<void(const Camera& camera, bool viewIndependent)>{ [&](const Camera& camera, bool viewIndependent) {drawDefault(camera, viewIndependent); } };
 }
-
 
 RenderableObject::RenderableObject(std::string shape, std::string shader, std::string texture) : Object() {
 	m_shader = shader;
@@ -103,20 +100,28 @@ void RenderableObject::setDrawFunction(std::function<void(const Camera& camera, 
 	m_draw = fun;
 }
 
+std::string& RenderableObject::getShape(){
+	return m_shape;
+}
+
+std::string& RenderableObject::getShader(){
+	return m_shader;
+}
+
+std::string& RenderableObject::getTexture(){
+	return m_texture;
+}
+
 void RenderableObject::drawDefault(const Camera& camera, bool viewIndependent) {
 	if (m_disabled) return;
 
 	auto shader = Globals::shaderManager.getAssetPointer(m_shader);
 
 	glUseProgram(shader->m_program);
-	Transform.reset();
-	Transform.scale(m_scale);
-	Transform.rotate(m_orientation);
-	Transform.translate(m_position);
 
 	shader->loadMatrix("projection", camera.getPerspectiveMatrix());
 	shader->loadMatrix("view", viewIndependent ? Matrix4f::IDENTITY : camera.getViewMatrix());
-	shader->loadMatrix("model", Transform.getTransformationMatrix());
+	shader->loadMatrix("model", getTransformationSOP());
 
 	Globals::textureManager.get(m_texture).bind(0);
 	Globals::shapeManager.get(m_shape).drawRaw();

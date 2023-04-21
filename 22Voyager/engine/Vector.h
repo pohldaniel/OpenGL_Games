@@ -73,6 +73,10 @@ public:
 	float lengthSq() const;
 
 	void set(float x_, float y_, float z_);
+	void translate(const Vector3f &rhs);
+	void translate(const float dx, const float dy, const float dz);
+	void scale(const Vector3f &rhs);
+	void scale(const float sx, const float sy, const float sz);
 
 	float &operator[](int index);
 	const float operator[](int index) const;
@@ -81,11 +85,15 @@ public:
 
 	Vector3f &operator+=(const Vector3f &rhs);
 	Vector3f &operator-=(const Vector3f &rhs);
+	Vector3f &operator*=(const Vector3f &rhs);
+	Vector3f &operator/=(const Vector3f &rhs);
 	Vector3f &operator*=(float scalar);
 	Vector3f &operator/=(float scalar);
 
 	Vector3f operator+(const Vector3f &rhs) const;
 	Vector3f operator-(const Vector3f &rhs) const;
+	Vector3f operator*(const Vector3f &rhs) const;
+	Vector3f operator/(const Vector3f &rhs) const;
 
 	Vector3f operator*(float scalar) const;
 	Vector3f operator/(float scalar) const;
@@ -126,7 +134,7 @@ private:
 	float vec[4];
 };
 
-
+class Quaternion;
 class Matrix4f {
 
 	friend Vector3f operator*(const Vector4f &lhs, const Matrix4f &rhs);
@@ -138,7 +146,6 @@ class Matrix4f {
 	friend Matrix4f operator*(float scalar, const Matrix4f &rhs);
 
 public:
-
 
 	static const Matrix4f IDENTITY;
 	static const Matrix4f BIAS;
@@ -170,13 +177,21 @@ public:
 	void identity();
 	void rotate(const Vector3f &axis, float degrees);
 	void rotate(const Vector3f &axis, float degrees, const Vector3f &centerOfRotation);
+	void rotate(const Quaternion &orientation);
+	void rotate(const Quaternion &orientation, const Vector3f &centerOfRotation);
 	void invRotate(const Vector3f &axis, float degrees);
 	void invRotate(const Vector3f &axis, float degrees, const Vector3f &centerOfRotation);
+	void invRotate(const Quaternion &orientation);
+	void invRotate(const Quaternion &orientation, const Vector3f &centerOfRotation);
 
 	void translate(float dx, float dy, float dz);
+	void translate(const Vector3f &trans);
 	void invTranslate(float dx, float dy, float dz);
+	void invTranslate(const Vector3f &trans);
 	void scale(float a, float b, float c);
 	void scale(float a, float b, float c, const Vector3f &centerOfScale);
+	void scale(const Vector3f &scale);
+	void scale(const Vector3f &scale, const Vector3f &centerOfScale);
 	void invScale(float a, float b, float c);
 	void invScale(float a, float b, float c, const Vector3f &centerOfScale);
 	void perspective(float fovx, float aspect, float znear, float zfar);
@@ -190,6 +205,7 @@ public:
 	void invLookAt(const Vector3f &eye, const Vector3f &target, const Vector3f &up);
 
 	void fromHeadPitchRoll(float headDegrees, float pitchDegrees, float rollDegrees);
+	void fromHeadPitchRoll(float headDegrees, float pitchDegrees, float rollDegrees, const Vector3f &centerOfRotation);
 	void toHeadPitchRoll(float &headDegrees, float &pitchDegrees, float &rollDegrees) const;
 
 	void print() const;
@@ -204,13 +220,16 @@ public:
 	static Matrix4f &GetNormalMatrix(Matrix4f &mtx, const Matrix4f &modelViewMatrix);
 
 	static Matrix4f Scale(float x, float y, float z);
+	static Matrix4f Scale(const Vector3f &scale);
 	static Matrix4f &Scale(Matrix4f &mtx, float x, float y, float z);
 	static Matrix4f Scale(float x, float y, float z, const Vector3f &centerOfScale);
 
 	static Matrix4f Translate(float dx, float dy, float dz);
+	static Matrix4f Translate(const Vector3f &trans);
 	static Matrix4f &Translate(Matrix4f &mtx, float dx, float dy, float dz);
 
 	static Matrix4f Rotate(const Vector3f &axis, float degrees);
+	static Matrix4f Rotate(const Quaternion &orientation);
 	static Matrix4f Rotate(const Vector3f &axis, float degrees, const Vector3f &centerOfRotation);
 	static Matrix4f &Rotate(Matrix4f &mtx, const Vector3f &axis, float degrees);
 	static Matrix4f Rotate(const Vector3f &direction);
@@ -282,6 +301,8 @@ public:
 	void set(const Vector3f &axis, float degrees);
 	void conjugate();
 	void inverse();
+	void rotate(float pitch, float yaw, float roll);
+	void rotate(const Vector3f &axis, float degrees);
 
 	void fromAxisAngle(const Vector3f &axis, float degrees);
 	void fromMatrix(const Matrix4f &m);

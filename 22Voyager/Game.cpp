@@ -16,7 +16,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	m_camera.lookAt(Vector3f(0.0f, 0.0f, 1.5f), Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
 
 	m_trackball.reshape(Application::Width, Application::Height);
-	//m_trackball.setDollyPosition(-2.5f);
+	m_trackball.setDollyPosition(-2.5f);
 	applyTransformation(m_trackball);
 
 	Globals::shaderManager.loadShader("texture", "res/program.vert", "res/texture.frag");
@@ -106,12 +106,14 @@ void Game::update() {
 	
 
 	degree += 10.0f * m_dt;
-	orientation.fromPitchYawRoll(0.0f, degree, 0.0f);
+	//orientation.fromPitchYawRoll(0.0f, degree, 0.0f);
 
-	float pitch, yaw, roll;
-	orientation.toPitchYawRoll(pitch, yaw, roll);
-	
-	std::cout << degree << "  " << orientation.getPitch() << "  "  << orientation.getYaw() << "  " << orientation.getRoll() << std::endl;
+	//float pitch, yaw, roll;
+	//orientation.toPitchYawRoll(pitch, yaw, roll);
+	orientation.rotate(0.5f, 0.0f, 0.0f);
+
+	//orientation.rotate(Vector3f(0.0f, 0.0f, 1.0f), 0.5f);
+	//std::cout << degree << "  " << orientation.getPitch() << "  "  << orientation.getYaw() << "  " << orientation.getRoll() << std::endl;
 	//std::cout << degree << "  " << pitch << "  " << yaw << "  " << roll << std::endl;
 };
 

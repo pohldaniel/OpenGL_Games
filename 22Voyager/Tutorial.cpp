@@ -75,34 +75,45 @@ Tutorial::Tutorial(StateMachine& machine) : State(machine, CurrentState::TUTORIA
 	m_cube = new Cube();
 
 	m_skybox = RenderableObject("cube", "skybox", "titan");
+	m_skybox.setScale(750.0f);
 	m_skybox.setDrawFunction([&](const Camera& camera, bool viewIndependent) {
 		if (m_skybox.isDisabled()) return;
 
 		glDisable(GL_DEPTH_TEST);
-		auto shader = Globals::shaderManager.getAssetPointer("skybox");
+		auto shader = Globals::shaderManager.getAssetPointer(m_skybox.getShader());
 		Matrix4f view = camera.getViewMatrix();
 		view[3][0] = 0.0f; view[3][1] = 0.0f; view[3][2] = 0.0f;
 		shader->use();
 		shader->loadMatrix("projection", camera.getPerspectiveMatrix());
 		shader->loadMatrix("view", view);
-		shader->loadMatrix("model", Matrix4f::Scale(750.0f, 750.0f, 750.0f));
+		shader->loadMatrix("model", m_skybox.getTransformationSO());
 		shader->loadVector("lightPos", Vector3f(0.0f, 0.0f, 0.0f));
 		shader->loadVector("viewPos", camera.getPosition());
 		shader->loadInt("cubemap", 0);
 
-		Globals::textureManager.get("saturn").bind(0);
-		Globals::shapeManager.get("cube").drawRaw();
+		Globals::textureManager.get(m_skybox.getTexture()).bind(0);
+		Globals::shapeManager.get(m_skybox.getShape()).drawRaw();
 
 		Texture::Unbind(GL_TEXTURE_CUBE_MAP);
 
 		shader->unuse();
 		glEnable(GL_DEPTH_TEST);
 	});	
-	//glm::vec3(200.0f, 350.0f, -700.0f), glm::vec3(25.0f, 90.0f, 0.0f), glm::vec3(95.0f, 95.0f, 95.0f)
+
+	m_skybox.setUpdateFunction(
+		[&](const float dt) {
+		m_skybox.rotate(0.0f, 10.5f * PI_ON_180 * m_dt, 0.0f);
+	});
+
 	m_saturn = RenderableObject("sphere", "default", "saturn");
 	m_saturn.setPosition(200.0f, 350.0f, -700.0f);
 	m_saturn.setScale(95.0f, 95.0f, 95.0f);
-	//m_saturn.setOrientation();
+	m_saturn.setOrientation(Vector3f(25.0f, 90.0f, 0.0f));
+
+	m_saturn.setUpdateFunction(
+		[&](const float dt) {
+		m_saturn.rotate(0.0f, 20.0f * m_dt, 0.0f);
+	});
 }
 
 Tutorial::~Tutorial() {
@@ -119,6 +130,8 @@ void Tutorial::update() {
 		m_skybox.setDisabled(!m_skybox.isDisabled());
 	}
 
+	m_skybox.update(m_dt);
+	m_saturn.update(m_dt);
 	Player::GetInstance().Update(m_terrain, m_dt);
 
 	// Update physics component
@@ -130,6 +143,8 @@ void Tutorial::render() {
 	
 	const Camera& camera = Player::GetInstance().getCamera();
 	m_skybox.draw(camera);
+	m_saturn.draw(camera);
+
 	Player::GetInstance().Animate(m_dt);
 
 	glDisable(GL_CULL_FACE);

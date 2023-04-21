@@ -164,6 +164,147 @@ void Matrix4f::rotate(const Vector3f &axis, float degrees, const Vector3f &cente
 	mtx[3][3] = 1.0f;
 }
 
+void Matrix4f::rotate(const Quaternion &orientation) {
+
+	float x2 = orientation[0] + orientation[0];
+	float y2 = orientation[1] + orientation[1];
+	float z2 = orientation[2] + orientation[2];
+	float xx = orientation[0] * x2;
+	float xy = orientation[0] * y2;
+	float xz = orientation[0] * z2;
+	float yy = orientation[1] * y2;
+	float yz = orientation[1] * z2;
+	float zz = orientation[2] * z2;
+	float wx = orientation[3] * x2;
+	float wy = orientation[3] * y2;
+	float wz = orientation[3] * z2;
+
+	mtx[0][0] = 1.0f - (yy + zz);
+	mtx[0][1] = xy - wz;
+	mtx[0][2] = xz + wy;
+	mtx[0][3] = 0.0f;
+
+	mtx[1][0] = xy + wz;
+	mtx[1][1] = 1.0f - (xx + zz);
+	mtx[1][2] = yz - wx;
+	mtx[1][3] = 0.0f;
+
+	mtx[2][0] = xz - wy;
+	mtx[2][1] = yz + wx;
+	mtx[2][2] = 1.0f - (xx + yy);
+	mtx[2][3] = 0.0f;
+
+	mtx[3][0] = 0.0f;
+	mtx[3][1] = 0.0f;
+	mtx[3][2] = 0.0f;
+	mtx[3][3] = 1.0f;
+}
+
+void Matrix4f::rotate(const Quaternion &orientation, const Vector3f &centerOfRotation) {
+	float x2 = orientation[0] + orientation[0];
+	float y2 = orientation[1] + orientation[1];
+	float z2 = orientation[2] + orientation[2];
+	float xx = orientation[0] * x2;
+	float xy = orientation[0] * y2;
+	float xz = orientation[0] * z2;
+	float yy = orientation[1] * y2;
+	float yz = orientation[1] * z2;
+	float zz = orientation[2] * z2;
+	float wx = orientation[3] * x2;
+	float wy = orientation[3] * y2;
+	float wz = orientation[3] * z2;
+
+	mtx[0][0] = 1.0f - (yy + zz);
+	mtx[0][1] = xy - wz;
+	mtx[0][2] = xz + wy;
+	mtx[0][3] = 0.0f;
+
+	mtx[1][0] = xy + wz;
+	mtx[1][1] = 1.0f - (xx + zz);
+	mtx[1][2] = yz - wx;
+	mtx[1][3] = 0.0f;
+
+	mtx[2][0] = xz - wy;
+	mtx[2][1] = yz + wx;
+	mtx[2][2] = 1.0f - (xx + yy);
+	mtx[2][3] = 0.0f;
+
+	mtx[3][0] = centerOfRotation[0] * (1.0f - mtx[0][0]) - centerOfRotation[1] * mtx[1][0] - centerOfRotation[2] * mtx[2][0];
+	mtx[3][1] = centerOfRotation[1] * (1.0f - mtx[1][1]) - centerOfRotation[0] * mtx[0][1] - centerOfRotation[2] * mtx[2][1];
+	mtx[3][2] = centerOfRotation[2] * (1.0f - mtx[2][2]) - centerOfRotation[0] * mtx[0][2] - centerOfRotation[1] * mtx[1][2];
+	mtx[3][3] = 1.0f;
+}
+
+void Matrix4f::invRotate(const Quaternion &orientation) {
+	float x2 = orientation[0] + orientation[0];
+	float y2 = orientation[1] + orientation[1];
+	float z2 = orientation[2] + orientation[2];
+	float xx = orientation[0] * x2;
+	float xy = orientation[0] * y2;
+	float xz = orientation[0] * z2;
+	float yy = orientation[1] * y2;
+	float yz = orientation[1] * z2;
+	float zz = orientation[2] * z2;
+	float wx = orientation[3] * x2;
+	float wy = orientation[3] * y2;
+	float wz = orientation[3] * z2;
+
+	mtx[0][0] = 1.0f - (yy + zz);
+	mtx[0][1] = xy + wz;
+	mtx[0][2] = xz - wy;
+	mtx[0][3] = 0.0f;
+
+	mtx[1][0] = xy - wz;
+	mtx[1][1] = 1.0f - (xx + zz);
+	mtx[1][2] = yz + wx;
+	mtx[1][3] = 0.0f;
+
+	mtx[2][0] = xz + wy;
+	mtx[2][1] = yz - wx;
+	mtx[2][2] = 1.0f - (xx + yy);
+	mtx[2][3] = 0.0f;
+
+	mtx[3][0] = 0.0f;
+	mtx[3][1] = 0.0f;
+	mtx[3][2] = 0.0f;
+	mtx[3][3] = 1.0f;
+}
+
+void Matrix4f::invRotate(const Quaternion &orientation, const Vector3f &centerOfRotation) {
+	float x2 = orientation[0] + orientation[0];
+	float y2 = orientation[1] + orientation[1];
+	float z2 = orientation[2] + orientation[2];
+	float xx = orientation[0] * x2;
+	float xy = orientation[0] * y2;
+	float xz = orientation[0] * z2;
+	float yy = orientation[1] * y2;
+	float yz = orientation[1] * z2;
+	float zz = orientation[2] * z2;
+	float wx = orientation[3] * x2;
+	float wy = orientation[3] * y2;
+	float wz = orientation[3] * z2;
+
+	mtx[0][0] = 1.0f - (yy + zz);
+	mtx[0][1] = xy + wz;
+	mtx[0][2] = xz - wy;
+	mtx[0][3] = 0.0f;
+
+	mtx[1][0] = xy - wz;
+	mtx[1][1] = 1.0f - (xx + zz);
+	mtx[1][2] = yz + wx;
+	mtx[1][3] = 0.0f;
+
+	mtx[2][0] = xz + wy;
+	mtx[2][1] = yz - wx;
+	mtx[2][2] = 1.0f - (xx + yy);
+	mtx[2][3] = 0.0f;
+
+	mtx[3][0] = centerOfRotation[0] * (1.0f - mtx[0][0]) - centerOfRotation[1] * mtx[1][0] - centerOfRotation[2] * mtx[2][0];
+	mtx[3][1] = centerOfRotation[1] * (1.0f - mtx[1][1]) - centerOfRotation[0] * mtx[0][1] - centerOfRotation[2] * mtx[2][1];
+	mtx[3][2] = centerOfRotation[2] * (1.0f - mtx[2][2]) - centerOfRotation[0] * mtx[0][2] - centerOfRotation[1] * mtx[1][2];
+	mtx[3][3] = 1.0f;
+}
+
 void Matrix4f::translate(float dx, float dy, float dz) {
 
 	mtx[0][0] = 1.0f;
@@ -180,6 +321,29 @@ void Matrix4f::translate(float dx, float dy, float dz) {
 	mtx[1][2] = 0.0f;
 	mtx[2][2] = 1.0f;
 	mtx[3][2] = dz;
+
+	mtx[0][3] = 0.0f;
+	mtx[1][3] = 0.0f;
+	mtx[2][3] = 0.0f;
+	mtx[3][3] = 1.0f;
+}
+
+void Matrix4f::translate(const Vector3f &trans) {
+
+	mtx[0][0] = 1.0f;
+	mtx[1][0] = 0.0f;
+	mtx[2][0] = 0.0f;
+	mtx[3][0] = trans[0];
+
+	mtx[0][1] = 0.0f;
+	mtx[1][1] = 1.0f;
+	mtx[2][1] = 0.0f;
+	mtx[3][1] = trans[1];
+
+	mtx[0][2] = 0.0f;
+	mtx[1][2] = 0.0f;
+	mtx[2][2] = 1.0f;
+	mtx[3][2] = trans[2];
 
 	mtx[0][3] = 0.0f;
 	mtx[1][3] = 0.0f;
@@ -210,6 +374,28 @@ void Matrix4f::invTranslate(float dx, float dy, float dz) {
 	mtx[3][3] = 1.0f;
 }
 
+void Matrix4f::invTranslate(const Vector3f &trans) {
+
+	mtx[0][0] = 1.0f;
+	mtx[1][0] = 0.0f;
+	mtx[2][0] = 0.0f;
+	mtx[3][0] = -trans[0];
+
+	mtx[0][1] = 0.0f;
+	mtx[1][1] = 1.0f;
+	mtx[2][1] = 0.0f;
+	mtx[3][1] = -trans[1];
+
+	mtx[0][2] = 0.0f;
+	mtx[1][2] = 0.0f;
+	mtx[2][2] = 1.0f;
+	mtx[3][2] = -trans[2];
+
+	mtx[0][3] = 0.0f;
+	mtx[1][3] = 0.0f;
+	mtx[2][3] = 0.0f;
+	mtx[3][3] = 1.0f;
+}
 
 void Matrix4f::scale(float a, float b, float c) {
 
@@ -257,6 +443,45 @@ void Matrix4f::scale(float a, float b, float c, const Vector3f &centerOfScale) {
 	mtx[1][2] = 0.0f;
 	mtx[2][2] = 1.0f * c;
 	mtx[3][2] = centerOfScale[2] * (1.0f - c);
+}
+
+void Matrix4f::scale(const Vector3f &scale) {
+	mtx[0][0] = 1.0f * scale[0];
+	mtx[1][0] = 0.0f;
+	mtx[2][0] = 0.0f;
+	mtx[3][0] = 0.0f;
+
+	mtx[0][1] = 0.0f;
+	mtx[1][1] = 1.0f * scale[1];
+	mtx[2][1] = 0.0f;
+	mtx[3][1] = 0.0f;
+
+	mtx[0][2] = 0.0f;
+	mtx[1][2] = 0.0f;
+	mtx[2][2] = 1.0f * scale[2];
+	mtx[3][2] = 0.0f;
+
+	mtx[0][3] = 0.0f;
+	mtx[1][3] = 0.0f;
+	mtx[2][3] = 0.0f;
+	mtx[3][3] = 1.0f;
+}
+
+void Matrix4f::scale(const Vector3f &scale, const Vector3f &centerOfScale) {
+	mtx[0][0] = 1.0f * scale[0];
+	mtx[1][0] = 0.0f;
+	mtx[2][0] = 0.0f;
+	mtx[3][0] = centerOfScale[0] * (1.0f - scale[0]);
+
+	mtx[0][1] = 0.0f;
+	mtx[1][1] = 1.0f * scale[1];
+	mtx[2][1] = 0.0f;
+	mtx[3][1] = centerOfScale[1] * (1.0f - scale[1]);
+
+	mtx[0][2] = 0.0f;
+	mtx[1][2] = 0.0f;
+	mtx[2][2] = 1.0f * scale[2];
+	mtx[3][2] = centerOfScale[2] * (1.0f - scale[2]);
 }
 
 void Matrix4f::invScale(float a, float b, float c) {
@@ -599,6 +824,39 @@ void Matrix4f::fromHeadPitchRoll(float headDegrees, float pitchDegrees, float ro
 	mtx[3][3] = 1.0f;
 }
 
+void Matrix4f::fromHeadPitchRoll(float headDegrees, float pitchDegrees, float rollDegrees, const Vector3f &centerOfRotation) {
+	headDegrees = headDegrees * PI_ON_180;
+	pitchDegrees = pitchDegrees * PI_ON_180;
+	rollDegrees = rollDegrees * PI_ON_180;
+
+	float cosH = cosf(headDegrees);
+	float cosP = cosf(pitchDegrees);
+	float cosR = cosf(rollDegrees);
+	float sinH = sinf(headDegrees);
+	float sinP = sinf(pitchDegrees);
+	float sinR = sinf(rollDegrees);
+
+	mtx[0][0] = cosR * cosH - sinR * sinP * sinH;
+	mtx[0][1] = sinR * cosH + cosR * sinP * sinH;
+	mtx[0][2] = -cosP * sinH;
+	mtx[0][3] = 0.0f;
+
+	mtx[1][0] = -sinR * cosP;
+	mtx[1][1] = cosR * cosP;
+	mtx[1][2] = sinP;
+	mtx[1][3] = 0.0f;
+
+	mtx[2][0] = cosR * sinH + sinR * sinP * cosH;
+	mtx[2][1] = sinR * sinH - cosR * sinP * cosH;
+	mtx[2][2] = cosP * cosH;
+	mtx[2][3] = 0.0f;
+
+	mtx[3][0] = centerOfRotation[0] * (1.0f - mtx[0][0]) - centerOfRotation[1] * mtx[1][0] - centerOfRotation[2] * mtx[2][0];
+	mtx[3][1] = centerOfRotation[1] * (1.0f - mtx[1][1]) - centerOfRotation[0] * mtx[0][1] - centerOfRotation[2] * mtx[2][1];
+	mtx[3][2] = centerOfRotation[2] * (1.0f - mtx[2][2]) - centerOfRotation[0] * mtx[0][2] - centerOfRotation[1] * mtx[1][2];
+	mtx[3][3] = 1.0f;
+}
+
 void Matrix4f::toHeadPitchRoll(float &headDegrees, float &pitchDegrees, float &rollDegrees) const {
 	// Extracts the Euler angles from a rotation matrix. The returned
 	// angles are in degrees. This method might suffer from numerical
@@ -649,6 +907,13 @@ Matrix4f Matrix4f::Translate(float dx, float dy, float dz) {
 		dx  , dy  , dz  , 1.0);
 }
 
+Matrix4f Matrix4f::Translate(const Vector3f &trans) {
+	return Matrix4f(1.0f, 0.0f, 0.0f, 0.0f,
+		0.0f, 1.0f, 0.0f, 0.0f,
+		0.0f, 0.0f, 1.0f, 0.0f,
+		trans[0], trans[1], trans[2], 1.0);
+}
+
 Matrix4f &Matrix4f::Translate(Matrix4f &mtx, float dx, float dy, float dz) {
 	mtx[0][0] = 1.0f;
 	mtx[1][0] = 0.0f;
@@ -681,6 +946,13 @@ Matrix4f Matrix4f::Scale(float x, float y, float z) {
 	return Matrix4f(x, 0.0f, 0.0f, 0.0f,
 					0.0f, y, 0.0f, 0.0f,
 					0.0f, 0.0f, z, 0.0f,
+					0.0f, 0.0f, 0.0f, 1.0);
+}
+
+Matrix4f Matrix4f::Scale(const Vector3f &scale) {
+	return Matrix4f(scale[0], 0.0f, 0.0f, 0.0f,
+					0.0f, scale[1], 0.0f, 0.0f,
+					0.0f, 0.0f, scale[2], 0.0f,
 					0.0f, 0.0f, 0.0f, 1.0);
 }
 
@@ -732,6 +1004,26 @@ Matrix4f Matrix4f::Rotate(const Vector3f &axis, float degrees) {
 					(y * x) * (1.0f - c) - (z * s), (y * y) * (1.0f - c) + c, (y * z) * (1.0f - c) + (x * s), 0.0f,
 					(z * x) * (1.0f - c) + (y * s), (z * y) * (1.0f - c) - (x * s), (z * z) * (1.0f - c) + c, 0.0f,
 					0.0f, 0.0f, 0.0f, 1.0);
+}
+
+Matrix4f Matrix4f::Rotate(const Quaternion &orientation) {
+	float x2 = orientation[0] + orientation[0];
+	float y2 = orientation[1] + orientation[1];
+	float z2 = orientation[2] + orientation[2];
+	float xx = orientation[0] * x2;
+	float xy = orientation[0] * y2;
+	float xz = orientation[0] * z2;
+	float yy = orientation[1] * y2;
+	float yz = orientation[1] * z2;
+	float zz = orientation[2] * z2;
+	float wx = orientation[3] * x2;
+	float wy = orientation[3] * y2;
+	float wz = orientation[3] * z2;
+
+	return Matrix4f(1.0f - (yy + zz), xy - wz, xz + wy, 0.0f,
+		xy + wz, 1.0f - (xx + zz), yz - wx, 0.0f,
+		xz - wy, yz + wx, 1.0f - (xx + yy), 0.0f,
+		0.0f, 0.0f, 0.0f, 1.0f);
 }
 
 Matrix4f Matrix4f::Rotate(const Vector3f &axis, float degrees, const Vector3f &centerOfRotation) {
@@ -1655,6 +1947,16 @@ Vector3f &Vector3f::operator-=(const Vector3f &rhs) {
 	return *this;
 }
 
+Vector3f &Vector3f::operator*=(const Vector3f &rhs) {
+	vec[0] *= rhs.vec[0], vec[1] *= rhs.vec[1], vec[2] *= rhs.vec[2];
+	return *this;
+}
+
+Vector3f &Vector3f::operator/=(const Vector3f &rhs) {
+	vec[0] /= rhs.vec[0], vec[1] /= rhs.vec[1], vec[2] /= rhs.vec[2];
+	return *this;
+}
+
 Vector3f &Vector3f::operator*=(float scalar) {
 	vec[0] *= scalar, vec[1] *= scalar, vec[2] *= scalar;
 	return *this;
@@ -1675,6 +1977,20 @@ Vector3f Vector3f::operator-(const Vector3f &rhs) const {
 
 	Vector3f tmp(*this);
 	tmp -= rhs;
+	return tmp;
+}
+
+Vector3f Vector3f::operator*(const Vector3f &rhs) const {
+
+	Vector3f tmp(*this);
+	tmp *= rhs;
+	return tmp;
+}
+
+Vector3f Vector3f::operator/(const Vector3f &rhs) const {
+
+	Vector3f tmp(*this);
+	tmp /= rhs;
 	return tmp;
 }
 
@@ -1701,12 +2017,10 @@ Vector3f Vector3f::Cross(const Vector3f &p, const Vector3f &q) {
 }
 
 float Vector3f::Dot(const Vector3f &p, const Vector3f &q) {
-
 	return (p.vec[0] * q.vec[0]) + (p.vec[1] * q.vec[1]) + (p.vec[2] * q.vec[2]);
 }
 
 float Vector3f::length() const {
-
 	return sqrtf((vec[0] * vec[0]) + (vec[1] * vec[1]) + (vec[2] * vec[2]));
 }
 
@@ -1726,12 +2040,10 @@ Vector3f Vector3f::Min(const Vector3f &p, const Vector3f &q) {
 }
 
 Vector3f Vector3f::Max(const Vector3f &p, const Vector3f &q) {
-
 	return Vector3f(std::max(p[0], q[0]), std::max(p[1], q[1]), std::max(p[2], q[2]));
 }
 
 Vector3f Vector3f::normalize() {
-
 	float invMag = 1.0f / length();
 	return Vector3f(vec[0] * invMag, vec[1] * invMag, vec[2] * invMag);
 }
@@ -1741,8 +2053,23 @@ void Vector3f::set(float x_, float y_, float z_) {
 	vec[0] = x_, vec[1] = y_, vec[2] = z_;
 }
 
-const float* Vector3f::getVec()const {
+void Vector3f::translate(const Vector3f &rhs) {
+	vec[0] += rhs[0], vec[1] += rhs[1], vec[2] += rhs[2];
+}
 
+void Vector3f::translate(const float dx, const float dy, const float dz) {
+	vec[0] += dx, vec[1] += dy, vec[2] += dz;
+}
+
+void Vector3f::scale(const Vector3f &rhs) {
+	vec[0] *= rhs[0], vec[1] *= rhs[1], vec[2] *= rhs[2];
+}
+
+void Vector3f::scale(const float sx, const float sy, const float sz) {
+	vec[0] *= sx, vec[1] *= sy, vec[2] *= sz;
+}
+
+const float* Vector3f::getVec()const {
 	return vec;
 }
 
@@ -2026,12 +2353,16 @@ void Quaternion::fromPitchYawRoll(float pitch, float yaw, float roll) {
 	//m.fromHeadPitchRoll(yaw, pitch, roll);
 	//fromMatrix(m);
 
-	float cosP = cosf(pitch * HALF_PI_ON_180);
-	float sinP = sinf(pitch * HALF_PI_ON_180);
-	float cosH = cosf(yaw * HALF_PI_ON_180);
-	float sinH = sinf(yaw * HALF_PI_ON_180);
-	float cosR = cosf(roll * HALF_PI_ON_180);
-	float sinR = sinf(roll * HALF_PI_ON_180);
+	pitch = pitch * HALF_PI_ON_180;
+	yaw = yaw * HALF_PI_ON_180;
+	roll = roll * HALF_PI_ON_180;
+
+	float cosP = cosf(pitch);
+	float sinP = sinf(pitch);
+	float cosH = cosf(yaw);
+	float sinH = sinf(yaw);
+	float cosR = cosf(roll);
+	float sinR = sinf(roll);
 
 	quat[0] = -(sinP * cosH * cosR + cosP * sinH * sinR);
 	quat[1] = sinP * cosH * sinR - cosP * sinH * cosR;
@@ -2039,12 +2370,62 @@ void Quaternion::fromPitchYawRoll(float pitch, float yaw, float roll) {
 	quat[3] = cosP * cosH * cosR - sinP * sinH * sinR;
 }
 
+void Quaternion::rotate(float pitch, float yaw, float roll) {
+	pitch = pitch * HALF_PI_ON_180;
+	yaw = yaw * HALF_PI_ON_180;
+	roll = roll * HALF_PI_ON_180;
+
+	float cosP = cosf(pitch);
+	float sinP = sinf(pitch);
+	float cosH = cosf(yaw);
+	float sinH = sinf(yaw);
+	float cosR = cosf(roll);
+	float sinR = sinf(roll);
+
+	float rot0 = -(sinP * cosH * cosR + cosP * sinH * sinR);
+	float rot1 = sinP * cosH * sinR - cosP * sinH * cosR;
+	float rot2 = -(sinP * sinH * cosR + cosP * cosH * sinR);
+	float rot3 = cosP * cosH * cosR - sinP * sinH * sinR;
+	
+	//Quaternion rot;
+	//rot.fromPitchYawRoll(pitch, yaw, roll);
+
+	float q0 = quat[0];
+	float q1 = quat[1];
+	float q2 = quat[2];
+	float q3 = quat[3];
+
+	quat[0] = (q3 * rot0) + (q0 * rot3) - (q1 * rot2) + (q2 * rot1);
+	quat[1] = (q3 * rot1) + (q0 * rot2) + (q1 * rot3) - (q2 * rot0);
+	quat[2] = (q3 * rot2) - (q0 * rot1) + (q1 * rot0) + (q2 * rot3);
+	quat[3] = (q3 * rot3) - (q0 * rot0) - (q1 * rot1) - (q2 * rot2);
+
+	//*this *= rot;
+}
+
+void Quaternion::rotate(const Vector3f &axis, float degrees) {
+	
+	degrees = degrees * HALF_PI_ON_180;
+	float s = -sinf(degrees);
+	float rot3 = cosf(degrees), rot0 = axis[0] * s, rot1 = axis[1] * s, rot2= axis[2] * s;
+
+
+	float q0 = quat[0];
+	float q1 = quat[1];
+	float q2 = quat[2];
+	float q3 = quat[3];
+
+	quat[0] = (q3 * rot0) + (q0 * rot3) - (q1 * rot2) + (q2 * rot1);
+	quat[1] = (q3 * rot1) + (q0 * rot2) + (q1 * rot3) - (q2 * rot0);
+	quat[2] = (q3 * rot2) - (q0 * rot1) + (q1 * rot0) + (q2 * rot3);
+	quat[3] = (q3 * rot3) - (q0 * rot0) - (q1 * rot1) - (q2 * rot2);
+}
+
 void Quaternion::toPitchYawRoll(float& pitch, float& yaw, float& roll) const {
 	//Matrix4f m = toMatrix4f();
 	//m.toHeadPitchRoll(yaw, pitch, roll);
 	//yaw = yaw < 0.0f ? yaw + 360.0f : yaw;
 	
-
 	float yy = quat[1] * quat[1];
 	float zz = quat[2] * quat[2];
 	float ww = quat[2] * quat[2];

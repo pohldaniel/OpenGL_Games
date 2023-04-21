@@ -1,7 +1,6 @@
 #pragma once
 #include <functional>
 #include "engine/MeshObject/Shape.h"
-#include "engine/Transform.h"
 #include "engine/Camera.h"
 #include "Object.h"
 
@@ -23,6 +22,9 @@ public:
 	void setAttributes(std::string shape, std::string shader, std::string texture);
 	void setUpdateFunction(std::function<void(const float dt)> fun);
 	void setDrawFunction(std::function<void(const Camera& camera, bool viewIndependent)> fun);
+	std::string& getShape();
+	std::string& getShader();
+	std::string& getTexture();
 
 private:
 
@@ -34,6 +36,4 @@ private:
 	bool m_disabled = false;
 	std::function<void(const float dt)> m_update = 0;
 	std::function<void(const Camera& camera, bool viewIndependent)> m_draw = 0;
-	
-	static Transform Transform;
 };
