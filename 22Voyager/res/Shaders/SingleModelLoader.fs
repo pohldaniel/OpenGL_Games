@@ -54,28 +54,29 @@ void main()
 		
 	vec3 result;
 	
-	if (EnableSpotlight)
-	{
-		vec3 spotlightResult = CalculateSpotlight(spotlight, vertexNormal, viewDir);
-		result = (ambient + diffuse + specular + spotlightResult) * vec3(textureColour);
-	}
-	else
-	{
-		result = (ambient + diffuse + specular) * vec3(textureColour);
-	}
+	//if (EnableSpotlight)
+	//{
+	//	vec3 spotlightResult = CalculateSpotlight(spotlight, vertexNormal, viewDir);
+	//	result = (ambient + diffuse + specular + spotlightResult) * vec3(textureColour);
+	//}
+	//else
+	//{
+	//	result = (ambient + diffuse + specular) * vec3(textureColour);
+	//}
+	//
+    //FragColor = vec4(result, 1.0f);
 	
-    FragColor = vec4(result, 1.0f);
-	
-	if (nightFog)
-	{
-		FragColor = mix(vec4(0.0f, 0.0f, 0.0f, 1.0f), FragColor, visibility);
-	}
+	//if (nightFog)
+	//{
+	//	FragColor = mix(vec4(0.0f, 0.0f, 0.0f, 1.0f), FragColor, visibility);
+	//}
 	//else
 	//{
 	//	FragColor = mix(vec4(0.97f, 0.88f, 0.70f, 1.0f), FragColor, visibility);
 	//}
 	
 	 FragColor = textureColour;
+	 //FragColor = vec4(TexCoords, 0.0, 0.0);
 }
 
 vec3 CalculateSpotlight(Spotlight light, vec3 normal, vec3 viewDir)

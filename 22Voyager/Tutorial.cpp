@@ -114,6 +114,17 @@ Tutorial::Tutorial(StateMachine& machine) : State(machine, CurrentState::TUTORIA
 		[&](const float dt) {
 		m_saturn.rotate(0.0f, 20.0f * m_dt, 0.0f);
 	});
+
+	m_saturnRings = RenderableObject("quad", "default", "saturnRings");
+	m_saturnRings.setPosition(200.0f, 360.0f, -700.0f);
+	m_saturnRings.setOrientation(Vector3f(-65.0f, 0.0f, 0.0f));
+	m_saturnRings.setScale(640.0f, 640.0f, 640.0f);
+	
+	m_flag.Configure(10, 6, 20, 17);
+	m_flag.SetPos(Vector3f(256.4f, m_terrain.getHeightOfTerrain(256.0f, 300.0f) + 45.0f, 270.0f));
+
+	//m_flagPole.loadModel("res/Models3D/FlagPole/Pole2.obj");
+	m_flagPole2.loadModel("res/Models3D/FlagPole/Pole.obj");
 }
 
 Tutorial::~Tutorial() {
@@ -132,6 +143,11 @@ void Tutorial::update() {
 
 	m_skybox.update(m_dt);
 	m_saturn.update(m_dt);
+
+	m_flag.AddForce(Vector3f(0.0f, -0.2f, 0.0f) * 0.25f);
+	m_flag.WindForce(Vector3f(0.7f, 0.1f, 0.2f) * 0.25f);
+	m_flag.Update();
+
 	Player::GetInstance().Update(m_terrain, m_dt);
 
 	// Update physics component
@@ -144,6 +160,25 @@ void Tutorial::render() {
 	const Camera& camera = Player::GetInstance().getCamera();
 	m_skybox.draw(camera);
 	m_saturn.draw(camera);
+	m_saturnRings.draw(camera);
+	auto shader = Globals::shaderManager.getAssetPointer("weapon");
+	shader->use();
+
+	shader->use();
+	shader->loadMatrix("model", Matrix4f::Translate(256.0f, m_terrain.getHeightOfTerrain(256.0f, 300.0f) + 10.0f, 270.0f));
+	shader->loadVector("lightPos", Vector3f(camera.getPosition()[0], camera.getPosition()[1] + 5.0f, camera.getPosition()[2]));
+	shader->loadVector("viewPos", camera.getPosition());
+	shader->loadBool("EnableSpotlight", false);
+
+	
+	shader->loadMatrix("projection", camera.getPerspectiveMatrix());
+	shader->loadMatrix("view", camera.getViewMatrix());
+	shader->loadInt("texture_diffuse1", 0);
+	Globals::textureManager.get("flagPole").bind(0);
+
+	m_flagPole2.drawRaw();
+	shader->unuse();
+	m_flag.Draw(camera);
 
 	Player::GetInstance().Animate(m_dt);
 

@@ -6,7 +6,6 @@ uniform sampler2D mainTexture;
 in vec2 vUV;
 in vec3 vNormal;
  
-void main()
-{
+void main(){
 	fragColor = texture(mainTexture, vUV);
 }

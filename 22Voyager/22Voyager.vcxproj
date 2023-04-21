@@ -157,6 +157,9 @@
     <ClCompile Include="Animation.cpp" />
     <ClCompile Include="Application.cpp" />
     <ClCompile Include="Atmosphere.cpp" />
+    <ClCompile Include="Cloth.cpp" />
+    <ClCompile Include="ClothParticle.cpp" />
+    <ClCompile Include="Constraint.cpp" />
     <ClCompile Include="DirectionalLight.cpp" />
     <ClCompile Include="Enemy.cpp" />
     <ClCompile Include="engine\AssimpModel.cpp" />
@@ -219,7 +222,10 @@
     <ClInclude Include="Animation.h" />
     <ClInclude Include="Application.h" />
     <ClInclude Include="Atmosphere.h" />
+    <ClInclude Include="Cloth.h" />
+    <ClInclude Include="ClothParticle.h" />
     <ClInclude Include="Constants.h" />
+    <ClInclude Include="Constraint.h" />
     <ClInclude Include="convhull\convhull_3d.h" />
     <ClInclude Include="DirectionalLight.h" />
     <ClInclude Include="Enemy.h" />

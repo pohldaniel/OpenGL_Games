@@ -132,66 +132,66 @@ bool ObjModel::loadModel(const char* a_filename, Vector3f& axis, float degree, V
 
 			switch (buffer[1]) {
 
-			case '\0': {
+				case '\0': {
 
-				float tmpx, tmpy, tmpz;
-				fgets(buffer, sizeof(buffer), pFile);
-				sscanf(buffer, "%f %f %f", &tmpx, &tmpy, &tmpz);
-				Matrix4f rot;
-				rot.rotate(axis, degree);
-
-				Vector3f tmp = rot * Vector3f(tmpx, tmpy, tmpz);
-
-				tmpx = tmp[0] * scale + translate[0];
-				tmpy = tmp[1] * scale + translate[1];
-				tmpz = tmp[2] * scale + translate[2];
-
-				vertexCoords.push_back(tmpx);
-				vertexCoords.push_back(tmpy);
-				vertexCoords.push_back(tmpz);
-
-				xmin = (std::min)(tmpx, xmin);
-				ymin = (std::min)(tmpy, ymin);
-				zmin = (std::min)(tmpz, zmin);
-
-				xmax = (std::max)(tmpx, xmax);
-				ymax = (std::max)(tmpy, ymax);
-				zmax = (std::max)(tmpz, zmax);
-				break;
-
-			}case 't': {
-
-				float tmpu, tmpv;
-				fgets(buffer, sizeof(buffer), pFile);
-				sscanf(buffer, "%f %f", &tmpu, &tmpv);
-
-				textureCoords.push_back(tmpu);
-				textureCoords.push_back(tmpv);
-				break;
-
-			}case 'n': {
-
-				float tmpx, tmpy, tmpz;
-				fgets(buffer, sizeof(buffer), pFile);
-				sscanf(buffer, "%f %f %f", &tmpx, &tmpy, &tmpz);
-
-				if (!withoutNormals) {
-	
+					float tmpx, tmpy, tmpz;
+					fgets(buffer, sizeof(buffer), pFile);
+					sscanf(buffer, "%f %f %f", &tmpx, &tmpy, &tmpz);
 					Matrix4f rot;
 					rot.rotate(axis, degree);
 
 					Vector3f tmp = rot * Vector3f(tmpx, tmpy, tmpz);
 
-					normalCoords.push_back(tmp[0]);
-					normalCoords.push_back(tmp[1]);
-					normalCoords.push_back(tmp[2]);
+					tmpx = tmp[0] * scale + translate[0];
+					tmpy = tmp[1] * scale + translate[1];
+					tmpz = tmp[2] * scale + translate[2];
+
+					vertexCoords.push_back(tmpx);
+					vertexCoords.push_back(tmpy);
+					vertexCoords.push_back(tmpz);
+
+					xmin = (std::min)(tmpx, xmin);
+					ymin = (std::min)(tmpy, ymin);
+					zmin = (std::min)(tmpz, zmin);
+
+					xmax = (std::max)(tmpx, xmax);
+					ymax = (std::max)(tmpy, ymax);
+					zmax = (std::max)(tmpz, zmax);
+					break;
+
+				}case 't': {
+
+					float tmpu, tmpv;
+					fgets(buffer, sizeof(buffer), pFile);
+					sscanf(buffer, "%f %f", &tmpu, &tmpv);
+
+					textureCoords.push_back(tmpu);
+					textureCoords.push_back(tmpv);
+					break;
+
+				}case 'n': {
+
+					float tmpx, tmpy, tmpz;
+					fgets(buffer, sizeof(buffer), pFile);
+					sscanf(buffer, "%f %f %f", &tmpx, &tmpy, &tmpz);
+
+					if (!withoutNormals) {
+	
+						Matrix4f rot;
+						rot.rotate(axis, degree);
+
+						Vector3f tmp = rot * Vector3f(tmpx, tmpy, tmpz);
+
+						normalCoords.push_back(tmp[0]);
+						normalCoords.push_back(tmp[1]);
+						normalCoords.push_back(tmp[2]);
+					}
+					break;
+
+				}default: {
+
+					break;
 				}
-				break;
-
-			}default: {
-
-				break;
-			}
 			}
 			break;
 

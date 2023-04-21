@@ -1,8 +1,8 @@
 #version 440 core
 
-in vec3 position;
-in vec3 normal;
-in vec2 uv;
+layout (location = 0) in vec3 position;
+layout (location = 1) in vec2 uv;
+layout (location = 2) in vec3 normal;
 
 out vec2 vUV;
 out vec3 vNormal;
@@ -10,8 +10,7 @@ out vec3 vNormal;
 uniform mat4 mvp;
 uniform mat4 view;
 
-void main ()
-{
+void main () {
 	mat3 normalMatrix = inverse(transpose(mat3(view)));
     vNormal = normalize(normalMatrix * normal);
     vUV = uv;

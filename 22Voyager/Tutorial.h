@@ -12,6 +12,7 @@
 #include "SpotLight.h"
 #include "Atmosphere.h"
 #include "Terrain.h"
+#include "Cloth.h"
 
 class Tutorial : public State, public MouseEventListener {
 
@@ -44,5 +45,9 @@ public:
 	PointLight m_pointLight;
 	RenderableObject m_skybox;
 	RenderableObject m_saturn;
+	RenderableObject m_saturnRings;
 	Cube* m_cube;
+	Cloth m_flag;
+	ObjModel m_flagPole;
+	AssimpModel m_flagPole2;
 };

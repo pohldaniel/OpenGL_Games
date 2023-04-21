@@ -37,6 +37,9 @@
     <Filter Include="Source Files\Objects">
       <UniqueIdentifier>{1689bc2d-d82d-43f4-9860-bd96a42fc04e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Cloth">
+      <UniqueIdentifier>{a4615b9a-94ea-44b4-946f-cd6df0d7f4a5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -218,6 +221,15 @@
     </ClCompile>
     <ClCompile Include="engine\MeshObject\Shape.cpp">
       <Filter>engine\MeshObject</Filter>
+    </ClCompile>
+    <ClCompile Include="Cloth.cpp">
+      <Filter>Source Files\Cloth</Filter>
+    </ClCompile>
+    <ClCompile Include="ClothParticle.cpp">
+      <Filter>Source Files\Cloth</Filter>
+    </ClCompile>
+    <ClCompile Include="Constraint.cpp">
+      <Filter>Source Files\Cloth</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -406,6 +418,15 @@
     </ClInclude>
     <ClInclude Include="engine\MeshObject\Shape.h">
       <Filter>engine\MeshObject</Filter>
+    </ClInclude>
+    <ClInclude Include="Cloth.h">
+      <Filter>Source Files\Cloth</Filter>
+    </ClInclude>
+    <ClInclude Include="ClothParticle.h">
+      <Filter>Source Files\Cloth</Filter>
+    </ClInclude>
+    <ClInclude Include="Constraint.h">
+      <Filter>Source Files\Cloth</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

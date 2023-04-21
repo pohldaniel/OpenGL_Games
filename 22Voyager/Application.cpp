@@ -472,4 +472,8 @@ void Application::loadAssets() {
 	Globals::textureManager.loadCubeMap("titan", faces, false);
 	Globals::textureManager.loadTexture("muzzleFlash", "res/Textures/muzzleFlash.png", true);
 	Globals::textureManager.loadTexture("saturn", "res/Textures/saturnTex.jpg", true);
+	Globals::textureManager.loadTexture("saturnRings", "res/Textures/saturn_rings.png", true);
+	Globals::textureManager.loadTexture("clothTex", "res/Textures/Camouflage.jpg", true);
+	Globals::textureManager.loadTexture("flagPole", "res/Models3D/FlagPole/file13.png", true, GL_RGB8, GL_RGB, 3u);
+	Globals::textureManager.loadTexture("grid", "res/grid512.png", true);
 }
