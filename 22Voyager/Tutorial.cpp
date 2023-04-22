@@ -123,8 +123,7 @@ Tutorial::Tutorial(StateMachine& machine) : State(machine, CurrentState::TUTORIA
 	m_flag.Configure(10, 6, 20, 17);
 	m_flag.SetPos(Vector3f(256.4f, m_terrain.getHeightOfTerrain(256.0f, 300.0f) + 45.0f, 270.0f));
 
-	//m_flagPole.loadModel("res/Models3D/FlagPole/Pole2.obj");
-	m_flagPole2.loadModel("res/Models3D/FlagPole/Pole.obj");
+	m_flagPole.loadModel("res/Models3D/FlagPole/Pole.obj");
 }
 
 Tutorial::~Tutorial() {
@@ -176,10 +175,10 @@ void Tutorial::render() {
 	shader->loadInt("texture_diffuse1", 0);
 	Globals::textureManager.get("flagPole").bind(0);
 
-	m_flagPole2.drawRaw();
+	m_flagPole.drawRaw();
 	shader->unuse();
-	m_flag.Draw(camera);
 
+	m_flag.Draw(camera);
 	Player::GetInstance().Animate(m_dt);
 
 	glDisable(GL_CULL_FACE);

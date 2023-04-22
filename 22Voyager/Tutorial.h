@@ -48,6 +48,5 @@ public:
 	RenderableObject m_saturnRings;
 	Cube* m_cube;
 	Cloth m_flag;
-	ObjModel m_flagPole;
-	AssimpModel m_flagPole2;
+	AssimpModel m_flagPole;
 };

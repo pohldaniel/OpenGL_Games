@@ -1,11 +1,11 @@
 #include "Cloth.h"
 #include "Constants.h"
 
-Cloth::Cloth() : m_position(Vector3f(1.0f, 1.0f, 1.0f)){
+Cloth::Cloth() : m_position(Vector3f(1.0f, 1.0f, 1.0f)) {
 
 }
 
-Cloth::~Cloth(){
+Cloth::~Cloth() {
 
 }
 
@@ -25,10 +25,10 @@ void Cloth::Configure(float w, float h, int totalParticlesW, int totalParticlesH
 			Vector3f pos = Vector3f(w * (i / (float)m_numParticlesWidth), -h * (j / (float)totalParticlesH), 0);
 
 			// Add particle at element (i, j)
-			m_particles[j * totalParticlesW + i] = ClothParticle(pos); 
+			m_particles[j * totalParticlesW + i] = ClothParticle(pos);
 		}
 	}
-	
+
 	// Connect close neighbours with constraints
 	for (unsigned int i = 0; i < totalParticlesW; ++i) {
 
@@ -55,7 +55,7 @@ void Cloth::Configure(float w, float h, int totalParticlesW, int totalParticlesH
 
 			if (i < totalParticlesW - 2)
 				CreateConstraint(GetParticle(i, j), GetParticle(i + 2, j));
-			
+
 			if (j < totalParticlesH - 2)
 				CreateConstraint(GetParticle(i, j), GetParticle(i, j + 2));
 
@@ -72,7 +72,7 @@ void Cloth::Configure(float w, float h, int totalParticlesW, int totalParticlesH
 
 		// Top left particles
 		GetParticle(i, 0)->Pin();
-		
+
 		for (unsigned int j = 0; j < totalParticlesH; ++j) {
 
 			if (j >= totalParticlesH - 3) {
@@ -101,7 +101,7 @@ void Cloth::Draw(const Camera& cam) {
 		for (unsigned int j = 0; j < m_numParticlesHeight - 1; ++j) {
 
 			Vector3f normal = CalculateTriNormal(GetParticle(i + 1, j), GetParticle(i, j), GetParticle(i, j + 1));
-			GetParticle(i+ 1, j)->AddToNormal(normal);
+			GetParticle(i + 1, j)->AddToNormal(normal);
 			GetParticle(i, j)->AddToNormal(normal);
 			GetParticle(i, j + 1)->AddToNormal(normal);
 
@@ -125,18 +125,22 @@ void Cloth::Draw(const Camera& cam) {
 		glGenBuffers(1, &vertexBuffer);
 		glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
 
-
+		glEnableVertexAttribArray(0);
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vert), (const GLvoid *)0);
+
+		glEnableVertexAttribArray(1);
 		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vert), (const GLvoid *)sizeof(Vector3f));
+
+		glEnableVertexAttribArray(2);
 		glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vert), (const GLvoid *)(sizeof(Vector3f) + sizeof(Vector2f)));
 
 		std::vector<int> indices;
 
-		for (int j = 0; j < m_numParticlesHeight - 1; ++j)  {
+		for (int j = 0; j < m_numParticlesHeight - 1; ++j) {
 			int index;
 
-			if (j > 0) 
-				indices.push_back(j * m_numParticlesWidth);  
+			if (j > 0)
+				indices.push_back(j * m_numParticlesWidth);
 
 			for (int i = 0; i <= m_numParticlesWidth - 1; ++i) {
 				index = j * m_numParticlesWidth + i;
@@ -144,8 +148,8 @@ void Cloth::Draw(const Camera& cam) {
 				indices.push_back(index + m_numParticlesWidth);
 			}
 
-			if (j + 1 < m_numParticlesHeight - 1) 
-				indices.push_back(index + m_numParticlesWidth);  
+			if (j + 1 < m_numParticlesHeight - 1)
+				indices.push_back(index + m_numParticlesWidth);
 		}
 
 		elementSize = indices.size();
@@ -195,7 +199,7 @@ void Cloth::Update() {
 
 	// Calculate the position of each particle  
 	for (auto p = m_particles.begin(); p != m_particles.end(); ++p)
-		(*p).VerletIntegration(); 
+		(*p).VerletIntegration();
 }
 
 // -------------------
@@ -213,9 +217,9 @@ void Cloth::AddForce(const Vector3f& dir) {
 // -------------------
 void Cloth::WindForce(const Vector3f& dir) {
 
-	for (unsigned int i = 0; i < m_numParticlesWidth - 1; ++i){
+	for (unsigned int i = 0; i < m_numParticlesWidth - 1; ++i) {
 
-		for (unsigned int j = 0; j < m_numParticlesHeight - 1; ++j){
+		for (unsigned int j = 0; j < m_numParticlesHeight - 1; ++j) {
 
 			AddWindForce(GetParticle(i + 1, j), GetParticle(i, j), GetParticle(i, j + 1), dir);
 			AddWindForce(GetParticle(i + 1, j + 1), GetParticle(i + 1, j), GetParticle(i, j + 1), dir);
@@ -248,7 +252,7 @@ void Cloth::AddWindForce(ClothParticle* p1, ClothParticle* p2, ClothParticle* p3
 	Vector3f normalFinal = Vector3f::Normalize(normal);
 	Vector3f force = normal * Vector3f::Dot(normalFinal, windDir);
 
-	p1->AddForce(force); 
+	p1->AddForce(force);
 	p2->AddForce(force);
 	p3->AddForce(force);
 }
