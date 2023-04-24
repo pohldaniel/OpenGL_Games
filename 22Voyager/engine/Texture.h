@@ -13,7 +13,7 @@ public:
 	Texture(std::string pictureFile, const bool flipVertical = false, unsigned int internalFormat = 0, unsigned int format = 0);
 	Texture(Texture const& rhs);
 	~Texture();
-
+	
 	unsigned int& getTexture();
 	unsigned int getWidth();
 	unsigned int getHeight();
@@ -38,14 +38,15 @@ public:
 	void createPerlinNoise(unsigned int width, unsigned int height, unsigned int seed = 0u);
 	void createNoise(unsigned int width, unsigned int height);
 	void createNullCubemap(unsigned int width, unsigned int height, unsigned int color = 255);
-	
+	void copy(const Texture& rhs);
+
 	void addAlphaChannel(unsigned int value = 255u);
 	unsigned char* readPixel();
 
 	void setLinear(unsigned int mode = 9987u /*GL_LINEAR_MIPMAP_LINEAR*/);
 	void setNearest();
 	void setFilter(unsigned int minFilter, unsigned int magFilter = 0u);
-	void setWrapMode(unsigned int mode = 10497);
+	void setWrapMode(unsigned int mode = 10497 /*GL_REPEAT*/);
 	void setAnisotropy(float aniso);
 	void cleanup();
 

@@ -1,5 +1,9 @@
 #include "AssimpModel.h"
 
+bool compareMaterial(Material const& s1, std::string const& s2) {
+	return s1.name == s2;
+}
+
 AssimpModel::AssimpModel() {
 	m_hasTextureCoords = false;
 	m_hasNormals = false;
@@ -504,73 +508,78 @@ std::string AssimpModel::GetTexturePath(std::string texPath, std::string modelDi
 
 void AssimpModel::ReadAiMaterial(const aiMaterial* aiMaterial, short& index, std::string modelDirectory) {
 
-	Material::GetMaterials().resize(Material::GetMaterials().size() + 1);
-	index = Material::GetMaterials().size() - 1;
-	Material& material = Material::GetMaterials().back();
+	std::vector<Material>::iterator it = std::find_if(Material::GetMaterials().begin(), Material::GetMaterials().end(), std::bind(compareMaterial, std::placeholders::_1, modelDirectory));
+	if (it == Material::GetMaterials().end()) {
 
-	float shininess = 0.0f;
-	aiColor4D diffuse = aiColor4D(0.0f, 0.0f, 0.0f, 0.0f);
-	aiColor4D ambient = aiColor4D(0.0f, 0.0f, 0.0f, 0.0f);
-	aiColor4D specular = aiColor4D(0.0f, 0.0f, 0.0f, 0.0f);
+		Material::GetMaterials().resize(Material::GetMaterials().size() + 1);
+		index = Material::GetMaterials().size() - 1;
+		Material& material = Material::GetMaterials().back();
+		material.name = modelDirectory;
 
-	if (AI_SUCCESS == aiGetMaterialColor(aiMaterial, AI_MATKEY_COLOR_DIFFUSE, &diffuse)) {
-		//std::cout << "Diffuse: " << diffuse.r << "  " << diffuse.g << "  " << diffuse.b << "  " << diffuse.a << std::endl;
-	}
+		float shininess = 0.0f;
+		aiColor4D diffuse = aiColor4D(0.0f, 0.0f, 0.0f, 0.0f);
+		aiColor4D ambient = aiColor4D(0.0f, 0.0f, 0.0f, 0.0f);
+		aiColor4D specular = aiColor4D(0.0f, 0.0f, 0.0f, 0.0f);
 
-	material.diffuse[0] = diffuse.r;
-	material.diffuse[1] = diffuse.g;
-	material.diffuse[2] = diffuse.b;
-	material.diffuse[3] = diffuse.a;
+		if (AI_SUCCESS == aiGetMaterialColor(aiMaterial, AI_MATKEY_COLOR_DIFFUSE, &diffuse)) {
+			//std::cout << "Diffuse: " << diffuse.r << "  " << diffuse.g << "  " << diffuse.b << "  " << diffuse.a << std::endl;
+		}
 
-	if (AI_SUCCESS == aiGetMaterialColor(aiMaterial, AI_MATKEY_COLOR_AMBIENT, &ambient)) {
-		//std::cout << "Ambient: " << ambient.r << "  " << ambient.g << "  " << ambient.b << "  " << ambient.a << std::endl;
-	}
+		material.diffuse[0] = diffuse.r;
+		material.diffuse[1] = diffuse.g;
+		material.diffuse[2] = diffuse.b;
+		material.diffuse[3] = diffuse.a;
 
-	material.ambient[0] = ambient.r;
-	material.ambient[1] = ambient.g;
-	material.ambient[2] = ambient.b;
-	material.ambient[3] = ambient.a;
+		if (AI_SUCCESS == aiGetMaterialColor(aiMaterial, AI_MATKEY_COLOR_AMBIENT, &ambient)) {
+			//std::cout << "Ambient: " << ambient.r << "  " << ambient.g << "  " << ambient.b << "  " << ambient.a << std::endl;
+		}
 
-	if (AI_SUCCESS == aiGetMaterialColor(aiMaterial, AI_MATKEY_COLOR_SPECULAR, &specular)) {
-		//std::cout << "Specular: " << specular.r << "  " << specular.g << "  " << specular.b << "  " << specular.a << std::endl;
-	}
+		material.ambient[0] = ambient.r;
+		material.ambient[1] = ambient.g;
+		material.ambient[2] = ambient.b;
+		material.ambient[3] = ambient.a;
 
-	material.specular[0] = specular.r;
-	material.specular[1] = specular.g;
-	material.specular[2] = specular.b;
-	material.specular[3] = specular.a;
+		if (AI_SUCCESS == aiGetMaterialColor(aiMaterial, AI_MATKEY_COLOR_SPECULAR, &specular)) {
+			//std::cout << "Specular: " << specular.r << "  " << specular.g << "  " << specular.b << "  " << specular.a << std::endl;
+		}
 
-	if (AI_SUCCESS == aiGetMaterialFloat(aiMaterial, AI_MATKEY_SHININESS, &shininess)) {
-		//std::cout << "Shininess: " << shininess << std::endl;
-	}
+		material.specular[0] = specular.r;
+		material.specular[1] = specular.g;
+		material.specular[2] = specular.b;
+		material.specular[3] = specular.a;
 
-	material.shininess = shininess;
+		if (AI_SUCCESS == aiGetMaterialFloat(aiMaterial, AI_MATKEY_SHININESS, &shininess)) {
+			//std::cout << "Shininess: " << shininess << std::endl;
+		}
 
-	int numTextures = aiMaterial->GetTextureCount(aiTextureType_DIFFUSE);
-	if (numTextures > 0) {
-		aiString name;
-		aiMaterial->Get(AI_MATKEY_TEXTURE(aiTextureType_DIFFUSE, 0), name);
-		material.textures[0] = Texture();
-		material.textures[0].loadFromFile(GetTexturePath(name.data, modelDirectory), true);
-		material.textures[0].setFilter(GL_LINEAR_MIPMAP_LINEAR);
-	}
+		material.shininess = shininess;
 
-	numTextures = aiMaterial->GetTextureCount(aiTextureType_NORMALS);
-	if (numTextures > 0) {
-		aiString name;
-		aiMaterial->Get(AI_MATKEY_TEXTURE(aiTextureType_NORMALS, 0), name);
-		material.textures[1] = Texture();
-		material.textures[1].loadFromFile(GetTexturePath(name.data, modelDirectory), true);
-		material.textures[1].setFilter(GL_LINEAR_MIPMAP_LINEAR);
-	}
+		int numTextures = aiMaterial->GetTextureCount(aiTextureType_DIFFUSE);
+		if (numTextures > 0) {
+			aiString name;
+			aiMaterial->Get(AI_MATKEY_TEXTURE(aiTextureType_DIFFUSE, 0), name);
+			material.textures[0] = Texture();
+			material.textures[0].loadFromFile(GetTexturePath(name.data, modelDirectory), true);
+			material.textures[0].setFilter(GL_LINEAR_MIPMAP_LINEAR);
+		}
 
-	numTextures = aiMaterial->GetTextureCount(aiTextureType_SPECULAR);
-	if (numTextures > 0) {
-		aiString name;
-		aiMaterial->Get(AI_MATKEY_TEXTURE(aiTextureType_SPECULAR, 0), name);
-		material.textures[2] = Texture();
-		material.textures[2].loadFromFile(GetTexturePath(name.data, modelDirectory), true);
-		material.textures[2].setFilter(GL_LINEAR_MIPMAP_LINEAR);
+		numTextures = aiMaterial->GetTextureCount(aiTextureType_NORMALS);
+		if (numTextures > 0) {
+			aiString name;
+			aiMaterial->Get(AI_MATKEY_TEXTURE(aiTextureType_NORMALS, 0), name);
+			material.textures[1] = Texture();
+			material.textures[1].loadFromFile(GetTexturePath(name.data, modelDirectory), true);
+			material.textures[1].setFilter(GL_LINEAR_MIPMAP_LINEAR);
+		}
+
+		numTextures = aiMaterial->GetTextureCount(aiTextureType_SPECULAR);
+		if (numTextures > 0) {
+			aiString name;
+			aiMaterial->Get(AI_MATKEY_TEXTURE(aiTextureType_SPECULAR, 0), name);
+			material.textures[2] = Texture();
+			material.textures[2].loadFromFile(GetTexturePath(name.data, modelDirectory), true);
+			material.textures[2].setFilter(GL_LINEAR_MIPMAP_LINEAR);
+		}
 	}
 }
 
@@ -583,7 +592,7 @@ AssimpMesh::AssimpMesh(AssimpModel* model) {
 }
 
 AssimpMesh::~AssimpMesh() {
-
+	cleanup();
 }
 
 void AssimpMesh::cleanup() {

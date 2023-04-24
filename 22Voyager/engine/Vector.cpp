@@ -1026,6 +1026,26 @@ Matrix4f Matrix4f::Rotate(const Quaternion &orientation) {
 		0.0f, 0.0f, 0.0f, 1.0f);
 }
 
+Matrix4f Matrix4f::Rotate(float pitch, float yaw, float roll) {
+	
+	pitch = pitch * PI_ON_180;
+	yaw = yaw * PI_ON_180;
+	roll = roll * PI_ON_180;
+
+	float cosY = cosf(yaw);
+	float cosP = cosf(pitch);
+	float cosR = cosf(roll);
+	float sinY = sinf(yaw);
+	float sinP = sinf(pitch);
+	float sinR = sinf(roll);
+
+	return Matrix4f(cosR * cosY - sinR * sinP * sinY, sinR * cosY + cosR * sinP * sinY, -cosP * sinY, 0.0f,
+					-sinR * cosP, cosR * cosP, sinP, 0.0f,
+					cosR * sinY + sinR * sinP * cosY, sinR * sinY - cosR * sinP * cosY, cosP * cosY, 0.0f,
+					0.0f, 0.0f, 0.0f, 1.0f);
+
+}
+
 Matrix4f Matrix4f::Rotate(const Vector3f &axis, float degrees, const Vector3f &centerOfRotation) {
 
 	float rad = degrees * PI_ON_180;

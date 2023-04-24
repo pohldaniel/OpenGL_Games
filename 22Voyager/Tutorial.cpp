@@ -72,7 +72,6 @@ Tutorial::Tutorial(StateMachine& machine) : State(machine, CurrentState::TUTORIA
 	m_pointLight.setColour(Vector3f(0.0f, 0.0f, 1.0f));
 
 	Player::GetInstance().Init();
-	m_cube = new Cube();
 
 	m_skybox = RenderableObject("cube", "skybox", "titan");
 	m_skybox.setScale(750.0f);
@@ -125,39 +124,64 @@ Tutorial::Tutorial(StateMachine& machine) : State(machine, CurrentState::TUTORIA
 
 	m_flagPole.loadModel("res/Models3D/FlagPole/Pole.obj");
 
-	//m_mountainRock.loadModel("res/Models3D/Rock/rock.obj");
 	m_mountainRock.loadModel("res/Models3D/Rock/LowPolyRock.dae");
 
 	Globals::shapeManager.fromBuffer("rock", m_mountainRock.getMeshes()[0]->getVertexBuffer(), m_mountainRock.getMeshes()[0]->getIndexBuffer(), m_mountainRock.getMeshes()[0]->getStride());
-	Globals::textureManager.create("rock", m_mountainRock.getMeshes()[0]->getMaterial().textures[0]);
+	m_mountainRock.getMeshes()[0]->getMaterial().textures[0].setLinear();
+	m_mountainRock.getMeshes()[0]->getMaterial().textures[0].setWrapMode();
+	Globals::textureManager.create("rockTex", m_mountainRock.getMeshes()[0]->getMaterial().textures[0]);
+
+	m_mountainRock.getMeshes()[0]->getMaterial().cleanup();	
+	m_mountainRock.getMeshes()[0]->cleanup();
 	
-	//m_mountainRock.getMeshes()[0]->getMaterial().cleanup();	
-	//m_mountainRock.getMeshes()[0]->cleanup();
-	
-	m_rocks.push_back(RenderableObject("rock", "weapon", "rock_1"));
-	m_rocks[0].setPosition(30.0f, 60.0f, 15.0f);
-	m_rocks[0].setScale(20.0f, 36.0f, 20.0f);
-	m_rocks[0].setOrientation(Vector3f(0.0f, 180.0f, 0.0f));
+	Globals::shapeManager.get("rock").addInstance(Matrix4f::Translate(30.0f, 60.0f, 15.0f) * Matrix4f::Rotate(0.0f, 180.0f, 0.0f) * Matrix4f::Scale(20.0f, 36.0f, 20.0f));
+	Globals::shapeManager.get("rock").addInstance(Matrix4f::Translate(512.0f, 63.0f, 15.0f) * Matrix4f::Rotate(0.0f, 180.0f, 0.0f) * Matrix4f::Scale(20.0f, 36.0f, 20.0f));
+	Globals::shapeManager.get("rock").addInstance(Matrix4f::Translate(750.0f, 63.0f, 15.0f) * Matrix4f::Rotate(0.0f, 100.0f, 0.0f) * Matrix4f::Scale(20.0f, 36.0f, 20.0f));
+	Globals::shapeManager.get("rock").addInstance(Matrix4f::Translate(30.0f, 60.0f, 750.0f) * Matrix4f::Rotate(0.0f, 180.0f, 0.0f) * Matrix4f::Scale(20.0f, 36.0f, 20.0f));
+	Globals::shapeManager.get("rock").addInstance(Matrix4f::Translate(750.0f, 63.0f, 750.0f) * Matrix4f::Rotate(0.0f, 100.0f, 0.0f) * Matrix4f::Scale(20.0f, 36.0f, 20.0f));
 
-	m_rocks.push_back(RenderableObject("rock", "weapon", "rock_1"));
-	m_rocks[1].setPosition(512.0f, 63.0f, 15.0f);
-	m_rocks[1].setScale(20.0f, 36.0f, 20.0f);
-	m_rocks[1].setOrientation(Vector3f(0.0f, 180.0f, 0.0f));
+	std::vector<Matrix4f> modelMTXs;
 
-	m_rocks.push_back(RenderableObject("rock", "weapon", "rock_1"));
-	m_rocks[2].setPosition(750.0f, 63.0f, 15.0f);
-	m_rocks[2].setScale(20.0f, 36.0f, 20.0f);
-	m_rocks[2].setOrientation(Vector3f(0.0f, 100.0f, 0.0f));
+	unsigned int amount = 20000;
+	float radius = 400.0f;
+	float offset = 60.0f;
 
-	m_rocks.push_back(RenderableObject("rock", "weapon", "rock_1"));
-	m_rocks[3].setPosition(30.0f, 60.0f, 750.0f);
-	m_rocks[3].setScale(20.0f, 36.0f, 20.0f);
-	m_rocks[3].setOrientation(Vector3f(0.0f, 180.0f, 0.0f));
+	for (unsigned int i = 0; i < amount; ++i){
+		
+		float x = 0.0f, y = 0.0f, z = 0.0f;
 
-	m_rocks.push_back(RenderableObject("rock", "weapon", "rock_1"));
-	m_rocks[4].setPosition(750.0f, 63.0f, 750.0f);
-	m_rocks[4].setScale(20.0f, 36.0f, 20.0f);
-	m_rocks[4].setOrientation(Vector3f(0.0f, 100.0f, 0.0f));	
+		float angle = (float)i / (float)amount * 360.0f;
+		float displacement = (rand() % (int)(2 * offset * 100)) / 100.0f - offset + 300.0f;
+		x = sin(angle) * radius + displacement;
+
+		displacement = (rand() % (int)(2 * offset * 100)) / 100.0f - offset + 40.0f;
+		y = displacement * 3.7f;
+
+		displacement = (rand() % (int)(2 * offset * 100)) / 100.0f - offset + 390.0f;
+		z = cos(angle) * radius + displacement;
+
+		float scale = (rand() % 25) / 100.0f + 0.35f;
+		float rotAngle = (rand() % 360);
+		modelMTXs.push_back(Matrix4f::Translate(x, y, z) * Matrix4f::Rotate(Vector3f(0.5f, 0.7f, 0.9f), rotAngle) * Matrix4f::Scale(scale, scale, scale));
+	}
+	Globals::shapeManager.get("rock").addInstances(modelMTXs);
+
+	m_rock = RenderableObject("rock", "instance", "rockTex");
+	m_rock.setDrawFunction([&](const Camera& camera, bool viewIndependent) {
+		if (m_rock.isDisabled()) return;
+
+		auto shader = Globals::shaderManager.getAssetPointer(m_rock.getShader());
+
+		glUseProgram(shader->m_program);
+
+		shader->loadMatrix("projection", camera.getPerspectiveMatrix());
+		shader->loadMatrix("view", viewIndependent ? Matrix4f::IDENTITY : camera.getViewMatrix());
+
+
+		Globals::textureManager.get(m_rock.getTexture()).bind(0);
+		Globals::shapeManager.get(m_rock.getShape()).drawRawInstanced();
+		glUseProgram(0);
+	});
 }
 
 Tutorial::~Tutorial() {
@@ -212,10 +236,7 @@ void Tutorial::render() {
 	shader->unuse();
 
 	m_flag.Draw(camera);
-	
-	for (auto & rock : m_rocks) {
-		rock.draw(camera);
-	}
+	m_rock.draw(camera);
 
 	Player::GetInstance().Animate(m_dt);
 

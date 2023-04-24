@@ -261,11 +261,8 @@ void Shape::drawRaw() const {
 	glBindVertexArray(0);
 }
 
-void Shape::createInstancesStatic(const std::vector<Matrix4f>& modelMTX) {
-	m_instances.clear();
-	m_instances.shrink_to_fit();
-	m_instances = modelMTX;
-
+void Shape::addInstances(const std::vector<Matrix4f>& modelMTX) {
+	m_instances.insert(m_instances.end(), modelMTX.begin(), modelMTX.end());
 	m_instanceCount = m_instances.size();
 
 	glGenBuffers(1, &m_vboInstances);

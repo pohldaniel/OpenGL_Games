@@ -17,7 +17,7 @@ void Material::cleanup() {
 	std::vector<Material>::iterator position = std::find(Materials.begin(), Materials.end(), *this);
 	if (position != Materials.end()) {
 		(*position).textures.clear();
-		Materials.erase(position);
+		//Materials.erase(position);
 	}
 }
 

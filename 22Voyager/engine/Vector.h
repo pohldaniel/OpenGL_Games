@@ -230,6 +230,7 @@ public:
 
 	static Matrix4f Rotate(const Vector3f &axis, float degrees);
 	static Matrix4f Rotate(const Quaternion &orientation);
+	static Matrix4f Rotate(float pitch, float yaw, float roll);
 	static Matrix4f Rotate(const Vector3f &axis, float degrees, const Vector3f &centerOfRotation);
 	static Matrix4f &Rotate(Matrix4f &mtx, const Vector3f &axis, float degrees);
 	static Matrix4f Rotate(const Vector3f &direction);

@@ -26,7 +26,7 @@ public:
 
 	void drawRaw() const;
 	void drawRawInstanced() const;
-	void createInstancesStatic(const std::vector<Matrix4f>& modelMTX);
+	void addInstances(const std::vector<Matrix4f>& modelMTX);
 	void addInstance(const Matrix4f& modelMTX);
 	void setPrecision(int uResolution, int vResolution);
 	int getNumberOfTriangles();

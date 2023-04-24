@@ -8,7 +8,11 @@ class AssetManager {
 public:
 
 	void create(const std::string& name, T& asset) {
-		m_assets.insert(std::pair<std::string, T>(name, asset));
+		m_assets.insert(std::pair<std::string, T>(name, T()));
+		m_assets[name].copy(asset);
+
+		//m_assets.insert(std::pair<std::string, T>(name, asset));
+		//m_assets[name] = T(asset);
 	}
 
 	void loadTexture(const std::string& name, const std::string& path, const bool flipVertical = true, unsigned int internalFormat = 0u, unsigned int format = 0u, unsigned int SOIL_FLAG = 0u) {

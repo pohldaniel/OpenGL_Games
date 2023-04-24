@@ -461,6 +461,7 @@ void Application::loadAssets() {
 	Globals::shaderManager.loadShader("terrain", "res/Shaders/TerrainVertexShader.vs", "res/Shaders/TerrainFragmentShader.fs");
 	Globals::shaderManager.loadShader("muzzle", "res/Shaders/Muzzle Flash Shader/VertexShaderMuzzleFlash.vs", "res/Shaders/Muzzle Flash Shader/FragmentShaderMuzzleFlash.fs");
 	Globals::shaderManager.loadShader("weapon", "res/Shaders/SingleModelLoader.vs", "res/Shaders/SingleModelLoader.fs");
+	Globals::shaderManager.loadShader("instance", "res/Shaders/SingleModelLoader_ins.vs", "res/Shaders/SingleModelLoader.fs");
 	Globals::shaderManager.loadShader("skybox", "res/Shaders/SkyboxVertexShader.vs", "res/Shaders/SkyboxFragmentShader.fs");
 	Globals::shaderManager.loadShader("default", "res/Shaders/DefaultVertexShader.vs", "res/Shaders/DefaultFragmentShader.fs");
 	
@@ -476,7 +477,4 @@ void Application::loadAssets() {
 	Globals::textureManager.loadTexture("clothTex", "res/Textures/Camouflage.jpg", true);
 	Globals::textureManager.loadTexture("flagPole", "res/Models3D/FlagPole/file13.png", true, GL_RGB8, GL_RGB, 3u);
 	Globals::textureManager.loadTexture("grid", "res/grid512.png", true);
-	Globals::textureManager.loadTexture("rock_1", "res/Models3D/Rock/TexturesCom_RockSharp0009_1_seamless_S.jpg", true, GL_RGB8, GL_RGB, 3u);
-	Globals::textureManager.get("rock_1").setLinear();
-	Globals::textureManager.get("rock_1").setWrapMode();
 }
