@@ -231,6 +231,12 @@
     <ClCompile Include="soil2\wfETC.c">
       <Filter>soil2</Filter>
     </ClCompile>
+    <ClCompile Include="engine\Fontrenderer.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\CharacterSet.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h">
@@ -427,6 +433,12 @@
     </ClInclude>
     <ClInclude Include="Constraint.h">
       <Filter>Source Files\Cloth</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\Fontrenderer.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\CharacterSet.h">
+      <Filter>engine</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

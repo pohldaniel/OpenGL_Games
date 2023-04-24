@@ -14,7 +14,7 @@ public:
 	Texture(Texture const& rhs);
 	~Texture();
 	
-	unsigned int& getTexture();
+	const unsigned int& getTexture() const;
 	unsigned int getWidth();
 	unsigned int getHeight();
 	unsigned int getChannels();

@@ -32,6 +32,7 @@ public:
 	const Quaternion &getOrientation();
 	const Matrix4f &getTransformationSOP();
 	const Matrix4f &getTransformationSO();
+	const Matrix4f &getTransformationSP();
 
 protected:
 

@@ -43,9 +43,9 @@ public:
 		m_assets[name].createEmptyTexture(width, height, internalFormat, format, type);
 	}
 
-	void loadCharacterSet(const std::string& name, const std::string& path, const float characterSize) {
+	void loadCharacterSet(const std::string& name, const std::string& path, const unsigned int characterSize, const unsigned int spacingX = 1, const unsigned int spacingY = 10, unsigned int minHeight = 0u, int shiftX = 0, const bool flipVertical = true, unsigned int frame = 0u) {
 		m_assets.insert(std::pair<std::string, T>(name, T()));
-		m_assets[name].loadFromFile(path, characterSize);
+		m_assets[name].loadFromFile(path, characterSize, spacingX, spacingY, minHeight, shiftX, flipVertical, frame);
 	}
 
 	void loadShader(const std::string& name, const std::string& vertex, const std::string& fragment) {
@@ -73,13 +73,27 @@ public:
 		m_assetPointer[name] = new T(compute.c_str(), false);
 	}
 
-	void loadSpritesheet(const std::string& name, const std::string& path, unsigned short tileWidth, unsigned short tileHeight, unsigned short spacing, unsigned int yStart, unsigned int xStart, unsigned int xLength, unsigned int format = -1) {
+	void loadSpritesheet(const std::string& name, const std::string& path, unsigned short tileWidth, unsigned short tileHeight, unsigned short spacing, unsigned int yStart, unsigned int xStart, unsigned int xLength, unsigned int format = 0) {
 		m_assetPointer[name] = new T(path, tileWidth, tileHeight, spacing, true, true, yStart, xStart, xLength, format);
 	}
 
-	void createSpritesheet(const std::string& name, unsigned int texture, unsigned int width, unsigned int height, unsigned int format = -1) {
+	void createSpritesheet(const std::string& name, unsigned int texture, unsigned int width, unsigned int height, unsigned int format = 0) {
 		m_assetPointer[name] = new T();
 		m_assetPointer[name]->createSpritesheet(texture, width, height, format);
+	}
+
+	void createSpritesheetFromTexture(const std::string& name, unsigned int texture, unsigned int format = 0u, unsigned int internalFormat = 0u, int unpackAlignment = 4) {
+		m_assetPointer[name] = new T();
+		m_assetPointer[name]->createSpritesheetFromTexture(texture, format, internalFormat, unpackAlignment);
+	}
+
+	void createSpritesheet(const std::string& name, unsigned int textureAtlas) {
+		m_assetPointer[name] = new T(textureAtlas);
+	}
+
+	void createEmptySpritesheet(const std::string& name, unsigned int width, unsigned int height, unsigned int format = 0u) {
+		m_assetPointer[name] = new T();
+		m_assetPointer[name]->createEmptySpritesheet(width, height, format);
 	}
 
 	void createNullSpritesheet(const std::string& name, unsigned int width = 2, unsigned int height = 2, unsigned short layer = 4) {

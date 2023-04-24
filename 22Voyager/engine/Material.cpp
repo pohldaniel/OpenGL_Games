@@ -48,10 +48,10 @@ void Material::unbind() {
 	}
 }
 
-void Material::bind(unsigned short index) {
+void Material::bind(unsigned short index) const{
 	for (unsigned short i = 0; i < index; i++) {
 		glActiveTexture(GL_TEXTURE0 + i);
-		glBindTexture(GL_TEXTURE_2D, textures[i].getTexture());
+		glBindTexture(GL_TEXTURE_2D, textures.at(i).getTexture());
 	}
 }
 

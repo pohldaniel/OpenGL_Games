@@ -1,6 +1,6 @@
 #ifndef __CHARACTERSETH__
 #define __CHARACTERSETH__
-#define NOMINMAX
+
 #include <iostream>
 #include <map>
 #include <unordered_map>

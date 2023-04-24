@@ -6,6 +6,7 @@
 #include <imgui_impl_win32.h>
 #include <imgui_impl_opengl3.h>
 
+#include "engine/Fontrenderer.h"
 #include "Application.h"
 #include "Constants.h"
 #include "Game.h"
@@ -51,6 +52,9 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 
 	SavedExStyle = GetWindowLong(Window, GWL_EXSTYLE);
 	SavedStyle = GetWindowLong(Window, GWL_STYLE);
+
+	Fontrenderer::Get().init();
+	Fontrenderer::Get().setShader(Globals::shaderManager.getAssetPointer("font"));
 }
 
 Application::~Application() {
@@ -302,6 +306,10 @@ void Application::initOpenGL(int msaaSamples) {
 
 	//glAlphaFunc(GL_GEQUAL, 0.5);
 
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	//glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+	glEnable(GL_BLEND);
+
 	glCullFace(GL_BACK);
 	glFrontFace(GL_CCW);
 	glEnable(GL_CULL_FACE);
@@ -470,7 +478,8 @@ void Application::loadAssets() {
 	Globals::shaderManager.loadShader("skybox", "res/Shaders/SkyboxVertexShader.vs", "res/Shaders/SkyboxFragmentShader.fs");
 	Globals::shaderManager.loadShader("default", "res/Shaders/DefaultVertexShader.vs", "res/Shaders/DefaultFragmentShader.fs");
 	Globals::shaderManager.loadShader("hud", "res/Shaders/HUD.vs", "res/Shaders/HUD.fs");
-	
+	Globals::shaderManager.loadShader("font", "res/Shaders/batch.vs", "res/Shaders/font.fs");
+
 	Globals::shapeManager.buildQuadXY("quad", Vector3f(-1.0f, -1.0f, 0.0f), Vector2f(2.0f, 2.0f), 1, 1, true, false, false);
 	Globals::shapeManager.buildCube("cube", Vector3f(-1.0f, -1.0f, -1.0f), Vector3f(2.0f, 2.0f, 2.0f), 1, 1, false, false, false);
 	Globals::shapeManager.buildSphere("sphere", 3.0f, Vector3f(0.0f, 0.0f, 0.0f), 75, 75, true, true, false);
@@ -481,10 +490,15 @@ void Application::loadAssets() {
 	Globals::textureManager.loadTexture("saturn", "res/Textures/saturnTex.jpg", true);
 	Globals::textureManager.loadTexture("saturnRings", "res/Textures/saturn_rings.png", true);
 	Globals::textureManager.loadTexture("clothTex", "res/Textures/Camouflage.jpg", true);
-	Globals::textureManager.loadTexture("flagPole", "res/Models3D/FlagPole/file13.png", true, GL_RGB8, GL_RGB, 3u);
 	Globals::textureManager.loadTexture("grid", "res/grid512.png", true);
 	Globals::textureManager.loadTexture("sniperScope", "res/Textures/SniperScope.png", true);
 	Globals::textureManager.loadTexture("crossHair", "res/Textures/crossHair.png", true);
-	Globals::textureManager.get("crossHair").setFilter(GL_LINEAR);
-	Globals::textureManager.get("crossHair").setWrapMode(GL_CLAMP_TO_EDGE);
+	Globals::textureManager.loadTexture("health", "res/Textures/HealthIcon.png", true);
+	Globals::textureManager.loadTexture("ammo", "res/Textures/Ammo.png", true);
+
+
+	Globals::fontManager.loadCharacterSet("roboto_20", "res/Fonts/Roboto-BoldItalic.ttf", 20, 3, 20, 128, 2, true, 0u);
+	Globals::fontManager.loadCharacterSet("roboto_28", "res/Fonts/Roboto-BoldItalic.ttf", 30, 1, 20, 128, 0, true, 1u);
+	Globals::spritesheetManager.createSpritesheetFromTexture("font", Globals::fontManager.get("roboto_20").spriteSheet, GL_RED, GL_RED, 1);
+	Globals::spritesheetManager.getAssetPointer("font")->addToSpritesheet(Globals::fontManager.get("roboto_28").spriteSheet, GL_RED, GL_RED, 1);
 }

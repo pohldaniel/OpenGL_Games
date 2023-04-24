@@ -54,4 +54,7 @@ public:
 	RenderableObject m_flagPole;
 	RenderableObject m_sniperScope;
 	RenderableObject m_crossHaire;
+	RenderableObject m_health;
+	RenderableObject m_ammo;
+	float m_dataTransmitTimer = 0.0f;
 };

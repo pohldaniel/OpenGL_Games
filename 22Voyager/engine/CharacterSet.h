@@ -1,6 +1,5 @@
 #ifndef __CHARACTERSETH__
 #define __CHARACTERSETH__
-#define NOMINMAX
 
 #include <GL/glew.h>
 #include <iostream>
@@ -10,28 +9,14 @@
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
-#define MAXWIDTH 4096
+#define MAXWIDTH 1024
 
-struct CharacterOld {
-	unsigned int textureID;
-	int size[2];
+struct Char {
 	int bearing[2];
-	unsigned int advance;
-};
-
-struct CharacterSetOld {	
-	~CharacterSetOld();
-	void loadFromFile(const std::string& path, const float characterSize = 100.0f);
-	std::map<GLchar, CharacterOld> characters;
-	float characterSize;
-};
-
-struct Character {
-	int bearing[2];
-	int size[2];
+	unsigned int size[2];
 	float textureOffset[2];
 	float textureSize[2];
-	unsigned int advance[2];	
+	unsigned int advance;
 };
 
 struct CharacterSet {
@@ -40,12 +25,18 @@ struct CharacterSet {
 	CharacterSet& operator=(const CharacterSet& rhs);
 	~CharacterSet();
 
-	void loadFromFile(const std::string& path, const float characterSize = 100.0f);
-	std::map<GLchar, Character> characters;
+	void loadFromFile(const std::string& path, unsigned int characterSize, unsigned int intspacingX = 1u, unsigned int spacingY = 10u, unsigned int minHeight = 0u, int shiftX = 0, const bool flipVertical = true, unsigned int frame = 0u);
+	void safeFont();
+	std::map<GLchar, Char> characters;
 	unsigned int spriteSheet;
 	unsigned int maxWidth;
 	unsigned int maxHeight;
 	unsigned int lineHeight;
+	unsigned int frame;
+
+	const Char& getCharacter(const char c) const;
+	int getWidth(std::string text) const;
+	void bind(unsigned int unit = 0u) const;
 };
 
 #endif

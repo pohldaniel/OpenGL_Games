@@ -84,11 +84,16 @@ void Fontrenderer::unbindTexture() {
 	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
 }
 
+std::string Fontrenderer::floatToString(float val, int precision) {
+	static const int bufSize = 100;
+	static char buffer[bufSize];
+	std::snprintf(buffer, bufSize, "%.*f", precision, val);
+	return std::string(buffer);
+}
+
 std::string Fontrenderer::FloatToString(float val, int precision) {
 	static const int bufSize = 100;
 	static char buffer[bufSize];
-
 	std::snprintf(buffer, bufSize, "%.*f", precision, val);
-
 	return std::string(buffer);
 }

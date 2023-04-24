@@ -8,7 +8,7 @@ struct Material {
 
 	friend bool operator== (const Material& m1, const Material& m2);
 
-	float ambient[4] = {0.0f};
+	float ambient[4] = { 0.0f };
 	float diffuse[4] = { 0.0f };
 	float specular[4] = { 0.0f };
 	float shininess =  0.0f;
@@ -16,9 +16,9 @@ struct Material {
 	std::unordered_map<unsigned short, Texture> textures;
 	void updateMaterialUbo(unsigned int& ubo);
 	void bind();
-	void bind(unsigned short index);
+	void bind(unsigned short index = 1u) const;
 	void unbind();
-	void unbind(unsigned short index);
+	void unbind(unsigned short index = 1u);
 	void cleanup();
 	const Texture& getTexture(unsigned short index) const;
 	std::string name;

@@ -136,10 +136,14 @@ void Texture::cleanup() {
 
 void Texture::loadFromFile(std::string fileName, const bool _flipVertical, unsigned int _internalFormat, unsigned int _format, int paddingLeft, int paddingRight, int paddingTop, int paddingBottom, unsigned int SOIL_FLAG) {
 
-
 	int width, height, numCompontents;
 	unsigned char* imageData = SOIL_load_image(fileName.c_str(), &width, &height, &numCompontents, SOIL_FLAG);
-
+	if (numCompontents == 1) {
+		SOIL_free_image_data(imageData);
+		SOIL_FLAG = 3u;
+		imageData = SOIL_load_image(fileName.c_str(), &width, &height, 0, SOIL_FLAG);
+		numCompontents = 3;
+	}
 	m_internalFormat = _internalFormat == 0 && numCompontents == 1 ? GL_R8 : _internalFormat == 0 && numCompontents == 3 ? GL_RGB8 : _internalFormat == 0 ? GL_RGBA8 : _internalFormat;
 	m_format = _format == 0 && numCompontents == 1 ? GL_R : _format == 0 && numCompontents == 3 ? GL_RGB : _format == 0 ? GL_RGBA : _format;
 	m_type = GL_UNSIGNED_BYTE;
@@ -1097,7 +1101,7 @@ void Texture::Resize(unsigned int& textureRef, unsigned int width, unsigned int 
 	}
 }
 
-unsigned int& Texture::getTexture(){
+const unsigned int& Texture::getTexture() const{
 	return m_texture;
 }
 

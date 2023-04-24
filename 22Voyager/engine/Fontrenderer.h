@@ -17,11 +17,12 @@ public:
 	void setRenderer(Batchrenderer* renderer);
 	void resetRenderer();
 
-	std::string FloatToString(float val, int precision);
-	void init(size_t size = 400);
+	std::string floatToString(float val, int precision);
+	void init(size_t size = 60);
 	void setCamera(const Camera& camera);
 	static Fontrenderer& Get();
-	
+	static std::string FloatToString(float val, int precision);
+
 private:
 	Fontrenderer();
 	~Fontrenderer();

@@ -9,6 +9,7 @@
 #include "Physics.h"
 #include "Player.h"
 #include "Application.h"
+#include "engine/Fontrenderer.h"
 
 Tutorial::Tutorial(StateMachine& machine) : State(machine, CurrentState::TUTORIAL) {
 	bool bUnitTest;
@@ -140,9 +141,8 @@ Tutorial::Tutorial(StateMachine& machine) : State(machine, CurrentState::TUTORIA
 		shader->loadMatrix("model", Matrix4f::Translate(256.0f, m_terrain.getHeightOfTerrain(256.0f, 300.0f) + 10.0f, 270.0f));
 		shader->loadMatrix("projection", camera.getPerspectiveMatrix());
 		shader->loadMatrix("view", camera.getViewMatrix());
-
-		m_flagPoleModel.getMesh()->getMaterial().getTexture(0).bind();
-
+		shader->loadInt("texture_diffuse1", 0);
+		m_flagPoleModel.getMesh()->getMaterial().bind(1);
 		m_flagPoleModel.drawRaw();
 		shader->unuse();
 	});
@@ -239,6 +239,47 @@ Tutorial::Tutorial(StateMachine& machine) : State(machine, CurrentState::TUTORIA
 		Globals::shapeManager.get(m_crossHaire.getShape()).drawRaw();
 		shader->unuse();
 	});
+
+	m_health = RenderableObject("quad", "hud", "health");
+	m_health.setPosition(-0.9f, -0.9f, 0.0f);
+	m_health.setScale(0.0475f, 0.06f, 1.0f);
+
+	m_health.setDrawFunction([&](const Camera& camera, bool viewIndependent) {
+		if (m_health.isDisabled()) return;
+
+		auto shader = Globals::shaderManager.getAssetPointer(m_health.getShader());
+		shader->use();
+		shader->loadMatrix("projection", Matrix4f::IDENTITY);
+		shader->loadMatrix("model", m_health.getTransformationSP());
+		Globals::textureManager.get(m_health.getTexture()).bind(0);
+		Globals::shapeManager.get(m_health.getShape()).drawRaw();
+		shader->unuse();
+	});
+
+	m_ammo = RenderableObject("quad", "hud", "ammo");
+	m_ammo.setPosition(-0.7f, -0.9f, 0.0f);
+	m_ammo.setOrientation(0.0f, 0.0f, 15.0f);
+	m_ammo.setScale(0.035f, 0.035f, 1.0f);
+
+	m_ammo.setDrawFunction([&](const Camera& camera, bool viewIndependent) {
+		if (m_health.isDisabled()) return;
+
+		auto shader = Globals::shaderManager.getAssetPointer(m_ammo.getShader());
+		shader->use();
+		shader->loadMatrix("projection", Matrix4f::IDENTITY);
+		shader->loadMatrix("model", m_ammo.getTransformationSOP());
+		Globals::textureManager.get(m_ammo.getTexture()).bind(0);
+		Globals::shapeManager.get(m_ammo.getShape()).drawRaw();
+		shader->unuse();
+	});
+
+
+	const Camera& camera = Player::GetInstance().getCamera();
+
+	auto shader = Globals::shaderManager.getAssetPointer("font");
+	shader->use();
+	shader->loadMatrix("u_projection", Matrix4f::Orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f));
+	shader->unuse();
 }
 
 Tutorial::~Tutorial() {
@@ -263,7 +304,8 @@ void Tutorial::update() {
 	m_flag.Update();
 
 	Player::GetInstance().Update(m_terrain, m_dt);
-
+	// Update data transmitter 
+	m_dataTransmitTimer += 0.59f * m_dt;
 	// Update physics component
 	//Physics::GetInstance().Update(m_cameraVo, m_dt);
 };
@@ -292,8 +334,15 @@ void Tutorial::render() {
 	}else
 		m_crossHaire.draw(camera);
 		
-	
-	
+	m_health.draw(camera);
+	m_ammo.draw(camera);
+
+	Globals::spritesheetManager.getAssetPointer("font")->bind(0);
+	Fontrenderer::Get().addText(Globals::fontManager.get("roboto_28"), 80, 20, std::to_string(Player::GetInstance().GetHealth()), Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+	Fontrenderer::Get().addText(Globals::fontManager.get("roboto_28"), 180, 20, std::to_string(Player::GetInstance().GetCurrWeapon().getAmmoCount()), Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+	Fontrenderer::Get().addText(Globals::fontManager.get("roboto_20"), 380, 25, "Data transfer: " + Fontrenderer::FloatToString(m_dataTransmitTimer, 1) + "%", Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+	Fontrenderer::Get().drawBuffer();
+
 	if (Globals::drawUi)
 		renderUi();
 }
