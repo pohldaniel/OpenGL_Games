@@ -5,6 +5,10 @@
 #include "../soil2/SOIL2.h"
 #include "../soil2/stb_image.h"
 
+bool operator==(const Texture& t1, const Texture& t2) {
+	return t1.m_texture == t2.m_texture && t1.m_width == t2.m_width && t1.m_height == t2.m_height && t1.m_depth == t2.m_depth && t1.m_channels == t2.m_channels && t1.m_format == t2.m_format && t1.m_internalFormat == t2.m_internalFormat && t1.m_type == t2.m_type && t1.m_target == t2.m_target;
+}
+
 Texture::Texture(std::string fileName, const bool _flipVertical, unsigned int _internalFormat, unsigned int _format) {
 	
 	int width, height, numCompontents;
@@ -86,7 +90,7 @@ void Texture::cleanup() {
 }
 
 void Texture::loadFromFile(std::string fileName, const bool _flipVertical, unsigned int _internalFormat, unsigned int _format, int paddingLeft, int paddingRight, int paddingTop, int paddingBottom, unsigned int SOIL_FLAG) {
-	
+
 	int width, height, numCompontents;
 	unsigned char* imageData = SOIL_load_image(fileName.c_str(), &width, &height, &numCompontents, SOIL_FLAG);
 	m_internalFormat = _internalFormat == 0 && numCompontents == 1 ? GL_R8 : _internalFormat == 0 && numCompontents == 3 ? GL_RGB8 : _internalFormat == 0 ? GL_RGBA8 : _internalFormat;
@@ -109,6 +113,8 @@ void Texture::loadFromFile(std::string fileName, const bool _flipVertical, unsig
 	glTexParameterf(m_target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(m_target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(m_target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	if(SOIL_FLAG == 3)
+		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 	glTexImage2D(m_target, 0, m_internalFormat, width, height, 0, m_format, m_type, imageData);
 	glBindTexture(m_target, 0);
 
@@ -117,6 +123,9 @@ void Texture::loadFromFile(std::string fileName, const bool _flipVertical, unsig
 	m_width = width;
 	m_height = height;
 	m_channels = numCompontents;
+
+	if (SOIL_FLAG == 3)
+		glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
 }
 
 void Texture::loadHDRIFromFile(std::string fileName, const bool _flipVertical, unsigned int internalFormat, unsigned int format, int paddingLeft, int paddingRight, int paddingTop, int paddingBottom) {
@@ -171,8 +180,7 @@ void Texture::loadDDSRawFromFile(std::string fileName, const int knownInternal) 
 void Texture::loadCubeFromFile(std::string* textureFiles, const bool _flipVertical, unsigned int _internalFormat, unsigned int _format) {
 	int width, height, numCompontents;
 	unsigned char* imageData;
-	m_internalFormat = _internalFormat == 0 && numCompontents == 1 ? GL_R8 : _internalFormat == 0 && numCompontents == 3 ? GL_RGB8 : _internalFormat == 0 ? GL_RGBA8 : _internalFormat;
-	m_format = _format == 0 && numCompontents == 1 ? GL_R : _format == 0 && numCompontents == 3 ? GL_RGB : _format == 0 ? GL_RGBA : _format;
+	
 	m_type = GL_UNSIGNED_BYTE;
 	m_target = GL_TEXTURE_CUBE_MAP;
 
@@ -181,6 +189,8 @@ void Texture::loadCubeFromFile(std::string* textureFiles, const bool _flipVertic
 
 	for (unsigned short i = 0; i < 6; i++) {	
 		imageData = SOIL_load_image(textureFiles[i].c_str(), &width, &height, &numCompontents, SOIL_LOAD_AUTO);
+		m_internalFormat = _internalFormat == 0 && numCompontents == 1 ? GL_R8 : _internalFormat == 0 && numCompontents == 3 ? GL_RGB8 : _internalFormat == 0 ? GL_RGBA8 : _internalFormat;
+		m_format = _format == 0 && numCompontents == 1 ? GL_R : _format == 0 && numCompontents == 3 ? GL_RGB : _format == 0 ? GL_RGBA : _format;
 		unsigned int internalFormat = _format == 0 && numCompontents == 3 ? GL_RGB8 : _format == 0 ? GL_RGBA8 : _format;
 		if (_flipVertical)
 			flipVertical(imageData, numCompontents * width, height);
@@ -1095,7 +1105,7 @@ void Texture::setNearest() {
 
 void Texture::setFilter(unsigned int minFilter, unsigned int magFilter) {
 	if (magFilter == 0)
-		magFilter = minFilter == 9985 | minFilter == 9987 ? GL_LINEAR : minFilter == 9984 | minFilter == 9986 ? GL_NEAREST : minFilter;
+		magFilter = minFilter == 9985 || minFilter == 9987 ? GL_LINEAR : minFilter == 9984 || minFilter == 9986 ? GL_NEAREST : minFilter;
 
 	glBindTexture(m_target, m_texture);
 	glTexParameteri(m_target, GL_TEXTURE_MIN_FILTER, minFilter);
@@ -1133,7 +1143,7 @@ void Texture::Unbind(unsigned int target) {
 
 void Texture::SetFilter(unsigned int& textureRef, unsigned int minFilter, unsigned int magFilter, unsigned int target) {
 	if (magFilter == 0)
-		magFilter = minFilter == 9985 | minFilter == 9987 ? GL_LINEAR : minFilter == 9984 | minFilter == 9986 ? GL_NEAREST : minFilter;
+		magFilter = minFilter == 9985 || minFilter == 9987 ? GL_LINEAR : minFilter == 9984 || minFilter == 9986 ? GL_NEAREST : minFilter;
 
 	glBindTexture(target, textureRef);
 	glTexParameteri(target, GL_TEXTURE_MIN_FILTER, minFilter);

@@ -94,6 +94,56 @@ void Shape::buildCube(const Vector3f& position, const Vector3f&  size, int uReso
 	createBuffer();
 }
 
+void Shape::fromBuffer(std::vector<float>& vertexBuffer, std::vector<unsigned int> indexBuffer, unsigned int stride) {
+	
+	m_uResolution = 0;
+	m_vResolution = 0;
+	m_position.set(0.0f, 0.0f, 0.0f);
+
+	m_generateNormals = false;
+	m_generateTexels = false;
+	m_generateTangents = false;
+
+	if (stride == 3) {
+		for (unsigned int i = 0; i < vertexBuffer.size(); i = i + stride) {
+			m_positions.push_back(Vector3f(vertexBuffer[i], vertexBuffer[i + 1], vertexBuffer[i + 2]));
+		}
+	}
+
+	if (stride == 5) {
+		m_generateTexels = true;
+		for (unsigned int i = 0; i < vertexBuffer.size(); i = i + stride) {
+			m_positions.push_back(Vector3f(vertexBuffer[i], vertexBuffer[i + 1], vertexBuffer[i + 2]));
+			m_texels.push_back(Vector2f(vertexBuffer[i + 3], vertexBuffer[i + 4]));
+		}
+	}
+
+	if (stride == 6) {
+		m_generateNormals = true;
+		for (unsigned int i = 0; i < vertexBuffer.size(); i = i + stride) {
+			m_positions.push_back(Vector3f(vertexBuffer[i], vertexBuffer[i + 1], vertexBuffer[i + 2]));
+			m_normals.push_back(Vector3f(vertexBuffer[i + 3], vertexBuffer[i + 4], vertexBuffer[i + 5]));
+		}
+	}
+
+	if (stride == 8) {
+		m_generateTexels = true;
+		m_generateNormals = true;
+		for (unsigned int i = 0; i < vertexBuffer.size(); i = i + stride) {
+			m_positions.push_back(Vector3f(vertexBuffer[i], vertexBuffer[i + 1], vertexBuffer[i + 2]));
+			m_texels.push_back(Vector2f(vertexBuffer[i + 3], vertexBuffer[i + 4]));
+			m_normals.push_back(Vector3f(vertexBuffer[i + 5], vertexBuffer[i + 6], vertexBuffer[i + 7]));
+			
+		}
+	}
+
+	m_numBuffers = 1 + m_generateTexels + m_generateNormals + 2 * m_generateTangents;
+
+	m_indexBuffer.reserve(indexBuffer.size());
+	std::copy(indexBuffer.begin(), indexBuffer.end(), std::back_inserter(m_indexBuffer));
+
+	createBuffer();
+}
 
 void Shape::setPrecision(int uResolution, int vResolution) {
 	m_uResolution = uResolution;
@@ -125,9 +175,15 @@ Shape::~Shape() {
 
 	if (m_vboInstances)
 		glDeleteBuffers(1, &m_vboInstances);
+
+	m_positions.clear();
+	m_positions.shrink_to_fit();
+	m_indexBuffer.clear();
+	m_indexBuffer.shrink_to_fit();
 }
 
 void Shape::createBuffer() {
+
 	m_drawCount = m_indexBuffer.size();
 
 	unsigned int ibo;

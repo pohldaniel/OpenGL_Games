@@ -476,4 +476,7 @@ void Application::loadAssets() {
 	Globals::textureManager.loadTexture("clothTex", "res/Textures/Camouflage.jpg", true);
 	Globals::textureManager.loadTexture("flagPole", "res/Models3D/FlagPole/file13.png", true, GL_RGB8, GL_RGB, 3u);
 	Globals::textureManager.loadTexture("grid", "res/grid512.png", true);
+	Globals::textureManager.loadTexture("rock_1", "res/Models3D/Rock/TexturesCom_RockSharp0009_1_seamless_S.jpg", true, GL_RGB8, GL_RGB, 3u);
+	Globals::textureManager.get("rock_1").setLinear();
+	Globals::textureManager.get("rock_1").setWrapMode();
 }

@@ -124,6 +124,40 @@ Tutorial::Tutorial(StateMachine& machine) : State(machine, CurrentState::TUTORIA
 	m_flag.SetPos(Vector3f(256.4f, m_terrain.getHeightOfTerrain(256.0f, 300.0f) + 45.0f, 270.0f));
 
 	m_flagPole.loadModel("res/Models3D/FlagPole/Pole.obj");
+
+	//m_mountainRock.loadModel("res/Models3D/Rock/rock.obj");
+	m_mountainRock.loadModel("res/Models3D/Rock/LowPolyRock.dae");
+
+	Globals::shapeManager.fromBuffer("rock", m_mountainRock.getMeshes()[0]->getVertexBuffer(), m_mountainRock.getMeshes()[0]->getIndexBuffer(), m_mountainRock.getMeshes()[0]->getStride());
+	Globals::textureManager.create("rock", m_mountainRock.getMeshes()[0]->getMaterial().textures[0]);
+	
+	//m_mountainRock.getMeshes()[0]->getMaterial().cleanup();	
+	//m_mountainRock.getMeshes()[0]->cleanup();
+	
+	m_rocks.push_back(RenderableObject("rock", "weapon", "rock_1"));
+	m_rocks[0].setPosition(30.0f, 60.0f, 15.0f);
+	m_rocks[0].setScale(20.0f, 36.0f, 20.0f);
+	m_rocks[0].setOrientation(Vector3f(0.0f, 180.0f, 0.0f));
+
+	m_rocks.push_back(RenderableObject("rock", "weapon", "rock_1"));
+	m_rocks[1].setPosition(512.0f, 63.0f, 15.0f);
+	m_rocks[1].setScale(20.0f, 36.0f, 20.0f);
+	m_rocks[1].setOrientation(Vector3f(0.0f, 180.0f, 0.0f));
+
+	m_rocks.push_back(RenderableObject("rock", "weapon", "rock_1"));
+	m_rocks[2].setPosition(750.0f, 63.0f, 15.0f);
+	m_rocks[2].setScale(20.0f, 36.0f, 20.0f);
+	m_rocks[2].setOrientation(Vector3f(0.0f, 100.0f, 0.0f));
+
+	m_rocks.push_back(RenderableObject("rock", "weapon", "rock_1"));
+	m_rocks[3].setPosition(30.0f, 60.0f, 750.0f);
+	m_rocks[3].setScale(20.0f, 36.0f, 20.0f);
+	m_rocks[3].setOrientation(Vector3f(0.0f, 180.0f, 0.0f));
+
+	m_rocks.push_back(RenderableObject("rock", "weapon", "rock_1"));
+	m_rocks[4].setPosition(750.0f, 63.0f, 750.0f);
+	m_rocks[4].setScale(20.0f, 36.0f, 20.0f);
+	m_rocks[4].setOrientation(Vector3f(0.0f, 100.0f, 0.0f));	
 }
 
 Tutorial::~Tutorial() {
@@ -163,13 +197,12 @@ void Tutorial::render() {
 	auto shader = Globals::shaderManager.getAssetPointer("weapon");
 	shader->use();
 
-	shader->use();
-	shader->loadMatrix("model", Matrix4f::Translate(256.0f, m_terrain.getHeightOfTerrain(256.0f, 300.0f) + 10.0f, 270.0f));
 	shader->loadVector("lightPos", Vector3f(camera.getPosition()[0], camera.getPosition()[1] + 5.0f, camera.getPosition()[2]));
 	shader->loadVector("viewPos", camera.getPosition());
 	shader->loadBool("EnableSpotlight", false);
 
 	
+	shader->loadMatrix("model", Matrix4f::Translate(256.0f, m_terrain.getHeightOfTerrain(256.0f, 300.0f) + 10.0f, 270.0f));
 	shader->loadMatrix("projection", camera.getPerspectiveMatrix());
 	shader->loadMatrix("view", camera.getViewMatrix());
 	shader->loadInt("texture_diffuse1", 0);
@@ -179,6 +212,11 @@ void Tutorial::render() {
 	shader->unuse();
 
 	m_flag.Draw(camera);
+	
+	for (auto & rock : m_rocks) {
+		rock.draw(camera);
+	}
+
 	Player::GetInstance().Animate(m_dt);
 
 	glDisable(GL_CULL_FACE);

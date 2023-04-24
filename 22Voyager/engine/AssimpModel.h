@@ -17,7 +17,8 @@
 #include "Material.h"
 #include "ObjModel.h"
 
-#define ASSIMP_LOAD_FLAGS (aiProcess_JoinIdenticalVertices | aiProcess_RemoveRedundantMaterials | aiProcess_PreTransformVertices | aiProcess_Triangulate)
+//#define ASSIMP_LOAD_FLAGS (aiProcess_JoinIdenticalVertices | aiProcess_RemoveRedundantMaterials | aiProcess_PreTransformVertices | aiProcess_Triangulate)
+#define ASSIMP_LOAD_FLAGS (aiProcess_Triangulate)
 
 class AssimpMesh;
 class AssimpModel {
@@ -40,10 +41,10 @@ public:
 	void drawRawStacked();
 	void drawRawInstancedStacked();
 
-	void draw(Camera& camera);
-	void drawInstanced(Camera& camera);
-	void drawStacked(Camera& camera);
-	void drawInstancedStacked(Camera& camera);
+	void draw(const Camera& camera) ;
+	void drawInstanced(const Camera& camera);
+	void drawStacked(const Camera& camera);
+	void drawInstancedStacked(const Camera& camera);
 
 	void createAABB();
 
@@ -113,8 +114,11 @@ public:
 
 	std::vector<float>& getVertexBuffer();
 	std::vector<unsigned int>& getIndexBuffer();
-	int getStride();
-	
+	unsigned int getStride();
+	short getMaterialIndex();
+	Material& getMaterial();
+	void cleanup();
+
 private:
 
 	AssimpModel* m_model;

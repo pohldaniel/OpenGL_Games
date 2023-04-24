@@ -46,7 +46,9 @@ public:
 	RenderableObject m_skybox;
 	RenderableObject m_saturn;
 	RenderableObject m_saturnRings;
+	std::vector<RenderableObject> m_rocks;
 	Cube* m_cube;
 	Cloth m_flag;
 	AssimpModel m_flagPole;
+	AssimpModel m_mountainRock;
 };

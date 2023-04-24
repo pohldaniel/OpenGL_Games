@@ -110,7 +110,7 @@ void Game::update() {
 
 	//float pitch, yaw, roll;
 	//orientation.toPitchYawRoll(pitch, yaw, roll);
-	orientation.rotate(0.5f, 0.0f, 0.0f);
+	//orientation.rotate(0.5f, 0.0f, 0.0f);
 
 	//orientation.rotate(Vector3f(0.0f, 0.0f, 1.0f), 0.5f);
 	//std::cout << degree << "  " << orientation.getPitch() << "  "  << orientation.getYaw() << "  " << orientation.getRoll() << std::endl;
@@ -128,7 +128,7 @@ void Game::render() {
 	m_currentShader->loadMatrix("u_model", m_transform.getTransformationMatrix());
 
 	m_currentShader->loadMatrix("u_normal", Matrix4f::GetNormalMatrix(m_camera.getViewMatrix() * m_transform.getTransformationMatrix()));
-	Globals::textureManager.get("grid").bind(0);
+	Globals::textureManager.get("rock_1").bind(0);
 	m_currentShape.drawRaw();
 	glUseProgram(0);
 	renderUi();

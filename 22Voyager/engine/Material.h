@@ -5,20 +5,24 @@
 #include "engine/Texture.h"
 
 struct Material {
-	float ambient[4];
-	float diffuse[4];
-	float specular[4];
-	float shininess;
-	//avoid unwanted copy costructor calls using std::unordered_ma over std::vector
+
+	friend bool operator== (const Material& m1, const Material& m2);
+
+	float ambient[4] = {0.0f};
+	float diffuse[4] = { 0.0f };
+	float specular[4] = { 0.0f };
+	float shininess =  0.0f;
+	//avoid unwanted copy costructor calls using std::unordered_map over std::vector
 	std::unordered_map<unsigned short, Texture> textures;
 	void updateMaterialUbo(unsigned int& ubo);
 	void bind();
 	void bind(unsigned short index);
 	void unbind();
 	void unbind(unsigned short index);
+	void cleanup();
 
 	static std::vector<Material>& GetMaterials();
-
 	static std::vector<Material> Materials;
+	static void Cleanup(unsigned short index);
 };
 #endif

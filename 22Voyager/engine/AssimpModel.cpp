@@ -248,7 +248,7 @@ void AssimpModel::drawRawInstancedStacked() {
 	glBindVertexArray(0);
 }
 
-void AssimpModel::draw(Camera& camera) {
+void AssimpModel::draw(const Camera& camera){
 	for (int i = 0; i < m_meshes.size(); i++) {
 		Material& material = Material::GetMaterials()[m_meshes[i]->m_materialIndex];
 		material.updateMaterialUbo(BuiltInShader::materialUbo);
@@ -268,7 +268,7 @@ void AssimpModel::draw(Camera& camera) {
 	Texture::Unbind();
 }
 
-void AssimpModel::drawInstanced(Camera& camera) {
+void AssimpModel::drawInstanced(const Camera& camera) {
 	for (int i = 0; i < m_meshes.size(); i++) {
 		Material& material = Material::GetMaterials()[m_meshes[i]->m_materialIndex];
 		material.updateMaterialUbo(BuiltInShader::materialUbo);
@@ -286,7 +286,7 @@ void AssimpModel::drawInstanced(Camera& camera) {
 	Texture::Unbind();
 }
 
-void AssimpModel::drawStacked(Camera& camera) {
+void AssimpModel::drawStacked(const Camera& camera) {
 	glBindVertexArray(m_vao);
 	for (int i = 0; i < m_meshes.size(); i++) {
 		Material& material = Material::GetMaterials()[m_meshes[i]->m_materialIndex];
@@ -306,7 +306,7 @@ void AssimpModel::drawStacked(Camera& camera) {
 	glBindVertexArray(0);
 }
 
-void AssimpModel::drawInstancedStacked(Camera& camera) {
+void AssimpModel::drawInstancedStacked(const Camera& camera) {
 	glBindVertexArray(m_vao);
 	for (int i = 0; i < m_meshes.size(); i++) {
 		Material& material = Material::GetMaterials()[m_meshes[i]->m_materialIndex];
@@ -586,6 +586,34 @@ AssimpMesh::~AssimpMesh() {
 
 }
 
+void AssimpMesh::cleanup() {
+	if (m_vao)
+		glDeleteVertexArrays(1, &m_vao);
+
+	if (m_vbo[0])
+		glDeleteBuffers(1, &m_vbo[0]);
+
+	if (m_vbo[1])
+		glDeleteBuffers(1, &m_vbo[1]);
+
+	if (m_vbo[2])
+		glDeleteBuffers(1, &m_vbo[2]);
+
+	if (m_vbo[3])
+		glDeleteBuffers(1, &m_vbo[3]);
+
+	if (m_vbo[4])
+		glDeleteBuffers(1, &m_vbo[4]);
+
+	if (m_vboInstances)
+		glDeleteBuffers(1, &m_vboInstances);
+
+	m_vertexBuffer.clear();
+	m_vertexBuffer.shrink_to_fit();
+	m_indexBuffer.clear();
+	m_indexBuffer.shrink_to_fit();
+}
+
 void AssimpMesh::drawRaw() {
 	glBindVertexArray(m_vao);
 	glDrawElements(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0);
@@ -606,6 +634,14 @@ std::vector<unsigned int>& AssimpMesh::getIndexBuffer() {
 	return m_indexBuffer;
 }
 
-int AssimpMesh::getStride() {
+unsigned int AssimpMesh::getStride() {
 	return m_stride;
+}
+
+short AssimpMesh::getMaterialIndex() {
+	return m_materialIndex;
+}
+
+Material& AssimpMesh::getMaterial() {
+	return Material::GetMaterials()[m_materialIndex];
 }

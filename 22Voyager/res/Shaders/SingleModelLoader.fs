@@ -76,7 +76,7 @@ void main()
 	//}
 	
 	 FragColor = textureColour;
-	 //FragColor = vec4(TexCoords, 0.0, 0.0);
+	 //FragColor = vec4(vertexNormal, 0.0);
 }
 
 vec3 CalculateSpotlight(Spotlight light, vec3 normal, vec3 viewDir)

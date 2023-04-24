@@ -100,7 +100,7 @@
   </library_lights>
   <library_images>
     <image id="TexturesCom_RockSharp0009_1_seamless_S_jpg_001" name="TexturesCom_RockSharp0009_1_seamless_S_jpg_001">
-      <init_from>TexturesCom_RockSharp0009_1_seamless_S.jpg.001.jpg</init_from>
+      <init_from>TexturesCom_RockSharp0009_1_seamless_S.jpg</init_from>
     </image>
   </library_images>
   <library_effects>

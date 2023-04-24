@@ -7,6 +7,10 @@ template<typename T>
 class AssetManager {
 public:
 
+	void create(const std::string& name, T& asset) {
+		m_assets.insert(std::pair<std::string, T>(name, asset));
+	}
+
 	void loadTexture(const std::string& name, const std::string& path, const bool flipVertical = true, unsigned int internalFormat = 0u, unsigned int format = 0u, unsigned int SOIL_FLAG = 0u) {
 		m_assets[name].loadFromFile(path, flipVertical, internalFormat, format, 0, 0, 0, 0, SOIL_FLAG);
 	}
@@ -132,6 +136,10 @@ public:
 
 	void buildCube(const std::string& name, const Vector3f& position = Vector3f(-1.0f, -1.0f, -1.0f), const Vector3f& size = Vector3f(2.0f, 2.0f, 2.0f), int uResolution = 1, int vResolution = 1, bool generateTexels = true, bool generateNormals = true, bool generateTangents = false) {
 		m_assets[name].buildCube(position, size, uResolution, vResolution, generateTexels, generateNormals, generateTangents);
+	}
+
+	void fromBuffer(const std::string& name, std::vector<float>& vertexBuffer, std::vector<unsigned int> indexBuffer, unsigned int stride) {
+		m_assets[name].fromBuffer(vertexBuffer, indexBuffer, stride);
 	}
 
 	T& get(const std::string& name) {
