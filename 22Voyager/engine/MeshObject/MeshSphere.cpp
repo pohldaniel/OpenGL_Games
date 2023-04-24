@@ -99,11 +99,11 @@ void MeshSphere::BuildMesh(float radius, const Vector3f& position, int uResoluti
 		for (int j = 0; j < uResolution; ++j, ++k1, ++k2) {
 
 			if (i != 0) {
-				indexBuffer.push_back(k1); indexBuffer.push_back(k2); indexBuffer.push_back(k1 + 1);
+				indexBuffer.push_back(k1); indexBuffer.push_back(k1 + 1); indexBuffer.push_back(k2);
 			}
 
 			if (i != (vResolution - 1)) {
-				indexBuffer.push_back(k1 + 1); indexBuffer.push_back(k2); indexBuffer.push_back(k2 + 1);
+				indexBuffer.push_back(k1 + 1);  indexBuffer.push_back(k2 + 1); indexBuffer.push_back(k2);
 			}	
 		}
 	}

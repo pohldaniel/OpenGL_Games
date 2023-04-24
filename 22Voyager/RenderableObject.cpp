@@ -18,6 +18,12 @@ RenderableObject::RenderableObject(std::string shape, std::string shader, std::s
 	//m_draw = std::function<void(const Camera& camera, bool viewIndependent)>{ [&](const Camera& camera, bool viewIndependent) {drawDefault(camera, viewIndependent); } };
 }
 
+RenderableObject::RenderableObject(std::string shader) : Object() {
+	m_shader = shader;
+	m_texture = std::string();
+	m_shape = std::string();
+}
+
 RenderableObject::RenderableObject(RenderableObject const& rhs) {
 	m_position = rhs.m_position;
 	m_scale = rhs.m_scale;

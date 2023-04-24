@@ -50,6 +50,8 @@ void Player::Init() {
 	m_camera = Camera();
 	m_camera.perspective(80.0f, (float)Application::Width / (float)Application::Height, 1.0f, 1500.0f);
 	m_camera.lookAt(Vector3f(256.0f, 0.0f, 300.0f), Vector3f(256.0f, 0.0f, 300.0f) + Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
+	m_camera.orthographic(-static_cast<float>(Application::Width / 2), static_cast<float>(Application::Width / 2), -static_cast<float>(Application::Height / 2), static_cast<float>(Application::Height / 2), -1.0f, 1.0f);
+	//m_camera.orthographic(0.0f, static_cast<float>(Application::Width ), 0.0f, static_cast<float>(Application::Height ), -1.0f, 1.0f);
 }
 
 void Player::Update(Terrain& terrain, float dt) {
@@ -64,15 +66,19 @@ void Player::Update(Terrain& terrain, float dt) {
 	if (m_sniperAiming && m_sprinting) {
 		m_camera.setMovingSpeed(0.2f);
 		m_camera.setRotationSpeed(0.05f);
+		m_camera.perspective(30.0f, (float)Application::Width / (float)Application::Height, 1.0f, 1500.0f);
 	} else if (m_sniperAiming) {
 		m_camera.setMovingSpeed(0.5f);
 		m_camera.setRotationSpeed(0.05f);
+		m_camera.perspective(30.0f, (float)Application::Width / (float)Application::Height, 1.0f, 1500.0f);
 	} else if (m_sprinting) {
 		m_camera.setMovingSpeed(2.0f);
 		m_camera.setRotationSpeed(0.1f);
+		m_camera.perspective(80.0f, (float)Application::Width / (float)Application::Height, 1.0f, 1500.0f);
 	} else {
 		m_camera.setMovingSpeed(1.0f);
 		m_camera.setRotationSpeed(0.1f);
+		m_camera.perspective(80.0f, (float)Application::Width / (float)Application::Height, 1.0f, 1500.0f);
 	}
 
 	if (m_move || dx != 0.0f || dy != 0.0f) {

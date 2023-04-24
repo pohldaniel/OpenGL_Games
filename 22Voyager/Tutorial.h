@@ -43,12 +43,15 @@ public:
 	Atmosphere m_atmosphere;
 	DirectionalLight m_dirLight;
 	PointLight m_pointLight;
+
+	AssimpModel m_flagPoleModel;
+	AssimpModel m_rockModel;
+	Cloth m_flag;
 	RenderableObject m_skybox;
 	RenderableObject m_saturn;
 	RenderableObject m_saturnRings;
 	RenderableObject m_rock;
-
-	Cloth m_flag;
-	AssimpModel m_flagPole;
-	AssimpModel m_mountainRock;
+	RenderableObject m_flagPole;
+	RenderableObject m_sniperScope;
+	RenderableObject m_crossHaire;
 };

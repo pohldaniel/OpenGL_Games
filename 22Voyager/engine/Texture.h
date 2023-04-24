@@ -23,7 +23,7 @@ public:
 	unsigned int getType();
 	unsigned int getTarget();
 
-	void bind(unsigned int unit) const;
+	void bind(unsigned int unit = 0u) const;
 	void loadFromFile(std::string fileName, const bool flipVertical = false, unsigned int internalFormat = 0u, unsigned int format = 0u, int paddingLeft = 0, int paddingRight = 0, int paddingTop = 0, int paddingBottom = 0, unsigned int SOIL_FLAG = 0u);
 	void loadCrossHDRIFromFile(std::string fileName, const bool flipVertical = true, unsigned int internalFormat = 0u, unsigned int format = 0u, int paddingLeft = 0, int paddingRight = 0, int paddingTop = 0, int paddingBottom = 0);
 	void loadHDRIFromFile(std::string fileName, const bool flipVertical = true, unsigned int internalFormat = 0u, unsigned int format = 0u, int paddingLeft = 0, int paddingRight = 0, int paddingTop = 0, int paddingBottom = 0);
@@ -43,11 +43,11 @@ public:
 	void addAlphaChannel(unsigned int value = 255u);
 	unsigned char* readPixel();
 
-	void setLinear(unsigned int mode = 9987u /*GL_LINEAR_MIPMAP_LINEAR*/);
-	void setNearest();
-	void setFilter(unsigned int minFilter, unsigned int magFilter = 0u);
-	void setWrapMode(unsigned int mode = 10497 /*GL_REPEAT*/);
-	void setAnisotropy(float aniso);
+	void setLinear(unsigned int mode = 9987u /*GL_LINEAR_MIPMAP_LINEAR*/) const;
+	void setNearest() const;
+	void setFilter(unsigned int minFilter, unsigned int magFilter = 0u) const;
+	void setWrapMode(unsigned int mode = 10497 /*GL_REPEAT*/) const;
+	void setAnisotropy(float aniso) const;
 	void cleanup();
 
 	static void Unbind(unsigned int target = 3553u);

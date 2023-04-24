@@ -23,6 +23,8 @@
 class AssimpMesh;
 class AssimpModel {
 
+	friend AssimpMesh;
+
 public:
 
 	AssimpModel();
@@ -47,7 +49,6 @@ public:
 	void drawInstancedStacked(const Camera& camera);
 
 	void createAABB();
-
 	void drawAABB();
 
 	bool loadModel(const char* filename, bool isStacked = false, bool generateTangents = false);
@@ -56,8 +57,10 @@ public:
 	BoundingBox& getAABB();
 	Transform& getTransform();
 	std::vector<AssimpMesh*> getMeshes();
+	const AssimpMesh* getMesh(unsigned short index = 0) const;
 
-	void createInstancesStatic(std::vector<Matrix4f>& modelMTX);
+	void addInstances(const std::vector<Matrix4f>& modelMTX);
+	void addInstance(const Matrix4f& modelMTX);
 	void createInstancesDynamic(unsigned int numberOfInstances);
 	void updateInstances(std::vector<Matrix4f>& modelMTX);
 
@@ -94,7 +97,8 @@ private:
 	unsigned int m_vbo[5] = { 0 };
 	unsigned int m_ibo = 0;
 	unsigned int m_vboInstances = 0;
-	
+	std::vector<Matrix4f> m_instances;
+
 	void static CreateBuffer(std::vector<float>& vertexBuffer, std::vector<unsigned int> indexBuffer, unsigned int& vao, unsigned int(&vbo)[5], unsigned int& ibo, unsigned int stride);
 	void static ReadAiMaterial(const aiMaterial* aiMaterial, short& index, std::string modelDirectory);
 	std::string static GetTexturePath(std::string texPath, std::string modelDirectory);
@@ -116,10 +120,14 @@ public:
 	std::vector<unsigned int>& getIndexBuffer();
 	unsigned int getStride();
 	short getMaterialIndex();
-	Material& getMaterial();
+	const Material& getMaterial() const;
 	void cleanup();
 
 private:
+
+	void addInstance(const AssimpModel& model);
+	void createInstancesDynamic(unsigned int numberOfInstances);
+	void updateInstances(std::vector<Matrix4f>& modelMTX);
 
 	AssimpModel* m_model;
 

@@ -79,6 +79,7 @@ Tutorial::Tutorial(StateMachine& machine) : State(machine, CurrentState::TUTORIA
 		if (m_skybox.isDisabled()) return;
 
 		glDisable(GL_DEPTH_TEST);
+		glFrontFace(GL_CW);
 		auto shader = Globals::shaderManager.getAssetPointer(m_skybox.getShader());
 		Matrix4f view = camera.getViewMatrix();
 		view[3][0] = 0.0f; view[3][1] = 0.0f; view[3][2] = 0.0f;
@@ -96,6 +97,7 @@ Tutorial::Tutorial(StateMachine& machine) : State(machine, CurrentState::TUTORIA
 		Texture::Unbind(GL_TEXTURE_CUBE_MAP);
 
 		shader->unuse();
+		glFrontFace(GL_CCW);
 		glEnable(GL_DEPTH_TEST);
 	});	
 
@@ -122,23 +124,38 @@ Tutorial::Tutorial(StateMachine& machine) : State(machine, CurrentState::TUTORIA
 	m_flag.Configure(10, 6, 20, 17);
 	m_flag.SetPos(Vector3f(256.4f, m_terrain.getHeightOfTerrain(256.0f, 300.0f) + 45.0f, 270.0f));
 
-	m_flagPole.loadModel("res/Models3D/FlagPole/Pole.obj");
+	m_flagPoleModel.loadModel("res/Models3D/FlagPole/Pole.obj");
+	m_flagPole = RenderableObject("weapon");
+	m_flagPole.setDrawFunction([&](const Camera& camera, bool viewIndependent) {
+		if (m_flagPole.isDisabled()) return;
 
-	m_mountainRock.loadModel("res/Models3D/Rock/LowPolyRock.dae");
+		auto shader = Globals::shaderManager.getAssetPointer(m_flagPole.getShader());
 
-	Globals::shapeManager.fromBuffer("rock", m_mountainRock.getMeshes()[0]->getVertexBuffer(), m_mountainRock.getMeshes()[0]->getIndexBuffer(), m_mountainRock.getMeshes()[0]->getStride());
-	m_mountainRock.getMeshes()[0]->getMaterial().textures[0].setLinear();
-	m_mountainRock.getMeshes()[0]->getMaterial().textures[0].setWrapMode();
-	Globals::textureManager.create("rockTex", m_mountainRock.getMeshes()[0]->getMaterial().textures[0]);
+		shader->use();
 
-	m_mountainRock.getMeshes()[0]->getMaterial().cleanup();	
-	m_mountainRock.getMeshes()[0]->cleanup();
-	
-	Globals::shapeManager.get("rock").addInstance(Matrix4f::Translate(30.0f, 60.0f, 15.0f) * Matrix4f::Rotate(0.0f, 180.0f, 0.0f) * Matrix4f::Scale(20.0f, 36.0f, 20.0f));
-	Globals::shapeManager.get("rock").addInstance(Matrix4f::Translate(512.0f, 63.0f, 15.0f) * Matrix4f::Rotate(0.0f, 180.0f, 0.0f) * Matrix4f::Scale(20.0f, 36.0f, 20.0f));
-	Globals::shapeManager.get("rock").addInstance(Matrix4f::Translate(750.0f, 63.0f, 15.0f) * Matrix4f::Rotate(0.0f, 100.0f, 0.0f) * Matrix4f::Scale(20.0f, 36.0f, 20.0f));
-	Globals::shapeManager.get("rock").addInstance(Matrix4f::Translate(30.0f, 60.0f, 750.0f) * Matrix4f::Rotate(0.0f, 180.0f, 0.0f) * Matrix4f::Scale(20.0f, 36.0f, 20.0f));
-	Globals::shapeManager.get("rock").addInstance(Matrix4f::Translate(750.0f, 63.0f, 750.0f) * Matrix4f::Rotate(0.0f, 100.0f, 0.0f) * Matrix4f::Scale(20.0f, 36.0f, 20.0f));
+		shader->loadVector("lightPos", Vector3f(camera.getPosition()[0], camera.getPosition()[1] + 5.0f, camera.getPosition()[2]));
+		shader->loadVector("viewPos", camera.getPosition());
+		shader->loadBool("EnableSpotlight", false);
+
+		shader->loadMatrix("model", Matrix4f::Translate(256.0f, m_terrain.getHeightOfTerrain(256.0f, 300.0f) + 10.0f, 270.0f));
+		shader->loadMatrix("projection", camera.getPerspectiveMatrix());
+		shader->loadMatrix("view", camera.getViewMatrix());
+
+		m_flagPoleModel.getMesh()->getMaterial().getTexture(0).bind();
+
+		m_flagPoleModel.drawRaw();
+		shader->unuse();
+	});
+
+	m_rockModel.loadModel("res/Models3D/Rock/LowPolyRock.dae");
+	m_rockModel.getMesh()->getMaterial().getTexture(0).setLinear();
+	m_rockModel.getMesh()->getMaterial().getTexture(0).setWrapMode();
+
+	m_rockModel.addInstance(Matrix4f::Translate(30.0f, 60.0f, 15.0f) * Matrix4f::Rotate(0.0f, 180.0f, 0.0f) * Matrix4f::Scale(20.0f, 36.0f, 20.0f));
+	m_rockModel.addInstance(Matrix4f::Translate(512.0f, 63.0f, 15.0f) * Matrix4f::Rotate(0.0f, 180.0f, 0.0f) * Matrix4f::Scale(20.0f, 36.0f, 20.0f));
+	m_rockModel.addInstance(Matrix4f::Translate(750.0f, 63.0f, 15.0f) * Matrix4f::Rotate(0.0f, 100.0f, 0.0f) * Matrix4f::Scale(20.0f, 36.0f, 20.0f));
+	m_rockModel.addInstance(Matrix4f::Translate(30.0f, 60.0f, 750.0f) * Matrix4f::Rotate(0.0f, 180.0f, 0.0f) * Matrix4f::Scale(20.0f, 36.0f, 20.0f));
+	m_rockModel.addInstance(Matrix4f::Translate(750.0f, 63.0f, 750.0f) * Matrix4f::Rotate(0.0f, 100.0f, 0.0f) * Matrix4f::Scale(20.0f, 36.0f, 20.0f));
 
 	std::vector<Matrix4f> modelMTXs;
 
@@ -164,9 +181,9 @@ Tutorial::Tutorial(StateMachine& machine) : State(machine, CurrentState::TUTORIA
 		float rotAngle = (rand() % 360);
 		modelMTXs.push_back(Matrix4f::Translate(x, y, z) * Matrix4f::Rotate(Vector3f(0.5f, 0.7f, 0.9f), rotAngle) * Matrix4f::Scale(scale, scale, scale));
 	}
-	Globals::shapeManager.get("rock").addInstances(modelMTXs);
+	m_rockModel.addInstances(modelMTXs);
 
-	m_rock = RenderableObject("rock", "instance", "rockTex");
+	m_rock = RenderableObject("instance");
 	m_rock.setDrawFunction([&](const Camera& camera, bool viewIndependent) {
 		if (m_rock.isDisabled()) return;
 
@@ -175,12 +192,52 @@ Tutorial::Tutorial(StateMachine& machine) : State(machine, CurrentState::TUTORIA
 		glUseProgram(shader->m_program);
 
 		shader->loadMatrix("projection", camera.getPerspectiveMatrix());
-		shader->loadMatrix("view", viewIndependent ? Matrix4f::IDENTITY : camera.getViewMatrix());
+		shader->loadMatrix("view", camera.getViewMatrix());
 
-
-		Globals::textureManager.get(m_rock.getTexture()).bind(0);
-		Globals::shapeManager.get(m_rock.getShape()).drawRawInstanced();
+		m_rockModel.getMesh()->getMaterial().getTexture(0).bind();
+		m_rockModel.drawRawInstanced();
 		glUseProgram(0);
+	});
+
+	//Globals::shapeManager.fromBuffer("rock", m_mountainRock.getMeshes()[0]->getVertexBuffer(), m_mountainRock.getMeshes()[0]->getIndexBuffer(), m_mountainRock.getMeshes()[0]->getStride());
+	//m_mountainRock.getMeshes()[0]->getMaterial().textures[0].setLinear();
+	//m_mountainRock.getMeshes()[0]->getMaterial().textures[0].setWrapMode();
+	//Globals::textureManager.create("rockTex", m_mountainRock.getMeshes()[0]->getMaterial().textures[0]);
+
+	//m_mountainRock.getMeshes()[0]->getMaterial().cleanup();
+	//m_mountainRock.getMeshes()[0]->cleanup();
+
+	//Globals::shapeManager.get("rock").addInstance(Matrix4f::Translate(30.0f, 60.0f, 15.0f) * Matrix4f::Rotate(0.0f, 180.0f, 0.0f) * Matrix4f::Scale(20.0f, 36.0f, 20.0f));
+	//Globals::shapeManager.get("rock").addInstance(Matrix4f::Translate(512.0f, 63.0f, 15.0f) * Matrix4f::Rotate(0.0f, 180.0f, 0.0f) * Matrix4f::Scale(20.0f, 36.0f, 20.0f));
+	//Globals::shapeManager.get("rock").addInstance(Matrix4f::Translate(750.0f, 63.0f, 15.0f) * Matrix4f::Rotate(0.0f, 100.0f, 0.0f) * Matrix4f::Scale(20.0f, 36.0f, 20.0f));
+	//Globals::shapeManager.get("rock").addInstance(Matrix4f::Translate(30.0f, 60.0f, 750.0f) * Matrix4f::Rotate(0.0f, 180.0f, 0.0f) * Matrix4f::Scale(20.0f, 36.0f, 20.0f));
+	//Globals::shapeManager.get("rock").addInstance(Matrix4f::Translate(750.0f, 63.0f, 750.0f) * Matrix4f::Rotate(0.0f, 100.0f, 0.0f) * Matrix4f::Scale(20.0f, 36.0f, 20.0f));
+	m_sniperScope = RenderableObject("quad", "hud", "sniperScope");
+
+	m_sniperScope.setDrawFunction([&](const Camera& camera, bool viewIndependent) {
+		if (m_sniperScope.isDisabled()) return;
+
+		auto shader = Globals::shaderManager.getAssetPointer(m_sniperScope.getShader());		
+		shader->use();
+		shader->loadMatrix("projection", camera.getOrthographicMatrix());
+		//shader->loadMatrix("model", Matrix4f::Translate(static_cast<float>(Application::Width / 2), static_cast<float>(Application::Height / 2), 0.0f) * Matrix4f::Scale(static_cast<float>(Application::Width /2) - 25.0f, static_cast<float>(Application::Height) - 25.0f, 1.0f));
+		shader->loadMatrix("model", Matrix4f::Scale(static_cast<float>(Application::Width / 2), static_cast<float>(Application::Height / 2), 1.0f));
+		Globals::textureManager.get(m_sniperScope.getTexture()).bind(0);
+		Globals::shapeManager.get(m_sniperScope.getShape()).drawRaw();
+		shader->unuse();
+	});
+
+	m_crossHaire = RenderableObject("quad", "hud", "crossHair");
+	m_crossHaire.setDrawFunction([&](const Camera& camera, bool viewIndependent) {
+		if (m_crossHaire.isDisabled()) return;
+
+		auto shader = Globals::shaderManager.getAssetPointer(m_crossHaire.getShader());
+		shader->use();
+		shader->loadMatrix("projection", Matrix4f::IDENTITY);
+		shader->loadMatrix("model", Matrix4f::Scale(0.05f, 0.05f, 1.0f));
+		Globals::textureManager.get(m_crossHaire.getTexture()).bind(0);
+		Globals::shapeManager.get(m_crossHaire.getShape()).drawRaw();
+		shader->unuse();
 	});
 }
 
@@ -218,35 +275,25 @@ void Tutorial::render() {
 	m_skybox.draw(camera);
 	m_saturn.draw(camera);
 	m_saturnRings.draw(camera);
-	auto shader = Globals::shaderManager.getAssetPointer("weapon");
-	shader->use();
-
-	shader->loadVector("lightPos", Vector3f(camera.getPosition()[0], camera.getPosition()[1] + 5.0f, camera.getPosition()[2]));
-	shader->loadVector("viewPos", camera.getPosition());
-	shader->loadBool("EnableSpotlight", false);
-
-	
-	shader->loadMatrix("model", Matrix4f::Translate(256.0f, m_terrain.getHeightOfTerrain(256.0f, 300.0f) + 10.0f, 270.0f));
-	shader->loadMatrix("projection", camera.getPerspectiveMatrix());
-	shader->loadMatrix("view", camera.getViewMatrix());
-	shader->loadInt("texture_diffuse1", 0);
-	Globals::textureManager.get("flagPole").bind(0);
-
-	m_flagPole.drawRaw();
-	shader->unuse();
-
+	m_flagPole.draw(camera);
 	m_flag.Draw(camera);
 	m_rock.draw(camera);
 
 	Player::GetInstance().Animate(m_dt);
 
-	glDisable(GL_CULL_FACE);
 
 	m_terrain.setFog(m_atmosphere.GetDayTime() <= 0.3f ? false : true);
 	m_terrain.draw(camera, &m_dirLight, &m_pointLight, Player::GetInstance().GetSpotLight());
-
-	//RenderScene();
-
+	
+	if (Player::GetInstance().IsPlayerAiming()){
+		glDepthFunc(GL_ALWAYS);
+		m_sniperScope.draw(camera);
+		glDepthFunc(GL_LESS);	
+	}else
+		m_crossHaire.draw(camera);
+		
+	
+	
 	if (Globals::drawUi)
 		renderUi();
 }

@@ -10,6 +10,7 @@ public:
 
 	RenderableObject(const Vector3f &position = Vector3f(0.0f, 0.0f, 0.0f), const Vector3f &scale = Vector3f(1.0f, 1.0f, 1.0f));
 	RenderableObject(std::string shape, std::string shader, std::string texture);
+	RenderableObject(std::string shader);
 	RenderableObject(RenderableObject const& rhs);
 	RenderableObject& operator=(const RenderableObject& rhs);
 	virtual ~RenderableObject();

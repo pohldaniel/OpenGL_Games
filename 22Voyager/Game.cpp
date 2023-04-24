@@ -25,8 +25,6 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	Globals::shaderManager.loadShader("bitangent", "res/program.vert", "res/bitangent.frag");
 	Globals::shaderManager.loadShader("geometry", "res/normalGS.vs", "res/normalGS.fs", "res/normalGS.gs");
 
-	Globals::textureManager.loadTexture("grid", "res/grid512.png", true);
-
 	Globals::shapeManager.buildCapsule("capsule", 0.5f, 1.0f, Vector3f(0.0f, 0.0f, 0.0f), 20, 20, true, true, true);
 	Globals::shapeManager.buildTorus("torus", 0.5f, 0.25f, Vector3f(0.0f, 0.0f, 0.0f), 49, 49, true, true, true);
 	Globals::shapeManager.buildSphere("sphere_", 1.0f, Vector3f(0.0f, 0.0f, 0.0f), 49, 49, true, true, true);
@@ -128,7 +126,7 @@ void Game::render() {
 	m_currentShader->loadMatrix("u_model", m_transform.getTransformationMatrix());
 
 	m_currentShader->loadMatrix("u_normal", Matrix4f::GetNormalMatrix(m_camera.getViewMatrix() * m_transform.getTransformationMatrix()));
-	Globals::textureManager.get("rock_1").bind(0);
+	Globals::textureManager.get("grid").bind(0);
 	m_currentShape.drawRaw();
 	glUseProgram(0);
 	renderUi();

@@ -20,6 +20,7 @@ struct Material {
 	void unbind();
 	void unbind(unsigned short index);
 	void cleanup();
+	const Texture& getTexture(unsigned short index) const;
 	std::string name;
 
 	static std::vector<Material>& GetMaterials();

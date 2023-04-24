@@ -287,19 +287,24 @@ void Application::initOpenGL(int msaaSamples) {
 	}
 	enableVerticalSync(true);
 
-	/*glEnable(GL_BLEND);
-	glEnable(GL_DEPTH_TEST);
+	//glEnable(GL_BLEND);
+	//glBlendFunc(GL_ONE, GL_ONE);
+	/*glEnable(GL_DEPTH_TEST);
 	glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);*/
 
-	glEnable(GL_DEPTH_TEST);
+	//glEnable(GL_DEPTH_TEST);
 	//glDepthFunc(GL_LEQUAL);
-	glDepthFunc(GL_LESS);
+	//glDepthFunc(GL_LESS);
 	//glDepthFunc(GL_ALWAYS);
 	//alpha test for cutting border of the quads
 	//glEnable(GL_ALPHA_TEST);
 	//glAlphaFunc(GL_GREATER, 0.0);
 
-	glAlphaFunc(GL_GEQUAL, 0.5);
+	//glAlphaFunc(GL_GEQUAL, 0.5);
+
+	glCullFace(GL_BACK);
+	glFrontFace(GL_CCW);
+	glEnable(GL_CULL_FACE);
 }
 
 void Application::initImGUI() {
@@ -464,6 +469,7 @@ void Application::loadAssets() {
 	Globals::shaderManager.loadShader("instance", "res/Shaders/SingleModelLoader_ins.vs", "res/Shaders/SingleModelLoader.fs");
 	Globals::shaderManager.loadShader("skybox", "res/Shaders/SkyboxVertexShader.vs", "res/Shaders/SkyboxFragmentShader.fs");
 	Globals::shaderManager.loadShader("default", "res/Shaders/DefaultVertexShader.vs", "res/Shaders/DefaultFragmentShader.fs");
+	Globals::shaderManager.loadShader("hud", "res/Shaders/HUD.vs", "res/Shaders/HUD.fs");
 	
 	Globals::shapeManager.buildQuadXY("quad", Vector3f(-1.0f, -1.0f, 0.0f), Vector2f(2.0f, 2.0f), 1, 1, true, false, false);
 	Globals::shapeManager.buildCube("cube", Vector3f(-1.0f, -1.0f, -1.0f), Vector3f(2.0f, 2.0f, 2.0f), 1, 1, false, false, false);
@@ -477,4 +483,8 @@ void Application::loadAssets() {
 	Globals::textureManager.loadTexture("clothTex", "res/Textures/Camouflage.jpg", true);
 	Globals::textureManager.loadTexture("flagPole", "res/Models3D/FlagPole/file13.png", true, GL_RGB8, GL_RGB, 3u);
 	Globals::textureManager.loadTexture("grid", "res/grid512.png", true);
+	Globals::textureManager.loadTexture("sniperScope", "res/Textures/SniperScope.png", true);
+	Globals::textureManager.loadTexture("crossHair", "res/Textures/crossHair.png", true);
+	Globals::textureManager.get("crossHair").setFilter(GL_LINEAR);
+	Globals::textureManager.get("crossHair").setWrapMode(GL_CLAMP_TO_EDGE);
 }

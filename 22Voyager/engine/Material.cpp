@@ -21,6 +21,10 @@ void Material::cleanup() {
 	}
 }
 
+const Texture& Material::getTexture(unsigned short index) const{
+	return textures.at(index);
+}
+
 void Material::updateMaterialUbo(unsigned int& ubo) {
 	glBindBuffer(GL_UNIFORM_BUFFER, ubo);
 	glBufferSubData(GL_UNIFORM_BUFFER, 0, 16, &ambient);

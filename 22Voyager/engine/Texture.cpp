@@ -5,6 +5,11 @@
 #include "../soil2/SOIL2.h"
 #include "../soil2/stb_image.h"
 
+#define DEFAULT_MIN_FILTER	GL_NEAREST
+#define DEFAULT_MAG_FILTER	GL_NEAREST
+#define DEFAULT_WRAP_S	GL_CLAMP_TO_EDGE
+#define DEFAULT_WRAP_T	GL_CLAMP_TO_EDGE
+
 bool operator==(const Texture& t1, const Texture& t2) {
 	return t1.m_texture == t2.m_texture && t1.m_width == t2.m_width && t1.m_height == t2.m_height && t1.m_depth == t2.m_depth && t1.m_channels == t2.m_channels && t1.m_format == t2.m_format && t1.m_internalFormat == t2.m_internalFormat && t1.m_type == t2.m_type && t1.m_target == t2.m_target;
 }
@@ -60,31 +65,32 @@ void Texture::copy(const Texture& rhs) {
 	m_type = rhs.m_type;
 	m_target = rhs.m_target;
 
-	unsigned char* bytes = (unsigned char*)malloc(m_width * m_height * m_channels);
-	int magFilter, minFilter, wrapS, wrapT;
+	if (m_target == GL_TEXTURE_2D) {
+		unsigned char* bytes = (unsigned char*)malloc(m_width * m_height * m_channels);
+		int magFilter, minFilter, wrapS, wrapT;
 
-	glBindTexture(GL_TEXTURE_2D, rhs.m_texture);
-	glGetTexImage(GL_TEXTURE_2D, 0, m_format, GL_UNSIGNED_BYTE, bytes);
-	glGetTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, &magFilter);
-	glGetTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, &minFilter);
-	glGetTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, &wrapS);
-	glGetTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, &wrapT);
-	glBindTexture(GL_TEXTURE_2D, 0);
-	
-	glGenTextures(1, &m_texture);
-	glBindTexture(GL_TEXTURE_2D, m_texture);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapS);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilter);
-	glTexImage2D(GL_TEXTURE_2D, 0, m_internalFormat, m_width, m_height, 0, m_format, m_type, bytes);
+		glBindTexture(GL_TEXTURE_2D, rhs.m_texture);
+		glGetTexImage(GL_TEXTURE_2D, 0, m_format, GL_UNSIGNED_BYTE, bytes);
+		glGetTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, &magFilter);
+		glGetTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, &minFilter);
+		glGetTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, &wrapS);
+		glGetTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, &wrapT);
+		glBindTexture(GL_TEXTURE_2D, 0);
 
-	if (minFilter == GL_LINEAR_MIPMAP_LINEAR) {
-		glGenerateMipmap(GL_TEXTURE_2D);
+		glGenTextures(1, &m_texture);
+		glBindTexture(GL_TEXTURE_2D, m_texture);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapS);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilter);
+		glTexImage2D(GL_TEXTURE_2D, 0, m_internalFormat, m_width, m_height, 0, m_format, m_type, bytes);
+
+		if (minFilter == GL_LINEAR_MIPMAP_LINEAR)
+			glGenerateMipmap(GL_TEXTURE_2D);
+
+		glBindTexture(GL_TEXTURE_2D, 0);
+		free(bytes);
 	}
-
-	glBindTexture(GL_TEXTURE_2D, 0);
-	free(bytes);
 }
 
 void Texture::flipVertical(unsigned char* data, unsigned int padWidth, unsigned int height) {
@@ -1128,7 +1134,7 @@ void Texture::bind(unsigned int unit) const {
 	glBindTexture(m_target, m_texture);
 }
 
-void Texture::setLinear(unsigned int mode) {
+void Texture::setLinear(unsigned int mode) const {
 	glBindTexture(m_target, m_texture);
 	glTexParameterf(m_target, GL_TEXTURE_MIN_FILTER, mode);
 	glTexParameterf(m_target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -1137,14 +1143,14 @@ void Texture::setLinear(unsigned int mode) {
 	glBindTexture(m_target, 0);
 }
 
-void Texture::setNearest() {
+void Texture::setNearest() const {
 	glBindTexture(m_target, m_texture);
 	glTexParameterf(m_target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameterf(m_target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glBindTexture(m_target, 0);
 }
 
-void Texture::setFilter(unsigned int minFilter, unsigned int magFilter) {
+void Texture::setFilter(unsigned int minFilter, unsigned int magFilter) const {
 	if (magFilter == 0)
 		magFilter = minFilter == 9985 || minFilter == 9987 ? GL_LINEAR : minFilter == 9984 || minFilter == 9986 ? GL_NEAREST : minFilter;
 
@@ -1156,7 +1162,7 @@ void Texture::setFilter(unsigned int minFilter, unsigned int magFilter) {
 	glBindTexture(m_target, 0);
 }
 
-void Texture::setWrapMode(unsigned int mode) {
+void Texture::setWrapMode(unsigned int mode) const {
 	if (m_target == GL_TEXTURE_CUBE_MAP || m_target == GL_TEXTURE_3D) {
 		glBindTexture(m_target, m_texture);
 		glTexParameteri(m_target, GL_TEXTURE_WRAP_R, mode);
@@ -1171,7 +1177,7 @@ void Texture::setWrapMode(unsigned int mode) {
 	}
 }
 
-void Texture::setAnisotropy(float aniso) {
+void Texture::setAnisotropy(float aniso) const {
 	glBindTexture(m_target, m_texture);
 	glTexParameterf(m_target, GL_TEXTURE_MAX_ANISOTROPY, aniso);
 	glBindTexture(m_target, 0);

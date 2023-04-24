@@ -104,9 +104,9 @@ void Terrain::loadHeightmapImage(const char* fileName){
 			m_indices.push_back((i * m_vHeights[0].size()) + j + 1);
 			m_indices.push_back(((i + 1) * m_vHeights[0].size()) + j);
 
-			m_indices.push_back((i * m_vHeights[0].size()) + j + 1);
-			m_indices.push_back(((i + 1) * m_vHeights[0].size()) + j);
+			m_indices.push_back((i * m_vHeights[0].size()) + j + 1);			
 			m_indices.push_back(((i + 1) * m_vHeights[0].size()) + j + 1);
+			m_indices.push_back(((i + 1) * m_vHeights[0].size()) + j);
 		}
 
 		std::cout << "Loading Terrain: " << loadingCount << " / " << iTotalLoadingCycles << " \r";
@@ -231,9 +231,9 @@ void Terrain::createTerrainWithPerlinNoise() {
 			m_indices.push_back((i * m_vHeights[0].size()) + j + 1);
 			m_indices.push_back(((i + 1) * m_vHeights[0].size()) + j);
 
-			m_indices.push_back((i * m_vHeights[0].size()) + j + 1);
-			m_indices.push_back(((i + 1) * m_vHeights[0].size()) + j);
+			m_indices.push_back((i * m_vHeights[0].size()) + j + 1);		
 			m_indices.push_back(((i + 1) * m_vHeights[0].size()) + j + 1);
+			m_indices.push_back(((i + 1) * m_vHeights[0].size()) + j);
 		}
 	}
 
