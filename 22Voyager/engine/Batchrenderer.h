@@ -13,14 +13,14 @@ public:
 	struct Vertex {
 		std::array<float, 4> posTex;
 		std::array<float, 4> color;
-		std::array<unsigned int, 4> drawState;
+		unsigned int frame;
 	};
 
 	void init(size_t size = 400, bool drawSingle = false);
 	void shutdown();
 	void drawBuffer();
-	void addQuadAA(Vector4f posSize, Vector4f texPosSize, Vector4f color = Vector4f(1.0f, 1.0f, 1.0f, 1.0f), bool updateView = true, unsigned int sampler = 0u, unsigned int frame = 0u);
-	void drawSingleQuadAA(Vector4f posSize, Vector4f texPosSize, Vector4f color = Vector4f(1.0f, 1.0f, 1.0f, 1.0f), bool updateView = true, unsigned int sampler = 0u, unsigned int frame = 0u);
+	void addQuadAA(Vector4f posSize, Vector4f texPosSize, Vector4f color = Vector4f(1.0f, 1.0f, 1.0f, 1.0f), unsigned int frame = 0u);
+	void drawSingleQuadAA(Vector4f posSize, Vector4f texPosSize, Vector4f color = Vector4f(1.0f, 1.0f, 1.0f, 1.0f), unsigned int frame = 0u);
 	void processQuad();
 	void processSingleQuad();
 
@@ -38,8 +38,6 @@ public:
 	float(&getTexPos())[8];
 	float(&getColor())[4];
 
-	bool& getUpdateView();
-	unsigned int& getSampler();
 	unsigned int& getFrame();
 
 	static void ResetStatistic();
@@ -75,8 +73,6 @@ private:
 	float texPos[8];
 	float color[4];
 	unsigned int frame;
-	unsigned int sampler;
-	bool updateView;
 
 	static unsigned int s_drawCallCount;
 	static unsigned int s_quadCount;

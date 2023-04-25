@@ -207,7 +207,6 @@
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="PointLight.cpp" />
     <ClCompile Include="RenderableObject.cpp" />
-    <ClCompile Include="ResourceManager.cpp" />
     <ClCompile Include="soil2\image_DXT.c" />
     <ClCompile Include="soil2\image_helper.c" />
     <ClCompile Include="soil2\SOIL2.c" />
@@ -215,7 +214,6 @@
     <ClCompile Include="SpotLight.cpp" />
     <ClCompile Include="StateMachine.cpp" />
     <ClCompile Include="Terrain.cpp" />
-    <ClCompile Include="TextureVo.cpp" />
     <ClCompile Include="Tutorial.cpp" />
     <ClCompile Include="Utils.cpp" />
     <ClCompile Include="Weapon.cpp" />
@@ -279,12 +277,9 @@
     <ClInclude Include="Player.h" />
     <ClInclude Include="PointLight.h" />
     <ClInclude Include="RenderableObject.h" />
-    <ClInclude Include="ResourceManager.h" />
     <ClInclude Include="SpotLight.h" />
     <ClInclude Include="StateMachine.h" />
     <ClInclude Include="Terrain.h" />
-    <ClInclude Include="TextureVo.h" />
-    <ClInclude Include="Transformation.h" />
     <ClInclude Include="Tutorial.h" />
     <ClInclude Include="Utils.h" />
     <ClInclude Include="Weapon.h" />

@@ -113,15 +113,26 @@ void Capsule::BuildHemisphere(float radius, float length, const Vector3f& positi
 		int k2 = k1 + (uResolution + 1);
 
 		for (unsigned int j = 0; j < uResolution; j++) {
-
-			indexBuffer.push_back(k1 + j + 1 + baseIndex);
-			indexBuffer.push_back(k2 + j + baseIndex);
-			indexBuffer.push_back(k1 + j + baseIndex);
-
-			if (i < vResolution - 1) {
-				indexBuffer.push_back(k2 + j + 1 + baseIndex);
+			if (north) {
+				indexBuffer.push_back(k1 + j + 1 + baseIndex);			
+				indexBuffer.push_back(k1 + j + baseIndex);
 				indexBuffer.push_back(k2 + j + baseIndex);
+
+				if (i < vResolution - 1) {
+					indexBuffer.push_back(k2 + j + 1 + baseIndex);				
+					indexBuffer.push_back(k1 + j + 1 + baseIndex);
+					indexBuffer.push_back(k2 + j + baseIndex);
+				}
+			} else {
 				indexBuffer.push_back(k1 + j + 1 + baseIndex);
+				indexBuffer.push_back(k2 + j + baseIndex);
+				indexBuffer.push_back(k1 + j + baseIndex);
+
+				if (i < vResolution - 1) {
+					indexBuffer.push_back(k2 + j + 1 + baseIndex);
+					indexBuffer.push_back(k2 + j + baseIndex);
+					indexBuffer.push_back(k1 + j + 1 + baseIndex);
+				}
 			}
 		}
 
@@ -182,8 +193,8 @@ void Capsule::BuildCylinder(float radius, float length, const Vector3f& position
 
 		for (int j = 0; j < uResolution; ++j, ++k1, ++k2) {
 			// 2 trianles per sector
-			indexBuffer.push_back(k1 + baseIndex);	indexBuffer.push_back(k1 + 1 + baseIndex);	indexBuffer.push_back(k2 + baseIndex);
-			indexBuffer.push_back(k2 + baseIndex);	indexBuffer.push_back(k1 + 1 + baseIndex);	indexBuffer.push_back(k2 + 1 + baseIndex);
+			indexBuffer.push_back(k1 + baseIndex); indexBuffer.push_back(k2 + baseIndex); indexBuffer.push_back(k1 + 1 + baseIndex);
+			indexBuffer.push_back(k2 + baseIndex); indexBuffer.push_back(k2 + 1 + baseIndex); indexBuffer.push_back(k1 + 1 + baseIndex);
 		}
 	}
 }

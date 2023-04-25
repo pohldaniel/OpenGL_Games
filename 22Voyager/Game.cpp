@@ -33,7 +33,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	Globals::shapeManager.buildQuadXY("quad_", Vector3f(-1.0f, -1.0f, 0.0f), Vector2f(2.0f, 2.0f), 10, 10, true, true, true);
 	Globals::shapeManager.buildCube("cube_", Vector3f(-1.0f, -1.0f, -1.0f), Vector3f(2.0f, 2.0f, 2.0f),  10, 10, true, true, true);
 
-	m_currentShape = Globals::shapeManager.get("cube_");
+	m_currentShape = Globals::shapeManager.get("cylinder");
 	m_currentShader = Globals::shaderManager.getAssetPointer("texture");
 }
 
@@ -101,21 +101,10 @@ void Game::update() {
 	}
 	m_trackball.idle();
 	applyTransformation(m_trackball);
-	
-
-	degree += 10.0f * m_dt;
-	//orientation.fromPitchYawRoll(0.0f, degree, 0.0f);
-
-	//float pitch, yaw, roll;
-	//orientation.toPitchYawRoll(pitch, yaw, roll);
-	//orientation.rotate(0.5f, 0.0f, 0.0f);
-
-	//orientation.rotate(Vector3f(0.0f, 0.0f, 1.0f), 0.5f);
-	//std::cout << degree << "  " << orientation.getPitch() << "  "  << orientation.getYaw() << "  " << orientation.getRoll() << std::endl;
-	//std::cout << degree << "  " << pitch << "  " << yaw << "  " << roll << std::endl;
 };
 
 void Game::render() {
+	
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -156,7 +145,6 @@ void Game::resize(int deltaW, int deltaH) {
 
 void Game::applyTransformation(TrackBall& arc) {
 	m_transform.fromMatrix(arc.getTransform());	
-	m_transform.rotate(orientation);
 }
 
 void Game::renderUi() {

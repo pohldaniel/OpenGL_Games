@@ -15,26 +15,26 @@ public:
 	RenderableObject& operator=(const RenderableObject& rhs);
 	virtual ~RenderableObject();
 
-	virtual void draw(const Camera& camera, bool viewIndependent = false);
+	virtual void draw(const Camera& camera);
 	virtual void update(const float dt);
 
 	void setDisabled(bool disabled);
 	bool isDisabled();
 	void setAttributes(std::string shape, std::string shader, std::string texture);
 	void setUpdateFunction(std::function<void(const float dt)> fun);
-	void setDrawFunction(std::function<void(const Camera& camera, bool viewIndependent)> fun);
+	void setDrawFunction(std::function<void(const Camera& camera)> fun);
 	std::string& getShape();
 	std::string& getShader();
 	std::string& getTexture();
 
 private:
 
-	void drawDefault(const Camera& camera, bool viewIndependent = false);
+	void drawDefault(const Camera& camera);
 
 	std::string m_shape;
 	std::string m_shader;
 	std::string m_texture;
 	bool m_disabled = false;
 	std::function<void(const float dt)> m_update = 0;
-	std::function<void(const Camera& camera, bool viewIndependent)> m_draw = 0;
+	std::function<void(const Camera& camera)> m_draw = 0;
 };

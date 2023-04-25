@@ -5,7 +5,6 @@
 #include <soil2/SOIL2.h>
 
 #include "Terrain.h"
-#include "ResourceManager.h"
 #include "Constants.h"
 
 Terrain::Terrain() :

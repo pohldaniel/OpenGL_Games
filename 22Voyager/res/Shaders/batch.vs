@@ -3,7 +3,7 @@
 layout(location = 0) in vec2 i_position;
 layout(location = 1) in vec2 i_texCoord;
 layout(location = 2) in vec4 i_color;
-layout(location = 3) in ivec4 i_drawState;
+layout(location = 3) in uint i_drawState;
 
 flat out uint v_layer;
 out vec2 v_texCoord;
@@ -16,5 +16,5 @@ void main(void) {
 	
     v_texCoord  = i_texCoord;
 	v_color = i_color;	
-	v_layer = i_drawState[2];
+	v_layer = i_drawState;
 }

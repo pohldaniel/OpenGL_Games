@@ -65,7 +65,7 @@ void Weapon::fire(Weapon* weapon, Camera& camera, float dt, bool& firing, bool& 
 		m_muzzle.setScale(Utils::GetInstance().RandomNumBetweenTwo(2.0f, 2.5f), Utils::GetInstance().RandomNumBetweenTwo(2.0f, 2.5f), 1.0f);
 		m_muzzle.setOrientation(Vector3f(0.0f, 0.0f, 1.0f), Utils::GetInstance().RandomNumBetweenTwo(1.0f, 360.0f) * _180_ON_PI);
 		m_muzzle.setPosition(0.9f, -1.4f, -6.5f);
-		m_muzzle.draw(camera, true);
+		m_muzzle.draw(camera);
 
 		m_currFireRateTime = 0.0f;
 	}

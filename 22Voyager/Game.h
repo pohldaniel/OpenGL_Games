@@ -53,6 +53,4 @@ public:
 
 	Shape m_currentShape;
 	Shader* m_currentShader;
-	float degree = 0.0f;
-	Quaternion orientation;
 };

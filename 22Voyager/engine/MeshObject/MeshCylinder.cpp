@@ -176,8 +176,8 @@ void MeshCylinder::BuildMesh(float baseRadius, float topRadius, float length, co
 
 		for (int j = 0; j < vResolution; ++j, ++k1, ++k2) {
 			// 2 trianles per sector
-			indexBuffer.push_back(k1);	indexBuffer.push_back(k1 + 1);	indexBuffer.push_back(k2);
-			indexBuffer.push_back(k2);	indexBuffer.push_back(k1 + 1);	indexBuffer.push_back(k2 + 1);
+			indexBuffer.push_back(k1); indexBuffer.push_back(k2); indexBuffer.push_back(k1 + 1);
+			indexBuffer.push_back(k2); indexBuffer.push_back(k2 + 1); indexBuffer.push_back(k1 + 1);
 		}
 	}
 
@@ -187,9 +187,9 @@ void MeshCylinder::BuildMesh(float baseRadius, float topRadius, float length, co
 	// put indices for base
 	for (int i = 0, k = baseVertexIndex + 1; i < vResolution; ++i, ++k) {
 		if (i < (vResolution - 1)) {
-			indexBuffer.push_back(baseVertexIndex);	indexBuffer.push_back(k + 1);	indexBuffer.push_back(k);
+			indexBuffer.push_back(baseVertexIndex);	indexBuffer.push_back(k); indexBuffer.push_back(k + 1);
 		}else {
-			indexBuffer.push_back(baseVertexIndex);	indexBuffer.push_back(baseVertexIndex + 1);	indexBuffer.push_back(k);
+			indexBuffer.push_back(baseVertexIndex);	indexBuffer.push_back(k); indexBuffer.push_back(baseVertexIndex + 1);
 		}
 	}
 
@@ -198,9 +198,9 @@ void MeshCylinder::BuildMesh(float baseRadius, float topRadius, float length, co
 
 	for (int i = 0, k = topVertexIndex + 1; i < vResolution; ++i, ++k) {
 		if (i < (vResolution - 1)) {
-			indexBuffer.push_back(topVertexIndex);	indexBuffer.push_back(k);	indexBuffer.push_back(k + 1);
+			indexBuffer.push_back(topVertexIndex); indexBuffer.push_back(k + 1); indexBuffer.push_back(k);
 		}else {
-			indexBuffer.push_back(topVertexIndex);	indexBuffer.push_back(k);	indexBuffer.push_back(topVertexIndex + 1);
+			indexBuffer.push_back(topVertexIndex); indexBuffer.push_back(topVertexIndex + 1); indexBuffer.push_back(k);
 		}
 	}
 }

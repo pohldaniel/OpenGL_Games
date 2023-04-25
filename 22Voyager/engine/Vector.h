@@ -98,7 +98,6 @@ public:
 	Vector3f operator*(float scalar) const;
 	Vector3f operator/(float scalar) const;
 
-
 	bool zero();
 
 	static Vector3f Cross(const Vector3f &p, const Vector3f &q);
@@ -175,25 +174,41 @@ public:
 	float determinant() const;
 
 	void identity();
+
 	void rotate(const Vector3f &axis, float degrees);
-	void rotate(const Vector3f &axis, float degrees, const Vector3f &centerOfRotation);
 	void rotate(const Quaternion &orientation);
+	void rotate(float pitch, float yaw, float roll);
+
+	void rotate(const Vector3f &axis, float degrees, const Vector3f &centerOfRotation);
 	void rotate(const Quaternion &orientation, const Vector3f &centerOfRotation);
+	void rotate(float pitch, float yaw, float roll, const Vector3f &centerOfRotation);
+
 	void invRotate(const Vector3f &axis, float degrees);
-	void invRotate(const Vector3f &axis, float degrees, const Vector3f &centerOfRotation);
 	void invRotate(const Quaternion &orientation);
+	void invRotate(float pitch, float yaw, float roll);
+
+	void invRotate(const Vector3f &axis, float degrees, const Vector3f &centerOfRotation);
 	void invRotate(const Quaternion &orientation, const Vector3f &centerOfRotation);
+	void invRotate(float pitch, float yaw, float roll, const Vector3f &centerOfRotation);
 
 	void translate(float dx, float dy, float dz);
 	void translate(const Vector3f &trans);
+
 	void invTranslate(float dx, float dy, float dz);
 	void invTranslate(const Vector3f &trans);
-	void scale(float a, float b, float c);
-	void scale(float a, float b, float c, const Vector3f &centerOfScale);
+
+	void scale(float a, float b, float c);	
 	void scale(const Vector3f &scale);
+
+	void scale(float a, float b, float c, const Vector3f &centerOfScale);
 	void scale(const Vector3f &scale, const Vector3f &centerOfScale);
-	void invScale(float a, float b, float c);
+
+	void invScale(float a, float b, float c);	
+	void invScale(const Vector3f &scale);
+
 	void invScale(float a, float b, float c, const Vector3f &centerOfScale);
+	void invScale(const Vector3f &scale, const Vector3f &centerOfScale);
+
 	void perspective(float fovx, float aspect, float znear, float zfar);
 	//void perspective(float left, float right, float bottom, float top, float znear, float zfar);
 	void orthographic(float left, float right, float bottom, float top, float znear, float zfar);
@@ -204,9 +219,7 @@ public:
 	void lookAt(const Vector3f &eye, const Vector3f &target, const Vector3f &up);
 	void invLookAt(const Vector3f &eye, const Vector3f &target, const Vector3f &up);
 
-	void fromHeadPitchRoll(float headDegrees, float pitchDegrees, float rollDegrees);
-	void fromHeadPitchRoll(float headDegrees, float pitchDegrees, float rollDegrees, const Vector3f &centerOfRotation);
-	void toHeadPitchRoll(float &headDegrees, float &pitchDegrees, float &rollDegrees) const;
+	void toHeadPitchRoll(float &pitch, float &yaw,  float &roll) const;
 
 	void print() const;
 	void set(float m11, float m12, float m13, float m14,
@@ -231,8 +244,14 @@ public:
 	static Matrix4f Rotate(const Vector3f &axis, float degrees);
 	static Matrix4f Rotate(const Quaternion &orientation);
 	static Matrix4f Rotate(float pitch, float yaw, float roll);
+
 	static Matrix4f Rotate(const Vector3f &axis, float degrees, const Vector3f &centerOfRotation);
+	static Matrix4f Rotate(const Quaternion &orientation, const Vector3f &centerOfRotation);
+	static Matrix4f Rotate(float pitch, float yaw, float roll, const Vector3f &centerOfRotation);
+
 	static Matrix4f &Rotate(Matrix4f &mtx, const Vector3f &axis, float degrees);
+	static Matrix4f &Rotate(Matrix4f &mtx, const Vector3f &axis, float degrees, const Vector3f &centerOfRotation);
+
 	static Matrix4f Rotate(const Vector3f &direction);
 	static Matrix4f Rotate(const Vector3f &direction, const Vector3f &poisiton);
 

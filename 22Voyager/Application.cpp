@@ -55,9 +55,16 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 
 	Fontrenderer::Get().init();
 	Fontrenderer::Get().setShader(Globals::shaderManager.getAssetPointer("font"));
+
+	auto shader = Globals::shaderManager.getAssetPointer("font");
+	shader->use();
+	shader->loadMatrix("u_projection", Matrix4f::Orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f));
+	shader->unuse();
 }
 
 Application::~Application() {
+	Fontrenderer::Get().shutdown();
+
 	delete Machine;
 	//release OpenGL context
 	HDC hdc = GetDC(Window);
@@ -291,28 +298,15 @@ void Application::initOpenGL(int msaaSamples) {
 	}
 	enableVerticalSync(true);
 
-	//glEnable(GL_BLEND);
-	//glBlendFunc(GL_ONE, GL_ONE);
-	/*glEnable(GL_DEPTH_TEST);
-	glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);*/
+	glCullFace(GL_BACK);
+	glFrontFace(GL_CCW);
+	glEnable(GL_CULL_FACE);
 
-	//glEnable(GL_DEPTH_TEST);
-	//glDepthFunc(GL_LEQUAL);
-	//glDepthFunc(GL_LESS);
-	//glDepthFunc(GL_ALWAYS);
-	//alpha test for cutting border of the quads
-	//glEnable(GL_ALPHA_TEST);
-	//glAlphaFunc(GL_GREATER, 0.0);
-
-	//glAlphaFunc(GL_GEQUAL, 0.5);
+	glEnable(GL_DEPTH_TEST);
 
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	//glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 	glEnable(GL_BLEND);
-
-	glCullFace(GL_BACK);
-	glFrontFace(GL_CCW);
-	glEnable(GL_CULL_FACE);
 }
 
 void Application::initImGUI() {
@@ -496,9 +490,9 @@ void Application::loadAssets() {
 	Globals::textureManager.loadTexture("health", "res/Textures/HealthIcon.png", true);
 	Globals::textureManager.loadTexture("ammo", "res/Textures/Ammo.png", true);
 
-
 	Globals::fontManager.loadCharacterSet("roboto_20", "res/Fonts/Roboto-BoldItalic.ttf", 20, 3, 20, 128, 2, true, 0u);
 	Globals::fontManager.loadCharacterSet("roboto_28", "res/Fonts/Roboto-BoldItalic.ttf", 30, 1, 20, 128, 0, true, 1u);
 	Globals::spritesheetManager.createSpritesheetFromTexture("font", Globals::fontManager.get("roboto_20").spriteSheet, GL_RED, GL_RED, 1);
 	Globals::spritesheetManager.getAssetPointer("font")->addToSpritesheet(Globals::fontManager.get("roboto_28").spriteSheet, GL_RED, GL_RED, 1);
+	Globals::spritesheetManager.getAssetPointer("font")->setLinear();
 }
