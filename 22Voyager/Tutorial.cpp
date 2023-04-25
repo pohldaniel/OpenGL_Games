@@ -211,9 +211,8 @@ Tutorial::Tutorial(StateMachine& machine) : State(machine, CurrentState::TUTORIA
 		Globals::shapeManager.get(m_ammo.getShape()).drawRaw();
 		shader->unuse();
 	});
-	const Camera& camera = Player::GetInstance().getCamera();
 
-	m_enemyCount = 1;
+	const Camera& camera = Player::GetInstance().getCamera();
 	for (unsigned int i = 0; i < 30; ++i){
 		m_enemies.push_back(new Enemy(camera));
 	}
@@ -258,7 +257,7 @@ void Tutorial::update() {
 
 	// Update enemy units
 	for (unsigned int i = 0; i < m_enemyCount; ++i) {
-		m_enemies.at(i)->Update(m_terrain, camera, m_dt);
+		m_enemies.at(i)->update(m_terrain, camera, m_dt);
 	}
 
 	// Update physics component
@@ -361,17 +360,18 @@ void Tutorial::render() {
 	m_ammo.draw(camera);
 
 	// Draw enemy units
-
 	for (unsigned int i = 0; i < m_enemyCount; ++i) {
 		// Check if this enemy unit can respawn (if the data transfer is at 100, then this enemy cannot respawn anymore)
 		m_enemies.at(i)->SetRespawnStatus(m_dataTransmitTimer < 100 ? true : false);
-		m_enemies.at(i)->Draw();
+		m_enemies.at(i)->draw(camera);
 	}
 
+	glDisable(GL_CULL_FACE);
 	// Draw enemy shockwave if smart drones have exploded
 	for (unsigned int i = 0; i < m_enemyCount; ++i) {
 		m_enemies.at(i)->DrawShockwave();
 	}
+	glEnable(GL_CULL_FACE);
 
 	Globals::spritesheetManager.getAssetPointer("font")->bind(0);
 	Fontrenderer::Get().addText(Globals::fontManager.get("roboto_28"), 80, 20, std::to_string(Player::GetInstance().GetHealth()), Vector4f(1.0f, 1.0f, 1.0f, 1.0f));

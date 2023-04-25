@@ -1,53 +1,25 @@
 #include "Physics.h"
 #include "Player.h"
 
-Physics::Physics() :
-	m_mouseX(0.0f),
-	m_mouseY(0.0f),
-	m_gravity(-90.0f),
-	m_castRay(false),
-	m_collision(false)
-{}
+Physics::Physics() : m_mouseX(0.0f), m_mouseY(0.0f), m_gravity(-90.0f), m_castRay(false), m_collision(false) {
 
-Physics::~Physics()
-{}
+}
 
-Ray Physics::CastRayFromMouse(const Camera& cam) {
-	// screen space (viewport coordinates)
-	float x = 1.0f;
-	float y = 1.0f;
-	//float x = (2.0f * m_mouseX) / Renderer::GetInstance().GetWindowWidth() - 1.0f;
-	//float y = 1.0f - (2.0f * m_mouseY) / Renderer::GetInstance().GetWindowHeight();
-	float z = 1.0f;
+Physics::~Physics() { 
 
-	// normalised device space
-	/*glm::vec3 mouseNdcCoords = glm::vec3(x, y, z);
-	glm::vec4 mouseClipCoords = glm::vec4(mouseNdcCoords.x, mouseNdcCoords.y, -1.0f, 1.0f);
-	glm::mat4 invProjMat = glm::inverse(cam.GetProjectionMatrix());
-	glm::vec4 eyeCoords = invProjMat * mouseClipCoords;
-	eyeCoords = glm::vec4(eyeCoords.x, eyeCoords.y, -1.0f, 0.0f);
-	glm::mat4 invViewMat = glm::inverse(cam.GetViewMatrix());
-	glm::vec4 rayWorld = invViewMat * eyeCoords;
-	glm::vec3 rayDirection = glm::normalize(glm::vec3(rayWorld));*/
-
-	Ray ray;
-	//ray.pos = cam.GetCameraPos();
-	//ray.dir = rayDirection;
-
-	return ray;
 }
 
 Ray Physics::CastRayFromWeapon(const Camera& cam) {
 	Ray ray;
-	//ray.pos = cam.GetCameraPos();
-	//ray.dir = cam.GetCameraForward();
+	ray.pos = cam.getPosition();
+	ray.dir = cam.getViewDirection();
 	return ray;
 }
 
 bool Physics::RaySphere(const Camera& cam, const Vector3f& RayDirWorld, double SphereRadius, double x, double y, double z) {
 
 	// work out components of quadratic
-	Vector3f v = Vector3f(x, y, z);
+	Vector3f v = Vector3f(x, y, z) - cam.getPosition();
 	long double a = Vector3f::Dot(RayDirWorld, RayDirWorld);
 	long double b = 2.0 * Vector3f::Dot(v, RayDirWorld);
 	long double c = Vector3f::Dot(v, v) - SphereRadius * SphereRadius;

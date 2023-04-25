@@ -25,7 +25,7 @@ struct Spotlight {
 	float quadratic;
 };
 
-uniform Spotlight spotlight;
+uniform Spotlight spotlight = {vec3(0), vec3(0), 0, 0, vec3(0), vec3(0), 1.0, 0, 0};
 
 // Function prototype
 vec3 CalculateSpotlight(Spotlight light, vec3 normal, vec3 viewDir);
@@ -59,7 +59,7 @@ void main(){
 	if (!damaged)
 		result = (ambient + diffuse + specular + spotlightResult) * vec3(texColor);
 	else
-		result = vec3(0.7f, 0.0f, 0.0f);
+		result = vec3(1.0f, 0.0f, 0.0f);
 		
     FragColor = vec4(result, 1.0f);
 } 

@@ -5,10 +5,10 @@
 #include "Constants.h"
 #include "Terrain.h"
 
-RenderableObject Enemy::Sphere = RenderableObject("sphere", "enemy", "enemyTex");
 RenderableObject Enemy::Drone = RenderableObject("sphere", "unlit", "drone");
+RenderableObject Enemy::Shockwave = RenderableObject("sphere", "unlit", "shockwave");
 
-Enemy::Enemy(const Camera& cam) :
+Enemy::Enemy(const Camera& cam) : RenderableObject("sphere", "enemy", "enemyTex"), 
 	m_pos(Utils::GetInstance().RandomNumBetweenTwo(50.0f, 450.0f), 0.0f, Utils::GetInstance().RandomNumBetweenTwo(0.0f, 450.0f)),
 	m_maximumSpeed(15.0f),
 	m_maximumDroneSpeed(100.0f),
@@ -32,29 +32,84 @@ Enemy::Enemy(const Camera& cam) :
 	m_canRespawn(true),
 	m_dronePos(m_pos) {
 
+	Drone.setDrawFunction([&](const Camera& camera) {
+		if (Drone.isDisabled()) return;
+
+		auto shader = Globals::shaderManager.getAssetPointer(Drone.getShader());
+
+		shader->use();
+
+		shader->loadMatrix("projection", camera.getPerspectiveMatrix());
+		shader->loadMatrix("view", camera.getViewMatrix());
+		shader->loadMatrix("model", Drone.getTransformationSP());
+		shader->loadInt("meshTexture", 0);
+
+		Globals::textureManager.get(Drone.getTexture()).bind(0);
+		Globals::shapeManager.get(Drone.getShape()).drawRaw();
+
+		shader->unuse();
+	});
+
+	Shockwave.setDrawFunction([&](const Camera& camera) {
+		if (Shockwave.isDisabled()) return;
+
+		auto shader = Globals::shaderManager.getAssetPointer(Shockwave.getShader());
+
+		shader->use();
+
+		shader->loadMatrix("projection", camera.getPerspectiveMatrix());
+		shader->loadMatrix("view", camera.getViewMatrix());
+		shader->loadMatrix("model", Shockwave.getTransformationSOP());
+		shader->loadInt("meshTexture", 0);
+
+		Globals::textureManager.get(Shockwave.getTexture()).bind(0);
+		Globals::shapeManager.get(Shockwave.getShape()).drawRaw();
+
+		shader->unuse();
+	});
 }
 
 Enemy::~Enemy() {
 
 }
 
-void Enemy::Draw() {
+void Enemy::draw(const Camera& camera) {
 	if (!m_dead){
-		auto shader = Globals::shaderManager.getAssetPointer("enemy");
-		if (m_takingDamage)
-			shader->loadBool("damaged", true);
-		else
-			shader->loadBool("damaged", false);
+		setPosition(m_pos);
+		auto shader = Globals::shaderManager.getAssetPointer(getShader());
 
-		Sphere.setPosition(m_pos);
-		Sphere.draw(m_camera);
+		shader->use();
 
-		
+		shader->loadMatrix("projection", camera.getPerspectiveMatrix());
+		shader->loadMatrix("view", camera.getViewMatrix());
+		shader->loadMatrix("model", getTransformationSP());
+		shader->loadVector("lightPos", Vector3f(0.0f, 0.0f, 0.0f));
+		shader->loadVector("viewPos", camera.getPosition());
+		shader->loadInt("meshTexture", 0);
+
+		shader->loadBool("damaged", m_takingDamage);
+
+		if (m_spotlight != nullptr) {
+			shader->loadVector("spotlight.position", m_spotlight->getPosition());
+			shader->loadVector("spotlight.direction", m_spotlight->getDirection());
+			shader->loadVector("spotlight.diffuse", m_spotlight->getDiffuse());
+			shader->loadVector("spotlight.specular", m_spotlight->getSpecular());
+			shader->loadFloat("spotlight.constant", m_spotlight->getConstant());
+			shader->loadFloat("spotlight.linear", m_spotlight->getLinear());
+			shader->loadFloat("spotlight.quadratic", m_spotlight->getQuadratic());
+			shader->loadFloat("spotlight.cutOff", cosf(m_spotlight->getCutOff() * PI_ON_180));
+			shader->loadFloat("spotlight.outerCutOff", cosf(m_spotlight->getOuterCutOff() * PI_ON_180));
+		}
+		Globals::textureManager.get("enemyTex").bind(0);
+		Globals::shapeManager.get("sphere").drawRaw();
+
+		shader->unuse();
+	
 		// Check if a small drone has been fired by the enemy
 		if (m_droneActive){
-
+			
 			Drone.setScale(0.25f, 0.25f, 0.25f);
-			Drone.setPosition(m_pos);	
+			Drone.setPosition(m_dronePos);
 			Drone.draw(m_camera);
 			// Check if the player is colliding with the drone
 			if (Physics::GetInstance().PointInSphere(m_camera, m_dronePos, 2.0f)){
@@ -76,10 +131,10 @@ void Enemy::DrawShockwave() {
 
 		if (m_blastRadius < 7.0f) {
 			// Update explosion blast 
-			Drone.setScale(m_blastRadius);
-			Drone.setOrientation(m_blastRadius * 20, m_blastRadius * 20, m_blastRadius * 20);
-			Drone.setPosition(m_oldPlayerPos);
-			Drone.draw(m_camera);
+			Shockwave.setScale(m_blastRadius);
+			Shockwave.setOrientation(m_blastRadius * 20, m_blastRadius * 20, m_blastRadius * 20);
+			Shockwave.setPosition(m_oldPlayerPos);
+			Shockwave.draw(m_camera);
 
 			// Check if enemy can damage and player is caught within the growing blast
 			if (m_damageToken && Physics::GetInstance().PointInSphere(m_camera, m_oldPlayerPos, (m_blastRadius * 4))) {
@@ -100,7 +155,7 @@ void Enemy::DrawShockwave() {
 	}
 }
 
-void Enemy::Update(const Terrain& terrain, const Camera& cam, float dt) {
+void Enemy::update(const Terrain& terrain, const Camera& cam, const float dt) {
 
 	if (!m_dead){
 		m_deltaTime = dt;
@@ -119,7 +174,7 @@ void Enemy::Update(const Terrain& terrain, const Camera& cam, float dt) {
 		// Check if enemy is being hit
 		if (m_takingDamage) {
 			// Create damage taken duration window to simulate enemy panick behaviour
-			m_damageTakenDuration += 0.1f * m_deltaTime;
+			m_damageTakenDuration += 0.01f * dt;
 
 			// Check if the damage taken duration window has exceeded a small threshold
 			if (m_damageTakenDuration > 0.02f) {
@@ -153,12 +208,12 @@ void Enemy::Update(const Terrain& terrain, const Camera& cam, float dt) {
 
 		if (m_evade) {
 			if (!m_evadeRight) {
-				m_pos[0] -= (m_maximumSpeed * 5) * m_deltaTime;
+				m_pos[0] -= (m_maximumSpeed * 5) * dt;
 			} else {
-				m_pos[0] += (m_maximumSpeed * 5) * m_deltaTime;
+				m_pos[0] += (m_maximumSpeed * 5) * dt;
 			}
 
-			m_evadeDurationCounter += 0.1f * m_deltaTime;
+			m_evadeDurationCounter += 0.1f * dt;
 
 			if (m_evadeDurationCounter > 0.07f) {
 				m_evade = false;
@@ -191,7 +246,6 @@ void Enemy::Update(const Terrain& terrain, const Camera& cam, float dt) {
 void Enemy::ReduceHealth(int amount) {
 	m_health -= amount;
 	m_takingDamage = true;
-
 	if (m_health <= 0) {
 		m_dead = true;
 	}

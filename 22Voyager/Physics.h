@@ -46,7 +46,6 @@ private:
 	float m_gravity;
 
 	// Private functions
-	Ray CastRayFromMouse(const Camera& cam);
 	Ray CastRayFromWeapon(const Camera& cam);
 	void CheckRaySphereCollision(const Camera& cam, std::vector<Enemy*> enemies);
 	bool RaySphere(const Camera& cam, const Vector3f& RayDirWorld, double SphereRadius, double x, double y, double z);

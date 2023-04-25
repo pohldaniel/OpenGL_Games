@@ -1,19 +1,23 @@
 #pragma once
 #include "engine/Camera.h"
 #include "RenderableObject.h"
+#include "SpotLight.h"
 
 class Terrain;
 
-class Enemy {
+class Enemy : public RenderableObject {
 
 public:
 
 	Enemy(const Camera& cam);
 	~Enemy();
 
-	void Draw();
+	void draw(const Camera& camera) override;
+	void update(const Terrain& terrain, const Camera& cam, float dt);
+
+
 	void DrawShockwave();
-	void Update(const Terrain& terrain, const Camera& cam, float dt);
+
 	void ReduceHealth(int amount);
 	
 	void SetPos(const Vector3f& pos) { m_pos = pos; }
@@ -30,6 +34,7 @@ public:
 
 	void SetRespawnStatus(bool canRespawn);
 	bool GetRespawnStatus() { return m_canRespawn; }
+	void setSpotlight(SpotLight* spotlight) { m_spotlight = spotlight; }
 
 private:
 
@@ -43,7 +48,9 @@ private:
 	int m_health;
 	bool m_dead, m_withinAttackRange, m_takingDamage, m_evade, m_evadeRight, m_droneStatus, m_droneActive, m_fire, m_canRespawn, m_droneSelfDestruct;
 	bool m_damageToken;
+	
 
+	SpotLight* m_spotlight = nullptr;
 
 	// Private functions
 	void Seek(const Camera& target, const float dt);
@@ -51,6 +58,6 @@ private:
 	void Fire(const Camera& target, const Terrain& terrain, const float dt);
 	void Respawn();
 
-	static RenderableObject Sphere;
 	static RenderableObject Drone;
+	static RenderableObject Shockwave;
 };

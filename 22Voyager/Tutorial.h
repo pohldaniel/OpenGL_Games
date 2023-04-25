@@ -53,5 +53,5 @@ public:
 
 	std::vector<Enemy*> m_enemies;
 	float m_dataTransmitTimer = 0.0f, m_enemySpawnTimer = 0.0f, m_gameStateTimer = 0.0f;
-	int m_enemyCount;
+	int m_enemyCount = 3;
 };
