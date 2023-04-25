@@ -13,6 +13,7 @@
 #include "Atmosphere.h"
 #include "Terrain.h"
 #include "Cloth.h"
+#include "Enemy.h"
 
 class Tutorial : public State, public MouseEventListener {
 
@@ -49,5 +50,8 @@ public:
 	RenderableObject m_crossHaire;
 	RenderableObject m_health;
 	RenderableObject m_ammo;
-	float m_dataTransmitTimer = 0.0f;
+
+	std::vector<Enemy*> m_enemies;
+	float m_dataTransmitTimer = 0.0f, m_enemySpawnTimer = 0.0f, m_gameStateTimer = 0.0f;
+	int m_enemyCount;
 };

@@ -20,7 +20,7 @@ public:
 
 	void init();	
 	void draw(const Camera& camera, DirectionalLight* directionLight, PointLight* lamp, SpotLight* spotlight);
-	float getHeightOfTerrain(float x, float z);
+	float getHeightOfTerrain(float x, float z) const;
 	void createTerrainWithPerlinNoise();
 	void setFog(bool fogState) { m_fog = fogState; }
 
@@ -28,7 +28,7 @@ private:
 
 	void loadHeightmapImage(const char* fileName);
 	
-	float barryCentric(const Vector3f& p1, const Vector3f& p2, const Vector3f& p3, const Vector2f& pos);	
+	float barryCentric(const Vector3f& p1, const Vector3f& p2, const Vector3f& p3, const Vector2f& pos) const;	
 	Vector3f calculateNormal(unsigned int x, unsigned int z);
 
 	GLuint m_VAO;

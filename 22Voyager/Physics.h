@@ -1,13 +1,13 @@
 #pragma once
-#ifndef __PHYSICS_H__
-#define __PHYSICS_H__
-#include "engine/Camera.h"
+#pragma once
+
 #include <vector>
+#include "engine/Camera.h"
 #include "Enemy.h"
 
 struct Ray {
-	glm::vec3 pos;
-	glm::vec3 dir;
+	Vector3f pos;
+	Vector3f dir;
 };
 
 class Physics {
@@ -24,7 +24,7 @@ public:
 	void operator=(Physics const&) = delete;
 
 	//void ProcessInput(CameraVo& cam, float dt, std::vector<SDL_Event> events);
-	void Update(Camera& cam, float dt);
+	void Update(const Camera& cam, float dt, std::vector<Enemy*>& enemies);
 
 	void CastRay()					{ m_castRay = true; }
 	Ray& GetRay()					{ return m_ray; }
@@ -32,9 +32,10 @@ public:
 	float GetGravity()				{ return m_gravity; }
 	void OnEnemyHit(Enemy* enemy);
 	void OnPlayerHit(float damage);
-	bool PointInSphere(Camera& cam, glm::vec3&, float radius);
+	bool PointInSphere(const Camera& cam, const Vector3f& other, float radius);
 
 private:
+
 	Physics();
 
 	Ray m_ray;
@@ -45,10 +46,8 @@ private:
 	float m_gravity;
 
 	// Private functions
-	Ray CastRayFromMouse(Camera& cam);
-	Ray CastRayFromWeapon(Camera& cam);
-	void CheckRaySphereCollision(Camera& cam, std::vector<Enemy*> enemies);
-	bool RaySphere(Camera& cam, glm::vec3 RayDirWorld, double SphereRadius, double x, double y, double z);
+	Ray CastRayFromMouse(const Camera& cam);
+	Ray CastRayFromWeapon(const Camera& cam);
+	void CheckRaySphereCollision(const Camera& cam, std::vector<Enemy*> enemies);
+	bool RaySphere(const Camera& cam, const Vector3f& RayDirWorld, double SphereRadius, double x, double y, double z);
 };
-
-#endif // !__PHYSICS_H__

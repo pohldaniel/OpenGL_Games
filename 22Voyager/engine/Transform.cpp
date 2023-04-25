@@ -298,8 +298,8 @@ void Transform::setPosition(float x, float y, float z) {
 	T[3][0] = x; T[3][1] = y; T[3][2] = z;
 }
 
-void Transform::setPosition(const Vector3f& _position) {
-	T[3][0] = _position[0]; T[3][1] = _position[1]; T[3][2] = _position[2];
+void Transform::setPosition(const Vector3f& position) {
+	T[3][0] = position[0]; T[3][1] = position[1]; T[3][2] = position[2];
 }
 
 void Transform::getOrientation(Matrix4f& orientation) {

@@ -1,7 +1,6 @@
 #version 440 core
 
 out vec4 FragColor;
-in vec4 vertexColor;
 in vec2 vertexUv;
 in vec3 vertexNorms;
 in vec3 fragPos;
@@ -12,8 +11,7 @@ uniform vec3 lightPos;
 uniform vec3 viewPos;
 uniform bool damaged;
 
-struct Spotlight
-{
+struct Spotlight {
 	vec3 position;
 	vec3 direction;
 	float cutOff;
@@ -32,8 +30,8 @@ uniform Spotlight spotlight;
 // Function prototype
 vec3 CalculateSpotlight(Spotlight light, vec3 normal, vec3 viewDir);
 
-void main()
-{
+void main(){
+
 	vec4 texColor = texture(meshTexture, vertexUv);
 
 	float ambientFactor = 0.3f;

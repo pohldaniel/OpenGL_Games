@@ -50,7 +50,7 @@ private:
 	int m_health;
 	float m_jumpHeight, m_upwardSpeed;
 
-	glm::vec3 m_pos;
+	Vector3f m_pos;
 	SpotLight* m_spotLight;
 	Weapon* m_currWeapon, *m_assaultRifle, *m_sniperRifle;
 	Camera m_camera;

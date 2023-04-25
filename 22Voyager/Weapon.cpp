@@ -98,8 +98,8 @@ void Weapon::draw(Camera& camera, const Matrix4f& model, bool bDrawRelativeToCam
 		m_shader->loadFloat("spotlight.constant", Player::GetInstance().GetSpotLight()->getConstant());
 		m_shader->loadFloat("spotlight.linear", Player::GetInstance().GetSpotLight()->getLinear());
 		m_shader->loadFloat("spotlight.quadratic", Player::GetInstance().GetSpotLight()->getQuadratic());
-		m_shader->loadFloat("spotlight.cutOff", glm::cos(glm::radians(Player::GetInstance().GetSpotLight()->getCutOff())));
-		m_shader->loadFloat("spotlight.outerCutOff", glm::cos(glm::radians(Player::GetInstance().GetSpotLight()->getOuterCutOff())));
+		m_shader->loadFloat("spotlight.cutOff", cosf(Player::GetInstance().GetSpotLight()->getCutOff() * PI_ON_180));
+		m_shader->loadFloat("spotlight.outerCutOff", cosf(Player::GetInstance().GetSpotLight()->getOuterCutOff()* PI_ON_180));
 	}
 
 	m_shader->loadMatrix("projection", camera.getPerspectiveMatrix());

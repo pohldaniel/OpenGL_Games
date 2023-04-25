@@ -12,7 +12,7 @@ Physics::Physics() :
 Physics::~Physics()
 {}
 
-Ray Physics::CastRayFromMouse(Camera& cam) {
+Ray Physics::CastRayFromMouse(const Camera& cam) {
 	// screen space (viewport coordinates)
 	float x = 1.0f;
 	float y = 1.0f;
@@ -37,20 +37,20 @@ Ray Physics::CastRayFromMouse(Camera& cam) {
 	return ray;
 }
 
-Ray Physics::CastRayFromWeapon(Camera& cam) {
+Ray Physics::CastRayFromWeapon(const Camera& cam) {
 	Ray ray;
 	//ray.pos = cam.GetCameraPos();
 	//ray.dir = cam.GetCameraForward();
 	return ray;
 }
 
-bool Physics::RaySphere(Camera& cam, glm::vec3 RayDirWorld, double SphereRadius, double x, double y, double z) {
+bool Physics::RaySphere(const Camera& cam, const Vector3f& RayDirWorld, double SphereRadius, double x, double y, double z) {
 
 	// work out components of quadratic
-	glm::vec3 v = glm::vec3(x, y, z);
-	long double a = glm::dot(RayDirWorld, RayDirWorld);
-	long double b = 2.0 * glm::dot(v, RayDirWorld);
-	long double c = glm::dot(v, v) - SphereRadius * SphereRadius;
+	Vector3f v = Vector3f(x, y, z);
+	long double a = Vector3f::Dot(RayDirWorld, RayDirWorld);
+	long double b = 2.0 * Vector3f::Dot(v, RayDirWorld);
+	long double c = Vector3f::Dot(v, v) - SphereRadius * SphereRadius;
 	long double b_squared_minus_4ac = b * b + (-4.0) * a * c;
 
 	if (b_squared_minus_4ac == 0) {
@@ -71,14 +71,13 @@ bool Physics::RaySphere(Camera& cam, glm::vec3 RayDirWorld, double SphereRadius,
 	return false;
 }
 
-void Physics::CheckRaySphereCollision(Camera& cam, std::vector<Enemy*> enemies) {
+void Physics::CheckRaySphereCollision(const Camera& cam, std::vector<Enemy*> enemies) {
 
 	for (auto i = enemies.begin(); i != enemies.end(); ++i) {
-		m_collision = RaySphere(cam, m_ray.dir, 3.0f, (*i)->GetPos().x, (*i)->GetPos().y, (*i)->GetPos().z);
+		m_collision = RaySphere(cam, m_ray.dir, 3.0f, (*i)->GetPos()[0], (*i)->GetPos()[1], (*i)->GetPos()[2]);
 
 		// Check if the ray is colliding with the sphere
-		if (m_collision)
-		{
+		if (m_collision){
 			// Pass in the value the iterator is pointing to to the OnEnemyHit() function
 			OnEnemyHit((*i));
 		}
@@ -93,9 +92,9 @@ inline void Physics::OnEnemyHit(Enemy* enemy) {
 	Player::GetInstance().ReduceHealth(damage);
 }
 
-bool Physics::PointInSphere(Camera& camera, glm::vec3& other, float radius) {
+bool Physics::PointInSphere(const Camera& camera, const Vector3f& other, float radius) {
 	// Calculate distance between player and center of circle
-	float distanceSq = std::pow(camera.getPositionX() - other.x, 2) + std::pow(camera.getPositionY() - other.y, 2) + std::pow(camera.getPositionZ() - other.z, 2);
+	float distanceSq = std::pow(camera.getPositionX() - other[0], 2) + std::pow(camera.getPositionY() - other[1], 2) + std::pow(camera.getPositionZ() - other[2], 2);
 
 	// Check if the player is within the radius (if radius is bigger than point is inside circle) 
 	if (distanceSq < (radius * radius)) {
@@ -105,7 +104,7 @@ bool Physics::PointInSphere(Camera& camera, glm::vec3& other, float radius) {
 	return false;
 }
 
-void Physics::Update(Camera& cam, float dt) {
+void Physics::Update(const Camera& cam, float dt, std::vector<Enemy*>& enemies) {
 	//ProcessInput(cam, dt, events);
 
 	// Check if ray casting is true
@@ -114,6 +113,6 @@ void Physics::Update(Camera& cam, float dt) {
 		m_castRay = false;
 		m_debugRayCastDraw = true;
 		m_ray = CastRayFromWeapon(cam);
-		//CheckRaySphereCollision(cam, enemies);
+		CheckRaySphereCollision(cam, enemies);
 	}
 }

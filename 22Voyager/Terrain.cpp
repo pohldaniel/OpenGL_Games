@@ -309,7 +309,7 @@ Vector3f Terrain::calculateNormal(unsigned int x, unsigned int z){
 	return Vector3f(0.0f, 0.0f, 0.0f);
 }
 
-float Terrain::getHeightOfTerrain(float x, float z){
+float Terrain::getHeightOfTerrain(float x, float z) const{
 
 	float result = 0.0f;
 
@@ -353,7 +353,7 @@ float Terrain::getHeightOfTerrain(float x, float z){
 // Author: Rony Hanna
 // Description: Helper function used to find the height of a triangle the player is currently on
 // -------------------
-float Terrain::barryCentric(const Vector3f& p1, const Vector3f& p2, const Vector3f& p3, const Vector2f& pos) {
+float Terrain::barryCentric(const Vector3f& p1, const Vector3f& p2, const Vector3f& p3, const Vector2f& pos) const{
 	float det = (p2[2] - p3[2]) * (p1[0] - p3[0]) + (p3[0] - p2[0]) * (p1[2] - p3[2]);
 	float l1 = ((p2[2] - p3[2]) * (pos[0] - p3[0]) + (p3[0] - p2[0]) * (pos[1] - p3[2])) / det;
 	float l2 = ((p3[2] - p1[2]) * (pos[0] - p3[0]) + (p1[0] - p3[0]) * (pos[1] - p3[2])) / det;

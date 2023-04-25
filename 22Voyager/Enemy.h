@@ -1,23 +1,26 @@
 #pragma once
-#include <glm/glm/glm.hpp>
-#include <glm/glm/gtx/transform.hpp>
 #include "engine/Camera.h"
+#include "RenderableObject.h"
+
+class Terrain;
 
 class Enemy {
+
 public:
-	Enemy(Camera& cam);
+
+	Enemy(const Camera& cam);
 	~Enemy();
 
-	void Draw(short int id, short int enemyProjectileId);
-	void DrawShockwave(short int enemyDroneBlastId);
-	void Update(Camera& cam, float dt);
+	void Draw();
+	void DrawShockwave();
+	void Update(const Terrain& terrain, const Camera& cam, float dt);
 	void ReduceHealth(int amount);
 	
-	void SetPos(glm::vec3& pos) { m_pos = pos; }
-	glm::vec3& GetPos() { return m_pos; }
+	void SetPos(const Vector3f& pos) { m_pos = pos; }
+	Vector3f& GetPos() { return m_pos; }
 
-	float CalcDistance(glm::vec3& enemyPos, glm::vec3& playerPos);
-	float CalcDistanceNoHeight(glm::vec3& enemyPos, glm::vec3& playerPos);
+	float CalcDistance(const Vector3f& enemyPos, const Vector3f& playerPos);
+	float CalcDistanceNoHeight(const Vector3f& enemyPos, const Vector3f& playerPos);
 
 	void SetAttackDamage(float attkDmg) { m_attackDamage = attkDmg; }
 	float GetAttackDamage() { return m_attackDamage; }
@@ -29,8 +32,9 @@ public:
 	bool GetRespawnStatus() { return m_canRespawn; }
 
 private:
-	Camera m_camera;
-	glm::vec3 m_pos, m_velocity, m_fireDir, m_dronePos, m_oldPlayerPos;
+
+	const Camera& m_camera;
+	Vector3f m_pos, m_velocity, m_fireDir, m_dronePos, m_oldPlayerPos;
  
 	float m_maximumSpeed, m_maximumDroneSpeed;
 	float m_attackDamage;
@@ -42,8 +46,11 @@ private:
 
 
 	// Private functions
-	void Seek(Camera& target, const float dt);
-	void Flee(Camera& target, const float dt);
-	
+	void Seek(const Camera& target, const float dt);
+	void Flee(const Camera& target, const float dt);
+	void Fire(const Camera& target, const Terrain& terrain, const float dt);
 	void Respawn();
+
+	static RenderableObject Sphere;
+	static RenderableObject Drone;
 };

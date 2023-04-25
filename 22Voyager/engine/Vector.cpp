@@ -2270,6 +2270,13 @@ Vector3f Vector3f::Max(const Vector3f &p, const Vector3f &q) {
 	return Vector3f(std::max(p[0], q[0]), std::max(p[1], q[1]), std::max(p[2], q[2]));
 }
 
+Vector3f& Vector3f::Clamp(Vector3f &v, float min, float max) {
+	std::max(min, std::min(v[0], max));
+	std::max(min, std::min(v[1], max));
+	std::max(min, std::min(v[2], max));
+	return v;
+}
+
 Vector3f Vector3f::normalize() {
 	float invMag = 1.0f / length();
 	return Vector3f(vec[0] * invMag, vec[1] * invMag, vec[2] * invMag);

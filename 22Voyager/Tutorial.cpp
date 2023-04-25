@@ -3,12 +3,14 @@
 #include <imgui_impl_opengl3.h>
 #include <imgui_internal.h>
 
+#include "engine/Fontrenderer.h"
+
 #include "Tutorial.h"
 #include "Constants.h"
 #include "Physics.h"
 #include "Player.h"
 #include "Application.h"
-#include "engine/Fontrenderer.h"
+#include "Utils.h"
 
 Tutorial::Tutorial(StateMachine& machine) : State(machine, CurrentState::TUTORIAL) {
 	
@@ -209,6 +211,12 @@ Tutorial::Tutorial(StateMachine& machine) : State(machine, CurrentState::TUTORIA
 		Globals::shapeManager.get(m_ammo.getShape()).drawRaw();
 		shader->unuse();
 	});
+	const Camera& camera = Player::GetInstance().getCamera();
+
+	m_enemyCount = 1;
+	for (unsigned int i = 0; i < 30; ++i){
+		m_enemies.push_back(new Enemy(camera));
+	}
 }
 
 Tutorial::~Tutorial() {
@@ -233,10 +241,96 @@ void Tutorial::update() {
 	m_flag.Update();
 
 	Player::GetInstance().Update(m_terrain, m_dt);
+	const Camera& camera = Player::GetInstance().getCamera();
+	// Update physics component
+	if (m_dataTransmitTimer < 100){
+		// Increase total number of enemies over time
+		m_enemySpawnTimer += 1.0f * m_dt;
+
+		if (m_enemySpawnTimer >= 16.0f) {
+			m_enemySpawnTimer = 0.0f;
+
+			if (m_enemyCount < 30) {
+				++m_enemyCount;
+			}
+		}
+	}
+
+	// Update enemy units
+	for (unsigned int i = 0; i < m_enemyCount; ++i) {
+		m_enemies.at(i)->Update(m_terrain, camera, m_dt);
+	}
+
+	// Update physics component
+	Physics::GetInstance().Update(camera, m_dt, m_enemies);
+
+	// Update mountain rocks' fog effect 
+	if (m_atmosphere.GetDayTime() >= 0.3f && m_atmosphere.GetDayTime() <= 0.31f) {
+		
+		auto shader = Globals::shaderManager.getAssetPointer("instance");
+		shader->use();
+		shader->loadBool("nightFog", true);
+		shader->unuse();
+		
+	} else if (m_atmosphere.GetDayTime() < 0.3f && m_atmosphere.GetDayTime() >= 0.29f) {
+		auto shader = Globals::shaderManager.getAssetPointer("instance");
+		shader->use();
+		shader->loadBool("nightFog", false);
+		shader->unuse();
+	}
+
+	// Update atmosphere (thunderstorms)
+	m_atmosphere.Update(m_dt);
+
+	if (m_atmosphere.GetFlashDuration() > 0) {
+		if (m_atmosphere.GetThunderFlash()) {
+			--m_atmosphere.GetFlashDuration();
+			m_atmosphere.SetThunderFlash(false);
+
+			//Renderer::GetInstance().GetComponent(POSTPROCESSING_QUAD).GetShaderComponent().ActivateProgram();
+			//Renderer::GetInstance().GetComponent(POSTPROCESSING_QUAD).GetShaderComponent().SetBool("thunderstormEffect", true);
+		}
+
+		m_atmosphere.GetFlashTimer() += Utils::GetInstance().RandomNumBetweenTwo(0.5f, 1.0f) * m_dt;
+		if (m_atmosphere.GetFlashTimer() > Utils::GetInstance().RandomNumBetweenTwo(0.05f, 0.1f)){
+			m_atmosphere.GetThunderFlash() = !m_atmosphere.GetThunderFlash();
+			m_atmosphere.GetFlashTimer() = 0.0f;
+		}
+	}
+
 	// Update data transmitter 
 	m_dataTransmitTimer += 0.59f * m_dt;
-	// Update physics component
-	//Physics::GetInstance().Update(m_cameraVo, m_dt);
+
+	// Check if win condition is met (if the data was sent in full and all enemies have been neutralized)
+	if (m_dataTransmitTimer >= 100) {
+		bool m_endGame = false;
+
+		// Loop through the enemies 
+		for (unsigned int i = 0; i < m_enemyCount; ++i) {
+			// Check if the enemy is dead and cannot be respawned
+			if (m_enemies.at(i)->GetDeath() && !m_enemies.at(i)->GetRespawnStatus())
+			{
+				m_endGame = true;
+			}
+			else
+			{
+				m_endGame = false;
+				break;
+			}
+		}
+
+		if (m_endGame) {
+			//Renderer::GetInstance().GetComponent(PLAYER_VICTORY_SCREEN).Draw(m_cameraHUD);
+			m_gameStateTimer += 1.15f * m_dt;
+
+			if (m_gameStateTimer >= 5.0f) {
+				//FreeMouseCursor();
+				m_gameStateTimer = 0.0f;
+				//Audio::GetInstance().StopSound(3);
+				//m_gameState = GameState::MAIN_MENU;
+			}
+		}
+	}
 };
 
 void Tutorial::render() {
@@ -265,6 +359,19 @@ void Tutorial::render() {
 		
 	m_health.draw(camera);
 	m_ammo.draw(camera);
+
+	// Draw enemy units
+
+	for (unsigned int i = 0; i < m_enemyCount; ++i) {
+		// Check if this enemy unit can respawn (if the data transfer is at 100, then this enemy cannot respawn anymore)
+		m_enemies.at(i)->SetRespawnStatus(m_dataTransmitTimer < 100 ? true : false);
+		m_enemies.at(i)->Draw();
+	}
+
+	// Draw enemy shockwave if smart drones have exploded
+	for (unsigned int i = 0; i < m_enemyCount; ++i) {
+		m_enemies.at(i)->DrawShockwave();
+	}
 
 	Globals::spritesheetManager.getAssetPointer("font")->bind(0);
 	Fontrenderer::Get().addText(Globals::fontManager.get("roboto_28"), 80, 20, std::to_string(Player::GetInstance().GetHealth()), Vector4f(1.0f, 1.0f, 1.0f, 1.0f));

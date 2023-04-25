@@ -473,6 +473,8 @@ void Application::loadAssets() {
 	Globals::shaderManager.loadShader("default", "res/Shaders/DefaultVertexShader.vs", "res/Shaders/DefaultFragmentShader.fs");
 	Globals::shaderManager.loadShader("hud", "res/Shaders/HUD.vs", "res/Shaders/HUD.fs");
 	Globals::shaderManager.loadShader("font", "res/Shaders/batch.vs", "res/Shaders/font.fs");
+	Globals::shaderManager.loadShader("enemy", "res/Shaders/EnemyVertexShader.vs", "res/Shaders/EnemyFragmentShader.fs");
+	Globals::shaderManager.loadShader("unlit", "res/Shaders/Unlit.vs", "res/Shaders/Unlit.fs");
 
 	Globals::shapeManager.buildQuadXY("quad", Vector3f(-1.0f, -1.0f, 0.0f), Vector2f(2.0f, 2.0f), 1, 1, true, false, false);
 	Globals::shapeManager.buildCube("cube", Vector3f(-1.0f, -1.0f, -1.0f), Vector3f(2.0f, 2.0f, 2.0f), 1, 1, false, false, false);
@@ -489,6 +491,9 @@ void Application::loadAssets() {
 	Globals::textureManager.loadTexture("crossHair", "res/Textures/crossHair.png", true);
 	Globals::textureManager.loadTexture("health", "res/Textures/HealthIcon.png", true);
 	Globals::textureManager.loadTexture("ammo", "res/Textures/Ammo.png", true);
+	Globals::textureManager.loadTexture("enemyTex", "res/Textures/enemy01.jpg", true);
+	Globals::textureManager.loadTexture("drone", "res/Textures/drone.jpg", true);
+	
 
 	Globals::fontManager.loadCharacterSet("roboto_20", "res/Fonts/Roboto-BoldItalic.ttf", 20, 3, 20, 128, 2, true, 0u);
 	Globals::fontManager.loadCharacterSet("roboto_28", "res/Fonts/Roboto-BoldItalic.ttf", 30, 1, 20, 128, 0, true, 1u);
