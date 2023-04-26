@@ -3,29 +3,16 @@
 #include "engine/input/MouseEventListener.h"
 #include "engine/input/KeyBorad.h"
 #include "engine/input/Mouse.h"
-#include "engine/Camera.h"
 #include "engine/TrackBall.h"
-#include "engine/MeshObject/Shape.h"
-#include "engine/Shader.h"
+#include "engine/Cube.h"
+
 #include "StateMachine.h"
-
-enum Model {
-	TORUS,
-	CAPSULE,
-	SPHERE,
-	SPIRAL,
-	CYLINDER,
-	QUAD,
-	CUBE
-};
-
-enum RenderMode {
-	TEXTURE,
-	NORMAL,
-	TANGENT,
-	BITANGENT,
-	GEOMETRY
-};
+#include "Weapon.h"
+#include "SpotLight.h"
+#include "Atmosphere.h"
+#include "Terrain.h"
+#include "Cloth.h"
+#include "Enemy.h"
 
 class Game : public State, public MouseEventListener {
 
@@ -41,16 +28,29 @@ public:
 	void OnMouseMotion(Event::MouseMoveEvent& event) override;
 	void OnMouseButtonDown(Event::MouseButtonEvent& event) override;
 	void OnMouseButtonUp(Event::MouseButtonEvent& event) override;
-	void applyTransformation(TrackBall& arc);
 	void renderUi();
 
-	Camera m_camera;
-	TrackBall m_trackball;
-	Transform m_transform;
 	bool m_initUi = true;
-	Model model = Model::CYLINDER;
-	RenderMode renderMode = RenderMode::TEXTURE;
 
-	Shape m_currentShape;
-	Shader* m_currentShader;
+	Terrain m_terrain;
+	Atmosphere m_atmosphere;
+	DirectionalLight m_dirLight;
+	PointLight m_pointLight;
+
+	Cloth m_flag;
+	AssimpModel m_flagPoleModel, m_rockModel;
+
+	RenderableObject m_skybox;
+	RenderableObject m_saturn;
+	RenderableObject m_saturnRings;
+	RenderableObject m_rock;
+	RenderableObject m_flagPole;
+	RenderableObject m_sniperScope;
+	RenderableObject m_crossHaire;
+	RenderableObject m_health;
+	RenderableObject m_ammo;
+
+	std::vector<Enemy*> m_enemies;
+	float m_dataTransmitTimer = 0.0f, m_enemySpawnTimer = 0.0f, m_gameStateTimer = 0.0f;
+	int m_enemyCount = 1;
 };

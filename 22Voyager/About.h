@@ -5,11 +5,11 @@
 #include "engine/Transform.h"
 #include "StateMachine.h"
 
-class MainMenu : public State, public MouseEventListener {
+class About : public State, public MouseEventListener {
 
 public:
-	MainMenu(StateMachine& machine);
-	~MainMenu();
+	About(StateMachine& machine);
+	~About();
 
 	void fixedUpdate() override;
 	void update() override;

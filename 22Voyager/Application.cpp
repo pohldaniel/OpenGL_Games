@@ -9,9 +9,10 @@
 #include "engine/Fontrenderer.h"
 #include "Application.h"
 #include "Constants.h"
+#include "ShapeInterface.h"
 #include "Game.h"
 #include "MainMenu.h"
-#include "Tutorial.h"
+
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -335,7 +336,7 @@ void Application::enableVerticalSync(bool enableVerticalSync) {
 	}
 }
 
-HWND Application::getWindow() {
+HWND Application::GetWindow() {
 	return Window;
 }
 
@@ -362,6 +363,10 @@ void Application::render() {
 
 void Application::update() {
 	Machine->update();
+
+	if (!Machine->isRunning()) {
+		SendMessage(Window, WM_DESTROY, NULL, NULL);
+	}
 }
 
 void Application::fixedUpdate() {
@@ -372,9 +377,10 @@ void Application::initStates() {
 	
 	Machine = new StateMachine(m_dt, m_fdt);
 	//Machine->addStateAtTop(new Game(*Machine));
-	Machine->addStateAtTop(new Tutorial(*Machine));
-	Mouse::instance().attach(Window);
-	//Machine->addStateAtTop(new MainMenu(*Machine));
+	//Mouse::instance().attach(Window);
+	Machine->addStateAtTop(new MainMenu(*Machine));
+	
+	//Machine->addStateAtTop(new ShapeInterface(*Machine));
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
@@ -413,7 +419,14 @@ void Application::Resize(int deltaW, int deltaH) {
 	if (InitWindow) {
 		Machine->resize(Width, Height);
 		Machine->m_states.top()->resize(deltaW, deltaH);
+
+		auto shader = Globals::shaderManager.getAssetPointer("font");
+		shader->use();
+		shader->loadMatrix("u_projection", Matrix4f::Orthographic(0.0f, static_cast<float>(Width), 0.0f, static_cast<float>(Height), -1.0f, 1.0f));
+		shader->unuse();
 	}
+
+	
 }
 
 void Application::ToggleFullScreen(bool isFullScreen, unsigned int width, unsigned int height) {
@@ -431,31 +444,30 @@ void Application::ToggleFullScreen(bool isFullScreen, unsigned int width, unsign
 		SetWindowLong(Window, GWL_STYLE, WS_POPUP | WS_CLIPCHILDREN | WS_CLIPSIBLINGS);
 		SetWindowPos(Window, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_FRAMECHANGED | SWP_SHOWWINDOW);
 
-		Width = GetSystemMetrics(SM_CXSCREEN);
-		Height = GetSystemMetrics(SM_CYSCREEN);
+		Width = width == 0u ?  GetSystemMetrics(SM_CXSCREEN) : width;
+		Height = height == 0u ? GetSystemMetrics(SM_CYSCREEN): height;
 
 		deltaW = Width - deltaW;
 		deltaH = Height - deltaH;
 
 		SetWindowPos(Window, HWND_TOPMOST, 0, 0, Width, Height, SWP_SHOWWINDOW);
-
 		Resize(deltaW, deltaH);
 	}
 
 	if (!isFullScreen) {
+		
 		Fullscreen = false;
 
 		SetWindowLong(Window, GWL_EXSTYLE, SavedExStyle);
 		SetWindowLong(Window, GWL_STYLE, SavedStyle);
 		SetWindowPos(Window, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_FRAMECHANGED | SWP_SHOWWINDOW);
-
-		Width = width == 0u ? Savedrc.right - Savedrc.left : width;
-		Height = height == 0u ? Savedrc.bottom - Savedrc.top : height;
+		Width = (width == 0u || width == (Width + 16u)) ? Savedrc.right - Savedrc.left : width;
+		Height = (height == 0u || height == (Height + 39u)) ? Savedrc.bottom - Savedrc.top : height;
 
 		deltaW = Width - deltaW;
 		deltaH = Height - deltaH;
 
-		SetWindowPos(Window, HWND_NOTOPMOST, 0, 0, Width + 16u, Height + 39u, SWP_SHOWWINDOW);
+		SetWindowPos(Window, HWND_NOTOPMOST, 0, 0, Width, Height, SWP_SHOWWINDOW);
 		Resize(deltaW, deltaH);
 	}
 }
@@ -497,6 +509,10 @@ void Application::loadAssets() {
 	Globals::textureManager.loadTexture("enemyTex", "res/Textures/enemy01.jpg", true);
 	Globals::textureManager.loadTexture("drone", "res/Textures/drone.jpg", true);
 	Globals::textureManager.loadTexture("shockwave", "res/Textures/shockwave.png", true);
+
+	Globals::textureManager.loadTexture("mainMenu", "res/Textures/menu.png", false);
+	Globals::textureManager.loadTexture("indicator", "res/Textures/Indicator.png", false);
+	Globals::textureManager.loadTexture("aboutMenu", "res/Textures/AboutBackground.png", false);
 
 	Globals::fontManager.loadCharacterSet("roboto_20", "res/Fonts/Roboto-BoldItalic.ttf", 20, 3, 20, 128, 2, true, 0u);
 	Globals::fontManager.loadCharacterSet("roboto_28", "res/Fonts/Roboto-BoldItalic.ttf", 30, 1, 20, 128, 0, true, 1u);

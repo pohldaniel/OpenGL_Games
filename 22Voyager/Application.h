@@ -18,13 +18,13 @@ public:
 	void fixedUpdate();
 	void render();
 	bool isRunning();
-	HWND getWindow();
 
 	static void ToggleFullScreen(bool isFullScreen, unsigned int width = 0, unsigned int height = 0);
 	static unsigned int Width;
 	static unsigned int Height;
 	static bool Fullscreen;
 	static void SetCursorIcon(std::string file);
+	static HWND GetWindow();
 
 private:
 

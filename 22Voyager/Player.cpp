@@ -50,8 +50,7 @@ void Player::Init() {
 	m_camera = Camera();
 	m_camera.perspective(80.0f, (float)Application::Width / (float)Application::Height, 1.0f, 1500.0f);
 	m_camera.lookAt(Vector3f(256.0f, 0.0f, 300.0f), Vector3f(256.0f, 0.0f, 300.0f) + Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
-	m_camera.orthographic(-static_cast<float>(Application::Width / 2), static_cast<float>(Application::Width / 2), -static_cast<float>(Application::Height / 2), static_cast<float>(Application::Height / 2), -1.0f, 1.0f);
-	//m_camera.orthographic(0.0f, static_cast<float>(Application::Width ), 0.0f, static_cast<float>(Application::Height ), -1.0f, 1.0f);
+	m_camera.orthographic(0.0f, static_cast<float>(Application::Width ), 0.0f, static_cast<float>(Application::Height ), -1.0f, 1.0f);
 }
 
 void Player::Update(Terrain& terrain, float dt) {
@@ -280,4 +279,11 @@ void Player::ProcessInput() {
 
 	dx = mouse.xPosRelative();
 	dy = mouse.yPosRelative();
+}
+
+void Player::resize() {
+	m_camera = Camera();
+	m_camera.perspective(80.0f, (float)Application::Width / (float)Application::Height, 1.0f, 1500.0f);
+	m_camera.lookAt(Vector3f(256.0f, 0.0f, 300.0f), Vector3f(256.0f, 0.0f, 300.0f) + Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
+	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
 }

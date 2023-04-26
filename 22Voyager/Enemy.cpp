@@ -174,7 +174,7 @@ void Enemy::update(const Terrain& terrain, const Camera& cam, const float dt) {
 		// Check if enemy is being hit
 		if (m_takingDamage) {
 			// Create damage taken duration window to simulate enemy panick behaviour
-			m_damageTakenDuration += 0.01f * dt;
+			m_damageTakenDuration += 0.1f * dt;
 
 			// Check if the damage taken duration window has exceeded a small threshold
 			if (m_damageTakenDuration > 0.02f) {

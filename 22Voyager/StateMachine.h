@@ -7,9 +7,10 @@
 #include "engine/Quad.h"
 
 enum CurrentState {
+	SHAPEINTERFACE,
 	GAME,
-	TUTORIAL,
 	MAINMENU,
+	ABOUT
 };
 
 class State;

@@ -9,7 +9,9 @@
 
 #define WIDTH 1024
 #define HEIGHT 768
+
 #define DEBUG 1
+#define MENU 0
 
 #define PHYSICS_STEP 0.0166666f
 

@@ -37,7 +37,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	float physicsElapsedTime = 0.0;
 	Application application(deltaTime, fixedDeltaTime);
 
-	HWND hwnd = application.getWindow();
+	HWND hwnd = Application::GetWindow();
 	HDC hdc;
 
 	Clock deltaClock;
