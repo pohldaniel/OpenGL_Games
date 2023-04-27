@@ -7,6 +7,9 @@
 MainMenu::MainMenu(StateMachine& machine) : State(machine, CurrentState::MAINMENU) {
 	Application::SetCursorIcon("res/cursors/black.cur");
 	EventDispatcher::AddMouseListener(this);
+
+	if(!Globals::musicManager.get("background").isPlaying())
+		Globals::musicManager.get("background").play("res/Audio/MainMenu.mp3");
 }
 
 MainMenu::~MainMenu() {
@@ -18,12 +21,12 @@ void MainMenu::fixedUpdate() {}
 void MainMenu::update() {
 	processInput();
 }
+
 void MainMenu::processInput() {
 	Keyboard &keyboard = Keyboard::instance();
 
-
 	if (keyboard.keyPressed(Keyboard::KEY_2)) {
-		Globals::musicManager.get("background").play("res/Audio/MainMenu.mp3");
+		
 	}
 }
 
@@ -161,8 +164,9 @@ void MainMenu::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 	if ((event.x > x * 800.0f &&  event.x < x * 915.0f) && (event.y >= y * 265.0f && event.y <= y * 305.0f)) {
 		Globals::soundManager.get("effect").play("res/Audio/ButtonClicked.wav");
 		m_isRunning = false;
-		m_machine.addStateAtBottom(new Game(m_machine));
+		Globals::musicManager.get("background").stop();
 		Mouse::instance().attach(Application::GetWindow());
+		m_machine.addStateAtBottom(new Game(m_machine));	
 	} else if ((event.x > x * 790.0f &&  event.x < x * 932.0f) && (event.y >= y * 343.0f && event.y <= y * 383.0f)) {
 		Globals::soundManager.get("effect").play("res/Audio/ButtonClicked.wav");
 		m_isRunning = false;

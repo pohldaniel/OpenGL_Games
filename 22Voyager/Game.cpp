@@ -216,6 +216,9 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	for (unsigned int i = 0; i < 30; ++i) {
 		m_enemies.push_back(new Enemy(camera));
 	}
+	Globals::musicManager.get("background").setVolume(Globals::musicVolume * 0.07f);
+	Globals::musicManager.get("background").play("res/Audio/InGame.mp3");
+	
 }
 
 Game::~Game() {
