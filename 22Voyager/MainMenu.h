@@ -14,6 +14,7 @@ public:
 	void fixedUpdate() override;
 	void update() override;
 	void render() override;
+	void processInput();
 
 private:
 

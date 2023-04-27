@@ -5,6 +5,7 @@
 #include "engine/input/EventDispatcher.h"
 #include "engine/input/KeyBorad.h"
 #include "engine/input/Mouse.h"
+#include "engine/sound/SoundDevice.h"
 
 #include "StateMachine.h"
 
@@ -35,6 +36,7 @@ private:
 	void initOpenGL(int msaaSamples = 0);
 	void showWindow();
 	void initImGUI();
+	void initOpenAL();
 	void loadAssets();
 	void initStates();
 
@@ -56,6 +58,7 @@ private:
 
 	static HWND Window;
 	static bool InitWindow;	
+	static bool Init;
 	static DWORD SavedExStyle;
 	static DWORD SavedStyle;
 	static RECT Savedrc;

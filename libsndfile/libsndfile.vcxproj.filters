@@ -15,6 +15,93 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="config.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\sndfile\src\GSM610\add.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\sndfile\src\GSM610\code.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\sndfile\src\GSM610\decode.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\sndfile\src\GSM610\gsm_create.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\sndfile\src\GSM610\gsm_decode.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\sndfile\src\GSM610\gsm_destroy.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\sndfile\src\GSM610\gsm_encode.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\sndfile\src\GSM610\gsm_option.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\sndfile\src\GSM610\long_term.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\sndfile\src\GSM610\lpc.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\sndfile\src\GSM610\preprocess.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\sndfile\src\GSM610\rpe.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\sndfile\src\GSM610\short_term.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\sndfile\src\GSM610\table.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\sndfile\src\ALAC\ag_dec.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\sndfile\src\ALAC\ag_enc.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\sndfile\src\ALAC\alac_decoder.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\sndfile\src\ALAC\alac_encoder.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\sndfile\src\ALAC\ALACBitUtilities.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\sndfile\src\ALAC\dp_dec.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\sndfile\src\ALAC\dp_enc.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\sndfile\src\ALAC\matrix_dec.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\sndfile\src\ALAC\matrix_enc.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\sndfile\src\G72x\_g72x.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\sndfile\src\G72x\g721.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\sndfile\src\G72x\g723_16.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\sndfile\src\G72x\g723_24.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\sndfile\src\G72x\g723_40.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="..\sndfile\src\aiff.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -69,6 +156,9 @@
     <ClCompile Include="..\sndfile\src\file_io.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\sndfile\src\flac.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="..\sndfile\src\float32.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -108,10 +198,16 @@
     <ClCompile Include="..\sndfile\src\mpc2k.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\sndfile\src\ms_adpcm.c">
+    <ClCompile Include="..\sndfile\src\mpeg.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\sndfile\src\nist.c">
+    <ClCompile Include="..\sndfile\src\mpeg_decode.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\sndfile\src\mpeg_l3_encode.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\sndfile\src\ms_adpcm.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\sndfile\src\nms_adpcm.c">
@@ -127,9 +223,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\sndfile\src\ogg_speex.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\sndfile\src\ogg_vcomment.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\sndfile\src\ogg_vorbis.c">
@@ -198,95 +291,11 @@
     <ClCompile Include="..\sndfile\src\xi.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\sndfile\src\ALAC\ag_dec.c">
+    <ClCompile Include="..\sndfile\src\nist.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\sndfile\src\ALAC\ag_enc.c">
+    <ClCompile Include="..\sndfile\src\ogg_vcomment.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\sndfile\src\ALAC\alac_decoder.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\sndfile\src\ALAC\alac_encoder.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\sndfile\src\ALAC\ALACBitUtilities.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\sndfile\src\ALAC\dp_dec.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\sndfile\src\ALAC\dp_enc.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\sndfile\src\ALAC\matrix_dec.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\sndfile\src\ALAC\matrix_enc.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\sndfile\src\G72x\_g72x.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\sndfile\src\G72x\g721.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\sndfile\src\G72x\g723_16.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\sndfile\src\G72x\g723_24.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\sndfile\src\G72x\g723_40.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\sndfile\src\GSM610\add.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\sndfile\src\GSM610\code.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\sndfile\src\GSM610\decode.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\sndfile\src\GSM610\gsm_create.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\sndfile\src\GSM610\gsm_decode.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\sndfile\src\GSM610\gsm_destroy.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\sndfile\src\GSM610\gsm_encode.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\sndfile\src\GSM610\gsm_option.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\sndfile\src\GSM610\long_term.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\sndfile\src\GSM610\lpc.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\sndfile\src\GSM610\preprocess.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\sndfile\src\GSM610\rpe.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\sndfile\src\GSM610\short_term.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\sndfile\src\GSM610\table.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\sndfile\src\flac.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="config.h" />
   </ItemGroup>
 </Project>

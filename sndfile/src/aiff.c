@@ -234,7 +234,7 @@ static int aiff_get_chunk_data (SF_PRIVATE *psf, const SF_CHUNK_ITERATOR * itera
 int
 aiff_open (SF_PRIVATE *psf)
 {	COMM_CHUNK comm_fmt ;
-	int error, subformat ;
+	int error = 0, subformat ;
 
 	memset (&comm_fmt, 0, sizeof (comm_fmt)) ;
 
@@ -404,7 +404,7 @@ aiff_read_header (SF_PRIVATE *psf, COMM_CHUNK *comm_fmt)
 	char		*cptr ;
 	int			instr_found = 0, mark_found = 0 ;
 
-	if (psf->filelength > SF_PLATFORM_S64 (0xffffffff))
+	if (psf->filelength > 0xFFFFFFFFLL)
 		psf_log_printf (psf, "Warning : filelength > 0xffffffff. This is bad!!!!\n") ;
 
 	if ((paiff = psf->container_data) == NULL)
@@ -507,7 +507,7 @@ aiff_read_header (SF_PRIVATE *psf, COMM_CHUNK *comm_fmt)
 					if ((psf->peak_info = peak_info_calloc (psf->sf.channels)) == NULL)
 						return SFE_MALLOC_FAILED ;
 
-					/* read in rest of PEAK chunk. */
+					/* Read in rest of PEAK chunk. */
 					psf_binheader_readf (psf, "E44", &(psf->peak_info->version), &(psf->peak_info->timestamp)) ;
 
 					if (psf->peak_info->version != 1)
@@ -1003,7 +1003,7 @@ aiff_read_comm_chunk (SF_PRIVATE *psf, COMM_CHUNK *comm_fmt)
 	ubuf.scbuf [0] = 0 ;
 
 	/* The COMM chunk has an int aligned to an odd word boundary. Some
-	** procesors are not able to deal with this (ie bus fault) so we have
+	** processors are not able to deal with this (ie bus fault) so we have
 	** to take special care.
 	*/
 

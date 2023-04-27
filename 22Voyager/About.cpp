@@ -23,7 +23,6 @@ void About::render() {
 	shader->use();
 	shader->loadMatrix("projection", Matrix4f::IDENTITY);
 	shader->loadMatrix("model", Matrix4f::IDENTITY);
-	shader->loadInt("sampler", 0);
 
 	Globals::textureManager.get("aboutMenu").bind(0);
 	Globals::shapeManager.get("quad").drawRaw();
@@ -32,7 +31,7 @@ void About::render() {
 		glDepthFunc(GL_ALWAYS);
 		shader->loadMatrix("projection", Matrix4f::Orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f));
 		shader->loadMatrix("model", m_transform.getTransformationMatrix());
-		shader->loadInt("sampler", 0);
+
 		Globals::textureManager.get("indicator").bind(0);
 		Globals::shapeManager.get("quad").drawRaw();
 		glDepthFunc(GL_LESS);
@@ -75,7 +74,7 @@ void About::render() {
 
 void About::OnMouseMotion(Event::MouseMoveEvent& event) {
 	m_transform.reset();
-	m_highlight = false;
+	
 
 	float imageWidth = static_cast<float>(Globals::textureManager.get("aboutMenu").getWidth());
 	float imageHeight = static_cast<float>(Globals::textureManager.get("aboutMenu").getHeight());
@@ -84,10 +83,13 @@ void About::OnMouseMotion(Event::MouseMoveEvent& event) {
 	float y = static_cast<float>(Application::Height) * (1.0f / imageHeight);
 
 	if ((event.x > x * 54.0f &&  event.x < x * 194.0f) && (event.y >= y * 804.0f && event.y <= y * 859.0f)) {
+		if (!m_highlight)
+			Globals::soundManager.get("effect").play("res/Audio/ButtonHovered.wav");
 		m_transform.scale(x * 20.0f, y * 20.0f, 1.0f);
 		m_transform.translate(x * (54.0f - 25.0f), static_cast<float>(Application::Height) - y * (804.0f + 20.0f), 0.0f);
 		m_highlight = true;
-
+	} else {
+		m_highlight = false;
 	}
 }
 
@@ -100,6 +102,7 @@ void About::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 	float y = static_cast<float>(Application::Height) * (1.0f / imageHeight);
 
 	if ((event.x > x * 54.0f &&  event.x < x * 194.0f) && (event.y >= y * 804.0f && event.y <= y * 859.0f)) {
+		Globals::soundManager.get("effect").play("res/Audio/ButtonClicked.wav");
 		m_isRunning = false;
 		m_machine.addStateAtBottom(new MainMenu(m_machine));
 	}

@@ -11,7 +11,13 @@ extern AssetManager<Texture> Globals::textureManager = AssetManager<Texture>();
 extern AssetManager<Shape> Globals::shapeManager = AssetManager<Shape>();
 extern AssetManager<CharacterSet> Globals::fontManager = AssetManager<CharacterSet>();
 extern AssetManager<Spritesheet> Globals::spritesheetManager = AssetManager<Spritesheet>();
+extern AssetManager<SoundBuffer> Globals::soundManager = AssetManager<SoundBuffer>();
+extern AssetManager<MusicBuffer> Globals::musicManager = AssetManager<MusicBuffer>();
+extern AssetManager<SoundEffectsPlayer> Globals::soundEffectsPlayer = AssetManager<SoundEffectsPlayer>();
+
 extern bool Globals::drawUi = false;
+extern float Globals::soundVolume = 0.2f;
+extern float Globals::musicVolume = 0.2f;
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd) {
 

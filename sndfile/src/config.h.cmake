@@ -43,6 +43,9 @@
 /* Will be set to 1 if flac, ogg and vorbis are available. */
 #cmakedefine01 HAVE_EXTERNAL_XIPH_LIBS
 
+/* Will be set to 1 if lame and mpg123 are available. */
+#cmakedefine01 HAVE_MPEG
+
 /* Define to 1 if you have the `floor' function. */
 #cmakedefine01 HAVE_FLOOR
 
@@ -175,6 +178,9 @@
 /* Define to 1 if you have the <immintrin.h> header file. */
 #cmakedefine01 HAVE_IMMINTRIN_H
 
+/* Define to 1 if you have the <stdbool.h> header file. */
+#cmakedefine01 HAVE_STDBOOL_H
+
 /* Define to 1 if you have the `vsnprintf' function. */
 #cmakedefine01 HAVE_VSNPRINTF
 
@@ -217,9 +223,6 @@
 /* Define to the version of this package. */
 #define PACKAGE_VERSION "@CPACK_PACKAGE_VERSION_FULL@"
 
-/* Set to maximum allowed value of sf_count_t type. */
-#define SF_COUNT_MAX @SF_COUNT_MAX@
-
 /* The size of `double', as computed by sizeof. */
 @SIZEOF_DOUBLE_CODE@
 
@@ -247,9 +250,6 @@
 /* The size of `off_t', as computed by sizeof. */
 @SIZEOF_OFF_T_CODE@
 
-/* Set to sizeof (long) if unknown. */
-@SIZEOF_SF_COUNT_T_CODE@
-
 /* The size of `short', as computed by sizeof. */
 @SIZEOF_SHORT_CODE@
 
@@ -264,9 +264,6 @@
 
 /* The size of `wchar_t', as computed by sizeof. */
 @SIZEOF_WCHAR_T_CODE@
-
-/* Set to long if unknown. */
-#define TYPEOF_SF_COUNT_T @TYPEOF_SF_COUNT_T@
 
 /* Enable extensions on AIX 3, Interix.  */
 #ifndef _ALL_SOURCE

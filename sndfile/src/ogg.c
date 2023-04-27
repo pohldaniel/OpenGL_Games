@@ -165,6 +165,8 @@ ogg_read_first_page (SF_PRIVATE *psf, OGG_PRIVATE *odata)
 		return SFE_NOT_SEEKABLE ;
 
 	buffer = ogg_sync_buffer (&odata->osync, psf->header.indx) ;
+	if (buffer == NULL)
+		return SFE_MALLOC_FAILED ;
 	memcpy (buffer, psf->header.ptr, psf->header.indx) ;
 	ogg_sync_wrote (&odata->osync, psf->header.indx) ;
 
@@ -297,6 +299,10 @@ ogg_sync_next_page (SF_PRIVATE * psf, ogg_page *og, sf_count_t readmax, sf_count
 		else
 			nb_read = OGG_SYNC_READ_SIZE ;
 		buffer = (unsigned char *) ogg_sync_buffer (&odata->osync, nb_read) ;
+		if (buffer == NULL)
+		{	psf->error = SFE_MALLOC_FAILED ;
+			return -1 ;
+			}
 		read_ret = psf_fread (buffer, 1, nb_read, psf) ;
 		if (read_ret == 0)
 			return psf->error ? -1 : 0 ;
@@ -447,7 +453,9 @@ ogg_sync_last_page_before (SF_PRIVATE *psf, OGG_PRIVATE *odata, uint64_t *gp_out
 } /* ogg_sync_last_page_before */
 
 int
-ogg_stream_seek_page_search (SF_PRIVATE *psf, OGG_PRIVATE *odata, uint64_t target_gp, uint64_t pcm_start, uint64_t pcm_end, uint64_t *best_gp, sf_count_t begin, sf_count_t end)
+ogg_stream_seek_page_search (SF_PRIVATE *psf, OGG_PRIVATE *odata,
+	uint64_t target_gp, uint64_t pcm_start, uint64_t pcm_end, uint64_t *best_gp,
+	sf_count_t begin, sf_count_t end, uint64_t gp_rate)
 {	ogg_page page ;
 	uint64_t gp ;
 	sf_count_t d0, d1, d2 ;
@@ -614,7 +622,7 @@ ogg_stream_seek_page_search (SF_PRIVATE *psf, OGG_PRIVATE *odata, uint64_t targe
 				if (buffering)
 					ogg_stream_reset (&odata->ostream) ;
 				/* Check to see if the last packet continues. */
-				if (page.header [27 + page.header [26] - 1] == 255)
+				if (ogg_page_continues (&page))
 				{	ogg_page_search_continued_data (odata, &page) ;
 					/*
 					** If we have a continued packet, remember the offset of
@@ -624,15 +632,15 @@ ogg_stream_seek_page_search (SF_PRIVATE *psf, OGG_PRIVATE *odata, uint64_t targe
 					** remember the end of the page.
 					*/
 					best_start = page_offset ;
-					} ;
-				/*
-				** Then force buffering on, so that if a packet starts (but
-				** does not end) on the next page, we still avoid the extra
-				** seek back.
-				*/
-				buffering = SF_TRUE ;
+					/*
+					** Then force buffering on, so that if a packet starts (but
+					** does not end) on the next page, we still avoid the extra
+					** seek back.
+					*/
+					buffering = SF_TRUE ;
+				} ;
 				*best_gp = pcm_start = gp ;
-				if (target_gp - gp > 48000)
+				if (target_gp - gp > gp_rate)
 				{	/* Out by over a second. Try another bisection. */
 					break ;
 					}

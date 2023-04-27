@@ -15,7 +15,17 @@ MainMenu::~MainMenu() {
 
 void MainMenu::fixedUpdate() {}
 
-void MainMenu::update() {}
+void MainMenu::update() {
+	processInput();
+}
+void MainMenu::processInput() {
+	Keyboard &keyboard = Keyboard::instance();
+
+
+	if (keyboard.keyPressed(Keyboard::KEY_2)) {
+		Globals::musicManager.get("background").play("res/Audio/MainMenu.mp3");
+	}
+}
 
 void MainMenu::render() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -24,7 +34,6 @@ void MainMenu::render() {
 	shader->use();
 	shader->loadMatrix("projection", Matrix4f::IDENTITY);
 	shader->loadMatrix("model", Matrix4f::IDENTITY);
-	shader->loadInt("sampler", 0);
 
 	Globals::textureManager.get("mainMenu").bind(0);
 	Globals::shapeManager.get("quad").drawRaw();
@@ -33,7 +42,7 @@ void MainMenu::render() {
 		glDepthFunc(GL_ALWAYS);
 		shader->loadMatrix("projection", Matrix4f::Orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f));
 		shader->loadMatrix("model", m_transform.getTransformationMatrix());
-		shader->loadInt("sampler", 0);
+
 		Globals::textureManager.get("indicator").bind(0);
 		Globals::shapeManager.get("quad").drawRaw();
 		glDepthFunc(GL_LESS);
@@ -108,7 +117,7 @@ void MainMenu::render() {
 
 void MainMenu::OnMouseMotion(Event::MouseMoveEvent& event) {
 	m_transform.reset();
-	m_highlight = false;
+	
 
 	float imageWidth = static_cast<float>(Globals::textureManager.get("mainMenu").getWidth());
 	float imageHeight = static_cast<float>(Globals::textureManager.get("mainMenu").getHeight());
@@ -117,20 +126,27 @@ void MainMenu::OnMouseMotion(Event::MouseMoveEvent& event) {
 	float y = static_cast<float>(Application::Height) * (1.0f / imageHeight);
 
 	if ((event.x > x * 800.0f &&  event.x < x * 915.0f) && (event.y >= y * 265.0f && event.y <= y * 305.0f)) {	
+		if(!m_highlight)
+			Globals::soundManager.get("effect").play("res/Audio/ButtonHovered.wav");
 		m_transform.scale(x * 25.0f, y * 25.0f, 1.0f);
 		m_transform.translate(x * (800.0f - 40.0f), static_cast<float>(Application::Height) - y * (265.0f + 15.0f), 0.0f);
 		m_highlight = true;
-		
+
 	}else if ((event.x > x * 790.0f &&  event.x < x * 932.0f) && (event.y >= y * 343.0f && event.y <= y * 383.0f)) {
+		if (!m_highlight)
+			Globals::soundManager.get("effect").play("res/Audio/ButtonHovered.wav");
 		m_transform.scale(x * 25.0f, y * 25.0f, 1.0f);
 		m_transform.translate(x * (790.0f - 40.0f), static_cast<float>(Application::Height) - y * (343.0f + 15.0f), 0.0f);
 		m_highlight = true;
 		
 	}else if ((event.x > x * 816.0f &&  event.x < x * 902.0f) && (event.y >= y * 418.0f && event.y <= y * 458.0f)){
+		if (!m_highlight)
+			Globals::soundManager.get("effect").play("res/Audio/ButtonHovered.wav");
 		m_transform.scale(x * 25.0f, y * 25.0f, 1.0f);
 		m_transform.translate(x * (816.0f - 40.0f), static_cast<float>(Application::Height) - y * (418.0f + 15.0f), 0.0f);
-		m_highlight = true;
-		
+		m_highlight = true;	
+	}else {
+		m_highlight = false;
 	}
 }
 
@@ -143,14 +159,16 @@ void MainMenu::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 	float y = static_cast<float>(Application::Height) * (1.0f / imageHeight);
 
 	if ((event.x > x * 800.0f &&  event.x < x * 915.0f) && (event.y >= y * 265.0f && event.y <= y * 305.0f)) {
+		Globals::soundManager.get("effect").play("res/Audio/ButtonClicked.wav");
 		m_isRunning = false;
 		m_machine.addStateAtBottom(new Game(m_machine));
 		Mouse::instance().attach(Application::GetWindow());
 	} else if ((event.x > x * 790.0f &&  event.x < x * 932.0f) && (event.y >= y * 343.0f && event.y <= y * 383.0f)) {
+		Globals::soundManager.get("effect").play("res/Audio/ButtonClicked.wav");
 		m_isRunning = false;
 		m_machine.addStateAtBottom(new About(m_machine));
-		
 	} else if ((event.x > x * 816.0f &&  event.x < x * 902.0f) && (event.y >= y * 418.0f && event.y <= y * 458.0f)) {
+		Globals::soundManager.get("effect").play("res/Audio/ButtonClicked.wav");
 		m_isRunning = false;
 	}
 }

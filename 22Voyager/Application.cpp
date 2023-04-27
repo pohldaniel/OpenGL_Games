@@ -23,6 +23,7 @@ unsigned int Application::Width;
 unsigned int Application::Height;
 bool Application::InitWindow = false;
 bool Application::Fullscreen = false;
+bool Application::Init = false;
 DWORD Application::SavedExStyle;
 DWORD Application::SavedStyle;
 RECT Application::Savedrc;
@@ -37,6 +38,7 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 	initOpenGL();
 	showWindow();
 	initImGUI();
+	initOpenAL();
 	loadAssets();
 	initStates();
 
@@ -322,6 +324,10 @@ void Application::initImGUI() {
 	ImGui_ImplOpenGL3_Init("#version 410 core");
 }
 
+void Application::initOpenAL() {
+	SoundDevice::init();
+}
+
 void Application::enableVerticalSync(bool enableVerticalSync) {
 
 	// WGL_EXT_swap_control.
@@ -362,6 +368,8 @@ void Application::render() {
 }
 
 void Application::update() {
+	Globals::musicManager.get("background").updateBufferStream();
+
 	Machine->update();
 
 	if (!Machine->isRunning()) {
@@ -409,6 +417,10 @@ void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 			event.data.mouseButton.button = Event::MouseButtonEvent::MouseButton::BUTTON_LEFT;
 			EventDispatcher.pushEvent(event);
 			break;
+		} case WM_WINDOWPOSCHANGING: {
+			if (Init) {
+				Globals::musicManager.get("background").updateBufferStream();
+			}
 		}
 	}
 }
@@ -416,7 +428,7 @@ void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 void Application::Resize(int deltaW, int deltaH) {
 	glViewport(0, 0, Width, Height);
 
-	if (InitWindow) {
+	if (Init) {
 		Machine->resize(Width, Height);
 		Machine->m_states.top()->resize(deltaW, deltaH);
 
@@ -519,4 +531,12 @@ void Application::loadAssets() {
 	Globals::spritesheetManager.createSpritesheetFromTexture("font", Globals::fontManager.get("roboto_20").spriteSheet, GL_RED, GL_RED, 1);
 	Globals::spritesheetManager.getAssetPointer("font")->addToSpritesheet(Globals::fontManager.get("roboto_28").spriteSheet, GL_RED, GL_RED, 1);
 	Globals::spritesheetManager.getAssetPointer("font")->setLinear();
+
+
+	Globals::musicManager.initMusicBuffer("background");
+	Globals::soundManager.initSoundBuffer("effect");
+
+	Globals::musicManager.get("background").setVolume(Globals::musicVolume);
+	Globals::soundManager.get("effect").setVolume(Globals::soundVolume);
+	Globals::musicManager.get("background").setLooping(true);
 }

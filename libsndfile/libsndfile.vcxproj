@@ -19,6 +19,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="config.h" />
+  </ItemGroup>
+  <ItemGroup>
     <ClCompile Include="..\sndfile\src\aiff.c" />
     <ClCompile Include="..\sndfile\src\alac.c" />
     <ClCompile Include="..\sndfile\src\ALAC\ag_dec.c" />
@@ -79,6 +82,9 @@
     <ClCompile Include="..\sndfile\src\mat4.c" />
     <ClCompile Include="..\sndfile\src\mat5.c" />
     <ClCompile Include="..\sndfile\src\mpc2k.c" />
+    <ClCompile Include="..\sndfile\src\mpeg.c" />
+    <ClCompile Include="..\sndfile\src\mpeg_decode.c" />
+    <ClCompile Include="..\sndfile\src\mpeg_l3_encode.c" />
     <ClCompile Include="..\sndfile\src\ms_adpcm.c" />
     <ClCompile Include="..\sndfile\src\nist.c" />
     <ClCompile Include="..\sndfile\src\nms_adpcm.c" />
@@ -109,9 +115,6 @@
     <ClCompile Include="..\sndfile\src\windows.c" />
     <ClCompile Include="..\sndfile\src\wve.c" />
     <ClCompile Include="..\sndfile\src\xi.c" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="config.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{A4AAC14A-246B-43A7-B9A1-EB17B0045117}</ProjectGuid>
@@ -184,7 +187,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;FLAC__NO_DLL;HAVE_CONFIG_H;_CRT_SECURE_NO_WARNINGS;_USE_MATH_DEFINES</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;..\sndfile\src;..\sndfile\include;..\flac\include;..\opus\include;..\vorbis\include;..\ogg\include;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;..\sndfile\src;..\sndfile\include;..\flac\include;..\opus\include;..\vorbis\include;..\ogg\include;..\liblame\include;..\libmpg2;..\libmpg2\src\libmpg123</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -203,7 +206,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_WINDOWS;_NDEBUG;FLAC__NO_DLL;HAVE_CONFIG_H;_CRT_SECURE_NO_WARNINGS;_USE_MATH_DEFINES</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;..\sndfile\src;..\sndfile\include;..\flac\include;..\opus\include;..\vorbis\include;..\ogg\include;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;..\sndfile\src;..\sndfile\include;..\flac\include;..\opus\include;..\vorbis\include;..\ogg\include;..\liblame\include;..\libmpg2;..\libmpg2\src\libmpg123</AdditionalIncludeDirectories>
       <IntrinsicFunctions>false</IntrinsicFunctions>
       <WholeProgramOptimization>false</WholeProgramOptimization>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -229,7 +232,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;FLAC__NO_DLL;HAVE_CONFIG_H;_CRT_SECURE_NO_WARNINGS;_USE_MATH_DEFINES</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;..\sndfile\src;..\sndfile\include;..\flac\include;..\opus\include;..\vorbis\include;..\ogg\include;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;..\sndfile\src;..\sndfile\include;..\flac\include;..\opus\include;..\vorbis\include;..\ogg\include;..\liblame\include;..\libmpg2;..\libmpg2\src\libmpg123</AdditionalIncludeDirectories>
       <WholeProgramOptimization>false</WholeProgramOptimization>
     </ClCompile>
     <Link>
@@ -253,7 +256,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;FLAC__NO_DLL;HAVE_CONFIG_H;_CRT_SECURE_NO_WARNINGS;_USE_MATH_DEFINES</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;..\sndfile\src;..\sndfile\include;..\flac\include;..\opus\include;..\vorbis\include;..\ogg\include;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;..\sndfile\src;..\sndfile\include;..\flac\include;..\opus\include;..\vorbis\include;..\ogg\include;..\liblame\include;..\libmpg2;..\libmpg2\src\libmpg123</AdditionalIncludeDirectories>
       <CompileAs>Default</CompileAs>
       <WholeProgramOptimization>false</WholeProgramOptimization>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>

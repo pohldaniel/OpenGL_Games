@@ -1,12 +1,20 @@
 #pragma once
-#include "AL\al.h"
-class SoundEffectsPlayer{
+
+#include <AL\al.h>
+#include <AL\alext.h>
+#include <sndfile.h>
+#include <inttypes.h>
+#include <iostream>
+
+class SoundEffectsPlayer {
 
 public:
 	SoundEffectsPlayer() = default;
 	~SoundEffectsPlayer();
+
+	void loadFromFile(const std::string& path);
 	void init();
-	void play(const ALuint& buffer_to_play);
+	void play();
 	void stop();
 	void pause();
 	void resume();
@@ -17,8 +25,8 @@ public:
 
 private:
 	ALuint m_source;
-	ALuint m_buffer = 0;
-
+	ALuint m_buffer;
 	ALint state;
-};
 
+	bool m_sourceInit = false;
+};

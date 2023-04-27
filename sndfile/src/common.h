@@ -23,6 +23,9 @@
 
 #include <stdlib.h>
 #include <string.h>
+#if HAVE_STDBOOL_H
+#include <stdbool.h>
+#endif
 
 #if HAVE_INTTYPES_H
 #include <inttypes.h>
@@ -45,20 +48,6 @@
 
 #ifdef __cplusplus
 #error "This code is not designed to be compiled with a C++ compiler."
-#endif
-
-#ifdef INT64_C
-#	define	SF_PLATFORM_S64(x)		INT64_C (x)
-#elif (SIZEOF_LONG == 8)
-#	define	SF_PLATFORM_S64(x)		x##l
-#elif (SIZEOF_LONG_LONG == 8)
-#	define	SF_PLATFORM_S64(x)		x##ll
-#elif COMPILER_IS_GCC
-#	define	SF_PLATFORM_S64(x)		x##ll
-#elif OS_IS_WIN32
-#	define	SF_PLATFORM_S64(x)		x##I64
-#else
-#	error "Don't know how to define a 64 bit integer constant."
 #endif
 
 
@@ -99,31 +88,14 @@
 
 #define		ARRAY_LEN(x)	((int) (sizeof (x) / sizeof ((x) [0])))
 
-#define		NOT(x)			(! (x))
-
-#if COMPILER_IS_GCC
-#define		SF_MAX(x, y)	({ \
-								typeof (x) sf_max_x1 = (x) ; \
-								typeof (y) sf_max_y1 = (y) ; \
-								(void) (&sf_max_x1 == &sf_max_y1) ; \
-								sf_max_x1 > sf_max_y1 ? sf_max_x1 : sf_max_y1 ; })
-
-#define		SF_MIN(x, y)	({ \
-								typeof (x) sf_min_x2 = (x) ; \
-								typeof (y) sf_min_y2 = (y) ; \
-								(void) (&sf_min_x2 == &sf_min_y2) ; \
-								sf_min_x2 < sf_min_y2 ? sf_min_x2 : sf_min_y2 ; })
-#else
 #define		SF_MAX(a, b)	((a) > (b) ? (a) : (b))
 #define		SF_MIN(a, b)	((a) < (b) ? (a) : (b))
-#endif
 
 
 #define		COMPILE_TIME_ASSERT(e)	(sizeof (struct { int : - !! (e) ; }))
 
 
 #define		SF_MAX_CHANNELS		1024
-
 
 /*
 *	Macros for spliting the format file of SF_INFO into container type,
@@ -307,6 +279,12 @@ typedef SF_BROADCAST_INFO_VAR (16 * 1024) SF_BROADCAST_INFO_16K ;
 
 typedef SF_CART_INFO_VAR (16 * 1024) SF_CART_INFO_16K ;
 
+typedef struct
+{	sf_count_t	offset ;
+	sf_count_t	len ;
+	unsigned	minor_version ;
+} ID3V2_HEADER_INFO ;
+
 #if SIZEOF_WCHAR_T == 2
 typedef wchar_t	sfwchar_t ;
 #else
@@ -314,20 +292,13 @@ typedef int16_t sfwchar_t ;
 #endif
 
 
-static inline void *
-psf_memdup (const void *src, size_t n)
-{	void * mem = calloc (1, n & 3 ? n + 4 - (n & 3) : n) ;
-	return memcpy (mem, src, n) ;
-} /* psf_memdup */
+void *psf_memdup (const void *src, size_t n) ;
 
 /*
 **	This version of isprint specifically ignores any locale info. Its used for
 **	determining which characters can be printed in things like hexdumps.
 */
-static inline int
-psf_isprint (int ch)
-{	return (ch >= ' ' && ch <= '~') ;
-} /* psf_isprint */
+int psf_isprint (int ch) ;
 
 /*=======================================================================================
 **	SF_PRIVATE stuct - a pointer to this struct is passed back to the caller of the
@@ -337,36 +308,23 @@ psf_isprint (int ch)
 
 typedef struct
 {
-	union
-	{	char		c [SF_FILENAME_LEN] ;
-		sfwchar_t	wc [SF_FILENAME_LEN] ;
-	} path ;
-
-	union
-	{	char		c [SF_FILENAME_LEN] ;
-		sfwchar_t	wc [SF_FILENAME_LEN] ;
-	} dir ;
-
-	union
-	{	char		c [SF_FILENAME_LEN / 4] ;
-		sfwchar_t	wc [SF_FILENAME_LEN / 4] ;
-	} name ;
+	char	path [SF_FILENAME_LEN] ;
+	char	dir [SF_FILENAME_LEN] ;
+	char	name [SF_FILENAME_LEN / 4] ;
 
 #if USE_WINDOWS_API
 	/*
 	**	These fields can only be used in src/file_io.c.
 	**	They are basically the same as a windows file HANDLE.
 	*/
-	void 			*handle, *hsaved ;
-
-	int				use_wchar ;
+	void 	*handle, *hsaved ;
 #else
 	/* These fields can only be used in src/file_io.c. */
-	int 			filedes, savedes ;
+	int 	filedes, savedes ;
 #endif
 
-	int				do_not_close_descriptor ;
-	int				mode ;			/* Open mode : SFM_READ, SFM_WRITE or SFM_RDWR. */
+	int		do_not_close_descriptor ;
+	int		mode ;			/* Open mode : SFM_READ, SFM_WRITE or SFM_RDWR. */
 } PSF_FILE ;
 
 
@@ -390,13 +348,6 @@ typedef union
 
 typedef struct sf_private_tag
 {
-	/* Canary in a coal mine. */
-	union
-	{	/* Place a double here to encourage double alignment. */
-		double d [2] ;
-		char c [16] ;
-		} canary ;
-
 	PSF_FILE		file, rsrc ;
 
 	char			syserr		[SF_SYSERR_LEN] ;
@@ -554,6 +505,8 @@ typedef struct sf_private_tag
 	int					(*get_chunk_data)	(struct sf_private_tag*, const SF_CHUNK_ITERATOR * iterator, SF_CHUNK_INFO * chunk_info) ;
 
 	int cpu_flags ;
+
+	ID3V2_HEADER_INFO	id3_header ;
 } SF_PRIVATE ;
 
 
@@ -768,6 +721,17 @@ enum
 
 	SFE_OPUS_BAD_SAMPLERATE,
 
+	SFE_CAF_NOT_CAF,
+	SFE_CAF_NO_DESC,
+	SFE_CAF_BAD_PEAK,
+
+	SFE_AVR_NOT_AVR,
+	SFE_AVR_BAD_REZ_SIGN,
+
+	SFE_MPC_NO_MARKER,
+
+	SFE_MPEG_BAD_SAMPLERATE,
+
 	SFE_MAX_ERROR			/* This must be last in list. */
 } ;
 
@@ -883,6 +847,8 @@ int psf_fclose (SF_PRIVATE *psf) ;
 int psf_open_rsrc (SF_PRIVATE *psf) ;
 int psf_close_rsrc (SF_PRIVATE *psf) ;
 
+int	psf_copy_filename (SF_PRIVATE *psf, const char *path) ;
+
 /*
 void psf_fclearerr (SF_PRIVATE *psf) ;
 int psf_ferror (SF_PRIVATE *psf) ;
@@ -921,10 +887,10 @@ int		ogg_pcm_open	(SF_PRIVATE *psf) ;
 int		ogg_opus_open	(SF_PRIVATE *psf) ;
 int		ogg_open	(SF_PRIVATE *psf) ;
 
+int		mpeg_open	(SF_PRIVATE *psf) ;
 
 /* In progress. Do not currently work. */
 
-int		mpeg_open	(SF_PRIVATE *psf) ;
 int		rx2_open	(SF_PRIVATE *psf) ;
 int		txw_open	(SF_PRIVATE *psf) ;
 int		wve_open	(SF_PRIVATE *psf) ;
@@ -946,6 +912,7 @@ int		vox_adpcm_init	(SF_PRIVATE *psf) ;
 int		flac_init		(SF_PRIVATE *psf) ;
 int		g72x_init 		(SF_PRIVATE * psf) ;
 int		alac_init		(SF_PRIVATE *psf, const ALAC_DECODER_INFO * info) ;
+int		mpeg_init		(SF_PRIVATE *psf, int bitrate_mode, int write_metadata) ;
 
 int 	dither_init		(SF_PRIVATE *psf, int mode) ;
 
@@ -971,17 +938,6 @@ int		psf_find_read_chunk_iterator (const READ_CHUNKS * pchk, const SF_CHUNK_ITER
 
 int		psf_find_write_chunk (WRITE_CHUNKS * pchk, const char * marker) ;
 
-static inline int
-fourcc_to_marker (const SF_CHUNK_INFO * chunk_info)
-{	const unsigned char * cptr ;
-
-	if (chunk_info->id_size != 4)
-		return 0 ;
-
-	cptr = (const unsigned char *) chunk_info->id ;
-	return (cptr [3] << 24) + (cptr [2] << 16) + (cptr [1] << 8) + cptr [0] ;
-} /* fourcc_to_marker */
-
 /*------------------------------------------------------------------------------------
 ** Functions that work like OpenBSD's strlcpy/strlcat to replace strncpy/strncat.
 **
@@ -994,17 +950,8 @@ fourcc_to_marker (const SF_CHUNK_INFO * chunk_info)
 ** compiler errors if code is carelessly converted from one to the other.
 */
 
-static inline void
-psf_strlcat (char *dest, size_t n, const char *src)
-{	strncat (dest, src, n - strlen (dest) - 1) ;
-	dest [n - 1] = 0 ;
-} /* psf_strlcat */
-
-static inline void
-psf_strlcpy (char *dest, size_t n, const char *src)
-{	strncpy (dest, src, n - 1) ;
-	dest [n - 1] = 0 ;
-} /* psf_strlcpy */
+void psf_strlcat (char *dest, size_t n, const char *src) ;
+void psf_strlcpy (char *dest, size_t n, const char *src) ;
 
 /*------------------------------------------------------------------------------------
 ** SIMD optimized math functions.
@@ -1061,6 +1008,7 @@ typedef struct
 
 int audio_detect (SF_PRIVATE * psf, AUDIO_DETECT *ad, const unsigned char * data, int datalen) ;
 int id3_skip (SF_PRIVATE * psf) ;
+const char *id3_lookup_v1_genre (int number) ;
 
 void	alac_get_desc_chunk_items (int subformat, uint32_t *fmt_flags, uint32_t *frames_per_packet) ;
 

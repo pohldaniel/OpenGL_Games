@@ -111,11 +111,17 @@ public:
 
 	void loadSoundEffect(const std::string& name, const std::string& path) {
 		m_assets[name].loadFromFile(path);
+		m_assets[name].init();
 	}
 
-	void loadMusic(const std::string& name, const std::string& path) {
-		m_assets.insert(std::pair<std::string, T>(name, T()));
-		m_assets[name].loadFromFile(path);
+	void initSoundBuffer(const std::string& name) {
+		m_assets[name] = T();
+		m_assets[name].init();
+	}
+
+	void initMusicBuffer(const std::string& name) {
+		m_assets[name] = T();
+		m_assets[name].init();
 	}
 
 	void loadAnimation(const std::string& name, const std::string& path, std::string sourceName, std::string destName, bool looping = false, unsigned int animationOffset = 0u, unsigned int animationCuttOff = 0u, float timeScale = 1.0f) {

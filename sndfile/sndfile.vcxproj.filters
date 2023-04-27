@@ -15,45 +15,83 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\G72x\g721.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\G72x\g723_16.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\G72x\g723_24.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\G72x\g723_40.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\ALAC\ag_dec.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\ALAC\ag_enc.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\ALAC\alac_decoder.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\ALAC\alac_encoder.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\ALAC\ALACBitUtilities.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\ALAC\dp_dec.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\ALAC\dp_enc.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\ALAC\matrix_dec.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\ALAC\matrix_enc.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
+    <ClInclude Include="src\ALAC\aglib.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ALAC\alac_codec.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ALAC\ALACAudioTypes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ALAC\ALACBitUtilities.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\GSM610\gsm.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\G72x\g72x.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\G72x\g72x_priv.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="config.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\sndfile.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\sndfile.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\chanmap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\common.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\id3.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ima_oki_adpcm.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ogg.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ogg_vcomment.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sf_unistd.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sfconfig.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sfendian.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ALAC\dplib.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ALAC\EndianPortable.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ALAC\matrixlib.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ALAC\shift.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\GSM610\gsm610_priv.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\wavlike.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
     <ClCompile Include="src\GSM610\add.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -94,6 +132,45 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\GSM610\table.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ALAC\ag_dec.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ALAC\ag_enc.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ALAC\alac_decoder.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ALAC\alac_encoder.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ALAC\ALACBitUtilities.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ALAC\dp_dec.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ALAC\dp_enc.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ALAC\matrix_dec.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ALAC\matrix_enc.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\G72x\g721.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\G72x\g723_16.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\G72x\g723_24.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\G72x\g723_40.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\aiff.c">
@@ -156,6 +233,9 @@
     <ClCompile Include="src\float32.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\g72x.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="src\gsm610.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -187,6 +267,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\mpc2k.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mpeg.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mpeg_decode.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mpeg_l3_encode.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\ms_adpcm.c">
@@ -267,9 +356,6 @@
     <ClCompile Include="src\wav.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\wavlike.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\windows.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -282,13 +368,8 @@
     <ClCompile Include="src\G72x\_g72x.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\g72x.c">
+    <ClCompile Include="src\wavlike.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="config.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
 </Project>

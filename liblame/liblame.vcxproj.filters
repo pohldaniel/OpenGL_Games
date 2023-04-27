@@ -1,0 +1,216 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="mpghip">
+      <UniqueIdentifier>{f21c1660-d4dd-4599-bffe-53ed9ca609bf}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\bitstream.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\configMS.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\encoder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\fft.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gain_analysis.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\id3tag.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\l3side.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lame_global_flags.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lame-analysis.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lameerror.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\machine.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\newmdct.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\psymodel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\quantize.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\quantize_pvt.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\reservoir.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\set_get.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\util.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\vbrquantize.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\VbrTag.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\version.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\lame.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="mpglib\common.h">
+      <Filter>mpghip</Filter>
+    </ClInclude>
+    <ClInclude Include="mpglib\dct64_i386.h">
+      <Filter>mpghip</Filter>
+    </ClInclude>
+    <ClInclude Include="mpglib\decode_i386.h">
+      <Filter>mpghip</Filter>
+    </ClInclude>
+    <ClInclude Include="mpglib\huffman.h">
+      <Filter>mpghip</Filter>
+    </ClInclude>
+    <ClInclude Include="mpglib\interface.h">
+      <Filter>mpghip</Filter>
+    </ClInclude>
+    <ClInclude Include="mpglib\l2tables.h">
+      <Filter>mpghip</Filter>
+    </ClInclude>
+    <ClInclude Include="mpglib\layer1.h">
+      <Filter>mpghip</Filter>
+    </ClInclude>
+    <ClInclude Include="mpglib\layer2.h">
+      <Filter>mpghip</Filter>
+    </ClInclude>
+    <ClInclude Include="mpglib\layer3.h">
+      <Filter>mpghip</Filter>
+    </ClInclude>
+    <ClInclude Include="mpglib\mpg123.h">
+      <Filter>mpghip</Filter>
+    </ClInclude>
+    <ClInclude Include="mpglib\mpglib.h">
+      <Filter>mpghip</Filter>
+    </ClInclude>
+    <ClInclude Include="mpglib\tabinit.h">
+      <Filter>mpghip</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\bitstream.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\encoder.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\fft.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gain_analysis.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\id3tag.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lame.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mpglib_interface.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\newmdct.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\presets.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\psymodel.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\quantize.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\quantize_pvt.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\reservoir.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\set_get.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tables.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\takehiro.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\util.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\vbrquantize.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\VbrTag.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\version.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\vector\xmm_quantize_sub.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mpglib\common.c">
+      <Filter>mpghip</Filter>
+    </ClCompile>
+    <ClCompile Include="mpglib\dct64_i386.c">
+      <Filter>mpghip</Filter>
+    </ClCompile>
+    <ClCompile Include="mpglib\decode_i386.c">
+      <Filter>mpghip</Filter>
+    </ClCompile>
+    <ClCompile Include="mpglib\interface.c">
+      <Filter>mpghip</Filter>
+    </ClCompile>
+    <ClCompile Include="mpglib\layer1.c">
+      <Filter>mpghip</Filter>
+    </ClCompile>
+    <ClCompile Include="mpglib\layer2.c">
+      <Filter>mpghip</Filter>
+    </ClCompile>
+    <ClCompile Include="mpglib\layer3.c">
+      <Filter>mpghip</Filter>
+    </ClCompile>
+    <ClCompile Include="mpglib\tabinit.c">
+      <Filter>mpghip</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

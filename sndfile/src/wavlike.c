@@ -173,6 +173,7 @@ wavlike_read_fmt_chunk (SF_PRIVATE *psf, int fmtsize)
 	{	switch (wav_fmt->format)
 		{	case WAVE_FORMAT_GSM610 :
 			case WAVE_FORMAT_IPP_ITU_G_723_1 :
+			case WAVE_FORMAT_MPEGLAYER3 :
 					psf_log_printf (psf, "  Bit Width     : %d\n", wav_fmt->min.bitwidth) ;
 					break ;
 			default :
@@ -183,7 +184,8 @@ wavlike_read_fmt_chunk (SF_PRIVATE *psf, int fmtsize)
 	{	switch (wav_fmt->format)
 		{	case WAVE_FORMAT_GSM610 :
 			case WAVE_FORMAT_IPP_ITU_G_723_1 :
-		psf_log_printf (psf, "  Bit Width     : %d (should be 0)\n", wav_fmt->min.bitwidth) ;
+			case WAVE_FORMAT_MPEGLAYER3 :
+					psf_log_printf (psf, "  Bit Width     : %d (should be 0)\n", wav_fmt->min.bitwidth) ;
 					break ;
 			default :
 					psf_log_printf (psf, "  Bit Width     : %d\n", wav_fmt->min.bitwidth) ;
@@ -304,6 +306,23 @@ wavlike_read_fmt_chunk (SF_PRIVATE *psf, int fmtsize)
 
 				psf_log_printf (psf, "  Extra Bytes   : %d\n", wav_fmt->gsm610.extrabytes) ;
 				psf_log_printf (psf, "  Samples/Block : %d\n", wav_fmt->gsm610.samplesperblock) ;
+				break ;
+
+		case WAVE_FORMAT_MPEGLAYER3 :
+				bytesread += psf_binheader_readf (psf, "24222", &(wav_fmt->mpeg3.extrabytes),
+					&(wav_fmt->mpeg3.id), &(wav_fmt->mpeg3.flags), &(wav_fmt->mpeg3.blocksize),
+					&(wav_fmt->mpeg3.samplesperblock), &(wav_fmt->mpeg3.codecdelay)) ;
+
+				psf_log_printf (psf, "  Bytes/sec     : %d\n", wav_fmt->mpeg3.bytespersec) ;
+				psf_log_printf (psf, "  Extra Bytes   : %d\n", wav_fmt->mpeg3.extrabytes) ;
+				if (wav_fmt->mpeg3.id != 1)
+					psf_log_printf (psf, "  ID            : %d (unknown, should be 1)\n", wav_fmt->mpeg3.id) ;
+				else
+					psf_log_printf (psf, "  ID            : MPEGLAYER3_ID_MPEG\n") ;
+				psf_log_printf (psf, "  Flags         : 0x%08x\n", wav_fmt->mpeg3.flags) ;
+				psf_log_printf (psf, "  Block Size    : %d\n", wav_fmt->mpeg3.blocksize) ;
+				psf_log_printf (psf, "  Samples/Block : %d\n", wav_fmt->mpeg3.samplesperblock) ;
+				psf_log_printf (psf, "  Codec Delay   : %d samples\n", wav_fmt->mpeg3.codecdelay) ;
 				break ;
 
 		case WAVE_FORMAT_EXTENSIBLE :
@@ -830,7 +849,11 @@ wavlike_read_cart_chunk (SF_PRIVATE *psf, uint32_t chunksize)
 		return 0 ;
 		} ;
 
-	if (chunksize >= sizeof (SF_CART_INFO_16K))
+	/*
+	**	SF_CART_INFO_16K has an extra field 'tag_text_size' that isn't part
+	**	of the chunk, so don't include it in the size check.
+	*/
+	if (chunksize >= sizeof (SF_CART_INFO_16K) - 4)
 	{	psf_log_printf (psf, "cart : %u too big to be handled\n", chunksize) ;
 		psf_binheader_readf (psf, "j", chunksize) ;
 		return 0 ;
@@ -878,6 +901,9 @@ wavlike_read_cart_chunk (SF_PRIVATE *psf, uint32_t chunksize)
 		c->tag_text_size = chunksize - WAV_CART_MIN_CHUNK_SIZE ;
 		bytes += psf_binheader_readf (psf, "b", c->tag_text, make_size_t (c->tag_text_size)) ;
 		} ;
+
+	if (bytes < chunksize)
+		psf_log_printf (psf, "  %d trailing bytes in cart chunk.\n", chunksize - bytes) ;
 
 	return 0 ;
 } /* wavlike_read_cart_chunk */
@@ -958,7 +984,7 @@ wavlike_subchunk_parse (SF_PRIVATE *psf, int chunk, uint32_t chunk_length)
 		switch (chunk)
 		{	case adtl_MARKER :
 			case INFO_MARKER :
-					/* These markers don't contain anything, not even a chunk lebgth. */
+					/* These markers don't contain anything, not even a chunk length. */
 					psf_log_printf (psf, "  %M\n", chunk) ;
 					continue ;
 
@@ -980,10 +1006,7 @@ wavlike_subchunk_parse (SF_PRIVATE *psf, int chunk, uint32_t chunk_length)
 					**	the rest of the chunk is garbage.
 					*/
 					psf_log_printf (psf, "    *** Found weird-ass zero marker. Jumping to end of chunk.\n") ;
-					if (bytesread < chunk_length)
-						bytesread += psf_binheader_readf (psf, "j", chunk_length - bytesread) ;
-					psf_log_printf (psf, "    *** Offset is now : 0x%X\n", psf_fseek (psf, 0, SEEK_CUR)) ;
-					return 0 ;
+					goto cleanup_subchunk_parse ;
 
 			default :
 					break ;
@@ -1006,7 +1029,7 @@ wavlike_subchunk_parse (SF_PRIVATE *psf, int chunk, uint32_t chunk_length)
 			case ITRK_MARKER :
 					bytesread += psf_binheader_readf (psf, "4", &chunk_size) ;
 					chunk_size += (chunk_size & 1) ;
-					if (chunk_size >= SIGNED_SIZEOF (buffer) || chunk_size >= chunk_length)
+					if (chunk_size >= SIGNED_SIZEOF (buffer) || bytesread + chunk_size > chunk_length)
 					{	psf_log_printf (psf, "  *** %M : %u (too big)\n", chunk, chunk_size) ;
 						goto cleanup_subchunk_parse ;
 						} ;
@@ -1022,7 +1045,7 @@ wavlike_subchunk_parse (SF_PRIVATE *psf, int chunk, uint32_t chunk_length)
 						bytesread += psf_binheader_readf (psf, "44", &chunk_size, &mark_id) ;
 						chunk_size -= 4 ;
 						chunk_size += (chunk_size & 1) ;
-						if (chunk_size < 1 || chunk_size >= SIGNED_SIZEOF (buffer) || chunk_size >= chunk_length)
+						if (chunk_size < 1 || chunk_size >= SIGNED_SIZEOF (buffer) || bytesread + chunk_size > chunk_length)
 						{	psf_log_printf (psf, "  *** %M : %u (too big)\n", chunk, chunk_size) ;
 							goto cleanup_subchunk_parse ;
 							} ;
@@ -1053,7 +1076,7 @@ wavlike_subchunk_parse (SF_PRIVATE *psf, int chunk, uint32_t chunk_length)
 			case note_MARKER :
 					bytesread += psf_binheader_readf (psf, "4", &chunk_size) ;
 					chunk_size += (chunk_size & 1) ;
-					if (chunk_size >= SIGNED_SIZEOF (buffer) || chunk_size >= chunk_length)
+					if (chunk_size >= SIGNED_SIZEOF (buffer) || bytesread + chunk_size > chunk_length)
 					{	psf_log_printf (psf, "  *** %M : %u (too big)\n", chunk, chunk_size) ;
 						goto cleanup_subchunk_parse ;
 						} ;
@@ -1064,16 +1087,14 @@ wavlike_subchunk_parse (SF_PRIVATE *psf, int chunk, uint32_t chunk_length)
 			default :
 					bytesread += psf_binheader_readf (psf, "4", &chunk_size) ;
 					chunk_size += (chunk_size & 1) ;
-					psf_log_printf (psf, "    *** %M : %u\n", chunk, chunk_size) ;
 					if (bytesread + chunk_size > chunk_length)
-					{	bytesread += psf_binheader_readf (psf, "j", chunk_length - bytesread + 4) ;
-						continue ;
+					{	psf_log_printf (psf, "  *** %M : %u (too big)\n", chunk, chunk_size) ;
+						goto cleanup_subchunk_parse ;
 						}
 					else
+					{	psf_log_printf (psf, "    %M : %u\n", chunk, chunk_size) ;
 						bytesread += psf_binheader_readf (psf, "j", chunk_size) ;
-
-					if (chunk_size >= chunk_length)
-						return 0 ;
+						} ;
 					break ;
 			} ;
 
