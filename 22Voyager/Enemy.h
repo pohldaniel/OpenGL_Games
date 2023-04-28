@@ -2,6 +2,7 @@
 #include "engine/Camera.h"
 #include "RenderableObject.h"
 #include "SpotLight.h"
+#include "ParticleEmitter.h"
 
 class Terrain;
 
@@ -49,7 +50,7 @@ private:
 	bool m_dead, m_withinAttackRange, m_takingDamage, m_evade, m_evadeRight, m_droneStatus, m_droneActive, m_fire, m_canRespawn, m_droneSelfDestruct;
 	bool m_damageToken;
 	
-
+	ParticleEmitter m_particleEffect;
 	SpotLight* m_spotlight = nullptr;
 
 	// Private functions

@@ -548,7 +548,6 @@ void Framebuffer::attachRenderbuffer(AttachmentRB::AttachmentRB attachments, uns
 			internalFormat = GL_DEPTH24_STENCIL8;
 			attachment = GL_DEPTH_STENCIL_ATTACHMENT;
 			rb = &m_depthStencilRB;
-			rb = &m_stencilRB;
 			std::get<0>(depthStencilRB) = internalFormat;
 			std::get<1>(depthStencilRB) = samples;
 			std::get<2>(depthStencilRB) = coverageSamples;

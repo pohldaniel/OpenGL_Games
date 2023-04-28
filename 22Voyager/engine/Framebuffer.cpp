@@ -77,6 +77,23 @@ void Framebuffer::attachTexture(AttachmentTex::AttachmentTex attachments) {
 			std::get<2>(m_resizeTexture[m_colorTextureAttachments - 1]) = type;
 
 			break;
+		case AttachmentTex::RGB:
+			internalFormat = GL_RGB8;
+			format = GL_RGB;
+			m_colorAttachments++;
+			m_colorTextureAttachments++;
+
+			m_colorTextures.push_back(tex);
+			texture = &m_colorTextures[m_colorTextureAttachments - 1];
+
+			m_attachments.push_back(GL_COLOR_ATTACHMENT0 + (m_colorTextureAttachments - 1));
+
+			m_resizeTexture.push_back(std::tuple<unsigned int, unsigned int, unsigned int>());
+			std::get<0>(m_resizeTexture[m_colorTextureAttachments - 1]) = internalFormat;
+			std::get<1>(m_resizeTexture[m_colorTextureAttachments - 1]) = format;
+			std::get<2>(m_resizeTexture[m_colorTextureAttachments - 1]) = type;
+
+			break;
 		case AttachmentTex::RGBA32F:
 			internalFormat = GL_RGBA32F;
 			format = GL_RGBA;
@@ -289,7 +306,7 @@ void Framebuffer::attachTexture(AttachmentTex::AttachmentTex attachments) {
 	glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, m_width, m_height, 0, format, type, NULL);
 	glBindTexture(GL_TEXTURE_2D, 0);
 
-	if (attachments == AttachmentTex::SRGBA || attachments == AttachmentTex::RGBA || attachments == AttachmentTex::RGBA32F || attachments == AttachmentTex::RGBA16F || attachments == AttachmentTex::RGB32F || attachments == AttachmentTex::RGB16F || attachments == AttachmentTex::RED || attachments == AttachmentTex::RED32F || attachments == AttachmentTex::RG16F || attachments == AttachmentTex::R11FG11FB10F) {
+	if (attachments == AttachmentTex::SRGBA || attachments == AttachmentTex::RGBA || attachments == AttachmentTex::RGB || attachments == AttachmentTex::RGBA32F || attachments == AttachmentTex::RGBA16F || attachments == AttachmentTex::RGB32F || attachments == AttachmentTex::RGB16F || attachments == AttachmentTex::RED || attachments == AttachmentTex::RED32F || attachments == AttachmentTex::RG16F || attachments == AttachmentTex::R11FG11FB10F) {
 
 		glBindFramebuffer(m_colorAttachments == 1 ? GL_FRAMEBUFFER : GL_DRAW_FRAMEBUFFER, m_fbo);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + (m_colorAttachments - 1), GL_TEXTURE_2D, *texture, 0);
@@ -472,6 +489,19 @@ void Framebuffer::attachRenderbuffer(AttachmentRB::AttachmentRB attachments, uns
 			std::get<2>(m_resizeRB[m_colorRBAttachments - 1]) = coverageSamples;
 
 			break;
+		case AttachmentRB::RGB:
+			internalFormat = GL_RGB8;
+			m_colorAttachments++;
+			m_colorRBAttachments++;
+			m_colorRB.push_back(renderBuffer);
+			rb = &m_colorRB[m_colorRBAttachments - 1];
+
+			m_resizeRB.push_back(std::tuple<unsigned int, unsigned int, unsigned int>());
+			std::get<0>(m_resizeRB[m_colorRBAttachments - 1]) = internalFormat;
+			std::get<1>(m_resizeRB[m_colorRBAttachments - 1]) = samples;
+			std::get<2>(m_resizeRB[m_colorRBAttachments - 1]) = coverageSamples;
+
+			break;
 		case AttachmentRB::RGBA32F:
 			internalFormat = GL_RGBA32F;
 			m_colorAttachments++;
@@ -548,7 +578,6 @@ void Framebuffer::attachRenderbuffer(AttachmentRB::AttachmentRB attachments, uns
 			internalFormat = GL_DEPTH24_STENCIL8;
 			attachment = GL_DEPTH_STENCIL_ATTACHMENT;
 			rb = &m_depthStencilRB;
-			rb = &m_stencilRB;
 			std::get<0>(depthStencilRB) = internalFormat;
 			std::get<1>(depthStencilRB) = samples;
 			std::get<2>(depthStencilRB) = coverageSamples;
@@ -570,7 +599,7 @@ void Framebuffer::attachRenderbuffer(AttachmentRB::AttachmentRB attachments, uns
 		glRenderbufferStorage(GL_RENDERBUFFER, internalFormat, m_width, m_height);
 	}
 
-	if (attachments == AttachmentRB::RGBA || attachments == AttachmentRB::RGBA32F || attachments == AttachmentRB::RGBA16F || attachments == AttachmentRB::R11FG11FB10F) {
+	if (attachments == AttachmentRB::RGBA || attachments == AttachmentRB::RGB || attachments == AttachmentRB::RGBA32F || attachments == AttachmentRB::RGBA16F || attachments == AttachmentRB::R11FG11FB10F) {
 		glBindFramebuffer(m_colorAttachments == 1 ? GL_FRAMEBUFFER : GL_DRAW_FRAMEBUFFER, m_fbo);
 		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + (m_colorAttachments - 1), GL_RENDERBUFFER, *rb);
 		glBindFramebuffer(m_colorAttachments == 1 ? GL_FRAMEBUFFER : GL_DRAW_FRAMEBUFFER, 0);
@@ -583,7 +612,7 @@ void Framebuffer::attachRenderbuffer(AttachmentRB::AttachmentRB attachments, uns
 }
 
 void Framebuffer::resize(unsigned int width, unsigned int height) {
-
+	
 	if (m_depthTexture) {
 		glBindTexture(GL_TEXTURE_2D, m_depthTexture);
 		glTexImage2D(GL_TEXTURE_2D, 0, std::get<0>(depth), width, height, 0, std::get<1>(depth), std::get<2>(depth), NULL);

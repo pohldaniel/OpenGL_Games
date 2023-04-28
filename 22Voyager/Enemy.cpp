@@ -67,6 +67,8 @@ Enemy::Enemy(const Camera& cam) : RenderableObject("sphere", "enemy", "enemyTex"
 
 		shader->unuse();
 	});
+
+	m_particleEffect.Init(20);
 }
 
 Enemy::~Enemy() {
@@ -105,6 +107,9 @@ void Enemy::draw(const Camera& camera) {
 
 		shader->unuse();
 	
+		if (m_currLifeTimer >= 0.2f)
+			m_particleEffect.Render(m_camera, m_deltaTime, Vector3f(m_pos[0] - 1.7f, m_pos[1] + 4.5f, m_pos[2] - 0.4f));
+
 		// Check if a small drone has been fired by the enemy
 		if (m_droneActive){
 			

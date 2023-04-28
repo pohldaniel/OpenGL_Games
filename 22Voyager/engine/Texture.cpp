@@ -1138,6 +1138,11 @@ void Texture::bind(unsigned int unit) const {
 	glBindTexture(m_target, m_texture);
 }
 
+void Texture::unbind(unsigned int unit) const {
+	glBindTexture(m_target, 0);
+	glActiveTexture(GL_TEXTURE0 + unit);
+}
+
 void Texture::setLinear(unsigned int mode) const {
 	glBindTexture(m_target, m_texture);
 	glTexParameterf(m_target, GL_TEXTURE_MIN_FILTER, mode);
@@ -1187,9 +1192,14 @@ void Texture::setAnisotropy(float aniso) const {
 	glBindTexture(m_target, 0);
 }
 
-void Texture::Unbind(unsigned int target) {
+void Texture::Bind(unsigned int& textureRef, unsigned int unit, unsigned int target) {
+	glActiveTexture(GL_TEXTURE0 + unit);
+	glBindTexture(target, textureRef);
+}
+
+void Texture::Unbind(unsigned int unit, unsigned int target) {
 	glBindTexture(target, 0);
-	glActiveTexture(GL_TEXTURE0);
+	glActiveTexture(GL_TEXTURE0 + unit);
 }
 
 void Texture::SetFilter(unsigned int& textureRef, unsigned int minFilter, unsigned int magFilter, unsigned int target) {

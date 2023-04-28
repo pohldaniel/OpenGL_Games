@@ -63,9 +63,9 @@ uniform vec3 lightPos;
 uniform vec3 cameraDir;
 uniform vec3 viewPos;
 
-uniform DirectionalLight dirLight;
-uniform PointLight pointLight;
-uniform Spotlight spotlight;
+uniform DirectionalLight dirLight = {vec3(0.0), vec3(0.0), vec3(0.0), vec3(0.0), vec3(0.0)};
+uniform PointLight pointLight = {vec3(0.0), vec3(0.0), vec3(0.0), vec3(0.0), 0.0, 0.0, 0.0, vec3(0.0)};
+uniform Spotlight spotlight = {vec3(0.0), vec3(0.0), 0.0, 0.0, vec3(0.0), vec3(0.0), 1.0, 0.0, 0.0};
 
 vec4 totalColour;
 

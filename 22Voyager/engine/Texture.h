@@ -24,6 +24,7 @@ public:
 	unsigned int getTarget();
 
 	void bind(unsigned int unit = 0u) const;
+	void unbind(unsigned int unit = 0u) const;
 	void loadFromFile(std::string fileName, const bool flipVertical = false, unsigned int internalFormat = 0u, unsigned int format = 0u, int paddingLeft = 0, int paddingRight = 0, int paddingTop = 0, int paddingBottom = 0, unsigned int SOIL_FLAG = 0u);
 	void loadCrossHDRIFromFile(std::string fileName, const bool flipVertical = true, unsigned int internalFormat = 0u, unsigned int format = 0u, int paddingLeft = 0, int paddingRight = 0, int paddingTop = 0, int paddingBottom = 0);
 	void loadHDRIFromFile(std::string fileName, const bool flipVertical = true, unsigned int internalFormat = 0u, unsigned int format = 0u, int paddingLeft = 0, int paddingRight = 0, int paddingTop = 0, int paddingBottom = 0);
@@ -50,7 +51,8 @@ public:
 	void setAnisotropy(float aniso) const;
 	void cleanup();
 
-	static void Unbind(unsigned int target = 3553u);
+	static void Bind(unsigned int& textureRef, unsigned int unit = 0u, unsigned int target = 3553u);
+	static void Unbind(unsigned int unit = 0u, unsigned int target = 3553u);
 	static void CutSubimage(std::string fileIn, std::string fileOut, unsigned int offsetX, unsigned int offsetY, unsigned int width = 0u, unsigned int height = 0u, const bool flipVertical = false);
 	static void AddHorizontally(std::string fileIn1, std::string fileIn2, std::string fileOut, const bool flipVertical = false);
 	static void FlipVertical(unsigned char* data, unsigned int padWidth, unsigned int height);

@@ -24,7 +24,8 @@ public:
 	static unsigned int Width;
 	static unsigned int Height;
 	static bool Fullscreen;
-	static void SetCursorIcon(std::string file);
+	static void SetCursorIconFromFile(std::string file);
+	static void SetCursorIcon(LPCSTR resource);
 	static HWND GetWindow();
 
 private:

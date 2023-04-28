@@ -5,6 +5,7 @@
 #include "engine/input/Mouse.h"
 #include "engine/TrackBall.h"
 #include "engine/Cube.h"
+#include "engine/Framebuffer.h"
 
 #include "StateMachine.h"
 #include "Weapon.h"
@@ -49,8 +50,11 @@ public:
 	RenderableObject m_crossHaire;
 	RenderableObject m_health;
 	RenderableObject m_ammo;
+	Framebuffer sceneBuffer;
 
 	std::vector<Enemy*> m_enemies;
 	float m_dataTransmitTimer = 0.0f, m_enemySpawnTimer = 0.0f, m_gameStateTimer = 0.0f;
 	int m_enemyCount = 1;
+	bool m_graysclae = false;
+	bool m_thunderstorm = false;
 };

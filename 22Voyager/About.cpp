@@ -4,7 +4,7 @@
 #include "MainMenu.h"
 
 About::About(StateMachine& machine) : State(machine, CurrentState::ABOUT) {
-	Application::SetCursorIcon("res/cursors/black.cur");
+	Application::SetCursorIconFromFile("res/cursors/black.cur");
 	EventDispatcher::AddMouseListener(this);
 }
 

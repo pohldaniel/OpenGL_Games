@@ -13,7 +13,7 @@
 #include "Utils.h"
 
 Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
-
+	Application::SetCursorIcon(IDC_ARROW);
 	Player::GetInstance().Init();
 
 	m_terrain.init();
@@ -218,6 +218,10 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	}
 	Globals::musicManager.get("background").setVolume(Globals::musicVolume * 0.07f);
 	Globals::musicManager.get("background").play("res/Audio/InGame.mp3");
+
+	sceneBuffer.create(Application::Width, Application::Height);
+	sceneBuffer.attachTexture(AttachmentTex::RGBA);
+	sceneBuffer.attachRenderbuffer(AttachmentRB::DEPTH_STENCIL);
 }
 
 Game::~Game() {
@@ -337,7 +341,7 @@ void Game::update() {
 };
 
 void Game::render() {
-
+	sceneBuffer.bind();
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	const Camera& camera = Player::GetInstance().getCamera();
@@ -383,6 +387,20 @@ void Game::render() {
 	Fontrenderer::Get().addText(Globals::fontManager.get("roboto_20"), 380, 25, "Data transfer: " + Fontrenderer::FloatToString(m_dataTransmitTimer, 1) + "%", Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
 	Fontrenderer::Get().drawBuffer();
 	glDepthFunc(GL_LESS);
+	sceneBuffer.unbind();
+
+	//glDisable(GL_BLEND);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	auto shader = Globals::shaderManager.getAssetPointer("post");
+	shader->use();
+	shader->loadInt("screenQuad", 0);
+
+	Texture::Bind(sceneBuffer.getColorTexture(0));
+	Globals::shapeManager.get("quad").drawRaw();
+	Texture::Unbind();
+	shader->unuse();
+
+	//glEnable(GL_BLEND);
 
 	if (Globals::drawUi)
 		renderUi();
@@ -402,6 +420,7 @@ void Game::OnMouseButtonUp(Event::MouseButtonEvent& event) {
 
 void Game::resize(int deltaW, int deltaH) {
 	Player::GetInstance().resize();
+	sceneBuffer.resize(Application::Width, Application::Height);
 }
 
 void Game::renderUi() {
@@ -438,6 +457,20 @@ void Game::renderUi() {
 	// render widgets
 	ImGui::Begin("Settings", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
 	ImGui::Checkbox("Draw Wirframe", &StateMachine::GetEnableWireframe());
+
+	if (ImGui::Checkbox("Gray Scale", &m_graysclae)) {
+		auto shader = Globals::shaderManager.getAssetPointer("post");
+		shader->use();
+		shader->loadInt("grayScaleEffect", m_graysclae);
+		shader->unuse();
+	}
+
+	if (ImGui::Checkbox("Thunder Storm", &m_thunderstorm)) {
+		auto shader = Globals::shaderManager.getAssetPointer("post");
+		shader->use();
+		shader->loadInt("thunderstormEffect", m_thunderstorm);
+		shader->unuse();
+	}
 
 	ImGui::End();
 

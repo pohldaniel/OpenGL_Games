@@ -5,7 +5,7 @@
 #include "About.h"
 
 MainMenu::MainMenu(StateMachine& machine) : State(machine, CurrentState::MAINMENU) {
-	Application::SetCursorIcon("res/cursors/black.cur");
+	Application::SetCursorIconFromFile("res/cursors/black.cur");
 	EventDispatcher::AddMouseListener(this);
 
 	if(!Globals::musicManager.get("background").isPlaying())

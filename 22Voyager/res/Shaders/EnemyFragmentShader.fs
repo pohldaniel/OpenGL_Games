@@ -25,7 +25,7 @@ struct Spotlight {
 	float quadratic;
 };
 
-uniform Spotlight spotlight = {vec3(0), vec3(0), 0, 0, vec3(0), vec3(0), 1.0, 0, 0};
+uniform Spotlight spotlight = {vec3(0.0), vec3(0.0), 0.0, 0.0, vec3(0.0), vec3(0.0), 1.0, 0.0, 0.0};
 
 // Function prototype
 vec3 CalculateSpotlight(Spotlight light, vec3 normal, vec3 viewDir);

@@ -26,6 +26,7 @@ namespace AttachmentTex {
 	typedef enum AttachmentTex {
 		SRGBA,
 		RGBA,
+		RGB,
 		RED,
 		RED32F,
 		RGBA32F,
@@ -47,6 +48,7 @@ namespace AttachmentTex {
 namespace AttachmentRB {
 	typedef enum AttachmentRB {
 		RGBA,
+		RGB,
 		RGBA32F,
 		RGBA16F,
 		R11FG11FB10F,
