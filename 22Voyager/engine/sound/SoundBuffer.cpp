@@ -7,8 +7,7 @@
 CacheLRU<std::string, SoundBuffer::CacheEntryBuffer> SoundBuffer::SoundBufferCache;
 std::vector<ALuint> SoundBuffer::Buffer;
 bool SoundBuffer::CacheInit = false;
-unsigned short SoundBuffer::Instances = 0;
-
+unsigned short SoundBuffer::Instances = 0u;
 SoundBuffer::SoundBuffer(SoundBuffer const& rhs) : m_soundSourceCache(rhs.m_soundSourceCache) {}
 
 SoundBuffer& SoundBuffer::operator=(const SoundBuffer& rhs) {	
@@ -33,29 +32,31 @@ void SoundBuffer::init(unsigned short cacheSizeBuffer, unsigned short cacheSizeS
 		m_sourceInit = true;
 	}
 
-	if (!CacheInit) {
+	if (!CacheInit && cacheSizeBuffer > 0u) {
 		SoundBufferCache.Init(cacheSizeBuffer);
 		Buffer = std::vector<ALuint>(cacheSizeBuffer);
 
 		alGenBuffers(cacheSizeBuffer, Buffer.data());
 		CacheInit = true;
 	}
-	
+	m_maxChannels = channelSize;
+	m_parallelIndex = m_sourceCutoff;
 }
 
 SoundBuffer::~SoundBuffer() {
 	Instances--;
 
 	if(m_sourceInit)
-		alDeleteSources(10, m_sources.data());
+		alDeleteSources(static_cast<ALsizei>(m_sources.size()), m_sources.data());
 
 	if (Instances == 0) {
-		alDeleteBuffers(10, Buffer.data());
+		alDeleteBuffers(static_cast<ALsizei>(Buffer.size()), Buffer.data());
 	}
 	
 }
 
 void SoundBuffer::play(const std::string& file) {
+
 	SoundBufferCache.Put(file);
 	const CacheEntryBuffer& cacheEntryBuffer = SoundBufferCache.Get(file);
 
@@ -75,20 +76,18 @@ void SoundBuffer::play(const std::string& file) {
 	if (m_playState == AL_PLAYING) {
 		return;
 	}
-
 	m_source = m_sources[m_sourceIndex];
 
 	alSourcei(m_source, AL_BUFFER, (ALint)Buffer[m_bufferIndex]);
 	alSourcePlay(m_source);
 }
 
-void SoundBuffer::playParallel(const std::string& file) {
+void SoundBuffer::playOverlayed(const std::string& file) {
 	SoundBufferCache.Put(file);
 	const CacheEntryBuffer& cacheEntryBuffer = SoundBufferCache.Get(file);
 
 	m_soundSourceCache.Put(file);
 	const CacheEntrySource& cacheEntrySource = m_soundSourceCache.Get(file);
-
 
 	if (m_bufferIndex != cacheEntryBuffer.index) {
 		m_bufferIndex = cacheEntryBuffer.index;
@@ -107,8 +106,36 @@ void SoundBuffer::playParallel(const std::string& file) {
 	}
 }
 
+void SoundBuffer::playStacked(const std::string& file) {
+	if (m_sources.size() < m_sourceCutoff)
+		return;
+
+	SoundBufferCache.Put(file);
+	const CacheEntryBuffer& cacheEntryBuffer = SoundBufferCache.Get(file);
+
+	if (m_bufferIndex != cacheEntryBuffer.index) {
+		m_bufferIndex = cacheEntryBuffer.index;
+	}
+
+	ALint playState;
+	alGetSourcei(m_sources[m_parallelIndex], AL_SOURCE_STATE, &playState);
+
+	if (playState != AL_PLAYING) {
+		alSourcei(m_sources[m_parallelIndex], AL_BUFFER, (ALint)Buffer[m_bufferIndex]);
+		alSourcePlay(m_sources[m_parallelIndex]);
+	}
+
+	m_parallelIndex = m_parallelIndex < m_maxChannels ? m_parallelIndex + 1u : m_sourceCutoff;
+}
+
+void SoundBuffer::resetStack() {
+	for (size_t i = m_soundSourceCache.Size(); i < m_maxChannels; i++) {
+		alSourceStop(m_sources[i]);
+	}
+	m_parallelIndex = m_sourceCutoff;
+}
+
 void SoundBuffer::setVolume(float volume) {
-	
 	for (auto const& source : m_sources) {
 		alSourcef(source, AL_GAIN, volume);
 	}
@@ -116,21 +143,27 @@ void SoundBuffer::setVolume(float volume) {
 
 void SoundBuffer::stop(const std::string& file) {
 	const CacheEntrySource& cacheEntrySource = m_soundSourceCache.Get(file);
+	if (cacheEntrySource.index == -1)
+		return;
 	alSourceStop(m_sources[cacheEntrySource.index]);
 }
 
 void SoundBuffer::pause(const std::string& file) {
 	const CacheEntrySource& cacheEntrySource = m_soundSourceCache.Get(file);
+	if (cacheEntrySource.index == -1)
+		return;
 	alSourcePause(m_sources[cacheEntrySource.index]);
 }
 
 void SoundBuffer::resume(const std::string& file) {
 	const CacheEntrySource& cacheEntrySource = m_soundSourceCache.Get(file);
+	if (cacheEntrySource.index == -1)
+		return;
 	alSourcePlay(m_sources[cacheEntrySource.index]);
 }
 
+//////////////////////////////////////////old approach without cache /////////////////////////////
 void SoundBuffer::playChannel(unsigned int channel) {
-	
 	ALint playState;
 	alGetSourcei(m_sources[channel], AL_SOURCE_STATE, &playState);
 
@@ -274,5 +307,9 @@ SoundBuffer::CacheEntryBuffer::CacheEntryBuffer(const std::string& file, const s
 }
 
 SoundBuffer::CacheEntrySource::CacheEntrySource(const std::string& file, const size_t _index) {
-	index = static_cast<unsigned short>(_index);
+	index = static_cast<short>(_index);
+}
+
+SoundBuffer::CacheEntrySource::CacheEntrySource() {
+	index = -1;
 }

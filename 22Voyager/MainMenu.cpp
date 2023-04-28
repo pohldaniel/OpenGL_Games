@@ -130,21 +130,21 @@ void MainMenu::OnMouseMotion(Event::MouseMoveEvent& event) {
 
 	if ((event.x > x * 800.0f &&  event.x < x * 915.0f) && (event.y >= y * 265.0f && event.y <= y * 305.0f)) {	
 		if(!m_highlight)
-			Globals::soundManager.get("effect").play("res/Audio/ButtonHovered.wav");
+			Globals::soundManager.get("mainMenu").playChannel(0u);
 		m_transform.scale(x * 25.0f, y * 25.0f, 1.0f);
 		m_transform.translate(x * (800.0f - 40.0f), static_cast<float>(Application::Height) - y * (265.0f + 15.0f), 0.0f);
 		m_highlight = true;
 
 	}else if ((event.x > x * 790.0f &&  event.x < x * 932.0f) && (event.y >= y * 343.0f && event.y <= y * 383.0f)) {
 		if (!m_highlight)
-			Globals::soundManager.get("effect").play("res/Audio/ButtonHovered.wav");
+			Globals::soundManager.get("mainMenu").playChannel(0u);
 		m_transform.scale(x * 25.0f, y * 25.0f, 1.0f);
 		m_transform.translate(x * (790.0f - 40.0f), static_cast<float>(Application::Height) - y * (343.0f + 15.0f), 0.0f);
 		m_highlight = true;
 		
 	}else if ((event.x > x * 816.0f &&  event.x < x * 902.0f) && (event.y >= y * 418.0f && event.y <= y * 458.0f)){
 		if (!m_highlight)
-			Globals::soundManager.get("effect").play("res/Audio/ButtonHovered.wav");
+			Globals::soundManager.get("mainMenu").playChannel(0u);
 		m_transform.scale(x * 25.0f, y * 25.0f, 1.0f);
 		m_transform.translate(x * (816.0f - 40.0f), static_cast<float>(Application::Height) - y * (418.0f + 15.0f), 0.0f);
 		m_highlight = true;	
@@ -162,17 +162,17 @@ void MainMenu::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 	float y = static_cast<float>(Application::Height) * (1.0f / imageHeight);
 
 	if ((event.x > x * 800.0f &&  event.x < x * 915.0f) && (event.y >= y * 265.0f && event.y <= y * 305.0f)) {
-		Globals::soundManager.get("effect").play("res/Audio/ButtonClicked.wav");
-		m_isRunning = false;
-		Globals::musicManager.get("background").stop();
+		Globals::soundManager.get("mainMenu").playChannel(1u);
+		Globals::musicManager.get("background").stop();	
 		Mouse::instance().attach(Application::GetWindow());
-		m_machine.addStateAtBottom(new Game(m_machine));	
+		m_isRunning = false;
+		m_machine.addStateAtBottom(new Game(m_machine));
 	} else if ((event.x > x * 790.0f &&  event.x < x * 932.0f) && (event.y >= y * 343.0f && event.y <= y * 383.0f)) {
-		Globals::soundManager.get("effect").play("res/Audio/ButtonClicked.wav");
+		Globals::soundManager.get("mainMenu").playChannel(1u);
 		m_isRunning = false;
 		m_machine.addStateAtBottom(new About(m_machine));
 	} else if ((event.x > x * 816.0f &&  event.x < x * 902.0f) && (event.y >= y * 418.0f && event.y <= y * 458.0f)) {
-		Globals::soundManager.get("effect").play("res/Audio/ButtonClicked.wav");
+		Globals::soundManager.get("mainMenu").playChannel(1u);
 		m_isRunning = false;
 	}
 }

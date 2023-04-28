@@ -18,7 +18,7 @@
 #include "ObjModel.h"
 
 //#define ASSIMP_LOAD_FLAGS (aiProcess_JoinIdenticalVertices | aiProcess_RemoveRedundantMaterials | aiProcess_PreTransformVertices | aiProcess_Triangulate)
-#define ASSIMP_LOAD_FLAGS (aiProcess_Triangulate)
+#define ASSIMP_LOAD_FLAGS (aiProcess_Triangulate | aiProcess_FindDegenerates)
 
 class AssimpMesh;
 class AssimpModel {

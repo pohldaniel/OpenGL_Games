@@ -114,9 +114,9 @@ public:
 		m_assets[name].init();
 	}
 
-	void initSoundBuffer(const std::string& name) {
+	void initSoundBuffer(const std::string& name, unsigned short cacheSizeBuffer = 10u, unsigned short cacheSizeSources = 10u, unsigned short channelSize = 20u, float volume = 1.0f) {
 		m_assets[name] = T();
-		m_assets[name].init();
+		m_assets[name].init(cacheSizeBuffer, cacheSizeSources, channelSize, volume);
 	}
 
 	void initMusicBuffer(const std::string& name) {

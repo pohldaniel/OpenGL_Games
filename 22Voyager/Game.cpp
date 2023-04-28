@@ -159,8 +159,8 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 
 		auto shader = Globals::shaderManager.getAssetPointer(m_sniperScope.getShader());
 		shader->use();
-		shader->loadMatrix("projection", camera.getOrthographicMatrix());
-		shader->loadMatrix("model", Matrix4f::Scale(static_cast<float>(Application::Width / 2), static_cast<float>(Application::Height / 2), 1.0f));
+		shader->loadMatrix("projection", Matrix4f::IDENTITY);
+		shader->loadMatrix("model", Matrix4f::IDENTITY);
 		Globals::textureManager.get(m_sniperScope.getTexture()).bind(0);
 		Globals::shapeManager.get(m_sniperScope.getShape()).drawRaw();
 		shader->unuse();
@@ -218,7 +218,6 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	}
 	Globals::musicManager.get("background").setVolume(Globals::musicVolume * 0.07f);
 	Globals::musicManager.get("background").play("res/Audio/InGame.mp3");
-	
 }
 
 Game::~Game() {
@@ -230,6 +229,7 @@ void Game::fixedUpdate() {
 }
 
 void Game::update() {
+
 	Keyboard &keyboard = Keyboard::instance();
 	if (keyboard.keyPressed(Keyboard::KEY_F)) {
 		m_skybox.setDisabled(!m_skybox.isDisabled());
@@ -241,7 +241,7 @@ void Game::update() {
 	m_flag.AddForce(Vector3f(0.0f, -0.2f, 0.0f) * 0.25f);
 	m_flag.WindForce(Vector3f(0.7f, 0.1f, 0.2f) * 0.25f);
 	m_flag.Update();
-
+	
 	Player::GetInstance().Update(m_terrain, m_dt);
 	const Camera& camera = Player::GetInstance().getCamera();
 	// Update physics component
@@ -337,6 +337,7 @@ void Game::update() {
 };
 
 void Game::render() {
+
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	const Camera& camera = Player::GetInstance().getCamera();
@@ -347,20 +348,9 @@ void Game::render() {
 	m_flag.Draw(camera);
 	m_rock.draw(camera);
 
-	Player::GetInstance().Animate(m_dt);
+
 	m_terrain.setFog(m_atmosphere.GetDayTime() <= 0.3f ? false : true);
 	m_terrain.draw(camera, &m_dirLight, &m_pointLight, Player::GetInstance().GetSpotLight());
-
-	if (Player::GetInstance().IsPlayerAiming()) {
-		glDepthFunc(GL_ALWAYS);
-		m_sniperScope.draw(camera);
-		glDepthFunc(GL_LESS);
-	}
-	else
-		m_crossHaire.draw(camera);
-
-	m_health.draw(camera);
-	m_ammo.draw(camera);
 
 	// Draw enemy units
 	for (unsigned int i = 0; i < m_enemyCount; ++i) {
@@ -370,17 +360,29 @@ void Game::render() {
 	}
 
 	glDisable(GL_CULL_FACE);
+	Player::GetInstance().Animate(m_dt);
 	// Draw enemy shockwave if smart drones have exploded
 	for (unsigned int i = 0; i < m_enemyCount; ++i) {
 		m_enemies.at(i)->DrawShockwave();
 	}
 	glEnable(GL_CULL_FACE);
 
+	glDepthFunc(GL_ALWAYS);
+	if (Player::GetInstance().IsPlayerAiming()) {		
+		m_sniperScope.draw(camera);	
+	}else
+		m_crossHaire.draw(camera);
+
+	
+	m_health.draw(camera);
+	m_ammo.draw(camera);
+
 	Globals::spritesheetManager.getAssetPointer("font")->bind(0);
 	Fontrenderer::Get().addText(Globals::fontManager.get("roboto_28"), 80, 20, std::to_string(Player::GetInstance().GetHealth()), Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
 	Fontrenderer::Get().addText(Globals::fontManager.get("roboto_28"), 180, 20, std::to_string(Player::GetInstance().GetCurrWeapon().getAmmoCount()), Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
 	Fontrenderer::Get().addText(Globals::fontManager.get("roboto_20"), 380, 25, "Data transfer: " + Fontrenderer::FloatToString(m_dataTransmitTimer, 1) + "%", Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
 	Fontrenderer::Get().drawBuffer();
+	glDepthFunc(GL_LESS);
 
 	if (Globals::drawUi)
 		renderUi();

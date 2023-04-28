@@ -10,6 +10,8 @@ public:
 	void configure(const Vector3f& diffuse, const Vector3f& specular, float constant, float linear, float quadratic, float cutOff, float outerCutOff);
 	void setPosition(const Vector3f& position) { m_position = position; }
 	void setDirection(const Vector3f& direction) { m_direction = direction; }
+	void setDiffuse(const Vector3f& diffuse) { m_diffuse = diffuse; }
+	void setSpecular(const Vector3f& specular) { m_specular = specular; }
 
 	const Vector3f& getPosition()		{ return m_position; }
 	const Vector3f& getDirection()		{ return m_direction; }

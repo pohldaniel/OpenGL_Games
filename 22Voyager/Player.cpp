@@ -103,6 +103,21 @@ void Player::Update(Terrain& terrain, float dt) {
 	// Update current weapon
 	m_currWeapon->update(dt);
 
+	
+	// Check if player is walking
+	if (m_sprinting){		
+		Globals::soundManager.get("player").stop("res/Audio/FootstepsWalk.wav");
+		Globals::soundManager.get("player").play("res/Audio/FootstepsRun.wav");
+	}else if (m_move){
+		Globals::soundManager.get("player").stop("res/Audio/FootstepsRun.wav");
+		Globals::soundManager.get("player").play("res/Audio/FootstepsWalk.wav");
+	}else{
+		Globals::soundManager.get("player").stop("res/Audio/FootstepsRun.wav");
+		Globals::soundManager.get("player").stop("res/Audio/FootstepsWalk.wav");;
+	}
+
+
+
 	// Check if player is jumping
 	if (m_jumping){
 		m_upwardSpeed += Physics::GetInstance().GetGravity() * dt;
@@ -232,16 +247,6 @@ void Player::ProcessInput() {
 		m_move |= true;
 	}
 
-	if (keyboard.keyDown(Keyboard::KEY_Q)) {
-		directrion += Vector3f(0.0f, -1.0f, 0.0f);
-		m_move |= true;
-	}
-
-	if (keyboard.keyDown(Keyboard::KEY_E)) {
-		directrion += Vector3f(0.0f, 1.0f, 0.0f);
-		m_move |= true;
-	}
-
 	if (keyboard.keyDown(Keyboard::KEY_LALT)) {
 		if (!m_isInAir) {
 			m_jumping = true;
@@ -256,9 +261,31 @@ void Player::ProcessInput() {
 		}
 	}
 
+	if (keyboard.keyPressed(Keyboard::KEY_R)) {
+		m_reloading = true;
+		Globals::soundManager.get("player").playOverlayed("res/Audio/Reloading.wav");
+	}
+
 	if (keyboard.keyPressed(Keyboard::KEY_Q)) {
 		if (!m_reloading){
 			Switch();
+		}
+	}
+	
+	if (keyboard.keyPressed(Keyboard::KEY_F)) {
+		m_toggleFlashlight = !m_toggleFlashlight;
+
+		// Check if the flash light is toggled on
+		if (m_toggleFlashlight) {
+			// Turn on the flash light
+			m_spotLight->setDiffuse(Vector3f(5.0f, 5.0f, 5.0f));
+			m_spotLight->setSpecular(Vector3f(1.0f, 1.0f, 1.0f));
+			Globals::soundManager.get("player").playOverlayed("res/Audio/FlashLightOn.wav");
+		}else {
+			// Turn off the flash light
+			m_spotLight->setDiffuse(Vector3f(0.0f, 0.0f, 0.0f));
+			m_spotLight->setSpecular(Vector3f(0.0f, 0.0f, 0.0f));
+			Globals::soundManager.get("player").playOverlayed("res/Audio/FlashLightOff.wav");
 		}
 	}
 

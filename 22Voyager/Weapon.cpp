@@ -52,7 +52,7 @@ void Weapon::fire(Weapon* weapon, Camera& camera, float dt, bool& firing, bool& 
 
 		Physics::GetInstance().CastRay();
 		m_animator.PlayFireFPS(weapon, camera, dt);
-
+		Globals::soundManager.get("player").playStacked("res/Audio/AR_Fired.wav");
 		--m_ammoCount;
 
 		if (m_ammoCount <= 0) {

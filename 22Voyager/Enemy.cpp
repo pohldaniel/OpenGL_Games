@@ -248,6 +248,12 @@ void Enemy::ReduceHealth(int amount) {
 	m_takingDamage = true;
 	if (m_health <= 0) {
 		m_dead = true;
+
+		// Player one of the monster dead sounds
+		if (Utils::GetInstance().RandomNumBetweenTwo(1.0f, 2.0f) > 1.5f)
+			Globals::soundManager.get("enemy").playOverlayed("res/Audio/EnemyDead.wav");
+		else
+			Globals::soundManager.get("enemy").playOverlayed("res/Audio/EnemyDead2.wav");
 	}
 }
 

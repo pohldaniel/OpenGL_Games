@@ -23,8 +23,7 @@ State* StateMachine::addStateAtTop(State* state) {
 void StateMachine::addStateAtBottom(State* state) {
 	if (m_states.empty()) {
 		m_states.push(state);
-	}
-	else {
+	}else {
 		State* temp = m_states.top();
 		m_states.pop();
 		addStateAtBottom(state);

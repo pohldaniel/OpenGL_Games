@@ -63,6 +63,7 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 	shader->use();
 	shader->loadMatrix("u_projection", Matrix4f::Orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f));
 	shader->unuse();
+	Init = true;
 }
 
 Application::~Application() {
@@ -210,7 +211,9 @@ LRESULT Application::DisplayWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 				Height = 1;
 			}
 			Resize(deltaW, deltaH);
-
+			if (Init) {
+				Globals::musicManager.get("background").updateBufferStream();
+			}
 			break;
 		}default: {
 			//Mouse::instance().handleMsg(hWnd, message, wParam, lParam);
@@ -347,19 +350,6 @@ HWND Application::GetWindow() {
 }
 
 bool Application::isRunning() {
-
-	Keyboard::instance().update();
-	Mouse::instance().update();
-	if (Keyboard::instance().keyDown(Keyboard::KEY_ESCAPE)) {
-		return false;
-	}
-
-	if (Keyboard::instance().keyDown(Keyboard::KEY_LALT) || Keyboard::instance().keyDown(Keyboard::KEY_RALT)) {
-		if (Keyboard::instance().keyPressed(Keyboard::KEY_ENTER)) {
-			ToggleFullScreen(!Fullscreen);
-		}
-	}
-
 	return EventDispatcher.update();
 }
 
@@ -370,6 +360,19 @@ void Application::render() {
 void Application::update() {
 	Globals::musicManager.get("background").updateBufferStream();
 
+	Mouse::instance().update();
+	Keyboard::instance().update();
+
+	if (Keyboard::instance().keyDown(Keyboard::KEY_ESCAPE)) {
+		SendMessage(Window, WM_DESTROY, NULL, NULL);
+	}
+
+	if (Keyboard::instance().keyDown(Keyboard::KEY_LALT) || Keyboard::instance().keyDown(Keyboard::KEY_RALT)) {
+		if (Keyboard::instance().keyPressed(Keyboard::KEY_ENTER)) {
+			ToggleFullScreen(!Fullscreen);
+		}
+	}
+	
 	Machine->update();
 
 	if (!Machine->isRunning()) {
@@ -427,11 +430,11 @@ void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 
 void Application::Resize(int deltaW, int deltaH) {
 	glViewport(0, 0, Width, Height);
-
 	if (Init) {
+
 		Machine->resize(Width, Height);
 		Machine->m_states.top()->resize(deltaW, deltaH);
-
+		
 		auto shader = Globals::shaderManager.getAssetPointer("font");
 		shader->use();
 		shader->loadMatrix("u_projection", Matrix4f::Orthographic(0.0f, static_cast<float>(Width), 0.0f, static_cast<float>(Height), -1.0f, 1.0f));
@@ -463,7 +466,7 @@ void Application::ToggleFullScreen(bool isFullScreen, unsigned int width, unsign
 		deltaH = Height - deltaH;
 
 		SetWindowPos(Window, HWND_TOPMOST, 0, 0, Width, Height, SWP_SHOWWINDOW);
-		Resize(deltaW, deltaH);
+		//Resize(deltaW, deltaH);
 	}
 
 	if (!isFullScreen) {
@@ -480,7 +483,7 @@ void Application::ToggleFullScreen(bool isFullScreen, unsigned int width, unsign
 		deltaH = Height - deltaH;
 
 		SetWindowPos(Window, HWND_NOTOPMOST, 0, 0, Width, Height, SWP_SHOWWINDOW);
-		Resize(deltaW, deltaH);
+		//Resize(deltaW, deltaH);
 	}
 }
 
@@ -534,9 +537,14 @@ void Application::loadAssets() {
 
 
 	Globals::musicManager.initMusicBuffer("background");
-	Globals::soundManager.initSoundBuffer("effect");
-
 	Globals::musicManager.get("background").setVolume(Globals::musicVolume);
-	Globals::soundManager.get("effect").setVolume(Globals::soundVolume);
 	Globals::musicManager.get("background").setLooping(true);
+
+	Globals::soundManager.initSoundBuffer("player", 10u, 7u, 45u, Globals::soundVolume * 1.2f);
+	Globals::soundManager.initSoundBuffer("enemy", 0u, 2u, 2u, Globals::soundVolume * 1.2f);
+	Globals::soundManager.initSoundBuffer("effect", 0u, 1u, 1u, Globals::soundVolume * 1.2f);
+
+	Globals::soundManager.initSoundBuffer("mainMenu", 0u, 0u, 2u, Globals::soundVolume * 1.2f);
+	Globals::soundManager.get("mainMenu").loadChannel("res/Audio/ButtonHovered.wav", 0u);
+	Globals::soundManager.get("mainMenu").loadChannel("res/Audio/ButtonClicked.wav", 1u);
 }

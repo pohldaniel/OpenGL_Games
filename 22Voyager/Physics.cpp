@@ -1,5 +1,6 @@
 #include "Physics.h"
 #include "Player.h"
+#include "Constants.h"
 
 Physics::Physics() : m_mouseX(0.0f), m_mouseY(0.0f), m_gravity(-90.0f), m_castRay(false), m_collision(false) {
 
@@ -57,10 +58,12 @@ void Physics::CheckRaySphereCollision(const Camera& cam, std::vector<Enemy*> ene
 }
 
 inline void Physics::OnEnemyHit(Enemy* enemy) {
+	Globals::soundManager.get("enemy").play("res/Audio/EnemyHit.wav");
 	enemy->ReduceHealth(Player::GetInstance().GetCurrWeapon().getDamage());
 }
 
  void Physics::OnPlayerHit(float damage) {
+	 Globals::soundManager.get("player").play("res/Audio/Hurt.wav");
 	Player::GetInstance().ReduceHealth(damage);
 }
 

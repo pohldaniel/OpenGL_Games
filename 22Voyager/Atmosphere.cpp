@@ -1,6 +1,6 @@
 #include "Atmosphere.h"
 #include "Utils.h"
-
+#include "Constants.h"
 
 Atmosphere::Atmosphere() :
 	m_dayTimer(0.0f),
@@ -81,6 +81,6 @@ void Atmosphere::Thunderstorm()
 		// Generate a duration for thunderstorm flashes and play thunderstorm sound
 		m_flashDuration = Utils::GetInstance().RandomNumBetweenTwo(1, 7);
 		m_playThunderstorm = true;
-		
+		Globals::soundManager.get("effect").play("res/Audio/Thunder.wav");
 	}
 }

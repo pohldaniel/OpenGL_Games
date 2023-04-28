@@ -74,6 +74,7 @@ public:
 	void setWeightModifier(float weightModifier);
 	void smoothMouse(bool smooth);
 	void update();
+	//void resetButton();
 
 	static void SetCursorIcon(std::string file);
 	static HCURSOR GetCursorIcon();

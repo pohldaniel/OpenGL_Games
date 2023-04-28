@@ -25,8 +25,7 @@ public:
 	void Init(size_t max_size = 0) {
 		if (max_size == 0) {
 			max_cache_size = std::numeric_limits<size_t>::max();
-		}
-		else {
+		} else {
 			max_cache_size = max_size;
 		}
 	}
@@ -78,7 +77,7 @@ public:
 		auto it = cache_items_map.find(key);
 
 		if (it == cache_items_map.end()) {
-			throw std::range_error("No such key in the cache");
+			return Value();
 		} else {
 			cache_items_list.splice(cache_items_list.begin(), cache_items_list,
 				it->second);

@@ -84,7 +84,7 @@ void About::OnMouseMotion(Event::MouseMoveEvent& event) {
 
 	if ((event.x > x * 54.0f &&  event.x < x * 194.0f) && (event.y >= y * 804.0f && event.y <= y * 859.0f)) {
 		if (!m_highlight)
-			Globals::soundManager.get("effect").play("res/Audio/ButtonHovered.wav");
+			Globals::soundManager.get("mainMenu").playChannel(0u);
 		m_transform.scale(x * 20.0f, y * 20.0f, 1.0f);
 		m_transform.translate(x * (54.0f - 25.0f), static_cast<float>(Application::Height) - y * (804.0f + 20.0f), 0.0f);
 		m_highlight = true;
@@ -102,7 +102,7 @@ void About::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 	float y = static_cast<float>(Application::Height) * (1.0f / imageHeight);
 
 	if ((event.x > x * 54.0f &&  event.x < x * 194.0f) && (event.y >= y * 804.0f && event.y <= y * 859.0f)) {
-		Globals::soundManager.get("effect").play("res/Audio/ButtonClicked.wav");
+		Globals::soundManager.get("mainMenu").playChannel(1u);
 		m_isRunning = false;
 		m_machine.addStateAtBottom(new MainMenu(m_machine));
 	}
