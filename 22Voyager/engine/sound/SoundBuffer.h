@@ -25,7 +25,7 @@ public:
 	SoundBuffer& operator=(const SoundBuffer& rhs);
 
 	~SoundBuffer();
-	void init(unsigned short cacheSizeBuffer = 10u, unsigned short cacheSizeSources = 10u, unsigned short channelSize = 20u, float volume = 1.0f);
+	void create(unsigned short cacheSizeSources = 10u, unsigned short channelSize = 20u, float volume = 1.0f);
 
 	void play(const std::string& file);
 	void playOverlayed(const std::string& file);
@@ -44,6 +44,8 @@ public:
 	void setVolumeChannel(unsigned int channel, float volume);
 	void loadChannel(const std::string& file, unsigned int channel);
 	
+	static void Init(unsigned short cacheSizeBuffer = 10u);
+
 private:
 
 	ALuint m_source;
@@ -63,7 +65,6 @@ private:
 
 	static std::vector<ALuint> Buffer;
 	static CacheLRU<std::string, SoundBuffer::CacheEntryBuffer> SoundBufferCache;
-	static bool CacheInit;
 	static unsigned short Instances;
 
 };

@@ -195,7 +195,6 @@
     <ClCompile Include="engine\sound\MusicBuffer.cpp" />
     <ClCompile Include="engine\sound\SoundBuffer.cpp" />
     <ClCompile Include="engine\sound\SoundDevice.cpp" />
-    <ClCompile Include="engine\sound\SoundEffectsPlayer.cpp" />
     <ClCompile Include="engine\Spritesheet.cpp" />
     <ClCompile Include="engine\Tetraedron.cpp" />
     <ClCompile Include="engine\Texture.cpp" />
@@ -271,7 +270,6 @@
     <ClInclude Include="engine\sound\MusicBuffer.h" />
     <ClInclude Include="engine\sound\SoundBuffer.h" />
     <ClInclude Include="engine\sound\SoundDevice.h" />
-    <ClInclude Include="engine\sound\SoundEffectsPlayer.h" />
     <ClInclude Include="engine\Spritesheet.h" />
     <ClInclude Include="engine\Tetraedron.h" />
     <ClInclude Include="engine\Texture.h" />

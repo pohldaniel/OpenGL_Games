@@ -114,14 +114,14 @@ public:
 		m_assets[name].init();
 	}
 
-	void initSoundBuffer(const std::string& name, unsigned short cacheSizeBuffer = 10u, unsigned short cacheSizeSources = 10u, unsigned short channelSize = 20u, float volume = 1.0f) {
+	void createSoundBuffer(const std::string& name, unsigned short cacheSizeSources = 10u, unsigned short channelSize = 20u, float volume = 1.0f) {
 		m_assets[name] = T();
-		m_assets[name].init(cacheSizeBuffer, cacheSizeSources, channelSize, volume);
+		m_assets[name].create(cacheSizeSources, channelSize, volume);
 	}
 
-	void initMusicBuffer(const std::string& name) {
+	void createMusicBuffer(const std::string& name, float volume = 1.0f) {
 		m_assets[name] = T();
-		m_assets[name].init();
+		m_assets[name].create(volume);
 	}
 
 	void loadAnimation(const std::string& name, const std::string& path, std::string sourceName, std::string destName, bool looping = false, unsigned int animationOffset = 0u, unsigned int animationCuttOff = 0u, float timeScale = 1.0f) {

@@ -535,16 +535,18 @@ void Application::loadAssets() {
 	Globals::spritesheetManager.getAssetPointer("font")->addToSpritesheet(Globals::fontManager.get("roboto_28").spriteSheet, GL_RED, GL_RED, 1);
 	Globals::spritesheetManager.getAssetPointer("font")->setLinear();
 
+	MusicBuffer::Init();
+	SoundBuffer::Init();
 
-	Globals::musicManager.initMusicBuffer("background");
+	Globals::musicManager.createMusicBuffer("background");
 	Globals::musicManager.get("background").setVolume(Globals::musicVolume);
 	Globals::musicManager.get("background").setLooping(true);
 
-	Globals::soundManager.initSoundBuffer("player", 10u, 7u, 45u, Globals::soundVolume * 1.2f);
-	Globals::soundManager.initSoundBuffer("enemy", 0u, 2u, 2u, Globals::soundVolume * 1.2f);
-	Globals::soundManager.initSoundBuffer("effect", 0u, 1u, 1u, Globals::soundVolume * 1.2f);
+	Globals::soundManager.createSoundBuffer("player", 7u, 45u, Globals::soundVolume * 1.2f);
+	Globals::soundManager.createSoundBuffer("enemy", 2u, 2u, Globals::soundVolume * 1.2f);
+	Globals::soundManager.createSoundBuffer("effect", 1u, 1u, Globals::soundVolume * 1.2f);
 
-	Globals::soundManager.initSoundBuffer("mainMenu", 0u, 0u, 2u, Globals::soundVolume * 1.2f);
+	Globals::soundManager.createSoundBuffer("mainMenu", 0u, 2u, Globals::soundVolume * 1.2f);
 	Globals::soundManager.get("mainMenu").loadChannel("res/Audio/ButtonHovered.wav", 0u);
 	Globals::soundManager.get("mainMenu").loadChannel("res/Audio/ButtonClicked.wav", 1u);
 }

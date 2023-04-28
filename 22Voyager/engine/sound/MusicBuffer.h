@@ -7,12 +7,10 @@
 
 #include "Cache.h"
 
-template<typename T>
-class AssetManager;
+static const int BUFFER_SAMPLES = 8192;
+static const int NUM_BUFFERS = 4;
 
 class MusicBuffer{
-
-	friend class AssetManager<MusicBuffer>;
 
 public:
 
@@ -31,10 +29,9 @@ public:
 	MusicBuffer();
 	MusicBuffer(MusicBuffer const& rhs);
 	MusicBuffer& operator=(const MusicBuffer& rhs);
-
 	~MusicBuffer();
 
-	void init(unsigned short cacheSize = 3u, float volume = 1.0f);
+	void create(float volume = 1.0f);
 	void play(const std::string& file);
 	void pause();
 	void stop();
@@ -48,14 +45,14 @@ public:
 	void setLooping(const bool& loop);
 	void setVolume(float volume);
 
-private:
-	
+	static void Init(unsigned short cacheSize = 3u);
 
-	ALuint m_source = 0;
-	bool m_sourceInit = false;
-	static const int BUFFER_SAMPLES = 8192;
-	static const int NUM_BUFFERS = 4;
+private:
+
 	ALuint m_buffers[NUM_BUFFERS];
+	ALuint m_source = 0;
+
+	bool m_sourceInit = false;	
 	bool  m_loop = false;
 
 	SNDFILE* m_sndFile = nullptr;

@@ -6,7 +6,6 @@
 
 CacheLRU<std::string, SoundBuffer::CacheEntryBuffer> SoundBuffer::SoundBufferCache;
 std::vector<ALuint> SoundBuffer::Buffer;
-bool SoundBuffer::CacheInit = false;
 unsigned short SoundBuffer::Instances = 0u;
 SoundBuffer::SoundBuffer(SoundBuffer const& rhs) : m_soundSourceCache(rhs.m_soundSourceCache) {}
 
@@ -19,7 +18,7 @@ SoundBuffer::SoundBuffer() {
 	Instances++;
 }
 
-void SoundBuffer::init(unsigned short cacheSizeBuffer, unsigned short cacheSizeSources, unsigned short channelSize, float volume) {
+void SoundBuffer::create(unsigned short cacheSizeSources, unsigned short channelSize, float volume) {
 
 	if (!m_sourceInit) {
 		m_soundSourceCache.Init(cacheSizeSources);
@@ -32,13 +31,6 @@ void SoundBuffer::init(unsigned short cacheSizeBuffer, unsigned short cacheSizeS
 		m_sourceInit = true;
 	}
 
-	if (!CacheInit && cacheSizeBuffer > 0u) {
-		SoundBufferCache.Init(cacheSizeBuffer);
-		Buffer = std::vector<ALuint>(cacheSizeBuffer);
-
-		alGenBuffers(cacheSizeBuffer, Buffer.data());
-		CacheInit = true;
-	}
 	m_maxChannels = channelSize;
 	m_parallelIndex = m_sourceCutoff;
 }
@@ -312,4 +304,10 @@ SoundBuffer::CacheEntrySource::CacheEntrySource(const std::string& file, const s
 
 SoundBuffer::CacheEntrySource::CacheEntrySource() {
 	index = -1;
+}
+
+void SoundBuffer::Init(unsigned short cacheSizeBuffer) {
+	SoundBufferCache.Init(cacheSizeBuffer);
+	Buffer = std::vector<ALuint>(cacheSizeBuffer);
+	alGenBuffers(cacheSizeBuffer, Buffer.data());
 }

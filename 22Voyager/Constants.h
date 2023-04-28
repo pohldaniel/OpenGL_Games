@@ -3,7 +3,6 @@
 #include "engine/MeshObject/Shape.h"
 #include "engine/sound/SoundBuffer.h"
 #include "engine/sound/MusicBuffer.h"
-#include "engine/sound/SoundEffectsPlayer.h"
 #include "engine/AssetManger.h"
 #include "engine/Shader.h"
 #include "engine/Texture.h"
@@ -26,7 +25,6 @@ namespace Globals {
 	extern AssetManager<Spritesheet> spritesheetManager;
 	extern AssetManager<SoundBuffer> soundManager;
 	extern AssetManager<MusicBuffer> musicManager;
-	extern AssetManager<SoundEffectsPlayer> soundEffectsPlayer;
 
 	extern bool drawUi;
 	extern float soundVolume;

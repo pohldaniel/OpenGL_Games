@@ -31,10 +31,9 @@ MusicBuffer& MusicBuffer::operator=(const MusicBuffer& rhs) {
 
 MusicBuffer::MusicBuffer() {}
 
-void MusicBuffer::init(unsigned short cacheSize, float volume) {
-	if (!m_sourceInit) {
-		MusicBufferCache.Init(cacheSize);
+void MusicBuffer::create(float volume) {
 
+	if (!m_sourceInit) {
 		alGenSources(1, &m_source);
 		alGenBuffers(NUM_BUFFERS, m_buffers);
 
@@ -228,4 +227,8 @@ MusicBuffer::CacheEntry::~CacheEntry() {
 
 	free(membuf);
 	membuf = nullptr;
+}
+
+void MusicBuffer::Init(unsigned short cacheSize) {	
+	MusicBufferCache.Init(cacheSize);
 }
