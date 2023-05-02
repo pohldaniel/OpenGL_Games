@@ -23,7 +23,7 @@ public:
 	};
 
 	struct KeyboardEvent {
-
+		unsigned int keyCode;
 	};
 
 	struct ApplicationEvent {

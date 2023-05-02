@@ -1,6 +1,7 @@
 #pragma once
 
 #include "engine/input/MouseEventListener.h"
+#include "engine/input/KeyboardEventListener.h"
 #include "engine/input/KeyBorad.h"
 #include "engine/input/Mouse.h"
 #include "engine/TrackBall.h"
@@ -15,7 +16,7 @@
 #include "Cloth.h"
 #include "Enemy.h"
 
-class Game : public State, public MouseEventListener {
+class Game : public State, public MouseEventListener, public KeyboardEventListener {
 
 public:
 
@@ -29,6 +30,7 @@ public:
 	void OnMouseMotion(Event::MouseMoveEvent& event) override;
 	void OnMouseButtonDown(Event::MouseButtonEvent& event) override;
 	void OnMouseButtonUp(Event::MouseButtonEvent& event) override;
+	void OnKeyDown(Event::KeyboardEvent& event) override;
 	void renderUi();
 	void init();
 	void restartGame();

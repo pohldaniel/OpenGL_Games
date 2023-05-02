@@ -15,12 +15,14 @@
 
 Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	Application::SetCursorIcon(IDC_ARROW);
-	
+	EventDispatcher::AddKeyboardListener(this);
+
 	init();
 	restartGame();
 }
 
 Game::~Game() {
+	EventDispatcher::AddKeyboardListener(this);
 	sceneBuffer.clear();
 }
 
@@ -29,15 +31,6 @@ void Game::fixedUpdate() {
 }
 
 void Game::update() {
-
-	Keyboard &keyboard = Keyboard::instance();
-	if (keyboard.keyPressed(Keyboard::KEY_ESCAPE)) {
-		Globals::musicManager.get("background").stop();
-		Globals::musicManager.get("background").setVolume(Globals::musicVolume);
-		Mouse::instance().detach();
-		m_isRunning = false;
-		m_machine.addStateAtBottom(new MainMenu(m_machine));
-	}
 
 	Player::GetInstance().Update(m_terrain, m_dt);
 
@@ -251,6 +244,17 @@ void Game::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 
 void Game::OnMouseButtonUp(Event::MouseButtonEvent& event) {
 
+}
+
+void Game::OnKeyDown(Event::KeyboardEvent& event) {
+	if (event.keyCode == VK_ESCAPE) {
+		Globals::musicManager.get("background").stop();
+		Globals::musicManager.get("background").setVolume(Globals::musicVolume);
+		Globals::drawUi = false;
+		Mouse::instance().detach();
+		m_isRunning = false;
+		m_machine.addStateAtBottom(new MainMenu(m_machine));
+	}
 }
 
 void Game::resize(int deltaW, int deltaH) {

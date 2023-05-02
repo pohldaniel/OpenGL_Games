@@ -423,6 +423,19 @@ void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 			if (Init) {
 				Globals::musicManager.get("background").updateBufferStream();
 			}
+			break;
+		}case WM_KEYDOWN: {
+
+			switch (wParam) {
+
+				case VK_ESCAPE: {
+					Event event;
+					event.type = Event::KEYDOWN;
+					event.data.keyboard.keyCode = wParam;
+					EventDispatcher.pushEvent(event);
+					break;
+				}
+			}
 		}
 	}
 }
