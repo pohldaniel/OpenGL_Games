@@ -148,11 +148,6 @@ LRESULT CALLBACK Application::StaticWndProc(HWND hWnd, UINT message, WPARAM wPar
 
 	ImGui_ImplWin32_WndProcHandler(hWnd, message, wParam, lParam);
 
-	if (InitWindow) {
-		ImGuiIO& io = ImGui::GetIO();
-		if (io.WantCaptureMouse)
-			return DefWindowProc(hWnd, message, wParam, lParam);
-	}
 	if (wParam == SC_KEYMENU && (lParam >> 16) <= 0) return 0;
 	if (application) {
 		application->processEvent(hWnd, message, wParam, lParam);
@@ -169,8 +164,9 @@ LRESULT Application::DisplayWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 			Keyboard::instance().enable();
 			break;
 		}case WM_DESTROY: {
-			if (InitWindow)
+			if (InitWindow) {
 				PostQuitMessage(0);
+			}
 			break;
 		}case WM_LBUTTONDOWN: {			
 			Mouse::instance().setAbsolute(LOWORD(lParam), HIWORD(lParam));
@@ -195,7 +191,8 @@ LRESULT Application::DisplayWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 					Keyboard::instance().disable();
 					break;
 				}case VK_ESCAPE: {
-					SendMessage(Window, WM_DESTROY, NULL, NULL);
+					if (Machine->m_states.top()->getCurrentState() == CurrentState::MAINMENU || Machine->m_states.top()->getCurrentState() == CurrentState::ABOUT)
+						SendMessage(Window, WM_DESTROY, NULL, NULL);
 					break;
 				}case VK_RETURN: {
 					if ((HIWORD(lParam) & KF_ALTDOWN))
@@ -515,6 +512,7 @@ void Application::loadAssets() {
 	Globals::shaderManager.loadShader("font", "res/Shaders/batch.vs", "res/Shaders/font.fs");
 	Globals::shaderManager.loadShader("particle", "res/Shaders/Particle System Shaders/VertexShader.vs", "res/Shaders/Particle System Shaders/FragmentShader.fs", "res/Shaders/Particle System Shaders/GeometryShader.geom");
 	Globals::shaderManager.loadShader("post", "res/Shaders/PostProcessingVertexShader.vs", "res/Shaders/PostProcessingFragmentShader.fs");
+	Globals::shaderManager.loadShader("debugger", "res/Shaders/Debugger.vs", "res/Shaders/Debugger.fs");
 
 	Globals::shapeManager.buildQuadXY("quad", Vector3f(-1.0f, -1.0f, 0.0f), Vector2f(2.0f, 2.0f), 1, 1, true, false, false);
 	Globals::shapeManager.buildCube("cube", Vector3f(-1.0f, -1.0f, -1.0f), Vector3f(2.0f, 2.0f, 2.0f), 1, 1, false, false, false);
@@ -539,7 +537,9 @@ void Application::loadAssets() {
 	Globals::textureManager.loadTexture("mainMenu", "res/Textures/menu.png", false);
 	Globals::textureManager.loadTexture("indicator", "res/Textures/Indicator.png", false);
 	Globals::textureManager.loadTexture("aboutMenu", "res/Textures/AboutBackground.png", false);
-
+	Globals::textureManager.loadTexture("playerDead", "res/Textures/PlayerDeathScreen.png", false);
+	Globals::textureManager.loadTexture("victorious", "res/Textures/VictoryScreen.png", false);
+	 
 	Globals::fontManager.loadCharacterSet("roboto_20", "res/Fonts/Roboto-BoldItalic.ttf", 20, 3, 20, 128, 2, true, 0u);
 	Globals::fontManager.loadCharacterSet("roboto_28", "res/Fonts/Roboto-BoldItalic.ttf", 30, 1, 20, 128, 0, true, 1u);
 	Globals::spritesheetManager.createSpritesheetFromTexture("font", Globals::fontManager.get("roboto_20").spriteSheet, GL_RED, GL_RED, 1);

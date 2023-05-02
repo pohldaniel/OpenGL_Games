@@ -19,7 +19,40 @@ Terrain::Terrain() :
 }
 
 Terrain::~Terrain(){
+	m_textures[0].cleanup();
+	m_textures[1].cleanup();
+	m_textures[2].cleanup();
+	m_textures[3].cleanup();
+	m_textures[4].cleanup();
+	m_textures[5].cleanup();
 
+	if (m_VAO)
+		glDeleteVertexArrays(1, &m_VAO);
+
+	if (m_VBO[VERTEX_BUFFER])
+		glDeleteBuffers(1, &m_VBO[VERTEX_BUFFER]);
+
+	if (m_VBO[TEXTURE_BUFFER])
+		glDeleteBuffers(1, &m_VBO[TEXTURE_BUFFER]);
+
+	if (m_VBO[NORMAL_BUFFER])
+		glDeleteBuffers(1, &m_VBO[NORMAL_BUFFER]);
+
+	if (m_VBO[TANGENT_BUFFER])
+		glDeleteBuffers(1, &m_VBO[TANGENT_BUFFER]);
+
+	if (m_VBO[ELEMENT_BUFFER])
+		glDeleteBuffers(1, &m_VBO[ELEMENT_BUFFER]);
+
+	for (unsigned int i = 0; i < m_vHeights.size(); ++i) {
+		m_vHeights[i].clear();
+		m_vHeights[i].shrink_to_fit();
+	}
+
+	m_vHeights.clear();
+	m_vHeights.shrink_to_fit();
+	m_indices.clear();
+	m_indices.shrink_to_fit();
 }
 
 void Terrain::init() {

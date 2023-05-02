@@ -8,10 +8,49 @@ AssimpModel::AssimpModel() {
 	m_hasTextureCoords = false;
 	m_hasNormals = false;
 	m_hasTangents = false;
+	m_transform.reset();
 }
 
 AssimpModel::~AssimpModel() {
 
+	if (m_vao)
+		glDeleteVertexArrays(1, &m_vao);
+
+	if (m_vbo[0])
+		glDeleteBuffers(1, &m_vbo[0]);
+
+	if (m_vbo[1])
+		glDeleteBuffers(1, &m_vbo[1]);
+
+	if (m_vbo[2])
+		glDeleteBuffers(1, &m_vbo[2]);
+
+	if (m_vbo[3])
+		glDeleteBuffers(1, &m_vbo[3]);
+
+	if (m_vbo[4])
+		glDeleteBuffers(1, &m_vbo[4]);
+
+	if (m_vboInstances)
+		glDeleteBuffers(1, &m_vboInstances);
+
+	m_vertexBuffer.clear();
+	m_vertexBuffer.shrink_to_fit();
+	m_indexBuffer.clear();
+	m_indexBuffer.shrink_to_fit();
+	m_instances.clear();
+	m_instances.shrink_to_fit();
+
+	for (auto & mesh : m_meshes) {
+		delete mesh;
+	}
+
+	for (auto& s : m_shader) {
+		if (s.second) {
+			delete s.second;
+			s.second = NULL;
+		}
+	}
 }
 
 void AssimpModel::rotate(const Vector3f &axis, float degrees) {
@@ -162,7 +201,6 @@ bool AssimpModel::loadModel(const char* a_filename, bool isStacked, bool generat
 
 	aabb.position = Vector3f(xmin, ymin, zmin);
 	aabb.size = Vector3f(xmax, ymax, zmax) - Vector3f(xmin, ymin, zmin);
-	
 	return true;
 }
 
@@ -501,8 +539,7 @@ void AssimpModel::CreateBuffer(std::vector<float>& vertexBuffer, std::vector<uns
 	if (ibo)
 		glDeleteBuffers(1, &ibo);
 
-
-	glGenBuffers(5, vbo);
+	glGenBuffers(stride == 14 ? 5 : stride == 8 ? 3 : (stride == 6 || stride == 5) ? 2 : 1, vbo);
 	glGenBuffers(1, &ibo);
 
 	glGenVertexArrays(1, &vao);
@@ -571,10 +608,9 @@ std::string AssimpModel::GetTexturePath(std::string texPath, std::string modelDi
 }
 
 void AssimpModel::ReadAiMaterial(const aiMaterial* aiMaterial, short& index, std::string modelDirectory) {
-
 	std::vector<Material>::iterator it = std::find_if(Material::GetMaterials().begin(), Material::GetMaterials().end(), std::bind(compareMaterial, std::placeholders::_1, modelDirectory));
 	if (it == Material::GetMaterials().end()) {
-
+		
 		Material::GetMaterials().resize(Material::GetMaterials().size() + 1);
 		index = Material::GetMaterials().size() - 1;
 		Material& material = Material::GetMaterials().back();
@@ -644,6 +680,8 @@ void AssimpModel::ReadAiMaterial(const aiMaterial* aiMaterial, short& index, std
 			material.textures[2].loadFromFile(GetTexturePath(name.data, modelDirectory), true);
 			material.textures[2].setFilter(GL_LINEAR_MIPMAP_LINEAR);
 		}
+	}else {
+		index = std::distance(Material::GetMaterials().begin(), it);
 	}
 }
 

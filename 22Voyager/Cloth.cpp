@@ -6,14 +6,17 @@ Cloth::Cloth() : m_position(Vector3f(1.0f, 1.0f, 1.0f)) {
 }
 
 Cloth::~Cloth() {
+	delete m_shader;
 
+	m_particles.clear();
+	m_particles.shrink_to_fit();
+	m_constraints.clear();
+	m_constraints.shrink_to_fit();
 }
 
 void Cloth::Configure(float w, float h, int totalParticlesW, int totalParticlesH) {
 	// Create shader program	
 	m_shader = new Shader("res/Shaders/Cloth Shaders/VertexShader.vs", "res/Shaders/Cloth Shaders/FragmentShader.fs");
-	// Create texture
-	m_textureComponent = Globals::textureManager.get("clothTex");
 
 	// Allocate enough room for particles of cloth in the vector
 	m_particles.resize(totalParticlesW * totalParticlesH);
@@ -90,7 +93,7 @@ void Cloth::Configure(float w, float h, int totalParticlesW, int totalParticlesH
 void Cloth::Draw(const Camera& cam) {
 
 	m_shader->use();
-	m_textureComponent.bind(0);
+	Globals::textureManager.get("clothTex").bind(0);
 
 	// Reset normals
 	for (auto p = m_particles.begin(); p != m_particles.end(); ++p)

@@ -63,7 +63,7 @@ inline void Physics::OnEnemyHit(Enemy* enemy) {
 }
 
  void Physics::OnPlayerHit(float damage) {
-	 Globals::soundManager.get("player").play("res/Audio/Hurt.wav");
+	Globals::soundManager.get("player").playOverlayed("res/Audio/Hurt.wav");
 	Player::GetInstance().ReduceHealth(damage);
 }
 

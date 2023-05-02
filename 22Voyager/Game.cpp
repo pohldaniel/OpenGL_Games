@@ -11,14 +11,317 @@
 #include "Player.h"
 #include "Application.h"
 #include "Utils.h"
+#include "MainMenu.h"
 
 Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	Application::SetCursorIcon(IDC_ARROW);
+	
+	init();
+	restartGame();
+}
+
+Game::~Game() {
+	sceneBuffer.clear();
+}
+
+void Game::fixedUpdate() {
+
+}
+
+void Game::update() {
+
+	Keyboard &keyboard = Keyboard::instance();
+	if (keyboard.keyPressed(Keyboard::KEY_ESCAPE)) {
+		Globals::musicManager.get("background").stop();
+		Globals::musicManager.get("background").setVolume(Globals::musicVolume);
+		Mouse::instance().detach();
+		m_isRunning = false;
+		m_machine.addStateAtBottom(new MainMenu(m_machine));
+	}
+
+	Player::GetInstance().Update(m_terrain, m_dt);
+
+	if (Player::GetInstance().IsPlayerDead()) {
+		m_gameStateTimer += 1.0f * m_dt;
+
+
+		if (m_gameStateTimer > 5.0f) {
+			restartGame();
+			m_gameStateTimer = 0.0f;
+		}
+	} else if (Player::GetInstance().GetHealth() <= 10 || m_grayscale) {
+		auto shader = Globals::shaderManager.getAssetPointer("post");
+		shader->use();
+		shader->loadInt("grayScaleEffect", true);
+		shader->unuse();
+
+	}else{
+		auto shader = Globals::shaderManager.getAssetPointer("post");
+		shader->use();
+		shader->loadInt("grayScaleEffect", false);
+		shader->unuse();
+
+	}
+
+	m_skybox.update(m_dt);
+	m_saturn.update(m_dt);
+
+	m_flag.AddForce(Vector3f(0.0f, -0.2f, 0.0f) * 0.25f);
+	m_flag.WindForce(Vector3f(0.7f, 0.1f, 0.2f) * 0.25f);
+	m_flag.Update();
+
+	const Camera& camera = Player::GetInstance().getCamera();
+	// Update physics component
+	if (m_dataTransmitTimer < 100) {
+		// Increase total number of enemies over time
+		m_enemySpawnTimer += 1.0f * m_dt;
+
+		if (m_enemySpawnTimer >= 16.0f) {
+			m_enemySpawnTimer = 0.0f;
+
+			if (m_enemyCount < 30) {
+				++m_enemyCount;
+			}
+		}
+	}
+
+	// Update enemy units
+	for (unsigned int i = 0; i < m_enemyCount; ++i) {
+		m_enemies.at(i)->update(m_terrain, camera, m_dt);
+	}
+
+	// Update physics component
+	Physics::GetInstance().Update(camera, m_dt, m_enemies);
+
+	// Update mountain rocks' fog effect 
+	if (m_atmosphere.GetDayTime() >= 0.3f && m_atmosphere.GetDayTime() <= 0.31f) {
+
+		auto shader = Globals::shaderManager.getAssetPointer("instance");
+		shader->use();
+		shader->loadBool("nightFog", true);
+		shader->unuse();
+
+	} else if (m_atmosphere.GetDayTime() < 0.3f && m_atmosphere.GetDayTime() >= 0.29f) {
+		auto shader = Globals::shaderManager.getAssetPointer("instance");
+		shader->use();
+		shader->loadBool("nightFog", false);
+		shader->unuse();
+	}
+
+	// Update atmosphere (thunderstorms)
+	m_atmosphere.Update(m_dt);
+
+	if (m_atmosphere.GetFlashDuration() > 0) {
+		if (m_atmosphere.GetThunderFlash()) {
+			--m_atmosphere.GetFlashDuration();
+			m_atmosphere.SetThunderFlash(false);
+
+			auto shader = Globals::shaderManager.getAssetPointer("post");
+			shader->use();
+			shader->loadInt("thunderstormEffect", m_thunderstorm);
+			shader->unuse();
+		}
+
+		m_atmosphere.GetFlashTimer() += Utils::GetInstance().RandomNumBetweenTwo(0.5f, 1.0f) * m_dt;
+		if (m_atmosphere.GetFlashTimer() > Utils::GetInstance().RandomNumBetweenTwo(0.05f, 0.1f)) {
+			m_atmosphere.GetThunderFlash() = !m_atmosphere.GetThunderFlash();
+			m_atmosphere.GetFlashTimer() = 0.0f;
+		}
+	}
+
+	if (!Player::GetInstance().IsPlayerDead()) {
+		m_dataTransmitTimer += 0.59f * m_dt;
+	}
+
+	// Check if win condition is met (if the data was sent in full and all enemies have been neutralized)
+	if (m_dataTransmitTimer >= 100) {
+		m_endGame = false;
+
+		// Loop through the enemies 
+		for (unsigned int i = 0; i < m_enemyCount; ++i) {
+			// Check if the enemy is dead and cannot be respawned
+			if (m_enemies.at(i)->GetDeath() && !m_enemies.at(i)->GetRespawnStatus()){
+				m_endGame = true;
+			}else {
+				m_endGame = false;
+				break;
+			}
+		}
+
+		if (m_endGame) {
+			//Renderer::GetInstance().GetComponent(PLAYER_VICTORY_SCREEN).Draw(m_cameraHUD);
+			m_gameStateTimer += 1.15f * m_dt;
+
+			if (m_gameStateTimer >= 5.0f) {
+				m_gameStateTimer = 0.0f;
+				Globals::musicManager.get("background").stop(); 
+				Globals::musicManager.get("background").setVolume(Globals::musicVolume);
+				Mouse::instance().detach();
+				m_isRunning = false;
+				m_machine.addStateAtBottom(new MainMenu(m_machine));
+			}
+		}
+	}
+};
+
+void Game::render() {
+	sceneBuffer.bind();
+	renderScene();
+	sceneBuffer.unbind();
+
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	auto shader = Globals::shaderManager.getAssetPointer("post");
+	shader->use();
+	shader->loadInt("screenQuad", 0);
+
+	Texture::Bind(sceneBuffer.getColorTexture(0));
+	Globals::shapeManager.get("quad").drawRaw();
+	Texture::Unbind();
+	shader->unuse();
+
+	if (Globals::drawUi)
+		renderUi();
+}
+
+void Game::renderScene() {
+	
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	const Camera& camera = Player::GetInstance().getCamera();
+
+	m_skybox.draw(camera);
+	m_saturn.draw(camera);
+	m_saturnRings.draw(camera);
+	m_flagPole.draw(camera);
+
+	m_rock.draw(camera);
+
+	m_terrain.setFog(m_atmosphere.GetDayTime() <= 0.3f ? false : true);
+	m_terrain.draw(camera, &m_dirLight, &m_pointLight, Player::GetInstance().GetSpotLight());
+
+	// Draw enemy units
+	for (unsigned int i = 0; i < m_enemyCount; ++i) {
+		// Check if this enemy unit can respawn (if the data transfer is at 100, then this enemy cannot respawn anymore)
+		m_enemies.at(i)->SetRespawnStatus(m_dataTransmitTimer < 100 ? true : false);
+		m_enemies.at(i)->draw(camera);
+	}
+
+	glDisable(GL_CULL_FACE);
+	m_flag.Draw(camera);
+	Player::GetInstance().Animate(m_dt);
+	// Draw enemy shockwave if smart drones have exploded
+	for (unsigned int i = 0; i < m_enemyCount; ++i) {
+		m_enemies.at(i)->DrawShockwave();
+	}
+	glEnable(GL_CULL_FACE);
+
+	glDepthFunc(GL_ALWAYS);
+
+	if (Player::GetInstance().IsPlayerDead() || m_isDead) {
+		m_deathScreen.draw(camera);
+	} else if (m_endGame || m_victory) {
+		m_victoryScreen.draw(camera);
+	}
+
+	if (Player::GetInstance().IsPlayerAiming()) {
+		m_sniperScope.draw(camera);
+	}else
+		m_crossHaire.draw(camera);
+
+	m_health.draw(camera);
+	m_ammo.draw(camera);
+
+	Globals::spritesheetManager.getAssetPointer("font")->bind(0);
+	Fontrenderer::Get().addText(Globals::fontManager.get("roboto_28"), 80, 20, std::to_string(Player::GetInstance().GetHealth()), Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+	Fontrenderer::Get().addText(Globals::fontManager.get("roboto_28"), 180, 20, std::to_string(Player::GetInstance().GetCurrWeapon().getAmmoCount()), Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+	Fontrenderer::Get().addText(Globals::fontManager.get("roboto_20"), 380, 25, "Data transfer: " + Fontrenderer::FloatToString(m_dataTransmitTimer, 1) + "%", Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+	Fontrenderer::Get().drawBuffer();		
+
+	glDepthFunc(GL_LESS);	
+}
+
+void Game::OnMouseMotion(Event::MouseMoveEvent& event) {
+
+}
+
+void Game::OnMouseButtonDown(Event::MouseButtonEvent& event) {
+
+}
+
+void Game::OnMouseButtonUp(Event::MouseButtonEvent& event) {
+
+}
+
+void Game::resize(int deltaW, int deltaH) {
+	Player::GetInstance().resize();
+	sceneBuffer.resize(Application::Width, Application::Height);
+}
+
+void Game::renderUi() {
+	ImGui_ImplOpenGL3_NewFrame();
+	ImGui_ImplWin32_NewFrame();
+	ImGui::NewFrame();
+
+	ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoTitleBar |
+		ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove |
+		ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus |
+		ImGuiWindowFlags_NoBackground;
+
+	ImGuiViewport* viewport = ImGui::GetMainViewport();
+	ImGui::SetNextWindowPos(viewport->Pos);
+	ImGui::SetNextWindowSize(viewport->Size);
+	ImGui::SetNextWindowViewport(viewport->ID);
+
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+	ImGui::Begin("InvisibleWindow", nullptr, windowFlags);
+	ImGui::PopStyleVar(3);
+
+	ImGuiID dockSpaceId = ImGui::GetID("MainDockSpace");
+	ImGui::DockSpace(dockSpaceId, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_PassthruCentralNode);
+	ImGui::End();
+
+	if (m_initUi) {
+		m_initUi = false;
+		ImGuiID dock_id_left = ImGui::DockBuilderSplitNode(dockSpaceId, ImGuiDir_Left, 0.2f, nullptr, &dockSpaceId);
+		ImGui::DockBuilderDockWindow("Settings", dock_id_left);
+	}
+
+	// render widgets
+	ImGui::Begin("Settings", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
+	ImGui::Checkbox("Draw Wirframe", &StateMachine::GetEnableWireframe());
+
+	if (ImGui::Checkbox("Gray Scale", &m_grayscale)) {
+		auto shader = Globals::shaderManager.getAssetPointer("post");
+		shader->use();
+		shader->loadInt("grayScaleEffect", m_grayscale);
+		shader->unuse();
+	}
+
+	if (ImGui::Checkbox("Thunder Storm", &m_thunderstorm)) {
+		auto shader = Globals::shaderManager.getAssetPointer("post");
+		shader->use();
+		shader->loadInt("thunderstormEffect", m_thunderstorm);
+		shader->unuse();
+	}
+
+	ImGui::Checkbox("Dead", &m_isDead);
+	ImGui::Checkbox("Victory", &m_victory);
+
+	ImGui::End();
+
+	ImGui::Render();
+	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+}
+
+void Game::init() {
 	Player::GetInstance().Init();
 
 	m_terrain.init();
 	m_terrain.createTerrainWithPerlinNoise();
-
+	
 	m_dirLight.configure(Vector3f(-0.1f, -0.1f, -0.1f), Vector3f(0.1f, 0.1f, 0.1f), Vector3f(0.5f, 0.5f, 0.5f));
 	m_dirLight.setDirection(Vector3f(0.2f, 1.0f, 0.5f));
 	m_dirLight.setColour(Vector3f(0.97f, 0.88f, 0.70f));
@@ -179,6 +482,32 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 		shader->unuse();
 	});
 
+	m_deathScreen = RenderableObject("quad", "hud", "playerDead");
+	m_deathScreen.setDrawFunction([&](const Camera& camera) {
+		if (m_deathScreen.isDisabled()) return;
+
+		auto shader = Globals::shaderManager.getAssetPointer(m_deathScreen.getShader());
+		shader->use();
+		shader->loadMatrix("projection", Matrix4f::IDENTITY);
+		shader->loadMatrix("model", Matrix4f::IDENTITY);
+		Globals::textureManager.get(m_deathScreen.getTexture()).bind(0);
+		Globals::shapeManager.get(m_deathScreen.getShape()).drawRaw();
+		shader->unuse();
+	});
+
+	m_victoryScreen = RenderableObject("quad", "hud", "victorious");
+	m_victoryScreen.setDrawFunction([&](const Camera& camera) {
+		if (m_victoryScreen.isDisabled()) return;
+
+		auto shader = Globals::shaderManager.getAssetPointer(m_victoryScreen.getShader());
+		shader->use();
+		shader->loadMatrix("projection", Matrix4f::IDENTITY);
+		shader->loadMatrix("model", Matrix4f::IDENTITY);
+		Globals::textureManager.get(m_victoryScreen.getTexture()).bind(0);
+		Globals::shapeManager.get(m_victoryScreen.getShape()).drawRaw();
+		shader->unuse();
+	});
+
 	m_health = RenderableObject("quad", "hud", "health");
 	m_health.setPosition(40.0f, 40.0f, 0.0f);
 	m_health.setScale(20.0f, 20.0f, 1.0f);
@@ -216,264 +545,33 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	for (unsigned int i = 0; i < 30; ++i) {
 		m_enemies.push_back(new Enemy(camera));
 	}
-	Globals::musicManager.get("background").setVolume(Globals::musicVolume * 0.07f);
-	Globals::musicManager.get("background").play("res/Audio/InGame.mp3");
-
+	
 	sceneBuffer.create(Application::Width, Application::Height);
 	sceneBuffer.attachTexture(AttachmentTex::RGBA);
 	sceneBuffer.attachRenderbuffer(AttachmentRB::DEPTH_STENCIL);
+
+	Globals::musicManager.get("background").setVolume(Globals::musicVolume * 0.07f);
+	Globals::musicManager.get("background").play("res/Audio/InGame.mp3");
 }
 
-Game::~Game() {
+void Game::restartGame() {
+	// Restart in-game music
+	m_atmosphere.Restart();
 
-}
+	// Respawn the player (reset position, ammo, health, flashlight)
+	Player::GetInstance().Respawn();
 
-void Game::fixedUpdate() {
-
-}
-
-void Game::update() {
-
-	Keyboard &keyboard = Keyboard::instance();
-	if (keyboard.keyPressed(Keyboard::KEY_F)) {
-		m_skybox.setDisabled(!m_skybox.isDisabled());
+	// Restart existing enemy units
+	for (unsigned int i = 0; i < m_enemyCount; ++i){
+		m_enemies.at(i)->SetDeath(true);
+		m_enemies.at(i)->SetRespawnStatus(true);
 	}
 
-	m_skybox.update(m_dt);
-	m_saturn.update(m_dt);
+	m_dataTransmitTimer = 0.0f;
+	m_enemySpawnTimer = 0.0f;
+	m_enemyCount = 1;
 
-	m_flag.AddForce(Vector3f(0.0f, -0.2f, 0.0f) * 0.25f);
-	m_flag.WindForce(Vector3f(0.7f, 0.1f, 0.2f) * 0.25f);
-	m_flag.Update();
-	
-	Player::GetInstance().Update(m_terrain, m_dt);
-	const Camera& camera = Player::GetInstance().getCamera();
-	// Update physics component
-	if (m_dataTransmitTimer < 100) {
-		// Increase total number of enemies over time
-		m_enemySpawnTimer += 1.0f * m_dt;
-
-		if (m_enemySpawnTimer >= 16.0f) {
-			m_enemySpawnTimer = 0.0f;
-
-			if (m_enemyCount < 30) {
-				++m_enemyCount;
-			}
-		}
-	}
-
-	// Update enemy units
-	for (unsigned int i = 0; i < m_enemyCount; ++i) {
-		m_enemies.at(i)->update(m_terrain, camera, m_dt);
-	}
-
-	// Update physics component
-	Physics::GetInstance().Update(camera, m_dt, m_enemies);
-
-	// Update mountain rocks' fog effect 
-	if (m_atmosphere.GetDayTime() >= 0.3f && m_atmosphere.GetDayTime() <= 0.31f) {
-
-		auto shader = Globals::shaderManager.getAssetPointer("instance");
-		shader->use();
-		shader->loadBool("nightFog", true);
-		shader->unuse();
-
-	}
-	else if (m_atmosphere.GetDayTime() < 0.3f && m_atmosphere.GetDayTime() >= 0.29f) {
-		auto shader = Globals::shaderManager.getAssetPointer("instance");
-		shader->use();
-		shader->loadBool("nightFog", false);
-		shader->unuse();
-	}
-
-	// Update atmosphere (thunderstorms)
-	m_atmosphere.Update(m_dt);
-
-	if (m_atmosphere.GetFlashDuration() > 0) {
-		if (m_atmosphere.GetThunderFlash()) {
-			--m_atmosphere.GetFlashDuration();
-			m_atmosphere.SetThunderFlash(false);
-
-			//Renderer::GetInstance().GetComponent(POSTPROCESSING_QUAD).GetShaderComponent().ActivateProgram();
-			//Renderer::GetInstance().GetComponent(POSTPROCESSING_QUAD).GetShaderComponent().SetBool("thunderstormEffect", true);
-		}
-
-		m_atmosphere.GetFlashTimer() += Utils::GetInstance().RandomNumBetweenTwo(0.5f, 1.0f) * m_dt;
-		if (m_atmosphere.GetFlashTimer() > Utils::GetInstance().RandomNumBetweenTwo(0.05f, 0.1f)) {
-			m_atmosphere.GetThunderFlash() = !m_atmosphere.GetThunderFlash();
-			m_atmosphere.GetFlashTimer() = 0.0f;
-		}
-	}
-
-	// Update data transmitter 
-	m_dataTransmitTimer += 0.59f * m_dt;
-
-	// Check if win condition is met (if the data was sent in full and all enemies have been neutralized)
-	if (m_dataTransmitTimer >= 100) {
-		bool m_endGame = false;
-
-		// Loop through the enemies 
-		for (unsigned int i = 0; i < m_enemyCount; ++i) {
-			// Check if the enemy is dead and cannot be respawned
-			if (m_enemies.at(i)->GetDeath() && !m_enemies.at(i)->GetRespawnStatus())
-			{
-				m_endGame = true;
-			}
-			else
-			{
-				m_endGame = false;
-				break;
-			}
-		}
-
-		if (m_endGame) {
-			//Renderer::GetInstance().GetComponent(PLAYER_VICTORY_SCREEN).Draw(m_cameraHUD);
-			m_gameStateTimer += 1.15f * m_dt;
-
-			if (m_gameStateTimer >= 5.0f) {
-				//FreeMouseCursor();
-				m_gameStateTimer = 0.0f;
-				//Audio::GetInstance().StopSound(3);
-				//m_gameState = GameState::MAIN_MENU;
-			}
-		}
-	}
-};
-
-void Game::render() {
-	sceneBuffer.bind();
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	const Camera& camera = Player::GetInstance().getCamera();
-	m_skybox.draw(camera);
-	m_saturn.draw(camera);
-	m_saturnRings.draw(camera);
-	m_flagPole.draw(camera);
-	m_flag.Draw(camera);
-	m_rock.draw(camera);
-
-
-	m_terrain.setFog(m_atmosphere.GetDayTime() <= 0.3f ? false : true);
-	m_terrain.draw(camera, &m_dirLight, &m_pointLight, Player::GetInstance().GetSpotLight());
-
-	// Draw enemy units
-	for (unsigned int i = 0; i < m_enemyCount; ++i) {
-		// Check if this enemy unit can respawn (if the data transfer is at 100, then this enemy cannot respawn anymore)
-		m_enemies.at(i)->SetRespawnStatus(m_dataTransmitTimer < 100 ? true : false);
-		m_enemies.at(i)->draw(camera);
-	}
-
-	glDisable(GL_CULL_FACE);
-	Player::GetInstance().Animate(m_dt);
-	// Draw enemy shockwave if smart drones have exploded
-	for (unsigned int i = 0; i < m_enemyCount; ++i) {
-		m_enemies.at(i)->DrawShockwave();
-	}
-	glEnable(GL_CULL_FACE);
-
-	glDepthFunc(GL_ALWAYS);
-	if (Player::GetInstance().IsPlayerAiming()) {		
-		m_sniperScope.draw(camera);	
-	}else
-		m_crossHaire.draw(camera);
-
-	
-	m_health.draw(camera);
-	m_ammo.draw(camera);
-
-	Globals::spritesheetManager.getAssetPointer("font")->bind(0);
-	Fontrenderer::Get().addText(Globals::fontManager.get("roboto_28"), 80, 20, std::to_string(Player::GetInstance().GetHealth()), Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
-	Fontrenderer::Get().addText(Globals::fontManager.get("roboto_28"), 180, 20, std::to_string(Player::GetInstance().GetCurrWeapon().getAmmoCount()), Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
-	Fontrenderer::Get().addText(Globals::fontManager.get("roboto_20"), 380, 25, "Data transfer: " + Fontrenderer::FloatToString(m_dataTransmitTimer, 1) + "%", Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
-	Fontrenderer::Get().drawBuffer();
-	glDepthFunc(GL_LESS);
-	sceneBuffer.unbind();
-
-	//glDisable(GL_BLEND);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	auto shader = Globals::shaderManager.getAssetPointer("post");
-	shader->use();
-	shader->loadInt("screenQuad", 0);
-
-	Texture::Bind(sceneBuffer.getColorTexture(0));
-	Globals::shapeManager.get("quad").drawRaw();
-	Texture::Unbind();
-	shader->unuse();
-
-	//glEnable(GL_BLEND);
-
-	if (Globals::drawUi)
-		renderUi();
-}
-
-void Game::OnMouseMotion(Event::MouseMoveEvent& event) {
-
-}
-
-void Game::OnMouseButtonDown(Event::MouseButtonEvent& event) {
-
-}
-
-void Game::OnMouseButtonUp(Event::MouseButtonEvent& event) {
-
-}
-
-void Game::resize(int deltaW, int deltaH) {
-	Player::GetInstance().resize();
-	sceneBuffer.resize(Application::Width, Application::Height);
-}
-
-void Game::renderUi() {
-	ImGui_ImplOpenGL3_NewFrame();
-	ImGui_ImplWin32_NewFrame();
-	ImGui::NewFrame();
-
-	ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoTitleBar |
-		ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove |
-		ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus |
-		ImGuiWindowFlags_NoBackground;
-
-	ImGuiViewport* viewport = ImGui::GetMainViewport();
-	ImGui::SetNextWindowPos(viewport->Pos);
-	ImGui::SetNextWindowSize(viewport->Size);
-	ImGui::SetNextWindowViewport(viewport->ID);
-
-	ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
-	ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
-	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-	ImGui::Begin("InvisibleWindow", nullptr, windowFlags);
-	ImGui::PopStyleVar(3);
-
-	ImGuiID dockSpaceId = ImGui::GetID("MainDockSpace");
-	ImGui::DockSpace(dockSpaceId, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_PassthruCentralNode);
-	ImGui::End();
-
-	if (m_initUi) {
-		m_initUi = false;
-		ImGuiID dock_id_left = ImGui::DockBuilderSplitNode(dockSpaceId, ImGuiDir_Left, 0.2f, nullptr, &dockSpaceId);
-		ImGui::DockBuilderDockWindow("Settings", dock_id_left);
-	}
-
-	// render widgets
-	ImGui::Begin("Settings", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
-	ImGui::Checkbox("Draw Wirframe", &StateMachine::GetEnableWireframe());
-
-	if (ImGui::Checkbox("Gray Scale", &m_graysclae)) {
-		auto shader = Globals::shaderManager.getAssetPointer("post");
-		shader->use();
-		shader->loadInt("grayScaleEffect", m_graysclae);
-		shader->unuse();
-	}
-
-	if (ImGui::Checkbox("Thunder Storm", &m_thunderstorm)) {
-		auto shader = Globals::shaderManager.getAssetPointer("post");
-		shader->use();
-		shader->loadInt("thunderstormEffect", m_thunderstorm);
-		shader->unuse();
-	}
-
-	ImGui::End();
-
-	ImGui::Render();
-	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+	// Ensure main menu music's channel is stopped
+	Globals::musicManager.get("background").stop();
+	Globals::musicManager.get("background").play("res/Audio/InGame.mp3");
 }

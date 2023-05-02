@@ -143,6 +143,7 @@ void Player::Update(Terrain& terrain, float dt) {
 }
 
 void Player::Animate(float dt) {
+	if (m_dead) return;
 	// Check if player is swapping weapons
 	if (m_swapping) {
 		// Check if the current weapon is an assault rifle, if so switch to sniper rifle
@@ -211,9 +212,11 @@ void Player::Respawn() {
 	m_toggleFlashlight = false;
 	m_dead = false;
 	m_health = 100;
-	m_camera.setPosition(256.0f, 0.0f, 300.0f);
+	m_camera.perspective(80.0f, (float)Application::Width / (float)Application::Height, 1.0f, 1500.0f);
+	m_camera.lookAt(Vector3f(256.0f, 0.0f, 300.0f), Vector3f(256.0f, 0.0f, 300.0f) + Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
 	m_assaultRifle->restartWeapon();
 	m_sniperRifle->restartWeapon();
+	m_currWeapon = m_assaultRifle;
 }
 
 void Player::ProcessInput() {

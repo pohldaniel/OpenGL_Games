@@ -30,7 +30,9 @@ public:
 	void OnMouseButtonDown(Event::MouseButtonEvent& event) override;
 	void OnMouseButtonUp(Event::MouseButtonEvent& event) override;
 	void renderUi();
-
+	void init();
+	void restartGame();
+	void renderScene();
 	bool m_initUi = true;
 
 	Terrain m_terrain;
@@ -48,6 +50,8 @@ public:
 	RenderableObject m_flagPole;
 	RenderableObject m_sniperScope;
 	RenderableObject m_crossHaire;
+	RenderableObject m_deathScreen;
+	RenderableObject m_victoryScreen;
 	RenderableObject m_health;
 	RenderableObject m_ammo;
 	Framebuffer sceneBuffer;
@@ -55,6 +59,9 @@ public:
 	std::vector<Enemy*> m_enemies;
 	float m_dataTransmitTimer = 0.0f, m_enemySpawnTimer = 0.0f, m_gameStateTimer = 0.0f;
 	int m_enemyCount = 1;
-	bool m_graysclae = false;
+	bool m_grayscale = false;
 	bool m_thunderstorm = false;
+	bool m_isDead = false;
+	bool m_victory = false;
+	bool m_endGame = false;
 };

@@ -28,7 +28,7 @@ Enemy::Enemy(const Camera& cam) : RenderableObject("sphere", "enemy", "enemyTex"
 	m_evadeRight(false),
 	m_fire(false),
 	m_droneStatus(true),
-	m_damageToken(true),
+	m_damageToken(false),
 	m_canRespawn(true),
 	m_dronePos(m_pos) {
 

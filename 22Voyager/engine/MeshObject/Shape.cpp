@@ -180,6 +180,8 @@ Shape::~Shape() {
 	m_positions.shrink_to_fit();
 	m_indexBuffer.clear();
 	m_indexBuffer.shrink_to_fit();
+	m_instances.clear();
+	m_instances.shrink_to_fit();
 }
 
 void Shape::createBuffer() {

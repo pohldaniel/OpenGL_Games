@@ -10,6 +10,7 @@
 #include "Constraint.h"
 
 class Cloth {
+
 public:
 	Cloth();
 	~Cloth();
@@ -22,9 +23,9 @@ public:
 
 	void SetPos(const Vector3f& pos) { m_position = pos; }
 	Shader* GetShaderComponent() { return m_shader; }
-	Texture& GetTextureComponent() { return m_textureComponent; }
 
 private:
+
 	struct Vert {
 		Vector3f m_pos;
 		Vector2f m_uv;
@@ -35,8 +36,6 @@ private:
 	std::vector<ClothParticle> m_particles;
 	std::vector<Constraint> m_constraints;
 	Shader* m_shader;
-	GLuint shaderId;
-	Texture m_textureComponent;
 	Vector3f m_position;
 
 	// Private functions

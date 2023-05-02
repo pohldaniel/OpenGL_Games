@@ -8,9 +8,9 @@ uniform sampler2D screenQuad;
 const float PIXEL_OFFSET = 1.0f / 330.0f;
 const float CONTRAST = 0.29f;
 
-uniform bool blurEffect;
-uniform bool grayScaleEffect;
-uniform bool thunderstormEffect;
+uniform bool blurEffect = false;
+uniform bool grayScaleEffect = false;
+uniform bool thunderstormEffect = false;
 
 void main()
 {	
@@ -59,8 +59,7 @@ void main()
 		FragColor = vec4(outputColor.rgb, 1.0f);
 	}
 	
-	if (blurEffect)
-	{
+	if (blurEffect){
 		//// Array of offsets for surrounding texture coordinates
 		//vec2 offsets[9] = vec2[]
 		//(
@@ -96,16 +95,13 @@ void main()
 		//}
 		//
 		//FragColor = vec4(outputColor.rgb, 1.0f);
-	}
-	else if (grayScaleEffect)
-	{
+	}else if (grayScaleEffect) {
 		// Grayscale: Remove all colors except black, white and gray (average all color components)
 		FragColor = texture(screenQuad, VertexUv);
 		float average = (FragColor.r + FragColor.g + FragColor.b) / 3.0f;
 		FragColor = vec4(average, average, average, 1.0f);
-	}
-	else
-	{
+	}else{
 		FragColor = vec4(outputColor.rgb, 1.0f);
 	}
+	
 } 

@@ -44,7 +44,7 @@ private:
 	float m_terrainZPos;
 	bool m_fog;
 
-	std::vector<std::vector<float> > m_vHeights;
+	std::vector<std::vector<float>> m_vHeights;
 	std::vector<unsigned int> m_indices;
 
 	std::uint32_t seed;
