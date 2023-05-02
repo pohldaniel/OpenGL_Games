@@ -9,8 +9,8 @@
 
 #include "StateMachine.h"
 
-
 class Application {
+
 public:
 	Application(const float& dt, const float& fdt);
 	~Application();
@@ -21,12 +21,13 @@ public:
 	bool isRunning();
 
 	static void ToggleFullScreen(bool isFullScreen, unsigned int width = 0, unsigned int height = 0);
-	static unsigned int Width;
-	static unsigned int Height;
-	static bool Fullscreen;
+	static void ToggleVerticalSync();
 	static void SetCursorIconFromFile(std::string file);
 	static void SetCursorIcon(LPCSTR resource);
 	static HWND GetWindow();
+
+	static unsigned int Width;
+	static unsigned int Height;
 
 private:
 
@@ -40,10 +41,6 @@ private:
 	void initOpenAL();
 	void loadAssets();
 	void initStates();
-
-	void enableVerticalSync(bool enableVerticalSync);
-
-	bool m_enableVerticalSync;
 
 	MSG msg;
 
@@ -66,4 +63,6 @@ private:
 	static DEVMODE DefaultScreen;
 	static HCURSOR Cursor;
 	static HANDLE Icon;
+	static bool VerticalSync;
+	static bool Fullscreen;
 };

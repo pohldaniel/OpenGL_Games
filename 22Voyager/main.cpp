@@ -14,7 +14,6 @@ extern AssetManager<Spritesheet> Globals::spritesheetManager = AssetManager<Spri
 extern AssetManager<SoundBuffer> Globals::soundManager = AssetManager<SoundBuffer>();
 extern AssetManager<MusicBuffer> Globals::musicManager = AssetManager<MusicBuffer>();
 
-extern bool Globals::drawUi = false;
 extern float Globals::soundVolume = 0.2f;
 extern float Globals::musicVolume = 0.2f;
 

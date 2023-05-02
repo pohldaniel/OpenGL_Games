@@ -53,7 +53,7 @@ void MainMenu::render() {
 	
 	shader->unuse();
 
-#if MENU
+#if DEBUG_MENU
 	glDepthFunc(GL_ALWAYS);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();

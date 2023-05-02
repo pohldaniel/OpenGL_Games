@@ -66,4 +66,5 @@ public:
 	bool m_isDead = false;
 	bool m_victory = false;
 	bool m_endGame = false;
+	bool m_drawUi = false;
 };

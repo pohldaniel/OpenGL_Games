@@ -29,6 +29,7 @@ DWORD Application::SavedStyle;
 RECT Application::Savedrc;
 HCURSOR Application::Cursor = LoadCursor(nullptr, IDC_ARROW);
 HANDLE Application::Icon = LoadImage(NULL, "res/icon.ico", IMAGE_ICON, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
+bool Application::VerticalSync = true;
 
 Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fdt) {
 	Width = WIDTH;
@@ -42,8 +43,6 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 	initOpenAL();
 	loadAssets();
 	initStates();
-
-	m_enableVerticalSync = true;
 
 	EventDispatcher.setProcessOSEvents([&]() {
 		while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
@@ -168,29 +167,10 @@ LRESULT Application::DisplayWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 				PostQuitMessage(0);
 			}
 			break;
-		}case WM_LBUTTONDOWN: {			
-			Mouse::instance().setAbsolute(LOWORD(lParam), HIWORD(lParam));
-			break;
-		}case WM_RBUTTONDOWN: {
-			Mouse::instance().attach(hWnd);
-			Globals::drawUi = false;
-			Keyboard::instance().enable();
-			break;
 		}case WM_KEYDOWN: {
 
 			switch (wParam) {
-				case 'v': case 'V': {
-					enableVerticalSync(!m_enableVerticalSync);
-					break;
-				}case 'z': case 'Z': {
-					StateMachine::ToggleWireframe();
-					break;
-				}case VK_SPACE: {
-					Mouse::instance().detach();
-					Globals::drawUi = true;
-					Keyboard::instance().disable();
-					break;
-				}case VK_ESCAPE: {
+				case VK_ESCAPE: {
 					if (Machine->m_states.top()->getCurrentState() == CurrentState::MAINMENU || Machine->m_states.top()->getCurrentState() == CurrentState::ABOUT)
 						SendMessage(Window, WM_DESTROY, NULL, NULL);
 					break;
@@ -311,7 +291,7 @@ void Application::initOpenGL(int msaaSamples) {
 		}
 
 	}
-	enableVerticalSync(true);
+	ToggleVerticalSync();
 
 	glCullFace(GL_BACK);
 	glFrontFace(GL_CCW);
@@ -320,7 +300,7 @@ void Application::initOpenGL(int msaaSamples) {
 	glEnable(GL_DEPTH_TEST);
 
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+	//glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 	glEnable(GL_BLEND);
 
 	glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
@@ -340,7 +320,7 @@ void Application::initOpenAL() {
 	SoundDevice::init();
 }
 
-void Application::enableVerticalSync(bool enableVerticalSync) {
+void Application::ToggleVerticalSync() {
 
 	// WGL_EXT_swap_control.
 	typedef BOOL(WINAPI * PFNWGLSWAPINTERVALEXTPROC)(GLint);
@@ -349,8 +329,8 @@ void Application::enableVerticalSync(bool enableVerticalSync) {
 			wglGetProcAddress("wglSwapIntervalEXT"));
 
 	if (wglSwapIntervalEXT) {
-		wglSwapIntervalEXT(enableVerticalSync ? 1 : 0);
-		m_enableVerticalSync = enableVerticalSync;
+		wglSwapIntervalEXT(VerticalSync);
+		VerticalSync = !VerticalSync;
 	}
 }
 
@@ -411,12 +391,28 @@ void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 			event.data.mouseButton.button = Event::MouseButtonEvent::MouseButton::BUTTON_LEFT;
 			EventDispatcher.pushEvent(event);
 			break;
+		}case WM_RBUTTONDOWN: {
+			Event event;
+			event.type = Event::MOUSEBUTTONDOWN;
+			event.data.mouseButton.x = static_cast<int>(static_cast<short>(LOWORD(lParam)));
+			event.data.mouseButton.y = static_cast<int>(static_cast<short>(HIWORD(lParam)));
+			event.data.mouseButton.button = Event::MouseButtonEvent::MouseButton::BUTTON_RIGHT;
+			EventDispatcher.pushEvent(event);
+			break;
 		}case WM_LBUTTONUP: {
 			Event event;
 			event.type = Event::MOUSEBUTTONUP;
 			event.data.mouseButton.x = static_cast<int>(static_cast<short>(LOWORD(lParam)));
 			event.data.mouseButton.y = static_cast<int>(static_cast<short>(HIWORD(lParam)));
 			event.data.mouseButton.button = Event::MouseButtonEvent::MouseButton::BUTTON_LEFT;
+			EventDispatcher.pushEvent(event);
+			break;
+		} case WM_RBUTTONUP: {
+			Event event;
+			event.type = Event::MOUSEBUTTONUP;
+			event.data.mouseButton.x = static_cast<int>(static_cast<short>(LOWORD(lParam)));
+			event.data.mouseButton.y = static_cast<int>(static_cast<short>(HIWORD(lParam)));
+			event.data.mouseButton.button = Event::MouseButtonEvent::MouseButton::BUTTON_RIGHT;
 			EventDispatcher.pushEvent(event);
 			break;
 		} case WM_WINDOWPOSCHANGING: {
@@ -429,6 +425,24 @@ void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 			switch (wParam) {
 
 				case VK_ESCAPE: {
+					Event event;
+					event.type = Event::KEYDOWN;
+					event.data.keyboard.keyCode = wParam;
+					EventDispatcher.pushEvent(event);
+					break;
+				}case VK_SPACE: {
+					Event event;
+					event.type = Event::KEYDOWN;
+					event.data.keyboard.keyCode = wParam;
+					EventDispatcher.pushEvent(event);
+					break;
+				}case 'z': case 'Z': {
+					Event event;
+					event.type = Event::KEYDOWN;
+					event.data.keyboard.keyCode = wParam;
+					EventDispatcher.pushEvent(event);
+					break;
+				}case 'v': case 'V': {
 					Event event;
 					event.type = Event::KEYDOWN;
 					event.data.keyboard.keyCode = wParam;

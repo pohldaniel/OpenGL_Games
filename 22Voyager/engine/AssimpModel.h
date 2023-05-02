@@ -92,12 +92,12 @@ private:
 
 	std::vector<float> m_vertexBuffer;
 	std::vector<unsigned int> m_indexBuffer;
+	std::vector<Matrix4f> m_instances;
 
 	unsigned int m_vao = 0;
 	unsigned int m_vbo[5] = { 0 };
 	unsigned int m_ibo = 0;
 	unsigned int m_vboInstances = 0;
-	std::vector<Matrix4f> m_instances;
 
 	void static CreateBuffer(std::vector<float>& vertexBuffer, std::vector<unsigned int> indexBuffer, unsigned int& vao, unsigned int(&vbo)[5], unsigned int& ibo, unsigned int stride);
 	void static ReadAiMaterial(const aiMaterial* aiMaterial, short& index, std::string modelDirectory);

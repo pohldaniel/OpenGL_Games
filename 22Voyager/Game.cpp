@@ -16,13 +16,15 @@
 Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	Application::SetCursorIcon(IDC_ARROW);
 	EventDispatcher::AddKeyboardListener(this);
+	EventDispatcher::AddMouseListener(this);
 
 	init();
 	restartGame();
 }
 
 Game::~Game() {
-	EventDispatcher::AddKeyboardListener(this);
+	EventDispatcher::RemoveKeyboardListener(this);
+	EventDispatcher::RemoveMouseListener(this);
 	sceneBuffer.clear();
 }
 
@@ -162,6 +164,11 @@ void Game::render() {
 	renderScene();
 	sceneBuffer.unbind();
 
+#if DEBUG
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+#endif
+
+	glDisable(GL_BLEND);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	auto shader = Globals::shaderManager.getAssetPointer("post");
@@ -172,9 +179,16 @@ void Game::render() {
 	Globals::shapeManager.get("quad").drawRaw();
 	Texture::Unbind();
 	shader->unuse();
+	glEnable(GL_BLEND);
 
-	if (Globals::drawUi)
+#if DEBUG
+	glPolygonMode(GL_FRONT_AND_BACK, StateMachine::GetEnableWireframe() ? GL_LINE : GL_FILL);
+#endif
+
+#if DEBUG
+	if (m_drawUi)
 		renderUi();
+#endif
 }
 
 void Game::renderScene() {
@@ -228,7 +242,11 @@ void Game::renderScene() {
 	Globals::spritesheetManager.getAssetPointer("font")->bind(0);
 	Fontrenderer::Get().addText(Globals::fontManager.get("roboto_28"), 80, 20, std::to_string(Player::GetInstance().GetHealth()), Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
 	Fontrenderer::Get().addText(Globals::fontManager.get("roboto_28"), 180, 20, std::to_string(Player::GetInstance().GetCurrWeapon().getAmmoCount()), Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
-	Fontrenderer::Get().addText(Globals::fontManager.get("roboto_20"), 380, 25, "Data transfer: " + Fontrenderer::FloatToString(m_dataTransmitTimer, 1) + "%", Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+	if (m_dataTransmitTimer < 100) {
+		Fontrenderer::Get().addText(Globals::fontManager.get("roboto_20"), 380, 25, "Data transfer: " + Fontrenderer::FloatToString(m_dataTransmitTimer, 1) + "%", Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+	}else {
+		Fontrenderer::Get().addText(Globals::fontManager.get("roboto_20"), 380, 25, "Data transferred! Defeat all remaining foes", Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+	}
 	Fontrenderer::Get().drawBuffer();		
 
 	glDepthFunc(GL_LESS);	
@@ -239,7 +257,13 @@ void Game::OnMouseMotion(Event::MouseMoveEvent& event) {
 }
 
 void Game::OnMouseButtonDown(Event::MouseButtonEvent& event) {
-
+#if DEBUG
+	if (event.button == 2u) {
+		m_drawUi = false;
+		Mouse::instance().attach(Application::GetWindow());
+		Keyboard::instance().enable();
+	}
+#endif
 }
 
 void Game::OnMouseButtonUp(Event::MouseButtonEvent& event) {
@@ -250,11 +274,27 @@ void Game::OnKeyDown(Event::KeyboardEvent& event) {
 	if (event.keyCode == VK_ESCAPE) {
 		Globals::musicManager.get("background").stop();
 		Globals::musicManager.get("background").setVolume(Globals::musicVolume);
-		Globals::drawUi = false;
+		m_drawUi = false;
 		Mouse::instance().detach();
 		m_isRunning = false;
 		m_machine.addStateAtBottom(new MainMenu(m_machine));
 	}
+
+#if DEBUG
+	if (event.keyCode == VK_SPACE) {
+		m_drawUi = true;
+		Mouse::instance().detach();
+		Keyboard::instance().disable();
+	}
+
+	if (event.keyCode == 'z' || event.keyCode == 'Z') {
+		StateMachine::ToggleWireframe();
+	}
+
+	if (event.keyCode == 'v' || event.keyCode == 'V') {
+		Application::ToggleVerticalSync();
+	}
+#endif
 }
 
 void Game::resize(int deltaW, int deltaH) {
