@@ -7,6 +7,7 @@
 MainMenu::MainMenu(StateMachine& machine) : State(machine, CurrentState::MAINMENU) {
 	Application::SetCursorIconFromFile("res/cursors/black.cur");
 	EventDispatcher::AddMouseListener(this);
+	EventDispatcher::AddKeyboardListener(this);
 
 	if(!Globals::musicManager.get("background").isPlaying())
 		Globals::musicManager.get("background").play("res/Audio/MainMenu.mp3");
@@ -14,6 +15,7 @@ MainMenu::MainMenu(StateMachine& machine) : State(machine, CurrentState::MAINMEN
 
 MainMenu::~MainMenu() {
 	EventDispatcher::RemoveMouseListener(this);
+	EventDispatcher::RemoveKeyboardListener(this);
 }
 
 void MainMenu::fixedUpdate() {}
@@ -172,7 +174,14 @@ void MainMenu::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 		m_isRunning = false;
 		m_machine.addStateAtBottom(new About(m_machine));
 	} else if ((event.x > x * 816.0f &&  event.x < x * 902.0f) && (event.y >= y * 418.0f && event.y <= y * 458.0f)) {
-		Globals::soundManager.get("mainMenu").playChannel(1u);
+		Globals::soundManager.get("mainMenu").stopChannel(1u);
+		m_isRunning = false;
+	}
+}
+
+void MainMenu::OnKeyDown(Event::KeyboardEvent& event) {
+	if (event.keyCode == VK_ESCAPE) {
+		Globals::soundManager.get("mainMenu").stopChannel(1u);
 		m_isRunning = false;
 	}
 }

@@ -70,11 +70,14 @@ Application::~Application() {
 	Fontrenderer::Get().shutdown();
 
 	delete Machine;
+	Globals::shaderManager.clear();
 	//release OpenGL context
 	HDC hdc = GetDC(Window);
 	wglMakeCurrent(GetDC(Window), 0);
 	wglDeleteContext(wglGetCurrentContext());
 	ReleaseDC(Window, hdc);
+	//release OpenAL context
+	SoundDevice::shutDown();
 
 	UnregisterClass("WINDOWCLASS", (HINSTANCE)GetModuleHandle(NULL));
 }
@@ -176,23 +179,15 @@ LRESULT Application::DisplayWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 				PostQuitMessage(0);
 			}
 			break;
-		}case WM_KEYDOWN: {
+		}case WM_KEYDOWN: case WM_SYSKEYDOWN: {
 
 			switch (wParam) {
-				case VK_ESCAPE: {	
-					if(Machine->m_states.top()->getCurrentState() == CurrentState::MAINMENU || Machine->m_states.top()->getCurrentState() == CurrentState::ABOUT)
-						SendMessage(Window, WM_DESTROY, NULL, NULL);
-					break;
-				}case VK_RETURN: {
+				case VK_RETURN: {
 					if ((HIWORD(lParam) & KF_ALTDOWN))
 						ToggleFullScreen(!Fullscreen);
 					break;
 				}
 			}
-			break;
-		}case WM_SYSKEYDOWN: {
-			if (wParam == VK_RETURN && ((HIWORD(lParam) & KF_ALTDOWN)))
-				ToggleFullScreen(!Fullscreen);
 			break;
 		}case WM_SIZE: {
 			int deltaW = Width;
