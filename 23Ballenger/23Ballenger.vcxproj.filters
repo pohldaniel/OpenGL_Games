@@ -1,0 +1,375 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="engine">
+      <UniqueIdentifier>{412aa3d9-15aa-4885-bd2f-6fbb4a8f0980}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="engine\input">
+      <UniqueIdentifier>{60e2bfb0-57e6-40cc-b546-1278b524c62b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\States">
+      <UniqueIdentifier>{61f62bb9-5bfc-46f4-98b2-ff9f822154ae}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="engine\MeshObject">
+      <UniqueIdentifier>{30f18d18-b56b-48b9-b14f-764ba32da60f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="miniball">
+      <UniqueIdentifier>{baa8049b-5ef1-4af6-b8b7-d019e52f0867}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="convhull">
+      <UniqueIdentifier>{16b0aa13-3ea7-4211-bef6-e7a1047efd87}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="soil2">
+      <UniqueIdentifier>{9859f6ce-9385-4e0b-b1d4-0acc68b10eb7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Objects">
+      <UniqueIdentifier>{1689bc2d-d82d-43f4-9860-bd96a42fc04e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Cloth">
+      <UniqueIdentifier>{a4615b9a-94ea-44b4-946f-cd6df0d7f4a5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="engine\sound">
+      <UniqueIdentifier>{4b818f49-1b4c-471f-8ddc-39d6667ee8c0}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Application.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\input\ApplicationEventListener.cpp">
+      <Filter>engine\input</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\input\EventDispatcher.cpp">
+      <Filter>engine\input</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\input\KeyBoard.cpp">
+      <Filter>engine\input</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\input\KeyboardEventListener.cpp">
+      <Filter>engine\input</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\input\Mouse.cpp">
+      <Filter>engine\input</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\input\MouseEventListener.cpp">
+      <Filter>engine\input</Filter>
+    </ClCompile>
+    <ClCompile Include="StateMachine.cpp">
+      <Filter>Source Files\States</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\Timer.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\TrackBall.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\Transform.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\Vector.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\BuiltInShader.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\Camera.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\Cube.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\Framebuffer.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\Frustum.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\ObjModel.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\PerlinNoise.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\Quad.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\Random.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\Shader.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\Spritesheet.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\Tetraedron.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\Texture.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\Batchrenderer.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="Game.cpp">
+      <Filter>Source Files\States</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\AssimpModel.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\Material.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="Object.cpp">
+      <Filter>Source Files\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderableObject.cpp">
+      <Filter>Source Files\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\MeshObject\Capsule.cpp">
+      <Filter>engine\MeshObject</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\MeshObject\MeshCube.cpp">
+      <Filter>engine\MeshObject</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\MeshObject\MeshCylinder.cpp">
+      <Filter>engine\MeshObject</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\MeshObject\MeshQuad.cpp">
+      <Filter>engine\MeshObject</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\MeshObject\MeshSphere.cpp">
+      <Filter>engine\MeshObject</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\MeshObject\MeshSpiral.cpp">
+      <Filter>engine\MeshObject</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\MeshObject\MeshTorus.cpp">
+      <Filter>engine\MeshObject</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\MeshObject\Shape.cpp">
+      <Filter>engine\MeshObject</Filter>
+    </ClCompile>
+    <ClCompile Include="Cloth.cpp">
+      <Filter>Source Files\Cloth</Filter>
+    </ClCompile>
+    <ClCompile Include="ClothParticle.cpp">
+      <Filter>Source Files\Cloth</Filter>
+    </ClCompile>
+    <ClCompile Include="Constraint.cpp">
+      <Filter>Source Files\Cloth</Filter>
+    </ClCompile>
+    <ClCompile Include="soil2\image_DXT.c">
+      <Filter>soil2</Filter>
+    </ClCompile>
+    <ClCompile Include="soil2\image_helper.c">
+      <Filter>soil2</Filter>
+    </ClCompile>
+    <ClCompile Include="soil2\SOIL2.c">
+      <Filter>soil2</Filter>
+    </ClCompile>
+    <ClCompile Include="soil2\wfETC.c">
+      <Filter>soil2</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\Fontrenderer.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\CharacterSet.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="ShapeInterface.cpp">
+      <Filter>Source Files\States</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\sound\MusicBuffer.cpp">
+      <Filter>engine\sound</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\sound\SoundBuffer.cpp">
+      <Filter>engine\sound</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\sound\SoundDevice.cpp">
+      <Filter>engine\sound</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Application.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\input\ApplicationEventListener.h">
+      <Filter>engine\input</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\input\Event.h">
+      <Filter>engine\input</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\input\EventDispatcher.h">
+      <Filter>engine\input</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\input\KeyboardEventListener.h">
+      <Filter>engine\input</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\input\KeyBorad.h">
+      <Filter>engine\input</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\input\Mouse.h">
+      <Filter>engine\input</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\input\MouseEventListener.h">
+      <Filter>engine\input</Filter>
+    </ClInclude>
+    <ClInclude Include="StateMachine.h">
+      <Filter>Source Files\States</Filter>
+    </ClInclude>
+    <ClInclude Include="Constants.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\Timer.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\TrackBall.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\Transform.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\Vector.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="convhull\convhull_3d.h">
+      <Filter>convhull</Filter>
+    </ClInclude>
+    <ClInclude Include="Miniball\Miniball.h">
+      <Filter>miniball</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\Clock.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\AssetManger.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\BuiltInShader.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\Camera.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\Cube.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\Framebuffer.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\Frustum.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\ObjModel.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\PerlinNoise.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\Quad.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\Random.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\Shader.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\Spritesheet.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\Tetraedron.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\Texture.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\Batchrenderer.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Game.h">
+      <Filter>Source Files\States</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\AssimpModel.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\Material.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Object.h">
+      <Filter>Source Files\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderableObject.h">
+      <Filter>Source Files\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\MeshObject\Capsule.h">
+      <Filter>engine\MeshObject</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\MeshObject\MeshCube.h">
+      <Filter>engine\MeshObject</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\MeshObject\MeshCylinder.h">
+      <Filter>engine\MeshObject</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\MeshObject\MeshQuad.h">
+      <Filter>engine\MeshObject</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\MeshObject\MeshSphere.h">
+      <Filter>engine\MeshObject</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\MeshObject\MeshSpiral.h">
+      <Filter>engine\MeshObject</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\MeshObject\MeshTorus.h">
+      <Filter>engine\MeshObject</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\MeshObject\Shape.h">
+      <Filter>engine\MeshObject</Filter>
+    </ClInclude>
+    <ClInclude Include="Cloth.h">
+      <Filter>Source Files\Cloth</Filter>
+    </ClInclude>
+    <ClInclude Include="ClothParticle.h">
+      <Filter>Source Files\Cloth</Filter>
+    </ClInclude>
+    <ClInclude Include="Constraint.h">
+      <Filter>Source Files\Cloth</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\Fontrenderer.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\CharacterSet.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="ShapeInterface.h">
+      <Filter>Source Files\States</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\sound\Cache.h">
+      <Filter>engine\sound</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\sound\MusicBuffer.h">
+      <Filter>engine\sound</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\sound\SoundBuffer.h">
+      <Filter>engine\sound</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\sound\SoundDevice.h">
+      <Filter>engine\sound</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
