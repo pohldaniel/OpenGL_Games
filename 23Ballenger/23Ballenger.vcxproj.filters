@@ -37,9 +37,6 @@
     <Filter Include="Source Files\Objects">
       <UniqueIdentifier>{1689bc2d-d82d-43f4-9860-bd96a42fc04e}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Cloth">
-      <UniqueIdentifier>{a4615b9a-94ea-44b4-946f-cd6df0d7f4a5}</UniqueIdentifier>
-    </Filter>
     <Filter Include="engine\sound">
       <UniqueIdentifier>{4b818f49-1b4c-471f-8ddc-39d6667ee8c0}</UniqueIdentifier>
     </Filter>
@@ -165,15 +162,6 @@
     <ClCompile Include="engine\MeshObject\Shape.cpp">
       <Filter>engine\MeshObject</Filter>
     </ClCompile>
-    <ClCompile Include="Cloth.cpp">
-      <Filter>Source Files\Cloth</Filter>
-    </ClCompile>
-    <ClCompile Include="ClothParticle.cpp">
-      <Filter>Source Files\Cloth</Filter>
-    </ClCompile>
-    <ClCompile Include="Constraint.cpp">
-      <Filter>Source Files\Cloth</Filter>
-    </ClCompile>
     <ClCompile Include="soil2\image_DXT.c">
       <Filter>soil2</Filter>
     </ClCompile>
@@ -203,6 +191,51 @@
     </ClCompile>
     <ClCompile Include="engine\sound\SoundDevice.cpp">
       <Filter>engine\sound</Filter>
+    </ClCompile>
+    <ClCompile Include="cCamera.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cColumn.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cKey.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cPlayer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cPortal.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cRespawnPoint.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cData.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cModel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cShader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cScene.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cTerrain.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cTexture.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cBicho.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cLava.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cSkybox.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -341,15 +374,6 @@
     <ClInclude Include="engine\MeshObject\Shape.h">
       <Filter>engine\MeshObject</Filter>
     </ClInclude>
-    <ClInclude Include="Cloth.h">
-      <Filter>Source Files\Cloth</Filter>
-    </ClInclude>
-    <ClInclude Include="ClothParticle.h">
-      <Filter>Source Files\Cloth</Filter>
-    </ClInclude>
-    <ClInclude Include="Constraint.h">
-      <Filter>Source Files\Cloth</Filter>
-    </ClInclude>
     <ClInclude Include="engine\Fontrenderer.h">
       <Filter>engine</Filter>
     </ClInclude>
@@ -370,6 +394,54 @@
     </ClInclude>
     <ClInclude Include="engine\sound\SoundDevice.h">
       <Filter>engine\sound</Filter>
+    </ClInclude>
+    <ClInclude Include="cCamera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cKey.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cPlayer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cPortal.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cRespawnPoint.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cColumn.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cData.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cModel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cShader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Globals.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cScene.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cTerrain.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cTexture.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cBicho.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cLava.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cSkybox.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

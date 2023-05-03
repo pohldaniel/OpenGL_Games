@@ -88,13 +88,13 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;FREEGLUT_STATIC;GLEW_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;..\libglew;..\libimgui;..\libassimp\include;..\libfreetype\include;..\openal\include;..\sndfile\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;..\libglew;..\libimgui;..\libassimp\include;..\libfreetype\include;..\openal\include;..\sndfile\include;..\libfreeglut\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>..\libd\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>OpenGl32.lib;libglew.lib;libimgui.lib;libassimp.lib;libzlib.lib;libfreetype.lib;libopenal.lib;libflac.lib;libmpg.lib;liblame.lib;libsndfile.lib;winmm.lib;shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>OpenGl32.lib;libglew.lib;libimgui.lib;libassimp.lib;libzlib.lib;libfreetype.lib;libopenal.lib;libflac.lib;libmpg.lib;liblame.lib;libsndfile.lib;winmm.lib;shlwapi.lib;libfreeglut.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -104,13 +104,13 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;FREEGLUT_STATIC;GLEW_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;..\libglew;..\libimgui;..\libassimp\include;..\libfreetype\include;..\openal\include;..\sndfile\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;..\libglew;..\libimgui;..\libassimp\include;..\libfreetype\include;..\openal\include;..\sndfile\include;..\libfreeglut\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>..\libd\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>OpenGl32.lib;libglew.lib;libimgui.lib;libassimp.lib;libzlib.lib;libfreetype.lib;libopenal.lib;libflac.lib;libmpg.lib;liblame.lib;libsndfile.lib;winmm.lib;shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>OpenGl32.lib;libglew.lib;libimgui.lib;libassimp.lib;libzlib.lib;libfreetype.lib;libopenal.lib;libflac.lib;libmpg.lib;liblame.lib;libsndfile.lib;winmm.lib;shlwapi.lib;libfreeglut.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -122,7 +122,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;FREEGLUT_STATIC;GLEW_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;..\libglew;..\libimgui;..\libassimp\include;..\libfreetype\include;..\openal\include;..\sndfile\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;..\libglew;..\libimgui;..\libassimp\include;..\libfreetype\include;..\openal\include;..\sndfile\include;..\libfreeglut\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -130,7 +130,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>..\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>OpenGl32.lib;libglew.lib;libimgui.lib;libassimp.lib;libzlib.lib;libfreetype.lib;libopenal.lib;libflac.lib;libmpg.lib;liblame.lib;libsndfile.lib;winmm.lib;shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>OpenGl32.lib;libglew.lib;libimgui.lib;libassimp.lib;libzlib.lib;libfreetype.lib;libopenal.lib;libflac.lib;libmpg.lib;liblame.lib;libsndfile.lib;winmm.lib;shlwapi.lib;libfreeglut.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -142,7 +142,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;FREEGLUT_STATIC;GLEW_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;..\libglew;..\libimgui;..\libassimp\include;..\libfreetype\include;..\openal\include;..\sndfile\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;..\libglew;..\libimgui;..\libassimp\include;..\libfreetype\include;..\openal\include;..\sndfile\include;..\libfreeglut\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -150,14 +150,26 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>..\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>OpenGl32.lib;libglew.lib;libimgui.lib;libassimp.lib;libzlib.lib;libfreetype.lib;libopenal.lib;libflac.lib;libmpg.lib;liblame.lib;libsndfile.lib;winmm.lib;shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>OpenGl32.lib;libglew.lib;libimgui.lib;libassimp.lib;libzlib.lib;libfreetype.lib;libopenal.lib;libflac.lib;libmpg.lib;liblame.lib;libsndfile.lib;winmm.lib;shlwapi.lib;libfreeglut.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Application.cpp" />
-    <ClCompile Include="Cloth.cpp" />
-    <ClCompile Include="ClothParticle.cpp" />
-    <ClCompile Include="Constraint.cpp" />
+    <ClCompile Include="cBicho.cpp" />
+    <ClCompile Include="cCamera.cpp" />
+    <ClCompile Include="cColumn.cpp" />
+    <ClCompile Include="cData.cpp" />
+    <ClCompile Include="cKey.cpp" />
+    <ClCompile Include="cLava.cpp" />
+    <ClCompile Include="cModel.cpp" />
+    <ClCompile Include="cPlayer.cpp" />
+    <ClCompile Include="cPortal.cpp" />
+    <ClCompile Include="cRespawnPoint.cpp" />
+    <ClCompile Include="cScene.cpp" />
+    <ClCompile Include="cShader.cpp" />
+    <ClCompile Include="cSkybox.cpp" />
+    <ClCompile Include="cTerrain.cpp" />
+    <ClCompile Include="cTexture.cpp" />
     <ClCompile Include="engine\AssimpModel.cpp" />
     <ClCompile Include="engine\Batchrenderer.cpp" />
     <ClCompile Include="engine\BuiltInShader.cpp" />
@@ -210,11 +222,23 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h" />
-    <ClInclude Include="Cloth.h" />
-    <ClInclude Include="ClothParticle.h" />
+    <ClInclude Include="cBicho.h" />
+    <ClInclude Include="cCamera.h" />
+    <ClInclude Include="cColumn.h" />
+    <ClInclude Include="cData.h" />
+    <ClInclude Include="cKey.h" />
+    <ClInclude Include="cLava.h" />
+    <ClInclude Include="cModel.h" />
     <ClInclude Include="Constants.h" />
-    <ClInclude Include="Constraint.h" />
     <ClInclude Include="convhull\convhull_3d.h" />
+    <ClInclude Include="cPlayer.h" />
+    <ClInclude Include="cPortal.h" />
+    <ClInclude Include="cRespawnPoint.h" />
+    <ClInclude Include="cScene.h" />
+    <ClInclude Include="cShader.h" />
+    <ClInclude Include="cSkybox.h" />
+    <ClInclude Include="cTerrain.h" />
+    <ClInclude Include="cTexture.h" />
     <ClInclude Include="engine\AssetManger.h" />
     <ClInclude Include="engine\AssimpModel.h" />
     <ClInclude Include="engine\Batchrenderer.h" />
@@ -259,6 +283,7 @@
     <ClInclude Include="engine\Transform.h" />
     <ClInclude Include="engine\Vector.h" />
     <ClInclude Include="Game.h" />
+    <ClInclude Include="Globals.h" />
     <ClInclude Include="Miniball\Miniball.h" />
     <ClInclude Include="Object.h" />
     <ClInclude Include="RenderableObject.h" />
