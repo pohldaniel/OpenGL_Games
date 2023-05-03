@@ -11,98 +11,41 @@
 Shape::Shape() { }
 
 void Shape::buildCapsule(float radius, float length, const Vector3f& position, int uResolution, int vResolution, bool generateTexels, bool generateNormals, bool generateTangents) {
-	m_position = position;
-	m_generateNormals = generateNormals;
-	m_generateTexels = generateTexels;
-	m_generateTangents = generateTangents;
-	m_uResolution = uResolution;
-	m_vResolution = vResolution;
-	m_numBuffers = 1 + m_generateTexels + m_generateNormals + 2 * m_generateTangents;
-	Capsule::BuildMesh(radius, length, m_position, m_uResolution, m_vResolution, m_generateTexels, m_generateNormals, generateTangents, m_positions, m_texels, m_normals, m_indexBuffer, m_tangents, m_bitangents);
+	Capsule::BuildMesh(radius, length, position, uResolution, vResolution, generateTexels, generateNormals, generateTangents, m_positions, m_texels, m_normals, m_indexBuffer, m_tangents, m_bitangents);
 	createBuffer();
 }
 
 void Shape::buildTorus(float radius, float tubeRadius, const Vector3f& position, int uResolution, int vResolution, bool generateTexels, bool generateNormals, bool generateTangents) {
-	m_position = position;
-	m_generateNormals = generateNormals;
-	m_generateTexels = generateTexels;
-	m_generateTangents = generateTangents;
-	m_uResolution = uResolution;
-	m_vResolution = vResolution;
-	m_numBuffers = 1 + m_generateTexels + m_generateNormals + 2 * m_generateTangents;
-	MeshTorus::BuildMesh(radius, tubeRadius, m_position, m_uResolution, m_vResolution, m_generateTexels, m_generateNormals, m_generateTangents, m_positions, m_texels, m_normals, m_indexBuffer, m_tangents, m_bitangents);
+	MeshTorus::BuildMesh(radius, tubeRadius, position, uResolution, vResolution, generateTexels, generateNormals, generateTangents, m_positions, m_texels, m_normals, m_indexBuffer, m_tangents, m_bitangents);
 	createBuffer();
 }
 
 void Shape::buildSphere(float radius, const Vector3f& position, int uResolution, int vResolution, bool generateTexels, bool generateNormals, bool generateTangents) {
-	m_position = position;
-	m_generateNormals = generateNormals;
-	m_generateTexels = generateTexels;
-	m_generateTangents = generateTangents;
-	m_uResolution = uResolution;
-	m_vResolution = vResolution;
-	m_numBuffers = 1 + m_generateTexels + m_generateNormals + 2 * m_generateTangents;
-	MeshSphere::BuildMesh(radius, m_position, m_uResolution, m_vResolution, m_generateTexels, m_generateNormals, m_generateTangents, m_positions, m_texels, m_normals, m_indexBuffer, m_tangents, m_bitangents);
+	MeshSphere::BuildMesh(radius, position, uResolution, vResolution, generateTexels, generateNormals, generateTangents, m_positions, m_texels, m_normals, m_indexBuffer, m_tangents, m_bitangents);
 	createBuffer();
 }
 
 void Shape::buildSpiral(float radius, float tubeRadius, float length, int numRotations, bool repeatTexture, const Vector3f& position, int uResolution, int vResolution, bool generateTexels, bool generateNormals, bool generateTangents) {
-	m_position = position;
-	m_generateNormals = generateNormals;
-	m_generateTexels = generateTexels;
-	m_generateTangents = generateTangents;
-	m_uResolution = uResolution;
-	m_vResolution = vResolution;
-	m_numBuffers = 1 + m_generateTexels + m_generateNormals + 2 * m_generateTangents;
-	MeshSpiral::BuildMesh(radius, tubeRadius, length, numRotations, repeatTexture, m_position, m_uResolution, m_vResolution, m_generateTexels, m_generateNormals, m_generateTangents, m_positions, m_texels, m_normals, m_indexBuffer, m_tangents, m_bitangents);
+	MeshSpiral::BuildMesh(radius, tubeRadius, length, numRotations, repeatTexture, position, uResolution, vResolution, generateTexels, generateNormals, generateTangents, m_positions, m_texels, m_normals, m_indexBuffer, m_tangents, m_bitangents);
 	createBuffer();
 }
 
 void Shape::buildCylinder(float baseRadius, float topRadius, float length, const Vector3f& position, int uResolution, int vResolution, bool generateTexels, bool generateNormals, bool generateTangents) {
-	m_position = position;
-	m_generateNormals = generateNormals;
-	m_generateTexels = generateTexels;
-	m_generateTangents = generateTangents;
-	m_uResolution = uResolution;
-	m_vResolution = vResolution;
-	m_numBuffers = 1 + m_generateTexels + m_generateNormals + 2 * m_generateTangents;
-	MeshCylinder::BuildMesh(baseRadius, topRadius, length, m_position, m_uResolution, m_vResolution, m_generateTexels, m_generateNormals, m_generateTangents, m_positions, m_texels, m_normals, m_indexBuffer, m_tangents, m_bitangents);
+	MeshCylinder::BuildMesh(baseRadius, topRadius, length, position, uResolution, vResolution, generateTexels, generateNormals, generateTangents, m_positions, m_texels, m_normals, m_indexBuffer, m_tangents, m_bitangents);
 	createBuffer();
 }
 
 void Shape::buildQuadXY(const Vector3f& position, const Vector2f&  size, int uResolution, int vResolution, bool generateTexels, bool generateNormals, bool generateTangents) {
-	m_position = position;
-	m_generateNormals = generateNormals;
-	m_generateTexels = generateTexels;
-	m_generateTangents = generateTangents;
-	m_uResolution = uResolution;
-	m_vResolution = vResolution;
-	m_numBuffers = 1 + m_generateTexels + m_generateNormals + 2 * m_generateTangents;
-	MeshQuad::BuildMeshXY(position, size, m_uResolution, m_vResolution, m_generateTexels, m_generateNormals, m_generateTangents, m_positions, m_texels, m_normals, m_indexBuffer, m_tangents, m_bitangents);
+	MeshQuad::BuildMeshXY(position, size, uResolution, vResolution, generateTexels, generateNormals, generateTangents, m_positions, m_texels, m_normals, m_indexBuffer, m_tangents, m_bitangents);
 	createBuffer();
 }
 
 void Shape::buildCube(const Vector3f& position, const Vector3f&  size, int uResolution, int vResolution, bool generateTexels, bool generateNormals, bool generateTangents) {
-	m_position = position;
-	m_generateNormals = generateNormals;
-	m_generateTexels = generateTexels;
-	m_generateTangents = generateTangents;
-	m_uResolution = uResolution;
-	m_vResolution = vResolution;
-	m_numBuffers = 1 + m_generateTexels + m_generateNormals + 2 * m_generateTangents;
-	MeshCube::BuildMesh4Q(position, size, m_uResolution, m_vResolution, m_generateTexels, m_generateNormals, m_generateTangents, m_positions, m_texels, m_normals, m_indexBuffer, m_tangents, m_bitangents);
+	MeshCube::BuildMesh4Q(position, size, uResolution, vResolution, generateTexels, generateNormals, generateTangents, m_positions, m_texels, m_normals, m_indexBuffer, m_tangents, m_bitangents);
 	createBuffer();
 }
 
 void Shape::fromBuffer(std::vector<float>& vertexBuffer, std::vector<unsigned int> indexBuffer, unsigned int stride) {
-	
-	m_uResolution = 0;
-	m_vResolution = 0;
-	m_position.set(0.0f, 0.0f, 0.0f);
-
-	m_generateNormals = false;
-	m_generateTexels = false;
-	m_generateTangents = false;
 
 	if (stride == 3) {
 		for (unsigned int i = 0; i < vertexBuffer.size(); i = i + stride) {
@@ -111,7 +54,6 @@ void Shape::fromBuffer(std::vector<float>& vertexBuffer, std::vector<unsigned in
 	}
 
 	if (stride == 5) {
-		m_generateTexels = true;
 		for (unsigned int i = 0; i < vertexBuffer.size(); i = i + stride) {
 			m_positions.push_back(Vector3f(vertexBuffer[i], vertexBuffer[i + 1], vertexBuffer[i + 2]));
 			m_texels.push_back(Vector2f(vertexBuffer[i + 3], vertexBuffer[i + 4]));
@@ -119,7 +61,6 @@ void Shape::fromBuffer(std::vector<float>& vertexBuffer, std::vector<unsigned in
 	}
 
 	if (stride == 6) {
-		m_generateNormals = true;
 		for (unsigned int i = 0; i < vertexBuffer.size(); i = i + stride) {
 			m_positions.push_back(Vector3f(vertexBuffer[i], vertexBuffer[i + 1], vertexBuffer[i + 2]));
 			m_normals.push_back(Vector3f(vertexBuffer[i + 3], vertexBuffer[i + 4], vertexBuffer[i + 5]));
@@ -127,8 +68,6 @@ void Shape::fromBuffer(std::vector<float>& vertexBuffer, std::vector<unsigned in
 	}
 
 	if (stride == 8) {
-		m_generateTexels = true;
-		m_generateNormals = true;
 		for (unsigned int i = 0; i < vertexBuffer.size(); i = i + stride) {
 			m_positions.push_back(Vector3f(vertexBuffer[i], vertexBuffer[i + 1], vertexBuffer[i + 2]));
 			m_texels.push_back(Vector2f(vertexBuffer[i + 3], vertexBuffer[i + 4]));
@@ -137,7 +76,16 @@ void Shape::fromBuffer(std::vector<float>& vertexBuffer, std::vector<unsigned in
 		}
 	}
 
-	m_numBuffers = 1 + m_generateTexels + m_generateNormals + 2 * m_generateTangents;
+	if (stride == 14) {
+		for (unsigned int i = 0; i < vertexBuffer.size(); i = i + stride) {
+			m_positions.push_back(Vector3f(vertexBuffer[i], vertexBuffer[i + 1], vertexBuffer[i + 2]));
+			m_texels.push_back(Vector2f(vertexBuffer[i + 3], vertexBuffer[i + 4]));
+			m_normals.push_back(Vector3f(vertexBuffer[i + 5], vertexBuffer[i + 6], vertexBuffer[i + 7]));
+			m_tangents.push_back(Vector3f(vertexBuffer[i + 8], vertexBuffer[i + 9], vertexBuffer[i + 10]));
+			m_bitangents.push_back(Vector3f(vertexBuffer[i + 11], vertexBuffer[i + 12], vertexBuffer[i + 13]));
+
+		}
+	}
 
 	m_indexBuffer.reserve(indexBuffer.size());
 	std::copy(indexBuffer.begin(), indexBuffer.end(), std::back_inserter(m_indexBuffer));
@@ -145,16 +93,16 @@ void Shape::fromBuffer(std::vector<float>& vertexBuffer, std::vector<unsigned in
 	createBuffer();
 }
 
-void Shape::setPrecision(int uResolution, int vResolution) {
-	m_uResolution = uResolution;
-	m_vResolution = vResolution;
-}
-
 int Shape::getNumberOfTriangles() {
 	return m_drawCount / 3;
 }
 
 Shape::~Shape() {
+	cleanup();
+}
+
+void Shape::cleanup() {
+
 	if (m_vao)
 		glDeleteVertexArrays(1, &m_vao);
 
@@ -185,12 +133,11 @@ Shape::~Shape() {
 }
 
 void Shape::createBuffer() {
-
 	m_drawCount = m_indexBuffer.size();
 
 	unsigned int ibo;
 	glGenBuffers(1, &ibo);
-	glGenBuffers(m_numBuffers, m_vbo);
+	glGenBuffers(!m_positions.empty() + !m_texels.empty() + !m_normals.empty() + !m_tangents.empty() + !m_bitangents.empty(), m_vbo);
 
 	glGenVertexArrays(1, &m_vao);
 	glBindVertexArray(m_vao);
@@ -203,7 +150,7 @@ void Shape::createBuffer() {
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
 	//Texture Coordinates
-	if (m_generateTexels) {
+	if (!m_texels.empty()) {
 		glBindBuffer(GL_ARRAY_BUFFER, m_vbo[1]);
 		glBufferData(GL_ARRAY_BUFFER, m_texels.size() * sizeof(m_texels[0]), &m_texels[0], GL_STATIC_DRAW);
 
@@ -212,8 +159,8 @@ void Shape::createBuffer() {
 	}
 
 	//Normals
-	if (m_generateNormals) {
-		glBindBuffer(GL_ARRAY_BUFFER, m_generateTexels ? m_vbo[2] : m_vbo[1]);
+	if (!m_normals.empty()) {
+		glBindBuffer(GL_ARRAY_BUFFER, !m_texels.empty() ? m_vbo[2] : m_vbo[1]);
 		glBufferData(GL_ARRAY_BUFFER, m_normals.size() * sizeof(m_normals[0]), &m_normals[0], GL_STATIC_DRAW);
 
 		glEnableVertexAttribArray(2);
@@ -221,14 +168,14 @@ void Shape::createBuffer() {
 	}
 
 	//tangents
-	if (m_generateTangents) {
-		glBindBuffer(GL_ARRAY_BUFFER, (m_generateTexels && m_generateNormals) ? m_vbo[3] : (m_generateTexels || m_generateNormals) ? m_vbo[2] : m_vbo[1]);
+	if (!m_tangents.empty()) {
+		glBindBuffer(GL_ARRAY_BUFFER, (!m_texels.empty() && !m_normals.empty()) ? m_vbo[3] : (!m_texels.empty() || !m_normals.empty()) ? m_vbo[2] : m_vbo[1]);
 		glBufferData(GL_ARRAY_BUFFER, m_tangents.size() * sizeof(m_tangents[0]), &m_tangents[0], GL_STATIC_DRAW);
 
 		glEnableVertexAttribArray(3);
 		glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
-		glBindBuffer(GL_ARRAY_BUFFER, (m_generateTexels && m_generateNormals) ? m_vbo[4] : (m_generateTexels || m_generateNormals) ? m_vbo[3] : m_vbo[2]);
+		glBindBuffer(GL_ARRAY_BUFFER, (!m_texels.empty() && !m_normals.empty()) ? m_vbo[4] : (!m_texels.empty() || !m_normals.empty()) ? m_vbo[3] : m_vbo[2]);
 		glBufferData(GL_ARRAY_BUFFER, m_bitangents.size() * sizeof(m_bitangents[0]), &m_bitangents[0], GL_STATIC_DRAW);
 
 		glEnableVertexAttribArray(4);

@@ -28,20 +28,11 @@ public:
 	void drawRawInstanced() const;
 	void addInstances(const std::vector<Matrix4f>& modelMTX);
 	void addInstance(const Matrix4f& modelMTX);
-	void setPrecision(int uResolution, int vResolution);
 	int getNumberOfTriangles();
+	void cleanup();
 
 private:
 
-	int m_uResolution;
-	int m_vResolution;
-	Vector3f m_position;
-
-	bool m_generateNormals;
-	bool m_generateTexels;
-	bool m_generateTangents;
-
-	unsigned short m_numBuffers;
 	unsigned int m_vao;
 	unsigned int m_vbo[5] = { 0 };
 	unsigned int m_drawCount;
