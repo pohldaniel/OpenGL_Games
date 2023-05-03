@@ -275,6 +275,7 @@ void Game::OnKeyDown(Event::KeyboardEvent& event) {
 		Globals::musicManager.get("background").stop();
 		Globals::musicManager.get("background").setVolume(Globals::musicVolume);
 		m_drawUi = false;
+		ImGui::GetIO().WantCaptureMouse = false;
 		Mouse::instance().detach();
 		m_isRunning = false;
 		m_machine.addStateAtBottom(new MainMenu(m_machine));

@@ -11,6 +11,7 @@
 #include <memory>
 #include <cctype>
 #include <unordered_map>
+#include <functional>
 
 #include "Vector.h"
 #include "Shader.h"
@@ -19,6 +20,7 @@
 #include "Transform.h"
 #include "AssetManger.h"
 #include "BuiltInShader.h"
+#include "Material.h"
 #include "../Miniball/Miniball.h"
 
 
@@ -93,22 +95,13 @@ private:
 
 class ObjMesh;
 class ObjModel {
+
 	friend ObjMesh;
 	friend BoundingBox;
 	friend BoundingSphere;
 	friend ConvexHull;
 
 public:
-
-	struct Material {
-		float ambient[4];
-		float diffuse[4];
-		float specular[4];
-		float shininess;
-		std::string diffuseTexPath;
-		std::string bumpMapPath;
-		std::string displacementMapPath;
-	};
 
 	ObjModel();
 	~ObjModel();
@@ -160,7 +153,7 @@ public:
 	void updateInstances(std::vector<Matrix4f>& modelMTX);
 
 	void initAssets(bool instanced = false);
-	void initAssets(AssetManager<Shader>& shaderManager, AssetManager<Texture>& textureManager, bool instanced = false);
+	void initAssets(AssetManager<Shader>& shaderManager, bool instanced = false);
 
 private:
 
@@ -181,10 +174,7 @@ private:
 	ConvexHull convexHull;
 
 	std::unordered_map<int, Shader*> m_shader;
-	std::unordered_map<int, Texture> m_textures;
-
 	AssetManager<Shader> m_shaderManager;
-	AssetManager<Texture> m_textureManager;
 
 	Transform m_transform;
 
@@ -207,7 +197,8 @@ private:
 	void static GenerateFlatNormals(std::vector<float>& vertexCoords, std::vector<std::array<int, 10>>& face, std::vector<float>& normalCoords);
 	void static GenerateTangents(std::vector<float>& vertexCoords, std::vector<float>& textureCoords, std::vector<float>& normalCoords, std::vector<std::array<int, 10>>& face, std::vector<float>& tangentCoords, std::vector<float>& bitangentCoords);
 
-	void static ReadMaterialFromFile(Material& material, std::string path, std::string mltName);
+	void static ReadMaterialFromFile(std::string path, std::string mltName, short& index);
+	std::string static GetTexturePath(std::string texPath, std::string modelDirectory);
 };
 
 class ObjMesh {
@@ -222,25 +213,22 @@ public:
 
 	void drawRaw();
 	void drawRawInstanced();
-	void setMaterial(const Vector3f &ambient, const Vector3f &diffuse, const Vector3f &specular, float shinies);
-	ObjModel::Material& getMaterial();
+	const Material& getMaterial() const;
 	
 	std::vector<float>& getVertexBuffer();
 	std::vector<unsigned int>& getIndexBuffer();
 	int getStride();
+	void cleanup();
 
 private:
 
 	ObjModel* m_model;
 	std::string m_mltName;
-	ObjModel::Material m_material;
-	///////////////////////////////////////OpenGL content//////////////////
 
 	void createInstancesStatic(std::vector<Matrix4f>& modelMTX);
 	void createInstancesDynamic(unsigned int numberOfInstances);
 	void addInstance(ObjModel& model);
 	void updateInstances(std::vector<Matrix4f>& modelMTX);
-	void updateMaterialUbo(unsigned int& ubo);
 
 	unsigned int m_vao = 0;
 	unsigned int m_vbo[5] = { 0 };
@@ -255,4 +243,5 @@ private:
 
 	bool m_hasTextureCoords, m_hasNormals, m_hasTangents;
 	unsigned int m_triangleOffset, m_numberOfTriangles, m_stride, m_baseVertex, m_baseIndex;	
+	short m_materialIndex = -1;
 };

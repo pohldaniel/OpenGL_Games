@@ -32,7 +32,39 @@ ObjModel::ObjModel()  {
 }
 
 ObjModel::~ObjModel() {
+	if (m_vao)
+		glDeleteVertexArrays(1, &m_vao);
+
+	if (m_vbo[0])
+		glDeleteBuffers(1, &m_vbo[0]);
+
+	if (m_vbo[1])
+		glDeleteBuffers(1, &m_vbo[1]);
+
+	if (m_vbo[2])
+		glDeleteBuffers(1, &m_vbo[2]);
+
+	if (m_vbo[3])
+		glDeleteBuffers(1, &m_vbo[3]);
+
+	if (m_vbo[4])
+		glDeleteBuffers(1, &m_vbo[4]);
+
+	if (m_vboInstances)
+		glDeleteBuffers(1, &m_vboInstances);
+
+	m_vertexBuffer.clear();
+	m_vertexBuffer.shrink_to_fit();
+	m_indexBuffer.clear();
+	m_indexBuffer.shrink_to_fit();
+	m_instances.clear();
+	m_instances.shrink_to_fit();
+
+	for (auto & mesh : m_meshes) {
+		delete mesh;
+	}
 	
+	m_shader.clear();	
 }
 
 void ObjModel::rotate(const Vector3f &axis, float degrees) {
@@ -390,7 +422,7 @@ bool ObjModel::loadModel(const char* a_filename, Vector3f& axis, float degree, V
 		}
 
 		if (m_hasMaterial) {
-			ObjModel::ReadMaterialFromFile(m_meshes[j]->m_material, getModelDirectory() + "/" + getMltPath(), m_meshes[j]->m_mltName);
+			ObjModel::ReadMaterialFromFile(getModelDirectory() + "/" + getMltPath(), m_meshes[j]->m_mltName, m_meshes[j]->m_materialIndex);
 		}
 
 		if (!m_isStacked) {
@@ -468,7 +500,8 @@ void ObjModel::drawRawInstancedStacked() {
 
 void ObjModel::draw(Camera& camera) {
 	for (int i = 0; i < m_meshes.size(); i++) {
-		m_meshes[i]->updateMaterialUbo(BuiltInShader::materialUbo);
+		Material& material = Material::GetMaterials()[m_meshes[i]->m_materialIndex];
+		material.updateMaterialUbo(BuiltInShader::materialUbo);
 
 		glUseProgram(m_shader[i]->m_program);
 
@@ -476,7 +509,7 @@ void ObjModel::draw(Camera& camera) {
 		m_shader[i]->loadMatrix("u_view", camera.getViewMatrix());
 		m_shader[i]->loadMatrix("u_model", m_transform.getTransformationMatrix());
 
-		m_textures[i].bind(0);
+		material.bind();
 		m_meshes[i]->drawRaw();
 
 		glUseProgram(0);
@@ -487,13 +520,14 @@ void ObjModel::draw(Camera& camera) {
 
 void ObjModel::drawInstanced(Camera& camera) {
 	for (int i = 0; i < m_meshes.size(); i++) {
-		m_meshes[i]->updateMaterialUbo(BuiltInShader::materialUbo);
+		Material& material = Material::GetMaterials()[m_meshes[i]->m_materialIndex];
+		material.updateMaterialUbo(BuiltInShader::materialUbo);
 
 		glUseProgram(m_shader[i]->m_program);
 		
 		m_shader[i]->loadMatrix("u_projection", camera.getPerspectiveMatrix());
 
-		m_textures[i].bind(0);
+		material.bind();
 		m_meshes[i]->drawRawInstanced();
 
 		glUseProgram(0);
@@ -505,7 +539,8 @@ void ObjModel::drawInstanced(Camera& camera) {
 void ObjModel::drawStacked(Camera& camera) {
 	glBindVertexArray(m_vao);
 	for (int i = 0; i < m_meshes.size(); i++) {
-		m_meshes[i]->updateMaterialUbo(BuiltInShader::materialUbo);
+		Material& material = Material::GetMaterials()[m_meshes[i]->m_materialIndex];
+		material.updateMaterialUbo(BuiltInShader::materialUbo);
 
 		glUseProgram(m_shader[i]->m_program);
 
@@ -513,7 +548,7 @@ void ObjModel::drawStacked(Camera& camera) {
 		m_shader[i]->loadMatrix("u_view", camera.getViewMatrix());
 		m_shader[i]->loadMatrix("u_model", m_transform.getTransformationMatrix());
 
-		m_textures[i].bind(0);
+		material.bind();
 		glDrawElementsBaseVertex(GL_TRIANGLES, m_meshes[i]->m_drawCount, GL_UNSIGNED_INT, (void*)(sizeof(unsigned int) * m_meshes[i]->m_baseIndex), m_meshes[i]->m_baseVertex);
 		glUseProgram(0);
 	}
@@ -524,12 +559,13 @@ void ObjModel::drawStacked(Camera& camera) {
 void ObjModel::drawInstancedStacked(Camera& camera) {
 	glBindVertexArray(m_vao);
 	for (int i = 0; i < m_meshes.size(); i++) {
-		m_meshes[i]->updateMaterialUbo(BuiltInShader::materialUbo);
+		Material& material = Material::GetMaterials()[m_meshes[i]->m_materialIndex];
+		material.updateMaterialUbo(BuiltInShader::materialUbo);
 
 		glUseProgram(m_shader[i]->m_program);
 
 		m_shader[i]->loadMatrix("u_projection", camera.getPerspectiveMatrix());
-		m_textures[i].bind(0);
+		material.bind();
 		glDrawElementsInstancedBaseVertexBaseInstance(GL_TRIANGLES, m_meshes[i]->m_drawCount, GL_UNSIGNED_INT, (void*)(sizeof(unsigned int) * m_meshes[i]->m_baseIndex), m_instanceCount, m_meshes[i]->m_baseVertex, 0);
 			
 		glUseProgram(0);
@@ -994,7 +1030,7 @@ void ObjModel::updateInstances(std::vector<Matrix4f>& modelMTX) {
 }
 
 void ObjModel::initAssets(bool instanced) {
-	//normally this should used for a global ligthing approach
+
 	if (!BuiltInShader::materialUbo) {
 		glGenBuffers(1, &BuiltInShader::materialUbo);
 		glBindBuffer(GL_UNIFORM_BUFFER, BuiltInShader::materialUbo);
@@ -1014,54 +1050,26 @@ void ObjModel::initAssets(bool instanced) {
 	}
 
 	for (int i = 0; i < m_meshes.size(); i++) {
-		if (m_meshes[i]->m_material.diffuseTexPath.empty()) {
 
-			if (!m_shaderManager.checkAsset(instanced ? "diffuse_instance" : "diffuse")) {
-				m_shaderManager.loadShaderFromString(instanced ? "diffuse_instance" : "diffuse", instanced ? DIFFUSE_INSTANCE_VS : DIFFUSE_VS, instanced ? DIFFUSE_INSTANCE_FS : DIFFUSE_FS);
+
+		if (!m_shaderManager.checkAsset(instanced ? "diffuse_instance" : "diffuse")) {
+			m_shaderManager.loadShaderFromString(instanced ? "diffuse_instance" : "diffuse", instanced ? DIFFUSE_INSTANCE_VS : DIFFUSE_VS, instanced ? DIFFUSE_INSTANCE_FS : DIFFUSE_FS);
 				
-				glUniformBlockBinding(m_shaderManager.getAssetPointer(instanced ? "diffuse_instance" : "diffuse")->m_program, glGetUniformBlockIndex(m_shaderManager.getAssetPointer(instanced ? "diffuse_instance" : "diffuse")->m_program, "u_material"), BuiltInShader::materialBinding);
+			glUniformBlockBinding(m_shaderManager.getAssetPointer(instanced ? "diffuse_instance" : "diffuse")->m_program, glGetUniformBlockIndex(m_shaderManager.getAssetPointer(instanced ? "diffuse_instance" : "diffuse")->m_program, "u_material"), BuiltInShader::materialBinding);
 
-				if (instanced) {
-					glUniformBlockBinding(m_shaderManager.getAssetPointer("diffuse_instance")->m_program, glGetUniformBlockIndex(m_shaderManager.getAssetPointer("diffuse_instance")->m_program, "u_view"), BuiltInShader::viewBinding);
-				}
+			if (instanced) {
+				glUniformBlockBinding(m_shaderManager.getAssetPointer("diffuse_instance")->m_program, glGetUniformBlockIndex(m_shaderManager.getAssetPointer("diffuse_instance")->m_program, "u_view"), BuiltInShader::viewBinding);
 			}
-			m_shader[i] = m_shaderManager.getAssetPointer(instanced ? "diffuse_instance" : "diffuse");
-			m_textures[i] = Texture();
-
-		}else {
-			if (!m_shaderManager.checkAsset(instanced ? "diffuse_texture_instance" : "diffuse_texture")) {
-				m_shaderManager.loadShaderFromString(instanced ? "diffuse_texture_instance" : "diffuse_texture", instanced ? DIFFUSE_TEXTURE_INSTANCE_VS : DIFFUSE_TEXTURE_VS, instanced ? DIFFUSE_TEXTURE_INSTANCE_FS : DIFFUSE_TEXTURE_FS);
-
-				glUniformBlockBinding(m_shaderManager.getAssetPointer(instanced ? "diffuse_texture_instance" : "diffuse_texture")->m_program, glGetUniformBlockIndex(m_shaderManager.getAssetPointer(instanced ? "diffuse_texture_instance" : "diffuse_texture")->m_program, "u_material"), BuiltInShader::materialBinding);
-				
-				if (instanced) {
-					glUniformBlockBinding(m_shaderManager.getAssetPointer("diffuse_texture_instance")->m_program, glGetUniformBlockIndex(m_shaderManager.getAssetPointer("diffuse_texture_instance")->m_program, "u_view"), BuiltInShader::viewBinding);
-				}
-	
-				glUseProgram(m_shaderManager.getAssetPointer(instanced ? "diffuse_texture_instance" : "diffuse_texture")->m_program);
-				m_shaderManager.getAssetPointer(instanced ? "diffuse_texture_instance" : "diffuse_texture")->loadInt("u_texture", 0);
-				glUseProgram(0);
-			}
-
-			std::string texture = m_meshes[i]->m_material.diffuseTexPath;
-			int foundSlash = texture.find_last_of("/\\");
-
-			int foundDot = texture.find_last_of(".");
-			foundDot = (foundDot < 0 ? texture.length() : foundDot);
-			foundDot = foundSlash < 0 ? foundDot : foundDot - 1;
-			std::string textureName = texture.substr(foundSlash + 1, foundDot);
-			if (!m_textureManager.checkAsset(textureName)) {
-				m_textureManager.loadTexture(textureName, foundSlash < 0 ? m_modelDirectory + "/" + texture.substr(foundSlash + 1) : texture, true);
-			}
-			m_textures[i] = m_textureManager.get(textureName);
-			m_shader[i] = m_shaderManager.getAssetPointer(instanced ? "diffuse_texture_instance" : "diffuse_texture");
 		}
+		m_shader[i] = m_shaderManager.getAssetPointer(instanced ? "diffuse_instance" : "diffuse");
+
+
+		
 	}
 }
 
-void ObjModel::initAssets(AssetManager<Shader>& shaderManager, AssetManager<Texture>& textureManager, bool instanced) {
+void ObjModel::initAssets(AssetManager<Shader>& shaderManager, bool instanced) {
 
-	//normally this should used for a global ligthing approach
 	if (!BuiltInShader::materialUbo) {
 		glGenBuffers(1, &BuiltInShader::materialUbo);
 		glBindBuffer(GL_UNIFORM_BUFFER, BuiltInShader::materialUbo);
@@ -1081,49 +1089,18 @@ void ObjModel::initAssets(AssetManager<Shader>& shaderManager, AssetManager<Text
 	}
 
 	for (int i = 0; i < m_meshes.size(); i++) {
-		if (m_meshes[i]->m_material.diffuseTexPath.empty()) {
 
-			if (!shaderManager.checkAsset(instanced ? "diffuse_instance" : "diffuse")) {
-				shaderManager.loadShaderFromString(instanced ? "diffuse_instance" : "diffuse", instanced ? DIFFUSE_INSTANCE_VS : DIFFUSE_VS, instanced ? DIFFUSE_INSTANCE_FS : DIFFUSE_FS);
+		if (!shaderManager.checkAsset(instanced ? "diffuse_instance" : "diffuse")) {
+			shaderManager.loadShaderFromString(instanced ? "diffuse_instance" : "diffuse", instanced ? DIFFUSE_INSTANCE_VS : DIFFUSE_VS, instanced ? DIFFUSE_INSTANCE_FS : DIFFUSE_FS);
 				
-				glUniformBlockBinding(shaderManager.getAssetPointer(instanced ? "diffuse_instance" : "diffuse")->m_program, glGetUniformBlockIndex(shaderManager.getAssetPointer(instanced ? "diffuse_instance" : "diffuse")->m_program, "u_material"), BuiltInShader::materialBinding);
+			glUniformBlockBinding(shaderManager.getAssetPointer(instanced ? "diffuse_instance" : "diffuse")->m_program, glGetUniformBlockIndex(shaderManager.getAssetPointer(instanced ? "diffuse_instance" : "diffuse")->m_program, "u_material"), BuiltInShader::materialBinding);
 
-				if (instanced) {
-					glUniformBlockBinding(shaderManager.getAssetPointer("diffuse_instance")->m_program, glGetUniformBlockIndex(shaderManager.getAssetPointer("diffuse_instance")->m_program, "u_view"), BuiltInShader::viewBinding);
-				}
+			if (instanced) {
+				glUniformBlockBinding(shaderManager.getAssetPointer("diffuse_instance")->m_program, glGetUniformBlockIndex(shaderManager.getAssetPointer("diffuse_instance")->m_program, "u_view"), BuiltInShader::viewBinding);
+			}
 				
-			}
-			m_shader[i] = shaderManager.getAssetPointer(instanced ? "diffuse_instance" : "diffuse");
-			m_textures[i] = Texture();
-
-		}else {
-			if (!shaderManager.checkAsset(instanced ? "diffuse_texture_instance" : "diffuse_texture")) {
-				shaderManager.loadShaderFromString(instanced ? "diffuse_texture_instance" : "diffuse_texture", instanced ? DIFFUSE_TEXTURE_INSTANCE_VS : DIFFUSE_TEXTURE_VS, instanced ? DIFFUSE_TEXTURE_INSTANCE_FS : DIFFUSE_TEXTURE_FS);
-
-				glUniformBlockBinding(shaderManager.getAssetPointer(instanced ? "diffuse_texture_instance" : "diffuse_texture")->m_program, glGetUniformBlockIndex(shaderManager.getAssetPointer(instanced ? "diffuse_texture_instance" : "diffuse_texture")->m_program, "u_material"), BuiltInShader::materialBinding);
-				
-				if (instanced) {
-					glUniformBlockBinding(shaderManager.getAssetPointer("diffuse_texture_instance")->m_program, glGetUniformBlockIndex(shaderManager.getAssetPointer("diffuse_texture_instance")->m_program, "u_view"), BuiltInShader::viewBinding);
-				}
-
-				glUseProgram(shaderManager.getAssetPointer(instanced ? "diffuse_texture_instance" : "diffuse_texture")->m_program);
-				shaderManager.getAssetPointer(instanced ? "diffuse_texture_instance" : "diffuse_texture")->loadInt("u_texture", 0);
-				glUseProgram(0);
-			}
-
-			std::string texture = m_meshes[i]->m_material.diffuseTexPath;
-			int foundSlash = texture.find_last_of("/\\");
-
-			int foundDot = texture.find_last_of(".");
-			foundDot = (foundDot < 0 ? texture.length() : foundDot);
-			foundDot = foundSlash < 0 ? foundDot : foundDot - 1;
-			std::string textureName = texture.substr(foundSlash + 1, foundDot);
-			if (!textureManager.checkAsset(textureName)) {
-				textureManager.loadTexture(textureName, foundSlash < 0 ? m_modelDirectory + "/" + texture.substr(foundSlash + 1) : texture, true);
-			}
-			m_textures[i] = textureManager.get(textureName);
-			m_shader[i] = shaderManager.getAssetPointer(instanced ? "diffuse_texture_instance" : "diffuse_texture");
 		}
+		m_shader[i] = shaderManager.getAssetPointer(instanced ? "diffuse_instance" : "diffuse");	
 	}
 }
 
@@ -1151,7 +1128,7 @@ void ObjModel::CreateBuffer(std::vector<float>& vertexBuffer, std::vector<unsign
 		glDeleteBuffers(1, &ibo);
 
 
-	glGenBuffers(5, vbo);
+	glGenBuffers(stride == 14 ? 5 : stride == 8 ? 3 : (stride == 6 || stride == 5) ? 2 : 1, vbo);
 	glGenBuffers(1, &ibo);
 
 	glGenVertexArrays(1, &vao);
@@ -1464,102 +1441,137 @@ void ObjModel::GenerateTangents(std::vector<float>& vertexCoords, std::vector<fl
 	}
 }
 
-void ObjModel::ReadMaterialFromFile(Material& material, std::string path, std::string mltName) {
-	std::vector<std::string*>lines;
-	int start = -1;
-	int end = -1;
+std::string ObjModel::GetTexturePath(std::string texPath, std::string modelDirectory) {
 
-	std::ifstream in(path);
+	int foundSlash = texPath.find_last_of("/\\");
 
-	if (!in.is_open()) {
-		std::cout << "mlt file not found" << std::endl;
-		return;
-	}
+	int foundDot = texPath.find_last_of(".");
+	foundDot = (foundDot < 0 ? texPath.length() : foundDot);
+	foundDot = foundSlash < 0 ? foundDot : foundDot - 1;
+	std::string textureName = texPath.substr(foundSlash + 1, foundDot);
 
-	std::string line;
-	while (getline(in, line)) {
-		lines.push_back(new std::string(line));
+	return textureName, foundSlash < 0 ? modelDirectory + "/" + texPath.substr(foundSlash + 1) : texPath;
+}
 
-	}
-	in.close();
+void ObjModel::ReadMaterialFromFile(std::string path, std::string mltName, short& index) {
 
-	for (int i = 0; i < lines.size(); i++) {
+	std::vector<Material>::iterator it = std::find_if(Material::GetMaterials().begin(), Material::GetMaterials().end(), std::bind([](Material const& s1, std::string const& s2) -> bool { return s1.name == s2;}, std::placeholders::_1, mltName));
+	if (it == Material::GetMaterials().end()) {
 
-		if (strcmp((*lines[i]).c_str(), mltName.c_str()) == 0) {
-			start = i;
-			continue;
+		Material::GetMaterials().resize(Material::GetMaterials().size() + 1);
+		index = Material::GetMaterials().size() - 1;
+		Material& material = Material::GetMaterials().back();
+		material.name = mltName;
+
+		std::vector<std::string*>lines;
+		int start = -1;
+		int end = -1;
+
+		std::ifstream in(path);
+
+		if (!in.is_open()) {
+			std::cout << "mlt file not found" << std::endl;
+			return;
 		}
 
-		if ((*lines[i]).find("newmtl") != std::string::npos && start > 0) {
-			end = i;
-			break;
+		std::string line;
+		while (getline(in, line)) {
+			lines.push_back(new std::string(line));
+
 		}
-		else {
-			end = lines.size();
+		in.close();
+
+		for (int i = 0; i < lines.size(); i++) {
+
+			if (strcmp((*lines[i]).c_str(), mltName.c_str()) == 0) {
+				start = i;
+				continue;
+			}
+
+			if ((*lines[i]).find("newmtl") != std::string::npos && start > 0) {
+				end = i;
+				break;
+			}
+			else {
+				end = lines.size();
+			}
+
 		}
 
-	}
+		if (start < 0 || end < 0) return;
 
-	if (start < 0 || end < 0) return;
+		for (int i = start; i < end; i++) {
 
-	for (int i = start; i < end; i++) {
+			if ((*lines[i])[0] == '#') {
 
-		if ((*lines[i])[0] == '#') {
+				continue;
 
-			continue;
+			}else if ((*lines[i])[0] == 'N' && (*lines[i])[1] == 's') {
+				int tmp;
+				sscanf(lines[i]->c_str(), "Ns %i", &tmp);
+				material.shininess = tmp;
 
-		}else if ((*lines[i])[0] == 'N' && (*lines[i])[1] == 's') {
-			int tmp;
-			sscanf(lines[i]->c_str(), "Ns %i", &tmp);
-			material.shininess = tmp;
+			}else if ((*lines[i])[0] == 'K' && (*lines[i])[1] == 'a') {
+				float tmpx, tmpy, tmpz;
+				sscanf(lines[i]->c_str(), "Ka %f %f %f", &tmpx, &tmpy, &tmpz);
 
-		}else if ((*lines[i])[0] == 'K' && (*lines[i])[1] == 'a') {
-			float tmpx, tmpy, tmpz;
-			sscanf(lines[i]->c_str(), "Ka %f %f %f", &tmpx, &tmpy, &tmpz);
+				material.ambient[0] = tmpx;
+				material.ambient[1] = tmpy;
+				material.ambient[2] = tmpz;
+				material.ambient[3] = 0.0f;
 
-			material.ambient[0] = tmpx;
-			material.ambient[1] = tmpy;
-			material.ambient[2] = tmpz;
-			material.ambient[3] = 0.0f;
+			}else if ((*lines[i])[0] == 'K' && (*lines[i])[1] == 'd') {
+				float tmpx, tmpy, tmpz;
+				sscanf(lines[i]->c_str(), "Kd %f %f %f", &tmpx, &tmpy, &tmpz);
 
-		}else if ((*lines[i])[0] == 'K' && (*lines[i])[1] == 'd') {
-			float tmpx, tmpy, tmpz;
-			sscanf(lines[i]->c_str(), "Kd %f %f %f", &tmpx, &tmpy, &tmpz);
+				material.diffuse[0] = tmpx;
+				material.diffuse[1] = tmpy;
+				material.diffuse[2] = tmpz;
+				material.diffuse[3] = 0.0f;
 
-			material.diffuse[0] = tmpx;
-			material.diffuse[1] = tmpy;
-			material.diffuse[2] = tmpz;
-			material.diffuse[3] = 0.0f;
+			}else if ((*lines[i])[0] == 'K' && (*lines[i])[1] == 's') {
+				float tmpx, tmpy, tmpz;
+				sscanf(lines[i]->c_str(), "Ks %f %f %f", &tmpx, &tmpy, &tmpz);
 
-		}else if ((*lines[i])[0] == 'K' && (*lines[i])[1] == 's') {
-			float tmpx, tmpy, tmpz;
-			sscanf(lines[i]->c_str(), "Ks %f %f %f", &tmpx, &tmpy, &tmpz);
+				material.specular[0] = tmpx;
+				material.specular[1] = tmpy;
+				material.specular[2] = tmpz;
+				material.specular[3] = 0.0f;
 
-			material.specular[0] = tmpx;
-			material.specular[1] = tmpy;
-			material.specular[2] = tmpz;
-			material.specular[3] = 0.0f;
+			}else if ((*lines[i])[0] == 'm') {
 
-		}else if ((*lines[i])[0] == 'm') {
+				char identifierBuffer[20], valueBuffer[250];;
+				sscanf(lines[i]->c_str(), "%s %s", identifierBuffer, valueBuffer);
 
-			char identifierBuffer[20], valueBuffer[250];;
-			sscanf(lines[i]->c_str(), "%s %s", identifierBuffer, valueBuffer);
+				if (strstr(identifierBuffer, "map_Kd") != 0) {
+					material.textures[0] = Texture();
+					material.textures[0].loadFromFile(GetTexturePath(valueBuffer, path), true);
+					material.textures[0].setFilter(GL_LINEAR_MIPMAP_LINEAR);
 
-			if (strstr(identifierBuffer, "map_Kd") != 0) {
-				material.diffuseTexPath = valueBuffer;
-				std::transform(material.diffuseTexPath.begin(), material.diffuseTexPath.end(), material.diffuseTexPath.begin(), [](unsigned char c) { return std::tolower(c); });
-			}else if (strstr(identifierBuffer, "map_bump") != 0) {
-				material.bumpMapPath = valueBuffer;
-				std::transform(material.bumpMapPath.begin(), material.bumpMapPath.end(), material.bumpMapPath.begin(), [](unsigned char c) { return std::tolower(c); });
-			}else if (strstr(identifierBuffer, "map_disp") != 0) {
-				material.displacementMapPath = valueBuffer;
-				std::transform(material.displacementMapPath.begin(), material.displacementMapPath.end(), material.displacementMapPath.begin(), [](unsigned char c) { return std::tolower(c); });
+				}else if (strstr(identifierBuffer, "map_bump") != 0) {
+					material.textures[1] = Texture();
+					material.textures[1].loadFromFile(GetTexturePath(valueBuffer, path), true);
+					material.textures[1].setFilter(GL_LINEAR_MIPMAP_LINEAR);
+
+				}else if (strstr(identifierBuffer, "map_Kn") != 0) {
+					material.textures[1] = Texture();
+					material.textures[1].loadFromFile(GetTexturePath(valueBuffer, path), true);
+					material.textures[1].setFilter(GL_LINEAR_MIPMAP_LINEAR);
+
+				}else if (strstr(identifierBuffer, "map_Ks") != 0) {
+					material.textures[2] = Texture();
+					material.textures[2].loadFromFile(GetTexturePath(valueBuffer, path), true);
+					material.textures[2].setFilter(GL_LINEAR_MIPMAP_LINEAR);
+				}
 			}
 		}
-	}
 
-	for (int i = 0; i < lines.size(); i++) {
-		delete lines[i];
+		for (int i = 0; i < lines.size(); i++) {
+			delete lines[i];
+		}
+
+	}else {
+		index = std::distance(Material::GetMaterials().begin(), it);
 	}
 }
 
@@ -1569,10 +1581,6 @@ ObjMesh::ObjMesh(std::string mltName, int numberTriangles, ObjModel* model) : m_
 	m_mltName = mltName;
 	m_model = model;
 
-	m_material.diffuseTexPath = "";
-	m_material.bumpMapPath = "";
-	m_material.displacementMapPath = "";
-
 	m_vertexBuffer.clear();
 	m_indexBuffer.clear();
 
@@ -1584,13 +1592,9 @@ ObjMesh::ObjMesh(std::string mltName, int numberTriangles, ObjModel* model) : m_
 	m_baseIndex = 0;
 }
 
-ObjMesh::ObjMesh(int numberTriangles, ObjModel* model) : m_stride(0), m_triangleOffset(0) {
+ObjMesh::ObjMesh(int numberTriangles, ObjModel* model) : m_stride(0), m_triangleOffset(0){
 	m_numberOfTriangles = numberTriangles;
 	m_model = model;
-	
-	m_material.diffuseTexPath = "";
-	m_material.bumpMapPath = "";
-	m_material.displacementMapPath = "";
 
 	m_vertexBuffer.clear();
 	m_indexBuffer.clear();
@@ -1603,26 +1607,41 @@ ObjMesh::ObjMesh(int numberTriangles, ObjModel* model) : m_stride(0), m_triangle
 	m_baseIndex = 0;
 }
 
-ObjMesh::~ObjMesh() {}
-
-ObjModel::Material& ObjMesh::getMaterial() {
-	return m_material;
+ObjMesh::~ObjMesh(){
+	cleanup();
 }
 
-void ObjMesh::setMaterial(const Vector3f &ambient, const Vector3f &diffuse, const Vector3f &specular, float shininess) {
-	m_material.ambient[0] = ambient[0];
-	m_material.ambient[1] = ambient[1];
-	m_material.ambient[2] = ambient[2];
+void ObjMesh::cleanup(){
 
-	m_material.diffuse[0] = diffuse[0];
-	m_material.diffuse[1] = diffuse[1];
-	m_material.diffuse[2] = diffuse[2];
+	if (m_vao)
+		glDeleteVertexArrays(1, &m_vao);
 
-	m_material.specular[0] = specular[0];
-	m_material.specular[1] = specular[1];
-	m_material.specular[2] = specular[2];
+	if (m_vbo[0])
+		glDeleteBuffers(1, &m_vbo[0]);
 
-	m_material.shininess = shininess;
+	if (m_vbo[1])
+		glDeleteBuffers(1, &m_vbo[1]);
+
+	if (m_vbo[2])
+		glDeleteBuffers(1, &m_vbo[2]);
+
+	if (m_vbo[3])
+		glDeleteBuffers(1, &m_vbo[3]);
+
+	if (m_vbo[4])
+		glDeleteBuffers(1, &m_vbo[4]);
+
+	if (m_vboInstances)
+		glDeleteBuffers(1, &m_vboInstances);
+
+	m_vertexBuffer.clear();
+	m_vertexBuffer.shrink_to_fit();
+	m_indexBuffer.clear();
+	m_indexBuffer.shrink_to_fit();
+}
+
+const Material& ObjMesh::getMaterial() const{
+	return Material::GetMaterials()[m_materialIndex];
 }
 
 void ObjMesh::createInstancesStatic(std::vector<Matrix4f>& modelMTX){
@@ -1731,15 +1750,6 @@ void ObjMesh::drawRawInstanced() {
 	glBindVertexArray(m_vao);
 	glDrawElementsInstanced(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0, m_instanceCount);
 	glBindVertexArray(0);
-}
-
-void ObjMesh::updateMaterialUbo(unsigned int& ubo) {
-	glBindBuffer(GL_UNIFORM_BUFFER, ubo);
-	glBufferSubData(GL_UNIFORM_BUFFER, 0, 16, &m_material.ambient);
-	glBufferSubData(GL_UNIFORM_BUFFER, 16, 32, &m_material.diffuse);
-	glBufferSubData(GL_UNIFORM_BUFFER, 32, 48, &m_material.specular);
-	glBufferSubData(GL_UNIFORM_BUFFER, 48, 52, &m_material.shininess);
-	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
 std::vector<float>& ObjMesh::getVertexBuffer() {

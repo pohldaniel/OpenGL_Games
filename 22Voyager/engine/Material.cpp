@@ -1,6 +1,6 @@
 #include <GL/glew.h>
 #include "Material.h"
-#include <iostream>
+
 std::vector<Material> Material::Materials;
 
 bool operator== (const Material& m1, const Material& m2){

@@ -45,12 +45,7 @@ AssimpModel::~AssimpModel() {
 		delete mesh;
 	}
 
-	for (auto& s : m_shader) {
-		if (s.second) {
-			delete s.second;
-			s.second = NULL;
-		}
-	}
+	m_shader.clear();
 }
 
 void AssimpModel::rotate(const Vector3f &axis, float degrees) {

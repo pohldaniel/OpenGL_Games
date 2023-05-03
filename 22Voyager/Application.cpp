@@ -145,10 +145,19 @@ LRESULT CALLBACK Application::StaticWndProc(HWND hWnd, UINT message, WPARAM wPar
 		}
 	}
 
+	if (wParam == SC_KEYMENU && (lParam >> 16) <= 0) return 0;
+
+	if ((message == WM_KEYDOWN && wParam == VK_ESCAPE) || (message == WM_KEYDOWN && wParam == VK_RETURN && ((HIWORD(lParam) & KF_ALTDOWN))) || (message == WM_SYSKEYDOWN && wParam == VK_RETURN && ((HIWORD(lParam) & KF_ALTDOWN)))) {
+		ImGui::GetIO().WantCaptureMouse = false;
+	}
+
 	ImGui_ImplWin32_WndProcHandler(hWnd, message, wParam, lParam);
 
-	if (wParam == SC_KEYMENU && (lParam >> 16) <= 0) return 0;
-	if (application) {
+	if (InitWindow && ImGui::GetIO().WantCaptureMouse) {
+		return DefWindowProc(hWnd, message, wParam, lParam);
+	}
+	
+	if (application) {	
 		application->processEvent(hWnd, message, wParam, lParam);
 		return application->DisplayWndProc(hWnd, message, wParam, lParam);
 	}
@@ -170,8 +179,8 @@ LRESULT Application::DisplayWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 		}case WM_KEYDOWN: {
 
 			switch (wParam) {
-				case VK_ESCAPE: {
-					if (Machine->m_states.top()->getCurrentState() == CurrentState::MAINMENU || Machine->m_states.top()->getCurrentState() == CurrentState::ABOUT)
+				case VK_ESCAPE: {	
+					if(Machine->m_states.top()->getCurrentState() == CurrentState::MAINMENU || Machine->m_states.top()->getCurrentState() == CurrentState::ABOUT)
 						SendMessage(Window, WM_DESTROY, NULL, NULL);
 					break;
 				}case VK_RETURN: {
@@ -186,7 +195,6 @@ LRESULT Application::DisplayWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 				ToggleFullScreen(!Fullscreen);
 			break;
 		}case WM_SIZE: {
-
 			int deltaW = Width;
 			int deltaH = Height;
 
@@ -471,7 +479,7 @@ void Application::Resize(int deltaW, int deltaH) {
 }
 
 void Application::ToggleFullScreen(bool isFullScreen, unsigned int width, unsigned int height) {
-
+	
 	int deltaW = width == 0u ? Width : width;
 	int deltaH = height == 0u ? Height : height;
 

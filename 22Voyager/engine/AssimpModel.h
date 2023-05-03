@@ -82,7 +82,6 @@ private:
 	BoundingBox aabb;
 
 	std::unordered_map<int, Shader*> m_shader;
-
 	AssetManager<Shader> m_shaderManager;
 
 	Transform m_transform;
