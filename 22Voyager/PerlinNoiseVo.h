@@ -1,12 +1,10 @@
 #pragma once
-#ifndef __PERLIN_NOISE_H__
-#define __PERLIN_NOISE_H__
 
 #include <algorithm>
 #include <random>
 
-class PerlinNoiseVo
-{
+class PerlinNoiseVo {
+
 public:
 	PerlinNoiseVo() { /* Do Nothing */ }
 	~PerlinNoiseVo() { /* Do Nothing */ }
@@ -30,8 +28,7 @@ private:
 };
 
 // Structure for storing R, G, B values 
-struct _RGB
-{
+struct _RGB {
 	double r = 0.0;
 	double g = 0.0;
 	double b = 0.0;
@@ -45,5 +42,3 @@ struct _RGB
 	constexpr _RGB(double _r, double _g, double _b) :
 		r(_r), g(_g), b(_b) {}
 };
-
-#endif // !__PERLIN_NOISE_H__

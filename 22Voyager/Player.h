@@ -1,6 +1,4 @@
 #pragma once
-#ifndef __PLAYER_H__
-#define __PLAYER_H__
 
 #include <GL/glew.h>
 
@@ -61,5 +59,3 @@ private:
 	float dy = 0.0f;
 	Vector3f directrion;
 };
-
-#endif // !__PLAYER_H__

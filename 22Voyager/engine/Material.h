@@ -18,7 +18,7 @@ struct Material {
 	void bind();
 	void bind(unsigned short index = 1u) const;
 	void unbind();
-	void unbind(unsigned short index = 1u);
+	void unbind(unsigned short index = 1u) const;
 	void cleanup();
 	const Texture& getTexture(unsigned short index) const;
 	std::string name;

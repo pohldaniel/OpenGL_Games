@@ -35,10 +35,6 @@ public:
 
 	inline Animation& getAnimComponent() { return m_animator; }
 
-	unsigned short m_materialIndex;
-
-	
-
 private:
 
 	float m_currFireRateTime, m_fireRate, m_currReloadTime, m_maxReloadTimer;

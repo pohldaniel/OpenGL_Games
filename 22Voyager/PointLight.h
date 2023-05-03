@@ -1,4 +1,5 @@
 #pragma once
+
 #include "engine/Vector.h"
 
 class PointLight {

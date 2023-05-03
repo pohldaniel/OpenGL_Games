@@ -1,9 +1,7 @@
 #pragma once
-#ifndef __ATMOSPHERE_H__
-#define __ATMOSPHERE_H__
 
-class Atmosphere
-{
+class Atmosphere {
+
 public:
 	Atmosphere();
 	~Atmosphere();
@@ -31,5 +29,3 @@ private:
 	// Private functions
 	void Thunderstorm();
 };
-
-#endif // !__ATMOSPHERE_H__
