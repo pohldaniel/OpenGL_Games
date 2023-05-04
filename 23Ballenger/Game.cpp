@@ -5,12 +5,22 @@
 
 #include "Game.h"
 #include "Application.h"
-
+#include "Constants.h"
 
 Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	Application::SetCursorIcon(IDC_ARROW);
 	EventDispatcher::AddKeyboardListener(this);
 	EventDispatcher::AddMouseListener(this);
+
+	Init(1);
+
+	Vector3f pos = Vector3f(TERRAIN_SIZE / 2, Terrain.GetHeight(TERRAIN_SIZE / 2, TERRAIN_SIZE / 2) + RADIUS, TERRAIN_SIZE / 2);
+
+	m_camera = Camera();
+	m_camera.perspective(45.0, (float)Application::Width / (float)Application::Height, 1.0f, 1000.0f);
+	m_camera.lookAt(pos, pos + Vector3f(0.0f, 0.0f, 1.0f), Vector3f(0.0f, 1.0f, 0.0f));
+
+	
 }
 
 Game::~Game() {
@@ -23,11 +33,121 @@ void Game::fixedUpdate() {
 }
 
 void Game::update() {
+	Keyboard &keyboard = Keyboard::instance();
+	Vector3f directrion = Vector3f();
 
+	float dx = 0.0f;
+	float dy = 0.0f;
+	bool move = false;
+
+	if (keyboard.keyDown(Keyboard::KEY_W)) {
+		directrion += Vector3f(0.0f, 0.0f, 1.0f);
+		move |= true;
+	}
+
+	if (keyboard.keyDown(Keyboard::KEY_S)) {
+		directrion += Vector3f(0.0f, 0.0f, -1.0f);
+		move |= true;
+	}
+
+	if (keyboard.keyDown(Keyboard::KEY_A)) {
+		directrion += Vector3f(-1.0f, 0.0f, 0.0f);
+		move |= true;
+	}
+
+	if (keyboard.keyDown(Keyboard::KEY_D)) {
+		directrion += Vector3f(1.0f, 0.0f, 0.0f);
+		move |= true;
+	}
+
+	if (keyboard.keyDown(Keyboard::KEY_Q)) {
+		directrion += Vector3f(0.0f, -1.0f, 0.0f);
+		move |= true;
+	}
+
+	if (keyboard.keyDown(Keyboard::KEY_E)) {
+		directrion += Vector3f(0.0f, 1.0f, 0.0f);
+		move |= true;
+	}
+
+	Mouse &mouse = Mouse::instance();
+
+	dx = mouse.xPosRelative();
+	dy = mouse.yPosRelative();
+	
+	if (move || dx != 0.0f || dy != 0.0f) {
+		if (dx || dy) {			
+			m_camera.rotateSmoothly(dx, dy, 0.0f);	
+		}
+
+		if (move) {
+			m_camera.move(directrion * 20.0f * m_dt);
+		}
+	}
 }
 
 void Game::render() {
+
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	glLoadMatrixf(&m_camera.getPerspectiveMatrix()[0][0]);
+
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	glLoadMatrixf(&m_camera.getViewMatrix()[0][0]);
+
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	/*auto shader = Globals::shaderManager.getAssetPointer("terrain");
+	shader->use();
+	shader->loadInt("tex_top", 0);
+	shader->loadInt("tex_side", 1);
+	shader->loadFloat("height", Lava.GetHeight());
+	shader->loadFloat("hmax", Lava.GetHeightMax());
+
+	glEnable(GL_TEXTURE_2D);
+	Globals::textureManager.get("grass").bind(0);
+	Globals::textureManager.get("rock").bind(1);
+	glDisable(GL_TEXTURE_2D);
+	glActiveTexture(GL_TEXTURE0);
+
+	Terrain.Draw();
+
+	shader->unuse();*/
+
+	auto shader = Globals::shaderManager.getAssetPointer("terrain_new");
+	shader->use();
+	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
+	shader->loadMatrix("u_view", m_camera.getViewMatrix());
+	shader->loadMatrix("u_model", Matrix4f::IDENTITY);
+	shader->loadMatrix("u_normal", Matrix4f::GetNormalMatrix(m_camera.getViewMatrix()));
 	
+	shader->loadVector("lightPos", Vector3f(50.0f, 50.0f, 50.0f));
+	shader->loadVector("lightAmbient", Vector4f(0.0f, 0.0f, 0.0f, 1.0f));
+	shader->loadVector("lightDiffuse", Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+	shader->loadVector("lightSpecular", Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+
+	shader->loadVector("matAmbient", Vector4f(0.7f, 0.7f, 0.7f, 1.0f));
+	shader->loadVector("matDiffuse", Vector4f(0.8f, 0.8f, 0.8f, 1.0f));
+	shader->loadVector("matSpecular", Vector4f(0.3f, 0.3f, 0.3f, 1.0f));
+	shader->loadVector("matEmission", Vector4f(0.0f, 0.0f, 0.0f, 1.0f));
+	shader->loadFloat("matShininess", 100.0f);
+
+	shader->loadInt("tex_top", 0);
+	shader->loadInt("tex_side", 1);
+	shader->loadFloat("height", Lava.GetHeight());
+	shader->loadFloat("hmax", Lava.GetHeightMax());
+
+	Globals::textureManager.get("grass").bind(0);
+	Globals::textureManager.get("rock").bind(1);
+	glDisable(GL_TEXTURE_2D);
+
+	Terrain.DrawNew();
+
+	shader->unuse();
+
+	if (m_drawUi)
+		renderUi();
 }
 
 void Game::OnMouseMotion(Event::MouseMoveEvent& event) {
@@ -35,7 +155,11 @@ void Game::OnMouseMotion(Event::MouseMoveEvent& event) {
 }
 
 void Game::OnMouseButtonDown(Event::MouseButtonEvent& event) {
-
+	if (event.button == 2u) {
+		m_drawUi = false;
+		Mouse::instance().attach(Application::GetWindow());
+		Keyboard::instance().enable();
+	}
 }
 
 void Game::OnMouseButtonUp(Event::MouseButtonEvent& event) {
@@ -43,7 +167,11 @@ void Game::OnMouseButtonUp(Event::MouseButtonEvent& event) {
 }
 
 void Game::OnKeyDown(Event::KeyboardEvent& event) {
-	
+	if (event.keyCode == VK_SPACE) {
+		m_drawUi = true;
+		Mouse::instance().detach();
+		Keyboard::instance().disable();
+	}
 }
 
 void Game::resize(int deltaW, int deltaH) {
@@ -141,7 +269,7 @@ bool Game::Init(int lvl) {
 
 	//level initialization(terrain, lava and skybox)
 	Scene.LoadLevel(level, &Terrain, &Lava, CAMERA_ZFAR);
-
+	Terrain.createAttribute();
 	//Sound initialization
 	//Sound.Load();
 

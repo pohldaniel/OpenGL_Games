@@ -1,4 +1,5 @@
 #include "cTerrain.h"
+#include <iostream>
 
 cTerrain::cTerrain(){}
 cTerrain::~cTerrain(){}
@@ -101,6 +102,52 @@ void cTerrain::SetNormalPerVertex(int x,float y,int z)
 	glNormal3f(N.x,N.y,N.z);
 }
 
+void cTerrain::SetNormalPerVertex2(int x, float y, int z){
+	Vector X, Z, N; X.x = 2.0f; X.z = 0.0f; Z.x = 0.0f; Z.z = 2.0f;
+	float left_y, right_y, up_y, down_y;
+
+	if (x == 0)
+	{
+		left_y = y;
+		right_y = heightmap[z * TERRAIN_SIZE + (x + 1)] / SCALE_FACTOR;
+	}
+	else if (x == TERRAIN_SIZE - 1)
+	{
+		left_y = heightmap[z * TERRAIN_SIZE + (x - 1)] / SCALE_FACTOR;
+		right_y = y;
+	}
+	else
+	{
+		left_y = heightmap[z * TERRAIN_SIZE + (x - 1)] / SCALE_FACTOR;
+		right_y = heightmap[z * TERRAIN_SIZE + (x + 1)] / SCALE_FACTOR;
+	}
+
+	if (z == 0)
+	{
+		up_y = y;
+		down_y = heightmap[(z + 1) * TERRAIN_SIZE + x] / SCALE_FACTOR;
+	}
+	else if (z == TERRAIN_SIZE - 1)
+	{
+		up_y = heightmap[(z - 1) * TERRAIN_SIZE + x] / SCALE_FACTOR;
+		down_y = y;
+	}
+	else
+	{
+		up_y = heightmap[(z - 1) * TERRAIN_SIZE + x] / SCALE_FACTOR;
+		down_y = heightmap[(z + 1) * TERRAIN_SIZE + x] / SCALE_FACTOR;
+	}
+
+	X.y = right_y - left_y;
+	Z.y = down_y - up_y;
+
+	N = cross(Z, X);
+	float factor = sqrt(1.0f / (N.x*N.x + N.y*N.y + N.z*N.z));
+	N.x *= factor; N.y *= factor; N.z *= factor;
+
+	m_normals.push_back(Vector3f(N.x, N.y, N.z));
+}
+
 void cTerrain::Load(int level)
 {
 	triangles.clear();
@@ -114,21 +161,20 @@ void cTerrain::Load(int level)
 
 	id_Terrain=glGenLists(1);
 	glNewList(id_Terrain,GL_COMPILE);
-	for (int z = 0; z <TERRAIN_SIZE-1 ; z++)
-	{
+	for (int z = 0; z <TERRAIN_SIZE-1 ; z++) {
 		std::vector<Coord> triangle(0);
 		Coord vertex;
 
 		glBegin(GL_TRIANGLE_STRIP);
-		for (int x = 0; x < TERRAIN_SIZE; x++)
-		{
+		for (int x = 0; x < TERRAIN_SIZE; x++) {
+
 			// render two vertices of the strip at once
 			float scaledHeight = heightmap[z * TERRAIN_SIZE + x] / SCALE_FACTOR;
 			float nextScaledHeight = heightmap[(z + 1) * TERRAIN_SIZE + x] / SCALE_FACTOR;
-
-			glTexCoord2f((float)x/TERRAIN_SIZE*64, (float)z/TERRAIN_SIZE*64);
+			glTexCoord2f((float)x/TERRAIN_SIZE*64, (float)z/TERRAIN_SIZE*64);			
 			SetNormalPerVertex(x, scaledHeight, z);
 			glVertex3f(x, scaledHeight, z);
+
 			vertex.x=x; vertex.y=scaledHeight; vertex.z=z;
 			triangle.push_back(vertex);
 			if(triangle.size() == 3) ComputeTriangle(triangle);
@@ -136,6 +182,7 @@ void cTerrain::Load(int level)
 			glTexCoord2f((float)x/TERRAIN_SIZE*64, (float)(z + 1)/TERRAIN_SIZE*64);
 			SetNormalPerVertex(x, scaledHeight, (z + 1));
 			glVertex3f(x, nextScaledHeight, (z + 1));
+
 			vertex.x=x; vertex.y=nextScaledHeight; vertex.z=z+1;
 			triangle.push_back(vertex);
 			if(triangle.size() == 3) ComputeTriangle(triangle);
@@ -159,10 +206,106 @@ void cTerrain::Load(int level)
 	glEndList();
 }
 
+void cTerrain::createAttribute() {
+	for (int z = 0; z <TERRAIN_SIZE - 1; z++) {
+		for (int x = 0; x < TERRAIN_SIZE - 1; x++) {
+			float scaledHeight = heightmap[z * TERRAIN_SIZE + x] / SCALE_FACTOR;
+			m_texels.push_back(Vector2f((float)x / TERRAIN_SIZE * 64, (float)z / TERRAIN_SIZE * 64));
+			SetNormalPerVertex2(x, scaledHeight, z);
+			m_positions.push_back(Vector3f(x, scaledHeight, z));
+		}
+	}
+
+	generateIndicesTS();
+	m_drawCount = m_indexBuffer.size();
+
+	unsigned int ibo;
+	glGenBuffers(1, &ibo);
+	glGenBuffers(3, m_vbo);
+
+	glGenVertexArrays(1, &m_vao);
+	glBindVertexArray(m_vao);
+
+	//Position
+	glBindBuffer(GL_ARRAY_BUFFER, m_vbo[0]);
+	glBufferData(GL_ARRAY_BUFFER, m_positions.size() * sizeof(m_positions[0]), &m_positions[0], GL_STATIC_DRAW);
+
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+	//Texture Coordinates
+	glBindBuffer(GL_ARRAY_BUFFER, m_vbo[1]);
+	glBufferData(GL_ARRAY_BUFFER, m_texels.size() * sizeof(m_texels[0]), &m_texels[0], GL_STATIC_DRAW);
+
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, 0);
+	
+	//Normals
+	glBindBuffer(GL_ARRAY_BUFFER, m_vbo[2]);
+	glBufferData(GL_ARRAY_BUFFER, m_normals.size() * sizeof(m_normals[0]), &m_normals[0], GL_STATIC_DRAW);
+
+	glEnableVertexAttribArray(2);
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+
+	//Indices
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_indexBuffer.size() * sizeof(m_indexBuffer[0]), &m_indexBuffer[0], GL_STATIC_DRAW);
+
+	glBindVertexArray(0);
+	glDeleteBuffers(1, &ibo);
+
+	m_positions.clear();
+	m_positions.shrink_to_fit();
+	m_indexBuffer.clear();
+	m_indexBuffer.shrink_to_fit();
+	m_texels.clear();
+	m_texels.shrink_to_fit();
+	m_normals.clear();
+	m_normals.shrink_to_fit();
+}
+
+void cTerrain::generateIndicesTS() {
+	int resolutionZ = (TERRAIN_SIZE - 1); //from the veretex for loop
+	int resolutionX = (TERRAIN_SIZE - 1); //from the veretex for loop
+
+
+	for (int z = 0; z < resolutionZ - 1; ++z) {
+
+		if (z % 2 == 0) {
+
+			for (int x = resolutionX - 1; x >= 0; --x) {
+				m_indexBuffer.push_back(x + (z + 1) * resolutionX);
+				m_indexBuffer.push_back(x + z * resolutionX);
+
+			}
+
+			// Add degenerate triangles to stitch strips together.
+			m_indexBuffer.push_back((z + 1) * resolutionX);
+
+		} else {
+			for (int x = 0; x < resolutionX; ++x) {
+				m_indexBuffer.push_back(x + (z + 1) * resolutionX);
+				m_indexBuffer.push_back(x + z * (resolutionX));
+			}
+
+			// Add degenerate triangles to stitch strips together.
+			m_indexBuffer.push_back((resolutionX - 1) + (z + 1) * resolutionX);
+
+		}
+	}
+}
+
 void cTerrain::Draw()
 {
 	glCallList(id_Terrain);
 	//glCallList(id_Normals);
+}
+
+void cTerrain::DrawNew() {
+	glBindVertexArray(m_vao);
+	glDrawElements(GL_TRIANGLE_STRIP, m_drawCount, GL_UNSIGNED_INT, 0);
+	glBindVertexArray(0);
 }
 
 float cTerrain::GetVertexHeigh(int x, int z)

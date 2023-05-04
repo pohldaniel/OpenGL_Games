@@ -6,7 +6,7 @@ cTexture::~cTexture(void){}
 
 bool cTexture::Load(char *filename,int type,int wraps,int wrapt,int magf,int minf,bool mipmap)
 {
-	/*corona::Image* img;
+	corona::Image* img;
 	int components;
 
 	img = corona::OpenImage(filename);
@@ -45,7 +45,7 @@ bool cTexture::Load(char *filename,int type,int wraps,int wrapt,int magf,int min
 	{
 		gluBuild2DMipmaps(GL_TEXTURE_2D,components,width,height,type,
 						  GL_UNSIGNED_BYTE,img->getPixels());
-	}*/
+	}
 
 	return true;
 }

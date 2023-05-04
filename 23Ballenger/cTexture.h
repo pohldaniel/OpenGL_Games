@@ -1,7 +1,7 @@
 #pragma once
 
-
 #include "Globals.h"
+#include "corona/corona.h"
 
 class cTexture {
 

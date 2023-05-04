@@ -95,7 +95,7 @@ void Application::createWindow() {
 	Window = CreateWindowEx(
 		NULL,
 		"WINDOWCLASS",
-		"Voyager",
+		"Ballenger",
 		WS_OVERLAPPEDWINDOW,
 		CW_USEDEFAULT, CW_USEDEFAULT,
 		Width,
@@ -290,12 +290,9 @@ void Application::initOpenGL(int msaaSamples) {
 	glEnable(GL_CULL_FACE);
 
 	glEnable(GL_DEPTH_TEST);
-
+	glEnable(GL_ALPHA_TEST);
+	glEnable(GL_CULL_FACE);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	//glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-	glEnable(GL_BLEND);
-
-	glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
 }
 
 void Application::initImGUI() {
@@ -356,11 +353,9 @@ void Application::fixedUpdate() {
 void Application::initStates() {
 	
 	Machine = new StateMachine(m_dt, m_fdt);
-	//Machine->addStateAtTop(new Game(*Machine));
+	Machine->addStateAtTop(new Game(*Machine));
 	//Mouse::instance().attach(Window);
-	//Machine->addStateAtTop(new MainMenu(*Machine));
-	
-	Machine->addStateAtTop(new ShapeInterface(*Machine));
+	//Machine->addStateAtTop(new ShapeInterface(*Machine));
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
@@ -427,6 +422,7 @@ void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 					event.type = Event::KEYDOWN;
 					event.data.keyboard.keyCode = wParam;
 					EventDispatcher.pushEvent(event);
+					StateMachine::ToggleWireframe();
 					break;
 				}case 'v': case 'V': {
 					Event event;
@@ -506,6 +502,15 @@ void Application::SetCursorIcon(LPCSTR resource) {
 }
 
 void Application::loadAssets() {
+	Globals::shaderManager.loadShader("terrain", "Shaders/simple.vert", "Shaders/terrain.frag");
+	Globals::shaderManager.loadShader("terrain_new", "Shaders/simple_new.vert", "Shaders/terrain_new.frag");
 	
-	
+	Globals::textureManager.loadTexture("grass", "Textures/grass.png", true);
+	Globals::textureManager.loadTexture("rock", "Textures/rock.png", true);
+
+	Globals::textureManager.get("grass").setWrapMode(GL_REPEAT);
+	Globals::textureManager.get("grass").setFilter(GL_LINEAR_MIPMAP_LINEAR);
+
+	Globals::textureManager.get("rock").setWrapMode(GL_REPEAT);
+	Globals::textureManager.get("rock").setFilter(GL_LINEAR_MIPMAP_LINEAR);
 }

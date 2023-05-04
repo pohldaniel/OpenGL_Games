@@ -2,6 +2,7 @@
 
 #include "engine/input/MouseEventListener.h"
 #include "engine/input/KeyboardEventListener.h"
+#include "engine/Camera.h"
 
 #include "StateMachine.h"
 #include "cPlayer.h"
@@ -33,8 +34,10 @@ public:
 	void OnKeyDown(Event::KeyboardEvent& event) override;
 	void renderUi();
 	bool m_initUi = true;
-
+	bool m_drawUi = false;
 	bool Init(int lvl);
+
+	Camera m_camera;
 
 private:
 	unsigned char keys[256];
@@ -49,7 +52,7 @@ private:
 	cScene Scene;
 	cData Data;
 	cPlayer Player;
-	cCamera Camera;
+	cCamera camera;
 	//cSound Sound;
 	cShader Shader;
 	cModel Model;

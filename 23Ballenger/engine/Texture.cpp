@@ -144,6 +144,7 @@ void Texture::loadFromFile(std::string fileName, const bool _flipVertical, unsig
 		imageData = SOIL_load_image(fileName.c_str(), &width, &height, 0, SOIL_FLAG);
 		numCompontents = 3;
 	}
+
 	m_internalFormat = _internalFormat == 0 && numCompontents == 1 ? GL_R8 : _internalFormat == 0 && numCompontents == 3 ? GL_RGB8 : _internalFormat == 0 ? GL_RGBA8 : _internalFormat;
 	m_format = _format == 0 && numCompontents == 1 ? GL_R : _format == 0 && numCompontents == 3 ? GL_RGB : _format == 0 ? GL_RGBA : _format;
 	m_type = GL_UNSIGNED_BYTE;
@@ -1161,7 +1162,7 @@ void Texture::setNearest() const {
 
 void Texture::setFilter(unsigned int minFilter, unsigned int magFilter) const {
 	if (magFilter == 0)
-		magFilter = minFilter == 9985 || minFilter == 9987 ? GL_LINEAR : minFilter == 9984 || minFilter == 9986 ? GL_NEAREST : minFilter;
+		magFilter = minFilter == GL_LINEAR_MIPMAP_NEAREST || minFilter == GL_LINEAR_MIPMAP_LINEAR ? GL_LINEAR : minFilter == GL_NEAREST_MIPMAP_NEAREST || minFilter == GL_NEAREST_MIPMAP_LINEAR ? GL_NEAREST : minFilter;
 
 	glBindTexture(m_target, m_texture);
 	glTexParameteri(m_target, GL_TEXTURE_MIN_FILTER, minFilter);
@@ -1180,7 +1181,7 @@ void Texture::setWrapMode(unsigned int mode) const {
 		glBindTexture(m_target, 0);
 	} else {
 		glBindTexture(m_target, m_texture);
-		glTexParameteri(m_target, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(m_target, GL_TEXTURE_WRAP_S, mode);
 		glTexParameteri(m_target, GL_TEXTURE_WRAP_T, mode);
 		glBindTexture(m_target, 0);
 	}
