@@ -15,10 +15,13 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	Init(1);
 
 	m_pos = Vector3f(TERRAIN_SIZE / 2, Terrain.GetHeight(TERRAIN_SIZE / 2, TERRAIN_SIZE / 2) + RADIUS, TERRAIN_SIZE / 2);
+	m_pos2 = Vector3f(TERRAIN_SIZE / 2, Terrain.GetHeight(TERRAIN_SIZE / 2, TERRAIN_SIZE / 2) + RADIUS, TERRAIN_SIZE / 2);
 
 	m_camera = Camera();
 	m_camera.perspective(45.0, (float)Application::Width / (float)Application::Height, 1.0f, 1000.0f);
 	m_camera.lookAt(m_pos - Vector3f(0.0f, 0.0f, m_offsetDistance), m_pos + Vector3f(0.0f, 0.0f, 1.0f), Vector3f(0.0f, 1.0f, 0.0f));
+
+	//m_camera.lookAt(m_pos, m_pos + Vector3f(0.0f, 0.0f, 1.0f), Vector3f(0.0f, 1.0f, 0.0f));
 }
 
 Game::~Game() {
@@ -32,39 +35,39 @@ void Game::fixedUpdate() {
 
 void Game::update() {
 	Keyboard &keyboard = Keyboard::instance();
-	Vector3f directrion = Vector3f();
-	
+	Vector3f direction = Vector3f();
+
 	float dx = 0.0f;
 	float dy = 0.0f;
 	bool move = false;
 
 	if (keyboard.keyDown(Keyboard::KEY_W)) {
-		directrion += m_camera.getViewDirection();
+		direction += Vector3f(0.0f, 0.0f, 1.0f);
 		move |= true;
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_S)) {
-		directrion -= m_camera.getViewDirection();
+		direction += Vector3f(0.0f, 0.0f, -1.0f);
 		move |= true;
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_A)) {
-		directrion -= m_camera.getCamX();
+		direction += Vector3f(-1.0f, 0.0f, 0.0f);
 		move |= true;
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_D)) {
-		directrion += m_camera.getCamX();
+		direction += Vector3f(1.0f, 0.0f, 0.0f);
 		move |= true;
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_Q)) {
-		directrion -= m_camera.getCamY();
+		direction += Vector3f(0.0f, -1.0f, 0.0f);
 		move |= true;
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_E)) {
-		directrion += m_camera.getCamY();
+		direction += Vector3f(0.0f, 1.0f, 0.0f);
 		move |= true;
 	}
 
@@ -75,8 +78,16 @@ void Game::update() {
 	
 	if (move || dx != 0.0f || dy != 0.0f) {
 		if (move) {
-			m_pos += directrion * 20.0f * m_dt;
-			m_camera.setPosition(m_pos - m_camera.getViewDirection() * m_offsetDistance);
+			
+			Vector3f x = m_camera.getCamX();
+			Vector3f y = m_camera.getCamY();
+			Vector3f z = m_camera.getViewDirection();
+
+			m_pos[0] += (x[0] * direction[0] + y[0] * direction[1] + z[0] * direction[2]) * 20.0f * m_dt;
+			m_pos[1] += (x[1] * direction[0] + y[1] * direction[1] + z[1] * direction[2]) * 20.0f * m_dt;
+			m_pos[2] += (x[2] * direction[0] + y[2] * direction[1] + z[2] * direction[2]) * 20.0f * m_dt;
+
+			m_camera.moveRelative(direction * 20.0f * m_dt);
 		}
 		
 		if (dx || dy) {

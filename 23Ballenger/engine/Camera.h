@@ -18,6 +18,8 @@ public:
 
 	void move(float dx, float dy, float dz);
 	void move(Vector3f &direction);
+	void moveRelative(Vector3f &direction);
+
 	void moveX(float dx);
 	void moveY(float dy);
 	void moveZ(float dx);
