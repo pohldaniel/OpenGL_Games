@@ -319,6 +319,13 @@ void Camera::moveRelative(Vector3f &direction) {
 	updateViewMatrix(false);
 }
 
+const Vector3f Camera::getViewSpaceDirection(const Vector3f &direction) {
+
+	return Vector3f(m_xAxis[0] * direction[0] + m_yAxis[0] * direction[1] + m_viewDir[0] * direction[2],
+					m_xAxis[1] * direction[0] + m_yAxis[1] * direction[1] + m_viewDir[1] * direction[2],
+					m_xAxis[2] * direction[0] + m_yAxis[2] * direction[1] + m_viewDir[2] * direction[2]);
+}
+
 void Camera::moveX(float dx) {
 	m_eye[0] = (dx * m_movingSpeed) + m_eye[0];
 	m_viewMatrix[3][0] = -(m_xAxis[0] * m_eye[0] + m_xAxis[1] * m_eye[1] + m_xAxis[2] * m_eye[2]);

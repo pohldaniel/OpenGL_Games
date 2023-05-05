@@ -78,15 +78,7 @@ void Game::update() {
 	
 	if (move || dx != 0.0f || dy != 0.0f) {
 		if (move) {
-			
-			Vector3f x = m_camera.getCamX();
-			Vector3f y = m_camera.getCamY();
-			Vector3f z = m_camera.getViewDirection();
-
-			m_pos[0] += (x[0] * direction[0] + y[0] * direction[1] + z[0] * direction[2]) * 20.0f * m_dt;
-			m_pos[1] += (x[1] * direction[0] + y[1] * direction[1] + z[1] * direction[2]) * 20.0f * m_dt;
-			m_pos[2] += (x[2] * direction[0] + y[2] * direction[1] + z[2] * direction[2]) * 20.0f * m_dt;
-
+			m_pos += m_camera.getViewSpaceDirection(direction) * 20.0f * m_dt;	
 			m_camera.moveRelative(direction * 20.0f * m_dt);
 		}
 		
