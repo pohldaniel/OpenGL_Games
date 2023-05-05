@@ -15,6 +15,7 @@ public:
 	void perspective(float fovx, float aspect, float znear, float zfar);
 	void orthographic(float left, float right, float bottom, float top, float znear, float zfar);
 	void lookAt(const Vector3f &eye, const Vector3f &target, const Vector3f &up);
+
 	void move(float dx, float dy, float dz);
 	void move(Vector3f &direction);
 	void moveX(float dx);
@@ -22,7 +23,10 @@ public:
 	void moveZ(float dx);
 
 	void rotate(float yaw, float pitch, float roll);
+	void rotate(float yaw, float pitch, float roll, const Vector3f &centerOfRotation, float distance);
 	void rotateSmoothly(float yaw, float pitch, float roll);
+	void rotateSmoothly(float yaw, float pitch, float roll, const Vector3f &centerOfRotation, float distance);
+
 	void pitchReflection(const float distance);
 	void calcLightTransformation(Vector3f &direction);
 	void calcLightTransformation2(Vector3f &direction);
@@ -94,6 +98,8 @@ public:
 protected:
 
     void rotateFirstPerson(float yaw, float pitch);
+	void rotateFirstPerson(float yaw, float pitch, const Vector3f &centerOfRotation, float distance);
+	//void rotateFirstPersonYP(float yaw, float pitch, const Vector3f &centerOfRotation, float distance);
 	void updateViewMatrix(bool orthogonalizeAxes);
 	void updateViewMatrix(const Vector3f &eye, const Vector3f &target, const Vector3f &up);
 

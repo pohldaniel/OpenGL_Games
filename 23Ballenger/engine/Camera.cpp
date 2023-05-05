@@ -207,7 +207,7 @@ void Camera::orthographic(float left, float right, float bottom, float top, floa
 void Camera::lookAt(const Vector3f &eye, const Vector3f &target, const Vector3f &up){
 	m_eye = eye;
 
-	m_zAxis = eye - target;
+	m_zAxis = m_eye - target;
 	Vector3f::Normalize(m_zAxis);
 
 	m_xAxis = Vector3f::Cross(up, m_zAxis);
@@ -457,6 +457,69 @@ void Camera::rotateFirstPerson(float yaw, float pitch){
 		m_zAxis = rotMtx * m_zAxis;
 	}
 }
+
+void Camera::rotate(float yaw, float pitch, float roll, const Vector3f &centerOfRotation, float distance) {
+	rotateFirstPerson(yaw, pitch, centerOfRotation, distance);
+	updateViewMatrix(true);
+}
+
+void Camera::rotateSmoothly(float yaw, float pitch, float roll, const Vector3f &centerOfRotation, float distance) {
+	rotateFirstPerson(yaw * m_rotationSpeed, pitch * m_rotationSpeed, centerOfRotation, distance);
+	updateViewMatrix(true);
+}
+
+void Camera::rotateFirstPerson(float yaw, float pitch, const Vector3f &centerOfRotation, float distance) {
+	m_accumPitchDegrees += pitch;
+
+	if (m_accumPitchDegrees > 90.0f) {
+		pitch = 90.0f - (m_accumPitchDegrees - pitch);
+		m_accumPitchDegrees = 90.0f;
+	}
+
+	if (m_accumPitchDegrees < -90.0f) {
+		pitch = -90.0f - (m_accumPitchDegrees - pitch);
+		m_accumPitchDegrees = -90.0f;
+	}
+
+	Matrix4f rotMtx;
+
+	// Rotate camera's existing x and z axes about the world y axis.
+	if (yaw != 0.0f) {
+		rotMtx.rotate(WORLD_YAXIS, yaw);
+		m_xAxis = rotMtx * m_xAxis;
+		m_zAxis = rotMtx * m_zAxis;
+	}
+
+	// Rotate camera's existing y and z axes about its existing x axis.
+	if (pitch != 0.0f) {
+		rotMtx.rotate(m_xAxis, pitch);
+		m_yAxis = rotMtx * m_yAxis;
+		m_zAxis = rotMtx * m_zAxis;
+	}
+
+	m_eye = centerOfRotation - distance * m_viewDir;
+}
+
+//void Camera::rotateFirstPersonYP(float yaw, float pitch, const Vector3f &centerOfRotation, float distance) {
+//	const float limit = 89.0 * PI / 180.0;
+//
+//	m_pitch -= pitch * PI_ON_180;
+//
+//	if (m_pitch < -limit)
+//		m_pitch = -limit;
+//
+//	if (m_pitch > limit)
+//		m_pitch = limit;
+//
+//
+//	m_yaw += yaw * PI_ON_180;
+//
+//	
+//	Vector3f viewDirection = Vector3f(cosf(m_yaw) * cosf(m_pitch), sinf(m_pitch), sinf(m_yaw) * cosf(m_pitch));
+//	m_eye = centerOfRotation - distance * viewDirection;
+//
+//	lookAt(m_eye, m_eye + viewDirection, Vector3f(0.0f, 1.0f, 0.0f));
+//}
 
 const float Camera::getFar() const {
 	return m_persMatrix[3][2] / (m_persMatrix[2][2] + 1);

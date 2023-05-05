@@ -417,18 +417,10 @@ void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 					event.data.keyboard.keyCode = wParam;
 					EventDispatcher.pushEvent(event);
 					break;
-				}case 'z': case 'Z': {
-					Event event;
-					event.type = Event::KEYDOWN;
-					event.data.keyboard.keyCode = wParam;
-					EventDispatcher.pushEvent(event);
+				}case 'z': case 'Z': {					
 					StateMachine::ToggleWireframe();
 					break;
-				}case 'v': case 'V': {
-					Event event;
-					event.type = Event::KEYDOWN;
-					event.data.keyboard.keyCode = wParam;
-					EventDispatcher.pushEvent(event);
+				}case 'v': case 'V': {					
 					ToggleVerticalSync();
 					break;
 				}

@@ -14,11 +14,11 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 
 	Init(1);
 
-	Vector3f pos = Vector3f(TERRAIN_SIZE / 2, Terrain.GetHeight(TERRAIN_SIZE / 2, TERRAIN_SIZE / 2) + RADIUS, TERRAIN_SIZE / 2);
+	m_pos = Vector3f(TERRAIN_SIZE / 2, Terrain.GetHeight(TERRAIN_SIZE / 2, TERRAIN_SIZE / 2) + RADIUS, TERRAIN_SIZE / 2);
 
 	m_camera = Camera();
 	m_camera.perspective(45.0, (float)Application::Width / (float)Application::Height, 1.0f, 1000.0f);
-	m_camera.lookAt(pos, pos + Vector3f(0.0f, 0.0f, 1.0f), Vector3f(0.0f, 1.0f, 0.0f));
+	m_camera.lookAt(m_pos - Vector3f(0.0f, 0.0f, 5.0f), m_pos + Vector3f(0.0f, 0.0f, 1.0f), Vector3f(0.0f, 1.0f, 0.0f));
 
 	
 }
@@ -35,28 +35,32 @@ void Game::fixedUpdate() {
 void Game::update() {
 	Keyboard &keyboard = Keyboard::instance();
 	Vector3f directrion = Vector3f();
-
+	
 	float dx = 0.0f;
 	float dy = 0.0f;
 	bool move = false;
 
 	if (keyboard.keyDown(Keyboard::KEY_W)) {
-		directrion += Vector3f(0.0f, 0.0f, 1.0f);
+		//directrion += Vector3f(0.0f, 0.0f, 1.0f);
+		directrion += m_camera.getViewDirection();
 		move |= true;
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_S)) {
-		directrion += Vector3f(0.0f, 0.0f, -1.0f);
+		//directrion += Vector3f(0.0f, 0.0f, -1.0f);
+		directrion -= m_camera.getViewDirection();
 		move |= true;
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_A)) {
-		directrion += Vector3f(-1.0f, 0.0f, 0.0f);
+		//directrion += Vector3f(-1.0f, 0.0f, 0.0f);
+		directrion -= m_camera.getCamX();
 		move |= true;
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_D)) {
-		directrion += Vector3f(1.0f, 0.0f, 0.0f);
+		//directrion += Vector3f(1.0f, 0.0f, 0.0f);
+		directrion += m_camera.getCamX();
 		move |= true;
 	}
 
@@ -76,12 +80,16 @@ void Game::update() {
 	dy = mouse.yPosRelative();
 	
 	if (move || dx != 0.0f || dy != 0.0f) {
-		if (dx || dy) {			
-			m_camera.rotateSmoothly(dx, dy, 0.0f);	
+		
+		if (move) {
+			m_pos += directrion * 20.0f * m_dt;
+			//m_camera.move(directrion * 20.0f * m_dt);
+			m_camera.setPosition(m_pos - m_camera.getViewDirection() * 5.0f);
 		}
 
-		if (move) {
-			m_camera.move(directrion * 20.0f * m_dt);
+		if (dx || dy) {
+			//m_camera.rotateSmoothly(dx, dy, 0.0f);	
+			m_camera.rotateSmoothly(dx, dy, 0.0f, m_pos, 5.0f);
 		}
 	}
 }
