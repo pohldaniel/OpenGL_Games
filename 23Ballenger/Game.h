@@ -5,6 +5,8 @@
 #include "engine/Camera.h"
 
 #include "StateMachine.h"
+#include "RenderableObject.h"
+
 #include "cPlayer.h"
 #include "cRespawnPoint.h"
 #include "cColumn.h"
@@ -38,6 +40,8 @@ public:
 	bool Init(int lvl);
 
 	Camera m_camera;
+	RenderableObject m_sphere;
+	float m_offsetDistance = 10.0f;
 
 private:
 	unsigned char keys[256];

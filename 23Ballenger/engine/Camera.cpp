@@ -463,9 +463,10 @@ void Camera::rotate(float yaw, float pitch, float roll, const Vector3f &centerOf
 	updateViewMatrix(true);
 }
 
-void Camera::rotateSmoothly(float yaw, float pitch, float roll, const Vector3f &centerOfRotation, float distance) {
+void Camera::rotateSmoothly(float yaw, float pitch, float roll, const Vector3f &centerOfRotation, float distance) {	
 	rotateFirstPerson(yaw * m_rotationSpeed, pitch * m_rotationSpeed, centerOfRotation, distance);
-	updateViewMatrix(true);
+	//rotateFirstPersonYP(yaw * m_rotationSpeed, pitch * m_rotationSpeed, centerOfRotation, distance);
+	updateViewMatrix(false);
 }
 
 void Camera::rotateFirstPerson(float yaw, float pitch, const Vector3f &centerOfRotation, float distance) {
@@ -497,6 +498,17 @@ void Camera::rotateFirstPerson(float yaw, float pitch, const Vector3f &centerOfR
 		m_zAxis = rotMtx * m_zAxis;
 	}
 
+	//Important: Calculating the viewdirection before offseting the position
+	Vector3f::Normalize(m_zAxis);
+
+	m_yAxis = Vector3f::Cross(m_zAxis, m_xAxis);
+	Vector3f::Normalize(m_yAxis);
+
+	m_xAxis = Vector3f::Cross(m_yAxis, m_zAxis);
+	Vector3f::Normalize(m_xAxis);
+
+	m_viewDir = -m_zAxis;
+
 	m_eye = centerOfRotation - distance * m_viewDir;
 }
 
@@ -517,6 +529,8 @@ void Camera::rotateFirstPerson(float yaw, float pitch, const Vector3f &centerOfR
 //	
 //	Vector3f viewDirection = Vector3f(cosf(m_yaw) * cosf(m_pitch), sinf(m_pitch), sinf(m_yaw) * cosf(m_pitch));
 //	m_eye = centerOfRotation - distance * viewDirection;
+//
+//	std::cout << viewDirection[0] << "  " << viewDirection[1] << "  " << viewDirection[2] << std::endl;
 //
 //	lookAt(m_eye, m_eye + viewDirection, Vector3f(0.0f, 1.0f, 0.0f));
 //}

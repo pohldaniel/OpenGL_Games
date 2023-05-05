@@ -33,6 +33,7 @@ public:
 	const Matrix4f &getTransformationSOP();
 	const Matrix4f &getTransformationSO();
 	const Matrix4f &getTransformationSP();
+	const Matrix4f &getTransformationP();
 
 protected:
 

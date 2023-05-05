@@ -354,7 +354,7 @@ void Application::initStates() {
 	
 	Machine = new StateMachine(m_dt, m_fdt);
 	Machine->addStateAtTop(new Game(*Machine));
-	//Mouse::instance().attach(Window);
+	Mouse::instance().attach(Window);
 	//Machine->addStateAtTop(new ShapeInterface(*Machine));
 }
 
@@ -425,6 +425,9 @@ void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 					break;
 				}
 			}
+		}case WM_MOUSEWHEEL: {
+			Mouse::instance().updateWheelDelta(static_cast<int>(static_cast<int>(wParam) >> 16));
+			break;
 		}
 	}
 }
@@ -496,7 +499,8 @@ void Application::SetCursorIcon(LPCSTR resource) {
 void Application::loadAssets() {
 	Globals::shaderManager.loadShader("terrain", "Shaders/simple.vert", "Shaders/terrain.frag");
 	Globals::shaderManager.loadShader("terrain_new", "Shaders/simple_new.vert", "Shaders/terrain_new.frag");
-	
+	Globals::shaderManager.loadShader("texture_new", "Shaders/program.vert", "Shaders/texture.frag");
+
 	Globals::textureManager.loadTexture("grass", "Textures/grass.png", true);
 	Globals::textureManager.loadTexture("rock", "Textures/rock.png", true);
 
@@ -505,4 +509,15 @@ void Application::loadAssets() {
 
 	Globals::textureManager.get("rock").setWrapMode(GL_REPEAT);
 	Globals::textureManager.get("rock").setFilter(GL_LINEAR_MIPMAP_LINEAR);
+
+	Globals::textureManager.loadTexture("player", "Textures/player.png", true);
+	Globals::textureManager.loadTexture("player_nmp", "Textures/playerNmap.png", true);
+
+	Globals::textureManager.get("player").setWrapMode(GL_REPEAT);
+	Globals::textureManager.get("player").setFilter(GL_LINEAR_MIPMAP_LINEAR);
+
+	Globals::textureManager.get("player_nmp").setWrapMode(GL_REPEAT);
+	Globals::textureManager.get("player_nmp").setFilter(GL_LINEAR_MIPMAP_LINEAR);
+
+	Globals::shapeManager.buildSphere("sphere", 1.0f, Vector3f(0.0f, 0.0f, 0.0f), 49, 49, true, true, true);
 }

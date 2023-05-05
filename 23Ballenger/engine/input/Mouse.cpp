@@ -202,6 +202,10 @@ void Mouse::handleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam){
 	}
 }
 
+void Mouse::updateWheelDelta(int delta) {
+	m_wheelDelta += delta;
+}
+
 void Mouse::handleEvent(Event event) {
 	switch (event.type) {
 		case Event::MOUSEMOTION: {

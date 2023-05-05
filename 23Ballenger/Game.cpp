@@ -18,9 +18,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 
 	m_camera = Camera();
 	m_camera.perspective(45.0, (float)Application::Width / (float)Application::Height, 1.0f, 1000.0f);
-	m_camera.lookAt(m_pos - Vector3f(0.0f, 0.0f, 5.0f), m_pos + Vector3f(0.0f, 0.0f, 1.0f), Vector3f(0.0f, 1.0f, 0.0f));
-
-	
+	m_camera.lookAt(m_pos - Vector3f(0.0f, 0.0f, m_offsetDistance), m_pos + Vector3f(0.0f, 0.0f, 1.0f), Vector3f(0.0f, 1.0f, 0.0f));
 }
 
 Game::~Game() {
@@ -41,36 +39,32 @@ void Game::update() {
 	bool move = false;
 
 	if (keyboard.keyDown(Keyboard::KEY_W)) {
-		//directrion += Vector3f(0.0f, 0.0f, 1.0f);
 		directrion += m_camera.getViewDirection();
 		move |= true;
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_S)) {
-		//directrion += Vector3f(0.0f, 0.0f, -1.0f);
 		directrion -= m_camera.getViewDirection();
 		move |= true;
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_A)) {
-		//directrion += Vector3f(-1.0f, 0.0f, 0.0f);
 		directrion -= m_camera.getCamX();
 		move |= true;
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_D)) {
-		//directrion += Vector3f(1.0f, 0.0f, 0.0f);
 		directrion += m_camera.getCamX();
 		move |= true;
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_Q)) {
-		directrion += Vector3f(0.0f, -1.0f, 0.0f);
+		directrion -= m_camera.getCamY();
 		move |= true;
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_E)) {
-		directrion += Vector3f(0.0f, 1.0f, 0.0f);
+		directrion += m_camera.getCamY();
 		move |= true;
 	}
 
@@ -80,17 +74,27 @@ void Game::update() {
 	dy = mouse.yPosRelative();
 	
 	if (move || dx != 0.0f || dy != 0.0f) {
-		
 		if (move) {
 			m_pos += directrion * 20.0f * m_dt;
-			//m_camera.move(directrion * 20.0f * m_dt);
-			m_camera.setPosition(m_pos - m_camera.getViewDirection() * 5.0f);
+			m_camera.setPosition(m_pos - m_camera.getViewDirection() * m_offsetDistance);
 		}
-
+		
 		if (dx || dy) {
-			//m_camera.rotateSmoothly(dx, dy, 0.0f);	
-			m_camera.rotateSmoothly(dx, dy, 0.0f, m_pos, 5.0f);
+			m_camera.rotateSmoothly(dx, dy, 0.0f, m_pos, m_offsetDistance);
 		}
+	}
+	m_sphere.setPosition(m_pos);
+
+	if (mouse.wheelPos() < 0.0f) {
+		m_offsetDistance += 2.0f;
+		m_offsetDistance = std::max(0.0f, std::min(m_offsetDistance, 150.0f));
+		m_camera.setPosition(m_pos - m_camera.getViewDirection() * m_offsetDistance);
+	}
+
+	if (mouse.wheelPos() > 0.0f) {
+		m_offsetDistance -= 2.0f;
+		m_offsetDistance = std::max(0.0f, std::min(m_offsetDistance, 150.0f));
+		m_camera.setPosition(m_pos - m_camera.getViewDirection() * m_offsetDistance);
 	}
 }
 
@@ -153,6 +157,8 @@ void Game::render() {
 	Terrain.DrawNew();
 
 	shader->unuse();
+
+	m_sphere.draw(m_camera);
 
 	if (m_drawUi)
 		renderUi();
@@ -220,6 +226,10 @@ void Game::renderUi() {
 	// render widgets
 	ImGui::Begin("Settings", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
 	ImGui::Checkbox("Draw Wirframe", &StateMachine::GetEnableWireframe());
+
+	if (ImGui::SliderFloat("Camera Offset", &m_offsetDistance, 0.0f, 150.0f)) {
+		m_camera.setPosition(m_pos - m_camera.getViewDirection() * m_offsetDistance);
+	}
 
 	ImGui::End();
 
@@ -339,6 +349,22 @@ bool Game::Init(int lvl) {
 	respawn_points.push_back(rp);
 
 	//Sound.Play(SOUND_AMBIENT);
+
+	m_sphere = RenderableObject("sphere", "texture_new", "player");
+
+	m_sphere.setDrawFunction([&](const Camera& camera) {
+		if (m_sphere.isDisabled()) return;
+
+		auto shader = Globals::shaderManager.getAssetPointer(m_sphere.getShader());
+		shader->use();
+		shader->loadMatrix("u_projection", camera.getPerspectiveMatrix());
+		shader->loadMatrix("u_view", camera.getViewMatrix());
+		shader->loadMatrix("u_model", m_sphere.getTransformationP());
+		shader->loadMatrix("u_normal", Matrix4f::GetNormalMatrix(m_camera.getViewMatrix() * m_sphere.getTransformationP()));
+		Globals::textureManager.get(m_sphere.getTexture()).bind(0);
+		Globals::shapeManager.get(m_sphere.getShape()).drawRaw();
+		shader->unuse();
+	});
 
 	return res;
 }

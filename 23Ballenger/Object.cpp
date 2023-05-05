@@ -98,3 +98,8 @@ const Matrix4f &Object::getTransformationSP() {
 	Transformation *= Matrix4f::Scale(m_scale);
 	return Transformation;
 }
+
+const Matrix4f &Object::getTransformationP() {
+	Transformation.translate(m_position);
+	return Transformation;
+}
