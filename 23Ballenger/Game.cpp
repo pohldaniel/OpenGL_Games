@@ -15,13 +15,11 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	Init(1);
 
 	m_pos = Vector3f(TERRAIN_SIZE / 2, Terrain.GetHeight(TERRAIN_SIZE / 2, TERRAIN_SIZE / 2) + RADIUS, TERRAIN_SIZE / 2);
-	m_pos2 = Vector3f(TERRAIN_SIZE / 2, Terrain.GetHeight(TERRAIN_SIZE / 2, TERRAIN_SIZE / 2) + RADIUS, TERRAIN_SIZE / 2);
-
+	
 	m_camera = Camera();
+	m_camera.setOffsetDistance(m_offsetDistance);
 	m_camera.perspective(45.0, (float)Application::Width / (float)Application::Height, 1.0f, 1000.0f);
-	m_camera.lookAt(m_pos - Vector3f(0.0f, 0.0f, m_offsetDistance), m_pos + Vector3f(0.0f, 0.0f, 1.0f), Vector3f(0.0f, 1.0f, 0.0f));
-
-	//m_camera.lookAt(m_pos, m_pos + Vector3f(0.0f, 0.0f, 1.0f), Vector3f(0.0f, 1.0f, 0.0f));
+	m_camera.lookAt(m_pos, m_pos + Vector3f(0.0f, 0.0f, 1.0f), Vector3f(0.0f, 1.0f, 0.0f));
 }
 
 Game::~Game() {
@@ -79,11 +77,11 @@ void Game::update() {
 	if (move || dx != 0.0f || dy != 0.0f) {
 		if (move) {
 			m_pos += m_camera.getViewSpaceDirection(direction) * 20.0f * m_dt;	
-			m_camera.moveRelative(direction * 20.0f * m_dt);
+			m_camera.setPosition(m_pos);
 		}
 		
 		if (dx || dy) {
-			m_camera.rotateSmoothly(dx, dy, 0.0f, m_pos, m_offsetDistance);
+			m_camera.rotateSmoothly(dx, dy, 0.0f, m_pos);
 		}
 	}
 	m_sphere.setPosition(m_pos);
@@ -91,13 +89,13 @@ void Game::update() {
 	if (mouse.wheelPos() < 0.0f) {
 		m_offsetDistance += 2.0f;
 		m_offsetDistance = std::max(0.0f, std::min(m_offsetDistance, 150.0f));
-		m_camera.setPosition(m_pos - m_camera.getViewDirection() * m_offsetDistance);
+		m_camera.setOffsetDistance(m_offsetDistance);
 	}
 
 	if (mouse.wheelPos() > 0.0f) {
 		m_offsetDistance -= 2.0f;
 		m_offsetDistance = std::max(0.0f, std::min(m_offsetDistance, 150.0f));
-		m_camera.setPosition(m_pos - m_camera.getViewDirection() * m_offsetDistance);
+		m_camera.setOffsetDistance(m_offsetDistance);
 	}
 }
 
@@ -231,7 +229,7 @@ void Game::renderUi() {
 	ImGui::Checkbox("Draw Wirframe", &StateMachine::GetEnableWireframe());
 
 	if (ImGui::SliderFloat("Camera Offset", &m_offsetDistance, 0.0f, 150.0f)) {
-		m_camera.setPosition(m_pos - m_camera.getViewDirection() * m_offsetDistance);
+		m_camera.setOffsetDistance(m_offsetDistance);
 	}
 
 	ImGui::End();

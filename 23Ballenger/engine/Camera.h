@@ -25,9 +25,9 @@ public:
 	void moveZ(float dx);
 
 	void rotate(float yaw, float pitch, float roll);
-	void rotate(float yaw, float pitch, float roll, const Vector3f &centerOfRotation, float distance);
+	void rotate(float yaw, float pitch, float roll, const Vector3f &centerOfRotation);
 	void rotateSmoothly(float yaw, float pitch, float roll);
-	void rotateSmoothly(float yaw, float pitch, float roll, const Vector3f &centerOfRotation, float distance);
+	void rotateSmoothly(float yaw, float pitch, float roll, const Vector3f &centerOfRotation);
 
 	void pitchReflection(const float distance);
 	void calcLightTransformation(Vector3f &direction);
@@ -83,6 +83,7 @@ public:
 	void setPositionY(float y);
 	void setPositionZ(float z);
 	void setMovingSpeed(float movingSpeed);
+	void setOffsetDistance(float offsetDistance);
 
 	void setAcceleration(const Vector3f &acceleration);
 	void setVelocity(const Vector3f &velocity);
@@ -101,10 +102,10 @@ public:
 protected:
 
     void rotateFirstPerson(float yaw, float pitch);
-	void rotateFirstPerson(float yaw, float pitch, const Vector3f &centerOfRotation, float distance);
-	//void rotateFirstPersonYP(float yaw, float pitch, const Vector3f &centerOfRotation, float distance);
-	void updateViewMatrix(bool orthogonalizeAxes);
-	void updateViewMatrix(const Vector3f &eye, const Vector3f &target, const Vector3f &up);
+	void rotateFirstPerson(float yaw, float pitch, const Vector3f &centerOfRotation);
+	//void rotateFirstPersonYP(float yaw, float pitch, const Vector3f &centerOfRotation);
+	void updateViewMatrix(const Vector3f &position);
+	void orthogonalize();
 
     Vector3f WORLD_XAXIS;
 	Vector3f WORLD_YAXIS;
@@ -117,6 +118,7 @@ protected:
 	float			m_accumPitchDegrees;
 	float			m_rotationSpeed;
 	float			m_movingSpeed;
+	float			m_offsetDistance;
 
 	Vector3f		m_eye;
 	Vector3f		m_xAxis;

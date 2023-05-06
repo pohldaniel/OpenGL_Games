@@ -63,6 +63,6 @@ private:
 	cTerrain Terrain;
 	cLava Lava;
 	Vector3f m_pos;
-	Vector3f m_pos2;
+
 	//void Physics(cBicho &object);
 };
