@@ -32,6 +32,9 @@ Camera::Camera(){
 	m_orthMatrix.identity();
 	
 	updateViewMatrix(m_eye - m_offsetDistance * m_viewDir);
+
+	m_pitch = 0.0f;
+	m_yaw = HALF_PI;
 }
 
 Camera::Camera(const Vector3f &eye, const Vector3f &target, const Vector3f &up) {
@@ -471,8 +474,9 @@ void Camera::rotate(float yaw, float pitch, float roll, const Vector3f &centerOf
 }
 
 void Camera::rotateSmoothly(float yaw, float pitch, float roll, const Vector3f &centerOfRotation) {	
-	rotateFirstPerson(yaw * m_rotationSpeed, pitch * m_rotationSpeed, centerOfRotation);
+	
 	//rotateFirstPersonYP(yaw * m_rotationSpeed, pitch * m_rotationSpeed, centerOfRotation);
+	rotateFirstPerson(yaw * m_rotationSpeed, pitch * m_rotationSpeed, centerOfRotation);
 	orthogonalize();
 	updateViewMatrix(centerOfRotation - m_offsetDistance * m_viewDir);
 }
@@ -507,27 +511,30 @@ void Camera::rotateFirstPerson(float yaw, float pitch, const Vector3f &centerOfR
 	}
 }
 
-//void Camera::rotateFirstPersonYP(float yaw, float pitch, const Vector3f &centerOfRotation) {
-//	const float limit = 89.0 * PI / 180.0;
-//
-//	m_pitch -= pitch * PI_ON_180;
-//
-//	if (m_pitch < -limit)
-//		m_pitch = -limit;
-//
-//	if (m_pitch > limit)
-//		m_pitch = limit;
-//
-//
-//	m_yaw += yaw * PI_ON_180;
-//
-//	
-//	Vector3f viewDirection = Vector3f(cosf(m_yaw) * cosf(m_pitch), sinf(m_pitch), sinf(m_yaw) * cosf(m_pitch));
-//	m_eye = centerOfRotation - m_offsetDistance * viewDirection;
-//
-//
-//	lookAt(m_eye, m_eye + viewDirection, Vector3f(0.0f, 1.0f, 0.0f));
-//}
+void Camera::rotateFirstPersonYP(float yaw, float pitch, const Vector3f &centerOfRotation) {
+	
+	
+	const float limit = 89.0 * PI / 180.0;
+
+	m_pitch -= pitch * PI_ON_180;
+
+	if (m_pitch < -limit)
+		m_pitch = -limit;
+
+	if (m_pitch > limit)
+		m_pitch = limit;
+
+
+	m_yaw += yaw * PI_ON_180;
+
+	vx = cos(m_yaw) * cos(m_pitch);
+	vy = sin(m_pitch);
+	vz = sin(m_yaw) * cos(m_pitch);
+	
+	Vector3f viewDirection = Vector3f(vx, vy, vz);
+
+	lookAt(m_eye, m_eye + viewDirection, Vector3f(0.0f, 1.0f, 0.0f));
+}
 
 const float Camera::getFar() const {
 	return m_persMatrix[3][2] / (m_persMatrix[2][2] + 1);

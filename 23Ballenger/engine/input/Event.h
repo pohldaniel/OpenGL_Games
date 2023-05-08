@@ -22,6 +22,14 @@ public:
 		MouseButton button;
 	};
 
+	struct MouseWheelEvent {
+		enum WheelDirection {
+			UP = 0,
+			DOWN = 1
+		};
+		WheelDirection direction;
+	};
+
 	struct KeyboardEvent {
 		unsigned int keyCode;
 	};
@@ -35,6 +43,7 @@ public:
 		CLOSED,                
 		RESIZE,               
 		MOUSEMOTION,
+		MOUSEWHEEL,
 		MOUSEBUTTONDOWN,
 		MOUSEBUTTONUP,
 		KEYDOWN,
@@ -50,6 +59,7 @@ public:
 		MouseButtonEvent mouseButton;
 		KeyboardEvent keyboard;
 		ApplicationEvent application;
+		MouseWheelEvent mouseWheel;
 	};
 	U data;
 };

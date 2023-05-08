@@ -93,6 +93,14 @@ void Shape::fromBuffer(std::vector<float>& vertexBuffer, std::vector<unsigned in
 	createBuffer();
 }
 
+std::vector<Vector3f>& Shape::getPositions() {
+	return m_positions;
+}
+
+std::vector<unsigned int>& Shape::getIndexBuffer() {
+	return m_indexBuffer;
+}
+
 int Shape::getNumberOfTriangles() {
 	return m_drawCount / 3;
 }

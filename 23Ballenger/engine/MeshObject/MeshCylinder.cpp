@@ -205,6 +205,14 @@ void MeshCylinder::BuildMesh(float baseRadius, float topRadius, float length, co
 	}
 }
 
+std::vector<Vector3f>& MeshCylinder::getPositions() {
+	return m_positions;
+}
+
+std::vector<unsigned int>& MeshCylinder::getIndexBuffer() {
+	return m_indexBuffer;
+}
+
 int MeshCylinder::getNumberOfTriangles() {
 	return m_drawCount / 3;
 }

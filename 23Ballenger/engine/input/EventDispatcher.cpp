@@ -75,39 +75,44 @@ bool EventDispatcher::update() {
 
 	while (pollEvent(m_event)) {
 		switch (m_event.type) {
-		case Event::CLOSED:
-			return false;
-		case Event::MOUSEMOTION: {
-			for (MouseEventListener * el : mMouseListeners) {
-				el->OnMouseMotion(m_event.data.mouseMove);
+			case Event::CLOSED:
+				return false;
+			case Event::MOUSEMOTION: {
+				for (MouseEventListener * el : mMouseListeners) {
+					el->OnMouseMotion(m_event.data.mouseMove);
+				}
+				return true;
+			}case Event::MOUSEWHEEL: {
+				for (MouseEventListener * el : mMouseListeners) {
+					el->OnMouseWheel(m_event.data.mouseWheel);
+				}
+				return true;
+			}case Event::KEYDOWN: {
+				for (KeyboardEventListener * el : mKeyboardListeners) {
+					el->OnKeyDown(m_event.data.keyboard);
+				}
+				return true;
+			}case Event::KEYUP: {
+				for (KeyboardEventListener * el : mKeyboardListeners) {
+					el->OnKeyUp(m_event.data.keyboard);
+				}
+				return true;
+			}case Event::MOUSEBUTTONDOWN: {
+				for (MouseEventListener * el : mMouseListeners) {
+					el->OnMouseButtonDown(m_event.data.mouseButton);
+				}
+				return true;
+			}case Event::MOUSEBUTTONUP: {
+				for (MouseEventListener * el : mMouseListeners) {
+					el->OnMouseButtonUp(m_event.data.mouseButton);
+				}
+				return true;
+			}case Event::RESIZE: {
+				for (ApplicationEventListener * el : mApplicationListeners) {
+					el->OnResize(m_event.data.application);
+				}
+				return true;
 			}
-			return true;
-		}case Event::KEYDOWN: {
-			for (KeyboardEventListener * el : mKeyboardListeners) {
-				el->OnKeyDown(m_event.data.keyboard);
-			}
-			return true;
-		}case Event::KEYUP: {
-			for (KeyboardEventListener * el : mKeyboardListeners) {
-				el->OnKeyUp(m_event.data.keyboard);
-			}
-			return true;
-		}case Event::MOUSEBUTTONDOWN: {
-			for (MouseEventListener * el : mMouseListeners) {
-				el->OnMouseButtonDown(m_event.data.mouseButton);
-			}
-			return true;
-		}case Event::MOUSEBUTTONUP: {
-			for (MouseEventListener * el : mMouseListeners) {
-				el->OnMouseButtonUp(m_event.data.mouseButton);
-			}
-			return true;
-		}case Event::RESIZE: {
-			for (ApplicationEventListener * el : mApplicationListeners) {
-				el->OnResize(m_event.data.application);
-			}
-			return true;
-		}
 		}
 	}
 	return m_isRunning;

@@ -11,6 +11,7 @@ public:
 
 private:
 	virtual void OnMouseMotion(Event::MouseMoveEvent& event) {}
+	virtual void OnMouseWheel(Event::MouseWheelEvent& event) {}
 	virtual void OnMouseButtonDown(Event::MouseButtonEvent& event) {};
 	virtual void OnMouseButtonUp(Event::MouseButtonEvent& event) {};
 

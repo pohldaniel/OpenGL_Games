@@ -130,6 +130,14 @@ void MeshTorus::BuildMesh(float radius, float tubeRadius, const Vector3f& positi
 	}
 }
 
+std::vector<Vector3f>& MeshTorus::getPositions() {
+	return m_positions;
+}
+
+std::vector<unsigned int>& MeshTorus::getIndexBuffer() {
+	return m_indexBuffer;
+}
+
 int MeshTorus::getNumberOfTriangles() {
 	return m_drawCount / 3;
 }

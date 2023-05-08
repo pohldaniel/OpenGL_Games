@@ -256,6 +256,14 @@ void MeshSpiral::BuildMesh(float radius, float tubeRadius, float length, int num
 	}
 }
 
+std::vector<Vector3f>& MeshSpiral::getPositions() {
+	return m_positions;
+}
+
+std::vector<unsigned int>& MeshSpiral::getIndexBuffer() {
+	return m_indexBuffer;
+}
+
 int MeshSpiral::getNumberOfTriangles() {
 	return m_drawCount / 3;
 }

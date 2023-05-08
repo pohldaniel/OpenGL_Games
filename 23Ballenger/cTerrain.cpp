@@ -216,7 +216,8 @@ void cTerrain::createAttribute() {
 		}
 	}
 
-	generateIndicesTS();
+	//generateIndicesTS();
+	generateIndices();
 	m_drawCount = m_indexBuffer.size();
 
 	unsigned int ibo;
@@ -255,10 +256,10 @@ void cTerrain::createAttribute() {
 	glBindVertexArray(0);
 	glDeleteBuffers(1, &ibo);
 
-	m_positions.clear();
-	m_positions.shrink_to_fit();
-	m_indexBuffer.clear();
-	m_indexBuffer.shrink_to_fit();
+	//m_positions.clear();
+	//m_positions.shrink_to_fit();
+	//m_indexBuffer.clear();
+	//m_indexBuffer.shrink_to_fit();
 	m_texels.clear();
 	m_texels.shrink_to_fit();
 	m_normals.clear();
@@ -268,7 +269,6 @@ void cTerrain::createAttribute() {
 void cTerrain::generateIndicesTS() {
 	int resolutionZ = (TERRAIN_SIZE - 1); //from the veretex for loop
 	int resolutionX = (TERRAIN_SIZE - 1); //from the veretex for loop
-
 
 	for (int z = 0; z < resolutionZ - 1; ++z) {
 
@@ -296,6 +296,42 @@ void cTerrain::generateIndicesTS() {
 	}
 }
 
+void cTerrain::generateIndices() {
+	int resolutionZ = (TERRAIN_SIZE - 1); //from the veretex for loop
+	int resolutionX = (TERRAIN_SIZE - 1); //from the veretex for loop
+
+	for (int z = 0; z < resolutionZ - 1; z++) {
+		for (int x = 0; x < resolutionX - 1; x++) {
+
+			// 0 *- 1		0
+			//	\	*		|  *
+			//	 *	|		*	\
+			//      3		2 -* 3
+			m_indexBuffer.push_back((z + 1) * (resolutionX ) + (x + 1));
+			m_indexBuffer.push_back(z * (resolutionX)+(x + 1));
+			m_indexBuffer.push_back(z * (resolutionX ) + x);
+			
+
+			m_indexBuffer.push_back((z + 1) * (resolutionX ) + x);
+			m_indexBuffer.push_back((z + 1) * (resolutionX ) + (x + 1));
+			m_indexBuffer.push_back(z * (resolutionX ) + x);
+			
+		}
+	}
+}
+
+std::vector<Vector3f>& cTerrain::getPositions() {
+	return m_positions;
+}
+
+std::vector<unsigned int>& cTerrain::getIndexBuffer() {
+	return m_indexBuffer;
+}
+
+int cTerrain::getNumberOfTriangles() {
+	return m_drawCount / 3;
+}
+
 void cTerrain::Draw()
 {
 	glCallList(id_Terrain);
@@ -304,7 +340,7 @@ void cTerrain::Draw()
 
 void cTerrain::DrawNew() {
 	glBindVertexArray(m_vao);
-	glDrawElements(GL_TRIANGLE_STRIP, m_drawCount, GL_UNSIGNED_INT, 0);
+	glDrawElements(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
 }
 

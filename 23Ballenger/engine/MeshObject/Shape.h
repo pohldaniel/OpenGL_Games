@@ -30,6 +30,8 @@ public:
 	void addInstance(const Matrix4f& modelMTX);
 	int getNumberOfTriangles();
 	void cleanup();
+	std::vector<Vector3f>& getPositions();
+	std::vector<unsigned int>& getIndexBuffer();
 
 private:
 

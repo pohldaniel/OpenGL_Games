@@ -103,3 +103,9 @@ const Matrix4f &Object::getTransformationP() {
 	Transformation.translate(m_position);
 	return Transformation;
 }
+
+const Matrix4f &Object::getTransformationOP() {
+	Transformation.translate(m_position);
+	Transformation *= Matrix4f::Rotate(m_orientation);
+	return Transformation;
+}

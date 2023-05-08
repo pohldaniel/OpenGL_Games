@@ -17,6 +17,8 @@ extern AssetManager<MusicBuffer> Globals::musicManager = AssetManager<MusicBuffe
 extern float Globals::soundVolume = 0.2f;
 extern float Globals::musicVolume = 0.2f;
 
+extern Physics* Globals::physics = NULL;
+
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd) {
 
 #if DEBUG
@@ -35,7 +37,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	int frames = 0;
 	float framesTime = 0;
 #endif
-
+	Globals::physics = new Physics(PHYSICS_STEP);
 	float deltaTime = 0.0f;
 	float fixedDeltaTime = 0.0f;
 	float physicsElapsedTime = 0.0;

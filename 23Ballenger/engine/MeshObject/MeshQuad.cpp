@@ -68,6 +68,14 @@ const Vector3f& MeshQuad::getCenter() const {
 	return m_center;
 }
 
+std::vector<Vector3f>& MeshQuad::getPositions() {
+	return m_positions;
+}
+
+std::vector<unsigned int>& MeshQuad::getIndexBuffer() {
+	return m_indexBuffer;
+}
+
 void MeshQuad::BuildMeshXY(const Vector3f& _position, const Vector2f& size, int uResolution, int vResolution, bool generateTexels, bool generateNormals, bool generateTangents, std::vector<Vector3f>& positions, std::vector<Vector2f>& texels, std::vector<Vector3f>& normals, std::vector<unsigned int>& indexBuffer, std::vector<Vector3f>& tangents, std::vector<Vector3f>& bitangents){
 	float vStep = (1.0f / vResolution) * size[1];
 	float uStep = (1.0f /uResolution) * size[0];

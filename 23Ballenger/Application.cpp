@@ -425,8 +425,15 @@ void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 					break;
 				}
 			}
+			break;
 		}case WM_MOUSEWHEEL: {
-			Mouse::instance().updateWheelDelta(static_cast<int>(static_cast<int>(wParam) >> 16));
+			Event event;
+			event.type = Event::MOUSEWHEEL;
+			event.data.mouseWheel.direction = GET_WHEEL_DELTA_WPARAM(wParam) > 0 ? Event::MouseWheelEvent::WheelDirection::UP : Event::MouseWheelEvent::WheelDirection::DOWN;
+			
+			EventDispatcher.pushEvent(event);
+
+			//Mouse::instance().updateWheelDelta(static_cast<int>(static_cast<int>(wParam) >> 16));
 			break;
 		}
 	}
@@ -519,5 +526,5 @@ void Application::loadAssets() {
 	Globals::textureManager.get("player_nmp").setWrapMode(GL_REPEAT);
 	Globals::textureManager.get("player_nmp").setFilter(GL_LINEAR_MIPMAP_LINEAR);
 
-	Globals::shapeManager.buildSphere("sphere", 1.0f, Vector3f(0.0f, 0.0f, 0.0f), 49, 49, true, true, true);
+	Globals::shapeManager.buildSphere("sphere", 0.5f, Vector3f(0.0f, 0.0f, 0.0f), 16, 16, true, true, true);
 }

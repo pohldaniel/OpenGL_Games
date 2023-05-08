@@ -8,6 +8,7 @@
 #include "engine/Texture.h"
 #include "engine/CharacterSet.h"
 #include "engine/Spritesheet.h"
+#include "Physics.h"
 
 #define WIDTH 1440
 #define HEIGHT 900
@@ -25,7 +26,7 @@ namespace Globals {
 	extern AssetManager<Spritesheet> spritesheetManager;
 	extern AssetManager<SoundBuffer> soundManager;
 	extern AssetManager<MusicBuffer> musicManager;
-
+	extern Physics *physics;
 
 	extern float soundVolume;
 	extern float musicVolume;

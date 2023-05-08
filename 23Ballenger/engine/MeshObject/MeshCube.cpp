@@ -64,6 +64,14 @@ const Vector3f& MeshCube::getCenter() const {
 	return m_center;
 }
 
+std::vector<Vector3f>& MeshCube::getPositions() {
+	return m_positions;
+}
+
+std::vector<unsigned int>& MeshCube::getIndexBuffer() {
+	return m_indexBuffer;
+}
+
 void MeshCube::BuildMesh(const Vector3f& _position, const Vector3f& size, int uResolution, int vResolution, bool generateTexels, bool generateNormals, bool generateTangents, std::vector<Vector3f>& positions, std::vector<Vector2f>& texels, std::vector<Vector3f>& normals, std::vector<unsigned int>& indexBuffer, std::vector<Vector3f>& tangents, std::vector<Vector3f>& bitangents) {
 
 	float vStep = (1.0f / vResolution) * size[1];

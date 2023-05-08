@@ -113,6 +113,14 @@ int MeshSphere::getNumberOfTriangles() {
 	return m_drawCount / 3;
 }
 
+std::vector<Vector3f>& MeshSphere::getPositions() {
+	return m_positions;
+}
+
+std::vector<unsigned int>& MeshSphere::getIndexBuffer() {
+	return m_indexBuffer;
+}
+
 void MeshSphere::createBuffer() {
 	m_drawCount = m_indexBuffer.size();
 

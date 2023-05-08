@@ -28,8 +28,12 @@ public:
 	std::vector<unsigned int> m_indexBuffer;
 	void createAttribute();
 	void generateIndicesTS();
+	void generateIndices();
 	void DrawNew();
 	void SetNormalPerVertex2(int x, float y, int z);
+	int getNumberOfTriangles();
+	std::vector<Vector3f>& getPositions();
+	std::vector<unsigned int>& getIndexBuffer();
 
 private:
 	GLubyte heightmap[TERRAIN_SIZE * TERRAIN_SIZE]; //representa los vertices del heightmap, cada texel sera un vertex

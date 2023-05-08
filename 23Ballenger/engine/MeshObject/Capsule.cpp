@@ -199,6 +199,15 @@ void Capsule::BuildCylinder(float radius, float length, const Vector3f& position
 	}
 }
 
+std::vector<Vector3f>& Capsule::getPositions() {
+	return m_positions;
+}
+
+std::vector<unsigned int>& Capsule::getIndexBuffer() {
+	return m_indexBuffer;
+}
+
+
 int Capsule::getNumberOfTriangles() {
 	return m_drawCount / 3;
 }

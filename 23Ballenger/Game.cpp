@@ -20,6 +20,24 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	m_camera.setOffsetDistance(m_offsetDistance);
 	m_camera.perspective(45.0, (float)Application::Width / (float)Application::Height, 1.0f, 1000.0f);
 	m_camera.lookAt(m_pos, m_pos + Vector3f(0.0f, 0.0f, 1.0f), Vector3f(0.0f, 1.0f, 0.0f));
+
+	std::vector<btCollisionShape*> terrainShape = Physics::CreateStaticCollisionShapes(&Terrain, 1.0f);
+	btRigidBody* body = Globals::physics->addStaticModel(terrainShape, Physics::BtTransform(), false, btVector3(1, 1, 1), Physics::collisiontypes::TERRAIN, Physics::collisiontypes::COL_GHOST);
+
+	//create dynamic character
+	btSphereShape* playerShape = new btSphereShape(0.5f);
+	btTransform playerTransform;
+	playerTransform.setIdentity();
+	playerTransform.setOrigin(btVector3(btScalar(m_pos[0]), btScalar(m_pos[1]), btScalar(m_pos[2])));
+	btVector3 localInertiaChar(0, 0, 0);
+	btDefaultMotionState* playerMotionState = new btDefaultMotionState(playerTransform);
+	btRigidBody::btRigidBodyConstructionInfo cInfoChar(10.0, playerMotionState, playerShape, localInertiaChar);
+
+	m_dynamicCharacterController = new DynamicCharacterController();
+	m_dynamicCharacterController->create(new btRigidBody(cInfoChar), Globals::physics->GetDynamicsWorld(), Physics::collisiontypes::COL_GHOST, Physics::collisiontypes::TERRAIN);
+	m_dynamicCharacterController->setSlopeAngle(10.0f);
+	m_dynamicCharacterController->setDistanceOffset(0.1f);
+	m_dynamicCharacterController->setStepHeight(0.0f);
 }
 
 Game::~Game() {
@@ -28,15 +46,15 @@ Game::~Game() {
 }
 
 void Game::fixedUpdate() {
-
+	m_dynamicCharacterController->preStep();
+	Globals::physics->stepSimulation(m_fdt);
+	m_dynamicCharacterController->postStep();
 }
 
 void Game::update() {
+	
 	Keyboard &keyboard = Keyboard::instance();
 	Vector3f direction = Vector3f();
-
-	float dx = 0.0f;
-	float dy = 0.0f;
 	bool move = false;
 
 	if (keyboard.keyDown(Keyboard::KEY_W)) {
@@ -69,34 +87,120 @@ void Game::update() {
 		move |= true;
 	}
 
-	Mouse &mouse = Mouse::instance();
+	if (move) {
+		//m_camera.move(direction * m_dt * 20.0f);
+		//direction = m_camera.getViewSpaceDirection(direction) * m_dt * PLAYER_SPEED;
+		direction = m_camera.getViewSpaceDirection(direction) * 50.0f;
 
+		m_dynamicCharacterController->setMovementXZ(Vector2f(direction[0], direction[2]));
+
+		float factor = sqrt(1.0f / (direction[0] * direction[0] + direction[2] * direction[2]));
+
+		float nextVX = Player.GetVX() + 0.5f * direction[0] * factor * m_dt;
+		float nextVZ = Player.GetVZ() + 0.5f * direction[2] * factor * m_dt;
+		float limitation_factor;
+		if (sqrt(nextVX*nextVX + nextVZ*nextVZ) <= MAX_MOVEMENT) limitation_factor = 1.0f;
+		else limitation_factor = sqrt((MAX_MOVEMENT*MAX_MOVEMENT) / (nextVX*nextVX + nextVZ*nextVZ));
+		Player.SetVX(nextVX*limitation_factor);
+		Player.SetVZ(nextVZ*limitation_factor);
+	}
+
+	if (keyboard.keyDown(Keyboard::KEY_LALT)) {
+		if (Player.GetY() - RADIUS < Terrain.GetHeight(Player.GetX(), Player.GetZ()) + 0.01f) {
+			Player.SetVY(PLAYER_JUMP_SPEED);
+			//Sound.PlayBounce(1.0f);
+		}
+	}
+
+	float initial_z = Player.GetZ();
+	Physics(Player);
+
+	//comprueba si el player muere
+	if (Player.GetY() <= Lava.GetHeight() + RADIUS) {
+		Player.SetY(Lava.GetHeight() + RADIUS);
+		Player.SetVel(0.0f, 0.0f, 0.0f);
+		pickedkey_id = -1;
+		state = STATE_LIVELOSS;
+		//Sound.Play(SOUND_SWISH);
+	}
+
+	Coord P; P.x = Player.GetX(); P.y = Player.GetY(); P.z = Player.GetZ();
+	float r = RADIUS;
+
+	//comprueba si el player entra en algun Respawn Point
+	float cr = CIRCLE_RADIUS, ah = AURA_HEIGHT;
+	for (unsigned int i = 0; i<respawn_points.size(); i++) {
+		Coord RP; RP.x = respawn_points[i].GetX(); RP.y = respawn_points[i].GetY(); RP.z = respawn_points[i].GetZ();
+		if (sqrt((P.x - RP.x)*(P.x - RP.x) + (P.y - RP.y)*(P.y - RP.y) + (P.z - RP.z)*(P.z - RP.z)) <= RADIUS + CIRCLE_RADIUS) {
+			//if (respawn_id != i) Sound.Play(SOUND_SWISH);
+			respawn_id = i;
+		}
+	}
+
+	//comprueba si el player recoge alguna llave
+	if (pickedkey_id == -1) {
+		for (unsigned int i = 0; i<target_keys.size(); i++) {
+			if (!target_keys[i].IsDeployed()) {
+				Coord K; K.x = target_keys[i].GetX(); K.y = target_keys[i].GetY(); K.z = target_keys[i].GetZ();
+				if (sqrt((P.x - K.x)*(P.x - K.x) + (P.y - K.y)*(P.y - K.y) + (P.z - K.z)*(P.z - K.z)) <= RADIUS * 2) {
+					pickedkey_id = i;
+					//Sound.Play(SOUND_PICKUP);
+				}
+			}
+		}
+	}
+
+	//comprueba si el player llega con una llave a su respectiva columna
+	if (pickedkey_id != -1) {
+		if (columns[pickedkey_id].InsideGatheringArea(P.x, P.y, P.z)) {
+			//Sound.Play(SOUND_UNLOCK);
+			//Sound.Play(SOUND_ENERGYFLOW);
+			target_keys[pickedkey_id].Deploy();
+			pickedkey_id = -1;
+			if (respawn_id) {
+				//Sound.Play(SOUND_SWISH);
+				respawn_id = 0;
+			}
+			bool all_keys_deployed = true;
+			for (unsigned int i = 0; all_keys_deployed && i<target_keys.size(); i++) all_keys_deployed = target_keys[i].IsDeployed();
+			portal_activated = all_keys_deployed;
+			//if (portal_activated) Sound.Play(SOUND_WARP);
+		}
+	}
+
+	//comprueba si el player atraviesa el portal estando activado
+	if (portal_activated) {
+		if (Portal.InsidePortal(P.x, P.y, P.z, RADIUS)) {
+			if ((initial_z - Portal.GetZ() <= 0.0f && Player.GetZ() - Portal.GetZ() >= 0.0f) ||
+				(initial_z - Portal.GetZ() >= 0.0f && Player.GetZ() - Portal.GetZ() <= 0.0f)) state = STATE_ENDGAME;
+		}
+	}
+	btTransform t;
+	m_dynamicCharacterController->getRigidBody()->getMotionState()->getWorldTransform(t);
+	m_playerPos = Physics::VectorFrom(t.getOrigin());
+
+	//m_playerPos = Vector3f(Player.GetX(), Player.GetY(), Player.GetZ());
+	m_camera.setPosition(m_playerPos);
+
+	Mouse &mouse = Mouse::instance();
+	float dx = 0.0f;
+	float dy = 0.0f;
 	dx = mouse.xPosRelative();
 	dy = mouse.yPosRelative();
+
+
+	if (dx || dy) {
+		m_camera.rotateSmoothly(dx, dy, 0.0f, m_playerPos);
+		//m_camera.rotateSmoothly(dx, dy, 0.0f);
+	}
+
+	m_sphere.setPosition(m_playerPos);
+
+	if (cos(Player.GetYaw() * PI_ON_180) >= 0.0f) 
+		m_sphere.setOrientation(Vector3f(-cos(Player.GetYaw()), 0.0f, -sin(Player.GetYaw())), Player.GetPitch() * PI_ON_180);
+	else 
+		m_sphere.setOrientation(Vector3f(-cos(Player.GetYaw()), 0.0f, sin(Player.GetYaw())), Player.GetPitch()* PI_ON_180);
 	
-	if (move || dx != 0.0f || dy != 0.0f) {
-		if (move) {
-			m_pos += m_camera.getViewSpaceDirection(direction) * 20.0f * m_dt;	
-			m_camera.setPosition(m_pos);
-		}
-		
-		if (dx || dy) {
-			m_camera.rotateSmoothly(dx, dy, 0.0f, m_pos);
-		}
-	}
-	m_sphere.setPosition(m_pos);
-
-	if (mouse.wheelPos() < 0.0f) {
-		m_offsetDistance += 2.0f;
-		m_offsetDistance = std::max(0.0f, std::min(m_offsetDistance, 150.0f));
-		m_camera.setOffsetDistance(m_offsetDistance);
-	}
-
-	if (mouse.wheelPos() > 0.0f) {
-		m_offsetDistance -= 2.0f;
-		m_offsetDistance = std::max(0.0f, std::min(m_offsetDistance, 150.0f));
-		m_camera.setOffsetDistance(m_offsetDistance);
-	}
 }
 
 void Game::render() {
@@ -167,6 +271,20 @@ void Game::render() {
 
 void Game::OnMouseMotion(Event::MouseMoveEvent& event) {
 
+}
+
+void Game::OnMouseWheel(Event::MouseWheelEvent& event) {
+	if (event.direction == 1u) {
+		m_offsetDistance += 2.0f;
+		m_offsetDistance = std::max(0.0f, std::min(m_offsetDistance, 150.0f));
+		m_camera.setOffsetDistance(m_offsetDistance);
+	}
+
+	if (event.direction == 0u) {
+		m_offsetDistance -= 2.0f;
+		m_offsetDistance = std::max(0.0f, std::min(m_offsetDistance, 150.0f));
+		m_camera.setOffsetDistance(m_offsetDistance);
+	}
 }
 
 void Game::OnMouseButtonDown(Event::MouseButtonEvent& event) {
@@ -360,7 +478,7 @@ bool Game::Init(int lvl) {
 		shader->use();
 		shader->loadMatrix("u_projection", camera.getPerspectiveMatrix());
 		shader->loadMatrix("u_view", camera.getViewMatrix());
-		shader->loadMatrix("u_model", m_sphere.getTransformationP());
+		shader->loadMatrix("u_model", m_sphere.getTransformationOP());
 		shader->loadMatrix("u_normal", Matrix4f::GetNormalMatrix(m_camera.getViewMatrix() * m_sphere.getTransformationP()));
 		Globals::textureManager.get(m_sphere.getTexture()).bind(0);
 		Globals::shapeManager.get(m_sphere.getShape()).drawRaw();
@@ -368,4 +486,119 @@ bool Game::Init(int lvl) {
 	});
 
 	return res;
+}
+
+void Game::Physics(cBicho &object) {
+	Coord initialPos; initialPos.x = object.GetX(); initialPos.y = object.GetY(); initialPos.z = object.GetZ();
+	Coord center; center.x = object.GetX() + object.GetVX(); center.y = object.GetY() + object.GetVY(); center.z = object.GetZ() + object.GetVZ();
+	std::vector<Vector> cnormals = Terrain.GetCollisionNormals(center, RADIUS);
+	object.SetPos(center.x, center.y, center.z); //despues de GetCollisionNormals la posicion center sera una posicion valida sobre la superficie
+
+												 //actualizo angulos de rotacion por movimiento
+	if (object.GetZ() != initialPos.z || object.GetX() != initialPos.x) {
+		float yaw, pitch;
+		float dx = abs(abs(object.GetX()) - abs(initialPos.x)), dz = abs(abs(object.GetZ()) - abs(initialPos.z));
+		if (object.GetZ() > initialPos.z && object.GetX() >= initialPos.x) yaw = atan(dx / dz); //primer cuadrante
+		if (object.GetZ() <= initialPos.z && object.GetX() > initialPos.x) yaw = PI / 2 + atan(dz / dx); //segundo cuadrante
+		if (object.GetZ() < initialPos.z && object.GetX() <= initialPos.x) yaw = PI + atan(dx / dz);//tercer cuadrante
+		if (object.GetZ() >= initialPos.z && object.GetX() < initialPos.x) yaw = PI * 3 / 2 + atan(dz / dx);//cuarto cuadrante
+		object.SetYaw(yaw*(180 / PI));
+
+		float perimeter = PI * 2 * RADIUS;
+		float dy = abs(abs(object.GetY()) - abs(initialPos.y));
+		float travel_dist = sqrt(dx*dx + dy*dy + dz*dz);
+		if (cos(yaw) >= 0.0f) pitch = object.GetPitch() + (travel_dist / perimeter) * 360.0f;
+		else pitch = object.GetPitch() - (travel_dist / perimeter) * 360.0f;
+		if (pitch < 0.0f) pitch = 360.0f - abs(pitch);
+		object.SetPitch(fmod(pitch, 360.0f));
+	}
+
+	if (cnormals.empty()) object.SetVY(object.GetVY() - GRAVITY);
+	else {
+		Vector G, F, G1, F1, cNormal;
+		float rz, rx; //angulos de rotacion
+		float factor, N = 0.0f;
+
+		G.x = 0.0f; G.y = -GRAVITY; G.z = 0.0f;
+		F.x = object.GetVX(); F.y = object.GetVY(); F.z = object.GetVZ();
+		cNormal.x = 0.0f; cNormal.y = 0.0f; cNormal.z = 0.0f;
+
+		for (unsigned int i = 0; i<cnormals.size(); i++) {
+			if (cnormals[i].x == 0.0f) rz = 0.0f;
+			else if (cnormals[i].x >  0.0f) rz = -PI / 2 + atan(cnormals[i].y / cnormals[i].x);
+			else rz = PI / 2 + atan(cnormals[i].y / cnormals[i].x);
+
+			if (cnormals[i].z == 0.0f) rx = 0.0f;
+			else if (cnormals[i].z >  0.0f) rx = PI / 2 - atan(cnormals[i].y / cnormals[i].z);
+			else rx = -PI / 2 - atan(cnormals[i].y / cnormals[i].z);
+
+			//Transformamos las fuerzas definidas en el sistema de coordenadas de OpenGL al sistema de coordenadas definido por cnormal(eje y) 
+			G1.x = cos(-rz)*G.x - sin(-rz)*G.y;
+			G1.y = cos(-rx)*sin(-rz)*G.x + cos(-rx)*cos(-rz)*G.y - sin(-rx)*G.z;
+			G1.z = sin(-rx)*sin(-rz)*G.x + sin(-rx)*cos(-rz)*G.y + cos(-rx)*G.z;
+
+			F1.x = cos(-rz)*F.x - sin(-rz)*F.y;
+			F1.y = cos(-rx)*sin(-rz)*F.x + cos(-rx)*cos(-rz)*F.y - sin(-rx)*F.z;
+			F1.z = sin(-rx)*sin(-rz)*F.x + sin(-rx)*cos(-rz)*F.y + cos(-rx)*F.z;
+
+			//consideramos la fuerza normal para un unico triangulo
+			float cN = 0.0f;
+			if (G1.y < 0.0f) { cN -= G1.y; G1.y = 0.0f; }
+			if (F1.y < 0.0f) { cN -= F1.y; F1.y = 0.0f; }
+			N += cN; //actualizo la fuerza normal global
+
+					 //actualizo la fuerza de cnormal global
+			cNormal.x += cnormals[i].x;
+			cNormal.y += cnormals[i].y;
+			cNormal.z += cnormals[i].z;
+
+			//consideramos la posible friccion
+			if (cN > 0.0f && abs(F1.x) + abs(F1.z) > 0.0f) {
+				factor = sqrt(((FRICTION*cN)*(FRICTION*cN)) / (F1.x*F1.x + F1.z*F1.z));
+
+				if (abs(F1.x) < abs(F1.x*factor)) F1.x = 0.0f;
+				else F1.x -= F1.x*factor;
+
+				if (abs(F1.z) < abs(F1.z*factor)) F1.z = 0.0f;
+				else F1.z -= F1.z*factor;
+			}
+
+			//volvemos a Transformar las fuerzas del sistema de coordenadas de cnormal(eje y) al sistema de coordenadas de OpenGL
+			G.x = cos(rz)*G1.x - sin(rz)*cos(rx)*G1.y + sin(rz)*sin(rx)*G1.z;
+			G.y = sin(rz)*G1.x + cos(rz)*cos(rx)*G1.y - cos(rz)*sin(rx)*G1.z;
+			G.z = sin(rx)*G1.y + cos(rx)*G1.z;
+
+			F.x = cos(rz)*F1.x - sin(rz)*cos(rx)*F1.y + sin(rz)*sin(rx)*F1.z;
+			F.y = sin(rz)*F1.x + cos(rz)*cos(rx)*F1.y - cos(rz)*sin(rx)*F1.z;
+			F.z = sin(rx)*F1.y + cos(rx)*F1.z;
+		}
+
+		float nextVX = F.x + G.x;
+		float nextVY = F.y + G.y;
+		float nextVZ = F.z + G.z;
+
+		//limitaremos la velocidad para que la esfera no se salte triangulos
+		float limitation_factor;
+		if (sqrt(nextVX*nextVX + nextVY*nextVY + nextVZ*nextVZ) <= MAX_MOVEMENT) limitation_factor = 1.0f;
+		else limitation_factor = sqrt((MAX_MOVEMENT*MAX_MOVEMENT) / (nextVX*nextVX + nextVY*nextVY + nextVZ*nextVZ));
+
+		nextVX *= limitation_factor;
+		nextVY *= limitation_factor;
+		nextVZ *= limitation_factor;
+
+		//consideramos el rebote
+		if (N > GRAVITY * 4) factor = sqrt((N*N) / (cNormal.x*cNormal.x + cNormal.y*cNormal.y + cNormal.z*cNormal.z));
+		else factor = 0.0f;
+
+		nextVX += cNormal.x*factor*ELASTICITY;
+		nextVY += cNormal.y*factor*ELASTICITY;
+		nextVZ += cNormal.z*factor*ELASTICITY;
+
+		float bounceForce = sqrt((cNormal.x*factor*ELASTICITY)*(cNormal.x*factor*ELASTICITY) + (cNormal.y*factor*ELASTICITY)*(cNormal.y*factor*ELASTICITY) + (cNormal.z*factor*ELASTICITY)*(cNormal.z*factor*ELASTICITY));
+		//if (bounceForce >= PLAYER_JUMP_SPEED) Sound.PlayBounce(1.0f);
+		//else if (bounceForce / PLAYER_JUMP_SPEED > 0.2f) Sound.PlayBounce(bounceForce / PLAYER_JUMP_SPEED);
+
+		//actualizamos velocidad
+		object.SetVel(nextVX, nextVY, nextVZ);
+	}
 }

@@ -76,7 +76,12 @@ public:
 	const float getViewDirectionY() const;
 	const float getViewDirectionZ() const;
 	const Vector3f getViewSpaceDirection(const Vector3f &direction);
-
+	void GetDirectionVector(float &x, float &y, float &z)
+	{
+		x = vx;
+		y = vy;
+		z = vz;
+	}
 	void setPosition(float x, float y, float z);
 	void setPosition(const Vector3f &position);
 	void setPositionX(float x);
@@ -103,7 +108,7 @@ protected:
 
     void rotateFirstPerson(float yaw, float pitch);
 	void rotateFirstPerson(float yaw, float pitch, const Vector3f &centerOfRotation);
-	//void rotateFirstPersonYP(float yaw, float pitch, const Vector3f &centerOfRotation);
+	void rotateFirstPersonYP(float yaw, float pitch, const Vector3f &centerOfRotation);
 	void updateViewMatrix(const Vector3f &position);
 	void orthogonalize();
 
@@ -120,6 +125,9 @@ protected:
 	float			m_movingSpeed;
 	float			m_offsetDistance;
 
+	float			m_pitch;
+	float			m_yaw;
+
 	Vector3f		m_eye;
 	Vector3f		m_xAxis;
     Vector3f		m_yAxis;
@@ -135,5 +143,9 @@ protected:
 	Matrix4f		m_persMatrix;
 	Matrix4f		m_invPersMatrix;
 	Matrix4f		m_orthMatrix;
+
+	float vx;
+	float vy;
+	float vz;
 };
 #endif // __cameraH__

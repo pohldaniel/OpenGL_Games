@@ -6,12 +6,15 @@
 
 #include "StateMachine.h"
 #include "RenderableObject.h"
+#include "DynamicCharacterController.h"
 
 #include "cPlayer.h"
 #include "cRespawnPoint.h"
 #include "cColumn.h"
 #include "cPortal.h"
 #include "cKey.h"
+
+#define GRAVITY 0.015f
 
 enum {
 	STATE_LIVELOSS,
@@ -31,6 +34,7 @@ public:
 	void render() override;
 	void resize(int deltaW, int deltaH) override;
 	void OnMouseMotion(Event::MouseMoveEvent& event) override;
+	void OnMouseWheel(Event::MouseWheelEvent& event) override;
 	void OnMouseButtonDown(Event::MouseButtonEvent& event) override;
 	void OnMouseButtonUp(Event::MouseButtonEvent& event) override;
 	void OnKeyDown(Event::KeyboardEvent& event) override;
@@ -42,6 +46,7 @@ public:
 	Camera m_camera;
 	RenderableObject m_sphere;
 	float m_offsetDistance = 10.0f;
+	DynamicCharacterController *m_dynamicCharacterController;
 
 private:
 	unsigned char keys[256];
@@ -63,6 +68,7 @@ private:
 	cTerrain Terrain;
 	cLava Lava;
 	Vector3f m_pos;
+	Vector3f m_playerPos;
 
-	//void Physics(cBicho &object);
+	void Physics(cBicho &object);
 };
