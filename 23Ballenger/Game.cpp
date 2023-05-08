@@ -30,14 +30,27 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	playerTransform.setIdentity();
 	playerTransform.setOrigin(btVector3(btScalar(m_pos[0]), btScalar(m_pos[1]), btScalar(m_pos[2])));
 	btVector3 localInertiaChar(0, 0, 0);
-	btDefaultMotionState* playerMotionState = new btDefaultMotionState(playerTransform);
-	btRigidBody::btRigidBodyConstructionInfo cInfoChar(10.0, playerMotionState, playerShape, localInertiaChar);
+	playerShape->calculateLocalInertia(10.0f, localInertiaChar);
 
-	m_dynamicCharacterController = new DynamicCharacterController();
+
+	btDefaultMotionState* playerMotionState = new btDefaultMotionState(playerTransform);
+	btRigidBody::btRigidBodyConstructionInfo cInfoChar(10.0f, playerMotionState, playerShape, localInertiaChar);
+
+	/*m_dynamicCharacterController = new DynamicCharacterController();
 	m_dynamicCharacterController->create(new btRigidBody(cInfoChar), Globals::physics->GetDynamicsWorld(), Physics::collisiontypes::COL_GHOST, Physics::collisiontypes::TERRAIN);
 	m_dynamicCharacterController->setSlopeAngle(10.0f);
 	m_dynamicCharacterController->setDistanceOffset(0.1f);
-	m_dynamicCharacterController->setStepHeight(0.0f);
+	m_dynamicCharacterController->setStepHeight(0.0f);*/
+
+	m_rigidBody = new btRigidBody(cInfoChar);
+	m_rigidBody->setActivationState(DISABLE_DEACTIVATION);
+	m_rigidBody->setCollisionFlags(btCollisionObject::CF_DYNAMIC_OBJECT);
+	m_rigidBody->setAngularFactor(btVector3(1.0f, 0.0f, 1.0f));
+	m_rigidBody->setSleepingThresholds(0.0f, 0.0f);
+	m_rigidBody->setRollingFriction(1.0f);
+	m_rigidBody->setDamping(0.0f, 0.7f);
+
+	Globals::physics->GetDynamicsWorld()->addRigidBody(m_rigidBody, Physics::collisiontypes::COL_GHOST, Physics::collisiontypes::TERRAIN);
 }
 
 Game::~Game() {
@@ -46,9 +59,9 @@ Game::~Game() {
 }
 
 void Game::fixedUpdate() {
-	m_dynamicCharacterController->preStep();
+	//m_dynamicCharacterController->preStep();
 	Globals::physics->stepSimulation(m_fdt);
-	m_dynamicCharacterController->postStep();
+	//m_dynamicCharacterController->postStep();
 }
 
 void Game::update() {
@@ -88,11 +101,14 @@ void Game::update() {
 	}
 
 	if (move) {
+
 		//m_camera.move(direction * m_dt * 20.0f);
 		//direction = m_camera.getViewSpaceDirection(direction) * m_dt * PLAYER_SPEED;
-		direction = m_camera.getViewSpaceDirection(direction) * 50.0f;
-
-		m_dynamicCharacterController->setMovementXZ(Vector2f(direction[0], direction[2]));
+		direction = m_camera.getViewSpaceDirection(direction);
+		direction[1] = 0.0f;
+		//m_rigidBody->applyCentralForce(Physics::VectorFrom(direction * 50.0f));
+		//m_rigidBody->applyCentralImpulse(Physics::VectorFrom(direction));
+		m_rigidBody->setLinearVelocity(Physics::VectorFrom(direction * 15.0f));
 
 		float factor = sqrt(1.0f / (direction[0] * direction[0] + direction[2] * direction[2]));
 
@@ -176,7 +192,7 @@ void Game::update() {
 		}
 	}
 	btTransform t;
-	m_dynamicCharacterController->getRigidBody()->getMotionState()->getWorldTransform(t);
+	m_rigidBody->getMotionState()->getWorldTransform(t);
 	m_playerPos = Physics::VectorFrom(t.getOrigin());
 
 	//m_playerPos = Vector3f(Player.GetX(), Player.GetY(), Player.GetZ());
@@ -195,12 +211,7 @@ void Game::update() {
 	}
 
 	m_sphere.setPosition(m_playerPos);
-
-	if (cos(Player.GetYaw() * PI_ON_180) >= 0.0f) 
-		m_sphere.setOrientation(Vector3f(-cos(Player.GetYaw()), 0.0f, -sin(Player.GetYaw())), Player.GetPitch() * PI_ON_180);
-	else 
-		m_sphere.setOrientation(Vector3f(-cos(Player.GetYaw()), 0.0f, sin(Player.GetYaw())), Player.GetPitch()* PI_ON_180);
-	
+	m_sphere.setOrientation(Physics::QuaternionFrom(t.getRotation()));
 }
 
 void Game::render() {

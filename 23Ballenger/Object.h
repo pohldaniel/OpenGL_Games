@@ -17,6 +17,7 @@ public:
 	virtual void setOrientation(const Vector3f &axis, float degrees);
 	virtual void setOrientation(const float degreesX, const float degreesY, const float degreesZ);	
 	virtual void setOrientation(const Vector3f &eulerAngle);
+	virtual void setOrientation(const Quaternion &orientation);
 
 	virtual void translate(const Vector3f &trans);
 	virtual void translate(const float dx, const float dy, const float dz);

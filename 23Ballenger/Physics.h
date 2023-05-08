@@ -71,10 +71,13 @@ public:
 	static btTransform BtTransform(const Vector3f& origin);
 	static btTransform BtTransform(const Vector3f& axis, float degrees);
 	static btTransform BtTransform(const Vector3f& origin, const Vector3f& axis, float degrees);
+	static btVector3 VectorFrom(const Vector3f& vector);
 
 	static Matrix4f MatrixFrom(const btTransform& trans, const btVector3& scale = btVector3(1.0f, 1.0f, 1.0f));	
 	static Matrix4f MatrixTransposeFrom(const btTransform& trans, const btVector3& scale = btVector3(1.0f, 1.0f, 1.0f));
 	static Vector3f VectorFrom(const btVector3& vector);
+	static Quaternion QuaternionFrom(const btQuaternion& quaternion);
+
 	static btRigidBody* CreateRigidBody(btScalar mass, const btTransform & startTransform, btCollisionShape * shape);
 	
 

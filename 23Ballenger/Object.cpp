@@ -40,6 +40,10 @@ void Object::setOrientation(const Vector3f &eulerAngle) {
 	m_orientation.fromPitchYawRoll(eulerAngle[0], eulerAngle[1], eulerAngle[2]);
 }
 
+void Object::setOrientation(const Quaternion &orientation) {
+	m_orientation = orientation;
+}
+
 void Object::translate(const Vector3f &trans) {
 	m_position.translate(trans);
 }

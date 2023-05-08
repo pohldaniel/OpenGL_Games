@@ -77,6 +77,7 @@ public:
 	void translate(const float dx, const float dy, const float dz);
 	void scale(const Vector3f &rhs);
 	void scale(const float sx, const float sy, const float sz);
+	bool compare(const Vector3f &rhs, float precision);
 
 	float &operator[](int index);
 	const float operator[](int index) const;

@@ -47,7 +47,7 @@ void Physics::initialize(){
 	m_constraintSolver = new btSequentialImpulseConstraintSolver();
 
 	m_dynamicsWorld = new btDiscreteDynamicsWorld(m_dispatcher, m_broadphase, m_constraintSolver, m_collisionConfiguration);
-	m_dynamicsWorld->setGravity(btVector3(0, -9.81f, 0));
+	m_dynamicsWorld->setGravity(btVector3(0, -98.1f, 0));
 }
 
 void Physics::deinitialize(){
@@ -264,6 +264,14 @@ Matrix4f Physics::MatrixTransposeFrom(const btTransform& trans, const btVector3&
 
 Vector3f Physics::VectorFrom(const btVector3& vector) {
 	return Vector3f(vector.x(), vector.y(), vector.z());
+}
+
+Quaternion Physics::QuaternionFrom(const btQuaternion& quaternion) {
+	return Quaternion(-quaternion.x(), -quaternion.y(), -quaternion.z(), quaternion.w());
+}
+
+btVector3 Physics::VectorFrom(const Vector3f& vector) {
+	return btVector3(vector[0], vector[1], vector[2]);
 }
 
 btCollisionShape * Physics::CreateStaticCollisionShape(cTerrain* mesh, const btVector3& scale) {

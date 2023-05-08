@@ -47,7 +47,7 @@ public:
 	RenderableObject m_sphere;
 	float m_offsetDistance = 10.0f;
 	DynamicCharacterController *m_dynamicCharacterController;
-
+	btRigidBody* m_rigidBody;
 private:
 	unsigned char keys[256];
 	bool mouse_left_down, mouse_right_down;
