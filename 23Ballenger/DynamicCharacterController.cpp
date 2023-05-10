@@ -15,17 +15,16 @@ const btVector3 ZERO_VECTOR(0.0f, 0.0f, 0.0f);
 class RayResultCallback : public btCollisionWorld::ClosestRayResultCallback{
 
 public:
-	//RayResultCallback(btCollisionObject* self) : btCollisionWorld::ClosestRayResultCallback(ZERO_VECTOR, ZERO_VECTOR), mSelf(self){
-	//}
-
+	
 	RayResultCallback(btCollisionObject* self) : btCollisionWorld::ClosestRayResultCallback(ZERO_VECTOR, ZERO_VECTOR), mSelf(self) {
 		m_collisionFilterGroup = self->getBroadphaseHandle()->m_collisionFilterGroup;
 		m_collisionFilterMask = self->getBroadphaseHandle()->m_collisionFilterMask;
 	}
 
 	btScalar addSingleResult(btCollisionWorld::LocalRayResult& rayResult, bool normalInWorldSpace){
-		if (rayResult.m_collisionObject == mSelf) return 1.0f;
-		if (rayResult.m_collisionObject->getInternalType() == btCollisionObject::CO_GHOST_OBJECT) return 1.0f;
+		if (rayResult.m_collisionObject == mSelf) {
+			return 1.0f;
+		}
 		return ClosestRayResultCallback::addSingleResult(rayResult, normalInWorldSpace);
 	}
 
@@ -37,6 +36,8 @@ class ConvexResultCallback : public btCollisionWorld::ClosestConvexResultCallbac
 
 public:
 	ConvexResultCallback(btCollisionObject* self, const btVector3& up, btScalar minSlopeDot) : btCollisionWorld::ClosestConvexResultCallback(ZERO_VECTOR, ZERO_VECTOR), mSelf(self), mUp(up), mMinSlopeDot(minSlopeDot){
+		m_collisionFilterGroup = self->getBroadphaseHandle()->m_collisionFilterGroup;
+		m_collisionFilterMask = self->getBroadphaseHandle()->m_collisionFilterMask;
 	}
 
 	btScalar addSingleResult(btCollisionWorld::LocalConvexResult& convexResult, bool normalInWorldSpace){
@@ -78,6 +79,9 @@ DynamicCharacterController::DynamicCharacterController()
 	, mMaxClimbSlopeAngle(0.6f)
 	, mDistanceOffset(0.1f)
 	, mIsStepping(false)
+	, m_canJump(false)
+	, m_jumpTicks(0)
+	, m_slopeTicks(0)
 {
 
 	mSlopeNormal.setZero();
@@ -157,7 +161,7 @@ void DynamicCharacterController::setParameters(float maxClimbSlopeAngle){
 }
 
 void DynamicCharacterController::setSlopeAngle(float degrees) {
-	mMaxClimbSlopeAngle = cos(degrees * PI * (1.0f / 180.0f));
+	mMaxClimbSlopeAngle = cosf(degrees * PI_ON_180);
 }
 
 void DynamicCharacterController::setDistanceOffset(float value) {
@@ -169,31 +173,34 @@ void DynamicCharacterController::preStep(){
 	mIsStepping = true;
 
 	if (mOnSteepSlope){
+		m_slopeTicks++;
 		btVector3 uAxis = mSlopeNormal.cross(UP_VECTOR).normalize();
 		btVector3 vAxis = uAxis.cross(mSlopeNormal);
-		btVector3 fixVel = vAxis / mSlopeNormal.dot(UP_VECTOR);
-		m_rigidBody->setLinearVelocity(m_rigidBody->getLinearVelocity() - fixVel);
-	}
+		btVector3 fixVel = mOnGround ? (vAxis / mSlopeNormal.dot(UP_VECTOR)) : (vAxis / mSlopeNormal.dot(UP_VECTOR)) * 4.0f;
+		m_rigidBody->setLinearVelocity(-fixVel);
 
-	// Move character upwards. (Bump over stairs)
-	if (movingUpward) {
-		moveCharacterAlongY(mStepHeight);
 	}
+	//m_slopeTicks = 0;
+	// Move character upwards. (Bump over stairs)
+	/*if (movingUpward) {
+		moveCharacterAlongY(mStepHeight);
+	}*/
 	
 	// Set the linear velocity based on the movement vector. Don't adjust the Y-component, instead let Bullet handle that.
-	if (mOnGround){		
+	/*if (m_canJump){		
 		btVector3 linVel = m_rigidBody->getLinearVelocity();
 		linVel.setX(mCharacterMovementX);
+		linVel.setY(0.0f);
 		linVel.setZ(mCharacterMovementZ);
 		m_rigidBody->setLinearVelocity(linVel);
-	}
+	}*/
 }
 
 // If defined, a ray test is used to detect objects below the character, otherwise a convex test.
-#define USE_RAY_TEST
+//#define USE_RAY_TEST
 
 void DynamicCharacterController::postStep() {
-	const float TEST_DISTANCE_RAY = 0.6f;
+	const float TEST_DISTANCE_RAY = 10.0f;
 
 #ifdef USE_RAY_TEST
 	btVector3 from = m_rigidBody->getWorldTransform().getOrigin();
@@ -205,29 +212,23 @@ void DynamicCharacterController::postStep() {
 
 	// Check if there is something below the character.
 	if (callback.hasHit()){
-		std::cout << "Hit: " << std::endl;
-		btVector3 end = from + (to + btVector3(0.0, TEST_DISTANCE_RAY, 0.0) - from) * callback.m_closestHitFraction;
-		/*btVector3 normal = callback.m_hitNormalWorld;
 
-		// Slope test.
-		btScalar slopeDot = normal.dot(UP_VECTOR);
-		mOnSteepSlope = (slopeDot < mMaxClimbSlopeAngle);
-		mSlopeNormal = normal;*/
+		btVector3 end = from + (to - from) * callback.m_closestHitFraction;
+		mSlopeNormal = callback.m_hitNormalWorld;
 		
+		// Slope test.
+		btScalar slopeDot = mSlopeNormal.dot(UP_VECTOR);
+		mOnSteepSlope = (slopeDot < mMaxClimbSlopeAngle);
+
 		// compute the distance to the floor
 		float distance = btDistance(end, from);
-		mOnGround = (distance < 1.0);		
-		// Move down.
-		/*if (distance < mStepHeight) {
-			moveCharacterAlongY(-distance * 0.99999f);
-		}else{
-			moveCharacterAlongY(-mStepHeight * 0.9999f);
-		}*/
+		mOnGround = distance < 0.50f && !mOnSteepSlope;
+		
+		m_canJump = distance < 0.60f && m_jumpTicks == 0 && !mOnSteepSlope;
 
 	}else{
-		// In the air.
-		/*mOnGround = false;
-		moveCharacterAlongY(-mStepHeight);*/
+		mOnGround = false;
+		m_canJump = false;
 	}
 #else
 	const float TEST_DISTANCE = 2.0;
@@ -242,8 +243,6 @@ void DynamicCharacterController::postStep() {
 	tsTo.setOrigin(to);
 
 	ConvexResultCallback callback(m_rigidBody, UP_VECTOR, 0.01f);
-	callback.m_collisionFilterGroup = m_rigidBody->getBroadphaseHandle()->m_collisionFilterGroup;
-	callback.m_collisionFilterMask = m_rigidBody->getBroadphaseHandle()->m_collisionFilterMask;
 	mCollisionWorld->convexSweepTest((btConvexShape*)mShape, tsFrom, tsTo, callback, mCollisionWorld->getDispatchInfo().m_allowedCcdPenetration);
 	
 	if (callback.hasHit()){
@@ -258,49 +257,56 @@ void DynamicCharacterController::postStep() {
 		
 		// Compute distance to the floor.
 		float distance = btDistance(end, from);
-		mOnGround = (distance < mDistanceOffset && !mOnSteepSlope);
-
-		// Move down.
-		if (distance < mStepHeight){
-			
-			moveCharacterAlongY(-distance * 0.99999f);
-		}else {
-			moveCharacterAlongY(-mStepHeight * 0.9999f);
-		}
-	} else{
+		mOnGround = (distance < 0.50f) && !mOnSteepSlope;
+		m_canJump = distance < 0.60f && m_jumpTicks == 0 && !mOnSteepSlope;
+		
+	}else{
 
 		mOnGround = false;
-		moveCharacterAlongY(-mStepHeight);
+		m_canJump = false;
 	}
 #endif
-
+	m_jumpTicks = m_jumpTicks > 0 ? m_jumpTicks -= 1 : 0;
 	mIsStepping = false;
 }
 
 bool DynamicCharacterController::isStepping() const{
-
 	return mIsStepping;
 }
 
 bool DynamicCharacterController::onGround() const{
-
 	return mOnGround;
 }
 
 void DynamicCharacterController::jump(const btVector3& direction, float force){
 	
-	if (mOnGround){		
-		mOnGround = false;
-		m_rigidBody->applyCentralImpulse(direction * force);
+	if (m_canJump){
+		m_jumpTicks = 10;
+		m_canJump = false;
+		//m_rigidBody->applyCentralImpulse(direction * force);
+
+		/*btVector3 linVel = m_rigidBody->getLinearVelocity();
+		linVel.setX(mCharacterMovementX);
+		linVel.setY((direction * force);
+		linVel.setZ(mCharacterMovementZ);*/
+		m_rigidBody->setLinearVelocity(direction * force);
 	}
 }
 
-void DynamicCharacterController::setLinearVelocity(const btVector3& vel){	
+void DynamicCharacterController::applyCentralImpulse(const btVector3& direction) {
+	m_rigidBody->applyCentralImpulse(direction);
+}
+
+void DynamicCharacterController::setLinearVelocity(btVector3& vel){	
 	m_rigidBody->setLinearVelocity(vel);
 }
 
 const btVector3& DynamicCharacterController::getLinearVelocity(){
 	return m_rigidBody->getLinearVelocity();
+}
+
+const float DynamicCharacterController::getLinearVelocityY() {
+	return m_rigidBody->getLinearVelocity()[1];
 }
 
 void DynamicCharacterController::moveCharacterAlongY(float step){
@@ -335,7 +341,6 @@ void DynamicCharacterController::getWorldTransform(btTransform& transform) {
 void DynamicCharacterController::setLinearFactor(const btVector3& linearFactor) {
 	m_rigidBody->setLinearFactor(linearFactor);
 }
-
 
 void DynamicCharacterController::setMovementXZ(const Vector2f& movementVector) {
 	mCharacterMovementX = movementVector[0];

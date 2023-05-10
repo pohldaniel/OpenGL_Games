@@ -36,14 +36,16 @@ class DynamicCharacterController {
 		void setMovementXZ(const Vector2f& movementVector);
 		void setMovementXYZ(const btVector3& movementVector);
 
-		void setLinearVelocity(const btVector3& vel);
+		void setLinearVelocity(btVector3& vel);
 		const btVector3& getLinearVelocity();
+		const float getLinearVelocityY();
 
 		void setAngularFactor(const btVector3& angularFactor);
 		void setSleepingThresholds(float linear, float angular);
 		void setRollingFriction(float rollingFriction);
 		void setDamping(float linear, float angular);
 		void setLinearFactor(const btVector3& linearFactor);
+		void applyCentralImpulse(const btVector3& direction);
 
 		btRigidBody* getRigidBody() const { return m_rigidBody; }
 		btCollisionShape* getCollisionShape() const { return mShape; }
@@ -61,7 +63,7 @@ class DynamicCharacterController {
 		float mMaxClimbSlopeAngle;
 		float mDistanceOffset;
 		bool mIsStepping;
-		
+		bool m_canJump;
 
 		float mCharacterMovementX;
 		float mCharacterMovementZ;
@@ -73,5 +75,7 @@ class DynamicCharacterController {
 		int m_collisionFilterMask;
 
 		bool movingUpward = true;
+		unsigned short m_jumpTicks = 0;
+		unsigned short m_slopeTicks = 0;
 };
 #endif // _BASIS3STEPCHARACTERCONTROLLER_H_INCLUDED_

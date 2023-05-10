@@ -33,15 +33,15 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	playerTransform.setIdentity();
 	playerTransform.setOrigin(btVector3(btScalar(m_pos[0]), btScalar(m_pos[1]), btScalar(m_pos[2])));
 	btVector3 localInertiaChar(0, 0, 0);
-	playerShape->calculateLocalInertia(50.0f, localInertiaChar);
+	playerShape->calculateLocalInertia(100.0f, localInertiaChar);
 
 
 	btDefaultMotionState* playerMotionState = new btDefaultMotionState(playerTransform);
-	btRigidBody::btRigidBodyConstructionInfo cInfoChar(50.0f, playerMotionState, playerShape, localInertiaChar);
+	btRigidBody::btRigidBodyConstructionInfo cInfoChar(100.0f, playerMotionState, playerShape, localInertiaChar);
 
 	m_dynamicCharacterController = new DynamicCharacterController();
 	m_dynamicCharacterController->create(new btRigidBody(cInfoChar), Globals::physics->GetDynamicsWorld(), Physics::collisiontypes::COL_GHOST, Physics::collisiontypes::TERRAIN);
-	//m_dynamicCharacterController->setSlopeAngle(10.0f);
+	m_dynamicCharacterController->setSlopeAngle(60.0f);
 	//m_dynamicCharacterController->setDistanceOffset(0.1f);
 	//m_dynamicCharacterController->setStepHeight(0.0f);
 	m_dynamicCharacterController->setAngularFactor(btVector3(1.0f, 0.0f, 1.0f));
@@ -66,7 +66,7 @@ Game::~Game() {
 }
 
 void Game::fixedUpdate() {
-	//m_dynamicCharacterController->preStep();
+	m_dynamicCharacterController->preStep();
 	Globals::physics->stepSimulation(m_fdt);
 	m_dynamicCharacterController->postStep();
 }
@@ -88,12 +88,12 @@ void Game::update() {
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_A)) {
-		direction += Vector3f(-1.0f, 0.0f, 0.0f);
+		direction += Vector3f(-0.5f, 0.0f, 0.0f);
 		move |= true;
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_D)) {
-		direction += Vector3f(1.0f, 0.0f, 0.0f);
+		direction += Vector3f(0.5f, 0.0f, 0.0f);
 		move |= true;
 	}
 
@@ -111,11 +111,10 @@ void Game::update() {
 
 		//m_camera.move(direction * m_dt * 20.0f);
 		//direction = m_camera.getViewSpaceDirection(direction) * m_dt * PLAYER_SPEED;
+
 		direction = m_camera.getViewSpaceDirection(direction);
-		direction[1] = 0.0f;
-		//m_rigidBody->applyCentralForce(Physics::VectorFrom(direction * 50.0f));
-		//m_rigidBody->applyCentralImpulse(Physics::VectorFrom(direction));
-		m_dynamicCharacterController->setLinearVelocity(Physics::VectorFrom(direction * 3.0f));
+		direction[1] = m_dynamicCharacterController->getLinearVelocityY();
+		m_dynamicCharacterController->setLinearVelocity(Physics::VectorFrom(direction * Vector3f(15.0f, 1.0f, 15.0f)));
 
 		float factor = sqrt(1.0f / (direction[0] * direction[0] + direction[2] * direction[2]));
 
@@ -129,16 +128,9 @@ void Game::update() {
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_LALT)) {
-		/*if (Player.GetY() - RADIUS < Terrain.GetHeight(Player.GetX(), Player.GetZ()) + 0.01f) {
-			Player.SetVY(PLAYER_JUMP_SPEED);
-			//Sound.PlayBounce(1.0f);
-		}*/
-		m_dynamicCharacterController->jump(btVector3(0.0f, 1.0f, 0.0f), 10.0f);
+		m_dynamicCharacterController->jump(btVector3(0.0f, 1.0f, 0.0f), 20.0f);
 	}
-	btVector3 velocity = m_dynamicCharacterController->getLinearVelocity();
-
-	//std::cout << "VelY: " << velocity[1] << std::endl;
-
+	
 	float initial_z = Player.GetZ();
 	Physics(Player);
 
@@ -202,11 +194,10 @@ void Game::update() {
 				(initial_z - Portal.GetZ() >= 0.0f && Player.GetZ() - Portal.GetZ() <= 0.0f)) state = STATE_ENDGAME;
 		}
 	}
+
 	btTransform t;
 	m_dynamicCharacterController->getWorldTransform(t);
 	m_playerPos = Physics::VectorFrom(t.getOrigin());
-
-	//m_playerPos = Vector3f(Player.GetX(), Player.GetY(), Player.GetZ());
 	m_camera.setPosition(m_playerPos);
 
 	Mouse &mouse = Mouse::instance();
@@ -218,7 +209,6 @@ void Game::update() {
 
 	if (dx || dy) {
 		m_camera.rotateSmoothly(dx, dy, 0.0f, m_playerPos);
-		//m_camera.rotateSmoothly(dx, dy, 0.0f);
 	}
 
 	m_sphere.setPosition(m_playerPos);

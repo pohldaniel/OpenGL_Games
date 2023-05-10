@@ -287,8 +287,8 @@ void Application::initOpenGL(int msaaSamples) {
 
 	glCullFace(GL_BACK);
 	glFrontFace(GL_CCW);
-	//glEnable(GL_CULL_FACE);
-	glDisable(GL_CULL_FACE);
+	glEnable(GL_CULL_FACE);
+	//glDisable(GL_CULL_FACE);
 
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_ALPHA_TEST);

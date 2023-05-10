@@ -47,7 +47,7 @@ void Physics::initialize(){
 	m_constraintSolver = new btSequentialImpulseConstraintSolver();
 
 	m_dynamicsWorld = new btDiscreteDynamicsWorld(m_dispatcher, m_broadphase, m_constraintSolver, m_collisionConfiguration);
-	m_dynamicsWorld->setGravity(btVector3(0, -9.81f, 0));
+	m_dynamicsWorld->setGravity(btVector3(0, -9.81f * 3.0f, 0));
 }
 
 void Physics::deinitialize(){

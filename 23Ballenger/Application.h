@@ -9,7 +9,7 @@
 
 #include "StateMachine.h"
 
-#define SCALE	0.2f
+#define SCALE	1.0f
 
 class Application {
 
