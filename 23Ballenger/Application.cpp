@@ -287,11 +287,11 @@ void Application::initOpenGL(int msaaSamples) {
 
 	glCullFace(GL_BACK);
 	glFrontFace(GL_CCW);
-	glEnable(GL_CULL_FACE);
+	//glEnable(GL_CULL_FACE);
+	glDisable(GL_CULL_FACE);
 
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_ALPHA_TEST);
-	glEnable(GL_CULL_FACE);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
@@ -526,5 +526,5 @@ void Application::loadAssets() {
 	Globals::textureManager.get("player_nmp").setWrapMode(GL_REPEAT);
 	Globals::textureManager.get("player_nmp").setFilter(GL_LINEAR_MIPMAP_LINEAR);
 
-	Globals::shapeManager.buildSphere("sphere", 0.5f, Vector3f(0.0f, 0.0f, 0.0f), 16, 16, true, true, true);
+	Globals::shapeManager.buildSphere("sphere", 0.5f * SCALE, Vector3f(0.0f, 0.0f, 0.0f), 16, 16, true, true, true);
 }

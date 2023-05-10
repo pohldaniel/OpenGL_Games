@@ -15,7 +15,12 @@ const btVector3 ZERO_VECTOR(0.0f, 0.0f, 0.0f);
 class RayResultCallback : public btCollisionWorld::ClosestRayResultCallback{
 
 public:
-	RayResultCallback(btCollisionObject* self) : btCollisionWorld::ClosestRayResultCallback(ZERO_VECTOR, ZERO_VECTOR), mSelf(self){
+	//RayResultCallback(btCollisionObject* self) : btCollisionWorld::ClosestRayResultCallback(ZERO_VECTOR, ZERO_VECTOR), mSelf(self){
+	//}
+
+	RayResultCallback(btCollisionObject* self) : btCollisionWorld::ClosestRayResultCallback(ZERO_VECTOR, ZERO_VECTOR), mSelf(self) {
+		m_collisionFilterGroup = self->getBroadphaseHandle()->m_collisionFilterGroup;
+		m_collisionFilterMask = self->getBroadphaseHandle()->m_collisionFilterMask;
 	}
 
 	btScalar addSingleResult(btCollisionWorld::LocalRayResult& rayResult, bool normalInWorldSpace){
@@ -42,8 +47,7 @@ public:
 		if (normalInWorldSpace){
 
 			hitNormalWorld = convexResult.m_hitNormalLocal;
-		}
-		else{
+		} else{
 
 			hitNormalWorld = convexResult.m_hitCollisionObject->getWorldTransform().getBasis() * convexResult.m_hitNormalLocal;
 		}
@@ -66,7 +70,7 @@ private:
 
 DynamicCharacterController::DynamicCharacterController()
 	: mCollisionWorld(nullptr)
-	, mRigidBody(nullptr)
+	, m_rigidBody(nullptr)
 	, mShape(nullptr)
 	, mOnGround(false)
 	, mOnSteepSlope(false)
@@ -100,44 +104,47 @@ void DynamicCharacterController::create(btMotionState* motionState, btDynamicsWo
 	mShape->calculateLocalInertia(mass, inertia);
 
 	btRigidBody::btRigidBodyConstructionInfo ci(mass, motionState, mShape, inertia);
-	mRigidBody = new btRigidBody(ci);
+	m_rigidBody = new btRigidBody(ci);
 
-	mRigidBody->setActivationState(DISABLE_DEACTIVATION);
-	mRigidBody->setUserPointer(rigidBodyUserPointer);
+	m_rigidBody->setActivationState(DISABLE_DEACTIVATION);
+	m_rigidBody->setUserPointer(rigidBodyUserPointer);
 
-	mRigidBody->setAngularFactor(ZERO_VECTOR); // No rotation allowed. We only rotate the visuals.
-	mRigidBody->setSleepingThresholds(0.0, 0.0);
-	physicsWorld->addRigidBody(mRigidBody, collisionFilterGroup, collisionFilterMask);
+	m_rigidBody->setCollisionFlags(btCollisionObject::CF_DYNAMIC_OBJECT);
+	m_rigidBody->setAngularFactor(btVector3(0.0f, 0.0f, 0.0f));
+	m_rigidBody->setSleepingThresholds(0.0f, 0.0f);
+	m_rigidBody->setDamping(0.0f, 0.0f);
+	m_rigidBody->setRollingFriction(0.0f);
+
+	physicsWorld->addRigidBody(m_rigidBody, collisionFilterGroup, collisionFilterMask);
 
 
-	mCollisionFilterGroup = collisionFilterGroup;
-	mCollisionFilterMask = collisionFilterMask;
+	m_collisionFilterGroup = collisionFilterGroup;
+	m_collisionFilterMask = collisionFilterMask;
 }
 
 void DynamicCharacterController::create(btRigidBody* rigidBody, btDynamicsWorld* physicsWorld, int collisionFilterGroup, int collisionFilterMask, void* rigidBodyUserPointer) {
 	mCollisionWorld = physicsWorld;
 	mShape = rigidBody->getCollisionShape();
-	mRigidBody = rigidBody;
+	m_rigidBody = rigidBody;
 
-	mRigidBody->setActivationState(DISABLE_DEACTIVATION);
-	mRigidBody->setUserPointer(rigidBodyUserPointer);
+	m_rigidBody->setActivationState(DISABLE_DEACTIVATION);
+	m_rigidBody->setUserPointer(rigidBodyUserPointer);
 
-	//mRigidBody->setCollisionFlags(btCollisionObject::CF_CHARACTER_OBJECT);
-	mRigidBody->setCollisionFlags(btCollisionObject::CF_DYNAMIC_OBJECT);
-	//mRigidBody->setCollisionFlags(btCollisionObject::CF_KINEMATIC_OBJECT);
-	
+	m_rigidBody->setCollisionFlags(btCollisionObject::CF_DYNAMIC_OBJECT);
+	m_rigidBody->setAngularFactor(btVector3(0.0f, 0.0f, 0.0f));
+	m_rigidBody->setSleepingThresholds(0.0f, 0.0f);
+	m_rigidBody->setDamping(0.0f, 0.0f);
+	m_rigidBody->setRollingFriction(0.0f);
 
-	mRigidBody->setAngularFactor(ZERO_VECTOR); // No rotation allowed. We only rotate the visuals.
-	mRigidBody->setSleepingThresholds(0.0, 0.0);
-	physicsWorld->addRigidBody(mRigidBody, collisionFilterGroup, collisionFilterMask);
+	physicsWorld->addRigidBody(m_rigidBody, collisionFilterGroup, collisionFilterMask);
 
-	mCollisionFilterGroup = collisionFilterGroup;
-	mCollisionFilterMask = collisionFilterMask;
+	m_collisionFilterGroup = collisionFilterGroup;
+	m_collisionFilterMask = collisionFilterMask;
 }
 
 void DynamicCharacterController::destroy(){
-	delete mRigidBody;
-	mRigidBody = nullptr;
+	delete m_rigidBody;
+	m_rigidBody = nullptr;
 
 	delete mShape;
 	mShape = nullptr;
@@ -165,7 +172,7 @@ void DynamicCharacterController::preStep(){
 		btVector3 uAxis = mSlopeNormal.cross(UP_VECTOR).normalize();
 		btVector3 vAxis = uAxis.cross(mSlopeNormal);
 		btVector3 fixVel = vAxis / mSlopeNormal.dot(UP_VECTOR);
-		mRigidBody->setLinearVelocity(mRigidBody->getLinearVelocity() - fixVel);
+		m_rigidBody->setLinearVelocity(m_rigidBody->getLinearVelocity() - fixVel);
 	}
 
 	// Move character upwards. (Bump over stairs)
@@ -175,59 +182,57 @@ void DynamicCharacterController::preStep(){
 	
 	// Set the linear velocity based on the movement vector. Don't adjust the Y-component, instead let Bullet handle that.
 	if (mOnGround){		
-		btVector3 linVel = mRigidBody->getLinearVelocity();
+		btVector3 linVel = m_rigidBody->getLinearVelocity();
 		linVel.setX(mCharacterMovementX);
 		linVel.setZ(mCharacterMovementZ);
-		mRigidBody->setLinearVelocity(linVel);
+		m_rigidBody->setLinearVelocity(linVel);
 	}
 }
 
 // If defined, a ray test is used to detect objects below the character, otherwise a convex test.
-#define USE_RAY_TEST 
+#define USE_RAY_TEST
 
 void DynamicCharacterController::postStep() {
-	const float TEST_DISTANCE = 2.0;
-	const float TEST_DISTANCE_RAY = 7.0;
+	const float TEST_DISTANCE_RAY = 0.6f;
 
 #ifdef USE_RAY_TEST
-	btVector3 from = mRigidBody->getWorldTransform().getOrigin();
+	btVector3 from = m_rigidBody->getWorldTransform().getOrigin();
 	btVector3 to = from - btVector3(0, TEST_DISTANCE_RAY, 0);
 
 	// Detect ground collision and update the "on ground" status.
-	RayResultCallback callback(mRigidBody);
-	callback.m_collisionFilterGroup = mRigidBody->getBroadphaseHandle()->m_collisionFilterGroup;
-	callback.m_collisionFilterMask = mRigidBody->getBroadphaseHandle()->m_collisionFilterMask;
+	RayResultCallback callback(m_rigidBody);
 	mCollisionWorld->rayTest(from, to, callback);
 
 	// Check if there is something below the character.
 	if (callback.hasHit()){
-
+		std::cout << "Hit: " << std::endl;
 		btVector3 end = from + (to + btVector3(0.0, TEST_DISTANCE_RAY, 0.0) - from) * callback.m_closestHitFraction;
-		btVector3 normal = callback.m_hitNormalWorld;
+		/*btVector3 normal = callback.m_hitNormalWorld;
 
 		// Slope test.
 		btScalar slopeDot = normal.dot(UP_VECTOR);
 		mOnSteepSlope = (slopeDot < mMaxClimbSlopeAngle);
-		mSlopeNormal = normal;
+		mSlopeNormal = normal;*/
 		
 		// compute the distance to the floor
 		float distance = btDistance(end, from);
-		mOnGround = (distance < 1.0 && !mOnSteepSlope);		
+		mOnGround = (distance < 1.0);		
 		// Move down.
-		if (distance < mStepHeight) {
+		/*if (distance < mStepHeight) {
 			moveCharacterAlongY(-distance * 0.99999f);
 		}else{
 			moveCharacterAlongY(-mStepHeight * 0.9999f);
-		}
+		}*/
 
 	}else{
 		// In the air.
-		mOnGround = false;
-		moveCharacterAlongY(-mStepHeight);
+		/*mOnGround = false;
+		moveCharacterAlongY(-mStepHeight);*/
 	}
 #else
+	const float TEST_DISTANCE = 2.0;
 	btTransform tsFrom, tsTo;
-	btVector3 from = mRigidBody->getWorldTransform().getOrigin();
+	btVector3 from = m_rigidBody->getWorldTransform().getOrigin();
 	btVector3 to = from - btVector3(0, TEST_DISTANCE, 0);
 
 	tsFrom.setIdentity();
@@ -236,9 +241,9 @@ void DynamicCharacterController::postStep() {
 	tsTo.setIdentity();
 	tsTo.setOrigin(to);
 
-	ConvexResultCallback callback(mRigidBody, UP_VECTOR, 0.01f);
-	callback.m_collisionFilterGroup = mRigidBody->getBroadphaseHandle()->m_collisionFilterGroup;
-	callback.m_collisionFilterMask = mRigidBody->getBroadphaseHandle()->m_collisionFilterMask;
+	ConvexResultCallback callback(m_rigidBody, UP_VECTOR, 0.01f);
+	callback.m_collisionFilterGroup = m_rigidBody->getBroadphaseHandle()->m_collisionFilterGroup;
+	callback.m_collisionFilterMask = m_rigidBody->getBroadphaseHandle()->m_collisionFilterMask;
 	mCollisionWorld->convexSweepTest((btConvexShape*)mShape, tsFrom, tsTo, callback, mCollisionWorld->getDispatchInfo().m_allowedCcdPenetration);
 	
 	if (callback.hasHit()){
@@ -285,37 +290,61 @@ bool DynamicCharacterController::onGround() const{
 void DynamicCharacterController::jump(const btVector3& direction, float force){
 	
 	if (mOnGround){		
-	
 		mOnGround = false;
-		mRigidBody->applyCentralImpulse(direction * force);
+		m_rigidBody->applyCentralImpulse(direction * force);
 	}
 }
 
-void DynamicCharacterController::setMovementXZ(const Vector2f& movementVector){
+void DynamicCharacterController::setLinearVelocity(const btVector3& vel){	
+	m_rigidBody->setLinearVelocity(vel);
+}
+
+const btVector3& DynamicCharacterController::getLinearVelocity(){
+	return m_rigidBody->getLinearVelocity();
+}
+
+void DynamicCharacterController::moveCharacterAlongY(float step){
+	btVector3 pos = m_rigidBody->getWorldTransform().getOrigin();
+	m_rigidBody->getWorldTransform().setOrigin(pos + btVector3(0, step, 0));
+}
+
+void DynamicCharacterController::setStepHeight(float value) {
+	mStepHeight = value;
+}
+
+void DynamicCharacterController::setAngularFactor(const btVector3& angularFactor) {
+	m_rigidBody->setAngularFactor(angularFactor);
+}
+
+void DynamicCharacterController::setSleepingThresholds(float linear, float angular) {
+	m_rigidBody->setSleepingThresholds(linear, angular);
+}
+
+void DynamicCharacterController::setRollingFriction(float rollingFriction) {
+	m_rigidBody->setRollingFriction(rollingFriction);
+}
+
+void DynamicCharacterController::setDamping(float linear, float angular) {
+	m_rigidBody->setDamping(linear, angular);
+}
+
+void DynamicCharacterController::getWorldTransform(btTransform& transform) {
+	m_rigidBody->getMotionState()->getWorldTransform(transform);
+}
+
+void DynamicCharacterController::setLinearFactor(const btVector3& linearFactor) {
+	m_rigidBody->setLinearFactor(linearFactor);
+}
+
+
+void DynamicCharacterController::setMovementXZ(const Vector2f& movementVector) {
 	mCharacterMovementX = movementVector[0];
 	mCharacterMovementZ = movementVector[1];
 	//mCharacterMovementY = 0;
 }
 
-void  DynamicCharacterController::setMovementXYZ(const btVector3& movementVector){
+void  DynamicCharacterController::setMovementXYZ(const btVector3& movementVector) {
 	mCharacterMovementX = movementVector[0];
 	mCharacterMovementY = movementVector[1];
 	mCharacterMovementZ = movementVector[2];
-}
-
-void DynamicCharacterController::setLinearVelocity(const btVector3& vel){	
-	mRigidBody->setLinearVelocity(vel);
-}
-
-const btVector3& DynamicCharacterController::getLinearVelocity(){
-	return mRigidBody->getLinearVelocity();
-}
-
-void DynamicCharacterController::moveCharacterAlongY(float step){
-	btVector3 pos = mRigidBody->getWorldTransform().getOrigin();
-	mRigidBody->getWorldTransform().setOrigin(pos + btVector3(0, step, 0));
-}
-
-void DynamicCharacterController::setStepHeight(float value) {
-	mStepHeight = value;
 }

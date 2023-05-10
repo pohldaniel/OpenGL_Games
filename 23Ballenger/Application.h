@@ -9,6 +9,8 @@
 
 #include "StateMachine.h"
 
+#define SCALE	0.2f
+
 class Application {
 
 public:

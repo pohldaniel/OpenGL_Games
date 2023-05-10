@@ -14,11 +14,11 @@ void* btFilteredVehicleRaycaster::castRay(const btVector3& from, const btVector3
 
 	m_dynamicsWorld->rayTest(from, to, rayCallback);
 
-	if (rayCallback.hasHit())
-	{
+	if (rayCallback.hasHit()) {
+
 		const btRigidBody* body = btRigidBody::upcast(rayCallback.m_collisionObject);
-		if (body && body->hasContactResponse())
-		{
+		if (body && body->hasContactResponse()){
+
 			result.m_hitPointInWorld = rayCallback.m_hitPointWorld;
 			result.m_hitNormalInWorld = rayCallback.m_hitNormalWorld;
 			result.m_hitNormalInWorld.normalize();
@@ -42,12 +42,12 @@ void Physics::initialize(){
 	m_collisionConfiguration = new btDefaultCollisionConfiguration();
 	m_dispatcher = new btCollisionDispatcher(m_collisionConfiguration);
 	///btAxis3Sweep is a good general purpose broadphase
-	//m_overlappingPairCache = new btAxisSweep3(btVector3(-1000, -1000, -1000), btVector3(1000, 1000, 1000));
+	//m_broadphase = new btAxisSweep3(btVector3(-1000, -1000, -1000), btVector3(1000, 1000, 1000));
 	m_broadphase = new btDbvtBroadphase();
 	m_constraintSolver = new btSequentialImpulseConstraintSolver();
 
 	m_dynamicsWorld = new btDiscreteDynamicsWorld(m_dispatcher, m_broadphase, m_constraintSolver, m_collisionConfiguration);
-	m_dynamicsWorld->setGravity(btVector3(0, -98.1f, 0));
+	m_dynamicsWorld->setGravity(btVector3(0, -9.81f, 0));
 }
 
 void Physics::deinitialize(){
@@ -71,6 +71,7 @@ void Physics::deinitialize(){
 
 void Physics::stepSimulation(btScalar timeStep){
 	int numSimSteps = m_dynamicsWorld->stepSimulation(timeStep, 1, m_physicsStep);
+	//int numSimSteps = m_dynamicsWorld->stepSimulation(timeStep, 4 + 1, m_physicsStep / 4); // timeStep < maxSubSteps * fixedTimeSte
 }
 
 btRigidBody * Physics::createRigidBody(btScalar mass, const btTransform & startTransform, btCollisionShape * shape) {

@@ -39,14 +39,20 @@ class DynamicCharacterController {
 		void setLinearVelocity(const btVector3& vel);
 		const btVector3& getLinearVelocity();
 
-		btRigidBody* getRigidBody() const { return mRigidBody; }
-		btCollisionShape* getCollisionShape() const { return mShape; }
+		void setAngularFactor(const btVector3& angularFactor);
+		void setSleepingThresholds(float linear, float angular);
+		void setRollingFriction(float rollingFriction);
+		void setDamping(float linear, float angular);
+		void setLinearFactor(const btVector3& linearFactor);
 
+		btRigidBody* getRigidBody() const { return m_rigidBody; }
+		btCollisionShape* getCollisionShape() const { return mShape; }
+		void getWorldTransform(btTransform& transform);
 
 		void moveCharacterAlongY(float step);
 
 		btCollisionWorld* mCollisionWorld;
-		btRigidBody* mRigidBody;
+		btRigidBody* m_rigidBody;
 		btCollisionShape* mShape;
 		bool mOnGround;
 		bool mOnSteepSlope;
@@ -63,8 +69,8 @@ class DynamicCharacterController {
 		float mCharacterMovementY;
 
 
-		int mCollisionFilterGroup;
-		int mCollisionFilterMask;
+		int m_collisionFilterGroup;
+		int m_collisionFilterMask;
 
 		bool movingUpward = true;
 };

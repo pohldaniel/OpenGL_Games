@@ -14,35 +14,42 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 
 	Init(1);
 
-	m_pos = Vector3f(TERRAIN_SIZE / 2, Terrain.GetHeight(TERRAIN_SIZE / 2, TERRAIN_SIZE / 2) + RADIUS, TERRAIN_SIZE / 2);
+	m_pos = Vector3f((TERRAIN_SIZE * SCALE) / 2, (Terrain.GetHeight((TERRAIN_SIZE * SCALE) / 2, (TERRAIN_SIZE * SCALE) / 2) + RADIUS) * SCALE, (TERRAIN_SIZE * SCALE) / 2);
 	
 	m_camera = Camera();
 	m_camera.setOffsetDistance(m_offsetDistance);
-	m_camera.perspective(45.0, (float)Application::Width / (float)Application::Height, 1.0f, 1000.0f);
+	m_camera.perspective(45.0, (float)Application::Width / (float)Application::Height, 0.1f, 1000.0f);
 	m_camera.lookAt(m_pos, m_pos + Vector3f(0.0f, 0.0f, 1.0f), Vector3f(0.0f, 1.0f, 0.0f));
 
-	std::vector<btCollisionShape*> terrainShape = Physics::CreateStaticCollisionShapes(&Terrain, 1.0f);
-	btRigidBody* body = Globals::physics->addStaticModel(terrainShape, Physics::BtTransform(), false, btVector3(1, 1, 1), Physics::collisiontypes::TERRAIN, Physics::collisiontypes::COL_GHOST);
+	std::vector<btCollisionShape*> terrainShape = Physics::CreateStaticCollisionShapes(&Terrain, SCALE);
+	//btRigidBody* body = Globals::physics->addStaticModel(terrainShape, Physics::BtTransform(), false, btVector3(1.0f, 1.0f, 1.0f), Physics::collisiontypes::TERRAIN, Physics::collisiontypes::COL_GHOST);
+	btRigidBody* body = Globals::physics->addStaticModel(terrainShape, Physics::BtTransform(), false, btVector3(1.0f, 1.0f, 1.0f), Physics::collisiontypes::TERRAIN, Physics::collisiontypes::COL_GHOST);
+
+
 
 	//create dynamic character
-	btSphereShape* playerShape = new btSphereShape(0.5f);
+	btSphereShape* playerShape = new btSphereShape(0.5f * SCALE);
 	btTransform playerTransform;
 	playerTransform.setIdentity();
 	playerTransform.setOrigin(btVector3(btScalar(m_pos[0]), btScalar(m_pos[1]), btScalar(m_pos[2])));
 	btVector3 localInertiaChar(0, 0, 0);
-	playerShape->calculateLocalInertia(10.0f, localInertiaChar);
+	playerShape->calculateLocalInertia(50.0f, localInertiaChar);
 
 
 	btDefaultMotionState* playerMotionState = new btDefaultMotionState(playerTransform);
-	btRigidBody::btRigidBodyConstructionInfo cInfoChar(10.0f, playerMotionState, playerShape, localInertiaChar);
+	btRigidBody::btRigidBodyConstructionInfo cInfoChar(50.0f, playerMotionState, playerShape, localInertiaChar);
 
-	/*m_dynamicCharacterController = new DynamicCharacterController();
+	m_dynamicCharacterController = new DynamicCharacterController();
 	m_dynamicCharacterController->create(new btRigidBody(cInfoChar), Globals::physics->GetDynamicsWorld(), Physics::collisiontypes::COL_GHOST, Physics::collisiontypes::TERRAIN);
-	m_dynamicCharacterController->setSlopeAngle(10.0f);
-	m_dynamicCharacterController->setDistanceOffset(0.1f);
-	m_dynamicCharacterController->setStepHeight(0.0f);*/
-
-	m_rigidBody = new btRigidBody(cInfoChar);
+	//m_dynamicCharacterController->setSlopeAngle(10.0f);
+	//m_dynamicCharacterController->setDistanceOffset(0.1f);
+	//m_dynamicCharacterController->setStepHeight(0.0f);
+	m_dynamicCharacterController->setAngularFactor(btVector3(1.0f, 0.0f, 1.0f));
+	m_dynamicCharacterController->setSleepingThresholds(0.0f, 0.0f);
+	m_dynamicCharacterController->setRollingFriction(1.0f);
+	m_dynamicCharacterController->setDamping(0.0f, 0.7f);
+	m_dynamicCharacterController->setLinearFactor(btVector3(1.0f, 1.0f, 1.0f));
+	/*m_rigidBody = new btRigidBody(cInfoChar);
 	m_rigidBody->setActivationState(DISABLE_DEACTIVATION);
 	m_rigidBody->setCollisionFlags(btCollisionObject::CF_DYNAMIC_OBJECT);
 	m_rigidBody->setAngularFactor(btVector3(1.0f, 0.0f, 1.0f));
@@ -50,7 +57,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	m_rigidBody->setRollingFriction(1.0f);
 	m_rigidBody->setDamping(0.0f, 0.7f);
 
-	Globals::physics->GetDynamicsWorld()->addRigidBody(m_rigidBody, Physics::collisiontypes::COL_GHOST, Physics::collisiontypes::TERRAIN);
+	Globals::physics->GetDynamicsWorld()->addRigidBody(m_rigidBody, Physics::collisiontypes::COL_GHOST, Physics::collisiontypes::TERRAIN);*/
 }
 
 Game::~Game() {
@@ -61,7 +68,7 @@ Game::~Game() {
 void Game::fixedUpdate() {
 	//m_dynamicCharacterController->preStep();
 	Globals::physics->stepSimulation(m_fdt);
-	//m_dynamicCharacterController->postStep();
+	m_dynamicCharacterController->postStep();
 }
 
 void Game::update() {
@@ -108,7 +115,7 @@ void Game::update() {
 		direction[1] = 0.0f;
 		//m_rigidBody->applyCentralForce(Physics::VectorFrom(direction * 50.0f));
 		//m_rigidBody->applyCentralImpulse(Physics::VectorFrom(direction));
-		m_rigidBody->setLinearVelocity(Physics::VectorFrom(direction * 15.0f));
+		m_dynamicCharacterController->setLinearVelocity(Physics::VectorFrom(direction * 3.0f));
 
 		float factor = sqrt(1.0f / (direction[0] * direction[0] + direction[2] * direction[2]));
 
@@ -122,11 +129,15 @@ void Game::update() {
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_LALT)) {
-		if (Player.GetY() - RADIUS < Terrain.GetHeight(Player.GetX(), Player.GetZ()) + 0.01f) {
+		/*if (Player.GetY() - RADIUS < Terrain.GetHeight(Player.GetX(), Player.GetZ()) + 0.01f) {
 			Player.SetVY(PLAYER_JUMP_SPEED);
 			//Sound.PlayBounce(1.0f);
-		}
+		}*/
+		m_dynamicCharacterController->jump(btVector3(0.0f, 1.0f, 0.0f), 10.0f);
 	}
+	btVector3 velocity = m_dynamicCharacterController->getLinearVelocity();
+
+	//std::cout << "VelY: " << velocity[1] << std::endl;
 
 	float initial_z = Player.GetZ();
 	Physics(Player);
@@ -192,7 +203,7 @@ void Game::update() {
 		}
 	}
 	btTransform t;
-	m_rigidBody->getMotionState()->getWorldTransform(t);
+	m_dynamicCharacterController->getWorldTransform(t);
 	m_playerPos = Physics::VectorFrom(t.getOrigin());
 
 	//m_playerPos = Vector3f(Player.GetX(), Player.GetY(), Player.GetZ());
@@ -247,7 +258,7 @@ void Game::render() {
 	shader->use();
 	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
 	shader->loadMatrix("u_view", m_camera.getViewMatrix());
-	shader->loadMatrix("u_model", Matrix4f::IDENTITY);
+	shader->loadMatrix("u_model", Matrix4f::Scale(SCALE, SCALE, SCALE));
 	shader->loadMatrix("u_normal", Matrix4f::GetNormalMatrix(m_camera.getViewMatrix()));
 	
 	shader->loadVector("lightPos", Vector3f(50.0f, 50.0f, 50.0f));
@@ -407,11 +418,7 @@ bool Game::Init(int lvl) {
 
 	glEnable(GL_LIGHTING);
 	glEnable(GL_LIGHT0);
-	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_ALPHA_TEST);
-	glEnable(GL_CULL_FACE);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
+	
 	//Texture initialization
 	Data.Load();
 
