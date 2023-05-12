@@ -29,6 +29,7 @@ class DynamicCharacterController {
 	btCollisionShape* getCollisionShape() const;
 
 	void setLinearVelocity(const btVector3& vel);
+	void setAngularVelocity(const btVector3& angVel);
 	void setLinearVelocityXZ(const btVector3& vel);
 	void setAngularFactor(const btVector3& angularFactor);
 	void setSleepingThresholds(float linear, float angular);

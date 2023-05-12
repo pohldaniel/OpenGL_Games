@@ -1,8 +1,7 @@
 #include <cmath>
 #include <iostream>
-#include <limits>
 
-#include "camera.h"
+#include "Camera.h"
 
 Camera::Camera(){
 	
@@ -10,14 +9,7 @@ Camera::Camera(){
 	WORLD_YAXIS = Vector3f(0.0f, 1.0f, 0.0f);
 	WORLD_ZAXIS = Vector3f(0.0f, 0.0f, 1.0f);
 
-	m_fovx = 45.0f;
-	m_znear = 0.1f;
-	m_zfar = 1000.0f;
-    m_aspectRatio = 0.0f;
 	m_accumPitchDegrees = 0.0f;
-	m_acceleration.set(0.0f, 0.0f, 0.0f);
-	m_currentVelocity.set(0.0f, 0.0f, 0.0f);
-	m_velocity.set(0.0f, 0.0f, 0.0f);
 	m_rotationSpeed = 0.1f;
 	m_movingSpeed = 1.0f;
 	m_offsetDistance = 0.0f;
@@ -32,24 +24,15 @@ Camera::Camera(){
 	m_orthMatrix.identity();
 	
 	updateViewMatrix(m_eye - m_offsetDistance * m_viewDir);
-
-	m_pitch = 0.0f;
-	m_yaw = HALF_PI;
 }
 
 Camera::Camera(const Vector3f &eye, const Vector3f &target, const Vector3f &up) {
+
 	WORLD_XAXIS = Vector3f(1.0f, 0.0f, 0.0f);
 	WORLD_YAXIS = Vector3f(0.0f, 1.0f, 0.0f);
 	WORLD_ZAXIS = Vector3f(0.0f, 0.0f, 1.0f);
 
-	m_fovx = 45.0f;
-	m_znear = 0.1f;
-	m_zfar = 1000.0f;
-	m_aspectRatio = 0.0f;
 	m_accumPitchDegrees = 0.0f;
-	m_acceleration.set(0.0f, 0.0f, 0.0f);
-	m_currentVelocity.set(0.0f, 0.0f, 0.0f);
-	m_velocity.set(0.0f, 0.0f, 0.0f);
 	m_rotationSpeed = 0.1f;
 	m_movingSpeed = 1.0f;
 	m_offsetDistance = 0.0f;
@@ -145,12 +128,7 @@ void Camera::perspective(float fovx, float aspect, float znear, float zfar){
 	m_persMatrix[3][0] = 0.0f;
 	m_persMatrix[3][1] = 0.0f;
 	m_persMatrix[3][2] = (2.0f * zfar * znear) / (znear - zfar);
-	m_persMatrix[3][3] = 0.0f;
-
-	m_fovx = fovx;
-	m_aspectRatio = aspect;
-	m_znear = znear;
-	m_zfar = zfar;	
+	m_persMatrix[3][3] = 0.0f;	
 }
 
 void Camera::orthographic(float left, float right, float bottom, float top, float znear, float zfar){
@@ -174,9 +152,6 @@ void Camera::orthographic(float left, float right, float bottom, float top, floa
 	m_orthMatrix[3][1] = (top + bottom) / (bottom - top);
 	m_orthMatrix[3][2] = (zfar + znear) / (znear - zfar);
 	m_orthMatrix[3][3] = 1.0f;
-
-	m_znear = znear;
-	m_zfar = zfar;
 }
 
 void Camera::lookAt(const Vector3f &eye, const Vector3f &target, const Vector3f &up){
@@ -245,46 +220,6 @@ void Camera::pitchReflection(const float distance) {
 	m_viewMatrix[3][1] = 2 * distance + m_viewMatrix[3][1];
 }
 
-const float Camera::getPitchAngle() const {
-	return -asinf(m_viewMatrix[2][1]) * _180_ON_PI;
-}
-
-const float Camera::getYawAngle() const {
-
-	/*if (m_viewMatrix[2][1] < 1.0f) {
-
-		if (m_viewMatrix[2][1] > - 1.0f) {
-			return atan2f(-m_viewMatrix[0][2], m_viewMatrix[2][2])* _180_ON_PI;
-			
-		} else {
-			return 0.0f;
-			
-		}
-
-	}else {
-
-		return 0.0f;
-	}*/
-	return atan2f(-m_viewMatrix[0][2], m_viewMatrix[2][2])* _180_ON_PI;
-}
-
-const float Camera::getRollAngle() const {
-
-	if (m_viewMatrix[2][1] < 1.0f) {
-
-		if (m_viewMatrix[2][1] > -1.0f) {
-			return  atan2f(m_viewMatrix[2][0], m_viewMatrix[0][0]) * _180_ON_PI;
-
-		} else {
-			return -atan2f(m_viewMatrix[2][0], m_viewMatrix[0][0]) * _180_ON_PI;
-
-		}
-	}else {
-
-		return atan2f(m_viewMatrix[2][0], m_viewMatrix[0][0]) * _180_ON_PI;
-	}
-}
-
 void Camera::move(float dx, float dy, float dz){
 	Vector3f eye = m_eye;
 	eye += m_xAxis * dx * m_movingSpeed;
@@ -333,95 +268,6 @@ void Camera::moveZ(float dz) {
 	m_eye[2] = (dz * m_movingSpeed) + m_eye[2];
 	m_viewMatrix[3][2] = -(m_zAxis[0] * m_eye[0] + m_zAxis[1] * m_eye[1] + m_zAxis[2] * (m_eye[2] - m_viewDir[2] * m_offsetDistance));
 	m_invViewMatrix[3][2] = m_eye[2] - m_viewDir[2] * m_offsetDistance;
-}
-
-void Camera::updatePosition(const Vector3f &direction, float m_dt) {
-
-	if (m_currentVelocity.lengthSq() != 0.0f) {
-		Vector3f displacement = (m_currentVelocity * m_dt) + (0.5f * m_acceleration * m_dt * m_dt);
-		if (direction[0] == 0.0f && Math::CloseEnough(m_currentVelocity[0], 0.0f))
-			displacement[0] = 0.0f;
-
-		if (direction[1] == 0.0f && Math::CloseEnough(m_currentVelocity[1], 0.0f))
-			displacement[1] = 0.0f;
-
-		if (direction[2] == 0.0f && Math::CloseEnough(m_currentVelocity[2], 0.0f))
-			displacement[2] = 0.0f;
-
-		move(displacement[0], displacement[1], displacement[2]);
-	}
-
-	if (direction[0] != 0.0f){
-		// Camera is moving along the x axis.
-		// Linearly accelerate up to the camera's max speed.
-
-		m_currentVelocity[0] += direction[0] * m_acceleration[0] * m_dt;
-
-		if (m_currentVelocity[0] > m_velocity[0])
-			m_currentVelocity[0] = m_velocity[0];
-		else if (m_currentVelocity[0] < -m_velocity[0])
-			m_currentVelocity[0] = -m_velocity[0];
-	}else{
-		// Camera is no longer moving along the x axis.
-		// Linearly decelerate back to stationary state.
-
-		if (m_currentVelocity[0] > 0.0f){
-			if ((m_currentVelocity[0] -= m_acceleration[0] * m_dt) < 0.0f)
-				m_currentVelocity[0] = 0.0f;
-
-		}else{
-
-			if ((m_currentVelocity[0] += m_acceleration[0] * m_dt) > 0.0f)
-				m_currentVelocity[0] = 0.0f;
-		}
-	}
-
-	if (direction[1] != 0.0f){
-		// Camera is moving along the y axis.
-		// Linearly accelerate up to the camera's max speed.
-		m_currentVelocity[1] += direction[1] * m_acceleration[1] * m_dt;
-
-		if (m_currentVelocity[1] > m_velocity[1])
-			m_currentVelocity[1] = m_velocity[1];
-		else if (m_currentVelocity[1] < -m_velocity[1])
-			m_currentVelocity[1] = -m_velocity[1];
-	}else{
-		// Camera is no longer moving along the y axis.
-		// Linearly decelerate back to stationary state.
-
-		if (m_currentVelocity[1] > 0.0f){
-			if ((m_currentVelocity[1] -= m_acceleration[1] * m_dt) < 0.0f)
-				m_currentVelocity[1] = 0.0f;
-
-		}else{
-			if ((m_currentVelocity[1] += m_acceleration[1] * m_dt) > 0.0f)
-				m_currentVelocity[1] = 0.0f;
-		}
-	}
-
-	if (direction[2] != 0.0f){
-		// Camera is moving along the z axis.
-		// Linearly accelerate up to the camera's max speed.
-
-		m_currentVelocity[2] += direction[2] * m_acceleration[2] * m_dt;
-
-		if (m_currentVelocity[2] > m_velocity[2])
-			m_currentVelocity[2] = m_velocity[2];
-		else if (m_currentVelocity[2] < -m_velocity[2])
-			m_currentVelocity[2] = -m_velocity[2];
-	}else{
-		// Camera is no longer moving along the z axis.
-		// Linearly decelerate back to stationary state.
-
-		if (m_currentVelocity[2] > 0.0f){
-			if ((m_currentVelocity[2] -= m_acceleration[2] * m_dt) < 0.0f)
-				m_currentVelocity[2] = 0.0f;
-
-		}else{
-			if ((m_currentVelocity[2] += m_acceleration[2] * m_dt) > 0.0f)
-				m_currentVelocity[2] = 0.0f;
-		}
-	}
 }
 
 void Camera::rotate(float yaw, float pitch, float roll){
@@ -474,8 +320,6 @@ void Camera::rotate(float yaw, float pitch, float roll, const Vector3f &centerOf
 }
 
 void Camera::rotateSmoothly(float yaw, float pitch, float roll, const Vector3f &centerOfRotation) {	
-	
-	//rotateFirstPersonYP(yaw * m_rotationSpeed, pitch * m_rotationSpeed, centerOfRotation);
 	rotateFirstPerson(yaw * m_rotationSpeed, pitch * m_rotationSpeed, centerOfRotation);
 	orthogonalize();
 	updateViewMatrix(centerOfRotation - m_offsetDistance * m_viewDir);
@@ -509,31 +353,6 @@ void Camera::rotateFirstPerson(float yaw, float pitch, const Vector3f &centerOfR
 		m_yAxis = rotMtx * m_yAxis;
 		m_zAxis = rotMtx * m_zAxis;
 	}
-}
-
-void Camera::rotateFirstPersonYP(float yaw, float pitch, const Vector3f &centerOfRotation) {
-	
-	
-	const float limit = 89.0 * PI / 180.0;
-
-	m_pitch -= pitch * PI_ON_180;
-
-	if (m_pitch < -limit)
-		m_pitch = -limit;
-
-	if (m_pitch > limit)
-		m_pitch = limit;
-
-
-	m_yaw += yaw * PI_ON_180;
-
-	vx = cos(m_yaw) * cos(m_pitch);
-	vy = sin(m_pitch);
-	vz = sin(m_yaw) * cos(m_pitch);
-	
-	Vector3f viewDirection = Vector3f(vx, vy, vz);
-
-	lookAt(m_eye, m_eye + viewDirection, Vector3f(0.0f, 1.0f, 0.0f));
 }
 
 const float Camera::getFar() const {
@@ -627,9 +446,9 @@ void Camera::calcLightTransformation(Vector3f &direction) {
 	float far = getFar();
 
 	float heightNear = 2 * tanf(0.5 * getFovXRad()) * near;
-	float widthNear = heightNear * m_aspectRatio;	
+	float widthNear = heightNear * getAspect();
 	float heightFar = 2 * tanf(0.5 * getFovXRad()) * far;
-	float widthFar = heightFar  * m_aspectRatio;
+	float widthFar = heightFar  * getAspect();
 
 
 	//worldSpace
@@ -720,9 +539,9 @@ void Camera::calcLightTransformation(Vector3f &direction) {
 
 void Camera::calcLightTransformation(Vector3f &direction, float near, float far, Matrix4f& viewMatrix, Matrix4f& projectionMatrix) {
 	float heightNear = 2 * tanf(0.5 * getFovXRad()) * near;
-	float widthNear = heightNear * m_aspectRatio;
+	float widthNear = heightNear * getAspect();
 	float heightFar = 2 * tanf(0.5 * getFovXRad()) * far;
-	float widthFar = heightFar  * m_aspectRatio;
+	float widthFar = heightFar  * getAspect();
 
 	//worldSpace
 	Vector3f centerNear = (m_eye - m_viewDir * m_offsetDistance) + m_viewDir * near;
@@ -872,14 +691,6 @@ void Camera::setPositionZ(float z) {
 	m_invViewMatrix[3][2] = m_eye[2] - m_offsetDistance * m_viewDir[2];
 }
 
-void Camera::setAcceleration(const Vector3f &acceleration) {
-	m_acceleration = acceleration;
-}
-
-void Camera::setVelocity(const Vector3f &velocity){
-	m_velocity = velocity;
-}
-
 void Camera::setRotationSpeed(float rotationSpeed){
 	m_rotationSpeed = rotationSpeed;
 }
@@ -889,22 +700,19 @@ void Camera::setMovingSpeed(float movingSpeed) {
 }
 
 const Vector3f &Camera::getPosition() const{
-	return m_eye;
+	return m_eye - m_offsetDistance * m_viewDir;
 }
 
 const float Camera::getPositionX() const {
-	//return -((m_viewMatrix[3][0] * m_viewMatrix[0][0]) - (m_viewMatrix[3][1] * m_viewMatrix[0][1]) - (m_viewMatrix[3][2] * m_viewMatrix[0][2]));
-	return m_eye[0];
+	return m_eye[0] - m_offsetDistance * m_viewDir[0];
 }
 
 const float Camera::getPositionY() const {
-	//return -((m_viewMatrix[3][0] * m_viewMatrix[1][0]) + (m_viewMatrix[3][1] * m_viewMatrix[1][1]) + (m_viewMatrix[3][2] * m_viewMatrix[1][2]));
-	return m_eye[1];
+	return m_eye[1] - m_offsetDistance * m_viewDir[1];
 }
 
 const float Camera::getPositionZ() const {
-	//return -((m_viewMatrix[3][0] * m_viewMatrix[2][0]) - (m_viewMatrix[3][1] * m_viewMatrix[2][1]) - (m_viewMatrix[3][2] * m_viewMatrix[2][2]));
-	return m_eye[2];
+	return m_eye[2] - m_offsetDistance * m_viewDir[2];
 }
 
 const Vector3f &Camera::getCamX() const{

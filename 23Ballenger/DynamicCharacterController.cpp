@@ -58,7 +58,7 @@ DynamicCharacterController::DynamicCharacterController()
 }
 
 DynamicCharacterController::~DynamicCharacterController(){
-	
+	destroy();
 }
 
 void DynamicCharacterController::create(btRigidBody* rigidBody, btDynamicsWorld* physicsWorld, int collisionFilterGroup, int collisionFilterMask, void* rigidBodyUserPointer) {
@@ -148,10 +148,10 @@ void DynamicCharacterController::postStep() {
 		float distance = btDistance(end, from);
 		m_onGround = distance < m_onGroundDistanceOffset && slopeDot > 0.97f;
 
+		m_falling = distance > TEST_DISTANCE;
+
 		if (m_onGround)
 			moveCharacterAlongY(std::fabs(distance - 0.5f));
-
-		m_falling = distance > TEST_DISTANCE;
 
 	}else{
 		m_onGround = false;
@@ -224,6 +224,10 @@ void DynamicCharacterController::applyCentralImpulse(const btVector3& direction)
 
 void DynamicCharacterController::setLinearVelocity(const btVector3& vel){
 	m_rigidBody->setLinearVelocity(vel);
+}
+
+void DynamicCharacterController::setAngularVelocity(const btVector3& angVel) {
+	m_rigidBody->setAngularVelocity(angVel);
 }
 
 void DynamicCharacterController::setLinearVelocityXZ(const btVector3& vel) {

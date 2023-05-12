@@ -22,10 +22,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	m_camera.lookAt(m_pos, m_pos + Vector3f(0.0f, 0.0f, 1.0f), Vector3f(0.0f, 1.0f, 0.0f));
 
 	std::vector<btCollisionShape*> terrainShape = Physics::CreateStaticCollisionShapes(&Terrain, SCALE);
-	//btRigidBody* body = Globals::physics->addStaticModel(terrainShape, Physics::BtTransform(), false, btVector3(1.0f, 1.0f, 1.0f), Physics::collisiontypes::TERRAIN, Physics::collisiontypes::COL_GHOST);
 	btRigidBody* body = Globals::physics->addStaticModel(terrainShape, Physics::BtTransform(), false, btVector3(1.0f, 1.0f, 1.0f), Physics::collisiontypes::TERRAIN, Physics::collisiontypes::COL_GHOST);
-
-
 
 	//create dynamic character
 	btSphereShape* playerShape = new btSphereShape(0.5f * SCALE);
@@ -68,6 +65,8 @@ void Game::fixedUpdate() {
 void Game::update() {
 	
 	Keyboard &keyboard = Keyboard::instance();
+	Mouse &mouse = Mouse::instance();
+
 	Vector3f direction = Vector3f();
 	bool move = false;
 
@@ -101,23 +100,12 @@ void Game::update() {
 		move |= true;
 	}
 
-	if (move) {
-
-		//m_camera.move(direction * m_dt * 20.0f);
-		//direction = m_camera.getViewSpaceDirection(direction) * m_dt * PLAYER_SPEED;
-
+	if (mouse.buttonDown(Mouse::BUTTON_RIGHT)) {
+		m_dynamicCharacterController->setLinearVelocityXZ(btVector3(0.0f, 0.0f, 0.0f));
+		m_dynamicCharacterController->setAngularVelocity(btVector3(0.0f, 0.0f, 0.0f));
+	}else if(move){
 		direction = m_camera.getViewSpaceDirection(direction);
 		m_dynamicCharacterController->setLinearVelocityXZ(Physics::VectorFrom(direction * Vector3f(15.0f, 1.0f, 15.0f)));
-
-		float factor = sqrt(1.0f / (direction[0] * direction[0] + direction[2] * direction[2]));
-
-		float nextVX = Player.GetVX() + 0.5f * direction[0] * factor * m_dt;
-		float nextVZ = Player.GetVZ() + 0.5f * direction[2] * factor * m_dt;
-		float limitation_factor;
-		if (sqrt(nextVX*nextVX + nextVZ*nextVZ) <= MAX_MOVEMENT) limitation_factor = 1.0f;
-		else limitation_factor = sqrt((MAX_MOVEMENT*MAX_MOVEMENT) / (nextVX*nextVX + nextVZ*nextVZ));
-		Player.SetVX(nextVX*limitation_factor);
-		Player.SetVZ(nextVZ*limitation_factor);
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_LALT)) {
@@ -193,7 +181,7 @@ void Game::update() {
 	m_playerPos = Physics::VectorFrom(t.getOrigin());
 	m_camera.setPosition(m_playerPos);
 
-	Mouse &mouse = Mouse::instance();
+
 	float dx = 0.0f;
 	float dy = 0.0f;
 	dx = mouse.xPosRelative();
