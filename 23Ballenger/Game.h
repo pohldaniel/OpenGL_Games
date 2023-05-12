@@ -45,7 +45,7 @@ public:
 
 	Camera m_camera;
 	RenderableObject m_sphere;
-	float m_offsetDistance = 2.0f;
+	float m_offsetDistance = 10.0f;
 	DynamicCharacterController *m_dynamicCharacterController;
 	btRigidBody* m_rigidBody;
 private:

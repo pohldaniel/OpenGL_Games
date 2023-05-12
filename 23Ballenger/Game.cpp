@@ -41,23 +41,17 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 
 	m_dynamicCharacterController = new DynamicCharacterController();
 	m_dynamicCharacterController->create(new btRigidBody(cInfoChar), Globals::physics->GetDynamicsWorld(), Physics::collisiontypes::COL_GHOST, Physics::collisiontypes::TERRAIN);
+	
 	m_dynamicCharacterController->setSlopeAngle(60.0f);
-	//m_dynamicCharacterController->setDistanceOffset(0.1f);
-	//m_dynamicCharacterController->setStepHeight(0.0f);
+	m_dynamicCharacterController->setJumpDistanceOffset(RADIUS + 0.1f);
+	m_dynamicCharacterController->setOnGroundDistanceOffset(RADIUS + 0.01f);
+
 	m_dynamicCharacterController->setAngularFactor(btVector3(1.0f, 0.0f, 1.0f));
 	m_dynamicCharacterController->setSleepingThresholds(0.0f, 0.0f);
 	m_dynamicCharacterController->setRollingFriction(1.0f);
 	m_dynamicCharacterController->setDamping(0.0f, 0.7f);
 	m_dynamicCharacterController->setLinearFactor(btVector3(1.0f, 1.0f, 1.0f));
-	/*m_rigidBody = new btRigidBody(cInfoChar);
-	m_rigidBody->setActivationState(DISABLE_DEACTIVATION);
-	m_rigidBody->setCollisionFlags(btCollisionObject::CF_DYNAMIC_OBJECT);
-	m_rigidBody->setAngularFactor(btVector3(1.0f, 0.0f, 1.0f));
-	m_rigidBody->setSleepingThresholds(0.0f, 0.0f);
-	m_rigidBody->setRollingFriction(1.0f);
-	m_rigidBody->setDamping(0.0f, 0.7f);
-
-	Globals::physics->GetDynamicsWorld()->addRigidBody(m_rigidBody, Physics::collisiontypes::COL_GHOST, Physics::collisiontypes::TERRAIN);*/
+	m_dynamicCharacterController->setGravity(btVector3(0.0f, -9.81f * 3.0f, 0.0f));
 }
 
 Game::~Game() {
@@ -113,8 +107,7 @@ void Game::update() {
 		//direction = m_camera.getViewSpaceDirection(direction) * m_dt * PLAYER_SPEED;
 
 		direction = m_camera.getViewSpaceDirection(direction);
-		direction[1] = m_dynamicCharacterController->getLinearVelocityY();
-		m_dynamicCharacterController->setLinearVelocity(Physics::VectorFrom(direction * Vector3f(15.0f, 1.0f, 15.0f)));
+		m_dynamicCharacterController->setLinearVelocityXZ(Physics::VectorFrom(direction * Vector3f(15.0f, 1.0f, 15.0f)));
 
 		float factor = sqrt(1.0f / (direction[0] * direction[0] + direction[2] * direction[2]));
 

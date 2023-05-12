@@ -3,10 +3,6 @@
 #include "DynamicCharacterController.h"
 #include "engine/Vector.h"
 
-
-
-const uint32_t BULLET_OBJECT_ALIGNMENT = 16;
-
 const float DEFAULT_STEP_HEIGHT = 0.1f; // The default amount to move the character up before resolving collisions.
 const btVector3 UP_VECTOR(0.0f, 1.0f, 0.0f);
 const btVector3 ZERO_VECTOR(0.0f, 0.0f, 0.0f);
@@ -22,9 +18,7 @@ public:
 	}
 
 	btScalar addSingleResult(btCollisionWorld::LocalRayResult& rayResult, bool normalInWorldSpace){
-		if (rayResult.m_collisionObject == mSelf) {
-			return 1.0f;
-		}
+		if (rayResult.m_collisionObject == mSelf) return 1.0f;
 		return ClosestRayResultCallback::addSingleResult(rayResult, normalInWorldSpace);
 	}
 
@@ -35,100 +29,41 @@ private:
 class ConvexResultCallback : public btCollisionWorld::ClosestConvexResultCallback{
 
 public:
-	ConvexResultCallback(btCollisionObject* self, const btVector3& up, btScalar minSlopeDot) : btCollisionWorld::ClosestConvexResultCallback(ZERO_VECTOR, ZERO_VECTOR), mSelf(self), mUp(up), mMinSlopeDot(minSlopeDot){
+	ConvexResultCallback(btCollisionObject* self, const btVector3& up, btScalar minSlopeDot) : btCollisionWorld::ClosestConvexResultCallback(ZERO_VECTOR, ZERO_VECTOR), mSelf(self) {
 		m_collisionFilterGroup = self->getBroadphaseHandle()->m_collisionFilterGroup;
 		m_collisionFilterMask = self->getBroadphaseHandle()->m_collisionFilterMask;
 	}
 
 	btScalar addSingleResult(btCollisionWorld::LocalConvexResult& convexResult, bool normalInWorldSpace){
 		if (convexResult.m_hitCollisionObject == mSelf) return 1.0f;
-		if (convexResult.m_hitCollisionObject->getInternalType() == btCollisionObject::CO_GHOST_OBJECT) return 1.0f;
-
-		btVector3 hitNormalWorld;
-		if (normalInWorldSpace){
-
-			hitNormalWorld = convexResult.m_hitNormalLocal;
-		} else{
-
-			hitNormalWorld = convexResult.m_hitCollisionObject->getWorldTransform().getBasis() * convexResult.m_hitNormalLocal;
-		}
-
-	#if 0
-		btScalar dotUp = mUp.dot(hitNormalWorld);
-		if (dotUp < mMinSlopeDot)
-		{
-			return 1.0f;
-		}
-	#endif
 		return ClosestConvexResultCallback::addSingleResult(convexResult, normalInWorldSpace);
 	}
 
 private:
 	btCollisionObject* mSelf;
-	btVector3 mUp;
-	btScalar mMinSlopeDot;
 };
 
 DynamicCharacterController::DynamicCharacterController()
-	: mCollisionWorld(nullptr)
+	: m_collisionWorld(nullptr)
 	, m_rigidBody(nullptr)
-	, mShape(nullptr)
-	, mOnGround(false)
-	, mOnSteepSlope(false)
-	, mStepHeight(DEFAULT_STEP_HEIGHT)
-	, mMaxClimbSlopeAngle(0.6f)
-	, mDistanceOffset(0.1f)
-	, mIsStepping(false)
+	, m_shape(nullptr)
+	, m_onGround(false)
+	, m_onSteepSlope(false)
+	, m_maxClimbSlopeAngle(0.6f)
 	, m_canJump(false)
 	, m_jumpTicks(0)
-	, m_slopeTicks(0)
-{
+	, m_slopeDot(0.0f)
+	, m_slopeNormal(ZERO_VECTOR){
 
-	mSlopeNormal.setZero();
-
-	mCharacterMovementX = 0.0f;
-	mCharacterMovementZ = 0.0f;
 }
 
 DynamicCharacterController::~DynamicCharacterController(){
 	
 }
 
-void DynamicCharacterController::create(btMotionState* motionState, btDynamicsWorld* physicsWorld, float mass, float radius, float height, int collisionFilterGroup, int collisionFilterMask, void* rigidBodyUserPointer) {
-	
-	mCollisionWorld = physicsWorld;
-
-	// From btCapsuleShape.h:
-	// "The total height is height+2*radius, so the height is just the height between the center of each 'sphere' of the capsule caps."
-	float capsuleHeight = height - 2.0f * radius;
-
-	mShape = new btCapsuleShape(capsuleHeight, radius);
-
-	btVector3 inertia(0.0f, 0.0f, 0.0f);
-	mShape->calculateLocalInertia(mass, inertia);
-
-	btRigidBody::btRigidBodyConstructionInfo ci(mass, motionState, mShape, inertia);
-	m_rigidBody = new btRigidBody(ci);
-
-	m_rigidBody->setActivationState(DISABLE_DEACTIVATION);
-	m_rigidBody->setUserPointer(rigidBodyUserPointer);
-
-	m_rigidBody->setCollisionFlags(btCollisionObject::CF_DYNAMIC_OBJECT);
-	m_rigidBody->setAngularFactor(btVector3(0.0f, 0.0f, 0.0f));
-	m_rigidBody->setSleepingThresholds(0.0f, 0.0f);
-	m_rigidBody->setDamping(0.0f, 0.0f);
-	m_rigidBody->setRollingFriction(0.0f);
-
-	physicsWorld->addRigidBody(m_rigidBody, collisionFilterGroup, collisionFilterMask);
-
-
-	m_collisionFilterGroup = collisionFilterGroup;
-	m_collisionFilterMask = collisionFilterMask;
-}
-
 void DynamicCharacterController::create(btRigidBody* rigidBody, btDynamicsWorld* physicsWorld, int collisionFilterGroup, int collisionFilterMask, void* rigidBodyUserPointer) {
-	mCollisionWorld = physicsWorld;
-	mShape = rigidBody->getCollisionShape();
+	m_collisionWorld = physicsWorld;
+	m_shape = rigidBody->getCollisionShape();
 	m_rigidBody = rigidBody;
 
 	m_rigidBody->setActivationState(DISABLE_DEACTIVATION);
@@ -141,100 +76,90 @@ void DynamicCharacterController::create(btRigidBody* rigidBody, btDynamicsWorld*
 	m_rigidBody->setRollingFriction(0.0f);
 
 	physicsWorld->addRigidBody(m_rigidBody, collisionFilterGroup, collisionFilterMask);
-
-	m_collisionFilterGroup = collisionFilterGroup;
-	m_collisionFilterMask = collisionFilterMask;
 }
 
 void DynamicCharacterController::destroy(){
 	delete m_rigidBody;
 	m_rigidBody = nullptr;
 
-	delete mShape;
-	mShape = nullptr;
+	delete m_shape;
+	m_shape = nullptr;
 
-	mCollisionWorld = nullptr;
-}
-
-void DynamicCharacterController::setParameters(float maxClimbSlopeAngle){
-	mMaxClimbSlopeAngle = maxClimbSlopeAngle;
+	m_collisionWorld = nullptr;
 }
 
 void DynamicCharacterController::setSlopeAngle(float degrees) {
-	mMaxClimbSlopeAngle = cosf(degrees * PI_ON_180);
+	m_maxClimbSlopeAngle = cosf(degrees * PI_ON_180);
 }
 
-void DynamicCharacterController::setDistanceOffset(float value) {
-	mDistanceOffset = value;
+void DynamicCharacterController::setJumpDistanceOffset(float value) {
+	m_jumpDistanceOffset = value;
+}
+
+void DynamicCharacterController::setOnGroundDistanceOffset(float value) {
+	m_onGroundDistanceOffset = value;
+}
+
+//this values are deppending on the used geometry
+float DynamicCharacterController::getVelocityWeight(float sloapDot) {
+	
+	if (m_slopeDot < 0.3f) {
+		return 3.3f;
+	}if (m_slopeDot < 0.4f) {
+		return 2.8f;
+	}if (m_slopeDot < 0.5f) {
+		return 2.0f;
+	}else if (m_slopeDot < 0.6f) {
+		return 1.4f;
+	}else
+		return 1.0f;
 }
 
 void DynamicCharacterController::preStep(){
 	
-	mIsStepping = true;
-
-	if (mOnSteepSlope){
-		m_slopeTicks++;
-		btVector3 uAxis = mSlopeNormal.cross(UP_VECTOR).normalize();
-		btVector3 vAxis = uAxis.cross(mSlopeNormal);
-		btVector3 fixVel = mOnGround ? (vAxis / mSlopeNormal.dot(UP_VECTOR)) : (vAxis / mSlopeNormal.dot(UP_VECTOR)) * 4.0f;
+	if (m_onSteepSlope){
+		btVector3 uAxis = m_slopeNormal.cross(UP_VECTOR).normalize();
+		btVector3 vAxis = uAxis.cross(m_slopeNormal);
+		btVector3 fixVel = (vAxis / m_slopeNormal.dot(UP_VECTOR)) * getVelocityWeight(m_slopeDot);
+		fixVel[1] = m_onGround ? 0 : fixVel[1];
 		m_rigidBody->setLinearVelocity(-fixVel);
-
 	}
-	//m_slopeTicks = 0;
-	// Move character upwards. (Bump over stairs)
-	/*if (movingUpward) {
-		moveCharacterAlongY(mStepHeight);
-	}*/
-	
-	// Set the linear velocity based on the movement vector. Don't adjust the Y-component, instead let Bullet handle that.
-	/*if (m_canJump){		
-		btVector3 linVel = m_rigidBody->getLinearVelocity();
-		linVel.setX(mCharacterMovementX);
-		linVel.setY(0.0f);
-		linVel.setZ(mCharacterMovementZ);
-		m_rigidBody->setLinearVelocity(linVel);
-	}*/
 }
 
-// If defined, a ray test is used to detect objects below the character, otherwise a convex test.
-//#define USE_RAY_TEST
-
 void DynamicCharacterController::postStep() {
+	m_falling = false;
 	const float TEST_DISTANCE_RAY = 10.0f;
+	const float TEST_DISTANCE = 2.0f;
 
-#ifdef USE_RAY_TEST
 	btVector3 from = m_rigidBody->getWorldTransform().getOrigin();
 	btVector3 to = from - btVector3(0, TEST_DISTANCE_RAY, 0);
 
-	// Detect ground collision and update the "on ground" status.
-	RayResultCallback callback(m_rigidBody);
-	mCollisionWorld->rayTest(from, to, callback);
+	// detect ground collision and update the "on ground" status
+	RayResultCallback callbackRay(m_rigidBody);
+	m_collisionWorld->rayTest(from, to, callbackRay);
 
 	// Check if there is something below the character.
-	if (callback.hasHit()){
+	if (callbackRay.hasHit()){
 
-		btVector3 end = from + (to - from) * callback.m_closestHitFraction;
-		mSlopeNormal = callback.m_hitNormalWorld;
-		
-		// Slope test.
-		btScalar slopeDot = mSlopeNormal.dot(UP_VECTOR);
-		mOnSteepSlope = (slopeDot < mMaxClimbSlopeAngle);
+		btVector3 end = from + (to - from) * callbackRay.m_closestHitFraction;
+		btVector3 normal = callbackRay.m_hitNormalWorld;
+		float slopeDot = normal.dot(btVector3(0, 1, 0));
 
-		// compute the distance to the floor
 		float distance = btDistance(end, from);
-		mOnGround = distance < 0.50f && !mOnSteepSlope;
-		
-		m_canJump = distance < 0.60f && m_jumpTicks == 0 && !mOnSteepSlope;
+		m_onGround = distance < m_onGroundDistanceOffset && slopeDot > 0.97f;
+
+		if (m_onGround)
+			moveCharacterAlongY(std::fabs(distance - 0.5f));
+
+		m_falling = distance > TEST_DISTANCE;
 
 	}else{
-		mOnGround = false;
-		m_canJump = false;
+		m_onGround = false;
 	}
-#else
-	const float TEST_DISTANCE = 2.0;
+
+
 	btTransform tsFrom, tsTo;
-	btVector3 from = m_rigidBody->getWorldTransform().getOrigin();
-	btVector3 to = from - btVector3(0, TEST_DISTANCE, 0);
+	to = from - btVector3(0.0f, TEST_DISTANCE, 0.0f);
 
 	tsFrom.setIdentity();
 	tsFrom.setOrigin(from);
@@ -242,53 +167,53 @@ void DynamicCharacterController::postStep() {
 	tsTo.setIdentity();
 	tsTo.setOrigin(to);
 
-	ConvexResultCallback callback(m_rigidBody, UP_VECTOR, 0.01f);
-	mCollisionWorld->convexSweepTest((btConvexShape*)mShape, tsFrom, tsTo, callback, mCollisionWorld->getDispatchInfo().m_allowedCcdPenetration);
+	// detect slopes and jump condition
+	ConvexResultCallback callbackConv(m_rigidBody, UP_VECTOR, 0.01f);
+	m_collisionWorld->convexSweepTest((btConvexShape*)m_shape, tsFrom, tsTo, callbackConv, m_collisionWorld->getDispatchInfo().m_allowedCcdPenetration);
 	
-	if (callback.hasHit()){
+	if (callbackConv.hasHit()){
 
-		btVector3 end = from + (to - from) * callback.m_closestHitFraction;
-		btVector3 normal = callback.m_hitNormalWorld;
+		btVector3 end = from + (to - from) * callbackConv.m_closestHitFraction;
+		btVector3 normal = callbackConv.m_hitNormalWorld;
 		
-		// Slope test.
-		btScalar slopeDot = normal.dot(btVector3(0, 1, 0));
-		mOnSteepSlope = (slopeDot < mMaxClimbSlopeAngle);
-		mSlopeNormal = normal;
-		
+		// slope test
+		m_slopeDot = normal.dot(btVector3(0.0f, 1.0f, 0.0f));
+		m_onSteepSlope = (m_slopeDot < m_maxClimbSlopeAngle) && !m_falling && m_jumpTicks == 0;
+		m_slopeNormal = normal;
+
 		// Compute distance to the floor.
 		float distance = btDistance(end, from);
-		mOnGround = (distance < 0.50f) && !mOnSteepSlope;
-		m_canJump = distance < 0.60f && m_jumpTicks == 0 && !mOnSteepSlope;
+		m_canJump = distance < m_jumpDistanceOffset && m_jumpTicks == 0 && !m_onSteepSlope;
 		
 	}else{
-
-		mOnGround = false;
 		m_canJump = false;
 	}
-#endif
-	m_jumpTicks = m_jumpTicks > 0 ? m_jumpTicks -= 1 : 0;
-	mIsStepping = false;
-}
 
-bool DynamicCharacterController::isStepping() const{
-	return mIsStepping;
+	m_jumpTicks = m_jumpTicks > 0 ? m_jumpTicks -= 1 : 0;
 }
 
 bool DynamicCharacterController::onGround() const{
-	return mOnGround;
+	return m_onGround;
+}
+
+//this values are deppending on the used geometry
+unsigned short DynamicCharacterController::getJumpTicks(float sloapDot) {
+
+	if (m_slopeDot < 0.3f) {
+		return 4;
+	}else if (m_slopeDot < 0.4f)
+		return 6;
+	else {
+		return 10;
+	}
 }
 
 void DynamicCharacterController::jump(const btVector3& direction, float force){
 	
 	if (m_canJump){
-		m_jumpTicks = 10;
+		//reduce the rejump ticks on steep slopes
+		m_jumpTicks = getJumpTicks(m_slopeDot);
 		m_canJump = false;
-		//m_rigidBody->applyCentralImpulse(direction * force);
-
-		/*btVector3 linVel = m_rigidBody->getLinearVelocity();
-		linVel.setX(mCharacterMovementX);
-		linVel.setY((direction * force);
-		linVel.setZ(mCharacterMovementZ);*/
 		m_rigidBody->setLinearVelocity(direction * force);
 	}
 }
@@ -297,8 +222,15 @@ void DynamicCharacterController::applyCentralImpulse(const btVector3& direction)
 	m_rigidBody->applyCentralImpulse(direction);
 }
 
-void DynamicCharacterController::setLinearVelocity(btVector3& vel){	
+void DynamicCharacterController::setLinearVelocity(const btVector3& vel){
 	m_rigidBody->setLinearVelocity(vel);
+}
+
+void DynamicCharacterController::setLinearVelocityXZ(const btVector3& vel) {
+	btVector3 _vel = m_rigidBody->getLinearVelocity();
+	_vel.setX(vel[0]);
+	_vel.setZ(vel[2]);
+	setLinearVelocity(_vel);
 }
 
 const btVector3& DynamicCharacterController::getLinearVelocity(){
@@ -312,10 +244,6 @@ const float DynamicCharacterController::getLinearVelocityY() {
 void DynamicCharacterController::moveCharacterAlongY(float step){
 	btVector3 pos = m_rigidBody->getWorldTransform().getOrigin();
 	m_rigidBody->getWorldTransform().setOrigin(pos + btVector3(0, step, 0));
-}
-
-void DynamicCharacterController::setStepHeight(float value) {
-	mStepHeight = value;
 }
 
 void DynamicCharacterController::setAngularFactor(const btVector3& angularFactor) {
@@ -342,14 +270,14 @@ void DynamicCharacterController::setLinearFactor(const btVector3& linearFactor) 
 	m_rigidBody->setLinearFactor(linearFactor);
 }
 
-void DynamicCharacterController::setMovementXZ(const Vector2f& movementVector) {
-	mCharacterMovementX = movementVector[0];
-	mCharacterMovementZ = movementVector[1];
-	//mCharacterMovementY = 0;
+void DynamicCharacterController::setGravity(const btVector3& gravity) {
+	m_rigidBody->setGravity(gravity);
 }
 
-void  DynamicCharacterController::setMovementXYZ(const btVector3& movementVector) {
-	mCharacterMovementX = movementVector[0];
-	mCharacterMovementY = movementVector[1];
-	mCharacterMovementZ = movementVector[2];
+btRigidBody* DynamicCharacterController::getRigidBody() const { 
+	return m_rigidBody; 
+}
+
+btCollisionShape* DynamicCharacterController::getCollisionShape() const { 
+	return m_shape; 
 }

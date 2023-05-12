@@ -3,4 +3,4 @@ setResolution(1024, 768);
 useDisplaymode(false);
 isFullscreen(false);
 setSoundVolume(0.2);
-setMusicVolume(1.49012e-08);
+setMusicVolume(0.4);

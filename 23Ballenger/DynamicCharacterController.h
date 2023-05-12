@@ -1,81 +1,65 @@
-#ifndef _BASIS3STEPCHARACTERCONTROLLER_H_INCLUDED_
-#define _BASIS3STEPCHARACTERCONTROLLER_H_INCLUDED_
+#pragma once
 
 #include <btBulletDynamicsCommon.h>
-#include "engine/Vector.h"
-
-// An implementation of a "3 step" character controller for Bullet, based on ideas described here: http://dev-room.blogspot.fi/2015/03/some-example-works-like.html
-
-// The idea is that the rigid body goes through 3 steps every update:
-// 1. Move the character up a certain amount.
-// 2. Move the character based on input and let Bullet resolve collisions normally (ie. step the simulation).
-// 3. Do a ray or convex test downwards to find any objects that the character can stand on (ie. the ground) and move the character back down.
 
 class DynamicCharacterController {
 	public:
 
-		DynamicCharacterController();
-		~DynamicCharacterController();
+	DynamicCharacterController();
+	~DynamicCharacterController();
 
-		void create(btMotionState* motionState, btDynamicsWorld* physicsWorld, float mass, float radius, float height, int collisionFilterGroup = 1, int collisionFilterMask = -1, void* rigidBodyUserPointer = NULL);
-		void create(btRigidBody* rigidBody, btDynamicsWorld* physicsWorld, int collisionFilterGroup = 1, int collisionFilterMask = -1, void* rigidBodyUserPointer = NULL);
-		void destroy();
+	void create(btRigidBody* rigidBody, btDynamicsWorld* physicsWorld, int collisionFilterGroup = 1, int collisionFilterMask = -1, void* rigidBodyUserPointer = NULL);
+	void destroy();
 
-		void setParameters(float maxClimbSlopeAngle);
-		void setSlopeAngle(float degrees);
-		void setDistanceOffset(float value);
-		void setStepHeight(float value);
+	void setSlopeAngle(float degrees);
+	void setJumpDistanceOffset(float value);
+	void setOnGroundDistanceOffset(float value);
 
-		void preStep(); // Call before the physics are stepped.
-		void postStep(); // Call after the physics are stepped.
-		bool isStepping() const;
+	void preStep(); // Call before the physics are stepped.
+	void postStep(); // Call after the physics are stepped.
 
-		bool onGround() const;
-		void jump(const btVector3& direction, float force);
+	bool onGround() const;
+	void jump(const btVector3& direction, float force);
+	void applyCentralImpulse(const btVector3& direction);
 
-		void setMovementXZ(const Vector2f& movementVector);
-		void setMovementXYZ(const btVector3& movementVector);
+	const btVector3& getLinearVelocity();
+	const float getLinearVelocityY();
+	void getWorldTransform(btTransform& transform);
+	btRigidBody* getRigidBody() const;
+	btCollisionShape* getCollisionShape() const;
 
-		void setLinearVelocity(btVector3& vel);
-		const btVector3& getLinearVelocity();
-		const float getLinearVelocityY();
+	void setLinearVelocity(const btVector3& vel);
+	void setLinearVelocityXZ(const btVector3& vel);
+	void setAngularFactor(const btVector3& angularFactor);
+	void setSleepingThresholds(float linear, float angular);
+	void setRollingFriction(float rollingFriction);
+	void setDamping(float linear, float angular);
+	void setLinearFactor(const btVector3& linearFactor);
+	void setGravity(const btVector3& gravity);
+	
+private:
 
-		void setAngularFactor(const btVector3& angularFactor);
-		void setSleepingThresholds(float linear, float angular);
-		void setRollingFriction(float rollingFriction);
-		void setDamping(float linear, float angular);
-		void setLinearFactor(const btVector3& linearFactor);
-		void applyCentralImpulse(const btVector3& direction);
+	void moveCharacterAlongY(float step);
 
-		btRigidBody* getRigidBody() const { return m_rigidBody; }
-		btCollisionShape* getCollisionShape() const { return mShape; }
-		void getWorldTransform(btTransform& transform);
+	btCollisionWorld* m_collisionWorld;
+	btRigidBody* m_rigidBody;
+	btCollisionShape* m_shape;
+		
+	btVector3 m_slopeNormal;
 
-		void moveCharacterAlongY(float step);
+	float m_maxClimbSlopeAngle;
+	float m_slopeDot;
+	float m_jumpDistanceOffset;
+	float m_onGroundDistanceOffset;
 
-		btCollisionWorld* mCollisionWorld;
-		btRigidBody* m_rigidBody;
-		btCollisionShape* mShape;
-		bool mOnGround;
-		bool mOnSteepSlope;
-		btVector3 mSlopeNormal;
-		float mStepHeight;
-		float mMaxClimbSlopeAngle;
-		float mDistanceOffset;
-		bool mIsStepping;
-		bool m_canJump;
+	bool m_onGround;
+	bool m_onSteepSlope;
+	bool m_falling;
+	bool m_canJump;
 
-		float mCharacterMovementX;
-		float mCharacterMovementZ;
+	bool movingUpward = true;
+	unsigned short m_jumpTicks = 0;
 
-		float mCharacterMovementY;
-
-
-		int m_collisionFilterGroup;
-		int m_collisionFilterMask;
-
-		bool movingUpward = true;
-		unsigned short m_jumpTicks = 0;
-		unsigned short m_slopeTicks = 0;
+	float getVelocityWeight(float sloapDot);
+	unsigned short getJumpTicks(float sloapDot);
 };
-#endif // _BASIS3STEPCHARACTERCONTROLLER_H_INCLUDED_
