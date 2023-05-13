@@ -399,6 +399,10 @@ const float Camera::getFarOrthographic() const {
 	return -(1.0f / m_orthMatrix[2][2]) * (1.0f + m_orthMatrix[3][2]);
 }
 
+const float Camera::getOffsetDistance() const {
+	return m_offsetDistance;
+}
+
 void Camera::calcLightTransformation(Vector3f &direction) {
 	
 	/*float _near = getNear();
@@ -808,4 +812,233 @@ const Matrix4f Camera::getRotationMatrix(const Vector3f &position) const {
 void Camera::setOffsetDistance(float offsetDistance) {
 	m_offsetDistance = offsetDistance;
 	updateViewMatrix(m_eye - m_offsetDistance * m_viewDir);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////
+
+const float ThirdPersonCamera::DEFAULT_SPRING_CONSTANT = 16.0f;
+const float ThirdPersonCamera::DEFAULT_DAMPING_CONSTANT = 8.0f;
+
+ThirdPersonCamera::ThirdPersonCamera() : Camera() {
+	
+	m_enableSpringSystem = true;
+	m_springConstant = DEFAULT_SPRING_CONSTANT;
+	m_dampingConstant = DEFAULT_DAMPING_CONSTANT;
+
+	m_headingDegrees = 0.0f;
+	m_pitchDegrees = 0.0f;
+
+	m_target.set(0.0f, 0.0f, 0.0f);
+	m_targetYAxis.set(0.0f, 1.0f, 0.0f);
+
+	m_velocity.set(0.0f, 0.0f, 0.0f);
+
+	m_orientation.identity();
+}
+
+ThirdPersonCamera::~ThirdPersonCamera() {
+
+}
+
+float ThirdPersonCamera::getDampingConstant() const {
+	return m_dampingConstant;
+}
+
+const Quaternion &ThirdPersonCamera::getOrientation() const {
+	return m_orientation;
+}
+
+float ThirdPersonCamera::getSpringConstant() const {
+	return m_springConstant;
+}
+
+const Vector3f &ThirdPersonCamera::getTargetYAxis() const {
+	return m_targetYAxis;
+}
+
+bool ThirdPersonCamera::springSystemIsEnabled() const {
+	return m_enableSpringSystem;
+}
+
+const Vector3f& ThirdPersonCamera::getTarget() const {
+	return m_target;
+}
+
+const Vector3f& ThirdPersonCamera::getVelocity() const {
+	return m_velocity;
+}
+
+void ThirdPersonCamera::setTarget(const Vector3f& target) {
+	m_target = target;
+}
+
+void ThirdPersonCamera::setTargetYAxis(const Vector3f& targetYAxis) {
+	m_targetYAxis = targetYAxis;
+}
+
+void ThirdPersonCamera::lookAt(const Vector3f& eye, const Vector3f& target, const Vector3f& up) {
+
+	m_eye = eye;
+	m_target = target;
+	m_targetYAxis = up;
+
+	m_zAxis = m_eye - target;
+	Vector3f::Normalize(m_zAxis);
+
+	m_xAxis = Vector3f::Cross(up, m_zAxis);
+	Vector3f::Normalize(m_xAxis);
+
+	m_yAxis = Vector3f::Cross(m_zAxis, m_xAxis);
+	Vector3f::Normalize(m_yAxis);
+
+	WORLD_YAXIS = Vector3f::Cross(m_zAxis, m_xAxis);
+	Vector3f::Normalize(WORLD_YAXIS);
+
+	m_viewDir = -m_zAxis;
+
+	m_viewMatrix[0][0] = m_xAxis[0];
+	m_viewMatrix[0][1] = m_yAxis[0];
+	m_viewMatrix[0][2] = m_zAxis[0];
+	m_viewMatrix[0][3] = 0.0f;
+
+	m_viewMatrix[1][0] = m_xAxis[1];
+	m_viewMatrix[1][1] = m_yAxis[1];
+	m_viewMatrix[1][2] = m_zAxis[1];
+	m_viewMatrix[1][3] = 0.0f;
+
+	m_viewMatrix[2][0] = m_xAxis[2];
+	m_viewMatrix[2][1] = m_yAxis[2];
+	m_viewMatrix[2][2] = m_zAxis[2];
+	m_viewMatrix[2][3] = 0.0f;
+
+	m_viewMatrix[3][0] = -Vector3f::Dot(m_xAxis, m_eye - m_offsetDistance * m_viewDir);
+	m_viewMatrix[3][1] = -Vector3f::Dot(m_yAxis, m_eye - m_offsetDistance * m_viewDir);
+	m_viewMatrix[3][2] = -Vector3f::Dot(m_zAxis, m_eye - m_offsetDistance * m_viewDir);
+	m_viewMatrix[3][3] = 1.0f;
+
+	m_orientation.fromMatrix(m_viewMatrix);
+
+	Vector3f offset = m_target - m_eye;
+
+	m_offsetDistance = offset.length();
+}
+
+void ThirdPersonCamera::rotate(float headingDegrees, float pitchDegrees) {
+	m_headingDegrees = -headingDegrees;
+	m_pitchDegrees = -pitchDegrees;
+}
+
+void ThirdPersonCamera::setSpringConstant(float springConstant) {
+	// We're using a critically damped spring system where the damping ratio
+	// is equal to one.
+	//
+	// damping ratio = m_dampingConstant / (2.0f * sqrtf(m_springConstant))
+
+	m_springConstant = springConstant;
+	m_dampingConstant = 2.0f * sqrtf(springConstant);
+}
+
+void ThirdPersonCamera::update(float elapsedTimeSec) {
+	updateOrientation(elapsedTimeSec);
+
+	if (m_enableSpringSystem)
+		updateViewMatrix(elapsedTimeSec);
+	else
+		updateViewMatrix();
+}
+
+void ThirdPersonCamera::updateOrientation(float elapsedTimeSec) {
+	m_pitchDegrees *= elapsedTimeSec;
+	m_headingDegrees *= elapsedTimeSec;
+
+	Quaternion rot;
+
+	if (m_headingDegrees != 0.0f) {
+		rot.fromAxisAngle(m_targetYAxis, m_headingDegrees);
+		m_orientation = rot * m_orientation;
+	}
+
+	if (m_pitchDegrees != 0.0f) {
+		rot.fromAxisAngle(WORLD_XAXIS, m_pitchDegrees);
+		m_orientation = m_orientation * rot;
+	}
+}
+
+void ThirdPersonCamera::updateViewMatrix() {
+	m_viewMatrix = m_orientation.toMatrix4f();
+
+	m_xAxis.set(m_viewMatrix[0][0], m_viewMatrix[1][0], m_viewMatrix[2][0]);
+	m_yAxis.set(m_viewMatrix[0][1], m_viewMatrix[1][1], m_viewMatrix[2][1]);
+	m_zAxis.set(m_viewMatrix[0][2], m_viewMatrix[1][2], m_viewMatrix[2][2]);
+	m_viewDir = -m_zAxis;
+
+	m_eye = m_target + m_zAxis * m_offsetDistance;
+
+	m_viewMatrix[3][0] = -Vector3f::Dot(m_xAxis, m_eye);
+	m_viewMatrix[3][1] = -Vector3f::Dot(m_yAxis, m_eye);
+	m_viewMatrix[3][2] = -Vector3f::Dot(m_zAxis, m_eye);
+}
+
+void ThirdPersonCamera::updateViewMatrix(float elapsedTimeSec) {
+
+	m_viewMatrix = m_orientation.toMatrix4f();
+
+	m_xAxis.set(m_viewMatrix[0][0], m_viewMatrix[1][0], m_viewMatrix[2][0]);
+	m_yAxis.set(m_viewMatrix[0][1], m_viewMatrix[1][1], m_viewMatrix[2][1]);
+	m_zAxis.set(m_viewMatrix[0][2], m_viewMatrix[1][2], m_viewMatrix[2][2]);
+
+	// Calculate the new camera position. The 'idealPosition' is where the
+	// camera should be position. The camera should be positioned directly
+	// behind the target at the required offset distance. What we're doing here
+	// is rather than have the camera immediately snap to the 'idealPosition'
+	// we slowly move the camera towards the 'idealPosition' using a spring
+	// system.
+	//
+	// References:
+	//   Stone, Jonathan, "Third-Person Camera Navigation," Game Programming
+	//     Gems 4, Andrew Kirmse, Editor, Charles River Media, Inc., 2004.
+
+	Vector3f idealPosition = m_target + m_zAxis * m_offsetDistance;
+	Vector3f displacement = m_eye - idealPosition;
+	Vector3f springAcceleration = (-m_springConstant * displacement) - (m_dampingConstant * m_velocity);
+
+	m_velocity += springAcceleration * elapsedTimeSec;
+	m_eye += m_velocity * elapsedTimeSec;
+
+	// The view matrix is always relative to the camera's current position
+	// 'm_eye'. Since a spring system is being used here 'm_eye' will be
+	// relative to 'idealPosition'. When the camera is no longer being
+	// moved 'm_eye' will become the same as 'idealPosition'. The local
+	// x, y, and z axes that were extracted from the camera's orientation
+	// 'm_orienation' is correct for the 'idealPosition' only. We need
+	// to recompute these axes so that they're relative to 'm_eye'. Once
+	// that's done we can use those axes to reconstruct the view matrix.
+
+	m_zAxis = m_eye - m_target;
+	m_zAxis.normalize();
+
+	m_xAxis = Vector3f::Cross(m_targetYAxis, m_zAxis);
+	m_xAxis.normalize();
+
+	m_yAxis = Vector3f::Cross(m_zAxis, m_xAxis);
+	m_yAxis.normalize();
+
+	m_viewMatrix.identity();
+
+	m_viewMatrix[0][0] = m_xAxis[0];
+	m_viewMatrix[1][0] = m_xAxis[1];
+	m_viewMatrix[2][0] = m_xAxis[2];
+	m_viewMatrix[3][0] = -Vector3f::Dot(m_xAxis, m_eye);
+
+	m_viewMatrix[0][1] = m_yAxis[0];
+	m_viewMatrix[1][1] = m_yAxis[1];
+	m_viewMatrix[2][1] = m_yAxis[2];
+	m_viewMatrix[3][1] = -Vector3f::Dot(m_yAxis, m_eye);
+
+	m_viewMatrix[0][2] = m_zAxis[0];
+	m_viewMatrix[1][2] = m_zAxis[1];
+	m_viewMatrix[2][2] = m_zAxis[2];
+	m_viewMatrix[3][2] = -Vector3f::Dot(m_zAxis, m_eye);
+
+	m_viewDir = -m_zAxis;
 }

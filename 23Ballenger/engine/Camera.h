@@ -14,7 +14,7 @@ public:
 
 	void perspective(float fovx, float aspect, float znear, float zfar);
 	void orthographic(float left, float right, float bottom, float top, float znear, float zfar);
-	void lookAt(const Vector3f &eye, const Vector3f &target, const Vector3f &up);
+	virtual void lookAt(const Vector3f &eye, const Vector3f &target, const Vector3f &up);
 
 	void move(float dx, float dy, float dz);
 	void move(Vector3f &direction);
@@ -43,6 +43,7 @@ public:
 	const float getFovXDeg() const;
 	const float getFovXRad() const;
 	const float getAspect() const;
+	const float getOffsetDistance() const;
 
 	const float getLeftOrthographic() const;
 	const float getRightOrthographic() const;
@@ -61,7 +62,6 @@ public:
 	const Matrix4f  getInvOrthographicMatrixNew() const;
 
 	const Matrix4f  getRotationMatrix(const Vector3f &position = Vector3f(0.0f, 0.0f, 0.0f)) const;
-
 
 	const Vector3f& getPosition() const;
 	const float getPositionX() const;
@@ -125,4 +125,51 @@ protected:
 	Matrix4f		m_invPersMatrix;
 	Matrix4f		m_orthMatrix;
 };
+
+class ThirdPersonCamera : public Camera {
+
+
+public:
+
+	ThirdPersonCamera();
+	~ThirdPersonCamera();
+
+	void lookAt(const Vector3f& eye, const Vector3f& target, const Vector3f& up) override;
+
+	void rotate(float longitudeDegrees, float latitudeDegrees);
+	void update(float elapsedTimeSec);
+
+	bool springSystemIsEnabled() const;
+	float getDampingConstant() const;
+	float getSpringConstant() const;
+	const Vector3f& getTargetYAxis() const;
+	const Vector3f& getTarget() const;
+	const Vector3f& getVelocity() const;
+	const Quaternion& getOrientation() const;
+
+	void setSpringConstant(float springConstant);
+	void setTarget(const Vector3f& target);
+	void setTargetYAxis(const Vector3f& targetYAxis);
+
+	void updateOrientation(float elapsedTimeSec);
+	void updateViewMatrix();
+	void updateViewMatrix(float elapsedTimeSec);
+
+	bool m_enableSpringSystem;
+	float m_springConstant;
+	float m_dampingConstant;
+	float m_offsetDistance;
+
+	float m_headingDegrees;
+	float m_pitchDegrees;
+
+	Vector3f m_target;
+	Vector3f m_targetYAxis;
+	Vector3f m_velocity;
+	Quaternion m_orientation;
+
+	static const float DEFAULT_SPRING_CONSTANT;
+	static const float DEFAULT_DAMPING_CONSTANT;
+};
+
 #endif // __cameraH__
