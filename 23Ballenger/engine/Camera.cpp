@@ -23,7 +23,8 @@ Camera::Camera(){
     m_persMatrix.identity();
 	m_orthMatrix.identity();
 	
-	updateViewMatrix(m_eye - m_offsetDistance * m_viewDir);
+	orthogonalize();
+	updateViewMatrix(m_eye);
 }
 
 Camera::Camera(const Vector3f &eye, const Vector3f &target, const Vector3f &up) {
@@ -47,7 +48,6 @@ Camera::~Camera() {}
 
 void Camera::orthogonalize() {
 
-	// Regenerate the camera's local axes to orthogonalize them.
 	Vector3f::Normalize(m_zAxis);
 
 	m_yAxis = Vector3f::Cross(m_zAxis, m_xAxis);
@@ -57,11 +57,7 @@ void Camera::orthogonalize() {
 	Vector3f::Normalize(m_xAxis);
 
 	m_viewDir = -m_zAxis;
-}
 
-void Camera::updateViewMatrix(const Vector3f &position){
-	
-	// Reconstruct the view matrix.
 	m_viewMatrix[0][0] = m_xAxis[0];
 	m_viewMatrix[0][1] = m_yAxis[0];
 	m_viewMatrix[0][2] = m_zAxis[0];
@@ -77,11 +73,6 @@ void Camera::updateViewMatrix(const Vector3f &position){
 	m_viewMatrix[2][2] = m_zAxis[2];
 	m_viewMatrix[2][3] = 0.0f;
 
-	m_viewMatrix[3][0] = -Vector3f::Dot(m_xAxis, position);
-	m_viewMatrix[3][1] = -Vector3f::Dot(m_yAxis, position);
-	m_viewMatrix[3][2] = -Vector3f::Dot(m_zAxis, position);
-	m_viewMatrix[3][3] = 1.0f;
-
 	m_invViewMatrix[0][0] = m_xAxis[0];
 	m_invViewMatrix[0][1] = m_xAxis[1];
 	m_invViewMatrix[0][2] = m_xAxis[2];
@@ -96,10 +87,32 @@ void Camera::updateViewMatrix(const Vector3f &position){
 	m_invViewMatrix[2][1] = m_zAxis[1];
 	m_invViewMatrix[2][2] = m_zAxis[2];
 	m_invViewMatrix[2][3] = 0.0f;
+}
 
-	m_invViewMatrix[3][0] = position[0];
-	m_invViewMatrix[3][1] = position[1];
-	m_invViewMatrix[3][2] = position[2];
+void Camera::updateViewMatrix(const Vector3f &position){
+	m_eye = position;
+	
+	m_viewMatrix[3][0] = -Vector3f::Dot(m_xAxis, m_eye);
+	m_viewMatrix[3][1] = -Vector3f::Dot(m_yAxis, m_eye);
+	m_viewMatrix[3][2] = -Vector3f::Dot(m_zAxis, m_eye);
+	m_viewMatrix[3][3] = 1.0f;
+
+	m_invViewMatrix[3][0] = m_eye[0];
+	m_invViewMatrix[3][1] = m_eye[1];
+	m_invViewMatrix[3][2] = m_eye[2];
+	m_invViewMatrix[3][3] = 1.0f;
+}
+
+void Camera::updateViewMatrix() {
+
+	m_viewMatrix[3][0] = -Vector3f::Dot(m_xAxis, m_eye);
+	m_viewMatrix[3][1] = -Vector3f::Dot(m_yAxis, m_eye);
+	m_viewMatrix[3][2] = -Vector3f::Dot(m_zAxis, m_eye);
+	m_viewMatrix[3][3] = 1.0f;
+
+	m_invViewMatrix[3][0] = m_eye[0];
+	m_invViewMatrix[3][1] = m_eye[1];
+	m_invViewMatrix[3][2] = m_eye[2];
 	m_invViewMatrix[3][3] = 1.0f;
 }
 
@@ -156,6 +169,8 @@ void Camera::orthographic(float left, float right, float bottom, float top, floa
 
 void Camera::lookAt(const Vector3f &eye, const Vector3f &target, const Vector3f &up){
 	m_eye = eye;
+	m_target = target;
+	m_offsetDistance = (m_target - m_eye).length();
 
 	m_zAxis = m_eye - target;
 	Vector3f::Normalize(m_zAxis);
@@ -186,9 +201,9 @@ void Camera::lookAt(const Vector3f &eye, const Vector3f &target, const Vector3f 
 	m_viewMatrix[2][2] = m_zAxis[2];
 	m_viewMatrix[2][3] = 0.0f;
 
-	m_viewMatrix[3][0] = -Vector3f::Dot(m_xAxis, m_eye - m_offsetDistance * m_viewDir);
-	m_viewMatrix[3][1] = -Vector3f::Dot(m_yAxis, m_eye - m_offsetDistance * m_viewDir);
-	m_viewMatrix[3][2] = -Vector3f::Dot(m_zAxis, m_eye - m_offsetDistance * m_viewDir);
+	m_viewMatrix[3][0] = -Vector3f::Dot(m_xAxis, m_eye);
+	m_viewMatrix[3][1] = -Vector3f::Dot(m_yAxis, m_eye);
+	m_viewMatrix[3][2] = -Vector3f::Dot(m_zAxis, m_eye);
 	m_viewMatrix[3][3] = 1.0f;
 
 	// Extract the pitch angle from the view matrix.
@@ -209,9 +224,9 @@ void Camera::lookAt(const Vector3f &eye, const Vector3f &target, const Vector3f 
 	m_invViewMatrix[2][2] = m_zAxis[2];
 	m_invViewMatrix[2][3] = 0.0f;
 
-	m_invViewMatrix[3][0] = m_eye[0] - m_offsetDistance * m_viewDir[0];
-	m_invViewMatrix[3][1] = m_eye[1] - m_offsetDistance * m_viewDir[1];
-	m_invViewMatrix[3][2] = m_eye[2] - m_offsetDistance * m_viewDir[2];
+	m_invViewMatrix[3][0] = m_eye[0];
+	m_invViewMatrix[3][1] = m_eye[1];
+	m_invViewMatrix[3][2] = m_eye[2];
 	m_invViewMatrix[3][3] = 1.0f;
 }
 
@@ -234,15 +249,6 @@ void Camera::move(Vector3f &direction) {
 	eye += WORLD_YAXIS * direction[1] * m_movingSpeed;
 	eye += m_viewDir * direction[2] * m_movingSpeed;
 	setPosition(eye);
-}
-
-void Camera::moveRelative(Vector3f &direction) {
-	
-	m_eye[0] += (m_xAxis[0] * direction[0] + m_yAxis[0] * direction[1] + m_viewDir[0] * direction[2]);
-	m_eye[1] += (m_xAxis[1] * direction[0] + m_yAxis[1] * direction[1] + m_viewDir[1] * direction[2]);
-	m_eye[2] += (m_xAxis[2] * direction[0] + m_yAxis[2] * direction[1] + m_viewDir[2] * direction[2]);
-
-	updateViewMatrix(m_eye - m_offsetDistance * m_viewDir);
 }
 
 const Vector3f Camera::getViewSpaceDirection(const Vector3f &direction) {
@@ -301,25 +307,13 @@ void Camera::rotateFirstPerson(float yaw, float pitch){
 	}
 }
 
-void Camera::rotate(float yaw, float pitch, float roll) {
-	rotateFirstPerson(yaw, pitch);
-	orthogonalize();
-	updateViewMatrix(m_eye - m_offsetDistance * m_viewDir);
-}
-
-void Camera::rotateSmoothly(float yaw, float pitch, float roll) {
+void Camera::rotate(float yaw, float pitch) {
 	rotateFirstPerson(yaw * m_rotationSpeed, pitch * m_rotationSpeed);
 	orthogonalize();
-	updateViewMatrix(m_eye - m_offsetDistance * m_viewDir);
+	updateViewMatrix();
 }
 
-void Camera::rotate(float yaw, float pitch, float roll, const Vector3f &target) {
-	rotateFirstPerson(yaw, pitch);
-	orthogonalize();
-	updateViewMatrix(target - m_offsetDistance * m_viewDir);
-}
-
-void Camera::rotateSmoothly(float yaw, float pitch, float roll, const Vector3f &target) {
+void Camera::rotate(float yaw, float pitch, const Vector3f &target) {
 	rotateFirstPerson(yaw * m_rotationSpeed, pitch * m_rotationSpeed);
 	orthogonalize();
 	updateViewMatrix(target - m_offsetDistance * m_viewDir);
@@ -638,31 +632,34 @@ void Camera::setUpLightTransformation(std::vector<Vector2f>& bounds) {
 }
 
 void Camera::setPosition(float x, float y, float z){
-	m_eye = Vector3f(x, y, z);
-	updateViewMatrix(m_eye - m_offsetDistance * m_viewDir);
+	updateViewMatrix(Vector3f(x, y, z));
 }
 
 void Camera::setPosition(const Vector3f &position){
-	m_eye = position;	
-	updateViewMatrix(m_eye - m_offsetDistance * m_viewDir);
+	updateViewMatrix(position);
+}
+
+void Camera::setTarget(const Vector3f& target) {
+	m_target = target;
+	updateViewMatrix(m_target - m_offsetDistance * m_viewDir);
 }
 
 void Camera::setPositionX(float x) {
 	m_eye[0] = x ;
-	m_viewMatrix[3][0] = -(m_xAxis[0] * (x - m_offsetDistance * m_viewDir[0]) + m_xAxis[1] * m_eye[1] + m_xAxis[2] * m_eye[2]);
-	m_invViewMatrix[3][0] = x - m_offsetDistance * m_viewDir[0];
+	m_viewMatrix[3][0] = -(m_xAxis[0] * m_eye[0] + m_xAxis[1] * m_eye[1] + m_xAxis[2] * m_eye[2]);
+	m_invViewMatrix[3][0] = m_eye[0];
 }
 
 void Camera::setPositionY(float y) {
 	m_eye[1] = y;
-	m_viewMatrix[3][1] = -(m_yAxis[0] * m_eye[0] + m_yAxis[1] * (m_eye[1] - m_offsetDistance * m_viewDir[1]) + m_yAxis[2] * m_eye[2]);
-	m_invViewMatrix[3][1] = m_eye[1] - m_offsetDistance * m_viewDir[1];
+	m_viewMatrix[3][1] = -(m_yAxis[0] * m_eye[0] + m_yAxis[1] * m_eye[1] + m_yAxis[2] * m_eye[2]);
+	m_invViewMatrix[3][1] = m_eye[1];
 }
 
 void Camera::setPositionZ(float z) {
 	m_eye[2] = z;
-	m_viewMatrix[3][2] = -(m_zAxis[0] * m_eye[0] + m_zAxis[1] * m_eye[1] + m_zAxis[2] * (m_eye[2] - m_offsetDistance * m_viewDir[2]));
-	m_invViewMatrix[3][2] = m_eye[2] - m_offsetDistance * m_viewDir[2];
+	m_viewMatrix[3][2] = -(m_zAxis[0] * m_eye[0] + m_zAxis[1] * m_eye[1] + m_zAxis[2] * m_eye[2]);
+	m_invViewMatrix[3][2] = m_eye[2];
 }
 
 void Camera::setRotationSpeed(float rotationSpeed){
@@ -674,19 +671,19 @@ void Camera::setMovingSpeed(float movingSpeed) {
 }
 
 const Vector3f &Camera::getPosition() const{
-	return m_eye - m_offsetDistance * m_viewDir;
+	return m_eye;
 }
 
 const float Camera::getPositionX() const {
-	return m_eye[0] - m_offsetDistance * m_viewDir[0];
+	return m_eye[0];
 }
 
 const float Camera::getPositionY() const {
-	return m_eye[1] - m_offsetDistance * m_viewDir[1];
+	return m_eye[1];
 }
 
 const float Camera::getPositionZ() const {
-	return m_eye[2] - m_offsetDistance * m_viewDir[2];
+	return m_eye[2];
 }
 
 const Vector3f &Camera::getCamX() const{
@@ -781,14 +778,9 @@ const Matrix4f Camera::getRotationMatrix(const Vector3f &position) const {
 
 void Camera::setOffsetDistance(float offsetDistance) {
 	m_offsetDistance = offsetDistance;
-	updateViewMatrix(m_eye - m_offsetDistance * m_viewDir);
+	updateViewMatrix(m_target - m_offsetDistance * m_viewDir);
 }
-
-void Camera::setTarget(const Vector3f& target) {
-	m_target = target;
-}
-///////////////////////////////////////////////////////////////////////////////////////////
-
+//////////////////////////////////////////////////////////////////////////////////////////
 const float ThirdPersonCamera::DEFAULT_SPRING_CONSTANT = 16.0f;
 const float ThirdPersonCamera::DEFAULT_DAMPING_CONSTANT = 8.0f;
 
@@ -797,10 +789,7 @@ ThirdPersonCamera::ThirdPersonCamera() : Camera() {
 	m_enableSpringSystem = true;
 	m_springConstant = DEFAULT_SPRING_CONSTANT;
 	m_dampingConstant = DEFAULT_DAMPING_CONSTANT;
-
 	m_target.set(0.0f, 0.0f, 0.0f);
-	m_targetYAxis.set(0.0f, 1.0f, 0.0f);
-
 	m_velocity.set(0.0f, 0.0f, 0.0f);
 }
 
@@ -816,10 +805,6 @@ float ThirdPersonCamera::getSpringConstant() const {
 	return m_springConstant;
 }
 
-const Vector3f &ThirdPersonCamera::getTargetYAxis() const {
-	return m_targetYAxis;
-}
-
 bool ThirdPersonCamera::springSystemIsEnabled() const {
 	return m_enableSpringSystem;
 }
@@ -830,79 +815,6 @@ const Vector3f& ThirdPersonCamera::getTarget() const {
 
 const Vector3f& ThirdPersonCamera::getVelocity() const {
 	return m_velocity;
-}
-
-void ThirdPersonCamera::setTargetYAxis(const Vector3f& targetYAxis) {
-	m_targetYAxis = targetYAxis;
-}
-
-void ThirdPersonCamera::lookAt(const Vector3f& eye, const Vector3f& target, const Vector3f& up) {
-
-	m_eye = eye;
-	m_target = target;
-	m_targetYAxis = up;
-
-	m_zAxis = m_eye - target;
-	Vector3f::Normalize(m_zAxis);
-
-	m_xAxis = Vector3f::Cross(up, m_zAxis);
-	Vector3f::Normalize(m_xAxis);
-
-	m_yAxis = Vector3f::Cross(m_zAxis, m_xAxis);
-	Vector3f::Normalize(m_yAxis);
-
-	WORLD_YAXIS = Vector3f::Cross(m_zAxis, m_xAxis);
-	Vector3f::Normalize(WORLD_YAXIS);
-
-	m_viewDir = -m_zAxis;
-
-	m_viewMatrix[0][0] = m_xAxis[0];
-	m_viewMatrix[0][1] = m_xAxis[1];
-	m_viewMatrix[0][2] = m_xAxis[2];
-	m_viewMatrix[0][3] = 0.0f;
-
-	m_viewMatrix[1][0] = m_yAxis[0];
-	m_viewMatrix[1][1] = m_yAxis[1];
-	m_viewMatrix[1][2] = m_yAxis[2];
-	m_viewMatrix[1][3] = 0.0f;
-
-	m_viewMatrix[2][0] = m_zAxis[0];
-	m_viewMatrix[2][1] = m_zAxis[1];
-	m_viewMatrix[2][2] = m_zAxis[2];
-	m_viewMatrix[2][3] = 0.0f;
-
-	m_viewMatrix[3][0] = -Vector3f::Dot(m_xAxis, m_eye - m_offsetDistance * m_viewDir);
-	m_viewMatrix[3][1] = -Vector3f::Dot(m_yAxis, m_eye - m_offsetDistance * m_viewDir);
-	m_viewMatrix[3][2] = -Vector3f::Dot(m_zAxis, m_eye - m_offsetDistance * m_viewDir);
-	m_viewMatrix[3][3] = 1.0f;
-
-}
-
-void ThirdPersonCamera::orthogonalize() {
-	Vector3f::Normalize(m_zAxis);
-
-	m_yAxis = Vector3f::Cross(m_zAxis, m_xAxis);
-	Vector3f::Normalize(m_yAxis);
-
-	m_xAxis = Vector3f::Cross(m_yAxis, m_zAxis);
-	Vector3f::Normalize(m_xAxis);
-
-	m_viewDir = -m_zAxis;
-
-	m_viewMatrix[0][0] = m_xAxis[0];
-	m_viewMatrix[0][1] = m_yAxis[0];
-	m_viewMatrix[0][2] = m_zAxis[0];
-	m_viewMatrix[0][3] = 0.0f;
-
-	m_viewMatrix[1][0] = m_xAxis[1];
-	m_viewMatrix[1][1] = m_yAxis[1];
-	m_viewMatrix[1][2] = m_zAxis[1];
-	m_viewMatrix[1][3] = 0.0f;
-
-	m_viewMatrix[2][0] = m_xAxis[2];
-	m_viewMatrix[2][1] = m_yAxis[2];
-	m_viewMatrix[2][2] = m_zAxis[2];
-	m_viewMatrix[2][3] = 0.0f;
 }
 
 void ThirdPersonCamera::rotate(float yaw, float pitch) {
@@ -921,24 +833,48 @@ void ThirdPersonCamera::setSpringConstant(float springConstant) {
 
 void ThirdPersonCamera::update(float elapsedTimeSec) {
 
-	if (m_enableSpringSystem)
-		updateViewMatrix(elapsedTimeSec);
-	else
+	if (m_enableSpringSystem) {
+		//updateViewMatrix(elapsedTimeSec);
+		updateViewMatrixDump(elapsedTimeSec);
+	}else {
 		Camera::updateViewMatrix(m_target - m_offsetDistance * m_viewDir);
+	}
 }
 
 void ThirdPersonCamera::updateViewMatrix(float elapsedTimeSec) {
 	
 	Vector3f idealPosition = m_target + m_zAxis * m_offsetDistance;
-	Vector3f displacement = getPosition() - idealPosition;
+	Vector3f displacement = m_eye - idealPosition;
 	Vector3f springAcceleration = (-m_springConstant * displacement) - (m_dampingConstant * m_velocity);
 
 	m_velocity += springAcceleration * elapsedTimeSec;
 	m_eye += m_velocity * elapsedTimeSec;
 
 	
+	m_viewMatrix[3][0] = -Vector3f::Dot(m_xAxis, m_eye);
+	m_viewMatrix[3][1] = -Vector3f::Dot(m_yAxis, m_eye);
+	m_viewMatrix[3][2] = -Vector3f::Dot(m_zAxis, m_eye);
+	m_viewMatrix[3][3] = 1.0f;
+}
+
+void ThirdPersonCamera::updateViewMatrixDump(float elapsedTimeSec) {
+
+	Vector3f displacement = m_eye - m_target;
+	Vector3f springAcceleration = (-m_springConstant * displacement) - (m_dampingConstant * m_velocity);
+
+	m_velocity += springAcceleration * elapsedTimeSec;
+	m_eye += m_velocity * elapsedTimeSec;
+
 	m_viewMatrix[3][0] = -Vector3f::Dot(m_xAxis, m_eye - m_offsetDistance * m_viewDir);
 	m_viewMatrix[3][1] = -Vector3f::Dot(m_yAxis, m_eye - m_offsetDistance * m_viewDir);
 	m_viewMatrix[3][2] = -Vector3f::Dot(m_zAxis, m_eye - m_offsetDistance * m_viewDir);
 	m_viewMatrix[3][3] = 1.0f;
+}
+
+void ThirdPersonCamera::enableSpringSystem(bool enableSpringSystem){
+	m_enableSpringSystem = enableSpringSystem;
+}
+
+void ThirdPersonCamera::setTarget(const Vector3f& target) {
+	m_target = target;
 }

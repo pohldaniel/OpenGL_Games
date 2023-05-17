@@ -92,7 +92,7 @@ void ShapeInterface::update() {
 
 	if (move || dx != 0.0f || dy != 0.0f) {
 		if (dx || dy) {
-			m_camera.rotateSmoothly(dx, dy, 0.0f);
+			m_camera.rotate(dx, dy);
 
 		}
 

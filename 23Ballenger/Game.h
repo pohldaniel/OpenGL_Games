@@ -41,10 +41,12 @@ public:
 	void renderUi();
 	bool m_initUi = true;
 	bool m_drawUi = false;
+	bool m_enableSpring = true;
+	bool m_useThirdCamera = false;
+
 	bool Init(int lvl);
 
-	//Camera m_camera;
-	ThirdPersonCamera m_camera2;
+	ThirdPersonCamera m_camera;
 
 	RenderableObject m_sphere;
 	float m_offsetDistance = 10.0f;

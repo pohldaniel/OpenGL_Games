@@ -14,20 +14,16 @@ public:
 
 	void perspective(float fovx, float aspect, float znear, float zfar);
 	void orthographic(float left, float right, float bottom, float top, float znear, float zfar);
-	virtual void lookAt(const Vector3f &eye, const Vector3f &target, const Vector3f &up);
+	void lookAt(const Vector3f &eye, const Vector3f &target, const Vector3f &up);
 
 	void move(float dx, float dy, float dz);
 	void move(Vector3f &direction);
-	void moveRelative(Vector3f &direction);
-
 	void moveX(float dx);
 	void moveY(float dy);
 	void moveZ(float dx);
 
-	void rotate(float yaw, float pitch, float roll);
-	void rotate(float yaw, float pitch, float roll, const Vector3f &target);
-	void rotateSmoothly(float yaw, float pitch, float roll);
-	void rotateSmoothly(float yaw, float pitch, float roll, const Vector3f &target);
+	virtual void rotate(float yaw, float pitch);
+	void rotate(float yaw, float pitch, const Vector3f &target);
 
 	void pitchReflection(const float distance);
 	void calcLightTransformation(Vector3f &direction);
@@ -81,12 +77,12 @@ public:
 	void setPositionX(float x);
 	void setPositionY(float y);
 	void setPositionZ(float z);
-	void setTarget(const Vector3f& target);
+	virtual void setTarget(const Vector3f& target);
+	
+
 	void setMovingSpeed(float movingSpeed);
 	void setOffsetDistance(float offsetDistance);
-
 	void setRotationSpeed(float rotationSpeed);
-
 
 	Matrix4f lightView;
 	Matrix4f lightPerspective;
@@ -101,7 +97,8 @@ protected:
 
     void rotateFirstPerson(float yaw, float pitch);
 	void updateViewMatrix(const Vector3f &position);
-	virtual void orthogonalize();
+	void updateViewMatrix();
+	void orthogonalize();
 
     Vector3f WORLD_XAXIS;
 	Vector3f WORLD_YAXIS;
@@ -125,7 +122,6 @@ protected:
 	Matrix4f		m_persMatrix;
 	Matrix4f		m_invPersMatrix;
 	Matrix4f		m_orthMatrix;
-
 };
 
 class ThirdPersonCamera : public Camera {
@@ -136,34 +132,31 @@ public:
 	ThirdPersonCamera();
 	~ThirdPersonCamera();
 
-	void lookAt(const Vector3f& eye, const Vector3f& target, const Vector3f& up) override;
-
-	void rotate(float longitudeDegrees, float latitudeDegrees);
+	using Camera::rotate;
+	void rotate(float yaw, float pitch) override;
 	void update(float elapsedTimeSec);
-	void orthogonalize() override;
 
 	bool springSystemIsEnabled() const;
+	void enableSpringSystem(bool enableSpringSystem);
 	float getDampingConstant() const;
 	float getSpringConstant() const;
-	const Vector3f& getTargetYAxis() const;
+
 	const Vector3f& getTarget() const;
 	const Vector3f& getVelocity() const;
 
-
 	void setSpringConstant(float springConstant);
-	
-	void setTargetYAxis(const Vector3f& targetYAxis);
+	void setTarget(const Vector3f& target) override;
 
 	void updateViewMatrix(float elapsedTimeSec);
-
+	void updateViewMatrixDump(float elapsedTimeSec);
 
 	bool m_enableSpringSystem;
 	float m_springConstant;
 	float m_dampingConstant;
 
-	
-	Vector3f m_targetYAxis;
+
 	Vector3f m_velocity;
+	
 
 	static const float DEFAULT_SPRING_CONSTANT;
 	static const float DEFAULT_DAMPING_CONSTANT;
