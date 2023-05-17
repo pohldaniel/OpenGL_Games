@@ -2,11 +2,11 @@
 
 #include <btBulletDynamicsCommon.h>
 
-class DynamicCharacterController {
+class CharacterController {
 	public:
 
-	DynamicCharacterController();
-	~DynamicCharacterController();
+	CharacterController();
+	~CharacterController();
 
 	void create(btRigidBody* rigidBody, btDynamicsWorld* physicsWorld, int collisionFilterGroup = 1, int collisionFilterMask = -1, void* rigidBodyUserPointer = NULL);
 	void destroy();

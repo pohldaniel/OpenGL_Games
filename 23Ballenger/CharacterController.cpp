@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "DynamicCharacterController.h"
+#include "CharacterController.h"
 #include "engine/Vector.h"
 
 const float DEFAULT_STEP_HEIGHT = 0.1f; // The default amount to move the character up before resolving collisions.
@@ -43,7 +43,7 @@ private:
 	btCollisionObject* mSelf;
 };
 
-DynamicCharacterController::DynamicCharacterController()
+CharacterController::CharacterController()
 	: m_collisionWorld(nullptr)
 	, m_rigidBody(nullptr)
 	, m_shape(nullptr)
@@ -57,11 +57,11 @@ DynamicCharacterController::DynamicCharacterController()
 
 }
 
-DynamicCharacterController::~DynamicCharacterController(){
+CharacterController::~CharacterController(){
 	destroy();
 }
 
-void DynamicCharacterController::create(btRigidBody* rigidBody, btDynamicsWorld* physicsWorld, int collisionFilterGroup, int collisionFilterMask, void* rigidBodyUserPointer) {
+void CharacterController::create(btRigidBody* rigidBody, btDynamicsWorld* physicsWorld, int collisionFilterGroup, int collisionFilterMask, void* rigidBodyUserPointer) {
 	m_collisionWorld = physicsWorld;
 	m_shape = rigidBody->getCollisionShape();
 	m_rigidBody = rigidBody;
@@ -78,7 +78,7 @@ void DynamicCharacterController::create(btRigidBody* rigidBody, btDynamicsWorld*
 	physicsWorld->addRigidBody(m_rigidBody, collisionFilterGroup, collisionFilterMask);
 }
 
-void DynamicCharacterController::destroy(){
+void CharacterController::destroy(){
 	delete m_rigidBody;
 	m_rigidBody = nullptr;
 
@@ -88,20 +88,20 @@ void DynamicCharacterController::destroy(){
 	m_collisionWorld = nullptr;
 }
 
-void DynamicCharacterController::setSlopeAngle(float degrees) {
+void CharacterController::setSlopeAngle(float degrees) {
 	m_maxClimbSlopeAngle = cosf(degrees * PI_ON_180);
 }
 
-void DynamicCharacterController::setJumpDistanceOffset(float value) {
+void CharacterController::setJumpDistanceOffset(float value) {
 	m_jumpDistanceOffset = value;
 }
 
-void DynamicCharacterController::setOnGroundDistanceOffset(float value) {
+void CharacterController::setOnGroundDistanceOffset(float value) {
 	m_onGroundDistanceOffset = value;
 }
 
 //this values are deppending on the used geometry
-float DynamicCharacterController::getVelocityWeight(float sloapDot) {
+float CharacterController::getVelocityWeight(float sloapDot) {
 	
 	if (m_slopeDot < 0.3f) {
 		return m_groundTicks ? 0.0f : 3.3f;
@@ -115,18 +115,18 @@ float DynamicCharacterController::getVelocityWeight(float sloapDot) {
 		return 1.0f;
 }
 
-void DynamicCharacterController::preStep(){
+void CharacterController::preStep(){
 	
 	if (m_onSteepSlope){
 		btVector3 uAxis = m_slopeNormal.cross(UP_VECTOR).normalize();
 		btVector3 vAxis = uAxis.cross(m_slopeNormal);
 		btVector3 fixVel = (vAxis / m_slopeNormal.dot(UP_VECTOR)) * getVelocityWeight(m_slopeDot);
-		fixVel[1] = m_onGround ? 0.0f : fixVel[1];
+		//fixVel[1] = m_onGround ? 0.0f : fixVel[1];
 		m_rigidBody->setLinearVelocity(-fixVel);
 	}
 }
 
-void DynamicCharacterController::postStep() {
+void CharacterController::postStep() {
 	m_falling = false;
 	const float TEST_DISTANCE_RAY = 10.0f;
 	const float TEST_DISTANCE = 2.0f;
@@ -195,12 +195,12 @@ void DynamicCharacterController::postStep() {
 	m_groundTicks = m_groundTicks > 0 ? m_groundTicks -= 1 : 0;
 }
 
-bool DynamicCharacterController::onGround() const{
+bool CharacterController::onGround() const{
 	return m_onGround;
 }
 
 //this values are deppending on the used geometry
-unsigned short DynamicCharacterController::getJumpTicks(float sloapDot) {
+unsigned short CharacterController::getJumpTicks(float sloapDot) {
 
 	if (m_slopeDot < 0.3f) {
 		return 4;
@@ -211,29 +211,29 @@ unsigned short DynamicCharacterController::getJumpTicks(float sloapDot) {
 	}
 }
 
-void DynamicCharacterController::jump(const btVector3& direction, float force){
+void CharacterController::jump(const btVector3& direction, float force){
 	
 	if (m_canJump){
-		//reduce the rejump ticks on steep slopes
+		//reduce rejump ticks on steep slopes
 		m_jumpTicks = getJumpTicks(m_slopeDot);
 		m_canJump = false;
 		m_rigidBody->setLinearVelocity(direction * force);
 	}
 }
 
-void DynamicCharacterController::applyCentralImpulse(const btVector3& direction) {
+void CharacterController::applyCentralImpulse(const btVector3& direction) {
 	m_rigidBody->applyCentralImpulse(direction);
 }
 
-void DynamicCharacterController::setLinearVelocity(const btVector3& vel){
+void CharacterController::setLinearVelocity(const btVector3& vel){
 	m_rigidBody->setLinearVelocity(vel);
 }
 
-void DynamicCharacterController::setAngularVelocity(const btVector3& angVel) {
+void CharacterController::setAngularVelocity(const btVector3& angVel) {
 	m_rigidBody->setAngularVelocity(angVel);
 }
 
-void DynamicCharacterController::setLinearVelocityXZ(const btVector3& vel) {
+void CharacterController::setLinearVelocityXZ(const btVector3& vel) {
 	
 	btVector3 _vel = m_rigidBody->getLinearVelocity();
 	_vel.setX(vel[0]);
@@ -241,51 +241,51 @@ void DynamicCharacterController::setLinearVelocityXZ(const btVector3& vel) {
 	setLinearVelocity(_vel);
 }
 
-const btVector3& DynamicCharacterController::getLinearVelocity(){
+const btVector3& CharacterController::getLinearVelocity(){
 	return m_rigidBody->getLinearVelocity();
 }
 
-const float DynamicCharacterController::getLinearVelocityY() {
+const float CharacterController::getLinearVelocityY() {
 	return m_rigidBody->getLinearVelocity()[1];
 }
 
-void DynamicCharacterController::moveCharacterAlongY(float step){
+void CharacterController::moveCharacterAlongY(float step){
 	btVector3 pos = m_rigidBody->getWorldTransform().getOrigin();
 	m_rigidBody->getWorldTransform().setOrigin(pos + btVector3(0, step, 0));
 }
 
-void DynamicCharacterController::setAngularFactor(const btVector3& angularFactor) {
+void CharacterController::setAngularFactor(const btVector3& angularFactor) {
 	m_rigidBody->setAngularFactor(angularFactor);
 }
 
-void DynamicCharacterController::setSleepingThresholds(float linear, float angular) {
+void CharacterController::setSleepingThresholds(float linear, float angular) {
 	m_rigidBody->setSleepingThresholds(linear, angular);
 }
 
-void DynamicCharacterController::setRollingFriction(float rollingFriction) {
+void CharacterController::setRollingFriction(float rollingFriction) {
 	m_rigidBody->setRollingFriction(rollingFriction);
 }
 
-void DynamicCharacterController::setDamping(float linear, float angular) {
+void CharacterController::setDamping(float linear, float angular) {
 	m_rigidBody->setDamping(linear, angular);
 }
 
-void DynamicCharacterController::getWorldTransform(btTransform& transform) {
+void CharacterController::getWorldTransform(btTransform& transform) {
 	m_rigidBody->getMotionState()->getWorldTransform(transform);
 }
 
-void DynamicCharacterController::setLinearFactor(const btVector3& linearFactor) {
+void CharacterController::setLinearFactor(const btVector3& linearFactor) {
 	m_rigidBody->setLinearFactor(linearFactor);
 }
 
-void DynamicCharacterController::setGravity(const btVector3& gravity) {
+void CharacterController::setGravity(const btVector3& gravity) {
 	m_rigidBody->setGravity(gravity);
 }
 
-btRigidBody* DynamicCharacterController::getRigidBody() const { 
+btRigidBody* CharacterController::getRigidBody() const {
 	return m_rigidBody; 
 }
 
-btCollisionShape* DynamicCharacterController::getCollisionShape() const { 
+btCollisionShape* CharacterController::getCollisionShape() const {
 	return m_shape; 
 }

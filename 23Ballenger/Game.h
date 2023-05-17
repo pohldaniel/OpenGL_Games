@@ -6,7 +6,7 @@
 
 #include "StateMachine.h"
 #include "RenderableObject.h"
-#include "DynamicCharacterController.h"
+#include "CharacterController.h"
 
 #include "cPlayer.h"
 #include "cRespawnPoint.h"
@@ -46,12 +46,7 @@ public:
 
 	bool Init(int lvl);
 
-	ThirdPersonCamera m_camera;
-
-	RenderableObject m_sphere;
-	float m_offsetDistance = 10.0f;
-	DynamicCharacterController *m_dynamicCharacterController;
-	btRigidBody* m_rigidBody;
+	
 private:
 	unsigned char keys[256];
 	bool mouse_left_down, mouse_right_down;
@@ -75,4 +70,11 @@ private:
 	Vector3f m_playerPos;
 
 	void Physics(cBicho &object);
+
+	ThirdPersonCamera m_camera;
+
+	RenderableObject m_sphere;
+	float m_offsetDistance = 10.0f;
+	CharacterController *m_characterController;
+
 };
