@@ -104,7 +104,7 @@ void DynamicCharacterController::setOnGroundDistanceOffset(float value) {
 float DynamicCharacterController::getVelocityWeight(float sloapDot) {
 	
 	if (m_slopeDot < 0.3f) {
-		return 3.3f;
+		return m_groundTicks ? 0.0f : 3.3f;
 	}if (m_slopeDot < 0.4f) {
 		return 2.8f;
 	}if (m_slopeDot < 0.5f) {
@@ -121,7 +121,7 @@ void DynamicCharacterController::preStep(){
 		btVector3 uAxis = m_slopeNormal.cross(UP_VECTOR).normalize();
 		btVector3 vAxis = uAxis.cross(m_slopeNormal);
 		btVector3 fixVel = (vAxis / m_slopeNormal.dot(UP_VECTOR)) * getVelocityWeight(m_slopeDot);
-		fixVel[1] = m_onGround ? 0 : fixVel[1];
+		fixVel[1] = m_onGround ? 0.0f : fixVel[1];
 		m_rigidBody->setLinearVelocity(-fixVel);
 	}
 }
@@ -150,8 +150,10 @@ void DynamicCharacterController::postStep() {
 
 		m_falling = distance > TEST_DISTANCE;
 
-		if (m_onGround)
+		if (m_onGround) {
 			moveCharacterAlongY(std::fabs(distance - 0.5f));
+			m_groundTicks = 10;
+		}
 
 	}else{
 		m_onGround = false;
@@ -190,6 +192,7 @@ void DynamicCharacterController::postStep() {
 	}
 
 	m_jumpTicks = m_jumpTicks > 0 ? m_jumpTicks -= 1 : 0;
+	m_groundTicks = m_groundTicks > 0 ? m_groundTicks -= 1 : 0;
 }
 
 bool DynamicCharacterController::onGround() const{
@@ -231,6 +234,7 @@ void DynamicCharacterController::setAngularVelocity(const btVector3& angVel) {
 }
 
 void DynamicCharacterController::setLinearVelocityXZ(const btVector3& vel) {
+	
 	btVector3 _vel = m_rigidBody->getLinearVelocity();
 	_vel.setX(vel[0]);
 	_vel.setZ(vel[2]);

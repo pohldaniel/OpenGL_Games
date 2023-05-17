@@ -180,8 +180,6 @@ void Game::update() {
 	m_playerPos = Physics::VectorFrom(t.getOrigin());
 	m_useThirdCamera ? m_camera.setTarget(m_playerPos) : m_camera.Camera::setTarget(m_playerPos);
 
-	
-
 	float dx = 0.0f;
 	float dy = 0.0f;
 	dx = mouse.xPosRelative();

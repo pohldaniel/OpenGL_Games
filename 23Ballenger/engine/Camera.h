@@ -147,16 +147,15 @@ public:
 	void setSpringConstant(float springConstant);
 	void setTarget(const Vector3f& target) override;
 
+private:
+
 	void updateViewMatrix(float elapsedTimeSec);
 	void updateViewMatrixDump(float elapsedTimeSec);
 
 	bool m_enableSpringSystem;
 	float m_springConstant;
 	float m_dampingConstant;
-
-
 	Vector3f m_velocity;
-	
 
 	static const float DEFAULT_SPRING_CONSTANT;
 	static const float DEFAULT_DAMPING_CONSTANT;

@@ -60,7 +60,7 @@ private:
 
 	bool movingUpward = true;
 	unsigned short m_jumpTicks = 0;
-
+	unsigned short m_groundTicks = 0;
 	float getVelocityWeight(float sloapDot);
 	unsigned short getJumpTicks(float sloapDot);
 };
