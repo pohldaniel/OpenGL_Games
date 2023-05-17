@@ -43,7 +43,9 @@ public:
 	bool m_drawUi = false;
 	bool Init(int lvl);
 
-	Camera m_camera;
+	//Camera m_camera;
+	ThirdPersonCamera m_camera2;
+
 	RenderableObject m_sphere;
 	float m_offsetDistance = 10.0f;
 	DynamicCharacterController *m_dynamicCharacterController;

@@ -16,10 +16,16 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 
 	m_pos = Vector3f((TERRAIN_SIZE * SCALE) / 2, (Terrain.GetHeight((TERRAIN_SIZE * SCALE) / 2, (TERRAIN_SIZE * SCALE) / 2) + RADIUS) * SCALE, (TERRAIN_SIZE * SCALE) / 2);
 	
-	m_camera = Camera();
-	m_camera.setOffsetDistance(m_offsetDistance);
-	m_camera.perspective(45.0, (float)Application::Width / (float)Application::Height, 0.1f, 1000.0f);
-	m_camera.lookAt(m_pos, m_pos + Vector3f(0.0f, 0.0f, 1.0f), Vector3f(0.0f, 1.0f, 0.0f));
+	//m_camera = Camera();
+	//m_camera.setOffsetDistance(m_offsetDistance);
+	//m_camera.perspective(45.0f, (float)Application::Width / (float)Application::Height, 0.1f, 1000.0f);
+	//m_camera.lookAt(m_pos, m_pos + Vector3f(0.0f, 0.0f, 1.0f), Vector3f(0.0f, 1.0f, 0.0f));
+
+
+	m_camera2 = ThirdPersonCamera();
+	m_camera2.setOffsetDistance(m_offsetDistance);
+	m_camera2.perspective(45.0f, (float)Application::Width / (float)Application::Height, 0.1f, 1000.0f);
+	m_camera2.lookAt(m_pos, m_pos + Vector3f(0.0f, 0.0f, 1.0f), Vector3f(0.0f, 1.0f, 0.0f));
 
 	std::vector<btCollisionShape*> terrainShape = Physics::CreateStaticCollisionShapes(&Terrain, SCALE);
 	btRigidBody* body = Globals::physics->addStaticModel(terrainShape, Physics::BtTransform(), false, btVector3(1.0f, 1.0f, 1.0f), Physics::collisiontypes::TERRAIN, Physics::collisiontypes::COL_GHOST);
@@ -104,7 +110,8 @@ void Game::update() {
 		m_dynamicCharacterController->setLinearVelocityXZ(btVector3(0.0f, 0.0f, 0.0f));
 		m_dynamicCharacterController->setAngularVelocity(btVector3(0.0f, 0.0f, 0.0f));
 	}else if(move){
-		direction = m_camera.getViewSpaceDirection(direction);
+		//direction = m_camera.getViewSpaceDirection(direction);
+		direction = m_camera2.getViewSpaceDirection(direction);
 		m_dynamicCharacterController->setLinearVelocityXZ(Physics::VectorFrom(direction * Vector3f(15.0f, 1.0f, 15.0f)));
 	}
 
@@ -179,8 +186,9 @@ void Game::update() {
 	btTransform t;
 	m_dynamicCharacterController->getWorldTransform(t);
 	m_playerPos = Physics::VectorFrom(t.getOrigin());
-	m_camera.setPosition(m_playerPos);
-
+	//m_camera.setPosition(m_playerPos);
+	m_camera2.setTarget(m_playerPos);
+	
 
 	float dx = 0.0f;
 	float dy = 0.0f;
@@ -189,22 +197,27 @@ void Game::update() {
 
 
 	if (dx || dy) {
-		m_camera.rotateSmoothly(dx, dy, 0.0f, m_playerPos);
+		//m_camera.rotateSmoothly(dx, dy, 0.0f, m_playerPos);
+		
+
+		m_camera2.rotate(dx, dy);
 	}
 
 	m_sphere.setPosition(m_playerPos);
 	m_sphere.setOrientation(Physics::QuaternionFrom(t.getRotation()));
+
+	m_camera2.update(m_dt);
 }
 
 void Game::render() {
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	glLoadMatrixf(&m_camera.getPerspectiveMatrix()[0][0]);
+	glLoadMatrixf(&m_camera2.getPerspectiveMatrix()[0][0]);
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-	glLoadMatrixf(&m_camera.getViewMatrix()[0][0]);
+	glLoadMatrixf(&m_camera2.getViewMatrix()[0][0]);
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -227,10 +240,10 @@ void Game::render() {
 
 	auto shader = Globals::shaderManager.getAssetPointer("terrain_new");
 	shader->use();
-	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
-	shader->loadMatrix("u_view", m_camera.getViewMatrix());
+	shader->loadMatrix("u_projection", m_camera2.getPerspectiveMatrix());
+	shader->loadMatrix("u_view", m_camera2.getViewMatrix());
 	shader->loadMatrix("u_model", Matrix4f::Scale(SCALE, SCALE, SCALE));
-	shader->loadMatrix("u_normal", Matrix4f::GetNormalMatrix(m_camera.getViewMatrix()));
+	shader->loadMatrix("u_normal", Matrix4f::GetNormalMatrix(m_camera2.getViewMatrix()));
 	
 	shader->loadVector("lightPos", Vector3f(50.0f, 50.0f, 50.0f));
 	shader->loadVector("lightAmbient", Vector4f(0.0f, 0.0f, 0.0f, 1.0f));
@@ -256,7 +269,7 @@ void Game::render() {
 
 	shader->unuse();
 
-	m_sphere.draw(m_camera);
+	m_sphere.draw(m_camera2);
 
 	if (m_drawUi)
 		renderUi();
@@ -267,16 +280,17 @@ void Game::OnMouseMotion(Event::MouseMoveEvent& event) {
 }
 
 void Game::OnMouseWheel(Event::MouseWheelEvent& event) {
+
 	if (event.direction == 1u) {
 		m_offsetDistance += 2.0f;
 		m_offsetDistance = std::max(0.0f, std::min(m_offsetDistance, 150.0f));
-		m_camera.setOffsetDistance(m_offsetDistance);
+		m_camera2.setOffsetDistance(m_offsetDistance);
 	}
 
 	if (event.direction == 0u) {
 		m_offsetDistance -= 2.0f;
 		m_offsetDistance = std::max(0.0f, std::min(m_offsetDistance, 150.0f));
-		m_camera.setOffsetDistance(m_offsetDistance);
+		m_camera2.setOffsetDistance(m_offsetDistance);
 	}
 }
 
@@ -340,7 +354,7 @@ void Game::renderUi() {
 	ImGui::Checkbox("Draw Wirframe", &StateMachine::GetEnableWireframe());
 
 	if (ImGui::SliderFloat("Camera Offset", &m_offsetDistance, 0.0f, 150.0f)) {
-		m_camera.setOffsetDistance(m_offsetDistance);
+		m_camera2.setOffsetDistance(m_offsetDistance);
 	}
 
 	ImGui::End();
@@ -468,7 +482,7 @@ bool Game::Init(int lvl) {
 		shader->loadMatrix("u_projection", camera.getPerspectiveMatrix());
 		shader->loadMatrix("u_view", camera.getViewMatrix());
 		shader->loadMatrix("u_model", m_sphere.getTransformationOP());
-		shader->loadMatrix("u_normal", Matrix4f::GetNormalMatrix(m_camera.getViewMatrix() * m_sphere.getTransformationP()));
+		shader->loadMatrix("u_normal", Matrix4f::GetNormalMatrix(m_camera2.getViewMatrix() * m_sphere.getTransformationP()));
 		Globals::textureManager.get(m_sphere.getTexture()).bind(0);
 		Globals::shapeManager.get(m_sphere.getShape()).drawRaw();
 		shader->unuse();

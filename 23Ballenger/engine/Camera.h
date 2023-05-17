@@ -25,9 +25,9 @@ public:
 	void moveZ(float dx);
 
 	void rotate(float yaw, float pitch, float roll);
-	void rotate(float yaw, float pitch, float roll, const Vector3f &centerOfRotation);
+	void rotate(float yaw, float pitch, float roll, const Vector3f &target);
 	void rotateSmoothly(float yaw, float pitch, float roll);
-	void rotateSmoothly(float yaw, float pitch, float roll, const Vector3f &centerOfRotation);
+	void rotateSmoothly(float yaw, float pitch, float roll, const Vector3f &target);
 
 	void pitchReflection(const float distance);
 	void calcLightTransformation(Vector3f &direction);
@@ -81,6 +81,7 @@ public:
 	void setPositionX(float x);
 	void setPositionY(float y);
 	void setPositionZ(float z);
+	void setTarget(const Vector3f& target);
 	void setMovingSpeed(float movingSpeed);
 	void setOffsetDistance(float offsetDistance);
 
@@ -99,9 +100,8 @@ public:
 protected:
 
     void rotateFirstPerson(float yaw, float pitch);
-	void rotateFirstPerson(float yaw, float pitch, const Vector3f &centerOfRotation);
 	void updateViewMatrix(const Vector3f &position);
-	void orthogonalize();
+	virtual void orthogonalize();
 
     Vector3f WORLD_XAXIS;
 	Vector3f WORLD_YAXIS;
@@ -117,6 +117,7 @@ protected:
     Vector3f		m_yAxis;
     Vector3f		m_zAxis;
 	Vector3f		m_viewDir;
+	Vector3f		m_target;
 
 	Matrix4f		m_viewMatrix;
 	Matrix4f		m_invViewMatrix;
@@ -124,6 +125,7 @@ protected:
 	Matrix4f		m_persMatrix;
 	Matrix4f		m_invPersMatrix;
 	Matrix4f		m_orthMatrix;
+
 };
 
 class ThirdPersonCamera : public Camera {
@@ -138,6 +140,7 @@ public:
 
 	void rotate(float longitudeDegrees, float latitudeDegrees);
 	void update(float elapsedTimeSec);
+	void orthogonalize() override;
 
 	bool springSystemIsEnabled() const;
 	float getDampingConstant() const;
@@ -145,28 +148,22 @@ public:
 	const Vector3f& getTargetYAxis() const;
 	const Vector3f& getTarget() const;
 	const Vector3f& getVelocity() const;
-	const Quaternion& getOrientation() const;
+
 
 	void setSpringConstant(float springConstant);
-	void setTarget(const Vector3f& target);
+	
 	void setTargetYAxis(const Vector3f& targetYAxis);
 
-	void updateOrientation(float elapsedTimeSec);
-	void updateViewMatrix();
 	void updateViewMatrix(float elapsedTimeSec);
+
 
 	bool m_enableSpringSystem;
 	float m_springConstant;
 	float m_dampingConstant;
-	float m_offsetDistance;
 
-	float m_headingDegrees;
-	float m_pitchDegrees;
-
-	Vector3f m_target;
+	
 	Vector3f m_targetYAxis;
 	Vector3f m_velocity;
-	Quaternion m_orientation;
 
 	static const float DEFAULT_SPRING_CONSTANT;
 	static const float DEFAULT_DAMPING_CONSTANT;
