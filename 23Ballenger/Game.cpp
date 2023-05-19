@@ -21,7 +21,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	m_camera.lookAt(m_pos - Vector3f(0.0f, 0.0f, m_offsetDistance), m_pos, Vector3f(0.0f, 1.0f, 0.0f));
 
 	std::vector<btCollisionShape*> terrainShape = Physics::CreateStaticCollisionShapes(&Terrain, SCALE);
-	btRigidBody* body = Globals::physics->addStaticModel(terrainShape, Physics::BtTransform(), false, btVector3(1.0f, 1.0f, 1.0f), Physics::collisiontypes::TERRAIN, Physics::collisiontypes::COL_GHOST);
+	btRigidBody* body = Globals::physics->addStaticModel(terrainShape, Physics::BtTransform(), false, btVector3(1.0f, 1.0f, 1.0f), Physics::collisiontypes::TERRAIN, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::CAMERA);
 
 	//create dynamic character
 	btSphereShape* playerShape = new btSphereShape(0.5f * SCALE);
@@ -36,7 +36,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	btRigidBody::btRigidBodyConstructionInfo cInfoChar(100.0f, playerMotionState, playerShape, localInertiaChar);
 
 	m_characterController = new CharacterController();
-	m_characterController->create(new btRigidBody(cInfoChar), Globals::physics->GetDynamicsWorld(), Physics::collisiontypes::COL_GHOST, Physics::collisiontypes::TERRAIN);
+	m_characterController->create(new btRigidBody(cInfoChar), Physics::GetDynamicsWorld(), Physics::collisiontypes::CHARACTER, Physics::collisiontypes::TERRAIN);
 	
 	m_characterController->setSlopeAngle(60.0f);
 	m_characterController->setJumpDistanceOffset(RADIUS + 0.1f);
@@ -111,70 +111,6 @@ void Game::update() {
 		m_characterController->jump(btVector3(0.0f, 1.0f, 0.0f), 20.0f);
 	}
 	
-	float initial_z = Player.GetZ();
-	Physics(Player);
-
-	//comprueba si el player muere
-	if (Player.GetY() <= Lava.GetHeight() + RADIUS) {
-		Player.SetY(Lava.GetHeight() + RADIUS);
-		Player.SetVel(0.0f, 0.0f, 0.0f);
-		pickedkey_id = -1;
-		state = STATE_LIVELOSS;
-		//Sound.Play(SOUND_SWISH);
-	}
-
-	Coord P; P.x = Player.GetX(); P.y = Player.GetY(); P.z = Player.GetZ();
-	float r = RADIUS;
-
-	//comprueba si el player entra en algun Respawn Point
-	float cr = CIRCLE_RADIUS, ah = AURA_HEIGHT;
-	for (unsigned int i = 0; i<respawn_points.size(); i++) {
-		Coord RP; RP.x = respawn_points[i].GetX(); RP.y = respawn_points[i].GetY(); RP.z = respawn_points[i].GetZ();
-		if (sqrt((P.x - RP.x)*(P.x - RP.x) + (P.y - RP.y)*(P.y - RP.y) + (P.z - RP.z)*(P.z - RP.z)) <= RADIUS + CIRCLE_RADIUS) {
-			//if (respawn_id != i) Sound.Play(SOUND_SWISH);
-			respawn_id = i;
-		}
-	}
-
-	//comprueba si el player recoge alguna llave
-	if (pickedkey_id == -1) {
-		for (unsigned int i = 0; i<target_keys.size(); i++) {
-			if (!target_keys[i].IsDeployed()) {
-				Coord K; K.x = target_keys[i].GetX(); K.y = target_keys[i].GetY(); K.z = target_keys[i].GetZ();
-				if (sqrt((P.x - K.x)*(P.x - K.x) + (P.y - K.y)*(P.y - K.y) + (P.z - K.z)*(P.z - K.z)) <= RADIUS * 2) {
-					pickedkey_id = i;
-					//Sound.Play(SOUND_PICKUP);
-				}
-			}
-		}
-	}
-
-	//comprueba si el player llega con una llave a su respectiva columna
-	if (pickedkey_id != -1) {
-		if (columns[pickedkey_id].InsideGatheringArea(P.x, P.y, P.z)) {
-			//Sound.Play(SOUND_UNLOCK);
-			//Sound.Play(SOUND_ENERGYFLOW);
-			target_keys[pickedkey_id].Deploy();
-			pickedkey_id = -1;
-			if (respawn_id) {
-				//Sound.Play(SOUND_SWISH);
-				respawn_id = 0;
-			}
-			bool all_keys_deployed = true;
-			for (unsigned int i = 0; all_keys_deployed && i<target_keys.size(); i++) all_keys_deployed = target_keys[i].IsDeployed();
-			portal_activated = all_keys_deployed;
-			//if (portal_activated) Sound.Play(SOUND_WARP);
-		}
-	}
-
-	//comprueba si el player atraviesa el portal estando activado
-	if (portal_activated) {
-		if (Portal.InsidePortal(P.x, P.y, P.z, RADIUS)) {
-			if ((initial_z - Portal.GetZ() <= 0.0f && Player.GetZ() - Portal.GetZ() >= 0.0f) ||
-				(initial_z - Portal.GetZ() >= 0.0f && Player.GetZ() - Portal.GetZ() <= 0.0f)) state = STATE_ENDGAME;
-		}
-	}
-
 	btTransform t;
 	m_characterController->getWorldTransform(t);
 	m_playerPos = Physics::VectorFrom(t.getOrigin());
@@ -190,6 +126,11 @@ void Game::update() {
 		m_useThirdCamera ? m_camera.rotate(dx, dy) : m_camera.rotate(dx, dy, m_playerPos);		
 	}
 
+	btVector3 cameraPosition = Physics::VectorFrom(m_camera.getPosition());
+
+	cameraPosition.setInterpolate3(t.getOrigin(), cameraPosition, Physics::SweepSphere(t.getOrigin(), cameraPosition, 0.2f, Physics::collisiontypes::CAMERA, Physics::collisiontypes::TERRAIN));
+	m_camera.setPosition(Physics::VectorFrom(cameraPosition));
+	
 	m_sphere.setPosition(m_playerPos);
 	m_sphere.setOrientation(Physics::QuaternionFrom(t.getRotation()));
 

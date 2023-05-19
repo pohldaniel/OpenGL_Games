@@ -1707,8 +1707,6 @@ Matrix4f Matrix4f::LookAt(const Vector3f &eye, const Vector3f &target, const Vec
 					xAxis[1], yAxis[1], zAxis[1], 0.0f, 
 					xAxis[2], yAxis[2], zAxis[2], 0.0f, 
 					-Vector3f::Dot(xAxis, eye), -Vector3f::Dot(yAxis, eye), -Vector3f::Dot(zAxis, eye), 1.0f);
-
-	
 }
 
 Matrix4f Matrix4f::InvViewMatrix(const Matrix4f &viewMatrix) {
@@ -1727,7 +1725,6 @@ float *Matrix4f::operator[](int row) {
 const float *Matrix4f::operator[](int row) const {
 	return mtx[row];
 }
-
 
 void Matrix4f::identity() {
 
@@ -2580,10 +2577,6 @@ void Quaternion::fromMatrix(const Matrix4f &m) {
 	}
 
 	quat[0] = q[0], quat[1] = q[1], quat[2] = q[2], quat[3] = q[3];
-
-	//for (short i = 0; i < 4; i++) {
-		//memcmp(mtx[i], m[i], sizeof(float) * 4) == 0;
-	//}
 }
 
 //https://math.stackexchange.com/questions/2975109/how-to-convert-euler-angles-to-quaternions-and-get-the-same-euler-angles-back-fr
@@ -2772,20 +2765,12 @@ const Matrix4f Quaternion::toMatrix4f(const Vector3f &centerOfRotation) const{
 		centerOfRotation[0] * (yy + zz) - centerOfRotation[1] * (xy + wz) - centerOfRotation[2] * (xz - wy), centerOfRotation[1] * (xx + zz) - centerOfRotation[0] * (xy - wz) - centerOfRotation[2] * (yz + wx), centerOfRotation[2] * (xx + yy) - centerOfRotation[0] * (xz + wy) - centerOfRotation[1] * (yz - wx), 1.0f);;
 }
 
-/*void Quaternion::toHeadPitchRoll(float &headDegrees, float &pitchDegrees, float &rollDegrees) const {
-	mtx.toHeadPitchRoll(headDegrees, pitchDegrees, rollDegrees);
-}*/
-
 void Quaternion::Normalize(Quaternion &q) {
 	q.normalize();
 }
 
 Quaternion& Quaternion::FromMatrix(Quaternion &quat, const Matrix4f &m) {
 	quat.fromMatrix(m);
-	//for (short i = 0; i < 4; i++) {
-	//	memcmp(quat.mtx[i], m[i], sizeof(float) * 4) == 0;
-	//}
-
 	return quat;
 }
 

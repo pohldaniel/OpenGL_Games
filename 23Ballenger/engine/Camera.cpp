@@ -24,7 +24,7 @@ Camera::Camera(){
 	m_orthMatrix.identity();
 	
 	orthogonalize();
-	updateViewMatrix(m_eye);
+	updateViewMatrix();
 }
 
 Camera::Camera(const Vector3f &eye, const Vector3f &target, const Vector3f &up) {
@@ -87,20 +87,6 @@ void Camera::orthogonalize() {
 	m_invViewMatrix[2][1] = m_zAxis[1];
 	m_invViewMatrix[2][2] = m_zAxis[2];
 	m_invViewMatrix[2][3] = 0.0f;
-}
-
-void Camera::updateViewMatrix(const Vector3f &position){
-	m_eye = position;
-	
-	m_viewMatrix[3][0] = -Vector3f::Dot(m_xAxis, m_eye);
-	m_viewMatrix[3][1] = -Vector3f::Dot(m_yAxis, m_eye);
-	m_viewMatrix[3][2] = -Vector3f::Dot(m_zAxis, m_eye);
-	m_viewMatrix[3][3] = 1.0f;
-
-	m_invViewMatrix[3][0] = m_eye[0];
-	m_invViewMatrix[3][1] = m_eye[1];
-	m_invViewMatrix[3][2] = m_eye[2];
-	m_invViewMatrix[3][3] = 1.0f;
 }
 
 void Camera::updateViewMatrix() {
@@ -243,12 +229,21 @@ void Camera::move(float dx, float dy, float dz){
 	setPosition(eye);
 }
 
-void Camera::move(Vector3f &direction) {
+void Camera::move(const Vector3f &direction) {
 	Vector3f eye = m_eye;
 	eye += m_xAxis * direction[0] * m_movingSpeed;
 	eye += WORLD_YAXIS * direction[1] * m_movingSpeed;
 	eye += m_viewDir * direction[2] * m_movingSpeed;
 	setPosition(eye);
+}
+
+void Camera::moveRelative(const Vector3f &direction) {
+
+	m_eye[0] += (m_xAxis[0] * direction[0] + m_yAxis[0] * direction[1] + m_viewDir[0] * direction[2]);
+	m_eye[1] += (m_xAxis[1] * direction[0] + m_yAxis[1] * direction[1] + m_viewDir[1] * direction[2]);
+	m_eye[2] += (m_xAxis[2] * direction[0] + m_yAxis[2] * direction[1] + m_viewDir[2] * direction[2]);
+
+	updateViewMatrix();
 }
 
 const Vector3f Camera::getViewSpaceDirection(const Vector3f &direction) {
@@ -316,7 +311,8 @@ void Camera::rotate(float yaw, float pitch) {
 void Camera::rotate(float yaw, float pitch, const Vector3f &target) {
 	rotateFirstPerson(yaw * m_rotationSpeed, pitch * m_rotationSpeed);
 	orthogonalize();
-	updateViewMatrix(target - m_offsetDistance * m_viewDir);
+	m_eye = target - m_offsetDistance * m_viewDir;
+	updateViewMatrix();
 }
 
 const float Camera::getFar() const {
@@ -632,16 +628,19 @@ void Camera::setUpLightTransformation(std::vector<Vector2f>& bounds) {
 }
 
 void Camera::setPosition(float x, float y, float z){
-	updateViewMatrix(Vector3f(x, y, z));
+	m_eye = Vector3f(x, y, z);
+	updateViewMatrix();
 }
 
 void Camera::setPosition(const Vector3f &position){
-	updateViewMatrix(position);
+	m_eye = position;
+	updateViewMatrix();
 }
 
 void Camera::setTarget(const Vector3f& target) {
 	m_target = target;
-	updateViewMatrix(m_target - m_offsetDistance * m_viewDir);
+	m_eye = m_target - m_offsetDistance * m_viewDir;
+	updateViewMatrix();
 }
 
 void Camera::setPositionX(float x) {
@@ -778,7 +777,8 @@ const Matrix4f Camera::getRotationMatrix(const Vector3f &position) const {
 
 void Camera::setOffsetDistance(float offsetDistance) {
 	m_offsetDistance = offsetDistance;
-	updateViewMatrix(m_target - m_offsetDistance * m_viewDir);
+	m_eye = m_target - m_offsetDistance * m_viewDir;
+	updateViewMatrix();
 }
 //////////////////////////////////////////////////////////////////////////////////////////
 const float ThirdPersonCamera::DEFAULT_SPRING_CONSTANT = 16.0f;
@@ -837,7 +837,8 @@ void ThirdPersonCamera::update(float elapsedTimeSec) {
 		//updateViewMatrix(elapsedTimeSec);
 		updateViewMatrixDump(elapsedTimeSec);
 	}else {
-		Camera::updateViewMatrix(m_target - m_offsetDistance * m_viewDir);
+		m_eye = m_target - m_offsetDistance * m_viewDir;
+		Camera::updateViewMatrix();
 	}
 }
 

@@ -17,7 +17,8 @@ public:
 	void lookAt(const Vector3f &eye, const Vector3f &target, const Vector3f &up);
 
 	void move(float dx, float dy, float dz);
-	void move(Vector3f &direction);
+	void move(const Vector3f &direction);
+	void moveRelative(const Vector3f &direction);
 	void moveX(float dx);
 	void moveY(float dy);
 	void moveZ(float dx);
@@ -96,7 +97,6 @@ public:
 protected:
 
     void rotateFirstPerson(float yaw, float pitch);
-	void updateViewMatrix(const Vector3f &position);
 	void updateViewMatrix();
 	void orthogonalize();
 

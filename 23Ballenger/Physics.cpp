@@ -3,31 +3,7 @@
 #include "engine/MeshObject/Shape.h"
 #include "cTerrain.h"
 
-void* btFilteredVehicleRaycaster::castRay(const btVector3& from, const btVector3& to, btVehicleRaycasterResult& result){
-	//	RayResultCallback& resultCallback;
-
-	btCollisionWorld::ClosestRayResultCallback rayCallback(from, to);
-
-
-	rayCallback.m_collisionFilterGroup = m_collisionFilterGroup;
-	rayCallback.m_collisionFilterMask = m_collisionFilterMask;
-
-	m_dynamicsWorld->rayTest(from, to, rayCallback);
-
-	if (rayCallback.hasHit()) {
-
-		const btRigidBody* body = btRigidBody::upcast(rayCallback.m_collisionObject);
-		if (body && body->hasContactResponse()){
-
-			result.m_hitPointInWorld = rayCallback.m_hitPointWorld;
-			result.m_hitNormalInWorld = rayCallback.m_hitNormalWorld;
-			result.m_hitNormalInWorld.normalize();
-			result.m_distFraction = rayCallback.m_closestHitFraction;
-			return (void*)body;
-		}
-	}
-	return 0;
-}
+btDiscreteDynamicsWorld* Physics::DynamicsWorld;
 
 Physics::Physics(float physicsStep){
 	m_physicsStep = physicsStep;
@@ -46,22 +22,22 @@ void Physics::initialize(){
 	m_broadphase = new btDbvtBroadphase();
 	m_constraintSolver = new btSequentialImpulseConstraintSolver();
 
-	m_dynamicsWorld = new btDiscreteDynamicsWorld(m_dispatcher, m_broadphase, m_constraintSolver, m_collisionConfiguration);
-	m_dynamicsWorld->setGravity(btVector3(0, -9.81f, 0));
+	DynamicsWorld = new btDiscreteDynamicsWorld(m_dispatcher, m_broadphase, m_constraintSolver, m_collisionConfiguration);
+	DynamicsWorld->setGravity(btVector3(0, -9.81f, 0));
 }
 
 void Physics::deinitialize(){
 	// remove the rigidbodies from the dynamics world and delete them
-	for (int i = m_dynamicsWorld->getNumCollisionObjects() - 1; i >= 0; i--){
-		btCollisionObject* obj = m_dynamicsWorld->getCollisionObjectArray()[i];
+	for (int i = DynamicsWorld->getNumCollisionObjects() - 1; i >= 0; i--){
+		btCollisionObject* obj = DynamicsWorld->getCollisionObjectArray()[i];
 		btRigidBody* body = btRigidBody::upcast(obj);
 		if (body && body->getMotionState())
 			delete body->getMotionState();
-		m_dynamicsWorld->removeCollisionObject(obj);
+		DynamicsWorld->removeCollisionObject(obj);
 		delete obj;
 	}
 
-	delete m_dynamicsWorld;
+	delete DynamicsWorld;
 	delete m_constraintSolver;
 	//delete m_overlappingPairCache;
 	delete m_broadphase;
@@ -70,7 +46,7 @@ void Physics::deinitialize(){
 }
 
 void Physics::stepSimulation(btScalar timeStep){
-	int numSimSteps = m_dynamicsWorld->stepSimulation(timeStep, 1, m_physicsStep);
+	int numSimSteps = DynamicsWorld->stepSimulation(timeStep, 1, m_physicsStep);
 	//int numSimSteps = m_dynamicsWorld->stepSimulation(timeStep, 4 + 1, m_physicsStep / 4); // timeStep < maxSubSteps * fixedTimeSte
 }
 
@@ -93,7 +69,7 @@ btRigidBody * Physics::createRigidBody(btScalar mass, const btTransform & startT
 
 btRigidBody* Physics::addRigidBody(float mass, const btTransform & startTransform, btCollisionShape * shape, int collisionFilterGroup, int collisionFilterMask){
 	btRigidBody* body = createRigidBody(mass, startTransform, shape);
-	m_dynamicsWorld->addRigidBody(body, collisionFilterGroup, collisionFilterMask);
+	DynamicsWorld->addRigidBody(body, collisionFilterGroup, collisionFilterMask);
 
 	return body;
 }
@@ -119,6 +95,9 @@ btRigidBody* Physics::addStaticModel(std::vector<btCollisionShape *> & collision
 	return body;
 }
 
+void Physics::bebugDrawWorld() {
+	DynamicsWorld->debugDrawWorld();
+}
 
 btCollisionShape * Physics::CreateStaticCollisionShape(ObjMesh* mesh, const btVector3 & scale) {
 	int floatsPerVertex = mesh->getStride();
@@ -133,7 +112,6 @@ btCollisionShape * Physics::CreateStaticCollisionShape(ObjMesh* mesh, const btVe
 
 	return shape;
 }
-
 
 std::vector<btCollisionShape *> Physics::CreateStaticCollisionShapes(ObjModel* model, const btVector3 & scale) {
 	std::vector<btCollisionShape *> ret;
@@ -211,68 +189,23 @@ std::vector<btCollisionShape*> Physics::CreateStaticCollisionShapes(std::vector<
 	return ret;
 }
 
-btTransform Physics::BtTransform() {
-	btTransform ret;
-	ret.setIdentity();
-	
-	return ret;
-}
+float Physics::SweepSphere(const btVector3& from, const btVector3& to, float radius, int collisionFilterGroup, int collisionFilterMask) {
+	btSphereShape cameraSphere(radius);
 
-btTransform Physics::BtTransform(const Vector3f& origin) {
-	btTransform ret;
-	ret.setIdentity();
+	btTransform cameraFrom, cameraTo;
+	cameraFrom.setIdentity();
+	cameraFrom.setOrigin(from);
 
-	ret.setOrigin(btVector3(origin[0], origin[1], origin[2]));
+	cameraTo.setIdentity();
+	cameraTo.setOrigin(to);
 
-	return ret;
-}
+	btCollisionWorld::ClosestConvexResultCallback cb(from, to);
+	cb.m_collisionFilterGroup = collisionFilterGroup;
+	cb.m_collisionFilterMask = collisionFilterMask;
 
-btTransform Physics::BtTransform(const Vector3f& axis, float degrees) {
-	btTransform ret;
-	ret.setIdentity();
-	ret.setRotation(btQuaternion(btVector3(axis[0], axis[1], axis[2]), degrees * PI_ON_180));
-	return ret;
-}
+	DynamicsWorld->convexSweepTest(&cameraSphere, cameraFrom, cameraTo, cb);
 
-btTransform Physics::BtTransform(const Vector3f& origin, const Vector3f& axis, float degrees) {
-	btTransform ret;
-	ret.setIdentity();
-	
-	ret.setOrigin(btVector3(origin[0], origin[1], origin[2]));
-	ret.setRotation(btQuaternion(btVector3(axis[0], axis[1], axis[2]), degrees * PI_ON_180));
-	return ret;
-}
-
-Matrix4f Physics::MatrixFrom(const btTransform& trans, const btVector3& scale){
-	btMatrix3x3 m = trans.getBasis();
-	btVector3 v = trans.getOrigin();
-
-	return Matrix4f(m[0].x() * scale[0], m[1].x() * scale[1], m[2].x() * scale[2], 0.0f,
-					m[0].y() * scale[0], m[1].y() * scale[1], m[2].y() * scale[2], 0.0f,
-					m[0].z() * scale[0], m[1].z() * scale[1], m[2].z() * scale[2], 0.0f,
-					v.x(), v.y(), v.z(), 1.0f);
-}
-
-Matrix4f Physics::MatrixTransposeFrom(const btTransform& trans, const btVector3& scale) {
-	btMatrix3x3 m = trans.getBasis();
-	btVector3 v = trans.getOrigin();
-
-	return Matrix4f(m[0].x() * scale[0], m[0].y() * scale[1], m[0].z() * scale[2], v.x(),
-					m[1].x() * scale[0], m[1].y() * scale[1], m[1].z() * scale[2], v.y(),
-					m[2].x() * scale[0], m[2].y() * scale[1], m[2].z() * scale[2], v.z(),
-					0.0f, 0.0f, 0.0f, 1.0f);
-}
-
-Vector3f Physics::VectorFrom(const btVector3& vector) {
-	return Vector3f(vector.x(), vector.y(), vector.z());
-}
-
-Quaternion Physics::QuaternionFrom(const btQuaternion& quaternion) {
-	return Quaternion(-quaternion.x(), -quaternion.y(), -quaternion.z(), quaternion.w());
-}
-
-btVector3 Physics::VectorFrom(const Vector3f& vector) {
-	return btVector3(vector[0], vector[1], vector[2]);
+	return cb.m_closestHitFraction;
 }
 
 btCollisionShape * Physics::CreateStaticCollisionShape(cTerrain* mesh, const btVector3& scale) {
@@ -285,7 +218,6 @@ btCollisionShape * Physics::CreateStaticCollisionShape(cTerrain* mesh, const btV
 
 	return shape;
 }
-
 
 std::vector<btCollisionShape *> Physics::CreateStaticCollisionShapes(cTerrain* model, float scale) {
 	std::vector<btCollisionShape *> ret;
@@ -312,4 +244,72 @@ btRigidBody* Physics::CreateRigidBody(btScalar mass, const btTransform & startTr
 	body->setContactProcessingThreshold(0);
 
 	return body;
+}
+
+btTransform Physics::BtTransform() {
+	btTransform ret;
+	ret.setIdentity();
+
+	return ret;
+}
+
+btTransform Physics::BtTransform(const Vector3f& origin) {
+	btTransform ret;
+	ret.setIdentity();
+
+	ret.setOrigin(btVector3(origin[0], origin[1], origin[2]));
+
+	return ret;
+}
+
+btTransform Physics::BtTransform(const Vector3f& axis, float degrees) {
+	btTransform ret;
+	ret.setIdentity();
+	ret.setRotation(btQuaternion(btVector3(axis[0], axis[1], axis[2]), degrees * PI_ON_180));
+	return ret;
+}
+
+btTransform Physics::BtTransform(const Vector3f& origin, const Vector3f& axis, float degrees) {
+	btTransform ret;
+	ret.setIdentity();
+
+	ret.setOrigin(btVector3(origin[0], origin[1], origin[2]));
+	ret.setRotation(btQuaternion(btVector3(axis[0], axis[1], axis[2]), degrees * PI_ON_180));
+	return ret;
+}
+
+Matrix4f Physics::MatrixFrom(const btTransform& trans, const btVector3& scale) {
+	btMatrix3x3 m = trans.getBasis();
+	btVector3 v = trans.getOrigin();
+
+	return Matrix4f(m[0].x() * scale[0], m[1].x() * scale[1], m[2].x() * scale[2], 0.0f,
+		m[0].y() * scale[0], m[1].y() * scale[1], m[2].y() * scale[2], 0.0f,
+		m[0].z() * scale[0], m[1].z() * scale[1], m[2].z() * scale[2], 0.0f,
+		v.x(), v.y(), v.z(), 1.0f);
+}
+
+Matrix4f Physics::MatrixTransposeFrom(const btTransform& trans, const btVector3& scale) {
+	btMatrix3x3 m = trans.getBasis();
+	btVector3 v = trans.getOrigin();
+
+	return Matrix4f(m[0].x() * scale[0], m[0].y() * scale[1], m[0].z() * scale[2], v.x(),
+		m[1].x() * scale[0], m[1].y() * scale[1], m[1].z() * scale[2], v.y(),
+		m[2].x() * scale[0], m[2].y() * scale[1], m[2].z() * scale[2], v.z(),
+		0.0f, 0.0f, 0.0f, 1.0f);
+}
+
+Vector3f Physics::VectorFrom(const btVector3& vector) {
+	return Vector3f(vector.x(), vector.y(), vector.z());
+}
+
+Quaternion Physics::QuaternionFrom(const btQuaternion& quaternion) {
+	return Quaternion(-quaternion.x(), -quaternion.y(), -quaternion.z(), quaternion.w());
+}
+
+btVector3 Physics::VectorFrom(const Vector3f& vector) {
+	return btVector3(vector[0], vector[1], vector[2]);
+}
+
+btDiscreteDynamicsWorld * Physics::GetDynamicsWorld() {
+	return DynamicsWorld;
 }

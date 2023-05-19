@@ -3,31 +3,13 @@
 #include <btBulletDynamicsCommon.h>
 #include "engine/Vector.h"
 
-
 class ObjMesh;
 class ObjModel;
 class Shape;
 class cTerrain;
-class PhysicsCar;
-
-class btFilteredVehicleRaycaster : public btVehicleRaycaster{
-	btDynamicsWorld* m_dynamicsWorld;
-
-public:
-	btFilteredVehicleRaycaster(btDynamicsWorld* world, int collisionFilterGroup, int collisionFilterMask)
-		: m_dynamicsWorld(world)
-	{
-		m_collisionFilterGroup = collisionFilterGroup;
-		m_collisionFilterMask = collisionFilterMask;
-	}
-
-	virtual void* castRay(const btVector3& from, const btVector3& to, btVehicleRaycasterResult& result) override;
-private:
-	int m_collisionFilterGroup = -1;
-	int m_collisionFilterMask = -1;
-};
 
 class Physics{
+
 public:
 
 	enum collisiontypes {
@@ -35,8 +17,8 @@ public:
 		RENDERABLE_OBJECT = 2,
 		RAY = 4,
 		PICKABLE_OBJECT = 8,
-		CAR = 16,
-		COL_GHOST = 32,
+		CAMERA = 16,
+		CHARACTER = 32,
 		COL_FORCE_8BIT = 0xFF
 	};
 
@@ -48,11 +30,10 @@ public:
 	void deinitialize();
 
 	void stepSimulation(btScalar timeStep);
+	void bebugDrawWorld();
 	btRigidBody * addRigidBody(float mass, const btTransform & startTransform, btCollisionShape * shape, int collisionFilterGroup = 1, int collisionFilterMask = -1);
 	btRigidBody* addStaticModel(std::vector<btCollisionShape *> & collisionShapes, const btTransform & trans, bool debugDraw = true, const btVector3 & scale = btVector3(1, 1, 1), int collisionFilterGroup = 1, int collisionFilterMask = -1);
-
-	void bebugDrawWorld() { m_dynamicsWorld->debugDrawWorld(); }
-
+	
 	static btCollisionShape* CreateStaticCollisionShape(std::vector<float>& vertexBuffer, std::vector<unsigned int>& indexBuffer, const btVector3& scale = btVector3(1, 1, 1));
 	static std::vector<btCollisionShape*> CreateStaticCollisionShapes(std::vector<float>& vertexBuffer, std::vector<unsigned int>& indexBuffer, float scale = 1.f);
 	static std::vector<btCollisionShape*> CreateStaticCollisionShapes(std::vector<float>& vertexBuffer, std::vector<unsigned int>& indexBuffer, const btVector3& scale = btVector3(1, 1, 1));
@@ -65,7 +46,9 @@ public:
 
 	static btCollisionShape* CreateStaticCollisionShape(ObjMesh* mesh, const btVector3& scale = btVector3(1, 1, 1));
 	static std::vector<btCollisionShape*> CreateStaticCollisionShapes(ObjModel * model, const btVector3 & scale);
-	static std::vector<btCollisionShape*> CreateStaticCollisionShapes(ObjModel * model, float scale = 1.f);
+	static std::vector<btCollisionShape*> CreateStaticCollisionShapes(ObjModel * model, float scale = 1.f);	
+	static btRigidBody* CreateRigidBody(btScalar mass, const btTransform & startTransform, btCollisionShape * shape);
+	static float SweepSphere(const btVector3& from, const btVector3& to, float radius, int collisionFilterGroup = 1, int collisionFilterMask = -1);
 
 	static btTransform BtTransform();
 	static btTransform BtTransform(const Vector3f& origin);
@@ -73,27 +56,22 @@ public:
 	static btTransform BtTransform(const Vector3f& origin, const Vector3f& axis, float degrees);
 	static btVector3 VectorFrom(const Vector3f& vector);
 
-	static Matrix4f MatrixFrom(const btTransform& trans, const btVector3& scale = btVector3(1.0f, 1.0f, 1.0f));	
+	static Matrix4f MatrixFrom(const btTransform& trans, const btVector3& scale = btVector3(1.0f, 1.0f, 1.0f));
 	static Matrix4f MatrixTransposeFrom(const btTransform& trans, const btVector3& scale = btVector3(1.0f, 1.0f, 1.0f));
 	static Vector3f VectorFrom(const btVector3& vector);
 	static Quaternion QuaternionFrom(const btQuaternion& quaternion);
 
-	static btRigidBody* CreateRigidBody(btScalar mass, const btTransform & startTransform, btCollisionShape * shape);
-	
+	static btDiscreteDynamicsWorld * GetDynamicsWorld();
 
-	btDiscreteDynamicsWorld * GetDynamicsWorld() { return m_dynamicsWorld; }
-	
 private:
 
 	btRigidBody * createRigidBody(btScalar mass, const btTransform & startTransform, btCollisionShape * shape);
-
 	btCollisionDispatcher* m_dispatcher;
 	//btBroadphaseInterface* m_overlappingPairCache;
 	btBroadphaseInterface* m_broadphase;
 	btSequentialImpulseConstraintSolver* m_constraintSolver;
 	btDefaultCollisionConfiguration* m_collisionConfiguration;
-
-	btDiscreteDynamicsWorld *m_dynamicsWorld;
-
 	float m_physicsStep;
+
+	static btDiscreteDynamicsWorld *DynamicsWorld;
 };

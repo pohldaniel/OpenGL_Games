@@ -127,6 +127,8 @@ void CharacterController::preStep(){
 }
 
 void CharacterController::postStep() {
+	m_onGround = false;
+	m_canJump = false;
 	m_falling = false;
 	const float TEST_DISTANCE_RAY = 10.0f;
 	const float TEST_DISTANCE = 2.0f;
@@ -155,10 +157,7 @@ void CharacterController::postStep() {
 			m_groundTicks = 10;
 		}
 
-	}else{
-		m_onGround = false;
 	}
-
 
 	btTransform tsFrom, tsTo;
 	to = from - btVector3(0.0f, TEST_DISTANCE, 0.0f);
@@ -187,8 +186,6 @@ void CharacterController::postStep() {
 		float distance = btDistance(end, from);
 		m_canJump = distance < m_jumpDistanceOffset && m_jumpTicks == 0 && !m_onSteepSlope;
 		
-	}else{
-		m_canJump = false;
 	}
 
 	m_jumpTicks = m_jumpTicks > 0 ? m_jumpTicks -= 1 : 0;

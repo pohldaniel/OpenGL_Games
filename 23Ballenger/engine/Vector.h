@@ -27,6 +27,7 @@ class Vector2f {
 	friend bool operator ==(Vector2f lhs, Vector2f rhs);
 
 public:
+
 	Vector2f();
 	Vector2f(float x_, float y_);
 	Vector2f(const Vector2f &rhs);
@@ -37,20 +38,19 @@ public:
 
 	const float* getVec()const;
 
-	//Vector2f &operator^(const Vector2f &rhs);
 	Vector2f& operator= (const Vector2f& rhs);
 	
-
 	Vector2f &operator+=(const Vector2f &rhs);
 	Vector2f &operator-=(const Vector2f &rhs);
+	Vector2f &operator*=(float scalar);
+	Vector2f &operator/=(float scalar);
 
 	Vector2f operator+(const Vector2f &rhs) const;
 	Vector2f operator-(const Vector2f &rhs) const;
-
 	Vector2f operator*(float scalar) const;
 	Vector2f operator/(float scalar) const;
-	Vector2f &operator*=(float scalar);
-	Vector2f &operator/=(float scalar);
+
+
 private:
 
 	float vec[2];
@@ -62,6 +62,7 @@ class Vector3f {
 	friend Vector3f operator-(const Vector3f &v);
 	friend Vector3f operator*(float lhs, const Vector3f &rhs);
 	friend bool operator ==(Vector3f lhs, Vector3f rhs);
+
 public:
 
 	Vector3f();
@@ -116,7 +117,9 @@ class Vector4f {
 
 	friend Vector4f operator*(float lhs, const Vector4f &rhs);
 	friend Vector4f operator*(const Vector4f &lhs, float rhs);
+
 public:
+
 	Vector4f();
 	Vector4f(float x_, float y_, float z_, float w_);
 	Vector4f(const Vector3f &rhs, float w = 1.0f);
@@ -281,6 +284,7 @@ public:
 	static Matrix4f Inverse(Matrix4f &m);
 
 private:
+
 	float mtx[4][4];
 };
 
@@ -290,6 +294,7 @@ class Quaternion {
 	friend bool operator ==(const Quaternion &lhs, const Quaternion &rhs);
 
 public:
+
 	static const Quaternion IDENTITY;
 
 	Quaternion();
@@ -342,8 +347,9 @@ public:
 	static Quaternion& Conjugate(Quaternion &quat);
 	static Quaternion& Inverse(Quaternion &quat);
 	static void Normalize(Quaternion &p);
+
 private:
+
 	float quat[4];
-	//Matrix4f mtx;
 };
 #endif
