@@ -158,6 +158,10 @@ public:
 		m_assets[name].buildQuadXY(position, size, uResolution, vResolution, generateTexels, generateNormals, generateTangents);
 	}
 
+	void buildQuadXZ(const std::string& name, const Vector3f& position = Vector3f(-1.0f, 0.0f, -1.0f), const Vector2f& size = Vector2f(2.0f, 2.0f), int uResolution = 1, int vResolution = 1, bool generateTexels = true, bool generateNormals = true, bool generateTangents = false) {
+		m_assets[name].buildQuadXZ(position, size, uResolution, vResolution, generateTexels, generateNormals, generateTangents);
+	}
+
 	void buildCube(const std::string& name, const Vector3f& position = Vector3f(-1.0f, -1.0f, -1.0f), const Vector3f& size = Vector3f(2.0f, 2.0f, 2.0f), int uResolution = 1, int vResolution = 1, bool generateTexels = true, bool generateNormals = true, bool generateTangents = false) {
 		m_assets[name].buildCube(position, size, uResolution, vResolution, generateTexels, generateNormals, generateTangents);
 	}

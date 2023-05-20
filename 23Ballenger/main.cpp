@@ -19,6 +19,12 @@ extern float Globals::musicVolume = 0.2f;
 
 extern Physics* Globals::physics = NULL;
 
+//extern unsigned int Globals::colorUbo = 0;
+extern unsigned int Globals::activeUbo = 0;
+
+//extern const unsigned int Globals::colorBinding = 0;
+extern const unsigned int Globals::activeBinding = 0;
+
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd) {
 
 #if DEBUG
