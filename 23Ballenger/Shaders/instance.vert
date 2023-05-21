@@ -13,7 +13,7 @@ layout (std140, binding = 0) uniform u_color{
 	vec4 color[8];
 };
 
-layout (std140, binding = 0) uniform u_activate{
+layout (std140, binding = 1) uniform u_activate{
 	bool activate[8];
 };
 

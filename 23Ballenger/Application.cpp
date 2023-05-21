@@ -508,6 +508,7 @@ void Application::loadAssets() {
 	Globals::shaderManager.loadShader("terrain_new", "Shaders/simple_new.vert", "Shaders/terrain_new.frag");
 	Globals::shaderManager.loadShader("texture_new", "Shaders/program.vert", "Shaders/texture.frag");
 	Globals::shaderManager.loadShader("instance", "Shaders/instance.vert", "Shaders/instance.frag");
+	Globals::shaderManager.loadShader("cylinder", "Shaders/cylinder.vert", "Shaders/cylinder.frag");
 
 	Globals::textureManager.createNullTexture("null");
 
@@ -549,10 +550,10 @@ void Application::loadAssets() {
 	Globals::spritesheetManager.getAssetPointer("circle")->setLinearMipMap();
 	Globals::spritesheetManager.getAssetPointer("circle")->setRepeat();
 
-	Globals::shapeManager.buildSphere("sphere", 0.5f * SCALE, Vector3f(0.0f, 0.0f, 0.0f), 16, 16, true, true, true);
-	Globals::shapeManager.buildQuadXZ("quad_lava", Vector3f(0.0f, 0.0f, 0.0f), Vector2f(1024.0f, 1024.0f), 1, 1, true, true, true);
-	Globals::shapeManager.buildQuadXZ("quad_rp", Vector3f(-1.0f, 0.05f, -1.0f), Vector2f(2.0f, 2.0f), 1, 1, true, true, true);
-
+	Globals::shapeManager.buildSphere("sphere", 0.5f * SCALE, Vector3f(0.0f, 0.0f, 0.0f), 16, 16, true, true, false);
+	Globals::shapeManager.buildQuadXZ("quad_lava", Vector3f(0.0f, 0.0f, 0.0f), Vector2f(1024.0f, 1024.0f), 1, 1, true, true, false);
+	Globals::shapeManager.buildQuadXZ("quad_rp", Vector3f(-1.0f, 0.05f, -1.0f), Vector2f(2.0f, 2.0f), 1, 1, true, true, false);
+	Globals::shapeManager.buildCylinder("cylinder", 2.0f, 2.0f, 3.0f, Vector3f(0.0f, 1.6f, 0.0f), 16, 16, false, true, false);
 
 	glGenBuffers(1, &Globals::colorUbo);
 	glBindBuffer(GL_UNIFORM_BUFFER, Globals::colorUbo);

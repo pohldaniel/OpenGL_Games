@@ -243,6 +243,9 @@
     <ClCompile Include="CharacterController.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="engine\MeshObject\MeshDisk.cpp">
+      <Filter>engine\MeshObject</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h">
@@ -454,6 +457,9 @@
     </ClInclude>
     <ClInclude Include="CharacterController.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\MeshObject\MeshDisk.h">
+      <Filter>engine\MeshObject</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

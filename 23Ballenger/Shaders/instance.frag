@@ -10,6 +10,6 @@ flat in uint vertActive;
 out vec4 color;
 
 void main(void){
-	color = texture(u_texture, vec3(texCoord, vertActive));	
+	color = texture(u_texture, vec3(texCoord, vertActive));		
 	//color = vec4(texCoord, 0.0, 1.0);
 }

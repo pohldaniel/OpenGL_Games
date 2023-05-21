@@ -91,7 +91,7 @@ void MeshCylinder::BuildMesh(float baseRadius, float topRadius, float length, co
 	}
 
 	// remember where the base.top vertices start
-	unsigned int baseVertexIndex = (unsigned int)positions.size();
+	/*unsigned int baseVertexIndex = (unsigned int)positions.size();
 
 	// put vertices of base of cylinder
 	y = -length * 0.5f;
@@ -166,7 +166,7 @@ void MeshCylinder::BuildMesh(float baseRadius, float topRadius, float length, co
 			tangents.push_back(Vector3f(0.0f, 0.0f, -1.0f));
 			bitangents.push_back(Vector3f(1.0f, 0.0f, 0.0f));
 		}
-	}
+	}*/
 
 	// put indices for sides
 	unsigned int k1, k2;
@@ -182,7 +182,7 @@ void MeshCylinder::BuildMesh(float baseRadius, float topRadius, float length, co
 	}
 
 	// remember where the base indices start
-	unsigned int baseIndex = (unsigned int)indexBuffer.size();
+	/*unsigned int baseIndex = (unsigned int)indexBuffer.size();
 
 	// put indices for base
 	for (int i = 0, k = baseVertexIndex + 1; i < vResolution; ++i, ++k) {
@@ -202,7 +202,7 @@ void MeshCylinder::BuildMesh(float baseRadius, float topRadius, float length, co
 		}else {
 			indexBuffer.push_back(topVertexIndex); indexBuffer.push_back(topVertexIndex + 1); indexBuffer.push_back(k);
 		}
-	}
+	}*/
 }
 
 std::vector<Vector3f>& MeshCylinder::getPositions() {

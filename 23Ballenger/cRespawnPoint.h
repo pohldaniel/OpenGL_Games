@@ -12,7 +12,11 @@ class cRespawnPoint
 public:
 	cRespawnPoint();
 	~cRespawnPoint();
-	void  Draw(int tex_id, bool activated, cShader *Shader);
+	void Draw(int tex_id, bool activated, cShader *Shader);
+	void Draw1(int tex_id);
+	void Draw2(bool activated, cShader *Shader);
+
+
 	void  SetPos(float posx, float posy, float posz);
 	float GetX();
     float GetY();

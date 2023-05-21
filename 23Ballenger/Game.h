@@ -78,7 +78,7 @@ private:
 	RenderableObject m_sphere;
 	RenderableObject m_lava;
 	RenderableObject m_respawnPoint;
-
+	RenderableObject m_cylinder;
 	float m_offsetDistance = 10.0f;
 	CharacterController *m_characterController;
 };

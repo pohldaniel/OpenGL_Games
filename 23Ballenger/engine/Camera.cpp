@@ -10,7 +10,7 @@ Camera::Camera(){
 	WORLD_ZAXIS = Vector3f(0.0f, 0.0f, 1.0f);
 
 	m_accumPitchDegrees = 0.0f;
-	m_rotationSpeed = 0.1f;
+	m_rotationSpeed = 0.05f;
 	m_movingSpeed = 1.0f;
 	m_offsetDistance = 0.0f;
 

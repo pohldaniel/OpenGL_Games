@@ -36,6 +36,10 @@ void main()
 
     if(hmax < 10) gl_FragColor = vec4(gl_Color.rgb,factor);
 	else gl_FragColor = vec4( mix(gl_Color.rgb,gl_Color.rgb+vec3(0.7,0.7,0.7),factor*factor) , 0.4*factor );
+	
+	//gl_FragColor = vec4(normal, 1.0);
+	//gl_FragColor = vec4(pos_eye, 1.0);
+	//gl_FragColor = vec4(pos_model.z, pos_model.z,pos_model.z, 1.0);
 }
 
 /*
