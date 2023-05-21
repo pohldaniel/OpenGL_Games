@@ -11,7 +11,7 @@ public:
 
 	MeshDisk(int uResolution = 1, int vResolution = 1);
 	MeshDisk(bool generateTexels, bool generateNormals, bool generateTangents, int uResolution = 1, int vResolution = 1);
-	MeshDisk(const Vector3f &position, const Vector2f& size, bool generateTexels, bool generateNormals, bool generateTangents, int uResolution = 1, int vResolution = 1);
+	MeshDisk(float radius, const Vector3f &position, bool generateTexels, bool generateNormals, bool generateTangents, int uResolution = 1, int vResolution = 1);
 	~MeshDisk();
 
 	void drawRaw();
@@ -22,13 +22,11 @@ public:
 	int getNumberOfTriangles();
 
 	const Vector3f &getPosition() const;
-	const Vector2f &getSize() const;
-	const Vector3f &getCenter() const;
 	std::vector<Vector3f>& getPositions();
 	std::vector<unsigned int>& getIndexBuffer();
 
-	static void BuildMeshXY(const Vector3f& position, const Vector2f& size, int uResolution, int vResolution, bool generateTexels, bool generateNormals, bool generateTangents, std::vector<Vector3f>& positions, std::vector<Vector2f>& texels, std::vector<Vector3f>& normals, std::vector<unsigned int>& indexBuffer, std::vector<Vector3f>& tangents, std::vector<Vector3f>& bitangents);
-	static void BuildMeshXZ(const Vector3f& position, const Vector2f& size, int uResolution, int vResolution, bool generateTexels, bool generateNormals, bool generateTangents, std::vector<Vector3f>& positions, std::vector<Vector2f>& texels, std::vector<Vector3f>& normals, std::vector<unsigned int>& indexBuffer, std::vector<Vector3f>& tangents, std::vector<Vector3f>& bitangents);
+	static void BuildMeshXY(float radius, const Vector3f& position, int uResolution, int vResolution, bool generateTexels, bool generateNormals, bool generateTangents, std::vector<Vector3f>& positions, std::vector<Vector2f>& texels, std::vector<Vector3f>& normals, std::vector<unsigned int>& indexBuffer, std::vector<Vector3f>& tangents, std::vector<Vector3f>& bitangents);
+	static void BuildMeshXZ(float radius, const Vector3f& position, int uResolution, int vResolution, bool generateTexels, bool generateNormals, bool generateTangents, std::vector<Vector3f>& positions, std::vector<Vector2f>& texels, std::vector<Vector3f>& normals, std::vector<unsigned int>& indexBuffer, std::vector<Vector3f>& tangents, std::vector<Vector3f>& bitangents);
 
 private:
 
@@ -36,8 +34,7 @@ private:
 	int m_vResolution;
 
 	Vector3f m_position;
-	Vector2f m_size;
-	Vector3f m_center;
+	float m_radius;
 
 	bool m_generateNormals;
 	bool m_generateTexels;

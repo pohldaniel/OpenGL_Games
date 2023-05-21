@@ -10,10 +10,11 @@
 
 ShapeInterface::ShapeInterface(StateMachine& machine) : State(machine, CurrentState::SHAPEINTERFACE) {
 	EventDispatcher::AddMouseListener(this);
-
+	
 	m_camera = Camera();
 	m_camera.perspective(45.0f * _180_ON_PI, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
 	m_camera.lookAt(Vector3f(0.0f, 0.0f, 1.5f), Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
+	m_camera.setRotationSpeed(0.1f);
 
 	m_trackball.reshape(Application::Width, Application::Height);
 	m_trackball.setDollyPosition(-2.5f);
@@ -34,6 +35,8 @@ ShapeInterface::ShapeInterface(StateMachine& machine) : State(machine, CurrentSt
 	Globals::shapeManager.buildQuadXY("quad_", Vector3f(-1.0f, -1.0f, 0.0f), Vector2f(2.0f, 2.0f), 10, 10, true, true, true);
 	//Globals::shapeManager.buildQuadXZ("quad_", Vector3f(-1.0f, -0.5f, -1.0f), Vector2f(2.0f, 2.0f), 10, 10, true, true, true);
 	Globals::shapeManager.buildCube("cube_", Vector3f(-1.0f, -1.0f, -1.0f), Vector3f(2.0f, 2.0f, 2.0f), 10, 10, true, true, true);
+	//Globals::shapeManager.buildDiskXY("disk_", 1.0f, Vector3f(0.0f, 0.0f, 0.0f), 16, 16, true, true, true);
+	Globals::shapeManager.buildDiskXZ("disk_", 1.0f, Vector3f(0.0f, 0.0f, 0.0f), 16, 16, true, true, true);
 
 	m_currentShape = Globals::shapeManager.get("cylinder_");
 	m_currentShader = Globals::shaderManager.getAssetPointer("texture");
@@ -129,14 +132,21 @@ void ShapeInterface::OnMouseMotion(Event::MouseMoveEvent& event) {
 }
 
 void ShapeInterface::OnMouseButtonDown(Event::MouseButtonEvent& event) {
-
-	m_trackball.mouse(TrackBall::Button::ELeftButton, TrackBall::Modifier::ENoModifier, true, event.x, event.y);
-	applyTransformation(m_trackball);
+	if (event.button == 1u) {
+		m_trackball.mouse(TrackBall::Button::ELeftButton, TrackBall::Modifier::ENoModifier, true, event.x, event.y);
+		applyTransformation(m_trackball);
+	}else if (event.button == 2u) {
+		Mouse::instance().attach(Application::GetWindow());
+	}
 }
 
 void ShapeInterface::OnMouseButtonUp(Event::MouseButtonEvent& event) {
-	m_trackball.mouse(TrackBall::Button::ELeftButton, TrackBall::Modifier::ENoModifier, false, event.x, event.y);
-	applyTransformation(m_trackball);
+	if (event.button == 1u) {
+		m_trackball.mouse(TrackBall::Button::ELeftButton, TrackBall::Modifier::ENoModifier, false, event.x, event.y);
+		applyTransformation(m_trackball);
+	} else if (event.button == 2u) {
+		Mouse::instance().detach();
+	}
 }
 
 
@@ -184,7 +194,7 @@ void ShapeInterface::renderUi() {
 	ImGui::Begin("Settings", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
 	ImGui::Checkbox("Draw Wirframe", &StateMachine::GetEnableWireframe());
 	int currentModel = model;
-	if (ImGui::Combo("Model", &currentModel, "Torus\0Capsule\0Sphere\0Spiral\0Cylinder\0Quad\0Cube\0\0")) {
+	if (ImGui::Combo("Model", &currentModel, "Torus\0Capsule\0Sphere\0Spiral\0Cylinder\0Quad\0Cube\0Disk\0\0")) {
 		model = static_cast<Model>(currentModel);
 		switch (model) {
 		case Model::TORUS:
@@ -207,6 +217,9 @@ void ShapeInterface::renderUi() {
 			break;
 		case Model::CUBE:
 			m_currentShape = Globals::shapeManager.get("cube_");
+			break;
+		case Model::DISK:
+			m_currentShape = Globals::shapeManager.get("disk_");
 			break;
 		}
 	}

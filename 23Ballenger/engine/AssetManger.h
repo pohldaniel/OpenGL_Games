@@ -166,6 +166,14 @@ public:
 		m_assets[name].buildCube(position, size, uResolution, vResolution, generateTexels, generateNormals, generateTangents);
 	}
 
+	void buildDiskXY(const std::string& name, float radius = 1.0f, const Vector3f& position = Vector3f(-1.0f, 0.0f, -1.0f), int uResolution = 1, int vResolution = 1, bool generateTexels = true, bool generateNormals = true, bool generateTangents = false) {
+		m_assets[name].buildDiskXY(radius, position, uResolution, vResolution, generateTexels, generateNormals, generateTangents);
+	}
+
+	void buildDiskXZ(const std::string& name, float radius = 1.0f, const Vector3f& position = Vector3f(-1.0f, 0.0f, -1.0f), int uResolution = 1, int vResolution = 1, bool generateTexels = true, bool generateNormals = true, bool generateTangents = false) {
+		m_assets[name].buildDiskXZ(radius, position, uResolution, vResolution, generateTexels, generateNormals, generateTangents);
+	}
+
 	void fromBuffer(const std::string& name, std::vector<float>& vertexBuffer, std::vector<unsigned int> indexBuffer, unsigned int stride) {
 		m_assets[name].fromBuffer(vertexBuffer, indexBuffer, stride);
 	}

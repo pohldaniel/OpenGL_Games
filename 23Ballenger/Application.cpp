@@ -354,7 +354,6 @@ void Application::initStates() {
 	
 	Machine = new StateMachine(m_dt, m_fdt);
 	Machine->addStateAtTop(new Game(*Machine));
-	Mouse::instance().attach(Window);
 	//Machine->addStateAtTop(new ShapeInterface(*Machine));
 }
 
@@ -509,6 +508,7 @@ void Application::loadAssets() {
 	Globals::shaderManager.loadShader("texture_new", "Shaders/program.vert", "Shaders/texture.frag");
 	Globals::shaderManager.loadShader("instance", "Shaders/instance.vert", "Shaders/instance.frag");
 	Globals::shaderManager.loadShader("cylinder", "Shaders/cylinder.vert", "Shaders/cylinder.frag");
+	Globals::shaderManager.loadShader("disk", "Shaders/disk.vert", "Shaders/disk.frag");
 
 	Globals::textureManager.createNullTexture("null");
 
@@ -554,6 +554,7 @@ void Application::loadAssets() {
 	Globals::shapeManager.buildQuadXZ("quad_lava", Vector3f(0.0f, 0.0f, 0.0f), Vector2f(1024.0f, 1024.0f), 1, 1, true, true, false);
 	Globals::shapeManager.buildQuadXZ("quad_rp", Vector3f(-1.0f, 0.05f, -1.0f), Vector2f(2.0f, 2.0f), 1, 1, true, true, false);
 	Globals::shapeManager.buildCylinder("cylinder", 2.0f, 2.0f, 3.0f, Vector3f(0.0f, 1.6f, 0.0f), 16, 16, false, true, false);
+	Globals::shapeManager.buildDiskXZ("disk", 2.0f, Vector3f(0.0f, 0.11f, 0.0f), 16, 16, false, false, false);
 
 	glGenBuffers(1, &Globals::colorUbo);
 	glBindBuffer(GL_UNIFORM_BUFFER, Globals::colorUbo);

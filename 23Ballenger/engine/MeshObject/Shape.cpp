@@ -6,6 +6,7 @@
 #include "MeshCylinder.h"
 #include "MeshQuad.h"
 #include "MeshCube.h"
+#include "MeshDisk.h"
 #include <iostream>
 
 Shape::Shape() { }
@@ -47,6 +48,16 @@ void Shape::buildQuadXZ(const Vector3f& position, const Vector2f& size, int uRes
 
 void Shape::buildCube(const Vector3f& position, const Vector3f&  size, int uResolution, int vResolution, bool generateTexels, bool generateNormals, bool generateTangents) {
 	MeshCube::BuildMesh4Q(position, size, uResolution, vResolution, generateTexels, generateNormals, generateTangents, m_positions, m_texels, m_normals, m_indexBuffer, m_tangents, m_bitangents);
+	createBuffer();
+}
+
+void Shape::buildDiskXY(float radius, const Vector3f& position, int uResolution, int vResolution, bool generateTexels, bool generateNormals, bool generateTangents) {
+	MeshDisk::BuildMeshXY(radius, position, uResolution, vResolution, generateTexels, generateNormals, generateTangents, m_positions, m_texels, m_normals, m_indexBuffer, m_tangents, m_bitangents);
+	createBuffer();
+}
+
+void Shape::buildDiskXZ(float radius, const Vector3f& position, int uResolution, int vResolution, bool generateTexels, bool generateNormals, bool generateTangents) {
+	MeshDisk::BuildMeshXZ(radius, position, uResolution, vResolution, generateTexels, generateNormals, generateTangents, m_positions, m_texels, m_normals, m_indexBuffer, m_tangents, m_bitangents);
 	createBuffer();
 }
 

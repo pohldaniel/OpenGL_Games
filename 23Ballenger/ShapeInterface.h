@@ -16,7 +16,8 @@ enum Model {
 	SPIRAL,
 	CYLINDER,
 	QUAD,
-	CUBE
+	CUBE,
+	DISK
 };
 
 enum RenderMode {

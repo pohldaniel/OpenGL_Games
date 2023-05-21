@@ -11,6 +11,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	Application::SetCursorIcon(IDC_ARROW);
 	EventDispatcher::AddKeyboardListener(this);
 	EventDispatcher::AddMouseListener(this);
+	Mouse::instance().attach(Application::GetWindow());
 
 	Init(1);
 
@@ -247,10 +248,18 @@ void Game::render() {
 		if (i == respawn_id) respawn_points[i].Draw(Data.GetID(IMG_CIRCLE_ON), true, &Shader);
 		else respawn_points[i].Draw(Data.GetID(IMG_CIRCLE_OFF), false, &Shader);
 	}*/
-
+	glEnable(GL_BLEND);
+	
 	m_respawnPoint.draw(m_camera);
-	m_cylinder.draw(m_camera);
 
+	glDepthMask(GL_FALSE);
+	glDisable(GL_CULL_FACE);
+	m_cylinder.draw(m_camera);
+	m_disk.draw(m_camera);
+
+	glEnable(GL_CULL_FACE);
+	glDepthMask(GL_TRUE);
+	glDisable(GL_BLEND);
 	if (m_drawUi)
 		renderUi();
 }
@@ -508,7 +517,7 @@ bool Game::Init(int lvl) {
 	m_respawnPoint = RenderableObject("quad_rp", "instance", "circle");
 	m_respawnPoint.setDrawFunction([&](const Camera& camera) {
 		if (m_respawnPoint.isDisabled()) return;
-		glEnable(GL_BLEND);
+
 		auto shader = Globals::shaderManager.getAssetPointer(m_respawnPoint.getShader());
 		shader->use();
 		shader->loadMatrix("u_projection", camera.getPerspectiveMatrix());
@@ -517,7 +526,6 @@ bool Game::Init(int lvl) {
 		Globals::spritesheetManager.getAssetPointer(m_respawnPoint.getTexture())->bind(0);
 		Globals::shapeManager.get(m_respawnPoint.getShape()).drawRawInstanced();
 		shader->unuse();
-		glDisable(GL_BLEND);
 	});
 
 	Globals::shapeManager.get("cylinder").addInstance(Matrix4f::Translate(TERRAIN_SIZE / 2, Terrain.GetHeight(TERRAIN_SIZE / 2, TERRAIN_SIZE / 2), TERRAIN_SIZE / 2));
@@ -533,9 +541,6 @@ bool Game::Init(int lvl) {
 	m_cylinder = RenderableObject("cylinder", "cylinder", "null");
 	m_cylinder.setDrawFunction([&](const Camera& camera) {
 		if (m_cylinder.isDisabled()) return;
-		glEnable(GL_BLEND);
-		glDepthMask(GL_FALSE);
-		glDisable(GL_CULL_FACE);
 
 		auto shader = Globals::shaderManager.getAssetPointer(m_cylinder.getShader());
 		shader->use();
@@ -546,10 +551,28 @@ bool Game::Init(int lvl) {
 		Globals::textureManager.get(m_cylinder.getTexture()).bind(0);
 		Globals::shapeManager.get(m_cylinder.getShape()).drawRawInstanced();
 		shader->unuse();
+	});
 
-		glEnable(GL_CULL_FACE);
-		glDepthMask(GL_TRUE);
-		glDisable(GL_BLEND);
+	Globals::shapeManager.get("disk").addInstance(Matrix4f::Translate(TERRAIN_SIZE / 2, Terrain.GetHeight(TERRAIN_SIZE / 2, TERRAIN_SIZE / 2), TERRAIN_SIZE / 2));
+	Globals::shapeManager.get("disk").addInstance(Matrix4f::Translate(TERRAIN_SIZE / 2, Terrain.GetHeight(TERRAIN_SIZE / 2, TERRAIN_SIZE / 2 + 10.0f), TERRAIN_SIZE / 2 + 10.0f));
+	Globals::shapeManager.get("disk").addInstance(Matrix4f::Translate(256.0f, Terrain.GetHeight(256.0f, 160.0f), 160.0f));
+	Globals::shapeManager.get("disk").addInstance(Matrix4f::Translate(840.0f, Terrain.GetHeight(840.0f, 184.0f), 184.0f));
+	Globals::shapeManager.get("disk").addInstance(Matrix4f::Translate(552.0f, Terrain.GetHeight(552.0f, 760.0f), 760.0f));
+	Globals::shapeManager.get("disk").addInstance(Matrix4f::Translate(791.0f, Terrain.GetHeight(791.0f, 850.0f), 850.0f));
+	Globals::shapeManager.get("disk").addInstance(Matrix4f::Translate(152.0f, Terrain.GetHeight(152.0f, 832.0f), 832.0f));
+	Globals::shapeManager.get("disk").addInstance(Matrix4f::Translate(448.0f, Terrain.GetHeight(448.0f, 944.0f), 944.0f));
+	Globals::shapeManager.get("disk").addInstance(Matrix4f::Translate(816.0f, Terrain.GetHeight(816.0f, 816.0f), 816.0f));
+
+	m_disk = RenderableObject("disk", "disk", "null");
+	m_disk.setDrawFunction([&](const Camera& camera) {
+		if (m_disk.isDisabled()) return;
+		auto shader = Globals::shaderManager.getAssetPointer(m_disk.getShader());
+		shader->use();
+		shader->loadMatrix("u_projection", camera.getPerspectiveMatrix());
+		shader->loadMatrix("u_view", camera.getViewMatrix());
+		Globals::shapeManager.get(m_disk.getShape()).drawRawInstanced();
+		shader->unuse();
+
 	});
 
 	return res;
