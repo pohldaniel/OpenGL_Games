@@ -507,6 +507,9 @@ void Application::loadAssets() {
 	Globals::shaderManager.loadShader("terrain", "Shaders/simple.vert", "Shaders/terrain.frag");
 	Globals::shaderManager.loadShader("terrain_new", "Shaders/simple_new.vert", "Shaders/terrain_new.frag");
 	Globals::shaderManager.loadShader("texture_new", "Shaders/program.vert", "Shaders/texture.frag");
+	Globals::shaderManager.loadShader("instance", "Shaders/instance.vert", "Shaders/instance.frag");
+
+	Globals::textureManager.createNullTexture("null");
 
 	Globals::textureManager.loadTexture("grass", "Textures/grass.png", true);
 	Globals::textureManager.loadTexture("rock", "Textures/rock.png", true);
@@ -526,5 +529,49 @@ void Application::loadAssets() {
 	Globals::textureManager.get("player_nmp").setWrapMode(GL_REPEAT);
 	Globals::textureManager.get("player_nmp").setFilter(GL_LINEAR_MIPMAP_LINEAR);
 
+	Globals::textureManager.loadTexture("lava", "Textures/lava.png", true);
+	Globals::textureManager.get("lava").setWrapMode(GL_REPEAT);
+	Globals::textureManager.get("lava").setFilter(GL_LINEAR_MIPMAP_LINEAR);
+	
+	Globals::textureManager.loadTexture("circle_off", "Textures/circle_off.png", true);
+	Globals::spritesheetManager.createSpritesheetFromTexture("circle", Globals::textureManager.get("circle_off").getTexture());
+
+	Globals::textureManager.get("circle_off").setWrapMode(GL_REPEAT);
+	Globals::textureManager.get("circle_off").setFilter(GL_LINEAR_MIPMAP_LINEAR);
+
+	Globals::textureManager.loadTexture("circle_on", "Textures/circle_on.png", true);
+	Globals::spritesheetManager.getAssetPointer("circle")->addToSpritesheet(Globals::textureManager.get("circle_on").getTexture());
+	
+
+	Globals::textureManager.get("circle_on").setWrapMode(GL_REPEAT);
+	Globals::textureManager.get("circle_on").setFilter(GL_LINEAR_MIPMAP_LINEAR);
+
+	Globals::spritesheetManager.getAssetPointer("circle")->setLinearMipMap();
+	Globals::spritesheetManager.getAssetPointer("circle")->setRepeat();
+
 	Globals::shapeManager.buildSphere("sphere", 0.5f * SCALE, Vector3f(0.0f, 0.0f, 0.0f), 16, 16, true, true, true);
+	Globals::shapeManager.buildQuadXZ("quad_lava", Vector3f(0.0f, 0.0f, 0.0f), Vector2f(1024.0f, 1024.0f), 1, 1, true, true, true);
+	Globals::shapeManager.buildQuadXZ("quad_rp", Vector3f(-1.0f, 0.05f, -1.0f), Vector2f(2.0f, 2.0f), 1, 1, true, true, true);
+
+
+	glGenBuffers(1, &Globals::colorUbo);
+	glBindBuffer(GL_UNIFORM_BUFFER, Globals::colorUbo);
+	glBufferData(GL_UNIFORM_BUFFER, 144, NULL, GL_STATIC_DRAW);
+	glBindBufferRange(GL_UNIFORM_BUFFER, Globals::colorBinding, Globals::colorUbo, 0, 144);
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+	glGenBuffers(1, &Globals::activateUbo);
+	glBindBuffer(GL_UNIFORM_BUFFER, Globals::activateUbo);
+	glBufferData(GL_UNIFORM_BUFFER, 144, NULL, GL_STATIC_DRAW);
+	glBindBufferRange(GL_UNIFORM_BUFFER, Globals::activateBinding, Globals::activateUbo, 0, 144);
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+	//not neccessary: The block binding indices can be set directly from the shader:
+	//layout(std140, binding = 0) uniform u_color {
+	//	vec4 color[8];
+	//};
+	//auto shader = Globals::shaderManager.getAssetPointer("instance");
+	//glUniformBlockBinding(shader->m_program, glGetUniformBlockIndex(shader->m_program, "u_color"), Globals::colorBinding);
+	//glUniformBlockBinding(shader->m_program, glGetUniformBlockIndex(shader->m_program, "u_activate"), Globals::activeBinding);
+	
 }

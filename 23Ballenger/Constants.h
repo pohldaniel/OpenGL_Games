@@ -30,4 +30,10 @@ namespace Globals {
 
 	extern float soundVolume;
 	extern float musicVolume;
+
+	extern unsigned int colorUbo;
+	extern const unsigned int colorBinding;
+
+	extern unsigned int activateUbo;
+	extern const unsigned int activateBinding;
 }

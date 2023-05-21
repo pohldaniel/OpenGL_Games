@@ -45,9 +45,11 @@ public:
 	bool m_useThirdCamera = false;
 
 	bool Init(int lvl);
+	std::vector<Vector4f> m_colors;
+	std::vector<std::array<bool, 16>> m_activate;
 
-	
 private:
+
 	unsigned char keys[256];
 	bool mouse_left_down, mouse_right_down;
 	int level, state, respawn_id, pickedkey_id;
@@ -74,6 +76,9 @@ private:
 	ThirdPersonCamera m_camera;
 
 	RenderableObject m_sphere;
+	RenderableObject m_lava;
+	RenderableObject m_respawnPoint;
+
 	float m_offsetDistance = 10.0f;
 	CharacterController *m_characterController;
 };

@@ -9,12 +9,12 @@ uniform mat4 u_projection;
 uniform mat4 u_view;
 uniform mat4 u_normal;
 
-//layout (std140) uniform u_color{
-//	vec4 color[8];
-//};
+layout (std140, binding = 0) uniform u_color{
+	vec4 color[8];
+};
 
-layout (std140) uniform u_activate{
-	vec4 activate[8];
+layout (std140, binding = 0) uniform u_activate{
+	bool activate[8];
 };
 
 out vec2 texCoord;
@@ -31,6 +31,6 @@ void main(void){
 	texCoord = i_texCoord;  
 	normal = normalize(mat3(u_normal * i_model) * i_normal);
 
-	//vertColor = color[gl_InstanceID];
+	vertColor = color[gl_InstanceID];
 	vertActive = uint(activate[gl_InstanceID]);
 }
