@@ -177,6 +177,8 @@ void Game::update() {
 	glBindBuffer(GL_UNIFORM_BUFFER, Globals::activateUbo);
 	glBufferSubData(GL_UNIFORM_BUFFER, 0, 144, &m_activate[0]);
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+	m_vortex.update(m_dt);
 }
 
 void Game::render() {
@@ -241,13 +243,31 @@ void Game::render() {
 
 	shader->unuse();
 
-	m_sphere.draw(m_camera);
+	m_key.draw(m_camera);
+	m_column.draw(m_camera);
+	m_energyBallCl.draw(m_camera);
 
-	//draw respawn points
-	/*for (unsigned int i = 0; i<respawn_points.size(); i++) {
-		if (i == respawn_id) respawn_points[i].Draw(Data.GetID(IMG_CIRCLE_ON), true, &Shader);
-		else respawn_points[i].Draw(Data.GetID(IMG_CIRCLE_OFF), false, &Shader);
-	}*/
+	
+	
+	
+	if (abs(m_camera.getPositionZ() - Portal.GetZ()) < m_camera.getOffsetDistance()){
+		//draw player
+		m_sphere.draw(m_camera);
+
+		//draw portal
+		m_vortex.draw(m_camera);
+		m_portal.draw(m_camera);
+		m_energyBallP.draw(m_camera);
+	}else{
+		//draw portal
+		m_vortex.draw(m_camera);
+		m_portal.draw(m_camera);
+		m_energyBallP.draw(m_camera);
+
+		//draw player
+		m_sphere.draw(m_camera);
+	}
+
 	glEnable(GL_BLEND);
 	
 	m_respawnPoint.draw(m_camera);
@@ -418,6 +438,9 @@ bool Game::Init(int lvl) {
 	cKey key;
 	key.SetPos(883, Terrain.GetHeight(883, 141), 141);
 	target_keys.push_back(key);
+	key.SetPos(TERRAIN_SIZE / 2, Terrain.GetHeight(TERRAIN_SIZE / 2, TERRAIN_SIZE / 2 + 10.0f), TERRAIN_SIZE / 2 + 10.0f);
+	target_keys.push_back(key);
+
 	key.SetPos(345, Terrain.GetHeight(345, 229), 229);
 	target_keys.push_back(key);
 	key.SetPos(268, Terrain.GetHeight(268, 860), 860);
@@ -514,7 +537,7 @@ bool Game::Init(int lvl) {
 	Globals::shapeManager.get("quad_rp").addInstance(Matrix4f::Translate(448.0f, Terrain.GetHeight(448.0f, 944.0f), 944.0f) * Matrix4f::Scale(CIRCLE_RADIUS, CIRCLE_RADIUS, CIRCLE_RADIUS));
 	Globals::shapeManager.get("quad_rp").addInstance(Matrix4f::Translate(816.0f, Terrain.GetHeight(816.0f, 816.0f), 816.0f) * Matrix4f::Scale(CIRCLE_RADIUS, CIRCLE_RADIUS, CIRCLE_RADIUS));
 
-	m_respawnPoint = RenderableObject("quad_rp", "instance", "circle");
+	m_respawnPoint = RenderableObject("quad_rp", "respawn", "circle");
 	m_respawnPoint.setDrawFunction([&](const Camera& camera) {
 		if (m_respawnPoint.isDisabled()) return;
 
@@ -573,6 +596,157 @@ bool Game::Init(int lvl) {
 		Globals::shapeManager.get(m_disk.getShape()).drawRawInstanced();
 		shader->unuse();
 
+	});
+
+	Globals::shapeManager.get("key").addInstance(Matrix4f::Translate(883.0f, Terrain.GetHeight(883.0f, 141.0f), 141.0f));
+	Globals::shapeManager.get("key").addInstance(Matrix4f::Translate(TERRAIN_SIZE / 2, Terrain.GetHeight(TERRAIN_SIZE / 2, TERRAIN_SIZE / 2 + 10.0f), TERRAIN_SIZE / 2 + 10.0f));
+	Globals::shapeManager.get("key").addInstance(Matrix4f::Translate(345.0f, Terrain.GetHeight(345.0f, 229.0f), 229.0f));
+	Globals::shapeManager.get("key").addInstance(Matrix4f::Translate(268.0f, Terrain.GetHeight(268.0f, 860.0f), 860.0f));
+	Globals::shapeManager.get("key").addInstance(Matrix4f::Translate(780.0f, Terrain.GetHeight(780.0f, 858.0f), 858.0f));
+	Globals::shapeManager.get("key").addInstance(Matrix4f::Translate(265.0f, Terrain.GetHeight(265.0f, 487.0f), 487.0f));
+
+	m_key =  RenderableObject("key", "instance", "null");
+	m_key.setDrawFunction([&](const Camera& camera) {
+		if (m_key.isDisabled()) return;
+		auto shader = Globals::shaderManager.getAssetPointer(m_key.getShader());
+		shader->use();
+		shader->loadMatrix("u_projection", camera.getPerspectiveMatrix());
+		shader->loadMatrix("u_view", camera.getViewMatrix());
+		shader->loadMatrix("u_model", m_key.getTransformationP());
+		shader->loadMatrix("u_normal", Matrix4f::GetNormalMatrix(camera.getViewMatrix() * m_key.getTransformationP()));
+		Globals::textureManager.get(m_key.getTexture()).bind(0);
+		Globals::shapeManager.get(m_key.getShape()).drawRawInstanced();
+		shader->unuse();
+	});
+
+	Globals::shapeManager.get("column").addInstance(Matrix4f::Translate(TERRAIN_SIZE / 2 + 18.0f, Terrain.GetHeight(TERRAIN_SIZE / 2 + 18.0f, TERRAIN_SIZE / 2 + 8), TERRAIN_SIZE / 2 + 8));
+	Globals::shapeManager.get("column").addInstance(Matrix4f::Translate(TERRAIN_SIZE / 2 + 14.0f, Terrain.GetHeight(TERRAIN_SIZE / 2 + 14.0f, TERRAIN_SIZE / 2 - 8), TERRAIN_SIZE / 2 - 8));
+	Globals::shapeManager.get("column").addInstance(Matrix4f::Translate(TERRAIN_SIZE / 2, Terrain.GetHeight(TERRAIN_SIZE / 2, TERRAIN_SIZE / 2 - 16.0f), TERRAIN_SIZE / 2 - 16.0f));
+	Globals::shapeManager.get("column").addInstance(Matrix4f::Translate(TERRAIN_SIZE / 2 - 14.0f, Terrain.GetHeight(TERRAIN_SIZE / 2 - 14.0f, TERRAIN_SIZE / 2 - 8.0f), TERRAIN_SIZE / 2 - 8.0f));
+	Globals::shapeManager.get("column").addInstance(Matrix4f::Translate(TERRAIN_SIZE / 2 - 18.0f, Terrain.GetHeight(TERRAIN_SIZE / 2 - 18.0f, TERRAIN_SIZE / 2 + 8.0f), TERRAIN_SIZE / 2 + 8.0f));
+	Globals::shapeManager.get("column").addVec4Attribute({Vector4f(1.0f, 0.0f, 0.0f, 1.0f), Vector4f(1.0f, 1.0f, 0.0f, 1.0f) , Vector4f(0.0f, 1.0f, 0.0f, 1.0f) , Vector4f(0.1f, 0.1f, 1.0f, 1.0f) , Vector4f(1.0f, 0.0f, 1.0f, 1.0f) }, 1);
+
+	m_column = RenderableObject("column", "column", "null");
+	m_column.setDrawFunction([&](const Camera& camera) {
+		if (m_column.isDisabled()) return;
+		auto shader = Globals::shaderManager.getAssetPointer(m_column.getShader());
+		shader->use();
+		shader->loadMatrix("u_projection", camera.getPerspectiveMatrix());
+		shader->loadMatrix("u_view", camera.getViewMatrix());
+		shader->loadMatrix("u_normal", Matrix4f::GetNormalMatrix(camera.getViewMatrix()));
+
+		shader->loadVector("u_lightPos", Vector3f(50.0f, 50.0f, 50.0f));
+
+		shader->loadFloat("invRadius", 0.0f);
+		shader->loadFloat("alpha", 1.0f);
+		shader->loadInt("u_texture", 0);
+		shader->loadInt("u_normalMap", 1);
+
+		Globals::textureManager.get("column").bind(0);
+		Globals::textureManager.get("column_nmp").bind(1);
+
+		Globals::shapeManager.get(m_column.getShape()).drawRawInstanced();
+		shader->unuse();
+	});
+
+	Globals::shapeManager.get("sphere_cl").addInstance(Matrix4f::Translate(TERRAIN_SIZE / 2 + 18.0f, Terrain.GetHeight(TERRAIN_SIZE / 2 + 18.0f, TERRAIN_SIZE / 2 + 8), TERRAIN_SIZE / 2 + 8));
+	Globals::shapeManager.get("sphere_cl").addInstance(Matrix4f::Translate(TERRAIN_SIZE / 2 + 14.0f, Terrain.GetHeight(TERRAIN_SIZE / 2 + 14.0f, TERRAIN_SIZE / 2 - 8), TERRAIN_SIZE / 2 - 8));
+	Globals::shapeManager.get("sphere_cl").addInstance(Matrix4f::Translate(TERRAIN_SIZE / 2, Terrain.GetHeight(TERRAIN_SIZE / 2, TERRAIN_SIZE / 2 - 16.0f), TERRAIN_SIZE / 2 - 16.0f));
+	Globals::shapeManager.get("sphere_cl").addInstance(Matrix4f::Translate(TERRAIN_SIZE / 2 - 14.0f, Terrain.GetHeight(TERRAIN_SIZE / 2 - 14.0f, TERRAIN_SIZE / 2 - 8.0f), TERRAIN_SIZE / 2 - 8.0f));
+	Globals::shapeManager.get("sphere_cl").addInstance(Matrix4f::Translate(TERRAIN_SIZE / 2 - 18.0f, Terrain.GetHeight(TERRAIN_SIZE / 2 - 18.0f, TERRAIN_SIZE / 2 + 8.0f), TERRAIN_SIZE / 2 + 8.0f));
+	Globals::shapeManager.get("sphere_cl").addVec4Attribute({ Vector4f(1.0f, 0.0f, 0.0f, 1.0f), Vector4f(1.0f, 1.0f, 0.0f, 1.0f) , Vector4f(0.0f, 1.0f, 0.0f, 1.0f) , Vector4f(0.1f, 0.1f, 1.0f, 1.0f) , Vector4f(1.0f, 0.0f, 1.0f, 1.0f) }, 1);
+
+	m_energyBallCl = RenderableObject("sphere_cl", "energy", "null");
+	m_energyBallCl.setDrawFunction([&](const Camera& camera) {
+		if (m_energyBallCl.isDisabled()) return;
+		glEnable(GL_BLEND);
+		auto shader = Globals::shaderManager.getAssetPointer(m_energyBallCl.getShader());
+		shader->use();
+		shader->loadMatrix("u_projection", camera.getPerspectiveMatrix());
+		shader->loadMatrix("u_view", camera.getViewMatrix());
+		shader->loadMatrix("u_normal", Matrix4f::GetNormalMatrix(camera.getViewMatrix()));
+
+		Globals::textureManager.get(m_energyBallCl.getTexture()).bind(0);
+		Globals::shapeManager.get(m_energyBallCl.getShape()).drawRawInstanced();
+		shader->unuse();
+		glDisable(GL_BLEND);
+	});
+
+
+	m_portal = RenderableObject("portal", "portal", "null");
+
+	m_portal.setDrawFunction([&](const Camera& camera) {
+		if (m_portal.isDisabled()) return;
+		auto shader = Globals::shaderManager.getAssetPointer(m_portal.getShader());
+		shader->use();
+		shader->loadMatrix("u_projection", camera.getPerspectiveMatrix());
+		shader->loadMatrix("u_view", camera.getViewMatrix());
+		shader->loadMatrix("u_model", m_portal.getTransformationP());
+		shader->loadMatrix("u_normal", Matrix4f::GetNormalMatrix(camera.getViewMatrix() * m_portal.getTransformationP()));
+
+		shader->loadVector("u_lightPos", Vector3f(50.0f, 50.0f, 50.0f));
+
+		shader->loadFloat("invRadius", 0.0f);
+		shader->loadFloat("alpha", 1.0f);
+		shader->loadInt("u_texture", 0);
+		shader->loadInt("u_normalMap", 1);
+
+		Globals::textureManager.get("portal").bind(0);
+		Globals::textureManager.get("portal_nmp").bind(1);
+
+		Globals::shapeManager.get(m_portal.getShape()).drawRaw();
+		shader->unuse();
+	});
+	
+	m_portal.setPosition(TERRAIN_SIZE / 2, Terrain.GetHeight(TERRAIN_SIZE / 2, TERRAIN_SIZE / 2 + 32.0f), TERRAIN_SIZE / 2 + 32.0f);
+
+	Globals::shapeManager.get("sphere_portal").addInstance(Matrix4f::Translate(0.0f,			    PORTAL_SIDE * 1.5f,  0.0f));
+	Globals::shapeManager.get("sphere_portal").addInstance(Matrix4f::Translate( PORTAL_SIDE * 0.5f, PORTAL_SIDE * 1.0f,  0.0f));
+	Globals::shapeManager.get("sphere_portal").addInstance(Matrix4f::Translate(-PORTAL_SIDE * 0.5f, PORTAL_SIDE * 1.0f,  0.0f));
+	Globals::shapeManager.get("sphere_portal").addInstance(Matrix4f::Translate(-PORTAL_SIDE * 0.5f, PORTAL_SIDE * 0.33f, 0.0f));
+	Globals::shapeManager.get("sphere_portal").addInstance(Matrix4f::Translate( PORTAL_SIDE * 0.5f, PORTAL_SIDE * 0.33f, 0.0f));
+	Globals::shapeManager.get("sphere_portal").addVec4Attribute({ Vector4f(0.0f, 1.0f, 0.0f, 1.0f), Vector4f(1.0f, 1.0f, 0.0f, 1.0f) , Vector4f(0.2f, 0.2f, 1.0f, 1.0f) , Vector4f(1.0f, 0.0f, 1.0f, 1.0f) , Vector4f(1.0f, 0.0f, 0.0f, 1.0f) }, 1);
+
+	m_energyBallP = RenderableObject("sphere_portal", "energy", "null");
+	m_energyBallP.setDrawFunction([&](const Camera& camera) {
+		if (m_energyBallP.isDisabled()) return;
+		glEnable(GL_BLEND);
+		auto shader = Globals::shaderManager.getAssetPointer(m_energyBallP.getShader());
+		shader->use();
+		shader->loadMatrix("u_projection", camera.getPerspectiveMatrix());
+		shader->loadMatrix("u_view", camera.getViewMatrix());
+		shader->loadMatrix("u_normal", Matrix4f::GetNormalMatrix(camera.getViewMatrix()));
+
+		Globals::textureManager.get(m_energyBallP.getTexture()).bind(0);
+		Globals::shapeManager.get(m_energyBallP.getShape()).drawRawInstanced();
+		shader->unuse();
+		glDisable(GL_BLEND);
+	});
+
+	m_vortex = RenderableObject("vortex", "texture_new", "vortex");
+	m_vortex.setDrawFunction([&](const Camera& camera) {
+		if (m_vortex.isDisabled()) return;
+		glDisable(GL_CULL_FACE);
+		glEnable(GL_BLEND);
+		auto shader = Globals::shaderManager.getAssetPointer(m_vortex.getShader());
+		shader->use();
+		shader->loadMatrix("u_projection", camera.getPerspectiveMatrix());
+		shader->loadMatrix("u_view", camera.getViewMatrix());
+		shader->loadMatrix("u_model", m_vortex.getTransformationSOP());
+		shader->loadMatrix("u_normal", Matrix4f::GetNormalMatrix(camera.getViewMatrix() * m_vortex.getTransformationSOP()));
+
+		Globals::textureManager.get(m_vortex.getTexture()).bind(0);
+		Globals::shapeManager.get(m_vortex.getShape()).drawRaw();
+		shader->unuse();
+		glDisable(GL_BLEND);
+		glEnable(GL_CULL_FACE);
+	});
+	m_vortex.setScale(1.5f, 1.5f, 0.0f);
+	m_vortex.setPosition(512.0f, 13.75f + PORTAL_SIDE * 0.5f, 544.0f);
+
+	m_vortex.setUpdateFunction(
+		[&](const float dt) {
+		m_vortex.rotate(0.0f, 0.0f, 0.5f);
 	});
 
 	return res;

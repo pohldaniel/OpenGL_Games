@@ -18,11 +18,11 @@ out vec2 texCoord;
 
 void main(){
 
-	texCoord = i_texCoord; 
+	texCoord 	 = i_texCoord; 
     pos_model    = i_position;
     pos_eye      = vec3(u_view * u_model * vec4(i_position, 1.0));
     normal_model = normalize(i_normal);
     normal_eye   = normalize(mat3(u_normal) * i_normal);
 
-    gl_Position    = u_projection * u_view * u_model * vec4(i_position, 1.0); 
+    gl_Position	 = u_projection * u_view * u_model * vec4(i_position, 1.0); 
 }

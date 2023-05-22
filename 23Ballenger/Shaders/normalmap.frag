@@ -5,6 +5,7 @@ uniform float alpha;
 varying vec3 lightVec;
 varying vec3 eyeVec;
 varying vec2 texCoord;
+varying vec3 normal;
 
 void main (void)
 {
@@ -32,4 +33,5 @@ void main (void)
 					 specular;	
 	
 	gl_FragColor = vec4( vec3(( vAmbient*base + vDiffuse*base + vSpecular)*att)*gl_Color.rgb , alpha );
+
 }

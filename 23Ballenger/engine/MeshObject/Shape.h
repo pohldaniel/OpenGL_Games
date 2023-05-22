@@ -3,7 +3,10 @@
 
 #include <GL/glew.h>
 #include <vector>
+#include <array>
+#include <cctype>
 #include <iterator>
+#include <map>
 #include "../Vector.h"
 
 class Shape {
@@ -26,11 +29,13 @@ public:
 	
 	//void fromBuffer(std::vector<Vector3f>& positions, std::vector<Vector2f>& texels, std::vector<Vector3f>& normals, std::vector<unsigned int> indexBuffer);
 	void fromBuffer(std::vector<float>& vertexBuffer, std::vector<unsigned int> indexBuffer, unsigned int stride);
+	void fromObj(const char* filename);
 
 	void drawRaw() const;
 	void drawRawInstanced() const;
 	void addInstances(const std::vector<Matrix4f>& modelMTX);
 	void addInstance(const Matrix4f& modelMTX);
+	void addVec4Attribute(const std::vector<Vector4f>& modelMTX, unsigned int divisor = 0);
 	int getNumberOfTriangles();
 	void cleanup();
 	std::vector<Vector3f>& getPositions();
@@ -42,6 +47,7 @@ private:
 	unsigned int m_vbo[5] = { 0 };
 	unsigned int m_drawCount;
 	unsigned int m_vboInstances = 0;
+	unsigned int m_vboColor = 0;
 	unsigned int m_instanceCount = 0;
 
 	std::vector<unsigned int> m_indexBuffer;
@@ -56,5 +62,7 @@ private:
 	Vector3f m_max;
 
 	void createBuffer();
+	int whitespaces(const char c[]);
+	int addVertex(int hash, const float *pVertex, int stride, std::map<int, std::vector<int>>& vertexCache, std::vector <float>& vertexBuffer);
 };
 #endif

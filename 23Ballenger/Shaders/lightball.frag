@@ -16,4 +16,6 @@ void main()
 	normalz = abs(normalz*normalz*normalz);
 
     gl_FragColor = vec4( mix(gl_Color.rgb,vec3(1,1,1),normalz*normalz) , normalz );
+	
+	//gl_FragColor = vec4(normal_eye , 1.0);
 }

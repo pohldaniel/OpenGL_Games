@@ -109,6 +109,344 @@ void Shape::fromBuffer(std::vector<float>& vertexBuffer, std::vector<unsigned in
 	createBuffer();
 }
 
+void Shape::fromObj(const char* filename) {
+
+	bool quads = false;
+	bool check = false;
+
+	std::vector<std::array<int, 9>> face;
+	std::vector<float> positionCoords;
+	std::vector<float> normalCoords;
+	std::vector<float> textureCoords;
+	std::vector<float> tangentCoords;
+	std::vector<float> bitangentCoords;
+
+	char buffer[250];
+
+	FILE * pFile = fopen(filename, "r");
+	if (pFile == NULL) {
+		std::cout << "File not found" << std::endl;
+		return;
+	}
+
+	while (fscanf(pFile, "%s", buffer) != EOF) {
+
+		switch (buffer[0]) {
+
+		case 'v': {
+
+			switch (buffer[1]) {
+
+				case '\0': {
+
+					float tmpx, tmpy, tmpz;
+					fgets(buffer, sizeof(buffer), pFile);
+					sscanf(buffer, "%f %f %f", &tmpx, &tmpy, &tmpz);
+				
+					positionCoords.push_back(tmpx);
+					positionCoords.push_back(tmpy);
+					positionCoords.push_back(tmpz);
+					break;
+
+				}case 't': {
+
+					float tmpu, tmpv;
+					fgets(buffer, sizeof(buffer), pFile);
+					sscanf(buffer, "%f %f", &tmpu, &tmpv);
+
+					textureCoords.push_back(tmpu);
+					textureCoords.push_back(tmpv);
+					break;
+
+				}case 'n': {
+
+					float tmpx, tmpy, tmpz;
+					fgets(buffer, sizeof(buffer), pFile);
+					sscanf(buffer, "%f %f %f", &tmpx, &tmpy, &tmpz);
+					normalCoords.push_back(tmpx);
+					normalCoords.push_back(tmpy);
+					normalCoords.push_back(tmpz);		
+					break;
+
+				}default: {
+					break;
+				}
+			}
+			break;
+
+		}case 'f': {
+
+			
+			fgets(buffer, sizeof(buffer), pFile);
+
+			if (!check) {
+				quads = whitespaces(buffer) == 4;
+				check == true;
+			}
+			
+			if (quads) {
+				int a, b, c, n1, n2, n3, t1, t2, t3;
+
+				if (!textureCoords.empty() && !normalCoords.empty()) {
+					sscanf(buffer, "%d/%d/%d %d/%d/%d %d/%d/%d", &a, &t1, &n1, &b, &t2, &n2, &c, &t3, &n3);
+					face.push_back({ a, b, c, t1, t2, t3, n1, n2, n3 });
+
+				}else if (!normalCoords.empty()) {
+					sscanf(buffer, "%d//%d %d//%d %d//%d", &a, &n1, &b, &n2, &c, &n3);
+					face.push_back({ a, b, c, 0, 0, 0, n1, n2, n3 });
+				}else if (!textureCoords.empty()) {
+					sscanf(buffer, "%d/%d %d/%d %d/%d", &a, &t1, &b, &t2, &c, &t3);
+					face.push_back({ a, b, c, t1, t2, t3, 0, 0, 0 });
+				}else {
+					sscanf(buffer, "%d %d %d", &a, &b, &c);
+					face.push_back({ a, b, c, 0, 0, 0, 0, 0, 0 });
+				}
+
+			} else {
+				int a, b, c, d, n1, n2, n3, n4, t1, t2, t3, t4;
+
+				if (!textureCoords.empty() && !normalCoords.empty()) {
+					sscanf(buffer, "%d/%d/%d %d/%d/%d %d/%d/%d %d/%d/%d", &a, &t1, &n1, &b, &t2, &n2, &c, &t3, &n3, &d, &t4, &n4);
+					face.push_back({ a, b, c, t1, t2, t3, n1, n2, n3 });
+					face.push_back({ a, c, d, t1, t3, t4, n1, n3, n4 });
+
+				} else if (!normalCoords.empty()) {
+					sscanf(buffer, "%d//%d %d//%d %d//%d %d//%d", &a, &n1, &b, &n2, &c, &n3, &d, &n4);
+					face.push_back({ a, b, c, 0, 0, 0, n1, n2, n3 });
+					face.push_back({ a, c, d, 0, 0, 0, n1, n3, n4 });
+
+				} else if (!textureCoords.empty()) {
+					sscanf(buffer, "%d/%d %d/%d %d/%d %d/%d", &a, &t1, &b, &t2, &c, &t3, &d, &t4);
+					face.push_back({ a, b, c, t1, t2, t3, 0, 0, 0 });
+					face.push_back({ a, c, d, t1, t3, t4, 0, 0, 0 });
+				} else {
+					sscanf(buffer, "%d %d %dd %d", &a, &b, &c, &d);
+					face.push_back({ a, b, c, 0, 0, 0, 0, 0, 0 });
+					face.push_back({ a, c, d, 0, 0, 0, 0, 0, 0 });
+				}
+			}
+			break;
+
+		}default: {
+
+			break;
+		}
+
+		}//end switch
+	}// end while
+	fclose(pFile);
+
+	std::vector <float> vertexBufferOut;
+	std::map<int, std::vector<int>> vertexCache;
+
+	m_indexBuffer.resize(face.size() * 3);
+	if (!tangentCoords.empty()) {
+		for (int i = 0; i < face.size(); i++) {
+
+			float vertex1[] = { positionCoords[((face[i])[0] - 1) * 3], positionCoords[((face[i])[0] - 1) * 3 + 1], positionCoords[((face[i])[0] - 1) * 3 + 2],
+								textureCoords[((face[i])[3] - 1) * 2], textureCoords[((face[i])[3] - 1) * 2 + 1],
+								normalCoords[((face[i])[6] - 1) * 3], normalCoords[((face[i])[6] - 1) * 3 + 1], normalCoords[((face[i])[6] - 1) * 3 + 2],
+								tangentCoords[((face[i])[0] - 1) * 3], tangentCoords[((face[i])[0] - 1) * 3 + 1], tangentCoords[((face[i])[0] - 1) * 3 + 2],
+								bitangentCoords[((face[i])[0] - 1) * 3], bitangentCoords[((face[i])[0] - 1) * 3 + 1], bitangentCoords[((face[i])[0] - 1) * 3 + 2] };
+
+			m_indexBuffer[i * 3] = addVertex(((face[i])[0] - 1), &vertex1[0], 14, vertexCache, vertexBufferOut);
+
+			float vertex2[] = { positionCoords[((face[i])[1] - 1) * 3], positionCoords[((face[i])[1] - 1) * 3 + 1], positionCoords[((face[i])[1] - 1) * 3 + 2],
+								textureCoords[((face[i])[4] - 1) * 2], textureCoords[((face[i])[4] - 1) * 2 + 1],
+								normalCoords[((face[i])[7] - 1) * 3], normalCoords[((face[i])[7] - 1) * 3 + 1], normalCoords[((face[i])[7] - 1) * 3 + 2],
+								tangentCoords[((face[i])[1] - 1) * 3], tangentCoords[((face[i])[1] - 1) * 3 + 1], tangentCoords[((face[i])[1] - 1) * 3 + 2],
+								bitangentCoords[((face[i])[1] - 1) * 3], bitangentCoords[((face[i])[1] - 1) * 3 + 1], bitangentCoords[((face[i])[1] - 1) * 3 + 2] };
+
+			m_indexBuffer[i * 3 + 1] = addVertex(((face[i])[1] - 1), &vertex2[0], 14, vertexCache, vertexBufferOut);
+
+			float vertex3[] = { positionCoords[((face[i])[2] - 1) * 3], positionCoords[((face[i])[2] - 1) * 3 + 1], positionCoords[((face[i])[2] - 1) * 3 + 2],
+								textureCoords[((face[i])[5] - 1) * 2], textureCoords[((face[i])[5] - 1) * 2 + 1],
+								normalCoords[((face[i])[8] - 1) * 3], normalCoords[((face[i])[8] - 1) * 3 + 1], normalCoords[((face[i])[8] - 1) * 3 + 2],
+								tangentCoords[((face[i])[2] - 1) * 3], tangentCoords[((face[i])[2] - 1) * 3 + 1], tangentCoords[((face[i])[2] - 1) * 3 + 2] ,
+								bitangentCoords[((face[i])[2] - 1) * 3], bitangentCoords[((face[i])[2] - 1) * 3 + 1], bitangentCoords[((face[i])[2] - 1) * 3 + 2] };
+
+			m_indexBuffer[i * 3 + 2] = addVertex(((face[i])[2] - 1), &vertex3[0], 14, vertexCache, vertexBufferOut);
+		}
+
+	}else if (!textureCoords.empty() && !normalCoords.empty()) {
+
+		for (int i = 0; i < face.size(); i++) {
+
+			float vertex1[] = { positionCoords[((face[i])[0] - 1) * 3], positionCoords[((face[i])[0] - 1) * 3 + 1], positionCoords[((face[i])[0] - 1) * 3 + 2],
+								textureCoords[((face[i])[3] - 1) * 2], textureCoords[((face[i])[3] - 1) * 2 + 1],
+								normalCoords[((face[i])[6] - 1) * 3], normalCoords[((face[i])[6] - 1) * 3 + 1], normalCoords[((face[i])[6] - 1) * 3 + 2] };
+			
+			m_indexBuffer[i * 3] = addVertex(((face[i])[0] - 1), &vertex1[0], 8, vertexCache, vertexBufferOut);
+
+			float vertex2[] = { positionCoords[((face[i])[1] - 1) * 3], positionCoords[((face[i])[1] - 1) * 3 + 1], positionCoords[((face[i])[1] - 1) * 3 + 2],
+								textureCoords[((face[i])[4] - 1) * 2], textureCoords[((face[i])[4] - 1) * 2 + 1],
+								normalCoords[((face[i])[7] - 1) * 3], normalCoords[((face[i])[7] - 1) * 3 + 1], normalCoords[((face[i])[7] - 1) * 3 + 2] };
+			
+			m_indexBuffer[i * 3 + 1] = addVertex(((face[i])[1] - 1), &vertex2[0], 8, vertexCache, vertexBufferOut);
+
+			float vertex3[] = { positionCoords[((face[i])[2] - 1) * 3], positionCoords[((face[i])[2] - 1) * 3 + 1], positionCoords[((face[i])[2] - 1) * 3 + 2],
+								textureCoords[((face[i])[5] - 1) * 2], textureCoords[((face[i])[5] - 1) * 2 + 1],
+								normalCoords[((face[i])[8] - 1) * 3], normalCoords[((face[i])[8] - 1) * 3 + 1], normalCoords[((face[i])[8] - 1) * 3 + 2] };
+			
+			m_indexBuffer[i * 3 + 2] = addVertex(((face[i])[2] - 1), &vertex3[0], 8, vertexCache, vertexBufferOut);
+		}
+
+	}else if (!normalCoords.empty()) {
+
+		for (int i = 0; i < face.size(); i++) {
+
+			float vertex1[] = { positionCoords[((face[i])[0] - 1) * 3], positionCoords[((face[i])[0] - 1) * 3 + 1], positionCoords[((face[i])[0] - 1) * 3 + 2],
+								normalCoords[((face[i])[6] - 1) * 3], normalCoords[((face[i])[6] - 1) * 3 + 1], normalCoords[((face[i])[6] - 1) * 3 + 2] };
+			
+			m_indexBuffer[i * 3] = addVertex(((face[i])[0] - 1), &vertex1[0], 6, vertexCache, vertexBufferOut);
+
+			float vertex2[] = { positionCoords[((face[i])[1] - 1) * 3], positionCoords[((face[i])[1] - 1) * 3 + 1], positionCoords[((face[i])[1] - 1) * 3 + 2],
+								normalCoords[((face[i])[7] - 1) * 3], normalCoords[((face[i])[7] - 1) * 3 + 1], normalCoords[((face[i])[7] - 1) * 3 + 2] };
+
+			m_indexBuffer[i * 3 + 1] = addVertex(((face[i])[1] - 1), &vertex2[0], 6, vertexCache, vertexBufferOut);
+
+			float vertex3[] = { positionCoords[((face[i])[2] - 1) * 3], positionCoords[((face[i])[2] - 1) * 3 + 1], positionCoords[((face[i])[2] - 1) * 3 + 2],
+								normalCoords[((face[i])[8] - 1) * 3], normalCoords[((face[i])[8] - 1) * 3 + 1], normalCoords[((face[i])[8] - 1) * 3 + 2] };
+
+			m_indexBuffer[i * 3 + 2] = addVertex(((face[i])[2] - 1), &vertex3[0], 6, vertexCache, vertexBufferOut);
+		}
+
+	}else if (!textureCoords.empty()) {
+
+		for (int i = 0; i < face.size(); i++) {
+			float vertex1[] = { positionCoords[((face[i])[0] - 1) * 3], positionCoords[((face[i])[0] - 1) * 3 + 1], positionCoords[((face[i])[0] - 1) * 3 + 2],
+								textureCoords[((face[i])[3] - 1) * 2], textureCoords[((face[i])[3] - 1) * 2 + 1] };
+
+			m_indexBuffer[i * 3] = addVertex(((face[i])[0] - 1), &vertex1[0], 5, vertexCache, vertexBufferOut);
+
+			float vertex2[] = { positionCoords[((face[i])[1] - 1) * 3],positionCoords[((face[i])[1] - 1) * 3 + 1], positionCoords[((face[i])[1] - 1) * 3 + 2],
+								textureCoords[((face[i])[4] - 1) * 2], textureCoords[((face[i])[4] - 1) * 2 + 1] };
+
+			m_indexBuffer[i * 3 + 1] = addVertex(((face[i])[1] - 1), &vertex2[0], 5, vertexCache, vertexBufferOut);
+
+			float vertex3[] = { positionCoords[((face[i])[2] - 1) * 3], positionCoords[((face[i])[2] - 1) * 3 + 1], positionCoords[((face[i])[2] - 1) * 3 + 2],
+								textureCoords[((face[i])[5] - 1) * 2], textureCoords[((face[i])[5] - 1) * 2 + 1] };
+
+			m_indexBuffer[i * 3 + 2] = addVertex(((face[i])[2] - 1), &vertex3[0], 5, vertexCache, vertexBufferOut);
+		}
+
+	}else {
+		for (int i = 0; i < face.size(); i++) {
+			float vertex1[] = { positionCoords[((face[i])[0] - 1) * 3], positionCoords[((face[i])[0] - 1) * 3 + 1], positionCoords[((face[i])[0] - 1) * 3 + 2] };
+
+			m_indexBuffer[i * 3] = addVertex(((face[i])[0] - 1), &vertex1[0], 3, vertexCache, vertexBufferOut);
+
+			float vertex2[] = { positionCoords[((face[i])[1] - 1) * 3], positionCoords[((face[i])[1] - 1) * 3 + 1], positionCoords[((face[i])[1] - 1) * 3 + 2] };
+
+			m_indexBuffer[i * 3 + 1] = addVertex(((face[i])[1] - 1), &vertex2[0], 3, vertexCache, vertexBufferOut);
+
+			float vertex3[] = { positionCoords[((face[i])[2] - 1) * 3], positionCoords[((face[i])[2] - 1) * 3 + 1], positionCoords[((face[i])[2] - 1) * 3 + 2] };
+
+			m_indexBuffer[i * 3 + 2] = addVertex(((face[i])[2] - 1), &vertex3[0], 3, vertexCache, vertexBufferOut);
+		}
+	}
+
+	face.clear();
+	face.shrink_to_fit();
+
+	std::map<int, std::vector<int>>().swap(vertexCache);
+
+	if (!tangentCoords.empty()) {
+		for (unsigned int i = 0; i < vertexBufferOut.size(); i = i + 14) {
+			m_positions.push_back(Vector3f(vertexBufferOut[i], vertexBufferOut[i + 1], vertexBufferOut[i + 2]));
+			m_texels.push_back(Vector2f(vertexBufferOut[i + 3], vertexBufferOut[i + 4]));
+			m_normals.push_back(Vector3f(vertexBufferOut[i + 5], vertexBufferOut[i + 6], vertexBufferOut[i + 7]));
+			m_tangents.push_back(Vector3f(vertexBufferOut[i + 8], vertexBufferOut[i + 9], vertexBufferOut[i + 10]));
+			m_bitangents.push_back(Vector3f(vertexBufferOut[i + 11], vertexBufferOut[i + 12], vertexBufferOut[i + 13]));
+
+		}
+	}else if (!textureCoords.empty() && !normalCoords.empty()) {
+		for (unsigned int i = 0; i < vertexBufferOut.size(); i = i + 8) {
+			m_positions.push_back(Vector3f(vertexBufferOut[i], vertexBufferOut[i + 1], vertexBufferOut[i + 2]));
+			m_texels.push_back(Vector2f(vertexBufferOut[i + 3], vertexBufferOut[i + 4]));
+			m_normals.push_back(Vector3f(vertexBufferOut[i + 5], vertexBufferOut[i + 6], vertexBufferOut[i + 7]));
+
+		}
+	}else if (!normalCoords.empty()) {
+		for (unsigned int i = 0; i < vertexBufferOut.size(); i = i + 8) {
+			m_positions.push_back(Vector3f(vertexBufferOut[i], vertexBufferOut[i + 1], vertexBufferOut[i + 2]));
+			m_normals.push_back(Vector3f(vertexBufferOut[i + 3], vertexBufferOut[i + 4], vertexBufferOut[i + 5]));
+		}
+
+	}else if (!textureCoords.empty()) {
+		for (unsigned int i = 0; i < vertexBufferOut.size(); i = i + 5) {
+			m_positions.push_back(Vector3f(vertexBufferOut[i], vertexBufferOut[i + 1], vertexBufferOut[i + 2]));
+			m_texels.push_back(Vector2f(vertexBufferOut[i + 3], vertexBufferOut[i + 4]));
+		}
+	}else {
+		for (unsigned int i = 0; i < vertexBufferOut.size(); i = i + 3) {
+			m_positions.push_back(Vector3f(vertexBufferOut[i], vertexBufferOut[i + 1], vertexBufferOut[i + 2]));
+		}
+	}
+
+	positionCoords.clear();
+	positionCoords.shrink_to_fit();
+	normalCoords.clear();
+	normalCoords.shrink_to_fit();
+	textureCoords.clear();
+	textureCoords.shrink_to_fit();
+	tangentCoords.clear();
+	tangentCoords.shrink_to_fit();
+	bitangentCoords.clear();
+	bitangentCoords.shrink_to_fit();
+	vertexBufferOut.clear();
+	vertexBufferOut.shrink_to_fit();
+
+	createBuffer();
+}
+
+int Shape::whitespaces(const char c[]) {
+	int count = 0;
+	size_t n = std::strlen(c);
+
+	for (size_t i = 0; i < n; i++) {
+		if (std::isspace(c[i])) ++count;
+	}
+
+	return (count);
+}
+
+int Shape::addVertex(int hash, const float *pVertex, int stride, std::map<int, std::vector<int>>& vertexCache, std::vector <float>& vertexBuffer) {
+
+	int index = -1;
+	std::map<int, std::vector<int> >::const_iterator iter = vertexCache.find(hash);
+
+	if (iter == vertexCache.end()) {
+		// Vertex hash doesn't exist in the cache.
+		index = static_cast<int>(vertexBuffer.size() / stride);
+		vertexBuffer.insert(vertexBuffer.end(), pVertex, pVertex + stride);
+		vertexCache.insert(std::make_pair(hash, std::vector<int>(1, index)));
+	}else {
+		// One or more vertices have been hashed to this entry in the cache.
+		const std::vector<int> &vertices = iter->second;
+		const float *pCachedVertex = 0;
+		bool found = false;
+
+		for (std::vector<int>::const_iterator i = vertices.begin(); i != vertices.end(); ++i) {
+			index = *i;
+			pCachedVertex = &vertexBuffer[index * stride];
+
+			if (memcmp(pCachedVertex, pVertex, sizeof(float)* stride) == 0) {
+				found = true;
+				break;
+			}
+		}
+
+		if (!found) {
+			index = static_cast<int>(vertexBuffer.size() / stride);
+			vertexBuffer.insert(vertexBuffer.end(), pVertex, pVertex + stride);
+			vertexCache[hash].push_back(index);
+		}
+	}
+	return index;
+}
+
+
 std::vector<Vector3f>& Shape::getPositions() {
 	return m_positions;
 }
@@ -293,6 +631,22 @@ void Shape::addInstance(const Matrix4f& modelMTX) {
 
 		glBindVertexArray(0);
 	}
+}
+
+void Shape::addVec4Attribute(const std::vector<Vector4f>& attributes, unsigned int divisor) {
+	glGenBuffers(1, &m_vboColor);
+
+	glBindVertexArray(m_vao);
+
+	glBindBuffer(GL_ARRAY_BUFFER, m_vboColor);
+	glBufferData(GL_ARRAY_BUFFER, attributes.size() * sizeof(float) * 4, &attributes[0], GL_STATIC_DRAW);
+
+	glEnableVertexAttribArray(9);
+	glVertexAttribPointer(9, 4, GL_FLOAT, GL_FALSE, sizeof(float) * 4, (void*)(0));
+	glVertexAttribDivisor(9, divisor);
+
+
+	glBindVertexArray(0);
 }
 
 void Shape::drawRawInstanced() const {

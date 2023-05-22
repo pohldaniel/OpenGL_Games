@@ -203,11 +203,10 @@ bool ObjModel::loadModel(const char* a_filename, Vector3f& axis, float degree, V
 
 				}case 'n': {
 
-					float tmpx, tmpy, tmpz;
-					fgets(buffer, sizeof(buffer), pFile);
-					sscanf(buffer, "%f %f %f", &tmpx, &tmpy, &tmpz);
-
 					if (!withoutNormals) {
+						float tmpx, tmpy, tmpz;
+						fgets(buffer, sizeof(buffer), pFile);
+						sscanf(buffer, "%f %f %f", &tmpx, &tmpy, &tmpz);
 	
 						Matrix4f rot;
 						rot.rotate(axis, degree);
@@ -268,24 +267,24 @@ bool ObjModel::loadModel(const char* a_filename, Vector3f& axis, float degree, V
 			fgets(buffer, sizeof(buffer), pFile);
 
 			if (!textureCoords.empty() && !normalCoords.empty()) {				
-				sscanf(buffer, "%d/%d/%d %d/%d/%d %d/%d/%d ", &a, &t1, &n1, &b, &t2, &n2, &c, &t3, &n3);
-				face.push_back({ { a, b, c, t1, t2, t3, n1, n2, n3, assign } });
+				sscanf(buffer, "%d/%d/%d %d/%d/%d %d/%d/%d", &a, &t1, &n1, &b, &t2, &n2, &c, &t3, &n3);
+				face.push_back({  a, b, c, t1, t2, t3, n1, n2, n3, assign  });
 
 			}else if (!normalCoords.empty()) {
 				sscanf(buffer, "%d//%d %d//%d %d//%d", &a, &n1, &b, &n2, &c, &n3);
-				face.push_back({ { a, b, c, 0, 0, 0, n1, n2, n3, assign } });
+				face.push_back({  a, b, c, 0, 0, 0, n1, n2, n3, assign  });
 
 			}else if (!textureCoords.empty()) {				
-				if (withoutNormals) {
-					sscanf(buffer, "%d/%d/%d %d/%d/%d %d/%d/%d ", &a, &t1, &n1, &b, &t2, &n2, &c, &t3, &n3);
-					face.push_back({ { a, b, c, t1, t2, t3, n1, n2, n3, assign } });
+				if (!withoutNormals) {
+					sscanf(buffer, "%d/%d/%d %d/%d/%d %d/%d/%d", &a, &t1, &n1, &b, &t2, &n2, &c, &t3, &n3);
+					face.push_back({  a, b, c, t1, t2, t3, n1, n2, n3, assign  });
 				}else {
 					sscanf(buffer, "%d/%d %d/%d %d/%d", &a, &t1, &b, &t2, &c, &t3);
-					face.push_back({ { a, b, c, t1, t2, t3, 0, 0, 0, assign } });
+					face.push_back({  a, b, c, t1, t2, t3, 0, 0, 0, assign  });
 				}
 			}else {
 				sscanf(buffer, "%d %d %d", &a, &b, &c);
-				face.push_back({ { a, b, c, 0, 0, 0, 0, 0, 0, assign } });
+				face.push_back({  a, b, c, 0, 0, 0, 0, 0, 0, assign  });
 			}
 			break;
 

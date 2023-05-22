@@ -178,6 +178,10 @@ public:
 		m_assets[name].fromBuffer(vertexBuffer, indexBuffer, stride);
 	}
 
+	void fromObj(const std::string& name, const char* filename) {
+		m_assets[name].fromObj(filename);
+	}
+
 	T& get(const std::string& name) {
 		return m_assets[name];
 	}

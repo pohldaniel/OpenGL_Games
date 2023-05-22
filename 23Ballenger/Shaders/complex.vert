@@ -2,6 +2,7 @@ varying vec3 lightVec;
 varying vec3 eyeVec;
 varying vec2 texCoord;
 varying vec3 tangent;
+varying vec3 normal;
 					 
 void main(void)
 {
@@ -13,7 +14,7 @@ void main(void)
 	vec3 c2 = cross(gl_Normal, vec3(0.0, 1.0, 0.0)); 
 	if(length(c1)>length(c2)) tangent = c1;	
 	else tangent = c2;	
-
+	normal = normalize(gl_NormalMatrix * gl_Normal);
 	vec3 n = normalize(gl_NormalMatrix * gl_Normal);
 	vec3 t = normalize(gl_NormalMatrix * tangent);
 	vec3 b = cross(n, t);

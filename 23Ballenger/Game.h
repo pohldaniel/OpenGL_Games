@@ -80,6 +80,13 @@ private:
 	RenderableObject m_respawnPoint;
 	RenderableObject m_cylinder;
 	RenderableObject m_disk;
+	RenderableObject m_key;
+	RenderableObject m_column;
+	RenderableObject m_portal;
+	RenderableObject m_energyBallCl;
+	RenderableObject m_energyBallP;
+	RenderableObject m_vortex;
+
 	float m_offsetDistance = 10.0f;
 	CharacterController *m_characterController;
 };

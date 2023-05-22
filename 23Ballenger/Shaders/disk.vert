@@ -9,12 +9,13 @@ uniform mat4 u_projection;
 uniform mat4 u_view;
 uniform mat4 u_normal;
 
-out vec2 texCoord;
-out vec3 normal;
+layout (std140, binding = 0) uniform u_color{
+	vec4 color[8];
+};
+
+out vec4 vertColor;
 
 void main(void){
 	gl_Position = u_projection * u_view * i_model * vec4(i_position, 1.0);
-   
-	texCoord = i_texCoord;  
-	normal = normalize(mat3(u_normal * i_model) * i_normal);
+	vertColor = color[gl_InstanceID];
 }

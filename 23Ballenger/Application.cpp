@@ -39,7 +39,7 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 	initOpenGL();
 	showWindow();
 	initImGUI();
-	initOpenAL();
+	//initOpenAL();
 	loadAssets();
 	initStates();
 
@@ -507,8 +507,12 @@ void Application::loadAssets() {
 	Globals::shaderManager.loadShader("terrain_new", "Shaders/simple_new.vert", "Shaders/terrain_new.frag");
 	Globals::shaderManager.loadShader("texture_new", "Shaders/program.vert", "Shaders/texture.frag");
 	Globals::shaderManager.loadShader("instance", "Shaders/instance.vert", "Shaders/instance.frag");
+	Globals::shaderManager.loadShader("respawn", "Shaders/respawn.vert", "Shaders/respawn.frag");
 	Globals::shaderManager.loadShader("cylinder", "Shaders/cylinder.vert", "Shaders/cylinder.frag");
 	Globals::shaderManager.loadShader("disk", "Shaders/disk.vert", "Shaders/disk.frag");
+	Globals::shaderManager.loadShader("column", "Shaders/column.vert", "Shaders/column.frag");
+	Globals::shaderManager.loadShader("energy", "Shaders/energy.vert", "Shaders/energy.frag");
+	Globals::shaderManager.loadShader("portal", "Shaders/portal.vert", "Shaders/portal.frag");
 
 	Globals::textureManager.createNullTexture("null");
 
@@ -550,11 +554,33 @@ void Application::loadAssets() {
 	Globals::spritesheetManager.getAssetPointer("circle")->setLinearMipMap();
 	Globals::spritesheetManager.getAssetPointer("circle")->setRepeat();
 
+
+	Globals::textureManager.loadTexture("column", "Textures/column.png", false);
+	Globals::textureManager.loadTexture("column_nmp", "Textures/columnNmap.png", false);
+	Globals::textureManager.get("column").setFilter(GL_LINEAR_MIPMAP_LINEAR);
+	Globals::textureManager.get("column_nmp").setFilter(GL_LINEAR_MIPMAP_LINEAR);
+
+	Globals::textureManager.loadTexture("portal", "Textures/portal.png", false);
+	Globals::textureManager.loadTexture("portal_nmp", "Textures/portalNmap.png", false);
+	Globals::textureManager.get("portal").setFilter(GL_LINEAR_MIPMAP_LINEAR);
+	Globals::textureManager.get("portal_nmp").setFilter(GL_LINEAR_MIPMAP_LINEAR);
+
+	Globals::textureManager.loadTexture("vortex", "Textures/vortex.png", false);
+	Globals::textureManager.get("vortex").setWrapMode(GL_REPEAT);
+	Globals::textureManager.get("vortex").setFilter(GL_LINEAR_MIPMAP_LINEAR);
+
 	Globals::shapeManager.buildSphere("sphere", 0.5f * SCALE, Vector3f(0.0f, 0.0f, 0.0f), 16, 16, true, true, false);
 	Globals::shapeManager.buildQuadXZ("quad_lava", Vector3f(0.0f, 0.0f, 0.0f), Vector2f(1024.0f, 1024.0f), 1, 1, true, true, false);
 	Globals::shapeManager.buildQuadXZ("quad_rp", Vector3f(-1.0f, 0.05f, -1.0f), Vector2f(2.0f, 2.0f), 1, 1, true, true, false);
+	Globals::shapeManager.buildQuadXY("vortex", Vector3f(-1.0f, -1.0f, 0.0f), Vector2f(2.0f, 2.0f), 1, 1, true, true, false);
 	Globals::shapeManager.buildCylinder("cylinder", 2.0f, 2.0f, 3.0f, Vector3f(0.0f, 1.6f, 0.0f), 16, 16, false, true, false);
 	Globals::shapeManager.buildDiskXZ("disk", 2.0f, Vector3f(0.0f, 0.11f, 0.0f), 16, 16, false, false, false);
+	Globals::shapeManager.fromObj("key", "res/models/key.obj");
+	Globals::shapeManager.fromObj("column", "res/models/column.obj");
+	Globals::shapeManager.fromObj("portal", "res/models/portal.obj");
+
+	Globals::shapeManager.buildSphere("sphere_cl", 1.0f, Vector3f(0.0f, 8.0f, 0.0f), 32, 32, false, true, false);
+	Globals::shapeManager.buildSphere("sphere_portal", 0.2f, Vector3f(512.0f, 13.75f, 544.0f), 16, 16, false, true, false);
 
 	glGenBuffers(1, &Globals::colorUbo);
 	glBindBuffer(GL_UNIFORM_BUFFER, Globals::colorUbo);

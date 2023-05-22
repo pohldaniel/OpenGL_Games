@@ -250,13 +250,20 @@ void Shader::linkShaders(GLuint vertShader, GLuint fragShader) {
 		glGetProgramiv(m_program, GL_LINK_STATUS, &linked);
 
 		if (!linked) {
-			GLsizei infoLogSize = 0;
-			std::string infoLog;
+			GLsizei logSizeInfo = 0;	
+			glGetShaderiv(m_program, GL_INFO_LOG_LENGTH, &logSizeInfo);
 
-			glGetShaderiv(m_program, GL_INFO_LOG_LENGTH, &infoLogSize);
-			infoLog.resize(infoLogSize);
-			glGetShaderInfoLog(m_program, infoLogSize, &infoLogSize, &infoLog[0]);
-			std::cout << "Compile status: \n" << &infoLog << std::endl;
+			std::string logInfo;
+			logInfo.resize(logSizeInfo);
+			glGetShaderInfoLog(m_program, logSizeInfo, &logSizeInfo, &logInfo[0]);
+			std::cout << "Compile status: \n" << logInfo << std::endl;
+
+			GLsizei logSizeProgram = 0;
+			std::string logProgram;
+			logProgram.resize(256);
+
+			glGetProgramInfoLog(m_program, 256, &logSizeProgram, &logProgram[0]);
+			std::cout << "Error Message: \n" << logProgram << std::endl;
 		}
 
 		// Mark the two attached shaders for deletion. These two shaders aren't
@@ -292,19 +299,21 @@ void Shader::linkShaders(GLuint vertShader, GLuint fragShader, GLuint geoShader)
 
 		if (!linked) {
 
-			GLsizei infoLogSize = 0;
-			std::string infoLog;
+			GLsizei logSizeInfo = 0;
+			glGetShaderiv(m_program, GL_INFO_LOG_LENGTH, &logSizeInfo);
 
-			glGetShaderiv(m_program, GL_INFO_LOG_LENGTH, &infoLogSize);
-			infoLog.resize(infoLogSize);
-			glGetShaderInfoLog(m_program, infoLogSize, &infoLogSize, &infoLog[0]);
-			std::cout << "Compile status: \n" << &infoLog << std::endl;
+			std::string logInfo;
+			logInfo.resize(logSizeInfo);
+			glGetShaderInfoLog(m_program, logSizeInfo, &logSizeInfo, &logInfo[0]);
+			std::cout << "Compile status: \n" << logInfo << std::endl;
+
+			GLsizei logSizeProgram = 0;
+			std::string logProgram;
+			logProgram.resize(256);
+
+			glGetProgramInfoLog(m_program, 256, &logSizeProgram, &logProgram[0]);
+			std::cout << "Error Message: \n" << logProgram << std::endl;
 		}
-
-		// Mark the three attached shaders for deletion. These three shaders aren't
-		// deleted right now because both are already attached to a shader
-		// program. When the shader program is deleted these three shaders will
-		// be automatically detached and deleted.
 
 		if (vertShader)
 			glDeleteShader(vertShader);
@@ -332,19 +341,22 @@ void Shader::linkShaders(GLuint compShader) {
 		glGetProgramiv(m_program, GL_LINK_STATUS, &linked);
 
 		if (!linked) {
-			GLsizei infoLogSize = 0;
-			std::string infoLog;
+			GLsizei logSizeInfo = 0;
+			glGetShaderiv(m_program, GL_INFO_LOG_LENGTH, &logSizeInfo);
 
-			glGetShaderiv(m_program, GL_INFO_LOG_LENGTH, &infoLogSize);
-			infoLog.resize(infoLogSize);
-			glGetShaderInfoLog(m_program, infoLogSize, &infoLogSize, &infoLog[0]);
-			std::cout << "Compile status: \n" << &infoLog << std::endl;
+			std::string logInfo;
+			logInfo.resize(logSizeInfo);
+			glGetShaderInfoLog(m_program, logSizeInfo, &logSizeInfo, &logInfo[0]);
+			std::cout << "Compile status: \n" << logInfo << std::endl;
+
+			GLsizei logSizeProgram = 0;
+			std::string logProgram;
+			logProgram.resize(256);
+
+			glGetProgramInfoLog(m_program, 256, &logSizeProgram, &logProgram[0]);
+			std::cout << "Error Message: \n" << logProgram << std::endl;
 		}
 
-		// Mark the two attached shaders for deletion. These two shaders aren't
-		// deleted right now because both are already attached to a shader
-		// program. When the shader program is deleted these two shaders will
-		// be automatically detached and deleted.
 		if (compShader)
 			glDeleteShader(compShader);
 
@@ -367,13 +379,20 @@ void Shader::linkShaders() {
 		glGetProgramiv(m_program, GL_LINK_STATUS, &linked);
 
 		if (!linked) {
-			GLsizei infoLogSize = 0;
-			std::string infoLog;
+			GLsizei logSizeInfo = 0;
+			glGetShaderiv(m_program, GL_INFO_LOG_LENGTH, &logSizeInfo);
 
-			glGetShaderiv(m_program, GL_INFO_LOG_LENGTH, &infoLogSize);
-			infoLog.resize(infoLogSize);
-			glGetShaderInfoLog(m_program, infoLogSize, &infoLogSize, &infoLog[0]);
-			std::cout << "Compile status: \n" << &infoLog << std::endl;
+			std::string logInfo;
+			logInfo.resize(logSizeInfo);
+			glGetShaderInfoLog(m_program, logSizeInfo, &logSizeInfo, &logInfo[0]);
+			std::cout << "Compile status: \n" << logInfo << std::endl;
+
+			GLsizei logSizeProgram = 0;
+			std::string logProgram;
+			logProgram.resize(256);
+
+			glGetProgramInfoLog(m_program, 256, &logSizeProgram, &logProgram[0]);
+			std::cout << "Error Message: \n" << logProgram << std::endl;
 		}
 	
 	}
