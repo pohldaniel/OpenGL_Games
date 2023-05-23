@@ -92,5 +92,6 @@ private:
 
 	float m_offsetDistance = 10.0f;
 	CharacterController *m_characterController;
-	std::vector<Vector4f> m_colors2;
+
+
 };

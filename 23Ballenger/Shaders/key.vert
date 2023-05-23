@@ -9,7 +9,6 @@ layout (location = 10) in mat4 i_modelDyn;
 
 uniform mat4 u_projection;
 uniform mat4 u_view;
-uniform mat4 u_model;
 uniform mat4 u_normal;
 uniform vec3 u_lightPos = vec3(0.0, 10.0, 0.0);
 
@@ -21,7 +20,7 @@ out vec3 normal;
 out vec4 vertColor;
 
 void main(void){
-	gl_Position = u_projection * u_view * i_model * i_modelDyn * u_model* vec4(i_position, 1.0);
+	gl_Position = u_projection * u_view * i_model * i_modelDyn * vec4(i_position, 1.0);
    
 	texCoord = i_texCoord;  
 	vertColor = i_color;
@@ -31,12 +30,14 @@ void main(void){
 	if(length(c1)>length(c2)) tangent = c1;	
 	else tangent = c2;	
 
-	normal = normalize(mat3(u_normal * i_model) * i_normal);
-	vec3 n = normalize(mat3(u_normal * i_model) * i_normal);
-	vec3 t = normalize(mat3(u_normal * i_model) * tangent);
+
+	mat3 normalMat = mat3(u_normal) * mat3(i_model) * mat3(i_modelDyn);
+	normal = normalize(normalMat * i_normal);
+	vec3 n = normalize(normalMat * i_normal);
+	vec3 t = normalize(normalMat * tangent);
 	vec3 b = cross(n, t);
 	
-	vec3 vVertex = vec3(u_view * i_model * vec4(i_position, 1.0));
+	vec3 vVertex = vec3(u_view * i_model * i_modelDyn * vec4(i_position, 1.0));
 	vec3 tmpVec = u_lightPos - vVertex;
 
 	lightVec.x = dot(tmpVec, t);

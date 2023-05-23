@@ -72,15 +72,15 @@ void Object::rotate(const Vector3f &axis, float degrees) {
 	m_orientation.rotate(axis, degrees);
 }
 
-const Vector3f &Object::getPosition() {
+const Vector3f &Object::getPosition() const {
 	return m_position;
 }
 
-const Vector3f &Object::getScale() {
+const Vector3f &Object::getScale() const {
 	return m_scale;
 }
 
-const Quaternion &Object::getOrientation() {
+const Quaternion &Object::getOrientation() const {
 	return m_orientation;
 }
 

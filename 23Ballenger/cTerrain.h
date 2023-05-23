@@ -18,7 +18,7 @@ public:
 	void  Load(int level);
 	void  Draw();
 	void  DrawNormals();
-	float GetHeight(float x,float z);
+	float GetHeight(float x,float z) const;
 	std::vector<Vector> GetCollisionNormals(Coord &center, float radius);
 	float GetSegmentIntersectionLambda(float x,float y,float z, float vx,float vy,float vz, float dist);
 
@@ -42,7 +42,7 @@ private:
 
 	void  ComputeTriangle(std::vector<Coord> &triangle);
 	void  SetNormalPerVertex(int x,float y,int z);
-	float GetVertexHeigh(int x, int z);
+	float GetVertexHeigh(int x, int z) const;
 	bool  IsColliding(Coord P, float radius, Triangle tri,Coord &center);
 	bool  IsColliding(Coord P, Coord Q, Triangle tri,float &lambda);
 

@@ -28,9 +28,9 @@ public:
 	virtual void rotate(const float pitch, const float yaw, const float roll);
 	virtual void rotate(const Vector3f &axis, float degrees);
 
-	const Vector3f &getPosition();
-	const Vector3f &getScale();
-	const Quaternion &getOrientation();
+	const Vector3f &getPosition() const;
+	const Vector3f &getScale() const;
+	const Quaternion &getOrientation() const;
 
 	const Matrix4f &getTransformationSOP();
 	const Matrix4f &getTransformationSO();

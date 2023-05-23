@@ -344,12 +344,12 @@ void cTerrain::DrawNew() {
 	glBindVertexArray(0);
 }
 
-float cTerrain::GetVertexHeigh(int x, int z)
+float cTerrain::GetVertexHeigh(int x, int z) const
 {
 	return heightmap[(int)z * TERRAIN_SIZE + (int)x] / SCALE_FACTOR;
 }
 
-float cTerrain::GetHeight(float x,float z)
+float cTerrain::GetHeight(float x,float z) const
 {
 	if(x < 0 || x > TERRAIN_SIZE-1 || z < 0 || z > TERRAIN_SIZE-1) return 0.0f;
 	else
