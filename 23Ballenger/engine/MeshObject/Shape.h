@@ -33,19 +33,21 @@ public:
 
 	void drawRaw() const;
 	void drawRawInstanced() const;
-	void addInstances(const std::vector<Matrix4f>& modelMTX);
-	void addInstance(const Matrix4f& modelMTX);
-	void addInstancesDynamic(unsigned int numberOfInstances);
-	void updateInstances(const std::vector<Matrix4f>& modelMTX);
+	void addInstance(const Matrix4f& value, unsigned int divisor = 1u);
+	void removeInstance(unsigned int index);
 
-	void addVec4Attribute(const std::vector<Vector4f>& values, unsigned int divisor = 0);
-	void addMat4Attribute(const std::vector<Matrix4f>& values, unsigned int divisor = 0);
-	void addFloatAttribute(const std::vector<float>& values, unsigned int divisor = 0);
+	void addInstances(const std::vector<Matrix4f>& values, unsigned int divisor = 1u);
+	void addInstances(unsigned int length, unsigned int divisor = 1, unsigned int usage = 35048u /*GL_DYNAMIC_DRAW*/);
+	void updateInstances(const std::vector<Matrix4f>& values);
 
-	void addMat4Attribute(unsigned int length, unsigned int divisor = 0);
+	void addVec4Attribute(const std::vector<Vector4f>& values, unsigned int divisor = 1u);
+	void addMat4Attribute(const std::vector<Matrix4f>& values, unsigned int divisor = 1u);
+	void addFloatAttribute(const std::vector<float>& values, unsigned int divisor = 1u);
+
+	void addMat4Attribute(unsigned int length, unsigned int divisor = 1u, unsigned int usage = 35048u);
 	void updateMat4Attribute(const std::vector<Matrix4f>& values);
 
-	void addFloatAttribute(unsigned int length, unsigned int divisor = 0);
+	void addFloatAttribute(unsigned int length, unsigned int divisor = 1u, unsigned int usage = 35048u);
 	void updateFloatAttribute(const std::vector<float>& values);
 
 	int getNumberOfTriangles();

@@ -7,7 +7,7 @@
 #include "Application.h"
 #include "Constants.h"
 
-Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
+Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) , m_key(m_sphere) {
 	Application::SetCursorIcon(IDC_ARROW);
 	EventDispatcher::AddKeyboardListener(this);
 	EventDispatcher::AddMouseListener(this);
@@ -170,6 +170,30 @@ void Game::update() {
 		m_activate.push_back({ i == respawn_id, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false });
 	}
 
+	if (pickedkey_id == -1){
+
+		for (unsigned int i = 0; i<target_keys.size(); i++){
+
+			if (!target_keys[i].IsDeployed()){
+
+				Coord K; K.x = target_keys[i].GetX(); K.y = target_keys[i].GetY(); K.z = target_keys[i].GetZ();
+				if (sqrt((P.x - K.x)*(P.x - K.x) + (P.y - K.y)*(P.y - K.y) + (P.z - K.z)*(P.z - K.z)) <= RADIUS * 2){
+					pickedkey_id = i;
+
+					m_colors2.erase(m_colors2.begin() + pickedkey_id);
+					target_keys.erase(target_keys.begin() + pickedkey_id);
+
+					Globals::shapeManager.get("cylinder_key").removeInstance(pickedkey_id);
+					m_key.updateCylinderShape();
+					Globals::shapeManager.get("cylinder_key").addVec4Attribute(m_colors2, 1);
+					m_key.setPickedKeyId(pickedkey_id);
+
+					//Sound.Play(SOUND_PICKUP);
+				}
+			}
+		}
+	} 
+
 	glBindBuffer(GL_UNIFORM_BUFFER, Globals::colorUbo);
 	glBufferSubData(GL_UNIFORM_BUFFER, 0, 128, &m_colors[0]);
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
@@ -179,7 +203,7 @@ void Game::update() {
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
 	m_vortex.update(m_dt);
-	m_Key.update(m_dt, 1.0f);
+	m_key.update(m_dt, 1.0f);
 }
 
 void Game::render() {
@@ -225,7 +249,7 @@ void Game::render() {
 	Terrain.DrawNew();
 	shader->unuse();
 
-	m_Key.draw(m_camera);
+	m_key.draw(m_camera);
 	m_column.draw(m_camera);
 	m_energyBallCl.draw(m_camera);
 
@@ -452,10 +476,6 @@ bool Game::Init(int lvl) {
 	cRespawnPoint rp;
 	rp.SetPos(TERRAIN_SIZE / 2, Terrain.GetHeight(TERRAIN_SIZE / 2, TERRAIN_SIZE / 2), TERRAIN_SIZE / 2);
 	respawn_points.push_back(rp);
-
-	rp.SetPos(TERRAIN_SIZE / 2, Terrain.GetHeight(TERRAIN_SIZE / 2, TERRAIN_SIZE / 2 + 10.0f), TERRAIN_SIZE / 2 + 10.0f);
-	respawn_points.push_back(rp);
-
 	rp.SetPos(256, Terrain.GetHeight(256, 160), 160);
 	respawn_points.push_back(rp);
 	rp.SetPos(840, Terrain.GetHeight(840, 184), 184);
@@ -472,7 +492,8 @@ bool Game::Init(int lvl) {
 	respawn_points.push_back(rp);
 
 	//Sound.Play(SOUND_AMBIENT);
-
+	m_colors2.assign({ Vector4f(1.0f, 0.0f, 0.0f, 1.0f), Vector4f(1.0f, 0.0f, 0.0f, 1.0f), Vector4f(1.0f, 1.0f, 0.0f, 1.0f) , Vector4f(0.0f, 1.0f, 0.0f, 1.0f) , Vector4f(0.2f, 0.2f, 1.0f, 1.0f) , Vector4f(1.0f, 0.0f, 1.0f, 1.0f)});
+	
 	m_sphere = RenderableObject("sphere", "texture_new", "player");
 
 	m_sphere.setDrawFunction([&](const Camera& camera) {
@@ -574,22 +595,31 @@ bool Game::Init(int lvl) {
 
 	});
 
-	Globals::shapeManager.get("key").addInstance(Matrix4f::Translate(883.0f, Terrain.GetHeight(883.0f, 141.0f), 141.0f));
-	Globals::shapeManager.get("key").addInstance(Matrix4f::Translate(TERRAIN_SIZE / 2, Terrain.GetHeight(TERRAIN_SIZE / 2, TERRAIN_SIZE / 2 + 10.0f), TERRAIN_SIZE / 2 + 10.0f));
-	Globals::shapeManager.get("key").addInstance(Matrix4f::Translate(345.0f, Terrain.GetHeight(345.0f, 229.0f), 229.0f));
-	Globals::shapeManager.get("key").addInstance(Matrix4f::Translate(268.0f, Terrain.GetHeight(268.0f, 860.0f), 860.0f));
-	Globals::shapeManager.get("key").addInstance(Matrix4f::Translate(780.0f, Terrain.GetHeight(780.0f, 858.0f), 858.0f));
-	Globals::shapeManager.get("key").addInstance(Matrix4f::Translate(265.0f, Terrain.GetHeight(265.0f, 487.0f), 487.0f));	
-	Globals::shapeManager.get("key").addMat4Attribute(6u, 6u);//behaves like an uniform
+	m_key.addInstances({ Matrix4f::Translate(883.0f, Terrain.GetHeight(883.0f, 141.0f), 141.0f),
+						 Matrix4f::Translate(TERRAIN_SIZE / 2, Terrain.GetHeight(TERRAIN_SIZE / 2, TERRAIN_SIZE / 2 + 10.0f), TERRAIN_SIZE / 2 + 10.0f),
+						 Matrix4f::Translate(345.0f, Terrain.GetHeight(345.0f, 229.0f), 229.0f),
+						 Matrix4f::Translate(268.0f, Terrain.GetHeight(268.0f, 860.0f), 860.0f),
+						 Matrix4f::Translate(780.0f, Terrain.GetHeight(780.0f, 858.0f), 858.0f),
+						 Matrix4f::Translate(265.0f, Terrain.GetHeight(265.0f, 487.0f), 487.0f) });
+	Globals::shapeManager.get("key").addInstances(6u, 1u, GL_DYNAMIC_DRAW);
+	Globals::shapeManager.get("key").updateInstances(m_key.getInstances());
+	Globals::shapeManager.get("key").addVec4Attribute(m_colors2, 1);
+	Globals::shapeManager.get("key").addMat4Attribute(6u, 1u);
 	
-	Globals::shapeManager.get("cylinder_key").addInstance(Matrix4f::Translate(883.0f, Terrain.GetHeight(883.0f, 141.0f), 141.0f));
-	Globals::shapeManager.get("cylinder_key").addInstance(Matrix4f::Translate(TERRAIN_SIZE / 2, Terrain.GetHeight(TERRAIN_SIZE / 2, TERRAIN_SIZE / 2 + 10.0f), TERRAIN_SIZE / 2 + 10.0f));
-	Globals::shapeManager.get("cylinder_key").addInstance(Matrix4f::Translate(345.0f, Terrain.GetHeight(345.0f, 229.0f), 229.0f));
-	Globals::shapeManager.get("cylinder_key").addInstance(Matrix4f::Translate(268.0f, Terrain.GetHeight(268.0f, 860.0f), 860.0f));
-	Globals::shapeManager.get("cylinder_key").addInstance(Matrix4f::Translate(780.0f, Terrain.GetHeight(780.0f, 858.0f), 858.0f));
-	Globals::shapeManager.get("cylinder_key").addInstance(Matrix4f::Translate(265.0f, Terrain.GetHeight(265.0f, 487.0f), 487.0f));
-	Globals::shapeManager.get("cylinder_key").addVec4Attribute({ Vector4f(1.0f, 0.0f, 0.0f, 1.0f), Vector4f(1.0f, 0.0f, 0.0f, 1.0f), Vector4f(1.0f, 1.0f, 0.0f, 1.0f) , Vector4f(0.0f, 1.0f, 0.0f, 1.0f) , Vector4f(0.2f, 0.2f, 1.0f, 1.0f) , Vector4f(1.0f, 0.0f, 1.0f, 1.0f) }, 1);
-	Globals::shapeManager.get("cylinder_key").addFloatAttribute(6u, 1u);
+	Globals::shapeManager.get("cylinder_key").addInstances({ Matrix4f::Translate(883.0f, Terrain.GetHeight(883.0f, 141.0f), 141.0f), 
+															 Matrix4f::Translate(TERRAIN_SIZE / 2, Terrain.GetHeight(TERRAIN_SIZE / 2, TERRAIN_SIZE / 2 + 10.0f), TERRAIN_SIZE / 2 + 10.0f),
+															 Matrix4f::Translate(345.0f, Terrain.GetHeight(345.0f, 229.0f), 229.0f),
+															 Matrix4f::Translate(268.0f, Terrain.GetHeight(268.0f, 860.0f), 860.0f), 
+															 Matrix4f::Translate(780.0f, Terrain.GetHeight(780.0f, 858.0f), 858.0f),
+															 Matrix4f::Translate(265.0f, Terrain.GetHeight(265.0f, 487.0f), 487.0f) });
+	m_key.updateCylinderShape();
+	/*Globals::shapeManager.get("cylinder_key").addFloatAttribute({ BEACON_HEIGHT - Terrain.GetHeight(883.0f, 141.0f),
+																  BEACON_HEIGHT - Terrain.GetHeight(TERRAIN_SIZE / 2, TERRAIN_SIZE / 2 + 10.0f),
+																  BEACON_HEIGHT - Terrain.GetHeight(345.0f, 229.0f),
+																  BEACON_HEIGHT - Terrain.GetHeight(268.0f, 860.0f),
+																  BEACON_HEIGHT - Terrain.GetHeight(780.0f, 858.0f),
+																  BEACON_HEIGHT - Terrain.GetHeight(265.0f, 487.0f) }, 1);*/
+	Globals::shapeManager.get("cylinder_key").addVec4Attribute(m_colors2, 1);
 	Globals::shapeManager.get("cylinder_key").addMat4Attribute(6u, 1u);
 
 	Globals::shapeManager.get("column").addInstance(Matrix4f::Translate(TERRAIN_SIZE / 2 + 18.0f, Terrain.GetHeight(TERRAIN_SIZE / 2 + 18.0f, TERRAIN_SIZE / 2 + 8), TERRAIN_SIZE / 2 + 8));

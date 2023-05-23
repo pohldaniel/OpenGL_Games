@@ -88,8 +88,9 @@ private:
 	RenderableObject m_energyBallP;
 	RenderableObject m_vortex;
 
-	Key m_Key;
+	Key m_key;
 
 	float m_offsetDistance = 10.0f;
 	CharacterController *m_characterController;
+	std::vector<Vector4f> m_colors2;
 };

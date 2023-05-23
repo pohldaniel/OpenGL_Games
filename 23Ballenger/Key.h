@@ -9,19 +9,27 @@
 class Key : public RenderableObject {
 
 public:
-	Key();
+
+	Key(RenderableObject& player);
 	~Key();
 
 	void draw(const Camera& camera) override;
-	//void update(const float dt) override;
 	void update(const float dt, const float dist);
+	void addInstances(const std::vector<Matrix4f>& values);
+	const std::vector<Matrix4f>& getInstances() const;
+	//void replaceInstance(const Matrix4f& value, unsigned int index);
+	//void updateShape();
+	void updateCylinderShape();
+	void setPickedKeyId(int value);
 
 private:
 
 	float ang = 0.0f;
 	bool deployed = false;
+	std::vector<Matrix4f> m_instances;
 	std::vector<Matrix4f> m_mtxKey;
-
 	std::vector<Matrix4f> m_mtxCylinder;
-	std::vector<float> m_maxHeights;
+
+	int m_pickedKeyId;
+	const Vector3f& m_playerPos;
 };

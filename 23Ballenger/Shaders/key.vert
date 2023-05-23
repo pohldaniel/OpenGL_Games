@@ -24,7 +24,7 @@ void main(void){
 	gl_Position = u_projection * u_view * i_model * i_modelDyn * u_model* vec4(i_position, 1.0);
    
 	texCoord = i_texCoord;  
-	vertColor = vec4(1.0, 1.0, 1.0, 1.0);
+	vertColor = i_color;
 	
 	vec3 c1 = cross(i_normal, vec3(0.0, 0.0, 1.0)); 
 	vec3 c2 = cross(i_normal, vec3(0.0, 1.0, 0.0)); 
