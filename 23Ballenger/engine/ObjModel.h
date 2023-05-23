@@ -119,10 +119,10 @@ public:
 	void drawRawStacked();
 	void drawRawInstancedStacked();
 
-	void draw(Camera& camera);
-	void drawInstanced(Camera& camera);
-	void drawStacked(Camera& camera);
-	void drawInstancedStacked(Camera& camera);
+	void draw(const Camera& camera);
+	void drawInstanced(const Camera& camera);
+	void drawStacked(const Camera& camera);
+	void drawInstancedStacked(const Camera& camera);
 
 	void createAABB();
 	void createSphere();

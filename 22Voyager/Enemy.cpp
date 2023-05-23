@@ -108,16 +108,16 @@ void Enemy::draw(const Camera& camera) {
 		shader->unuse();
 	
 		if (m_currLifeTimer >= 0.2f)
-			m_particleEffect.Render(m_camera, m_deltaTime, Vector3f(m_pos[0] - 1.7f, m_pos[1] + 4.5f, m_pos[2] - 0.4f));
+			m_particleEffect.Render(camera, m_deltaTime, Vector3f(m_pos[0] - 1.7f, m_pos[1] + 4.5f, m_pos[2] - 0.4f));
 
 		// Check if a small drone has been fired by the enemy
 		if (m_droneActive){
 			
 			Drone.setScale(0.25f, 0.25f, 0.25f);
 			Drone.setPosition(m_dronePos);
-			Drone.draw(m_camera);
+			Drone.draw(camera);
 			// Check if the player is colliding with the drone
-			if (Physics::GetInstance().PointInSphere(m_camera, m_dronePos, 2.0f)){
+			if (Physics::GetInstance().PointInSphere(camera, m_dronePos, 2.0f)){
 				// Inflict damage on player
 				Physics::GetInstance().OnPlayerHit(m_attackDamage);
 			}

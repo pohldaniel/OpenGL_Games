@@ -212,6 +212,7 @@
     <ClCompile Include="engine\Transform.cpp" />
     <ClCompile Include="engine\Vector.cpp" />
     <ClCompile Include="Game.cpp" />
+    <ClCompile Include="Key.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Object.cpp" />
     <ClCompile Include="Physics.cpp" />
@@ -289,6 +290,7 @@
     <ClInclude Include="engine\Vector.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="Globals.h" />
+    <ClInclude Include="Key.h" />
     <ClInclude Include="Miniball\Miniball.h" />
     <ClInclude Include="Object.h" />
     <ClInclude Include="Physics.h" />

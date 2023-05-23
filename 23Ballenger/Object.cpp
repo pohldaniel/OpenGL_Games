@@ -113,3 +113,12 @@ const Matrix4f &Object::getTransformationOP() {
 	Transformation *= Matrix4f::Rotate(m_orientation);
 	return Transformation;
 }
+
+const Matrix4f &Object::getTransformationO() {
+	Transformation.rotate(m_orientation);
+	return Transformation;
+}
+
+const Matrix4f &Object::GetTransformation() {
+	return Transformation;
+}

@@ -10,7 +10,7 @@ uniform mat4 u_view;
 uniform mat4 u_normal;
 
 layout (std140, binding = 0) uniform u_color{
-	vec4 color[8];
+	vec4 color[7];
 };
 
 out vec4 vertColor;

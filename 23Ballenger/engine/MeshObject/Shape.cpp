@@ -446,6 +446,9 @@ int Shape::addVertex(int hash, const float *pVertex, int stride, std::map<int, s
 	return index;
 }
 
+const std::vector<Matrix4f>& Shape::getInstances() const {
+	return m_instances;
+}
 
 std::vector<Vector3f>& Shape::getPositions() {
 	return m_positions;
@@ -485,6 +488,15 @@ void Shape::cleanup() {
 
 	if (m_vboInstances)
 		glDeleteBuffers(1, &m_vboInstances);
+
+	if (m_vboAdd1)
+		glDeleteBuffers(1, &m_vboAdd1);
+
+	if (m_vboAdd2)
+		glDeleteBuffers(1, &m_vboAdd2);
+
+	if (m_vboAdd3)
+		glDeleteBuffers(1, &m_vboAdd3);
 
 	m_positions.clear();
 	m_positions.shrink_to_fit();
@@ -547,7 +559,6 @@ void Shape::createBuffer() {
 	//Indices
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_indexBuffer.size() * sizeof(m_indexBuffer[0]), &m_indexBuffer[0], GL_STATIC_DRAW);
-
 	glBindVertexArray(0);
 
 	glDeleteBuffers(1, &ibo);
@@ -572,34 +583,6 @@ void Shape::drawRaw() const {
 	glBindVertexArray(0);
 }
 
-void Shape::addInstances(const std::vector<Matrix4f>& modelMTX) {
-	m_instances.insert(m_instances.end(), modelMTX.begin(), modelMTX.end());
-	m_instanceCount = m_instances.size();
-
-	glGenBuffers(1, &m_vboInstances);
-
-	glBindVertexArray(m_vao);
-
-	glBindBuffer(GL_ARRAY_BUFFER, m_vboInstances);
-	glBufferData(GL_ARRAY_BUFFER, m_instances.size() * sizeof(float) * 4 * 4, m_instances[0][0], GL_STATIC_DRAW);
-
-	glEnableVertexAttribArray(5);
-	glEnableVertexAttribArray(6);
-	glEnableVertexAttribArray(7);
-	glEnableVertexAttribArray(8);
-	glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(float) * 4 * 4, (void*)(0));
-	glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(float) * 4 * 4, (void*)(sizeof(float) * 4));
-	glVertexAttribPointer(7, 4, GL_FLOAT, GL_FALSE, sizeof(float) * 4 * 4, (void*)(sizeof(float) * 8));
-	glVertexAttribPointer(8, 4, GL_FLOAT, GL_FALSE, sizeof(float) * 4 * 4, (void*)(sizeof(float) * 12));
-
-	glVertexAttribDivisor(5, 1);
-	glVertexAttribDivisor(6, 1);
-	glVertexAttribDivisor(7, 1);
-	glVertexAttribDivisor(8, 1);
-
-	glBindVertexArray(0);
-}
-
 void Shape::addInstance(const Matrix4f& modelMTX) {
 	m_instances.push_back(modelMTX);
 	m_instanceCount = m_instances.size();
@@ -607,8 +590,43 @@ void Shape::addInstance(const Matrix4f& modelMTX) {
 	if (m_vboInstances) {
 		glBindBuffer(GL_ARRAY_BUFFER, m_vboInstances);
 		glBufferData(GL_ARRAY_BUFFER, m_instances.size() * sizeof(float) * 4 * 4, m_instances[0][0], GL_STATIC_DRAW);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+	}else{
+		glGenBuffers(1, &m_vboInstances);
+		glBindVertexArray(m_vao);
 
-	}else {
+		glBindBuffer(GL_ARRAY_BUFFER, m_vboInstances);
+		glBufferData(GL_ARRAY_BUFFER, m_instances.size() * sizeof(float) * 4 * 4, m_instances[0][0], GL_STATIC_DRAW);
+		
+		glEnableVertexAttribArray(5);
+		glEnableVertexAttribArray(6);
+		glEnableVertexAttribArray(7);
+		glEnableVertexAttribArray(8);
+		glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(float) * 4 * 4, (void*)(0));
+		glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(float) * 4 * 4, (void*)(sizeof(float) * 4));
+		glVertexAttribPointer(7, 4, GL_FLOAT, GL_FALSE, sizeof(float) * 4 * 4, (void*)(sizeof(float) * 8));
+		glVertexAttribPointer(8, 4, GL_FLOAT, GL_FALSE, sizeof(float) * 4 * 4, (void*)(sizeof(float) * 12));
+		
+		glVertexAttribDivisor(5, 1);
+		glVertexAttribDivisor(6, 1);
+		glVertexAttribDivisor(7, 1);
+		glVertexAttribDivisor(8, 1);
+		
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindVertexArray(0);
+	}
+}
+
+void Shape::addInstances(const std::vector<Matrix4f>& modelMTX) {
+	m_instances.insert(m_instances.end(), modelMTX.begin(), modelMTX.end());
+	m_instanceCount = m_instances.size();
+
+	if (m_vboInstances) {
+		glBindBuffer(GL_ARRAY_BUFFER, m_vboInstances);
+		glBufferData(GL_ARRAY_BUFFER, m_instances.size() * sizeof(float) * 4 * 4, m_instances[0][0], GL_STATIC_DRAW);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	}else{
 		glGenBuffers(1, &m_vboInstances);
 		glBindVertexArray(m_vao);
 
@@ -629,24 +647,162 @@ void Shape::addInstance(const Matrix4f& modelMTX) {
 		glVertexAttribDivisor(7, 1);
 		glVertexAttribDivisor(8, 1);
 
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glBindVertexArray(0);
 	}
 }
 
-void Shape::addVec4Attribute(const std::vector<Vector4f>& attributes, unsigned int divisor) {
-	glGenBuffers(1, &m_vboColor);
+void Shape::addInstancesDynamic(unsigned int numberOfInstances) {
+	m_instanceCount = numberOfInstances;
+	
+	if (m_vboInstances) {
+		glBindBuffer(GL_ARRAY_BUFFER, m_vboInstances);
+		glBufferData(GL_ARRAY_BUFFER, m_instanceCount * sizeof(GLfloat) * 4 * 4, NULL, GL_DYNAMIC_DRAW);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	}else {
+		glGenBuffers(1, &m_vboInstances);
+
+		glBindVertexArray(m_vao);
+
+		glBindBuffer(GL_ARRAY_BUFFER, m_vboInstances);
+		glBufferData(GL_ARRAY_BUFFER, m_instanceCount * sizeof(GLfloat) * 4 * 4, NULL, GL_DYNAMIC_DRAW);
+
+		glEnableVertexAttribArray(3);
+		glEnableVertexAttribArray(4);
+		glEnableVertexAttribArray(5);
+		glEnableVertexAttribArray(6);
+		glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 4 * 4, (void*)(0));
+		glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 4 * 4, (void*)(sizeof(float) * 4));
+		glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 4 * 4, (void*)(sizeof(float) * 8));
+		glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 4 * 4, (void*)(sizeof(float) * 12));
+
+		glVertexAttribDivisor(3, 1);
+		glVertexAttribDivisor(4, 1);
+		glVertexAttribDivisor(5, 1);
+		glVertexAttribDivisor(6, 1);
+
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindVertexArray(0);
+	}
+}
+
+void Shape::updateInstances(const std::vector<Matrix4f>& modelMTX) {
+	glBindBuffer(GL_ARRAY_BUFFER, m_vboInstances);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, modelMTX.size() * sizeof(GLfloat) * 4 * 4, modelMTX[0][0]);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+}
+
+void Shape::addVec4Attribute(const std::vector<Vector4f>& values, unsigned int divisor) {
+	glGenBuffers(1, &m_vboAdd1);
 
 	glBindVertexArray(m_vao);
 
-	glBindBuffer(GL_ARRAY_BUFFER, m_vboColor);
-	glBufferData(GL_ARRAY_BUFFER, attributes.size() * sizeof(float) * 4, &attributes[0], GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, m_vboAdd1);
+	glBufferData(GL_ARRAY_BUFFER, values.size() * sizeof(float) * 4, &values[0], GL_STATIC_DRAW);
 
 	glEnableVertexAttribArray(9);
 	glVertexAttribPointer(9, 4, GL_FLOAT, GL_FALSE, sizeof(float) * 4, (void*)(0));
 	glVertexAttribDivisor(9, divisor);
 
-
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
+}
+
+void Shape::addMat4Attribute(const std::vector<Matrix4f>& values, unsigned int divisor) {
+	glGenBuffers(1, &m_vboAdd2);
+
+	glBindVertexArray(m_vao);
+
+	glBindBuffer(GL_ARRAY_BUFFER, m_vboAdd2);
+	glBufferData(GL_ARRAY_BUFFER, values.size() * sizeof(float) * 4 * 4, values[0][0], GL_STATIC_DRAW);
+
+	glEnableVertexAttribArray(10);
+	glEnableVertexAttribArray(11);
+	glEnableVertexAttribArray(12);
+	glEnableVertexAttribArray(13);
+	glVertexAttribPointer(10, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 4 * 4, (void*)(0));
+	glVertexAttribPointer(11, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 4 * 4, (void*)(sizeof(float) * 4));
+	glVertexAttribPointer(12, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 4 * 4, (void*)(sizeof(float) * 8));
+	glVertexAttribPointer(13, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 4 * 4, (void*)(sizeof(float) * 12));
+
+	glVertexAttribDivisor(10, divisor);
+	glVertexAttribDivisor(11, divisor);
+	glVertexAttribDivisor(12, divisor);
+	glVertexAttribDivisor(13, divisor);
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+}
+
+void Shape::addFloatAttribute(const std::vector<float>& values, unsigned int divisor) {
+	glGenBuffers(1, &m_vboAdd3);
+
+	glBindVertexArray(m_vao);
+
+	glBindBuffer(GL_ARRAY_BUFFER, m_vboAdd3);
+	glBufferData(GL_ARRAY_BUFFER, values.size() * sizeof(float), &values[0], GL_STATIC_DRAW);
+
+	glEnableVertexAttribArray(14);
+	glVertexAttribPointer(14, 1, GL_FLOAT, GL_FALSE, sizeof(float), (void*)(0));
+	glVertexAttribDivisor(14, divisor);
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+}
+
+void Shape::addMat4Attribute(unsigned int length, unsigned int divisor) {
+	glGenBuffers(1, &m_vboAdd2);
+
+	glBindVertexArray(m_vao);
+
+	glBindBuffer(GL_ARRAY_BUFFER, m_vboAdd2);
+	glBufferData(GL_ARRAY_BUFFER, length * sizeof(GLfloat) * 4 * 4, NULL, GL_DYNAMIC_DRAW);
+
+	glEnableVertexAttribArray(10);
+	glEnableVertexAttribArray(11);
+	glEnableVertexAttribArray(12);
+	glEnableVertexAttribArray(13);
+	glVertexAttribPointer(10, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 4 * 4, (void*)(0));
+	glVertexAttribPointer(11, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 4 * 4, (void*)(sizeof(float) * 4));
+	glVertexAttribPointer(12, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 4 * 4, (void*)(sizeof(float) * 8));
+	glVertexAttribPointer(13, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 4 * 4, (void*)(sizeof(float) * 12));
+
+	glVertexAttribDivisor(10, divisor);
+	glVertexAttribDivisor(11, divisor);
+	glVertexAttribDivisor(12, divisor);
+	glVertexAttribDivisor(13, divisor);
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+}
+
+void Shape::updateMat4Attribute(const std::vector<Matrix4f>& values) {
+	glBindBuffer(GL_ARRAY_BUFFER, m_vboAdd2);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, values.size() * sizeof(GLfloat) * 4 * 4, values[0][0]);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+}
+
+void Shape::addFloatAttribute(unsigned int length, unsigned int divisor) {
+	glGenBuffers(1, &m_vboAdd3);
+
+	glBindVertexArray(m_vao);
+
+	glBindBuffer(GL_ARRAY_BUFFER, m_vboAdd3);
+	glBufferData(GL_ARRAY_BUFFER, length * sizeof(float), NULL, GL_DYNAMIC_DRAW);
+
+	glEnableVertexAttribArray(14);
+	glVertexAttribPointer(14, 1, GL_FLOAT, GL_FALSE, sizeof(float), (void*)(0));
+	glVertexAttribDivisor(14, divisor);
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+}
+
+void Shape::updateFloatAttribute(const std::vector<float>& values) {
+	glBindBuffer(GL_ARRAY_BUFFER, m_vboAdd3);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, values.size() * sizeof(float), &values[0]);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 void Shape::drawRawInstanced() const {

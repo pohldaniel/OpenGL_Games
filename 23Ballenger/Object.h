@@ -31,11 +31,15 @@ public:
 	const Vector3f &getPosition();
 	const Vector3f &getScale();
 	const Quaternion &getOrientation();
+
 	const Matrix4f &getTransformationSOP();
 	const Matrix4f &getTransformationSO();
 	const Matrix4f &getTransformationSP();
-	const Matrix4f &getTransformationP();
 	const Matrix4f &getTransformationOP();
+	const Matrix4f &getTransformationO();
+	const Matrix4f &getTransformationP();
+
+	static const Matrix4f &GetTransformation();
 
 protected:
 

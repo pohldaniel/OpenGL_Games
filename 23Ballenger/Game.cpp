@@ -171,14 +171,15 @@ void Game::update() {
 	}
 
 	glBindBuffer(GL_UNIFORM_BUFFER, Globals::colorUbo);
-	glBufferSubData(GL_UNIFORM_BUFFER, 0, 144, &m_colors[0]);
+	glBufferSubData(GL_UNIFORM_BUFFER, 0, 128, &m_colors[0]);
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
 	glBindBuffer(GL_UNIFORM_BUFFER, Globals::activateUbo);
-	glBufferSubData(GL_UNIFORM_BUFFER, 0, 144, &m_activate[0]);
+	glBufferSubData(GL_UNIFORM_BUFFER, 0, 128, &m_activate[0]);
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
 	m_vortex.update(m_dt);
+	m_Key.update(m_dt, 1.0f);
 }
 
 void Game::render() {
@@ -192,23 +193,6 @@ void Game::render() {
 	glLoadMatrixf(&m_camera.getViewMatrix()[0][0]);
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	/*auto shader = Globals::shaderManager.getAssetPointer("terrain");
-	shader->use();
-	shader->loadInt("tex_top", 0);
-	shader->loadInt("tex_side", 1);
-	shader->loadFloat("height", Lava.GetHeight());
-	shader->loadFloat("hmax", Lava.GetHeightMax());
-
-	glEnable(GL_TEXTURE_2D);
-	Globals::textureManager.get("grass").bind(0);
-	Globals::textureManager.get("rock").bind(1);
-	glDisable(GL_TEXTURE_2D);
-	glActiveTexture(GL_TEXTURE0);
-
-	Terrain.Draw();
-
-	shader->unuse();*/
 
 	m_lava.draw(m_camera);
 
@@ -238,18 +222,13 @@ void Game::render() {
 	Globals::textureManager.get("grass").bind(0);
 	Globals::textureManager.get("rock").bind(1);
 	glDisable(GL_TEXTURE_2D);
-
 	Terrain.DrawNew();
-
 	shader->unuse();
 
-	m_key.draw(m_camera);
+	m_Key.draw(m_camera);
 	m_column.draw(m_camera);
 	m_energyBallCl.draw(m_camera);
 
-	
-	
-	
 	if (abs(m_camera.getPositionZ() - Portal.GetZ()) < m_camera.getOffsetDistance()){
 		//draw player
 		m_sphere.draw(m_camera);
@@ -269,7 +248,6 @@ void Game::render() {
 	}
 
 	glEnable(GL_BLEND);
-	
 	m_respawnPoint.draw(m_camera);
 
 	glDepthMask(GL_FALSE);
@@ -280,6 +258,7 @@ void Game::render() {
 	glEnable(GL_CULL_FACE);
 	glDepthMask(GL_TRUE);
 	glDisable(GL_BLEND);
+
 	if (m_drawUi)
 		renderUi();
 }
@@ -528,7 +507,6 @@ bool Game::Init(int lvl) {
 	m_lava.setPosition(0.0f, 2.5f, 0.0f);
 
 	Globals::shapeManager.get("quad_rp").addInstance(Matrix4f::Translate(TERRAIN_SIZE / 2, Terrain.GetHeight(TERRAIN_SIZE / 2, TERRAIN_SIZE / 2), TERRAIN_SIZE / 2) * Matrix4f::Scale(CIRCLE_RADIUS, CIRCLE_RADIUS, CIRCLE_RADIUS));
-	Globals::shapeManager.get("quad_rp").addInstance(Matrix4f::Translate(TERRAIN_SIZE / 2, Terrain.GetHeight(TERRAIN_SIZE / 2, TERRAIN_SIZE / 2 + 10.0f), TERRAIN_SIZE / 2 + 10.0f) * Matrix4f::Scale(CIRCLE_RADIUS, CIRCLE_RADIUS, CIRCLE_RADIUS));
 	Globals::shapeManager.get("quad_rp").addInstance(Matrix4f::Translate(256.0f, Terrain.GetHeight(256.0f, 160.0f), 160.0f) * Matrix4f::Scale(CIRCLE_RADIUS, CIRCLE_RADIUS, CIRCLE_RADIUS));
 	Globals::shapeManager.get("quad_rp").addInstance(Matrix4f::Translate(840.0f, Terrain.GetHeight(840.0f, 184.0f), 184.0f) * Matrix4f::Scale(CIRCLE_RADIUS, CIRCLE_RADIUS, CIRCLE_RADIUS));
 	Globals::shapeManager.get("quad_rp").addInstance(Matrix4f::Translate(552.0f, Terrain.GetHeight(552.0f, 760.0f), 760.0f) * Matrix4f::Scale(CIRCLE_RADIUS, CIRCLE_RADIUS, CIRCLE_RADIUS));
@@ -552,7 +530,6 @@ bool Game::Init(int lvl) {
 	});
 
 	Globals::shapeManager.get("cylinder").addInstance(Matrix4f::Translate(TERRAIN_SIZE / 2, Terrain.GetHeight(TERRAIN_SIZE / 2, TERRAIN_SIZE / 2), TERRAIN_SIZE / 2));
-	Globals::shapeManager.get("cylinder").addInstance(Matrix4f::Translate(TERRAIN_SIZE / 2, Terrain.GetHeight(TERRAIN_SIZE / 2, TERRAIN_SIZE / 2 + 10.0f), TERRAIN_SIZE / 2 + 10.0f));
 	Globals::shapeManager.get("cylinder").addInstance(Matrix4f::Translate(256.0f, Terrain.GetHeight(256.0f, 160.0f), 160.0f));
 	Globals::shapeManager.get("cylinder").addInstance(Matrix4f::Translate(840.0f, Terrain.GetHeight(840.0f, 184.0f), 184.0f));
 	Globals::shapeManager.get("cylinder").addInstance(Matrix4f::Translate(552.0f, Terrain.GetHeight(552.0f, 760.0f), 760.0f));
@@ -577,7 +554,6 @@ bool Game::Init(int lvl) {
 	});
 
 	Globals::shapeManager.get("disk").addInstance(Matrix4f::Translate(TERRAIN_SIZE / 2, Terrain.GetHeight(TERRAIN_SIZE / 2, TERRAIN_SIZE / 2), TERRAIN_SIZE / 2));
-	Globals::shapeManager.get("disk").addInstance(Matrix4f::Translate(TERRAIN_SIZE / 2, Terrain.GetHeight(TERRAIN_SIZE / 2, TERRAIN_SIZE / 2 + 10.0f), TERRAIN_SIZE / 2 + 10.0f));
 	Globals::shapeManager.get("disk").addInstance(Matrix4f::Translate(256.0f, Terrain.GetHeight(256.0f, 160.0f), 160.0f));
 	Globals::shapeManager.get("disk").addInstance(Matrix4f::Translate(840.0f, Terrain.GetHeight(840.0f, 184.0f), 184.0f));
 	Globals::shapeManager.get("disk").addInstance(Matrix4f::Translate(552.0f, Terrain.GetHeight(552.0f, 760.0f), 760.0f));
@@ -603,21 +579,18 @@ bool Game::Init(int lvl) {
 	Globals::shapeManager.get("key").addInstance(Matrix4f::Translate(345.0f, Terrain.GetHeight(345.0f, 229.0f), 229.0f));
 	Globals::shapeManager.get("key").addInstance(Matrix4f::Translate(268.0f, Terrain.GetHeight(268.0f, 860.0f), 860.0f));
 	Globals::shapeManager.get("key").addInstance(Matrix4f::Translate(780.0f, Terrain.GetHeight(780.0f, 858.0f), 858.0f));
-	Globals::shapeManager.get("key").addInstance(Matrix4f::Translate(265.0f, Terrain.GetHeight(265.0f, 487.0f), 487.0f));
-
-	m_key =  RenderableObject("key", "instance", "null");
-	m_key.setDrawFunction([&](const Camera& camera) {
-		if (m_key.isDisabled()) return;
-		auto shader = Globals::shaderManager.getAssetPointer(m_key.getShader());
-		shader->use();
-		shader->loadMatrix("u_projection", camera.getPerspectiveMatrix());
-		shader->loadMatrix("u_view", camera.getViewMatrix());
-		shader->loadMatrix("u_model", m_key.getTransformationP());
-		shader->loadMatrix("u_normal", Matrix4f::GetNormalMatrix(camera.getViewMatrix() * m_key.getTransformationP()));
-		Globals::textureManager.get(m_key.getTexture()).bind(0);
-		Globals::shapeManager.get(m_key.getShape()).drawRawInstanced();
-		shader->unuse();
-	});
+	Globals::shapeManager.get("key").addInstance(Matrix4f::Translate(265.0f, Terrain.GetHeight(265.0f, 487.0f), 487.0f));	
+	Globals::shapeManager.get("key").addMat4Attribute(6u, 6u);//behaves like an uniform
+	
+	Globals::shapeManager.get("cylinder_key").addInstance(Matrix4f::Translate(883.0f, Terrain.GetHeight(883.0f, 141.0f), 141.0f));
+	Globals::shapeManager.get("cylinder_key").addInstance(Matrix4f::Translate(TERRAIN_SIZE / 2, Terrain.GetHeight(TERRAIN_SIZE / 2, TERRAIN_SIZE / 2 + 10.0f), TERRAIN_SIZE / 2 + 10.0f));
+	Globals::shapeManager.get("cylinder_key").addInstance(Matrix4f::Translate(345.0f, Terrain.GetHeight(345.0f, 229.0f), 229.0f));
+	Globals::shapeManager.get("cylinder_key").addInstance(Matrix4f::Translate(268.0f, Terrain.GetHeight(268.0f, 860.0f), 860.0f));
+	Globals::shapeManager.get("cylinder_key").addInstance(Matrix4f::Translate(780.0f, Terrain.GetHeight(780.0f, 858.0f), 858.0f));
+	Globals::shapeManager.get("cylinder_key").addInstance(Matrix4f::Translate(265.0f, Terrain.GetHeight(265.0f, 487.0f), 487.0f));
+	Globals::shapeManager.get("cylinder_key").addVec4Attribute({ Vector4f(1.0f, 0.0f, 0.0f, 1.0f), Vector4f(1.0f, 0.0f, 0.0f, 1.0f), Vector4f(1.0f, 1.0f, 0.0f, 1.0f) , Vector4f(0.0f, 1.0f, 0.0f, 1.0f) , Vector4f(0.2f, 0.2f, 1.0f, 1.0f) , Vector4f(1.0f, 0.0f, 1.0f, 1.0f) }, 1);
+	Globals::shapeManager.get("cylinder_key").addFloatAttribute(6u, 1u);
+	Globals::shapeManager.get("cylinder_key").addMat4Attribute(6u, 1u);
 
 	Globals::shapeManager.get("column").addInstance(Matrix4f::Translate(TERRAIN_SIZE / 2 + 18.0f, Terrain.GetHeight(TERRAIN_SIZE / 2 + 18.0f, TERRAIN_SIZE / 2 + 8), TERRAIN_SIZE / 2 + 8));
 	Globals::shapeManager.get("column").addInstance(Matrix4f::Translate(TERRAIN_SIZE / 2 + 14.0f, Terrain.GetHeight(TERRAIN_SIZE / 2 + 14.0f, TERRAIN_SIZE / 2 - 8), TERRAIN_SIZE / 2 - 8));

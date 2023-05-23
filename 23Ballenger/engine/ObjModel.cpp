@@ -497,7 +497,7 @@ void ObjModel::drawRawInstancedStacked() {
 	glBindVertexArray(0);
 }
 
-void ObjModel::draw(Camera& camera) {
+void ObjModel::draw(const Camera& camera) {
 	for (int i = 0; i < m_meshes.size(); i++) {
 		Material& material = Material::GetMaterials()[m_meshes[i]->m_materialIndex];
 		material.updateMaterialUbo(BuiltInShader::materialUbo);
@@ -517,7 +517,7 @@ void ObjModel::draw(Camera& camera) {
 	Texture::Unbind();	
 }
 
-void ObjModel::drawInstanced(Camera& camera) {
+void ObjModel::drawInstanced(const Camera& camera) {
 	for (int i = 0; i < m_meshes.size(); i++) {
 		Material& material = Material::GetMaterials()[m_meshes[i]->m_materialIndex];
 		material.updateMaterialUbo(BuiltInShader::materialUbo);
@@ -535,7 +535,7 @@ void ObjModel::drawInstanced(Camera& camera) {
 	Texture::Unbind();
 }
 
-void ObjModel::drawStacked(Camera& camera) {
+void ObjModel::drawStacked(const Camera& camera) {
 	glBindVertexArray(m_vao);
 	for (int i = 0; i < m_meshes.size(); i++) {
 		Material& material = Material::GetMaterials()[m_meshes[i]->m_materialIndex];
@@ -555,7 +555,7 @@ void ObjModel::drawStacked(Camera& camera) {
 	glBindVertexArray(0);
 }
 
-void ObjModel::drawInstancedStacked(Camera& camera) {
+void ObjModel::drawInstancedStacked(const Camera& camera) {
 	glBindVertexArray(m_vao);
 	for (int i = 0; i < m_meshes.size(); i++) {
 		Material& material = Material::GetMaterials()[m_meshes[i]->m_materialIndex];

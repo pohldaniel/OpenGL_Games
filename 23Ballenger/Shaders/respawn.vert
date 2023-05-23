@@ -10,11 +10,11 @@ uniform mat4 u_view;
 uniform mat4 u_normal;
 
 layout (std140, binding = 0) uniform u_color{
-	vec4 color[8];
+	vec4 color[7];
 };
 
 layout (std140, binding = 1) uniform u_activate{
-	bool activate[8];
+	bool activate[7];
 };
 
 out vec2 texCoord;

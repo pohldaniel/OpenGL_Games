@@ -246,6 +246,9 @@
     <ClCompile Include="engine\MeshObject\MeshDisk.cpp">
       <Filter>engine\MeshObject</Filter>
     </ClCompile>
+    <ClCompile Include="Key.cpp">
+      <Filter>Source Files\Objects</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h">
@@ -460,6 +463,9 @@
     </ClInclude>
     <ClInclude Include="engine\MeshObject\MeshDisk.h">
       <Filter>engine\MeshObject</Filter>
+    </ClInclude>
+    <ClInclude Include="Key.h">
+      <Filter>Source Files\Objects</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

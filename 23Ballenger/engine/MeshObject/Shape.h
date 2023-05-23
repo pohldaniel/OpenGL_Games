@@ -35,11 +35,24 @@ public:
 	void drawRawInstanced() const;
 	void addInstances(const std::vector<Matrix4f>& modelMTX);
 	void addInstance(const Matrix4f& modelMTX);
-	void addVec4Attribute(const std::vector<Vector4f>& modelMTX, unsigned int divisor = 0);
+	void addInstancesDynamic(unsigned int numberOfInstances);
+	void updateInstances(const std::vector<Matrix4f>& modelMTX);
+
+	void addVec4Attribute(const std::vector<Vector4f>& values, unsigned int divisor = 0);
+	void addMat4Attribute(const std::vector<Matrix4f>& values, unsigned int divisor = 0);
+	void addFloatAttribute(const std::vector<float>& values, unsigned int divisor = 0);
+
+	void addMat4Attribute(unsigned int length, unsigned int divisor = 0);
+	void updateMat4Attribute(const std::vector<Matrix4f>& values);
+
+	void addFloatAttribute(unsigned int length, unsigned int divisor = 0);
+	void updateFloatAttribute(const std::vector<float>& values);
+
 	int getNumberOfTriangles();
 	void cleanup();
 	std::vector<Vector3f>& getPositions();
 	std::vector<unsigned int>& getIndexBuffer();
+	const std::vector<Matrix4f>& getInstances() const;
 
 private:
 
@@ -47,7 +60,9 @@ private:
 	unsigned int m_vbo[5] = { 0 };
 	unsigned int m_drawCount;
 	unsigned int m_vboInstances = 0;
-	unsigned int m_vboColor = 0;
+	unsigned int m_vboAdd1 = 0;
+	unsigned int m_vboAdd2 = 0;
+	unsigned int m_vboAdd3 = 0;
 	unsigned int m_instanceCount = 0;
 
 	std::vector<unsigned int> m_indexBuffer;
