@@ -61,7 +61,7 @@ void Shape::buildDiskXZ(float radius, const Vector3f& position, int uResolution,
 	createBuffer();
 }
 
-void Shape::fromBuffer(std::vector<float>& vertexBuffer, std::vector<unsigned int> indexBuffer, unsigned int stride) {
+void Shape::fromBuffer(std::vector<float>& vertexBuffer, std::vector<unsigned int>& indexBuffer, unsigned int stride) {
 
 	if (stride == 3) {
 		for (unsigned int i = 0; i < vertexBuffer.size(); i = i + stride) {
@@ -704,10 +704,10 @@ void Shape::updateInstances(const std::vector<Matrix4f>& values) {
 
 void Shape::addVec4Attribute(const std::vector<Vector4f>& values, unsigned int divisor) {
 	if (m_vboAdd1) {
-
 		glBindBuffer(GL_ARRAY_BUFFER, m_vboAdd1);
 		glBufferData(GL_ARRAY_BUFFER, values.size() * sizeof(float) * 4, &values[0], GL_STATIC_DRAW);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
+
 	}else{
 
 		glGenBuffers(1, &m_vboAdd1);

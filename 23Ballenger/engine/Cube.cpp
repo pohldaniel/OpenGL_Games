@@ -1,3 +1,5 @@
+#include <GL/glew.h>
+
 #include "Cube.h"
 
 Cube::Cube() {

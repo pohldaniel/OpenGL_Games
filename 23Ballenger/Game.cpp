@@ -7,7 +7,7 @@
 #include "Application.h"
 #include "Constants.h"
 
-Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) , m_key(m_sphere) {
+Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) , m_key(m_sphere.getPosition()) {
 	Application::SetCursorIcon(IDC_ARROW);
 	EventDispatcher::AddKeyboardListener(this);
 	EventDispatcher::AddMouseListener(this);
@@ -49,6 +49,9 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) , m_key(m
 	m_characterController->setDamping(0.0f, 0.7f);
 	m_characterController->setLinearFactor(btVector3(1.0f, 1.0f, 1.0f));
 	m_characterController->setGravity(btVector3(0.0f, -9.81f * 3.0f, 0.0f));
+
+	lineColors = { Vector4f(1.0f, 0.0f, 0.0f, 1.0f), Vector4f(1.0f, 1.0f, 0.0f, 1.0f) , Vector4f(0.0f, 1.0f, 0.0f, 1.0f) , Vector4f(0.2f, 0.2f, 1.0f, 1.0f) , Vector4f(1.0f, 0.0f, 1.0f, 1.0f) };
+	
 }
 
 Game::~Game() {
@@ -195,6 +198,19 @@ void Game::update() {
 			//target_keys[pickedkey_id].Deploy();
 			target_keys[pickedkey_id].Deploy();
 			m_key.deploy(pickedkey_id, Vector3f(columns[pickedkey_id].GetHoleX(), columns[pickedkey_id].GetHoleY(), columns[pickedkey_id].GetHoleZ()), columns[pickedkey_id].GetYaw());
+			
+
+			float r = ENERGY_BALL_RADIUS / 2.0f;
+			int numrays = 6;
+
+			for (int j = 0; j<numrays; j++) {
+				float ang_rad = (ang + j*(360 / numrays))*(PI / 180);
+				m_line.addToBuffer(Vector3f(columns[pickedkey_id].GetX() + cos(ang_rad)*r, columns[pickedkey_id].GetY() + COLUMN_HEIGHT + ENERGY_BALL_RADIUS + sin(ang_rad)*r, columns[pickedkey_id].GetZ()), Vector3f(Portal.GetReceptorX(pickedkey_id), Portal.GetReceptorY(pickedkey_id), Portal.GetZ()));
+				colors.push_back(lineColors[pickedkey_id]);
+				colors.push_back(lineColors[pickedkey_id]);
+			}
+			m_line.addVec4Attribute(colors);
+
 			pickedkey_id = -1;
 			if (respawn_id) {
 				//Sound.Play(SOUND_SWISH);
@@ -264,35 +280,14 @@ void Game::render() {
 
 	m_key.draw(m_camera);
 
-	for (unsigned int i = 0; i<target_keys.size(); i++) {
+	shader = Globals::shaderManager.getAssetPointer("line");
+	shader->use();
+	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
+	shader->loadMatrix("u_view", m_camera.getViewMatrix());
+	m_line.drawRaw();
+	shader->unuse();
 
-		 if (target_keys[i].IsDeployed()){
-			//ray color
-			if (i == 0) glColor4f(1.0f, 0.0f, 0.0f, 0.4f); //rojo
-			if (i == 1) glColor4f(1.0f, 1.0f, 0.0f, 0.4f); //amarillo
-			if (i == 2) glColor4f(0.0f, 1.0f, 0.0f, 0.4f); //verde
-			if (i == 3) glColor4f(0.2f, 0.2f, 1.0f, 0.4f); //azul
-			if (i == 4) glColor4f(1.0f, 0.0f, 1.0f, 0.4f); //violeta
-
-			float r = ENERGY_BALL_RADIUS / 2.0f; //energy ray radius
-			int numrays = 6;
-			glDisable(GL_LIGHTING);
-			for (int j = 0; j<numrays; j++) {
-				float ang_rad = (ang + j*(360 / numrays))*(PI / 180);
-				glEnable(GL_BLEND);
-				glLineWidth(2.0);
-				glBegin(GL_LINES);
-				glVertex3f(columns[i].GetX() + cos(ang_rad)*r, columns[i].GetY() + COLUMN_HEIGHT + ENERGY_BALL_RADIUS + sin(ang_rad)*r, columns[i].GetZ());
-				glVertex3f(Portal.GetReceptorX(i), Portal.GetReceptorY(i), Portal.GetZ());
-				glEnd();
-				glDisable(GL_BLEND);
-			}
-			glEnable(GL_LIGHTING);
-
-		} 
-		glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-	}
-
+	
 	m_column.draw(m_camera);
 	m_energyBallCl.draw(m_camera);
 

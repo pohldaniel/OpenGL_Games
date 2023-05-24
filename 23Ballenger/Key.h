@@ -17,7 +17,7 @@ class Key : public RenderableObject {
 
 public:
 
-	Key(const RenderableObject& player);
+	Key(const Vector3f& playerPos);
 	~Key();
 
 	void init(const cTerrain& terrain);

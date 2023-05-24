@@ -249,6 +249,9 @@
     <ClCompile Include="Key.cpp">
       <Filter>Source Files\Objects</Filter>
     </ClCompile>
+    <ClCompile Include="engine\Line.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h">
@@ -466,6 +469,9 @@
     </ClInclude>
     <ClInclude Include="Key.h">
       <Filter>Source Files\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\Line.h">
+      <Filter>engine</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

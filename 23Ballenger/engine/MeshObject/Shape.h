@@ -27,8 +27,8 @@ public:
 	void buildDiskXY(float radius = 1.0f, const Vector3f& position = Vector3f(-1.0f, 0.0f, -1.0f), int uResolution = 1, int vResolution = 1, bool generateTexels = true, bool generateNormals = true, bool generateTangents = false);
 	void buildDiskXZ(float radius = 1.0f, const Vector3f& position = Vector3f(-1.0f, 0.0f, -1.0f), int uResolution = 1, int vResolution = 1, bool generateTexels = true, bool generateNormals = true, bool generateTangents = false);
 	
-	//void fromBuffer(std::vector<Vector3f>& positions, std::vector<Vector2f>& texels, std::vector<Vector3f>& normals, std::vector<unsigned int> indexBuffer);
-	void fromBuffer(std::vector<float>& vertexBuffer, std::vector<unsigned int> indexBuffer, unsigned int stride);
+	//void fromBuffer(std::vector<Vector3f>& positions, std::vector<Vector2f>& texels, std::vector<Vector3f>& normals, std::vector<unsigned int>& indexBuffer);
+	void fromBuffer(std::vector<float>& vertexBuffer, std::vector<unsigned int>& indexBuffer, unsigned int stride);
 	void fromObj(const char* filename);
 
 	void drawRaw() const;
@@ -74,9 +74,6 @@ private:
 	std::vector<Vector3f> m_tangents;
 	std::vector<Vector3f> m_bitangents;
 	std::vector<Matrix4f> m_instances;
-
-	Vector3f m_min;
-	Vector3f m_max;
 
 	void createBuffer();
 	int whitespaces(const char c[]);

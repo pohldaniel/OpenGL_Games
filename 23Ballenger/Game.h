@@ -3,6 +3,7 @@
 #include "engine/input/MouseEventListener.h"
 #include "engine/input/KeyboardEventListener.h"
 #include "engine/Camera.h"
+#include "engine/Line.h"
 
 #include "StateMachine.h"
 #include "RenderableObject.h"
@@ -89,9 +90,11 @@ private:
 	RenderableObject m_vortex;
 
 	Key m_key;
+	Line m_line;
 
 	float m_offsetDistance = 10.0f;
 	CharacterController *m_characterController;
 
-
+	std::vector<Vector4f> lineColors;
+	std::vector<Vector4f> colors;
 };

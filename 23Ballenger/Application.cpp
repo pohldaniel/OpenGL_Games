@@ -516,6 +516,8 @@ void Application::loadAssets() {
 	Globals::shaderManager.loadShader("key", "Shaders/key.vert", "Shaders/key.frag");
 	Globals::shaderManager.loadShader("beam", "Shaders/beam.vert", "Shaders/beam.frag");
 
+	Globals::shaderManager.loadShader("line", "Shaders/line.vert", "Shaders/line.frag");
+
 	Globals::textureManager.createNullTexture("null");
 
 	Globals::textureManager.loadTexture("grass", "Textures/grass.png", true);

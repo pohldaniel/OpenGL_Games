@@ -2,7 +2,7 @@
 #include "Constants.h"
 #include "cTerrain.h"
 
-Key::Key(const RenderableObject& player) : m_playerPos(player.getPosition()){
+Key::Key(const Vector3f& playerPos) : m_playerPos(playerPos){
 	ang = 0.0f;
 	m_pickedKeyId = -1;
 }

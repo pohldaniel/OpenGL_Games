@@ -2,7 +2,7 @@
 #define __cubeH__
 
 #include <vector>
-#include "Shader.h"
+#include "Vector.h"
 
 class Cube {
 
