@@ -31,6 +31,7 @@ public:
 	void loadCrossDDSFromFile(std::string fileName);
 	void loadDDSRawFromFile(std::string fileName, const int knownInternal = NULL);
 	void loadCubeFromFile(std::string* textureFiles, const bool flipVertical = false, unsigned int internalFormat = 0u, unsigned int format = 0u);
+	void loadCrossCubeFromFile(std::string fileName, const bool _flipVertical = false, unsigned int _internalFormat = 0u, unsigned int _format = 0u);
 
 	void loadFromFile(std::string fileName, unsigned short tileWidth, unsigned short tileHeight, unsigned short spacing = 0u, unsigned int posY = 0u, unsigned int posX = 0u, const bool flipVertical = false, unsigned int _internalFormat = 0u, unsigned int format = 0u);
 	void loadFromFile(std::string fileName, unsigned int offsetX, unsigned int offsetY, unsigned int width = 0u, unsigned int height = 0u, const bool flipVertical = false, unsigned int _internalFormat = 0, unsigned int format = 0u);
@@ -56,7 +57,8 @@ public:
 	static void CutSubimage(std::string fileIn, std::string fileOut, unsigned int offsetX, unsigned int offsetY, unsigned int width = 0u, unsigned int height = 0u, const bool flipVertical = false);
 	static void AddHorizontally(std::string fileIn1, std::string fileIn2, std::string fileOut, const bool flipVertical = false);
 	static void FlipVertical(unsigned char* data, unsigned int padWidth, unsigned int height);
-	
+	static void FlipHorizontal(unsigned char* data, unsigned int width, unsigned int height, int numCompontents);
+
 	static unsigned char* AddRemoveBottomPadding(unsigned char* imageData, int width, int& height, int numCompontents, int padding);
 	static unsigned char* AddRemoveTopPadding(unsigned char* imageData, int width, int& height, int numCompontents, int padding);
 	static unsigned char* AddRemoveRightPadding(unsigned char* imageData, int& width, int height, int numCompontents, int padding);
@@ -80,7 +82,8 @@ public:
 private:
 
 	void flipVertical(unsigned char* data, unsigned int padWidth, unsigned int height);
-	
+	void flipHorizontal(unsigned char* data, unsigned int width, unsigned int height, int numCompontents);
+
 	unsigned int m_texture = 0;
 	unsigned int m_width = 0;
 	unsigned int m_height = 0;

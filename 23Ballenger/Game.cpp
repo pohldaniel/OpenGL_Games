@@ -18,7 +18,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) , m_key(m
 	m_pos = Vector3f((TERRAIN_SIZE * SCALE) / 2, (Terrain.GetHeight((TERRAIN_SIZE * SCALE) / 2, (TERRAIN_SIZE * SCALE) / 2) + RADIUS) * SCALE, (TERRAIN_SIZE * SCALE) / 2);
 	
 	m_camera = ThirdPersonCamera();
-	m_camera.perspective(45.0f, (float)Application::Width / (float)Application::Height, 0.1f, 1000.0f);
+	m_camera.perspective(45.0f, (float)Application::Width / (float)Application::Height, 0.1f, 5000.0f);
 	m_camera.lookAt(m_pos - Vector3f(0.0f, 0.0f, m_offsetDistance), m_pos, Vector3f(0.0f, 1.0f, 0.0f));
 
 	std::vector<btCollisionShape*> terrainShape = Physics::CreateStaticCollisionShapes(&Terrain, SCALE);
@@ -246,7 +246,7 @@ void Game::render() {
 	glLoadMatrixf(&m_camera.getViewMatrix()[0][0]);
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+	m_skybox.draw(m_camera);
 	m_lava.draw(m_camera);
 
 	auto shader = Globals::shaderManager.getAssetPointer("terrain_new");
@@ -274,7 +274,6 @@ void Game::render() {
 
 	Globals::textureManager.get("grass").bind(0);
 	Globals::textureManager.get("rock").bind(1);
-	glDisable(GL_TEXTURE_2D);
 	Terrain.DrawNew();
 	shader->unuse();
 
@@ -761,6 +760,39 @@ bool Game::Init(int lvl) {
 	m_vortex.setUpdateFunction(
 		[&](const float dt) {
 		m_vortex.rotate(0.0f, 0.0f, 0.5f);
+	});
+
+	m_skybox = RenderableObject("cube", "skybox", "skybox");
+	m_skybox.setScale(750.0f);
+	m_skybox.setDrawFunction([&](const Camera& camera) {
+		if (m_skybox.isDisabled()) return;
+
+		glDisable(GL_DEPTH_TEST);
+		glFrontFace(GL_CW);
+		auto shader = Globals::shaderManager.getAssetPointer(m_skybox.getShader());
+		Matrix4f view = camera.getViewMatrix();
+		view[3][0] = 0.0f; view[3][1] = 0.0f; view[3][2] = 0.0f;
+		shader->use();
+		shader->loadMatrix("projection", camera.getPerspectiveMatrix());
+		shader->loadMatrix("view", view);
+		shader->loadMatrix("model", m_skybox.getTransformationSO());
+		shader->loadVector("lightPos", Vector3f(0.0f, 0.0f, 0.0f));
+		shader->loadVector("viewPos", camera.getPosition());
+		shader->loadInt("cubemap", 0);
+
+		Globals::textureManager.get(m_skybox.getTexture()).bind(0);
+		Globals::shapeManager.get(m_skybox.getShape()).drawRaw();
+
+		Texture::Unbind(GL_TEXTURE_CUBE_MAP);
+
+		shader->unuse();
+		glFrontFace(GL_CCW);
+		glEnable(GL_DEPTH_TEST);
+	});
+
+	m_skybox.setUpdateFunction(
+		[&](const float dt) {
+		m_skybox.rotate(0.0f, 10.5f * PI_ON_180 * m_dt, 0.0f);
 	});
 
 	return res;

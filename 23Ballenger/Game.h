@@ -79,6 +79,7 @@ private:
 	ThirdPersonCamera m_camera;
 
 	RenderableObject m_sphere;
+	RenderableObject m_skybox;
 	RenderableObject m_lava;
 	RenderableObject m_respawnPoint;
 	RenderableObject m_cylinder;

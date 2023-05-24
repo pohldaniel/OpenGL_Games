@@ -8,7 +8,7 @@ Line::Line() {
 }
 
 Line::~Line() {
-
+	cleanup();
 }
 
 void Line::cleanup() {

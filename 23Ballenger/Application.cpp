@@ -515,6 +515,7 @@ void Application::loadAssets() {
 	Globals::shaderManager.loadShader("portal", "Shaders/portal.vert", "Shaders/portal.frag");
 	Globals::shaderManager.loadShader("key", "Shaders/key.vert", "Shaders/key.frag");
 	Globals::shaderManager.loadShader("beam", "Shaders/beam.vert", "Shaders/beam.frag");
+	Globals::shaderManager.loadShader("skybox", "Shaders/skybox.vert", "Shaders/skybox.frag");
 
 	Globals::shaderManager.loadShader("line", "Shaders/line.vert", "Shaders/line.frag");
 
@@ -578,6 +579,9 @@ void Application::loadAssets() {
 	Globals::textureManager.get("key").setFilter(GL_LINEAR_MIPMAP_LINEAR);
 	Globals::textureManager.get("key_nmp").setFilter(GL_LINEAR_MIPMAP_LINEAR);
 
+	Globals::textureManager.loadCubeMapFromCross("skybox", "Textures/skybox.png", true);
+
+	Globals::shapeManager.buildCube("cube", Vector3f(-1.0f, -1.0f, -1.0f), Vector3f(2.0f, 2.0f, 2.0f), 1, 1, false, false, false);
 	Globals::shapeManager.buildSphere("sphere", 0.5f * SCALE, Vector3f(0.0f, 0.0f, 0.0f), 16, 16, true, true, false);
 	Globals::shapeManager.buildQuadXZ("quad_lava", Vector3f(0.0f, 0.0f, 0.0f), Vector2f(1024.0f, 1024.0f), 1, 1, true, true, false);
 	Globals::shapeManager.buildQuadXZ("quad_rp", Vector3f(-1.0f, 0.05f, -1.0f), Vector2f(2.0f, 2.0f), 1, 1, true, true, false);

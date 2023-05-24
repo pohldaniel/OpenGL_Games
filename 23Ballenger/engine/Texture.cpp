@@ -1,5 +1,6 @@
 #include <GL/glew.h>
 #include <iostream>
+#include <algorithm>
 
 #include "Texture.h"
 #include "../soil2/SOIL2.h"
@@ -108,6 +109,37 @@ void Texture::flipVertical(unsigned char* data, unsigned int padWidth, unsigned 
 	}
 }
 
+void Texture::flipHorizontal(unsigned char* data, unsigned int width, unsigned int height, int numCompontents) {
+	unsigned char *pFront = 0;
+	unsigned char *pBack = 0;
+	unsigned char pixel[4] = { 0 };
+
+	for (int i = 0; i < height; ++i) {
+		pFront = &data[i * width * numCompontents];
+		pBack = &pFront[(width -1) * numCompontents];
+
+		while (pFront < pBack) {
+			// Save current pixel at position pFront.
+			for (int j = 0; j < numCompontents; j++) {
+				pixel[j] = pFront[j];
+			}
+
+			// Copy new pixel from position pBack into pFront.
+			for (int j = 0; j < numCompontents; j++) {
+				pFront[j] = pBack[j];
+			}
+
+			// Copy old pixel at position pFront into pBack.
+			for (int j = 0; j < numCompontents; j++) {
+				pBack[j] = pixel[j];
+			}
+
+			pFront += numCompontents;
+			pBack -= numCompontents;
+		}
+	}
+}
+
 void Texture::FlipVertical(unsigned char* data, unsigned int padWidth, unsigned int height) {
 	std::vector<unsigned char> srcPixels(padWidth * height);
 	memcpy(&srcPixels[0], data, padWidth * height);
@@ -120,6 +152,37 @@ void Texture::FlipVertical(unsigned char* data, unsigned int padWidth, unsigned 
 		pSrcRow = &srcPixels[(height - 1 - i) * padWidth];
 		pDestRow = &data[i * padWidth];
 		memcpy(pDestRow, pSrcRow, padWidth);
+	}
+}
+
+void Texture::FlipHorizontal(unsigned char* data, unsigned int width, unsigned int height, int numCompontents) {
+	unsigned char *pFront = 0;
+	unsigned char *pBack = 0;
+	unsigned char pixel[4] = { 0 };
+
+	for (int i = 0; i < height; ++i) {
+		pFront = &data[i * width * numCompontents];
+		pBack = &pFront[(width - 1) * numCompontents];
+
+		while (pFront < pBack) {
+			// Save current pixel at position pFront.
+			for (int j = 0; j < numCompontents; j++) {
+				pixel[j] = pFront[j];
+			}
+
+			// Copy new pixel from position pBack into pFront.
+			for (int j = 0; j < numCompontents; j++) {
+				pFront[j] = pBack[j];
+			}
+
+			// Copy old pixel at position pFront into pBack.
+			for (int j = 0; j < numCompontents; j++) {
+				pBack[j] = pixel[j];
+			}
+
+			pFront += numCompontents;
+			pBack -= numCompontents;
+		}
 	}
 }
 
@@ -265,24 +328,126 @@ void Texture::loadCubeFromFile(std::string* textureFiles, const bool _flipVertic
 	m_channels = numCompontents;
 }
 
+void Texture::loadCrossCubeFromFile(std::string fileName, const bool _flipVertical, unsigned int _internalFormat, unsigned int _format) {
+	int width, height, numCompontents;
+	unsigned char* imageData = SOIL_load_image(fileName.c_str(), &width, &height, &numCompontents, SOIL_LOAD_AUTO);
+
+	m_internalFormat = _internalFormat == 0 && numCompontents == 1 ? GL_R8 : _internalFormat == 0 && numCompontents == 3 ? GL_RGB8 : _internalFormat == 0 ? GL_RGBA8 : _internalFormat;
+	m_format = _format == 0 && numCompontents == 1 ? GL_R : _format == 0 && numCompontents == 3 ? GL_RGB : _format == 0 ? GL_RGBA : _format;
+	m_type = GL_UNSIGNED_BYTE;
+	m_target = GL_TEXTURE_CUBE_MAP;
+	m_width = width;
+	m_height = height;
+	m_channels = numCompontents;
+
+	std::vector<unsigned char*> facData;
+	int fWidth = width / 4;
+	int fHeight = height / 3;
+
+	unsigned char *face = new unsigned char[fWidth * fHeight * m_channels];
+	unsigned char *ptr;
+
+	// positive X
+	ptr = face;
+	for (int j = 0; j<fHeight; j++) {
+		memcpy(ptr, &imageData[(m_height - (fHeight + j + 1))*m_width * m_channels], fWidth * m_channels);
+		ptr += fWidth * m_channels;
+	}
+	facData.push_back(face);
+
+	// negative X
+	face = new unsigned char[fWidth * fHeight * m_channels];
+	ptr = face;
+	for (int j = 0; j<fHeight; j++) {
+		memcpy(ptr, &imageData[(m_height - (fHeight + j + 1)) * m_width * m_channels + 2 * fWidth * m_channels], fWidth * m_channels);
+		ptr += fWidth * m_channels;
+	}
+	facData.push_back(face);
+	// positive Y
+	face = new unsigned char[fWidth * fHeight * m_channels];
+	//memset(face, 128, fWidth * fHeight * m_channels * sizeof(unsigned char));
+	ptr = face;
+	for (int j = 0; j < fHeight; j++) {
+		memcpy(ptr, &imageData[j * m_width * m_channels + fWidth * m_channels], fWidth * m_channels);
+		ptr += fWidth * m_channels;
+	}
+	facData.push_back(face);
+
+	// negative Y
+	face = new unsigned char[fWidth * fHeight * m_channels];
+	ptr = face;
+	for (int j = 0; j < fHeight; j++) {
+		memcpy(ptr, &imageData[(m_height - (j + 1)) * m_width * m_channels + fWidth * m_channels], fWidth * m_channels);
+		ptr += fWidth * m_channels;
+	}
+	facData.push_back(face);
+	
+	// positive Z
+	face = new unsigned char[fWidth * fHeight * m_channels];
+	ptr = face;
+	for (int j = 0; j<fHeight; j++) {
+		memcpy(ptr, &imageData[(m_height - (fHeight + j + 1)) * m_width * m_channels + fWidth * m_channels], fWidth * m_channels);
+		ptr += fWidth * m_channels;
+	}
+	facData.push_back(face);
+
+	// negative Z
+	face = new unsigned char[fWidth * fHeight * m_channels];
+	memset(face, 128, fWidth * fHeight * m_channels * sizeof(unsigned char));
+	ptr = face;
+	for (int j = 0; j<fHeight; j++) {
+		memcpy(ptr, &imageData[(m_height - (fHeight + j + 1)) * m_width * m_channels + 3 * fWidth * m_channels], fWidth * m_channels);
+		//std::reverse_copy(imageData + (m_height - (fHeight + j + 1)) * m_width * m_channels + 3 * fWidth * m_channels, imageData + (m_height - (fHeight + j + 1)) * m_width * m_channels + 3 * fWidth * m_channels + fWidth * m_channels, ptr);
+		ptr += fWidth * m_channels;
+	}
+	facData.push_back(face);
+
+
+	m_width = fWidth;
+	m_height = fHeight;
+
+	glGenTextures(1, &m_texture);
+	glBindTexture(m_target, m_texture);
+
+	glTexParameteri(m_target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(m_target, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glTexParameteri(m_target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(m_target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+	glTexParameteri(m_target, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
+
+	// load face data
+	for (int i = 0; i < 6; i++) {
+		if(i != 0 || i != 1)
+			flipHorizontal(facData[i], m_width, m_height, m_channels);
+
+		if (_flipVertical && i != 2)
+			flipVertical(facData[i], m_channels * m_width, m_height);
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, m_internalFormat, m_width, m_height, 0, m_format, m_type, facData[i]);
+	}
+
+	glBindTexture(m_target, 0);
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+
+	for (int i = 0; i < 6; i++) {
+		free(facData[i]);
+	}
+
+	stbi_image_free(imageData);
+}
+
 void Texture::loadCrossHDRIFromFile(std::string fileName, const bool _flipVertical, unsigned int internalFormat, unsigned int format, int paddingLeft, int paddingRight, int paddingTop, int paddingBottom) {
 	int width, height, numCompontents;
 	unsigned char* imageData = reinterpret_cast<unsigned char *>(stbi_loadf(fileName.c_str(), &width, &height, &numCompontents, 0));
-
-	//m_internalFormat = internalFormat == 0 && numCompontents == 3 ? GL_RGB16F : internalFormat == 0 ? GL_RGBA32F : internalFormat;
-	//m_format = format == 0 && numCompontents == 3 ? GL_RGB : format == 0 ? GL_RGBA : format;
-	m_internalFormat = GL_RGBA16F;
+	
+	m_internalFormat = GL_RGB16F;
 	m_format = GL_RGB;
 	m_type = GL_FLOAT;
 	m_target = GL_TEXTURE_CUBE_MAP;
 
 	if (_flipVertical)
 		FlipVertical(imageData, numCompontents * sizeof(float) * width, height);
-
-	//imageData = AddRemoveLeftPadding(imageData, width, height, numCompontents, paddingLeft);
-	//imageData = AddRemoveRightPadding(imageData, width, height, numCompontents, paddingRight);
-	//imageData = AddRemoveTopPadding(imageData, width, height, numCompontents, paddingTop);
-	//imageData = AddRemoveBottomPadding(imageData, width, height, numCompontents, paddingBottom);
 
 	m_width = width;
 	m_height = height;
@@ -375,7 +540,7 @@ void Texture::loadCrossHDRIFromFile(std::string fileName, const bool _flipVertic
 
 	// load face data
 	for (int i = 0; i < 6; i++) {
-		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, m_internalFormat, m_width, m_height, 0, m_format, GL_FLOAT, facData[i]);
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, m_internalFormat, m_width, m_height, 0, m_format, m_type, facData[i]);
 	}
 
 	glBindTexture(m_target, 0);

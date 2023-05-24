@@ -105,6 +105,10 @@ public:
 		m_assets[name].loadCubeFromFile(textureFiles, flipVertical, internalFormat, format);
 	}
 
+	void loadCubeMapFromCross(const std::string& name, const std::string& path, const bool flipVertical = true, unsigned int internalFormat = 0u, unsigned int format = 0u) {
+		m_assets[name].loadCrossCubeFromFile(path, flipVertical, internalFormat, format);
+	}
+
 	void createNullCubemap(const std::string& name, unsigned int width = 2, unsigned int height = 2, unsigned int color = 255) {
 		m_assets[name].createNullCubemap(width, height, color);
 	}
