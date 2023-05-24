@@ -769,6 +769,7 @@ bool Game::Init(int lvl) {
 
 		glDisable(GL_DEPTH_TEST);
 		glFrontFace(GL_CW);
+
 		auto shader = Globals::shaderManager.getAssetPointer(m_skybox.getShader());
 		Matrix4f view = camera.getViewMatrix();
 		view[3][0] = 0.0f; view[3][1] = 0.0f; view[3][2] = 0.0f;
@@ -786,6 +787,7 @@ bool Game::Init(int lvl) {
 		Texture::Unbind(GL_TEXTURE_CUBE_MAP);
 
 		shader->unuse();
+
 		glFrontFace(GL_CCW);
 		glEnable(GL_DEPTH_TEST);
 	});

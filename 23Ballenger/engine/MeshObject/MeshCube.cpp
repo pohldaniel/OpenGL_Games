@@ -124,7 +124,7 @@ void MeshCube::BuildMesh(const Vector3f& _position, const Vector3f& size, int uR
 
 			if (generateTexels) {
 				float u = (float)j / uResolution;
-				float v = (float)i / vResolution;				
+				float v = (float)i / vResolution;
 				Vector2f textureCoordinate = Vector2f(u, v);
 				texels.push_back(textureCoordinate);
 			}
@@ -153,7 +153,7 @@ void MeshCube::BuildMesh(const Vector3f& _position, const Vector3f& size, int uR
 
 			Vector3f position = Vector3f(x, y, z) + _position;
 			positions.push_back(position);
-			
+
 			if (generateTexels) {
 				float u = (float)j / uResolution;
 				float v = (float)i / vResolution;
@@ -186,7 +186,7 @@ void MeshCube::BuildMesh(const Vector3f& _position, const Vector3f& size, int uR
 
 			Vector3f position = Vector3f(x, y, z) + _position;
 			positions.push_back(position);
-			
+
 			if (generateTexels) {
 				float u = (float)j / uResolution;
 				float v = (float)i / vResolution;
@@ -205,13 +205,13 @@ void MeshCube::BuildMesh(const Vector3f& _position, const Vector3f& size, int uR
 			}
 		}
 	}
-	
+
 	vStep = (1.0f / vResolution) * size[2];
 	uStep = (1.0f / uResolution) * size[0];
 
 	//bottom
-	for (unsigned int i = 0; i <= vResolution ; i++) {
-		for (unsigned int j = 0; j <= uResolution ; j++) {
+	for (unsigned int i = 0; i <= vResolution; i++) {
+		for (unsigned int j = 0; j <= uResolution; j++) {
 			// Calculate vertex position on the surface of a quad
 			float x = j * uStep;
 			float y = 0.0f;
@@ -219,12 +219,12 @@ void MeshCube::BuildMesh(const Vector3f& _position, const Vector3f& size, int uR
 
 			Vector3f position = Vector3f(x, y, z) + _position;
 			positions.push_back(position);
-			
+
 			if (generateTexels) {
 				float u = (float)j / uResolution;
 				float v = (float)i / vResolution;
 
-				Vector2f textureCoordinate = Vector2f(u,v);			
+				Vector2f textureCoordinate = Vector2f(u, v);
 				texels.push_back(textureCoordinate);
 			}
 
@@ -290,7 +290,8 @@ void MeshCube::BuildMesh(const Vector3f& _position, const Vector3f& size, int uR
 				indexBuffer.push_back((uResolution * (v + vResolution) + u + 1) % (4 * uResolution * (vResolution + 1)));
 				indexBuffer.push_back((uResolution * (v + 1 + vResolution) + u + 1) % (4 * uResolution * (vResolution + 1)));
 
-			}else if (v == 0 && u < uResolution * (vResolution + 1) - uResolution) {
+			}
+			else if (v == 0 && u < uResolution * (vResolution + 1) - uResolution) {
 
 				if ((u + 1) % (uResolution) == 0) continue;
 
@@ -302,7 +303,8 @@ void MeshCube::BuildMesh(const Vector3f& _position, const Vector3f& size, int uR
 				indexBuffer.push_back(u + uResolution);
 				indexBuffer.push_back(u);
 
-			}else if (v == 0 && uResolution * (vResolution + 1) <= u && u < 2 * uResolution * (vResolution + 1) - uResolution) {
+			}
+			else if (v == 0 && uResolution * (vResolution + 1) <= u && u < 2 * uResolution * (vResolution + 1) - uResolution) {
 
 				if ((u + 1) % (uResolution) == 0) continue;
 
@@ -314,7 +316,8 @@ void MeshCube::BuildMesh(const Vector3f& _position, const Vector3f& size, int uR
 				indexBuffer.push_back(u + uResolution);
 				indexBuffer.push_back(u);
 
-			}else if (v == 0 && uResolution * (vResolution + 1) * 2 <= u && u < 3 * uResolution * (vResolution + 1) - uResolution) {
+			}
+			else if (v == 0 && uResolution * (vResolution + 1) * 2 <= u && u < 3 * uResolution * (vResolution + 1) - uResolution) {
 
 				if ((u + 1) % (uResolution) == 0) continue;
 
@@ -326,7 +329,8 @@ void MeshCube::BuildMesh(const Vector3f& _position, const Vector3f& size, int uR
 				indexBuffer.push_back(u + uResolution);
 				indexBuffer.push_back(u);
 
-			}else if (v == 0 && uResolution * (vResolution + 1) * 3 <= u && u < 4 * uResolution * (vResolution + 1) - uResolution) {
+			}
+			else if (v == 0 && uResolution * (vResolution + 1) * 3 <= u && u < 4 * uResolution * (vResolution + 1) - uResolution) {
 
 				if ((u + 1) % (uResolution) == 0) continue;
 
@@ -355,7 +359,8 @@ void MeshCube::BuildMesh(const Vector3f& _position, const Vector3f& size, int uR
 					indexBuffer.push_back((i - k + 1) * (uResolution + 1) + j);
 					indexBuffer.push_back((i - k) * (uResolution + 1) + j + 1);
 					indexBuffer.push_back((i - k + 1) * (uResolution + 1) + j + 1);
-				}else {
+				}
+				else {
 					indexBuffer.push_back((i - k) * (uResolution + 1) + j);
 					indexBuffer.push_back((i - k + 1) * (uResolution + 1) + j);
 					indexBuffer.push_back((i - k) * (uResolution + 1) + j + 1);
@@ -372,47 +377,12 @@ void MeshCube::BuildMesh(const Vector3f& _position, const Vector3f& size, int uR
 void MeshCube::BuildMesh4Q(const Vector3f& _position, const Vector3f& size, int uResolution, int vResolution, bool generateTexels, bool generateNormals, bool generateTangents, std::vector<Vector3f>& positions, std::vector<Vector2f>& texels, std::vector<Vector3f>& normals, std::vector<unsigned int>& indexBuffer, std::vector<Vector3f>& tangents, std::vector<Vector3f>& bitangents) {
 
 	float vStep = (1.0f / vResolution) * size[1];
-	float uStep = (1.0f / uResolution) * size[0];
+	float uStep = (1.0f / uResolution) * size[2];
 
-	//front
+	// positive X
 	for (unsigned int i = 0; i <= vResolution; i++) {
 		for (unsigned int j = 0; j <= uResolution; j++) {
 
-			// Calculate vertex position on the surface of a quad
-			float x = j * uStep;
-			float y = i * vStep;
-			float z = size[2];
-
-			Vector3f position = Vector3f(x, y, z) + _position;
-			positions.push_back(position);
-	
-			if (generateTexels) {
-				float u = (float)j / uResolution;
-				float v = (float)i / vResolution;
-
-				Vector2f textureCoordinate = Vector2f(u, v);
-				texels.push_back(textureCoordinate);
-			}
-
-			if (generateNormals) {
-				normals.push_back(Vector3f(0.0f, 0.0f, 1.0f));
-			}
-
-			if (generateTangents) {
-				tangents.push_back(Vector3f(1.0f, 0.0f, 0.0f));
-				bitangents.push_back(Vector3f(0.0f, 1.0f, 0.0f));
-			}
-		}
-	}
-
-	vStep = (1.0f / vResolution) * size[1];
-	uStep = (1.0f / uResolution) * size[2];
-
-	//right
-	for (unsigned int i = 0; i <= vResolution; i++) {
-		for (unsigned int j = 0; j <= uResolution; j++) {
-
-			// Calculate vertex position on the surface of a quad
 			float x = size[0];
 			float y = i * vStep;
 			float z = j * uStep;
@@ -424,7 +394,7 @@ void MeshCube::BuildMesh4Q(const Vector3f& _position, const Vector3f& size, int 
 				float u = (float)j / uResolution;
 				float v = (float)i / vResolution;
 
-				Vector2f textureCoordinate = Vector2f(1 -u, v);
+				Vector2f textureCoordinate = Vector2f(1 - u, v);
 				texels.push_back(textureCoordinate);
 			}
 
@@ -442,11 +412,10 @@ void MeshCube::BuildMesh4Q(const Vector3f& _position, const Vector3f& size, int 
 	vStep = (1.0f / vResolution) * size[1];
 	uStep = (1.0f / uResolution) * size[2];
 
-	//left
+	// negative X
 	for (unsigned int i = 0; i <= vResolution; i++) {
 		for (unsigned int j = 0; j <= uResolution; j++) {
 
-			// Calculate vertex position on the surface of a quad
 			float x = 0.0f;
 			float y = i * vStep;
 			float z = j * uStep;
@@ -473,14 +442,109 @@ void MeshCube::BuildMesh4Q(const Vector3f& _position, const Vector3f& size, int 
 		}
 	}
 
-	vStep = (1.0f / vResolution) * size[1];
+	vStep = (1.0f / vResolution) * size[2];
 	uStep = (1.0f / uResolution) * size[0];
 
-	//back
+	// positive Y
 	for (unsigned int i = 0; i <= vResolution; i++) {
 		for (unsigned int j = 0; j <= uResolution; j++) {
 
-			// Calculate vertex position on the surface of a quad
+			float x = j * uStep;
+			float y = size[1];
+			float z = i * vStep;
+
+			Vector3f position = Vector3f(x, y, z) + _position;
+			positions.push_back(position);
+
+			if (generateTexels) {
+				float u = (float)j / uResolution;
+				float v = (float)i / vResolution;
+
+				Vector2f textureCoordinate = Vector2f(u, 1.0f - v);
+				texels.push_back(textureCoordinate);
+			}
+
+			if (generateNormals) {
+				normals.push_back(Vector3f(0.0f, 1.0f, 0.0f));
+			}
+
+			if (generateTangents) {
+				tangents.push_back(Vector3f(1.0f, 0.0f, 0.0f));
+				bitangents.push_back(Vector3f(0.0f, 0.0f, -1.0f));
+			}
+		}
+	}
+
+	vStep = (1.0f / vResolution) * size[2];
+	uStep = (1.0f / uResolution) * size[0];
+
+	// negative Y
+	for (unsigned int i = 0; i <= vResolution; i++) {
+		for (unsigned int j = 0; j <= uResolution; j++) {
+
+			float x = j * uStep;
+			float y = 0.0f;
+			float z = i * vStep;
+
+			Vector3f position = Vector3f(x, y, z) + _position;
+			positions.push_back(position);
+
+			if (generateTexels) {
+				float u = (float)j / uResolution;
+				float v = (float)i / vResolution;
+
+				Vector2f textureCoordinate = Vector2f(u, v);
+				texels.push_back(textureCoordinate);
+			}
+
+			if (generateNormals) {
+				normals.push_back(Vector3f(0.0f, -1.0f, 0.0f));
+			}
+
+			if (generateTangents) {
+				tangents.push_back(Vector3f(1.0f, 0.0f, 0.0f));
+				bitangents.push_back(Vector3f(0.0f, 0.0f, 1.0f));
+			}
+		}
+	}
+	
+	// positive Z
+	for (unsigned int i = 0; i <= vResolution; i++) {
+		for (unsigned int j = 0; j <= uResolution; j++) {
+
+			float x = j * uStep;
+			float y = i * vStep;
+			float z = size[2];
+
+			Vector3f position = Vector3f(x, y, z) + _position;
+			positions.push_back(position);
+
+			if (generateTexels) {
+				float u = (float)j / uResolution;
+				float v = (float)i / vResolution;
+
+				Vector2f textureCoordinate = Vector2f(u, v);
+				texels.push_back(textureCoordinate);
+			}
+
+			if (generateNormals) {
+				normals.push_back(Vector3f(0.0f, 0.0f, 1.0f));
+			}
+
+			if (generateTangents) {
+				tangents.push_back(Vector3f(1.0f, 0.0f, 0.0f));
+				bitangents.push_back(Vector3f(0.0f, 1.0f, 0.0f));
+			}
+		}
+	}
+
+	vStep = (1.0f / vResolution) * size[1];
+	uStep = (1.0f / uResolution) * size[0];
+
+	// negative Z
+	for (unsigned int i = 0; i <= vResolution; i++) {
+		for (unsigned int j = 0; j <= uResolution; j++) {
+
 			float x = j * uStep;
 			float y = i * vStep;
 			float z = 0.0f;
@@ -507,73 +571,8 @@ void MeshCube::BuildMesh4Q(const Vector3f& _position, const Vector3f& size, int 
 		}
 	}
 
-	vStep = (1.0f / vResolution) * size[2];
+	vStep = (1.0f / vResolution) * size[1];
 	uStep = (1.0f / uResolution) * size[0];
-
-	//bottom
-	for (unsigned int i = 0; i <= vResolution; i++) {
-		for (unsigned int j = 0; j <= uResolution; j++) {
-
-			// Calculate vertex position on the surface of a quad
-			float x = j * uStep;
-			float y = 0.0f;
-			float z = i * vStep;
-
-			Vector3f position = Vector3f(x, y, z) + _position;
-			positions.push_back(position);
-		
-			if (generateTexels) {
-				float u = (float)j / uResolution;
-				float v = (float)i / vResolution;
-
-				Vector2f textureCoordinate = Vector2f(u, v);
-				texels.push_back(textureCoordinate);
-			}
-
-			if (generateNormals) {
-				normals.push_back(Vector3f(0.0f, -1.0f, 0.0f));
-			}
-
-			if (generateTangents) {
-				tangents.push_back(Vector3f(1.0f, 0.0f, 0.0f));
-				bitangents.push_back(Vector3f(0.0f, 0.0f, 1.0f));
-			}
-		}
-	}
-
-	vStep = (1.0f / vResolution) * size[2];
-	uStep = (1.0f / uResolution) * size[0];
-
-	//top
-	for (unsigned int i = 0; i <= vResolution; i++) {
-		for (unsigned int j = 0; j <= uResolution; j++) {
-
-			// Calculate vertex position on the surface of a quad
-			float x = j * uStep;
-			float y = size[1];
-			float z = i * vStep;
-
-			Vector3f position = Vector3f(x, y, z) + _position;
-			positions.push_back(position);
-			
-			if (generateTexels) {
-				float u = (float)j / uResolution;
-				float v = (float)i / vResolution;
-
-				Vector2f textureCoordinate = Vector2f(u, 1.0f - v);
-				texels.push_back(textureCoordinate);
-			}
-
-			if (generateNormals) {
-				normals.push_back(Vector3f(0.0f, 1.0f, 0.0f));
-			}
-
-			if (generateTangents) {
-				tangents.push_back(Vector3f(1.0f, 0.0f, 0.0f));
-				bitangents.push_back(Vector3f(0.0f, 0.0f, -1.0f));
-			}
-		}
-	}
 
 	//calculate the indices
 	for (short face = 0; face < 6; face++) {
@@ -581,7 +580,7 @@ void MeshCube::BuildMesh4Q(const Vector3f& _position, const Vector3f& size, int 
 		for (int v = 0; v < vResolution; v++) {
 			for (int u = 0; u < uResolution; u++) {
 
-				if (face % 2 == 0) {
+				if (face == 1 || face == 3 || face == 4) {
 					indexBuffer.push_back(k + (v * (uResolution + 1) + u));
 					indexBuffer.push_back(k + (v * (uResolution + 1) + u + 1));
 					indexBuffer.push_back(k + ((v + 1) * (uResolution + 1) + u + 1));
@@ -596,7 +595,7 @@ void MeshCube::BuildMesh4Q(const Vector3f& _position, const Vector3f& size, int 
 
 					indexBuffer.push_back(k + (v * (uResolution + 1) + u));
 					indexBuffer.push_back(k + ((v + 1) * (uResolution + 1) + u));
-					indexBuffer.push_back(k + ((v + 1) * (uResolution + 1) + u + 1));				
+					indexBuffer.push_back(k + ((v + 1) * (uResolution + 1) + u + 1));
 				}
 			}
 		}
@@ -724,7 +723,7 @@ void MeshCube::addInstance(const Matrix4f& modelMTX) {
 		glBindBuffer(GL_ARRAY_BUFFER, m_vboInstances);
 		glBufferData(GL_ARRAY_BUFFER, m_instances.size() * sizeof(float) * 4 * 4, m_instances[0][0], GL_STATIC_DRAW);
 
-	} else {
+	}else {
 		glGenBuffers(1, &m_vboInstances);
 		glBindVertexArray(m_vao);
 

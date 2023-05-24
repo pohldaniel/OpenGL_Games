@@ -1,6 +1,5 @@
 #include <GL/glew.h>
 #include <iostream>
-#include <algorithm>
 
 #include "Texture.h"
 #include "../soil2/SOIL2.h"
@@ -350,7 +349,7 @@ void Texture::loadCrossCubeFromFile(std::string fileName, const bool _flipVertic
 	// positive X
 	ptr = face;
 	for (int j = 0; j<fHeight; j++) {
-		memcpy(ptr, &imageData[(m_height - (fHeight + j + 1))*m_width * m_channels], fWidth * m_channels);
+		memcpy(ptr, &imageData[(m_height - (fHeight + j + 1)) * m_width * m_channels + 2 * fWidth * m_channels], fWidth * m_channels);
 		ptr += fWidth * m_channels;
 	}
 	facData.push_back(face);
@@ -359,13 +358,13 @@ void Texture::loadCrossCubeFromFile(std::string fileName, const bool _flipVertic
 	face = new unsigned char[fWidth * fHeight * m_channels];
 	ptr = face;
 	for (int j = 0; j<fHeight; j++) {
-		memcpy(ptr, &imageData[(m_height - (fHeight + j + 1)) * m_width * m_channels + 2 * fWidth * m_channels], fWidth * m_channels);
+		memcpy(ptr, &imageData[(m_height - (fHeight + j + 1))*m_width * m_channels], fWidth * m_channels);
 		ptr += fWidth * m_channels;
 	}
 	facData.push_back(face);
+
 	// positive Y
 	face = new unsigned char[fWidth * fHeight * m_channels];
-	//memset(face, 128, fWidth * fHeight * m_channels * sizeof(unsigned char));
 	ptr = face;
 	for (int j = 0; j < fHeight; j++) {
 		memcpy(ptr, &imageData[j * m_width * m_channels + fWidth * m_channels], fWidth * m_channels);
@@ -397,12 +396,11 @@ void Texture::loadCrossCubeFromFile(std::string fileName, const bool _flipVertic
 	ptr = face;
 	for (int j = 0; j<fHeight; j++) {
 		memcpy(ptr, &imageData[(m_height - (fHeight + j + 1)) * m_width * m_channels + 3 * fWidth * m_channels], fWidth * m_channels);
-		//std::reverse_copy(imageData + (m_height - (fHeight + j + 1)) * m_width * m_channels + 3 * fWidth * m_channels, imageData + (m_height - (fHeight + j + 1)) * m_width * m_channels + 3 * fWidth * m_channels + fWidth * m_channels, ptr);
 		ptr += fWidth * m_channels;
 	}
 	facData.push_back(face);
 
-
+	
 	m_width = fWidth;
 	m_height = fHeight;
 
@@ -419,9 +417,6 @@ void Texture::loadCrossCubeFromFile(std::string fileName, const bool _flipVertic
 
 	// load face data
 	for (int i = 0; i < 6; i++) {
-		if(i != 0 || i != 1)
-			flipHorizontal(facData[i], m_width, m_height, m_channels);
-
 		if (_flipVertical && i != 2)
 			flipVertical(facData[i], m_channels * m_width, m_height);
 		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, m_internalFormat, m_width, m_height, 0, m_format, m_type, facData[i]);
