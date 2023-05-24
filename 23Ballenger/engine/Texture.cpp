@@ -267,6 +267,8 @@ void Texture::loadHDRIFromFile(std::string fileName, const bool _flipVertical, u
 	m_width = width;
 	m_height = height;
 	m_channels = numCompontents;
+
+	stbi_image_free(imageData);
 }
 
 void Texture::loadCrossDDSFromFile(std::string fileName) {
@@ -429,7 +431,7 @@ void Texture::loadCrossCubeFromFile(std::string fileName, const bool _flipVertic
 		free(facData[i]);
 	}
 
-	stbi_image_free(imageData);
+	SOIL_free_image_data(imageData);
 }
 
 void Texture::loadCrossHDRIFromFile(std::string fileName, const bool _flipVertical, unsigned int internalFormat, unsigned int format, int paddingLeft, int paddingRight, int paddingTop, int paddingBottom) {
