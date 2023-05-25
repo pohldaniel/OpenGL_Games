@@ -16,11 +16,11 @@ public:
 	void Draw(cData *Data, bool activated, cShader *Shader, cModel *Model);
 	void SetPos(float posx, float posy, float posz);
 	bool InsidePortal(float px, float py, float pz, float r);
-	float GetX();
-	float GetY();
-	float GetZ();
-	float GetReceptorX(int i);
-	float GetReceptorY(int i);
+	float GetX() const;
+	float GetY() const;
+	float GetZ() const;
+	float GetReceptorX(int i) const;
+	float GetReceptorY(int i) const;
 
 private:
 	float x,y,z;

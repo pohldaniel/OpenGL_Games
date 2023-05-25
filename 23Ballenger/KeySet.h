@@ -10,18 +10,17 @@
 
 class cTerrain;
 
-class Key : public RenderableObject {
+class KeySet : public RenderableObject {
 
 	struct KeyState {
-		Matrix4f model;
 		bool deployed;
 		Vector3f position;
 	};
 
 public:
 
-	Key(const Vector3f& playerPos);
-	~Key();
+	KeySet(const Vector3f& playerPos);
+	~KeySet();
 
 	void init(const cTerrain& terrain);
 	void draw(const Camera& camera) override;
@@ -31,7 +30,6 @@ public:
 	void deploy(int id, const Vector3f& pos, float yaw);
 
 	void addInstances(const std::vector<Matrix4f>& values);
-	const std::vector<Matrix4f>& getInstances();
 	unsigned short getNumDeployed();
 	bool isDeployed(unsigned short index);
 	const Vector3f& getPosition(unsigned short index);
@@ -39,13 +37,11 @@ public:
 
 private:
 
-	const std::vector<Matrix4f>& fromKeyState(const std::vector<KeyState>& keyStates);
 	const std::vector<KeyState>& fromInstances(const std::vector<Matrix4f>& instances);
 
 	float ang = 0.0f;
 
 	std::vector<KeyState> m_keyStates;
-	std::vector<Matrix4f> m_instances;
 	std::vector<Matrix4f> m_mtxKey;
 	std::vector<Matrix4f> m_mtxCylinder;
 	std::vector<Vector4f> m_colors;

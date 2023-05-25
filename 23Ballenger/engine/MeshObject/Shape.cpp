@@ -843,3 +843,13 @@ void Shape::drawRawInstanced() const {
 	glDrawElementsInstanced(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0, m_instanceCount);
 	glBindVertexArray(0);
 }
+
+void Shape::updateInstance(const Matrix4f& mtx, unsigned int index) {
+	glBindBuffer(GL_ARRAY_BUFFER, m_vboInstances);
+	Matrix4f* ptr = (Matrix4f*)glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
+	if (ptr) {
+		ptr[index] = mtx;
+		glUnmapBuffer(GL_ARRAY_BUFFER);
+	}
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+}

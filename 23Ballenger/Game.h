@@ -14,7 +14,8 @@
 #include "cColumn.h"
 #include "cPortal.h"
 
-#include "Key.h"
+#include "KeySet.h"
+#include "RaySet.h"
 
 #define GRAVITY 0.015f
 
@@ -52,11 +53,9 @@ public:
 
 private:
 
-	unsigned char keys[256];
-	bool mouse_left_down, mouse_right_down;
 	int level, state, respawn_id, pickedkey_id;
-	bool noclip, portal_activated;
-	float time, ang, noclipSpeedF;
+	bool portal_activated;
+	float ang;
 	std::vector<cRespawnPoint> respawn_points;
 
 	std::vector<cColumn> columns;
@@ -70,13 +69,11 @@ private:
 	cModel Model;
 	cTerrain Terrain;
 	cLava Lava;
+
 	Vector3f m_pos;
 	Vector3f m_playerPos;
 
-	void Physics(cBicho &object);
-
 	ThirdPersonCamera m_camera;
-
 	RenderableObject m_sphere;
 	RenderableObject m_skybox;
 	RenderableObject m_lava;
@@ -89,14 +86,13 @@ private:
 	RenderableObject m_energyBallP;
 	RenderableObject m_vortex;
 
-	Key m_key;
-	Line m_line;
+	KeySet m_keySet;
+	RaySet m_raySet;
 
 	float m_offsetDistance = 10.0f;
 	CharacterController *m_characterController;
 
-	std::vector<Vector4f> lineColors;
-	std::vector<Vector4f> colors;
+
 	float angle = 0.0f;
-	std::vector<unsigned short> pickedIds;
+
 };

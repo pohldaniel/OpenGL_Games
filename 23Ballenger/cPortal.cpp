@@ -126,23 +126,23 @@ bool cPortal::InsidePortal(float px, float py, float pz, float r)
     return ( (px-r <= x+(PORTAL_SIDE/2) && px+r >= x-(PORTAL_SIDE/2)) && (py-r <= y+PORTAL_SIDE && py+r >= y) );
 }
 
-float cPortal::GetX()
+float cPortal::GetX() const
 {
 	return x;
 }
-float cPortal::GetY()
+float cPortal::GetY() const
 {
 	return y;
 }
-float cPortal::GetZ()
+float cPortal::GetZ() const
 {
 	return z;
 }
-float cPortal::GetReceptorX(int i)
+float cPortal::GetReceptorX(int i) const
 {
 	return receptors[i].first;
 }
-float cPortal::GetReceptorY(int i)
+float cPortal::GetReceptorY(int i) const
 {
 	return receptors[i].second;
 }

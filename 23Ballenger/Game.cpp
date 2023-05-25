@@ -7,7 +7,7 @@
 #include "Application.h"
 #include "Constants.h"
 
-Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) , m_key(m_sphere.getPosition()) {
+Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) , m_keySet(m_sphere.getPosition()) , m_raySet(Portal) {
 	Application::SetCursorIcon(IDC_ARROW);
 	EventDispatcher::AddKeyboardListener(this);
 	EventDispatcher::AddMouseListener(this);
@@ -50,8 +50,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) , m_key(m
 	m_characterController->setLinearFactor(btVector3(1.0f, 1.0f, 1.0f));
 	m_characterController->setGravity(btVector3(0.0f, -9.81f * 3.0f, 0.0f));
 
-	lineColors = { Vector4f(1.0f, 0.0f, 0.0f, 1.0f), Vector4f(1.0f, 1.0f, 0.0f, 1.0f) , Vector4f(0.0f, 1.0f, 0.0f, 1.0f) , Vector4f(0.2f, 0.2f, 1.0f, 1.0f) , Vector4f(1.0f, 0.0f, 1.0f, 1.0f) };
-	
+	m_raySet.init();
 }
 
 Game::~Game() {
@@ -175,12 +174,12 @@ void Game::update() {
 
 	ang = fmod(ang + 2, 360);
 	if (pickedkey_id == -1){
-		for (unsigned int i = 0; i < m_key.getKeyStates().size(); i++){
+		for (unsigned int i = 0; i < m_keySet.getKeyStates().size(); i++){
 
-			if (!m_key.isDeployed(i)){
-				if ((m_playerPos- m_key.getPosition(i)).length() <= RADIUS * 2){
+			if (!m_keySet.isDeployed(i)){
+				if ((m_playerPos - m_keySet.getPosition(i)).length() <= RADIUS * 2){
 					pickedkey_id = i;					
-					m_key.setPickedKeyId(pickedkey_id);
+					m_keySet.setPickedKeyId(pickedkey_id);
 					break;
 					//Sound.Play(SOUND_PICKUP);
 				}
@@ -190,27 +189,15 @@ void Game::update() {
 		if (columns[pickedkey_id].InsideGatheringArea(P.x, P.y, P.z)) {
 			//Sound.Play(SOUND_UNLOCK);
 			//Sound.Play(SOUND_ENERGYFLOW);
-			m_key.deploy(pickedkey_id, Vector3f(columns[pickedkey_id].GetHoleX(), columns[pickedkey_id].GetHoleY(), columns[pickedkey_id].GetHoleZ()), columns[pickedkey_id].GetYaw());
-
-			float r = ENERGY_BALL_RADIUS / 2.0f;
-			int numrays = 6;
-
-			for (int j = 0; j<numrays; j++) {
-				float ang_rad = (ang + j*(360 / numrays))*(PI / 180);
-				m_line.addToBuffer(Vector3f(columns[pickedkey_id].GetX() , columns[pickedkey_id].GetY() + COLUMN_HEIGHT + ENERGY_BALL_RADIUS , columns[pickedkey_id].GetZ()), Vector3f(Portal.GetReceptorX(pickedkey_id), Portal.GetReceptorY(pickedkey_id), Portal.GetZ()));
-				colors.push_back(lineColors[pickedkey_id]);
-				colors.push_back(lineColors[pickedkey_id]);
-	
-			}
-			m_line.addVec4Attribute(colors);
-			m_line.addMat4Attribute(m_key.getNumDeployed() * 12u, 0u);
-			pickedIds.push_back(pickedkey_id);
+			m_keySet.deploy(pickedkey_id, Vector3f(columns[pickedkey_id].GetHoleX(), columns[pickedkey_id].GetHoleY(), columns[pickedkey_id].GetHoleZ()), columns[pickedkey_id].GetYaw());
+			m_raySet.deploy(Vector3f(columns[pickedkey_id].GetX(), columns[pickedkey_id].GetY() + COLUMN_HEIGHT + ENERGY_BALL_RADIUS, columns[pickedkey_id].GetZ()), Vector3f(Portal.GetReceptorX(pickedkey_id), Portal.GetReceptorY(pickedkey_id), Portal.GetZ()), pickedkey_id, m_keySet.getNumDeployed());
+			
 			pickedkey_id = -1;
 			if (respawn_id) {
 				//Sound.Play(SOUND_SWISH);
 				respawn_id = 0;
 			}
-			portal_activated = m_key.getNumDeployed() == 5;
+			portal_activated = m_keySet.getNumDeployed() == 5;
 			m_vortex.setDisabled(!portal_activated);
 			//if (portal_activated) Sound.Play(SOUND_WARP);
 		}
@@ -225,23 +212,9 @@ void Game::update() {
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
 	m_vortex.update(m_dt);
-	m_key.update(m_dt);
-
-	if (m_line.isActive()) {
-		std::vector<Matrix4f> mtxLines;
-		for (int i = 0; i < m_key.getNumDeployed(); i++) {
-
-			Vector3f center = Vector3f(columns[pickedIds[i]].GetX(), columns[pickedIds[i]].GetY() + COLUMN_HEIGHT + ENERGY_BALL_RADIUS, columns[pickedIds[i]].GetZ());
-			Vector3f axis = Vector3f::Normalize(Vector3f(Portal.GetReceptorX(pickedIds[i]), Portal.GetReceptorY(pickedIds[i]), Portal.GetZ()) - center);
-			
-			
-			for (int j = 0; j < 6; j++) {
-				mtxLines.push_back(Matrix4f::Translate(cosf((ang + j * 60.0f) * PI_ON_180) * r, sinf((ang + j * 60.0f) * PI_ON_180) * r, 0.0f) * Matrix4f::Rotate(axis, (ang + j * 60.0f), center));
-				mtxLines.push_back(Matrix4f::IDENTITY);
-			}
-			m_line.updateMat4Attribute(mtxLines);
-		}		
-	}
+	m_keySet.update(m_dt);
+	m_raySet.update(m_dt, columns, Portal);
+	
 }
 
 void Game::render() {
@@ -286,14 +259,8 @@ void Game::render() {
 	Terrain.DrawNew();
 	shader->unuse();
 
-	m_key.draw(m_camera);
-
-	shader = Globals::shaderManager.getAssetPointer("line");
-	shader->use();
-	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
-	shader->loadMatrix("u_view", m_camera.getViewMatrix());
-	m_line.drawRaw();
-	shader->unuse();
+	m_keySet.draw(m_camera);
+	m_raySet.draw(m_camera);
 
 	
 	m_column.draw(m_camera);
@@ -430,10 +397,7 @@ void Game::renderUi() {
 bool Game::Init(int lvl) {
 
 	bool res = true;
-	noclip = false;
 	portal_activated = false;
-	time = ang = 0.0f;
-	noclipSpeedF = 1.0f;
 	level = lvl;
 	state = STATE_RUN;
 	respawn_id = 0;
@@ -627,7 +591,7 @@ bool Game::Init(int lvl) {
 
 	});
 
-	m_key.init(Terrain);
+	m_keySet.init(Terrain);
 
 	Globals::shapeManager.get("column").addInstance(Matrix4f::Translate(TERRAIN_SIZE / 2 + 18.0f, Terrain.GetHeight(TERRAIN_SIZE / 2 + 18.0f, TERRAIN_SIZE / 2 + 8), TERRAIN_SIZE / 2 + 8) * Matrix4f::Rotate(Vector3f(0.0f, 1.0f, 0.0f), 90.0f));
 	Globals::shapeManager.get("column").addInstance(Matrix4f::Translate(TERRAIN_SIZE / 2 + 14.0f, Terrain.GetHeight(TERRAIN_SIZE / 2 + 14.0f, TERRAIN_SIZE / 2 - 8), TERRAIN_SIZE / 2 - 8)* Matrix4f::Rotate(Vector3f(0.0f, 1.0f, 0.0f), 90.0f));
@@ -789,125 +753,5 @@ bool Game::Init(int lvl) {
 		glEnable(GL_DEPTH_TEST);
 	});
 
-	m_skybox.setUpdateFunction(
-		[&](const float dt) {
-		m_skybox.rotate(0.0f, 10.5f * PI_ON_180 * m_dt, 0.0f);
-	});
-
 	return res;
-}
-
-void Game::Physics(cBicho &object) {
-	Coord initialPos; initialPos.x = object.GetX(); initialPos.y = object.GetY(); initialPos.z = object.GetZ();
-	Coord center; center.x = object.GetX() + object.GetVX(); center.y = object.GetY() + object.GetVY(); center.z = object.GetZ() + object.GetVZ();
-	std::vector<Vector> cnormals = Terrain.GetCollisionNormals(center, RADIUS);
-	object.SetPos(center.x, center.y, center.z); //despues de GetCollisionNormals la posicion center sera una posicion valida sobre la superficie
-
-												 //actualizo angulos de rotacion por movimiento
-	if (object.GetZ() != initialPos.z || object.GetX() != initialPos.x) {
-		float yaw, pitch;
-		float dx = abs(abs(object.GetX()) - abs(initialPos.x)), dz = abs(abs(object.GetZ()) - abs(initialPos.z));
-		if (object.GetZ() > initialPos.z && object.GetX() >= initialPos.x) yaw = atan(dx / dz); //primer cuadrante
-		if (object.GetZ() <= initialPos.z && object.GetX() > initialPos.x) yaw = PI / 2 + atan(dz / dx); //segundo cuadrante
-		if (object.GetZ() < initialPos.z && object.GetX() <= initialPos.x) yaw = PI + atan(dx / dz);//tercer cuadrante
-		if (object.GetZ() >= initialPos.z && object.GetX() < initialPos.x) yaw = PI * 3 / 2 + atan(dz / dx);//cuarto cuadrante
-		object.SetYaw(yaw*(180 / PI));
-
-		float perimeter = PI * 2 * RADIUS;
-		float dy = abs(abs(object.GetY()) - abs(initialPos.y));
-		float travel_dist = sqrt(dx*dx + dy*dy + dz*dz);
-		if (cos(yaw) >= 0.0f) pitch = object.GetPitch() + (travel_dist / perimeter) * 360.0f;
-		else pitch = object.GetPitch() - (travel_dist / perimeter) * 360.0f;
-		if (pitch < 0.0f) pitch = 360.0f - abs(pitch);
-		object.SetPitch(fmod(pitch, 360.0f));
-	}
-
-	if (cnormals.empty()) object.SetVY(object.GetVY() - GRAVITY);
-	else {
-		Vector G, F, G1, F1, cNormal;
-		float rz, rx; //angulos de rotacion
-		float factor, N = 0.0f;
-
-		G.x = 0.0f; G.y = -GRAVITY; G.z = 0.0f;
-		F.x = object.GetVX(); F.y = object.GetVY(); F.z = object.GetVZ();
-		cNormal.x = 0.0f; cNormal.y = 0.0f; cNormal.z = 0.0f;
-
-		for (unsigned int i = 0; i<cnormals.size(); i++) {
-			if (cnormals[i].x == 0.0f) rz = 0.0f;
-			else if (cnormals[i].x >  0.0f) rz = -PI / 2 + atan(cnormals[i].y / cnormals[i].x);
-			else rz = PI / 2 + atan(cnormals[i].y / cnormals[i].x);
-
-			if (cnormals[i].z == 0.0f) rx = 0.0f;
-			else if (cnormals[i].z >  0.0f) rx = PI / 2 - atan(cnormals[i].y / cnormals[i].z);
-			else rx = -PI / 2 - atan(cnormals[i].y / cnormals[i].z);
-
-			//Transformamos las fuerzas definidas en el sistema de coordenadas de OpenGL al sistema de coordenadas definido por cnormal(eje y) 
-			G1.x = cos(-rz)*G.x - sin(-rz)*G.y;
-			G1.y = cos(-rx)*sin(-rz)*G.x + cos(-rx)*cos(-rz)*G.y - sin(-rx)*G.z;
-			G1.z = sin(-rx)*sin(-rz)*G.x + sin(-rx)*cos(-rz)*G.y + cos(-rx)*G.z;
-
-			F1.x = cos(-rz)*F.x - sin(-rz)*F.y;
-			F1.y = cos(-rx)*sin(-rz)*F.x + cos(-rx)*cos(-rz)*F.y - sin(-rx)*F.z;
-			F1.z = sin(-rx)*sin(-rz)*F.x + sin(-rx)*cos(-rz)*F.y + cos(-rx)*F.z;
-
-			//consideramos la fuerza normal para un unico triangulo
-			float cN = 0.0f;
-			if (G1.y < 0.0f) { cN -= G1.y; G1.y = 0.0f; }
-			if (F1.y < 0.0f) { cN -= F1.y; F1.y = 0.0f; }
-			N += cN; //actualizo la fuerza normal global
-
-					 //actualizo la fuerza de cnormal global
-			cNormal.x += cnormals[i].x;
-			cNormal.y += cnormals[i].y;
-			cNormal.z += cnormals[i].z;
-
-			//consideramos la posible friccion
-			if (cN > 0.0f && abs(F1.x) + abs(F1.z) > 0.0f) {
-				factor = sqrt(((FRICTION*cN)*(FRICTION*cN)) / (F1.x*F1.x + F1.z*F1.z));
-
-				if (abs(F1.x) < abs(F1.x*factor)) F1.x = 0.0f;
-				else F1.x -= F1.x*factor;
-
-				if (abs(F1.z) < abs(F1.z*factor)) F1.z = 0.0f;
-				else F1.z -= F1.z*factor;
-			}
-
-			//volvemos a Transformar las fuerzas del sistema de coordenadas de cnormal(eje y) al sistema de coordenadas de OpenGL
-			G.x = cos(rz)*G1.x - sin(rz)*cos(rx)*G1.y + sin(rz)*sin(rx)*G1.z;
-			G.y = sin(rz)*G1.x + cos(rz)*cos(rx)*G1.y - cos(rz)*sin(rx)*G1.z;
-			G.z = sin(rx)*G1.y + cos(rx)*G1.z;
-
-			F.x = cos(rz)*F1.x - sin(rz)*cos(rx)*F1.y + sin(rz)*sin(rx)*F1.z;
-			F.y = sin(rz)*F1.x + cos(rz)*cos(rx)*F1.y - cos(rz)*sin(rx)*F1.z;
-			F.z = sin(rx)*F1.y + cos(rx)*F1.z;
-		}
-
-		float nextVX = F.x + G.x;
-		float nextVY = F.y + G.y;
-		float nextVZ = F.z + G.z;
-
-		//limitaremos la velocidad para que la esfera no se salte triangulos
-		float limitation_factor;
-		if (sqrt(nextVX*nextVX + nextVY*nextVY + nextVZ*nextVZ) <= MAX_MOVEMENT) limitation_factor = 1.0f;
-		else limitation_factor = sqrt((MAX_MOVEMENT*MAX_MOVEMENT) / (nextVX*nextVX + nextVY*nextVY + nextVZ*nextVZ));
-
-		nextVX *= limitation_factor;
-		nextVY *= limitation_factor;
-		nextVZ *= limitation_factor;
-
-		//consideramos el rebote
-		if (N > GRAVITY * 4) factor = sqrt((N*N) / (cNormal.x*cNormal.x + cNormal.y*cNormal.y + cNormal.z*cNormal.z));
-		else factor = 0.0f;
-
-		nextVX += cNormal.x*factor*ELASTICITY;
-		nextVY += cNormal.y*factor*ELASTICITY;
-		nextVZ += cNormal.z*factor*ELASTICITY;
-
-		float bounceForce = sqrt((cNormal.x*factor*ELASTICITY)*(cNormal.x*factor*ELASTICITY) + (cNormal.y*factor*ELASTICITY)*(cNormal.y*factor*ELASTICITY) + (cNormal.z*factor*ELASTICITY)*(cNormal.z*factor*ELASTICITY));
-		//if (bounceForce >= PLAYER_JUMP_SPEED) Sound.PlayBounce(1.0f);
-		//else if (bounceForce / PLAYER_JUMP_SPEED > 0.2f) Sound.PlayBounce(bounceForce / PLAYER_JUMP_SPEED);
-
-		//actualizamos velocidad
-		object.SetVel(nextVX, nextVY, nextVZ);
-	}
 }

@@ -240,14 +240,17 @@
     <ClCompile Include="engine\MeshObject\MeshDisk.cpp">
       <Filter>engine\MeshObject</Filter>
     </ClCompile>
-    <ClCompile Include="Key.cpp">
-      <Filter>Source Files\Objects</Filter>
-    </ClCompile>
     <ClCompile Include="engine\Line.cpp">
       <Filter>engine</Filter>
     </ClCompile>
     <ClCompile Include="engine\MeshObject\MeshCapsule.cpp">
       <Filter>engine\MeshObject</Filter>
+    </ClCompile>
+    <ClCompile Include="KeySet.cpp">
+      <Filter>Source Files\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="RaySet.cpp">
+      <Filter>Source Files\Objects</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -458,14 +461,17 @@
     <ClInclude Include="engine\MeshObject\MeshDisk.h">
       <Filter>engine\MeshObject</Filter>
     </ClInclude>
-    <ClInclude Include="Key.h">
-      <Filter>Source Files\Objects</Filter>
-    </ClInclude>
     <ClInclude Include="engine\Line.h">
       <Filter>engine</Filter>
     </ClInclude>
     <ClInclude Include="engine\MeshObject\MeshCapsule.h">
       <Filter>engine\MeshObject</Filter>
+    </ClInclude>
+    <ClInclude Include="KeySet.h">
+      <Filter>Source Files\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="RaySet.h">
+      <Filter>Source Files\Objects</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

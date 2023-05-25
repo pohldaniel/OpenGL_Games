@@ -212,10 +212,11 @@
     <ClCompile Include="engine\Transform.cpp" />
     <ClCompile Include="engine\Vector.cpp" />
     <ClCompile Include="Game.cpp" />
-    <ClCompile Include="Key.cpp" />
+    <ClCompile Include="KeySet.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Object.cpp" />
     <ClCompile Include="Physics.cpp" />
+    <ClCompile Include="RaySet.cpp" />
     <ClCompile Include="RenderableObject.cpp" />
     <ClCompile Include="ShapeInterface.cpp" />
     <ClCompile Include="soil2\image_DXT.c" />
@@ -290,10 +291,11 @@
     <ClInclude Include="engine\Vector.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="Globals.h" />
-    <ClInclude Include="Key.h" />
+    <ClInclude Include="KeySet.h" />
     <ClInclude Include="Miniball\Miniball.h" />
     <ClInclude Include="Object.h" />
     <ClInclude Include="Physics.h" />
+    <ClInclude Include="RaySet.h" />
     <ClInclude Include="RenderableObject.h" />
     <ClInclude Include="ShapeInterface.h" />
     <ClInclude Include="StateMachine.h" />
