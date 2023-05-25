@@ -103,6 +103,7 @@ void Line::addMat4Attribute(unsigned int length, unsigned int divisor, unsigned 
 		glBufferData(GL_ARRAY_BUFFER, length * sizeof(float) * 4 * 4, NULL, usage);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 	} else {
+
 		glGenBuffers(1, &m_vboAdd2);
 
 		glBindVertexArray(m_vao);

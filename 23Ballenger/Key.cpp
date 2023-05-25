@@ -4,6 +4,7 @@
 
 Key::Key(const Vector3f& playerPos) : m_playerPos(playerPos){
 	ang = 0.0f;
+	m_numDeployed = 0;
 	m_pickedKeyId = -1;
 }
 
@@ -16,7 +17,8 @@ void Key::init(const cTerrain& terrain) {
 
 	addInstances({ //Matrix4f::Translate(883.0f, Terrain.GetHeight(883.0f, 141.0f), 141.0f),
 		Matrix4f::Translate(TERRAIN_SIZE / 2, terrain.GetHeight(TERRAIN_SIZE / 2, TERRAIN_SIZE / 2 + 10.0f), TERRAIN_SIZE / 2 + 10.0f),
-		Matrix4f::Translate(345.0f, terrain.GetHeight(345.0f, 229.0f), 229.0f),
+		//Matrix4f::Translate(345.0f, terrain.GetHeight(345.0f, 229.0f), 229.0f),
+		Matrix4f::Translate(TERRAIN_SIZE / 2, terrain.GetHeight(TERRAIN_SIZE / 2, TERRAIN_SIZE / 2 + 20.0f), TERRAIN_SIZE / 2 + 20.0f),
 		Matrix4f::Translate(268.0f, terrain.GetHeight(268.0f, 860.0f), 860.0f),
 		Matrix4f::Translate(780.0f, terrain.GetHeight(780.0f, 858.0f), 858.0f),
 		Matrix4f::Translate(265.0f, terrain.GetHeight(265.0f, 487.0f), 487.0f) });
@@ -30,6 +32,9 @@ void Key::init(const cTerrain& terrain) {
 	Globals::shapeManager.get("cylinder_key").addVec4Attribute(m_colors, 1);
 	Globals::shapeManager.get("cylinder_key").addMat4Attribute(5u, 1u);
 	updateCylinderShape();
+
+	m_idCache.resize(5);
+	std::iota(std::begin(m_idCache), std::end(m_idCache), 0);
 }
 
 void Key::draw(const Camera& camera) {
@@ -77,6 +82,10 @@ const std::vector<Matrix4f>& Key::getInstances(){
 	return fromKeyState(m_keyStates);
 }
 
+unsigned short Key::getNumDeployed() {
+	return m_numDeployed;
+}
+
 void Key::updateCylinderShape() {
 	std::vector<float> heights;
 	const std::vector<Matrix4f>& instances = Globals::shapeManager.get("cylinder_key").getInstances();
@@ -89,11 +98,14 @@ void Key::updateCylinderShape() {
 
 void Key::setPickedKeyId(int value) {
 	m_pickedKeyId = value;
-	m_colors.erase(m_colors.begin() + m_pickedKeyId);
+	
+	m_colors.erase(m_colors.begin() + m_idCache[m_pickedKeyId]);
 	Globals::shapeManager.get("cylinder_key").addVec4Attribute(m_colors, 1);
 
-	Globals::shapeManager.get("cylinder_key").removeInstance(m_pickedKeyId);
+	Globals::shapeManager.get("cylinder_key").removeInstance(m_idCache[m_pickedKeyId]);
 	updateCylinderShape();
+
+	for_each(m_idCache.begin() + value, m_idCache.end(), [](unsigned short& v) {v--; });
 }
 
 void Key::deploy(int id, const Vector3f& pos, float yaw) {
@@ -101,9 +113,10 @@ void Key::deploy(int id, const Vector3f& pos, float yaw) {
 	m_keyStates[id].deployed = true;
 	Globals::shapeManager.get("key").updateInstances(fromKeyState(m_keyStates));
 	m_pickedKeyId = -1;
+	m_numDeployed++;
 }
 
-void Key::update(const float dt, const float dist) {
+void Key::update(const float dt) {
 	ang = fmod(ang + LEVITATION_SPEED, 360.0f);	
 	m_mtxKey.clear();
 
@@ -121,7 +134,12 @@ void Key::update(const float dt, const float dist) {
 	m_mtxCylinder.clear();
 	const std::vector<Matrix4f>& instances = Globals::shapeManager.get("cylinder_key").getInstances();
 	for (int i = 0; i < instances.size(); i++) {
+		float x = instances[i][3][0];
 		float y = instances[i][3][1];
+		float z = instances[i][3][2];
+
+		float dist = sqrt((m_playerPos[0] - x)*(m_playerPos[0] - x) + (m_playerPos[2] - z)*(m_playerPos[2] - z));
+
 		m_mtxCylinder.push_back(dist / 100 < BEACON_MIN_RADIUS ? Matrix4f::Scale(BEACON_MIN_RADIUS, BEACON_HEIGHT - y, BEACON_MIN_RADIUS) : Matrix4f::Scale(dist / 100, BEACON_HEIGHT - y, dist / 100));		
 	}
 	Globals::shapeManager.get("cylinder_key").updateMat4Attribute(m_mtxCylinder);

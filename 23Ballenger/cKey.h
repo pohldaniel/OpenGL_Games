@@ -18,11 +18,11 @@ public:
 	void  DrawPicked(float playerx,float playery, float playerz, float camera_yaw, cModel *Model, cData *Data, cShader *Shader);
 	void  DrawDeployed(float holex,float holey, float holez, float yaw, cModel *Model, cData *Data, cShader *Shader);
 	void  SetPos(float posx, float posy, float posz);
-	float GetX();
-    float GetY();
-    float GetZ();
+	float GetX() const;
+    float GetY() const;
+    float GetZ() const;
 	void  Deploy();
-	bool  IsDeployed();
+	bool  IsDeployed() const;
 
 private:
 	float x,y,z; //posicion inicial

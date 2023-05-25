@@ -1,4 +1,5 @@
 #include "cKey.h"
+#include <iostream>
 
 cKey::cKey()
 {
@@ -123,23 +124,24 @@ void cKey::SetPos(float posx, float posy, float posz)
 	y = posy;
 	z = posz;
 }
-float cKey::GetX()
+float cKey::GetX() const
 {
     return x;
 }
-float cKey::GetY()
+float cKey::GetY() const
 {
     return y;
 }
-float cKey::GetZ()
+float cKey::GetZ() const
 {
     return z;
 }
 void cKey::Deploy()
 {
+	std::cout << "Deploy: " << std::endl;
 	deployed = true;
 }
-bool cKey::IsDeployed()
+bool cKey::IsDeployed() const
 {
 	return deployed;
 }

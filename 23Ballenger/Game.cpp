@@ -172,21 +172,17 @@ void Game::update() {
 		m_colors.push_back(i == respawn_id ? Vector4f(1.0f, 0.4f, 0.0f, 0.6f) : Vector4f(0.5f, 0.5f, 1.0f, 0.6f));
 		m_activate.push_back({ i == respawn_id, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false });
 	}
+
 	ang = fmod(ang + 2, 360);
 	if (pickedkey_id == -1){
-
 		for (unsigned int i = 0; i<target_keys.size(); i++){
 
 			if (!target_keys[i].IsDeployed()){
-
 				Coord K; K.x = target_keys[i].GetX(); K.y = target_keys[i].GetY(); K.z = target_keys[i].GetZ();
 				if (sqrt((P.x - K.x)*(P.x - K.x) + (P.y - K.y)*(P.y - K.y) + (P.z - K.z)*(P.z - K.z)) <= RADIUS * 2){
-					pickedkey_id = i;
-					
-					target_keys.erase(target_keys.begin() + pickedkey_id);
-					
+					pickedkey_id = i;					
 					m_key.setPickedKeyId(pickedkey_id);
-
+					break;
 					//Sound.Play(SOUND_PICKUP);
 				}
 			}
@@ -195,7 +191,6 @@ void Game::update() {
 		if (columns[pickedkey_id].InsideGatheringArea(P.x, P.y, P.z)) {
 			//Sound.Play(SOUND_UNLOCK);
 			//Sound.Play(SOUND_ENERGYFLOW);
-			//target_keys[pickedkey_id].Deploy();
 			target_keys[pickedkey_id].Deploy();
 			m_key.deploy(pickedkey_id, Vector3f(columns[pickedkey_id].GetHoleX(), columns[pickedkey_id].GetHoleY(), columns[pickedkey_id].GetHoleZ()), columns[pickedkey_id].GetYaw());
 
@@ -210,15 +205,15 @@ void Game::update() {
 	
 			}
 			m_line.addVec4Attribute(colors);
-			m_line.addMat4Attribute(12u, 0u);
+			m_line.addMat4Attribute(m_key.getNumDeployed() * 12u, 0u);
+			pickedIds.push_back(pickedkey_id);
 			pickedkey_id = -1;
 			if (respawn_id) {
 				//Sound.Play(SOUND_SWISH);
 				respawn_id = 0;
 			}
-			bool all_keys_deployed = true;
-			for (unsigned int i = 0; all_keys_deployed && i < target_keys.size(); i++) all_keys_deployed = target_keys[i].IsDeployed();
-			portal_activated = all_keys_deployed;
+			portal_activated = m_key.getNumDeployed() == 5;
+			m_vortex.setDisabled(!portal_activated);
 			//if (portal_activated) Sound.Play(SOUND_WARP);
 		}
 	}
@@ -232,25 +227,22 @@ void Game::update() {
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
 	m_vortex.update(m_dt);
-	m_key.update(m_dt, 1.0f);
+	m_key.update(m_dt);
 
 	if (m_line.isActive()) {
+		std::vector<Matrix4f> mtxLines;
+		for (int i = 0; i < m_key.getNumDeployed(); i++) {
 
-		Vector3f center = Vector3f(columns[0].GetX(), columns[0].GetY() + COLUMN_HEIGHT + ENERGY_BALL_RADIUS, columns[0].GetZ());
-		Vector3f axis = Vector3f::Normalize(Vector3f(Portal.GetReceptorX(pickedkey_id), Portal.GetReceptorY(pickedkey_id), Portal.GetZ()) - center);
-
-		m_line.updateMat4Attribute({ Matrix4f::Translate(cosf((ang + 0 * 60.0f) * PI_ON_180) * r, sinf((ang + 0 * 60.0f) * PI_ON_180) * r, 0.0f) * Matrix4f::Rotate(axis, (ang + 0 * 60.0f) , center),
-									 Matrix4f::IDENTITY,
-									 Matrix4f::Translate(cosf((ang + 1 * 60.0f) * PI_ON_180) * r, sinf((ang + 1 * 60.0f) * PI_ON_180) * r, 0.0f) * Matrix4f::Rotate(axis, (ang + 1 * 60.0f) , center),
-									 Matrix4f::IDENTITY,
-									 Matrix4f::Translate(cosf((ang + 2 * 60.0f) * PI_ON_180) * r, sinf((ang + 2 * 60.0f) * PI_ON_180) * r, 0.0f) * Matrix4f::Rotate(axis, (ang + 2 * 60.0f) , center),
-									 Matrix4f::IDENTITY,
-									 Matrix4f::Translate(cosf((ang + 3 * 60.0f) * PI_ON_180) * r, sinf((ang + 3 * 60.0f) * PI_ON_180) * r, 0.0f) * Matrix4f::Rotate(axis, (ang + 3 * 60.0f) , center),
-									 Matrix4f::IDENTITY,
-									 Matrix4f::Translate(cosf((ang + 4 * 60.0f) * PI_ON_180) * r, sinf((ang + 4 * 60.0f) * PI_ON_180) * r, 0.0f) * Matrix4f::Rotate(axis, (ang + 4 * 60.0f) , center),
-									 Matrix4f::IDENTITY,
-									 Matrix4f::Translate(cosf((ang + 5 * 60.0f) * PI_ON_180) * r, sinf((ang + 5 * 60.0f) * PI_ON_180) * r, 0.0f) * Matrix4f::Rotate(axis, (ang + 5 * 60.0f) , center),
-									 Matrix4f::IDENTITY });
+			Vector3f center = Vector3f(columns[pickedIds[i]].GetX(), columns[pickedIds[i]].GetY() + COLUMN_HEIGHT + ENERGY_BALL_RADIUS, columns[pickedIds[i]].GetZ());
+			Vector3f axis = Vector3f::Normalize(Vector3f(Portal.GetReceptorX(pickedIds[i]), Portal.GetReceptorY(pickedIds[i]), Portal.GetZ()) - center);
+			
+			
+			for (int j = 0; j < 6; j++) {
+				mtxLines.push_back(Matrix4f::Translate(cosf((ang + j * 60.0f) * PI_ON_180) * r, sinf((ang + j * 60.0f) * PI_ON_180) * r, 0.0f) * Matrix4f::Rotate(axis, (ang + j * 60.0f), center));
+				mtxLines.push_back(Matrix4f::IDENTITY);
+			}
+			m_line.updateMat4Attribute(mtxLines);
+		}		
 	}
 }
 
@@ -498,7 +490,8 @@ bool Game::Init(int lvl) {
 	//key.SetPos(883, Terrain.GetHeight(883, 141), 141);
 	key.SetPos(TERRAIN_SIZE / 2, Terrain.GetHeight(TERRAIN_SIZE / 2, TERRAIN_SIZE / 2 + 10.0f), TERRAIN_SIZE / 2 + 10.0f);
 	target_keys.push_back(key);
-	key.SetPos(345, Terrain.GetHeight(345, 229), 229);
+	//key.SetPos(345, Terrain.GetHeight(345, 229), 229);
+	key.SetPos(TERRAIN_SIZE / 2, Terrain.GetHeight(TERRAIN_SIZE / 2, TERRAIN_SIZE / 2 + 20.0f), TERRAIN_SIZE / 2 + 20.0f);
 	target_keys.push_back(key);
 	key.SetPos(268, Terrain.GetHeight(268, 860), 860);
 	target_keys.push_back(key);
@@ -775,7 +768,7 @@ bool Game::Init(int lvl) {
 	});
 	m_vortex.setScale(1.5f, 1.5f, 0.0f);
 	m_vortex.setPosition(512.0f, 13.75f + PORTAL_SIDE * 0.5f, 544.0f);
-
+	m_vortex.setDisabled(true);
 	m_vortex.setUpdateFunction(
 		[&](const float dt) {
 		m_vortex.rotate(0.0f, 0.0f, 0.5f);

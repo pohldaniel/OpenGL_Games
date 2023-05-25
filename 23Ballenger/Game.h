@@ -99,4 +99,5 @@ private:
 	std::vector<Vector4f> lineColors;
 	std::vector<Vector4f> colors;
 	float angle = 0.0f;
+	std::vector<unsigned short> pickedIds;
 };

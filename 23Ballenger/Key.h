@@ -1,4 +1,6 @@
 #pragma once
+#include <numeric>
+
 #include "engine/Camera.h"
 #include "RenderableObject.h"
 
@@ -22,13 +24,14 @@ public:
 
 	void init(const cTerrain& terrain);
 	void draw(const Camera& camera) override;
-	void update(const float dt, const float dist);
+	void update(const float dt) override;
 	void updateCylinderShape();
 	void setPickedKeyId(int value);
 	void deploy(int id, const Vector3f& pos, float yaw);
 
 	void addInstances(const std::vector<Matrix4f>& values);
 	const std::vector<Matrix4f>& getInstances();
+	unsigned short getNumDeployed();
 
 private:
 
@@ -43,6 +46,9 @@ private:
 	std::vector<Matrix4f> m_mtxCylinder;
 	std::vector<Vector4f> m_colors;
 
+	unsigned short m_numDeployed;
 	int m_pickedKeyId;
 	const Vector3f& m_playerPos;
+
+	std::vector<unsigned short> m_idCache;
 };
