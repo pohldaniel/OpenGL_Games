@@ -42,25 +42,25 @@ void Cube::createBuffer() {
 	vertex.push_back(pos[0] + w); vertex.push_back(pos[1] + h); vertex.push_back(pos[2]);
 	vertex.push_back(pos[0]);     vertex.push_back(pos[1] + h); vertex.push_back(pos[2]);
 
-	unsigned short indices[] = {
-		// front
-		0, 1, 2,
-		2, 3, 0,
-		// right
+	unsigned short indices[] = {	
+		// positive X
 		1, 5, 6,
-		6, 2, 1,
-		// back
-		7, 6, 5,
-		5, 4, 7,
-		// left
+		6, 2, 1,		
+		// negative X
 		4, 0, 3,
 		3, 7, 4,
-		// bottom
+		// positive Y
+		3, 2, 6,
+		6, 7, 3,
+		// negative Y
 		4, 5, 1,
 		1, 0, 4,
-		// top
-		3, 2, 6,
-		6, 7, 3
+		// positive Z
+		0, 1, 2,
+		2, 3, 0,
+		// negative Z
+		7, 6, 5,
+		5, 4, 7
 	};
 
 	short stride = 3;
@@ -118,29 +118,24 @@ void Cube::createBufferTex() {
 	vertex.push_back(pos[0]); vertex.push_back(pos[1] + h);     vertex.push_back(pos[2] + d); vertex.push_back(0.0f); vertex.push_back(1.0f);
 
 	unsigned short indices[] = {
-		// front
-		0, 1, 2,
-		2, 3, 0,
-
-		// back
-		4, 5, 6,
-		6, 7, 4,
-
-		//bottom
-		3, 2, 5,
-		5, 4, 3,
-
-		//top
-		7, 6, 1,
-		1, 0, 7,
-
-		// right
+		// positive X
 		8, 10, 9,
 		10, 8, 11,
-
-		// left
+		// negative X
 		12, 14, 13,
-		14, 12, 15
+		14, 12, 15,		
+		// positive Y
+		3, 2, 5,
+		5, 4, 3,
+		// negative Y
+		7, 6, 1,
+		1, 0, 7,
+		// positive Z
+		4, 5, 6,
+		6, 7, 4,
+		// negative Z
+		0, 1, 2,
+		2, 3, 0
 	};
 
 	short stride = 5;
@@ -185,49 +180,55 @@ void Cube::createBufferTexNormal() {
 	vertex.push_back(pos[0] + w); vertex.push_back(pos[1] + h); vertex.push_back(pos[2] + d); vertex.push_back(1.0f); vertex.push_back(1.0f); vertex.push_back(0.0f); vertex.push_back(0.0f); vertex.push_back(1.0f);
 	vertex.push_back(pos[0]);     vertex.push_back(pos[1] + h); vertex.push_back(pos[2] + d); vertex.push_back(0.0f); vertex.push_back(1.0f); vertex.push_back(0.0f); vertex.push_back(0.0f); vertex.push_back(1.0f);
 
-	vertex.push_back(pos[0]);     vertex.push_back(pos[1]);     vertex.push_back(pos[2]);     vertex.push_back(0.0f); vertex.push_back(0.0f); vertex.push_back(0.0f); vertex.push_back(0.0f); vertex.push_back(-1.0f);
-	vertex.push_back(pos[0] + w); vertex.push_back(pos[1]);     vertex.push_back(pos[2]);     vertex.push_back(1.0f); vertex.push_back(0.0f); vertex.push_back(0.0f); vertex.push_back(0.0f); vertex.push_back(-1.0f);
-	vertex.push_back(pos[0] + w); vertex.push_back(pos[1] + h); vertex.push_back(pos[2]);     vertex.push_back(1.0f); vertex.push_back(1.0f); vertex.push_back(0.0f); vertex.push_back(0.0f); vertex.push_back(-1.0f);
-	vertex.push_back(pos[0]);     vertex.push_back(pos[1] + h); vertex.push_back(pos[2]);     vertex.push_back(0.0f); vertex.push_back(1.0f); vertex.push_back(0.0f); vertex.push_back(0.0f); vertex.push_back(-1.0f);
+	vertex.push_back(pos[0]);     vertex.push_back(pos[1]);     vertex.push_back(pos[2]);     vertex.push_back(1.0f); vertex.push_back(0.0f); vertex.push_back(0.0f); vertex.push_back(0.0f); vertex.push_back(-1.0f);
+	vertex.push_back(pos[0] + w); vertex.push_back(pos[1]);     vertex.push_back(pos[2]);     vertex.push_back(0.0f); vertex.push_back(0.0f); vertex.push_back(0.0f); vertex.push_back(0.0f); vertex.push_back(-1.0f);
+	vertex.push_back(pos[0] + w); vertex.push_back(pos[1] + h); vertex.push_back(pos[2]);     vertex.push_back(0.0f); vertex.push_back(1.0f); vertex.push_back(0.0f); vertex.push_back(0.0f); vertex.push_back(-1.0f);
+	vertex.push_back(pos[0]);     vertex.push_back(pos[1] + h); vertex.push_back(pos[2]);     vertex.push_back(1.0f); vertex.push_back(1.0f); vertex.push_back(0.0f); vertex.push_back(0.0f); vertex.push_back(-1.0f);
 
 	vertex.push_back(pos[0]);     vertex.push_back(pos[1] + h); vertex.push_back(pos[2] + d); vertex.push_back(0.0f); vertex.push_back(0.0f); vertex.push_back(0.0f); vertex.push_back(1.0f); vertex.push_back(0.0f);
 	vertex.push_back(pos[0] + w); vertex.push_back(pos[1] + h); vertex.push_back(pos[2] + d); vertex.push_back(1.0f); vertex.push_back(0.0f); vertex.push_back(0.0f); vertex.push_back(1.0f); vertex.push_back(0.0f);
 	vertex.push_back(pos[0] + w); vertex.push_back(pos[1] + h); vertex.push_back(pos[2]);     vertex.push_back(1.0f); vertex.push_back(1.0f); vertex.push_back(0.0f); vertex.push_back(1.0f); vertex.push_back(0.0f);
 	vertex.push_back(pos[0]);     vertex.push_back(pos[1] + h); vertex.push_back(pos[2]);     vertex.push_back(0.0f); vertex.push_back(1.0f); vertex.push_back(0.0f); vertex.push_back(1.0f); vertex.push_back(0.0f);
 
-	vertex.push_back(pos[0]);     vertex.push_back(pos[1]);     vertex.push_back(pos[2] + d); vertex.push_back(0.0f); vertex.push_back(0.0f); vertex.push_back(0.0f); vertex.push_back(-1.0f); vertex.push_back(0.0f);
-	vertex.push_back(pos[0] + w); vertex.push_back(pos[1]);     vertex.push_back(pos[2] + d); vertex.push_back(1.0f); vertex.push_back(0.0f); vertex.push_back(0.0f); vertex.push_back(-1.0f); vertex.push_back(0.0f);
-	vertex.push_back(pos[0] + w); vertex.push_back(pos[1]);     vertex.push_back(pos[2]);     vertex.push_back(1.0f); vertex.push_back(1.0f); vertex.push_back(0.0f); vertex.push_back(-1.0f); vertex.push_back(0.0f);
-	vertex.push_back(pos[0]);     vertex.push_back(pos[1]);     vertex.push_back(pos[2]);     vertex.push_back(0.0f); vertex.push_back(1.0f); vertex.push_back(0.0f); vertex.push_back(-1.0f); vertex.push_back(0.0f);
+	vertex.push_back(pos[0]);     vertex.push_back(pos[1]);     vertex.push_back(pos[2] + d); vertex.push_back(0.0f); vertex.push_back(1.0f); vertex.push_back(0.0f); vertex.push_back(-1.0f); vertex.push_back(0.0f);
+	vertex.push_back(pos[0] + w); vertex.push_back(pos[1]);     vertex.push_back(pos[2] + d); vertex.push_back(1.0f); vertex.push_back(1.0f); vertex.push_back(0.0f); vertex.push_back(-1.0f); vertex.push_back(0.0f);
+	vertex.push_back(pos[0] + w); vertex.push_back(pos[1]);     vertex.push_back(pos[2]);     vertex.push_back(1.0f); vertex.push_back(0.0f); vertex.push_back(0.0f); vertex.push_back(-1.0f); vertex.push_back(0.0f);
+	vertex.push_back(pos[0]);     vertex.push_back(pos[1]);     vertex.push_back(pos[2]);     vertex.push_back(0.0f); vertex.push_back(0.0f); vertex.push_back(0.0f); vertex.push_back(-1.0f); vertex.push_back(0.0f);
 
 	vertex.push_back(pos[0]);     vertex.push_back(pos[1]);     vertex.push_back(pos[2]);     vertex.push_back(0.0f); vertex.push_back(0.0f); vertex.push_back(-1.0f); vertex.push_back(0.0f); vertex.push_back(0.0f);
 	vertex.push_back(pos[0]);     vertex.push_back(pos[1]);     vertex.push_back(pos[2] + d); vertex.push_back(1.0f); vertex.push_back(0.0f); vertex.push_back(-1.0f); vertex.push_back(0.0f); vertex.push_back(0.0f);
 	vertex.push_back(pos[0]);     vertex.push_back(pos[1] + h); vertex.push_back(pos[2] + d); vertex.push_back(1.0f); vertex.push_back(1.0f); vertex.push_back(-1.0f); vertex.push_back(0.0f); vertex.push_back(0.0f);
 	vertex.push_back(pos[0]);     vertex.push_back(pos[1] + h); vertex.push_back(pos[2]);     vertex.push_back(0.0f); vertex.push_back(1.0f); vertex.push_back(-1.0f); vertex.push_back(0.0f); vertex.push_back(0.0f);
 
-	vertex.push_back(pos[0] + w); vertex.push_back(pos[1]);     vertex.push_back(pos[2]);     vertex.push_back(0.0f); vertex.push_back(0.0f); vertex.push_back(1.0f); vertex.push_back(0.0f); vertex.push_back(0.0f);
-	vertex.push_back(pos[0] + w); vertex.push_back(pos[1]);     vertex.push_back(pos[2] + d); vertex.push_back(1.0f); vertex.push_back(0.0f); vertex.push_back(1.0f); vertex.push_back(0.0f); vertex.push_back(0.0f);
-	vertex.push_back(pos[0] + w); vertex.push_back(pos[1] + h); vertex.push_back(pos[2] + d); vertex.push_back(1.0f); vertex.push_back(1.0f); vertex.push_back(1.0f); vertex.push_back(0.0f); vertex.push_back(0.0f);
-	vertex.push_back(pos[0] + w); vertex.push_back(pos[1] + h); vertex.push_back(pos[2]);     vertex.push_back(0.0f); vertex.push_back(1.0f); vertex.push_back(1.0f); vertex.push_back(0.0f); vertex.push_back(0.0f);
+	vertex.push_back(pos[0] + w); vertex.push_back(pos[1]);     vertex.push_back(pos[2]);     vertex.push_back(1.0f); vertex.push_back(0.0f); vertex.push_back(1.0f); vertex.push_back(0.0f); vertex.push_back(0.0f);
+	vertex.push_back(pos[0] + w); vertex.push_back(pos[1]);     vertex.push_back(pos[2] + d); vertex.push_back(0.0f); vertex.push_back(0.0f); vertex.push_back(1.0f); vertex.push_back(0.0f); vertex.push_back(0.0f);
+	vertex.push_back(pos[0] + w); vertex.push_back(pos[1] + h); vertex.push_back(pos[2] + d); vertex.push_back(0.0f); vertex.push_back(1.0f); vertex.push_back(1.0f); vertex.push_back(0.0f); vertex.push_back(0.0f);
+	vertex.push_back(pos[0] + w); vertex.push_back(pos[1] + h); vertex.push_back(pos[2]);     vertex.push_back(1.0f); vertex.push_back(1.0f); vertex.push_back(1.0f); vertex.push_back(0.0f); vertex.push_back(0.0f);
 
 	unsigned short indices[] = {
-		0, 1, 2,
-		2, 3, 0,
-
-		4, 6, 5,
-		6, 4, 7,
-
-		8, 9, 10,
-		10, 11, 8,
-
-		12, 14, 13,
-		14, 12, 15,
-
+		// negative X
 		16, 17, 18,
 		18, 19, 16,
 
+		// positive X
 		20, 22, 21,
-		22, 20, 23	
+		22, 20, 23,
+
+		// positive Y
+		8, 9, 10,
+		10, 11, 8,
+
+		// negative Y
+		12, 14, 13,
+		14, 12, 15,
+
+		// positive Z
+		4, 6, 5,
+		6, 4, 7,
+
+		// negative Z
+		0, 1, 2,
+		2, 3, 0,
 	};
 
 	short stride = 8;
