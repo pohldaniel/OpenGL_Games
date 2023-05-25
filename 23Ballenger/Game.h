@@ -13,7 +13,6 @@
 #include "cRespawnPoint.h"
 #include "cColumn.h"
 #include "cPortal.h"
-#include "cKey.h"
 
 #include "Key.h"
 
@@ -59,7 +58,7 @@ private:
 	bool noclip, portal_activated;
 	float time, ang, noclipSpeedF;
 	std::vector<cRespawnPoint> respawn_points;
-	std::vector<cKey> target_keys;
+
 	std::vector<cColumn> columns;
 	cPortal Portal;
 	cScene Scene;

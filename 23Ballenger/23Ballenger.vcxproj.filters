@@ -195,9 +195,6 @@
     <ClCompile Include="cColumn.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="cKey.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="cPlayer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -408,9 +405,6 @@
       <Filter>engine\sound</Filter>
     </ClInclude>
     <ClInclude Include="cCamera.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="cKey.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="cPlayer.h">

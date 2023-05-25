@@ -194,23 +194,22 @@ void MeshCylinder::BuildMesh(float baseRadius, float topRadius, float length, co
 		for (int i = 0, k = baseVertexIndex + 1; i < vResolution; ++i, ++k) {
 			if (i < (vResolution - 1)) {
 				indexBuffer.push_back(baseVertexIndex);	indexBuffer.push_back(k); indexBuffer.push_back(k + 1);
-			}
-			else {
+			}else {
 				indexBuffer.push_back(baseVertexIndex);	indexBuffer.push_back(k); indexBuffer.push_back(baseVertexIndex + 1);
 			}
 		}
 	}
 
-	if (top)
+	if (top) {
 		// remember where the base indices start
 		unsigned int topIndex = (unsigned int)indexBuffer.size();
 
 		for (int i = 0, k = topVertexIndex + 1; i < vResolution; ++i, ++k) {
-		if (i < (vResolution - 1)) {
-			indexBuffer.push_back(topVertexIndex); indexBuffer.push_back(k + 1); indexBuffer.push_back(k);
-		}
-		else {
-			indexBuffer.push_back(topVertexIndex); indexBuffer.push_back(topVertexIndex + 1); indexBuffer.push_back(k);
+			if (i < (vResolution - 1)) {
+				indexBuffer.push_back(topVertexIndex); indexBuffer.push_back(k + 1); indexBuffer.push_back(k);
+			}else {
+				indexBuffer.push_back(topVertexIndex); indexBuffer.push_back(topVertexIndex + 1); indexBuffer.push_back(k);
+			}
 		}
 	}
 }

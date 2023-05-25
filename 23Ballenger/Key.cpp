@@ -86,6 +86,10 @@ unsigned short Key::getNumDeployed() {
 	return m_numDeployed;
 }
 
+const std::vector<Key::KeyState>& Key::getKeyStates() {
+	return m_keyStates;
+}
+
 void Key::updateCylinderShape() {
 	std::vector<float> heights;
 	const std::vector<Matrix4f>& instances = Globals::shapeManager.get("cylinder_key").getInstances();
@@ -114,6 +118,14 @@ void Key::deploy(int id, const Vector3f& pos, float yaw) {
 	Globals::shapeManager.get("key").updateInstances(fromKeyState(m_keyStates));
 	m_pickedKeyId = -1;
 	m_numDeployed++;
+}
+
+bool Key::isDeployed(unsigned short index) {
+	return m_keyStates[index].deployed;
+}
+
+const Vector3f& Key::getPosition(unsigned short index) {
+	return m_keyStates[index].position;
 }
 
 void Key::update(const float dt) {
@@ -154,6 +166,6 @@ const std::vector<Matrix4f>& Key::fromKeyState(const std::vector<KeyState>& keyS
 //just call it once it will override the deployment state
 const std::vector<Key::KeyState>& Key::fromInstances(const std::vector<Matrix4f>& instances) {
 	m_keyStates.clear();
-	std::transform(instances.begin(), instances.end(), std::back_inserter(m_keyStates), [](const Matrix4f& p)-> KeyState { return{  p , false }; });
+	std::transform(instances.begin(), instances.end(), std::back_inserter(m_keyStates), [](const Matrix4f& p)-> KeyState { return{ p , false, {p[3][0], p[3][1] , p[3][2] } }; });
 	return m_keyStates;
 }

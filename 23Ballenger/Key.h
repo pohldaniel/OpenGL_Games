@@ -15,6 +15,7 @@ class Key : public RenderableObject {
 	struct KeyState {
 		Matrix4f model;
 		bool deployed;
+		Vector3f position;
 	};
 
 public:
@@ -32,6 +33,9 @@ public:
 	void addInstances(const std::vector<Matrix4f>& values);
 	const std::vector<Matrix4f>& getInstances();
 	unsigned short getNumDeployed();
+	bool isDeployed(unsigned short index);
+	const Vector3f& getPosition(unsigned short index);
+	const std::vector<KeyState>& getKeyStates();
 
 private:
 

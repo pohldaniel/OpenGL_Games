@@ -175,11 +175,10 @@ void Game::update() {
 
 	ang = fmod(ang + 2, 360);
 	if (pickedkey_id == -1){
-		for (unsigned int i = 0; i<target_keys.size(); i++){
+		for (unsigned int i = 0; i < m_key.getKeyStates().size(); i++){
 
-			if (!target_keys[i].IsDeployed()){
-				Coord K; K.x = target_keys[i].GetX(); K.y = target_keys[i].GetY(); K.z = target_keys[i].GetZ();
-				if (sqrt((P.x - K.x)*(P.x - K.x) + (P.y - K.y)*(P.y - K.y) + (P.z - K.z)*(P.z - K.z)) <= RADIUS * 2){
+			if (!m_key.isDeployed(i)){
+				if ((m_playerPos- m_key.getPosition(i)).length() <= RADIUS * 2){
 					pickedkey_id = i;					
 					m_key.setPickedKeyId(pickedkey_id);
 					break;
@@ -191,7 +190,6 @@ void Game::update() {
 		if (columns[pickedkey_id].InsideGatheringArea(P.x, P.y, P.z)) {
 			//Sound.Play(SOUND_UNLOCK);
 			//Sound.Play(SOUND_ENERGYFLOW);
-			target_keys[pickedkey_id].Deploy();
 			m_key.deploy(pickedkey_id, Vector3f(columns[pickedkey_id].GetHoleX(), columns[pickedkey_id].GetHoleY(), columns[pickedkey_id].GetHoleZ()), columns[pickedkey_id].GetYaw());
 
 			float r = ENERGY_BALL_RADIUS / 2.0f;
@@ -485,20 +483,7 @@ bool Game::Init(int lvl) {
 	//Model initialization
 	Model.Load();
 
-	//target keys initialization
-	cKey key;
-	//key.SetPos(883, Terrain.GetHeight(883, 141), 141);
-	key.SetPos(TERRAIN_SIZE / 2, Terrain.GetHeight(TERRAIN_SIZE / 2, TERRAIN_SIZE / 2 + 10.0f), TERRAIN_SIZE / 2 + 10.0f);
-	target_keys.push_back(key);
-	//key.SetPos(345, Terrain.GetHeight(345, 229), 229);
-	key.SetPos(TERRAIN_SIZE / 2, Terrain.GetHeight(TERRAIN_SIZE / 2, TERRAIN_SIZE / 2 + 20.0f), TERRAIN_SIZE / 2 + 20.0f);
-	target_keys.push_back(key);
-	key.SetPos(268, Terrain.GetHeight(268, 860), 860);
-	target_keys.push_back(key);
-	key.SetPos(780, Terrain.GetHeight(780, 858), 858);
-	target_keys.push_back(key);
-	key.SetPos(265, Terrain.GetHeight(265, 487), 487);
-	target_keys.push_back(key);
+
 
 	//columns initialization
 	cColumn col;
