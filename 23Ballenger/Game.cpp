@@ -213,7 +213,7 @@ void Game::update() {
 
 	m_vortex.update(m_dt);
 	m_keySet.update(m_dt);
-	m_raySet.update(m_dt, columns, Portal);
+	m_raySet.update(m_dt, columns);
 	
 }
 
