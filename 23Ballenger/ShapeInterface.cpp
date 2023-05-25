@@ -31,7 +31,7 @@ ShapeInterface::ShapeInterface(StateMachine& machine) : State(machine, CurrentSt
 	Globals::shapeManager.buildTorus("torus", 0.5f, 0.25f, Vector3f(0.0f, 0.0f, 0.0f), 49, 49, true, true, true);
 	Globals::shapeManager.buildSphere("sphere_", 1.0f, Vector3f(0.0f, 0.0f, 0.0f), 49, 49, true, true, true);
 	Globals::shapeManager.buildSpiral("spiral", 0.5f, 0.25f, 1.5f, 2, true, Vector3f(0.0f, -0.75f, 0.0f), 49, 49, true, true, true);
-	Globals::shapeManager.buildCylinder("cylinder_", 1.0f, 0.2f, 1.0f, Vector3f(0.0f, 0.0f, 0.0f), 20, 20, true, true, true);
+	Globals::shapeManager.buildCylinder("cylinder_", 1.0f, 0.2f, 1.0f, Vector3f(0.0f, 0.0f, 0.0f), true, true, 20, 20, true, true, true);
 	Globals::shapeManager.buildQuadXY("quad_", Vector3f(-1.0f, -1.0f, 0.0f), Vector2f(2.0f, 2.0f), 10, 10, true, true, true);
 	//Globals::shapeManager.buildQuadXZ("quad_", Vector3f(-1.0f, -0.5f, -1.0f), Vector2f(2.0f, 2.0f), 10, 10, true, true, true);
 	Globals::shapeManager.buildCube("cube_", Vector3f(-1.0f, -1.0f, -1.0f), Vector3f(2.0f, 2.0f, 2.0f), 10, 10, true, true, true);

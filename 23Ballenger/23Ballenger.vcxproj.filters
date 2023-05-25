@@ -138,9 +138,6 @@
     <ClCompile Include="RenderableObject.cpp">
       <Filter>Source Files\Objects</Filter>
     </ClCompile>
-    <ClCompile Include="engine\MeshObject\Capsule.cpp">
-      <Filter>engine\MeshObject</Filter>
-    </ClCompile>
     <ClCompile Include="engine\MeshObject\MeshCube.cpp">
       <Filter>engine\MeshObject</Filter>
     </ClCompile>
@@ -251,6 +248,9 @@
     </ClCompile>
     <ClCompile Include="engine\Line.cpp">
       <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\MeshObject\MeshCapsule.cpp">
+      <Filter>engine\MeshObject</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -365,9 +365,6 @@
     <ClInclude Include="RenderableObject.h">
       <Filter>Source Files\Objects</Filter>
     </ClInclude>
-    <ClInclude Include="engine\MeshObject\Capsule.h">
-      <Filter>engine\MeshObject</Filter>
-    </ClInclude>
     <ClInclude Include="engine\MeshObject\MeshCube.h">
       <Filter>engine\MeshObject</Filter>
     </ClInclude>
@@ -472,6 +469,9 @@
     </ClInclude>
     <ClInclude Include="engine\Line.h">
       <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\MeshObject\MeshCapsule.h">
+      <Filter>engine\MeshObject</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

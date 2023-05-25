@@ -154,8 +154,8 @@ public:
 		m_assets[name].buildSpiral(radius, tubeRadius, length, numRotations, repeatTexture, position, uResolution, vResolution, generateTexels, generateNormals, generateTangents);
 	}
 
-	void buildCylinder(const std::string& name, float baseRadius = 1.0f, float topRadius = 1.0f, float length = 1.0f, const Vector3f& position = Vector3f(0.0f, 0.0f, 0.0f), int uResolution = 10, int vResolution = 10, bool generateTexels = true, bool generateNormals = true, bool generateTangents = false) {
-		m_assets[name].buildCylinder(baseRadius, topRadius, length, position, uResolution, vResolution, generateTexels, generateNormals, generateTangents);
+	void buildCylinder(const std::string& name, float baseRadius = 1.0f, float topRadius = 1.0f, float length = 1.0f, const Vector3f& position = Vector3f(0.0f, 0.0f, 0.0f), bool top = true, bool bottom = true, int uResolution = 10, int vResolution = 10, bool generateTexels = true, bool generateNormals = true, bool generateTangents = false) {
+		m_assets[name].buildCylinder(baseRadius, topRadius, length, position, top, bottom, uResolution, vResolution, generateTexels, generateNormals, generateTangents);
 	}
 
 	void buildQuadXY(const std::string& name, const Vector3f& position = Vector3f(-1.0f, -1.0f, 0.0f), const Vector2f& size = Vector2f(2.0f, 2.0f), int uResolution = 1, int vResolution = 1, bool generateTexels = true, bool generateNormals = true, bool generateTangents = false) {

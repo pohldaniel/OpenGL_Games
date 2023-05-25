@@ -1,10 +1,10 @@
 #include "MeshCylinder.h"
 
-MeshCylinder::MeshCylinder(int uResolution, int vResolution) : MeshCylinder(Vector3f(0.0f, 0.0f, 0.0f), 1.0f, 1.0f, 1.0f, true, true, false, uResolution, vResolution) { }
+MeshCylinder::MeshCylinder(int uResolution, int vResolution) : MeshCylinder(Vector3f(0.0f, 0.0f, 0.0f), 1.0f, 1.0f, 1.0f, true, true, true, true, false, uResolution, vResolution) { }
 
-MeshCylinder::MeshCylinder(bool generateTexels, bool generateNormals, bool generateTangents, int uResolution, int vResolution) : MeshCylinder(Vector3f(0.0f, 0.0f, 0.0f), 1.0f, 1.0f, 1.0f, generateTexels, generateNormals, generateTangents, uResolution, vResolution) { }
+MeshCylinder::MeshCylinder(bool generateTexels, bool generateNormals, bool generateTangents, int uResolution, int vResolution) : MeshCylinder(Vector3f(0.0f, 0.0f, 0.0f), 1.0f, 1.0f, 1.0f, true, true, generateTexels, generateNormals, generateTangents, uResolution, vResolution) { }
 
-MeshCylinder::MeshCylinder(const Vector3f &position, float baseRadius, float topRadius, float length, bool generateTexels, bool generateNormals, bool generateTangents,  int uResolution, int vResolution) {
+MeshCylinder::MeshCylinder(const Vector3f &position, float baseRadius, float topRadius, float length, bool top, bool bottom, bool generateTexels, bool generateNormals, bool generateTangents,  int uResolution, int vResolution) {
 
 	m_baseRadius = baseRadius;
 	m_topRadius = topRadius;
@@ -20,7 +20,7 @@ MeshCylinder::MeshCylinder(const Vector3f &position, float baseRadius, float top
 
 	m_numBuffers = 1 + generateTexels + generateNormals + 2 * generateTangents;
 
-	BuildMesh(m_baseRadius, m_topRadius, m_length, m_position, m_uResolution, m_vResolution, m_generateTexels, m_generateNormals, m_generateTangents, m_positions, m_texels, m_normals, m_indexBuffer, m_tangents, m_bitangents);
+	BuildMesh(m_baseRadius, m_topRadius, m_length, m_position, top, bottom, m_uResolution, m_vResolution, m_generateTexels, m_generateNormals, m_generateTangents, m_positions, m_texels, m_normals, m_indexBuffer, m_tangents, m_bitangents);
 	createBuffer();
 }
 
@@ -52,8 +52,7 @@ void MeshCylinder::setPrecision(int uResolution, int vResolution) {
 	m_vResolution = vResolution;
 }
 
-void MeshCylinder::BuildMesh(float baseRadius, float topRadius, float length, const Vector3f& position, int uResolution, int vResolution, bool generateTexels, bool generateNormals, bool generateTangents, std::vector<Vector3f>& positions, std::vector<Vector2f>& texels, std::vector<Vector3f>& normals, std::vector<unsigned int>& indexBuffer, std::vector<Vector3f>& tangents, std::vector<Vector3f>& bitangents) {
-
+void MeshCylinder::BuildMesh(float baseRadius, float topRadius, float length, const Vector3f& position, bool top, bool bottom, int uResolution, int vResolution, bool generateTexels, bool generateNormals, bool generateTangents, std::vector<Vector3f>& positions, std::vector<Vector2f>& texels, std::vector<Vector3f>& normals, std::vector<unsigned int>& indexBuffer, std::vector<Vector3f>& tangents, std::vector<Vector3f>& bitangents) {
 	float x, y, z;                                  // vertex position
 	float radius;                                   // radius for each stack
 
@@ -74,8 +73,8 @@ void MeshCylinder::BuildMesh(float baseRadius, float topRadius, float length, co
 			x = cos(sectorAngle);
 			z = sin(sectorAngle);
 			positions.push_back(Vector3f(x * radius, y, z * radius) + position);
-			
-			if(generateTexels)
+
+			if (generateTexels)
 				texels.push_back(Vector2f(1.0f - (float)j / vResolution, 1.0f - t));
 
 			if (generateNormals) {
@@ -90,35 +89,19 @@ void MeshCylinder::BuildMesh(float baseRadius, float topRadius, float length, co
 		}
 	}
 
-	// remember where the base.top vertices start
-	/*unsigned int baseVertexIndex = (unsigned int)positions.size();
+	unsigned int baseVertexIndex = 0u;
+	unsigned int topVertexIndex = 0u;
 
-	// put vertices of base of cylinder
-	y = -length * 0.5f;
+	if (bottom) {
+		// remember where the base.top vertices start
+		baseVertexIndex = (unsigned int)positions.size();
 
-	positions.push_back(Vector3f(0.0f, y, 0.0f) + position);
-	if (generateTexels)
-		texels.push_back(Vector2f(0.5f, 0.5f));
+		// put vertices of base of cylinder
+		y = -length * 0.5f;
 
-	if (generateNormals)
-		normals.push_back(Vector3f(0.0f, -1.0f, 0.0f));
-
-	if (generateTangents) {
-		tangents.push_back(Vector3f(0.0f, 0.0f, -1.0f));
-		bitangents.push_back(Vector3f(-1.0f, 0.0f, 0.0f));
-	}
-
-	float sectorStep = 2 * PI / vResolution;
-	float sectorAngle;  // radian
-
-	for (int i = 0; i < vResolution; ++i) {
-		sectorAngle = i * sectorStep;
-		x = cos(sectorAngle);
-		z = sin(sectorAngle);
-
-		positions.push_back(Vector3f(x * baseRadius, y, z * baseRadius) + position);
+		positions.push_back(Vector3f(0.0f, y, 0.0f) + position);
 		if (generateTexels)
-			texels.push_back(Vector2f(-x * 0.5f + 0.5f,  z * 0.5f + 0.5f));
+			texels.push_back(Vector2f(0.5f, 0.5f));
 
 		if (generateNormals)
 			normals.push_back(Vector3f(0.0f, -1.0f, 0.0f));
@@ -127,37 +110,39 @@ void MeshCylinder::BuildMesh(float baseRadius, float topRadius, float length, co
 			tangents.push_back(Vector3f(0.0f, 0.0f, -1.0f));
 			bitangents.push_back(Vector3f(-1.0f, 0.0f, 0.0f));
 		}
+
+		float sectorStep = 2 * PI / vResolution;
+		float sectorAngle;  // radian
+
+		for (int i = 0; i < vResolution; ++i) {
+			sectorAngle = i * sectorStep;
+			x = cos(sectorAngle);
+			z = sin(sectorAngle);
+
+			positions.push_back(Vector3f(x * baseRadius, y, z * baseRadius) + position);
+			if (generateTexels)
+				texels.push_back(Vector2f(-x * 0.5f + 0.5f, z * 0.5f + 0.5f));
+
+			if (generateNormals)
+				normals.push_back(Vector3f(0.0f, -1.0f, 0.0f));
+
+			if (generateTangents) {
+				tangents.push_back(Vector3f(0.0f, 0.0f, -1.0f));
+				bitangents.push_back(Vector3f(-1.0f, 0.0f, 0.0f));
+			}
+		}
 	}
 
-	// remember where the base vertices start
-	unsigned int topVertexIndex = (unsigned int)positions.size();
+	if (top) {
+		// remember where the base vertices start
+		topVertexIndex = (unsigned int)positions.size();
 
-	// put vertices of top of cylinder
-	y = length * 0.5f;
+		// put vertices of top of cylinder
+		y = length * 0.5f;
 
-	positions.push_back(Vector3f(0.0f, y, 0.0f) + position);
-	if (generateTexels)
-		texels.push_back(Vector2f(0.5f, 0.5f));
-
-	if (generateNormals)
-		normals.push_back(Vector3f(0.0f, 1.0f, 0.0f));
-
-	if (generateTangents) {
-		tangents.push_back(Vector3f(0.0f, 0.0f, -1.0f));
-		bitangents.push_back(Vector3f(1.0f, 0.0f, 0.0f));
-	}
-
-	sectorStep = 2 * PI / vResolution;
-	sectorAngle;  // radian
-
-	for (int i = 0; i < vResolution; ++i) {
-		sectorAngle = i * sectorStep;
-		x = cos(sectorAngle);
-		z = sin(sectorAngle);
-
-		positions.push_back(Vector3f(x * topRadius, y, z * topRadius) + position);
+		positions.push_back(Vector3f(0.0f, y, 0.0f) + position);
 		if (generateTexels)
-			texels.push_back(Vector2f(x * 0.5f + 0.5f, -z * 0.5f + 0.5f));
+			texels.push_back(Vector2f(0.5f, 0.5f));
 
 		if (generateNormals)
 			normals.push_back(Vector3f(0.0f, 1.0f, 0.0f));
@@ -166,8 +151,28 @@ void MeshCylinder::BuildMesh(float baseRadius, float topRadius, float length, co
 			tangents.push_back(Vector3f(0.0f, 0.0f, -1.0f));
 			bitangents.push_back(Vector3f(1.0f, 0.0f, 0.0f));
 		}
-	}*/
 
+		float sectorStep = 2 * PI / vResolution;
+		float sectorAngle;  // radian
+
+		for (int i = 0; i < vResolution; ++i) {
+			sectorAngle = i * sectorStep;
+			x = cos(sectorAngle);
+			z = sin(sectorAngle);
+
+			positions.push_back(Vector3f(x * topRadius, y, z * topRadius) + position);
+			if (generateTexels)
+				texels.push_back(Vector2f(x * 0.5f + 0.5f, -z * 0.5f + 0.5f));
+
+			if (generateNormals)
+				normals.push_back(Vector3f(0.0f, 1.0f, 0.0f));
+
+			if (generateTangents) {
+				tangents.push_back(Vector3f(0.0f, 0.0f, -1.0f));
+				bitangents.push_back(Vector3f(1.0f, 0.0f, 0.0f));
+			}
+		}
+	}
 	// put indices for sides
 	unsigned int k1, k2;
 	for (int i = 0; i < uResolution; ++i) {
@@ -181,28 +186,33 @@ void MeshCylinder::BuildMesh(float baseRadius, float topRadius, float length, co
 		}
 	}
 
-	// remember where the base indices start
-	/*unsigned int baseIndex = (unsigned int)indexBuffer.size();
+	if (bottom) {
+		// remember where the base indices start
+		unsigned int baseIndex = (unsigned int)indexBuffer.size();
 
-	// put indices for base
-	for (int i = 0, k = baseVertexIndex + 1; i < vResolution; ++i, ++k) {
-		if (i < (vResolution - 1)) {
-			indexBuffer.push_back(baseVertexIndex);	indexBuffer.push_back(k); indexBuffer.push_back(k + 1);
-		}else {
-			indexBuffer.push_back(baseVertexIndex);	indexBuffer.push_back(k); indexBuffer.push_back(baseVertexIndex + 1);
+		// put indices for base
+		for (int i = 0, k = baseVertexIndex + 1; i < vResolution; ++i, ++k) {
+			if (i < (vResolution - 1)) {
+				indexBuffer.push_back(baseVertexIndex);	indexBuffer.push_back(k); indexBuffer.push_back(k + 1);
+			}
+			else {
+				indexBuffer.push_back(baseVertexIndex);	indexBuffer.push_back(k); indexBuffer.push_back(baseVertexIndex + 1);
+			}
 		}
 	}
 
-	// remember where the base indices start
-	unsigned int topIndex = (unsigned int)indexBuffer.size();
+	if (top)
+		// remember where the base indices start
+		unsigned int topIndex = (unsigned int)indexBuffer.size();
 
-	for (int i = 0, k = topVertexIndex + 1; i < vResolution; ++i, ++k) {
+		for (int i = 0, k = topVertexIndex + 1; i < vResolution; ++i, ++k) {
 		if (i < (vResolution - 1)) {
 			indexBuffer.push_back(topVertexIndex); indexBuffer.push_back(k + 1); indexBuffer.push_back(k);
-		}else {
+		}
+		else {
 			indexBuffer.push_back(topVertexIndex); indexBuffer.push_back(topVertexIndex + 1); indexBuffer.push_back(k);
 		}
-	}*/
+	}
 }
 
 std::vector<Vector3f>& MeshCylinder::getPositions() {

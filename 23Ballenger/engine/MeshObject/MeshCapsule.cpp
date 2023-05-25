@@ -1,10 +1,10 @@
-#include "Capsule.h"
+#include "MeshCapsule.h"
 
-Capsule::Capsule(int uResolution, int vResolution) : Capsule(Vector3f(0.0f, 0.0f, 0.0f), 1.0f, 1.0f, true, true, false, uResolution, vResolution) { }
+MeshCapsule::MeshCapsule(int uResolution, int vResolution) : MeshCapsule(Vector3f(0.0f, 0.0f, 0.0f), 1.0f, 1.0f, true, true, false, uResolution, vResolution) { }
 
-Capsule::Capsule(bool generateTexels, bool generateNormals, bool generateTangents, int uResolution, int vResolution) : Capsule(Vector3f(0.0f, 0.0f, 0.0f), 1.0f, 1.0f, generateTexels, generateNormals, generateTangents, uResolution, vResolution) { }
+MeshCapsule::MeshCapsule(bool generateTexels, bool generateNormals, bool generateTangents, int uResolution, int vResolution) : MeshCapsule(Vector3f(0.0f, 0.0f, 0.0f), 1.0f, 1.0f, generateTexels, generateNormals, generateTangents, uResolution, vResolution) { }
 
-Capsule::Capsule(const Vector3f &position, float radius, float length, bool generateTexels, bool generateNormals, bool generateTangents, int uResolution, int vResolution) {
+MeshCapsule::MeshCapsule(const Vector3f &position, float radius, float length, bool generateTexels, bool generateNormals, bool generateTangents, int uResolution, int vResolution) {
 	
 	m_radius = radius;
 	m_length = length;
@@ -24,7 +24,7 @@ Capsule::Capsule(const Vector3f &position, float radius, float length, bool gene
 	BuildMesh(m_radius, m_length, m_position, m_uResolution, m_vResolution, m_generateTexels, m_generateNormals, m_generateTangents, m_positions, m_texels, m_normals, m_indexBuffer, m_tangents, m_bitangents);
 }
 
-Capsule::~Capsule() {
+MeshCapsule::~MeshCapsule() {
 	if (m_vao)
 		glDeleteVertexArrays(1, &m_vao);
 
@@ -47,12 +47,12 @@ Capsule::~Capsule() {
 		glDeleteBuffers(1, &m_vboInstances);
 }
 
-void Capsule::setPrecision(int uResolution, int vResolution) {
+void MeshCapsule::setPrecision(int uResolution, int vResolution) {
 	m_uResolution = uResolution;
 	m_vResolution = vResolution;
 }
 
-void Capsule::BuildMesh(float radius, float length, const Vector3f& position, int uResolution, int vResolution, bool generateTexels, bool generateNormals, bool generateTangents, std::vector<Vector3f>& positions, std::vector<Vector2f>& texels, std::vector<Vector3f>& normals, std::vector<unsigned int>& indexBuffer, std::vector<Vector3f>& tangents, std::vector<Vector3f>& bitangents) {
+void MeshCapsule::BuildMesh(float radius, float length, const Vector3f& position, int uResolution, int vResolution, bool generateTexels, bool generateNormals, bool generateTangents, std::vector<Vector3f>& positions, std::vector<Vector2f>& texels, std::vector<Vector3f>& normals, std::vector<unsigned int>& indexBuffer, std::vector<Vector3f>& tangents, std::vector<Vector3f>& bitangents) {
 
 	BuildHemisphere(radius, length, position + Vector3f(0.0f, length * 0.5f, 0.0f), true, uResolution, vResolution, generateTexels, generateNormals, generateTangents, positions, texels, normals, indexBuffer, tangents, bitangents);
 	if (length != 0)
@@ -62,7 +62,7 @@ void Capsule::BuildMesh(float radius, float length, const Vector3f& position, in
 
 }
 
-void Capsule::BuildHemisphere(float radius, float length, const Vector3f& position, bool north, int uResolution, int vResolution, bool generateTexels, bool generateNormals, bool generateTangents, std::vector<Vector3f>& positions, std::vector<Vector2f>& texels, std::vector<Vector3f>& normals, std::vector<unsigned int>& indexBuffer, std::vector<Vector3f>& tangents, std::vector<Vector3f>& bitangents) {
+void MeshCapsule::BuildHemisphere(float radius, float length, const Vector3f& position, bool north, int uResolution, int vResolution, bool generateTexels, bool generateNormals, bool generateTangents, std::vector<Vector3f>& positions, std::vector<Vector2f>& texels, std::vector<Vector3f>& normals, std::vector<unsigned int>& indexBuffer, std::vector<Vector3f>& tangents, std::vector<Vector3f>& bitangents) {
 
 	float uAngleStep = (2.0f * PI) / float(uResolution);
 	float vAngleStep = (0.5f * PI) / float(vResolution);
@@ -152,7 +152,7 @@ void Capsule::BuildHemisphere(float radius, float length, const Vector3f& positi
 	}
 }
 
-void Capsule::BuildCylinder(float radius, float length, const Vector3f& position, int uResolution, int vResolution, bool generateTexels, bool generateNormals, bool generateTangents, std::vector<Vector3f>& positions, std::vector<Vector2f>& texels, std::vector<Vector3f>& normals, std::vector<unsigned int>& indexBuffer, std::vector<Vector3f>& tangents, std::vector<Vector3f>& bitangents) {
+void MeshCapsule::BuildCylinder(float radius, float length, const Vector3f& position, int uResolution, int vResolution, bool generateTexels, bool generateNormals, bool generateTangents, std::vector<Vector3f>& positions, std::vector<Vector2f>& texels, std::vector<Vector3f>& normals, std::vector<unsigned int>& indexBuffer, std::vector<Vector3f>& tangents, std::vector<Vector3f>& bitangents) {
 	unsigned int baseIndex = positions.size();
 	float x, y, z;
 	
@@ -199,20 +199,20 @@ void Capsule::BuildCylinder(float radius, float length, const Vector3f& position
 	}
 }
 
-std::vector<Vector3f>& Capsule::getPositions() {
+std::vector<Vector3f>& MeshCapsule::getPositions() {
 	return m_positions;
 }
 
-std::vector<unsigned int>& Capsule::getIndexBuffer() {
+std::vector<unsigned int>& MeshCapsule::getIndexBuffer() {
 	return m_indexBuffer;
 }
 
 
-int Capsule::getNumberOfTriangles() {
+int MeshCapsule::getNumberOfTriangles() {
 	return m_drawCount / 3;
 }
 
-void Capsule::createBuffer() {
+void MeshCapsule::createBuffer() {
 	m_drawCount = m_indexBuffer.size();
 
 	unsigned int ibo;
@@ -284,13 +284,13 @@ void Capsule::createBuffer() {
 	m_bitangents.shrink_to_fit();
 }
 
-void Capsule::drawRaw() {
+void MeshCapsule::drawRaw() {
 	glBindVertexArray(m_vao);
 	glDrawElements(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
 }
 
-void Capsule::createInstancesStatic(const std::vector<Matrix4f>& modelMTX) {
+void MeshCapsule::createInstancesStatic(const std::vector<Matrix4f>& modelMTX) {
 	m_instances.clear();
 	m_instances.shrink_to_fit();
 	m_instances = modelMTX;
@@ -321,7 +321,7 @@ void Capsule::createInstancesStatic(const std::vector<Matrix4f>& modelMTX) {
 	glBindVertexArray(0);
 }
 
-void Capsule::addInstance(const Matrix4f& modelMTX) {
+void MeshCapsule::addInstance(const Matrix4f& modelMTX) {
 	m_instances.push_back(modelMTX);
 	m_instanceCount = m_instances.size();
 
@@ -354,7 +354,7 @@ void Capsule::addInstance(const Matrix4f& modelMTX) {
 	}
 }
 
-void Capsule::drawRawInstanced() {
+void MeshCapsule::drawRawInstanced() {
 	glBindVertexArray(m_vao);
 	glDrawElementsInstanced(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0, m_instanceCount);
 	glBindVertexArray(0);

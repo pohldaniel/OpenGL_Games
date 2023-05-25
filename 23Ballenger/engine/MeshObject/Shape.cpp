@@ -1,5 +1,5 @@
 #include "Shape.h"
-#include "Capsule.h"
+#include "MeshCapsule.h"
 #include "MeshTorus.h"
 #include "MeshSphere.h"
 #include "MeshSpiral.h"
@@ -12,7 +12,7 @@
 Shape::Shape() { }
 
 void Shape::buildCapsule(float radius, float length, const Vector3f& position, int uResolution, int vResolution, bool generateTexels, bool generateNormals, bool generateTangents) {
-	Capsule::BuildMesh(radius, length, position, uResolution, vResolution, generateTexels, generateNormals, generateTangents, m_positions, m_texels, m_normals, m_indexBuffer, m_tangents, m_bitangents);
+	MeshCapsule::BuildMesh(radius, length, position, uResolution, vResolution, generateTexels, generateNormals, generateTangents, m_positions, m_texels, m_normals, m_indexBuffer, m_tangents, m_bitangents);
 	createBuffer();
 }
 
@@ -31,8 +31,8 @@ void Shape::buildSpiral(float radius, float tubeRadius, float length, int numRot
 	createBuffer();
 }
 
-void Shape::buildCylinder(float baseRadius, float topRadius, float length, const Vector3f& position, int uResolution, int vResolution, bool generateTexels, bool generateNormals, bool generateTangents) {
-	MeshCylinder::BuildMesh(baseRadius, topRadius, length, position, uResolution, vResolution, generateTexels, generateNormals, generateTangents, m_positions, m_texels, m_normals, m_indexBuffer, m_tangents, m_bitangents);
+void Shape::buildCylinder(float baseRadius, float topRadius, float length, const Vector3f& position, bool top, bool bottom, int uResolution, int vResolution, bool generateTexels, bool generateNormals, bool generateTangents) {
+	MeshCylinder::BuildMesh(baseRadius, topRadius, length, position, top, bottom, uResolution, vResolution, generateTexels, generateNormals, generateTangents, m_positions, m_texels, m_normals, m_indexBuffer, m_tangents, m_bitangents);
 	createBuffer();
 }
 

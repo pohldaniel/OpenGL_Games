@@ -188,7 +188,7 @@
     <ClCompile Include="engine\input\MouseEventListener.cpp" />
     <ClCompile Include="engine\Line.cpp" />
     <ClCompile Include="engine\Material.cpp" />
-    <ClCompile Include="engine\MeshObject\Capsule.cpp" />
+    <ClCompile Include="engine\MeshObject\MeshCapsule.cpp" />
     <ClCompile Include="engine\MeshObject\MeshCube.cpp" />
     <ClCompile Include="engine\MeshObject\MeshCylinder.cpp" />
     <ClCompile Include="engine\MeshObject\MeshDisk.cpp" />
@@ -265,7 +265,7 @@
     <ClInclude Include="engine\input\MouseEventListener.h" />
     <ClInclude Include="engine\Line.h" />
     <ClInclude Include="engine\Material.h" />
-    <ClInclude Include="engine\MeshObject\Capsule.h" />
+    <ClInclude Include="engine\MeshObject\MeshCapsule.h" />
     <ClInclude Include="engine\MeshObject\MeshCube.h" />
     <ClInclude Include="engine\MeshObject\MeshCylinder.h" />
     <ClInclude Include="engine\MeshObject\MeshDisk.h" />

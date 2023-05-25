@@ -172,7 +172,7 @@ void Game::update() {
 		m_colors.push_back(i == respawn_id ? Vector4f(1.0f, 0.4f, 0.0f, 0.6f) : Vector4f(0.5f, 0.5f, 1.0f, 0.6f));
 		m_activate.push_back({ i == respawn_id, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false });
 	}
-
+	ang = fmod(ang + 2, 360);
 	if (pickedkey_id == -1){
 
 		for (unsigned int i = 0; i<target_keys.size(); i++){
@@ -198,19 +198,19 @@ void Game::update() {
 			//target_keys[pickedkey_id].Deploy();
 			target_keys[pickedkey_id].Deploy();
 			m_key.deploy(pickedkey_id, Vector3f(columns[pickedkey_id].GetHoleX(), columns[pickedkey_id].GetHoleY(), columns[pickedkey_id].GetHoleZ()), columns[pickedkey_id].GetYaw());
-			
 
 			float r = ENERGY_BALL_RADIUS / 2.0f;
 			int numrays = 6;
 
 			for (int j = 0; j<numrays; j++) {
 				float ang_rad = (ang + j*(360 / numrays))*(PI / 180);
-				m_line.addToBuffer(Vector3f(columns[pickedkey_id].GetX() + cos(ang_rad)*r, columns[pickedkey_id].GetY() + COLUMN_HEIGHT + ENERGY_BALL_RADIUS + sin(ang_rad)*r, columns[pickedkey_id].GetZ()), Vector3f(Portal.GetReceptorX(pickedkey_id), Portal.GetReceptorY(pickedkey_id), Portal.GetZ()));
+				m_line.addToBuffer(Vector3f(columns[pickedkey_id].GetX() , columns[pickedkey_id].GetY() + COLUMN_HEIGHT + ENERGY_BALL_RADIUS , columns[pickedkey_id].GetZ()), Vector3f(Portal.GetReceptorX(pickedkey_id), Portal.GetReceptorY(pickedkey_id), Portal.GetZ()));
 				colors.push_back(lineColors[pickedkey_id]);
 				colors.push_back(lineColors[pickedkey_id]);
+	
 			}
 			m_line.addVec4Attribute(colors);
-
+			m_line.addMat4Attribute(12u, 0u);
 			pickedkey_id = -1;
 			if (respawn_id) {
 				//Sound.Play(SOUND_SWISH);
@@ -233,6 +233,25 @@ void Game::update() {
 
 	m_vortex.update(m_dt);
 	m_key.update(m_dt, 1.0f);
+
+	if (m_line.isActive()) {
+
+		Vector3f center = Vector3f(columns[0].GetX(), columns[0].GetY() + COLUMN_HEIGHT + ENERGY_BALL_RADIUS, columns[0].GetZ());
+		Vector3f axis = Vector3f::Normalize(Vector3f(Portal.GetReceptorX(pickedkey_id), Portal.GetReceptorY(pickedkey_id), Portal.GetZ()) - center);
+
+		m_line.updateMat4Attribute({ Matrix4f::Translate(cosf((ang + 0 * 60.0f) * PI_ON_180) * r, sinf((ang + 0 * 60.0f) * PI_ON_180) * r, 0.0f) * Matrix4f::Rotate(axis, (ang + 0 * 60.0f) , center),
+									 Matrix4f::IDENTITY,
+									 Matrix4f::Translate(cosf((ang + 1 * 60.0f) * PI_ON_180) * r, sinf((ang + 1 * 60.0f) * PI_ON_180) * r, 0.0f) * Matrix4f::Rotate(axis, (ang + 1 * 60.0f) , center),
+									 Matrix4f::IDENTITY,
+									 Matrix4f::Translate(cosf((ang + 2 * 60.0f) * PI_ON_180) * r, sinf((ang + 2 * 60.0f) * PI_ON_180) * r, 0.0f) * Matrix4f::Rotate(axis, (ang + 2 * 60.0f) , center),
+									 Matrix4f::IDENTITY,
+									 Matrix4f::Translate(cosf((ang + 3 * 60.0f) * PI_ON_180) * r, sinf((ang + 3 * 60.0f) * PI_ON_180) * r, 0.0f) * Matrix4f::Rotate(axis, (ang + 3 * 60.0f) , center),
+									 Matrix4f::IDENTITY,
+									 Matrix4f::Translate(cosf((ang + 4 * 60.0f) * PI_ON_180) * r, sinf((ang + 4 * 60.0f) * PI_ON_180) * r, 0.0f) * Matrix4f::Rotate(axis, (ang + 4 * 60.0f) , center),
+									 Matrix4f::IDENTITY,
+									 Matrix4f::Translate(cosf((ang + 5 * 60.0f) * PI_ON_180) * r, sinf((ang + 5 * 60.0f) * PI_ON_180) * r, 0.0f) * Matrix4f::Rotate(axis, (ang + 5 * 60.0f) , center),
+									 Matrix4f::IDENTITY });
+	}
 }
 
 void Game::render() {

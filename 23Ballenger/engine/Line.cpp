@@ -25,6 +25,9 @@ void Line::cleanup() {
 	if (m_vboAdd1)
 		glDeleteBuffers(1, &m_vboAdd1);
 
+	if (m_vboAdd2)
+		glDeleteBuffers(1, &m_vboAdd2);
+
 	m_positions.clear();
 	m_positions.shrink_to_fit();
 	m_indexBuffer.clear();
@@ -93,9 +96,52 @@ void Line::addVec4Attribute(const std::vector<Vector4f>& values) {
 	}
 }
 
+void Line::addMat4Attribute(unsigned int length, unsigned int divisor, unsigned int usage) {
+	
+	if (m_vboAdd2) {
+		glBindBuffer(GL_ARRAY_BUFFER, m_vboAdd2);
+		glBufferData(GL_ARRAY_BUFFER, length * sizeof(float) * 4 * 4, NULL, usage);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+	} else {
+		glGenBuffers(1, &m_vboAdd2);
+
+		glBindVertexArray(m_vao);
+
+		glBindBuffer(GL_ARRAY_BUFFER, m_vboAdd2);
+		glBufferData(GL_ARRAY_BUFFER, length * sizeof(float) * 4 * 4, NULL, usage);
+
+		glEnableVertexAttribArray(10);
+		glEnableVertexAttribArray(11);
+		glEnableVertexAttribArray(12);
+		glEnableVertexAttribArray(13);
+		glVertexAttribPointer(10, 4, GL_FLOAT, GL_FALSE, sizeof(float) * 4 * 4, (void*)(0));
+		glVertexAttribPointer(11, 4, GL_FLOAT, GL_FALSE, sizeof(float) * 4 * 4, (void*)(sizeof(float) * 4));
+		glVertexAttribPointer(12, 4, GL_FLOAT, GL_FALSE, sizeof(float) * 4 * 4, (void*)(sizeof(float) * 8));
+		glVertexAttribPointer(13, 4, GL_FLOAT, GL_FALSE, sizeof(float) * 4 * 4, (void*)(sizeof(float) * 12));
+
+		glVertexAttribDivisor(10, divisor);
+		glVertexAttribDivisor(11, divisor);
+		glVertexAttribDivisor(12, divisor);
+		glVertexAttribDivisor(13, divisor);
+
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindVertexArray(0);
+	}
+}
+
+void Line::updateMat4Attribute(const std::vector<Matrix4f>& values) {
+	glBindBuffer(GL_ARRAY_BUFFER, m_vboAdd2);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, values.size() * sizeof(float) * 4 * 4, values[0][0]);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+}
+
 void Line::drawRaw() const {
 	if (m_drawCount == 0) return;
 	glBindVertexArray(m_vao);
 	glDrawElements(GL_LINES, m_drawCount, GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
+}
+
+bool Line::isActive() {
+	return m_vao != 0;
 }

@@ -12,7 +12,7 @@ public:
 
 	MeshCylinder(int uResolution = 10, int vResolution = 10);
 	MeshCylinder(bool generateTexels, bool generateNormals, bool generateTangents, int uResolution = 10, int vResolution = 10);
-	MeshCylinder(const Vector3f &position, float baseRadius, float topRadius, float length, bool generateTexels, bool generateNormals, bool generateTangents, int uResolution = 10, int vResolution = 10);
+	MeshCylinder(const Vector3f &position, float baseRadius, float topRadius, float length, bool top, bool bottom, bool generateTexels, bool generateNormals, bool generateTangents, int uResolution = 10, int vResolution = 10);
 	~MeshCylinder();
 
 	void drawRaw();
@@ -24,7 +24,7 @@ public:
 	std::vector<Vector3f>& getPositions();
 	std::vector<unsigned int>& getIndexBuffer();
 
-	static void BuildMesh(float baseRadius, float topRadius, float length, const Vector3f& position, int uResolution, int vResolution, bool generateTexels, bool generateNormals, bool generateTangents, std::vector<Vector3f>& positions, std::vector<Vector2f>& texels, std::vector<Vector3f>& normals, std::vector<unsigned int>& indexBuffer, std::vector<Vector3f>& tangents, std::vector<Vector3f>& bitangents);
+	static void BuildMesh(float baseRadius, float topRadius, float length, const Vector3f& position, bool top, bool bottom, int uResolution, int vResolution, bool generateTexels, bool generateNormals, bool generateTangents, std::vector<Vector3f>& positions, std::vector<Vector2f>& texels, std::vector<Vector3f>& normals, std::vector<unsigned int>& indexBuffer, std::vector<Vector3f>& tangents, std::vector<Vector3f>& bitangents);
 
 private:
 

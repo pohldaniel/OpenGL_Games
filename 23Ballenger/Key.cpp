@@ -122,11 +122,7 @@ void Key::update(const float dt, const float dist) {
 	const std::vector<Matrix4f>& instances = Globals::shapeManager.get("cylinder_key").getInstances();
 	for (int i = 0; i < instances.size(); i++) {
 		float y = instances[i][3][1];
-		if (dist / 100 < BEACON_MIN_RADIUS) {
-			m_mtxCylinder.push_back(Matrix4f::Scale(BEACON_MIN_RADIUS, BEACON_HEIGHT - y, BEACON_MIN_RADIUS));
-		}else {
-			m_mtxCylinder.push_back(Matrix4f::Scale(dist / 100, BEACON_HEIGHT - y, dist / 100));
-		}
+		m_mtxCylinder.push_back(dist / 100 < BEACON_MIN_RADIUS ? Matrix4f::Scale(BEACON_MIN_RADIUS, BEACON_HEIGHT - y, BEACON_MIN_RADIUS) : Matrix4f::Scale(dist / 100, BEACON_HEIGHT - y, dist / 100));		
 	}
 	Globals::shapeManager.get("cylinder_key").updateMat4Attribute(m_mtxCylinder);
 }

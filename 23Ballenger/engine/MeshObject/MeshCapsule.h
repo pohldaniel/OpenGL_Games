@@ -6,14 +6,14 @@
 
 #include "../Vector.h"
 
-class Capsule {
+class MeshCapsule {
 
 public:
 
-	Capsule(int uResolution = 20, int vResolution = 20);
-	Capsule(bool generateTexels, bool generateNormals, bool generateTangents, int uResolution = 20, int vResolution = 20);
-	Capsule(const Vector3f &position, float radius, float length, bool generateTexels, bool generateNormals, bool generateTangents, int uResolution = 20, int vResolution = 20);	
-	~Capsule();
+	MeshCapsule(int uResolution = 20, int vResolution = 20);
+	MeshCapsule(bool generateTexels, bool generateNormals, bool generateTangents, int uResolution = 20, int vResolution = 20);
+	MeshCapsule(const Vector3f &position, float radius, float length, bool generateTexels, bool generateNormals, bool generateTangents, int uResolution = 20, int vResolution = 20);
+	~MeshCapsule();
 	
 	void drawRaw();
 	void drawRawInstanced();
