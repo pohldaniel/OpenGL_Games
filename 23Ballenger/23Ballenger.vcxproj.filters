@@ -57,9 +57,6 @@
     <ClCompile Include="engine\input\EventDispatcher.cpp">
       <Filter>engine\input</Filter>
     </ClCompile>
-    <ClCompile Include="engine\input\KeyBoard.cpp">
-      <Filter>engine\input</Filter>
-    </ClCompile>
     <ClCompile Include="engine\input\KeyboardEventListener.cpp">
       <Filter>engine\input</Filter>
     </ClCompile>
@@ -192,37 +189,10 @@
     <ClCompile Include="engine\sound\SoundDevice.cpp">
       <Filter>engine\sound</Filter>
     </ClCompile>
-    <ClCompile Include="cCamera.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="cPlayer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="cData.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="cModel.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="cShader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="cScene.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="cTerrain.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="cTexture.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="cBicho.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="cLava.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="cSkybox.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Physics.cpp">
@@ -258,6 +228,9 @@
     <ClCompile Include="Player.cpp">
       <Filter>Source Files\Entities</Filter>
     </ClCompile>
+    <ClCompile Include="engine\input\Keyboard.cpp">
+      <Filter>engine\input</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h">
@@ -273,9 +246,6 @@
       <Filter>engine\input</Filter>
     </ClInclude>
     <ClInclude Include="engine\input\KeyboardEventListener.h">
-      <Filter>engine\input</Filter>
-    </ClInclude>
-    <ClInclude Include="engine\input\KeyBorad.h">
       <Filter>engine\input</Filter>
     </ClInclude>
     <ClInclude Include="engine\input\Mouse.h">
@@ -413,40 +383,13 @@
     <ClInclude Include="engine\sound\SoundDevice.h">
       <Filter>engine\sound</Filter>
     </ClInclude>
-    <ClInclude Include="cCamera.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="cPlayer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="cData.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="cModel.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="cShader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Globals.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="cScene.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="cTerrain.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="cTexture.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="cBicho.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="cLava.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="cSkybox.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Physics.h">
@@ -481,6 +424,9 @@
     </ClInclude>
     <ClInclude Include="Player.h">
       <Filter>Source Files\Entities</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\input\Keyboard.h">
+      <Filter>engine\input</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

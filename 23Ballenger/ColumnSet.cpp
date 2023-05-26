@@ -67,7 +67,7 @@ const std::vector<ColumnSet::State>& ColumnSet::fromInstances(const std::vector<
 
 bool ColumnSet::insideGatheringArea(unsigned short index) {
 
-	float yaw = m_states[index].yaw <= -180.0f ? -yaw : yaw;
+	float yaw = m_states[index].yaw <= -180.0f ? -m_states[index].yaw : m_states[index].yaw;
 	const Vector3f& pos = m_states[index].position;
 
 	if (yaw == -90)
