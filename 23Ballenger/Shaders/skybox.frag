@@ -1,15 +1,11 @@
 #version 440 core
 
-out vec4 FragColor;
-in vec3 skyboxTexCoord;
+out vec4 color;
+in vec3 texCoord;
 
-uniform samplerCube cubemap;
+uniform samplerCube u_texture;
 
-uniform float brightness;
-uniform float darkness;
+void main() {
+    color = texture(u_texture, texCoord);
 
-void main()
-{
-    FragColor = texture(cubemap, skyboxTexCoord);
-	FragColor.rgb = (FragColor.rgb - (0.5f + darkness)) * (1.0f + 0.3f) + 0.5f - brightness;
 } 

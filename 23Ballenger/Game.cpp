@@ -201,7 +201,7 @@ void Game::render() {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	m_skybox.draw(m_camera);
-	m_lava.draw(m_camera);
+	
 
 	auto shader = Globals::shaderManager.getAssetPointer("terrain_new");
 	shader->use();
@@ -250,7 +250,7 @@ void Game::render() {
 	}
 
 	m_respawnPointSet.draw(m_camera);
-	
+	m_lava.draw(m_camera);
 	if (m_drawUi)
 		renderUi();
 }
@@ -446,23 +446,18 @@ bool Game::Init(int lvl) {
 	m_portal.init(Terrain);
 
 	m_skybox = RenderableObject("cube", "skybox", "skybox");
-	m_skybox.setScale(750.0f);
 	m_skybox.setDrawFunction([&](const Camera& camera) {
 		if (m_skybox.isDisabled()) return;
-
-		glDisable(GL_DEPTH_TEST);
+		glDepthFunc(GL_LEQUAL);
 		glFrontFace(GL_CW);
 
 		auto shader = Globals::shaderManager.getAssetPointer(m_skybox.getShader());
 		Matrix4f view = camera.getViewMatrix();
 		view[3][0] = 0.0f; view[3][1] = 0.0f; view[3][2] = 0.0f;
 		shader->use();
-		shader->loadMatrix("projection", camera.getPerspectiveMatrix());
-		shader->loadMatrix("view", view);
-		shader->loadMatrix("model", m_skybox.getTransformationSO());
-		shader->loadVector("lightPos", Vector3f(0.0f, 0.0f, 0.0f));
-		shader->loadVector("viewPos", camera.getPosition());
-		shader->loadInt("cubemap", 0);
+		shader->loadMatrix("u_projection", camera.getPerspectiveMatrix());
+		shader->loadMatrix("u_view", view);
+		shader->loadInt("u_texture", 0);
 
 		Globals::textureManager.get(m_skybox.getTexture()).bind(0);
 		Globals::shapeManager.get(m_skybox.getShape()).drawRaw();
@@ -472,7 +467,7 @@ bool Game::Init(int lvl) {
 		shader->unuse();
 
 		glFrontFace(GL_CCW);
-		glEnable(GL_DEPTH_TEST);
+		glDepthFunc(GL_LESS);
 	});
 
 	return res;

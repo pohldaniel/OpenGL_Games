@@ -38,6 +38,7 @@ public:
 	const Matrix4f &getTransformationOP();
 	const Matrix4f &getTransformationO();
 	const Matrix4f &getTransformationP();
+	const Matrix4f &getTransformationS();
 
 	static const Matrix4f &GetTransformation();
 

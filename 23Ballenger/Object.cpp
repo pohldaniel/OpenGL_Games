@@ -119,6 +119,11 @@ const Matrix4f &Object::getTransformationO() {
 	return Transformation;
 }
 
+const Matrix4f &Object::getTransformationS() {
+	Transformation = Matrix4f::Scale(m_scale);
+	return Transformation;
+}
+
 const Matrix4f &Object::GetTransformation() {
 	return Transformation;
 }

@@ -40,6 +40,9 @@
     <Filter Include="engine\sound">
       <UniqueIdentifier>{4b818f49-1b4c-471f-8ddc-39d6667ee8c0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Entities">
+      <UniqueIdentifier>{f2b43dfb-d13d-4f54-b799-e92408c3b2f0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -251,6 +254,9 @@
     </ClCompile>
     <ClCompile Include="Portal.cpp">
       <Filter>Source Files\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="Player.cpp">
+      <Filter>Source Files\Entities</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -472,6 +478,9 @@
     </ClInclude>
     <ClInclude Include="Portal.h">
       <Filter>Source Files\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="Player.h">
+      <Filter>Source Files\Entities</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

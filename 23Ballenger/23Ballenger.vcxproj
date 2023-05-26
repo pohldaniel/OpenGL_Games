@@ -214,6 +214,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Object.cpp" />
     <ClCompile Include="Physics.cpp" />
+    <ClCompile Include="Player.cpp" />
     <ClCompile Include="Portal.cpp" />
     <ClCompile Include="RaySet.cpp" />
     <ClCompile Include="RenderableObject.cpp" />
@@ -293,6 +294,7 @@
     <ClInclude Include="Miniball\Miniball.h" />
     <ClInclude Include="Object.h" />
     <ClInclude Include="Physics.h" />
+    <ClInclude Include="Player.h" />
     <ClInclude Include="Portal.h" />
     <ClInclude Include="RaySet.h" />
     <ClInclude Include="RenderableObject.h" />
