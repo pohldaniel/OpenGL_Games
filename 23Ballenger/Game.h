@@ -10,12 +10,12 @@
 #include "CharacterController.h"
 
 #include "cPlayer.h"
-#include "cRespawnPoint.h"
 #include "cColumn.h"
 #include "cPortal.h"
 
 #include "KeySet.h"
 #include "RaySet.h"
+#include "RespawnPointSet.h"
 
 #define GRAVITY 0.015f
 
@@ -48,15 +48,13 @@ public:
 	bool m_useThirdCamera = false;
 
 	bool Init(int lvl);
-	std::vector<Vector4f> m_colors;
-	std::vector<std::array<bool, 16>> m_activate;
+
 
 private:
 
 	int level, state, respawn_id, pickedkey_id;
 	bool portal_activated;
 	float ang;
-	std::vector<cRespawnPoint> respawn_points;
 
 	std::vector<cColumn> columns;
 	cPortal Portal;
@@ -77,9 +75,7 @@ private:
 	RenderableObject m_sphere;
 	RenderableObject m_skybox;
 	RenderableObject m_lava;
-	RenderableObject m_respawnPoint;
-	RenderableObject m_cylinder;
-	RenderableObject m_disk;
+
 	RenderableObject m_column;
 	RenderableObject m_portal;
 	RenderableObject m_energyBallCl;
@@ -88,6 +84,7 @@ private:
 
 	KeySet m_keySet;
 	RaySet m_raySet;
+	RespawnPointSet m_respawnPointSet;
 
 	float m_offsetDistance = 10.0f;
 	CharacterController *m_characterController;

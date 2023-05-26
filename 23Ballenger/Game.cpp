@@ -7,7 +7,7 @@
 #include "Application.h"
 #include "Constants.h"
 
-Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) , m_keySet(m_sphere.getPosition()) , m_raySet(Portal) {
+Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_keySet(m_sphere.getPosition()), m_raySet(Portal), m_respawnPointSet(m_sphere.getPosition()) {
 	Application::SetCursorIcon(IDC_ARROW);
 	EventDispatcher::AddKeyboardListener(this);
 	EventDispatcher::AddMouseListener(this);
@@ -152,25 +152,7 @@ void Game::update() {
 	Coord P; P.x = m_playerPos[0]; P.y = m_playerPos[1]; P.z = m_playerPos[2];
 	float r = RADIUS;
 
-	//comprueba si el player entra en algun Respawn Point
-	float cr = CIRCLE_RADIUS, ah = AURA_HEIGHT;
-	for (unsigned int i = 0; i<respawn_points.size(); i++){
-		Coord RP; RP.x = respawn_points[i].GetX(); RP.y = respawn_points[i].GetY(); RP.z = respawn_points[i].GetZ();
-		if (sqrt((P.x - RP.x)*(P.x - RP.x) + (P.y - RP.y)*(P.y - RP.y) + (P.z - RP.z)*(P.z - RP.z)) <= RADIUS + CIRCLE_RADIUS){
-			//if (respawn_id != i) Sound.Play(SOUND_SWISH);
-			respawn_id = i;
-		}
-	}
-
-	m_colors.clear();
-	m_activate.clear();
-
-	//1. sizeof(bool) = 1 --> we have a padwidth of 16 to match the std 140 layout
-	//2. I highly recomand to use the fourth componente of color and set the 0.6 inside the shader insteed of passing a second bool array
-	for (unsigned int i = 0; i<respawn_points.size(); i++) {
-		m_colors.push_back(i == respawn_id ? Vector4f(1.0f, 0.4f, 0.0f, 0.6f) : Vector4f(0.5f, 0.5f, 1.0f, 0.6f));
-		m_activate.push_back({ i == respawn_id, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false });
-	}
+	
 
 	ang = fmod(ang + 2, 360);
 	if (pickedkey_id == -1){
@@ -203,18 +185,11 @@ void Game::update() {
 		}
 	}
 
-	glBindBuffer(GL_UNIFORM_BUFFER, Globals::colorUbo);
-	glBufferSubData(GL_UNIFORM_BUFFER, 0, 128, &m_colors[0]);
-	glBindBuffer(GL_UNIFORM_BUFFER, 0);
-
-	glBindBuffer(GL_UNIFORM_BUFFER, Globals::activateUbo);
-	glBufferSubData(GL_UNIFORM_BUFFER, 0, 128, &m_activate[0]);
-	glBindBuffer(GL_UNIFORM_BUFFER, 0);
-
+	
 	m_vortex.update(m_dt);
 	m_keySet.update(m_dt);
 	m_raySet.update(m_dt, columns);
-	
+	m_respawnPointSet.update(m_dt);
 }
 
 void Game::render() {
@@ -284,18 +259,8 @@ void Game::render() {
 		m_sphere.draw(m_camera);
 	}
 
-	glEnable(GL_BLEND);
-	m_respawnPoint.draw(m_camera);
-
-	glDepthMask(GL_FALSE);
-	glDisable(GL_CULL_FACE);
-	m_cylinder.draw(m_camera);
-	m_disk.draw(m_camera);
-
-	glEnable(GL_CULL_FACE);
-	glDepthMask(GL_TRUE);
-	glDisable(GL_BLEND);
-
+	m_respawnPointSet.draw(m_camera);
+	
 	if (m_drawUi)
 		renderUi();
 }
@@ -468,24 +433,6 @@ bool Game::Init(int lvl) {
 	//Portal initialization
 	Portal.SetPos(TERRAIN_SIZE / 2, Terrain.GetHeight(TERRAIN_SIZE / 2, TERRAIN_SIZE / 2 + 32), TERRAIN_SIZE / 2 + 32);
 
-	//respawn points initialization
-	cRespawnPoint rp;
-	rp.SetPos(TERRAIN_SIZE / 2, Terrain.GetHeight(TERRAIN_SIZE / 2, TERRAIN_SIZE / 2), TERRAIN_SIZE / 2);
-	respawn_points.push_back(rp);
-	rp.SetPos(256, Terrain.GetHeight(256, 160), 160);
-	respawn_points.push_back(rp);
-	rp.SetPos(840, Terrain.GetHeight(840, 184), 184);
-	respawn_points.push_back(rp);
-	rp.SetPos(552, Terrain.GetHeight(552, 760), 760);
-	respawn_points.push_back(rp);
-	rp.SetPos(791, Terrain.GetHeight(791, 850), 850);
-	respawn_points.push_back(rp);
-	rp.SetPos(152, Terrain.GetHeight(152, 832), 832);
-	respawn_points.push_back(rp);
-	rp.SetPos(448, Terrain.GetHeight(448, 944), 944);
-	respawn_points.push_back(rp);
-	rp.SetPos(816, Terrain.GetHeight(816, 816), 816);
-	respawn_points.push_back(rp);
 
 	//Sound.Play(SOUND_AMBIENT);
 	
@@ -523,75 +470,8 @@ bool Game::Init(int lvl) {
 
 	m_lava.setPosition(0.0f, 2.5f, 0.0f);
 
-	Globals::shapeManager.get("quad_rp").addInstance(Matrix4f::Translate(TERRAIN_SIZE / 2, Terrain.GetHeight(TERRAIN_SIZE / 2, TERRAIN_SIZE / 2), TERRAIN_SIZE / 2) * Matrix4f::Scale(CIRCLE_RADIUS, CIRCLE_RADIUS, CIRCLE_RADIUS));
-	Globals::shapeManager.get("quad_rp").addInstance(Matrix4f::Translate(256.0f, Terrain.GetHeight(256.0f, 160.0f), 160.0f) * Matrix4f::Scale(CIRCLE_RADIUS, CIRCLE_RADIUS, CIRCLE_RADIUS));
-	Globals::shapeManager.get("quad_rp").addInstance(Matrix4f::Translate(840.0f, Terrain.GetHeight(840.0f, 184.0f), 184.0f) * Matrix4f::Scale(CIRCLE_RADIUS, CIRCLE_RADIUS, CIRCLE_RADIUS));
-	Globals::shapeManager.get("quad_rp").addInstance(Matrix4f::Translate(552.0f, Terrain.GetHeight(552.0f, 760.0f), 760.0f) * Matrix4f::Scale(CIRCLE_RADIUS, CIRCLE_RADIUS, CIRCLE_RADIUS));
-	Globals::shapeManager.get("quad_rp").addInstance(Matrix4f::Translate(791.0f, Terrain.GetHeight(791.0f, 850.0f), 850.0f) * Matrix4f::Scale(CIRCLE_RADIUS, CIRCLE_RADIUS, CIRCLE_RADIUS));
-	Globals::shapeManager.get("quad_rp").addInstance(Matrix4f::Translate(152.0f, Terrain.GetHeight(152.0f, 832.0f), 832.0f) * Matrix4f::Scale(CIRCLE_RADIUS, CIRCLE_RADIUS, CIRCLE_RADIUS));
-	Globals::shapeManager.get("quad_rp").addInstance(Matrix4f::Translate(448.0f, Terrain.GetHeight(448.0f, 944.0f), 944.0f) * Matrix4f::Scale(CIRCLE_RADIUS, CIRCLE_RADIUS, CIRCLE_RADIUS));
-	Globals::shapeManager.get("quad_rp").addInstance(Matrix4f::Translate(816.0f, Terrain.GetHeight(816.0f, 816.0f), 816.0f) * Matrix4f::Scale(CIRCLE_RADIUS, CIRCLE_RADIUS, CIRCLE_RADIUS));
-
-	m_respawnPoint = RenderableObject("quad_rp", "respawn", "circle");
-	m_respawnPoint.setDrawFunction([&](const Camera& camera) {
-		if (m_respawnPoint.isDisabled()) return;
-
-		auto shader = Globals::shaderManager.getAssetPointer(m_respawnPoint.getShader());
-		shader->use();
-		shader->loadMatrix("u_projection", camera.getPerspectiveMatrix());
-		shader->loadMatrix("u_view", camera.getViewMatrix());
-		shader->loadMatrix("u_normal", Matrix4f::GetNormalMatrix(camera.getViewMatrix()));
-		Globals::spritesheetManager.getAssetPointer(m_respawnPoint.getTexture())->bind(0);
-		Globals::shapeManager.get(m_respawnPoint.getShape()).drawRawInstanced();
-		shader->unuse();
-	});
-
-	Globals::shapeManager.get("cylinder").addInstance(Matrix4f::Translate(TERRAIN_SIZE / 2, Terrain.GetHeight(TERRAIN_SIZE / 2, TERRAIN_SIZE / 2), TERRAIN_SIZE / 2));
-	Globals::shapeManager.get("cylinder").addInstance(Matrix4f::Translate(256.0f, Terrain.GetHeight(256.0f, 160.0f), 160.0f));
-	Globals::shapeManager.get("cylinder").addInstance(Matrix4f::Translate(840.0f, Terrain.GetHeight(840.0f, 184.0f), 184.0f));
-	Globals::shapeManager.get("cylinder").addInstance(Matrix4f::Translate(552.0f, Terrain.GetHeight(552.0f, 760.0f), 760.0f));
-	Globals::shapeManager.get("cylinder").addInstance(Matrix4f::Translate(791.0f, Terrain.GetHeight(791.0f, 850.0f), 850.0f));
-	Globals::shapeManager.get("cylinder").addInstance(Matrix4f::Translate(152.0f, Terrain.GetHeight(152.0f, 832.0f), 832.0f));
-	Globals::shapeManager.get("cylinder").addInstance(Matrix4f::Translate(448.0f, Terrain.GetHeight(448.0f, 944.0f), 944.0f));
-	Globals::shapeManager.get("cylinder").addInstance(Matrix4f::Translate(816.0f, Terrain.GetHeight(816.0f, 816.0f), 816.0f));
-
-	m_cylinder = RenderableObject("cylinder", "cylinder", "null");
-	m_cylinder.setDrawFunction([&](const Camera& camera) {
-		if (m_cylinder.isDisabled()) return;
-
-		auto shader = Globals::shaderManager.getAssetPointer(m_cylinder.getShader());
-		shader->use();
-		shader->loadMatrix("u_projection", camera.getPerspectiveMatrix());
-		shader->loadMatrix("u_view", camera.getViewMatrix());
-		shader->loadMatrix("u_normal", Matrix4f::GetNormalMatrix(camera.getViewMatrix()));
-		shader->loadFloat("hmax", 3.0f);
-		Globals::textureManager.get(m_cylinder.getTexture()).bind(0);
-		Globals::shapeManager.get(m_cylinder.getShape()).drawRawInstanced();
-		shader->unuse();
-	});
-
-	Globals::shapeManager.get("disk").addInstance(Matrix4f::Translate(TERRAIN_SIZE / 2, Terrain.GetHeight(TERRAIN_SIZE / 2, TERRAIN_SIZE / 2), TERRAIN_SIZE / 2));
-	Globals::shapeManager.get("disk").addInstance(Matrix4f::Translate(256.0f, Terrain.GetHeight(256.0f, 160.0f), 160.0f));
-	Globals::shapeManager.get("disk").addInstance(Matrix4f::Translate(840.0f, Terrain.GetHeight(840.0f, 184.0f), 184.0f));
-	Globals::shapeManager.get("disk").addInstance(Matrix4f::Translate(552.0f, Terrain.GetHeight(552.0f, 760.0f), 760.0f));
-	Globals::shapeManager.get("disk").addInstance(Matrix4f::Translate(791.0f, Terrain.GetHeight(791.0f, 850.0f), 850.0f));
-	Globals::shapeManager.get("disk").addInstance(Matrix4f::Translate(152.0f, Terrain.GetHeight(152.0f, 832.0f), 832.0f));
-	Globals::shapeManager.get("disk").addInstance(Matrix4f::Translate(448.0f, Terrain.GetHeight(448.0f, 944.0f), 944.0f));
-	Globals::shapeManager.get("disk").addInstance(Matrix4f::Translate(816.0f, Terrain.GetHeight(816.0f, 816.0f), 816.0f));
-
-	m_disk = RenderableObject("disk", "disk", "null");
-	m_disk.setDrawFunction([&](const Camera& camera) {
-		if (m_disk.isDisabled()) return;
-		auto shader = Globals::shaderManager.getAssetPointer(m_disk.getShader());
-		shader->use();
-		shader->loadMatrix("u_projection", camera.getPerspectiveMatrix());
-		shader->loadMatrix("u_view", camera.getViewMatrix());
-		Globals::shapeManager.get(m_disk.getShape()).drawRawInstanced();
-		shader->unuse();
-
-	});
-
 	m_keySet.init(Terrain);
+	m_respawnPointSet.init(Terrain);
 
 	Globals::shapeManager.get("column").addInstance(Matrix4f::Translate(TERRAIN_SIZE / 2 + 18.0f, Terrain.GetHeight(TERRAIN_SIZE / 2 + 18.0f, TERRAIN_SIZE / 2 + 8), TERRAIN_SIZE / 2 + 8) * Matrix4f::Rotate(Vector3f(0.0f, 1.0f, 0.0f), 90.0f));
 	Globals::shapeManager.get("column").addInstance(Matrix4f::Translate(TERRAIN_SIZE / 2 + 14.0f, Terrain.GetHeight(TERRAIN_SIZE / 2 + 14.0f, TERRAIN_SIZE / 2 - 8), TERRAIN_SIZE / 2 - 8)* Matrix4f::Rotate(Vector3f(0.0f, 1.0f, 0.0f), 90.0f));

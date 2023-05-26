@@ -201,9 +201,6 @@
     <ClCompile Include="cPortal.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="cRespawnPoint.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="cData.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -250,6 +247,9 @@
       <Filter>Source Files\Objects</Filter>
     </ClCompile>
     <ClCompile Include="RaySet.cpp">
+      <Filter>Source Files\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="RespawnPointSet.cpp">
       <Filter>Source Files\Objects</Filter>
     </ClCompile>
   </ItemGroup>
@@ -416,9 +416,6 @@
     <ClInclude Include="cPortal.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="cRespawnPoint.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="cColumn.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -471,6 +468,9 @@
       <Filter>Source Files\Objects</Filter>
     </ClInclude>
     <ClInclude Include="RaySet.h">
+      <Filter>Source Files\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="RespawnPointSet.h">
       <Filter>Source Files\Objects</Filter>
     </ClInclude>
   </ItemGroup>

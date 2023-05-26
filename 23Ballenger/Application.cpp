@@ -584,7 +584,7 @@ void Application::loadAssets() {
 	Globals::shapeManager.buildCube("cube", Vector3f(-1.0f, -1.0f, -1.0f), Vector3f(2.0f, 2.0f, 2.0f), 1, 1, false, false, false);
 	Globals::shapeManager.buildSphere("sphere", 0.5f * SCALE, Vector3f(0.0f, 0.0f, 0.0f), 16, 16, true, true, false);
 	Globals::shapeManager.buildQuadXZ("quad_lava", Vector3f(0.0f, 0.0f, 0.0f), Vector2f(1024.0f, 1024.0f), 1, 1, true, true, false);
-	Globals::shapeManager.buildQuadXZ("quad_rp", Vector3f(-1.0f, 0.05f, -1.0f), Vector2f(2.0f, 2.0f), 1, 1, true, true, false);
+	Globals::shapeManager.buildQuadXZ("quad_rp", Vector3f(-2.0f, 0.05f, -2.0f), Vector2f(4.0f, 4.0f), 1, 1, true, true, false);
 	Globals::shapeManager.buildQuadXY("vortex", Vector3f(-1.0f, -1.0f, 0.0f), Vector2f(2.0f, 2.0f), 1, 1, true, true, false);
 	Globals::shapeManager.buildCylinder("cylinder", 2.0f, 2.0f, 3.0f, Vector3f(0.0f, 1.6f, 0.0f), false, false, 16, 16, false, true, false);
 	Globals::shapeManager.buildDiskXZ("disk", 2.0f, Vector3f(0.0f, 0.11f, 0.0f), 16, 16, false, false, false);
@@ -596,24 +596,6 @@ void Application::loadAssets() {
 	Globals::shapeManager.buildSphere("sphere_cl", 1.0f, Vector3f(0.0f, 8.0f, 0.0f), 32, 32, false, true, false);
 	Globals::shapeManager.buildSphere("sphere_portal", 0.2f, Vector3f(512.0f, 13.75f, 544.0f), 16, 16, false, true, false);
 
-	glGenBuffers(1, &Globals::colorUbo);
-	glBindBuffer(GL_UNIFORM_BUFFER, Globals::colorUbo);
-	glBufferData(GL_UNIFORM_BUFFER, 128, NULL, GL_STATIC_DRAW);
-	glBindBufferRange(GL_UNIFORM_BUFFER, Globals::colorBinding, Globals::colorUbo, 0, 128);
-	glBindBuffer(GL_UNIFORM_BUFFER, 0);
-
-	glGenBuffers(1, &Globals::activateUbo);
-	glBindBuffer(GL_UNIFORM_BUFFER, Globals::activateUbo);
-	glBufferData(GL_UNIFORM_BUFFER, 128, NULL, GL_STATIC_DRAW);
-	glBindBufferRange(GL_UNIFORM_BUFFER, Globals::activateBinding, Globals::activateUbo, 0, 128);
-	glBindBuffer(GL_UNIFORM_BUFFER, 0);
-
-	//not neccessary: The block binding indices can be set directly from the shader:
-	//layout(std140, binding = 0) uniform u_color {
-	//	vec4 color[8];
-	//};
-	//auto shader = Globals::shaderManager.getAssetPointer("instance");
-	//glUniformBlockBinding(shader->m_program, glGetUniformBlockIndex(shader->m_program, "u_color"), Globals::colorBinding);
-	//glUniformBlockBinding(shader->m_program, glGetUniformBlockIndex(shader->m_program, "u_activate"), Globals::activeBinding);
+	
 	
 }

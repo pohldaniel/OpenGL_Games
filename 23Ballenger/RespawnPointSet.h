@@ -1,0 +1,43 @@
+#pragma once
+
+#include "engine/Camera.h"
+#include "engine/Line.h"
+#include "RenderableObject.h"
+
+#include "cColumn.h"
+#include "cPortal.h"
+
+#define CIRCLE_RADIUS 2.0f
+#define AURA_HEIGHT 3.0f
+#define HEIGHT_OFFSET 0.05f
+#define RADIUS   0.5f
+
+class cTerrain;
+
+class RespawnPointSet : public RenderableObject {
+
+	struct State {
+		Vector3f position;
+	};
+
+public:
+
+	RespawnPointSet(const Vector3f& playerPos);
+	~RespawnPointSet();
+	void init(const cTerrain& terrain);
+	void draw(const Camera& camera) override;
+	void update(const float dt) override;
+	
+
+	unsigned short m_respawnId;
+	const Vector3f& m_playerPos;
+
+	std::vector<Vector4f> m_colors;
+	std::vector<std::array<bool, 16>> m_activate;
+	std::vector<State> m_states;
+
+private:
+
+	const std::vector<RespawnPointSet::State>& fromInstances(const std::vector<Matrix4f>& instances);
+	void updateUbo();
+};

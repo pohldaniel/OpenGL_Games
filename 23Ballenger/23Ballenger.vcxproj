@@ -164,7 +164,6 @@
     <ClCompile Include="cModel.cpp" />
     <ClCompile Include="cPlayer.cpp" />
     <ClCompile Include="cPortal.cpp" />
-    <ClCompile Include="cRespawnPoint.cpp" />
     <ClCompile Include="cScene.cpp" />
     <ClCompile Include="cShader.cpp" />
     <ClCompile Include="cSkybox.cpp" />
@@ -218,6 +217,7 @@
     <ClCompile Include="Physics.cpp" />
     <ClCompile Include="RaySet.cpp" />
     <ClCompile Include="RenderableObject.cpp" />
+    <ClCompile Include="RespawnPointSet.cpp" />
     <ClCompile Include="ShapeInterface.cpp" />
     <ClCompile Include="soil2\image_DXT.c" />
     <ClCompile Include="soil2\image_helper.c" />
@@ -238,7 +238,6 @@
     <ClInclude Include="convhull\convhull_3d.h" />
     <ClInclude Include="cPlayer.h" />
     <ClInclude Include="cPortal.h" />
-    <ClInclude Include="cRespawnPoint.h" />
     <ClInclude Include="cScene.h" />
     <ClInclude Include="cShader.h" />
     <ClInclude Include="cSkybox.h" />
@@ -297,6 +296,7 @@
     <ClInclude Include="Physics.h" />
     <ClInclude Include="RaySet.h" />
     <ClInclude Include="RenderableObject.h" />
+    <ClInclude Include="RespawnPointSet.h" />
     <ClInclude Include="ShapeInterface.h" />
     <ClInclude Include="StateMachine.h" />
   </ItemGroup>
