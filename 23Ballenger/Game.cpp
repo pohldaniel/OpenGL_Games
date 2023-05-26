@@ -7,7 +7,7 @@
 #include "Application.h"
 #include "Constants.h"
 
-Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_keySet(m_sphere.getPosition()), m_raySet(Portal), m_respawnPointSet(m_sphere.getPosition()), m_columnSet(m_sphere.getPosition()) {
+Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_keySet(m_sphere.getPosition()), m_raySet(), m_respawnPointSet(m_sphere.getPosition()), m_columnSet(m_sphere.getPosition()) {
 	Application::SetCursorIcon(IDC_ARROW);
 	EventDispatcher::AddKeyboardListener(this);
 	EventDispatcher::AddMouseListener(this);
@@ -149,12 +149,7 @@ void Game::update() {
 		//Sound.Play(SOUND_SWISH);
 	}
 
-	Coord P; P.x = m_playerPos[0]; P.y = m_playerPos[1]; P.z = m_playerPos[2];
-	float r = RADIUS;
 
-	
-
-	ang = fmod(ang + 2, 360);
 	if (pickedkey_id == -1){
 		for (unsigned int i = 0; i < m_keySet.getKeyStates().size(); i++){
 
@@ -174,7 +169,7 @@ void Game::update() {
 
 			const Vector3f& columnPos = m_columnSet.getPosition(pickedkey_id);
 			m_keySet.deploy(pickedkey_id, m_columnSet.getHole(pickedkey_id), m_columnSet.getYaw(pickedkey_id));
-			m_raySet.deploy(Vector3f(columnPos[0], columnPos[1] + COLUMN_HEIGHT + ENERGY_BALL_RADIUS, columnPos[2]), Vector3f(Portal.GetReceptorX(pickedkey_id), Portal.GetReceptorY(pickedkey_id), Portal.GetZ()), pickedkey_id, m_keySet.getNumDeployed());
+			m_raySet.deploy(Vector3f(columnPos[0], columnPos[1] + COLUMN_HEIGHT + ENERGY_BALL_RADIUS, columnPos[2]), m_portal.getReceptor(pickedkey_id), pickedkey_id, m_keySet.getNumDeployed());
 			
 			pickedkey_id = -1;
 			if (respawn_id) {
@@ -182,15 +177,15 @@ void Game::update() {
 				respawn_id = 0;
 			}
 			portal_activated = m_keySet.getNumDeployed() == 5;
-			m_vortex.setDisabled(!portal_activated);
+			m_portal.setDisabled(!portal_activated);
 			//if (portal_activated) Sound.Play(SOUND_WARP);
 		}
 	}
 
-	
-	m_vortex.update(m_dt);
+
+	m_portal.update(m_dt);
 	m_keySet.update(m_dt);
-	m_raySet.update(m_dt, m_columnSet.getStates());
+	m_raySet.update(m_dt);
 	m_respawnPointSet.update(m_dt);
 }
 
@@ -240,19 +235,15 @@ void Game::render() {
 	m_raySet.draw(m_camera);
 	m_columnSet.draw(m_camera);
 	
-	if (abs(m_camera.getPositionZ() - Portal.GetZ()) < m_camera.getOffsetDistance()){
+	if (abs(m_camera.getPositionZ() - m_portal.getZ()) < m_camera.getOffsetDistance()){
 		//draw player
 		m_sphere.draw(m_camera);
 
 		//draw portal
-		m_vortex.draw(m_camera);
 		m_portal.draw(m_camera);
-		m_energyBallP.draw(m_camera);
 	}else{
 		//draw portal
-		m_vortex.draw(m_camera);
 		m_portal.draw(m_camera);
-		m_energyBallP.draw(m_camera);
 
 		//draw player
 		m_sphere.draw(m_camera);
@@ -413,14 +404,11 @@ bool Game::Init(int lvl) {
 
 	//Player initialization
 	Player.SetPos(TERRAIN_SIZE / 2, Terrain.GetHeight(TERRAIN_SIZE / 2, TERRAIN_SIZE / 2) + RADIUS, TERRAIN_SIZE / 2);
-	//Portal initialization
-	Portal.SetPos(TERRAIN_SIZE / 2, Terrain.GetHeight(TERRAIN_SIZE / 2, TERRAIN_SIZE / 2 + 32), TERRAIN_SIZE / 2 + 32);
-
+	
 	//Sound.Play(SOUND_AMBIENT);
 	
 	
 	m_sphere = RenderableObject("sphere", "texture_new", "player");
-
 	m_sphere.setDrawFunction([&](const Camera& camera) {
 		if (m_sphere.isDisabled()) return;
 
@@ -455,83 +443,7 @@ bool Game::Init(int lvl) {
 	m_keySet.init(Terrain);
 	m_respawnPointSet.init(Terrain);
 	m_columnSet.init(Terrain);
-	
-
-	m_portal = RenderableObject("portal", "portal", "null");
-
-	m_portal.setDrawFunction([&](const Camera& camera) {
-		if (m_portal.isDisabled()) return;
-		auto shader = Globals::shaderManager.getAssetPointer(m_portal.getShader());
-		shader->use();
-		shader->loadMatrix("u_projection", camera.getPerspectiveMatrix());
-		shader->loadMatrix("u_view", camera.getViewMatrix());
-		shader->loadMatrix("u_model", m_portal.getTransformationP());
-		shader->loadMatrix("u_normal", Matrix4f::GetNormalMatrix(camera.getViewMatrix() * m_portal.getTransformationP()));
-
-		shader->loadVector("u_lightPos", Vector3f(50.0f, 50.0f, 50.0f));
-
-		shader->loadFloat("invRadius", 0.0f);
-		shader->loadFloat("alpha", 1.0f);
-		shader->loadInt("u_texture", 0);
-		shader->loadInt("u_normalMap", 1);
-
-		Globals::textureManager.get("portal").bind(0);
-		Globals::textureManager.get("portal_nmp").bind(1);
-
-		Globals::shapeManager.get(m_portal.getShape()).drawRaw();
-		shader->unuse();
-	});
-	
-	m_portal.setPosition(TERRAIN_SIZE / 2, Terrain.GetHeight(TERRAIN_SIZE / 2, TERRAIN_SIZE / 2 + 32.0f), TERRAIN_SIZE / 2 + 32.0f);
-
-	Globals::shapeManager.get("sphere_portal").addInstance(Matrix4f::Translate(0.0f,			    PORTAL_SIDE * 1.5f,  0.0f));
-	Globals::shapeManager.get("sphere_portal").addInstance(Matrix4f::Translate( PORTAL_SIDE * 0.5f, PORTAL_SIDE * 1.0f,  0.0f));
-	Globals::shapeManager.get("sphere_portal").addInstance(Matrix4f::Translate(-PORTAL_SIDE * 0.5f, PORTAL_SIDE * 1.0f,  0.0f));
-	Globals::shapeManager.get("sphere_portal").addInstance(Matrix4f::Translate(-PORTAL_SIDE * 0.5f, PORTAL_SIDE * 0.33f, 0.0f));
-	Globals::shapeManager.get("sphere_portal").addInstance(Matrix4f::Translate( PORTAL_SIDE * 0.5f, PORTAL_SIDE * 0.33f, 0.0f));
-	Globals::shapeManager.get("sphere_portal").addVec4Attribute({ Vector4f(0.0f, 1.0f, 0.0f, 1.0f), Vector4f(1.0f, 1.0f, 0.0f, 1.0f) , Vector4f(0.2f, 0.2f, 1.0f, 1.0f) , Vector4f(1.0f, 0.0f, 1.0f, 1.0f) , Vector4f(1.0f, 0.0f, 0.0f, 1.0f) }, 1);
-
-	m_energyBallP = RenderableObject("sphere_portal", "energy", "null");
-	m_energyBallP.setDrawFunction([&](const Camera& camera) {
-		if (m_energyBallP.isDisabled()) return;
-		glEnable(GL_BLEND);
-		auto shader = Globals::shaderManager.getAssetPointer(m_energyBallP.getShader());
-		shader->use();
-		shader->loadMatrix("u_projection", camera.getPerspectiveMatrix());
-		shader->loadMatrix("u_view", camera.getViewMatrix());
-		shader->loadMatrix("u_normal", Matrix4f::GetNormalMatrix(camera.getViewMatrix()));
-
-		Globals::textureManager.get(m_energyBallP.getTexture()).bind(0);
-		Globals::shapeManager.get(m_energyBallP.getShape()).drawRawInstanced();
-		shader->unuse();
-		glDisable(GL_BLEND);
-	});
-
-	m_vortex = RenderableObject("vortex", "texture_new", "vortex");
-	m_vortex.setDrawFunction([&](const Camera& camera) {
-		if (m_vortex.isDisabled()) return;
-		glDisable(GL_CULL_FACE);
-		glEnable(GL_BLEND);
-		auto shader = Globals::shaderManager.getAssetPointer(m_vortex.getShader());
-		shader->use();
-		shader->loadMatrix("u_projection", camera.getPerspectiveMatrix());
-		shader->loadMatrix("u_view", camera.getViewMatrix());
-		shader->loadMatrix("u_model", m_vortex.getTransformationSOP());
-		shader->loadMatrix("u_normal", Matrix4f::GetNormalMatrix(camera.getViewMatrix() * m_vortex.getTransformationSOP()));
-
-		Globals::textureManager.get(m_vortex.getTexture()).bind(0);
-		Globals::shapeManager.get(m_vortex.getShape()).drawRaw();
-		shader->unuse();
-		glDisable(GL_BLEND);
-		glEnable(GL_CULL_FACE);
-	});
-	m_vortex.setScale(1.5f, 1.5f, 0.0f);
-	m_vortex.setPosition(512.0f, 13.75f + PORTAL_SIDE * 0.5f, 544.0f);
-	m_vortex.setDisabled(true);
-	m_vortex.setUpdateFunction(
-		[&](const float dt) {
-		m_vortex.rotate(0.0f, 0.0f, 0.5f);
-	});
+	m_portal.init(Terrain);
 
 	m_skybox = RenderableObject("cube", "skybox", "skybox");
 	m_skybox.setScale(750.0f);

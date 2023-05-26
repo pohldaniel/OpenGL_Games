@@ -10,12 +10,13 @@
 #include "CharacterController.h"
 
 #include "cPlayer.h"
-#include "cPortal.h"
+#include "cModel.h"
 
 #include "KeySet.h"
 #include "RaySet.h"
 #include "RespawnPointSet.h"
 #include "ColumnSet.h"
+#include "Portal.h"
 
 #define GRAVITY 0.015f
 
@@ -56,7 +57,6 @@ private:
 	bool portal_activated;
 	float ang;
 
-	cPortal Portal;
 	cScene Scene;
 	cData Data;
 	cPlayer Player;
@@ -75,16 +75,11 @@ private:
 	RenderableObject m_skybox;
 	RenderableObject m_lava;
 
-	RenderableObject m_column;
-	RenderableObject m_portal;
-	RenderableObject m_energyBallCl;
-	RenderableObject m_energyBallP;
-	RenderableObject m_vortex;
-
 	KeySet m_keySet;
 	RaySet m_raySet;
 	RespawnPointSet m_respawnPointSet;
 	ColumnSet m_columnSet;
+	Portal m_portal;
 
 	float m_offsetDistance = 10.0f;
 	CharacterController *m_characterController;

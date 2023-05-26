@@ -195,9 +195,6 @@
     <ClCompile Include="cPlayer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="cPortal.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="cData.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -250,6 +247,9 @@
       <Filter>Source Files\Objects</Filter>
     </ClCompile>
     <ClCompile Include="ColumnSet.cpp">
+      <Filter>Source Files\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="Portal.cpp">
       <Filter>Source Files\Objects</Filter>
     </ClCompile>
   </ItemGroup>
@@ -413,9 +413,6 @@
     <ClInclude Include="cPlayer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="cPortal.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="cData.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -471,6 +468,9 @@
       <Filter>Source Files\Objects</Filter>
     </ClInclude>
     <ClInclude Include="ColumnSet.h">
+      <Filter>Source Files\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="Portal.h">
       <Filter>Source Files\Objects</Filter>
     </ClInclude>
   </ItemGroup>
