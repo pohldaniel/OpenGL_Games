@@ -10,12 +10,12 @@
 #include "CharacterController.h"
 
 #include "cPlayer.h"
-#include "cColumn.h"
 #include "cPortal.h"
 
 #include "KeySet.h"
 #include "RaySet.h"
 #include "RespawnPointSet.h"
+#include "ColumnSet.h"
 
 #define GRAVITY 0.015f
 
@@ -56,7 +56,6 @@ private:
 	bool portal_activated;
 	float ang;
 
-	std::vector<cColumn> columns;
 	cPortal Portal;
 	cScene Scene;
 	cData Data;
@@ -85,6 +84,7 @@ private:
 	KeySet m_keySet;
 	RaySet m_raySet;
 	RespawnPointSet m_respawnPointSet;
+	ColumnSet m_columnSet;
 
 	float m_offsetDistance = 10.0f;
 	CharacterController *m_characterController;

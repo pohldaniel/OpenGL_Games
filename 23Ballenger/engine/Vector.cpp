@@ -1005,9 +1005,9 @@ void Matrix4f::toHeadPitchRoll(float &pitch, float &yaw, float &roll) const {
 		thetaY = 0.0f;
 	}
 
-	pitch = pitch * _180_ON_PI;
-	yaw = yaw * _180_ON_PI;	
-	roll = roll * _180_ON_PI;
+	pitch = thetaX * _180_ON_PI;
+	yaw = thetaY * _180_ON_PI;
+	roll = thetaZ * _180_ON_PI;
 }
 
 Matrix4f Matrix4f::Translate(float dx, float dy, float dz) {

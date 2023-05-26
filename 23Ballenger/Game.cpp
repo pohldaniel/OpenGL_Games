@@ -7,7 +7,7 @@
 #include "Application.h"
 #include "Constants.h"
 
-Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_keySet(m_sphere.getPosition()), m_raySet(Portal), m_respawnPointSet(m_sphere.getPosition()) {
+Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_keySet(m_sphere.getPosition()), m_raySet(Portal), m_respawnPointSet(m_sphere.getPosition()), m_columnSet(m_sphere.getPosition()) {
 	Application::SetCursorIcon(IDC_ARROW);
 	EventDispatcher::AddKeyboardListener(this);
 	EventDispatcher::AddMouseListener(this);
@@ -168,11 +168,13 @@ void Game::update() {
 			}
 		}
 	}else {
-		if (columns[pickedkey_id].InsideGatheringArea(P.x, P.y, P.z)) {
+		if (m_columnSet.insideGatheringArea(pickedkey_id)) {
 			//Sound.Play(SOUND_UNLOCK);
 			//Sound.Play(SOUND_ENERGYFLOW);
-			m_keySet.deploy(pickedkey_id, Vector3f(columns[pickedkey_id].GetHoleX(), columns[pickedkey_id].GetHoleY(), columns[pickedkey_id].GetHoleZ()), columns[pickedkey_id].GetYaw());
-			m_raySet.deploy(Vector3f(columns[pickedkey_id].GetX(), columns[pickedkey_id].GetY() + COLUMN_HEIGHT + ENERGY_BALL_RADIUS, columns[pickedkey_id].GetZ()), Vector3f(Portal.GetReceptorX(pickedkey_id), Portal.GetReceptorY(pickedkey_id), Portal.GetZ()), pickedkey_id, m_keySet.getNumDeployed());
+
+			const Vector3f& columnPos = m_columnSet.getPosition(pickedkey_id);
+			m_keySet.deploy(pickedkey_id, m_columnSet.getHole(pickedkey_id), m_columnSet.getYaw(pickedkey_id));
+			m_raySet.deploy(Vector3f(columnPos[0], columnPos[1] + COLUMN_HEIGHT + ENERGY_BALL_RADIUS, columnPos[2]), Vector3f(Portal.GetReceptorX(pickedkey_id), Portal.GetReceptorY(pickedkey_id), Portal.GetZ()), pickedkey_id, m_keySet.getNumDeployed());
 			
 			pickedkey_id = -1;
 			if (respawn_id) {
@@ -188,7 +190,7 @@ void Game::update() {
 	
 	m_vortex.update(m_dt);
 	m_keySet.update(m_dt);
-	m_raySet.update(m_dt, columns);
+	m_raySet.update(m_dt, m_columnSet.getStates());
 	m_respawnPointSet.update(m_dt);
 }
 
@@ -236,11 +238,8 @@ void Game::render() {
 
 	m_keySet.draw(m_camera);
 	m_raySet.draw(m_camera);
-
+	m_columnSet.draw(m_camera);
 	
-	m_column.draw(m_camera);
-	m_energyBallCl.draw(m_camera);
-
 	if (abs(m_camera.getPositionZ() - Portal.GetZ()) < m_camera.getOffsetDistance()){
 		//draw player
 		m_sphere.draw(m_camera);
@@ -412,27 +411,10 @@ bool Game::Init(int lvl) {
 	//Model initialization
 	Model.Load();
 
-
-
-	//columns initialization
-	cColumn col;
-	col.SetColumn(TERRAIN_SIZE / 2 + 18, Terrain.GetHeight(TERRAIN_SIZE / 2 + 18, TERRAIN_SIZE / 2 + 8), TERRAIN_SIZE / 2 + 8, 90);
-	columns.push_back(col);
-	col.SetColumn(TERRAIN_SIZE / 2 + 14, Terrain.GetHeight(TERRAIN_SIZE / 2 + 14, TERRAIN_SIZE / 2 - 8), TERRAIN_SIZE / 2 - 8, 90);
-	columns.push_back(col);
-	col.SetColumn(TERRAIN_SIZE / 2, Terrain.GetHeight(TERRAIN_SIZE / 2, TERRAIN_SIZE / 2 - 16), TERRAIN_SIZE / 2 - 16, 180);
-	columns.push_back(col);
-	col.SetColumn(TERRAIN_SIZE / 2 - 14, Terrain.GetHeight(TERRAIN_SIZE / 2 - 14, TERRAIN_SIZE / 2 - 8), TERRAIN_SIZE / 2 - 8, -90);
-	columns.push_back(col);
-	col.SetColumn(TERRAIN_SIZE / 2 - 18, Terrain.GetHeight(TERRAIN_SIZE / 2 - 18, TERRAIN_SIZE / 2 + 8), TERRAIN_SIZE / 2 + 8, -90);
-	columns.push_back(col);
-
 	//Player initialization
 	Player.SetPos(TERRAIN_SIZE / 2, Terrain.GetHeight(TERRAIN_SIZE / 2, TERRAIN_SIZE / 2) + RADIUS, TERRAIN_SIZE / 2);
-
 	//Portal initialization
 	Portal.SetPos(TERRAIN_SIZE / 2, Terrain.GetHeight(TERRAIN_SIZE / 2, TERRAIN_SIZE / 2 + 32), TERRAIN_SIZE / 2 + 32);
-
 
 	//Sound.Play(SOUND_AMBIENT);
 	
@@ -472,60 +454,8 @@ bool Game::Init(int lvl) {
 
 	m_keySet.init(Terrain);
 	m_respawnPointSet.init(Terrain);
-
-	Globals::shapeManager.get("column").addInstance(Matrix4f::Translate(TERRAIN_SIZE / 2 + 18.0f, Terrain.GetHeight(TERRAIN_SIZE / 2 + 18.0f, TERRAIN_SIZE / 2 + 8), TERRAIN_SIZE / 2 + 8) * Matrix4f::Rotate(Vector3f(0.0f, 1.0f, 0.0f), 90.0f));
-	Globals::shapeManager.get("column").addInstance(Matrix4f::Translate(TERRAIN_SIZE / 2 + 14.0f, Terrain.GetHeight(TERRAIN_SIZE / 2 + 14.0f, TERRAIN_SIZE / 2 - 8), TERRAIN_SIZE / 2 - 8)* Matrix4f::Rotate(Vector3f(0.0f, 1.0f, 0.0f), 90.0f));
-	Globals::shapeManager.get("column").addInstance(Matrix4f::Translate(TERRAIN_SIZE / 2, Terrain.GetHeight(TERRAIN_SIZE / 2, TERRAIN_SIZE / 2 - 16.0f), TERRAIN_SIZE / 2 - 16.0f)* Matrix4f::Rotate(Vector3f(0.0f, 1.0f, 0.0f), 180.0f));
-	Globals::shapeManager.get("column").addInstance(Matrix4f::Translate(TERRAIN_SIZE / 2 - 14.0f, Terrain.GetHeight(TERRAIN_SIZE / 2 - 14.0f, TERRAIN_SIZE / 2 - 8.0f), TERRAIN_SIZE / 2 - 8.0f)* Matrix4f::Rotate(Vector3f(0.0f, 1.0f, 0.0f), -90.0f));
-	Globals::shapeManager.get("column").addInstance(Matrix4f::Translate(TERRAIN_SIZE / 2 - 18.0f, Terrain.GetHeight(TERRAIN_SIZE / 2 - 18.0f, TERRAIN_SIZE / 2 + 8.0f), TERRAIN_SIZE / 2 + 8.0f)* Matrix4f::Rotate(Vector3f(0.0f, 1.0f, 0.0f), -90.0f));
-	Globals::shapeManager.get("column").addVec4Attribute({Vector4f(1.0f, 0.0f, 0.0f, 1.0f), Vector4f(1.0f, 1.0f, 0.0f, 1.0f) , Vector4f(0.0f, 1.0f, 0.0f, 1.0f) , Vector4f(0.1f, 0.1f, 1.0f, 1.0f) , Vector4f(1.0f, 0.0f, 1.0f, 1.0f) }, 1);
-
-	m_column = RenderableObject("column", "column", "null");
-	m_column.setDrawFunction([&](const Camera& camera) {
-		if (m_column.isDisabled()) return;
-		auto shader = Globals::shaderManager.getAssetPointer(m_column.getShader());
-		shader->use();
-		shader->loadMatrix("u_projection", camera.getPerspectiveMatrix());
-		shader->loadMatrix("u_view", camera.getViewMatrix());
-		shader->loadMatrix("u_normal", Matrix4f::GetNormalMatrix(camera.getViewMatrix()));
-
-		shader->loadVector("u_lightPos", Vector3f(50.0f, 50.0f, 50.0f));
-
-		shader->loadFloat("invRadius", 0.0f);
-		shader->loadFloat("alpha", 1.0f);
-		shader->loadInt("u_texture", 0);
-		shader->loadInt("u_normalMap", 1);
-
-		Globals::textureManager.get("column").bind(0);
-		Globals::textureManager.get("column_nmp").bind(1);
-
-		Globals::shapeManager.get(m_column.getShape()).drawRawInstanced();
-		shader->unuse();
-	});
-
-	Globals::shapeManager.get("sphere_cl").addInstance(Matrix4f::Translate(TERRAIN_SIZE / 2 + 18.0f, Terrain.GetHeight(TERRAIN_SIZE / 2 + 18.0f, TERRAIN_SIZE / 2 + 8), TERRAIN_SIZE / 2 + 8));
-	Globals::shapeManager.get("sphere_cl").addInstance(Matrix4f::Translate(TERRAIN_SIZE / 2 + 14.0f, Terrain.GetHeight(TERRAIN_SIZE / 2 + 14.0f, TERRAIN_SIZE / 2 - 8), TERRAIN_SIZE / 2 - 8));
-	Globals::shapeManager.get("sphere_cl").addInstance(Matrix4f::Translate(TERRAIN_SIZE / 2, Terrain.GetHeight(TERRAIN_SIZE / 2, TERRAIN_SIZE / 2 - 16.0f), TERRAIN_SIZE / 2 - 16.0f));
-	Globals::shapeManager.get("sphere_cl").addInstance(Matrix4f::Translate(TERRAIN_SIZE / 2 - 14.0f, Terrain.GetHeight(TERRAIN_SIZE / 2 - 14.0f, TERRAIN_SIZE / 2 - 8.0f), TERRAIN_SIZE / 2 - 8.0f));
-	Globals::shapeManager.get("sphere_cl").addInstance(Matrix4f::Translate(TERRAIN_SIZE / 2 - 18.0f, Terrain.GetHeight(TERRAIN_SIZE / 2 - 18.0f, TERRAIN_SIZE / 2 + 8.0f), TERRAIN_SIZE / 2 + 8.0f));
-	Globals::shapeManager.get("sphere_cl").addVec4Attribute({ Vector4f(1.0f, 0.0f, 0.0f, 1.0f), Vector4f(1.0f, 1.0f, 0.0f, 1.0f) , Vector4f(0.0f, 1.0f, 0.0f, 1.0f) , Vector4f(0.1f, 0.1f, 1.0f, 1.0f) , Vector4f(1.0f, 0.0f, 1.0f, 1.0f) }, 1);
-
-	m_energyBallCl = RenderableObject("sphere_cl", "energy", "null");
-	m_energyBallCl.setDrawFunction([&](const Camera& camera) {
-		if (m_energyBallCl.isDisabled()) return;
-		glEnable(GL_BLEND);
-		auto shader = Globals::shaderManager.getAssetPointer(m_energyBallCl.getShader());
-		shader->use();
-		shader->loadMatrix("u_projection", camera.getPerspectiveMatrix());
-		shader->loadMatrix("u_view", camera.getViewMatrix());
-		shader->loadMatrix("u_normal", Matrix4f::GetNormalMatrix(camera.getViewMatrix()));
-
-		Globals::textureManager.get(m_energyBallCl.getTexture()).bind(0);
-		Globals::shapeManager.get(m_energyBallCl.getShape()).drawRawInstanced();
-		shader->unuse();
-		glDisable(GL_BLEND);
-	});
-
+	m_columnSet.init(Terrain);
+	
 
 	m_portal = RenderableObject("portal", "portal", "null");
 

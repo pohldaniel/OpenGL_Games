@@ -85,7 +85,7 @@ unsigned short KeySet::getNumDeployed() {
 	return m_numDeployed;
 }
 
-const std::vector<KeySet::KeyState>& KeySet::getKeyStates() {
+const std::vector<KeySet::State>& KeySet::getKeyStates() {
 	return m_keyStates;
 }
 
@@ -154,8 +154,8 @@ void KeySet::update(const float dt) {
 }
 
 //just call it once it will override the deployment state
-const std::vector<KeySet::KeyState>& KeySet::fromInstances(const std::vector<Matrix4f>& instances) {
+const std::vector<KeySet::State>& KeySet::fromInstances(const std::vector<Matrix4f>& instances) {
 	m_keyStates.clear();
-	std::transform(instances.begin(), instances.end(), std::back_inserter(m_keyStates), [](const Matrix4f& p)-> KeyState { return{false, {p[3][0], p[3][1] , p[3][2] } }; });
+	std::transform(instances.begin(), instances.end(), std::back_inserter(m_keyStates), [](const Matrix4f& p)-> State { return{false, {p[3][0], p[3][1] , p[3][2] } }; });
 	return m_keyStates;
 }

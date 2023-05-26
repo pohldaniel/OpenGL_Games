@@ -1,11 +1,7 @@
 #pragma once
 
 #include "engine/Camera.h"
-#include "engine/Line.h"
 #include "RenderableObject.h"
-
-#include "cColumn.h"
-#include "cPortal.h"
 
 #define CIRCLE_RADIUS 2.0f
 #define AURA_HEIGHT 3.0f

@@ -157,11 +157,11 @@
     <ClCompile Include="Application.cpp" />
     <ClCompile Include="cBicho.cpp" />
     <ClCompile Include="cCamera.cpp" />
-    <ClCompile Include="cColumn.cpp" />
     <ClCompile Include="cData.cpp" />
     <ClCompile Include="CharacterController.cpp" />
     <ClCompile Include="cLava.cpp" />
     <ClCompile Include="cModel.cpp" />
+    <ClCompile Include="ColumnSet.cpp" />
     <ClCompile Include="cPlayer.cpp" />
     <ClCompile Include="cPortal.cpp" />
     <ClCompile Include="cScene.cpp" />
@@ -229,11 +229,11 @@
     <ClInclude Include="Application.h" />
     <ClInclude Include="cBicho.h" />
     <ClInclude Include="cCamera.h" />
-    <ClInclude Include="cColumn.h" />
     <ClInclude Include="cData.h" />
     <ClInclude Include="CharacterController.h" />
     <ClInclude Include="cLava.h" />
     <ClInclude Include="cModel.h" />
+    <ClInclude Include="ColumnSet.h" />
     <ClInclude Include="Constants.h" />
     <ClInclude Include="convhull\convhull_3d.h" />
     <ClInclude Include="cPlayer.h" />

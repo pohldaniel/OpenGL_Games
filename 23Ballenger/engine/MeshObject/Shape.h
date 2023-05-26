@@ -37,7 +37,7 @@ public:
 	void removeInstance(unsigned int index);
 
 	void addInstances(const std::vector<Matrix4f>& values, unsigned int divisor = 1u);
-	void addInstances(unsigned int length, unsigned int divisor = 1, unsigned int usage = 35048u /*GL_DYNAMIC_DRAW*/);
+	void addInstances(unsigned int length, unsigned int divisor = 1u, unsigned int usage = 35048u /*GL_DYNAMIC_DRAW*/);
 	void updateInstances(const std::vector<Matrix4f>& values);
 	void updateInstance(const Matrix4f& mtx, unsigned int index);
 

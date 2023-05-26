@@ -12,7 +12,7 @@ class cTerrain;
 
 class KeySet : public RenderableObject {
 
-	struct KeyState {
+	struct State {
 		bool deployed;
 		Vector3f position;
 	};
@@ -33,15 +33,15 @@ public:
 	unsigned short getNumDeployed();
 	bool isDeployed(unsigned short index);
 	const Vector3f& getPosition(unsigned short index);
-	const std::vector<KeyState>& getKeyStates();
+	const std::vector<State>& getKeyStates();
 
 private:
 
-	const std::vector<KeyState>& fromInstances(const std::vector<Matrix4f>& instances);
+	const std::vector<State>& fromInstances(const std::vector<Matrix4f>& instances);
 
 	float ang = 0.0f;
 
-	std::vector<KeyState> m_keyStates;
+	std::vector<State> m_keyStates;
 	std::vector<Matrix4f> m_mtxKey;
 	std::vector<Matrix4f> m_mtxCylinder;
 	std::vector<Vector4f> m_colors;
