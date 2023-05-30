@@ -6,6 +6,41 @@
 #define TERRAIN_SIZE    1024
 #define TEXTURE_REPEAT	64
 
+
+class HeightMap {
+
+public:
+
+	HeightMap();
+	~HeightMap();
+
+
+	void loadFromRAW(const char* filename, unsigned int width, unsigned int height);
+
+	void destroy();
+	float heightAtPixel(int x, int z) const;
+	void normalAtPixel(int x, int z, Vector3f &n) const;
+
+	unsigned int heightIndexAt(int x, int z) const;
+
+	unsigned int getWidth() const;
+	unsigned int getHeight() const;
+	float getHeightScale() const;
+	const float* getHeights() const;
+
+private:
+
+	void normalizeHeightMap(const float scaleFactor, const float minH = 0.0f);
+	void blur(float amount);
+	void smooth();
+
+
+	unsigned int m_width;
+	unsigned int m_height;	
+	float m_heightScale;
+	std::vector<float> m_heights;
+};
+
 class Terrain {
 
 private:
@@ -40,20 +75,54 @@ public:
 
 private:
 
-	HeightMapType* loadFromRAW(const char* filename, unsigned int width, unsigned int height);
-	void normalizeHeightMap(const float scaleFactor);
-	bool CalculateNormals();
+	void create(const HeightMap& heightMap);
+
 	void ShutdownHeightMap();
-
-	void CalculateTextureCoordinates();
-
 	bool InitializeBuffers();
 	void ShutdownBuffers();
 
 private:
-	int m_terrainWidth, m_terrainHeight;
-	HeightMapType* m_heightMap = nullptr;
+	int m_width, m_height;
+	HeightMapType* m_data = nullptr;
 	int m_vertexCount;
 	Vertex* m_vertices;
-	
+	float m_gridSpacing;
+
+	HeightMap m_heightMap;
+
+
+	float heightAt(float x, float z) const;
+	void normalAt(float x, float z, Vector3f &n) const;
+
+	static long floatToLong(float f) {
+		// Converts a floating point number into an integer.
+		// Fractional values are truncated as in ANSI C.
+		// About 5 to 6 times faster than a standard typecast to an integer.
+
+		long fpBits = *reinterpret_cast<const long*>(&f);
+		long shift = 23 - (((fpBits & 0x7fffffff) >> 23) - 127);
+		long result = ((fpBits & 0x7fffff) | (1 << 23)) >> shift;
+
+		result = (result ^ (fpBits >> 31)) - (fpBits >> 31);
+		result &= ~((((fpBits & 0x7fffffff) >> 23) - 127) >> 31);
+
+		return result;
+	}
+
+	template <typename T>
+	static T bilerp(const T &a, const T &b, const T &c, const T &d, float u, float v) {
+		// Performs a bilinear interpolation.
+		//  P(u,v) = e + v(f - e)
+		//  
+		//  where
+		//  e = a + u(b - a)
+		//  f = c + u(d - c)
+		//  u in range [0,1]
+		//  v in range [0,1]
+
+		return a * ((1.0f - u) * (1.0f - v))
+			+ b * (u * (1.0f - v))
+			+ c * (v * (1.0f - u))
+			+ d * (u * v);
+	}
 };

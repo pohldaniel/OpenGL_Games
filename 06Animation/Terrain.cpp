@@ -268,7 +268,7 @@ void HeightMap::normalAtPixel(int x, int z, Vector3f &n) const {
 	else
 		n[2] = 2.0f * (heightAtPixel(x, z) - heightAtPixel(x, z + 1));
 
-	n[2] = 2.0f * m_gridSpacing;
+	n[1] = 2.0f * m_gridSpacing;
 	n.normalize();
 }
 
