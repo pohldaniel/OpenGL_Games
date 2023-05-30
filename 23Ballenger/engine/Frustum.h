@@ -32,10 +32,10 @@
 							}"    
 
 struct Plane {
-	Vector3f normal; 
+	Vector3f normal;
 	float d;
 
-	void normalize(){
+	void normalize() {
 		Plane Result;
 		float distance = sqrtf(normal[0] * normal[0] + normal[1] * normal[1] + normal[2] * normal[2]);
 		normal[0] = normal[0] * (1.0f / distance);
@@ -54,7 +54,7 @@ public:
 
 	void drawRaw();
 	void draw(const Camera& camera, const Vector3f& position, const Vector3f& scale);
-	void drawFrustm(const Camera& camera);
+	void drawFrustm(const Camera& camera, const Vector3f& debugShift = Vector3f(0.0f, 0.0f, 0.0f));
 
 	Plane m_planes[6];
 
@@ -75,6 +75,6 @@ private:
 	bool m_debug = true;
 
 	static std::unique_ptr<Shader> s_shaderFrustum;
-	Vector3f m_center;	
+	Vector3f m_center;
 };
 #endif

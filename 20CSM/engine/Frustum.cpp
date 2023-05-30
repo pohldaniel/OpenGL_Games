@@ -24,11 +24,11 @@ void Frustum::createBuffer(const Matrix4f& perspective, float scale) {
 		m_vbo = 0;
 	}
 
-	float near = perspective[3][2] / (perspective[2][2] - 1);	
+	float near = perspective[3][2] / (perspective[2][2] - 1.0f);
 	float heightNear = (2.0f / perspective[1][1] ) * near;
 	float widthNear = (heightNear *  perspective[1][1]) / perspective[0][0];
 
-	float far = perspective[3][2] / (perspective[2][2] + 1) * scale;
+	float far = perspective[3][2] / (perspective[2][2] + 1.0f) * scale;
 	float heightFar = (2.0f / perspective[1][1]) * far;
 	float widthFar = (heightFar  * perspective[1][1]) / perspective[0][0];
 	

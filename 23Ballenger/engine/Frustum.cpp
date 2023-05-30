@@ -24,14 +24,14 @@ void Frustum::createBuffer(const Matrix4f& perspective, float scale) {
 		m_vbo = 0;
 	}
 
-	float near = perspective[3][2] / (perspective[2][2] - 1);	
-	float heightNear = (2.0f / perspective[1][1] ) * near;
+	float near = perspective[3][2] / (perspective[2][2] - 1.0f);
+	float heightNear = (2.0f / perspective[1][1]) * near;
 	float widthNear = (heightNear *  perspective[1][1]) / perspective[0][0];
 
-	float far = perspective[3][2] / (perspective[2][2] + 1) * scale;
+	float far = perspective[3][2] / (perspective[2][2] + 1.0f) * scale;
 	float heightFar = (2.0f / perspective[1][1]) * far;
 	float widthFar = (heightFar  * perspective[1][1]) / perspective[0][0];
-	
+
 	Vector3f nearBottomLeft = Vector3f(-0.5f * widthNear, -0.5f * heightNear, near);
 	Vector3f nearBottomRight = Vector3f(0.5f * widthNear, -0.5f * heightNear, near);
 	Vector3f nearTopRight = Vector3f(0.5f * widthNear, 0.5f * heightNear, near);
@@ -39,7 +39,7 @@ void Frustum::createBuffer(const Matrix4f& perspective, float scale) {
 	Vector3f farBottomRight = Vector3f(0.5f * widthFar, -0.5f * heightFar, far);
 	Vector3f farTopRight = Vector3f(0.5f * widthFar, 0.5f * heightFar, far);
 	m_center = Vector3f(0.0f, 0.0f, (far + near) * 0.5f);
-	
+
 	std::vector<float> vertex;
 	Vector3f pos = nearBottomLeft;
 	Vector3f size = nearTopRight - nearBottomLeft;
@@ -59,24 +59,24 @@ void Frustum::createBuffer(const Matrix4f& perspective, float scale) {
 
 
 	/*static const GLushort indices[] = {
-		0, 2, 3,
-		0, 1, 2,
+	0, 2, 3,
+	0, 1, 2,
 
-		4, 6, 7,
-		4, 5, 6,
+	4, 6, 7,
+	4, 5, 6,
 
-		// right
-		1, 5, 6,
-		6, 2, 1,
-		// left
-		4, 0, 3,
-		3, 7, 4,
-		// bottom
-		4, 5, 1,
-		1, 0, 4,
-		// top
-		3, 2, 6,
-		6, 7, 3
+	// right
+	1, 5, 6,
+	6, 2, 1,
+	// left
+	4, 0, 3,
+	3, 7, 4,
+	// bottom
+	4, 5, 1,
+	1, 0, 4,
+	// top
+	3, 2, 6,
+	6, 7, 3
 	};*/
 
 	static const GLushort indices[] = {
@@ -115,7 +115,7 @@ void Frustum::createBuffer(const Matrix4f& perspective, float scale) {
 
 }
 
-void Frustum::updatePlane(const Camera& camera, const Matrix4f& perspective, const Matrix4f& model){
+void Frustum::updatePlane(const Camera& camera, const Matrix4f& perspective, const Matrix4f& model) {
 	Matrix4f mvp = perspective * camera.getViewMatrix() * model;
 	//Near
 	m_planes[0].normal[0] = mvp[0][3] + mvp[0][2];
@@ -245,9 +245,9 @@ void Frustum::draw(const Camera& camera, const Vector3f& position, const Vector3
 
 	glDisable(GL_CULL_FACE);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	
+
 	glUseProgram(s_shaderFrustum->m_program);
-	s_shaderFrustum->loadMatrix("u_transform", camera.getPerspectiveMatrix() * Matrix4f::Rotate(Vector3f(1.0f, 0.0f, 0.0f), 90.0f, position)  * Matrix4f::Scale(scale[0], scale[1], scale[2], position) * camera.getRotationMatrix(position) );
+	s_shaderFrustum->loadMatrix("u_transform", camera.getPerspectiveMatrix() * Matrix4f::Rotate(Vector3f(1.0f, 0.0f, 0.0f), 90.0f, position)  * Matrix4f::Scale(scale[0], scale[1], scale[2], position) * camera.getRotationMatrix(position));
 	s_shaderFrustum->loadVector("u_color", Vector4f(0.0f, 1.0f, 0.0f, 1.0f));
 	drawRaw();
 	glUseProgram(0);
@@ -256,13 +256,15 @@ void Frustum::draw(const Camera& camera, const Vector3f& position, const Vector3
 	glEnable(GL_CULL_FACE);
 }
 
-void Frustum::drawFrustm(const Camera& camera) {
+void Frustum::drawFrustm(const Camera& camera, const Vector3f& debugShift) {
 	if (!m_debug) return;
 	glDisable(GL_CULL_FACE);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
 	glUseProgram(s_shaderFrustum->m_program);
-	s_shaderFrustum->loadMatrix("u_transform", camera.getPerspectiveMatrix() * camera.getViewMatrix() * Matrix4f::Translate(0.0f, 0.0f, -1.0f));
+	// better debugging
+	s_shaderFrustum->loadMatrix("u_transform", camera.getPerspectiveMatrix() * camera.getViewMatrix() * Matrix4f::Translate(debugShift));
+	//s_shaderFrustum->loadMatrix("u_transform", camera.getPerspectiveMatrix() * camera.getViewMatrix());
 	s_shaderFrustum->loadVector("u_color", Vector4f(0.0f, 1.0f, 1.0f, 1.0f));
 
 	glBindVertexArray(m_vaoFrustum);
@@ -278,7 +280,7 @@ void Frustum::drawFrustm(const Camera& camera) {
 bool Frustum::intersectAABBFrustum(const Vector3f& position, const Vector3f& size) {
 	Vector3f max = position + size;
 	Vector3f min = position;
-	
+
 	// check box outside/inside of frustum
 	for (int i = 0; i < 6; i++) {
 		int out = 0;
