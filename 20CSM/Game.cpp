@@ -472,11 +472,11 @@ void Game::regenerateDepthTex(GLuint depth_size) {
 }
 
 void Game::overviewCam() {
-
-	m_frustum->updatePlane(m_camera, Matrix4f::Perspective(15.0f, (double)Application::Width / (double)Application::Height, 15.0f, 20.0f), m_transform.getTransformationMatrix());
+	Vector3f debugShift = Vector3f(0.0f, 0.0f, -1.0f);
+	m_frustum->updatePlane(m_camera, Matrix4f::Perspective(15.0f, (double)Application::Width / (double)Application::Height, 15.0f, 20.0f), Matrix4f::InvTranslate(debugShift) * m_transform.getTransformationMatrix());
 	
 	m_frustum->draw(m_camera, Vector3f(1.1f, -0.6f, -2.0f), Vector3f(0.05f, 0.05f, 0.05f));
-	m_frustum->drawFrustm(m_camera);
+	m_frustum->drawFrustm(m_camera, debugShift);
 	
 	Vector4f color = Vector4f(1.0f, 1.0f, 1.0f, 1.0f);
 	if (m_frustum->intersectAABBFrustum(m_cube->getPosition(), m_cube->getSize()))

@@ -8,10 +8,11 @@
 // Common math functions and constants.
 //-----------------------------------------------------------------------------
 #define PI  3.1415926535897932384f
-#define HALF_PI  1.57079632679f
+#define HALF_PI  1.5707963267948966192f
 #define TWO_PI  6.2831853071795864769f 
 #define PI_ON_180  0.0174532925199432957f
-#define _180_ON_PI  57.2957795131f
+#define HALF_PI_ON_180  0.0087266462599716479f
+#define _180_ON_PI  57.295779513082320877f
 #define invPI  0.3183098861837906715f
 #define	invTWO_PI  0.1591549430918953358f
 #define	EPSILON  1e-6f
@@ -26,6 +27,7 @@ class Vector2f {
 	friend bool operator ==(Vector2f lhs, Vector2f rhs);
 
 public:
+
 	Vector2f();
 	Vector2f(float x_, float y_);
 	Vector2f(const Vector2f &rhs);
@@ -36,20 +38,19 @@ public:
 
 	const float* getVec()const;
 
-	//Vector2f &operator^(const Vector2f &rhs);
 	Vector2f& operator= (const Vector2f& rhs);
-	
 
 	Vector2f &operator+=(const Vector2f &rhs);
 	Vector2f &operator-=(const Vector2f &rhs);
+	Vector2f &operator*=(float scalar);
+	Vector2f &operator/=(float scalar);
 
 	Vector2f operator+(const Vector2f &rhs) const;
 	Vector2f operator-(const Vector2f &rhs) const;
-
 	Vector2f operator*(float scalar) const;
 	Vector2f operator/(float scalar) const;
-	Vector2f &operator*=(float scalar);
-	Vector2f &operator/=(float scalar);
+
+
 private:
 
 	float vec[2];
@@ -61,6 +62,7 @@ class Vector3f {
 	friend Vector3f operator-(const Vector3f &v);
 	friend Vector3f operator*(float lhs, const Vector3f &rhs);
 	friend bool operator ==(Vector3f lhs, Vector3f rhs);
+
 public:
 
 	Vector3f();
@@ -72,6 +74,11 @@ public:
 	float lengthSq() const;
 
 	void set(float x_, float y_, float z_);
+	void translate(const Vector3f &rhs);
+	void translate(const float dx, const float dy, const float dz);
+	void scale(const Vector3f &rhs);
+	void scale(const float sx, const float sy, const float sz);
+	bool compare(const Vector3f &rhs, float precision);
 
 	float &operator[](int index);
 	const float operator[](int index) const;
@@ -80,15 +87,18 @@ public:
 
 	Vector3f &operator+=(const Vector3f &rhs);
 	Vector3f &operator-=(const Vector3f &rhs);
+	Vector3f &operator*=(const Vector3f &rhs);
+	Vector3f &operator/=(const Vector3f &rhs);
 	Vector3f &operator*=(float scalar);
 	Vector3f &operator/=(float scalar);
 
 	Vector3f operator+(const Vector3f &rhs) const;
 	Vector3f operator-(const Vector3f &rhs) const;
+	Vector3f operator*(const Vector3f &rhs) const;
+	Vector3f operator/(const Vector3f &rhs) const;
 
 	Vector3f operator*(float scalar) const;
 	Vector3f operator/(float scalar) const;
-
 
 	bool zero();
 
@@ -97,6 +107,7 @@ public:
 	static Vector3f& Normalize(Vector3f &p);
 	static Vector3f Min(const Vector3f &p, const Vector3f &q);
 	static Vector3f Max(const Vector3f &p, const Vector3f &q);
+	static Vector3f& Clamp(Vector3f &v, float min, float max);
 
 private:
 	float vec[3];
@@ -106,7 +117,9 @@ class Vector4f {
 
 	friend Vector4f operator*(float lhs, const Vector4f &rhs);
 	friend Vector4f operator*(const Vector4f &lhs, float rhs);
+
 public:
+
 	Vector4f();
 	Vector4f(float x_, float y_, float z_, float w_);
 	Vector4f(const Vector3f &rhs, float w = 1.0f);
@@ -125,7 +138,7 @@ private:
 	float vec[4];
 };
 
-
+class Quaternion;
 class Matrix4f {
 
 	friend Vector3f operator*(const Vector4f &lhs, const Matrix4f &rhs);
@@ -138,16 +151,15 @@ class Matrix4f {
 
 public:
 
-
 	static const Matrix4f IDENTITY;
 	static const Matrix4f BIAS;
 	static const Matrix4f SIGN;
 
 	Matrix4f();
 	Matrix4f(float m11, float m12, float m13, float m14,
-			 float m21, float m22, float m23, float m24,
-			 float m31, float m32, float m33, float m34,
-			 float m41, float m42, float m43, float m44);
+		float m21, float m22, float m23, float m24,
+		float m31, float m32, float m33, float m34,
+		float m41, float m42, float m43, float m44);
 	//Matrix4f(const Matrix4f& rhs);
 	~Matrix4f();
 
@@ -167,17 +179,41 @@ public:
 	float determinant() const;
 
 	void identity();
+
 	void rotate(const Vector3f &axis, float degrees);
+	void rotate(const Quaternion &orientation);
+	void rotate(float pitch, float yaw, float roll);
+
 	void rotate(const Vector3f &axis, float degrees, const Vector3f &centerOfRotation);
+	void rotate(const Quaternion &orientation, const Vector3f &centerOfRotation);
+	void rotate(float pitch, float yaw, float roll, const Vector3f &centerOfRotation);
+
 	void invRotate(const Vector3f &axis, float degrees);
+	void invRotate(const Quaternion &orientation);
+	void invRotate(float pitch, float yaw, float roll);
+
 	void invRotate(const Vector3f &axis, float degrees, const Vector3f &centerOfRotation);
+	void invRotate(const Quaternion &orientation, const Vector3f &centerOfRotation);
+	void invRotate(float pitch, float yaw, float roll, const Vector3f &centerOfRotation);
 
 	void translate(float dx, float dy, float dz);
+	void translate(const Vector3f &trans);
+
 	void invTranslate(float dx, float dy, float dz);
+	void invTranslate(const Vector3f &trans);
+
 	void scale(float a, float b, float c);
+	void scale(const Vector3f &scale);
+
 	void scale(float a, float b, float c, const Vector3f &centerOfScale);
+	void scale(const Vector3f &scale, const Vector3f &centerOfScale);
+
 	void invScale(float a, float b, float c);
+	void invScale(const Vector3f &scale);
+
 	void invScale(float a, float b, float c, const Vector3f &centerOfScale);
+	void invScale(const Vector3f &scale, const Vector3f &centerOfScale);
+
 	void perspective(float fovx, float aspect, float znear, float zfar);
 	//void perspective(float left, float right, float bottom, float top, float znear, float zfar);
 	void orthographic(float left, float right, float bottom, float top, float znear, float zfar);
@@ -188,14 +224,13 @@ public:
 	void lookAt(const Vector3f &eye, const Vector3f &target, const Vector3f &up);
 	void invLookAt(const Vector3f &eye, const Vector3f &target, const Vector3f &up);
 
-	void fromHeadPitchRoll(float headDegrees, float pitchDegrees, float rollDegrees);
-	void toHeadPitchRoll(float &headDegrees, float &pitchDegrees, float &rollDegrees) const;
+	void toHeadPitchRoll(float &pitch, float &yaw, float &roll) const;
 
-	void print();
+	void print() const;
 	void set(float m11, float m12, float m13, float m14,
-			 float m21, float m22, float m23, float m24,
-			 float m31, float m32, float m33, float m34,
-			 float m41, float m42, float m43, float m44);
+		float m21, float m22, float m23, float m24,
+		float m31, float m32, float m33, float m34,
+		float m41, float m42, float m43, float m44);
 
 	void set(const Matrix4f &rhs);
 
@@ -203,15 +238,29 @@ public:
 	static Matrix4f &GetNormalMatrix(Matrix4f &mtx, const Matrix4f &modelViewMatrix);
 
 	static Matrix4f Scale(float x, float y, float z);
+	static Matrix4f Scale(const Vector3f &scale);
 	static Matrix4f &Scale(Matrix4f &mtx, float x, float y, float z);
 	static Matrix4f Scale(float x, float y, float z, const Vector3f &centerOfScale);
 
 	static Matrix4f Translate(float dx, float dy, float dz);
+	static Matrix4f Translate(const Vector3f &trans);
 	static Matrix4f &Translate(Matrix4f &mtx, float dx, float dy, float dz);
 
+	static Matrix4f InvTranslate(float dx, float dy, float dz);
+	static Matrix4f InvTranslate(const Vector3f &trans);
+	static Matrix4f &InvTranslate(Matrix4f &mtx, float dx, float dy, float dz);
+
 	static Matrix4f Rotate(const Vector3f &axis, float degrees);
+	static Matrix4f Rotate(const Quaternion &orientation);
+	static Matrix4f Rotate(float pitch, float yaw, float roll);
+
 	static Matrix4f Rotate(const Vector3f &axis, float degrees, const Vector3f &centerOfRotation);
+	static Matrix4f Rotate(const Quaternion &orientation, const Vector3f &centerOfRotation);
+	static Matrix4f Rotate(float pitch, float yaw, float roll, const Vector3f &centerOfRotation);
+
 	static Matrix4f &Rotate(Matrix4f &mtx, const Vector3f &axis, float degrees);
+	static Matrix4f &Rotate(Matrix4f &mtx, const Vector3f &axis, float degrees, const Vector3f &centerOfRotation);
+
 	static Matrix4f Rotate(const Vector3f &direction);
 	static Matrix4f Rotate(const Vector3f &direction, const Vector3f &poisiton);
 
@@ -239,6 +288,7 @@ public:
 	static Matrix4f Inverse(Matrix4f &m);
 
 private:
+
 	float mtx[4][4];
 };
 
@@ -248,11 +298,12 @@ class Quaternion {
 	friend bool operator ==(const Quaternion &lhs, const Quaternion &rhs);
 
 public:
+
 	static const Quaternion IDENTITY;
 
 	Quaternion();
 	Quaternion(float x, float y, float z, float w);
-	Quaternion(float headDegrees, float pitchDegrees, float rollDegrees);
+	Quaternion(float pitch, float yaw, float roll);
 	Quaternion(const Vector3f &axis, float degrees);
 	explicit Quaternion(const Matrix4f &m);
 	~Quaternion() {}
@@ -281,23 +332,28 @@ public:
 	void set(const Vector3f &axis, float degrees);
 	void conjugate();
 	void inverse();
+	void rotate(float pitch, float yaw, float roll);
+	void rotate(const Vector3f &axis, float degrees);
 
 	void fromAxisAngle(const Vector3f &axis, float degrees);
 	void fromMatrix(const Matrix4f &m);
+	void fromPitchYawRoll(float pitch, float yaw, float roll);
 
-	void fromHeadPitchRoll(float headDegrees, float pitchDegrees, float rollDegrees);
-	
+	void toPitchYawRoll(float& pitch, float& yaw, float& roll) const;
 	void toAxisAngle(Vector3f &axis, float &degrees) const;
 	const Matrix4f toMatrix4f() const;
 	const Matrix4f toMatrix4f(const Vector3f &centerOfRotation) const;
-	//void toHeadPitchRoll(float &headDegrees, float &pitchDegrees, float &rollDegrees) const;
+	float getPitch() const;
+	float getYaw() const;
+	float getRoll() const;
 
 	static Quaternion& FromMatrix(Quaternion &quat, const Matrix4f &m);
 	static Quaternion& Conjugate(Quaternion &quat);
 	static Quaternion& Inverse(Quaternion &quat);
 	static void Normalize(Quaternion &p);
+
 private:
+
 	float quat[4];
-	//Matrix4f mtx;
 };
 #endif

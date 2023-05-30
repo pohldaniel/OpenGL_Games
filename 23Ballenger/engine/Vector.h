@@ -39,7 +39,7 @@ public:
 	const float* getVec()const;
 
 	Vector2f& operator= (const Vector2f& rhs);
-	
+
 	Vector2f &operator+=(const Vector2f &rhs);
 	Vector2f &operator-=(const Vector2f &rhs);
 	Vector2f &operator*=(float scalar);
@@ -157,9 +157,9 @@ public:
 
 	Matrix4f();
 	Matrix4f(float m11, float m12, float m13, float m14,
-			 float m21, float m22, float m23, float m24,
-			 float m31, float m32, float m33, float m34,
-			 float m41, float m42, float m43, float m44);
+		float m21, float m22, float m23, float m24,
+		float m31, float m32, float m33, float m34,
+		float m41, float m42, float m43, float m44);
 	//Matrix4f(const Matrix4f& rhs);
 	~Matrix4f();
 
@@ -202,13 +202,13 @@ public:
 	void invTranslate(float dx, float dy, float dz);
 	void invTranslate(const Vector3f &trans);
 
-	void scale(float a, float b, float c);	
+	void scale(float a, float b, float c);
 	void scale(const Vector3f &scale);
 
 	void scale(float a, float b, float c, const Vector3f &centerOfScale);
 	void scale(const Vector3f &scale, const Vector3f &centerOfScale);
 
-	void invScale(float a, float b, float c);	
+	void invScale(float a, float b, float c);
 	void invScale(const Vector3f &scale);
 
 	void invScale(float a, float b, float c, const Vector3f &centerOfScale);
@@ -224,13 +224,13 @@ public:
 	void lookAt(const Vector3f &eye, const Vector3f &target, const Vector3f &up);
 	void invLookAt(const Vector3f &eye, const Vector3f &target, const Vector3f &up);
 
-	void toHeadPitchRoll(float &pitch, float &yaw,  float &roll) const;
+	void toHeadPitchRoll(float &pitch, float &yaw, float &roll) const;
 
 	void print() const;
 	void set(float m11, float m12, float m13, float m14,
-			 float m21, float m22, float m23, float m24,
-			 float m31, float m32, float m33, float m34,
-			 float m41, float m42, float m43, float m44);
+		float m21, float m22, float m23, float m24,
+		float m31, float m32, float m33, float m34,
+		float m41, float m42, float m43, float m44);
 
 	void set(const Matrix4f &rhs);
 
@@ -245,6 +245,10 @@ public:
 	static Matrix4f Translate(float dx, float dy, float dz);
 	static Matrix4f Translate(const Vector3f &trans);
 	static Matrix4f &Translate(Matrix4f &mtx, float dx, float dy, float dz);
+
+	static Matrix4f InvTranslate(float dx, float dy, float dz);
+	static Matrix4f InvTranslate(const Vector3f &trans);
+	static Matrix4f &InvTranslate(Matrix4f &mtx, float dx, float dy, float dz);
 
 	static Matrix4f Rotate(const Vector3f &axis, float degrees);
 	static Matrix4f Rotate(const Quaternion &orientation);
@@ -334,7 +338,7 @@ public:
 	void fromAxisAngle(const Vector3f &axis, float degrees);
 	void fromMatrix(const Matrix4f &m);
 	void fromPitchYawRoll(float pitch, float yaw, float roll);
-	
+
 	void toPitchYawRoll(float& pitch, float& yaw, float& roll) const;
 	void toAxisAngle(Vector3f &axis, float &degrees) const;
 	const Matrix4f toMatrix4f() const;

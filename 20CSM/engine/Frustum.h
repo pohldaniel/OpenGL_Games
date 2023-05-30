@@ -54,7 +54,7 @@ public:
 
 	void drawRaw();
 	void draw(const Camera& camera, const Vector3f& position, const Vector3f& scale);
-	void drawFrustm(const Camera& camera);
+	void drawFrustm(const Camera& camera, const Vector3f& debugShift = Vector3f(0.0f, 0.0f, 0.0f));
 
 	Plane m_planes[6];
 
