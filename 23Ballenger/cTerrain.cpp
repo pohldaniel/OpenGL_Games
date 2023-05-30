@@ -152,10 +152,8 @@ void cTerrain::Load(int level)
 {
 	triangles.clear();
 
-	char file[32];
-	if(level<10) sprintf(file,"Levels/terrain0%d.raw",level);
-	else		 sprintf(file,"Levels/terrain%d.raw",level);
-	FILE *pFile = fopen(file, "rb");
+	
+	FILE *pFile = fopen("Levels/terrain01.raw", "rb");
 	fread(&heightmap,TERRAIN_SIZE * TERRAIN_SIZE,1,pFile); //asigna valores en el rango 0..255
 	fclose(pFile);
 

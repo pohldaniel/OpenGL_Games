@@ -122,42 +122,42 @@ void Frustum::updatePlane(const Camera& camera, const Matrix4f& perspective, con
 	m_planes[0].normal[1] = mvp[1][3] + mvp[1][2];
 	m_planes[0].normal[2] = mvp[2][3] + mvp[2][2];
 	m_planes[0].d		  = mvp[3][3] + mvp[3][2];
-	m_planes[0].normalize();
-
+	//m_planes[0].normalize();
+	
 	//Far
 	m_planes[1].normal[0] = mvp[0][3] - mvp[0][2];
 	m_planes[1].normal[1] = mvp[1][3] - mvp[1][2];
 	m_planes[1].normal[2] = mvp[2][3] - mvp[2][2];
 	m_planes[1].d		  = mvp[3][3] - mvp[3][2];
-	m_planes[1].normalize();
+	//m_planes[1].normalize();
 
 	//Left
 	m_planes[2].normal[0] = mvp[0][3] + mvp[0][0];
 	m_planes[2].normal[1] = mvp[1][3] + mvp[1][0];
 	m_planes[2].normal[2] = mvp[2][3] + mvp[2][0];
 	m_planes[2].d		  = mvp[3][3] + mvp[3][0];
-	m_planes[2].normalize();
+	//m_planes[2].normalize();
 
 	//Right
 	m_planes[3].normal[0] = mvp[0][3] - mvp[0][0];
 	m_planes[3].normal[1] = mvp[1][3] - mvp[1][0];
 	m_planes[3].normal[2] = mvp[2][3] - mvp[2][0];
 	m_planes[3].d		  = mvp[3][3] - mvp[3][0];
-	m_planes[3].normalize();
+	//m_planes[3].normalize();
 
 	//Bottom
 	m_planes[4].normal[0] = mvp[0][3] + mvp[0][1];
 	m_planes[4].normal[1] = mvp[1][3] + mvp[1][1];
 	m_planes[4].normal[2] = mvp[2][3] + mvp[2][1];
 	m_planes[4].d		  = mvp[3][3] + mvp[3][1];
-	m_planes[4].normalize();
+	//m_planes[4].normalize();
 
 	//Top
 	m_planes[5].normal[0] = mvp[0][3] - mvp[0][1];
 	m_planes[5].normal[1] = mvp[1][3] - mvp[1][1];
 	m_planes[5].normal[2] = mvp[2][3] - mvp[2][1];
 	m_planes[5].d		  = mvp[3][3] - mvp[3][1];
-	m_planes[5].normalize();
+	//m_planes[5].normalize();
 
 	if (m_debug) {
 		float near = perspective[3][2] / (perspective[2][2] - 1);
@@ -262,9 +262,7 @@ void Frustum::drawFrustm(const Camera& camera, const Vector3f& debugShift) {
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
 	glUseProgram(s_shaderFrustum->m_program);
-	// better debugging
 	s_shaderFrustum->loadMatrix("u_transform", camera.getPerspectiveMatrix() * camera.getViewMatrix() * Matrix4f::Translate(debugShift));
-	//s_shaderFrustum->loadMatrix("u_transform", camera.getPerspectiveMatrix() * camera.getViewMatrix());
 	s_shaderFrustum->loadVector("u_color", Vector4f(0.0f, 1.0f, 1.0f, 1.0f));
 
 	glBindVertexArray(m_vaoFrustum);

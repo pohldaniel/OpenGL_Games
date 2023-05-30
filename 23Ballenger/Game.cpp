@@ -18,15 +18,21 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME),
 	EventDispatcher::AddMouseListener(this);
 	Mouse::instance().attach(Application::GetWindow());
 
+	m_terrain = new Terrain();
+	m_terrain->Initialize("Levels/terrain01.raw");
+
+	m_quadTree = new QuadTree();
+	m_quadTree->Initialize(m_terrain);
+
 	Init();
 
-	const Vector3f& pos = Vector3f((TERRAIN_SIZE * SCALE) / 2, (Terrain.GetHeight((TERRAIN_SIZE * SCALE) / 2, (TERRAIN_SIZE * SCALE) / 2) + RADIUS) * SCALE, (TERRAIN_SIZE * SCALE) / 2);
+	const Vector3f& pos = Vector3f((TERRAIN_SIZE * SCALE) / 2, (_Terrain.GetHeight((TERRAIN_SIZE * SCALE) / 2, (TERRAIN_SIZE * SCALE) / 2) + RADIUS) * SCALE, (TERRAIN_SIZE * SCALE) / 2);
 	
 	m_camera = ThirdPersonCamera();
 	m_camera.perspective(45.0f, (float)Application::Width / (float)Application::Height, 0.1f, 5000.0f);
 	m_camera.lookAt(pos - Vector3f(0.0f, 0.0f, m_offsetDistance), pos, Vector3f(0.0f, 1.0f, 0.0f));
 
-	std::vector<btCollisionShape*> terrainShape = Physics::CreateStaticCollisionShapes(&Terrain, SCALE);
+	std::vector<btCollisionShape*> terrainShape = Physics::CreateStaticCollisionShapes(&_Terrain, SCALE);
 	btRigidBody* body = Globals::physics->addStaticModel(terrainShape, Physics::BtTransform(), false, btVector3(1.0f, 1.0f, 1.0f), Physics::collisiontypes::TERRAIN, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::CAMERA);
 }
 
@@ -124,7 +130,8 @@ void Game::render() {
 
 	Globals::textureManager.get("grass").bind(0);
 	Globals::textureManager.get("rock").bind(1);
-	Terrain.DrawNew();
+	//_Terrain.DrawNew();
+	m_quadTree->Render();
 	shader->unuse();
 
 	m_keySet.draw(m_camera);
@@ -248,16 +255,16 @@ void Game::Init() {
 	pickedkey_id = -1;
 	ang = 0.0f;
 
-	Terrain.Load(1);
-	Terrain.createAttribute();
+	_Terrain.Load(1);
+	_Terrain.createAttribute();
 	Lava.Load(TERRAIN_SIZE);
 
 	//Sound.Play(SOUND_AMBIENT);
-	m_player.init(Terrain);
-	m_keySet.init(Terrain);
-	m_respawnPointSet.init(Terrain);
-	m_columnSet.init(Terrain);
-	m_portal.init(Terrain);
+	m_player.init(_Terrain);
+	m_keySet.init(_Terrain);
+	m_respawnPointSet.init(_Terrain);
+	m_columnSet.init(_Terrain);
+	m_portal.init(_Terrain);
 	m_raySet.init();
 
 	m_lava = RenderableObject("quad_lava", "texture_new", "lava");
