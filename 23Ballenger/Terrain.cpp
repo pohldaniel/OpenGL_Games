@@ -239,10 +239,6 @@ Terrain::Terrain() {
 	
 }
 
-Terrain::Terrain(const Terrain& other) {
-
-}
-
 Terrain::~Terrain() {
 	m_positions.clear();
 	m_positions.shrink_to_fit();
@@ -255,7 +251,7 @@ Terrain::~Terrain() {
 }
 
 
-bool Terrain::Initialize(const char* filename) {
+bool Terrain::init(const char* filename) {
 	bool result;
 
 	m_heightMap.loadFromRAW(filename, TERRAIN_SIZE, TERRAIN_SIZE);

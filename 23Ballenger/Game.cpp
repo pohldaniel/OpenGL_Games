@@ -18,7 +18,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME),
 	EventDispatcher::AddMouseListener(this);
 	Mouse::instance().attach(Application::GetWindow());
 
-	m_terrain.Initialize("Levels/terrain01.raw");
+	m_terrain.init("Levels/terrain01.raw");
 
 	m_quadTree = new QuadTree();
 	m_quadTree->Initialize(&m_terrain);

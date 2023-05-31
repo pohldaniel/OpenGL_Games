@@ -6,7 +6,6 @@
 #define TERRAIN_SIZE    1024
 #define TEXTURE_REPEAT	64
 
-
 class HeightMap {
 
 public:
@@ -41,12 +40,13 @@ private:
 
 class Terrain {
 
+	friend class QuadTree;
+
 public:
 	Terrain();
-	Terrain(const Terrain&);
 	~Terrain();
 
-	bool Initialize(const char* filename);
+	bool init(const char* filename);
 	
 	void drawRaw() const;
 
@@ -56,11 +56,6 @@ public:
 	unsigned int getNumberOfTriangles();
 	std::vector<Vector3f>& getPositions();
 	std::vector<unsigned int>& getIndexBuffer();
-
-	std::vector<Vector3f> m_positions;
-	std::vector<Vector2f> m_texels;
-	std::vector<Vector3f> m_normals;
-	std::vector<unsigned int> m_indexBuffer;
 
 private:
 
@@ -77,4 +72,9 @@ private:
 	unsigned int m_vao;
 	unsigned int m_vbo[5] = { 0 };
 	unsigned int m_drawCount;
+
+	std::vector<unsigned int> m_indexBuffer;
+	std::vector<Vector3f> m_positions;
+	std::vector<Vector2f> m_texels;
+	std::vector<Vector3f> m_normals;
 };
