@@ -10,7 +10,6 @@
 #include "Terrain.h"
 #include "QuadTree.h"
 
-#include "cTerrain.h"
 #include "cLava.h"
 
 #include "KeySet.h"
@@ -45,7 +44,6 @@ private:
 	bool portal_activated;
 	float ang;
 
-	cTerrain _Terrain;
 	cLava Lava;
 
 	Camera m_camera;
@@ -63,7 +61,8 @@ private:
 	float m_offsetDistance = 10.0f;
 	bool m_initUi = true;
 	bool m_drawUi = false;
+	int m_depth = 0;
 
 	QuadTree* m_quadTree;
-	Terrain* m_terrain;
+	Terrain m_terrain;
 };

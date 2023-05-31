@@ -1,6 +1,6 @@
 #include "ColumnSet.h"
 #include "Constants.h"
-#include "cTerrain.h"
+#include "Terrain.h"
 
 ColumnSet::ColumnSet(const Vector3f& playerPos) : m_playerPos(playerPos) {
 
@@ -10,13 +10,13 @@ ColumnSet::~ColumnSet() {
 
 }
 
-void ColumnSet::init(const cTerrain& terrain) {
+void ColumnSet::init(const Terrain& terrain) {
 		
-	std::vector<Matrix4f> instances = { Matrix4f::Translate(TERRAIN_SIZE / 2 + 18.0f, terrain.GetHeight(TERRAIN_SIZE / 2 + 18.0f, TERRAIN_SIZE / 2 + 8.0f),  TERRAIN_SIZE / 2 + 8.0f)  * Matrix4f::Rotate(Vector3f(0.0f, 1.0f, 0.0f), 90.0f),
-										Matrix4f::Translate(TERRAIN_SIZE / 2 + 14.0f, terrain.GetHeight(TERRAIN_SIZE / 2 + 14.0f, TERRAIN_SIZE / 2 - 8.0f),  TERRAIN_SIZE / 2 - 8.0f)  * Matrix4f::Rotate(Vector3f(0.0f, 1.0f, 0.0f), 90.0f),
-										Matrix4f::Translate(TERRAIN_SIZE / 2,         terrain.GetHeight(TERRAIN_SIZE / 2,         TERRAIN_SIZE / 2 - 16.0f), TERRAIN_SIZE / 2 - 16.0f) * Matrix4f::Rotate(Vector3f(0.0f, 1.0f, 0.0f), 180.0f),
-										Matrix4f::Translate(TERRAIN_SIZE / 2 - 14.0f, terrain.GetHeight(TERRAIN_SIZE / 2 - 14.0f, TERRAIN_SIZE / 2 - 8.0f),  TERRAIN_SIZE / 2 - 8.0f)  * Matrix4f::Rotate(Vector3f(0.0f, 1.0f, 0.0f), -90.0f),
-										Matrix4f::Translate(TERRAIN_SIZE / 2 - 18.0f, terrain.GetHeight(TERRAIN_SIZE / 2 - 18.0f, TERRAIN_SIZE / 2 + 8.0f),  TERRAIN_SIZE / 2 + 8.0f)  * Matrix4f::Rotate(Vector3f(0.0f, 1.0f, 0.0f), -90.0f)};
+	std::vector<Matrix4f> instances = { Matrix4f::Translate(TERRAIN_SIZE / 2 + 18.0f, terrain.heightAt(TERRAIN_SIZE / 2 + 18.0f, TERRAIN_SIZE / 2 + 8.0f),  TERRAIN_SIZE / 2 + 8.0f)  * Matrix4f::Rotate(Vector3f(0.0f, 1.0f, 0.0f), 90.0f),
+										Matrix4f::Translate(TERRAIN_SIZE / 2 + 14.0f, terrain.heightAt(TERRAIN_SIZE / 2 + 14.0f, TERRAIN_SIZE / 2 - 8.0f),  TERRAIN_SIZE / 2 - 8.0f)  * Matrix4f::Rotate(Vector3f(0.0f, 1.0f, 0.0f), 90.0f),
+										Matrix4f::Translate(TERRAIN_SIZE / 2,         terrain.heightAt(TERRAIN_SIZE / 2,         TERRAIN_SIZE / 2 - 16.0f), TERRAIN_SIZE / 2 - 16.0f) * Matrix4f::Rotate(Vector3f(0.0f, 1.0f, 0.0f), 180.0f),
+										Matrix4f::Translate(TERRAIN_SIZE / 2 - 14.0f, terrain.heightAt(TERRAIN_SIZE / 2 - 14.0f, TERRAIN_SIZE / 2 - 8.0f),  TERRAIN_SIZE / 2 - 8.0f)  * Matrix4f::Rotate(Vector3f(0.0f, 1.0f, 0.0f), -90.0f),
+										Matrix4f::Translate(TERRAIN_SIZE / 2 - 18.0f, terrain.heightAt(TERRAIN_SIZE / 2 - 18.0f, TERRAIN_SIZE / 2 + 8.0f),  TERRAIN_SIZE / 2 + 8.0f)  * Matrix4f::Rotate(Vector3f(0.0f, 1.0f, 0.0f), -90.0f)};
 
 	std::vector<Vector4f> colors = { Vector4f(1.0f, 0.0f, 0.0f, 1.0f), Vector4f(1.0f, 1.0f, 0.0f, 1.0f) , Vector4f(0.0f, 1.0f, 0.0f, 1.0f) , Vector4f(0.1f, 0.1f, 1.0f, 1.0f) , Vector4f(1.0f, 0.0f, 1.0f, 1.0f) };
 

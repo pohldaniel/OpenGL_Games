@@ -8,7 +8,7 @@
 #define HEIGHT_OFFSET 0.05f
 #define RADIUS   0.5f
 
-class cTerrain;
+class Terrain;
 
 class RespawnPointSet : public RenderableObject {
 
@@ -20,7 +20,7 @@ public:
 
 	RespawnPointSet(const Vector3f& playerPos);
 	~RespawnPointSet();
-	void init(const cTerrain& terrain);
+	void init(const Terrain& terrain);
 	void draw(const Camera& camera) override;
 	void update(const float dt) override;
 	

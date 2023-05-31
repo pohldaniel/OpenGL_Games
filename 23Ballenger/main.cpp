@@ -35,7 +35,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	MoveWindow(GetConsoleWindow(), 1300, 0, 550, 300, true);
 	std::cout << "right mouse      : capture game" << std::endl;
-	std::cout << "space            : capure ui" << std::endl;
+	std::cout << "space            : capture ui" << std::endl;
 	std::cout << "ESC              : quit" << std::endl;
 	std::cout << "v                : toggle vsync" << std::endl;
 	std::cout << "alt + enter      : fullscreen" << std::endl;

@@ -7,7 +7,7 @@
 #define ENERGY_BALL_RADIUS 1.0f
 #define GATHERNG_AREA_SIDE 4.0f
 
-class cTerrain;
+class Terrain;
 
 class ColumnSet : public RenderableObject {
 
@@ -22,7 +22,7 @@ public:
 	ColumnSet(const Vector3f& playerPos);
 	~ColumnSet();
 
-	void init(const cTerrain& terrain);
+	void init(const Terrain& terrain);
 	void draw(const Camera& camera) override;
 
 	bool insideGatheringArea(unsigned short index);

@@ -189,9 +189,6 @@
     <ClCompile Include="engine\sound\SoundDevice.cpp">
       <Filter>engine\sound</Filter>
     </ClCompile>
-    <ClCompile Include="cTerrain.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="cLava.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -390,9 +387,6 @@
       <Filter>engine\sound</Filter>
     </ClInclude>
     <ClInclude Include="Globals.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="cTerrain.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="cLava.h">

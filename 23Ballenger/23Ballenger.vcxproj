@@ -158,7 +158,6 @@
     <ClCompile Include="CharacterController.cpp" />
     <ClCompile Include="cLava.cpp" />
     <ClCompile Include="ColumnSet.cpp" />
-    <ClCompile Include="cTerrain.cpp" />
     <ClCompile Include="engine\AssimpModel.cpp" />
     <ClCompile Include="engine\Batchrenderer.cpp" />
     <ClCompile Include="engine\BuiltInShader.cpp" />
@@ -226,7 +225,6 @@
     <ClInclude Include="ColumnSet.h" />
     <ClInclude Include="Constants.h" />
     <ClInclude Include="convhull\convhull_3d.h" />
-    <ClInclude Include="cTerrain.h" />
     <ClInclude Include="engine\AssetManger.h" />
     <ClInclude Include="engine\AssimpModel.h" />
     <ClInclude Include="engine\Batchrenderer.h" />

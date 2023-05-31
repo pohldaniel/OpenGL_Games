@@ -1,7 +1,8 @@
 #include "Player.h"
 #include "Constants.h"
-#include "cTerrain.h"
 #include "Application.h"
+
+#include "Terrain.h"
 
 Player::Player(Camera& camera) : m_camera(camera) { }
 
@@ -9,9 +10,9 @@ Player::~Player() {
 
 }
 
-void Player::init(const cTerrain& terrain) {
+void Player::init(const Terrain& terrain) {
 
-	Vector3f pos = Vector3f((TERRAIN_SIZE * SCALE) / 2, (terrain.GetHeight((TERRAIN_SIZE * SCALE) / 2, (TERRAIN_SIZE * SCALE) / 2) + RADIUS) * SCALE, (TERRAIN_SIZE * SCALE) / 2);
+	Vector3f pos = Vector3f((1024 * SCALE) / 2, (terrain.heightAt((1024 * SCALE) / 2, (1024 * SCALE) / 2) + RADIUS) * SCALE, (1024 * SCALE) / 2);
 
 	//create dynamic character
 	btSphereShape* playerShape = new btSphereShape(0.5f * SCALE);

@@ -857,8 +857,7 @@ bool Terrain::generateIndicesTS() {
 
 			// Add degenerate triangles to stitch strips together.
 			*pIndex++ = resolution + (z + 1) * (resolution + 1);
-		}
-		else {
+		}else {
 			for (int x = resolution; x >= 0; --x) {
 				*pIndex++ = x + z * (resolution + 1);
 				*pIndex++ = x + (z + 1) * (resolution + 1);

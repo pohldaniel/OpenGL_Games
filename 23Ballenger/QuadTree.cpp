@@ -1,9 +1,11 @@
 #include <iostream>
 #include <GL/glew.h>
 #include "QuadTree.h"
+#include "StateMachine.h"
+
+int QuadTree::MaxDepth = 0;
 
 QuadTree::QuadTree() {
-	m_vertexList = 0;
 	m_parentNode = 0;
 }
 
@@ -12,6 +14,8 @@ QuadTree::QuadTree(const QuadTree& other) { }
 QuadTree::~QuadTree() { }
 
 void QuadTree::Initialize(Terrain* terrain) {
+	m_terrain = terrain;
+	
 	int vertexCount;
 	float centerX, centerZ, width;
 
@@ -19,15 +23,6 @@ void QuadTree::Initialize(Terrain* terrain) {
 	vertexCount = terrain->GetVertexCount();
 	// Store the total triangle count for the vertex list.
 	m_triangleCount = vertexCount / 3;
-	
-	// Create a vertex array to hold all of the terrain vertices.
-	m_vertexList = new Vertex[vertexCount];
-	if (!m_vertexList) {
-		return;
-	}
-
-	// Copy the terrain vertices into the vertex list.
-	terrain->CopyVertexArray((void*)m_vertexList);
 
 	// Calculate the center x,z and the width of the mesh.
 	CalculateMeshDimensions(vertexCount, centerX, centerZ, width);
@@ -40,14 +35,7 @@ void QuadTree::Initialize(Terrain* terrain) {
 	}
 	
 	// Recursively build the quad tree based on the vertex list data and mesh dimensions.
-	CreateTreeNode(m_parentNode, centerX, centerZ, width);
-
-	// Release the vertex list since the quad tree now has the vertices in each node.
-	if (m_vertexList) {
-		delete[] m_vertexList;
-		m_vertexList = 0;
-	}
-
+	CreateTreeNode(m_parentNode, centerX, centerZ, width, 0);
 }
 
 
@@ -63,12 +51,12 @@ void QuadTree::Shutdown() {
 }
 
 
-void QuadTree::Render() {
+void QuadTree::Render(int depth) {
 	// Reset the number of triangles that are drawn for this frame.
 	m_drawCount = 0;
 
 	// Render each node that is visible starting at the parent node and moving down the tree.
-	RenderNode(m_parentNode);
+	RenderNode(m_parentNode, depth);
 
 	return;
 }
@@ -79,19 +67,19 @@ int QuadTree::GetDrawCount() {
 }
 
 
-void QuadTree::CalculateMeshDimensions(int vertexCount, float& centerX, float& centerZ, float& meshWidth) {
+void QuadTree::CalculateMeshDimensions(int _vertexCount, float& centerX, float& centerZ, float& meshWidth) {
 	int i;
 	float maxWidth, maxDepth, minWidth, minDepth, width, depth, maxX, maxZ;
-
+	int vertexCount = m_terrain->m_positions.size();
 
 	// Initialize the center position of the mesh to zero.
 	centerX = 0.0f;
 	centerZ = 0.0f;
-
+	std::vector<unsigned int>& indexBuffer = m_terrain->m_indexBuffer;
 	// Sum all the vertices in the mesh.
 	for (i = 0; i<vertexCount; i++) {
-		centerX += m_vertexList[i].position[0];
-		centerZ += m_vertexList[i].position[2];
+		centerX += m_terrain->m_positions[i][0];
+		centerZ += m_terrain->m_positions[i][2];
 	}
 
 	// And then divide it by the number of vertices to find the mid-point of the mesh.
@@ -102,13 +90,13 @@ void QuadTree::CalculateMeshDimensions(int vertexCount, float& centerX, float& c
 	maxWidth = 0.0f;
 	maxDepth = 0.0f;
 
-	minWidth = fabsf(m_vertexList[0].position[0] - centerX);
-	minDepth = fabsf(m_vertexList[0].position[2] - centerZ);
+	minWidth = fabsf(m_terrain->m_positions[i][0] - centerX);
+	minDepth = fabsf(m_terrain->m_positions[i][2] - centerZ);
 
 	// Go through all the vertices and find the maximum and minimum width and depth of the mesh.
 	for (i = 0; i<vertexCount; i++) {
-		width = fabsf(m_vertexList[i].position[0] - centerX);
-		depth = fabsf(m_vertexList[i].position[2] - centerZ);
+		width = fabsf(m_terrain->m_positions[i][0] - centerX);
+		depth = fabsf(m_terrain->m_positions[i][2] - centerZ);
 
 		if (width > maxWidth) { maxWidth = width; }
 		if (depth > maxDepth) { maxDepth = depth; }
@@ -127,18 +115,80 @@ void QuadTree::CalculateMeshDimensions(int vertexCount, float& centerX, float& c
 }
 
 
-void QuadTree::CreateTreeNode(Node* node, float positionX, float positionZ, float width) {
+void QuadTree::CreateTreeNode(Node* node, float positionX, float positionZ, float width, int depth) {
 	int numTriangles, i, count, vertexCount, indexCount, vertexIndex;
 	float offsetX, offsetZ;
 	Vertex* vertices;
 	unsigned int* indices;
 	bool result;
+	float widthHalf = width * 0.5f;
+	MaxDepth = std::max(MaxDepth, depth);
+
+	float data[] = {
+		positionX - widthHalf,  0.0f, positionZ + widthHalf,
+		positionX + widthHalf,  0.0f, positionZ + widthHalf,
+		positionX + widthHalf, 50.0f, positionZ + widthHalf,
+		positionX - widthHalf, 50.0f, positionZ + widthHalf,
+
+		positionX - widthHalf,  0.0f, positionZ - widthHalf,
+		positionX + widthHalf,  0.0f, positionZ - widthHalf,
+		positionX + widthHalf, 50.0f, positionZ - widthHalf,
+		positionX - widthHalf, 50.0f, positionZ - widthHalf
+	};
+
+	const unsigned short indicesDebug[] = {
+		// positive X
+		1, 5, 6,
+		6, 2, 1,
+		// negative X
+		4, 0, 3,
+		3, 7, 4,
+		// positive Y
+		3, 2, 6,
+		6, 7, 3,
+		// negative Y
+		4, 5, 1,
+		1, 0, 4,
+		// positive Z
+		0, 1, 2,
+		2, 3, 0,
+		// negative Z
+		7, 6, 5,
+		5, 4, 7
+	};
+
+	unsigned int iboDebug;
+	glGenBuffers(1, &iboDebug);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, iboDebug);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, 36 * sizeof(unsigned short), indicesDebug, GL_STATIC_DRAW);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+	glGenBuffers(1, &node->vboDebug);
+	glBindBuffer(GL_ARRAY_BUFFER, node->vboDebug);
+	glBufferData(GL_ARRAY_BUFFER, 24 * sizeof(float), data, GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+
+	glGenVertexArrays(1, &node->vaoDebug);
+	glBindVertexArray(node->vaoDebug);
+
+	glBindBuffer(GL_ARRAY_BUFFER, node->vboDebug);
+
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, iboDebug);
+	
+
+	glBindVertexArray(0);
+	glDeleteBuffers(1, &iboDebug);
+
 
 	// Store the node position and size.
 	node->positionX = positionX;
 	node->positionZ = positionZ;
 	node->width = width;
-
+	node->depth = depth;
 	// Initialize the triangle count to zero for the node.
 	node->triangleCount = 0;
 
@@ -170,7 +220,7 @@ void QuadTree::CreateTreeNode(Node* node, float positionX, float positionZ, floa
 				node->nodes[i] = new Node();
 
 				// Extend the tree starting from this new child node now.
-				CreateTreeNode(node->nodes[i], (positionX + offsetX), (positionZ + offsetZ), (width / 2.0f));
+				CreateTreeNode(node->nodes[i], (positionX + offsetX), (positionZ + offsetZ), (width / 2.0f), depth + 1);
 			}
 		}
 
@@ -193,6 +243,8 @@ void QuadTree::CreateTreeNode(Node* node, float positionX, float positionZ, floa
 	// Initialize the index for this new vertex and index array.
 	indexCount = 0;
 
+	std::vector<unsigned int>& indexBuffer = m_terrain->m_indexBuffer;
+
 	// Go through all the triangles in the vertex list.
 	for (i = 0; i < m_triangleCount; i++) {
 		// If the triangle is inside this node then add it to the vertex array.
@@ -202,24 +254,23 @@ void QuadTree::CreateTreeNode(Node* node, float positionX, float positionZ, floa
 			vertexIndex = i * 3;
 
 			// Get the three vertices of this triangle from the vertex list.
-			vertices[indexCount].position = m_vertexList[vertexIndex].position;		
-			vertices[indexCount].texture = m_vertexList[vertexIndex].texture;
-			vertices[indexCount].normal = m_vertexList[vertexIndex].normal;
+			vertices[indexCount].position = m_terrain->m_positions[indexBuffer[vertexIndex]];
+			vertices[indexCount].texture  = m_terrain->m_texels[indexBuffer[vertexIndex]];
+			vertices[indexCount].normal   = m_terrain->m_normals[indexBuffer[vertexIndex]];
 			indices[indexCount] = indexCount;
 			indexCount++;
 
 			vertexIndex++;
-			vertices[indexCount].position = m_vertexList[vertexIndex].position;
-			vertices[indexCount].texture = m_vertexList[vertexIndex].texture;
-			vertices[indexCount].normal = m_vertexList[vertexIndex].normal;
+			vertices[indexCount].position = m_terrain->m_positions[indexBuffer[vertexIndex]];
+			vertices[indexCount].texture  = m_terrain->m_texels[indexBuffer[vertexIndex]];
+			vertices[indexCount].normal   = m_terrain->m_normals[indexBuffer[vertexIndex]];
 			indices[indexCount] = indexCount;
 			indexCount++;
 
 			vertexIndex++;
-			vertices[indexCount].position = m_vertexList[vertexIndex].position;
-
-			vertices[indexCount].texture = m_vertexList[vertexIndex].texture;
-			vertices[indexCount].normal = m_vertexList[vertexIndex].normal;
+			vertices[indexCount].position = m_terrain->m_positions[indexBuffer[vertexIndex]];
+			vertices[indexCount].texture  = m_terrain->m_texels[indexBuffer[vertexIndex]];
+			vertices[indexCount].normal   = m_terrain->m_normals[indexBuffer[vertexIndex]];
 			indices[indexCount] = indexCount;
 			indexCount++;
 		}
@@ -290,7 +341,7 @@ int QuadTree::CountTriangles(float positionX, float positionZ, float width) {
 
 
 bool QuadTree::IsTriangleContained(int index, float positionX, float positionZ, float width) {
-
+	std::vector<unsigned int>& indexBuffer = m_terrain->m_indexBuffer;
 	float radius;
 	int vertexIndex;
 	float x1, z1, x2, z2, x3, z3;
@@ -304,16 +355,16 @@ bool QuadTree::IsTriangleContained(int index, float positionX, float positionZ, 
 	vertexIndex = index * 3;
 
 	// Get the three vertices of this triangle from the vertex list.
-	x1 = m_vertexList[vertexIndex].position[0];
-	z1 = m_vertexList[vertexIndex].position[2];
+	x1 = m_terrain->m_positions[indexBuffer[vertexIndex]][0];
+	z1 = m_terrain->m_positions[indexBuffer[vertexIndex]][2];
 	vertexIndex++;
 
-	x2 = m_vertexList[vertexIndex].position[0];
-	z2 = m_vertexList[vertexIndex].position[2];
+	x2 = m_terrain->m_positions[indexBuffer[vertexIndex]][0];
+	z2 = m_terrain->m_positions[indexBuffer[vertexIndex]][2];
 	vertexIndex++;
 
-	x3 = m_vertexList[vertexIndex].position[0];
-	z3 = m_vertexList[vertexIndex].position[2];
+	x3 = m_terrain->m_positions[indexBuffer[vertexIndex]][0];
+	z3 = m_terrain->m_positions[indexBuffer[vertexIndex]][2];
 
 	// Check to see if the minimum of the x coordinates of the triangle is inside the node.
 	minimumX = std::min(x1, std::min(x2, x3));
@@ -366,7 +417,18 @@ void QuadTree::ReleaseNode(Node* node) {
 }
 
 
-void QuadTree::RenderNode(Node* node) {
+void QuadTree::RenderNode(Node* node, int depth) {
+	
+	if (depth == node->depth) {
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+		glBindVertexArray(node->vaoDebug);
+		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_SHORT, 0);
+		glBindVertexArray(0);
+
+		glPolygonMode(GL_FRONT_AND_BACK, StateMachine::GetEnableWireframe() ? GL_LINE : GL_FILL);
+	}
+	
 	bool result = true;
 
 	// Check to see if the node can be viewed, height doesn't matter in a quad tree.
@@ -382,7 +444,7 @@ void QuadTree::RenderNode(Node* node) {
 	for (int i = 0; i < 4; i++) {
 		if (node->nodes[i] != 0) {
 			count++;
-			RenderNode(node->nodes[i]);
+			RenderNode(node->nodes[i], depth);
 		}
 	}
 
@@ -391,7 +453,10 @@ void QuadTree::RenderNode(Node* node) {
 		return;
 	}
 	
-
+	/*m_result = !m_result;
+	if (!m_result) {
+		return;
+	}*/
 	// Otherwise if this node can be seen and has triangles in it then render these triangles.
 	glBindVertexArray(node->vao);
 	glDrawElements(GL_TRIANGLES, node->drawCount, GL_UNSIGNED_INT, 0);

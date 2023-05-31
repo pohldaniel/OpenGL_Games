@@ -8,7 +8,7 @@
 #define BEACON_MIN_RADIUS 0.75f
 #define BEACON_HEIGHT 140.0f
 
-class cTerrain;
+class Terrain;
 
 class KeySet : public RenderableObject {
 
@@ -22,7 +22,7 @@ public:
 	KeySet(const Vector3f& playerPos);
 	~KeySet();
 
-	void init(const cTerrain& terrain);
+	void init(const Terrain& terrain);
 	void draw(const Camera& camera) override;
 	void update(const float dt) override;
 	void updateCylinderShape();

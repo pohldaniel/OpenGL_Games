@@ -6,7 +6,7 @@
 class ObjMesh;
 class ObjModel;
 class Shape;
-class cTerrain;
+class Terrain;
 
 class Physics{
 
@@ -41,8 +41,8 @@ public:
 	static btCollisionShape* CreateStaticCollisionShape(Shape* mesh, const btVector3 & scale = btVector3(1, 1, 1));
 	static std::vector<btCollisionShape*> CreateStaticCollisionShapes(Shape* model, float scale = 1.f);
 
-	static btCollisionShape * CreateStaticCollisionShape(cTerrain* mesh, const btVector3& scale);
-	static std::vector<btCollisionShape*> CreateStaticCollisionShapes(cTerrain* model, float scale);
+	static btCollisionShape * CreateStaticCollisionShape(Terrain* terrain, const btVector3& scale);
+	static std::vector<btCollisionShape*> CreateStaticCollisionShapes(Terrain* terrain, float scale);
 
 	static btCollisionShape* CreateStaticCollisionShape(ObjMesh* mesh, const btVector3& scale = btVector3(1, 1, 1));
 	static std::vector<btCollisionShape*> CreateStaticCollisionShapes(ObjModel * model, const btVector3 & scale);

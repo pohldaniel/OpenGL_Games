@@ -6,7 +6,7 @@
 #define PORTAL_SIDE  3.0f
 #define PORTAL_SPEED 2.0f
 
-class cTerrain;
+class Terrain;
 
 class Portal : public RenderableObject {
 
@@ -15,7 +15,7 @@ public:
 	Portal();
 	~Portal();
 
-	void init(const cTerrain& terrain);
+	void init(const Terrain& terrain);
 	void draw(const Camera& camera) override;
 	void update(const float dt) override;
 	void setDisabled(bool disabled);

@@ -68,14 +68,31 @@ public:
 
 	bool Initialize(const char* filename);
 	
+	void drawRaw() const;
+
 	void Shutdown();
 
 	int GetVertexCount();
 	void CopyVertexArray(void* vertexList);
 
+	float heightAt(float x, float z) const;
+	void normalAt(float x, float z, Vector3f &n) const;
+
+	unsigned int getNumberOfTriangles();
+	std::vector<Vector3f>& getPositions();
+	std::vector<unsigned int>& getIndexBuffer();
+
+	std::vector<Vector3f> m_positions;
+	std::vector<Vector2f> m_texels;
+	std::vector<Vector3f> m_normals;
+	std::vector<unsigned int> m_indexBuffer;
+
 private:
 
 	void create(const HeightMap& heightMap);
+	void generateIndices();
+	void generateIndicesTS();
+	void createBuffer();
 
 	void ShutdownHeightMap();
 	bool InitializeBuffers();
@@ -91,8 +108,15 @@ private:
 	HeightMap m_heightMap;
 
 
-	float heightAt(float x, float z) const;
-	void normalAt(float x, float z, Vector3f &n) const;
+
+
+
+	
+	
+
+	unsigned int m_vao;
+	unsigned int m_vbo[5] = { 0 };
+	unsigned int m_drawCount;
 
 	static long floatToLong(float f) {
 		// Converts a floating point number into an integer.

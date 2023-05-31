@@ -1,6 +1,6 @@
 #include "Portal.h"
 #include "Constants.h"
-#include "cTerrain.h"
+#include "Terrain.h"
 
 Portal::Portal() {
 
@@ -10,8 +10,8 @@ Portal::~Portal() {
 
 }
 
-void Portal::init(const cTerrain& terrain) {
-	setPosition(TERRAIN_SIZE / 2, terrain.GetHeight(TERRAIN_SIZE / 2, TERRAIN_SIZE / 2 + 32.0f), TERRAIN_SIZE / 2 + 32.0f);
+void Portal::init(const Terrain& terrain) {
+	setPosition(TERRAIN_SIZE / 2, terrain.heightAt(TERRAIN_SIZE / 2, TERRAIN_SIZE / 2 + 32.0f), TERRAIN_SIZE / 2 + 32.0f);
 
 	std::vector<Vector4f> colors = { Vector4f(1.0f, 0.0f, 0.0f, 1.0f), Vector4f(1.0f, 1.0f, 0.0f, 1.0f) , Vector4f(0.0f, 1.0f, 0.0f, 1.0f) , Vector4f(0.2f, 0.2f, 1.0f, 1.0f) , Vector4f(1.0f, 0.0f, 1.0f, 1.0f) };
 	

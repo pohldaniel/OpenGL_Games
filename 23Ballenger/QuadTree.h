@@ -22,9 +22,12 @@ private:
 		float positionX, positionZ, width;
 		int triangleCount;
 		int drawCount;
+		int depth;
 		Node* nodes[4];
 		unsigned int vao = 0;
 		unsigned int vbo = 0;
+		unsigned int vaoDebug = 0;
+		unsigned int vboDebug = 0;
 	};
 
 public:
@@ -34,21 +37,26 @@ public:
 
 	void Initialize(Terrain* terrain);
 	void Shutdown();
-	void Render();
+	void Render(int depth = 0);
 
 	int GetDrawCount();
+
+	static int MaxDepth;
 
 private:
 
 	void CalculateMeshDimensions(int vertexCount, float& centerX, float& centerZ, float& meshWidth);
-	void CreateTreeNode(Node* node, float positionX, float positionZ, float width);
+	void CreateTreeNode(Node* node, float positionX, float positionZ, float width, int depth);
 	int CountTriangles(float positionX, float positionZ, float width);
 	bool IsTriangleContained(int index, float positionX, float positionZ, float width);
 	void ReleaseNode(Node* node);
-	void RenderNode(Node* node);
+	void RenderNode(Node* node, int depth);
 
 private:
+
 	int m_triangleCount, m_drawCount;
-	Vertex* m_vertexList;
 	Node* m_parentNode;
+	bool m_result = false;
+
+	Terrain* m_terrain;
 };

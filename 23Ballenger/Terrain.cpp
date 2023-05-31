@@ -1,3 +1,4 @@
+#include <GL/glew.h>
 #include <iostream>
 
 #include "Terrain.h"
@@ -244,6 +245,14 @@ Terrain::Terrain(const Terrain& other) {
 }
 
 Terrain::~Terrain() {
+	m_positions.clear();
+	m_positions.shrink_to_fit();
+	m_indexBuffer.clear();
+	m_indexBuffer.shrink_to_fit();
+	m_texels.clear();
+	m_texels.shrink_to_fit();
+	m_normals.clear();
+	m_normals.shrink_to_fit();
 }
 
 
@@ -284,6 +293,13 @@ void Terrain::create(const HeightMap& heightMap) {
 	for (int z = 0; z < heightMap.getHeight(); z++) {
 		for (int x = 0; x < heightMap.getWidth(); x++) {
 
+
+			m_positions.push_back(Vector3f(static_cast<float>(x * m_gridSpacing), m_heightMap.heightAtPixel(x, z), static_cast<float>(z * m_gridSpacing)));
+			m_texels.push_back(Vector2f(static_cast<float>(x) / static_cast<float>(heightMap.getWidth()) * (float)TEXTURE_REPEAT, static_cast<float>(z) / static_cast<float>(heightMap.getHeight()) * (float)TEXTURE_REPEAT));
+			
+			heightMap.normalAtPixel(x, z, normal);
+			m_normals.push_back(normal);
+
 			index = (heightMap.getWidth() * z) + x;
 			m_data[index].x = static_cast<float>(x * m_gridSpacing);
 			m_data[index].y = m_heightMap.heightAtPixel(x, z);
@@ -298,8 +314,123 @@ void Terrain::create(const HeightMap& heightMap) {
 			m_data[index].tv = static_cast<float>(z) / static_cast<float>(heightMap.getHeight()) * (float)TEXTURE_REPEAT;
 		}
 	}
+	generateIndices();
+	createBuffer();
 
-	
+	std::cout << "Vertex Count 1: " << m_indexBuffer.size() << std::endl;
+}
+
+void Terrain::generateIndices() {
+	int resolutionZ = m_height;
+	int resolutionX = m_width;
+
+	for (int z = 0; z < resolutionZ - 1; z++) {
+		for (int x = 0; x < resolutionX - 1; x++) {
+
+			// 0 *- 1		0
+			//	\	*		|  *
+			//	 *	|		*	\
+			//      3		2 -* 3
+			m_indexBuffer.push_back((z + 1) * (resolutionX)+(x + 1));
+			m_indexBuffer.push_back(z * (resolutionX)+(x + 1));
+			m_indexBuffer.push_back(z * (resolutionX)+x);
+
+
+			m_indexBuffer.push_back((z + 1) * (resolutionX)+x);
+			m_indexBuffer.push_back((z + 1) * (resolutionX)+(x + 1));
+			m_indexBuffer.push_back(z * (resolutionX)+x);
+
+		}
+	}
+}
+
+void Terrain::generateIndicesTS() {
+	int resolutionZ = m_height;
+	int resolutionX = m_width;
+
+	for (int z = 0; z < resolutionZ - 1; ++z) {
+
+		if (z % 2 == 0) {
+
+			for (int x = resolutionX - 1; x >= 0; --x) {
+				m_indexBuffer.push_back(x + (z + 1) * resolutionX);
+				m_indexBuffer.push_back(x + z * resolutionX);
+
+			}
+
+			// Add degenerate triangles to stitch strips together.
+			m_indexBuffer.push_back((z + 1) * resolutionX);
+
+		}else {
+			for (int x = 0; x < resolutionX; ++x) {
+				m_indexBuffer.push_back(x + (z + 1) * resolutionX);
+				m_indexBuffer.push_back(x + z * (resolutionX));
+			}
+
+			// Add degenerate triangles to stitch strips together.
+			m_indexBuffer.push_back((resolutionX - 1) + (z + 1) * resolutionX);
+
+		}
+	}
+}
+
+void Terrain::createBuffer() {
+	m_drawCount = m_indexBuffer.size();
+
+	unsigned int ibo;
+	glGenBuffers(1, &ibo);
+	glGenBuffers(!m_positions.empty() + !m_texels.empty() + !m_normals.empty(), m_vbo);
+
+	glGenVertexArrays(1, &m_vao);
+	glBindVertexArray(m_vao);
+
+	//Position
+	glBindBuffer(GL_ARRAY_BUFFER, m_vbo[0]);
+	glBufferData(GL_ARRAY_BUFFER, m_positions.size() * sizeof(m_positions[0]), &m_positions[0], GL_STATIC_DRAW);
+
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+	//Texture Coordinates
+	if (!m_texels.empty()) {
+		glBindBuffer(GL_ARRAY_BUFFER, m_vbo[1]);
+		glBufferData(GL_ARRAY_BUFFER, m_texels.size() * sizeof(m_texels[0]), &m_texels[0], GL_STATIC_DRAW);
+
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, 0);
+	}
+
+	//Normals
+	if (!m_normals.empty()) {
+		glBindBuffer(GL_ARRAY_BUFFER, !m_texels.empty() ? m_vbo[2] : m_vbo[1]);
+		glBufferData(GL_ARRAY_BUFFER, m_normals.size() * sizeof(m_normals[0]), &m_normals[0], GL_STATIC_DRAW);
+
+		glEnableVertexAttribArray(2);
+		glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	}
+
+	//Indices
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_indexBuffer.size() * sizeof(m_indexBuffer[0]), &m_indexBuffer[0], GL_STATIC_DRAW);
+	glBindVertexArray(0);
+
+	glDeleteBuffers(1, &ibo);
+
+	//m_positions.clear();
+	//m_positions.shrink_to_fit();
+	//m_indexBuffer.clear();
+	//m_indexBuffer.shrink_to_fit();
+	//m_texels.clear();
+	//m_texels.shrink_to_fit();
+	//m_normals.clear();
+	//m_normals.shrink_to_fit();
+}
+
+void Terrain::drawRaw() const {
+	glBindVertexArray(m_vao);
+	glDrawElements(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0);
+	//glDrawElements(GL_TRIANGLE_STRIP, m_drawCount, GL_UNSIGNED_INT, 0);
+	glBindVertexArray(0);
 }
 
 void Terrain::ShutdownHeightMap() {
@@ -318,7 +449,7 @@ bool Terrain::InitializeBuffers() {
 
 	// Calculate the number of vertices in the terrain mesh.
 	m_vertexCount = (m_width - 1) * (m_height - 1) * 6;
-
+	std::cout << "Vertex Count 2: " << m_vertexCount << std::endl;
 	// Create the vertex array.
 	m_vertices = new Vertex[m_vertexCount];
 	if (!m_vertices) {
@@ -471,3 +602,14 @@ void Terrain::normalAt(float x, float z, Vector3f &n) const {
 	n.normalize();
 }
 
+std::vector<Vector3f>& Terrain::getPositions() {
+	return m_positions;
+}
+
+std::vector<unsigned int>& Terrain::getIndexBuffer() {
+	return m_indexBuffer;
+}
+
+unsigned int Terrain::getNumberOfTriangles() {
+	return m_drawCount / 3;
+}

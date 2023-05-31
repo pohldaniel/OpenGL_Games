@@ -9,7 +9,7 @@
 
 #define RADIUS   0.5f
 
-class cTerrain;
+class Terrain;
 
 class Player : public RenderableObject {
 
@@ -17,7 +17,7 @@ public:
 
 	Player(Camera& camera);
 	~Player();
-	void init(const cTerrain& terrain);
+	void init(const Terrain& terrain);
 	void draw(const Camera& camera) override;
 	void update(const float dt) override;
 	CharacterController* getCharacterController();

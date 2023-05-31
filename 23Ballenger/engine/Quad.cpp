@@ -60,7 +60,7 @@ void Quad::createBuffer(unsigned int& vao, bool flippable, float leftEdge, float
 		vertex.push_back(rightEdge * sizeX); vertex.push_back(bottomEdge * sizeY); vertex.push_back(0.0); vertex.push_back(offsetX + (1 - x) * sizeTexX); vertex.push_back(offsetY + y * sizeTexY);
 	}
 
-	static const GLushort index[] = {
+	const GLushort index[] = {
 		0, 2, 1,
 		0, 3, 2
 	};
@@ -109,7 +109,7 @@ void Quad::createBuffer() {
 	vertex.push_back(m_position[0] + m_size[0]); vertex.push_back(m_position[1] + m_size[1]); vertex.push_back(m_position[2] + m_size[2]); vertex.push_back(1.0f); vertex.push_back(1.0f);
 	vertex.push_back(m_position[0] + m_size[0]); vertex.push_back(m_position[1]);			  vertex.push_back(m_position[2] + m_size[2]); vertex.push_back(1.0f); vertex.push_back(0.0f);
 
-	static const GLushort index[] = {
+	const GLushort index[] = {
 		0, 2, 1,
 		0, 3, 2
 	};
@@ -162,7 +162,7 @@ void Quad::createBuffer(const Vector3f& position, const Vector3f& size) {
 	vertex.push_back(position[0] + size[0]); vertex.push_back(position[1] + size[1]); vertex.push_back(position[2] + size[2]); vertex.push_back(1.0f); vertex.push_back(1.0f);
 	vertex.push_back(position[0] + size[0]); vertex.push_back(position[1]);			  vertex.push_back(position[2] + size[2]); vertex.push_back(1.0f); vertex.push_back(0.0f);
 
-	static const GLushort index[] = {
+	const GLushort index[] = {
 		0, 2, 1,
 		0, 3, 2
 	};

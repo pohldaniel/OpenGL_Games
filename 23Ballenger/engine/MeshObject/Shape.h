@@ -51,11 +51,11 @@ public:
 	void addFloatAttribute(unsigned int length, unsigned int divisor = 1u, unsigned int usage = 35048u);
 	void updateFloatAttribute(const std::vector<float>& values);
 
-	int getNumberOfTriangles();
-	void cleanup();
+	unsigned int getNumberOfTriangles();
 	std::vector<Vector3f>& getPositions();
 	std::vector<unsigned int>& getIndexBuffer();
 	const std::vector<Matrix4f>& getInstances() const;
+	void cleanup();
 
 private:
 

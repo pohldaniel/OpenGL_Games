@@ -1,6 +1,6 @@
 #include "RespawnPointSet.h"
 #include "Constants.h"
-#include "cTerrain.h"
+#include "Terrain.h"
 
 RespawnPointSet::RespawnPointSet(const Vector3f& playerPos) : m_playerPos(playerPos){
 
@@ -10,15 +10,15 @@ RespawnPointSet::~RespawnPointSet() {
 
 }
 
-void RespawnPointSet::init(const cTerrain& terrain) {
-	std::vector<Matrix4f> instances = { Matrix4f::Translate(TERRAIN_SIZE / 2, terrain.GetHeight(TERRAIN_SIZE / 2, TERRAIN_SIZE / 2), TERRAIN_SIZE / 2),
-										Matrix4f::Translate(256.0f, terrain.GetHeight(256.0f, 160.0f), 160.0f),
-										Matrix4f::Translate(840.0f, terrain.GetHeight(840.0f, 184.0f), 184.0f),
-										Matrix4f::Translate(552.0f, terrain.GetHeight(552.0f, 760.0f), 760.0f),
-										Matrix4f::Translate(791.0f, terrain.GetHeight(791.0f, 850.0f), 850.0f),
-										Matrix4f::Translate(152.0f, terrain.GetHeight(152.0f, 832.0f), 832.0f),
-										Matrix4f::Translate(448.0f, terrain.GetHeight(448.0f, 944.0f), 944.0f),
-										Matrix4f::Translate(816.0f, terrain.GetHeight(816.0f, 816.0f), 816.0f) };
+void RespawnPointSet::init(const Terrain& terrain) {
+	std::vector<Matrix4f> instances = { Matrix4f::Translate(TERRAIN_SIZE / 2, terrain.heightAt(TERRAIN_SIZE / 2, TERRAIN_SIZE / 2), TERRAIN_SIZE / 2),
+										Matrix4f::Translate(256.0f, terrain.heightAt(256.0f, 160.0f), 160.0f),
+										Matrix4f::Translate(840.0f, terrain.heightAt(840.0f, 184.0f), 184.0f),
+										Matrix4f::Translate(552.0f, terrain.heightAt(552.0f, 760.0f), 760.0f),
+										Matrix4f::Translate(791.0f, terrain.heightAt(791.0f, 850.0f), 850.0f),
+										Matrix4f::Translate(152.0f, terrain.heightAt(152.0f, 832.0f), 832.0f),
+										Matrix4f::Translate(448.0f, terrain.heightAt(448.0f, 944.0f), 944.0f),
+										Matrix4f::Translate(816.0f, terrain.heightAt(816.0f, 816.0f), 816.0f) };
 
 	Globals::shapeManager.get("quad_rp").addInstances(instances);
 	Globals::shapeManager.get("cylinder").addInstances(instances);

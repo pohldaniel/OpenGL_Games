@@ -458,7 +458,7 @@ std::vector<unsigned int>& Shape::getIndexBuffer() {
 	return m_indexBuffer;
 }
 
-int Shape::getNumberOfTriangles() {
+unsigned int Shape::getNumberOfTriangles() {
 	return m_drawCount / 3;
 }
 
