@@ -2839,7 +2839,3 @@ bool operator ==(const Quaternion &lhs, const Quaternion &rhs) {
 	float epsilon = 0.000001f;
 	return fabs(lhs[0] - rhs[0]) <= epsilon && fabs(lhs[1] - rhs[1]) <= epsilon && fabs(lhs[2] - rhs[2]) <= epsilon && fabs(lhs[3] - rhs[3]) <= epsilon;
 }
-
-bool Math::CloseEnough(float f1, float f2) {
-	return fabsf((f1 - f2) / ((f2 == 0.0f) ? 1.0f : f2)) < EPSILON;
-}

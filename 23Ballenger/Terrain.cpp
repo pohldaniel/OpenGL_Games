@@ -1,7 +1,7 @@
 #include <GL/glew.h>
 #include <iostream>
-
 #include "Terrain.h"
+#include "Utils.h"
 
 HeightMap::HeightMap() : m_width(0), m_height(0), m_heightScale(256.0f / 64.0f) {
 
@@ -236,12 +236,11 @@ unsigned int HeightMap::heightIndexAt(int x, int z) const {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 Terrain::Terrain() {
-	m_data = 0;
-	m_vertices = 0;
+	
 }
 
-
 Terrain::Terrain(const Terrain& other) {
+
 }
 
 Terrain::~Terrain() {
@@ -267,57 +266,24 @@ bool Terrain::Initialize(const char* filename) {
 
 	create(m_heightMap);
 
-	InitializeBuffers();
-
 	return true;
-}
-
-
-void Terrain::Shutdown() {
-	// Release the vertex array.
-	ShutdownBuffers();
-
-	// Release the height map data.
-	ShutdownHeightMap();
-
-	return;
 }
 
 void Terrain::create(const HeightMap& heightMap) {
 	
-	int index;
 	Vector3f normal;
-	m_data =  new HeightMapType[heightMap.getWidth() * heightMap.getHeight()];
-	
-	// Read the image data into the height map.
 	for (int z = 0; z < heightMap.getHeight(); z++) {
 		for (int x = 0; x < heightMap.getWidth(); x++) {
-
 
 			m_positions.push_back(Vector3f(static_cast<float>(x * m_gridSpacing), m_heightMap.heightAtPixel(x, z), static_cast<float>(z * m_gridSpacing)));
 			m_texels.push_back(Vector2f(static_cast<float>(x) / static_cast<float>(heightMap.getWidth()) * (float)TEXTURE_REPEAT, static_cast<float>(z) / static_cast<float>(heightMap.getHeight()) * (float)TEXTURE_REPEAT));
 			
 			heightMap.normalAtPixel(x, z, normal);
 			m_normals.push_back(normal);
-
-			index = (heightMap.getWidth() * z) + x;
-			m_data[index].x = static_cast<float>(x * m_gridSpacing);
-			m_data[index].y = m_heightMap.heightAtPixel(x, z);
-			m_data[index].z = static_cast<float>(z * m_gridSpacing);
-
-			heightMap.normalAtPixel(x, z, normal);
-			m_data[index].nx = normal[0];
-			m_data[index].ny = normal[1];
-			m_data[index].nz = normal[2];
-
-			m_data[index].tu = static_cast<float>(x) / static_cast<float>(heightMap.getWidth()) * (float)TEXTURE_REPEAT;
-			m_data[index].tv = static_cast<float>(z) / static_cast<float>(heightMap.getHeight()) * (float)TEXTURE_REPEAT;
 		}
 	}
 	generateIndices();
 	createBuffer();
-
-	std::cout << "Vertex Count 1: " << m_indexBuffer.size() << std::endl;
 }
 
 void Terrain::generateIndices() {
@@ -326,7 +292,6 @@ void Terrain::generateIndices() {
 
 	for (int z = 0; z < resolutionZ - 1; z++) {
 		for (int x = 0; x < resolutionX - 1; x++) {
-
 			// 0 *- 1		0
 			//	\	*		|  *
 			//	 *	|		*	\
@@ -339,7 +304,6 @@ void Terrain::generateIndices() {
 			m_indexBuffer.push_back((z + 1) * (resolutionX)+x);
 			m_indexBuffer.push_back((z + 1) * (resolutionX)+(x + 1));
 			m_indexBuffer.push_back(z * (resolutionX)+x);
-
 		}
 	}
 }
@@ -369,7 +333,6 @@ void Terrain::generateIndicesTS() {
 
 			// Add degenerate triangles to stitch strips together.
 			m_indexBuffer.push_back((resolutionX - 1) + (z + 1) * resolutionX);
-
 		}
 	}
 }
@@ -426,133 +389,6 @@ void Terrain::createBuffer() {
 	//m_normals.shrink_to_fit();
 }
 
-void Terrain::drawRaw() const {
-	glBindVertexArray(m_vao);
-	glDrawElements(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0);
-	//glDrawElements(GL_TRIANGLE_STRIP, m_drawCount, GL_UNSIGNED_INT, 0);
-	glBindVertexArray(0);
-}
-
-void Terrain::ShutdownHeightMap() {
-	if (m_data) {
-		delete[] m_data;
-		m_data = 0;
-	}
-
-	return;
-}
-
-bool Terrain::InitializeBuffers() {
-	int index, i, j, index1, index2, index3, index4;
-	float tu, tv;
-
-
-	// Calculate the number of vertices in the terrain mesh.
-	m_vertexCount = (m_width - 1) * (m_height - 1) * 6;
-	std::cout << "Vertex Count 2: " << m_vertexCount << std::endl;
-	// Create the vertex array.
-	m_vertices = new Vertex[m_vertexCount];
-	if (!m_vertices) {
-		return false;
-	}
-
-	// Initialize the index to the vertex buffer.
-	index = 0;
-
-	// Load the vertex and index array with the terrain data.
-	for (j = 0; j<(m_height - 1); j++) {
-		for (i = 0; i<(m_width - 1); i++) {
-			index1 = (m_height * j) + i;          // Bottom left.
-			index2 = (m_height * j) + (i + 1);      // Bottom right.
-			index3 = (m_height * (j + 1)) + i;      // Upper left.
-			index4 = (m_height * (j + 1)) + (i + 1);  // Upper right.
-
-															 // Upper left.
-			tv = m_data[index3].tv;
-
-			// Modify the texture coordinates to cover the top edge.
-			if (tv == 1.0f) { tv = 0.0f; }
-
-			m_vertices[index].position = Vector3f(m_data[index3].x, m_data[index3].y, m_data[index3].z);
-			m_vertices[index].texture = Vector2f(m_data[index3].tu, tv);
-			m_vertices[index].normal = Vector3f(m_data[index3].nx, m_data[index3].ny, m_data[index3].nz);
-			index++;
-
-			// Upper right.
-			tu = m_data[index4].tu;
-			tv = m_data[index4].tv;
-
-			// Modify the texture coordinates to cover the top and right edge.
-			if (tu == 0.0f) { tu = 1.0f; }
-			if (tv == 1.0f) { tv = 0.0f; }
-
-			m_vertices[index].position = Vector3f(m_data[index4].x, m_data[index4].y, m_data[index4].z);
-			m_vertices[index].texture = Vector2f(tu, tv);
-			m_vertices[index].normal = Vector3f(m_data[index4].nx, m_data[index4].ny, m_data[index4].nz);
-			index++;
-
-			// Bottom left.
-			m_vertices[index].position = Vector3f(m_data[index1].x, m_data[index1].y, m_data[index1].z);
-			m_vertices[index].texture = Vector2f(m_data[index1].tu, m_data[index1].tv);
-			m_vertices[index].normal = Vector3f(m_data[index1].nx, m_data[index1].ny, m_data[index1].nz);
-			index++;
-
-			// Bottom left.
-			m_vertices[index].position = Vector3f(m_data[index1].x, m_data[index1].y, m_data[index1].z);
-			m_vertices[index].texture = Vector2f(m_data[index1].tu, m_data[index1].tv);
-			m_vertices[index].normal = Vector3f(m_data[index1].nx, m_data[index1].ny, m_data[index1].nz);
-			index++;
-
-			// Upper right.
-			tu = m_data[index4].tu;
-			tv = m_data[index4].tv;
-
-			// Modify the texture coordinates to cover the top and right edge.
-			if (tu == 0.0f) { tu = 1.0f; }
-			if (tv == 1.0f) { tv = 0.0f; }
-
-			m_vertices[index].position = Vector3f(m_data[index4].x, m_data[index4].y, m_data[index4].z);
-			m_vertices[index].texture = Vector2f(tu, tv);
-			m_vertices[index].normal = Vector3f(m_data[index4].nx, m_data[index4].ny, m_data[index4].nz);
-			index++;
-
-			// Bottom right.
-			tu = m_data[index2].tu;
-
-			// Modify the texture coordinates to cover the right edge.
-			if (tu == 0.0f) { tu = 1.0f; }
-
-			m_vertices[index].position = Vector3f(m_data[index2].x, m_data[index2].y, m_data[index2].z);
-			m_vertices[index].texture = Vector2f(tu, m_data[index2].tv);
-			m_vertices[index].normal = Vector3f(m_data[index2].nx, m_data[index2].ny, m_data[index2].nz);
-			index++;
-		}
-	}
-
-	return true;
-}
-
-
-void Terrain::ShutdownBuffers() {
-	// Release the vertex array.
-	if (m_vertices) {
-		delete[] m_vertices;
-		m_vertices = 0;
-	}
-
-	return;
-}
-
-int Terrain::GetVertexCount() {
-	return m_vertexCount;
-}
-
-
-void Terrain::CopyVertexArray(void* vertexList) {
-	memcpy(vertexList, m_vertices, sizeof(Vertex) * m_vertexCount);
-	return;
-}
-
 float Terrain::heightAt(float x, float z) const {
 	// Given a (x, z) position on the rendered height map this method
 	// calculates the exact height of the height map at that (x, z)
@@ -560,8 +396,8 @@ float Terrain::heightAt(float x, float z) const {
 	x /= m_gridSpacing;
 	z /= m_gridSpacing;
 
-	long ix = Terrain::floatToLong(x);
-	long iz = Terrain::floatToLong(z);
+	long ix = Utils::floatToLong(x);
+	long iz = Utils::floatToLong(z);
 
 	float percentX = x - static_cast<float>(ix);
 	float percentZ = z - static_cast<float>(iz);
@@ -571,7 +407,7 @@ float Terrain::heightAt(float x, float z) const {
 	float bottomLeft = m_heightMap.getHeights()[m_heightMap.heightIndexAt(ix, iz + 1)];
 	float bottomRight = m_heightMap.getHeights()[m_heightMap.heightIndexAt(ix + 1, iz + 1)];
 	
-	return Terrain::bilerp(topLeft, topRight, bottomLeft, bottomRight, percentX, percentZ);
+	return Math::bilerp(topLeft, topRight, bottomLeft, bottomRight, percentX, percentZ);
 }
 
 void Terrain::normalAt(float x, float z, Vector3f &n) const {
@@ -581,8 +417,8 @@ void Terrain::normalAt(float x, float z, Vector3f &n) const {
 	x /= m_gridSpacing;
 	z /= m_gridSpacing;
 
-	long ix = Terrain::floatToLong(x);
-	long iz = Terrain::floatToLong(z);
+	long ix = Utils::floatToLong(x);
+	long iz = Utils::floatToLong(z);
 
 	float percentX = x - static_cast<float>(ix);
 	float percentZ = z - static_cast<float>(iz);
@@ -598,7 +434,7 @@ void Terrain::normalAt(float x, float z, Vector3f &n) const {
 	m_heightMap.normalAtPixel(ix, iz + 1, bottomLeft);
 	m_heightMap.normalAtPixel(ix + 1, iz + 1, bottomRight);
 
-	n = Terrain::bilerp(topLeft, topRight, bottomLeft, bottomRight, percentX, percentZ);
+	n = Math::bilerp(topLeft, topRight, bottomLeft, bottomRight, percentX, percentZ);
 	n.normalize();
 }
 
@@ -612,4 +448,11 @@ std::vector<unsigned int>& Terrain::getIndexBuffer() {
 
 unsigned int Terrain::getNumberOfTriangles() {
 	return m_drawCount / 3;
+}
+
+void Terrain::drawRaw() const {
+	glBindVertexArray(m_vao);
+	glDrawElements(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0);
+	//glDrawElements(GL_TRIANGLE_STRIP, m_drawCount, GL_UNSIGNED_INT, 0);
+	glBindVertexArray(0);
 }

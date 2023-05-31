@@ -1,3 +1,5 @@
+#include <GL/glew.h>
+#include <math.h>
 #include "cLava.h"
 
 cLava::cLava()

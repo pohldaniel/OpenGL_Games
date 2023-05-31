@@ -1,13 +1,13 @@
 #pragma once
 
-#include "Globals.h"
+#include "engine/Vector.h"
 
 #define FLOW_SPEED 2.0f
 #define LAVA_HEIGHT_MAX 4.0f
 #define LAVA_HEIGHT_MIN 1.0f
 
-class cLava
-{
+class cLava {
+
 public:
 	cLava();
 	~cLava();

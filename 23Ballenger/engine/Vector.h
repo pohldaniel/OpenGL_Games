@@ -17,8 +17,28 @@
 #define	invTWO_PI  0.1591549430918953358f
 #define	EPSILON  1e-6f
 
-struct Math {
-	static bool CloseEnough(float f1, float f2);
+namespace Math {
+
+	inline bool CloseEnough(float f1, float f2) {
+		return fabsf((f1 - f2) / ((f2 == 0.0f) ? 1.0f : f2)) < EPSILON;
+	}
+
+	template <typename T>
+	inline T bilerp(const T &a, const T &b, const T &c, const T &d, float u, float v) {
+		// Performs a bilinear interpolation.
+		//  P(u,v) = e + v(f - e)
+		//  
+		//  where
+		//  e = a + u(b - a)
+		//  f = c + u(d - c)
+		//  u in range [0,1]
+		//  v in range [0,1]
+
+		return a * ((1.0f - u) * (1.0f - v))
+			+ b * (u * (1.0f - v))
+			+ c * (v * (1.0f - u))
+			+ d * (u * v);
+	}
 };
 
 class Vector2f {

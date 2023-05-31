@@ -20,7 +20,7 @@ void QuadTree::Initialize(Terrain* terrain) {
 	float centerX, centerZ, width;
 
 	// Get the number of vertices in the terrain vertex array.
-	vertexCount = terrain->GetVertexCount();
+	vertexCount = m_terrain->getIndexBuffer().size();
 	// Store the total triangle count for the vertex list.
 	m_triangleCount = vertexCount / 3;
 

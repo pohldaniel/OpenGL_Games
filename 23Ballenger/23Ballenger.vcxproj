@@ -217,6 +217,7 @@
     <ClCompile Include="soil2\wfETC.c" />
     <ClCompile Include="StateMachine.cpp" />
     <ClCompile Include="Terrain.cpp" />
+    <ClCompile Include="Utils.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h" />
@@ -271,7 +272,6 @@
     <ClInclude Include="engine\Transform.h" />
     <ClInclude Include="engine\Vector.h" />
     <ClInclude Include="Game.h" />
-    <ClInclude Include="Globals.h" />
     <ClInclude Include="KeySet.h" />
     <ClInclude Include="Miniball\Miniball.h" />
     <ClInclude Include="Object.h" />
@@ -285,6 +285,7 @@
     <ClInclude Include="ShapeInterface.h" />
     <ClInclude Include="StateMachine.h" />
     <ClInclude Include="Terrain.h" />
+    <ClInclude Include="Utils.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
