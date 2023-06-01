@@ -36,3 +36,5 @@ https://stackoverflow.com/questions/21210036/how-to-correctly-make-a-depth-cubem
 
 http://www.lighthouse3d.com/tutorials/view-frustum-culling/clip-space-approach-extracting-the-planes/
 https://stackoverflow.com/questions/62468005/how-to-implement-interactive-rotation-operations-in-a-decent-way
+
+http://3dcpptutorials.sk/index.php?id=58

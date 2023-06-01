@@ -237,6 +237,15 @@
     <ClCompile Include="Utils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Culling.cpp">
+      <Filter>Source Files\States</Filter>
+    </ClCompile>
+    <ClCompile Include="glmath.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="_string.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h">
@@ -435,6 +444,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Utils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Culling.h">
+      <Filter>Source Files\States</Filter>
+    </ClInclude>
+    <ClInclude Include="glmath.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="_string.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

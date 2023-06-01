@@ -158,6 +158,7 @@
     <ClCompile Include="CharacterController.cpp" />
     <ClCompile Include="cLava.cpp" />
     <ClCompile Include="ColumnSet.cpp" />
+    <ClCompile Include="Culling.cpp" />
     <ClCompile Include="engine\AssimpModel.cpp" />
     <ClCompile Include="engine\Batchrenderer.cpp" />
     <ClCompile Include="engine\BuiltInShader.cpp" />
@@ -200,6 +201,7 @@
     <ClCompile Include="engine\Transform.cpp" />
     <ClCompile Include="engine\Vector.cpp" />
     <ClCompile Include="Game.cpp" />
+    <ClCompile Include="glmath.cpp" />
     <ClCompile Include="KeySet.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Object.cpp" />
@@ -216,6 +218,7 @@
     <ClCompile Include="soil2\SOIL2.c" />
     <ClCompile Include="soil2\wfETC.c" />
     <ClCompile Include="StateMachine.cpp" />
+    <ClCompile Include="_string.cpp" />
     <ClCompile Include="Terrain.cpp" />
     <ClCompile Include="Utils.cpp" />
   </ItemGroup>
@@ -226,6 +229,7 @@
     <ClInclude Include="ColumnSet.h" />
     <ClInclude Include="Constants.h" />
     <ClInclude Include="convhull\convhull_3d.h" />
+    <ClInclude Include="Culling.h" />
     <ClInclude Include="engine\AssetManger.h" />
     <ClInclude Include="engine\AssimpModel.h" />
     <ClInclude Include="engine\Batchrenderer.h" />
@@ -272,6 +276,7 @@
     <ClInclude Include="engine\Transform.h" />
     <ClInclude Include="engine\Vector.h" />
     <ClInclude Include="Game.h" />
+    <ClInclude Include="glmath.h" />
     <ClInclude Include="KeySet.h" />
     <ClInclude Include="Miniball\Miniball.h" />
     <ClInclude Include="Object.h" />
@@ -284,6 +289,7 @@
     <ClInclude Include="RespawnPointSet.h" />
     <ClInclude Include="ShapeInterface.h" />
     <ClInclude Include="StateMachine.h" />
+    <ClInclude Include="_string.h" />
     <ClInclude Include="Terrain.h" />
     <ClInclude Include="Utils.h" />
   </ItemGroup>
