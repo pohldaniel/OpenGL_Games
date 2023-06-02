@@ -6,6 +6,8 @@
 #define TERRAIN_SIZE    1024
 #define TEXTURE_REPEAT	64
 
+class QuadTreeNew;
+
 class HeightMap {
 
 public:
@@ -49,10 +51,12 @@ public:
 	bool init(const char* filename);
 	
 	void drawRaw() const;
+	void drawRaw(const QuadTreeNew& quadTree) const;
 
 	float heightAt(float x, float z) const;
 	void normalAt(float x, float z, Vector3f &n) const;
 
+	const HeightMap& getHeightMap() const;
 	unsigned int getNumberOfTriangles();
 	std::vector<Vector3f>& getPositions();
 	std::vector<unsigned int>& getIndexBuffer();

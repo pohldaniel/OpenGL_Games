@@ -21,12 +21,12 @@ out vec3 normalDu;
 out vec3 normalDv;
 
 void main(void){
-  gl_Position = u_projection * u_view * u_model * vec4(i_position, 1.0);
+	gl_Position = u_projection * u_view * u_model * vec4(i_position, 1.0);
    
-   texCoord = i_texCoord;  
-   normal = normalize(mat3(u_normal) * i_normal);
-   tangent = normalize(mat3(u_normal) * i_tangent);
-   bitangent = normalize(mat3(u_normal) * i_bitangent);
-   normalDu = normalize(mat3(u_normal) * i_normalDu);
-   normalDv = normalize(mat3(u_normal) * i_normalDv);
+	texCoord = i_texCoord;  
+	normal = normalize(mat3(u_normal) * i_normal);
+	tangent = normalize(mat3(u_normal) * i_tangent);
+	bitangent = normalize(mat3(u_normal) * i_bitangent);
+	normalDu = normalize(mat3(u_normal) * i_normalDu);
+	normalDv = normalize(mat3(u_normal) * i_normalDv);
 }

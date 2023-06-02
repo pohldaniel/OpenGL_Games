@@ -2,6 +2,7 @@
 #include <iostream>
 #include "Terrain.h"
 #include "Utils.h"
+#include "QuadTree_new.h"
 
 HeightMap::HeightMap() : m_width(0), m_height(0), m_heightScale(256.0f / 64.0f) {
 
@@ -265,6 +266,10 @@ bool Terrain::init(const char* filename) {
 	return true;
 }
 
+const HeightMap& Terrain::getHeightMap() const {
+	return m_heightMap;
+}
+
 void Terrain::create(const HeightMap& heightMap) {
 	
 	Vector3f normal;
@@ -369,8 +374,8 @@ void Terrain::createBuffer() {
 	}
 
 	//Indices
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_indexBuffer.size() * sizeof(m_indexBuffer[0]), &m_indexBuffer[0], GL_STATIC_DRAW);
+	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+	//glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_indexBuffer.size() * sizeof(m_indexBuffer[0]), &m_indexBuffer[0], GL_STATIC_DRAW);
 	glBindVertexArray(0);
 
 	glDeleteBuffers(1, &ibo);
@@ -450,5 +455,11 @@ void Terrain::drawRaw() const {
 	glBindVertexArray(m_vao);
 	glDrawElements(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0);
 	//glDrawElements(GL_TRIANGLE_STRIP, m_drawCount, GL_UNSIGNED_INT, 0);
+	glBindVertexArray(0);
+}
+
+void Terrain::drawRaw(const QuadTreeNew& quadTree) const {
+	glBindVertexArray(m_vao);
+	quadTree.draw(false);
 	glBindVertexArray(0);
 }
