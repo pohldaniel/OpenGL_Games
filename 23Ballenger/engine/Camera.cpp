@@ -21,8 +21,10 @@ Camera::Camera(){
 
 	m_eye = Vector3f(0.0f, 0.0f, 0.0f) ;
     m_persMatrix.identity();
+	m_invPersMatrix.identity();
 	m_orthMatrix.identity();
-	
+	m_invOrthMatrix.identity();
+
 	orthogonalize();
 	updateViewMatrix();
 }
@@ -39,7 +41,9 @@ Camera::Camera(const Vector3f &eye, const Vector3f &target, const Vector3f &up) 
 	m_offsetDistance = 0.0f;
 
 	m_persMatrix.identity();
+	m_invPersMatrix.identity();
 	m_orthMatrix.identity();
+	m_invOrthMatrix.identity();
 
 	lookAt(eye, target, up);
 }
@@ -105,9 +109,9 @@ void Camera::updateViewMatrix() {
 void Camera::perspective(float fovx, float aspect, float znear, float zfar){
 	// Construct a projection matrix based on the horizontal field of view
 	// 'fovx' rather than the more traditional vertical field of view 'fovy'.
-	float e = 1.0f /tanf(PI_ON_180 * fovx * 0.5f);
-	float xScale = e / aspect;
-	float yScale = e;
+	float e = tanf(PI_ON_180 * fovx * 0.5f);
+	float xScale = (1.0f / (e * aspect));
+	float yScale = (1.0f / e);
 
 	m_persMatrix[0][0] = xScale;
 	m_persMatrix[0][1] = 0.0f;
@@ -128,6 +132,26 @@ void Camera::perspective(float fovx, float aspect, float znear, float zfar){
 	m_persMatrix[3][1] = 0.0f;
 	m_persMatrix[3][2] = (2.0f * zfar * znear) / (znear - zfar);
 	m_persMatrix[3][3] = 0.0f;	
+
+	m_invPersMatrix[0][0] = e * aspect;
+	m_invPersMatrix[0][1] = 0.0f;
+	m_invPersMatrix[0][2] = 0.0f;
+	m_invPersMatrix[0][3] = 0.0f;
+
+	m_invPersMatrix[1][0] = 0.0f;
+	m_invPersMatrix[1][1] = e;
+	m_invPersMatrix[1][2] = 0.0f;
+	m_invPersMatrix[1][3] = 0.0f;
+
+	m_invPersMatrix[2][0] = 0.0f;
+	m_invPersMatrix[2][1] = 0.0f;
+	m_invPersMatrix[2][2] = 0.0;
+	m_invPersMatrix[2][3] = (znear - zfar) / (2 * zfar * znear);
+
+	m_invPersMatrix[3][0] = 0.0f;
+	m_invPersMatrix[3][1] = 0.0f;
+	m_invPersMatrix[3][2] = -1.0f;
+	m_invPersMatrix[3][3] = (znear + zfar) / (2 * zfar * znear);
 }
 
 void Camera::orthographic(float left, float right, float bottom, float top, float znear, float zfar){
@@ -151,6 +175,26 @@ void Camera::orthographic(float left, float right, float bottom, float top, floa
 	m_orthMatrix[3][1] = (top + bottom) / (bottom - top);
 	m_orthMatrix[3][2] = (zfar + znear) / (znear - zfar);
 	m_orthMatrix[3][3] = 1.0f;
+
+	m_invOrthMatrix[0][0] = (right - left) * 0.5f;
+	m_invOrthMatrix[0][1] = 0.0f;
+	m_invOrthMatrix[0][2] = 0.0f;
+	m_invOrthMatrix[0][3] = 0.0f;
+
+	m_invOrthMatrix[1][0] = 0.0f;
+	m_invOrthMatrix[1][1] = (top - bottom) * 0.5f;
+	m_invOrthMatrix[1][2] = 0.0f;
+	m_invOrthMatrix[1][3] = 0.0f;
+
+	m_invOrthMatrix[2][0] = 0.0f;
+	m_invOrthMatrix[2][1] = 0.0f;
+	m_invOrthMatrix[2][2] = (znear - zfar) * 0.5f;
+	m_invOrthMatrix[2][3] = 0.0f;
+
+	m_invOrthMatrix[3][0] = (right + left) * 0.5f;
+	m_invOrthMatrix[3][1] = (top + bottom) * 0.5f;
+	m_invOrthMatrix[3][2] = -(zfar + znear) * 0.5f;
+	m_invOrthMatrix[3][3] = 1.0f;
 }
 
 void Camera::lookAt(const Vector3f &eye, const Vector3f &target, const Vector3f &up){
@@ -289,14 +333,14 @@ void Camera::rotateFirstPerson(float yaw, float pitch){
 
 	// Rotate camera's existing x and z axes about the world y axis.
 	if (yaw != 0.0f){
-		rotMtx.rotate(WORLD_YAXIS, yaw);
+		rotMtx.invRotate(WORLD_YAXIS, yaw);
 		m_xAxis = rotMtx * m_xAxis;
 		m_zAxis = rotMtx * m_zAxis;
 	}
 
 	// Rotate camera's existing y and z axes about its existing x axis.
 	if (pitch != 0.0f){
-		rotMtx.rotate(m_xAxis, pitch);
+		rotMtx.invRotate(m_xAxis, pitch);
 		m_yAxis = rotMtx * m_yAxis;
 		m_zAxis = rotMtx * m_zAxis;
 	}
@@ -723,6 +767,10 @@ const Matrix4f &Camera::getInvPerspectiveMatrix() const{
 
 const Matrix4f &Camera::getOrthographicMatrix() const{
 	return m_orthMatrix;
+}
+
+const Matrix4f& Camera::getInvOrthographicMatrix() const {
+	return m_invOrthMatrix;
 }
 
 const Matrix4f &Camera::getViewMatrix() const{

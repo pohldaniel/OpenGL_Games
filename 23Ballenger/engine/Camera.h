@@ -56,6 +56,7 @@ public:
 	const Matrix4f& getInvPerspectiveMatrix() const;
 	const Matrix4f  getInvPerspectiveMatrixNew() const;
 	const Matrix4f& getOrthographicMatrix() const;
+	const Matrix4f& getInvOrthographicMatrix() const;
 	const Matrix4f  getInvOrthographicMatrixNew() const;
 
 	const Matrix4f  getRotationMatrix(const Vector3f &position = Vector3f(0.0f, 0.0f, 0.0f)) const;
@@ -122,6 +123,7 @@ protected:
 	Matrix4f		m_persMatrix;
 	Matrix4f		m_invPersMatrix;
 	Matrix4f		m_orthMatrix;
+	Matrix4f		m_invOrthMatrix;
 };
 
 class ThirdPersonCamera : public Camera {

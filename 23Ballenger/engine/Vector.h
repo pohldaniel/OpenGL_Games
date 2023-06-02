@@ -284,6 +284,17 @@ public:
 	static Matrix4f Rotate(const Vector3f &direction);
 	static Matrix4f Rotate(const Vector3f &direction, const Vector3f &poisiton);
 
+	static Matrix4f InvRotate(const Vector3f &axis, float degrees);
+	static Matrix4f InvRotate(const Quaternion &orientation);
+	static Matrix4f InvRotate(float pitch, float yaw, float roll);
+
+	static Matrix4f InvRotate(const Vector3f &axis, float degrees, const Vector3f &centerOfRotation);
+	static Matrix4f InvRotate(const Quaternion &orientation, const Vector3f &centerOfRotation);
+	static Matrix4f InvRotate(float pitch, float yaw, float roll, const Vector3f &centerOfRotation);
+
+	static Matrix4f &InvRotate(Matrix4f &mtx, const Vector3f &axis, float degrees);
+	static Matrix4f &InvRotate(Matrix4f &mtx, const Vector3f &axis, float degrees, const Vector3f &centerOfRotation);
+
 	static Matrix4f Perspective(float fovx, float aspect, float znear, float zfar);
 	static Matrix4f &Perspective(Matrix4f &mtx, float fovx, float aspect, float znear, float zfar);
 	static Matrix4f Perspective(float left, float right, float bottom, float top, float znear, float zfar);

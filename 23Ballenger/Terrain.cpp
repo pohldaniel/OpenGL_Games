@@ -252,7 +252,7 @@ Terrain::~Terrain() {
 }
 
 
-bool Terrain::init(const char* filename) {
+bool Terrain::init(const char* filename, bool bindIndexBuffer) {
 	bool result;
 
 	m_heightMap.loadFromRAW(filename, TERRAIN_SIZE, TERRAIN_SIZE);
@@ -261,7 +261,7 @@ bool Terrain::init(const char* filename) {
 	m_width = TERRAIN_SIZE;
 	m_height = TERRAIN_SIZE;
 
-	create(m_heightMap);
+	create(m_heightMap, bindIndexBuffer);
 
 	return true;
 }
@@ -270,7 +270,7 @@ const HeightMap& Terrain::getHeightMap() const {
 	return m_heightMap;
 }
 
-void Terrain::create(const HeightMap& heightMap) {
+void Terrain::create(const HeightMap& heightMap, bool bindIndexBuffer) {
 	
 	Vector3f normal;
 	for (int z = 0; z < heightMap.getHeight(); z++) {
@@ -284,7 +284,7 @@ void Terrain::create(const HeightMap& heightMap) {
 		}
 	}
 	generateIndices();
-	createBuffer();
+	createBuffer(bindIndexBuffer);
 }
 
 void Terrain::generateIndices() {
@@ -338,7 +338,7 @@ void Terrain::generateIndicesTS() {
 	}
 }
 
-void Terrain::createBuffer() {
+void Terrain::createBuffer(bool bindIndexBuffer) {
 	m_drawCount = m_indexBuffer.size();
 
 	unsigned int ibo;
@@ -374,8 +374,10 @@ void Terrain::createBuffer() {
 	}
 
 	//Indices
-	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-	//glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_indexBuffer.size() * sizeof(m_indexBuffer[0]), &m_indexBuffer[0], GL_STATIC_DRAW);
+	if (bindIndexBuffer) {
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_indexBuffer.size() * sizeof(m_indexBuffer[0]), &m_indexBuffer[0], GL_STATIC_DRAW);
+	}
 	glBindVertexArray(0);
 
 	glDeleteBuffers(1, &ibo);
@@ -460,6 +462,6 @@ void Terrain::drawRaw() const {
 
 void Terrain::drawRaw(const QuadTreeNew& quadTree) const {
 	glBindVertexArray(m_vao);
-	quadTree.draw(false);
+	quadTree.draw(true);
 	glBindVertexArray(0);
 }

@@ -48,7 +48,7 @@ public:
 	Terrain();
 	~Terrain();
 
-	bool init(const char* filename);
+	bool init(const char* filename, bool bindIndexBuffer = true);
 	
 	void drawRaw() const;
 	void drawRaw(const QuadTreeNew& quadTree) const;
@@ -63,10 +63,10 @@ public:
 
 private:
 
-	void create(const HeightMap& heightMap);
+	void create(const HeightMap& heightMap, bool bindIndexBuffer = true);
 	void generateIndices();
 	void generateIndicesTS();
-	void createBuffer();
+	void createBuffer(bool bindIndexBuffer = true);
 
 	int m_width, m_height;
 	int m_vertexCount;
