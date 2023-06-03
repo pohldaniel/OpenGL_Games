@@ -4,7 +4,7 @@
 #include "Utils.h"
 #include "QuadTree_new.h"
 
-HeightMap::HeightMap() : m_width(0), m_height(0), m_heightScale(256.0f / 64.0f) {
+HeightMap::HeightMap() : m_width(0), m_height(0), m_heightScale(256.0f / 64.0f), m_minH(FLT_MAX), m_maxH(-FLT_MAX){
 
 }
 
@@ -33,27 +33,31 @@ void HeightMap::loadFromRAW(const char* filename, unsigned int width, unsigned i
 	m_heights.resize(m_width * m_height);
 
 	unsigned int index = 0;
-	float minH = 0.0f, maxH = 0.0f;
+	
 	for (int z = 0; z < m_height; z++) {
 		for (int x = 0; x < m_width; x++) {
 			index = z * m_width + x;
 			m_heights[index] = data[index];
 
-			minH = std::min(minH, m_heights[index]);
-			maxH = std::max(maxH, m_heights[index]);
+			m_minH = std::min(m_minH, m_heights[index]);
+			m_maxH = std::max(m_maxH, m_heights[index]);
 		}
 	}
 
 	free(data);
 
 	//smooth();
-	normalizeHeightMap(m_heightScale, minH);
+	normalizeHeightMap(m_heightScale, m_minH);
 }
 
 void HeightMap::normalizeHeightMap(const float scaleFactor, const float minH) {
+	
 	for (int i = 0; i < m_width * m_height; ++i) {
 		m_heights[i] = (m_heights[i] - minH) / scaleFactor;
 	}	
+
+	m_minH = (m_minH - minH) / scaleFactor;
+	m_maxH = (m_maxH - minH) / scaleFactor;
 }
 
 void HeightMap::smooth() {
@@ -220,6 +224,14 @@ unsigned int HeightMap::getHeight() const {
 	return m_height;
 }
 
+float HeightMap::getMinHeight() const {
+	return m_minH;
+}
+
+float HeightMap::getMaxHeight() const {
+	return m_maxH;
+}
+
 float HeightMap::getHeightScale() const {
 	return m_heightScale;
 }
@@ -270,6 +282,13 @@ const HeightMap& Terrain::getHeightMap() const {
 	return m_heightMap;
 }
 
+const Vector3f& Terrain::getMin() const {
+	return m_min;
+}
+const Vector3f& Terrain::getMax() const {
+	return m_max;
+}
+
 void Terrain::create(const HeightMap& heightMap, bool bindIndexBuffer) {
 	
 	Vector3f normal;
@@ -283,6 +302,10 @@ void Terrain::create(const HeightMap& heightMap, bool bindIndexBuffer) {
 			m_normals.push_back(normal);
 		}
 	}
+
+	m_min = Vector3f(0.0f, m_heightMap.getMinHeight(), 0.0f);
+	m_max = Vector3f(static_cast<float>(heightMap.getWidth()), m_heightMap.getMaxHeight(), static_cast<float>(heightMap.getHeight()));
+
 	generateIndices();
 	createBuffer(bindIndexBuffer);
 }

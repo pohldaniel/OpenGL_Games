@@ -38,12 +38,13 @@ public:
 	TrackBall m_trackball;
 	Transform m_transform;
 	bool m_initUi = true;
+	bool m_overview;
 
-
-	bool Wireframe, RenderAABB, RenderTree2D, VisualizeRenderingOrder, SortVisibleGeometryNodes, VisibilityCheckingPerformanceTest;
+	bool Wireframe, RenderAABB, VisualizeRenderingOrder, SortVisibleGeometryNodes, VisibilityCheckingPerformanceTest;
 	int Depth;
 
 	Terrain m_terrain;
 	QuadTreeNew m_quadTree;
+	Matrix4f m_view, m_orthographic;
 };
 

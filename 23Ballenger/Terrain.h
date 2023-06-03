@@ -27,6 +27,8 @@ public:
 	unsigned int getHeight() const;
 	float getHeightScale() const;
 	const float* getHeights() const;
+	float getMinHeight() const;
+	float getMaxHeight() const;
 
 private:
 
@@ -38,6 +40,8 @@ private:
 	unsigned int m_height;	
 	float m_heightScale;
 	std::vector<float> m_heights;
+	float m_minH;
+	float m_maxH;
 };
 
 class Terrain {
@@ -61,6 +65,8 @@ public:
 	std::vector<Vector3f>& getPositions();
 	std::vector<unsigned int>& getIndexBuffer();
 
+	const Vector3f& getMin() const;
+	const Vector3f& getMax() const;
 private:
 
 	void create(const HeightMap& heightMap, bool bindIndexBuffer = true);
@@ -81,4 +87,6 @@ private:
 	std::vector<Vector3f> m_positions;
 	std::vector<Vector2f> m_texels;
 	std::vector<Vector3f> m_normals;
+	Vector3f m_min;
+	Vector3f m_max;
 };

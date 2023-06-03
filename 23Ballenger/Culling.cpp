@@ -22,24 +22,15 @@ Culling::Culling(StateMachine& machine) : State(machine, CurrentState::SHAPEINTE
 
 
 	m_terrain.init("Levels/terrain01.raw", false);
-	const float* heights = m_terrain.getHeightMap().getHeights();
-	float minY = heights[0];
-	float maxY = minY;
-	for (int i = 1; i < m_terrain.getHeightMap().getWidth() * m_terrain.getHeightMap().getHeight(); i++) {
-		if (heights[i] < minY) minY = heights[i];
-		if (heights[i] > maxY) maxY = heights[i];
-	}
-
-	Vector3f  Min = Vector3f(0.0f, minY, 0.0f) ;
-	Vector3f  Max = Vector3f(1024.0f, maxY, 1024.0f) ;
-
-	m_quadTree.init(m_terrain.getPositions().data(), m_terrain.getIndexBuffer().data(), m_terrain.getIndexBuffer().size(), Min, Max, 64.0f);
+	m_quadTree.init(m_terrain.getPositions().data(), m_terrain.getIndexBuffer().data(), m_terrain.getIndexBuffer().size(), m_terrain.getMin(), m_terrain.getMax(), 64.0f);
 
 	Globals::shaderManager.loadShader("culling", "res/terrain.vert", "res/terrain.frag");
 
+	m_overview = true;
+
 	Wireframe = false;
 	RenderAABB = false;
-	RenderTree2D = false;
+
 	VisualizeRenderingOrder = false;
 	SortVisibleGeometryNodes = true;
 	VisibilityCheckingPerformanceTest = false;
@@ -48,6 +39,10 @@ Culling::Culling(StateMachine& machine) : State(machine, CurrentState::SHAPEINTE
 
 	float Height = m_terrain.heightAt(512.0f, 512.0f);
 	m_camera.lookAt(Vector3f(512.0f, Height + 1.75f, 512.0f), Vector3f(512.0f, Height + 1.75f, 512.0f -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
+
+	float offset = 20.0f;
+	m_view.lookAt(Vector3f(512.0f, 0.0f, 512.0f), Vector3f(512.0f, 0.0f - 1.0f, 512.0f), Vector3f(0.0f, 0.0f, -1.0f));
+	m_orthographic.orthographic(-(512.0f + offset), 512.0f + offset, -(512.0f + offset), 512.0f + offset, -4096.0f, 4096.0f);
 }
 
 Culling::~Culling() {
@@ -121,17 +116,20 @@ void Culling::render() {
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+
 	m_quadTree.setFrustum(m_camera.getInvViewMatrix() * m_camera.getInvPerspectiveMatrix());
 
 	int TrianglesRendered = m_quadTree.checkVisibility(true);
 
 	auto shader = Globals::shaderManager.getAssetPointer("culling");
 	shader->use();
-	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
-	shader->loadMatrix("u_view", m_camera.getViewMatrix());
+
+	
+	shader->loadMatrix("u_projection", !m_overview ? m_camera.getPerspectiveMatrix() : m_orthographic);
+	shader->loadMatrix("u_view", !m_overview ? m_camera.getViewMatrix() : m_view);
 	shader->loadMatrix("u_model", Matrix4f::IDENTITY);
 	shader->loadMatrix("u_normal", Matrix4f::GetNormalMatrix(m_camera.getViewMatrix()));
-	shader->loadVector("campos", !RenderTree2D ? m_camera.getPosition() : Vector3f(0.0f, 4096.0f, 0.0f));
+	shader->loadVector("campos", !m_overview ? m_camera.getPosition() : Vector3f(512.0f, 4096.0f, 512.0f));
 	shader->loadVector("color", Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
 	m_terrain.drawRaw(m_quadTree);
 	shader->unuse();
@@ -209,7 +207,7 @@ void Culling::renderUi() {
 	ImGui::Begin("Settings", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
 	ImGui::Checkbox("Draw Wirframe", &StateMachine::GetEnableWireframe());
 	ImGui::Checkbox("Draw AABB", &RenderAABB);
-	ImGui::Checkbox("Draw Tree 2D", &RenderTree2D);
+	ImGui::Checkbox("Overview", &m_overview);
 	ImGui::Checkbox("Draworder", &VisualizeRenderingOrder);
 	ImGui::Checkbox("Sort Nodes", &SortVisibleGeometryNodes);
 	ImGui::Checkbox("Performancetest", &VisibilityCheckingPerformanceTest);
