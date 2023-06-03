@@ -6,7 +6,6 @@
 #include "Shader.h"
 #include "Camera.h"
 
-
 #define FRUSTUM_VERTEX	"#version 410 core											\n \
 																					\n \
 						layout(location = 0) in vec3 i_position;					\n \
@@ -40,7 +39,7 @@ public:
 	~Frustum();
 
 	void drawFrustm(const Matrix4f& projection, const Matrix4f& view, float distance);
-	void updatePlane(const Camera& camera, const Matrix4f& perspective, const Matrix4f& model = Matrix4f::IDENTITY);
+	void updatePlane(const Matrix4f& perspective, const Matrix4f& view, const Matrix4f& model = Matrix4f::IDENTITY);
 	bool intersectAABBFrustum(const Vector3f& position, const Vector3f& size);
 
 	static bool IntersectAABBPlane(const Vector3f& position, const Vector3f& size, const Vector4f& plane);

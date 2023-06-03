@@ -124,7 +124,7 @@ void Culling::render() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	m_quadTree.setFrustum(m_camera.getInvViewMatrix() * m_camera.getInvPerspectiveMatrix());
-	m_frustum.updatePlane(m_camera, Matrix4f::Perspective(m_fovx, (float)Application::Width / (float)Application::Height, m_near, m_far), Matrix4f::IDENTITY);
+	m_frustum.updatePlane(Matrix4f::Perspective(m_fovx, (float)Application::Width / (float)Application::Height, m_near, m_far), m_camera.getViewMatrix(), Matrix4f::IDENTITY);
 
 	int TrianglesRendered = m_quadTree.checkVisibility(true);
 

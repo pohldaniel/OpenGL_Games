@@ -19,8 +19,8 @@ Frustum::~Frustum() {
 		glDeleteBuffers(1, &m_vboCount);
 }
 
-void Frustum::updatePlane(const Camera& camera, const Matrix4f& perspective, const Matrix4f& model) {
-	Matrix4f mvp = perspective * camera.getViewMatrix() * model;
+void Frustum::updatePlane(const Matrix4f& perspective, const Matrix4f& view, const Matrix4f& model) {
+	Matrix4f mvp = perspective * view * model;
 	//Near
 	m_planes[0][0] = mvp[0][3] + mvp[0][2];
 	m_planes[0][1] = mvp[1][3] + mvp[1][2];
@@ -71,11 +71,14 @@ void Frustum::updatePlane(const Camera& camera, const Matrix4f& perspective, con
 		float far = perspective[3][2] / (perspective[2][2] + 1);
 		float heightFar = (2.0f / perspective[1][1]) * far;
 		float widthFar = (heightFar  * perspective[1][1]) / perspective[0][0];
-		const Vector3f& pos = camera.getPosition();
-		const Vector3f& up = camera.getCamY();
-		const Vector3f& right = camera.getCamX();
-		const Vector3f& viewDirection = camera.getViewDirection();
-
+		
+		const Vector3f& right = Vector3f(view[0][0], view[1][0], view[2][0]);
+		const Vector3f& up = Vector3f(view[0][1], view[1][1], view[2][1]);
+		const Vector3f& viewDirection = Vector3f(-view[0][2], -view[1][2], -view[2][2]);
+		const Vector3f& pos = Vector3f(-(view[3][0] * view[0][0] + view[3][1] * view[0][1] + view[3][2] * view[0][2]), 
+									   -(view[3][0] * view[1][0] + view[3][1] * view[1][1] + view[3][2] * view[1][2]), 
+									   -(view[3][0] * view[2][0] + view[3][1] * view[2][1] + view[3][2] * view[2][2]));
+			
 		//worldSpace
 		Vector3f centerNear = pos + viewDirection * near;
 		Vector3f centerFar = pos + viewDirection * far;

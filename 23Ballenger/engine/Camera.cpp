@@ -785,9 +785,9 @@ const Matrix4f Camera::getInvViewMatrixNew() const {
 	return Matrix4f(m_viewMatrix[0][0], m_viewMatrix[1][0], m_viewMatrix[2][0], 0.0f,
 					m_viewMatrix[0][1], m_viewMatrix[1][1], m_viewMatrix[2][1], 0.0f,
 					m_viewMatrix[0][2], m_viewMatrix[1][2], m_viewMatrix[2][2], 0.0f,
-				   -(m_viewMatrix[3][0] * m_viewMatrix[0][0]) - (m_viewMatrix[3][1] * m_viewMatrix[0][1]) - (m_viewMatrix[3][2] * m_viewMatrix[0][2]), 
-				   -(m_viewMatrix[3][0] * m_viewMatrix[1][0]) - (m_viewMatrix[3][1] * m_viewMatrix[1][1]) - (m_viewMatrix[3][2] * m_viewMatrix[1][2]),
-				   -(m_viewMatrix[3][0] * m_viewMatrix[2][0]) - (m_viewMatrix[3][1] * m_viewMatrix[2][1]) - (m_viewMatrix[3][2] * m_viewMatrix[2][2]), 1.0);
+				   -(m_viewMatrix[3][0] * m_viewMatrix[0][0] + m_viewMatrix[3][1] * m_viewMatrix[0][1] + m_viewMatrix[3][2] * m_viewMatrix[0][2]),
+				   -(m_viewMatrix[3][0] * m_viewMatrix[1][0] + m_viewMatrix[3][1] * m_viewMatrix[1][1] + m_viewMatrix[3][2] * m_viewMatrix[1][2]),
+				   -(m_viewMatrix[3][0] * m_viewMatrix[2][0] + m_viewMatrix[3][1] * m_viewMatrix[2][1] + m_viewMatrix[3][2] * m_viewMatrix[2][2]), 1.0);
 }
 
 const Matrix4f Camera::getInvOrthographicMatrixNew() const {
