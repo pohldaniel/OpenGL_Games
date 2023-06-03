@@ -89,7 +89,7 @@ public:
 	Vector3f(float x_, float y_, float z_);
 	~Vector3f();
 
-	Vector3f normalize();
+	Vector3f& normalize();
 	float length() const;
 	float lengthSq() const;
 
@@ -123,7 +123,7 @@ public:
 	bool zero();
 
 	static Vector3f Cross(const Vector3f &p, const Vector3f &q);
-	static float Dot(const Vector3f &p, const Vector3f &q);
+	static float Dot(const Vector3f &p, const Vector3f &q);	
 	static Vector3f& Normalize(Vector3f &p);
 	static Vector3f Min(const Vector3f &p, const Vector3f &q);
 	static Vector3f Max(const Vector3f &p, const Vector3f &q);
@@ -151,8 +151,10 @@ public:
 	Vector4f &operator+=(const Vector4f &rhs);
 	Vector4f operator+(const Vector4f &rhs) const;
 
-	static float Dot(const Vector4f &p, const Vector4f &q);
+	void normalize3();
 
+	static float Dot(const Vector4f &p, const Vector4f &q);
+	static float Dot(const Vector4f &p, const Vector3f &q);
 private:
 
 	float vec[4];

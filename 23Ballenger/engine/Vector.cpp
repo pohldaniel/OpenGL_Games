@@ -2525,9 +2525,10 @@ Vector3f& Vector3f::Clamp(Vector3f &v, float min, float max) {
 	return v;
 }
 
-Vector3f Vector3f::normalize() {
+Vector3f& Vector3f::normalize() {
 	float invMag = 1.0f / length();
-	return Vector3f(vec[0] * invMag, vec[1] * invMag, vec[2] * invMag);
+	vec[0] *= invMag, vec[1] *= invMag, vec[2] *= invMag;
+	return *this;
 }
 
 
@@ -2562,7 +2563,7 @@ bool Vector3f::compare(const Vector3f &rhs, float precision) {
 
 //friend operator
 Vector3f operator-(const Vector3f &v) {
-	return Vector3f(-v.vec[0], -v.vec[1], -v.vec[2]);
+	return Vector3f(-v[0], -v[1], -v[2]);
 }
 
 //friend operator
@@ -2619,9 +2620,21 @@ Vector4f Vector4f::operator+(const Vector4f &rhs) const {
 	return tmp;
 }
 
+void Vector4f::normalize3() {
+	float invDistance = 1.0f / sqrtf(vec[0] * vec[0] + vec[1] * vec[1] + vec[2] * vec[2]);
+	vec[0] = vec[0] * invDistance;
+	vec[1] = vec[1] * invDistance;
+	vec[2] = vec[2] * invDistance;
+	vec[3] = vec[3] * invDistance;
+}
+
 float Vector4f::Dot(const Vector4f &p, const Vector4f &q) {
 
 	return (p[0] * q[0]) + (p[1] * q[1]) + (p[2] * q[2]) + (p[3] * q[3]);
+}
+
+float Vector4f::Dot(const Vector4f &p, const Vector3f &q) {
+	return (p[0] * q[0]) + (p[1] * q[1]) + (p[2] * q[2]);
 }
 
 //friend operator

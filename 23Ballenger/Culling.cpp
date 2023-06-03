@@ -12,7 +12,7 @@ Culling::Culling(StateMachine& machine) : State(machine, CurrentState::SHAPEINTE
 	EventDispatcher::AddMouseListener(this);
 
 	m_camera = Camera();
-	m_camera.perspective(45.0f * _180_ON_PI, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
+	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 1.0f, 1000.0f);
 	
 	m_camera.setRotationSpeed(0.1f);
 
@@ -28,9 +28,8 @@ Culling::Culling(StateMachine& machine) : State(machine, CurrentState::SHAPEINTE
 
 	m_overview = true;
 
-	Wireframe = false;
-	RenderAABB = false;
 
+	RenderAABB = false;
 	VisualizeRenderingOrder = false;
 	SortVisibleGeometryNodes = true;
 	VisibilityCheckingPerformanceTest = false;
@@ -113,18 +112,24 @@ void Culling::update() {
 
 void Culling::render() {
 
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	glLoadMatrixf(!m_overview ? &m_camera.getPerspectiveMatrix()[0][0] : &m_orthographic[0][0]);
+
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	glLoadMatrixf(!m_overview ? &m_camera.getViewMatrix()[0][0] : &m_view[0][0]);
+
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-
 	m_quadTree.setFrustum(m_camera.getInvViewMatrix() * m_camera.getInvPerspectiveMatrix());
+	m_frustum.updatePlane(m_camera, Matrix4f::Perspective(m_fovx, (float)Application::Width / (float)Application::Height, m_near, m_far), Matrix4f::IDENTITY);
 
 	int TrianglesRendered = m_quadTree.checkVisibility(true);
 
 	auto shader = Globals::shaderManager.getAssetPointer("culling");
 	shader->use();
-
-	
 	shader->loadMatrix("u_projection", !m_overview ? m_camera.getPerspectiveMatrix() : m_orthographic);
 	shader->loadMatrix("u_view", !m_overview ? m_camera.getViewMatrix() : m_view);
 	shader->loadMatrix("u_model", Matrix4f::IDENTITY);
@@ -134,6 +139,7 @@ void Culling::render() {
 	m_terrain.drawRaw(m_quadTree);
 	shader->unuse();
 
+	!m_overview ? m_frustum.drawFrustm(m_camera.getPerspectiveMatrix(), m_camera.getViewMatrix(), m_distance) : m_frustum.drawFrustm(m_orthographic, m_view, m_distance);
 	renderUi();
 }
 
@@ -210,8 +216,10 @@ void Culling::renderUi() {
 	ImGui::Checkbox("Overview", &m_overview);
 	ImGui::Checkbox("Draworder", &VisualizeRenderingOrder);
 	ImGui::Checkbox("Sort Nodes", &SortVisibleGeometryNodes);
-	ImGui::Checkbox("Performancetest", &VisibilityCheckingPerformanceTest);
-	
+	ImGui::SliderFloat("Fovx", &m_fovx, 0.0f, 60.0f);
+	ImGui::SliderFloat("Far", &m_far, 25.0f, 1100.0f);
+	ImGui::SliderFloat("Near", &m_near, 0.0f, 20.0f);
+	ImGui::SliderFloat("Distance", &m_distance, -1.0f, 1.0f);
 
 	ImGui::End();
 

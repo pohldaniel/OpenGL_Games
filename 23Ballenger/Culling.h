@@ -7,6 +7,7 @@
 #include "engine/TrackBall.h"
 #include "engine/Shader.h"
 #include "engine/Vector.h"
+#include "engine/Frustum.h"
 
 #include "StateMachine.h"
 
@@ -39,12 +40,17 @@ public:
 	Transform m_transform;
 	bool m_initUi = true;
 	bool m_overview;
+	float m_fovx = 40.0f;
+	float m_far = 200.0f;
+	float m_near = 5.0f;
+	float m_distance = 0.0f;
 
-	bool Wireframe, RenderAABB, VisualizeRenderingOrder, SortVisibleGeometryNodes, VisibilityCheckingPerformanceTest;
+	bool RenderAABB, VisualizeRenderingOrder, SortVisibleGeometryNodes, VisibilityCheckingPerformanceTest;
 	int Depth;
 
 	Terrain m_terrain;
 	QuadTreeNew m_quadTree;
 	Matrix4f m_view, m_orthographic;
+	Frustum m_frustum;
 };
 
