@@ -9,6 +9,7 @@
 #include "Application.h"
 
 Culling::Culling(StateMachine& machine) : State(machine, CurrentState::SHAPEINTERFACE) {
+
 	EventDispatcher::AddMouseListener(this);
 
 	m_camera = Camera();
@@ -20,15 +21,11 @@ Culling::Culling(StateMachine& machine) : State(machine, CurrentState::SHAPEINTE
 	m_trackball.setDollyPosition(-2.5f);
 	applyTransformation(m_trackball);
 
-
 	m_terrain.init("Levels/terrain01.raw", false);
 	m_quadTree.init(m_terrain.getPositions().data(), m_terrain.getIndexBuffer().data(), m_terrain.getIndexBuffer().size(), m_terrain.getMin(), m_terrain.getMax(), 64.0f);
-
 	Globals::shaderManager.loadShader("culling", "res/terrain.vert", "res/terrain.frag");
 
 	m_overview = true;
-
-
 	RenderAABB = false;
 	VisualizeRenderingOrder = false;
 	SortVisibleGeometryNodes = true;
@@ -123,9 +120,7 @@ void Culling::render() {
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	m_quadTree.setFrustum(m_camera.getInvViewMatrix() * m_camera.getInvPerspectiveMatrix());
-	m_frustum.updatePlane(Matrix4f::Perspective(m_fovx, (float)Application::Width / (float)Application::Height, m_near, m_far), m_camera.getViewMatrix(), Matrix4f::IDENTITY);
-
+	QuadTreeNew::Frustum.updatePlane(Matrix4f::Perspective(m_fovx, (float)Application::Width / (float)Application::Height, m_near, m_far), m_camera.getViewMatrix());
 	int TrianglesRendered = m_quadTree.checkVisibility(true);
 
 	auto shader = Globals::shaderManager.getAssetPointer("culling");
@@ -139,7 +134,7 @@ void Culling::render() {
 	m_terrain.drawRaw(m_quadTree);
 	shader->unuse();
 
-	!m_overview ? m_frustum.drawFrustm(m_camera.getPerspectiveMatrix(), m_camera.getViewMatrix(), m_distance) : m_frustum.drawFrustm(m_orthographic, m_view, m_distance);
+	!m_overview ? QuadTreeNew::Frustum.drawFrustm(m_camera.getPerspectiveMatrix(), m_camera.getViewMatrix(), m_distance) : QuadTreeNew::Frustum.drawFrustm(m_orthographic, m_view, m_distance);
 	renderUi();
 }
 
@@ -216,10 +211,10 @@ void Culling::renderUi() {
 	ImGui::Checkbox("Overview", &m_overview);
 	ImGui::Checkbox("Draworder", &VisualizeRenderingOrder);
 	ImGui::Checkbox("Sort Nodes", &SortVisibleGeometryNodes);
-	ImGui::SliderFloat("Fovx", &m_fovx, 0.0f, 60.0f);
+	ImGui::SliderFloat("Fovx", &m_fovx, 0.01f, 180.0f);
 	ImGui::SliderFloat("Far", &m_far, 25.0f, 1100.0f);
-	ImGui::SliderFloat("Near", &m_near, 0.0f, 20.0f);
-	ImGui::SliderFloat("Distance", &m_distance, -1.0f, 1.0f);
+	ImGui::SliderFloat("Near", &m_near, 1.0f, 200.0f);
+	ImGui::SliderFloat("Distance", &m_distance, -100.0f, 100.0f);
 
 	ImGui::End();
 

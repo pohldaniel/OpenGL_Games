@@ -3,9 +3,7 @@
 std::unique_ptr<Shader> Frustum::s_shaderFrustum = nullptr;
 
 Frustum::Frustum() {
-	if (!s_shaderFrustum) {
-		s_shaderFrustum = std::unique_ptr<Shader>(new Shader(FRUSTUM_VERTEX, FRUSTUM_FRGAMENT, false));
-	}
+	
 }
 
 Frustum::~Frustum() {
@@ -19,49 +17,79 @@ Frustum::~Frustum() {
 		glDeleteBuffers(1, &m_vboCount);
 }
 
+void Frustum::init() {
+	if (!s_shaderFrustum) {
+		s_shaderFrustum = std::unique_ptr<Shader>(new Shader(FRUSTUM_VERTEX, FRUSTUM_FRGAMENT, false));
+	}
+}
+
+bool Frustum::AABBVisible(const Vector3f* AABBVertices) {
+	for (int i = 0; i < 6; i++) {
+		if (Vector4f::Dot(m_planes[i], AABBVertices[m_origins[i]]) + m_planes[i][3] < 0) {
+			return false;
+		}
+	}
+
+	return true;
+}
+
+float Frustum::AABBDistance(const Vector3f* AABBVertices) {
+	return Vector4f::Dot(m_planes[5], AABBVertices[m_origins[5]]);
+}
+
 void Frustum::updatePlane(const Matrix4f& perspective, const Matrix4f& view, const Matrix4f& model) {
 	Matrix4f mvp = perspective * view * model;
-	//Near
-	m_planes[0][0] = mvp[0][3] + mvp[0][2];
-	m_planes[0][1] = mvp[1][3] + mvp[1][2];
-	m_planes[0][2] = mvp[2][3] + mvp[2][2];
-	m_planes[0][3] = mvp[3][3] + mvp[3][2];
-	m_planes[0].normalize3();
-
-	//Far
-	m_planes[1][0] = mvp[0][3] - mvp[0][2];
-	m_planes[1][1] = mvp[1][3] - mvp[1][2];
-	m_planes[1][2] = mvp[2][3] - mvp[2][2];
-	m_planes[1][3] = mvp[3][3] - mvp[3][2];
-	m_planes[1].normalize3();
 
 	//Left
-	m_planes[2][0] = mvp[0][3] + mvp[0][0];
-	m_planes[2][1] = mvp[1][3] + mvp[1][0];
-	m_planes[2][2] = mvp[2][3] + mvp[2][0];
-	m_planes[2][3] = mvp[3][3] + mvp[3][0];
-	m_planes[2].normalize3();
-
+	m_planes[0][0] = mvp[0][3] + mvp[0][0];
+	m_planes[0][1] = mvp[1][3] + mvp[1][0];
+	m_planes[0][2] = mvp[2][3] + mvp[2][0];
+	m_planes[0][3] = mvp[3][3] + mvp[3][0];
+	m_planes[0].normalize3();
+	m_origins[0] = m_planes[0][2] < 0.0f ? (m_planes[0][1] < 0.0f ? (m_planes[0][0] < 0.0f ? 0 : 1) : (m_planes[0][0] < 0.0f ? 2 : 3)) : (m_planes[0][1] < 0.0f ? (m_planes[0][0] < 0.0f ? 4 : 5) : (m_planes[0][0] < 0.0f ? 6 : 7));
 	//Right
-	m_planes[3][0] = mvp[0][3] - mvp[0][0];
-	m_planes[3][1] = mvp[1][3] - mvp[1][0];
-	m_planes[3][2] = mvp[2][3] - mvp[2][0];
-	m_planes[3][3] = mvp[3][3] - mvp[3][0];
-	m_planes[3].normalize3();
 
+	m_planes[1][0] = mvp[0][3] - mvp[0][0];
+	m_planes[1][1] = mvp[1][3] - mvp[1][0];
+	m_planes[1][2] = mvp[2][3] - mvp[2][0];
+	m_planes[1][3] = mvp[3][3] - mvp[3][0];
+	m_planes[1].normalize3();
+	m_origins[1] = m_planes[1][2] < 0.0f ? (m_planes[1][1] < 0.0f ? (m_planes[1][0] < 0.0f ? 0 : 1) : (m_planes[1][0] < 0.0f ? 2 : 3)) : (m_planes[1][1] < 0.0f ? (m_planes[1][0] < 0.0f ? 4 : 5) : (m_planes[1][0] < 0.0f ? 6 : 7));
+	
 	//Bottom
-	m_planes[4][0] = mvp[0][3] + mvp[0][1];
-	m_planes[4][1] = mvp[1][3] + mvp[1][1];
-	m_planes[4][2] = mvp[2][3] + mvp[2][1];
-	m_planes[4][3] = mvp[3][3] + mvp[3][1];
-	m_planes[4].normalize3();
+	m_planes[2][0] = mvp[0][3] + mvp[0][1];
+	m_planes[2][1] = mvp[1][3] + mvp[1][1];
+	m_planes[2][2] = mvp[2][3] + mvp[2][1];
+	m_planes[2][3] = mvp[3][3] + mvp[3][1];
+	m_planes[2].normalize3();
+	m_origins[2] = m_planes[2][2] < 0.0f ? (m_planes[2][1] < 0.0f ? (m_planes[2][0] < 0.0f ? 0 : 1) : (m_planes[2][0] < 0.0f ? 2 : 3)) : (m_planes[2][1] < 0.0f ? (m_planes[2][0] < 0.0f ? 4 : 5) : (m_planes[2][0] < 0.0f ? 6 : 7));
+
 
 	//Top
-	m_planes[5][0] = mvp[0][3] - mvp[0][1];
-	m_planes[5][1] = mvp[1][3] - mvp[1][1];
-	m_planes[5][2] = mvp[2][3] - mvp[2][1];
-	m_planes[5][3] = mvp[3][3] - mvp[3][1];
+	m_planes[3][0] = mvp[0][3] - mvp[0][1];
+	m_planes[3][1] = mvp[1][3] - mvp[1][1];
+	m_planes[3][2] = mvp[2][3] - mvp[2][1];
+	m_planes[3][3] = mvp[3][3] - mvp[3][1];
+	m_planes[3].normalize3();
+	m_origins[3] = m_planes[3][2] < 0.0f ? (m_planes[3][1] < 0.0f ? (m_planes[3][0] < 0.0f ? 0 : 1) : (m_planes[3][0] < 0.0f ? 2 : 3)) : (m_planes[3][1] < 0.0f ? (m_planes[3][0] < 0.0f ? 4 : 5) : (m_planes[3][0] < 0.0f ? 6 : 7));
+
+	
+	//Far
+	m_planes[4][0] = mvp[0][3] - mvp[0][2];
+	m_planes[4][1] = mvp[1][3] - mvp[1][2];
+	m_planes[4][2] = mvp[2][3] - mvp[2][2];
+	m_planes[4][3] = mvp[3][3] - mvp[3][2];
+	m_planes[4].normalize3();
+	m_origins[4] = m_planes[4][2] < 0.0f ? (m_planes[4][1] < 0.0f ? (m_planes[4][0] < 0.0f ? 0 : 1) : (m_planes[4][0] < 0.0f ? 2 : 3)) : (m_planes[4][1] < 0.0f ? (m_planes[4][0] < 0.0f ? 4 : 5) : (m_planes[4][0] < 0.0f ? 6 : 7));
+
+
+	//Near
+	m_planes[5][0] = mvp[0][3] + mvp[0][2];
+	m_planes[5][1] = mvp[1][3] + mvp[1][2];
+	m_planes[5][2] = mvp[2][3] + mvp[2][2];
+	m_planes[5][3] = mvp[3][3] + mvp[3][2];
 	m_planes[5].normalize3();
+	m_origins[5] = m_planes[5][2] < 0.0f ? (m_planes[5][1] < 0.0f ? (m_planes[5][0] < 0.0f ? 0 : 1) : (m_planes[5][0] < 0.0f ? 2 : 3)) : (m_planes[5][1] < 0.0f ? (m_planes[5][0] < 0.0f ? 4 : 5) : (m_planes[5][0] < 0.0f ? 6 : 7));
 
 	if (m_debug) {
 		float near = perspective[3][2] / (perspective[2][2] - 1);
@@ -105,8 +133,7 @@ void Frustum::updatePlane(const Matrix4f& perspective, const Matrix4f& view, con
 		vertex.push_back(nearTopLeft);
 
 		if (!m_vao) {
-			const unsigned short indicesFrustum[] = {
-				
+			const unsigned short indicesFrustum[] = {				
 				4, 5, 6, 7,
 				0, 1, 2, 3,
 				1, 2, 6, 5,

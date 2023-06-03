@@ -2,102 +2,7 @@
 #include "QuadTree_new.h"
 #include "Constants.h"
 
-CFrustum QuadTreeNew::Frustum = CFrustum();
-
-// ----------------------------------------------------------------------------------------------------------------------------
-
-CPlane::CPlane() {
-
-}
-
-CPlane::~CPlane() {
-
-}
-
-void CPlane::Set(const Vector3f& A, const Vector3f& B, const Vector3f& C) {
-	N = Vector3f::Normalize(Vector3f::Cross(B - A, C - A));
-	ND = Vector3f::Dot(N, A);
-	O = N[2] < 0.0f ? (N[1] < 0.0f ? (N[0] < 0.0f ? 0 : 1) : (N[0] < 0.0f ? 2 : 3)) : (N[1] < 0.0f ? (N[0] < 0.0f ? 4 : 5) : (N[0] < 0.0f ? 6 : 7));
-}
-
-bool CPlane::AABBBehind(const Vector3f* AABBVertices) {
-	return Vector3f::Dot(N, AABBVertices[O]) < ND;
-}
-
-float CPlane::AABBDistance(const Vector3f* AABBVertices) {
-	return Vector3f::Dot(N, AABBVertices[O]);
-}
-
-// ----------------------------------------------------------------------------------------------------------------------------
-
-CFrustum::CFrustum() {
-}
-
-CFrustum::~CFrustum() {
-}
-
-void CFrustum::Set(const Matrix4f& ViewProjectionMatrixInverse) {
-
-	Vector4f A = Vector4f(-1.0f, -1.0f, 1.0f, 1.0f) ^ ViewProjectionMatrixInverse;
-	Vector4f B = Vector4f(1.0f, -1.0f, 1.0f, 1.0f) ^ ViewProjectionMatrixInverse;
-	Vector4f C = Vector4f(-1.0f, 1.0f, 1.0f, 1.0f) ^ ViewProjectionMatrixInverse;
-	Vector4f D = Vector4f(1.0f, 1.0f, 1.0f, 1.0f) ^ ViewProjectionMatrixInverse;
-	Vector4f E = Vector4f(-1.0f, -1.0f, -1.0f, 1.0f) ^ ViewProjectionMatrixInverse;
-	Vector4f F = Vector4f(1.0f, -1.0f, -1.0f, 1.0f) ^ ViewProjectionMatrixInverse;
-	Vector4f G = Vector4f(-1.0f, 1.0f, -1.0f, 1.0f) ^ ViewProjectionMatrixInverse;
-	Vector4f H = Vector4f(1.0f, 1.0f, -1.0f, 1.0f) ^ ViewProjectionMatrixInverse;
-
-	Vertices[0] = Vector3f(A[0] / A[3], A[1] / A[3], A[2] / A[3]);
-	Vertices[1] = Vector3f(B[0] / B[3], B[1] / B[3], B[2] / B[3]);
-	Vertices[2] = Vector3f(C[0] / C[3], C[1] / C[3], C[2] / C[3]);
-	Vertices[3] = Vector3f(D[0] / D[3], D[1] / D[3], D[2] / D[3]);
-	Vertices[4] = Vector3f(E[0] / E[3], E[1] / E[3], E[2] / E[3]);
-	Vertices[5] = Vector3f(F[0] / F[3], F[1] / F[3], F[2] / F[3]);
-	Vertices[6] = Vector3f(G[0] / G[3], G[1] / G[3], G[2] / G[3]);
-	Vertices[7] = Vector3f(H[0] / H[3], H[1] / H[3], H[2] / H[3]);
-
-	Planes[0].Set(Vertices[4], Vertices[0], Vertices[2]);
-	Planes[1].Set(Vertices[1], Vertices[5], Vertices[7]);
-	Planes[2].Set(Vertices[4], Vertices[5], Vertices[1]);
-	Planes[3].Set(Vertices[2], Vertices[3], Vertices[7]);
-	Planes[4].Set(Vertices[0], Vertices[1], Vertices[3]);
-	Planes[5].Set(Vertices[5], Vertices[4], Vertices[6]);
-}
-
-bool CFrustum::AABBVisible(const Vector3f* AABBVertices) {
-	for (int i = 0; i < 6; i++) {
-		if (Planes[i].AABBBehind(AABBVertices)) {
-			return false;
-		}
-	}
-
-	return true;
-}
-
-float CFrustum::AABBDistance(const Vector3f* AABBVertices) {
-	return Planes[5].AABBDistance(AABBVertices);
-}
-
-void CFrustum::Render() {
-	glBegin(GL_LINES);
-
-	glVertex3fv(&Vertices[0][0]); glVertex3fv(&Vertices[1][0]);
-	glVertex3fv(&Vertices[2][0]); glVertex3fv(&Vertices[3][0]);
-	glVertex3fv(&Vertices[4][0]); glVertex3fv(&Vertices[5][0]);
-	glVertex3fv(&Vertices[6][0]); glVertex3fv(&Vertices[7][0]);
-
-	glVertex3fv(&Vertices[0][0]); glVertex3fv(&Vertices[2][0]);
-	glVertex3fv(&Vertices[1][0]); glVertex3fv(&Vertices[3][0]);
-	glVertex3fv(&Vertices[4][0]); glVertex3fv(&Vertices[6][0]);
-	glVertex3fv(&Vertices[5][0]); glVertex3fv(&Vertices[7][0]);
-
-	glVertex3fv(&Vertices[0][0]); glVertex3fv(&Vertices[4][0]);
-	glVertex3fv(&Vertices[1][0]); glVertex3fv(&Vertices[5][0]);
-	glVertex3fv(&Vertices[2][0]); glVertex3fv(&Vertices[6][0]);
-	glVertex3fv(&Vertices[3][0]); glVertex3fv(&Vertices[7][0]);
-
-	glEnd();
-}
+Frustum QuadTreeNew::Frustum;
 
 AABB::AABB() {
 
@@ -132,11 +37,11 @@ bool AABB::pointInside(const Vector3f &Point){
 	return true;
 }
 
-bool AABB::visible(CFrustum &frustum) {
+bool AABB::visible(Frustum &frustum) {
 	return frustum.AABBVisible(vertices);
 }
 
-float AABB::distance(CFrustum &frustum){
+float AABB::distance(Frustum &frustum) {
 	return frustum.AABBDistance(vertices);
 }
 
@@ -352,12 +257,17 @@ int TreeNode::checkVisibility(TreeNode** visibleGeometryNodes, int& visibleGeome
 	int trianglesRendered = 0;
 
 	visible = aabb.visible(QuadTreeNew::Frustum);
+	
 	//visible = true;
 	if (visible) {
 
 		if (indicesCount > 0){
 
 			distance = aabb.distance(QuadTreeNew::Frustum);
+			/*std::cout << "Distance 1: " << distance << std::endl;
+			distance = aabb.distance(QuadTreeNew::frustum);
+			std::cout << "Distance 2: " << distance << std::endl;
+			std::cout << "-------------"  << std::endl;*/
 			visibleGeometryNodes[visibleGeometryNodesCount++] = this;
 
 			trianglesRendered += indicesCount / 3;
@@ -431,6 +341,7 @@ void TreeNode::destroy() {
 
 QuadTreeNew::QuadTreeNew() {
 	setDefaults();
+	Frustum.init();
 }
 
 QuadTreeNew::~QuadTreeNew() {
@@ -562,8 +473,4 @@ void QuadTreeNew::destroy() {
 	}
 
 	setDefaults();
-}
-
-void QuadTreeNew::setFrustum(const Matrix4f& mtx) {
-	Frustum.Set(mtx);
 }
