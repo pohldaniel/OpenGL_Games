@@ -12,18 +12,14 @@
 #include "StateMachine.h"
 
 #include "Terrain.h"
-#include "QuadTree_new.h"
+#include "QuadTree.h"
 
-
-
-// ----------------------------------------------------------------------------------------------------------------------------
-
-class Culling : public State, public MouseEventListener {
+class TerrainCulling : public State, public MouseEventListener {
 
 public:
 
-	Culling(StateMachine& machine);
-	~Culling();
+	TerrainCulling(StateMachine& machine);
+	~TerrainCulling();
 
 	void fixedUpdate() override;
 	void update() override;
@@ -39,17 +35,21 @@ public:
 	TrackBall m_trackball;
 	Transform m_transform;
 	bool m_initUi = true;
-	bool m_overview;
+
+	bool m_useCulling = true;
+	bool m_overview = true;
+	bool m_showDrawOrder = true;
+	bool m_sortVisibility = true;
+	bool m_drawAABB = true;
+	int m_depth = -1;
+
 	float m_fovx = 44.0f;
 	float m_far = 990.0f;
 	float m_near = 5.0f;
 	float m_distance = 0.0f;
 
-	bool RenderAABB, VisualizeRenderingOrder, SortVisibleGeometryNodes;
-	int Depth;
-
 	Terrain m_terrain;
-	QuadTreeNew m_quadTree;
-	Matrix4f m_view, m_orthographic;
+	QuadTree m_quadTree;
+	Matrix4f m_view, m_orthographic, m_perspective;
 };
 

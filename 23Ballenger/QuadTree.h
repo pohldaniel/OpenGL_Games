@@ -1,62 +1,82 @@
 #pragma once
-
-#include <vector>
-
 #include "engine/Vector.h"
+#include "engine/Frustum.h"
 
-#include "Terrain.h"
+class AABB {
 
-const int MAX_TRIANGLES = 10000;
+public:
 
-class QuadTree{
+	AABB();
+	~AABB();
+
+	void set(const Vector3f& min, const Vector3f& max);
+	bool pointInside(const Vector3f& point);
+	bool visible(Frustum &frustum);
+	float distance(Frustum &frustum);
+	void draw();
+
+private:
+	Vector3f vertices[8];
+};
+
+// ----------------------------------------------------------------------------------------------------------------------------
+
+class TreeNode {
+
+public:
+
+	TreeNode();
+	~TreeNode();
+
+	void initAABB(const Vector3f& min, const Vector3f& max, int depth, float minAABBSize);
+	bool checkTriangle(Vector3f* vertices, unsigned int* indices, unsigned int a, unsigned int b, unsigned int c);
+	void allocateMemory();
+	bool addTriangle(Vector3f* vertices, unsigned int* indices, unsigned int a, unsigned int b, unsigned int c);
+	void resetAABB(Vector3f* vertices);
+	int initIndexBufferObject();
+	int checkVisibility(TreeNode** visibleGeometryNodes, int& visibleGeometryNodesCount);
+	float getDistance();
+	void draw();
+	void drawAABB(int depth);
+	void destroy();
 
 private:
 
-	struct Vertex{
-		Vector3f position;
-		Vector2f texture;
-		Vector3f normal;
-	};
+	void setDefaults();
 
-	struct Node{
-		float positionX, positionZ, width;
-		int triangleCount;
-		int drawCount;
-		int depth;
-		Node* nodes[4];
-		unsigned int vao = 0;
-		unsigned int vbo = 0;
-		unsigned int vaoDebug = 0;
-		unsigned int vboDebug = 0;
-	};
+	Vector3f min, max;
+	int depth;
+	AABB aabb;
+	bool visible;
+	float distance;
+	int *indices;
+	int indicesCount;
+	unsigned int indexBufferObject;
+	TreeNode *children[2];
+};
+
+// ----------------------------------------------------------------------------------------------------------------------------
+
+class QuadTree {
 
 public:
 	QuadTree();
-	QuadTree(const  QuadTree&);
 	~QuadTree();
 
-	void Initialize(Terrain* terrain);
-	void Shutdown();
-	void Render(int depth = 0);
+	void init(Vector3f* vertices, unsigned int* indices, unsigned int indicesCount, const Vector3f& min, const Vector3f& max, float minAABBSize = 16.0f);
+	void quickSortVisibleGeometryNodes(int left, int right);
+	int checkVisibility(bool sortVisibleGeometryNodes = false);
+	void draw(bool visualizeRenderingOrder = false) const;
+	void drawAABB(int depth);
+	void destroy();
 
-	int GetDrawCount();
-
-	static int MaxDepth;
-
-private:
-
-	void CalculateMeshDimensions(int vertexCount, float& centerX, float& centerZ, float& meshWidth);
-	void CreateTreeNode(Node* node, float positionX, float positionZ, float width, int depth);
-	int CountTriangles(float positionX, float positionZ, float width);
-	bool IsTriangleContained(int index, float positionX, float positionZ, float width);
-	void ReleaseNode(Node* node);
-	void RenderNode(Node* node, int depth);
+	static Frustum Frustum;
 
 private:
 
-	int m_triangleCount, m_drawCount;
-	Node* m_parentNode;
-	bool m_result = false;
+	void setDefaults();
 
-	Terrain* m_terrain;
+	TreeNode *root;
+	TreeNode **visibleGeometryNodes;
+	int visibleGeometryNodesCount;
 };

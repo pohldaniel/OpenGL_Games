@@ -23,7 +23,7 @@ void Frustum::init() {
 	}
 }
 
-bool Frustum::AABBVisible(const Vector3f* AABBVertices) {
+bool Frustum::aabbVisible(const Vector3f* AABBVertices) {
 	for (int i = 0; i < 6; i++) {
 		if (Vector4f::Dot(m_planes[i], AABBVertices[m_origins[i]]) + m_planes[i][3] < 0) {
 			return false;
@@ -33,7 +33,7 @@ bool Frustum::AABBVisible(const Vector3f* AABBVertices) {
 	return true;
 }
 
-float Frustum::AABBDistance(const Vector3f* AABBVertices) {
+float Frustum::aabbDistance(const Vector3f* AABBVertices) {
 	return Vector4f::Dot(m_planes[5], AABBVertices[m_origins[5]]);
 }
 
@@ -45,15 +45,15 @@ void Frustum::updatePlane(const Matrix4f& perspective, const Matrix4f& view, con
 	m_planes[0][1] = mvp[1][3] + mvp[1][0];
 	m_planes[0][2] = mvp[2][3] + mvp[2][0];
 	m_planes[0][3] = mvp[3][3] + mvp[3][0];
-	m_planes[0].normalize3();
+	//m_planes[0].normalize3();
 	m_origins[0] = m_planes[0][2] < 0.0f ? (m_planes[0][1] < 0.0f ? (m_planes[0][0] < 0.0f ? 0 : 1) : (m_planes[0][0] < 0.0f ? 2 : 3)) : (m_planes[0][1] < 0.0f ? (m_planes[0][0] < 0.0f ? 4 : 5) : (m_planes[0][0] < 0.0f ? 6 : 7));
-	//Right
 
+	//Right
 	m_planes[1][0] = mvp[0][3] - mvp[0][0];
 	m_planes[1][1] = mvp[1][3] - mvp[1][0];
 	m_planes[1][2] = mvp[2][3] - mvp[2][0];
 	m_planes[1][3] = mvp[3][3] - mvp[3][0];
-	m_planes[1].normalize3();
+	//m_planes[1].normalize3();
 	m_origins[1] = m_planes[1][2] < 0.0f ? (m_planes[1][1] < 0.0f ? (m_planes[1][0] < 0.0f ? 0 : 1) : (m_planes[1][0] < 0.0f ? 2 : 3)) : (m_planes[1][1] < 0.0f ? (m_planes[1][0] < 0.0f ? 4 : 5) : (m_planes[1][0] < 0.0f ? 6 : 7));
 	
 	//Bottom
@@ -61,37 +61,37 @@ void Frustum::updatePlane(const Matrix4f& perspective, const Matrix4f& view, con
 	m_planes[2][1] = mvp[1][3] + mvp[1][1];
 	m_planes[2][2] = mvp[2][3] + mvp[2][1];
 	m_planes[2][3] = mvp[3][3] + mvp[3][1];
-	m_planes[2].normalize3();
+	//m_planes[2].normalize3();
 	m_origins[2] = m_planes[2][2] < 0.0f ? (m_planes[2][1] < 0.0f ? (m_planes[2][0] < 0.0f ? 0 : 1) : (m_planes[2][0] < 0.0f ? 2 : 3)) : (m_planes[2][1] < 0.0f ? (m_planes[2][0] < 0.0f ? 4 : 5) : (m_planes[2][0] < 0.0f ? 6 : 7));
-
 
 	//Top
 	m_planes[3][0] = mvp[0][3] - mvp[0][1];
 	m_planes[3][1] = mvp[1][3] - mvp[1][1];
 	m_planes[3][2] = mvp[2][3] - mvp[2][1];
 	m_planes[3][3] = mvp[3][3] - mvp[3][1];
-	m_planes[3].normalize3();
+	//m_planes[3].normalize3();
 	m_origins[3] = m_planes[3][2] < 0.0f ? (m_planes[3][1] < 0.0f ? (m_planes[3][0] < 0.0f ? 0 : 1) : (m_planes[3][0] < 0.0f ? 2 : 3)) : (m_planes[3][1] < 0.0f ? (m_planes[3][0] < 0.0f ? 4 : 5) : (m_planes[3][0] < 0.0f ? 6 : 7));
 
-	
 	//Far
 	m_planes[4][0] = mvp[0][3] - mvp[0][2];
 	m_planes[4][1] = mvp[1][3] - mvp[1][2];
 	m_planes[4][2] = mvp[2][3] - mvp[2][2];
 	m_planes[4][3] = mvp[3][3] - mvp[3][2];
-	m_planes[4].normalize3();
+	//m_planes[4].normalize3();
 	m_origins[4] = m_planes[4][2] < 0.0f ? (m_planes[4][1] < 0.0f ? (m_planes[4][0] < 0.0f ? 0 : 1) : (m_planes[4][0] < 0.0f ? 2 : 3)) : (m_planes[4][1] < 0.0f ? (m_planes[4][0] < 0.0f ? 4 : 5) : (m_planes[4][0] < 0.0f ? 6 : 7));
-
 
 	//Near
 	m_planes[5][0] = mvp[0][3] + mvp[0][2];
 	m_planes[5][1] = mvp[1][3] + mvp[1][2];
 	m_planes[5][2] = mvp[2][3] + mvp[2][2];
 	m_planes[5][3] = mvp[3][3] + mvp[3][2];
-	m_planes[5].normalize3();
-	m_origins[5] = m_planes[5][2] < 0.0f ? (m_planes[5][1] < 0.0f ? (m_planes[5][0] < 0.0f ? 0 : 1) : (m_planes[5][0] < 0.0f ? 2 : 3)) : (m_planes[5][1] < 0.0f ? (m_planes[5][0] < 0.0f ? 4 : 5) : (m_planes[5][0] < 0.0f ? 6 : 7));
+	//m_planes[5].normalize3();
+	m_origins[5] = m_planes[5][2] < 0.0f ? (m_planes[5][1] < 0.0f ? (m_planes[5][0] < 0.0f ? 0 : 1) : (m_planes[5][0] < 0.0f ? 2 : 3)) : (m_planes[5][1] < 0.0f ? (m_planes[5][0] < 0.0f ? 4 : 5) : (m_planes[5][0] < 0.0f ? 6 : 7));	
+}
 
+void Frustum::update(const Matrix4f& perspective, const Matrix4f& view) {
 	if (m_debug) {
+
 		float near = perspective[3][2] / (perspective[2][2] - 1);
 		float heightNear = (2.0f / perspective[1][1]) * near;
 		float widthNear = (heightNear *  perspective[1][1]) / perspective[0][0];
@@ -99,14 +99,14 @@ void Frustum::updatePlane(const Matrix4f& perspective, const Matrix4f& view, con
 		float far = perspective[3][2] / (perspective[2][2] + 1);
 		float heightFar = (2.0f / perspective[1][1]) * far;
 		float widthFar = (heightFar  * perspective[1][1]) / perspective[0][0];
-		
+
 		const Vector3f& right = Vector3f(view[0][0], view[1][0], view[2][0]);
 		const Vector3f& up = Vector3f(view[0][1], view[1][1], view[2][1]);
 		const Vector3f& viewDirection = Vector3f(-view[0][2], -view[1][2], -view[2][2]);
-		const Vector3f& pos = Vector3f(-(view[3][0] * view[0][0] + view[3][1] * view[0][1] + view[3][2] * view[0][2]), 
-									   -(view[3][0] * view[1][0] + view[3][1] * view[1][1] + view[3][2] * view[1][2]), 
-									   -(view[3][0] * view[2][0] + view[3][1] * view[2][1] + view[3][2] * view[2][2]));
-			
+		const Vector3f& pos = Vector3f(-(view[3][0] * view[0][0] + view[3][1] * view[0][1] + view[3][2] * view[0][2]),
+			-(view[3][0] * view[1][0] + view[3][1] * view[1][1] + view[3][2] * view[1][2]),
+			-(view[3][0] * view[2][0] + view[3][1] * view[2][1] + view[3][2] * view[2][2]));
+
 		//worldSpace
 		Vector3f centerNear = pos + viewDirection * near;
 		Vector3f centerFar = pos + viewDirection * far;
@@ -133,7 +133,7 @@ void Frustum::updatePlane(const Matrix4f& perspective, const Matrix4f& view, con
 		vertex.push_back(nearTopLeft);
 
 		if (!m_vao) {
-			const unsigned short indicesFrustum[] = {				
+			const unsigned short indicesFrustum[] = {
 				4, 5, 6, 7,
 				0, 1, 2, 3,
 				1, 2, 6, 5,
@@ -184,7 +184,7 @@ void Frustum::updatePlane(const Matrix4f& perspective, const Matrix4f& view, con
 }
 
 void Frustum::drawFrustm(const Matrix4f& projection, const Matrix4f& view, float distance) {
-	if (!m_debug) return;
+	if (!(m_debug && m_vao)) return;
 	glDisable(GL_CULL_FACE);
 	glDisable(GL_DEPTH_TEST);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -226,12 +226,15 @@ bool Frustum::intersectAABBFrustum(const Vector3f& position, const Vector3f& siz
 }
 
 bool Frustum::IntersectAABBPlane(const Vector3f& position, const Vector3f& size, const Vector4f& plane) {
-	Vector3f max = position + size;
-	Vector3f min = position;
-	Vector3f center = (max + min) * 0.5f;
-	Vector3f extents = max - center;
+
+	Vector3f extents = size * 0.5f;
+	Vector3f center = position + extents;
 
 	float r = extents[0] * abs(plane[0]) + extents[1] * abs(plane[1]) + extents[2] * abs(plane[2]);
 	float s = Vector4f::Dot(plane, center) - plane[3];
 	return abs(s) <= r;
+}
+
+bool& Frustum::getDebug() {
+	return m_debug;
 }

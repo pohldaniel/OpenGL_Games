@@ -4,11 +4,11 @@
 #include <imgui_impl_opengl3.h>
 #include <imgui_internal.h>
 
-#include "Culling.h"
+#include "TerrainCulling.h"
 #include "Constants.h"
 #include "Application.h"
 
-Culling::Culling(StateMachine& machine) : State(machine, CurrentState::SHAPEINTERFACE) {
+TerrainCulling::TerrainCulling(StateMachine& machine) : State(machine, CurrentState::SHAPEINTERFACE) {
 
 	EventDispatcher::AddMouseListener(this);
 
@@ -21,35 +21,29 @@ Culling::Culling(StateMachine& machine) : State(machine, CurrentState::SHAPEINTE
 	m_trackball.setDollyPosition(-2.5f);
 	applyTransformation(m_trackball);
 
-	m_terrain.init("Levels/terrain01.raw", false);
+	m_terrain.init("Levels/terrain01.raw");
+
 	m_quadTree.init(m_terrain.getPositions().data(), m_terrain.getIndexBuffer().data(), m_terrain.getIndexBuffer().size(), m_terrain.getMin(), m_terrain.getMax(), 64.0f);
 	Globals::shaderManager.loadShader("culling", "res/terrain.vert", "res/terrain.frag");
 
-	m_overview = true;
-	RenderAABB = false;
-	VisualizeRenderingOrder = false;
-	SortVisibleGeometryNodes = true;
-	VisibilityCheckingPerformanceTest = false;
-
-	Depth = -1;
-
-	float Height = m_terrain.heightAt(512.0f, 512.0f);
-	m_camera.lookAt(Vector3f(512.0f, Height + 1.75f, 512.0f), Vector3f(512.0f, Height + 1.75f, 512.0f -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
+	float height = m_terrain.heightAt(512.0f, 512.0f);
+	m_camera.lookAt(Vector3f(512.0f, height + 1.75f, 512.0f), Vector3f(512.0f, height + 1.75f, 512.0f -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
 
 	float offset = 20.0f;
 	m_view.lookAt(Vector3f(512.0f, 0.0f, 512.0f), Vector3f(512.0f, 0.0f - 1.0f, 512.0f), Vector3f(0.0f, 0.0f, -1.0f));
 	m_orthographic.orthographic(-(512.0f + offset), 512.0f + offset, -(512.0f + offset), 512.0f + offset, -4096.0f, 4096.0f);
+	m_perspective.perspective(m_fovx, (float)Application::Width / (float)Application::Height, m_near, m_far);
 }
 
-Culling::~Culling() {
-
-}
-
-void Culling::fixedUpdate() {
+TerrainCulling::~TerrainCulling() {
 
 }
 
-void Culling::update() {
+void TerrainCulling::fixedUpdate() {
+
+}
+
+void TerrainCulling::update() {
 	Keyboard &keyboard = Keyboard::instance();
 	Vector3f directrion = Vector3f();
 
@@ -105,23 +99,13 @@ void Culling::update() {
 	}
 	m_trackball.idle();
 	applyTransformation(m_trackball);
+	m_perspective.perspective(m_fovx, (float)Application::Width / (float)Application::Height, m_near, m_far);
 };
 
-void Culling::render() {
-
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	glLoadMatrixf(!m_overview ? &m_camera.getPerspectiveMatrix()[0][0] : &m_orthographic[0][0]);
-
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-	glLoadMatrixf(!m_overview ? &m_camera.getViewMatrix()[0][0] : &m_view[0][0]);
+void TerrainCulling::render() {
 
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	QuadTreeNew::Frustum.updatePlane(Matrix4f::Perspective(m_fovx, (float)Application::Width / (float)Application::Height, m_near, m_far), m_camera.getViewMatrix());
-	int TrianglesRendered = m_quadTree.checkVisibility(true);
 
 	auto shader = Globals::shaderManager.getAssetPointer("culling");
 	shader->use();
@@ -131,19 +115,45 @@ void Culling::render() {
 	shader->loadMatrix("u_normal", Matrix4f::GetNormalMatrix(m_camera.getViewMatrix()));
 	shader->loadVector("campos", !m_overview ? m_camera.getPosition() : Vector3f(512.0f, 4096.0f, 512.0f));
 	shader->loadVector("color", Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
-	m_terrain.drawRaw(m_quadTree);
+
+	if (m_useCulling) {
+		QuadTree::Frustum.updatePlane(m_perspective, m_camera.getViewMatrix());
+		int TrianglesRendered = m_quadTree.checkVisibility(m_sortVisibility);
+
+		m_terrain.bindVAO();
+		m_quadTree.draw(m_showDrawOrder);
+		m_terrain.unbindVAO();
+		
+	} else {
+		m_terrain.drawRaw();
+	}	
 	shader->unuse();
 
-	!m_overview ? QuadTreeNew::Frustum.drawFrustm(m_camera.getPerspectiveMatrix(), m_camera.getViewMatrix(), m_distance) : QuadTreeNew::Frustum.drawFrustm(m_orthographic, m_view, m_distance);
+	if (m_drawAABB){
+		//exceptionally use the fixed pipeline here to avoid creating of unwanted vaos for every node
+		glMatrixMode(GL_PROJECTION);
+		glLoadIdentity();
+		glLoadMatrixf(!m_overview ? &m_camera.getPerspectiveMatrix()[0][0] : &m_orthographic[0][0]);
+
+		glMatrixMode(GL_MODELVIEW);
+		glLoadIdentity();
+		glLoadMatrixf(!m_overview ? &m_camera.getViewMatrix()[0][0] : &m_view[0][0]);
+
+		glColor3f(0.0f, 1.0f, 0.0f);
+		m_quadTree.drawAABB(m_depth);
+	}
+
+	QuadTree::Frustum.update(m_perspective, m_camera.getViewMatrix());
+	!m_overview ? QuadTree::Frustum.drawFrustm(m_camera.getPerspectiveMatrix(), m_camera.getViewMatrix(), m_distance) : QuadTree::Frustum.drawFrustm(m_orthographic, m_view, m_distance);
 	renderUi();
 }
 
-void Culling::OnMouseMotion(Event::MouseMoveEvent& event) {
+void TerrainCulling::OnMouseMotion(Event::MouseMoveEvent& event) {
 	m_trackball.motion(event.x, event.y);
 	applyTransformation(m_trackball);
 }
 
-void Culling::OnMouseButtonDown(Event::MouseButtonEvent& event) {
+void TerrainCulling::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 	if (event.button == 1u) {
 		m_trackball.mouse(TrackBall::Button::ELeftButton, TrackBall::Modifier::ENoModifier, true, event.x, event.y);
 		applyTransformation(m_trackball);
@@ -153,7 +163,7 @@ void Culling::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 	}
 }
 
-void Culling::OnMouseButtonUp(Event::MouseButtonEvent& event) {
+void TerrainCulling::OnMouseButtonUp(Event::MouseButtonEvent& event) {
 	if (event.button == 1u) {
 		m_trackball.mouse(TrackBall::Button::ELeftButton, TrackBall::Modifier::ENoModifier, false, event.x, event.y);
 		applyTransformation(m_trackball);
@@ -164,16 +174,16 @@ void Culling::OnMouseButtonUp(Event::MouseButtonEvent& event) {
 }
 
 
-void Culling::resize(int deltaW, int deltaH) {
+void TerrainCulling::resize(int deltaW, int deltaH) {
 	m_camera.perspective(45.0f * _180_ON_PI, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
 	m_trackball.reshape(Application::Width, Application::Height);
 }
 
-void Culling::applyTransformation(TrackBall& arc) {
+void TerrainCulling::applyTransformation(TrackBall& arc) {
 	m_transform.fromMatrix(arc.getTransform());
 }
 
-void Culling::renderUi() {
+void TerrainCulling::renderUi() {
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
@@ -206,11 +216,18 @@ void Culling::renderUi() {
 
 	// render widgets
 	ImGui::Begin("Settings", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
+	if (ImGui::Button("Toggle VSYNC")){
+		Application::ToggleVerticalSync();
+	}
 	ImGui::Checkbox("Draw Wirframe", &StateMachine::GetEnableWireframe());
-	ImGui::Checkbox("Draw AABB", &RenderAABB);
 	ImGui::Checkbox("Overview", &m_overview);
-	ImGui::Checkbox("Draworder", &VisualizeRenderingOrder);
-	ImGui::Checkbox("Sort Nodes", &SortVisibleGeometryNodes);
+	ImGui::Checkbox("Draw AABB", &m_drawAABB);
+	ImGui::SliderInt("Depth", &m_depth, -1, 20);
+	ImGui::Checkbox("Show Draw Order", &m_showDrawOrder);
+	ImGui::Checkbox("Sort Nodes", &m_sortVisibility);
+	ImGui::Checkbox("Use Culling", &m_useCulling);
+	ImGui::Checkbox("Show Frustum", &QuadTree::Frustum.getDebug());
+
 	ImGui::SliderFloat("Fovx", &m_fovx, 0.01f, 180.0f);
 	ImGui::SliderFloat("Far", &m_far, 25.0f, 1100.0f);
 	ImGui::SliderFloat("Near", &m_near, 1.0f, 200.0f);

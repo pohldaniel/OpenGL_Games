@@ -2,7 +2,6 @@
 #include <iostream>
 #include "Terrain.h"
 #include "Utils.h"
-#include "QuadTree_new.h"
 
 HeightMap::HeightMap() : m_width(0), m_height(0), m_heightScale(256.0f / 64.0f), m_minH(FLT_MAX), m_maxH(-FLT_MAX){
 
@@ -263,8 +262,7 @@ Terrain::~Terrain() {
 	m_normals.shrink_to_fit();
 }
 
-
-bool Terrain::init(const char* filename, bool bindIndexBuffer) {
+bool Terrain::init(const char* filename) {
 	bool result;
 
 	m_heightMap.loadFromRAW(filename, TERRAIN_SIZE, TERRAIN_SIZE);
@@ -273,7 +271,7 @@ bool Terrain::init(const char* filename, bool bindIndexBuffer) {
 	m_width = TERRAIN_SIZE;
 	m_height = TERRAIN_SIZE;
 
-	create(m_heightMap, bindIndexBuffer);
+	create(m_heightMap);
 
 	return true;
 }
@@ -289,7 +287,7 @@ const Vector3f& Terrain::getMax() const {
 	return m_max;
 }
 
-void Terrain::create(const HeightMap& heightMap, bool bindIndexBuffer) {
+void Terrain::create(const HeightMap& heightMap) {
 	
 	Vector3f normal;
 	for (int z = 0; z < heightMap.getHeight(); z++) {
@@ -307,7 +305,7 @@ void Terrain::create(const HeightMap& heightMap, bool bindIndexBuffer) {
 	m_max = Vector3f(static_cast<float>(heightMap.getWidth()), m_heightMap.getMaxHeight(), static_cast<float>(heightMap.getHeight()));
 
 	generateIndices();
-	createBuffer(bindIndexBuffer);
+	createBuffer();
 }
 
 void Terrain::generateIndices() {
@@ -361,11 +359,15 @@ void Terrain::generateIndicesTS() {
 	}
 }
 
-void Terrain::createBuffer(bool bindIndexBuffer) {
+void Terrain::createBuffer() {
 	m_drawCount = m_indexBuffer.size();
 
-	unsigned int ibo;
-	glGenBuffers(1, &ibo);
+
+	glGenBuffers(1, &m_ibo);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ibo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_indexBuffer.size() * sizeof(m_indexBuffer[0]), &m_indexBuffer[0], GL_STATIC_DRAW);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+	
 	glGenBuffers(!m_positions.empty() + !m_texels.empty() + !m_normals.empty(), m_vbo);
 
 	glGenVertexArrays(1, &m_vao);
@@ -395,15 +397,7 @@ void Terrain::createBuffer(bool bindIndexBuffer) {
 		glEnableVertexAttribArray(2);
 		glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, 0);
 	}
-
-	//Indices
-	if (bindIndexBuffer) {
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_indexBuffer.size() * sizeof(m_indexBuffer[0]), &m_indexBuffer[0], GL_STATIC_DRAW);
-	}
 	glBindVertexArray(0);
-
-	glDeleteBuffers(1, &ibo);
 
 	//m_positions.clear();
 	//m_positions.shrink_to_fit();
@@ -477,14 +471,20 @@ unsigned int Terrain::getNumberOfTriangles() {
 }
 
 void Terrain::drawRaw() const {
+	
 	glBindVertexArray(m_vao);
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ibo);
 	glDrawElements(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	//glDrawElements(GL_TRIANGLE_STRIP, m_drawCount, GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
 }
 
-void Terrain::drawRaw(const QuadTreeNew& quadTree) const {
+void Terrain::bindVAO() const {
 	glBindVertexArray(m_vao);
-	quadTree.draw(true);
+}
+
+void Terrain::unbindVAO() const {
 	glBindVertexArray(0);
 }

@@ -19,9 +19,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME),
 	Mouse::instance().attach(Application::GetWindow());
 
 	m_terrain.init("Levels/terrain01.raw");
-
-	m_quadTree = new QuadTree();
-	m_quadTree->Initialize(&m_terrain);
+	m_quadTree.init(m_terrain.getPositions().data(), m_terrain.getIndexBuffer().data(), m_terrain.getIndexBuffer().size(), m_terrain.getMin(), m_terrain.getMax(), 64.0f);
 
 	Init();
 
@@ -129,9 +127,12 @@ void Game::render() {
 
 	Globals::textureManager.get("grass").bind(0);
 	Globals::textureManager.get("rock").bind(1);
-	//_Terrain.DrawNew();
-	//m_terrain->drawRaw();
-	m_quadTree->Render(m_depth);
+	QuadTree::Frustum.updatePlane(m_camera.getPerspectiveMatrix(), m_camera.getViewMatrix());
+	int TrianglesRendered = m_quadTree.checkVisibility();
+
+	m_terrain.bindVAO();
+	m_quadTree.draw();
+	m_terrain.unbindVAO();
 	shader->unuse();
 
 	m_keySet.draw(m_camera);
@@ -240,7 +241,7 @@ void Game::renderUi() {
 	if (ImGui::SliderFloat("Camera Offset", &m_offsetDistance, 0.0f, 150.0f)) {
 		m_camera.setOffsetDistance(m_offsetDistance);
 	}
-	ImGui::SliderInt("Debug Tree", &m_depth, -1, QuadTree::MaxDepth);
+
 	ImGui::End();
 
 	ImGui::Render();

@@ -158,7 +158,7 @@
     <ClCompile Include="CharacterController.cpp" />
     <ClCompile Include="cLava.cpp" />
     <ClCompile Include="ColumnSet.cpp" />
-    <ClCompile Include="Culling.cpp" />
+    <ClCompile Include="TerrainCulling.cpp" />
     <ClCompile Include="engine\AssimpModel.cpp" />
     <ClCompile Include="engine\Batchrenderer.cpp" />
     <ClCompile Include="engine\BuiltInShader.cpp" />
@@ -208,7 +208,6 @@
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="Portal.cpp" />
     <ClCompile Include="QuadTree.cpp" />
-    <ClCompile Include="QuadTree_new.cpp" />
     <ClCompile Include="RaySet.cpp" />
     <ClCompile Include="RenderableObject.cpp" />
     <ClCompile Include="RespawnPointSet.cpp" />
@@ -228,7 +227,7 @@
     <ClInclude Include="ColumnSet.h" />
     <ClInclude Include="Constants.h" />
     <ClInclude Include="convhull\convhull_3d.h" />
-    <ClInclude Include="Culling.h" />
+    <ClInclude Include="TerrainCulling.h" />
     <ClInclude Include="engine\AssetManger.h" />
     <ClInclude Include="engine\AssimpModel.h" />
     <ClInclude Include="engine\Batchrenderer.h" />
@@ -282,7 +281,6 @@
     <ClInclude Include="Player.h" />
     <ClInclude Include="Portal.h" />
     <ClInclude Include="QuadTree.h" />
-    <ClInclude Include="QuadTree_new.h" />
     <ClInclude Include="RaySet.h" />
     <ClInclude Include="RenderableObject.h" />
     <ClInclude Include="RespawnPointSet.h" />

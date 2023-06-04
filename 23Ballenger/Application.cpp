@@ -11,7 +11,7 @@
 #include "Constants.h"
 #include "ShapeInterface.h"
 #include "Game.h"
-#include "Culling.h"
+#include "TerrainCulling.h"
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -353,9 +353,9 @@ void Application::fixedUpdate() {
 void Application::initStates() {
 	
 	Machine = new StateMachine(m_dt, m_fdt);
-	//Machine->addStateAtTop(new Game(*Machine));
+	Machine->addStateAtTop(new Game(*Machine));
 	//Machine->addStateAtTop(new ShapeInterface(*Machine));
-	Machine->addStateAtTop(new Culling(*Machine));
+	//Machine->addStateAtTop(new TerrainCulling(*Machine));
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
@@ -595,8 +595,5 @@ void Application::loadAssets() {
 	Globals::shapeManager.buildCylinder("cylinder_key", 2.0f, 2.0f, 1.0f, Vector3f(0.0f, 0.5f, 0.0f), false, false , 16, 16, false, true, false);
 
 	Globals::shapeManager.buildSphere("sphere_cl", 1.0f, Vector3f(0.0f, 8.0f, 0.0f), 32, 32, false, true, false);
-	Globals::shapeManager.buildSphere("sphere_portal", 0.2f, Vector3f(512.0f, 13.75f, 544.0f), 16, 16, false, true, false);
-
-	
-	
+	Globals::shapeManager.buildSphere("sphere_portal", 0.2f, Vector3f(512.0f, 13.75f, 544.0f), 16, 16, false, true, false);	
 }

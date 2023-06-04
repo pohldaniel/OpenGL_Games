@@ -63,6 +63,6 @@ private:
 	bool m_drawUi = false;
 	int m_depth = 0;
 
-	QuadTree* m_quadTree;
+	QuadTree m_quadTree;
 	Terrain m_terrain;
 };

@@ -40,11 +40,16 @@ public:
 
 	void drawFrustm(const Matrix4f& projection, const Matrix4f& view, float distance);
 	void updatePlane(const Matrix4f& perspective, const Matrix4f& view, const Matrix4f& model = Matrix4f::IDENTITY);
-	bool intersectAABBFrustum(const Vector3f& position, const Vector3f& size);
-	bool AABBVisible(const Vector3f* AABBVertices);
-	float AABBDistance(const Vector3f* AABBVertices);
-	static bool IntersectAABBPlane(const Vector3f& position, const Vector3f& size, const Vector4f& plane);
+	void update(const Matrix4f& perspective, const Matrix4f& view);
+
 	void init();
+	bool intersectAABBFrustum(const Vector3f& position, const Vector3f& size);
+	bool aabbVisible(const Vector3f* AABBVertices);
+	float aabbDistance(const Vector3f* AABBVertices);
+	bool& getDebug();
+
+	static bool IntersectAABBPlane(const Vector3f& position, const Vector3f& size, const Vector4f& plane);
+	
 private:
 
 	Vector4f m_planes[6];

@@ -6,8 +6,6 @@
 #define TERRAIN_SIZE    1024
 #define TEXTURE_REPEAT	64
 
-class QuadTreeNew;
-
 class HeightMap {
 
 public:
@@ -52,10 +50,9 @@ public:
 	Terrain();
 	~Terrain();
 
-	bool init(const char* filename, bool bindIndexBuffer = true);
+	bool init(const char* filename);
 	
 	void drawRaw() const;
-	void drawRaw(const QuadTreeNew& quadTree) const;
 
 	float heightAt(float x, float z) const;
 	void normalAt(float x, float z, Vector3f &n) const;
@@ -67,12 +64,17 @@ public:
 
 	const Vector3f& getMin() const;
 	const Vector3f& getMax() const;
+
+	void bindVAO() const;
+	void unbindVAO() const;
+
 private:
 
-	void create(const HeightMap& heightMap, bool bindIndexBuffer = true);
+	void create(const HeightMap& heightMap);
+	void createBuffer();
 	void generateIndices();
 	void generateIndicesTS();
-	void createBuffer(bool bindIndexBuffer = true);
+	
 
 	int m_width, m_height;
 	int m_vertexCount;
@@ -80,6 +82,7 @@ private:
 	HeightMap m_heightMap;
 
 	unsigned int m_vao;
+	unsigned int m_ibo;
 	unsigned int m_vbo[5] = { 0 };
 	unsigned int m_drawCount;
 
