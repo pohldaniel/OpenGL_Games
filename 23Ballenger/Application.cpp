@@ -519,8 +519,10 @@ void Application::loadAssets() {
 	Globals::shaderManager.loadShader("key", "Shaders/key.vert", "Shaders/key.frag");
 	Globals::shaderManager.loadShader("beam", "Shaders/beam.vert", "Shaders/beam.frag");
 	Globals::shaderManager.loadShader("skybox", "Shaders/skybox.vert", "Shaders/skybox.frag");
-
 	Globals::shaderManager.loadShader("line", "Shaders/line.vert", "Shaders/line.frag");
+	Globals::shaderManager.loadShader("post", "Shaders/screen_new.vert", "Shaders/post_processing.frag");
+	Globals::shaderManager.loadShader("clouds", "Shaders/volumetric_clouds.comp");
+	Globals::shaderManager.loadShader("cloud_post", "Shaders/screen_new.vert", "Shaders/clouds_post.frag");
 
 	Globals::textureManager.createNullTexture("null");
 
@@ -586,6 +588,7 @@ void Application::loadAssets() {
 
 	Globals::shapeManager.buildCube("cube", Vector3f(-1.0f, -1.0f, -1.0f), Vector3f(2.0f, 2.0f, 2.0f), 1, 1, false, false, false);
 	Globals::shapeManager.buildSphere("sphere", 0.5f * SCALE, Vector3f(0.0f, 0.0f, 0.0f), 16, 16, true, true, false);
+	Globals::shapeManager.buildQuadXY("quad", Vector3f(-1.0f, -1.0f, 0.0f), Vector2f(2.0f, 2.0f), 1, 1, true, true, true);
 	Globals::shapeManager.buildQuadXZ("quad_lava", Vector3f(0.0f, 0.0f, 0.0f), Vector2f(1024.0f, 1024.0f), 1, 1, true, true, false);
 	Globals::shapeManager.buildQuadXZ("quad_rp", Vector3f(-2.0f, 0.05f, -2.0f), Vector2f(4.0f, 4.0f), 1, 1, true, true, false);
 	Globals::shapeManager.buildQuadXY("vortex", Vector3f(-1.0f, -1.0f, 0.0f), Vector2f(2.0f, 2.0f), 1, 1, true, true, false);

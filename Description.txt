@@ -38,3 +38,6 @@ http://www.lighthouse3d.com/tutorials/view-frustum-culling/clip-space-approach-e
 https://stackoverflow.com/questions/62468005/how-to-implement-interactive-rotation-operations-in-a-decent-way
 
 http://3dcpptutorials.sk/index.php?id=58
+
+https://www.gamedev.net/forums/topic/680832-horizonzero-dawn-cloud-system/
+https://www.shadertoy.com/view/XslGRr

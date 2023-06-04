@@ -59,7 +59,7 @@ public:
 		return static_cast<unsigned int>(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - initial).count());
 	}
 
-	inline unsigned int getElapsedTimeSinceMicro() const {
+	inline unsigned int getElapsedTimeMicro() const {
 		return static_cast<unsigned int>(std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - begin).count());
 	}
 

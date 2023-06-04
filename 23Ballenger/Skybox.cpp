@@ -12,8 +12,7 @@ Skybox::Skybox() {
 	skyColorTop = glm::vec3(0.5, 0.7, 0.8)*1.05f;
 	skyColorBottom = glm::vec3(0.9, 0.9, 0.95);
 
-	skyboxShader = new ScreenSpaceShader("shaders/sky.frag");
-	skyboxFBO = new FrameBufferObject(Application::Width, Application::Height);
+	
 
 	SunsetPreset1();
 	DefaultPreset();
@@ -87,22 +86,7 @@ void Skybox::mixSkyColorPreset(float v, colorPreset p1, colorPreset p2) {
 
 
 void Skybox::draw() {
-	sceneElements * s = drawableObject::scene;
-	skyboxFBO->bind();
-
-	Shader2& shader = skyboxShader->getShader();
-	shader.use();
-
-	shader.setVec2("resolution", glm::vec2(Application::Width, Application::Height));
-	shader.setMat4("inv_proj", glm::inverse(s->projMatrix));
-	shader.setMat4("inv_view", glm::inverse(s->cam->GetViewMatrix()));
 	
-	shader.setVec3("lightDirection", glm::normalize(s->lightPos - s->cam->Position));
-
-	shader.setVec3("skyColorTop", skyColorTop);
-	shader.setVec3("skyColorBottom", skyColorBottom);
-
-	skyboxShader->draw();
 }
 
 void Skybox::update() {
@@ -111,6 +95,5 @@ void Skybox::update() {
 }
 
 Skybox::~Skybox() {
-	delete skyboxFBO;
-	delete skyboxShader;
+
 }

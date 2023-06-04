@@ -155,16 +155,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Application.cpp" />
-    <ClCompile Include="BaseShader.cpp" />
-    <ClCompile Include="buffers.cpp" />
     <ClCompile Include="CharacterController.cpp" />
     <ClCompile Include="cLava.cpp" />
     <ClCompile Include="Clouds.cpp" />
     <ClCompile Include="CloudsModel.cpp" />
     <ClCompile Include="ColumnSet.cpp" />
     <ClCompile Include="drawableObject.cpp" />
-    <ClCompile Include="ScreenSpaceShader.cpp" />
-    <ClCompile Include="_shader.cpp" />
     <ClCompile Include="Skybox.cpp" />
     <ClCompile Include="TerrainCulling.cpp" />
     <ClCompile Include="engine\AssimpModel.cpp" />
@@ -226,14 +222,12 @@
     <ClCompile Include="soil2\wfETC.c" />
     <ClCompile Include="StateMachine.cpp" />
     <ClCompile Include="Terrain.cpp" />
-    <ClCompile Include="_texture.cpp" />
     <ClCompile Include="Utils.cpp" />
     <ClCompile Include="VolumetricClouds.cpp" />
+    <ClCompile Include="_texture.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h" />
-    <ClInclude Include="BaseShader.h" />
-    <ClInclude Include="buffers.h" />
     <ClInclude Include="camera.h" />
     <ClInclude Include="CharacterController.h" />
     <ClInclude Include="cLava.h" />
@@ -244,8 +238,6 @@
     <ClInclude Include="convhull\convhull_3d.h" />
     <ClInclude Include="drawableObject.h" />
     <ClInclude Include="SceneElements.h" />
-    <ClInclude Include="ScreenSpaceShader.h" />
-    <ClInclude Include="_shader.h" />
     <ClInclude Include="Skybox.h" />
     <ClInclude Include="TerrainCulling.h" />
     <ClInclude Include="engine\AssetManger.h" />
@@ -307,9 +299,9 @@
     <ClInclude Include="ShapeInterface.h" />
     <ClInclude Include="StateMachine.h" />
     <ClInclude Include="Terrain.h" />
-    <ClInclude Include="_texture.h" />
     <ClInclude Include="Utils.h" />
     <ClInclude Include="VolumetricClouds.h" />
+    <ClInclude Include="_texture.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

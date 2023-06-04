@@ -1,6 +1,5 @@
 #pragma once
-#include "ScreenSpaceShader.h"
-#include "buffers.h"
+
 #include "_texture.h"
 
 #include <glm/glm.hpp>
@@ -10,28 +9,31 @@
 #include "drawableObject.h"
 #include "CloudsModel.h"
 
+#include "engine/Texture.h"
+#include "engine/Vector.h"
+#include "engine/Camera.h"
+#include "engine/Framebuffer.h"
+
 //VolumetricClouds handles the FrameBufferObjects (and textures) where the clouds will be rendered, and it's responsible to set up the uniforms and calling the draw command.
 class VolumetricClouds : public drawableObject
 {
 public:
 	VolumetricClouds(int SW, int SH, CloudsModel * model);
-	virtual void draw();
+	virtual void draw(const Camera& camera, const glm::mat4& projection2, const glm::mat4& view2, const glm::vec3& campos2, const glm::vec3& lightpos2);
 	~VolumetricClouds();
 
 	enum cloudsTextureNames {fragColor, bloom, alphaness, cloudDistance};
 
-	void generateWeatherMap();
-
 	unsigned int getCloudsTexture() { 
-		return (model->postProcess ? cloudsPostProcessingFBO->getColorAttachmentTex(0) : getCloudsRawTexture());
+		return (model->postProcess ? cloudsBuffer.getColorTexture(0) : getCloudsRawTexture());
 	}
 
 	unsigned int getCloudsTexture(int i) {
-		return cloudsFBO->getColorAttachmentTex(i);
+		return m_textureSet[i].getTexture();
 	}
 
 	unsigned int getCloudsRawTexture(){
-		return cloudsFBO->getColorAttachmentTex(0);
+		return m_textureSet[0].getTexture();
 	}
 
 
@@ -39,10 +41,14 @@ public:
 private:
 	int SCR_WIDTH, SCR_HEIGHT;
 
-	TextureSet * cloudsFBO;
-	FrameBufferObject *cloudsPostProcessingFBO;
+	//TextureSet * cloudsFBO;
+	//FrameBufferObject *cloudsPostProcessingFBO;
+
+	Texture m_textureSet[4];
+	Framebuffer cloudsBuffer;
 
 	CloudsModel * model;
 	int time = 0;
+
 };
 

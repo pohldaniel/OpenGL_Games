@@ -1365,7 +1365,7 @@ void Texture::Unbind(unsigned int unit, unsigned int target) {
 	glActiveTexture(GL_TEXTURE0 + unit);
 }
 
-void Texture::SetFilter(unsigned int& textureRef, unsigned int minFilter, unsigned int magFilter, unsigned int target) {
+void Texture::SetFilter(const unsigned int& textureRef, unsigned int minFilter, unsigned int magFilter, unsigned int target) {
 	if (magFilter == 0)
 		magFilter = minFilter == 9985 || minFilter == 9987 ? GL_LINEAR : minFilter == 9984 || minFilter == 9986 ? GL_NEAREST : minFilter;
 
@@ -1377,10 +1377,11 @@ void Texture::SetFilter(unsigned int& textureRef, unsigned int minFilter, unsign
 	glBindTexture(target, 0);
 }
 
-void Texture::SetWrapMode(unsigned int& textureRef, unsigned int mode, unsigned int target) {
+void Texture::SetWrapMode(const unsigned int& textureRef, unsigned int mode, unsigned int target) {
 	if (target == GL_TEXTURE_CUBE_MAP || target == GL_TEXTURE_3D) {
 
 		glBindTexture(target, textureRef);
+		glTexParameteri(target, GL_TEXTURE_WRAP_R, mode);
 		glTexParameteri(target, GL_TEXTURE_WRAP_S, mode);
 		glTexParameteri(target, GL_TEXTURE_WRAP_T, mode);
 		glBindTexture(target, 0);

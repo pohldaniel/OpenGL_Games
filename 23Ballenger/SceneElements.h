@@ -5,15 +5,12 @@
 #include <random>
 
 #include "camera.h"
-#include "buffers.h"
-
 
 struct sceneElements {
 
 	glm::vec3 lightPos, lightColor, lightDir, fogColor, seed;
 	glm::mat4 projMatrix;
 	Camera2 * cam;
-	FrameBufferObject * sceneFBO;
 	bool wireframe = false;
 };
 

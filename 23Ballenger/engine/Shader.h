@@ -39,7 +39,7 @@ public:
 	void loadVector(const char* location, Vector3f vector) const;
 	void loadVector(const char* location, Vector2f vector) const;
 	void loadVector(const char* location, std::array<int, 3> vector) const;
-	
+	void loadVector(const char* location, std::array<int, 2> vector) const;
 
 	void loadFloat(const char* location, float value) const;
 	void loadFloat2(const char* location, float value[2]) const;
@@ -52,7 +52,6 @@ public:
 	void attachShader(GLuint compShader);
 	void linkShaders();
 
-	
 	GLuint m_program;
 
 	static GLuint LoadShaderProgram(GLenum type, const char *pszFilename);

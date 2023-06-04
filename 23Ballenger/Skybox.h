@@ -1,7 +1,6 @@
 #pragma once
 
 #include <glm/glm.hpp>
-#include "ScreenSpaceShader.h"
 #include "drawableObject.h"
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -28,14 +27,13 @@ public:
 	void mixSkyColorPreset(float v, colorPreset p1, colorPreset p2);
 
 	unsigned int getSkyTexture() {
-		return skyboxFBO->tex;
+		return 0;
 	}
 
-private:
+
 	glm::vec3 skyColorTop, skyColorBottom;
 
-	ScreenSpaceShader * skyboxShader;
-	FrameBufferObject * skyboxFBO;
+
 
 	colorPreset presetSunset, highSunPreset;
 };

@@ -15,6 +15,10 @@ layout(rgba32f, binding = 1) uniform image2D bloom;
 layout(rgba32f, binding = 2) uniform image2D alphaness;
 layout(rgba32f, binding = 3) uniform image2D cloudDistance;
 
+uniform sampler3D cloud;
+uniform sampler3D worley32;
+uniform sampler2D weatherTex;
+uniform sampler2D depthMap;
 uniform sampler2D sky;
 
 uniform float FOV;
@@ -26,10 +30,7 @@ uniform mat4 inv_proj;
 uniform mat4 invViewProj;
 
 uniform vec3 lightColor = vec3(1.0);
-uniform sampler3D cloud;
-uniform sampler3D worley32;
-uniform sampler2D weatherTex;
-uniform sampler2D depthMap;
+
 uniform vec3 lightDirection;
 
 uniform float coverage_multiplier = 0.4;

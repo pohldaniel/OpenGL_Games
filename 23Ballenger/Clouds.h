@@ -8,10 +8,12 @@
 #include "engine/Shader.h"
 #include "engine/Vector.h"
 #include "engine/Frustum.h"
+#include "engine/Framebuffer.h"
+#include "engine/Texture.h"
+#include "engine/Clock.h"
 
 #include "StateMachine.h"
 
-#include "buffers.h"
 #include "SceneElements.h"
 #include "Skybox.h"
 #include "CloudsModel.h"
@@ -39,7 +41,7 @@ public:
 	Transform m_transform;
 	bool m_initUi = true;
 
-	FrameBufferObject SceneFBO;
+
 	sceneElements scene;
 	Camera2 camera;
 
@@ -51,7 +53,11 @@ public:
 	VolumetricClouds volumetricClouds;
 	VolumetricClouds reflectionVolumetricClouds;
 
-	ScreenSpaceShader PostProcessing;
-	ScreenSpaceShader fboVisualizer;
+
+
+	Framebuffer sceneBuffer;
+	Framebuffer cloudsBuffer;
+	Texture m_textureSet[4];
+	Clock m_clock;
 };
 

@@ -1,10 +1,9 @@
 #pragma once
 #include <glm/glm.hpp>
-#include "_shader.h"
 #include "sceneElements.h"
-#include "ScreenSpaceShader.h"
 #include "Skybox.h"
-
+#include "engine/Shader.h"
+#include "_texture.h"
 #define INT_CEIL(n,d) (int)ceil((float)n/d)
 
 //CloudsModel is responsible to collect the attributes and shaders that will be needed to render the volumetric clouds. Also, it creates the noises which models the clouds.
@@ -22,9 +21,9 @@ public:
 	virtual void update();
 	virtual void setGui();
 
-private:
-	Shader2 * volumetricCloudsShader, *weatherShader;
-	ScreenSpaceShader * postProcessingShader;
+
+	Shader *volumetricCloudsShader, *weatherShader;
+
 
 	float coverage, cloudSpeed, crispiness, curliness, density, absorption;
 	float earthRadius, sphereInnerRadius, sphereOuterRadius;
