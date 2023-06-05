@@ -386,7 +386,7 @@ void Clouds::renderUi() {
 		Application::ToggleVerticalSync();
 	}
 	ImGui::Checkbox("Draw Wirframe", &StateMachine::GetEnableWireframe());
-	ImGui::Checkbox("Show Weather", &m_showWeatherMap);
+	ImGui::Checkbox("Show Weather Map", &m_showWeatherMap);
 	ImGui::Checkbox("Show Noise", &m_showNoise);
 	if (m_showNoise) {
 		int currentNoise = m_noise;
