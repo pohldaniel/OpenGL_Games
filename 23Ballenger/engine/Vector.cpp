@@ -2397,6 +2397,12 @@ Vector3f::Vector3f() {
 
 Vector3f::~Vector3f() {}
 
+Vector3f::Vector3f(float x_) {
+	vec[0] = x_;
+	vec[1] = x_;
+	vec[2] = x_;
+}
+
 Vector3f::Vector3f(float x_, float y_, float z_) {
 
 	vec[0] = x_;
@@ -2510,7 +2516,6 @@ Vector3f& Vector3f::Normalize(Vector3f &p) {
 }
 
 Vector3f Vector3f::Min(const Vector3f &p, const Vector3f &q) {
-
 	return Vector3f(std::min(p[0], q[0]), std::min(p[1], q[1]), std::min(p[2], q[2]));
 }
 
@@ -2523,6 +2528,10 @@ Vector3f& Vector3f::Clamp(Vector3f &v, float min, float max) {
 	std::max(min, std::min(v[1], max));
 	std::max(min, std::min(v[2], max));
 	return v;
+}
+
+Vector3f Vector3f::Fract(const Vector3f &p) {
+	return Vector3f(p[0] - (long)p[0], p[1] - (long)p[1], p[2] - (long)p[2]);
 }
 
 Vector3f& Vector3f::normalize() {

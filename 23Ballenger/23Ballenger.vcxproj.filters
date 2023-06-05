@@ -252,6 +252,9 @@
     <ClCompile Include="engine\VolumeBuffer.cpp">
       <Filter>engine</Filter>
     </ClCompile>
+    <ClCompile Include="NoiseGen.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h">
@@ -465,6 +468,9 @@
       <Filter>engine</Filter>
     </ClInclude>
     <ClInclude Include="Globals.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="NoiseGen.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

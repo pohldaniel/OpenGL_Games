@@ -65,6 +65,9 @@ Clouds::Clouds(StateMachine& machine) : State(machine, CurrentState::SHAPEINTERF
 
 	m_slicedCube.create(128, 128, 128);
 	m_orthographic.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), 1.0f, -1.0f);
+
+	m_noiseGen.GetGloudShape(texture1);
+	m_noiseGen.GetGloudDetail(texture2);
 }
 
 Clouds::~Clouds() {
@@ -289,7 +292,24 @@ void Clouds::render() {
 		shader->loadMatrix("u_model", m_transform.getTransformationMatrix());
 		shader->loadInt("u_texture", 0);
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_3D, m_noise == Noise::PERLIN ? cloudsModel.perlinTex : cloudsModel.worley32);
+		
+		switch (m_noise) {
+			case Noise::PERLIN:
+				glBindTexture(GL_TEXTURE_3D, cloudsModel.perlinTex);
+				break;
+			case Noise::WORLEY:
+				glBindTexture(GL_TEXTURE_3D, cloudsModel.worley32);
+				break;
+			case Noise::PERLIN2:
+				glBindTexture(GL_TEXTURE_3D, texture2);
+				break;
+			case Noise::WORLEY2:
+				glBindTexture(GL_TEXTURE_3D, texture1);
+				break;
+			default:
+				glBindTexture(GL_TEXTURE_3D, cloudsModel.perlinTex);
+				break;
+		}
 
 		m_slicedCube.drawRaw();
 		shader->unuse();
@@ -390,7 +410,7 @@ void Clouds::renderUi() {
 	ImGui::Checkbox("Show Noise", &m_showNoise);
 	if (m_showNoise) {
 		int currentNoise = m_noise;
-		if (ImGui::Combo("Render", &currentNoise, "Perlin\0Worley\0\0")) {
+		if (ImGui::Combo("Render", &currentNoise, "Perlin\0Worley\0Perlin 2\0Worley 2\0\0")) {
 			m_noise = static_cast<Noise>(currentNoise);
 		}
 	}

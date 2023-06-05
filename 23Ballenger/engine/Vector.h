@@ -39,6 +39,11 @@ namespace Math {
 			+ c * (v * (1.0f - u))
 			+ d * (u * v);
 	}
+
+	template <typename T>
+	inline T  Mix(const T &p, const T &q, float a) {
+		return p * (1 - a) + q * a;
+	}
 };
 
 class Vector2f {
@@ -87,6 +92,7 @@ class Vector3f {
 public:
 
 	Vector3f();
+	Vector3f(float x_);
 	Vector3f(float x_, float y_, float z_);
 	~Vector3f();
 
@@ -129,6 +135,7 @@ public:
 	static Vector3f Min(const Vector3f &p, const Vector3f &q);
 	static Vector3f Max(const Vector3f &p, const Vector3f &q);
 	static Vector3f& Clamp(Vector3f &v, float min, float max);
+	static Vector3f Fract(const Vector3f &p);
 
 private:
 	float vec[3];

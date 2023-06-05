@@ -16,11 +16,13 @@
 #include "StateMachine.h"
 
 #include "CloudsModel.h"
-
+#include "NoiseGen.h"
 
 enum Noise {
 	PERLIN,
 	WORLEY,	
+	PERLIN2,
+	WORLEY2
 };
 
 enum cloudsTextureNames { fragColor, bloom, alphaness, cloudDistance };
@@ -79,5 +81,10 @@ public:
 	bool m_showWeatherMap = false;
 	Noise m_noise = Noise::PERLIN;
 	Matrix4f m_orthographic;
+
+	NoiseGen m_noiseGen;
+
+	unsigned int texture1;
+	unsigned int texture2;
 };
 

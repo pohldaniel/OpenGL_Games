@@ -203,6 +203,7 @@
     <ClCompile Include="engine\Transform.cpp" />
     <ClCompile Include="engine\Vector.cpp" />
     <ClCompile Include="engine\VolumeBuffer.cpp" />
+    <ClCompile Include="NoiseGen.cpp" />
     <ClCompile Include="TerrainCulling.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="KeySet.cpp" />
@@ -280,6 +281,7 @@
     <ClInclude Include="engine\Transform.h" />
     <ClInclude Include="engine\Vector.h" />
     <ClInclude Include="engine\VolumeBuffer.h" />
+    <ClInclude Include="NoiseGen.h" />
     <ClInclude Include="TerrainCulling.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="KeySet.h" />
