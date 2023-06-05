@@ -1,6 +1,6 @@
 #include "KeySet.h"
-#include "Constants.h"
 #include "Terrain.h"
+#include "Globals.h"
 
 KeySet::KeySet(const Vector3f& playerPos) : m_playerPos(playerPos){
 	ang = 0.0f;

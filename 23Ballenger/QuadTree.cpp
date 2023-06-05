@@ -1,6 +1,6 @@
 #include <GL/glew.h>
 #include "QuadTree.h"
-#include "Constants.h"
+#include "Globals.h"
 
 Frustum QuadTree::Frustum;
 

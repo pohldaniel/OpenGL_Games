@@ -31,14 +31,14 @@ void CloudsModel::setGui() {
 		generateWeatherMap();
 
 	ImGui::TextColored(ImVec4(1, 1, 0, 1), "Clouds colors");
-	glm::vec3 * cloudBottomColor = &cloudColorBottom;
+	Vector3f * cloudBottomColor = &cloudColorBottom;
 	ImGui::ColorEdit3("Cloud color", (float*)cloudBottomColor); // Edit 3 floats representing a color
 
 	ImGui::End();
 }
 
 CloudsModel::CloudsModel() {
-	sceneSeed = glm::vec3(0.0f, 0.0f, 0.0f);
+	sceneSeed = Vector3f(0.0f, 0.0f, 0.0f);
 	initVariables();
 	initShaders();
 	generateModelTextures();
@@ -60,7 +60,11 @@ void CloudsModel::generateModelTextures(){
 		
 
 		//make texture
-		this->perlinTex = generateTexture3D(128, 128, 128);
+
+		Texture::CreateTexture3D(this->perlinTex, 128, 128, 128, GL_RGBA8, GL_RGBA, GL_FLOAT);
+		Texture::SetWrapMode(this->perlinTex, GL_REPEAT, GL_TEXTURE_3D);
+		Texture::SetFilter(this->perlinTex, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR, GL_TEXTURE_3D);
+		//this->perlinTex = generateTexture3D(128, 128, 128);
 		//compute
 		comp.use();
 		comp.loadVector("u_resolution", Vector3f(128, 128, 128));
@@ -81,7 +85,11 @@ void CloudsModel::generateModelTextures(){
 		
 
 		//make texture
-		this->worley32 = generateTexture3D(32, 32, 32);
+		//this->worley32 = generateTexture3D(32, 32, 32);
+
+		Texture::CreateTexture3D(this->worley32, 32, 32, 32, GL_RGBA8, GL_RGBA, GL_FLOAT);
+		Texture::SetWrapMode(this->worley32, GL_REPEAT, GL_TEXTURE_3D);
+		Texture::SetFilter(this->worley32, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR, GL_TEXTURE_3D);
 
 		//compute
 		worley_git.use();
@@ -100,7 +108,11 @@ void CloudsModel::generateModelTextures(){
 
 	if (!weatherTex) {
 		//make texture
-		this->weatherTex = generateTexture2D(1024, 1024);
+
+		Texture::CreateTexture2D(this->weatherTex, 1024, 1024, GL_RGBA32F, GL_RGBA, GL_FLOAT);
+		Texture::SetWrapMode(this->weatherTex, GL_REPEAT);
+
+		//this->weatherTex = generateTexture2D(1024, 1024);
 
 		//compute
 		generateWeatherMap();
@@ -126,14 +138,13 @@ void CloudsModel::update()
 }
 
 void CloudsModel::generateWeatherMap() {
-	bindTexture2D(weatherTex, 0);
+	glBindImageTexture(0, weatherTex, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
 	weatherShader->use();
-	weatherShader->loadVector("seed", Vector3f(sceneSeed[0], sceneSeed[1], sceneSeed[2]));
+	weatherShader->loadVector("seed", sceneSeed);
 	weatherShader->loadFloat("perlinFrequency", perlinFrequency);
 	std::cout << "computing weather!" << std::endl;
 	glDispatchCompute(INT_CEIL(1024, 8), INT_CEIL(1024, 8), 1);
 	std::cout << "weather computed!!" << std::endl;
-
 	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 }
 
@@ -156,11 +167,11 @@ void CloudsModel::initVariables()
 	enablePowder = false;
 	postProcess = true;
 
-	seed = glm::vec3(0.0, 0.0, 0.0);
-	oldSeed = glm::vec3(0.0, 0.0, 0.0);
+	seed = Vector3f(0.0, 0.0, 0.0);
+	oldSeed = Vector3f(0.0, 0.0, 0.0);
 
-	cloudColorTop = (glm::vec3(169., 149., 149.)*(1.5f / 255.f));
-	cloudColorBottom = (glm::vec3(65., 70., 80.)*(1.5f / 255.f));
+	cloudColorTop = (Vector3f(169., 149., 149.)*(1.5f / 255.f));
+	cloudColorBottom = (Vector3f(65., 70., 80.)*(1.5f / 255.f));
 
 	weatherTex = 0;
 	perlinTex = 0;

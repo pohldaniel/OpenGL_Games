@@ -1,15 +1,10 @@
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
-#include <glm/gtc/random.hpp>
-
 #include <imgui.h>
 #include <imgui_impl_win32.h>
 #include <imgui_impl_opengl3.h>
 #include <imgui_internal.h>
 
 #include "Clouds.h"
-#include "Constants.h"
+#include "Globals.h"
 #include "Application.h"
 
 Clouds::Clouds(StateMachine& machine) : State(machine, CurrentState::SHAPEINTERFACE) {
@@ -18,11 +13,11 @@ Clouds::Clouds(StateMachine& machine) : State(machine, CurrentState::SHAPEINTERF
 
 	m_camera = Camera();
 	m_camera.perspective(45.0f * _180_ON_PI, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 1.0f, 1000.0f);
-	m_camera.lookAt(Vector3f(0.0f, 800.0f, 0.0f), Vector3f(0.0f, 800.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
+	m_camera.lookAt(Vector3f(0.0f, 0.0f, 0.0f), Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
 	m_camera.setRotationSpeed(0.1f);
 
 	m_trackball.reshape(Application::Width, Application::Height);
-	m_trackball.setDollyPosition(-2.5f);
+	m_trackball.setDollyPosition(-5.0f);
 	applyTransformation(m_trackball);
 
 	fogColor = Vector3f(0.5, 0.6, 0.7);
@@ -67,6 +62,9 @@ Clouds::Clouds(StateMachine& machine) : State(machine, CurrentState::SHAPEINTERF
 
 	SunsetPreset1();
 	DefaultPreset();
+
+	m_slicedCube.create(128, 128, 128);
+	m_orthographic.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), 1.0f, -1.0f);
 }
 
 Clouds::~Clouds() {
@@ -279,7 +277,40 @@ void Clouds::render() {
 
 	Globals::shapeManager.get("quad").drawRaw();
 	post->unuse();
-	
+
+	if (m_showNoise) {
+		glDisable(GL_DEPTH_TEST);
+		glDisable(GL_CULL_FACE);
+		auto shader = Globals::shaderManager.getAssetPointer("texture3d");
+		shader->use();
+		glUseProgram(shader->m_program);
+		shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
+		shader->loadMatrix("u_view", Matrix4f::IDENTITY);
+		shader->loadMatrix("u_model", m_transform.getTransformationMatrix());
+		shader->loadInt("u_texture", 0);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_3D, m_noise == Noise::PERLIN ? cloudsModel.perlinTex : cloudsModel.worley32);
+
+		m_slicedCube.drawRaw();
+		shader->unuse();
+	}
+
+	if (m_showWeatherMap) {
+		glDisable(GL_DEPTH_TEST);
+		auto shader = Globals::shaderManager.getAssetPointer("texture");
+		shader->use();
+		glUseProgram(shader->m_program);
+		shader->loadMatrix("u_projection", m_orthographic);
+		shader->loadMatrix("u_view", Matrix4f::IDENTITY);
+		shader->loadMatrix("u_model", Matrix4f::Translate(Application::Width - 150.0f, 150.0f, 0.0f) * Matrix4f::Scale(150.0f, 150.0f, 0.0f));
+		shader->loadInt("u_texture", 0);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, cloudsModel.weatherTex);
+
+		Globals::shapeManager.get("quad").drawRaw();
+		shader->unuse();
+	}
+
 	renderUi();
 }
 
@@ -355,7 +386,15 @@ void Clouds::renderUi() {
 		Application::ToggleVerticalSync();
 	}
 	ImGui::Checkbox("Draw Wirframe", &StateMachine::GetEnableWireframe());
-	
+	ImGui::Checkbox("Show Weather", &m_showWeatherMap);
+	ImGui::Checkbox("Show Noise", &m_showNoise);
+	if (m_showNoise) {
+		int currentNoise = m_noise;
+		if (ImGui::Combo("Render", &currentNoise, "Perlin\0Worley\0\0")) {
+			m_noise = static_cast<Noise>(currentNoise);
+		}
+	}
+
 	ImGui::End();
 
 	ImGui::Render();

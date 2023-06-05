@@ -49,7 +49,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	scan[1] = CreateTexture("res/bonsai_256x256x256.raw", 256, 256, 256, false);
 	scan[2] = CreateTexture("res/suzanne_128x128x128.raw", 128, 128, 128);
 
-	//approach to generate volume data using blende
+	//approach to generate volume data using blender
 	//scan[2] = Create("res/suzanne", 128, 128, 128);
 }
 

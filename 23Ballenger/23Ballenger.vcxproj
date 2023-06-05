@@ -160,7 +160,6 @@
     <ClCompile Include="Clouds.cpp" />
     <ClCompile Include="CloudsModel.cpp" />
     <ClCompile Include="ColumnSet.cpp" />
-    <ClCompile Include="TerrainCulling.cpp" />
     <ClCompile Include="engine\AssimpModel.cpp" />
     <ClCompile Include="engine\Batchrenderer.cpp" />
     <ClCompile Include="engine\BuiltInShader.cpp" />
@@ -192,6 +191,7 @@
     <ClCompile Include="engine\Quad.cpp" />
     <ClCompile Include="engine\Random.cpp" />
     <ClCompile Include="engine\Shader.cpp" />
+    <ClCompile Include="engine\SlicedCube.cpp" />
     <ClCompile Include="engine\sound\MusicBuffer.cpp" />
     <ClCompile Include="engine\sound\SoundBuffer.cpp" />
     <ClCompile Include="engine\sound\SoundDevice.cpp" />
@@ -202,6 +202,8 @@
     <ClCompile Include="engine\TrackBall.cpp" />
     <ClCompile Include="engine\Transform.cpp" />
     <ClCompile Include="engine\Vector.cpp" />
+    <ClCompile Include="engine\VolumeBuffer.cpp" />
+    <ClCompile Include="TerrainCulling.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="KeySet.cpp" />
     <ClCompile Include="main.cpp" />
@@ -221,7 +223,6 @@
     <ClCompile Include="StateMachine.cpp" />
     <ClCompile Include="Terrain.cpp" />
     <ClCompile Include="Utils.cpp" />
-    <ClCompile Include="_texture.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h" />
@@ -230,9 +231,8 @@
     <ClInclude Include="Clouds.h" />
     <ClInclude Include="CloudsModel.h" />
     <ClInclude Include="ColumnSet.h" />
-    <ClInclude Include="Constants.h" />
+    <ClInclude Include="Globals.h" />
     <ClInclude Include="convhull\convhull_3d.h" />
-    <ClInclude Include="TerrainCulling.h" />
     <ClInclude Include="engine\AssetManger.h" />
     <ClInclude Include="engine\AssimpModel.h" />
     <ClInclude Include="engine\Batchrenderer.h" />
@@ -267,6 +267,7 @@
     <ClInclude Include="engine\Quad.h" />
     <ClInclude Include="engine\Random.h" />
     <ClInclude Include="engine\Shader.h" />
+    <ClInclude Include="engine\SlicedCube.h" />
     <ClInclude Include="engine\sound\Cache.h" />
     <ClInclude Include="engine\sound\MusicBuffer.h" />
     <ClInclude Include="engine\sound\SoundBuffer.h" />
@@ -278,6 +279,8 @@
     <ClInclude Include="engine\TrackBall.h" />
     <ClInclude Include="engine\Transform.h" />
     <ClInclude Include="engine\Vector.h" />
+    <ClInclude Include="engine\VolumeBuffer.h" />
+    <ClInclude Include="TerrainCulling.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="KeySet.h" />
     <ClInclude Include="Miniball\Miniball.h" />
@@ -293,7 +296,6 @@
     <ClInclude Include="StateMachine.h" />
     <ClInclude Include="Terrain.h" />
     <ClInclude Include="Utils.h" />
-    <ClInclude Include="_texture.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

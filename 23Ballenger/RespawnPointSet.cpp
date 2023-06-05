@@ -1,6 +1,6 @@
 #include "RespawnPointSet.h"
-#include "Constants.h"
 #include "Terrain.h"
+#include "Globals.h"
 
 RespawnPointSet::RespawnPointSet(const Vector3f& playerPos) : m_playerPos(playerPos){
 

@@ -1,5 +1,5 @@
 #include "RenderableObject.h"
-#include "Constants.h"
+#include "Globals.h"
 
 RenderableObject::RenderableObject(const Vector3f &position, const Vector3f &scale) : Object() {
 	m_position = position;

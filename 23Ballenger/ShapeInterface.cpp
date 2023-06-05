@@ -5,8 +5,8 @@
 #include <imgui_internal.h>
 
 #include "ShapeInterface.h"
-#include "Constants.h"
 #include "Application.h"
+#include "Globals.h"
 
 ShapeInterface::ShapeInterface(StateMachine& machine) : State(machine, CurrentState::SHAPEINTERFACE) {
 	EventDispatcher::AddMouseListener(this);
@@ -21,7 +21,7 @@ ShapeInterface::ShapeInterface(StateMachine& machine) : State(machine, CurrentSt
 	applyTransformation(m_trackball);
 
 	Globals::textureManager.loadTexture("grid", "res/grid512.png", true);
-	Globals::shaderManager.loadShader("texture", "res/program.vert", "res/texture.frag");
+	Globals::shaderManager.loadShader("texture_", "res/program.vert", "res/texture.frag");
 	Globals::shaderManager.loadShader("normal", "res/program.vert", "res/normal.frag");
 	Globals::shaderManager.loadShader("tangent", "res/program.vert", "res/tangent.frag");
 	Globals::shaderManager.loadShader("bitangent", "res/program.vert", "res/bitangent.frag");
@@ -39,7 +39,7 @@ ShapeInterface::ShapeInterface(StateMachine& machine) : State(machine, CurrentSt
 	Globals::shapeManager.buildDiskXZ("disk_", 1.0f, Vector3f(0.0f, 0.0f, 0.0f), 16, 16, true, true, true);
 
 	m_currentShape = Globals::shapeManager.get("cylinder_");
-	m_currentShader = Globals::shaderManager.getAssetPointer("texture");
+	m_currentShader = Globals::shaderManager.getAssetPointer("texture_");
 }
 
 ShapeInterface::~ShapeInterface() {
@@ -229,7 +229,7 @@ void ShapeInterface::renderUi() {
 		renderMode = static_cast<RenderMode>(currentRenderMode);
 		switch (renderMode) {
 		case RenderMode::TEXTURE:
-			m_currentShader = Globals::shaderManager.getAssetPointer("texture");
+			m_currentShader = Globals::shaderManager.getAssetPointer("texture_");
 			break;
 		case RenderMode::NORMAL:
 			m_currentShader = Globals::shaderManager.getAssetPointer("normal");

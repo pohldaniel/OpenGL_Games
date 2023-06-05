@@ -1,6 +1,6 @@
 #include "Portal.h"
-#include "Constants.h"
 #include "Terrain.h"
+#include "Globals.h"
 
 Portal::Portal() {
 

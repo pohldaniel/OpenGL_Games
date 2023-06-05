@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include "engine\Clock.h"
 #include "Application.h"
-#include "Constants.h"
+#include "Globals.h"
 
 extern AssetManager<Shader> Globals::shaderManager = AssetManager<Shader>();
 extern AssetManager<Texture> Globals::textureManager = AssetManager<Texture>();

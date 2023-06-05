@@ -1,5 +1,5 @@
 #include "RaySet.h"
-#include "Constants.h"
+#include "Globals.h"
 
 RaySet::RaySet() {
 

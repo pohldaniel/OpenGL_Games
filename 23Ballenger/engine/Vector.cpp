@@ -2572,6 +2572,10 @@ bool operator ==(Vector3f lhs, Vector3f rhs) {
 	return fabs(lhs[0] - rhs[0]) <= epsilon && fabs(lhs[1] - rhs[1]) <= epsilon && fabs(lhs[2] - rhs[2]) <= epsilon;
 }
 
+bool operator !=(Vector3f lhs, Vector3f rhs) {
+	return (lhs[0] != rhs[0]) || (lhs[1] != rhs[1]) || (lhs[2] != rhs[2]);
+}
+
 //friend operator
 Vector3f operator*(float lhs, const Vector3f &rhs) {
 	return Vector3f(lhs * rhs[0], lhs * rhs[1], lhs * rhs[2]);

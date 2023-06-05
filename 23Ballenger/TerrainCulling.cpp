@@ -5,8 +5,8 @@
 #include <imgui_internal.h>
 
 #include "TerrainCulling.h"
-#include "Constants.h"
 #include "Application.h"
+#include "Globals.h"
 
 TerrainCulling::TerrainCulling(StateMachine& machine) : State(machine, CurrentState::SHAPEINTERFACE) {
 

@@ -5,7 +5,7 @@
 
 #include "Game.h"
 #include "Application.h"
-#include "Constants.h"
+#include "Globals.h"
 
 Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), 
 									m_keySet(m_player.getPosition()), 

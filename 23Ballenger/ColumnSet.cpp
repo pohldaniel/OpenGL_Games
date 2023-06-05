@@ -1,6 +1,6 @@
 #include "ColumnSet.h"
-#include "Constants.h"
 #include "Terrain.h"
+#include "Globals.h"
 
 ColumnSet::ColumnSet(const Vector3f& playerPos) : m_playerPos(playerPos) {
 

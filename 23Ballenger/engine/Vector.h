@@ -82,6 +82,7 @@ class Vector3f {
 	friend Vector3f operator-(const Vector3f &v);
 	friend Vector3f operator*(float lhs, const Vector3f &rhs);
 	friend bool operator ==(Vector3f lhs, Vector3f rhs);
+	friend bool operator !=(Vector3f lhs, Vector3f rhs);
 
 public:
 

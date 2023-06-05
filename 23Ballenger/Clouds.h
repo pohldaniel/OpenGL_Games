@@ -11,11 +11,17 @@
 #include "engine/Framebuffer.h"
 #include "engine/Texture.h"
 #include "engine/Clock.h"
+#include "engine/SlicedCube.h"
 
 #include "StateMachine.h"
 
 #include "CloudsModel.h"
 
+
+enum Noise {
+	PERLIN,
+	WORLEY,	
+};
 
 enum cloudsTextureNames { fragColor, bloom, alphaness, cloudDistance };
 
@@ -67,5 +73,11 @@ public:
 	colorPreset presetSunset, highSunPreset;
 	Vector3f skyColorTop, skyColorBottom;
 	void updateSky();
+	SlicedCube m_slicedCube;
+
+	bool m_showNoise = false;
+	bool m_showWeatherMap = false;
+	Noise m_noise = Noise::PERLIN;
+	Matrix4f m_orthographic;
 };
 

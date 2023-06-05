@@ -70,7 +70,7 @@ public:
 	static void Safe(std::string fileOut, unsigned int& texture);
 	static void Safe(std::string fileOut, unsigned char* bytes, unsigned int width, unsigned int height, unsigned int channels);
 
-	static void CreateEmptyTexture(unsigned int& textureRef, unsigned int width, unsigned int height, unsigned int internalFormat = 0u, unsigned int format = 0, unsigned int type = 0u);
+	static void CreateTexture2D(unsigned int& textureRef, unsigned int width, unsigned int height, unsigned int internalFormat = 0u, unsigned int format = 0, unsigned int type = 0u);
 	static void CreateEmptyCubemap(unsigned int& textureRef, unsigned int width, unsigned int height, unsigned int internalFormat = 0u, unsigned int format = 0u, unsigned int type = 0u);
 	static void CreateTexture3D(unsigned int& textureRef, unsigned int width, unsigned int height, unsigned int depth, unsigned int internalFormat = 0u, unsigned int format = 0u, unsigned int type = 0u, unsigned char* data = NULL);
 

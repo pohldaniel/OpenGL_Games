@@ -8,7 +8,7 @@
 
 #include "engine/Framebuffer.h"
 #include "Application.h"
-#include "Constants.h"
+#include "Globals.h"
 #include "ShapeInterface.h"
 #include "Game.h"
 #include "TerrainCulling.h"
@@ -524,6 +524,8 @@ void Application::loadAssets() {
 	Globals::shaderManager.loadShader("clouds", "Shaders/volumetric_clouds.comp");
 	Globals::shaderManager.loadShader("cloud_post", "Shaders/screen_new.vert", "Shaders/clouds_post.frag");
 	Globals::shaderManager.loadShader("sky", "Shaders/screen_new.vert", "Shaders/sky.frag");
+	Globals::shaderManager.loadShader("texture3d", "res/texture3D.vert", "res/texture3D.frag");
+	Globals::shaderManager.loadShader("texture", "res/program.vert", "res/texture.frag");
 
 	Globals::textureManager.createNullTexture("null");
 

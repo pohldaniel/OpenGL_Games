@@ -1,8 +1,7 @@
 #include "Player.h"
-#include "Constants.h"
 #include "Application.h"
-
 #include "Terrain.h"
+#include "Globals.h"
 
 Player::Player(Camera& camera) : m_camera(camera) { }
 

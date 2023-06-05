@@ -1205,7 +1205,7 @@ void Texture::Safe(std::string fileOut, unsigned char* bytes, unsigned int width
 	SOIL_save_image(fileOut.c_str(), SOIL_SAVE_TYPE_PNG, width, height, channels, bytes);
 }
 
-void Texture::CreateEmptyTexture(unsigned int& textureRef, unsigned int width, unsigned int height, unsigned int internalFormat, unsigned int format, unsigned int type) {
+void Texture::CreateTexture2D(unsigned int& textureRef, unsigned int width, unsigned int height, unsigned int internalFormat, unsigned int format, unsigned int type) {
 	glGenTextures(1, &textureRef);
 	glBindTexture(GL_TEXTURE_2D, textureRef);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
