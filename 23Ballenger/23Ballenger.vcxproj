@@ -160,8 +160,6 @@
     <ClCompile Include="Clouds.cpp" />
     <ClCompile Include="CloudsModel.cpp" />
     <ClCompile Include="ColumnSet.cpp" />
-    <ClCompile Include="drawableObject.cpp" />
-    <ClCompile Include="Skybox.cpp" />
     <ClCompile Include="TerrainCulling.cpp" />
     <ClCompile Include="engine\AssimpModel.cpp" />
     <ClCompile Include="engine\Batchrenderer.cpp" />
@@ -223,12 +221,10 @@
     <ClCompile Include="StateMachine.cpp" />
     <ClCompile Include="Terrain.cpp" />
     <ClCompile Include="Utils.cpp" />
-    <ClCompile Include="VolumetricClouds.cpp" />
     <ClCompile Include="_texture.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h" />
-    <ClInclude Include="camera.h" />
     <ClInclude Include="CharacterController.h" />
     <ClInclude Include="cLava.h" />
     <ClInclude Include="Clouds.h" />
@@ -236,9 +232,6 @@
     <ClInclude Include="ColumnSet.h" />
     <ClInclude Include="Constants.h" />
     <ClInclude Include="convhull\convhull_3d.h" />
-    <ClInclude Include="drawableObject.h" />
-    <ClInclude Include="SceneElements.h" />
-    <ClInclude Include="Skybox.h" />
     <ClInclude Include="TerrainCulling.h" />
     <ClInclude Include="engine\AssetManger.h" />
     <ClInclude Include="engine\AssimpModel.h" />
@@ -300,7 +293,6 @@
     <ClInclude Include="StateMachine.h" />
     <ClInclude Include="Terrain.h" />
     <ClInclude Include="Utils.h" />
-    <ClInclude Include="VolumetricClouds.h" />
     <ClInclude Include="_texture.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

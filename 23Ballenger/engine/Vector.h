@@ -137,6 +137,9 @@ class Vector4f {
 
 	friend Vector4f operator*(float lhs, const Vector4f &rhs);
 	friend Vector4f operator*(const Vector4f &lhs, float rhs);
+	friend Vector4f operator/(const Vector4f &lhs, float rhs);
+	friend Vector4f operator+(float lhs, const Vector4f &rhs);
+	friend Vector4f operator+(const Vector4f &lhs, float rhs);
 
 public:
 
@@ -149,7 +152,17 @@ public:
 	const float operator[](int index) const;
 
 	Vector4f &operator+=(const Vector4f &rhs);
+	Vector4f &operator-=(const Vector4f &rhs);
+	Vector4f &operator*=(const Vector4f &rhs);
+	Vector4f &operator/=(const Vector4f &rhs);
+	Vector4f &operator*=(float scalar);
+	Vector4f &operator/=(float scalar);
+
 	Vector4f operator+(const Vector4f &rhs) const;
+	Vector4f operator-(const Vector4f &rhs) const;
+	Vector4f operator*(const Vector4f &rhs) const;
+	Vector4f operator/(const Vector4f &rhs) const;
+
 
 	void normalize3();
 

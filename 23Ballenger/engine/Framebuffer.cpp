@@ -866,3 +866,23 @@ unsigned int& Framebuffer::getDepthStencilTexture() {
 unsigned int& Framebuffer::getFramebuffer() {
 	return  m_fbo;
 }
+
+void Framebuffer::bindColorTexture(unsigned int unit, unsigned int attachment) const {
+	glActiveTexture(GL_TEXTURE0 + unit);
+	glBindTexture(GL_TEXTURE_2D, m_colorTextures[attachment]);
+}
+
+void Framebuffer::bindDepthTexture(unsigned int unit) const {
+	glActiveTexture(GL_TEXTURE0 + unit);
+	glBindTexture(GL_TEXTURE_2D, m_depthTexture);
+}
+
+void Framebuffer::bindStencilTexture(unsigned int unit) const {
+	glActiveTexture(GL_TEXTURE0 + unit);
+	glBindTexture(GL_TEXTURE_2D, m_stencilTexture);
+}
+
+void Framebuffer::bindDepthStencilTexture(unsigned int unit) const {
+	glActiveTexture(GL_TEXTURE0 + unit);
+	glBindTexture(GL_TEXTURE_2D, m_depthStencilTexture);
+}

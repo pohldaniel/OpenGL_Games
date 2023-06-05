@@ -2614,9 +2614,55 @@ Vector4f &Vector4f::operator+=(const Vector4f &rhs) {
 	return *this;
 }
 
+Vector4f &Vector4f::operator-=(const Vector4f &rhs) {
+	vec[0] -= rhs.vec[0], vec[1] -= rhs.vec[1], vec[2] -= rhs.vec[2], vec[3] -= rhs.vec[3];
+	return *this;
+}
+
+Vector4f &Vector4f::operator*=(const Vector4f &rhs) {
+	vec[0] *= rhs.vec[0], vec[1] *= rhs.vec[1], vec[2] *= rhs.vec[2], vec[3] *= rhs.vec[3];
+	return *this;
+}
+
+Vector4f &Vector4f::operator/=(const Vector4f &rhs) {
+	vec[0] /= rhs.vec[0], vec[1] /= rhs.vec[1], vec[2] /= rhs.vec[2], vec[3] /= rhs.vec[3];
+	return *this;
+}
+
 Vector4f Vector4f::operator+(const Vector4f &rhs) const {
 	Vector4f tmp(*this);
 	tmp += rhs;
+	return tmp;
+}
+
+Vector4f &Vector4f::operator*=(float scalar) {
+	vec[0] *= scalar, vec[1] *= scalar, vec[2] *= scalar, vec[3] *= scalar;
+	return *this;
+}
+
+Vector4f &Vector4f::operator/=(float scalar) {
+	vec[0] /= scalar, vec[1] /= scalar, vec[2] /= scalar, vec[3] /= scalar;
+	return *this;
+}
+
+Vector4f Vector4f::operator-(const Vector4f &rhs) const {
+
+	Vector4f tmp(*this);
+	tmp -= rhs;
+	return tmp;
+}
+
+Vector4f Vector4f::operator*(const Vector4f &rhs) const {
+
+	Vector4f tmp(*this);
+	tmp *= rhs;
+	return tmp;
+}
+
+Vector4f Vector4f::operator/(const Vector4f &rhs) const {
+
+	Vector4f tmp(*this);
+	tmp /= rhs;
 	return tmp;
 }
 
@@ -2645,6 +2691,19 @@ Vector4f operator*(float lhs, const Vector4f &rhs) {
 Vector4f operator*(const Vector4f &lhs, float rhs) {
 	return Vector4f(lhs[0] * rhs, lhs[1] * rhs, lhs[2] * rhs, lhs[3] * rhs);
 }
+
+Vector4f operator/(const Vector4f &lhs, float rhs) {
+	return Vector4f(lhs[0] / rhs, lhs[1] / rhs, lhs[2] / rhs, lhs[3] / rhs);
+}
+
+Vector4f operator+(float lhs, const Vector4f &rhs) {
+	return Vector4f(lhs + rhs[0], lhs + rhs[1], lhs + rhs[2], lhs + rhs[3]);
+}
+
+Vector4f operator+(const Vector4f &lhs, float rhs) {
+	return Vector4f(lhs[0] + rhs, lhs[1] + rhs, lhs[2] + rhs, lhs[3] + rhs);
+}
+
 //////////////////////////////////////////////////////////////////////
 const Quaternion Quaternion::IDENTITY(0.0f, 0.0f, 0.0f, 1.0f);
 

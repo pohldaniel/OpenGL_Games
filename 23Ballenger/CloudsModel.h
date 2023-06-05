@@ -1,18 +1,18 @@
 #pragma once
 #include <glm/glm.hpp>
-#include "sceneElements.h"
-#include "Skybox.h"
+
 #include "engine/Shader.h"
 #include "_texture.h"
+
 #define INT_CEIL(n,d) (int)ceil((float)n/d)
 
 //CloudsModel is responsible to collect the attributes and shaders that will be needed to render the volumetric clouds. Also, it creates the noises which models the clouds.
-class CloudsModel : public drawableObject
-{
+class CloudsModel {
+
 public:
 	friend class VolumetricClouds;
 
-	CloudsModel(sceneElements * scene, Skybox * sky);
+	CloudsModel();
 	~CloudsModel();
 	
 	// fake implementation, it's needed to let this class being a drawableObject to subscribe to GUI class. must be fixed
@@ -21,9 +21,7 @@ public:
 	virtual void update();
 	virtual void setGui();
 
-
 	Shader *volumetricCloudsShader, *weatherShader;
-
 
 	float coverage, cloudSpeed, crispiness, curliness, density, absorption;
 	float earthRadius, sphereInnerRadius, sphereOuterRadius;
@@ -34,17 +32,12 @@ public:
 
 	glm::vec3 cloudColorTop, cloudColorBottom;
 
-	glm::vec3 seed, oldSeed;
+	glm::vec3 seed, oldSeed, sceneSeed;
 	unsigned int perlinTex, worley32, weatherTex;
-
-	sceneElements * scene;
-	Skybox * sky;
 
 	void generateWeatherMap();
 	void generateModelTextures();
 	void initVariables();
 	void initShaders();
-
-
 };
 

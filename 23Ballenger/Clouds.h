@@ -14,10 +14,14 @@
 
 #include "StateMachine.h"
 
-#include "SceneElements.h"
-#include "Skybox.h"
 #include "CloudsModel.h"
-#include "VolumetricClouds.h"
+
+
+enum cloudsTextureNames { fragColor, bloom, alphaness, cloudDistance };
+
+struct colorPreset {
+	Vector3f cloudColorBottom, skyColorTop, skyColorBottom, lightColor, fogColor;
+};
 
 class Clouds : public State, public MouseEventListener {
 
@@ -41,23 +45,27 @@ public:
 	Transform m_transform;
 	bool m_initUi = true;
 
-
-	sceneElements scene;
-	Camera2 camera;
-
-	Skybox skybox;
 	CloudsModel cloudsModel;
-	glm::vec3 fogColor;
-	glm::vec3 lightColor;
+	Vector3f fogColor;
+	Vector3f lightColor;
 
-	VolumetricClouds volumetricClouds;
-	VolumetricClouds reflectionVolumetricClouds;
-
-
+	Vector3f lightPosition;
+	Vector3f lightDirection;
 
 	Framebuffer sceneBuffer;
 	Framebuffer cloudsBuffer;
+	Framebuffer skyBuffer;
+
 	Texture m_textureSet[4];
 	Clock m_clock;
+
+	colorPreset DefaultPreset();
+	colorPreset SunsetPreset();
+	colorPreset SunsetPreset1();
+
+	void mixSkyColorPreset(float v, colorPreset p1, colorPreset p2);
+	colorPreset presetSunset, highSunPreset;
+	Vector3f skyColorTop, skyColorBottom;
+	void updateSky();
 };
 

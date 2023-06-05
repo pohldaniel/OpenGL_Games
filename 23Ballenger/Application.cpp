@@ -523,6 +523,7 @@ void Application::loadAssets() {
 	Globals::shaderManager.loadShader("post", "Shaders/screen_new.vert", "Shaders/post_processing.frag");
 	Globals::shaderManager.loadShader("clouds", "Shaders/volumetric_clouds.comp");
 	Globals::shaderManager.loadShader("cloud_post", "Shaders/screen_new.vert", "Shaders/clouds_post.frag");
+	Globals::shaderManager.loadShader("sky", "Shaders/screen_new.vert", "Shaders/sky.frag");
 
 	Globals::textureManager.createNullTexture("null");
 

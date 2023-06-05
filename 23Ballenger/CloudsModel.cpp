@@ -37,7 +37,8 @@ void CloudsModel::setGui() {
 	ImGui::End();
 }
 
-CloudsModel::CloudsModel(sceneElements * scene, Skybox * sky) : scene(scene), sky(sky) {
+CloudsModel::CloudsModel() {
+	sceneSeed = glm::vec3(0.0f, 0.0f, 0.0f);
 	initVariables();
 	initShaders();
 	generateModelTextures();
@@ -104,7 +105,7 @@ void CloudsModel::generateModelTextures(){
 		//compute
 		generateWeatherMap();
 
-		seed = scene->seed;
+		seed = sceneSeed;
 		oldSeed = seed;
 	}
 }
@@ -117,7 +118,7 @@ CloudsModel::~CloudsModel()
 
 void CloudsModel::update()
 {
-	seed = scene->seed;
+	seed = sceneSeed;
 	if (seed != oldSeed) {
 		generateWeatherMap();
 		oldSeed = seed;
@@ -127,7 +128,7 @@ void CloudsModel::update()
 void CloudsModel::generateWeatherMap() {
 	bindTexture2D(weatherTex, 0);
 	weatherShader->use();
-	weatherShader->loadVector("seed", Vector3f(scene->seed[0], scene->seed[1], scene->seed[2]));
+	weatherShader->loadVector("seed", Vector3f(sceneSeed[0], sceneSeed[1], sceneSeed[2]));
 	weatherShader->loadFloat("perlinFrequency", perlinFrequency);
 	std::cout << "computing weather!" << std::endl;
 	glDispatchCompute(INT_CEIL(1024, 8), INT_CEIL(1024, 8), 1);
