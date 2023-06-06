@@ -66,8 +66,8 @@ Clouds::Clouds(StateMachine& machine) : State(machine, CurrentState::SHAPEINTERF
 	m_slicedCube.create(128, 128, 128);
 	m_orthographic.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), 1.0f, -1.0f);
 
-	m_noiseGen.GetGloudShape(texture1);
-	m_noiseGen.GetGloudDetail(texture2);
+	m_noiseGen.getGloudShape(texture1);
+	m_noiseGen.getGloudDetail(texture2);
 }
 
 Clouds::~Clouds() {
@@ -133,6 +133,7 @@ void Clouds::update() {
 	}
 	m_trackball.idle();
 	applyTransformation(m_trackball);
+	//idle();
 };
 
 void Clouds::render() {
@@ -301,10 +302,10 @@ void Clouds::render() {
 				glBindTexture(GL_TEXTURE_3D, cloudsModel.worley32);
 				break;
 			case Noise::PERLIN2:
-				glBindTexture(GL_TEXTURE_3D, texture2);
+				glBindTexture(GL_TEXTURE_3D, texture1);
 				break;
 			case Noise::WORLEY2:
-				glBindTexture(GL_TEXTURE_3D, texture1);
+				glBindTexture(GL_TEXTURE_3D, texture2);
 				break;
 			default:
 				glBindTexture(GL_TEXTURE_3D, cloudsModel.perlinTex);
@@ -331,6 +332,39 @@ void Clouds::render() {
 		shader->unuse();
 	}
 
+	if (m_showQuad) {
+		auto shader = Globals::shaderManager.getAssetPointer("ray_march");
+		
+		shader->use();
+
+		shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
+		shader->loadMatrix("u_view", m_camera.getViewMatrix());
+		shader->loadMatrix("u_model", m_transform.getTransformationMatrix());
+
+		shader->loadFloat("time", m_clock.getElapsedTimeSec());
+		shader->loadVector("windowSize", Vector2f(Application::Width, Application::Height));
+		shader->loadMatrix("_CameraToWorld", Matrix4f::LookAt(Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0, -2.0f, 0), Vector3f(0.0, 1.0, 0.0)));
+		shader->loadMatrix("_CameraInverseProjection", m_camera.getInvPerspectiveMatrix());
+
+		shader->loadVector("_boxScale", Vector3f(2.0f, 2.0f, 2.0f));
+		shader->loadVector("_boxPosition", Vector3f(0.0f, -0.5f, 0.4f));
+		shader->loadVector("_shape", Vector4f(0.159f, 0.5f, 0.25f, 0.174f));
+		shader->loadVector("_detail", Vector3f(0.615f, 0.369f, 0.379f));
+		shader->loadVector("_offset", Vector3f(1.0f, 1.385f, 0.0f));
+		shader->loadVector("_lightColor", Vector3f(0.804f, 0.771f, 0.662f));
+		shader->loadVector("_cloudColor", Vector3f(0.809f, 0.734f, 0.819f));
+
+		shader->loadInt("_CloudShape", 0);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_3D, texture1);
+
+		shader->loadInt("_CloudDetail", 1);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_3D, texture2);
+
+		Globals::shapeManager.get("quad").drawRaw();
+		shader->unuse();
+	}
 	renderUi();
 }
 
@@ -343,8 +377,8 @@ void Clouds::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 	if (event.button == 1u) {
 		m_trackball.mouse(TrackBall::Button::ELeftButton, TrackBall::Modifier::ENoModifier, true, event.x, event.y);
 		applyTransformation(m_trackball);
-	}
-	else if (event.button == 2u) {
+
+	}else if (event.button == 2u) {
 		Mouse::instance().attach(Application::GetWindow());
 	}
 }
@@ -353,8 +387,8 @@ void Clouds::OnMouseButtonUp(Event::MouseButtonEvent& event) {
 	if (event.button == 1u) {
 		m_trackball.mouse(TrackBall::Button::ELeftButton, TrackBall::Modifier::ENoModifier, false, event.x, event.y);
 		applyTransformation(m_trackball);
-	}
-	else if (event.button == 2u) {
+
+	}else if (event.button == 2u) {
 		Mouse::instance().detach();
 	}
 }
@@ -367,6 +401,68 @@ void Clouds::resize(int deltaW, int deltaH) {
 
 void Clouds::applyTransformation(TrackBall& arc) {
 	m_transform.fromMatrix(arc.getTransform());
+}
+
+colorPreset Clouds::SunsetPreset() {
+	colorPreset preset;
+
+	preset.cloudColorBottom = Vector3f(89, 96, 109) / 255.f;
+	preset.skyColorTop = Vector3f(177, 174, 119) / 255.f;
+	preset.skyColorBottom = Vector3f(234, 125, 125) / 255.f;
+
+	preset.lightColor = Vector3f(255, 171, 125) / 255.f;
+	preset.fogColor = Vector3f(85, 97, 120) / 255.f;
+
+	presetSunset = preset;
+
+	return preset;
+}
+
+colorPreset Clouds::SunsetPreset1() {
+	colorPreset preset;
+
+	preset.cloudColorBottom = Vector3f(97, 98, 120) / 255.f;
+	preset.skyColorTop = Vector3f(133, 158, 214) / 255.f;
+	preset.skyColorBottom = Vector3f(241, 161, 161) / 255.f;
+
+	preset.lightColor = Vector3f(255, 201, 201) / 255.f;
+	preset.fogColor = Vector3f(128, 153, 179) / 255.f;
+
+	presetSunset = preset;
+
+	return preset;
+}
+
+colorPreset Clouds::DefaultPreset() {
+	colorPreset preset;
+
+	preset.cloudColorBottom = (Vector3f(65., 70., 80.)*(1.5f / 255.f));
+
+	preset.skyColorTop = Vector3f(0.5, 0.7, 0.8)*1.05f;
+	preset.skyColorBottom = Vector3f(0.9, 0.9, 0.95);
+
+	preset.lightColor = Vector3f(255, 255, 230) / 255.f;
+	preset.fogColor = Vector3f(0.5, 0.6, 0.7);
+
+	highSunPreset = preset;
+
+	return preset;
+}
+
+void Clouds::mixSkyColorPreset(float v, colorPreset p1, colorPreset p2) {
+	float a = std::min(std::max(v, 0.0f), 1.0f);
+	float b = 1.0 - a;
+
+	//cloudColorBottom = p1.cloudColorBottom*a + p2.cloudColorBottom*b;
+	skyColorTop = p1.skyColorTop*a + p2.skyColorTop*b;
+	skyColorBottom = p1.skyColorBottom*a + p2.skyColorBottom*b;
+	lightColor = p1.lightColor*a + p2.lightColor*b;
+	fogColor = p1.fogColor*a + p2.fogColor*b;
+}
+
+void Clouds::updateSky() {
+	auto sigmoid = [](float v) { return 1 / (1.0 + exp(8.0 - v * 40.0)); };
+	mixSkyColorPreset(sigmoid(lightDirection[1]), highSunPreset, presetSunset);
 }
 
 void Clouds::renderUi() {
@@ -407,7 +503,14 @@ void Clouds::renderUi() {
 	}
 	ImGui::Checkbox("Draw Wirframe", &StateMachine::GetEnableWireframe());
 	ImGui::Checkbox("Show Weather Map", &m_showWeatherMap);
-	ImGui::Checkbox("Show Noise", &m_showNoise);
+	if (ImGui::Checkbox("Show Noise", &m_showNoise)) {
+		m_showQuad = false;
+	}
+
+	if (ImGui::Checkbox("Show Cloud Quad", &m_showQuad)) {
+		m_showNoise = false;
+	}
+
 	if (m_showNoise) {
 		int currentNoise = m_noise;
 		if (ImGui::Combo("Render", &currentNoise, "Perlin\0Worley\0Perlin 2\0Worley 2\0\0")) {
@@ -419,67 +522,4 @@ void Clouds::renderUi() {
 
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-}
-
-colorPreset Clouds::SunsetPreset() {
-	colorPreset preset;
-
-	preset.cloudColorBottom = Vector3f(89, 96, 109) / 255.f;
-	preset.skyColorTop = Vector3f(177, 174, 119) / 255.f;
-	preset.skyColorBottom = Vector3f(234, 125, 125) / 255.f;
-
-	preset.lightColor = Vector3f(255, 171, 125) / 255.f;
-	preset.fogColor = Vector3f(85, 97, 120) / 255.f;
-
-	presetSunset = preset;
-
-	return preset;
-}
-
-colorPreset Clouds::SunsetPreset1() {
-	colorPreset preset;
-
-	preset.cloudColorBottom = Vector3f(97, 98, 120) / 255.f;
-	preset.skyColorTop = Vector3f(133, 158, 214) / 255.f;
-	preset.skyColorBottom = Vector3f(241, 161, 161) / 255.f;
-
-	preset.lightColor = Vector3f(255, 201, 201) / 255.f;
-	preset.fogColor = Vector3f(128, 153, 179) / 255.f;
-
-	presetSunset = preset;
-
-	return preset;
-}
-
-
-colorPreset Clouds::DefaultPreset() {
-	colorPreset preset;
-
-	preset.cloudColorBottom = (Vector3f(65., 70., 80.)*(1.5f / 255.f));
-
-	preset.skyColorTop = Vector3f(0.5, 0.7, 0.8)*1.05f;
-	preset.skyColorBottom = Vector3f(0.9, 0.9, 0.95);
-
-	preset.lightColor = Vector3f(255, 255, 230) / 255.f;
-	preset.fogColor = Vector3f(0.5, 0.6, 0.7);
-
-	highSunPreset = preset;
-
-	return preset;
-}
-
-void Clouds::mixSkyColorPreset(float v, colorPreset p1, colorPreset p2) {
-	float a = std::min(std::max(v, 0.0f), 1.0f);
-	float b = 1.0 - a;
-
-	//cloudColorBottom = p1.cloudColorBottom*a + p2.cloudColorBottom*b;
-	skyColorTop = p1.skyColorTop*a + p2.skyColorTop*b;
-	skyColorBottom = p1.skyColorBottom*a + p2.skyColorBottom*b;
-	lightColor = p1.lightColor*a + p2.lightColor*b;
-	fogColor = p1.fogColor*a + p2.fogColor*b;
-}
-
-void Clouds::updateSky() {
-	auto sigmoid = [](float v) { return 1 / (1.0 + exp(8.0 - v * 40.0)); };
-	mixSkyColorPreset(sigmoid(lightDirection[1]), highSunPreset, presetSunset);
 }

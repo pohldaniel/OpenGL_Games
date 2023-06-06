@@ -3,14 +3,23 @@
 #include <algorithm>
 #include "engine/Vector.h"
 
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 class NoiseGen {
 public:
+
 	NoiseGen();
-	void GetGloudShape(unsigned int& cloud_shape);
-	void GetGloudDetail(unsigned int& cloud_detail);
+	void getGloudShape(unsigned int& cloud_shape);
+	void getGloudDetail(unsigned int& cloud_detail);
+
 private:
-	float GetPerlinValue(Vector3f texPos, int freq);
-	float GetWorleyVaule(Vector3f texPos, int freq);
-	void GenWorleyGrid();
+
+	float getPerlinValue(Vector3f texPos, int freq);
+	float getPerlinValue(glm::vec3 texPos, int freq);
+	float getWorleyVaule(Vector3f texPos, int freq);
+	void genWorleyGrid();
 };
 

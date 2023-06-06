@@ -1,5 +1,5 @@
 #pragma once
-
+#include <GL/glew.h>
 #include "engine/input/MouseEventListener.h"
 #include "engine/input/Keyboard.h"
 #include "engine/input/Mouse.h"
@@ -79,6 +79,7 @@ public:
 
 	bool m_showNoise = false;
 	bool m_showWeatherMap = false;
+	bool m_showQuad = false;
 	Noise m_noise = Noise::PERLIN;
 	Matrix4f m_orthographic;
 

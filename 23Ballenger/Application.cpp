@@ -526,6 +526,7 @@ void Application::loadAssets() {
 	Globals::shaderManager.loadShader("sky", "Shaders/screen_new.vert", "Shaders/sky.frag");
 	Globals::shaderManager.loadShader("texture3d", "res/texture3D.vert", "res/texture3D.frag");
 	Globals::shaderManager.loadShader("texture", "res/program.vert", "res/texture.frag");
+	Globals::shaderManager.loadShader("ray_march", "res/clouds.vert", "res/clouds.frag");
 
 	Globals::textureManager.createNullTexture("null");
 

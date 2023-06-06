@@ -35,6 +35,13 @@ Vector3f random3(Vector3f st) {
 	return 2.0f * Vector3f::Fract(Vector3f(sin(st[0]), sin(st[1]), sin(st[2])) * 43758.5453123f) - Vector3f(1.0f);
 }
 
+glm::vec3 random3(glm::vec3 st) {
+	st = glm::vec3(glm::dot(st, glm::vec3(127.1, 311.7, 235.4)),
+		glm::dot(st, glm::vec3(269.5, 183.3, 421.8)), glm::dot(st, glm::vec3(133.6, 462.5, 248.1)));
+	return -1.0f + 2.0f * fract(sin(st) * 43758.5453123f);
+}
+
+
 float Remap(float v, float l0, float h0, float ln, float hn)
 {
 	return ln + ((v - l0) * (hn - ln)) / (h0 - l0);
@@ -78,7 +85,7 @@ bool WriteVolumeToFile(const char* fileName, Vector4f *data, int dataSizeX, int 
 	fclose(pFile);
 }
 
-void NoiseGen::GenWorleyGrid()
+void NoiseGen::genWorleyGrid()
 {
 	// init
 	srand(time(NULL));
@@ -258,16 +265,16 @@ void NoiseGen::GenWorleyGrid()
 	std::cout << "INFO: Generated high freq Worley Grid." << std::endl;
 }
 
-void NoiseGen::GetGloudShape(unsigned int &cloud_shape)
+void NoiseGen::getGloudShape(unsigned int &cloud_shape)
 {
 
-	if (LoadVolumeFromFile("CloudShapeData.raw", cloud_shape, N, N, N))
+	if (LoadVolumeFromFile("res/noise/CloudShapeData.raw", cloud_shape, N, N, N))
 	{
 		std::cout << "INFO: Cloud shape texture exist!" << std::endl;
 		return;
 	}
 	
-	GenWorleyGrid();
+	genWorleyGrid();
 	std::cout << "INFO: Texture generating, stay tuned..." << std::endl;
 
 	for (int x = 0; x < N; x++)
@@ -281,16 +288,16 @@ void NoiseGen::GetGloudShape(unsigned int &cloud_shape)
 				Vector3f pos = Vector3f(x, y, z) / float(N);
 
 				//Low freq Perlin-Worley
-				R = (GetPerlinValue(pos, W_l));
-
+				//R = (GetPerlinValue(glm::vec3(pos[0], pos[1], pos[2]), W_l));
+				R = (getPerlinValue(pos, W_l));
 				//Medium freq Worley
-				G = GetWorleyVaule(pos, W_l);
+				G = getWorleyVaule(pos, W_l);
 
 				//High freq Worley
-				B = GetWorleyVaule(pos, W_m);
+				B = getWorleyVaule(pos, W_m);
 
 				//Higest freq Worly
-				A = GetWorleyVaule(pos, W_h);
+				A = getWorleyVaule(pos, W_h);
 
 				shapeData[x * N * N + y * N + z] = Vector4f(R,G,B,A);
 			}
@@ -307,20 +314,20 @@ void NoiseGen::GetGloudShape(unsigned int &cloud_shape)
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 	glBindTexture(GL_TEXTURE_3D, 0);
 
-	WriteVolumeToFile("CloudShapeData.raw", shapeData, N, N, N);
+	WriteVolumeToFile("res/noise/CloudShapeData.raw", shapeData, N, N, N);
 
 	std::cout << "INFO: Cloud shape texture Generated!" << std::endl;
 }
 
-void NoiseGen::GetGloudDetail(unsigned int& cloud_detail)
+void NoiseGen::getGloudDetail(unsigned int& cloud_detail)
 {
-	if (LoadVolumeFromFile("CloudDetailData.raw", cloud_detail, M, M, M))
+	if (LoadVolumeFromFile("res/noise/CloudDetailData.raw", cloud_detail, M, M, M))
 	{
 		std::cout << "INFO: Cloud detail texture exist!" << std::endl;
 		return;
 	}
 
-	GenWorleyGrid();
+	genWorleyGrid();
 
 	for (int x = 0; x < M; x++)
 	{
@@ -333,13 +340,13 @@ void NoiseGen::GetGloudDetail(unsigned int& cloud_detail)
 				Vector3f pos = Vector3f(x, y, z) / float(M);
 
 				//Low freq Perlin-Worley
-				R = GetWorleyVaule(pos, W_l);
+				R = getWorleyVaule(pos, W_l);
 				
 				//Medium freq Worley
-				G = GetWorleyVaule(pos, W_m);
+				G = getWorleyVaule(pos, W_m);
 				
 				//High freq Worley
-				B = GetWorleyVaule(pos, W_h);
+				B = getWorleyVaule(pos, W_h);
 
 				detailData[x * M * M + y * M + z] = Vector4f(R, G, B, 0);
 			}
@@ -356,18 +363,18 @@ void NoiseGen::GetGloudDetail(unsigned int& cloud_detail)
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 	glBindTexture(GL_TEXTURE_3D, 0);
 
-	WriteVolumeToFile("CloudDetailData.raw", detailData, M, M, M);
+	WriteVolumeToFile("res/noise/CloudDetailData.raw", detailData, M, M, M);
 
 	std::cout << "INFO: Cloud detail texture Generated!" << std::endl;
 
 }
 
-float NoiseGen::GetPerlinValue(Vector3f texPos, int freq)
-{
-	// texPos: (0,1)
+float NoiseGen::getPerlinValue(Vector3f texPos, int freq) {
+	
+	texPos *= (float)freq;
 
-	Vector3f i = Vector3f(floor(texPos[0]), floor(texPos[1]), floor(texPos[2] )) * (float)freq;
-	Vector3f f = Vector3f(texPos[0] - (long)texPos[0], texPos[1] - (long)texPos[1], texPos[2] - (long)texPos[2]) * (float)freq;
+	Vector3f i = Vector3f(floor(texPos[0]), floor(texPos[1]), floor(texPos[2]));
+	Vector3f f = Vector3f(texPos[0] - (long)texPos[0], texPos[1] - (long)texPos[1], texPos[2] - (long)texPos[2]);
 
 	Vector3f u = f * f * (Vector3f(3.0f) - 2.0f * f);
 
@@ -383,8 +390,27 @@ float NoiseGen::GetPerlinValue(Vector3f texPos, int freq)
 	return result;
 }
 
-float NoiseGen::GetWorleyVaule(Vector3f texPos, int freq)
-{
+float NoiseGen::getPerlinValue(glm::vec3 texPos, int freq) {
+	// texPos: (0,1)
+
+	glm::vec3 i = floor(texPos * (float)freq);
+	glm::vec3 f = fract(texPos * (float)freq);
+
+	glm::vec3 u = f * f * (3.0f - 2.0f * f);
+
+	float result = glm::mix(glm::mix(glm::mix(glm::dot(random3(i + glm::vec3(0.0, 0.0, 0.0)), f - glm::vec3(0.0, 0.0, 0.0)),
+		glm::dot(random3(i + glm::vec3(1.0, 0.0, 0.0)), f - glm::vec3(1.0, 0.0, 0.0)), u.x),
+		glm::mix(glm::dot(random3(i + glm::vec3(0.0, 1.0, 0.0)), f - glm::vec3(0.0, 1.0, 0.0)),
+			glm::dot(random3(i + glm::vec3(1.0, 1.0, 0.0)), f - glm::vec3(1.0, 1.0, 0.0)), u.x), u.y),
+		glm::mix(glm::mix(glm::dot(random3(i + glm::vec3(0.0, 0.0, 1.0)), f - glm::vec3(0.0, 0.0, 1.0)),
+			glm::dot(random3(i + glm::vec3(1.0, 0.0, 1.0)), f - glm::vec3(1.0, 0.0, 1.0)), u.x),
+			glm::mix(glm::dot(random3(i + glm::vec3(0.0, 1.0, 1.0)), f - glm::vec3(0.0, 1.0, 1.0)),
+				glm::dot(random3(i + glm::vec3(1.0, 1.0, 1.0)), f - glm::vec3(1.0, 1.0, 1.0)), u.x), u.y), u.z);
+	result = Remap(result, -1, 1, 0, 1);
+	return result;
+}
+
+float NoiseGen::getWorleyVaule(Vector3f texPos, int freq) {
 	
 	// map to (1, freq-2)
 	int x = floor(texPos[0] * (freq - 2)) + 1;
@@ -396,21 +422,20 @@ float NoiseGen::GetWorleyVaule(Vector3f texPos, int freq)
 
 	Vector3f *p = NULL;
 
-	switch (freq)
-	{
-	case W_l:
-		p = Worely_low;
-		break;
-	case W_m:
-		p = Worely_mid;
-		break;
-	case W_h:
-		p = Worely_high;
-		break;
-	default:
-		p = NULL;
-		std::cout << "ERROR: Send unknown freq in Worely Generation." << std::endl;
-		break;
+	switch (freq) {
+		case W_l:
+			p = Worely_low;
+			break;
+		case W_m:
+			p = Worely_mid;
+			break;
+		case W_h:
+			p = Worely_high;
+			break;
+		default:
+			p = NULL;
+			std::cout << "ERROR: Send unknown freq in Worely Generation." << std::endl;
+			break;
 	}
 
 	for (int i = -1; i <= 1; i++)
