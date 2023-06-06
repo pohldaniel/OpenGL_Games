@@ -35,13 +35,6 @@ Vector3f random3(Vector3f st) {
 	return 2.0f * Vector3f::Fract(Vector3f(sin(st[0]), sin(st[1]), sin(st[2])) * 43758.5453123f) - Vector3f(1.0f);
 }
 
-glm::vec3 random3(glm::vec3 st) {
-	st = glm::vec3(glm::dot(st, glm::vec3(127.1, 311.7, 235.4)),
-		glm::dot(st, glm::vec3(269.5, 183.3, 421.8)), glm::dot(st, glm::vec3(133.6, 462.5, 248.1)));
-	return -1.0f + 2.0f * fract(sin(st) * 43758.5453123f);
-}
-
-
 float Remap(float v, float l0, float h0, float ln, float hn)
 {
 	return ln + ((v - l0) * (hn - ln)) / (h0 - l0);
@@ -386,26 +379,6 @@ float NoiseGen::getPerlinValue(Vector3f texPos, int freq) {
 			Vector3f::Dot(random3(i + Vector3f(1.0, 0.0, 1.0)), f - Vector3f(1.0, 0.0, 1.0)), u[0]),
 			Math::Mix(Vector3f::Dot(random3(i + Vector3f(0.0, 1.0, 1.0)), f - Vector3f(0.0, 1.0, 1.0)),
 				Vector3f::Dot(random3(i + Vector3f(1.0, 1.0, 1.0)), f - Vector3f(1.0, 1.0, 1.0)), u[0]), u[1]),u[2]);
-	result = Remap(result, -1, 1, 0, 1);
-	return result;
-}
-
-float NoiseGen::getPerlinValue(glm::vec3 texPos, int freq) {
-	// texPos: (0,1)
-
-	glm::vec3 i = floor(texPos * (float)freq);
-	glm::vec3 f = fract(texPos * (float)freq);
-
-	glm::vec3 u = f * f * (3.0f - 2.0f * f);
-
-	float result = glm::mix(glm::mix(glm::mix(glm::dot(random3(i + glm::vec3(0.0, 0.0, 0.0)), f - glm::vec3(0.0, 0.0, 0.0)),
-		glm::dot(random3(i + glm::vec3(1.0, 0.0, 0.0)), f - glm::vec3(1.0, 0.0, 0.0)), u.x),
-		glm::mix(glm::dot(random3(i + glm::vec3(0.0, 1.0, 0.0)), f - glm::vec3(0.0, 1.0, 0.0)),
-			glm::dot(random3(i + glm::vec3(1.0, 1.0, 0.0)), f - glm::vec3(1.0, 1.0, 0.0)), u.x), u.y),
-		glm::mix(glm::mix(glm::dot(random3(i + glm::vec3(0.0, 0.0, 1.0)), f - glm::vec3(0.0, 0.0, 1.0)),
-			glm::dot(random3(i + glm::vec3(1.0, 0.0, 1.0)), f - glm::vec3(1.0, 0.0, 1.0)), u.x),
-			glm::mix(glm::dot(random3(i + glm::vec3(0.0, 1.0, 1.0)), f - glm::vec3(0.0, 1.0, 1.0)),
-				glm::dot(random3(i + glm::vec3(1.0, 1.0, 1.0)), f - glm::vec3(1.0, 1.0, 1.0)), u.x), u.y), u.z);
 	result = Remap(result, -1, 1, 0, 1);
 	return result;
 }

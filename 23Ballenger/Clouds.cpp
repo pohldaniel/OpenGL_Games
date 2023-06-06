@@ -133,7 +133,6 @@ void Clouds::update() {
 	}
 	m_trackball.idle();
 	applyTransformation(m_trackball);
-	//idle();
 };
 
 void Clouds::render() {
@@ -506,17 +505,17 @@ void Clouds::renderUi() {
 	if (ImGui::Checkbox("Show Noise", &m_showNoise)) {
 		m_showQuad = false;
 	}
-
-	if (ImGui::Checkbox("Show Cloud Quad", &m_showQuad)) {
-		m_showNoise = false;
-	}
-
 	if (m_showNoise) {
 		int currentNoise = m_noise;
 		if (ImGui::Combo("Render", &currentNoise, "Perlin\0Worley\0Perlin 2\0Worley 2\0\0")) {
 			m_noise = static_cast<Noise>(currentNoise);
 		}
 	}
+	if (ImGui::Checkbox("Show Cloud Quad", &m_showQuad)) {
+		m_showNoise = false;
+	}
+
+	
 
 	ImGui::End();
 

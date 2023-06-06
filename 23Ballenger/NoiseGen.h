@@ -3,11 +3,6 @@
 #include <algorithm>
 #include "engine/Vector.h"
 
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtx/transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
-
 class NoiseGen {
 public:
 
@@ -18,7 +13,6 @@ public:
 private:
 
 	float getPerlinValue(Vector3f texPos, int freq);
-	float getPerlinValue(glm::vec3 texPos, int freq);
 	float getWorleyVaule(Vector3f texPos, int freq);
 	void genWorleyGrid();
 };
