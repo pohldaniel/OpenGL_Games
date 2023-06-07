@@ -100,6 +100,10 @@ Clouds::Clouds(StateMachine& machine) : State(machine, CurrentState::SHAPEINTERF
 		Texture::SetWrapMode(perlinworley, GL_REPEAT, GL_TEXTURE_3D);
 		Texture::SetFilter(perlinworley, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR, GL_TEXTURE_3D);
 	}
+
+	m_arrayBuffer = new ArrayBuffer(GL_RGBA8, 128, 128, 128);
+	m_arrayBuffer->setShader(Globals::shaderManager.getAssetPointer("perlinworley"));
+	m_arrayBuffer->draw();
 }
 
 Clouds::~Clouds() {
@@ -369,7 +373,7 @@ void Clouds::render() {
 	}
 
 	if (m_showQuad) {
-		auto shader = Globals::shaderManager.getAssetPointer("ray_march");
+		/*auto shader = Globals::shaderManager.getAssetPointer("ray_march");
 		
 		shader->use();
 
@@ -397,6 +401,18 @@ void Clouds::render() {
 		shader->loadInt("_CloudDetail", 1);
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_3D, texture2);
+
+		Globals::shapeManager.get("quad").drawRaw();
+		shader->unuse();*/
+
+		auto shader = Globals::shaderManager.getAssetPointer("debug");
+
+		shader->use();
+		shader->loadInt("u_texture", 0);
+		shader->loadUnsignedInt("layer", 5);
+
+		glBindTexture(GL_TEXTURE_2D_ARRAY, m_arrayBuffer->getTexture());
+		glActiveTexture(GL_TEXTURE0);
 
 		Globals::shapeManager.get("quad").drawRaw();
 		shader->unuse();

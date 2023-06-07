@@ -1246,6 +1246,18 @@ void Texture::CreateTexture3D(unsigned int& textureRef, unsigned int width, unsi
 	glBindTexture(GL_TEXTURE_3D, 0);
 }
 
+void Texture::CreateTextureArray(unsigned int& textureRef, unsigned int width, unsigned int height, unsigned int layer, unsigned int internalFormat, unsigned int format, unsigned int type, unsigned char* data) {
+	glGenTextures(1, &textureRef);
+	glBindTexture(GL_TEXTURE_2D_ARRAY, textureRef);
+	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, internalFormat, width, height, layer, 0, format, type, data);
+	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
+}
+
 void Texture::Resize(unsigned int& textureRef, unsigned int width, unsigned int height, unsigned int internalFormat, unsigned int format, unsigned int type, unsigned int target, unsigned int depth) {
 	if (target == GL_TEXTURE_CUBE_MAP) {
 		glBindTexture(target, textureRef);

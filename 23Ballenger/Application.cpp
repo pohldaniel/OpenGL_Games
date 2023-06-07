@@ -529,6 +529,8 @@ void Application::loadAssets() {
 	Globals::shaderManager.loadShader("ray_march", "res/clouds.vert", "res/clouds.frag");
 	Globals::shaderManager.loadShader("worley", "res/worley.vert", "res/worley.frag");
 	Globals::shaderManager.loadShader("perlinworley", "res/perlinworley.vert", "res/perlinworley.frag");
+	Globals::shaderManager.loadShader("debug", "res/debug.vert", "res/debug.frag");
+	Globals::shaderManager.loadShader("texture_array", "res/textureArray.vert", "res/textureArray.frag");
 
 	Globals::textureManager.createNullTexture("null");
 

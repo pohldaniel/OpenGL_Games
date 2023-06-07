@@ -160,6 +160,7 @@
     <ClCompile Include="Clouds.cpp" />
     <ClCompile Include="CloudsModel.cpp" />
     <ClCompile Include="ColumnSet.cpp" />
+    <ClCompile Include="engine\ArrayBuffer.cpp" />
     <ClCompile Include="engine\AssimpModel.cpp" />
     <ClCompile Include="engine\Batchrenderer.cpp" />
     <ClCompile Include="engine\BuiltInShader.cpp" />
@@ -232,6 +233,7 @@
     <ClInclude Include="Clouds.h" />
     <ClInclude Include="CloudsModel.h" />
     <ClInclude Include="ColumnSet.h" />
+    <ClInclude Include="engine\ArrayBuffer.h" />
     <ClInclude Include="Globals.h" />
     <ClInclude Include="convhull\convhull_3d.h" />
     <ClInclude Include="engine\AssetManger.h" />

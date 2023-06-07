@@ -52,7 +52,7 @@ void Framebuffer::attachTexture(AttachmentTex::AttachmentTex attachments) {
 			m_colorTextures.push_back(tex);
 			texture = &m_colorTextures[m_colorTextureAttachments - 1];
 
-			m_attachments.push_back(GL_COLOR_ATTACHMENT0 + (m_colorTextureAttachments - 1));
+			m_attachments.push_back(GL_COLOR_ATTACHMENT0 + (m_colorAttachments - 1));
 
 			m_resizeTexture.push_back(std::tuple<unsigned int, unsigned int, unsigned int>());
 			std::get<0>(m_resizeTexture[m_colorTextureAttachments - 1]) = internalFormat;
@@ -69,7 +69,7 @@ void Framebuffer::attachTexture(AttachmentTex::AttachmentTex attachments) {
 			m_colorTextures.push_back(tex);
 			texture = &m_colorTextures[m_colorTextureAttachments - 1];
 
-			m_attachments.push_back(GL_COLOR_ATTACHMENT0 + (m_colorTextureAttachments - 1));
+			m_attachments.push_back(GL_COLOR_ATTACHMENT0 + (m_colorAttachments - 1));
 
 			m_resizeTexture.push_back(std::tuple<unsigned int, unsigned int, unsigned int>());
 			std::get<0>(m_resizeTexture[m_colorTextureAttachments - 1]) = internalFormat;
@@ -86,7 +86,7 @@ void Framebuffer::attachTexture(AttachmentTex::AttachmentTex attachments) {
 			m_colorTextures.push_back(tex);
 			texture = &m_colorTextures[m_colorTextureAttachments - 1];
 
-			m_attachments.push_back(GL_COLOR_ATTACHMENT0 + (m_colorTextureAttachments - 1));
+			m_attachments.push_back(GL_COLOR_ATTACHMENT0 + (m_colorAttachments - 1));
 
 			m_resizeTexture.push_back(std::tuple<unsigned int, unsigned int, unsigned int>());
 			std::get<0>(m_resizeTexture[m_colorTextureAttachments - 1]) = internalFormat;
@@ -104,7 +104,7 @@ void Framebuffer::attachTexture(AttachmentTex::AttachmentTex attachments) {
 			m_colorTextures.push_back(tex);
 			texture = &m_colorTextures[m_colorTextureAttachments - 1];
 
-			m_attachments.push_back(GL_COLOR_ATTACHMENT0 + (m_colorTextureAttachments - 1));
+			m_attachments.push_back(GL_COLOR_ATTACHMENT0 + (m_colorAttachments - 1));
 
 			m_resizeTexture.push_back(std::tuple<unsigned int, unsigned int, unsigned int>());
 			std::get<0>(m_resizeTexture[m_colorTextureAttachments - 1]) = internalFormat;
@@ -122,7 +122,7 @@ void Framebuffer::attachTexture(AttachmentTex::AttachmentTex attachments) {
 			m_colorTextures.push_back(tex);
 			texture = &m_colorTextures[m_colorTextureAttachments - 1];
 
-			m_attachments.push_back(GL_COLOR_ATTACHMENT0 + (m_colorTextureAttachments - 1));
+			m_attachments.push_back(GL_COLOR_ATTACHMENT0 + (m_colorAttachments - 1));
 
 			m_resizeTexture.push_back(std::tuple<unsigned int, unsigned int, unsigned int>());
 			std::get<0>(m_resizeTexture[m_colorTextureAttachments - 1]) = internalFormat;
@@ -140,7 +140,7 @@ void Framebuffer::attachTexture(AttachmentTex::AttachmentTex attachments) {
 			m_colorTextures.push_back(tex);
 			texture = &m_colorTextures[m_colorTextureAttachments - 1];
 
-			m_attachments.push_back(GL_COLOR_ATTACHMENT0 + (m_colorTextureAttachments - 1));
+			m_attachments.push_back(GL_COLOR_ATTACHMENT0 + (m_colorAttachments - 1));
 
 			m_resizeTexture.push_back(std::tuple<unsigned int, unsigned int, unsigned int>());
 			std::get<0>(m_resizeTexture[m_colorTextureAttachments - 1]) = internalFormat;
@@ -158,7 +158,7 @@ void Framebuffer::attachTexture(AttachmentTex::AttachmentTex attachments) {
 			m_colorTextures.push_back(tex);
 			texture = &m_colorTextures[m_colorTextureAttachments - 1];
 
-			m_attachments.push_back(GL_COLOR_ATTACHMENT0 + (m_colorTextureAttachments - 1));
+			m_attachments.push_back(GL_COLOR_ATTACHMENT0 + (m_colorAttachments - 1));
 
 			m_resizeTexture.push_back(std::tuple<unsigned int, unsigned int, unsigned int>());
 			std::get<0>(m_resizeTexture[m_colorTextureAttachments - 1]) = internalFormat;
@@ -176,7 +176,7 @@ void Framebuffer::attachTexture(AttachmentTex::AttachmentTex attachments) {
 			m_colorTextures.push_back(tex);
 			texture = &m_colorTextures[m_colorTextureAttachments - 1];
 
-			m_attachments.push_back(GL_COLOR_ATTACHMENT0 + (m_colorTextureAttachments - 1));
+			m_attachments.push_back(GL_COLOR_ATTACHMENT0 + (m_colorAttachments - 1));
 
 			m_resizeTexture.push_back(std::tuple<unsigned int, unsigned int, unsigned int>());
 			std::get<0>(m_resizeTexture[m_colorTextureAttachments - 1]) = internalFormat;
@@ -194,7 +194,7 @@ void Framebuffer::attachTexture(AttachmentTex::AttachmentTex attachments) {
 			m_colorTextures.push_back(tex);
 			texture = &m_colorTextures[m_colorTextureAttachments - 1];
 
-			m_attachments.push_back(GL_COLOR_ATTACHMENT0 + (m_colorTextureAttachments - 1));
+			m_attachments.push_back(GL_COLOR_ATTACHMENT0 + (m_colorAttachments - 1));
 
 			m_resizeTexture.push_back(std::tuple<unsigned int, unsigned int, unsigned int>());
 			std::get<0>(m_resizeTexture[m_colorTextureAttachments - 1]) = internalFormat;
@@ -209,8 +209,8 @@ void Framebuffer::attachTexture(AttachmentTex::AttachmentTex attachments) {
 			m_colorTextureAttachments++;
 
 			m_colorTextures.push_back(tex);
-			texture = &m_colorTextures[m_colorAttachments - 1];
-			m_attachments.push_back(GL_COLOR_ATTACHMENT0 + (m_colorTextureAttachments - 1));
+			texture = &m_colorTextures[m_colorTextureAttachments - 1];
+			m_attachments.push_back(GL_COLOR_ATTACHMENT0 + (m_colorAttachments - 1));
 
 			m_resizeTexture.push_back(std::tuple<unsigned int, unsigned int, unsigned int>());
 			std::get<0>(m_resizeTexture[m_colorTextureAttachments - 1]) = internalFormat;
@@ -226,8 +226,8 @@ void Framebuffer::attachTexture(AttachmentTex::AttachmentTex attachments) {
 			m_colorTextureAttachments++;
 
 			m_colorTextures.push_back(tex);
-			texture = &m_colorTextures[m_colorAttachments - 1];
-			m_attachments.push_back(GL_COLOR_ATTACHMENT0 + (m_colorTextureAttachments - 1));
+			texture = &m_colorTextures[m_colorTextureAttachments - 1];
+			m_attachments.push_back(GL_COLOR_ATTACHMENT0 + (m_colorAttachments - 1));
 
 			m_resizeTexture.push_back(std::tuple<unsigned int, unsigned int, unsigned int>());
 			std::get<0>(m_resizeTexture[m_colorTextureAttachments - 1]) = internalFormat;
@@ -326,14 +326,14 @@ void Framebuffer::attachTexture(AttachmentTex::AttachmentTex attachments) {
 	}
 }
 
+//https://www.appsloveworld.com/cplus/100/353/using-gl-texture-2d-array-as-a-draw-target
 void Framebuffer::attachTexture(unsigned int& texture, Attachment::Attachment attachments, Target::Target target, unsigned short layer) {
 	unsigned int attachment;
 
 	switch (attachments) {
 		case Attachment::COLOR:
 			m_colorAttachments++;
-			m_colorTextureAttachments++;
-			m_attachments.push_back(GL_COLOR_ATTACHMENT0 + (m_colorTextureAttachments - 1));
+			m_attachments.push_back(GL_COLOR_ATTACHMENT0 + (m_colorAttachments - 1));
 			break;
 		case Attachment::DEPTH:
 			attachment = GL_DEPTH_ATTACHMENT;
@@ -355,7 +355,15 @@ void Framebuffer::attachTexture(unsigned int& texture, Attachment::Attachment at
 			glFramebufferTexture3D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + (m_colorAttachments - 1), GL_TEXTURE_3D, texture, 0, layer);
 		}else if (target == Target::TEXTURE2D){
 			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + (m_colorAttachments - 1), GL_TEXTURE_2D, texture, 0);
-		}else {
+		}else if (target == Target::ARRAY){
+			glBindTexture(GL_TEXTURE_2D_ARRAY, texture);
+			for (unsigned int i = 0; i < layer; i++) {
+				if (i != 0)
+					m_colorAttachments++;
+				glFramebufferTextureLayer(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + (m_colorAttachments - 1), texture, 0, i);
+			}
+			glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
+		} else{
 			glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + (m_colorAttachments - 1), texture, 0);
 		}
 
@@ -371,6 +379,14 @@ void Framebuffer::attachTexture(unsigned int& texture, Attachment::Attachment at
 			glFramebufferTexture3D(GL_FRAMEBUFFER, attachment, GL_TEXTURE_3D, texture, 0, layer);
 		}else if (target == Target::TEXTURE2D) {
 			glFramebufferTexture2D(GL_FRAMEBUFFER, attachment, GL_TEXTURE_2D, texture, 0);
+		}else if (target == Target::ARRAY) {
+			//glBindTexture(GL_TEXTURE_2D_ARRAY, texture);
+			//for (unsigned int i = 0; i < layer; i++) {
+			//	glFramebufferTextureLayer(GL_FRAMEBUFFER, attachment, texture, 0, i);
+			//}
+			//glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
+			glFramebufferTexture(GL_FRAMEBUFFER, attachment, texture, 0);
+
 		}else {
 			glFramebufferTexture(GL_FRAMEBUFFER, attachment, texture, 0);
 		}

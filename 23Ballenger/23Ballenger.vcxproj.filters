@@ -255,6 +255,9 @@
     <ClCompile Include="NoiseGen.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="engine\ArrayBuffer.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h">
@@ -472,6 +475,9 @@
     </ClInclude>
     <ClInclude Include="NoiseGen.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\ArrayBuffer.h">
+      <Filter>engine</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

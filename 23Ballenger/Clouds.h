@@ -13,6 +13,7 @@
 #include "engine/Clock.h"
 #include "engine/SlicedCube.h"
 #include "engine/VolumeBuffer.h"
+#include "engine/ArrayBuffer.h"
 
 #include "StateMachine.h"
 
@@ -93,5 +94,6 @@ public:
 	unsigned int worley, perlinworley;
 
 	VolumeBuffer* m_volumeBuffer = nullptr;
+	ArrayBuffer* m_arrayBuffer = nullptr;
 };
 
