@@ -64,10 +64,42 @@ Clouds::Clouds(StateMachine& machine) : State(machine, CurrentState::SHAPEINTERF
 	DefaultPreset();
 
 	m_slicedCube.create(128, 128, 128);
+
 	m_orthographic.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), 1.0f, -1.0f);
 
 	m_noiseGen.getGloudShape(texture1);
 	m_noiseGen.getGloudDetail(texture2);
+
+	if (!m_noiseGen.LoadVolumeFromFile("res/noise/worley.raw", worley, 32, 32, 32)){
+		m_volumeBuffer = new VolumeBuffer(GL_RGBA8, 32, 32, 32);
+		m_volumeBuffer->setFiltering(GL_LINEAR_MIPMAP_LINEAR);
+		m_volumeBuffer->setWrapMode(GL_REPEAT);
+		m_volumeBuffer->setShader(Globals::shaderManager.getAssetPointer("worley"));
+		m_volumeBuffer->draw();
+		m_volumeBuffer->writeVolumeToRaw("res/noise/worley.raw");	
+		m_volumeBuffer->getVolume(worley);
+	}else {
+		Texture::SetWrapMode(worley, GL_REPEAT, GL_TEXTURE_3D);
+		Texture::SetFilter(worley, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR, GL_TEXTURE_3D);
+	}
+	
+	if (!m_noiseGen.LoadVolumeFromFile("res/noise/perlinworley.raw", perlinworley, 128, 128, 128)) {
+
+		if (m_volumeBuffer) {
+			m_volumeBuffer->resize(128, 128, 128);
+		}else {			
+			m_volumeBuffer = new VolumeBuffer(GL_RGBA8, 128, 128, 128);
+			m_volumeBuffer->setFiltering(GL_LINEAR_MIPMAP_LINEAR);
+			m_volumeBuffer->setWrapMode(GL_REPEAT);
+		}
+		m_volumeBuffer->setShader(Globals::shaderManager.getAssetPointer("perlinworley"));
+		m_volumeBuffer->draw();
+		m_volumeBuffer->writeVolumeToRaw("res/noise/perlinworley.raw");
+		m_volumeBuffer->getVolume(perlinworley);
+	}else {
+		Texture::SetWrapMode(perlinworley, GL_REPEAT, GL_TEXTURE_3D);
+		Texture::SetFilter(perlinworley, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR, GL_TEXTURE_3D);
+	}
 }
 
 Clouds::~Clouds() {
@@ -198,10 +230,10 @@ void Clouds::render() {
 	shader->loadInt("sky", 4);
 
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_3D, cloudsModel.perlinTex);
+	glBindTexture(GL_TEXTURE_3D, m_noise == Noise::PERLINVERT ? perlinworley : cloudsModel.perlinTex);
 
 	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_3D, cloudsModel.worley32);
+	glBindTexture(GL_TEXTURE_3D, m_noise == Noise::PERLINVERT ? worley : cloudsModel.worley32);
 
 	glActiveTexture(GL_TEXTURE2);
 	glBindTexture(GL_TEXTURE_2D, cloudsModel.weatherTex);
@@ -294,23 +326,28 @@ void Clouds::render() {
 		glActiveTexture(GL_TEXTURE0);
 		
 		switch (m_noise) {
-			case Noise::PERLIN:
+			case Noise::PERLINCOMP:
 				glBindTexture(GL_TEXTURE_3D, cloudsModel.perlinTex);
 				break;
-			case Noise::WORLEY:
+			case Noise::WORLEYCOMP:
 				glBindTexture(GL_TEXTURE_3D, cloudsModel.worley32);
+				break;	
+			case Noise::PERLINVERT:
+				glBindTexture(GL_TEXTURE_3D, perlinworley);
 				break;
-			case Noise::PERLIN2:
+			case Noise::WORLEYVERT:
+				glBindTexture(GL_TEXTURE_3D, worley);
+				break;
+			case Noise::PERLINCPU:
 				glBindTexture(GL_TEXTURE_3D, texture1);
 				break;
-			case Noise::WORLEY2:
+			case Noise::WORLEYCPU:
 				glBindTexture(GL_TEXTURE_3D, texture2);
 				break;
 			default:
 				glBindTexture(GL_TEXTURE_3D, cloudsModel.perlinTex);
 				break;
 		}
-
 		m_slicedCube.drawRaw();
 		shader->unuse();
 	}
@@ -505,17 +542,17 @@ void Clouds::renderUi() {
 	if (ImGui::Checkbox("Show Noise", &m_showNoise)) {
 		m_showQuad = false;
 	}
+
 	if (m_showNoise) {
 		int currentNoise = m_noise;
-		if (ImGui::Combo("Render", &currentNoise, "Perlin\0Worley\0Perlin 2\0Worley 2\0\0")) {
+		if (ImGui::Combo("Render", &currentNoise, "Perlin comp\0Worley comp\0Perlin vert/frag\0Worley vert/frag \0Perlin cpu\0Worley cpu\0\0")) {
 			m_noise = static_cast<Noise>(currentNoise);
 		}
 	}
+
 	if (ImGui::Checkbox("Show Cloud Quad", &m_showQuad)) {
 		m_showNoise = false;
 	}
-
-	
 
 	ImGui::End();
 

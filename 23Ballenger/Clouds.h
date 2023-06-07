@@ -12,6 +12,7 @@
 #include "engine/Texture.h"
 #include "engine/Clock.h"
 #include "engine/SlicedCube.h"
+#include "engine/VolumeBuffer.h"
 
 #include "StateMachine.h"
 
@@ -19,10 +20,12 @@
 #include "NoiseGen.h"
 
 enum Noise {
-	PERLIN,
-	WORLEY,	
-	PERLIN2,
-	WORLEY2
+	PERLINCOMP,
+	WORLEYCOMP,		
+	PERLINVERT,
+	WORLEYVERT,
+	PERLINCPU,
+	WORLEYCPU
 };
 
 enum cloudsTextureNames { fragColor, bloom, alphaness, cloudDistance };
@@ -77,15 +80,18 @@ public:
 	void updateSky();
 	SlicedCube m_slicedCube;
 
-	bool m_showNoise = false;
+	bool m_showNoise = true;
 	bool m_showWeatherMap = false;
 	bool m_showQuad = false;
-	Noise m_noise = Noise::PERLIN;
+	Noise m_noise = Noise::PERLINCOMP;
 	Matrix4f m_orthographic;
 
 	NoiseGen m_noiseGen;
 
 	unsigned int texture1;
 	unsigned int texture2;
+	unsigned int worley, perlinworley;
+
+	VolumeBuffer* m_volumeBuffer = nullptr;
 };
 

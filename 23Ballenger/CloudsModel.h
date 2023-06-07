@@ -28,7 +28,7 @@ public:
 	Vector3f cloudColorTop, cloudColorBottom;
 
 	Vector3f seed, oldSeed, sceneSeed;
-	unsigned int perlinTex, worley32, weatherTex;
+	unsigned int perlinTex = 0, worley32 = 0, weatherTex = 0;
 
 	void generateWeatherMap();
 	void generateModelTextures();

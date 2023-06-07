@@ -40,7 +40,7 @@ float Remap(float v, float l0, float h0, float ln, float hn)
 	return ln + ((v - l0) * (hn - ln)) / (h0 - l0);
 }
 
-bool LoadVolumeFromFile(const char* fileName, GLuint& tex, int dataSizeX, int dataSizeY, int dataSizeZ) {
+bool NoiseGen::LoadVolumeFromFile(const char* fileName, unsigned int& tex, int dataSizeX, int dataSizeY, int dataSizeZ) {
 	FILE* pFile = fopen(fileName, "rb");
 	if (NULL == pFile) {
 		return false;
@@ -67,7 +67,7 @@ bool LoadVolumeFromFile(const char* fileName, GLuint& tex, int dataSizeX, int da
 	return true;
 }
 
-bool WriteVolumeToFile(const char* fileName, Vector4f *data, int dataSizeX, int dataSizeY, int dataSizeZ)
+bool NoiseGen::WriteVolumeToFile(const char* fileName, Vector4f *data, int dataSizeX, int dataSizeY, int dataSizeZ)
 {
 	FILE* pFile = fopen(fileName, "wb");
 	if (NULL == pFile) {

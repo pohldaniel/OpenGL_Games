@@ -125,7 +125,7 @@ private:
 
 	unsigned short m_colorAttachments = 0;
 	unsigned short m_colorTextureAttachments = 0;
-	unsigned short m_colorRBAttachments = 0;
+
 	unsigned int m_width = 0;
 	unsigned int m_height = 0;
 

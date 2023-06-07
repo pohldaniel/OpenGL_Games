@@ -85,7 +85,7 @@ void Texture::copy(const Texture& rhs) {
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilter);
 		glTexImage2D(GL_TEXTURE_2D, 0, m_internalFormat, m_width, m_height, 0, m_format, m_type, bytes);
 
-		if (minFilter == GL_LINEAR_MIPMAP_LINEAR)
+		if (minFilter == 9984 || minFilter == 9985 || minFilter == 9986 || minFilter == 9987)
 			glGenerateMipmap(GL_TEXTURE_2D);
 
 		glBindTexture(GL_TEXTURE_2D, 0);
@@ -1239,9 +1239,9 @@ void Texture::CreateTexture3D(unsigned int& textureRef, unsigned int width, unsi
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
-	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_BORDER);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 	glTexImage3D(GL_TEXTURE_3D, 0, internalFormat, width, height, depth, 0, format, type, data);
 	glBindTexture(GL_TEXTURE_3D, 0);
 }
@@ -1329,7 +1329,7 @@ void Texture::setFilter(unsigned int minFilter, unsigned int magFilter) const {
 	glBindTexture(m_target, m_texture);
 	glTexParameteri(m_target, GL_TEXTURE_MIN_FILTER, minFilter);
 	glTexParameteri(m_target, GL_TEXTURE_MAG_FILTER, magFilter);
-	if (minFilter == 9987)
+	if (minFilter == 9984 || minFilter == 9985 || minFilter == 9986 || minFilter == 9987)
 		glGenerateMipmap(m_target);
 	glBindTexture(m_target, 0);
 }
@@ -1366,13 +1366,15 @@ void Texture::Unbind(unsigned int unit, unsigned int target) {
 }
 
 void Texture::SetFilter(const unsigned int& textureRef, unsigned int minFilter, unsigned int magFilter, unsigned int target) {
+	
+
 	if (magFilter == 0)
 		magFilter = minFilter == 9985 || minFilter == 9987 ? GL_LINEAR : minFilter == 9984 || minFilter == 9986 ? GL_NEAREST : minFilter;
 
 	glBindTexture(target, textureRef);
 	glTexParameteri(target, GL_TEXTURE_MIN_FILTER, minFilter);
 	glTexParameteri(target, GL_TEXTURE_MAG_FILTER, magFilter);
-	if (minFilter == 9987)
+	if (minFilter == 9984 || minFilter == 9985 || minFilter == 9986 || minFilter == 9987)
 		glGenerateMipmap(target);
 	glBindTexture(target, 0);
 }

@@ -1,5 +1,6 @@
 #include <GL/glew.h>
 #include "SlicedCube.h"
+#include <iostream>
 
 SlicedCube::SlicedCube() {
 
@@ -10,11 +11,7 @@ SlicedCube::SlicedCube(int width, int height, int depth)  {
 }
 
 SlicedCube::~SlicedCube() {
-	if (m_vao)
-		glDeleteVertexArrays(1, &m_vao);
-
-	if (m_vbo)
-		glDeleteBuffers(1, &m_vbo);
+	cleanup();
 }
 
 int SlicedCube::getWidth() {
@@ -42,6 +39,16 @@ void SlicedCube::drawRaw() {
 	glBindVertexArray(0);
 }
 
+void SlicedCube::cleanup() {
+
+	if (m_vao) 
+		glDeleteVertexArrays(1, &m_vao);
+	
+	if (m_vbo) 
+		glDeleteBuffers(1, &m_vbo);
+	
+}
+
 void SlicedCube::create(int width, int height, int depth) {
 
 	m_width = width;
@@ -65,24 +72,30 @@ void SlicedCube::create(int width, int height, int depth) {
 	}
 
 	short stride = 6;
-	glGenBuffers(1, &m_vbo);
 
-	glGenVertexArrays(1, &m_vao);
-	glBindVertexArray(m_vao);
+	if (m_vbo) {
+		glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+		glBufferData(GL_ARRAY_BUFFER, vertex.size() * sizeof(float), &vertex[0], GL_STATIC_DRAW);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+	}else {
+		glGenBuffers(1, &m_vbo);
 
-	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-	glBufferData(GL_ARRAY_BUFFER, vertex.size() * sizeof(float), &vertex[0], GL_STATIC_DRAW);
+		glGenVertexArrays(1, &m_vao);
+		glBindVertexArray(m_vao);
 
-	//Position
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)0);
+		glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+		glBufferData(GL_ARRAY_BUFFER, vertex.size() * sizeof(float), &vertex[0], GL_STATIC_DRAW);
 
-	//TexutreCoords
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)(3 * sizeof(float)));
+		//Position
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)0);
 
-	glBindVertexArray(0);
+		//TexutreCoords
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)(3 * sizeof(float)));
 
+		glBindVertexArray(0);
+	}
 	vertex.clear();
 	vertex.shrink_to_fit();
 }

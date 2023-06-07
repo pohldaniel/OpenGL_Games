@@ -93,9 +93,6 @@ void CloudsModel::generateModelTextures(){
 
 		//compute
 		worley_git.use();
-		//worley_git.setVec3("u_resolution", glm::vec3(32, 32, 32));
-		glActiveTexture(GL_TEXTURE0);
-	  	glBindTexture(GL_TEXTURE_3D, this->worley32);
 	  	glBindImageTexture(0, this->worley32, 0, GL_TRUE, 0, GL_READ_WRITE, GL_RGBA8);
 		std::cout << "computing worley 32!" << std::endl;
 		glDispatchCompute(INT_CEIL(32, 4), INT_CEIL(32, 4), INT_CEIL(32, 4));

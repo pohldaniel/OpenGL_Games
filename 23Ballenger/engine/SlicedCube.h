@@ -17,6 +17,7 @@ public:
 	int getDepth();
 	void create(int width, int height, int depth);
 	unsigned int& getVao();
+	void cleanup();
 
 private:
 
