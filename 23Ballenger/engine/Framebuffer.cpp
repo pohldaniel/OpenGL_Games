@@ -385,7 +385,7 @@ void Framebuffer::attachTexture(unsigned int& texture, Attachment::Attachment at
 		}else if (target == Target::ARRAY) {
 
 			for (unsigned int i = 0; i < layer; i++) {
-				glFramebufferTextureLayer(GL_FRAMEBUFFER, attachment, texture, 0, i);
+				glFramebufferTextureLayer(GL_DRAW_FRAMEBUFFER, attachment, texture, 0, i);
 			}
 
 		}else {
