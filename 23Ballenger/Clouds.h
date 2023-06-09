@@ -94,6 +94,7 @@ public:
 	unsigned int texture1;
 	unsigned int texture2;
 	unsigned int worley, perlinworley;
+	unsigned int arrayTex;
 
 	VolumeBuffer* m_volumeBuffer = nullptr;
 	ArrayBuffer* m_arrayBuffer = nullptr;

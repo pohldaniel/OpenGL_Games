@@ -4,10 +4,18 @@
 
 ArrayBuffer::ArrayBuffer(unsigned int internalFormat, int width, int height, int layer) {
 	m_internalFormat = internalFormat;
-	createBuffer();
+	m_minFilter = GL_NEAREST;
+	m_magFilter = GL_NEAREST;
+	m_mode = GL_CLAMP_TO_EDGE;
+	m_width = width;
+	m_height = height;
+	m_layer = layer;
+
 	Texture::CreateTextureArray(m_texture, width, height, layer, internalFormat, GL_RGBA, GL_UNSIGNED_BYTE);
 	m_fbo.create(width, height);
 	m_fbo.attachTexture(m_texture, Attachment::COLOR, Target::ARRAY, layer);
+
+	createBuffer();
 }
 
 ArrayBuffer::~ArrayBuffer() {
@@ -27,16 +35,25 @@ ArrayBuffer::~ArrayBuffer() {
 void ArrayBuffer::setFiltering(unsigned int minFilter) {
 	m_minFilter = minFilter;
 	m_magFilter = minFilter == 9985 || minFilter == 9987 ? GL_LINEAR : minFilter == 9984 || minFilter == 9986 ? GL_NEAREST : minFilter;
-	Texture::SetFilter(m_texture, m_minFilter, m_magFilter, GL_TEXTURE_3D);
+	Texture::SetFilter(m_texture, m_minFilter, m_magFilter, GL_TEXTURE_2D_ARRAY);
 }
 
 void ArrayBuffer::setWrapMode(unsigned int mode) {
 	m_mode = mode;
-	Texture::SetWrapMode(m_texture, mode, GL_TEXTURE_3D);
+	Texture::SetWrapMode(m_texture, mode, GL_TEXTURE_2D_ARRAY);
 }
 
-void ArrayBuffer::resize(int width, int height, int depth) {
+void ArrayBuffer::resize(int width, int height) {
+	m_width = width;
+	m_height = height;
+	
+	m_fbo.resize(width, height);
 
+	glBindTexture(GL_TEXTURE_2D_ARRAY, m_texture);
+	glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, m_internalFormat, width, height, m_layer, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+	if (m_minFilter == 9984 || m_minFilter == 9985 || m_minFilter == 9986 || m_minFilter == 9987)
+		glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
+	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
 }
 
 void ArrayBuffer::setShader(Shader* shader) {
@@ -72,7 +89,26 @@ void ArrayBuffer::draw() {
 }
 
 void ArrayBuffer::getArray(unsigned int& texture) {
+	unsigned char* bytes = (unsigned char*)malloc(getWidth() * getHeight() * getLayer() * 4 * sizeof(unsigned char));
+	glBindTexture(GL_TEXTURE_2D_ARRAY, m_texture);
+	glGetTexImage(GL_TEXTURE_2D_ARRAY, 0, GL_RGBA, GL_UNSIGNED_BYTE, bytes);
+	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
 
+	glGenTextures(1, &texture);
+	glBindTexture(GL_TEXTURE_2D_ARRAY, texture);
+	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, m_minFilter);
+	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, m_magFilter);
+
+	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, m_mode);
+	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, m_mode);
+
+
+	glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_RGBA8, getWidth(), getHeight(), getLayer(), 0, GL_RGBA, GL_UNSIGNED_BYTE, bytes);
+	if (m_minFilter == 9984 || m_minFilter == 9985 || m_minFilter == 9986 || m_minFilter == 9987)
+		glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
+	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
+
+	free(bytes);
 }
 
 void ArrayBuffer::createBuffer() {
@@ -131,4 +167,48 @@ void ArrayBuffer::createBuffer() {
 	}
 	vertex.clear();
 	vertex.shrink_to_fit();
+}
+
+void ArrayBuffer::safe(const char* fileName) {
+	Spritesheet::Safe(fileName, m_texture);
+}
+
+void ArrayBuffer::writeArrayToRaw(const char* fileName) {
+	unsigned char* bytes = (unsigned char*)malloc(getWidth() * getHeight() * getLayer() * 4 * sizeof(unsigned char));
+	
+	glBindTexture(GL_TEXTURE_2D_ARRAY, m_texture);
+	glGetTexImage(GL_TEXTURE_2D_ARRAY, 0, GL_RGBA, GL_UNSIGNED_BYTE, bytes);
+	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
+
+
+	FILE* pFile = fopen(fileName, "wb");
+	if (pFile != NULL) {
+		fwrite(bytes, sizeof(unsigned char) * 4, getWidth() * getHeight() * getLayer(), pFile);
+		fclose(pFile);
+	}
+	free(bytes);
+}
+
+bool ArrayBuffer::LoadArrayFromRaw(const char* fileName, unsigned int& texture, int width, int height, int layer) {
+	FILE* pFile = fopen(fileName, "rb");
+	if (NULL == pFile) {
+		return false;
+	}
+
+	unsigned char* pArray = new unsigned char[width * height * layer * 4 * sizeof(unsigned char)];
+	fread(pArray, sizeof(unsigned char) * 4, width * height * layer, pFile);
+	fclose(pFile);
+
+	glGenTextures(1, &texture);
+	glBindTexture(GL_TEXTURE_2D_ARRAY, texture);
+	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
+	glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_RGBA8, width, height, layer, 0, GL_RGBA, GL_UNSIGNED_BYTE, pArray);
+	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
+
+	delete[] pArray;
+	return true;
 }

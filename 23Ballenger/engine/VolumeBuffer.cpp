@@ -2,6 +2,10 @@
 
 VolumeBuffer::VolumeBuffer(unsigned int internalFormat, int width, int height, int depth) {
 	m_internalFormat = internalFormat;
+	m_minFilter = GL_NEAREST;
+	m_magFilter = GL_NEAREST;
+	m_mode = GL_CLAMP_TO_EDGE;
+
 	m_slicedCube.create(width, height, depth);
 	Texture::CreateTexture3D(m_texture, width, height, depth , internalFormat, GL_RGBA, GL_FLOAT);
 

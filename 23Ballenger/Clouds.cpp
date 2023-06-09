@@ -103,11 +103,16 @@ Clouds::Clouds(StateMachine& machine) : State(machine, CurrentState::SHAPEINTERF
 		Texture::SetWrapMode(perlinworley, GL_REPEAT, GL_TEXTURE_3D);
 		Texture::SetFilter(perlinworley, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR, GL_TEXTURE_3D);
 	}
-
-	m_arrayBuffer = new ArrayBuffer(GL_RGBA8, 128, 128, 4);
-	m_arrayBuffer->setShader(Globals::shaderManager.getAssetPointer("texture_array"));
-	m_arrayBuffer->draw();
-
+	
+	if (!ArrayBuffer::LoadArrayFromRaw("res/noise/array.raw", arrayTex, 128, 128, 4)) {
+		m_arrayBuffer = new ArrayBuffer(GL_RGBA8, 128, 128, 4);
+		m_arrayBuffer->setShader(Globals::shaderManager.getAssetPointer("texture_array"));
+		m_arrayBuffer->draw();
+		m_arrayBuffer->writeArrayToRaw("res/noise/array.raw");
+		m_arrayBuffer->getArray(arrayTex);
+		//m_arrayBuffer->safe("array_buffer");
+	}
+	
 }
 
 Clouds::~Clouds() {
@@ -421,7 +426,7 @@ void Clouds::render() {
 		shader->loadUnsignedInt("u_layer", m_currentArrayIndex);
 
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D_ARRAY, m_arrayBuffer->getTexture());
+		glBindTexture(GL_TEXTURE_2D_ARRAY, arrayTex);
 		
 		Globals::shapeManager.get("quad").drawRaw();
 		shader->unuse();

@@ -20,9 +20,12 @@ public:
 	int getWidth();
 	int getHeight();
 	int getLayer();
-	//void writeArrayToRaw(const char* fileName);
-	void resize(int width, int height, int layer);
+	void safe(const char* fileName);
+	void resize(int width, int height);
 	void getArray(unsigned int& texture);
+	void writeArrayToRaw(const char* fileName);
+
+	bool static LoadArrayFromRaw(const char* fileName, unsigned int& texture, int width, int height, int layer);
 
 private:
 
