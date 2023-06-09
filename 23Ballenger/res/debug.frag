@@ -8,5 +8,5 @@ in vec2 texCoord;
 out vec4 color;
 
 void main(void){
-	color = texture(u_texture, vec3(texCoord, 0));	
+	color = texture(u_texture, vec3(texCoord, layer));		
 }

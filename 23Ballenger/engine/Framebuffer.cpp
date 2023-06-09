@@ -326,7 +326,7 @@ void Framebuffer::attachTexture(AttachmentTex::AttachmentTex attachments) {
 	}
 }
 
-//https://www.appsloveworld.com/cplus/100/353/using-gl-texture-2d-array-as-a-draw-target
+//https://stackoverflow.com/questions/31793466/using-gl-texture-2d-array-as-a-draw-target
 void Framebuffer::attachTexture(unsigned int& texture, Attachment::Attachment attachments, Target::Target target, unsigned short layer) {
 	unsigned int attachment;
 
@@ -349,20 +349,23 @@ void Framebuffer::attachTexture(unsigned int& texture, Attachment::Attachment at
 	}
 
 	if (attachments == Attachment::COLOR) {
-		glBindFramebuffer(m_colorAttachments == 1 ? GL_FRAMEBUFFER : GL_DRAW_FRAMEBUFFER, m_fbo);
+		int colorAttachments = m_colorAttachments;
+		glBindFramebuffer(colorAttachments == 1 ? GL_FRAMEBUFFER : GL_DRAW_FRAMEBUFFER, m_fbo);
 
 		if (target == Target::TEXTURE3D) {
 			glFramebufferTexture3D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + (m_colorAttachments - 1), GL_TEXTURE_3D, texture, 0, layer);
 		}else if (target == Target::TEXTURE2D){
 			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + (m_colorAttachments - 1), GL_TEXTURE_2D, texture, 0);
 		}else if (target == Target::ARRAY){
-			glBindTexture(GL_TEXTURE_2D_ARRAY, texture);
+
 			for (unsigned int i = 0; i < layer; i++) {
-				if (i != 0)
+				if (i != 0) {
 					m_colorAttachments++;
+					m_attachments.push_back(GL_COLOR_ATTACHMENT0 + (m_colorAttachments - 1));
+				}
 				glFramebufferTextureLayer(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + (m_colorAttachments - 1), texture, 0, i);
 			}
-			glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
+
 		} else{
 			glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + (m_colorAttachments - 1), texture, 0);
 		}
@@ -370,7 +373,7 @@ void Framebuffer::attachTexture(unsigned int& texture, Attachment::Attachment at
 		glDrawBuffers(m_colorAttachments, &m_attachments[0]);
 		glDrawBuffer(GL_FRONT);
 		glReadBuffer(GL_FRONT);
-		glBindFramebuffer(m_colorAttachments == 1 ? GL_FRAMEBUFFER : GL_DRAW_FRAMEBUFFER, 0);
+		glBindFramebuffer(colorAttachments == 1 ? GL_FRAMEBUFFER : GL_DRAW_FRAMEBUFFER, 0);
 
 	}else {
 		glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
@@ -380,12 +383,10 @@ void Framebuffer::attachTexture(unsigned int& texture, Attachment::Attachment at
 		}else if (target == Target::TEXTURE2D) {
 			glFramebufferTexture2D(GL_FRAMEBUFFER, attachment, GL_TEXTURE_2D, texture, 0);
 		}else if (target == Target::ARRAY) {
-			//glBindTexture(GL_TEXTURE_2D_ARRAY, texture);
-			//for (unsigned int i = 0; i < layer; i++) {
-			//	glFramebufferTextureLayer(GL_FRAMEBUFFER, attachment, texture, 0, i);
-			//}
-			//glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
-			glFramebufferTexture(GL_FRAMEBUFFER, attachment, texture, 0);
+
+			for (unsigned int i = 0; i < layer; i++) {
+				glFramebufferTextureLayer(GL_FRAMEBUFFER, attachment, texture, 0, i);
+			}
 
 		}else {
 			glFramebufferTexture(GL_FRAMEBUFFER, attachment, texture, 0);

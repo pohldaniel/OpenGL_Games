@@ -20,6 +20,7 @@
 #include "CloudsModel.h"
 #include "NoiseGen.h"
 
+
 enum Noise {
 	PERLINCOMP,
 	WORLEYCOMP,		
@@ -81,9 +82,10 @@ public:
 	void updateSky();
 	SlicedCube m_slicedCube;
 
-	bool m_showNoise = true;
+	bool m_showNoise = false;
 	bool m_showWeatherMap = false;
 	bool m_showQuad = false;
+	bool m_showArray = true;
 	Noise m_noise = Noise::PERLINCOMP;
 	Matrix4f m_orthographic;
 
@@ -95,5 +97,6 @@ public:
 
 	VolumeBuffer* m_volumeBuffer = nullptr;
 	ArrayBuffer* m_arrayBuffer = nullptr;
+	int m_currentArrayIndex = 0;
 };
 

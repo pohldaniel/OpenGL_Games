@@ -20,7 +20,7 @@ public:
 	int getWidth();
 	int getHeight();
 	int getLayer();
-	//void writeVolumeToRaw(const char* fileName);
+	//void writeArrayToRaw(const char* fileName);
 	void resize(int width, int height, int layer);
 	void getArray(unsigned int& texture);
 

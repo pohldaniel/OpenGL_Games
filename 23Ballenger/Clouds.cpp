@@ -7,6 +7,9 @@
 #include "Globals.h"
 #include "Application.h"
 
+
+
+
 Clouds::Clouds(StateMachine& machine) : State(machine, CurrentState::SHAPEINTERFACE) {
 
 	EventDispatcher::AddMouseListener(this);
@@ -101,9 +104,10 @@ Clouds::Clouds(StateMachine& machine) : State(machine, CurrentState::SHAPEINTERF
 		Texture::SetFilter(perlinworley, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR, GL_TEXTURE_3D);
 	}
 
-	m_arrayBuffer = new ArrayBuffer(GL_RGBA8, 128, 128, 128);
-	m_arrayBuffer->setShader(Globals::shaderManager.getAssetPointer("perlinworley"));
+	m_arrayBuffer = new ArrayBuffer(GL_RGBA8, 128, 128, 4);
+	m_arrayBuffer->setShader(Globals::shaderManager.getAssetPointer("texture_array"));
 	m_arrayBuffer->draw();
+
 }
 
 Clouds::~Clouds() {
@@ -373,7 +377,7 @@ void Clouds::render() {
 	}
 
 	if (m_showQuad) {
-		/*auto shader = Globals::shaderManager.getAssetPointer("ray_march");
+		auto shader = Globals::shaderManager.getAssetPointer("ray_march");
 		
 		shader->use();
 
@@ -403,20 +407,26 @@ void Clouds::render() {
 		glBindTexture(GL_TEXTURE_3D, texture2);
 
 		Globals::shapeManager.get("quad").drawRaw();
-		shader->unuse();*/
+		shader->unuse();
+	}
 
+	if (m_showArray) {
 		auto shader = Globals::shaderManager.getAssetPointer("debug");
 
 		shader->use();
+		shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
+		shader->loadMatrix("u_view", m_camera.getViewMatrix());
+		shader->loadMatrix("u_model", m_transform.getTransformationMatrix());
 		shader->loadInt("u_texture", 0);
-		shader->loadUnsignedInt("layer", 5);
+		shader->loadUnsignedInt("u_layer", m_currentArrayIndex);
 
-		glBindTexture(GL_TEXTURE_2D_ARRAY, m_arrayBuffer->getTexture());
 		glActiveTexture(GL_TEXTURE0);
-
+		glBindTexture(GL_TEXTURE_2D_ARRAY, m_arrayBuffer->getTexture());
+		
 		Globals::shapeManager.get("quad").drawRaw();
 		shader->unuse();
 	}
+
 	renderUi();
 }
 
@@ -568,10 +578,20 @@ void Clouds::renderUi() {
 
 	if (ImGui::Checkbox("Show Cloud Quad", &m_showQuad)) {
 		m_showNoise = false;
+		m_showArray = false;
 	}
 
+	if (ImGui::Checkbox("Show Array", &m_showArray)) {
+		m_showNoise = false;
+		m_showQuad = false;
+	}
+
+	if (m_showArray) {
+		ImGui::SliderInt("Num Array", &m_currentArrayIndex, 0, 3);
+	}
 	ImGui::End();
 
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
+
