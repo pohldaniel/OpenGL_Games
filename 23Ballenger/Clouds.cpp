@@ -103,12 +103,54 @@ Clouds::Clouds(StateMachine& machine) : State(machine, CurrentState::SHAPEINTERF
 		Texture::SetWrapMode(perlinworley, GL_REPEAT, GL_TEXTURE_3D);
 		Texture::SetFilter(perlinworley, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR, GL_TEXTURE_3D);
 	}
-	
-	if (!ArrayBuffer::LoadArrayFromRaw("res/noise/array.raw", arrayTex, 128, 128, 4)) {
-		m_arrayBuffer = new ArrayBuffer(GL_RGBA8, 128, 128, 4);
-		m_arrayBuffer->setShader(Globals::shaderManager.getAssetPointer("texture_array"));
+
+
+	m_shader = new Shader();
+	m_shader->attachShader(Shader::LoadShaderProgram(GL_VERTEX_SHADER, "res/clouds/cloudArray.vert"));
+	m_shader->attachShader(Shader::LoadShaderProgram(GL_FRAGMENT_SHADER, "res/clouds/common.frag"));
+	m_shader->attachShader(Shader::LoadShaderProgram(GL_FRAGMENT_SHADER, "res/clouds/noise.frag"));
+	m_shader->attachShader(Shader::LoadShaderProgram(GL_FRAGMENT_SHADER, "res/clouds/cloudArray.frag"));
+	m_shader->linkShaders();
+
+
+	if (!ArrayBuffer::LoadArrayFromRaw("res/noise/array.raw", arrayTex, 32, 32, 64)) {
+		m_arrayBuffer = new ArrayBuffer(GL_RGBA8, 128, 128, 256);
+		m_arrayBuffer->setShader(m_shader);
+
+		m_arrayBuffer->setDrawFunction([&]() {			
+			float res[8];
+			m_arrayBuffer->getFramebuffer().bind();
+			glUseProgram(m_arrayBuffer->getShader()->m_program);
+			glBindVertexArray(m_arrayBuffer->getVao());
+
+			for (int j = 0; j < 8; j++) {
+				m_arrayBuffer->rebind(j * 8);
+				m_arrayBuffer->getShader()->loadVector("u_color", Vector4f(0.0f, 1.0f, 0.0f, 1.0f));
+
+				res[0] = (j * 8 + 0) * 16.0f / 64.0;
+				res[1] = (j * 8 + 1) * 16.0f / 64.0;
+				res[2] = (j * 8 + 2) * 16.0f / 64.0;
+				res[3] = (j * 8 + 3) * 16.0f / 64.0;
+				res[4] = (j * 8 + 4) * 16.0f / 64.0;
+				res[5] = (j * 8 + 5) * 16.0f / 64.0;
+				res[6] = (j * 8 + 6) * 16.0f / 64.0;
+				res[7] = (j * 8 + 7) * 16.0f / 64.0;
+
+				m_arrayBuffer->getShader()->loadFloatArray("u_res", res, 8);
+
+				glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, 0);
+
+			}
+
+			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, 0);
+			glBindVertexArray(0);
+			glUseProgram(0);
+
+			m_arrayBuffer->getFramebuffer().unbind();
+		});
+
 		m_arrayBuffer->draw();
-		m_arrayBuffer->writeArrayToRaw("res/noise/array.raw");
+		//m_arrayBuffer->writeArrayToRaw("res/noise/array.raw");
 		m_arrayBuffer->getArray(arrayTex);
 		//m_arrayBuffer->safe("array_buffer");
 	}
@@ -592,7 +634,7 @@ void Clouds::renderUi() {
 	}
 
 	if (m_showArray) {
-		ImGui::SliderInt("Num Array", &m_currentArrayIndex, 0, 3);
+		ImGui::SliderInt("Num Array", &m_currentArrayIndex, 0, 63);
 	}
 	ImGui::End();
 

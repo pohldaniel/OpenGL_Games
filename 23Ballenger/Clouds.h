@@ -99,5 +99,6 @@ public:
 	VolumeBuffer* m_volumeBuffer = nullptr;
 	ArrayBuffer* m_arrayBuffer = nullptr;
 	int m_currentArrayIndex = 0;
+	Shader* m_shader;
 };
 

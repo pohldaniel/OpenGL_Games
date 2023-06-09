@@ -13,7 +13,7 @@ ArrayBuffer::ArrayBuffer(unsigned int internalFormat, int width, int height, int
 
 	Texture::CreateTextureArray(m_texture, width, height, layer, internalFormat, GL_RGBA, GL_UNSIGNED_BYTE);
 	m_fbo.create(width, height);
-	m_fbo.attachTexture(m_texture, Attachment::COLOR, Target::ARRAY, layer);
+	m_fbo.attachTexture(m_texture, Attachment::COLOR, Target::ARRAY, 8);
 
 	createBuffer();
 }
@@ -78,14 +78,18 @@ int ArrayBuffer::getLayer() {
 
 void ArrayBuffer::draw() {
 	
-	m_fbo.bind();
-	glUseProgram(m_shader->m_program);
+	if (m_draw) {
+		m_draw();
+	}else {
+		m_fbo.bind();
+		glUseProgram(m_shader->m_program);
 
-	glBindVertexArray(m_vao);
-	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, 0);
-	glBindVertexArray(0);
-	glUseProgram(0);
-	m_fbo.unbind();
+		glBindVertexArray(m_vao);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, 0);
+		glBindVertexArray(0);
+		glUseProgram(0);
+		m_fbo.unbind();
+	}
 }
 
 void ArrayBuffer::getArray(unsigned int& texture) {
@@ -211,4 +215,29 @@ bool ArrayBuffer::LoadArrayFromRaw(const char* fileName, unsigned int& texture, 
 
 	delete[] pArray;
 	return true;
+}
+
+void ArrayBuffer::rebind(int offset) {
+	//glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_fbo.getFramebuffer());
+	for (unsigned int i = 0; i < 8; i++) {
+		
+		glFramebufferTextureLayer(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, m_texture, 0, offset + i);
+	}
+	//glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+}
+
+void ArrayBuffer::setDrawFunction(std::function<void()> fun) {
+	m_draw = fun;
+}
+
+Framebuffer& ArrayBuffer::getFramebuffer() {
+	return m_fbo;
+}
+
+Shader* ArrayBuffer::getShader() {
+	return m_shader;
+}
+
+unsigned int& ArrayBuffer::getVao() {
+	return m_vao;
 }
