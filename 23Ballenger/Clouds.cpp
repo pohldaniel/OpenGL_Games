@@ -112,7 +112,7 @@ Clouds::Clouds(StateMachine& machine) : State(machine, CurrentState::SHAPEINTERF
 	m_cloudGenerator->attachShader(Shader::LoadShaderProgram(GL_FRAGMENT_SHADER, "res/clouds/cloudArray.frag"));
 	m_cloudGenerator->linkShaders();
 
-	if (!ArrayBuffer::LoadArrayFromRaw("res/cloud/noise.raw", cloudsTex, 32, 32, 64)) {
+	if (!ArrayBuffer::LoadArrayFromRaw("res/clouds/noise.raw", cloudsTex, 32, 32, 64)) {
 		std::cout << "Build Noise" << std::endl;
 		m_arrayBuffer = new ArrayBuffer(GL_RGBA8, 32, 32, 64, 8);
 		m_arrayBuffer->setFiltering(GL_LINEAR_MIPMAP_LINEAR);
@@ -141,11 +141,15 @@ Clouds::Clouds(StateMachine& machine) : State(machine, CurrentState::SHAPEINTERF
 			}
 		});
 		m_arrayBuffer->draw();
-		//m_arrayBuffer->writeArrayToRaw("res/clouds/noise.raw");
+		m_arrayBuffer->writeArrayToRaw("res/clouds/noise.raw");
 		m_arrayBuffer->getArray(cloudsTex);
 		m_arrayBuffer->getVolume(cloudsTo3D);
-
+		//glDeleteTextures(1, &cloudsTex);
 		//m_arrayBuffer->safe("array_buffer");
+	} else {
+		Texture::ArrayTo3D(cloudsTex, cloudsTo3D);
+		Texture::SetWrapMode(cloudsTo3D, GL_REPEAT, GL_TEXTURE_3D);
+		Texture::SetFilter(cloudsTo3D, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR, GL_TEXTURE_3D);
 	}
 	
 	m_sdfGenerator = new Shader();
@@ -184,9 +188,8 @@ Clouds::Clouds(StateMachine& machine) : State(machine, CurrentState::SHAPEINTERF
 			}
 		});
 		m_buffer->draw();
-		//m_buffer->writeArrayToRaw("res/clouds/sdf.raw");
+		m_buffer->writeArrayToRaw("res/clouds/sdf.raw");
 		m_buffer->getArray(sdfTex);
-		//m_buffer->safe("array_buffer");
 	}
 
 	m_raymarch = new Shader();
@@ -205,7 +208,8 @@ Clouds::Clouds(StateMachine& machine) : State(machine, CurrentState::SHAPEINTERF
 
 	rmTarget.create(Application::Width, Application::Height);
 	rmTarget.attachTexture(AttachmentTex::RGBA32F);
-	//rmTarget.attachTexture(AttachmentTex::DEPTH32F);
+	m_blueNoise.loadFromFile("res/clouds/HDR_L_0.png", true, GL_R8, GL_R, 0, 0, 0, 0);
+	m_blueNoise.setWrapMode(GL_REPEAT);
 }
 
 Clouds::~Clouds() {
@@ -275,31 +279,42 @@ void Clouds::update() {
 
 void Clouds::render() {
 
-	if (true) {
+	if (m_showCloud) {
 		glDisable(GL_DEPTH_TEST);
+		
 		rmTarget.bind();
 		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+		frame++;
 		m_raymarch->use();
 		m_raymarch->loadVector("resolution", Vector2f(Application::Width, Application::Height));
 		m_raymarch->loadFloat("time", m_clock.getElapsedTimeSec());
-		m_raymarch->loadInt("frame", 1);
+		m_raymarch->loadInt("frame", frame);
 		m_raymarch->loadInt("blueNoise", 0);
 		m_raymarch->loadInt("perlinWorley", 1);
 
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, 0);
+		glBindTexture(GL_TEXTURE_2D, m_blueNoise.getTexture());
 
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_3D, cloudsTo3D);
-
-		
 
 		Globals::shapeManager.get("quad").drawRaw();
 		m_raymarch->unuse();
 		rmTarget.unbind();
 
+		m_post->use();
+		m_post->loadVector("resolution", Vector2f(Application::Width, Application::Height));
+		m_post->loadVector("frameResolution", Vector2f(Application::Width, Application::Height));
+		m_post->loadFloat("time", m_clock.getElapsedTimeSec());
+		m_post->loadInt("frameTexture", 0);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, rmTarget.getColorTexture());
+
+		Globals::shapeManager.get("quad").drawRaw();
+		m_post->unuse();
+		renderUi();
 		return;
 	}
 
@@ -710,6 +725,7 @@ void Clouds::renderUi() {
 	if (ImGui::Checkbox("Show Cloud Quad", &m_showQuad)) {
 		m_showNoise = false;
 		m_showNoiseArray = false;
+		m_showSDFArray = false;
 	}
 
 	if (ImGui::Checkbox("Show Noise Array", &m_showNoiseArray)) {
@@ -733,6 +749,8 @@ void Clouds::renderUi() {
 	if (m_showSDFArray) {
 		ImGui::SliderInt("Num Array", &m_currentArrayIndex, 0, 31);
 	}
+
+	ImGui::Checkbox("Show Cloud", &m_showCloud);
 
 	ImGui::End();
 

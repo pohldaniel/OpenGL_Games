@@ -69,6 +69,7 @@ public:
 	Framebuffer sceneBuffer;
 	Framebuffer cloudsBuffer;
 	Framebuffer skyBuffer;
+	Framebuffer rmTarget;
 
 	Texture m_textureSet[4];
 	Clock m_clock;
@@ -88,6 +89,7 @@ public:
 	bool m_showQuad = false;
 	bool m_showNoiseArray = true;
 	bool m_showSDFArray = false;
+	bool m_showCloud = false;
 	Noise m_noise = Noise::PERLINCOMP;
 	Matrix4f m_orthographic;
 
@@ -99,6 +101,7 @@ public:
 	unsigned int cloudsTex;
 	unsigned int sdfTex;
 	unsigned int cloudsTo3D;
+	int frame = 0;
 
 	VolumeBuffer* m_volumeBuffer = nullptr;
 	ArrayBuffer* m_arrayBuffer = nullptr;
@@ -108,5 +111,6 @@ public:
 	Shader* m_post;
 	Shader* m_raymarch;
 	ArrayBuffer* m_buffer = nullptr;
+	Texture m_blueNoise;
 };
 
