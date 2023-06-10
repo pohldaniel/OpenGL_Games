@@ -85,7 +85,8 @@ public:
 	bool m_showNoise = false;
 	bool m_showWeatherMap = false;
 	bool m_showQuad = false;
-	bool m_showArray = true;
+	bool m_showNoiseArray = false;
+	bool m_showSDFArray = true;
 	Noise m_noise = Noise::PERLINCOMP;
 	Matrix4f m_orthographic;
 
@@ -94,11 +95,14 @@ public:
 	unsigned int texture1;
 	unsigned int texture2;
 	unsigned int worley, perlinworley;
-	unsigned int arrayTex;
+	unsigned int cloudsTex;
+	unsigned int sdfTex;
 
 	VolumeBuffer* m_volumeBuffer = nullptr;
 	ArrayBuffer* m_arrayBuffer = nullptr;
 	int m_currentArrayIndex = 0;
-	Shader* m_shader;
+	Shader* m_cloudGenerator;
+	Shader* m_sdfGenerator;
+	ArrayBuffer* m_buffer = nullptr;
 };
 

@@ -105,56 +105,87 @@ Clouds::Clouds(StateMachine& machine) : State(machine, CurrentState::SHAPEINTERF
 	}
 
 
-	m_shader = new Shader();
-	m_shader->attachShader(Shader::LoadShaderProgram(GL_VERTEX_SHADER, "res/clouds/cloudArray.vert"));
-	m_shader->attachShader(Shader::LoadShaderProgram(GL_FRAGMENT_SHADER, "res/clouds/common.frag"));
-	m_shader->attachShader(Shader::LoadShaderProgram(GL_FRAGMENT_SHADER, "res/clouds/noise.frag"));
-	m_shader->attachShader(Shader::LoadShaderProgram(GL_FRAGMENT_SHADER, "res/clouds/cloudArray.frag"));
-	m_shader->linkShaders();
+	m_cloudGenerator = new Shader();
+	m_cloudGenerator->attachShader(Shader::LoadShaderProgram(GL_VERTEX_SHADER, "res/clouds/cloudArray.vert"));
+	m_cloudGenerator->attachShader(Shader::LoadShaderProgram(GL_FRAGMENT_SHADER, "res/clouds/common.frag"));
+	m_cloudGenerator->attachShader(Shader::LoadShaderProgram(GL_FRAGMENT_SHADER, "res/clouds/noise.frag"));
+	m_cloudGenerator->attachShader(Shader::LoadShaderProgram(GL_FRAGMENT_SHADER, "res/clouds/cloudArray.frag"));
+	m_cloudGenerator->linkShaders();
 
+	if (!ArrayBuffer::LoadArrayFromRaw("res/clouds/noise.raw", cloudsTex, 32, 32, 64)) {
+		std::cout << "Build Noise" << std::endl;
+		m_arrayBuffer = new ArrayBuffer(GL_RGBA8, 32, 32, 64, 8);
+		m_arrayBuffer->setFiltering(GL_LINEAR_MIPMAP_LINEAR);
+		m_arrayBuffer->setWrapMode(GL_REPEAT);
+		m_arrayBuffer->setShader(m_cloudGenerator);
 
-	if (!ArrayBuffer::LoadArrayFromRaw("res/noise/array.raw", arrayTex, 32, 32, 64)) {
-		m_arrayBuffer = new ArrayBuffer(GL_RGBA8, 128, 128, 256);
-		m_arrayBuffer->setShader(m_shader);
-
-		m_arrayBuffer->setDrawFunction([&]() {			
-			float res[8];
-			m_arrayBuffer->getFramebuffer().bind();
-			glUseProgram(m_arrayBuffer->getShader()->m_program);
-			glBindVertexArray(m_arrayBuffer->getVao());
-
+		m_arrayBuffer->setInnerDrawFunction([&]() {
+			float res[8];		
 			for (int j = 0; j < 8; j++) {
-				m_arrayBuffer->rebind(j * 8);
-				m_arrayBuffer->getShader()->loadVector("u_color", Vector4f(0.0f, 1.0f, 0.0f, 1.0f));
+				if(j != 0)
+					m_arrayBuffer->rebind(8, j * 8);
 
-				res[0] = (j * 8 + 0) * 16.0f / 64.0;
-				res[1] = (j * 8 + 1) * 16.0f / 64.0;
-				res[2] = (j * 8 + 2) * 16.0f / 64.0;
-				res[3] = (j * 8 + 3) * 16.0f / 64.0;
-				res[4] = (j * 8 + 4) * 16.0f / 64.0;
-				res[5] = (j * 8 + 5) * 16.0f / 64.0;
-				res[6] = (j * 8 + 6) * 16.0f / 64.0;
-				res[7] = (j * 8 + 7) * 16.0f / 64.0;
+				res[0] = (j * 8 + 0) / 4.0f;
+				res[1] = (j * 8 + 1) / 4.0f;
+				res[2] = (j * 8 + 2) / 4.0f;
+				res[3] = (j * 8 + 3) / 4.0f;
+				res[4] = (j * 8 + 4) / 4.0f;
+				res[5] = (j * 8 + 5) / 4.0f;
+				res[6] = (j * 8 + 6) / 4.0f;
+				res[7] = (j * 8 + 7) / 4.0f;
 
-				m_arrayBuffer->getShader()->loadFloatArray("u_res", res, 8);
+				m_arrayBuffer->getShader()->loadFloat("u_numCells", 2.0f);
+				m_arrayBuffer->getShader()->loadFloatArray("u_zLevel", res, 8);
 
 				glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, 0);
-
 			}
-
-			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, 0);
-			glBindVertexArray(0);
-			glUseProgram(0);
-
-			m_arrayBuffer->getFramebuffer().unbind();
 		});
-
 		m_arrayBuffer->draw();
-		//m_arrayBuffer->writeArrayToRaw("res/noise/array.raw");
-		m_arrayBuffer->getArray(arrayTex);
+		//m_arrayBuffer->writeArrayToRaw("res/clouds/noise.raw");
+		m_arrayBuffer->getArray(cloudsTex);
 		//m_arrayBuffer->safe("array_buffer");
 	}
 	
+	m_sdfGenerator = new Shader();
+	m_sdfGenerator->attachShader(Shader::LoadShaderProgram(GL_VERTEX_SHADER, "res/clouds/sdfArray.vert"));
+	m_sdfGenerator->attachShader(Shader::LoadShaderProgram(GL_FRAGMENT_SHADER, "res/clouds/common.frag"));
+	m_sdfGenerator->attachShader(Shader::LoadShaderProgram(GL_FRAGMENT_SHADER, "res/clouds/noise.frag"));
+	m_sdfGenerator->attachShader(Shader::LoadShaderProgram(GL_FRAGMENT_SHADER, "res/clouds/sdfArray.frag"));
+	m_sdfGenerator->linkShaders();
+
+	if (!ArrayBuffer::LoadArrayFromRaw("res/clouds/sdf.raw", sdfTex, 128, 128, 32)) {
+		std::cout << "Build SDF" << std::endl;
+		m_buffer = new ArrayBuffer(GL_RGBA8, 128, 128, 32, 8);
+		m_buffer->setFiltering(GL_LINEAR_MIPMAP_LINEAR);
+		m_buffer->setWrapMode(GL_REPEAT);
+		m_buffer->setShader(m_sdfGenerator);
+
+		m_buffer->setInnerDrawFunction([&]() {
+			float res[8];
+			for (int j = 0; j < 4; j++) {
+				if (j != 0)
+					m_buffer->rebind(8, j * 8);
+
+				res[0] = (j * 8 + 0);
+				res[1] = (j * 8 + 1);
+				res[2] = (j * 8 + 2);
+				res[3] = (j * 8 + 3);
+				res[4] = (j * 8 + 4);
+				res[5] = (j * 8 + 5);
+				res[6] = (j * 8 + 6);
+				res[7] = (j * 8 + 7);
+				
+				m_buffer->getShader()->loadFloat("u_numCells", 2.0f);
+				m_buffer->getShader()->loadFloatArray("u_zLevel", res, 8);
+
+				glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, 0);
+			}
+		});
+		m_buffer->draw();
+		//m_buffer->writeArrayToRaw("res/clouds/sdf.raw");
+		m_buffer->getArray(sdfTex);
+		//m_buffer->safe("array_buffer");
+	}
 }
 
 Clouds::~Clouds() {
@@ -457,7 +488,7 @@ void Clouds::render() {
 		shader->unuse();
 	}
 
-	if (m_showArray) {
+	if (m_showNoiseArray || m_showSDFArray) {
 		auto shader = Globals::shaderManager.getAssetPointer("debug");
 
 		shader->use();
@@ -468,7 +499,7 @@ void Clouds::render() {
 		shader->loadUnsignedInt("u_layer", m_currentArrayIndex);
 
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D_ARRAY, arrayTex);
+		glBindTexture(GL_TEXTURE_2D_ARRAY, m_showSDFArray ? sdfTex : cloudsTex);
 		
 		Globals::shapeManager.get("quad").drawRaw();
 		shader->unuse();
@@ -625,17 +656,31 @@ void Clouds::renderUi() {
 
 	if (ImGui::Checkbox("Show Cloud Quad", &m_showQuad)) {
 		m_showNoise = false;
-		m_showArray = false;
+		m_showNoiseArray = false;
 	}
 
-	if (ImGui::Checkbox("Show Array", &m_showArray)) {
+	if (ImGui::Checkbox("Show Noise Array", &m_showNoiseArray)) {
 		m_showNoise = false;
 		m_showQuad = false;
+		m_showSDFArray = false;
+		m_currentArrayIndex = 0;
 	}
 
-	if (m_showArray) {
+	if (ImGui::Checkbox("Show SDF Array", &m_showSDFArray)) {
+		m_showNoise = false;
+		m_showQuad = false;
+		m_showNoiseArray = false;
+		m_currentArrayIndex = 0;
+	}
+
+	if (m_showNoiseArray) {
 		ImGui::SliderInt("Num Array", &m_currentArrayIndex, 0, 63);
 	}
+
+	if (m_showSDFArray) {
+		ImGui::SliderInt("Num Array", &m_currentArrayIndex, 0, 31);
+	}
+
 	ImGui::End();
 
 	ImGui::Render();

@@ -1,5 +1,4 @@
 #version 410 core
-#extension GL_EXT_gpu_shader4 : enable
 
 layout(location = 0) in vec3 i_position;
 layout(location = 1) in vec2 i_texCoord;

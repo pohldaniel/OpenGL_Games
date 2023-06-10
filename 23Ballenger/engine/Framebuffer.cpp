@@ -376,27 +376,23 @@ void Framebuffer::attachTexture(unsigned int& texture, Attachment::Attachment at
 		glBindFramebuffer(colorAttachments == 1 ? GL_FRAMEBUFFER : GL_DRAW_FRAMEBUFFER, 0);
 
 	}else {
-		glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
+		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_fbo);
 
 		if (target == Target::TEXTURE3D) {
-			glFramebufferTexture3D(GL_FRAMEBUFFER, attachment, GL_TEXTURE_3D, texture, 0, layer);
+			glFramebufferTexture3D(GL_DRAW_FRAMEBUFFER, attachment, GL_TEXTURE_3D, texture, 0, layer);
 		}else if (target == Target::TEXTURE2D) {
-			glFramebufferTexture2D(GL_FRAMEBUFFER, attachment, GL_TEXTURE_2D, texture, 0);
+			glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, attachment, GL_TEXTURE_2D, texture, 0);
 		}else if (target == Target::ARRAY) {
-
-			for (unsigned int i = 0; i < layer; i++) {
-				glFramebufferTextureLayer(GL_DRAW_FRAMEBUFFER, attachment, texture, 0, i);
-			}
-
+			glFramebufferTextureLayer(GL_DRAW_FRAMEBUFFER, attachment, texture, 0, layer);			
 		}else {
-			glFramebufferTexture(GL_FRAMEBUFFER, attachment, texture, 0);
+			glFramebufferTexture(GL_DRAW_FRAMEBUFFER, attachment, texture, 0);
 		}
 
 		if (m_colorAttachments == 0) {
 			glDrawBuffer(GL_NONE);
 			glReadBuffer(GL_NONE);
 		}
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 	}
 }
 

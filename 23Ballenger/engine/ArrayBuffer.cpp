@@ -2,18 +2,18 @@
 #include "Application.h"
 #include "Globals.h"
 
-ArrayBuffer::ArrayBuffer(unsigned int internalFormat, int width, int height, int layer) {
+ArrayBuffer::ArrayBuffer(unsigned int internalFormat, int width, int height, int textureLayer, int attachements) {
 	m_internalFormat = internalFormat;
 	m_minFilter = GL_NEAREST;
 	m_magFilter = GL_NEAREST;
 	m_mode = GL_CLAMP_TO_EDGE;
 	m_width = width;
 	m_height = height;
-	m_layer = layer;
+	m_textureLayer = textureLayer;
 
-	Texture::CreateTextureArray(m_texture, width, height, layer, internalFormat, GL_RGBA, GL_UNSIGNED_BYTE);
+	Texture::CreateTextureArray(m_texture, width, height, textureLayer, internalFormat, GL_RGBA, GL_UNSIGNED_BYTE);
 	m_fbo.create(width, height);
-	m_fbo.attachTexture(m_texture, Attachment::COLOR, Target::ARRAY, 8);
+	m_fbo.attachTexture(m_texture, Attachment::COLOR, Target::ARRAY, attachements);
 
 	createBuffer();
 }
@@ -50,7 +50,7 @@ void ArrayBuffer::resize(int width, int height) {
 	m_fbo.resize(width, height);
 
 	glBindTexture(GL_TEXTURE_2D_ARRAY, m_texture);
-	glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, m_internalFormat, width, height, m_layer, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+	glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, m_internalFormat, width, height, m_textureLayer, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 	if (m_minFilter == 9984 || m_minFilter == 9985 || m_minFilter == 9986 || m_minFilter == 9987)
 		glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
 	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
@@ -72,13 +72,20 @@ int ArrayBuffer::getHeight() {
 	return m_height;
 }
 
-int ArrayBuffer::getLayer() {
-	return m_layer;
+int ArrayBuffer::getTextureLayer() {
+	return m_textureLayer;
 }
 
 void ArrayBuffer::draw() {
-	
-	if (m_draw) {
+	if (m_innerDraw) {
+		m_fbo.bind();
+		glUseProgram(m_shader->m_program);
+		glBindVertexArray(m_vao);
+		m_innerDraw();
+		glBindVertexArray(0);
+		glUseProgram(0);
+		m_fbo.unbind();
+	}else if (m_draw) {
 		m_draw();
 	}else {
 		m_fbo.bind();
@@ -93,7 +100,7 @@ void ArrayBuffer::draw() {
 }
 
 void ArrayBuffer::getArray(unsigned int& texture) {
-	unsigned char* bytes = (unsigned char*)malloc(getWidth() * getHeight() * getLayer() * 4 * sizeof(unsigned char));
+	unsigned char* bytes = (unsigned char*)malloc(getWidth() * getHeight() * getTextureLayer() * 4 * sizeof(unsigned char));
 	glBindTexture(GL_TEXTURE_2D_ARRAY, m_texture);
 	glGetTexImage(GL_TEXTURE_2D_ARRAY, 0, GL_RGBA, GL_UNSIGNED_BYTE, bytes);
 	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
@@ -107,7 +114,7 @@ void ArrayBuffer::getArray(unsigned int& texture) {
 	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, m_mode);
 
 
-	glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_RGBA8, getWidth(), getHeight(), getLayer(), 0, GL_RGBA, GL_UNSIGNED_BYTE, bytes);
+	glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_RGBA8, getWidth(), getHeight(), getTextureLayer(), 0, GL_RGBA, GL_UNSIGNED_BYTE, bytes);
 	if (m_minFilter == 9984 || m_minFilter == 9985 || m_minFilter == 9986 || m_minFilter == 9987)
 		glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
 	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
@@ -178,7 +185,7 @@ void ArrayBuffer::safe(const char* fileName) {
 }
 
 void ArrayBuffer::writeArrayToRaw(const char* fileName) {
-	unsigned char* bytes = (unsigned char*)malloc(getWidth() * getHeight() * getLayer() * 4 * sizeof(unsigned char));
+	unsigned char* bytes = (unsigned char*)malloc(getWidth() * getHeight() * getTextureLayer() * 4 * sizeof(unsigned char));
 	
 	glBindTexture(GL_TEXTURE_2D_ARRAY, m_texture);
 	glGetTexImage(GL_TEXTURE_2D_ARRAY, 0, GL_RGBA, GL_UNSIGNED_BYTE, bytes);
@@ -187,7 +194,7 @@ void ArrayBuffer::writeArrayToRaw(const char* fileName) {
 
 	FILE* pFile = fopen(fileName, "wb");
 	if (pFile != NULL) {
-		fwrite(bytes, sizeof(unsigned char) * 4, getWidth() * getHeight() * getLayer(), pFile);
+		fwrite(bytes, sizeof(unsigned char) * 4, getWidth() * getHeight() * getTextureLayer(), pFile);
 		fclose(pFile);
 	}
 	free(bytes);
@@ -217,17 +224,18 @@ bool ArrayBuffer::LoadArrayFromRaw(const char* fileName, unsigned int& texture, 
 	return true;
 }
 
-void ArrayBuffer::rebind(int offset) {
-	//glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_fbo.getFramebuffer());
-	for (unsigned int i = 0; i < 8; i++) {
-		
+void ArrayBuffer::rebind(unsigned short attachements, unsigned int offset) {
+	for (unsigned short i = 0; i < attachements; i++) {
 		glFramebufferTextureLayer(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, m_texture, 0, offset + i);
 	}
-	//glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 }
 
 void ArrayBuffer::setDrawFunction(std::function<void()> fun) {
 	m_draw = fun;
+}
+
+void ArrayBuffer::setInnerDrawFunction(std::function<void()> fun) {
+	m_innerDraw = fun;
 }
 
 Framebuffer& ArrayBuffer::getFramebuffer() {

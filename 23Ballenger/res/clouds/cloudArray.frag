@@ -11,11 +11,9 @@ layout(location = 5) out vec4 color5;
 layout(location = 6) out vec4 color6;
 layout(location = 7) out vec4 color7;
 
-uniform float[8] u_res;
+uniform float[8] u_zLevel;
+uniform float u_numCells;
 
-uniform float numCells;
-
-in vec4 vertColor;
 in vec2 vUvs;
 
 vec3 hash3(vec3 p );
@@ -147,17 +145,14 @@ vec4 PerlinWorleyDetails(float CELL_RANGE, float numCells, float mult, float _zL
 void main(void){
 	const float CELL_RANGE = 1.0;
 
-	color0 = PerlinWorleyDetails(CELL_RANGE, numCells, 1.0, u_res[0]);
-
-	//color0 = vec4(1.0, 0.0, 0.0, 1.0);	
+	color0 = PerlinWorleyDetails(CELL_RANGE, u_numCells, 1.0, u_zLevel[0]);
+	color1 = PerlinWorleyDetails(CELL_RANGE, u_numCells, 1.0, u_zLevel[1]);	
+	color2 = PerlinWorleyDetails(CELL_RANGE, u_numCells, 1.0, u_zLevel[2]);	
+	color3 = PerlinWorleyDetails(CELL_RANGE, u_numCells, 1.0, u_zLevel[3]);
 	
-	color1 = PerlinWorleyDetails(CELL_RANGE, numCells, 1.0, u_res[1]);	
-	color2 = PerlinWorleyDetails(CELL_RANGE, numCells, 1.0, u_res[2]);	
-	color3 = PerlinWorleyDetails(CELL_RANGE, numCells, 1.0, u_res[3]);
-	
-	color4 = PerlinWorleyDetails(CELL_RANGE, numCells, 1.0, u_res[4]);	
-	color5 = PerlinWorleyDetails(CELL_RANGE, numCells, 1.0, u_res[5]);	
-	color6 = PerlinWorleyDetails(CELL_RANGE, numCells, 1.0, u_res[6]);
-	color7 = PerlinWorleyDetails(CELL_RANGE, numCells, 1.0, u_res[7]);
+	color4 = PerlinWorleyDetails(CELL_RANGE, u_numCells, 1.0, u_zLevel[4]);	
+	color5 = PerlinWorleyDetails(CELL_RANGE, u_numCells, 1.0, u_zLevel[5]);	
+	color6 = PerlinWorleyDetails(CELL_RANGE, u_numCells, 1.0, u_zLevel[6]);
+	color7 = PerlinWorleyDetails(CELL_RANGE, u_numCells, 1.0, u_zLevel[7]);
 
 }
