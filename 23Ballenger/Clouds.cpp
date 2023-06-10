@@ -112,7 +112,7 @@ Clouds::Clouds(StateMachine& machine) : State(machine, CurrentState::SHAPEINTERF
 	m_cloudGenerator->attachShader(Shader::LoadShaderProgram(GL_FRAGMENT_SHADER, "res/clouds/cloudArray.frag"));
 	m_cloudGenerator->linkShaders();
 
-	if (!ArrayBuffer::LoadArrayFromRaw("res/clouds/noise.raw", cloudsTex, 32, 32, 64)) {
+	if (!ArrayBuffer::LoadArrayFromRaw("res/cloud/noise.raw", cloudsTex, 32, 32, 64)) {
 		std::cout << "Build Noise" << std::endl;
 		m_arrayBuffer = new ArrayBuffer(GL_RGBA8, 32, 32, 64, 8);
 		m_arrayBuffer->setFiltering(GL_LINEAR_MIPMAP_LINEAR);
@@ -143,6 +143,8 @@ Clouds::Clouds(StateMachine& machine) : State(machine, CurrentState::SHAPEINTERF
 		m_arrayBuffer->draw();
 		//m_arrayBuffer->writeArrayToRaw("res/clouds/noise.raw");
 		m_arrayBuffer->getArray(cloudsTex);
+		m_arrayBuffer->getVolume(cloudsTo3D);
+
 		//m_arrayBuffer->safe("array_buffer");
 	}
 	
@@ -186,6 +188,24 @@ Clouds::Clouds(StateMachine& machine) : State(machine, CurrentState::SHAPEINTERF
 		m_buffer->getArray(sdfTex);
 		//m_buffer->safe("array_buffer");
 	}
+
+	m_raymarch = new Shader();
+	m_raymarch->attachShader(Shader::LoadShaderProgram(GL_VERTEX_SHADER, "res/clouds/raymarch.vert"));
+	m_raymarch->attachShader(Shader::LoadShaderProgram(GL_FRAGMENT_SHADER, "res/clouds/common.frag"));
+	m_raymarch->attachShader(Shader::LoadShaderProgram(GL_FRAGMENT_SHADER, "res/clouds/oklab.frag"));
+	m_raymarch->attachShader(Shader::LoadShaderProgram(GL_FRAGMENT_SHADER, "res/clouds/raymarch.frag"));
+	m_raymarch->linkShaders();
+
+	m_post = new Shader();
+	m_post->attachShader(Shader::LoadShaderProgram(GL_VERTEX_SHADER, "res/clouds/post.vert"));
+	m_post->attachShader(Shader::LoadShaderProgram(GL_FRAGMENT_SHADER, "res/clouds/common.frag"));
+	m_post->attachShader(Shader::LoadShaderProgram(GL_FRAGMENT_SHADER, "res/clouds/oklab.frag"));
+	m_post->attachShader(Shader::LoadShaderProgram(GL_FRAGMENT_SHADER, "res/clouds/post.frag"));
+	m_post->linkShaders();
+
+	rmTarget.create(Application::Width, Application::Height);
+	rmTarget.attachTexture(AttachmentTex::RGBA32F);
+	//rmTarget.attachTexture(AttachmentTex::DEPTH32F);
 }
 
 Clouds::~Clouds() {
@@ -254,6 +274,34 @@ void Clouds::update() {
 };
 
 void Clouds::render() {
+
+	if (true) {
+		glDisable(GL_DEPTH_TEST);
+		rmTarget.bind();
+		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		m_raymarch->use();
+		m_raymarch->loadVector("resolution", Vector2f(Application::Width, Application::Height));
+		m_raymarch->loadFloat("time", m_clock.getElapsedTimeSec());
+		m_raymarch->loadInt("frame", 1);
+		m_raymarch->loadInt("blueNoise", 0);
+		m_raymarch->loadInt("perlinWorley", 1);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, 0);
+
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_3D, cloudsTo3D);
+
+		
+
+		Globals::shapeManager.get("quad").drawRaw();
+		m_raymarch->unuse();
+		rmTarget.unbind();
+
+		return;
+	}
 
 	cloudsModel.update();
 	updateSky();
@@ -429,6 +477,9 @@ void Clouds::render() {
 				break;
 			case Noise::WORLEYCPU:
 				glBindTexture(GL_TEXTURE_3D, texture2);
+				break;
+			case Noise::CLOUDS:
+				glBindTexture(GL_TEXTURE_3D, cloudsTo3D);
 				break;
 			default:
 				glBindTexture(GL_TEXTURE_3D, cloudsModel.perlinTex);
@@ -645,11 +696,13 @@ void Clouds::renderUi() {
 	ImGui::Checkbox("Show Weather Map", &m_showWeatherMap);
 	if (ImGui::Checkbox("Show Noise", &m_showNoise)) {
 		m_showQuad = false;
+		m_showNoiseArray = false;
+		m_showSDFArray = false;
 	}
 
 	if (m_showNoise) {
 		int currentNoise = m_noise;
-		if (ImGui::Combo("Render", &currentNoise, "Perlin comp\0Worley comp\0Perlin vert/frag\0Worley vert/frag \0Perlin cpu\0Worley cpu\0\0")) {
+		if (ImGui::Combo("Render", &currentNoise, "Perlin comp\0Worley comp\0Perlin vert/frag\0Worley vert/frag \0Perlin cpu\0Worley cpu\0Clouds\0\0")) {
 			m_noise = static_cast<Noise>(currentNoise);
 		}
 	}

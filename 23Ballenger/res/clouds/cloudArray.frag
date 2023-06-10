@@ -1,5 +1,4 @@
 #version 410 core
-#extension GL_EXT_gpu_shader4 : enable
 
 layout(location = 0) out vec4 color0;
 layout(location = 1) out vec4 color1;

@@ -24,6 +24,7 @@ public:
 	void safe(const char* fileName);
 	void resize(int width, int height);
 	void getArray(unsigned int& texture);
+	void getVolume(unsigned int& texture);
 	void writeArrayToRaw(const char* fileName);
 	void setDrawFunction(std::function<void()> fun);
 	void setInnerDrawFunction(std::function<void()> fun);

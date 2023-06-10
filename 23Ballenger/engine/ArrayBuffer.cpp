@@ -122,6 +122,27 @@ void ArrayBuffer::getArray(unsigned int& texture) {
 	free(bytes);
 }
 
+void ArrayBuffer::getVolume(unsigned int& texture) {
+	unsigned char* bytes = (unsigned char*)malloc(getWidth() * getHeight() * getTextureLayer() * 4 * sizeof(unsigned char));
+	glBindTexture(GL_TEXTURE_2D_ARRAY, m_texture);
+	glGetTexImage(GL_TEXTURE_2D_ARRAY, 0, GL_RGBA, GL_UNSIGNED_BYTE, bytes);
+	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
+
+	glGenTextures(1, &texture);
+	glBindTexture(GL_TEXTURE_3D, texture);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, m_minFilter);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, m_magFilter);
+
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, m_mode);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, m_mode);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, m_mode);
+
+	glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA8, getWidth(), getHeight(), getTextureLayer(), 0, GL_RGBA, GL_UNSIGNED_BYTE, bytes);
+	if (m_minFilter == 9984 || m_minFilter == 9985 || m_minFilter == 9986 || m_minFilter == 9987)
+		glGenerateMipmap(GL_TEXTURE_3D);
+	glBindTexture(GL_TEXTURE_3D, 0);
+}
+
 void ArrayBuffer::createBuffer() {
 	
 	std::vector<float> vertex;
