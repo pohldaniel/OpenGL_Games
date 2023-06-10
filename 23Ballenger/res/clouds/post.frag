@@ -20,18 +20,19 @@ vec3 vignette(vec2 uvs);
 
 void main(void){
  
-	vec2 pixelCoords = (vUvs - 0.5) * resolution;
-	float curTime = time*TIME_SPEED + TIME_OFFSET;
+  vec2 pixelCoords = (vUvs - 0.5) * resolution;
 
-	vec4 colour = texture(frameTexture, vUvs);
+  float curTime = time*TIME_SPEED + TIME_OFFSET;
+
+  vec4 colour = texture(frameTexture, vUvs);
 
 #ifdef USE_OKLAB
-	colour.xyz = oklabToRGB(colour.xyz);
+  colour.xyz = oklabToRGB(colour.xyz);
 #endif
 
-	// Vignette
-	colour.xyz *= vignette(vUvs);
-	colour.xyz = pow(saturate3(colour.xyz), vec3(1.0 / 2.2));
+  // Vignette
+  colour.xyz *= vignette(vUvs);
+  colour.xyz = pow(saturate3(colour.xyz), vec3(1.0 / 2.2));
 
-	color = vec4(colour.xyz, 1.0);
+  color = vec4(colour.xyz, 1.0);
 }

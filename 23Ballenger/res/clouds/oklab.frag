@@ -41,9 +41,7 @@ vec3 oklabToRGB(vec3 c)
 }
 
 
-#ifndef USE_OKLAB
-#define col3 vec3
-#else
+
 vec3 col3(float r, float g, float b) {
   return rgbToOklab(vec3(r, g, b));
 }
@@ -55,4 +53,4 @@ vec3 col3(vec3 v) {
 vec3 col3(float v) {
   return rgbToOklab(vec3(v));
 }
-#endif
+

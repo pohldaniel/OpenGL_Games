@@ -66,6 +66,9 @@ float linearstep(float minValue, float maxValue, float v);
 vec3 saturate3(vec3 x);
 vec3 ACESToneMap(vec3 color);
 vec3 oklabToRGB(vec3 c);
+vec3 col3(float r, float g, float b);
+vec3 col3(vec3 v);
+vec3 col3(float v);
 
 float HenyeyGreenstein(float g, float mu) {
   float gg = g * g;
@@ -228,7 +231,7 @@ ScatteringTransmittance CloudMarch(vec2 pixelCoords, vec3 cameraOrigin, vec3 cam
   if (insideAABB2(cameraOrigin, cloudAABB)) {
     rayCloudIntersection.near = 0.0;
   }
-
+  
   vec3 sunDirection = CLOUD_LIGHT_DIR;
   vec3 sunLightColour = vec3(1.0);
   vec3 sunLight = sunLightColour * CLOUD_LIGHT_MULTIPLIER;
@@ -259,7 +262,7 @@ ScatteringTransmittance CloudMarch(vec2 pixelCoords, vec3 cameraOrigin, vec3 cam
   int hqMarcherCountdown = 0;
 
   float previousStepLength = 0.0;
-  
+
   for (float i = 0.0; i < numCloudSteps; i++) {
     if (distTravelled > rayCloudIntersection.far) {
       break;
@@ -311,8 +314,8 @@ ScatteringTransmittance CloudMarch(vec2 pixelCoords, vec3 cameraOrigin, vec3 cam
 
     previousStepLength = currentStepLength;
   }
-  
-  result.scattering = vec3(result.scattering) * CLOUD_COLOUR;
+
+  result.scattering = col3(result.scattering) * CLOUD_COLOUR;
   result.transmittance = saturate3(result.transmittance);
   return result;
 }
@@ -327,16 +330,16 @@ vec4 RenderSky(vec3 cameraOrigin, vec3 cameraDir, float curTime) {
   float skyT1 = pow(smoothstep(0.0, 1.0, vUvs.y), 0.5);
   float skyT2 = pow(smoothstep(0.5, 1.0, vUvs.y), 1.0);
 
-  vec3 c1 = vec3(COLOUR_LIGHT_BLUE * 0.25);
-  vec3 c2 = vec3(COLOUR_BRIGHT_BLUE);
-  vec3 c3 = vec3(COLOUR_BRIGHT_BLUE * 1.25);
+  vec3 c1 = col3(COLOUR_LIGHT_BLUE * 0.25);
+  vec3 c2 = col3(COLOUR_BRIGHT_BLUE);
+  vec3 c3 = col3(COLOUR_BRIGHT_BLUE * 1.25);
   vec3 sky = mix(c1, c2, skyT1);
   sky = mix(sky, c3, skyT2);
 
   float mu = remap(dot(cameraDir, CLOUD_LIGHT_DIR), -1.0, 1.0, 1.0, 0.0);
   float glow = RenderGlow(mu, 0.001, 0.5);
 
-  sky += vec3(glow, glow, 0.0);
+  sky += col3(glow, glow, 0.0);
 
   vec4 result = vec4(sky, 0.0);
   return result;
@@ -352,7 +355,7 @@ mat3 MakeCamera(vec3 ro, vec3 rd, vec3 ru) {
 
 
 void main(void){
-  vec2 pixelCoords = (vUvs - 0.5) * resolution;
+ vec2 pixelCoords = (vUvs - 0.5) * resolution;
   float curTime = time * TIME_SPEED + TIME_OFFSET;
 
   CLOUD_SIZE = vec3(100.0);
@@ -372,11 +375,11 @@ void main(void){
       pixelCoords, rayOrigin, normalize(camera * rayDir), curTime);
 
   vec3 colour;
-  
-  #ifdef USE_OKLAB
+
+#ifdef USE_OKLAB
   colour = oklabToRGB(pixel.xyz) * scatterTransmittance.transmittance + oklabToRGB(scatterTransmittance.scattering) * CLOUD_EXPOSURE;
   colour = ACESToneMap(colour);
-  colour = vec3(colour);
+  colour = col3(colour);
 #else
   colour = pixel.xyz * scatterTransmittance.transmittance + scatterTransmittance.scattering * CLOUD_EXPOSURE;
   colour = ACESToneMap(colour);

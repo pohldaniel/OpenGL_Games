@@ -141,6 +141,7 @@ void ArrayBuffer::getVolume(unsigned int& texture) {
 	if (m_minFilter == 9984 || m_minFilter == 9985 || m_minFilter == 9986 || m_minFilter == 9987)
 		glGenerateMipmap(GL_TEXTURE_3D);
 	glBindTexture(GL_TEXTURE_3D, 0);
+	free(bytes);
 }
 
 void ArrayBuffer::createBuffer() {

@@ -79,6 +79,7 @@ public:
 
 	static void SetFilter(const unsigned int& textureRef, unsigned int minFilter, unsigned int magFilter = 0u, unsigned int target = 3553u);
 	static void SetWrapMode(const unsigned int& textureRef, unsigned int mode, unsigned int target = 3553u);
+	static void ArrayTo3D(const unsigned int& textureRef1, unsigned int& textureRef2);
 
 private:
 

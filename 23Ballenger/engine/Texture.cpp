@@ -197,12 +197,12 @@ void Texture::cleanup() {
 }
 
 void Texture::loadFromFile(std::string fileName, const bool _flipVertical, unsigned int _internalFormat, unsigned int _format, int paddingLeft, int paddingRight, int paddingTop, int paddingBottom, unsigned int SOIL_FLAG) {
-
+	
 	int width, height, numCompontents;
 	unsigned char* imageData = SOIL_load_image(fileName.c_str(), &width, &height, &numCompontents, SOIL_FLAG);
-	if (numCompontents == 1) {
+	if (numCompontents == 1 && (_format == GL_RGB || _format == GL_RGBA /*|| SOIL_FLAG == 1u*/)) {
 		SOIL_free_image_data(imageData);
-		SOIL_FLAG = 3u;
+		SOIL_FLAG = _format == GL_RGB ? 3u : 4u;
 		imageData = SOIL_load_image(fileName.c_str(), &width, &height, 0, SOIL_FLAG);
 		numCompontents = 3;
 	}
@@ -227,7 +227,7 @@ void Texture::loadFromFile(std::string fileName, const bool _flipVertical, unsig
 	glTexParameteri(m_target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(m_target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-	if(SOIL_FLAG == 3 || numCompontents == 3)
+	if(SOIL_FLAG == 3 || numCompontents == 3 || numCompontents == 1)
 		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
 	glTexImage2D(m_target, 0, m_internalFormat, width, height, 0, m_format, m_type, imageData);
@@ -1405,4 +1405,34 @@ void Texture::SetWrapMode(const unsigned int& textureRef, unsigned int mode, uns
 		glTexParameteri(target, GL_TEXTURE_WRAP_T, mode);
 		glBindTexture(target, 0);
 	}
+}
+
+void Texture::ArrayTo3D(const unsigned int& textureRef1, unsigned int& textureRef2) {
+	int width, height, depth;
+	int miplevel = 0;
+
+	glBindTexture(GL_TEXTURE_2D_ARRAY, textureRef1);
+	glGetTexLevelParameteriv(GL_TEXTURE_2D_ARRAY, miplevel, GL_TEXTURE_WIDTH, &width);
+	glGetTexLevelParameteriv(GL_TEXTURE_2D_ARRAY, miplevel, GL_TEXTURE_HEIGHT, &height);
+	glGetTexLevelParameteriv(GL_TEXTURE_2D_ARRAY, miplevel, GL_TEXTURE_DEPTH, &depth);
+
+	unsigned char* bytes = (unsigned char*)malloc(width * height *depth * 4 * sizeof(unsigned char));
+
+	glGetTexImage(GL_TEXTURE_2D_ARRAY, 0, GL_RGBA, GL_UNSIGNED_BYTE, bytes);
+	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
+
+	glGenTextures(1, &textureRef2);
+	glBindTexture(GL_TEXTURE_3D, textureRef2);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+	glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA8, width, height, depth, 0, GL_RGBA, GL_UNSIGNED_BYTE, bytes);
+
+	glBindTexture(GL_TEXTURE_3D, 0);
+
+	free(bytes);
 }
