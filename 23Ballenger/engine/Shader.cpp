@@ -412,3 +412,14 @@ void Shader::cleanup() {
 void  Shader::Unuse() {
 	glUseProgram(0);
 }
+
+void Shader::SetIncludeFromFile(const char *includeName, const char* filename) {
+	char tmpstr[200];
+	sprintf(tmpstr, "%s/%s", filename, includeName);
+	
+	std::string buffer;
+	ReadTextFile(filename, buffer);
+
+	sprintf(tmpstr, "/%s", includeName);
+	glNamedStringARB(GL_SHADER_INCLUDE_ARB, static_cast<int>(strlen(tmpstr)), tmpstr, static_cast<int>(buffer.length()), reinterpret_cast<const char *>(&buffer[0]));
+}

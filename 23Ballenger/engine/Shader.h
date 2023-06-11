@@ -28,6 +28,7 @@ public:
 	void loadFromResource(std::string vertex, std::string fragment, std::string geometry);
 	void loadFromFile(std::string compute);
 	void loadFromResource(std::string compute);
+	
 	Shader& get();
 
 	void use() const;
@@ -56,6 +57,7 @@ public:
 
 	static GLuint LoadShaderProgram(GLenum type, const char *pszFilename);
 	static GLuint LoadShaderProgram(GLenum type, std::string buffer);
+	static void SetIncludeFromFile(const char *includeName, const char* filename);
 	static void Unuse();
 
 protected:

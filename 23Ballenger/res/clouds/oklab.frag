@@ -1,4 +1,7 @@
+#version 410 core
+#extension GL_ARB_shading_language_include : require
 
+#include "/header.glsl"
 // https://bottosson.github.io/posts/oklab/
 
 
@@ -40,8 +43,7 @@ vec3 oklabToRGB(vec3 c)
     );
 }
 
-
-
+#ifdef USE_OKLAB
 vec3 col3(float r, float g, float b) {
   return rgbToOklab(vec3(r, g, b));
 }
@@ -53,4 +55,16 @@ vec3 col3(vec3 v) {
 vec3 col3(float v) {
   return rgbToOklab(vec3(v));
 }
+#else
+vec3 col3(float r, float g, float b) {
+  return vec3(r, g, b);
+}
 
+vec3 col3(vec3 v) {
+  return v;
+}
+
+vec3 col3(float v) {
+  return vec3(v);
+}
+#endif

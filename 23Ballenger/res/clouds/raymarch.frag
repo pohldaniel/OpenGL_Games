@@ -1,6 +1,7 @@
 #version 410 core
-#define PI 3.14159265359
-#define USE_OKLAB
+#extension GL_ARB_shading_language_include : require
+#include "/common.glsl"
+#include "/header.glsl"
 
 out vec4 color;
 
@@ -56,15 +57,6 @@ const float TIME_SPEED = 1.0;
 
 // #define SHOW_CLOUD_MAP
 
-float sdfSphere(vec3 p, float r);
-float sdfBox( vec3 p, vec3 b );
-float sdCutSphere( vec3 p, float r, float h );
-float circularOut(float t);
-float saturate(float x);
-float remap(float v, float inMin, float inMax, float outMin, float outMax);
-float linearstep(float minValue, float maxValue, float v);
-vec3 saturate3(vec3 x);
-vec3 ACESToneMap(vec3 color);
 vec3 oklabToRGB(vec3 c);
 vec3 col3(float r, float g, float b);
 vec3 col3(vec3 v);
@@ -182,35 +174,10 @@ vec3 CalculateLightEnergy(
 	return beersLaw * mix(2.0 * powder, vec3(1.0), remap(mu, -1.0, 1.0, 0.0, 1.0));
 }
 
-
-struct AABB {
-  vec3 min;
-  vec3 max;
-};
-
-struct AABBIntersectResult {
-  float near;
-  float far;
-};
-
 struct ScatteringTransmittance {
   vec3 scattering;
   vec3 transmittance;
 };
-
-bool insideAABB2(vec3 rayOrigin, AABB box){
-	return all(lessThanEqual(rayOrigin, box.max)) && all(lessThan(box.min, rayOrigin));
-}
-
-AABBIntersectResult intersectAABB2(vec3 rayOrigin, vec3 rayDir, AABB box) {
-    vec3 tMin = (box.min - rayOrigin) / rayDir;
-    vec3 tMax = (box.max - rayOrigin) / rayDir;
-    vec3 t1 = min(tMin, tMax);
-    vec3 t2 = max(tMin, tMax);
-    float tNear = max(max(t1.x, t1.y), t1.z);
-    float tFar = min(min(t2.x, t2.y), t2.z);
-    return AABBIntersectResult(tNear, tFar);
-}
 
 ScatteringTransmittance CloudMarch(vec2 pixelCoords, vec3 cameraOrigin, vec3 cameraDirection, float curTime) {
   AABB cloudAABB;
@@ -221,14 +188,14 @@ ScatteringTransmittance CloudMarch(vec2 pixelCoords, vec3 cameraOrigin, vec3 cam
   result.scattering = vec3(0.0);
   result.transmittance = vec3(1.0);
 
-  AABBIntersectResult rayCloudIntersection = intersectAABB2(cameraOrigin, cameraDirection, cloudAABB);
+  AABBIntersectResult rayCloudIntersection = intersectAABB(cameraOrigin, cameraDirection, cloudAABB);
   if (rayCloudIntersection.near >= rayCloudIntersection.far) {
     // Debug
     // return vec4(vec3(0.0), 0.0);
     return result;
   }
 
-  if (insideAABB2(cameraOrigin, cloudAABB)) {
+  if (insideAABB(cameraOrigin, cloudAABB)) {
     rayCloudIntersection.near = 0.0;
   }
   

@@ -7,9 +7,6 @@
 #include "Globals.h"
 #include "Application.h"
 
-
-
-
 Clouds::Clouds(StateMachine& machine) : State(machine, CurrentState::SHAPEINTERFACE) {
 
 	EventDispatcher::AddMouseListener(this);
@@ -192,9 +189,11 @@ Clouds::Clouds(StateMachine& machine) : State(machine, CurrentState::SHAPEINTERF
 		m_buffer->getArray(sdfTex);
 	}
 
+	Shader::SetIncludeFromFile("common.glsl", "res/clouds/common.frag");
+	Shader::SetIncludeFromFile("header.glsl", "res/clouds/header.frag");
 	m_raymarch = new Shader();
+
 	m_raymarch->attachShader(Shader::LoadShaderProgram(GL_VERTEX_SHADER, "res/clouds/raymarch.vert"));
-	m_raymarch->attachShader(Shader::LoadShaderProgram(GL_FRAGMENT_SHADER, "res/clouds/common.frag"));
 	m_raymarch->attachShader(Shader::LoadShaderProgram(GL_FRAGMENT_SHADER, "res/clouds/oklab.frag"));
 	m_raymarch->attachShader(Shader::LoadShaderProgram(GL_FRAGMENT_SHADER, "res/clouds/raymarch.frag"));
 	m_raymarch->linkShaders();

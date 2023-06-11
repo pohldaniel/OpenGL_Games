@@ -1,6 +1,6 @@
 #version 410 core
-
-#define USE_OKLAB
+#extension GL_ARB_shading_language_include : require
+#include "/header.glsl"
 
 const float TIME_OFFSET = 0.0;
 const float TIME_SPEED = 1.0;
