@@ -141,8 +141,6 @@ Clouds::Clouds(StateMachine& machine) : State(machine, CurrentState::SHAPEINTERF
 		m_arrayBuffer->writeArrayToRaw("res/clouds/noise.raw");
 		m_arrayBuffer->getArray(cloudsTex);
 		m_arrayBuffer->getVolume(cloudsTo3D);
-		//glDeleteTextures(1, &cloudsTex);
-		//m_arrayBuffer->safe("array_buffer");
 	} else {
 		Texture::ArrayTo3D(cloudsTex, cloudsTo3D);
 		Texture::SetWrapMode(cloudsTo3D, GL_REPEAT, GL_TEXTURE_3D);
@@ -187,6 +185,12 @@ Clouds::Clouds(StateMachine& machine) : State(machine, CurrentState::SHAPEINTERF
 		m_buffer->draw();
 		m_buffer->writeArrayToRaw("res/clouds/sdf.raw");
 		m_buffer->getArray(sdfTex);
+		m_buffer->getVolume(sdfTo3D);
+
+	}else {
+		Texture::ArrayTo3D(sdfTex, sdfTo3D);
+		Texture::SetWrapMode(sdfTo3D, GL_REPEAT, GL_TEXTURE_3D);
+		Texture::SetFilter(sdfTo3D, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR, GL_TEXTURE_3D);
 	}
 
 	Shader::SetIncludeFromFile("common.glsl", "res/clouds/common.frag");
@@ -285,6 +289,8 @@ void Clouds::render() {
 		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		frame++;
+		if (frame == 32)
+			frame = 0;
 		m_raymarch->use();
 		m_raymarch->loadVector("resolution", Vector2f(Application::Width, Application::Height));
 		m_raymarch->loadFloat("time", m_clock.getElapsedTimeSec());
@@ -494,6 +500,9 @@ void Clouds::render() {
 				break;
 			case Noise::CLOUDS:
 				glBindTexture(GL_TEXTURE_3D, cloudsTo3D);
+				break;
+			case Noise::SDF:
+				glBindTexture(GL_TEXTURE_3D, sdfTo3D);
 				break;
 			default:
 				glBindTexture(GL_TEXTURE_3D, cloudsModel.perlinTex);
@@ -716,7 +725,7 @@ void Clouds::renderUi() {
 
 	if (m_showNoise) {
 		int currentNoise = m_noise;
-		if (ImGui::Combo("Render", &currentNoise, "Perlin comp\0Worley comp\0Perlin vert/frag\0Worley vert/frag \0Perlin cpu\0Worley cpu\0Clouds\0\0")) {
+		if (ImGui::Combo("Render", &currentNoise, "Perlin comp\0Worley comp\0Perlin vert/frag\0Worley vert/frag \0Perlin cpu\0Worley cpu\0Clouds\0Sdf\0\0")) {
 			m_noise = static_cast<Noise>(currentNoise);
 		}
 	}

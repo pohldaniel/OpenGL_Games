@@ -28,7 +28,8 @@ enum Noise {
 	WORLEYVERT,
 	PERLINCPU,
 	WORLEYCPU,
-	CLOUDS
+	CLOUDS,
+	SDF
 };
 
 enum cloudsTextureNames { fragColor, bloom, alphaness, cloudDistance };
@@ -87,7 +88,7 @@ public:
 	bool m_showNoise = false;
 	bool m_showWeatherMap = false;
 	bool m_showQuad = false;
-	bool m_showNoiseArray = true;
+	bool m_showNoiseArray = false;
 	bool m_showSDFArray = false;
 	bool m_showCloud = false;
 	Noise m_noise = Noise::PERLINCOMP;
@@ -101,6 +102,7 @@ public:
 	unsigned int cloudsTex;
 	unsigned int sdfTex;
 	unsigned int cloudsTo3D;
+	unsigned int sdfTo3D;
 	int frame = 0;
 
 	VolumeBuffer* m_volumeBuffer = nullptr;
