@@ -4,12 +4,18 @@
 
 CloudsModel2::CloudsModel2() {
 	sceneSeed = Vector3f(0.0f, 0.0f, 0.0f);
+	m_weatherMap.create(1024, 1024);
+	m_weatherMap.attachTexture(weatherTex, Attachment::COLOR, Target::TEXTURE2D, 0);
 	initVariables();
 	generateModelTextures2();
 }
 
 void CloudsModel2::initShaders() {
-	weatherShader = new Shader("shaders/weather.comp");
+#ifdef COMPUTE
+	m_weatherShaderComp = new Shader("shaders/weather.comp");
+#else
+	m_weatherShader = new Shader("res/weather.vert", "res/weather.frag");
+#endif
 }
 
 void CloudsModel2::generateModelTextures2() {
@@ -24,8 +30,6 @@ void CloudsModel2::generateModelTextures2() {
 	glBindImageTexture(0, this->perlinTex, 0, GL_TRUE, 0, GL_READ_WRITE, GL_RGBA8);
 	glDispatchCompute(INT_CEIL(128, 4), INT_CEIL(128, 4), INT_CEIL(128, 4));
 	perlin.unuse();
-
-
 
 	Texture::CreateTexture3D(this->worley32, 32, 32, 32, GL_RGBA8, GL_RGBA, GL_FLOAT);
 	Texture::SetWrapMode(this->worley32, GL_REPEAT, GL_TEXTURE_3D);
@@ -78,34 +82,14 @@ void CloudsModel2::generateModelTextures2() {
 		generateWeatherMap();
 		seed = sceneSeed;
 		oldSeed = seed;
-
-
 	}
 }
 
 void CloudsModel2::generateModelTextures() {
-	/////////////////// TEXTURE GENERATION //////////////////
-	if (!perlinTex) {
-		//compute shaders
-		
-	}
-
-	if (!worley32) {
-		
-	}
-
-
-	////////////////////////
-
+	
 	if (!weatherTex) {
-		//make texture
-
 		Texture::CreateTexture2D(this->weatherTex, 1024, 1024, GL_RGBA32F, GL_RGBA, GL_FLOAT);
 		Texture::SetWrapMode(this->weatherTex, GL_REPEAT);
-
-		//this->weatherTex = generateTexture2D(1024, 1024);
-
-		//compute
 		generateWeatherMap();
 
 		seed = sceneSeed;
@@ -114,7 +98,7 @@ void CloudsModel2::generateModelTextures() {
 }
 
 CloudsModel2::~CloudsModel2(){
-	delete weatherShader;
+	delete m_weatherShaderComp;
 }
 
 void CloudsModel2::update(){
@@ -125,15 +109,21 @@ void CloudsModel2::update(){
 	}
 }
 
-void CloudsModel2::generateWeatherMap() {
+void CloudsModel2::generateWeatherMap() {	
+
+#ifdef COMPUTE
+	m_weatherShaderComp->use();
+	m_weatherShaderComp->loadVector("seed", sceneSeed);
+	m_weatherShaderComp->loadFloat("perlinFrequency", perlinFrequency);
 	glBindImageTexture(0, weatherTex, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
-	weatherShader->use();
-	weatherShader->loadVector("seed", sceneSeed);
-	weatherShader->loadFloat("perlinFrequency", perlinFrequency);
-	std::cout << "computing weather!" << std::endl;
 	glDispatchCompute(INT_CEIL(1024, 8), INT_CEIL(1024, 8), 1);
-	std::cout << "weather computed!!" << std::endl;
 	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+	m_weatherShaderComp->unuse();
+#else
+	m_weatherMap.bind();
+
+	m_weatherMap.unbind();
+#endif
 }
 
 void CloudsModel2::initVariables() {

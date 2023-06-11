@@ -326,7 +326,6 @@ void Framebuffer::attachTexture(AttachmentTex::AttachmentTex attachments) {
 	}
 }
 
-//https://stackoverflow.com/questions/31793466/using-gl-texture-2d-array-as-a-draw-target
 void Framebuffer::attachTexture(unsigned int& texture, Attachment::Attachment attachments, Target::Target target, unsigned short layer) {
 	unsigned int attachment;
 

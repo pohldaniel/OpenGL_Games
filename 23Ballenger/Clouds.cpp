@@ -331,7 +331,7 @@ void Clouds::render() {
 		return;
 	}
 
-	cloudsModel.update();
+	//cloudsModel.update();
 	updateSky();
 
 	Vector3f lightDirection = Vector3f::Normalize(lightPosition - m_camera.getPosition());
