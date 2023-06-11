@@ -26,6 +26,8 @@ public:
 	void resize(int width, int height, int depth);
 	void getVolume(unsigned int& texture);
 
+	bool static LoadVolumeFromRaw(const char* fileName, unsigned int& texture, int width, int height, int layer);
+
 private:
 
 	Shader* m_shader;

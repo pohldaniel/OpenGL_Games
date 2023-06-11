@@ -20,11 +20,11 @@ Clouds::Clouds(StateMachine& machine) : State(machine, CurrentState::SHAPEINTERF
 	m_trackball.setDollyPosition(-5.0f);
 	applyTransformation(m_trackball);
 
-	fogColor = Vector3f(0.5, 0.6, 0.7);
-	lightColor = Vector3f(255, 255, 230);
-	lightColor /= 255.0;
+	fogColor = Vector3f(0.5f, 0.6f, 0.7f);
+	lightColor = Vector3f(255.0f, 255.0f, 230.0f);
+	lightColor /= 255.0f;
 
-	lightDirection = Vector3f(-.5, 0.5, 1.0);
+	lightDirection = Vector3f(-.5f, 0.5f, 1.0f);
 	lightPosition = lightDirection*1e6f + m_camera.getPosition();
 
 	sceneBuffer.create(Application::Width, Application::Height);
@@ -70,7 +70,7 @@ Clouds::Clouds(StateMachine& machine) : State(machine, CurrentState::SHAPEINTERF
 	m_noiseGen.getGloudShape(texture1);
 	m_noiseGen.getGloudDetail(texture2);
 
-	if (!m_noiseGen.LoadVolumeFromFile("res/noise/worley.raw", worley, 32, 32, 32)){
+	if (!VolumeBuffer::LoadVolumeFromRaw("res/noise/worley.raw", worley, 32, 32, 32)){
 		m_volumeBuffer = new VolumeBuffer(GL_RGBA8, 32, 32, 32);
 		m_volumeBuffer->setFiltering(GL_LINEAR_MIPMAP_LINEAR);
 		m_volumeBuffer->setWrapMode(GL_REPEAT);
@@ -83,7 +83,7 @@ Clouds::Clouds(StateMachine& machine) : State(machine, CurrentState::SHAPEINTERF
 		Texture::SetFilter(worley, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR, GL_TEXTURE_3D);
 	}
 	
-	if (!m_noiseGen.LoadVolumeFromFile("res/noise/perlinworley.raw", perlinworley, 128, 128, 128)) {
+	if (!VolumeBuffer::LoadVolumeFromRaw("res/noise/perlinworley.raw", perlinworley, 128, 128, 128)) {
 
 		if (m_volumeBuffer) {
 			m_volumeBuffer->resize(128, 128, 128);
@@ -213,6 +213,13 @@ Clouds::Clouds(StateMachine& machine) : State(machine, CurrentState::SHAPEINTERF
 	rmTarget.attachTexture(AttachmentTex::RGBA32F);
 	m_blueNoise.loadFromFile("res/clouds/HDR_L_0.png", true, GL_R8, GL_R, 0, 0, 0, 0);
 	m_blueNoise.setWrapMode(GL_REPEAT);
+
+
+	m_terrain.init("Levels/terrain01.raw");
+	Globals::shaderManager.loadShader("culling", "res/terrain.vert", "res/terrain.frag");
+
+	float height = m_terrain.heightAt(512.0f, 512.0f);
+	m_camera.lookAt(Vector3f(512.0f, height + 1.75f, 512.0f), Vector3f(512.0f, height + 1.75f, 512.0f - 1.0f), Vector3f(0.0f, 1.0f, 0.0f));
 }
 
 Clouds::~Clouds() {
@@ -283,7 +290,7 @@ void Clouds::update() {
 void Clouds::render() {
 
 	if (m_showCloud) {
-		glDisable(GL_DEPTH_TEST);
+		
 		
 		rmTarget.bind();
 		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
@@ -319,6 +326,7 @@ void Clouds::render() {
 
 		Globals::shapeManager.get("quad").drawRaw();
 		m_post->unuse();
+
 		renderUi();
 		return;
 	}
@@ -327,6 +335,28 @@ void Clouds::render() {
 	updateSky();
 
 	Vector3f lightDirection = Vector3f::Normalize(lightPosition - m_camera.getPosition());
+
+	glEnable(GL_DEPTH_TEST);
+	sceneBuffer.bind();
+	glClearDepth(1.0f);
+
+	glClearColor(fogColor[0], fogColor[1], fogColor[2], 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	if (m_drawScene) {
+		auto scene = Globals::shaderManager.getAssetPointer("culling");
+		scene->use();
+		scene->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
+		scene->loadMatrix("u_view", m_camera.getViewMatrix());
+		scene->loadMatrix("u_model", Matrix4f::IDENTITY);
+		scene->loadMatrix("u_normal", Matrix4f::GetNormalMatrix(m_camera.getViewMatrix()));
+		scene->loadVector("campos", m_camera.getPosition());
+		scene->loadVector("color", Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+		m_terrain.drawRaw();
+
+		scene->unuse();
+	}
+	sceneBuffer.unbind();
+	glDisable(GL_DEPTH_TEST);
 
 	skyBuffer.bind();
 	auto sky = Globals::shaderManager.getAssetPointer("sky");
@@ -398,11 +428,7 @@ void Clouds::render() {
 	glDispatchCompute(INT_CEIL(Application::Width, 16), INT_CEIL(Application::Height, 16), 1);
 	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 
-	sceneBuffer.bind();
-	glClearDepth(1.0f);
-	glClear(GL_DEPTH_BUFFER_BIT);
-	sceneBuffer.unbind();
-
+	
 	if (cloudsModel.postProcess) {
 
 		cloudsBuffer.bind();
@@ -716,6 +742,8 @@ void Clouds::renderUi() {
 		Application::ToggleVerticalSync();
 	}
 	ImGui::Checkbox("Draw Wirframe", &StateMachine::GetEnableWireframe());
+	ImGui::Checkbox("Draw Scene", &m_drawScene);
+
 	ImGui::Checkbox("Show Weather Map", &m_showWeatherMap);
 	if (ImGui::Checkbox("Show Noise", &m_showNoise)) {
 		m_showQuad = false;

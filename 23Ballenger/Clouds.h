@@ -19,7 +19,7 @@
 
 #include "CloudsModel.h"
 #include "NoiseGen.h"
-
+#include "Terrain.h"
 
 enum Noise {
 	PERLINCOMP,
@@ -91,6 +91,7 @@ public:
 	bool m_showNoiseArray = false;
 	bool m_showSDFArray = false;
 	bool m_showCloud = false;
+	bool m_drawScene = true;
 	Noise m_noise = Noise::PERLINCOMP;
 	Matrix4f m_orthographic;
 
@@ -114,5 +115,7 @@ public:
 	Shader* m_raymarch;
 	ArrayBuffer* m_buffer = nullptr;
 	Texture m_blueNoise;
+
+	Terrain m_terrain;
 };
 

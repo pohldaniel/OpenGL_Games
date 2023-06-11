@@ -133,3 +133,30 @@ void VolumeBuffer::getVolume(unsigned int& texture) {
 
 	//glCopyImageSubData(m_texture, GL_TEXTURE_3D, 0, 0, 0, 0, texture, GL_TEXTURE_3D, 0, 0, 0, 0, getWidth(), getHeight(), getDepth());
 }
+
+bool VolumeBuffer::LoadVolumeFromRaw(const char* fileName, unsigned int& texture, int width, int height, int depth) {
+	FILE* pFile = fopen(fileName, "rb");
+	if (NULL == pFile) {
+		return false;
+	}
+
+	Vector4f* pVolume = new Vector4f[width * height * depth];
+	fread(pVolume, sizeof(Vector4f), width * height * depth, pFile);
+	fclose(pFile);
+
+	//load data into a 3D texture
+	glGenTextures(1, &texture);
+	glBindTexture(GL_TEXTURE_3D, texture);
+
+	// set the texture parameters
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
+	glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA8, width, height, depth, 0, GL_RGBA, GL_FLOAT, pVolume);
+
+	delete[] pVolume;
+	return true;
+}

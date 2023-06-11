@@ -56,48 +56,27 @@ void CloudsModel::generateModelTextures(){
 	/////////////////// TEXTURE GENERATION //////////////////
 	if (!perlinTex) {
 		//compute shaders
-		Shader comp("shaders/perlinworley.comp");
-		
-
-		//make texture
-
 		Texture::CreateTexture3D(this->perlinTex, 128, 128, 128, GL_RGBA8, GL_RGBA, GL_FLOAT);
 		Texture::SetWrapMode(this->perlinTex, GL_REPEAT, GL_TEXTURE_3D);
 		Texture::SetFilter(this->perlinTex, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR, GL_TEXTURE_3D);
-		//this->perlinTex = generateTexture3D(128, 128, 128);
-		//compute
-		comp.use();
-		comp.loadVector("u_resolution", Vector3f(128, 128, 128));
-		std::cout << "computing perlinworley!" << std::endl;
-		glActiveTexture(GL_TEXTURE0);
-		comp.loadInt("outVolTex", 0);
-		glBindTexture(GL_TEXTURE_3D, this->perlinTex);
-	  	glBindImageTexture(0, this->perlinTex, 0, GL_TRUE, 0, GL_READ_WRITE, GL_RGBA8);
+
+		Shader perlin("shaders/perlinworley.comp");
+		perlin.use();
+		glBindImageTexture(0, this->perlinTex, 0, GL_TRUE, 0, GL_READ_WRITE, GL_RGBA8);
 		glDispatchCompute(INT_CEIL(128, 4), INT_CEIL(128, 4), INT_CEIL(128, 4));
-		std::cout << "computed!!" << std::endl;
-		//glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
-		glGenerateMipmap(GL_TEXTURE_3D);
+		perlin.unuse();
 	}
 
 	if (!worley32) {
-		//compute shaders
-		Shader worley_git("shaders/worley.comp");
-		
-
-		//make texture
-		//this->worley32 = generateTexture3D(32, 32, 32);
-
 		Texture::CreateTexture3D(this->worley32, 32, 32, 32, GL_RGBA8, GL_RGBA, GL_FLOAT);
 		Texture::SetWrapMode(this->worley32, GL_REPEAT, GL_TEXTURE_3D);
 		Texture::SetFilter(this->worley32, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR, GL_TEXTURE_3D);
 
-		//compute
-		worley_git.use();
-	  	glBindImageTexture(0, this->worley32, 0, GL_TRUE, 0, GL_READ_WRITE, GL_RGBA8);
-		std::cout << "computing worley 32!" << std::endl;
+		Shader worley("shaders/worley.comp");
+		worley.use();
+		glBindImageTexture(0, this->worley32, 0, GL_TRUE, 0, GL_READ_WRITE, GL_RGBA8);
 		glDispatchCompute(INT_CEIL(32, 4), INT_CEIL(32, 4), INT_CEIL(32, 4));
-		std::cout << "computed!!" << std::endl;
-		glGenerateMipmap(GL_TEXTURE_3D);
+		worley.unuse();
 	}
 
 

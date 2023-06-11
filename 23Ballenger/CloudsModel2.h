@@ -1,0 +1,41 @@
+#pragma once
+#include "engine/Texture.h"
+#include "engine/Shader.h"
+#include "engine/VolumeBuffer.h"
+
+#define INT_CEIL(n,d) (int)ceil((float)n/d)
+#define COMPUTE
+
+//CloudsModel is responsible to collect the attributes and shaders that will be needed to render the volumetric clouds. Also, it creates the noises which models the clouds.
+class CloudsModel2 {
+
+public:
+	friend class VolumetricClouds;
+
+	CloudsModel2();
+	~CloudsModel2();
+
+	void update();
+
+	Shader *weatherShader;
+
+	float coverage, cloudSpeed, crispiness, curliness, density, absorption;
+	float earthRadius, sphereInnerRadius, sphereOuterRadius;
+	float perlinFrequency;
+	bool enableGodRays;
+	bool enablePowder;
+	bool postProcess;
+
+	Vector3f cloudColorTop, cloudColorBottom;
+
+	Vector3f seed, oldSeed, sceneSeed;
+	unsigned int perlinTex = 0, worley32 = 0, weatherTex = 0;
+
+	void generateWeatherMap();
+	void generateModelTextures();
+	void generateModelTextures2();
+	void initVariables();
+	void initShaders();
+
+	VolumeBuffer* m_volumeBuffer = nullptr;
+};

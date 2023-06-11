@@ -159,6 +159,7 @@
     <ClCompile Include="cLava.cpp" />
     <ClCompile Include="Clouds.cpp" />
     <ClCompile Include="CloudsModel.cpp" />
+    <ClCompile Include="CloudsModel2.cpp" />
     <ClCompile Include="ColumnSet.cpp" />
     <ClCompile Include="engine\ArrayBuffer.cpp" />
     <ClCompile Include="engine\AssimpModel.cpp" />
@@ -232,6 +233,7 @@
     <ClInclude Include="cLava.h" />
     <ClInclude Include="Clouds.h" />
     <ClInclude Include="CloudsModel.h" />
+    <ClInclude Include="CloudsModel2.h" />
     <ClInclude Include="ColumnSet.h" />
     <ClInclude Include="engine\ArrayBuffer.h" />
     <ClInclude Include="Globals.h" />
