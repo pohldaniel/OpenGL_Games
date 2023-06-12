@@ -11,7 +11,9 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME),
 									m_keySet(m_player.getPosition()), 
 									m_respawnPointSet(m_player.getPosition()),
 									m_columnSet(m_player.getPosition()),
-									m_player(m_camera) {
+									m_player(m_camera),
+									m_cloudsModel(Application::Width, Application::Height, m_light),
+									m_sky(Application::Width, Application::Height, m_light) {
 
 	Application::SetCursorIcon(IDC_ARROW);
 	EventDispatcher::AddKeyboardListener(this);
@@ -31,6 +33,22 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME),
 
 	std::vector<btCollisionShape*> terrainShape = Physics::CreateStaticCollisionShapes(&m_terrain, SCALE);
 	btRigidBody* body = Globals::physics->addStaticModel(terrainShape, Physics::BtTransform(), false, btVector3(1.0f, 1.0f, 1.0f), Physics::collisiontypes::TERRAIN, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::CAMERA);
+
+	m_light.color = Vector3f(255.0f, 255.0f, 230.0f) / 255.0f;
+	m_light.direction = Vector3f(-.5f, 0.5f, 1.0f);
+	m_light.position = m_light.direction*1e6f + m_camera.getPosition();
+
+	m_fogColor = m_sky.getFogColor();
+
+	sceneBuffer.create(Application::Width, Application::Height);
+	sceneBuffer.attachTexture2D(AttachmentTex::RGBA32F);
+	sceneBuffer.attachTexture2D(AttachmentTex::DEPTH32F);
+
+	//avoid flickering
+	sceneBuffer.bind();
+	glClearDepth(1.0f);
+	glClear(GL_DEPTH_BUFFER_BIT);
+	sceneBuffer.unbind();
 }
 
 Game::~Game() {
@@ -86,22 +104,30 @@ void Game::update() {
 	m_keySet.update(m_dt);
 	m_raySet.update(m_dt);
 	m_respawnPointSet.update(m_dt);
+
+	m_light.update(m_camera.getPosition());
+	m_sky.update();
+	m_cloudsModel.update();
 }
 
 void Game::render() {
 
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	glLoadMatrixf(&m_camera.getPerspectiveMatrix()[0][0]);
+	m_sky.draw(m_camera);
+	m_cloudsModel.draw(m_camera, m_sky, sceneBuffer.getDepthTexture());
 
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-	glLoadMatrixf(&m_camera.getViewMatrix()[0][0]);
-
+	sceneBuffer.bind();
+	glClearDepth(1.0f);
+	glClearColor(m_fogColor[0], m_fogColor[1], m_fogColor[2], 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	m_skybox.draw(m_camera);
-	
 
+	auto quad = Globals::shaderManager.getAssetPointer("quad");
+	quad->use();
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, m_cloudsModel.getPostTexture());
+	Globals::shapeManager.get("quad").drawRaw();
+	quad->unuse();
+
+	glEnable(GL_DEPTH_TEST);
 	auto shader = Globals::shaderManager.getAssetPointer("terrain_new");
 	shader->use();
 	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
@@ -140,21 +166,26 @@ void Game::render() {
 	m_columnSet.draw(m_camera);
 	
 	if (abs(m_camera.getPositionZ() - m_portal.getZ()) < m_camera.getOffsetDistance()){
-		//draw player
 		m_player.draw(m_camera);
-
-		//draw portal
 		m_portal.draw(m_camera);
 	}else{
-		//draw portal
 		m_portal.draw(m_camera);
-
-		//draw player
 		m_player.draw(m_camera);
 	}
 
 	m_respawnPointSet.draw(m_camera);
 	m_lava.draw(m_camera);
+
+	sceneBuffer.unbind();
+
+	glDisable(GL_DEPTH_TEST);
+	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	quad->use();
+	sceneBuffer.bindColorTexture(0, 0);
+	Globals::shapeManager.get("quad").drawRaw();
+	quad->unuse();
 
 	if (m_drawUi)
 		renderUi();

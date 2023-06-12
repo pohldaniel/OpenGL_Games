@@ -354,10 +354,10 @@ void Application::fixedUpdate() {
 void Application::initStates() {
 	
 	Machine = new StateMachine(m_dt, m_fdt);
-	//Machine->addStateAtTop(new Game(*Machine));
+	Machine->addStateAtTop(new Game(*Machine));
 	//Machine->addStateAtTop(new ShapeInterface(*Machine));
 	//Machine->addStateAtTop(new TerrainCulling(*Machine));
-	Machine->addStateAtTop(new Clouds(*Machine));
+	//Machine->addStateAtTop(new Clouds(*Machine));
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
@@ -523,6 +523,8 @@ void Application::loadAssets() {
 	Globals::shaderManager.loadShader("post", "Shaders/screen_new.vert", "Shaders/post_processing.frag");
 	Globals::shaderManager.loadShader("clouds", "Shaders/volumetric_clouds.comp");
 	Globals::shaderManager.loadShader("cloud_post", "Shaders/screen_new.vert", "Shaders/clouds_post.frag");
+
+	Globals::shaderManager.loadShader("quad", "res/quad.vert", "res/quad.frag");
 
 	Globals::shaderManager.loadShader("texture3d", "res/texture3D.vert", "res/texture3D.frag");
 	Globals::shaderManager.loadShader("texture", "res/program.vert", "res/texture.frag");

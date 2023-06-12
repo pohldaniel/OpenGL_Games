@@ -1,5 +1,6 @@
-#version 330 core
-out vec4 FragColor;
+#version 410 core
+
+out vec4 color;
 in vec3 TexCoords;
 
 uniform vec3 skyColorBottom;
@@ -80,5 +81,6 @@ void main()
 	vec2 red = vec2(1.0);
 	//bg = mix( mix(red.rrrr, vec4(1.0), SUN_DIR.y), bg, pow( max(cubeMapEndPos.y+0.1, .0), 0.2));
 
-	FragColor = vec4(bg.rgb,1.0);
+	color = vec4(bg.rgb,1.0);
+	//color = vec4(1.0, 0.0, 0.0, 1.0);
 }

@@ -24,6 +24,7 @@ public:
 	void update();
 	void resize(unsigned int width, unsigned int height);
 	const Vector3f& getFogColor();
+	const unsigned int& getSkyTexture() const;
 
 private:
 

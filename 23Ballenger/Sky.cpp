@@ -1,15 +1,12 @@
 #include <GL/glew.h>
 #include "Sky.h"
+#include "Globals.h"
 
 Sky::Sky(unsigned int width, unsigned int height, Light& light) : width(width), height(height), light(light) {
-	
-	m_skyBuffer.create(width, height);
-	m_skyBuffer.attachTexture2D(AttachmentTex::RGBA32F);
+	m_skyBuffer.create(width, height); 
+	m_skyBuffer.attachTexture2D(AttachmentTex::RGBA);
 
-	Texture::SetFilter(m_skyBuffer.getColorTexture(0), GL_LINEAR_MIPMAP_LINEAR);
-
-
-	//SunsetPreset1();
+	SunsetPreset1();
 	DefaultPreset();
 	update();
 
@@ -22,16 +19,22 @@ Sky::~Sky() {
 }
 
 void Sky::draw(const Camera& camera) {
+
 	m_skyBuffer.bind();
+	glClearDepth(1.0f);
+	glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
+
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	m_shader->use();
 	m_shader->loadVector("resolution", Vector2f(static_cast<float>(width), static_cast<float>(height)));
 	m_shader->loadMatrix("inv_proj", camera.getInvPerspectiveMatrix());
 	m_shader->loadMatrix("inv_view", camera.getInvViewMatrix());
 	m_shader->loadVector("lightDirection", light.direction);
-	m_shader->loadVector("skyColorTop", m_skyColorBottom);
+	m_shader->loadVector("skyColorTop", m_skyColorTop);
 	m_shader->loadVector("skyColorBottom", m_skyColorBottom);
 	m_quad.drawRaw();
+
 	m_shader->unuse();
 	m_skyBuffer.unbind();
 }
@@ -104,4 +107,8 @@ void Sky::mixSkyColorPreset(float v, colorPreset p1, colorPreset p2) {
 
 const Vector3f& Sky::getFogColor() {
 	return m_fogColor;
+}
+
+const unsigned int& Sky::getSkyTexture() const{
+	return m_skyBuffer.getColorTexture();
 }

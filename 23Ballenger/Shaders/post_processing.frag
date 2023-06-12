@@ -48,4 +48,6 @@ void main(){
 
 	//color = texture(depthTex, TexCoords);
 	//color = vec4(TexCoords, 0.0, 1.0);
+	
+	//color = bg;
 }  

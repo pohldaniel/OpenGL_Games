@@ -67,7 +67,7 @@ void CloudsModel::generateModelTextures() {
 	if (!VolumeBuffer::LoadVolumeFromRaw("res/noise/worley.raw", worley32, 32, 32, 32)) {
 		Shader* worley = new Shader("res/worley.vert", "res/worley.frag");
 		m_volumeBuffer = new VolumeBuffer(GL_RGBA8, 32, 32, 32);
-		m_volumeBuffer->setFiltering(GL_LINEAR_MIPMAP_LINEAR);
+		m_volumeBuffer->setFiltering(GL_LINEAR);
 		m_volumeBuffer->setWrapMode(GL_REPEAT);
 		m_volumeBuffer->setShader(worley);
 		m_volumeBuffer->draw();
@@ -85,7 +85,7 @@ void CloudsModel::generateModelTextures() {
 			m_volumeBuffer->resize(128, 128, 128);
 		}else {
 			m_volumeBuffer = new VolumeBuffer(GL_RGBA8, 128, 128, 128);
-			m_volumeBuffer->setFiltering(GL_LINEAR_MIPMAP_LINEAR);
+			m_volumeBuffer->setFiltering(GL_LINEAR);
 			m_volumeBuffer->setWrapMode(GL_REPEAT);
 		}
 		Shader* perlin = new Shader("res/perlinworley.vert", "res/perlinworley.frag");
@@ -232,11 +232,11 @@ void CloudsModel::draw(const Camera& camera, const Sky& sky, const unsigned int 
 	glActiveTexture(GL_TEXTURE2);
 	glBindTexture(GL_TEXTURE_2D, weatherTex);
 
-	glActiveTexture(GL_TEXTURE3);
-	glBindTexture(GL_TEXTURE_2D, sceneDepth);
+	//glActiveTexture(GL_TEXTURE3);
+	//glBindTexture(GL_TEXTURE_2D, sceneDepth);
 
 	glActiveTexture(GL_TEXTURE4);
-	glBindTexture(GL_TEXTURE_2D, sky.m_skyBuffer.getColorTexture());
+	glBindTexture(GL_TEXTURE_2D, sky.getSkyTexture());
 
 
 	glDispatchCompute(INT_CEIL(m_width, 16), INT_CEIL(m_height, 16), 1);

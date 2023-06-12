@@ -19,6 +19,10 @@
 #include "Portal.h"
 #include "Player.h"
 
+#include "CloudsModel.h"
+#include "Sky.h"
+#include "Light.h"
+
 class Game : public State, public MouseEventListener, public KeyboardEventListener {
 
 public:
@@ -65,4 +69,10 @@ private:
 
 	QuadTree m_quadTree;
 	Terrain m_terrain;
+
+	CloudsModel m_cloudsModel;
+	Light m_light;
+	Sky m_sky;
+	Vector3f m_fogColor;
+	Framebuffer sceneBuffer;
 };

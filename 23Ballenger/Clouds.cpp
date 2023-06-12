@@ -414,8 +414,8 @@ void Clouds::render() {
 		shader->loadMatrix("u_model", Matrix4f::Translate(Application::Width - 150.0f, 150.0f, 0.0f) * Matrix4f::Scale(150.0f, 150.0f, 0.0f));
 		shader->loadInt("u_texture", 0);
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, m_cloudsModel.weatherTex);
-
+		//glBindTexture(GL_TEXTURE_2D, m_cloudsModel.weatherTex);
+		glBindTexture(GL_TEXTURE_2D, m_sky.getSkyTexture());
 		Globals::shapeManager.get("quad").drawRaw();
 		shader->unuse();
 	}

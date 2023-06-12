@@ -59,20 +59,13 @@ public:
 	Vector3f m_fogColor;
 
 	Framebuffer sceneBuffer;
-
 	Framebuffer rmTarget;
-
-
 	Clock m_clock;
-
-	
-
-
 
 	SlicedCube m_slicedCube;
 
 	bool m_showNoise = false;
-	bool m_showWeatherMap = false;
+	bool m_showWeatherMap = true;
 	bool m_showQuad = false;
 	bool m_showNoiseArray = false;
 	bool m_showSDFArray = false;

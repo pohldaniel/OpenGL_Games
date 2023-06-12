@@ -1379,7 +1379,6 @@ void Texture::Unbind(unsigned int unit, unsigned int target) {
 
 void Texture::SetFilter(const unsigned int& textureRef, unsigned int minFilter, unsigned int magFilter, unsigned int target) {
 	
-
 	if (magFilter == 0)
 		magFilter = minFilter == 9985 || minFilter == 9987 ? GL_LINEAR : minFilter == 9984 || minFilter == 9986 ? GL_NEAREST : minFilter;
 
