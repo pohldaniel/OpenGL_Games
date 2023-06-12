@@ -14,7 +14,7 @@ Clouds::Clouds(StateMachine& machine) : State(machine, CurrentState::SHAPEINTERF
 	EventDispatcher::AddMouseListener(this);
 
 	m_camera = Camera();
-	m_camera.perspective(45.0f * _180_ON_PI, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 1.0f, 1000.0f);
+	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 1.0f, 1000.0f);
 	m_camera.lookAt(Vector3f(0.0f, 0.0f, 0.0f), Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
 	m_camera.setRotationSpeed(0.1f);
 
@@ -267,9 +267,7 @@ void Clouds::update() {
 
 void Clouds::render() {
 
-	if (m_showCloud) {
-		
-		
+	if (m_showCloud) {	
 		rmTarget.bind();
 		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -407,19 +405,19 @@ void Clouds::render() {
 	}
 
 	if (m_showWeatherMap) {
-		glDisable(GL_DEPTH_TEST);
-		auto _shader = Globals::shaderManager.getAssetPointer("texture");
-		_shader->use();
-		glUseProgram(_shader->m_program);
-		_shader->loadMatrix("u_projection", m_orthographic);
-		_shader->loadMatrix("u_view", Matrix4f::IDENTITY);
-		_shader->loadMatrix("u_model", Matrix4f::Translate(Application::Width - 150.0f, 150.0f, 0.0f) * Matrix4f::Scale(150.0f, 150.0f, 0.0f));
-		_shader->loadInt("u_texture", 0);
+
+		auto shader = Globals::shaderManager.getAssetPointer("texture");
+		shader->use();
+		glUseProgram(shader->m_program);
+		shader->loadMatrix("u_projection", m_orthographic);
+		shader->loadMatrix("u_view", Matrix4f::IDENTITY);
+		shader->loadMatrix("u_model", Matrix4f::Translate(Application::Width - 150.0f, 150.0f, 0.0f) * Matrix4f::Scale(150.0f, 150.0f, 0.0f));
+		shader->loadInt("u_texture", 0);
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, m_cloudsModel.weatherTex);
 
 		Globals::shapeManager.get("quad").drawRaw();
-		_shader->unuse();
+		shader->unuse();
 	}
 
 	if (m_showQuad) {
@@ -428,7 +426,7 @@ void Clouds::render() {
 		shader->use();
 
 		shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
-		shader->loadMatrix("u_view", m_camera.getViewMatrix());
+		shader->loadMatrix("u_view", Matrix4f::IDENTITY);
 		shader->loadMatrix("u_model", m_transform.getTransformationMatrix());
 
 		shader->loadFloat("time", m_clock.getElapsedTimeSec());
@@ -457,11 +455,12 @@ void Clouds::render() {
 	}
 
 	if (m_showNoiseArray || m_showSDFArray) {
+
 		auto shader = Globals::shaderManager.getAssetPointer("debug");
 
 		shader->use();
 		shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
-		shader->loadMatrix("u_view", m_camera.getViewMatrix());
+		shader->loadMatrix("u_view", Matrix4f::IDENTITY);
 		shader->loadMatrix("u_model", m_transform.getTransformationMatrix());
 		shader->loadInt("u_texture", 0);
 		shader->loadUnsignedInt("u_layer", m_currentArrayIndex);

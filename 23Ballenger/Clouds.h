@@ -33,10 +33,6 @@ enum Noise {
 	SDF
 };
 
-
-
-
-
 class Clouds : public State, public MouseEventListener {
 
 public:
