@@ -1,22 +1,33 @@
 #pragma once
+
+#include "engine/MeshObject/MeshQuad.h"
 #include "engine/Texture.h"
 #include "engine/Shader.h"
+#include "engine/VolumeBuffer.h"
+#include "engine/Framebuffer.h"
+#include "engine/Camera.h"
+#include "engine/Clock.h"
 
+#include "Light.h"
+#include "Sky.h"
+
+//#define COMPUTE
 #define INT_CEIL(n,d) (int)ceil((float)n/d)
 
-//CloudsModel is responsible to collect the attributes and shaders that will be needed to render the volumetric clouds. Also, it creates the noises which models the clouds.
+enum cloudsTextureNames { fragColor, bloom, alphaness, cloudDistance };
+
 class CloudsModel {
 
 public:
 	friend class VolumetricClouds;
 
-	CloudsModel();
+	CloudsModel(unsigned int width, unsigned int height, const Light& light);
 	~CloudsModel();
-	
-	void update();
-	void setGui();
 
-	Shader *volumetricCloudsShader, *weatherShader;
+	void update();
+	void draw(const Camera& camera, const Sky& sky, unsigned int sceneDepth);
+	
+	Shader *m_weatherShaderComp, *m_weatherShader, *m_raymarcher, *m_post;
 
 	float coverage, cloudSpeed, crispiness, curliness, density, absorption;
 	float earthRadius, sphereInnerRadius, sphereOuterRadius;
@@ -26,6 +37,7 @@ public:
 	bool postProcess;
 
 	Vector3f cloudColorTop, cloudColorBottom;
+	
 
 	Vector3f seed, oldSeed, sceneSeed;
 	unsigned int perlinTex = 0, worley32 = 0, weatherTex = 0;
@@ -34,5 +46,19 @@ public:
 	void generateModelTextures();
 	void initVariables();
 	void initShaders();
-};
+	void resize(unsigned int width, unsigned int height);
+	unsigned int getPostTexture();
+	const Texture& getColorTexture(cloudsTextureNames name);
 
+	VolumeBuffer* m_volumeBuffer = nullptr;
+	Framebuffer m_weatherMap;
+	
+	MeshQuad m_quad;
+	Texture m_textureSet[4];
+	Clock m_clock;
+	unsigned int m_width;
+	unsigned int m_height;
+	Framebuffer postBuffer;
+
+	const Light& light;
+};

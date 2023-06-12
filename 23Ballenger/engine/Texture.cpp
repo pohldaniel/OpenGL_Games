@@ -1367,7 +1367,7 @@ void Texture::setAnisotropy(float aniso) const {
 	glBindTexture(m_target, 0);
 }
 
-void Texture::Bind(unsigned int& textureRef, unsigned int unit, unsigned int target) {
+void Texture::Bind(unsigned int textureRef, unsigned int unit, unsigned int target) {
 	glActiveTexture(GL_TEXTURE0 + unit);
 	glBindTexture(target, textureRef);
 }

@@ -159,7 +159,6 @@
     <ClCompile Include="cLava.cpp" />
     <ClCompile Include="Clouds.cpp" />
     <ClCompile Include="CloudsModel.cpp" />
-    <ClCompile Include="CloudsModel2.cpp" />
     <ClCompile Include="ColumnSet.cpp" />
     <ClCompile Include="engine\ArrayBuffer.cpp" />
     <ClCompile Include="engine\AssimpModel.cpp" />
@@ -206,6 +205,7 @@
     <ClCompile Include="engine\Vector.cpp" />
     <ClCompile Include="engine\VolumeBuffer.cpp" />
     <ClCompile Include="NoiseGen.cpp" />
+    <ClCompile Include="Sky.cpp" />
     <ClCompile Include="TerrainCulling.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="KeySet.cpp" />
@@ -233,7 +233,6 @@
     <ClInclude Include="cLava.h" />
     <ClInclude Include="Clouds.h" />
     <ClInclude Include="CloudsModel.h" />
-    <ClInclude Include="CloudsModel2.h" />
     <ClInclude Include="ColumnSet.h" />
     <ClInclude Include="engine\ArrayBuffer.h" />
     <ClInclude Include="Globals.h" />
@@ -285,7 +284,9 @@
     <ClInclude Include="engine\Transform.h" />
     <ClInclude Include="engine\Vector.h" />
     <ClInclude Include="engine\VolumeBuffer.h" />
+    <ClInclude Include="Light.h" />
     <ClInclude Include="NoiseGen.h" />
+    <ClInclude Include="Sky.h" />
     <ClInclude Include="TerrainCulling.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="KeySet.h" />

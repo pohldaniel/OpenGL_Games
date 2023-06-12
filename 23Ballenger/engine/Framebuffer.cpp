@@ -34,14 +34,14 @@ void Framebuffer::create(unsigned int width, unsigned int height) {
 	}
 }
 
-void Framebuffer::attachTexture(AttachmentTex::AttachmentTex attachments) {
+void Framebuffer::attachTexture2D(AttachmentTex::AttachmentTex _attachment) {
 	unsigned int internalFormat = GL_RGBA8;
 	unsigned int format = GL_RGBA;
 	unsigned int type = GL_UNSIGNED_BYTE;
 	unsigned int attachment;
 	unsigned int *texture = &m_stencilTexture;
 
-	switch (attachments) {
+	switch (_attachment) {
 		unsigned int tex;
 		case AttachmentTex::SRGBA:
 			internalFormat = GL_SRGB8_ALPHA8;
@@ -299,14 +299,14 @@ void Framebuffer::attachTexture(AttachmentTex::AttachmentTex attachments) {
 
 	glGenTextures(1, &*texture);
 	glBindTexture(GL_TEXTURE_2D, *texture);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, (attachments == AttachmentTex::DEPTH24 || attachments == AttachmentTex::DEPTH32 || attachments == AttachmentTex::DEPTH32F || attachments == AttachmentTex::STENCIL || attachments == AttachmentTex::DEPTH_STENCIL) ? GL_NEAREST : GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, (attachments == AttachmentTex::DEPTH24 || attachments == AttachmentTex::DEPTH32 || attachments == AttachmentTex::DEPTH32F || attachments == AttachmentTex::STENCIL || attachments == AttachmentTex::DEPTH_STENCIL) ? GL_NEAREST : GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, (_attachment == AttachmentTex::DEPTH24 || _attachment == AttachmentTex::DEPTH32 || _attachment == AttachmentTex::DEPTH32F || _attachment == AttachmentTex::STENCIL || _attachment == AttachmentTex::DEPTH_STENCIL) ? GL_NEAREST : GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, (_attachment == AttachmentTex::DEPTH24 || _attachment == AttachmentTex::DEPTH32 || _attachment == AttachmentTex::DEPTH32F || _attachment == AttachmentTex::STENCIL || _attachment == AttachmentTex::DEPTH_STENCIL) ? GL_NEAREST : GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, m_width, m_height, 0, format, type, NULL);
 	glBindTexture(GL_TEXTURE_2D, 0);
 
-	if (attachments == AttachmentTex::SRGBA || attachments == AttachmentTex::RGBA || attachments == AttachmentTex::RGB || attachments == AttachmentTex::RGBA32F || attachments == AttachmentTex::RGBA16F || attachments == AttachmentTex::RGB32F || attachments == AttachmentTex::RGB16F || attachments == AttachmentTex::RED || attachments == AttachmentTex::RED32F || attachments == AttachmentTex::RG16F || attachments == AttachmentTex::R11FG11FB10F) {
+	if (_attachment == AttachmentTex::SRGBA || _attachment == AttachmentTex::RGBA || _attachment == AttachmentTex::RGB || _attachment == AttachmentTex::RGBA32F || _attachment == AttachmentTex::RGBA16F || _attachment == AttachmentTex::RGB32F || _attachment == AttachmentTex::RGB16F || _attachment == AttachmentTex::RED || _attachment == AttachmentTex::RED32F || _attachment == AttachmentTex::RG16F || _attachment == AttachmentTex::R11FG11FB10F) {
 
 		glBindFramebuffer(m_colorAttachments == 1 ? GL_FRAMEBUFFER : GL_DRAW_FRAMEBUFFER, m_fbo);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + (m_colorAttachments - 1), GL_TEXTURE_2D, *texture, 0);
@@ -326,10 +326,10 @@ void Framebuffer::attachTexture(AttachmentTex::AttachmentTex attachments) {
 	}
 }
 
-void Framebuffer::attachTexture(unsigned int& texture, Attachment::Attachment attachments, Target::Target target, unsigned short layer) {
+void Framebuffer::attachTexture(unsigned int& texture, Attachment::Attachment _attachment, Target::Target target, unsigned short layer) {
 	unsigned int attachment;
 
-	switch (attachments) {
+	switch (_attachment) {
 		case Attachment::COLOR:
 			m_colorAttachments++;
 			m_attachments.push_back(GL_COLOR_ATTACHMENT0 + (m_colorAttachments - 1));
@@ -347,7 +347,7 @@ void Framebuffer::attachTexture(unsigned int& texture, Attachment::Attachment at
 			break;
 	}
 
-	if (attachments == Attachment::COLOR) {
+	if (_attachment == Attachment::COLOR) {
 		int colorAttachments = m_colorAttachments;
 		glBindFramebuffer(colorAttachments == 1 ? GL_FRAMEBUFFER : GL_DRAW_FRAMEBUFFER, m_fbo);
 
@@ -849,27 +849,27 @@ unsigned int Framebuffer::getHeight() {
 	return m_height;
 }
 
-unsigned int& Framebuffer::getColorTexture(unsigned short attachment) {
+const unsigned int& Framebuffer::getColorTexture(unsigned short attachment) const {
 	return m_colorTextures[attachment];
 }
 
-unsigned int& Framebuffer::getColorTexture() {
+const unsigned int& Framebuffer::getColorTexture() const {
 	return  m_colorTextures[0];
 }
 
-unsigned int& Framebuffer::getDepthTexture() {
+const unsigned int& Framebuffer::getDepthTexture() const {
 	return m_depthTexture;
 }
 
-unsigned int& Framebuffer::getStencilTexture() {
+const unsigned int& Framebuffer::getStencilTexture() const {
 	return m_stencilTexture;
 }
 
-unsigned int& Framebuffer::getDepthStencilTexture() {
+const unsigned int& Framebuffer::getDepthStencilTexture() const {
 	return  m_depthStencilTexture;
 }
 
-unsigned int& Framebuffer::getFramebuffer() {
+const unsigned int& Framebuffer::getFramebuffer() const {
 	return  m_fbo;
 }
 

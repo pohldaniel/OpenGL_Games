@@ -10,8 +10,6 @@ public:
 	~SlicedCube();
 
 	void drawRaw();
-
-
 	int getWidth();
 	int getHeight();
 	int getDepth();

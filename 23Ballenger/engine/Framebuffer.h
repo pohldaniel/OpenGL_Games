@@ -69,11 +69,11 @@ public:
 
 	void create();
 	void create(unsigned int width, unsigned int height);
-	void attachTexture(AttachmentTex::AttachmentTex attachments);
-	void attachTexture(unsigned int& texture, Attachment::Attachment attachments = Attachment::Attachment::COLOR, Target::Target target = Target::Target::TEXTURE2D, unsigned short layer = 0);
+	void attachTexture2D(AttachmentTex::AttachmentTex attachment);
+	void attachTexture(unsigned int& texture, Attachment::Attachment attachment = Attachment::Attachment::COLOR, Target::Target target = Target::Target::TEXTURE2D, unsigned short layer = 0);
 
-	void attachLayerdTexture(AttachmentTex::AttachmentTex attachments, unsigned short layer);
-	void attachRenderbuffer(AttachmentRB::AttachmentRB attachments, unsigned int samples = 0, unsigned int coverageSamples = 0);
+	void attachLayerdTexture(AttachmentTex::AttachmentTex attachment, unsigned short layer);
+	void attachRenderbuffer(AttachmentRB::AttachmentRB attachment, unsigned int samples = 0, unsigned int coverageSamples = 0);
 	void bindVP(unsigned int width, unsigned int height);
 
 	void unbind();
@@ -94,12 +94,12 @@ public:
 	void bindStencilTexture(unsigned int unit) const;
 	void bindDepthStencilTexture(unsigned int unit) const;
 
-	unsigned int& getColorTexture(unsigned short attachment);
-	unsigned int& getColorTexture();
-	unsigned int& getDepthTexture();
-	unsigned int& getStencilTexture();
-	unsigned int& getDepthStencilTexture();
-	unsigned int& getFramebuffer();
+	const unsigned int& getColorTexture(unsigned short attachment) const;
+	const unsigned int& getColorTexture() const;
+	const unsigned int& getDepthTexture() const;
+	const unsigned int& getStencilTexture() const;
+	const unsigned int& getDepthStencilTexture() const;
+	const unsigned int& getFramebuffer() const;
 
 	static void Unbind();
 	static void UnbindWrite();

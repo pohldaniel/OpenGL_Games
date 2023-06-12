@@ -181,7 +181,7 @@ void Shape::fromObj(const char* filename) {
 
 			if (!check) {
 				quads = whitespaces(buffer) == 4;
-				check == true;
+				check = true;
 			}
 			
 			if (quads) {

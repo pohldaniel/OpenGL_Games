@@ -7,7 +7,9 @@
 #include "Globals.h"
 #include "Application.h"
 
-Clouds::Clouds(StateMachine& machine) : State(machine, CurrentState::SHAPEINTERFACE) {
+Clouds::Clouds(StateMachine& machine) : State(machine, CurrentState::SHAPEINTERFACE), 
+										m_cloudsModel(Application::Width, Application::Height, m_light), 
+										m_sky(Application::Width, Application::Height, m_light){
 
 	EventDispatcher::AddMouseListener(this);
 
@@ -20,48 +22,24 @@ Clouds::Clouds(StateMachine& machine) : State(machine, CurrentState::SHAPEINTERF
 	m_trackball.setDollyPosition(-5.0f);
 	applyTransformation(m_trackball);
 
-	fogColor = Vector3f(0.5f, 0.6f, 0.7f);
-	lightColor = Vector3f(255.0f, 255.0f, 230.0f);
-	lightColor /= 255.0f;
 
-	lightDirection = Vector3f(-.5f, 0.5f, 1.0f);
-	lightPosition = lightDirection*1e6f + m_camera.getPosition();
+
+	m_light.color = Vector3f(255.0f, 255.0f, 230.0f) / 255.0f;
+	m_light.direction = Vector3f(-.5f, 0.5f, 1.0f);
+	m_light.position = m_light.direction*1e6f + m_camera.getPosition();
+
+	m_fogColor = m_sky.getFogColor();
+	
 
 	sceneBuffer.create(Application::Width, Application::Height);
-	sceneBuffer.attachTexture(AttachmentTex::RGBA32F);
-	sceneBuffer.attachTexture(AttachmentTex::DEPTH32F);
+	sceneBuffer.attachTexture2D(AttachmentTex::RGBA32F);
+	sceneBuffer.attachTexture2D(AttachmentTex::DEPTH32F);
 
 	Texture::SetFilter(sceneBuffer.getColorTexture(0), GL_LINEAR_MIPMAP_LINEAR);
 	Texture::SetFilter(sceneBuffer.getDepthTexture(), GL_LINEAR);
 
-	m_textureSet[0].createEmptyTexture(Application::Width, Application::Height, GL_RGBA32F, GL_RGBA, GL_FLOAT);
-	m_textureSet[1].createEmptyTexture(Application::Width, Application::Height, GL_RGBA32F, GL_RGBA, GL_FLOAT);
-	m_textureSet[2].createEmptyTexture(Application::Width, Application::Height, GL_RGBA32F, GL_RGBA, GL_FLOAT);
-	m_textureSet[3].createEmptyTexture(Application::Width, Application::Height, GL_RGBA32F, GL_RGBA, GL_FLOAT);
-
-	m_textureSet[0].setWrapMode(GL_REPEAT);
-	m_textureSet[1].setWrapMode(GL_REPEAT);
-	m_textureSet[2].setWrapMode(GL_REPEAT);
-	m_textureSet[3].setWrapMode(GL_REPEAT);
-
-	cloudsBuffer.create(Application::Width, Application::Height);
-	cloudsBuffer.attachTexture(AttachmentTex::RGBA32F);
-	cloudsBuffer.attachTexture(AttachmentTex::DEPTH32F);
-
-	Texture::SetFilter(cloudsBuffer.getColorTexture(0), GL_LINEAR_MIPMAP_LINEAR);
-	Texture::SetFilter(cloudsBuffer.getDepthTexture(), GL_LINEAR);
-
-	skyBuffer.create(Application::Width, Application::Height);
-	skyBuffer.attachTexture(AttachmentTex::RGBA32F);
-	skyBuffer.attachTexture(AttachmentTex::DEPTH32F);
-
-	Texture::SetFilter(skyBuffer.getColorTexture(0), GL_LINEAR_MIPMAP_LINEAR);
-	Texture::SetFilter(skyBuffer.getDepthTexture(), GL_LINEAR);
-
 	m_clock.restart();
 
-	SunsetPreset1();
-	DefaultPreset();
 
 	m_slicedCube.create(128, 128, 128);
 
@@ -210,7 +188,7 @@ Clouds::Clouds(StateMachine& machine) : State(machine, CurrentState::SHAPEINTERF
 	m_post->linkShaders();
 
 	rmTarget.create(Application::Width, Application::Height);
-	rmTarget.attachTexture(AttachmentTex::RGBA32F);
+	rmTarget.attachTexture2D(AttachmentTex::RGBA32F);
 	m_blueNoise.loadFromFile("res/clouds/HDR_L_0.png", true, GL_R8, GL_R, 0, 0, 0, 0);
 	m_blueNoise.setWrapMode(GL_REPEAT);
 
@@ -331,16 +309,17 @@ void Clouds::render() {
 		return;
 	}
 
-	//cloudsModel.update();
-	updateSky();
+	m_light.update(m_camera.getPosition());
 
-	Vector3f lightDirection = Vector3f::Normalize(lightPosition - m_camera.getPosition());
+	m_sky.update();
+	m_cloudsModel.update();
 
 	glEnable(GL_DEPTH_TEST);
 	sceneBuffer.bind();
 	glClearDepth(1.0f);
 
-	glClearColor(fogColor[0], fogColor[1], fogColor[2], 1.0f);
+
+	glClearColor(m_fogColor[0], m_fogColor[1], m_fogColor[2], 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	if (m_drawScene) {
 		auto scene = Globals::shaderManager.getAssetPointer("culling");
@@ -358,119 +337,8 @@ void Clouds::render() {
 	sceneBuffer.unbind();
 	glDisable(GL_DEPTH_TEST);
 
-	skyBuffer.bind();
-	auto sky = Globals::shaderManager.getAssetPointer("sky");
-	sky->use();
-	sky->loadVector("resolution",Vector2f(Application::Width, Application::Height));
-	sky->loadMatrix("inv_proj", m_camera.getInvPerspectiveMatrix());
-	sky->loadMatrix("inv_view", m_camera.getInvViewMatrix());
-	sky->loadVector("lightDirection", lightDirection);
-	sky->loadVector("skyColorTop", skyColorTop);
-	sky->loadVector("skyColorBottom", skyColorBottom);
-	Globals::shapeManager.get("quad").drawRaw();
-	sky->unuse();
-	skyBuffer.unbind();
-
-	glBindImageTexture(0, m_textureSet[0].getTexture(), 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
-	glBindImageTexture(1, m_textureSet[1].getTexture(), 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
-	glBindImageTexture(2, m_textureSet[2].getTexture(), 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
-	glBindImageTexture(3, m_textureSet[3].getTexture(), 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
-
-	auto shader = Globals::shaderManager.getAssetPointer("clouds");
-	shader->use();
-	shader->loadVector("iResolution", Vector2f(Application::Width, Application::Height));
-	shader->loadFloat("iTime", m_clock.getElapsedTimeSec());
-	shader->loadMatrix("inv_proj", m_camera.getInvPerspectiveMatrix());
-	shader->loadMatrix("inv_view", m_camera.getInvViewMatrix());
-	shader->loadVector("cameraPosition", m_camera.getPosition());
-	shader->loadFloat("FOV", 60.0f);
-	shader->loadVector("lightDirection", lightDirection);
-	shader->loadVector("lightColor", Vector3f(lightColor[0], lightColor[1], lightColor[2]));
-
-	shader->loadFloat("coverage_multiplier", cloudsModel.coverage);
-	shader->loadFloat("cloudSpeed", cloudsModel.cloudSpeed);
-	shader->loadFloat("crispiness", cloudsModel.crispiness);
-	shader->loadFloat("curliness", cloudsModel.curliness);
-	shader->loadFloat("absorption", cloudsModel.absorption * 0.01f);
-	shader->loadFloat("densityFactor", cloudsModel.density);
-
-	shader->loadFloat("earthRadius", cloudsModel.earthRadius);
-	shader->loadFloat("sphereInnerRadius", cloudsModel.sphereInnerRadius);
-	shader->loadFloat("sphereOuterRadius", cloudsModel.sphereOuterRadius);
-
-	shader->loadVector("cloudColorTop", Vector3f(cloudsModel.cloudColorTop[0], cloudsModel.cloudColorTop[1], cloudsModel.cloudColorTop[2]));
-	shader->loadVector("cloudColorBottom", Vector3f(cloudsModel.cloudColorBottom[0], cloudsModel.cloudColorBottom[1], cloudsModel.cloudColorBottom[2]));
-
-	shader->loadVector("skyColorTop", skyColorTop);
-	shader->loadVector("skyColorBottom", skyColorBottom);
-
-	shader->loadMatrix("invViewProj", m_camera.getInvViewMatrix() * m_camera.getInvPerspectiveMatrix());
-	shader->loadMatrix("gVP", m_camera.getPerspectiveMatrix() * m_camera.getViewMatrix());
-
-	shader->loadInt("cloud", 0);
-	shader->loadInt("worley32", 1);
-	shader->loadInt("weatherTex", 2);
-	shader->loadInt("depthMap", 3);
-	shader->loadInt("sky", 4);
-
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_3D, m_noise == Noise::PERLINVERT ? perlinworley : cloudsModel.perlinTex);
-
-	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_3D, m_noise == Noise::PERLINVERT ? worley : cloudsModel.worley32);
-
-	glActiveTexture(GL_TEXTURE2);
-	glBindTexture(GL_TEXTURE_2D, cloudsModel.weatherTex);
-
-	sceneBuffer.bindDepthTexture(3);
-	skyBuffer.bindColorTexture(4, 0);
-
-	glDispatchCompute(INT_CEIL(Application::Width, 16), INT_CEIL(Application::Height, 16), 1);
-	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
-
-	
-	if (cloudsModel.postProcess) {
-
-		cloudsBuffer.bind();
-
-		auto post = Globals::shaderManager.getAssetPointer("cloud_post");
-		post->use();
-
-		post->loadInt("clouds", 0);
-		post->loadInt("emissions", 1);
-		post->loadInt("depthMap", 2);
-
-		m_textureSet[cloudsTextureNames::fragColor].bind(0);
-		m_textureSet[cloudsTextureNames::bloom].bind(1);
-		sceneBuffer.bindDepthTexture(2);
-
-		post->loadVector("cloudRenderResolution", Vector2f(Application::Width, Application::Height));
-		post->loadVector("resolution", Vector2f(Application::Width, Application::Height));
-
-		Matrix4f vp = m_camera.getPerspectiveMatrix() * m_camera.getViewMatrix();
-		Matrix4f lightModel;
-		lightModel.translate(lightPosition);
-		Vector4f pos = Vector4f(0.0, 60.0, 0.0, 1.0) ^ (vp * lightModel);
-		pos = pos / pos[3];
-		pos = pos * 0.5f + 0.5f;
-
-		post->loadVector("lightPos", pos);
-
-		bool isLightInFront = false;
-		float lightDotCameraFront = Vector3f::Dot(Vector3f::Normalize(lightPosition - m_camera.getPosition()), m_camera.getViewDirection());
-		if (lightDotCameraFront > 0.2) {
-			isLightInFront = true;
-		}
-		post->loadBool("isLightInFront", isLightInFront);
-		post->loadBool("enableGodRays", cloudsModel.enableGodRays);
-		post->loadBool("lightDotCameraFront", lightDotCameraFront);
-		post->loadFloat("time", m_clock.getElapsedTimeSec());
-		
-		if (!StateMachine::GetEnableWireframe())
-			Globals::shapeManager.get("quad").drawRaw();
-
-		cloudsBuffer.unbind();
-	}
+	m_sky.draw(m_camera);
+	m_cloudsModel.draw(m_camera, m_sky, sceneBuffer.getDepthTexture());
 
 	glDisable(GL_DEPTH_TEST);
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
@@ -486,9 +354,9 @@ void Clouds::render() {
 	post->loadInt("cloudDistance", 3);
 
 	sceneBuffer.bindColorTexture(0, 0);
-	cloudsModel.postProcess ? cloudsBuffer.bindColorTexture(1, 0) : m_textureSet[cloudsTextureNames::fragColor].bind(1);
+	m_cloudsModel.postProcess ? Texture::Bind(m_cloudsModel.getPostTexture(), 1)  : m_cloudsModel.getColorTexture(cloudsTextureNames::fragColor).bind(1);
 	sceneBuffer.bindDepthTexture(2);
-	m_textureSet[cloudsTextureNames::cloudDistance].bind(3);
+	m_cloudsModel.getColorTexture(cloudsTextureNames::cloudDistance).bind(3);
 
 	Globals::shapeManager.get("quad").drawRaw();
 	post->unuse();
@@ -507,10 +375,10 @@ void Clouds::render() {
 		
 		switch (m_noise) {
 			case Noise::PERLINCOMP:
-				glBindTexture(GL_TEXTURE_3D, cloudsModel.perlinTex);
+				glBindTexture(GL_TEXTURE_3D, m_cloudsModel.perlinTex);
 				break;
 			case Noise::WORLEYCOMP:
-				glBindTexture(GL_TEXTURE_3D, cloudsModel.worley32);
+				glBindTexture(GL_TEXTURE_3D, m_cloudsModel.worley32);
 				break;	
 			case Noise::PERLINVERT:
 				glBindTexture(GL_TEXTURE_3D, perlinworley);
@@ -531,7 +399,7 @@ void Clouds::render() {
 				glBindTexture(GL_TEXTURE_3D, sdfTo3D);
 				break;
 			default:
-				glBindTexture(GL_TEXTURE_3D, cloudsModel.perlinTex);
+				glBindTexture(GL_TEXTURE_3D, m_cloudsModel.perlinTex);
 				break;
 		}
 		m_slicedCube.drawRaw();
@@ -540,18 +408,18 @@ void Clouds::render() {
 
 	if (m_showWeatherMap) {
 		glDisable(GL_DEPTH_TEST);
-		auto shader = Globals::shaderManager.getAssetPointer("texture");
-		shader->use();
-		glUseProgram(shader->m_program);
-		shader->loadMatrix("u_projection", m_orthographic);
-		shader->loadMatrix("u_view", Matrix4f::IDENTITY);
-		shader->loadMatrix("u_model", Matrix4f::Translate(Application::Width - 150.0f, 150.0f, 0.0f) * Matrix4f::Scale(150.0f, 150.0f, 0.0f));
-		shader->loadInt("u_texture", 0);
+		auto _shader = Globals::shaderManager.getAssetPointer("texture");
+		_shader->use();
+		glUseProgram(_shader->m_program);
+		_shader->loadMatrix("u_projection", m_orthographic);
+		_shader->loadMatrix("u_view", Matrix4f::IDENTITY);
+		_shader->loadMatrix("u_model", Matrix4f::Translate(Application::Width - 150.0f, 150.0f, 0.0f) * Matrix4f::Scale(150.0f, 150.0f, 0.0f));
+		_shader->loadInt("u_texture", 0);
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, cloudsModel.weatherTex);
+		glBindTexture(GL_TEXTURE_2D, m_cloudsModel.weatherTex);
 
 		Globals::shapeManager.get("quad").drawRaw();
-		shader->unuse();
+		_shader->unuse();
 	}
 
 	if (m_showQuad) {
@@ -641,68 +509,6 @@ void Clouds::resize(int deltaW, int deltaH) {
 
 void Clouds::applyTransformation(TrackBall& arc) {
 	m_transform.fromMatrix(arc.getTransform());
-}
-
-colorPreset Clouds::SunsetPreset() {
-	colorPreset preset;
-
-	preset.cloudColorBottom = Vector3f(89, 96, 109) / 255.f;
-	preset.skyColorTop = Vector3f(177, 174, 119) / 255.f;
-	preset.skyColorBottom = Vector3f(234, 125, 125) / 255.f;
-
-	preset.lightColor = Vector3f(255, 171, 125) / 255.f;
-	preset.fogColor = Vector3f(85, 97, 120) / 255.f;
-
-	presetSunset = preset;
-
-	return preset;
-}
-
-colorPreset Clouds::SunsetPreset1() {
-	colorPreset preset;
-
-	preset.cloudColorBottom = Vector3f(97, 98, 120) / 255.f;
-	preset.skyColorTop = Vector3f(133, 158, 214) / 255.f;
-	preset.skyColorBottom = Vector3f(241, 161, 161) / 255.f;
-
-	preset.lightColor = Vector3f(255, 201, 201) / 255.f;
-	preset.fogColor = Vector3f(128, 153, 179) / 255.f;
-
-	presetSunset = preset;
-
-	return preset;
-}
-
-colorPreset Clouds::DefaultPreset() {
-	colorPreset preset;
-
-	preset.cloudColorBottom = (Vector3f(65., 70., 80.)*(1.5f / 255.f));
-
-	preset.skyColorTop = Vector3f(0.5, 0.7, 0.8)*1.05f;
-	preset.skyColorBottom = Vector3f(0.9, 0.9, 0.95);
-
-	preset.lightColor = Vector3f(255, 255, 230) / 255.f;
-	preset.fogColor = Vector3f(0.5, 0.6, 0.7);
-
-	highSunPreset = preset;
-
-	return preset;
-}
-
-void Clouds::mixSkyColorPreset(float v, colorPreset p1, colorPreset p2) {
-	float a = std::min(std::max(v, 0.0f), 1.0f);
-	float b = 1.0 - a;
-
-	//cloudColorBottom = p1.cloudColorBottom*a + p2.cloudColorBottom*b;
-	skyColorTop = p1.skyColorTop*a + p2.skyColorTop*b;
-	skyColorBottom = p1.skyColorBottom*a + p2.skyColorBottom*b;
-	lightColor = p1.lightColor*a + p2.lightColor*b;
-	fogColor = p1.fogColor*a + p2.fogColor*b;
-}
-
-void Clouds::updateSky() {
-	auto sigmoid = [](float v) { return 1 / (1.0 + exp(8.0 - v * 40.0)); };
-	mixSkyColorPreset(sigmoid(lightDirection[1]), highSunPreset, presetSunset);
 }
 
 void Clouds::renderUi() {

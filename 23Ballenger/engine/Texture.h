@@ -52,7 +52,7 @@ public:
 	void setAnisotropy(float aniso) const;
 	void cleanup();
 
-	static void Bind(unsigned int& textureRef, unsigned int unit = 0u, unsigned int target = 3553u);
+	static void Bind(unsigned int textureRef, unsigned int unit = 0u, unsigned int target = 3553u);
 	static void Unbind(unsigned int unit = 0u, unsigned int target = 3553u);
 	static void CutSubimage(std::string fileIn, std::string fileOut, unsigned int offsetX, unsigned int offsetY, unsigned int width = 0u, unsigned int height = 0u, const bool flipVertical = false);
 	static void AddHorizontally(std::string fileIn1, std::string fileIn2, std::string fileOut, const bool flipVertical = false);

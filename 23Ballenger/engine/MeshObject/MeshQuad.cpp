@@ -24,6 +24,25 @@ MeshQuad::MeshQuad(const Vector3f &position, const Vector2f& size, bool generate
 	createBuffer();
 }
 
+void MeshQuad::create(const Vector3f &position, const Vector2f& size, bool generateTexels, bool generateNormals, bool generateTangents, int uResolution, int vResolution) {
+	m_position = position;
+	m_size = size;
+
+	m_generateNormals = generateNormals;
+	m_generateTexels = generateTexels;
+	m_generateTangents = generateTangents;
+
+	m_uResolution = uResolution;
+	m_vResolution = vResolution;
+
+	m_numBuffers = 1 + generateTexels + generateNormals + 2 * generateTangents;
+
+	m_center = m_position + Vector3f(m_size[0], m_size[1], 0.0f) * 0.5f;
+	BuildMeshXY(m_position, m_size, m_uResolution, m_vResolution, m_generateTexels, m_generateNormals, m_generateTangents, m_positions, m_texels, m_normals, m_indexBuffer, m_tangents, m_bitangents);
+	createBuffer();
+}
+
+
 MeshQuad::~MeshQuad() {
 	if (m_vao)
 		glDeleteVertexArrays(1, &m_vao);

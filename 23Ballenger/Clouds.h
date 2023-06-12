@@ -16,10 +16,11 @@
 #include "engine/ArrayBuffer.h"
 
 #include "StateMachine.h"
-
 #include "CloudsModel.h"
 #include "NoiseGen.h"
 #include "Terrain.h"
+
+#include "Light.h"
 
 enum Noise {
 	PERLINCOMP,
@@ -32,11 +33,9 @@ enum Noise {
 	SDF
 };
 
-enum cloudsTextureNames { fragColor, bloom, alphaness, cloudDistance };
 
-struct colorPreset {
-	Vector3f cloudColorBottom, skyColorTop, skyColorBottom, lightColor, fogColor;
-};
+
+
 
 class Clouds : public State, public MouseEventListener {
 
@@ -60,29 +59,20 @@ public:
 	Transform m_transform;
 	bool m_initUi = true;
 
-	CloudsModel cloudsModel;
-	Vector3f fogColor;
-	Vector3f lightColor;
-
-	Vector3f lightPosition;
-	Vector3f lightDirection;
+	CloudsModel m_cloudsModel;
+	Vector3f m_fogColor;
 
 	Framebuffer sceneBuffer;
-	Framebuffer cloudsBuffer;
-	Framebuffer skyBuffer;
+
 	Framebuffer rmTarget;
 
-	Texture m_textureSet[4];
+
 	Clock m_clock;
 
-	colorPreset DefaultPreset();
-	colorPreset SunsetPreset();
-	colorPreset SunsetPreset1();
+	
 
-	void mixSkyColorPreset(float v, colorPreset p1, colorPreset p2);
-	colorPreset presetSunset, highSunPreset;
-	Vector3f skyColorTop, skyColorBottom;
-	void updateSky();
+
+
 	SlicedCube m_slicedCube;
 
 	bool m_showNoise = false;
@@ -117,5 +107,7 @@ public:
 	Texture m_blueNoise;
 
 	Terrain m_terrain;
+	Light m_light;
+	Sky m_sky;
 };
 

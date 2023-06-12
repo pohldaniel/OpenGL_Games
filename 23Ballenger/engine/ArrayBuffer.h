@@ -1,6 +1,7 @@
 #pragma once
 
 #include "engine/Texture.h"
+#include "engine/Spritesheet.h"
 #include "engine/Framebuffer.h"
 #include "engine/Shader.h"
 

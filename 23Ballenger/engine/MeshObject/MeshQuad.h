@@ -10,13 +10,16 @@ class MeshQuad {
 
 public:
 
-	MeshQuad(int uResolution = 1, int vResolution = 1);
+	MeshQuad() = default;
+	MeshQuad(int uResolution, int vResolution);
 	MeshQuad(bool generateTexels, bool generateNormals, bool generateTangents, int uResolution = 1, int vResolution = 1);
 	MeshQuad(const Vector3f &position, const Vector2f& size, bool generateTexels, bool generateNormals, bool generateTangents, int uResolution = 1, int vResolution = 1);
 	~MeshQuad();
 
 	void drawRaw();
 	void drawRawInstanced();
+	void create(const Vector3f &position, const Vector2f& size, bool generateTexels, bool generateNormals, bool generateTangents, int uResolution = 1, int vResolution = 1);
+
 	void createInstancesStatic(const std::vector<Matrix4f>& modelMTX);
 	void addInstance(const Matrix4f& modelMTX);
 	void setPrecision(int uResolution, int vResolution);

@@ -120,9 +120,6 @@
     <ClCompile Include="Clouds.cpp">
       <Filter>Source Files\States</Filter>
     </ClCompile>
-    <ClCompile Include="CloudsModel.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="engine\input\ApplicationEventListener.cpp">
       <Filter>engine\input</Filter>
     </ClCompile>
@@ -258,7 +255,10 @@
     <ClCompile Include="engine\ArrayBuffer.cpp">
       <Filter>engine</Filter>
     </ClCompile>
-    <ClCompile Include="CloudsModel2.cpp">
+    <ClCompile Include="CloudsModel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Sky.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -328,9 +328,6 @@
     </ClInclude>
     <ClInclude Include="Clouds.h">
       <Filter>Source Files\States</Filter>
-    </ClInclude>
-    <ClInclude Include="CloudsModel.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="engine\input\ApplicationEventListener.h">
       <Filter>engine\input</Filter>
@@ -482,7 +479,13 @@
     <ClInclude Include="engine\ArrayBuffer.h">
       <Filter>engine</Filter>
     </ClInclude>
-    <ClInclude Include="CloudsModel2.h">
+    <ClInclude Include="CloudsModel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Light.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Sky.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
