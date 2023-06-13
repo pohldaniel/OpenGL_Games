@@ -608,6 +608,9 @@ void Application::loadAssets() {
 	Globals::shapeManager.fromObj("column", "res/models/column.obj");
 	Globals::shapeManager.fromObj("portal", "res/models/portal.obj");
 	Globals::shapeManager.buildCylinder("cylinder_key", 2.0f, 2.0f, 1.0f, Vector3f(0.0f, 0.5f, 0.0f), false, false , 16, 16, false, true, false);
+	Globals::shapeManager.buildQuadXZ("platform", Vector3f(-512.0f, 0.5f, -512.0f), Vector2f(1024.0f, 1024.0f), 1, 1, true, false, false);
+
+	//Globals::shapeManager.buildCube("platform", Vector3f(-512.0f, -0.5f, -512.0f), Vector3f(1024.0f, 1.0f, 1024.0f), 1, 1, true, true, false);
 
 	Globals::shapeManager.buildSphere("sphere_cl", 1.0f, Vector3f(0.0f, 8.0f, 0.0f), 32, 32, false, true, false);
 	Globals::shapeManager.buildSphere("sphere_portal", 0.2f, Vector3f(512.0f, 13.75f, 544.0f), 16, 16, false, true, false);	

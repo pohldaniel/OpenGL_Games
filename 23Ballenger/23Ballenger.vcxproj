@@ -156,7 +156,6 @@
   <ItemGroup>
     <ClCompile Include="Application.cpp" />
     <ClCompile Include="CharacterController.cpp" />
-    <ClCompile Include="cLava.cpp" />
     <ClCompile Include="Clouds.cpp" />
     <ClCompile Include="CloudsModel.cpp" />
     <ClCompile Include="ColumnSet.cpp" />
@@ -205,6 +204,7 @@
     <ClCompile Include="engine\Vector.cpp" />
     <ClCompile Include="engine\VolumeBuffer.cpp" />
     <ClCompile Include="NoiseGen.cpp" />
+    <ClCompile Include="Lava.cpp" />
     <ClCompile Include="Sky.cpp" />
     <ClCompile Include="TerrainCulling.cpp" />
     <ClCompile Include="Game.cpp" />
@@ -230,7 +230,6 @@
   <ItemGroup>
     <ClInclude Include="Application.h" />
     <ClInclude Include="CharacterController.h" />
-    <ClInclude Include="cLava.h" />
     <ClInclude Include="Clouds.h" />
     <ClInclude Include="CloudsModel.h" />
     <ClInclude Include="ColumnSet.h" />
@@ -286,6 +285,7 @@
     <ClInclude Include="engine\VolumeBuffer.h" />
     <ClInclude Include="Light.h" />
     <ClInclude Include="NoiseGen.h" />
+    <ClInclude Include="Lava.h" />
     <ClInclude Include="Sky.h" />
     <ClInclude Include="TerrainCulling.h" />
     <ClInclude Include="Game.h" />

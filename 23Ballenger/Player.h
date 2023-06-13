@@ -20,10 +20,16 @@ public:
 	void init(const Terrain& terrain);
 	void draw(const Camera& camera) override;
 	void update(const float dt) override;
-	CharacterController* getCharacterController();
 
+	void setPosition(const Vector3f &position) override;
+	void setPosition(const float x, const float y, const float z) override;
+	void resetOrientation();
+	Vector3f& getInitialPosition();
+	CharacterController* getCharacterController();
+	
 private:
 
 	Camera& m_camera;
 	CharacterController* m_characterController;
+	Vector3f m_pos;
 };

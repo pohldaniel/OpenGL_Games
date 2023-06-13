@@ -1,4 +1,5 @@
 #include "MeshCube.h"
+#include <iostream>
 
 MeshCube::MeshCube(int uResolution, int vResolution) : MeshCube(Vector3f(-1.0f, -1.0f, -1.0f), Vector3f(2.0f, 2.0f, 2.0f), true, true, false, uResolution, vResolution) { }
 
@@ -508,6 +509,9 @@ void MeshCube::BuildMesh4Q(const Vector3f& _position, const Vector3f& size, int 
 		}
 	}
 	
+	vStep = (1.0f / vResolution) * size[1];
+	uStep = (1.0f / uResolution) * size[0];
+
 	// positive Z
 	for (unsigned int i = 0; i <= vResolution; i++) {
 		for (unsigned int j = 0; j <= uResolution; j++) {

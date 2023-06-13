@@ -19,6 +19,7 @@ public:
 		PICKABLE_OBJECT = 8,
 		CAMERA = 16,
 		CHARACTER = 32,
+		TRIGGER = 64,
 		COL_FORCE_8BIT = 0xFF
 	};
 
@@ -31,7 +32,7 @@ public:
 
 	void stepSimulation(btScalar timeStep);
 	void bebugDrawWorld();
-	btRigidBody * addRigidBody(float mass, const btTransform & startTransform, btCollisionShape * shape, int collisionFilterGroup = 1, int collisionFilterMask = -1);
+	btRigidBody* addRigidBody(float mass, const btTransform & startTransform, btCollisionShape * shape, int collisionFilterGroup = 1, int collisionFilterMask = -1);
 	btRigidBody* addStaticModel(std::vector<btCollisionShape *> & collisionShapes, const btTransform & trans, bool debugDraw = true, const btVector3 & scale = btVector3(1, 1, 1), int collisionFilterGroup = 1, int collisionFilterMask = -1);
 	
 	static btCollisionShape* CreateStaticCollisionShape(std::vector<float>& vertexBuffer, std::vector<unsigned int>& indexBuffer, const btVector3& scale = btVector3(1, 1, 1));

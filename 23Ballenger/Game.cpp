@@ -49,6 +49,15 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME),
 	glClearDepth(1.0f);
 	glClear(GL_DEPTH_BUFFER_BIT);
 	sceneBuffer.unbind();
+
+	//half extents
+	btCollisionShape* shape = new btBox2dShape(btVector3(511.5f, 0.0f, 511.5f));
+	btTransform transform;
+	transform.setIdentity();
+	transform.setOrigin(btVector3(512.0f, -1.0f, 512.0f));
+
+	m_lava.create(shape, transform, Physics::GetDynamicsWorld(), Physics::collisiontypes::TRIGGER, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::CAMERA);
+
 }
 
 Game::~Game() {
@@ -60,6 +69,8 @@ void Game::fixedUpdate() {
 	m_player.getCharacterController()->preStep();
 	Globals::physics->stepSimulation(m_fdt);
 	m_player.getCharacterController()->postStep();
+
+	Physics::GetDynamicsWorld()->contactPairTest(m_player.getCharacterController()->getRigidBody(), &m_lava, m_drawingResult);
 }
 
 void Game::update() {
@@ -148,8 +159,8 @@ void Game::render() {
 
 	shader->loadInt("tex_top", 0);
 	shader->loadInt("tex_side", 1);
-	shader->loadFloat("height", Lava.GetHeight());
-	shader->loadFloat("hmax", Lava.GetHeightMax());
+	shader->loadFloat("height", m_lava.getHeight());
+	shader->loadFloat("hmax", m_lava.getHeightMax());
 
 	Globals::textureManager.get("grass").bind(0);
 	Globals::textureManager.get("rock").bind(1);
@@ -175,7 +186,6 @@ void Game::render() {
 
 	m_respawnPointSet.draw(m_camera);
 	m_lava.draw(m_camera);
-
 	sceneBuffer.unbind();
 
 	glDisable(GL_DEPTH_TEST);
@@ -289,7 +299,7 @@ void Game::Init() {
 
 	//_Terrain.Load(1);
 	//_Terrain.createAttribute();
-	Lava.Load(TERRAIN_SIZE);
+	//Lava.Load(TERRAIN_SIZE);
 
 	//Sound.Play(SOUND_AMBIENT);
 	m_player.init(m_terrain);
@@ -298,22 +308,6 @@ void Game::Init() {
 	m_columnSet.init(m_terrain);
 	m_portal.init(m_terrain);
 	m_raySet.init();
-
-	m_lava = RenderableObject("quad_lava", "texture_new", "lava");
-	m_lava.setPosition(0.0f, 2.5f, 0.0f);
-	m_lava.setDrawFunction([&](const Camera& camera) {
-		if (m_lava.isDisabled()) return;
-
-		auto shader = Globals::shaderManager.getAssetPointer(m_lava.getShader());
-		shader->use();
-		shader->loadMatrix("u_projection", camera.getPerspectiveMatrix());
-		shader->loadMatrix("u_view", camera.getViewMatrix());
-		shader->loadMatrix("u_model", m_lava.getTransformationP());
-		shader->loadMatrix("u_normal", Matrix4f::GetNormalMatrix(camera.getViewMatrix() * m_lava.getTransformationP()));
-		Globals::textureManager.get(m_lava.getTexture()).bind(0);
-		Globals::shapeManager.get(m_lava.getShape()).drawRaw();
-		shader->unuse();
-	});
 
 	m_skybox = RenderableObject("cube", "skybox", "skybox");
 	m_skybox.setDrawFunction([&](const Camera& camera) {

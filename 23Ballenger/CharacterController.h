@@ -37,7 +37,9 @@ class CharacterController {
 	void setDamping(float linear, float angular);
 	void setLinearFactor(const btVector3& linearFactor);
 	void setGravity(const btVector3& gravity);
-	
+	void setPosition(const btVector3& position);
+	void resetOrientation();
+
 private:
 
 	void moveCharacterAlongY(float step);

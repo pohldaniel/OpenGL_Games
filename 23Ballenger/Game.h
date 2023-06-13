@@ -10,7 +10,6 @@
 #include "Terrain.h"
 #include "QuadTree.h"
 
-#include "cLava.h"
 
 #include "KeySet.h"
 #include "RaySet.h"
@@ -18,10 +17,20 @@
 #include "ColumnSet.h"
 #include "Portal.h"
 #include "Player.h"
+#include "Lava.h"
 
 #include "CloudsModel.h"
 #include "Sky.h"
 #include "Light.h"
+
+struct LavaTriggerCallback : public btCollisionWorld::ContactResultCallback {
+	btScalar addSingleResult(btManifoldPoint& cp, const btCollisionObjectWrapper* colObj0Wrap, int partId0, int index0, const btCollisionObjectWrapper* colObj1Wrap, int partId1, int index1) override {
+		Player* player = reinterpret_cast<Player*>(colObj0Wrap->getCollisionObject()->getUserPointer());
+		player->setPosition(player->getInitialPosition());
+		player->resetOrientation();
+		return 0;
+	}
+};
 
 class Game : public State, public MouseEventListener, public KeyboardEventListener {
 
@@ -48,11 +57,8 @@ private:
 	bool portal_activated;
 	float ang;
 
-	cLava Lava;
-
 	Camera m_camera;
 	RenderableObject m_skybox;
-	RenderableObject m_lava;
 
 	RespawnPointSet m_respawnPointSet;
 	KeySet m_keySet;
@@ -75,4 +81,7 @@ private:
 	Sky m_sky;
 	Vector3f m_fogColor;
 	Framebuffer sceneBuffer;
+	Lava m_lava;
+
+	LavaTriggerCallback m_drawingResult;
 };

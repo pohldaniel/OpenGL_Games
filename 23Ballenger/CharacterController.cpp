@@ -286,3 +286,13 @@ btRigidBody* CharacterController::getRigidBody() const {
 btCollisionShape* CharacterController::getCollisionShape() const {
 	return m_shape; 
 }
+
+void CharacterController::setPosition(const btVector3& position) {
+	btVector3 pos = m_rigidBody->getWorldTransform().getOrigin();
+	m_rigidBody->getWorldTransform().setOrigin(position);
+}
+
+void CharacterController::resetOrientation() {
+	btTransform&  transform = m_rigidBody->getWorldTransform();
+	transform.setRotation(btQuaternion(0.0f, 0.0f, 0.0f, 1.0f));
+}

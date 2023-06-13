@@ -11,13 +11,13 @@ Player::~Player() {
 
 void Player::init(const Terrain& terrain) {
 
-	Vector3f pos = Vector3f((1024 * SCALE) / 2, (terrain.heightAt((1024 * SCALE) / 2, (1024 * SCALE) / 2) + RADIUS) * SCALE, (1024 * SCALE) / 2);
+	m_pos = Vector3f((1024 * SCALE) / 2, (terrain.heightAt((1024 * SCALE) / 2, (1024 * SCALE) / 2) + RADIUS) * SCALE, (1024 * SCALE) / 2);
 
 	//create dynamic character
 	btSphereShape* playerShape = new btSphereShape(0.5f * SCALE);
 	btTransform playerTransform;
 	playerTransform.setIdentity();
-	playerTransform.setOrigin(btVector3(btScalar(pos[0]), btScalar(pos[1]), btScalar(pos[2])));
+	playerTransform.setOrigin(btVector3(btScalar(m_pos[0]), btScalar(m_pos[1]), btScalar(m_pos[2])));
 	btVector3 localInertiaChar(0, 0, 0);
 	playerShape->calculateLocalInertia(100.0f, localInertiaChar);
 
@@ -26,7 +26,7 @@ void Player::init(const Terrain& terrain) {
 	btRigidBody::btRigidBodyConstructionInfo cInfoChar(100.0f, playerMotionState, playerShape, localInertiaChar);
 
 	m_characterController = new CharacterController();
-	m_characterController->create(new btRigidBody(cInfoChar), Physics::GetDynamicsWorld(), Physics::collisiontypes::CHARACTER, Physics::collisiontypes::TERRAIN);
+	m_characterController->create(new btRigidBody(cInfoChar), Physics::GetDynamicsWorld(), Physics::collisiontypes::CHARACTER, Physics::collisiontypes::TERRAIN, this);
 
 	m_characterController->setSlopeAngle(60.0f);
 	m_characterController->setJumpDistanceOffset(RADIUS + 0.1f);
@@ -124,11 +124,31 @@ void Player::update(const float dt) {
 	cameraPosition.setInterpolate3(t.getOrigin(), cameraPosition, Physics::SweepSphere(t.getOrigin(), cameraPosition, 0.2f, Physics::collisiontypes::CAMERA, Physics::collisiontypes::TERRAIN));
 	m_camera.setPosition(Physics::VectorFrom(cameraPosition));
 
-	setPosition(playerPos);
-	setOrientation(Physics::QuaternionFrom(t.getRotation()));
+	Object::setPosition(playerPos);
+	Object::setOrientation(Physics::QuaternionFrom(t.getRotation()));
 
 }
 
 CharacterController* Player::getCharacterController() {
 	return m_characterController;
+}
+
+void Player::setPosition(const Vector3f &position) {
+	m_characterController->setLinearVelocityXZ(btVector3(0.0f, 0.0f, 0.0f));
+	m_characterController->setAngularVelocity(btVector3(0.0f, 0.0f, 0.0f));
+	m_characterController->setPosition(Physics::VectorFrom(position));
+}
+
+void Player::setPosition(const float x, const float y, const float z) {
+	m_characterController->setLinearVelocityXZ(btVector3(0.0f, 0.0f, 0.0f));
+	m_characterController->setAngularVelocity(btVector3(0.0f, 0.0f, 0.0f));
+	m_characterController->setPosition(btVector3(x, y, z));
+}
+
+void Player::resetOrientation() {
+	m_characterController->resetOrientation();
+}
+
+Vector3f& Player::getInitialPosition() {
+	return m_pos;
 }
