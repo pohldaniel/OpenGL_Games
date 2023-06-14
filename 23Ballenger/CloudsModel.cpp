@@ -178,9 +178,7 @@ void CloudsModel::initVariables() {
 	worley32 = 0;
 }
 
-void CloudsModel::draw(const Camera& camera, const Sky& sky, const unsigned int sceneDepth) {
-
-	
+void CloudsModel::draw(const Camera& camera, const Sky& sky) {
 
 	glBindImageTexture(0, m_textureSet[0].getTexture(), 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
 	glBindImageTexture(1, m_textureSet[1].getTexture(), 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
@@ -250,14 +248,9 @@ void CloudsModel::draw(const Camera& camera, const Sky& sky, const unsigned int 
 
 		m_post->loadInt("clouds", 0);
 		m_post->loadInt("emissions", 1);
-		m_post->loadInt("depthMap", 2);
 
 		m_textureSet[cloudsTextureNames::fragColor].bind(0);
 		m_textureSet[cloudsTextureNames::bloom].bind(1);
-
-		glActiveTexture(GL_TEXTURE2);
-		glBindTexture(GL_TEXTURE_2D, sceneDepth);
-
 		m_post->loadVector("cloudRenderResolution", Vector2f(static_cast<float>(m_width), static_cast<float>(m_height)));
 		m_post->loadVector("resolution", Vector2f(static_cast<float>(m_width), static_cast<float>(m_height)));
 

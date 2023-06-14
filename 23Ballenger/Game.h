@@ -26,10 +26,16 @@
 struct LavaTriggerCallback : public btCollisionWorld::ContactResultCallback {
 
 	LavaTriggerCallback(KeySet& keySet) : keySet(keySet) {}
-
 	KeySet& keySet;
 
-	btScalar addSingleResult(btManifoldPoint& cp, const btCollisionObjectWrapper* colObj0Wrap, int partId0, int index0, const btCollisionObjectWrapper* colObj1Wrap, int partId1, int index1) override;
+	btScalar LavaTriggerCallback::addSingleResult(btManifoldPoint& cp, const btCollisionObjectWrapper* colObj0Wrap, int partId0, int index0, const btCollisionObjectWrapper* colObj1Wrap, int partId1, int index1) override {
+		Player* player = reinterpret_cast<Player*>(colObj0Wrap->getCollisionObject()->getUserPointer());
+		player->setPosition(player->getInitialPosition());
+		player->resetOrientation();
+		keySet.restorePrevState();
+		keySet.m_pickedKeyId = -1;
+		return 0;
+	}
 };
 
 class Game : public State, public MouseEventListener, public KeyboardEventListener {
@@ -55,38 +61,34 @@ public:
 
 private:
 
-	
-	bool portal_activated;
-	float ang;
-
 	Camera m_camera;
 	RenderableObject m_skybox;
 
 	RespawnPointSet m_respawnPointSet;
+	ColumnSet m_columnSet;
 	KeySet m_keySet;
 	RaySet m_raySet;
-	
-	ColumnSet m_columnSet;
 	Portal m_portal;
 	Player m_player;
+	Lava m_lava;
 
 	float m_offsetDistance = 10.0f;
 	bool m_initUi = true;
 	bool m_drawUi = false;
-	int m_depth = 0;
-
+	bool m_useSkybox = false;
 	QuadTree m_quadTree;
 	Terrain m_terrain;
 
 	CloudsModel m_cloudsModel;
-	Light m_light;
 	Sky m_sky;
+	Light m_light;
+	
 	Vector3f m_fogColor;
 	Framebuffer sceneBuffer;
-	Lava m_lava;
 
 	LavaTriggerCallback m_lavaTriggerResult;
 
 	int respawn_id;
 	int& pickedKeyId;
+	bool portal_activated;
 };

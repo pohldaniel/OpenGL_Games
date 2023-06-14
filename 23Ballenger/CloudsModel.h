@@ -25,7 +25,7 @@ public:
 	~CloudsModel();
 
 	void update();
-	void draw(const Camera& camera, const Sky& sky, unsigned int sceneDepth);
+	void draw(const Camera& camera, const Sky& sky);
 	
 	Shader *m_weatherShaderComp, *m_weatherShader, *m_raymarcher, *m_post;
 

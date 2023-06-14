@@ -259,7 +259,7 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Lava.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Entities</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -486,7 +486,7 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Lava.h">
-      <Filter>Header Files</Filter>
+      <Filter>Source Files\Entities</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

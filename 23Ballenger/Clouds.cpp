@@ -336,7 +336,7 @@ void Clouds::render() {
 	glDisable(GL_DEPTH_TEST);
 
 	m_sky.draw(m_camera);
-	m_cloudsModel.draw(m_camera, m_sky, sceneBuffer.getDepthTexture());
+	m_cloudsModel.draw(m_camera, m_sky);
 
 	glDisable(GL_DEPTH_TEST);
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);

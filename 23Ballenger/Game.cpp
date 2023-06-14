@@ -7,15 +7,6 @@
 #include "Application.h"
 #include "Globals.h"
 
-btScalar LavaTriggerCallback::addSingleResult(btManifoldPoint& cp, const btCollisionObjectWrapper* colObj0Wrap, int partId0, int index0, const btCollisionObjectWrapper* colObj1Wrap, int partId1, int index1) {
-	Player* player = reinterpret_cast<Player*>(colObj0Wrap->getCollisionObject()->getUserPointer());
-	player->setPosition(player->getInitialPosition());
-	player->resetOrientation();
-	keySet.restorePrevState();
-	keySet.m_pickedKeyId = -1;
-	return 0;
-}
-
 Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), 
 									m_keySet(m_player.getPosition()), 
 									m_respawnPointSet(m_player.getPosition()),
@@ -36,13 +27,13 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME),
 
 	Init();
 
-	const Vector3f& pos = Vector3f((TERRAIN_SIZE * SCALE) / 2, (m_terrain.heightAt((TERRAIN_SIZE * SCALE) / 2, (TERRAIN_SIZE * SCALE) / 2) + RADIUS) * SCALE, (TERRAIN_SIZE * SCALE) / 2);
+	const Vector3f& pos = Vector3f((TERRAIN_SIZE) / 2, (m_terrain.heightAt((TERRAIN_SIZE) / 2, (TERRAIN_SIZE) / 2) + RADIUS), (TERRAIN_SIZE) / 2);
 	
 	m_camera = ThirdPersonCamera();
 	m_camera.perspective(45.0f, (float)Application::Width / (float)Application::Height, 0.1f, 5000.0f);
 	m_camera.lookAt(pos - Vector3f(0.0f, 0.0f, m_offsetDistance), pos, Vector3f(0.0f, 1.0f, 0.0f));
 
-	std::vector<btCollisionShape*> terrainShape = Physics::CreateStaticCollisionShapes(&m_terrain, SCALE);
+	std::vector<btCollisionShape*> terrainShape = Physics::CreateStaticCollisionShapes(&m_terrain, 1.0f);
 	btRigidBody* body = Globals::physics->addStaticModel(terrainShape, Physics::BtTransform(), false, btVector3(1.0f, 1.0f, 1.0f), Physics::collisiontypes::TERRAIN, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::CAMERA);
 
 	m_light.color = Vector3f(255.0f, 255.0f, 230.0f) / 255.0f;
@@ -53,13 +44,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME),
 
 	sceneBuffer.create(Application::Width, Application::Height);
 	sceneBuffer.attachTexture2D(AttachmentTex::RGBA32F);
-	sceneBuffer.attachTexture2D(AttachmentTex::DEPTH32F);
-
-	//avoid flickering
-	sceneBuffer.bind();
-	glClearDepth(1.0f);
-	glClear(GL_DEPTH_BUFFER_BIT);
-	sceneBuffer.unbind();
+	sceneBuffer.attachTexture2D(AttachmentTex::DEPTH24);
 
 	//half extents
 	btCollisionShape* shape = new btBox2dShape(btVector3(511.5f, 0.0f, 511.5f));
@@ -68,6 +53,9 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME),
 	transform.setOrigin(btVector3(512.0f, -1.0f, 512.0f));
 
 	m_lava.create(shape, transform, Physics::GetDynamicsWorld(), Physics::collisiontypes::TRIGGER, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::CAMERA);
+
+	m_sky.draw(m_camera);
+	m_cloudsModel.draw(m_camera, m_sky);
 }
 
 Game::~Game() {
@@ -133,30 +121,34 @@ void Game::update() {
 }
 
 void Game::render() {
-
-	m_sky.draw(m_camera);
-	m_cloudsModel.draw(m_camera, m_sky, sceneBuffer.getDepthTexture());
+	if (!m_useSkybox) {
+		m_sky.draw(m_camera);
+		m_cloudsModel.draw(m_camera, m_sky);
+	}
 
 	sceneBuffer.bind();
-	glClearDepth(1.0f);
 	glClearColor(m_fogColor[0], m_fogColor[1], m_fogColor[2], 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	auto quad = Globals::shaderManager.getAssetPointer("quad");
-	quad->use();
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, m_cloudsModel.getPostTexture());
-	Globals::shapeManager.get("quad").drawRaw();
-	quad->unuse();
+	auto quad = Globals::shaderManager.getAssetPointer("quad_back");
+	if (!m_useSkybox) {
+		quad->use();
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, m_cloudsModel.getPostTexture());
+		Globals::shapeManager.get("quad").drawRaw();
+		quad->unuse();
+	}else {
+		m_skybox.draw(m_camera);
+	}
 
 	glEnable(GL_DEPTH_TEST);
 	auto shader = Globals::shaderManager.getAssetPointer("terrain_new");
 	shader->use();
 	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
 	shader->loadMatrix("u_view", m_camera.getViewMatrix());
-	shader->loadMatrix("u_model", Matrix4f::Scale(SCALE, SCALE, SCALE));
+	shader->loadMatrix("u_model", Matrix4f::IDENTITY);
 	shader->loadMatrix("u_normal", Matrix4f::GetNormalMatrix(m_camera.getViewMatrix()));
-	
+
 	shader->loadVector("lightPos", Vector3f(50.0f, 50.0f, 50.0f));
 	shader->loadVector("lightAmbient", Vector4f(0.0f, 0.0f, 0.0f, 1.0f));
 	shader->loadVector("lightDiffuse", Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
@@ -186,11 +178,11 @@ void Game::render() {
 	m_keySet.draw(m_camera);
 	m_raySet.draw(m_camera);
 	m_columnSet.draw(m_camera);
-	
-	if (abs(m_camera.getPositionZ() - m_portal.getZ()) < m_camera.getOffsetDistance()){
+
+	if (abs(m_camera.getPositionZ() - m_portal.getZ()) < m_camera.getOffsetDistance()) {
 		m_player.draw(m_camera);
 		m_portal.draw(m_camera);
-	}else{
+	}else {
 		m_portal.draw(m_camera);
 		m_player.draw(m_camera);
 	}
@@ -255,6 +247,38 @@ void Game::resize(int deltaW, int deltaH) {
 
 }
 
+void ToggleButton(const char* str_id, bool* v) {
+	ImVec2 p = ImGui::GetCursorScreenPos();
+	ImDrawList* draw_list = ImGui::GetWindowDrawList();
+
+	float height = ImGui::GetFrameHeight();
+	float width = height * 1.55f;
+	float radius = height * 0.50f;
+
+	ImGui::InvisibleButton(str_id, ImVec2(width, height));
+	if (ImGui::IsItemClicked())
+		*v = !*v;
+
+	float t = *v ? 1.0f : 0.0f;
+
+	ImGuiContext& g = *GImGui;
+	float ANIM_SPEED = 0.08f;
+	if (g.LastActiveId == g.CurrentWindow->GetID(str_id))// && g.LastActiveIdTimer < ANIM_SPEED)
+	{
+		float t_anim = ImSaturate(g.LastActiveIdTimer / ANIM_SPEED);
+		t = *v ? (t_anim) : (1.0f - t_anim);
+	}
+
+	ImU32 col_bg;
+	if (ImGui::IsItemHovered())
+		col_bg = ImGui::GetColorU32(ImLerp(ImVec4(0.78f, 0.78f, 0.78f, 1.0f), ImVec4(0.64f, 0.83f, 0.34f, 1.0f), t));
+	else
+		col_bg = ImGui::GetColorU32(ImLerp(ImVec4(0.85f, 0.85f, 0.85f, 1.0f), ImVec4(0.56f, 0.83f, 0.26f, 1.0f), t));
+
+	draw_list->AddRectFilled(p, ImVec2(p.x + width, p.y + height), col_bg, height * 0.5f);
+	draw_list->AddCircleFilled(ImVec2(p.x + radius + t * (width - radius * 2.0f), p.y + radius), radius - 1.5f, IM_COL32(255, 255, 255, 255));
+}
+
 void Game::renderUi() {
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplWin32_NewFrame();
@@ -293,7 +317,7 @@ void Game::renderUi() {
 	if (ImGui::SliderFloat("Camera Offset", &m_offsetDistance, 0.0f, 150.0f)) {
 		m_camera.setOffsetDistance(m_offsetDistance);
 	}
-
+	ToggleButton("Use Skybox", &m_useSkybox);
 	ImGui::End();
 
 	ImGui::Render();
@@ -302,11 +326,8 @@ void Game::renderUi() {
 
 void Game::Init() {
 
-	bool res = true;
 	portal_activated = false;
 	respawn_id = 0;
-
-	ang = 0.0f;
 
 	//Sound.Play(SOUND_AMBIENT);
 	m_player.init(m_terrain);
@@ -342,3 +363,4 @@ void Game::Init() {
 	});
 
 }
+

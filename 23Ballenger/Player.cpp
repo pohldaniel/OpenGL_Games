@@ -11,10 +11,10 @@ Player::~Player() {
 
 void Player::init(const Terrain& terrain) {
 
-	m_pos = Vector3f((1024 * SCALE) / 2, (terrain.heightAt((1024 * SCALE) / 2, (1024 * SCALE) / 2) + RADIUS) * SCALE, (1024 * SCALE) / 2);
+	m_pos = Vector3f(512.0f, (terrain.heightAt(512.0f, 512.0f) + RADIUS), 512.0f);
 
 	//create dynamic character
-	btSphereShape* playerShape = new btSphereShape(0.5f * SCALE);
+	btSphereShape* playerShape = new btSphereShape(0.5f);
 	btTransform playerTransform;
 	playerTransform.setIdentity();
 	playerTransform.setOrigin(btVector3(btScalar(m_pos[0]), btScalar(m_pos[1]), btScalar(m_pos[2])));

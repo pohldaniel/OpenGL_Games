@@ -288,8 +288,8 @@ void Application::initOpenGL(int msaaSamples) {
 
 	glCullFace(GL_BACK);
 	glFrontFace(GL_CCW);
-	glEnable(GL_CULL_FACE);
-	//glDisable(GL_CULL_FACE);
+	//glEnable(GL_CULL_FACE);
+	glDisable(GL_CULL_FACE);
 
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_ALPHA_TEST);
@@ -524,6 +524,7 @@ void Application::loadAssets() {
 	Globals::shaderManager.loadShader("clouds", "Shaders/volumetric_clouds.comp");
 	Globals::shaderManager.loadShader("cloud_post", "Shaders/screen_new.vert", "Shaders/clouds_post.frag");
 
+	Globals::shaderManager.loadShader("quad_back", "res/quad_back.vert", "res/quad.frag");
 	Globals::shaderManager.loadShader("quad", "res/quad.vert", "res/quad.frag");
 
 	Globals::shaderManager.loadShader("texture3d", "res/texture3D.vert", "res/texture3D.frag");
@@ -597,7 +598,7 @@ void Application::loadAssets() {
 	Globals::textureManager.loadCubeMapFromCross("skybox", "Textures/skybox.png", true);
 
 	Globals::shapeManager.buildCube("cube", Vector3f(-1.0f, -1.0f, -1.0f), Vector3f(2.0f, 2.0f, 2.0f), 1, 1, false, false, false);
-	Globals::shapeManager.buildSphere("sphere", 0.5f * SCALE, Vector3f(0.0f, 0.0f, 0.0f), 16, 16, true, true, false);
+	Globals::shapeManager.buildSphere("sphere", 0.5f, Vector3f(0.0f, 0.0f, 0.0f), 16, 16, true, true, false);
 	Globals::shapeManager.buildQuadXY("quad", Vector3f(-1.0f, -1.0f, 0.0f), Vector2f(2.0f, 2.0f), 1, 1, true, true, true);
 	Globals::shapeManager.buildQuadXZ("quad_lava", Vector3f(0.0f, 0.0f, 0.0f), Vector2f(1024.0f, 1024.0f), 1, 1, true, true, false);
 	Globals::shapeManager.buildQuadXZ("quad_rp", Vector3f(-2.0f, 0.05f, -2.0f), Vector2f(4.0f, 4.0f), 1, 1, true, true, false);
