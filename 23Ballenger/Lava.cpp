@@ -13,12 +13,12 @@ Lava::~Lava() {
 void Lava::updateHeight() {
 	
 	if (up) {
-		ang = fmod(ang + FLOW_SPEED, 360);
-		height = ((LAVA_HEIGHT_MAX - LAVA_HEIGHT_MIN) / 2.0f)*sin(ang*(PI / 180)) + (LAVA_HEIGHT_MAX + LAVA_HEIGHT_MIN) / 2.0f;
+		ang = fmod(ang + FLOW_SPEED, 360.0f);
+		height = ((LAVA_HEIGHT_MAX - LAVA_HEIGHT_MIN) / 2.0f) * sinf(ang * PI_ON_180) + (LAVA_HEIGHT_MAX + LAVA_HEIGHT_MIN) / 2.0f;
 		up = (height < LAVA_HEIGHT_MAX);
 	}else {
-		ang = fmod(ang - FLOW_SPEED, 360);
-		height = ((LAVA_HEIGHT_MAX - LAVA_HEIGHT_MIN) / 2.0f)*sin(ang*(PI / 180)) + (LAVA_HEIGHT_MAX + LAVA_HEIGHT_MIN) / 2.0f;
+		ang = fmod(ang - FLOW_SPEED, 360.0f);
+		height = ((LAVA_HEIGHT_MAX - LAVA_HEIGHT_MIN) / 2.0f) * sinf(ang * PI_ON_180) + (LAVA_HEIGHT_MAX + LAVA_HEIGHT_MIN) / 2.0f;
 		up = (height <= LAVA_HEIGHT_MIN);
 	}
 
@@ -31,7 +31,9 @@ void Lava::updateHeight() {
 void Lava::create(btCollisionShape* shape, const btTransform& transform, btDynamicsWorld* physicsWorld,int collisionFilterGroup, int collisionFilterMask, void* rigidBodyUserPointer) {
 	setCollisionShape(shape);
 	setWorldTransform(transform);
-	setCollisionFlags(getCollisionFlags() | btCollisionObject::CF_NO_CONTACT_RESPONSE);
+
+	//setCollisionFlags(btCollisionObject::CF_STATIC_OBJECT | btCollisionObject::CF_NO_CONTACT_RESPONSE);
+	setCollisionFlags(btCollisionObject::CF_KINEMATIC_OBJECT | btCollisionObject::CF_NO_CONTACT_RESPONSE);
 	forceActivationState(DISABLE_DEACTIVATION);
 
 	physicsWorld->addCollisionObject(this, collisionFilterGroup, collisionFilterMask);

@@ -50,9 +50,9 @@ void Physics::stepSimulation(btScalar timeStep){
 	//int numSimSteps = m_dynamicsWorld->stepSimulation(timeStep, 4 + 1, m_physicsStep / 4); // timeStep < maxSubSteps * fixedTimeSte
 }
 
-btRigidBody * Physics::createRigidBody(btScalar mass, const btTransform & startTransform, btCollisionShape * shape) {
-	btVector3 localInertia(0, 0, 0);
-	if (mass != 0.f)  //rigidbody is dynamic if and only if mass is non zero, otherwise static
+btRigidBody * Physics::createRigidBody(btScalar mass, const btTransform& startTransform, btCollisionShape* shape, int collisionFlag) {
+	btVector3 localInertia(0.0f, 0.0f, 0.0f);
+	if (mass != 0.0f)  //rigidbody is dynamic if and only if mass is non zero, otherwise static
 		shape->calculateLocalInertia(mass, localInertia);
 
 	//using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects
@@ -62,31 +62,31 @@ btRigidBody * Physics::createRigidBody(btScalar mass, const btTransform & startT
 
 	btRigidBody* body = new btRigidBody(cInfo);
 	//body->setContactProcessingThreshold(0);
-	body->setCollisionFlags(btCollisionObject::CF_KINEMATIC_OBJECT | btCollisionObject::CF_STATIC_OBJECT);
+	body->setCollisionFlags(collisionFlag);
 	return body;
 }
 
 
-btRigidBody* Physics::addRigidBody(float mass, const btTransform & startTransform, btCollisionShape * shape, int collisionFilterGroup, int collisionFilterMask){
-	btRigidBody* body = createRigidBody(mass, startTransform, shape);
+btRigidBody* Physics::addRigidBody(float mass, const btTransform& startTransform, btCollisionShape* shape, int collisionFilterGroup, int collisionFilterMask, int collisionFlag){
+	btRigidBody* body = createRigidBody(mass, startTransform, shape, collisionFlag);
 	DynamicsWorld->addRigidBody(body, collisionFilterGroup, collisionFilterMask);
 
 	return body;
 }
 
-btRigidBody* Physics::addStaticModel(std::vector<btCollisionShape *> & collisionShapes, const btTransform & trans, bool debugDraw, const btVector3 & scale, int collisionFilterGroup, int collisionFilterMask){
+btRigidBody* Physics::addStaticModel(std::vector<btCollisionShape *>& collisionShapes, const btTransform& trans, bool debugDraw, const btVector3& scale, int collisionFilterGroup, int collisionFilterMask){
 	btRigidBody *body = nullptr; 
 	
 	for (unsigned int i = 0; i < collisionShapes.size(); i++){
 		btCollisionShape *colShape;
 
-		if (scale != btVector3(1, 1, 1))
+		if (scale != btVector3(1.0f, 1.0f, 1.0f))
 			colShape = new btScaledBvhTriangleMeshShape((btBvhTriangleMeshShape*)collisionShapes[i], scale);
 		else
 			colShape = collisionShapes[i];
 
 
-		body = addRigidBody(0, trans, colShape, collisionFilterGroup, collisionFilterMask);
+		body = addRigidBody(0.0f, trans, colShape, collisionFilterGroup, collisionFilterMask, btCollisionObject::CF_STATIC_OBJECT);
 
 		if (!debugDraw)
 			body->setCollisionFlags(body->getCollisionFlags() | btCollisionObject::CF_DISABLE_VISUALIZE_OBJECT);
@@ -99,7 +99,7 @@ void Physics::bebugDrawWorld() {
 	DynamicsWorld->debugDrawWorld();
 }
 
-btCollisionShape * Physics::CreateStaticCollisionShape(ObjMesh* mesh, const btVector3 & scale) {
+btCollisionShape* Physics::CreateCollisionShape(ObjMesh* mesh, const btVector3& scale) {
 	int floatsPerVertex = mesh->getStride();
 	int integerPerFace = 3;
 	int numberOfTriangles = mesh->getIndexBuffer().size() / integerPerFace;
@@ -113,11 +113,15 @@ btCollisionShape * Physics::CreateStaticCollisionShape(ObjMesh* mesh, const btVe
 	return shape;
 }
 
-std::vector<btCollisionShape *> Physics::CreateStaticCollisionShapes(ObjModel* model, const btVector3 & scale) {
+btCollisionShape* Physics::CreateCollisionShape(ObjMesh* mesh, float scale) {
+	return CreateCollisionShape(mesh, btVector3(scale, scale, scale));
+}
+
+std::vector<btCollisionShape *> Physics::CreateCollisionShapes(ObjModel* model, const btVector3& scale) {
 	std::vector<btCollisionShape *> ret;
 	for (unsigned int i = 0; i < model->getMeshes().size(); i++) {
 
-		btCollisionShape* shape = CreateStaticCollisionShape(model->getMeshes()[i], scale);
+		btCollisionShape* shape = CreateCollisionShape(model->getMeshes()[i], scale);
 
 		if (shape) {
 
@@ -128,15 +132,15 @@ std::vector<btCollisionShape *> Physics::CreateStaticCollisionShapes(ObjModel* m
 }
 
 
-std::vector<btCollisionShape *> Physics::CreateStaticCollisionShapes(ObjModel * model, float scale) {
-	return CreateStaticCollisionShapes(model, btVector3(scale, scale, scale));
+std::vector<btCollisionShape *> Physics::CreateCollisionShapes(ObjModel* model, float scale) {
+	return CreateCollisionShapes(model, btVector3(scale, scale, scale));
 }
 
-btCollisionShape * Physics::CreateStaticCollisionShape(Shape* mesh, const btVector3& scale) {
+btCollisionShape * Physics::CreateStaticCollisionShape(Shape* _shape, const btVector3& scale) {
 	
 	int indexStride = 3 * sizeof(int);
 
-	btTriangleIndexVertexArray* tiva = new btTriangleIndexVertexArray(mesh->getNumberOfTriangles(), (int*)(&mesh->getIndexBuffer()[0]), indexStride, mesh->getPositions().size(), (btScalar*)(&mesh->getPositions()[0]), sizeof(Vector3f));
+	btTriangleIndexVertexArray* tiva = new btTriangleIndexVertexArray(_shape->getNumberOfTriangles(), (int*)(&_shape->getIndexBuffer()[0]), indexStride, _shape->getPositions().size(), (btScalar*)(&_shape->getPositions()[0]), sizeof(Vector3f));
 
 	btBvhTriangleMeshShape *shape = new btBvhTriangleMeshShape(tiva, true);
 	shape->setLocalScaling(scale);
@@ -144,9 +148,9 @@ btCollisionShape * Physics::CreateStaticCollisionShape(Shape* mesh, const btVect
 	return shape;
 }
 
-std::vector<btCollisionShape *> Physics::CreateStaticCollisionShapes(Shape* model, float scale) {
+std::vector<btCollisionShape *> Physics::CreateStaticCollisionShapes(Shape* _shape, float scale) {
 	std::vector<btCollisionShape *> ret;
-	btCollisionShape *shape = CreateStaticCollisionShape(model, btVector3(scale, scale, scale));
+	btCollisionShape *shape = CreateStaticCollisionShape(_shape, btVector3(scale, scale, scale));
 
 	if (shape) {
 		ret.push_back(shape);
@@ -154,9 +158,8 @@ std::vector<btCollisionShape *> Physics::CreateStaticCollisionShapes(Shape* mode
 	return ret;
 }
 
-
 btCollisionShape* Physics::CreateStaticCollisionShape(std::vector<float>& vertexBuffer, std::vector<unsigned int>& indexBuffer, const btVector3& scale) {
-	int floatsPerVertex = 3 ;
+	int floatsPerVertex = 3;
 	int integerPerFace = 3;
 	int numberOfTriangles = indexBuffer.size() / integerPerFace;
 	int numberOfVertices = vertexBuffer.size() / floatsPerVertex;
@@ -247,35 +250,46 @@ btRigidBody* Physics::CreateRigidBody(btScalar mass, const btTransform & startTr
 }
 
 btTransform Physics::BtTransform() {
-	btTransform ret;
-	ret.setIdentity();
+	btTransform transform;
+	transform.setIdentity();
+	return transform;
+}
 
-	return ret;
+btTransform Physics::BtTransform(const btVector3& origin) {
+	btTransform transform;
+	transform.setIdentity();
+	transform.setOrigin(origin);
+	return transform;
+}
+
+btTransform Physics::BtTransform(const btVector3& origin, const btQuaternion& orientation) {
+	btTransform transform;
+	transform.setIdentity();
+	transform.setOrigin(origin);
+	transform.setRotation(orientation);
+	return transform;
 }
 
 btTransform Physics::BtTransform(const Vector3f& origin) {
-	btTransform ret;
-	ret.setIdentity();
-
-	ret.setOrigin(btVector3(origin[0], origin[1], origin[2]));
-
-	return ret;
+	btTransform transform;
+	transform.setIdentity();
+	transform.setOrigin(btVector3(origin[0], origin[1], origin[2]));
+	return transform;
 }
 
 btTransform Physics::BtTransform(const Vector3f& axis, float degrees) {
-	btTransform ret;
-	ret.setIdentity();
-	ret.setRotation(btQuaternion(btVector3(axis[0], axis[1], axis[2]), degrees * PI_ON_180));
-	return ret;
+	btTransform transform;
+	transform.setIdentity();
+	transform.setRotation(btQuaternion(btVector3(axis[0], axis[1], axis[2]), degrees * PI_ON_180));
+	return transform;
 }
 
 btTransform Physics::BtTransform(const Vector3f& origin, const Vector3f& axis, float degrees) {
-	btTransform ret;
-	ret.setIdentity();
-
-	ret.setOrigin(btVector3(origin[0], origin[1], origin[2]));
-	ret.setRotation(btQuaternion(btVector3(axis[0], axis[1], axis[2]), degrees * PI_ON_180));
-	return ret;
+	btTransform transform;
+	transform.setIdentity();
+	transform.setOrigin(btVector3(origin[0], origin[1], origin[2]));
+	transform.setRotation(btQuaternion(btVector3(axis[0], axis[1], axis[2]), degrees * PI_ON_180));
+	return transform;
 }
 
 Matrix4f Physics::MatrixFrom(const btTransform& trans, const btVector3& scale) {

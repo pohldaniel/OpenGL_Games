@@ -10,7 +10,6 @@
 #include "Terrain.h"
 #include "QuadTree.h"
 
-
 #include "KeySet.h"
 #include "RaySet.h"
 #include "RespawnPointSet.h"
