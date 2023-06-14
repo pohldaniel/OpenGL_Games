@@ -22,16 +22,21 @@
 #include "Sky.h"
 #include "Light.h"
 
+class Game;
+
 struct LavaTriggerCallback : public btCollisionWorld::ContactResultCallback {
-	btScalar addSingleResult(btManifoldPoint& cp, const btCollisionObjectWrapper* colObj0Wrap, int partId0, int index0, const btCollisionObjectWrapper* colObj1Wrap, int partId1, int index1) override {
-		Player* player = reinterpret_cast<Player*>(colObj0Wrap->getCollisionObject()->getUserPointer());
-		player->setPosition(player->getInitialPosition());
-		player->resetOrientation();
-		return 0;
-	}
+
+	LavaTriggerCallback(Game& game, KeySet& keySet) : keySet(keySet), game(game) {}
+
+	Game& game;
+	KeySet& keySet;
+
+	btScalar addSingleResult(btManifoldPoint& cp, const btCollisionObjectWrapper* colObj0Wrap, int partId0, int index0, const btCollisionObjectWrapper* colObj1Wrap, int partId1, int index1) override;
 };
 
 class Game : public State, public MouseEventListener, public KeyboardEventListener {
+
+	friend struct LavaTriggerCallback;
 
 public:
 
@@ -82,5 +87,5 @@ private:
 	Framebuffer sceneBuffer;
 	Lava m_lava;
 
-	LavaTriggerCallback m_drawingResult;
+	LavaTriggerCallback m_lavaTriggerResult;
 };

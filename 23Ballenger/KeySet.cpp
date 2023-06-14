@@ -14,14 +14,13 @@ KeySet::~KeySet() {
 
 void KeySet::init(const Terrain& terrain) {
 	m_colors.assign({ Vector4f(1.0f, 0.0f, 0.0f, 1.0f), Vector4f(1.0f, 1.0f, 0.0f, 1.0f) , Vector4f(0.0f, 1.0f, 0.0f, 1.0f) , Vector4f(0.2f, 0.2f, 1.0f, 1.0f) , Vector4f(1.0f, 0.0f, 1.0f, 1.0f) });
-	std::vector<Matrix4f> instances = { //Matrix4f::Translate(883.0f, terrain.heightAt(883.0f, 141.0f), 141.0f),
-										Matrix4f::Translate(TERRAIN_SIZE / 2, terrain.heightAt(TERRAIN_SIZE / 2, TERRAIN_SIZE / 2 + 10.0f), TERRAIN_SIZE / 2 + 10.0f),
-										//Matrix4f::Translate(345.0f, terrain.heightAt(345.0f, 229.0f), 229.0f),
-										Matrix4f::Translate(TERRAIN_SIZE / 2, terrain.heightAt(TERRAIN_SIZE / 2, TERRAIN_SIZE / 2 + 20.0f), TERRAIN_SIZE / 2 + 20.0f),
+	std::vector<Matrix4f> instances = { Matrix4f::Translate(883.0f, terrain.heightAt(883.0f, 141.0f), 141.0f),
+										//Matrix4f::Translate(TERRAIN_SIZE / 2, terrain.heightAt(TERRAIN_SIZE / 2, TERRAIN_SIZE / 2 + 10.0f), TERRAIN_SIZE / 2 + 10.0f),
+										Matrix4f::Translate(345.0f, terrain.heightAt(345.0f, 229.0f), 229.0f),
+										//Matrix4f::Translate(TERRAIN_SIZE / 2, terrain.heightAt(TERRAIN_SIZE / 2, TERRAIN_SIZE / 2 + 20.0f), TERRAIN_SIZE / 2 + 20.0f),
 										Matrix4f::Translate(268.0f, terrain.heightAt(268.0f, 860.0f), 860.0f),
 										Matrix4f::Translate(780.0f, terrain.heightAt(780.0f, 858.0f), 858.0f),
 										Matrix4f::Translate(265.0f, terrain.heightAt(265.0f, 487.0f), 487.0f) };
-
 	addInstances(instances);
 
 	Globals::shapeManager.get("key").addInstances(5u, 1u, GL_DYNAMIC_DRAW);
@@ -36,8 +35,6 @@ void KeySet::init(const Terrain& terrain) {
 
 	m_idCache.resize(instances.size());
 	std::iota(std::begin(m_idCache), std::end(m_idCache), 0);
-	
-
 }
 
 void KeySet::draw(const Camera& camera) {
@@ -101,14 +98,27 @@ void KeySet::updateCylinderShape() {
 
 void KeySet::setPickedKeyId(int value) {
 	m_pickedKeyId = value;
-	
+	m_pickedColor = m_colors[m_idCache[m_pickedKeyId]];
+	 
 	m_colors.erase(m_colors.begin() + m_idCache[m_pickedKeyId]);
 	Globals::shapeManager.get("cylinder_key").addVec4Attribute(m_colors, 1);
-
 	Globals::shapeManager.get("cylinder_key").removeInstance(m_idCache[m_pickedKeyId]);
 	updateCylinderShape();
 
-	for_each(m_idCache.begin() + value, m_idCache.end(), [](unsigned short& v) {v--; });
+	for_each(m_idCache.begin() + m_pickedKeyId, m_idCache.end(), [](short& v) {v--; });
+}
+
+void KeySet::restorePrevState() {
+	for_each(m_idCache.begin() + m_pickedKeyId, m_idCache.end(), [](short& v) {v++; });
+
+	m_colors.insert(m_colors.begin() + m_idCache[m_pickedKeyId], m_pickedColor);
+	Globals::shapeManager.get("cylinder_key").addVec4Attribute(m_colors, 1);
+	Globals::shapeManager.get("cylinder_key").insertInstance( Matrix4f::Translate(m_keyStates[m_pickedKeyId].position), m_idCache[m_pickedKeyId]);
+	updateCylinderShape();
+
+	Globals::shapeManager.get("key").updateInstance(Matrix4f::Translate(m_keyStates[m_pickedKeyId].position), m_pickedKeyId);
+	
+	m_pickedKeyId = -1;
 }
 
 void KeySet::deploy(int id, const Vector3f& pos, float yaw) {

@@ -28,6 +28,7 @@ public:
 	void updateCylinderShape();
 	void setPickedKeyId(int value);
 	void deploy(int id, const Vector3f& pos, float yaw);
+	void restorePrevState();
 
 	void addInstances(const std::vector<Matrix4f>& values);
 	unsigned short getNumDeployed();
@@ -45,10 +46,12 @@ private:
 	std::vector<Matrix4f> m_mtxKey;
 	std::vector<Matrix4f> m_mtxCylinder;
 	std::vector<Vector4f> m_colors;
+	Vector4f m_pickedColor;
+	//Vector3f m_pickedPos;
 
 	unsigned short m_numDeployed;
 	int m_pickedKeyId;
 	const Vector3f& m_playerPos;
 
-	std::vector<unsigned short> m_idCache;
+	std::vector<short> m_idCache;
 };

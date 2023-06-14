@@ -35,6 +35,7 @@ public:
 	void drawRawInstanced() const;
 	void addInstance(const Matrix4f& value, unsigned int divisor = 1u);
 	void removeInstance(unsigned int index);
+	void insertInstance(const Matrix4f& value, unsigned int index);
 
 	void addInstances(const std::vector<Matrix4f>& values, unsigned int divisor = 1u);
 	void addInstances(unsigned int length, unsigned int divisor = 1u, unsigned int usage = 35048u /*GL_DYNAMIC_DRAW*/);

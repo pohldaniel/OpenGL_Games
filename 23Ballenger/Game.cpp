@@ -7,11 +7,21 @@
 #include "Application.h"
 #include "Globals.h"
 
+btScalar LavaTriggerCallback::addSingleResult(btManifoldPoint& cp, const btCollisionObjectWrapper* colObj0Wrap, int partId0, int index0, const btCollisionObjectWrapper* colObj1Wrap, int partId1, int index1) {
+	Player* player = reinterpret_cast<Player*>(colObj0Wrap->getCollisionObject()->getUserPointer());
+	player->setPosition(player->getInitialPosition());
+	player->resetOrientation();
+	keySet.restorePrevState();
+	game.pickedkey_id = -1;
+	return 0;
+}
+
 Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), 
 									m_keySet(m_player.getPosition()), 
 									m_respawnPointSet(m_player.getPosition()),
 									m_columnSet(m_player.getPosition()),
 									m_player(m_camera),
+									m_lavaTriggerResult(*this, m_keySet),
 									m_cloudsModel(Application::Width, Application::Height, m_light),
 									m_sky(Application::Width, Application::Height, m_light) {
 
@@ -21,7 +31,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME),
 	Mouse::instance().attach(Application::GetWindow());
 
 	m_terrain.init("Levels/terrain01.raw");
-	m_quadTree.init(m_terrain.getPositions().data(), m_terrain.getIndexBuffer().data(), m_terrain.getIndexBuffer().size(), m_terrain.getMin(), m_terrain.getMax(), 64.0f);
+	m_quadTree.init(m_terrain.getPositions().data(), m_terrain.getIndexBuffer().data(), static_cast<unsigned int>(m_terrain.getIndexBuffer().size()), m_terrain.getMin(), m_terrain.getMax(), 64.0f);
 
 	Init();
 
@@ -70,7 +80,7 @@ void Game::fixedUpdate() {
 	Globals::physics->stepSimulation(m_fdt);
 	m_player.getCharacterController()->postStep();
 
-	Physics::GetDynamicsWorld()->contactPairTest(m_player.getCharacterController()->getRigidBody(), &m_lava, m_drawingResult);
+	Physics::GetDynamicsWorld()->contactPairTest(m_player.getCharacterController()->getRigidBody(), &m_lava, m_lavaTriggerResult);
 }
 
 void Game::update() {
