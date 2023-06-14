@@ -32,7 +32,6 @@ void Lava::create(btCollisionShape* shape, const btTransform& transform, btDynam
 	setCollisionShape(shape);
 	setWorldTransform(transform);
 
-	//setCollisionFlags(btCollisionObject::CF_STATIC_OBJECT | btCollisionObject::CF_NO_CONTACT_RESPONSE);
 	setCollisionFlags(btCollisionObject::CF_KINEMATIC_OBJECT | btCollisionObject::CF_NO_CONTACT_RESPONSE);
 	forceActivationState(DISABLE_DEACTIVATION);
 
