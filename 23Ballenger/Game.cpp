@@ -12,7 +12,7 @@ btScalar LavaTriggerCallback::addSingleResult(btManifoldPoint& cp, const btColli
 	player->setPosition(player->getInitialPosition());
 	player->resetOrientation();
 	keySet.restorePrevState();
-	game.pickedkey_id = -1;
+	keySet.m_pickedKeyId = -1;
 	return 0;
 }
 
@@ -21,7 +21,8 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME),
 									m_respawnPointSet(m_player.getPosition()),
 									m_columnSet(m_player.getPosition()),
 									m_player(m_camera),
-									m_lavaTriggerResult(*this, m_keySet),
+									m_lavaTriggerResult(m_keySet),
+									pickedKeyId(m_keySet.getPickedKeyId()),
 									m_cloudsModel(Application::Width, Application::Height, m_light),
 									m_sky(Application::Width, Application::Height, m_light) {
 
@@ -67,7 +68,6 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME),
 	transform.setOrigin(btVector3(512.0f, -1.0f, 512.0f));
 
 	m_lava.create(shape, transform, Physics::GetDynamicsWorld(), Physics::collisiontypes::TRIGGER, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::CAMERA);
-
 }
 
 Game::~Game() {
@@ -88,13 +88,14 @@ void Game::update() {
 	m_player.update(m_dt);
 	const Vector3f& playerPos = m_player.getPosition();
 	
-	if (pickedkey_id == -1){
+	if (pickedKeyId == -1){
 		for (unsigned int i = 0; i < m_keySet.getKeyStates().size(); i++){
 
 			if (!m_keySet.isDeployed(i)){
 				if ((playerPos - m_keySet.getPosition(i)).length() <= RADIUS * 2){
-					pickedkey_id = i;					
-					m_keySet.setPickedKeyId(pickedkey_id);
+					//pickedKeyId = i;
+					pickedKeyId = i;
+					m_keySet.pickKey(pickedKeyId);
 					break;
 					//Sound.Play(SOUND_PICKUP);
 				}
@@ -102,15 +103,15 @@ void Game::update() {
 		}
 
 	}else {
-		if (m_columnSet.insideGatheringArea(pickedkey_id)) {
+		if (m_columnSet.insideGatheringArea(pickedKeyId)) {
 			//Sound.Play(SOUND_UNLOCK);
 			//Sound.Play(SOUND_ENERGYFLOW);
 
-			const Vector3f& columnPos = m_columnSet.getPosition(pickedkey_id);
-			m_keySet.deploy(pickedkey_id, m_columnSet.getHole(pickedkey_id), m_columnSet.getYaw(pickedkey_id));
-			m_raySet.deploy(Vector3f(columnPos[0], columnPos[1] + COLUMN_HEIGHT + ENERGY_BALL_RADIUS, columnPos[2]), m_portal.getReceptor(pickedkey_id), pickedkey_id, m_keySet.getNumDeployed());
-			
-			pickedkey_id = -1;
+			const Vector3f& columnPos = m_columnSet.getPosition(pickedKeyId);
+			m_keySet.deploy(m_columnSet.getHole(pickedKeyId), m_columnSet.getYaw(pickedKeyId));
+			m_raySet.deploy(Vector3f(columnPos[0], columnPos[1] + COLUMN_HEIGHT + ENERGY_BALL_RADIUS, columnPos[2]), m_portal.getReceptor(pickedKeyId), pickedKeyId, m_keySet.getNumDeployed());
+			pickedKeyId = -1;
+
 			if (respawn_id) {
 				//Sound.Play(SOUND_SWISH);
 				respawn_id = 0;
@@ -304,12 +305,8 @@ void Game::Init() {
 	bool res = true;
 	portal_activated = false;
 	respawn_id = 0;
-	pickedkey_id = -1;
-	ang = 0.0f;
 
-	//_Terrain.Load(1);
-	//_Terrain.createAttribute();
-	//Lava.Load(TERRAIN_SIZE);
+	ang = 0.0f;
 
 	//Sound.Play(SOUND_AMBIENT);
 	m_player.init(m_terrain);

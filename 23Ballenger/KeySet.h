@@ -12,6 +12,8 @@ class Terrain;
 
 class KeySet : public RenderableObject {
 
+	friend struct LavaTriggerCallback;
+
 	struct State {
 		bool deployed;
 		Vector3f position;
@@ -26,8 +28,8 @@ public:
 	void draw(const Camera& camera) override;
 	void update(const float dt) override;
 	void updateCylinderShape();
-	void setPickedKeyId(int value);
-	void deploy(int id, const Vector3f& pos, float yaw);
+	void pickKey(int id);
+	void deploy(const Vector3f& pos, float yaw);
 	void restorePrevState();
 
 	void addInstances(const std::vector<Matrix4f>& values);
@@ -35,6 +37,7 @@ public:
 	bool isDeployed(unsigned short index);
 	const Vector3f& getPosition(unsigned short index);
 	const std::vector<State>& getKeyStates();
+	int& getPickedKeyId();
 
 private:
 
