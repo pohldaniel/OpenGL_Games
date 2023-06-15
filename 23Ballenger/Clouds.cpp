@@ -7,7 +7,7 @@
 #include "Globals.h"
 #include "Application.h"
 
-Clouds::Clouds(StateMachine& machine) : State(machine, CurrentState::SHAPEINTERFACE), 
+Clouds::Clouds(StateMachine& machine) : State(machine, CurrentState::CLOUDINTERFACE),
 										m_cloudsModel(Application::Width, Application::Height, m_light), 
 										m_sky(Application::Width, Application::Height, m_light){
 

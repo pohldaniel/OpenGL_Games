@@ -13,6 +13,8 @@
 #include "Game.h"
 #include "TerrainCulling.h"
 #include "Clouds.h"
+#include "Menu.h"
+#include "Widget.h"
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -35,6 +37,7 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 	Width = WIDTH;
 	Height = HEIGHT;
 	Framebuffer::SetDefaultSize(Width, Height);
+	Widget::Resize(Width, Height);
 
 	createWindow();
 	initOpenGL();
@@ -354,10 +357,12 @@ void Application::fixedUpdate() {
 void Application::initStates() {
 	
 	Machine = new StateMachine(m_dt, m_fdt);
-	Machine->addStateAtTop(new Game(*Machine));
+	//Machine->addStateAtTop(new Game(*Machine));
 	//Machine->addStateAtTop(new ShapeInterface(*Machine));
 	//Machine->addStateAtTop(new TerrainCulling(*Machine));
 	//Machine->addStateAtTop(new Clouds(*Machine));
+
+	Machine->addStateAtTop(new Menu(*Machine));
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
@@ -449,6 +454,7 @@ void Application::Resize(int deltaW, int deltaH) {
 		Machine->m_states.top()->resize(deltaW, deltaH);
 
 		Framebuffer::SetDefaultSize(Width, Height);
+		Widget::Resize(Width, Height);
 	}	
 }
 
@@ -535,6 +541,8 @@ void Application::loadAssets() {
 	Globals::shaderManager.loadShader("debug", "res/debug.vert", "res/debug.frag");
 	Globals::shaderManager.loadShader("texture_array", "res/textureArray.vert", "res/textureArray.frag");
 
+	Globals::shaderManager.loadShader("quad_color_uniform", "res/quad_color_uniform.vs", "res/quad_color_uniform.fs");
+
 	Globals::textureManager.createNullTexture("null");
 
 	Globals::textureManager.loadTexture("grass", "Textures/grass.png", true);
@@ -602,6 +610,9 @@ void Application::loadAssets() {
 	Globals::shapeManager.buildQuadXY("quad", Vector3f(-1.0f, -1.0f, 0.0f), Vector2f(2.0f, 2.0f), 1, 1, true, true, true);
 	Globals::shapeManager.buildQuadXZ("quad_lava", Vector3f(0.0f, 0.0f, 0.0f), Vector2f(1024.0f, 1024.0f), 1, 1, true, true, false);
 	Globals::shapeManager.buildQuadXZ("quad_rp", Vector3f(-2.0f, 0.05f, -2.0f), Vector2f(4.0f, 4.0f), 1, 1, true, true, false);
+
+	Globals::shapeManager.buildQuadXY("quad_hud", Vector3f(-0.5f, -0.5f, 0.0f), Vector2f(1.0f, 1.0f), 1, 1, false, false, true);
+
 	Globals::shapeManager.buildQuadXY("vortex", Vector3f(-1.0f, -1.0f, 0.0f), Vector2f(2.0f, 2.0f), 1, 1, true, true, false);
 	Globals::shapeManager.buildCylinder("cylinder", 2.0f, 2.0f, 3.0f, Vector3f(0.0f, 1.6f, 0.0f), false, false, 16, 16, false, true, false);
 	Globals::shapeManager.buildDiskXZ("disk", 2.0f, Vector3f(0.0f, 0.11f, 0.0f), 16, 16, false, false, false);

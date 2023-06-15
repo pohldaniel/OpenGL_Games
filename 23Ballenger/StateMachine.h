@@ -8,9 +8,11 @@
 
 enum CurrentState {
 	SHAPEINTERFACE,
+	TERRAINCULLING,
+	CLOUDINTERFACE,
 	GAME,
-	MAINMENU,
-	ABOUT
+	MENU,
+	SETTINGS
 };
 
 class State;

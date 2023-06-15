@@ -2316,6 +2316,10 @@ Vector2f::Vector2f(float x_, float y_) {
 
 }
 
+void Vector2f::set(float x_, float y_) {
+	vec[0] = x_, vec[1] = y_;
+}
+
 Vector2f::Vector2f(const Vector2f &rhs) {
 	vec[0] = rhs.vec[0];
 	vec[1] = rhs.vec[1];

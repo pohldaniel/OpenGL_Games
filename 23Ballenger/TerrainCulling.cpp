@@ -8,7 +8,7 @@
 #include "Application.h"
 #include "Globals.h"
 
-TerrainCulling::TerrainCulling(StateMachine& machine) : State(machine, CurrentState::SHAPEINTERFACE) {
+TerrainCulling::TerrainCulling(StateMachine& machine) : State(machine, CurrentState::TERRAINCULLING) {
 
 	EventDispatcher::AddMouseListener(this);
 

@@ -58,6 +58,8 @@ public:
 	Vector2f(const Vector2f &rhs);
 	~Vector2f();
 
+	void set(float x_, float y_);
+
 	float &operator[](int index);
 	const float operator[](int index) const;
 

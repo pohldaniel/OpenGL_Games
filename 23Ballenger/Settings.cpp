@@ -1,45 +1,45 @@
-#include "Menu.h"
+#include "Settings.h"
 #include "Application.h"
 #include "Globals.h"
-#include "Settings.h"
+#include "Menu.h"
 
-Menu::Menu(StateMachine& machine) : State(machine, CurrentState::MENU) {
+Settings::Settings(StateMachine& machine) : State(machine, CurrentState::SETTINGS) {
 	EventDispatcher::AddMouseListener(this);
 	EventDispatcher::AddKeyboardListener(this);
 
-	m_button.setPosition(Vector2f(20.0f, 200.0f));
+	m_button.setPosition(Vector2f(200.0f, 200.0f));
 	m_button.setSize(Vector2f(100.0f, 50.0f));
 	m_button.setOutlineThickness(5.0f);
 
 	m_button.setFunction([&]() {
 		m_isRunning = false;
-		m_machine.addStateAtBottom(new Settings(m_machine));
+		m_machine.addStateAtBottom(new Menu(m_machine));
 	});
 }
 
-Menu::~Menu() {
+Settings::~Settings() {
 	EventDispatcher::RemoveMouseListener(this);
 	EventDispatcher::RemoveKeyboardListener(this);
 }
 
-void Menu::fixedUpdate() {}
+void Settings::fixedUpdate() {}
 
-void Menu::update() {}
+void Settings::update() {}
 
-void Menu::render() {
+void Settings::render() {
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	m_button.draw();
 }
 
-void Menu::OnMouseMotion(Event::MouseMoveEvent& event) {
+void Settings::OnMouseMotion(Event::MouseMoveEvent& event) {
 	m_button.processInput(event.x, Application::Height - event.y);
 }
 
-void Menu::OnMouseButtonDown(Event::MouseButtonEvent& event) {
+void Settings::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 	m_button.processInput(event.x, Application::Height - event.y, event.button);
 }
 
-void Menu::OnKeyDown(Event::KeyboardEvent& event) {
-	
+void Settings::OnKeyDown(Event::KeyboardEvent& event) {
+
 }

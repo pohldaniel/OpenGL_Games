@@ -155,6 +155,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Application.cpp" />
+    <ClCompile Include="Button.cpp" />
     <ClCompile Include="CharacterController.cpp" />
     <ClCompile Include="Clouds.cpp" />
     <ClCompile Include="CloudsModel.cpp" />
@@ -203,8 +204,10 @@
     <ClCompile Include="engine\Transform.cpp" />
     <ClCompile Include="engine\Vector.cpp" />
     <ClCompile Include="engine\VolumeBuffer.cpp" />
+    <ClCompile Include="Menu.cpp" />
     <ClCompile Include="NoiseGen.cpp" />
     <ClCompile Include="Lava.cpp" />
+    <ClCompile Include="Settings.cpp" />
     <ClCompile Include="Sky.cpp" />
     <ClCompile Include="TerrainCulling.cpp" />
     <ClCompile Include="Game.cpp" />
@@ -226,9 +229,11 @@
     <ClCompile Include="StateMachine.cpp" />
     <ClCompile Include="Terrain.cpp" />
     <ClCompile Include="Utils.cpp" />
+    <ClCompile Include="Widget.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h" />
+    <ClInclude Include="Button.h" />
     <ClInclude Include="CharacterController.h" />
     <ClInclude Include="Clouds.h" />
     <ClInclude Include="CloudsModel.h" />
@@ -284,8 +289,10 @@
     <ClInclude Include="engine\Vector.h" />
     <ClInclude Include="engine\VolumeBuffer.h" />
     <ClInclude Include="Light.h" />
+    <ClInclude Include="Menu.h" />
     <ClInclude Include="NoiseGen.h" />
     <ClInclude Include="Lava.h" />
+    <ClInclude Include="Settings.h" />
     <ClInclude Include="Sky.h" />
     <ClInclude Include="TerrainCulling.h" />
     <ClInclude Include="Game.h" />
@@ -303,6 +310,7 @@
     <ClInclude Include="StateMachine.h" />
     <ClInclude Include="Terrain.h" />
     <ClInclude Include="Utils.h" />
+    <ClInclude Include="Widget.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

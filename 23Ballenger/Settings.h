@@ -6,15 +6,16 @@
 #include "StateMachine.h"
 #include "Button.h"
 
-class Menu : public State, public MouseEventListener, public KeyboardEventListener {
+class Settings : public State, public MouseEventListener, public KeyboardEventListener {
 
 public:
-	Menu(StateMachine& machine);
-	~Menu();
+	Settings(StateMachine& machine);
+	~Settings();
 
 	void fixedUpdate() override;
 	void update() override;
 	void render() override;
+
 
 private:
 
