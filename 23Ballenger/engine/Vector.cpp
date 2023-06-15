@@ -2617,6 +2617,13 @@ Vector4f::Vector4f(const Vector3f &rhs, float w) {
 	vec[3] = w;
 }
 
+void Vector4f::set(float x_, float y_, float z_, float w_) {
+	vec[0] = x_;
+	vec[1] = y_;
+	vec[2] = z_;
+	vec[3] = w_;
+}
+
 float &Vector4f::operator[](int index) {
 
 	return vec[index];

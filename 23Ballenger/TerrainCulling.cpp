@@ -6,11 +6,13 @@
 
 #include "TerrainCulling.h"
 #include "Application.h"
+#include "Menu.h"
 #include "Globals.h"
 
 TerrainCulling::TerrainCulling(StateMachine& machine) : State(machine, CurrentState::TERRAINCULLING) {
 
 	EventDispatcher::AddMouseListener(this);
+	EventDispatcher::AddKeyboardListener(this);
 
 	m_camera = Camera();
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 1.0f, 1000.0f);
@@ -36,7 +38,8 @@ TerrainCulling::TerrainCulling(StateMachine& machine) : State(machine, CurrentSt
 }
 
 TerrainCulling::~TerrainCulling() {
-
+	EventDispatcher::RemoveMouseListener(this);
+	EventDispatcher::RemoveKeyboardListener(this);
 }
 
 void TerrainCulling::fixedUpdate() {
@@ -173,6 +176,14 @@ void TerrainCulling::OnMouseButtonUp(Event::MouseButtonEvent& event) {
 	}
 }
 
+void TerrainCulling::OnKeyDown(Event::KeyboardEvent& event) {
+	if (event.keyCode == VK_ESCAPE) {
+		ImGui::GetIO().WantCaptureMouse = false;
+		Mouse::instance().detach();
+		m_isRunning = false;
+		m_machine.addStateAtBottom(new Menu(m_machine));
+	}
+}
 
 void TerrainCulling::resize(int deltaW, int deltaH) {
 	m_camera.perspective(45.0f * _180_ON_PI, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);

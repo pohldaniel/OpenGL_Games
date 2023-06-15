@@ -117,9 +117,6 @@
     <ClCompile Include="TerrainCulling.cpp">
       <Filter>Source Files\States</Filter>
     </ClCompile>
-    <ClCompile Include="Clouds.cpp">
-      <Filter>Source Files\States</Filter>
-    </ClCompile>
     <ClCompile Include="engine\input\ApplicationEventListener.cpp">
       <Filter>engine\input</Filter>
     </ClCompile>
@@ -276,6 +273,12 @@
     <ClCompile Include="Settings.cpp">
       <Filter>Source Files\States</Filter>
     </ClCompile>
+    <ClCompile Include="TextField.cpp">
+      <Filter>Source Files\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="CloudInterface.cpp">
+      <Filter>Source Files\States</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h">
@@ -336,9 +339,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="TerrainCulling.h">
-      <Filter>Source Files\States</Filter>
-    </ClInclude>
-    <ClInclude Include="Clouds.h">
       <Filter>Source Files\States</Filter>
     </ClInclude>
     <ClInclude Include="engine\input\ApplicationEventListener.h">
@@ -513,6 +513,12 @@
       <Filter>Source Files\UI</Filter>
     </ClInclude>
     <ClInclude Include="Settings.h">
+      <Filter>Source Files\States</Filter>
+    </ClInclude>
+    <ClInclude Include="TextField.h">
+      <Filter>Source Files\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="CloudInterface.h">
       <Filter>Source Files\States</Filter>
     </ClInclude>
   </ItemGroup>

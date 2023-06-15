@@ -157,7 +157,7 @@
     <ClCompile Include="Application.cpp" />
     <ClCompile Include="Button.cpp" />
     <ClCompile Include="CharacterController.cpp" />
-    <ClCompile Include="Clouds.cpp" />
+    <ClCompile Include="CloudInterface.cpp" />
     <ClCompile Include="CloudsModel.cpp" />
     <ClCompile Include="ColumnSet.cpp" />
     <ClCompile Include="engine\ArrayBuffer.cpp" />
@@ -228,6 +228,7 @@
     <ClCompile Include="soil2\wfETC.c" />
     <ClCompile Include="StateMachine.cpp" />
     <ClCompile Include="Terrain.cpp" />
+    <ClCompile Include="TextField.cpp" />
     <ClCompile Include="Utils.cpp" />
     <ClCompile Include="Widget.cpp" />
   </ItemGroup>
@@ -235,7 +236,7 @@
     <ClInclude Include="Application.h" />
     <ClInclude Include="Button.h" />
     <ClInclude Include="CharacterController.h" />
-    <ClInclude Include="Clouds.h" />
+    <ClInclude Include="CloudInterface.h" />
     <ClInclude Include="CloudsModel.h" />
     <ClInclude Include="ColumnSet.h" />
     <ClInclude Include="engine\ArrayBuffer.h" />
@@ -309,6 +310,7 @@
     <ClInclude Include="ShapeInterface.h" />
     <ClInclude Include="StateMachine.h" />
     <ClInclude Include="Terrain.h" />
+    <ClInclude Include="TextField.h" />
     <ClInclude Include="Utils.h" />
     <ClInclude Include="Widget.h" />
   </ItemGroup>

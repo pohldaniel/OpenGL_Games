@@ -173,7 +173,7 @@ public:
 	Vector4f operator*(const Vector4f &rhs) const;
 	Vector4f operator/(const Vector4f &rhs) const;
 
-
+	void set(float x_, float y_, float z_, float w_);
 	void normalize3();
 
 	static float Dot(const Vector4f &p, const Vector4f &q);

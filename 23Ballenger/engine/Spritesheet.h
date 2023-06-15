@@ -6,7 +6,7 @@ class Spritesheet {
 
 public:
 	Spritesheet() = default;
-	Spritesheet(unsigned int textureAtlas);
+	Spritesheet(unsigned int& textureAtlas);
 	Spritesheet(std::string pictureFile, unsigned short tileWidth, unsigned short tileHeight, unsigned short spacing = 0, bool reverse = false, bool flipVertical = false, int row = 0, int minColumn = 0, int maxColumn = -1, unsigned int format = 0);
 
 	~Spritesheet();

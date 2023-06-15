@@ -1,8 +1,7 @@
 #pragma once
 
 #include "engine/input/MouseEventListener.h"
-#include "engine/input/Keyboard.h"
-#include "engine/input/Mouse.h"
+#include "engine/input/KeyboardEventListener.h"
 #include "engine/Camera.h"
 #include "engine/TrackBall.h"
 #include "engine/Shader.h"
@@ -14,7 +13,7 @@
 #include "Terrain.h"
 #include "QuadTree.h"
 
-class TerrainCulling : public State, public MouseEventListener {
+class TerrainCulling : public State, public MouseEventListener, public KeyboardEventListener {
 
 public:
 
@@ -28,6 +27,7 @@ public:
 	void OnMouseMotion(Event::MouseMoveEvent& event) override;
 	void OnMouseButtonDown(Event::MouseButtonEvent& event) override;
 	void OnMouseButtonUp(Event::MouseButtonEvent& event) override;
+	void OnKeyDown(Event::KeyboardEvent& event) override;
 	void applyTransformation(TrackBall& arc);
 	void renderUi();
 

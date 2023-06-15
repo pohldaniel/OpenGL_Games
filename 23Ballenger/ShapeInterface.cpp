@@ -6,10 +6,13 @@
 
 #include "ShapeInterface.h"
 #include "Application.h"
+#include "Menu.h"
 #include "Globals.h"
 
 ShapeInterface::ShapeInterface(StateMachine& machine) : State(machine, CurrentState::SHAPEINTERFACE) {
+
 	EventDispatcher::AddMouseListener(this);
+	EventDispatcher::AddKeyboardListener(this);
 	
 	m_camera = Camera();
 	m_camera.perspective(45.0f * _180_ON_PI, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
@@ -43,7 +46,8 @@ ShapeInterface::ShapeInterface(StateMachine& machine) : State(machine, CurrentSt
 }
 
 ShapeInterface::~ShapeInterface() {
-
+	EventDispatcher::RemoveMouseListener(this);
+	EventDispatcher::RemoveKeyboardListener(this);
 }
 
 void ShapeInterface::fixedUpdate() {
@@ -149,6 +153,14 @@ void ShapeInterface::OnMouseButtonUp(Event::MouseButtonEvent& event) {
 	}
 }
 
+void ShapeInterface::OnKeyDown(Event::KeyboardEvent& event) {
+	if (event.keyCode == VK_ESCAPE) {
+		ImGui::GetIO().WantCaptureMouse = false;
+		Mouse::instance().detach();
+		m_isRunning = false;
+		m_machine.addStateAtBottom(new Menu(m_machine));
+	}
+}
 
 void ShapeInterface::resize(int deltaW, int deltaH) {
 	m_camera.perspective(45.0f * _180_ON_PI, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);

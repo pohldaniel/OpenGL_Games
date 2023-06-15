@@ -77,6 +77,10 @@ public:
 		m_assetPointer[name] = new T(path, tileWidth, tileHeight, spacing, true, true, yStart, xStart, xLength, format);
 	}
 
+	void createSpritesheet(const std::string& name, unsigned int& textureAtlas) {
+		m_assetPointer[name] = new T(textureAtlas);
+	}
+
 	void createSpritesheet(const std::string& name, unsigned int texture, unsigned int width, unsigned int height, unsigned int format = 0) {
 		m_assetPointer[name] = new T();
 		m_assetPointer[name]->createSpritesheet(texture, width, height, format);
@@ -85,10 +89,6 @@ public:
 	void createSpritesheetFromTexture(const std::string& name, unsigned int texture, unsigned int format = 0u, unsigned int internalFormat = 0u, int unpackAlignment = 4) {
 		m_assetPointer[name] = new T();
 		m_assetPointer[name]->createSpritesheetFromTexture(texture, format, internalFormat, unpackAlignment);
-	}
-
-	void createSpritesheet(const std::string& name, unsigned int textureAtlas) {
-		m_assetPointer[name] = new T(textureAtlas);
 	}
 
 	void createEmptySpritesheet(const std::string& name, unsigned int width, unsigned int height, unsigned int format = 0u) {

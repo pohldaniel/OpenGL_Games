@@ -5,6 +5,7 @@
 #include "engine/Transform.h"
 #include "StateMachine.h"
 #include "Button.h"
+#include "TextField.h"
 
 class Menu : public State, public MouseEventListener, public KeyboardEventListener {
 
@@ -15,6 +16,7 @@ public:
 	void fixedUpdate() override;
 	void update() override;
 	void render() override;
+	void resize(int deltaW, int deltaH) override;
 
 private:
 
@@ -26,5 +28,11 @@ private:
 	bool m_highlight = false;
 	Vector4f m_color1, m_color2, m_color3;
 
-	Button m_button;
+	TextField m_headline;
+	Button m_button1;
+	Button m_button2;
+	
+	Button m_button3;
+	Button m_button4;
+	Button m_button5;
 };

@@ -15,7 +15,7 @@ public:
 	void fixedUpdate() override;
 	void update() override;
 	void render() override;
-
+	void resize(int deltaW, int deltaH) override;
 
 private:
 
@@ -28,4 +28,5 @@ private:
 	Vector4f m_color1, m_color2, m_color3;
 
 	Button m_button;
+	TextField m_headline;
 };

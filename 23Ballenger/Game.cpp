@@ -5,6 +5,7 @@
 
 #include "Game.h"
 #include "Application.h"
+#include "Menu.h"
 #include "Globals.h"
 
 Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), 
@@ -240,6 +241,17 @@ void Game::OnKeyDown(Event::KeyboardEvent& event) {
 		m_drawUi = true;
 		Mouse::instance().detach();
 		Keyboard::instance().disable();
+	}
+
+//	if (event.keyCode == VK_ESCAPE) {
+//		ImGui::GetIO().WantCaptureMouse = false;
+//		Mouse::instance().detach();
+//		m_isRunning = false;
+//		m_machine.addStateAtBottom(new Menu(m_machine));
+//	}
+
+	if (event.keyCode == VK_ESCAPE) {
+		m_isRunning = false;
 	}
 }
 

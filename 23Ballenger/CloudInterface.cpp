@@ -3,15 +3,17 @@
 #include <imgui_impl_opengl3.h>
 #include <imgui_internal.h>
 
-#include "Clouds.h"
-#include "Globals.h"
+#include "CloudInterface.h"
 #include "Application.h"
+#include "Menu.h"
+#include "Globals.h"
 
-Clouds::Clouds(StateMachine& machine) : State(machine, CurrentState::CLOUDINTERFACE),
+CloudInterface::CloudInterface(StateMachine& machine) : State(machine, CurrentState::CLOUDINTERFACE),
 										m_cloudsModel(Application::Width, Application::Height, m_light), 
 										m_sky(Application::Width, Application::Height, m_light){
 
 	EventDispatcher::AddMouseListener(this);
+	EventDispatcher::AddKeyboardListener(this);
 
 	m_camera = Camera();
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 1.0f, 1000.0f);
@@ -200,15 +202,16 @@ Clouds::Clouds(StateMachine& machine) : State(machine, CurrentState::CLOUDINTERF
 	m_camera.lookAt(Vector3f(512.0f, height + 1.75f, 512.0f), Vector3f(512.0f, height + 1.75f, 512.0f - 1.0f), Vector3f(0.0f, 1.0f, 0.0f));
 }
 
-Clouds::~Clouds() {
+CloudInterface::~CloudInterface() {
+	EventDispatcher::RemoveMouseListener(this);
+	EventDispatcher::RemoveKeyboardListener(this);
+}
+
+void CloudInterface::fixedUpdate() {
 
 }
 
-void Clouds::fixedUpdate() {
-
-}
-
-void Clouds::update() {
+void CloudInterface::update() {
 	Keyboard &keyboard = Keyboard::instance();
 	Vector3f directrion = Vector3f();
 
@@ -265,7 +268,7 @@ void Clouds::update() {
 	applyTransformation(m_trackball);
 };
 
-void Clouds::render() {
+void CloudInterface::render() {
 
 	if (m_showCloud) {	
 		rmTarget.bind();
@@ -475,12 +478,12 @@ void Clouds::render() {
 	renderUi();
 }
 
-void Clouds::OnMouseMotion(Event::MouseMoveEvent& event) {
+void CloudInterface::OnMouseMotion(Event::MouseMoveEvent& event) {
 	m_trackball.motion(event.x, event.y);
 	applyTransformation(m_trackball);
 }
 
-void Clouds::OnMouseButtonDown(Event::MouseButtonEvent& event) {
+void CloudInterface::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 	if (event.button == 1u) {
 		m_trackball.mouse(TrackBall::Button::ELeftButton, TrackBall::Modifier::ENoModifier, true, event.x, event.y);
 		applyTransformation(m_trackball);
@@ -490,7 +493,7 @@ void Clouds::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 	}
 }
 
-void Clouds::OnMouseButtonUp(Event::MouseButtonEvent& event) {
+void CloudInterface::OnMouseButtonUp(Event::MouseButtonEvent& event) {
 	if (event.button == 1u) {
 		m_trackball.mouse(TrackBall::Button::ELeftButton, TrackBall::Modifier::ENoModifier, false, event.x, event.y);
 		applyTransformation(m_trackball);
@@ -500,17 +503,25 @@ void Clouds::OnMouseButtonUp(Event::MouseButtonEvent& event) {
 	}
 }
 
+void CloudInterface::OnKeyDown(Event::KeyboardEvent& event) {
+	if (event.keyCode == VK_ESCAPE) {
+		ImGui::GetIO().WantCaptureMouse = false;
+		Mouse::instance().detach();
+		m_isRunning = false;
+		m_machine.addStateAtBottom(new Menu(m_machine));
+	}
+}
 
-void Clouds::resize(int deltaW, int deltaH) {
+void CloudInterface::resize(int deltaW, int deltaH) {
 	m_camera.perspective(45.0f * _180_ON_PI, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
 	m_trackball.reshape(Application::Width, Application::Height);
 }
 
-void Clouds::applyTransformation(TrackBall& arc) {
+void CloudInterface::applyTransformation(TrackBall& arc) {
 	m_transform.fromMatrix(arc.getTransform());
 }
 
-void Clouds::renderUi() {
+void CloudInterface::renderUi() {
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();

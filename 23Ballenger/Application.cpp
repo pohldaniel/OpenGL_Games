@@ -7,12 +7,13 @@
 #include <imgui_impl_opengl3.h>
 
 #include "engine/Framebuffer.h"
+#include "engine/Fontrenderer.h"
 #include "Application.h"
 #include "Globals.h"
 #include "ShapeInterface.h"
 #include "Game.h"
 #include "TerrainCulling.h"
-#include "Clouds.h"
+#include "CloudInterface.h"
 #include "Menu.h"
 #include "Widget.h"
 
@@ -59,10 +60,19 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 	SavedExStyle = GetWindowLong(Window, GWL_EXSTYLE);
 	SavedStyle = GetWindowLong(Window, GWL_STYLE);
 
+	Fontrenderer::Get().init();
+	Fontrenderer::Get().setShader(Globals::shaderManager.getAssetPointer("font"));
+
+	auto shader = Globals::shaderManager.getAssetPointer("font");
+	shader->use();
+	shader->loadMatrix("u_projection", Matrix4f::Orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f));
+	shader->unuse();
+
 	Init = true;
 }
 
 Application::~Application() {
+	Fontrenderer::Get().shutdown();
 
 	delete Machine;
 	Globals::shaderManager.clear();
@@ -295,7 +305,7 @@ void Application::initOpenGL(int msaaSamples) {
 	glDisable(GL_CULL_FACE);
 
 	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_ALPHA_TEST);
+	//glEnable(GL_ALPHA_TEST);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
@@ -360,7 +370,7 @@ void Application::initStates() {
 	//Machine->addStateAtTop(new Game(*Machine));
 	//Machine->addStateAtTop(new ShapeInterface(*Machine));
 	//Machine->addStateAtTop(new TerrainCulling(*Machine));
-	//Machine->addStateAtTop(new Clouds(*Machine));
+	//Machine->addStateAtTop(new CloudInterface(*Machine));
 
 	Machine->addStateAtTop(new Menu(*Machine));
 }
@@ -416,7 +426,7 @@ void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 					event.type = Event::KEYDOWN;
 					event.data.keyboard.keyCode = wParam;
 					EventDispatcher.pushEvent(event);
-					SendMessage(Window, WM_DESTROY, NULL, NULL);
+					//SendMessage(Window, WM_DESTROY, NULL, NULL);
 					break;
 				}case VK_SPACE: {
 					Event event;
@@ -455,6 +465,11 @@ void Application::Resize(int deltaW, int deltaH) {
 
 		Framebuffer::SetDefaultSize(Width, Height);
 		Widget::Resize(Width, Height);
+
+		auto shader = Globals::shaderManager.getAssetPointer("font");
+		shader->use();
+		shader->loadMatrix("u_projection", Matrix4f::Orthographic(0.0f, static_cast<float>(Width), 0.0f, static_cast<float>(Height), -1.0f, 1.0f));
+		shader->unuse();
 	}	
 }
 
@@ -542,6 +557,7 @@ void Application::loadAssets() {
 	Globals::shaderManager.loadShader("texture_array", "res/textureArray.vert", "res/textureArray.frag");
 
 	Globals::shaderManager.loadShader("quad_color_uniform", "res/quad_color_uniform.vs", "res/quad_color_uniform.fs");
+	Globals::shaderManager.loadShader("font", "res/batch.vs", "res/font.fs");
 
 	Globals::textureManager.createNullTexture("null");
 
@@ -626,4 +642,6 @@ void Application::loadAssets() {
 
 	Globals::shapeManager.buildSphere("sphere_cl", 1.0f, Vector3f(0.0f, 8.0f, 0.0f), 32, 32, false, true, false);
 	Globals::shapeManager.buildSphere("sphere_portal", 0.2f, Vector3f(512.0f, 13.75f, 544.0f), 16, 16, false, true, false);	
+	Globals::fontManager.loadCharacterSet("upheaval_200", "res/upheavtt.ttf", 200, 0, 30, 128, 0, true, 0u);
+	Globals::fontManager.loadCharacterSet("upheaval_50", "res/upheavtt.ttf", 50, 0, 3, 0, 0, true, 0u);
 }

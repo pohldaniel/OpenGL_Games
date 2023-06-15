@@ -84,20 +84,14 @@ void CharacterSet::loadFromFile(const std::string& path, unsigned int characterS
 			p <<= 1;
 		maxHeight = minHeight == 0 ? p : std::max(p, minHeight);
 
-		// We require 1 byte alignment when uploading texture data 
 		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-
 		glGenTextures(1, &spriteSheet);
-		glBindTexture(GL_TEXTURE_2D, spriteSheet);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, maxWidth, maxHeight, 0, GL_RED, GL_UNSIGNED_BYTE, 0);
-
-		// Clamping to edges is important to prevent artifacts when scaling 
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-		// Linear filtering usually looks best for text 
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glBindTexture(GL_TEXTURE_2D_ARRAY, spriteSheet);
+		glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_RED, maxWidth, maxHeight, 1, 0, GL_RED, GL_UNSIGNED_BYTE, NULL);
+		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 		// Paste all glyph bitmaps into the texture, remembering the offset 
 		unsigned int ox = 0;
@@ -155,13 +149,15 @@ void CharacterSet::loadFromFile(const std::string& path, unsigned int characterS
 				bytes[index] = 0;
 			}
 
-			glTexSubImage2D(GL_TEXTURE_2D, 0, ox, oy, g->bitmap.width, height, GL_RED, GL_UNSIGNED_BYTE, bytes);
+			glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, ox, oy, 0, g->bitmap.width, height, 1, GL_RED, GL_UNSIGNED_BYTE, bytes);
+
 			free(bytes);
 
 			Char character = {
 				{ g->bitmap_left, g->bitmap_top },
-				{ g->bitmap.width + spacingX, height },
-				{ static_cast<float>(ox-shiftX) / (float)maxWidth, static_cast<float>(oy) / (float)maxHeight },
+				{ g->bitmap.width + spacingX, height },				
+				//{ static_cast<float>(ox - shiftX) / (float)maxWidth, static_cast<float>(oy) / (float)maxHeight },
+				{ static_cast<float>(ox - shiftX) / (float)maxWidth, static_cast<float>(oy + spacingY) / (float)maxHeight },
 				{ static_cast<float>(g->bitmap.width + spacingX) / static_cast<float>(maxWidth), static_cast<float>(height) / static_cast<float>(maxHeight) },
 				{ (g->advance.x >> 6) + spacingX }
 			};
@@ -173,7 +169,7 @@ void CharacterSet::loadFromFile(const std::string& path, unsigned int characterS
 			ox += g->bitmap.width + spacingX;
 		}
 
-		glBindTexture(GL_TEXTURE_2D, 0);
+		glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
 		glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
 	}
 	frame = _frame;
@@ -182,12 +178,13 @@ void CharacterSet::loadFromFile(const std::string& path, unsigned int characterS
 }
 
 void CharacterSet::safeFont() {
-	unsigned char* bytes = (unsigned char*)malloc(maxWidth * maxHeight);
+	unsigned char* bytes = (unsigned char*)malloc(maxWidth * maxHeight * sizeof(unsigned char));
 
-	glBindTexture(GL_TEXTURE_2D, spriteSheet);
-	glGetTexImage(GL_TEXTURE_2D, 0, GL_RED, GL_UNSIGNED_BYTE, bytes);
-	glBindTexture(GL_TEXTURE_2D, 0);
-
+	glBindTexture(GL_TEXTURE_2D_ARRAY, spriteSheet);
+	//glGetTextureSubImage(GL_TEXTURE_2D_ARRAY, 0, 0, 0, 0, maxWidth, maxWidth, 1, GL_RED, GL_UNSIGNED_BYTE, sizeof(unsigned char) * maxWidth * maxWidth, bytes);
+	glGetTexImage(GL_TEXTURE_2D_ARRAY, 0, GL_RED, GL_UNSIGNED_BYTE, bytes);
+	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
+	
 	std::vector<unsigned char> srcPixels(maxWidth * maxHeight);
 	memcpy(&srcPixels[0], bytes, maxWidth * maxHeight);
 
@@ -195,7 +192,6 @@ void CharacterSet::safeFont() {
 	unsigned char *pDestRow = 0;
 
 	for (unsigned int i = 0; i < maxHeight; ++i) {
-
 		pSrcRow = &srcPixels[(maxHeight - 1 - i) * maxWidth];
 		pDestRow = &bytes[i * maxWidth];
 		memcpy(pDestRow, pSrcRow, maxWidth);
@@ -232,5 +228,5 @@ int CharacterSet::getWidth(std::string text) const {
 
 void CharacterSet::bind(unsigned int unit) const {
 	glActiveTexture(GL_TEXTURE0 + unit);
-	glBindTexture(GL_TEXTURE_2D, spriteSheet);
+	glBindTexture(GL_TEXTURE_2D_ARRAY, spriteSheet);
 }

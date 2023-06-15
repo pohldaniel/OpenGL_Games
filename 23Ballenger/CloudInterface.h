@@ -1,8 +1,7 @@
 #pragma once
-#include <GL/glew.h>
+
 #include "engine/input/MouseEventListener.h"
-#include "engine/input/Keyboard.h"
-#include "engine/input/Mouse.h"
+#include "engine/input/KeyboardEventListener.h"
 #include "engine/Camera.h"
 #include "engine/TrackBall.h"
 #include "engine/Shader.h"
@@ -33,12 +32,12 @@ enum Noise {
 	SDF
 };
 
-class Clouds : public State, public MouseEventListener {
+class CloudInterface : public State, public MouseEventListener, public KeyboardEventListener {
 
 public:
 
-	Clouds(StateMachine& machine);
-	~Clouds();
+	CloudInterface(StateMachine& machine);
+	~CloudInterface();
 
 	void fixedUpdate() override;
 	void update() override;
@@ -47,6 +46,7 @@ public:
 	void OnMouseMotion(Event::MouseMoveEvent& event) override;
 	void OnMouseButtonDown(Event::MouseButtonEvent& event) override;
 	void OnMouseButtonUp(Event::MouseButtonEvent& event) override;
+	void OnKeyDown(Event::KeyboardEvent& event) override;
 	void applyTransformation(TrackBall& arc);
 	void renderUi();
 

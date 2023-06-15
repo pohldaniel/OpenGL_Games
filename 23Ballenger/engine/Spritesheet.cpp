@@ -5,13 +5,11 @@
 
 #include "../soil2/SOIL2.h"
 
-Spritesheet::Spritesheet(unsigned int textureAtlas) {
+Spritesheet::Spritesheet(unsigned int& textureAtlas) {
 	m_texture = textureAtlas;
 
 	int depth;
 	glBindTexture(GL_TEXTURE_2D_ARRAY, textureAtlas);
-	//glGetTexLevelParameteriv(GL_TEXTURE_2D_ARRAY, miplevel, GL_TEXTURE_WIDTH, &width1);
-	//glGetTexLevelParameteriv(GL_TEXTURE_2D_ARRAY, miplevel, GL_TEXTURE_HEIGHT, &height1);
 	glGetTexLevelParameteriv(GL_TEXTURE_2D_ARRAY, 0, GL_TEXTURE_DEPTH, &depth);
 	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
 
