@@ -9,7 +9,7 @@
 #define LAVA_HEIGHT_MAX 4.0f
 #define LAVA_HEIGHT_MIN 1.0f
 
-class Lava : public btCollisionObject, public RenderableObject{
+class Lava : public RenderableObject{
 
 public:
 
@@ -20,7 +20,8 @@ public:
 	void create(btCollisionShape* shape, const btTransform& transform, btDynamicsWorld* physicsWorld, int collisionFilterGroup = 1, int collisionFilterMask = -1, void* rigidBodyUserPointer = NULL);
 	float getHeight();
 	float getHeightMax();
-	
+	btCollisionObject* getCollisionObject();
+
 	static void TickCallback(btDynamicsWorld* world, btScalar timeStep);
 
 private:
@@ -30,4 +31,5 @@ private:
 	float m_height;
 	float height, ang;
 	bool up;
+	btCollisionObject* m_collisionObject;
 };

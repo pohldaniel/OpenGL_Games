@@ -79,13 +79,15 @@ void CharacterController::create(btRigidBody* rigidBody, btDynamicsWorld* physic
 }
 
 void CharacterController::destroy(){
-	delete m_rigidBody;
-	m_rigidBody = nullptr;
+	/*if (m_rigidBody) {
+		m_collisionWorld->removeCollisionObject(m_rigidBody);
+		m_rigidBody = nullptr;
+	}
 
-	delete m_shape;
-	m_shape = nullptr;
-
-	m_collisionWorld = nullptr;
+	if (m_shape) {
+		delete m_shape;
+		m_shape = nullptr;
+	}*/
 }
 
 void CharacterController::setSlopeAngle(float degrees) {

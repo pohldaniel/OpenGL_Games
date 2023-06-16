@@ -31,8 +31,13 @@ void Physics::deinitialize(){
 	for (int i = DynamicsWorld->getNumCollisionObjects() - 1; i >= 0; i--){
 		btCollisionObject* obj = DynamicsWorld->getCollisionObjectArray()[i];
 		btRigidBody* body = btRigidBody::upcast(obj);
+
 		if (body && body->getMotionState())
 			delete body->getMotionState();
+
+		if (body && body->getCollisionShape())
+			delete body->getCollisionShape();
+
 		DynamicsWorld->removeCollisionObject(obj);
 		delete obj;
 	}
@@ -43,6 +48,36 @@ void Physics::deinitialize(){
 	delete m_broadphase;
 	delete m_dispatcher;
 	delete m_collisionConfiguration;
+}
+
+void Physics::removeCollisionObject(btCollisionObject* obj) {
+	btRigidBody* body = btRigidBody::upcast(obj);
+	
+	if (body && body->getMotionState())
+		delete body->getMotionState();
+
+	if (body && body->getCollisionShape())
+		delete body->getCollisionShape();
+
+	DynamicsWorld->removeCollisionObject(obj);
+	delete obj;
+}
+
+void Physics::removeAllCollisionObjects() {
+
+	for (int i = DynamicsWorld->getNumCollisionObjects() - 1; i >= 0; i--) {
+		btCollisionObject* obj = DynamicsWorld->getCollisionObjectArray()[i];		 
+		btRigidBody* body = btRigidBody::upcast(obj);
+
+		if (body && body->getMotionState())
+			delete body->getMotionState();
+
+		if (body && body->getCollisionShape())
+			delete body->getCollisionShape();
+
+		DynamicsWorld->removeCollisionObject(obj);
+		delete obj;
+	}
 }
 
 void Physics::stepSimulation(btScalar timeStep){

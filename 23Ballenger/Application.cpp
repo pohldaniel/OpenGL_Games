@@ -663,4 +663,6 @@ void Application::loadAssets() {
 
 	Globals::soundManager.createSoundBuffer("menu", 0u, 2u, Globals::soundVolume);
 	Globals::soundManager.get("menu").loadChannel("res/sounds/button.wav", 0u);
+
+	
 }

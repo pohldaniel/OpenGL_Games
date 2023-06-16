@@ -37,9 +37,9 @@ Settings::Settings(StateMachine& machine) : State(machine, CurrentState::SETTING
 	float currentBlock;
 
 	std::modf(Globals::soundVolume * 10, &currentBlock);
+	m_seekerBars.at("effect").initButtons(Globals::fontManager.get("upheaval_50"), Globals::shaderManager.getAssetPointer("quad_color_uniform"));
+	m_seekerBars.at("effect").initRenderer(Globals::shaderManager.getAssetPointer("font"));
 	m_seekerBars.at("effect").setPosition(static_cast<float>(Application::Width / 2 - 400), static_cast<float>(Application::Height - 400));
-	m_seekerBars.at("effect").setShader(Globals::shaderManager.getAssetPointer("font"));
-
 	m_seekerBars.at("effect").setCurrentBlock(static_cast<unsigned int>(currentBlock));
 	m_seekerBars.at("effect").setLeftFunction([&]() {
 		if (Globals::soundVolume > 0.0f) {
@@ -60,8 +60,9 @@ Settings::Settings(StateMachine& machine) : State(machine, CurrentState::SETTING
 	});
 
 	std::modf(Globals::musicVolume * 10, &currentBlock);
+	m_seekerBars.at("music").initButtons(Globals::fontManager.get("upheaval_50"), Globals::shaderManager.getAssetPointer("quad_color_uniform"));
+	m_seekerBars.at("music").initRenderer(Globals::shaderManager.getAssetPointer("font"));
 	m_seekerBars.at("music").setPosition(static_cast<float>(Application::Width / 2 - 400), static_cast<float>(Application::Height - 600));
-	m_seekerBars.at("music").setShader(Globals::shaderManager.getAssetPointer("font"));
 	m_seekerBars.at("music").setCurrentBlock(static_cast<unsigned int>(currentBlock));
 	m_seekerBars.at("music").setLeftFunction([&]() {
 		if (Globals::musicVolume > 0.0f) {

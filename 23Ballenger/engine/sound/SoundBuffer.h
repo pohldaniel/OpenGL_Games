@@ -43,7 +43,8 @@ public:
 	void resumeChannel(unsigned int channel);
 	void setVolumeChannel(unsigned int channel, float volume);
 	void loadChannel(const std::string& file, unsigned int channel);
-	
+	bool isPlaying(unsigned int channel);
+
 	static void Init(unsigned short cacheSizeBuffer = 10u);
 
 private:

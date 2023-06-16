@@ -88,7 +88,7 @@ private:
 
 	LavaTriggerCallback m_lavaTriggerResult;
 
-	int respawn_id;
 	int& pickedKeyId;
+	int respawn_id;
 	bool portal_activated;
 };

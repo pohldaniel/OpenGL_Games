@@ -1,31 +1,15 @@
 #include "SeekerBar.h"
 #include "Globals.h"
 
-SeekerBar::SeekerBar() : Widget() , m_batchrenderer(new Batchrenderer()) {
-	m_batchrenderer->init(10);
-
-	m_buttonLeft = new Button();
-	m_buttonLeft->setCharset(Globals::fontManager.get("upheaval_50"));
-	m_buttonLeft->setOutlineThickness(4.0f);
-	m_buttonLeft->setText("<");
-	m_buttonLeft->setShader(Globals::shaderManager.getAssetPointer("quad_color_uniform"));
-	
-	m_buttonRight = new Button();
-	m_buttonRight->setCharset(Globals::fontManager.get("upheaval_50"));
-	m_buttonRight->setOutlineThickness(4.0f);
-	m_buttonRight->setText(">");
-	m_buttonRight->setShader(Globals::shaderManager.getAssetPointer("quad_color_uniform"));
-	
-	m_size[0] = m_buttonLeft->getSize()[1] + 2.0f * m_buttonLeft->getTickness();
-	m_size[1] = m_buttonLeft->getSize()[1] + 2.0f * m_buttonLeft->getTickness();
-
-	m_blocks = 10;
-	m_currentBlock = 2;
+SeekerBar::SeekerBar(unsigned int blocks) : Widget() {
+	m_currentBlock = 0u;
+	m_spacing = 5.0f;
 }
 
 SeekerBar::SeekerBar(SeekerBar const& rhs) : Widget(rhs) {
 	m_blocks = rhs.m_blocks;
 	m_currentBlock = rhs.m_currentBlock;
+	m_spacing = rhs.m_spacing;
 
 	if (rhs.m_buttonLeft) {
 		m_buttonLeft = new Button();
@@ -48,6 +32,7 @@ SeekerBar& SeekerBar::operator=(const SeekerBar& rhs) {
 	
 	m_blocks = rhs.m_blocks;
 	m_currentBlock = rhs.m_currentBlock;
+	m_spacing = rhs.m_spacing;
 
 	if (rhs.m_buttonLeft) {
 		m_buttonLeft = new Button();
@@ -74,16 +59,15 @@ SeekerBar::~SeekerBar() {
 }
 
 void SeekerBar::draw() {
-	Vector2f pos;
+	float posX;
 	for (unsigned int i = 0; i < m_currentBlock; i++) {
-
-		pos = Vector2f(m_position[0] + (m_size[0] + 5.0f) * i, m_position[1]);
-		m_batchrenderer->addQuadAA(Vector4f(pos[0], pos[1], m_size[0], m_size[1]), Vector4f(0.0f, 0.0f, 1.0f, 1.0f), Vector4f(1.0f, 0.0f, 0.0f, 1.0f), 0u);
+		posX = m_position[0] + (m_size[0] + m_spacing) * i;
+		m_batchrenderer->addQuadAA(Vector4f(posX, m_position[1], m_size[0], m_size[1]), Vector4f(0.0f, 0.0f, 1.0f, 1.0f), Vector4f(1.0f, 0.0f, 0.0f, 1.0f), 0u);
 	}
 
 	for (unsigned int i = m_currentBlock; i < m_blocks; i = i++) {
-		pos = Vector2f(m_position[0] + (m_size[0] + 5.0f) * i, m_position[1]);
-		m_batchrenderer->addQuadAA(Vector4f(pos[0], pos[1], m_size[0], m_size[1]), Vector4f(0.0f, 0.0f, 1.0f, 1.0f), Vector4f(0.0f, 0.0f, 0.0f, 1.0f), 0u);
+		posX = m_position[0] + (m_size[0] + m_spacing) * i;
+		m_batchrenderer->addQuadAA(Vector4f(posX, m_position[1], m_size[0], m_size[1]), Vector4f(0.0f, 0.0f, 1.0f, 1.0f), Vector4f(0.0f, 0.0f, 0.0f, 1.0f), 0u);
 	}
 
 	m_batchrenderer->drawBuffer();
@@ -112,7 +96,10 @@ void SeekerBar::setRightFunction(std::function<void()> fun) {
 	m_buttonRight->setFunction(fun);
 }
 
-void SeekerBar::setShader(const Shader* shader) {
+void SeekerBar::initRenderer(const Shader* shader, unsigned int blocks) {
+	m_blocks = blocks;
+	m_batchrenderer = new Batchrenderer();
+	m_batchrenderer->init(m_blocks);
 	shader->use();
 	shader->loadMatrix("u_transform", Orthographic);
 	shader->unuse();
@@ -121,14 +108,14 @@ void SeekerBar::setShader(const Shader* shader) {
 
 void SeekerBar::setPosition(const float x, const float y) {
 	Widget::setPosition(x, y);
-	m_buttonLeft->setPosition(m_position[0] - (m_buttonLeft->getSize()[0] + 2.0f * m_buttonLeft->getTickness() + 5.0f), m_position[1]);
-	m_buttonRight->setPosition(m_position[0] + (m_size[0] + 5.0f) * m_blocks , m_position[1]);
+	m_buttonLeft->setPosition(m_position[0] - (m_buttonLeft->getSize()[0] + 2.0f * m_buttonLeft->getTickness() + m_spacing), m_position[1]);
+	m_buttonRight->setPosition(m_position[0] + (m_size[0] + m_spacing) * m_blocks , m_position[1]);
 }
 
 void SeekerBar::setPosition(const Vector2f& position) {
 	Widget::setPosition(position);
-	m_buttonLeft->setPosition(m_position[0] - (m_buttonLeft->getSize()[0]  + 2.0f * m_buttonLeft->getTickness() + 5.0f), m_position[1]);
-	m_buttonRight->setPosition(m_position[0] + (m_size[0] + 5.0f) * m_blocks, m_position[1]);
+	m_buttonLeft->setPosition(m_position[0] - (m_buttonLeft->getSize()[0]  + 2.0f * m_buttonLeft->getTickness() + m_spacing), m_position[1]);
+	m_buttonRight->setPosition(m_position[0] + (m_size[0] + m_spacing) * m_blocks, m_position[1]);
 }
 
 void SeekerBar::setGridSize(const float sx) {
@@ -137,4 +124,25 @@ void SeekerBar::setGridSize(const float sx) {
 
 void SeekerBar::setCurrentBlock(unsigned int block) {
 	m_currentBlock = block;
+}
+
+void SeekerBar::initButtons(const CharacterSet& charset, const Shader* shader) {
+	m_buttonLeft = new Button();
+	m_buttonLeft->setCharset(charset);
+	m_buttonLeft->setOutlineThickness(4.0f);
+	m_buttonLeft->setText("<");
+	m_buttonLeft->setShader(shader);
+
+	m_buttonRight = new Button();
+	m_buttonRight->setCharset(charset);
+	m_buttonRight->setOutlineThickness(4.0f);
+	m_buttonRight->setText(">");
+	m_buttonRight->setShader(shader);
+
+	m_size[0] = m_buttonLeft->getSize()[1] + 2.0f * m_buttonLeft->getTickness();
+	m_size[1] = m_buttonLeft->getSize()[1] + 2.0f * m_buttonLeft->getTickness();
+}
+
+void SeekerBar::setSpacing(float spacing) {
+	m_spacing = spacing;
 }

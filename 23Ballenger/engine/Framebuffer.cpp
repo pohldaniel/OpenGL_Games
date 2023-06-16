@@ -706,9 +706,6 @@ void Framebuffer::resize(unsigned int width, unsigned int height) {
 	m_height = height;
 }
 
-void Framebuffer::clear() {
-}
-
 void Framebuffer::cleanup() {
 
 	if (m_depthTexture) {
@@ -751,6 +748,30 @@ void Framebuffer::cleanup() {
 		m_colorRB[i] = 0;
 	}
 
+	if (m_fbo) {
+		glDeleteFramebuffers(1, &m_fbo);
+		m_fbo = 0;
+	}
+
+	m_colorAttachments = 0;
+	m_colorTextureAttachments = 0;
+
+	m_attachments.clear();
+	m_colorTextures.clear();
+	m_resizeTexture.clear();
+
+	m_colorRB.clear();
+	m_resizeRB.clear();
+
+	m_attachments.shrink_to_fit();
+	m_colorTextures.shrink_to_fit();
+	m_resizeTexture.shrink_to_fit();
+
+	m_colorRB.shrink_to_fit();
+	m_resizeRB.shrink_to_fit();
+}
+
+void Framebuffer::cleanupWithoutTexture() {
 	if (m_fbo) {
 		glDeleteFramebuffers(1, &m_fbo);
 		m_fbo = 0;

@@ -57,9 +57,14 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME),
 
 	m_sky.draw(m_camera);
 	m_cloudsModel.draw(m_camera, m_sky);
+
+	const Vector3f& playerPos = m_player.getPosition();
+	m_camera.Camera::setTarget(playerPos);
 }
 
 Game::~Game() {
+	Globals::physics->removeAllCollisionObjects();
+	sceneBuffer.cleanup();
 	EventDispatcher::RemoveKeyboardListener(this);
 	EventDispatcher::RemoveMouseListener(this);
 }
@@ -69,7 +74,7 @@ void Game::fixedUpdate() {
 	Globals::physics->stepSimulation(m_fdt);
 	m_player.getCharacterController()->postStep();
 
-	Physics::GetDynamicsWorld()->contactPairTest(m_player.getCharacterController()->getRigidBody(), &m_lava, m_lavaTriggerResult);
+	Physics::GetDynamicsWorld()->contactPairTest(m_player.getCharacterController()->getRigidBody(), m_lava.getCollisionObject(), m_lavaTriggerResult);
 }
 
 void Game::update() {
@@ -243,16 +248,16 @@ void Game::OnKeyDown(Event::KeyboardEvent& event) {
 		Keyboard::instance().disable();
 	}
 
-//	if (event.keyCode == VK_ESCAPE) {
-//		ImGui::GetIO().WantCaptureMouse = false;
-//		Mouse::instance().detach();
-//		m_isRunning = false;
-//		m_machine.addStateAtBottom(new Menu(m_machine));
-//	}
-
 	if (event.keyCode == VK_ESCAPE) {
+		ImGui::GetIO().WantCaptureMouse = false;
+		Mouse::instance().detach();
 		m_isRunning = false;
+		m_machine.addStateAtBottom(new Menu(m_machine));
 	}
+
+//	if (event.keyCode == VK_ESCAPE) {
+//		m_isRunning = false;
+//	}
 }
 
 void Game::resize(int deltaW, int deltaH) {

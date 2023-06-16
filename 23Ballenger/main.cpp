@@ -92,5 +92,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		ReleaseDC(hwnd, hdc);
 	}
 
+	delete Globals::physics;
 	return 0;
 }

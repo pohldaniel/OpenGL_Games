@@ -139,9 +139,6 @@ const Vector3f& KeySet::getPosition(unsigned short index) {
 
 void KeySet::update(const float dt) {
 
-
-
-
 	ang = fmod(ang + LEVITATION_SPEED, 360.0f);	
 	m_mtxKey.clear();
 

@@ -29,6 +29,8 @@ public:
 
 	void initialize();
 	void deinitialize();
+	void removeAllCollisionObjects();
+	void removeCollisionObject(btCollisionObject* obj);
 
 	void stepSimulation(btScalar timeStep);
 	void bebugDrawWorld();

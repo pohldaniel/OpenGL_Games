@@ -180,6 +180,12 @@ void SoundBuffer::setVolumeChannel(unsigned int channel, float volume){
 	alSourcef(m_sources[channel], AL_GAIN, volume);
 }
 
+bool SoundBuffer::isPlaying(unsigned int channel) {
+	ALint playState;
+	alGetSourcei(m_sources[channel], AL_SOURCE_STATE, &playState);
+	return playState == AL_PLAYING;
+}
+
 void SoundBuffer::loadChannel(const std::string& file, unsigned int channel) {
 	ALenum err, format;
 	SNDFILE* sndfile;

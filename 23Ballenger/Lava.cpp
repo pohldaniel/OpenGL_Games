@@ -6,7 +6,7 @@ Lava::Lava() {
 }
 
 Lava::~Lava() {
-
+	
 }
 
 
@@ -22,20 +22,22 @@ void Lava::updateHeight() {
 		up = (height <= LAVA_HEIGHT_MIN);
 	}
 
-	btTransform& transform = getWorldTransform();
+	btTransform& transform = m_collisionObject->getWorldTransform();
 	transform.getOrigin()[1] = m_height + height;
-	setWorldTransform(transform);
+	m_collisionObject->setWorldTransform(transform);
 	setPosition(Physics::VectorFrom(transform.getOrigin()));
 }
 
 void Lava::create(btCollisionShape* shape, const btTransform& transform, btDynamicsWorld* physicsWorld,int collisionFilterGroup, int collisionFilterMask, void* rigidBodyUserPointer) {
-	setCollisionShape(shape);
-	setWorldTransform(transform);
+	m_collisionObject = new btCollisionObject();
+	
+	m_collisionObject->setCollisionShape(shape);
+	m_collisionObject->setWorldTransform(transform);
 
-	setCollisionFlags(btCollisionObject::CF_KINEMATIC_OBJECT | btCollisionObject::CF_NO_CONTACT_RESPONSE);
-	forceActivationState(DISABLE_DEACTIVATION);
+	m_collisionObject->setCollisionFlags(btCollisionObject::CF_KINEMATIC_OBJECT | btCollisionObject::CF_NO_CONTACT_RESPONSE);
+	m_collisionObject->forceActivationState(DISABLE_DEACTIVATION);
 
-	physicsWorld->addCollisionObject(this, collisionFilterGroup, collisionFilterMask);
+	physicsWorld->addCollisionObject(m_collisionObject, collisionFilterGroup, collisionFilterMask);
 	physicsWorld->setInternalTickCallback(TickCallback, this, true);
 
 	setPosition(Physics::VectorFrom(transform.getOrigin()));
@@ -67,4 +69,8 @@ float Lava::getHeightMax() {
 void Lava::TickCallback(btDynamicsWorld* world, btScalar timeStep) {
 	Lava* platform = (Lava*)world->getWorldUserInfo();
 	platform->updateHeight();
+}
+
+btCollisionObject* Lava::getCollisionObject() {
+	return m_collisionObject;
 }
