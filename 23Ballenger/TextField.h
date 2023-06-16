@@ -10,7 +10,7 @@ class TextField : public Widget {
 
 public:
 
-	TextField(const CharacterSet& charset);
+	TextField();
 	TextField(TextField const& rhs);
 	TextField& operator=(const TextField& rhs);
 	~TextField();
@@ -30,11 +30,13 @@ public:
 	void setOutlineThickness(float thickness);
 	void setOutlineColor(const Vector4f& color);
 	void setText(std::string text);
-	void setShader(Shader* shader);
+	void setShader(const Shader* shader);
+	void setCharset(const CharacterSet& charset);
 
 protected:
 
-	Shader *m_shader;
+	const Shader *m_shader;
+	const CharacterSet* m_charset;
 
 	Matrix4f m_transformOutline;
 	Vector4f m_fillColor;
@@ -47,7 +49,4 @@ protected:
 	std::string m_text;
 
 	float m_thickness = 0.0f;
-
-	const CharacterSet& charset;
-
 };

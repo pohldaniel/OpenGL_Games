@@ -6,8 +6,8 @@ class Fontrenderer {
 	
 public:
 
-	void drawText(const CharacterSet& characterSet, int posX, int posY, std::string text, Vector4f color = Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
-	void addText(const CharacterSet& characterSet, int posX, int posY, std::string text, Vector4f color = Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+	void drawText(const CharacterSet& characterSet, float posX, float posY, std::string text, Vector4f color = Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+	void addText(const CharacterSet& characterSet, float posX, float posY, std::string text, Vector4f color = Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
 	void drawBuffer();
 	void bindTexture(const CharacterSet& characterSet);
 	void unbindTexture();

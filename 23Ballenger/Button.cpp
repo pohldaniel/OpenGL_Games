@@ -1,7 +1,7 @@
 #include "Button.h"
 
-Button::Button(const CharacterSet& charset) : TextField(charset) {
-	m_fun = 0;
+Button::Button() : TextField() {
+
 }
 
 Button::Button(Button const& rhs) : TextField(rhs) {

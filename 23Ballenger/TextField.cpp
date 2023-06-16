@@ -3,7 +3,7 @@
 #include "TextField.h"
 #include "Globals.h"
 
-TextField::TextField(const CharacterSet& charset) : charset(charset) {
+TextField::TextField()  {
 
 	m_transform.identity();
 	m_transformOutline.identity();
@@ -19,7 +19,8 @@ TextField::TextField(const CharacterSet& charset) : charset(charset) {
 	m_padding.set(30.0f, 20.0f);
 }
 
-TextField::TextField(TextField const& rhs) : Widget(rhs), charset(rhs.charset) {
+TextField::TextField(TextField const& rhs) : Widget(rhs) {
+	
 	m_thickness = rhs.m_thickness;
 	m_transformOutline = rhs.m_transformOutline;
 
@@ -28,15 +29,16 @@ TextField::TextField(TextField const& rhs) : Widget(rhs), charset(rhs.charset) {
 	m_outlineColorDefault = rhs.m_outlineColorDefault;
 	m_outlineColorHover = rhs.m_outlineColorHover;
 	m_text = rhs.m_text;
-
-	if (rhs.m_shader) {
-		m_shader = new Shader();
-		*m_shader = *rhs.m_shader;
-	}
+	m_offset = rhs.m_offset;
+	m_padding = rhs.m_padding;
+	m_shader = rhs.m_shader;
+	m_charset = rhs.m_charset;
 }
 
-TextField& TextField::operator=(const TextField& rhs) {
+TextField& TextField::operator=(const TextField& rhs) {	
+
 	Widget::operator=(rhs);
+
 	m_thickness = rhs.m_thickness;
 	m_transformOutline = rhs.m_transformOutline;
 
@@ -45,12 +47,11 @@ TextField& TextField::operator=(const TextField& rhs) {
 	m_outlineColorDefault = rhs.m_outlineColorDefault;
 	m_outlineColorHover = rhs.m_outlineColorHover;
 	m_text = rhs.m_text;
-	//charset = rhs.charset;
+	m_offset = rhs.m_offset;
+	m_padding = rhs.m_padding;
+	m_shader = rhs.m_shader;
+	m_charset = rhs.m_charset;
 
-	if (rhs.m_shader) {
-		m_shader = new Shader();
-		*m_shader = *rhs.m_shader;
-	}
 	return *this;
 }
 
@@ -81,8 +82,8 @@ void TextField::draw() {
 	if (!m_text.empty()) {
 		glDisable(GL_DEPTH_TEST);
 		glEnable(GL_BLEND);
-		charset.bind(0);
-		Fontrenderer::Get().addText(charset, m_position[0] + m_thickness + m_padding[0] * 0.5f + m_offset[0], m_position[1] + m_thickness + m_padding[1] * 0.5f + m_offset[1], m_text, Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+		m_charset->bind(0);
+		Fontrenderer::Get().addText(*m_charset, m_position[0] + m_thickness + m_padding[0] * 0.5f + m_offset[0], m_position[1] + m_thickness + m_padding[1] * 0.5f + m_offset[1], m_text, Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
 		Fontrenderer::Get().drawBuffer();
 		glDisable(GL_BLEND);
 		glEnable(GL_DEPTH_TEST);
@@ -137,8 +138,8 @@ void TextField::setText(std::string text) {
 	m_text = text;
 
 	if (!m_text.empty()) {
-		m_size[0] = std::max(m_size[0], static_cast<float>(charset.getWidth(m_text)));
-		m_size[1] = std::max(m_size[1], static_cast<float>(charset.lineHeight));
+		m_size[0] = std::max(m_size[0], static_cast<float>(m_charset->getWidth(m_text)));
+		m_size[1] = std::max(m_size[1], static_cast<float>(m_charset->lineHeight));
 		m_size += m_padding;
 	}
 
@@ -166,6 +167,10 @@ void TextField::processInput(const int mouseX, const int mouseY, const Event::Mo
 	}
 }
 
-void TextField::setShader(Shader *shader) {
+void TextField::setShader(const Shader *shader) {
 	m_shader = shader;
+}
+
+void TextField::setCharset(const CharacterSet& charset) {
+	m_charset = &charset;
 }

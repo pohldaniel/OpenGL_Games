@@ -29,10 +29,5 @@ private:
 	Vector4f m_color1, m_color2, m_color3;
 
 	TextField m_headline;
-	Button m_button1;
-	Button m_button2;
-	
-	Button m_button3;
-	Button m_button4;
-	Button m_button5;
+	std::unordered_map<std::string, Button> m_buttons;
 };
