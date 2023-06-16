@@ -9,7 +9,7 @@ void Batchrenderer::setCamera(const Camera& camera) {
 	m_camera = &camera;
 }
 
-void Batchrenderer::setShader(Shader* shader) {
+void Batchrenderer::setShader(const Shader* shader) {
 	m_shader = shader;
 }
 

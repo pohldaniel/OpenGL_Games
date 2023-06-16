@@ -8,6 +8,7 @@
 
 class Batchrenderer {
 	friend class Fontrenderer;
+	friend class SeekerBar;
 
 public:
 	struct Vertex {
@@ -25,7 +26,7 @@ public:
 	void processSingleQuad();
 
 	void setCamera(const Camera& camera);
-	void setShader(Shader* shader);
+	void setShader(const Shader* shader);
 
 	void bindTexture(unsigned int texture, bool isTextureArray = false);
 	void unbindTexture(bool isTextureArray = false);
@@ -44,11 +45,11 @@ public:
 	static void PrintStatistic();
 	static Batchrenderer& Get();
 	
-private:
+
 
 	Batchrenderer() = default;
-	Batchrenderer(Batchrenderer const& rhs) = delete;
-	Batchrenderer& operator=(const Batchrenderer& rhs) = delete;
+	//Batchrenderer(Batchrenderer const& rhs) = delete;
+	//Batchrenderer& operator=(const Batchrenderer& rhs) = delete;
 	~Batchrenderer();
 
 	size_t m_maxQuad = 0;
@@ -68,7 +69,7 @@ private:
 	Vertex* buffer;
 	Vertex* bufferPtr;
 	const Camera* m_camera;
-	Shader *m_shader;
+	const Shader *m_shader;
 	float quadPos[8];
 	float texPos[8];
 	float color[4];

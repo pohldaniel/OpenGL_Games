@@ -16,8 +16,10 @@ public:
 
 	void processInput(const int mouseX, const int mouseY, const Event::MouseButtonEvent::MouseButton button = Event::MouseButtonEvent::MouseButton::NONE) override;
 	void setFunction(std::function<void()> fun);
+	const bool isPressed();
 
 private:
 
 	std::function<void()> m_fun;
+	bool m_isPressed;
 };

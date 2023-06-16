@@ -9,10 +9,10 @@ flat out uint v_layer;
 out vec2 v_texCoord;
 out vec4 v_color;
 
-uniform mat4 u_projection = mat4(1.0);
+uniform mat4 u_transform = mat4(1.0);
 
 void main(void) {
-	gl_Position = u_projection * vec4(i_position, 0.0, 1.0);  
+	gl_Position = u_transform * vec4(i_position, 0.0, 1.0);  
 	
     v_texCoord  = i_texCoord;
 	v_color = i_color;	

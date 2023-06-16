@@ -158,7 +158,7 @@ void CharacterSet::loadFromFile(const std::string& path, unsigned int characterS
 				{ g->bitmap.width + spacingX, height },				
 				//{ static_cast<float>(ox - shiftX) / (float)maxWidth, static_cast<float>(oy) / (float)maxHeight },
 				{ static_cast<float>(ox - shiftX) / (float)maxWidth, static_cast<float>(oy + spacingY) / (float)maxHeight },
-				{ static_cast<float>(g->bitmap.width + spacingX) / static_cast<float>(maxWidth), static_cast<float>(height) / static_cast<float>(maxHeight) },
+				{ static_cast<float>(g->bitmap.width + spacingX) / static_cast<float>(maxWidth), static_cast<float>(height - spacingY) / static_cast<float>(maxHeight) },
 				{ (g->advance.x >> 6) + spacingX }
 			};
 
@@ -174,7 +174,7 @@ void CharacterSet::loadFromFile(const std::string& path, unsigned int characterS
 	}
 	frame = _frame;
 	//debugging 
-	//safeFont();
+	safeFont();
 }
 
 void CharacterSet::safeFont() {

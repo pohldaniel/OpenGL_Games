@@ -207,6 +207,7 @@
     <ClCompile Include="Menu.cpp" />
     <ClCompile Include="NoiseGen.cpp" />
     <ClCompile Include="Lava.cpp" />
+    <ClCompile Include="SeekerBar.cpp" />
     <ClCompile Include="Settings.cpp" />
     <ClCompile Include="Sky.cpp" />
     <ClCompile Include="TerrainCulling.cpp" />
@@ -293,6 +294,7 @@
     <ClInclude Include="Menu.h" />
     <ClInclude Include="NoiseGen.h" />
     <ClInclude Include="Lava.h" />
+    <ClInclude Include="SeekerBar.h" />
     <ClInclude Include="Settings.h" />
     <ClInclude Include="Sky.h" />
     <ClInclude Include="TerrainCulling.h" />

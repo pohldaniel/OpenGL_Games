@@ -1,5 +1,4 @@
 #include "engine/Fontrenderer.h"
-
 #include "TextField.h"
 #include "Globals.h"
 
@@ -173,4 +172,8 @@ void TextField::setShader(const Shader *shader) {
 
 void TextField::setCharset(const CharacterSet& charset) {
 	m_charset = &charset;
+}
+
+float TextField::getTickness() {
+	return m_thickness;
 }

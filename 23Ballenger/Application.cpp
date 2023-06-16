@@ -15,6 +15,7 @@
 #include "TerrainCulling.h"
 #include "CloudInterface.h"
 #include "Menu.h"
+#include "Settings.h"
 #include "Widget.h"
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
@@ -44,7 +45,7 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 	initOpenGL();
 	showWindow();
 	initImGUI();
-	//initOpenAL();
+	initOpenAL();
 	loadAssets();
 	initStates();
 
@@ -65,7 +66,7 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 
 	auto shader = Globals::shaderManager.getAssetPointer("font");
 	shader->use();
-	shader->loadMatrix("u_projection", Matrix4f::Orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f));
+	shader->loadMatrix("u_transform", Matrix4f::Orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f));
 	shader->unuse();
 
 	Init = true;
@@ -209,6 +210,10 @@ LRESULT Application::DisplayWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 			}
 			Resize(deltaW, deltaH);
 			
+			if (Init) {
+				Globals::musicManager.get("background").updateBufferStream();
+			}
+
 			break;
 		}default: {
 			//Mouse::instance().handleMsg(hWnd, message, wParam, lParam);
@@ -352,6 +357,7 @@ void Application::render() {
 void Application::update() {
 	Mouse::instance().update();
 	Keyboard::instance().update();
+	Globals::musicManager.get("background").updateBufferStream();
 
 	Machine->update();
 
@@ -417,7 +423,12 @@ void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 			event.data.mouseButton.button = Event::MouseButtonEvent::MouseButton::BUTTON_RIGHT;
 			EventDispatcher.pushEvent(event);
 			break;
-		} case WM_KEYDOWN: {
+		} case WM_WINDOWPOSCHANGING: {
+			if (Init) {
+				Globals::musicManager.get("background").updateBufferStream();
+			}
+			break;
+		}case WM_KEYDOWN: {
 
 			switch (wParam) {
 
@@ -468,7 +479,7 @@ void Application::Resize(int deltaW, int deltaH) {
 
 		auto shader = Globals::shaderManager.getAssetPointer("font");
 		shader->use();
-		shader->loadMatrix("u_projection", Matrix4f::Orthographic(0.0f, static_cast<float>(Width), 0.0f, static_cast<float>(Height), -1.0f, 1.0f));
+		shader->loadMatrix("u_transform", Matrix4f::Orthographic(0.0f, static_cast<float>(Width), 0.0f, static_cast<float>(Height), -1.0f, 1.0f));
 		shader->unuse();
 	}	
 }
@@ -558,6 +569,7 @@ void Application::loadAssets() {
 
 	Globals::shaderManager.loadShader("quad_color_uniform", "res/quad_color_uniform.vs", "res/quad_color_uniform.fs");
 	Globals::shaderManager.loadShader("font", "res/batch.vs", "res/font.fs");
+	Globals::shaderManager.loadShader("seeker", "res/batch.vs", "res/seeker.fs");
 
 	Globals::textureManager.createNullTexture("null");
 
@@ -644,4 +656,11 @@ void Application::loadAssets() {
 	Globals::shapeManager.buildSphere("sphere_portal", 0.2f, Vector3f(512.0f, 13.75f, 544.0f), 16, 16, false, true, false);	
 	Globals::fontManager.loadCharacterSet("upheaval_200", "res/upheavtt.ttf", 200, 0, 30, 128, 0, true, 0u);
 	Globals::fontManager.loadCharacterSet("upheaval_50", "res/upheavtt.ttf", 50, 0, 3, 0, 0, true, 0u);
+
+	Globals::musicManager.createMusicBuffer("background");
+	Globals::musicManager.get("background").setVolume(Globals::musicVolume);
+	Globals::musicManager.get("background").setLooping(true);
+
+	Globals::soundManager.createSoundBuffer("menu", 0u, 2u, Globals::soundVolume);
+	Globals::soundManager.get("menu").loadChannel("res/sounds/button.wav", 0u);
 }

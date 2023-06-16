@@ -18,7 +18,7 @@ Menu::Menu(StateMachine& machine) : State(machine, CurrentState::MENU) {
 	m_headline.setPosition(Vector2f(static_cast<float>(Application::Width / 2 - 220), static_cast<float>(Application::Height - 200)));
 	m_headline.setOutlineThickness(5.0f);
 	m_headline.setText("Menu");
-	m_headline.setOffset(5.0f, 20.0f);
+	m_headline.setOffset(5.0f, 5.0f);
 	m_headline.setShader(Globals::shaderManager.getAssetPointer("quad_color_uniform"));
 
 	m_buttons = std::initializer_list<std::pair<const std::string, Button>>({
@@ -37,6 +37,7 @@ Menu::Menu(StateMachine& machine) : State(machine, CurrentState::MENU) {
 	m_buttons.at("start").setOffset(2.0f, 7.0f);
 	m_buttons.at("start").setShader(Globals::shaderManager.getAssetPointer("quad_color_uniform"));
 	m_buttons.at("start").setFunction([&]() {
+		Globals::soundManager.get("menu").playChannel(0u);
 		m_isRunning = false;
 		m_machine.addStateAtBottom(new Game(m_machine));
 	});
@@ -49,6 +50,7 @@ Menu::Menu(StateMachine& machine) : State(machine, CurrentState::MENU) {
 	m_buttons.at("settings").setOffset(2.0f, 7.0f);
 	m_buttons.at("settings").setShader(Globals::shaderManager.getAssetPointer("quad_color_uniform"));
 	m_buttons.at("settings").setFunction([&]() {
+		Globals::soundManager.get("menu").playChannel(0u);
 		m_isRunning = false;
 		m_machine.addStateAtBottom(new Settings(m_machine));
 	});
@@ -61,6 +63,7 @@ Menu::Menu(StateMachine& machine) : State(machine, CurrentState::MENU) {
 	m_buttons.at("shape").setOffset(2.0f, 7.0f);
 	m_buttons.at("shape").setShader(Globals::shaderManager.getAssetPointer("quad_color_uniform"));
 	m_buttons.at("shape").setFunction([&]() {
+		Globals::soundManager.get("menu").playChannel(0u);
 		m_isRunning = false;
 		m_machine.addStateAtBottom(new ShapeInterface(m_machine));
 	});
@@ -73,6 +76,7 @@ Menu::Menu(StateMachine& machine) : State(machine, CurrentState::MENU) {
 	m_buttons.at("terrain").setOffset(2.0f, 7.0f);
 	m_buttons.at("terrain").setShader(Globals::shaderManager.getAssetPointer("quad_color_uniform"));
 	m_buttons.at("terrain").setFunction([&]() {
+		Globals::soundManager.get("menu").playChannel(0u);
 		m_isRunning = false;
 		m_machine.addStateAtBottom(new TerrainCulling(m_machine));
 	});
@@ -85,6 +89,7 @@ Menu::Menu(StateMachine& machine) : State(machine, CurrentState::MENU) {
 	m_buttons.at("cloud").setOffset(2.0f, 7.0f);
 	m_buttons.at("cloud").setShader(Globals::shaderManager.getAssetPointer("quad_color_uniform"));
 	m_buttons.at("cloud").setFunction([&]() {
+		Globals::soundManager.get("menu").playChannel(0u);
 		m_isRunning = false;
 		m_machine.addStateAtBottom(new CloudInterface(m_machine));
 	});

@@ -1,3 +1,4 @@
+#include "engine/Fontrenderer.h"
 #include "Settings.h"
 #include "Application.h"
 #include "Globals.h"
@@ -12,7 +13,7 @@ Settings::Settings(StateMachine& machine) : State(machine, CurrentState::SETTING
 	m_headline.setPosition(Vector2f(static_cast<float>(Application::Width / 2 - 490), static_cast<float>(Application::Height - 200)));
 	m_headline.setOutlineThickness(5.0f);
 	m_headline.setText("Settings");
-	m_headline.setOffset(5.0f, 20.0f);
+	m_headline.setOffset(5.0f, 5.0f);
 	m_headline.setShader(Globals::shaderManager.getAssetPointer("quad_color_uniform"));
 
 	m_button.setCharset(Globals::fontManager.get("upheaval_50"));
@@ -23,9 +24,61 @@ Settings::Settings(StateMachine& machine) : State(machine, CurrentState::SETTING
 	m_button.setOffset(2.0f, 7.0f);
 	m_button.setShader(Globals::shaderManager.getAssetPointer("quad_color_uniform"));
 	m_button.setFunction([&]() {
+		Globals::soundManager.get("menu").playChannel(0u);
 		m_isRunning = false;
 		m_machine.addStateAtBottom(new Menu(m_machine));
 	});
+
+	m_seekerBars = std::initializer_list<std::pair<const std::string, SeekerBar>>({
+		{ "effect", SeekerBar() },
+		{ "music",  SeekerBar() }
+	});
+
+	float currentBlock;
+
+	std::modf(Globals::soundVolume * 10, &currentBlock);
+	m_seekerBars.at("effect").setPosition(static_cast<float>(Application::Width / 2 - 400), static_cast<float>(Application::Height - 400));
+	m_seekerBars.at("effect").setShader(Globals::shaderManager.getAssetPointer("font"));
+
+	m_seekerBars.at("effect").setCurrentBlock(static_cast<unsigned int>(currentBlock));
+	m_seekerBars.at("effect").setLeftFunction([&]() {
+		if (Globals::soundVolume > 0.0f) {
+			Globals::soundVolume -= 0.1f;
+			Globals::soundVolume = roundf(Globals::soundVolume * 10) / 10;
+		}
+		Globals::soundManager.get("menu").setVolume(Globals::soundVolume);
+		Globals::soundManager.get("menu").playChannel(0u);
+	});
+
+	m_seekerBars.at("effect").setRightFunction([&]() {
+		if (Globals::soundVolume < 1.0f) {
+			Globals::soundVolume += 0.1f;
+			Globals::soundVolume = roundf(Globals::soundVolume * 10) / 10;
+		}
+		Globals::soundManager.get("menu").setVolume(Globals::soundVolume);
+		Globals::soundManager.get("menu").playChannel(0u);
+	});
+
+	std::modf(Globals::musicVolume * 10, &currentBlock);
+	m_seekerBars.at("music").setPosition(static_cast<float>(Application::Width / 2 - 400), static_cast<float>(Application::Height - 600));
+	m_seekerBars.at("music").setShader(Globals::shaderManager.getAssetPointer("font"));
+	m_seekerBars.at("music").setCurrentBlock(static_cast<unsigned int>(currentBlock));
+	m_seekerBars.at("music").setLeftFunction([&]() {
+		if (Globals::musicVolume > 0.0f) {
+			Globals::musicVolume -= 0.1f;
+			Globals::musicVolume = roundf(Globals::musicVolume * 10) / 10;
+		}
+		Globals::soundManager.get("menu").playChannel(0u);
+	});
+
+	m_seekerBars.at("music").setRightFunction([&]() {
+		if (Globals::musicVolume < 1.0f) {
+			Globals::musicVolume += 0.1f;
+			Globals::musicVolume = roundf(Globals::musicVolume * 10) / 10;
+		}
+		Globals::soundManager.get("menu").playChannel(0u);
+	});
+	
 }
 
 Settings::~Settings() {
@@ -43,14 +96,30 @@ void Settings::render() {
 
 	m_headline.draw();
 	m_button.draw();
+
+	for (auto& b : m_seekerBars)
+		b.second.draw();
+
+	glEnable(GL_BLEND);
+	Globals::fontManager.get("upheaval_50").bind(0);
+	Fontrenderer::Get().addText(Globals::fontManager.get("upheaval_50"), static_cast<float>(Application::Width / 2 - 465), static_cast<float>(Application::Height - 300), "Sound Volume", Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+	Fontrenderer::Get().addText(Globals::fontManager.get("upheaval_50"), static_cast<float>(Application::Width / 2 - 465), static_cast<float>(Application::Height - 500), "Music Volume", Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+	Fontrenderer::Get().drawBuffer();
+	glDisable(GL_BLEND);
 }
 
 void Settings::OnMouseMotion(Event::MouseMoveEvent& event) {
 	m_button.processInput(event.x, Application::Height - event.y);
+
+	for (auto& b : m_seekerBars)
+		b.second.processInput(event.x, Application::Height - event.y);
 }
 
 void Settings::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 	m_button.processInput(event.x, Application::Height - event.y, event.button);
+
+	for (auto& b : m_seekerBars)
+		b.second.processInput(event.x, Application::Height - event.y, event.button);
 }
 
 void Settings::OnKeyDown(Event::KeyboardEvent& event) {
@@ -63,4 +132,6 @@ void Settings::OnKeyDown(Event::KeyboardEvent& event) {
 void Settings::resize(int deltaW, int deltaH) {
 	m_headline.setPosition(Vector2f(static_cast<float>(Application::Width / 2 - 490), static_cast<float>(Application::Height - 200)));
 	m_button.setPosition(static_cast<float>(Application::Width - 350), 100.0f);
+	m_seekerBars.at("effect").setPosition(static_cast<float>(Application::Width / 2 - 400), static_cast<float>(Application::Height - 400));
+	m_seekerBars.at("music").setPosition(static_cast<float>(Application::Width / 2 - 400), static_cast<float>(Application::Height - 600));
 }

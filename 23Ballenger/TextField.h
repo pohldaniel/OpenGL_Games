@@ -33,6 +33,8 @@ public:
 	void setShader(const Shader* shader);
 	void setCharset(const CharacterSet& charset);
 
+	float getTickness();
+
 protected:
 
 	const Shader *m_shader;

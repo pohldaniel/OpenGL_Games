@@ -1,10 +1,12 @@
 #pragma once
+#include <math.h>
 #include "engine/input/MouseEventListener.h"
 #include "engine/input/KeyboardEventListener.h"
 #include "engine/input/Mouse.h"
 #include "engine/Transform.h"
 #include "StateMachine.h"
 #include "Button.h"
+#include "SeekerBar.h"
 
 class Settings : public State, public MouseEventListener, public KeyboardEventListener {
 
@@ -29,4 +31,5 @@ private:
 
 	Button m_button;
 	TextField m_headline;
+	std::unordered_map<std::string, SeekerBar> m_seekerBars;
 };
