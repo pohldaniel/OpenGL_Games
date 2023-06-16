@@ -7,8 +7,6 @@
 #include "Camera.h"
 
 class Batchrenderer {
-	friend class Fontrenderer;
-	friend class SeekerBar;
 
 public:
 	struct Vertex {
@@ -16,6 +14,9 @@ public:
 		std::array<float, 4> color;
 		unsigned int frame;
 	};
+
+	Batchrenderer() = default;
+	~Batchrenderer();
 
 	void init(size_t size = 400, bool drawSingle = false);
 	void shutdown();
@@ -45,12 +46,7 @@ public:
 	static void PrintStatistic();
 	static Batchrenderer& Get();
 	
-
-
-	Batchrenderer() = default;
-	//Batchrenderer(Batchrenderer const& rhs) = delete;
-	//Batchrenderer& operator=(const Batchrenderer& rhs) = delete;
-	~Batchrenderer();
+private:
 
 	size_t m_maxQuad = 0;
 	size_t m_maxVert = 0;

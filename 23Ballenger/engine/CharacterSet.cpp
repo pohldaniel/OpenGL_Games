@@ -174,7 +174,7 @@ void CharacterSet::loadFromFile(const std::string& path, unsigned int characterS
 	}
 	frame = _frame;
 	//debugging 
-	safeFont();
+	//safeFont();
 }
 
 void CharacterSet::safeFont() {
