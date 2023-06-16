@@ -20,11 +20,11 @@ void ColumnSet::init(const Terrain& terrain) {
 
 	std::vector<Vector4f> colors = { Vector4f(1.0f, 0.0f, 0.0f, 1.0f), Vector4f(1.0f, 1.0f, 0.0f, 1.0f) , Vector4f(0.0f, 1.0f, 0.0f, 1.0f) , Vector4f(0.1f, 0.1f, 1.0f, 1.0f) , Vector4f(1.0f, 0.0f, 1.0f, 1.0f) };
 
-	Globals::shapeManager.get("column").addInstances(instances);
-	Globals::shapeManager.get("column").addVec4Attribute(colors);
+	Globals::shapeManager.get("column").setInstances(instances);
+	Globals::shapeManager.get("column").setVec4Attribute(colors);
 
-	Globals::shapeManager.get("sphere_cl").addInstances(instances);
-	Globals::shapeManager.get("sphere_cl").addVec4Attribute(colors);
+	Globals::shapeManager.get("sphere_cl").setInstances(instances);
+	Globals::shapeManager.get("sphere_cl").setVec4Attribute(colors);
 
 	m_states = fromInstances(instances);
 }

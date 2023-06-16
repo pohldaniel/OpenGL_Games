@@ -47,5 +47,4 @@ void main(void){
 	//color = vec4(normal_eye, 1.0);
 	//color = vec4(pos_eye, 1.0);
 	//color = vec4(pos_model.y, pos_model.y,pos_model.y, 1.0);
-	color = vec4(1.0, 0.0, 0.0, 1.0);
 }

@@ -54,12 +54,6 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME),
 	transform.setOrigin(btVector3(512.0f, -1.0f, 512.0f));
 
 	m_lava.create(shape, transform, Physics::GetDynamicsWorld(), Physics::collisiontypes::TRIGGER, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::CAMERA);
-
-	m_sky.draw(m_camera);
-	m_cloudsModel.draw(m_camera, m_sky);
-
-	const Vector3f& playerPos = m_player.getPosition();
-	m_camera.Camera::setTarget(playerPos);
 }
 
 Game::~Game() {

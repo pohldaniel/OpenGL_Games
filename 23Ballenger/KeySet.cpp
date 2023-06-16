@@ -23,14 +23,14 @@ void KeySet::init(const Terrain& terrain) {
 										Matrix4f::Translate(265.0f, terrain.heightAt(265.0f, 487.0f), 487.0f) };
 	addInstances(instances);
 
-	Globals::shapeManager.get("key").addInstances(5u, 1u, GL_DYNAMIC_DRAW);
+	Globals::shapeManager.get("key").setInstances(5u, 1u, GL_DYNAMIC_DRAW);
 	Globals::shapeManager.get("key").updateInstances(instances);
-	Globals::shapeManager.get("key").addVec4Attribute(m_colors, 1);
-	Globals::shapeManager.get("key").addMat4Attribute(5u, 1u);
+	Globals::shapeManager.get("key").setVec4Attribute(m_colors, 1);
+	Globals::shapeManager.get("key").setMat4Attribute(5u, 1u);
 
-	Globals::shapeManager.get("cylinder_key").addInstances(instances);
-	Globals::shapeManager.get("cylinder_key").addVec4Attribute(m_colors, 1);
-	Globals::shapeManager.get("cylinder_key").addMat4Attribute(5u, 1u);
+	Globals::shapeManager.get("cylinder_key").setInstances(instances);
+	Globals::shapeManager.get("cylinder_key").setVec4Attribute(m_colors, 1);
+	Globals::shapeManager.get("cylinder_key").setMat4Attribute(5u, 1u);
 	updateCylinderShape();
 
 	m_idCache.resize(instances.size());
@@ -94,7 +94,7 @@ void KeySet::updateCylinderShape() {
 		float y = instances[i][3][1];
 		heights.push_back(BEACON_HEIGHT - y);
 	}
-	Globals::shapeManager.get("cylinder_key").addFloatAttribute(heights);
+	Globals::shapeManager.get("cylinder_key").setFloatAttribute(heights);
 }
 
 void KeySet::pickKey(int id) {
@@ -102,7 +102,7 @@ void KeySet::pickKey(int id) {
 	m_pickedColor = m_colors[m_idCache[m_pickedKeyId]];
 	 
 	m_colors.erase(m_colors.begin() + m_idCache[m_pickedKeyId]);
-	Globals::shapeManager.get("cylinder_key").addVec4Attribute(m_colors, 1);
+	Globals::shapeManager.get("cylinder_key").setVec4Attribute(m_colors, 1);
 	Globals::shapeManager.get("cylinder_key").removeInstance(m_idCache[m_pickedKeyId]);
 	updateCylinderShape();
 
@@ -113,7 +113,7 @@ void KeySet::restorePrevState() {
 	for_each(m_idCache.begin() + m_pickedKeyId, m_idCache.end(), [](short& v) {v++; });
 
 	m_colors.insert(m_colors.begin() + m_idCache[m_pickedKeyId], m_pickedColor);
-	Globals::shapeManager.get("cylinder_key").addVec4Attribute(m_colors, 1);
+	Globals::shapeManager.get("cylinder_key").setVec4Attribute(m_colors, 1);
 	Globals::shapeManager.get("cylinder_key").insertInstance( Matrix4f::Translate(m_keyStates[m_pickedKeyId].position), m_idCache[m_pickedKeyId]);
 	updateCylinderShape();
 

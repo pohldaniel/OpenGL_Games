@@ -657,6 +657,7 @@ void Application::loadAssets() {
 	Globals::fontManager.loadCharacterSet("upheaval_200", "res/upheavtt.ttf", 200, 0, 30, 128, 0, true, 0u);
 	Globals::fontManager.loadCharacterSet("upheaval_50", "res/upheavtt.ttf", 50, 0, 3, 0, 0, true, 0u);
 
+
 	Globals::musicManager.createMusicBuffer("background");
 	Globals::musicManager.get("background").setVolume(Globals::musicVolume);
 	Globals::musicManager.get("background").setLooping(true);

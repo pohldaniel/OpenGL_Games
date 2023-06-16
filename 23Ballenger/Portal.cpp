@@ -21,8 +21,8 @@ void Portal::init(const Terrain& terrain) {
 										Matrix4f::Translate(-PORTAL_SIDE * 0.5f, PORTAL_SIDE * 1.0f, 0.0f),
 										Matrix4f::Translate(-PORTAL_SIDE * 0.5f, PORTAL_SIDE * 0.33f, 0.0f)};
 
-	Globals::shapeManager.get("sphere_portal").addInstances(instances);
-	Globals::shapeManager.get("sphere_portal").addVec4Attribute(colors, 1);
+	Globals::shapeManager.get("sphere_portal").setInstances(instances);
+	Globals::shapeManager.get("sphere_portal").setVec4Attribute(colors, 1);
 
 	m_vortex = RenderableObject("vortex", "texture_new", "vortex");
 	m_vortex.setDrawFunction([&](const Camera& camera) {

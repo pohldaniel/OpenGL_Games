@@ -669,7 +669,42 @@ void Shape::addInstances(const std::vector<Matrix4f>& values, unsigned int divis
 	}
 }
 
-void Shape::addInstances(unsigned int length, unsigned int divisor, unsigned int usage) {
+void Shape::setInstances(const std::vector<Matrix4f>& values, unsigned int divisor) {
+	m_instances = values;
+	m_instanceCount = m_instances.size();
+
+	if (m_vboInstances) {
+		glBindBuffer(GL_ARRAY_BUFFER, m_vboInstances);
+		glBufferData(GL_ARRAY_BUFFER, m_instances.size() * sizeof(float) * 4 * 4, m_instances[0][0], GL_STATIC_DRAW);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	}else {
+		glGenBuffers(1, &m_vboInstances);
+		glBindVertexArray(m_vao);
+
+		glBindBuffer(GL_ARRAY_BUFFER, m_vboInstances);
+		glBufferData(GL_ARRAY_BUFFER, m_instances.size() * sizeof(float) * 4 * 4, m_instances[0][0], GL_STATIC_DRAW);
+
+		glEnableVertexAttribArray(5);
+		glEnableVertexAttribArray(6);
+		glEnableVertexAttribArray(7);
+		glEnableVertexAttribArray(8);
+		glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(float) * 4 * 4, (void*)(0));
+		glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(float) * 4 * 4, (void*)(sizeof(float) * 4));
+		glVertexAttribPointer(7, 4, GL_FLOAT, GL_FALSE, sizeof(float) * 4 * 4, (void*)(sizeof(float) * 8));
+		glVertexAttribPointer(8, 4, GL_FLOAT, GL_FALSE, sizeof(float) * 4 * 4, (void*)(sizeof(float) * 12));
+
+		glVertexAttribDivisor(5, divisor);
+		glVertexAttribDivisor(6, divisor);
+		glVertexAttribDivisor(7, divisor);
+		glVertexAttribDivisor(8, divisor);
+
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindVertexArray(0);
+	}
+}
+
+void Shape::setInstances(unsigned int length, unsigned int divisor, unsigned int usage) {
 	m_instanceCount = length;
 	
 	if (m_vboInstances) {
@@ -710,7 +745,7 @@ void Shape::updateInstances(const std::vector<Matrix4f>& values) {
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-void Shape::addVec4Attribute(const std::vector<Vector4f>& values, unsigned int divisor) {
+void Shape::setVec4Attribute(const std::vector<Vector4f>& values, unsigned int divisor) {
 	if (m_vboAdd1) {
 		glBindBuffer(GL_ARRAY_BUFFER, m_vboAdd1);
 		glBufferData(GL_ARRAY_BUFFER, values.size() * sizeof(float) * 4, &values[0], GL_STATIC_DRAW);
@@ -734,7 +769,7 @@ void Shape::addVec4Attribute(const std::vector<Vector4f>& values, unsigned int d
 	}
 }
 
-void Shape::addMat4Attribute(const std::vector<Matrix4f>& values, unsigned int divisor) {
+void Shape::setMat4Attribute(const std::vector<Matrix4f>& values, unsigned int divisor) {
 	if (m_vboAdd2) {
 		glBindBuffer(GL_ARRAY_BUFFER, m_vboAdd2);
 		glBufferData(GL_ARRAY_BUFFER, values.size() * sizeof(float) * 4 * 4, values[0][0], GL_STATIC_DRAW);
@@ -768,7 +803,7 @@ void Shape::addMat4Attribute(const std::vector<Matrix4f>& values, unsigned int d
 	}
 }
 
-void Shape::addFloatAttribute(const std::vector<float>& values, unsigned int divisor) {
+void Shape::setFloatAttribute(const std::vector<float>& values, unsigned int divisor) {
 	if (m_vboAdd3) {
 		glBindBuffer(GL_ARRAY_BUFFER, m_vboAdd3);
 		glBufferData(GL_ARRAY_BUFFER, values.size() * sizeof(float), &values[0], GL_STATIC_DRAW);
@@ -792,7 +827,7 @@ void Shape::addFloatAttribute(const std::vector<float>& values, unsigned int div
 	}
 }
 
-void Shape::addMat4Attribute(unsigned int length, unsigned int divisor, unsigned int usage) {
+void Shape::setMat4Attribute(unsigned int length, unsigned int divisor, unsigned int usage) {
 	glGenBuffers(1, &m_vboAdd2);
 
 	glBindVertexArray(m_vao);
@@ -824,7 +859,7 @@ void Shape::updateMat4Attribute(const std::vector<Matrix4f>& values) {
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-void Shape::addFloatAttribute(unsigned int length, unsigned int divisor, unsigned int usage) {
+void Shape::setFloatAttribute(unsigned int length, unsigned int divisor, unsigned int usage) {
 	glGenBuffers(1, &m_vboAdd3);
 
 	glBindVertexArray(m_vao);

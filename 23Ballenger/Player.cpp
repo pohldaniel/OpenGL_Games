@@ -108,7 +108,7 @@ void Player::update(const float dt) {
 	btTransform t;
 	m_characterController->getWorldTransform(t);
 	Vector3f playerPos = Physics::VectorFrom(t.getOrigin());
-	//m_camera.Camera::setTarget(playerPos);
+	m_camera.Camera::setTarget(playerPos);
 
 	float dx = 0.0f;
 	float dy = 0.0f;

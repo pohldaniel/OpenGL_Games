@@ -20,9 +20,9 @@ void RespawnPointSet::init(const Terrain& terrain) {
 										Matrix4f::Translate(448.0f, terrain.heightAt(448.0f, 944.0f), 944.0f),
 										Matrix4f::Translate(816.0f, terrain.heightAt(816.0f, 816.0f), 816.0f) };
 
-	Globals::shapeManager.get("quad_rp").addInstances(instances);
-	Globals::shapeManager.get("cylinder").addInstances(instances);
-	Globals::shapeManager.get("disk").addInstances(instances);
+	Globals::shapeManager.get("quad_rp").setInstances(instances);
+	Globals::shapeManager.get("cylinder").setInstances(instances);
+	Globals::shapeManager.get("disk").setInstances(instances);
 
 	glGenBuffers(1, &Globals::colorUbo);
 	glBindBuffer(GL_UNIFORM_BUFFER, Globals::colorUbo);

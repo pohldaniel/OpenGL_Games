@@ -86,7 +86,6 @@ public:
 
 	void resize(unsigned int width, unsigned int height);
 	void cleanup();
-	void cleanupWithoutTexture();
 	unsigned int getWidth();
 	unsigned int getHeight();
 	void bindColorTexture(unsigned int unit, unsigned int attachment) const;
