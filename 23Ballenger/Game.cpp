@@ -58,7 +58,6 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME),
 
 Game::~Game() {
 	Globals::physics->removeAllCollisionObjects();
-	sceneBuffer.cleanup();
 	EventDispatcher::RemoveKeyboardListener(this);
 	EventDispatcher::RemoveMouseListener(this);
 }

@@ -118,6 +118,10 @@ CloudsModel::~CloudsModel(){
 #endif
 	delete m_raymarcher;
 	delete m_post;
+
+	if (m_volumeBuffer) {
+		delete m_volumeBuffer;
+	}
 }
 
 void CloudsModel::update(){

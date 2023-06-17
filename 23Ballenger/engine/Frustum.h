@@ -40,7 +40,7 @@ public:
 
 	void drawFrustm(const Matrix4f& projection, const Matrix4f& view, float distance);
 	void updatePlane(const Matrix4f& perspective, const Matrix4f& view, const Matrix4f& model = Matrix4f::IDENTITY);
-	void update(const Matrix4f& perspective, const Matrix4f& view);
+	void updateVbo(const Matrix4f& perspective, const Matrix4f& view);
 
 	void init();
 	bool intersectAABBFrustum(const Vector3f& position, const Vector3f& size);
@@ -58,7 +58,7 @@ private:
 	unsigned int m_vao = 0;
 	unsigned int m_vboPos = 0;
 	unsigned int m_vboCount = 0;
-	bool m_debug = true;
+	bool m_debug = false;
 
 	static std::unique_ptr<Shader> s_shaderFrustum;
 };

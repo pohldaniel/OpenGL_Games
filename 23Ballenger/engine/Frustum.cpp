@@ -89,9 +89,8 @@ void Frustum::updatePlane(const Matrix4f& perspective, const Matrix4f& view, con
 	m_origins[5] = m_planes[5][2] < 0.0f ? (m_planes[5][1] < 0.0f ? (m_planes[5][0] < 0.0f ? 0 : 1) : (m_planes[5][0] < 0.0f ? 2 : 3)) : (m_planes[5][1] < 0.0f ? (m_planes[5][0] < 0.0f ? 4 : 5) : (m_planes[5][0] < 0.0f ? 6 : 7));	
 }
 
-void Frustum::update(const Matrix4f& perspective, const Matrix4f& view) {
+void Frustum::updateVbo(const Matrix4f& perspective, const Matrix4f& view) {
 	if (m_debug) {
-
 		float near = perspective[3][2] / (perspective[2][2] - 1);
 		float heightNear = (2.0f / perspective[1][1]) * near;
 		float widthNear = (heightNear *  perspective[1][1]) / perspective[0][0];

@@ -19,8 +19,7 @@ enum cloudsTextureNames { fragColor, bloom, alphaness, cloudDistance };
 class CloudsModel {
 
 public:
-	friend class VolumetricClouds;
-
+	
 	CloudsModel(unsigned int width, unsigned int height, const Light& light);
 	~CloudsModel();
 
@@ -37,8 +36,6 @@ public:
 	bool postProcess;
 
 	Vector3f cloudColorTop, cloudColorBottom;
-	
-
 	Vector3f seed, oldSeed, sceneSeed;
 	unsigned int perlinTex = 0, worley32 = 0, weatherTex = 0;
 
@@ -52,13 +49,12 @@ public:
 
 	VolumeBuffer* m_volumeBuffer = nullptr;
 	Framebuffer m_weatherMap;
-	
-	MeshQuad m_quad;
+	Framebuffer postBuffer;
 	Texture m_textureSet[4];
+
+	MeshQuad m_quad;
 	Clock m_clock;
 	unsigned int m_width;
 	unsigned int m_height;
-	Framebuffer postBuffer;
-
 	const Light& light;
 };

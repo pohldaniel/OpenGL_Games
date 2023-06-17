@@ -4,8 +4,7 @@
 unsigned int Framebuffer::Width = 1600;
 unsigned int Framebuffer::Height = 800;
 
-Framebuffer::Framebuffer() {
-}
+Framebuffer::Framebuffer() {}
 
 Framebuffer::~Framebuffer() {
 	cleanup();

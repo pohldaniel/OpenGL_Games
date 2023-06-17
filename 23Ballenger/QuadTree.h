@@ -59,6 +59,8 @@ private:
 
 class QuadTree {
 
+	friend class TreeNode;
+
 public:
 	QuadTree();
 	~QuadTree();

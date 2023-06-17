@@ -35,6 +35,8 @@ TerrainCulling::TerrainCulling(StateMachine& machine) : State(machine, CurrentSt
 	m_view.lookAt(Vector3f(512.0f, 0.0f, 512.0f), Vector3f(512.0f, 0.0f - 1.0f, 512.0f), Vector3f(0.0f, 0.0f, -1.0f));
 	m_orthographic.orthographic(-(512.0f + offset), 512.0f + offset, -(512.0f + offset), 512.0f + offset, -4096.0f, 4096.0f);
 	m_perspective.perspective(m_fovx, (float)Application::Width / (float)Application::Height, m_near, m_far);
+
+	QuadTree::Frustum.getDebug() = true;
 }
 
 TerrainCulling::~TerrainCulling() {
@@ -146,7 +148,7 @@ void TerrainCulling::render() {
 		m_quadTree.drawAABB(m_depth);
 	}
 
-	QuadTree::Frustum.update(m_perspective, m_camera.getViewMatrix());
+	QuadTree::Frustum.updateVbo(m_perspective, m_camera.getViewMatrix());
 	!m_overview ? QuadTree::Frustum.drawFrustm(m_camera.getPerspectiveMatrix(), m_camera.getViewMatrix(), m_distance) : QuadTree::Frustum.drawFrustm(m_orthographic, m_view, m_distance);
 	renderUi();
 }
