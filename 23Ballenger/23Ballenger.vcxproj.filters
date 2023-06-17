@@ -282,6 +282,12 @@
     <ClCompile Include="SeekerBar.cpp">
       <Filter>Source Files\UI</Filter>
     </ClCompile>
+    <ClCompile Include="Environment.cpp">
+      <Filter>Source Files\States</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\CubeBuffer.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h">
@@ -526,6 +532,12 @@
     </ClInclude>
     <ClInclude Include="SeekerBar.h">
       <Filter>Source Files\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="Environment.h">
+      <Filter>Source Files\States</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\CubeBuffer.h">
+      <Filter>engine</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

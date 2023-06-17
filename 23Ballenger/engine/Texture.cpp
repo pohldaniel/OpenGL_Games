@@ -1258,6 +1258,21 @@ void Texture::CreateTextureArray(unsigned int& textureRef, unsigned int width, u
 	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
 }
 
+void Texture::CreateTextureCube(unsigned int& textureRef, unsigned int size, unsigned int internalFormat, unsigned int format, unsigned int type, unsigned char* data) {
+	glGenTextures(1, &textureRef);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, textureRef);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+	for (unsigned int i = 0; i < 6; ++i) {
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, internalFormat, size, size, 0, format, type, data);
+	}	
+	glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+}
+
 void Texture::Resize(unsigned int& textureRef, unsigned int width, unsigned int height, unsigned int internalFormat, unsigned int format, unsigned int type, unsigned int target, unsigned int depth) {
 	if (target == GL_TEXTURE_CUBE_MAP) {
 		glBindTexture(target, textureRef);

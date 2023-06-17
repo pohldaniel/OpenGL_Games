@@ -9,7 +9,8 @@ namespace Target {
 		TEXTURE2D,
 		TEXTURE3D,
 		ARRAY,
-		TEXTURE
+		TEXTURE,
+		CUBE
 	} Target;
 }
 

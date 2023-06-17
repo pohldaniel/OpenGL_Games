@@ -14,6 +14,7 @@
 #include "Game.h"
 #include "TerrainCulling.h"
 #include "CloudInterface.h"
+#include "Environment.h"
 #include "Menu.h"
 #include "Settings.h"
 #include "Widget.h"
@@ -306,8 +307,8 @@ void Application::initOpenGL(int msaaSamples) {
 
 	glCullFace(GL_BACK);
 	glFrontFace(GL_CCW);
-	//glEnable(GL_CULL_FACE);
-	glDisable(GL_CULL_FACE);
+	glEnable(GL_CULL_FACE);
+	//glDisable(GL_CULL_FACE);
 
 	glEnable(GL_DEPTH_TEST);
 	//glEnable(GL_ALPHA_TEST);
@@ -378,7 +379,9 @@ void Application::initStates() {
 	//Machine->addStateAtTop(new TerrainCulling(*Machine));
 	//Machine->addStateAtTop(new CloudInterface(*Machine));
 
-	Machine->addStateAtTop(new Menu(*Machine));
+	//Machine->addStateAtTop(new Menu(*Machine));
+
+	Machine->addStateAtTop(new EnvironmentInterface(*Machine));
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {

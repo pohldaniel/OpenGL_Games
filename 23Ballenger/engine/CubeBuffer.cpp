@@ -1,0 +1,206 @@
+#include "CubeBuffer.h"
+
+CubeBuffer::CubeBuffer(unsigned int internalFormat, int size) {
+	m_internalFormat = internalFormat;
+	m_minFilter = GL_NEAREST;
+	m_magFilter = GL_NEAREST;
+	m_mode = GL_CLAMP_TO_EDGE;
+	m_size = size;
+
+	Texture::CreateTextureCube(m_texture, size, internalFormat, GL_RGBA, GL_UNSIGNED_BYTE);
+	m_fbo.create(size, size);
+
+	createBuffer();
+
+	m_targetVectors[0] = Vector3f(1.0f, 0.0f, 0.0f);
+	m_targetVectors[1] = Vector3f(-1.0f, 0.0f, 0.0f);
+	m_targetVectors[2] = Vector3f(0.0f, 1.0f, 0.0f);
+	m_targetVectors[3] = Vector3f(0.0f, -1.0f, 0.0f);
+	m_targetVectors[4] = Vector3f(0.0f, 0.0f, 1.0f);
+	m_targetVectors[5] = Vector3f(0.0f, 0.0f, -1.0f);
+
+	m_upVectors[0] = Vector3f(0.0f, -1.0f, 0.0f);
+	m_upVectors[1] = Vector3f(0.0f, -1.0f, 0.0f);
+	m_upVectors[2] = Vector3f(0.0f, 0.0f, 1.0f);
+	m_upVectors[3] = Vector3f(0.0f, 0.0f, -1.0f);
+	m_upVectors[4] = Vector3f(0.0f, -1.0f, 0.0f);
+	m_upVectors[5] = Vector3f(0.0f, -1.0f, 0.0f);
+
+	m_projectionCube.perspective(90.0f, 1.0f, m_nearPlane, m_farPlane);
+}
+
+CubeBuffer::~CubeBuffer() {
+	glDeleteTextures(1, &m_texture);
+
+	if (m_vao) {
+		glDeleteVertexArrays(1, &m_vao);
+		m_vao = 0;
+	}
+
+	if (m_vbo) {
+		glDeleteBuffers(1, &m_vbo);
+		m_vbo = 0;
+	}
+}
+
+void CubeBuffer::draw() {
+	glDepthFunc(GL_LEQUAL);
+	glFrontFace(GL_CW);
+
+	m_fbo.bind();
+	glUseProgram(m_shader->m_program);
+	glBindVertexArray(m_vao);
+
+	for (GLuint face = 0; face < 6; ++face) {
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + face, m_texture, 0);
+		glClear(GL_DEPTH_BUFFER_BIT);
+		m_viewCube.lookAt(m_position, m_position + m_targetVectors[face], m_upVectors[face]);
+		m_viewDirection = m_targetVectors[face];
+		m_innerDraw();
+	}
+
+	
+	glBindVertexArray(0);
+	glUseProgram(0);
+	m_fbo.unbind();
+
+	glFrontFace(GL_CCW);
+	glDepthFunc(GL_LESS);
+}
+
+void CubeBuffer::setFiltering(unsigned int minFilter) {
+	m_minFilter = minFilter;
+	m_magFilter = minFilter == 9985 || minFilter == 9987 ? GL_LINEAR : minFilter == 9984 || minFilter == 9986 ? GL_NEAREST : minFilter;
+	Texture::SetFilter(m_texture, m_minFilter, m_magFilter, GL_TEXTURE_CUBE_MAP);
+}
+
+void CubeBuffer::setWrapMode(unsigned int mode) {
+	m_mode = mode;
+	Texture::SetWrapMode(m_texture, mode, GL_TEXTURE_CUBE_MAP);
+}
+
+void CubeBuffer::resize(int size) {
+	m_size = size;
+	m_fbo.resize(m_size, m_size);
+
+	glBindTexture(GL_TEXTURE_CUBE_MAP, m_texture);
+	for (unsigned int i = 0; i < 6; ++i) {
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, m_internalFormat, m_size, m_size, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+	}
+	if (m_minFilter == 9984 || m_minFilter == 9985 || m_minFilter == 9986 || m_minFilter == 9987)
+		glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+}
+
+void CubeBuffer::setShader(Shader* shader) {
+	m_shader = shader;
+}
+
+unsigned int& CubeBuffer::getTexture() {
+	return m_texture;
+}
+
+int CubeBuffer::getSize() {
+	return m_size;
+}
+
+void CubeBuffer::createBuffer() {
+
+	std::vector<float> vertex;
+
+	vertex.push_back(-1.0f); vertex.push_back(-1.0f); vertex.push_back(1.0f);
+	vertex.push_back( 1.0f); vertex.push_back(-1.0f); vertex.push_back(1.0f);
+	vertex.push_back( 1.0f); vertex.push_back( 1.0f); vertex.push_back(1.0f);
+	vertex.push_back(-1.0f); vertex.push_back( 1.0f); vertex.push_back(1.0f);
+
+	vertex.push_back(-1.0f); vertex.push_back(-1.0f); vertex.push_back(-1.0f);
+	vertex.push_back( 1.0f); vertex.push_back(-1.0f); vertex.push_back(-1.0f);
+	vertex.push_back( 1.0f); vertex.push_back( 1.0f); vertex.push_back(-1.0f);
+	vertex.push_back(-1.0f); vertex.push_back( 1.0f); vertex.push_back(-1.0f);
+
+	unsigned short indices[] = {
+		// positive X
+		1, 5, 6,
+		6, 2, 1,
+		// negative X
+		4, 0, 3,
+		3, 7, 4,
+		// positive Y
+		3, 2, 6,
+		6, 7, 3,
+		// negative Y
+		4, 5, 1,
+		1, 0, 4,
+		// positive Z
+		0, 1, 2,
+		2, 3, 0,
+		// negative Z
+		7, 6, 5,
+		5, 4, 7
+	};
+
+	if (m_vbo) {
+		glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+		glBufferData(GL_ARRAY_BUFFER, vertex.size() * sizeof(float), &vertex[0], GL_STATIC_DRAW);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	}else {
+
+		short stride = 3;
+
+		unsigned int ibo;
+		glGenBuffers(1, &ibo);
+
+		glGenBuffers(1, &m_vbo);
+
+		glGenVertexArrays(1, &m_vao);
+		glBindVertexArray(m_vao);
+
+		glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+		glBufferData(GL_ARRAY_BUFFER, vertex.size() * sizeof(float), &vertex[0], GL_STATIC_DRAW);
+
+		//Position
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)0);
+
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+		glBindVertexArray(0);
+		glDeleteBuffers(1, &ibo);
+	}
+	vertex.clear();
+	vertex.shrink_to_fit();
+}
+
+void CubeBuffer::setInnerDrawFunction(std::function<void()> fun) {
+	m_innerDraw = fun;
+}
+
+const Matrix4f& CubeBuffer::getViewCube() {
+	return m_viewCube;
+}
+
+Framebuffer& CubeBuffer::getFramebuffer() {
+	return m_fbo;
+}
+
+Shader* CubeBuffer::getShader() {
+	return m_shader;
+}
+
+unsigned int& CubeBuffer::getVao() {
+	return m_vao;
+}
+
+void CubeBuffer::drawRaw() {
+	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_SHORT, 0);
+}
+
+const Matrix4f& CubeBuffer::getProjectionCube() {
+	return m_projectionCube;
+}
+
+const Vector3f& CubeBuffer::getVieDirection() {
+	return m_viewDirection;
+}

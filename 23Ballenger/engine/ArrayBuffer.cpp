@@ -1,5 +1,4 @@
 #include "ArrayBuffer.h"
-#include "Application.h"
 
 ArrayBuffer::ArrayBuffer(unsigned int internalFormat, int width, int height, int textureLayer, int attachements) {
 	m_internalFormat = internalFormat;

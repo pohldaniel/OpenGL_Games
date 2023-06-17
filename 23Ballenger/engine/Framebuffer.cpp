@@ -364,7 +364,9 @@ void Framebuffer::attachTexture(unsigned int& texture, Attachment::Attachment _a
 				glFramebufferTextureLayer(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + (m_colorAttachments - 1), texture, 0, i);
 			}
 
-		} else{
+		}else if (target == Target::CUBE) {
+			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + (m_colorAttachments - 1), GL_TEXTURE_CUBE_MAP_POSITIVE_X, texture, 0);
+		}else {
 			glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + (m_colorAttachments - 1), texture, 0);
 		}
 

@@ -8,6 +8,7 @@
 #include "ShapeInterface.h"
 #include "TerrainCulling.h"
 #include "CloudInterface.h"
+#include "Environment.h"
 
 Menu::Menu(StateMachine& machine) : State(machine, CurrentState::MENU) {
 
@@ -26,7 +27,8 @@ Menu::Menu(StateMachine& machine) : State(machine, CurrentState::MENU) {
 		{ "settings", Button() },
 		{ "shape",	  Button() },
 		{ "terrain",  Button() },
-		{ "cloud",	  Button() }
+		{ "cloud",	  Button() },
+		{ "environment",  Button() }
 	});
 
 	m_buttons.at("start").setCharset(Globals::fontManager.get("upheaval_50"));
@@ -93,6 +95,19 @@ Menu::Menu(StateMachine& machine) : State(machine, CurrentState::MENU) {
 		m_isRunning = false;
 		m_machine.addStateAtBottom(new CloudInterface(m_machine));
 	});
+
+	m_buttons.at("environment").setCharset(Globals::fontManager.get("upheaval_50"));
+	m_buttons.at("environment").setPosition(50.0f, 400.0f);
+	m_buttons.at("environment").setSize(Vector2f(100.0f, 50.0f));
+	m_buttons.at("environment").setOutlineThickness(5.0f);
+	m_buttons.at("environment").setText("Environment");
+	m_buttons.at("environment").setOffset(2.0f, 7.0f);
+	m_buttons.at("environment").setShader(Globals::shaderManager.getAssetPointer("quad_color_uniform"));
+	m_buttons.at("environment").setFunction([&]() {
+		Globals::soundManager.get("menu").playChannel(0u);
+		m_isRunning = false;
+		m_machine.addStateAtBottom(new EnvironmentInterface(m_machine));
+	});
 }
 
 Menu::~Menu() {
@@ -136,7 +151,4 @@ void Menu::resize(int deltaW, int deltaH) {
 
 	m_buttons.at("start").setPosition(static_cast<float>(Application::Width - 350), 200.0f);
 	m_buttons.at("settings").setPosition(static_cast<float>(Application::Width - 350), 100.0f);
-	m_buttons.at("shape").setPosition(50.0f, 300.0f);
-	m_buttons.at("terrain").setPosition(50.0f, 200.0f);
-	m_buttons.at("cloud").setPosition(50.0f, 100.0f);
 }

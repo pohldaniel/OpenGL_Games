@@ -167,6 +167,7 @@
     <ClCompile Include="engine\Camera.cpp" />
     <ClCompile Include="engine\CharacterSet.cpp" />
     <ClCompile Include="engine\Cube.cpp" />
+    <ClCompile Include="engine\CubeBuffer.cpp" />
     <ClCompile Include="engine\Fontrenderer.cpp" />
     <ClCompile Include="engine\Framebuffer.cpp" />
     <ClCompile Include="engine\Frustum.cpp" />
@@ -204,6 +205,7 @@
     <ClCompile Include="engine\Transform.cpp" />
     <ClCompile Include="engine\Vector.cpp" />
     <ClCompile Include="engine\VolumeBuffer.cpp" />
+    <ClCompile Include="Environment.cpp" />
     <ClCompile Include="Menu.cpp" />
     <ClCompile Include="NoiseGen.cpp" />
     <ClCompile Include="Lava.cpp" />
@@ -241,6 +243,8 @@
     <ClInclude Include="CloudsModel.h" />
     <ClInclude Include="ColumnSet.h" />
     <ClInclude Include="engine\ArrayBuffer.h" />
+    <ClInclude Include="engine\CubeBuffer.h" />
+    <ClInclude Include="Environment.h" />
     <ClInclude Include="Globals.h" />
     <ClInclude Include="convhull\convhull_3d.h" />
     <ClInclude Include="engine\AssetManger.h" />
