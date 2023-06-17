@@ -41,6 +41,8 @@ public:
 	void loadVector(const char* location, Vector2f vector) const;
 	void loadVector(const char* location, std::array<int, 3> vector) const;
 	void loadVector(const char* location, std::array<int, 2> vector) const;
+	void loadVectorArray(const char* location, const std::vector<std::array<float, 4>> vectorArray, const unsigned short count) const;
+
 
 	void loadFloat(const char* location, float value) const;
 	void loadFloat2(const char* location, float value[2]) const;

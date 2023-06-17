@@ -18,7 +18,9 @@ public:
 	void draw();
 	void drawRaw();
 	void updateViewMatrix(unsigned int face);
+	void updateAllViewMatrices();
 	void attachTexture(unsigned int face);
+	void attachLayerd();
 	void unbind();
 	void bindVao();
 	void unbindVao();
@@ -26,6 +28,7 @@ public:
 	void resize(int size);
 	void setInnerDrawFunction(std::function<void()> fun);
 	void setDrawFunction(std::function<void()> fun);
+	void setPosition(const Vector3f& position);
 
 	const Matrix4f& getPerspectiveMatrix();
 	const Matrix4f& getViewMatrix();
@@ -33,7 +36,7 @@ public:
 	const Matrix4f& getInvViewMatrix();
 	const Vector3f& getViewDirection();
 	const Vector3f& getPosition();
-
+	const std::vector<Matrix4f>& getViewMatrices();
 
 	int getSize();
 
@@ -49,7 +52,7 @@ private:
 	Shader* m_shader;
 	Framebuffer m_fbo;
 
-	unsigned int m_texture;
+	unsigned int m_texture, m_depthTexture;
 	unsigned int m_internalFormat;
 
 	unsigned int m_minFilter;
@@ -76,4 +79,6 @@ private:
 
 	std::function<void()> m_innerDraw = 0;
 	std::function<void()> m_draw = 0;
+
+	std::vector<Matrix4f> m_viewMatrices;
 };

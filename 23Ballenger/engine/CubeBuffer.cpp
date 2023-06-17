@@ -8,8 +8,10 @@ CubeBuffer::CubeBuffer(unsigned int internalFormat, int size) {
 	m_size = size;
 
 	Texture::CreateTextureCube(m_texture, size, internalFormat, GL_RGBA, GL_UNSIGNED_BYTE);
+	Texture::CreateTextureCube(m_depthTexture, size, GL_DEPTH_COMPONENT32F, GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE);
+	
 	m_fbo.create(size, size);
-
+	
 	createBuffer();
 
 	m_targetVectors[0] = Vector3f(1.0f, 0.0f, 0.0f);
@@ -29,7 +31,7 @@ CubeBuffer::CubeBuffer(unsigned int internalFormat, int size) {
 	m_persMatrix.perspective(90.0f, 1.0f, m_nearPlane, m_farPlane);
 	m_invPersMatrix.invPerspective(90.0f, 1.0f, m_nearPlane, m_farPlane);
 	m_position.set(0.0f, 0.0f, 0.0f);
-	
+	m_viewMatrices.resize(6);
 }
 
 CubeBuffer::~CubeBuffer() {
@@ -73,12 +75,35 @@ void CubeBuffer::attachTexture(unsigned int face) {
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + face, m_texture, 0);
 }
 
+void CubeBuffer::attachLayerd() {
+	glBindFramebuffer(GL_FRAMEBUFFER, m_fbo.getFramebuffer());
+	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, m_texture, 0);
+
+	GLenum drawBuffers[1] = { GL_COLOR_ATTACHMENT0 };
+	glDrawBuffers(1, drawBuffers);
+	glDrawBuffer(GL_FRONT);
+	glReadBuffer(GL_FRONT);
+
+	glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, m_depthTexture, 0);
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
 void CubeBuffer::bindVao() {
 	glBindVertexArray(m_vao);
 }
 
 void CubeBuffer::unbindVao() {
 	glBindVertexArray(0);
+}
+
+void CubeBuffer::updateAllViewMatrices() {
+	m_viewMatrices[0].lookAt(m_position, m_position + m_targetVectors[0], m_upVectors[0]);
+	m_viewMatrices[1].lookAt(m_position, m_position + m_targetVectors[1], m_upVectors[1]);
+	m_viewMatrices[2].lookAt(m_position, m_position + m_targetVectors[2], m_upVectors[2]);
+	m_viewMatrices[3].lookAt(m_position, m_position + m_targetVectors[3], m_upVectors[3]);
+	m_viewMatrices[4].lookAt(m_position, m_position + m_targetVectors[4], m_upVectors[4]);
+	m_viewMatrices[5].lookAt(m_position, m_position + m_targetVectors[5], m_upVectors[5]);
 }
 
 void CubeBuffer::updateViewMatrix(unsigned int face) {
@@ -91,11 +116,13 @@ void CubeBuffer::setFiltering(unsigned int minFilter) {
 	m_minFilter = minFilter;
 	m_magFilter = minFilter == 9985 || minFilter == 9987 ? GL_LINEAR : minFilter == 9984 || minFilter == 9986 ? GL_NEAREST : minFilter;
 	Texture::SetFilter(m_texture, m_minFilter, m_magFilter, GL_TEXTURE_CUBE_MAP);
+	Texture::SetFilter(m_depthTexture, m_minFilter, m_magFilter, GL_TEXTURE_CUBE_MAP);
 }
 
 void CubeBuffer::setWrapMode(unsigned int mode) {
 	m_mode = mode;
 	Texture::SetWrapMode(m_texture, mode, GL_TEXTURE_CUBE_MAP);
+	Texture::SetWrapMode(m_depthTexture, mode, GL_TEXTURE_CUBE_MAP);
 }
 
 void CubeBuffer::resize(int size) {
@@ -242,4 +269,12 @@ const Vector3f& CubeBuffer::getPosition() {
 
 void CubeBuffer::unbind() {
 	m_fbo.unbind();
+}
+
+const std::vector<Matrix4f>& CubeBuffer::getViewMatrices() {
+	return m_viewMatrices;
+}
+
+void CubeBuffer::setPosition(const Vector3f& position) {
+	m_position = position;
 }

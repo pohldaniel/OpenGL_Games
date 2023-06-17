@@ -10,7 +10,8 @@
 
 #include "StateMachine.h"
 #include "RenderableObject.h"
-
+#include "Terrain.h"
+#include "QuadTree.h"
 #include "CloudsModel.h"
 #include "Sky.h"
 #include "Light.h"
@@ -38,9 +39,16 @@ public:
 	Transform m_transform;
 	bool m_initUi = true;	
 	bool m_updateBuffer = false;
+	bool m_drawSphere = true;
+	bool m_reflectTerrain = true;
 
-	CubeBuffer* m_cubeBuffer;
+	CubeBuffer* m_cubeBufferCloud;
+	CubeBuffer* m_cubeBufferLayerd;
+	CubeBuffer* m_cubeBufferTerrain;
 	CloudsModel m_cloudsModel;
 	Sky m_sky;
 	Light m_light;
+
+	QuadTree m_quadTree;
+	Terrain m_terrain;
 };

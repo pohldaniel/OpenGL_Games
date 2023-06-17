@@ -29,41 +29,125 @@ EnvironmentInterface::EnvironmentInterface(StateMachine& machine) : State(machin
 	m_light.direction = Vector3f(-.5f, 0.5f, 1.0f);
 	m_light.position = m_light.direction*1e6f + m_camera.getPosition();
 
+	m_terrain.init("Levels/terrain01.raw");
+	m_quadTree.init(m_terrain.getPositions().data(), m_terrain.getIndexBuffer().data(), static_cast<unsigned int>(m_terrain.getIndexBuffer().size()), m_terrain.getMin(), m_terrain.getMax(), 64.0f);
+	const Vector3f& pos = Vector3f(512.0f, m_terrain.heightAt(512.0f, 512.0f) + 1.0f, 512.0f);
+
 	Globals::shapeManager.buildSphere("_sphere", 1.0f, Vector3f(0.0f, 0.0f, 0.0f), 64, 64, true, true, false);
 	Globals::shaderManager.loadShader("model", "res/cubemap/model.vert", "res/cubemap/model.frag");
+	Globals::shaderManager.loadShader("cube", "res/cubemap/dynamicCubeMap.vert", "res/cubemap/dynamicCubeMap.frag", "res/cubemap/dynamicCubeMap.gs");
+	Globals::shaderManager.loadShader("terrain_gs", "res/cubemap/terrain.vert", "res/cubemap/terrain.frag", "res/cubemap/terrain.gs");
 
-	m_cubeBuffer = new CubeBuffer(GL_RGBA8, 1024);
-	m_cubeBuffer->setFiltering(GL_LINEAR);
-	m_cubeBuffer->setShader(Globals::shaderManager.getAssetPointer("quad_back"));
+	m_cubeBufferCloud = new CubeBuffer(GL_RGBA8, 1024);
+	m_cubeBufferCloud->setFiltering(GL_LINEAR);
+	m_cubeBufferCloud->setShader(Globals::shaderManager.getAssetPointer("quad_back"));
 
-	m_cubeBuffer->setDrawFunction([&]() {
+	m_cubeBufferCloud->getShader()->use();
+	m_cubeBufferCloud->getShader()->loadMatrix("projection", m_cubeBufferCloud->getPerspectiveMatrix());
+	m_cubeBufferCloud->getShader()->unuse();
+
+	m_cubeBufferCloud->setDrawFunction([&]() {
 		for (GLuint face = 0; face < 6; ++face) {
-			m_cubeBuffer->updateViewMatrix(face);
+			m_cubeBufferCloud->updateViewMatrix(face);
 			
-			m_sky.draw(m_cubeBuffer->getInvPerspectiveMatrix(), m_cubeBuffer->getInvViewMatrix());
-			m_cloudsModel.draw(m_cubeBuffer->getPerspectiveMatrix(), m_cubeBuffer->getViewMatrix(), m_cubeBuffer->getInvPerspectiveMatrix(), m_cubeBuffer->getInvViewMatrix(), Vector3f(0.0f, 0.0f, 0.0f), m_cubeBuffer->getViewDirection(), m_sky);
+			m_sky.draw(m_cubeBufferCloud->getInvPerspectiveMatrix(), m_cubeBufferCloud->getInvViewMatrix());
+			m_cloudsModel.draw(m_cubeBufferCloud->getPerspectiveMatrix(), m_cubeBufferCloud->getViewMatrix(), m_cubeBufferCloud->getInvPerspectiveMatrix(), m_cubeBufferCloud->getInvViewMatrix(), Vector3f(0.0f, 0.0f, 0.0f), m_cubeBufferCloud->getViewDirection(), m_sky);
 
-			m_cubeBuffer->getFramebuffer().bind();
-			m_cubeBuffer->getShader()->use();
-			m_cubeBuffer->bindVao();
-			m_cubeBuffer->attachTexture(face);
+			m_cubeBufferCloud->getFramebuffer().bind();
+			m_cubeBufferCloud->getShader()->use();
+			m_cubeBufferCloud->attachTexture(face);
 
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			
-			m_cubeBuffer->getShader()->loadMatrix("view", m_cubeBuffer->getViewMatrix());
+			m_cubeBufferCloud->getShader()->loadMatrix("view", m_cubeBufferCloud->getViewMatrix());
 			
 			glActiveTexture(GL_TEXTURE0);
 			glBindTexture(GL_TEXTURE_2D, m_cloudsModel.getPostTexture());
 			Globals::shapeManager.get("quad").drawRaw();
-			m_cubeBuffer->unbindVao();
-			m_cubeBuffer->getShader()->unuse();			
+			m_cubeBufferCloud->getShader()->unuse();
 		}
-		m_cubeBuffer->unbind();
+		m_cubeBufferCloud->unbind();
 	});
 
-	m_cubeBuffer->getShader()->use();
-	m_cubeBuffer->getShader()->loadMatrix("projection", m_cubeBuffer->getPerspectiveMatrix());
-	m_cubeBuffer->getShader()->unuse();
+	
+	std::vector<std::array<float, 4>> colors = { { 1.0f, 0.0f, 0.0f, 1.0f},{ 0.0f, 1.0f, 0.0f, 1.0f } ,{ 0.0f, 0.0f, 1.0f, 1.0f } ,{ 1.0f, 1.0f, 0.0f, 1.0f } ,{ 1.0f, 0.0f, 1.0f, 1.0f } ,{ 0.0f, 1.0f, 1.0f, 1.0f } };
+
+	m_cubeBufferLayerd = new CubeBuffer(GL_RGBA8, 1024);
+	m_cubeBufferLayerd->setFiltering(GL_LINEAR);
+	m_cubeBufferLayerd->setShader(Globals::shaderManager.getAssetPointer("cube"));
+
+	m_cubeBufferLayerd->getShader()->use();
+	m_cubeBufferLayerd->getShader()->loadMatrix("u_projection", m_cubeBufferLayerd->getPerspectiveMatrix());
+	m_cubeBufferLayerd->getShader()->loadVectorArray("u_colors", colors, 6);
+	m_cubeBufferLayerd->getShader()->unuse();
+	m_cubeBufferLayerd->attachLayerd();
+
+	m_cubeBufferLayerd->setDrawFunction([&]() {
+		glFrontFace(GL_CW);
+		m_cubeBufferLayerd->updateAllViewMatrices();
+		m_cubeBufferLayerd->getFramebuffer().bind();
+
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		m_cubeBufferLayerd->getShader()->use();
+		m_cubeBufferLayerd->getShader()->loadMatrixArray("u_cameraMatrices", m_cubeBufferLayerd->getViewMatrices(), 6);
+		m_cubeBufferLayerd->getShader()->loadMatrix("u_model", Matrix4f::Scale(2.0f, 2.0f, 2.0f));
+		Globals::shapeManager.get("cube").drawRaw();
+		m_cubeBufferLayerd->getShader()->unuse();
+
+		m_cubeBufferLayerd->unbind();
+		glFrontFace(GL_CCW);
+
+	});
+	m_cubeBufferLayerd->draw();
+
+	m_cubeBufferTerrain = new CubeBuffer(GL_RGBA8, 1024);
+	m_cubeBufferTerrain->setFiltering(GL_LINEAR);
+	m_cubeBufferTerrain->setShader(Globals::shaderManager.getAssetPointer("terrain_gs"));
+
+	m_cubeBufferTerrain->getShader()->use();
+	m_cubeBufferTerrain->getShader()->loadMatrix("u_projection", m_cubeBufferTerrain->getPerspectiveMatrix());
+	m_cubeBufferTerrain->getShader()->loadVectorArray("u_colors", colors, 6);
+	m_cubeBufferTerrain->getShader()->unuse();
+	m_cubeBufferTerrain->setPosition(pos);
+	m_cubeBufferTerrain->attachLayerd();
+	m_cubeBufferTerrain->setDrawFunction([&]() {
+	
+		m_cubeBufferTerrain->updateAllViewMatrices();
+		m_cubeBufferTerrain->getFramebuffer().bind();
+		
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		m_cubeBufferTerrain->getShader()->use();
+		m_cubeBufferTerrain->getShader()->loadMatrix("u_projection", m_cubeBufferTerrain->getPerspectiveMatrix());
+		m_cubeBufferTerrain->getShader()->loadMatrixArray("u_cameraMatrices", m_cubeBufferTerrain->getViewMatrices(), 6);
+		m_cubeBufferTerrain->getShader()->loadMatrix("u_model", Matrix4f::IDENTITY);
+
+		m_cubeBufferTerrain->getShader()->loadVector("lightPos", Vector3f(50.0f, 50.0f, 50.0f));
+		m_cubeBufferTerrain->getShader()->loadVector("lightAmbient", Vector4f(0.0f, 0.0f, 0.0f, 1.0f));
+		m_cubeBufferTerrain->getShader()->loadVector("lightDiffuse", Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+		m_cubeBufferTerrain->getShader()->loadVector("lightSpecular", Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+
+		m_cubeBufferTerrain->getShader()->loadVector("matAmbient", Vector4f(0.7f, 0.7f, 0.7f, 1.0f));
+		m_cubeBufferTerrain->getShader()->loadVector("matDiffuse", Vector4f(0.8f, 0.8f, 0.8f, 1.0f));
+		m_cubeBufferTerrain->getShader()->loadVector("matSpecular", Vector4f(0.3f, 0.3f, 0.3f, 1.0f));
+		m_cubeBufferTerrain->getShader()->loadVector("matEmission", Vector4f(0.0f, 0.0f, 0.0f, 1.0f));
+		m_cubeBufferTerrain->getShader()->loadFloat("matShininess", 100.0f);
+
+		m_cubeBufferTerrain->getShader()->loadInt("tex_top", 0);
+		m_cubeBufferTerrain->getShader()->loadInt("tex_side", 1);
+		m_cubeBufferTerrain->getShader()->loadFloat("height", 0.0f);
+		m_cubeBufferTerrain->getShader()->loadFloat("hmax", 4.0f);
+
+		Globals::textureManager.get("grass").bind(0);
+		Globals::textureManager.get("rock").bind(1);
+
+		m_terrain.drawRaw();
+		m_cubeBufferTerrain->getShader()->unuse();
+		m_cubeBufferTerrain->unbind();
+
+	});
+	m_cubeBufferTerrain->draw();
 }
 
 EnvironmentInterface::~EnvironmentInterface() {
@@ -140,25 +224,43 @@ void EnvironmentInterface::update() {
 void EnvironmentInterface::render() {
 
 	if(m_updateBuffer || m_initUi)
-		m_cubeBuffer->draw();
+		m_cubeBufferCloud->draw();
 
 	glViewport(0, 0, Application::Width, Application::Height);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	if (m_drawSphere) {
+		auto shader = Globals::shaderManager.getAssetPointer("model");
+		shader->use();
+		shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
+		shader->loadMatrix("u_view", m_camera.getViewMatrix());
+		shader->loadMatrix("u_model", m_transform.getTransformationMatrix());
+		shader->loadMatrix("u_normal", Matrix4f::GetNormalMatrix(m_camera.getViewMatrix() * m_transform.getTransformationMatrix()));
 
-	auto shader = Globals::shaderManager.getAssetPointer("model");
-	shader->use();
-	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
-	shader->loadMatrix("u_view", m_camera.getViewMatrix());
-	shader->loadMatrix("u_model", m_transform.getTransformationMatrix());
-	shader->loadMatrix("u_normal", Matrix4f::GetNormalMatrix(m_camera.getViewMatrix() * m_transform.getTransformationMatrix()));
+		shader->loadInt("u_cubeMap", 0);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, m_reflectTerrain ? m_cubeBufferTerrain->getTexture() : m_cubeBufferCloud->getTexture());
+		Globals::shapeManager.get("_sphere").drawRaw();
+		Texture::Unbind(GL_TEXTURE_CUBE_MAP);
+		shader->unuse();
 
-	shader->loadInt("u_cubeMap", 0);
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, m_cubeBuffer->getTexture());
-	Globals::shapeManager.get("_sphere").drawRaw();
+	}else {
 
-	Texture::Unbind(GL_TEXTURE_CUBE_MAP);
-	shader->unuse();
+		auto shader = Globals::shaderManager.getAssetPointer("skybox");
+		shader->use();
+		shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
+		shader->loadMatrix("u_view", m_camera.getViewMatrix() * m_transform.getTransformationMatrix());
+		shader->loadInt("u_texture", 0);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, m_cubeBufferLayerd->getTexture());
+
+		Globals::shapeManager.get("cube").drawRaw();
+
+		Texture::Unbind(GL_TEXTURE_CUBE_MAP);
+
+		shader->unuse();
+	}
+
 	renderUi();
 }
 
@@ -237,8 +339,9 @@ void EnvironmentInterface::renderUi() {
 	// render widgets
 	ImGui::Begin("Settings", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
 	ImGui::Checkbox("Draw Wirframe", &StateMachine::GetEnableWireframe());
-	ImGui::Checkbox("Update Buffer", &m_updateBuffer);
-
+	ImGui::Checkbox("Update Cloud Buffer", &m_updateBuffer);
+	ImGui::Checkbox("Draw Sphere", &m_drawSphere);
+	ImGui::Checkbox("Reflect Terrain", &m_reflectTerrain);
 	ImGui::End();
 
 	ImGui::Render();

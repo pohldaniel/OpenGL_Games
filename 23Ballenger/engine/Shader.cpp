@@ -107,6 +107,10 @@ void Shader::loadVector(const char* location, std::array<int, 2> vector) const {
 	glUniform2iv(getUnifromLocation(location), 1, &vector[0]);
 }
 
+void Shader::loadVectorArray(const char* location, const std::vector<std::array<float, 4>> vectorArray, const unsigned short count) const {
+	glUniform4fv(getUnifromLocation(location), count, vectorArray.data()->data());
+}
+
 void Shader::loadFloat(const char* location, float value) const {
 	glUniform1f(getUnifromLocation(location), value);
 }
