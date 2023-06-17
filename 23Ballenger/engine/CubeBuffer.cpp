@@ -26,7 +26,10 @@ CubeBuffer::CubeBuffer(unsigned int internalFormat, int size) {
 	m_upVectors[4] = Vector3f(0.0f, -1.0f, 0.0f);
 	m_upVectors[5] = Vector3f(0.0f, -1.0f, 0.0f);
 
-	m_projectionCube.perspective(90.0f, 1.0f, m_nearPlane, m_farPlane);
+	m_persMatrix.perspective(90.0f, 1.0f, m_nearPlane, m_farPlane);
+	m_invPersMatrix.invPerspective(90.0f, 1.0f, m_nearPlane, m_farPlane);
+	m_position.set(0.0f, 0.0f, 0.0f);
+	
 }
 
 CubeBuffer::~CubeBuffer() {
@@ -44,28 +47,44 @@ CubeBuffer::~CubeBuffer() {
 }
 
 void CubeBuffer::draw() {
-	glDepthFunc(GL_LEQUAL);
-	glFrontFace(GL_CW);
 
-	m_fbo.bind();
-	glUseProgram(m_shader->m_program);
-	glBindVertexArray(m_vao);
+	if (m_draw) {
+		m_draw();
+	}else {
 
-	for (GLuint face = 0; face < 6; ++face) {
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + face, m_texture, 0);
-		glClear(GL_DEPTH_BUFFER_BIT);
-		m_viewCube.lookAt(m_position, m_position + m_targetVectors[face], m_upVectors[face]);
-		m_viewDirection = m_targetVectors[face];
-		m_innerDraw();
+		m_fbo.bind();
+		glUseProgram(m_shader->m_program);
+		glBindVertexArray(m_vao);
+
+		for (GLuint face = 0; face < 6; ++face) {
+			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + face, m_texture, 0);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			m_viewMatrix.lookAt(m_position, m_position + m_targetVectors[face], m_upVectors[face]);
+			m_viewDirection = m_targetVectors[face];
+			m_innerDraw();
+		}
+		glBindVertexArray(0);
+		glUseProgram(0);
+		m_fbo.unbind();
 	}
+}
 
-	
+void CubeBuffer::attachTexture(unsigned int face) {
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + face, m_texture, 0);
+}
+
+void CubeBuffer::bindVao() {
+	glBindVertexArray(m_vao);
+}
+
+void CubeBuffer::unbindVao() {
 	glBindVertexArray(0);
-	glUseProgram(0);
-	m_fbo.unbind();
+}
 
-	glFrontFace(GL_CCW);
-	glDepthFunc(GL_LESS);
+void CubeBuffer::updateViewMatrix(unsigned int face) {
+	m_viewMatrix.lookAt(m_position, m_position + m_targetVectors[face], m_upVectors[face]);
+	m_invViewMatrix.invLookAt(m_position, m_position + m_targetVectors[face],m_upVectors[face]);
+	m_viewDirection = m_targetVectors[face];
 }
 
 void CubeBuffer::setFiltering(unsigned int minFilter) {
@@ -177,8 +196,8 @@ void CubeBuffer::setInnerDrawFunction(std::function<void()> fun) {
 	m_innerDraw = fun;
 }
 
-const Matrix4f& CubeBuffer::getViewCube() {
-	return m_viewCube;
+void CubeBuffer::setDrawFunction(std::function<void()> fun) {
+	m_draw = fun;
 }
 
 Framebuffer& CubeBuffer::getFramebuffer() {
@@ -197,10 +216,30 @@ void CubeBuffer::drawRaw() {
 	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_SHORT, 0);
 }
 
-const Matrix4f& CubeBuffer::getProjectionCube() {
-	return m_projectionCube;
+const Matrix4f& CubeBuffer::getPerspectiveMatrix() {
+	return m_persMatrix;
 }
 
-const Vector3f& CubeBuffer::getVieDirection() {
+const Matrix4f& CubeBuffer::getViewMatrix() {
+	return m_viewMatrix;
+}
+
+
+const Vector3f& CubeBuffer::getViewDirection() {
 	return m_viewDirection;
+}
+
+const Matrix4f& CubeBuffer::getInvViewMatrix() {
+	return m_invViewMatrix;
+}
+const Matrix4f& CubeBuffer::getInvPerspectiveMatrix() {
+	return m_invPersMatrix;
+}
+
+const Vector3f& CubeBuffer::getPosition() {
+	return m_position;
+}
+
+void CubeBuffer::unbind() {
+	m_fbo.unbind();
 }

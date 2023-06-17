@@ -19,17 +19,18 @@ Sky::~Sky() {
 }
 
 void Sky::draw(const Camera& camera) {
+	draw(camera.getInvPerspectiveMatrixNew(), camera.getInvViewMatrix());
+}
+
+void Sky::draw(const Matrix4f& invProj, const Matrix4f& invView) {
 
 	m_skyBuffer.bind();
-	glClearDepth(1.0f);
-	glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
-
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	m_shader->use();
 	m_shader->loadVector("resolution", Vector2f(static_cast<float>(width), static_cast<float>(height)));
-	m_shader->loadMatrix("inv_proj", camera.getInvPerspectiveMatrix());
-	m_shader->loadMatrix("inv_view", camera.getInvViewMatrix());
+	m_shader->loadMatrix("inv_proj", invProj);
+	m_shader->loadMatrix("inv_view", invView);
 	m_shader->loadVector("lightDirection", light.direction);
 	m_shader->loadVector("skyColorTop", m_skyColorTop);
 	m_shader->loadVector("skyColorBottom", m_skyColorBottom);

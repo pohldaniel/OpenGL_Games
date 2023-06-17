@@ -75,7 +75,10 @@ int ArrayBuffer::getTextureLayer() {
 }
 
 void ArrayBuffer::draw() {
-	if (m_innerDraw) {
+
+	if (m_draw) {
+		m_draw();
+	}else if (m_innerDraw) {
 		m_fbo.bind();
 		glUseProgram(m_shader->m_program);
 		glBindVertexArray(m_vao);
@@ -83,12 +86,9 @@ void ArrayBuffer::draw() {
 		glBindVertexArray(0);
 		glUseProgram(0);
 		m_fbo.unbind();
-	}else if (m_draw) {
-		m_draw();
 	}else {
 		m_fbo.bind();
 		glUseProgram(m_shader->m_program);
-
 		glBindVertexArray(m_vao);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, 0);
 		glBindVertexArray(0);

@@ -17,11 +17,23 @@ public:
 	void setShader(Shader* shader);
 	void draw();
 	void drawRaw();
+	void updateViewMatrix(unsigned int face);
+	void attachTexture(unsigned int face);
+	void unbind();
+	void bindVao();
+	void unbindVao();
+
 	void resize(int size);
 	void setInnerDrawFunction(std::function<void()> fun);
-	const Matrix4f& getViewCube();
-	const Matrix4f& getProjectionCube();
-	const Vector3f& getVieDirection();
+	void setDrawFunction(std::function<void()> fun);
+
+	const Matrix4f& getPerspectiveMatrix();
+	const Matrix4f& getViewMatrix();
+	const Matrix4f& getInvPerspectiveMatrix();
+	const Matrix4f& getInvViewMatrix();
+	const Vector3f& getViewDirection();
+	const Vector3f& getPosition();
+
 
 	int getSize();
 
@@ -54,10 +66,14 @@ private:
 	Vector3f m_position;
 	Vector3f m_viewDirection;
 
-	Matrix4f m_viewCube;
-	Matrix4f m_projectionCube;
+	Matrix4f m_persMatrix;
+	Matrix4f m_viewMatrix;
+	Matrix4f m_invPersMatrix;
+	Matrix4f m_invViewMatrix;
+
 	float m_nearPlane = 1.0f;
 	float m_farPlane = 100.0f;
 
 	std::function<void()> m_innerDraw = 0;
+	std::function<void()> m_draw = 0;
 };

@@ -25,7 +25,8 @@ public:
 
 	void update();
 	void draw(const Camera& camera, const Sky& sky);
-	
+	void draw(const Matrix4f& proj, const Matrix4f& view, const Matrix4f& invProj, const Matrix4f& invView, const Vector3f& camPos, const Vector3f& vieDir, const Sky& sky);
+
 	Shader *m_weatherShaderComp, *m_weatherShader, *m_raymarcher, *m_post;
 
 	float coverage, cloudSpeed, crispiness, curliness, density, absorption;

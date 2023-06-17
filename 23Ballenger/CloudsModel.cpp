@@ -183,6 +183,11 @@ void CloudsModel::initVariables() {
 }
 
 void CloudsModel::draw(const Camera& camera, const Sky& sky) {
+	draw(camera.getPerspectiveMatrix(), camera.getViewMatrix(), camera.getInvPerspectiveMatrixNew(), camera.getInvViewMatrix(), camera.getPosition(), camera.getViewDirection(), sky);
+}
+
+
+void CloudsModel::draw(const Matrix4f& proj, const Matrix4f& view, const Matrix4f& invProj, const Matrix4f& invView, const Vector3f& camPos, const Vector3f& vieDir, const Sky& sky) {
 
 	glBindImageTexture(0, m_textureSet[0].getTexture(), 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
 	glBindImageTexture(1, m_textureSet[1].getTexture(), 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
@@ -192,9 +197,9 @@ void CloudsModel::draw(const Camera& camera, const Sky& sky) {
 	m_raymarcher->use();
 	m_raymarcher->loadVector("iResolution", Vector2f(static_cast<float>(m_width), static_cast<float>(m_height)));
 	m_raymarcher->loadFloat("iTime", m_clock.getElapsedTimeSec());
-	m_raymarcher->loadMatrix("inv_proj", camera.getInvPerspectiveMatrix());
-	m_raymarcher->loadMatrix("inv_view", camera.getInvViewMatrix());
-	m_raymarcher->loadVector("cameraPosition", camera.getPosition());
+	m_raymarcher->loadMatrix("inv_proj", invProj);
+	m_raymarcher->loadMatrix("inv_view", invView);
+	m_raymarcher->loadVector("cameraPosition", camPos);
 	m_raymarcher->loadFloat("FOV", 60.0f);
 	m_raymarcher->loadVector("lightDirection", light.direction);
 	m_raymarcher->loadVector("lightColor", light.color);
@@ -204,7 +209,7 @@ void CloudsModel::draw(const Camera& camera, const Sky& sky) {
 	m_raymarcher->loadFloat("crispiness", crispiness);
 	m_raymarcher->loadFloat("curliness", curliness);
 	m_raymarcher->loadFloat("absorption", absorption * 0.01f);
-	m_raymarcher->loadFloat("densityFactor",density);
+	m_raymarcher->loadFloat("densityFactor", density);
 
 	m_raymarcher->loadFloat("earthRadius", earthRadius);
 	m_raymarcher->loadFloat("sphereInnerRadius", sphereInnerRadius);
@@ -216,8 +221,8 @@ void CloudsModel::draw(const Camera& camera, const Sky& sky) {
 	m_raymarcher->loadVector("skyColorTop", sky.m_skyColorTop);
 	m_raymarcher->loadVector("skyColorBottom", sky.m_skyColorBottom);
 
-	m_raymarcher->loadMatrix("invViewProj", camera.getInvViewMatrix() * camera.getInvPerspectiveMatrix());
-	m_raymarcher->loadMatrix("gVP", camera.getPerspectiveMatrix() * camera.getViewMatrix());
+	m_raymarcher->loadMatrix("invViewProj", invView * invProj);
+	m_raymarcher->loadMatrix("gVP", proj * view);
 
 	m_raymarcher->loadInt("cloud", 0);
 	m_raymarcher->loadInt("worley32", 1);
@@ -258,7 +263,7 @@ void CloudsModel::draw(const Camera& camera, const Sky& sky) {
 		m_post->loadVector("cloudRenderResolution", Vector2f(static_cast<float>(m_width), static_cast<float>(m_height)));
 		m_post->loadVector("resolution", Vector2f(static_cast<float>(m_width), static_cast<float>(m_height)));
 
-		Matrix4f vp = camera.getPerspectiveMatrix() * camera.getViewMatrix();
+		Matrix4f vp = proj * view;
 		Matrix4f lightModel;
 		lightModel.translate(light.position);
 		Vector4f pos = Vector4f(0.0f, 60.0f, 0.0f, 1.0f) ^ (vp * lightModel);
@@ -268,7 +273,7 @@ void CloudsModel::draw(const Camera& camera, const Sky& sky) {
 		m_post->loadVector("lightPos", pos);
 
 		bool isLightInFront = false;
-		float lightDotCameraFront = Vector3f::Dot(Vector3f::Normalize(light.position - camera.getPosition()), camera.getViewDirection());
+		float lightDotCameraFront = Vector3f::Dot(Vector3f::Normalize(light.position - camPos), vieDir);
 		if (lightDotCameraFront > 0.2) {
 			isLightInFront = true;
 		}

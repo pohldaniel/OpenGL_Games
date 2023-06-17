@@ -11,6 +11,10 @@
 #include "StateMachine.h"
 #include "RenderableObject.h"
 
+#include "CloudsModel.h"
+#include "Sky.h"
+#include "Light.h"
+
 class EnvironmentInterface : public State, public MouseEventListener, public KeyboardEventListener {
 
 public:
@@ -33,13 +37,10 @@ public:
 	TrackBall m_trackball;
 	Transform m_transform;
 	bool m_initUi = true;	
+	bool m_updateBuffer = false;
 
-	unsigned int cubeMapTextureID;
-	unsigned int dynamicCubeTex;
-	unsigned int framebuffer, depthRenderbuffer;
-	const int cubeMapSize = 1024;
-	Vector3f modelOrigin, bluePos, yellowPos, greenPos, pinkPos, redPos;
-
-	RenderableObject m_skybox;
 	CubeBuffer* m_cubeBuffer;
+	CloudsModel m_cloudsModel;
+	Sky m_sky;
+	Light m_light;
 };

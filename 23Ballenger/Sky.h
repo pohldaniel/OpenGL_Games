@@ -21,6 +21,7 @@ public:
 	~Sky();
 
 	void draw(const Camera& camera);
+	void draw(const Matrix4f& invProj, const Matrix4f& invView);
 	void update();
 	void resize(unsigned int width, unsigned int height);
 	const Vector3f& getFogColor();
