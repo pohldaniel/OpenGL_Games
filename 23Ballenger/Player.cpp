@@ -53,6 +53,21 @@ void Player::draw(const Camera& camera) {
 	Globals::shapeManager.get("sphere").drawRaw();
 	shader->unuse();
 
+		/*auto shader = Globals::shaderManager.getAssetPointer("model");
+	shader->use();
+	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
+	shader->loadMatrix("u_view", m_camera.getViewMatrix());
+	shader->loadMatrix("u_model", getTransformationOP());
+	shader->loadMatrix("u_normal", Matrix4f::GetNormalMatrix(camera.getViewMatrix() * getTransformationOP()));
+	shader->loadInt("u_cubeMap", 1);
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, m_map);
+	
+
+	Globals::shapeManager.get("sphere").drawRaw();
+	Texture::Unbind(GL_TEXTURE_CUBE_MAP);
+	shader->unuse();*/
+
 }
 
 void Player::update(const float dt) {
@@ -60,43 +75,43 @@ void Player::update(const float dt) {
 	Mouse &mouse = Mouse::instance();
 
 	Vector3f direction = Vector3f();
-	bool move = false;
+	m_move = false;
 
 	if (keyboard.keyDown(Keyboard::KEY_W)) {
 		direction += Vector3f(0.0f, 0.0f, 1.0f);
-		move |= true;
+		m_move |= true;
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_S)) {
 		direction += Vector3f(0.0f, 0.0f, -1.0f);
-		move |= true;
+		m_move |= true;
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_A)) {
 		direction += Vector3f(-0.5f, 0.0f, 0.0f);
-		move |= true;
+		m_move |= true;
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_D)) {
 		direction += Vector3f(0.5f, 0.0f, 0.0f);
-		move |= true;
+		m_move |= true;
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_Q)) {
 		direction += Vector3f(0.0f, -1.0f, 0.0f);
-		move |= true;
+		m_move |= true;
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_E)) {
 		direction += Vector3f(0.0f, 1.0f, 0.0f);
-		move |= true;
+		m_move |= true;
 	}
 
 	if (mouse.buttonDown(Mouse::BUTTON_RIGHT)) {
 		m_characterController->setLinearVelocityXZ(btVector3(0.0f, 0.0f, 0.0f));
 		m_characterController->setAngularVelocity(btVector3(0.0f, 0.0f, 0.0f));
 
-	}else if (move) {
+	}else if (m_move) {
 		direction = m_camera.getViewSpaceDirection(direction);
 		m_characterController->setLinearVelocityXZ(Physics::VectorFrom(direction * Vector3f(15.0f, 1.0f, 15.0f)));
 	}
@@ -152,4 +167,12 @@ void Player::resetOrientation() {
 
 Vector3f& Player::getInitialPosition() {
 	return m_pos;
+}
+
+bool Player::isMoving() {
+	return m_move;
+}
+
+void Player::setEnvMap(unsigned int map) {
+	m_map = map;
 }

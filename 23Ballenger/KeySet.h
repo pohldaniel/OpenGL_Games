@@ -12,8 +12,6 @@ class Terrain;
 
 class KeySet : public RenderableObject {
 
-	friend struct LavaTriggerCallback;
-
 	struct State {
 		bool deployed;
 		Vector3f position;

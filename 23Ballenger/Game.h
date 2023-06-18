@@ -4,6 +4,7 @@
 #include "engine/input/KeyboardEventListener.h"
 #include "engine/Camera.h"
 #include "engine/Line.h"
+#include "engine/CubeBuffer.h"
 
 #include "StateMachine.h"
 #include "RenderableObject.h"
@@ -33,14 +34,11 @@ struct LavaTriggerCallback : public btCollisionWorld::ContactResultCallback {
 		player->setPosition(player->getInitialPosition());
 		player->resetOrientation();
 		keySet.restorePrevState();
-		keySet.m_pickedKeyId = -1;
 		return 0;
 	}
 };
 
 class Game : public State, public MouseEventListener, public KeyboardEventListener {
-
-
 
 public:
 
@@ -57,12 +55,13 @@ public:
 	void OnMouseButtonUp(Event::MouseButtonEvent& event) override;
 	void OnKeyDown(Event::KeyboardEvent& event) override;
 	void renderUi();
-	void Init();
+	void Init(const Vector3f& pos);
 
 private:
 
 	Camera m_camera;
 	RenderableObject m_skybox;
+	RenderableObject m_cube;
 
 	RespawnPointSet m_respawnPointSet;
 	ColumnSet m_columnSet;
@@ -87,6 +86,7 @@ private:
 	Framebuffer sceneBuffer;
 
 	LavaTriggerCallback m_lavaTriggerResult;
+	CubeBuffer* m_cubeBuffer;
 
 	int& pickedKeyId;
 	int respawn_id;

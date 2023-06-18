@@ -379,9 +379,9 @@ void Application::initStates() {
 	//Machine->addStateAtTop(new TerrainCulling(*Machine));
 	//Machine->addStateAtTop(new CloudInterface(*Machine));
 
-	//Machine->addStateAtTop(new Menu(*Machine));
+	Machine->addStateAtTop(new Menu(*Machine));
 
-	Machine->addStateAtTop(new EnvironmentInterface(*Machine));
+	//Machine->addStateAtTop(new EnvironmentInterface(*Machine));
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {

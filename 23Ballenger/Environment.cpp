@@ -31,7 +31,7 @@ EnvironmentInterface::EnvironmentInterface(StateMachine& machine) : State(machin
 
 	m_terrain.init("Levels/terrain01.raw");
 	m_quadTree.init(m_terrain.getPositions().data(), m_terrain.getIndexBuffer().data(), static_cast<unsigned int>(m_terrain.getIndexBuffer().size()), m_terrain.getMin(), m_terrain.getMax(), 64.0f);
-	const Vector3f& pos = Vector3f(512.0f, m_terrain.heightAt(512.0f, 512.0f) + 30.0f, 512.0f);
+	const Vector3f& pos = Vector3f(512.0f, m_terrain.heightAt(512.0f, 512.0f) + 1.0f, 512.0f);
 
 	Globals::shapeManager.buildSphere("sphere64", 1.0f, Vector3f(0.0f, 0.0f, 0.0f), 64, 64, true, true, false);
 	Globals::shaderManager.loadShader("simple", "res/cubemap/simple.vert", "res/cubemap/simple.frag", "res/cubemap/simple.gs");
@@ -412,14 +412,11 @@ void EnvironmentInterface::renderUi() {
 	ImGui::Checkbox("Draw Wirframe", &StateMachine::GetEnableWireframe());
 	ImGui::Checkbox("Update Cloud Buffer", &m_updateBuffer);
 	ImGui::Checkbox("Draw Sphere", &m_drawSphere);
-	ImGui::Checkbox("Reflect Terrain", &m_reflectTerrain);
-
 
 	int currentMode = m_mode;
 	if (ImGui::Combo("Render", &currentMode, "Clouds\0With Culling\0Without Culling\0\0")) {
 		m_mode = static_cast<Mode>(currentMode);
 	}
-
 
 	ImGui::End();
 

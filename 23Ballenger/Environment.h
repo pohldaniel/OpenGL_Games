@@ -46,7 +46,6 @@ public:
 	bool m_initUi = true;	
 	bool m_updateBuffer = false;
 	bool m_drawSphere = true;
-	bool m_reflectTerrain = true;
 
 	CubeBuffer* m_cubeBufferCloud;
 	CubeBuffer* m_cubeBufferLayerd;

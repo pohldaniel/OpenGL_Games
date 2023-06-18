@@ -26,10 +26,10 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME),
 	m_terrain.init("Levels/terrain01.raw");
 	m_quadTree.init(m_terrain.getPositions().data(), m_terrain.getIndexBuffer().data(), static_cast<unsigned int>(m_terrain.getIndexBuffer().size()), m_terrain.getMin(), m_terrain.getMax(), 64.0f);
 
-	Init();
 
 	const Vector3f& pos = Vector3f((TERRAIN_SIZE) / 2, (m_terrain.heightAt((TERRAIN_SIZE) / 2, (TERRAIN_SIZE) / 2) + RADIUS), (TERRAIN_SIZE) / 2);
-	
+	Init(pos);
+
 	m_camera = ThirdPersonCamera();
 	m_camera.perspective(45.0f, (float)Application::Width / (float)Application::Height, 0.1f, 5000.0f);
 	m_camera.lookAt(pos - Vector3f(0.0f, 0.0f, m_offsetDistance), pos, Vector3f(0.0f, 1.0f, 0.0f));
@@ -74,7 +74,11 @@ void Game::update() {
 	
 	m_player.update(m_dt);
 	const Vector3f& playerPos = m_player.getPosition();
-	
+
+	//m_cubeBuffer->setPosition(playerPos);
+	//m_cubeBuffer->draw();
+	//m_player.setEnvMap(m_cubeBuffer->getTexture());
+
 	if (pickedKeyId == -1){
 		for (unsigned int i = 0; i < m_keySet.getKeyStates().size(); i++){
 
@@ -177,6 +181,7 @@ void Game::render() {
 	m_keySet.draw(m_camera);
 	m_raySet.draw(m_camera);
 	m_columnSet.draw(m_camera);
+	m_cube.draw(m_camera);
 
 	if (abs(m_camera.getPositionZ() - m_portal.getZ()) < m_camera.getOffsetDistance()) {
 		m_player.draw(m_camera);
@@ -334,7 +339,7 @@ void Game::renderUi() {
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
-void Game::Init() {
+void Game::Init(const Vector3f& pos) {
 
 	portal_activated = false;
 	respawn_id = 0;
@@ -372,5 +377,81 @@ void Game::Init() {
 		glDepthFunc(GL_LESS);
 	});
 
+	m_cubeBuffer = new CubeBuffer(GL_RGBA8, 1024);
+	m_cubeBuffer->setFiltering(GL_LINEAR);
+	m_cubeBuffer->setShader(Globals::shaderManager.getAssetPointer("terrain_fc"));
+	m_cubeBuffer->setPosition(pos);
+	m_cubeBuffer->attachLayerd();
+	m_cubeBuffer->setDrawFunction([&]() {
+
+		m_cubeBuffer->updateAllViewMatrices();
+		m_cubeBuffer->getFramebuffer().bind();
+
+		glClearDepth(0.0f);
+		glDepthFunc(GL_GREATER);
+		glEnable(GL_DEPTH_TEST);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		m_cubeBuffer->getShader()->use();
+
+		m_cubeBuffer->getShader()->loadMatrix("g_modelMatrix", Matrix4f::InvTranslate(m_cubeBuffer->getPosition()[0], m_cubeBuffer->getPosition()[1] + 5.0f, m_cubeBuffer->getPosition()[2]));
+		m_cubeBuffer->getShader()->loadMatrix("g_viewMatrix", Matrix4f::IDENTITY);
+		m_cubeBuffer->getShader()->loadMatrixArray("u_cameraMatrices", m_cubeBuffer->getViewMatrices(), 6);
+
+		m_cubeBuffer->getShader()->loadVector("lightPos", Vector3f(50.0f, 50.0f, 50.0f));
+		m_cubeBuffer->getShader()->loadVector("lightAmbient", Vector4f(0.0f, 0.0f, 0.0f, 1.0f));
+		m_cubeBuffer->getShader()->loadVector("lightDiffuse", Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+		m_cubeBuffer->getShader()->loadVector("lightSpecular", Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+
+		m_cubeBuffer->getShader()->loadVector("matAmbient", Vector4f(0.7f, 0.7f, 0.7f, 1.0f));
+		m_cubeBuffer->getShader()->loadVector("matDiffuse", Vector4f(0.8f, 0.8f, 0.8f, 1.0f));
+		m_cubeBuffer->getShader()->loadVector("matSpecular", Vector4f(0.3f, 0.3f, 0.3f, 1.0f));
+		m_cubeBuffer->getShader()->loadVector("matEmission", Vector4f(0.0f, 0.0f, 0.0f, 1.0f));
+		m_cubeBuffer->getShader()->loadFloat("matShininess", 100.0f);
+
+		m_cubeBuffer->getShader()->loadInt("tex_top", 0);
+		m_cubeBuffer->getShader()->loadInt("tex_side", 1);
+		m_cubeBuffer->getShader()->loadFloat("height", 0.0f);
+		m_cubeBuffer->getShader()->loadFloat("hmax", 4.0f);
+
+		Globals::textureManager.get("grass").bind(0);
+		Globals::textureManager.get("rock").bind(1);
+
+		m_terrain.drawRaw();
+		m_cubeBuffer->getShader()->unuse();
+		m_cubeBuffer->unbind();
+
+		glClearDepth(1.0f);
+		glDepthFunc(GL_LESS);
+		glDisable(GL_DEPTH_TEST);
+
+	});
+	m_cubeBuffer->draw();
+
+	m_cube = RenderableObject("cube", "model", "skybox");
+
+	m_cube.setDrawFunction([&](const Camera& camera) {
+		if (m_cube.isDisabled()) return;
+		
+
+		auto shader = Globals::shaderManager.getAssetPointer(m_cube.getShader());
+		shader->use();
+		shader->loadMatrix("u_projection", camera.getPerspectiveMatrix());
+		shader->loadMatrix("u_view", camera.getViewMatrix());
+		shader->loadMatrix("u_model", m_cube.getTransformationP());
+		shader->loadMatrix("u_normal", Matrix4f::GetNormalMatrix(camera.getViewMatrix() * m_cube.GetTransformation()));
+		shader->loadInt("u_cubeMap", 1);
+
+		Globals::textureManager.get(m_cube.getTexture()).bind(1);
+		Globals::shapeManager.get(m_cube.getShape()).drawRaw();
+
+		Texture::Unbind(GL_TEXTURE_CUBE_MAP);
+
+		shader->unuse();
+
+	});
+
+	m_cube.setPosition(TERRAIN_SIZE / 2, m_terrain.heightAt(TERRAIN_SIZE / 2, TERRAIN_SIZE / 2 - 30) + 1.0f, TERRAIN_SIZE / 2 - 30);
+	
 }
 
