@@ -574,6 +574,9 @@ void Application::loadAssets() {
 	Globals::shaderManager.loadShader("font", "res/batch.vs", "res/font.fs");
 	Globals::shaderManager.loadShader("seeker", "res/batch.vs", "res/seeker.fs");
 
+	Globals::shaderManager.loadShader("terrain_fc", "res/cubemap/terrain_fc.vert", "res/cubemap/terrain_fc.frag", "res/cubemap/terrain_fc.gs");
+	Globals::shaderManager.loadShader("model", "res/cubemap/model.vert", "res/cubemap/model.frag");
+
 	Globals::textureManager.createNullTexture("null");
 
 	Globals::textureManager.loadTexture("grass", "Textures/grass.png", true);

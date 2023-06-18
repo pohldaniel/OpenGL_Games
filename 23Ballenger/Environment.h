@@ -16,6 +16,12 @@
 #include "Sky.h"
 #include "Light.h"
 
+enum Mode {
+	CLOUD,
+	WITHCULLING,
+	WITHOUTCULLING,	
+};
+
 class EnvironmentInterface : public State, public MouseEventListener, public KeyboardEventListener {
 
 public:
@@ -45,10 +51,12 @@ public:
 	CubeBuffer* m_cubeBufferCloud;
 	CubeBuffer* m_cubeBufferLayerd;
 	CubeBuffer* m_cubeBufferTerrain;
+	CubeBuffer* m_cubeBufferTerrainFC;
 	CloudsModel m_cloudsModel;
 	Sky m_sky;
 	Light m_light;
 
 	QuadTree m_quadTree;
 	Terrain m_terrain;
+	Mode m_mode = Mode::CLOUD;
 };
