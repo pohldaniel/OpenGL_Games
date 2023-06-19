@@ -10,7 +10,7 @@ Sky::Sky(unsigned int width, unsigned int height, Light& light) : width(width), 
 	DefaultPreset();
 	update();
 
-	m_shader = new Shader("res/sky.vert", "res/sky.frag");
+	m_shader = new Shader("res/clouds/sky.vert", "res/clouds/sky.frag");
 	m_quad.create(Vector3f(-1.0f, -1.0f, 0.0f), Vector2f(2.0f, 2.0f), true, false, false, 1, 1);
 }
 

@@ -23,10 +23,10 @@ TerrainCulling::TerrainCulling(StateMachine& machine) : State(machine, CurrentSt
 	m_trackball.setDollyPosition(-2.5f);
 	applyTransformation(m_trackball);
 
-	m_terrain.init("Levels/terrain01.raw");
+	m_terrain.init("res/terrain01.raw");
 
 	m_quadTree.init(m_terrain.getPositions().data(), m_terrain.getIndexBuffer().data(), m_terrain.getIndexBuffer().size(), m_terrain.getMin(), m_terrain.getMax(), 64.0f);
-	Globals::shaderManager.loadShader("culling", "res/terrain.vert", "res/terrain.frag");
+	Globals::shaderManager.loadShader("culling", "res/clouds/terrain.vert", "res/clouds/terrain.frag");
 
 	float height = m_terrain.heightAt(512.0f, 512.0f);
 	m_camera.lookAt(Vector3f(512.0f, height + 1.75f, 512.0f), Vector3f(512.0f, height + 1.75f, 512.0f -1.0f), Vector3f(0.0f, 1.0f, 0.0f));

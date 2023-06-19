@@ -23,15 +23,15 @@
 #include "Sky.h"
 #include "Light.h"
 
-
 struct LavaTriggerCallback : public btCollisionWorld::ContactResultCallback {
 
-	LavaTriggerCallback(KeySet& keySet) : keySet(keySet) {}
+	LavaTriggerCallback(KeySet& keySet, const RespawnPointSet& respawnPointSet) : keySet(keySet), respawnPointSet(respawnPointSet){}
 	KeySet& keySet;
+	const RespawnPointSet& respawnPointSet;
 
 	btScalar LavaTriggerCallback::addSingleResult(btManifoldPoint& cp, const btCollisionObjectWrapper* colObj0Wrap, int partId0, int index0, const btCollisionObjectWrapper* colObj1Wrap, int partId1, int index1) override {
 		Player* player = reinterpret_cast<Player*>(colObj0Wrap->getCollisionObject()->getUserPointer());
-		player->setPosition(player->getInitialPosition());
+		player->setPosition(respawnPointSet.getActivePoistion());
 		player->resetOrientation();
 		keySet.restorePrevState();
 		return 0;
@@ -61,7 +61,6 @@ private:
 
 	Camera m_camera;
 	RenderableObject m_skybox;
-	RenderableObject m_cube;
 
 	RespawnPointSet m_respawnPointSet;
 	ColumnSet m_columnSet;
@@ -86,9 +85,7 @@ private:
 	Framebuffer sceneBuffer;
 
 	LavaTriggerCallback m_lavaTriggerResult;
-	CubeBuffer* m_cubeBuffer;
 
 	int& pickedKeyId;
-	int respawn_id;
 	bool portal_activated;
 };

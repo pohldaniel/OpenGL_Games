@@ -70,7 +70,7 @@ public:
 	bool m_showNoiseArray = false;
 	bool m_showSDFArray = false;
 	bool m_showCloud = false;
-	bool m_drawScene = true;
+	bool m_drawScene = false;
 	Noise m_noise = Noise::PERLINCOMP;
 	Matrix4f m_orthographic;
 

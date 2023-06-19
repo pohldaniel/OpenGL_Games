@@ -53,21 +53,6 @@ void Player::draw(const Camera& camera) {
 	Globals::shapeManager.get("sphere").drawRaw();
 	shader->unuse();
 
-		/*auto shader = Globals::shaderManager.getAssetPointer("model");
-	shader->use();
-	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
-	shader->loadMatrix("u_view", m_camera.getViewMatrix());
-	shader->loadMatrix("u_model", getTransformationOP());
-	shader->loadMatrix("u_normal", Matrix4f::GetNormalMatrix(camera.getViewMatrix() * getTransformationOP()));
-	shader->loadInt("u_cubeMap", 1);
-	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, m_map);
-	
-
-	Globals::shapeManager.get("sphere").drawRaw();
-	Texture::Unbind(GL_TEXTURE_CUBE_MAP);
-	shader->unuse();*/
-
 }
 
 void Player::update(const float dt) {
@@ -171,8 +156,4 @@ Vector3f& Player::getInitialPosition() {
 
 bool Player::isMoving() {
 	return m_move;
-}
-
-void Player::setEnvMap(unsigned int map) {
-	m_map = map;
 }

@@ -22,12 +22,12 @@ ShapeInterface::ShapeInterface(StateMachine& machine) : State(machine, CurrentSt
 	m_trackball.setDollyPosition(-2.5f);
 	applyTransformation(m_trackball);
 
-	Globals::textureManager.loadTexture("grid", "res/grid512.png", true);
-	Globals::shaderManager.loadShader("texture_", "res/program.vert", "res/texture.frag");
-	Globals::shaderManager.loadShader("normal", "res/program.vert", "res/normal.frag");
-	Globals::shaderManager.loadShader("tangent", "res/program.vert", "res/tangent.frag");
-	Globals::shaderManager.loadShader("bitangent", "res/program.vert", "res/bitangent.frag");
-	Globals::shaderManager.loadShader("geometry", "res/normalGS.vs", "res/normalGS.fs", "res/normalGS.gs");
+	Globals::textureManager.loadTexture("grid", "res/shape/grid512.png");
+	Globals::shaderManager.loadShader("texture_", "res/shape/program.vert", "res/shape/texture.frag");
+	Globals::shaderManager.loadShader("normal", "res/shape/program.vert", "res/shape/normal.frag");
+	Globals::shaderManager.loadShader("tangent", "res/shape/program.vert", "res/shape/tangent.frag");
+	Globals::shaderManager.loadShader("bitangent", "res/shape/program.vert", "res/shape/bitangent.frag");
+	Globals::shaderManager.loadShader("geometry", "res/shape/normalGS.vert", "res/shape/normalGS.frag", "res/shape/normalGS.gem");
 
 	Globals::shapeManager.buildCapsule("capsule", 0.5f, 1.0f, Vector3f(0.0f, 0.0f, 0.0f), 20, 20, true, true, true);
 	Globals::shapeManager.buildTorus("torus", 0.5f, 0.25f, Vector3f(0.0f, 0.0f, 0.0f), 49, 49, true, true, true);

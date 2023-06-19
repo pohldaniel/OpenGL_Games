@@ -27,7 +27,6 @@ public:
 	Vector3f& getInitialPosition();
 	CharacterController* getCharacterController();
 	bool isMoving();
-	void setEnvMap(unsigned int map);
 
 private:
 
@@ -35,5 +34,4 @@ private:
 	CharacterController* m_characterController;
 	Vector3f m_pos;
 	bool m_move;
-	unsigned int m_map;
 };

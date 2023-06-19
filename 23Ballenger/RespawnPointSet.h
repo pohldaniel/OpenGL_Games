@@ -23,17 +23,18 @@ public:
 	void init(const Terrain& terrain);
 	void draw(const Camera& camera) override;
 	void update(const float dt) override;
-	
-
-	unsigned short m_respawnId;
-	const Vector3f& m_playerPos;
-
-	std::vector<Vector4f> m_colors;
-	std::vector<std::array<bool, 16>> m_activate;
-	std::vector<State> m_states;
+	unsigned short& getRespawnId();
+	const Vector3f& getActivePoistion() const;
+	void addInstances(const std::vector<Matrix4f>& values);
 
 private:
 
 	const std::vector<RespawnPointSet::State>& fromInstances(const std::vector<Matrix4f>& instances);
 	void updateUbo();
+
+	unsigned short m_respawnId;
+	std::vector<Vector4f> m_colors;
+	std::vector<std::array<bool, 16>> m_activate;
+	std::vector<State> m_states;
+	const Vector3f& m_playerPos;
 };

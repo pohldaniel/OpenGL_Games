@@ -13,7 +13,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME),
 									m_respawnPointSet(m_player.getPosition()),
 									m_columnSet(m_player.getPosition()),
 									m_player(m_camera),
-									m_lavaTriggerResult(m_keySet),
+									m_lavaTriggerResult(m_keySet, m_respawnPointSet),
 									pickedKeyId(m_keySet.getPickedKeyId()),
 									m_cloudsModel(Application::Width, Application::Height, m_light),
 									m_sky(Application::Width, Application::Height, m_light) {
@@ -23,7 +23,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME),
 	EventDispatcher::AddMouseListener(this);
 	Mouse::instance().attach(Application::GetWindow());
 
-	m_terrain.init("Levels/terrain01.raw");
+	m_terrain.init("res/terrain01.raw");
 	m_quadTree.init(m_terrain.getPositions().data(), m_terrain.getIndexBuffer().data(), static_cast<unsigned int>(m_terrain.getIndexBuffer().size()), m_terrain.getMin(), m_terrain.getMax(), 64.0f);
 
 
@@ -75,18 +75,12 @@ void Game::update() {
 	m_player.update(m_dt);
 	const Vector3f& playerPos = m_player.getPosition();
 
-	//m_cubeBuffer->setPosition(playerPos);
-	//m_cubeBuffer->draw();
-	//m_player.setEnvMap(m_cubeBuffer->getTexture());
-
 	if (pickedKeyId == -1){
 		for (unsigned int i = 0; i < m_keySet.getKeyStates().size(); i++){
 
 			if (!m_keySet.isDeployed(i)){
 				if ((playerPos - m_keySet.getPosition(i)).length() <= RADIUS * 2){
-					//pickedKeyId = i;
-					pickedKeyId = i;
-					m_keySet.pickKey(pickedKeyId);
+					m_keySet.pickKey(i);
 					break;
 					//Sound.Play(SOUND_PICKUP);
 				}
@@ -103,10 +97,7 @@ void Game::update() {
 			m_raySet.deploy(Vector3f(columnPos[0], columnPos[1] + COLUMN_HEIGHT + ENERGY_BALL_RADIUS, columnPos[2]), m_portal.getReceptor(pickedKeyId), pickedKeyId, m_keySet.getNumDeployed());
 			pickedKeyId = -1;
 
-			if (respawn_id) {
-				//Sound.Play(SOUND_SWISH);
-				respawn_id = 0;
-			}
+			
 			portal_activated = m_keySet.getNumDeployed() == 5;
 			m_portal.setDisabled(!portal_activated);
 			//if (portal_activated) Sound.Play(SOUND_WARP);
@@ -145,7 +136,7 @@ void Game::render() {
 	}
 
 	glEnable(GL_DEPTH_TEST);
-	auto shader = Globals::shaderManager.getAssetPointer("terrain_new");
+	auto shader = Globals::shaderManager.getAssetPointer("terrain");
 	shader->use();
 	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
 	shader->loadMatrix("u_view", m_camera.getViewMatrix());
@@ -181,7 +172,6 @@ void Game::render() {
 	m_keySet.draw(m_camera);
 	m_raySet.draw(m_camera);
 	m_columnSet.draw(m_camera);
-	m_cube.draw(m_camera);
 
 	if (abs(m_camera.getPositionZ() - m_portal.getZ()) < m_camera.getOffsetDistance()) {
 		m_player.draw(m_camera);
@@ -342,7 +332,6 @@ void Game::renderUi() {
 void Game::Init(const Vector3f& pos) {
 
 	portal_activated = false;
-	respawn_id = 0;
 
 	//Sound.Play(SOUND_AMBIENT);
 	m_player.init(m_terrain);
@@ -376,82 +365,5 @@ void Game::Init(const Vector3f& pos) {
 		glFrontFace(GL_CCW);
 		glDepthFunc(GL_LESS);
 	});
-
-	m_cubeBuffer = new CubeBuffer(GL_RGBA8, 1024);
-	m_cubeBuffer->setFiltering(GL_LINEAR);
-	m_cubeBuffer->setShader(Globals::shaderManager.getAssetPointer("terrain_fc"));
-	m_cubeBuffer->setPosition(pos);
-	m_cubeBuffer->attachLayerd();
-	m_cubeBuffer->setDrawFunction([&]() {
-
-		m_cubeBuffer->updateAllViewMatrices();
-		m_cubeBuffer->getFramebuffer().bind();
-
-		glClearDepth(0.0f);
-		glDepthFunc(GL_GREATER);
-		glEnable(GL_DEPTH_TEST);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-		m_cubeBuffer->getShader()->use();
-
-		m_cubeBuffer->getShader()->loadMatrix("g_modelMatrix", Matrix4f::InvTranslate(m_cubeBuffer->getPosition()[0], m_cubeBuffer->getPosition()[1] + 5.0f, m_cubeBuffer->getPosition()[2]));
-		m_cubeBuffer->getShader()->loadMatrix("g_viewMatrix", Matrix4f::IDENTITY);
-		m_cubeBuffer->getShader()->loadMatrixArray("u_cameraMatrices", m_cubeBuffer->getViewMatrices(), 6);
-
-		m_cubeBuffer->getShader()->loadVector("lightPos", Vector3f(50.0f, 50.0f, 50.0f));
-		m_cubeBuffer->getShader()->loadVector("lightAmbient", Vector4f(0.0f, 0.0f, 0.0f, 1.0f));
-		m_cubeBuffer->getShader()->loadVector("lightDiffuse", Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
-		m_cubeBuffer->getShader()->loadVector("lightSpecular", Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
-
-		m_cubeBuffer->getShader()->loadVector("matAmbient", Vector4f(0.7f, 0.7f, 0.7f, 1.0f));
-		m_cubeBuffer->getShader()->loadVector("matDiffuse", Vector4f(0.8f, 0.8f, 0.8f, 1.0f));
-		m_cubeBuffer->getShader()->loadVector("matSpecular", Vector4f(0.3f, 0.3f, 0.3f, 1.0f));
-		m_cubeBuffer->getShader()->loadVector("matEmission", Vector4f(0.0f, 0.0f, 0.0f, 1.0f));
-		m_cubeBuffer->getShader()->loadFloat("matShininess", 100.0f);
-
-		m_cubeBuffer->getShader()->loadInt("tex_top", 0);
-		m_cubeBuffer->getShader()->loadInt("tex_side", 1);
-		m_cubeBuffer->getShader()->loadFloat("height", 0.0f);
-		m_cubeBuffer->getShader()->loadFloat("hmax", 4.0f);
-
-		Globals::textureManager.get("grass").bind(0);
-		Globals::textureManager.get("rock").bind(1);
-
-		m_terrain.drawRaw();
-		m_cubeBuffer->getShader()->unuse();
-		m_cubeBuffer->unbind();
-
-		glClearDepth(1.0f);
-		glDepthFunc(GL_LESS);
-		glDisable(GL_DEPTH_TEST);
-
-	});
-	m_cubeBuffer->draw();
-
-	m_cube = RenderableObject("cube", "model", "skybox");
-
-	m_cube.setDrawFunction([&](const Camera& camera) {
-		if (m_cube.isDisabled()) return;
-		
-
-		auto shader = Globals::shaderManager.getAssetPointer(m_cube.getShader());
-		shader->use();
-		shader->loadMatrix("u_projection", camera.getPerspectiveMatrix());
-		shader->loadMatrix("u_view", camera.getViewMatrix());
-		shader->loadMatrix("u_model", m_cube.getTransformationP());
-		shader->loadMatrix("u_normal", Matrix4f::GetNormalMatrix(camera.getViewMatrix() * m_cube.GetTransformation()));
-		shader->loadInt("u_cubeMap", 1);
-
-		Globals::textureManager.get(m_cube.getTexture()).bind(1);
-		Globals::shapeManager.get(m_cube.getShape()).drawRaw();
-
-		Texture::Unbind(GL_TEXTURE_CUBE_MAP);
-
-		shader->unuse();
-
-	});
-
-	m_cube.setPosition(TERRAIN_SIZE / 2, m_terrain.heightAt(TERRAIN_SIZE / 2, TERRAIN_SIZE / 2 - 30) + 1.0f, TERRAIN_SIZE / 2 - 30);
-	
 }
 

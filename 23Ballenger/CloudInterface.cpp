@@ -24,7 +24,47 @@ CloudInterface::CloudInterface(StateMachine& machine) : State(machine, CurrentSt
 	m_trackball.setDollyPosition(-5.0f);
 	applyTransformation(m_trackball);
 
+	Globals::shaderManager.loadShader("texture3d", "res/clouds/texture3D.vert", "res/clouds/texture3D.frag");
 
+	Globals::shaderManager.loadShader("map", "res/clouds/texture.vert", "res/clouds/texture.frag");
+
+	Globals::shaderManager.loadShader("ray_march", "res/clouds/clouds.vert", "res/clouds/clouds.frag");
+	Globals::shaderManager.loadShader("worley", "res/clouds/worley.vert", "res/clouds/worley.frag");
+	Globals::shaderManager.loadShader("perlinworley", "res/clouds/perlinworley.vert", "res/clouds/perlinworley.frag");
+	Globals::shaderManager.loadShader("debug", "res/cloudsdebug.vert", "res/clouds/debug.frag");
+	Globals::shaderManager.loadShader("texture_array", "res/clouds/textureArray.vert", "res/clouds/textureArray.frag");
+	Globals::shaderManager.loadShader("post", "res/clouds/screen_new.vert", "res/clouds/post_processing.frag");
+	Globals::shaderManager.loadShader("culling", "res/clouds/terrain.vert", "res/clouds/terrain.frag");
+
+	m_cloudGenerator = new Shader();
+	m_cloudGenerator->attachShader(Shader::LoadShaderProgram(GL_VERTEX_SHADER, "res/clouds/cloudArray.vert"));
+	m_cloudGenerator->attachShader(Shader::LoadShaderProgram(GL_FRAGMENT_SHADER, "res/clouds/common.frag"));
+	m_cloudGenerator->attachShader(Shader::LoadShaderProgram(GL_FRAGMENT_SHADER, "res/clouds/noise.frag"));
+	m_cloudGenerator->attachShader(Shader::LoadShaderProgram(GL_FRAGMENT_SHADER, "res/clouds/cloudArray.frag"));
+	m_cloudGenerator->linkShaders();
+
+	m_sdfGenerator = new Shader();
+	m_sdfGenerator->attachShader(Shader::LoadShaderProgram(GL_VERTEX_SHADER, "res/clouds/sdfArray.vert"));
+	m_sdfGenerator->attachShader(Shader::LoadShaderProgram(GL_FRAGMENT_SHADER, "res/clouds/common.frag"));
+	m_sdfGenerator->attachShader(Shader::LoadShaderProgram(GL_FRAGMENT_SHADER, "res/clouds/noise.frag"));
+	m_sdfGenerator->attachShader(Shader::LoadShaderProgram(GL_FRAGMENT_SHADER, "res/clouds/sdfArray.frag"));
+	m_sdfGenerator->linkShaders();
+
+	Shader::SetIncludeFromFile("common.glsl", "res/clouds/common.frag");
+	Shader::SetIncludeFromFile("header.glsl", "res/clouds/header.frag");
+	m_raymarch = new Shader();
+
+	m_raymarch->attachShader(Shader::LoadShaderProgram(GL_VERTEX_SHADER, "res/clouds/raymarch.vert"));
+	m_raymarch->attachShader(Shader::LoadShaderProgram(GL_FRAGMENT_SHADER, "res/clouds/oklab.frag"));
+	m_raymarch->attachShader(Shader::LoadShaderProgram(GL_FRAGMENT_SHADER, "res/clouds/raymarch.frag"));
+	m_raymarch->linkShaders();
+
+	m_post = new Shader();
+	m_post->attachShader(Shader::LoadShaderProgram(GL_VERTEX_SHADER, "res/clouds/post.vert"));
+	m_post->attachShader(Shader::LoadShaderProgram(GL_FRAGMENT_SHADER, "res/clouds/common.frag"));
+	m_post->attachShader(Shader::LoadShaderProgram(GL_FRAGMENT_SHADER, "res/clouds/oklab.frag"));
+	m_post->attachShader(Shader::LoadShaderProgram(GL_FRAGMENT_SHADER, "res/clouds/post.frag"));
+	m_post->linkShaders();
 
 	m_light.color = Vector3f(255.0f, 255.0f, 230.0f) / 255.0f;
 	m_light.direction = Vector3f(-.5f, 0.5f, 1.0f);
@@ -32,7 +72,6 @@ CloudInterface::CloudInterface(StateMachine& machine) : State(machine, CurrentSt
 
 	m_fogColor = m_sky.getFogColor();
 	
-
 	sceneBuffer.create(Application::Width, Application::Height);
 	sceneBuffer.attachTexture2D(AttachmentTex::RGBA32F);
 	sceneBuffer.attachTexture2D(AttachmentTex::DEPTH32F);
@@ -50,20 +89,20 @@ CloudInterface::CloudInterface(StateMachine& machine) : State(machine, CurrentSt
 	m_noiseGen.getGloudShape(texture1);
 	m_noiseGen.getGloudDetail(texture2);
 
-	if (!VolumeBuffer::LoadVolumeFromRaw("res/noise/worley.raw", worley, 32, 32, 32)){
+	if (!VolumeBuffer::LoadVolumeFromRaw("res/clouds/worley.raw", worley, 32, 32, 32)){
 		m_volumeBuffer = new VolumeBuffer(GL_RGBA8, 32, 32, 32);
 		m_volumeBuffer->setFiltering(GL_LINEAR_MIPMAP_LINEAR);
 		m_volumeBuffer->setWrapMode(GL_REPEAT);
 		m_volumeBuffer->setShader(Globals::shaderManager.getAssetPointer("worley"));
 		m_volumeBuffer->draw();
-		m_volumeBuffer->writeVolumeToRaw("res/noise/worley.raw");	
+		m_volumeBuffer->writeVolumeToRaw("res/clouds/worley.raw");	
 		m_volumeBuffer->getVolume(worley);
 	}else {
 		Texture::SetWrapMode(worley, GL_REPEAT, GL_TEXTURE_3D);
 		Texture::SetFilter(worley, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR, GL_TEXTURE_3D);
 	}
 	
-	if (!VolumeBuffer::LoadVolumeFromRaw("res/noise/perlinworley.raw", perlinworley, 128, 128, 128)) {
+	if (!VolumeBuffer::LoadVolumeFromRaw("res/clouds/perlinworley.raw", perlinworley, 128, 128, 128)) {
 
 		if (m_volumeBuffer) {
 			m_volumeBuffer->resize(128, 128, 128);
@@ -74,7 +113,7 @@ CloudInterface::CloudInterface(StateMachine& machine) : State(machine, CurrentSt
 		}
 		m_volumeBuffer->setShader(Globals::shaderManager.getAssetPointer("perlinworley"));
 		m_volumeBuffer->draw();
-		m_volumeBuffer->writeVolumeToRaw("res/noise/perlinworley.raw");
+		m_volumeBuffer->writeVolumeToRaw("res/clouds/perlinworley.raw");
 		m_volumeBuffer->getVolume(perlinworley);
 	}else {
 		Texture::SetWrapMode(perlinworley, GL_REPEAT, GL_TEXTURE_3D);
@@ -82,15 +121,7 @@ CloudInterface::CloudInterface(StateMachine& machine) : State(machine, CurrentSt
 	}
 
 
-	m_cloudGenerator = new Shader();
-	m_cloudGenerator->attachShader(Shader::LoadShaderProgram(GL_VERTEX_SHADER, "res/clouds/cloudArray.vert"));
-	m_cloudGenerator->attachShader(Shader::LoadShaderProgram(GL_FRAGMENT_SHADER, "res/clouds/common.frag"));
-	m_cloudGenerator->attachShader(Shader::LoadShaderProgram(GL_FRAGMENT_SHADER, "res/clouds/noise.frag"));
-	m_cloudGenerator->attachShader(Shader::LoadShaderProgram(GL_FRAGMENT_SHADER, "res/clouds/cloudArray.frag"));
-	m_cloudGenerator->linkShaders();
-
 	if (!ArrayBuffer::LoadArrayFromRaw("res/clouds/noise.raw", cloudsTex, 32, 32, 64)) {
-		std::cout << "Build Noise" << std::endl;
 		m_arrayBuffer = new ArrayBuffer(GL_RGBA8, 32, 32, 64, 8);
 		m_arrayBuffer->setFiltering(GL_LINEAR_MIPMAP_LINEAR);
 		m_arrayBuffer->setWrapMode(GL_REPEAT);
@@ -127,15 +158,7 @@ CloudInterface::CloudInterface(StateMachine& machine) : State(machine, CurrentSt
 		Texture::SetFilter(cloudsTo3D, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR, GL_TEXTURE_3D);
 	}
 	
-	m_sdfGenerator = new Shader();
-	m_sdfGenerator->attachShader(Shader::LoadShaderProgram(GL_VERTEX_SHADER, "res/clouds/sdfArray.vert"));
-	m_sdfGenerator->attachShader(Shader::LoadShaderProgram(GL_FRAGMENT_SHADER, "res/clouds/common.frag"));
-	m_sdfGenerator->attachShader(Shader::LoadShaderProgram(GL_FRAGMENT_SHADER, "res/clouds/noise.frag"));
-	m_sdfGenerator->attachShader(Shader::LoadShaderProgram(GL_FRAGMENT_SHADER, "res/clouds/sdfArray.frag"));
-	m_sdfGenerator->linkShaders();
-
 	if (!ArrayBuffer::LoadArrayFromRaw("res/clouds/sdf.raw", sdfTex, 128, 128, 32)) {
-		std::cout << "Build SDF" << std::endl;
 		m_buffer = new ArrayBuffer(GL_RGBA8, 128, 128, 32, 8);
 		m_buffer->setFiltering(GL_LINEAR_MIPMAP_LINEAR);
 		m_buffer->setWrapMode(GL_REPEAT);
@@ -173,30 +196,13 @@ CloudInterface::CloudInterface(StateMachine& machine) : State(machine, CurrentSt
 		Texture::SetFilter(sdfTo3D, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR, GL_TEXTURE_3D);
 	}
 
-	Shader::SetIncludeFromFile("common.glsl", "res/clouds/common.frag");
-	Shader::SetIncludeFromFile("header.glsl", "res/clouds/header.frag");
-	m_raymarch = new Shader();
-
-	m_raymarch->attachShader(Shader::LoadShaderProgram(GL_VERTEX_SHADER, "res/clouds/raymarch.vert"));
-	m_raymarch->attachShader(Shader::LoadShaderProgram(GL_FRAGMENT_SHADER, "res/clouds/oklab.frag"));
-	m_raymarch->attachShader(Shader::LoadShaderProgram(GL_FRAGMENT_SHADER, "res/clouds/raymarch.frag"));
-	m_raymarch->linkShaders();
-
-	m_post = new Shader();
-	m_post->attachShader(Shader::LoadShaderProgram(GL_VERTEX_SHADER, "res/clouds/post.vert"));
-	m_post->attachShader(Shader::LoadShaderProgram(GL_FRAGMENT_SHADER, "res/clouds/common.frag"));
-	m_post->attachShader(Shader::LoadShaderProgram(GL_FRAGMENT_SHADER, "res/clouds/oklab.frag"));
-	m_post->attachShader(Shader::LoadShaderProgram(GL_FRAGMENT_SHADER, "res/clouds/post.frag"));
-	m_post->linkShaders();
-
 	rmTarget.create(Application::Width, Application::Height);
 	rmTarget.attachTexture2D(AttachmentTex::RGBA32F);
 	m_blueNoise.loadFromFile("res/clouds/HDR_L_0.png", true, GL_R8, GL_R, 0, 0, 0, 0);
 	m_blueNoise.setWrapMode(GL_REPEAT);
 
+	m_terrain.init("res/terrain01.raw");
 
-	m_terrain.init("Levels/terrain01.raw");
-	Globals::shaderManager.loadShader("culling", "res/terrain.vert", "res/terrain.frag");
 
 	float height = m_terrain.heightAt(512.0f, 512.0f);
 	m_camera.lookAt(Vector3f(512.0f, height + 1.75f, 512.0f), Vector3f(512.0f, height + 1.75f, 512.0f - 1.0f), Vector3f(0.0f, 1.0f, 0.0f));
@@ -409,7 +415,7 @@ void CloudInterface::render() {
 
 	if (m_showWeatherMap) {
 
-		auto shader = Globals::shaderManager.getAssetPointer("texture");
+		auto shader = Globals::shaderManager.getAssetPointer("map");
 		shader->use();
 		glUseProgram(shader->m_program);
 		shader->loadMatrix("u_projection", m_orthographic);
@@ -417,8 +423,8 @@ void CloudInterface::render() {
 		shader->loadMatrix("u_model", Matrix4f::Translate(Application::Width - 150.0f, 150.0f, 0.0f) * Matrix4f::Scale(150.0f, 150.0f, 0.0f));
 		shader->loadInt("u_texture", 0);
 		glActiveTexture(GL_TEXTURE0);
-		//glBindTexture(GL_TEXTURE_2D, m_cloudsModel.weatherTex);
-		glBindTexture(GL_TEXTURE_2D, m_sky.getSkyTexture());
+		glBindTexture(GL_TEXTURE_2D, m_cloudsModel.weatherTex);
+		//glBindTexture(GL_TEXTURE_2D, m_sky.getSkyTexture());
 		Globals::shapeManager.get("quad").drawRaw();
 		shader->unuse();
 	}

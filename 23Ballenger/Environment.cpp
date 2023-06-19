@@ -29,14 +29,16 @@ EnvironmentInterface::EnvironmentInterface(StateMachine& machine) : State(machin
 	m_light.direction = Vector3f(-.5f, 0.5f, 1.0f);
 	m_light.position = m_light.direction*1e6f + m_camera.getPosition();
 
-	m_terrain.init("Levels/terrain01.raw");
+	m_terrain.init("res/terrain01.raw");
 	m_quadTree.init(m_terrain.getPositions().data(), m_terrain.getIndexBuffer().data(), static_cast<unsigned int>(m_terrain.getIndexBuffer().size()), m_terrain.getMin(), m_terrain.getMax(), 64.0f);
 	const Vector3f& pos = Vector3f(512.0f, m_terrain.heightAt(512.0f, 512.0f) + 1.0f, 512.0f);
 
 	Globals::shapeManager.buildSphere("sphere64", 1.0f, Vector3f(0.0f, 0.0f, 0.0f), 64, 64, true, true, false);
-	Globals::shaderManager.loadShader("simple", "res/cubemap/simple.vert", "res/cubemap/simple.frag", "res/cubemap/simple.gs");
-	Globals::shaderManager.loadShader("terrain_gs", "res/cubemap/terrain.vert", "res/cubemap/terrain.frag", "res/cubemap/terrain.gs");
-	
+	Globals::shaderManager.loadShader("simple", "res/cubemap/simple.vert", "res/cubemap/simple.frag", "res/cubemap/simple.gem");
+	Globals::shaderManager.loadShader("terrain_gs", "res/cubemap/terrain.vert", "res/cubemap/terrain.frag", "res/cubemap/terrain.gem");
+	Globals::shaderManager.loadShader("terrain_fc", "res/cubemap/terrain_fc.vert", "res/cubemap/terrain_fc.frag", "res/cubemap/terrain_fc.gem");
+	Globals::shaderManager.loadShader("model", "res/cubemap/model.vert", "res/cubemap/model.frag");
+
 	m_cubeBufferCloud = new CubeBuffer(GL_RGBA8, 1024);
 	m_cubeBufferCloud->setFiltering(GL_LINEAR);
 	m_cubeBufferCloud->setShader(Globals::shaderManager.getAssetPointer("quad_back"));

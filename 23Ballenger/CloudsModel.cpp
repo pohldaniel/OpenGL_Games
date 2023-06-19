@@ -33,12 +33,12 @@ CloudsModel::CloudsModel(unsigned int width, unsigned int height, const Light& l
 
 void CloudsModel::initShaders() {
 #ifdef COMPUTE
-	m_weatherShaderComp = new Shader("shaders/weather.comp");
+	m_weatherShaderComp = new Shader("shaders/clouds/weather.comp");
 #else
-	m_weatherShader = new Shader("res/weather.vert", "res/weather.frag");
+	m_weatherShader = new Shader("res/clouds/weather.vert", "res/clouds/weather.frag");
 #endif
-	m_raymarcher = new Shader("res/volumetric_clouds.comp");
-	m_post = new Shader("res/clouds_post.vert", "res/clouds_post.frag");
+	m_raymarcher = new Shader("res/clouds/volumetric_clouds.comp");
+	m_post = new Shader("res/clouds/clouds_post.vert", "res/clouds/clouds_post.frag");
 }
 
 void CloudsModel::generateModelTextures() {
@@ -48,7 +48,7 @@ void CloudsModel::generateModelTextures() {
 	Texture::SetWrapMode(this->perlinTex, GL_REPEAT, GL_TEXTURE_3D);
 	Texture::SetFilter(this->perlinTex, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR, GL_TEXTURE_3D);
 	
-	Shader perlin("shaders/perlinworley.comp");
+	Shader perlin("shaders/clouds/perlinworley.comp");
 	perlin.use();
 	glBindImageTexture(0, this->perlinTex, 0, GL_TRUE, 0, GL_READ_WRITE, GL_RGBA8);
 	glDispatchCompute(INT_CEIL(128, 4), INT_CEIL(128, 4), INT_CEIL(128, 4));
@@ -58,20 +58,20 @@ void CloudsModel::generateModelTextures() {
 	Texture::SetWrapMode(this->worley32, GL_REPEAT, GL_TEXTURE_3D);
 	Texture::SetFilter(this->worley32, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR, GL_TEXTURE_3D);
 
-	Shader worley("shaders/worley.comp");
+	Shader worley("shaders/clouds/worley.comp");
 	worley.use();
 	glBindImageTexture(0, this->worley32, 0, GL_TRUE, 0, GL_READ_WRITE, GL_RGBA8);
 	glDispatchCompute(INT_CEIL(32, 4), INT_CEIL(32, 4), INT_CEIL(32, 4));
 	worley.unuse();
 #else
-	if (!VolumeBuffer::LoadVolumeFromRaw("res/noise/worley.raw", worley32, 32, 32, 32)) {
-		Shader* worley = new Shader("res/worley.vert", "res/worley.frag");
+	if (!VolumeBuffer::LoadVolumeFromRaw("res/clouds/worley.raw", worley32, 32, 32, 32)) {
+		Shader* worley = new Shader("res/clouds/worley.vert", "res/clouds/worley.frag");
 		m_volumeBuffer = new VolumeBuffer(GL_RGBA8, 32, 32, 32);
 		m_volumeBuffer->setFiltering(GL_LINEAR);
 		m_volumeBuffer->setWrapMode(GL_REPEAT);
 		m_volumeBuffer->setShader(worley);
 		m_volumeBuffer->draw();
-		m_volumeBuffer->writeVolumeToRaw("res/noise/worley.raw");
+		m_volumeBuffer->writeVolumeToRaw("res/clouds/worley.raw");
 		m_volumeBuffer->getVolume(worley32);
 		delete worley;
 	}else {
@@ -79,7 +79,7 @@ void CloudsModel::generateModelTextures() {
 		Texture::SetFilter(worley32, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR, GL_TEXTURE_3D);
 	}
 
-	if (!VolumeBuffer::LoadVolumeFromRaw("res/noise/perlinworley.raw", perlinTex, 128, 128, 128)) {
+	if (!VolumeBuffer::LoadVolumeFromRaw("res/clouds/perlinworley.raw", perlinTex, 128, 128, 128)) {
 
 		if (m_volumeBuffer) {
 			m_volumeBuffer->resize(128, 128, 128);
@@ -88,10 +88,10 @@ void CloudsModel::generateModelTextures() {
 			m_volumeBuffer->setFiltering(GL_LINEAR);
 			m_volumeBuffer->setWrapMode(GL_REPEAT);
 		}
-		Shader* perlin = new Shader("res/perlinworley.vert", "res/perlinworley.frag");
+		Shader* perlin = new Shader("res/clouds/perlinworley.vert", "res/clouds/perlinworley.frag");
 		m_volumeBuffer->setShader(perlin);
 		m_volumeBuffer->draw();
-		m_volumeBuffer->writeVolumeToRaw("res/noise/perlinworley.raw");
+		m_volumeBuffer->writeVolumeToRaw("res/clouds/perlinworley.raw");
 		m_volumeBuffer->getVolume(perlinTex);
 		delete perlin;
 	}else {

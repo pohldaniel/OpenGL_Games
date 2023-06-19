@@ -110,22 +110,23 @@ void KeySet::pickKey(int id) {
 }
 
 void KeySet::restorePrevState() {
-	for_each(m_idCache.begin() + m_pickedKeyId, m_idCache.end(), [](short& v) {v++; });
+	if (m_pickedKeyId != -1) {
+		for_each(m_idCache.begin() + m_pickedKeyId, m_idCache.end(), [](short& v) {v++; });
 
-	m_colors.insert(m_colors.begin() + m_idCache[m_pickedKeyId], m_pickedColor);
-	Globals::shapeManager.get("cylinder_key").setVec4Attribute(m_colors, 1);
-	Globals::shapeManager.get("cylinder_key").insertInstance( Matrix4f::Translate(m_keyStates[m_pickedKeyId].position), m_idCache[m_pickedKeyId]);
-	updateCylinderShape();
+		m_colors.insert(m_colors.begin() + m_idCache[m_pickedKeyId], m_pickedColor);
+		Globals::shapeManager.get("cylinder_key").setVec4Attribute(m_colors, 1);
+		Globals::shapeManager.get("cylinder_key").insertInstance(Matrix4f::Translate(m_keyStates[m_pickedKeyId].position), m_idCache[m_pickedKeyId]);
+		updateCylinderShape();
 
-	Globals::shapeManager.get("key").updateInstance(Matrix4f::Translate(m_keyStates[m_pickedKeyId].position), m_pickedKeyId);
-	
-	m_pickedKeyId = -1;
+		Globals::shapeManager.get("key").updateInstance(Matrix4f::Translate(m_keyStates[m_pickedKeyId].position), m_pickedKeyId);
+
+		m_pickedKeyId = -1;
+	}
 }
 
 void KeySet::deploy(const Vector3f& pos, float yaw) {
 	m_keyStates[m_pickedKeyId].deployed = true;
 	Globals::shapeManager.get("key").updateInstance(Matrix4f::Translate(pos[0], pos[1], pos[2]) * Matrix4f::Rotate(Vector3f(0.0f, 1.0f, 0.0f), yaw) * Matrix4f::Rotate(Vector3f(1.0f, 0.0f, 0.0f), 225.0f) * Matrix4f::Translate(0.0f, -0.69f, 0.0f), m_pickedKeyId);
-	//m_pickedKeyId = -1;
 	m_numDeployed++;
 }
 

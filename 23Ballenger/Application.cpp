@@ -311,7 +311,6 @@ void Application::initOpenGL(int msaaSamples) {
 	//glDisable(GL_CULL_FACE);
 
 	glEnable(GL_DEPTH_TEST);
-	//glEnable(GL_ALPHA_TEST);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
@@ -541,46 +540,34 @@ void Application::SetCursorIcon(LPCSTR resource) {
 }
 
 void Application::loadAssets() {
-	Globals::shaderManager.loadShader("terrain", "Shaders/simple.vert", "Shaders/terrain.frag");
-	Globals::shaderManager.loadShader("terrain_new", "Shaders/simple_new.vert", "Shaders/terrain_new.frag");
-	Globals::shaderManager.loadShader("texture_new", "Shaders/program.vert", "Shaders/texture.frag");
-	Globals::shaderManager.loadShader("instance", "Shaders/instance.vert", "Shaders/instance.frag");
-	Globals::shaderManager.loadShader("respawn", "Shaders/respawn.vert", "Shaders/respawn.frag");
-	Globals::shaderManager.loadShader("cylinder", "Shaders/cylinder.vert", "Shaders/cylinder.frag");
-	Globals::shaderManager.loadShader("disk", "Shaders/disk.vert", "Shaders/disk.frag");
-	Globals::shaderManager.loadShader("column", "Shaders/column.vert", "Shaders/column.frag");
-	Globals::shaderManager.loadShader("energy", "Shaders/energy.vert", "Shaders/energy.frag");
-	Globals::shaderManager.loadShader("portal", "Shaders/portal.vert", "Shaders/portal.frag");
-	Globals::shaderManager.loadShader("key", "Shaders/key.vert", "Shaders/key.frag");
-	Globals::shaderManager.loadShader("beam", "Shaders/beam.vert", "Shaders/beam.frag");
-	Globals::shaderManager.loadShader("skybox", "Shaders/skybox.vert", "Shaders/skybox.frag");
-	Globals::shaderManager.loadShader("line", "Shaders/line.vert", "Shaders/line.frag");
-	Globals::shaderManager.loadShader("post", "Shaders/screen_new.vert", "Shaders/post_processing.frag");
-	Globals::shaderManager.loadShader("clouds", "Shaders/volumetric_clouds.comp");
-	Globals::shaderManager.loadShader("cloud_post", "Shaders/screen_new.vert", "Shaders/clouds_post.frag");
 
-	Globals::shaderManager.loadShader("quad_back", "res/quad_back.vert", "res/quad.frag");
-	Globals::shaderManager.loadShader("quad", "res/quad.vert", "res/quad.frag");
+	Globals::shaderManager.loadShader("terrain", "res/shader/terrain.vert", "res/shader/terrain.frag");
+	Globals::shaderManager.loadShader("instance", "res/shader/instance.vert", "res/shader/instance.frag");
+	Globals::shaderManager.loadShader("respawn", "res/shader/respawn.vert", "res/shader/respawn.frag");
+	Globals::shaderManager.loadShader("cylinder", "res/shader/cylinder.vert", "res/shader/cylinder.frag");
+	Globals::shaderManager.loadShader("disk", "res/shader/disk.vert", "res/shader/disk.frag");
+	Globals::shaderManager.loadShader("column", "res/shader/column.vert", "res/shader/column.frag");
+	Globals::shaderManager.loadShader("energy", "res/shader/energy.vert", "res/shader/energy.frag");
+	Globals::shaderManager.loadShader("portal", "res/shader/portal.vert", "res/shader/portal.frag");
+	Globals::shaderManager.loadShader("key", "res/shader/key.vert", "res/shader/key.frag");
+	Globals::shaderManager.loadShader("beam", "res/shader/beam.vert", "res/shader/beam.frag");
+	Globals::shaderManager.loadShader("skybox", "res/shader/skybox.vert", "res/shader/skybox.frag");
+	Globals::shaderManager.loadShader("line", "res/shader/line.vert", "res/shader/line.frag");
 
-	Globals::shaderManager.loadShader("texture3d", "res/texture3D.vert", "res/texture3D.frag");
-	Globals::shaderManager.loadShader("texture", "res/program.vert", "res/texture.frag");
-	Globals::shaderManager.loadShader("ray_march", "res/clouds.vert", "res/clouds.frag");
-	Globals::shaderManager.loadShader("worley", "res/worley.vert", "res/worley.frag");
-	Globals::shaderManager.loadShader("perlinworley", "res/perlinworley.vert", "res/perlinworley.frag");
-	Globals::shaderManager.loadShader("debug", "res/debug.vert", "res/debug.frag");
-	Globals::shaderManager.loadShader("texture_array", "res/textureArray.vert", "res/textureArray.frag");
+	//cloud post
+	Globals::shaderManager.loadShader("quad_back", "res/shader/quad_back.vert", "res/shader/quad.frag");
+	Globals::shaderManager.loadShader("quad", "res/shader/quad.vert", "res/shader/quad.frag");
 
-	Globals::shaderManager.loadShader("quad_color_uniform", "res/quad_color_uniform.vs", "res/quad_color_uniform.fs");
-	Globals::shaderManager.loadShader("font", "res/batch.vs", "res/font.fs");
-	Globals::shaderManager.loadShader("seeker", "res/batch.vs", "res/seeker.fs");
+	//UI
+	Globals::shaderManager.loadShader("quad_color_uniform", "res/shader/quad_color_uniform.vert", "res/shader/quad_color_uniform.frag");
+	Globals::shaderManager.loadShader("font", "res/shader/batch.vert", "res/shader/font.frag");
+	Globals::shaderManager.loadShader("seeker", "res/shader/batch.vert", "res/shader/seeker.frag");
 
-	Globals::shaderManager.loadShader("terrain_fc", "res/cubemap/terrain_fc.vert", "res/cubemap/terrain_fc.frag", "res/cubemap/terrain_fc.gs");
-	Globals::shaderManager.loadShader("model", "res/cubemap/model.vert", "res/cubemap/model.frag");
 
 	Globals::textureManager.createNullTexture("null");
 
-	Globals::textureManager.loadTexture("grass", "Textures/grass.png", true);
-	Globals::textureManager.loadTexture("rock", "Textures/rock.png", true);
+	Globals::textureManager.loadTexture("grass", "res/textures/grass.png", true);
+	Globals::textureManager.loadTexture("rock", "res/textures/rock.png", true);
 
 	Globals::textureManager.get("grass").setWrapMode(GL_REPEAT);
 	Globals::textureManager.get("grass").setFilter(GL_LINEAR_MIPMAP_LINEAR);
@@ -588,8 +575,8 @@ void Application::loadAssets() {
 	Globals::textureManager.get("rock").setWrapMode(GL_REPEAT);
 	Globals::textureManager.get("rock").setFilter(GL_LINEAR_MIPMAP_LINEAR);
 
-	Globals::textureManager.loadTexture("player", "Textures/player.png", true);
-	Globals::textureManager.loadTexture("player_nmp", "Textures/playerNmap.png", true);
+	Globals::textureManager.loadTexture("player", "res/textures/player.png", true);
+	Globals::textureManager.loadTexture("player_nmp", "res/textures/playerNmap.png", true);
 
 	Globals::textureManager.get("player").setWrapMode(GL_REPEAT);
 	Globals::textureManager.get("player").setFilter(GL_LINEAR_MIPMAP_LINEAR);
@@ -597,17 +584,17 @@ void Application::loadAssets() {
 	Globals::textureManager.get("player_nmp").setWrapMode(GL_REPEAT);
 	Globals::textureManager.get("player_nmp").setFilter(GL_LINEAR_MIPMAP_LINEAR);
 
-	Globals::textureManager.loadTexture("lava", "Textures/lava.png", true);
+	Globals::textureManager.loadTexture("lava", "res/textures/lava.png", true);
 	Globals::textureManager.get("lava").setWrapMode(GL_REPEAT);
 	Globals::textureManager.get("lava").setFilter(GL_LINEAR_MIPMAP_LINEAR);
 	
-	Globals::textureManager.loadTexture("circle_off", "Textures/circle_off.png", true);
+	Globals::textureManager.loadTexture("circle_off", "res/textures/circle_off.png", true);
 	Globals::spritesheetManager.createSpritesheetFromTexture("circle", Globals::textureManager.get("circle_off").getTexture());
 
 	Globals::textureManager.get("circle_off").setWrapMode(GL_REPEAT);
 	Globals::textureManager.get("circle_off").setFilter(GL_LINEAR_MIPMAP_LINEAR);
 
-	Globals::textureManager.loadTexture("circle_on", "Textures/circle_on.png", true);
+	Globals::textureManager.loadTexture("circle_on", "res/textures/circle_on.png", true);
 	Globals::spritesheetManager.getAssetPointer("circle")->addToSpritesheet(Globals::textureManager.get("circle_on").getTexture());
 	
 
@@ -618,34 +605,32 @@ void Application::loadAssets() {
 	Globals::spritesheetManager.getAssetPointer("circle")->setRepeat();
 
 
-	Globals::textureManager.loadTexture("column", "Textures/column.png", false);
-	Globals::textureManager.loadTexture("column_nmp", "Textures/columnNmap.png", false);
+	Globals::textureManager.loadTexture("column", "res/textures/column.png", false);
+	Globals::textureManager.loadTexture("column_nmp", "res/textures/columnNmap.png", false);
 	Globals::textureManager.get("column").setFilter(GL_LINEAR_MIPMAP_LINEAR);
 	Globals::textureManager.get("column_nmp").setFilter(GL_LINEAR_MIPMAP_LINEAR);
 
-	Globals::textureManager.loadTexture("portal", "Textures/portal.png", false);
-	Globals::textureManager.loadTexture("portal_nmp", "Textures/portalNmap.png", false);
+	Globals::textureManager.loadTexture("portal", "res/textures/portal.png", false);
+	Globals::textureManager.loadTexture("portal_nmp", "res/textures/portalNmap.png", false);
 	Globals::textureManager.get("portal").setFilter(GL_LINEAR_MIPMAP_LINEAR);
 	Globals::textureManager.get("portal_nmp").setFilter(GL_LINEAR_MIPMAP_LINEAR);
 
-	Globals::textureManager.loadTexture("vortex", "Textures/vortex.png", false);
+	Globals::textureManager.loadTexture("vortex", "res/textures/vortex.png", false);
 	Globals::textureManager.get("vortex").setWrapMode(GL_REPEAT);
 	Globals::textureManager.get("vortex").setFilter(GL_LINEAR_MIPMAP_LINEAR);
 
-	Globals::textureManager.loadTexture("key", "Textures/key.png", false);
-	Globals::textureManager.loadTexture("key_nmp", "Textures/keyNmap.png", false);
+	Globals::textureManager.loadTexture("key", "res/textures/key.png", false);
+	Globals::textureManager.loadTexture("key_nmp", "res/textures/keyNmap.png", false);
 	Globals::textureManager.get("key").setFilter(GL_LINEAR_MIPMAP_LINEAR);
 	Globals::textureManager.get("key_nmp").setFilter(GL_LINEAR_MIPMAP_LINEAR);
 
-	Globals::textureManager.loadCubeMapFromCross("skybox", "Textures/skybox.png", true);
+	Globals::textureManager.loadCubeMapFromCross("skybox", "res/textures/skybox.png", true);
 
 	Globals::shapeManager.buildCube("cube", Vector3f(-1.0f, -1.0f, -1.0f), Vector3f(2.0f, 2.0f, 2.0f), 1, 1, true, true, false);
 	Globals::shapeManager.buildSphere("sphere", 0.5f, Vector3f(0.0f, 0.0f, 0.0f), 16, 16, true, true, false);
 	Globals::shapeManager.buildQuadXY("quad", Vector3f(-1.0f, -1.0f, 0.0f), Vector2f(2.0f, 2.0f), 1, 1, true, true, true);
 	Globals::shapeManager.buildQuadXZ("quad_lava", Vector3f(0.0f, 0.0f, 0.0f), Vector2f(1024.0f, 1024.0f), 1, 1, true, true, false);
 	Globals::shapeManager.buildQuadXZ("quad_rp", Vector3f(-2.0f, 0.05f, -2.0f), Vector2f(4.0f, 4.0f), 1, 1, true, true, false);
-
-	Globals::shapeManager.buildQuadXY("quad_hud", Vector3f(-0.5f, -0.5f, 0.0f), Vector2f(1.0f, 1.0f), 1, 1, false, false, true);
 
 	Globals::shapeManager.buildQuadXY("vortex", Vector3f(-1.0f, -1.0f, 0.0f), Vector2f(2.0f, 2.0f), 1, 1, true, true, false);
 	Globals::shapeManager.buildCylinder("cylinder", 2.0f, 2.0f, 3.0f, Vector3f(0.0f, 1.6f, 0.0f), false, false, 16, 16, false, true, false);
@@ -656,12 +641,10 @@ void Application::loadAssets() {
 	Globals::shapeManager.buildCylinder("cylinder_key", 2.0f, 2.0f, 1.0f, Vector3f(0.0f, 0.5f, 0.0f), false, false , 16, 16, false, true, false);
 	Globals::shapeManager.buildQuadXZ("platform", Vector3f(-512.0f, 0.5f, -512.0f), Vector2f(1024.0f, 1024.0f), 1, 1, true, false, false);
 
-	//Globals::shapeManager.buildCube("platform", Vector3f(-512.0f, -0.5f, -512.0f), Vector3f(1024.0f, 1.0f, 1024.0f), 1, 1, true, true, false);
-
 	Globals::shapeManager.buildSphere("sphere_cl", 1.0f, Vector3f(0.0f, 8.0f, 0.0f), 32, 32, false, true, false);
 	Globals::shapeManager.buildSphere("sphere_portal", 0.2f, Vector3f(512.0f, 13.75f, 544.0f), 16, 16, false, true, false);	
-	Globals::fontManager.loadCharacterSet("upheaval_200", "res/upheavtt.ttf", 200, 0, 30, 128, 0, true, 0u);
-	Globals::fontManager.loadCharacterSet("upheaval_50", "res/upheavtt.ttf", 50, 0, 3, 0, 0, true, 0u);
+	Globals::fontManager.loadCharacterSet("upheaval_200", "res/fonts/upheavtt.ttf", 200, 0, 30, 128, 0, true, 0u);
+	Globals::fontManager.loadCharacterSet("upheaval_50", "res/fonts/upheavtt.ttf", 50, 0, 3, 0, 0, true, 0u);
 
 
 	Globals::musicManager.createMusicBuffer("background");

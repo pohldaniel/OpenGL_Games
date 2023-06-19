@@ -41,3 +41,5 @@ http://3dcpptutorials.sk/index.php?id=58
 
 https://www.gamedev.net/forums/topic/680832-horizonzero-dawn-cloud-system/
 https://www.shadertoy.com/view/XslGRr
+
+https://github.com/earjuice/Cinder-SinglePassCube/tree/master

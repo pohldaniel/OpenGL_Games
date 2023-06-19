@@ -143,8 +143,6 @@ void NoiseGen::genWorleyGrid()
 		}
 	}
 
-	std::cout << "INFO: Generated low freq Worley Grid." << std::endl;
-
 	for (int x = 0; x < W_m; x++)
 	{
 		for (int y = 0; y < W_m; y++)
@@ -199,7 +197,6 @@ void NoiseGen::genWorleyGrid()
 			}
 		}
 	}
-	std::cout << "INFO: Generated mid freq Worley Grid." << std::endl;
 
 	for (int x = 0; x < W_h; x++)
 	{
@@ -255,20 +252,18 @@ void NoiseGen::genWorleyGrid()
 			}
 		}
 	}
-	std::cout << "INFO: Generated high freq Worley Grid." << std::endl;
+
 }
 
 void NoiseGen::getGloudShape(unsigned int &cloud_shape)
 {
 
-	if (LoadVolumeFromFile("res/noise/CloudShapeData.raw", cloud_shape, N, N, N))
-	{
-		std::cout << "INFO: Cloud shape texture exist!" << std::endl;
+	if (LoadVolumeFromFile("res/clouds/CloudShapeData.raw", cloud_shape, N, N, N)){
+
 		return;
 	}
 	
 	genWorleyGrid();
-	std::cout << "INFO: Texture generating, stay tuned..." << std::endl;
 
 	for (int x = 0; x < N; x++)
 	{
@@ -307,16 +302,12 @@ void NoiseGen::getGloudShape(unsigned int &cloud_shape)
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 	glBindTexture(GL_TEXTURE_3D, 0);
 
-	WriteVolumeToFile("res/noise/CloudShapeData.raw", shapeData, N, N, N);
+	WriteVolumeToFile("res/clouds/CloudShapeData.raw", shapeData, N, N, N);
 
-	std::cout << "INFO: Cloud shape texture Generated!" << std::endl;
 }
 
-void NoiseGen::getGloudDetail(unsigned int& cloud_detail)
-{
-	if (LoadVolumeFromFile("res/noise/CloudDetailData.raw", cloud_detail, M, M, M))
-	{
-		std::cout << "INFO: Cloud detail texture exist!" << std::endl;
+void NoiseGen::getGloudDetail(unsigned int& cloud_detail) {
+	if (LoadVolumeFromFile("res/clouds/CloudDetailData.raw", cloud_detail, M, M, M)){
 		return;
 	}
 
@@ -356,9 +347,7 @@ void NoiseGen::getGloudDetail(unsigned int& cloud_detail)
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 	glBindTexture(GL_TEXTURE_3D, 0);
 
-	WriteVolumeToFile("res/noise/CloudDetailData.raw", detailData, M, M, M);
-
-	std::cout << "INFO: Cloud detail texture Generated!" << std::endl;
+	WriteVolumeToFile("res/clouds/CloudDetailData.raw", detailData, M, M, M);
 
 }
 
@@ -407,7 +396,6 @@ float NoiseGen::getWorleyVaule(Vector3f texPos, int freq) {
 			break;
 		default:
 			p = NULL;
-			std::cout << "ERROR: Send unknown freq in Worely Generation." << std::endl;
 			break;
 	}
 

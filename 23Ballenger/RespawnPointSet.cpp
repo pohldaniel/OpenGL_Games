@@ -20,6 +20,8 @@ void RespawnPointSet::init(const Terrain& terrain) {
 										Matrix4f::Translate(448.0f, terrain.heightAt(448.0f, 944.0f), 944.0f),
 										Matrix4f::Translate(816.0f, terrain.heightAt(816.0f, 816.0f), 816.0f) };
 
+	addInstances(instances);
+
 	Globals::shapeManager.get("quad_rp").setInstances(instances);
 	Globals::shapeManager.get("cylinder").setInstances(instances);
 	Globals::shapeManager.get("disk").setInstances(instances);
@@ -44,12 +46,10 @@ void RespawnPointSet::init(const Terrain& terrain) {
 	//glUniformBlockBinding(shader->m_program, glGetUniformBlockIndex(shader->m_program, "u_color"), Globals::colorBinding);
 	//glUniformBlockBinding(shader->m_program, glGetUniformBlockIndex(shader->m_program, "u_activate"), Globals::activeBinding);
 
-	m_states = fromInstances(instances);
-	m_respawnId = 0;
 
+	m_respawnId = 0;
 	m_colors.resize(instances.size());
 	m_activate.resize(instances.size());
-
 	updateUbo();
 }
 
@@ -90,12 +90,15 @@ void RespawnPointSet::draw(const Camera& camera){
 	glDisable(GL_BLEND);
 }
 
+void RespawnPointSet::addInstances(const std::vector<Matrix4f>& values) {
+	m_states = fromInstances(values);
+}
+
 void RespawnPointSet::update(const float dt) {
 	bool update = false;
 
 	for (unsigned int i = 0; i < m_states.size(); i++) {
 		if ((m_playerPos - m_states[i].position).length() <= RADIUS + CIRCLE_RADIUS) {
-			//if (respawn_id != i) Sound.Play(SOUND_SWISH);
 			update = i != m_respawnId;
 			m_respawnId = i;
 		}
@@ -103,6 +106,7 @@ void RespawnPointSet::update(const float dt) {
 
 	if (update) {
 		updateUbo();
+		//Sound.Play(SOUND_SWISH);
 	}
 
 }
@@ -130,4 +134,12 @@ void RespawnPointSet::updateUbo() {
 	glBindBuffer(GL_UNIFORM_BUFFER, Globals::activateUbo);
 	glBufferSubData(GL_UNIFORM_BUFFER, 0, 128, &m_activate[0]);
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+}
+
+unsigned short& RespawnPointSet::getRespawnId() {
+	return m_respawnId;
+}
+
+const Vector3f& RespawnPointSet::getActivePoistion() const{
+	return m_states[m_respawnId].position;
 }
