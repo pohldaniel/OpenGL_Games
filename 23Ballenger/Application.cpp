@@ -648,6 +648,9 @@ void Application::loadAssets() {
 	Globals::fontManager.loadCharacterSet("upheaval_50", "res/fonts/upheavtt.ttf", 50, 0, 3, 0, 0, true, 0u);
 
 
+	MusicBuffer::Init();
+	//SoundBuffer::Init();
+
 	Globals::musicManager.createMusicBuffer("background");
 	Globals::musicManager.get("background").setVolume(Globals::musicVolume);
 	Globals::musicManager.get("background").setLooping(true);
@@ -656,5 +659,6 @@ void Application::loadAssets() {
 	Globals::soundManager.get("menu").loadChannel("res/sounds/button.wav", 0u);
 
 	Globals::soundManager.createSoundBuffer("game", 0u, 4u, Globals::soundVolume);
-	Globals::soundManager.get("menu").loadChannel("res/sounds/warp.wav", 0u);
+	Globals::soundManager.get("game").loadChannel("res/sounds/warp.wav", 0u);
+	Globals::soundManager.get("game").loadChannel("res/sounds/bounce.wav", 1u);
 }

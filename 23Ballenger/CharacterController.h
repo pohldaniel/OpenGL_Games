@@ -40,6 +40,9 @@ class CharacterController {
 	void setPosition(const btVector3& position);
 	void resetOrientation();
 
+	bool getCanJump();
+	bool isBouncing();
+
 private:
 
 	void moveCharacterAlongY(float step);

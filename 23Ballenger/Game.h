@@ -69,7 +69,7 @@ public:
 	void OnMouseButtonUp(Event::MouseButtonEvent& event) override;
 	void OnKeyDown(Event::KeyboardEvent& event) override;
 	void renderUi();
-	void Init(const Vector3f& pos);
+	void init();
 
 private:
 

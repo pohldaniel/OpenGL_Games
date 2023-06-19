@@ -28,7 +28,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME),
 	m_quadTree.init(m_terrain.getPositions().data(), m_terrain.getIndexBuffer().data(), static_cast<unsigned int>(m_terrain.getIndexBuffer().size()), m_terrain.getMin(), m_terrain.getMax(), 64.0f);
 
 	const Vector3f& pos = Vector3f((TERRAIN_SIZE) / 2, (m_terrain.heightAt((TERRAIN_SIZE) / 2, (TERRAIN_SIZE) / 2) + RADIUS), (TERRAIN_SIZE) / 2);
-	Init(pos);
+	init();
 
 	m_camera = ThirdPersonCamera();
 	m_camera.perspective(45.0f, (float)Application::Width / (float)Application::Height, 0.1f, 5000.0f);
@@ -50,12 +50,15 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME),
 	//half extents
 	btTransform transform;
 	transform.setIdentity();
-	transform.setOrigin(btVector3(512.0f, -1.0f, 512.0f));
+	transform.setOrigin(btVector3(512.0f, 0.0f, 512.0f));
 	m_lava.create(new btBox2dShape(btVector3(512.0f, 0.0f, 512.0f)), transform, Physics::GetDynamicsWorld(), Physics::collisiontypes::TRIGGER, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::CAMERA);
 
 	transform.setIdentity();
 	transform.setOrigin(btVector3(TERRAIN_SIZE / 2, m_terrain.heightAt(TERRAIN_SIZE / 2, TERRAIN_SIZE / 2 + 32.0f) + 1.5f, TERRAIN_SIZE / 2 + 32.0f));
 	m_portal.create(new btBoxShape(btVector3(1.0f, 1.0f, 0.01f)), transform, Physics::GetDynamicsWorld(), Physics::collisiontypes::TRIGGER, Physics::collisiontypes::CHARACTER);
+
+	//if (!Globals::musicManager.get("background").isPlaying())
+		//Globals::musicManager.get("background").play("res/sounds/ambient.mp3");
 }
 
 Game::~Game() {
@@ -112,7 +115,7 @@ void Game::update() {
 			m_portalActivated = m_keySet.getNumDeployed() == 2;
 			m_portal.setDisabled(!m_portalActivated);
 			if (m_portalActivated)
-				Globals::soundManager.get("menu").playChannel(0u);
+				Globals::soundManager.get("game").playChannel(0u);
 		}
 	}
 
@@ -249,15 +252,12 @@ void Game::OnKeyDown(Event::KeyboardEvent& event) {
 	}
 
 	if (event.keyCode == VK_ESCAPE) {
+		Globals::musicManager.get("background").stop();
 		ImGui::GetIO().WantCaptureMouse = false;
 		Mouse::instance().detach();
 		m_isRunning = false;
 		m_machine.addStateAtBottom(new Menu(m_machine));
 	}
-
-//	if (event.keyCode == VK_ESCAPE) {
-//		m_isRunning = false;
-//	}
 }
 
 void Game::resize(int deltaW, int deltaH) {
@@ -341,11 +341,9 @@ void Game::renderUi() {
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
-void Game::Init(const Vector3f& pos) {
+void Game::init() {
 
 	m_portalActivated = false;
-
-	//Sound.Play(SOUND_AMBIENT);
 	m_player.init(m_terrain);
 	m_keySet.init(m_terrain);
 	m_respawnPointSet.init(m_terrain);
@@ -385,6 +383,7 @@ btScalar PortalTriggerCallback::addSingleResult(btManifoldPoint& cp, const btCol
 	Player* player = reinterpret_cast<Player*>(colObj0Wrap->getCollisionObject()->getUserPointer());
 	player->setColor(Vector4f(1.0f, 0.0, 0.0f, 1.0f));
 #else
+	Globals::musicManager.get("background").stop();
 	ImGui::GetIO().WantCaptureMouse = false;
 	Mouse::instance().detach();
 	game.m_isRunning = false;

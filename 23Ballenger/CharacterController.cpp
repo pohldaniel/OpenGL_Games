@@ -298,3 +298,11 @@ void CharacterController::resetOrientation() {
 	btTransform&  transform = m_rigidBody->getWorldTransform();
 	transform.setRotation(btQuaternion(0.0f, 0.0f, 0.0f, 1.0f));
 }
+
+bool CharacterController::getCanJump() {
+	return m_canJump;
+}
+
+bool CharacterController::isBouncing() {
+	return m_onGround && m_rigidBody->getLinearVelocity()[1] < -3.33f;
+}

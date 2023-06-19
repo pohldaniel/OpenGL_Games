@@ -15,7 +15,7 @@ extern AssetManager<SoundBuffer> Globals::soundManager = AssetManager<SoundBuffe
 extern AssetManager<MusicBuffer> Globals::musicManager = AssetManager<MusicBuffer>();
 
 extern float Globals::soundVolume = 0.2f;
-extern float Globals::musicVolume = 0.2f;
+extern float Globals::musicVolume = 0.1f;
 
 extern Physics* Globals::physics = NULL;
 

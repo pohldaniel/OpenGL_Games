@@ -114,7 +114,11 @@ void Player::update(const float dt) {
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_LALT)) {
+		if (m_characterController->getCanJump()) {
+			Globals::soundManager.get("game").playChannel(1u);
+		}
 		m_characterController->jump(btVector3(0.0f, 1.0f, 0.0f), 20.0f);
+		
 	}
 
 	btTransform t;
@@ -147,6 +151,10 @@ void Player::update(const float dt) {
 
 void Player::fixedUpdate(const float fdt) {
 	m_color.set(1.0f, 1.0f, 1.0f, 1.0f);
+
+	if (m_characterController->isBouncing()) {
+		Globals::soundManager.get("game").playChannel(1u);
+	}
 }
 
 CharacterController* Player::getCharacterController() {
