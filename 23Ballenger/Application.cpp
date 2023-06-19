@@ -373,12 +373,12 @@ void Application::fixedUpdate() {
 void Application::initStates() {
 	
 	Machine = new StateMachine(m_dt, m_fdt);
-	//Machine->addStateAtTop(new Game(*Machine));
+	Machine->addStateAtTop(new Game(*Machine));
 	//Machine->addStateAtTop(new ShapeInterface(*Machine));
 	//Machine->addStateAtTop(new TerrainCulling(*Machine));
 	//Machine->addStateAtTop(new CloudInterface(*Machine));
 
-	Machine->addStateAtTop(new Menu(*Machine));
+	//Machine->addStateAtTop(new Menu(*Machine));
 
 	//Machine->addStateAtTop(new EnvironmentInterface(*Machine));
 }
@@ -542,6 +542,7 @@ void Application::SetCursorIcon(LPCSTR resource) {
 void Application::loadAssets() {
 
 	Globals::shaderManager.loadShader("terrain", "res/shader/terrain.vert", "res/shader/terrain.frag");
+	Globals::shaderManager.loadShader("texture", "res/shader/texture.vert", "res/shader/texture.frag");
 	Globals::shaderManager.loadShader("instance", "res/shader/instance.vert", "res/shader/instance.frag");
 	Globals::shaderManager.loadShader("respawn", "res/shader/respawn.vert", "res/shader/respawn.frag");
 	Globals::shaderManager.loadShader("cylinder", "res/shader/cylinder.vert", "res/shader/cylinder.frag");
@@ -639,7 +640,7 @@ void Application::loadAssets() {
 	Globals::shapeManager.fromObj("column", "res/models/column.obj");
 	Globals::shapeManager.fromObj("portal", "res/models/portal.obj");
 	Globals::shapeManager.buildCylinder("cylinder_key", 2.0f, 2.0f, 1.0f, Vector3f(0.0f, 0.5f, 0.0f), false, false , 16, 16, false, true, false);
-	Globals::shapeManager.buildQuadXZ("platform", Vector3f(-512.0f, 0.5f, -512.0f), Vector2f(1024.0f, 1024.0f), 1, 1, true, false, false);
+	Globals::shapeManager.buildQuadXZ("platform", Vector3f(-512.0f, 0.0f, -512.0f), Vector2f(1024.0f, 1024.0f), 1, 1, true, false, false);
 
 	Globals::shapeManager.buildSphere("sphere_cl", 1.0f, Vector3f(0.0f, 8.0f, 0.0f), 32, 32, false, true, false);
 	Globals::shapeManager.buildSphere("sphere_portal", 0.2f, Vector3f(512.0f, 13.75f, 544.0f), 16, 16, false, true, false);	
@@ -654,5 +655,6 @@ void Application::loadAssets() {
 	Globals::soundManager.createSoundBuffer("menu", 0u, 2u, Globals::soundVolume);
 	Globals::soundManager.get("menu").loadChannel("res/sounds/button.wav", 0u);
 
-	
+	Globals::soundManager.createSoundBuffer("game", 0u, 4u, Globals::soundVolume);
+	Globals::soundManager.get("menu").loadChannel("res/sounds/warp.wav", 0u);
 }

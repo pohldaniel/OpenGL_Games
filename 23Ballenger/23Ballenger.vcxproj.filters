@@ -99,9 +99,6 @@
     <ClCompile Include="ColumnSet.cpp">
       <Filter>Source Files\Objects</Filter>
     </ClCompile>
-    <ClCompile Include="Portal.cpp">
-      <Filter>Source Files\Objects</Filter>
-    </ClCompile>
     <ClCompile Include="Player.cpp">
       <Filter>Source Files\Entities</Filter>
     </ClCompile>
@@ -288,6 +285,9 @@
     <ClCompile Include="engine\CubeBuffer.cpp">
       <Filter>engine</Filter>
     </ClCompile>
+    <ClCompile Include="Portal.cpp">
+      <Filter>Source Files\Entities</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h">
@@ -330,9 +330,6 @@
       <Filter>Source Files\Objects</Filter>
     </ClInclude>
     <ClInclude Include="ColumnSet.h">
-      <Filter>Source Files\Objects</Filter>
-    </ClInclude>
-    <ClInclude Include="Portal.h">
       <Filter>Source Files\Objects</Filter>
     </ClInclude>
     <ClInclude Include="Player.h">
@@ -538,6 +535,9 @@
     </ClInclude>
     <ClInclude Include="engine\CubeBuffer.h">
       <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Portal.h">
+      <Filter>Source Files\Entities</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

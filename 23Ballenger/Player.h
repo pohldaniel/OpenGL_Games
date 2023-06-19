@@ -20,12 +20,16 @@ public:
 	void init(const Terrain& terrain);
 	void draw(const Camera& camera) override;
 	void update(const float dt) override;
+	void fixedUpdate(const float fdt);
 
 	void setPosition(const Vector3f &position) override;
 	void setPosition(const float x, const float y, const float z) override;
+	void setColor(const Vector4f &color);
+
 	void resetOrientation();
 	Vector3f& getInitialPosition();
 	CharacterController* getCharacterController();
+	btCollisionObject* getContactObject();
 	bool isMoving();
 
 private:
@@ -34,4 +38,6 @@ private:
 	CharacterController* m_characterController;
 	Vector3f m_pos;
 	bool m_move;
+	Vector4f m_color;
+	btCollisionObject* m_collisionObject;
 };

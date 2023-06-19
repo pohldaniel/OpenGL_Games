@@ -11,14 +11,14 @@ Player::~Player() {
 }
 
 void Player::init(const Terrain& terrain) {
-
+	m_color.set(1.0f, 1.0f, 1.0f, 1.0f);
 	m_pos = Vector3f(512.0f, (terrain.heightAt(512.0f, 512.0f) + RADIUS), 512.0f);
 
 	//create dynamic character
 	btSphereShape* playerShape = new btSphereShape(0.5f);
 	btTransform playerTransform;
 	playerTransform.setIdentity();
-	playerTransform.setOrigin(btVector3(btScalar(m_pos[0]), btScalar(m_pos[1]), btScalar(m_pos[2])));
+	playerTransform.setOrigin(Physics::VectorFrom(m_pos));
 	btVector3 localInertiaChar(0, 0, 0);
 	playerShape->calculateLocalInertia(100.0f, localInertiaChar);
 
@@ -39,16 +39,28 @@ void Player::init(const Terrain& terrain) {
 	m_characterController->setDamping(0.0f, 0.7f);
 	m_characterController->setLinearFactor(btVector3(1.0f, 1.0f, 1.0f));
 	m_characterController->setGravity(btVector3(0.0f, -9.81f * 3.0f, 0.0f));
+
+	//it seems the contactPairTest isn't right at the moment so I have to use a smaller sphere for this test
+	m_collisionObject = new btCollisionObject();
+	m_collisionObject->setCollisionShape(new btSphereShape(0.25f));
+	m_collisionObject->setWorldTransform(playerTransform);
+	m_collisionObject->setUserPointer(this);
+
+	m_collisionObject->setCollisionFlags(btCollisionObject::CF_KINEMATIC_OBJECT | btCollisionObject::CF_NO_CONTACT_RESPONSE);
+	m_collisionObject->forceActivationState(DISABLE_DEACTIVATION);
+
+	Physics::GetDynamicsWorld()->addCollisionObject(m_collisionObject, Physics::collisiontypes::CHARACTER, Physics::collisiontypes::TRIGGER);
 }
 
 void Player::draw(const Camera& camera) {
 
-	auto shader = Globals::shaderManager.getAssetPointer("texture_new");
+	auto shader = Globals::shaderManager.getAssetPointer("texture");
 	shader->use();
 	shader->loadMatrix("u_projection", camera.getPerspectiveMatrix());
 	shader->loadMatrix("u_view", camera.getViewMatrix());
 	shader->loadMatrix("u_model", getTransformationOP());
 	shader->loadMatrix("u_normal", Matrix4f::GetNormalMatrix(camera.getViewMatrix() * getTransformationOP()));
+	shader->loadVector("u_blendColor", m_color);
 	Globals::textureManager.get("player").bind(0);
 	Globals::shapeManager.get("sphere").drawRaw();
 	shader->unuse();
@@ -61,7 +73,7 @@ void Player::update(const float dt) {
 
 	Vector3f direction = Vector3f();
 	m_move = false;
-
+	
 	if (keyboard.keyDown(Keyboard::KEY_W)) {
 		direction += Vector3f(0.0f, 0.0f, 1.0f);
 		m_move |= true;
@@ -108,6 +120,10 @@ void Player::update(const float dt) {
 	btTransform t;
 	m_characterController->getWorldTransform(t);
 	Vector3f playerPos = Physics::VectorFrom(t.getOrigin());
+
+	Object::setPosition(playerPos);
+	Object::setOrientation(Physics::QuaternionFrom(t.getRotation()));
+
 	m_camera.Camera::setTarget(playerPos);
 
 	float dx = 0.0f;
@@ -125,9 +141,12 @@ void Player::update(const float dt) {
 	cameraPosition.setInterpolate3(t.getOrigin(), cameraPosition, Physics::SweepSphere(t.getOrigin(), cameraPosition, 0.2f, Physics::collisiontypes::CAMERA, Physics::collisiontypes::TERRAIN));
 	m_camera.setPosition(Physics::VectorFrom(cameraPosition));
 
-	Object::setPosition(playerPos);
-	Object::setOrientation(Physics::QuaternionFrom(t.getRotation()));
+	t.setRotation(btQuaternion(0.0f, 0.0f, 0.0f, 1.0f));
+	m_collisionObject->setWorldTransform(t);
+}
 
+void Player::fixedUpdate(const float fdt) {
+	m_color.set(1.0f, 1.0f, 1.0f, 1.0f);
 }
 
 CharacterController* Player::getCharacterController() {
@@ -156,4 +175,12 @@ Vector3f& Player::getInitialPosition() {
 
 bool Player::isMoving() {
 	return m_move;
+}
+
+void Player::setColor(const Vector4f &color) {
+	m_color = color;
+}
+
+btCollisionObject* Player::getContactObject() {
+	return m_collisionObject;
 }

@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include <btBulletDynamicsCommon.h>
+#include <BulletCollision/CollisionShapes/btBox2dShape.h>
 #include "engine/Vector.h"
 
 class ObjMesh;

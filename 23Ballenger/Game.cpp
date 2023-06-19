@@ -6,7 +6,7 @@
 #include "Game.h"
 #include "Application.h"
 #include "Menu.h"
-#include "Globals.h"
+
 
 Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), 
 									m_keySet(m_player.getPosition()), 
@@ -14,6 +14,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME),
 									m_columnSet(m_player.getPosition()),
 									m_player(m_camera),
 									m_lavaTriggerResult(m_keySet, m_respawnPointSet),
+									m_portalTriggerResult(*this),
 									pickedKeyId(m_keySet.getPickedKeyId()),
 									m_cloudsModel(Application::Width, Application::Height, m_light),
 									m_sky(Application::Width, Application::Height, m_light) {
@@ -25,7 +26,6 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME),
 
 	m_terrain.init("res/terrain01.raw");
 	m_quadTree.init(m_terrain.getPositions().data(), m_terrain.getIndexBuffer().data(), static_cast<unsigned int>(m_terrain.getIndexBuffer().size()), m_terrain.getMin(), m_terrain.getMax(), 64.0f);
-
 
 	const Vector3f& pos = Vector3f((TERRAIN_SIZE) / 2, (m_terrain.heightAt((TERRAIN_SIZE) / 2, (TERRAIN_SIZE) / 2) + RADIUS), (TERRAIN_SIZE) / 2);
 	Init(pos);
@@ -48,12 +48,14 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME),
 	sceneBuffer.attachTexture2D(AttachmentTex::DEPTH24);
 
 	//half extents
-	btCollisionShape* shape = new btBox2dShape(btVector3(511.5f, 0.0f, 511.5f));
 	btTransform transform;
 	transform.setIdentity();
 	transform.setOrigin(btVector3(512.0f, -1.0f, 512.0f));
+	m_lava.create(new btBox2dShape(btVector3(512.0f, 0.0f, 512.0f)), transform, Physics::GetDynamicsWorld(), Physics::collisiontypes::TRIGGER, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::CAMERA);
 
-	m_lava.create(shape, transform, Physics::GetDynamicsWorld(), Physics::collisiontypes::TRIGGER, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::CAMERA);
+	transform.setIdentity();
+	transform.setOrigin(btVector3(TERRAIN_SIZE / 2, m_terrain.heightAt(TERRAIN_SIZE / 2, TERRAIN_SIZE / 2 + 32.0f) + 1.5f, TERRAIN_SIZE / 2 + 32.0f));
+	m_portal.create(new btBoxShape(btVector3(1.0f, 1.0f, 0.01f)), transform, Physics::GetDynamicsWorld(), Physics::collisiontypes::TRIGGER, Physics::collisiontypes::CHARACTER);
 }
 
 Game::~Game() {
@@ -63,15 +65,24 @@ Game::~Game() {
 }
 
 void Game::fixedUpdate() {
+
 	m_player.getCharacterController()->preStep();
 	Globals::physics->stepSimulation(m_fdt);
 	m_player.getCharacterController()->postStep();
+	m_player.fixedUpdate(m_fdt);
 
-	Physics::GetDynamicsWorld()->contactPairTest(m_player.getCharacterController()->getRigidBody(), m_lava.getCollisionObject(), m_lavaTriggerResult);
+	Physics::GetDynamicsWorld()->contactPairTest(m_player.getContactObject(), m_lava.getCollisionObject(), m_lavaTriggerResult);
+
+#if DEBUGCOLLISION
+	Physics::GetDynamicsWorld()->contactPairTest(m_player.getContactObject(), m_portal.getCollisionObject(), m_portalTriggerResult);
+#else
+	if (m_portalActivated)
+		Physics::GetDynamicsWorld()->contactPairTest(m_player.getContactObject(), m_portal.getCollisionObject(), m_portalTriggerResult);
+#endif
 }
 
 void Game::update() {
-	
+
 	m_player.update(m_dt);
 	const Vector3f& playerPos = m_player.getPosition();
 
@@ -98,9 +109,10 @@ void Game::update() {
 			pickedKeyId = -1;
 
 			
-			portal_activated = m_keySet.getNumDeployed() == 5;
-			m_portal.setDisabled(!portal_activated);
-			//if (portal_activated) Sound.Play(SOUND_WARP);
+			m_portalActivated = m_keySet.getNumDeployed() == 2;
+			m_portal.setDisabled(!m_portalActivated);
+			if (m_portalActivated)
+				Globals::soundManager.get("menu").playChannel(0u);
 		}
 	}
 
@@ -252,7 +264,7 @@ void Game::resize(int deltaW, int deltaH) {
 
 }
 
-void ToggleButton(const char* str_id, bool* v) {
+void toggleButton(const char* str_id, bool* v) {
 	ImVec2 p = ImGui::GetCursorScreenPos();
 	ImDrawList* draw_list = ImGui::GetWindowDrawList();
 
@@ -322,7 +334,7 @@ void Game::renderUi() {
 	if (ImGui::SliderFloat("Camera Offset", &m_offsetDistance, 0.0f, 150.0f)) {
 		m_camera.setOffsetDistance(m_offsetDistance);
 	}
-	ToggleButton("Use Skybox", &m_useSkybox);
+	toggleButton("Use Skybox", &m_useSkybox);
 	ImGui::End();
 
 	ImGui::Render();
@@ -331,7 +343,7 @@ void Game::renderUi() {
 
 void Game::Init(const Vector3f& pos) {
 
-	portal_activated = false;
+	m_portalActivated = false;
 
 	//Sound.Play(SOUND_AMBIENT);
 	m_player.init(m_terrain);
@@ -367,3 +379,16 @@ void Game::Init(const Vector3f& pos) {
 	});
 }
 
+btScalar PortalTriggerCallback::addSingleResult(btManifoldPoint& cp, const btCollisionObjectWrapper* colObj0Wrap, int partId0, int index0, const btCollisionObjectWrapper* colObj1Wrap, int partId1, int index1) {
+
+#if DEBUGCOLLISION
+	Player* player = reinterpret_cast<Player*>(colObj0Wrap->getCollisionObject()->getUserPointer());
+	player->setColor(Vector4f(1.0f, 0.0, 0.0f, 1.0f));
+#else
+	ImGui::GetIO().WantCaptureMouse = false;
+	Mouse::instance().detach();
+	game.m_isRunning = false;
+	game.m_machine.addStateAtBottom(new Menu(game.m_machine));
+#endif
+	return 0;
+}

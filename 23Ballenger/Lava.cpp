@@ -28,7 +28,7 @@ void Lava::updateHeight() {
 	setPosition(Physics::VectorFrom(transform.getOrigin()));
 }
 
-void Lava::create(btCollisionShape* shape, const btTransform& transform, btDynamicsWorld* physicsWorld,int collisionFilterGroup, int collisionFilterMask, void* rigidBodyUserPointer) {
+void Lava::create(btCollisionShape* shape, const btTransform& transform, btDynamicsWorld* physicsWorld, int collisionFilterGroup, int collisionFilterMask, void* rigidBodyUserPointer) {
 	m_collisionObject = new btCollisionObject();
 	
 	m_collisionObject->setCollisionShape(shape);
@@ -46,7 +46,7 @@ void Lava::create(btCollisionShape* shape, const btTransform& transform, btDynam
 
 void Lava::draw(const Camera& camera) {
 	glDisable(GL_CULL_FACE);
-	auto shader = Globals::shaderManager.getAssetPointer("texture_new");
+	auto shader = Globals::shaderManager.getAssetPointer("texture");
 	shader->use();
 	shader->loadMatrix("u_projection", camera.getPerspectiveMatrix());
 	shader->loadMatrix("u_view", camera.getViewMatrix());

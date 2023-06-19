@@ -1,6 +1,5 @@
 #pragma once
 
-#include <BulletCollision/CollisionShapes/btBox2dShape.h>
 #include <btBulletDynamicsCommon.h>
 #include "engine/Vector.h"
 #include "RenderableObject.h"

@@ -23,6 +23,10 @@
 #include "Sky.h"
 #include "Light.h"
 
+#include "Globals.h"
+
+class Game;
+
 struct LavaTriggerCallback : public btCollisionWorld::ContactResultCallback {
 
 	LavaTriggerCallback(KeySet& keySet, const RespawnPointSet& respawnPointSet) : keySet(keySet), respawnPointSet(respawnPointSet){}
@@ -38,7 +42,17 @@ struct LavaTriggerCallback : public btCollisionWorld::ContactResultCallback {
 	}
 };
 
+struct PortalTriggerCallback : public btCollisionWorld::ContactResultCallback {
+
+	PortalTriggerCallback(Game& game) : game(game){}
+	Game& game;
+
+	btScalar addSingleResult(btManifoldPoint& cp, const btCollisionObjectWrapper* colObj0Wrap, int partId0, int index0, const btCollisionObjectWrapper* colObj1Wrap, int partId1, int index1) override;
+};
+
 class Game : public State, public MouseEventListener, public KeyboardEventListener {
+
+	friend struct PortalTriggerCallback;
 
 public:
 
@@ -85,7 +99,9 @@ private:
 	Framebuffer sceneBuffer;
 
 	LavaTriggerCallback m_lavaTriggerResult;
+	PortalTriggerCallback m_portalTriggerResult;
 
 	int& pickedKeyId;
-	bool portal_activated;
+	bool m_portalActivated;
+
 };
