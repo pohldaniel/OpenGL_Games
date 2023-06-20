@@ -17,7 +17,7 @@ public:
 
 	void draw(const Camera& camera) override;
 	void create(btCollisionShape* shape, const btTransform& transform, btDynamicsWorld* physicsWorld, int collisionFilterGroup = 1, int collisionFilterMask = -1, void* rigidBodyUserPointer = NULL);
-	float getHeight();
+	const float getHeight() const;
 	float getHeightMax();
 	btCollisionObject* getCollisionObject();
 

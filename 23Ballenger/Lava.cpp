@@ -58,8 +58,8 @@ void Lava::draw(const Camera& camera) {
 	glEnable(GL_CULL_FACE);
 }
 
-float Lava::getHeight() {
-	return height;
+const float Lava::getHeight() const {
+	return m_collisionObject->getWorldTransform().getOrigin()[1];
 }
 
 float Lava::getHeightMax() {

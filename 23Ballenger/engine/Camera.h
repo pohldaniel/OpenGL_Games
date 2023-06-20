@@ -73,7 +73,9 @@ public:
 	const float getViewDirectionY() const;
 	const float getViewDirectionZ() const;
 	const Vector3f getViewSpaceDirection(const Vector3f &direction);
-	
+	const float getDistance() const;
+	const float getDistanceSq() const;
+
 	void setPosition(float x, float y, float z);
 	void setPosition(const Vector3f &position);
 	void setPositionX(float x);

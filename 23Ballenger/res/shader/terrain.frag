@@ -45,17 +45,17 @@ void main() {
 
 	vec4 realcolor = mix( texture2D(tex_side,texCoord) , texture2D(tex_top,texCoord) , normal_model.y*normal_model.y); //en base a la pendiente
 	realcolor *= (lightcolor+vec4(0.3, 0.3, 0.3, 0.0));
-	if(pos_model.y <= hmax+6) realcolor = mix( texture2D(tex_side,texCoord) , realcolor , (pos_model.y-hmax)/6.0 ); //cerca de la lava es roca
+	if(pos_model.y <= hmax + 6.0) realcolor = mix( texture2D(tex_side,texCoord) , realcolor , (pos_model.y-hmax)/6.0 ); //cerca de la lava es roca
 	vec4 burnedcolor;
 
 	if(pos_model.y <= hmax){
-        if(pos_model.y > hmax-0.5) burnedcolor = mix( realcolor*vec4(0.0,0.0,0.2,1) , realcolor , (pos_model.y-(hmax-0.5))/0.5 );
+        if(pos_model.y > hmax - 0.5) burnedcolor = mix( realcolor*vec4(0.0,0.0,0.2,1) , realcolor , (pos_model.y-(hmax-0.5))/0.5 );
         else burnedcolor = realcolor*vec4(0.0, 0.0, 0.0, 1.0);
 		
 	}else burnedcolor = realcolor;
 
-    if(pos_model.y <= height+6){
-        color = mix( realcolor*(1.3, 0.8, 0.0, 1.0) , burnedcolor , (pos_model.y-height)/6.0 );
-        if(pos_model.y < height+3) color = mix( realcolor*vec4(1.5, 0.4, 0.0, 1.0) , color , (pos_model.y-height)/3.0 );
+    if(pos_model.y <= height + 6.0){
+        color = mix( realcolor*(2.0, 0.8, 0.0, 1.0) , burnedcolor , (pos_model.y-height)/6.0 );
+        if(pos_model.y < height + 3.0) color = mix( realcolor*vec4(2.0, 0.4, 0.0, 1.0) , color , (pos_model.y-height)/3.0 );
     }else color = burnedcolor;
 }

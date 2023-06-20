@@ -5,8 +5,11 @@
 #include "RenderableObject.h"
 
 #include "CharacterController.h"
+#include "Lava.h"
 
 #define RADIUS   0.5f
+#define CAMERA_MAX_DISTANCE   10.0f
+#define CAMERA_SMOOTHING_SPEED  0.85f
 
 class Terrain;
 
@@ -14,7 +17,7 @@ class Player : public RenderableObject {
 
 public:
 
-	Player(Camera& camera);
+	Player(Camera& camera, const Lava& lava);
 	~Player();
 	void init(const Terrain& terrain);
 	void draw(const Camera& camera) override;
@@ -26,7 +29,6 @@ public:
 	void setColor(const Vector4f &color);
 
 	void resetOrientation();
-	Vector3f& getInitialPosition();
 	CharacterController* getCharacterController();
 	btCollisionObject* getContactObject();
 	bool isMoving();
@@ -37,9 +39,14 @@ private:
 
 	Camera& m_camera;
 	CharacterController* m_characterController;
-	Vector3f m_pos;
 	bool m_move;
 	Vector4f m_color;
 	btCollisionObject* m_collisionObject;
 	bool m_fade;
+	float m_lambda;
+	float m_distance;
+
+	float m_prevHitfriction;
+
+	const Lava& lava;
 };

@@ -3,8 +3,10 @@
 uniform sampler2D u_texture;
 uniform sampler2D u_normalMap;
 
-uniform float invRadius = 1.0;
-uniform float alpha = 1.0;
+uniform float u_invRadius = 1.0;
+uniform float u_alpha = 1.0;
+uniform float u_lavaHeight;
+uniform float u_posy;
 
 uniform vec4 lightAmbient = vec4(0.0, 0.0, 0.0, 1.0);
 uniform vec4 lightDiffuse = vec4(1.0, 1.0, 1.0, 1.0);
@@ -29,7 +31,7 @@ out vec4 color;
 void main(void){
 
 	float distSqr = dot(lightVec, lightVec);
-	float att = clamp(1.0 - invRadius * sqrt(distSqr), 0.0, 1.0);
+	float att = clamp(1.0 - u_invRadius * sqrt(distSqr), 0.0, 1.0);
 	vec3 lVec = lightVec * inversesqrt(distSqr);
 
 	vec3 vVec = normalize(eyeVec);
@@ -48,7 +50,13 @@ void main(void){
 	
 	vec4 vSpecular = lightSpecular * matSpecular * specular;	
 
-	color = vec4( vec3(( vAmbient*base + vDiffuse*base + vSpecular)*att) * vertColor.rgb, alpha) * u_blendColor;		
+	vec4 realcolor = vec4( vec3(( vAmbient*base + vDiffuse*base + vSpecular)*att) * vertColor.rgb, u_alpha) * u_blendColor;		
 	
-	//color = vSpecular;
+	if(u_posy <= u_lavaHeight + 6.0){
+		vec4 glowcolor = realcolor;
+        glowcolor = mix( glowcolor * vec4(2.0, 0.8, 0.0, 1.0) , glowcolor , (u_posy - u_lavaHeight)/6.0 );
+        if(u_posy < u_lavaHeight + 3.0) glowcolor = mix( glowcolor * vec4(2.0, 0.4, 0.0, 1.0) , glowcolor , (u_posy - u_lavaHeight)/3.0 );
+		color = glowcolor;
+    }
+    else color = realcolor;
 }

@@ -297,6 +297,14 @@ const Vector3f Camera::getViewSpaceDirection(const Vector3f &direction) {
 					m_xAxis[2] * direction[0] + m_yAxis[2] * direction[1] + m_viewDir[2] * direction[2]);
 }
 
+const float Camera::getDistance() const {
+	return (m_target - m_eye).length();
+}
+
+const float Camera::getDistanceSq() const {
+	return (m_target - m_eye).lengthSq();
+}
+
 void Camera::moveX(float dx) {
 	m_eye[0] = (dx * m_movingSpeed) + m_eye[0];
 	m_viewMatrix[3][0] = -(m_xAxis[0] * (m_eye[0] -m_viewDir[0] * m_offsetDistance) + m_xAxis[1] * m_eye[1] + m_xAxis[2] * m_eye[2]);

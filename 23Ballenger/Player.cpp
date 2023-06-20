@@ -3,7 +3,9 @@
 #include "Terrain.h"
 #include "Globals.h"
 
-Player::Player(Camera& camera) : m_camera(camera), m_fade(true) { }
+Player::Player(Camera& camera, const Lava& lava) : m_camera(camera), lava(lava), m_fade(true), m_lambda(1.0f), m_distance(0.4f) {
+	m_prevHitfriction = 1.0f;
+}
 
 Player::~Player() {
 	// will be deleted at Physics.cpp
@@ -12,13 +14,13 @@ Player::~Player() {
 
 void Player::init(const Terrain& terrain) {
 	m_color.set(1.0f, 1.0f, 1.0f, 1.0f);
-	m_pos = Vector3f(512.0f, (terrain.heightAt(512.0f, 512.0f) + RADIUS), 512.0f);
+	m_position = Vector3f(512.0f, (terrain.heightAt(512.0f, 512.0f) + RADIUS), 512.0f);
 
 	//create dynamic character
 	btSphereShape* playerShape = new btSphereShape(0.5f);
 	btTransform playerTransform;
 	playerTransform.setIdentity();
-	playerTransform.setOrigin(Physics::VectorFrom(m_pos));
+	playerTransform.setOrigin(Physics::VectorFrom(m_position));
 	btVector3 localInertiaChar(0, 0, 0);
 	playerShape->calculateLocalInertia(100.0f, localInertiaChar);
 
@@ -62,9 +64,11 @@ void Player::draw(const Camera& camera) {
 	shader->loadMatrix("u_model", getTransformationOP());
 	shader->loadMatrix("u_normal", Matrix4f::GetNormalMatrix(camera.getViewMatrix() * getTransformationOP()));
 	shader->loadVector("u_lightPos", Vector3f(50.0f, 50.0f, 50.0f));
-	shader->loadFloat("invRadius", 0.0f);
-	if (m_fade) shader->loadFloat("alpha", Math::Clamp( m_camera.getOffsetDistance(), 0.0f, 1.0f));
-	else shader->loadFloat("alpha", 1.0f);
+	shader->loadFloat("u_invRadius", 0.0f);
+	if (m_fade) shader->loadFloat("u_alpha", Math::Clamp( m_camera.getDistance() * 0.5f, 0.4f, 1.0f));
+	else shader->loadFloat("u_alpha", 1.0f);
+	shader->loadFloat("u_lavaHeight", lava.getHeight());
+	shader->loadFloat("u_posy", m_position[1] - RADIUS);
 	shader->loadVector("u_blendColor", m_color);
 	shader->loadInt("u_texture", 0);
 	shader->loadInt("u_normalMap", 1);
@@ -74,6 +78,15 @@ void Player::draw(const Camera& camera) {
 	Globals::shapeManager.get("sphere").drawRaw();
 	shader->unuse();
 	glDisable(GL_BLEND);
+}
+
+float GetLavaLambda(float Py, float Qy, float height) {
+	float Vy = Qy - Py;
+	float D = -height;
+	if (Vy == 0.0f) return 1.0f;
+	float lambda = -(Py + D) / Vy;
+	if (lambda < 0.0f || lambda > 1.0f) return 1.0f;
+	return lambda;
 }
 
 void Player::update(const float dt) {
@@ -151,7 +164,19 @@ void Player::update(const float dt) {
 
 	btVector3 cameraPosition = Physics::VectorFrom(m_camera.getPosition());
 
-	cameraPosition.setInterpolate3(t.getOrigin(), cameraPosition, Physics::SweepSphere(t.getOrigin(), cameraPosition, 0.2f, Physics::collisiontypes::CAMERA, Physics::collisiontypes::TERRAIN));
+	float lavaLambda = GetLavaLambda(m_position[1], m_position[1] - CAMERA_MAX_DISTANCE * m_camera.getViewDirection()[1], lava.getHeight());
+	float hitFraction = Physics::SweepSphere(t.getOrigin(), cameraPosition, 0.2f, Physics::collisiontypes::CAMERA, Physics::collisiontypes::TERRAIN);
+	hitFraction = std::min(hitFraction, lavaLambda);
+
+
+	if (m_prevHitfriction < hitFraction) {
+		m_prevHitfriction += CAMERA_SMOOTHING_SPEED * dt;
+		if (m_prevHitfriction > hitFraction) m_prevHitfriction = hitFraction;
+	}else {
+		m_prevHitfriction = hitFraction;
+	}
+
+	cameraPosition.setInterpolate3(t.getOrigin(), cameraPosition, m_prevHitfriction);
 	m_camera.setPosition(Physics::VectorFrom(cameraPosition));
 
 	t.setRotation(btQuaternion(0.0f, 0.0f, 0.0f, 1.0f));
@@ -184,10 +209,6 @@ void Player::setPosition(const float x, const float y, const float z) {
 
 void Player::resetOrientation() {
 	m_characterController->resetOrientation();
-}
-
-Vector3f& Player::getInitialPosition() {
-	return m_pos;
 }
 
 bool Player::isMoving() {
