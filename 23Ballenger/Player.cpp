@@ -3,7 +3,7 @@
 #include "Terrain.h"
 #include "Globals.h"
 
-Player::Player(Camera& camera) : m_camera(camera) { }
+Player::Player(Camera& camera) : m_camera(camera), m_fade(true) { }
 
 Player::~Player() {
 	// will be deleted at Physics.cpp
@@ -54,17 +54,26 @@ void Player::init(const Terrain& terrain) {
 
 void Player::draw(const Camera& camera) {
 
-	auto shader = Globals::shaderManager.getAssetPointer("texture");
+	glEnable(GL_BLEND);
+	auto shader = Globals::shaderManager.getAssetPointer("player");
 	shader->use();
 	shader->loadMatrix("u_projection", camera.getPerspectiveMatrix());
 	shader->loadMatrix("u_view", camera.getViewMatrix());
 	shader->loadMatrix("u_model", getTransformationOP());
 	shader->loadMatrix("u_normal", Matrix4f::GetNormalMatrix(camera.getViewMatrix() * getTransformationOP()));
+	shader->loadVector("u_lightPos", Vector3f(50.0f, 50.0f, 50.0f));
+	shader->loadFloat("invRadius", 0.0f);
+	if (m_fade) shader->loadFloat("alpha", Math::Clamp( m_camera.getOffsetDistance(), 0.0f, 1.0f));
+	else shader->loadFloat("alpha", 1.0f);
 	shader->loadVector("u_blendColor", m_color);
+	shader->loadInt("u_texture", 0);
+	shader->loadInt("u_normalMap", 1);
+
 	Globals::textureManager.get("player").bind(0);
+	Globals::textureManager.get("player_nmp").bind(1);
 	Globals::shapeManager.get("sphere").drawRaw();
 	shader->unuse();
-
+	glDisable(GL_BLEND);
 }
 
 void Player::update(const float dt) {
@@ -191,4 +200,8 @@ void Player::setColor(const Vector4f &color) {
 
 btCollisionObject* Player::getContactObject() {
 	return m_collisionObject;
+}
+
+void Player::setFade(bool fade) {
+	m_fade = fade;
 }

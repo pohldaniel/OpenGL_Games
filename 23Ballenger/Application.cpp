@@ -554,6 +554,7 @@ void Application::loadAssets() {
 	Globals::shaderManager.loadShader("beam", "res/shader/beam.vert", "res/shader/beam.frag");
 	Globals::shaderManager.loadShader("skybox", "res/shader/skybox.vert", "res/shader/skybox.frag");
 	Globals::shaderManager.loadShader("line", "res/shader/line.vert", "res/shader/line.frag");
+	Globals::shaderManager.loadShader("player", "res/shader/player.vert", "res/shader/player.frag");
 
 	//cloud post
 	Globals::shaderManager.loadShader("quad_back", "res/shader/quad_back.vert", "res/shader/quad.frag");

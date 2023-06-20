@@ -5,7 +5,7 @@
 #include "engine/Camera.h"
 #include "engine/Line.h"
 #include "engine/CubeBuffer.h"
-
+#include "Physics.h"
 #include "StateMachine.h"
 #include "RenderableObject.h"
 #include "Terrain.h"
@@ -23,7 +23,7 @@
 #include "Sky.h"
 #include "Light.h"
 
-#include "Globals.h"
+#include "StaticTrigger.h"
 
 class Game;
 
@@ -33,7 +33,7 @@ struct LavaTriggerCallback : public btCollisionWorld::ContactResultCallback {
 	KeySet& keySet;
 	const RespawnPointSet& respawnPointSet;
 
-	btScalar LavaTriggerCallback::addSingleResult(btManifoldPoint& cp, const btCollisionObjectWrapper* colObj0Wrap, int partId0, int index0, const btCollisionObjectWrapper* colObj1Wrap, int partId1, int index1) override {
+	btScalar addSingleResult(btManifoldPoint& cp, const btCollisionObjectWrapper* colObj0Wrap, int partId0, int index0, const btCollisionObjectWrapper* colObj1Wrap, int partId1, int index1) override {
 		Player* player = reinterpret_cast<Player*>(colObj0Wrap->getCollisionObject()->getUserPointer());
 		player->setPosition(respawnPointSet.getActivePoistion());
 		player->resetOrientation();
@@ -103,5 +103,5 @@ private:
 
 	int& pickedKeyId;
 	bool m_portalActivated;
-
+	StaticTrigger m_ground;
 };

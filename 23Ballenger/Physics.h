@@ -2,6 +2,7 @@
 #include <vector>
 #include <btBulletDynamicsCommon.h>
 #include <BulletCollision/CollisionShapes/btBox2dShape.h>
+#include <BulletCollision/CollisionShapes/btCollisionShape.h>
 #include "engine/Vector.h"
 
 class ObjMesh;

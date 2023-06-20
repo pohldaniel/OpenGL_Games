@@ -232,6 +232,7 @@
     <ClCompile Include="StateMachine.cpp" />
     <ClCompile Include="Terrain.cpp" />
     <ClCompile Include="TextField.cpp" />
+    <ClCompile Include="StaticTrigger.cpp" />
     <ClCompile Include="Utils.cpp" />
     <ClCompile Include="Widget.cpp" />
   </ItemGroup>
@@ -317,6 +318,7 @@
     <ClInclude Include="StateMachine.h" />
     <ClInclude Include="Terrain.h" />
     <ClInclude Include="TextField.h" />
+    <ClInclude Include="StaticTrigger.h" />
     <ClInclude Include="Utils.h" />
     <ClInclude Include="Widget.h" />
   </ItemGroup>

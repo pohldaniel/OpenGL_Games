@@ -3011,14 +3011,14 @@ void Quaternion::toPitchYawRoll(float& pitch, float& yaw, float& roll) const {
 	float zz = quat[2] * quat[2];
 	float ww = quat[2] * quat[2];
 
-	float t5 = 1.0f - 2 * (quat[0] * quat[0] + yy);
-	float t4 = 2 * (quat[0] * quat[2] - quat[3] * quat[1]);
+	float t5 = 1.0f - 2.0f * (quat[0] * quat[0] + yy);
+	float t4 = 2.0f * (quat[0] * quat[2] - quat[3] * quat[1]);
 
-	float t0 = 1.0 - 2.0 * (zz + ww);
-	float t1 = 2.0 * (quat[1] * quat[2] + quat[0] * quat[3]);
+	float t0 = 1.0f - 2.0f * (zz + ww);
+	float t1 = 2.0f * (quat[1] * quat[2] + quat[0] * quat[3]);
 
-	float t3 = 1.0 - 2.0 * (zz + yy);
-	float t2 = 2.0 * (quat[2] * quat[3] + quat[0] * quat[1]);
+	float t3 = 1.0f - 2.0f * (zz + yy);
+	float t2 = 2.0f * (quat[2] * quat[3] + quat[0] * quat[1]);
 
 	roll = fmod(360.0f - atan2f(t2, t3) * _180_ON_PI, 360.0f);
 	pitch = fmod(atan2f(t1, t0) * _180_ON_PI + 180.0f, 360.0f);
@@ -3027,16 +3027,16 @@ void Quaternion::toPitchYawRoll(float& pitch, float& yaw, float& roll) const {
 }
 
 float Quaternion::getPitch() const {
-	return fmod(atan2f(2.0*(quat[1] * quat[2] + quat[0] * quat[3]), -2.0 * (quat[2] * quat[2] + quat[3] * quat[3]) + 1.0) * _180_ON_PI + 180.0f, 360.0f);
+	return fmod(atan2f(2.0f * (quat[1] * quat[2] + quat[0] * quat[3]), -2.0f * (quat[2] * quat[2] + quat[3] * quat[3]) + 1.0f) * _180_ON_PI + 180.0f, 360.0f);
 }
 
 float Quaternion::getYaw() const {
-	float yaw = atan2f(2 * (quat[0] * quat[2] - quat[3] * quat[1]), 1.0f - 2 * (quat[0] * quat[0] + quat[1] * quat[1])) * _180_ON_PI;
+	float yaw = atan2f(2.0f * (quat[0] * quat[2] - quat[3] * quat[1]), 1.0f - 2.0f * (quat[0] * quat[0] + quat[1] * quat[1])) * _180_ON_PI;
 	return yaw < 0.0f ? yaw + 360.0f : yaw;
 }
 
 float Quaternion::getRoll() const {
-	return  fmod(360.0f - atan2f(2.0 * (quat[2] * quat[3] + quat[0] * quat[1]), -2.0 * (quat[1] * quat[1] + quat[2] * quat[2]) + 1.0) * _180_ON_PI, 360.0f);
+	return  fmod(360.0f - atan2f(2.0f * (quat[2] * quat[3] + quat[0] * quat[1]), -2.0f * (quat[1] * quat[1] + quat[2] * quat[2]) + 1.0f) * _180_ON_PI, 360.0f);
 }
 
 void Quaternion::toAxisAngle(Vector3f &axis, float &degrees) const {

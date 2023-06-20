@@ -49,22 +49,6 @@ void Portal::init(const Terrain& terrain) {
 		if (m_vortex.isDisabled()) return;
 		m_vortex.rotate(0.0f, 0.0f, 0.5f);
 	});
-
-	
-}
-
-void Portal::create(btCollisionShape* shape, const btTransform& transform, btDynamicsWorld* physicsWorld, int collisionFilterGroup, int collisionFilterMask, void* rigidBodyUserPointer) {
-	m_collisionObject = new btCollisionObject();
-
-	m_collisionObject->setCollisionShape(shape);
-	m_collisionObject->setWorldTransform(transform);
-
-	m_collisionObject->setCollisionFlags(btCollisionObject::CF_STATIC_OBJECT | btCollisionObject::CF_NO_CONTACT_RESPONSE);
-	m_collisionObject->forceActivationState(DISABLE_DEACTIVATION);
-
-	physicsWorld->addCollisionObject(m_collisionObject, collisionFilterGroup, collisionFilterMask);
-
-	m_debugPosition = Physics::VectorFrom(transform.getOrigin());
 }
 
 void Portal::draw(const Camera& camera) {
@@ -111,7 +95,7 @@ void Portal::draw(const Camera& camera) {
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-	glLoadMatrixf(&(camera.getViewMatrix() * Matrix4f::Translate(m_debugPosition) * Matrix4f::Scale(1.5f, 1.5f, 0.01f))[0][0]);
+	glLoadMatrixf(&(camera.getViewMatrix() * Matrix4f::Translate(Physics::VectorFrom(m_collisionObject->getWorldTransform().getOrigin())) * Matrix4f::Scale(1.5f, 1.5f, 0.01f))[0][0]);
 
 
 	glBegin(GL_LINE_STRIP);
@@ -191,8 +175,4 @@ const Vector3f Portal::getReceptor(int index) const {
 
 float Portal::getZ() {
 	return m_position[2];
-}
-
-btCollisionObject* Portal::getCollisionObject() {
-	return m_collisionObject;
 }

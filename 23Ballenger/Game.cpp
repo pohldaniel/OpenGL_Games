@@ -6,7 +6,7 @@
 #include "Game.h"
 #include "Application.h"
 #include "Menu.h"
-
+#include "Globals.h"
 
 Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), 
 									m_keySet(m_player.getPosition()), 
@@ -27,7 +27,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME),
 	m_terrain.init("res/terrain01.raw");
 	m_quadTree.init(m_terrain.getPositions().data(), m_terrain.getIndexBuffer().data(), static_cast<unsigned int>(m_terrain.getIndexBuffer().size()), m_terrain.getMin(), m_terrain.getMax(), 64.0f);
 
-	const Vector3f& pos = Vector3f((TERRAIN_SIZE) / 2, (m_terrain.heightAt((TERRAIN_SIZE) / 2, (TERRAIN_SIZE) / 2) + RADIUS), (TERRAIN_SIZE) / 2);
+	const Vector3f& pos = Vector3f(512.0f, (m_terrain.heightAt(512.0f, 512.0f) + RADIUS), 512.0f);
 	init();
 
 	m_camera = ThirdPersonCamera();
@@ -54,8 +54,11 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME),
 	m_lava.create(new btBox2dShape(btVector3(512.0f, 0.0f, 512.0f)), transform, Physics::GetDynamicsWorld(), Physics::collisiontypes::TRIGGER, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::CAMERA);
 
 	transform.setIdentity();
-	transform.setOrigin(btVector3(TERRAIN_SIZE / 2, m_terrain.heightAt(TERRAIN_SIZE / 2, TERRAIN_SIZE / 2 + 32.0f) + 1.5f, TERRAIN_SIZE / 2 + 32.0f));
-	m_portal.create(new btBoxShape(btVector3(1.0f, 1.0f, 0.01f)), transform, Physics::GetDynamicsWorld(), Physics::collisiontypes::TRIGGER, Physics::collisiontypes::CHARACTER);
+	transform.setOrigin(btVector3(512.0f, m_terrain.heightAt(512.0f, 512.0f + 32.0f) + 1.5f, 512.0f + 32.0f));
+	m_portal.create(new btBoxShape(btVector3(1.5f, 1.5f, 0.01f)), transform, Physics::GetDynamicsWorld(), Physics::collisiontypes::TRIGGER, Physics::collisiontypes::CHARACTER);
+
+	transform.setIdentity();
+	m_ground.create(new btStaticPlaneShape(btVector3(0.0f, 1.0f, 0.0f), 0.0f), transform, Physics::GetDynamicsWorld(), Physics::collisiontypes::TRIGGER, Physics::collisiontypes::CHARACTER);
 
 	//if (!Globals::musicManager.get("background").isPlaying())
 		//Globals::musicManager.get("background").play("res/sounds/ambient.mp3");
@@ -75,7 +78,7 @@ void Game::fixedUpdate() {
 	m_player.fixedUpdate(m_fdt);
 
 	Physics::GetDynamicsWorld()->contactPairTest(m_player.getContactObject(), m_lava.getCollisionObject(), m_lavaTriggerResult);
-
+	Physics::GetDynamicsWorld()->contactPairTest(m_player.getContactObject(), m_ground.getCollisionObject(), m_lavaTriggerResult);
 #if DEBUGCOLLISION
 	Physics::GetDynamicsWorld()->contactPairTest(m_player.getContactObject(), m_portal.getCollisionObject(), m_portalTriggerResult);
 #else

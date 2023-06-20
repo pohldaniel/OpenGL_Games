@@ -44,6 +44,11 @@ namespace Math {
 	inline T  Mix(const T &p, const T &q, float a) {
 		return p * (1 - a) + q * a;
 	}
+
+	template <typename T>
+	T Clamp(const T& n, const T& lower, const T& upper) {
+		return std::max(lower, std::min(n, upper));
+	}
 };
 
 class Vector2f {

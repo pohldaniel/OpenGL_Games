@@ -1,5 +1,4 @@
 #pragma once
-
 #include "engine/input/Mouse.h"
 #include "engine/input/Keyboard.h"
 #include "engine/Camera.h"
@@ -31,6 +30,8 @@ public:
 	CharacterController* getCharacterController();
 	btCollisionObject* getContactObject();
 	bool isMoving();
+	void setFade(bool fade);
+
 
 private:
 
@@ -40,4 +41,5 @@ private:
 	bool m_move;
 	Vector4f m_color;
 	btCollisionObject* m_collisionObject;
+	bool m_fade;
 };
