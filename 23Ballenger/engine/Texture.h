@@ -76,7 +76,7 @@ public:
 	static void CreateTextureArray(unsigned int& textureRef, unsigned int width, unsigned int height, unsigned int depth, unsigned int internalFormat = 0u, unsigned int format = 0u, unsigned int type = 0u, unsigned char* data = NULL);
 	static void CreateTextureCube(unsigned int& textureRef, unsigned int size, unsigned int internalFormat = 0u, unsigned int format = 0u, unsigned int type = 0u, unsigned char* data = NULL);
 
-	static void Resize(unsigned int& textureRef, unsigned int width, unsigned int height, unsigned int internalFormat = 0u, unsigned int format = 0u, unsigned int type = 0u, unsigned int target = 3553u, unsigned int depth = 0u);
+	static void Resize(const unsigned int& textureRef, unsigned int width, unsigned int height, unsigned int internalFormat = 0u, unsigned int format = 0u, unsigned int type = 0u, unsigned int target = 3553u, unsigned int depth = 0u);
 
 	static void SetFilter(const unsigned int& textureRef, unsigned int minFilter, unsigned int magFilter = 0u, unsigned int target = 3553u);
 	static void SetWrapMode(const unsigned int& textureRef, unsigned int mode, unsigned int target = 3553u);

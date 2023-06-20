@@ -36,7 +36,7 @@ public:
 
 private:
 
-	Camera& m_camera;
+	
 	CharacterController* m_characterController;
 	bool m_move;
 	Vector4f m_color;
@@ -45,4 +45,5 @@ private:
 	float m_prevFraction;
 
 	const Lava& lava;
+	Camera& camera;
 };

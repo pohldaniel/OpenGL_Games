@@ -31,7 +31,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME),
 	init();
 
 	m_camera = ThirdPersonCamera();
-	m_camera.perspective(45.0f, (float)Application::Width / (float)Application::Height, 0.1f, 5000.0f);
+	m_camera.perspective(45.0f, (float)Application::Width / (float)Application::Height, 0.1f, 1500.0f);
 	m_camera.lookAt(pos - Vector3f(0.0f, 0.0f, m_offsetDistance), pos, Vector3f(0.0f, 1.0f, 0.0f));
 
 	std::vector<btCollisionShape*> terrainShape = Physics::CreateStaticCollisionShapes(&m_terrain, 1.0f);
@@ -203,6 +203,10 @@ void Game::render() {
 	m_lava.draw(m_camera);
 	sceneBuffer.unbind();
 
+#if DEVBUILD
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+#endif
+
 	glDisable(GL_DEPTH_TEST);
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -212,8 +216,11 @@ void Game::render() {
 	Globals::shapeManager.get("quad").drawRaw();
 	quad->unuse();
 
+#if DEVBUILD
+	glPolygonMode(GL_FRONT_AND_BACK, StateMachine::GetEnableWireframe() ? GL_LINE : GL_FILL);
 	if (m_drawUi)
 		renderUi();
+#endif
 }
 
 void Game::OnMouseMotion(Event::MouseMoveEvent& event) {
@@ -248,12 +255,13 @@ void Game::OnMouseButtonUp(Event::MouseButtonEvent& event) {
 }
 
 void Game::OnKeyDown(Event::KeyboardEvent& event) {
-	if (event.keyCode == VK_SPACE) {
+#if DEVBUILD
+	if (event.keyCode == VK_LMENU) {
 		m_drawUi = true;
 		Mouse::instance().detach();
 		Keyboard::instance().disable();
 	}
-
+#endif
 	if (event.keyCode == VK_ESCAPE) {
 		Globals::musicManager.get("background").stop();
 		ImGui::GetIO().WantCaptureMouse = false;
@@ -264,7 +272,11 @@ void Game::OnKeyDown(Event::KeyboardEvent& event) {
 }
 
 void Game::resize(int deltaW, int deltaH) {
-
+	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1500.0f);
+	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
+	m_cloudsModel.resize(Application::Width, Application::Height);
+	m_sky.resize(Application::Width, Application::Height);
+	sceneBuffer.resize(Application::Width, Application::Height);
 }
 
 void toggleButton(const char* str_id, bool* v) {

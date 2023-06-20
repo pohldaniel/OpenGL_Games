@@ -1273,7 +1273,7 @@ void Texture::CreateTextureCube(unsigned int& textureRef, unsigned int size, uns
 	glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 }
 
-void Texture::Resize(unsigned int& textureRef, unsigned int width, unsigned int height, unsigned int internalFormat, unsigned int format, unsigned int type, unsigned int target, unsigned int depth) {
+void Texture::Resize(const unsigned int& textureRef, unsigned int width, unsigned int height, unsigned int internalFormat, unsigned int format, unsigned int type, unsigned int target, unsigned int depth) {
 	if (target == GL_TEXTURE_CUBE_MAP) {
 		glBindTexture(target, textureRef);
 		for (unsigned short i = 0; i < 6; i++) {

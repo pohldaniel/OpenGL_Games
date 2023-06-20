@@ -26,7 +26,7 @@ CloudsModel::CloudsModel(unsigned int width, unsigned int height, const Light& l
 	postBuffer.create(m_width, m_height);
 	postBuffer.attachTexture2D(AttachmentTex::RGBA32F);
 
-	Texture::SetFilter(postBuffer.getColorTexture(0), GL_LINEAR_MIPMAP_LINEAR);
+	Texture::SetFilter(postBuffer.getColorTexture(0), GL_LINEAR);
 
 	m_clock.restart();
 }
@@ -291,6 +291,12 @@ void CloudsModel::draw(const Matrix4f& proj, const Matrix4f& view, const Matrix4
 void CloudsModel::resize(unsigned int width, unsigned int height) {
 	m_width = width;
 	m_height = height;
+	postBuffer.resize(m_width, m_height);
+
+	Texture::Resize(m_textureSet[0].getTexture(), m_width, m_height, GL_RGBA32F, GL_RGBA, GL_FLOAT);
+	Texture::Resize(m_textureSet[1].getTexture(), m_width, m_height, GL_RGBA32F, GL_RGBA, GL_FLOAT);
+	Texture::Resize(m_textureSet[2].getTexture(), m_width, m_height, GL_RGBA32F, GL_RGBA, GL_FLOAT);
+	Texture::Resize(m_textureSet[3].getTexture(), m_width, m_height, GL_RGBA32F, GL_RGBA, GL_FLOAT);
 }
 
 unsigned int CloudsModel::getPostTexture() {

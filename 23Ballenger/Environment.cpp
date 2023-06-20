@@ -370,8 +370,11 @@ void EnvironmentInterface::OnKeyDown(Event::KeyboardEvent& event) {
 }
 
 void EnvironmentInterface::resize(int deltaW, int deltaH) {
-	m_camera.perspective(45.0f * _180_ON_PI, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
+	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1500.0f);
+	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
 	m_trackball.reshape(Application::Width, Application::Height);
+	m_cloudsModel.resize(Application::Width, Application::Height);
+	m_sky.resize(Application::Width, Application::Height);
 }
 
 void EnvironmentInterface::applyTransformation(TrackBall& arc) {
@@ -411,6 +414,9 @@ void EnvironmentInterface::renderUi() {
 
 	// render widgets
 	ImGui::Begin("Settings", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
+	if (ImGui::Button("Toggle VSYNC")) {
+		Application::ToggleVerticalSync();
+	}
 	ImGui::Checkbox("Draw Wirframe", &StateMachine::GetEnableWireframe());
 	ImGui::Checkbox("Update Cloud Buffer", &m_updateBuffer);
 	ImGui::Checkbox("Draw Sphere", &m_drawSphere);

@@ -155,7 +155,10 @@ LRESULT CALLBACK Application::StaticWndProc(HWND hWnd, UINT message, WPARAM wPar
 		}
 	}
 
-	if (wParam == SC_KEYMENU && (lParam >> 16) <= 0) return 0;
+	if (wParam == SC_KEYMENU && (lParam >> 16) <= 0) {
+		
+		return 0;
+	}
 
 	if ((message == WM_KEYDOWN && (wParam == 'v' || wParam == 'V')) || (message == WM_KEYDOWN && wParam == VK_ESCAPE) || (message == WM_KEYDOWN && wParam == VK_RETURN && ((HIWORD(lParam) & KF_ALTDOWN))) || (message == WM_SYSKEYDOWN && wParam == VK_RETURN && ((HIWORD(lParam) & KF_ALTDOWN)))) {
 		ImGui::GetIO().WantCaptureMouse = false;
@@ -373,12 +376,12 @@ void Application::fixedUpdate() {
 void Application::initStates() {
 	
 	Machine = new StateMachine(m_dt, m_fdt);
-	Machine->addStateAtTop(new Game(*Machine));
+	//Machine->addStateAtTop(new Game(*Machine));
 	//Machine->addStateAtTop(new ShapeInterface(*Machine));
 	//Machine->addStateAtTop(new TerrainCulling(*Machine));
 	//Machine->addStateAtTop(new CloudInterface(*Machine));
 
-	//Machine->addStateAtTop(new Menu(*Machine));
+	Machine->addStateAtTop(new Menu(*Machine));
 
 	//Machine->addStateAtTop(new EnvironmentInterface(*Machine));
 }
@@ -439,7 +442,6 @@ void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 					event.type = Event::KEYDOWN;
 					event.data.keyboard.keyCode = wParam;
 					EventDispatcher.pushEvent(event);
-					//SendMessage(Window, WM_DESTROY, NULL, NULL);
 					break;
 				}case VK_SPACE: {
 					Event event;
@@ -447,13 +449,34 @@ void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 					event.data.keyboard.keyCode = wParam;
 					EventDispatcher.pushEvent(event);
 					break;
-				}case 'z': case 'Z': {					
+				}
+				/*case VK_MENU: {
+					Event event;
+					event.type = Event::KEYDOWN;
+					event.data.keyboard.keyCode = VK_RMENU;
+					EventDispatcher.pushEvent(event);
+					break;
+				}*/
+#if DEBUGCOLLISION
+				case 'z': case 'Z': {
 					StateMachine::ToggleWireframe();
 					break;
-				}case 'v': case 'V': {					
+				}case 'v': case 'V': {
 					ToggleVerticalSync();
 					break;
 				}
+#endif
+			}
+			break;
+		}case WM_SYSKEYDOWN: {
+			switch (wParam) {
+				case VK_MENU: {
+					Event event;
+					event.type = Event::KEYDOWN;
+					event.data.keyboard.keyCode = VK_LMENU;
+					EventDispatcher.pushEvent(event);
+					break;
+				}		
 			}
 			break;
 		}case WM_MOUSEWHEEL: {

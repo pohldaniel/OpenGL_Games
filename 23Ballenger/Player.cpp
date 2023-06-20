@@ -3,7 +3,7 @@
 #include "Terrain.h"
 #include "Globals.h"
 
-Player::Player(Camera& camera, const Lava& lava) : m_camera(camera), lava(lava), m_fade(true), m_prevFraction(1.0f) { }
+Player::Player(Camera& camera, const Lava& lava) : camera(camera), lava(lava), m_fade(true), m_prevFraction(1.0f) { }
 
 Player::~Player() {
 	// will be deleted at Physics.cpp
@@ -63,7 +63,7 @@ void Player::draw(const Camera& camera) {
 	shader->loadMatrix("u_normal", Matrix4f::GetNormalMatrix(camera.getViewMatrix() * getTransformationOP()));
 	shader->loadVector("u_lightPos", Vector3f(50.0f, 50.0f, 50.0f));
 	shader->loadFloat("u_invRadius", 0.0f);
-	if (m_fade) shader->loadFloat("u_alpha", Math::Clamp( m_camera.getDistance() * 0.5f, 0.4f, 1.0f));
+	if (m_fade) shader->loadFloat("u_alpha", Math::Clamp(camera.getDistance() * 0.5f, 0.4f, 1.0f));
 	else shader->loadFloat("u_alpha", 1.0f);
 	shader->loadFloat("u_lavaHeight", lava.getHeight());
 	shader->loadFloat("u_posy", m_position[1] - RADIUS);
@@ -120,11 +120,11 @@ void Player::update(const float dt) {
 		m_characterController->setAngularVelocity(btVector3(0.0f, 0.0f, 0.0f));
 
 	}else if (m_move) {
-		direction = m_camera.getViewSpaceDirection(direction);
+		direction = camera.getViewSpaceDirection(direction);
 		m_characterController->setLinearVelocityXZ(Physics::VectorFrom(direction * Vector3f(15.0f, 1.0f, 15.0f)));
 	}
 
-	if (keyboard.keyDown(Keyboard::KEY_LALT)) {
+	if (keyboard.keyDown(Keyboard::KEY_SPACE)) {
 		if (m_characterController->getCanJump()) {
 			Globals::soundManager.get("game").playChannel(1u);
 		}
@@ -139,7 +139,7 @@ void Player::update(const float dt) {
 	Object::setPosition(playerPos);
 	Object::setOrientation(Physics::QuaternionFrom(t.getRotation()));
 
-	m_camera.Camera::setTarget(playerPos);
+	camera.Camera::setTarget(playerPos);
 
 	float dx = 0.0f;
 	float dy = 0.0f;
@@ -148,10 +148,10 @@ void Player::update(const float dt) {
 
 
 	if (dx || dy) {
-		m_camera.rotate(dx, dy, playerPos);
+		camera.rotate(dx, dy, playerPos);
 	}
 
-	btVector3 cameraPosition = Physics::VectorFrom(m_camera.getPosition());
+	btVector3 cameraPosition = Physics::VectorFrom(camera.getPosition());
 
 	//float Vy = -m_camera.getOffsetDistance() * m_camera.getViewDirection()[1];
 	//float lavaFraction = Math::Clamp( Vy == 0.0f ? 1.0f : (lava.getHeight() - m_position[1] ) / Vy, 0.0f, 1.0f);
@@ -169,7 +169,7 @@ void Player::update(const float dt) {
 	}
 
 	cameraPosition.setInterpolate3(t.getOrigin(), cameraPosition, m_prevFraction);
-	m_camera.setPosition(Physics::VectorFrom(cameraPosition));
+	camera.setPosition(Physics::VectorFrom(cameraPosition));
 
 	t.setRotation(btQuaternion(0.0f, 0.0f, 0.0f, 1.0f));
 	m_collisionObject->setWorldTransform(t);

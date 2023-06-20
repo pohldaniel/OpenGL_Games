@@ -48,6 +48,7 @@ void Sky::update() {
 void Sky::resize(unsigned int _width, unsigned int _height) {
 	width = _width;
 	height = _height;
+	m_skyBuffer.resize(width, height);
 }
 
 colorPreset Sky::SunsetPreset() {

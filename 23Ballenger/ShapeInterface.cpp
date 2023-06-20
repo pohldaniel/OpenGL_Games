@@ -162,7 +162,8 @@ void ShapeInterface::OnKeyDown(Event::KeyboardEvent& event) {
 }
 
 void ShapeInterface::resize(int deltaW, int deltaH) {
-	m_camera.perspective(45.0f * _180_ON_PI, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
+	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1500.0f);
+	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
 	m_trackball.reshape(Application::Width, Application::Height);
 }
 
@@ -203,6 +204,9 @@ void ShapeInterface::renderUi() {
 
 	// render widgets
 	ImGui::Begin("Settings", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
+	if (ImGui::Button("Toggle VSYNC")) {
+		Application::ToggleVerticalSync();
+	}
 	ImGui::Checkbox("Draw Wirframe", &StateMachine::GetEnableWireframe());
 	int currentModel = model;
 	if (ImGui::Combo("Model", &currentModel, "Torus\0Capsule\0Sphere\0Spiral\0Cylinder\0Quad\0Cube\0Disk\0\0")) {

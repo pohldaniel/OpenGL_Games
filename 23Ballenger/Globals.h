@@ -15,6 +15,7 @@
 
 #define DEBUG 1
 #define DEBUGCOLLISION 0
+#define DEVBUILD 0
 
 #define PHYSICS_STEP 0.0166666f
 
