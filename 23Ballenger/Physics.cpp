@@ -230,18 +230,29 @@ std::vector<btCollisionShape*> Physics::CreateStaticCollisionShapes(std::vector<
 float Physics::SweepSphere(const btVector3& from, const btVector3& to, float radius, int collisionFilterGroup, int collisionFilterMask) {
 	btSphereShape cameraSphere(radius);
 
-	btTransform cameraFrom, cameraTo;
-	cameraFrom.setIdentity();
-	cameraFrom.setOrigin(from);
+	btTransform tFrom, tTo;
+	tFrom.setIdentity();
+	tFrom.setOrigin(from);
 
-	cameraTo.setIdentity();
-	cameraTo.setOrigin(to);
+	tTo.setIdentity();
+	tTo.setOrigin(to);
 
 	btCollisionWorld::ClosestConvexResultCallback cb(from, to);
 	cb.m_collisionFilterGroup = collisionFilterGroup;
 	cb.m_collisionFilterMask = collisionFilterMask;
 
-	DynamicsWorld->convexSweepTest(&cameraSphere, cameraFrom, cameraTo, cb);
+	DynamicsWorld->convexSweepTest(&cameraSphere, tFrom, tTo, cb);
+
+	return cb.m_closestHitFraction;
+}
+
+float Physics::RayTest(const btVector3& from, const btVector3& to, int collisionFilterGroup, int collisionFilterMask) {
+	
+	btCollisionWorld::ClosestRayResultCallback cb(from, to);
+	cb.m_collisionFilterGroup = collisionFilterGroup;
+	cb.m_collisionFilterMask = collisionFilterMask;
+	
+	DynamicsWorld->rayTest(from, to, cb);
 
 	return cb.m_closestHitFraction;
 }

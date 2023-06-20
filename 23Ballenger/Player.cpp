@@ -3,9 +3,7 @@
 #include "Terrain.h"
 #include "Globals.h"
 
-Player::Player(Camera& camera, const Lava& lava) : m_camera(camera), lava(lava), m_fade(true), m_lambda(1.0f), m_distance(0.4f) {
-	m_prevHitfriction = 1.0f;
-}
+Player::Player(Camera& camera, const Lava& lava) : m_camera(camera), lava(lava), m_fade(true), m_prevFraction(1.0f) { }
 
 Player::~Player() {
 	// will be deleted at Physics.cpp
@@ -78,15 +76,6 @@ void Player::draw(const Camera& camera) {
 	Globals::shapeManager.get("sphere").drawRaw();
 	shader->unuse();
 	glDisable(GL_BLEND);
-}
-
-float GetLavaLambda(float Py, float Qy, float height) {
-	float Vy = Qy - Py;
-	float D = -height;
-	if (Vy == 0.0f) return 1.0f;
-	float lambda = -(Py + D) / Vy;
-	if (lambda < 0.0f || lambda > 1.0f) return 1.0f;
-	return lambda;
 }
 
 void Player::update(const float dt) {
@@ -164,19 +153,22 @@ void Player::update(const float dt) {
 
 	btVector3 cameraPosition = Physics::VectorFrom(m_camera.getPosition());
 
-	float lavaLambda = GetLavaLambda(m_position[1], m_position[1] - CAMERA_MAX_DISTANCE * m_camera.getViewDirection()[1], lava.getHeight());
-	float hitFraction = Physics::SweepSphere(t.getOrigin(), cameraPosition, 0.2f, Physics::collisiontypes::CAMERA, Physics::collisiontypes::TERRAIN);
-	hitFraction = std::min(hitFraction, lavaLambda);
+	//float Vy = -m_camera.getOffsetDistance() * m_camera.getViewDirection()[1];
+	//float lavaFraction = Math::Clamp( Vy == 0.0f ? 1.0f : (lava.getHeight() - m_position[1] ) / Vy, 0.0f, 1.0f);
+	
+	float lavaFraction = Physics::SweepSphere(t.getOrigin(), cameraPosition, 0.01f, Physics::collisiontypes::CAMERA, Physics::collisiontypes::LAVA);
+	float fraction = Physics::SweepSphere(t.getOrigin(), cameraPosition, 0.2f, Physics::collisiontypes::CAMERA, Physics::collisiontypes::TERRAIN);
+	fraction = std::min(fraction, lavaFraction);
 
 
-	if (m_prevHitfriction < hitFraction) {
-		m_prevHitfriction += CAMERA_SMOOTHING_SPEED * dt;
-		if (m_prevHitfriction > hitFraction) m_prevHitfriction = hitFraction;
+	if (m_prevFraction < fraction) {
+		m_prevFraction += CAMERA_SMOOTHING_SPEED * dt;
+		if (m_prevFraction > fraction) m_prevFraction = fraction;
 	}else {
-		m_prevHitfriction = hitFraction;
+		m_prevFraction = fraction;
 	}
 
-	cameraPosition.setInterpolate3(t.getOrigin(), cameraPosition, m_prevHitfriction);
+	cameraPosition.setInterpolate3(t.getOrigin(), cameraPosition, m_prevFraction);
 	m_camera.setPosition(Physics::VectorFrom(cameraPosition));
 
 	t.setRotation(btQuaternion(0.0f, 0.0f, 0.0f, 1.0f));

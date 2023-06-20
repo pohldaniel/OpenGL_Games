@@ -51,7 +51,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME),
 	btTransform transform;
 	transform.setIdentity();
 	transform.setOrigin(btVector3(512.0f, 0.0f, 512.0f));
-	m_lava.create(new btBox2dShape(btVector3(512.0f, 0.0f, 512.0f)), transform, Physics::GetDynamicsWorld(), Physics::collisiontypes::TRIGGER, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::CAMERA);
+	m_lava.create(new btBox2dShape(btVector3(512.0f, 0.0f, 512.0f)), transform, Physics::GetDynamicsWorld(), Physics::collisiontypes::TRIGGER | Physics::collisiontypes::LAVA, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::CAMERA);
 
 	transform.setIdentity();
 	transform.setOrigin(btVector3(512.0f, m_terrain.heightAt(512.0f, 512.0f + 32.0f) + 1.5f, 512.0f + 32.0f));

@@ -22,6 +22,7 @@ public:
 		CAMERA = 16,
 		CHARACTER = 32,
 		TRIGGER = 64,
+		LAVA = 128,
 		COL_FORCE_8BIT = 0xFF
 	};
 
@@ -52,6 +53,7 @@ public:
 
 	static btRigidBody* CreateRigidBody(btScalar mass, const btTransform & startTransform, btCollisionShape * shape);
 	static float SweepSphere(const btVector3& from, const btVector3& to, float radius, int collisionFilterGroup = 1, int collisionFilterMask = -1);
+	static float RayTest(const btVector3& from, const btVector3& to, int collisionFilterGroup = 1, int collisionFilterMask = -1);
 
 	static btTransform BtTransform();
 	static btTransform BtTransform(const btVector3& origin);

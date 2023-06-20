@@ -8,7 +8,6 @@
 #include "Lava.h"
 
 #define RADIUS   0.5f
-#define CAMERA_MAX_DISTANCE   10.0f
 #define CAMERA_SMOOTHING_SPEED  0.85f
 
 class Terrain;
@@ -43,10 +42,7 @@ private:
 	Vector4f m_color;
 	btCollisionObject* m_collisionObject;
 	bool m_fade;
-	float m_lambda;
-	float m_distance;
-
-	float m_prevHitfriction;
+	float m_prevFraction;
 
 	const Lava& lava;
 };
