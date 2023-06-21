@@ -17,6 +17,7 @@
 #include "Environment.h"
 #include "Menu.h"
 #include "Settings.h"
+#include "Controls.h"
 #include "Widget.h"
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
@@ -380,10 +381,10 @@ void Application::initStates() {
 	//Machine->addStateAtTop(new ShapeInterface(*Machine));
 	//Machine->addStateAtTop(new TerrainCulling(*Machine));
 	//Machine->addStateAtTop(new CloudInterface(*Machine));
+	//Machine->addStateAtTop(new EnvironmentInterface(*Machine));
+	//Machine->addStateAtTop(new Controls(*Machine));
 
 	Machine->addStateAtTop(new Menu(*Machine));
-
-	//Machine->addStateAtTop(new EnvironmentInterface(*Machine));
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
@@ -682,7 +683,15 @@ void Application::loadAssets() {
 	Globals::soundManager.createSoundBuffer("menu", 0u, 2u, Globals::soundVolume);
 	Globals::soundManager.get("menu").loadChannel("res/sounds/button.wav", 0u);
 
-	Globals::soundManager.createSoundBuffer("game", 0u, 4u, Globals::soundVolume);
+	Globals::soundManager.createSoundBuffer("game", 0u, 8u, Globals::soundVolume);
 	Globals::soundManager.get("game").loadChannel("res/sounds/warp.wav", 0u);
 	Globals::soundManager.get("game").loadChannel("res/sounds/bounce.wav", 1u);
+	Globals::soundManager.get("game").loadChannel("res/sounds/swish.wav", 2u);
+
+	Globals::soundManager.get("game").loadChannel("res/sounds/energyflow.wav", 3u);
+	Globals::soundManager.get("game").loadChannel("res/sounds/pickup.wav", 4u);
+	Globals::soundManager.get("game").loadChannel("res/sounds/screwgravity.wav", 5u);
+
+	Globals::soundManager.get("game").loadChannel("res/sounds/unlock.wav", 6u);
+	Globals::soundManager.get("game").loadChannel("res/sounds/warp.wav", 7u);
 }

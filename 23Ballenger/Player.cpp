@@ -3,7 +3,7 @@
 #include "Terrain.h"
 #include "Globals.h"
 
-Player::Player(Camera& camera, const Lava& lava) : camera(camera), lava(lava), m_fade(true), m_prevFraction(1.0f) { }
+Player::Player(Camera& camera, const Lava& lava) : camera(camera), lava(lava), m_fade(true), m_prevFraction(1.0f), m_useGravity(true) { }
 
 Player::~Player() {
 	// will be deleted at Physics.cpp
@@ -115,16 +115,25 @@ void Player::update(const float dt) {
 		m_move |= true;
 	}
 
+	if (keyboard.keyPressed(Keyboard::KEY_F10)) {
+		Globals::soundManager.get("game").playChannel(5u);
+		m_useGravity = !m_useGravity;
+		m_characterController->setGravity(btVector3(0.0f, static_cast<float>(m_useGravity) * (-9.81f * 3.0f), 0.0f));
+	}
+
 	if (mouse.buttonDown(Mouse::BUTTON_RIGHT)) {
-		m_characterController->setLinearVelocityXZ(btVector3(0.0f, 0.0f, 0.0f));
+		m_useGravity ? m_characterController->setLinearVelocityXZ(Physics::VectorFrom(direction * Vector3f(15.0f, 15.0f, 15.0f))) : m_characterController->setLinearVelocity(Physics::VectorFrom(direction * Vector3f(15.0f, 15.0f, 15.0f)));
 		m_characterController->setAngularVelocity(btVector3(0.0f, 0.0f, 0.0f));
 
 	}else if (m_move) {
 		direction = camera.getViewSpaceDirection(direction);
-		m_characterController->setLinearVelocityXZ(Physics::VectorFrom(direction * Vector3f(15.0f, 1.0f, 15.0f)));
+		m_useGravity ? m_characterController->setLinearVelocityXZ(Physics::VectorFrom(direction * Vector3f(15.0f, 15.0f, 15.0f))) : m_characterController->setLinearVelocity(Physics::VectorFrom(direction * Vector3f(15.0f, 15.0f, 15.0f)));
+	}else if(!m_useGravity) {
+		m_characterController->setLinearVelocity(btVector3(0.0f, 0.0f, 0.0f));
+		m_characterController->setAngularVelocity(btVector3(0.0f, 0.0f, 0.0f));
 	}
 
-	if (keyboard.keyDown(Keyboard::KEY_SPACE)) {
+	if (keyboard.keyPressed(Keyboard::KEY_SPACE) || keyboard.keyPressed(Keyboard::KEY_LALT)) {
 		if (m_characterController->getCanJump()) {
 			Globals::soundManager.get("game").playChannel(1u);
 		}

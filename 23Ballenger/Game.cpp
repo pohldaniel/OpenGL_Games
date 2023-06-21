@@ -60,8 +60,8 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME),
 	transform.setIdentity();
 	m_ground.create(new btStaticPlaneShape(btVector3(0.0f, 1.0f, 0.0f), 0.0f), transform, Physics::GetDynamicsWorld(), Physics::collisiontypes::TRIGGER, Physics::collisiontypes::CHARACTER);
 
-	//if (!Globals::musicManager.get("background").isPlaying())
-		//Globals::musicManager.get("background").play("res/sounds/ambient.mp3");
+	if (!Globals::musicManager.get("background").isPlaying())
+		Globals::musicManager.get("background").play("res/sounds/ambient.mp3");
 }
 
 Game::~Game() {
@@ -98,27 +98,28 @@ void Game::update() {
 			if (!m_keySet.isDeployed(i)){
 				if ((playerPos - m_keySet.getPosition(i)).length() <= RADIUS * 2){
 					m_keySet.pickKey(i);
+					Globals::soundManager.get("game").playChannel(4u);
 					break;
-					//Sound.Play(SOUND_PICKUP);
 				}
 			}
 		}
 
 	}else {
 		if (m_columnSet.insideGatheringArea(pickedKeyId)) {
-			//Sound.Play(SOUND_UNLOCK);
-			//Sound.Play(SOUND_ENERGYFLOW);
+			Globals::soundManager.get("game").playChannel(6u);
+			Globals::soundManager.get("game").playChannel(3u);
 
 			const Vector3f& columnPos = m_columnSet.getPosition(pickedKeyId);
 			m_keySet.deploy(m_columnSet.getHole(pickedKeyId), m_columnSet.getYaw(pickedKeyId));
 			m_raySet.deploy(Vector3f(columnPos[0], columnPos[1] + COLUMN_HEIGHT + ENERGY_BALL_RADIUS, columnPos[2]), m_portal.getReceptor(pickedKeyId), pickedKeyId, m_keySet.getNumDeployed());
+			m_respawnPointSet.deploy();
 			pickedKeyId = -1;
 
 			
-			m_portalActivated = m_keySet.getNumDeployed() == 2;
+			m_portalActivated = m_keySet.getNumDeployed() == 5;
 			m_portal.setDisabled(!m_portalActivated);
 			if (m_portalActivated)
-				Globals::soundManager.get("game").playChannel(0u);
+				Globals::soundManager.get("game").playChannel(7u);
 		}
 	}
 
@@ -130,6 +131,14 @@ void Game::update() {
 	m_light.update(m_camera.getPosition());
 	m_sky.update();
 	m_cloudsModel.update();
+
+	Keyboard &keyboard = Keyboard::instance();
+	if (keyboard.keyPressed(Keyboard::KEY_F1)) {
+		Globals::soundManager.get("game").playChannel(2u);
+		m_player.setPosition(m_respawnPointSet.getActivePoistion());
+		m_player.resetOrientation();
+		m_keySet.restorePrevState();
+	}
 }
 
 void Game::render() {
@@ -187,9 +196,10 @@ void Game::render() {
 	m_terrain.unbindVAO();
 	shader->unuse();
 
-	m_keySet.draw(m_camera);
 	m_raySet.draw(m_camera);
 	m_columnSet.draw(m_camera);
+	m_lava.draw(m_camera);
+	m_keySet.draw(m_camera);
 
 	if (abs(m_camera.getPositionZ() - m_portal.getZ()) < m_camera.getOffsetDistance()) {
 		m_player.draw(m_camera);
@@ -200,7 +210,7 @@ void Game::render() {
 	}
 
 	m_respawnPointSet.draw(m_camera);
-	m_lava.draw(m_camera);
+	
 	sceneBuffer.unbind();
 
 #if DEVBUILD
@@ -404,5 +414,14 @@ btScalar PortalTriggerCallback::addSingleResult(btManifoldPoint& cp, const btCol
 	game.m_isRunning = false;
 	game.m_machine.addStateAtBottom(new Menu(game.m_machine));
 #endif
+	return 0;
+}
+
+btScalar LavaTriggerCallback::addSingleResult(btManifoldPoint& cp, const btCollisionObjectWrapper* colObj0Wrap, int partId0, int index0, const btCollisionObjectWrapper* colObj1Wrap, int partId1, int index1) {
+	Globals::soundManager.get("game").playChannel(2u);
+	Player* player = reinterpret_cast<Player*>(colObj0Wrap->getCollisionObject()->getUserPointer());
+	player->setPosition(respawnPointSet.getActivePoistion());
+	player->resetOrientation();
+	keySet.restorePrevState();
 	return 0;
 }

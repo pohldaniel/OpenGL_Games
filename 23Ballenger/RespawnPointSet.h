@@ -26,6 +26,7 @@ public:
 	unsigned short& getRespawnId();
 	const Vector3f& getActivePoistion() const;
 	void addInstances(const std::vector<Matrix4f>& values);
+	void deploy();
 
 private:
 

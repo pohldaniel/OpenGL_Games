@@ -14,10 +14,10 @@ KeySet::~KeySet() {
 
 void KeySet::init(const Terrain& terrain) {
 	m_colors.assign({ Vector4f(1.0f, 0.0f, 0.0f, 1.0f), Vector4f(1.0f, 1.0f, 0.0f, 1.0f) , Vector4f(0.0f, 1.0f, 0.0f, 1.0f) , Vector4f(0.2f, 0.2f, 1.0f, 1.0f) , Vector4f(1.0f, 0.0f, 1.0f, 1.0f) });
-	std::vector<Matrix4f> instances = { //Matrix4f::Translate(883.0f, terrain.heightAt(883.0f, 141.0f), 141.0f),
-										Matrix4f::Translate(TERRAIN_SIZE / 2, terrain.heightAt(TERRAIN_SIZE / 2, TERRAIN_SIZE / 2 + 10.0f), TERRAIN_SIZE / 2 + 10.0f),
-										//Matrix4f::Translate(345.0f, terrain.heightAt(345.0f, 229.0f), 229.0f),
-										Matrix4f::Translate(TERRAIN_SIZE / 2, terrain.heightAt(TERRAIN_SIZE / 2, TERRAIN_SIZE / 2 + 20.0f), TERRAIN_SIZE / 2 + 20.0f),
+	std::vector<Matrix4f> instances = { Matrix4f::Translate(883.0f, terrain.heightAt(883.0f, 141.0f), 141.0f),
+										//Matrix4f::Translate(TERRAIN_SIZE / 2, terrain.heightAt(TERRAIN_SIZE / 2, TERRAIN_SIZE / 2 + 10.0f), TERRAIN_SIZE / 2 + 10.0f),
+										Matrix4f::Translate(345.0f, terrain.heightAt(345.0f, 229.0f), 229.0f),
+										//Matrix4f::Translate(TERRAIN_SIZE / 2, terrain.heightAt(TERRAIN_SIZE / 2, TERRAIN_SIZE / 2 + 20.0f), TERRAIN_SIZE / 2 + 20.0f),
 										Matrix4f::Translate(268.0f, terrain.heightAt(268.0f, 860.0f), 860.0f),
 										Matrix4f::Translate(780.0f, terrain.heightAt(780.0f, 858.0f), 858.0f),
 										Matrix4f::Translate(265.0f, terrain.heightAt(265.0f, 487.0f), 487.0f) };

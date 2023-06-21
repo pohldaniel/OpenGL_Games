@@ -1,5 +1,4 @@
 #version 410 core
-#extension GL_EXT_geometry_shader4 : enable
 
 layout(triangles, invocations = 1) in;
 layout(triangle_strip, max_vertices = 18) out;
@@ -65,10 +64,9 @@ void main() {
 	if((combined_mask & 0x041038) == 0) face_mask |= 0x10;
 	if((combined_mask & 0x382004) == 0) face_mask |= 0x20;
 
-	vec4 pos0 = gl_PositionIn[0].xyzw;
-	vec4 pos1 = gl_PositionIn[1].xyzw;
-	vec4 pos2 = gl_PositionIn[2].xyzw;
-
+	vec4 pos0 = gl_in[0].gl_Position.xyzw;
+	vec4 pos1 = gl_in[1].gl_Position.xyzw;
+	vec4 pos2 = gl_in[2].gl_Position.xyzw;
 
 	for(int face = 0; face < 6; face++) {
 		vec4 newpos0, newpos1, newpos2;

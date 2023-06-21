@@ -106,7 +106,7 @@ void RespawnPointSet::update(const float dt) {
 
 	if (update) {
 		updateUbo();
-		//Sound.Play(SOUND_SWISH);
+		Globals::soundManager.get("game").playChannel(2u);
 	}
 
 }
@@ -142,4 +142,10 @@ unsigned short& RespawnPointSet::getRespawnId() {
 
 const Vector3f& RespawnPointSet::getActivePoistion() const{
 	return m_states[m_respawnId].position;
+}
+
+void RespawnPointSet::deploy() {
+	Globals::soundManager.get("game").playChannel(2u);
+	m_respawnId = 0;
+	updateUbo();
 }

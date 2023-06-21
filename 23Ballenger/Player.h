@@ -43,6 +43,7 @@ private:
 	btCollisionObject* m_collisionObject;
 	bool m_fade;
 	float m_prevFraction;
+	bool m_useGravity;
 
 	const Lava& lava;
 	Camera& camera;

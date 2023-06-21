@@ -4,6 +4,7 @@
 #include "Application.h"
 #include "Globals.h"
 #include "Settings.h"
+#include "Controls.h"
 #include "Game.h"
 #include "ShapeInterface.h"
 #include "TerrainCulling.h"
@@ -25,6 +26,7 @@ Menu::Menu(StateMachine& machine) : State(machine, CurrentState::MENU) {
 	m_buttons = std::initializer_list<std::pair<const std::string, Button>>({
 		{ "start",	  Button() },
 		{ "settings", Button() },
+		{ "controls", Button() },
 		{ "shape",	  Button() },
 		{ "terrain",  Button() },
 		{ "cloud",	  Button() },
@@ -32,7 +34,7 @@ Menu::Menu(StateMachine& machine) : State(machine, CurrentState::MENU) {
 	});
 
 	m_buttons.at("start").setCharset(Globals::fontManager.get("upheaval_50"));
-	m_buttons.at("start").setPosition(static_cast<float>(Application::Width - 350), 200.0f);
+	m_buttons.at("start").setPosition(static_cast<float>(Application::Width - 350), 300.0f);
 	m_buttons.at("start").setSize(Vector2f(100.0f, 50.0f));
 	m_buttons.at("start").setOutlineThickness(5.0f);
 	m_buttons.at("start").setText("New Game");
@@ -45,7 +47,7 @@ Menu::Menu(StateMachine& machine) : State(machine, CurrentState::MENU) {
 	});
 
 	m_buttons.at("settings").setCharset(Globals::fontManager.get("upheaval_50"));
-	m_buttons.at("settings").setPosition(static_cast<float>(Application::Width - 350), 100.0f);
+	m_buttons.at("settings").setPosition(static_cast<float>(Application::Width - 350), 200.0f);
 	m_buttons.at("settings").setSize(Vector2f(246.0f, 50.0f));
 	m_buttons.at("settings").setOutlineThickness(5.0f);
 	m_buttons.at("settings").setText("Settings");
@@ -55,6 +57,19 @@ Menu::Menu(StateMachine& machine) : State(machine, CurrentState::MENU) {
 		Globals::soundManager.get("menu").playChannel(0u);
 		m_isRunning = false;
 		m_machine.addStateAtBottom(new Settings(m_machine));
+	});
+
+	m_buttons.at("controls").setCharset(Globals::fontManager.get("upheaval_50"));
+	m_buttons.at("controls").setPosition(static_cast<float>(Application::Width - 350), 100.0f);
+	m_buttons.at("controls").setSize(Vector2f(246.0f, 50.0f));
+	m_buttons.at("controls").setOutlineThickness(5.0f);
+	m_buttons.at("controls").setText("Controls");
+	m_buttons.at("controls").setOffset(2.0f, 7.0f);
+	m_buttons.at("controls").setShader(Globals::shaderManager.getAssetPointer("quad_color_uniform"));
+	m_buttons.at("controls").setFunction([&]() {
+		Globals::soundManager.get("menu").playChannel(0u);
+		m_isRunning = false;
+		m_machine.addStateAtBottom(new Controls(m_machine));
 	});
 	
 	m_buttons.at("shape").setCharset(Globals::fontManager.get("upheaval_50"));
@@ -149,6 +164,7 @@ void Menu::OnKeyDown(Event::KeyboardEvent& event) {
 void Menu::resize(int deltaW, int deltaH) {
 	m_headline.setPosition(Vector2f(static_cast<float>(Application::Width / 2 - 220), static_cast<float>(Application::Height - 200)));
 
-	m_buttons.at("start").setPosition(static_cast<float>(Application::Width - 350), 200.0f);
-	m_buttons.at("settings").setPosition(static_cast<float>(Application::Width - 350), 100.0f);
+	m_buttons.at("start").setPosition(static_cast<float>(Application::Width - 350), 300.0f);
+	m_buttons.at("settings").setPosition(static_cast<float>(Application::Width - 350), 200.0f);
+	m_buttons.at("controls").setPosition(static_cast<float>(Application::Width - 350), 100.0f);
 }
