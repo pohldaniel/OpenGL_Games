@@ -1012,9 +1012,6 @@
     <ClInclude Include="poly2tri\poly2tri\sweep\sweep_context.h">
       <Filter>Contrib\Poly2Tri</Filter>
     </ClInclude>
-    <ClInclude Include="stb\stb_image.h">
-      <Filter>Contrib\stb</Filter>
-    </ClInclude>
     <ClInclude Include="unzip\crypt.h">
       <Filter>Contrib\unzip</Filter>
     </ClInclude>
@@ -1662,6 +1659,9 @@
     </ClInclude>
     <ClInclude Include="src\Pbrt\PbrtExporter.h">
       <Filter>AssetLib\PBRT</Filter>
+    </ClInclude>
+    <ClInclude Include="stb\stb_image.h">
+      <Filter>Contrib\stb</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

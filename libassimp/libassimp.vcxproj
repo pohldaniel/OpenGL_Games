@@ -586,7 +586,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;ASSIMP_BUILD_NO_OWN_ZLIB;ASSIMP_BUILD_NO_M3D_IMPORTER;ASSIMP_BUILD_NO_M3D_EXPORTER;ASSIMP_BUILD_NO_C4D_IMPORTER;OPENDDLPARSER_BUILD;ASSIMP_BUILD_DLL_EXPORT;RAPIDJSON_HAS_STDSTRING=1;RAPIDJSON_NOMEMBERITERATORCLASS;_SCL_SECURE_NO_WARNINGS;_CRT_SECURE_NO_WARNINGS;WIN32_LEAN_AND_MEAN;UNICODE;_UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>./;src;..\libzlib\include;..\libzlib;irrXML;rapidjson\include;unzip;pugixml\src;openddlparser\include;include\assimp;include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>./;src;..\libzlib\include;..\libzlib;irrXML;rapidjson\include;unzip;pugixml\src;openddlparser\include;include\assimp;include;..\libsoil2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4800</DisableSpecificWarnings>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
     </ClCompile>
@@ -601,7 +601,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;_LIB;ASSIMP_BUILD_NO_OWN_ZLIB;ASSIMP_BUILD_NO_M3D_IMPORTER;ASSIMP_BUILD_NO_M3D_EXPORTER;ASSIMP_BUILD_NO_C4D_IMPORTER;OPENDDLPARSER_BUILD;ASSIMP_BUILD_DLL_EXPORT;RAPIDJSON_HAS_STDSTRING=1;RAPIDJSON_NOMEMBERITERATORCLASS;_SCL_SECURE_NO_WARNINGS;_CRT_SECURE_NO_WARNINGS;WIN32_LEAN_AND_MEAN;UNICODE;_UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>./;src;..\libzlib\include;..\libzlib;irrXML;rapidjson\include;unzip;pugixml\src;openddlparser\include;include\assimp;include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>./;src;..\libzlib\include;..\libzlib;irrXML;rapidjson\include;unzip;pugixml\src;openddlparser\include;include\assimp;include;..\libsoil2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4800</DisableSpecificWarnings>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
       <AdditionalOptions>/bigobj</AdditionalOptions>
@@ -619,7 +619,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>false</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;_LIB;ASSIMP_BUILD_NO_OWN_ZLIB;ASSIMP_BUILD_NO_M3D_IMPORTER;ASSIMP_BUILD_NO_M3D_EXPORTER;ASSIMP_BUILD_NO_C4D_IMPORTER;OPENDDLPARSER_BUILD;ASSIMP_BUILD_DLL_EXPORT;RAPIDJSON_HAS_STDSTRING=1;RAPIDJSON_NOMEMBERITERATORCLASS;_SCL_SECURE_NO_WARNINGS;_CRT_SECURE_NO_WARNINGS;WIN32_LEAN_AND_MEAN;UNICODE;_UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>./;src;..\libzlib\include;..\libzlib;irrXML;rapidjson\include;unzip;pugixml\src;openddlparser\include;include\assimp;include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>./;src;..\libzlib\include;..\libzlib;irrXML;rapidjson\include;unzip;pugixml\src;openddlparser\include;include\assimp;include;..\libsoil2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4800</DisableSpecificWarnings>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <WholeProgramOptimization>false</WholeProgramOptimization>
