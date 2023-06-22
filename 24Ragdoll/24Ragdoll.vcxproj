@@ -202,6 +202,7 @@
     <ClCompile Include="engine\Transform.cpp" />
     <ClCompile Include="engine\Vector.cpp" />
     <ClCompile Include="engine\VolumeBuffer.cpp" />
+    <ClCompile Include="Ragdoll.cpp" />
     <ClCompile Include="SeekerBar.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="main.cpp" />
@@ -269,6 +270,7 @@
     <ClInclude Include="engine\Transform.h" />
     <ClInclude Include="engine\Vector.h" />
     <ClInclude Include="engine\VolumeBuffer.h" />
+    <ClInclude Include="Ragdoll.h" />
     <ClInclude Include="SeekerBar.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="Miniball\Miniball.h" />

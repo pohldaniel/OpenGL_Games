@@ -222,6 +222,9 @@
     <ClCompile Include="StateMachine.cpp">
       <Filter>Source Files\States</Filter>
     </ClCompile>
+    <ClCompile Include="Ragdoll.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h">
@@ -418,6 +421,9 @@
     </ClInclude>
     <ClInclude Include="StateMachine.h">
       <Filter>Source Files\States</Filter>
+    </ClInclude>
+    <ClInclude Include="Ragdoll.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
