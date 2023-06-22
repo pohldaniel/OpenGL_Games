@@ -112,11 +112,11 @@ public:
 	//
 	//////////////////////////////////////////////////////////////////
 	void updateTrackball() {
-		float min = _width < _height ? _width : _height;
+		float min = _width < _height ? static_cast< float >(_width) : static_cast< float >(_height);
 		min *= 0.5f;
 		Vector3f offset(_width / 2.f, _height / 2.f, 0);
-		Vector3f a(_x - _dx, _height - (_y + _dy), 0);
-		Vector3f b(_x, _height - _y, 0);
+		Vector3f a(static_cast< float >(_x - _dx), static_cast< float >(_height - (_y + _dy)), 0);
+		Vector3f b(static_cast< float >(_x), static_cast< float >(_height - _y), 0);
 		a -= offset;
 		b -= offset;
 		a /= min;
@@ -142,7 +142,7 @@ public:
 	//
 	//////////////////////////////////////////////////////////////////
 	void updatePan() {
-		Vector3f v(_dx, _dy, 0);
+		Vector3f v(static_cast< float >(_dx), static_cast< float >(_dy), 0.0f);
 
 		_pan += v * _pScale;
 	}
@@ -151,7 +151,7 @@ public:
 	//
 	//////////////////////////////////////////////////////////////////
 	void updateDolly() {
-		Vector3f v(0, 0, _dy);
+		Vector3f v(0.0f, 0.0f, static_cast< float >(_dy));
 
 		_dolly -= v * _dScale;
 	}

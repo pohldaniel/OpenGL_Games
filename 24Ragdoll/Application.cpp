@@ -10,14 +10,8 @@
 #include "engine/Fontrenderer.h"
 #include "Application.h"
 #include "Globals.h"
-#include "ShapeInterface.h"
+
 #include "Game.h"
-#include "TerrainCulling.h"
-#include "CloudInterface.h"
-#include "Environment.h"
-#include "Menu.h"
-#include "Settings.h"
-#include "Controls.h"
 #include "Widget.h"
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
@@ -69,9 +63,7 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 	auto shader = Globals::shaderManager.getAssetPointer("font");
 	shader->use();
 	shader->loadMatrix("u_transform", Matrix4f::Orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f));
-	shader->unuse();
-
-	
+	shader->unuse();	
 }
 
 Application::~Application() {
@@ -79,12 +71,12 @@ Application::~Application() {
 
 	delete Machine;
 	Globals::shaderManager.clear();
-	//release OpenGL context
+
 	HDC hdc = GetDC(Window);
 	wglMakeCurrent(GetDC(Window), 0);
 	wglDeleteContext(wglGetCurrentContext());
 	ReleaseDC(Window, hdc);
-	//release OpenAL context
+
 	SoundDevice::shutDown();
 
 	UnregisterClass("WINDOWCLASS", (HINSTANCE)GetModuleHandle(NULL));
@@ -223,10 +215,7 @@ LRESULT Application::DisplayWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 				Height = 1;
 			}
 			Resize(deltaW, deltaH);
-			
-			if (Init) {
-				Globals::musicManager.get("background").updateBufferStream();
-			}
+
 
 			break;
 		}default: {
@@ -370,7 +359,6 @@ void Application::render() {
 void Application::update() {
 	Mouse::instance().update();
 	Keyboard::instance().update();
-	Globals::musicManager.get("background").updateBufferStream();
 
 	Machine->update();
 
@@ -386,14 +374,7 @@ void Application::fixedUpdate() {
 void Application::initStates() {
 	
 	Machine = new StateMachine(m_dt, m_fdt);
-	//Machine->addStateAtTop(new Game(*Machine));
-	//Machine->addStateAtTop(new ShapeInterface(*Machine));
-	//Machine->addStateAtTop(new TerrainCulling(*Machine));
-	//Machine->addStateAtTop(new CloudInterface(*Machine));
-	//Machine->addStateAtTop(new EnvironmentInterface(*Machine));
-	//Machine->addStateAtTop(new Controls(*Machine));
-
-	Machine->addStateAtTop(new Menu(*Machine));
+	Machine->addStateAtTop(new Game(*Machine));
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
@@ -438,10 +419,7 @@ void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 			event.data.mouseButton.button = Event::MouseButtonEvent::MouseButton::BUTTON_RIGHT;
 			EventDispatcher.pushEvent(event);
 			break;
-		} case WM_WINDOWPOSCHANGING: {
-			if (Init) {
-				Globals::musicManager.get("background").updateBufferStream();
-			}
+		} case WM_WINDOWPOSCHANGING: {			
 			break;
 		}case WM_KEYDOWN: {
 
@@ -450,13 +428,14 @@ void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 				case VK_ESCAPE: {
 					Event event;
 					event.type = Event::KEYDOWN;
-					event.data.keyboard.keyCode = wParam;
+					event.data.keyboard.keyCode = VK_ESCAPE;
 					EventDispatcher.pushEvent(event);
+					SendMessage(Window, WM_DESTROY, NULL, NULL);
 					break;
 				}case VK_SPACE: {
 					Event event;
 					event.type = Event::KEYDOWN;
-					event.data.keyboard.keyCode = wParam;
+					event.data.keyboard.keyCode = VK_SPACE;
 					EventDispatcher.pushEvent(event);
 					break;
 				}
@@ -563,144 +542,16 @@ void Application::ToggleFullScreen(bool isFullScreen, unsigned int width, unsign
 void Application::SetCursorIconFromFile(std::string file) {
 	Application::Cursor = LoadCursorFromFileA(file.c_str());
 	SetCursor(Cursor);
-	SetClassLongPtr(Window, GCLP_HCURSOR, (DWORD)Cursor);
+	SetClassLongPtr(Window, GCLP_HCURSOR, LONG_PTR(Cursor));
 }
 
 void Application::SetCursorIcon(LPCSTR resource) {
 	Application::Cursor = LoadCursor(nullptr, resource);
 	SetCursor(Cursor);
-	SetClassLongPtr(Window, GCLP_HCURSOR, (DWORD)Cursor);
+	SetClassLongPtr(Window, GCLP_HCURSOR, LONG_PTR(Cursor));
 }
 
 void Application::loadAssets() {
-
-	Globals::shaderManager.loadShader("terrain", "res/shader/terrain.vert", "res/shader/terrain.frag");
-	Globals::shaderManager.loadShader("texture", "res/shader/texture.vert", "res/shader/texture.frag");
-	Globals::shaderManager.loadShader("instance", "res/shader/instance.vert", "res/shader/instance.frag");
-	Globals::shaderManager.loadShader("respawn", "res/shader/respawn.vert", "res/shader/respawn.frag");
-	Globals::shaderManager.loadShader("cylinder", "res/shader/cylinder.vert", "res/shader/cylinder.frag");
-	Globals::shaderManager.loadShader("disk", "res/shader/disk.vert", "res/shader/disk.frag");
-	Globals::shaderManager.loadShader("column", "res/shader/column.vert", "res/shader/column.frag");
-	Globals::shaderManager.loadShader("energy", "res/shader/energy.vert", "res/shader/energy.frag");
-	Globals::shaderManager.loadShader("portal", "res/shader/portal.vert", "res/shader/portal.frag");
-	Globals::shaderManager.loadShader("key", "res/shader/key.vert", "res/shader/key.frag");
-	Globals::shaderManager.loadShader("beam", "res/shader/beam.vert", "res/shader/beam.frag");
-	Globals::shaderManager.loadShader("skybox", "res/shader/skybox.vert", "res/shader/skybox.frag");
-	Globals::shaderManager.loadShader("line", "res/shader/line.vert", "res/shader/line.frag");
-	Globals::shaderManager.loadShader("player", "res/shader/player.vert", "res/shader/player.frag");
-
-	//cloud post
-	Globals::shaderManager.loadShader("quad_back", "res/shader/quad_back.vert", "res/shader/quad.frag");
-	Globals::shaderManager.loadShader("quad", "res/shader/quad.vert", "res/shader/quad.frag");
-
-	//UI
-	Globals::shaderManager.loadShader("quad_color_uniform", "res/shader/quad_color_uniform.vert", "res/shader/quad_color_uniform.frag");
 	Globals::shaderManager.loadShader("font", "res/shader/batch.vert", "res/shader/font.frag");
-	Globals::shaderManager.loadShader("seeker", "res/shader/batch.vert", "res/shader/seeker.frag");
 
-
-	Globals::textureManager.createNullTexture("null");
-
-	Globals::textureManager.loadTexture("grass", "res/textures/grass.png", true);
-	Globals::textureManager.loadTexture("rock", "res/textures/rock.png", true);
-
-	Globals::textureManager.get("grass").setWrapMode(GL_REPEAT);
-	Globals::textureManager.get("grass").setFilter(GL_LINEAR_MIPMAP_LINEAR);
-
-	Globals::textureManager.get("rock").setWrapMode(GL_REPEAT);
-	Globals::textureManager.get("rock").setFilter(GL_LINEAR_MIPMAP_LINEAR);
-
-	Globals::textureManager.loadTexture("player", "res/textures/player.png", true);
-	Globals::textureManager.loadTexture("player_nmp", "res/textures/playerNmap.png", true);
-
-	Globals::textureManager.get("player").setWrapMode(GL_REPEAT);
-	Globals::textureManager.get("player").setFilter(GL_LINEAR_MIPMAP_LINEAR);
-
-	Globals::textureManager.get("player_nmp").setWrapMode(GL_REPEAT);
-	Globals::textureManager.get("player_nmp").setFilter(GL_LINEAR_MIPMAP_LINEAR);
-
-	Globals::textureManager.loadTexture("lava", "res/textures/lava.png", true);
-	Globals::textureManager.get("lava").setWrapMode(GL_REPEAT);
-	Globals::textureManager.get("lava").setFilter(GL_LINEAR_MIPMAP_LINEAR);
-	
-	Globals::textureManager.loadTexture("circle_off", "res/textures/circle_off.png", true);
-	Globals::spritesheetManager.createSpritesheetFromTexture("circle", Globals::textureManager.get("circle_off").getTexture());
-
-	Globals::textureManager.get("circle_off").setWrapMode(GL_REPEAT);
-	Globals::textureManager.get("circle_off").setFilter(GL_LINEAR_MIPMAP_LINEAR);
-
-	Globals::textureManager.loadTexture("circle_on", "res/textures/circle_on.png", true);
-	Globals::spritesheetManager.getAssetPointer("circle")->addToSpritesheet(Globals::textureManager.get("circle_on").getTexture());
-	
-
-	Globals::textureManager.get("circle_on").setWrapMode(GL_REPEAT);
-	Globals::textureManager.get("circle_on").setFilter(GL_LINEAR_MIPMAP_LINEAR);
-
-	Globals::spritesheetManager.getAssetPointer("circle")->setLinearMipMap();
-	Globals::spritesheetManager.getAssetPointer("circle")->setRepeat();
-
-
-	Globals::textureManager.loadTexture("column", "res/textures/column.png", false);
-	Globals::textureManager.loadTexture("column_nmp", "res/textures/columnNmap.png", false);
-	Globals::textureManager.get("column").setFilter(GL_LINEAR_MIPMAP_LINEAR);
-	Globals::textureManager.get("column_nmp").setFilter(GL_LINEAR_MIPMAP_LINEAR);
-
-	Globals::textureManager.loadTexture("portal", "res/textures/portal.png", false);
-	Globals::textureManager.loadTexture("portal_nmp", "res/textures/portalNmap.png", false);
-	Globals::textureManager.get("portal").setFilter(GL_LINEAR_MIPMAP_LINEAR);
-	Globals::textureManager.get("portal_nmp").setFilter(GL_LINEAR_MIPMAP_LINEAR);
-
-	Globals::textureManager.loadTexture("vortex", "res/textures/vortex.png", false);
-	Globals::textureManager.get("vortex").setWrapMode(GL_REPEAT);
-	Globals::textureManager.get("vortex").setFilter(GL_LINEAR_MIPMAP_LINEAR);
-
-	Globals::textureManager.loadTexture("key", "res/textures/key.png", false);
-	Globals::textureManager.loadTexture("key_nmp", "res/textures/keyNmap.png", false);
-	Globals::textureManager.get("key").setFilter(GL_LINEAR_MIPMAP_LINEAR);
-	Globals::textureManager.get("key_nmp").setFilter(GL_LINEAR_MIPMAP_LINEAR);
-
-	Globals::textureManager.loadCubeMapFromCross("skybox", "res/textures/skybox.png", true);
-
-	Globals::shapeManager.buildCube("cube", Vector3f(-1.0f, -1.0f, -1.0f), Vector3f(2.0f, 2.0f, 2.0f), 1, 1, true, true, false);
-	Globals::shapeManager.buildSphere("sphere", 0.5f, Vector3f(0.0f, 0.0f, 0.0f), 16, 16, true, true, false);
-	Globals::shapeManager.buildQuadXY("quad", Vector3f(-1.0f, -1.0f, 0.0f), Vector2f(2.0f, 2.0f), 1, 1, true, true, true);
-	Globals::shapeManager.buildQuadXZ("quad_lava", Vector3f(0.0f, 0.0f, 0.0f), Vector2f(1024.0f, 1024.0f), 1, 1, true, true, false);
-	Globals::shapeManager.buildQuadXZ("quad_rp", Vector3f(-2.0f, 0.05f, -2.0f), Vector2f(4.0f, 4.0f), 1, 1, true, true, false);
-
-	Globals::shapeManager.buildQuadXY("vortex", Vector3f(-1.0f, -1.0f, 0.0f), Vector2f(2.0f, 2.0f), 1, 1, true, true, false);
-	Globals::shapeManager.buildCylinder("cylinder", 2.0f, 2.0f, 3.0f, Vector3f(0.0f, 1.6f, 0.0f), false, false, 16, 16, false, true, false);
-	Globals::shapeManager.buildDiskXZ("disk", 2.0f, Vector3f(0.0f, 0.11f, 0.0f), 16, 16, false, false, false);
-	Globals::shapeManager.fromObj("key", "res/models/key.obj");
-	Globals::shapeManager.fromObj("column", "res/models/column.obj");
-	Globals::shapeManager.fromObj("portal", "res/models/portal.obj");
-	Globals::shapeManager.buildCylinder("cylinder_key", 2.0f, 2.0f, 1.0f, Vector3f(0.0f, 0.5f, 0.0f), false, false , 16, 16, false, true, false);
-	Globals::shapeManager.buildQuadXZ("platform", Vector3f(-512.0f, 0.0f, -512.0f), Vector2f(1024.0f, 1024.0f), 1, 1, true, false, false);
-
-	Globals::shapeManager.buildSphere("sphere_cl", 1.0f, Vector3f(0.0f, 8.0f, 0.0f), 32, 32, false, true, false);
-	Globals::shapeManager.buildSphere("sphere_portal", 0.2f, Vector3f(512.0f, 13.75f, 544.0f), 16, 16, false, true, false);	
-	Globals::fontManager.loadCharacterSet("upheaval_200", "res/fonts/upheavtt.ttf", 200, 0, 30, 128, 0, true, 0u);
-	Globals::fontManager.loadCharacterSet("upheaval_50", "res/fonts/upheavtt.ttf", 50, 0, 3, 0, 0, true, 0u);
-
-
-	MusicBuffer::Init();
-	//SoundBuffer::Init();
-
-	Globals::musicManager.createMusicBuffer("background");
-	Globals::musicManager.get("background").setVolume(Globals::musicVolume);
-	Globals::musicManager.get("background").setLooping(true);
-
-	Globals::soundManager.createSoundBuffer("menu", 0u, 2u, Globals::soundVolume);
-	Globals::soundManager.get("menu").loadChannel("res/sounds/button.wav", 0u);
-
-	Globals::soundManager.createSoundBuffer("game", 0u, 8u, Globals::soundVolume);
-	Globals::soundManager.get("game").loadChannel("res/sounds/warp.wav", 0u);
-	Globals::soundManager.get("game").loadChannel("res/sounds/bounce.wav", 1u);
-	Globals::soundManager.get("game").loadChannel("res/sounds/swish.wav", 2u);
-
-	Globals::soundManager.get("game").loadChannel("res/sounds/energyflow.wav", 3u);
-	Globals::soundManager.get("game").loadChannel("res/sounds/pickup.wav", 4u);
-	Globals::soundManager.get("game").loadChannel("res/sounds/screwgravity.wav", 5u);
-
-	Globals::soundManager.get("game").loadChannel("res/sounds/unlock.wav", 6u);
-	Globals::soundManager.get("game").loadChannel("res/sounds/warp.wav", 7u);
 }

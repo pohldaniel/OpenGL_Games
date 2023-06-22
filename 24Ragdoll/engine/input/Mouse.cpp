@@ -187,8 +187,8 @@ void Mouse::handleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam){
 		int x = static_cast<int>(static_cast<short>(LOWORD(lParam)));
 		int y = static_cast<int>(static_cast<short>(HIWORD(lParam)));
 	
-		m_xPosRelative = x - m_centerX;
-		m_yPosRelative = y - m_centerY;
+		m_xPosRelative = static_cast< float >(x - m_centerX);
+		m_yPosRelative = static_cast< float >(y - m_centerY);
 
 
 		m_xPosAbsolute = x;
@@ -212,8 +212,8 @@ void Mouse::handleEvent(Event event) {
 			int x = event.data.mouseMove.x;
 			int y = event.data.mouseMove.y;
 
-			m_xPosRelative = x - m_centerX;
-			m_yPosRelative = y - m_centerY;
+			m_xPosRelative = static_cast< float >(x - m_centerX);
+			m_yPosRelative = static_cast< float >(y - m_centerY);
 
 			m_xPosAbsolute = x;
 			m_yPosAbsolute = y;
@@ -238,7 +238,7 @@ void Mouse::hideCursor(bool hideCursor){
 }
 
 void Mouse::setPosition(UINT x, UINT y){
-	POINT pt = { x, y };
+	POINT pt = { LONG(x), LONG(y) };
 
 	if (ClientToScreen(m_hWnd, &pt)){
 		SetCursorPos(pt.x, pt.y);
@@ -281,8 +281,8 @@ void Mouse::update(){
 
 		POINT        CursorPos;
 		GetCursorPos(&CursorPos);		
-		m_xPosRelative = (CursorPos.x - m_centerX);
-		m_yPosRelative = (CursorPos.y - m_centerY);
+		m_xPosRelative = static_cast< float >((CursorPos.x - m_centerX));
+		m_yPosRelative = static_cast< float >((CursorPos.y - m_centerY));
 		setCursorToMiddle();
 	}
 }

@@ -1,7 +1,6 @@
 #include "Physics.h"
 #include "engine/ObjModel.h"
 #include "engine/MeshObject/Shape.h"
-#include "Terrain.h"
 
 btDiscreteDynamicsWorld* Physics::DynamicsWorld;
 
@@ -255,27 +254,6 @@ float Physics::RayTest(const btVector3& from, const btVector3& to, int collision
 	DynamicsWorld->rayTest(from, to, cb);
 
 	return cb.m_closestHitFraction;
-}
-
-btCollisionShape * Physics::CreateStaticCollisionShape(Terrain* terrain, const btVector3& scale) {
-	int indexStride = 3 * sizeof(int);
-
-	btTriangleIndexVertexArray* tiva = new btTriangleIndexVertexArray(terrain->getNumberOfTriangles(), (int*)(&terrain->getIndexBuffer()[0]), indexStride, terrain->getPositions().size(), (btScalar*)(&terrain->getPositions()[0]), sizeof(Vector3f));
-
-	btBvhTriangleMeshShape *shape = new btBvhTriangleMeshShape(tiva, true);
-	shape->setLocalScaling(scale);
-
-	return shape;
-}
-
-std::vector<btCollisionShape *> Physics::CreateStaticCollisionShapes(Terrain* terrain, float scale) {
-	std::vector<btCollisionShape *> ret;
-	btCollisionShape *shape = CreateStaticCollisionShape(terrain, btVector3(scale, scale, scale));
-
-	if (shape) {
-		ret.push_back(shape);
-	}
-	return ret;
 }
 
 btRigidBody* Physics::CreateRigidBody(btScalar mass, const btTransform & startTransform, btCollisionShape * shape) {

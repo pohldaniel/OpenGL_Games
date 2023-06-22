@@ -51,9 +51,6 @@
     <ClCompile Include="Application.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="StateMachine.cpp">
-      <Filter>Source Files\States</Filter>
-    </ClCompile>
     <ClCompile Include="Game.cpp">
       <Filter>Source Files\States</Filter>
     </ClCompile>
@@ -63,41 +60,14 @@
     <ClCompile Include="RenderableObject.cpp">
       <Filter>Source Files\Objects</Filter>
     </ClCompile>
-    <ClCompile Include="ShapeInterface.cpp">
-      <Filter>Source Files\States</Filter>
-    </ClCompile>
     <ClCompile Include="Physics.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CharacterController.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="KeySet.cpp">
-      <Filter>Source Files\Objects</Filter>
-    </ClCompile>
-    <ClCompile Include="RaySet.cpp">
-      <Filter>Source Files\Objects</Filter>
-    </ClCompile>
-    <ClCompile Include="RespawnPointSet.cpp">
-      <Filter>Source Files\Objects</Filter>
-    </ClCompile>
-    <ClCompile Include="ColumnSet.cpp">
-      <Filter>Source Files\Objects</Filter>
-    </ClCompile>
-    <ClCompile Include="Player.cpp">
-      <Filter>Source Files\Entities</Filter>
-    </ClCompile>
-    <ClCompile Include="Terrain.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Utils.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="QuadTree.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="TerrainCulling.cpp">
-      <Filter>Source Files\States</Filter>
     </ClCompile>
     <ClCompile Include="engine\input\ApplicationEventListener.cpp">
       <Filter>engine\input</Filter>
@@ -228,23 +198,8 @@
     <ClCompile Include="engine\VolumeBuffer.cpp">
       <Filter>engine</Filter>
     </ClCompile>
-    <ClCompile Include="NoiseGen.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="engine\ArrayBuffer.cpp">
       <Filter>engine</Filter>
-    </ClCompile>
-    <ClCompile Include="CloudsModel.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Sky.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Lava.cpp">
-      <Filter>Source Files\Entities</Filter>
-    </ClCompile>
-    <ClCompile Include="Menu.cpp">
-      <Filter>Source Files\States</Filter>
     </ClCompile>
     <ClCompile Include="Button.cpp">
       <Filter>Source Files\UI</Filter>
@@ -252,40 +207,25 @@
     <ClCompile Include="Widget.cpp">
       <Filter>Source Files\UI</Filter>
     </ClCompile>
-    <ClCompile Include="Settings.cpp">
-      <Filter>Source Files\States</Filter>
-    </ClCompile>
     <ClCompile Include="TextField.cpp">
       <Filter>Source Files\UI</Filter>
-    </ClCompile>
-    <ClCompile Include="CloudInterface.cpp">
-      <Filter>Source Files\States</Filter>
     </ClCompile>
     <ClCompile Include="SeekerBar.cpp">
       <Filter>Source Files\UI</Filter>
     </ClCompile>
-    <ClCompile Include="Environment.cpp">
-      <Filter>Source Files\States</Filter>
-    </ClCompile>
     <ClCompile Include="engine\CubeBuffer.cpp">
       <Filter>engine</Filter>
-    </ClCompile>
-    <ClCompile Include="Portal.cpp">
-      <Filter>Source Files\Entities</Filter>
     </ClCompile>
     <ClCompile Include="StaticTrigger.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Controlls.cpp">
+    <ClCompile Include="StateMachine.cpp">
       <Filter>Source Files\States</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="StateMachine.h">
-      <Filter>Source Files\States</Filter>
     </ClInclude>
     <ClInclude Include="convhull\convhull_3d.h">
       <Filter>convhull</Filter>
@@ -302,41 +242,14 @@
     <ClInclude Include="RenderableObject.h">
       <Filter>Source Files\Objects</Filter>
     </ClInclude>
-    <ClInclude Include="ShapeInterface.h">
-      <Filter>Source Files\States</Filter>
-    </ClInclude>
     <ClInclude Include="Physics.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CharacterController.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="KeySet.h">
-      <Filter>Source Files\Objects</Filter>
-    </ClInclude>
-    <ClInclude Include="RaySet.h">
-      <Filter>Source Files\Objects</Filter>
-    </ClInclude>
-    <ClInclude Include="RespawnPointSet.h">
-      <Filter>Source Files\Objects</Filter>
-    </ClInclude>
-    <ClInclude Include="ColumnSet.h">
-      <Filter>Source Files\Objects</Filter>
-    </ClInclude>
-    <ClInclude Include="Player.h">
-      <Filter>Source Files\Entities</Filter>
-    </ClInclude>
-    <ClInclude Include="Terrain.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Utils.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="QuadTree.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="TerrainCulling.h">
-      <Filter>Source Files\States</Filter>
     </ClInclude>
     <ClInclude Include="engine\input\ApplicationEventListener.h">
       <Filter>engine\input</Filter>
@@ -482,26 +395,8 @@
     <ClInclude Include="Globals.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="NoiseGen.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="engine\ArrayBuffer.h">
       <Filter>engine</Filter>
-    </ClInclude>
-    <ClInclude Include="CloudsModel.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Light.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Sky.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Lava.h">
-      <Filter>Source Files\Entities</Filter>
-    </ClInclude>
-    <ClInclude Include="Menu.h">
-      <Filter>Source Files\States</Filter>
     </ClInclude>
     <ClInclude Include="Button.h">
       <Filter>Source Files\UI</Filter>
@@ -509,31 +404,19 @@
     <ClInclude Include="Widget.h">
       <Filter>Source Files\UI</Filter>
     </ClInclude>
-    <ClInclude Include="Settings.h">
-      <Filter>Source Files\States</Filter>
-    </ClInclude>
     <ClInclude Include="TextField.h">
       <Filter>Source Files\UI</Filter>
-    </ClInclude>
-    <ClInclude Include="CloudInterface.h">
-      <Filter>Source Files\States</Filter>
     </ClInclude>
     <ClInclude Include="SeekerBar.h">
       <Filter>Source Files\UI</Filter>
     </ClInclude>
-    <ClInclude Include="Environment.h">
-      <Filter>Source Files\States</Filter>
-    </ClInclude>
     <ClInclude Include="engine\CubeBuffer.h">
       <Filter>engine</Filter>
-    </ClInclude>
-    <ClInclude Include="Portal.h">
-      <Filter>Source Files\Entities</Filter>
     </ClInclude>
     <ClInclude Include="StaticTrigger.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Controls.h">
+    <ClInclude Include="StateMachine.h">
       <Filter>Source Files\States</Filter>
     </ClInclude>
   </ItemGroup>

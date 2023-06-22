@@ -16,14 +16,8 @@ extern AssetManager<MusicBuffer> Globals::musicManager = AssetManager<MusicBuffe
 
 extern float Globals::soundVolume = 0.2f;
 extern float Globals::musicVolume = 0.1f;
-
 extern Physics* Globals::physics = NULL;
 
-extern unsigned int Globals::colorUbo = 0;
-extern unsigned int Globals::activateUbo = 0;
-
-extern const unsigned int Globals::colorBinding = 0;
-extern const unsigned int Globals::activateBinding = 1;
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd) {
 
