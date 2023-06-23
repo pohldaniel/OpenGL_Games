@@ -92,51 +92,51 @@ public:
 		btTransform transform;
 		transform.setIdentity();
 		transform.setOrigin(btVector3(btScalar(0.), btScalar(1.), btScalar(0.)));
-		m_bodies[BODYPART_PELVIS] = localCreateRigidBody(btScalar(1.), offset*transform, m_shapes[BODYPART_PELVIS], Physics::PICKABLE_OBJECT, Physics::MOUSEPICKER | Physics::TERRAIN);
+		m_bodies[BODYPART_PELVIS] = localCreateRigidBody(btScalar(1.), offset*transform, m_shapes[BODYPART_PELVIS], Physics::PICKABLE_OBJECT, Physics::MOUSEPICKER | Physics::FLOOR);
 
 		transform.setIdentity();
 		transform.setOrigin(btVector3(btScalar(0.), btScalar(1.2), btScalar(0.)));
-		m_bodies[BODYPART_SPINE] = localCreateRigidBody(btScalar(1.), offset*transform, m_shapes[BODYPART_SPINE], Physics::PICKABLE_OBJECT, Physics::MOUSEPICKER | Physics::TERRAIN);
+		m_bodies[BODYPART_SPINE] = localCreateRigidBody(btScalar(1.), offset*transform, m_shapes[BODYPART_SPINE], Physics::PICKABLE_OBJECT, Physics::MOUSEPICKER | Physics::FLOOR);
 
 		transform.setIdentity();
 		transform.setOrigin(btVector3(btScalar(0.), btScalar(1.6), btScalar(0.)));
-		m_bodies[BODYPART_HEAD] = localCreateRigidBody(btScalar(1.), offset*transform, m_shapes[BODYPART_HEAD], Physics::PICKABLE_OBJECT, Physics::MOUSEPICKER | Physics::TERRAIN);
+		m_bodies[BODYPART_HEAD] = localCreateRigidBody(btScalar(1.), offset*transform, m_shapes[BODYPART_HEAD], Physics::PICKABLE_OBJECT, Physics::FLOOR | Physics::MOUSEPICKER);
 
 		transform.setIdentity();
 		transform.setOrigin(btVector3(btScalar(-0.18), btScalar(0.65), btScalar(0.)));
-		m_bodies[BODYPART_LEFT_UPPER_LEG] = localCreateRigidBody(btScalar(1.), offset*transform, m_shapes[BODYPART_LEFT_UPPER_LEG], Physics::PICKABLE_OBJECT, Physics::MOUSEPICKER | Physics::TERRAIN);
+		m_bodies[BODYPART_LEFT_UPPER_LEG] = localCreateRigidBody(btScalar(1.), offset*transform, m_shapes[BODYPART_LEFT_UPPER_LEG], Physics::PICKABLE_OBJECT, Physics::FLOOR | Physics::MOUSEPICKER);
 
 		transform.setIdentity();
 		transform.setOrigin(btVector3(btScalar(-0.18), btScalar(0.2), btScalar(0.)));
-		m_bodies[BODYPART_LEFT_LOWER_LEG] = localCreateRigidBody(btScalar(1.), offset*transform, m_shapes[BODYPART_LEFT_LOWER_LEG], Physics::PICKABLE_OBJECT, Physics::MOUSEPICKER | Physics::TERRAIN);
+		m_bodies[BODYPART_LEFT_LOWER_LEG] = localCreateRigidBody(btScalar(1.), offset*transform, m_shapes[BODYPART_LEFT_LOWER_LEG], Physics::PICKABLE_OBJECT, Physics::FLOOR | Physics::MOUSEPICKER);
 
 		transform.setIdentity();
 		transform.setOrigin(btVector3(btScalar(0.18), btScalar(0.65), btScalar(0.)));
-		m_bodies[BODYPART_RIGHT_UPPER_LEG] = localCreateRigidBody(btScalar(1.), offset*transform, m_shapes[BODYPART_RIGHT_UPPER_LEG], Physics::PICKABLE_OBJECT, Physics::MOUSEPICKER | Physics::TERRAIN);
+		m_bodies[BODYPART_RIGHT_UPPER_LEG] = localCreateRigidBody(btScalar(1.), offset*transform, m_shapes[BODYPART_RIGHT_UPPER_LEG], Physics::PICKABLE_OBJECT, Physics::FLOOR | Physics::MOUSEPICKER);
 
 		transform.setIdentity();
 		transform.setOrigin(btVector3(btScalar(0.18), btScalar(0.2), btScalar(0.)));
-		m_bodies[BODYPART_RIGHT_LOWER_LEG] = localCreateRigidBody(btScalar(1.), offset*transform, m_shapes[BODYPART_RIGHT_LOWER_LEG], Physics::PICKABLE_OBJECT, Physics::MOUSEPICKER | Physics::TERRAIN);
+		m_bodies[BODYPART_RIGHT_LOWER_LEG] = localCreateRigidBody(btScalar(1.), offset*transform, m_shapes[BODYPART_RIGHT_LOWER_LEG], Physics::PICKABLE_OBJECT, Physics::FLOOR | Physics::MOUSEPICKER);
 
 		transform.setIdentity();
 		transform.setOrigin(btVector3(btScalar(-0.35), btScalar(1.45), btScalar(0.)));
 		transform.getBasis().setEulerZYX(0, 0, HALF_PI);
-		m_bodies[BODYPART_LEFT_UPPER_ARM] = localCreateRigidBody(btScalar(1.), offset*transform, m_shapes[BODYPART_LEFT_UPPER_ARM], Physics::PICKABLE_OBJECT, Physics::MOUSEPICKER | Physics::TERRAIN);
+		m_bodies[BODYPART_LEFT_UPPER_ARM] = localCreateRigidBody(btScalar(1.), offset*transform, m_shapes[BODYPART_LEFT_UPPER_ARM], Physics::PICKABLE_OBJECT, Physics::FLOOR | Physics::MOUSEPICKER);
 
 		transform.setIdentity();
 		transform.setOrigin(btVector3(btScalar(-0.7), btScalar(1.45), btScalar(0.)));
 		transform.getBasis().setEulerZYX(0, 0, HALF_PI);
-		m_bodies[BODYPART_LEFT_LOWER_ARM] = localCreateRigidBody(btScalar(1.), offset*transform, m_shapes[BODYPART_LEFT_LOWER_ARM], Physics::PICKABLE_OBJECT, Physics::MOUSEPICKER | Physics::TERRAIN);
+		m_bodies[BODYPART_LEFT_LOWER_ARM] = localCreateRigidBody(btScalar(1.), offset*transform, m_shapes[BODYPART_LEFT_LOWER_ARM], Physics::PICKABLE_OBJECT, Physics::FLOOR | Physics::MOUSEPICKER);
 
 		transform.setIdentity();
 		transform.setOrigin(btVector3(btScalar(0.35), btScalar(1.45), btScalar(0.)));
 		transform.getBasis().setEulerZYX(0, 0, -HALF_PI);
-		m_bodies[BODYPART_RIGHT_UPPER_ARM] = localCreateRigidBody(btScalar(1.), offset*transform, m_shapes[BODYPART_RIGHT_UPPER_ARM], Physics::PICKABLE_OBJECT, Physics::MOUSEPICKER | Physics::TERRAIN);
+		m_bodies[BODYPART_RIGHT_UPPER_ARM] = localCreateRigidBody(btScalar(1.), offset*transform, m_shapes[BODYPART_RIGHT_UPPER_ARM], Physics::PICKABLE_OBJECT, Physics::FLOOR | Physics::MOUSEPICKER);
 
 		transform.setIdentity();
 		transform.setOrigin(btVector3(btScalar(0.7), btScalar(1.45), btScalar(0.)));
 		transform.getBasis().setEulerZYX(0, 0, -HALF_PI);
-		m_bodies[BODYPART_RIGHT_LOWER_ARM] = localCreateRigidBody(btScalar(1.), offset*transform, m_shapes[BODYPART_RIGHT_LOWER_ARM], Physics::PICKABLE_OBJECT, Physics::MOUSEPICKER | Physics::TERRAIN);
+		m_bodies[BODYPART_RIGHT_LOWER_ARM] = localCreateRigidBody(btScalar(1.), offset*transform, m_shapes[BODYPART_RIGHT_LOWER_ARM], Physics::PICKABLE_OBJECT, Physics::FLOOR | Physics::MOUSEPICKER);
 
 		// Setup some damping on the m_bodies
 		for (int i = 0; i < BODYPART_COUNT; ++i)

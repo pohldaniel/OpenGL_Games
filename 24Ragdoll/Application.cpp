@@ -309,8 +309,8 @@ void Application::initOpenGL(int msaaSamples) {
 
 	glCullFace(GL_BACK);
 	glFrontFace(GL_CCW);
-	glEnable(GL_CULL_FACE);
-	//glDisable(GL_CULL_FACE);
+	//glEnable(GL_CULL_FACE);
+	glDisable(GL_CULL_FACE);
 
 	glEnable(GL_DEPTH_TEST);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -554,7 +554,11 @@ void Application::SetCursorIcon(LPCSTR resource) {
 void Application::loadAssets() {
 	Globals::shaderManager.loadShader("texture", "res/shader/texture.vert", "res/shader/texture.frag");	
 	Globals::shaderManager.loadShader("font", "res/shader/batch.vert", "res/shader/font.frag");
-	
-	Globals::shapeManager.buildQuadXZ("quad", Vector3f(-1.0f, -1.0f, 0.0f), Vector2f(2.0f, 2.0f), 1, 1, true, false, false);
+	Globals::shaderManager.loadShader("ring", "res/shader/ring.vs", "res/shader/ring.fs");
+
+	Globals::shapeManager.buildQuadXZ("quad", Vector3f(-1.0f, 0.0f, -1.0f), Vector2f(2.0f, 2.0f), 1, 1, true, false, false);
+
+	Globals::shapeManager.buildQuadXZ("platform", Vector3f(-5.0f, 0.0f, -5.0f), Vector2f(10.0f, 10.0f), 1, 1, true, false, false);
+
 	Globals::textureManager.createNullTexture("null");
 }

@@ -37,6 +37,9 @@ public:
 
 	Framebuffer getBuffer() const;
 
+	const btVector3& getOrigin();
+	const btVector3& getTarget();
+
 private:
 
 	//MeshQuad *m_cursor;
@@ -56,4 +59,6 @@ private:
 	MousePickCallback m_callback;
 	Vector3f m_pos;
 	RenderableObject m_quad;
+	btVector3 origin;
+	btVector3 target;
 };

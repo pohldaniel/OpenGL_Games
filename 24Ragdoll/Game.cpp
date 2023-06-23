@@ -21,7 +21,7 @@ m_idle(false) {
 	EventDispatcher::AddMouseListener(this);
 
 	m_camera = Camera();
-	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
+	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 1.0f, 1000.0f);
 	m_camera.lookAt(Vector3f(0.0f, 2.0f, 10.0f), Vector3f(0.0f, 2.0f, 10.0f) + Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
 	m_camera.setRotationSpeed(0.1f);
 
@@ -53,22 +53,27 @@ m_idle(false) {
 	m_shapeDrawer = new GL_ShapeDrawer();
 	m_shapeDrawer->enableTexture(true);
 
-	btCollisionShape* groundShape = new btBoxShape(btVector3(btScalar(50.0f), btScalar(0.0f), btScalar(50.0f)));
+	btCollisionShape* groundShape = new btBoxShape(btVector3(200.0f, 10.0f, 200.0f));
 	m_collisionShapes.push_back(groundShape);
 	btTransform groundTransform;
 	groundTransform.setIdentity();
-	groundTransform.setOrigin(btVector3(0.0f, 0.0f, 0.0f));
+	groundTransform.setOrigin(btVector3(0.0f, -10.0f, 0.0f));
 
 	btCollisionObject* fixedGround = new btCollisionObject();
 	fixedGround->setCollisionShape(groundShape);
 	fixedGround->setWorldTransform(groundTransform);
-	Physics::GetDynamicsWorld()->addCollisionObject(fixedGround, Physics::TERRAIN, Physics::PICKABLE_OBJECT | Physics::MOUSEPICKER);
+	Physics::GetDynamicsWorld()->addCollisionObject(fixedGround, Physics::FLOOR, Physics::PICKABLE_OBJECT);
+	
 
 	// Spawn one ragdoll
-	/*btVector3 startOffset(1, 0.5, 0);
+	btVector3 startOffset(1, 0.5, 0);
 	spawnRagdoll(startOffset);
 	startOffset.setValue(-1, 0.5, 0);
-	spawnRagdoll(startOffset);*/
+	spawnRagdoll(startOffset);
+
+	//std::vector<btCollisionShape*> platformShape = Physics::CreateStaticCollisionShapes(&Globals::shapeManager.get("platform"), 1.0f);
+	//btRigidBody* body = Globals::physics->addStaticModel(platformShape, Physics::BtTransform(), false, btVector3(1.0f, 1.0f, 1.0f), Physics::FLOOR, Physics::PICKABLE_OBJECT);
+
 }
 
 Game::~Game() {
@@ -153,13 +158,49 @@ void Game::render() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	renderme();
+
+	/*auto shader = Globals::shaderManager.getAssetPointer("texture");
+	shader->use();
+	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
+	shader->loadMatrix("u_view", m_camera.getViewMatrix());
+	shader->loadMatrix("u_model", Matrix4f::IDENTITY);
+	Globals::textureManager.get("null").bind(0);
+	Globals::shapeManager.get("platform").drawRaw();
+	shader->unuse();
+
+	glDisable(GL_DEPTH_TEST);
 	m_mousePicker.draw(m_camera);
+	glEnable(GL_DEPTH_TEST);*/
+
 	if (m_drawUi)
 		renderUi();
 }
 
 void Game::OnMouseMotion(Event::MouseMoveEvent& event) {
 	m_mousePicker.updatePosition(event.x, event.y, m_camera);
+
+	if (m_pickConstraint) {
+		
+		btPoint2PointConstraint* pickCon = static_cast<btPoint2PointConstraint*>(m_pickConstraint);
+		if (pickCon) {
+			//keep it at the same picking distance
+
+			btVector3 newRayTo = m_mousePicker.getTarget();
+			btVector3 rayFrom = m_mousePicker.getOrigin();
+			btVector3 oldPivotInB = pickCon->getPivotInB();
+			btVector3 newPivotB;
+				
+			
+			btVector3 dir = newRayTo - rayFrom;
+			dir.normalize();
+			dir *= gOldPickingDist;
+
+			newPivotB = rayFrom + dir;
+				
+			pickCon->setPivotB(newPivotB);
+		}
+		
+	}
 }
 
 void Game::OnMouseWheel(Event::MouseWheelEvent& event) {
@@ -167,6 +208,7 @@ void Game::OnMouseWheel(Event::MouseWheelEvent& event) {
 }
 
 void Game::OnMouseButtonDown(Event::MouseButtonEvent& event) {
+	m_mousePicker.updatePosition(event.x, event.y, m_camera);
 
 	if (event.button == 2u) {
 		Mouse::instance().attach(Application::GetWindow());
@@ -174,13 +216,16 @@ void Game::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 
 		if (m_mousePicker.click(event.x, event.y, m_camera)) {
 			const MousePickCallback& callback = m_mousePicker.getCallback();
-			btVector3 pickPos = callback.m_hitPointWorld;
-			pickObject(pickPos, callback.m_collisionObject);
-		}/*else {
-			removePickingConstraint();
-		}*/
+			pickObject(callback.m_hitPointWorld, callback.m_collisionObject);
 
-		
+			gOldPickingPos = m_mousePicker.getTarget();
+			gHitPos = callback.m_hitPointWorld;
+
+			gOldPickingDist = (callback.m_hitPointWorld - m_mousePicker.getOrigin()).length();
+
+		}else {
+			//removePickingConstraint();
+		}
 	}
 }
 

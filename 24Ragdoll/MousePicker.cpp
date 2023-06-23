@@ -23,7 +23,7 @@ MousePicker::MousePicker() : m_callback(btVector3(0.0f, 0.0f, 0.0f), btVector3(0
 
 	glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
 
-	m_quad = RenderableObject("quad", "texture", "null");
+	m_quad = RenderableObject("quad", "ring", "null");
 }
 
 void MousePicker::updateObjectId(unsigned int posX, unsigned int posY) {
@@ -66,42 +66,30 @@ void MousePicker::updatePosition(unsigned int posX, unsigned int posY, const Cam
 	float mouseXndc = (2.0f * posX) / static_cast<float>(Application::Width) - 1.0f;
 	float mouseYndc = 1.0f - (2.0f * posY) / static_cast<float>(Application::Height);
 
-	//std::cout << "Mouse X: " << mouseXndc << "  " << mouseYndc << std::endl;
-
-	//Matrix4f tmp = camera.getInvPerspectiveMatrix() * camera.getPerspectiveMatrix();
-	//tmp.print();
-
 	Vector4f rayStartEye = Vector4f(mouseXndc, mouseYndc, -1.0f, 1.0f) ^ camera.getInvPerspectiveMatrix();
 	Vector4f rayEndEye = Vector4f(mouseXndc, mouseYndc, 1.0f, 1.0f) ^ camera.getInvPerspectiveMatrix();
+	rayStartEye = rayStartEye * (1.0f / rayStartEye[3]);
 	rayEndEye = rayEndEye * (1.0f / rayEndEye[3]);
-
 
 	Vector3f rayStartWorld = rayStartEye * camera.getInvViewMatrix();
 	Vector3f rayEndWorld = rayEndEye * camera.getInvViewMatrix();
 
-	//Matrix4f tmp = camera.getViewMatrix()* camera.getInvViewMatrix();
-	//tmp.print();
-
 	Vector3f rayDirection = rayEndWorld - rayStartWorld;
 	Vector3f::Normalize(rayDirection);
-
 
 	btVector3 origin = btVector3(rayStartWorld[0], rayStartWorld[1], rayStartWorld[2]);
 	btVector3 target = btVector3(rayEndWorld[0], rayEndWorld[1], rayEndWorld[2]);
 
-	m_callback = MousePickCallback(origin, target, Physics::MOUSEPICKER, Physics::PICKABLE_OBJECT | Physics::TERRAIN);
+	m_callback = MousePickCallback(origin, target, Physics::MOUSEPICKER, Physics::PICKABLE_OBJECT);
 	
 	Globals::physics->GetDynamicsWorld()->rayTest(origin, target, m_callback);
 
 	if (m_callback.hasHit()) {
-		std::cout << "########" << std::endl;
-		
 		m_quad.setPosition(Physics::VectorFrom(m_callback.m_hitPointWorld));
 	}
 }
 
 void MousePicker::draw(const Camera& camera){
-	
 	m_quad.draw(camera);
 }
 
@@ -111,8 +99,10 @@ bool MousePicker::click(unsigned int posX, unsigned int posY, const Camera& came
 
 	Vector4f rayStartEye = Vector4f(mouseXndc, mouseYndc, -1.0f, 1.0f) ^ camera.getInvPerspectiveMatrix();
 	Vector4f rayEndEye = Vector4f(mouseXndc, mouseYndc, 1.0f, 1.0f) ^ camera.getInvPerspectiveMatrix();
+	rayStartEye = rayStartEye * (1.0f / rayStartEye[3]);
 	rayEndEye = rayEndEye * (1.0f / rayEndEye[3]);
 
+	Vector3f campos = camera.getPosition();
 
 	Vector3f rayStartWorld = rayStartEye * camera.getInvViewMatrix();
 	Vector3f rayEndWorld = rayEndEye * camera.getInvViewMatrix();
@@ -120,17 +110,21 @@ bool MousePicker::click(unsigned int posX, unsigned int posY, const Camera& came
 	Vector3f rayDirection = rayEndWorld - rayStartWorld;
 	Vector3f::Normalize(rayDirection);
 
+	origin = btVector3(rayStartWorld[0], rayStartWorld[1], rayStartWorld[2]);
+	target = btVector3(rayEndWorld[0], rayEndWorld[1], rayEndWorld[2]);
 
-	btVector3 origin = btVector3(rayStartWorld[0], rayStartWorld[1], rayStartWorld[2]);
-	btVector3 target = btVector3(rayEndWorld[0], rayEndWorld[1], rayEndWorld[2]);
-
-	m_callback = MousePickCallback(origin, target, Physics::MOUSEPICKER, Physics::PICKABLE_OBJECT | Physics::TERRAIN);
-
+	m_callback = MousePickCallback(origin, target, Physics::MOUSEPICKER, Physics::PICKABLE_OBJECT);
 	Globals::physics->GetDynamicsWorld()->rayTest(origin, target, m_callback);
 
-	std::cout << "Has hit: " << m_callback.hasHit() << std::endl;
-
 	return m_callback.hasHit();
+}
+
+const btVector3& MousePicker::getOrigin() {
+	return origin;
+}
+
+const btVector3& MousePicker::getTarget() {
+	return target;
 }
 
 Framebuffer MousePicker::getBuffer() const {

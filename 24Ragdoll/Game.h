@@ -72,6 +72,4 @@ private:
 
 	bool m_initUi = true;
 	bool m_drawUi = true;
-
-
 };

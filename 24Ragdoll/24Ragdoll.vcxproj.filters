@@ -81,9 +81,6 @@
     <ClCompile Include="engine\input\KeyboardEventListener.cpp">
       <Filter>engine\input</Filter>
     </ClCompile>
-    <ClCompile Include="engine\input\Mouse.cpp">
-      <Filter>engine\input</Filter>
-    </ClCompile>
     <ClCompile Include="engine\input\MouseEventListener.cpp">
       <Filter>engine\input</Filter>
     </ClCompile>
@@ -231,6 +228,9 @@
     <ClCompile Include="MousePicker.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="engine\input\Mouse.cpp">
+      <Filter>engine\input</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h">
@@ -273,9 +273,6 @@
       <Filter>engine\input</Filter>
     </ClInclude>
     <ClInclude Include="engine\input\KeyboardEventListener.h">
-      <Filter>engine\input</Filter>
-    </ClInclude>
-    <ClInclude Include="engine\input\Mouse.h">
       <Filter>engine\input</Filter>
     </ClInclude>
     <ClInclude Include="engine\input\MouseEventListener.h">
@@ -436,6 +433,9 @@
     </ClInclude>
     <ClInclude Include="MousePicker.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\input\Mouse.h">
+      <Filter>engine\input</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

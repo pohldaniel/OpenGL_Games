@@ -14,7 +14,7 @@ class Physics{
 public:
 
 	enum collisiontypes {
-		TERRAIN = 1,
+		FLOOR = 1,
 		RENDERABLE_OBJECT = 2,
 		RAY = 4,
 		PICKABLE_OBJECT = 8,

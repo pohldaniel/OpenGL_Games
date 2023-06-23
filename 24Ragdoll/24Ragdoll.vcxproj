@@ -223,6 +223,7 @@
     <ClInclude Include="CharacterController.h" />
     <ClInclude Include="engine\ArrayBuffer.h" />
     <ClInclude Include="engine\CubeBuffer.h" />
+    <ClInclude Include="engine\input\Mouse.h" />
     <ClInclude Include="Globals.h" />
     <ClInclude Include="convhull\convhull_3d.h" />
     <ClInclude Include="engine\AssetManger.h" />
@@ -241,7 +242,6 @@
     <ClInclude Include="engine\input\EventDispatcher.h" />
     <ClInclude Include="engine\input\Keyboard.h" />
     <ClInclude Include="engine\input\KeyboardEventListener.h" />
-    <ClInclude Include="engine\input\Mouse.h" />
     <ClInclude Include="engine\input\MouseEventListener.h" />
     <ClInclude Include="engine\Line.h" />
     <ClInclude Include="engine\Material.h" />
