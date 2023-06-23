@@ -23,7 +23,7 @@ public:
 	};
 
 	TrackBall() : _width(0), _height(0), _tbActivateButton(ELeftButton), _dActivateButton(ERightButton), _pActivateButton(EMiddleButton),
-		_tbActivateModifiers(ENoModifier), _dActivateModifiers(ENoModifier), _pActivateModifiers(ENoModifier), _tbActive(false), _dActive(false), _pActive(false)  {
+		_tbActivateModifiers(ENoModifier), _dActivateModifiers(ENoModifier), _pActivateModifiers(ENoModifier), _tbActive(false), _dActive(false), _pActive(false) {
 		_r = Quaternion(0.0f, 0.0f, 0.0f, 1.0f);
 		_incr = Quaternion(0.0f, 0.0f, 0.0f, 1.0f); //no rotation
 		_tbScale = 1.0f;
@@ -53,7 +53,8 @@ public:
 			_y = _y0 = y;
 			_dx = _dy = 0;
 
-		} else if (button == _tbActivateButton && !depressed) {
+		}
+		else if (button == _tbActivateButton && !depressed) {
 			if (_dx == 0 && _dy == 0)
 				update();
 			_tbActive = false;
@@ -67,7 +68,8 @@ public:
 			_y = _y0 = y;
 			_dx = _dy = 0;
 
-		} else if (button == _dActivateButton && !depressed) {
+		}
+		else if (button == _dActivateButton && !depressed) {
 			if (_dx == 0 && _dy == 0)
 				update();
 			_dActive = false;
@@ -81,7 +83,8 @@ public:
 			_y = _y0 = y;
 			_dx = _dy = 0;
 
-		} else if (button == _pActivateButton && !depressed) {
+		}
+		else if (button == _pActivateButton && !depressed) {
 			if (_dx == 0 && _dy == 0)
 				update();
 			_pActive = false;
@@ -112,15 +115,15 @@ public:
 	//
 	//////////////////////////////////////////////////////////////////
 	void updateTrackball() {
-		float min = _width < _height ? static_cast< float >(_width) : static_cast< float >(_height);
+		float min = _width < _height ? _width : _height;
 		min *= 0.5f;
 		Vector3f offset(_width / 2.f, _height / 2.f, 0);
-		Vector3f a(static_cast< float >(_x - _dx), static_cast< float >(_height - (_y + _dy)), 0);
-		Vector3f b(static_cast< float >(_x), static_cast< float >(_height - _y), 0);
+		Vector3f a(_x - _dx, _height - (_y + _dy), 0);
+		Vector3f b(_x, _height - _y, 0);
 		a -= offset;
 		b -= offset;
-		//a /= min;
-		//b /= min;
+		a /= min;
+		b /= min;
 
 		a[2] = pow(2.0f, 0.5f * a.length());
 		Vector3f::Normalize(a);
@@ -132,17 +135,17 @@ public:
 		float rad = acos(Vector3f::Dot(a, b));
 
 		//original glh version had an invert flag and a parent frame, do we need one?		
-		//_incr.set(axis, rad * _180_ON_PI * _tbScale);
+		_incr.set(axis, rad * _180_ON_PI * _tbScale);
 		//_incr.conjugate();
 
-		_r = _incr*_r;	
+		_r = _incr*_r;
 	}
 
 	//
 	//
 	//////////////////////////////////////////////////////////////////
 	void updatePan() {
-		Vector3f v(static_cast< float >(_dx), static_cast< float >(_dy), 0.0f);
+		Vector3f v(_dx, _dy, 0);
 
 		_pan += v * _pScale;
 	}
@@ -151,7 +154,7 @@ public:
 	//
 	//////////////////////////////////////////////////////////////////
 	void updateDolly() {
-		Vector3f v(0.0f, 0.0f, static_cast< float >(_dy));
+		Vector3f v(0, 0, _dy);
 
 		_dolly -= v * _dScale;
 	}
@@ -191,7 +194,7 @@ public:
 	}
 
 	const Matrix4f& getTransform(const Quaternion& quat) {
-		m_transform.reset();	
+		m_transform.reset();
 		m_transform.rotate(quat, _centroid);
 		m_transform.rotate(_r, _centroid);
 		m_transform.translate(_pan);
@@ -214,7 +217,7 @@ public:
 
 	const Matrix4f& getTransform(const Vector3f& trans, const Quaternion& quat, const Vector3f& scale) {
 		m_transform.reset();
-		
+
 		m_transform.translate(trans);
 		m_transform.rotate(quat);
 		m_transform.rotate(_r);

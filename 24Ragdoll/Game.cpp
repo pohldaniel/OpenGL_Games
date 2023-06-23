@@ -127,13 +127,12 @@ void Game::update() {
 
 	if (move || dx != 0.0f || dy != 0.0f) {
 		if (dx || dy) {
-			m_camera.rotate(dx, dy, 0.0f);
+			m_camera.rotate(dx, dy);
 
 		}
 
 		if (move) {
-			//m_camera.move(directrion * 5.0f * m_dt);
-			m_camera.move(directrion[0] * 5.0f * m_dt, directrion[1] * 5.0f * m_dt, directrion[2] * 5.0f * m_dt);
+			m_camera.move(directrion * 5.0f * m_dt);
 		}
 	}
 	m_trackball.idle();
@@ -144,7 +143,7 @@ void Game::render() {
 	
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	glLoadMatrixf(&m_camera.getProjectionMatrix()[0][0]);
+	glLoadMatrixf(&m_camera.getPerspectiveMatrix()[0][0]);
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
