@@ -119,8 +119,8 @@ public:
 		Vector3f b(static_cast< float >(_x), static_cast< float >(_height - _y), 0);
 		a -= offset;
 		b -= offset;
-		a /= min;
-		b /= min;
+		//a /= min;
+		//b /= min;
 
 		a[2] = pow(2.0f, 0.5f * a.length());
 		Vector3f::Normalize(a);
@@ -132,7 +132,7 @@ public:
 		float rad = acos(Vector3f::Dot(a, b));
 
 		//original glh version had an invert flag and a parent frame, do we need one?		
-		_incr.set(axis, rad * _180_ON_PI * _tbScale);
+		//_incr.set(axis, rad * _180_ON_PI * _tbScale);
 		//_incr.conjugate();
 
 		_r = _incr*_r;	

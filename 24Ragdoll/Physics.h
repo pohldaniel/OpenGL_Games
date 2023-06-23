@@ -22,6 +22,7 @@ public:
 		CHARACTER = 32,
 		TRIGGER = 64,
 		LAVA = 128,
+		MOUSEPICKER = 256,
 		COL_FORCE_8BIT = 0xFF
 	};
 

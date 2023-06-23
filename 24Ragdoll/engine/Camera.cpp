@@ -1,7 +1,8 @@
 #include <cmath>
 #include <iostream>
+#include <limits>
 
-#include "Camera.h"
+#include "camera.h"
 
 Camera::Camera(){
 	
@@ -9,59 +10,54 @@ Camera::Camera(){
 	WORLD_YAXIS = Vector3f(0.0f, 1.0f, 0.0f);
 	WORLD_ZAXIS = Vector3f(0.0f, 0.0f, 1.0f);
 
+	m_fovx = 45.0f;
+	m_znear = 0.1f;
+	m_zfar = 1000.0f;
+    m_aspectRatio = 0.0f;
 	m_accumPitchDegrees = 0.0f;
-	m_rotationSpeed = 0.05f;
-	m_movingSpeed = 1.0f;
-	m_offsetDistance = 0.0f;
 
+    m_eye.set(0.0f, 0.0f, 0.0f);
     m_xAxis.set(1.0f, 0.0f, 0.0f);
     m_yAxis.set(0.0f, 1.0f, 0.0f);
     m_zAxis.set(0.0f, 0.0f, 1.0f);
     m_viewDir.set(0.0f, 0.0f, -1.0f);
-
-	m_eye = Vector3f(0.0f, 0.0f, 0.0f) ;
-    m_persMatrix.identity();
-	m_invPersMatrix.identity();
+    
+    m_projMatrix.identity();
 	m_orthMatrix.identity();
-	m_invOrthMatrix.identity();
+	
+	updateViewMatrix(false);
 
-	orthogonalize();
-	updateViewMatrix();
+	m_acceleration.set(0.0f, 0.0f, 0.0f);
+	m_currentVelocity.set(0.0f, 0.0f, 0.0f);
+	m_velocity.set(0.0f, 0.0f, 0.0f);
 }
 
 Camera::Camera(const Vector3f &eye, const Vector3f &target, const Vector3f &up) {
-
-	WORLD_XAXIS = Vector3f(1.0f, 0.0f, 0.0f);
-	WORLD_YAXIS = Vector3f(0.0f, 1.0f, 0.0f);
-	WORLD_ZAXIS = Vector3f(0.0f, 0.0f, 1.0f);
-
 	m_accumPitchDegrees = 0.0f;
-	m_rotationSpeed = 0.1f;
-	m_movingSpeed = 1.0f;
-	m_offsetDistance = 0.0f;
-
-	m_persMatrix.identity();
-	m_invPersMatrix.identity();
+	m_eye = eye;
+	m_projMatrix.identity();
 	m_orthMatrix.identity();
-	m_invOrthMatrix.identity();
-
-	lookAt(eye, target, up);
+	updateViewMatrix(eye, target, up);
 }
 
 Camera::~Camera() {}
 
-void Camera::orthogonalize() {
+void Camera::updateViewMatrix(bool orthogonalizeAxes){
+	// Regenerate the camera's local axes to orthogonalize them.
+	if (orthogonalizeAxes){
 
-	Vector3f::Normalize(m_zAxis);
+		Vector3f::Normalize(m_zAxis);
 
-	m_yAxis = Vector3f::Cross(m_zAxis, m_xAxis);
-	Vector3f::Normalize(m_yAxis);
+		m_yAxis = Vector3f::Cross(m_zAxis, m_xAxis);
+		Vector3f::Normalize(m_yAxis);
 
-	m_xAxis = Vector3f::Cross(m_yAxis, m_zAxis);
-	Vector3f::Normalize(m_xAxis);
+		m_xAxis = Vector3f::Cross(m_yAxis, m_zAxis);
+		Vector3f::Normalize(m_xAxis);
 
-	m_viewDir = -m_zAxis;
+		m_viewDir = -m_zAxis;
+	}
 
+	// Reconstruct the view matrix.
 	m_viewMatrix[0][0] = m_xAxis[0];
 	m_viewMatrix[0][1] = m_yAxis[0];
 	m_viewMatrix[0][2] = m_zAxis[0];
@@ -77,6 +73,11 @@ void Camera::orthogonalize() {
 	m_viewMatrix[2][2] = m_zAxis[2];
 	m_viewMatrix[2][3] = 0.0f;
 
+	m_viewMatrix[3][0] = -Vector3f::Dot(m_xAxis, m_eye);
+	m_viewMatrix[3][1] = -Vector3f::Dot(m_yAxis, m_eye);
+	m_viewMatrix[3][2] = -Vector3f::Dot(m_zAxis, m_eye);
+	m_viewMatrix[3][3] = 1.0f;
+
 	m_invViewMatrix[0][0] = m_xAxis[0];
 	m_invViewMatrix[0][1] = m_xAxis[1];
 	m_invViewMatrix[0][2] = m_xAxis[2];
@@ -91,14 +92,6 @@ void Camera::orthogonalize() {
 	m_invViewMatrix[2][1] = m_zAxis[1];
 	m_invViewMatrix[2][2] = m_zAxis[2];
 	m_invViewMatrix[2][3] = 0.0f;
-}
-
-void Camera::updateViewMatrix() {
-
-	m_viewMatrix[3][0] = -Vector3f::Dot(m_xAxis, m_eye);
-	m_viewMatrix[3][1] = -Vector3f::Dot(m_yAxis, m_eye);
-	m_viewMatrix[3][2] = -Vector3f::Dot(m_zAxis, m_eye);
-	m_viewMatrix[3][3] = 1.0f;
 
 	m_invViewMatrix[3][0] = m_eye[0];
 	m_invViewMatrix[3][1] = m_eye[1];
@@ -106,103 +99,9 @@ void Camera::updateViewMatrix() {
 	m_invViewMatrix[3][3] = 1.0f;
 }
 
-void Camera::perspective(float fovx, float aspect, float znear, float zfar){
-	// Construct a projection matrix based on the horizontal field of view
-	// 'fovx' rather than the more traditional vertical field of view 'fovy'.
-	float e = tanf(PI_ON_180 * fovx * 0.5f);
-	float xScale = (1.0f / (e * aspect));
-	float yScale = (1.0f / e);
+void Camera::updateViewMatrix(const Vector3f &eye, const Vector3f &target, const Vector3f &up){
 
-	m_persMatrix[0][0] = xScale;
-	m_persMatrix[0][1] = 0.0f;
-	m_persMatrix[0][2] = 0.0f;
-	m_persMatrix[0][3] = 0.0f;
-
-	m_persMatrix[1][0] = 0.0f;
-	m_persMatrix[1][1] = yScale;
-	m_persMatrix[1][2] = 0.0f;
-	m_persMatrix[1][3] = 0.0f;
-
-	m_persMatrix[2][0] = 0.0f;
-	m_persMatrix[2][1] = 0.0f;
-	m_persMatrix[2][2] = (zfar + znear) / (znear - zfar);
-	m_persMatrix[2][3] = -1.0f;
-
-	m_persMatrix[3][0] = 0.0f;
-	m_persMatrix[3][1] = 0.0f;
-	m_persMatrix[3][2] = (2.0f * zfar * znear) / (znear - zfar);
-	m_persMatrix[3][3] = 0.0f;	
-
-	m_invPersMatrix[0][0] = e * aspect;
-	m_invPersMatrix[0][1] = 0.0f;
-	m_invPersMatrix[0][2] = 0.0f;
-	m_invPersMatrix[0][3] = 0.0f;
-
-	m_invPersMatrix[1][0] = 0.0f;
-	m_invPersMatrix[1][1] = e;
-	m_invPersMatrix[1][2] = 0.0f;
-	m_invPersMatrix[1][3] = 0.0f;
-
-	m_invPersMatrix[2][0] = 0.0f;
-	m_invPersMatrix[2][1] = 0.0f;
-	m_invPersMatrix[2][2] = 0.0;
-	m_invPersMatrix[2][3] = (znear - zfar) / (2 * zfar * znear);
-
-	m_invPersMatrix[3][0] = 0.0f;
-	m_invPersMatrix[3][1] = 0.0f;
-	m_invPersMatrix[3][2] = -1.0f;
-	m_invPersMatrix[3][3] = (znear + zfar) / (2 * zfar * znear);
-}
-
-void Camera::orthographic(float left, float right, float bottom, float top, float znear, float zfar){
-
-	m_orthMatrix[0][0] = 2 / (right - left);
-	m_orthMatrix[0][1] = 0.0f;
-	m_orthMatrix[0][2] = 0.0f;
-	m_orthMatrix[0][3] = 0.0f;
-
-	m_orthMatrix[1][0] = 0.0f;
-	m_orthMatrix[1][1] = 2 / (top - bottom);
-	m_orthMatrix[1][2] = 0.0f;
-	m_orthMatrix[1][3] = 0.0f;
-
-	m_orthMatrix[2][0] = 0.0f;
-	m_orthMatrix[2][1] = 0.0f;
-	m_orthMatrix[2][2] = 2 / (znear - zfar);
-	m_orthMatrix[2][3] = 0.0f;
-
-	m_orthMatrix[3][0] = (right + left) / (left - right);
-	m_orthMatrix[3][1] = (top + bottom) / (bottom - top);
-	m_orthMatrix[3][2] = (zfar + znear) / (znear - zfar);
-	m_orthMatrix[3][3] = 1.0f;
-
-	m_invOrthMatrix[0][0] = (right - left) * 0.5f;
-	m_invOrthMatrix[0][1] = 0.0f;
-	m_invOrthMatrix[0][2] = 0.0f;
-	m_invOrthMatrix[0][3] = 0.0f;
-
-	m_invOrthMatrix[1][0] = 0.0f;
-	m_invOrthMatrix[1][1] = (top - bottom) * 0.5f;
-	m_invOrthMatrix[1][2] = 0.0f;
-	m_invOrthMatrix[1][3] = 0.0f;
-
-	m_invOrthMatrix[2][0] = 0.0f;
-	m_invOrthMatrix[2][1] = 0.0f;
-	m_invOrthMatrix[2][2] = (znear - zfar) * 0.5f;
-	m_invOrthMatrix[2][3] = 0.0f;
-
-	m_invOrthMatrix[3][0] = (right + left) * 0.5f;
-	m_invOrthMatrix[3][1] = (top + bottom) * 0.5f;
-	m_invOrthMatrix[3][2] = -(zfar + znear) * 0.5f;
-	m_invOrthMatrix[3][3] = 1.0f;
-}
-
-void Camera::lookAt(const Vector3f &eye, const Vector3f &target, const Vector3f &up){
-	m_eye = eye;
-	m_target = target;
-	m_offsetDistance = (m_target - m_eye).length();
-
-	m_zAxis = m_eye - target;
+	m_zAxis = eye - target;
 	Vector3f::Normalize(m_zAxis);
 
 	m_xAxis = Vector3f::Cross(up, m_zAxis);
@@ -239,25 +138,114 @@ void Camera::lookAt(const Vector3f &eye, const Vector3f &target, const Vector3f 
 	// Extract the pitch angle from the view matrix.
 	m_accumPitchDegrees = -asinf(m_viewMatrix[2][1]) * _180_ON_PI;
 
-	m_invViewMatrix[0][0] = m_xAxis[0];
-	m_invViewMatrix[0][1] = m_xAxis[1];
-	m_invViewMatrix[0][2] = m_xAxis[2];
-	m_invViewMatrix[0][3] = 0.0f;
+	Matrix4f invView;
+	invView.invLookAt(eye, target, up);
+	m_invViewMatrix = invView;
+}
 
-	m_invViewMatrix[1][0] = m_yAxis[0];
-	m_invViewMatrix[1][1] = m_yAxis[1];
-	m_invViewMatrix[1][2] = m_yAxis[2];
-	m_invViewMatrix[1][3] = 0.0f;
+void Camera::perspective(float fovx, float aspect, float znear, float zfar){
+	// Construct a projection matrix based on the horizontal field of view
+	// 'fovx' rather than the more traditional vertical field of view 'fovy'.
 
-	m_invViewMatrix[2][0] = m_zAxis[0];
-	m_invViewMatrix[2][1] = m_zAxis[1];
-	m_invViewMatrix[2][2] = m_zAxis[2];
-	m_invViewMatrix[2][3] = 0.0f;
+	float e = 1.0f /tanf(PI_ON_180 * fovx * 0.5f);
+	float xScale = e / aspect;
+	float yScale = e;
 
-	m_invViewMatrix[3][0] = m_eye[0];
-	m_invViewMatrix[3][1] = m_eye[1];
-	m_invViewMatrix[3][2] = m_eye[2];
-	m_invViewMatrix[3][3] = 1.0f;
+	m_projMatrix[0][0] = xScale;
+	m_projMatrix[0][1] = 0.0f;
+	m_projMatrix[0][2] = 0.0f;
+	m_projMatrix[0][3] = 0.0f;
+
+	m_projMatrix[1][0] = 0.0f;
+	m_projMatrix[1][1] = yScale;
+	m_projMatrix[1][2] = 0.0f;
+	m_projMatrix[1][3] = 0.0f;
+
+	m_projMatrix[2][0] = 0.0f;
+	m_projMatrix[2][1] = 0.0f;
+	m_projMatrix[2][2] = (zfar + znear) / (znear - zfar);
+	m_projMatrix[2][3] = -1.0f;
+
+	m_projMatrix[3][0] = 0.0f;
+	m_projMatrix[3][1] = 0.0f;
+	m_projMatrix[3][2] = (2.0f * zfar * znear) / (znear - zfar);
+	m_projMatrix[3][3] = 0.0f;
+
+	m_fovx = fovx;
+	m_aspectRatio = aspect;
+	m_znear = znear;
+	m_zfar = zfar;	
+}
+
+void Camera::orthographic(float left, float right, float bottom, float top, float znear, float zfar){
+
+	m_orthMatrix[0][0] = 2 / (right - left);
+	m_orthMatrix[0][1] = 0.0f;
+	m_orthMatrix[0][2] = 0.0f;
+	m_orthMatrix[0][3] = 0.0f;
+
+	m_orthMatrix[1][0] = 0.0f;
+	m_orthMatrix[1][1] = 2 / (top - bottom);
+	m_orthMatrix[1][2] = 0.0f;
+	m_orthMatrix[1][3] = 0.0f;
+
+	m_orthMatrix[2][0] = 0.0f;
+	m_orthMatrix[2][1] = 0.0f;
+	m_orthMatrix[2][2] = 2 / (znear - zfar);
+	m_orthMatrix[2][3] = 0.0f;
+
+	m_orthMatrix[3][0] = (right + left) / (left - right);
+	m_orthMatrix[3][1] = (top + bottom) / (bottom - top);
+	m_orthMatrix[3][2] = (zfar + znear) / (znear - zfar);
+	m_orthMatrix[3][3] = 1.0f;
+
+	m_znear = znear;
+	m_zfar = zfar;
+}
+
+void Camera::lookAt(const Vector3f &eye, const Vector3f &target, const Vector3f &up){
+	m_eye = eye;
+
+	m_zAxis = eye - target;
+	Vector3f::Normalize(m_zAxis);
+
+	m_xAxis = Vector3f::Cross(up, m_zAxis);
+	Vector3f::Normalize(m_xAxis);
+
+	m_yAxis = Vector3f::Cross(m_zAxis, m_xAxis);
+	Vector3f::Normalize(m_yAxis);
+
+	WORLD_YAXIS = Vector3f::Cross(m_zAxis, m_xAxis);
+	Vector3f::Normalize(WORLD_YAXIS);
+
+	m_viewDir = -m_zAxis;
+
+	m_viewMatrix[0][0] = m_xAxis[0];
+	m_viewMatrix[0][1] = m_yAxis[0];
+	m_viewMatrix[0][2] = m_zAxis[0];
+	m_viewMatrix[0][3] = 0.0f;
+
+	m_viewMatrix[1][0] = m_xAxis[1];
+	m_viewMatrix[1][1] = m_yAxis[1];
+	m_viewMatrix[1][2] = m_zAxis[1];
+	m_viewMatrix[1][3] = 0.0f;
+
+	m_viewMatrix[2][0] = m_xAxis[2];
+	m_viewMatrix[2][1] = m_yAxis[2];
+	m_viewMatrix[2][2] = m_zAxis[2];
+	m_viewMatrix[2][3] = 0.0f;
+
+	m_viewMatrix[3][0] = -Vector3f::Dot(m_xAxis, m_eye);
+	m_viewMatrix[3][1] = -Vector3f::Dot(m_yAxis, m_eye);
+	m_viewMatrix[3][2] = -Vector3f::Dot(m_zAxis, m_eye);
+	m_viewMatrix[3][3] = 1.0f;
+
+	// Extract the pitch angle from the view matrix.
+	m_accumPitchDegrees = -asinf(m_viewMatrix[2][1]) * _180_ON_PI;
+
+	Matrix4f invView;
+	invView.invLookAt(eye, target, up);
+	m_invViewMatrix = invView;
 }
 
 void Camera::pitchReflection(const float distance) {
@@ -267,66 +255,106 @@ void Camera::pitchReflection(const float distance) {
 
 void Camera::move(float dx, float dy, float dz){
 	Vector3f eye = m_eye;
-	eye += m_xAxis * dx * m_movingSpeed;
-	eye += WORLD_YAXIS * dy * m_movingSpeed;
-	eye += m_viewDir * dz * m_movingSpeed;
+	eye += m_xAxis * dx;
+	eye += WORLD_YAXIS * dy;
+	eye += m_viewDir * dz;
 	setPosition(eye);
 }
 
-void Camera::move(const Vector3f &direction) {
-	Vector3f eye = m_eye;
-	eye += m_xAxis * direction[0] * m_movingSpeed;
-	eye += WORLD_YAXIS * direction[1] * m_movingSpeed;
-	eye += m_viewDir * direction[2] * m_movingSpeed;
-	setPosition(eye);
+void Camera::updatePosition(const Vector3f &direction, float m_dt) {
+
+	if (m_currentVelocity.lengthSq() != 0.0f) {
+		Vector3f displacement = (m_currentVelocity * m_dt) + (0.5f * m_acceleration * m_dt * m_dt);
+		move(displacement[0], displacement[1], displacement[2]);
+	}
+
+	if (direction[0] != 0.0f){
+		// Camera is moving along the x axis.
+		// Linearly accelerate up to the camera's max speed.
+
+		m_currentVelocity[0] += direction[0] * m_acceleration[0] * m_dt;
+
+		if (m_currentVelocity[0] > m_velocity[0])
+			m_currentVelocity[0] = m_velocity[0];
+		else if (m_currentVelocity[0] < -m_velocity[0])
+			m_currentVelocity[0] = -m_velocity[0];
+	}else{
+		// Camera is no longer moving along the x axis.
+		// Linearly decelerate back to stationary state.
+
+		if (m_currentVelocity[0] > 0.0f){
+			if ((m_currentVelocity[0] -= m_acceleration[0] * m_dt) < 0.0f)
+				m_currentVelocity[0] = 0.0f;
+
+		}else{
+
+			if ((m_currentVelocity[0] += m_acceleration[0] * m_dt) > 0.0f)
+				m_currentVelocity[0] = 0.0f;
+		}
+	}
+
+	if (direction[1] != 0.0f){
+		// Camera is moving along the y axis.
+		// Linearly accelerate up to the camera's max speed.
+		m_currentVelocity[1] += direction[1] * m_acceleration[1] * m_dt;
+
+		if (m_currentVelocity[1] > m_velocity[1])
+			m_currentVelocity[1] = m_velocity[1];
+		else if (m_currentVelocity[1] < -m_velocity[1])
+			m_currentVelocity[1] = -m_velocity[1];
+	}else{
+		// Camera is no longer moving along the y axis.
+		// Linearly decelerate back to stationary state.
+
+		if (m_currentVelocity[1] > 0.0f){
+			if ((m_currentVelocity[1] -= m_acceleration[1] * m_dt) < 0.0f)
+				m_currentVelocity[1] = 0.0f;
+
+		}else{
+			if ((m_currentVelocity[1] += m_acceleration[1] * m_dt) > 0.0f)
+				m_currentVelocity[1] = 0.0f;
+		}
+	}
+
+	if (direction[2] != 0.0f){
+		// Camera is moving along the z axis.
+		// Linearly accelerate up to the camera's max speed.
+
+		m_currentVelocity[2] += direction[2] * m_acceleration[2] * m_dt;
+
+		if (m_currentVelocity[2] > m_velocity[2])
+			m_currentVelocity[2] = m_velocity[2];
+		else if (m_currentVelocity[2] < -m_velocity[2])
+			m_currentVelocity[2] = -m_velocity[2];
+	}else{
+		// Camera is no longer moving along the z axis.
+		// Linearly decelerate back to stationary state.
+
+		if (m_currentVelocity[2] > 0.0f){
+			if ((m_currentVelocity[2] -= m_acceleration[2] * m_dt) < 0.0f)
+				m_currentVelocity[2] = 0.0f;
+
+		}else{
+			if ((m_currentVelocity[2] += m_acceleration[2] * m_dt) > 0.0f)
+				m_currentVelocity[2] = 0.0f;
+		}
+	}
 }
 
-void Camera::moveRelative(const Vector3f &direction) {
-
-	m_eye[0] += (m_xAxis[0] * direction[0] + m_yAxis[0] * direction[1] + m_viewDir[0] * direction[2]);
-	m_eye[1] += (m_xAxis[1] * direction[0] + m_yAxis[1] * direction[1] + m_viewDir[1] * direction[2]);
-	m_eye[2] += (m_xAxis[2] * direction[0] + m_yAxis[2] * direction[1] + m_viewDir[2] * direction[2]);
-
-	updateViewMatrix();
+void Camera::rotate(float yaw, float pitch, float roll){
+	rotateFirstPerson(yaw, pitch);
+	updateViewMatrix(true);
 }
 
-const Vector3f Camera::getViewSpaceDirection(const Vector3f &direction) {
-
-	return Vector3f(m_xAxis[0] * direction[0] + m_yAxis[0] * direction[1] + m_viewDir[0] * direction[2],
-					m_xAxis[1] * direction[0] + m_yAxis[1] * direction[1] + m_viewDir[1] * direction[2],
-					m_xAxis[2] * direction[0] + m_yAxis[2] * direction[1] + m_viewDir[2] * direction[2]);
-}
-
-const float Camera::getDistance() const {
-	return (m_target - m_eye).length();
-}
-
-const float Camera::getDistanceSq() const {
-	return (m_target - m_eye).lengthSq();
-}
-
-void Camera::moveX(float dx) {
-	m_eye[0] = (dx * m_movingSpeed) + m_eye[0];
-	m_viewMatrix[3][0] = -(m_xAxis[0] * (m_eye[0] -m_viewDir[0] * m_offsetDistance) + m_xAxis[1] * m_eye[1] + m_xAxis[2] * m_eye[2]);
-	m_invViewMatrix[3][0] = m_eye[0] - m_viewDir[0] * m_offsetDistance;
-}
-
-void Camera::moveY(float dy) {
-	m_eye[1] = (dy * m_movingSpeed) + m_eye[1];
-	m_viewMatrix[3][1] = -(m_yAxis[0] * m_eye[0] + m_yAxis[1] * (m_eye[1] - m_viewDir[1] * m_offsetDistance) + m_yAxis[2] * m_eye[2]);
-	m_invViewMatrix[3][1] = m_eye[1] - m_viewDir[1] * m_offsetDistance;
-}
-
-void Camera::moveZ(float dz) {
-	m_eye[2] = (dz * m_movingSpeed) + m_eye[2];
-	m_viewMatrix[3][2] = -(m_zAxis[0] * m_eye[0] + m_zAxis[1] * m_eye[1] + m_zAxis[2] * (m_eye[2] - m_viewDir[2] * m_offsetDistance));
-	m_invViewMatrix[3][2] = m_eye[2] - m_viewDir[2] * m_offsetDistance;
+void Camera::rotateSmoothly(float yaw, float pitch, float roll) {
+	rotateFirstPerson(yaw * m_rotationSpeed, pitch * m_rotationSpeed);
+	updateViewMatrix(true);
 }
 
 void Camera::rotateFirstPerson(float yaw, float pitch){
 
 	m_accumPitchDegrees += pitch;
-	
+
 	if (m_accumPitchDegrees > 90.0f){
 		pitch = 90.0f - (m_accumPitchDegrees - pitch);
 		m_accumPitchDegrees = 90.0f;
@@ -336,7 +364,7 @@ void Camera::rotateFirstPerson(float yaw, float pitch){
 		pitch = -90.0f - (m_accumPitchDegrees - pitch);
 		m_accumPitchDegrees = -90.0f;
 	}
-	
+
 	Matrix4f rotMtx;
 
 	// Rotate camera's existing x and z axes about the world y axis.
@@ -354,65 +382,20 @@ void Camera::rotateFirstPerson(float yaw, float pitch){
 	}
 }
 
-void Camera::rotate(float yaw, float pitch) {
-	rotateFirstPerson(yaw * m_rotationSpeed, pitch * m_rotationSpeed);
-	orthogonalize();
-	updateViewMatrix();
-}
-
-void Camera::rotate(float yaw, float pitch, const Vector3f &target) {
-	rotateFirstPerson(yaw * m_rotationSpeed, pitch * m_rotationSpeed);
-	orthogonalize();
-	m_eye = target - m_offsetDistance * m_viewDir;
-	updateViewMatrix();
-}
-
 const float Camera::getFar() const {
-	return m_persMatrix[3][2] / (m_persMatrix[2][2] + 1);
+	return m_projMatrix[3][2] / (m_projMatrix[2][2] + 1);
 }
 
 const float Camera::getNear() const {
-	return m_persMatrix[3][2] / (m_persMatrix[2][2] - 1);
+	return m_projMatrix[2][2] / (m_projMatrix[2][2] - 1);
 }
 
 const float Camera::getFovXDeg() const {
-	return 2 * atanf(1.0f / m_persMatrix[1][1]) * _180_ON_PI;
+	return 2 * atanf(1.0f / m_projMatrix[1][1]) * _180_ON_PI;
 }
 
-const float Camera::getFovXRad() const {
-	return 2 * atanf(1.0f / m_persMatrix[1][1]);
-}
-
-const float Camera::getAspect() const {
-	return m_persMatrix[1][1] / m_persMatrix[0][0];
-}
-
-const float Camera::getLeftOrthographic() const {
-	return -(1.0f / m_orthMatrix[0][0]) * (1.0f + m_orthMatrix[3][0]);
-}
-
-const float Camera::getRightOrthographic() const {
-	return (1.0f / m_orthMatrix[0][0]) * (1.0f - m_orthMatrix[3][0]);
-}
-
-const float Camera::getBottomOrthographic() const {
-	return -(1.0f / m_orthMatrix[1][1]) * (1.0f + m_orthMatrix[3][1]);
-}
-
-const float Camera::getTopOrthographic() const {
-	return (1.0f / m_orthMatrix[1][1]) * (1.0f - m_orthMatrix[3][1]);
-}
-
-const float Camera::getNearOrthographic() const {
-	return (1.0f / m_orthMatrix[2][2]) * (1.0f - m_orthMatrix[3][2]);
-}
-
-const float Camera::getFarOrthographic() const {
-	return -(1.0f / m_orthMatrix[2][2]) * (1.0f + m_orthMatrix[3][2]);
-}
-
-const float Camera::getOffsetDistance() const {
-	return m_offsetDistance;
+const float  Camera::getFovXRad() const {
+	return 2 * atanf(1.0f / m_projMatrix[1][1]);
 }
 
 void Camera::calcLightTransformation(Vector3f &direction) {
@@ -461,16 +444,16 @@ void Camera::calcLightTransformation(Vector3f &direction) {
 	float near = getNear();
 	float far = getFar();
 
-	float heightNear = 2.0f * tanf(0.5f * getFovXRad()) * near;
-	float widthNear = heightNear * getAspect();
-	float heightFar = 2.0f * tanf(0.5f * getFovXRad()) * far;
-	float widthFar = heightFar  * getAspect();
+	float heightNear = 2 * tanf(0.5 * getFovXRad()) * near;
+	float widthNear = heightNear * m_aspectRatio;	
+	float heightFar = 2 * tanf(0.5 * getFovXRad()) * far;
+	float widthFar = heightFar  * m_aspectRatio;
 
 
 	//worldSpace
-	Vector3f centerNear = (m_eye - m_viewDir * m_offsetDistance) + m_viewDir * near;
-	Vector3f centerFar = (m_eye - m_viewDir * m_offsetDistance) + m_viewDir * far;
-	Vector3f center = (m_eye - m_viewDir * m_offsetDistance) + m_viewDir * ((far + near) * 0.5f);
+	Vector3f centerNear = m_eye + m_viewDir * near;
+	Vector3f centerFar = m_eye + m_viewDir * far;
+	Vector3f center = m_eye + m_viewDir * ((far + near) * 0.5f);
 	
 	Vector3f nearTopLeft = centerNear + m_yAxis * (heightNear * 0.5f) - m_xAxis * (widthNear * 0.5f);
 	Vector3f nearTopRight = centerNear + m_yAxis * (heightNear * 0.5f) + m_xAxis * (widthNear * 0.5f);
@@ -550,19 +533,19 @@ void Camera::calcLightTransformation(Vector3f &direction) {
 		maxZ = std::max(maxZ, transforms[i][2]);
 	}
 
-	lightPerspective.orthographic(minX, maxX, minY, maxY, minZ, maxZ);
+	lightProjection.orthographic(minX, maxX, minY, maxY, minZ, maxZ);
 }
 
 void Camera::calcLightTransformation(Vector3f &direction, float near, float far, Matrix4f& viewMatrix, Matrix4f& projectionMatrix) {
-	float heightNear = 2.0f * tanf(0.5f * getFovXRad()) * near;
-	float widthNear = heightNear * getAspect();
-	float heightFar = 2.0f * tanf(0.5f * getFovXRad()) * far;
-	float widthFar = heightFar  * getAspect();
+	float heightNear = 2 * tanf(0.5 * getFovXRad()) * near;
+	float widthNear = heightNear * m_aspectRatio;
+	float heightFar = 2 * tanf(0.5 * getFovXRad()) * far;
+	float widthFar = heightFar  * m_aspectRatio;
 
 	//worldSpace
-	Vector3f centerNear = (m_eye - m_viewDir * m_offsetDistance) + m_viewDir * near;
-	Vector3f centerFar = (m_eye - m_viewDir * m_offsetDistance) + m_viewDir * far;
-	Vector3f center = (m_eye - m_viewDir * m_offsetDistance) + m_viewDir * ((far + near) * 0.5f);
+	Vector3f centerNear = m_eye + m_viewDir * near;
+	Vector3f centerFar = m_eye + m_viewDir * far;
+	Vector3f center = m_eye + m_viewDir * ((far + near) * 0.5f);
 	
 	Vector3f nearTopLeft = centerNear + m_yAxis * (heightNear * 0.5f) - m_xAxis * (widthNear * 0.5f);
 	Vector3f nearTopRight = centerNear + m_yAxis * (heightNear * 0.5f) + m_xAxis * (widthNear * 0.5f);
@@ -617,7 +600,7 @@ void Camera::calcLightTransformation(Vector3f &direction, float near, float far,
 
 void Camera::calcLightTransformation2(Vector3f &direction) {
 	for (unsigned short i = 0; i < m_numberCascades; i++) {	
-		calcLightTransformation(direction, m_bounds[i][0], m_bounds[i][1], lightViews[i], lightPerspectives[i]);
+		calcLightTransformation(direction, m_bounds[i][0], m_bounds[i][1], lightViews[i], lightProjections[i]);
 	}
 }
 
@@ -633,7 +616,7 @@ void Camera::setUpLightTransformation(float distance) {
 	far = getFar();
 
 	lightViews.resize(m_numberCascades);
-	lightPerspectives.resize(m_numberCascades);
+	lightProjections.resize(m_numberCascades);
 	
 	float _near = getNear();
 	float _far = distance >= far ? far : distance;
@@ -644,7 +627,7 @@ void Camera::setUpLightTransformation(float distance) {
 	for (unsigned short numberCascades = 0; numberCascades < m_numberCascades; numberCascades++) {		
 		m_bounds.push_back(Vector2f(_near, _far));
 
-		Vector4f vClip = Vector4f(0.0f, 0.0f, -_far, 1.0f) ^ m_persMatrix;
+		Vector4f vClip = Vector4f(0.0f, 0.0f, -_far, 1.0f) ^ m_projMatrix;
 		
 		//clipSpace
 		m_cascadeEndClipSpace[numberCascades] = vClip[2];
@@ -664,15 +647,15 @@ void Camera::setUpLightTransformation(float distance) {
 
 void Camera::setUpLightTransformation(std::vector<Vector2f>& bounds) {
 	m_bounds = bounds;
-	m_numberCascades = static_cast<short>(bounds.size());
+	m_numberCascades = bounds.size();
 	lightViews.resize(m_numberCascades);
-	lightPerspectives.resize(m_numberCascades);
+	lightProjections.resize(m_numberCascades);
 	m_cascadeEndClipSpace = new float[m_numberCascades];
 
 	for (unsigned short numberCascades = 0; numberCascades < m_numberCascades; numberCascades++) {
 		//Vector4f vClip = m_projMatrix ^ Vector4f(0.0f, 0.0f, -bounds[numberCascades][1], 1.0f);
 
-		Vector4f vClip =  Vector4f(0.0f, 0.0f, -bounds[numberCascades][1], 1.0f) ^ m_persMatrix;
+		Vector4f vClip =  Vector4f(0.0f, 0.0f, -bounds[numberCascades][1], 1.0f) ^ m_projMatrix;
 
 		//clipSpace
 		m_cascadeEndClipSpace[numberCascades] = vClip[2];
@@ -680,61 +663,29 @@ void Camera::setUpLightTransformation(std::vector<Vector2f>& bounds) {
 }
 
 void Camera::setPosition(float x, float y, float z){
-	m_eye = Vector3f(x, y, z);
-	updateViewMatrix();
+	m_eye.set(x, y, z);
+	updateViewMatrix(false);
 }
 
 void Camera::setPosition(const Vector3f &position){
 	m_eye = position;
-	updateViewMatrix();
+	updateViewMatrix(false);
 }
 
-void Camera::setTarget(const Vector3f& target) {
-	m_target = target;
-	m_eye = m_target - m_offsetDistance * m_viewDir;
-	updateViewMatrix();
+void Camera::setAcceleration(const Vector3f &acceleration) {
+	m_acceleration = acceleration;
 }
 
-void Camera::setPositionX(float x) {
-	m_eye[0] = x ;
-	m_viewMatrix[3][0] = -(m_xAxis[0] * m_eye[0] + m_xAxis[1] * m_eye[1] + m_xAxis[2] * m_eye[2]);
-	m_invViewMatrix[3][0] = m_eye[0];
-}
-
-void Camera::setPositionY(float y) {
-	m_eye[1] = y;
-	m_viewMatrix[3][1] = -(m_yAxis[0] * m_eye[0] + m_yAxis[1] * m_eye[1] + m_yAxis[2] * m_eye[2]);
-	m_invViewMatrix[3][1] = m_eye[1];
-}
-
-void Camera::setPositionZ(float z) {
-	m_eye[2] = z;
-	m_viewMatrix[3][2] = -(m_zAxis[0] * m_eye[0] + m_zAxis[1] * m_eye[1] + m_zAxis[2] * m_eye[2]);
-	m_invViewMatrix[3][2] = m_eye[2];
+void Camera::setVelocity(const Vector3f &velocity){
+	m_velocity = velocity;
 }
 
 void Camera::setRotationSpeed(float rotationSpeed){
 	m_rotationSpeed = rotationSpeed;
 }
 
-void Camera::setMovingSpeed(float movingSpeed) {
-	m_movingSpeed = movingSpeed;
-}
-
 const Vector3f &Camera::getPosition() const{
 	return m_eye;
-}
-
-const float Camera::getPositionX() const {
-	return m_eye[0];
-}
-
-const float Camera::getPositionY() const {
-	return m_eye[1];
-}
-
-const float Camera::getPositionZ() const {
-	return m_eye[2];
 }
 
 const Vector3f &Camera::getCamX() const{
@@ -749,36 +700,20 @@ const Vector3f &Camera::getCamZ() const {
 	return m_zAxis;
 }
 
-const Vector3f &Camera::getViewDirection() const {
+const Vector3f &Camera::getViewDirection() const{
 	return m_viewDir;
 }
 
-const float Camera::getViewDirectionX() const {
-	return m_viewDir[0];
-}
-
-const float Camera::getViewDirectionY() const {
-	return m_viewDir[1];
-}
-
-const float Camera::getViewDirectionZ() const {
-	return m_viewDir[2];
-}
-
 const Matrix4f &Camera::getPerspectiveMatrix() const{
-	return m_persMatrix;
+	return m_projMatrix;
 }
 
 const Matrix4f &Camera::getInvPerspectiveMatrix() const{
-	return  m_invPersMatrix;
+	return  m_invProjMatrix;
 }
 
 const Matrix4f &Camera::getOrthographicMatrix() const{
 	return m_orthMatrix;
-}
-
-const Matrix4f& Camera::getInvOrthographicMatrix() const {
-	return m_invOrthMatrix;
 }
 
 const Matrix4f &Camera::getViewMatrix() const{
@@ -787,151 +722,4 @@ const Matrix4f &Camera::getViewMatrix() const{
 
 const Matrix4f &Camera::getInvViewMatrix() const{
 	return m_invViewMatrix;
-}
-
-const Matrix4f Camera::getInvViewMatrixNew() const {
-	return Matrix4f(m_viewMatrix[0][0], m_viewMatrix[1][0], m_viewMatrix[2][0], 0.0f,
-					m_viewMatrix[0][1], m_viewMatrix[1][1], m_viewMatrix[2][1], 0.0f,
-					m_viewMatrix[0][2], m_viewMatrix[1][2], m_viewMatrix[2][2], 0.0f,
-				   -(m_viewMatrix[3][0] * m_viewMatrix[0][0] + m_viewMatrix[3][1] * m_viewMatrix[0][1] + m_viewMatrix[3][2] * m_viewMatrix[0][2]),
-				   -(m_viewMatrix[3][0] * m_viewMatrix[1][0] + m_viewMatrix[3][1] * m_viewMatrix[1][1] + m_viewMatrix[3][2] * m_viewMatrix[1][2]),
-				   -(m_viewMatrix[3][0] * m_viewMatrix[2][0] + m_viewMatrix[3][1] * m_viewMatrix[2][1] + m_viewMatrix[3][2] * m_viewMatrix[2][2]), 1.0);
-}
-
-const Matrix4f Camera::getInvOrthographicMatrixNew() const {
-	float left = -(1.0f / m_orthMatrix[0][0]) * (1.0f + m_orthMatrix[3][0]);
-	float right = (1.0f / m_orthMatrix[0][0]) * (1.0f - m_orthMatrix[3][0]);
-	float bottom = -(1.0f / m_orthMatrix[1][1]) * (1.0f + m_orthMatrix[3][1]);
-	float top = (1.0f / m_orthMatrix[1][1]) * (1.0f - m_orthMatrix[3][1]);
-	float near = (1.0f / m_orthMatrix[2][2]) * (1.0f - m_orthMatrix[3][2]);
-	float far = -(1.0f / m_orthMatrix[2][2]) * (1.0f + m_orthMatrix[3][2]);
-	
-	return Matrix4f((right - left) * 0.5f, 0.0f, 0.0f, 0.0f,
-					 0.0f, (top - bottom) * 0.5f, 0.0f, 0.0f,
-					 0.0f, 0.0f, (near - far) * 0.5f, 0.0f,
-					 (right + left) * 0.5f, (top + bottom) * 0.5f, -(far + near) * 0.5f, 1.0f);
-}
-
-const Matrix4f Camera::getInvPerspectiveMatrixNew() const {
-	float e = 1.0f / m_persMatrix[1][1];
-	float aspect = m_persMatrix[1][1] / m_persMatrix[0][0];
-	float near = m_persMatrix[3][2] / (m_persMatrix[2][2] - 1);
-	float far = m_persMatrix[3][2] / (m_persMatrix[2][2] + 1);
-	return Matrix4f(e * aspect, 0.0f, 0.0f, 0.0f,
-					0.0f, e, 0.0f, 0.0f,
-					0.0f, 0.0f, 0.0f, (near - far) / (2 * far * near),
-					0.0f, 0.0f, -1.0f , (near + far) / (2 * far * near));	
-}
-
-const Matrix4f Camera::getRotationMatrix(const Vector3f &position) const {
-	
-	return Matrix4f(m_viewMatrix[0][0], m_viewMatrix[1][0], m_viewMatrix[2][0], 0.0f,
-					m_viewMatrix[0][1], m_viewMatrix[1][1], m_viewMatrix[2][1], 0.0f,
-					m_viewMatrix[0][2], m_viewMatrix[1][2], m_viewMatrix[2][2], 0.0f,
-					position[0], position[1], position[2], 1.0);
-}
-
-void Camera::setOffsetDistance(float offsetDistance) {
-	m_offsetDistance = offsetDistance;
-	m_eye = m_target - m_offsetDistance * m_viewDir;
-	updateViewMatrix();
-}
-//////////////////////////////////////////////////////////////////////////////////////////
-const float ThirdPersonCamera::DEFAULT_SPRING_CONSTANT = 16.0f;
-const float ThirdPersonCamera::DEFAULT_DAMPING_CONSTANT = 8.0f;
-
-ThirdPersonCamera::ThirdPersonCamera() : Camera() {
-	
-	m_enableSpringSystem = true;
-	m_springConstant = DEFAULT_SPRING_CONSTANT;
-	m_dampingConstant = DEFAULT_DAMPING_CONSTANT;
-	m_target.set(0.0f, 0.0f, 0.0f);
-	m_velocity.set(0.0f, 0.0f, 0.0f);
-}
-
-ThirdPersonCamera::~ThirdPersonCamera() {
-
-}
-
-float ThirdPersonCamera::getDampingConstant() const {
-	return m_dampingConstant;
-}
-
-float ThirdPersonCamera::getSpringConstant() const {
-	return m_springConstant;
-}
-
-bool ThirdPersonCamera::springSystemIsEnabled() const {
-	return m_enableSpringSystem;
-}
-
-const Vector3f& ThirdPersonCamera::getTarget() const {
-	return m_target;
-}
-
-const Vector3f& ThirdPersonCamera::getVelocity() const {
-	return m_velocity;
-}
-
-void ThirdPersonCamera::rotate(float yaw, float pitch) {
-	rotateFirstPerson(yaw * m_rotationSpeed, pitch* m_rotationSpeed);
-	orthogonalize();	
-}
-
-void ThirdPersonCamera::setSpringConstant(float springConstant) {
-	// We're using a critically damped spring system where the damping ratio
-	// is equal to one.
-	//
-	// damping ratio = m_dampingConstant / (2.0f * sqrtf(m_springConstant))
-	m_springConstant = springConstant;
-	m_dampingConstant = 2.0f * sqrtf(springConstant);
-}
-
-void ThirdPersonCamera::update(float elapsedTimeSec) {
-
-	if (m_enableSpringSystem) {
-		//updateViewMatrix(elapsedTimeSec);
-		updateViewMatrixDump(elapsedTimeSec);
-	}else {
-		m_eye = m_target - m_offsetDistance * m_viewDir;
-		Camera::updateViewMatrix();
-	}
-}
-
-void ThirdPersonCamera::updateViewMatrix(float elapsedTimeSec) {
-	
-	Vector3f idealPosition = m_target + m_zAxis * m_offsetDistance;
-	Vector3f displacement = m_eye - idealPosition;
-	Vector3f springAcceleration = (-m_springConstant * displacement) - (m_dampingConstant * m_velocity);
-
-	m_velocity += springAcceleration * elapsedTimeSec;
-	m_eye += m_velocity * elapsedTimeSec;
-
-	
-	m_viewMatrix[3][0] = -Vector3f::Dot(m_xAxis, m_eye);
-	m_viewMatrix[3][1] = -Vector3f::Dot(m_yAxis, m_eye);
-	m_viewMatrix[3][2] = -Vector3f::Dot(m_zAxis, m_eye);
-	m_viewMatrix[3][3] = 1.0f;
-}
-
-void ThirdPersonCamera::updateViewMatrixDump(float elapsedTimeSec) {
-
-	Vector3f displacement = m_eye - m_target;
-	Vector3f springAcceleration = (-m_springConstant * displacement) - (m_dampingConstant * m_velocity);
-
-	m_velocity += springAcceleration * elapsedTimeSec;
-	m_eye += m_velocity * elapsedTimeSec;
-
-	m_viewMatrix[3][0] = -Vector3f::Dot(m_xAxis, m_eye - m_offsetDistance * m_viewDir);
-	m_viewMatrix[3][1] = -Vector3f::Dot(m_yAxis, m_eye - m_offsetDistance * m_viewDir);
-	m_viewMatrix[3][2] = -Vector3f::Dot(m_zAxis, m_eye - m_offsetDistance * m_viewDir);
-	m_viewMatrix[3][3] = 1.0f;
-}
-
-void ThirdPersonCamera::enableSpringSystem(bool enableSpringSystem){
-	m_enableSpringSystem = enableSpringSystem;
-}
-
-void ThirdPersonCamera::setTarget(const Vector3f& target) {
-	m_target = target;
 }

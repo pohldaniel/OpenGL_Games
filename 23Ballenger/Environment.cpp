@@ -17,7 +17,7 @@ EnvironmentInterface::EnvironmentInterface(StateMachine& machine) : State(machin
 	EventDispatcher::AddKeyboardListener(this);
 
 	m_camera = Camera();
-	m_camera.perspective(45.0f * _180_ON_PI, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
+	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
 	m_camera.lookAt(Vector3f(0.0f, 0.0f, 4.0f), Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
 	m_camera.setRotationSpeed(0.1f);
 

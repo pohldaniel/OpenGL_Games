@@ -60,10 +60,10 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 	Fontrenderer::Get().init();
 	Fontrenderer::Get().setShader(Globals::shaderManager.getAssetPointer("font"));
 
-	auto shader = Globals::shaderManager.getAssetPointer("font");
+	/*auto shader = Globals::shaderManager.getAssetPointer("font");
 	shader->use();
 	shader->loadMatrix("u_transform", Matrix4f::Orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f));
-	shader->unuse();	
+	shader->unuse();*/	
 }
 
 Application::~Application() {
@@ -491,10 +491,10 @@ void Application::Resize(int deltaW, int deltaH) {
 		Machine->resize(Width, Height);
 		Machine->m_states.top()->resize(deltaW, deltaH);
 
-		auto shader = Globals::shaderManager.getAssetPointer("font");
+		/*auto shader = Globals::shaderManager.getAssetPointer("font");
 		shader->use();
 		shader->loadMatrix("u_transform", Matrix4f::Orthographic(0.0f, static_cast<float>(Width), 0.0f, static_cast<float>(Height), -1.0f, 1.0f));
-		shader->unuse();
+		shader->unuse();*/
 	}	
 }
 
@@ -552,6 +552,9 @@ void Application::SetCursorIcon(LPCSTR resource) {
 }
 
 void Application::loadAssets() {
+	Globals::shaderManager.loadShader("texture", "res/shader/texture.vert", "res/shader/texture.frag");	
 	Globals::shaderManager.loadShader("font", "res/shader/batch.vert", "res/shader/font.frag");
-
+	
+	Globals::shapeManager.buildQuadXZ("quad", Vector3f(-1.0f, -1.0f, 0.0f), Vector2f(2.0f, 2.0f), 1, 1, true, false, false);
+	Globals::textureManager.createNullTexture("null");
 }

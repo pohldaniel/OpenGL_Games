@@ -103,9 +103,9 @@ void RenderableObject::drawDefault(const Camera& camera) {
 
 	glUseProgram(shader->m_program);
 
-	shader->loadMatrix("projection", camera.getPerspectiveMatrix());
-	shader->loadMatrix("view", camera.getViewMatrix());
-	shader->loadMatrix("model", getTransformationSOP());
+	shader->loadMatrix("u_projection", camera.getPerspectiveMatrix());
+	shader->loadMatrix("u_view", camera.getViewMatrix());
+	shader->loadMatrix("u_model", getTransformationSOP());
 
 	Globals::textureManager.get(m_texture).bind(0);
 	Globals::shapeManager.get(m_shape).drawRaw();

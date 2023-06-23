@@ -225,6 +225,12 @@
     <ClCompile Include="Ragdoll.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="GL_ShapeDrawer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MousePicker.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h">
@@ -423,6 +429,12 @@
       <Filter>Source Files\States</Filter>
     </ClInclude>
     <ClInclude Include="Ragdoll.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GL_ShapeDrawer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MousePicker.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
