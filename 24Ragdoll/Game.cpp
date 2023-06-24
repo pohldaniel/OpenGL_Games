@@ -66,9 +66,9 @@ m_idle(false) {
 	
 
 	// Spawn one ragdoll
-	btVector3 startOffset(1, 0.5, 0);
+	btVector3 startOffset(1.0f, 0.5f, 0.0f);
 	spawnRagdoll(startOffset);
-	startOffset.setValue(-1, 0.5, 0);
+	startOffset.setValue(-1.0f, 0.5f, 0.0f);
 	spawnRagdoll(startOffset);
 
 	//std::vector<btCollisionShape*> platformShape = Physics::CreateStaticCollisionShapes(&Globals::shapeManager.get("platform"), 1.0f);
@@ -158,20 +158,8 @@ void Game::render() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	renderme();
-
-	/*auto shader = Globals::shaderManager.getAssetPointer("texture");
-	shader->use();
-	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
-	shader->loadMatrix("u_view", m_camera.getViewMatrix());
-	shader->loadMatrix("u_model", Matrix4f::IDENTITY);
-	Globals::textureManager.get("null").bind(0);
-	Globals::shapeManager.get("platform").drawRaw();
-	shader->unuse();
-
-	glDisable(GL_DEPTH_TEST);
-	m_mousePicker.draw(m_camera);
-	glEnable(GL_DEPTH_TEST);*/
-
+	m_mousePicker.drawPicker(m_camera);
+	
 	if (m_drawUi)
 		renderUi();
 }
@@ -183,10 +171,12 @@ void Game::OnMouseMotion(Event::MouseMoveEvent& event) {
 		
 		btPoint2PointConstraint* pickCon = static_cast<btPoint2PointConstraint*>(m_pickConstraint);
 		if (pickCon) {
+			const MousePickCallback& callback = m_mousePicker.getCallback();
+
 			//keep it at the same picking distance
 
-			btVector3 newRayTo = m_mousePicker.getTarget();
-			btVector3 rayFrom = m_mousePicker.getOrigin();
+			btVector3 newRayTo = callback.m_target;
+			btVector3 rayFrom = callback.m_origin;
 			btVector3 oldPivotInB = pickCon->getPivotInB();
 			btVector3 newPivotB;
 				
@@ -198,8 +188,7 @@ void Game::OnMouseMotion(Event::MouseMoveEvent& event) {
 			newPivotB = rayFrom + dir;
 				
 			pickCon->setPivotB(newPivotB);
-		}
-		
+		}		
 	}
 }
 
@@ -217,14 +206,8 @@ void Game::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 		if (m_mousePicker.click(event.x, event.y, m_camera)) {
 			const MousePickCallback& callback = m_mousePicker.getCallback();
 			pickObject(callback.m_hitPointWorld, callback.m_collisionObject);
-
-			gOldPickingPos = m_mousePicker.getTarget();
 			gHitPos = callback.m_hitPointWorld;
-
-			gOldPickingDist = (callback.m_hitPointWorld - m_mousePicker.getOrigin()).length();
-
-		}else {
-			//removePickingConstraint();
+			gOldPickingDist = (callback.m_hitPointWorld - callback.m_origin).length();
 		}
 	}
 }
@@ -232,6 +215,8 @@ void Game::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 void Game::OnMouseButtonUp(Event::MouseButtonEvent& event) {
 	if (event.button == 2u) {
 		Mouse::instance().detach();
+	}else if (event.button == 1u) {
+		removePickingConstraint();
 	}
 }
 
@@ -301,17 +286,11 @@ void Game::pickObject(const btVector3& pickPos, const btCollisionObject* hitObj)
 
 	btRigidBody* body = (btRigidBody*)btRigidBody::upcast(hitObj);
 	if (body) {
-		//other exclusions?
+
 		if (!(body->isStaticObject() || body->isKinematicObject())) {
 			pickedBody = body;
 			pickedBody->setActivationState(DISABLE_DEACTIVATION);
-
-
-			//printf("pickPos=%f,%f,%f\n",pickPos.getX(),pickPos.getY(),pickPos.getZ());
-
-
 			btVector3 localPivot = body->getCenterOfMassTransform().inverse() * pickPos;
-
 			if ((m_modifierKeys& BT_ACTIVE_SHIFT) != 0) {
 				btTransform tr;
 				tr.setIdentity();
@@ -338,13 +317,11 @@ void Game::pickObject(const btVector3& pickPos, const btCollisionObject* hitObj)
 				dof6->setParam(BT_CONSTRAINT_STOP_ERP, 0.1, 3);
 				dof6->setParam(BT_CONSTRAINT_STOP_ERP, 0.1, 4);
 				dof6->setParam(BT_CONSTRAINT_STOP_ERP, 0.1, 5);
-
 			}else {
 				btPoint2PointConstraint* p2p = new btPoint2PointConstraint(*body, localPivot);
 				m_dynamicsWorld->addConstraint(p2p, true);
 				m_pickConstraint = p2p;
 				p2p->m_setting.m_impulseClamp = mousePickClamping;
-				//very weak constraint for picking
 				p2p->m_setting.m_tau = 0.001f;
 			}
 		}
@@ -356,7 +333,7 @@ void Game::removePickingConstraint() {
 	if (m_pickConstraint && m_dynamicsWorld) {
 		m_dynamicsWorld->removeConstraint(m_pickConstraint);
 		delete m_pickConstraint;
-		//printf("removed constraint %i",gPickingConstraintId);
+
 		m_pickConstraint = 0;
 		pickedBody->forceActivationState(ACTIVE_TAG);
 		pickedBody->setDeactivationTime(0.f);
