@@ -57,9 +57,8 @@ public:
 
 	GL_ShapeDrawer*	m_shapeDrawer;
 	int gPickingConstraintId = 0;
-	btVector3 gOldPickingPos;
-	btVector3 gHitPos = btVector3(-1, -1, -1);
-	btScalar gOldPickingDist = 0.f;
+
+
 	btRigidBody* pickedBody = 0;//for deactivation state
 	btScalar mousePickClamping = 30.f;
 

@@ -14,14 +14,20 @@ void MousePicker::updatePosition(unsigned int posX, unsigned int posY, const Cam
 	float mouseXndc = (2.0f * posX) / static_cast<float>(Application::Width) - 1.0f;
 	float mouseYndc = 1.0f - (2.0f * posY) / static_cast<float>(Application::Height);
 
-	Vector4f rayStartEye = Vector4f(mouseXndc, mouseYndc, -1.0f, 1.0f) ^ camera.getInvPerspectiveMatrix();
-	Vector4f rayEndEye = Vector4f(mouseXndc, mouseYndc, 1.0f, 1.0f) ^ camera.getInvPerspectiveMatrix();
-	rayStartEye = rayStartEye * (1.0f / rayStartEye[3]);
-	rayEndEye = rayEndEye * (1.0f / rayEndEye[3]);
+	//Vector4f rayStartEye = Vector4f(mouseXndc, mouseYndc, -1.0f, 1.0f) ^ camera.getInvPerspectiveMatrix();
+	//Vector4f rayEndEye = Vector4f(mouseXndc, mouseYndc, 1.0f, 1.0f) ^ camera.getInvPerspectiveMatrix();
+	//rayStartEye = rayStartEye * (1.0f / rayStartEye[3]);
+	//rayEndEye = rayEndEye * (1.0f / rayEndEye[3]);
+	//
+	//Vector3f rayStartWorld = rayStartEye * camera.getInvViewMatrix();
+	//Vector3f rayEndWorld = rayEndEye * camera.getInvViewMatrix();
 
-	Vector3f rayStartWorld = rayStartEye * camera.getInvViewMatrix();
-	Vector3f rayEndWorld = rayEndEye * camera.getInvViewMatrix();
+	float tanfov = camera.getInvPerspectiveMatrixNew()[1][1];
+	float aspect = (static_cast<float>(Application::Width) / static_cast<float>(Application::Height));
 
+	Vector3f rayStartWorld = camera.getPosition() + (camera.getCamX() * mouseXndc * tanfov * aspect + camera.getCamY() * mouseYndc * tanfov + camera.getViewDirection()) * camera.getNear();
+	//Vector3f rayStartWorld = camera.getPosition();
+	Vector3f rayEndWorld = camera.getPosition() + (camera.getCamX() * mouseXndc * tanfov * aspect + camera.getCamY() * mouseYndc * tanfov + camera.getViewDirection()) * camera.getFar();
 	Vector3f rayDirection = rayEndWorld - rayStartWorld;
 	Vector3f::Normalize(rayDirection);
 
@@ -37,15 +43,20 @@ bool MousePicker::click(unsigned int posX, unsigned int posY, const Camera& came
 	float mouseXndc = (2.0f * posX) / static_cast<float>(Application::Width) - 1.0f;
 	float mouseYndc = 1.0f - (2.0f * posY) / static_cast<float>(Application::Height);
 
-	Vector4f rayStartEye = Vector4f(mouseXndc, mouseYndc, -1.0f, 1.0f) ^ camera.getInvPerspectiveMatrix();
-	Vector4f rayEndEye = Vector4f(mouseXndc, mouseYndc, 1.0f, 1.0f) ^ camera.getInvPerspectiveMatrix();
-	rayStartEye = rayStartEye * (1.0f / rayStartEye[3]);
-	rayEndEye = rayEndEye * (1.0f / rayEndEye[3]);
+	//Vector4f rayStartEye = Vector4f(mouseXndc, mouseYndc, -1.0f, 1.0f) ^ camera.getInvPerspectiveMatrix();
+	//Vector4f rayEndEye = Vector4f(mouseXndc, mouseYndc, 1.0f, 1.0f) ^ camera.getInvPerspectiveMatrix();
+	//rayStartEye = rayStartEye * (1.0f / rayStartEye[3]);
+	//rayEndEye = rayEndEye * (1.0f / rayEndEye[3]);
+	//
+	//Vector3f rayStartWorld = rayStartEye * camera.getInvViewMatrix();
+	//Vector3f rayEndWorld = rayEndEye * camera.getInvViewMatrix();
 
-	Vector3f campos = camera.getPosition();
+	float tanfov = camera.getInvPerspectiveMatrixNew()[1][1];
+	float aspect = (static_cast<float>(Application::Width) / static_cast<float>(Application::Height));
 
-	Vector3f rayStartWorld = rayStartEye * camera.getInvViewMatrix();
-	Vector3f rayEndWorld = rayEndEye * camera.getInvViewMatrix();
+	Vector3f rayStartWorld = camera.getPosition() + (camera.getCamX() * mouseXndc * tanfov * aspect + camera.getCamY() * mouseYndc * tanfov + camera.getViewDirection()) * camera.getNear();
+	//Vector3f rayStartWorld = camera.getPosition();
+	Vector3f rayEndWorld = camera.getPosition() + (camera.getCamX() * mouseXndc * tanfov * aspect + camera.getCamY() * mouseYndc * tanfov + camera.getViewDirection()) * camera.getFar();
 
 	Vector3f rayDirection = rayEndWorld - rayStartWorld;
 	Vector3f::Normalize(rayDirection);
@@ -53,7 +64,16 @@ bool MousePicker::click(unsigned int posX, unsigned int posY, const Camera& came
 	m_callback = MousePickCallback(Physics::VectorFrom(rayStartWorld), Physics::VectorFrom(rayEndWorld), Physics::MOUSEPICKER, Physics::PICKABLE_OBJECT);
 	Globals::physics->GetDynamicsWorld()->rayTest(m_callback.m_origin, m_callback.m_target, m_callback);
 
-	return m_callback.hasHit();
+	if (m_callback.hasHit()) {
+		m_pickingDistance = (m_callback.m_hitPointWorld - m_callback.m_origin).length();
+		return true;
+
+	} else {
+		return false;
+	}
+
+	
+	
 }
 
 void MousePicker::updateBuffer(const Vector3f& pos) {
@@ -124,4 +144,8 @@ void MousePicker::drawPicker(const Camera& camera) {
 
 const MousePickCallback& MousePicker::getCallback() {
 	return m_callback;
+}
+
+float MousePicker::getPickingDistance() {
+	return m_pickingDistance;
 }

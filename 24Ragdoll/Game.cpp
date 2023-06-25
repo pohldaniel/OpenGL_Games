@@ -21,7 +21,7 @@ m_idle(false) {
 	EventDispatcher::AddMouseListener(this);
 
 	m_camera = Camera();
-	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 1.0f, 1000.0f);
+	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
 	m_camera.lookAt(Vector3f(0.0f, 2.0f, 10.0f), Vector3f(0.0f, 2.0f, 10.0f) + Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
 	m_camera.setRotationSpeed(0.1f);
 
@@ -172,9 +172,7 @@ void Game::OnMouseMotion(Event::MouseMoveEvent& event) {
 		btPoint2PointConstraint* pickCon = static_cast<btPoint2PointConstraint*>(m_pickConstraint);
 		if (pickCon) {
 			const MousePickCallback& callback = m_mousePicker.getCallback();
-
-			//keep it at the same picking distance
-
+			
 			btVector3 newRayTo = callback.m_target;
 			btVector3 rayFrom = callback.m_origin;
 			btVector3 oldPivotInB = pickCon->getPivotInB();
@@ -183,7 +181,7 @@ void Game::OnMouseMotion(Event::MouseMoveEvent& event) {
 			
 			btVector3 dir = newRayTo - rayFrom;
 			dir.normalize();
-			dir *= gOldPickingDist;
+			dir *= m_mousePicker.getPickingDistance();
 
 			newPivotB = rayFrom + dir;
 				
@@ -206,8 +204,6 @@ void Game::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 		if (m_mousePicker.click(event.x, event.y, m_camera)) {
 			const MousePickCallback& callback = m_mousePicker.getCallback();
 			pickObject(callback.m_hitPointWorld, callback.m_collisionObject);
-			gHitPos = callback.m_hitPointWorld;
-			gOldPickingDist = (callback.m_hitPointWorld - callback.m_origin).length();
 		}
 	}
 }

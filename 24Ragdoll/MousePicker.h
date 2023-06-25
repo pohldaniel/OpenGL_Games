@@ -67,6 +67,7 @@ public:
 	bool click(unsigned int posX, unsigned int posY, const Camera& camera);
 
 	const MousePickCallback& getCallback();
+	float getPickingDistance();
 
 private:
 
@@ -77,6 +78,8 @@ private:
 	bool m_debug = true;
 	unsigned int m_vao = 0;
 	unsigned int m_vbo = 0;
+
+	float m_pickingDistance;
 
 	static std::unique_ptr<Shader> s_shader;
 };
