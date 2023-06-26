@@ -25,10 +25,6 @@ private:
 	void OnMouseButtonDown(Event::MouseButtonEvent& event) override;
 	void OnKeyDown(Event::KeyboardEvent& event) override;
 
-	Transform m_transform;
-	bool m_highlight = false;
-	Vector4f m_color1, m_color2, m_color3;
-
 	Button m_button;
 	TextField m_headline;
 	std::unordered_map<std::string, SeekerBar> m_seekerBars;
