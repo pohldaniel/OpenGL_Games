@@ -222,14 +222,17 @@
     <ClCompile Include="Ragdoll.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="GL_ShapeDrawer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="MousePicker.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="engine\input\Mouse.cpp">
       <Filter>engine\input</Filter>
+    </ClCompile>
+    <ClCompile Include="ShapeDrawer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RandomColor.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -428,14 +431,17 @@
     <ClInclude Include="Ragdoll.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="GL_ShapeDrawer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="MousePicker.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="engine\input\Mouse.h">
       <Filter>engine\input</Filter>
+    </ClInclude>
+    <ClInclude Include="ShapeDrawer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RandomColor.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

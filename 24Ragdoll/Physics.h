@@ -3,6 +3,7 @@
 #include <btBulletDynamicsCommon.h>
 #include <BulletCollision/CollisionShapes/btBox2dShape.h>
 #include <BulletCollision/CollisionShapes/btCollisionShape.h>
+#include <BulletCollision/CollisionShapes/btShapeHull.h>
 #include "engine/Vector.h"
 
 class ObjMesh;

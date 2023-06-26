@@ -83,6 +83,10 @@ void Shader::loadMatrix(const char* location, const Matrix4f& matrix, bool trans
 	glUniformMatrix4fv(getUnifromLocation(location), 1, trans, &matrix[0][0]);
 }
 
+void Shader::loadMatrix(const char* location, const float matrix[16], bool trans) const {
+	glUniformMatrix4fv(getUnifromLocation(location), 1, trans, matrix);
+}
+
 void Shader::loadMatrixArray(const char* location, const std::vector<Matrix4f> matrixArray, const unsigned short count, bool trans) const {
 	glUniformMatrix4fv(getUnifromLocation(location), count, trans, matrixArray[0][0]);
 }

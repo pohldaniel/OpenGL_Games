@@ -7,15 +7,24 @@
 #include "StateMachine.h"
 #include "Physics.h"
 #include "Ragdoll.h"
-#include "GL_ShapeDrawer.h"
 #include "MousePicker.h"
+#include "ShapeDrawer.h"
 
 #define BT_ACTIVE_SHIFT	0x0001
+#define MAX_TRIANGLES_IN_BATCH 8192
 
 
 class Game : public State, public MouseEventListener, public KeyboardEventListener {
 
 public:
+
+	struct ShapeCache
+	{
+		struct Edge { btVector3 n[2]; int v[2]; };
+		ShapeCache(btConvexShape* s) : m_shapehull(s) {}
+		btShapeHull					m_shapehull;
+		btAlignedObjectArray<Edge>	m_edges;
+	};
 
 	Game(StateMachine& machine);
 	~Game();
@@ -38,27 +47,12 @@ public:
 	
 	virtual void removePickingConstraint();
 	virtual void pickObject(const btVector3& pickPos, const class btCollisionObject* hitObj);
-	void renderme();
 
 	btDynamicsWorld* m_dynamicsWorld;
-
-	///constraint for mouse picking
 	btTypedConstraint* m_pickConstraint;
 
 	float	m_ShootBoxInitialSpeed;
-
-	bool	m_stepping;
-	bool m_singleStep;
-	bool m_idle;
-	int m_lastKey;
 	int	m_modifierKeys;
-
-	void renderscene(int pass);
-
-	GL_ShapeDrawer*	m_shapeDrawer;
-	int gPickingConstraintId = 0;
-
-
 	btRigidBody* pickedBody = 0;//for deactivation state
 	btScalar mousePickClamping = 30.f;
 

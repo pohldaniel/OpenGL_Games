@@ -34,6 +34,7 @@ public:
 	void use() const;
 	void unuse() const;
 	void loadMatrix(const char* location, const Matrix4f& matrix, bool trans = false) const;
+	void loadMatrix(const char* location, const float matrix[16], bool trans = false) const;
 	void loadMatrixArray(const char* location, const std::vector<Matrix4f> matrixArray, const unsigned short count, bool trans = false) const;
 
 	void loadVector(const char* location, Vector4f vector) const;

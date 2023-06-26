@@ -8,13 +8,10 @@
 #include "Globals.h"
 
 Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), 
-m_dynamicsWorld(Physics::GetDynamicsWorld()),
-m_pickConstraint(0),
-m_modifierKeys(0),
-m_ShootBoxInitialSpeed(40.f),
-m_stepping(true),
-m_singleStep(false),
-m_idle(false) {
+									m_dynamicsWorld(Physics::GetDynamicsWorld()),
+									m_pickConstraint(0),
+									m_modifierKeys(0),
+									m_ShootBoxInitialSpeed(40.f) {
 
 	Application::SetCursorIcon(IDC_ARROW);
 	EventDispatcher::AddKeyboardListener(this);
@@ -24,34 +21,6 @@ m_idle(false) {
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
 	m_camera.lookAt(Vector3f(0.0f, 2.0f, 10.0f), Vector3f(0.0f, 2.0f, 10.0f) + Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
 	m_camera.setRotationSpeed(0.1f);
-
-	GLfloat light_ambient[] = { btScalar(0.2), btScalar(0.2), btScalar(0.2), btScalar(1.0) };
-	GLfloat light_diffuse[] = { btScalar(1.0), btScalar(1.0), btScalar(1.0), btScalar(1.0) };
-	GLfloat light_specular[] = { btScalar(1.0), btScalar(1.0), btScalar(1.0), btScalar(1.0) };
-	GLfloat light_position0[] = { btScalar(1.0), btScalar(10.0), btScalar(1.0), btScalar(0.0) };
-	GLfloat light_position1[] = { btScalar(-1.0), btScalar(-10.0), btScalar(-1.0), btScalar(0.0) };
-
-	glLightfv(GL_LIGHT0, GL_AMBIENT, light_ambient);
-	glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diffuse);
-	glLightfv(GL_LIGHT0, GL_SPECULAR, light_specular);
-	glLightfv(GL_LIGHT0, GL_POSITION, light_position0);
-
-	glLightfv(GL_LIGHT1, GL_AMBIENT, light_ambient);
-	glLightfv(GL_LIGHT1, GL_DIFFUSE, light_diffuse);
-	glLightfv(GL_LIGHT1, GL_SPECULAR, light_specular);
-	glLightfv(GL_LIGHT1, GL_POSITION, light_position1);
-
-	glEnable(GL_LIGHTING);
-	glEnable(GL_LIGHT0);
-	glEnable(GL_LIGHT1);
-
-	glShadeModel(GL_SMOOTH);
-	glEnable(GL_DEPTH_TEST);
-	glDepthFunc(GL_LESS);
-
-	glClearColor(btScalar(0.7f), btScalar(0.7f), btScalar(0.7f), btScalar(0.0f));
-	m_shapeDrawer = new GL_ShapeDrawer();
-	m_shapeDrawer->enableTexture(true);
 
 	btCollisionShape* groundShape = new btBoxShape(btVector3(200.0f, 10.0f, 200.0f));
 	m_collisionShapes.push_back(groundShape);
@@ -64,7 +33,6 @@ m_idle(false) {
 	fixedGround->setWorldTransform(groundTransform);
 	Physics::GetDynamicsWorld()->addCollisionObject(fixedGround, Physics::FLOOR, Physics::PICKABLE_OBJECT);
 	
-
 	// Spawn one ragdoll
 	btVector3 startOffset(1.0f, 0.5f, 0.0f);
 	spawnRagdoll(startOffset);
@@ -74,6 +42,10 @@ m_idle(false) {
 	//std::vector<btCollisionShape*> platformShape = Physics::CreateStaticCollisionShapes(&Globals::shapeManager.get("platform"), 1.0f);
 	//btRigidBody* body = Globals::physics->addStaticModel(platformShape, Physics::BtTransform(), false, btVector3(1.0f, 1.0f, 1.0f), Physics::FLOOR, Physics::PICKABLE_OBJECT);
 
+	ShapeDrawer::Get().init(1024);
+	ShapeDrawer::Get().setCamera(m_camera);
+
+	glClearColor(0.7f, 0.7f, 0.7f, 0.0f);
 }
 
 Game::~Game() {
@@ -145,19 +117,9 @@ void Game::update() {
 }
 
 void Game::render() {
-	
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	glLoadMatrixf(&m_camera.getPerspectiveMatrix()[0][0]);
 
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-	glLoadMatrixf(&m_camera.getViewMatrix()[0][0]);
-
-	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	renderme();
+	ShapeDrawer::Get().drawDynmicsWorld(m_dynamicsWorld);
 	m_mousePicker.drawPicker(m_camera);
 	
 	if (m_drawUi)
@@ -279,6 +241,7 @@ void Game::spawnRagdoll(const btVector3& startOffset) {
 }
 
 void Game::pickObject(const btVector3& pickPos, const btCollisionObject* hitObj) {
+	Keyboard &keyboard = Keyboard::instance();
 
 	btRigidBody* body = (btRigidBody*)btRigidBody::upcast(hitObj);
 	if (body) {
@@ -287,7 +250,7 @@ void Game::pickObject(const btVector3& pickPos, const btCollisionObject* hitObj)
 			pickedBody = body;
 			pickedBody->setActivationState(DISABLE_DEACTIVATION);
 			btVector3 localPivot = body->getCenterOfMassTransform().inverse() * pickPos;
-			if ((m_modifierKeys& BT_ACTIVE_SHIFT) != 0) {
+			if (keyboard.keyDown(Keyboard::KEY_RSHIFT) || keyboard.keyDown(Keyboard::KEY_LSHIFT)) {
 				btTransform tr;
 				tr.setIdentity();
 				tr.setOrigin(localPivot);
@@ -334,81 +297,5 @@ void Game::removePickingConstraint() {
 		pickedBody->forceActivationState(ACTIVE_TAG);
 		pickedBody->setDeactivationTime(0.f);
 		pickedBody = 0;
-	}
-}
-
-void Game::renderscene(int pass) {
-	btScalar	m[16];
-	btMatrix3x3	rot; rot.setIdentity();
-	const int	numObjects = m_dynamicsWorld->getNumCollisionObjects();
-	btVector3 wireColor(1, 0, 0);
-	for (int i = 0; i<numObjects; i++)
-	{
-		btCollisionObject*	colObj = m_dynamicsWorld->getCollisionObjectArray()[i];
-		btRigidBody*		body = btRigidBody::upcast(colObj);
-		if (body&&body->getMotionState())
-		{
-			btDefaultMotionState* myMotionState = (btDefaultMotionState*)body->getMotionState();
-			myMotionState->m_graphicsWorldTrans.getOpenGLMatrix(m);
-			rot = myMotionState->m_graphicsWorldTrans.getBasis();
-		}
-		else
-		{
-			colObj->getWorldTransform().getOpenGLMatrix(m);
-			rot = colObj->getWorldTransform().getBasis();
-		}
-		btVector3 wireColor(1.f, 1.0f, 0.5f); //wants deactivation
-		if (i & 1) wireColor = btVector3(0.f, 0.0f, 1.f);
-		///color differently for active, sleeping, wantsdeactivation states
-		if (colObj->getActivationState() == 1) //active
-		{
-			if (i & 1)
-			{
-				wireColor += btVector3(1.f, 0.f, 0.f);
-			}
-			else
-			{
-				wireColor += btVector3(.5f, 0.f, 0.f);
-			}
-		}
-		if (colObj->getActivationState() == 2) //ISLAND_SLEEPING
-		{
-			if (i & 1)
-			{
-				wireColor += btVector3(0.f, 1.f, 0.f);
-			}
-			else
-			{
-				wireColor += btVector3(0.f, 0.5f, 0.f);
-			}
-		}
-
-		btVector3 aabbMin(0, 0, 0), aabbMax(0, 0, 0);
-		//m_dynamicsWorld->getBroadphase()->getBroadphaseAabb(aabbMin,aabbMax);
-
-		aabbMin -= btVector3(BT_LARGE_FLOAT, BT_LARGE_FLOAT, BT_LARGE_FLOAT);
-		aabbMax += btVector3(BT_LARGE_FLOAT, BT_LARGE_FLOAT, BT_LARGE_FLOAT);
-				
-		switch (pass) {
-			case	0:	m_shapeDrawer->drawOpenGL(m, colObj->getCollisionShape(), wireColor, 0, aabbMin, aabbMax); break;
-			case	2:	m_shapeDrawer->drawOpenGL(m, colObj->getCollisionShape(), wireColor*btScalar(0.3), 0, aabbMin, aabbMax); break;
-		}
-		
-	}
-}
-
-void Game::renderme() {
-
-	if (m_dynamicsWorld){
-		
-		glDisable(GL_CULL_FACE);
-		renderscene(0);
-
-		int	xOffset = 10;
-		int yStart = 20;
-		int yIncr = 20;
-
-		glDisable(GL_LIGHTING);
-		glColor3f(0, 0, 0);
 	}
 }

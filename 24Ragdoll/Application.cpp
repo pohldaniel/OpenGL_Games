@@ -309,8 +309,8 @@ void Application::initOpenGL(int msaaSamples) {
 
 	glCullFace(GL_BACK);
 	glFrontFace(GL_CCW);
-	glEnable(GL_CULL_FACE);
-	//glDisable(GL_CULL_FACE);
+	//glEnable(GL_CULL_FACE);
+	glDisable(GL_CULL_FACE);
 
 	glEnable(GL_DEPTH_TEST);
 	glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
@@ -446,7 +446,7 @@ void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 					EventDispatcher.pushEvent(event);
 					break;
 				}*/
-#if DEBUGCOLLISION
+#if DEVBUILD
 				case 'z': case 'Z': {
 					StateMachine::ToggleWireframe();
 					break;
