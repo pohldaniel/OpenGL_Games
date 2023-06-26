@@ -2,6 +2,8 @@
 #include "TextField.h"
 #include "Globals.h"
 
+std::unique_ptr<Shader> TextField::s_shader = nullptr;
+
 TextField::TextField()  {
 
 	m_transform.identity();
@@ -16,6 +18,10 @@ TextField::TextField()  {
 	m_outlineColorHover.set(1.0f, 0.0f, 1.0f, 1.0f);
 	m_offset.set(0.0f, 0.0f);
 	m_padding.set(30.0f, 20.0f);
+
+	if (!s_shader) {
+		s_shader = std::unique_ptr<Shader>(new Shader(TEXTFIELD_VERTEX, TEXTFIELD_FRGAMENT, false));
+	}
 }
 
 TextField::TextField(TextField const& rhs) : Widget(rhs) {
@@ -62,16 +68,18 @@ void TextField::draw() {
 	glStencilFunc(GL_ALWAYS, 1, 0xFF);
 	glStencilMask(0xFF);
 
-	glUseProgram(m_shader->m_program);
-	m_shader->loadMatrix("u_transform", Orthographic * m_transform);
-	m_shader->loadVector("u_color", m_fillColor);
+	auto shader = m_shader == nullptr ? s_shader.get() : m_shader;
+
+	glUseProgram(s_shader->m_program);
+	s_shader->loadMatrix("u_transform", Orthographic * m_transform);
+	s_shader->loadVector("u_color", m_fillColor);
 	Globals::shapeManager.get("quad").drawRaw();
 
 	glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
 	glStencilMask(0x00);
 
-	m_shader->loadMatrix("u_transform", Orthographic * m_transform * m_transformOutline);
-	m_shader->loadVector("u_color", m_outlineColor);
+	s_shader->loadMatrix("u_transform", Orthographic * m_transform * m_transformOutline);
+	s_shader->loadVector("u_color", m_outlineColor);
 	Globals::shapeManager.get("quad").drawRaw();
 	glUseProgram(0);
 
@@ -176,4 +184,8 @@ void TextField::setCharset(const CharacterSet& charset) {
 
 float TextField::getTickness() {
 	return m_thickness;
+}
+
+void TextField::SetShader(const Shader* shader) {
+	s_shader.reset(const_cast<Shader*>(shader));
 }

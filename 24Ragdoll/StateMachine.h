@@ -7,13 +7,9 @@
 #include "engine/Quad.h"
 
 enum CurrentState {
-	SHAPEINTERFACE,
-	TERRAINCULLING,
-	CLOUDINTERFACE,
-	ENVIRONMENTNTERFACE,
+	RAGDOLLINTERFACE,
 	GAME,
-	MENU,
-	SETTINGS
+	MENU
 };
 
 class State;

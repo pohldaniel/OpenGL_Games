@@ -141,9 +141,9 @@ public:
 		// Setup some damping on the m_bodies
 		for (int i = 0; i < BODYPART_COUNT; ++i)
 		{
-			m_bodies[i]->setDamping(0.05, 0.85);
-			m_bodies[i]->setDeactivationTime(0.8);
-			m_bodies[i]->setSleepingThresholds(1.6, 2.5);
+			m_bodies[i]->setDamping(0.05f, 0.85f);
+			m_bodies[i]->setDeactivationTime(0.8f);
+			m_bodies[i]->setSleepingThresholds(1.6f, 2.5f);
 		}
 
 		// Now setup the constraints
