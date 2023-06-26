@@ -261,19 +261,19 @@ void RagdollInterface::pickObject(const btVector3& pickPos, const btCollisionObj
 				Physics::GetDynamicsWorld()->addConstraint(dof6, true);
 				m_pickConstraint = dof6;
 
-				dof6->setParam(BT_CONSTRAINT_STOP_CFM, 0.8, 0);
-				dof6->setParam(BT_CONSTRAINT_STOP_CFM, 0.8, 1);
-				dof6->setParam(BT_CONSTRAINT_STOP_CFM, 0.8, 2);
-				dof6->setParam(BT_CONSTRAINT_STOP_CFM, 0.8, 3);
-				dof6->setParam(BT_CONSTRAINT_STOP_CFM, 0.8, 4);
-				dof6->setParam(BT_CONSTRAINT_STOP_CFM, 0.8, 5);
+				dof6->setParam(BT_CONSTRAINT_STOP_CFM, 0.8f, 0);
+				dof6->setParam(BT_CONSTRAINT_STOP_CFM, 0.8f, 1);
+				dof6->setParam(BT_CONSTRAINT_STOP_CFM, 0.8f, 2);
+				dof6->setParam(BT_CONSTRAINT_STOP_CFM, 0.8f, 3);
+				dof6->setParam(BT_CONSTRAINT_STOP_CFM, 0.8f, 4);
+				dof6->setParam(BT_CONSTRAINT_STOP_CFM, 0.8f, 5);
 
-				dof6->setParam(BT_CONSTRAINT_STOP_ERP, 0.1, 0);
-				dof6->setParam(BT_CONSTRAINT_STOP_ERP, 0.1, 1);
-				dof6->setParam(BT_CONSTRAINT_STOP_ERP, 0.1, 2);
-				dof6->setParam(BT_CONSTRAINT_STOP_ERP, 0.1, 3);
-				dof6->setParam(BT_CONSTRAINT_STOP_ERP, 0.1, 4);
-				dof6->setParam(BT_CONSTRAINT_STOP_ERP, 0.1, 5);
+				dof6->setParam(BT_CONSTRAINT_STOP_ERP, 0.1f, 0);
+				dof6->setParam(BT_CONSTRAINT_STOP_ERP, 0.1f, 1);
+				dof6->setParam(BT_CONSTRAINT_STOP_ERP, 0.1f, 2);
+				dof6->setParam(BT_CONSTRAINT_STOP_ERP, 0.1f, 3);
+				dof6->setParam(BT_CONSTRAINT_STOP_ERP, 0.1f, 4);
+				dof6->setParam(BT_CONSTRAINT_STOP_ERP, 0.1f, 5);
 			}
 			else {
 				btPoint2PointConstraint* p2p = new btPoint2PointConstraint(*body, localPivot);

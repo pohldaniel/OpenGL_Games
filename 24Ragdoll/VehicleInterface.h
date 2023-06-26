@@ -10,12 +10,13 @@
 #include "MousePicker.h"
 #include "ShapeDrawer.h"
 
-class RagdollInterface : public State, public MouseEventListener, public KeyboardEventListener {
+
+class VehicleInterface : public State, public MouseEventListener, public KeyboardEventListener {
 
 public:
 
-	RagdollInterface(StateMachine& machine);
-	~RagdollInterface();
+	VehicleInterface(StateMachine& machine);
+	~VehicleInterface();
 
 	void fixedUpdate() override;
 	void update() override;

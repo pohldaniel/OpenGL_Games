@@ -11,7 +11,7 @@
 #include "Application.h"
 #include "Globals.h"
 
-#include "Game.h"
+#include "VehicleInterface.h"
 #include "Menu.h"
 #include "Widget.h"
 
@@ -376,7 +376,7 @@ void Application::fixedUpdate() {
 void Application::initStates() {
 	
 	Machine = new StateMachine(m_dt, m_fdt);
-	//Machine->addStateAtTop(new Game(*Machine));
+	//Machine->addStateAtTop(new VehicleInterface(*Machine));
 	Machine->addStateAtTop(new Menu(*Machine));
 }
 

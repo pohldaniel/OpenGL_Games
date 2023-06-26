@@ -3,15 +3,12 @@
 #include <imgui_impl_opengl3.h>
 #include <imgui_internal.h>
 
-#include "Game.h"
+#include "VehicleInterface.h"
 #include "Application.h"
 #include "Globals.h"
 
-Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), 
-									m_dynamicsWorld(Physics::GetDynamicsWorld()),
-									m_pickConstraint(0),
-									m_modifierKeys(0),
-									m_ShootBoxInitialSpeed(40.f) {
+VehicleInterface::VehicleInterface(StateMachine& machine) : State(machine, CurrentState::RAGDOLLINTERFACE),
+m_pickConstraint(0) {
 
 	Application::SetCursorIcon(IDC_ARROW);
 	EventDispatcher::AddKeyboardListener(this);
@@ -32,7 +29,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME),
 	fixedGround->setCollisionShape(groundShape);
 	fixedGround->setWorldTransform(groundTransform);
 	Physics::GetDynamicsWorld()->addCollisionObject(fixedGround, Physics::FLOOR, Physics::PICKABLE_OBJECT);
-	
+
 	// Spawn one ragdoll
 	btVector3 startOffset(1.0f, 0.5f, 0.0f);
 	spawnRagdoll(startOffset);
@@ -48,17 +45,17 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME),
 	glClearColor(0.7f, 0.7f, 0.7f, 0.0f);
 }
 
-Game::~Game() {
+VehicleInterface::~VehicleInterface() {
 	Globals::physics->removeAllCollisionObjects();
 	EventDispatcher::RemoveKeyboardListener(this);
 	EventDispatcher::RemoveMouseListener(this);
 }
 
-void Game::fixedUpdate() {
-	Globals::physics->stepSimulation(m_fdt);	
+void VehicleInterface::fixedUpdate() {
+	Globals::physics->stepSimulation(m_fdt);
 }
 
-void Game::update() {
+void VehicleInterface::update() {
 	Keyboard &keyboard = Keyboard::instance();
 	Vector3f directrion = Vector3f();
 
@@ -116,52 +113,53 @@ void Game::update() {
 	m_transform.fromMatrix(m_trackball.getTransform());
 }
 
-void Game::render() {
+void VehicleInterface::render() {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	ShapeDrawer::Get().drawDynmicsWorld(m_dynamicsWorld);
+	ShapeDrawer::Get().drawDynmicsWorld(Physics::GetDynamicsWorld());
 	m_mousePicker.drawPicker(m_camera);
-	
+
 	if (m_drawUi)
 		renderUi();
 }
 
-void Game::OnMouseMotion(Event::MouseMoveEvent& event) {
+void VehicleInterface::OnMouseMotion(Event::MouseMoveEvent& event) {
 	m_mousePicker.updatePosition(event.x, event.y, m_camera);
 
 	if (m_pickConstraint) {
-		
+
 		btPoint2PointConstraint* pickCon = static_cast<btPoint2PointConstraint*>(m_pickConstraint);
 		if (pickCon) {
 			const MousePickCallback& callback = m_mousePicker.getCallback();
-			
+
 			btVector3 newRayTo = callback.m_target;
 			btVector3 rayFrom = callback.m_origin;
 			btVector3 oldPivotInB = pickCon->getPivotInB();
 			btVector3 newPivotB;
-				
-			
+
+
 			btVector3 dir = newRayTo - rayFrom;
 			dir.normalize();
 			dir *= m_mousePicker.getPickingDistance();
 
 			newPivotB = rayFrom + dir;
-				
+
 			pickCon->setPivotB(newPivotB);
-		}		
+		}
 	}
 }
 
-void Game::OnMouseWheel(Event::MouseWheelEvent& event) {
+void VehicleInterface::OnMouseWheel(Event::MouseWheelEvent& event) {
 
 }
 
-void Game::OnMouseButtonDown(Event::MouseButtonEvent& event) {
+void VehicleInterface::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 	m_mousePicker.updatePosition(event.x, event.y, m_camera);
 
 	if (event.button == 2u) {
 		Mouse::instance().attach(Application::GetWindow());
-	}else if (event.button == 1u) {
+	}
+	else if (event.button == 1u) {
 
 		if (m_mousePicker.click(event.x, event.y, m_camera)) {
 			const MousePickCallback& callback = m_mousePicker.getCallback();
@@ -170,15 +168,16 @@ void Game::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 	}
 }
 
-void Game::OnMouseButtonUp(Event::MouseButtonEvent& event) {
+void VehicleInterface::OnMouseButtonUp(Event::MouseButtonEvent& event) {
 	if (event.button == 2u) {
 		Mouse::instance().detach();
-	}else if (event.button == 1u) {
+	}
+	else if (event.button == 1u) {
 		removePickingConstraint();
 	}
 }
 
-void Game::OnKeyDown(Event::KeyboardEvent& event) {
+void VehicleInterface::OnKeyDown(Event::KeyboardEvent& event) {
 	if (event.keyCode == VK_LMENU) {
 		m_drawUi = true;
 		Mouse::instance().detach();
@@ -186,14 +185,14 @@ void Game::OnKeyDown(Event::KeyboardEvent& event) {
 	}
 }
 
-void Game::resize(int deltaW, int deltaH) {
+void VehicleInterface::resize(int deltaW, int deltaH) {
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
-	
+
 }
 
 
-void Game::renderUi() {
+void VehicleInterface::renderUi() {
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
@@ -235,12 +234,12 @@ void Game::renderUi() {
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
-void Game::spawnRagdoll(const btVector3& startOffset) {
+void VehicleInterface::spawnRagdoll(const btVector3& startOffset) {
 	RagDoll* ragDoll = new RagDoll(Physics::GetDynamicsWorld(), startOffset);
 	m_ragdolls.push_back(ragDoll);
 }
 
-void Game::pickObject(const btVector3& pickPos, const btCollisionObject* hitObj) {
+void VehicleInterface::pickObject(const btVector3& pickPos, const btCollisionObject* hitObj) {
 	Keyboard &keyboard = Keyboard::instance();
 
 	btRigidBody* body = (btRigidBody*)btRigidBody::upcast(hitObj);
@@ -260,7 +259,7 @@ void Game::pickObject(const btVector3& pickPos, const btCollisionObject* hitObj)
 				dof6->setAngularLowerLimit(btVector3(0, 0, 0));
 				dof6->setAngularUpperLimit(btVector3(0, 0, 0));
 
-				m_dynamicsWorld->addConstraint(dof6, true);
+				Physics::GetDynamicsWorld()->addConstraint(dof6, true);
 				m_pickConstraint = dof6;
 
 				dof6->setParam(BT_CONSTRAINT_STOP_CFM, 0.8, 0);
@@ -276,9 +275,10 @@ void Game::pickObject(const btVector3& pickPos, const btCollisionObject* hitObj)
 				dof6->setParam(BT_CONSTRAINT_STOP_ERP, 0.1, 3);
 				dof6->setParam(BT_CONSTRAINT_STOP_ERP, 0.1, 4);
 				dof6->setParam(BT_CONSTRAINT_STOP_ERP, 0.1, 5);
-			}else {
+			}
+			else {
 				btPoint2PointConstraint* p2p = new btPoint2PointConstraint(*body, localPivot);
-				m_dynamicsWorld->addConstraint(p2p, true);
+				Physics::GetDynamicsWorld()->addConstraint(p2p, true);
 				m_pickConstraint = p2p;
 				p2p->m_setting.m_impulseClamp = mousePickClamping;
 				p2p->m_setting.m_tau = 0.001f;
@@ -288,9 +288,9 @@ void Game::pickObject(const btVector3& pickPos, const btCollisionObject* hitObj)
 
 }
 
-void Game::removePickingConstraint() {
-	if (m_pickConstraint && m_dynamicsWorld) {
-		m_dynamicsWorld->removeConstraint(m_pickConstraint);
+void VehicleInterface::removePickingConstraint() {
+	if (m_pickConstraint && Physics::GetDynamicsWorld()) {
+		Physics::GetDynamicsWorld()->removeConstraint(m_pickConstraint);
 		delete m_pickConstraint;
 
 		m_pickConstraint = 0;

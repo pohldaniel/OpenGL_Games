@@ -8,6 +8,7 @@
 
 enum CurrentState {
 	RAGDOLLINTERFACE,
+	VEHICLEINTERFACE,
 	GAME,
 	MENU
 };

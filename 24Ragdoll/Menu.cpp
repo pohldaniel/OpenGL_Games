@@ -4,6 +4,7 @@
 #include "Application.h"
 #include "Globals.h"
 #include "RagdollInterface.h"
+#include "VehicleInterface.h"
 
 Menu::Menu(StateMachine& machine) : State(machine, CurrentState::MENU) {
 
@@ -17,7 +18,8 @@ Menu::Menu(StateMachine& machine) : State(machine, CurrentState::MENU) {
 	m_headline.setOffset(5.0f, 5.0f);
 
 	m_buttons = std::initializer_list<std::pair<const std::string, Button>>({		
-		{ "ragdoll",  Button() }
+		{ "ragdoll" , Button() },
+		{ "vehicle" , Button() }
 	});
 	m_buttons.at("ragdoll").setCharset(Globals::fontManager.get("upheaval_50"));
 	m_buttons.at("ragdoll").setPosition(50.0f, 400.0f);
@@ -28,6 +30,18 @@ Menu::Menu(StateMachine& machine) : State(machine, CurrentState::MENU) {
 	m_buttons.at("ragdoll").setFunction([&]() {
 		m_isRunning = false;
 		m_machine.addStateAtBottom(new RagdollInterface(m_machine));
+	});
+
+
+	m_buttons.at("vehicle").setCharset(Globals::fontManager.get("upheaval_50"));
+	m_buttons.at("vehicle").setPosition(50.0f, 300.0f);
+	m_buttons.at("vehicle").setSize(Vector2f(100.0f, 50.0f));
+	m_buttons.at("vehicle").setOutlineThickness(5.0f);
+	m_buttons.at("vehicle").setText("Vehicle");
+	m_buttons.at("vehicle").setOffset(2.0f, 7.0f);
+	m_buttons.at("vehicle").setFunction([&]() {
+		m_isRunning = false;
+		m_machine.addStateAtBottom(new VehicleInterface(m_machine));
 	});
 }
 
