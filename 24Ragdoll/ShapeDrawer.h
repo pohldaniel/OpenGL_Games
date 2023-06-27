@@ -33,9 +33,14 @@ class ShapeDrawer {
 
 public:
 
-	struct ShapeCache {
-		ShapeCache(btConvexShape* s) : m_shapehull(s) {}
+	struct ShapeCacheConvex {
+		ShapeCacheConvex(btConvexShape* s) : m_shapehull(s) {}
 		btShapeHull m_shapehull;
+		Vector4f m_color;
+	};
+
+	struct ShapeCache{
+		
 		Vector4f m_color;
 	};
 
@@ -46,6 +51,7 @@ public:
 	void shutdown();
 	void drawDynmicsWorld(btDynamicsWorld* dynamicsWorld);
 	
+	void drawShape(btScalar* m,  btCollisionShape* shape);
 
 	void setCamera(const Camera& camera);
 	
@@ -55,7 +61,8 @@ public:
 private:
 
 	ShapeDrawer() = default;
-	ShapeCache* cache(btConvexShape* shape);
+	ShapeCacheConvex* cacheConvex(btCollisionShape* shape);
+	ShapeCache* cache(btCollisionShape* shape);
 
 	size_t m_maxTriangles = 0;
 	
@@ -65,6 +72,7 @@ private:
 
 	
 	const Camera* m_camera;
+	btAlignedObjectArray<ShapeCacheConvex*> m_shapecachesConvex;
 	btAlignedObjectArray<ShapeCache*> m_shapecaches;
 
 	RandomColor randomColor;

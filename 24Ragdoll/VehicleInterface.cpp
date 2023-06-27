@@ -19,7 +19,11 @@ m_pickConstraint(0) {
 	m_camera.lookAt(Vector3f(0.0f, 2.0f, 10.0f), Vector3f(0.0f, 2.0f, 10.0f) + Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
 	m_camera.setRotationSpeed(0.1f);
 
-	btCollisionShape* groundShape = new btBoxShape(btVector3(200.0f, 10.0f, 200.0f));
+	ShapeDrawer::Get().init(8192);
+	ShapeDrawer::Get().setCamera(m_camera);
+	glClearColor(0.7f, 0.7f, 0.7f, 0.0f);
+
+	/*btCollisionShape* groundShape = new btBoxShape(btVector3(200.0f, 10.0f, 200.0f));
 	m_collisionShapes.push_back(groundShape);
 	btTransform groundTransform;
 	groundTransform.setIdentity();
@@ -28,21 +32,126 @@ m_pickConstraint(0) {
 	btCollisionObject* fixedGround = new btCollisionObject();
 	fixedGround->setCollisionShape(groundShape);
 	fixedGround->setWorldTransform(groundTransform);
-	Physics::GetDynamicsWorld()->addCollisionObject(fixedGround, Physics::FLOOR, Physics::PICKABLE_OBJECT);
+	Physics::GetDynamicsWorld()->addCollisionObject(fixedGround, Physics::FLOOR, Physics::PICKABLE_OBJECT);*/
 
-	// Spawn one ragdoll
-	btVector3 startOffset(1.0f, 0.5f, 0.0f);
-	spawnRagdoll(startOffset);
-	startOffset.setValue(-1.0f, 0.5f, 0.0f);
-	spawnRagdoll(startOffset);
+	btTransform tr;
+	tr.setIdentity();
+	
+	int i;
 
-	//std::vector<btCollisionShape*> platformShape = Physics::CreateStaticCollisionShapes(&Globals::shapeManager.get("platform"), 1.0f);
-	//btRigidBody* body = Globals::physics->addStaticModel(platformShape, Physics::BtTransform(), false, btVector3(1.0f, 1.0f, 1.0f), Physics::FLOOR, Physics::PICKABLE_OBJECT);
+	const float TRIANGLE_SIZE = 20.f;
 
-	ShapeDrawer::Get().init(1024);
-	ShapeDrawer::Get().setCamera(m_camera);
+	//create a triangle-mesh ground
+	int vertStride = sizeof(btVector3);
+	int indexStride = 3 * sizeof(int);
 
-	glClearColor(0.7f, 0.7f, 0.7f, 0.0f);
+	const int NUM_VERTS_X = 20;
+	const int NUM_VERTS_Y = 20;
+	const int totalVerts = NUM_VERTS_X * NUM_VERTS_Y;
+
+	const int totalTriangles = 2 * (NUM_VERTS_X - 1)*(NUM_VERTS_Y - 1);
+
+	m_vertices = new btVector3[totalVerts];
+	int* gIndices = new int[totalTriangles * 3];
+
+
+
+	for (i = 0; i<NUM_VERTS_X; i++) {
+		for (int j = 0; j<NUM_VERTS_Y; j++) {
+			float wl = .2f;
+			//height set to zero, but can also use curved landscape, just uncomment out the code
+			float height = 20.f*sinf(float(i)*wl)*cosf(float(j)*wl);
+
+			m_vertices[i + j*NUM_VERTS_X].setValue( (i - NUM_VERTS_X*0.5f)*TRIANGLE_SIZE, height, (j - NUM_VERTS_Y*0.5f)*TRIANGLE_SIZE);
+
+			
+		}
+	}
+
+	int index = 0;
+	for (i = 0; i<NUM_VERTS_X - 1; i++){
+		for (int j = 0; j<NUM_VERTS_Y - 1; j++){
+			gIndices[index++] = j*NUM_VERTS_X + i;
+			gIndices[index++] = j*NUM_VERTS_X + i + 1;
+			gIndices[index++] = (j + 1)*NUM_VERTS_X + i + 1;
+
+			gIndices[index++] = j*NUM_VERTS_X + i;
+			gIndices[index++] = (j + 1)*NUM_VERTS_X + i + 1;
+			gIndices[index++] = (j + 1)*NUM_VERTS_X + i;
+		}
+	}
+
+	m_indexVertexArrays = new btTriangleIndexVertexArray(totalTriangles, gIndices, indexStride, totalVerts, (btScalar*)&m_vertices[0].x(), vertStride);
+
+	bool useQuantizedAabbCompression = true;
+	btCollisionShape* groundShape = new btBvhTriangleMeshShape(m_indexVertexArrays, useQuantizedAabbCompression);
+
+	tr.setOrigin(btVector3(0, -4.5f, 0));
+
+	m_collisionShapes.push_back(groundShape);
+
+	//create ground object
+	localCreateRigidBody(0, tr, groundShape);
+	tr.setOrigin(btVector3(0, 0, 0));//-64.5f,0));
+
+	btCollisionShape* chassisShape = new btBoxShape(btVector3(1.f, 0.5f, 2.f));
+	m_collisionShapes.push_back(chassisShape);
+
+	btCompoundShape* compound = new btCompoundShape();
+	m_collisionShapes.push_back(compound);
+	btTransform localTrans;
+	localTrans.setIdentity();
+	//localTrans effectively shifts the center of mass with respect to the chassis
+	localTrans.setOrigin(btVector3(0, 1, 0));
+
+	compound->addChildShape(localTrans, chassisShape);
+
+	tr.setOrigin(btVector3(0, 0.f, 0));
+
+	m_carChassis = localCreateRigidBody(800, tr, compound);//chassisShape);
+														   //m_carChassis->setDamping(0.2,0.2);
+
+	m_wheelShape = new btCylinderShapeX(btVector3(wheelWidth, wheelRadius, wheelRadius));
+
+	//clientResetScene();
+
+	/// create vehicle
+	{
+
+		m_vehicleRayCaster = new btDefaultVehicleRaycaster(Physics::GetDynamicsWorld());
+		m_vehicle = new btRaycastVehicle(m_tuning, m_carChassis, m_vehicleRayCaster);
+
+		///never deactivate the vehicle
+		m_carChassis->setActivationState(DISABLE_DEACTIVATION);
+
+		Physics::GetDynamicsWorld()->addVehicle(m_vehicle);
+
+		float connectionHeight = 1.2f;
+
+
+		bool isFrontWheel = true;
+
+
+		m_vehicle->setCoordinateSystem(rightIndex, upIndex, forwardIndex);
+
+		btVector3 connectionPointCS0(CUBE_HALF_EXTENTS - (0.3*wheelWidth), connectionHeight, 2 * CUBE_HALF_EXTENTS - wheelRadius);
+		m_vehicle->addWheel(connectionPointCS0, wheelDirectionCS0, wheelAxleCS, suspensionRestLength, wheelRadius, m_tuning, isFrontWheel);
+		connectionPointCS0 = btVector3(-CUBE_HALF_EXTENTS + (0.3*wheelWidth), connectionHeight, 2 * CUBE_HALF_EXTENTS - wheelRadius);
+		m_vehicle->addWheel(connectionPointCS0, wheelDirectionCS0, wheelAxleCS, suspensionRestLength, wheelRadius, m_tuning, isFrontWheel);
+		connectionPointCS0 = btVector3(-CUBE_HALF_EXTENTS + (0.3*wheelWidth), connectionHeight, -2 * CUBE_HALF_EXTENTS + wheelRadius);
+		isFrontWheel = false;
+		m_vehicle->addWheel(connectionPointCS0, wheelDirectionCS0, wheelAxleCS, suspensionRestLength, wheelRadius, m_tuning, isFrontWheel);
+		connectionPointCS0 = btVector3(CUBE_HALF_EXTENTS - (0.3*wheelWidth), connectionHeight, -2 * CUBE_HALF_EXTENTS + wheelRadius);
+		m_vehicle->addWheel(connectionPointCS0, wheelDirectionCS0, wheelAxleCS, suspensionRestLength, wheelRadius, m_tuning, isFrontWheel);
+		for (int i = 0; i<m_vehicle->getNumWheels(); i++) {
+			btWheelInfo& wheel = m_vehicle->getWheelInfo(i);
+			wheel.m_suspensionStiffness = suspensionStiffness;
+			wheel.m_wheelsDampingRelaxation = suspensionDamping;
+			wheel.m_wheelsDampingCompression = suspensionCompression;
+			wheel.m_frictionSlip = wheelFriction;
+			wheel.m_rollInfluence = rollInfluence;
+		}
+	}
 }
 
 VehicleInterface::~VehicleInterface() {
@@ -115,8 +224,19 @@ void VehicleInterface::update() {
 
 void VehicleInterface::render() {
 
+	btScalar m[16];
+
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	ShapeDrawer::Get().drawDynmicsWorld(Physics::GetDynamicsWorld());
+
+	for (int i = 0; i<m_vehicle->getNumWheels(); i++){
+		//synchronize the wheels with the (interpolated) chassis worldtransform
+		m_vehicle->updateWheelTransform(i, true);
+		//draw wheels (cylinders)
+		m_vehicle->getWheelInfo(i).m_worldTransform.getOpenGLMatrix(m);
+		ShapeDrawer::Get().drawShape(m, m_wheelShape);
+	}
+
 	m_mousePicker.drawPicker(m_camera);
 
 	if (m_drawUi)
@@ -234,10 +354,6 @@ void VehicleInterface::renderUi() {
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
-void VehicleInterface::spawnRagdoll(const btVector3& startOffset) {
-	RagDoll* ragDoll = new RagDoll(Physics::GetDynamicsWorld(), startOffset);
-	m_ragdolls.push_back(ragDoll);
-}
 
 void VehicleInterface::pickObject(const btVector3& pickPos, const btCollisionObject* hitObj) {
 	Keyboard &keyboard = Keyboard::instance();
@@ -298,4 +414,55 @@ void VehicleInterface::removePickingConstraint() {
 		pickedBody->setDeactivationTime(0.f);
 		pickedBody = 0;
 	}
+}
+
+btRigidBody* VehicleInterface::localCreateRigidBody(float mass, const btTransform& startTransform, btCollisionShape* shape)
+{
+	btAssert((!shape || shape->getShapeType() != INVALID_SHAPE_PROXYTYPE));
+
+	//rigidbody is dynamic if and only if mass is non zero, otherwise static
+	bool isDynamic = (mass != 0.f);
+
+	btVector3 localInertia(0, 0, 0);
+	if (isDynamic)
+		shape->calculateLocalInertia(mass, localInertia);
+
+	//using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects
+
+#define USE_MOTIONSTATE 1
+#ifdef USE_MOTIONSTATE
+	btDefaultMotionState* myMotionState = new btDefaultMotionState(startTransform);
+
+	btRigidBody::btRigidBodyConstructionInfo cInfo(mass, myMotionState, shape, localInertia);
+
+	btRigidBody* body = new btRigidBody(cInfo);
+	body->setContactProcessingThreshold(m_defaultContactProcessingThreshold);
+
+#else
+	btRigidBody* body = new btRigidBody(mass, 0, shape, localInertia);
+	body->setWorldTransform(startTransform);
+#endif//
+
+	Physics::GetDynamicsWorld()->addRigidBody(body);
+
+	return body;
+}
+
+void VehicleInterface::clientResetScene()
+{
+	gVehicleSteering = 0.f;
+	m_carChassis->setCenterOfMassTransform(btTransform::getIdentity());
+	m_carChassis->setLinearVelocity(btVector3(0, 0, 0));
+	m_carChassis->setAngularVelocity(btVector3(0, 0, 0));
+	Physics::GetDynamicsWorld()->getBroadphase()->getOverlappingPairCache()->cleanProxyFromPairs(m_carChassis->getBroadphaseHandle(), Physics::GetDynamicsWorld()->getDispatcher());
+	if (m_vehicle)
+	{
+		m_vehicle->resetSuspension();
+		for (int i = 0; i<m_vehicle->getNumWheels(); i++)
+		{
+			//synchronize the wheels with the (interpolated) chassis worldtransform
+			m_vehicle->updateWheelTransform(i, true);
+		}
+	}
+
 }

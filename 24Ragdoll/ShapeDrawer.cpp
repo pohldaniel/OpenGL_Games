@@ -44,11 +44,17 @@ void ShapeDrawer::setCamera(const Camera& camera) {
 
 void ShapeDrawer::shutdown() {
 
-	for (int i = 0; i<m_shapecaches.size(); i++){
+	/*for (int i = 0; i<m_shapecaches.size(); i++){
 		m_shapecaches[i]->~ShapeCache();
 		btAlignedFree(m_shapecaches[i]);
 	}
-	m_shapecaches.clear();
+	m_shapecaches.clear();*/
+
+	for (int i = 0; i<m_shapecachesConvex.size(); i++) {
+		m_shapecachesConvex[i]->~ShapeCacheConvex();
+		delete m_shapecachesConvex[i];
+	}
+	m_shapecachesConvex.clear();
 
 	if (m_vao)
 		glDeleteVertexArrays(1, &m_vao);
@@ -70,16 +76,37 @@ void ShapeDrawer::drawDynmicsWorld(btDynamicsWorld* dynamicsWorld) {
 		if (body&&body->getMotionState()) {
 			btDefaultMotionState* myMotionState = (btDefaultMotionState*)body->getMotionState();
 			myMotionState->m_graphicsWorldTrans.getOpenGLMatrix(m);
-		}else {
+		}
+		else {
 			colObj->getWorldTransform().getOpenGLMatrix(m);
 		}
 
-		ShapeCache*	sc = cache((btConvexShape*)colObj->getCollisionShape());
-		btShapeHull* hull = &sc->m_shapehull;
+		drawShape(m, colObj->getCollisionShape());
+	}
+}
 
+void ShapeDrawer::drawShape(btScalar* m, btCollisionShape* shape) {
+
+	if (shape->getShapeType() == COMPOUND_SHAPE_PROXYTYPE) {
+		const btCompoundShape* compoundShape = static_cast<const btCompoundShape*>(shape);
+		for (int i = compoundShape->getNumChildShapes() - 1; i >= 0; i--) {
+			btTransform childTrans = compoundShape->getChildTransform(i);
+			const btCollisionShape* colShape = compoundShape->getChildShape(i);
+			ATTRIBUTE_ALIGNED16(btScalar) childMat[16];
+			childTrans.getOpenGLMatrix(childMat);
+			drawShape(childMat, const_cast<btCollisionShape*>(colShape));
+		}
+
+	}else if(shape->getShapeType() == BOX_SHAPE_PROXYTYPE || 
+			shape->getShapeType() == CYLINDER_SHAPE_PROXYTYPE || 
+			shape->getShapeType() == CAPSULE_SHAPE_PROXYTYPE) {
+
+		ShapeCacheConvex* sc = cacheConvex(const_cast<btCollisionShape*>(shape));
+		btShapeHull* hull = &sc->m_shapehull;
 
 		const unsigned int* idx = hull->getIndexPointer();
 		const btVector3* vtx = hull->getVertexPointer();
+
 
 		glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
 		glBufferSubData(GL_ARRAY_BUFFER, 0, hull->numVertices() * sizeof(btVector3), vtx);
@@ -101,20 +128,66 @@ void ShapeDrawer::drawDynmicsWorld(btDynamicsWorld* dynamicsWorld) {
 		glBindVertexArray(0);
 
 		glUseProgram(0);
+
+
+	}else if (shape->getShapeType() == TRIANGLE_MESH_SHAPE_PROXYTYPE) {
+
+		ShapeCache*	sc = cache(const_cast<btCollisionShape*>(shape));
+		const IndexedMeshArray& meshArray = dynamic_cast<btTriangleIndexVertexArray*>(dynamic_cast<btTriangleMeshShape*>(shape)->getMeshInterface())->getIndexedMeshArray();
+
+		for (int i = 0; i < meshArray.size(); i++) {
+			glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+			glBufferSubData(GL_ARRAY_BUFFER, 0, meshArray.at(i).m_numVertices * sizeof(btVector3), meshArray.at(i).m_vertexBase);
+			glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ibo);
+			glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, meshArray.at(i).m_numTriangles * 3 * sizeof(unsigned int), meshArray.at(i).m_triangleIndexBase);
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+			glUseProgram(s_shader->m_program);
+
+			s_shader->loadMatrix("u_projection", m_camera->getPerspectiveMatrix());
+			s_shader->loadMatrix("u_view", m_camera->getViewMatrix());
+			s_shader->loadMatrix("u_model", m);
+			s_shader->loadVector("u_color", sc->m_color);
+
+			glBindVertexArray(m_vao);
+			glDrawElements(GL_TRIANGLES, meshArray.at(i).m_numTriangles * 3, GL_UNSIGNED_INT, 0);
+			glBindVertexArray(0);
+
+			glUseProgram(0);
+		}
+		return;
 	}
+
 }
 
-ShapeDrawer::ShapeCache* ShapeDrawer::cache(btConvexShape* shape) {
-	ShapeCache* sc = (ShapeCache*)shape->getUserPointer();
+ShapeDrawer::ShapeCacheConvex* ShapeDrawer::cacheConvex(btCollisionShape* shape) {
+	ShapeCacheConvex* sc = (ShapeCacheConvex*)shape->getUserPointer();
 
 	if (!sc) {
-		sc = new(btAlignedAlloc(sizeof(ShapeCache), 16)) ShapeCache(shape);
+		sc = new(btAlignedAlloc(sizeof(ShapeCacheConvex), 16)) ShapeCacheConvex(dynamic_cast<btConvexShape*>(shape));
 		sc->m_shapehull.buildHull(shape->getMargin());
 
 		int intColor = randomColor.generate();
-		sc->m_color = Vector4f(((intColor >> 16) & 0xFF) / 255.0, ((intColor >> 8) & 0xFF) / 255.0, ((intColor) & 0xFF) / 255.0, 1.0f);
-		m_shapecaches.push_back(sc);
+		sc->m_color = Vector4f(((intColor >> 16) & 0xFF) / 255.0f, ((intColor >> 8) & 0xFF) / 255.0f, ((intColor) & 0xFF) / 255.0f, 1.0f);
+		m_shapecachesConvex.push_back(sc);
 		shape->setUserPointer(sc);
 	}
 	return(sc);
+}
+
+ShapeDrawer::ShapeCache* ShapeDrawer::cache(btCollisionShape* shape) {
+	ShapeCache* sc = (ShapeCache*)shape->getUserPointer();
+
+	if (!sc) {
+		sc = new ShapeCache();
+
+		int intColor = randomColor.generate();
+		sc->m_color = Vector4f(((intColor >> 16) & 0xFF) / 255.0f, ((intColor >> 8) & 0xFF) / 255.0f, ((intColor) & 0xFF) / 255.0f, 1.0f);
+		m_shapecaches.push_back(sc);
+		shape->setUserPointer(sc);
+	}
+
+	return sc;
 }

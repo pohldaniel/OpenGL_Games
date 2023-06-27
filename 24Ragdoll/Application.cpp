@@ -11,6 +11,7 @@
 #include "Application.h"
 #include "Globals.h"
 
+#include "RagdollInterface.h"
 #include "VehicleInterface.h"
 #include "Menu.h"
 #include "Widget.h"
@@ -310,8 +311,8 @@ void Application::initOpenGL(int msaaSamples) {
 
 	glCullFace(GL_BACK);
 	glFrontFace(GL_CCW);
-	glEnable(GL_CULL_FACE);
-	//glDisable(GL_CULL_FACE);
+	//glEnable(GL_CULL_FACE);
+	glDisable(GL_CULL_FACE);
 
 	glEnable(GL_DEPTH_TEST);
 	//glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
@@ -376,8 +377,8 @@ void Application::fixedUpdate() {
 void Application::initStates() {
 	
 	Machine = new StateMachine(m_dt, m_fdt);
-	//Machine->addStateAtTop(new VehicleInterface(*Machine));
-	Machine->addStateAtTop(new Menu(*Machine));
+	Machine->addStateAtTop(new VehicleInterface(*Machine));
+	//Machine->addStateAtTop(new RagdollInterface(*Machine));
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
