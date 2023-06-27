@@ -199,7 +199,7 @@ class Matrix4f {
 	friend Vector4f operator^(const Vector4f &rhs, const Matrix4f &lhs);
 	friend Vector4f operator^(const Matrix4f &lhs, const Vector4f &rhs);
 	friend Matrix4f operator*(float scalar, const Matrix4f &rhs);
-
+	
 public:
 
 	static const Matrix4f IDENTITY;
@@ -211,6 +211,7 @@ public:
 		float m21, float m22, float m23, float m24,
 		float m31, float m32, float m33, float m34,
 		float m41, float m42, float m43, float m44);
+	Matrix4f(float array[16]);
 	//Matrix4f(const Matrix4f& rhs);
 	~Matrix4f();
 
@@ -279,7 +280,7 @@ public:
 
 	void print() const;
 	void set(float m11, float m12, float m13, float m14,
-		float m21, float m22, float m23, float m24,
+			 float m21, float m22, float m23, float m24,
 		float m31, float m32, float m33, float m34,
 		float m41, float m42, float m43, float m44);
 

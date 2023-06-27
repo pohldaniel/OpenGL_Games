@@ -44,16 +44,17 @@ void ShapeDrawer::setCamera(const Camera& camera) {
 
 void ShapeDrawer::shutdown() {
 
-	/*for (int i = 0; i<m_shapecaches.size(); i++){
+	for (int i = 0; i<m_shapecaches.size(); i++){
 		m_shapecaches[i]->~ShapeCache();
 		btAlignedFree(m_shapecaches[i]);
 	}
-	m_shapecaches.clear();*/
+	m_shapecaches.clear();
 
 	for (int i = 0; i<m_shapecachesConvex.size(); i++) {
 		m_shapecachesConvex[i]->~ShapeCacheConvex();
 		delete m_shapecachesConvex[i];
 	}
+
 	m_shapecachesConvex.clear();
 
 	if (m_vao)
@@ -71,8 +72,8 @@ void ShapeDrawer::drawDynmicsWorld(btDynamicsWorld* dynamicsWorld) {
 	const int	numObjects = dynamicsWorld->getNumCollisionObjects();
 	btVector3 wireColor(1, 0, 0);
 	for (int i = 0; i < numObjects; i++) {
-		btCollisionObject*	colObj = dynamicsWorld->getCollisionObjectArray()[i];
-		btRigidBody*		body = btRigidBody::upcast(colObj);
+		btCollisionObject* colObj = dynamicsWorld->getCollisionObjectArray()[i];
+		btRigidBody* body = btRigidBody::upcast(colObj);
 		if (body&&body->getMotionState()) {
 			btDefaultMotionState* myMotionState = (btDefaultMotionState*)body->getMotionState();
 			myMotionState->m_graphicsWorldTrans.getOpenGLMatrix(m);
@@ -94,7 +95,7 @@ void ShapeDrawer::drawShape(btScalar* m, btCollisionShape* shape) {
 			const btCollisionShape* colShape = compoundShape->getChildShape(i);
 			ATTRIBUTE_ALIGNED16(btScalar) childMat[16];
 			childTrans.getOpenGLMatrix(childMat);
-			drawShape(childMat, const_cast<btCollisionShape*>(colShape));
+			drawShape(&(Matrix4f(m) * Matrix4f(childMat))[0][0], const_cast<btCollisionShape*>(colShape));
 		}
 
 	}else if(shape->getShapeType() == BOX_SHAPE_PROXYTYPE || 

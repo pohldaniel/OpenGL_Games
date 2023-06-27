@@ -17,12 +17,12 @@ void Physics::initialize(){
 	m_collisionConfiguration = new btDefaultCollisionConfiguration();
 	m_dispatcher = new btCollisionDispatcher(m_collisionConfiguration);
 	///btAxis3Sweep is a good general purpose broadphase
-	m_broadphase = new btAxisSweep3(btVector3(-1000.0f, -1000.0f, -1000.0f), btVector3(1000.0f, 1000.0f, 1000.0f));
-	//m_broadphase = new btDbvtBroadphase();
+	//m_broadphase = new btAxisSweep3(btVector3(-1000.0f, -1000.0f, -1000.0f), btVector3(1000.0f, 1000.0f, 1000.0f));
+	m_broadphase = new btDbvtBroadphase();
 	m_constraintSolver = new btSequentialImpulseConstraintSolver();
 
 	DynamicsWorld = new btDiscreteDynamicsWorld(m_dispatcher, m_broadphase, m_constraintSolver, m_collisionConfiguration);
-	DynamicsWorld->setGravity(btVector3(0.0f, -9.81f, 0.0f));
+	//DynamicsWorld->setGravity(btVector3(0.0f, -9.81f, 0.0f));
 }
 
 void Physics::deinitialize(){

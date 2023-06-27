@@ -949,6 +949,13 @@ Matrix4f::Matrix4f(float m11, float m12, float m13, float m14,
 	mtx[3][0] = m41, mtx[3][1] = m42, mtx[3][2] = m43, mtx[3][3] = m44;
 }
 
+Matrix4f::Matrix4f(float array[16]) {
+	mtx[0][0] = array[0], mtx[0][1] = array[1], mtx[0][2] = array[2], mtx[0][3] = array[3];
+	mtx[1][0] = array[4], mtx[1][1] = array[5], mtx[1][2] = array[6], mtx[1][3] = array[7];
+	mtx[2][0] = array[8], mtx[2][1] = array[9], mtx[2][2] = array[10], mtx[2][3] = array[11];
+	mtx[3][0] = array[12], mtx[3][1] = array[13], mtx[3][2] = array[14], mtx[3][3] = array[15];
+}
+
 void Matrix4f::set(float m11, float m12, float m13, float m14,
 	float m21, float m22, float m23, float m24,
 	float m31, float m32, float m33, float m34,
