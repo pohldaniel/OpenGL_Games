@@ -243,6 +243,9 @@
     <ClCompile Include="ShapeDrawer.cpp">
       <Filter>Physics</Filter>
     </ClCompile>
+    <ClCompile Include="PhysicsCar.cpp">
+      <Filter>Physics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h">
@@ -456,6 +459,9 @@
       <Filter>Physics</Filter>
     </ClInclude>
     <ClInclude Include="ShapeDrawer.h">
+      <Filter>Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="PhysicsCar.h">
       <Filter>Physics</Filter>
     </ClInclude>
   </ItemGroup>

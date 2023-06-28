@@ -43,7 +43,6 @@ void Physics::deinitialize(){
 
 	delete DynamicsWorld;
 	delete m_constraintSolver;
-	//delete m_overlappingPairCache;
 	delete m_broadphase;
 	delete m_dispatcher;
 	delete m_collisionConfiguration;
@@ -86,30 +85,6 @@ void Physics::stepSimulation(btScalar timeStep){
 	//std::cout << "Num Steps: " << numSimSteps << std::endl;
 }
 
-btRigidBody * Physics::createRigidBody(btScalar mass, const btTransform& startTransform, btCollisionShape* shape, int collisionFlag) {
-	btVector3 localInertia(0.0f, 0.0f, 0.0f);
-	if (mass != 0.0f)  //rigidbody is dynamic if and only if mass is non zero, otherwise static
-		shape->calculateLocalInertia(mass, localInertia);
-
-	//using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects
-	btDefaultMotionState* myMotionState = new btDefaultMotionState(startTransform);
-
-	btRigidBody::btRigidBodyConstructionInfo cInfo(mass, myMotionState, shape, localInertia);
-
-	btRigidBody* body = new btRigidBody(cInfo);
-	//body->setContactProcessingThreshold(0);
-	body->setCollisionFlags(collisionFlag);
-	return body;
-}
-
-
-btRigidBody* Physics::addRigidBody(float mass, const btTransform& startTransform, btCollisionShape* shape, int collisionFilterGroup, int collisionFilterMask, int collisionFlag){
-	btRigidBody* body = createRigidBody(mass, startTransform, shape, collisionFlag);
-	DynamicsWorld->addRigidBody(body, collisionFilterGroup, collisionFilterMask);
-
-	return body;
-}
-
 btRigidBody* Physics::addStaticModel(std::vector<btCollisionShape *>& collisionShapes, const btTransform& trans, bool debugDraw, const btVector3& scale, int collisionFilterGroup, int collisionFilterMask){
 	btRigidBody *body = nullptr; 
 	
@@ -122,7 +97,7 @@ btRigidBody* Physics::addStaticModel(std::vector<btCollisionShape *>& collisionS
 			colShape = collisionShapes[i];
 
 
-		body = addRigidBody(0.0f, trans, colShape, collisionFilterGroup, collisionFilterMask, btCollisionObject::CF_STATIC_OBJECT);
+		body = AddRigidBody(0.0f, trans, colShape, collisionFilterGroup, collisionFilterMask, btCollisionObject::CF_STATIC_OBJECT);
 
 		if (!debugDraw)
 			body->setCollisionFlags(body->getCollisionFlags() | btCollisionObject::CF_DISABLE_VISUALIZE_OBJECT);
@@ -131,7 +106,7 @@ btRigidBody* Physics::addStaticModel(std::vector<btCollisionShape *>& collisionS
 	return body;
 }
 
-void Physics::bebugDrawWorld() {
+void Physics::debugDrawWorld() {
 	DynamicsWorld->debugDrawWorld();
 }
 
@@ -228,6 +203,29 @@ std::vector<btCollisionShape*> Physics::CreateStaticCollisionShapes(std::vector<
 	return ret;
 }
 
+btRigidBody* Physics::CreateRigidBody(btScalar mass, const btTransform& startTransform, btCollisionShape* shape, int collisionFlag) {
+	bool isDynamic = (mass != 0.f);
+
+	btVector3 localInertia(0.0f, 0.0f, 0.0f);
+	if (mass != 0.0f)
+		shape->calculateLocalInertia(mass, localInertia);
+
+	btDefaultMotionState* motionState = new btDefaultMotionState(startTransform);
+	btRigidBody::btRigidBodyConstructionInfo cInfo(mass, motionState, shape, localInertia);
+	btRigidBody* body = new btRigidBody(cInfo);
+
+	body->setCollisionFlags(collisionFlag);
+	return body;
+}
+
+btRigidBody* Physics::AddRigidBody(float mass, const btTransform& startTransform, btCollisionShape* shape, int collisionFilterGroup, int collisionFilterMask, int collisionFlag) {
+	btRigidBody* body = CreateRigidBody(mass, startTransform, shape, collisionFlag);
+	DynamicsWorld->addRigidBody(body, collisionFilterGroup, collisionFilterMask);
+
+	return body;
+}
+
+
 float Physics::SweepSphere(const btVector3& from, const btVector3& to, float radius, int collisionFilterGroup, int collisionFilterMask) {
 	btSphereShape cameraSphere(radius);
 
@@ -256,23 +254,6 @@ float Physics::RayTest(const btVector3& from, const btVector3& to, int collision
 	DynamicsWorld->rayTest(from, to, cb);
 
 	return cb.m_closestHitFraction;
-}
-
-btRigidBody* Physics::CreateRigidBody(btScalar mass, const btTransform & startTransform, btCollisionShape * shape) {
-
-	btVector3 localInertia(0.0f, 0.0f, 0.0f);
-	if (mass != 0.f)  //rigidbody is dynamic if and only if mass is non zero, otherwise static
-		shape->calculateLocalInertia(mass, localInertia);
-
-	//using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects
-	btDefaultMotionState* myMotionState = new btDefaultMotionState(startTransform);
-
-	btRigidBody::btRigidBodyConstructionInfo cInfo(mass, myMotionState, shape, localInertia);
-
-	btRigidBody* body = new btRigidBody(cInfo);
-	body->setContactProcessingThreshold(0);
-
-	return body;
 }
 
 btTransform Physics::BtTransform() {

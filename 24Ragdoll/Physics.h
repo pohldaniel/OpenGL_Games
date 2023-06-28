@@ -39,9 +39,8 @@ public:
 	void removeCollisionObject(btCollisionObject* obj);
 
 	void stepSimulation(btScalar timeStep);
-	void bebugDrawWorld();
+	void debugDrawWorld();
 
-	btRigidBody* addRigidBody(float mass, const btTransform & startTransform, btCollisionShape * shape, int collisionFilterGroup = 1, int collisionFilterMask = -1, int collisionFlag = 0);
 	btRigidBody* addStaticModel(std::vector<btCollisionShape *> & collisionShapes, const btTransform & trans, bool debugDraw = true, const btVector3 & scale = btVector3(1.0f, 1.0f, 1.0f), int collisionFilterGroup = 1, int collisionFilterMask = -1);
 	
 	
@@ -53,7 +52,10 @@ public:
 	static std::vector<btCollisionShape*> CreateCollisionShapes(ObjModel* model, const btVector3& scale = btVector3(1.0f, 1.0f, 1.0f));
 	static std::vector<btCollisionShape*> CreateCollisionShapes(ObjModel* model, float scale = 1.0f);	
 
-	static btRigidBody* CreateRigidBody(btScalar mass, const btTransform & startTransform, btCollisionShape * shape);
+	static btRigidBody* CreateRigidBody(btScalar mass, const btTransform & startTransform, btCollisionShape * shape, int collisionFlag = 0);
+	static btRigidBody* AddRigidBody(float mass, const btTransform & transform, btCollisionShape * shape, int collisionFilterGroup = 1, int collisionFilterMask = -1, int collisionFlag = btCollisionObject::CF_DYNAMIC_OBJECT);
+
+
 	static float SweepSphere(const btVector3& from, const btVector3& to, float radius, int collisionFilterGroup = 1, int collisionFilterMask = -1);
 	static float RayTest(const btVector3& from, const btVector3& to, int collisionFilterGroup = 1, int collisionFilterMask = -1);
 
@@ -71,6 +73,8 @@ public:
 	static Vector3f VectorFrom(const btVector3& vector);
 	static Quaternion QuaternionFrom(const btQuaternion& quaternion);
 
+	
+
 	static btDiscreteDynamicsWorld * GetDynamicsWorld();
 
 private:
@@ -79,9 +83,7 @@ private:
 	static std::vector<btCollisionShape*> CreateStaticCollisionShapes(std::vector<float>& vertexBuffer, std::vector<unsigned int>& indexBuffer, float scale = 1.0f);
 	static std::vector<btCollisionShape*> CreateStaticCollisionShapes(std::vector<float>& vertexBuffer, std::vector<unsigned int>& indexBuffer, const btVector3& scale = btVector3(1.0f, 1.0f, 1.0f));
 
-	btRigidBody *createRigidBody(btScalar mass, const btTransform & startTransform, btCollisionShape * shape, int collisionFlag = 0);
 	btCollisionDispatcher* m_dispatcher;
-	//btBroadphaseInterface* m_overlappingPairCache;
 	btBroadphaseInterface* m_broadphase;
 	btSequentialImpulseConstraintSolver* m_constraintSolver;
 	btDefaultCollisionConfiguration* m_collisionConfiguration;

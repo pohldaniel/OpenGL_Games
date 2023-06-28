@@ -74,59 +74,11 @@ VehicleInterface::VehicleInterface(StateMachine& machine) : State(machine, Curre
 	btCollisionShape* groundShape = new btBvhTriangleMeshShape(m_indexVertexArrays, useQuantizedAabbCompression);
 
 	tr.setOrigin(btVector3(0, -4.5f, 0));
-
-	m_collisionShapes.push_back(groundShape);
-
 	//create ground object
-	localCreateRigidBody(0, tr, groundShape);
-	tr.setOrigin(btVector3(0, 0, 0));
-
-	btCollisionShape* chassisShape = new btBoxShape(btVector3(1.f, 0.5f, 2.f));
-	m_collisionShapes.push_back(chassisShape);
-
-	btCompoundShape* compound = new btCompoundShape();
-	m_collisionShapes.push_back(compound);
-	btTransform localTrans;
-	localTrans.setIdentity();
-	localTrans.setOrigin(btVector3(0, 1, 0));
-	compound->addChildShape(localTrans, chassisShape);
-	tr.setOrigin(btVector3(0, 0.f, 0));
-	m_carChassis = localCreateRigidBody(800, tr, compound);
-	m_wheelShape = new btCylinderShapeX(btVector3(wheelWidth, wheelRadius, wheelRadius));
-
-	//clientResetScene();
-
-	m_vehicleRayCaster = new btDefaultVehicleRaycaster(Physics::GetDynamicsWorld());
-	m_vehicle = new btRaycastVehicle(m_tuning, m_carChassis, m_vehicleRayCaster);
-
-	///never deactivate the vehicle
-	m_carChassis->setActivationState(DISABLE_DEACTIVATION);
-
-	Physics::GetDynamicsWorld()->addVehicle(m_vehicle);
-
-	float connectionHeight = 1.2f;
-	bool isFrontWheel = true;
-
-
-	m_vehicle->setCoordinateSystem(rightIndex, upIndex, forwardIndex);
-
-	btVector3 connectionPointCS0(CUBE_HALF_EXTENTS - (0.3*wheelWidth), connectionHeight, 2 * CUBE_HALF_EXTENTS - wheelRadius);
-	m_vehicle->addWheel(connectionPointCS0, wheelDirectionCS0, wheelAxleCS, suspensionRestLength, wheelRadius, m_tuning, isFrontWheel);
-	connectionPointCS0 = btVector3(-CUBE_HALF_EXTENTS + (0.3*wheelWidth), connectionHeight, 2 * CUBE_HALF_EXTENTS - wheelRadius);
-	m_vehicle->addWheel(connectionPointCS0, wheelDirectionCS0, wheelAxleCS, suspensionRestLength, wheelRadius, m_tuning, isFrontWheel);
-	connectionPointCS0 = btVector3(-CUBE_HALF_EXTENTS + (0.3*wheelWidth), connectionHeight, -2 * CUBE_HALF_EXTENTS + wheelRadius);
-	isFrontWheel = false;
-	m_vehicle->addWheel(connectionPointCS0, wheelDirectionCS0, wheelAxleCS, suspensionRestLength, wheelRadius, m_tuning, isFrontWheel);
-	connectionPointCS0 = btVector3(CUBE_HALF_EXTENTS - (0.3*wheelWidth), connectionHeight, -2 * CUBE_HALF_EXTENTS + wheelRadius);
-	m_vehicle->addWheel(connectionPointCS0, wheelDirectionCS0, wheelAxleCS, suspensionRestLength, wheelRadius, m_tuning, isFrontWheel);
-	for (int i = 0; i<m_vehicle->getNumWheels(); i++) {
-		btWheelInfo& wheel = m_vehicle->getWheelInfo(i);
-		wheel.m_suspensionStiffness = suspensionStiffness;
-		wheel.m_wheelsDampingRelaxation = suspensionDamping;
-		wheel.m_wheelsDampingCompression = suspensionCompression;
-		wheel.m_frictionSlip = wheelFriction;
-		wheel.m_rollInfluence = rollInfluence;
-	}
+	Physics::AddRigidBody(0, tr, groundShape, 1, -1, btCollisionObject::CF_STATIC_OBJECT);
+	
+	m_physicsCar = new PhysicsCar();
+	m_physicsCar->create(Physics::BtTransform(), 800.0f);
 }
 
 VehicleInterface::~VehicleInterface() {
@@ -136,6 +88,7 @@ VehicleInterface::~VehicleInterface() {
 }
 
 void VehicleInterface::fixedUpdate() {
+	m_physicsCar->fixedUpdate();
 	Globals::physics->stepSimulation(m_fdt);
 }
 
@@ -143,29 +96,6 @@ void VehicleInterface::update() {
 
 	Keyboard &keyboard = Keyboard::instance();
 	Vector3f directrion = Vector3f();
-
-
-	if (keyboard.keyDown(Keyboard::KEY_UP)) {
-		gEngineForce = maxEngineForce;
-		gBreakingForce = 0.f;
-	}
-
-	if (keyboard.keyDown(Keyboard::KEY_DOWN)) {
-		gBreakingForce = maxBreakingForce;
-		gEngineForce = 0.f;
-	}
-
-	if (keyboard.keyDown(Keyboard::KEY_LEFT)) {
-		gVehicleSteering += steeringIncrement;
-		if (gVehicleSteering > steeringClamp)
-			gVehicleSteering = steeringClamp;
-	}
-
-	if (keyboard.keyDown(Keyboard::KEY_RIGHT)) {
-		gVehicleSteering -= steeringIncrement;
-		if (gVehicleSteering < -steeringClamp)
-			gVehicleSteering = -steeringClamp;
-	}
 
 	float dx = 0.0f;
 	float dy = 0.0f;
@@ -220,18 +150,7 @@ void VehicleInterface::update() {
 	m_trackball.idle();
 	m_transform.fromMatrix(m_trackball.getTransform());
 
-	int wheelIndex = 2;
-	m_vehicle->applyEngineForce(gEngineForce, wheelIndex);
-	m_vehicle->setBrake(gBreakingForce, wheelIndex);
-	wheelIndex = 3;
-	m_vehicle->applyEngineForce(gEngineForce, wheelIndex);
-	m_vehicle->setBrake(gBreakingForce, wheelIndex);
-
-
-	wheelIndex = 0;
-	m_vehicle->setSteeringValue(gVehicleSteering, wheelIndex);
-	wheelIndex = 1;
-	m_vehicle->setSteeringValue(gVehicleSteering, wheelIndex);
+	m_physicsCar->update();
 }
 
 void VehicleInterface::render() {
@@ -240,22 +159,16 @@ void VehicleInterface::render() {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	btTransform vehicleTrans;
-	m_vehicle->getRigidBody()->getMotionState()->getWorldTransform(vehicleTrans);
-	btCompoundShape* compoundShape = static_cast<btCompoundShape*>(m_vehicle->getRigidBody()->getCollisionShape());
-
 	if (m_follow) {
-		btVector3 vel = m_vehicle->getRigidBody()->getLinearVelocity();
-		m_camera.follow(Physics::MatrixFrom(vehicleTrans * compoundShape->getChildTransform(0)), Physics::VectorFrom(vel), m_dt);
+		m_camera.follow(Physics::MatrixFrom(m_physicsCar->getWorldTransform()), Physics::VectorFrom(m_physicsCar->getLinearVelocity()), m_dt);
 	}
-
 
 	ShapeDrawer::Get().drawDynmicsWorld(Physics::GetDynamicsWorld());
 
-	for (int i = 0; i<m_vehicle->getNumWheels(); i++){
-		m_vehicle->updateWheelTransform(i, true);
-		m_vehicle->getWheelInfo(i).m_worldTransform.getOpenGLMatrix(m);
-		ShapeDrawer::Get().drawShape(m, m_wheelShape);
+	for (int i = 0; i < m_physicsCar->getVehicle()->getNumWheels(); i++){
+		m_physicsCar->getVehicle()->updateWheelTransform(i, true);
+		m_physicsCar->getVehicle()->getWheelInfo(i).m_worldTransform.getOpenGLMatrix(m);
+		ShapeDrawer::Get().drawShape(m, m_physicsCar->getWheelShape());
 	}
 
 	m_mousePicker.drawPicker(m_camera);
@@ -332,7 +245,6 @@ void VehicleInterface::resize(int deltaW, int deltaH) {
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
 
 }
-
 
 void VehicleInterface::renderUi() {
 	ImGui_ImplOpenGL3_NewFrame();
@@ -436,40 +348,4 @@ void VehicleInterface::removePickingConstraint() {
 		pickedBody->setDeactivationTime(0.f);
 		pickedBody = 0;
 	}
-}
-
-btRigidBody* VehicleInterface::localCreateRigidBody(float mass, const btTransform& startTransform, btCollisionShape* shape)
-{
-	btAssert((!shape || shape->getShapeType() != INVALID_SHAPE_PROXYTYPE));
-
-	//rigidbody is dynamic if and only if mass is non zero, otherwise static
-	bool isDynamic = (mass != 0.f);
-
-	btVector3 localInertia(0, 0, 0);
-	if (isDynamic)
-		shape->calculateLocalInertia(mass, localInertia);
-
-	btDefaultMotionState* myMotionState = new btDefaultMotionState(startTransform);
-	btRigidBody::btRigidBodyConstructionInfo cInfo(mass, myMotionState, shape, localInertia);
-	btRigidBody* body = new btRigidBody(cInfo);
-
-	Physics::GetDynamicsWorld()->addRigidBody(body);
-
-	return body;
-}
-
-void VehicleInterface::clientResetScene() {
-	gVehicleSteering = 0.f;
-	m_carChassis->setCenterOfMassTransform(btTransform::getIdentity());
-	m_carChassis->setLinearVelocity(btVector3(0, 0, 0));
-	m_carChassis->setAngularVelocity(btVector3(0, 0, 0));
-	Physics::GetDynamicsWorld()->getBroadphase()->getOverlappingPairCache()->cleanProxyFromPairs(m_carChassis->getBroadphaseHandle(), Physics::GetDynamicsWorld()->getDispatcher());
-	if (m_vehicle) {
-		m_vehicle->resetSuspension();
-		for (int i = 0; i<m_vehicle->getNumWheels(); i++){
-			//synchronize the wheels with the (interpolated) chassis worldtransform
-			m_vehicle->updateWheelTransform(i, true);
-		}
-	}
-
 }

@@ -44,7 +44,7 @@ void ShapeDrawer::setCamera(const Camera& camera) {
 
 void ShapeDrawer::shutdown() {
 
-	for (int i = 0; i<m_shapecaches.size(); i++){
+	/*for (int i = 0; i<m_shapecaches.size(); i++){
 		m_shapecaches[i]->~ShapeCache();
 		btAlignedFree(m_shapecaches[i]);
 	}
@@ -55,7 +55,7 @@ void ShapeDrawer::shutdown() {
 		delete m_shapecachesConvex[i];
 	}
 
-	m_shapecachesConvex.clear();
+	m_shapecachesConvex.clear();*/
 
 	if (m_vao)
 		glDeleteVertexArrays(1, &m_vao);
