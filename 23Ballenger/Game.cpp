@@ -33,6 +33,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME),
 	m_camera = ThirdPersonCamera();
 	m_camera.perspective(45.0f, (float)Application::Width / (float)Application::Height, 0.1f, 1500.0f);
 	m_camera.lookAt(pos - Vector3f(0.0f, 0.0f, m_offsetDistance), pos, Vector3f(0.0f, 1.0f, 0.0f));
+	m_camera.setOffsetDistance(m_offsetDistance);
 
 	std::vector<btCollisionShape*> terrainShape = Physics::CreateStaticCollisionShapes(&m_terrain, 1.0f);
 	btRigidBody* body = Globals::physics->addStaticModel(terrainShape, Physics::BtTransform(), false, btVector3(1.0f, 1.0f, 1.0f), Physics::collisiontypes::TERRAIN, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::CAMERA);

@@ -1,9 +1,9 @@
 #pragma once
 
-#include "engine/MeshObject/MeshQuad.h"
+#include <memory>
 #include "engine/Camera.h"
-#include "engine/Framebuffer.h"
-#include "Globals.h"
+#include "engine/Shader.h"
+#include "Physics.h"
 
 #define MOUSEPICKER_VERTEX	"#version 410 core										\n \
 																					\n \

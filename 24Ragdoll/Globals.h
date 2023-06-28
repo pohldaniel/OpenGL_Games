@@ -17,7 +17,8 @@
 #define DEVBUILD 1
 #define DEBUGCOLLISION 0
 
-#define PHYSICS_STEP 0.0166666f
+#define PHYSICS_STEP 0.0166666666666667f
+//#define PHYSICS_STEP 0.0083333333333333f
 
 namespace Globals {
 	extern AssetManager<Shader> shaderManager;

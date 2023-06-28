@@ -17,12 +17,12 @@ void Physics::initialize(){
 	m_collisionConfiguration = new btDefaultCollisionConfiguration();
 	m_dispatcher = new btCollisionDispatcher(m_collisionConfiguration);
 	///btAxis3Sweep is a good general purpose broadphase
-	//m_broadphase = new btAxisSweep3(btVector3(-1000.0f, -1000.0f, -1000.0f), btVector3(1000.0f, 1000.0f, 1000.0f));
-	m_broadphase = new btDbvtBroadphase();
+	m_broadphase = new btAxisSweep3(btVector3(-1000.0f, -1000.0f, -1000.0f), btVector3(1000.0f, 1000.0f, 1000.0f));
+	//m_broadphase = new btDbvtBroadphase();
 	m_constraintSolver = new btSequentialImpulseConstraintSolver();
 
 	DynamicsWorld = new btDiscreteDynamicsWorld(m_dispatcher, m_broadphase, m_constraintSolver, m_collisionConfiguration);
-	//DynamicsWorld->setGravity(btVector3(0.0f, -9.81f, 0.0f));
+	DynamicsWorld->setGravity(btVector3(0.0f, -9.81f, 0.0f));
 }
 
 void Physics::deinitialize(){
@@ -80,8 +80,10 @@ void Physics::removeAllCollisionObjects() {
 }
 
 void Physics::stepSimulation(btScalar timeStep){
-	int numSimSteps = DynamicsWorld->stepSimulation(timeStep, 1, m_physicsStep);
-	//int numSimSteps = m_dynamicsWorld->stepSimulation(timeStep, 4 + 1, m_physicsStep / 4); // timeStep < maxSubSteps * fixedTimeSte
+	int numSimSteps = DynamicsWorld->stepSimulation(timeStep, MAX_SIMULATION_SUBSTEPS, m_physicsStep);
+	
+	//int numSimSteps = DynamicsWorld->stepSimulation(timeStep, MAX_SIMULATION_SUBSTEPS, m_physicsStep / 4);
+	//std::cout << "Num Steps: " << numSimSteps << std::endl;
 }
 
 btRigidBody * Physics::createRigidBody(btScalar mass, const btTransform& startTransform, btCollisionShape* shape, int collisionFlag) {

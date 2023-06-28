@@ -43,6 +43,9 @@
     <Filter Include="Source Files\UI">
       <UniqueIdentifier>{7b68a3d5-73eb-423e-b48e-9b44561208f6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Physics">
+      <UniqueIdentifier>{25bd00d9-4d5e-4732-bac4-aec51435a245}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -56,9 +59,6 @@
     </ClCompile>
     <ClCompile Include="RenderableObject.cpp">
       <Filter>Source Files\Objects</Filter>
-    </ClCompile>
-    <ClCompile Include="Physics.cpp">
-      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CharacterController.cpp">
       <Filter>Source Files</Filter>
@@ -210,23 +210,11 @@
     <ClCompile Include="engine\CubeBuffer.cpp">
       <Filter>engine</Filter>
     </ClCompile>
-    <ClCompile Include="StaticTrigger.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="StateMachine.cpp">
       <Filter>Source Files\States</Filter>
     </ClCompile>
-    <ClCompile Include="Ragdoll.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="MousePicker.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="engine\input\Mouse.cpp">
       <Filter>engine\input</Filter>
-    </ClCompile>
-    <ClCompile Include="ShapeDrawer.cpp">
-      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="RandomColor.cpp">
       <Filter>Source Files</Filter>
@@ -239,6 +227,21 @@
     </ClCompile>
     <ClCompile Include="VehicleInterface.cpp">
       <Filter>Source Files\States</Filter>
+    </ClCompile>
+    <ClCompile Include="Physics.cpp">
+      <Filter>Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="Ragdoll.cpp">
+      <Filter>Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="MousePicker.cpp">
+      <Filter>Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="StaticTrigger.cpp">
+      <Filter>Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="ShapeDrawer.cpp">
+      <Filter>Physics</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -256,9 +259,6 @@
     </ClInclude>
     <ClInclude Include="RenderableObject.h">
       <Filter>Source Files\Objects</Filter>
-    </ClInclude>
-    <ClInclude Include="Physics.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CharacterController.h">
       <Filter>Header Files</Filter>
@@ -425,23 +425,11 @@
     <ClInclude Include="engine\CubeBuffer.h">
       <Filter>engine</Filter>
     </ClInclude>
-    <ClInclude Include="StaticTrigger.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="StateMachine.h">
       <Filter>Source Files\States</Filter>
     </ClInclude>
-    <ClInclude Include="Ragdoll.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="MousePicker.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="engine\input\Mouse.h">
       <Filter>engine\input</Filter>
-    </ClInclude>
-    <ClInclude Include="ShapeDrawer.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="RandomColor.h">
       <Filter>Header Files</Filter>
@@ -454,6 +442,21 @@
     </ClInclude>
     <ClInclude Include="VehicleInterface.h">
       <Filter>Source Files\States</Filter>
+    </ClInclude>
+    <ClInclude Include="Physics.h">
+      <Filter>Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="Ragdoll.h">
+      <Filter>Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="MousePicker.h">
+      <Filter>Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="StaticTrigger.h">
+      <Filter>Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="ShapeDrawer.h">
+      <Filter>Physics</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

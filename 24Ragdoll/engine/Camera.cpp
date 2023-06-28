@@ -200,7 +200,7 @@ void Camera::orthographic(float left, float right, float bottom, float top, floa
 void Camera::lookAt(const Vector3f &eye, const Vector3f &target, const Vector3f &up){
 	m_eye = eye;
 	m_target = target;
-	m_offsetDistance = (m_target - m_eye).length();
+	//m_offsetDistance = (m_target - m_eye).length();
 
 	m_zAxis = m_eye - target;
 	Vector3f::Normalize(m_zAxis);
@@ -836,6 +836,78 @@ void Camera::setOffsetDistance(float offsetDistance) {
 	m_eye = m_target - m_offsetDistance * m_viewDir;
 	updateViewMatrix();
 }
+
+void Camera::follow(const Matrix4f& targetMat, const Vector3f& targetVelocity, const float dt){
+	
+	const Vector3f lookAtPos(0.0f, 1.0f, 0.0f);
+	const Vector3f lookFromPos(0.0f, 1.0f, 1.0f);  // 0, 3, -2
+	float viewDistance = 10.0f;
+	const float settleTime = 2.0f;
+
+	Vector3f targetPos;
+	targetPos.set(targetMat[3][0], targetMat[3][1], targetMat[3][2]);
+	Vector3f targetRot;
+	targetRot.set(targetMat[2][0], targetMat[2][1], targetMat[2][2]);
+
+	static Vector3f lastBaseLookFromPos = targetPos - targetRot * 20.0f;
+	static float facing = 1.0f;
+	//static float currentSettleTime2 = 0.f;
+
+	// camera intro
+	if (currentSettleTime < settleTime) {
+		Vector3f defaultPos = targetPos - targetRot * 20.0f;
+		if (currentSettleTime > settleTime - 1.0f)
+			lastBaseLookFromPos += (settleTime - currentSettleTime) * (defaultPos - lastBaseLookFromPos);
+		else
+			lastBaseLookFromPos = defaultPos;
+
+		viewDistance += (settleTime - currentSettleTime) * (settleTime - currentSettleTime);
+		currentSettleTime += dt;
+	}
+
+	float nudge = Vector3f::Length(targetPos, lastBaseLookFromPos);
+	if (nudge < viewDistance) {
+
+		nudge = viewDistance - nudge;
+		lastBaseLookFromPos -= targetRot * nudge * 1.1f;
+		lastBaseLookFromPos[1] += nudge * 0.2f;
+	}
+
+	lastBaseLookFromPos -= targetVelocity * (dt);
+
+	// Nudge the camera so that is a bit more likely to look in the direction
+	// that the car is facing. This helps most when maneuvering at low speed.
+	Vector3f facingNudge = targetRot * 0.2f * facing;
+	facingNudge[1] = 0.0f;
+	lastBaseLookFromPos -= facingNudge;
+
+	// Smoothly choose whether the car is facing forwards or backwards for the above code.
+	float dot = Vector3f::Dot(targetPos - lastBaseLookFromPos, targetRot);
+	facing = dot * 0.1f;
+	if (facing >  1.0f) facing = 1.0f;  // ClampPosNeg
+	else if (facing < -1.0f) facing = -1.0f;
+
+	// Now we make the camera follow the new object position.
+	Vector3f lookDirection = targetPos - lastBaseLookFromPos;
+	float mag = lookDirection.length();
+	if (mag > 0.0f)
+		lookDirection /= mag;
+	else
+		lookDirection = Vector3f(0.0f, 0.0f, 1.0f);   // It would be much better to use the last valid value
+
+	Vector3f currentLookFromPos = targetPos - lookDirection * viewDistance;
+
+	lastBaseLookFromPos = currentLookFromPos;
+
+	Vector3f currentLookAtPos;
+	if (std::fabsf(lookDirection[1]) <= 0.99f) {
+		Matrix4f rot = Matrix4f::LookAt(Vector3f(0.0f, 0.0f, 0.0f), lookDirection, Vector3f(0.0f, 1.0f, 0.0f));
+		currentLookFromPos += rot * lookFromPos;
+		currentLookAtPos = lookDirection;		
+		lookAt(currentLookFromPos, currentLookAtPos + currentLookFromPos, Vector3f(0.0f, 1.0f, 0.0f));			
+	}
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////
 const float ThirdPersonCamera::DEFAULT_SPRING_CONSTANT = 16.0f;
 const float ThirdPersonCamera::DEFAULT_DAMPING_CONSTANT = 8.0f;

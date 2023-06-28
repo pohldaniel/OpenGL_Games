@@ -8,7 +8,7 @@
 #include "Globals.h"
 
 VehicleInterface::VehicleInterface(StateMachine& machine) : State(machine, CurrentState::RAGDOLLINTERFACE),
-m_pickConstraint(0) {
+															m_pickConstraint(0) {
 
 	Application::SetCursorIcon(IDC_ARROW);
 	EventDispatcher::AddKeyboardListener(this);
@@ -23,34 +23,9 @@ m_pickConstraint(0) {
 	ShapeDrawer::Get().setCamera(m_camera);
 	glClearColor(0.7f, 0.7f, 0.7f, 0.0f);
 
-	/*btCollisionShape* groundShape = new btBoxShape(btVector3(200.0f, 10.0f, 200.0f));
-	m_collisionShapes.push_back(groundShape);
-	btTransform groundTransform;
-	groundTransform.setIdentity();
-	groundTransform.setOrigin(btVector3(0.0f, -30.0f, 0.0f));
-
-	btCollisionObject* fixedGround = new btCollisionObject();
-	fixedGround->setCollisionShape(groundShape);
-	fixedGround->setWorldTransform(groundTransform);
-	Physics::GetDynamicsWorld()->addCollisionObject(fixedGround);
-
-	btCollisionShape* chassisShape = new btBoxShape(btVector3(1.0f, 0.5f, 2.0f));
-	m_collisionShapes.push_back(chassisShape);
-
-	btTransform playerTransform;
-	playerTransform.setIdentity();
-	playerTransform.setOrigin(btVector3(0.0f, 0.0f, 0.0f));
-
-	btCompoundShape* compound = new btCompoundShape();
-	compound->addChildShape(playerTransform, chassisShape);
-	localCreateRigidBody(800.0f, playerTransform, compound);*/
-
 	
 	btTransform tr;
 	tr.setIdentity();
-	
-	int i;
-
 	const float TRIANGLE_SIZE = 20.f;
 
 	//create a triangle-mesh ground
@@ -68,12 +43,12 @@ m_pickConstraint(0) {
 
 
 
-	for (i = 0; i<NUM_VERTS_X; i++) {
+	for (int i = 0; i<NUM_VERTS_X; i++) {
 		for (int j = 0; j<NUM_VERTS_Y; j++) {
 			float wl = .2f;
 			//height set to zero, but can also use curved landscape, just uncomment out the code
-			float height = 20.f*sinf(float(i)*wl)*cosf(float(j)*wl);
-
+			//float height = 20.f*sinf(float(i)*wl)*cosf(float(j)*wl);
+			float height = 0.0f;
 			m_vertices[i + j*NUM_VERTS_X].setValue( (i - NUM_VERTS_X*0.5f)*TRIANGLE_SIZE, height, (j - NUM_VERTS_Y*0.5f)*TRIANGLE_SIZE);
 
 			
@@ -81,7 +56,7 @@ m_pickConstraint(0) {
 	}
 
 	int index = 0;
-	for (i = 0; i<NUM_VERTS_X - 1; i++){
+	for (int i = 0; i<NUM_VERTS_X - 1; i++){
 		for (int j = 0; j<NUM_VERTS_Y - 1; j++){
 			gIndices[index++] = j*NUM_VERTS_X + i;
 			gIndices[index++] = j*NUM_VERTS_X + i + 1;
@@ -104,7 +79,7 @@ m_pickConstraint(0) {
 
 	//create ground object
 	localCreateRigidBody(0, tr, groundShape);
-	tr.setOrigin(btVector3(0, 0, 0));//-64.5f,0));
+	tr.setOrigin(btVector3(0, 0, 0));
 
 	btCollisionShape* chassisShape = new btBoxShape(btVector3(1.f, 0.5f, 2.f));
 	m_collisionShapes.push_back(chassisShape);
@@ -152,7 +127,6 @@ m_pickConstraint(0) {
 		wheel.m_frictionSlip = wheelFriction;
 		wheel.m_rollInfluence = rollInfluence;
 	}
-	
 }
 
 VehicleInterface::~VehicleInterface() {
@@ -166,8 +140,32 @@ void VehicleInterface::fixedUpdate() {
 }
 
 void VehicleInterface::update() {
+
 	Keyboard &keyboard = Keyboard::instance();
 	Vector3f directrion = Vector3f();
+
+
+	if (keyboard.keyDown(Keyboard::KEY_UP)) {
+		gEngineForce = maxEngineForce;
+		gBreakingForce = 0.f;
+	}
+
+	if (keyboard.keyDown(Keyboard::KEY_DOWN)) {
+		gBreakingForce = maxBreakingForce;
+		gEngineForce = 0.f;
+	}
+
+	if (keyboard.keyDown(Keyboard::KEY_LEFT)) {
+		gVehicleSteering += steeringIncrement;
+		if (gVehicleSteering > steeringClamp)
+			gVehicleSteering = steeringClamp;
+	}
+
+	if (keyboard.keyDown(Keyboard::KEY_RIGHT)) {
+		gVehicleSteering -= steeringIncrement;
+		if (gVehicleSteering < -steeringClamp)
+			gVehicleSteering = -steeringClamp;
+	}
 
 	float dx = 0.0f;
 	float dy = 0.0f;
@@ -221,6 +219,19 @@ void VehicleInterface::update() {
 	}
 	m_trackball.idle();
 	m_transform.fromMatrix(m_trackball.getTransform());
+
+	int wheelIndex = 2;
+	m_vehicle->applyEngineForce(gEngineForce, wheelIndex);
+	m_vehicle->setBrake(gBreakingForce, wheelIndex);
+	wheelIndex = 3;
+	m_vehicle->applyEngineForce(gEngineForce, wheelIndex);
+	m_vehicle->setBrake(gBreakingForce, wheelIndex);
+
+
+	wheelIndex = 0;
+	m_vehicle->setSteeringValue(gVehicleSteering, wheelIndex);
+	wheelIndex = 1;
+	m_vehicle->setSteeringValue(gVehicleSteering, wheelIndex);
 }
 
 void VehicleInterface::render() {
@@ -228,6 +239,17 @@ void VehicleInterface::render() {
 	btScalar m[16];
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	btTransform vehicleTrans;
+	m_vehicle->getRigidBody()->getMotionState()->getWorldTransform(vehicleTrans);
+	btCompoundShape* compoundShape = static_cast<btCompoundShape*>(m_vehicle->getRigidBody()->getCollisionShape());
+
+	if (m_follow) {
+		btVector3 vel = m_vehicle->getRigidBody()->getLinearVelocity();
+		m_camera.follow(Physics::MatrixFrom(vehicleTrans * compoundShape->getChildTransform(0)), Physics::VectorFrom(vel), m_dt);
+	}
+
+
 	ShapeDrawer::Get().drawDynmicsWorld(Physics::GetDynamicsWorld());
 
 	for (int i = 0; i<m_vehicle->getNumWheels(); i++){
@@ -240,6 +262,7 @@ void VehicleInterface::render() {
 
 	if (m_drawUi)
 		renderUi();
+
 }
 
 void VehicleInterface::OnMouseMotion(Event::MouseMoveEvent& event) {
@@ -345,7 +368,7 @@ void VehicleInterface::renderUi() {
 	// render widgets
 	ImGui::Begin("Settings", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
 	ImGui::Checkbox("Draw Wirframe", &StateMachine::GetEnableWireframe());
-
+	ImGui::Checkbox("Follow", &m_follow);
 
 	ImGui::End();
 
@@ -426,21 +449,9 @@ btRigidBody* VehicleInterface::localCreateRigidBody(float mass, const btTransfor
 	if (isDynamic)
 		shape->calculateLocalInertia(mass, localInertia);
 
-	//using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects
-
-#define USE_MOTIONSTATE 1
-#ifdef USE_MOTIONSTATE
 	btDefaultMotionState* myMotionState = new btDefaultMotionState(startTransform);
-
 	btRigidBody::btRigidBodyConstructionInfo cInfo(mass, myMotionState, shape, localInertia);
-
 	btRigidBody* body = new btRigidBody(cInfo);
-	body->setContactProcessingThreshold(m_defaultContactProcessingThreshold);
-
-#else
-	btRigidBody* body = new btRigidBody(mass, 0, shape, localInertia);
-	body->setWorldTransform(startTransform);
-#endif//
 
 	Physics::GetDynamicsWorld()->addRigidBody(body);
 

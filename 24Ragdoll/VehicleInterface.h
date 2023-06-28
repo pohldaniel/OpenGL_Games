@@ -43,12 +43,13 @@ private:
 
 	bool m_initUi = true;
 	bool m_drawUi = true;
+	bool m_follow = true;
 
 	btTypedConstraint* m_pickConstraint;
 	btRigidBody* pickedBody = 0;
 	btScalar mousePickClamping = 30.0f;
 	btAlignedObjectArray<btCollisionShape*>	m_collisionShapes;
-	btScalar m_defaultContactProcessingThreshold;
+
 
 	void clientResetScene();
 
@@ -86,4 +87,5 @@ private:
 	int forwardIndex = 2;
 	btVector3 wheelDirectionCS0 = btVector3(0.0f, -1.0f, 0.0f);
 	btVector3 wheelAxleCS = btVector3(-1.0f, 0.0f, 0.0f);
+
 };

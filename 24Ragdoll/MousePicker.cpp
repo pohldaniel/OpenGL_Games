@@ -32,7 +32,7 @@ void MousePicker::updatePosition(unsigned int posX, unsigned int posY, const Cam
 	Vector3f::Normalize(rayDirection);
 
 	m_callback = MousePickCallback(Physics::VectorFrom(rayStartWorld), Physics::VectorFrom(rayEndWorld), Physics::MOUSEPICKER, Physics::PICKABLE_OBJECT);
-	Globals::physics->GetDynamicsWorld()->rayTest(m_callback.m_origin, m_callback.m_target, m_callback);
+	Physics::GetDynamicsWorld()->rayTest(m_callback.m_origin, m_callback.m_target, m_callback);
 
 	if (m_callback.hasHit()) {
 		updateBuffer(Physics::VectorFrom(m_callback.m_hitPointWorld));
@@ -62,7 +62,7 @@ bool MousePicker::click(unsigned int posX, unsigned int posY, const Camera& came
 	Vector3f::Normalize(rayDirection);
 
 	m_callback = MousePickCallback(Physics::VectorFrom(rayStartWorld), Physics::VectorFrom(rayEndWorld), Physics::MOUSEPICKER, Physics::PICKABLE_OBJECT);
-	Globals::physics->GetDynamicsWorld()->rayTest(m_callback.m_origin, m_callback.m_target, m_callback);
+	Physics::GetDynamicsWorld()->rayTest(m_callback.m_origin, m_callback.m_target, m_callback);
 
 	if (m_callback.hasHit()) {
 		m_pickingDistance = (m_callback.m_hitPointWorld - m_callback.m_origin).length();

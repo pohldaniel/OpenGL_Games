@@ -1965,9 +1965,9 @@ Matrix4f Matrix4f::LookAt(const Vector3f &eye, const Vector3f &target, const Vec
 	Vector3f::Normalize(yAxis);
 
 	return Matrix4f(xAxis[0], yAxis[0], zAxis[0], 0.0f,
-		xAxis[1], yAxis[1], zAxis[1], 0.0f,
-		xAxis[2], yAxis[2], zAxis[2], 0.0f,
-		-Vector3f::Dot(xAxis, eye), -Vector3f::Dot(yAxis, eye), -Vector3f::Dot(zAxis, eye), 1.0f);
+					xAxis[1], yAxis[1], zAxis[1], 0.0f,
+					xAxis[2], yAxis[2], zAxis[2], 0.0f,
+					-Vector3f::Dot(xAxis, eye), -Vector3f::Dot(yAxis, eye), -Vector3f::Dot(zAxis, eye), 1.0f);
 }
 
 Matrix4f Matrix4f::InvViewMatrix(const Matrix4f &viewMatrix) {
@@ -2544,6 +2544,11 @@ Vector3f& Vector3f::Clamp(Vector3f &v, float min, float max) {
 
 Vector3f Vector3f::Fract(const Vector3f &p) {
 	return Vector3f(p[0] - (long)p[0], p[1] - (long)p[1], p[2] - (long)p[2]);
+}
+
+float Vector3f::Length(const Vector3f &p, const Vector3f &q) {
+	float x = q[0] - p[0], y = q[1] - p[1], z = q[2] - p[2];
+	return sqrtf((x * x) + (y * y) + (z * z));
 }
 
 Vector3f& Vector3f::normalize() {

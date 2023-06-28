@@ -6,6 +6,8 @@
 #include <BulletCollision/CollisionShapes/btShapeHull.h>
 #include "engine/Vector.h"
 
+#define MAX_SIMULATION_SUBSTEPS   1
+
 class ObjMesh;
 class ObjModel;
 class Shape;

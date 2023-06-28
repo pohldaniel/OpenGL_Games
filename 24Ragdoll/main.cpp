@@ -18,7 +18,6 @@ extern float Globals::soundVolume = 0.2f;
 extern float Globals::musicVolume = 0.1f;
 extern Physics* Globals::physics = NULL;
 
-
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd) {
 
 #if DEBUG
@@ -48,7 +47,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	Clock deltaClock;
 	Clock fixedDeltaClock;
-      
+
 	while (application.isRunning()) {
 
 		physicsElapsedTime += deltaTime;
@@ -61,7 +60,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 			physicsElapsedTime -= PHYSICS_STEP;
 		}
 
-		
+
 		application.update();
 		application.render();
 

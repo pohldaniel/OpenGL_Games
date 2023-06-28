@@ -144,6 +144,7 @@ public:
 	static Vector3f Max(const Vector3f &p, const Vector3f &q);
 	static Vector3f& Clamp(Vector3f &v, float min, float max);
 	static Vector3f Fract(const Vector3f &p);
+	static float Length(const Vector3f &p, const Vector3f &q);
 
 private:
 	float vec[3];
