@@ -127,23 +127,38 @@ void RagdollInterface::OnMouseMotion(Event::MouseMoveEvent& event) {
 
 	if (m_pickConstraint) {
 
-		btPoint2PointConstraint* pickCon = static_cast<btPoint2PointConstraint*>(m_pickConstraint);
-		if (pickCon) {
-			const MousePickCallback& callback = m_mousePicker.getCallback();
+		if (m_pickConstraint->getConstraintType() == D6_CONSTRAINT_TYPE) {
+			btGeneric6DofConstraint* pickCon = static_cast<btGeneric6DofConstraint*>(m_pickConstraint);
+			if (pickCon) {
+				const MousePickCallback& callback = m_mousePicker.getCallback();
 
-			btVector3 newRayTo = callback.m_target;
-			btVector3 rayFrom = callback.m_origin;
-			btVector3 oldPivotInB = pickCon->getPivotInB();
-			btVector3 newPivotB;
+				btVector3 newRayTo = callback.m_target;
+				btVector3 rayFrom = callback.m_origin;
+				btVector3 oldPivotInB = pickCon->getFrameOffsetA().getOrigin();
 
+				btVector3 dir = newRayTo - rayFrom;
+				dir.normalize();
+				dir *= m_mousePicker.getPickingDistance();
 
-			btVector3 dir = newRayTo - rayFrom;
-			dir.normalize();
-			dir *= m_mousePicker.getPickingDistance();
+				pickCon->getFrameOffsetA().setOrigin(rayFrom + dir);
+			}
 
-			newPivotB = rayFrom + dir;
+		}else {
 
-			pickCon->setPivotB(newPivotB);
+			btPoint2PointConstraint* pickCon = static_cast<btPoint2PointConstraint*>(m_pickConstraint);
+			if (pickCon) {
+				const MousePickCallback& callback = m_mousePicker.getCallback();
+
+				btVector3 newRayTo = callback.m_target;
+				btVector3 rayFrom = callback.m_origin;
+				btVector3 oldPivotInB = pickCon->getPivotInB();
+
+				btVector3 dir = newRayTo - rayFrom;
+				dir.normalize();
+				dir *= m_mousePicker.getPickingDistance();
+
+				pickCon->setPivotB(rayFrom + dir);
+			}
 		}
 	}
 }

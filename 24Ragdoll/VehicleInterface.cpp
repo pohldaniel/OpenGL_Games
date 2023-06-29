@@ -43,9 +43,7 @@ VehicleInterface::VehicleInterface(StateMachine& machine) : State(machine, Curre
 			float wl = .2f;
 			//float height = 20.f*sinf(float(i)*wl)*cosf(float(j)*wl);
 			float height = 0.0f;
-			m_vertices[i + j*NUM_VERTS_X].setValue( (i - NUM_VERTS_X*0.5f)*TRIANGLE_SIZE, height, (j - NUM_VERTS_Y*0.5f)*TRIANGLE_SIZE);
-
-			
+			m_vertices[i + j*NUM_VERTS_X].setValue( (i - NUM_VERTS_X*0.5f)*TRIANGLE_SIZE, height, (j - NUM_VERTS_Y*0.5f)*TRIANGLE_SIZE);			
 		}
 	}
 
@@ -66,7 +64,7 @@ VehicleInterface::VehicleInterface(StateMachine& machine) : State(machine, Curre
 
 
 	btCollisionShape* groundShape = new btBvhTriangleMeshShape(m_indexVertexArrays, true);
-	Physics::AddRigidBody(0.0f, Physics::BtTransform(btVector3(0.0f, -4.5f, 0.0f)), groundShape, Physics::collisiontypes::FLOOR | Physics::PICKABLE_OBJECT, Physics::collisiontypes::CAR | Physics::MOUSEPICKER, btCollisionObject::CF_STATIC_OBJECT);
+	Physics::AddRigidBody(0.0f, Physics::BtTransform(btVector3(0.0f, -4.5f, 0.0f)), groundShape, Physics::collisiontypes::FLOOR, Physics::collisiontypes::CAR, btCollisionObject::CF_STATIC_OBJECT);
 
 	m_physicsCar = new PhysicsCar();
 	m_physicsCar->create(Physics::BtTransform(), Physics::collisiontypes::CAR | Physics::PICKABLE_OBJECT, Physics::collisiontypes::FLOOR | Physics::MOUSEPICKER);
@@ -174,23 +172,38 @@ void VehicleInterface::OnMouseMotion(Event::MouseMoveEvent& event) {
 
 	if (m_pickConstraint) {
 
-		btPoint2PointConstraint* pickCon = static_cast<btPoint2PointConstraint*>(m_pickConstraint);
-		if (pickCon) {
-			const MousePickCallback& callback = m_mousePicker.getCallback();
+		if (m_pickConstraint->getConstraintType() == D6_CONSTRAINT_TYPE) {
+			btGeneric6DofConstraint* pickCon = static_cast<btGeneric6DofConstraint*>(m_pickConstraint);
+			if (pickCon) {
+				const MousePickCallback& callback = m_mousePicker.getCallback();
 
-			btVector3 newRayTo = callback.m_target;
-			btVector3 rayFrom = callback.m_origin;
-			btVector3 oldPivotInB = pickCon->getPivotInB();
-			btVector3 newPivotB;
+				btVector3 newRayTo = callback.m_target;
+				btVector3 rayFrom = callback.m_origin;
+				btVector3 oldPivotInB = pickCon->getFrameOffsetA().getOrigin();
 
+				btVector3 dir = newRayTo - rayFrom;
+				dir.normalize();
+				dir *= m_mousePicker.getPickingDistance();
+				
+				pickCon->getFrameOffsetA().setOrigin(rayFrom + dir);
+			}
 
-			btVector3 dir = newRayTo - rayFrom;
-			dir.normalize();
-			dir *= m_mousePicker.getPickingDistance();
+		} else {
 
-			newPivotB = rayFrom + dir;
+			btPoint2PointConstraint* pickCon = static_cast<btPoint2PointConstraint*>(m_pickConstraint);
+			if (pickCon) {
+				const MousePickCallback& callback = m_mousePicker.getCallback();
 
-			pickCon->setPivotB(newPivotB);
+				btVector3 newRayTo = callback.m_target;
+				btVector3 rayFrom = callback.m_origin;
+				btVector3 oldPivotInB = pickCon->getPivotInB();
+
+				btVector3 dir = newRayTo - rayFrom;
+				dir.normalize();
+				dir *= m_mousePicker.getPickingDistance();
+
+				pickCon->setPivotB(rayFrom + dir);
+			}
 		}
 	}
 }
@@ -290,11 +303,9 @@ void VehicleInterface::pickObject(const btVector3& pickPos, const btCollisionObj
 			pickedBody = body;
 			pickedBody->setActivationState(DISABLE_DEACTIVATION);
 			btVector3 localPivot = body->getCenterOfMassTransform().inverse() * pickPos;
-			if (keyboard.keyDown(Keyboard::KEY_RSHIFT) || keyboard.keyDown(Keyboard::KEY_LSHIFT)) {
-				btTransform tr;
-				tr.setIdentity();
-				tr.setOrigin(localPivot);
-				btGeneric6DofConstraint* dof6 = new btGeneric6DofConstraint(*body, tr, false);
+			if(keyboard.keyDown(Keyboard::KEY_RSHIFT) || keyboard.keyDown(Keyboard::KEY_LSHIFT)) {
+			
+				btGeneric6DofConstraint* dof6 = new btGeneric6DofConstraint(*body, Physics::BtTransform(localPivot), false);
 				dof6->setLinearLowerLimit(btVector3(0.0f, 0.0f, 0.0f));
 				dof6->setLinearUpperLimit(btVector3(0.0f, 0.0f, 0.0f));
 				dof6->setAngularLowerLimit(btVector3(0.0f, 0.0f, 0.0f));
@@ -316,8 +327,8 @@ void VehicleInterface::pickObject(const btVector3& pickPos, const btCollisionObj
 				dof6->setParam(BT_CONSTRAINT_STOP_ERP, 0.1f, 3);
 				dof6->setParam(BT_CONSTRAINT_STOP_ERP, 0.1f, 4);
 				dof6->setParam(BT_CONSTRAINT_STOP_ERP, 0.1f, 5);
-			}
-			else {
+
+			}else {
 				btPoint2PointConstraint* p2p = new btPoint2PointConstraint(*body, localPivot);
 				Physics::GetDynamicsWorld()->addConstraint(p2p, true);
 				m_pickConstraint = p2p;
