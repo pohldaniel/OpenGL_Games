@@ -334,3 +334,29 @@ btVector3 Physics::VectorFrom(const Vector3f& vector) {
 btDiscreteDynamicsWorld * Physics::GetDynamicsWorld() {
 	return DynamicsWorld;
 }
+
+void* btFilteredVehicleRaycaster::castRay(const btVector3& from, const btVector3& to, btVehicleRaycasterResult& result) {
+	//	RayResultCallback& resultCallback;
+
+	btCollisionWorld::ClosestRayResultCallback rayCallback(from, to);
+
+
+	rayCallback.m_collisionFilterGroup = m_collisionFilterGroup;
+	rayCallback.m_collisionFilterMask = m_collisionFilterMask;
+
+	m_dynamicsWorld->rayTest(from, to, rayCallback);
+
+	if (rayCallback.hasHit())
+	{
+		const btRigidBody* body = btRigidBody::upcast(rayCallback.m_collisionObject);
+		if (body && body->hasContactResponse())
+		{
+			result.m_hitPointInWorld = rayCallback.m_hitPointWorld;
+			result.m_hitNormalInWorld = rayCallback.m_hitNormalWorld;
+			result.m_hitNormalInWorld.normalize();
+			result.m_distFraction = rayCallback.m_closestHitFraction;
+			return (void*)body;
+		}
+	}
+	return 0;
+}

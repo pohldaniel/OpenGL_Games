@@ -24,10 +24,7 @@ VehicleInterface::VehicleInterface(StateMachine& machine) : State(machine, Curre
 	glClearColor(0.7f, 0.7f, 0.7f, 0.0f);
 
 	
-	btTransform tr;
-	tr.setIdentity();
 	const float TRIANGLE_SIZE = 20.f;
-
 	//create a triangle-mesh ground
 	int vertStride = sizeof(btVector3);
 	int indexStride = 3 * sizeof(int);
@@ -41,12 +38,9 @@ VehicleInterface::VehicleInterface(StateMachine& machine) : State(machine, Curre
 	m_vertices = new btVector3[totalVerts];
 	int* gIndices = new int[totalTriangles * 3];
 
-
-
 	for (int i = 0; i<NUM_VERTS_X; i++) {
 		for (int j = 0; j<NUM_VERTS_Y; j++) {
 			float wl = .2f;
-			//height set to zero, but can also use curved landscape, just uncomment out the code
 			//float height = 20.f*sinf(float(i)*wl)*cosf(float(j)*wl);
 			float height = 0.0f;
 			m_vertices[i + j*NUM_VERTS_X].setValue( (i - NUM_VERTS_X*0.5f)*TRIANGLE_SIZE, height, (j - NUM_VERTS_Y*0.5f)*TRIANGLE_SIZE);
@@ -57,28 +51,25 @@ VehicleInterface::VehicleInterface(StateMachine& machine) : State(machine, Curre
 
 	int index = 0;
 	for (int i = 0; i<NUM_VERTS_X - 1; i++){
-		for (int j = 0; j<NUM_VERTS_Y - 1; j++){
-			gIndices[index++] = j*NUM_VERTS_X + i;
+		for (int j = 0; j<NUM_VERTS_Y - 1; j++){		
 			gIndices[index++] = j*NUM_VERTS_X + i + 1;
+			gIndices[index++] = j*NUM_VERTS_X + i;
 			gIndices[index++] = (j + 1)*NUM_VERTS_X + i + 1;
 
-			gIndices[index++] = j*NUM_VERTS_X + i;
 			gIndices[index++] = (j + 1)*NUM_VERTS_X + i + 1;
+			gIndices[index++] = j*NUM_VERTS_X + i;
 			gIndices[index++] = (j + 1)*NUM_VERTS_X + i;
 		}
 	}
 
 	m_indexVertexArrays = new btTriangleIndexVertexArray(totalTriangles, gIndices, indexStride, totalVerts, (btScalar*)&m_vertices[0].x(), vertStride);
 
-	bool useQuantizedAabbCompression = true;
-	btCollisionShape* groundShape = new btBvhTriangleMeshShape(m_indexVertexArrays, useQuantizedAabbCompression);
 
-	tr.setOrigin(btVector3(0, -4.5f, 0));
-	//create ground object
-	Physics::AddRigidBody(0, tr, groundShape, 1, -1, btCollisionObject::CF_STATIC_OBJECT);
-	
+	btCollisionShape* groundShape = new btBvhTriangleMeshShape(m_indexVertexArrays, true);
+	Physics::AddRigidBody(0.0f, Physics::BtTransform(btVector3(0.0f, -4.5f, 0.0f)), groundShape, Physics::collisiontypes::FLOOR | Physics::PICKABLE_OBJECT, Physics::collisiontypes::CAR | Physics::MOUSEPICKER, btCollisionObject::CF_STATIC_OBJECT);
+
 	m_physicsCar = new PhysicsCar();
-	m_physicsCar->create(Physics::BtTransform(), 800.0f);
+	m_physicsCar->create(Physics::BtTransform(), Physics::collisiontypes::CAR | Physics::PICKABLE_OBJECT, Physics::collisiontypes::FLOOR | Physics::MOUSEPICKER);
 }
 
 VehicleInterface::~VehicleInterface() {
@@ -304,27 +295,27 @@ void VehicleInterface::pickObject(const btVector3& pickPos, const btCollisionObj
 				tr.setIdentity();
 				tr.setOrigin(localPivot);
 				btGeneric6DofConstraint* dof6 = new btGeneric6DofConstraint(*body, tr, false);
-				dof6->setLinearLowerLimit(btVector3(0, 0, 0));
-				dof6->setLinearUpperLimit(btVector3(0, 0, 0));
-				dof6->setAngularLowerLimit(btVector3(0, 0, 0));
-				dof6->setAngularUpperLimit(btVector3(0, 0, 0));
+				dof6->setLinearLowerLimit(btVector3(0.0f, 0.0f, 0.0f));
+				dof6->setLinearUpperLimit(btVector3(0.0f, 0.0f, 0.0f));
+				dof6->setAngularLowerLimit(btVector3(0.0f, 0.0f, 0.0f));
+				dof6->setAngularUpperLimit(btVector3(0.0f, 0.0f, 0.0f));
 
 				Physics::GetDynamicsWorld()->addConstraint(dof6, true);
 				m_pickConstraint = dof6;
 
-				dof6->setParam(BT_CONSTRAINT_STOP_CFM, 0.8, 0);
-				dof6->setParam(BT_CONSTRAINT_STOP_CFM, 0.8, 1);
-				dof6->setParam(BT_CONSTRAINT_STOP_CFM, 0.8, 2);
-				dof6->setParam(BT_CONSTRAINT_STOP_CFM, 0.8, 3);
-				dof6->setParam(BT_CONSTRAINT_STOP_CFM, 0.8, 4);
-				dof6->setParam(BT_CONSTRAINT_STOP_CFM, 0.8, 5);
+				dof6->setParam(BT_CONSTRAINT_STOP_CFM, 0.8f, 0);
+				dof6->setParam(BT_CONSTRAINT_STOP_CFM, 0.8f, 1);
+				dof6->setParam(BT_CONSTRAINT_STOP_CFM, 0.8f, 2);
+				dof6->setParam(BT_CONSTRAINT_STOP_CFM, 0.8f, 3);
+				dof6->setParam(BT_CONSTRAINT_STOP_CFM, 0.8f, 4);
+				dof6->setParam(BT_CONSTRAINT_STOP_CFM, 0.8f, 5);
 
-				dof6->setParam(BT_CONSTRAINT_STOP_ERP, 0.1, 0);
-				dof6->setParam(BT_CONSTRAINT_STOP_ERP, 0.1, 1);
-				dof6->setParam(BT_CONSTRAINT_STOP_ERP, 0.1, 2);
-				dof6->setParam(BT_CONSTRAINT_STOP_ERP, 0.1, 3);
-				dof6->setParam(BT_CONSTRAINT_STOP_ERP, 0.1, 4);
-				dof6->setParam(BT_CONSTRAINT_STOP_ERP, 0.1, 5);
+				dof6->setParam(BT_CONSTRAINT_STOP_ERP, 0.1f, 0);
+				dof6->setParam(BT_CONSTRAINT_STOP_ERP, 0.1f, 1);
+				dof6->setParam(BT_CONSTRAINT_STOP_ERP, 0.1f, 2);
+				dof6->setParam(BT_CONSTRAINT_STOP_ERP, 0.1f, 3);
+				dof6->setParam(BT_CONSTRAINT_STOP_ERP, 0.1f, 4);
+				dof6->setParam(BT_CONSTRAINT_STOP_ERP, 0.1f, 5);
 			}
 			else {
 				btPoint2PointConstraint* p2p = new btPoint2PointConstraint(*body, localPivot);

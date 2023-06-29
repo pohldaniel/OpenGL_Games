@@ -20,7 +20,6 @@ m_pickConstraint(0) {
 	m_camera.setRotationSpeed(0.1f);
 
 	btCollisionShape* groundShape = new btBoxShape(btVector3(200.0f, 10.0f, 200.0f));
-	m_collisionShapes.push_back(groundShape);
 	btTransform groundTransform;
 	groundTransform.setIdentity();
 	groundTransform.setOrigin(btVector3(0.0f, -10.0f, 0.0f));
@@ -28,7 +27,7 @@ m_pickConstraint(0) {
 	btCollisionObject* fixedGround = new btCollisionObject();
 	fixedGround->setCollisionShape(groundShape);
 	fixedGround->setWorldTransform(groundTransform);
-	Physics::GetDynamicsWorld()->addCollisionObject(fixedGround, Physics::FLOOR, Physics::PICKABLE_OBJECT);
+	Physics::GetDynamicsWorld()->addCollisionObject(fixedGround, Physics::FLOOR | Physics::PICKABLE_OBJECT, Physics::MOUSEPICKER | Physics::PICKABLE_OBJECT);
 
 	// Spawn one ragdoll
 	btVector3 startOffset(1.0f, 0.5f, 0.0f);
@@ -253,10 +252,10 @@ void RagdollInterface::pickObject(const btVector3& pickPos, const btCollisionObj
 				tr.setIdentity();
 				tr.setOrigin(localPivot);
 				btGeneric6DofConstraint* dof6 = new btGeneric6DofConstraint(*body, tr, false);
-				dof6->setLinearLowerLimit(btVector3(0, 0, 0));
-				dof6->setLinearUpperLimit(btVector3(0, 0, 0));
-				dof6->setAngularLowerLimit(btVector3(0, 0, 0));
-				dof6->setAngularUpperLimit(btVector3(0, 0, 0));
+				dof6->setLinearLowerLimit(btVector3(0.0f, 0.0f, 0.0f));
+				dof6->setLinearUpperLimit(btVector3(0.0f, 0.0f, 0.0f));
+				dof6->setAngularLowerLimit(btVector3(0.0f, 0.0f, 0.0f));
+				dof6->setAngularUpperLimit(btVector3(0.0f, 0.0f, 0.0f));
 
 				Physics::GetDynamicsWorld()->addConstraint(dof6, true);
 				m_pickConstraint = dof6;
@@ -294,7 +293,7 @@ void RagdollInterface::removePickingConstraint() {
 
 		m_pickConstraint = 0;
 		pickedBody->forceActivationState(ACTIVE_TAG);
-		pickedBody->setDeactivationTime(0.f);
+		pickedBody->setDeactivationTime(0.0f);
 		pickedBody = 0;
 	}
 }

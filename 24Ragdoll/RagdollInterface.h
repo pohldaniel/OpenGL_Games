@@ -43,7 +43,6 @@ private:
 	bool m_drawUi = true;
 
 	btAlignedObjectArray<class RagDoll*> m_ragdolls;
-	btAlignedObjectArray<btCollisionShape*>	m_collisionShapes;
 	btTypedConstraint* m_pickConstraint;
 	btRigidBody* pickedBody = 0;
 	btScalar mousePickClamping = 30.f;

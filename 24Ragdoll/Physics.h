@@ -12,6 +12,23 @@ class ObjMesh;
 class ObjModel;
 class Shape;
 
+class btFilteredVehicleRaycaster : public btVehicleRaycaster {
+	btDynamicsWorld* m_dynamicsWorld;
+
+public:
+
+	btFilteredVehicleRaycaster(btDynamicsWorld* world, int collisionFilterGroup, int collisionFilterMask) : m_dynamicsWorld(world) {
+		m_collisionFilterGroup = collisionFilterGroup;
+		m_collisionFilterMask = collisionFilterMask;
+	}
+
+	virtual void* castRay(const btVector3& from, const btVector3& to, btVehicleRaycasterResult& result) override;
+
+private:
+	int m_collisionFilterGroup = -1;
+	int m_collisionFilterMask = -1;
+};
+
 class Physics{
 
 public:
@@ -24,7 +41,7 @@ public:
 		CAMERA = 16,
 		CHARACTER = 32,
 		TRIGGER = 64,
-		LAVA = 128,
+		CAR = 128,
 		MOUSEPICKER = 256,
 		COL_FORCE_8BIT = 0xFF
 	};

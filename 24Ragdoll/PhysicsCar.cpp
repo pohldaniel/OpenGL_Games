@@ -10,7 +10,7 @@ PhysicsCar::~PhysicsCar() {
 	delete m_vehicle;
 }
 
-void PhysicsCar::create(const btTransform& transform, float mass, int collisionFilterGroup, int collisionFilterMask, void* rigidBodyUserPointer) {
+void PhysicsCar::create(const btTransform& transform, int collisionFilterGroup, int collisionFilterMask) {
 	m_initialTrans = transform;
 	btCollisionShape* chassisShape = new btBoxShape(btVector3(1.0f, 0.5f, 2.0f));
 
@@ -21,13 +21,13 @@ void PhysicsCar::create(const btTransform& transform, float mass, int collisionF
 	localTrans.setOrigin(btVector3(0.0f, m_cfg.bodyConnectionToChasisHeight, 0.0f));
 	compound->addChildShape(localTrans, chassisShape);
 
-	m_carChassis = Physics::AddRigidBody(m_cfg.mass, transform, compound);
+	m_carChassis = Physics::AddRigidBody(m_cfg.mass, transform, compound, collisionFilterGroup, collisionFilterMask);
 	m_carChassis->setDamping(m_cfg.linearDamping, m_cfg.angularDamping);
 
 	m_wheelShape = new btCylinderShapeX(btVector3(m_cfg.wheelWidth, m_cfg.wheelRadius, m_cfg.wheelRadius));
 
 	btRaycastVehicle::btVehicleTuning tuning;
-	m_vehicleRayCaster = new btDefaultVehicleRaycaster(Physics::GetDynamicsWorld());
+	m_vehicleRayCaster = new btFilteredVehicleRaycaster(Physics::GetDynamicsWorld(), collisionFilterGroup, collisionFilterMask);
 	m_vehicle = new btRaycastVehicle(tuning, m_carChassis, m_vehicleRayCaster);
 	m_carChassis->setActivationState(DISABLE_DEACTIVATION);
 

@@ -98,7 +98,7 @@ public:
 		WHEEL_COUNT
 	};
 
-	void create(const btTransform& transform, float mass, int collisionFilterGroup = 1, int collisionFilterMask = -1, void* rigidBodyUserPointer = NULL);
+	void create(const btTransform& transform, int collisionFilterGroup = 1, int collisionFilterMask = -1);
 	void update();
 	void fixedUpdate();
 
