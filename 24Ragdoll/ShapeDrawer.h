@@ -52,11 +52,11 @@ public:
 	void drawDynmicsWorld(btDynamicsWorld* dynamicsWorld);
 	
 	void drawShape(btScalar* m,  btCollisionShape* shape);
-
 	void setCamera(const Camera& camera);
 	
-
 	static ShapeDrawer& Get();
+
+	static RandomColor RandomColor;
 
 private:
 
@@ -74,8 +74,6 @@ private:
 	const Camera* m_camera;
 	btAlignedObjectArray<ShapeCacheConvex*> m_shapecachesConvex;
 	btAlignedObjectArray<ShapeCache*> m_shapecaches;
-
-	RandomColor randomColor;
 
 	static ShapeDrawer s_instance;
 	static std::unique_ptr<Shader> s_shader;

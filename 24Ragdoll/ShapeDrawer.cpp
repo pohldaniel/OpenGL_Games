@@ -1,5 +1,7 @@
 #include "ShapeDrawer.h"
+#include "HeightField.h"
 
+RandomColor ShapeDrawer::RandomColor;
 ShapeDrawer ShapeDrawer::s_instance;
 std::unique_ptr<Shader> ShapeDrawer::s_shader = nullptr;
 
@@ -131,7 +133,7 @@ void ShapeDrawer::drawShape(btScalar* m, btCollisionShape* shape) {
 		glUseProgram(0);
 
 
-	}else if (shape->getShapeType() == TRIANGLE_MESH_SHAPE_PROXYTYPE) {
+	}else if(shape->getShapeType() == TRIANGLE_MESH_SHAPE_PROXYTYPE) {
 
 		ShapeCache*	sc = cache(const_cast<btCollisionShape*>(shape));
 		const IndexedMeshArray& meshArray = dynamic_cast<btTriangleIndexVertexArray*>(dynamic_cast<btTriangleMeshShape*>(shape)->getMeshInterface())->getIndexedMeshArray();
@@ -159,6 +161,30 @@ void ShapeDrawer::drawShape(btScalar* m, btCollisionShape* shape) {
 			glUseProgram(0);
 		}
 		return;
+
+	}else if (shape->getShapeType() == TERRAIN_SHAPE_PROXYTYPE) {
+
+		DrawHelper* sc = (DrawHelper*)shape->getUserPointer();
+		glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+		glBufferSubData(GL_ARRAY_BUFFER, 0, sc->m_positions->size() * sizeof(btVector3), &(*sc->m_positions)[0]);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ibo);
+		glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, sc->m_indices->size() * sizeof(unsigned int), &(*sc->m_indices)[0]);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+		glUseProgram(s_shader->m_program);
+
+		s_shader->loadMatrix("u_projection", m_camera->getPerspectiveMatrix());
+		s_shader->loadMatrix("u_view", m_camera->getViewMatrix());
+		s_shader->loadMatrix("u_model", Matrix4f(m) * Matrix4f::Scale(sc->m_localScaling[0], sc->m_localScaling[1], sc->m_localScaling[2]));
+		s_shader->loadVector("u_color", sc->m_color);
+
+		glBindVertexArray(m_vao);
+		glDrawElements(GL_TRIANGLES, sc->m_indices->size(), GL_UNSIGNED_INT, 0);
+		glBindVertexArray(0);
+
+		glUseProgram(0);
 	}
 
 }
@@ -170,7 +196,7 @@ ShapeDrawer::ShapeCacheConvex* ShapeDrawer::cacheConvex(btCollisionShape* shape)
 		sc = new(btAlignedAlloc(sizeof(ShapeCacheConvex), 16)) ShapeCacheConvex(dynamic_cast<btConvexShape*>(shape));
 		sc->m_shapehull.buildHull(shape->getMargin());
 
-		int intColor = randomColor.generate();
+		int intColor = RandomColor.generate();
 		sc->m_color = Vector4f(((intColor >> 16) & 0xFF) / 255.0f, ((intColor >> 8) & 0xFF) / 255.0f, ((intColor) & 0xFF) / 255.0f, 1.0f);
 		m_shapecachesConvex.push_back(sc);
 		shape->setUserPointer(sc);
@@ -184,7 +210,7 @@ ShapeDrawer::ShapeCache* ShapeDrawer::cache(btCollisionShape* shape) {
 	if (!sc) {
 		sc = new ShapeCache();
 
-		int intColor = randomColor.generate();
+		int intColor = RandomColor.generate();
 		sc->m_color = Vector4f(((intColor >> 16) & 0xFF) / 255.0f, ((intColor >> 8) & 0xFF) / 255.0f, ((intColor) & 0xFF) / 255.0f, 1.0f);
 		m_shapecaches.push_back(sc);
 		shape->setUserPointer(sc);

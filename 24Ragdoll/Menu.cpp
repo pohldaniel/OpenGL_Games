@@ -43,6 +43,7 @@ Menu::Menu(StateMachine& machine) : State(machine, CurrentState::MENU) {
 		m_isRunning = false;
 		m_machine.addStateAtBottom(new VehicleInterface(m_machine));
 	});
+	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 }
 
 Menu::~Menu() {

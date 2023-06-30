@@ -6,6 +6,7 @@
 #include "RagdollInterface.h"
 #include "Application.h"
 #include "Globals.h"
+#include "Menu.h"
 
 RagdollInterface::RagdollInterface(StateMachine& machine) : State(machine, CurrentState::RAGDOLLINTERFACE),
 m_pickConstraint(0) {
@@ -38,7 +39,7 @@ m_pickConstraint(0) {
 	//std::vector<btCollisionShape*> platformShape = Physics::CreateStaticCollisionShapes(&Globals::shapeManager.get("platform"), 1.0f);
 	//btRigidBody* body = Globals::physics->addStaticModel(platformShape, Physics::BtTransform(), false, btVector3(1.0f, 1.0f, 1.0f), Physics::FLOOR, Physics::PICKABLE_OBJECT);
 
-	ShapeDrawer::Get().init(1024);
+	ShapeDrawer::Get().init(32768);
 	ShapeDrawer::Get().setCamera(m_camera);
 
 	glClearColor(0.7f, 0.7f, 0.7f, 0.0f);
@@ -176,6 +177,7 @@ void RagdollInterface::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 	else if (event.button == 1u) {
 
 		if (m_mousePicker.click(event.x, event.y, m_camera)) {
+			m_mousePicker.setHasPicked(true);
 			const MousePickCallback& callback = m_mousePicker.getCallback();
 			pickObject(callback.m_hitPointWorld, callback.m_collisionObject);
 		}
@@ -186,6 +188,7 @@ void RagdollInterface::OnMouseButtonUp(Event::MouseButtonEvent& event) {
 	if (event.button == 2u) {
 		Mouse::instance().detach();
 	}else if (event.button == 1u) {
+		m_mousePicker.setHasPicked(false);
 		removePickingConstraint();
 	}
 }
@@ -195,6 +198,13 @@ void RagdollInterface::OnKeyDown(Event::KeyboardEvent& event) {
 		m_drawUi = true;
 		Mouse::instance().detach();
 		Keyboard::instance().disable();
+	}
+
+	if (event.keyCode == VK_ESCAPE) {
+		ImGui::GetIO().WantCaptureMouse = false;
+		Mouse::instance().detach();
+		m_isRunning = false;
+		m_machine.addStateAtBottom(new Menu(m_machine));
 	}
 }
 

@@ -1,5 +1,5 @@
 #pragma once
-
+#include <map>
 #include "engine/input/MouseEventListener.h"
 #include "engine/input/KeyboardEventListener.h"
 #include "engine/Camera.h"
@@ -10,8 +10,7 @@
 #include "MousePicker.h"
 #include "ShapeDrawer.h"
 #include "PhysicsCar.h"
-
-#define CUBE_HALF_EXTENTS 1
+#include "HeightField.h"
 
 class VehicleInterface : public State, public MouseEventListener, public KeyboardEventListener {
 
@@ -43,7 +42,7 @@ private:
 
 	bool m_initUi = true;
 	bool m_drawUi = true;
-	bool m_follow = false;
+	bool m_follow = true;
 
 	btTypedConstraint* m_pickConstraint;
 	btRigidBody* pickedBody = 0;
@@ -53,4 +52,13 @@ private:
 	btVector3*	m_vertices;
 
 	PhysicsCar* m_physicsCar;
+	HeightField m_heightField;
+
+	TriangleCollector  col;
+
+	std::vector<unsigned int> indices;
+	std::vector<btVector3> positions;
+	btHeightfieldTerrainShape* heightFieldShape;
+
+	btRigidBody* body;
 };

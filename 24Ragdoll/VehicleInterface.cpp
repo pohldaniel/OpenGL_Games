@@ -6,6 +6,9 @@
 #include "VehicleInterface.h"
 #include "Application.h"
 #include "Globals.h"
+#include "Menu.h"
+
+extern char heightfield[];
 
 VehicleInterface::VehicleInterface(StateMachine& machine) : State(machine, CurrentState::RAGDOLLINTERFACE),
 															m_pickConstraint(0) {
@@ -19,52 +22,16 @@ VehicleInterface::VehicleInterface(StateMachine& machine) : State(machine, Curre
 	m_camera.lookAt(Vector3f(0.0f, 2.0f, 10.0f), Vector3f(0.0f, 2.0f, 10.0f) + Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
 	m_camera.setRotationSpeed(0.1f);
 
-	ShapeDrawer::Get().init(8192);
+	ShapeDrawer::Get().init(32768);
 	ShapeDrawer::Get().setCamera(m_camera);
 	glClearColor(0.7f, 0.7f, 0.7f, 0.0f);
 
-	
-	const float TRIANGLE_SIZE = 20.f;
-	//create a triangle-mesh ground
-	int vertStride = sizeof(btVector3);
-	int indexStride = 3 * sizeof(int);
-
-	const int NUM_VERTS_X = 20;
-	const int NUM_VERTS_Y = 20;
-	const int totalVerts = NUM_VERTS_X * NUM_VERTS_Y;
-
-	const int totalTriangles = 2 * (NUM_VERTS_X - 1)*(NUM_VERTS_Y - 1);
-
-	m_vertices = new btVector3[totalVerts];
-	int* gIndices = new int[totalTriangles * 3];
-
-	for (int i = 0; i<NUM_VERTS_X; i++) {
-		for (int j = 0; j<NUM_VERTS_Y; j++) {
-			float wl = .2f;
-			//float height = 20.f*sinf(float(i)*wl)*cosf(float(j)*wl);
-			float height = 0.0f;
-			m_vertices[i + j*NUM_VERTS_X].setValue( (i - NUM_VERTS_X*0.5f)*TRIANGLE_SIZE, height, (j - NUM_VERTS_Y*0.5f)*TRIANGLE_SIZE);			
-		}
+	for (int i = 0; i < 128 * 128; i++) {
+		heightfield[i] = heightfield[i] * 1.1f;
 	}
 
-	int index = 0;
-	for (int i = 0; i<NUM_VERTS_X - 1; i++){
-		for (int j = 0; j<NUM_VERTS_Y - 1; j++){		
-			gIndices[index++] = j*NUM_VERTS_X + i + 1;
-			gIndices[index++] = j*NUM_VERTS_X + i;
-			gIndices[index++] = (j + 1)*NUM_VERTS_X + i + 1;
-
-			gIndices[index++] = (j + 1)*NUM_VERTS_X + i + 1;
-			gIndices[index++] = j*NUM_VERTS_X + i;
-			gIndices[index++] = (j + 1)*NUM_VERTS_X + i;
-		}
-	}
-
-	m_indexVertexArrays = new btTriangleIndexVertexArray(totalTriangles, gIndices, indexStride, totalVerts, (btScalar*)&m_vertices[0].x(), vertStride);
-
-
-	btCollisionShape* groundShape = new btBvhTriangleMeshShape(m_indexVertexArrays, true);
-	Physics::AddRigidBody(0.0f, Physics::BtTransform(btVector3(0.0f, -4.5f, 0.0f)), groundShape, Physics::collisiontypes::FLOOR | Physics::PICKABLE_OBJECT, Physics::collisiontypes::CAR | Physics::MOUSEPICKER, btCollisionObject::CF_STATIC_OBJECT);
+	m_heightField.create(heightfield, 128, 128, Physics::BtTransform(btVector3(0.0f, 49.4f, 0.0f)), btVector3(1.0f, 1.0f, 1.0f), Physics::collisiontypes::FLOOR | Physics::PICKABLE_OBJECT, Physics::collisiontypes::CAR | Physics::MOUSEPICKER);
+	m_heightField.processAllTriangles();
 
 	m_physicsCar = new PhysicsCar();
 	m_physicsCar->create(Physics::BtTransform(), Physics::collisiontypes::CAR | Physics::PICKABLE_OBJECT, Physics::collisiontypes::FLOOR | Physics::MOUSEPICKER);
@@ -144,7 +111,16 @@ void VehicleInterface::update() {
 
 void VehicleInterface::render() {
 
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	glLoadMatrixf(&m_camera.getPerspectiveMatrix()[0][0]);
+
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	glLoadMatrixf(&m_camera.getViewMatrix()[0][0]);
+
 	btScalar m[16];
+	btTransform trans;
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -159,7 +135,7 @@ void VehicleInterface::render() {
 		m_physicsCar->getVehicle()->getWheelInfo(i).m_worldTransform.getOpenGLMatrix(m);
 		ShapeDrawer::Get().drawShape(m, m_physicsCar->getWheelShape());
 	}
-
+	
 	m_mousePicker.drawPicker(m_camera);
 
 	if (m_drawUi)
@@ -243,6 +219,13 @@ void VehicleInterface::OnKeyDown(Event::KeyboardEvent& event) {
 		m_drawUi = true;
 		Mouse::instance().detach();
 		Keyboard::instance().disable();
+	}
+
+	if (event.keyCode == VK_ESCAPE) {
+		ImGui::GetIO().WantCaptureMouse = false;
+		Mouse::instance().detach();
+		m_isRunning = false;
+		m_machine.addStateAtBottom(new Menu(m_machine));
 	}
 }
 

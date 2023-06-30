@@ -315,8 +315,8 @@ void Application::initOpenGL(int msaaSamples) {
 	//glDisable(GL_CULL_FACE);
 
 	glEnable(GL_DEPTH_TEST);
-	glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	//glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
 void Application::initImGUI() {
@@ -377,8 +377,9 @@ void Application::fixedUpdate() {
 void Application::initStates() {
 	
 	Machine = new StateMachine(m_dt, m_fdt);
-	Machine->addStateAtTop(new VehicleInterface(*Machine));
+	//Machine->addStateAtTop(new VehicleInterface(*Machine));
 	//Machine->addStateAtTop(new RagdollInterface(*Machine));
+	Machine->addStateAtTop(new Menu(*Machine));
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
@@ -434,7 +435,7 @@ void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 					event.type = Event::KEYDOWN;
 					event.data.keyboard.keyCode = VK_ESCAPE;
 					EventDispatcher.pushEvent(event);
-					SendMessage(Window, WM_DESTROY, NULL, NULL);
+					//SendMessage(Window, WM_DESTROY, NULL, NULL);
 					break;
 				}case VK_SPACE: {
 					Event event;
@@ -558,7 +559,6 @@ void Application::SetCursorIcon(LPCSTR resource) {
 void Application::loadAssets() {
 	Globals::shaderManager.loadShader("texture", "res/shader/texture.vert", "res/shader/texture.frag");	
 	Globals::shaderManager.loadShader("font", "res/shader/batch.vert", "res/shader/font.frag");
-	Globals::shaderManager.loadShader("ring", "res/shader/ring.vs", "res/shader/ring.fs");
 
 	Globals::shapeManager.buildQuadXY("quad", Vector3f(-1.0f, -1.0f, 0.0f), Vector2f(2.0f, 2.0f), 1, 1, true, false, false);
 	Globals::shapeManager.buildQuadXZ("platform", Vector3f(-5.0f, 0.0f, -5.0f), Vector2f(10.0f, 10.0f), 1, 1, true, false, false);

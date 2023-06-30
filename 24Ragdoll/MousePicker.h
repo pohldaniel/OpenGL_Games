@@ -31,9 +31,9 @@
 																												\n \
 								void main() {																	\n \
 									vec2 uv = v_texCoord * 2.0 - 1.0;											\n \
-									vec4 ringColor = vec4(1.0, 1.0, 1.5, 0.0);									\n \
+									vec3 ringColor = vec3(1.0, 1.0, 1.5);										\n \
 									float intensity = haloRing (uv, u_radius, 16.0);							\n \
-									color = mix(color, ringColor, intensity);									\n \
+									color = vec4(ringColor, intensity);											\n \
 								}"    
 
 class MousePickCallback : public btCollisionWorld::ClosestRayResultCallback {

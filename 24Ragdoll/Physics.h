@@ -4,6 +4,7 @@
 #include <BulletCollision/CollisionShapes/btBox2dShape.h>
 #include <BulletCollision/CollisionShapes/btCollisionShape.h>
 #include <BulletCollision/CollisionShapes/btShapeHull.h>
+#include <BulletCollision/CollisionShapes/btHeightfieldTerrainShape.h>
 #include "engine/Vector.h"
 
 #define MAX_SIMULATION_SUBSTEPS   1
