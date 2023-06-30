@@ -64,7 +64,7 @@ VehicleInterface::VehicleInterface(StateMachine& machine) : State(machine, Curre
 
 
 	btCollisionShape* groundShape = new btBvhTriangleMeshShape(m_indexVertexArrays, true);
-	Physics::AddRigidBody(0.0f, Physics::BtTransform(btVector3(0.0f, -4.5f, 0.0f)), groundShape, Physics::collisiontypes::FLOOR, Physics::collisiontypes::CAR, btCollisionObject::CF_STATIC_OBJECT);
+	Physics::AddRigidBody(0.0f, Physics::BtTransform(btVector3(0.0f, -4.5f, 0.0f)), groundShape, Physics::collisiontypes::FLOOR | Physics::PICKABLE_OBJECT, Physics::collisiontypes::CAR | Physics::MOUSEPICKER, btCollisionObject::CF_STATIC_OBJECT);
 
 	m_physicsCar = new PhysicsCar();
 	m_physicsCar->create(Physics::BtTransform(), Physics::collisiontypes::CAR | Physics::PICKABLE_OBJECT, Physics::collisiontypes::FLOOR | Physics::MOUSEPICKER);
@@ -217,10 +217,11 @@ void VehicleInterface::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 
 	if (event.button == 2u) {
 		Mouse::instance().attach(Application::GetWindow());
-	}
-	else if (event.button == 1u) {
+
+	}else if (event.button == 1u) {
 
 		if (m_mousePicker.click(event.x, event.y, m_camera)) {
+			m_mousePicker.setHasPicked(true);
 			const MousePickCallback& callback = m_mousePicker.getCallback();
 			pickObject(callback.m_hitPointWorld, callback.m_collisionObject);
 		}
@@ -230,8 +231,9 @@ void VehicleInterface::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 void VehicleInterface::OnMouseButtonUp(Event::MouseButtonEvent& event) {
 	if (event.button == 2u) {
 		Mouse::instance().detach();
-	}
-	else if (event.button == 1u) {
+
+	}else if (event.button == 1u) {
+		m_mousePicker.setHasPicked(false);
 		removePickingConstraint();
 	}
 }

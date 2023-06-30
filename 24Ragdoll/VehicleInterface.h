@@ -43,7 +43,7 @@ private:
 
 	bool m_initUi = true;
 	bool m_drawUi = true;
-	bool m_follow = true;
+	bool m_follow = false;
 
 	btTypedConstraint* m_pickConstraint;
 	btRigidBody* pickedBody = 0;

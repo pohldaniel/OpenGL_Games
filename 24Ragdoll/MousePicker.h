@@ -65,13 +65,15 @@ public:
 	void drawPicker(const Camera& camera);	
 	void updatePosition(unsigned int posX, unsigned int posY, const Camera& camera);
 	bool click(unsigned int posX, unsigned int posY, const Camera& camera);
+	void setHasPicked(bool value);
+	void setPosition(const Vector3f& pos);
 
 	const MousePickCallback& getCallback();
 	float getPickingDistance();
 
 private:
 
-	void updateBuffer(const Vector3f& pos);
+	void createBuffer();
 
 	MousePickCallback m_callback;	
 
@@ -80,6 +82,8 @@ private:
 	unsigned int m_vbo = 0;
 
 	float m_pickingDistance;
+	Matrix4f m_model;
+	bool m_hasPicked;
 
 	static std::unique_ptr<Shader> s_shader;
 };

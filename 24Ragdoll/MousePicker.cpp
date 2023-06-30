@@ -3,10 +3,11 @@
 
 std::unique_ptr<Shader> MousePicker::s_shader = nullptr;
 
-MousePicker::MousePicker() : m_callback(btVector3(0.0f, 0.0f, 0.0f), btVector3(0.0f, 0.0f, 0.0f)){
-	
+MousePicker::MousePicker() : m_callback(btVector3(0.0f, 0.0f, 0.0f), btVector3(0.0f, 0.0f, 0.0f)), m_hasPicked(false){
+
 	if (!s_shader) {
 		s_shader = std::unique_ptr<Shader>(new Shader(MOUSEPICKER_VERTEX, MOUSEPICKER_FRGAMENT, false));
+		createBuffer();
 	}
 }
 
@@ -35,7 +36,32 @@ void MousePicker::updatePosition(unsigned int posX, unsigned int posY, const Cam
 	Physics::GetDynamicsWorld()->rayTest(m_callback.m_origin, m_callback.m_target, m_callback);
 
 	if (m_callback.hasHit()) {
-		updateBuffer(Physics::VectorFrom(m_callback.m_hitPointWorld));
+		
+		if (!m_hasPicked) {
+			Vector3f normal = Vector3f(m_callback.m_hitNormalWorld[0], m_callback.m_hitNormalWorld[1], m_callback.m_hitNormalWorld[2]);
+			Vector3f tangent = fabsf(Vector3f::Dot(normal, Vector3f(0.0f, 0.0f, 1.0f))) > 0.9f ? Vector3f::Cross(normal, Vector3f(0.0f, 1.0f, 0.0f)) : Vector3f::Cross(normal, Vector3f(0.0f, 0.0f, 1.0f));
+			Vector3f bitangent = Vector3f::Cross(normal, tangent);
+
+			m_model[0][0] = tangent[0];
+			m_model[0][1] = tangent[1];
+			m_model[0][2] = tangent[2];
+			m_model[0][3] = 0.0f;
+
+			m_model[1][0] = normal[0];
+			m_model[1][1] = normal[1];
+			m_model[1][2] = normal[2];
+			m_model[1][3] = 0.0f;
+
+			m_model[2][0] = bitangent[0];
+			m_model[2][1] = bitangent[1];
+			m_model[2][2] = bitangent[2];
+			m_model[2][3] = 0.0f;
+		}
+
+		m_model[3][0] = m_callback.m_hitPointWorld[0];
+		m_model[3][1] = m_callback.m_hitPointWorld[1];
+		m_model[3][2] = m_callback.m_hitPointWorld[2];
+		m_model[3][3] = 1.0f;
 	}
 }
 
@@ -66,6 +92,31 @@ bool MousePicker::click(unsigned int posX, unsigned int posY, const Camera& came
 
 	if (m_callback.hasHit()) {
 		m_pickingDistance = (m_callback.m_hitPointWorld - m_callback.m_origin).length();
+
+		/*Vector3f normal = Vector3f(m_callback.m_hitNormalWorld[0], m_callback.m_hitNormalWorld[1], m_callback.m_hitNormalWorld[2]);
+		Vector3f tangent = fabsf(Vector3f::Dot(normal, Vector3f(0.0f, 0.0f, 1.0f))) > 0.9f ? Vector3f::Cross(normal, Vector3f(0.0f, 1.0f, 0.0f)) : Vector3f::Cross(normal, Vector3f(0.0f, 0.0f, 1.0f));
+		Vector3f bitangent = Vector3f::Cross(normal, tangent);
+
+		m_model[0][0] = tangent[0];
+		m_model[0][1] = tangent[1];
+		m_model[0][2] = tangent[2];
+		m_model[0][3] = 0.0f;
+
+		m_model[1][0] = normal[0];
+		m_model[1][1] = normal[1];
+		m_model[1][2] = normal[2];
+		m_model[1][3] = 0.0f;
+
+		m_model[2][0] = bitangent[0];
+		m_model[2][1] = bitangent[1];
+		m_model[2][2] = bitangent[2];
+		m_model[2][3] = 0.0f;
+
+		m_model[3][0] = m_callback.m_hitPointWorld[0];
+		m_model[3][1] = m_callback.m_hitPointWorld[1];
+		m_model[3][2] = m_callback.m_hitPointWorld[2];
+		m_model[3][3] = 1.0f;*/
+
 		return true;
 
 	} else {
@@ -76,18 +127,18 @@ bool MousePicker::click(unsigned int posX, unsigned int posY, const Camera& came
 	
 }
 
-void MousePicker::updateBuffer(const Vector3f& pos) {
+void MousePicker::createBuffer() {
 	if (m_debug) {
 
 		std::vector<float> vertex;
-		vertex.push_back(pos[0] - 0.5f); vertex.push_back(pos[1]); vertex.push_back(pos[2] - 0.5f); vertex.push_back(0.0f); vertex.push_back(0.0f);
-		vertex.push_back(pos[0] - 0.5f); vertex.push_back(pos[1]); vertex.push_back(pos[2] + 0.5f); vertex.push_back(0.0f); vertex.push_back(1.0f);
-		vertex.push_back(pos[0] + 0.5f); vertex.push_back(pos[1]); vertex.push_back(pos[2] + 0.5f); vertex.push_back(1.0f); vertex.push_back(1.0f);
-		vertex.push_back(pos[0] + 0.5f); vertex.push_back(pos[1]); vertex.push_back(pos[2] - 0.5f); vertex.push_back(1.0f); vertex.push_back(0.0f);
+		vertex.push_back(-0.5f); vertex.push_back(0.0f); vertex.push_back(-0.5f); vertex.push_back(0.0f); vertex.push_back(0.0f);
+		vertex.push_back(-0.5f); vertex.push_back(0.0f); vertex.push_back( 0.5f); vertex.push_back(0.0f); vertex.push_back(1.0f);
+		vertex.push_back( 0.5f); vertex.push_back(0.0f); vertex.push_back( 0.5f); vertex.push_back(1.0f); vertex.push_back(1.0f);
+		vertex.push_back( 0.5f); vertex.push_back(0.0f); vertex.push_back(-0.5f); vertex.push_back(1.0f); vertex.push_back(0.0f);
 
 		if (!m_vao) {
 			const unsigned short indices[] = {
-				0, 1, 2, 3
+				3, 2, 1, 0
 			};
 
 			unsigned int ibo;
@@ -98,7 +149,7 @@ void MousePicker::updateBuffer(const Vector3f& pos) {
 			glBindVertexArray(m_vao);
 
 			glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-			glBufferData(GL_ARRAY_BUFFER, vertex.size() * sizeof(float), &vertex[0], GL_DYNAMIC_DRAW);
+			glBufferData(GL_ARRAY_BUFFER, vertex.size() * sizeof(float), &vertex[0], GL_STATIC_DRAW);
 
 			//Position
 			glEnableVertexAttribArray(0);
@@ -115,10 +166,6 @@ void MousePicker::updateBuffer(const Vector3f& pos) {
 			glBindVertexArray(0);
 			glDeleteBuffers(1, &ibo);
 		}
-
-		glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-		glBufferSubData(GL_ARRAY_BUFFER, 0, vertex.size() * sizeof(float), &vertex[0]);
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}
 }
 
@@ -130,7 +177,7 @@ void MousePicker::drawPicker(const Camera& camera) {
 	glEnable(GL_BLEND);
 	
 	glUseProgram(s_shader->m_program);
-	s_shader->loadMatrix("u_transform", camera.getPerspectiveMatrix() * camera.getViewMatrix());
+	s_shader->loadMatrix("u_transform", camera.getPerspectiveMatrix() * camera.getViewMatrix() * m_model);
 	glBindVertexArray(m_vao);
 	glDrawElements(GL_QUADS, 4, GL_UNSIGNED_SHORT, 0);
 	glBindVertexArray(0);
@@ -148,4 +195,15 @@ const MousePickCallback& MousePicker::getCallback() {
 
 float MousePicker::getPickingDistance() {
 	return m_pickingDistance;
+}
+
+void MousePicker::setHasPicked(bool value) {
+	m_hasPicked = value;
+}
+
+void MousePicker::setPosition(const Vector3f& pos) {
+	m_model[3][0] = pos[0];
+	m_model[3][1] = pos[1];
+	m_model[3][2] = pos[2];
+	m_model[3][3] = 1.0f;
 }
