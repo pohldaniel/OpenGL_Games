@@ -5,6 +5,7 @@
 #include "Globals.h"
 #include "RagdollInterface.h"
 #include "VehicleInterface.h"
+#include "CharacterInterface.h"
 
 Menu::Menu(StateMachine& machine) : State(machine, CurrentState::MENU) {
 
@@ -19,8 +20,21 @@ Menu::Menu(StateMachine& machine) : State(machine, CurrentState::MENU) {
 
 	m_buttons = std::initializer_list<std::pair<const std::string, Button>>({		
 		{ "ragdoll" , Button() },
-		{ "vehicle" , Button() }
+		{ "vehicle" , Button() },
+		{ "character" , Button() }
 	});
+
+	m_buttons.at("character").setCharset(Globals::fontManager.get("upheaval_50"));
+	m_buttons.at("character").setPosition(50.0f, 500.0f);
+	m_buttons.at("character").setSize(Vector2f(100.0f, 50.0f));
+	m_buttons.at("character").setOutlineThickness(5.0f);
+	m_buttons.at("character").setText("Character");
+	m_buttons.at("character").setOffset(2.0f, 7.0f);
+	m_buttons.at("character").setFunction([&]() {
+		m_isRunning = false;
+		m_machine.addStateAtBottom(new CharacterInterface(m_machine));
+	});
+
 	m_buttons.at("ragdoll").setCharset(Globals::fontManager.get("upheaval_50"));
 	m_buttons.at("ragdoll").setPosition(50.0f, 400.0f);
 	m_buttons.at("ragdoll").setSize(Vector2f(100.0f, 50.0f));

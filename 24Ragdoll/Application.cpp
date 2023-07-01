@@ -13,6 +13,7 @@
 
 #include "RagdollInterface.h"
 #include "VehicleInterface.h"
+#include "CharacterInterface.h"
 #include "Menu.h"
 #include "Widget.h"
 
@@ -379,7 +380,8 @@ void Application::initStates() {
 	Machine = new StateMachine(m_dt, m_fdt);
 	//Machine->addStateAtTop(new VehicleInterface(*Machine));
 	//Machine->addStateAtTop(new RagdollInterface(*Machine));
-	Machine->addStateAtTop(new Menu(*Machine));
+	Machine->addStateAtTop(new CharacterInterface(*Machine));
+	//Machine->addStateAtTop(new Menu(*Machine));
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
