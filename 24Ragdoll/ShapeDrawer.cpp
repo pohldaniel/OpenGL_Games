@@ -72,6 +72,7 @@ void ShapeDrawer::shutdown() {
 void ShapeDrawer::drawDynmicsWorld(btDynamicsWorld* dynamicsWorld) {
 	btScalar	m[16];
 	const int	numObjects = dynamicsWorld->getNumCollisionObjects();
+
 	btVector3 wireColor(1, 0, 0);
 	for (int i = 0; i < numObjects; i++) {
 		btCollisionObject* colObj = dynamicsWorld->getCollisionObjectArray()[i];
@@ -100,16 +101,16 @@ void ShapeDrawer::drawShape(btScalar* m, btCollisionShape* shape) {
 			drawShape(&(Matrix4f(m) * Matrix4f(childMat))[0][0], const_cast<btCollisionShape*>(colShape));
 		}
 
-	}else if(shape->getShapeType() == BOX_SHAPE_PROXYTYPE || 
+	}else if(shape->getShapeType() == BOX_SHAPE_PROXYTYPE     || 
 			shape->getShapeType() == CYLINDER_SHAPE_PROXYTYPE || 
-			shape->getShapeType() == CAPSULE_SHAPE_PROXYTYPE) {
+			shape->getShapeType() == CAPSULE_SHAPE_PROXYTYPE  ||
+			shape->getShapeType() == CONVEX_HULL_SHAPE_PROXYTYPE) {
 
 		ShapeCacheConvex* sc = cacheConvex(const_cast<btCollisionShape*>(shape));
 		btShapeHull* hull = &sc->m_shapehull;
 
 		const unsigned int* idx = hull->getIndexPointer();
 		const btVector3* vtx = hull->getVertexPointer();
-
 
 		glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
 		glBufferSubData(GL_ARRAY_BUFFER, 0, hull->numVertices() * sizeof(btVector3), vtx);
@@ -181,7 +182,7 @@ void ShapeDrawer::drawShape(btScalar* m, btCollisionShape* shape) {
 		s_shader->loadVector("u_color", sc->m_color);
 
 		glBindVertexArray(m_vao);
-		glDrawElements(GL_TRIANGLES, sc->m_indices->size(), GL_UNSIGNED_INT, 0);
+		glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(sc->m_indices->size()), GL_UNSIGNED_INT, 0);
 		glBindVertexArray(0);
 
 		glUseProgram(0);

@@ -8,6 +8,10 @@
 #include "Globals.h"
 #include "Menu.h"
 
+#include "BspLoader.h"
+#include "BspConverter.h"
+#include "BspToBulletConverter.h"
+
 CharacterInterface::CharacterInterface(StateMachine& machine) : State(machine, CurrentState::CHARACTERINTERFACE), m_pickConstraint(0) {
 
 	Application::SetCursorIcon(IDC_ARROW);
@@ -16,23 +20,58 @@ CharacterInterface::CharacterInterface(StateMachine& machine) : State(machine, C
 
 	m_camera = Camera();
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
-	m_camera.lookAt(Vector3f(0.0f, 2.0f, 10.0f), Vector3f(0.0f, 2.0f, 10.0f) + Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
+	m_camera.lookAt(Vector3f(0.0f, -2.0f, 10.0f), Vector3f(10.210001f, -2.0306311f, 16.576973f), Vector3f(0.0f, 1.0f, 0.0f));
 	m_camera.setRotationSpeed(0.1f);
 
-	ShapeDrawer::Get().init(32768);
+	//ShapeDrawer::Get().init(32768);
+	ShapeDrawer::Get().init(128);
 	ShapeDrawer::Get().setCamera(m_camera);
 
-	btCollisionShape* groundShape = new btBoxShape(btVector3(200.0f, 10.0f, 200.0f));
-	btTransform groundTransform;
-	groundTransform.setIdentity();
-	groundTransform.setOrigin(btVector3(0.0f, -10.0f, 0.0f));
+	const char* filename = "res/BspDemo.bsp";
 
-	btCollisionObject* fixedGround = new btCollisionObject();
-	fixedGround->setCollisionShape(groundShape);
-	fixedGround->setWorldTransform(groundTransform);
-	Physics::GetDynamicsWorld()->addCollisionObject(fixedGround, Physics::FLOOR | Physics::PICKABLE_OBJECT, Physics::MOUSEPICKER | Physics::PICKABLE_OBJECT);
+	FILE* file = fopen(filename, "r");
+	void* memoryBuffer = 0;
+
+	BspLoader bspLoader;
+	int size = 0;
+	if (fseek(file, 0, SEEK_END) || (size = ftell(file)) == EOF || fseek(file, 0, SEEK_SET)) {
+		printf("Error: cannot get filesize from %s\n", filename);
+	}else {
+		memoryBuffer = malloc(size + 1);
+		fread(memoryBuffer, 1, size, file);
+		bspLoader.loadBSPFile(memoryBuffer);
+
+		BspToBulletConverter bsp2bullet;
+		float bspScaling = 0.1f;
+		bsp2bullet.convertBsp(bspLoader, bspScaling);
+
+	}
 
 	glClearColor(0.7f, 0.7f, 0.7f, 0.0f);
+
+	m_ghostObject = new btPairCachingGhostObject();
+	
+	Physics::GetDynamicsWorld()->getBroadphase()->getOverlappingPairCache()->setInternalGhostPairCallback(new btGhostPairCallback());
+	
+	btScalar characterHeight = 1.75;
+	btScalar characterWidth = 1.75;
+	btConvexShape* capsule = new btCapsuleShape(characterWidth, characterHeight);
+
+	m_ghostObject->setCollisionShape(capsule);
+	m_ghostObject->setCollisionFlags(btCollisionObject::CF_CHARACTER_OBJECT);
+
+	btScalar stepHeight = btScalar(0.35);
+	m_character = new btKinematicCharacterController(m_ghostObject, capsule, stepHeight, btVector3(0.0f, 1.0f, 0.0f));
+
+	btTransform startTransform;
+	startTransform.setIdentity();
+	startTransform.setOrigin(btVector3(10.210001f, -2.0306311f, 16.576973f));
+	m_ghostObject->setWorldTransform(startTransform);
+
+
+	Physics::GetDynamicsWorld()->addCollisionObject(m_ghostObject, btBroadphaseProxy::CharacterFilter, btBroadphaseProxy::StaticFilter | btBroadphaseProxy::DefaultFilter);
+	Physics::GetDynamicsWorld()->addAction(m_character);
+	clientResetScene();
 }
 
 CharacterInterface::~CharacterInterface() {
@@ -42,6 +81,45 @@ CharacterInterface::~CharacterInterface() {
 }
 
 void CharacterInterface::fixedUpdate() {
+
+	///set walkDirection for our character
+	btTransform xform;
+	xform = m_ghostObject->getWorldTransform();
+
+	btVector3 forwardDir = xform.getBasis()[2];
+	btVector3 upDir = xform.getBasis()[1];
+	btVector3 strafeDir = xform.getBasis()[0];
+	forwardDir.normalize();
+	upDir.normalize();
+	strafeDir.normalize();
+
+	btVector3 walkDirection = btVector3(0.0f, 0.0f, 0.0f);
+	btScalar walkVelocity = 1.1f * 4.0f;
+	btScalar walkSpeed = walkVelocity * m_fdt;
+
+	if (gJump && m_character->canJump()) 
+		m_character->jump(btVector3(0.0f, 6.0f, 0.0f));
+	
+	if (gLeft) {
+		btMatrix3x3 orn = m_ghostObject->getWorldTransform().getBasis();
+		orn *= btMatrix3x3(btQuaternion(btVector3(0.0f, 1.0f, 0.0f), 0.01f));
+		m_ghostObject->getWorldTransform().setBasis(orn);
+	}
+
+	if (gRight) {
+		btMatrix3x3 orn = m_ghostObject->getWorldTransform().getBasis();
+		orn *= btMatrix3x3(btQuaternion(btVector3(0.0f, 1.0f, 0.0f), -0.01f));
+		m_ghostObject->getWorldTransform().setBasis(orn);
+	}
+
+	if (gForward)
+		walkDirection += forwardDir;
+
+	if (gBackward)
+		walkDirection -= forwardDir;
+
+	m_character->setWalkDirection(walkDirection*walkSpeed);
+	
 	Globals::physics->stepSimulation(m_fdt);
 }
 
@@ -101,6 +179,32 @@ void CharacterInterface::update() {
 	}
 	m_trackball.idle();
 	m_transform.fromMatrix(m_trackball.getTransform());
+
+	gForward = 0;
+	gBackward = 0;
+	gLeft = 0;
+	gRight = 0;
+	gJump = 0;
+
+	if (keyboard.keyDown(Keyboard::KEY_UP)) {
+		gForward = 1;
+	}
+
+	if (keyboard.keyDown(Keyboard::KEY_DOWN)) {
+		gBackward = 1;
+	}
+
+	if (keyboard.keyDown(Keyboard::KEY_LEFT)) {
+		gLeft = 1;
+	}
+
+	if (keyboard.keyDown(Keyboard::KEY_RIGHT)) {
+		gRight = 1;
+	}
+
+	if (keyboard.keyDown(Keyboard::KEY_LALT)) {
+		gJump = 1;
+	}
 }
 
 void CharacterInterface::render() {
@@ -185,11 +289,13 @@ void CharacterInterface::OnMouseButtonUp(Event::MouseButtonEvent& event) {
 }
 
 void CharacterInterface::OnKeyDown(Event::KeyboardEvent& event) {
-	if (event.keyCode == VK_LMENU) {
-		m_drawUi = true;
-		Mouse::instance().detach();
-		Keyboard::instance().disable();
-	}
+#if DEVBUILD
+	//if (event.keyCode == VK_LMENU) {
+	//	m_drawUi = true;
+	//	Mouse::instance().detach();
+	//	Keyboard::instance().disable();
+	//}
+#endif
 
 	if (event.keyCode == VK_ESCAPE) {
 		ImGui::GetIO().WantCaptureMouse = false;
@@ -306,4 +412,10 @@ void CharacterInterface::removePickingConstraint() {
 		pickedBody->setDeactivationTime(0.0f);
 		pickedBody = 0;
 	}
+}
+
+void CharacterInterface::clientResetScene() {
+	Physics::GetDynamicsWorld()->getBroadphase()->getOverlappingPairCache()->cleanProxyFromPairs(m_ghostObject->getBroadphaseHandle(), Physics::GetDynamicsWorld()->getDispatcher());
+	m_character->reset(Physics::GetDynamicsWorld());
+	m_character->warp(btVector3(10.210001f, -2.0306311f, 16.576973f));
 }

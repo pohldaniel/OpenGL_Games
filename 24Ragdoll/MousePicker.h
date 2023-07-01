@@ -84,6 +84,7 @@ private:
 	float m_pickingDistance;
 	Matrix4f m_model;
 	bool m_hasPicked;
+	bool m_isActivated;
 
 	static std::unique_ptr<Shader> s_shader;
 };

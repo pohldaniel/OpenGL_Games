@@ -3,7 +3,7 @@
 
 std::unique_ptr<Shader> MousePicker::s_shader = nullptr;
 
-MousePicker::MousePicker() : m_callback(btVector3(0.0f, 0.0f, 0.0f), btVector3(0.0f, 0.0f, 0.0f)), m_hasPicked(false) {
+MousePicker::MousePicker() : m_callback(btVector3(0.0f, 0.0f, 0.0f), btVector3(0.0f, 0.0f, 0.0f)), m_hasPicked(false), m_isActivated(false){
 
 	if (!s_shader) {
 		s_shader = std::unique_ptr<Shader>(new Shader(MOUSEPICKER_VERTEX, MOUSEPICKER_FRGAMENT, false));
@@ -62,6 +62,7 @@ void MousePicker::updatePosition(unsigned int posX, unsigned int posY, const Cam
 		m_model[3][1] = m_callback.m_hitPointWorld[1];
 		m_model[3][2] = m_callback.m_hitPointWorld[2];
 		m_model[3][3] = 1.0f;
+		m_isActivated = true;
 	}
 }
 
@@ -83,6 +84,7 @@ bool MousePicker::click(unsigned int posX, unsigned int posY, const Camera& came
 
 	if (m_callback.hasHit()) {
 		m_pickingDistance = (m_callback.m_hitPointWorld - m_callback.m_origin).length();	
+		m_isActivated = true;
 		return true;
 
 	} else {
@@ -134,8 +136,7 @@ void MousePicker::createBuffer() {
 
 void MousePicker::drawPicker(const Camera& camera) {
 
-	if (!(m_debug && m_vao)) return;
-	
+	if (!(m_debug && m_vao) || !m_isActivated) return;
 	glDisable(GL_DEPTH_TEST);
 	glEnable(GL_BLEND);
 	

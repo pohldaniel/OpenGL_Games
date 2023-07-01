@@ -5,6 +5,8 @@
 #include <BulletCollision/CollisionShapes/btCollisionShape.h>
 #include <BulletCollision/CollisionShapes/btShapeHull.h>
 #include <BulletCollision/CollisionShapes/btHeightfieldTerrainShape.h>
+#include <BulletCollision/CollisionDispatch/btGhostObject.h>
+#include <BulletDynamics/Character/btKinematicCharacterController.h>
 #include "engine/Vector.h"
 
 #define MAX_SIMULATION_SUBSTEPS   1
@@ -58,6 +60,7 @@ public:
 
 	void stepSimulation(btScalar timeStep);
 	void debugDrawWorld();
+	btBroadphaseInterface* getBroadphase();
 
 	btRigidBody* addStaticModel(std::vector<btCollisionShape *> & collisionShapes, const btTransform & trans, bool debugDraw = true, const btVector3 & scale = btVector3(1.0f, 1.0f, 1.0f), int collisionFilterGroup = 1, int collisionFilterMask = -1);
 	
@@ -93,7 +96,7 @@ public:
 
 	
 
-	static btDiscreteDynamicsWorld * GetDynamicsWorld();
+	static btDiscreteDynamicsWorld* GetDynamicsWorld();
 
 private:
 

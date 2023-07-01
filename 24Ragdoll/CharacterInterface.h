@@ -32,6 +32,8 @@ private:
 	void pickObject(const btVector3& pickPos, const class btCollisionObject* hitObj);
 	void renderUi();
 
+	void clientResetScene();
+
 	Camera m_camera;
 	TrackBall m_trackball;
 	Transform m_transform;
@@ -43,4 +45,13 @@ private:
 	btTypedConstraint* m_pickConstraint;
 	btRigidBody* pickedBody = 0;
 	btScalar mousePickClamping = 30.f;
+
+	btKinematicCharacterController* m_character;
+	btPairCachingGhostObject* m_ghostObject;
+
+	int gForward = 0;
+	int gBackward = 0;
+	int gLeft = 0;
+	int gRight = 0;
+	int gJump = 0;
 };

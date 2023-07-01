@@ -48,6 +48,10 @@ void Physics::deinitialize(){
 	delete m_collisionConfiguration;
 }
 
+btBroadphaseInterface* Physics::getBroadphase() {
+	return m_broadphase;
+}
+
 void Physics::removeCollisionObject(btCollisionObject* obj) {
 	btRigidBody* body = btRigidBody::upcast(obj);
 	

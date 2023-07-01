@@ -252,6 +252,12 @@
     <ClCompile Include="CharacterInterface.cpp">
       <Filter>Source Files\States</Filter>
     </ClCompile>
+    <ClCompile Include="BspConverter.cpp">
+      <Filter>Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="BspLoader.cpp">
+      <Filter>Physics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h">
@@ -472,6 +478,15 @@
     </ClInclude>
     <ClInclude Include="CharacterInterface.h">
       <Filter>Source Files\States</Filter>
+    </ClInclude>
+    <ClInclude Include="BspConverter.h">
+      <Filter>Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="BspLoader.h">
+      <Filter>Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="BspToBulletConverter.h">
+      <Filter>Physics</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

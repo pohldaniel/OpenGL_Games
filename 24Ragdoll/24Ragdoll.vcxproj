@@ -155,6 +155,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Application.cpp" />
+    <ClCompile Include="BspConverter.cpp" />
+    <ClCompile Include="BspLoader.cpp" />
     <ClCompile Include="Button.cpp" />
     <ClCompile Include="CharacterInterface.cpp" />
     <ClCompile Include="engine\ArrayBuffer.cpp" />
@@ -225,6 +227,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h" />
+    <ClInclude Include="BspConverter.h" />
+    <ClInclude Include="BspLoader.h" />
+    <ClInclude Include="BspToBulletConverter.h" />
     <ClInclude Include="Button.h" />
     <ClInclude Include="CharacterInterface.h" />
     <ClInclude Include="engine\ArrayBuffer.h" />

@@ -151,8 +151,7 @@ LRESULT CALLBACK Application::StaticWndProc(HWND hWnd, UINT message, WPARAM wPar
 		}
 	}
 
-	if (wParam == SC_KEYMENU && (lParam >> 16) <= 0) {
-		
+	if (wParam == SC_KEYMENU && (lParam >> 16) <= 0) {		
 		return 0;
 	}
 
