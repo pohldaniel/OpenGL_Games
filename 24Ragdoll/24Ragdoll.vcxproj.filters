@@ -46,6 +46,39 @@
     <Filter Include="Physics">
       <UniqueIdentifier>{25bd00d9-4d5e-4732-bac4-aec51435a245}</UniqueIdentifier>
     </Filter>
+    <Filter Include="urho3d">
+      <UniqueIdentifier>{d3b3bb60-f8c9-494b-9454-5d60b7cce435}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="urho3d\Container">
+      <UniqueIdentifier>{a0d29257-e85f-49f2-98ff-e530492c4611}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="urho3d\IO">
+      <UniqueIdentifier>{8a9cdefc-37ac-452a-8453-bb07d54c983b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="urho3d\Core">
+      <UniqueIdentifier>{514fcb53-b353-4624-958e-fc3d958028f7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="urho3d\Math">
+      <UniqueIdentifier>{7781461d-6c21-4f75-bbd7-02f79ca81a12}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="urho3d\Engine">
+      <UniqueIdentifier>{08c23e5c-d71d-490c-8428-c171d0f102b7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="urho3d\LZ4">
+      <UniqueIdentifier>{b06ed989-0c41-46b2-9f57-8a7dbb951d76}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="urho3d\LibCouId">
+      <UniqueIdentifier>{dc0aaac0-3900-4c6c-9ea2-07638e91123b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="urho3d\Graphics">
+      <UniqueIdentifier>{0fd2fd04-2ce1-4076-8011-cb9c15d8162e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="urho3d\Resource">
+      <UniqueIdentifier>{63dc3be0-95bd-4c1d-b787-18f13f0a0ff7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="urho3d\JO">
+      <UniqueIdentifier>{81cedd3d-8c01-441e-8d73-6b4c4f58c0fe}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -257,6 +290,198 @@
     </ClCompile>
     <ClCompile Include="BspLoader.cpp">
       <Filter>Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Container\Allocator.cpp">
+      <Filter>urho3d\Container</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Container\HashBase.cpp">
+      <Filter>urho3d\Container</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Container\RefCounted.cpp">
+      <Filter>urho3d\Container</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Container\Str.cpp">
+      <Filter>urho3d\Container</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Container\Swap.cpp">
+      <Filter>urho3d\Container</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Container\VectorBase.cpp">
+      <Filter>urho3d\Container</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\LibraryInfo.cpp">
+      <Filter>urho3d</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Precompiled.cpp">
+      <Filter>urho3d</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\IO\Log.cpp">
+      <Filter>urho3d\IO</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\IO\File.cpp">
+      <Filter>urho3d\IO</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Core\Variant.cpp">
+      <Filter>urho3d\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Core\Mutex.cpp">
+      <Filter>urho3d\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Core\StringUtils.cpp">
+      <Filter>urho3d\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Math\Color.cpp">
+      <Filter>urho3d\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Math\Rect.cpp">
+      <Filter>urho3d\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Math\Vector2.cpp">
+      <Filter>urho3d\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Math\Quaternion.cpp">
+      <Filter>urho3d\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Math\MathDefs.cpp">
+      <Filter>urho3d\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Math\Matrix3.cpp">
+      <Filter>urho3d\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Math\Vector3.cpp">
+      <Filter>urho3d\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Math\Vector4.cpp">
+      <Filter>urho3d\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Math\Matrix3x4.cpp">
+      <Filter>urho3d\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Math\StringHash.cpp">
+      <Filter>urho3d\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\IO\VectorBuffer.cpp">
+      <Filter>urho3d\IO</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\IO\Deserializer.cpp">
+      <Filter>urho3d\IO</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Math\BoundingBox.cpp">
+      <Filter>urho3d\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Math\Polyhedron.cpp">
+      <Filter>urho3d\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Math\Plane.cpp">
+      <Filter>urho3d\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Math\Sphere.cpp">
+      <Filter>urho3d\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Core\Thread.cpp">
+      <Filter>urho3d\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Core\Context.cpp">
+      <Filter>urho3d\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Core\EventProfiler.cpp">
+      <Filter>urho3d\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Core\Profiler.cpp">
+      <Filter>urho3d\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\IO\Serializer.cpp">
+      <Filter>urho3d\IO</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Core\ProcessUtils.cpp">
+      <Filter>urho3d\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\IO\FileSystem.cpp">
+      <Filter>urho3d\IO</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\IO\MemoryBuffer.cpp">
+      <Filter>urho3d\IO</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\IO\PackageFile.cpp">
+      <Filter>urho3d\IO</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\LZ4\lz4.c">
+      <Filter>urho3d\LZ4</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\LZ4\lz4hc.c">
+      <Filter>urho3d\LZ4</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\LibCpuId\src\asm-bits.c">
+      <Filter>urho3d\LibCouId</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\LibCpuId\src\cpuid_main.c">
+      <Filter>urho3d\LibCouId</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\LibCpuId\src\libcpuid_util.c">
+      <Filter>urho3d\LibCouId</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\LibCpuId\src\rdtsc.c">
+      <Filter>urho3d\LibCouId</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\LibCpuId\src\recog_amd.c">
+      <Filter>urho3d\LibCouId</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\LibCpuId\src\recog_intel.c">
+      <Filter>urho3d\LibCouId</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Math\_Frustum.cpp">
+      <Filter>urho3d\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Math\_Random.cpp">
+      <Filter>urho3d\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Core\_Timer.cpp">
+      <Filter>urho3d\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Core\_Object.cpp">
+      <Filter>urho3d\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Math\Matrix4.cpp">
+      <Filter>urho3d\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Resource\Resource.cpp">
+      <Filter>urho3d\Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Resource\JSONValue.cpp">
+      <Filter>urho3d\Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Resource\XMLElement.cpp">
+      <Filter>urho3d\Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Resource\XMLFile.cpp">
+      <Filter>urho3d\Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Resource\ResourceCache.cpp">
+      <Filter>urho3d\Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Core\WorkQueue.cpp">
+      <Filter>urho3d\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\IO\FileWatcher.cpp">
+      <Filter>urho3d\IO</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Resource\BackgroundLoader.cpp">
+      <Filter>urho3d\Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Resource\Image.cpp">
+      <Filter>urho3d\Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Resource\JSONFile.cpp">
+      <Filter>urho3d\Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Resource\PListFile.cpp">
+      <Filter>urho3d\Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Resource\Decompress.cpp">
+      <Filter>urho3d\Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\JO\jo_jpeg.cpp">
+      <Filter>urho3d\JO</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -488,5 +713,283 @@
     <ClInclude Include="BspToBulletConverter.h">
       <Filter>Physics</Filter>
     </ClInclude>
+    <ClInclude Include="urho3d\Container\Allocator.h">
+      <Filter>urho3d\Container</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Container\ArrayPtr.h">
+      <Filter>urho3d\Container</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Container\ForEach.h">
+      <Filter>urho3d\Container</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Container\Hash.h">
+      <Filter>urho3d\Container</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Container\HashBase.h">
+      <Filter>urho3d\Container</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Container\HashMap.h">
+      <Filter>urho3d\Container</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Container\HashSet.h">
+      <Filter>urho3d\Container</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Container\LinkedList.h">
+      <Filter>urho3d\Container</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Container\List.h">
+      <Filter>urho3d\Container</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Container\ListBase.h">
+      <Filter>urho3d\Container</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Container\Pair.h">
+      <Filter>urho3d\Container</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Container\Ptr.h">
+      <Filter>urho3d\Container</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Container\RefCounted.h">
+      <Filter>urho3d\Container</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Container\Sort.h">
+      <Filter>urho3d\Container</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Container\Str.h">
+      <Filter>urho3d\Container</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Container\Swap.h">
+      <Filter>urho3d\Container</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Container\Vector.h">
+      <Filter>urho3d\Container</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Container\VectorBase.h">
+      <Filter>urho3d\Container</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\librevision.h">
+      <Filter>urho3d</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Urho3D.h">
+      <Filter>urho3d</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\DebugNew.h">
+      <Filter>urho3d</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\LibraryInfo.h">
+      <Filter>urho3d</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Precompiled.h">
+      <Filter>urho3d</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\IO\Log.h">
+      <Filter>urho3d\IO</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\IO\File.h">
+      <Filter>urho3d\IO</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\IO\IOEvents.h">
+      <Filter>urho3d\IO</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\IO\AbstractFile.h">
+      <Filter>urho3d\IO</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Core\Object.h">
+      <Filter>urho3d\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Core\Variant.h">
+      <Filter>urho3d\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Core\Mutex.h">
+      <Filter>urho3d\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Core\StringUtils.h">
+      <Filter>urho3d\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Math\Color.h">
+      <Filter>urho3d\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Math\Rect.h">
+      <Filter>urho3d\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Math\Vector2.h">
+      <Filter>urho3d\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Math\Quaternion.h">
+      <Filter>urho3d\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Math\MathDefs.h">
+      <Filter>urho3d\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Math\Matrix3.h">
+      <Filter>urho3d\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Math\Vector3.h">
+      <Filter>urho3d\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Math\Vector4.h">
+      <Filter>urho3d\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Math\Random.h">
+      <Filter>urho3d\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Math\Matrix3x4.h">
+      <Filter>urho3d\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Math\StringHash.h">
+      <Filter>urho3d\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\IO\VectorBuffer.h">
+      <Filter>urho3d\IO</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\IO\Deserializer.h">
+      <Filter>urho3d\IO</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Math\BoundingBox.h">
+      <Filter>urho3d\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Math\Frustum.h">
+      <Filter>urho3d\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Math\Polyhedron.h">
+      <Filter>urho3d\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Math\Plane.h">
+      <Filter>urho3d\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Math\Sphere.h">
+      <Filter>urho3d\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Core\Thread.h">
+      <Filter>urho3d\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Core\Context.h">
+      <Filter>urho3d\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Core\Attribute.h">
+      <Filter>urho3d\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Core\EventProfiler.h">
+      <Filter>urho3d\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Core\Profiler.h">
+      <Filter>urho3d\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Core\Timer.h">
+      <Filter>urho3d\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Core\CoreEvents.h">
+      <Filter>urho3d\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\IO\Serializer.h">
+      <Filter>urho3d\IO</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Core\ProcessUtils.h">
+      <Filter>urho3d\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\IO\FileSystem.h">
+      <Filter>urho3d\IO</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Engine\EngineEvents.h">
+      <Filter>urho3d\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\IO\MemoryBuffer.h">
+      <Filter>urho3d\IO</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\IO\PackageFile.h">
+      <Filter>urho3d\IO</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\LZ4\lz4.h">
+      <Filter>urho3d\LZ4</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\LZ4\lz4hc.h">
+      <Filter>urho3d\LZ4</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\LZ4\lz4opt.h">
+      <Filter>urho3d\LZ4</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\LibCpuId\src\amd_code_t.h">
+      <Filter>urho3d\LibCouId</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\LibCpuId\src\asm-bits.h">
+      <Filter>urho3d\LibCouId</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\LibCpuId\src\intel_code_t.h">
+      <Filter>urho3d\LibCouId</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\LibCpuId\src\libcpuid.h">
+      <Filter>urho3d\LibCouId</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\LibCpuId\src\libcpuid_constants.h">
+      <Filter>urho3d\LibCouId</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\LibCpuId\src\libcpuid_internal.h">
+      <Filter>urho3d\LibCouId</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\LibCpuId\src\libcpuid_types.h">
+      <Filter>urho3d\LibCouId</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\LibCpuId\src\libcpuid_util.h">
+      <Filter>urho3d\LibCouId</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\LibCpuId\src\rdtsc.h">
+      <Filter>urho3d\LibCouId</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\LibCpuId\src\recog_amd.h">
+      <Filter>urho3d\LibCouId</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\LibCpuId\src\recog_intel.h">
+      <Filter>urho3d\LibCouId</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Math\Matrix4.h">
+      <Filter>urho3d\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Resource\Resource.h">
+      <Filter>urho3d\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Resource\JSONValue.h">
+      <Filter>urho3d\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Resource\XMLElement.h">
+      <Filter>urho3d\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Resource\XMLFile.h">
+      <Filter>urho3d\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Resource\ResourceCache.h">
+      <Filter>urho3d\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Core\WorkQueue.h">
+      <Filter>urho3d\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\IO\FileWatcher.h">
+      <Filter>urho3d\IO</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Resource\BackgroundLoader.h">
+      <Filter>urho3d\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Resource\Image.h">
+      <Filter>urho3d\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Resource\JSONFile.h">
+      <Filter>urho3d\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Resource\PListFile.h">
+      <Filter>urho3d\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Resource\ResourceEvents.h">
+      <Filter>urho3d\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Resource\Decompress.h">
+      <Filter>urho3d\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\JO\jo_jpeg.h">
+      <Filter>urho3d\JO</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Object Include="urho3d\LibCpuId\src\masm-x64.obj">
+      <Filter>urho3d\LibCouId</Filter>
+    </Object>
   </ItemGroup>
 </Project>
