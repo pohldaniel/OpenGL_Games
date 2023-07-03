@@ -88,13 +88,13 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;VERSION="0.4.0";_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;GLEW_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;..\libglew;..\libimgui;..\libassimp\include;..\libfreetype\include;..\openal\include;..\sndfile\include;..\libbullet;..\libsoil2;%(AdditionalIncludeDirectories);C:\Program Files (x86)\Windows Kits\8.1\Include\um</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;urho3d;urho3d\rapidjson\include;..\libglew;..\libimgui;..\libassimp;..\libassimp\include;..\openal\include;..\sndfile\include;..\libfreetype\include;..\libbullet;..\libsoil2;..\libjsoncpp\include;..\libjpeg\include;..\libpng\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>..\libd\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>OpenGl32.lib;libglew.lib;libimgui.lib;libassimp.lib;libzlib.lib;libfreetype.lib;libopenal.lib;libflac.lib;libmpg.lib;liblame.lib;libsndfile.lib;winmm.lib;shlwapi.lib;libbullet.lib;libsoil2.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>OpenGl32.lib;libglew.lib;libimgui.lib;libassimp.lib;libzlib.lib;libfreetype.lib;libopenal.lib;libflac.lib;libmpg.lib;liblame.lib;libsndfile.lib;winmm.lib;shlwapi.lib;libbullet.lib;libsoil2.lib;d3dcompiler.lib;d3d9.lib;libjsoncpp.lib;libpng.lib;libjpeg.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -104,13 +104,13 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;VERSION="0.4.0";_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;GLEW_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;..\libglew;..\libimgui;..\libassimp\include;..\libfreetype\include;..\openal\include;..\sndfile\include;..\libbullet;..\libsoil2;%(AdditionalIncludeDirectories);C:\Program Files (x86)\Windows Kits\8.1\Include\um</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;urho3d;urho3d\rapidjson\include;..\libglew;..\libimgui;..\libassimp;..\libassimp\include;..\openal\include;..\sndfile\include;..\libfreetype\include;..\libbullet;..\libsoil2;..\libjsoncpp\include;..\libjpeg\include;..\libpng\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>..\libd\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>OpenGl32.lib;libglew.lib;libimgui.lib;libassimp.lib;libzlib.lib;libfreetype.lib;libopenal.lib;libflac.lib;libmpg.lib;liblame.lib;libsndfile.lib;winmm.lib;shlwapi.lib;libbullet.lib;libsoil2.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>OpenGl32.lib;libglew.lib;libimgui.lib;libassimp.lib;libzlib.lib;libfreetype.lib;libopenal.lib;libflac.lib;libmpg.lib;liblame.lib;libsndfile.lib;winmm.lib;shlwapi.lib;libbullet.lib;libsoil2.lib;d3dcompiler.lib;d3d9.lib;libjsoncpp.lib;libpng.lib;libjpeg.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -122,7 +122,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;VERSION="0.4.0";NDEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;GLEW_STATIC;URHO3D_ANGELSCRIPT;URHO3D_FILEWATCHER;URHO3D_LOGGING;URHO3D_LUA;URHO3D_MINIDUMPS;URHO3D_NAVIGATION;URHO3D_NETWORK;URHO3D_PROFILING;URHO3D_THREADING;URHO3D_IS_BUILDING;TOLUA_RELEASE;HAVE_RTL_OSVERSIONINFOW;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;..\libglew;..\libimgui;..\libassimp\include;..\libfreetype\include;..\openal\include;..\sndfile\include;..\libbullet;..\libsoil2;%(AdditionalIncludeDirectories);C:\Program Files (x86)\Windows Kits\8.1\Include\um</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;urho3d;urho3d\rapidjson\include;..\libglew;..\libimgui;..\libassimp;..\libassimp\include;..\openal\include;..\sndfile\include;..\libfreetype\include;..\libbullet;..\libsoil2;..\libjsoncpp\include;..\libjpeg\include;..\libpng\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -130,7 +130,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>..\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>OpenGl32.lib;libglew.lib;libimgui.lib;libassimp.lib;libzlib.lib;libfreetype.lib;libopenal.lib;libflac.lib;libmpg.lib;liblame.lib;libsndfile.lib;winmm.lib;shlwapi.lib;libbullet.lib;libsoil2.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>OpenGl32.lib;libglew.lib;libimgui.lib;libassimp.lib;libzlib.lib;libfreetype.lib;libopenal.lib;libflac.lib;libmpg.lib;liblame.lib;libsndfile.lib;winmm.lib;shlwapi.lib;libbullet.lib;libsoil2.lib;d3dcompiler.lib;d3d9.lib;libjsoncpp.lib;libpng.lib;libjpeg.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -142,7 +142,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;VERSION="0.4.0";NDEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;GLEW_STATIC;URHO3D_ANGELSCRIPT;URHO3D_FILEWATCHER;URHO3D_LOGGING;URHO3D_LUA;URHO3D_MINIDUMPS;URHO3D_NAVIGATION;URHO3D_NETWORK;URHO3D_PROFILING;URHO3D_THREADING;URHO3D_IS_BUILDING;TOLUA_RELEASE;HAVE_RTL_OSVERSIONINFOW;URHO3D_IS_BUILDING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;urho3d;urho3d\rapidjson\include;..\libglew;..\libimgui;..\libassimp;..\libassimp\include;..\openal\include;..\sndfile\include;..\libfreetype\include;..\libbullet;..\libsoil2;%(AdditionalIncludeDirectories);C:\Program Files (x86)\Windows Kits\8.1\Include\um</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;urho3d;urho3d\rapidjson\include;..\libglew;..\libimgui;..\libassimp;..\libassimp\include;..\openal\include;..\sndfile\include;..\libfreetype\include;..\libbullet;..\libsoil2;..\libjsoncpp\include;..\libjpeg\include;..\libpng\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -150,7 +150,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>..\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>OpenGl32.lib;libglew.lib;libimgui.lib;libassimp.lib;libzlib.lib;libfreetype.lib;libopenal.lib;libflac.lib;libmpg.lib;liblame.lib;libsndfile.lib;winmm.lib;shlwapi.lib;libbullet.lib;libsoil2.lib;d3dcompiler.lib;d3d9.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>OpenGl32.lib;libglew.lib;libimgui.lib;libassimp.lib;libzlib.lib;libfreetype.lib;libopenal.lib;libflac.lib;libmpg.lib;liblame.lib;libsndfile.lib;winmm.lib;shlwapi.lib;libbullet.lib;libsoil2.lib;d3dcompiler.lib;d3d9.lib;libjsoncpp.lib;libpng.lib;libjpeg.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -204,8 +204,24 @@
     <ClCompile Include="engine\Transform.cpp" />
     <ClCompile Include="engine\Vector.cpp" />
     <ClCompile Include="engine\VolumeBuffer.cpp" />
+    <ClCompile Include="Game.cpp" />
     <ClCompile Include="HeightField.cpp" />
     <ClCompile Include="heightfield128x128.cpp" />
+    <ClCompile Include="lugaru\Environment\Lights.cpp" />
+    <ClCompile Include="lugaru\Environment\_Terrain.cpp" />
+    <ClCompile Include="lugaru\Graphic\Decal.cpp" />
+    <ClCompile Include="lugaru\Graphic\ModelLu.cpp" />
+    <ClCompile Include="lugaru\Graphic\TextureLu.cpp" />
+    <ClCompile Include="lugaru\Math\FrustumLu.cpp" />
+    <ClCompile Include="lugaru\Math\XYZ.cpp" />
+    <ClCompile Include="lugaru\Platform\PlatformWindows.cpp" />
+    <ClCompile Include="lugaru\Utils\Folders.cpp" />
+    <ClCompile Include="lugaru\Utils\ImageIO.cpp" />
+    <ClCompile Include="lugaru\Utils\Input.cpp" />
+    <ClCompile Include="lugaru\Utils\pack.c" />
+    <ClCompile Include="lugaru\Utils\private.c" />
+    <ClCompile Include="lugaru\Utils\unpack.c" />
+    <ClCompile Include="lugaru\_Globals.cpp" />
     <ClCompile Include="Menu.cpp" />
     <ClCompile Include="MousePicker.cpp" />
     <ClCompile Include="PhysicsCar.cpp" />
@@ -778,6 +794,7 @@
     <ClInclude Include="engine\ArrayBuffer.h" />
     <ClInclude Include="engine\CubeBuffer.h" />
     <ClInclude Include="engine\input\Mouse.h" />
+    <ClInclude Include="Game.h" />
     <ClInclude Include="Globals.h" />
     <ClInclude Include="convhull\convhull_3d.h" />
     <ClInclude Include="engine\AssetManger.h" />
@@ -827,6 +844,20 @@
     <ClInclude Include="engine\Vector.h" />
     <ClInclude Include="engine\VolumeBuffer.h" />
     <ClInclude Include="HeightField.h" />
+    <ClInclude Include="lugaru\Environment\Lights.hpp" />
+    <ClInclude Include="lugaru\Environment\Terrain.hpp" />
+    <ClInclude Include="lugaru\Graphic\Decal.hpp" />
+    <ClInclude Include="lugaru\Graphic\ModelLu.hpp" />
+    <ClInclude Include="lugaru\Graphic\TextureLu.hpp" />
+    <ClInclude Include="lugaru\Math\FrustumLu.hpp" />
+    <ClInclude Include="lugaru\Math\RandomLu.hpp" />
+    <ClInclude Include="lugaru\Math\XYZ.hpp" />
+    <ClInclude Include="lugaru\Platform\Platform.hpp" />
+    <ClInclude Include="lugaru\Utils\binio.h" />
+    <ClInclude Include="lugaru\Utils\Folders.hpp" />
+    <ClInclude Include="lugaru\Utils\ImageIO.hpp" />
+    <ClInclude Include="lugaru\Utils\Input.hpp" />
+    <ClInclude Include="lugaru\Utils\private.h" />
     <ClInclude Include="Menu.h" />
     <ClInclude Include="MousePicker.h" />
     <ClInclude Include="PhysicsCar.h" />

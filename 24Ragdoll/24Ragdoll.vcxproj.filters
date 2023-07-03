@@ -88,6 +88,24 @@
     <Filter Include="urho3d\MojoShader">
       <UniqueIdentifier>{29c38476-f26d-40b7-92db-99b798907166}</UniqueIdentifier>
     </Filter>
+    <Filter Include="lugaru">
+      <UniqueIdentifier>{05168ae8-2034-4a95-a578-7a45883d4b43}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="lugaru\Graphic">
+      <UniqueIdentifier>{ae2a81e2-f601-4061-8d05-a0477d5b71e5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="lugaru\Math">
+      <UniqueIdentifier>{a85e621b-4124-499f-95a0-e2680a8fc602}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="lugaru\Environment">
+      <UniqueIdentifier>{926da722-0b72-470d-8c5d-364bbfc53436}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="lugaru\Utils">
+      <UniqueIdentifier>{0625e188-64f7-4ee4-b728-ffaeba0c3f1b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="lugaru\Platform">
+      <UniqueIdentifier>{09bd7842-4cf6-42c6-b70f-075a981acc62}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -740,6 +758,54 @@
     </ClCompile>
     <ClCompile Include="urho3d\Graphics\GraphicsDefs.cpp">
       <Filter>urho3d\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="lugaru\Math\FrustumLu.cpp">
+      <Filter>lugaru\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="lugaru\Math\XYZ.cpp">
+      <Filter>lugaru\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="lugaru\Graphic\ModelLu.cpp">
+      <Filter>lugaru\Graphic</Filter>
+    </ClCompile>
+    <ClCompile Include="lugaru\Utils\Folders.cpp">
+      <Filter>lugaru\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="lugaru\Utils\ImageIO.cpp">
+      <Filter>lugaru\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="lugaru\Utils\Input.cpp">
+      <Filter>lugaru\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="lugaru\Utils\pack.c">
+      <Filter>lugaru\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="lugaru\Utils\private.c">
+      <Filter>lugaru\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="lugaru\Utils\unpack.c">
+      <Filter>lugaru\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="lugaru\Graphic\TextureLu.cpp">
+      <Filter>lugaru\Graphic</Filter>
+    </ClCompile>
+    <ClCompile Include="lugaru\Graphic\Decal.cpp">
+      <Filter>lugaru\Graphic</Filter>
+    </ClCompile>
+    <ClCompile Include="lugaru\Environment\_Terrain.cpp">
+      <Filter>lugaru\Environment</Filter>
+    </ClCompile>
+    <ClCompile Include="lugaru\Environment\Lights.cpp">
+      <Filter>lugaru\Environment</Filter>
+    </ClCompile>
+    <ClCompile Include="lugaru\Platform\PlatformWindows.cpp">
+      <Filter>lugaru\Platform</Filter>
+    </ClCompile>
+    <ClCompile Include="lugaru\_Globals.cpp">
+      <Filter>lugaru</Filter>
+    </ClCompile>
+    <ClCompile Include="Game.cpp">
+      <Filter>Source Files\States</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1474,6 +1540,51 @@
     </ClInclude>
     <ClInclude Include="urho3d\Graphics\GraphicsDefs.h">
       <Filter>urho3d\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="lugaru\Math\FrustumLu.hpp">
+      <Filter>lugaru\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="lugaru\Math\RandomLu.hpp">
+      <Filter>lugaru\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="lugaru\Math\XYZ.hpp">
+      <Filter>lugaru\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="lugaru\Graphic\ModelLu.hpp">
+      <Filter>lugaru\Graphic</Filter>
+    </ClInclude>
+    <ClInclude Include="lugaru\Utils\binio.h">
+      <Filter>lugaru\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="lugaru\Utils\Folders.hpp">
+      <Filter>lugaru\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="lugaru\Utils\ImageIO.hpp">
+      <Filter>lugaru\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="lugaru\Utils\Input.hpp">
+      <Filter>lugaru\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="lugaru\Utils\private.h">
+      <Filter>lugaru\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="lugaru\Graphic\TextureLu.hpp">
+      <Filter>lugaru\Graphic</Filter>
+    </ClInclude>
+    <ClInclude Include="lugaru\Graphic\Decal.hpp">
+      <Filter>lugaru\Graphic</Filter>
+    </ClInclude>
+    <ClInclude Include="lugaru\Environment\Terrain.hpp">
+      <Filter>lugaru\Environment</Filter>
+    </ClInclude>
+    <ClInclude Include="lugaru\Environment\Lights.hpp">
+      <Filter>lugaru\Environment</Filter>
+    </ClInclude>
+    <ClInclude Include="lugaru\Platform\Platform.hpp">
+      <Filter>lugaru\Platform</Filter>
+    </ClInclude>
+    <ClInclude Include="Game.h">
+      <Filter>Source Files\States</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
