@@ -94,7 +94,7 @@ inline void SetFPUState(unsigned control)
 #endif
 
 #ifndef MINI_URHO
-#include <SDL/SDL.h>
+//#include <SDL/SDL.h>
 #endif
 
 #include "../DebugNew.h"
@@ -187,7 +187,7 @@ void InitFPU()
 void ErrorDialog(const String& title, const String& message)
 {
 #ifndef MINI_URHO
-    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, title.CString(), message.CString(), 0);
+    //SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, title.CString(), message.CString(), 0);
 #endif
 }
 
@@ -498,7 +498,7 @@ void SetMiniDumpDir(const String& pathName)
 String GetMiniDumpDir()
 {
 #ifndef MINI_URHO
-    if (miniDumpDir.Empty())
+    /*if (miniDumpDir.Empty())
     {
         char* pathName = SDL_GetPrefPath("urho3d", "crashdumps");
         if (pathName)
@@ -507,7 +507,7 @@ String GetMiniDumpDir()
             SDL_free(pathName);
             return ret;
         }
-    }
+    }*/
 #endif
 
     return miniDumpDir;

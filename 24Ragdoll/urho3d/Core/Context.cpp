@@ -27,7 +27,7 @@
 #include "../IO/Log.h"
 
 #ifndef MINI_URHO
-#include <SDL/SDL.h>
+//#include <SDL/SDL.h>
 #ifdef URHO3D_IK
 #include <ik/log.h>
 #include <ik/memory.h>
@@ -238,7 +238,7 @@ bool Context::RequireSDL(unsigned int sdlFlags)
 {
     // Always increment, the caller must match with ReleaseSDL(), regardless of
     // what happens.
-    ++sdlInitCounter;
+    /*++sdlInitCounter;
 
     // Need to call SDL_Init() at least once before SDL_InitSubsystem()
     if (sdlInitCounter == 1)
@@ -259,7 +259,7 @@ bool Context::RequireSDL(unsigned int sdlFlags)
             URHO3D_LOGERRORF("Failed to initialise SDL subsystem: %s", SDL_GetError());
             return false;
         }
-    }
+    }*/
 
     return true;
 }
@@ -271,8 +271,8 @@ void Context::ReleaseSDL()
     if (sdlInitCounter == 0)
     {
         URHO3D_LOGDEBUG("Quitting SDL");
-        SDL_QuitSubSystem(SDL_INIT_EVERYTHING);
-        SDL_Quit();
+        //SDL_QuitSubSystem(SDL_INIT_EVERYTHING);
+        //SDL_Quit();
     }
 
     if (sdlInitCounter < 0)

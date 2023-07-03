@@ -37,7 +37,7 @@
 #endif
 
 #ifndef MINI_URHO
-#include <SDL/SDL_filesystem.h>
+//#include <SDL/SDL_filesystem.h>
 #endif
 
 #include <sys/stat.h>
@@ -97,13 +97,13 @@ int DoSystemCommand(const String& commandLine, bool redirectToLog, Context* cont
     // Get a platform-agnostic temporary file name for stderr redirection
     String stderrFilename;
     String adjustedCommandLine(commandLine);
-    char* prefPath = SDL_GetPrefPath("urho3d", "temp");
+    /*char* prefPath = SDL_GetPrefPath("urho3d", "temp");
     if (prefPath)
     {
         stderrFilename = String(prefPath) + "command-stderr";
         adjustedCommandLine += " 2>" + stderrFilename;
         SDL_free(prefPath);
-    }
+    }*/
 
 #ifdef _MSC_VER
     #define popen _popen
@@ -746,13 +746,13 @@ String FileSystem::GetAppPreferencesDir(const String& org, const String& app) co
 {
     String dir;
 #ifndef MINI_URHO
-    char* prefPath = SDL_GetPrefPath(org.CString(), app.CString());
+    /*char* prefPath = SDL_GetPrefPath(org.CString(), app.CString());
     if (prefPath)
     {
         dir = GetInternalPath(String(prefPath));
         SDL_free(prefPath);
     }
-    else
+    else*/
 #endif
         URHO3D_LOGWARNING("Could not get application preferences directory");
 

@@ -29,7 +29,7 @@
 #include "../IO/Log.h"
 #include "../Resource/Decompress.h"
 
-#include <ddraw.h>
+
 #include <JO/jo_jpeg.h>
 //#include <SDL/SDL_surface.h>
 #include <SOIL2/stb_image.h>
@@ -54,18 +54,18 @@
 #define FOURCC_DXT5 (MAKEFOURCC('D','X','T','5'))
 #define FOURCC_DX10 (MAKEFOURCC('D','X','1','0'))
 
-//static const unsigned DDSCAPS_COMPLEX = 0x00000008U;
-//static const unsigned DDSCAPS_TEXTURE = 0x00001000U;
-//static const unsigned DDSCAPS_MIPMAP = 0x00400000U;
-//static const unsigned DDSCAPS2_VOLUME = 0x00200000U;
-//static const unsigned DDSCAPS2_CUBEMAP = 0x00000200U;
+static const unsigned DDSCAPS_COMPLEX = 0x00000008U;
+static const unsigned DDSCAPS_TEXTURE = 0x00001000U;
+static const unsigned DDSCAPS_MIPMAP = 0x00400000U;
+static const unsigned DDSCAPS2_VOLUME = 0x00200000U;
+static const unsigned DDSCAPS2_CUBEMAP = 0x00000200U;
 
-//static const unsigned DDSCAPS2_CUBEMAP_POSITIVEX = 0x00000400U;
-//static const unsigned DDSCAPS2_CUBEMAP_NEGATIVEX = 0x00000800U;
-//static const unsigned DDSCAPS2_CUBEMAP_POSITIVEY = 0x00001000U;
-//static const unsigned DDSCAPS2_CUBEMAP_NEGATIVEY = 0x00002000U;
-//static const unsigned DDSCAPS2_CUBEMAP_POSITIVEZ = 0x00004000U;
-//static const unsigned DDSCAPS2_CUBEMAP_NEGATIVEZ = 0x00008000U;
+static const unsigned DDSCAPS2_CUBEMAP_POSITIVEX = 0x00000400U;
+static const unsigned DDSCAPS2_CUBEMAP_NEGATIVEX = 0x00000800U;
+static const unsigned DDSCAPS2_CUBEMAP_POSITIVEY = 0x00001000U;
+static const unsigned DDSCAPS2_CUBEMAP_NEGATIVEY = 0x00002000U;
+static const unsigned DDSCAPS2_CUBEMAP_POSITIVEZ = 0x00004000U;
+static const unsigned DDSCAPS2_CUBEMAP_NEGATIVEZ = 0x00008000U;
 static const unsigned DDSCAPS2_CUBEMAP_ALL_FACES = 0x0000FC00U;
 
 // DX10 flags

@@ -79,6 +79,15 @@
     <Filter Include="urho3d\JO">
       <UniqueIdentifier>{81cedd3d-8c01-441e-8d73-6b4c4f58c0fe}</UniqueIdentifier>
     </Filter>
+    <Filter Include="urho3d\Scene">
+      <UniqueIdentifier>{3940b816-7383-4feb-8504-83cda1cd2ee2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="urho3d\Graphics\Direct3D9">
+      <UniqueIdentifier>{527505fa-06c6-4c2c-83d6-7a79075f67c1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="urho3d\MojoShader">
+      <UniqueIdentifier>{29c38476-f26d-40b7-92db-99b798907166}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -482,6 +491,255 @@
     </ClCompile>
     <ClCompile Include="urho3d\JO\jo_jpeg.cpp">
       <Filter>urho3d\JO</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Scene\Node.cpp">
+      <Filter>urho3d\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Scene\Component.cpp">
+      <Filter>urho3d\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Scene\ObjectAnimation.cpp">
+      <Filter>urho3d\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Scene\Scene.cpp">
+      <Filter>urho3d\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Scene\SmoothedTransform.cpp">
+      <Filter>urho3d\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Scene\UnknownComponent.cpp">
+      <Filter>urho3d\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Scene\Animatable.cpp">
+      <Filter>urho3d\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Scene\Serializable.cpp">
+      <Filter>urho3d\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Scene\ValueAnimationInfo.cpp">
+      <Filter>urho3d\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Scene\ValueAnimation.cpp">
+      <Filter>urho3d\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Scene\SceneResolver.cpp">
+      <Filter>urho3d\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Scene\SplinePath.cpp">
+      <Filter>urho3d\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Core\Spline.cpp">
+      <Filter>urho3d\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Graphics\DebugRenderer.cpp">
+      <Filter>urho3d\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Graphics\Light.cpp">
+      <Filter>urho3d\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Graphics\ShaderVariation.cpp">
+      <Filter>urho3d\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Graphics\OctreeQuery.cpp">
+      <Filter>urho3d\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Graphics\Texture2D.cpp">
+      <Filter>urho3d\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Graphics\TextureCube.cpp">
+      <Filter>urho3d\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Graphics\Renderer.cpp">
+      <Filter>urho3d\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Graphics\RenderSurface.cpp">
+      <Filter>urho3d\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Graphics\Viewport.cpp">
+      <Filter>urho3d\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Graphics\RenderPath.cpp">
+      <Filter>urho3d\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Graphics\View.cpp">
+      <Filter>urho3d\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Graphics\Batch.cpp">
+      <Filter>urho3d\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Graphics\Zone.cpp">
+      <Filter>urho3d\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Graphics\Drawable.cpp">
+      <Filter>urho3d\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Math\Ray.cpp">
+      <Filter>urho3d\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Graphics\Geometry.cpp">
+      <Filter>urho3d\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Graphics\OcclusionBuffer.cpp">
+      <Filter>urho3d\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Graphics\Octree.cpp">
+      <Filter>urho3d\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Graphics\Technique.cpp">
+      <Filter>urho3d\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Graphics\_Camera.cpp">
+      <Filter>urho3d\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Graphics\IndexBuffer.cpp">
+      <Filter>urho3d\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Graphics\VertexBuffer.cpp">
+      <Filter>urho3d\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Graphics\GPUObject.cpp">
+      <Filter>urho3d\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Graphics\_Texture.cpp">
+      <Filter>urho3d\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Graphics\_Shader.cpp">
+      <Filter>urho3d\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Graphics\_Material.cpp">
+      <Filter>urho3d\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Graphics\Skybox.cpp">
+      <Filter>urho3d\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Graphics\Texture2DArray.cpp">
+      <Filter>urho3d\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Graphics\Texture3D.cpp">
+      <Filter>urho3d\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Graphics\StaticModel.cpp">
+      <Filter>urho3d\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Graphics\AnimatedModel.cpp">
+      <Filter>urho3d\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Graphics\Animation.cpp">
+      <Filter>urho3d\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Graphics\AnimationController.cpp">
+      <Filter>urho3d\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Graphics\AnimationState.cpp">
+      <Filter>urho3d\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Graphics\Skeleton.cpp">
+      <Filter>urho3d\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Graphics\Model.cpp">
+      <Filter>urho3d\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Graphics\Graphics.cpp">
+      <Filter>urho3d\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Graphics\CustomGeometry.cpp">
+      <Filter>urho3d\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Graphics\DecalSet.cpp">
+      <Filter>urho3d\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Graphics\ParticleEffect.cpp">
+      <Filter>urho3d\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Graphics\ParticleEmitter.cpp">
+      <Filter>urho3d\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Graphics\RibbonTrail.cpp">
+      <Filter>urho3d\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Graphics\ShaderPrecache.cpp">
+      <Filter>urho3d\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Graphics\StaticModelGroup.cpp">
+      <Filter>urho3d\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Graphics\Terrain.cpp">
+      <Filter>urho3d\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Graphics\TerrainPatch.cpp">
+      <Filter>urho3d\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Graphics\BillboardSet.cpp">
+      <Filter>urho3d\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Graphics\Tangent.cpp">
+      <Filter>urho3d\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Graphics\Direct3D9\D3D9ConstantBuffer.cpp">
+      <Filter>urho3d\Graphics\Direct3D9</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Graphics\Direct3D9\D3D9Graphics.cpp">
+      <Filter>urho3d\Graphics\Direct3D9</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Graphics\Direct3D9\D3D9GraphicsImpl.cpp">
+      <Filter>urho3d\Graphics\Direct3D9</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Graphics\Direct3D9\D3D9IndexBuffer.cpp">
+      <Filter>urho3d\Graphics\Direct3D9</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Graphics\Direct3D9\D3D9RenderSurface.cpp">
+      <Filter>urho3d\Graphics\Direct3D9</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Graphics\Direct3D9\D3D9ShaderVariation.cpp">
+      <Filter>urho3d\Graphics\Direct3D9</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Graphics\Direct3D9\D3D9Texture.cpp">
+      <Filter>urho3d\Graphics\Direct3D9</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Graphics\Direct3D9\D3D9Texture2D.cpp">
+      <Filter>urho3d\Graphics\Direct3D9</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Graphics\Direct3D9\D3D9Texture2DArray.cpp">
+      <Filter>urho3d\Graphics\Direct3D9</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Graphics\Direct3D9\D3D9Texture3D.cpp">
+      <Filter>urho3d\Graphics\Direct3D9</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Graphics\Direct3D9\D3D9TextureCube.cpp">
+      <Filter>urho3d\Graphics\Direct3D9</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Graphics\Direct3D9\D3D9VertexBuffer.cpp">
+      <Filter>urho3d\Graphics\Direct3D9</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Graphics\Direct3D9\D3D9VertexDeclaration.cpp">
+      <Filter>urho3d\Graphics\Direct3D9</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Graphics\ConstantBuffer.cpp">
+      <Filter>urho3d\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\MojoShader\mojoshader.c">
+      <Filter>urho3d\MojoShader</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\MojoShader\mojoshader_assembler.c">
+      <Filter>urho3d\MojoShader</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\MojoShader\mojoshader_common.c">
+      <Filter>urho3d\MojoShader</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\MojoShader\mojoshader_compiler.c">
+      <Filter>urho3d\MojoShader</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\MojoShader\mojoshader_effects.c">
+      <Filter>urho3d\MojoShader</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\MojoShader\mojoshader_lexer.c">
+      <Filter>urho3d\MojoShader</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\MojoShader\mojoshader_preprocessor.c">
+      <Filter>urho3d\MojoShader</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Graphics\GraphicsDefs.cpp">
+      <Filter>urho3d\Graphics</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -985,6 +1243,237 @@
     </ClInclude>
     <ClInclude Include="urho3d\JO\jo_jpeg.h">
       <Filter>urho3d\JO</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Scene\Node.h">
+      <Filter>urho3d\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Scene\Component.h">
+      <Filter>urho3d\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Scene\ObjectAnimation.h">
+      <Filter>urho3d\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Scene\ReplicationState.h">
+      <Filter>urho3d\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Scene\Scene.h">
+      <Filter>urho3d\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Scene\SceneEvents.h">
+      <Filter>urho3d\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Scene\SmoothedTransform.h">
+      <Filter>urho3d\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Scene\UnknownComponent.h">
+      <Filter>urho3d\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Scene\Animatable.h">
+      <Filter>urho3d\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Scene\Serializable.h">
+      <Filter>urho3d\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Scene\ValueAnimationInfo.h">
+      <Filter>urho3d\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Scene\ValueAnimation.h">
+      <Filter>urho3d\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Scene\AnimationDefs.h">
+      <Filter>urho3d\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Scene\SceneResolver.h">
+      <Filter>urho3d\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Scene\SplinePath.h">
+      <Filter>urho3d\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Core\Spline.h">
+      <Filter>urho3d\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Graphics\DebugRenderer.h">
+      <Filter>urho3d\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Graphics\Light.h">
+      <Filter>urho3d\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Graphics\ShaderVariation.h">
+      <Filter>urho3d\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Graphics\Shader.h">
+      <Filter>urho3d\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Graphics\OctreeQuery.h">
+      <Filter>urho3d\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Graphics\Texture2D.h">
+      <Filter>urho3d\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Graphics\TextureCube.h">
+      <Filter>urho3d\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Graphics\GraphicsEvents.h">
+      <Filter>urho3d\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Graphics\GraphicsImpl.h">
+      <Filter>urho3d\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Graphics\Renderer.h">
+      <Filter>urho3d\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Graphics\Texture.h">
+      <Filter>urho3d\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Graphics\RenderSurface.h">
+      <Filter>urho3d\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Graphics\Viewport.h">
+      <Filter>urho3d\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Graphics\RenderPath.h">
+      <Filter>urho3d\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Graphics\View.h">
+      <Filter>urho3d\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Graphics\Batch.h">
+      <Filter>urho3d\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Graphics\Zone.h">
+      <Filter>urho3d\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Graphics\Drawable.h">
+      <Filter>urho3d\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Graphics\Material.h">
+      <Filter>urho3d\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Math\Ray.h">
+      <Filter>urho3d\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Graphics\Geometry.h">
+      <Filter>urho3d\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Graphics\OcclusionBuffer.h">
+      <Filter>urho3d\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Graphics\Octree.h">
+      <Filter>urho3d\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Graphics\Technique.h">
+      <Filter>urho3d\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Graphics\Camera.h">
+      <Filter>urho3d\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Graphics\IndexBuffer.h">
+      <Filter>urho3d\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Graphics\VertexBuffer.h">
+      <Filter>urho3d\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Graphics\GPUObject.h">
+      <Filter>urho3d\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Graphics\Skybox.h">
+      <Filter>urho3d\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Graphics\Texture2DArray.h">
+      <Filter>urho3d\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Graphics\Texture3D.h">
+      <Filter>urho3d\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Graphics\StaticModel.h">
+      <Filter>urho3d\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Graphics\AnimatedModel.h">
+      <Filter>urho3d\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Graphics\Animation.h">
+      <Filter>urho3d\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Graphics\AnimationController.h">
+      <Filter>urho3d\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Graphics\AnimationState.h">
+      <Filter>urho3d\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Graphics\DrawableEvents.h">
+      <Filter>urho3d\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Graphics\Skeleton.h">
+      <Filter>urho3d\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Graphics\Model.h">
+      <Filter>urho3d\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Graphics\Graphics.h">
+      <Filter>urho3d\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Graphics\CustomGeometry.h">
+      <Filter>urho3d\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Graphics\DecalSet.h">
+      <Filter>urho3d\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Graphics\ParticleEffect.h">
+      <Filter>urho3d\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Graphics\ParticleEmitter.h">
+      <Filter>urho3d\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Graphics\RibbonTrail.h">
+      <Filter>urho3d\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Graphics\ShaderPrecache.h">
+      <Filter>urho3d\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Graphics\StaticModelGroup.h">
+      <Filter>urho3d\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Graphics\Terrain.h">
+      <Filter>urho3d\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Graphics\TerrainPatch.h">
+      <Filter>urho3d\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Graphics\BillboardSet.h">
+      <Filter>urho3d\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Graphics\Tangent.h">
+      <Filter>urho3d\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Graphics\Direct3D9\D3D9GraphicsImpl.h">
+      <Filter>urho3d\Graphics\Direct3D9</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Graphics\Direct3D9\D3D9ShaderProgram.h">
+      <Filter>urho3d\Graphics\Direct3D9</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Graphics\Direct3D9\D3D9VertexDeclaration.h">
+      <Filter>urho3d\Graphics\Direct3D9</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Graphics\ConstantBuffer.h">
+      <Filter>urho3d\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Graphics\ShaderProgram.h">
+      <Filter>urho3d\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Graphics\VertexDeclaration.h">
+      <Filter>urho3d\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\MojoShader\mojoshader.h">
+      <Filter>urho3d\MojoShader</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\MojoShader\mojoshader_internal.h">
+      <Filter>urho3d\MojoShader</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\MojoShader\mojoshader_parser_hlsl.h">
+      <Filter>urho3d\MojoShader</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Graphics\GraphicsDefs.h">
+      <Filter>urho3d\Graphics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

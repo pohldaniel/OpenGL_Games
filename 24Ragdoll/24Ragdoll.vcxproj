@@ -87,7 +87,7 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;MINI_URHO;VERSION="0.4.0";_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;GLEW_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;VERSION="0.4.0";_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;GLEW_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\;..\libglew;..\libimgui;..\libassimp\include;..\libfreetype\include;..\openal\include;..\sndfile\include;..\libbullet;..\libsoil2;%(AdditionalIncludeDirectories);C:\Program Files (x86)\Windows Kits\8.1\Include\um</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
@@ -103,7 +103,7 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;MINI_URHO;VERSION="0.4.0";_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;GLEW_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;VERSION="0.4.0";_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;GLEW_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\;..\libglew;..\libimgui;..\libassimp\include;..\libfreetype\include;..\openal\include;..\sndfile\include;..\libbullet;..\libsoil2;%(AdditionalIncludeDirectories);C:\Program Files (x86)\Windows Kits\8.1\Include\um</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
@@ -121,7 +121,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;MINI_URHO;VERSION="0.4.0";NDEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;GLEW_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;VERSION="0.4.0";NDEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;GLEW_STATIC;URHO3D_ANGELSCRIPT;URHO3D_FILEWATCHER;URHO3D_LOGGING;URHO3D_LUA;URHO3D_MINIDUMPS;URHO3D_NAVIGATION;URHO3D_NETWORK;URHO3D_PROFILING;URHO3D_THREADING;URHO3D_IS_BUILDING;TOLUA_RELEASE;HAVE_RTL_OSVERSIONINFOW;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\;..\libglew;..\libimgui;..\libassimp\include;..\libfreetype\include;..\openal\include;..\sndfile\include;..\libbullet;..\libsoil2;%(AdditionalIncludeDirectories);C:\Program Files (x86)\Windows Kits\8.1\Include\um</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
@@ -141,7 +141,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;MINI_URHO;VERSION="0.4.0";NDEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;GLEW_STATIC;URHO3D_IS_BUILDING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;VERSION="0.4.0";NDEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;GLEW_STATIC;URHO3D_ANGELSCRIPT;URHO3D_FILEWATCHER;URHO3D_LOGGING;URHO3D_LUA;URHO3D_MINIDUMPS;URHO3D_NAVIGATION;URHO3D_NETWORK;URHO3D_PROFILING;URHO3D_THREADING;URHO3D_IS_BUILDING;TOLUA_RELEASE;HAVE_RTL_OSVERSIONINFOW;URHO3D_IS_BUILDING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\;urho3d;urho3d\rapidjson\include;..\libglew;..\libimgui;..\libassimp;..\libassimp\include;..\openal\include;..\sndfile\include;..\libfreetype\include;..\libbullet;..\libsoil2;%(AdditionalIncludeDirectories);C:\Program Files (x86)\Windows Kits\8.1\Include\um</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
@@ -150,7 +150,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>..\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>OpenGl32.lib;libglew.lib;libimgui.lib;libassimp.lib;libzlib.lib;libfreetype.lib;libopenal.lib;libflac.lib;libmpg.lib;liblame.lib;libsndfile.lib;winmm.lib;shlwapi.lib;libbullet.lib;libsoil2.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>OpenGl32.lib;libglew.lib;libimgui.lib;libassimp.lib;libzlib.lib;libfreetype.lib;libopenal.lib;libflac.lib;libmpg.lib;liblame.lib;libsndfile.lib;winmm.lib;shlwapi.lib;libbullet.lib;libsoil2.lib;d3dcompiler.lib;d3d9.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -303,6 +303,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../Precompiled.h</PrecompiledHeaderFile>
     </ClCompile>
+    <ClCompile Include="urho3d\Core\Spline.cpp" />
     <ClCompile Include="urho3d\Core\WorkQueue.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../Precompiled.h</PrecompiledHeaderFile>
@@ -383,6 +384,68 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../Precompiled.h</PrecompiledHeaderFile>
     </ClCompile>
+    <ClCompile Include="urho3d\Graphics\AnimatedModel.cpp" />
+    <ClCompile Include="urho3d\Graphics\Animation.cpp" />
+    <ClCompile Include="urho3d\Graphics\AnimationController.cpp" />
+    <ClCompile Include="urho3d\Graphics\AnimationState.cpp" />
+    <ClCompile Include="urho3d\Graphics\Batch.cpp" />
+    <ClCompile Include="urho3d\Graphics\BillboardSet.cpp" />
+    <ClCompile Include="urho3d\Graphics\ConstantBuffer.cpp" />
+    <ClCompile Include="urho3d\Graphics\CustomGeometry.cpp" />
+    <ClCompile Include="urho3d\Graphics\DebugRenderer.cpp" />
+    <ClCompile Include="urho3d\Graphics\DecalSet.cpp" />
+    <ClCompile Include="urho3d\Graphics\Direct3D9\D3D9ConstantBuffer.cpp" />
+    <ClCompile Include="urho3d\Graphics\Direct3D9\D3D9Graphics.cpp" />
+    <ClCompile Include="urho3d\Graphics\Direct3D9\D3D9GraphicsImpl.cpp" />
+    <ClCompile Include="urho3d\Graphics\Direct3D9\D3D9IndexBuffer.cpp" />
+    <ClCompile Include="urho3d\Graphics\Direct3D9\D3D9RenderSurface.cpp" />
+    <ClCompile Include="urho3d\Graphics\Direct3D9\D3D9ShaderVariation.cpp" />
+    <ClCompile Include="urho3d\Graphics\Direct3D9\D3D9Texture.cpp" />
+    <ClCompile Include="urho3d\Graphics\Direct3D9\D3D9Texture2D.cpp" />
+    <ClCompile Include="urho3d\Graphics\Direct3D9\D3D9Texture2DArray.cpp" />
+    <ClCompile Include="urho3d\Graphics\Direct3D9\D3D9Texture3D.cpp" />
+    <ClCompile Include="urho3d\Graphics\Direct3D9\D3D9TextureCube.cpp" />
+    <ClCompile Include="urho3d\Graphics\Direct3D9\D3D9VertexBuffer.cpp" />
+    <ClCompile Include="urho3d\Graphics\Direct3D9\D3D9VertexDeclaration.cpp" />
+    <ClCompile Include="urho3d\Graphics\Drawable.cpp" />
+    <ClCompile Include="urho3d\Graphics\Geometry.cpp" />
+    <ClCompile Include="urho3d\Graphics\GPUObject.cpp" />
+    <ClCompile Include="urho3d\Graphics\Graphics.cpp" />
+    <ClCompile Include="urho3d\Graphics\GraphicsDefs.cpp" />
+    <ClCompile Include="urho3d\Graphics\IndexBuffer.cpp" />
+    <ClCompile Include="urho3d\Graphics\Light.cpp" />
+    <ClCompile Include="urho3d\Graphics\Model.cpp" />
+    <ClCompile Include="urho3d\Graphics\ParticleEffect.cpp" />
+    <ClCompile Include="urho3d\Graphics\ParticleEmitter.cpp" />
+    <ClCompile Include="urho3d\Graphics\RibbonTrail.cpp" />
+    <ClCompile Include="urho3d\Graphics\ShaderPrecache.cpp" />
+    <ClCompile Include="urho3d\Graphics\Skeleton.cpp" />
+    <ClCompile Include="urho3d\Graphics\Skybox.cpp" />
+    <ClCompile Include="urho3d\Graphics\StaticModel.cpp" />
+    <ClCompile Include="urho3d\Graphics\StaticModelGroup.cpp" />
+    <ClCompile Include="urho3d\Graphics\Tangent.cpp" />
+    <ClCompile Include="urho3d\Graphics\Terrain.cpp" />
+    <ClCompile Include="urho3d\Graphics\TerrainPatch.cpp" />
+    <ClCompile Include="urho3d\Graphics\Texture2DArray.cpp" />
+    <ClCompile Include="urho3d\Graphics\Texture3D.cpp" />
+    <ClCompile Include="urho3d\Graphics\_Material.cpp" />
+    <ClCompile Include="urho3d\Graphics\OcclusionBuffer.cpp" />
+    <ClCompile Include="urho3d\Graphics\Octree.cpp" />
+    <ClCompile Include="urho3d\Graphics\OctreeQuery.cpp" />
+    <ClCompile Include="urho3d\Graphics\Renderer.cpp" />
+    <ClCompile Include="urho3d\Graphics\RenderPath.cpp" />
+    <ClCompile Include="urho3d\Graphics\RenderSurface.cpp" />
+    <ClCompile Include="urho3d\Graphics\_Shader.cpp" />
+    <ClCompile Include="urho3d\Graphics\ShaderVariation.cpp" />
+    <ClCompile Include="urho3d\Graphics\Technique.cpp" />
+    <ClCompile Include="urho3d\Graphics\_Texture.cpp" />
+    <ClCompile Include="urho3d\Graphics\Texture2D.cpp" />
+    <ClCompile Include="urho3d\Graphics\TextureCube.cpp" />
+    <ClCompile Include="urho3d\Graphics\VertexBuffer.cpp" />
+    <ClCompile Include="urho3d\Graphics\View.cpp" />
+    <ClCompile Include="urho3d\Graphics\Viewport.cpp" />
+    <ClCompile Include="urho3d\Graphics\Zone.cpp" />
+    <ClCompile Include="urho3d\Graphics\_Camera.cpp" />
     <ClCompile Include="urho3d\IO\Deserializer.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../Precompiled.h</PrecompiledHeaderFile>
@@ -513,6 +576,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../Precompiled.h</PrecompiledHeaderFile>
     </ClCompile>
+    <ClCompile Include="urho3d\Math\Ray.cpp" />
     <ClCompile Include="urho3d\Math\_Frustum.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../Precompiled.h</PrecompiledHeaderFile>
@@ -653,6 +717,13 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../Precompiled.h</PrecompiledHeaderFile>
     </ClCompile>
+    <ClCompile Include="urho3d\MojoShader\mojoshader.c" />
+    <ClCompile Include="urho3d\MojoShader\mojoshader_assembler.c" />
+    <ClCompile Include="urho3d\MojoShader\mojoshader_common.c" />
+    <ClCompile Include="urho3d\MojoShader\mojoshader_compiler.c" />
+    <ClCompile Include="urho3d\MojoShader\mojoshader_effects.c" />
+    <ClCompile Include="urho3d\MojoShader\mojoshader_lexer.c" />
+    <ClCompile Include="urho3d\MojoShader\mojoshader_preprocessor.c" />
     <ClCompile Include="urho3d\Precompiled.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Precompiled.h</PrecompiledHeaderFile>
@@ -673,6 +744,18 @@
     <ClCompile Include="urho3d\Resource\ResourceCache.cpp" />
     <ClCompile Include="urho3d\Resource\XMLElement.cpp" />
     <ClCompile Include="urho3d\Resource\XMLFile.cpp" />
+    <ClCompile Include="urho3d\Scene\Animatable.cpp" />
+    <ClCompile Include="urho3d\Scene\Component.cpp" />
+    <ClCompile Include="urho3d\Scene\Node.cpp" />
+    <ClCompile Include="urho3d\Scene\ObjectAnimation.cpp" />
+    <ClCompile Include="urho3d\Scene\Scene.cpp" />
+    <ClCompile Include="urho3d\Scene\SceneResolver.cpp" />
+    <ClCompile Include="urho3d\Scene\Serializable.cpp" />
+    <ClCompile Include="urho3d\Scene\SmoothedTransform.cpp" />
+    <ClCompile Include="urho3d\Scene\SplinePath.cpp" />
+    <ClCompile Include="urho3d\Scene\UnknownComponent.cpp" />
+    <ClCompile Include="urho3d\Scene\ValueAnimation.cpp" />
+    <ClCompile Include="urho3d\Scene\ValueAnimationInfo.cpp" />
     <ClCompile Include="VehicleInterface.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Object.cpp" />
@@ -777,6 +860,7 @@
     <ClInclude Include="urho3d\Core\Object.h" />
     <ClInclude Include="urho3d\Core\ProcessUtils.h" />
     <ClInclude Include="urho3d\Core\Profiler.h" />
+    <ClInclude Include="urho3d\Core\Spline.h" />
     <ClInclude Include="urho3d\Core\StringUtils.h" />
     <ClInclude Include="urho3d\Core\Thread.h" />
     <ClInclude Include="urho3d\Core\Timer.h" />
@@ -784,6 +868,63 @@
     <ClInclude Include="urho3d\Core\WorkQueue.h" />
     <ClInclude Include="urho3d\DebugNew.h" />
     <ClInclude Include="urho3d\Engine\EngineEvents.h" />
+    <ClInclude Include="urho3d\Graphics\AnimatedModel.h" />
+    <ClInclude Include="urho3d\Graphics\Animation.h" />
+    <ClInclude Include="urho3d\Graphics\AnimationController.h" />
+    <ClInclude Include="urho3d\Graphics\AnimationState.h" />
+    <ClInclude Include="urho3d\Graphics\Batch.h" />
+    <ClInclude Include="urho3d\Graphics\BillboardSet.h" />
+    <ClInclude Include="urho3d\Graphics\Camera.h" />
+    <ClInclude Include="urho3d\Graphics\ConstantBuffer.h" />
+    <ClInclude Include="urho3d\Graphics\CustomGeometry.h" />
+    <ClInclude Include="urho3d\Graphics\DebugRenderer.h" />
+    <ClInclude Include="urho3d\Graphics\DecalSet.h" />
+    <ClInclude Include="urho3d\Graphics\Direct3D9\D3D9GraphicsImpl.h" />
+    <ClInclude Include="urho3d\Graphics\Direct3D9\D3D9ShaderProgram.h" />
+    <ClInclude Include="urho3d\Graphics\Direct3D9\D3D9VertexDeclaration.h" />
+    <ClInclude Include="urho3d\Graphics\Drawable.h" />
+    <ClInclude Include="urho3d\Graphics\DrawableEvents.h" />
+    <ClInclude Include="urho3d\Graphics\Geometry.h" />
+    <ClInclude Include="urho3d\Graphics\GPUObject.h" />
+    <ClInclude Include="urho3d\Graphics\Graphics.h" />
+    <ClInclude Include="urho3d\Graphics\GraphicsDefs.h" />
+    <ClInclude Include="urho3d\Graphics\GraphicsEvents.h" />
+    <ClInclude Include="urho3d\Graphics\GraphicsImpl.h" />
+    <ClInclude Include="urho3d\Graphics\IndexBuffer.h" />
+    <ClInclude Include="urho3d\Graphics\Light.h" />
+    <ClInclude Include="urho3d\Graphics\Material.h" />
+    <ClInclude Include="urho3d\Graphics\Model.h" />
+    <ClInclude Include="urho3d\Graphics\OcclusionBuffer.h" />
+    <ClInclude Include="urho3d\Graphics\Octree.h" />
+    <ClInclude Include="urho3d\Graphics\OctreeQuery.h" />
+    <ClInclude Include="urho3d\Graphics\ParticleEffect.h" />
+    <ClInclude Include="urho3d\Graphics\ParticleEmitter.h" />
+    <ClInclude Include="urho3d\Graphics\Renderer.h" />
+    <ClInclude Include="urho3d\Graphics\RenderPath.h" />
+    <ClInclude Include="urho3d\Graphics\RenderSurface.h" />
+    <ClInclude Include="urho3d\Graphics\RibbonTrail.h" />
+    <ClInclude Include="urho3d\Graphics\Shader.h" />
+    <ClInclude Include="urho3d\Graphics\ShaderPrecache.h" />
+    <ClInclude Include="urho3d\Graphics\ShaderProgram.h" />
+    <ClInclude Include="urho3d\Graphics\ShaderVariation.h" />
+    <ClInclude Include="urho3d\Graphics\Skeleton.h" />
+    <ClInclude Include="urho3d\Graphics\Skybox.h" />
+    <ClInclude Include="urho3d\Graphics\StaticModel.h" />
+    <ClInclude Include="urho3d\Graphics\StaticModelGroup.h" />
+    <ClInclude Include="urho3d\Graphics\Tangent.h" />
+    <ClInclude Include="urho3d\Graphics\Technique.h" />
+    <ClInclude Include="urho3d\Graphics\Terrain.h" />
+    <ClInclude Include="urho3d\Graphics\TerrainPatch.h" />
+    <ClInclude Include="urho3d\Graphics\Texture.h" />
+    <ClInclude Include="urho3d\Graphics\Texture2D.h" />
+    <ClInclude Include="urho3d\Graphics\Texture2DArray.h" />
+    <ClInclude Include="urho3d\Graphics\Texture3D.h" />
+    <ClInclude Include="urho3d\Graphics\TextureCube.h" />
+    <ClInclude Include="urho3d\Graphics\VertexBuffer.h" />
+    <ClInclude Include="urho3d\Graphics\VertexDeclaration.h" />
+    <ClInclude Include="urho3d\Graphics\View.h" />
+    <ClInclude Include="urho3d\Graphics\Viewport.h" />
+    <ClInclude Include="urho3d\Graphics\Zone.h" />
     <ClInclude Include="urho3d\IO\AbstractFile.h" />
     <ClInclude Include="urho3d\IO\Deserializer.h" />
     <ClInclude Include="urho3d\IO\File.h" />
@@ -823,12 +964,16 @@
     <ClInclude Include="urho3d\Math\Polyhedron.h" />
     <ClInclude Include="urho3d\Math\Quaternion.h" />
     <ClInclude Include="urho3d\Math\Random.h" />
+    <ClInclude Include="urho3d\Math\Ray.h" />
     <ClInclude Include="urho3d\Math\Rect.h" />
     <ClInclude Include="urho3d\Math\Sphere.h" />
     <ClInclude Include="urho3d\Math\StringHash.h" />
     <ClInclude Include="urho3d\Math\Vector2.h" />
     <ClInclude Include="urho3d\Math\Vector3.h" />
     <ClInclude Include="urho3d\Math\Vector4.h" />
+    <ClInclude Include="urho3d\MojoShader\mojoshader.h" />
+    <ClInclude Include="urho3d\MojoShader\mojoshader_internal.h" />
+    <ClInclude Include="urho3d\MojoShader\mojoshader_parser_hlsl.h" />
     <ClInclude Include="urho3d\Precompiled.h" />
     <ClInclude Include="urho3d\Resource\BackgroundLoader.h" />
     <ClInclude Include="urho3d\Resource\Decompress.h" />
@@ -841,6 +986,21 @@
     <ClInclude Include="urho3d\Resource\ResourceEvents.h" />
     <ClInclude Include="urho3d\Resource\XMLElement.h" />
     <ClInclude Include="urho3d\Resource\XMLFile.h" />
+    <ClInclude Include="urho3d\Scene\Animatable.h" />
+    <ClInclude Include="urho3d\Scene\AnimationDefs.h" />
+    <ClInclude Include="urho3d\Scene\Component.h" />
+    <ClInclude Include="urho3d\Scene\Node.h" />
+    <ClInclude Include="urho3d\Scene\ObjectAnimation.h" />
+    <ClInclude Include="urho3d\Scene\ReplicationState.h" />
+    <ClInclude Include="urho3d\Scene\Scene.h" />
+    <ClInclude Include="urho3d\Scene\SceneEvents.h" />
+    <ClInclude Include="urho3d\Scene\SceneResolver.h" />
+    <ClInclude Include="urho3d\Scene\Serializable.h" />
+    <ClInclude Include="urho3d\Scene\SmoothedTransform.h" />
+    <ClInclude Include="urho3d\Scene\SplinePath.h" />
+    <ClInclude Include="urho3d\Scene\UnknownComponent.h" />
+    <ClInclude Include="urho3d\Scene\ValueAnimation.h" />
+    <ClInclude Include="urho3d\Scene\ValueAnimationInfo.h" />
     <ClInclude Include="urho3d\Urho3D.h" />
     <ClInclude Include="VehicleInterface.h" />
     <ClInclude Include="Miniball\Miniball.h" />
