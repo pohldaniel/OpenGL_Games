@@ -1,0 +1,38 @@
+This is the model file format for models in the Lugaru engine.
+
+//------------------------------------------------
+//--- 010 Editor v7.0.2 Binary Template
+//
+//      File: LGSOLID.bt
+//   Authors: Wolfire Games
+//   Version: 1.0
+//   Purpose: Model data for Lugaru engine
+//  Category: 3D
+// File Mask: *.solid
+//   History: 
+//   1.0   Initial release
+//------------------------------------------------
+
+struct {  // file
+  BigEndian();
+  short vertex_count;
+  short triangle_count;
+
+  struct {  // vertices
+    float x;
+    float y;
+    float z;
+  } vertices[vertex_count];
+
+  struct {  // triangles
+    short vertex_index;
+    short _unused <hidden=true>;
+    short vertex_index;
+    short _unused <hidden=true>;
+    short vertex_index;
+    short _unused <hidden=true>;
+
+    float gx[3];
+    float gy[3];
+  } triangles[triangle_count];
+} file;

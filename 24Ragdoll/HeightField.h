@@ -29,8 +29,8 @@ public:
 		std::map<btVector3, unsigned int>::iterator it = VertexToOutIndex.find(packed);
 		if (it == VertexToOutIndex.end()) {
 			return false;
-		}
-		else {
+
+		}else {
 			result = it->second;
 			return true;
 		}
@@ -50,9 +50,9 @@ public:
 			found = getSimilarVertexIndex(triVert[k], vertexCache, index);
 			if (found) {
 				(*indexBufferOut).push_back(index);
-			}
-			else {
-				(*vertexBufferOut).push_back(triVert[0]);
+
+			}else {
+				(*vertexBufferOut).push_back(triVert[k]);
 
 				unsigned int newindex = (unsigned int)(*vertexBufferOut).size() - 1;
 				(*indexBufferOut).push_back(newindex);

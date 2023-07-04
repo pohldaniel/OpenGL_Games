@@ -229,6 +229,7 @@
     <ClCompile Include="RagdollInterface.cpp" />
     <ClCompile Include="RandomColor.cpp" />
     <ClCompile Include="SeekerBar.cpp" />
+    <ClCompile Include="SolidIO.cpp" />
     <ClCompile Include="urho3d\Container\Allocator.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../Precompiled.h</PrecompiledHeaderFile>
@@ -865,6 +866,7 @@
     <ClInclude Include="RagdollInterface.h" />
     <ClInclude Include="RandomColor.h" />
     <ClInclude Include="SeekerBar.h" />
+    <ClInclude Include="SolidIO.h" />
     <ClInclude Include="urho3d\Container\Allocator.h" />
     <ClInclude Include="urho3d\Container\ArrayPtr.h" />
     <ClInclude Include="urho3d\Container\ForEach.h" />

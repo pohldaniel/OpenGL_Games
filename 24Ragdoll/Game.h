@@ -9,6 +9,7 @@
 #include "Ragdoll.h"
 #include "MousePicker.h"
 #include "ShapeDrawer.h"
+#include "SolidIO.h"
 
 #include "lugaru/Graphic/ModelLu.hpp"
 
@@ -48,4 +49,5 @@ private:
 	btScalar mousePickClamping = 30.f;
 
 	ModelLu model;
+	Utils::SolidIO  solidConverter;
 };

@@ -106,6 +106,9 @@
     <Filter Include="lugaru\Platform">
       <UniqueIdentifier>{09bd7842-4cf6-42c6-b70f-075a981acc62}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Utils">
+      <UniqueIdentifier>{c5ffcde2-dc23-4afa-a0da-d27a2ced2fdd}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -119,9 +122,6 @@
     </ClCompile>
     <ClCompile Include="RenderableObject.cpp">
       <Filter>Source Files\Objects</Filter>
-    </ClCompile>
-    <ClCompile Include="Utils.cpp">
-      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="engine\input\ApplicationEventListener.cpp">
       <Filter>engine\input</Filter>
@@ -807,6 +807,12 @@
     <ClCompile Include="Game.cpp">
       <Filter>Source Files\States</Filter>
     </ClCompile>
+    <ClCompile Include="Utils.cpp">
+      <Filter>Source Files\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="SolidIO.cpp">
+      <Filter>Source Files\Utils</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h">
@@ -823,9 +829,6 @@
     </ClInclude>
     <ClInclude Include="RenderableObject.h">
       <Filter>Source Files\Objects</Filter>
-    </ClInclude>
-    <ClInclude Include="Utils.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="engine\input\ApplicationEventListener.h">
       <Filter>engine\input</Filter>
@@ -1585,6 +1588,12 @@
     </ClInclude>
     <ClInclude Include="Game.h">
       <Filter>Source Files\States</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils.h">
+      <Filter>Source Files\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="SolidIO.h">
+      <Filter>Source Files\Utils</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
