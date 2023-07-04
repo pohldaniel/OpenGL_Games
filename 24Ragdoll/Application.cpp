@@ -567,6 +567,11 @@ void Application::loadAssets() {
 	Globals::shapeManager.buildQuadXZ("platform", Vector3f(-5.0f, 0.0f, -5.0f), Vector2f(10.0f, 10.0f), 1, 1, true, false, false);
 
 	Globals::textureManager.createNullTexture("null");
+	Globals::textureManager.loadTexture("sword", "res/textures/Sword.jpg", true);
+	Globals::textureManager.get("sword").setFilter(GL_LINEAR_MIPMAP_LINEAR);
+
+	Globals::textureManager.loadTexture("fur", "res/textures/FurBlackWhite.jpg", true);
+	Globals::textureManager.get("fur").setFilter(GL_LINEAR_MIPMAP_LINEAR);
 
 	Globals::fontManager.loadCharacterSet("upheaval_200", "res/fonts/upheavtt.ttf", 200, 0, 30, 128, 0, true, 0u);
 	Globals::fontManager.loadCharacterSet("upheaval_50", "res/fonts/upheavtt.ttf", 50, 0, 3, 0, 0, true, 0u);

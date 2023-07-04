@@ -16,11 +16,29 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_pickCo
 
 	m_camera = Camera();
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
-	m_camera.lookAt(Vector3f(0.0f, 2.0f, 10.0f), Vector3f(0.0f, 2.0f, 10.0f) + Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
+	m_camera.lookAt(Vector3f(0.0f, 2.0f, 5.0f), Vector3f(0.0f, 2.0f, 5.0f) + Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
 	m_camera.setRotationSpeed(0.1f);
+
+	m_trackball.reshape(Application::Width, Application::Height);
+	m_trackball.setDollyPosition(0.0f);
+	applyTransformation(m_trackball);
 
 	//solidConverter.solidToObj("res/solid/Sword.solid", "res/Sword.obj", "res/sword.mtl", "/textures/Sword.jpg", false);
 	//solidConverter.solidToObj("res/solid/Body.solid", "res/Rabbit.obj", "res/rabbit.mtl", "/textures/FurBlackWhite.jpg");
+
+	solidConverter.solidToBuffer("res/solid/Sword.solid", false, vertexBuffer, indexBuffer);
+	m_sword.fromBuffer(vertexBuffer, indexBuffer, 5);
+
+	vertexBuffer.clear();
+	vertexBuffer.shrink_to_fit();
+
+	indexBuffer.clear();
+	indexBuffer.shrink_to_fit();
+
+	solidConverter.solidToBuffer("res/solid/Body.solid", true, vertexBuffer, indexBuffer);
+	m_rabbit.fromBuffer(vertexBuffer, indexBuffer, 5);
+
+	glClearColor(0.3f, 0.3f, 0.3f, 0.0f);
 }
 
 Game::~Game() {
@@ -94,7 +112,22 @@ void Game::update() {
 void Game::render() {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	ShapeDrawer::Get().drawDynmicsWorld(Physics::GetDynamicsWorld());
+
+	auto shader = Globals::shaderManager.getAssetPointer("texture");
+	shader->use();
+	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
+	shader->loadMatrix("u_view", m_camera.getViewMatrix());
+	shader->loadMatrix("u_model", m_transform.getTransformationMatrix() * Matrix4f::Scale(0.001f, 0.001f, 0.001f));
+	Globals::textureManager.get("sword").bind(0);
+
+	m_sword.drawRaw();
+	
+	shader->loadMatrix("u_model", m_transform.getTransformationMatrix() * Matrix4f::Rotate(Vector3f(1.0f, 0.0f, 0.0f), 180.0f) * Matrix4f::Scale(0.01f, 0.01f, 0.01f));
+	Globals::textureManager.get("fur").bind(0);
+
+	m_rabbit.drawRaw();
+	shader->unuse();
+
 	m_mousePicker.drawPicker(m_camera);
 
 	if (m_drawUi)
@@ -102,6 +135,9 @@ void Game::render() {
 }
 
 void Game::OnMouseMotion(Event::MouseMoveEvent& event) {
+	m_trackball.motion(event.x, event.y);
+	applyTransformation(m_trackball);
+
 	m_mousePicker.updatePosition(event.x, event.y, m_camera);
 
 	if (m_pickConstraint) {
@@ -122,8 +158,7 @@ void Game::OnMouseMotion(Event::MouseMoveEvent& event) {
 				pickCon->getFrameOffsetA().setOrigin(rayFrom + dir);
 			}
 
-		}
-		else {
+		}else {
 
 			btPoint2PointConstraint* pickCon = static_cast<btPoint2PointConstraint*>(m_pickConstraint);
 			if (pickCon) {
@@ -152,8 +187,9 @@ void Game::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 
 	if (event.button == 2u) {
 		Mouse::instance().attach(Application::GetWindow());
-	}
-	else if (event.button == 1u) {
+	}else if (event.button == 1u) {
+		m_trackball.mouse(TrackBall::Button::ELeftButton, TrackBall::Modifier::ENoModifier, true, event.x, event.y);
+		applyTransformation(m_trackball);
 
 		if (m_mousePicker.click(event.x, event.y, m_camera)) {
 			m_mousePicker.setHasPicked(true);
@@ -166,8 +202,10 @@ void Game::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 void Game::OnMouseButtonUp(Event::MouseButtonEvent& event) {
 	if (event.button == 2u) {
 		Mouse::instance().detach();
-	}
-	else if (event.button == 1u) {
+	}else if (event.button == 1u) {
+		m_trackball.mouse(TrackBall::Button::ELeftButton, TrackBall::Modifier::ENoModifier, false, event.x, event.y);
+		applyTransformation(m_trackball);
+
 		m_mousePicker.setHasPicked(false);
 		removePickingConstraint();
 	}
@@ -194,6 +232,9 @@ void Game::resize(int deltaW, int deltaH) {
 
 }
 
+void Game::applyTransformation(TrackBall& arc) {
+	m_transform.fromMatrix(arc.getTransform());
+}
 
 void Game::renderUi() {
 	ImGui_ImplOpenGL3_NewFrame();

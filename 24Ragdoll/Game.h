@@ -2,6 +2,7 @@
 
 #include "engine/input/MouseEventListener.h"
 #include "engine/input/KeyboardEventListener.h"
+#include "engine/MeshObject/Shape.h"
 #include "engine/Camera.h"
 #include "engine/TrackBall.h"
 #include "StateMachine.h"
@@ -32,9 +33,10 @@ public:
 
 private:
 
+	void applyTransformation(TrackBall& arc);
+	void renderUi();
 	void removePickingConstraint();
 	void pickObject(const btVector3& pickPos, const class btCollisionObject* hitObj);
-	void renderUi();
 
 	Camera m_camera;
 	TrackBall m_trackball;
@@ -50,4 +52,9 @@ private:
 
 	ModelLu model;
 	Utils::SolidIO  solidConverter;
+
+	std::vector<float> vertexBuffer;
+	std::vector<unsigned int> indexBuffer;
+	Shape m_sword;
+	Shape m_rabbit;
 };

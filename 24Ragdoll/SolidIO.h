@@ -27,16 +27,25 @@ namespace Utils {
 
 	struct SolidIO{
 
-		struct Comparer {
+		struct ComparerUv {
 			bool operator()(const std::array<float, 2>& lhs, const std::array<float, 2>& rhs) const {
 				return memcmp(lhs.data(), rhs.data(), 2 * sizeof(float)) < 0;
 			}
 		};
 
+		struct Comparer {
+			bool operator()(const std::array<float, 5>& lhs, const std::array<float, 5>& rhs) const {
+				return memcmp(lhs.data(), rhs.data(), 5 * sizeof(float)) < 0;
+			}
+		};
+
 		void solidToObj(const char* filename, const char* outFileObj, const char* outFileMtl, const char* texturePath, bool flipVertical = true);
+		void solidToBuffer(const char* filename, bool flipVertical, std::vector<float>& vertexBufferOut, std::vector<unsigned int>& indexBufferOut);
 
 		private:
-			bool getSimilarVertexIndex(std::array<float, 2>& packed, std::map<std::array<float, 2>, short, Comparer>& uvToOutIndex, short & result);
+
+			bool getSimilarVertexIndex(std::array<float, 2>& packed, std::map<std::array<float, 2>, short, ComparerUv>& uvToOutIndex, short & result);
+			bool getSimilarVertexIndex(std::array<float, 5>& packed, std::map<std::array<float, 5>, short, Comparer>& uvToOutIndex, short & result);
 
 	};
 }
