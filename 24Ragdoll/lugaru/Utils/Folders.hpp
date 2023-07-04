@@ -24,7 +24,7 @@ along with Lugaru.  If not, see <http://www.gnu.org/licenses/>.
 #include <string>
 
 #ifndef DATA_DIR
-#define DATA_DIR "Data"
+#define DATA_DIR "res"
 #endif
 
 struct FileNotFoundException : public std::exception

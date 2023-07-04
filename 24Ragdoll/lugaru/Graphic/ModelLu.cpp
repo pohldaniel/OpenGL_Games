@@ -652,9 +652,11 @@ bool ModelLu::loadraw(const std::string& filename)
     vertex = (XYZ*)malloc(sizeof(XYZ) * vertexNum);
     Triangles.resize(triangleNum);
     vArray = (GLfloat*)malloc(sizeof(GLfloat) * triangleNum * 24);
-
+	float scale = 0.001f;
     for (i = 0; i < vertexNum; i++) {
         funpackf(tfile, "Bf Bf Bf", &vertex[i].x, &vertex[i].y, &vertex[i].z);
+
+		//std::cout << vertex[i].x << "  " << vertex[i].y << "  " << vertex[i].z << std::endl;
     }
 
     for (i = 0; i < triangleNum; i++) {

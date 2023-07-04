@@ -10,6 +10,8 @@
 #include "MousePicker.h"
 #include "ShapeDrawer.h"
 
+#include "lugaru/Graphic/ModelLu.hpp"
+
 class Game : public State, public MouseEventListener, public KeyboardEventListener {
 
 public:
@@ -44,4 +46,6 @@ private:
 	btTypedConstraint* m_pickConstraint;
 	btRigidBody* pickedBody = 0;
 	btScalar mousePickClamping = 30.f;
+
+	ModelLu model;
 };

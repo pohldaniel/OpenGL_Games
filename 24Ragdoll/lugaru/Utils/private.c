@@ -198,7 +198,10 @@ extern size_t BinIOFormatByteCount(const char *format)
 
     BinIOInitFormatCursor(&cursor, format);
 
-    while (BinIONextChar(&n_bytes, &cursor, BinIOCountBytes)) {}
+    while (BinIONextChar(&n_bytes, &cursor, BinIOCountBytes)) {
+	
+		
+	}
 
     return n_bytes;
 }

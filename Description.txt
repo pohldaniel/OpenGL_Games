@@ -43,3 +43,5 @@ https://www.gamedev.net/forums/topic/680832-horizonzero-dawn-cloud-system/
 https://www.shadertoy.com/view/XslGRr
 
 https://github.com/earjuice/Cinder-SinglePassCube/tree/master
+
+https://wiki.wolfire.com/index.php/Binary_File_Formats

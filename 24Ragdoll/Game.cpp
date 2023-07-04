@@ -2,14 +2,36 @@
 #include <imgui_impl_win32.h>
 #include <imgui_impl_opengl3.h>
 #include <imgui_internal.h>
+#include <fstream>
+#include <iomanip>
 
 #include "Game.h"
 #include "Application.h"
 #include "Globals.h"
 #include "Menu.h"
 
-Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME),
-m_pickConstraint(0) {
+float bytesToFloatLE(unsigned char b0, unsigned char b1, unsigned char b2, unsigned char b3){
+
+	float f;
+	unsigned char b[] = { b0, b1, b2, b3 };
+	memcpy(&f, &b, sizeof(float));
+	return f;
+}
+
+float bytesToFloatBE(unsigned char b0, unsigned char b1, unsigned char b2, unsigned char b3) {
+
+	float f;
+	unsigned char b[] = { b3, b2, b1, b0 };
+	memcpy(&f, &b, sizeof(float));
+	return f;
+}
+
+union UStuff{
+	float   f;
+	unsigned char   c[4];
+};
+
+Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_pickConstraint(0) {
 
 	Application::SetCursorIcon(IDC_ARROW);
 	EventDispatcher::AddKeyboardListener(this);
@@ -19,6 +41,53 @@ m_pickConstraint(0) {
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
 	m_camera.lookAt(Vector3f(0.0f, 2.0f, 10.0f), Vector3f(0.0f, 2.0f, 10.0f) + Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
 	m_camera.setRotationSpeed(0.1f);
+
+	//model.loadraw("Sword.solid");
+
+	char metaData[2];
+	std::ifstream file("res/Sword.solid", std::ios::binary);
+
+	file.seekg(1, std::ios::cur);
+	file.read(&metaData[0], 1);
+	file.seekg(1, std::ios::cur);
+	file.read(&metaData[1], 1);
+
+	short vertexCount = (short)metaData[0];
+	short triangleCount = (short)metaData[1];
+
+	std::cout << "Vertex Count: " << vertexCount << std::endl;
+	std::cout << "Triangle Count: " << triangleCount << std::endl;
+
+	char* buffer = new char[vertexCount * sizeof(float) * 3];
+	file.read(buffer, vertexCount * sizeof(float) * 3);
+	file.close();
+	std::cout << std::setprecision(6) << std::fixed;
+
+	for (int i = 0; i < vertexCount * 3 * sizeof(float); i = i + 12) {
+		//UStuff f;		
+		//f.c[0] = (unsigned int)(buffer[i + 3]); f.c[1] = (unsigned int)(buffer[i + 2]); f.c[2] = (unsigned int)(buffer[i + 1]); f.c[3] = (unsigned int)(buffer[i + 0]);
+		//std::cout << f.f << "  ";
+
+		//f.c[0] = (unsigned int)(buffer[i + 7]); f.c[1] = (unsigned int)(buffer[i + 6]); f.c[2] = (unsigned int)(buffer[i + 5]); f.c[3] = (unsigned int)(buffer[i + 4]);
+		//std::cout << f.f << "  ";
+
+		//f.c[0] = (unsigned int)(buffer[i + 11]); f.c[1] = (unsigned int)(buffer[i + 10]); f.c[2] = (unsigned int)(buffer[i + 9]); f.c[3] = (unsigned int)(buffer[i + 8]);
+		//std::cout << f.f << std::endl;
+
+		std::cout << bytesToFloatBE(buffer[i + 0], buffer[i + 1], buffer[i +  2], buffer[i +  3]) << "  ";
+		std::cout << bytesToFloatBE(buffer[i + 4], buffer[i + 5], buffer[i +  6], buffer[i +  7]) << "  ";
+		std::cout << bytesToFloatBE(buffer[i + 8], buffer[i + 9], buffer[i + 10], buffer[i + 11]) << std::endl;
+	}
+	
+	//float* buffer = new float[vertexCount * 3];
+	//file.read((char *)buffer, sizeof(float)*vertexCount * 3);
+	//
+	//for (int i = 0; i < vertexCount * 3; i = i + 3) {
+	//	std::cout << buffer[i] << "  " << buffer[i + 1] << "  " << buffer[i + 2] << std::endl;
+	//}
+	delete buffer;
+	
+
 }
 
 Game::~Game() {
