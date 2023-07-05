@@ -14,7 +14,34 @@
 
 #include "lugaru/Graphic/ModelLu.hpp"
 
-class Game : public State, public MouseEventListener, public KeyboardEventListener {
+#include "urho3d/Graphics/Model.h"
+#include "urho3d/Core/Context.h"
+#include "urho3d/Core/Object.h"
+#include "urho3d/IO/FileSystem.h"
+#include "urho3d/Container/Ptr.h"
+#include "urho3d/Scene/Scene.h"
+#include "urho3d/Scene/Node.h"
+#include "urho3d/Resource/ResourceCache.h"
+#include "urho3d/Resource/XMLFile.h"
+
+/*#include <Urho3D/Core/CoreEvents.h>
+#include <Urho3D/Core/ProcessUtils.h>
+#include <Urho3D/Graphics/AnimatedModel.h>
+#include <Urho3D/Graphics/AnimationController.h>
+#include <Urho3D/Graphics/Camera.h>
+#include <Urho3D/Graphics/Light.h>
+#include <Urho3D/Graphics/Material.h>
+#include <Urho3D/Graphics/Octree.h>
+#include <Urho3D/Graphics/Renderer.h>
+#include <Urho3D/Graphics/Zone.h>
+#include <Urho3D/IO/FileSystem.h>
+#include <Urho3D/IO/MemoryBuffer.h>
+#include <Urho3D/Resource/ResourceCache.h>
+#include <Urho3D/Graphics/DebugRenderer.h>
+#include <Urho3D/Scene/Scene.h>*/
+
+
+class Game : public State, public MouseEventListener, public KeyboardEventListener, public Urho3D::Object{
 
 public:
 
@@ -57,4 +84,14 @@ private:
 	std::vector<unsigned int> indexBuffer;
 	Shape m_sword;
 	Shape m_rabbit;
+
+	
+
+	Urho3D::SharedPtr<Urho3D::Scene> scene_;
+	Urho3D::SharedPtr<Urho3D::Node> node;
+	//Urho3D::Model m_model;
+
+	Urho3D::StringHash GetType() const;
+	const Urho3D::String& GetTypeName() const;
+	const Urho3D::TypeInfo* GetTypeInfo() const;
 };

@@ -8,7 +8,9 @@
 #include "Globals.h"
 #include "Menu.h"
 
-Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_pickConstraint(0) {
+
+
+Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_pickConstraint(0), Object(new Urho3D::Context()) {
 
 	Application::SetCursorIcon(IDC_ARROW);
 	EventDispatcher::AddKeyboardListener(this);
@@ -39,6 +41,23 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_pickCo
 	m_rabbit.fromBuffer(vertexBuffer, indexBuffer, 5);
 
 	glClearColor(0.3f, 0.3f, 0.3f, 0.0f);
+
+	context_->RegisterSubsystem(new Urho3D::FileSystem(context_));
+	context_->RegisterSubsystem(new Urho3D::ResourceCache(context_));
+	RegisterSceneLibrary(context_);
+
+	scene_ = new Urho3D::Scene(context_);
+	node = new Urho3D::Node(context_);
+
+	Urho3D::ResourceCache* cache = GetSubsystem<Urho3D::ResourceCache>();
+	Urho3D::FileSystem* fileSystem = GetSubsystem<Urho3D::FileSystem>();
+	Urho3D::XMLFile *xmlLevel = cache->GetResource<Urho3D::XMLFile>("res/playGroundTest.xml");
+
+	scene_->LoadXML(xmlLevel->GetRoot());
+	Urho3D::Node* movingPlatNode = scene_->GetChild("movingPlatformDisk1", true);
+
+	Urho3D::Vector3 pos = movingPlatNode->GetWorldPosition();
+	std::cout << pos.x_ << "  " << pos.y_ << "  " << pos.z_ << std::endl;
 }
 
 Game::~Game() {
@@ -337,4 +356,16 @@ void Game::removePickingConstraint() {
 		pickedBody->setDeactivationTime(0.0f);
 		pickedBody = 0;
 	}
+}
+
+Urho3D::StringHash Game::GetType() const { 
+	return GetTypeInfoStatic()->GetType(); 
+}
+
+const Urho3D::String& Game::GetTypeName() const { 
+	return GetTypeInfoStatic()->GetTypeName(); 
+}
+
+const Urho3D::TypeInfo* Game::GetTypeInfo() const { 
+	return GetTypeInfoStatic(); 
 }
