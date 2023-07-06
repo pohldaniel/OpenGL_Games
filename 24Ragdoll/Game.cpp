@@ -45,19 +45,27 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_pickCo
 	context_->RegisterSubsystem(new Urho3D::FileSystem(context_));
 	context_->RegisterSubsystem(new Urho3D::ResourceCache(context_));
 	RegisterSceneLibrary(context_);
-
-	scene_ = new Urho3D::Scene(context_);
-	node = new Urho3D::Node(context_);
+	context_->RegisterSubsystem(new Urho3D::Graphics(context_));
 
 	Urho3D::ResourceCache* cache = GetSubsystem<Urho3D::ResourceCache>();
-	Urho3D::FileSystem* fileSystem = GetSubsystem<Urho3D::FileSystem>();
-	Urho3D::XMLFile *xmlLevel = cache->GetResource<Urho3D::XMLFile>("res/playGroundTest.xml");
 
-	scene_->LoadXML(xmlLevel->GetRoot());
-	Urho3D::Node* movingPlatNode = scene_->GetChild("movingPlatformDisk1", true);
+	//scene_ = new Urho3D::Scene(context_);
+	//node = new Urho3D::Node(context_);
+	//Urho3D::FileSystem* fileSystem = GetSubsystem<Urho3D::FileSystem>();
+	//Urho3D::XMLFile *xmlLevel = cache->GetResource<Urho3D::XMLFile>("res/playGroundTest_small.xml");
 
-	Urho3D::Vector3 pos = movingPlatNode->GetWorldPosition();
-	std::cout << pos.x_ << "  " << pos.y_ << "  " << pos.z_ << std::endl;
+	//scene_->LoadXML(xmlLevel->GetRoot());
+	//Urho3D::Node* movingPlatNode = scene_->GetChild("movingPlatformDisk1", true);
+
+	//Urho3D::Vector3 pos = movingPlatNode->GetWorldPosition();
+
+	//Urho3D::StringHash strHash = Urho3D::StringHash("StaticModel");
+	//Urho3D::SharedPtr<Urho3D::StaticModel> staticModel = Urho3D::DynamicCast<Urho3D::StaticModel>(context_->CreateObject(strHash));
+
+
+	Urho3D::Model* model = cache->GetResource<Urho3D::Model>("res/Models/disk.mdl");
+	const Urho3D::BoundingBox& bb = model->GetBoundingBox();
+	std::cout << bb.min_.x_ << "  " << bb.min_.y_ << "  " << bb.min_.z_ << std::endl;
 }
 
 Game::~Game() {

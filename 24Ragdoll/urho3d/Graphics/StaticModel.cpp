@@ -38,6 +38,7 @@
 #include "../Resource/ResourceEvents.h"
 
 #include "../DebugNew.h"
+#include <iostream>
 
 namespace Urho3D
 {
@@ -57,6 +58,7 @@ StaticModel::~StaticModel()
 
 void StaticModel::RegisterObject(Context* context)
 {
+	std::cout << "Register Static Model" << std::endl;
     context->RegisterFactory<StaticModel>(GEOMETRY_CATEGORY);
 
     URHO3D_ACCESSOR_ATTRIBUTE("Is Enabled", IsEnabled, SetEnabled, bool, true, AM_DEFAULT);
@@ -235,7 +237,8 @@ void StaticModel::SetModel(Model* model)
         return;
 
     if (!node_)
-    {
+	{
+		std::cout << "Can not set model while model component is not attached to a scene node" << std::endl;
         URHO3D_LOGERROR("Can not set model while model component is not attached to a scene node");
         return;
     }
@@ -374,8 +377,8 @@ void StaticModel::SetNumGeometries(unsigned num)
 
 void StaticModel::SetModelAttr(const ResourceRef& value)
 {
-    ResourceCache* cache = GetSubsystem<ResourceCache>();
-    SetModel(cache->GetResource<Model>(value.name_));
+	ResourceCache* cache = GetSubsystem<ResourceCache>();
+	SetModel(cache->GetResource<Model>(value.name_));
 }
 
 void StaticModel::SetMaterialsAttr(const ResourceRefList& value)

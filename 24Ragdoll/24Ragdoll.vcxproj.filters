@@ -109,6 +109,9 @@
     <Filter Include="Source Files\Utils">
       <UniqueIdentifier>{c5ffcde2-dc23-4afa-a0da-d27a2ced2fdd}</UniqueIdentifier>
     </Filter>
+    <Filter Include="urho3d\Graphics\OpenGL">
+      <UniqueIdentifier>{c9d8bad1-da81-4dcf-9b2b-fb92bd7cabd9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -693,45 +696,6 @@
     <ClCompile Include="urho3d\Graphics\Tangent.cpp">
       <Filter>urho3d\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="urho3d\Graphics\Direct3D9\D3D9ConstantBuffer.cpp">
-      <Filter>urho3d\Graphics\Direct3D9</Filter>
-    </ClCompile>
-    <ClCompile Include="urho3d\Graphics\Direct3D9\D3D9Graphics.cpp">
-      <Filter>urho3d\Graphics\Direct3D9</Filter>
-    </ClCompile>
-    <ClCompile Include="urho3d\Graphics\Direct3D9\D3D9GraphicsImpl.cpp">
-      <Filter>urho3d\Graphics\Direct3D9</Filter>
-    </ClCompile>
-    <ClCompile Include="urho3d\Graphics\Direct3D9\D3D9IndexBuffer.cpp">
-      <Filter>urho3d\Graphics\Direct3D9</Filter>
-    </ClCompile>
-    <ClCompile Include="urho3d\Graphics\Direct3D9\D3D9RenderSurface.cpp">
-      <Filter>urho3d\Graphics\Direct3D9</Filter>
-    </ClCompile>
-    <ClCompile Include="urho3d\Graphics\Direct3D9\D3D9ShaderVariation.cpp">
-      <Filter>urho3d\Graphics\Direct3D9</Filter>
-    </ClCompile>
-    <ClCompile Include="urho3d\Graphics\Direct3D9\D3D9Texture.cpp">
-      <Filter>urho3d\Graphics\Direct3D9</Filter>
-    </ClCompile>
-    <ClCompile Include="urho3d\Graphics\Direct3D9\D3D9Texture2D.cpp">
-      <Filter>urho3d\Graphics\Direct3D9</Filter>
-    </ClCompile>
-    <ClCompile Include="urho3d\Graphics\Direct3D9\D3D9Texture2DArray.cpp">
-      <Filter>urho3d\Graphics\Direct3D9</Filter>
-    </ClCompile>
-    <ClCompile Include="urho3d\Graphics\Direct3D9\D3D9Texture3D.cpp">
-      <Filter>urho3d\Graphics\Direct3D9</Filter>
-    </ClCompile>
-    <ClCompile Include="urho3d\Graphics\Direct3D9\D3D9TextureCube.cpp">
-      <Filter>urho3d\Graphics\Direct3D9</Filter>
-    </ClCompile>
-    <ClCompile Include="urho3d\Graphics\Direct3D9\D3D9VertexBuffer.cpp">
-      <Filter>urho3d\Graphics\Direct3D9</Filter>
-    </ClCompile>
-    <ClCompile Include="urho3d\Graphics\Direct3D9\D3D9VertexDeclaration.cpp">
-      <Filter>urho3d\Graphics\Direct3D9</Filter>
-    </ClCompile>
     <ClCompile Include="urho3d\Graphics\ConstantBuffer.cpp">
       <Filter>urho3d\Graphics</Filter>
     </ClCompile>
@@ -812,6 +776,45 @@
     </ClCompile>
     <ClCompile Include="SolidIO.cpp">
       <Filter>Source Files\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Graphics\OpenGL\OGLConstantBuffer.cpp">
+      <Filter>urho3d\Graphics\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Graphics\OpenGL\OGLGraphics.cpp">
+      <Filter>urho3d\Graphics\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Graphics\OpenGL\OGLGraphicsImpl.cpp">
+      <Filter>urho3d\Graphics\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Graphics\OpenGL\OGLIndexBuffer.cpp">
+      <Filter>urho3d\Graphics\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Graphics\OpenGL\OGLRenderSurface.cpp">
+      <Filter>urho3d\Graphics\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Graphics\OpenGL\OGLShaderProgram.cpp">
+      <Filter>urho3d\Graphics\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Graphics\OpenGL\OGLShaderVariation.cpp">
+      <Filter>urho3d\Graphics\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Graphics\OpenGL\OGLTexture.cpp">
+      <Filter>urho3d\Graphics\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Graphics\OpenGL\OGLTexture2D.cpp">
+      <Filter>urho3d\Graphics\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Graphics\OpenGL\OGLTexture2DArray.cpp">
+      <Filter>urho3d\Graphics\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Graphics\OpenGL\OGLTexture3D.cpp">
+      <Filter>urho3d\Graphics\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Graphics\OpenGL\OGLTextureCube.cpp">
+      <Filter>urho3d\Graphics\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Graphics\OpenGL\OGLVertexBuffer.cpp">
+      <Filter>urho3d\Graphics\OpenGL</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1594,6 +1597,12 @@
     </ClInclude>
     <ClInclude Include="SolidIO.h">
       <Filter>Source Files\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Graphics\OpenGL\OGLGraphicsImpl.h">
+      <Filter>urho3d\Graphics\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Graphics\OpenGL\OGLShaderProgram.h">
+      <Filter>urho3d\Graphics\OpenGL</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

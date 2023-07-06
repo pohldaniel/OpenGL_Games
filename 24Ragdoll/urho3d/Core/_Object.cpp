@@ -27,7 +27,7 @@
 #include "../IO/Log.h"
 
 #include "../DebugNew.h"
-
+#include <iostream>
 
 namespace Urho3D
 {
@@ -297,6 +297,7 @@ void Object::SendEvent(StringHash eventType, VariantMap& eventData)
 {
     if (!Thread::IsMainThread())
     {
+		std::cout << "Sending events is only supported from the main thread" << std::endl;
         URHO3D_LOGERROR("Sending events is only supported from the main thread");
         return;
     }

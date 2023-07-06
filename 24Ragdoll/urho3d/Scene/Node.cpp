@@ -38,6 +38,8 @@
 
 #include "../DebugNew.h"
 
+#include <iostream>
+
 #ifdef _MSC_VER
 #pragma warning(disable:6293)
 #endif
@@ -918,7 +920,7 @@ Component* Node::CreateComponent(StringHash type, CreateMode mode, unsigned id)
         URHO3D_LOGERROR("Could not create unknown component type " + type.ToString());
         return 0;
     }
-
+	
     AddComponent(newComponent, id, mode);
     return newComponent;
 }
@@ -1593,9 +1595,8 @@ bool Node::LoadXML(const XMLElement& source, SceneResolver& resolver, bool readC
     {
         String typeName = compElem.GetAttribute("type");
         unsigned compID = compElem.GetUInt("id");
-        Component* newComponent = SafeCreateComponent(typeName, StringHash(typeName),
-            (mode == REPLICATED && compID < FIRST_LOCAL_ID) ? REPLICATED : LOCAL, rewriteIDs ? 0 : compID);
-        if (newComponent)
+        Component* newComponent = SafeCreateComponent(typeName, StringHash(typeName), (mode == REPLICATED && compID < FIRST_LOCAL_ID) ? REPLICATED : LOCAL, rewriteIDs ? 0 : compID);	
+		if (newComponent)
         {
             resolver.AddComponent(compID, newComponent);
             if (!newComponent->LoadXML(compElem))
@@ -2054,9 +2055,9 @@ Component* Node::SafeCreateComponent(const String& typeName, StringHash type, Cr
         mode = LOCAL;
 
     // First check if factory for type exists
-    if (!context_->GetTypeName(type).Empty())
-        return CreateComponent(type, mode, id);
-    else
+	if (!context_->GetTypeName(type).Empty()) {
+		return CreateComponent(type, mode, id);
+	}else
     {
         URHO3D_LOGWARNING("Component type " + type.ToString() + " not known, creating UnknownComponent as placeholder");
         // Else create as UnknownComponent

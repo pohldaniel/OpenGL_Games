@@ -87,7 +87,7 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;VERSION="0.4.0";_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;GLEW_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;VERSION="0.4.0";URHO3D_OPENGL;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;GLEW_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\;urho3d;urho3d\rapidjson\include;..\libglew;..\libimgui;..\libassimp;..\libassimp\include;..\openal\include;..\sndfile\include;..\libfreetype\include;..\libbullet;..\libsoil2;..\libjsoncpp\include;..\libjpeg\include;..\libpng\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
@@ -103,7 +103,7 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;VERSION="0.4.0";_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;GLEW_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;VERSION="0.4.0";URHO3D_OPENGL;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;GLEW_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\;urho3d;urho3d\rapidjson\include;..\libglew;..\libimgui;..\libassimp;..\libassimp\include;..\openal\include;..\sndfile\include;..\libfreetype\include;..\libbullet;..\libsoil2;..\libjsoncpp\include;..\libjpeg\include;..\libpng\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
@@ -121,7 +121,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;VERSION="0.4.0";NDEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;GLEW_STATIC;URHO3D_ANGELSCRIPT;URHO3D_FILEWATCHER;URHO3D_LOGGING;URHO3D_LUA;URHO3D_MINIDUMPS;URHO3D_NAVIGATION;URHO3D_NETWORK;URHO3D_PROFILING;URHO3D_THREADING;URHO3D_IS_BUILDING;TOLUA_RELEASE;HAVE_RTL_OSVERSIONINFOW;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;VERSION="0.4.0";URHO3D_OPENGL;NDEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;GLEW_STATIC;URHO3D_ANGELSCRIPT;URHO3D_FILEWATCHER;URHO3D_LOGGING;URHO3D_LUA;URHO3D_MINIDUMPS;URHO3D_NAVIGATION;URHO3D_NETWORK;URHO3D_PROFILING;URHO3D_THREADING;URHO3D_IS_BUILDING;TOLUA_RELEASE;HAVE_RTL_OSVERSIONINFOW;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\;urho3d;urho3d\rapidjson\include;..\libglew;..\libimgui;..\libassimp;..\libassimp\include;..\openal\include;..\sndfile\include;..\libfreetype\include;..\libbullet;..\libsoil2;..\libjsoncpp\include;..\libjpeg\include;..\libpng\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
@@ -141,7 +141,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;VERSION="0.4.0";NDEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;GLEW_STATIC;URHO3D_ANGELSCRIPT;URHO3D_FILEWATCHER;URHO3D_LOGGING;URHO3D_LUA;URHO3D_MINIDUMPS;URHO3D_NAVIGATION;URHO3D_NETWORK;URHO3D_PROFILING;URHO3D_THREADING;URHO3D_IS_BUILDING;TOLUA_RELEASE;HAVE_RTL_OSVERSIONINFOW;URHO3D_IS_BUILDING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;VERSION="0.4.0";URHO3D_OPENGL;NDEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;GLEW_STATIC;URHO3D_ANGELSCRIPT;URHO3D_FILEWATCHER;URHO3D_LOGGING;URHO3D_LUA;URHO3D_MINIDUMPS;URHO3D_NAVIGATION;URHO3D_NETWORK;URHO3D_PROFILING;URHO3D_THREADING;URHO3D_IS_BUILDING;TOLUA_RELEASE;HAVE_RTL_OSVERSIONINFOW;URHO3D_IS_BUILDING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\;urho3d;urho3d\rapidjson\include;..\libglew;..\libimgui;..\libassimp;..\libassimp\include;..\openal\include;..\sndfile\include;..\libfreetype\include;..\libbullet;..\libsoil2;..\libjsoncpp\include;..\libjpeg\include;..\libpng\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
@@ -411,19 +411,6 @@
     <ClCompile Include="urho3d\Graphics\CustomGeometry.cpp" />
     <ClCompile Include="urho3d\Graphics\DebugRenderer.cpp" />
     <ClCompile Include="urho3d\Graphics\DecalSet.cpp" />
-    <ClCompile Include="urho3d\Graphics\Direct3D9\D3D9ConstantBuffer.cpp" />
-    <ClCompile Include="urho3d\Graphics\Direct3D9\D3D9Graphics.cpp" />
-    <ClCompile Include="urho3d\Graphics\Direct3D9\D3D9GraphicsImpl.cpp" />
-    <ClCompile Include="urho3d\Graphics\Direct3D9\D3D9IndexBuffer.cpp" />
-    <ClCompile Include="urho3d\Graphics\Direct3D9\D3D9RenderSurface.cpp" />
-    <ClCompile Include="urho3d\Graphics\Direct3D9\D3D9ShaderVariation.cpp" />
-    <ClCompile Include="urho3d\Graphics\Direct3D9\D3D9Texture.cpp" />
-    <ClCompile Include="urho3d\Graphics\Direct3D9\D3D9Texture2D.cpp" />
-    <ClCompile Include="urho3d\Graphics\Direct3D9\D3D9Texture2DArray.cpp" />
-    <ClCompile Include="urho3d\Graphics\Direct3D9\D3D9Texture3D.cpp" />
-    <ClCompile Include="urho3d\Graphics\Direct3D9\D3D9TextureCube.cpp" />
-    <ClCompile Include="urho3d\Graphics\Direct3D9\D3D9VertexBuffer.cpp" />
-    <ClCompile Include="urho3d\Graphics\Direct3D9\D3D9VertexDeclaration.cpp" />
     <ClCompile Include="urho3d\Graphics\Drawable.cpp" />
     <ClCompile Include="urho3d\Graphics\Geometry.cpp" />
     <ClCompile Include="urho3d\Graphics\GPUObject.cpp" />
@@ -432,6 +419,19 @@
     <ClCompile Include="urho3d\Graphics\IndexBuffer.cpp" />
     <ClCompile Include="urho3d\Graphics\Light.cpp" />
     <ClCompile Include="urho3d\Graphics\Model.cpp" />
+    <ClCompile Include="urho3d\Graphics\OpenGL\OGLConstantBuffer.cpp" />
+    <ClCompile Include="urho3d\Graphics\OpenGL\OGLGraphics.cpp" />
+    <ClCompile Include="urho3d\Graphics\OpenGL\OGLGraphicsImpl.cpp" />
+    <ClCompile Include="urho3d\Graphics\OpenGL\OGLIndexBuffer.cpp" />
+    <ClCompile Include="urho3d\Graphics\OpenGL\OGLRenderSurface.cpp" />
+    <ClCompile Include="urho3d\Graphics\OpenGL\OGLShaderProgram.cpp" />
+    <ClCompile Include="urho3d\Graphics\OpenGL\OGLShaderVariation.cpp" />
+    <ClCompile Include="urho3d\Graphics\OpenGL\OGLTexture.cpp" />
+    <ClCompile Include="urho3d\Graphics\OpenGL\OGLTexture2D.cpp" />
+    <ClCompile Include="urho3d\Graphics\OpenGL\OGLTexture2DArray.cpp" />
+    <ClCompile Include="urho3d\Graphics\OpenGL\OGLTexture3D.cpp" />
+    <ClCompile Include="urho3d\Graphics\OpenGL\OGLTextureCube.cpp" />
+    <ClCompile Include="urho3d\Graphics\OpenGL\OGLVertexBuffer.cpp" />
     <ClCompile Include="urho3d\Graphics\ParticleEffect.cpp" />
     <ClCompile Include="urho3d\Graphics\ParticleEmitter.cpp" />
     <ClCompile Include="urho3d\Graphics\RibbonTrail.cpp" />
@@ -930,6 +930,8 @@
     <ClInclude Include="urho3d\Graphics\OcclusionBuffer.h" />
     <ClInclude Include="urho3d\Graphics\Octree.h" />
     <ClInclude Include="urho3d\Graphics\OctreeQuery.h" />
+    <ClInclude Include="urho3d\Graphics\OpenGL\OGLGraphicsImpl.h" />
+    <ClInclude Include="urho3d\Graphics\OpenGL\OGLShaderProgram.h" />
     <ClInclude Include="urho3d\Graphics\ParticleEffect.h" />
     <ClInclude Include="urho3d\Graphics\ParticleEmitter.h" />
     <ClInclude Include="urho3d\Graphics\Renderer.h" />

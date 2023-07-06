@@ -21,25 +21,16 @@
 #include "urho3d/Container/Ptr.h"
 #include "urho3d/Scene/Scene.h"
 #include "urho3d/Scene/Node.h"
+#include "urho3d/Scene/Component.h"
 #include "urho3d/Resource/ResourceCache.h"
 #include "urho3d/Resource/XMLFile.h"
 
-/*#include <Urho3D/Core/CoreEvents.h>
-#include <Urho3D/Core/ProcessUtils.h>
-#include <Urho3D/Graphics/AnimatedModel.h>
-#include <Urho3D/Graphics/AnimationController.h>
-#include <Urho3D/Graphics/Camera.h>
-#include <Urho3D/Graphics/Light.h>
-#include <Urho3D/Graphics/Material.h>
-#include <Urho3D/Graphics/Octree.h>
-#include <Urho3D/Graphics/Renderer.h>
-#include <Urho3D/Graphics/Zone.h>
-#include <Urho3D/IO/FileSystem.h>
-#include <Urho3D/IO/MemoryBuffer.h>
-#include <Urho3D/Resource/ResourceCache.h>
-#include <Urho3D/Graphics/DebugRenderer.h>
-#include <Urho3D/Scene/Scene.h>*/
+#include "urho3d/Graphics/Graphics.h"
+#include "urho3d/Graphics/StaticModel.h"
+#include "urho3d/Graphics/Model.h"
 
+
+#include "urho3d/Math/BoundingBox.h"
 
 class Game : public State, public MouseEventListener, public KeyboardEventListener, public Urho3D::Object{
 

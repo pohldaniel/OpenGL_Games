@@ -43,7 +43,7 @@
 #include "../../IO/Log.h"
 #include "../../Resource/ResourceCache.h"
 
-#include <SDL/SDL.h>
+//#include <SDL/SDL.h>
 
 #include "../../DebugNew.h"
 
@@ -227,7 +227,7 @@ Graphics::Graphics(Context* context_) :
     externalWindow_(0),
     width_(0),
     height_(0),
-    position_(SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED),
+    position_(0, 0),
     multiSample_(1),
     fullscreen_(false),
     borderless_(false),
@@ -269,7 +269,7 @@ Graphics::Graphics(Context* context_) :
     SetTextureUnitMappings();
     ResetCachedState();
 
-    context_->RequireSDL(SDL_INIT_VIDEO);
+    //context_->RequireSDL(SDL_INIT_VIDEO);
 
     // Register Graphics library object factories
     RegisterGraphicsLibrary(context_);
@@ -298,7 +298,7 @@ bool Graphics::SetMode(int width, int height, bool fullscreen, bool borderless, 
 #endif
 
     // Make sure monitor index is not bigger than the currently detected monitors
-    int monitors = SDL_GetNumVideoDisplays();
+   /* int monitors = SDL_GetNumVideoDisplays();
     if (monitor >= monitors || monitor < 0)
         monitor = 0; // this monitor is not present, use first monitor
 
@@ -551,7 +551,7 @@ bool Graphics::SetMode(int width, int height, bool fullscreen, bool borderless, 
     eventData[P_HIGHDPI] = highDPI_;
     eventData[P_MONITOR] = monitor_;
     eventData[P_REFRESHRATE] = refreshRate_;
-    SendEvent(E_SCREENMODE, eventData);
+    SendEvent(E_SCREENMODE, eventData);*/
 
     return true;
 }
@@ -643,11 +643,11 @@ bool Graphics::BeginFrame()
     // If using an external window, check it for size changes, and reset screen mode if necessary
     if (externalWindow_)
     {
-        int width, height;
+        /*int width, height;
 
         SDL_GL_GetDrawableSize(window_, &width, &height);
         if (width != width_ || height != height_)
-            SetMode(width, height);
+            SetMode(width, height);*/
     }
 
     // Re-enable depth test and depth func in case a third party program has modified it
@@ -675,7 +675,7 @@ bool Graphics::BeginFrame()
 
 void Graphics::EndFrame()
 {
-    if (!IsInitialized())
+    /*if (!IsInitialized())
         return;
 
     URHO3D_PROFILE(Present);
@@ -685,7 +685,7 @@ void Graphics::EndFrame()
     SDL_GL_SwapWindow(window_);
 
     // Clean up too large scratch buffers
-    CleanupScratchBuffers();
+    CleanupScratchBuffers();*/
 }
 
 void Graphics::Clear(unsigned flags, const Color& color, float depth, unsigned stencil)
@@ -2253,7 +2253,7 @@ IntVector2 Graphics::GetRenderTargetDimensions() const
 
 void Graphics::OnWindowResized()
 {
-    if (!window_)
+    /*if (!window_)
         return;
 
     int newWidth, newHeight;
@@ -2284,7 +2284,7 @@ void Graphics::OnWindowResized()
     eventData[P_RESIZABLE] = resizable_;
     eventData[P_BORDERLESS] = borderless_;
     eventData[P_HIGHDPI] = highDPI_;
-    SendEvent(E_SCREENMODE, eventData);
+    SendEvent(E_SCREENMODE, eventData);*/
 }
 
 void Graphics::OnWindowMoved()
@@ -2294,7 +2294,7 @@ void Graphics::OnWindowMoved()
 
     int newX, newY;
 
-    SDL_GetWindowPosition(window_, &newX, &newY);
+    /*SDL_GetWindowPosition(window_, &newX, &newY);
     if (newX == position_.x_ && newY == position_.y_)
         return;
 
@@ -2308,7 +2308,7 @@ void Graphics::OnWindowMoved()
     VariantMap& eventData = GetEventDataMap();
     eventData[P_X] = position_.x_;
     eventData[P_Y] = position_.y_;
-    SendEvent(E_WINDOWPOS, eventData);
+    SendEvent(E_WINDOWPOS, eventData);*/
 }
 
 void Graphics::CleanupRenderSurface(RenderSurface* surface)
@@ -2428,7 +2428,7 @@ void Graphics::Release(bool clearGPUObjects, bool closeWindow)
         SDL_SetWindowFullscreen(window_, 0);
 #endif
 
-    if (impl_->context_)
+    /*if (impl_->context_)
     {
         // Do not log this message if we are exiting
         if (!clearGPUObjects)
@@ -2448,12 +2448,12 @@ void Graphics::Release(bool clearGPUObjects, bool closeWindow)
             SDL_DestroyWindow(window_);
             window_ = 0;
         }
-    }
+    }*/
 }
 
 void Graphics::Restore()
 {
-    if (!window_)
+    /*if (!window_)
         return;
 
 #ifdef __ANDROID__
@@ -2555,7 +2555,7 @@ void Graphics::Restore()
             (*i)->OnDeviceReset();
     }
 
-    SendEvent(E_DEVICERESET);
+    SendEvent(E_DEVICERESET);*/
 }
 
 void Graphics::MarkFBODirty()

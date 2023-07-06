@@ -36,7 +36,7 @@
 #include "../Resource/XMLFile.h"
 
 #include "../DebugNew.h"
-
+#include <iostream>
 namespace Urho3D
 {
 
@@ -71,13 +71,14 @@ Model::~Model()
 
 void Model::RegisterObject(Context* context)
 {
+	std::cout << "Register Model" << std::endl;
     context->RegisterFactory<Model>();
 }
 
 bool Model::BeginLoad(Deserializer& source)
 {
-
-	URHO3D_LOGERROR(source.GetName() + " ####################");
+	std::cout << "Load Model" << std::endl;
+	URHO3D_LOGERROR(source.GetName());
 
     // Check ID
     String fileID = source.ReadFileID();
