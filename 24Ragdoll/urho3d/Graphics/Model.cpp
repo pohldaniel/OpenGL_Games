@@ -79,7 +79,7 @@ void Model::RegisterObject(Context* context)
 bool Model::BeginLoad(Deserializer& source)
 {
 
-	std::cout << "Load Model" << std::endl;
+	std::cout << "Begin Load" << std::endl;
 	URHO3D_LOGERROR(source.GetName());
 
     // Check ID
@@ -328,6 +328,7 @@ bool Model::BeginLoad(Deserializer& source)
 
 bool Model::EndLoad()
 {
+	std::cout << "End Load" << std::endl;
     // Upload vertex buffer data
     for (unsigned i = 0; i < vertexBuffers_.Size(); ++i)
     {

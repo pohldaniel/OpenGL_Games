@@ -48,6 +48,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_pickCo
 	context_->RegisterSubsystem(new Urho3D::Graphics(context_));
 
 	Urho3D::ResourceCache* cache = GetSubsystem<Urho3D::ResourceCache>();
+	graphics = GetSubsystem<Urho3D::Graphics>();
 
 	//scene_ = new Urho3D::Scene(context_);
 	//node = new Urho3D::Node(context_);
@@ -65,47 +66,13 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_pickCo
 
 	Urho3D::Model* model = cache->GetResource<Urho3D::Model>("res/Models/disk.mdl");
 	const Urho3D::BoundingBox& bb = model->GetBoundingBox();
-	std::cout << bb.min_.x_ << "  " << bb.min_.y_ << "  " << bb.min_.z_ << std::endl;
-	std::cout << bb.max_.x_ << "  " << bb.max_.y_ << "  " << bb.max_.z_ << std::endl;
-
-	graphics = GetSubsystem<Urho3D::Graphics>();
-
-	geometry = model->GetGeometry(0, 0);
-	unsigned char* data_ = geometry->GetVertexBuffer(0)->GetShadowData();
-	unsigned int stride = geometry->GetVertexBuffer(0)->GetVertexSize();
-	unsigned int dataSize = geometry->GetVertexBuffer(0)->GetVertexCount() * stride;
-
-	/*for (int i = 0; i < dataSize; i = i + stride) {
-		std::cout << "Vertex: " << std::endl;
-		std::cout << Utils::bytesToFloatLE(data_[i + 0], data_[i + 1], data_[i + 2], data_[i + 3]) << "  ";
-		std::cout << Utils::bytesToFloatLE(data_[i + 4], data_[i + 5], data_[i + 6], data_[i + 7]) << "  ";
-		std::cout << Utils::bytesToFloatLE(data_[i + 8], data_[i + 9], data_[i + 10], data_[i + 11]) << std::endl;
-
-		std::cout << "Normal: " << std::endl;
-		std::cout << Utils::bytesToFloatLE(data_[i +  12], data_[i + 13], data_[i + 14], data_[i + 15]) << "  ";
-		std::cout << Utils::bytesToFloatLE(data_[i + 16], data_[i + 17], data_[i + 18], data_[i + 19]) << "  ";
-		std::cout << Utils::bytesToFloatLE(data_[i + 20], data_[i + 21], data_[i + 22], data_[i + 23]) << std::endl;
-
-		std::cout << "Uv: " << std::endl;
-		std::cout << Utils::bytesToFloatLE(data_[i + 24], data_[i + 25], data_[i + 26], data_[i + 27]) << "  ";
-		std::cout << Utils::bytesToFloatLE(data_[i + 28], data_[i + 29], data_[i + 30], data_[i + 31]) << std::endl;
-
-	}*/
-
-	geometry = model->GetGeometry(0, 0);
-	data_ = geometry->GetIndexBuffer()->GetShadowData();
-	stride = geometry->GetIndexBuffer()->GetIndexSize();
-	dataSize = geometry->GetIndexBuffer()->GetIndexCount() * stride;
 	
-	std::cout << "Index Stride: " << stride << std::endl;
 
-
+	geometry = model->GetGeometry(0, 0);
+	
 	mdlToObj(geometry->GetVertexBuffer(0)->GetShadowData(), geometry->GetVertexBuffer(0)->GetVertexCount(), geometry->GetVertexBuffer(0)->GetVertexSize(),
 			 geometry->GetIndexBuffer()->GetShadowData(), geometry->GetIndexBuffer()->GetIndexCount(), geometry->GetIndexBuffer()->GetIndexSize());
 
-	/*for (int i = 0; i < dataSize; i = i + stride) {
-		std::cout << Utils::bytesToShortLE(data_[i + 0], data_[i + 1]) << std::endl;
-	}*/
 }
 
 void Game::mdlToObj(unsigned char* vertexData, unsigned int vertexCount, unsigned int vertexStride, unsigned char* indexData, unsigned int indexCount, unsigned int indexStride) {
@@ -135,8 +102,6 @@ void Game::mdlToObj(unsigned char* vertexData, unsigned int vertexCount, unsigne
 						  Utils::bytesToShortLE(indexData[i + 2], indexData[i + 3]), 
 						  Utils::bytesToShortLE(indexData[i + 4], indexData[i + 5]) });
 	}
-
-	std::cout << "Num Faces: " << faces.size() << std::endl;
 
 	std::ofstream fileOut;
 	fileOut << std::setprecision(6) << std::fixed;
