@@ -27,6 +27,7 @@
 #include "../IO/Log.h"
 #include "../Resource/Resource.h"
 #include "../Resource/XMLElement.h"
+#include <iostream>
 
 namespace Urho3D
 {
@@ -40,6 +41,8 @@ Resource::Resource(Context* context) :
 
 bool Resource::Load(Deserializer& source)
 {
+
+	std::cout << "Load Resource: " << std::endl;
     // Because BeginLoad() / EndLoad() can be called from worker threads, where profiling would be a no-op,
     // create a type name -based profile block here
 #ifdef URHO3D_PROFILING
@@ -86,6 +89,7 @@ bool Resource::Save(Serializer& dest) const
 
 bool Resource::LoadFile(const String& fileName)
 {
+	std::cout << "Load File: " << std::endl;
     File file(context_);
     return file.Open(fileName, FILE_READ) && Load(file);
 }

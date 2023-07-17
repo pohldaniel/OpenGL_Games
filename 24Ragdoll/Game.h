@@ -75,6 +75,7 @@ private:
 
 	ModelLu model;
 	Utils::SolidIO  solidConverter;
+	Utils::MdlIO mldConverter;
 
 	std::vector<float> vertexBuffer;
 	std::vector<unsigned int> indexBuffer;

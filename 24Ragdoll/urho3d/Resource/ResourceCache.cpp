@@ -41,7 +41,7 @@
 #include "../DebugNew.h"
 
 #include <cstdio>
-
+#include <iostream>
 namespace Urho3D
 {
 
@@ -371,6 +371,8 @@ void ResourceCache::ReleaseAllResources(bool force)
 
 bool ResourceCache::ReloadResource(Resource* resource)
 {
+	
+
     if (!resource)
         return false;
 
@@ -561,6 +563,7 @@ Resource* ResourceCache::GetExistingResource(StringHash type, const String& name
 
 Resource* ResourceCache::GetResource(StringHash type, const String& nameIn, bool sendEventOnFailure)
 {
+	std::cout << "Get Resource: " << std::endl;
     String name = SanitateResourceName(nameIn);
 
     if (!Thread::IsMainThread())

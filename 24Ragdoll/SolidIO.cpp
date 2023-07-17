@@ -14,6 +14,20 @@ short Utils::bytesToShortBE(unsigned char b0, unsigned char b1) {
 	return f;
 }
 
+unsigned int Utils::bytesToUIntLE(unsigned char b0, unsigned char b1, unsigned char b2, unsigned char b3) {
+	unsigned int f;
+	unsigned char b[] = { b0, b1, b2, b3 };
+	memcpy(&f, &b, sizeof(unsigned int));
+	return f;
+}
+
+unsigned int Utils::bytesToUIntBE(unsigned char b0, unsigned char b1, unsigned char b2, unsigned char b3) {
+	unsigned int f;
+	unsigned char b[] = { b3, b2, b1, b0 };
+	memcpy(&f, &b, sizeof(unsigned int));
+	return f;
+}
+
 float Utils::bytesToFloatLE(unsigned char b0, unsigned char b1, unsigned char b2, unsigned char b3) {
 	float f;
 	unsigned char b[] = { b0, b1, b2, b3 };
@@ -210,4 +224,146 @@ void Utils::SolidIO::solidToBuffer(const char* filename, bool flipVertical, std:
 
 	delete buffer;
 	delete bufferTris;
+}
+
+const unsigned ELEMENT_TYPESIZES[] = {
+	sizeof(int),
+	sizeof(float),
+	2 * sizeof(float),
+	3 * sizeof(float),
+	4 * sizeof(float),
+	sizeof(unsigned),
+	sizeof(unsigned)
+};
+
+void Utils::MdlIO::mdlToObj(const char* filename, const char* outFileObj, const char* outFileMtl, const char* texturePath) {
+	std::experimental::filesystem::path mltPath(outFileMtl);
+	
+	std::vector<std::array<float, 3>> positions;
+	std::vector<std::array<float, 3>> normals;
+	std::vector <std::array<float, 2>> uvCoords;
+
+	std::vector<std::array<short, 3>> faces;
+
+	std::ifstream file(filename, std::ios::binary);
+
+	std::string ret;
+	ret.resize(4);
+	file.read(&ret[0], 4 * sizeof(char));
+	//std::cout << "Ret: " << ret << std::endl;
+
+	char metaData[4];
+
+	file.read(metaData, sizeof(unsigned int));
+	//std::cout << "Buffer Count: " << Utils::bytesToUIntLE(metaData[0], metaData[1], metaData[2], metaData[3]) << std::endl;
+
+
+	file.read(metaData, sizeof(unsigned int));
+	unsigned int vertexCount = Utils::bytesToUIntLE(metaData[0], metaData[1], metaData[2], metaData[3]);
+
+	//std::cout << "Vertex Count: " << vertexCount << std::endl;
+
+	file.read(metaData, sizeof(unsigned int));
+	unsigned int numElements = Utils::bytesToUIntLE(metaData[0], metaData[1], metaData[2], metaData[3]);
+	//std::cout << "Num Elements: " << numElements << std::endl;
+
+	unsigned int vertexSize = 0;
+
+	for (unsigned j = 0; j < numElements; ++j) {
+		file.read(metaData, sizeof(unsigned int));
+		unsigned int elementDesc = Utils::bytesToUIntLE(metaData[0], metaData[1], metaData[2], metaData[3]);
+		vertexSize += ELEMENT_TYPESIZES[elementDesc & 0xff];	
+	}
+	//std::cout << "Vertex Size2: " << vertexSize << std::endl;
+
+	file.read(metaData, sizeof(unsigned int));
+	file.read(metaData, sizeof(unsigned int));
+
+	char* buffer = new char[vertexCount * vertexSize];
+	file.read(buffer, vertexCount * vertexSize);
+
+	for (unsigned int i = 0; i < vertexCount * vertexSize; i = i + vertexSize) {
+
+		UFloat value[3];
+		value[0].c[0] = buffer[i + 0]; value[0].c[1] = buffer[i + 1]; value[0].c[2] = buffer[i + 2]; value[0].c[3] = buffer[i + 3];
+		value[1].c[0] = buffer[i + 4]; value[1].c[1] = buffer[i + 5]; value[1].c[2] = buffer[i + 6]; value[1].c[3] = buffer[i + 7];
+		value[2].c[0] = buffer[i + 8]; value[2].c[1] = buffer[i + 9]; value[2].c[2] = buffer[i + 10]; value[2].c[3] = buffer[i + 11];
+		positions.push_back({ value[0].flt , value[1].flt , value[2].flt });
+
+		value[0].c[0] = buffer[i + 12]; value[0].c[1] = buffer[i + 13]; value[0].c[2] = buffer[i + 14]; value[0].c[3] = buffer[i + 15];
+		value[1].c[0] = buffer[i + 16]; value[1].c[1] = buffer[i + 17]; value[1].c[2] = buffer[i + 18]; value[1].c[3] = buffer[i + 19];
+		value[2].c[0] = buffer[i + 20]; value[2].c[1] = buffer[i + 21]; value[2].c[2] = buffer[i + 22]; value[2].c[3] = buffer[i + 23];
+		normals.push_back({ value[0].flt , value[1].flt , value[2].flt });
+
+		value[0].c[0] = buffer[i + 24]; value[0].c[1] = buffer[i + 25]; value[0].c[2] = buffer[i + 26]; value[0].c[3] = buffer[i + 27];
+		value[1].c[0] = buffer[i + 28]; value[1].c[1] = buffer[i + 29]; value[1].c[2] = buffer[i + 30]; value[1].c[3] = buffer[i + 31];
+		uvCoords.push_back({ value[0].flt , value[1].flt });
+	}
+	delete buffer;
+
+	file.read(metaData, sizeof(unsigned int));
+	//std::cout << "Num IndexBuffer: " << Utils::bytesToUIntLE(metaData[0], metaData[1], metaData[2], metaData[3]) << std::endl;
+
+	file.read(metaData, sizeof(unsigned int));
+	unsigned int indexCount = Utils::bytesToUIntLE(metaData[0], metaData[1], metaData[2], metaData[3]);
+	//std::cout << "Index Count: " << indexCount << std::endl;
+
+	file.read(metaData, sizeof(unsigned int));
+	unsigned int indexSize = Utils::bytesToUIntLE(metaData[0], metaData[1], metaData[2], metaData[3]);
+	//std::cout << "Index Size: " << indexSize << std::endl;
+
+	buffer = new char[indexCount * indexSize];
+	file.read(buffer, indexCount * indexSize);
+
+	for (unsigned int i = 0; i < indexCount * indexSize; i = i + indexSize * 3) {
+		UShort value[3];
+
+		value[0].c[0] = buffer[i + 0]; value[0].c[1] = buffer[i + 1];
+		value[1].c[0] = buffer[i + 2]; value[1].c[1] = buffer[i + 3];
+		value[2].c[0] = buffer[i + 4]; value[2].c[1] = buffer[i + 5];
+
+		faces.push_back({ value[0].shrt, value[1].shrt, value[2].shrt });
+	}
+
+	file.close();
+
+	std::ofstream fileOut;
+	fileOut << std::setprecision(6) << std::fixed;
+	fileOut.open(outFileObj);
+	fileOut << "# OBJ file\n";
+	fileOut << "mtllib " << mltPath.filename() << std::endl;
+
+	for (int i = 0; i < positions.size(); i++) {
+		fileOut << "v " << positions[i][0] << " " << positions[i][1] << " " << positions[i][2] << std::endl;
+	}
+
+	for (int i = 0; i < normals.size(); i++) {
+		fileOut << "vn " << normals[i][0] << " " << normals[i][1] << " " << normals[i][2] << std::endl;
+	}
+
+	for (int i = 0; i < uvCoords.size(); i++) {
+		fileOut << "vt " << uvCoords[i][0] << " " << uvCoords[i][1] << std::endl;
+	}
+	fileOut << "usemtl Material\n";
+	for (int i = 0; i < faces.size(); i++) {
+		fileOut << "f " << faces[i][0] + 1 << "/" << faces[i][0] + 1 << "/" << faces[i][0] + 1 << " " << faces[i][1] + 1 << "/" << faces[i][1] + 1 << "/" << faces[i][1] + 1 << " " << faces[i][2] + 1 << "/" << faces[i][2] + 1 << "/" << faces[i][2] + 1 << std::endl;
+	}
+
+	fileOut.close();
+
+	fileOut.open(outFileMtl);
+	fileOut << std::setprecision(6) << std::fixed;
+	fileOut << "newmtl Material\n";
+	fileOut << "Ns 10.000000\n";
+
+	fileOut << "Ka 0.000000 0.000000 0.000000\n";
+	fileOut << "Kd 1.000000 1.000000 1.000000\n";
+	fileOut << "Ks 0.000000 0.000000 0.000000\n";
+	fileOut << "Ni 1.000000\n";
+	fileOut << "d 1.000000\n";
+	fileOut << "illum 1\n";
+	std::string absPath = std::experimental::filesystem::current_path().generic_string();
+	std::replace(absPath.begin(), absPath.end(), '\\', '/');
+	fileOut << "map_Kd " << absPath << texturePath;
+	fileOut.close();
 }

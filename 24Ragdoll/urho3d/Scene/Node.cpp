@@ -97,6 +97,7 @@ void Node::RegisterObject(Context* context)
 
 bool Node::Load(Deserializer& source, bool setInstanceDefault)
 {
+	std::cout << "Load Node: " << std::endl;
     SceneResolver resolver;
 
     // Read own ID. Will not be applied, only stored for resolving possible references

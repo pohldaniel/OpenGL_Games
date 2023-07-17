@@ -8,8 +8,6 @@
 #include "Globals.h"
 #include "Menu.h"
 
-
-
 Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_pickConstraint(0), Object(new Urho3D::Context()) {
 
 	Application::SetCursorIcon(IDC_ARROW);
@@ -64,68 +62,43 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_pickCo
 	//Urho3D::SharedPtr<Urho3D::StaticModel> staticModel = Urho3D::DynamicCast<Urho3D::StaticModel>(context_->CreateObject(strHash));
 
 
-	Urho3D::Model* model = cache->GetResource<Urho3D::Model>("res/Models/disk.mdl");
-	const Urho3D::BoundingBox& bb = model->GetBoundingBox();
+	//Urho3D::Model* model = cache->GetResource<Urho3D::Model>("res/Models/disk.mdl");
+	//const Urho3D::BoundingBox& bb = model->GetBoundingBox();
 	
 
-	geometry = model->GetGeometry(0, 0);
-	
-	mdlToObj(geometry->GetVertexBuffer(0)->GetShadowData(), geometry->GetVertexBuffer(0)->GetVertexCount(), geometry->GetVertexBuffer(0)->GetVertexSize(),
-			 geometry->GetIndexBuffer()->GetShadowData(), geometry->GetIndexBuffer()->GetIndexCount(), geometry->GetIndexBuffer()->GetIndexSize());
+	//Urho3D::Model* model = new Urho3D::Model(context_);
+	//Urho3D::SharedPtr<Urho3D::File> file(new Urho3D::File(context_, "res/Models/disk.mdl"));
+	//model->Load(*(file.Get()));
+	//geometry = model->GetGeometry(0, 0);
 
-}
+	//mldConverter.mdlToObj("res/Models/base.mdl", "res/base.obj", "res/base.mtl", "/textures/ProtoWhite256.jpg");
+	//mldConverter.mdlToObj("res/Models/basePlat.mdl", "res/basePlat.obj", "res/basePlat.mtl", "/textures/ProtoWhite256.jpg");
+	mldConverter.mdlToObj("res/Models/disk.mdl", "res/disk.obj", "res/disk.mtl", "/textures/ProtoWhite256.jpg");
+	//mldConverter.mdlToObj("res/Models/disk1.mdl", "res/disk1.obj", "res/disk1.mtl", "/textures/ProtoWhite256.jpg");
+	//mldConverter.mdlToObj("res/Models/Lift.mdl", "res/lift.obj", "res/lift.mtl", "/textures/ProtoWhite256.jpg");
+	//mldConverter.mdlToObj("res/Models/Lift1.mdl", "res/lift1.obj", "res/lift1.mtl", "/textures/ProtoWhite256.jpg");
+	//mldConverter.mdlToObj("res/Models/LiftButton.mdl", "res/liftButton.obj", "res/liftButton.mtl", "/textures/ProtoWhite256.jpg");
 
-void Game::mdlToObj(unsigned char* vertexData, unsigned int vertexCount, unsigned int vertexStride, unsigned char* indexData, unsigned int indexCount, unsigned int indexStride) {
-	std::vector<std::array<float, 3>> positions;
-	std::vector <std::array<float, 3>> normals;
-	std::vector <std::array<float, 2>> uvCoords;
-	std::vector<std::array<short, 3>> faces;
-	
-	for (int i = 0; i < vertexCount * vertexStride; i = i + vertexStride) {
+	//mldConverter.mdlToObj("res/Models/liftExterior.mdl", "res/liftExterior.obj", "res/liftExterior.mtl", "/textures/ProtoWhite256.jpg");
+	//mldConverter.mdlToObj("res/Models/liftExterior1.mdl", "res/liftExterior1.obj", "res/liftExterior1.mtl", "/textures/ProtoWhite256.jpg");
 
-		positions.push_back({ Utils::bytesToFloatLE(vertexData[i + 0], vertexData[i + 1], vertexData[i + 2], vertexData[i + 3]),
-							 Utils::bytesToFloatLE(vertexData[i + 4], vertexData[i + 5], vertexData[i + 6], vertexData[i + 7]), 
-							 Utils::bytesToFloatLE(vertexData[i + 8], vertexData[i + 9], vertexData[i + 10], vertexData[i + 11]) });
+	//mldConverter.mdlToObj("res/Models/pCube1.mdl", "res/pCube1.obj", "res/pCube1.mtl", "/textures/ProtoWhite256.jpg");
+	//mldConverter.mdlToObj("res/Models/pCube2.mdl", "res/pCube2.obj", "res/pCube2.mtl", "/textures/ProtoWhite256.jpg");
+	//mldConverter.mdlToObj("res/Models/pCube3.mdl", "res/pCube3.obj", "res/pCube3.mtl", "/textures/ProtoWhite256.jpg");
+	//mldConverter.mdlToObj("res/Models/pCube4.mdl", "res/pCube4.obj", "res/pCube4.mtl", "/textures/ProtoWhite256.jpg");
+	//mldConverter.mdlToObj("res/Models/pCube5.mdl", "res/pCube5.obj", "res/pCube5.mtl", "/textures/ProtoWhite256.jpg");
+	//mldConverter.mdlToObj("res/Models/pCube6.mdl", "res/pCube6.obj", "res/pCube6.mtl", "/textures/ProtoWhite256.jpg");
 
+	//mldConverter.mdlToObj("res/Models/pCylinder1.mdl", "res/pCylinder1.obj", "res/pCylinder1.mtl", "/textures/ProtoWhite256.jpg");
+	//mldConverter.mdlToObj("res/Models/pCylinder2.mdl", "res/pCylinder2.obj", "res/pCylinder2.mtl", "/textures/ProtoWhite256.jpg");
+	//mldConverter.mdlToObj("res/Models/pCylinder3.mdl", "res/pCylinder3.obj", "res/pCylinder3.mtl", "/textures/ProtoWhite256.jpg");
 
-		normals.push_back({ Utils::bytesToFloatLE(vertexData[i + 12], vertexData[i + 13], vertexData[i + 14], vertexData[i + 15]),
-							Utils::bytesToFloatLE(vertexData[i + 16], vertexData[i + 17], vertexData[i + 18], vertexData[i + 19]),
-							Utils::bytesToFloatLE(vertexData[i + 20], vertexData[i + 21], vertexData[i + 22], vertexData[i + 23]) });
+	//mldConverter.mdlToObj("res/Models/ramp.mdl", "res/ramp.obj", "res/ramp.mtl", "/textures/ProtoWhite256.jpg");
+	//mldConverter.mdlToObj("res/Models/ramp2.mdl", "res/ramp2.obj", "res/ramp2.mtl", "/textures/ProtoWhite256.jpg");
+	//mldConverter.mdlToObj("res/Models/ramp3.mdl", "res/ramp3.obj", "res/ramp3.mtl", "/textures/ProtoWhite256.jpg");
 
-		uvCoords.push_back({ Utils::bytesToFloatLE(vertexData[i + 24], vertexData[i + 25], vertexData[i + 26], vertexData[i + 27]), 
-							 Utils::bytesToFloatLE(vertexData[i + 28], vertexData[i + 29], vertexData[i + 30], vertexData[i + 31]) });
-
-	}
-
-	for (int i = 0; i < indexCount * indexStride; i = i + indexStride * 3) {
-		faces.push_back({ Utils::bytesToShortLE(indexData[i + 0], indexData[i + 1]), 
-						  Utils::bytesToShortLE(indexData[i + 2], indexData[i + 3]), 
-						  Utils::bytesToShortLE(indexData[i + 4], indexData[i + 5]) });
-	}
-
-	std::ofstream fileOut;
-	fileOut << std::setprecision(6) << std::fixed;
-	fileOut.open("disk.obj");
-	fileOut << "# OBJ file\n";
-	//fileOut << "mtllib " << mltPath.filename() << std::endl;
-
-	for (int i = 0; i < positions.size(); i++) {
-		fileOut << "v " << positions[i][0] << " " << positions[i][1] << " " << positions[i][2] << std::endl;
-	}
-
-	for (int i = 0; i < normals.size(); i++) {
-		fileOut << "vn " << normals[i][0] << " " << normals[i][1] << " " << normals[i][2] << std::endl;
-	}
-
-	for (int i = 0; i < uvCoords.size(); i++) {
-		fileOut << "vt " << uvCoords[i][0] << " " << uvCoords[i][1] << std::endl;
-	}
-	fileOut << "usemtl Material\n";
-	for (int i = 0; i < faces.size(); i++) {
-		fileOut << "f " << faces[i][0] + 1 << "/" << faces[i][0] + 1 << "/" << faces[i][0] + 1 << " " << faces[i][1] + 1 << "/" << faces[i][1] + 1 << "/" << faces[i][1] + 1 << " " << faces[i][2] + 1 << "/" << faces[i][2] + 1 << "/" << faces[i][2] + 1 << std::endl;
-	}
-
-	fileOut.close();
+	//mldConverter.mdlToObj("res/Models/upperFloor.mdl", "res/upperFloor.obj", "res/upperFloor.mtl", "/textures/ProtoWhite256.jpg");
+	//mldConverter.mdlToObj("res/Models/upperFloor1.mdl", "res/upperFloor1.obj", "res/upperFloor1.mtl", "/textures/ProtoWhite256.jpg");
 }
 
 Game::~Game() {
@@ -221,7 +194,7 @@ void Game::render() {
 	shader->loadMatrix("u_view", m_camera.getViewMatrix());
 	shader->loadMatrix("u_model", Matrix4f::IDENTITY);
 
-	geometry->Draw(graphics);
+	//geometry->Draw(graphics);
 
 	shader->unuse();
 

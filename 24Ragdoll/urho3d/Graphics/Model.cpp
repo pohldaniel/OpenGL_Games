@@ -80,8 +80,6 @@ bool Model::BeginLoad(Deserializer& source)
 {
 
 	std::cout << "Begin Load" << std::endl;
-	URHO3D_LOGERROR(source.GetName());
-
     // Check ID
     String fileID = source.ReadFileID();
     if (fileID != "UMDL" && fileID != "UMD2")
@@ -122,13 +120,18 @@ bool Model::BeginLoad(Deserializer& source)
         {
             desc.vertexElements_.Clear();
             unsigned numElements = source.ReadUInt();
+
+
             for (unsigned j = 0; j < numElements; ++j)
             {
                 unsigned elementDesc = source.ReadUInt();
+
+
                 VertexElementType type = (VertexElementType)(elementDesc & 0xff);
                 VertexElementSemantic semantic = (VertexElementSemantic)((elementDesc >> 8) & 0xff);
                 unsigned char index = (unsigned char)((elementDesc >> 16) & 0xff);
                 desc.vertexElements_.Push(VertexElement(type, semantic, index));
+
             }
         }
 
@@ -137,6 +140,7 @@ bool Model::BeginLoad(Deserializer& source)
 
         SharedPtr<VertexBuffer> buffer(new VertexBuffer(context_));
         unsigned vertexSize = VertexBuffer::GetVertexSize(desc.vertexElements_);
+
         desc.dataSize_ = desc.vertexCount_ * vertexSize;
 
         // Prepare vertex buffer data to be uploaded during EndLoad()
