@@ -28,6 +28,7 @@
 #include "../../IO/Log.h"
 
 #include "../../DebugNew.h"
+#include <iostream>
 
 namespace Urho3D
 {
@@ -77,6 +78,7 @@ void VertexBuffer::Release()
 
 bool VertexBuffer::SetData(const void* data)
 {
+	std::cout << "Set Data: " << data << std::endl;
     if (!data)
     {
         URHO3D_LOGERROR("Null pointer for vertex buffer data");
@@ -112,6 +114,7 @@ bool VertexBuffer::SetData(const void* data)
 
 bool VertexBuffer::SetDataRange(const void* data, unsigned start, unsigned count, bool discard)
 {
+	std::cout << "SetDataRange: " << data << std::endl;
     if (start == 0 && count == vertexCount_)
         return SetData(data);
 
@@ -203,14 +206,17 @@ void* VertexBuffer::Lock(unsigned start, unsigned count, bool discard)
 
 void VertexBuffer::Unlock()
 {
+	
     switch (lockState_)
     {
     case LOCK_SHADOW:
+		std::cout << "Unlock Shadow: " << std::endl;
         SetDataRange(shadowData_.Get() + lockStart_ * vertexSize_, lockStart_, lockCount_, discardLock_);
         lockState_ = LOCK_NONE;
         break;
 
     case LOCK_SCRATCH:
+		
         SetDataRange(lockScratchData_, lockStart_, lockCount_, discardLock_);
         if (graphics_)
             graphics_->FreeScratchBuffer(lockScratchData_);

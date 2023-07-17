@@ -3109,8 +3109,7 @@ void Graphics::PrepareDraw()
             for (PODVector<VertexElement>::ConstIterator j = elements.Begin(); j != elements.End(); ++j)
             {
                 const VertexElement& element = *j;
-                HashMap<Pair<unsigned char, unsigned char>, unsigned>::ConstIterator k =
-                    impl_->vertexAttributes_->Find(MakePair((unsigned char)element.semantic_, element.index_));
+                HashMap<Pair<unsigned char, unsigned char>, unsigned>::ConstIterator k = impl_->vertexAttributes_->Find(MakePair((unsigned char)element.semantic_, element.index_));
 
                 if (k != impl_->vertexAttributes_->End())
                 {

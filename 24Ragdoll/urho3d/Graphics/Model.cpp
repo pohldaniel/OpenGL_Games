@@ -37,6 +37,7 @@
 
 #include "../DebugNew.h"
 #include <iostream>
+
 namespace Urho3D
 {
 
@@ -77,7 +78,8 @@ void Model::RegisterObject(Context* context)
 
 bool Model::BeginLoad(Deserializer& source)
 {
-	std::cout << "Load Model" << std::endl;
+
+	std::cout << "Load Model" << std::endl;
 	URHO3D_LOGERROR(source.GetName());
 
     // Check ID

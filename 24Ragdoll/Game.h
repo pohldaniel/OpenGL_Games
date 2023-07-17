@@ -14,7 +14,7 @@
 
 #include "lugaru/Graphic/ModelLu.hpp"
 
-#include "urho3d/Graphics/Model.h"
+
 #include "urho3d/Core/Context.h"
 #include "urho3d/Core/Object.h"
 #include "urho3d/IO/FileSystem.h"
@@ -28,7 +28,9 @@
 #include "urho3d/Graphics/Graphics.h"
 #include "urho3d/Graphics/StaticModel.h"
 #include "urho3d/Graphics/Model.h"
-
+#include "urho3d/Graphics/Geometry.h"
+#include "urho3d/Graphics/VertexBuffer.h"
+#include "urho3d/Graphics/IndexBuffer.h"
 
 #include "urho3d/Math/BoundingBox.h"
 
@@ -48,6 +50,9 @@ public:
 	void OnMouseButtonDown(Event::MouseButtonEvent& event) override;
 	void OnMouseButtonUp(Event::MouseButtonEvent& event) override;
 	void OnKeyDown(Event::KeyboardEvent& event) override;
+
+
+	void mdlToObj(unsigned char* vertexData, unsigned int vertexCount, unsigned int stride, unsigned char* indexData, unsigned int indexCount, unsigned int indexStride);
 
 private:
 
@@ -81,6 +86,8 @@ private:
 	Urho3D::SharedPtr<Urho3D::Scene> scene_;
 	Urho3D::SharedPtr<Urho3D::Node> node;
 	//Urho3D::Model m_model;
+	Urho3D::Geometry* geometry;
+	Urho3D::Graphics* graphics;
 
 	Urho3D::StringHash GetType() const;
 	const Urho3D::String& GetTypeName() const;

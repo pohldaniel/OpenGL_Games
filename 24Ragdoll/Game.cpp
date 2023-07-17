@@ -66,6 +66,101 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_pickCo
 	Urho3D::Model* model = cache->GetResource<Urho3D::Model>("res/Models/disk.mdl");
 	const Urho3D::BoundingBox& bb = model->GetBoundingBox();
 	std::cout << bb.min_.x_ << "  " << bb.min_.y_ << "  " << bb.min_.z_ << std::endl;
+	std::cout << bb.max_.x_ << "  " << bb.max_.y_ << "  " << bb.max_.z_ << std::endl;
+
+	graphics = GetSubsystem<Urho3D::Graphics>();
+
+	geometry = model->GetGeometry(0, 0);
+	unsigned char* data_ = geometry->GetVertexBuffer(0)->GetShadowData();
+	unsigned int stride = geometry->GetVertexBuffer(0)->GetVertexSize();
+	unsigned int dataSize = geometry->GetVertexBuffer(0)->GetVertexCount() * stride;
+
+	/*for (int i = 0; i < dataSize; i = i + stride) {
+		std::cout << "Vertex: " << std::endl;
+		std::cout << Utils::bytesToFloatLE(data_[i + 0], data_[i + 1], data_[i + 2], data_[i + 3]) << "  ";
+		std::cout << Utils::bytesToFloatLE(data_[i + 4], data_[i + 5], data_[i + 6], data_[i + 7]) << "  ";
+		std::cout << Utils::bytesToFloatLE(data_[i + 8], data_[i + 9], data_[i + 10], data_[i + 11]) << std::endl;
+
+		std::cout << "Normal: " << std::endl;
+		std::cout << Utils::bytesToFloatLE(data_[i +  12], data_[i + 13], data_[i + 14], data_[i + 15]) << "  ";
+		std::cout << Utils::bytesToFloatLE(data_[i + 16], data_[i + 17], data_[i + 18], data_[i + 19]) << "  ";
+		std::cout << Utils::bytesToFloatLE(data_[i + 20], data_[i + 21], data_[i + 22], data_[i + 23]) << std::endl;
+
+		std::cout << "Uv: " << std::endl;
+		std::cout << Utils::bytesToFloatLE(data_[i + 24], data_[i + 25], data_[i + 26], data_[i + 27]) << "  ";
+		std::cout << Utils::bytesToFloatLE(data_[i + 28], data_[i + 29], data_[i + 30], data_[i + 31]) << std::endl;
+
+	}*/
+
+	geometry = model->GetGeometry(0, 0);
+	data_ = geometry->GetIndexBuffer()->GetShadowData();
+	stride = geometry->GetIndexBuffer()->GetIndexSize();
+	dataSize = geometry->GetIndexBuffer()->GetIndexCount() * stride;
+	
+	std::cout << "Index Stride: " << stride << std::endl;
+
+
+	mdlToObj(geometry->GetVertexBuffer(0)->GetShadowData(), geometry->GetVertexBuffer(0)->GetVertexCount(), geometry->GetVertexBuffer(0)->GetVertexSize(),
+			 geometry->GetIndexBuffer()->GetShadowData(), geometry->GetIndexBuffer()->GetIndexCount(), geometry->GetIndexBuffer()->GetIndexSize());
+
+	/*for (int i = 0; i < dataSize; i = i + stride) {
+		std::cout << Utils::bytesToShortLE(data_[i + 0], data_[i + 1]) << std::endl;
+	}*/
+}
+
+void Game::mdlToObj(unsigned char* vertexData, unsigned int vertexCount, unsigned int vertexStride, unsigned char* indexData, unsigned int indexCount, unsigned int indexStride) {
+	std::vector<std::array<float, 3>> positions;
+	std::vector <std::array<float, 3>> normals;
+	std::vector <std::array<float, 2>> uvCoords;
+	std::vector<std::array<short, 3>> faces;
+	
+	for (int i = 0; i < vertexCount * vertexStride; i = i + vertexStride) {
+
+		positions.push_back({ Utils::bytesToFloatLE(vertexData[i + 0], vertexData[i + 1], vertexData[i + 2], vertexData[i + 3]),
+							 Utils::bytesToFloatLE(vertexData[i + 4], vertexData[i + 5], vertexData[i + 6], vertexData[i + 7]), 
+							 Utils::bytesToFloatLE(vertexData[i + 8], vertexData[i + 9], vertexData[i + 10], vertexData[i + 11]) });
+
+
+		normals.push_back({ Utils::bytesToFloatLE(vertexData[i + 12], vertexData[i + 13], vertexData[i + 14], vertexData[i + 15]),
+							Utils::bytesToFloatLE(vertexData[i + 16], vertexData[i + 17], vertexData[i + 18], vertexData[i + 19]),
+							Utils::bytesToFloatLE(vertexData[i + 20], vertexData[i + 21], vertexData[i + 22], vertexData[i + 23]) });
+
+		uvCoords.push_back({ Utils::bytesToFloatLE(vertexData[i + 24], vertexData[i + 25], vertexData[i + 26], vertexData[i + 27]), 
+							 Utils::bytesToFloatLE(vertexData[i + 28], vertexData[i + 29], vertexData[i + 30], vertexData[i + 31]) });
+
+	}
+
+	for (int i = 0; i < indexCount * indexStride; i = i + indexStride * 3) {
+		faces.push_back({ Utils::bytesToShortLE(indexData[i + 0], indexData[i + 1]), 
+						  Utils::bytesToShortLE(indexData[i + 2], indexData[i + 3]), 
+						  Utils::bytesToShortLE(indexData[i + 4], indexData[i + 5]) });
+	}
+
+	std::cout << "Num Faces: " << faces.size() << std::endl;
+
+	std::ofstream fileOut;
+	fileOut << std::setprecision(6) << std::fixed;
+	fileOut.open("disk.obj");
+	fileOut << "# OBJ file\n";
+	//fileOut << "mtllib " << mltPath.filename() << std::endl;
+
+	for (int i = 0; i < positions.size(); i++) {
+		fileOut << "v " << positions[i][0] << " " << positions[i][1] << " " << positions[i][2] << std::endl;
+	}
+
+	for (int i = 0; i < normals.size(); i++) {
+		fileOut << "vn " << normals[i][0] << " " << normals[i][1] << " " << normals[i][2] << std::endl;
+	}
+
+	for (int i = 0; i < uvCoords.size(); i++) {
+		fileOut << "vt " << uvCoords[i][0] << " " << uvCoords[i][1] << std::endl;
+	}
+	fileOut << "usemtl Material\n";
+	for (int i = 0; i < faces.size(); i++) {
+		fileOut << "f " << faces[i][0] + 1 << "/" << faces[i][0] + 1 << "/" << faces[i][0] + 1 << " " << faces[i][1] + 1 << "/" << faces[i][1] + 1 << "/" << faces[i][1] + 1 << " " << faces[i][2] + 1 << "/" << faces[i][2] + 1 << "/" << faces[i][2] + 1 << std::endl;
+	}
+
+	fileOut.close();
 }
 
 Game::~Game() {
@@ -153,6 +248,16 @@ void Game::render() {
 	Globals::textureManager.get("fur").bind(0);
 
 	m_rabbit.drawRaw();
+	shader->unuse();
+
+	shader = Globals::shaderManager.getAssetPointer("mdl");
+	shader->use();
+	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
+	shader->loadMatrix("u_view", m_camera.getViewMatrix());
+	shader->loadMatrix("u_model", Matrix4f::IDENTITY);
+
+	geometry->Draw(graphics);
+
 	shader->unuse();
 
 	m_mousePicker.drawPicker(m_camera);
