@@ -10,27 +10,18 @@ ShapeDrawer& ShapeDrawer::Get() {
 }
 
 void ShapeDrawer::init(size_t maxTriangles) {
-	
+
 	if (!s_shader) {
 		m_maxTriangles = maxTriangles;
-	
+
 		glGenBuffers(1, &m_ibo);
 		glGenBuffers(1, &m_vbo);
 
-		glGenVertexArrays(1, &m_vao);
-		glBindVertexArray(m_vao);
-
-		//Position
 		glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
 		glBufferData(GL_ARRAY_BUFFER, maxTriangles * 3 * sizeof(btVector3), nullptr, GL_DYNAMIC_DRAW);
 
-
-		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(btVector3), 0);
-
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ibo);
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, maxTriangles * 3 * sizeof(unsigned int), nullptr, GL_DYNAMIC_DRAW);
-		glBindVertexArray(0);
 
 		s_shader = std::unique_ptr<Shader>(new Shader(SHAPEDRAWER_VERTEX, SHAPEDRAWER_FRGAMENT, false));
 	}
@@ -47,20 +38,17 @@ void ShapeDrawer::setCamera(const Camera& camera) {
 void ShapeDrawer::shutdown() {
 
 	/*for (int i = 0; i<m_shapecaches.size(); i++){
-		m_shapecaches[i]->~ShapeCache();
-		btAlignedFree(m_shapecaches[i]);
+	m_shapecaches[i]->~ShapeCache();
+	btAlignedFree(m_shapecaches[i]);
 	}
 	m_shapecaches.clear();
 
 	for (int i = 0; i<m_shapecachesConvex.size(); i++) {
-		m_shapecachesConvex[i]->~ShapeCacheConvex();
-		delete m_shapecachesConvex[i];
+	m_shapecachesConvex[i]->~ShapeCacheConvex();
+	delete m_shapecachesConvex[i];
 	}
 
 	m_shapecachesConvex.clear();*/
-
-	if (m_vao)
-		glDeleteVertexArrays(1, &m_vao);
 
 	if (m_vbo)
 		glDeleteBuffers(1, &m_vbo);
@@ -101,10 +89,10 @@ void ShapeDrawer::drawShape(btScalar* m, btCollisionShape* shape) {
 			drawShape(&(Matrix4f(m) * Matrix4f(childMat))[0][0], const_cast<btCollisionShape*>(colShape));
 		}
 
-	}else if(shape->getShapeType() == BOX_SHAPE_PROXYTYPE     || 
-			shape->getShapeType() == CYLINDER_SHAPE_PROXYTYPE || 
-			shape->getShapeType() == CAPSULE_SHAPE_PROXYTYPE  ||
-			shape->getShapeType() == CONVEX_HULL_SHAPE_PROXYTYPE) {
+	}else if (shape->getShapeType() == BOX_SHAPE_PROXYTYPE ||
+		shape->getShapeType() == CYLINDER_SHAPE_PROXYTYPE ||
+		shape->getShapeType() == CAPSULE_SHAPE_PROXYTYPE ||
+		shape->getShapeType() == CONVEX_HULL_SHAPE_PROXYTYPE) {
 
 		ShapeCacheConvex* sc = cacheConvex(const_cast<btCollisionShape*>(shape));
 		btShapeHull* hull = &sc->m_shapehull;
@@ -114,12 +102,13 @@ void ShapeDrawer::drawShape(btScalar* m, btCollisionShape* shape) {
 
 		glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
 		glBufferSubData(GL_ARRAY_BUFFER, 0, hull->numVertices() * sizeof(btVector3), vtx);
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(btVector3), 0);
 
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ibo);
 		glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, hull->numIndices() * sizeof(unsigned int), idx);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
+	
 		glUseProgram(s_shader->m_program);
 
 		s_shader->loadMatrix("u_projection", m_camera->getPerspectiveMatrix());
@@ -127,26 +116,28 @@ void ShapeDrawer::drawShape(btScalar* m, btCollisionShape* shape) {
 		s_shader->loadMatrix("u_model", m);
 		s_shader->loadVector("u_color", sc->m_color);
 
-		glBindVertexArray(m_vao);
 		glDrawElements(GL_TRIANGLES, hull->numIndices(), GL_UNSIGNED_INT, 0);
-		glBindVertexArray(0);
 
 		glUseProgram(0);
 
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-	}else if(shape->getShapeType() == TRIANGLE_MESH_SHAPE_PROXYTYPE) {
+	}else if (shape->getShapeType() == TRIANGLE_MESH_SHAPE_PROXYTYPE) {
 
 		ShapeCache*	sc = cache(const_cast<btCollisionShape*>(shape));
 		const IndexedMeshArray& meshArray = dynamic_cast<btTriangleIndexVertexArray*>(dynamic_cast<btTriangleMeshShape*>(shape)->getMeshInterface())->getIndexedMeshArray();
 
 		for (int i = 0; i < meshArray.size(); i++) {
 			glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-			glBufferSubData(GL_ARRAY_BUFFER, 0, meshArray.at(i).m_numVertices * sizeof(btVector3), meshArray.at(i).m_vertexBase);
-			glBindBuffer(GL_ARRAY_BUFFER, 0);
+			glBufferSubData(GL_ARRAY_BUFFER, 0, meshArray.at(i).m_numVertices * 3 * sizeof(btScalar), reinterpret_cast<const btScalar*>(meshArray.at(i).m_vertexBase));
+			
+			glEnableVertexAttribArray(0);
+			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(btScalar), 0);
 
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ibo);
-			glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, meshArray.at(i).m_numTriangles * 3 * sizeof(unsigned int), meshArray.at(i).m_triangleIndexBase);
-			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+			glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, meshArray.at(i).m_numTriangles * 3 * sizeof(unsigned int), reinterpret_cast<const unsigned int*>(meshArray.at(i).m_triangleIndexBase));
+			
 
 			glUseProgram(s_shader->m_program);
 
@@ -155,24 +146,26 @@ void ShapeDrawer::drawShape(btScalar* m, btCollisionShape* shape) {
 			s_shader->loadMatrix("u_model", m);
 			s_shader->loadVector("u_color", sc->m_color);
 
-			glBindVertexArray(m_vao);
 			glDrawElements(GL_TRIANGLES, meshArray.at(i).m_numTriangles * 3, GL_UNSIGNED_INT, 0);
-			glBindVertexArray(0);
 
 			glUseProgram(0);
+
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+			glBindBuffer(GL_ARRAY_BUFFER, 0);			
 		}
-		return;
 
 	}else if (shape->getShapeType() == TERRAIN_SHAPE_PROXYTYPE) {
 
 		DrawHelper* sc = (DrawHelper*)shape->getUserPointer();
+		
 		glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
 		glBufferSubData(GL_ARRAY_BUFFER, 0, sc->m_positions->size() * sizeof(btVector3), &(*sc->m_positions)[0]);
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(btVector3), 0);
 
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ibo);
 		glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, sc->m_indices->size() * sizeof(unsigned int), &(*sc->m_indices)[0]);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
 		glUseProgram(s_shader->m_program);
 
@@ -181,11 +174,12 @@ void ShapeDrawer::drawShape(btScalar* m, btCollisionShape* shape) {
 		s_shader->loadMatrix("u_model", Matrix4f(m) * Matrix4f::Scale(sc->m_localScaling[0], sc->m_localScaling[1], sc->m_localScaling[2]));
 		s_shader->loadVector("u_color", sc->m_color);
 
-		glBindVertexArray(m_vao);
 		glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(sc->m_indices->size()), GL_UNSIGNED_INT, 0);
-		glBindVertexArray(0);
 
 		glUseProgram(0);
+
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}
 
 }

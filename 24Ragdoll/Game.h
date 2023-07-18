@@ -11,6 +11,7 @@
 #include "MousePicker.h"
 #include "ShapeDrawer.h"
 #include "SolidIO.h"
+#include "Player.h"
 
 #include "lugaru/Graphic/ModelLu.hpp"
 
@@ -94,7 +95,9 @@ private:
 	Shape m_ramp2;
 	Shape m_ramp3;
 	Shape m_cylinder;
-	
+
+	Player m_player;
+
 	Urho3D::SharedPtr<Urho3D::Scene> scene_;
 	Urho3D::SharedPtr<Urho3D::Node> node;
 	//Urho3D::Model m_model;

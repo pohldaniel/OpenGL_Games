@@ -66,7 +66,6 @@ private:
 
 	size_t m_maxTriangles = 0;
 	
-	unsigned int m_vao = 0;
 	unsigned int m_vbo = 0;
 	unsigned int m_ibo = 0;
 

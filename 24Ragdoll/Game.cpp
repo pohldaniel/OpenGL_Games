@@ -10,7 +10,7 @@
 
 Urho3D::Vector<Urho3D::String> arguments;
 
-Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_pickConstraint(0), Object(new Urho3D::Context()) {
+Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_pickConstraint(0), Object(new Urho3D::Context()) , m_player(m_camera) {
 
 	Application::SetCursorIcon(IDC_ARROW);
 	EventDispatcher::AddKeyboardListener(this);
@@ -20,29 +20,25 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_pickCo
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
 	m_camera.lookAt(Vector3f(0.0f, 2.0f, 5.0f), Vector3f(0.0f, 2.0f, 5.0f) + Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
 	m_camera.setRotationSpeed(0.1f);
+	m_camera.setOffsetDistance(10.0f);
 
 	m_trackball.reshape(Application::Width, Application::Height);
 	m_trackball.setDollyPosition(0.0f);
 	applyTransformation(m_trackball);
+
+	ShapeDrawer::Get().init(32768);
+	ShapeDrawer::Get().setCamera(m_camera);
 
 	//solidConverter.solidToObj("res/solid/Sword.solid", "res/Sword.obj", "res/sword.mtl", "/textures/Sword.jpg", false);
 	//solidConverter.solidToObj("res/solid/Body.solid", "res/Rabbit.obj", "res/rabbit.mtl", "/textures/FurBlackWhite.jpg");
 
 	solidConverter.solidToBuffer("res/solid/Sword.solid", false, vertexBuffer, indexBuffer);
 	m_sword.fromBuffer(vertexBuffer, indexBuffer, 5);
-	vertexBuffer.clear();
-	vertexBuffer.shrink_to_fit();
-	indexBuffer.clear();
-	indexBuffer.shrink_to_fit();
+	vertexBuffer.clear();vertexBuffer.shrink_to_fit();indexBuffer.clear();indexBuffer.shrink_to_fit();
 
 	solidConverter.solidToBuffer("res/solid/Body.solid", true, vertexBuffer, indexBuffer);
 	m_rabbit.fromBuffer(vertexBuffer, indexBuffer, 5);
-	vertexBuffer.clear();
-	vertexBuffer.shrink_to_fit();
-
-	indexBuffer.clear();
-	indexBuffer.shrink_to_fit();
-
+	vertexBuffer.clear();vertexBuffer.shrink_to_fit();indexBuffer.clear();indexBuffer.shrink_to_fit();
 
 	glClearColor(0.3f, 0.3f, 0.3f, 0.0f);
 
@@ -92,29 +88,23 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_pickCo
 	//mldConverter.mdlToObj("res/Models/Lift.mdl", "res/lift.obj", "res/lift.mtl", "/textures/ProtoWhite256.jpg");
 	//mldConverter.mdlToObj("res/Models/Lift1.mdl", "res/lift1.obj", "res/lift1.mtl", "/textures/ProtoWhite256.jpg");
 	//mldConverter.mdlToObj("res/Models/LiftButton.mdl", "res/liftButton.obj", "res/liftButton.mtl", "/textures/ProtoWhite256.jpg");
-
 	//mldConverter.mdlToObj("res/Models/liftExterior.mdl", "res/liftExterior.obj", "res/liftExterior.mtl", "/textures/ProtoWhite256.jpg");
 	//mldConverter.mdlToObj("res/Models/liftExterior1.mdl", "res/liftExterior1.obj", "res/liftExterior1.mtl", "/textures/ProtoWhite256.jpg");
-
 	//mldConverter.mdlToObj("res/Models/pCube1.mdl", "res/pCube1.obj", "res/pCube1.mtl", "/textures/ProtoWhite256.jpg");
 	//mldConverter.mdlToObj("res/Models/pCube2.mdl", "res/pCube2.obj", "res/pCube2.mtl", "/textures/ProtoWhite256.jpg");
 	//mldConverter.mdlToObj("res/Models/pCube3.mdl", "res/pCube3.obj", "res/pCube3.mtl", "/textures/ProtoWhite256.jpg");
 	//mldConverter.mdlToObj("res/Models/pCube4.mdl", "res/pCube4.obj", "res/pCube4.mtl", "/textures/ProtoWhite256.jpg");
 	//mldConverter.mdlToObj("res/Models/pCube5.mdl", "res/pCube5.obj", "res/pCube5.mtl", "/textures/ProtoWhite256.jpg");
 	//mldConverter.mdlToObj("res/Models/pCube6.mdl", "res/pCube6.obj", "res/pCube6.mtl", "/textures/ProtoWhite256.jpg");
-
 	//mldConverter.mdlToObj("res/Models/pCylinder1.mdl", "res/pCylinder1.obj", "res/pCylinder1.mtl", "/textures/ProtoWhite256.jpg");
 	//mldConverter.mdlToObj("res/Models/pCylinder2.mdl", "res/pCylinder2.obj", "res/pCylinder2.mtl", "/textures/ProtoWhite256.jpg");
 	//mldConverter.mdlToObj("res/Models/pCylinder3.mdl", "res/pCylinder3.obj", "res/pCylinder3.mtl", "/textures/ProtoWhite256.jpg");
-
 	//mldConverter.mdlToObj("res/Models/ramp.mdl", "res/ramp.obj", "res/ramp.mtl", "/textures/ProtoWhite256.jpg");
 	//mldConverter.mdlToObj("res/Models/ramp2.mdl", "res/ramp2.obj", "res/ramp2.mtl", "/textures/ProtoWhite256.jpg");
 	//mldConverter.mdlToObj("res/Models/ramp3.mdl", "res/ramp3.obj", "res/ramp3.mtl", "/textures/ProtoWhite256.jpg");
-
 	//mldConverter.mdlToObj("res/Models/upperFloor.mdl", "res/upperFloor.obj", "res/upperFloor.mtl", "/textures/ProtoWhite256.jpg");
 	//mldConverter.mdlToObj("res/Models/upperFloor1.mdl", "res/upperFloor1.obj", "res/upperFloor1.mtl", "/textures/ProtoWhite256.jpg");
 
-	
 	mldConverter.mdlToBuffer("res/Models/disk.mdl", 0.01f, vertexBuffer, indexBuffer);
 	m_disk.fromBuffer(vertexBuffer, indexBuffer, 8);
 	vertexBuffer.clear(); vertexBuffer.shrink_to_fit(); indexBuffer.clear(); indexBuffer.shrink_to_fit();
@@ -129,7 +119,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_pickCo
 
 	mldConverter.mdlToBuffer("res/Models/base.mdl", 0.01f, vertexBuffer, indexBuffer);
 	m_base.fromBuffer(vertexBuffer, indexBuffer, 8);
-	vertexBuffer.clear(); vertexBuffer.shrink_to_fit(); indexBuffer.clear(); indexBuffer.shrink_to_fit();
+	vertexBuffer.clear();vertexBuffer.shrink_to_fit();indexBuffer.clear();indexBuffer.shrink_to_fit();
 
 	mldConverter.mdlToBuffer("res/Models/liftExterior.mdl", 0.01f, vertexBuffer, indexBuffer);
 	m_liftExterior.fromBuffer(vertexBuffer, indexBuffer, 8);
@@ -154,6 +144,24 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_pickCo
 	mldConverter.mdlToBuffer("res/Models/Cylinder.mdl", 0.01f, vertexBuffer, indexBuffer);
 	m_cylinder.fromBuffer(vertexBuffer, indexBuffer, 8);
 	vertexBuffer.clear(); vertexBuffer.shrink_to_fit(); indexBuffer.clear(); indexBuffer.shrink_to_fit();
+
+	m_player.init();
+
+	m_player.setPosition(Vector3f(0.0f, 5.0f, 0.0f));
+	m_player.resetOrientation();
+
+	Globals::physics->addStaticModel(Physics::CreateStaticCollisionShapes(&m_disk, 1.0f), Physics::BtTransform(btVector3(26.1357f, 7.00645f, -34.7563f)), false, btVector3(1.0f, 1.0f, 1.0f), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::CAMERA);
+	Globals::physics->addStaticModel(Physics::CreateStaticCollisionShapes(&m_lift, 1.0f), Physics::BtTransform(btVector3(35.5938f, 0.350185f, 10.4836f)), false, btVector3(1.0f, 1.0f, 1.0f), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::CAMERA);
+	Globals::physics->addStaticModel(Physics::CreateStaticCollisionShapes(&m_liftButton, 1.0f), Physics::BtTransform(btVector3(35.5938f, 0.412104f, 10.4836f)), false, btVector3(1.0f, 1.0f, 1.0f), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::CAMERA);
+	Globals::physics->addStaticModel(Physics::CreateStaticCollisionShapes(&m_base, 1.0f), Physics::BtTransform(btVector3(0.0f, 0.0f, 0.0f)), false, btVector3(1.0f, 1.0f, 1.0f), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::CAMERA);
+	Globals::physics->addStaticModel(Physics::CreateStaticCollisionShapes(&m_liftExterior, 1.0f), Physics::BtTransform(btVector3(35.6211f, 7.66765f, 10.4388f)), false, btVector3(1.0f, 1.0f, 1.0f), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::CAMERA);
+	Globals::physics->addStaticModel(Physics::CreateStaticCollisionShapes(&m_upperFloor, 1.0f), Physics::BtTransform(btVector3(30.16f, 6.98797f, 10.0099f)), false, btVector3(1.0f, 1.0f, 1.0f), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::CAMERA);
+
+	Globals::physics->addStaticModel(Physics::CreateStaticCollisionShapes(&m_ramp, 1.0f), Physics::BtTransform(btVector3(13.5771f, 6.23965f, 10.9272f)), false, btVector3(1.0f, 1.0f, 1.0f), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::CAMERA);
+	Globals::physics->addStaticModel(Physics::CreateStaticCollisionShapes(&m_ramp2, 1.0f), Physics::BtTransform(btVector3(-22.8933f, 2.63165f, -23.6786f)), false, btVector3(1.0f, 1.0f, 1.0f), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::CAMERA);
+	Globals::physics->addStaticModel(Physics::CreateStaticCollisionShapes(&m_ramp3, 1.0f), Physics::BtTransform(btVector3(-15.2665f, 1.9782f, -43.135f)), false, btVector3(1.0f, 1.0f, 1.0f), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::CAMERA);
+
+	//Globals::physics->addStaticModel(Physics::CreateStaticCollisionShapes(&m_cylinder, 1.0f), Physics::BtTransform(), false, btVector3(1.0f, 1.0f, 1.0f), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::CAMERA);
 }
 
 Game::~Game() {
@@ -163,11 +171,17 @@ Game::~Game() {
 }
 
 void Game::fixedUpdate() {
+	m_player.getCharacterController()->preStep();
 	Globals::physics->stepSimulation(m_fdt);
+	m_player.getCharacterController()->postStep();
+	m_player.fixedUpdate(m_fdt);
 }
 
 void Game::update() {
-	Keyboard &keyboard = Keyboard::instance();
+
+	m_player.update(m_dt);
+
+	/*Keyboard &keyboard = Keyboard::instance();
 	Vector3f directrion = Vector3f();
 
 	float dx = 0.0f;
@@ -221,31 +235,17 @@ void Game::update() {
 		}
 	}
 	m_trackball.idle();
-	m_transform.fromMatrix(m_trackball.getTransform());
+	m_transform.fromMatrix(m_trackball.getTransform());*/
 }
 
 void Game::render() {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	auto shader = Globals::shaderManager.getAssetPointer("texture");
-	shader->use();
-	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
-	shader->loadMatrix("u_view", m_camera.getViewMatrix());
-	shader->loadMatrix("u_model", m_transform.getTransformationMatrix() * Matrix4f::Scale(0.001f, 0.001f, 0.001f));
-	Globals::textureManager.get("sword").bind(0);
-
-	m_sword.drawRaw();
 	
-	shader->loadMatrix("u_model", m_transform.getTransformationMatrix() * Matrix4f::Rotate(Vector3f(1.0f, 0.0f, 0.0f), 180.0f) * Matrix4f::Scale(0.01f, 0.01f, 0.01f));
-	Globals::textureManager.get("fur").bind(0);
+	/*Globals::textureManager.get("proto").bind(0);
 
-	m_rabbit.drawRaw();
-	shader->unuse();
-
-	Globals::textureManager.get("proto").bind(0);
-
-	shader = Globals::shaderManager.getAssetPointer("mdl");
+	auto shader = Globals::shaderManager.getAssetPointer("mdl");
 	shader->use();
 	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
 	shader->loadMatrix("u_view", m_camera.getViewMatrix());
@@ -265,13 +265,13 @@ void Game::render() {
 	shader->loadMatrix("u_model", Matrix4f::Translate(30.16f, 6.98797f, 10.0099f));
 	m_upperFloor.drawRaw();
 
-	shader->loadMatrix("u_model", Matrix4f::Translate(13.5771f, 6.23965f, 10.9272));
+	shader->loadMatrix("u_model", Matrix4f::Translate(13.5771f, 6.23965f, 10.9272f));
 	m_ramp.drawRaw();
 
-	shader->loadMatrix("u_model", Matrix4f::Translate(-22.8933f, 2.63165f, -23.6786));
+	shader->loadMatrix("u_model", Matrix4f::Translate(-22.8933f, 2.63165f, -23.6786f));
 	m_ramp2.drawRaw();
 
-	shader->loadMatrix("u_model", Matrix4f::Translate(-15.2665f, 1.9782f, -43.135));
+	shader->loadMatrix("u_model", Matrix4f::Translate(-15.2665f, 1.9782f, -43.135f));
 	m_ramp3.drawRaw();
 
 	shader->loadMatrix("u_model", Matrix4f::Translate(26.1357f, 7.00645f, -34.7563f));
@@ -283,7 +283,11 @@ void Game::render() {
 	shader->loadMatrix("u_model", Matrix4f::Translate(4.14317f, 7.00645f, 35.1134f));
 	m_disk.drawRaw();
 
-	shader->unuse();
+	shader->unuse();*/
+
+	ShapeDrawer::Get().drawDynmicsWorld(Physics::GetDynamicsWorld());
+
+	m_player.draw(m_camera);
 
 	m_mousePicker.drawPicker(m_camera);
 
@@ -342,34 +346,19 @@ void Game::OnMouseWheel(Event::MouseWheelEvent& event) {
 void Game::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 	m_mousePicker.updatePosition(event.x, event.y, m_camera);
 
-	if (event.button == 2u) {
+	if (event.button == 1u) {
 		Mouse::instance().attach(Application::GetWindow());
-	}else if (event.button == 1u) {
-		m_trackball.mouse(TrackBall::Button::ELeftButton, TrackBall::Modifier::ENoModifier, true, event.x, event.y);
-		applyTransformation(m_trackball);
-
-		if (m_mousePicker.click(event.x, event.y, m_camera)) {
-			m_mousePicker.setHasPicked(true);
-			const MousePickCallback& callback = m_mousePicker.getCallback();
-			pickObject(callback.m_hitPointWorld, callback.m_collisionObject);
-		}
+		Keyboard::instance().enable();
 	}
 }
 
 void Game::OnMouseButtonUp(Event::MouseButtonEvent& event) {
-	if (event.button == 2u) {
-		Mouse::instance().detach();
-	}else if (event.button == 1u) {
-		m_trackball.mouse(TrackBall::Button::ELeftButton, TrackBall::Modifier::ENoModifier, false, event.x, event.y);
-		applyTransformation(m_trackball);
 
-		m_mousePicker.setHasPicked(false);
-		removePickingConstraint();
-	}
 }
 
 void Game::OnKeyDown(Event::KeyboardEvent& event) {
-	if (event.keyCode == VK_LMENU) {
+
+	if (event.keyCode == VK_SPACE) {
 		m_drawUi = true;
 		Mouse::instance().detach();
 		Keyboard::instance().disable();

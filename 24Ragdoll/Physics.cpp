@@ -174,12 +174,12 @@ std::vector<btCollisionShape *> Physics::CreateStaticCollisionShapes(Shape* _sha
 }
 
 btCollisionShape* Physics::CreateStaticCollisionShape(std::vector<float>& vertexBuffer, std::vector<unsigned int>& indexBuffer, const btVector3& scale) {
-	int floatsPerVertex = 3;
+	int floatsPerVertex = 8;
 	int integerPerFace = 3;
 	int numberOfTriangles = indexBuffer.size() / integerPerFace;
 	int numberOfVertices = vertexBuffer.size() / floatsPerVertex;
 
-	btTriangleIndexVertexArray* tiva = new btTriangleIndexVertexArray(numberOfTriangles, (int*)(&indexBuffer[0]), integerPerFace * sizeof(int), numberOfVertices, (btScalar*)(&vertexBuffer[0]), 3 * sizeof(float));
+	btTriangleIndexVertexArray* tiva = new btTriangleIndexVertexArray(numberOfTriangles, (int*)(&indexBuffer[0]), integerPerFace * sizeof(int), numberOfVertices, (btScalar*)(&vertexBuffer[0]), floatsPerVertex * sizeof(float));
 
 	btBvhTriangleMeshShape *shape = new btBvhTriangleMeshShape(tiva, true);
 	shape->setLocalScaling(scale);

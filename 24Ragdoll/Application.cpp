@@ -580,4 +580,11 @@ void Application::loadAssets() {
 
 	Globals::fontManager.loadCharacterSet("upheaval_200", "res/fonts/upheavtt.ttf", 200, 0, 30, 128, 0, true, 0u);
 	Globals::fontManager.loadCharacterSet("upheaval_50", "res/fonts/upheavtt.ttf", 50, 0, 3, 0, 0, true, 0u);
+
+	Globals::textureManager.loadTexture("player", "res/textures/player.png", true);
+
+	Globals::textureManager.get("player").setWrapMode(GL_REPEAT);
+	Globals::textureManager.get("player").setFilter(GL_LINEAR_MIPMAP_LINEAR);
+
+	Globals::shapeManager.buildSphere("sphere", 0.5f, Vector3f(0.0f, 0.0f, 0.0f), 16, 16, true, true, false);
 }
