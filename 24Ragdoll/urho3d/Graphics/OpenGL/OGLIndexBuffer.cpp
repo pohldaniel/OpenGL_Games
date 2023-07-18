@@ -29,6 +29,7 @@
 #include "../../IO/Log.h"
 
 #include "../../DebugNew.h"
+#include <iostream>
 
 namespace Urho3D
 {
@@ -222,6 +223,8 @@ void IndexBuffer::Unlock()
 
 bool IndexBuffer::Create()
 {
+
+	
     if (!indexCount_)
     {
         Release();
@@ -230,6 +233,7 @@ bool IndexBuffer::Create()
 
     if (graphics_)
     {
+
         if (graphics_->IsDeviceLost())
         {
             URHO3D_LOGWARNING("Index buffer creation while device is lost");

@@ -401,6 +401,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../Precompiled.h</PrecompiledHeaderFile>
     </ClCompile>
+    <ClCompile Include="urho3d\Engine\Engine.cpp" />
     <ClCompile Include="urho3d\Graphics\AnimatedModel.cpp" />
     <ClCompile Include="urho3d\Graphics\Animation.cpp" />
     <ClCompile Include="urho3d\Graphics\AnimationController.cpp" />
@@ -563,6 +564,7 @@
     <ClCompile Include="urho3d\LibraryInfo.cpp" />
     <ClCompile Include="urho3d\LZ4\lz4.c" />
     <ClCompile Include="urho3d\LZ4\lz4hc.c" />
+    <ClCompile Include="urho3d\Math\AreaAllocator.cpp" />
     <ClCompile Include="urho3d\Math\BoundingBox.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../Precompiled.h</PrecompiledHeaderFile>
@@ -756,6 +758,7 @@
     <ClCompile Include="urho3d\Resource\Image.cpp" />
     <ClCompile Include="urho3d\Resource\JSONFile.cpp" />
     <ClCompile Include="urho3d\Resource\JSONValue.cpp" />
+    <ClCompile Include="urho3d\Resource\Localization.cpp" />
     <ClCompile Include="urho3d\Resource\PListFile.cpp" />
     <ClCompile Include="urho3d\Resource\Resource.cpp" />
     <ClCompile Include="urho3d\Resource\ResourceCache.cpp" />
@@ -900,6 +903,8 @@
     <ClInclude Include="urho3d\Core\Variant.h" />
     <ClInclude Include="urho3d\Core\WorkQueue.h" />
     <ClInclude Include="urho3d\DebugNew.h" />
+    <ClInclude Include="urho3d\Engine\Engine.h" />
+    <ClInclude Include="urho3d\Engine\EngineDefs.h" />
     <ClInclude Include="urho3d\Engine\EngineEvents.h" />
     <ClInclude Include="urho3d\Graphics\AnimatedModel.h" />
     <ClInclude Include="urho3d\Graphics\Animation.h" />
@@ -969,6 +974,7 @@
     <ClInclude Include="urho3d\IO\Log.h" />
     <ClInclude Include="urho3d\IO\MemoryBuffer.h" />
     <ClInclude Include="urho3d\IO\PackageFile.h" />
+    <ClInclude Include="urho3d\IO\RWOpsWrapper.h" />
     <ClInclude Include="urho3d\IO\Serializer.h" />
     <ClInclude Include="urho3d\IO\VectorBuffer.h" />
     <ClInclude Include="urho3d\JO\jo_jpeg.h" />
@@ -988,6 +994,7 @@
     <ClInclude Include="urho3d\LZ4\lz4.h" />
     <ClInclude Include="urho3d\LZ4\lz4hc.h" />
     <ClInclude Include="urho3d\LZ4\lz4opt.h" />
+    <ClInclude Include="urho3d\Math\AreaAllocator.h" />
     <ClInclude Include="urho3d\Math\BoundingBox.h" />
     <ClInclude Include="urho3d\Math\Color.h" />
     <ClInclude Include="urho3d\Math\Frustum.h" />
@@ -1015,6 +1022,7 @@
     <ClInclude Include="urho3d\Resource\Image.h" />
     <ClInclude Include="urho3d\Resource\JSONFile.h" />
     <ClInclude Include="urho3d\Resource\JSONValue.h" />
+    <ClInclude Include="urho3d\Resource\Localization.h" />
     <ClInclude Include="urho3d\Resource\PListFile.h" />
     <ClInclude Include="urho3d\Resource\Resource.h" />
     <ClInclude Include="urho3d\Resource\ResourceCache.h" />

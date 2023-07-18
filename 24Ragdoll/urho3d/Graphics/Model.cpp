@@ -194,7 +194,6 @@ bool Model::BeginLoad(Deserializer& source)
             source.Read(dest, indexCount * indexSize);
             buffer->Unlock();
         }
-
         memoryUse += sizeof(IndexBuffer) + indexCount * indexSize;
         indexBuffers_.Push(buffer);
     }

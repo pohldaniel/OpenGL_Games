@@ -574,6 +574,10 @@ void Application::loadAssets() {
 	Globals::textureManager.loadTexture("fur", "res/textures/FurBlackWhite.jpg", true);
 	Globals::textureManager.get("fur").setFilter(GL_LINEAR_MIPMAP_LINEAR);
 
+	Globals::textureManager.loadTexture("proto", "res/textures/ProtoWhite256.jpg", true);
+	Globals::textureManager.get("proto").setFilter(GL_LINEAR_MIPMAP_LINEAR);
+	Globals::textureManager.get("proto").setWrapMode(GL_REPEAT);
+
 	Globals::fontManager.loadCharacterSet("upheaval_200", "res/fonts/upheavtt.ttf", 200, 0, 30, 128, 0, true, 0u);
 	Globals::fontManager.loadCharacterSet("upheaval_50", "res/fonts/upheavtt.ttf", 50, 0, 3, 0, 0, true, 0u);
 }

@@ -8,6 +8,8 @@
 #include "Globals.h"
 #include "Menu.h"
 
+Urho3D::Vector<Urho3D::String> arguments;
+
 Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_pickConstraint(0), Object(new Urho3D::Context()) {
 
 	Application::SetCursorIcon(IDC_ARROW);
@@ -28,32 +30,44 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_pickCo
 
 	solidConverter.solidToBuffer("res/solid/Sword.solid", false, vertexBuffer, indexBuffer);
 	m_sword.fromBuffer(vertexBuffer, indexBuffer, 5);
+	vertexBuffer.clear();
+	vertexBuffer.shrink_to_fit();
+	indexBuffer.clear();
+	indexBuffer.shrink_to_fit();
 
+	solidConverter.solidToBuffer("res/solid/Body.solid", true, vertexBuffer, indexBuffer);
+	m_rabbit.fromBuffer(vertexBuffer, indexBuffer, 5);
 	vertexBuffer.clear();
 	vertexBuffer.shrink_to_fit();
 
 	indexBuffer.clear();
 	indexBuffer.shrink_to_fit();
 
-	solidConverter.solidToBuffer("res/solid/Body.solid", true, vertexBuffer, indexBuffer);
-	m_rabbit.fromBuffer(vertexBuffer, indexBuffer, 5);
 
 	glClearColor(0.3f, 0.3f, 0.3f, 0.0f);
 
-	context_->RegisterSubsystem(new Urho3D::FileSystem(context_));
+	Urho3D::VariantMap engineParameters_ = Urho3D::Engine::ParseParameters(arguments);
+
+	engine = new Urho3D::Engine(context_);
+	engine->Initialize(engineParameters_);
+	/*context_->RegisterSubsystem(new Urho3D::FileSystem(context_));
 	context_->RegisterSubsystem(new Urho3D::ResourceCache(context_));
 	RegisterSceneLibrary(context_);
 	context_->RegisterSubsystem(new Urho3D::Graphics(context_));
+	context_->RegisterSubsystem(new Urho3D::Renderer(context_));
+	context_->RegisterSubsystem(new Urho3D::Time(context_));*/
 
 	Urho3D::ResourceCache* cache = GetSubsystem<Urho3D::ResourceCache>();
+
+	renderer = GetSubsystem<Urho3D::Renderer>();
 	graphics = GetSubsystem<Urho3D::Graphics>();
 
-	//scene_ = new Urho3D::Scene(context_);
-	//node = new Urho3D::Node(context_);
-	//Urho3D::FileSystem* fileSystem = GetSubsystem<Urho3D::FileSystem>();
-	//Urho3D::XMLFile *xmlLevel = cache->GetResource<Urho3D::XMLFile>("res/playGroundTest_small.xml");
+	scene_ = new Urho3D::Scene(context_);
+	node = new Urho3D::Node(context_);
+	Urho3D::FileSystem* fileSystem = GetSubsystem<Urho3D::FileSystem>();
+	Urho3D::XMLFile *xmlLevel = cache->GetResource<Urho3D::XMLFile>("res/playGroundTest.xml");
 
-	//scene_->LoadXML(xmlLevel->GetRoot());
+	scene_->LoadXML(xmlLevel->GetRoot());
 	//Urho3D::Node* movingPlatNode = scene_->GetChild("movingPlatformDisk1", true);
 
 	//Urho3D::Vector3 pos = movingPlatNode->GetWorldPosition();
@@ -66,14 +80,14 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_pickCo
 	//const Urho3D::BoundingBox& bb = model->GetBoundingBox();
 	
 
-	//Urho3D::Model* model = new Urho3D::Model(context_);
-	//Urho3D::SharedPtr<Urho3D::File> file(new Urho3D::File(context_, "res/Models/disk.mdl"));
-	//model->Load(*(file.Get()));
-	//geometry = model->GetGeometry(0, 0);
+	Urho3D::Model* model = new Urho3D::Model(context_);
+	Urho3D::SharedPtr<Urho3D::File> file(new Urho3D::File(context_, "res/Models/disk.mdl"));
+	model->Load(*(file.Get()));
+	geometry = model->GetGeometry(0, 0);
 
 	//mldConverter.mdlToObj("res/Models/base.mdl", "res/base.obj", "res/base.mtl", "/textures/ProtoWhite256.jpg");
 	//mldConverter.mdlToObj("res/Models/basePlat.mdl", "res/basePlat.obj", "res/basePlat.mtl", "/textures/ProtoWhite256.jpg");
-	mldConverter.mdlToObj("res/Models/disk.mdl", "res/disk.obj", "res/disk.mtl", "/textures/ProtoWhite256.jpg");
+	//mldConverter.mdlToObj("res/Models/disk.mdl", "res/disk.obj", "res/disk.mtl", "/textures/ProtoWhite256.jpg");
 	//mldConverter.mdlToObj("res/Models/disk1.mdl", "res/disk1.obj", "res/disk1.mtl", "/textures/ProtoWhite256.jpg");
 	//mldConverter.mdlToObj("res/Models/Lift.mdl", "res/lift.obj", "res/lift.mtl", "/textures/ProtoWhite256.jpg");
 	//mldConverter.mdlToObj("res/Models/Lift1.mdl", "res/lift1.obj", "res/lift1.mtl", "/textures/ProtoWhite256.jpg");
@@ -99,6 +113,47 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_pickCo
 
 	//mldConverter.mdlToObj("res/Models/upperFloor.mdl", "res/upperFloor.obj", "res/upperFloor.mtl", "/textures/ProtoWhite256.jpg");
 	//mldConverter.mdlToObj("res/Models/upperFloor1.mdl", "res/upperFloor1.obj", "res/upperFloor1.mtl", "/textures/ProtoWhite256.jpg");
+
+	
+	mldConverter.mdlToBuffer("res/Models/disk.mdl", 0.01f, vertexBuffer, indexBuffer);
+	m_disk.fromBuffer(vertexBuffer, indexBuffer, 8);
+	vertexBuffer.clear(); vertexBuffer.shrink_to_fit(); indexBuffer.clear(); indexBuffer.shrink_to_fit();
+
+	mldConverter.mdlToBuffer("res/Models/Lift.mdl", 0.01f, vertexBuffer, indexBuffer);
+	m_lift.fromBuffer(vertexBuffer, indexBuffer, 8);
+	vertexBuffer.clear(); vertexBuffer.shrink_to_fit(); indexBuffer.clear(); indexBuffer.shrink_to_fit();
+
+	mldConverter.mdlToBuffer("res/Models/LiftButton.mdl", 0.01f, vertexBuffer, indexBuffer);
+	m_liftButton.fromBuffer(vertexBuffer, indexBuffer, 8);
+	vertexBuffer.clear(); vertexBuffer.shrink_to_fit(); indexBuffer.clear(); indexBuffer.shrink_to_fit();
+
+	mldConverter.mdlToBuffer("res/Models/base.mdl", 0.01f, vertexBuffer, indexBuffer);
+	m_base.fromBuffer(vertexBuffer, indexBuffer, 8);
+	vertexBuffer.clear(); vertexBuffer.shrink_to_fit(); indexBuffer.clear(); indexBuffer.shrink_to_fit();
+
+	mldConverter.mdlToBuffer("res/Models/liftExterior.mdl", 0.01f, vertexBuffer, indexBuffer);
+	m_liftExterior.fromBuffer(vertexBuffer, indexBuffer, 8);
+	vertexBuffer.clear(); vertexBuffer.shrink_to_fit(); indexBuffer.clear(); indexBuffer.shrink_to_fit();
+
+	mldConverter.mdlToBuffer("res/Models/upperFloor.mdl", 0.01f, vertexBuffer, indexBuffer);
+	m_upperFloor.fromBuffer(vertexBuffer, indexBuffer, 8);
+	vertexBuffer.clear(); vertexBuffer.shrink_to_fit(); indexBuffer.clear(); indexBuffer.shrink_to_fit();
+
+	mldConverter.mdlToBuffer("res/Models/ramp.mdl", 0.01f, vertexBuffer, indexBuffer);
+	m_ramp.fromBuffer(vertexBuffer, indexBuffer, 8);
+	vertexBuffer.clear(); vertexBuffer.shrink_to_fit(); indexBuffer.clear(); indexBuffer.shrink_to_fit();
+	
+	mldConverter.mdlToBuffer("res/Models/ramp2.mdl", 0.01f, vertexBuffer, indexBuffer);
+	m_ramp2.fromBuffer(vertexBuffer, indexBuffer, 8);
+	vertexBuffer.clear(); vertexBuffer.shrink_to_fit(); indexBuffer.clear(); indexBuffer.shrink_to_fit();
+
+	mldConverter.mdlToBuffer("res/Models/ramp3.mdl", 0.01f, vertexBuffer, indexBuffer);
+	m_ramp3.fromBuffer(vertexBuffer, indexBuffer, 8);
+	vertexBuffer.clear(); vertexBuffer.shrink_to_fit(); indexBuffer.clear(); indexBuffer.shrink_to_fit();
+
+	mldConverter.mdlToBuffer("res/Models/Cylinder.mdl", 0.01f, vertexBuffer, indexBuffer);
+	m_cylinder.fromBuffer(vertexBuffer, indexBuffer, 8);
+	vertexBuffer.clear(); vertexBuffer.shrink_to_fit(); indexBuffer.clear(); indexBuffer.shrink_to_fit();
 }
 
 Game::~Game() {
@@ -188,13 +243,45 @@ void Game::render() {
 	m_rabbit.drawRaw();
 	shader->unuse();
 
+	Globals::textureManager.get("proto").bind(0);
+
 	shader = Globals::shaderManager.getAssetPointer("mdl");
 	shader->use();
 	shader->loadMatrix("u_projection", m_camera.getPerspectiveMatrix());
 	shader->loadMatrix("u_view", m_camera.getViewMatrix());
-	shader->loadMatrix("u_model", Matrix4f::IDENTITY);
+	
+	shader->loadMatrix("u_model", Matrix4f::Translate(35.5938f, 0.350185f, 10.4836f));
+	m_lift.drawRaw();
 
-	//geometry->Draw(graphics);
+	shader->loadMatrix("u_model", Matrix4f::Translate(35.5938f, 0.412104f, 10.4836f));
+	m_liftButton.drawRaw();
+
+	shader->loadMatrix("u_model", Matrix4f::IDENTITY);
+	m_base.drawRaw();
+
+	shader->loadMatrix("u_model", Matrix4f::Translate(35.6211f, 7.66765f, 10.4388f));
+	m_liftExterior.drawRaw();
+
+	shader->loadMatrix("u_model", Matrix4f::Translate(30.16f, 6.98797f, 10.0099f));
+	m_upperFloor.drawRaw();
+
+	shader->loadMatrix("u_model", Matrix4f::Translate(13.5771f, 6.23965f, 10.9272));
+	m_ramp.drawRaw();
+
+	shader->loadMatrix("u_model", Matrix4f::Translate(-22.8933f, 2.63165f, -23.6786));
+	m_ramp2.drawRaw();
+
+	shader->loadMatrix("u_model", Matrix4f::Translate(-15.2665f, 1.9782f, -43.135));
+	m_ramp3.drawRaw();
+
+	shader->loadMatrix("u_model", Matrix4f::Translate(26.1357f, 7.00645f, -34.7563f));
+	m_disk.drawRaw();
+
+	shader->loadMatrix("u_model", Matrix4f::Translate(-0.294956f, 2.48167f, 28.3161f));
+	m_cylinder.drawRaw();
+
+	shader->loadMatrix("u_model", Matrix4f::Translate(4.14317f, 7.00645f, 35.1134f));
+	m_disk.drawRaw();
 
 	shader->unuse();
 

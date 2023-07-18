@@ -51,6 +51,7 @@
 //#include "../UI/UI.h"
 
 #include "../DebugNew.h"
+#include <iostream>
 
 namespace Urho3D
 {
@@ -542,6 +543,9 @@ bool View::Define(RenderSurface* renderTarget, Viewport* viewport)
 
 void View::Update(const FrameInfo& frame)
 {
+
+	std::cout << "Update View: " << std::endl;
+
     // No need to update if using another prepared view
     if (sourceView_)
         return;
@@ -980,6 +984,9 @@ void View::GetDrawables()
 
 void View::GetBatches()
 {
+
+	std::cout << "GetBatches: " << std::endl;
+
     if (!octree_ || !cullCamera_)
         return;
 
@@ -1208,6 +1215,9 @@ void View::GetLightBatches()
 
 void View::GetBaseBatches()
 {
+
+	std::cout << "GetBaseBatches: " << std::endl;
+
     URHO3D_PROFILE(GetBaseBatches);
 
     for (PODVector<Drawable*>::ConstIterator i = geometries_.Begin(); i != geometries_.End(); ++i)
@@ -2905,6 +2915,9 @@ void View::SetQueueShaderDefines(BatchQueue& queue, const RenderPathCommand& com
 
 void View::AddBatchToQueue(BatchQueue& queue, Batch& batch, Technique* tech, bool allowInstancing, bool allowShadows)
 {
+
+	std::cout << "AddBatchToQueue" << std::endl;
+
     if (!batch.material_)
         batch.material_ = renderer_->GetDefaultMaterial();
 

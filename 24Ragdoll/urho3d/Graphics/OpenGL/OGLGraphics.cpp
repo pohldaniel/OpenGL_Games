@@ -46,6 +46,7 @@
 //#include <SDL/SDL.h>
 
 #include "../../DebugNew.h"
+#include <iostream>
 
 #ifdef GL_ES_VERSION_2_0
 #define GL_DEPTH_COMPONENT24 GL_DEPTH_COMPONENT24_OES
@@ -911,14 +912,22 @@ void Graphics::Draw(PrimitiveType type, unsigned vertexStart, unsigned vertexCou
 
 void Graphics::Draw(PrimitiveType type, unsigned indexStart, unsigned indexCount, unsigned minVertex, unsigned vertexCount)
 {
+
+
     if (!indexCount || !indexBuffer_ || !indexBuffer_->GetGPUObjectName())
         return;
-
+	
     PrepareDraw();
 
     unsigned indexSize = indexBuffer_->GetIndexSize();
     unsigned primitiveCount;
     GLenum glPrimitiveType;
+
+	/*GLint drawFboId = 0, readFboId = 0;
+	glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &drawFboId);
+	glGetIntegerv(GL_READ_FRAMEBUFFER_BINDING, &readFboId);
+
+	std::cout << drawFboId << "  " << readFboId << std::endl;*/
 
     GetGLPrimitiveType(indexCount, type, primitiveCount, glPrimitiveType);
     GLenum indexType = indexSize == sizeof(unsigned short) ? GL_UNSIGNED_SHORT : GL_UNSIGNED_INT;
@@ -2077,7 +2086,7 @@ void Graphics::SetStencilTest(bool enable, CompareMode mode, StencilOp pass, Ste
 
 bool Graphics::IsInitialized() const
 {
-    return window_ != 0;
+    return true;
 }
 
 bool Graphics::GetDither() const
@@ -2093,7 +2102,7 @@ bool Graphics::IsDeviceLost() const
         return true;
 #endif
 
-    return impl_->context_ == 0;
+    return false;
 }
 
 PODVector<int> Graphics::GetMultiSampleLevels() const
@@ -2912,7 +2921,7 @@ void Graphics::PrepareDraw()
                 }
             }
 #endif
-
+			
             return;
         }
 
@@ -3095,22 +3104,22 @@ void Graphics::PrepareDraw()
         // Go through currently bound vertex buffers and set the attribute pointers that are available & required
         // Use reverse order so that elements from higher index buffers will override lower index buffers
         unsigned assignedLocations = 0;
-
         for (unsigned i = MAX_VERTEX_STREAMS - 1; i < MAX_VERTEX_STREAMS; --i)
         {
             VertexBuffer* buffer = vertexBuffers_[i];
             // Beware buffers with missing OpenGL objects, as binding a zero buffer object means accessing CPU memory for vertex data,
             // in which case the pointer will be invalid and cause a crash
+			
             if (!buffer || !buffer->GetGPUObjectName() || !impl_->vertexAttributes_)
                 continue;
 
             const PODVector<VertexElement>& elements = buffer->GetElements();
-
+			
             for (PODVector<VertexElement>::ConstIterator j = elements.Begin(); j != elements.End(); ++j)
             {
                 const VertexElement& element = *j;
                 HashMap<Pair<unsigned char, unsigned char>, unsigned>::ConstIterator k = impl_->vertexAttributes_->Find(MakePair((unsigned char)element.semantic_, element.index_));
-
+				
                 if (k != impl_->vertexAttributes_->End())
                 {
                     unsigned location = k->second_;
@@ -3122,6 +3131,7 @@ void Graphics::PrepareDraw()
                     // Enable attribute if not enabled yet
                     if (!(impl_->enabledVertexAttributes_ & locationMask))
                     {
+						
                         glEnableVertexAttribArray(location);
                         impl_->enabledVertexAttributes_ |= locationMask;
                     }
@@ -3145,7 +3155,7 @@ void Graphics::PrepareDraw()
                             impl_->instancingVertexAttributes_ &= ~locationMask;
                         }
                     }
-
+			
                     SetVBO(buffer->GetGPUObjectName());
                     glVertexAttribPointer(location, glElementComponents[element.type_], glElementTypes[element.type_],
                         element.type_ == TYPE_UBYTE4_NORM ? GL_TRUE : GL_FALSE, (unsigned)buffer->GetVertexSize(),

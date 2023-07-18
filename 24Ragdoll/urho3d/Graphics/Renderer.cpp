@@ -50,6 +50,8 @@
 
 #include "../DebugNew.h"
 
+#include<iostream>
+
 #ifdef _MSC_VER
 #pragma warning(disable:6293)
 #endif
@@ -686,6 +688,7 @@ void Renderer::Update(float timeStep)
     if (shadersDirty_)
         LoadShaders();
 
+	
     // Queue update of the main viewports. Use reverse order, as rendering order is also reverse
     // to render auxiliary views before dependent main views
     for (unsigned i = viewports_.Size() - 1; i < viewports_.Size(); --i)
@@ -693,8 +696,9 @@ void Renderer::Update(float timeStep)
 
     // Update main viewports. This may queue further views
     unsigned numMainViewports = queuedViewports_.Size();
-    for (unsigned i = 0; i < numMainViewports; ++i)
-        UpdateQueuedViewport(i);
+	for (unsigned i = 0; i < numMainViewports; ++i) {
+		UpdateQueuedViewport(i);
+	}
 
     // Gather queued & autoupdated render surfaces
     SendEvent(E_RENDERSURFACEUPDATE);
@@ -820,14 +824,16 @@ void Renderer::QueueRenderSurface(RenderSurface* renderTarget)
 
 void Renderer::QueueViewport(RenderSurface* renderTarget, Viewport* viewport)
 {
+
     if (viewport)
     {
         Pair<WeakPtr<RenderSurface>, WeakPtr<Viewport> > newView = 
             MakePair(WeakPtr<RenderSurface>(renderTarget), WeakPtr<Viewport>(viewport));
 
         // Prevent double add of the same rendertarget/viewport combination
-        if (!queuedViewports_.Contains(newView))
-            queuedViewports_.Push(newView);
+		if (!queuedViewports_.Contains(newView)) {
+			queuedViewports_.Push(newView);
+		}
     }
 }
 
@@ -1191,6 +1197,8 @@ void Renderer::SetBatchShaders(Batch& batch, Technique* tech, bool allowShadows,
     if (!vertexShaders.Size() || !pixelShaders.Size())
         LoadPassShaders(pass, vertexShaders, pixelShaders, queue);
 
+	std::cout << "SetBatchShaders: " << std::endl;
+
     // Make sure shaders are loaded now
     if (vertexShaders.Size() && pixelShaders.Size())
     {
@@ -1502,6 +1510,9 @@ const Rect& Renderer::GetLightScissor(Light* light, Camera* camera)
 
 void Renderer::UpdateQueuedViewport(unsigned index)
 {
+
+	std::cout << "UpdateQueuedViewport" << std::endl;
+
     WeakPtr<RenderSurface>& renderTarget = queuedViewports_[index].first_;
     WeakPtr<Viewport>& viewport = queuedViewports_[index].second_;
 
@@ -1545,7 +1556,7 @@ void Renderer::UpdateQueuedViewport(unsigned index)
         if (debug && viewport->GetDrawDebug())
             debug->SetView(viewport->GetCamera());
     }
-
+	
     // Update view. This may queue further views. View will send update begin/end events once its state is set
     ResetShadowMapAllocations(); // Each view can reuse the same shadow maps
     view->Update(frame_);
@@ -1607,10 +1618,12 @@ void Renderer::Initialize()
 {
     Graphics* graphics = GetSubsystem<Graphics>();
     ResourceCache* cache = GetSubsystem<ResourceCache>();
-
+	
     if (!graphics || !graphics->IsInitialized() || !cache)
         return;
 
+
+	
     URHO3D_PROFILE(InitRenderer);
 
     graphics_ = graphics;

@@ -112,6 +112,9 @@
     <Filter Include="urho3d\Graphics\OpenGL">
       <UniqueIdentifier>{c9d8bad1-da81-4dcf-9b2b-fb92bd7cabd9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="urho3d\UI">
+      <UniqueIdentifier>{855a2ebe-ed25-463a-8695-692cdd269870}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -815,6 +818,15 @@
     </ClCompile>
     <ClCompile Include="urho3d\Graphics\OpenGL\OGLVertexBuffer.cpp">
       <Filter>urho3d\Graphics\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Engine\Engine.cpp">
+      <Filter>urho3d\Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Math\AreaAllocator.cpp">
+      <Filter>urho3d\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="urho3d\Resource\Localization.cpp">
+      <Filter>urho3d\Resource</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1603,6 +1615,21 @@
     </ClInclude>
     <ClInclude Include="urho3d\Graphics\OpenGL\OGLShaderProgram.h">
       <Filter>urho3d\Graphics\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Engine\Engine.h">
+      <Filter>urho3d\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Engine\EngineDefs.h">
+      <Filter>urho3d\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Math\AreaAllocator.h">
+      <Filter>urho3d\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\IO\RWOpsWrapper.h">
+      <Filter>urho3d\IO</Filter>
+    </ClInclude>
+    <ClInclude Include="urho3d\Resource\Localization.h">
+      <Filter>urho3d\Resource</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -30,6 +30,7 @@
 #include "../Math/Ray.h"
 
 #include "../DebugNew.h"
+#include <iostream>
 
 namespace Urho3D
 {
@@ -179,6 +180,7 @@ void Geometry::Draw(Graphics* graphics)
 {
     if (indexBuffer_ && indexCount_ > 0)
     {
+		
         graphics->SetIndexBuffer(indexBuffer_);
         graphics->SetVertexBuffers(vertexBuffers_);
         graphics->Draw(primitiveType_, indexStart_, indexCount_, vertexStart_, vertexCount_);
