@@ -12,6 +12,7 @@
 #include "ShapeDrawer.h"
 #include "SolidIO.h"
 #include "Player.h"
+#include "LiftButton.h"
 
 #include "lugaru/Graphic/ModelLu.hpp"
 
@@ -38,6 +39,14 @@
 
 #include "urho3d/Math/BoundingBox.h"
 
+
+struct LiftButtonTriggerCallback : public btCollisionWorld::ContactResultCallback {
+
+	float buttonOffset = 0.0f;
+
+	btScalar LiftButtonTriggerCallback::addSingleResult(btManifoldPoint& cp, const btCollisionObjectWrapper* colObj0Wrap, int partId0, int index0, const btCollisionObjectWrapper* colObj1Wrap, int partId1, int index1) override;
+};
+
 class Game : public State, public MouseEventListener, public KeyboardEventListener, public Urho3D::Object{
 
 public:
@@ -56,8 +65,6 @@ public:
 	void OnKeyDown(Event::KeyboardEvent& event) override;
 
 
-	void mdlToObj(unsigned char* vertexData, unsigned int vertexCount, unsigned int stride, unsigned char* indexData, unsigned int indexCount, unsigned int indexStride);
-
 private:
 
 	void applyTransformation(TrackBall& arc);
@@ -72,14 +79,15 @@ private:
 
 	bool m_initUi = true;
 	bool m_drawUi = true;
+	bool m_debugPhysic = true;
 
 	btTypedConstraint* m_pickConstraint;
 	btRigidBody* pickedBody = 0;
 	btScalar mousePickClamping = 30.f;
 
 	ModelLu model;
-	Utils::SolidIO  solidConverter;
-	Utils::MdlIO mldConverter;
+	Utils::SolidIO solidConverter;
+	Utils::MdlIO mdlConverter;
 
 	std::vector<float> vertexBuffer;
 	std::vector<unsigned int> indexBuffer;
@@ -97,6 +105,9 @@ private:
 	Shape m_cylinder;
 
 	Player m_player;
+	LiftButton m_pLiftButton;
+
+	LiftButtonTriggerCallback m_liftButtonTriggerResult;
 
 	Urho3D::SharedPtr<Urho3D::Scene> scene_;
 	Urho3D::SharedPtr<Urho3D::Node> node;
@@ -110,4 +121,7 @@ private:
 	Urho3D::StringHash GetType() const;
 	const Urho3D::String& GetTypeName() const;
 	const Urho3D::TypeInfo* GetTypeInfo() const;
+
+	float buttonPressedHeight_ = 15.0f;
+	float buttonOffset = 0.0f;
 };

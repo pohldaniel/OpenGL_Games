@@ -62,8 +62,9 @@ public:
 	void debugDrawWorld();
 	btBroadphaseInterface* getBroadphase();
 
-	btRigidBody* addStaticModel(std::vector<btCollisionShape *> & collisionShapes, const btTransform & trans, bool debugDraw = true, const btVector3 & scale = btVector3(1.0f, 1.0f, 1.0f), int collisionFilterGroup = 1, int collisionFilterMask = -1);
-	
+	btRigidBody* addStaticModel(std::vector<btCollisionShape*>& collisionShapes, const btTransform& trans, bool debugDraw = true, const btVector3& scale = btVector3(1.0f, 1.0f, 1.0f), int collisionFilterGroup = 1, int collisionFilterMask = -1);
+	//btRigidBody* addStaticModel(btCollisionShape* collisionShapes, const btTransform& trans, bool debugDraw = true, const btVector3& scale = btVector3(1.0f, 1.0f, 1.0f), int collisionFilterGroup = 1, int collisionFilterMask = -1);
+
 	
 	static btCollisionShape* CreateStaticCollisionShape(Shape* shape, const btVector3 & scale = btVector3(1.0f, 1.0f, 1.0f));
 	static std::vector<btCollisionShape*> CreateStaticCollisionShapes(Shape* shape, float scale = 1.0f);

@@ -141,7 +141,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;VERSION="0.4.0";URHO3D_OPENGL;NDEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;GLEW_STATIC;URHO3D_ANGELSCRIPT;URHO3D_FILEWATCHER;URHO3D_LOGGING;URHO3D_LUA;URHO3D_MINIDUMPS;URHO3D_NAVIGATION;URHO3D_NETWORK;URHO3D_PROFILING;URHO3D_THREADING;URHO3D_IS_BUILDING;TOLUA_RELEASE;HAVE_RTL_OSVERSIONINFOW;URHO3D_IS_BUILDING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;VERSION="0.4.0";URHO3D_OPENGL;NDEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;GLEW_STATIC;URHO3D_ANGELSCRIPT;URHO3D_FILEWATCHER;URHO3D_LOGGING;URHO3D_LUA;URHO3D_MINIDUMPS;URHO3D_NAVIGATION;URHO3D_NETWORK;URHO3D_PROFILING;URHO3D_THREADING;URHO3D_IS_BUILDING;TOLUA_RELEASE;HAVE_RTL_OSVERSIONINFOW;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\;urho3d;urho3d\rapidjson\include;..\libglew;..\libimgui;..\libassimp;..\libassimp\include;..\openal\include;..\sndfile\include;..\libfreetype\include;..\libbullet;..\libsoil2;..\libjsoncpp\include;..\libjpeg\include;..\libpng\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
@@ -208,6 +208,7 @@
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="HeightField.cpp" />
     <ClCompile Include="heightfield128x128.cpp" />
+    <ClCompile Include="LiftButton.cpp" />
     <ClCompile Include="lugaru\Environment\Lights.cpp" />
     <ClCompile Include="lugaru\Environment\_Terrain.cpp" />
     <ClCompile Include="lugaru\Graphic\Decal.cpp" />
@@ -851,6 +852,7 @@
     <ClInclude Include="engine\Vector.h" />
     <ClInclude Include="engine\VolumeBuffer.h" />
     <ClInclude Include="HeightField.h" />
+    <ClInclude Include="LiftButton.h" />
     <ClInclude Include="lugaru\Environment\Lights.hpp" />
     <ClInclude Include="lugaru\Environment\Terrain.hpp" />
     <ClInclude Include="lugaru\Graphic\Decal.hpp" />

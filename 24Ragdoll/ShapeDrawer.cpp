@@ -90,9 +90,11 @@ void ShapeDrawer::drawShape(btScalar* m, btCollisionShape* shape) {
 		}
 
 	}else if (shape->getShapeType() == BOX_SHAPE_PROXYTYPE ||
-		shape->getShapeType() == CYLINDER_SHAPE_PROXYTYPE ||
-		shape->getShapeType() == CAPSULE_SHAPE_PROXYTYPE ||
-		shape->getShapeType() == CONVEX_HULL_SHAPE_PROXYTYPE) {
+			  shape->getShapeType() == CYLINDER_SHAPE_PROXYTYPE ||
+			  shape->getShapeType() == CAPSULE_SHAPE_PROXYTYPE ||
+			  shape->getShapeType() == CONVEX_HULL_SHAPE_PROXYTYPE ||
+			  shape->getShapeType() == SPHERE_SHAPE_PROXYTYPE ||
+			  shape->getShapeType() == CYLINDER_SHAPE_PROXYTYPE) {
 
 		ShapeCacheConvex* sc = cacheConvex(const_cast<btCollisionShape*>(shape));
 		btShapeHull* hull = &sc->m_shapehull;
