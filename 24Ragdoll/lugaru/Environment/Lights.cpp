@@ -20,7 +20,7 @@ along with Lugaru.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "../Environment/Lights.hpp"
 
-void SetUpLight(Light* whichsource, int whichlight)
+void SetUpLight(LightLu* whichsource, int whichlight)
 {
     static float qattenuation[] = { 0.0002f };
 

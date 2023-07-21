@@ -15,6 +15,8 @@
 #include <GL/glew.h>
 #include <tracy/Tracy.hpp>
 
+#include "Application.h"
+
 #ifdef WIN32
 #include <Windows.h>
 // Prefer the high-performance GPU on switchable GPU systems
@@ -100,7 +102,7 @@ Graphics::Graphics(const char* windowTitle, const IntVector2& windowSize) :
     RegisterSubsystem(this);
     RegisterGraphicsLibrary();
 
-    SDL_SetHint(SDL_HINT_WINDOWS_DPI_AWARENESS, "system");
+    /*SDL_SetHint(SDL_HINT_WINDOWS_DPI_AWARENESS, "system");
     SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS);
 
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
@@ -127,7 +129,7 @@ Graphics::Graphics(const char* windowTitle, const IntVector2& windowSize) :
     if (!initialSize.x || !initialSize.y || initialSize.x > desktopMode.w || initialSize.y > desktopMode.h)
         initialSize = IntVector2(desktopMode.w, desktopMode.h);
 
-    window = SDL_CreateWindow(windowTitle, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, initialSize.x, initialSize.y, SDL_WINDOW_OPENGL | SDL_WINDOW_ALLOW_HIGHDPI);
+    window = SDL_CreateWindow(windowTitle, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, initialSize.x, initialSize.y, SDL_WINDOW_OPENGL | SDL_WINDOW_ALLOW_HIGHDPI);*/
 }
 
 Graphics::~Graphics()
@@ -152,7 +154,7 @@ bool Graphics::Initialize()
 {
     ZoneScoped;
 
-    if (context)
+    /*if (context)
         return true;
 
     if (!window)
@@ -173,7 +175,7 @@ bool Graphics::Initialize()
     {
         LOGERROR("Could not initialize OpenGL 3.2");
         return false;
-    }
+    }*/
 
     // "Any samples passed" is potentially faster if supported
     if (GLEW_VERSION_3_3)
@@ -233,7 +235,11 @@ void Graphics::Present()
 {
     ZoneScoped;
 
-    SDL_GL_SwapWindow(window);
+    //SDL_GL_SwapWindow(window);
+
+	//HDC hdc = GetDC(Application::GetWindow());
+	//SwapBuffers(hdc);
+	//ReleaseDC(Application::GetWindow(), hdc);
 
     lastFrameTime = 0.000001f * frameTimer.ElapsedUSec();
     frameTimer.Reset();

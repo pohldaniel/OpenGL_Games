@@ -612,6 +612,9 @@
     <ClCompile Include="turso3d\Time\TimeUtils.cpp">
       <Filter>turso3d\Time</Filter>
     </ClCompile>
+    <ClCompile Include="Turso.cpp">
+      <Filter>Source Files\States</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h">
@@ -1141,6 +1144,9 @@
     </ClInclude>
     <ClInclude Include="turso3d\Time\TimeUtils.h">
       <Filter>turso3d\Time</Filter>
+    </ClInclude>
+    <ClInclude Include="Turso.h">
+      <Filter>Source Files\States</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

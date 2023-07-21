@@ -15,6 +15,7 @@
 #include "VehicleInterface.h"
 #include "CharacterInterface.h"
 #include "Game.h"
+#include "Turso.h"
 #include "Menu.h"
 #include "Widget.h"
 
@@ -61,8 +62,8 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 	SavedExStyle = GetWindowLong(Window, GWL_EXSTYLE);
 	SavedStyle = GetWindowLong(Window, GWL_STYLE);
 
-	Fontrenderer::Get().init();
-	Fontrenderer::Get().setShader(Globals::shaderManager.getAssetPointer("font"));
+	/*Fontrenderer::Get().init();
+	Fontrenderer::Get().setShader(Globals::shaderManager.getAssetPointer("font"));*/
 
 	auto shader = Globals::shaderManager.getAssetPointer("font");
 	shader->use();
@@ -312,8 +313,8 @@ void Application::initOpenGL(int msaaSamples) {
 
 	glCullFace(GL_BACK);
 	glFrontFace(GL_CCW);
-	//glEnable(GL_CULL_FACE);
-	glDisable(GL_CULL_FACE);
+	glEnable(GL_CULL_FACE);
+	//glDisable(GL_CULL_FACE);
 
 	glEnable(GL_DEPTH_TEST);
 	//glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
@@ -381,7 +382,8 @@ void Application::initStates() {
 	//Machine->addStateAtTop(new VehicleInterface(*Machine));
 	//Machine->addStateAtTop(new RagdollInterface(*Machine));
 	//Machine->addStateAtTop(new CharacterInterface(*Machine));
-	Machine->addStateAtTop(new Game(*Machine));
+	//Machine->addStateAtTop(new Game(*Machine));
+	Machine->addStateAtTop(new TursoInterface(*Machine));
 	//Machine->addStateAtTop(new Menu(*Machine));
 }
 

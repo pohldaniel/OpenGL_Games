@@ -17,15 +17,15 @@ bool IntBox::FromString(const char* string)
     char* ptr = const_cast<char*>(string);
     left = strtol(ptr, &ptr, 10);
     top = strtol(ptr, &ptr, 10);
-    near = strtol(ptr, &ptr, 10);
+    Near = strtol(ptr, &ptr, 10);
     right = strtol(ptr, &ptr, 10);
     bottom = strtol(ptr, &ptr, 10);
-    far = strtol(ptr, &ptr, 10);
+    Far = strtol(ptr, &ptr, 10);
 
     return true;
 }
 
 std::string IntBox::ToString() const
 {
-    return FormatString("%d %d %d %d %d %d", left, top, near, right, bottom, far);
+    return FormatString("%d %d %d %d %d %d", left, top, Near, right, bottom, Far);
 }

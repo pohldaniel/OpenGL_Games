@@ -432,7 +432,7 @@ bool TextureTu::SetData(size_t level, const IntBox& box, const ImageLevel& data)
         return false;
     }
 
-    GLenum glTarget = (type == TEX_CUBE) ? GL_TEXTURE_CUBE_MAP_POSITIVE_X + box.near : glTargets[type];
+    GLenum glTarget = (type == TEX_CUBE) ? GL_TEXTURE_CUBE_MAP_POSITIVE_X + box.Near : glTargets[type];
 
     IntBox levelBox(0, 0, 0, Max(size.x >> level, 1), Max(size.y >> level, 1), Max(size.z >> level, 1));
     if (type == TEX_CUBE)
@@ -443,8 +443,8 @@ bool TextureTu::SetData(size_t level, const IntBox& box, const ImageLevel& data)
             return false;
         }
 
-        levelBox.near = box.near;
-        levelBox.far = box.far;
+        levelBox.Near = box.Near;
+        levelBox.Far = box.Far;
     }
 
     if (levelBox.IsInside(box) != INSIDE)
@@ -479,7 +479,7 @@ bool TextureTu::SetData(size_t level, const IntBox& box, const ImageLevel& data)
         if (wholeLevel)
             glTexImage3D(glTarget, (int)level, glInternalFormats[format], box.Width(), box.Height(), box.Depth(), 0, glFormats[format], glDataTypes[format], data.data);
         else
-            glTexSubImage3D(glTarget, (int)level, box.left, box.top, box.near, box.Width(), box.Height(), box.Depth(), glFormats[format], glDataTypes[format], data.data);
+            glTexSubImage3D(glTarget, (int)level, box.left, box.top, box.Near, box.Width(), box.Height(), box.Depth(), glFormats[format], glDataTypes[format], data.data);
     }
 
     return true;

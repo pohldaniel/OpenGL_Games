@@ -24,7 +24,7 @@ along with Lugaru.  If not, see <http://www.gnu.org/licenses/>.
 #include <GL/glew.h>
 #include "../Math/XYZ.hpp"
 
-class Light
+class LightLu
 {
 public:
     GLint type;
@@ -44,6 +44,6 @@ public:
     }
 };
 
-void SetUpLight(Light* whichsource, int whichlight);
+void SetUpLight(LightLu* whichsource, int whichlight);
 
 #endif

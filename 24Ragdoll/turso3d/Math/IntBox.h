@@ -15,13 +15,13 @@ public:
     /// Top coordinate.
     int top;
     /// Near coordinate.
-    int near;
+    int Near;
     /// Right coordinate.
     int right;
     /// Bottom coordinate.
     int bottom;
     /// Far coordinate.
-    int far;
+    int Far;
     
     /// Construct undefined.
     IntBox()
@@ -32,10 +32,10 @@ public:
     IntBox(const IntBox& box) :
         left(box.left),
         top(box.top),
-        near(box.near),
+		Near(box.Near),
         right(box.right),
         bottom(box.bottom),
-        far(box.far)
+        Far(box.Far)
     {
     }
     
@@ -43,10 +43,10 @@ public:
     IntBox(int left_, int top_, int near_, int right_, int bottom_, int far_) :
         left(left_),
         top(top_),
-        near(near_),
+		Near(near_),
         right(right_),
         bottom(bottom_),
-        far(far_)
+        Far(far_)
     {
     }
     
@@ -54,10 +54,10 @@ public:
     IntBox(const int* data) :
         left(data[0]),
         top(data[1]),
-        near(data[2]),
+		Near(data[2]),
         right(data[3]),
         bottom(data[4]),
-        far(data[5])
+        Far(data[5])
     {
     }
 
@@ -74,7 +74,7 @@ public:
     }
     
     /// Test for equality with another box.
-    bool operator == (const IntBox& rhs) const { return left == rhs.left && top == rhs.top && right == rhs.right && bottom == rhs.bottom && near == rhs.near && far == rhs.far; }
+    bool operator == (const IntBox& rhs) const { return left == rhs.left && top == rhs.top && right == rhs.right && bottom == rhs.bottom && Near == rhs.Near && Far == rhs.Far; }
     /// Test for inequality with another box.
     bool operator != (const IntBox& rhs) const { return !(*this == rhs); }
     
@@ -90,12 +90,12 @@ public:
     /// Return height.
     int Height() const { return bottom - top; }
     /// Return depth.
-    int Depth() const { return far - near; }
+    int Depth() const { return Far - Near; }
     
     /// Test whether a point is inside.
     Intersection IsInside(const IntVector3& point) const
     {
-        if (point.x < left || point.y < top || point.z < near || point.x >= right || point.y >= bottom || point.z >= far)
+        if (point.x < left || point.y < top || point.z < Near || point.x >= right || point.y >= bottom || point.z >= Far)
             return OUTSIDE;
         else
             return INSIDE;
@@ -104,9 +104,9 @@ public:
     /// Test whether another box is inside or intersects.
     Intersection IsInside(const IntBox& box) const
     {
-        if (box.right <= left || box.left >= right || box.bottom <= top || box.top >= bottom || box.far <= near || box.near >= far)
+        if (box.right <= left || box.left >= right || box.bottom <= top || box.top >= bottom || box.Far <= Near || box.Near >= Far)
             return OUTSIDE;
-        else if (box.left >= left && box.right <= right && box.top >= top && box.bottom <= bottom && box.near >= near && box.far <= far)
+        else if (box.left >= left && box.right <= right && box.top >= top && box.bottom <= bottom && box.Near >= Near && box.Far <= Far)
             return INSIDE;
         else
             return INTERSECTS;

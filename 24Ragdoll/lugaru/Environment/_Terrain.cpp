@@ -29,7 +29,7 @@ extern float viewdistance;
 extern float fadestart;
 extern int environment;
 extern float texscale;
-extern Light light;
+extern LightLu light;
 extern float multiplier;
 extern FrustumLu frustum;
 extern float texdetail;

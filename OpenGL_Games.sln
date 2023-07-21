@@ -213,8 +213,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libsoil2", "libsoil2\libsoi
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libsdl", "libsdl\libsdl.vcxproj", "{AA108F9C-1500-479F-A91C-8F01254EDB0B}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Turso3DTest", "Turso3DTest\Turso3DTest.vcxproj", "{48C06D48-E873-4209-A174-78014A04B422}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -719,14 +717,6 @@ Global
 		{AA108F9C-1500-479F-A91C-8F01254EDB0B}.Release|x64.Build.0 = Release|x64
 		{AA108F9C-1500-479F-A91C-8F01254EDB0B}.Release|x86.ActiveCfg = Release|Win32
 		{AA108F9C-1500-479F-A91C-8F01254EDB0B}.Release|x86.Build.0 = Release|Win32
-		{48C06D48-E873-4209-A174-78014A04B422}.Debug|x64.ActiveCfg = Debug|x64
-		{48C06D48-E873-4209-A174-78014A04B422}.Debug|x64.Build.0 = Debug|x64
-		{48C06D48-E873-4209-A174-78014A04B422}.Debug|x86.ActiveCfg = Debug|Win32
-		{48C06D48-E873-4209-A174-78014A04B422}.Debug|x86.Build.0 = Debug|Win32
-		{48C06D48-E873-4209-A174-78014A04B422}.Release|x64.ActiveCfg = Release|x64
-		{48C06D48-E873-4209-A174-78014A04B422}.Release|x64.Build.0 = Release|x64
-		{48C06D48-E873-4209-A174-78014A04B422}.Release|x86.ActiveCfg = Release|Win32
-		{48C06D48-E873-4209-A174-78014A04B422}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

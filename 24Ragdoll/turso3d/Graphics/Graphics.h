@@ -122,7 +122,7 @@ public:
     size_t PendingOcclusionQueries() const { return pendingQueries.size(); }
 
     /// Return whether is initialized.
-    bool IsInitialized() const { return context != nullptr; }
+    bool IsInitialized() const { return true; }
     /// Return whether has instancing support.
     bool HasInstancing() const { return hasInstancing; }
     /// Return current window size.
