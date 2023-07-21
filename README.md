@@ -45,4 +45,4 @@ The project 22Voyager is heavily based on https://github.com/OnixMarble/Titan-Vo
 
 The project 23Ballenger is based on https://www.youtube.com/watch?v=AOWDMiX94_M the terrain culling is from http://3dcpptutorials.sk/index.php?id=58 the volumetric clouds are from https://github.com/fede-vaccaro/TerrainEngine-OpenGL the backend noisegen is from https://github.com/wangyiyun/Cloud-Generation. Another cloud approach is from https://github.com/simondevyoutube/Shaders_Clouds1.
 
-The project 24Ragdoll contains files from https://github.com/urho3d/Urho3D
+The project 24Ragdoll contains files from https://github.com/urho3d/Urho3D and https://github.com/cadaver/turso3d
