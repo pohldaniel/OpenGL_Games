@@ -8,9 +8,7 @@
 #include "Globals.h"
 #include "Menu.h"
 
-Urho3D::Vector<Urho3D::String> arguments;
-
-Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_pickConstraint(0), Object(new Urho3D::Context()) , m_player(m_camera) {
+Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_pickConstraint(0), m_player(m_camera) {
 
 	Application::SetCursorIcon(IDC_ARROW);
 	EventDispatcher::AddKeyboardListener(this);
@@ -42,70 +40,30 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_pickCo
 
 	glClearColor(0.3f, 0.3f, 0.3f, 0.0f);
 
-	Urho3D::VariantMap engineParameters_ = Urho3D::Engine::ParseParameters(arguments);
-
-	engine = new Urho3D::Engine(context_);
-	engine->Initialize(engineParameters_);
-	/*context_->RegisterSubsystem(new Urho3D::FileSystem(context_));
-	context_->RegisterSubsystem(new Urho3D::ResourceCache(context_));
-	RegisterSceneLibrary(context_);
-	context_->RegisterSubsystem(new Urho3D::Graphics(context_));
-	context_->RegisterSubsystem(new Urho3D::Renderer(context_));
-	context_->RegisterSubsystem(new Urho3D::Time(context_));*/
-
-	Urho3D::ResourceCache* cache = GetSubsystem<Urho3D::ResourceCache>();
-
-	renderer = GetSubsystem<Urho3D::Renderer>();
-	graphics = GetSubsystem<Urho3D::Graphics>();
-
-	scene_ = new Urho3D::Scene(context_);
-	node = new Urho3D::Node(context_);
-	Urho3D::FileSystem* fileSystem = GetSubsystem<Urho3D::FileSystem>();
-	Urho3D::XMLFile *xmlLevel = cache->GetResource<Urho3D::XMLFile>("res/playGroundTest.xml");
-
-	scene_->LoadXML(xmlLevel->GetRoot());
-	//Urho3D::Node* movingPlatNode = scene_->GetChild("movingPlatformDisk1", true);
-
-	//Urho3D::Vector3 pos = movingPlatNode->GetWorldPosition();
-
-	//Urho3D::StringHash strHash = Urho3D::StringHash("StaticModel");
-	//Urho3D::SharedPtr<Urho3D::StaticModel> staticModel = Urho3D::DynamicCast<Urho3D::StaticModel>(context_->CreateObject(strHash));
-
-
-	//Urho3D::Model* model = cache->GetResource<Urho3D::Model>("res/Models/disk.mdl");
-	//const Urho3D::BoundingBox& bb = model->GetBoundingBox();
-	
-
-	Urho3D::Model* model = new Urho3D::Model(context_);
-	Urho3D::SharedPtr<Urho3D::File> file(new Urho3D::File(context_, "res/Models/disk.mdl"));
-	model->Load(*(file.Get()));
-	geometry = model->GetGeometry(0, 0);
-
-	//mldConverter.mdlToObj("res/Models/base.mdl", "res/base.obj", "res/base.mtl", "/textures/ProtoWhite256.jpg");
-	//mldConverter.mdlToObj("res/Models/basePlat.mdl", "res/basePlat.obj", "res/basePlat.mtl", "/textures/ProtoWhite256.jpg");
-	//mldConverter.mdlToObj("res/Models/disk.mdl", "res/disk.obj", "res/disk.mtl", "/textures/ProtoWhite256.jpg");
-	//mldConverter.mdlToObj("res/Models/disk1.mdl", "res/disk1.obj", "res/disk1.mtl", "/textures/ProtoWhite256.jpg");
-	//mldConverter.mdlToObj("res/Models/Lift.mdl", "res/lift.obj", "res/lift.mtl", "/textures/ProtoWhite256.jpg");
-	//mldConverter.mdlToObj("res/Models/Lift1.mdl", "res/lift1.obj", "res/lift1.mtl", "/textures/ProtoWhite256.jpg");
-	//mldConverter.mdlToObj("res/Models/LiftButton.mdl", "res/liftButton.obj", "res/liftButton.mtl", "/textures/ProtoWhite256.jpg");
-	//mldConverter.mdlToObj("res/Models/liftExterior.mdl", "res/liftExterior.obj", "res/liftExterior.mtl", "/textures/ProtoWhite256.jpg");
-	//mldConverter.mdlToObj("res/Models/liftExterior1.mdl", "res/liftExterior1.obj", "res/liftExterior1.mtl", "/textures/ProtoWhite256.jpg");
-	//mldConverter.mdlToObj("res/Models/pCube1.mdl", "res/pCube1.obj", "res/pCube1.mtl", "/textures/ProtoWhite256.jpg");
-	//mldConverter.mdlToObj("res/Models/pCube2.mdl", "res/pCube2.obj", "res/pCube2.mtl", "/textures/ProtoWhite256.jpg");
-	//mldConverter.mdlToObj("res/Models/pCube3.mdl", "res/pCube3.obj", "res/pCube3.mtl", "/textures/ProtoWhite256.jpg");
-	//mldConverter.mdlToObj("res/Models/pCube4.mdl", "res/pCube4.obj", "res/pCube4.mtl", "/textures/ProtoWhite256.jpg");
-	//mldConverter.mdlToObj("res/Models/pCube5.mdl", "res/pCube5.obj", "res/pCube5.mtl", "/textures/ProtoWhite256.jpg");
-	//mldConverter.mdlToObj("res/Models/pCube6.mdl", "res/pCube6.obj", "res/pCube6.mtl", "/textures/ProtoWhite256.jpg");
-	//mldConverter.mdlToObj("res/Models/pCylinder1.mdl", "res/pCylinder1.obj", "res/pCylinder1.mtl", "/textures/ProtoWhite256.jpg");
-	//mldConverter.mdlToObj("res/Models/pCylinder2.mdl", "res/pCylinder2.obj", "res/pCylinder2.mtl", "/textures/ProtoWhite256.jpg");
-	//mldConverter.mdlToObj("res/Models/pCylinder3.mdl", "res/pCylinder3.obj", "res/pCylinder3.mtl", "/textures/ProtoWhite256.jpg");
-	//mldConverter.mdlToObj("res/Models/ramp.mdl", "res/ramp.obj", "res/ramp.mtl", "/textures/ProtoWhite256.jpg");
-	//mldConverter.mdlToObj("res/Models/ramp2.mdl", "res/ramp2.obj", "res/ramp2.mtl", "/textures/ProtoWhite256.jpg");
-	//mldConverter.mdlToObj("res/Models/ramp3.mdl", "res/ramp3.obj", "res/ramp3.mtl", "/textures/ProtoWhite256.jpg");
-	//mldConverter.mdlToObj("res/Models/upperFloor.mdl", "res/upperFloor.obj", "res/upperFloor.mtl", "/textures/ProtoWhite256.jpg");
-	//mldConverter.mdlToObj("res/Models/upperFloor1.mdl", "res/upperFloor1.obj", "res/upperFloor1.mtl", "/textures/ProtoWhite256.jpg");
-
-	//mldConverter.mdlToObj("res/Models/Cylinder.mdl", "res/Cylinder.obj", "res/cylinder.mtl", "/textures/ProtoWhite256.jpg");
+	//mdlConverter.mdlToObj("res/Models/base.mdl", "res/base.obj", "res/base.mtl", "/textures/ProtoWhite256.jpg");
+	//mdlConverter.mdlToObj("res/Models/basePlat.mdl", "res/basePlat.obj", "res/basePlat.mtl", "/textures/ProtoWhite256.jpg");
+	//mdlConverter.mdlToObj("res/Models/disk.mdl", "res/disk.obj", "res/disk.mtl", "/textures/ProtoWhite256.jpg");
+	//mdlConverter.mdlToObj("res/Models/disk1.mdl", "res/disk1.obj", "res/disk1.mtl", "/textures/ProtoWhite256.jpg");
+	//mdlConverter.mdlToObj("res/Models/Lift.mdl", "res/lift.obj", "res/lift.mtl", "/textures/ProtoWhite256.jpg");
+	//mdlConverter.mdlToObj("res/Models/Lift1.mdl", "res/lift1.obj", "res/lift1.mtl", "/textures/ProtoWhite256.jpg");
+	//mdlConverter.mdlToObj("res/Models/LiftButton.mdl", "res/liftButton.obj", "res/liftButton.mtl", "/textures/ProtoWhite256.jpg");
+	//mdlConverter.mdlToObj("res/Models/liftExterior.mdl", "res/liftExterior.obj", "res/liftExterior.mtl", "/textures/ProtoWhite256.jpg");
+	//mdlConverter.mdlToObj("res/Models/liftExterior1.mdl", "res/liftExterior1.obj", "res/liftExterior1.mtl", "/textures/ProtoWhite256.jpg");
+	//mdlConverter.mdlToObj("res/Models/pCube1.mdl", "res/pCube1.obj", "res/pCube1.mtl", "/textures/ProtoWhite256.jpg");
+	//mdlConverter.mdlToObj("res/Models/pCube2.mdl", "res/pCube2.obj", "res/pCube2.mtl", "/textures/ProtoWhite256.jpg");
+	//mdlConverter.mdlToObj("res/Models/pCube3.mdl", "res/pCube3.obj", "res/pCube3.mtl", "/textures/ProtoWhite256.jpg");
+	//mdlConverter.mdlToObj("res/Models/pCube4.mdl", "res/pCube4.obj", "res/pCube4.mtl", "/textures/ProtoWhite256.jpg");
+	//mdlConverter.mdlToObj("res/Models/pCube5.mdl", "res/pCube5.obj", "res/pCube5.mtl", "/textures/ProtoWhite256.jpg");
+	//mdlConverter.mdlToObj("res/Models/pCube6.mdl", "res/pCube6.obj", "res/pCube6.mtl", "/textures/ProtoWhite256.jpg");
+	//mdlConverter.mdlToObj("res/Models/pCylinder1.mdl", "res/pCylinder1.obj", "res/pCylinder1.mtl", "/textures/ProtoWhite256.jpg");
+	//mdlConverter.mdlToObj("res/Models/pCylinder2.mdl", "res/pCylinder2.obj", "res/pCylinder2.mtl", "/textures/ProtoWhite256.jpg");
+	//mdlConverter.mdlToObj("res/Models/pCylinder3.mdl", "res/pCylinder3.obj", "res/pCylinder3.mtl", "/textures/ProtoWhite256.jpg");
+	//mdlConverter.mdlToObj("res/Models/ramp.mdl", "res/ramp.obj", "res/ramp.mtl", "/textures/ProtoWhite256.jpg");
+	//mdlConverter.mdlToObj("res/Models/ramp2.mdl", "res/ramp2.obj", "res/ramp2.mtl", "/textures/ProtoWhite256.jpg");
+	//mdlConverter.mdlToObj("res/Models/ramp3.mdl", "res/ramp3.obj", "res/ramp3.mtl", "/textures/ProtoWhite256.jpg");
+	//mdlConverter.mdlToObj("res/Models/upperFloor.mdl", "res/upperFloor.obj", "res/upperFloor.mtl", "/textures/ProtoWhite256.jpg");
+	//mdlConverter.mdlToObj("res/Models/upperFloor1.mdl", "res/upperFloor1.obj", "res/upperFloor1.mtl", "/textures/ProtoWhite256.jpg");
+	//mdlConverter.mdlToObj("res/Models/Cylinder.mdl", "res/Cylinder.obj", "res/cylinder.mtl", "/textures/ProtoWhite256.jpg");
 
 	mdlConverter.mdlToBuffer("res/Models/disk.mdl", 0.01f, vertexBuffer, indexBuffer);
 	m_disk.fromBuffer(vertexBuffer, indexBuffer, 8);
@@ -504,18 +462,6 @@ void Game::removePickingConstraint() {
 		pickedBody->setDeactivationTime(0.0f);
 		pickedBody = 0;
 	}
-}
-
-Urho3D::StringHash Game::GetType() const { 
-	return GetTypeInfoStatic()->GetType(); 
-}
-
-const Urho3D::String& Game::GetTypeName() const { 
-	return GetTypeInfoStatic()->GetTypeName(); 
-}
-
-const Urho3D::TypeInfo* Game::GetTypeInfo() const { 
-	return GetTypeInfoStatic(); 
 }
 
 btScalar LiftButtonTriggerCallback::addSingleResult(btManifoldPoint& cp, const btCollisionObjectWrapper* colObj0Wrap, int partId0, int index0, const btCollisionObjectWrapper* colObj1Wrap, int partId1, int index1) {

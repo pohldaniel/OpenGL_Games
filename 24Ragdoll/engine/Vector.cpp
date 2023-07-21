@@ -1361,6 +1361,8 @@ Matrix4f &Matrix4f::InvRotate(Matrix4f &mtx, const Vector3f &axis, float degrees
 	mtx[3][1] = centerOfRotation[1] * (1.0f - mtx[1][1]) - centerOfRotation[0] * mtx[0][1] - centerOfRotation[2] * mtx[2][1];
 	mtx[3][2] = centerOfRotation[2] * (1.0f - mtx[2][2]) - centerOfRotation[0] * mtx[0][2] - centerOfRotation[1] * mtx[1][2];
 	mtx[3][3] = 1.0f;
+
+	return mtx;
 }
 
 Matrix4f Matrix4f::Rotate(const Vector3f &direction) {
@@ -1606,6 +1608,8 @@ Matrix4f& Matrix4f::Rotate(Matrix4f &mtx, const Vector3f &axis, float degrees, c
 	mtx[3][1] = centerOfRotation[1] * (1.0f - mtx[1][1]) - centerOfRotation[0] * mtx[0][1] - centerOfRotation[2] * mtx[2][1];
 	mtx[3][2] = centerOfRotation[2] * (1.0f - mtx[2][2]) - centerOfRotation[0] * mtx[0][2] - centerOfRotation[1] * mtx[1][2];
 	mtx[3][3] = 1.0f;
+
+	return mtx;
 }
 
 Matrix4f Matrix4f::GetNormalMatrix(const Matrix4f &modelViewMatrix) {

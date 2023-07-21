@@ -87,14 +87,15 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;VERSION="0.4.0";URHO3D_OPENGL;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;GLEW_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;urho3d;urho3d\rapidjson\include;..\libglew;..\libimgui;..\libassimp;..\libassimp\include;..\openal\include;..\sndfile\include;..\libfreetype\include;..\libbullet;..\libsoil2;..\libjsoncpp\include;..\libjpeg\include;..\libpng\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;GLEW_STATIC;SDL_MAIN_HANDLED;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>.\;..\libglew;..\libimgui;..\libassimp;..\libassimp\include;..\openal\include;..\sndfile\include;..\libfreetype\include;..\libbullet;..\libsoil2;..\libjsoncpp\include;..\libjpeg\include;..\libpng\include;..\libsdl\include;turso3d;turso3d\tracy;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <SubSystem>Windows</SubSystem>
+      <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>..\libd\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>OpenGl32.lib;libglew.lib;libimgui.lib;libassimp.lib;libzlib.lib;libfreetype.lib;libopenal.lib;libflac.lib;libmpg.lib;liblame.lib;libsndfile.lib;winmm.lib;shlwapi.lib;libbullet.lib;libsoil2.lib;d3dcompiler.lib;d3d9.lib;libjsoncpp.lib;libpng.lib;libjpeg.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>OpenGl32.lib;libglew.lib;libimgui.lib;libassimp.lib;libzlib.lib;libfreetype.lib;libopenal.lib;libflac.lib;libmpg.lib;liblame.lib;libsndfile.lib;winmm.lib;shlwapi.lib;version.lib;setupapi.lib;libbullet.lib;libsoil2.lib;libjsoncpp.lib;libpng.lib;libjpeg.lib;libsdl.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <StackReserveSize>4194304</StackReserveSize>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -103,14 +104,15 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;VERSION="0.4.0";URHO3D_OPENGL;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;GLEW_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;urho3d;urho3d\rapidjson\include;..\libglew;..\libimgui;..\libassimp;..\libassimp\include;..\openal\include;..\sndfile\include;..\libfreetype\include;..\libbullet;..\libsoil2;..\libjsoncpp\include;..\libjpeg\include;..\libpng\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;GLEW_STATIC;SDL_MAIN_HANDLED;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>.\;..\libglew;..\libimgui;..\libassimp;..\libassimp\include;..\openal\include;..\sndfile\include;..\libfreetype\include;..\libbullet;..\libsoil2;..\libjsoncpp\include;..\libjpeg\include;..\libpng\include;..\libsdl\include;turso3d;turso3d\tracy;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <SubSystem>Windows</SubSystem>
+      <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>..\libd\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>OpenGl32.lib;libglew.lib;libimgui.lib;libassimp.lib;libzlib.lib;libfreetype.lib;libopenal.lib;libflac.lib;libmpg.lib;liblame.lib;libsndfile.lib;winmm.lib;shlwapi.lib;libbullet.lib;libsoil2.lib;d3dcompiler.lib;d3d9.lib;libjsoncpp.lib;libpng.lib;libjpeg.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>OpenGl32.lib;libglew.lib;libimgui.lib;libassimp.lib;libzlib.lib;libfreetype.lib;libopenal.lib;libflac.lib;libmpg.lib;liblame.lib;libsndfile.lib;winmm.lib;shlwapi.lib;version.lib;setupapi.lib;libbullet.lib;libsoil2.lib;libjsoncpp.lib;libpng.lib;libjpeg.lib;libsdl.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <StackReserveSize>4194304</StackReserveSize>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -121,16 +123,18 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;VERSION="0.4.0";URHO3D_OPENGL;NDEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;GLEW_STATIC;URHO3D_ANGELSCRIPT;URHO3D_FILEWATCHER;URHO3D_LOGGING;URHO3D_LUA;URHO3D_MINIDUMPS;URHO3D_NAVIGATION;URHO3D_NETWORK;URHO3D_PROFILING;URHO3D_THREADING;URHO3D_IS_BUILDING;TOLUA_RELEASE;HAVE_RTL_OSVERSIONINFOW;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;urho3d;urho3d\rapidjson\include;..\libglew;..\libimgui;..\libassimp;..\libassimp\include;..\openal\include;..\sndfile\include;..\libfreetype\include;..\libbullet;..\libsoil2;..\libjsoncpp\include;..\libjpeg\include;..\libpng\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;GLEW_STATIC;SDL_MAIN_HANDLED;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>.\;..\libglew;..\libimgui;..\libassimp;..\libassimp\include;..\openal\include;..\sndfile\include;..\libfreetype\include;..\libbullet;..\libsoil2;..\libjsoncpp\include;..\libjpeg\include;..\libpng\include;..\libsdl\include;turso3d;turso3d\tracy;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
     </ClCompile>
     <Link>
-      <SubSystem>Windows</SubSystem>
+      <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>..\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>OpenGl32.lib;libglew.lib;libimgui.lib;libassimp.lib;libzlib.lib;libfreetype.lib;libopenal.lib;libflac.lib;libmpg.lib;liblame.lib;libsndfile.lib;winmm.lib;shlwapi.lib;libbullet.lib;libsoil2.lib;d3dcompiler.lib;d3d9.lib;libjsoncpp.lib;libpng.lib;libjpeg.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>OpenGl32.lib;libglew.lib;libimgui.lib;libassimp.lib;libzlib.lib;libfreetype.lib;libopenal.lib;libflac.lib;libmpg.lib;liblame.lib;libsndfile.lib;winmm.lib;shlwapi.lib;version.lib;setupapi.lib;libbullet.lib;libsoil2.lib;libjsoncpp.lib;libpng.lib;libjpeg.lib;libsdl.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <StackReserveSize>4194304</StackReserveSize>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -141,16 +145,18 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;VERSION="0.4.0";URHO3D_OPENGL;NDEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;GLEW_STATIC;URHO3D_ANGELSCRIPT;URHO3D_FILEWATCHER;URHO3D_LOGGING;URHO3D_LUA;URHO3D_MINIDUMPS;URHO3D_NAVIGATION;URHO3D_NETWORK;URHO3D_PROFILING;URHO3D_THREADING;URHO3D_IS_BUILDING;TOLUA_RELEASE;HAVE_RTL_OSVERSIONINFOW;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;urho3d;urho3d\rapidjson\include;..\libglew;..\libimgui;..\libassimp;..\libassimp\include;..\openal\include;..\sndfile\include;..\libfreetype\include;..\libbullet;..\libsoil2;..\libjsoncpp\include;..\libjpeg\include;..\libpng\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_CRT_SECURE_NO_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;GLEW_STATIC;SDL_MAIN_HANDLED;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>.\;..\libglew;..\libimgui;..\libassimp;..\libassimp\include;..\openal\include;..\sndfile\include;..\libfreetype\include;..\libbullet;..\libsoil2;..\libjsoncpp\include;..\libjpeg\include;..\libpng\include;..\libsdl\include;turso3d;turso3d\tracy;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
     </ClCompile>
     <Link>
-      <SubSystem>Windows</SubSystem>
+      <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>..\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>OpenGl32.lib;libglew.lib;libimgui.lib;libassimp.lib;libzlib.lib;libfreetype.lib;libopenal.lib;libflac.lib;libmpg.lib;liblame.lib;libsndfile.lib;winmm.lib;shlwapi.lib;libbullet.lib;libsoil2.lib;d3dcompiler.lib;d3d9.lib;libjsoncpp.lib;libpng.lib;libjpeg.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>OpenGl32.lib;libglew.lib;libimgui.lib;libassimp.lib;libzlib.lib;libfreetype.lib;libopenal.lib;libflac.lib;libmpg.lib;liblame.lib;libsndfile.lib;winmm.lib;shlwapi.lib;version.lib;setupapi.lib;libbullet.lib;libsoil2.lib;libjsoncpp.lib;libpng.lib;libjpeg.lib;libsdl.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <StackReserveSize>4194304</StackReserveSize>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -233,552 +239,85 @@
     <ClCompile Include="RandomColor.cpp" />
     <ClCompile Include="SeekerBar.cpp" />
     <ClCompile Include="SolidIO.cpp" />
-    <ClCompile Include="urho3d\Container\Allocator.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../Precompiled.h</PrecompiledHeaderFile>
-    </ClCompile>
-    <ClCompile Include="urho3d\Container\HashBase.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../Precompiled.h</PrecompiledHeaderFile>
-    </ClCompile>
-    <ClCompile Include="urho3d\Container\RefCounted.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../Precompiled.h</PrecompiledHeaderFile>
-    </ClCompile>
-    <ClCompile Include="urho3d\Container\Str.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../Precompiled.h</PrecompiledHeaderFile>
-    </ClCompile>
-    <ClCompile Include="urho3d\Container\Swap.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../Precompiled.h</PrecompiledHeaderFile>
-    </ClCompile>
-    <ClCompile Include="urho3d\Container\VectorBase.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../Precompiled.h</PrecompiledHeaderFile>
-    </ClCompile>
-    <ClCompile Include="urho3d\Core\Context.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../Precompiled.h</PrecompiledHeaderFile>
-    </ClCompile>
-    <ClCompile Include="urho3d\Core\EventProfiler.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../Precompiled.h</PrecompiledHeaderFile>
-    </ClCompile>
-    <ClCompile Include="urho3d\Core\Mutex.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../Precompiled.h</PrecompiledHeaderFile>
-    </ClCompile>
-    <ClCompile Include="urho3d\Core\Spline.cpp" />
-    <ClCompile Include="urho3d\Core\WorkQueue.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../Precompiled.h</PrecompiledHeaderFile>
-    </ClCompile>
-    <ClCompile Include="urho3d\Core\_Object.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../Precompiled.h</PrecompiledHeaderFile>
-    </ClCompile>
-    <ClCompile Include="urho3d\Core\ProcessUtils.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../Precompiled.h</PrecompiledHeaderFile>
-    </ClCompile>
-    <ClCompile Include="urho3d\Core\Profiler.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../Precompiled.h</PrecompiledHeaderFile>
-    </ClCompile>
-    <ClCompile Include="urho3d\Core\StringUtils.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../Precompiled.h</PrecompiledHeaderFile>
-    </ClCompile>
-    <ClCompile Include="urho3d\Core\Thread.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../Precompiled.h</PrecompiledHeaderFile>
-    </ClCompile>
-    <ClCompile Include="urho3d\Core\_Timer.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../Precompiled.h</PrecompiledHeaderFile>
-    </ClCompile>
-    <ClCompile Include="urho3d\Core\Variant.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../Precompiled.h</PrecompiledHeaderFile>
-    </ClCompile>
-    <ClCompile Include="urho3d\Engine\Engine.cpp" />
-    <ClCompile Include="urho3d\Graphics\AnimatedModel.cpp" />
-    <ClCompile Include="urho3d\Graphics\Animation.cpp" />
-    <ClCompile Include="urho3d\Graphics\AnimationController.cpp" />
-    <ClCompile Include="urho3d\Graphics\AnimationState.cpp" />
-    <ClCompile Include="urho3d\Graphics\Batch.cpp" />
-    <ClCompile Include="urho3d\Graphics\BillboardSet.cpp" />
-    <ClCompile Include="urho3d\Graphics\ConstantBuffer.cpp" />
-    <ClCompile Include="urho3d\Graphics\CustomGeometry.cpp" />
-    <ClCompile Include="urho3d\Graphics\DebugRenderer.cpp" />
-    <ClCompile Include="urho3d\Graphics\DecalSet.cpp" />
-    <ClCompile Include="urho3d\Graphics\Drawable.cpp" />
-    <ClCompile Include="urho3d\Graphics\Geometry.cpp" />
-    <ClCompile Include="urho3d\Graphics\GPUObject.cpp" />
-    <ClCompile Include="urho3d\Graphics\Graphics.cpp" />
-    <ClCompile Include="urho3d\Graphics\GraphicsDefs.cpp" />
-    <ClCompile Include="urho3d\Graphics\IndexBuffer.cpp" />
-    <ClCompile Include="urho3d\Graphics\Light.cpp" />
-    <ClCompile Include="urho3d\Graphics\Model.cpp" />
-    <ClCompile Include="urho3d\Graphics\OpenGL\OGLConstantBuffer.cpp" />
-    <ClCompile Include="urho3d\Graphics\OpenGL\OGLGraphics.cpp" />
-    <ClCompile Include="urho3d\Graphics\OpenGL\OGLGraphicsImpl.cpp" />
-    <ClCompile Include="urho3d\Graphics\OpenGL\OGLIndexBuffer.cpp" />
-    <ClCompile Include="urho3d\Graphics\OpenGL\OGLRenderSurface.cpp" />
-    <ClCompile Include="urho3d\Graphics\OpenGL\OGLShaderProgram.cpp" />
-    <ClCompile Include="urho3d\Graphics\OpenGL\OGLShaderVariation.cpp" />
-    <ClCompile Include="urho3d\Graphics\OpenGL\OGLTexture.cpp" />
-    <ClCompile Include="urho3d\Graphics\OpenGL\OGLTexture2D.cpp" />
-    <ClCompile Include="urho3d\Graphics\OpenGL\OGLTexture2DArray.cpp" />
-    <ClCompile Include="urho3d\Graphics\OpenGL\OGLTexture3D.cpp" />
-    <ClCompile Include="urho3d\Graphics\OpenGL\OGLTextureCube.cpp" />
-    <ClCompile Include="urho3d\Graphics\OpenGL\OGLVertexBuffer.cpp" />
-    <ClCompile Include="urho3d\Graphics\ParticleEffect.cpp" />
-    <ClCompile Include="urho3d\Graphics\ParticleEmitter.cpp" />
-    <ClCompile Include="urho3d\Graphics\RibbonTrail.cpp" />
-    <ClCompile Include="urho3d\Graphics\ShaderPrecache.cpp" />
-    <ClCompile Include="urho3d\Graphics\Skeleton.cpp" />
-    <ClCompile Include="urho3d\Graphics\Skybox.cpp" />
-    <ClCompile Include="urho3d\Graphics\StaticModel.cpp" />
-    <ClCompile Include="urho3d\Graphics\StaticModelGroup.cpp" />
-    <ClCompile Include="urho3d\Graphics\Tangent.cpp" />
-    <ClCompile Include="urho3d\Graphics\Terrain.cpp" />
-    <ClCompile Include="urho3d\Graphics\TerrainPatch.cpp" />
-    <ClCompile Include="urho3d\Graphics\Texture2DArray.cpp" />
-    <ClCompile Include="urho3d\Graphics\Texture3D.cpp" />
-    <ClCompile Include="urho3d\Graphics\_Material.cpp" />
-    <ClCompile Include="urho3d\Graphics\OcclusionBuffer.cpp" />
-    <ClCompile Include="urho3d\Graphics\Octree.cpp" />
-    <ClCompile Include="urho3d\Graphics\OctreeQuery.cpp" />
-    <ClCompile Include="urho3d\Graphics\Renderer.cpp" />
-    <ClCompile Include="urho3d\Graphics\RenderPath.cpp" />
-    <ClCompile Include="urho3d\Graphics\RenderSurface.cpp" />
-    <ClCompile Include="urho3d\Graphics\_Shader.cpp" />
-    <ClCompile Include="urho3d\Graphics\ShaderVariation.cpp" />
-    <ClCompile Include="urho3d\Graphics\Technique.cpp" />
-    <ClCompile Include="urho3d\Graphics\_Texture.cpp" />
-    <ClCompile Include="urho3d\Graphics\Texture2D.cpp" />
-    <ClCompile Include="urho3d\Graphics\TextureCube.cpp" />
-    <ClCompile Include="urho3d\Graphics\VertexBuffer.cpp" />
-    <ClCompile Include="urho3d\Graphics\View.cpp" />
-    <ClCompile Include="urho3d\Graphics\Viewport.cpp" />
-    <ClCompile Include="urho3d\Graphics\Zone.cpp" />
-    <ClCompile Include="urho3d\Graphics\_Camera.cpp" />
-    <ClCompile Include="urho3d\IO\Deserializer.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../Precompiled.h</PrecompiledHeaderFile>
-    </ClCompile>
-    <ClCompile Include="urho3d\IO\File.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../Precompiled.h</PrecompiledHeaderFile>
-    </ClCompile>
-    <ClCompile Include="urho3d\IO\FileSystem.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../Precompiled.h</PrecompiledHeaderFile>
-    </ClCompile>
-    <ClCompile Include="urho3d\IO\FileWatcher.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../Precompiled.h</PrecompiledHeaderFile>
-    </ClCompile>
-    <ClCompile Include="urho3d\IO\Log.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../Precompiled.h</PrecompiledHeaderFile>
-    </ClCompile>
-    <ClCompile Include="urho3d\IO\MemoryBuffer.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../Precompiled.h</PrecompiledHeaderFile>
-    </ClCompile>
-    <ClCompile Include="urho3d\IO\PackageFile.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../Precompiled.h</PrecompiledHeaderFile>
-    </ClCompile>
-    <ClCompile Include="urho3d\IO\Serializer.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../Precompiled.h</PrecompiledHeaderFile>
-    </ClCompile>
-    <ClCompile Include="urho3d\IO\VectorBuffer.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../Precompiled.h</PrecompiledHeaderFile>
-    </ClCompile>
-    <ClCompile Include="urho3d\JO\jo_jpeg.cpp" />
-    <ClCompile Include="urho3d\LibCpuId\src\asm-bits.c" />
-    <ClCompile Include="urho3d\LibCpuId\src\cpuid_main.c" />
-    <ClCompile Include="urho3d\LibCpuId\src\libcpuid_util.c" />
-    <ClCompile Include="urho3d\LibCpuId\src\rdtsc.c" />
-    <ClCompile Include="urho3d\LibCpuId\src\recog_amd.c" />
-    <ClCompile Include="urho3d\LibCpuId\src\recog_intel.c" />
-    <ClCompile Include="urho3d\LibraryInfo.cpp" />
-    <ClCompile Include="urho3d\LZ4\lz4.c" />
-    <ClCompile Include="urho3d\LZ4\lz4hc.c" />
-    <ClCompile Include="urho3d\Math\AreaAllocator.cpp" />
-    <ClCompile Include="urho3d\Math\BoundingBox.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../Precompiled.h</PrecompiledHeaderFile>
-    </ClCompile>
-    <ClCompile Include="urho3d\Math\Color.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../Precompiled.h</PrecompiledHeaderFile>
-    </ClCompile>
-    <ClCompile Include="urho3d\Math\Matrix4.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../Precompiled.h</PrecompiledHeaderFile>
-    </ClCompile>
-    <ClCompile Include="urho3d\Math\Ray.cpp" />
-    <ClCompile Include="urho3d\Math\_Frustum.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../Precompiled.h</PrecompiledHeaderFile>
-    </ClCompile>
-    <ClCompile Include="urho3d\Math\MathDefs.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../Precompiled.h</PrecompiledHeaderFile>
-    </ClCompile>
-    <ClCompile Include="urho3d\Math\Matrix3.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../Precompiled.h</PrecompiledHeaderFile>
-    </ClCompile>
-    <ClCompile Include="urho3d\Math\Matrix3x4.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../Precompiled.h</PrecompiledHeaderFile>
-    </ClCompile>
-    <ClCompile Include="urho3d\Math\Plane.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../Precompiled.h</PrecompiledHeaderFile>
-    </ClCompile>
-    <ClCompile Include="urho3d\Math\Polyhedron.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../Precompiled.h</PrecompiledHeaderFile>
-    </ClCompile>
-    <ClCompile Include="urho3d\Math\Quaternion.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../Precompiled.h</PrecompiledHeaderFile>
-    </ClCompile>
-    <ClCompile Include="urho3d\Math\_Random.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../Precompiled.h</PrecompiledHeaderFile>
-    </ClCompile>
-    <ClCompile Include="urho3d\Math\Rect.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../Precompiled.h</PrecompiledHeaderFile>
-    </ClCompile>
-    <ClCompile Include="urho3d\Math\Sphere.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../Precompiled.h</PrecompiledHeaderFile>
-    </ClCompile>
-    <ClCompile Include="urho3d\Math\StringHash.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../Precompiled.h</PrecompiledHeaderFile>
-    </ClCompile>
-    <ClCompile Include="urho3d\Math\Vector2.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../Precompiled.h</PrecompiledHeaderFile>
-    </ClCompile>
-    <ClCompile Include="urho3d\Math\Vector3.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../Precompiled.h</PrecompiledHeaderFile>
-    </ClCompile>
-    <ClCompile Include="urho3d\Math\Vector4.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../Precompiled.h</PrecompiledHeaderFile>
-    </ClCompile>
-    <ClCompile Include="urho3d\MojoShader\mojoshader.c" />
-    <ClCompile Include="urho3d\MojoShader\mojoshader_assembler.c" />
-    <ClCompile Include="urho3d\MojoShader\mojoshader_common.c" />
-    <ClCompile Include="urho3d\MojoShader\mojoshader_compiler.c" />
-    <ClCompile Include="urho3d\MojoShader\mojoshader_effects.c" />
-    <ClCompile Include="urho3d\MojoShader\mojoshader_lexer.c" />
-    <ClCompile Include="urho3d\MojoShader\mojoshader_preprocessor.c" />
-    <ClCompile Include="urho3d\Precompiled.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Precompiled.h</PrecompiledHeaderFile>
-    </ClCompile>
-    <ClCompile Include="urho3d\Resource\BackgroundLoader.cpp" />
-    <ClCompile Include="urho3d\Resource\Decompress.cpp" />
-    <ClCompile Include="urho3d\Resource\Image.cpp" />
-    <ClCompile Include="urho3d\Resource\JSONFile.cpp" />
-    <ClCompile Include="urho3d\Resource\JSONValue.cpp" />
-    <ClCompile Include="urho3d\Resource\Localization.cpp" />
-    <ClCompile Include="urho3d\Resource\PListFile.cpp" />
-    <ClCompile Include="urho3d\Resource\Resource.cpp" />
-    <ClCompile Include="urho3d\Resource\ResourceCache.cpp" />
-    <ClCompile Include="urho3d\Resource\XMLElement.cpp" />
-    <ClCompile Include="urho3d\Resource\XMLFile.cpp" />
-    <ClCompile Include="urho3d\Scene\Animatable.cpp" />
-    <ClCompile Include="urho3d\Scene\Component.cpp" />
-    <ClCompile Include="urho3d\Scene\Node.cpp" />
-    <ClCompile Include="urho3d\Scene\ObjectAnimation.cpp" />
-    <ClCompile Include="urho3d\Scene\Scene.cpp" />
-    <ClCompile Include="urho3d\Scene\SceneResolver.cpp" />
-    <ClCompile Include="urho3d\Scene\Serializable.cpp" />
-    <ClCompile Include="urho3d\Scene\SmoothedTransform.cpp" />
-    <ClCompile Include="urho3d\Scene\SplinePath.cpp" />
-    <ClCompile Include="urho3d\Scene\UnknownComponent.cpp" />
-    <ClCompile Include="urho3d\Scene\ValueAnimation.cpp" />
-    <ClCompile Include="urho3d\Scene\ValueAnimationInfo.cpp" />
+    <ClCompile Include="turso3d\Graphics\FrameBufferTu.cpp" />
+    <ClCompile Include="turso3d\Graphics\Graphics.cpp" />
+    <ClCompile Include="turso3d\Graphics\GraphicsDefs.cpp" />
+    <ClCompile Include="turso3d\Graphics\IndexBuffer.cpp" />
+    <ClCompile Include="turso3d\Graphics\RenderBuffer.cpp" />
+    <ClCompile Include="turso3d\Graphics\ShaderProgram.cpp" />
+    <ClCompile Include="turso3d\Graphics\ShaderTu.cpp" />
+    <ClCompile Include="turso3d\Graphics\TextureTu.cpp" />
+    <ClCompile Include="turso3d\Graphics\UniformBuffer.cpp" />
+    <ClCompile Include="turso3d\Graphics\VertexBuffer.cpp" />
+    <ClCompile Include="turso3d\Input\InputTu.cpp" />
+    <ClCompile Include="turso3d\IO\Arguments.cpp" />
+    <ClCompile Include="turso3d\IO\File.cpp" />
+    <ClCompile Include="turso3d\IO\FileSystem.cpp" />
+    <ClCompile Include="turso3d\IO\JSONValue.cpp" />
+    <ClCompile Include="turso3d\IO\Log.cpp" />
+    <ClCompile Include="turso3d\IO\MemoryBuffer.cpp" />
+    <ClCompile Include="turso3d\IO\ResourceRef.cpp" />
+    <ClCompile Include="turso3d\IO\Stream.cpp" />
+    <ClCompile Include="turso3d\IO\StringHash.cpp" />
+    <ClCompile Include="turso3d\IO\StringUtils.cpp" />
+    <ClCompile Include="turso3d\IO\VectorBuffer.cpp" />
+    <ClCompile Include="turso3d\Math\AreaAllocator.cpp" />
+    <ClCompile Include="turso3d\Math\BoundingBox.cpp" />
+    <ClCompile Include="turso3d\Math\Color.cpp" />
+    <ClCompile Include="turso3d\Math\FrustumTu.cpp" />
+    <ClCompile Include="turso3d\Math\IntBox.cpp" />
+    <ClCompile Include="turso3d\Math\IntRect.cpp" />
+    <ClCompile Include="turso3d\Math\IntVector2.cpp" />
+    <ClCompile Include="turso3d\Math\IntVector3.cpp" />
+    <ClCompile Include="turso3d\Math\Matrix3.cpp" />
+    <ClCompile Include="turso3d\Math\Matrix3x4.cpp" />
+    <ClCompile Include="turso3d\Math\Matrix4.cpp" />
+    <ClCompile Include="turso3d\Math\Plane.cpp" />
+    <ClCompile Include="turso3d\Math\Polyhedron.cpp" />
+    <ClCompile Include="turso3d\Math\Quaternion.cpp" />
+    <ClCompile Include="turso3d\Math\RandomTu.cpp" />
+    <ClCompile Include="turso3d\Math\Ray.cpp" />
+    <ClCompile Include="turso3d\Math\Rect.cpp" />
+    <ClCompile Include="turso3d\Math\Sphere.cpp" />
+    <ClCompile Include="turso3d\Math\Vector2.cpp" />
+    <ClCompile Include="turso3d\Math\Vector3.cpp" />
+    <ClCompile Include="turso3d\Math\Vector4.cpp" />
+    <ClCompile Include="turso3d\Object\Allocator.cpp" />
+    <ClCompile Include="turso3d\Object\Attribute.cpp" />
+    <ClCompile Include="turso3d\Object\EventTu.cpp" />
+    <ClCompile Include="turso3d\Object\ObjectResolver.cpp" />
+    <ClCompile Include="turso3d\Object\ObjectTu.cpp" />
+    <ClCompile Include="turso3d\Object\Ptr.cpp" />
+    <ClCompile Include="turso3d\Object\Serializable.cpp" />
+    <ClCompile Include="turso3d\Renderer\AnimatedModel.cpp" />
+    <ClCompile Include="turso3d\Renderer\Animation.cpp" />
+    <ClCompile Include="turso3d\Renderer\AnimationState.cpp" />
+    <ClCompile Include="turso3d\Renderer\Batch.cpp" />
+    <ClCompile Include="turso3d\Renderer\CameraTu.cpp" />
+    <ClCompile Include="turso3d\Renderer\DebugRenderer.cpp" />
+    <ClCompile Include="turso3d\Renderer\GeometryNode.cpp" />
+    <ClCompile Include="turso3d\Renderer\Light.cpp" />
+    <ClCompile Include="turso3d\Renderer\LightEnvironment.cpp" />
+    <ClCompile Include="turso3d\Renderer\MaterialTu.cpp" />
+    <ClCompile Include="turso3d\Renderer\Model.cpp" />
+    <ClCompile Include="turso3d\Renderer\Octree.cpp" />
+    <ClCompile Include="turso3d\Renderer\OctreeNode.cpp" />
+    <ClCompile Include="turso3d\Renderer\Renderer.cpp" />
+    <ClCompile Include="turso3d\Renderer\StaticModel.cpp" />
+    <ClCompile Include="turso3d\Resource\Decompress.cpp" />
+    <ClCompile Include="turso3d\Resource\Image.cpp" />
+    <ClCompile Include="turso3d\Resource\JSONFile.cpp" />
+    <ClCompile Include="turso3d\Resource\Resource.cpp" />
+    <ClCompile Include="turso3d\Resource\ResourceCache.cpp" />
+    <ClCompile Include="turso3d\Scene\Node.cpp" />
+    <ClCompile Include="turso3d\Scene\Scene.cpp" />
+    <ClCompile Include="turso3d\Scene\SpatialNode.cpp" />
+    <ClCompile Include="turso3d\Thread\ThreadUtils.cpp" />
+    <ClCompile Include="turso3d\Thread\WorkQueue.cpp" />
+    <ClCompile Include="turso3d\Time\Profiler.cpp" />
+    <ClCompile Include="turso3d\Time\TimerTu.cpp" />
+    <ClCompile Include="turso3d\Time\TimeUtils.cpp" />
+    <ClCompile Include="turso3d\tracy\TracyClient.cpp" />
     <ClCompile Include="VehicleInterface.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Object.cpp" />
@@ -876,181 +415,87 @@
     <ClInclude Include="RandomColor.h" />
     <ClInclude Include="SeekerBar.h" />
     <ClInclude Include="SolidIO.h" />
-    <ClInclude Include="urho3d\Container\Allocator.h" />
-    <ClInclude Include="urho3d\Container\ArrayPtr.h" />
-    <ClInclude Include="urho3d\Container\ForEach.h" />
-    <ClInclude Include="urho3d\Container\Hash.h" />
-    <ClInclude Include="urho3d\Container\HashBase.h" />
-    <ClInclude Include="urho3d\Container\HashMap.h" />
-    <ClInclude Include="urho3d\Container\HashSet.h" />
-    <ClInclude Include="urho3d\Container\LinkedList.h" />
-    <ClInclude Include="urho3d\Container\List.h" />
-    <ClInclude Include="urho3d\Container\ListBase.h" />
-    <ClInclude Include="urho3d\Container\Pair.h" />
-    <ClInclude Include="urho3d\Container\Ptr.h" />
-    <ClInclude Include="urho3d\Container\RefCounted.h" />
-    <ClInclude Include="urho3d\Container\Sort.h" />
-    <ClInclude Include="urho3d\Container\Str.h" />
-    <ClInclude Include="urho3d\Container\Swap.h" />
-    <ClInclude Include="urho3d\Container\Vector.h" />
-    <ClInclude Include="urho3d\Container\VectorBase.h" />
-    <ClInclude Include="urho3d\Core\Attribute.h" />
-    <ClInclude Include="urho3d\Core\Context.h" />
-    <ClInclude Include="urho3d\Core\CoreEvents.h" />
-    <ClInclude Include="urho3d\Core\EventProfiler.h" />
-    <ClInclude Include="urho3d\Core\Mutex.h" />
-    <ClInclude Include="urho3d\Core\Object.h" />
-    <ClInclude Include="urho3d\Core\ProcessUtils.h" />
-    <ClInclude Include="urho3d\Core\Profiler.h" />
-    <ClInclude Include="urho3d\Core\Spline.h" />
-    <ClInclude Include="urho3d\Core\StringUtils.h" />
-    <ClInclude Include="urho3d\Core\Thread.h" />
-    <ClInclude Include="urho3d\Core\Timer.h" />
-    <ClInclude Include="urho3d\Core\Variant.h" />
-    <ClInclude Include="urho3d\Core\WorkQueue.h" />
-    <ClInclude Include="urho3d\DebugNew.h" />
-    <ClInclude Include="urho3d\Engine\Engine.h" />
-    <ClInclude Include="urho3d\Engine\EngineDefs.h" />
-    <ClInclude Include="urho3d\Engine\EngineEvents.h" />
-    <ClInclude Include="urho3d\Graphics\AnimatedModel.h" />
-    <ClInclude Include="urho3d\Graphics\Animation.h" />
-    <ClInclude Include="urho3d\Graphics\AnimationController.h" />
-    <ClInclude Include="urho3d\Graphics\AnimationState.h" />
-    <ClInclude Include="urho3d\Graphics\Batch.h" />
-    <ClInclude Include="urho3d\Graphics\BillboardSet.h" />
-    <ClInclude Include="urho3d\Graphics\Camera.h" />
-    <ClInclude Include="urho3d\Graphics\ConstantBuffer.h" />
-    <ClInclude Include="urho3d\Graphics\CustomGeometry.h" />
-    <ClInclude Include="urho3d\Graphics\DebugRenderer.h" />
-    <ClInclude Include="urho3d\Graphics\DecalSet.h" />
-    <ClInclude Include="urho3d\Graphics\Direct3D9\D3D9GraphicsImpl.h" />
-    <ClInclude Include="urho3d\Graphics\Direct3D9\D3D9ShaderProgram.h" />
-    <ClInclude Include="urho3d\Graphics\Direct3D9\D3D9VertexDeclaration.h" />
-    <ClInclude Include="urho3d\Graphics\Drawable.h" />
-    <ClInclude Include="urho3d\Graphics\DrawableEvents.h" />
-    <ClInclude Include="urho3d\Graphics\Geometry.h" />
-    <ClInclude Include="urho3d\Graphics\GPUObject.h" />
-    <ClInclude Include="urho3d\Graphics\Graphics.h" />
-    <ClInclude Include="urho3d\Graphics\GraphicsDefs.h" />
-    <ClInclude Include="urho3d\Graphics\GraphicsEvents.h" />
-    <ClInclude Include="urho3d\Graphics\GraphicsImpl.h" />
-    <ClInclude Include="urho3d\Graphics\IndexBuffer.h" />
-    <ClInclude Include="urho3d\Graphics\Light.h" />
-    <ClInclude Include="urho3d\Graphics\Material.h" />
-    <ClInclude Include="urho3d\Graphics\Model.h" />
-    <ClInclude Include="urho3d\Graphics\OcclusionBuffer.h" />
-    <ClInclude Include="urho3d\Graphics\Octree.h" />
-    <ClInclude Include="urho3d\Graphics\OctreeQuery.h" />
-    <ClInclude Include="urho3d\Graphics\OpenGL\OGLGraphicsImpl.h" />
-    <ClInclude Include="urho3d\Graphics\OpenGL\OGLShaderProgram.h" />
-    <ClInclude Include="urho3d\Graphics\ParticleEffect.h" />
-    <ClInclude Include="urho3d\Graphics\ParticleEmitter.h" />
-    <ClInclude Include="urho3d\Graphics\Renderer.h" />
-    <ClInclude Include="urho3d\Graphics\RenderPath.h" />
-    <ClInclude Include="urho3d\Graphics\RenderSurface.h" />
-    <ClInclude Include="urho3d\Graphics\RibbonTrail.h" />
-    <ClInclude Include="urho3d\Graphics\Shader.h" />
-    <ClInclude Include="urho3d\Graphics\ShaderPrecache.h" />
-    <ClInclude Include="urho3d\Graphics\ShaderProgram.h" />
-    <ClInclude Include="urho3d\Graphics\ShaderVariation.h" />
-    <ClInclude Include="urho3d\Graphics\Skeleton.h" />
-    <ClInclude Include="urho3d\Graphics\Skybox.h" />
-    <ClInclude Include="urho3d\Graphics\StaticModel.h" />
-    <ClInclude Include="urho3d\Graphics\StaticModelGroup.h" />
-    <ClInclude Include="urho3d\Graphics\Tangent.h" />
-    <ClInclude Include="urho3d\Graphics\Technique.h" />
-    <ClInclude Include="urho3d\Graphics\Terrain.h" />
-    <ClInclude Include="urho3d\Graphics\TerrainPatch.h" />
-    <ClInclude Include="urho3d\Graphics\Texture.h" />
-    <ClInclude Include="urho3d\Graphics\Texture2D.h" />
-    <ClInclude Include="urho3d\Graphics\Texture2DArray.h" />
-    <ClInclude Include="urho3d\Graphics\Texture3D.h" />
-    <ClInclude Include="urho3d\Graphics\TextureCube.h" />
-    <ClInclude Include="urho3d\Graphics\VertexBuffer.h" />
-    <ClInclude Include="urho3d\Graphics\VertexDeclaration.h" />
-    <ClInclude Include="urho3d\Graphics\View.h" />
-    <ClInclude Include="urho3d\Graphics\Viewport.h" />
-    <ClInclude Include="urho3d\Graphics\Zone.h" />
-    <ClInclude Include="urho3d\IO\AbstractFile.h" />
-    <ClInclude Include="urho3d\IO\Deserializer.h" />
-    <ClInclude Include="urho3d\IO\File.h" />
-    <ClInclude Include="urho3d\IO\FileSystem.h" />
-    <ClInclude Include="urho3d\IO\FileWatcher.h" />
-    <ClInclude Include="urho3d\IO\IOEvents.h" />
-    <ClInclude Include="urho3d\IO\Log.h" />
-    <ClInclude Include="urho3d\IO\MemoryBuffer.h" />
-    <ClInclude Include="urho3d\IO\PackageFile.h" />
-    <ClInclude Include="urho3d\IO\RWOpsWrapper.h" />
-    <ClInclude Include="urho3d\IO\Serializer.h" />
-    <ClInclude Include="urho3d\IO\VectorBuffer.h" />
-    <ClInclude Include="urho3d\JO\jo_jpeg.h" />
-    <ClInclude Include="urho3d\LibCpuId\src\amd_code_t.h" />
-    <ClInclude Include="urho3d\LibCpuId\src\asm-bits.h" />
-    <ClInclude Include="urho3d\LibCpuId\src\intel_code_t.h" />
-    <ClInclude Include="urho3d\LibCpuId\src\libcpuid.h" />
-    <ClInclude Include="urho3d\LibCpuId\src\libcpuid_constants.h" />
-    <ClInclude Include="urho3d\LibCpuId\src\libcpuid_internal.h" />
-    <ClInclude Include="urho3d\LibCpuId\src\libcpuid_types.h" />
-    <ClInclude Include="urho3d\LibCpuId\src\libcpuid_util.h" />
-    <ClInclude Include="urho3d\LibCpuId\src\rdtsc.h" />
-    <ClInclude Include="urho3d\LibCpuId\src\recog_amd.h" />
-    <ClInclude Include="urho3d\LibCpuId\src\recog_intel.h" />
-    <ClInclude Include="urho3d\LibraryInfo.h" />
-    <ClInclude Include="urho3d\librevision.h" />
-    <ClInclude Include="urho3d\LZ4\lz4.h" />
-    <ClInclude Include="urho3d\LZ4\lz4hc.h" />
-    <ClInclude Include="urho3d\LZ4\lz4opt.h" />
-    <ClInclude Include="urho3d\Math\AreaAllocator.h" />
-    <ClInclude Include="urho3d\Math\BoundingBox.h" />
-    <ClInclude Include="urho3d\Math\Color.h" />
-    <ClInclude Include="urho3d\Math\Frustum.h" />
-    <ClInclude Include="urho3d\Math\MathDefs.h" />
-    <ClInclude Include="urho3d\Math\Matrix3.h" />
-    <ClInclude Include="urho3d\Math\Matrix3x4.h" />
-    <ClInclude Include="urho3d\Math\Matrix4.h" />
-    <ClInclude Include="urho3d\Math\Plane.h" />
-    <ClInclude Include="urho3d\Math\Polyhedron.h" />
-    <ClInclude Include="urho3d\Math\Quaternion.h" />
-    <ClInclude Include="urho3d\Math\Random.h" />
-    <ClInclude Include="urho3d\Math\Ray.h" />
-    <ClInclude Include="urho3d\Math\Rect.h" />
-    <ClInclude Include="urho3d\Math\Sphere.h" />
-    <ClInclude Include="urho3d\Math\StringHash.h" />
-    <ClInclude Include="urho3d\Math\Vector2.h" />
-    <ClInclude Include="urho3d\Math\Vector3.h" />
-    <ClInclude Include="urho3d\Math\Vector4.h" />
-    <ClInclude Include="urho3d\MojoShader\mojoshader.h" />
-    <ClInclude Include="urho3d\MojoShader\mojoshader_internal.h" />
-    <ClInclude Include="urho3d\MojoShader\mojoshader_parser_hlsl.h" />
-    <ClInclude Include="urho3d\Precompiled.h" />
-    <ClInclude Include="urho3d\Resource\BackgroundLoader.h" />
-    <ClInclude Include="urho3d\Resource\Decompress.h" />
-    <ClInclude Include="urho3d\Resource\Image.h" />
-    <ClInclude Include="urho3d\Resource\JSONFile.h" />
-    <ClInclude Include="urho3d\Resource\JSONValue.h" />
-    <ClInclude Include="urho3d\Resource\Localization.h" />
-    <ClInclude Include="urho3d\Resource\PListFile.h" />
-    <ClInclude Include="urho3d\Resource\Resource.h" />
-    <ClInclude Include="urho3d\Resource\ResourceCache.h" />
-    <ClInclude Include="urho3d\Resource\ResourceEvents.h" />
-    <ClInclude Include="urho3d\Resource\XMLElement.h" />
-    <ClInclude Include="urho3d\Resource\XMLFile.h" />
-    <ClInclude Include="urho3d\Scene\Animatable.h" />
-    <ClInclude Include="urho3d\Scene\AnimationDefs.h" />
-    <ClInclude Include="urho3d\Scene\Component.h" />
-    <ClInclude Include="urho3d\Scene\Node.h" />
-    <ClInclude Include="urho3d\Scene\ObjectAnimation.h" />
-    <ClInclude Include="urho3d\Scene\ReplicationState.h" />
-    <ClInclude Include="urho3d\Scene\Scene.h" />
-    <ClInclude Include="urho3d\Scene\SceneEvents.h" />
-    <ClInclude Include="urho3d\Scene\SceneResolver.h" />
-    <ClInclude Include="urho3d\Scene\Serializable.h" />
-    <ClInclude Include="urho3d\Scene\SmoothedTransform.h" />
-    <ClInclude Include="urho3d\Scene\SplinePath.h" />
-    <ClInclude Include="urho3d\Scene\UnknownComponent.h" />
-    <ClInclude Include="urho3d\Scene\ValueAnimation.h" />
-    <ClInclude Include="urho3d\Scene\ValueAnimationInfo.h" />
-    <ClInclude Include="urho3d\Urho3D.h" />
+    <ClInclude Include="turso3d\Graphics\FrameBufferTu.h" />
+    <ClInclude Include="turso3d\Graphics\Graphics.h" />
+    <ClInclude Include="turso3d\Graphics\GraphicsDefs.h" />
+    <ClInclude Include="turso3d\Graphics\IndexBuffer.h" />
+    <ClInclude Include="turso3d\Graphics\RenderBuffer.h" />
+    <ClInclude Include="turso3d\Graphics\ShaderProgram.h" />
+    <ClInclude Include="turso3d\Graphics\ShaderTu.h" />
+    <ClInclude Include="turso3d\Graphics\TextureTu.h" />
+    <ClInclude Include="turso3d\Graphics\UniformBuffer.h" />
+    <ClInclude Include="turso3d\Graphics\VertexBuffer.h" />
+    <ClInclude Include="turso3d\Input\InputTu.h" />
+    <ClInclude Include="turso3d\IO\Arguments.h" />
+    <ClInclude Include="turso3d\IO\File.h" />
+    <ClInclude Include="turso3d\IO\FileSystem.h" />
+    <ClInclude Include="turso3d\IO\JSONValue.h" />
+    <ClInclude Include="turso3d\IO\Log.h" />
+    <ClInclude Include="turso3d\IO\MemoryBuffer.h" />
+    <ClInclude Include="turso3d\IO\ObjectRef.h" />
+    <ClInclude Include="turso3d\IO\ResourceRef.h" />
+    <ClInclude Include="turso3d\IO\Stream.h" />
+    <ClInclude Include="turso3d\IO\StringHash.h" />
+    <ClInclude Include="turso3d\IO\StringUtils.h" />
+    <ClInclude Include="turso3d\IO\VectorBuffer.h" />
+    <ClInclude Include="turso3d\Math\AreaAllocator.h" />
+    <ClInclude Include="turso3d\Math\BoundingBox.h" />
+    <ClInclude Include="turso3d\Math\Color.h" />
+    <ClInclude Include="turso3d\Math\FrustumTu.h" />
+    <ClInclude Include="turso3d\Math\IntBox.h" />
+    <ClInclude Include="turso3d\Math\IntRect.h" />
+    <ClInclude Include="turso3d\Math\IntVector2.h" />
+    <ClInclude Include="turso3d\Math\IntVector3.h" />
+    <ClInclude Include="turso3d\Math\Math.h" />
+    <ClInclude Include="turso3d\Math\Matrix3.h" />
+    <ClInclude Include="turso3d\Math\Matrix3x4.h" />
+    <ClInclude Include="turso3d\Math\Matrix4.h" />
+    <ClInclude Include="turso3d\Math\Plane.h" />
+    <ClInclude Include="turso3d\Math\Polyhedron.h" />
+    <ClInclude Include="turso3d\Math\Quaternion.h" />
+    <ClInclude Include="turso3d\Math\RandomTu.h" />
+    <ClInclude Include="turso3d\Math\Ray.h" />
+    <ClInclude Include="turso3d\Math\Rect.h" />
+    <ClInclude Include="turso3d\Math\Sphere.h" />
+    <ClInclude Include="turso3d\Math\Vector2.h" />
+    <ClInclude Include="turso3d\Math\Vector3.h" />
+    <ClInclude Include="turso3d\Math\Vector4.h" />
+    <ClInclude Include="turso3d\Object\Allocator.h" />
+    <ClInclude Include="turso3d\Object\Attribute.h" />
+    <ClInclude Include="turso3d\Object\AutoPtr.h" />
+    <ClInclude Include="turso3d\Object\EventTu.h" />
+    <ClInclude Include="turso3d\Object\ObjectResolver.h" />
+    <ClInclude Include="turso3d\Object\ObjectTu.h" />
+    <ClInclude Include="turso3d\Object\Ptr.h" />
+    <ClInclude Include="turso3d\Object\Serializable.h" />
+    <ClInclude Include="turso3d\Renderer\AnimatedModel.h" />
+    <ClInclude Include="turso3d\Renderer\Animation.h" />
+    <ClInclude Include="turso3d\Renderer\AnimationState.h" />
+    <ClInclude Include="turso3d\Renderer\Batch.h" />
+    <ClInclude Include="turso3d\Renderer\CameraTu.h" />
+    <ClInclude Include="turso3d\Renderer\DebugRenderer.h" />
+    <ClInclude Include="turso3d\Renderer\GeometryNode.h" />
+    <ClInclude Include="turso3d\Renderer\Light.h" />
+    <ClInclude Include="turso3d\Renderer\LightEnvironment.h" />
+    <ClInclude Include="turso3d\Renderer\MaterialTu.h" />
+    <ClInclude Include="turso3d\Renderer\Model.h" />
+    <ClInclude Include="turso3d\Renderer\Octree.h" />
+    <ClInclude Include="turso3d\Renderer\OctreeNode.h" />
+    <ClInclude Include="turso3d\Renderer\Renderer.h" />
+    <ClInclude Include="turso3d\Renderer\StaticModel.h" />
+    <ClInclude Include="turso3d\Resource\Decompress.h" />
+    <ClInclude Include="turso3d\Resource\Image.h" />
+    <ClInclude Include="turso3d\Resource\JSONFile.h" />
+    <ClInclude Include="turso3d\Resource\Resource.h" />
+    <ClInclude Include="turso3d\Resource\ResourceCache.h" />
+    <ClInclude Include="turso3d\Scene\Node.h" />
+    <ClInclude Include="turso3d\Scene\Scene.h" />
+    <ClInclude Include="turso3d\Scene\SpatialNode.h" />
+    <ClInclude Include="turso3d\Thread\ThreadUtils.h" />
+    <ClInclude Include="turso3d\Thread\WorkQueue.h" />
+    <ClInclude Include="turso3d\Time\Profiler.h" />
+    <ClInclude Include="turso3d\Time\TimerTu.h" />
+    <ClInclude Include="turso3d\Time\TimeUtils.h" />
     <ClInclude Include="VehicleInterface.h" />
     <ClInclude Include="Miniball\Miniball.h" />
     <ClInclude Include="Object.h" />
@@ -1062,9 +507,6 @@
     <ClInclude Include="StaticTrigger.h" />
     <ClInclude Include="Utils.h" />
     <ClInclude Include="Widget.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <Object Include="urho3d\LibCpuId\src\masm-x64.obj" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

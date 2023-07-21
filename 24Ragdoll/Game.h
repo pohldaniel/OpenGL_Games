@@ -16,38 +16,12 @@
 
 #include "lugaru/Graphic/ModelLu.hpp"
 
-
-#include "urho3d/Engine/Engine.h"
-
-#include "urho3d/Core/Context.h"
-#include "urho3d/Core/Object.h"
-#include "urho3d/IO/FileSystem.h"
-#include "urho3d/Container/Ptr.h"
-#include "urho3d/Scene/Scene.h"
-#include "urho3d/Scene/Node.h"
-#include "urho3d/Scene/Component.h"
-#include "urho3d/Resource/ResourceCache.h"
-#include "urho3d/Resource/XMLFile.h"
-
-#include "urho3d/Graphics/Renderer.h"
-#include "urho3d/Graphics/Graphics.h"
-#include "urho3d/Graphics/StaticModel.h"
-#include "urho3d/Graphics/Model.h"
-#include "urho3d/Graphics/Geometry.h"
-#include "urho3d/Graphics/VertexBuffer.h"
-#include "urho3d/Graphics/IndexBuffer.h"
-
-#include "urho3d/Math/BoundingBox.h"
-
-
 struct LiftButtonTriggerCallback : public btCollisionWorld::ContactResultCallback {
-
 	float buttonOffset = 0.0f;
-
 	btScalar LiftButtonTriggerCallback::addSingleResult(btManifoldPoint& cp, const btCollisionObjectWrapper* colObj0Wrap, int partId0, int index0, const btCollisionObjectWrapper* colObj1Wrap, int partId1, int index1) override;
 };
 
-class Game : public State, public MouseEventListener, public KeyboardEventListener, public Urho3D::Object{
+class Game : public State, public MouseEventListener, public KeyboardEventListener{
 
 public:
 
@@ -108,19 +82,6 @@ private:
 	LiftButton m_pLiftButton;
 
 	LiftButtonTriggerCallback m_liftButtonTriggerResult;
-
-	Urho3D::SharedPtr<Urho3D::Scene> scene_;
-	Urho3D::SharedPtr<Urho3D::Node> node;
-	//Urho3D::Model m_model;
-	Urho3D::Geometry* geometry;
-	Urho3D::Graphics* graphics;
-	Urho3D::Renderer* renderer;
-	Urho3D::SharedPtr<Urho3D::Engine> engine;
-
-
-	Urho3D::StringHash GetType() const;
-	const Urho3D::String& GetTypeName() const;
-	const Urho3D::TypeInfo* GetTypeInfo() const;
 
 	float buttonPressedHeight_ = 15.0f;
 	float buttonOffset = 0.0f;
