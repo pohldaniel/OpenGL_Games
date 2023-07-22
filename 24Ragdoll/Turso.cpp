@@ -33,7 +33,7 @@ TursoInterface::TursoInterface(StateMachine& machine) : State(machine, CurrentSt
 	cache->AddResourceDir("Data");
 
 	// Create the Graphics subsystem to open the application window and initialize OpenGL
-	graphics = new Graphics("Turso3D renderer test", IntVector2(1920, 1080));
+	graphics = new Graphics("Turso3D renderer test", IntVector2(Application::Width, Application::Height));
 	graphics->Initialize();
 //		return 1;
 
@@ -78,6 +78,26 @@ TursoInterface::TursoInterface(StateMachine& machine) : State(machine, CurrentSt
 	CreateScene(scene, camera, 0);
 
 	camera->SetPosition(Vector3(0.0f, 20.0f, -75.0f));
+	camera->SetAspectRatio((float)Application::Width / (float)Application::Height);
+
+	colorBuffer->Define(TEX_2D, IntVector2(Application::Width, Application::Height), FMT_RGBA8);
+	colorBuffer->DefineSampler(FILTER_BILINEAR, ADDRESS_CLAMP, ADDRESS_CLAMP, ADDRESS_CLAMP);
+	depthStencilBuffer->Define(TEX_2D, IntVector2(Application::Width, Application::Height), FMT_D32);
+	depthStencilBuffer->DefineSampler(FILTER_BILINEAR, ADDRESS_CLAMP, ADDRESS_CLAMP, ADDRESS_CLAMP);
+	normalBuffer->Define(TEX_2D, IntVector2(Application::Width, Application::Height), FMT_RGBA8);
+	normalBuffer->DefineSampler(FILTER_BILINEAR, ADDRESS_CLAMP, ADDRESS_CLAMP, ADDRESS_CLAMP);
+	viewFbo->Define(colorBuffer, depthStencilBuffer);
+
+	std::vector<TextureTu*> mrt;
+	mrt.push_back(colorBuffer.Get());
+	mrt.push_back(normalBuffer.Get());
+	viewMRTFbo->Define(mrt, depthStencilBuffer);
+
+	ssaoTexture->Define(TEX_2D, IntVector2(colorBuffer->Width() / 2, colorBuffer->Height() / 2), FMT_R32F, 1, 1);
+	ssaoTexture->DefineSampler(FILTER_BILINEAR, ADDRESS_CLAMP, ADDRESS_CLAMP, ADDRESS_CLAMP);
+	ssaoFbo->Define(ssaoTexture, nullptr);
+
+	graphics->SetViewport(IntRect(0, 0, Application::Width, Application::Height));
 }
 
 TursoInterface::~TursoInterface() {
@@ -100,7 +120,6 @@ void TursoInterface::update() {
 	if (keyboard.keyPressed(Keyboard::KEY_F3))
 		CreateScene(scene, camera, 2);
 
-
 	if (keyboard.keyPressed(Keyboard::KEY_2))
 		drawSSAO = !drawSSAO;
 	if (keyboard.keyPressed(Keyboard::KEY_3))
@@ -116,9 +135,7 @@ void TursoInterface::update() {
 
 
 	Vector3 directrion = Vector3();
-	bool move = false;
-
-	
+	bool move = false;	
 	if (keyboard.keyDown(Keyboard::KEY_W)) {
 		directrion += Vector3::FORWARD;
 		move = true;
@@ -160,37 +177,24 @@ void TursoInterface::update() {
 		}
 
 		if (move) {
-			float moveSpeed = (keyboard.keyDown(Keyboard::KEY_LSHIFT) || keyboard.keyDown(Keyboard::KEY_RSHIFT)) ? 500.0f : 50.0f;
+			float moveSpeed = (keyboard.keyDown(Keyboard::KEY_LSHIFT) || keyboard.keyDown(Keyboard::KEY_RSHIFT)) ? 50.0f : 5.0f;
 
 			camera->Translate(directrion * m_dt * moveSpeed);
 		}
 	}
 	m_trackball.idle();
 	m_transform.fromMatrix(m_trackball.getTransform());
-}
-
-void TursoInterface::render() {
-
-	ZoneScoped;
 
 	// Scene animation
-	if (animate)
-	{
-		ZoneScopedN("MoveObjects");
-
-		PROFILE(MoveObjects);
-
-		if (rotatingObjects.size())
-		{
+	if (animate) {
+		if (rotatingObjects.size()) {
 			angle += 100.0f * m_dt;
 			QuaternionTu rotQuat(angle, Vector3::ONE);
 			for (auto it = rotatingObjects.begin(); it != rotatingObjects.end(); ++it)
 				(*it)->SetRotation(rotQuat);
-		}
-		else if (animatingObjects.size())
-		{
-			for (auto it = animatingObjects.begin(); it != animatingObjects.end(); ++it)
-			{
+
+		}else if (animatingObjects.size()) {
+			for (auto it = animatingObjects.begin(); it != animatingObjects.end(); ++it) {
 				AnimatedModel* object = *it;
 				AnimationState* state = object->AnimationStates()[0];
 				state->AddTime(m_dt);
@@ -204,35 +208,20 @@ void TursoInterface::render() {
 		}
 	}
 
-	// Recreate rendertarget textures if window resolution changed
-	int width = Application::Width;
-	int height = Application::Height;
+}
 
-	if (colorBuffer->Width() != width || colorBuffer->Height() != height)
-	{
-		colorBuffer->Define(TEX_2D, IntVector2(width, height), FMT_RGBA8);
-		colorBuffer->DefineSampler(FILTER_BILINEAR, ADDRESS_CLAMP, ADDRESS_CLAMP, ADDRESS_CLAMP);
-		depthStencilBuffer->Define(TEX_2D, IntVector2(width, height), FMT_D32);
-		depthStencilBuffer->DefineSampler(FILTER_BILINEAR, ADDRESS_CLAMP, ADDRESS_CLAMP, ADDRESS_CLAMP);
-		normalBuffer->Define(TEX_2D, IntVector2(width, height), FMT_RGBA8);
-		normalBuffer->DefineSampler(FILTER_BILINEAR, ADDRESS_CLAMP, ADDRESS_CLAMP, ADDRESS_CLAMP);
-		viewFbo->Define(colorBuffer, depthStencilBuffer);
+void TursoInterface::renderDirect() {
+	
+	renderer->PrepareView(scene, camera, shadowMode > 0, useOcclusion);
+	graphics->BindDefaultVao();
+	renderer->RenderOpaque();
 
-		std::vector<TextureTu*> mrt;
-		mrt.push_back(colorBuffer.Get());
-		mrt.push_back(normalBuffer.Get());
-		viewMRTFbo->Define(mrt, depthStencilBuffer);
-	}
+	if (m_drawUi)
+		renderUi();
+}
 
-	// Similarly recreate SSAO texture if needed
-	if (drawSSAO && (ssaoTexture->Width() != colorBuffer->Width() / 2 || ssaoTexture->Height() != colorBuffer->Height() / 2))
-	{
-		ssaoTexture->Define(TEX_2D, IntVector2(colorBuffer->Width() / 2, colorBuffer->Height() / 2), FMT_R32F, 1, 1);
-		ssaoTexture->DefineSampler(FILTER_BILINEAR, ADDRESS_CLAMP, ADDRESS_CLAMP, ADDRESS_CLAMP);
-		ssaoFbo->Define(ssaoTexture, nullptr);
-	}
-
-	camera->SetAspectRatio((float)width / (float)height);
+void TursoInterface::render() {
+	graphics->BindDefaultVao();
 
 	// Collect geometries and lights in frustum. Also set debug renderer to use the correct camera view
 	{
@@ -264,7 +253,7 @@ void TursoInterface::render() {
 		else
 			graphics->SetFrameBuffer(viewFbo);
 
-		graphics->SetViewport(IntRect(0, 0, width, height));
+		graphics->SetViewport(IntRect(0, 0, Application::Width, Application::Height));
 		renderer->RenderOpaque();
 
 		// Optional SSAO effect. First sample the normals and depth buffer, then apply a blurred SSAO result that darkens the opaque geometry
@@ -280,7 +269,7 @@ void TursoInterface::render() {
 			graphics->SetViewport(IntRect(0, 0, ssaoTexture->Width(), ssaoTexture->Height()));
 			graphics->SetUniform(program, "noiseInvSize", Vector2(ssaoTexture->Width() / 4.0f, ssaoTexture->Height() / 4.0f));
 			graphics->SetUniform(program, "screenInvSize", Vector2(1.0f / colorBuffer->Width(), 1.0f / colorBuffer->Height()));
-			graphics->SetUniform(program, "frustumSize", Vector4(farVec, (float)height / (float)width));
+			graphics->SetUniform(program, "frustumSize", Vector4(farVec, (float)Application::Height / (float)Application::Width));
 			graphics->SetUniform(program, "aoParameters", Vector4(0.15f, 1.0f, 0.025f, 0.15f));
 			graphics->SetUniform(program, "depthReconstruct", Vector2(farClip / (farClip - nearClip), -nearClip / (farClip - nearClip)));
 			graphics->SetTexture(0, depthStencilBuffer);
@@ -293,7 +282,7 @@ void TursoInterface::render() {
 
 			program = graphics->SetProgram("Shaders/SSAOBlur.glsl");
 			graphics->SetFrameBuffer(viewFbo);
-			graphics->SetViewport(IntRect(0, 0, width, height));
+			graphics->SetViewport(IntRect(0, 0, Application::Width, Application::Height));
 			graphics->SetUniform(program, "blurInvSize", Vector2(1.0f / ssaoTexture->Width(), 1.0f / ssaoTexture->Height()));
 			graphics->SetTexture(0, ssaoTexture);
 			graphics->SetRenderState(BLEND_SUBTRACT, CULL_NONE, CMP_ALWAYS, true, false);
@@ -303,7 +292,7 @@ void TursoInterface::render() {
 
 		// Render alpha geometry. Now only the color rendertarget is needed
 		graphics->SetFrameBuffer(viewFbo);
-		graphics->SetViewport(IntRect(0, 0, width, height));
+		graphics->SetViewport(IntRect(0, 0, Application::Width, Application::Height));
 		renderer->RenderAlpha();
 
 		// Optional render of debug geometry
@@ -338,7 +327,7 @@ void TursoInterface::render() {
 		}
 
 		// Blit rendered contents to backbuffer now before presenting
-		graphics->Blit(nullptr, IntRect(0, 0, width, height), viewFbo, IntRect(0, 0, width, height), true, false, FILTER_POINT);
+		graphics->Blit(nullptr, IntRect(0, 0, Application::Width, Application::Height), viewFbo, IntRect(0, 0, Application::Width, Application::Height), true, false, FILTER_POINT);
 	}
 
 	{
@@ -381,7 +370,29 @@ void TursoInterface::OnKeyDown(Event::KeyboardEvent& event) {
 void TursoInterface::resize(int deltaW, int deltaH) {
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
+	camera->SetAspectRatio((float)Application::Width / (float)Application::Height);
+	
+	if (colorBuffer->Width() != Application::Width || colorBuffer->Height() != Application::Height) {
+		colorBuffer->Define(TEX_2D, IntVector2(Application::Width, Application::Height), FMT_RGBA8);
+		colorBuffer->DefineSampler(FILTER_BILINEAR, ADDRESS_CLAMP, ADDRESS_CLAMP, ADDRESS_CLAMP);
+		depthStencilBuffer->Define(TEX_2D, IntVector2(Application::Width, Application::Height), FMT_D32);
+		depthStencilBuffer->DefineSampler(FILTER_BILINEAR, ADDRESS_CLAMP, ADDRESS_CLAMP, ADDRESS_CLAMP);
+		normalBuffer->Define(TEX_2D, IntVector2(Application::Width, Application::Height), FMT_RGBA8);
+		normalBuffer->DefineSampler(FILTER_BILINEAR, ADDRESS_CLAMP, ADDRESS_CLAMP, ADDRESS_CLAMP);
+		viewFbo->Define(colorBuffer, depthStencilBuffer);
 
+		std::vector<TextureTu*> mrt;
+		mrt.push_back(colorBuffer.Get());
+		mrt.push_back(normalBuffer.Get());
+		viewMRTFbo->Define(mrt, depthStencilBuffer);
+	}
+
+	// Similarly recreate SSAO texture if needed
+	if (drawSSAO && (ssaoTexture->Width() != colorBuffer->Width() / 2 || ssaoTexture->Height() != colorBuffer->Height() / 2)) {
+		ssaoTexture->Define(TEX_2D, IntVector2(colorBuffer->Width() / 2, colorBuffer->Height() / 2), FMT_R32F, 1, 1);
+		ssaoTexture->DefineSampler(FILTER_BILINEAR, ADDRESS_CLAMP, ADDRESS_CLAMP, ADDRESS_CLAMP);
+		ssaoFbo->Define(ssaoTexture, nullptr);
+	}
 }
 
 

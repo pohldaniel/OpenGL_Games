@@ -19,6 +19,8 @@
 #include "Menu.h"
 #include "Widget.h"
 
+#include "Graphics/Graphics.h"
+
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 EventDispatcher& Application::EventDispatcher = EventDispatcher::Get();
@@ -62,8 +64,10 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 	SavedExStyle = GetWindowLong(Window, GWL_EXSTYLE);
 	SavedStyle = GetWindowLong(Window, GWL_STYLE);
 
-	/*Fontrenderer::Get().init();
-	Fontrenderer::Get().setShader(Globals::shaderManager.getAssetPointer("font"));*/
+	Fontrenderer::Get().init();
+	Fontrenderer::Get().setShader(Globals::shaderManager.getAssetPointer("font"));
+
+	Graphics::UnbindDefaultVao();
 
 	auto shader = Globals::shaderManager.getAssetPointer("font");
 	shader->use();

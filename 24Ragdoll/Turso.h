@@ -61,6 +61,7 @@ public:
 	void fixedUpdate() override;
 	void update() override;
 	void render() override;
+	void renderDirect();
 	void resize(int deltaW, int deltaH) override;
 	void OnMouseMotion(Event::MouseMoveEvent& event) override;
 	void OnMouseWheel(Event::MouseWheelEvent& event) override;

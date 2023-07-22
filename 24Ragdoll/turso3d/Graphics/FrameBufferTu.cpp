@@ -62,6 +62,8 @@ void FrameBufferTu::Define(RenderBuffer* colorBuffer, RenderBuffer* depthStencil
         glFramebufferRenderbuffer(GL_DRAW_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, 0);
     }
 
+	Unbind();
+
     LOGDEBUGF("Defined framebuffer width %d height %d", size.x, size.y);
 }
 
@@ -101,6 +103,8 @@ void FrameBufferTu::Define(TextureTu* colorTexture, TextureTu* depthStencilTextu
         glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_TEXTURE_2D, 0, 0);
     }
 
+	Unbind();
+
     LOGDEBUGF("Defined framebuffer width %d height %d", size.x, size.y);
 }
 
@@ -139,6 +143,8 @@ void FrameBufferTu::Define(TextureTu* colorTexture, size_t cubeMapFace, TextureT
         glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, 0, 0);
         glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_TEXTURE_2D, 0, 0);
     }
+
+	Unbind();
 
     LOGDEBUGF("Defined framebuffer width %d height %d from cube texture", size.x, size.y);
 }
@@ -188,6 +194,8 @@ void FrameBufferTu::Define(const std::vector<TextureTu*>& colorTextures, Texture
         glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, 0, 0);
         glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_TEXTURE_2D, 0, 0);
     }
+
+	Unbind();
 
     LOGDEBUGF("Defined MRT framebuffer width %d height %d", size.x, size.y);
 }

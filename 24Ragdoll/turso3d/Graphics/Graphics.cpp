@@ -26,6 +26,9 @@ extern "C" {
 }
 #endif
 
+VaoBindings Graphics::VaoBindings = { 0u, 0u };
+unsigned int Graphics::DefaultVao = 0u;
+
 static const unsigned glPrimitiveTypes[] =
 {
     GL_LINES,
@@ -176,7 +179,7 @@ bool Graphics::Initialize()
         LOGERROR("Could not initialize OpenGL 3.2");
         return false;
     }*/
-
+	
     // "Any samples passed" is potentially faster if supported
     if (GLEW_VERSION_3_3)
         occlusionQueryType = GL_ANY_SAMPLES_PASSED;
@@ -190,9 +193,10 @@ bool Graphics::Initialize()
     glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
     glDepthMask(GL_TRUE);
 
-    GLuint defaultVao;
-    glGenVertexArrays(1, &defaultVao);
-    glBindVertexArray(defaultVao);
+
+    glGenVertexArrays(1, &DefaultVao);
+    glBindVertexArray(DefaultVao);
+	VaoBindings.current = DefaultVao;
 
     // Use texcoords 3-5 for instancing if supported
     if (glVertexAttribDivisorARB)
@@ -210,6 +214,20 @@ bool Graphics::Initialize()
     frameTimer.Reset();
 
     return true;
+}
+
+void Graphics::BindDefaultVao() {
+	if (!VaoBindings.current) {
+		VaoBindings.current = DefaultVao;
+		glBindVertexArray(DefaultVao);
+	}
+}
+
+void Graphics::UnbindDefaultVao() {
+	if (VaoBindings.current) {
+		glBindVertexArray(0);
+		VaoBindings.current = 0u;
+	}
 }
 
 void Graphics::Resize(const IntVector2& size)

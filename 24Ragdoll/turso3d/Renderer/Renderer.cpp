@@ -29,6 +29,7 @@
 #include <algorithm>
 #include <cstring>
 #include <tracy/Tracy.hpp>
+#include <iostream>
 
 static const size_t DRAWABLES_PER_BATCH_TASK = 128;
 static const size_t NUM_BOX_INDICES = 36;
@@ -226,8 +227,8 @@ void Renderer::SetupShadowMaps(int dirLightSize, int lightAtlasSize, ImageFormat
         ShadowMap& shadowMap = shadowMaps[i];
 
         shadowMap.texture->Define(TEX_2D, i == 0 ? IntVector2(dirLightSize * 2, dirLightSize) : IntVector2(lightAtlasSize, lightAtlasSize), format);
-        shadowMap.texture->DefineSampler(COMPARE_BILINEAR, ADDRESS_CLAMP, ADDRESS_CLAMP, ADDRESS_CLAMP, 1);
-        shadowMap.fbo->Define(nullptr, shadowMap.texture);
+		shadowMap.texture->DefineSampler(COMPARE_BILINEAR, ADDRESS_CLAMP, ADDRESS_CLAMP, ADDRESS_CLAMP, 1);
+		shadowMap.fbo->Define(nullptr, shadowMap.texture);
     }
 
     if (!staticObjectShadowBuffer)
@@ -270,6 +271,9 @@ void Renderer::PrepareView(Scene* scene_, CameraTu* camera_, bool drawShadows_, 
     ++frameNumber;
     if (!frameNumber)
         ++frameNumber;
+
+
+	//std::cout << "Frame Number: " << frameNumber << std::endl;
 
     drawShadows = shadowMaps ? drawShadows_ : false;
     useOcclusion = useOcclusion_;
@@ -466,14 +470,14 @@ void Renderer::RenderOpaque(bool clear)
     clusterTexture->Bind(TU_LIGHTCLUSTERDATA);
     lightDataBuffer->Bind(UB_LIGHTDATA);
 
-    if (clear)
-        graphics->Clear(true, true, IntRect::ZERO, lightEnvironment ? lightEnvironment->FogColor() : DEFAULT_FOG_COLOR);
+	//if (clear)
+	graphics->Clear(true, true, IntRect::ZERO, lightEnvironment ? lightEnvironment->FogColor() : DEFAULT_FOG_COLOR);
 
     RenderBatches(camera, opaqueBatches);
 
     // Render occlusion now after opaques
-    if (useOcclusion)
-        RenderOcclusionQueries();
+	//if (useOcclusion)
+	//   RenderOcclusionQueries();
 }
 
 void Renderer::RenderAlpha()

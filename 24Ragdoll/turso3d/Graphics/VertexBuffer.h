@@ -24,6 +24,8 @@ public:
     /// Bind to use with the specified vertex attributes. No-op if already bound. Used also when defining or setting data.
     void Bind(unsigned attributeMask);
 
+	void Unbind();
+
     /// Return number of vertices.
     size_t NumVertices() const { return numVertices; }
     /// Return number of vertex elements.

@@ -18,6 +18,12 @@ class UniformBuffer;
 class VertexBuffer;
 struct SDL_Window;
 
+struct VaoBindings
+{
+	unsigned int previous;
+	unsigned int current;
+};
+
 /// Occlusion query result.
 struct OcclusionQueryResult
 {
@@ -110,6 +116,9 @@ public:
     /// Draw a quad with current renderstate. The quad vertex buffer is left bound.
     void DrawQuad();
 
+	static void BindDefaultVao();
+	static void UnbindDefaultVao();
+
     /// Begin an occlusion query and associate an object with it for checking results. Return the query ID.
     unsigned BeginOcclusionQuery(void* object);
     /// End an occlusion query.
@@ -182,6 +191,10 @@ private:
     HiresTimer frameTimer;
     /// Last frame interval in seconds.
     float lastFrameTime;
+
+
+	static VaoBindings VaoBindings;
+	static unsigned int DefaultVao;
 };
 
 /// Register Graphics related object factories and attributes.

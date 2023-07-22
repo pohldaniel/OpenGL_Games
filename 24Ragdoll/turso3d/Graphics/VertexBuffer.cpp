@@ -186,6 +186,10 @@ void VertexBuffer::Bind(unsigned attributeMask)
     boundVertexAttribSource = this;
 }
 
+void  VertexBuffer::Unbind() {
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+}
+
 unsigned VertexBuffer::CalculateAttributeMask(const std::vector<VertexElement>& elements)
 {
     unsigned attributes = 0;
