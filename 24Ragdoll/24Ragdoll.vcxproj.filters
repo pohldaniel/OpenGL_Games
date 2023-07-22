@@ -100,8 +100,8 @@
     <Filter Include="turso3d\Time">
       <UniqueIdentifier>{568202fb-b149-4fea-b025-5bc920e6b1bb}</UniqueIdentifier>
     </Filter>
-    <Filter Include="turso3d\tracy">
-      <UniqueIdentifier>{1b2b740a-cf4f-42b1-82b5-27ecd333880e}</UniqueIdentifier>
+    <Filter Include="Tracy">
+      <UniqueIdentifier>{6a0b83d5-ab05-49db-989f-26619b352e57}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -375,9 +375,6 @@
     <ClCompile Include="LiftButton.cpp">
       <Filter>Source Files\Entities</Filter>
     </ClCompile>
-    <ClCompile Include="turso3d\tracy\TracyClient.cpp">
-      <Filter>turso3d\tracy</Filter>
-    </ClCompile>
     <ClCompile Include="turso3d\Graphics\FrameBufferTu.cpp">
       <Filter>turso3d\Graphics</Filter>
     </ClCompile>
@@ -614,6 +611,9 @@
     </ClCompile>
     <ClCompile Include="Turso.cpp">
       <Filter>Source Files\States</Filter>
+    </ClCompile>
+    <ClCompile Include="Tracy\TracyClient.cpp">
+      <Filter>Tracy</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
