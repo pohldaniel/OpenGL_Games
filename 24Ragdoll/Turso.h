@@ -34,24 +34,9 @@
 #include "Time/Profiler.h"
 #include "Thread/ThreadUtils.h"
 
-/*class WorkQueue;
-class Profiler;
-class Log;
-class ResourceCache;
-class Graphics;
-class InputTu;
-class Renderer;
-class DebugRenderer;
+class TursoInterface : public State, public MouseEventListener, public KeyboardEventListener, public ObjectTu {
 
-
-class FrameBufferTu;
-class TextureTu;
-
-
-class Scene;
-class CameraTu;*/
-
-class TursoInterface : public State, public MouseEventListener, public KeyboardEventListener {
+	OBJECT(TursoInterface);
 
 public:
 
@@ -70,7 +55,7 @@ public:
 	void OnKeyDown(Event::KeyboardEvent& event) override;
 
 	void CreateScene(Scene* scene, CameraTu* camera, int preset);
-
+	void HandleUpdate(EventTu& eventType);
 private:
 
 	void renderUi();
@@ -125,4 +110,6 @@ private:
 
 	std::vector<StaticModel*> rotatingObjects;
 	std::vector<AnimatedModel*> animatingObjects;
+
+	EventTu eventTu;
 };

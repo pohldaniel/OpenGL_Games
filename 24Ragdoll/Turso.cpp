@@ -98,6 +98,9 @@ TursoInterface::TursoInterface(StateMachine& machine) : State(machine, CurrentSt
 	ssaoFbo->Define(ssaoTexture, nullptr);
 
 	graphics->SetViewport(IntRect(0, 0, Application::Width, Application::Height));
+
+
+	SubscribeToEvent(eventTu, new EventHandlerImpl<TursoInterface, EventTu>(this, &TursoInterface::HandleUpdate));
 }
 
 TursoInterface::~TursoInterface() {
@@ -208,6 +211,7 @@ void TursoInterface::update() {
 		}
 	}
 
+	SendEvent(eventTu);
 }
 
 void TursoInterface::renderDirect() {
@@ -621,4 +625,8 @@ void TursoInterface::CreateScene(Scene* scene, CameraTu* camera, int preset)
 		light->SetShadowMapSize(2048);
 		light->SetShadowMaxDistance(100.0f);
 	}
+}
+
+void TursoInterface::HandleUpdate(EventTu& eventType) {
+	std::cout << "Hello from Event: " << std::endl;
 }

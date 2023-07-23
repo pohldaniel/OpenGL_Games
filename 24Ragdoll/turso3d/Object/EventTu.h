@@ -26,26 +26,21 @@ public:
 
 protected:
     /// Receiver object.
-    WeakPtr<RefCounted> receiver;
+    RefCounted* receiver;
 };
 
 /// Template implementation of the event handler invoke helper, stores a function pointer of specific class.
-template <class T, class U> class EventHandlerImpl : public EventHandler
-{
+template <class T, class U> class EventHandlerImpl : public EventHandler {
 public:
     typedef void (T::*HandlerFunctionPtr)(U&);
 
     /// Construct with receiver and function pointers.
-    EventHandlerImpl(RefCounted* receiver_, HandlerFunctionPtr function_) :
-        EventHandler(receiver_),
-        function(function_)
-    {
+    EventHandlerImpl(RefCounted* receiver_, HandlerFunctionPtr function_) : EventHandler(receiver_), function(function_) {
         assert(function);
     }
 
     /// Invoke the handler function.
-    void Invoke(EventTu& event) override
-    {
+    void Invoke(EventTu& event) override {
         T* typedReceiver = static_cast<T*>(receiver);
         U& typedEvent = static_cast<U&>(event);
         (typedReceiver->*function)(typedEvent);
