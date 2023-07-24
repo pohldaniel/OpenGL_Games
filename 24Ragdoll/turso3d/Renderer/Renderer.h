@@ -209,7 +209,6 @@ public:
     /// Return a shadow map texture by index for debugging.
     TextureTu* ShadowMapTexture(size_t index) const;
 
-private:
     /// Collect octants and lights from the octree recursively. Queue batch collection tasks while ongoing.
     void CollectOctantsAndLights(Octant* octant, ThreadOctantResult& result, unsigned char planeMask = 0x3f);
     /// Add an occlusion query for the octant if applicable.

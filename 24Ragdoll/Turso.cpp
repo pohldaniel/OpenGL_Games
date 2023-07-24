@@ -76,6 +76,7 @@ TursoInterface::TursoInterface(StateMachine& machine) : State(machine, CurrentSt
 	camera = ObjectTu::Create<CameraTu>();
 
 	CreateScene(scene, camera, 0);
+	//CreateScene(scene, camera, 2);
 
 	camera->SetPosition(Vector3(0.0f, 20.0f, -75.0f));
 	camera->SetAspectRatio((float)Application::Width / (float)Application::Height);
@@ -216,16 +217,121 @@ void TursoInterface::update() {
 
 void TursoInterface::renderDirect() {
 	
-	renderer->PrepareView(scene, camera, shadowMode > 0, useOcclusion);
 	graphics->BindDefaultVao();
+	renderer->PrepareView(scene, camera, shadowMode > 0, useOcclusion);
+	debugRenderer->SetView(camera);
+
 	renderer->RenderOpaque();
 
-	if (m_drawUi)
-		renderUi();
+	renderer->UpdateInstanceTransforms(renderer->instanceTransforms);
+	
+	//glClearColor(DEFAULT_FOG_COLOR.r, DEFAULT_FOG_COLOR.g, DEFAULT_FOG_COLOR.b, DEFAULT_FOG_COLOR.a);
+	//glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+	//glDepthMask(GL_TRUE);
+
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	//fill in uniforms
+	float nearClip = camera->NearClip();
+	float farClip = camera->FarClip();
+	renderer->perViewData.projectionMatrix = camera->ProjectionMatrix();
+	renderer->perViewData.viewMatrix = camera->ViewMatrix();
+	renderer->perViewData.viewProjMatrix = camera->ProjectionMatrix() * camera->ViewMatrix();
+	renderer->perViewData.depthParameters = Vector4(nearClip, farClip, camera->IsOrthographic() ? 0.5f : 0.0f, camera->IsOrthographic() ? 0.5f : 1.0f / farClip);
+	renderer->perViewData.cameraPosition = Vector4(camera->WorldPosition(), 1.0f);
+	renderer->perViewData.ambientColor = DEFAULT_AMBIENT_COLOR;
+	renderer->perViewData.fogColor = DEFAULT_FOG_COLOR;
+	float fogStart = DEFAULT_FOG_START;
+	float fogEnd = DEFAULT_FOG_END;
+	float fogRange = Max(fogEnd - fogStart, M_EPSILON);
+	renderer->perViewData.fogParameters = Vector4(fogEnd / farClip, farClip / fogRange, 0.0f, 0.0f);
+	renderer->perViewData.dirLightDirection = Vector4::ZERO;
+	renderer->perViewData.dirLightColor = Color::BLACK;
+	renderer->perViewData.dirLightShadowParameters = Vector4::ONE;
+	renderer->perViewDataBuffer->SetData(0, sizeof(PerViewUniforms), &renderer->perViewData);
+
+	renderer->perViewDataBuffer->Bind(UB_PERVIEWDATA);
+
+
+	const BatchQueue& queue = renderer->opaqueBatches;
+
+	renderer->lastMaterial = nullptr;
+	renderer->lastPass = nullptr;
+
+	for (auto it = queue.batches.begin(); it != queue.batches.end(); ++it) {
+		const Batch& batch = *it;
+		unsigned char geometryBits = batch.programBits & SP_GEOMETRYBITS;
+
+		ShaderProgram* program = batch.pass->GetShaderProgram(batch.programBits);
+		if (!program->Bind())
+			continue;
+
+		MaterialTu* material = batch.pass->Parent();
+		if (batch.pass != renderer->lastPass) {
+			if (material != renderer->lastMaterial) {
+				for (size_t i = 0; i < MAX_MATERIAL_TEXTURE_UNITS; ++i) {
+					TextureTu* texture = material->GetTexture(i);
+					if (texture)
+						texture->Bind(i);
+				}
+
+				UniformBuffer* materialUniforms = material->GetUniformBuffer();
+				if (materialUniforms)
+					materialUniforms->Bind(UB_MATERIALDATA);
+
+				renderer->lastMaterial = material;
+			}
+
+			CullMode cullMode = material->GetCullMode();
+			if (camera->UseReverseCulling()) {
+				if (cullMode == CULL_BACK)
+					cullMode = CULL_FRONT;
+				else if (cullMode == CULL_FRONT)
+					cullMode = CULL_BACK;
+			}
+
+			graphics->SetRenderState(batch.pass->GetBlendMode(), cullMode, batch.pass->GetDepthTest(), batch.pass->GetColorWrite(), batch.pass->GetDepthWrite());
+
+			renderer->lastPass = batch.pass;
+		}
+
+		Geometry* geometry = batch.geometry;
+		VertexBuffer* vb = geometry->vertexBuffer;
+		IndexBuffer* ib = geometry->indexBuffer;
+		vb->Bind(program->Attributes());
+		if (ib)
+			ib->Bind();
+
+		if (geometryBits == GEOM_INSTANCED) {
+			if (ib)
+				graphics->DrawIndexedInstanced(PT_TRIANGLE_LIST, geometry->drawStart, geometry->drawCount, renderer->instanceVertexBuffer, batch.instanceStart, batch.instanceCount);
+			else
+				graphics->DrawInstanced(PT_TRIANGLE_LIST, geometry->drawStart, geometry->drawCount, renderer->instanceVertexBuffer, batch.instanceStart, batch.instanceCount);
+
+			it += batch.instanceCount - 1;
+		}else {
+			if (!geometryBits)
+				graphics->SetUniform(program, U_WORLDMATRIX, *batch.worldTransform);
+			else
+				batch.drawable->OnRender(program, batch.geomIndex);
+
+			if (ib)
+				graphics->DrawIndexed(PT_TRIANGLE_LIST, geometry->drawStart, geometry->drawCount);
+			else
+				graphics->Draw(PT_TRIANGLE_LIST, geometry->drawStart, geometry->drawCount);
+		}
+	}
+
+	if(drawDebug)
+		renderer->RenderDebug();
+
+	debugRenderer->Render();
 }
 
 void TursoInterface::render() {
-	graphics->BindDefaultVao();
+	renderDirect();
+	
+	/*graphics->BindDefaultVao();
 
 	// Collect geometries and lights in frustum. Also set debug renderer to use the correct camera view
 	{
@@ -339,7 +445,7 @@ void TursoInterface::render() {
 		graphics->Present();
 	}
 
-	FrameMark;
+	FrameMark;*/
 
 	if (m_drawUi)
 		renderUi();
@@ -461,78 +567,7 @@ void TursoInterface::CreateScene(Scene* scene, CameraTu* camera, int preset)
 		lightEnvironment->SetAmbientColor(Color(0.3f, 0.3f, 0.3f));
 		camera->SetFarClip(1000.0f);
 
-		for (int y = -55; y <= 55; ++y)
-		{
-			for (int x = -55; x <= 55; ++x)
-			{
-				StaticModel* object = scene->CreateChild<StaticModel>();
-				object->SetStatic(true);
-				object->SetPosition(Vector3(10.5f * x, -0.05f, 10.5f * y));
-				object->SetScale(Vector3(10.0f, 0.1f, 10.0f));
-				object->SetModel(cache->LoadResource<Model>("Box.mdl"));
-				object->SetMaterial(cache->LoadResource<MaterialTu>("Stone.json"));
-			}
-		}
-
-		for (unsigned i = 0; i < 10000; ++i)
-		{
-			StaticModel* object = scene->CreateChild<StaticModel>();
-			object->SetStatic(true);
-			object->SetPosition(Vector3(Random() * 1000.0f - 500.0f, 0.0f, Random() * 1000.0f - 500.0f));
-			object->SetScale(1.5f);
-			object->SetModel(cache->LoadResource<Model>("Mushroom.mdl"));
-			object->SetMaterial(cache->LoadResource<MaterialTu>("Mushroom.json"));
-			object->SetCastShadows(true);
-			object->SetLodBias(2.0f);
-			object->SetMaxDistance(600.0f);
-		}
-
-		Vector3 quadrantCenters[] =
-		{
-			Vector3(-290.0f, 0.0f, -290.0f),
-			Vector3(290.0f, 0.0f, -290.0f),
-			Vector3(-290.0f, 0.0f, 290.0f),
-			Vector3(290.0f, 0.0f, 290.0f),
-		};
-
-		std::vector<Light*> lights;
-
-		for (unsigned i = 0; i < 100; ++i)
-		{
-			Light* light = scene->CreateChild<Light>();
-			light->SetStatic(true);
-			light->SetLightType(LIGHT_POINT);
-			light->SetCastShadows(true);
-			Vector3 colorVec = 2.0f * Vector3(Random(), Random(), Random()).Normalized();
-			light->SetColor(Color(colorVec.x, colorVec.y, colorVec.z, 0.5f));
-			light->SetRange(40.0f);
-			light->SetShadowMapSize(256);
-			light->SetShadowMaxDistance(200.0f);
-			light->SetMaxDistance(900.0f);
-
-			for (;;)
-			{
-				Vector3 newPos = quadrantCenters[i % 4] + Vector3(Random() * 500.0f - 250.0f, 10.0f, Random() * 500.0f - 250.0f);
-				bool posOk = true;
-
-				for (unsigned j = 0; j < lights.size(); ++j)
-				{
-					if ((newPos - lights[j]->Position()).Length() < 80.0f)
-					{
-						posOk = false;
-						break;
-					}
-				}
-
-				if (posOk)
-				{
-					light->SetPosition(newPos);
-					break;
-				}
-			}
-
-			lights.push_back(light);
-		}
+		
 
 		{
 			StaticModel* object = scene->CreateChild<StaticModel>();
@@ -628,5 +663,5 @@ void TursoInterface::CreateScene(Scene* scene, CameraTu* camera, int preset)
 }
 
 void TursoInterface::HandleUpdate(EventTu& eventType) {
-	std::cout << "Hello from Event: " << std::endl;
+	//std::cout << "Hello from Event: " << std::endl;
 }

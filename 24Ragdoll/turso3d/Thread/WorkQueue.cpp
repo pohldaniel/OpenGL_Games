@@ -4,6 +4,7 @@
 #include "WorkQueue.h"
 
 #include <tracy/Tracy.hpp>
+#include <iostream>
 
 thread_local unsigned WorkQueue::threadIndex = 0;
 
@@ -16,16 +17,14 @@ Task::~Task()
 {
 }
 
-WorkQueue::WorkQueue(unsigned numThreads) :
-    shouldExit(false)
-{
+WorkQueue::WorkQueue(unsigned numThreads) : shouldExit(false){
+
     RegisterSubsystem(this);
 
     numQueuedTasks.store(0);
     numPendingTasks.store(0);
 
-    if (numThreads == 0)
-    {
+    if (numThreads == 0){
         numThreads = CPUCount();
         // Avoid completely excessive core count
         if (numThreads > 16)
@@ -36,8 +35,8 @@ WorkQueue::WorkQueue(unsigned numThreads) :
         threads.push_back(std::thread(&WorkQueue::WorkerLoop, this, i + 1));
 }
 
-WorkQueue::~WorkQueue()
-{
+WorkQueue::~WorkQueue(){
+
     if (!threads.size())
         return;
 
@@ -49,13 +48,13 @@ WorkQueue::~WorkQueue()
         it->join();
 }
 
-void WorkQueue::QueueTask(Task* task)
-{
+void WorkQueue::QueueTask(Task* task){
+
     assert(task);
     assert(task->numDependencies.load() == 0);
 
-    if (threads.size())
-    {
+    if (threads.size()){
+
         {
             std::lock_guard<std::mutex> lock(queueMutex);
             tasks.push(task);
@@ -65,24 +64,20 @@ void WorkQueue::QueueTask(Task* task)
         numPendingTasks.fetch_add(1);
 
         signal.notify_one();
-    }
-    else
-    {
+
+    }else{
         // If no threads, execute directly
         CompleteTask(task, 0);
     }
 }
 
-void WorkQueue::QueueTasks(size_t count, Task** tasks_)
-{
-    if (threads.size())
-    {
+void WorkQueue::QueueTasks(size_t count, Task** tasks_) {
+    if (threads.size()) {
         ZoneScoped;
 
         {
             std::lock_guard<std::mutex> lock(queueMutex);
-            for (size_t i = 0; i < count; ++i)
-            {
+            for (size_t i = 0; i < count; ++i) {
                 assert(tasks_[i]);
                 assert(tasks_[i]->numDependencies.load() == 0);
                 tasks.push(tasks_[i]);

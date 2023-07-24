@@ -7,6 +7,7 @@
 
 #include <cstdio>
 #include <ctime>
+#include <iostream>
 
 const char* logLevelPrefixes[] =
 {

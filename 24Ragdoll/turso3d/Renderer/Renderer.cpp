@@ -470,14 +470,14 @@ void Renderer::RenderOpaque(bool clear)
     clusterTexture->Bind(TU_LIGHTCLUSTERDATA);
     lightDataBuffer->Bind(UB_LIGHTDATA);
 
-	//if (clear)
-	graphics->Clear(true, true, IntRect::ZERO, lightEnvironment ? lightEnvironment->FogColor() : DEFAULT_FOG_COLOR);
+	if (clear)
+		graphics->Clear(true, true, IntRect::ZERO, lightEnvironment ? lightEnvironment->FogColor() : DEFAULT_FOG_COLOR);
 
     RenderBatches(camera, opaqueBatches);
 
     // Render occlusion now after opaques
-	//if (useOcclusion)
-	//   RenderOcclusionQueries();
+	if (useOcclusion)
+		RenderOcclusionQueries();
 }
 
 void Renderer::RenderAlpha()
