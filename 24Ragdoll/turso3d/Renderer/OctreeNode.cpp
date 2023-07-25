@@ -11,6 +11,7 @@ OctreeNodeBase::OctreeNodeBase() :
     octree(nullptr),
     drawable(nullptr)
 {
+
 }
 
 void OctreeNodeBase::OnLayerChanged(unsigned char newLayer)
@@ -131,8 +132,6 @@ void OctreeNode::SetMaxDistance(float distance_)
 /*void OctreeNode::OnSceneSet(Scene* newScene, Scene* oldScene)
 {
 
-	std::cout << "On Scene Set: " << std::endl;
-
     /// Remove from current octree if any
     RemoveFromOctree();
 
@@ -153,8 +152,9 @@ void OctreeNode::OnSceneSet(Scene* newScene, Scene* oldScene, Octree* _octree) {
 	if (newScene){
 
 		// Transform may not be final yet. Schedule insertion for next octree update
-		if (_octree && IsEnabled())
+		if (_octree && IsEnabled()) {
 			_octree->QueueUpdate(drawable);
+		}
 	}
 }
 

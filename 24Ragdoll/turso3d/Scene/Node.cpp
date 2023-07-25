@@ -5,17 +5,12 @@
 #include "../Object/ObjectResolver.h"
 #include "../Resource/JSONFile.h"
 #include "../Renderer/Octree.h"
-#include "../Renderer/LightEnvironment.h"
 
 #include "Scene.h"
 #include <iostream>
 
 static std::vector<SharedPtr<Node> > noChildren;
 static Allocator<NodeImpl> nodeImplAllocator;
-
-template <class T> T* Node::FindChild(bool recursive) const { 
-	return static_cast<T*>(FindChildOfType(T::TypeStatic(), recursive)); 
-}
 
 Node::Node() :
     impl(nodeImplAllocator.Allocate()),
@@ -500,7 +495,6 @@ void Node::FindChildrenByLayer(std::vector<Node*>& result, unsigned layerMask, b
 
 void Node::SetScene(Scene* newScene)
 {
-	std::cout << "Set Scene: " << std::endl;
     Scene* oldScene = impl->scene;
     impl->scene = newScene;
     OnSceneSet(impl->scene, oldScene, newScene->FindChild<Octree>());

@@ -5,6 +5,7 @@
 #include "../Object/Serializable.h"
 #include "../Math/Quaternion.h"
 
+
 class Node;
 class Octree;
 class Scene;
@@ -143,7 +144,7 @@ public:
     /// Find child nodes that match layer mask.
     void FindChildrenByLayer(std::vector<Node*>& result, unsigned layerMask, bool recursive = false) const;
     /// Return first child node of specified type, template version.
-	template <class T> T* FindChild(bool recursive = false) const;
+	template <class T> T* FindChild(bool recursive = false) const { return static_cast<T*>(FindChildOfType(T::TypeStatic(), recursive));};
     /// Return first child node that matches type and name, template version.
     template <class T> T* FindChild(const std::string& childName, bool recursive = false) const { return static_cast<T*>(FindChildOfType(T::TypeStatic(), childName, recursive)); }
     /// Return first child node that matches type and name, template version.

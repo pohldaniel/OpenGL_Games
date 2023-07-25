@@ -85,7 +85,6 @@ bool IndexBuffer::SetData(size_t firstIndex, size_t numIndices_, const void* dat
 
 void IndexBuffer::Bind()
 {
-	//std::cout << "Index Buffer: " << buffer << std::endl;
     if (!buffer || boundIndexBuffer == this)
         return;
 

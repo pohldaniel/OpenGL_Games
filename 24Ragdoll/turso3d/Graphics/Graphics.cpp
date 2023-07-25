@@ -193,7 +193,6 @@ bool Graphics::Initialize()
     glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
     glDepthMask(GL_TRUE);
 
-	std::cout << "-------------" << std::endl;
     glGenVertexArrays(1, &DefaultVao);
     glBindVertexArray(DefaultVao);
 	VaoBindings.current = DefaultVao;
@@ -575,7 +574,6 @@ void Graphics::Draw(PrimitiveType type, size_t drawStart, size_t drawCount)
 
 void Graphics::DrawIndexed(PrimitiveType type, size_t drawStart, size_t drawCount)
 {
-	//std::cout << "Draw Indexed: " << std::endl;
 
     if (instancingEnabled)
     {

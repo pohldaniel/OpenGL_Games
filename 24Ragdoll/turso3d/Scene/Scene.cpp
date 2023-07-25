@@ -178,9 +178,7 @@ Node* Scene::FindNode(unsigned id_) const
     return it != nodes.end() ? it->second : nullptr;
 }
 
-void Scene::AddNode(Node* node)
-{
-	std::cout << "Add Node" << std::endl;
+void Scene::AddNode(Node* node) {
 
     if (!node || node->ParentScene() == this)
         return;

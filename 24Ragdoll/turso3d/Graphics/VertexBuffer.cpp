@@ -124,7 +124,6 @@ bool VertexBuffer::SetData(size_t firstVertex, size_t numVertices_, const void* 
 
 void VertexBuffer::Bind(unsigned attributeMask)
 {
-	//std::cout << "Vertex Buffer: " << buffer << std::endl;
 
     if (!buffer)
         return;

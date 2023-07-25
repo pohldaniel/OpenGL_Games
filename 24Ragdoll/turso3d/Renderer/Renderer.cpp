@@ -200,7 +200,7 @@ void Renderer::PrepareView(Scene* scene_, CameraTu* camera_, bool drawShadows_, 
     scene = scene_;
     camera = camera_;
     octree = scene->FindChild<Octree>();
-    //lightEnvironment = scene->FindChild<LightEnvironment>();
+    lightEnvironment = scene->FindChild<LightEnvironment>();
     if (!octree)
         return;
 

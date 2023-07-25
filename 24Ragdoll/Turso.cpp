@@ -224,7 +224,7 @@ void TursoInterface::renderDirect() {
 	renderer->PrepareView(camera);
 	
 	
-	Octree* octree = m_octree;
+	//Octree* octree = m_octree;
 	FrustumTu frustum = camera->WorldFrustum();
 	
 	renderer->rootLevelOctants.clear();
@@ -240,7 +240,7 @@ void TursoInterface::renderDirect() {
 		renderer->batchResults[i].Clear();
 
 	// Process moved / animated objects' octree reinsertions
-	octree->Update(0);
+	m_octree->Update(0);
 
 	// Precalculate SAT test parameters for accurate frustum test (verify what octants to occlusion query)
 	if (useOcclusion)
@@ -248,13 +248,13 @@ void TursoInterface::renderDirect() {
 
 	// Check arrived occlusion query results while octree update goes on, then finish octree update
 	renderer->CheckOcclusionQueries();
-	octree->FinishUpdate();
+	m_octree->FinishUpdate();
 
 	// Enable threaded update during geometry / light gathering in case nodes' OnPrepareRender() causes further reinsertion queuing
-	octree->SetThreadedUpdate(workQueue->NumThreads() > 1);
+	m_octree->SetThreadedUpdate(workQueue->NumThreads() > 1);
 
 	// Find the starting points for octree traversal. Include the root if it contains drawables that didn't fit elsewhere
-	Octant* rootOctant = octree->Root();
+	Octant* rootOctant = m_octree->Root();
 	if (rootOctant->Drawables().size())
 		renderer->rootLevelOctants.push_back(rootOctant);
 
@@ -285,7 +285,7 @@ void TursoInterface::renderDirect() {
 	workQueue->Complete();
 
 	// No more threaded reinsertion will take place
-	octree->SetThreadedUpdate(false);
+	m_octree->SetThreadedUpdate(false);
 
 
 	debugRenderer->SetView(camera);
@@ -369,7 +369,7 @@ void TursoInterface::renderDirect() {
 			ib->Bind();
 
 		if (geometryBits == GEOM_INSTANCED) {
-			//std::cout << "Render Instanced: " << std::endl;
+
 			if (ib)
 				graphics->DrawIndexedInstanced(PT_TRIANGLE_LIST, geometry->drawStart, geometry->drawCount, renderer->instanceVertexBuffer, batch.instanceStart, batch.instanceCount);
 			else
@@ -377,7 +377,7 @@ void TursoInterface::renderDirect() {
 
 			it += batch.instanceCount - 1;
 		}else {
-			//std::cout << "Render: " << std::endl;
+
 			if (!geometryBits)
 				graphics->SetUniform(program, U_WORLDMATRIX, *batch.worldTransform);
 			else
@@ -625,6 +625,7 @@ void TursoInterface::CreateScene(Scene* scene, CameraTu* camera, int preset)
 
 	scene->Clear();
 	//scene->CreateChild<Octree>("octree");
+	//m_octree = scene->FindChild<Octree>();
 	m_octree = new Octree();
 	LightEnvironment* lightEnvironment = scene->CreateChild<LightEnvironment>();
 	SetRandomSeed(1);
@@ -637,24 +638,18 @@ void TursoInterface::CreateScene(Scene* scene, CameraTu* camera, int preset)
 
 
 		{
-			ObjectTu* newObject = Create(StaticModel::TypeStatic());
-			Node* child = dynamic_cast<Node*>(newObject);
-			child->parent = scene;
-			scene->children.push_back(child);			
-			Scene* oldScene = scene->impl->scene;
-			scene->impl->scene = scene;
-			dynamic_cast<OctreeNode*>(child)->OnSceneSet(scene->impl->scene, oldScene, m_octree);
+			//ObjectTu* newObject = Create(StaticModel::TypeStatic());
 
-			child->SetId(8);
-
-			StaticModel* object = static_cast<StaticModel*>(child);
-
-			object->SetStatic(true);
-			object->SetPosition(Vector3(0.0f, 25.0f, 0.0f));
-			object->SetScale(Vector3(1165.0f, 50.0f, 1.0f));
-			object->SetModel(cache->LoadResource<Model>("Box.mdl"));
-			object->SetMaterial(cache->LoadResource<MaterialTu>("Stone.json"));
-			object->SetCastShadows(true);
+			StaticModel* model = new StaticModel();
+			OctreeNode* child = dynamic_cast<OctreeNode*>(model);
+			m_octree->QueueUpdate(model->GetDrawable());
+			
+			model->SetStatic(true);
+			model->SetPosition(Vector3(0.0f, 25.0f, 0.0f));
+			model->SetScale(Vector3(1165.0f, 50.0f, 1.0f));
+			model->SetModel(cache->LoadResource<Model>("Box.mdl"));
+			model->SetMaterial(cache->LoadResource<MaterialTu>("Stone.json"));
+			model->SetCastShadows(true);
 		}
 
 		/*{
