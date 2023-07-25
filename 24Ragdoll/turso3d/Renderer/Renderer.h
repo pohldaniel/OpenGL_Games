@@ -50,6 +50,7 @@ static const size_t TU_FACESELECTION1 = 10;
 static const size_t TU_FACESELECTION2 = 11;
 static const size_t TU_LIGHTCLUSTERDATA = 12;
 
+
 /// Per-thread results for octant collection.
 struct ThreadOctantResult
 {
@@ -197,6 +198,7 @@ public:
     void SetShadowDepthBiasMul(float depthBiasMul, float slopeScaleBiasMul);
     /// Prepare view for rendering. This will utilize worker threads.
     void PrepareView(Scene* scene, CameraTu* camera, bool drawShadows, bool useOcclusion);
+	void PrepareView(CameraTu* camera_);
     /// Render shadowmaps before rendering the view. Last shadow framebuffer will be left bound.
     void RenderShadowMaps();
     /// Clear with fog color and far depth (optional), then render opaque objects into the currently set framebuffer and viewport.
@@ -376,3 +378,72 @@ public:
 
 /// Register Renderer related object factories and attributes.
 void RegisterRendererLibrary();
+
+/// %Task for collecting octants.
+struct CollectOctantsTask : public MemberFunctionTask<Renderer>
+{
+	/// Construct.
+	CollectOctantsTask(Renderer* object_, MemberWorkFunctionPtr function_) :
+		MemberFunctionTask<Renderer>(object_, function_)
+	{
+	}
+
+	/// Starting point octant.
+	Octant* startOctant;
+	/// Result structure index.
+	size_t resultIdx;
+};
+
+/// %Task for collecting geometry batches from octants.
+struct CollectBatchesTask : public MemberFunctionTask<Renderer>
+{
+	/// Construct.
+	CollectBatchesTask(Renderer* object_, MemberWorkFunctionPtr function_) :
+		MemberFunctionTask<Renderer>(object_, function_)
+	{
+	}
+
+	/// %Octant list with plane masks.
+	std::vector<std::pair<Octant*, unsigned char > > octants;
+};
+
+/// %Task for collecting shadowcasters of a specific light.
+struct CollectShadowCastersTask : public MemberFunctionTask<Renderer>
+{
+	/// Construct.
+	CollectShadowCastersTask(Renderer* object_, MemberWorkFunctionPtr function_) :
+		MemberFunctionTask<Renderer>(object_, function_)
+	{
+	}
+
+	/// %Light.
+	LightDrawable* light;
+};
+
+/// %Task for collecting shadow batches of a specific shadow view.
+struct CollectShadowBatchesTask : public MemberFunctionTask<Renderer>
+{
+	/// Construct.
+	CollectShadowBatchesTask(Renderer* object_, MemberWorkFunctionPtr function_) :
+		MemberFunctionTask<Renderer>(object_, function_)
+	{
+	}
+
+	/// Shadow map index.
+	size_t shadowMapIdx;
+	/// Shadow view index within shadow map.
+	size_t viewIdx;
+};
+
+/// %Task for culling lights to a specific Z-slice of the frustum grid.
+struct CullLightsTask : public MemberFunctionTask<Renderer>
+{
+	/// Construct.
+	CullLightsTask(Renderer* object_, MemberWorkFunctionPtr function_) :
+		MemberFunctionTask<Renderer>(object_, function_)
+	{
+	}
+
+	/// Z-slice.
+	size_t z;
+};

@@ -7,6 +7,7 @@
 #include <GL/glew.h>
 #include <cstring>
 #include <tracy/Tracy.hpp>
+#include <iostream>
 
 static IndexBuffer* boundIndexBuffer = nullptr;
 static size_t boundIndexSize = 0;
@@ -84,6 +85,7 @@ bool IndexBuffer::SetData(size_t firstIndex, size_t numIndices_, const void* dat
 
 void IndexBuffer::Bind()
 {
+	//std::cout << "Index Buffer: " << buffer << std::endl;
     if (!buffer || boundIndexBuffer == this)
         return;
 

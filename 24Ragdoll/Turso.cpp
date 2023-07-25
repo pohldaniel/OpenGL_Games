@@ -10,6 +10,7 @@
 
 #include <tracy/Tracy.hpp>
 
+
 TursoInterface::TursoInterface(StateMachine& machine) : State(machine, CurrentState::TURSOINTERFACE) {
 
 	Application::SetCursorIcon(IDC_ARROW);
@@ -35,7 +36,7 @@ TursoInterface::TursoInterface(StateMachine& machine) : State(machine, CurrentSt
 	// Create the Graphics subsystem to open the application window and initialize OpenGL
 	graphics = new Graphics("Turso3D renderer test", IntVector2(Application::Width, Application::Height));
 	graphics->Initialize();
-//		return 1;
+	graphics->BindDefaultVao(true);
 
 	// Create subsystems that depend on the application window / OpenGL
 	//input = new InputTu(graphics->Window());
@@ -102,6 +103,8 @@ TursoInterface::TursoInterface(StateMachine& machine) : State(machine, CurrentSt
 
 
 	SubscribeToEvent(eventTu, new EventHandlerImpl<TursoInterface, EventTu>(this, &TursoInterface::HandleUpdate));
+
+
 }
 
 TursoInterface::~TursoInterface() {
@@ -217,17 +220,80 @@ void TursoInterface::update() {
 
 void TursoInterface::renderDirect() {
 	
-	graphics->BindDefaultVao();
-	renderer->PrepareView(scene, camera, shadowMode > 0, useOcclusion);
+
+	renderer->PrepareView(camera);
+	
+	
+	Octree* octree = m_octree;
+	FrustumTu frustum = camera->WorldFrustum();
+	
+	renderer->rootLevelOctants.clear();
+	renderer->opaqueBatches.Clear();
+	//renderer->alphaBatches.Clear();
+	//renderer->lights.clear();
+	renderer->instanceTransforms.clear();
+	renderer->geometryBounds.Undefine();
+
+	for (size_t i = 0; i < NUM_OCTANT_TASKS; ++i)
+		renderer->octantResults[i].Clear();
+	for (size_t i = 0; i < workQueue->NumThreads(); ++i)
+		renderer->batchResults[i].Clear();
+
+	// Process moved / animated objects' octree reinsertions
+	octree->Update(0);
+
+	// Precalculate SAT test parameters for accurate frustum test (verify what octants to occlusion query)
+	if (useOcclusion)
+		renderer->frustumSATData.Calculate(frustum);
+
+	// Check arrived occlusion query results while octree update goes on, then finish octree update
+	renderer->CheckOcclusionQueries();
+	octree->FinishUpdate();
+
+	// Enable threaded update during geometry / light gathering in case nodes' OnPrepareRender() causes further reinsertion queuing
+	octree->SetThreadedUpdate(workQueue->NumThreads() > 1);
+
+	// Find the starting points for octree traversal. Include the root if it contains drawables that didn't fit elsewhere
+	Octant* rootOctant = octree->Root();
+	if (rootOctant->Drawables().size())
+		renderer->rootLevelOctants.push_back(rootOctant);
+
+	for (size_t i = 0; i < NUM_OCTANTS; ++i)
+	{
+		if (rootOctant->Child(i))
+			renderer->rootLevelOctants.push_back(rootOctant->Child(i));
+	}
+
+	// Keep track of both batch + octant task progress before main batches can be sorted (batch tasks will add to the counter when queued)
+	renderer->numPendingBatchTasks.store((int)renderer->rootLevelOctants.size());
+
+	for (size_t i = 0; i < renderer->rootLevelOctants.size(); ++i)
+	{
+		renderer->collectOctantsTasks[i]->startOctant = renderer->rootLevelOctants[i];
+		// workQueue->AddDependency(processLightsTask, collectOctantsTasks[i]);
+	}
+
+	workQueue->QueueTasks(renderer->rootLevelOctants.size(), reinterpret_cast<Task**>(&renderer->collectOctantsTasks[0]));
+
+	// Execute tasks until can sort the main batches. Perform that in the main thread to potentially run faster
+	while (renderer->numPendingBatchTasks.load() > 0)
+		workQueue->TryComplete();
+
+	renderer->SortMainBatches();
+
+	// Finish remaining view preparation tasks (shadowcaster batches, light culling to frustum grid)
+	workQueue->Complete();
+
+	// No more threaded reinsertion will take place
+	octree->SetThreadedUpdate(false);
+
+
 	debugRenderer->SetView(camera);
-
-	renderer->RenderOpaque();
-
 	renderer->UpdateInstanceTransforms(renderer->instanceTransforms);
 	
-	//glClearColor(DEFAULT_FOG_COLOR.r, DEFAULT_FOG_COLOR.g, DEFAULT_FOG_COLOR.b, DEFAULT_FOG_COLOR.a);
-	//glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-	//glDepthMask(GL_TRUE);
+	glClearColor(DEFAULT_FOG_COLOR.r, DEFAULT_FOG_COLOR.g, DEFAULT_FOG_COLOR.b, DEFAULT_FOG_COLOR.a);
+	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+	glDepthMask(GL_TRUE);
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -303,6 +369,7 @@ void TursoInterface::renderDirect() {
 			ib->Bind();
 
 		if (geometryBits == GEOM_INSTANCED) {
+			//std::cout << "Render Instanced: " << std::endl;
 			if (ib)
 				graphics->DrawIndexedInstanced(PT_TRIANGLE_LIST, geometry->drawStart, geometry->drawCount, renderer->instanceVertexBuffer, batch.instanceStart, batch.instanceCount);
 			else
@@ -310,6 +377,7 @@ void TursoInterface::renderDirect() {
 
 			it += batch.instanceCount - 1;
 		}else {
+			//std::cout << "Render: " << std::endl;
 			if (!geometryBits)
 				graphics->SetUniform(program, U_WORLDMATRIX, *batch.worldTransform);
 			else
@@ -540,7 +608,7 @@ void TursoInterface::renderUi() {
 	// render widgets
 	ImGui::Begin("Settings", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
 	ImGui::Checkbox("Draw Wirframe", &StateMachine::GetEnableWireframe());
-
+	ImGui::Checkbox("Use Occlusion", &useOcclusion);
 
 	ImGui::End();
 
@@ -556,9 +624,9 @@ void TursoInterface::CreateScene(Scene* scene, CameraTu* camera, int preset)
 	ResourceCache* cache = ObjectTu::Subsystem<ResourceCache>();
 
 	scene->Clear();
-	scene->CreateChild<Octree>();
+	//scene->CreateChild<Octree>("octree");
+	m_octree = new Octree();
 	LightEnvironment* lightEnvironment = scene->CreateChild<LightEnvironment>();
-
 	SetRandomSeed(1);
 
 	// Preset 0: occluders, static meshes and many local shadowcasting lights in addition to ambient light
@@ -567,10 +635,20 @@ void TursoInterface::CreateScene(Scene* scene, CameraTu* camera, int preset)
 		lightEnvironment->SetAmbientColor(Color(0.3f, 0.3f, 0.3f));
 		camera->SetFarClip(1000.0f);
 
-		
 
 		{
-			StaticModel* object = scene->CreateChild<StaticModel>();
+			ObjectTu* newObject = Create(StaticModel::TypeStatic());
+			Node* child = dynamic_cast<Node*>(newObject);
+			child->parent = scene;
+			scene->children.push_back(child);			
+			Scene* oldScene = scene->impl->scene;
+			scene->impl->scene = scene;
+			dynamic_cast<OctreeNode*>(child)->OnSceneSet(scene->impl->scene, oldScene, m_octree);
+
+			child->SetId(8);
+
+			StaticModel* object = static_cast<StaticModel*>(child);
+
 			object->SetStatic(true);
 			object->SetPosition(Vector3(0.0f, 25.0f, 0.0f));
 			object->SetScale(Vector3(1165.0f, 50.0f, 1.0f));
@@ -579,15 +657,20 @@ void TursoInterface::CreateScene(Scene* scene, CameraTu* camera, int preset)
 			object->SetCastShadows(true);
 		}
 
-		{
-			StaticModel* object = scene->CreateChild<StaticModel>();
+		/*{
+			ObjectTu* newObject = Create(StaticModel::TypeStatic());
+			Node* child = dynamic_cast<Node*>(newObject);
+			scene->AddChild(child);
+			StaticModel* object = static_cast<StaticModel*>(child);
+
 			object->SetStatic(true);
 			object->SetPosition(Vector3(0.0f, 25.0f, 0.0f));
 			object->SetScale(Vector3(1.0f, 50.0f, 1165.0f));
 			object->SetModel(cache->LoadResource<Model>("Box.mdl"));
 			object->SetMaterial(cache->LoadResource<MaterialTu>("Stone.json"));
 			object->SetCastShadows(true);
-		}
+		}*/
+
 	}
 	// Preset 1: high number of animating cubes
 	else if (preset == 1)

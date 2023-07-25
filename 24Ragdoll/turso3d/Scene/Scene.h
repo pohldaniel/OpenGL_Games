@@ -50,7 +50,7 @@ public:
     using Node::LoadJSON;
     using Node::SaveJSON;
 
-private:
+
     /// Map from id's to nodes.
     std::map<unsigned, Node*> nodes;
     /// Next free node id.

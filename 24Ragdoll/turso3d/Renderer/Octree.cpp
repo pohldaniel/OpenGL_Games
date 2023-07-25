@@ -40,12 +40,9 @@ static inline bool CompareDrawables(Drawable* lhs, Drawable* rhs)
 }
 
 /// %Task for octree drawables reinsertion.
-struct ReinsertDrawablesTask : public MemberFunctionTask<Octree>
-{
+struct ReinsertDrawablesTask : public MemberFunctionTask<Octree> {
     /// Construct.
-    ReinsertDrawablesTask(Octree* object_, MemberWorkFunctionPtr function_) :
-        MemberFunctionTask<Octree>(object_, function_)
-    {
+    ReinsertDrawablesTask(Octree* object_, MemberWorkFunctionPtr function_) : MemberFunctionTask<Octree>(object_, function_) {
     }
 
     /// Start pointer.

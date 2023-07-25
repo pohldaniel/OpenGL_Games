@@ -35,79 +35,9 @@ static const size_t DRAWABLES_PER_BATCH_TASK = 128;
 static const size_t NUM_BOX_INDICES = 36;
 static const float OCCLUSION_MARGIN = 0.1f;
 
-static inline bool CompareDrawableDistances(Drawable* lhs, Drawable* rhs)
-{
+static inline bool CompareDrawableDistances(Drawable* lhs, Drawable* rhs) {
     return lhs->Distance() < rhs->Distance();
 }
-
-/// %Task for collecting octants.
-struct CollectOctantsTask : public MemberFunctionTask<Renderer>
-{
-    /// Construct.
-    CollectOctantsTask(Renderer* object_, MemberWorkFunctionPtr function_) :
-        MemberFunctionTask<Renderer>(object_, function_)
-    {
-    }
-
-    /// Starting point octant.
-    Octant* startOctant;
-    /// Result structure index.
-    size_t resultIdx;
-};
-
-/// %Task for collecting geometry batches from octants.
-struct CollectBatchesTask : public MemberFunctionTask<Renderer>
-{
-    /// Construct.
-    CollectBatchesTask(Renderer* object_, MemberWorkFunctionPtr function_) :
-        MemberFunctionTask<Renderer>(object_, function_)
-    {
-    }
-
-    /// %Octant list with plane masks.
-    std::vector<std::pair<Octant*, unsigned char > > octants;
-};
-
-/// %Task for collecting shadowcasters of a specific light.
-struct CollectShadowCastersTask : public MemberFunctionTask<Renderer>
-{
-    /// Construct.
-    CollectShadowCastersTask(Renderer* object_, MemberWorkFunctionPtr function_) :
-        MemberFunctionTask<Renderer>(object_, function_)
-    {
-    }
-
-    /// %Light.
-    LightDrawable* light;
-};
-
-/// %Task for collecting shadow batches of a specific shadow view.
-struct CollectShadowBatchesTask : public MemberFunctionTask<Renderer>
-{
-    /// Construct.
-    CollectShadowBatchesTask(Renderer* object_, MemberWorkFunctionPtr function_) :
-        MemberFunctionTask<Renderer>(object_, function_)
-    {
-    }
-
-    /// Shadow map index.
-    size_t shadowMapIdx;
-    /// Shadow view index within shadow map.
-    size_t viewIdx;
-};
-
-/// %Task for culling lights to a specific Z-slice of the frustum grid.
-struct CullLightsTask : public MemberFunctionTask<Renderer>
-{
-    /// Construct.
-    CullLightsTask(Renderer* object_, MemberWorkFunctionPtr function_) :
-        MemberFunctionTask<Renderer>(object_, function_)
-    {
-    }
-
-    /// Z-slice.
-    size_t z;
-};
 
 void ThreadOctantResult::Clear()
 {
@@ -253,6 +183,13 @@ void Renderer::SetShadowDepthBiasMul(float depthBiasMul_, float slopeScaleBiasMu
     shadowMapsDirty = true;
 }
 
+void Renderer::PrepareView(CameraTu* camera_) {
+
+	camera = camera_;
+	frustum = camera->WorldFrustum();
+	viewMask = camera->ViewMask();
+}
+
 void Renderer::PrepareView(Scene* scene_, CameraTu* camera_, bool drawShadows_, bool useOcclusion_)
 {
     ZoneScoped;
@@ -263,9 +200,12 @@ void Renderer::PrepareView(Scene* scene_, CameraTu* camera_, bool drawShadows_, 
     scene = scene_;
     camera = camera_;
     octree = scene->FindChild<Octree>();
-    lightEnvironment = scene->FindChild<LightEnvironment>();
+    //lightEnvironment = scene->FindChild<LightEnvironment>();
     if (!octree)
         return;
+
+	frustum = camera->WorldFrustum();
+	viewMask = camera->ViewMask();
 
     // Framenumber is never 0
     ++frameNumber;
@@ -273,12 +213,9 @@ void Renderer::PrepareView(Scene* scene_, CameraTu* camera_, bool drawShadows_, 
         ++frameNumber;
 
 
-	//std::cout << "Frame Number: " << frameNumber << std::endl;
-
     drawShadows = shadowMaps ? drawShadows_ : false;
     useOcclusion = useOcclusion_;
-    frustum = camera->WorldFrustum();
-    viewMask = camera->ViewMask();
+   
 
     // Clear results from last frame
     dirLight = nullptr;
@@ -334,21 +271,21 @@ void Renderer::PrepareView(Scene* scene_, CameraTu* camera_, bool drawShadows_, 
 
     // Keep track of both batch + octant task progress before main batches can be sorted (batch tasks will add to the counter when queued)
     numPendingBatchTasks.store((int)rootLevelOctants.size());
-    numPendingShadowViews[0].store(0);
-    numPendingShadowViews[1].store(0);
+	numPendingShadowViews[0].store(0);
+	numPendingShadowViews[1].store(0);
 
     // Ensure shadowcaster processing doesn't happen before lights have been found and processed, and geometry bounds are known
     // Note: this task is also needed without shadows, as it initiates light grid culling
-    workQueue->AddDependency(processShadowCastersTask, processLightsTask);
-    workQueue->AddDependency(processShadowCastersTask, batchesReadyTask);
+	workQueue->AddDependency(processShadowCastersTask, processLightsTask);
+	workQueue->AddDependency(processShadowCastersTask, batchesReadyTask);
 
     // Find octants in view and their plane masks for node frustum culling. At the same time, find lights and process them
     // When octant collection tasks complete, they queue tasks for collecting batches from those octants.
-    for (size_t i = 0; i < rootLevelOctants.size(); ++i)
-    {
-        collectOctantsTasks[i]->startOctant = rootLevelOctants[i];
-        workQueue->AddDependency(processLightsTask, collectOctantsTasks[i]);
-    }
+	for (size_t i = 0; i < rootLevelOctants.size(); ++i)
+	{
+	    collectOctantsTasks[i]->startOctant = rootLevelOctants[i];
+	    workQueue->AddDependency(processLightsTask, collectOctantsTasks[i]);
+	}
 
     workQueue->QueueTasks(rootLevelOctants.size(), reinterpret_cast<Task**>(&collectOctantsTasks[0]));
 

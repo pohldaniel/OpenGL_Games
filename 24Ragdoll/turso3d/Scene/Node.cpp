@@ -4,10 +4,18 @@
 #include "../IO/Stream.h"
 #include "../Object/ObjectResolver.h"
 #include "../Resource/JSONFile.h"
+#include "../Renderer/Octree.h"
+#include "../Renderer/LightEnvironment.h"
+
 #include "Scene.h"
+#include <iostream>
 
 static std::vector<SharedPtr<Node> > noChildren;
 static Allocator<NodeImpl> nodeImplAllocator;
+
+template <class T> T* Node::FindChild(bool recursive) const { 
+	return static_cast<T*>(FindChildOfType(T::TypeStatic(), recursive)); 
+}
 
 Node::Node() :
     impl(nodeImplAllocator.Allocate()),
@@ -216,11 +224,13 @@ Node* Node::CreateChild(StringHash childType)
 
 Node* Node::CreateChild(StringHash childType, const std::string& childName)
 {
+
     return CreateChild(childType, childName.c_str());
 }
 
 Node* Node::CreateChild(StringHash childType, const char* childName)
 {
+
     Node* child = CreateChild(childType);
     if (child)
         child->SetName(childName);
@@ -490,9 +500,10 @@ void Node::FindChildrenByLayer(std::vector<Node*>& result, unsigned layerMask, b
 
 void Node::SetScene(Scene* newScene)
 {
+	std::cout << "Set Scene: " << std::endl;
     Scene* oldScene = impl->scene;
     impl->scene = newScene;
-    OnSceneSet(impl->scene, oldScene);
+    OnSceneSet(impl->scene, oldScene, newScene->FindChild<Octree>());
 }
 
 void Node::SetId(unsigned newId)
@@ -517,8 +528,12 @@ void Node::OnParentSet(Node*, Node*)
 {
 }
 
-void Node::OnSceneSet(Scene*, Scene*)
+/*void Node::OnSceneSet(Scene*, Scene*)
 {
+}*/
+
+void Node::OnSceneSet(Scene* newScene, Scene* oldScene, Octree* _octree) {
+
 }
 
 void Node::OnEnabledChanged(bool)

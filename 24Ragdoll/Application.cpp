@@ -50,8 +50,7 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 	initImGUI();
 	initOpenAL();
 	loadAssets();
-	initStates();
-
+	
 	EventDispatcher.setProcessOSEvents([&]() {
 		while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
 			if (msg.message == WM_QUIT) return false;		
@@ -67,12 +66,12 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 	Fontrenderer::Get().init();
 	Fontrenderer::Get().setShader(Globals::shaderManager.getAssetPointer("font"));
 
-	Graphics::UnbindDefaultVao();
-
 	auto shader = Globals::shaderManager.getAssetPointer("font");
 	shader->use();
 	shader->loadMatrix("u_transform", Matrix4f::Orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f));
 	shader->unuse();
+
+	initStates();
 }
 
 Application::~Application() {

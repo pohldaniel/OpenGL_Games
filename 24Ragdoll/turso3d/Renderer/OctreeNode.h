@@ -209,9 +209,9 @@ public:
     /// Check whether was in view last frame, compared to the current.
     bool WasInView(unsigned short frameNumber) const { return drawable->WasInView(frameNumber); }
 
-protected:
     /// Search for an octree from the scene root and add self to it.
-    void OnSceneSet(Scene* newScene, Scene* oldScene) override;
+    //void OnSceneSet(Scene* newScene, Scene* oldScene) override;
+	void OnSceneSet(Scene* newScene, Scene* oldScene, Octree* octree) override;
     /// Handle the transform matrix changing. Queue octree reinsertion for the drawable.
     void OnTransformChanged() override;
     /// Handle the bounding box changing. Only queue octree reinsertion, does not dirty the node hierarchy.

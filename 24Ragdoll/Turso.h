@@ -115,4 +115,12 @@ private:
 	std::vector<AnimatedModel*> animatingObjects;
 
 	EventTu eventTu;
+
+
+	std::vector<Octant*> rootLevelOctants;
+	BatchQueue opaqueBatches;
+	std::vector<Matrix3x4> instanceTransforms;
+	BoundingBox geometryBounds;
+
+	Octree* m_octree;
 };

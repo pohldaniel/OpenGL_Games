@@ -5,6 +5,7 @@
 #include "CameraTu.h"
 #include "DebugRenderer.h"
 #include "Octree.h"
+#include <iostream>
 
 OctreeNodeBase::OctreeNodeBase() :
     octree(nullptr),
@@ -127,8 +128,11 @@ void OctreeNode::SetMaxDistance(float distance_)
     drawable->maxDistance = Max(distance_, 0.0f);
 }
 
-void OctreeNode::OnSceneSet(Scene* newScene, Scene*)
+/*void OctreeNode::OnSceneSet(Scene* newScene, Scene* oldScene)
 {
+
+	std::cout << "On Scene Set: " << std::endl;
+
     /// Remove from current octree if any
     RemoveFromOctree();
 
@@ -140,6 +144,18 @@ void OctreeNode::OnSceneSet(Scene* newScene, Scene*)
         if (octree && IsEnabled())
             octree->QueueUpdate(drawable);
     }
+}*/
+
+void OctreeNode::OnSceneSet(Scene* newScene, Scene* oldScene, Octree* _octree) {
+	/// Remove from current octree if any
+	RemoveFromOctree();
+
+	if (newScene){
+
+		// Transform may not be final yet. Schedule insertion for next octree update
+		if (_octree && IsEnabled())
+			_octree->QueueUpdate(drawable);
+	}
 }
 
 void OctreeNode::OnTransformChanged()

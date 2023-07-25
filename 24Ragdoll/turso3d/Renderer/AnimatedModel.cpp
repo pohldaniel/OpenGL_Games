@@ -529,12 +529,16 @@ AnimationState* AnimatedModel::GetAnimationState(size_t index) const
     return index < modelDrawable->animationStates.size() ? modelDrawable->animationStates[index] : nullptr;
 }
 
-void AnimatedModel::OnSceneSet(Scene* newScene, Scene* oldScene)
+/*void AnimatedModel::OnSceneSet(Scene* newScene, Scene* oldScene)
 {
     OctreeNode::OnSceneSet(newScene, oldScene);
 
     // Set octree also directly to the drawable so it can queue itself
     static_cast<AnimatedModelDrawable*>(drawable)->octree = octree;
+}*/
+
+void AnimatedModel::OnSceneSet(Scene* newScene, Scene* oldScene, Octree* octree) {
+
 }
 
 void AnimatedModel::OnTransformChanged()

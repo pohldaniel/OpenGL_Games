@@ -7,6 +7,7 @@
 #include <GL/glew.h>
 #include <cstring>
 #include <tracy/Tracy.hpp>
+#include <iostream>
 
 static unsigned boundAttributes = 0;
 static VertexBuffer* boundVertexBuffer = nullptr;
@@ -123,6 +124,8 @@ bool VertexBuffer::SetData(size_t firstVertex, size_t numVertices_, const void* 
 
 void VertexBuffer::Bind(unsigned attributeMask)
 {
+	//std::cout << "Vertex Buffer: " << buffer << std::endl;
+
     if (!buffer)
         return;
 
@@ -146,6 +149,7 @@ void VertexBuffer::Bind(unsigned attributeMask)
 
     if (boundVertexBuffer != this)
     {
+
         glBindBuffer(GL_ARRAY_BUFFER, buffer);
         boundVertexBuffer = this;
     }
