@@ -4,10 +4,7 @@
 #include "../IO/Stream.h"
 #include "../Object/ObjectResolver.h"
 #include "../Resource/JSONFile.h"
-#include "../Renderer/Octree.h"
-
 #include "Scene.h"
-#include <iostream>
 
 static std::vector<SharedPtr<Node> > noChildren;
 static Allocator<NodeImpl> nodeImplAllocator;
@@ -219,13 +216,11 @@ Node* Node::CreateChild(StringHash childType)
 
 Node* Node::CreateChild(StringHash childType, const std::string& childName)
 {
-
     return CreateChild(childType, childName.c_str());
 }
 
 Node* Node::CreateChild(StringHash childType, const char* childName)
 {
-
     Node* child = CreateChild(childType);
     if (child)
         child->SetName(childName);
@@ -497,7 +492,7 @@ void Node::SetScene(Scene* newScene)
 {
     Scene* oldScene = impl->scene;
     impl->scene = newScene;
-    OnSceneSet(impl->scene, oldScene, newScene->FindChild<Octree>());
+    OnSceneSet(impl->scene, oldScene);
 }
 
 void Node::SetId(unsigned newId)
@@ -522,12 +517,8 @@ void Node::OnParentSet(Node*, Node*)
 {
 }
 
-/*void Node::OnSceneSet(Scene*, Scene*)
+void Node::OnSceneSet(Scene*, Scene*)
 {
-}*/
-
-void Node::OnSceneSet(Scene* newScene, Scene* oldScene, Octree* _octree) {
-
 }
 
 void Node::OnEnabledChanged(bool)

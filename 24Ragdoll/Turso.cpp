@@ -399,10 +399,8 @@ void TursoInterface::renderDirect() {
 void TursoInterface::render() {
 	renderDirect();
 	
-	/*graphics->BindDefaultVao();
-
 	// Collect geometries and lights in frustum. Also set debug renderer to use the correct camera view
-	{
+	/*{
 		PROFILE(PrepareView);
 		renderer->PrepareView(scene, camera, shadowMode > 0, useOcclusion);
 		debugRenderer->SetView(camera);
@@ -624,9 +622,9 @@ void TursoInterface::CreateScene(Scene* scene, CameraTu* camera, int preset)
 	ResourceCache* cache = ObjectTu::Subsystem<ResourceCache>();
 
 	scene->Clear();
-	//scene->CreateChild<Octree>("octree");
-	//m_octree = scene->FindChild<Octree>();
-	m_octree = new Octree();
+	scene->CreateChild<Octree>("octree");
+	m_octree = scene->FindChild<Octree>();
+	//m_octree = new Octree();
 	LightEnvironment* lightEnvironment = scene->CreateChild<LightEnvironment>();
 	SetRandomSeed(1);
 
@@ -638,34 +636,31 @@ void TursoInterface::CreateScene(Scene* scene, CameraTu* camera, int preset)
 
 
 		{
-			//ObjectTu* newObject = Create(StaticModel::TypeStatic());
-
 			StaticModel* model = new StaticModel();
-			OctreeNode* child = dynamic_cast<OctreeNode*>(model);
 			m_octree->QueueUpdate(model->GetDrawable());
-			
 			model->SetStatic(true);
-			model->SetPosition(Vector3(0.0f, 25.0f, 0.0f));
-			model->SetScale(Vector3(1165.0f, 50.0f, 1.0f));
+			model->SetPosition(Vector3(0, -0.05f, 0));
+			model->SetScale(Vector3(100.0f, 0.1f, 100.0f));
 			model->SetModel(cache->LoadResource<Model>("Box.mdl"));
 			model->SetMaterial(cache->LoadResource<MaterialTu>("Stone.json"));
-			model->SetCastShadows(true);
 		}
 
-		/*{
-			ObjectTu* newObject = Create(StaticModel::TypeStatic());
-			Node* child = dynamic_cast<Node*>(newObject);
-			scene->AddChild(child);
-			StaticModel* object = static_cast<StaticModel*>(child);
+		{
+			AnimatedModel* object = new AnimatedModel();
+			m_octree->QueueUpdate(object->GetDrawable());
+			static_cast<AnimatedModelDrawable*>(object->GetDrawable())->SetOctree(m_octree);
 
 			object->SetStatic(true);
-			object->SetPosition(Vector3(0.0f, 25.0f, 0.0f));
-			object->SetScale(Vector3(1.0f, 50.0f, 1165.0f));
-			object->SetModel(cache->LoadResource<Model>("Box.mdl"));
-			object->SetMaterial(cache->LoadResource<MaterialTu>("Stone.json"));
+			object->SetPosition(Vector3(Random() * 90.0f - 45.0f, 0.0f, Random() * 90.0f - 45.0f));
+			object->SetRotation(QuaternionTu(Random(360.0f), Vector3::UP));
+			object->SetModel(cache->LoadResource<Model>("Jack.mdl"));
 			object->SetCastShadows(true);
-		}*/
-
+			object->SetMaxDistance(600.0f);
+			AnimationState* state = object->AddAnimationState(cache->LoadResource<Animation>("Jack_Walk.ani"));
+			state->SetWeight(1.0f);
+			state->SetLooped(true);
+			animatingObjects.push_back(object);
+		}
 	}
 	// Preset 1: high number of animating cubes
 	else if (preset == 1)
@@ -715,7 +710,7 @@ void TursoInterface::CreateScene(Scene* scene, CameraTu* camera, int preset)
 			object->SetMaterial(cache->LoadResource<MaterialTu>("Stone.json"));
 		}
 
-		for (int i = 0; i < 500; ++i)
+		for (int i = 0; i < 1; ++i)
 		{
 			AnimatedModel* object = scene->CreateChild<AnimatedModel>();
 			object->SetStatic(true);

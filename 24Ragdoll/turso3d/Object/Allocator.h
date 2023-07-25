@@ -4,7 +4,6 @@
 
 #include <cstddef>
 #include <new>
-#include <iostream>
 
 struct AllocatorBlock;
 struct AllocatorNode;
@@ -74,6 +73,7 @@ public:
             allocator = AllocatorInitialize(sizeof(T));
         T* newObject = static_cast<T*>(AllocatorGet(allocator));
         new(newObject) T();
+        
         return newObject;
     }
     
@@ -84,6 +84,7 @@ public:
             allocator = AllocatorInitialize(sizeof(T));
         T* newObject = static_cast<T*>(AllocatorGet(allocator));
         new(newObject) T(object);
+        
         return newObject;
     }
     

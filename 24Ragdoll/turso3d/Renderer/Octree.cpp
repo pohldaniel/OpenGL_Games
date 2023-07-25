@@ -4,7 +4,6 @@
 #include "../IO/Log.h"
 #include "../Math/RandomTu.h"
 #include "../Math/Ray.h"
-#include "../Thread/ThreadUtils.h"
 #include "DebugRenderer.h"
 #include "Octree.h"
 
@@ -40,9 +39,12 @@ static inline bool CompareDrawables(Drawable* lhs, Drawable* rhs)
 }
 
 /// %Task for octree drawables reinsertion.
-struct ReinsertDrawablesTask : public MemberFunctionTask<Octree> {
+struct ReinsertDrawablesTask : public MemberFunctionTask<Octree>
+{
     /// Construct.
-    ReinsertDrawablesTask(Octree* object_, MemberWorkFunctionPtr function_) : MemberFunctionTask<Octree>(object_, function_) {
+    ReinsertDrawablesTask(Octree* object_, MemberWorkFunctionPtr function_) :
+        MemberFunctionTask<Octree>(object_, function_)
+    {
     }
 
     /// Start pointer.
@@ -211,28 +213,23 @@ void Octree::RegisterObject()
     RegisterAttribute("numLevels", &Octree::NumLevelsAttr, &Octree::SetNumLevelsAttr);
 }
 
-void Octree::Update(unsigned short frameNumber_){
-	
-	if (!IsMainThread()){
-		LOGERROR("Attempted to update octre from outside the main thread");
-		return;
-	}
-	
-	ZoneScoped;
+void Octree::Update(unsigned short frameNumber_)
+{
+    ZoneScoped;
 
     frameNumber = frameNumber_;
 
     // Avoid overhead of threaded update if only a small number of objects to update / reinsert
-    if (updateQueue.size()){
-
+    if (updateQueue.size())
+    {
         SetThreadedUpdate(true);
 
         // Split into smaller tasks to encourage work stealing in case some thread is slower
         size_t nodesPerTask = Max(MIN_THREADED_UPDATE, updateQueue.size() / workQueue->NumThreads() / 4);
         size_t taskIdx = 0;
 
-        for (size_t start = 0; start < updateQueue.size(); start += nodesPerTask){
-
+        for (size_t start = 0; start < updateQueue.size(); start += nodesPerTask)
+        {
             size_t end = start + nodesPerTask;
             if (end > updateQueue.size())
                 end = updateQueue.size();
@@ -246,10 +243,9 @@ void Octree::Update(unsigned short frameNumber_){
 
         numPendingReinsertionTasks.store((int)taskIdx);
         workQueue->QueueTasks(taskIdx, reinterpret_cast<Task**>(&reinsertTasks[0]));
-
-	}else {
-		numPendingReinsertionTasks.store(0);
-	}
+    }
+    else
+        numPendingReinsertionTasks.store(0);
 }
 
 void Octree::FinishUpdate()

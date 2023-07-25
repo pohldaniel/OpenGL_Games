@@ -35,9 +35,11 @@ static const size_t DRAWABLES_PER_BATCH_TASK = 128;
 static const size_t NUM_BOX_INDICES = 36;
 static const float OCCLUSION_MARGIN = 0.1f;
 
-static inline bool CompareDrawableDistances(Drawable* lhs, Drawable* rhs) {
+static inline bool CompareDrawableDistances(Drawable* lhs, Drawable* rhs)
+{
     return lhs->Distance() < rhs->Distance();
 }
+
 
 void ThreadOctantResult::Clear()
 {
@@ -204,18 +206,18 @@ void Renderer::PrepareView(Scene* scene_, CameraTu* camera_, bool drawShadows_, 
     if (!octree)
         return;
 
-	frustum = camera->WorldFrustum();
-	viewMask = camera->ViewMask();
-
     // Framenumber is never 0
     ++frameNumber;
     if (!frameNumber)
         ++frameNumber;
 
 
+	//std::cout << "Frame Number: " << frameNumber << std::endl;
+
     drawShadows = shadowMaps ? drawShadows_ : false;
     useOcclusion = useOcclusion_;
-   
+    frustum = camera->WorldFrustum();
+    viewMask = camera->ViewMask();
 
     // Clear results from last frame
     dirLight = nullptr;
@@ -271,21 +273,21 @@ void Renderer::PrepareView(Scene* scene_, CameraTu* camera_, bool drawShadows_, 
 
     // Keep track of both batch + octant task progress before main batches can be sorted (batch tasks will add to the counter when queued)
     numPendingBatchTasks.store((int)rootLevelOctants.size());
-	numPendingShadowViews[0].store(0);
-	numPendingShadowViews[1].store(0);
+    numPendingShadowViews[0].store(0);
+    numPendingShadowViews[1].store(0);
 
     // Ensure shadowcaster processing doesn't happen before lights have been found and processed, and geometry bounds are known
     // Note: this task is also needed without shadows, as it initiates light grid culling
-	workQueue->AddDependency(processShadowCastersTask, processLightsTask);
-	workQueue->AddDependency(processShadowCastersTask, batchesReadyTask);
+    workQueue->AddDependency(processShadowCastersTask, processLightsTask);
+    workQueue->AddDependency(processShadowCastersTask, batchesReadyTask);
 
     // Find octants in view and their plane masks for node frustum culling. At the same time, find lights and process them
     // When octant collection tasks complete, they queue tasks for collecting batches from those octants.
-	for (size_t i = 0; i < rootLevelOctants.size(); ++i)
-	{
-	    collectOctantsTasks[i]->startOctant = rootLevelOctants[i];
-	    workQueue->AddDependency(processLightsTask, collectOctantsTasks[i]);
-	}
+    for (size_t i = 0; i < rootLevelOctants.size(); ++i)
+    {
+        collectOctantsTasks[i]->startOctant = rootLevelOctants[i];
+        workQueue->AddDependency(processLightsTask, collectOctantsTasks[i]);
+    }
 
     workQueue->QueueTasks(rootLevelOctants.size(), reinterpret_cast<Task**>(&collectOctantsTasks[0]));
 
@@ -407,14 +409,14 @@ void Renderer::RenderOpaque(bool clear)
     clusterTexture->Bind(TU_LIGHTCLUSTERDATA);
     lightDataBuffer->Bind(UB_LIGHTDATA);
 
-	if (clear)
-		graphics->Clear(true, true, IntRect::ZERO, lightEnvironment ? lightEnvironment->FogColor() : DEFAULT_FOG_COLOR);
+	//if (clear)
+	graphics->Clear(true, true, IntRect::ZERO, lightEnvironment ? lightEnvironment->FogColor() : DEFAULT_FOG_COLOR);
 
     RenderBatches(camera, opaqueBatches);
 
     // Render occlusion now after opaques
-	if (useOcclusion)
-		RenderOcclusionQueries();
+	//if (useOcclusion)
+	//   RenderOcclusionQueries();
 }
 
 void Renderer::RenderAlpha()

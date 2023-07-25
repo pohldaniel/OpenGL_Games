@@ -8,9 +8,9 @@
 #include "SpatialNode.h"
 
 #include <tracy/Tracy.hpp>
-#include <iostream>
 
-Scene::Scene() : nextNodeId(1)
+Scene::Scene() :
+    nextNodeId(1)
 {
     // Register self to allow finding by ID
     AddNode(this);
@@ -178,8 +178,8 @@ Node* Scene::FindNode(unsigned id_) const
     return it != nodes.end() ? it->second : nullptr;
 }
 
-void Scene::AddNode(Node* node) {
-
+void Scene::AddNode(Node* node)
+{
     if (!node || node->ParentScene() == this)
         return;
 

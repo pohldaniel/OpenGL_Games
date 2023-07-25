@@ -5,7 +5,6 @@
 #include "../Object/Serializable.h"
 #include "../Math/Quaternion.h"
 
-
 class Node;
 class Octree;
 class Scene;
@@ -144,7 +143,7 @@ public:
     /// Find child nodes that match layer mask.
     void FindChildrenByLayer(std::vector<Node*>& result, unsigned layerMask, bool recursive = false) const;
     /// Return first child node of specified type, template version.
-	template <class T> T* FindChild(bool recursive = false) const { return static_cast<T*>(FindChildOfType(T::TypeStatic(), recursive));};
+    template <class T> T* FindChild(bool recursive = false) const { return static_cast<T*>(FindChildOfType(T::TypeStatic(), recursive)); }
     /// Return first child node that matches type and name, template version.
     template <class T> T* FindChild(const std::string& childName, bool recursive = false) const { return static_cast<T*>(FindChildOfType(T::TypeStatic(), childName, recursive)); }
     /// Return first child node that matches type and name, template version.
@@ -168,18 +167,17 @@ public:
     /// Skip the binary data of a node hierarchy, in case the node could not be created.
     static void SkipHierarchy(Stream& source);
 
-
+protected:
     /// Handle being assigned to a new parent node.
     virtual void OnParentSet(Node* newParent, Node* oldParent);
     /// Handle being assigned to a new scene.
-    //virtual void OnSceneSet(Scene* newScene, Scene* oldScene);
-	virtual void OnSceneSet(Scene* newScene, Scene* oldScene, Octree* octree);
+    virtual void OnSceneSet(Scene* newScene, Scene* oldScene);
     /// Handle the enabled status changing.
     virtual void OnEnabledChanged(bool newEnabled);
     /// Handle the layer changing.
     virtual void OnLayerChanged(unsigned char newLayer);
 
-
+private:
     /// Node implementation.
     NodeImpl* impl;
     /// Parent node.
@@ -189,7 +187,7 @@ public:
     /// Layer number.
     unsigned char layer;
 
-
+protected:
     /// Child nodes.
     std::vector<SharedPtr<Node> > children;
 };

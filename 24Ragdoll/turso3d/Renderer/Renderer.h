@@ -50,7 +50,6 @@ static const size_t TU_FACESELECTION1 = 10;
 static const size_t TU_FACESELECTION2 = 11;
 static const size_t TU_LIGHTCLUSTERDATA = 12;
 
-
 /// Per-thread results for octant collection.
 struct ThreadOctantResult
 {
@@ -197,8 +196,8 @@ public:
     /// Set global depth bias multipiers for shadow maps.
     void SetShadowDepthBiasMul(float depthBiasMul, float slopeScaleBiasMul);
     /// Prepare view for rendering. This will utilize worker threads.
-    void PrepareView(Scene* scene, CameraTu* camera, bool drawShadows, bool useOcclusion);
 	void PrepareView(CameraTu* camera_);
+    void PrepareView(Scene* scene, CameraTu* camera, bool drawShadows, bool useOcclusion);
     /// Render shadowmaps before rendering the view. Last shadow framebuffer will be left bound.
     void RenderShadowMaps();
     /// Clear with fog color and far depth (optional), then render opaque objects into the currently set framebuffer and viewport.
@@ -210,6 +209,7 @@ public:
 
     /// Return a shadow map texture by index for debugging.
     TextureTu* ShadowMapTexture(size_t index) const;
+
 
     /// Collect octants and lights from the octree recursively. Queue batch collection tasks while ongoing.
     void CollectOctantsAndLights(Octant* octant, ThreadOctantResult& result, unsigned char planeMask = 0x3f);

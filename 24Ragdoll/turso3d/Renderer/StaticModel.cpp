@@ -108,7 +108,8 @@ void StaticModelDrawable::OnRaycast(std::vector<RaycastResult>& dest, const Ray&
     }
 }
 
-StaticModel::StaticModel() {
+StaticModel::StaticModel()
+{
     drawable = drawableAllocator.Allocate();
     drawable->SetOwner(this);
 }
