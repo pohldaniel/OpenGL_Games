@@ -101,7 +101,7 @@ private:
 	bool m_initUi = true;
 	bool m_drawUi = true;
 
-
+	Octree* m_octree;
 	AutoPtr<WorkQueue> workQueue;
 	AutoPtr<Profiler> profiler;
 	AutoPtr<Log> log;
@@ -146,27 +146,19 @@ private:
 	std::vector<AnimatedModel*> animatingObjects;
 
 	EventTu eventTu;
-	BatchQueue opaqueBatches;
-	Octree* m_octree;
-
-	std::vector<Octant*> rootLevelOctants;
-	
-	std::vector<Matrix3x4> instanceTransforms;
-	BoundingBox geometryBounds;
-
-	AutoPtr<CollectOctantsTask2> collectOctantsTasks[NUM_OCTANT_TASKS];
-	AutoPtr<CullLightsTask> cullLightsTasks[NUM_CLUSTER_Z];
-	AutoArrayPtr<ThreadOctantResult2> octantResults;
-
-
-	std::atomic<int> numPendingBatchTasks;
-
 	void CollectOctantsWork(Task* task_, unsigned int idx);
-	void CollectBatchesWork(Task* task, unsigned threadIndex);
-
-	unsigned short numTasks = 5;
-
 	void CollectOctantsAndLights(Octant* octant, ThreadOctantResult2& result, unsigned char planeMask = 0x3f);
 
-	void UpdateInstanceTransforms(const std::vector<Matrix3x4>& transforms);
+
+	std::vector<Octant*> rootLevelOctants;
+	AutoArrayPtr<ThreadOctantResult2> octantResults;
+	BatchQueue opaqueBatches;
+	std::atomic<int> numPendingBatchTasks;
+
+	AutoPtr<CollectOctantsTask2> collectOctantsTasks[NUM_OCTANT_TASKS];
+	AutoPtr<UniformBuffer> perViewDataBuffer;
+	PerViewUniforms perViewData;
+
+	
+
 };

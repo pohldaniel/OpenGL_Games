@@ -228,6 +228,7 @@
     <ClCompile Include="lugaru\_Globals.cpp" />
     <ClCompile Include="Menu.cpp" />
     <ClCompile Include="MousePicker.cpp" />
+    <ClCompile Include="OctreeInterface.cpp" />
     <ClCompile Include="PhysicsCar.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="Ragdoll.cpp" />
@@ -405,6 +406,7 @@
     <ClInclude Include="lugaru\Utils\private.h" />
     <ClInclude Include="Menu.h" />
     <ClInclude Include="MousePicker.h" />
+    <ClInclude Include="OctreeInterface.h" />
     <ClInclude Include="PhysicsCar.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="Ragdoll.h" />

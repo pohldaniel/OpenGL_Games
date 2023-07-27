@@ -43,8 +43,7 @@ TursoInterface::TursoInterface(StateMachine& machine) : State(machine, CurrentSt
 	renderer = new Renderer();
 	debugRenderer = new DebugRenderer();
 
-	renderer->SetupShadowMaps(1024, 2048, FMT_D16);
-
+	
 	// Rendertarget textures
 	viewFbo = new FrameBufferTu();
 	viewMRTFbo = new FrameBufferTu();
@@ -104,6 +103,10 @@ TursoInterface::TursoInterface(StateMachine& machine) : State(machine, CurrentSt
 
 	SubscribeToEvent(eventTu, new EventHandlerImpl<TursoInterface, EventTu>(this, &TursoInterface::HandleUpdate));
 
+	perViewDataBuffer = new UniformBuffer();
+	perViewDataBuffer->Define(USAGE_DYNAMIC, sizeof(PerViewUniforms));
+
+	octantResults = new ThreadOctantResult2[NUM_OCTANT_TASKS];
 	for (size_t i = 0; i < NUM_OCTANTS + 1; ++i) {
 		collectOctantsTasks[i] = new CollectOctantsTask2(this, &TursoInterface::CollectOctantsWork);
 		collectOctantsTasks[i]->resultIdx = i;
@@ -219,54 +222,15 @@ void TursoInterface::update() {
 	}
 
 	SendEvent(eventTu);
+	updateOctree();
 }
 
 void TursoInterface::renderDirect() {
 
-	renderer->rootLevelOctants.clear();
-	renderer->opaqueBatches.Clear();
-
-	renderer->instanceTransforms.clear();
-	renderer->geometryBounds.Undefine();
-
-	for (size_t i = 0; i < NUM_OCTANT_TASKS; ++i)
-		renderer->octantResults[i].Clear();
-
-	// Process moved / animated objects' octree reinsertions
-	m_octree->Update(0);
-	m_octree->FinishUpdate();
-
-	// Enable threaded update during geometry / light gathering in case nodes' OnPrepareRender() causes further reinsertion queuing
-	m_octree->SetThreadedUpdate(workQueue->NumThreads() > 1);
-
-	// Find the starting points for octree traversal. Include the root if it contains drawables that didn't fit elsewhere
-	Octant* rootOctant = m_octree->Root();
-	if (rootOctant->Drawables().size())
-		renderer->rootLevelOctants.push_back(rootOctant);
-
-	for (size_t i = 0; i < NUM_OCTANTS; ++i){
-		if (rootOctant->Child(i)) {
-			renderer->rootLevelOctants.push_back(rootOctant->Child(i));
-		}
-	}
-
-	renderer->numPendingBatchTasks.store((int)renderer->rootLevelOctants.size());
-
-	for (size_t i = 0; i < renderer->rootLevelOctants.size(); ++i){
-		renderer->collectOctantsTasks[i]->startOctant = renderer->rootLevelOctants[i];
-	}
-
-	workQueue->QueueTasks(renderer->rootLevelOctants.size(), reinterpret_cast<Task**>(&renderer->collectOctantsTasks[0]));
-
-	while (renderer->numPendingBatchTasks.load() > 0)
-		workQueue->TryComplete();
-
-	workQueue->Complete();
-	m_octree->SetThreadedUpdate(false);
-
+	
 
 	debugRenderer->SetView(camera);
-	renderer->UpdateInstanceTransforms(renderer->instanceTransforms);
+
 
 	glClearColor(DEFAULT_FOG_COLOR.r, DEFAULT_FOG_COLOR.g, DEFAULT_FOG_COLOR.b, DEFAULT_FOG_COLOR.a);
 	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
@@ -277,23 +241,23 @@ void TursoInterface::renderDirect() {
 	//fill in uniforms
 	float nearClip = camera->NearClip();
 	float farClip = camera->FarClip();
-	renderer->perViewData.projectionMatrix = camera->ProjectionMatrix();
-	renderer->perViewData.viewMatrix = camera->ViewMatrix();
-	renderer->perViewData.viewProjMatrix = camera->ProjectionMatrix() * camera->ViewMatrix();
-	renderer->perViewData.depthParameters = Vector4(nearClip, farClip, camera->IsOrthographic() ? 0.5f : 0.0f, camera->IsOrthographic() ? 0.5f : 1.0f / farClip);
-	renderer->perViewData.cameraPosition = Vector4(camera->WorldPosition(), 1.0f);
-	renderer->perViewData.ambientColor = DEFAULT_AMBIENT_COLOR;
-	renderer->perViewData.fogColor = DEFAULT_FOG_COLOR;
+	perViewData.projectionMatrix = camera->ProjectionMatrix();
+	perViewData.viewMatrix = camera->ViewMatrix();
+	perViewData.viewProjMatrix = camera->ProjectionMatrix() * camera->ViewMatrix();
+	perViewData.depthParameters = Vector4(nearClip, farClip, camera->IsOrthographic() ? 0.5f : 0.0f, camera->IsOrthographic() ? 0.5f : 1.0f / farClip);
+	perViewData.cameraPosition = Vector4(camera->WorldPosition(), 1.0f);
+	perViewData.ambientColor = DEFAULT_AMBIENT_COLOR;
+	perViewData.fogColor = DEFAULT_FOG_COLOR;
 	float fogStart = DEFAULT_FOG_START;
 	float fogEnd = DEFAULT_FOG_END;
 	float fogRange = Max(fogEnd - fogStart, M_EPSILON);
-	renderer->perViewData.fogParameters = Vector4(fogEnd / farClip, farClip / fogRange, 0.0f, 0.0f);
-	renderer->perViewData.dirLightDirection = Vector4::ZERO;
-	renderer->perViewData.dirLightColor = Color::BLACK;
-	renderer->perViewData.dirLightShadowParameters = Vector4::ONE;
-	renderer->perViewDataBuffer->SetData(0, sizeof(PerViewUniforms), &renderer->perViewData);
+	perViewData.fogParameters = Vector4(fogEnd / farClip, farClip / fogRange, 0.0f, 0.0f);
+	perViewData.dirLightDirection = Vector4::ZERO;
+	perViewData.dirLightColor = Color::BLACK;
+	perViewData.dirLightShadowParameters = Vector4::ONE;
+	perViewDataBuffer->SetData(0, sizeof(PerViewUniforms), &perViewData);
 
-	renderer->perViewDataBuffer->Bind(UB_PERVIEWDATA);
+	perViewDataBuffer->Bind(UB_PERVIEWDATA);
 
 	if(drawDebug) {
 		DebugRenderer* debug = Subsystem<DebugRenderer>();
@@ -314,162 +278,7 @@ void TursoInterface::renderDirect() {
 void TursoInterface::renderDirect2() {
 	
 
-	renderer->PrepareView(camera);
-
-	FrustumTu frustum = camera->WorldFrustum();
-	rootLevelOctants.clear();
-	opaqueBatches.Clear();
-	instanceTransforms.clear();
-	geometryBounds.Undefine();
-
-	for (size_t i = 0; i < NUM_OCTANT_TASKS; ++i)
-		octantResults[i].Clear();
 	
-	// Process moved / animated objects' octree reinsertions
-	m_octree->Update(0);
-	m_octree->FinishUpdate();
-	m_octree->SetThreadedUpdate(workQueue->NumThreads() > 1);
-
-	// Find the starting points for octree traversal. Include the root if it contains drawables that didn't fit elsewhere
-	Octant* rootOctant = m_octree->Root();
-	if (rootOctant->Drawables().size())
-		rootLevelOctants.push_back(rootOctant);
-
-	for (size_t i = 0; i < NUM_OCTANTS; ++i)
-	{
-		if (rootOctant->Child(i))
-			rootLevelOctants.push_back(rootOctant->Child(i));
-	}
-
-	// Keep track of both batch + octant task progress before main batches can be sorted (batch tasks will add to the counter when queued)
-	numPendingBatchTasks.store((int)rootLevelOctants.size());
-
-	for (size_t i = 0; i < rootLevelOctants.size(); ++i){
-		collectOctantsTasks[i]->startOctant = rootLevelOctants[i];
-
-	}
-
-	workQueue->QueueTasks(rootLevelOctants.size(), reinterpret_cast<Task**>(&collectOctantsTasks[0]));
-
-	// Execute tasks until can sort the main batches. Perform that in the main thread to potentially run faster
-	while (numPendingBatchTasks.load() > 0)
-		workQueue->TryComplete();
-
-	//renderer->SortMainBatches();
-
-	// Finish remaining view preparation tasks (shadowcaster batches, light culling to frustum grid)
-	workQueue->Complete();
-
-	// No more threaded reinsertion will take place
-	m_octree->SetThreadedUpdate(false);
-
-
-	debugRenderer->SetView(camera);
-	renderer->UpdateInstanceTransforms(instanceTransforms);
-	
-	glClearColor(DEFAULT_FOG_COLOR.r, DEFAULT_FOG_COLOR.g, DEFAULT_FOG_COLOR.b, DEFAULT_FOG_COLOR.a);
-	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-	glDepthMask(GL_TRUE);
-
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	//fill in uniforms
-	float nearClip = camera->NearClip();
-	float farClip = camera->FarClip();
-	renderer->perViewData.projectionMatrix = camera->ProjectionMatrix();
-	renderer->perViewData.viewMatrix = camera->ViewMatrix();
-	renderer->perViewData.viewProjMatrix = camera->ProjectionMatrix() * camera->ViewMatrix();
-	renderer->perViewData.depthParameters = Vector4(nearClip, farClip, camera->IsOrthographic() ? 0.5f : 0.0f, camera->IsOrthographic() ? 0.5f : 1.0f / farClip);
-	renderer->perViewData.cameraPosition = Vector4(camera->WorldPosition(), 1.0f);
-	renderer->perViewData.ambientColor = DEFAULT_AMBIENT_COLOR;
-	renderer->perViewData.fogColor = DEFAULT_FOG_COLOR;
-	float fogStart = DEFAULT_FOG_START;
-	float fogEnd = DEFAULT_FOG_END;
-	float fogRange = Max(fogEnd - fogStart, M_EPSILON);
-	renderer->perViewData.fogParameters = Vector4(fogEnd / farClip, farClip / fogRange, 0.0f, 0.0f);
-	renderer->perViewData.dirLightDirection = Vector4::ZERO;
-	renderer->perViewData.dirLightColor = Color::BLACK;
-	renderer->perViewData.dirLightShadowParameters = Vector4::ONE;
-	renderer->perViewDataBuffer->SetData(0, sizeof(PerViewUniforms), &renderer->perViewData);
-
-	renderer->perViewDataBuffer->Bind(UB_PERVIEWDATA);
-
-
-	const BatchQueue& queue = renderer->opaqueBatches;
-
-	renderer->lastMaterial = nullptr;
-	renderer->lastPass = nullptr;
-
-	for (auto it = queue.batches.begin(); it != queue.batches.end(); ++it) {
-		const Batch& batch = *it;
-		unsigned char geometryBits = batch.programBits & SP_GEOMETRYBITS;
-
-		ShaderProgram* program = batch.pass->GetShaderProgram(batch.programBits);
-		if (!program->Bind())
-			continue;
-
-		MaterialTu* material = batch.pass->Parent();
-		if (batch.pass != renderer->lastPass) {
-			if (material != renderer->lastMaterial) {
-				for (size_t i = 0; i < MAX_MATERIAL_TEXTURE_UNITS; ++i) {
-					TextureTu* texture = material->GetTexture(i);
-					if (texture)
-						texture->Bind(i);
-				}
-
-				UniformBuffer* materialUniforms = material->GetUniformBuffer();
-				if (materialUniforms)
-					materialUniforms->Bind(UB_MATERIALDATA);
-
-				renderer->lastMaterial = material;
-			}
-
-			CullMode cullMode = material->GetCullMode();
-			if (camera->UseReverseCulling()) {
-				if (cullMode == CULL_BACK)
-					cullMode = CULL_FRONT;
-				else if (cullMode == CULL_FRONT)
-					cullMode = CULL_BACK;
-			}
-
-			graphics->SetRenderState(batch.pass->GetBlendMode(), cullMode, batch.pass->GetDepthTest(), batch.pass->GetColorWrite(), batch.pass->GetDepthWrite());
-
-			renderer->lastPass = batch.pass;
-		}
-
-		Geometry* geometry = batch.geometry;
-		VertexBuffer* vb = geometry->vertexBuffer;
-		IndexBuffer* ib = geometry->indexBuffer;
-		vb->Bind(program->Attributes());
-		if (ib)
-			ib->Bind();
-
-		if (geometryBits == GEOM_INSTANCED) {
-
-			if (ib)
-				graphics->DrawIndexedInstanced(PT_TRIANGLE_LIST, geometry->drawStart, geometry->drawCount, renderer->instanceVertexBuffer, batch.instanceStart, batch.instanceCount);
-			else
-				graphics->DrawInstanced(PT_TRIANGLE_LIST, geometry->drawStart, geometry->drawCount, renderer->instanceVertexBuffer, batch.instanceStart, batch.instanceCount);
-
-			it += batch.instanceCount - 1;
-		}else {
-
-			if (!geometryBits)
-				graphics->SetUniform(program, U_WORLDMATRIX, *batch.worldTransform);
-			else
-				batch.drawable->OnRender(program, batch.geomIndex);
-
-			if (ib)
-				graphics->DrawIndexed(PT_TRIANGLE_LIST, geometry->drawStart, geometry->drawCount);
-			else
-				graphics->Draw(PT_TRIANGLE_LIST, geometry->drawStart, geometry->drawCount);
-		}
-	}
-
-	if(drawDebug)
-		renderer->RenderDebug();
-
-	debugRenderer->Render();
 }
 
 void TursoInterface::render() {
@@ -816,75 +625,57 @@ void TursoInterface::HandleUpdate(EventTu& eventType) {
 }
 
 void TursoInterface::CollectOctantsWork(Task* task_, unsigned int idx) {
-	
 
 	CollectOctantsTask* task = static_cast<CollectOctantsTask*>(task_);
 
-	// Go through octants in this task's octree branch
 	Octant* octant = task->startOctant;
 	ThreadOctantResult2& result = octantResults[task->resultIdx];
 
 	CollectOctantsAndLights(octant, result);
-
-	// Queue final batch task for leftover nodes if needed
-	/*if (result.drawableAcc){
-		if (result.collectBatchesTasks.size() <= result.batchTaskIdx)
-			result.collectBatchesTasks.push_back(new CollectBatchesTask2(this, &TursoInterface::CollectBatchesWork));
-
-		CollectBatchesTask2* batchTask = result.collectBatchesTasks[result.batchTaskIdx];
-		batchTask->octants.clear();
-		batchTask->octants.insert(batchTask->octants.end(), result.octants.begin() + result.taskOctantIdx, result.octants.end());
-		numPendingBatchTasks.fetch_add(1);
-		workQueue->QueueTask(batchTask);
-	}*/
-
 	numPendingBatchTasks.fetch_add(-1);
 }
 
-void TursoInterface::CollectBatchesWork(Task* task_, unsigned threadIndex) {
 
-}
 
 void TursoInterface::updateOctree() {
-	rootLevelOctants.clear();
-	opaqueBatches.Clear();
-	
-	
-	for (size_t i = 0; i < NUM_OCTANT_TASKS; ++i)
-		octantResults[i].Clear();
-	
+	renderer->rootLevelOctants.clear();
+	renderer->opaqueBatches.Clear();
 
+	for (size_t i = 0; i < NUM_OCTANT_TASKS; ++i)
+		renderer->octantResults[i].Clear();
+
+	// Process moved / animated objects' octree reinsertions
 	m_octree->Update(0);
 	m_octree->FinishUpdate();
 
-
+	// Enable threaded update during geometry / light gathering in case nodes' OnPrepareRender() causes further reinsertion queuing
 	m_octree->SetThreadedUpdate(workQueue->NumThreads() > 1);
+
+	// Find the starting points for octree traversal. Include the root if it contains drawables that didn't fit elsewhere
 	Octant* rootOctant = m_octree->Root();
 	if (rootOctant->Drawables().size())
-		rootLevelOctants.push_back(rootOctant);
+		renderer->rootLevelOctants.push_back(rootOctant);
 
-	for (size_t i = 0; i < NUM_OCTANTS; ++i){
-		if (rootOctant->Child(i))
-			rootLevelOctants.push_back(rootOctant->Child(i));
+	for (size_t i = 0; i < NUM_OCTANTS; ++i) {
+		if (rootOctant->Child(i)) {
+			renderer->rootLevelOctants.push_back(rootOctant->Child(i));
+		}
 	}
 
-	numPendingBatchTasks.store((int)rootLevelOctants.size());
+	renderer->numPendingBatchTasks.store((int)renderer->rootLevelOctants.size());
 
-	for (size_t i = 0; i < rootLevelOctants.size(); ++i){
-		collectOctantsTasks[i]->startOctant = rootLevelOctants[i];
-
+	for (size_t i = 0; i < renderer->rootLevelOctants.size(); ++i) {
+		renderer->collectOctantsTasks[i]->startOctant = renderer->rootLevelOctants[i];
 	}
 
-	workQueue->QueueTasks(rootLevelOctants.size(), reinterpret_cast<Task**>(&collectOctantsTasks[0]));
+	workQueue->QueueTasks(renderer->rootLevelOctants.size(), reinterpret_cast<Task**>(&renderer->collectOctantsTasks[0]));
 
-	// Execute tasks until can sort the main batches. Perform that in the main thread to potentially run faster
-	while (numPendingBatchTasks.load() > 0)
+	while (renderer->numPendingBatchTasks.load() > 0)
 		workQueue->TryComplete();
 
 	workQueue->Complete();
-
-	// No more threaded reinsertion will take place
 	m_octree->SetThreadedUpdate(false);
+
 }
 
 void TursoInterface::CollectOctantsAndLights(Octant* octant, ThreadOctantResult2& result, unsigned char planeMask) {
@@ -895,16 +686,31 @@ void TursoInterface::CollectOctantsAndLights(Octant* octant, ThreadOctantResult2
 		//planeMask = frustum.IsInsideMasked(octantBox, planeMask);
 		if (planeMask == 0xff) {
 			// If octant becomes frustum culled, reset its visibility for when it comes back to view, including its children
-			if (useOcclusion && octant->Visibility() != VIS_OUTSIDE_FRUSTUM)
+			if (false && octant->Visibility() != VIS_OUTSIDE_FRUSTUM)
 				octant->SetVisibility(VIS_OUTSIDE_FRUSTUM, true);
 			return;
 		}
 	}
 
+	// When occlusion not in use, reset all traversed octants to visible-unknown
 	octant->SetVisibility(VIS_VISIBLE_UNKNOWN, false);
-	
-	if (octant != m_octree->Root() && octant->HasChildren()){
-		for (size_t i = 0; i < NUM_OCTANTS; ++i){
+
+
+	const std::vector<Drawable*>& drawables = octant->Drawables();
+
+	for (auto it = drawables.begin(); it != drawables.end(); ++it) {
+		Drawable* drawable = *it;
+
+		if (!drawable->TestFlag(DF_LIGHT)) {
+			result.octants.push_back(std::make_pair(octant, planeMask));
+			result.drawableAcc += drawables.end() - it;
+		}
+
+	}
+
+	// Root octant is handled separately. Otherwise recurse into child octants
+	if (octant != m_octree->Root() && octant->HasChildren()) {
+		for (size_t i = 0; i < NUM_OCTANTS; ++i) {
 			if (octant->Child(i))
 				CollectOctantsAndLights(octant->Child(i), result, planeMask);
 		}

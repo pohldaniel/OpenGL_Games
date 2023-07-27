@@ -615,6 +615,9 @@
     <ClCompile Include="Tracy\TracyClient.cpp">
       <Filter>Tracy</Filter>
     </ClCompile>
+    <ClCompile Include="OctreeInterface.cpp">
+      <Filter>Source Files\States</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h">
@@ -1146,6 +1149,9 @@
       <Filter>turso3d\Time</Filter>
     </ClInclude>
     <ClInclude Include="Turso.h">
+      <Filter>Source Files\States</Filter>
+    </ClInclude>
+    <ClInclude Include="OctreeInterface.h">
       <Filter>Source Files\States</Filter>
     </ClInclude>
   </ItemGroup>
