@@ -7,7 +7,6 @@
 #include <GL/glew.h>
 #include <cstring>
 #include <tracy/Tracy.hpp>
-#include <iostream>
 
 static IndexBuffer* boundIndexBuffer = nullptr;
 static size_t boundIndexSize = 0;

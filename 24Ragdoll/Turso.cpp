@@ -36,14 +36,14 @@ TursoInterface::TursoInterface(StateMachine& machine) : State(machine, CurrentSt
 	// Create the Graphics subsystem to open the application window and initialize OpenGL
 	graphics = new Graphics("Turso3D renderer test", IntVector2(Application::Width, Application::Height));
 	graphics->Initialize();
-	graphics->BindDefaultVao(true);
 
 	// Create subsystems that depend on the application window / OpenGL
 	//input = new InputTu(graphics->Window());
 	renderer = new Renderer();
 	debugRenderer = new DebugRenderer();
 
-	
+	renderer->SetupShadowMaps(1024, 2048, FMT_D16);
+
 	// Rendertarget textures
 	viewFbo = new FrameBufferTu();
 	viewMRTFbo = new FrameBufferTu();
@@ -103,14 +103,7 @@ TursoInterface::TursoInterface(StateMachine& machine) : State(machine, CurrentSt
 
 	SubscribeToEvent(eventTu, new EventHandlerImpl<TursoInterface, EventTu>(this, &TursoInterface::HandleUpdate));
 
-	perViewDataBuffer = new UniformBuffer();
-	perViewDataBuffer->Define(USAGE_DYNAMIC, sizeof(PerViewUniforms));
 
-	octantResults = new ThreadOctantResult2[NUM_OCTANT_TASKS];
-	for (size_t i = 0; i < NUM_OCTANTS + 1; ++i) {
-		collectOctantsTasks[i] = new CollectOctantsTask2(this, &TursoInterface::CollectOctantsWork);
-		collectOctantsTasks[i]->resultIdx = i;
-	}
 }
 
 TursoInterface::~TursoInterface() {
@@ -222,70 +215,12 @@ void TursoInterface::update() {
 	}
 
 	SendEvent(eventTu);
-	updateOctree();
-}
-
-void TursoInterface::renderDirect() {
-
-	
-
-	debugRenderer->SetView(camera);
-
-
-	glClearColor(DEFAULT_FOG_COLOR.r, DEFAULT_FOG_COLOR.g, DEFAULT_FOG_COLOR.b, DEFAULT_FOG_COLOR.a);
-	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-	glDepthMask(GL_TRUE);
-
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	//fill in uniforms
-	float nearClip = camera->NearClip();
-	float farClip = camera->FarClip();
-	perViewData.projectionMatrix = camera->ProjectionMatrix();
-	perViewData.viewMatrix = camera->ViewMatrix();
-	perViewData.viewProjMatrix = camera->ProjectionMatrix() * camera->ViewMatrix();
-	perViewData.depthParameters = Vector4(nearClip, farClip, camera->IsOrthographic() ? 0.5f : 0.0f, camera->IsOrthographic() ? 0.5f : 1.0f / farClip);
-	perViewData.cameraPosition = Vector4(camera->WorldPosition(), 1.0f);
-	perViewData.ambientColor = DEFAULT_AMBIENT_COLOR;
-	perViewData.fogColor = DEFAULT_FOG_COLOR;
-	float fogStart = DEFAULT_FOG_START;
-	float fogEnd = DEFAULT_FOG_END;
-	float fogRange = Max(fogEnd - fogStart, M_EPSILON);
-	perViewData.fogParameters = Vector4(fogEnd / farClip, farClip / fogRange, 0.0f, 0.0f);
-	perViewData.dirLightDirection = Vector4::ZERO;
-	perViewData.dirLightColor = Color::BLACK;
-	perViewData.dirLightShadowParameters = Vector4::ONE;
-	perViewDataBuffer->SetData(0, sizeof(PerViewUniforms), &perViewData);
-
-	perViewDataBuffer->Bind(UB_PERVIEWDATA);
-
-	if(drawDebug) {
-		DebugRenderer* debug = Subsystem<DebugRenderer>();
-
-		for (size_t i = 0; i < renderer->rootLevelOctants.size(); ++i) {
-			const ThreadOctantResult& result = renderer->octantResults[i];
-
-			for (auto oIt = result.octants.begin(); oIt != result.octants.end(); ++oIt) {
-				Octant* octant = oIt->first;
-				octant->OnRenderDebug(debug);
-			}
-		}
-	}
-
-	debugRenderer->Render();
-}
-
-void TursoInterface::renderDirect2() {
-	
-
-	
 }
 
 void TursoInterface::render() {
-	renderDirect();
-	
+		
 	// Collect geometries and lights in frustum. Also set debug renderer to use the correct camera view
-	/*{
+	{
 		PROFILE(PrepareView);
 		renderer->PrepareView(scene, camera, shadowMode > 0, useOcclusion);
 		debugRenderer->SetView(camera);
@@ -396,7 +331,7 @@ void TursoInterface::render() {
 		graphics->Present();
 	}
 
-	FrameMark;*/
+	FrameMark;
 
 	if (m_drawUi)
 		renderUi();
@@ -507,10 +442,9 @@ void TursoInterface::CreateScene(Scene* scene, CameraTu* camera, int preset)
 	ResourceCache* cache = ObjectTu::Subsystem<ResourceCache>();
 
 	scene->Clear();
-	scene->CreateChild<Octree>("octree");
-	m_octree = scene->FindChild<Octree>();
-	//m_octree = new Octree();
+	scene->CreateChild<Octree>();
 	LightEnvironment* lightEnvironment = scene->CreateChild<LightEnvironment>();
+
 	SetRandomSeed(1);
 
 	// Preset 0: occluders, static meshes and many local shadowcasting lights in addition to ambient light
@@ -519,32 +453,97 @@ void TursoInterface::CreateScene(Scene* scene, CameraTu* camera, int preset)
 		lightEnvironment->SetAmbientColor(Color(0.3f, 0.3f, 0.3f));
 		camera->SetFarClip(1000.0f);
 
-
+		for (int y = -55; y <= 55; ++y)
 		{
-			StaticModel* model = new StaticModel();
-			m_octree->QueueUpdate(model->GetDrawable());
-			model->SetStatic(true);
-			model->SetPosition(Vector3(0, -0.05f, 0));
-			model->SetScale(Vector3(100.0f, 0.1f, 100.0f));
-			model->SetModel(cache->LoadResource<Model>("Box.mdl"));
-			model->SetMaterial(cache->LoadResource<MaterialTu>("Stone.json"));
+			for (int x = -55; x <= 55; ++x)
+			{
+				StaticModel* object = scene->CreateChild<StaticModel>();
+				object->SetStatic(true);
+				object->SetPosition(Vector3(10.5f * x, -0.05f, 10.5f * y));
+				object->SetScale(Vector3(10.0f, 0.1f, 10.0f));
+				object->SetModel(cache->LoadResource<Model>("Box.mdl"));
+				object->SetMaterial(cache->LoadResource<MaterialTu>("Stone.json"));
+			}
+		}
+
+		for (unsigned i = 0; i < 10000; ++i)
+		{
+			StaticModel* object = scene->CreateChild<StaticModel>();
+			object->SetStatic(true);
+			object->SetPosition(Vector3(Random() * 1000.0f - 500.0f, 0.0f, Random() * 1000.0f - 500.0f));
+			object->SetScale(1.5f);
+			object->SetModel(cache->LoadResource<Model>("Mushroom.mdl"));
+			object->SetMaterial(cache->LoadResource<MaterialTu>("Mushroom.json"));
+			object->SetCastShadows(true);
+			object->SetLodBias(2.0f);
+			object->SetMaxDistance(600.0f);
+		}
+
+		Vector3 quadrantCenters[] =
+		{
+			Vector3(-290.0f, 0.0f, -290.0f),
+			Vector3(290.0f, 0.0f, -290.0f),
+			Vector3(-290.0f, 0.0f, 290.0f),
+			Vector3(290.0f, 0.0f, 290.0f),
+		};
+
+		std::vector<Light*> lights;
+
+		for (unsigned i = 0; i < 100; ++i)
+		{
+			Light* light = scene->CreateChild<Light>();
+			light->SetStatic(true);
+			light->SetLightType(LIGHT_POINT);
+			light->SetCastShadows(true);
+			Vector3 colorVec = 2.0f * Vector3(Random(), Random(), Random()).Normalized();
+			light->SetColor(Color(colorVec.x, colorVec.y, colorVec.z, 0.5f));
+			light->SetRange(40.0f);
+			light->SetShadowMapSize(256);
+			light->SetShadowMaxDistance(200.0f);
+			light->SetMaxDistance(900.0f);
+
+			for (;;)
+			{
+				Vector3 newPos = quadrantCenters[i % 4] + Vector3(Random() * 500.0f - 250.0f, 10.0f, Random() * 500.0f - 250.0f);
+				bool posOk = true;
+
+				for (unsigned j = 0; j < lights.size(); ++j)
+				{
+					if ((newPos - lights[j]->Position()).Length() < 80.0f)
+					{
+						posOk = false;
+						break;
+					}
+				}
+
+				if (posOk)
+				{
+					light->SetPosition(newPos);
+					break;
+				}
+			}
+
+			lights.push_back(light);
 		}
 
 		{
-			AnimatedModel* object = new AnimatedModel();
-			m_octree->QueueUpdate(object->GetDrawable());
-			static_cast<AnimatedModelDrawable*>(object->GetDrawable())->SetOctree(m_octree);
-
+			StaticModel* object = scene->CreateChild<StaticModel>();
 			object->SetStatic(true);
-			object->SetPosition(Vector3(Random() * 90.0f - 45.0f, 0.0f, Random() * 90.0f - 45.0f));
-			object->SetRotation(QuaternionTu(Random(360.0f), Vector3::UP));
-			object->SetModel(cache->LoadResource<Model>("Jack.mdl"));
+			object->SetPosition(Vector3(0.0f, 25.0f, 0.0f));
+			object->SetScale(Vector3(1165.0f, 50.0f, 1.0f));
+			object->SetModel(cache->LoadResource<Model>("Box.mdl"));
+			object->SetMaterial(cache->LoadResource<MaterialTu>("Stone.json"));
 			object->SetCastShadows(true);
-			object->SetMaxDistance(600.0f);
-			AnimationState* state = object->AddAnimationState(cache->LoadResource<Animation>("Jack_Walk.ani"));
-			state->SetWeight(1.0f);
-			state->SetLooped(true);
-			animatingObjects.push_back(object);
+		}
+
+		{
+			StaticModel* object = scene->CreateChild<StaticModel>();
+			object->SetStatic(true);
+			object->SetPosition(Vector3(0.0f, 25.0f, 0.0f));
+			object->SetScale(Vector3(1.0f, 50.0f, 1165.0f));
+			object->SetModel(cache->LoadResource<Model>("Box.mdl"));
+			object->SetMaterial(cache->LoadResource<MaterialTu>("Stone.json"));
+			object->SetCastShadows(true);
 		}
 	}
 	// Preset 1: high number of animating cubes
@@ -622,104 +621,4 @@ void TursoInterface::CreateScene(Scene* scene, CameraTu* camera, int preset)
 
 void TursoInterface::HandleUpdate(EventTu& eventType) {
 	//std::cout << "Hello from Event: " << std::endl;
-}
-
-void TursoInterface::CollectOctantsWork(Task* task_, unsigned int idx) {
-
-	CollectOctantsTask* task = static_cast<CollectOctantsTask*>(task_);
-
-	Octant* octant = task->startOctant;
-	ThreadOctantResult2& result = octantResults[task->resultIdx];
-
-	CollectOctantsAndLights(octant, result);
-	numPendingBatchTasks.fetch_add(-1);
-}
-
-
-
-void TursoInterface::updateOctree() {
-	renderer->rootLevelOctants.clear();
-	renderer->opaqueBatches.Clear();
-
-	for (size_t i = 0; i < NUM_OCTANT_TASKS; ++i)
-		renderer->octantResults[i].Clear();
-
-	// Process moved / animated objects' octree reinsertions
-	m_octree->Update(0);
-	m_octree->FinishUpdate();
-
-	// Enable threaded update during geometry / light gathering in case nodes' OnPrepareRender() causes further reinsertion queuing
-	m_octree->SetThreadedUpdate(workQueue->NumThreads() > 1);
-
-	// Find the starting points for octree traversal. Include the root if it contains drawables that didn't fit elsewhere
-	Octant* rootOctant = m_octree->Root();
-	if (rootOctant->Drawables().size())
-		renderer->rootLevelOctants.push_back(rootOctant);
-
-	for (size_t i = 0; i < NUM_OCTANTS; ++i) {
-		if (rootOctant->Child(i)) {
-			renderer->rootLevelOctants.push_back(rootOctant->Child(i));
-		}
-	}
-
-	renderer->numPendingBatchTasks.store((int)renderer->rootLevelOctants.size());
-
-	for (size_t i = 0; i < renderer->rootLevelOctants.size(); ++i) {
-		renderer->collectOctantsTasks[i]->startOctant = renderer->rootLevelOctants[i];
-	}
-
-	workQueue->QueueTasks(renderer->rootLevelOctants.size(), reinterpret_cast<Task**>(&renderer->collectOctantsTasks[0]));
-
-	while (renderer->numPendingBatchTasks.load() > 0)
-		workQueue->TryComplete();
-
-	workQueue->Complete();
-	m_octree->SetThreadedUpdate(false);
-
-}
-
-void TursoInterface::CollectOctantsAndLights(Octant* octant, ThreadOctantResult2& result, unsigned char planeMask) {
-	const BoundingBox& octantBox = octant->CullingBox();
-
-	if (planeMask) {
-		// If not already inside all frustum planes, do frustum test and terminate if completely outside
-		//planeMask = frustum.IsInsideMasked(octantBox, planeMask);
-		if (planeMask == 0xff) {
-			// If octant becomes frustum culled, reset its visibility for when it comes back to view, including its children
-			if (false && octant->Visibility() != VIS_OUTSIDE_FRUSTUM)
-				octant->SetVisibility(VIS_OUTSIDE_FRUSTUM, true);
-			return;
-		}
-	}
-
-	// When occlusion not in use, reset all traversed octants to visible-unknown
-	octant->SetVisibility(VIS_VISIBLE_UNKNOWN, false);
-
-
-	const std::vector<Drawable*>& drawables = octant->Drawables();
-
-	for (auto it = drawables.begin(); it != drawables.end(); ++it) {
-		Drawable* drawable = *it;
-
-		if (!drawable->TestFlag(DF_LIGHT)) {
-			result.octants.push_back(std::make_pair(octant, planeMask));
-			result.drawableAcc += drawables.end() - it;
-		}
-
-	}
-
-	// Root octant is handled separately. Otherwise recurse into child octants
-	if (octant != m_octree->Root() && octant->HasChildren()) {
-		for (size_t i = 0; i < NUM_OCTANTS; ++i) {
-			if (octant->Child(i))
-				CollectOctantsAndLights(octant->Child(i), result, planeMask);
-		}
-	}
-}
-
-void ThreadOctantResult2::Clear(){
-	drawableAcc = 0;
-	taskOctantIdx = 0;
-	batchTaskIdx = 0;
-	octants.clear();
 }

@@ -116,8 +116,8 @@ public:
     /// Draw a quad with current renderstate. The quad vertex buffer is left bound.
     void DrawQuad();
 
-	static void BindDefaultVao(bool force = false);
-	static void UnbindDefaultVao();
+    static void BindDefaultVao(bool force = false);
+    static void UnbindDefaultVao();
 
     /// Begin an occlusion query and associate an object with it for checking results. Return the query ID.
     unsigned BeginOcclusionQuery(void* object);

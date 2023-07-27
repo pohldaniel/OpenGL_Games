@@ -37,33 +37,6 @@
 #include "Time/Profiler.h"
 #include "Thread/ThreadUtils.h"
 
-
-class TursoInterface;
-
-struct CollectOctantsTask2 : public MemberFunctionTask<TursoInterface> {
-
-	CollectOctantsTask2(TursoInterface* object_, MemberWorkFunctionPtr function_) : MemberFunctionTask<TursoInterface>(object_, function_){
-	}
-
-	Octant* startOctant;
-	size_t resultIdx;
-};
-
-struct ThreadOctantResult2 {
-	/// Clear for the next frame.
-	void Clear();
-
-	/// Drawable accumulator. When full, queue the next batch collection task.
-	size_t drawableAcc;
-	/// Starting octant index for current task.
-	size_t taskOctantIdx;
-	/// Batch collection task index.
-	size_t batchTaskIdx;
-	/// Intermediate octant list.
-	std::vector<std::pair<Octant*, unsigned char> > octants;
-	/// Intermediate light drawable list.
-};
-
 class TursoInterface : public State, public MouseEventListener, public KeyboardEventListener, public ObjectTu {
 
 	OBJECT(TursoInterface);
@@ -76,10 +49,6 @@ public:
 	void fixedUpdate() override;
 	void update() override;
 	void render() override;
-	void renderDirect();
-	void renderDirect2();
-	void updateOctree();
-
 
 	void resize(int deltaW, int deltaH) override;
 	void OnMouseMotion(Event::MouseMoveEvent& event) override;
@@ -101,14 +70,13 @@ private:
 	bool m_initUi = true;
 	bool m_drawUi = true;
 
-	Octree* m_octree;
+
 	AutoPtr<WorkQueue> workQueue;
 	AutoPtr<Profiler> profiler;
 	AutoPtr<Log> log;
 	AutoPtr<ResourceCache> cache;
 	AutoPtr<Graphics> graphics;
 
-	//AutoPtr<InputTu> input;
 	AutoPtr<Renderer> renderer;
 	AutoPtr<DebugRenderer> debugRenderer;
 
@@ -127,7 +95,7 @@ private:
 	SharedPtr<Scene> scene;
 	SharedPtr<CameraTu> camera;
 
-	float yaw = 0.0f, pitch = 20.0f;
+	float yaw = 0.0f, pitch = 0.0f;
 	HiresTimer frameTimer;
 	TimerTu profilerTimer;
 	//float dt = 0.0f;
@@ -136,7 +104,7 @@ private:
 	bool drawSSAO = false;
 	bool useOcclusion = true;
 	bool animate = true;
-	bool drawDebug = true;
+	bool drawDebug = false;
 	bool drawShadowDebug = false;
 	bool drawOcclusionDebug = false;
 
@@ -146,19 +114,4 @@ private:
 	std::vector<AnimatedModel*> animatingObjects;
 
 	EventTu eventTu;
-	void CollectOctantsWork(Task* task_, unsigned int idx);
-	void CollectOctantsAndLights(Octant* octant, ThreadOctantResult2& result, unsigned char planeMask = 0x3f);
-
-
-	std::vector<Octant*> rootLevelOctants;
-	AutoArrayPtr<ThreadOctantResult2> octantResults;
-	BatchQueue opaqueBatches;
-	std::atomic<int> numPendingBatchTasks;
-
-	AutoPtr<CollectOctantsTask2> collectOctantsTasks[NUM_OCTANT_TASKS];
-	AutoPtr<UniformBuffer> perViewDataBuffer;
-	PerViewUniforms perViewData;
-
-	
-
 };

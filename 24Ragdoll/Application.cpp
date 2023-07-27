@@ -16,6 +16,7 @@
 #include "CharacterInterface.h"
 #include "Game.h"
 #include "Turso.h"
+#include "OctreeInterface.h"
 #include "Menu.h"
 #include "Widget.h"
 
@@ -386,7 +387,8 @@ void Application::initStates() {
 	//Machine->addStateAtTop(new RagdollInterface(*Machine));
 	//Machine->addStateAtTop(new CharacterInterface(*Machine));
 	//Machine->addStateAtTop(new Game(*Machine));
-	Machine->addStateAtTop(new TursoInterface(*Machine));
+	//Machine->addStateAtTop(new TursoInterface(*Machine));
+	Machine->addStateAtTop(new OctreeInterface(*Machine));
 	//Machine->addStateAtTop(new Menu(*Machine));
 }
 
