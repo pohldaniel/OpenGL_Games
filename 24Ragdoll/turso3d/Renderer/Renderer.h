@@ -380,11 +380,9 @@ public:
 void RegisterRendererLibrary();
 
 /// %Task for collecting octants.
-struct CollectOctantsTask : public MemberFunctionTask<Renderer>
-{
+struct CollectOctantsTask : public MemberFunctionTask<Renderer> {
 	/// Construct.
-	CollectOctantsTask(Renderer* object_, MemberWorkFunctionPtr function_) :
-		MemberFunctionTask<Renderer>(object_, function_)
+	CollectOctantsTask(Renderer* object_, MemberWorkFunctionPtr function_) : MemberFunctionTask<Renderer>(object_, function_)
 	{
 	}
 

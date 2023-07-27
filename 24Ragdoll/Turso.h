@@ -37,6 +37,33 @@
 #include "Time/Profiler.h"
 #include "Thread/ThreadUtils.h"
 
+
+class TursoInterface;
+
+struct CollectOctantsTask2 : public MemberFunctionTask<TursoInterface> {
+
+	CollectOctantsTask2(TursoInterface* object_, MemberWorkFunctionPtr function_) : MemberFunctionTask<TursoInterface>(object_, function_){
+	}
+
+	Octant* startOctant;
+	size_t resultIdx;
+};
+
+struct ThreadOctantResult2 {
+	/// Clear for the next frame.
+	void Clear();
+
+	/// Drawable accumulator. When full, queue the next batch collection task.
+	size_t drawableAcc;
+	/// Starting octant index for current task.
+	size_t taskOctantIdx;
+	/// Batch collection task index.
+	size_t batchTaskIdx;
+	/// Intermediate octant list.
+	std::vector<std::pair<Octant*, unsigned char> > octants;
+	/// Intermediate light drawable list.
+};
+
 class TursoInterface : public State, public MouseEventListener, public KeyboardEventListener, public ObjectTu {
 
 	OBJECT(TursoInterface);
@@ -50,6 +77,10 @@ public:
 	void update() override;
 	void render() override;
 	void renderDirect();
+	void renderDirect2();
+	void updateOctree();
+
+
 	void resize(int deltaW, int deltaH) override;
 	void OnMouseMotion(Event::MouseMoveEvent& event) override;
 	void OnMouseWheel(Event::MouseWheelEvent& event) override;
@@ -105,7 +136,7 @@ private:
 	bool drawSSAO = false;
 	bool useOcclusion = true;
 	bool animate = true;
-	bool drawDebug = false;
+	bool drawDebug = true;
 	bool drawShadowDebug = false;
 	bool drawOcclusionDebug = false;
 
@@ -115,12 +146,27 @@ private:
 	std::vector<AnimatedModel*> animatingObjects;
 
 	EventTu eventTu;
-
+	BatchQueue opaqueBatches;
+	Octree* m_octree;
 
 	std::vector<Octant*> rootLevelOctants;
-	BatchQueue opaqueBatches;
+	
 	std::vector<Matrix3x4> instanceTransforms;
 	BoundingBox geometryBounds;
 
-	Octree* m_octree;
+	AutoPtr<CollectOctantsTask2> collectOctantsTasks[NUM_OCTANT_TASKS];
+	AutoPtr<CullLightsTask> cullLightsTasks[NUM_CLUSTER_Z];
+	AutoArrayPtr<ThreadOctantResult2> octantResults;
+
+
+	std::atomic<int> numPendingBatchTasks;
+
+	void CollectOctantsWork(Task* task_, unsigned int idx);
+	void CollectBatchesWork(Task* task, unsigned threadIndex);
+
+	unsigned short numTasks = 5;
+
+	void CollectOctantsAndLights(Octant* octant, ThreadOctantResult2& result, unsigned char planeMask = 0x3f);
+
+	void UpdateInstanceTransforms(const std::vector<Matrix3x4>& transforms);
 };

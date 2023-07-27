@@ -272,6 +272,7 @@ void Renderer::PrepareView(Scene* scene_, CameraTu* camera_, bool drawShadows_, 
     }
 
     // Keep track of both batch + octant task progress before main batches can be sorted (batch tasks will add to the counter when queued)
+
     numPendingBatchTasks.store((int)rootLevelOctants.size());
     numPendingShadowViews[0].store(0);
     numPendingShadowViews[1].store(0);
@@ -1072,7 +1073,7 @@ void Renderer::DefineClusterFrustums()
     }
 }
 
-void Renderer::CollectOctantsWork(Task* task_, unsigned)
+void Renderer::CollectOctantsWork(Task* task_, unsigned int idx)
 {
     ZoneScoped;
 
@@ -1085,7 +1086,7 @@ void Renderer::CollectOctantsWork(Task* task_, unsigned)
     CollectOctantsAndLights(octant, result);
 
     // Queue final batch task for leftover nodes if needed
-    if (result.drawableAcc)
+    /*if (result.drawableAcc)
     {
         if (result.collectBatchesTasks.size() <= result.batchTaskIdx)
             result.collectBatchesTasks.push_back(new CollectBatchesTask(this, &Renderer::CollectBatchesWork));
@@ -1095,7 +1096,7 @@ void Renderer::CollectOctantsWork(Task* task_, unsigned)
         batchTask->octants.insert(batchTask->octants.end(), result.octants.begin() + result.taskOctantIdx, result.octants.end());
         numPendingBatchTasks.fetch_add(1);
         workQueue->QueueTask(batchTask);
-    }
+    }*/
 
     numPendingBatchTasks.fetch_add(-1);
 }
