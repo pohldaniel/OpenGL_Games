@@ -470,14 +470,14 @@ void Renderer::RenderOpaque(bool clear)
     clusterTexture->Bind(TU_LIGHTCLUSTERDATA);
     lightDataBuffer->Bind(UB_LIGHTDATA);
 
-	//if (clear)
-	graphics->Clear(true, true, IntRect::ZERO, lightEnvironment ? lightEnvironment->FogColor() : DEFAULT_FOG_COLOR);
-
+	if (clear)
+		graphics->Clear(true, true, IntRect::ZERO, lightEnvironment ? lightEnvironment->FogColor() : DEFAULT_FOG_COLOR);
+	std::cout << "Size: " << opaqueBatches.batches.size() << std::endl;
     RenderBatches(camera, opaqueBatches);
 
     // Render occlusion now after opaques
-	//if (useOcclusion)
-	//   RenderOcclusionQueries();
+	if (useOcclusion)
+	   RenderOcclusionQueries();
 }
 
 void Renderer::RenderAlpha()
@@ -938,6 +938,7 @@ void Renderer::CheckOcclusionQueries()
 
 void Renderer::RenderOcclusionQueries()
 {
+
     ZoneScoped;
 
     if (!boundingBoxShaderProgram)
@@ -1312,7 +1313,7 @@ void Renderer::ProcessLightsWork(Task*, unsigned)
 void Renderer::CollectBatchesWork(Task* task_, unsigned threadIndex)
 {
     ZoneScoped;
-
+	std::cout << "Frame Number: " << frameNumber << std::endl;
     CollectBatchesTask* task = static_cast<CollectBatchesTask*>(task_);
     ThreadBatchResult& result = batchResults[threadIndex];
     bool threaded = workQueue->NumThreads() > 1;
