@@ -42,17 +42,15 @@ class OctreeInterface : public State, public MouseEventListener, public Keyboard
 
 	struct CollectOctantsTask : public MemberFunctionTask<OctreeInterface> {
 
-		CollectOctantsTask(OctreeInterface* object_, MemberWorkFunctionPtr function_) : MemberFunctionTask<OctreeInterface>(object_, function_) {
-		}
+		CollectOctantsTask(OctreeInterface* object_, MemberWorkFunctionPtr function_) : MemberFunctionTask<OctreeInterface>(object_, function_) { }
 
 		Octant* startOctant;
 		size_t resultIdx;
 	};
 
 	struct CollectBatchesTask : public MemberFunctionTask<OctreeInterface>{
-		/// Construct.
-		CollectBatchesTask(OctreeInterface* object_, MemberWorkFunctionPtr function_) : MemberFunctionTask<OctreeInterface>(object_, function_) {
-		}
+
+		CollectBatchesTask(OctreeInterface* object_, MemberWorkFunctionPtr function_) : MemberFunctionTask<OctreeInterface>(object_, function_) { }
 
 		std::vector<std::pair<Octant*, unsigned char>> octants;
 	};
@@ -65,6 +63,7 @@ class OctreeInterface : public State, public MouseEventListener, public Keyboard
 		size_t batchTaskIdx;
 		std::vector<std::pair<Octant*, unsigned char>> octants;
 		std::vector<AutoPtr<CollectBatchesTask>> collectBatchesTasks;
+		std::vector<Octant*> occlusionQueries;
 	};
 
 	struct ThreadBatchResult{
@@ -112,6 +111,7 @@ private:
 	bool m_initUi = true;
 	bool m_drawUi = true;
 	bool drawDebug = true;
+	bool useOcclusion = true;
 
 	Octree* m_octree;
 	AutoPtr<WorkQueue> workQueue;
@@ -133,6 +133,8 @@ private:
 	void CollectBatchesWork(Task* task_, unsigned threadIndex);
 	void CollectOctants(Octant* octant, OctreeInterface::ThreadOctantResult& result, unsigned char planeMask = 0x3f);
 	void UpdateInstanceTransforms(const std::vector<Matrix3x4>& transforms);
+	void RenderBatches(CameraTu* camera_, const BatchQueue& queue);
+	void AddOcclusionQuery(Octant* octant, ThreadOctantResult& result, unsigned char planeMask);
 
 	std::vector<Octant*> rootLevelOctants;
 	AutoArrayPtr<OctreeInterface::ThreadOctantResult> octantResults;
@@ -154,4 +156,8 @@ private:
 
 	AutoPtr<VertexBuffer> instanceVertexBuffer;
 	std::vector<VertexElement> instanceVertexElements;
+	SATData frustumSATData;
+
+
+	static const size_t DRAWABLES_PER_BATCH_TASK = 128;
 };

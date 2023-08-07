@@ -272,9 +272,6 @@ void Renderer::PrepareView(Scene* scene_, CameraTu* camera_, bool drawShadows_, 
     if (!frameNumber)
         ++frameNumber;
 
-
-	//std::cout << "Frame Number: " << frameNumber << std::endl;
-
     drawShadows = shadowMaps ? drawShadows_ : false;
     useOcclusion = useOcclusion_;
     frustum = camera->WorldFrustum();
@@ -472,7 +469,7 @@ void Renderer::RenderOpaque(bool clear)
 
 	if (clear)
 		graphics->Clear(true, true, IntRect::ZERO, lightEnvironment ? lightEnvironment->FogColor() : DEFAULT_FOG_COLOR);
-	std::cout << "Size: " << opaqueBatches.batches.size() << std::endl;
+
     RenderBatches(camera, opaqueBatches);
 
     // Render occlusion now after opaques
@@ -1313,7 +1310,7 @@ void Renderer::ProcessLightsWork(Task*, unsigned)
 void Renderer::CollectBatchesWork(Task* task_, unsigned threadIndex)
 {
     ZoneScoped;
-	std::cout << "Frame Number: " << frameNumber << std::endl;
+
     CollectBatchesTask* task = static_cast<CollectBatchesTask*>(task_);
     ThreadBatchResult& result = batchResults[threadIndex];
     bool threaded = workQueue->NumThreads() > 1;

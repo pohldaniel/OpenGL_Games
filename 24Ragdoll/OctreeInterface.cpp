@@ -62,6 +62,7 @@ OctreeInterface::OctreeInterface(StateMachine& machine) : State(machine, Current
 	perViewDataBuffer->Define(USAGE_DYNAMIC, sizeof(PerViewUniforms));
 
 	octantResults = new OctreeInterface::ThreadOctantResult[NUM_OCTANT_TASKS];
+	batchResults = new OctreeInterface::ThreadBatchResult[workQueue->NumThreads()];
 	for (size_t i = 0; i < NUM_OCTANTS + 1; ++i) {
 		collectOctantsTasks[i] = new OctreeInterface::CollectOctantsTask(this, &OctreeInterface::CollectOctantsWork);
 		collectOctantsTasks[i]->resultIdx = i;
@@ -209,6 +210,9 @@ void OctreeInterface::renderDirect() {
 
 	perViewDataBuffer->Bind(UB_PERVIEWDATA);
 
+	UpdateInstanceTransforms(instanceTransforms);
+	RenderBatches(camera, opaqueBatches);
+
 	if (drawDebug) {
 		DebugRenderer* debug = Subsystem<DebugRenderer>();
 		for (size_t i = 0; i < rootLevelOctants.size(); ++i) {
@@ -216,9 +220,6 @@ void OctreeInterface::renderDirect() {
 			const OctreeInterface::ThreadOctantResult& result = octantResults[i];
 
 			for (auto oIt = result.octants.begin(); oIt != result.octants.end(); ++oIt) {
-
-				std::cout << "-----------" << std::endl;
-
 				Octant* octant = oIt->first;
 				octant->OnRenderDebug(debug);
 			}
@@ -441,23 +442,21 @@ void OctreeInterface::CollectOctantsWork(Task* task_, unsigned int idx) {
 	CollectOctants(octant, result);
 
 	// Queue final batch task for leftover nodes if needed
-	/*if (result.drawableAcc) {
+	if (result.drawableAcc) {
 		if (result.collectBatchesTasks.size() <= result.batchTaskIdx)
 			result.collectBatchesTasks.push_back(new OctreeInterface::CollectBatchesTask(this, &OctreeInterface::CollectBatchesWork));
 
-		CollectBatchesTask* batchTask = result.collectBatchesTasks[result.batchTaskIdx];
+		OctreeInterface::CollectBatchesTask* batchTask = result.collectBatchesTasks[result.batchTaskIdx];
 		batchTask->octants.clear();
 		batchTask->octants.insert(batchTask->octants.end(), result.octants.begin() + result.taskOctantIdx, result.octants.end());
 		numPendingBatchTasks.fetch_add(1);
 		workQueue->QueueTask(batchTask);
-	}*/
+	}
 
 	numPendingBatchTasks.fetch_add(-1);
 }
 
-void OctreeInterface::CollectBatchesWork(Task* task_, unsigned threadIndex)
-{
-	ZoneScoped;
+void OctreeInterface::CollectBatchesWork(Task* task_, unsigned threadIndex) {
 
 	CollectBatchesTask* task = static_cast<OctreeInterface::CollectBatchesTask*>(task_);
 	ThreadBatchResult& result = batchResults[threadIndex];
@@ -557,12 +556,22 @@ void OctreeInterface::updateOctree() {
 	viewMask = camera->ViewMask();
 	rootLevelOctants.clear();
 	opaqueBatches.Clear();
+	instanceTransforms.clear();
 
 	for (size_t i = 0; i < NUM_OCTANT_TASKS; ++i)
 		octantResults[i].Clear();
 
+	for (size_t i = 0; i < workQueue->NumThreads(); ++i)
+		batchResults[i].Clear();
+
 	// Process moved / animated objects' octree reinsertions
-	m_octree->Update(0);
+	m_octree->Update(frameNumber);
+
+	if (useOcclusion)
+		frustumSATData.Calculate(frustum);
+
+	//CheckOcclusionQueries();
+
 	m_octree->FinishUpdate();
 
 	// Enable threaded update during geometry / light gathering in case nodes' OnPrepareRender() causes further reinsertion queuing
@@ -591,11 +600,9 @@ void OctreeInterface::updateOctree() {
 	while (numPendingBatchTasks.load() > 0)
 		workQueue->TryComplete();
 
-	//SortMainBatches();
+	SortMainBatches();
 	workQueue->Complete();
 	m_octree->SetThreadedUpdate(false);
-
-	std::cout << "###########" << std::endl;
 }
 
 void OctreeInterface::CollectOctants(Octant* octant, OctreeInterface::ThreadOctantResult& result, unsigned char planeMask) {
@@ -614,13 +621,77 @@ void OctreeInterface::CollectOctants(Octant* octant, OctreeInterface::ThreadOcta
 		}
 	}
 
-	octant->SetVisibility(VIS_VISIBLE, false);
+	if (useOcclusion)
+	{
+		// If was previously outside frustum, reset to visible-unknown
+		if (octant->Visibility() == VIS_OUTSIDE_FRUSTUM)
+			octant->SetVisibility(VIS_VISIBLE_UNKNOWN, false);
+
+		switch (octant->Visibility())
+		{
+			// If octant is occluded, issue query if not pending, and do not process further this frame
+		case VIS_OCCLUDED:
+			AddOcclusionQuery(octant, result, planeMask);
+			return;
+
+			// If octant was occluded previously, but its parent came into view, issue tests along the hierarchy but do not render on this frame
+		case VIS_OCCLUDED_UNKNOWN:
+			AddOcclusionQuery(octant, result, planeMask);
+			if (octant != m_octree->Root() && octant->HasChildren())
+			{
+				for (size_t i = 0; i < NUM_OCTANTS; ++i)
+				{
+					if (octant->Child(i))
+						CollectOctants(octant->Child(i), result, planeMask);
+				}
+			}
+			return;
+
+			// If octant has unknown visibility, issue query if not pending, but collect child octants and drawables
+		case VIS_VISIBLE_UNKNOWN:
+			AddOcclusionQuery(octant, result, planeMask);
+			break;
+
+			// If the octant's parent is already visible too, only test the octant if it is a "leaf octant" with drawables
+			// Note: visible octants will also add a time-based staggering to reduce queries
+		case VIS_VISIBLE:
+			Octant* parent = octant->Parent();
+			if (octant->Drawables().size() > 0 || (parent && parent->Visibility() != VIS_VISIBLE))
+				AddOcclusionQuery(octant, result, planeMask);
+			break;
+		}
+	}
+	else
+	{
+		// When occlusion not in use, reset all traversed octants to visible-unknown
+		octant->SetVisibility(VIS_VISIBLE_UNKNOWN, false);
+	}
+
+	//octant->SetVisibility(VIS_VISIBLE, false);
 
 	const std::vector<Drawable*>& drawables = octant->Drawables();
 	for (auto it = drawables.begin(); it != drawables.end(); ++it) {
 		Drawable* drawable = *it;
-		result.octants.push_back(std::make_pair(octant, planeMask));
-		result.drawableAcc += drawables.end() - it;
+		if (!drawable->TestFlag(DF_LIGHT)){
+			result.octants.push_back(std::make_pair(octant, planeMask));
+			result.drawableAcc += drawables.end() - it;
+		}
+	}
+
+	// Setup and queue batches collection task if over the drawable limit now
+	if (result.drawableAcc >= DRAWABLES_PER_BATCH_TASK){
+		if (result.collectBatchesTasks.size() <= result.batchTaskIdx)
+			result.collectBatchesTasks.push_back(new CollectBatchesTask(this, &OctreeInterface::CollectBatchesWork));
+
+		CollectBatchesTask* batchTask = result.collectBatchesTasks[result.batchTaskIdx];
+		batchTask->octants.clear();
+		batchTask->octants.insert(batchTask->octants.end(), result.octants.begin() + result.taskOctantIdx, result.octants.end());
+		numPendingBatchTasks.fetch_add(1);
+		workQueue->QueueTask(batchTask);
+
+		result.drawableAcc = 0;
+		result.taskOctantIdx = result.octants.size();
+		++result.batchTaskIdx;
 	}
 
 	// Root octant is handled separately. Otherwise recurse into child octants
@@ -630,6 +701,14 @@ void OctreeInterface::CollectOctants(Octant* octant, OctreeInterface::ThreadOcta
 				CollectOctants(octant->Child(i), result, planeMask);
 		}
 	}
+}
+
+void OctreeInterface::AddOcclusionQuery(Octant* octant, ThreadOctantResult& result, unsigned char planeMask)
+{
+	// No-op if previous query still ongoing. Also If the octant intersects the frustum, verify with SAT test that it actually covers some screen area
+	// Otherwise the occlusion test will produce a false negative
+	if (octant->CheckNewOcclusionQuery(m_dt) && (!planeMask || frustum.IsInsideSAT(octant->CullingBox(), frustumSATData)))
+		result.occlusionQueries.push_back(octant);
 }
 
 void OctreeInterface::SortMainBatches() {
@@ -661,6 +740,7 @@ void OctreeInterface::ThreadOctantResult::Clear() {
 	taskOctantIdx = 0;
 	batchTaskIdx = 0;
 	octants.clear();
+	occlusionQueries.clear();
 }
 
 void OctreeInterface::ThreadBatchResult::Clear(){
@@ -691,4 +771,80 @@ void OctreeInterface::RegisterRendererLibrary() {
 	Animation::RegisterObject();
 
 	registered = true;
+}
+
+void OctreeInterface::RenderBatches(CameraTu* camera_, const BatchQueue& queue) {
+	
+	float nearClip = camera->NearClip();
+	float farClip = camera->FarClip();
+
+	perViewData.projectionMatrix = camera_->ProjectionMatrix();
+	perViewData.viewMatrix = camera_->ViewMatrix();
+	perViewData.viewProjMatrix = perViewData.projectionMatrix * perViewData.viewMatrix;
+	perViewData.depthParameters = Vector4(nearClip, farClip, camera_->IsOrthographic() ? 0.5f : 0.0f, camera_->IsOrthographic() ? 0.5f : 1.0f / farClip);
+	perViewData.cameraPosition = Vector4(camera_->WorldPosition(), 1.0f);
+
+	size_t dataSize = sizeof(PerViewUniforms);
+	
+	perViewData.ambientColor = DEFAULT_AMBIENT_COLOR;
+	perViewData.fogColor = DEFAULT_FOG_COLOR;
+
+	float fogStart =  DEFAULT_FOG_START;
+	float fogEnd =  DEFAULT_FOG_END;
+	float fogRange = Max(fogEnd - fogStart, M_EPSILON);
+	perViewData.fogParameters = Vector4(fogEnd / farClip, farClip / fogRange, 0.0f, 0.0f);
+
+	perViewDataBuffer->SetData(0, dataSize, &perViewData);
+	perViewDataBuffer->Bind(UB_PERVIEWDATA);
+
+	for (auto it = queue.batches.begin(); it != queue.batches.end(); ++it){
+
+		const Batch& batch = *it;
+		unsigned char geometryBits = batch.programBits & SP_GEOMETRYBITS;
+
+		ShaderProgram* program = batch.pass->GetShaderProgram(batch.programBits);
+		if (!program->Bind())
+			continue;
+
+		MaterialTu* material = batch.pass->Parent();
+		
+		for (size_t i = 0; i < MAX_MATERIAL_TEXTURE_UNITS; ++i){
+			TextureTu* texture = material->GetTexture(i);
+			if (texture)
+				texture->Bind(i);
+		}
+
+		UniformBuffer* materialUniforms = material->GetUniformBuffer();
+		if (materialUniforms)
+			materialUniforms->Bind(UB_MATERIALDATA);
+
+		CullMode cullMode = material->GetCullMode();		
+		graphics->SetRenderState(batch.pass->GetBlendMode(), cullMode, batch.pass->GetDepthTest(), batch.pass->GetColorWrite(), batch.pass->GetDepthWrite());
+
+		Geometry* geometry = batch.geometry;
+		VertexBuffer* vb = geometry->vertexBuffer;
+		IndexBuffer* ib = geometry->indexBuffer;
+		vb->Bind(program->Attributes());
+		if (ib)
+			ib->Bind();
+
+		if (geometryBits == GEOM_INSTANCED){
+			if (ib)
+				graphics->DrawIndexedInstanced(PT_TRIANGLE_LIST, geometry->drawStart, geometry->drawCount, instanceVertexBuffer, batch.instanceStart, batch.instanceCount);
+			else
+				graphics->DrawInstanced(PT_TRIANGLE_LIST, geometry->drawStart, geometry->drawCount, instanceVertexBuffer, batch.instanceStart, batch.instanceCount);
+
+			it += batch.instanceCount - 1;
+		}else{
+			if (!geometryBits)
+				graphics->SetUniform(program, U_WORLDMATRIX, *batch.worldTransform);
+			else
+				batch.drawable->OnRender(program, batch.geomIndex);
+
+			if (ib)
+				graphics->DrawIndexed(PT_TRIANGLE_LIST, geometry->drawStart, geometry->drawCount);
+			else
+				graphics->Draw(PT_TRIANGLE_LIST, geometry->drawStart, geometry->drawCount);
+		}
+	}
 }
