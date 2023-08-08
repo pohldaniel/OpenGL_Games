@@ -189,26 +189,7 @@ void OctreeInterface::renderDirect() {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	//fill in uniforms
-	float nearClip = camera->NearClip();
-	float farClip = camera->FarClip();
-	perViewData.projectionMatrix = camera->ProjectionMatrix();
-	perViewData.viewMatrix = camera->ViewMatrix();
-	perViewData.viewProjMatrix = camera->ProjectionMatrix() * camera->ViewMatrix();
-	perViewData.depthParameters = Vector4(nearClip, farClip, camera->IsOrthographic() ? 0.5f : 0.0f, camera->IsOrthographic() ? 0.5f : 1.0f / farClip);
-	perViewData.cameraPosition = Vector4(camera->WorldPosition(), 1.0f);
-	perViewData.ambientColor = DEFAULT_AMBIENT_COLOR;
-	perViewData.fogColor = DEFAULT_FOG_COLOR;
-	float fogStart = DEFAULT_FOG_START;
-	float fogEnd = DEFAULT_FOG_END;
-	float fogRange = Max(fogEnd - fogStart, M_EPSILON);
-	perViewData.fogParameters = Vector4(fogEnd / farClip, farClip / fogRange, 0.0f, 0.0f);
-	perViewData.dirLightDirection = Vector4::ZERO;
-	perViewData.dirLightColor = Color::BLACK;
-	perViewData.dirLightShadowParameters = Vector4::ONE;
-	perViewDataBuffer->SetData(0, sizeof(PerViewUniforms), &perViewData);
-
-	perViewDataBuffer->Bind(UB_PERVIEWDATA);
+	
 
 	UpdateInstanceTransforms(instanceTransforms);
 	RenderBatches(camera, opaqueBatches);
@@ -431,132 +412,13 @@ void OctreeInterface::CreateScene(Scene* scene, CameraTu* camera, int preset) {
 	}
 }
 
-
-void OctreeInterface::CollectOctantsWork(Task* task_, unsigned int idx) {
-
-	OctreeInterface::CollectOctantsTask* task = static_cast<OctreeInterface::CollectOctantsTask*>(task_);
-
-	Octant* octant = task->startOctant;
-	OctreeInterface::ThreadOctantResult& result = octantResults[task->resultIdx];
-
-	CollectOctants(octant, result);
-
-	// Queue final batch task for leftover nodes if needed
-	if (result.drawableAcc) {
-		if (result.collectBatchesTasks.size() <= result.batchTaskIdx)
-			result.collectBatchesTasks.push_back(new OctreeInterface::CollectBatchesTask(this, &OctreeInterface::CollectBatchesWork));
-
-		OctreeInterface::CollectBatchesTask* batchTask = result.collectBatchesTasks[result.batchTaskIdx];
-		batchTask->octants.clear();
-		batchTask->octants.insert(batchTask->octants.end(), result.octants.begin() + result.taskOctantIdx, result.octants.end());
-		numPendingBatchTasks.fetch_add(1);
-		workQueue->QueueTask(batchTask);
-	}
-
-	numPendingBatchTasks.fetch_add(-1);
-}
-
-void OctreeInterface::CollectBatchesWork(Task* task_, unsigned threadIndex) {
-
-	CollectBatchesTask* task = static_cast<OctreeInterface::CollectBatchesTask*>(task_);
-	ThreadBatchResult& result = batchResults[threadIndex];
-	bool threaded = workQueue->NumThreads() > 1;
-
-	std::vector<std::pair<Octant*, unsigned char> >& octants = task->octants;
-	std::vector<Batch>& opaqueQueue = threaded ? result.opaqueBatches : opaqueBatches.batches;
-
-	const Matrix3x4& viewMatrix = camera->ViewMatrix();
-	Vector3 viewZ = Vector3(viewMatrix.m20, viewMatrix.m21, viewMatrix.m22);
-	Vector3 absViewZ = viewZ.Abs();
-	float farClipMul = 32767.0f / camera->FarClip();
-
-	// Scan octants for geometries
-	for (auto it = octants.begin(); it != octants.end(); ++it){
-
-		Octant* octant = it->first;
-		unsigned char planeMask = it->second;
-		const std::vector<Drawable*>& drawables = octant->Drawables();
-
-		for (auto dIt = drawables.begin(); dIt != drawables.end(); ++dIt){
-			Drawable* drawable = *dIt;
-
-			if (drawable->TestFlag(DF_GEOMETRY) && (drawable->LayerMask() & viewMask)){
-				const BoundingBox& geometryBox = drawable->WorldBoundingBox();
-
-				// Note: to strike a balance between performance and occlusion accuracy, per-geometry occlusion tests are skipped for now,
-				// as octants are already tested with combined actual drawable bounds
-				if ((!planeMask || frustum.IsInsideMaskedFast(geometryBox, planeMask)) && drawable->OnPrepareRender(frameNumber, camera))
-				{
-					result.geometryBounds.Merge(geometryBox);
-
-					Vector3 center = geometryBox.Center();
-					Vector3 edge = geometryBox.Size() * 0.5f;
-
-					float viewCenterZ = viewZ.DotProduct(center) + viewMatrix.m23;
-					float viewEdgeZ = absViewZ.DotProduct(edge);
-					result.minZ = Min(result.minZ, viewCenterZ - viewEdgeZ);
-					result.maxZ = Max(result.maxZ, viewCenterZ + viewEdgeZ);
-
-					Batch newBatch;
-
-					unsigned short distance = (unsigned short)(drawable->Distance() * farClipMul);
-					const SourceBatches& batches = static_cast<GeometryDrawable*>(drawable)->Batches();
-					size_t numGeometries = batches.NumGeometries();
-
-					for (size_t j = 0; j < numGeometries; ++j) {
-						MaterialTu* material = batches.GetMaterial(j);
-
-						// Assume opaque first
-						newBatch.pass = material->GetPass(PASS_OPAQUE);
-						newBatch.geometry = batches.GetGeometry(j);
-						newBatch.programBits = (unsigned char)(drawable->Flags() & DF_GEOMETRY_TYPE_BITS);
-						newBatch.geomIndex = (unsigned char)j;
-
-						if (!newBatch.programBits)
-							newBatch.worldTransform = &drawable->WorldTransform();
-						else
-							newBatch.drawable = static_cast<GeometryDrawable*>(drawable);
-
-						if (newBatch.pass)
-						{
-							// Perform distance sort in addition to state sort
-							if (newBatch.pass->lastSortKey.first != frameNumber || newBatch.pass->lastSortKey.second > distance)
-							{
-								newBatch.pass->lastSortKey.first = frameNumber;
-								newBatch.pass->lastSortKey.second = distance;
-							}
-							if (newBatch.geometry->lastSortKey.first != frameNumber || newBatch.geometry->lastSortKey.second > distance + (unsigned short)j)
-							{
-								newBatch.geometry->lastSortKey.first = frameNumber;
-								newBatch.geometry->lastSortKey.second = distance + (unsigned short)j;
-							}
-
-							opaqueQueue.push_back(newBatch);
-						}
-						else
-						{
-							// If not opaque, try transparent
-							newBatch.pass = material->GetPass(PASS_ALPHA);
-							if (!newBatch.pass)
-								continue;
-
-							newBatch.distance = drawable->Distance();
-						}
-					}
-				}
-			}
-		}
-	}
-
-	numPendingBatchTasks.fetch_add(-1);
-}
-
 void OctreeInterface::updateOctree() {
 	frustum = camera->WorldFrustum();
 	viewMask = camera->ViewMask();
 	rootLevelOctants.clear();
 	opaqueBatches.Clear();
 	instanceTransforms.clear();
+	geometryBounds.Undefine();
 
 	for (size_t i = 0; i < NUM_OCTANT_TASKS; ++i)
 		octantResults[i].Clear();
@@ -605,136 +467,6 @@ void OctreeInterface::updateOctree() {
 	m_octree->SetThreadedUpdate(false);
 }
 
-void OctreeInterface::CollectOctants(Octant* octant, OctreeInterface::ThreadOctantResult& result, unsigned char planeMask) {
-
-	const BoundingBox& octantBox = octant->CullingBox();
-
-	if (planeMask) {
-		// If not already inside all frustum planes, do frustum test and terminate if completely outside
-		planeMask = frustum.IsInsideMasked(octantBox, planeMask);
-		if (planeMask == 0xff) {
-			// If octant becomes frustum culled, reset its visibility for when it comes back to view, including its children
-			if (octant->Visibility() != VIS_OUTSIDE_FRUSTUM) {
-				octant->SetVisibility(VIS_OUTSIDE_FRUSTUM, true);
-			}
-			return;
-		}
-	}
-
-	if (useOcclusion)
-	{
-		// If was previously outside frustum, reset to visible-unknown
-		if (octant->Visibility() == VIS_OUTSIDE_FRUSTUM)
-			octant->SetVisibility(VIS_VISIBLE_UNKNOWN, false);
-
-		switch (octant->Visibility())
-		{
-			// If octant is occluded, issue query if not pending, and do not process further this frame
-		case VIS_OCCLUDED:
-			AddOcclusionQuery(octant, result, planeMask);
-			return;
-
-			// If octant was occluded previously, but its parent came into view, issue tests along the hierarchy but do not render on this frame
-		case VIS_OCCLUDED_UNKNOWN:
-			AddOcclusionQuery(octant, result, planeMask);
-			if (octant != m_octree->Root() && octant->HasChildren())
-			{
-				for (size_t i = 0; i < NUM_OCTANTS; ++i)
-				{
-					if (octant->Child(i))
-						CollectOctants(octant->Child(i), result, planeMask);
-				}
-			}
-			return;
-
-			// If octant has unknown visibility, issue query if not pending, but collect child octants and drawables
-		case VIS_VISIBLE_UNKNOWN:
-			AddOcclusionQuery(octant, result, planeMask);
-			break;
-
-			// If the octant's parent is already visible too, only test the octant if it is a "leaf octant" with drawables
-			// Note: visible octants will also add a time-based staggering to reduce queries
-		case VIS_VISIBLE:
-			Octant* parent = octant->Parent();
-			if (octant->Drawables().size() > 0 || (parent && parent->Visibility() != VIS_VISIBLE))
-				AddOcclusionQuery(octant, result, planeMask);
-			break;
-		}
-	}
-	else
-	{
-		// When occlusion not in use, reset all traversed octants to visible-unknown
-		octant->SetVisibility(VIS_VISIBLE_UNKNOWN, false);
-	}
-
-	//octant->SetVisibility(VIS_VISIBLE, false);
-
-	const std::vector<Drawable*>& drawables = octant->Drawables();
-	for (auto it = drawables.begin(); it != drawables.end(); ++it) {
-		Drawable* drawable = *it;
-		if (!drawable->TestFlag(DF_LIGHT)){
-			result.octants.push_back(std::make_pair(octant, planeMask));
-			result.drawableAcc += drawables.end() - it;
-		}
-	}
-
-	// Setup and queue batches collection task if over the drawable limit now
-	if (result.drawableAcc >= DRAWABLES_PER_BATCH_TASK){
-		if (result.collectBatchesTasks.size() <= result.batchTaskIdx)
-			result.collectBatchesTasks.push_back(new CollectBatchesTask(this, &OctreeInterface::CollectBatchesWork));
-
-		CollectBatchesTask* batchTask = result.collectBatchesTasks[result.batchTaskIdx];
-		batchTask->octants.clear();
-		batchTask->octants.insert(batchTask->octants.end(), result.octants.begin() + result.taskOctantIdx, result.octants.end());
-		numPendingBatchTasks.fetch_add(1);
-		workQueue->QueueTask(batchTask);
-
-		result.drawableAcc = 0;
-		result.taskOctantIdx = result.octants.size();
-		++result.batchTaskIdx;
-	}
-
-	// Root octant is handled separately. Otherwise recurse into child octants
-	if (octant != m_octree->Root() && octant->HasChildren()) {
-		for (size_t i = 0; i < NUM_OCTANTS; ++i) {
-			if (octant->Child(i))
-				CollectOctants(octant->Child(i), result, planeMask);
-		}
-	}
-}
-
-void OctreeInterface::AddOcclusionQuery(Octant* octant, ThreadOctantResult& result, unsigned char planeMask)
-{
-	// No-op if previous query still ongoing. Also If the octant intersects the frustum, verify with SAT test that it actually covers some screen area
-	// Otherwise the occlusion test will produce a false negative
-	if (octant->CheckNewOcclusionQuery(m_dt) && (!planeMask || frustum.IsInsideSAT(octant->CullingBox(), frustumSATData)))
-		result.occlusionQueries.push_back(octant);
-}
-
-void OctreeInterface::SortMainBatches() {
-
-	for (size_t i = 0; i < workQueue->NumThreads(); ++i){
-		ThreadBatchResult& res = batchResults[i];
-		if (res.opaqueBatches.size())
-			opaqueBatches.batches.insert(opaqueBatches.batches.end(), res.opaqueBatches.begin(), res.opaqueBatches.end());
-		
-	}
-
-	opaqueBatches.Sort(instanceTransforms, SORT_STATE_AND_DISTANCE, hasInstancing);
-
-}
-
-void OctreeInterface::UpdateInstanceTransforms(const std::vector<Matrix3x4>& transforms) {
-
-
-	if (hasInstancing && transforms.size()){
-		if (instanceVertexBuffer->NumVertices() < transforms.size())
-			instanceVertexBuffer->Define(USAGE_DYNAMIC, transforms.size(), instanceVertexElements, &transforms[0]);
-		else
-			instanceVertexBuffer->SetData(0, transforms.size(), &transforms[0]);
-	}
-}
-
 void OctreeInterface::ThreadOctantResult::Clear() {
 	drawableAcc = 0;
 	taskOctantIdx = 0;
@@ -775,26 +507,25 @@ void OctreeInterface::RegisterRendererLibrary() {
 
 void OctreeInterface::RenderBatches(CameraTu* camera_, const BatchQueue& queue) {
 	
+	//fill in uniforms
 	float nearClip = camera->NearClip();
 	float farClip = camera->FarClip();
-
-	perViewData.projectionMatrix = camera_->ProjectionMatrix();
-	perViewData.viewMatrix = camera_->ViewMatrix();
-	perViewData.viewProjMatrix = perViewData.projectionMatrix * perViewData.viewMatrix;
-	perViewData.depthParameters = Vector4(nearClip, farClip, camera_->IsOrthographic() ? 0.5f : 0.0f, camera_->IsOrthographic() ? 0.5f : 1.0f / farClip);
-	perViewData.cameraPosition = Vector4(camera_->WorldPosition(), 1.0f);
-
-	size_t dataSize = sizeof(PerViewUniforms);
-	
+	perViewData.projectionMatrix = camera->ProjectionMatrix();
+	perViewData.viewMatrix = camera->ViewMatrix();
+	perViewData.viewProjMatrix = camera->ProjectionMatrix() * camera->ViewMatrix();
+	perViewData.depthParameters = Vector4(nearClip, farClip, camera->IsOrthographic() ? 0.5f : 0.0f, camera->IsOrthographic() ? 0.5f : 1.0f / farClip);
+	perViewData.cameraPosition = Vector4(camera->WorldPosition(), 1.0f);
 	perViewData.ambientColor = DEFAULT_AMBIENT_COLOR;
 	perViewData.fogColor = DEFAULT_FOG_COLOR;
-
-	float fogStart =  DEFAULT_FOG_START;
-	float fogEnd =  DEFAULT_FOG_END;
+	float fogStart = DEFAULT_FOG_START;
+	float fogEnd = DEFAULT_FOG_END;
 	float fogRange = Max(fogEnd - fogStart, M_EPSILON);
 	perViewData.fogParameters = Vector4(fogEnd / farClip, farClip / fogRange, 0.0f, 0.0f);
+	perViewData.dirLightDirection = Vector4::ZERO;
+	perViewData.dirLightColor = Color::BLACK;
+	perViewData.dirLightShadowParameters = Vector4::ONE;
+	perViewDataBuffer->SetData(0, sizeof(PerViewUniforms), &perViewData);
 
-	perViewDataBuffer->SetData(0, dataSize, &perViewData);
 	perViewDataBuffer->Bind(UB_PERVIEWDATA);
 
 	for (auto it = queue.batches.begin(); it != queue.batches.end(); ++it){
@@ -846,5 +577,194 @@ void OctreeInterface::RenderBatches(CameraTu* camera_, const BatchQueue& queue) 
 			else
 				graphics->Draw(PT_TRIANGLE_LIST, geometry->drawStart, geometry->drawCount);
 		}
+	}
+}
+
+void OctreeInterface::CollectOctants(Octant* octant, ThreadOctantResult& result, unsigned char planeMask) {
+	const BoundingBox& octantBox = octant->CullingBox();
+
+	if (planeMask) {
+		// If not already inside all frustum planes, do frustum test and terminate if completely outside
+		planeMask = frustum.IsInsideMasked(octantBox, planeMask);
+		if (planeMask == 0xff) {
+			// If octant becomes frustum culled, reset its visibility for when it comes back to view, including its children
+			if (octant->Visibility() != VIS_OUTSIDE_FRUSTUM)
+				octant->SetVisibility(VIS_OUTSIDE_FRUSTUM, true);
+			return;
+		}
+	}
+
+	octant->SetVisibility(VIS_VISIBLE_UNKNOWN, false);
+
+	const std::vector<Drawable*>& drawables = octant->Drawables();
+
+	for (auto it = drawables.begin(); it != drawables.end(); ++it) {
+		Drawable* drawable = *it;
+
+		if (!drawable->TestFlag(DF_LIGHT)) {
+			result.octants.push_back(std::make_pair(octant, planeMask));
+			result.drawableAcc += drawables.end() - it;
+			break;
+		}
+	}
+
+	if (result.drawableAcc >= DRAWABLES_PER_BATCH_TASK) {
+		if (result.collectBatchesTasks.size() <= result.batchTaskIdx)
+			result.collectBatchesTasks.push_back(new CollectBatchesTask(this, &OctreeInterface::CollectBatchesWork));
+
+		CollectBatchesTask* batchTask = result.collectBatchesTasks[result.batchTaskIdx];
+		batchTask->octants.clear();
+		batchTask->octants.insert(batchTask->octants.end(), result.octants.begin() + result.taskOctantIdx, result.octants.end());
+		numPendingBatchTasks.fetch_add(1);
+		workQueue->QueueTask(batchTask);
+
+		result.drawableAcc = 0;
+		result.taskOctantIdx = result.octants.size();
+		++result.batchTaskIdx;
+	}
+
+	if (octant != m_octree->Root() && octant->HasChildren()) {
+		for (size_t i = 0; i < NUM_OCTANTS; ++i){
+			if (octant->Child(i))
+				CollectOctants(octant->Child(i), result, planeMask);
+		}
+	}
+}
+
+void OctreeInterface::SortMainBatches() {
+
+	for (size_t i = 0; i < workQueue->NumThreads(); ++i){
+		ThreadBatchResult& res = batchResults[i];
+		if (res.geometryBounds.IsDefined())
+			geometryBounds.Merge(res.geometryBounds);
+	}
+
+	// Join per-thread collected batches and sort
+	for (size_t i = 0; i < workQueue->NumThreads(); ++i) {
+		ThreadBatchResult& res = batchResults[i];
+		if (res.opaqueBatches.size())
+			opaqueBatches.batches.insert(opaqueBatches.batches.end(), res.opaqueBatches.begin(), res.opaqueBatches.end());
+
+	}
+
+	opaqueBatches.Sort(instanceTransforms, SORT_STATE_AND_DISTANCE, hasInstancing);
+}
+
+
+void OctreeInterface::CollectOctantsWork(Task* task_, unsigned threadIndex) {
+
+	CollectOctantsTask* task = static_cast<CollectOctantsTask*>(task_);
+	Octant* octant = task->startOctant;
+	ThreadOctantResult& result = octantResults[task->resultIdx];
+
+	CollectOctants(octant, result);
+
+	if (result.drawableAcc) {
+		if (result.collectBatchesTasks.size() <= result.batchTaskIdx)
+			result.collectBatchesTasks.push_back(new CollectBatchesTask(this, &OctreeInterface::CollectBatchesWork));
+
+		CollectBatchesTask* batchTask = result.collectBatchesTasks[result.batchTaskIdx];
+		batchTask->octants.clear();
+		batchTask->octants.insert(batchTask->octants.end(), result.octants.begin() + result.taskOctantIdx, result.octants.end());
+		numPendingBatchTasks.fetch_add(1);
+
+		workQueue->QueueTask(batchTask);
+	}
+
+	numPendingBatchTasks.fetch_add(-1);
+}
+
+void OctreeInterface::CollectBatchesWork(Task* task_, unsigned threadIndex) {
+
+	CollectBatchesTask* task = static_cast<CollectBatchesTask*>(task_);
+	ThreadBatchResult& result = batchResults[threadIndex];
+	bool threaded = workQueue->NumThreads() > 1;
+
+	std::vector<std::pair<Octant*, unsigned char> >& octants = task->octants;
+	std::vector<Batch>& opaqueQueue = threaded ? result.opaqueBatches : opaqueBatches.batches;
+
+
+	const Matrix3x4& viewMatrix = camera->ViewMatrix();
+	Vector3 viewZ = Vector3(viewMatrix.m20, viewMatrix.m21, viewMatrix.m22);
+	Vector3 absViewZ = viewZ.Abs();
+	float farClipMul = 32767.0f / camera->FarClip();
+
+	// Scan octants for geometries
+	for (auto it = octants.begin(); it != octants.end(); ++it){
+		Octant* octant = it->first;
+		unsigned char planeMask = it->second;
+		const std::vector<Drawable*>& drawables = octant->Drawables();
+
+		for (auto dIt = drawables.begin(); dIt != drawables.end(); ++dIt){
+			Drawable* drawable = *dIt;
+
+			if (drawable->TestFlag(DF_GEOMETRY) && (drawable->LayerMask() & viewMask)){
+				const BoundingBox& geometryBox = drawable->WorldBoundingBox();
+
+				// Note: to strike a balance between performance and occlusion accuracy, per-geometry occlusion tests are skipped for now,
+				// as octants are already tested with combined actual drawable bounds
+				if ((!planeMask || frustum.IsInsideMaskedFast(geometryBox, planeMask)) && drawable->OnPrepareRender(frameNumber, camera)){
+
+					result.geometryBounds.Merge(geometryBox);
+
+					Vector3 center = geometryBox.Center();
+					Vector3 edge = geometryBox.Size() * 0.5f;
+
+					float viewCenterZ = viewZ.DotProduct(center) + viewMatrix.m23;
+					float viewEdgeZ = absViewZ.DotProduct(edge);
+					result.minZ = Min(result.minZ, viewCenterZ - viewEdgeZ);
+					result.maxZ = Max(result.maxZ, viewCenterZ + viewEdgeZ);
+
+					Batch newBatch;
+
+					unsigned short distance = (unsigned short)(drawable->Distance() * farClipMul);
+					const SourceBatches& batches = static_cast<GeometryDrawable*>(drawable)->Batches();
+					size_t numGeometries = batches.NumGeometries();
+
+					for (size_t j = 0; j < numGeometries; ++j){
+						MaterialTu* material = batches.GetMaterial(j);
+
+						// Assume opaque first
+						newBatch.pass = material->GetPass(PASS_OPAQUE);
+						newBatch.geometry = batches.GetGeometry(j);
+						newBatch.programBits = (unsigned char)(drawable->Flags() & DF_GEOMETRY_TYPE_BITS);
+						newBatch.geomIndex = (unsigned char)j;
+
+						if (!newBatch.programBits)
+							newBatch.worldTransform = &drawable->WorldTransform();
+						else
+							newBatch.drawable = static_cast<GeometryDrawable*>(drawable);
+
+						if (newBatch.pass){
+							// Perform distance sort in addition to state sort
+							if (newBatch.pass->lastSortKey.first != frameNumber || newBatch.pass->lastSortKey.second > distance){
+								newBatch.pass->lastSortKey.first = frameNumber;
+								newBatch.pass->lastSortKey.second = distance;
+							}
+
+							if (newBatch.geometry->lastSortKey.first != frameNumber || newBatch.geometry->lastSortKey.second > distance + (unsigned short)j){
+								newBatch.geometry->lastSortKey.first = frameNumber;
+								newBatch.geometry->lastSortKey.second = distance + (unsigned short)j;
+							}
+
+							opaqueQueue.push_back(newBatch);
+						}
+
+					}
+				}
+			}
+		}
+	}
+
+	numPendingBatchTasks.fetch_add(-1);
+}
+
+
+void OctreeInterface::UpdateInstanceTransforms(const std::vector<Matrix3x4>& transforms){
+	if (hasInstancing && transforms.size()){
+		if (instanceVertexBuffer->NumVertices() < transforms.size())
+			instanceVertexBuffer->Define(USAGE_DYNAMIC, transforms.size(), instanceVertexElements, &transforms[0]);
+		else
+			instanceVertexBuffer->SetData(0, transforms.size(), &transforms[0]);
 	}
 }

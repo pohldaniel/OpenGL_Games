@@ -129,12 +129,7 @@ private:
 	std::vector<StaticModel*> rotatingObjects;
 	std::vector<AnimatedModel*> animatingObjects;
 
-	void CollectOctantsWork(Task* task_, unsigned int idx);
-	void CollectBatchesWork(Task* task_, unsigned threadIndex);
-	void CollectOctants(Octant* octant, OctreeInterface::ThreadOctantResult& result, unsigned char planeMask = 0x3f);
-	void UpdateInstanceTransforms(const std::vector<Matrix3x4>& transforms);
-	void RenderBatches(CameraTu* camera_, const BatchQueue& queue);
-	void AddOcclusionQuery(Octant* octant, ThreadOctantResult& result, unsigned char planeMask);
+	
 
 	std::vector<Octant*> rootLevelOctants;
 	AutoArrayPtr<OctreeInterface::ThreadOctantResult> octantResults;
@@ -146,7 +141,6 @@ private:
 	AutoPtr<OctreeInterface::CollectOctantsTask> collectOctantsTasks[NUM_OCTANT_TASKS];
 	AutoPtr<UniformBuffer> perViewDataBuffer;
 	PerViewUniforms perViewData;
-	void SortMainBatches();
 
 	FrustumTu frustum;
 	unsigned viewMask;
@@ -160,4 +154,16 @@ private:
 
 
 	static const size_t DRAWABLES_PER_BATCH_TASK = 128;
+
+	void CollectOctantsWork(Task* task, unsigned threadIndex);
+	void CollectBatchesWork(Task* task, unsigned threadIndex);
+	void CollectOctants(Octant* octant, ThreadOctantResult& result, unsigned char planeMask = 0x3f);
+	void SortMainBatches();
+	void UpdateInstanceTransforms(const std::vector<Matrix3x4>& transforms);
+	
+	void RenderBatches(CameraTu* camera_, const BatchQueue& queue);
+
+	BoundingBox geometryBounds;
+
 };
+

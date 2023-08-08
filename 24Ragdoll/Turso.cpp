@@ -56,7 +56,7 @@ TursoInterface::TursoInterface(StateMachine& machine) : State(machine, CurrentSt
 
 	// Random noise texture for SSAO
 	unsigned char noiseData[4 * 4 * 4];
-	for (int i = 0; i < 4 * 4; ++i){
+	for (int i = 0; i < 4 * 4; ++i) {
 		Vector3 noiseVec(Random() * 2.0f - 1.0f, Random() * 2.0f - 1.0f, Random() * 2.0f - 1.0f);
 		noiseVec.Normalize();
 
@@ -141,7 +141,7 @@ void TursoInterface::update() {
 
 
 	Vector3 directrion = Vector3();
-	bool move = false;	
+	bool move = false;
 	if (keyboard.keyDown(Keyboard::KEY_W)) {
 		directrion += Vector3::FORWARD;
 		move = true;
@@ -199,7 +199,8 @@ void TursoInterface::update() {
 			for (auto it = rotatingObjects.begin(); it != rotatingObjects.end(); ++it)
 				(*it)->SetRotation(rotQuat);
 
-		}else if (animatingObjects.size()) {
+		}
+		else if (animatingObjects.size()) {
 			for (auto it = animatingObjects.begin(); it != animatingObjects.end(); ++it) {
 				AnimatedModel* object = *it;
 				AnimationState* state = object->AnimationStates()[0];
@@ -218,7 +219,7 @@ void TursoInterface::update() {
 }
 
 void TursoInterface::render() {
-		
+
 	// Collect geometries and lights in frustum. Also set debug renderer to use the correct camera view
 	{
 		PROFILE(PrepareView);
@@ -338,7 +339,7 @@ void TursoInterface::render() {
 }
 
 void TursoInterface::OnMouseMotion(Event::MouseMoveEvent& event) {
-	
+
 }
 
 void TursoInterface::OnMouseWheel(Event::MouseWheelEvent& event) {
@@ -357,7 +358,7 @@ void TursoInterface::OnMouseButtonUp(Event::MouseButtonEvent& event) {
 	}
 }
 
-void TursoInterface::OnKeyDown(Event::KeyboardEvent& event) {	
+void TursoInterface::OnKeyDown(Event::KeyboardEvent& event) {
 	if (event.keyCode == VK_ESCAPE) {
 		m_isRunning = false;
 	}
@@ -367,7 +368,7 @@ void TursoInterface::resize(int deltaW, int deltaH) {
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
 	camera->SetAspectRatio((float)Application::Width / (float)Application::Height);
-	
+
 	if (colorBuffer->Width() != Application::Width || colorBuffer->Height() != Application::Height) {
 		colorBuffer->Define(TEX_2D, IntVector2(Application::Width, Application::Height), FMT_RGBA8);
 		colorBuffer->DefineSampler(FILTER_BILINEAR, ADDRESS_CLAMP, ADDRESS_CLAMP, ADDRESS_CLAMP);

@@ -387,8 +387,8 @@ void Application::initStates() {
 	//Machine->addStateAtTop(new RagdollInterface(*Machine));
 	//Machine->addStateAtTop(new CharacterInterface(*Machine));
 	//Machine->addStateAtTop(new Game(*Machine));
-	Machine->addStateAtTop(new TursoInterface(*Machine));
-	//Machine->addStateAtTop(new OctreeInterface(*Machine));
+	//Machine->addStateAtTop(new TursoInterface(*Machine));
+	Machine->addStateAtTop(new OctreeInterface(*Machine));
 	//Machine->addStateAtTop(new Menu(*Machine));
 }
 
