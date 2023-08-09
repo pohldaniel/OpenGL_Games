@@ -386,6 +386,8 @@ public:
     static const Matrix4 ZERO;
     /// Identity matrix.
     static const Matrix4 IDENTITY;
+
+	void print() const;
 };
 
 /// Multiply a 4x4 matrix with a scalar

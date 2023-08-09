@@ -35,7 +35,7 @@ OctreeInterface::OctreeInterface(StateMachine& machine) : State(machine, Current
 	// Create the Graphics subsystem to open the application window and initialize OpenGL
 	graphics = new Graphics("Turso3D renderer test", IntVector2(Application::Width, Application::Height));
 	graphics->Initialize();
-	hasInstancing = graphics->HasInstancing();
+	hasInstancing = false;
 	if (hasInstancing){
 		instanceVertexBuffer = new VertexBuffer();
 		instanceVertexElements.push_back(VertexElement(ELEM_VECTOR4, SEM_TEXCOORD, 3));
@@ -53,10 +53,12 @@ OctreeInterface::OctreeInterface(StateMachine& machine) : State(machine, Current
 
 	CreateScene(scene, camera, 0);
 
-	camera->SetPosition(Vector3(0.0f, 20.0f, -75.0f));
+	camera->SetPosition(Vector3(0.0f, 20.0f, 75.0f));
 	camera->SetAspectRatio((float)Application::Width / (float)Application::Height);
 
-	
+	camera->setPosition(Vector3f(0.0f, 20.0f, 75.0f));
+	camera->perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
+
 
 	perViewDataBuffer = new UniformBuffer();
 	perViewDataBuffer->Define(USAGE_DYNAMIC, sizeof(PerViewUniforms));
@@ -92,27 +94,31 @@ void OctreeInterface::update() {
 	if (keyboard.keyPressed(Keyboard::KEY_4))
 		drawDebug = !drawDebug;
 	
-
-
+	
 	Vector3 directrion = Vector3();
+	Vector3f _directrion = Vector3f();
 	bool move = false;
 	if (keyboard.keyDown(Keyboard::KEY_W)) {
 		directrion += Vector3::FORWARD;
+		_directrion += Vector3f(0.0f, 0.0f, 1.0f);
 		move = true;
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_S)) {
 		directrion += Vector3::BACK;
+		_directrion += Vector3f(0.0f, 0.0f, -1.0f);
 		move = true;
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_A)) {
 		directrion += Vector3::LEFT;
+		_directrion += Vector3f(-1.0f, 0.0f, 0.0f);
 		move = true;
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_D)) {
 		directrion += Vector3::RIGHT;
+		_directrion += Vector3f(1.0f, 0.0f, 0.0f);
 		move = true;
 	}
 
@@ -134,12 +140,14 @@ void OctreeInterface::update() {
 			pitch = Clamp(pitch, -90.0f, 90.0f);
 
 			camera->SetRotation(QuaternionTu(pitch, yaw, 0.0f));
+			camera->rotate(-dx, -dy);
 		}
 
 		if (move) {
 			float moveSpeed = (keyboard.keyDown(Keyboard::KEY_LSHIFT) || keyboard.keyDown(Keyboard::KEY_RSHIFT)) ? 50.0f : 5.0f;
 
 			camera->Translate(directrion * m_dt * moveSpeed);
+			camera->move(-_directrion  * m_dt * moveSpeed);
 		}
 	}
 	m_trackball.idle();
@@ -172,6 +180,8 @@ void OctreeInterface::update() {
 	++frameNumber;
 	if (!frameNumber)
 		++frameNumber;
+
+	std::cout << "#################" << std::endl;
 
 	updateOctree();
 }
@@ -419,6 +429,7 @@ void OctreeInterface::CreateScene(Scene* scene, CameraTu* camera, int preset) {
 }
 
 void OctreeInterface::updateOctree() {
+
 	frustum = camera->WorldFrustum();
 	viewMask = camera->ViewMask();
 	rootLevelOctants.clear();
@@ -506,7 +517,6 @@ void OctreeInterface::RegisterRendererLibrary() {
 }
 
 void OctreeInterface::RenderBatches(CameraTu* camera_, const BatchQueue& queue) {
-	
 	//fill in uniforms
 	float nearClip = camera->NearClip();
 	float farClip = camera->FarClip();
@@ -516,6 +526,19 @@ void OctreeInterface::RenderBatches(CameraTu* camera_, const BatchQueue& queue) 
 	perViewData.depthParameters = Vector4(nearClip, farClip, camera->IsOrthographic() ? 0.5f : 0.0f, camera->IsOrthographic() ? 0.5f : 1.0f / farClip);
 	perViewData.cameraPosition = Vector4(camera->WorldPosition(), 1.0f);
 	perViewData.ambientColor = DEFAULT_AMBIENT_COLOR;
+
+	Matrix4 view = Matrix4(camera->ViewMatrix());
+	Matrix4f _view = camera->m_viewMatrix;
+
+	Matrix4 projection = camera->ProjectionMatrix();
+	Matrix4f _projection = camera->m_persMatrix;
+	//projection.print();
+	//_projection.print();
+
+	perViewData.view = camera->m_viewMatrix;
+	perViewData.projection = camera->m_persMatrix;
+
+	//perViewData.projection = camera->ProjectionMatrix();
 	perViewData.fogColor = DEFAULT_FOG_COLOR;
 	float fogStart = DEFAULT_FOG_START;
 	float fogEnd = DEFAULT_FOG_END;
@@ -528,7 +551,11 @@ void OctreeInterface::RenderBatches(CameraTu* camera_, const BatchQueue& queue) 
 
 	perViewDataBuffer->Bind(UB_PERVIEWDATA);
 
+	//std::cout << "Size: " << queue.batches.size() << std::endl;
+
 	for (auto it = queue.batches.begin(); it != queue.batches.end(); ++it){
+
+		std::cout << "------------" << std::endl;
 
 		const Batch& batch = *it;
 		unsigned char geometryBits = batch.programBits & SP_GEOMETRYBITS;
@@ -560,16 +587,19 @@ void OctreeInterface::RenderBatches(CameraTu* camera_, const BatchQueue& queue) 
 			ib->Bind();
 
 		if (geometryBits == GEOM_INSTANCED){
-			if (ib)
+			/*if (ib)
 				graphics->DrawIndexedInstanced(PT_TRIANGLE_LIST, geometry->drawStart, geometry->drawCount, instanceVertexBuffer, batch.instanceStart, batch.instanceCount);
 			else
 				graphics->DrawInstanced(PT_TRIANGLE_LIST, geometry->drawStart, geometry->drawCount, instanceVertexBuffer, batch.instanceStart, batch.instanceCount);
 
-			it += batch.instanceCount - 1;
+			it += batch.instanceCount - 1;*/
 		}else{
-			if (!geometryBits)
-				graphics->SetUniform(program, U_WORLDMATRIX, *batch.worldTransform);
-			else
+
+			if (!geometryBits) {
+				//graphics->SetUniform(program, U_WORLDMATRIX, *batch.worldTransform);
+				graphics->loadMatrix(program, "worldMatrix", *batch.worldTransform);
+				graphics->loadMatrix(program, "worldMatrix4", Matrix4(*batch.worldTransform));
+			}else
 				batch.drawable->OnRender(program, batch.geomIndex);
 
 			if (ib)
@@ -578,6 +608,7 @@ void OctreeInterface::RenderBatches(CameraTu* camera_, const BatchQueue& queue) 
 				graphics->Draw(PT_TRIANGLE_LIST, geometry->drawStart, geometry->drawCount);
 		}
 	}
+
 }
 
 void OctreeInterface::CollectOctants(Octant* octant, ThreadOctantResult& result, unsigned char planeMask) {
@@ -585,7 +616,8 @@ void OctreeInterface::CollectOctants(Octant* octant, ThreadOctantResult& result,
 
 	if (planeMask) {
 		// If not already inside all frustum planes, do frustum test and terminate if completely outside
-		planeMask = frustum.IsInsideMasked(octantBox, planeMask);
+		//planeMask = frustum.IsInsideMasked(octantBox, planeMask);
+		planeMask = 0x00;
 		if (planeMask == 0xff) {
 			// If octant becomes frustum culled, reset its visibility for when it comes back to view, including its children
 			if (octant->Visibility() != VIS_OUTSIDE_FRUSTUM)

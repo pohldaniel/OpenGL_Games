@@ -33,7 +33,7 @@ void DebugRenderer::SetView(CameraTu* camera)
     if (!camera)
         return;
 
-    view = camera->ViewMatrix();
+    view = camera->ViewMatrix().Transpose();
     projection = camera->ProjectionMatrix();
     frustum = camera->WorldFrustum();
 }
@@ -315,6 +315,11 @@ void DebugRenderer::Render()
     Graphics* graphics = Subsystem<Graphics>();
     shaderProgram->Bind();
     graphics->SetUniform(shaderProgram, "viewProjMatrix", projection * view);
+
+
+	graphics->SetUniform(shaderProgram, "projection", projection);
+	graphics->SetUniform(shaderProgram, "view", view);
+
     graphics->SetVertexBuffer(vertexBuffer, shaderProgram);
     graphics->SetIndexBuffer(indexBuffer);
 

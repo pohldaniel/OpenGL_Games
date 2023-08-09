@@ -112,7 +112,6 @@ private:
 	bool m_drawUi = true;
 	bool drawDebug = true;
 
-
 	Octree* m_octree;
 	AutoPtr<WorkQueue> workQueue;
 	AutoPtr<Log> log;
@@ -128,8 +127,6 @@ private:
 
 	std::vector<StaticModel*> rotatingObjects;
 	std::vector<AnimatedModel*> animatingObjects;
-
-	
 
 	std::vector<Octant*> rootLevelOctants;
 	AutoArrayPtr<OctreeInterface::ThreadOctantResult> octantResults;

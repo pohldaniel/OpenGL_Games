@@ -7,6 +7,7 @@
 #include "../Math/Plane.h"
 #include "../Math/Ray.h"
 #include "../Scene/SpatialNode.h"
+#include "../engine/Vector.h"
 
 /// Billboard camera facing modes.
 enum FaceCameraMode
@@ -99,7 +100,7 @@ class CameraTu : public SpatialNode
     /// Return split frustum in view space.
     FrustumTu ViewSpaceSplitFrustum(float nearClip, float farClip) const;
     /// Return view matrix.
-    const Matrix3x4& ViewMatrix() const { if (viewMatrixDirty) { viewMatrix = EffectiveWorldTransform().Inverse(); viewMatrixDirty = false; } return viewMatrix; }
+	const Matrix4& ViewMatrix() const;
     /// Return either API-specific or API-independent (D3D convention) projection matrix.
     Matrix4 ProjectionMatrix(bool apiSpecific = true) const;
     /// Return frustum near and far sizes.
@@ -123,11 +124,10 @@ class CameraTu : public SpatialNode
     /// Return if projection parameters are valid for rendering and raycasting.
     bool IsProjectionValid() const;
 
-protected:
     /// Handle the transform matrix changing.
     void OnTransformChanged() override;
 
-private:
+
     /// Set reflection plane as vector. Used in serialization.
     void SetReflectionPlaneAttr(const Vector4& value);
     /// Return reflection plane as vector. Used in serialization.
@@ -138,7 +138,7 @@ private:
     Vector4 ClipPlaneAttr() const;
 
     /// Cached view matrix.
-    mutable Matrix3x4 viewMatrix;
+    mutable Matrix4 viewMatrix;
     /// View matrix dirty flag.
     mutable bool viewMatrixDirty;
     /// Orthographic mode flag.
@@ -171,4 +171,43 @@ private:
     bool useReflection;
     /// Use custom clip plane flag.
     bool useClipping;
+
+
+	void perspective(float fovx, float aspect, float znear, float zfar);
+
+	void rotate(float yaw, float pitch);
+	void rotate(float yaw, float pitch, const Vector3f& target);
+	void move(float dx, float dy, float dz);
+	void move(const Vector3f &direction);
+
+	void setPosition(float x, float y, float z);
+	void setPosition(const Vector3f &position);
+
+	void rotateFirstPerson(float yaw, float pitch);
+	void updateViewMatrix();
+	void orthogonalize();
+
+	Vector3f WORLD_XAXIS;
+	Vector3f WORLD_YAXIS;
+	Vector3f WORLD_ZAXIS;
+
+	float m_accumPitchDegrees;
+	float m_rotationSpeed;
+	float m_movingSpeed;
+	float m_offsetDistance;
+
+	Vector3f m_eye;
+	Vector3f m_xAxis;
+	Vector3f m_yAxis;
+	Vector3f m_zAxis;
+	Vector3f m_viewDir;
+	Vector3f m_target;
+
+	Matrix4f m_viewMatrix;
+	Matrix4f m_invViewMatrix;
+
+	Matrix4f m_persMatrix;
+	Matrix4f m_invPersMatrix;
+	Matrix4f m_orthMatrix;
+	Matrix4f m_invOrthMatrix;
 };
