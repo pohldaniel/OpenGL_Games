@@ -111,7 +111,7 @@ private:
 	bool m_initUi = true;
 	bool m_drawUi = true;
 	bool drawDebug = true;
-	bool useOcclusion = true;
+
 
 	Octree* m_octree;
 	AutoPtr<WorkQueue> workQueue;

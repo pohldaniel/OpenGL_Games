@@ -197,12 +197,18 @@ void OctreeInterface::renderDirect() {
 	if (drawDebug) {
 		DebugRenderer* debug = Subsystem<DebugRenderer>();
 		for (size_t i = 0; i < rootLevelOctants.size(); ++i) {
-		
-			const OctreeInterface::ThreadOctantResult& result = octantResults[i];
+			const ThreadOctantResult& result = octantResults[i];
 
 			for (auto oIt = result.octants.begin(); oIt != result.octants.end(); ++oIt) {
 				Octant* octant = oIt->first;
 				octant->OnRenderDebug(debug);
+				const std::vector<Drawable*>& drawables = octant->Drawables();
+
+				for (auto dIt = drawables.begin(); dIt != drawables.end(); ++dIt) {
+					Drawable* drawable = *dIt;
+					if (drawable->TestFlag(DF_GEOMETRY) && drawable->LastFrameNumber() == frameNumber)
+						drawable->OnRenderDebug(debug);
+				}
 			}
 		}
 	}
@@ -428,12 +434,6 @@ void OctreeInterface::updateOctree() {
 
 	// Process moved / animated objects' octree reinsertions
 	m_octree->Update(frameNumber);
-
-	if (useOcclusion)
-		frustumSATData.Calculate(frustum);
-
-	//CheckOcclusionQueries();
-
 	m_octree->FinishUpdate();
 
 	// Enable threaded update during geometry / light gathering in case nodes' OnPrepareRender() causes further reinsertion queuing
@@ -594,7 +594,7 @@ void OctreeInterface::CollectOctants(Octant* octant, ThreadOctantResult& result,
 		}
 	}
 
-	octant->SetVisibility(VIS_VISIBLE_UNKNOWN, false);
+	octant->SetVisibility(VIS_VISIBLE, false);
 
 	const std::vector<Drawable*>& drawables = octant->Drawables();
 
