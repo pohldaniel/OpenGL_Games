@@ -112,13 +112,13 @@ void OctreeInterface::update() {
 
 	if (keyboard.keyDown(Keyboard::KEY_A)) {
 		directrion += Vector3::LEFT;
-		_directrion += Vector3f(-1.0f, 0.0f, 0.0f);
+		_directrion += Vector3f(1.0f, 0.0f, 0.0f);
 		move = true;
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_D)) {
 		directrion += Vector3::RIGHT;
-		_directrion += Vector3f(1.0f, 0.0f, 0.0f);
+		_directrion += Vector3f(-1.0f, 0.0f, 0.0f);
 		move = true;
 	}
 
@@ -537,8 +537,8 @@ void OctreeInterface::RenderBatches(CameraTu* camera_, const BatchQueue& queue) 
 
 	perViewData.view = camera->m_viewMatrix;
 	perViewData.projection = camera->m_persMatrix;
-
 	//perViewData.projection = camera->ProjectionMatrix();
+
 	perViewData.fogColor = DEFAULT_FOG_COLOR;
 	float fogStart = DEFAULT_FOG_START;
 	float fogEnd = DEFAULT_FOG_END;
@@ -616,8 +616,8 @@ void OctreeInterface::CollectOctants(Octant* octant, ThreadOctantResult& result,
 
 	if (planeMask) {
 		// If not already inside all frustum planes, do frustum test and terminate if completely outside
-		//planeMask = frustum.IsInsideMasked(octantBox, planeMask);
-		planeMask = 0x00;
+		planeMask = frustum.IsInsideMasked(octantBox, planeMask);
+		//planeMask = 0x00;
 		if (planeMask == 0xff) {
 			// If octant becomes frustum culled, reset its visibility for when it comes back to view, including its children
 			if (octant->Visibility() != VIS_OUTSIDE_FRUSTUM)

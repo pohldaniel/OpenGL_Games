@@ -120,7 +120,7 @@ class CameraTu : public SpatialNode
     /// Return a world rotation for facing a camera on certain axes based on the existing world rotation.
 	QuaternionTu FaceCameraRotation(const Vector3& position, const QuaternionTu& rotation, FaceCameraMode mode);
     /// Return effective world transform for matrix and frustum calculations including reflection but excluding node scaling.
-    Matrix3x4 EffectiveWorldTransform() const;
+    Matrix4 EffectiveWorldTransform() const;
     /// Return if projection parameters are valid for rendering and raycasting.
     bool IsProjectionValid() const;
 

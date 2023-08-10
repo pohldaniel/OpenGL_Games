@@ -33,7 +33,7 @@ void DebugRenderer::SetView(CameraTu* camera)
     if (!camera)
         return;
 
-    view = camera->ViewMatrix().Transpose();
+    view = camera->ViewMatrix();
     projection = camera->ProjectionMatrix();
     frustum = camera->WorldFrustum();
 }
