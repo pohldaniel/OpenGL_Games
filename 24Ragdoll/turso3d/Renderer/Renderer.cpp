@@ -784,7 +784,7 @@ void Renderer::RenderBatches(CameraTu* camera_, const BatchQueue& queue)
 
 		perViewData.projectionMatrix = camera_->ProjectionMatrix();
 		perViewData.viewMatrix = camera_->ViewMatrix();
-		perViewData.viewProjMatrix = perViewData.projectionMatrix * perViewData.viewMatrix;
+		perViewData.viewProjMatrix = perViewData.viewMatrix * perViewData.projectionMatrix;
 		perViewData.depthParameters = Vector4(nearClip, farClip, camera_->IsOrthographic() ? 0.5f : 0.0f, camera_->IsOrthographic() ? 0.5f : 1.0f / farClip);
 		perViewData.cameraPosition = Vector4(camera_->WorldPosition(), 1.0f);
 

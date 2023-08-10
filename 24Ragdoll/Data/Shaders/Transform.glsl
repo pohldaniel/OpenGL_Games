@@ -24,6 +24,14 @@ mat3x4 GetWorldMatrix()
 {
     return worldMatrix;
 }
+
+uniform mat4 worldMatrix4;
+
+mat4 GetWorldMatrix4()
+{
+    return worldMatrix4;
+}
+
 #endif
 
 float CalculateDepth(vec4 outPos)

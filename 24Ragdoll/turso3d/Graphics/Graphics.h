@@ -9,6 +9,7 @@
 #include "../Object/ObjectTu.h"
 #include "../Time/TimerTu.h"
 #include "GraphicsDefs.h"
+#include "engine/Vector.h"
 
 class FrameBufferTu;
 class IndexBuffer;
@@ -77,6 +78,7 @@ public:
     void SetUniform(ShaderProgram* program, PresetUniform uniform, const Matrix3x4& value);
     /// Set a Matrix4 preset uniform.
     void SetUniform(ShaderProgram* program, PresetUniform uniform, const Matrix4& value);
+	void SetUniform(ShaderProgram* program, PresetUniform uniform, const Matrix4f& value);
     /// Set float uniform. Low performance, provided for convenience.
     void SetUniform(ShaderProgram* program, const char* name, float value);
     /// Set a Vector2 uniform. Low performance, provided for convenience.
@@ -89,6 +91,7 @@ public:
     void SetUniform(ShaderProgram* program, const char* name, const Matrix3x4& value);
     /// Set a Matrix4 uniform. Low performance, provided for convenience.
     void SetUniform(ShaderProgram* program, const char* name, const Matrix4& value);
+	void SetUniform(ShaderProgram* program, const char* name, const Matrix4f& value);
     /// Bind a uniform buffer for use in slot index. Null buffer parameter to unbind. Provided for convenience.
     void SetUniformBuffer(size_t index, UniformBuffer* buffer);
     /// Bind a texture for use in texture unit. Null texture parameter to unbind.  Provided for convenience.
@@ -195,6 +198,7 @@ private:
 
 	static VaoBindings VaoBindings;
 	static unsigned int DefaultVao;
+
 };
 
 /// Register Graphics related object factories and attributes.

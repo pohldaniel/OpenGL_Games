@@ -67,15 +67,15 @@ float CameraTu::NearClip() const
 
 FrustumTu CameraTu::WorldFrustum() const
 {
-	FrustumTu ret;
+    FrustumTu ret;
 
 	if (!orthographic) {
 		//ret.Define(fov, aspectRatio, zoom, NearClip(), farClip, EffectiveWorldTransform());
-		ret.Define(ProjectionMatrix(false), ViewMatrix());
+		ret.Define(ProjectionMatrix(), ViewMatrix());
 	}else
-		ret.DefineOrtho(orthoSize, aspectRatio, zoom, NearClip(), farClip, EffectiveWorldTransform());
+        ret.DefineOrtho(orthoSize, aspectRatio, zoom, NearClip(), farClip, EffectiveWorldTransform());
 
-	return ret;
+    return ret;
 }
 
 FrustumTu CameraTu::WorldSplitFrustum(float nearClip_, float farClip_) const
@@ -130,18 +130,30 @@ Matrix4 CameraTu::ProjectionMatrix(bool apiSpecific) const
 
     if (!orthographic)
     {
-        float h = (1.0f / tanf(fov * M_DEGTORAD * 0.5f)) * zoom;
-        float w = h / aspectRatio;
-        float q = farClip / (farClip - nearClip);
-        float r = -q * nearClip;
+		float e = tanf(PI_ON_180 * fov * 0.5f);
+		float xScale = (1.0f / (e * aspectRatio));
+		float yScale = (1.0f / e);
 
-        ret.m00 = w;
-        ret.m02 = 0.0f;
-        ret.m11 = h;
-        ret.m12 = 0.0f;
-        ret.m22 = q;
-        ret.m23 = r;
-        ret.m32 = 1.0f;
+		ret.m00 = xScale;
+		ret.m01 = 0.0f;
+		ret.m02 = 0.0f;
+		ret.m03 = 0.0f;
+
+		ret.m10 = 0.0f;
+		ret.m11 = yScale;
+		ret.m12 = 0.0f;
+		ret.m13 = 0.0f;
+
+		ret.m20 = 0.0f;
+		ret.m21 = 0.0f;
+		ret.m22 = (farClip + nearClip) / (nearClip - farClip);
+		ret.m23 = -1.0f;
+
+		ret.m30 = 0.0f;
+		ret.m31 = 0.0f;
+		ret.m32 = (2.0f * farClip * nearClip) / (nearClip - farClip);
+		ret.m33 = 0.0f;
+
     }
     else
     {
@@ -163,13 +175,13 @@ Matrix4 CameraTu::ProjectionMatrix(bool apiSpecific) const
     if (flipVertical)
         ret = flipMatrix * ret;
 
-    if (openGLFormat)
+    /*if (openGLFormat)
     {
         ret.m20 = 2.0f * ret.m20 - ret.m30;
         ret.m21 = 2.0f * ret.m21 - ret.m31;
         ret.m22 = 2.0f * ret.m22 - ret.m32;
         ret.m23 = 2.0f * ret.m23 - ret.m33;
-    }
+    }*/
 
     return ret;
 }
@@ -309,7 +321,7 @@ Matrix4 CameraTu::EffectiveWorldTransform() const
 
 	Matrix3x4 transform(WorldPosition(), WorldRotation(), 1.0f);
 	Matrix4 trans(transform);
-	return useReflection ? Matrix4(reflectionMatrix * transform) : trans;
+	return useReflection ? Matrix4(reflectionMatrix * transform).Transpose() : trans.Transpose();
 }
 
 bool CameraTu::IsProjectionValid() const
@@ -321,6 +333,7 @@ void CameraTu::OnTransformChanged()
 {
     SpatialNode::OnTransformChanged();
     viewMatrixDirty = true;
+
 }
 
 void CameraTu::SetReflectionPlaneAttr(const Vector4& value)

@@ -355,6 +355,16 @@ void Graphics::SetUniform(ShaderProgram* program, PresetUniform uniform, const M
     }
 }
 
+void Graphics::SetUniform(ShaderProgram* program, PresetUniform uniform, const Matrix4f& value)
+{
+	if (program)
+	{
+		int location = program->Uniform(uniform);
+		if (location >= 0)
+			glUniformMatrix4fv(location, 1, GL_FALSE, &value[0][0]);
+	}
+}
+
 void Graphics::SetUniform(ShaderProgram* program, const char* name, float value)
 {
     if (program)
@@ -413,6 +423,16 @@ void Graphics::SetUniform(ShaderProgram* program, const char* name, const Matrix
         if (location >= 0)
             glUniformMatrix4fv(location, 1, GL_FALSE, value.Data());
     }
+}
+
+void Graphics::SetUniform(ShaderProgram* program, const char* name, const Matrix4f& value)
+{
+	if (program)
+	{
+		int location = program->Uniform(name);
+		if (location >= 0)
+			glUniformMatrix4fv(location, 1, GL_FALSE, &value[0][0]);
+	}
 }
 
 void Graphics::SetUniformBuffer(size_t index, UniformBuffer* buffer)

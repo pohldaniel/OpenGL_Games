@@ -19,7 +19,6 @@ OctreeInterface::OctreeInterface(StateMachine& machine) : State(machine, Current
 
 	m_camera = Camera();
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
-	m_camera.lookAt(Vector3f(0.0f, 2.0f, 10.0f), Vector3f(0.0f, 2.0f, 10.0f) + Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
 	m_camera.setRotationSpeed(0.1f);
 
 	glClearColor(0.7f, 0.7f, 0.7f, 0.0f);
@@ -35,7 +34,7 @@ OctreeInterface::OctreeInterface(StateMachine& machine) : State(machine, Current
 	// Create the Graphics subsystem to open the application window and initialize OpenGL
 	graphics = new Graphics("Turso3D renderer test", IntVector2(Application::Width, Application::Height));
 	graphics->Initialize();
-	hasInstancing = false;
+	hasInstancing = graphics->HasInstancing();
 	if (hasInstancing){
 		instanceVertexBuffer = new VertexBuffer();
 		instanceVertexElements.push_back(VertexElement(ELEM_VECTOR4, SEM_TEXCOORD, 3));
@@ -53,10 +52,10 @@ OctreeInterface::OctreeInterface(StateMachine& machine) : State(machine, Current
 
 	CreateScene(scene, camera, 0);
 
-	camera->SetPosition(Vector3(0.0f, 20.0f, -75.0f));
+	camera->SetPosition(Vector3(0.0f, 20.0f, 75.0f));
 	camera->SetAspectRatio((float)Application::Width / (float)Application::Height);
 
-	m_camera.setPosition(Vector3f(0.0f, 20.0f, -75.0f));
+	m_camera.setPosition(Vector3f(0.0f, 20.0f, 75.0f));
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
 
 
@@ -134,20 +133,20 @@ void OctreeInterface::update() {
 	if (move || dx != 0.0f || dy != 0.0f) {
 		if (dx || dy) {
 
-			yaw += dx * 0.1f;
-			pitch += dy * 0.1f;
+			yaw -= dx * 0.1f;
+			pitch -= dy * 0.1f;
 
 			pitch = Clamp(pitch, -90.0f, 90.0f);
 
 			camera->SetRotation(QuaternionTu(pitch, yaw, 0.0f));
-			m_camera.rotate(-dx, -dy);
+			m_camera.rotate(dx, dy);
 		}
 
 		if (move) {
 			float moveSpeed = (keyboard.keyDown(Keyboard::KEY_LSHIFT) || keyboard.keyDown(Keyboard::KEY_RSHIFT)) ? 50.0f : 5.0f;
 
-			camera->Translate(directrion * m_dt * moveSpeed);
-			m_camera.move(-_directrion  * m_dt * moveSpeed);
+			camera->Translate(-directrion * m_dt * moveSpeed);
+			m_camera.move(_directrion  * m_dt * moveSpeed);
 		}
 	}
 	m_trackball.idle();
@@ -181,25 +180,21 @@ void OctreeInterface::update() {
 	if (!frameNumber)
 		++frameNumber;
 
-	std::cout << "#################" << std::endl;
+	//std::cout << "#################" << std::endl;
 
 	updateOctree();
 }
 
 void OctreeInterface::renderDirect() {
 
-
-
 	debugRenderer->SetView(camera);
-
+	debugRenderer->SetViewProjection(m_camera.getPerspectiveMatrix(), m_camera.getViewMatrix());
 
 	glClearColor(DEFAULT_FOG_COLOR.r, DEFAULT_FOG_COLOR.g, DEFAULT_FOG_COLOR.b, DEFAULT_FOG_COLOR.a);
 	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 	glDepthMask(GL_TRUE);
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	
 
 	UpdateInstanceTransforms(instanceTransforms);
 	RenderBatches(camera, opaqueBatches);
@@ -431,6 +426,7 @@ void OctreeInterface::CreateScene(Scene* scene, CameraTu* camera, int preset) {
 void OctreeInterface::updateOctree() {
 
 	frustum = camera->WorldFrustum();
+	frustum.Define(m_camera.getPerspectiveMatrix(), m_camera.getViewMatrix());
 	viewMask = camera->ViewMask();
 	rootLevelOctants.clear();
 	opaqueBatches.Clear();
@@ -522,10 +518,15 @@ void OctreeInterface::RenderBatches(CameraTu* camera_, const BatchQueue& queue) 
 	float farClip = camera->FarClip();
 	perViewData.projectionMatrix = camera->ProjectionMatrix();
 	perViewData.viewMatrix = camera->ViewMatrix();
-	perViewData.viewProjMatrix = camera->ProjectionMatrix() * camera->ViewMatrix();
+	perViewData.viewProjMatrix = camera->ViewMatrix() * camera->ProjectionMatrix();
+	//perViewData.viewProjMatrix = camera->ProjectionMatrix() * camera->ViewMatrix() ;
+
 	perViewData.depthParameters = Vector4(nearClip, farClip, camera->IsOrthographic() ? 0.5f : 0.0f, camera->IsOrthographic() ? 0.5f : 1.0f / farClip);
 	perViewData.cameraPosition = Vector4(camera->WorldPosition(), 1.0f);
 	perViewData.ambientColor = DEFAULT_AMBIENT_COLOR;
+	perViewData.view = m_camera.getViewMatrix();
+	perViewData.projection = m_camera.getPerspectiveMatrix();
+
 	perViewData.fogColor = DEFAULT_FOG_COLOR;
 	float fogStart = DEFAULT_FOG_START;
 	float fogEnd = DEFAULT_FOG_END;
@@ -538,11 +539,9 @@ void OctreeInterface::RenderBatches(CameraTu* camera_, const BatchQueue& queue) 
 
 	perViewDataBuffer->Bind(UB_PERVIEWDATA);
 
-	//std::cout << "Size: " << queue.batches.size() << std::endl;
-
 	for (auto it = queue.batches.begin(); it != queue.batches.end(); ++it){
 
-		std::cout << "------------" << std::endl;
+		//std::cout << "------------" << std::endl;
 
 		const Batch& batch = *it;
 		unsigned char geometryBits = batch.programBits & SP_GEOMETRYBITS;
@@ -574,18 +573,18 @@ void OctreeInterface::RenderBatches(CameraTu* camera_, const BatchQueue& queue) 
 			ib->Bind();
 
 		if (geometryBits == GEOM_INSTANCED){
-			/*if (ib)
+			if (ib)
 				graphics->DrawIndexedInstanced(PT_TRIANGLE_LIST, geometry->drawStart, geometry->drawCount, instanceVertexBuffer, batch.instanceStart, batch.instanceCount);
 			else
 				graphics->DrawInstanced(PT_TRIANGLE_LIST, geometry->drawStart, geometry->drawCount, instanceVertexBuffer, batch.instanceStart, batch.instanceCount);
 
-			it += batch.instanceCount - 1;*/
+			it += batch.instanceCount - 1;
 		}else{
 
 			if (!geometryBits) {
-				graphics->SetUniform(program, U_WORLDMATRIX, *batch.worldTransform);
-				//graphics->loadMatrix(program, "worldMatrix", *batch.worldTransform);
-				//graphics->loadMatrix(program, "worldMatrix4", Matrix4(*batch.worldTransform));
+				//graphics->SetUniform(program, U_WORLDMATRIX, *batch.worldTransform);
+				graphics->SetUniform(program, "worldMatrix", *batch.worldTransform);
+				graphics->SetUniform(program, "worldMatrix4", Matrix4(*batch.worldTransform));
 			}else
 				batch.drawable->OnRender(program, batch.geomIndex);
 
@@ -703,7 +702,7 @@ void OctreeInterface::CollectBatchesWork(Task* task_, unsigned threadIndex) {
 	std::vector<Batch>& opaqueQueue = threaded ? result.opaqueBatches : opaqueBatches.batches;
 
 
-	const Matrix4& viewMatrix = camera->ViewMatrix();
+	const Matrix3x4& viewMatrix = camera->ViewMatrix();
 	Vector3 viewZ = Vector3(viewMatrix.m20, viewMatrix.m21, viewMatrix.m22);
 	Vector3 absViewZ = viewZ.Abs();
 	float farClipMul = 32767.0f / camera->FarClip();

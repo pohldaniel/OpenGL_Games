@@ -6,6 +6,7 @@
 #include "../Math/Color.h"
 #include "../Math/FrustumTu.h"
 #include "../Object/ObjectTu.h"
+#include "engine/Vector.h"
 
 class BoundingBox;
 class CameraTu;
@@ -45,6 +46,7 @@ public:
 
     /// Set the camera viewpoint. Call before rendering, or before adding geometry if you want to use culling.
     void SetView(CameraTu* camera);
+	void SetViewProjection(const Matrix4f& projection, const Matrix4f& view);
     /// Add a line.
     void AddLine(const Vector3& start, const Vector3& end, const Color& color, bool depthTest = true);
     /// Add a line with color already converted to unsigned.
@@ -75,9 +77,11 @@ private:
     /// Indices rendered without depth test.
     std::vector<unsigned> noDepthIndices;
     /// View transform.
-    Matrix3x4 view;
+    Matrix4 view;
+	Matrix4f _view;
     /// Projection transform.
     Matrix4 projection;
+	Matrix4f _projection;
     /// View frustum.
     FrustumTu frustum;
     /// Vertex buffer for the debug geometry.

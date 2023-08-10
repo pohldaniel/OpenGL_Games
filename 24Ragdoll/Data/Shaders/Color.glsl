@@ -49,12 +49,11 @@ vec3 DecodeNormal(vec4 normalInput)
 
 void vert(){
 
-    mat3x4 world = GetWorldMatrix();   
-    vWorldPos.xyz = vec4(position, 1.0) * world;
-    //gl_Position = vec4(position.xyz, 1.0) * viewProjMatrix;
-  
-	//gl_Position = vec4(position, 1.0) * GetWorldMatrix4() * view * projection;
-	gl_Position = projection * view * GetWorldMatrix4() * vec4(position, 1.0); 	
+   mat3x4 world = GetWorldMatrix();  
+   vWorldPos.xyz = vec4(position, 1.0) * world;
+   //gl_Position = viewProjMatrix * vec4(vWorldPos.xyz, 1.0);
+   
+   gl_Position = projection * view * vec4(vWorldPos.xyz, 1.0);
 }
 
 void frag()

@@ -1,6 +1,7 @@
 // For conditions of distribution and use, see copyright notice in License.txt
 
 #include "FrustumTu.h"
+#include <iostream>
 
 inline Vector3 ClipEdgeZ(const Vector3& v0, const Vector3& v1, float clipZ)
 {
@@ -89,7 +90,7 @@ FrustumTu& FrustumTu::operator = (const FrustumTu& rhs)
 }
 
 void FrustumTu::Define(const Matrix4& projection, const Matrix4& view) {
-	/*Matrix4 vp = view * projection;
+	Matrix4 vp = view * projection;
 
 	planes[PLANE_NEAR].Define(Vector4(vp.m03 + vp.m02, vp.m13 + vp.m12, vp.m23 + vp.m22, vp.m33 + vp.m32));
 	planes[PLANE_FAR].Define(Vector4(vp.m03 - vp.m02, vp.m13 - vp.m12, vp.m23 - vp.m22, vp.m33 - vp.m32));
@@ -98,9 +99,9 @@ void FrustumTu::Define(const Matrix4& projection, const Matrix4& view) {
 	planes[PLANE_RIGHT].Define(Vector4(vp.m03 - vp.m00, vp.m13 - vp.m10, vp.m23 - vp.m20, vp.m33 - vp.m30));
 
 	planes[PLANE_DOWN].Define(Vector4(vp.m03 + vp.m01, vp.m13 + vp.m11, vp.m23 + vp.m21, vp.m33 + vp.m31));
-	planes[PLANE_UP].Define(Vector4(vp.m03 - vp.m01, vp.m13 - vp.m11, vp.m23 - vp.m21, vp.m33 - vp.m31));*/
+	planes[PLANE_UP].Define(Vector4(vp.m03 - vp.m01, vp.m13 - vp.m11, vp.m23 - vp.m21, vp.m33 - vp.m31));
 
-	Matrix4 vp = projection * view;
+	/*Matrix4 vp = projection * view;
 
 	planes[PLANE_NEAR].Define(Vector4(vp.m20, vp.m21, vp.m22, vp.m23));
 	planes[PLANE_FAR].Define(Vector4(vp.m30 - vp.m20, vp.m31 - vp.m21, vp.m32 - vp.m22, vp.m33 - vp.m23));
@@ -109,38 +110,51 @@ void FrustumTu::Define(const Matrix4& projection, const Matrix4& view) {
 	planes[PLANE_RIGHT].Define(Vector4(vp.m30 - vp.m00, vp.m31 - vp.m01, vp.m32 - vp.m02, vp.m33 - vp.m03));
 
 	planes[PLANE_DOWN].Define(Vector4(vp.m30 + vp.m10, vp.m31 + vp.m11, vp.m32 + vp.m12, vp.m33 + vp.m13));
-	planes[PLANE_UP].Define(Vector4(vp.m30 - vp.m10, vp.m31 - vp.m11, vp.m32 - vp.m12, vp.m33 - vp.m13));
+	planes[PLANE_UP].Define(Vector4(vp.m30 - vp.m10, vp.m31 - vp.m11, vp.m32 - vp.m12, vp.m33 - vp.m13));*/
 }
 
-void FrustumTu::Define(float fov, float aspectRatio, float zoom, float nearZ, float farZ, const Matrix3x4& transform)
-{
-    nearZ = Max(nearZ, 0.0f);
-    farZ = Max(farZ, nearZ);
-    float halfViewSize = tanf(fov * M_DEGTORAD_2) / zoom;
-    Vector3 near, far;
-    
-    near.z = nearZ;
-    near.y = near.z * halfViewSize;
-    near.x = near.y * aspectRatio;
-    far.z = farZ;
-    far.y = far.z * halfViewSize;
-    far.x = far.y * aspectRatio;
-    
-    Define(near, far, transform);
+void FrustumTu::Define(const Matrix4f& projection, const Matrix4f& view) {
+	Matrix4f vp = projection * view;
+
+	planes[PLANE_NEAR].Define(Vector4(vp[0][3] + vp[0][2], vp[1][3] + vp[1][2], vp[2][3] + vp[2][2], vp[3][3] + vp[3][2]));
+	planes[PLANE_FAR].Define(Vector4(vp[0][3] - vp[0][2], vp[1][3] - vp[1][2], vp[2][3] - vp[2][2], vp[3][3] - vp[3][2]));
+
+	planes[PLANE_LEFT].Define(Vector4(vp[0][3] + vp[0][0], vp[1][3] + vp[1][0], vp[2][3] + vp[2][0], vp[3][3] + vp[3][0]));
+	planes[PLANE_RIGHT].Define(Vector4(vp[0][3] - vp[0][0], vp[1][3] - vp[1][0], vp[2][3] - vp[2][0], vp[3][3] - vp[3][0]));
+
+	planes[PLANE_DOWN].Define(Vector4(vp[0][3] + vp[0][1], vp[1][3] + vp[1][1], vp[2][3] + vp[2][1], vp[3][3] + vp[3][1]));
+	planes[PLANE_UP].Define(Vector4(vp[0][3] - vp[0][1], vp[1][3] - vp[1][1], vp[2][3] - vp[2][1], vp[3][3] - vp[3][1]));
 }
 
-void FrustumTu::Define(const Vector3& near, const Vector3& far, const Matrix3x4& transform)
+void FrustumTu::Define(float fov, float aspectRatio, float zoom, float nearZ, float farZ, const Matrix4& transform)
 {
-    vertices[0] = transform * near;
-    vertices[1] = transform * Vector3(near.x, -near.y, near.z);
-    vertices[2] = transform * Vector3(-near.x, -near.y, near.z);
-    vertices[3] = transform * Vector3(-near.x, near.y, near.z);
-    vertices[4] = transform * far;
-    vertices[5] = transform * Vector3(far.x, -far.y, far.z);
-    vertices[6] = transform * Vector3(-far.x, -far.y, far.z);
-    vertices[7] = transform * Vector3(-far.x, far.y, far.z);
-    
-    UpdatePlanes();
+	nearZ = Max(nearZ, 0.0f);
+	farZ = Max(farZ, nearZ);
+	float halfViewSize = tanf(fov * M_DEGTORAD_2) / zoom;
+	Vector3 near, far;
+
+	near.z = nearZ;
+	near.y = near.z * halfViewSize;
+	near.x = near.y * aspectRatio;
+	far.z = farZ;
+	far.y = far.z * halfViewSize;
+	far.x = far.y * aspectRatio;
+
+	Define(near, far, transform);
+}
+
+void FrustumTu::Define(const Vector3& near, const Vector3& far, const Matrix4& transform)
+{
+	vertices[0] = transform * near;
+	vertices[1] = transform * Vector3(near.x, -near.y, near.z);
+	vertices[2] = transform * Vector3(-near.x, -near.y, near.z);
+	vertices[3] = transform * Vector3(-near.x, near.y, near.z);
+	vertices[4] = transform * far;
+	vertices[5] = transform * Vector3(far.x, -far.y, far.z);
+	vertices[6] = transform * Vector3(-far.x, -far.y, far.z);
+	vertices[7] = transform * Vector3(-far.x, far.y, far.z);
+
+	UpdatePlanes();
 }
 
 void FrustumTu::Define(const BoundingBox& box, const Matrix3x4& transform)

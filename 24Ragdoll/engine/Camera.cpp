@@ -323,6 +323,19 @@ void Camera::moveZ(float dz) {
 	m_invViewMatrix[3][2] = m_eye[2] - m_viewDir[2] * m_offsetDistance;
 }
 
+void Camera::rotate(float yaw, float pitch) {
+	rotateFirstPerson(yaw * m_rotationSpeed, pitch * m_rotationSpeed);
+	orthogonalize();
+	updateViewMatrix();
+}
+
+void Camera::rotate(float yaw, float pitch, const Vector3f &target) {
+	rotateFirstPerson(yaw * m_rotationSpeed, pitch * m_rotationSpeed);
+	orthogonalize();
+	m_eye = target - m_offsetDistance * m_viewDir;
+	updateViewMatrix();
+}
+
 void Camera::rotateFirstPerson(float yaw, float pitch){
 
 	m_accumPitchDegrees += pitch;
@@ -352,19 +365,6 @@ void Camera::rotateFirstPerson(float yaw, float pitch){
 		m_yAxis = rotMtx * m_yAxis;
 		m_zAxis = rotMtx * m_zAxis;
 	}
-}
-
-void Camera::rotate(float yaw, float pitch) {
-	rotateFirstPerson(yaw * m_rotationSpeed, pitch * m_rotationSpeed);
-	orthogonalize();
-	updateViewMatrix();
-}
-
-void Camera::rotate(float yaw, float pitch, const Vector3f &target) {
-	rotateFirstPerson(yaw * m_rotationSpeed, pitch * m_rotationSpeed);
-	orthogonalize();
-	m_eye = target - m_offsetDistance * m_viewDir;
-	updateViewMatrix();
 }
 
 const float Camera::getFar() const {

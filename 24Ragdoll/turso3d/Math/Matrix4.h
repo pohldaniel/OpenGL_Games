@@ -127,7 +127,7 @@ public:
             (m20 * rhs.x + m21 * rhs.y + m22 * rhs.z + m23) * invW
         );
     }
-    
+
     /// Multiply a Vector4.
     Vector4 operator * (const Vector4& rhs) const
     {

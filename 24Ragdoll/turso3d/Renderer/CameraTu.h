@@ -171,4 +171,5 @@ private:
     bool useReflection;
     /// Use custom clip plane flag.
     bool useClipping;
+
 };
