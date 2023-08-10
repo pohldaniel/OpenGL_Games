@@ -2,8 +2,6 @@
 
 #pragma once
 
-#include <unordered_map>
-
 #include "../IO/JSONValue.h"
 #include "../Math/Color.h"
 #include "../Math/IntRect.h"
@@ -11,7 +9,6 @@
 #include "../Object/ObjectTu.h"
 #include "../Time/TimerTu.h"
 #include "GraphicsDefs.h"
-#include "engine/Vector.h"
 
 class FrameBufferTu;
 class IndexBuffer;
@@ -158,10 +155,6 @@ public:
     /// Return the OS-level window.
     SDL_Window* Window() const { return window; }
 
-
-	void loadMatrix(ShaderProgram* program, const char* location, const Matrix4& matrix, bool trans = false) const;
-	void loadMatrix(ShaderProgram* program, const char* location, const Matrix3x4& matrix, bool trans = false) const;
-
 private:
     /// Set up the vertex buffer for quad rendering.
     void DefineQuadVertexBuffer();
@@ -202,7 +195,6 @@ private:
 
 	static VaoBindings VaoBindings;
 	static unsigned int DefaultVao;
-
 };
 
 /// Register Graphics related object factories and attributes.

@@ -6,7 +6,6 @@
 #include "Matrix3x4.h"
 #include "Plane.h"
 #include "Sphere.h"
-#include "engine/Vector.h"
 
 /// Frustum planes.
 enum FrustumPlane
@@ -52,10 +51,12 @@ public:
     /// Assign from another frustum.
 	FrustumTu& operator = (const FrustumTu& rhs);
     
+	/// Define with projection and view.
+	void Define(const Matrix4& projection = Matrix4::IDENTITY, const Matrix4& view = Matrix4::IDENTITY);
     /// Define with projection parameters and a transform matrix.
-    void Define(float fov, float aspectRatio, float zoom, float nearZ, float farZ, const Matrix4& transform = Matrix4::IDENTITY, const Matrix4& perspective = Matrix4::IDENTITY, const Matrix4& view = Matrix4::IDENTITY, const Matrix4f& _perspective = Matrix4f::IDENTITY, const Matrix4f& _view = Matrix4f::IDENTITY);
+    void Define(float fov, float aspectRatio, float zoom, float nearZ, float farZ, const Matrix3x4& transform = Matrix3x4::IDENTITY);
     /// Define with near and far dimension vectors and a transform matrix.
-    void Define(const Vector3& near, const Vector3& far, const Matrix4& transform = Matrix4::IDENTITY, const Matrix4& perspective = Matrix4::IDENTITY, const Matrix4& view = Matrix4::IDENTITY, const Matrix4f& _perspective = Matrix4f::IDENTITY, const Matrix4f& _view = Matrix4f::IDENTITY);
+    void Define(const Vector3& near, const Vector3& far, const Matrix3x4& transform = Matrix3x4::IDENTITY);
     /// Define with a bounding box and a transform matrix.
     void Define(const BoundingBox& box, const Matrix3x4& transform = Matrix3x4::IDENTITY);
     /// Define with orthographic projection parameters and a transform matrix.

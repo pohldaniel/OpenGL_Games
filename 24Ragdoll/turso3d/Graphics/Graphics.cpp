@@ -345,14 +345,6 @@ void Graphics::SetUniform(ShaderProgram* program, PresetUniform uniform, const M
     }
 }
 
-void Graphics::loadMatrix(ShaderProgram* program, const char* location, const Matrix4& matrix, bool trans) const {
-	glUniformMatrix4fv(program->Uniform(location), 1, trans, matrix.Data());
-}
-
-void Graphics::loadMatrix(ShaderProgram* program, const char* location, const Matrix3x4& matrix, bool trans) const {
-	glUniformMatrix3x4fv(program->Uniform(location), 1, trans, matrix.Data());
-}
-
 void Graphics::SetUniform(ShaderProgram* program, PresetUniform uniform, const Matrix4& value)
 {
     if (program)

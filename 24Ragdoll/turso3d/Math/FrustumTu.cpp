@@ -1,7 +1,6 @@
 // For conditions of distribution and use, see copyright notice in License.txt
 
 #include "FrustumTu.h"
-#include <iostream>
 
 inline Vector3 ClipEdgeZ(const Vector3& v0, const Vector3& v1, float clipZ)
 {
@@ -89,7 +88,31 @@ FrustumTu& FrustumTu::operator = (const FrustumTu& rhs)
     return *this;
 }
 
-void FrustumTu::Define(float fov, float aspectRatio, float zoom, float nearZ, float farZ, const Matrix4& invView, const Matrix4& perspective, const Matrix4& view, const Matrix4f& _perspective, const Matrix4f& _view)
+void FrustumTu::Define(const Matrix4& projection, const Matrix4& view) {
+	/*Matrix4 vp = view * projection;
+
+	planes[PLANE_NEAR].Define(Vector4(vp.m03 + vp.m02, vp.m13 + vp.m12, vp.m23 + vp.m22, vp.m33 + vp.m32));
+	planes[PLANE_FAR].Define(Vector4(vp.m03 - vp.m02, vp.m13 - vp.m12, vp.m23 - vp.m22, vp.m33 - vp.m32));
+
+	planes[PLANE_LEFT].Define(Vector4(vp.m03 + vp.m00, vp.m13 + vp.m10, vp.m23 + vp.m20, vp.m33 + vp.m30));
+	planes[PLANE_RIGHT].Define(Vector4(vp.m03 - vp.m00, vp.m13 - vp.m10, vp.m23 - vp.m20, vp.m33 - vp.m30));
+
+	planes[PLANE_DOWN].Define(Vector4(vp.m03 + vp.m01, vp.m13 + vp.m11, vp.m23 + vp.m21, vp.m33 + vp.m31));
+	planes[PLANE_UP].Define(Vector4(vp.m03 - vp.m01, vp.m13 - vp.m11, vp.m23 - vp.m21, vp.m33 - vp.m31));*/
+
+	Matrix4 vp = projection * view;
+
+	planes[PLANE_NEAR].Define(Vector4(vp.m20, vp.m21, vp.m22, vp.m23));
+	planes[PLANE_FAR].Define(Vector4(vp.m30 - vp.m20, vp.m31 - vp.m21, vp.m32 - vp.m22, vp.m33 - vp.m23));
+
+	planes[PLANE_LEFT].Define(Vector4(vp.m30 + vp.m00, vp.m31 + vp.m01, vp.m32 + vp.m02, vp.m33 + vp.m03));
+	planes[PLANE_RIGHT].Define(Vector4(vp.m30 - vp.m00, vp.m31 - vp.m01, vp.m32 - vp.m02, vp.m33 - vp.m03));
+
+	planes[PLANE_DOWN].Define(Vector4(vp.m30 + vp.m10, vp.m31 + vp.m11, vp.m32 + vp.m12, vp.m33 + vp.m13));
+	planes[PLANE_UP].Define(Vector4(vp.m30 - vp.m10, vp.m31 - vp.m11, vp.m32 - vp.m12, vp.m33 - vp.m13));
+}
+
+void FrustumTu::Define(float fov, float aspectRatio, float zoom, float nearZ, float farZ, const Matrix3x4& transform)
 {
     nearZ = Max(nearZ, 0.0f);
     farZ = Max(farZ, nearZ);
@@ -103,119 +126,21 @@ void FrustumTu::Define(float fov, float aspectRatio, float zoom, float nearZ, fl
     far.y = far.z * halfViewSize;
     far.x = far.y * aspectRatio;
     
-    Define(near, far, invView, perspective, view, _perspective, _view);
+    Define(near, far, transform);
 }
 
-void FrustumTu::Define(const Vector3& near, const Vector3& far, const Matrix4& invView, const Matrix4& perspective, const Matrix4& view, const Matrix4f& _perspective, const Matrix4f& _view)
+void FrustumTu::Define(const Vector3& near, const Vector3& far, const Matrix3x4& transform)
 {
-	std::cout << "Define: " << std::endl;
-	/*view.Inverse().print();
-	invView.print();
-
-	std::cout << "Define: " << std::endl;
-	Matrix4 tmp = invView.Transpose();
-
-    vertices[0] = tmp * near;
-    vertices[1] = tmp * Vector3(near.x, -near.y, near.z);
-    vertices[2] = tmp * Vector3(-near.x, -near.y, near.z);
-    vertices[3] = tmp * Vector3(-near.x, near.y, near.z);
-    vertices[4] = tmp * far;
-    vertices[5] = tmp * Vector3(far.x, -far.y, far.z);
-    vertices[6] = tmp * Vector3(-far.x, -far.y, far.z);
-    vertices[7] = tmp * Vector3(-far.x, far.y, far.z);
-
-	std::cout << vertices[0].x << "  " << vertices[0].y << "  " << vertices[0].z << std::endl;*/
-
-	vertices[0] = invView ^ Vector3(near.x, near.y, near.z);
-	vertices[1] = invView ^ Vector3(near.x, -near.y, near.z);
-	vertices[2] = invView ^ Vector3(-near.x, -near.y, near.z);
-	vertices[3] = invView ^ Vector3(-near.x, near.y, near.z);
-	vertices[4] = invView ^ Vector3(far.x, far.y, far.z);
-	vertices[5] = invView ^ Vector3(far.x, -far.y, far.z);
-	vertices[6] = invView ^ Vector3(-far.x, -far.y, far.z);
-	vertices[7] = invView ^ Vector3(-far.x, far.y, far.z);
-
-	/*std::cout << vertices[0].x << "  " << vertices[0].y << "  " << vertices[0].z << std::endl;
-	std::cout << vertices[1].x << "  " << vertices[1].y << "  " << vertices[1].z << std::endl;
-	std::cout << vertices[2].x << "  " << vertices[2].y << "  " << vertices[2].z << std::endl;
-	std::cout << vertices[3].x << "  " << vertices[3].y << "  " << vertices[3].z << std::endl;
-	std::cout << vertices[4].x << "  " << vertices[4].y << "  " << vertices[4].z << std::endl;
-	std::cout << vertices[5].x << "  " << vertices[5].y << "  " << vertices[5].z << std::endl;
-	std::cout << vertices[6].x << "  " << vertices[6].y << "  " << vertices[6].z << std::endl;
-	std::cout << vertices[7].x << "  " << vertices[7].y << "  " << vertices[7].z << std::endl;*/
-	//UpdatePlanes();
-	//perspective.print();
-	//_perspective.print();
-	//view.print();
-	//_view.print();
-
-	Matrix4 vp = view * perspective ;
-
-	/*Matrix4f vp2 = _perspective * _view;
-	vp.print();
-	vp2.print();*/
-
-	planes[PLANE_NEAR].Define(Vector4(vp.m03 + vp.m02, vp.m13 + vp.m12, vp.m23 + vp.m22, vp.m33 + vp.m32));
-	planes[PLANE_FAR].Define(Vector4(vp.m03 - vp.m02, vp.m13 - vp.m12, vp.m23 - vp.m22, vp.m33 - vp.m32));
-
-	planes[PLANE_LEFT].Define(Vector4(vp.m03 + vp.m00, vp.m13 + vp.m10, vp.m23 + vp.m20, vp.m33 + vp.m30));
-	planes[PLANE_RIGHT].Define(Vector4(vp.m03 - vp.m00, vp.m13 - vp.m10, vp.m23 - vp.m20, vp.m33 - vp.m30));
-
-	planes[PLANE_DOWN].Define(Vector4(vp.m03 + vp.m01, vp.m13 + vp.m11, vp.m23 + vp.m21, vp.m33 + vp.m31));
-	planes[PLANE_UP].Define(Vector4(vp.m03 - vp.m01, vp.m13 - vp.m11, vp.m23 - vp.m21, vp.m33 - vp.m31));
-
-	/*float _near = perspective.m32 / (perspective.m22 - 1);
-	float heightNear = (2.0f / perspective.m11) * _near;
-	float widthNear = (heightNear *  perspective.m11) / perspective.m00;
-
-	float _far = perspective.m32 / (perspective.m22 + 1);
-	float heightFar = (2.0f / perspective.m11) * _far;
-	float widthFar = (heightFar  * perspective.m11) / perspective.m00;
-
-	const Vector3& right = Vector3(view.m00, view.m10, view.m20);
-	const Vector3& up = Vector3(view.m01, view.m11, view.m21);
-	const Vector3& viewDirection = Vector3(-view.m02, -view.m12, -view.m22);
-	const Vector3& pos = Vector3(-(view.m30 * view.m00 + view.m31 * view.m01 + view.m32 * view.m02),
-		-(view.m30 * view.m10 + view.m31 * view.m11 + view.m32 * view.m12),
-		-(view.m30 * view.m20 + view.m31 * view.m21 + view.m32 * view.m22));
-
-	Vector3 centerNear = pos - viewDirection * _near;
-	Vector3 centerFar = pos - viewDirection * _far;
-
-	Vector3 nearBottomLeft = centerNear - up * (heightNear * 0.5f) - right * (widthNear * 0.5f);
-	Vector3 nearTopLeft = centerNear + up * (heightNear * 0.5f) - right * (widthNear * 0.5f);
-	Vector3 nearTopRight = centerNear + up * (heightNear * 0.5f) + right * (widthNear * 0.5f);
-	Vector3 nearBottomRight = centerNear - up * (heightNear * 0.5f) + right * (widthNear * 0.5f);
-
-	Vector3 farBottomLeft = centerFar - up * (heightFar * 0.5f) - right * (widthFar * 0.5f);
-	Vector3 farTopLeft = centerFar + up * (heightFar * 0.5f) - right * (widthFar * 0.5f);
-	Vector3 farTopRight = centerFar + up * (heightFar * 0.5f) + right * (widthFar * 0.5f);
-	Vector3 farBottomRight = centerFar - up * (heightFar * 0.5f) + right * (widthFar * 0.5f);
-
-
-	vertices[0] = nearBottomLeft;
-	vertices[1] = nearTopLeft;
-	vertices[2] = nearTopRight;
-	vertices[3] = nearBottomRight;
-	vertices[4] = farBottomLeft;
-	vertices[5] = farTopLeft;
-	vertices[6] = farTopRight;
-	vertices[7] = farBottomRight;
-
-	std::cout << "wwwwwwwwwwwwwwwwwww" << std::endl;
-
-	std::cout << vertices[0].x << "  " << vertices[0].y << "  " << vertices[0].z << std::endl;
-	std::cout << vertices[1].x << "  " << vertices[1].y << "  " << vertices[1].z << std::endl;
-	std::cout << vertices[2].x << "  " << vertices[2].y << "  " << vertices[2].z << std::endl;
-
-	std::cout << vertices[3].x << "  " << vertices[3].y << "  " << vertices[3].z << std::endl;
-
-	std::cout << vertices[4].x << "  " << vertices[4].y << "  " << vertices[4].z << std::endl;
-	std::cout << vertices[5].x << "  " << vertices[5].y << "  " << vertices[5].z << std::endl;
-	std::cout << vertices[6].x << "  " << vertices[6].y << "  " << vertices[6].z << std::endl;
-	std::cout << vertices[7].x << "  " << vertices[7].y << "  " << vertices[7].z << std::endl;*/
-
-	//UpdatePlanes();*/
+    vertices[0] = transform * near;
+    vertices[1] = transform * Vector3(near.x, -near.y, near.z);
+    vertices[2] = transform * Vector3(-near.x, -near.y, near.z);
+    vertices[3] = transform * Vector3(-near.x, near.y, near.z);
+    vertices[4] = transform * far;
+    vertices[5] = transform * Vector3(far.x, -far.y, far.z);
+    vertices[6] = transform * Vector3(-far.x, -far.y, far.z);
+    vertices[7] = transform * Vector3(-far.x, far.y, far.z);
+    
+    UpdatePlanes();
 }
 
 void FrustumTu::Define(const BoundingBox& box, const Matrix3x4& transform)

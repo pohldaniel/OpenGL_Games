@@ -5,7 +5,7 @@
       "colorWrite": false
     },
     "opaque": {
-      "shader": "Shaders/Color.glsl"
+      "shader": "Shaders/DiffuseNormal.glsl"
     }
   },
   "textures": {

@@ -35,29 +35,6 @@ CameraTu::CameraTu() :
     useClipping(false)
 {
     reflectionMatrix = reflectionPlane.ReflectionMatrix();
-
-	WORLD_XAXIS = Vector3f(1.0f, 0.0f, 0.0f);
-	WORLD_YAXIS = Vector3f(0.0f, 1.0f, 0.0f);
-	WORLD_ZAXIS = Vector3f(0.0f, 0.0f, 1.0f);
-
-	m_accumPitchDegrees = 0.0f;
-	m_rotationSpeed = 0.1f;
-	m_movingSpeed = 1.0f;
-	m_offsetDistance = 0.0f;
-
-	m_xAxis.set(1.0f, 0.0f, 0.0f);
-	m_yAxis.set(0.0f, 1.0f, 0.0f);
-	m_zAxis.set(0.0f, 0.0f, 1.0f);
-	m_viewDir.set(0.0f, 0.0f, -1.0f);
-
-	m_eye = Vector3f(0.0f, 0.0f, 0.0f);
-	m_persMatrix.identity();
-	m_invPersMatrix.identity();
-	m_orthMatrix.identity();
-	m_invOrthMatrix.identity();
-
-	orthogonalize();
-	updateViewMatrix();
 }
 
 void CameraTu::RegisterObject()
@@ -90,14 +67,15 @@ float CameraTu::NearClip() const
 
 FrustumTu CameraTu::WorldFrustum() const
 {
-    FrustumTu ret;
+	FrustumTu ret;
 
 	if (!orthographic) {
-		ret.Define(fov, aspectRatio, zoom, NearClip(), farClip, EffectiveWorldTransform(), ProjectionMatrix(), ViewMatrix(), m_persMatrix, m_viewMatrix);
+		//ret.Define(fov, aspectRatio, zoom, NearClip(), farClip, EffectiveWorldTransform());
+		ret.Define(ProjectionMatrix(false), ViewMatrix());
 	}else
-        ret.DefineOrtho(orthoSize, aspectRatio, zoom, NearClip(), farClip, EffectiveWorldTransform());
+		ret.DefineOrtho(orthoSize, aspectRatio, zoom, NearClip(), farClip, EffectiveWorldTransform());
 
-    return ret;
+	return ret;
 }
 
 FrustumTu CameraTu::WorldSplitFrustum(float nearClip_, float farClip_) const
@@ -161,38 +139,9 @@ Matrix4 CameraTu::ProjectionMatrix(bool apiSpecific) const
         ret.m02 = 0.0f;
         ret.m11 = h;
         ret.m12 = 0.0f;
-		/*ret.m22 = q;
+        ret.m22 = q;
         ret.m23 = r;
-        ret.m32 = 1.0f;*/
-
-		ret.m22 = -q;
-		ret.m23 = -1.0f;
-		ret.m32 = 2.0f * r;
-
-		float e = tanf(PI_ON_180 * fov * 0.5f);
-		float xScale = (1.0f / (e * aspectRatio));
-		float yScale = (1.0f / e);
-
-		ret.m00 = xScale;
-		ret.m01 = 0.0f;
-		ret.m02 = 0.0f;
-		ret.m03 = 0.0f;
-
-		ret.m10 = 0.0f;
-		ret.m11 = yScale;
-		ret.m12 = 0.0f;
-		ret.m13 = 0.0f;
-
-		ret.m20 = 0.0f;
-		ret.m21 = 0.0f;
-		ret.m22 = (farClip + nearClip) / (nearClip - farClip);
-		ret.m23 = -1.0f;
-
-		ret.m30 = 0.0f;
-		ret.m31 = 0.0f;
-		ret.m32 = (2.0f * farClip * nearClip) / (nearClip - farClip);
-		ret.m33 = 0.0f;
-
+        ret.m32 = 1.0f;
     }
     else
     {
@@ -214,13 +163,13 @@ Matrix4 CameraTu::ProjectionMatrix(bool apiSpecific) const
     if (flipVertical)
         ret = flipMatrix * ret;
 
-    /*if (openGLFormat)
+    if (openGLFormat)
     {
         ret.m20 = 2.0f * ret.m20 - ret.m30;
         ret.m21 = 2.0f * ret.m21 - ret.m31;
         ret.m22 = 2.0f * ret.m22 - ret.m32;
         ret.m23 = 2.0f * ret.m23 - ret.m33;
-    }*/
+    }
 
     return ret;
 }
@@ -355,11 +304,12 @@ QuaternionTu CameraTu::FaceCameraRotation(const Vector3& position_, const Quater
 
 Matrix4 CameraTu::EffectiveWorldTransform() const
 {
-    Matrix3x4 transform(WorldPosition(), WorldRotation(), 1.0f);
+	//Matrix3x4 transform(WorldPosition(), WorldRotation(), 1.0f);
+	//return useReflection ? reflectionMatrix * transform : transform;
 
+	Matrix3x4 transform(WorldPosition(), WorldRotation(), 1.0f);
 	Matrix4 trans(transform);
-
-    return useReflection ? (Matrix4(reflectionMatrix) * trans).Transpose() : trans.Transpose();
+	return useReflection ? Matrix4(reflectionMatrix * transform) : trans;
 }
 
 bool CameraTu::IsProjectionValid() const
@@ -371,7 +321,6 @@ void CameraTu::OnTransformChanged()
 {
     SpatialNode::OnTransformChanged();
     viewMatrixDirty = true;
-
 }
 
 void CameraTu::SetReflectionPlaneAttr(const Vector4& value)
@@ -392,186 +341,4 @@ Vector4 CameraTu::ReflectionPlaneAttr() const
 Vector4 CameraTu::ClipPlaneAttr() const
 {
     return clipPlane.ToVector4();
-}
-
-void CameraTu::orthogonalize() {
-
-	Vector3f::Normalize(m_zAxis);
-
-	m_yAxis = Vector3f::Cross(m_zAxis, m_xAxis);
-	Vector3f::Normalize(m_yAxis);
-
-	m_xAxis = Vector3f::Cross(m_yAxis, m_zAxis);
-	Vector3f::Normalize(m_xAxis);
-
-	m_viewDir = -m_zAxis;
-
-/*	m_viewMatrix[0][0] = m_xAxis[0];
-	m_viewMatrix[1][0] = m_yAxis[0];
-	m_viewMatrix[2][0] = m_zAxis[0];
-	m_viewMatrix[3][0] = 0.0f;
-
-	m_viewMatrix[0][1] = m_xAxis[1];
-	m_viewMatrix[1][1] = m_yAxis[1];
-	m_viewMatrix[2][1] = m_zAxis[1];
-	m_viewMatrix[3][1] = 0.0f;
-
-	m_viewMatrix[0][2] = m_xAxis[2];
-	m_viewMatrix[1][2] = m_yAxis[2];
-	m_viewMatrix[2][2] = m_zAxis[2];
-	m_viewMatrix[3][2] = 0.0f;*/
-
-	m_viewMatrix[0][0] = m_xAxis[0];
-	m_viewMatrix[0][1] = m_yAxis[0];
-	m_viewMatrix[0][2] = m_zAxis[0];
-	m_viewMatrix[0][3] = 0.0f;
-
-	m_viewMatrix[1][0] = m_xAxis[1];
-	m_viewMatrix[1][1] = m_yAxis[1];
-	m_viewMatrix[1][2] = m_zAxis[1];
-	m_viewMatrix[1][3] = 0.0f;
-
-	m_viewMatrix[2][0] = m_xAxis[2];
-	m_viewMatrix[2][1] = m_yAxis[2];
-	m_viewMatrix[2][2] = m_zAxis[2];
-	m_viewMatrix[2][3] = 0.0f;
-
-	m_invViewMatrix[0][0] = m_xAxis[0];
-	m_invViewMatrix[0][1] = m_xAxis[1];
-	m_invViewMatrix[0][2] = m_xAxis[2];
-	m_invViewMatrix[0][3] = 0.0f;
-
-	m_invViewMatrix[1][0] = m_yAxis[0];
-	m_invViewMatrix[1][1] = m_yAxis[1];
-	m_invViewMatrix[1][2] = m_yAxis[2];
-	m_invViewMatrix[1][3] = 0.0f;
-
-	m_invViewMatrix[2][0] = m_zAxis[0];
-	m_invViewMatrix[2][1] = m_zAxis[1];
-	m_invViewMatrix[2][2] = m_zAxis[2];
-	m_invViewMatrix[2][3] = 0.0f;
-}
-
-void CameraTu::updateViewMatrix() {
-
-	/*m_viewMatrix[0][3] = -Vector3f::Dot(m_xAxis, m_eye);
-	m_viewMatrix[1][3] = -Vector3f::Dot(m_yAxis, m_eye);
-	m_viewMatrix[2][3] = -Vector3f::Dot(m_zAxis, m_eye);
-	m_viewMatrix[3][3] = 1.0f;*/
-
-	m_viewMatrix[3][0] = -Vector3f::Dot(m_xAxis, m_eye);
-	m_viewMatrix[3][1] = -Vector3f::Dot(m_yAxis, m_eye);
-	m_viewMatrix[3][2] = -Vector3f::Dot(m_zAxis, m_eye);
-	m_viewMatrix[3][3] = 1.0f;
-
-	m_invViewMatrix[3][0] = m_eye[0];
-	m_invViewMatrix[3][1] = m_eye[1];
-	m_invViewMatrix[3][2] = m_eye[2];
-	m_invViewMatrix[3][3] = 1.0f;
-}
-
-void CameraTu::rotateFirstPerson(float yaw, float pitch) {
-
-	m_accumPitchDegrees += pitch;
-
-	if (m_accumPitchDegrees > 90.0f) {
-		pitch = 90.0f - (m_accumPitchDegrees - pitch);
-		m_accumPitchDegrees = 90.0f;
-	}
-
-	if (m_accumPitchDegrees < -90.0f) {
-		pitch = -90.0f - (m_accumPitchDegrees - pitch);
-		m_accumPitchDegrees = -90.0f;
-	}
-
-	Matrix4f rotMtx;
-
-	// Rotate camera's existing x and z axes about the world y axis.
-	if (yaw != 0.0f) {
-		rotMtx.rotate(WORLD_YAXIS, yaw);
-		m_xAxis = rotMtx * m_xAxis;
-		m_zAxis = rotMtx * m_zAxis;
-	}
-
-	// Rotate camera's existing y and z axes about its existing x axis.
-	if (pitch != 0.0f) {
-		rotMtx.rotate(m_xAxis, pitch);
-		m_yAxis = rotMtx * m_yAxis;
-		m_zAxis = rotMtx * m_zAxis;
-	}
-}
-
-void CameraTu::rotate(float yaw, float pitch) {
-	rotateFirstPerson(yaw * m_rotationSpeed, pitch * m_rotationSpeed);
-	orthogonalize();
-	updateViewMatrix();
-}
-
-void CameraTu::rotate(float yaw, float pitch, const Vector3f &target) {
-	rotateFirstPerson(yaw * m_rotationSpeed, pitch * m_rotationSpeed);
-	orthogonalize();
-	m_eye = target - m_offsetDistance * m_viewDir;
-	updateViewMatrix();
-}
-
-void CameraTu::move(float dx, float dy, float dz) {
-	Vector3f eye = m_eye;
-	eye += m_xAxis * dx * m_movingSpeed;
-	eye += WORLD_YAXIS * dy * m_movingSpeed;
-	eye += m_viewDir * dz * m_movingSpeed;
-	setPosition(eye);
-}
-
-void CameraTu::move(const Vector3f &direction) {
-	Vector3f eye = m_eye;
-	eye += m_xAxis * direction[0] * m_movingSpeed;
-	eye += WORLD_YAXIS * direction[1] * m_movingSpeed;
-	eye += m_viewDir * direction[2] * m_movingSpeed;
-	setPosition(eye);
-}
-
-void CameraTu::setPosition(float x, float y, float z) {
-	m_eye = Vector3f(x, y, z);
-	updateViewMatrix();
-}
-
-void CameraTu::setPosition(const Vector3f &position) {
-	m_eye = position;
-	updateViewMatrix();
-}
-
-void CameraTu::perspective(float fovx, float aspect, float znear, float zfar) {
-	// Construct a projection matrix based on the horizontal field of view
-	// 'fovx' rather than the more traditional vertical field of view 'fovy'.
-	float e = tanf(PI_ON_180 * fovx * 0.5f);
-	float xScale = (1.0f / (e * aspect));
-	float yScale = (1.0f / e);
-
-	m_persMatrix[0][0] = xScale;
-	m_persMatrix[0][1] = 0.0f;
-	m_persMatrix[0][2] = 0.0f;
-	m_persMatrix[0][3] = 0.0f;
-
-	m_persMatrix[1][0] = 0.0f;
-	m_persMatrix[1][1] = yScale;
-	m_persMatrix[1][2] = 0.0f;
-	m_persMatrix[1][3] = 0.0f;
-
-	m_persMatrix[2][0] = 0.0f;
-	m_persMatrix[2][1] = 0.0f;
-	m_persMatrix[2][2] = (zfar + znear) / (znear - zfar);
-	m_persMatrix[2][3] = -1.0f;
-
-	m_persMatrix[3][0] = 0.0f;
-	m_persMatrix[3][1] = 0.0f;
-	m_persMatrix[3][2] = (2.0f * zfar * znear) / (znear - zfar);
-	m_persMatrix[3][3] = 0.0f;
-}
-
-const Matrix4& CameraTu::ViewMatrix() const { 
-	if (viewMatrixDirty) { 
-		viewMatrix = EffectiveWorldTransform().Inverse(); 
-		viewMatrixDirty = false; 
-	} 
-	return viewMatrix;
 }

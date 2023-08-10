@@ -53,11 +53,11 @@ OctreeInterface::OctreeInterface(StateMachine& machine) : State(machine, Current
 
 	CreateScene(scene, camera, 0);
 
-	camera->SetPosition(Vector3(0.0f, 20.0f, 75.0f));
+	camera->SetPosition(Vector3(0.0f, 20.0f, -75.0f));
 	camera->SetAspectRatio((float)Application::Width / (float)Application::Height);
 
-	camera->setPosition(Vector3f(0.0f, 20.0f, 75.0f));
-	camera->perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
+	m_camera.setPosition(Vector3f(0.0f, 20.0f, -75.0f));
+	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
 
 
 	perViewDataBuffer = new UniformBuffer();
@@ -140,14 +140,14 @@ void OctreeInterface::update() {
 			pitch = Clamp(pitch, -90.0f, 90.0f);
 
 			camera->SetRotation(QuaternionTu(pitch, yaw, 0.0f));
-			camera->rotate(-dx, -dy);
+			m_camera.rotate(-dx, -dy);
 		}
 
 		if (move) {
 			float moveSpeed = (keyboard.keyDown(Keyboard::KEY_LSHIFT) || keyboard.keyDown(Keyboard::KEY_RSHIFT)) ? 50.0f : 5.0f;
 
 			camera->Translate(directrion * m_dt * moveSpeed);
-			camera->move(-_directrion  * m_dt * moveSpeed);
+			m_camera.move(-_directrion  * m_dt * moveSpeed);
 		}
 	}
 	m_trackball.idle();
@@ -526,19 +526,6 @@ void OctreeInterface::RenderBatches(CameraTu* camera_, const BatchQueue& queue) 
 	perViewData.depthParameters = Vector4(nearClip, farClip, camera->IsOrthographic() ? 0.5f : 0.0f, camera->IsOrthographic() ? 0.5f : 1.0f / farClip);
 	perViewData.cameraPosition = Vector4(camera->WorldPosition(), 1.0f);
 	perViewData.ambientColor = DEFAULT_AMBIENT_COLOR;
-
-	Matrix4 view = Matrix4(camera->ViewMatrix());
-	Matrix4f _view = camera->m_viewMatrix;
-
-	Matrix4 projection = camera->ProjectionMatrix();
-	Matrix4f _projection = camera->m_persMatrix;
-	//projection.print();
-	//_projection.print();
-
-	perViewData.view = camera->m_viewMatrix;
-	perViewData.projection = camera->m_persMatrix;
-	//perViewData.projection = camera->ProjectionMatrix();
-
 	perViewData.fogColor = DEFAULT_FOG_COLOR;
 	float fogStart = DEFAULT_FOG_START;
 	float fogEnd = DEFAULT_FOG_END;
@@ -596,9 +583,9 @@ void OctreeInterface::RenderBatches(CameraTu* camera_, const BatchQueue& queue) 
 		}else{
 
 			if (!geometryBits) {
-				//graphics->SetUniform(program, U_WORLDMATRIX, *batch.worldTransform);
-				graphics->loadMatrix(program, "worldMatrix", *batch.worldTransform);
-				graphics->loadMatrix(program, "worldMatrix4", Matrix4(*batch.worldTransform));
+				graphics->SetUniform(program, U_WORLDMATRIX, *batch.worldTransform);
+				//graphics->loadMatrix(program, "worldMatrix", *batch.worldTransform);
+				//graphics->loadMatrix(program, "worldMatrix4", Matrix4(*batch.worldTransform));
 			}else
 				batch.drawable->OnRender(program, batch.geomIndex);
 
@@ -716,7 +703,7 @@ void OctreeInterface::CollectBatchesWork(Task* task_, unsigned threadIndex) {
 	std::vector<Batch>& opaqueQueue = threaded ? result.opaqueBatches : opaqueBatches.batches;
 
 
-	const Matrix3x4& viewMatrix = camera->ViewMatrix();
+	const Matrix4& viewMatrix = camera->ViewMatrix();
 	Vector3 viewZ = Vector3(viewMatrix.m20, viewMatrix.m21, viewMatrix.m22);
 	Vector3 absViewZ = viewZ.Abs();
 	float farClipMul = 32767.0f / camera->FarClip();

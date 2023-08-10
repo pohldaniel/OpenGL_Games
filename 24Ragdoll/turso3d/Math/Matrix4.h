@@ -127,17 +127,6 @@ public:
             (m20 * rhs.x + m21 * rhs.y + m22 * rhs.z + m23) * invW
         );
     }
-
-	Vector3 operator ^ (const Vector3& rhs) const
-	{
-		float invW = 1.0f / (m03 * rhs.x + m13 * rhs.y + m23 * rhs.z + m33);
-
-		return Vector3(
-			(m00 * rhs.x + m10 * rhs.y + m20 * rhs.z + m30) * invW,
-			(m01 * rhs.x + m11 * rhs.y + m21 * rhs.z + m31) * invW,
-			(m02 * rhs.x + m12 * rhs.y + m22 * rhs.z + m32) * invW
-		);
-	}
     
     /// Multiply a Vector4.
     Vector4 operator * (const Vector4& rhs) const

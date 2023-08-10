@@ -315,11 +315,6 @@ void DebugRenderer::Render()
     Graphics* graphics = Subsystem<Graphics>();
     shaderProgram->Bind();
     graphics->SetUniform(shaderProgram, "viewProjMatrix", projection * view);
-
-
-	graphics->SetUniform(shaderProgram, "projection", projection);
-	graphics->SetUniform(shaderProgram, "view", view);
-
     graphics->SetVertexBuffer(vertexBuffer, shaderProgram);
     graphics->SetIndexBuffer(indexBuffer);
 

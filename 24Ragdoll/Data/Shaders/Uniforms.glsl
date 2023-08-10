@@ -1,8 +1,8 @@
 layout(std140) uniform PerViewData0
 {
-    uniform mat3x4 viewMatrix;
+    uniform mat4x4 viewMatrix;
     uniform mat4x4 projectionMatrix;
-    uniform mat4x4 viewProjMatrix;	
+    uniform mat4x4 viewProjMatrix;
     uniform vec4 depthParameters;
     uniform vec3 cameraPosition;
     uniform vec4 ambientColor;
@@ -13,9 +13,6 @@ layout(std140) uniform PerViewData0
     uniform vec4 dirLightShadowSplits;
     uniform vec4 dirLightShadowParameters;
     uniform mat4x4 dirLightShadowMatrices[2];
-	uniform mat4x4 view;
-	uniform mat4x4 projection;
-	
 };
 
 struct Light

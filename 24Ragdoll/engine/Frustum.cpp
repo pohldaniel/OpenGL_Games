@@ -109,7 +109,6 @@ void Frustum::updateVbo(const Matrix4f& perspective, const Matrix4f& view) {
 		//worldSpace
 		Vector3f centerNear = pos + viewDirection * near;
 		Vector3f centerFar = pos + viewDirection * far;
-
 		Vector3f nearBottomLeft = centerNear - up * (heightNear * 0.5f) - right * (widthNear * 0.5f);
 		Vector3f nearTopLeft = centerNear + up * (heightNear * 0.5f) - right * (widthNear * 0.5f);
 		Vector3f nearTopRight = centerNear + up * (heightNear * 0.5f) + right * (widthNear * 0.5f);

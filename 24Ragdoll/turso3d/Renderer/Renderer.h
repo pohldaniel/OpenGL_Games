@@ -10,8 +10,6 @@
 #include "../Thread/WorkQueue.h"
 #include "Batch.h"
 
-#include "engine/Vector.h"
-
 #include <atomic>
 
 class CameraTu;
@@ -127,7 +125,7 @@ struct ShadowMap
 struct PerViewUniforms
 {
 	/// Current camera's view matrix
-	Matrix3x4 viewMatrix;
+	Matrix4 viewMatrix;
 	/// Current camera's projection matrix.
 	Matrix4 projectionMatrix;
 	/// Current camera's combined view and projection matrix.
@@ -152,9 +150,6 @@ struct PerViewUniforms
 	Vector4 dirLightShadowParameters;
 	/// Directional light shadow matrices.
 	Matrix4 dirLightShadowMatrices[2];
-
-	Matrix4f view;
-	Matrix4f projection;
 };
 
 /// Per-light data for cluster light shader.

@@ -75,7 +75,7 @@ private:
     /// Indices rendered without depth test.
     std::vector<unsigned> noDepthIndices;
     /// View transform.
-    Matrix4 view;
+    Matrix3x4 view;
     /// Projection transform.
     Matrix4 projection;
     /// View frustum.
