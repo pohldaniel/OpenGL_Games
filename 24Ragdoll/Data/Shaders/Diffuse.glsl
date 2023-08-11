@@ -43,7 +43,7 @@ void vert()
     vNormal = normalize((vec4(normal, 0.0) * world));
     vViewNormal = (vec4(vNormal, 0.0) * viewMatrix).xyz * 0.5 + 0.5;
     vTexCoord = texCoord;
-    gl_Position = viewProjMatrix * vec4(vWorldPos.xyz, 1.0);
+    gl_Position = viewProjection * vec4(vWorldPos.xyz, 1.0);
     vWorldPos.w = CalculateDepth(gl_Position);
     vScreenPos = CalculateScreenPos(gl_Position);
 }

@@ -19,6 +19,7 @@ OctreeInterface::OctreeInterface(StateMachine& machine) : State(machine, Current
 
 	m_camera = Camera();
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
+	m_camera.lookAt(Vector3f(0.0f, 20.0f, -75.0f), Vector3f(0.0f, 20.0f, -75.0f) + Vector3f(0.0f, 0.0f, 1.0f), Vector3f(0.0f, 1.0f, 0.0f));
 	m_camera.setRotationSpeed(0.1f);
 
 	glClearColor(0.7f, 0.7f, 0.7f, 0.0f);
@@ -55,7 +56,7 @@ OctreeInterface::OctreeInterface(StateMachine& machine) : State(machine, Current
 	camera->SetPosition(Vector3(0.0f, 20.0f, 75.0f));
 	camera->SetAspectRatio((float)Application::Width / (float)Application::Height);
 
-	m_camera.setPosition(Vector3f(0.0f, 20.0f, 75.0f));
+	//m_camera.setPosition(Vector3f(0.0f, 20.0f, 75.0f));
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
 
 
@@ -179,8 +180,6 @@ void OctreeInterface::update() {
 	++frameNumber;
 	if (!frameNumber)
 		++frameNumber;
-
-	//std::cout << "#################" << std::endl;
 
 	updateOctree();
 }
@@ -526,6 +525,7 @@ void OctreeInterface::RenderBatches(CameraTu* camera_, const BatchQueue& queue) 
 	perViewData.ambientColor = DEFAULT_AMBIENT_COLOR;
 	perViewData.view = m_camera.getViewMatrix();
 	perViewData.projection = m_camera.getPerspectiveMatrix();
+	perViewData.viewProjection = m_camera.getPerspectiveMatrix() * m_camera.getViewMatrix();
 
 	perViewData.fogColor = DEFAULT_FOG_COLOR;
 	float fogStart = DEFAULT_FOG_START;
@@ -540,8 +540,6 @@ void OctreeInterface::RenderBatches(CameraTu* camera_, const BatchQueue& queue) 
 	perViewDataBuffer->Bind(UB_PERVIEWDATA);
 
 	for (auto it = queue.batches.begin(); it != queue.batches.end(); ++it){
-
-		//std::cout << "------------" << std::endl;
 
 		const Batch& batch = *it;
 		unsigned char geometryBits = batch.programBits & SP_GEOMETRYBITS;

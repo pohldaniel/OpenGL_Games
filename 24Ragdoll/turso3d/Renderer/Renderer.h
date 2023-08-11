@@ -155,6 +155,7 @@ struct PerViewUniforms
 
 	Matrix4f view;
 	Matrix4f projection;
+	Matrix4f viewProjection;
 };
 
 /// Per-light data for cluster light shader.

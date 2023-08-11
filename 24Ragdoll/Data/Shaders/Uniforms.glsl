@@ -15,6 +15,7 @@ layout(std140) uniform PerViewData0
     uniform mat4x4 dirLightShadowMatrices[2];
     uniform mat4x4 view;
     uniform mat4x4 projection;
+	uniform mat4x4 viewProjection;
 };
 
 struct Light
