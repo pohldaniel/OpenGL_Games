@@ -19,8 +19,9 @@ OctreeInterface::OctreeInterface(StateMachine& machine) : State(machine, Current
 
 	m_camera = Camera();
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
-	m_camera.lookAt(Vector3f(0.0f, 20.0f, -75.0f), Vector3f(0.0f, 20.0f, -75.0f) + Vector3f(0.0f, 0.0f, 1.0f), Vector3f(0.0f, 1.0f, 0.0f));
+	m_camera.lookAt(Vector3f(0.0f, 5.0f, -60.0f), Vector3f(0.0f, 5.0f, -60.0f) + Vector3f(0.0f, 0.0f, 1.0f), Vector3f(0.0f, 1.0f, 0.0f));
 	m_camera.setRotationSpeed(0.1f);
+	m_camera.setMovingSpeed(2.0f);
 
 	glClearColor(0.7f, 0.7f, 0.7f, 0.0f);
 
@@ -90,36 +91,39 @@ void OctreeInterface::update() {
 		CreateScene(scene, camera, 1);
 	if (keyboard.keyPressed(Keyboard::KEY_F3))
 		CreateScene(scene, camera, 2);
-
 	if (keyboard.keyPressed(Keyboard::KEY_4))
-		drawDebug = !drawDebug;
+		m_drawDebug = !m_drawDebug;
 	
-	
-	Vector3 directrion = Vector3();
-	Vector3f _directrion = Vector3f();
+	Vector3f directrion = Vector3f();
 	bool move = false;
 	if (keyboard.keyDown(Keyboard::KEY_W)) {
-		directrion += Vector3::FORWARD;
-		_directrion += Vector3f(0.0f, 0.0f, 1.0f);
-		move = true;
+		directrion += Vector3f(0.0f, 0.0f, 1.0f);
+		move |= true;
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_S)) {
-		directrion += Vector3::BACK;
-		_directrion += Vector3f(0.0f, 0.0f, -1.0f);
-		move = true;
+		directrion += Vector3f(0.0f, 0.0f, -1.0f);
+		move |= true;
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_A)) {
-		directrion += Vector3::LEFT;
-		_directrion += Vector3f(1.0f, 0.0f, 0.0f);
-		move = true;
+		directrion += Vector3f(-1.0f, 0.0f, 0.0f);
+		move |= true;
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_D)) {
-		directrion += Vector3::RIGHT;
-		_directrion += Vector3f(-1.0f, 0.0f, 0.0f);
-		move = true;
+		directrion += Vector3f(1.0f, 0.0f, 0.0f);
+		move |= true;
+	}
+
+	if (keyboard.keyDown(Keyboard::KEY_Q)) {
+		directrion += Vector3f(0.0f, -1.0f, 0.0f);
+		move |= true;
+	}
+
+	if (keyboard.keyDown(Keyboard::KEY_E)) {
+		directrion += Vector3f(0.0f, 1.0f, 0.0f);
+		move |= true;
 	}
 
 	Mouse &mouse = Mouse::instance();
@@ -133,21 +137,12 @@ void OctreeInterface::update() {
 
 	if (move || dx != 0.0f || dy != 0.0f) {
 		if (dx || dy) {
-
-			yaw -= dx * 0.1f;
-			pitch -= dy * 0.1f;
-
-			pitch = Clamp(pitch, -90.0f, 90.0f);
-
-			camera->SetRotation(QuaternionTu(pitch, yaw, 0.0f));
 			m_camera.rotate(dx, dy);
 		}
 
 		if (move) {
 			float moveSpeed = (keyboard.keyDown(Keyboard::KEY_LSHIFT) || keyboard.keyDown(Keyboard::KEY_RSHIFT)) ? 50.0f : 5.0f;
-
-			camera->Translate(-directrion * m_dt * moveSpeed);
-			m_camera.move(_directrion  * m_dt * moveSpeed);
+			m_camera.move(directrion  * m_dt * moveSpeed);
 		}
 	}
 	m_trackball.idle();
@@ -161,8 +156,7 @@ void OctreeInterface::update() {
 			for (auto it = rotatingObjects.begin(); it != rotatingObjects.end(); ++it)
 				(*it)->SetRotation(rotQuat);
 
-		}
-		else if (animatingObjects.size()) {
+		}else if (animatingObjects.size()) {
 			for (auto it = animatingObjects.begin(); it != animatingObjects.end(); ++it) {
 				AnimatedModel* object = *it;
 				AnimationState* state = object->AnimationStates()[0];
@@ -174,6 +168,11 @@ void OctreeInterface::update() {
 				if (pos.x < -45.0f || pos.x > 45.0f || pos.z < -45.0f || pos.z > 45.0f)
 					object->Yaw(45.0f * m_dt);
 			}
+		}
+		
+		if (beta) {
+			AnimationState* state = beta->AnimationStates()[0];
+			state->AddTime(m_dt);
 		}
 	}
 
@@ -198,7 +197,7 @@ void OctreeInterface::renderDirect() {
 	UpdateInstanceTransforms(instanceTransforms);
 	RenderBatches(camera, opaqueBatches);
 
-	if (drawDebug) {
+	if (m_drawDebug) {
 		DebugRenderer* debug = Subsystem<DebugRenderer>();
 		for (size_t i = 0; i < rootLevelOctants.size(); ++i) {
 			const ThreadOctantResult& result = octantResults[i];
@@ -295,7 +294,7 @@ void OctreeInterface::renderUi() {
 	// render widgets
 	ImGui::Begin("Settings", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
 	ImGui::Checkbox("Draw Wirframe", &StateMachine::GetEnableWireframe());
-
+	ImGui::Checkbox("Draw Debug", &m_drawDebug);
 	ImGui::End();
 
 	ImGui::Render();
@@ -323,17 +322,17 @@ void OctreeInterface::CreateScene(Scene* scene, CameraTu* camera, int preset) {
 
 
 		{
-			StaticModel* model = new StaticModel();
-			m_octree->QueueUpdate(model->GetDrawable());
-			model->SetStatic(true);
-			model->SetPosition(Vector3(0, -0.05f, 0));
-			model->SetScale(Vector3(100.0f, 0.1f, 100.0f));
-			model->SetModel(cache->LoadResource<Model>("Box.mdl"));
-			model->SetMaterial(cache->LoadResource<MaterialTu>("Stone.json"));
+			StaticModel* object = new StaticModel();
+			m_octree->QueueUpdate(object->GetDrawable());
+			object->SetStatic(true);
+			object->SetPosition(Vector3(0, -0.05f, 0));
+			object->SetScale(Vector3(100.0f, 0.1f, 100.0f));
+			object->SetModel(cache->LoadResource<Model>("Box.mdl"));
+			object->SetMaterial(cache->LoadResource<MaterialTu>("Stone.json"));
 		}
 
 		{
-			AnimatedModel* object = new AnimatedModel();
+			/*AnimatedModel* object = new AnimatedModel();
 			m_octree->QueueUpdate(object->GetDrawable());
 			static_cast<AnimatedModelDrawable*>(object->GetDrawable())->SetOctree(m_octree);
 
@@ -346,7 +345,25 @@ void OctreeInterface::CreateScene(Scene* scene, CameraTu* camera, int preset) {
 			AnimationState* state = object->AddAnimationState(cache->LoadResource<Animation>("Jack_Walk.ani"));
 			state->SetWeight(1.0f);
 			state->SetLooped(true);
-			animatingObjects.push_back(object);
+			animatingObjects.push_back(object);*/
+		}
+
+		{
+			beta = new AnimatedModel();
+			m_octree->QueueUpdate(beta->GetDrawable());
+			static_cast<AnimatedModelDrawable*>(beta->GetDrawable())->SetOctree(m_octree);
+
+ 			beta->SetStatic(true);
+			beta->SetPosition(Vector3(0.0f, 0.0f, -35.0f));
+			beta->SetRotation(QuaternionTu(225.0f, Vector3::UP));
+			beta->SetScale(5.0f);
+			beta->SetModel(cache->LoadResource<Model>("Beta/Beta.mdl"));
+			beta->SetMaterial(cache->LoadResource<MaterialTu>("Beta/Beta.json"));
+			beta->SetCastShadows(true);
+			beta->SetMaxDistance(600.0f);
+			AnimationState* state = beta->AddAnimationState(cache->LoadResource<Animation>("Beta/Beta_Run.ani"));
+			state->SetWeight(1.0f);
+			state->SetLooped(true);
 		}
 	}
 	// Preset 1: high number of animating cubes
@@ -366,7 +383,7 @@ void OctreeInterface::CreateScene(Scene* scene, CameraTu* camera, int preset) {
 			for (int x = -125; x <= 125; ++x)
 			{
 				StaticModel* object = scene->CreateChild<StaticModel>();
-				//object->SetStatic(true);
+				object->SetStatic(true);
 				object->SetPosition(Vector3(x * 0.3f, 0.0f, y * 0.3f));
 				object->SetScale(0.25f);
 				object->SetModel(cache->LoadResource<Model>("Box.mdl"));
@@ -601,7 +618,6 @@ void OctreeInterface::CollectOctants(Octant* octant, ThreadOctantResult& result,
 	if (planeMask) {
 		// If not already inside all frustum planes, do frustum test and terminate if completely outside
 		planeMask = frustum.IsInsideMasked(octantBox, planeMask);
-		//planeMask = 0x00;
 		if (planeMask == 0xff) {
 			// If octant becomes frustum culled, reset its visibility for when it comes back to view, including its children
 			if (octant->Visibility() != VIS_OUTSIDE_FRUSTUM)
@@ -617,7 +633,7 @@ void OctreeInterface::CollectOctants(Octant* octant, ThreadOctantResult& result,
 	for (auto it = drawables.begin(); it != drawables.end(); ++it) {
 		Drawable* drawable = *it;
 
-		if (!drawable->TestFlag(DF_LIGHT)) {
+		if (drawable->TestFlag(DF_STATIC)) {
 			result.octants.push_back(std::make_pair(octant, planeMask));
 			result.drawableAcc += drawables.end() - it;
 			break;

@@ -290,6 +290,7 @@
     <ClCompile Include="turso3d\Object\Serializable.cpp" />
     <ClCompile Include="turso3d\Renderer\AnimatedModel.cpp" />
     <ClCompile Include="turso3d\Renderer\Animation.cpp" />
+    <ClCompile Include="turso3d\Renderer\AnimationController.cpp" />
     <ClCompile Include="turso3d\Renderer\AnimationState.cpp" />
     <ClCompile Include="turso3d\Renderer\Batch.cpp" />
     <ClCompile Include="turso3d\Renderer\CameraTu.cpp" />
@@ -470,6 +471,7 @@
     <ClInclude Include="turso3d\Object\Serializable.h" />
     <ClInclude Include="turso3d\Renderer\AnimatedModel.h" />
     <ClInclude Include="turso3d\Renderer\Animation.h" />
+    <ClInclude Include="turso3d\Renderer\AnimationController.h" />
     <ClInclude Include="turso3d\Renderer\AnimationState.h" />
     <ClInclude Include="turso3d\Renderer\Batch.h" />
     <ClInclude Include="turso3d\Renderer\CameraTu.h" />

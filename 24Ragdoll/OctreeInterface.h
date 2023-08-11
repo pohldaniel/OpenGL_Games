@@ -110,7 +110,7 @@ private:
 
 	bool m_initUi = true;
 	bool m_drawUi = true;
-	bool drawDebug = true;
+	bool m_drawDebug = false;
 
 	Octree* m_octree;
 	AutoPtr<WorkQueue> workQueue;
@@ -122,11 +122,12 @@ private:
 	SharedPtr<Scene> scene;
 	SharedPtr<CameraTu> camera;
 
-	float yaw = 0.0f, pitch = 0.0f, angle = 0.0f;
+	float angle = 0.0f;
 	bool animate = true;
 
 	std::vector<StaticModel*> rotatingObjects;
 	std::vector<AnimatedModel*> animatingObjects;
+	AnimatedModel* beta = nullptr;
 
 	std::vector<Octant*> rootLevelOctants;
 	AutoArrayPtr<OctreeInterface::ThreadOctantResult> octantResults;
