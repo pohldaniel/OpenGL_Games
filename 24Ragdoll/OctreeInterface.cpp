@@ -148,6 +148,13 @@ void OctreeInterface::update() {
 	m_trackball.idle();
 	m_transform.fromMatrix(m_trackball.getTransform());
 
+	if (keyboard.keyDown(Keyboard::KEY_UP) || keyboard.keyDown(Keyboard::KEY_DOWN) || keyboard.keyDown(Keyboard::KEY_LEFT) || keyboard.keyDown(Keyboard::KEY_RIGHT)) {
+		animController->PlayExclusive("Beta/Beta_Run.ani", 0, true, 0.2f);
+	}else {
+		animController->PlayExclusive("Beta/Beta_Idle.ani", 0, true, 0.2f);
+	}
+
+
 	// Scene animation
 	if (animate) {
 		if (rotatingObjects.size()) {
@@ -170,10 +177,10 @@ void OctreeInterface::update() {
 			}
 		}
 		
-		if (beta) {
-			AnimationState* state = beta->AnimationStates()[0];
-			state->AddTime(m_dt);
-		}
+		//if (beta) {
+		//	AnimationState* state = beta->AnimationStates()[0];
+		//	state->AddTime(m_dt);
+		//}
 	}
 
 	++frameNumber;
@@ -181,6 +188,8 @@ void OctreeInterface::update() {
 		++frameNumber;
 
 	updateOctree();
+
+	animController->Update(m_dt);
 }
 
 void OctreeInterface::renderDirect() {
@@ -361,9 +370,11 @@ void OctreeInterface::CreateScene(Scene* scene, CameraTu* camera, int preset) {
 			beta->SetMaterial(cache->LoadResource<MaterialTu>("Beta/Beta.json"));
 			beta->SetCastShadows(true);
 			beta->SetMaxDistance(600.0f);
-			AnimationState* state = beta->AddAnimationState(cache->LoadResource<Animation>("Beta/Beta_Run.ani"));
-			state->SetWeight(1.0f);
-			state->SetLooped(true);
+			//AnimationState* state = beta->AddAnimationState(cache->LoadResource<Animation>("Beta/Beta_Run.ani"));
+			//state->SetWeight(1.0f);
+			//state->SetLooped(true);
+
+			animController = new AnimationController(beta);
 		}
 	}
 	// Preset 1: high number of animating cubes

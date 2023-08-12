@@ -22,6 +22,7 @@
 #include "Renderer/AnimatedModel.h"
 #include "Renderer/Animation.h"
 #include "Renderer/AnimationState.h"
+#include "Renderer/AnimationController.h"
 #include "Renderer/CameraTu.h"
 #include "Renderer/DebugRenderer.h"
 #include "Renderer/Light.h"
@@ -162,6 +163,8 @@ private:
 	void RenderBatches(CameraTu* camera_, const BatchQueue& queue);
 
 	BoundingBox geometryBounds;
+
+	WeakPtr<AnimationController> animController;
 
 };
 
