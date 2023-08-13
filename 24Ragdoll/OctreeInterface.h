@@ -2,9 +2,13 @@
 
 #include "engine/input/MouseEventListener.h"
 #include "engine/input/KeyboardEventListener.h"
+#include "engine/MeshObject/Shape.h"
 #include "engine/Camera.h"
 #include "engine/TrackBall.h"
 #include "StateMachine.h"
+#include "KinematicCharacterContoller.h"
+#include "ShapeDrawer.h"
+#include "SolidIO.h"
 
 #include "Graphics/FrameBufferTu.h"
 #include "Graphics/Graphics.h"
@@ -125,6 +129,7 @@ private:
 
 	float angle = 0.0f;
 	bool animate = true;
+	float m_offsetDistance = 10.0f;
 
 	std::vector<StaticModel*> rotatingObjects;
 	std::vector<AnimatedModel*> animatingObjects;
@@ -165,6 +170,11 @@ private:
 	BoundingBox geometryBounds;
 
 	WeakPtr<AnimationController> animController;
+	WeakPtr<KinematicCharacterController> kinematicCharacter;
 
+	std::vector<float> vertexBuffer;
+	std::vector<unsigned int> indexBuffer;
+	Shape m_upperFloor;
+	Utils::MdlIO mdlConverter;
 };
 

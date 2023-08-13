@@ -19,9 +19,19 @@ OctreeInterface::OctreeInterface(StateMachine& machine) : State(machine, Current
 
 	m_camera = Camera();
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
-	m_camera.lookAt(Vector3f(0.0f, 5.0f, -60.0f), Vector3f(0.0f, 5.0f, -60.0f) + Vector3f(0.0f, 0.0f, 1.0f), Vector3f(0.0f, 1.0f, 0.0f));
+	m_camera.lookAt(Vector3f(0.0f, 5.0f, -60.0f) + Vector3f(0.0f, 0.0f, m_offsetDistance), Vector3f(0.0f, 5.0f, -60.0f), Vector3f(0.0f, 1.0f, 0.0f));
+	m_camera.setOffsetDistance(m_offsetDistance);
+
 	m_camera.setRotationSpeed(0.1f);
 	m_camera.setMovingSpeed(2.0f);
+
+	ShapeDrawer::Get().init(32768);
+	ShapeDrawer::Get().setCamera(m_camera);
+
+	mdlConverter.mdlToBuffer("res/Models/upperFloor.mdl", 0.01f, vertexBuffer, indexBuffer);
+	m_upperFloor.fromBuffer(vertexBuffer, indexBuffer, 8);
+
+	Globals::physics->addStaticModel(Physics::CreateStaticCollisionShapes(&m_upperFloor, 1.0f), Physics::BtTransform(btVector3(30.16f, 6.98797f, 10.0099f)), false, btVector3(1.0f, 1.0f, 1.0f), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER);
 
 	glClearColor(0.7f, 0.7f, 0.7f, 0.0f);
 
@@ -125,6 +135,8 @@ void OctreeInterface::update() {
 		directrion += Vector3f(0.0f, 1.0f, 0.0f);
 		move |= true;
 	}
+	Vector3 pos = beta->Position();
+	m_camera.Camera::setTarget(Vector3f(pos.x, pos.y, pos.z));
 
 	Mouse &mouse = Mouse::instance();
 	float dx = 0.0f;
@@ -137,7 +149,7 @@ void OctreeInterface::update() {
 
 	if (move || dx != 0.0f || dy != 0.0f) {
 		if (dx || dy) {
-			m_camera.rotate(dx, dy);
+			m_camera.rotate(dx, dy, Vector3f(pos.x, pos.y, pos.z));
 		}
 
 		if (move) {
@@ -194,6 +206,8 @@ void OctreeInterface::update() {
 
 void OctreeInterface::renderDirect() {
 
+	Graphics::BindDefaultVao(true);
+
 	debugRenderer->SetView(camera);
 	debugRenderer->SetViewProjection(m_camera.getPerspectiveMatrix(), m_camera.getViewMatrix());
 
@@ -226,6 +240,7 @@ void OctreeInterface::renderDirect() {
 	}
 
 	debugRenderer->Render();
+	ShapeDrawer::Get().drawDynmicsWorld(Physics::GetDynamicsWorld());
 }
 
 void OctreeInterface::render() {
@@ -241,7 +256,17 @@ void OctreeInterface::OnMouseMotion(Event::MouseMoveEvent& event) {
 }
 
 void OctreeInterface::OnMouseWheel(Event::MouseWheelEvent& event) {
+	if (event.direction == 1u) {
+		m_offsetDistance += 2.0f;
+		m_offsetDistance = std::max(0.0f, std::min(m_offsetDistance, 150.0f));
+		m_camera.setOffsetDistance(m_offsetDistance);
+	}
 
+	if (event.direction == 0u) {
+		m_offsetDistance -= 2.0f;
+		m_offsetDistance = std::max(0.0f, std::min(m_offsetDistance, 150.0f));
+		m_camera.setOffsetDistance(m_offsetDistance);
+	}
 }
 
 void OctreeInterface::OnMouseButtonDown(Event::MouseButtonEvent& event) {
@@ -363,9 +388,9 @@ void OctreeInterface::CreateScene(Scene* scene, CameraTu* camera, int preset) {
 			static_cast<AnimatedModelDrawable*>(beta->GetDrawable())->SetOctree(m_octree);
 
  			beta->SetStatic(true);
-			beta->SetPosition(Vector3(0.0f, 0.0f, -35.0f));
-			beta->SetRotation(QuaternionTu(225.0f, Vector3::UP));
-			beta->SetScale(5.0f);
+			beta->SetPosition(Vector3(28.0f, 8.0f, -4.0f));
+			//beta->SetRotation(QuaternionTu(225.0f, Vector3::UP));
+			beta->SetScale(1.0f);
 			beta->SetModel(cache->LoadResource<Model>("Beta/Beta.mdl"));
 			beta->SetMaterial(cache->LoadResource<MaterialTu>("Beta/Beta.json"));
 			beta->SetCastShadows(true);
@@ -378,7 +403,7 @@ void OctreeInterface::CreateScene(Scene* scene, CameraTu* camera, int preset) {
 			base->SetPosition(Vector3(0.0f, 0.0f, 0.0f));
 			base->SetScale(Vector3(0.01f, 0.01f, 0.01f));
 			base->SetModel(cache->LoadResource<Model>("Models/base.mdl"));
-			base->SetMaterial(cache->LoadResource<MaterialTu>("Stone.json"));
+			base->SetMaterial(cache->LoadResource<MaterialTu>("Models/Models.json"));
 
 			StaticModel* upperFloor = new StaticModel();
 			m_octree->QueueUpdate(upperFloor->GetDrawable());
@@ -386,7 +411,7 @@ void OctreeInterface::CreateScene(Scene* scene, CameraTu* camera, int preset) {
 			upperFloor->SetPosition(Vector3(30.16f, 6.98797f, 10.0099f));
 			upperFloor->SetScale(Vector3(0.01f, 0.01f, 0.01f));
 			upperFloor->SetModel(cache->LoadResource<Model>("Models/upperFloor.mdl"));
-			upperFloor->SetMaterial(cache->LoadResource<MaterialTu>("Stone.json"));
+			upperFloor->SetMaterial(cache->LoadResource<MaterialTu>("Models/Models.json"));
 
 			StaticModel* ramp1 = new StaticModel();
 			m_octree->QueueUpdate(ramp1->GetDrawable());
@@ -394,7 +419,7 @@ void OctreeInterface::CreateScene(Scene* scene, CameraTu* camera, int preset) {
 			ramp1->SetPosition(Vector3(13.5771f, 6.23965f, 10.9272f));
 			ramp1->SetScale(Vector3(0.01f, 0.01f, 0.01f));
 			ramp1->SetModel(cache->LoadResource<Model>("Models/ramp.mdl"));
-			ramp1->SetMaterial(cache->LoadResource<MaterialTu>("Stone.json"));
+			ramp1->SetMaterial(cache->LoadResource<MaterialTu>("Models/Models.json"));
 
 			StaticModel* ramp2 = new StaticModel();
 			m_octree->QueueUpdate(ramp2->GetDrawable());
@@ -402,7 +427,7 @@ void OctreeInterface::CreateScene(Scene* scene, CameraTu* camera, int preset) {
 			ramp2->SetPosition(Vector3(-22.8933f, 2.63165f, -23.6786f));
 			ramp2->SetScale(Vector3(0.01f, 0.01f, 0.01f));
 			ramp2->SetModel(cache->LoadResource<Model>("Models/ramp2.mdl"));
-			ramp2->SetMaterial(cache->LoadResource<MaterialTu>("Stone.json"));
+			ramp2->SetMaterial(cache->LoadResource<MaterialTu>("Models/Models.json"));
 
 			StaticModel* ramp3 = new StaticModel();
 			m_octree->QueueUpdate(ramp3->GetDrawable());
@@ -410,7 +435,7 @@ void OctreeInterface::CreateScene(Scene* scene, CameraTu* camera, int preset) {
 			ramp3->SetPosition(Vector3(-15.2665f, 1.9782f, -43.135f));
 			ramp3->SetScale(Vector3(0.01f, 0.01f, 0.01f));
 			ramp3->SetModel(cache->LoadResource<Model>("Models/ramp3.mdl"));
-			ramp3->SetMaterial(cache->LoadResource<MaterialTu>("Stone.json"));
+			ramp3->SetMaterial(cache->LoadResource<MaterialTu>("Models/Models.json"));
 
 			StaticModel* lift = new StaticModel();
 			m_octree->QueueUpdate(lift->GetDrawable());
@@ -418,7 +443,7 @@ void OctreeInterface::CreateScene(Scene* scene, CameraTu* camera, int preset) {
 			lift->SetPosition(Vector3(35.5938f, 0.350185f, 10.4836f));
 			lift->SetScale(Vector3(0.01f, 0.01f, 0.01f));
 			lift->SetModel(cache->LoadResource<Model>("Models/Lift.mdl"));
-			lift->SetMaterial(cache->LoadResource<MaterialTu>("Stone.json"));
+			lift->SetMaterial(cache->LoadResource<MaterialTu>("Models/Models.json"));
 
 			StaticModel* liftExterior = new StaticModel();
 			m_octree->QueueUpdate(liftExterior->GetDrawable());
@@ -426,7 +451,7 @@ void OctreeInterface::CreateScene(Scene* scene, CameraTu* camera, int preset) {
 			liftExterior->SetPosition(Vector3(35.6211f, 7.66765f, 10.4388f));
 			liftExterior->SetScale(Vector3(0.01f, 0.01f, 0.01f));
 			liftExterior->SetModel(cache->LoadResource<Model>("Models/liftExterior.mdl"));
-			liftExterior->SetMaterial(cache->LoadResource<MaterialTu>("Stone.json"));
+			liftExterior->SetMaterial(cache->LoadResource<MaterialTu>("Models/Models.json"));
 
 			StaticModel* liftButton = new StaticModel();
 			m_octree->QueueUpdate(liftButton->GetDrawable());
@@ -434,7 +459,7 @@ void OctreeInterface::CreateScene(Scene* scene, CameraTu* camera, int preset) {
 			liftButton->SetPosition(Vector3(35.5938f, 0.412104f, 10.4836f));
 			liftButton->SetScale(Vector3(0.01f, 0.01f, 0.01f));
 			liftButton->SetModel(cache->LoadResource<Model>("Models/LiftButton.mdl"));
-			liftButton->SetMaterial(cache->LoadResource<MaterialTu>("Stone.json"));
+			liftButton->SetMaterial(cache->LoadResource<MaterialTu>("Models/Models.json"));
 
 			StaticModel* disk1 = new StaticModel();
 			m_octree->QueueUpdate(disk1->GetDrawable());
@@ -442,7 +467,7 @@ void OctreeInterface::CreateScene(Scene* scene, CameraTu* camera, int preset) {
 			disk1->SetPosition(Vector3(26.1357f, 7.00645f, -34.7563f));
 			disk1->SetScale(Vector3(0.01f, 0.01f, 0.01f));
 			disk1->SetModel(cache->LoadResource<Model>("Models/disk.mdl"));
-			disk1->SetMaterial(cache->LoadResource<MaterialTu>("Stone.json"));
+			disk1->SetMaterial(cache->LoadResource<MaterialTu>("Models/Models.json"));
 
 			StaticModel* disk2 = new StaticModel();
 			m_octree->QueueUpdate(disk2->GetDrawable());
@@ -450,7 +475,7 @@ void OctreeInterface::CreateScene(Scene* scene, CameraTu* camera, int preset) {
 			disk2->SetPosition(Vector3(4.14317f, 7.00645f, 35.1134f));
 			disk2->SetScale(Vector3(0.01f, 0.01f, 0.01f));
 			disk2->SetModel(cache->LoadResource<Model>("Models/disk.mdl"));
-			disk2->SetMaterial(cache->LoadResource<MaterialTu>("Stone.json"));
+			disk2->SetMaterial(cache->LoadResource<MaterialTu>("Models/Models.json"));
 
 			StaticModel* cylinder = new StaticModel();
 			m_octree->QueueUpdate(cylinder->GetDrawable());
@@ -458,7 +483,9 @@ void OctreeInterface::CreateScene(Scene* scene, CameraTu* camera, int preset) {
 			cylinder->SetPosition(Vector3(-0.294956f, 2.48167f, 28.3161f));
 			cylinder->SetScale(Vector3(6.0f, 6.0f, 6.0f));
 			cylinder->SetModel(cache->LoadResource<Model>("Models/Cylinder.mdl"));
-			cylinder->SetMaterial(cache->LoadResource<MaterialTu>("Stone.json"));
+			cylinder->SetMaterial(cache->LoadResource<MaterialTu>("Models/Models.json"));
+
+			kinematicCharacter = new KinematicCharacterController();
 		}
 	}
 	// Preset 1: high number of animating cubes

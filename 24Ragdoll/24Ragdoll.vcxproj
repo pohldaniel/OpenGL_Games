@@ -210,6 +210,7 @@
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="HeightField.cpp" />
     <ClCompile Include="heightfield128x128.cpp" />
+    <ClCompile Include="KinematicCharacterContoller.cpp" />
     <ClCompile Include="LiftButton.cpp" />
     <ClCompile Include="lugaru\Environment\Lights.cpp" />
     <ClCompile Include="lugaru\Environment\_Terrain.cpp" />
@@ -390,6 +391,7 @@
     <ClInclude Include="engine\Vector.h" />
     <ClInclude Include="engine\VolumeBuffer.h" />
     <ClInclude Include="HeightField.h" />
+    <ClInclude Include="KinematicCharacterContoller.h" />
     <ClInclude Include="LiftButton.h" />
     <ClInclude Include="lugaru\Environment\Lights.hpp" />
     <ClInclude Include="lugaru\Environment\Terrain.hpp" />

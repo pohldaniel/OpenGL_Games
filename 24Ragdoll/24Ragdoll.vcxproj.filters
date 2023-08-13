@@ -621,6 +621,9 @@
     <ClCompile Include="turso3d\Renderer\AnimationController.cpp">
       <Filter>turso3d\Renderer</Filter>
     </ClCompile>
+    <ClCompile Include="KinematicCharacterContoller.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h">
@@ -1159,6 +1162,9 @@
     </ClInclude>
     <ClInclude Include="turso3d\Renderer\AnimationController.h">
       <Filter>turso3d\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="KinematicCharacterContoller.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
