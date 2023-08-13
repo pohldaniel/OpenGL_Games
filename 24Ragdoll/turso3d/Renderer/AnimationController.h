@@ -68,7 +68,7 @@ class AnimationController : public ObjectTu
 
 public:
 	/// Construct. Register subsystem
-	AnimationController(AnimatedModel* model);
+	AnimationController(AnimatedModel* model = nullptr);
 	/// Destruct.
 	~AnimationController();
 

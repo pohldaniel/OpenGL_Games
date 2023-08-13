@@ -101,7 +101,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_pickCo
 	m_ramp3.fromBuffer(vertexBuffer, indexBuffer, 8);
 	vertexBuffer.clear(); vertexBuffer.shrink_to_fit(); indexBuffer.clear(); indexBuffer.shrink_to_fit();
 
-	mdlConverter.mdlToBuffer("res/Models/Cylinder.mdl", 0.01f, vertexBuffer, indexBuffer);
+	mdlConverter.mdlToBuffer("res/Models/Cylinder.mdl", 6.0f, vertexBuffer, indexBuffer);
 	m_cylinder.fromBuffer(vertexBuffer, indexBuffer, 8);
 	vertexBuffer.clear(); vertexBuffer.shrink_to_fit(); indexBuffer.clear(); indexBuffer.shrink_to_fit();
 
@@ -116,14 +116,16 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), m_pickCo
 	Physics::AddRigidBody(0.0f, Physics::BtTransform(btVector3(0.0f, -0.05f, 0.0f)), new btConvexHullShape((btScalar*)(&m_base.getPositions()[0]), m_base.getPositions().size(), 3 * sizeof(btScalar)), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::CAMERA, btCollisionObject::CF_STATIC_OBJECT);
 
 	Globals::physics->addStaticModel(Physics::CreateStaticCollisionShapes(&m_disk, 1.0f), Physics::BtTransform(btVector3(26.1357f, 7.00645f, -34.7563f)), false, btVector3(1.0f, 1.0f, 1.0f), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::CAMERA);
+	Globals::physics->addStaticModel(Physics::CreateStaticCollisionShapes(&m_disk, 1.0f), Physics::BtTransform(btVector3(4.14317f, 7.00645f, 35.1134f)), false, btVector3(1.0f, 1.0f, 1.0f), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::CAMERA);
+
+	
 	Globals::physics->addStaticModel(Physics::CreateStaticCollisionShapes(&m_liftExterior, 1.0f), Physics::BtTransform(btVector3(35.6211f, 7.66765f, 10.4388f)), false, btVector3(1.0f, 1.0f, 1.0f), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::CAMERA);
 	Globals::physics->addStaticModel(Physics::CreateStaticCollisionShapes(&m_upperFloor, 1.0f), Physics::BtTransform(btVector3(30.16f, 6.98797f, 10.0099f)), false, btVector3(1.0f, 1.0f, 1.0f), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::CAMERA);
 	Globals::physics->addStaticModel(Physics::CreateStaticCollisionShapes(&m_ramp, 1.0f), Physics::BtTransform(btVector3(13.5771f, 6.23965f, 10.9272f)), false, btVector3(1.0f, 1.0f, 1.0f), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::CAMERA);	
 	Physics::AddRigidBody(0.0f, Physics::BtTransform(btVector3(-22.8933f, 2.63165f, -23.6786f)), new btConvexHullShape((btScalar*)(&m_ramp2.getPositions()[0]), m_ramp2.getPositions().size(), 3 * sizeof(btScalar)), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::CAMERA, btCollisionObject::CF_STATIC_OBJECT);
 	Physics::AddRigidBody(0.0f, Physics::BtTransform(btVector3(-15.2665f, 1.9782f, -43.135f)), new btConvexHullShape((btScalar*)(&m_ramp3.getPositions()[0]), m_ramp3.getPositions().size(), 3 * sizeof(btScalar)), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::CAMERA, btCollisionObject::CF_STATIC_OBJECT);
 
-
-	//Globals::physics->addStaticModel(Physics::CreateStaticCollisionShapes(&m_cylinder, 1.0f), Physics::BtTransform(), false, btVector3(1.0f, 1.0f, 1.0f), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::CAMERA);
+	Globals::physics->addStaticModel(Physics::CreateStaticCollisionShapes(&m_cylinder, 1.0f), Physics::BtTransform(btVector3(-0.294956f, 2.48167f, 28.3161f)), false, btVector3(1.0f, 1.0f, 1.0f), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::CAMERA);
 	m_pLiftButton.create(new btCylinderShape(btVector3(80.0f, 15.0f, 1.0f) * 0.01f), Physics::BtTransform(btVector3(35.5938f, 0.412104f + 0.15f, 10.4836f)), Physics::GetDynamicsWorld(), Physics::collisiontypes::TRIGGER, Physics::collisiontypes::CHARACTER);
 
 }
@@ -151,6 +153,10 @@ void Game::update() {
 	m_player.update(m_dt);
 
 	Keyboard &keyboard = Keyboard::instance();
+	if (keyboard.keyPressed(Keyboard::KEY_4)) {
+		m_debugPhysic = !m_debugPhysic;
+	}
+
 	/*Vector3f directrion = Vector3f();
 
 	float dx = 0.0f;
@@ -256,11 +262,11 @@ void Game::render() {
 		shader->loadMatrix("u_model", Matrix4f::Translate(26.1357f, 7.00645f, -34.7563f));
 		m_disk.drawRaw();
 
-		shader->loadMatrix("u_model", Matrix4f::Translate(-0.294956f, 2.48167f, 28.3161f));
-		m_cylinder.drawRaw();
-
 		shader->loadMatrix("u_model", Matrix4f::Translate(4.14317f, 7.00645f, 35.1134f));
 		m_disk.drawRaw();
+
+		shader->loadMatrix("u_model", Matrix4f::Translate(-0.294956f, 2.48167f, 28.3161f));
+		m_cylinder.drawRaw();
 
 		shader->unuse();
 		m_player.draw(m_camera);

@@ -375,72 +375,187 @@ void Utils::MdlIO::mdlToBuffer(const char* filename, float scale, std::vector<fl
 	ret.resize(4);
 	file.read(&ret[0], 4 * sizeof(char));
 
-	char metaData[4];
+	if (ret.compare("UMD2") == 0) {
+		char metaData[4];
 
-	file.read(metaData, sizeof(unsigned int));
-
-	file.read(metaData, sizeof(unsigned int));
-	unsigned int vertexCount = Utils::bytesToUIntLE(metaData[0], metaData[1], metaData[2], metaData[3]);
-
-	file.read(metaData, sizeof(unsigned int));
-	unsigned int numElements = Utils::bytesToUIntLE(metaData[0], metaData[1], metaData[2], metaData[3]);
-
-	unsigned int vertexSize = 0;
-
-	for (unsigned j = 0; j < numElements; ++j) {
+		// num Vertexbuffer
 		file.read(metaData, sizeof(unsigned int));
-		unsigned int elementDesc = Utils::bytesToUIntLE(metaData[0], metaData[1], metaData[2], metaData[3]);
-		vertexSize += ELEMENT_TYPESIZES[elementDesc & 0xff];
+
+		file.read(metaData, sizeof(unsigned int));
+		unsigned int vertexCount = Utils::bytesToUIntLE(metaData[0], metaData[1], metaData[2], metaData[3]);
+
+		file.read(metaData, sizeof(unsigned int));
+		unsigned int numElements = Utils::bytesToUIntLE(metaData[0], metaData[1], metaData[2], metaData[3]);
+
+		unsigned int vertexSize = 0;
+
+		for (unsigned j = 0; j < numElements; ++j) {
+			file.read(metaData, sizeof(unsigned int));
+			unsigned int elementDesc = Utils::bytesToUIntLE(metaData[0], metaData[1], metaData[2], metaData[3]);
+			vertexSize += ELEMENT_TYPESIZES[elementDesc & 0xff];
+		}
+
+		//morph
+		file.read(metaData, sizeof(unsigned int));
+		file.read(metaData, sizeof(unsigned int));
+
+		char* buffer = new char[vertexCount * vertexSize];
+		file.read(buffer, vertexCount * vertexSize);
+
+		for (unsigned int i = 0; i < vertexCount * vertexSize; i = i + vertexSize) {
+
+			UFloat value[3];
+			value[0].c[0] = buffer[i + 0]; value[0].c[1] = buffer[i + 1]; value[0].c[2] = buffer[i + 2]; value[0].c[3] = buffer[i + 3];
+			value[1].c[0] = buffer[i + 4]; value[1].c[1] = buffer[i + 5]; value[1].c[2] = buffer[i + 6]; value[1].c[3] = buffer[i + 7];
+			value[2].c[0] = buffer[i + 8]; value[2].c[1] = buffer[i + 9]; value[2].c[2] = buffer[i + 10]; value[2].c[3] = buffer[i + 11];
+			vertexBufferOut.push_back(value[0].flt * scale); vertexBufferOut.push_back(value[1].flt * scale); vertexBufferOut.push_back(value[2].flt * scale);
+
+			value[0].c[0] = buffer[i + 24]; value[0].c[1] = buffer[i + 25]; value[0].c[2] = buffer[i + 26]; value[0].c[3] = buffer[i + 27];
+			value[1].c[0] = buffer[i + 28]; value[1].c[1] = buffer[i + 29]; value[1].c[2] = buffer[i + 30]; value[1].c[3] = buffer[i + 31];
+			vertexBufferOut.push_back(value[0].flt); vertexBufferOut.push_back(value[1].flt);
+
+			value[0].c[0] = buffer[i + 12]; value[0].c[1] = buffer[i + 13]; value[0].c[2] = buffer[i + 14]; value[0].c[3] = buffer[i + 15];
+			value[1].c[0] = buffer[i + 16]; value[1].c[1] = buffer[i + 17]; value[1].c[2] = buffer[i + 18]; value[1].c[3] = buffer[i + 19];
+			value[2].c[0] = buffer[i + 20]; value[2].c[1] = buffer[i + 21]; value[2].c[2] = buffer[i + 22]; value[2].c[3] = buffer[i + 23];
+			vertexBufferOut.push_back(value[0].flt); vertexBufferOut.push_back(value[1].flt); vertexBufferOut.push_back(value[2].flt);
+
+		}
+		delete buffer;
+
+		file.read(metaData, sizeof(unsigned int));
+		//std::cout << "Num IndexBuffer: " << Utils::bytesToUIntLE(metaData[0], metaData[1], metaData[2], metaData[3]) << std::endl;
+
+		file.read(metaData, sizeof(unsigned int));
+		unsigned int indexCount = Utils::bytesToUIntLE(metaData[0], metaData[1], metaData[2], metaData[3]);
+		//std::cout << "Index Count: " << indexCount << std::endl;
+
+		file.read(metaData, sizeof(unsigned int));
+		unsigned int indexSize = Utils::bytesToUIntLE(metaData[0], metaData[1], metaData[2], metaData[3]);
+		//std::cout << "Index Size: " << indexSize << std::endl;
+
+		buffer = new char[indexCount * indexSize];
+		file.read(buffer, indexCount * indexSize);
+
+		for (unsigned int i = 0; i < indexCount * indexSize; i = i + indexSize * 3) {
+			UShort value[3];
+
+			value[0].c[0] = buffer[i + 0]; value[0].c[1] = buffer[i + 1];
+			value[1].c[0] = buffer[i + 2]; value[1].c[1] = buffer[i + 3];
+			value[2].c[0] = buffer[i + 4]; value[2].c[1] = buffer[i + 5];
+			indexBufferOut.push_back(value[0].shrt); indexBufferOut.push_back(value[1].shrt); indexBufferOut.push_back(value[2].shrt);
+		}
+		delete buffer;
+		
+	}else if (ret.compare("UMDL") == 0) {
+		std::cout << "File Name: " << filename << std::endl;
+
+		char metaData[4];
+
+		// num Vertexbuffer
+		file.read(metaData, sizeof(unsigned int));
+
+		file.read(metaData, sizeof(unsigned int));
+		unsigned int vertexCount = Utils::bytesToUIntLE(metaData[0], metaData[1], metaData[2], metaData[3]);
+
+		file.read(metaData, sizeof(unsigned int));
+		unsigned elementMask = Utils::bytesToUIntLE(metaData[0], metaData[1], metaData[2], metaData[3]);
+
+		unsigned int vertexSize = 0;
+
+		if (elementMask & 1){
+			vertexSize += sizeof(float) * 3;
+		}
+		if (elementMask & 2)
+		{
+			vertexSize += sizeof(float) * 3;
+		}
+		if (elementMask & 4)
+		{
+			vertexSize += 4;
+		}
+		if (elementMask & 8)
+		{		
+			vertexSize += sizeof(float) * 2;
+		}
+		if (elementMask & 16)
+		{
+			vertexSize += sizeof(float) * 2;
+		}
+		if (elementMask & 32)
+		{
+			vertexSize += sizeof(float) * 3;
+		}
+		if (elementMask & 64)
+		{
+			vertexSize += sizeof(float) * 3;		
+		}
+		if (elementMask & 128)
+		{
+			vertexSize += sizeof(float) * 4;
+		}
+		if (elementMask & 256)
+		{
+			vertexSize += sizeof(float) * 4;
+		}
+		if (elementMask & 512)
+		{
+			vertexSize += 4;
+		}
+
+		//morph
+		file.read(metaData, sizeof(unsigned int));
+		file.read(metaData, sizeof(unsigned int));
+
+		char* buffer = new char[vertexCount * vertexSize];
+		file.read(buffer, vertexCount * vertexSize);
+
+		for (unsigned int i = 0; i < vertexCount * vertexSize; i = i + vertexSize) {
+
+			UFloat value[3];
+			value[0].c[0] = buffer[i + 0]; value[0].c[1] = buffer[i + 1]; value[0].c[2] = buffer[i + 2]; value[0].c[3] = buffer[i + 3];
+			value[1].c[0] = buffer[i + 4]; value[1].c[1] = buffer[i + 5]; value[1].c[2] = buffer[i + 6]; value[1].c[3] = buffer[i + 7];
+			value[2].c[0] = buffer[i + 8]; value[2].c[1] = buffer[i + 9]; value[2].c[2] = buffer[i + 10]; value[2].c[3] = buffer[i + 11];
+			vertexBufferOut.push_back(value[0].flt * scale); vertexBufferOut.push_back(value[1].flt * scale); vertexBufferOut.push_back(value[2].flt * scale);
+
+			if (elementMask & 4) {
+				value[0].c[0] = buffer[i + 28]; value[0].c[1] = buffer[i + 29]; value[0].c[2] = buffer[i + 30]; value[0].c[3] = buffer[i + 31];
+				value[1].c[0] = buffer[i + 32]; value[1].c[1] = buffer[i + 33]; value[1].c[2] = buffer[i + 34]; value[1].c[3] = buffer[i + 35];
+			}else {
+				value[0].c[0] = buffer[i + 24]; value[0].c[1] = buffer[i + 25]; value[0].c[2] = buffer[i + 26]; value[0].c[3] = buffer[i + 27];
+				value[1].c[0] = buffer[i + 28]; value[1].c[1] = buffer[i + 29]; value[1].c[2] = buffer[i + 30]; value[1].c[3] = buffer[i + 31];			
+			}
+			vertexBufferOut.push_back(value[0].flt); vertexBufferOut.push_back(value[1].flt);
+
+			value[0].c[0] = buffer[i + 12]; value[0].c[1] = buffer[i + 13]; value[0].c[2] = buffer[i + 14]; value[0].c[3] = buffer[i + 15];
+			value[1].c[0] = buffer[i + 16]; value[1].c[1] = buffer[i + 17]; value[1].c[2] = buffer[i + 18]; value[1].c[3] = buffer[i + 19];
+			value[2].c[0] = buffer[i + 20]; value[2].c[1] = buffer[i + 21]; value[2].c[2] = buffer[i + 22]; value[2].c[3] = buffer[i + 23];
+			vertexBufferOut.push_back(value[0].flt); vertexBufferOut.push_back(value[1].flt); vertexBufferOut.push_back(value[2].flt);
+		}
+		delete buffer;
+
+		file.read(metaData, sizeof(unsigned int));
+		//std::cout << "Num IndexBuffer: " << Utils::bytesToUIntLE(metaData[0], metaData[1], metaData[2], metaData[3]) << std::endl;
+
+		file.read(metaData, sizeof(unsigned int));
+		unsigned int indexCount = Utils::bytesToUIntLE(metaData[0], metaData[1], metaData[2], metaData[3]);
+		//std::cout << "Index Count: " << indexCount << std::endl;
+
+		file.read(metaData, sizeof(unsigned int));
+		unsigned int indexSize = Utils::bytesToUIntLE(metaData[0], metaData[1], metaData[2], metaData[3]);
+		//std::cout << "Index Size: " << indexSize << std::endl;
+
+		buffer = new char[indexCount * indexSize];
+		file.read(buffer, indexCount * indexSize);
+
+		for (unsigned int i = 0; i < indexCount * indexSize; i = i + indexSize * 3) {
+			UShort value[3];
+
+			value[0].c[0] = buffer[i + 0]; value[0].c[1] = buffer[i + 1];
+			value[1].c[0] = buffer[i + 2]; value[1].c[1] = buffer[i + 3];
+			value[2].c[0] = buffer[i + 4]; value[2].c[1] = buffer[i + 5];
+			indexBufferOut.push_back(value[0].shrt); indexBufferOut.push_back(value[1].shrt); indexBufferOut.push_back(value[2].shrt);
+		}
+		delete buffer;
 	}
-
-	file.read(metaData, sizeof(unsigned int));
-	file.read(metaData, sizeof(unsigned int));
-
-	char* buffer = new char[vertexCount * vertexSize];
-	file.read(buffer, vertexCount * vertexSize);
-
-	for (unsigned int i = 0; i < vertexCount * vertexSize; i = i + vertexSize) {
-
-		UFloat value[3];
-		value[0].c[0] = buffer[i + 0]; value[0].c[1] = buffer[i + 1]; value[0].c[2] = buffer[i + 2]; value[0].c[3] = buffer[i + 3];
-		value[1].c[0] = buffer[i + 4]; value[1].c[1] = buffer[i + 5]; value[1].c[2] = buffer[i + 6]; value[1].c[3] = buffer[i + 7];
-		value[2].c[0] = buffer[i + 8]; value[2].c[1] = buffer[i + 9]; value[2].c[2] = buffer[i + 10]; value[2].c[3] = buffer[i + 11];
-		vertexBufferOut.push_back(value[0].flt * scale); vertexBufferOut.push_back(value[1].flt * scale); vertexBufferOut.push_back(value[2].flt * scale);
-
-		value[0].c[0] = buffer[i + 24]; value[0].c[1] = buffer[i + 25]; value[0].c[2] = buffer[i + 26]; value[0].c[3] = buffer[i + 27];
-		value[1].c[0] = buffer[i + 28]; value[1].c[1] = buffer[i + 29]; value[1].c[2] = buffer[i + 30]; value[1].c[3] = buffer[i + 31];
-		vertexBufferOut.push_back(value[0].flt); vertexBufferOut.push_back(value[1].flt);
-
-		value[0].c[0] = buffer[i + 12]; value[0].c[1] = buffer[i + 13]; value[0].c[2] = buffer[i + 14]; value[0].c[3] = buffer[i + 15];
-		value[1].c[0] = buffer[i + 16]; value[1].c[1] = buffer[i + 17]; value[1].c[2] = buffer[i + 18]; value[1].c[3] = buffer[i + 19];
-		value[2].c[0] = buffer[i + 20]; value[2].c[1] = buffer[i + 21]; value[2].c[2] = buffer[i + 22]; value[2].c[3] = buffer[i + 23];
-		vertexBufferOut.push_back(value[0].flt); vertexBufferOut.push_back(value[1].flt); vertexBufferOut.push_back(value[2].flt);
-	
-	}
-	delete buffer;
-
-	file.read(metaData, sizeof(unsigned int));
-	//std::cout << "Num IndexBuffer: " << Utils::bytesToUIntLE(metaData[0], metaData[1], metaData[2], metaData[3]) << std::endl;
-
-	file.read(metaData, sizeof(unsigned int));
-	unsigned int indexCount = Utils::bytesToUIntLE(metaData[0], metaData[1], metaData[2], metaData[3]);
-	//std::cout << "Index Count: " << indexCount << std::endl;
-
-	file.read(metaData, sizeof(unsigned int));
-	unsigned int indexSize = Utils::bytesToUIntLE(metaData[0], metaData[1], metaData[2], metaData[3]);
-	//std::cout << "Index Size: " << indexSize << std::endl;
-
-	buffer = new char[indexCount * indexSize];
-	file.read(buffer, indexCount * indexSize);
-
-	for (unsigned int i = 0; i < indexCount * indexSize; i = i + indexSize * 3) {
-		UShort value[3];
-
-		value[0].c[0] = buffer[i + 0]; value[0].c[1] = buffer[i + 1];
-		value[1].c[0] = buffer[i + 2]; value[1].c[1] = buffer[i + 3];
-		value[2].c[0] = buffer[i + 4]; value[2].c[1] = buffer[i + 5];
-		indexBufferOut.push_back(value[0].shrt); indexBufferOut.push_back(value[1].shrt); indexBufferOut.push_back(value[2].shrt);
-	}
-	delete buffer;
 	file.close();
 }

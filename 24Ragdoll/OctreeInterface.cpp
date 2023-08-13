@@ -331,13 +331,13 @@ void OctreeInterface::CreateScene(Scene* scene, CameraTu* camera, int preset) {
 
 
 		{
-			StaticModel* object = new StaticModel();
+			/*StaticModel* object = new StaticModel();
 			m_octree->QueueUpdate(object->GetDrawable());
 			object->SetStatic(true);
 			object->SetPosition(Vector3(0, -0.05f, 0));
 			object->SetScale(Vector3(100.0f, 0.1f, 100.0f));
 			object->SetModel(cache->LoadResource<Model>("Box.mdl"));
-			object->SetMaterial(cache->LoadResource<MaterialTu>("Stone.json"));
+			object->SetMaterial(cache->LoadResource<MaterialTu>("Stone.json"));*/
 		}
 
 		{
@@ -370,11 +370,95 @@ void OctreeInterface::CreateScene(Scene* scene, CameraTu* camera, int preset) {
 			beta->SetMaterial(cache->LoadResource<MaterialTu>("Beta/Beta.json"));
 			beta->SetCastShadows(true);
 			beta->SetMaxDistance(600.0f);
-			//AnimationState* state = beta->AddAnimationState(cache->LoadResource<Animation>("Beta/Beta_Run.ani"));
-			//state->SetWeight(1.0f);
-			//state->SetLooped(true);
-
 			animController = new AnimationController(beta);
+
+			StaticModel* base = new StaticModel();
+			m_octree->QueueUpdate(base->GetDrawable());
+			base->SetStatic(true);
+			base->SetPosition(Vector3(0.0f, 0.0f, 0.0f));
+			base->SetScale(Vector3(0.01f, 0.01f, 0.01f));
+			base->SetModel(cache->LoadResource<Model>("Models/base.mdl"));
+			base->SetMaterial(cache->LoadResource<MaterialTu>("Stone.json"));
+
+			StaticModel* upperFloor = new StaticModel();
+			m_octree->QueueUpdate(upperFloor->GetDrawable());
+			upperFloor->SetStatic(true);
+			upperFloor->SetPosition(Vector3(30.16f, 6.98797f, 10.0099f));
+			upperFloor->SetScale(Vector3(0.01f, 0.01f, 0.01f));
+			upperFloor->SetModel(cache->LoadResource<Model>("Models/upperFloor.mdl"));
+			upperFloor->SetMaterial(cache->LoadResource<MaterialTu>("Stone.json"));
+
+			StaticModel* ramp1 = new StaticModel();
+			m_octree->QueueUpdate(ramp1->GetDrawable());
+			ramp1->SetStatic(true);
+			ramp1->SetPosition(Vector3(13.5771f, 6.23965f, 10.9272f));
+			ramp1->SetScale(Vector3(0.01f, 0.01f, 0.01f));
+			ramp1->SetModel(cache->LoadResource<Model>("Models/ramp.mdl"));
+			ramp1->SetMaterial(cache->LoadResource<MaterialTu>("Stone.json"));
+
+			StaticModel* ramp2 = new StaticModel();
+			m_octree->QueueUpdate(ramp2->GetDrawable());
+			ramp2->SetStatic(true);
+			ramp2->SetPosition(Vector3(-22.8933f, 2.63165f, -23.6786f));
+			ramp2->SetScale(Vector3(0.01f, 0.01f, 0.01f));
+			ramp2->SetModel(cache->LoadResource<Model>("Models/ramp2.mdl"));
+			ramp2->SetMaterial(cache->LoadResource<MaterialTu>("Stone.json"));
+
+			StaticModel* ramp3 = new StaticModel();
+			m_octree->QueueUpdate(ramp3->GetDrawable());
+			ramp3->SetStatic(true);
+			ramp3->SetPosition(Vector3(-15.2665f, 1.9782f, -43.135f));
+			ramp3->SetScale(Vector3(0.01f, 0.01f, 0.01f));
+			ramp3->SetModel(cache->LoadResource<Model>("Models/ramp3.mdl"));
+			ramp3->SetMaterial(cache->LoadResource<MaterialTu>("Stone.json"));
+
+			StaticModel* lift = new StaticModel();
+			m_octree->QueueUpdate(lift->GetDrawable());
+			lift->SetStatic(true);
+			lift->SetPosition(Vector3(35.5938f, 0.350185f, 10.4836f));
+			lift->SetScale(Vector3(0.01f, 0.01f, 0.01f));
+			lift->SetModel(cache->LoadResource<Model>("Models/Lift.mdl"));
+			lift->SetMaterial(cache->LoadResource<MaterialTu>("Stone.json"));
+
+			StaticModel* liftExterior = new StaticModel();
+			m_octree->QueueUpdate(liftExterior->GetDrawable());
+			liftExterior->SetStatic(true);
+			liftExterior->SetPosition(Vector3(35.6211f, 7.66765f, 10.4388f));
+			liftExterior->SetScale(Vector3(0.01f, 0.01f, 0.01f));
+			liftExterior->SetModel(cache->LoadResource<Model>("Models/liftExterior.mdl"));
+			liftExterior->SetMaterial(cache->LoadResource<MaterialTu>("Stone.json"));
+
+			StaticModel* liftButton = new StaticModel();
+			m_octree->QueueUpdate(liftButton->GetDrawable());
+			liftButton->SetStatic(true);
+			liftButton->SetPosition(Vector3(35.5938f, 0.412104f, 10.4836f));
+			liftButton->SetScale(Vector3(0.01f, 0.01f, 0.01f));
+			liftButton->SetModel(cache->LoadResource<Model>("Models/LiftButton.mdl"));
+			liftButton->SetMaterial(cache->LoadResource<MaterialTu>("Stone.json"));
+
+			StaticModel* disk1 = new StaticModel();
+			m_octree->QueueUpdate(disk1->GetDrawable());
+			disk1->SetStatic(true);
+			disk1->SetPosition(Vector3(26.1357f, 7.00645f, -34.7563f));
+			disk1->SetScale(Vector3(0.01f, 0.01f, 0.01f));
+			disk1->SetModel(cache->LoadResource<Model>("Models/disk.mdl"));
+			disk1->SetMaterial(cache->LoadResource<MaterialTu>("Stone.json"));
+
+			StaticModel* disk2 = new StaticModel();
+			m_octree->QueueUpdate(disk2->GetDrawable());
+			disk2->SetStatic(true);
+			disk2->SetPosition(Vector3(4.14317f, 7.00645f, 35.1134f));
+			disk2->SetScale(Vector3(0.01f, 0.01f, 0.01f));
+			disk2->SetModel(cache->LoadResource<Model>("Models/disk.mdl"));
+			disk2->SetMaterial(cache->LoadResource<MaterialTu>("Stone.json"));
+
+			StaticModel* cylinder = new StaticModel();
+			m_octree->QueueUpdate(cylinder->GetDrawable());
+			cylinder->SetStatic(true);
+			cylinder->SetPosition(Vector3(-0.294956f, 2.48167f, 28.3161f));
+			cylinder->SetScale(Vector3(6.0f, 6.0f, 6.0f));
+			cylinder->SetModel(cache->LoadResource<Model>("Models/Cylinder.mdl"));
+			cylinder->SetMaterial(cache->LoadResource<MaterialTu>("Stone.json"));
 		}
 	}
 	// Preset 1: high number of animating cubes

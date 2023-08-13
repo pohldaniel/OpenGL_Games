@@ -214,8 +214,9 @@ bool Model::BeginLoad(Stream& source)
 			if (elementMask & 1)
 			{
 				vbDesc.cpuPositionData = new Vector3[vbDesc.numVertices];
-				for (size_t j = 0; j < vbDesc.numVertices; ++j)
-					vbDesc.cpuPositionData[j] = *reinterpret_cast<Vector3*>(vbDesc.vertexData + j * vertexSize);
+				for (size_t j = 0; j < vbDesc.numVertices; ++j) {
+					vbDesc.cpuPositionData[j] = *reinterpret_cast<Vector3*>(vbDesc.vertexData + j * vertexSize);					
+				}
 			}
 		}
 

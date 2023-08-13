@@ -8,12 +8,12 @@
 
 AnimationController::AnimationController(AnimatedModel* model) : model(model)
 {
-	RegisterSubsystem(this);
+
 }
 
 AnimationController::~AnimationController()
 {
-	RemoveSubsystem(this);
+
 }
 
 void AnimationController::Update(float timeStep)

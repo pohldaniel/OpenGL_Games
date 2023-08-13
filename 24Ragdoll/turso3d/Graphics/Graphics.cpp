@@ -479,7 +479,7 @@ void Graphics::SetRenderState(BlendMode blendMode, CullMode cullMode, CompareMod
         lastBlendMode = blendMode;
     }
 
-    if (cullMode != lastCullMode)
+    /*if (cullMode != lastCullMode)
     {
         if (cullMode == CULL_NONE)
             glDisable(GL_CULL_FACE);
@@ -491,7 +491,7 @@ void Graphics::SetRenderState(BlendMode blendMode, CullMode cullMode, CompareMod
         }
 
         lastCullMode = cullMode;
-    }
+    }*/
 
     if (depthTest != lastDepthTest)
     {
