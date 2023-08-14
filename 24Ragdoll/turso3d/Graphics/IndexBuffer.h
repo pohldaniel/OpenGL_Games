@@ -20,7 +20,7 @@ public:
     /// Redefine buffer data either completely or partially. Return true on success.
     bool SetData(size_t firstIndex, size_t numIndices, const void* data, bool discard = false);
     /// Bind to use. No-op if already bound. Used also when defining or setting data.
-    void Bind();
+    void Bind(bool force = false);
 
     /// Return number of indices.
     size_t NumIndices() const { return numIndices; }

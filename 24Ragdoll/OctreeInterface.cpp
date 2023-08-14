@@ -244,7 +244,6 @@ void OctreeInterface::renderDirect() {
 		glPolygonMode(GL_FRONT_AND_BACK, StateMachine::GetEnableWireframe() ? GL_LINE : GL_FILL);
 	}
 
-
 	/*glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	glLoadMatrixf(&m_camera.getPerspectiveMatrix()[0][0]);
@@ -343,6 +342,7 @@ void OctreeInterface::renderUi() {
 	ImGui::Checkbox("Draw Wirframe", &StateMachine::GetEnableWireframe());
 	ImGui::Checkbox("Draw Debug", &m_drawDebug);
 	ImGui::Checkbox("Debug Physic", &m_debugPhysic);
+	ImGui::Checkbox("Use Culling", &m_useCulling);
 	ImGui::End();
 
 	ImGui::Render();
@@ -694,13 +694,14 @@ void OctreeInterface::RenderBatches(CameraTu* camera_, const BatchQueue& queue) 
 
 	perViewDataBuffer->Bind(UB_PERVIEWDATA);
 
-	for (auto it = queue.batches.begin(); it != queue.batches.end(); ++it){
+	short count = 0;
 
+	for (auto it = queue.batches.begin(); it != queue.batches.end(); ++it){
 		const Batch& batch = *it;
 		unsigned char geometryBits = batch.programBits & SP_GEOMETRYBITS;
 
 		ShaderProgram* program = batch.pass->GetShaderProgram(batch.programBits);
-		if (!program->Bind())
+		if (!program->Bind(count == 0))
 			continue;
 
 		MaterialTu* material = batch.pass->Parent();
@@ -721,9 +722,10 @@ void OctreeInterface::RenderBatches(CameraTu* camera_, const BatchQueue& queue) 
 		Geometry* geometry = batch.geometry;
 		VertexBuffer* vb = geometry->vertexBuffer;
 		IndexBuffer* ib = geometry->indexBuffer;
-		vb->Bind(program->Attributes());
+
+		vb->Bind(program->Attributes(), count == 0);
 		if (ib)
-			ib->Bind();
+			ib->Bind(count == 0);
 
 		if (geometryBits == GEOM_INSTANCED){
 			if (ib)
@@ -735,9 +737,9 @@ void OctreeInterface::RenderBatches(CameraTu* camera_, const BatchQueue& queue) 
 		}else{
 
 			if (!geometryBits) {
-				//graphics->SetUniform(program, U_WORLDMATRIX, *batch.worldTransform);
-				graphics->SetUniform(program, "worldMatrix", *batch.worldTransform);
-				graphics->SetUniform(program, "worldMatrix4", Matrix4(*batch.worldTransform));
+				graphics->SetUniform(program, U_WORLDMATRIX, *batch.worldTransform);
+				//graphics->SetUniform(program, "worldMatrix", *batch.worldTransform);
+				//graphics->SetUniform(program, "worldMatrix4", Matrix4(*batch.worldTransform));
 			}else
 				batch.drawable->OnRender(program, batch.geomIndex);
 
@@ -746,6 +748,8 @@ void OctreeInterface::RenderBatches(CameraTu* camera_, const BatchQueue& queue) 
 			else
 				graphics->Draw(PT_TRIANGLE_LIST, geometry->drawStart, geometry->drawCount);
 		}
+
+		count++;
 	}
 
 }
@@ -755,7 +759,7 @@ void OctreeInterface::CollectOctants(Octant* octant, ThreadOctantResult& result,
 
 	if (planeMask) {
 		// If not already inside all frustum planes, do frustum test and terminate if completely outside
-		planeMask = frustum.IsInsideMasked(octantBox, planeMask);
+		planeMask = m_useCulling ? frustum.IsInsideMasked(octantBox, planeMask) : 0x00;
 		if (planeMask == 0xff) {
 			// If octant becomes frustum culled, reset its visibility for when it comes back to view, including its children
 			if (octant->Visibility() != VIS_OUTSIDE_FRUSTUM)

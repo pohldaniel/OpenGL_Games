@@ -17,7 +17,7 @@ public:
     ~ShaderProgram();
 
     /// Bind for using. No-op if already bound. Return false if program is not successfully linked.
-    bool Bind();
+    bool Bind(bool force = false);
 
     /// Return shader name concatenated from parent shader name and defines.
     const std::string& ShaderName() const { return shaderName; }

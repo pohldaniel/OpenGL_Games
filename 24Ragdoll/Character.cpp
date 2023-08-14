@@ -4,7 +4,14 @@
 #include "KinematicCharacterContoller.h"
 #include "turso3d/Renderer/AnimatedModel.h"
 
-Character::Character(AnimatedModel* model, AnimationController* animationController, KinematicCharacterController* kcc) : model_(model), animController_(animationController), kinematicController_(kcc){
+Character::Character(AnimatedModel* model, AnimationController* animationController, KinematicCharacterController* kcc) 
+	: model_(model), 
+	animController_(animationController), 
+	kinematicController_(kcc),
+	onGround_(false),
+	okToJump_(true),
+	inAirTimer_(0.0f),
+	jumpStarted_(false){
 
 }
 
@@ -105,6 +112,7 @@ void Character::FixedUpdate(float timeStep) {
 		}
 		else
 		{
+
 			animController_->PlayExclusive("Beta/Beta_Idle.ani", 0, true, 0.2f);
 		}
 	}

@@ -118,7 +118,8 @@ private:
 	bool m_initUi = true;
 	bool m_drawUi = true;
 	bool m_drawDebug = false;
-	bool m_debugPhysic = true;
+	bool m_debugPhysic = false;
+	bool m_useCulling = true;
 
 	Octree* m_octree;
 	AutoPtr<WorkQueue> workQueue;

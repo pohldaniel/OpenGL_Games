@@ -59,7 +59,6 @@ public:
 		//platformBody_ = platformBody; 
 	}
 	
-
 protected:
 	bool onGround_;
 	bool okToJump_;
