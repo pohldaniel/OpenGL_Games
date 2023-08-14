@@ -25,7 +25,7 @@ public:
 	void SetTransform(const Vector3& position, const QuaternionTu& rotation);
 
 protected:
-	int colLayer_;
+	int colFilter_;
 	int colMask_;
 	float stepHeight_;
 	float maxJumpHeight_;
@@ -39,6 +39,7 @@ protected:
 	btDiscreteDynamicsWorld* physicsWorld_;
 	std::unique_ptr<btPairCachingGhostObject> pairCachingGhostObject_;
 	std::unique_ptr<btKinematicCharacterController> kinematicController_;
+	btGhostPairCallback* m_ghostCallback;
 
 	Vector3 position_;
 	QuaternionTu rotation_;

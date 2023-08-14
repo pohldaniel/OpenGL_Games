@@ -1,3 +1,4 @@
+#include <iostream>
 #include "KinematicCharacterContoller.h"
 
 //=============================================================================
@@ -36,8 +37,8 @@ btQuaternion ToBtQuaternion(const QuaternionTu& quaternion)
 //=============================================================================
 //=============================================================================
 KinematicCharacterController::KinematicCharacterController()
-	: colLayer_(1)
-	, colMask_(0xffff)
+	: colFilter_(Physics::collisiontypes::CHARACTER)
+	, colMask_(Physics::collisiontypes::FLOOR)
 	, gravity_(KINEMATIC_GRAVITY)
 	, stepHeight_(STEP_HEIGHT)
 	, maxJumpHeight_(JUMP_HEIGHT)
@@ -56,6 +57,10 @@ KinematicCharacterController::KinematicCharacterController()
 	rotation_ = QuaternionTu(0.0f, 0.0f, 0.0f, 1.0f);
 
 	physicsWorld_ = Physics::GetDynamicsWorld();
+
+	m_ghostCallback = new btGhostPairCallback();
+	Physics::GetDynamicsWorld()->getBroadphase()->getOverlappingPairCache()->setInternalGhostPairCallback(m_ghostCallback);
+
 	AddKinematicToWorld();
 }
 
@@ -79,7 +84,7 @@ void KinematicCharacterController::AddKinematicToWorld()
 			ApplySettings();
 
 			btDiscreteDynamicsWorld *phyicsWorld = Physics::GetDynamicsWorld();
-			phyicsWorld->addCollisionObject(pairCachingGhostObject_.get(), Physics::collisiontypes::CHARACTER, Physics::collisiontypes::FLOOR);
+			phyicsWorld->addCollisionObject(pairCachingGhostObject_.get(), colFilter_, colMask_);
 			phyicsWorld->addAction(kinematicController_.get());
 		}
 	}
@@ -100,7 +105,7 @@ void KinematicCharacterController::ApplySettings(bool reapply)
 	{
 		btDiscreteDynamicsWorld *phyicsWorld = Physics::GetDynamicsWorld();
 		phyicsWorld->removeCollisionObject(pairCachingGhostObject_.get());
-		phyicsWorld->addCollisionObject(pairCachingGhostObject_.get(), colLayer_, colMask_);
+		phyicsWorld->addCollisionObject(pairCachingGhostObject_.get(), colFilter_, colMask_);
 	}
 
 	SetTransform(position_, rotation_);

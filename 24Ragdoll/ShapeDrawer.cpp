@@ -78,7 +78,6 @@ void ShapeDrawer::drawDynmicsWorld(btDynamicsWorld* dynamicsWorld) {
 }
 
 void ShapeDrawer::drawShape(btScalar* m, btCollisionShape* shape) {
-
 	if (shape->getShapeType() == COMPOUND_SHAPE_PROXYTYPE) {
 		const btCompoundShape* compoundShape = static_cast<const btCompoundShape*>(shape);
 		for (int i = compoundShape->getNumChildShapes() - 1; i >= 0; i--) {
@@ -127,7 +126,7 @@ void ShapeDrawer::drawShape(btScalar* m, btCollisionShape* shape) {
 
 	}else if (shape->getShapeType() == TRIANGLE_MESH_SHAPE_PROXYTYPE) {
 
-		/*ShapeCache*	sc = cache(const_cast<btCollisionShape*>(shape));
+		ShapeCache*	sc = cache(const_cast<btCollisionShape*>(shape));
 		const IndexedMeshArray& meshArray = dynamic_cast<btTriangleIndexVertexArray*>(dynamic_cast<btTriangleMeshShape*>(shape)->getMeshInterface())->getIndexedMeshArray();
 
 		for (int i = 0; i < meshArray.size(); i++) {
@@ -154,7 +153,7 @@ void ShapeDrawer::drawShape(btScalar* m, btCollisionShape* shape) {
 
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 			glBindBuffer(GL_ARRAY_BUFFER, 0);			
-		}*/
+		}
 
 	}else if (shape->getShapeType() == TERRAIN_SHAPE_PROXYTYPE) {
 

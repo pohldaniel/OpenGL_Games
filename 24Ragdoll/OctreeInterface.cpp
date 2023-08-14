@@ -240,6 +240,9 @@ void OctreeInterface::renderDirect() {
 	}
 
 	debugRenderer->Render();
+
+	Graphics::UnbindDefaultVao();
+
 	ShapeDrawer::Get().drawDynmicsWorld(Physics::GetDynamicsWorld());
 }
 
