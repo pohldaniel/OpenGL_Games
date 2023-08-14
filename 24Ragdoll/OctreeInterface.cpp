@@ -244,6 +244,16 @@ void OctreeInterface::renderDirect() {
 	Graphics::UnbindDefaultVao();
 
 	ShapeDrawer::Get().drawDynmicsWorld(Physics::GetDynamicsWorld());
+
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	glLoadMatrixf(&m_camera.getPerspectiveMatrix()[0][0]);
+
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	glLoadMatrixf(&m_camera.getViewMatrix()[0][0]);
+
+	kinematicCharacter->DebugDrawContacts();
 }
 
 void OctreeInterface::render() {

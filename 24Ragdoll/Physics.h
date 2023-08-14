@@ -95,11 +95,7 @@ public:
 	static Vector3f VectorFrom(const btVector3& vector);
 	static Quaternion QuaternionFrom(const btQuaternion& quaternion);
 
-	
-
 	static btDiscreteDynamicsWorld* GetDynamicsWorld();
-
-
 
 	static btCollisionShape* CreateStaticCollisionShape(std::vector<float>& vertexBuffer, std::vector<unsigned int>& indexBuffer, const btVector3& scale = btVector3(1.0f, 1.0f, 1.0f));
 	static std::vector<btCollisionShape*> CreateStaticCollisionShapes(std::vector<float>& vertexBuffer, std::vector<unsigned int>& indexBuffer, float scale = 1.0f);

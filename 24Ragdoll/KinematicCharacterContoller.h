@@ -23,6 +23,7 @@ public:
 	void RemoveKinematicFromWorld();
 	void ApplySettings(bool reapply = false);
 	void SetTransform(const Vector3& position, const QuaternionTu& rotation);
+	void DebugDrawContacts();
 
 protected:
 	int colFilter_;
@@ -39,7 +40,7 @@ protected:
 	btDiscreteDynamicsWorld* physicsWorld_;
 	std::unique_ptr<btPairCachingGhostObject> pairCachingGhostObject_;
 	std::unique_ptr<btKinematicCharacterController> kinematicController_;
-	btGhostPairCallback* m_ghostCallback;
+	btGhostPairCallback* m_ghostPairCallback;
 
 	Vector3 position_;
 	QuaternionTu rotation_;

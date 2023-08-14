@@ -162,6 +162,7 @@
     <ClCompile Include="Button.cpp" />
     <ClCompile Include="CharacterController.cpp" />
     <ClCompile Include="CharacterInterface.cpp" />
+    <ClCompile Include="DebugDrawer.cpp" />
     <ClCompile Include="engine\ArrayBuffer.cpp" />
     <ClCompile Include="engine\AssimpModel.cpp" />
     <ClCompile Include="engine\Batchrenderer.cpp" />
@@ -338,6 +339,7 @@
     <ClInclude Include="Button.h" />
     <ClInclude Include="CharacterController.h" />
     <ClInclude Include="CharacterInterface.h" />
+    <ClInclude Include="DebugDrawer.h" />
     <ClInclude Include="engine\ArrayBuffer.h" />
     <ClInclude Include="engine\CubeBuffer.h" />
     <ClInclude Include="engine\input\Mouse.h" />

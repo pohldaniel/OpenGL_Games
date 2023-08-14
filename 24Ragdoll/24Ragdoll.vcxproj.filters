@@ -624,6 +624,9 @@
     <ClCompile Include="KinematicCharacterContoller.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="DebugDrawer.cpp">
+      <Filter>Physics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h">
@@ -1165,6 +1168,9 @@
     </ClInclude>
     <ClInclude Include="KinematicCharacterContoller.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DebugDrawer.h">
+      <Filter>Physics</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

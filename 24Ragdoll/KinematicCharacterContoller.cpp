@@ -58,15 +58,20 @@ KinematicCharacterController::KinematicCharacterController()
 
 	physicsWorld_ = Physics::GetDynamicsWorld();
 
-	m_ghostCallback = new btGhostPairCallback();
-	Physics::GetDynamicsWorld()->getBroadphase()->getOverlappingPairCache()->setInternalGhostPairCallback(m_ghostCallback);
+	m_ghostPairCallback = new btGhostPairCallback();
+	Physics::GetDynamicsWorld()->getBroadphase()->getOverlappingPairCache()->setInternalGhostPairCallback(m_ghostPairCallback);
 
 	AddKinematicToWorld();
 }
 
-KinematicCharacterController::~KinematicCharacterController()
-{
+KinematicCharacterController::~KinematicCharacterController(){
 	ReleaseKinematic();
+
+	// Delete GhostPair callback
+	if (m_ghostPairCallback){
+		delete m_ghostPairCallback;
+		m_ghostPairCallback = 0;
+	}
 }
 
 void KinematicCharacterController::AddKinematicToWorld()
@@ -138,4 +143,33 @@ void KinematicCharacterController::SetTransform(const Vector3& position, const Q
 	worldTrans.setRotation(ToBtQuaternion(rotation));
 	worldTrans.setOrigin(ToBtVector3(position));
 	pairCachingGhostObject_->setWorldTransform(worldTrans);
+}
+
+void KinematicCharacterController::DebugDrawContacts() {
+	
+	btManifoldArray	manifoldArray;
+	btBroadphasePairArray& pairArray = pairCachingGhostObject_->getOverlappingPairCache()->getOverlappingPairArray();
+	int numPairs = pairArray.size();
+
+	for (int i = 0; i<numPairs; i++){
+		manifoldArray.clear();
+
+		const btBroadphasePair& pair = pairArray[i];
+			
+		btBroadphasePair* collisionPair = physicsWorld_->getBroadphase()->getOverlappingPairCache()->findPair(pair.m_pProxy0, pair.m_pProxy1);
+		if (!collisionPair)
+			continue;
+
+		if (collisionPair->m_algorithm)
+			collisionPair->m_algorithm->getAllContactManifolds(manifoldArray);
+
+		for (int j = 0; j<manifoldArray.size(); j++){
+			btPersistentManifold* manifold = manifoldArray[j];
+			for (int p = 0; p<manifold->getNumContacts(); p++){
+				const btManifoldPoint&pt = manifold->getContactPoint(p);
+				btVector3 color(255, 255, 255);
+				physicsWorld_->getDebugDrawer()->drawContactPoint(pt.getPositionWorldOnB(), pt.m_normalWorldOnB, pt.getDistance(), pt.getLifeTime(), color);
+			}
+		}
+	}
 }

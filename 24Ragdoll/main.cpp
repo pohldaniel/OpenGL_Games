@@ -5,6 +5,7 @@
 #include "engine\Clock.h"
 #include "Application.h"
 #include "Globals.h"
+#include "DebugDrawer.h"
 
 extern AssetManager<Shader> Globals::shaderManager = AssetManager<Shader>();
 extern AssetManager<Texture> Globals::textureManager = AssetManager<Texture>();
@@ -17,6 +18,8 @@ extern AssetManager<MusicBuffer> Globals::musicManager = AssetManager<MusicBuffe
 extern float Globals::soundVolume = 0.2f;
 extern float Globals::musicVolume = 0.1f;
 extern Physics* Globals::physics = NULL;
+
+DebugDrawer debugDrawer;
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd) {
 
@@ -38,6 +41,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	float framesTime = 0;
 #endif
 	Globals::physics = new Physics(PHYSICS_STEP);
+	Physics::GetDynamicsWorld()->setDebugDrawer(&debugDrawer);
+
 	float deltaTime = 0.0f;
 	float fixedDeltaTime = 0.0f;
 	float physicsElapsedTime = 0.0;
