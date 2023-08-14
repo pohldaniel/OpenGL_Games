@@ -105,6 +105,7 @@ public:
 	void CreateScene(Scene* scene, CameraTu* camera, int preset);
 
 	void RegisterRendererLibrary();
+	void createPhysics();
 
 private:
 
@@ -177,7 +178,16 @@ private:
 
 	std::vector<float> vertexBuffer;
 	std::vector<unsigned int> indexBuffer;
+	Shape m_disk;
+	Shape m_lift;
+	Shape m_liftButton;
+	Shape m_base;
+	Shape m_liftExterior;
 	Shape m_upperFloor;
+	Shape m_ramp;
+	Shape m_ramp2;
+	Shape m_ramp3;
+	Shape m_cylinder;
 	Utils::MdlIO mdlConverter;
 	Character* m_character;
 };

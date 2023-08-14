@@ -28,10 +28,7 @@ OctreeInterface::OctreeInterface(StateMachine& machine) : State(machine, Current
 	ShapeDrawer::Get().init(32768);
 	ShapeDrawer::Get().setCamera(m_camera);
 
-	mdlConverter.mdlToBuffer("res/Models/upperFloor.mdl", 0.01f, vertexBuffer, indexBuffer);
-	m_upperFloor.fromBuffer(vertexBuffer, indexBuffer, 8);
-
-	Globals::physics->addStaticModel(Physics::CreateStaticCollisionShapes(&m_upperFloor, 1.0f), Physics::BtTransform(btVector3(30.16f, 6.98797f, 10.0099f)), false, btVector3(1.0f, 1.0f, 1.0f), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::RAY);
+	createPhysics();
 
 	glClearColor(0.7f, 0.7f, 0.7f, 0.0f);
 
@@ -940,4 +937,69 @@ void OctreeInterface::UpdateInstanceTransforms(const std::vector<Matrix3x4>& tra
 		else
 			instanceVertexBuffer->SetData(0, transforms.size(), &transforms[0]);
 	}
+}
+
+void OctreeInterface::createPhysics() {
+	
+
+	mdlConverter.mdlToBuffer("res/Models/base.mdl", 0.01f, vertexBuffer, indexBuffer);
+	m_base.fromBuffer(vertexBuffer, indexBuffer, 8);
+	vertexBuffer.clear(); vertexBuffer.shrink_to_fit(); indexBuffer.clear(); indexBuffer.shrink_to_fit();
+
+	mdlConverter.mdlToBuffer("res/Models/upperFloor.mdl", 0.01f, vertexBuffer, indexBuffer);
+	m_upperFloor.fromBuffer(vertexBuffer, indexBuffer, 8);
+	vertexBuffer.clear(); vertexBuffer.shrink_to_fit(); indexBuffer.clear(); indexBuffer.shrink_to_fit();
+
+	mdlConverter.mdlToBuffer("res/Models/ramp.mdl", 0.01f, vertexBuffer, indexBuffer);
+	m_ramp.fromBuffer(vertexBuffer, indexBuffer, 8);
+	vertexBuffer.clear(); vertexBuffer.shrink_to_fit(); indexBuffer.clear(); indexBuffer.shrink_to_fit();
+
+	mdlConverter.mdlToBuffer("res/Models/ramp2.mdl", 0.01f, vertexBuffer, indexBuffer);
+	m_ramp2.fromBuffer(vertexBuffer, indexBuffer, 8);
+	vertexBuffer.clear(); vertexBuffer.shrink_to_fit(); indexBuffer.clear(); indexBuffer.shrink_to_fit();
+
+	mdlConverter.mdlToBuffer("res/Models/ramp3.mdl", 0.01f, vertexBuffer, indexBuffer);
+	m_ramp3.fromBuffer(vertexBuffer, indexBuffer, 8);
+	vertexBuffer.clear(); vertexBuffer.shrink_to_fit(); indexBuffer.clear(); indexBuffer.shrink_to_fit();
+
+	mdlConverter.mdlToBuffer("res/Models/Lift.mdl", 0.01f, vertexBuffer, indexBuffer);
+	m_lift.fromBuffer(vertexBuffer, indexBuffer, 8);
+	vertexBuffer.clear(); vertexBuffer.shrink_to_fit(); indexBuffer.clear(); indexBuffer.shrink_to_fit();
+
+	mdlConverter.mdlToBuffer("res/Models/liftExterior.mdl", 0.01f, vertexBuffer, indexBuffer);
+	m_liftExterior.fromBuffer(vertexBuffer, indexBuffer, 8);
+	vertexBuffer.clear(); vertexBuffer.shrink_to_fit(); indexBuffer.clear(); indexBuffer.shrink_to_fit();
+
+	mdlConverter.mdlToBuffer("res/Models/LiftButton.mdl", 0.01f, vertexBuffer, indexBuffer);
+	m_liftButton.fromBuffer(vertexBuffer, indexBuffer, 8);
+	vertexBuffer.clear(); vertexBuffer.shrink_to_fit(); indexBuffer.clear(); indexBuffer.shrink_to_fit();
+
+	mdlConverter.mdlToBuffer("res/Models/disk.mdl", 0.01f, vertexBuffer, indexBuffer);
+	m_disk.fromBuffer(vertexBuffer, indexBuffer, 8);
+	vertexBuffer.clear(); vertexBuffer.shrink_to_fit(); indexBuffer.clear(); indexBuffer.shrink_to_fit();
+
+	mdlConverter.mdlToBuffer("res/Models/Cylinder.mdl", 6.0f, vertexBuffer, indexBuffer);
+	m_cylinder.fromBuffer(vertexBuffer, indexBuffer, 8);
+	vertexBuffer.clear(); vertexBuffer.shrink_to_fit(); indexBuffer.clear(); indexBuffer.shrink_to_fit();
+
+
+	Physics::AddRigidBody(0.0f, Physics::BtTransform(btVector3(0.0f, -0.05f, 0.0f)), new btConvexHullShape((btScalar*)(&m_base.getPositions()[0]), m_base.getPositions().size(), 3 * sizeof(btScalar)), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::RAY, btCollisionObject::CF_STATIC_OBJECT);
+	Globals::physics->addStaticModel(Physics::CreateStaticCollisionShapes(&m_upperFloor, 1.0f), Physics::BtTransform(btVector3(30.16f, 6.98797f, 10.0099f)), false, btVector3(1.0f, 1.0f, 1.0f), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::RAY);
+
+	Globals::physics->addStaticModel(Physics::CreateStaticCollisionShapes(&m_ramp, 1.0f), Physics::BtTransform(btVector3(13.5771f, 6.23965f, 10.9272f)), false, btVector3(1.0f, 1.0f, 1.0f), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::CAMERA);
+	Physics::AddRigidBody(0.0f, Physics::BtTransform(btVector3(-22.8933f, 2.63165f, -23.6786f)), new btConvexHullShape((btScalar*)(&m_ramp2.getPositions()[0]), m_ramp2.getPositions().size(), 3 * sizeof(btScalar)), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::RAY, btCollisionObject::CF_STATIC_OBJECT);
+	Physics::AddRigidBody(0.0f, Physics::BtTransform(btVector3(-15.2665f, 1.9782f, -43.135f)), new btConvexHullShape((btScalar*)(&m_ramp3.getPositions()[0]), m_ramp3.getPositions().size(), 3 * sizeof(btScalar)), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::RAY, btCollisionObject::CF_STATIC_OBJECT);
+
+	Globals::physics->addStaticModel(Physics::CreateStaticCollisionShapes(&m_lift, 1.0f), Physics::BtTransform(btVector3(35.5938f, 0.350185f, 10.4836f)), false, btVector3(1.0f, 1.0f, 1.0f), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::RAY);
+	Globals::physics->addStaticModel(Physics::CreateStaticCollisionShapes(&m_liftExterior, 1.0f), Physics::BtTransform(btVector3(35.6211f, 7.66765f, 10.4388f)), false, btVector3(1.0f, 1.0f, 1.0f), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::RAY);
+	Physics::AddRigidBody(0.0f, Physics::BtTransform(btVector3(35.5938f, 0.412104f + 0.15f, 10.4836f)), new btCylinderShape(btVector3(80.0f, 15.0f, 1.0f) * 0.01f), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::RAY, btCollisionObject::CF_STATIC_OBJECT);
+
+	Globals::physics->addStaticModel(Physics::CreateStaticCollisionShapes(&m_disk, 1.0f), Physics::BtTransform(btVector3(26.1357f, 7.00645f, -34.7563f)), false, btVector3(1.0f, 1.0f, 1.0f), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::RAY);
+	Globals::physics->addStaticModel(Physics::CreateStaticCollisionShapes(&m_disk, 1.0f), Physics::BtTransform(btVector3(4.14317f, 7.00645f, 35.1134f)), false, btVector3(1.0f, 1.0f, 1.0f), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::RAY);
+
+
+	
+	Globals::physics->addStaticModel(Physics::CreateStaticCollisionShapes(&m_cylinder, 1.0f), Physics::BtTransform(btVector3(-0.294956f, 2.48167f, 28.3161f)), false, btVector3(1.0f, 1.0f, 1.0f), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::RAY);
+
+
 }
