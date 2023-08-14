@@ -117,6 +117,7 @@ private:
 	bool m_initUi = true;
 	bool m_drawUi = true;
 	bool m_drawDebug = false;
+	bool m_debugPhysic = true;
 
 	Octree* m_octree;
 	AutoPtr<WorkQueue> workQueue;
@@ -131,6 +132,7 @@ private:
 	float angle = 0.0f;
 	bool animate = true;
 	float m_offsetDistance = 10.0f;
+	float m_rotationSpeed = 0.1f;
 
 	std::vector<StaticModel*> rotatingObjects;
 	std::vector<AnimatedModel*> animatingObjects;

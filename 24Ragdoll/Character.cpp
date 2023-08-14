@@ -26,13 +26,13 @@ void Character::FixedUpdate(float timeStep) {
 	onGround_ = kinematicController_->OnGround();
 
 
-	if (keyboard.keyDown(Keyboard::KEY_UP))
-		moveDir += Vector3::FORWARD;
-	if (keyboard.keyDown(Keyboard::KEY_DOWN))
+	if (keyboard.keyDown(Keyboard::KEY_W))
 		moveDir += Vector3::BACK;
-	if (keyboard.keyDown(Keyboard::KEY_LEFT))
+	if (keyboard.keyDown(Keyboard::KEY_S))
+		moveDir += Vector3::FORWARD;
+	if (keyboard.keyDown(Keyboard::KEY_A))
 		moveDir += Vector3::LEFT;
-	if (keyboard.keyDown(Keyboard::KEY_RIGHT))
+	if (keyboard.keyDown(Keyboard::KEY_D))
 		moveDir += Vector3::RIGHT;
 		
 	// Normalize move vector so that diagonal strafing is not faster

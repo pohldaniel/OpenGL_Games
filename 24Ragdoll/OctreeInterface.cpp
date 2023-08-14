@@ -22,7 +22,7 @@ OctreeInterface::OctreeInterface(StateMachine& machine) : State(machine, Current
 	m_camera.lookAt(Vector3f(0.0f, 5.0f, -60.0f) + Vector3f(0.0f, 0.0f, m_offsetDistance), Vector3f(0.0f, 5.0f, -60.0f), Vector3f(0.0f, 1.0f, 0.0f));
 	m_camera.setOffsetDistance(m_offsetDistance);
 
-	m_camera.setRotationSpeed(0.1f);
+	m_camera.setRotationSpeed(m_rotationSpeed);
 	m_camera.setMovingSpeed(2.0f);
 
 	ShapeDrawer::Get().init(32768);
@@ -105,6 +105,8 @@ void OctreeInterface::update() {
 		CreateScene(scene, camera, 2);
 	if (keyboard.keyPressed(Keyboard::KEY_4))
 		m_drawDebug = !m_drawDebug;
+	if (keyboard.keyPressed(Keyboard::KEY_5))
+		m_debugPhysic = !m_debugPhysic;
 	
 	Vector3f directrion = Vector3f();
 	bool move = false;
@@ -152,22 +154,16 @@ void OctreeInterface::update() {
 	if (move || dx != 0.0f || dy != 0.0f) {
 		if (dx || dy) {
 			m_camera.rotate(dx, dy, Vector3f(pos.x, pos.y, pos.z));
+			beta->Rotate(QuaternionTu(-dx  * m_rotationSpeed, Vector3::UP));
 		}
 
-		if (move) {
+		/*if (move) {
 			float moveSpeed = (keyboard.keyDown(Keyboard::KEY_LSHIFT) || keyboard.keyDown(Keyboard::KEY_RSHIFT)) ? 50.0f : 5.0f;
 			m_camera.move(directrion  * m_dt * moveSpeed);
-		}
+		}*/
 	}
 	m_trackball.idle();
 	m_transform.fromMatrix(m_trackball.getTransform());
-
-	/*if (keyboard.keyDown(Keyboard::KEY_UP) || keyboard.keyDown(Keyboard::KEY_DOWN) || keyboard.keyDown(Keyboard::KEY_LEFT) || keyboard.keyDown(Keyboard::KEY_RIGHT)) {
-		animController->PlayExclusive("Beta/Beta_Run.ani", 0, true, 0.2f);
-	}else {
-		animController->PlayExclusive("Beta/Beta_Idle.ani", 0, true, 0.2f);
-	}*/
-
 
 	// Scene animation
 	if (animate) {
@@ -245,9 +241,14 @@ void OctreeInterface::renderDirect() {
 
 	Graphics::UnbindDefaultVao();
 
-	ShapeDrawer::Get().drawDynmicsWorld(Physics::GetDynamicsWorld());
+	if (m_debugPhysic) {
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		ShapeDrawer::Get().drawDynmicsWorld(Physics::GetDynamicsWorld());
+		glPolygonMode(GL_FRONT_AND_BACK, StateMachine::GetEnableWireframe() ? GL_LINE : GL_FILL);
+	}
 
-	glMatrixMode(GL_PROJECTION);
+
+	/*glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	glLoadMatrixf(&m_camera.getPerspectiveMatrix()[0][0]);
 
@@ -255,7 +256,7 @@ void OctreeInterface::renderDirect() {
 	glLoadIdentity();
 	glLoadMatrixf(&m_camera.getViewMatrix()[0][0]);
 
-	kinematicCharacter->DebugDrawContacts();
+	kinematicCharacter->DebugDrawContacts();*/
 }
 
 void OctreeInterface::render() {
@@ -344,6 +345,7 @@ void OctreeInterface::renderUi() {
 	ImGui::Begin("Settings", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
 	ImGui::Checkbox("Draw Wirframe", &StateMachine::GetEnableWireframe());
 	ImGui::Checkbox("Draw Debug", &m_drawDebug);
+	ImGui::Checkbox("Debug Physic", &m_debugPhysic);
 	ImGui::End();
 
 	ImGui::Render();
