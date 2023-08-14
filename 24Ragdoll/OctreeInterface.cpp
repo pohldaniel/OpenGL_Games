@@ -31,7 +31,7 @@ OctreeInterface::OctreeInterface(StateMachine& machine) : State(machine, Current
 	mdlConverter.mdlToBuffer("res/Models/upperFloor.mdl", 0.01f, vertexBuffer, indexBuffer);
 	m_upperFloor.fromBuffer(vertexBuffer, indexBuffer, 8);
 
-	Globals::physics->addStaticModel(Physics::CreateStaticCollisionShapes(&m_upperFloor, 1.0f), Physics::BtTransform(btVector3(30.16f, 6.98797f, 10.0099f)), false, btVector3(1.0f, 1.0f, 1.0f), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER);
+	Globals::physics->addStaticModel(Physics::CreateStaticCollisionShapes(&m_upperFloor, 1.0f), Physics::BtTransform(btVector3(30.16f, 6.98797f, 10.0099f)), false, btVector3(1.0f, 1.0f, 1.0f), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::RAY);
 
 	glClearColor(0.7f, 0.7f, 0.7f, 0.0f);
 
@@ -90,6 +90,8 @@ OctreeInterface::~OctreeInterface() {
 
 void OctreeInterface::fixedUpdate() {
 	Globals::physics->stepSimulation(m_fdt);
+	m_character->FixedUpdate(m_fdt);
+	m_character->FixedPostUpdate(m_fdt);
 }
 
 void OctreeInterface::update() {
@@ -160,11 +162,11 @@ void OctreeInterface::update() {
 	m_trackball.idle();
 	m_transform.fromMatrix(m_trackball.getTransform());
 
-	if (keyboard.keyDown(Keyboard::KEY_UP) || keyboard.keyDown(Keyboard::KEY_DOWN) || keyboard.keyDown(Keyboard::KEY_LEFT) || keyboard.keyDown(Keyboard::KEY_RIGHT)) {
+	/*if (keyboard.keyDown(Keyboard::KEY_UP) || keyboard.keyDown(Keyboard::KEY_DOWN) || keyboard.keyDown(Keyboard::KEY_LEFT) || keyboard.keyDown(Keyboard::KEY_RIGHT)) {
 		animController->PlayExclusive("Beta/Beta_Run.ani", 0, true, 0.2f);
 	}else {
 		animController->PlayExclusive("Beta/Beta_Idle.ani", 0, true, 0.2f);
-	}
+	}*/
 
 
 	// Scene animation
@@ -499,6 +501,8 @@ void OctreeInterface::CreateScene(Scene* scene, CameraTu* camera, int preset) {
 			cylinder->SetMaterial(cache->LoadResource<MaterialTu>("Models/Models.json"));
 
 			kinematicCharacter = new KinematicCharacterController();
+
+			m_character = new Character(beta, animController, kinematicCharacter);
 		}
 	}
 	// Preset 1: high number of animating cubes

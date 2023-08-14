@@ -254,6 +254,35 @@ bool AnimationController::FadeOthers(const std::string& name, float targetWeight
 	return true;
 }
 
+bool AnimationController::SetTime(const std::string& name, float time)
+{
+	unsigned index;
+	AnimationState* state;
+	FindAnimation(name, index, state);
+	if (index == M_MAX_UNSIGNED || !state)
+		return false;
+
+	time = Clamp(time, 0.0f, state->Length());
+	state->SetTime(time);
+	// Prepare "set time" command for network replication
+	animations[index].setTime_ = (unsigned short)(time / state->Length() * 65535.0f);
+	animations[index].setTimeTtl_ = COMMAND_STAY_TIME;
+	++animations[index].setTimeRev_;
+
+	return true;
+}
+
+bool AnimationController::IsAtEnd(const std::string& name) const
+{
+	unsigned index;
+	AnimationState* state;
+	FindAnimation(name, index, state);
+	if (index == M_MAX_UNSIGNED || !state)
+		return false;
+	else
+		return state->Time() >= state->Length();
+}
+
 AnimationState* AnimationController::GetAnimationState(StringHash nameHash) const
 {
 	// Model mode

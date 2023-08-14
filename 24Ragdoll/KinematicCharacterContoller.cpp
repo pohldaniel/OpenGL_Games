@@ -34,6 +34,16 @@ btQuaternion ToBtQuaternion(const QuaternionTu& quaternion)
 	return btQuaternion(quaternion.x, quaternion.y, quaternion.z, quaternion.w);
 }
 
+Vector3 ToVector3(const btVector3& vector)
+{
+	return Vector3(vector.x(), vector.y(), vector.z());
+}
+
+QuaternionTu ToQuaternion(const btQuaternion& quaternion)
+{
+	return QuaternionTu(quaternion.w(), quaternion.x(), quaternion.y(), quaternion.z());
+}
+
 //=============================================================================
 //=============================================================================
 KinematicCharacterController::KinematicCharacterController()
@@ -143,6 +153,36 @@ void KinematicCharacterController::SetTransform(const Vector3& position, const Q
 	worldTrans.setRotation(ToBtQuaternion(rotation));
 	worldTrans.setOrigin(ToBtVector3(position));
 	pairCachingGhostObject_->setWorldTransform(worldTrans);
+}
+
+const Vector3& KinematicCharacterController::GetPosition() {
+	btTransform t = pairCachingGhostObject_->getWorldTransform();
+	position_ = ToVector3(t.getOrigin()) - colShapeOffset_;
+	return position_;
+}
+
+const QuaternionTu& KinematicCharacterController::GetRotation() {
+	btTransform t = pairCachingGhostObject_->getWorldTransform();
+	rotation_ = ToQuaternion(t.getRotation());
+	return rotation_;
+}
+
+void KinematicCharacterController::GetTransform(Vector3& position, QuaternionTu& rotation) {
+	btTransform worldTrans = pairCachingGhostObject_->getWorldTransform();
+	rotation = ToQuaternion(worldTrans.getRotation());
+	position = ToVector3(worldTrans.getOrigin());
+}
+
+bool KinematicCharacterController::OnGround() const {
+	return kinematicController_->onGround();
+}
+
+void KinematicCharacterController::SetWalkDirection(const Vector3& walkDir) {
+	kinematicController_->setWalkDirection(ToBtVector3(walkDir));
+}
+
+void KinematicCharacterController::Jump(const Vector3&jump) {
+	kinematicController_->jump(ToBtVector3(jump));
 }
 
 void KinematicCharacterController::DebugDrawContacts() {

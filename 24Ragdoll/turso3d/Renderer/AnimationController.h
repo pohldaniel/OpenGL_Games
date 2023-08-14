@@ -6,6 +6,8 @@
 class AnimatedModel;
 class Animation;
 
+static const float COMMAND_STAY_TIME = 0.25f;
+
 /// Control data for an animation.
 struct AnimationControl
 {
@@ -54,7 +56,7 @@ struct AnimationControl
 	unsigned char setWeightRev_;
 	/// Sets whether this should automatically be removed when it finishes playing.
 	bool removeOnCompletion_;
-
+	
 	/// ragdoll
 	bool  ragdollRecovery_;
 	float ragdollRecoverTime_;
@@ -88,6 +90,10 @@ public:
 	bool Fade(const std::string& name, float targetWeight, float fadeTime);
 	/// Fade other animations on the same layer to target weight. Return true on success.
 	bool FadeOthers(const std::string& name, float targetWeight, float fadeTime);
+	/// Set animation time position. Return true on success.
+	bool SetTime(const std::string& name, float time);
+	/// Return whether an animation is at its end. Will return false if the animation is not active at all.
+	bool IsAtEnd(const std::string& name) const;
 
 	AnimationState* GetAnimationState(StringHash nameHash) const;
 	AnimationState* AddAnimationState(Animation* animation);

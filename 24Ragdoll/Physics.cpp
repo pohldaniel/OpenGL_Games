@@ -260,6 +260,48 @@ float Physics::RayTest(const btVector3& from, const btVector3& to, int collision
 	return cb.m_closestHitFraction;
 }
 
+void Physics::RaycastSingleSegmented(PhysicsRaycastResult& result, const Ray& ray, float maxDistance, float segmentDistance, int collisionFilterGroup, int collisionMask){
+
+
+	btVector3 start = btVector3(ray.origin.x, ray.origin.y, ray.origin.z);
+	btVector3 end;
+	btVector3 direction = btVector3(ray.direction.x, ray.direction.y, ray.direction.z);
+	float distance;
+
+	for (float remainingDistance = maxDistance; remainingDistance > 0; remainingDistance -= segmentDistance){
+		distance = Min(remainingDistance, segmentDistance);
+
+		end = start + distance * direction;
+
+		btCollisionWorld::ClosestRayResultCallback rayCallback(start, end);
+		rayCallback.m_collisionFilterGroup = collisionFilterGroup;
+		rayCallback.m_collisionFilterMask = collisionMask;
+
+		DynamicsWorld->rayTest(rayCallback.m_rayFromWorld, rayCallback.m_rayToWorld, rayCallback);
+
+		if (rayCallback.hasHit())
+		{
+			result.position_ = Vector3(rayCallback.m_hitPointWorld.x(), rayCallback.m_hitPointWorld.y(), rayCallback.m_hitPointWorld.z());
+			result.normal_ = Vector3(rayCallback.m_hitNormalWorld.x(), rayCallback.m_hitNormalWorld.y(), rayCallback.m_hitNormalWorld.z());
+			result.distance_ = (result.position_ - ray.origin).Length();
+			result.hitFraction_ = rayCallback.m_closestHitFraction;
+			result.body_ = static_cast<btRigidBody*>(rayCallback.m_collisionObject->getUserPointer());
+			// No need to cast the rest of the segments
+			return;
+		}
+
+		// Use the end position as the new start position
+		start = end;
+	}
+
+	// Didn't hit anything
+	result.position_ = Vector3::ZERO;
+	result.normal_ = Vector3::ZERO;
+	result.distance_ = M_INFINITY;
+	result.hitFraction_ = 0.0f;
+	result.body_ = 0;
+}
+
 btTransform Physics::BtTransform() {
 	btTransform transform;
 	transform.setIdentity();

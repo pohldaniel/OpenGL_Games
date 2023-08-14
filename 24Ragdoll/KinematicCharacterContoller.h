@@ -22,8 +22,16 @@ public:
 	void ReleaseKinematic();
 	void RemoveKinematicFromWorld();
 	void ApplySettings(bool reapply = false);
-	void SetTransform(const Vector3& position, const QuaternionTu& rotation);
 	void DebugDrawContacts();
+
+	const Vector3& GetPosition();
+	const QuaternionTu& GetRotation();
+	void SetTransform(const Vector3& position, const QuaternionTu& rotation);
+	void GetTransform(Vector3& position, QuaternionTu& rotation);
+
+	void SetWalkDirection(const Vector3& walkDir);
+	bool OnGround() const;
+	void Jump(const Vector3 &jump = Vector3::ZERO);
 
 protected:
 	int colFilter_;

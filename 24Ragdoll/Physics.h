@@ -9,6 +9,9 @@
 #include <BulletDynamics/Character/btKinematicCharacterController.h>
 #include "engine/Vector.h"
 
+#include "turso3d/Math/Ray.h"
+
+
 #define MAX_SIMULATION_SUBSTEPS   1
 
 class ObjMesh;
@@ -31,6 +34,29 @@ private:
 	int m_collisionFilterGroup = -1;
 	int m_collisionFilterMask = -1;
 };
+
+struct PhysicsRaycastResult {
+	/// Construct with defaults.
+	PhysicsRaycastResult() : body_(0) {
+	}
+
+	/// Test for inequality, added to prevent GCC from complaining.
+	bool operator !=(const PhysicsRaycastResult& rhs) const {
+		return position_ != rhs.position_ || normal_ != rhs.normal_ || distance_ != rhs.distance_ || body_ != rhs.body_;
+	}
+
+	/// Hit worldspace position.
+	Vector3 position_;
+	/// Hit worldspace normal.
+	Vector3 normal_;
+	/// Hit distance from ray origin.
+	float distance_;
+	/// Hit fraction.
+	float hitFraction_;
+	/// Rigid body that was hit.
+	btRigidBody* body_;
+};
+
 
 class Physics{
 
@@ -80,6 +106,7 @@ public:
 
 	static float SweepSphere(const btVector3& from, const btVector3& to, float radius, int collisionFilterGroup = 1, int collisionFilterMask = -1);
 	static float RayTest(const btVector3& from, const btVector3& to, int collisionFilterGroup = 1, int collisionFilterMask = -1);
+	static void RaycastSingleSegmented(PhysicsRaycastResult& result, const Ray& ray, float maxDistance, float segmentDistance, int collisionFilterGroup = 1, int collisionFilterMask = -1);
 
 	static btTransform BtTransform();
 	static btTransform BtTransform(const btVector3& origin);

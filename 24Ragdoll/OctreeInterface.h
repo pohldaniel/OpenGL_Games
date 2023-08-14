@@ -7,6 +7,7 @@
 #include "engine/TrackBall.h"
 #include "StateMachine.h"
 #include "KinematicCharacterContoller.h"
+#include "Character.h"
 #include "ShapeDrawer.h"
 #include "SolidIO.h"
 
@@ -176,5 +177,6 @@ private:
 	std::vector<unsigned int> indexBuffer;
 	Shape m_upperFloor;
 	Utils::MdlIO mdlConverter;
+	Character* m_character;
 };
 

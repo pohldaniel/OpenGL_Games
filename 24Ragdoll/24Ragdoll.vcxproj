@@ -160,6 +160,7 @@
     <ClCompile Include="BspConverter.cpp" />
     <ClCompile Include="BspLoader.cpp" />
     <ClCompile Include="Button.cpp" />
+    <ClCompile Include="Character.cpp" />
     <ClCompile Include="CharacterController.cpp" />
     <ClCompile Include="CharacterInterface.cpp" />
     <ClCompile Include="DebugDrawer.cpp" />
@@ -337,6 +338,7 @@
     <ClInclude Include="BspLoader.h" />
     <ClInclude Include="BspToBulletConverter.h" />
     <ClInclude Include="Button.h" />
+    <ClInclude Include="Character.h" />
     <ClInclude Include="CharacterController.h" />
     <ClInclude Include="CharacterInterface.h" />
     <ClInclude Include="DebugDrawer.h" />
