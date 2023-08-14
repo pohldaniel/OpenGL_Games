@@ -3,7 +3,7 @@
 
 //=============================================================================
 //=============================================================================
-const float STEP_HEIGHT = 0.4f;
+const float STEP_HEIGHT = 0.6f;
 const float JUMP_HEIGHT = 2.0f;
 const float FALL_SPEED = 55.0f;
 const float JUMP_SPEED = 9.0f;
@@ -171,6 +171,11 @@ void KinematicCharacterController::GetTransform(Vector3& position, QuaternionTu&
 	btTransform worldTrans = pairCachingGhostObject_->getWorldTransform();
 	rotation = ToQuaternion(worldTrans.getRotation());
 	position = ToVector3(worldTrans.getOrigin());
+}
+
+void KinematicCharacterController::moveAlongY(float step) {
+	btVector3 pos = pairCachingGhostObject_->getWorldTransform().getOrigin();
+	pairCachingGhostObject_->getWorldTransform().setOrigin(pos + btVector3(0, step, 0));
 }
 
 bool KinematicCharacterController::OnGround() const {

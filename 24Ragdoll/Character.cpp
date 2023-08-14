@@ -32,7 +32,6 @@ void Character::FixedUpdate(float timeStep) {
 	Vector3 moveDir = Vector3::ZERO;
 	onGround_ = kinematicController_->OnGround();
 
-
 	if (keyboard.keyDown(Keyboard::KEY_W))
 		moveDir += Vector3::BACK;
 	if (keyboard.keyDown(Keyboard::KEY_S))
@@ -91,7 +90,10 @@ void Character::FixedUpdate(float timeStep) {
 			const float maxDistance = 50.0f;
 			const float segmentDistance = 10.01f;
 			PhysicsRaycastResult result;
-			Physics::RaycastSingleSegmented(result, Ray(model_->Position(), Vector3::DOWN), maxDistance, Physics::collisiontypes::RAY, Physics::collisiontypes::FLOOR);
+
+			Physics::RaycastSingleSegmented(result, Ray(model_->Position(), Vector3::DOWN), maxDistance, segmentDistance, Physics::collisiontypes::RAY, Physics::collisiontypes::FLOOR);
+
+			//float slopeDot = result.normal_.DotProduct(Vector3(0.0f, 1.0f, 0.0f));
 
 			if (result.body_ && result.distance_ > 0.7f)
 			{

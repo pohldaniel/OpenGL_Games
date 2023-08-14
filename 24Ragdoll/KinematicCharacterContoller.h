@@ -28,6 +28,7 @@ public:
 	const QuaternionTu& GetRotation();
 	void SetTransform(const Vector3& position, const QuaternionTu& rotation);
 	void GetTransform(Vector3& position, QuaternionTu& rotation);
+	void moveAlongY(float step);
 
 	void SetWalkDirection(const Vector3& walkDir);
 	bool OnGround() const;

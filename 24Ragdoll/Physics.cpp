@@ -23,6 +23,9 @@ void Physics::initialize(){
 
 	DynamicsWorld = new btDiscreteDynamicsWorld(m_dispatcher, m_broadphase, m_constraintSolver, m_collisionConfiguration);
 	DynamicsWorld->setGravity(btVector3(0.0f, -9.81f, 0.0f));
+	DynamicsWorld->getDispatchInfo().m_useContinuous = true;
+	DynamicsWorld->getSolverInfo().m_splitImpulse = false;
+	DynamicsWorld->setSynchronizeAllMotionStates(true);
 }
 
 void Physics::deinitialize(){

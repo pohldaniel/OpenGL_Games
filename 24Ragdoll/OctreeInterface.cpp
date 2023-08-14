@@ -92,6 +92,11 @@ void OctreeInterface::fixedUpdate() {
 }
 
 void OctreeInterface::update() {
+
+	
+
+	
+
 	Keyboard &keyboard = Keyboard::instance();
 
 	if (keyboard.keyPressed(Keyboard::KEY_F1))
@@ -990,7 +995,7 @@ void OctreeInterface::createPhysics() {
 	Physics::AddRigidBody(0.0f, Physics::BtTransform(btVector3(0.0f, -0.05f, 0.0f)), new btConvexHullShape((btScalar*)(&m_base.getPositions()[0]), m_base.getPositions().size(), 3 * sizeof(btScalar)), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::RAY, btCollisionObject::CF_STATIC_OBJECT);
 	Globals::physics->addStaticModel(Physics::CreateStaticCollisionShapes(&m_upperFloor, 1.0f), Physics::BtTransform(btVector3(30.16f, 6.98797f, 10.0099f)), false, btVector3(1.0f, 1.0f, 1.0f), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::RAY);
 
-	Globals::physics->addStaticModel(Physics::CreateStaticCollisionShapes(&m_ramp, 1.0f), Physics::BtTransform(btVector3(13.5771f, 6.23965f, 10.9272f)), false, btVector3(1.0f, 1.0f, 1.0f), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::CAMERA);
+	Globals::physics->addStaticModel(Physics::CreateStaticCollisionShapes(&m_ramp, 1.0f), Physics::BtTransform(btVector3(13.5771f, 6.23965f, 10.9272f)), false, btVector3(1.0f, 1.0f, 1.0f), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::RAY);
 	Physics::AddRigidBody(0.0f, Physics::BtTransform(btVector3(-22.8933f, 2.63165f, -23.6786f)), new btConvexHullShape((btScalar*)(&m_ramp2.getPositions()[0]), m_ramp2.getPositions().size(), 3 * sizeof(btScalar)), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::RAY, btCollisionObject::CF_STATIC_OBJECT);
 	Physics::AddRigidBody(0.0f, Physics::BtTransform(btVector3(-15.2665f, 1.9782f, -43.135f)), new btConvexHullShape((btScalar*)(&m_ramp3.getPositions()[0]), m_ramp3.getPositions().size(), 3 * sizeof(btScalar)), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::RAY, btCollisionObject::CF_STATIC_OBJECT);
 
