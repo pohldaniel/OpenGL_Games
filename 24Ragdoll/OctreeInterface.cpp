@@ -98,6 +98,9 @@ void OctreeInterface::preStep(btScalar timeStep) {
 }
 
 void OctreeInterface::fixedUpdate() {
+	
+	m_movingPlatform->FixedUpdate(m_dt);
+
 	m_character->FixedUpdate(m_fdt);
 	Globals::physics->stepSimulation(m_fdt);
 	m_character->FixedPostUpdate(m_fdt);
@@ -201,12 +204,18 @@ void OctreeInterface::update() {
 			}
 		}
 		
+		//if (disk1) {
+		//	angle += 100.0f * m_dt;
+		//	QuaternionTu rotQuat(angle, Vector3::ONE);
+		//	disk1->SetRotation(rotQuat);
+		//}
+
 		//if (beta) {
 		//	AnimationState* state = beta->AnimationStates()[0];
 		//	state->AddTime(m_dt);
 		//}
 	}
-
+	//
 	++frameNumber;
 	if (!frameNumber)
 		++frameNumber;
@@ -492,13 +501,17 @@ void OctreeInterface::CreateScene(Scene* scene, CameraTu* camera, int preset) {
 			liftButton->SetModel(cache->LoadResource<Model>("Models/LiftButton.mdl"));
 			liftButton->SetMaterial(cache->LoadResource<MaterialTu>("Models/Models.json"));
 
-			StaticModel* disk1 = new StaticModel();
+			disk1 = new StaticModel();
+			disk1->SetOctree(m_octree);
 			m_octree->QueueUpdate(disk1->GetDrawable());
 			disk1->SetStatic(true);
 			disk1->SetPosition(Vector3(26.1357f, 7.00645f, -34.7563f));
 			disk1->SetScale(Vector3(0.01f, 0.01f, 0.01f));
 			disk1->SetModel(cache->LoadResource<Model>("Models/disk.mdl"));
 			disk1->SetMaterial(cache->LoadResource<MaterialTu>("Models/Models.json"));
+
+			m_movingPlatform = new MovingPlatform();
+			m_movingPlatform->Initialize(disk1, disk1->WorldPosition() + Vector3(0.0f, 0.0f, 20.0f), true);
 
 			StaticModel* disk2 = new StaticModel();
 			m_octree->QueueUpdate(disk2->GetDrawable());
@@ -517,8 +530,7 @@ void OctreeInterface::CreateScene(Scene* scene, CameraTu* camera, int preset) {
 			cylinder->SetMaterial(cache->LoadResource<MaterialTu>("Models/Models.json"));
 
 			kinematicCharacter = new KinematicCharacterController();
-
-			m_character = new Character(beta, animController, kinematicCharacter);
+			m_character = new Character(beta, animController, kinematicCharacter);	
 		}
 	}
 	// Preset 1: high number of animating cubes
@@ -792,7 +804,7 @@ void OctreeInterface::CollectOctants(Octant* octant, ThreadOctantResult& result,
 	for (auto it = drawables.begin(); it != drawables.end(); ++it) {
 		Drawable* drawable = *it;
 
-		if (drawable->TestFlag(DF_STATIC)) {
+		if (drawable->TestFlag(DF_STATIC) || drawable->TestFlag(DF_GEOMETRY)) {
 			result.octants.push_back(std::make_pair(octant, planeMask));
 			result.drawableAcc += drawables.end() - it;
 			break;

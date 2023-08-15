@@ -108,6 +108,7 @@ void StaticModelDrawable::OnRaycast(std::vector<RaycastResult>& dest, const Ray&
     }
 }
 
+
 StaticModel::StaticModel()
 {
     drawable = drawableAllocator.Allocate();
@@ -183,4 +184,8 @@ void StaticModel::SetModelAttr(const ResourceRef& value)
 ResourceRef StaticModel::ModelAttr() const
 {
     return ResourceRef(Model::TypeStatic(), ResourceName(GetModel()));
+}
+
+void StaticModel::SetOctree(Octree* _octree) {
+	octree = _octree;
 }

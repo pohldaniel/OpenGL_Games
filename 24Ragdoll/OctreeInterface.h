@@ -8,6 +8,7 @@
 #include "StateMachine.h"
 #include "KinematicCharacterContoller.h"
 #include "Character.h"
+#include "MovingPlatform.h"
 #include "ShapeDrawer.h"
 #include "SolidIO.h"
 
@@ -193,6 +194,8 @@ private:
 	Shape m_cylinder;
 	Utils::MdlIO mdlConverter;
 	Character* m_character;
+	MovingPlatform* m_movingPlatform;
+	StaticModel* disk1;
 
 	static void PreTickCallback(btDynamicsWorld* world, btScalar timeStep);
 	static void PostTickCallback(btDynamicsWorld* world, btScalar timeStep);
