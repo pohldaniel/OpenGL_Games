@@ -2,6 +2,15 @@
 #include "engine/ObjModel.h"
 #include "engine/MeshObject/Shape.h"
 
+
+void Physics::PreTickCallback(btDynamicsWorld* world, btScalar timeStep) {
+	static_cast<Physics*>(world->getWorldUserInfo())->preStep(timeStep);
+}
+
+void Physics::PostTickCallback(btDynamicsWorld* world, btScalar timeStep) {
+	static_cast<Physics*>(world->getWorldUserInfo())->postStep(timeStep);
+}
+
 btDiscreteDynamicsWorld* Physics::DynamicsWorld;
 
 Physics::Physics(float physicsStep){
@@ -26,6 +35,8 @@ void Physics::initialize(){
 	DynamicsWorld->getDispatchInfo().m_useContinuous = true;
 	DynamicsWorld->getSolverInfo().m_splitImpulse = false;
 	DynamicsWorld->setSynchronizeAllMotionStates(true);
+	//DynamicsWorld->setInternalTickCallback(Physics::PreTickCallback, static_cast<void*>(this), true);
+	//DynamicsWorld->setInternalTickCallback(Physics::PostTickCallback, static_cast<void*>(this), false);
 }
 
 void Physics::deinitialize(){
@@ -85,11 +96,16 @@ void Physics::removeAllCollisionObjects() {
 	}
 }
 
+void Physics::preStep(btScalar timeStep) {
+
+}
+
 void Physics::stepSimulation(btScalar timeStep){
 	int numSimSteps = DynamicsWorld->stepSimulation(timeStep, MAX_SIMULATION_SUBSTEPS, m_physicsStep);
-	
-	//int numSimSteps = DynamicsWorld->stepSimulation(timeStep, MAX_SIMULATION_SUBSTEPS, m_physicsStep / 4);
-	//std::cout << "Num Steps: " << numSimSteps << std::endl;
+}
+
+void Physics::postStep(btScalar timeStep) {
+
 }
 
 btRigidBody* Physics::addStaticModel(std::vector<btCollisionShape *>& collisionShapes, const btTransform& trans, bool debugDraw, const btVector3& scale, int collisionFilterGroup, int collisionFilterMask){

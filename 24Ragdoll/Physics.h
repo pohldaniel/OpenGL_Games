@@ -12,7 +12,7 @@
 #include "turso3d/Math/Ray.h"
 
 
-#define MAX_SIMULATION_SUBSTEPS   1
+#define MAX_SIMULATION_SUBSTEPS   0
 
 class ObjMesh;
 class ObjModel;
@@ -84,7 +84,9 @@ public:
 	void removeAllCollisionObjects();
 	void removeCollisionObject(btCollisionObject* obj);
 
+	void preStep(btScalar timeStep);
 	void stepSimulation(btScalar timeStep);
+	void postStep(btScalar timeStep);
 	void debugDrawWorld();
 	btBroadphaseInterface* getBroadphase();
 
@@ -127,6 +129,9 @@ public:
 	static btCollisionShape* CreateStaticCollisionShape(std::vector<float>& vertexBuffer, std::vector<unsigned int>& indexBuffer, const btVector3& scale = btVector3(1.0f, 1.0f, 1.0f));
 	static std::vector<btCollisionShape*> CreateStaticCollisionShapes(std::vector<float>& vertexBuffer, std::vector<unsigned int>& indexBuffer, float scale = 1.0f);
 	static std::vector<btCollisionShape*> CreateStaticCollisionShapes(std::vector<float>& vertexBuffer, std::vector<unsigned int>& indexBuffer, const btVector3& scale = btVector3(1.0f, 1.0f, 1.0f));
+
+	static void PreTickCallback(btDynamicsWorld* world, btScalar timeStep);
+	static void PostTickCallback(btDynamicsWorld* world, btScalar timeStep);
 
 	btCollisionDispatcher* m_dispatcher;
 	btBroadphaseInterface* m_broadphase;

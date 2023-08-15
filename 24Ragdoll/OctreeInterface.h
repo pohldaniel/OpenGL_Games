@@ -171,6 +171,8 @@ private:
 	void UpdateInstanceTransforms(const std::vector<Matrix3x4>& transforms);
 	
 	void RenderBatches(CameraTu* camera_, const BatchQueue& queue);
+	void preStep(btScalar timeStep);
+	void postStep(btScalar timeStep);
 
 	BoundingBox geometryBounds;
 
@@ -191,5 +193,8 @@ private:
 	Shape m_cylinder;
 	Utils::MdlIO mdlConverter;
 	Character* m_character;
+
+	static void PreTickCallback(btDynamicsWorld* world, btScalar timeStep);
+	static void PostTickCallback(btDynamicsWorld* world, btScalar timeStep);
 };
 

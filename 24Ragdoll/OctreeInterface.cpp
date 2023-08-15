@@ -10,6 +10,13 @@
 
 #include <tracy/Tracy.hpp>
 
+void OctreeInterface::PreTickCallback(btDynamicsWorld* world, btScalar timeStep) {
+	static_cast<OctreeInterface*>(world->getWorldUserInfo())->preStep(timeStep);
+}
+
+void OctreeInterface::PostTickCallback(btDynamicsWorld* world, btScalar timeStep) {
+	static_cast<OctreeInterface*>(world->getWorldUserInfo())->postStep(timeStep);
+}
 
 OctreeInterface::OctreeInterface(StateMachine& machine) : State(machine, CurrentState::OCTREEINTERFACE) {
 
@@ -85,17 +92,22 @@ OctreeInterface::~OctreeInterface() {
 	EventDispatcher::RemoveMouseListener(this);
 }
 
+
+void OctreeInterface::preStep(btScalar timeStep) {
+	m_character->FixedUpdate(timeStep);
+}
+
 void OctreeInterface::fixedUpdate() {
-	Globals::physics->stepSimulation(m_fdt);
 	m_character->FixedUpdate(m_fdt);
+	Globals::physics->stepSimulation(m_fdt);
 	m_character->FixedPostUpdate(m_fdt);
 }
 
+void OctreeInterface::postStep(btScalar timeStep) {
+	m_character->FixedPostUpdate(timeStep);
+}
+
 void OctreeInterface::update() {
-
-	
-
-	
 
 	Keyboard &keyboard = Keyboard::instance();
 
@@ -1010,5 +1022,6 @@ void OctreeInterface::createPhysics() {
 	
 	Globals::physics->addStaticModel(Physics::CreateStaticCollisionShapes(&m_cylinder, 1.0f), Physics::BtTransform(btVector3(-0.294956f, 2.48167f, 28.3161f)), false, btVector3(1.0f, 1.0f, 1.0f), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::RAY);
 
-
+	//Physics::GetDynamicsWorld()->setInternalTickCallback(OctreeInterface::PreTickCallback, static_cast<void*>(this), true);
+	//Physics::GetDynamicsWorld()->setInternalTickCallback(OctreeInterface::PostTickCallback, static_cast<void*>(this), false);
 }
