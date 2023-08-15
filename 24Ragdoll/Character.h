@@ -42,6 +42,13 @@ struct MovingData
 	Matrix3x4 transform_;
 };
 
+struct CharacterTriggerCallback : public btCollisionWorld::ContactResultCallback {
+
+	CharacterTriggerCallback() {}
+
+
+	btScalar CharacterTriggerCallback::addSingleResult(btManifoldPoint& cp, const btCollisionObjectWrapper* colObj0Wrap, int partId0, int index0, const btCollisionObjectWrapper* colObj1Wrap, int partId1, int index1) override;
+};
 
 class Character {
 
@@ -53,13 +60,14 @@ public:
 	/// Handle physics world update. Called by LogicComponent base class.
 	void FixedUpdate(float timeStep);
 	void FixedPostUpdate(float timeStep);
+	void HandleCollision(btCollisionObject* collisionObject);
 
 	void SetOnMovingPlatform(btRigidBody* platformBody){
 		//onMovingPlatform_ = (platformBody != NULL);
 		//platformBody_ = platformBody; 
 	}
-	
-protected:
+	void NodeOnMovingPlatform(SpatialNode *node);
+
 	bool onGround_;
 	bool okToJump_;
 	float inAirTimer_;
@@ -76,4 +84,5 @@ protected:
 	// moving platform data
 	MovingData movingData_[2];
 	AnimatedModel* model_;
+	CharacterTriggerCallback m_characterTriggerResult;
 };

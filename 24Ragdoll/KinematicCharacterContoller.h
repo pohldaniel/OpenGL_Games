@@ -29,12 +29,13 @@ public:
 	void SetTransform(const Vector3& position, const QuaternionTu& rotation);
 	void GetTransform(Vector3& position, QuaternionTu& rotation);
 	void moveAlongY(float step);
+	void setUserPointer(void* userPointer);
 
 	void SetWalkDirection(const Vector3& walkDir);
 	bool OnGround() const;
 	void Jump(const Vector3 &jump = Vector3::ZERO);
 
-protected:
+
 	int colFilter_;
 	int colMask_;
 	float stepHeight_;

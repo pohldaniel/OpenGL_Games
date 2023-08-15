@@ -10,6 +10,7 @@
 #include "Character.h"
 #include "MovingPlatform.h"
 #include "ShapeDrawer.h"
+#include "KinematicTrigger.h"
 #include "SolidIO.h"
 
 #include "Graphics/FrameBufferTu.h"
@@ -43,6 +44,8 @@
 #include "Time/TimerTu.h"
 #include "Time/Profiler.h"
 #include "Thread/ThreadUtils.h"
+
+
 
 
 class OctreeInterface : public State, public MouseEventListener, public KeyboardEventListener, public ObjectTu {
@@ -197,7 +200,10 @@ private:
 	MovingPlatform* m_movingPlatform;
 	StaticModel* disk1;
 
+
 	static void PreTickCallback(btDynamicsWorld* world, btScalar timeStep);
 	static void PostTickCallback(btDynamicsWorld* world, btScalar timeStep);
+
+	KinematicTrigger* m_platform1;
 };
 

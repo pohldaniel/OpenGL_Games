@@ -3,6 +3,7 @@
 #include "Character.h"
 #include "KinematicCharacterContoller.h"
 #include "turso3d/Renderer/AnimatedModel.h"
+#include "MovingPlatform.h"
 
 Character::Character(AnimatedModel* model, AnimationController* animationController, KinematicCharacterController* kcc) 
 	: model_(model), 
@@ -13,6 +14,7 @@ Character::Character(AnimatedModel* model, AnimationController* animationControl
 	inAirTimer_(0.0f),
 	jumpStarted_(false){
 
+	kinematicController_->setUserPointer(this);
 }
 
 
@@ -121,8 +123,9 @@ void Character::FixedUpdate(float timeStep) {
 }
 
 void Character::FixedPostUpdate(float timeStep) {
-	if (movingData_[0] == movingData_[1])
-	{
+
+	if (movingData_[0] == movingData_[1]){
+
 		Matrix3x4 delta = movingData_[0].transform_ * movingData_[1].transform_.Inverse();
 
 		// add delta
@@ -145,4 +148,24 @@ void Character::FixedPostUpdate(float timeStep) {
 	// shift and clear
 	movingData_[1] = movingData_[0];
 	movingData_[0].node_ = 0;
+}
+
+void Character::NodeOnMovingPlatform(SpatialNode *node) {
+	
+	movingData_[0].node_ = node;
+	movingData_[0].transform_ = node->WorldTransform();
+}
+
+void Character::HandleCollision(btCollisionObject* collisionObject) {
+	Physics::GetDynamicsWorld()->contactPairTest(kinematicController_.Get()->pairCachingGhostObject_.get(), collisionObject, m_characterTriggerResult);
+}
+
+
+btScalar CharacterTriggerCallback::addSingleResult(btManifoldPoint& cp, const btCollisionObjectWrapper* colObj0Wrap, int partId0, int index0, const btCollisionObjectWrapper* colObj1Wrap, int partId1, int index1) {
+	
+	Character* character = reinterpret_cast<Character*>(colObj0Wrap->getCollisionObject()->getUserPointer());
+	MovingPlatform* platform = reinterpret_cast<MovingPlatform*>(colObj1Wrap->getCollisionObject()->getUserPointer());
+	character->NodeOnMovingPlatform(platform->getModel());
+
+	return 0;
 }

@@ -5,16 +5,16 @@ MovingPlatform::MovingPlatform() : maxLiftSpeed_(5.0f), minLiftSpeed_(1.5f),  cu
 
 }
 
-MovingPlatform::~MovingPlatform()
-{
+MovingPlatform::~MovingPlatform(){
+
 }
 
-void MovingPlatform::Initialize(StaticModel* platformNode, const Vector3 &finishPosition, bool updateBodyOnPlatform) {
+void MovingPlatform::Initialize(StaticModel* platformNode, btRigidBody* body, const Vector3 &finishPosition, bool updateBodyOnPlatform) {
 	// get other lift components
-	platformNode_ = platformNode;
-
+	model_ = platformNode;
+	platformBody_ = body;
 	// positions
-	initialPosition_ = platformNode_->WorldPosition();
+	initialPosition_ = model_->WorldPosition();
 	finishPosition_ = finishPosition;
 	directionToFinish_ = (finishPosition_ - initialPosition_).Normalized();
 
@@ -23,8 +23,12 @@ void MovingPlatform::Initialize(StaticModel* platformNode, const Vector3 &finish
 	curLiftSpeed_ = maxLiftSpeed_;
 }
 
+StaticModel* MovingPlatform::getModel() {
+	return model_;
+}
+
 void MovingPlatform::FixedUpdate(float timeStep) {
-	Vector3 platformPos = platformNode_->Position();
+	Vector3 platformPos = model_->Position();
 	Vector3 newPos = platformPos;
 
 	// move platform
@@ -51,7 +55,8 @@ void MovingPlatform::FixedUpdate(float timeStep) {
 			curLiftSpeed_ = maxLiftSpeed_;
 			platformState_ = PLATFORM_STATE_MOVETO_START;
 		}
-		platformNode_->SetPosition(newPos);
+		model_->SetPosition(newPos);
+		platformBody_->getMotionState()->setWorldTransform(Physics::BtTransform(btVector3(newPos.x, newPos.y, newPos.z)));
 	}
 	else if (platformState_ == PLATFORM_STATE_MOVETO_START)
 	{
@@ -77,6 +82,7 @@ void MovingPlatform::FixedUpdate(float timeStep) {
 			platformState_ = PLATFORM_STATE_MOVETO_FINISH;
 		}
 
-		platformNode_->SetPosition(newPos);
+		model_->SetPosition(newPos);
+		platformBody_->getMotionState()->setWorldTransform(Physics::BtTransform(btVector3(newPos.x, newPos.y, newPos.z)));
 	}
 }

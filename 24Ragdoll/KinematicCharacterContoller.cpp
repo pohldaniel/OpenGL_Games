@@ -218,3 +218,7 @@ void KinematicCharacterController::DebugDrawContacts() {
 		}
 	}
 }
+
+void KinematicCharacterController::setUserPointer(void* userPointer) {
+	pairCachingGhostObject_.get()->setUserPointer(userPointer);
+}

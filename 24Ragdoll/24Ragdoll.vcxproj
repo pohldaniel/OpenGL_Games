@@ -213,6 +213,7 @@
     <ClCompile Include="HeightField.cpp" />
     <ClCompile Include="heightfield128x128.cpp" />
     <ClCompile Include="KinematicCharacterContoller.cpp" />
+    <ClCompile Include="KinematicTrigger.cpp" />
     <ClCompile Include="LiftButton.cpp" />
     <ClCompile Include="lugaru\Environment\Lights.cpp" />
     <ClCompile Include="lugaru\Environment\_Terrain.cpp" />
@@ -240,6 +241,7 @@
     <ClCompile Include="RandomColor.cpp" />
     <ClCompile Include="SeekerBar.cpp" />
     <ClCompile Include="SolidIO.cpp" />
+    <ClCompile Include="SplinePlatform.cpp" />
     <ClCompile Include="Tracy\TracyClient.cpp" />
     <ClCompile Include="Turso.cpp" />
     <ClCompile Include="turso3d\Graphics\FrameBufferTu.cpp" />
@@ -316,6 +318,7 @@
     <ClCompile Include="turso3d\Scene\Node.cpp" />
     <ClCompile Include="turso3d\Scene\Scene.cpp" />
     <ClCompile Include="turso3d\Scene\SpatialNode.cpp" />
+    <ClCompile Include="turso3d\Scene\SplinePath.cpp" />
     <ClCompile Include="turso3d\Thread\ThreadUtils.cpp" />
     <ClCompile Include="turso3d\Thread\WorkQueue.cpp" />
     <ClCompile Include="turso3d\Time\Profiler.cpp" />
@@ -397,6 +400,7 @@
     <ClInclude Include="engine\VolumeBuffer.h" />
     <ClInclude Include="HeightField.h" />
     <ClInclude Include="KinematicCharacterContoller.h" />
+    <ClInclude Include="KinematicTrigger.h" />
     <ClInclude Include="LiftButton.h" />
     <ClInclude Include="lugaru\Environment\Lights.hpp" />
     <ClInclude Include="lugaru\Environment\Terrain.hpp" />
@@ -423,6 +427,7 @@
     <ClInclude Include="RandomColor.h" />
     <ClInclude Include="SeekerBar.h" />
     <ClInclude Include="SolidIO.h" />
+    <ClInclude Include="SplinePlatform.h" />
     <ClInclude Include="Turso.h" />
     <ClInclude Include="turso3d\Graphics\FrameBufferTu.h" />
     <ClInclude Include="turso3d\Graphics\Graphics.h" />
@@ -501,6 +506,7 @@
     <ClInclude Include="turso3d\Scene\Node.h" />
     <ClInclude Include="turso3d\Scene\Scene.h" />
     <ClInclude Include="turso3d\Scene\SpatialNode.h" />
+    <ClInclude Include="turso3d\Scene\SplinePath.h" />
     <ClInclude Include="turso3d\Thread\ThreadUtils.h" />
     <ClInclude Include="turso3d\Thread\WorkQueue.h" />
     <ClInclude Include="turso3d\Time\Profiler.h" />

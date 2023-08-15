@@ -447,8 +447,6 @@ void Utils::MdlIO::mdlToBuffer(const char* filename, float scale, std::vector<fl
 		delete buffer;
 		
 	}else if (ret.compare("UMDL") == 0) {
-		std::cout << "File Name: " << filename << std::endl;
-
 		char metaData[4];
 
 		// num Vertexbuffer

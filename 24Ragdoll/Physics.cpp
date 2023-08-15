@@ -170,7 +170,7 @@ std::vector<btCollisionShape *> Physics::CreateCollisionShapes(ObjModel* model, 
 	return CreateCollisionShapes(model, btVector3(scale, scale, scale));
 }
 
-btCollisionShape * Physics::CreateStaticCollisionShape(Shape* _shape, const btVector3& scale) {
+btCollisionShape* Physics::CreateCollisionShape(Shape* _shape, const btVector3& scale) {
 	
 	int indexStride = 3 * sizeof(int);
 
@@ -182,9 +182,9 @@ btCollisionShape * Physics::CreateStaticCollisionShape(Shape* _shape, const btVe
 	return shape;
 }
 
-std::vector<btCollisionShape *> Physics::CreateStaticCollisionShapes(Shape* _shape, float scale) {
+std::vector<btCollisionShape*> Physics::CreateCollisionShapes(Shape* _shape, float scale) {
 	std::vector<btCollisionShape *> ret;
-	btCollisionShape *shape = CreateStaticCollisionShape(_shape, btVector3(scale, scale, scale));
+	btCollisionShape *shape = CreateCollisionShape(_shape, btVector3(scale, scale, scale));
 
 	if (shape) {
 		ret.push_back(shape);

@@ -633,6 +633,15 @@
     <ClCompile Include="MovingPlatform.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="KinematicTrigger.cpp">
+      <Filter>Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="turso3d\Scene\SplinePath.cpp">
+      <Filter>turso3d\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="SplinePlatform.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h">
@@ -1182,6 +1191,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="MovingPlatform.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="KinematicTrigger.h">
+      <Filter>Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="turso3d\Scene\SplinePath.h">
+      <Filter>turso3d\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="SplinePlatform.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
