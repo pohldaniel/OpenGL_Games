@@ -642,6 +642,9 @@
     <ClCompile Include="SplinePlatform.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="turso3d\Spline.cpp">
+      <Filter>turso3d</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h">
@@ -1201,6 +1204,9 @@
     </ClInclude>
     <ClInclude Include="SplinePlatform.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="turso3d\Spline.h">
+      <Filter>turso3d</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

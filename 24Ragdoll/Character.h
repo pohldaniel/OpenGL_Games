@@ -1,5 +1,6 @@
 #pragma once
 #include "engine/input/Keyboard.h"
+#include "engine/Camera.h"
 #include "Physics.h"
 #include "turso3d/Scene/SpatialNode.h"
 #include "turso3d/Renderer/AnimationController.h"
@@ -54,7 +55,7 @@ class Character {
 
 public:
 	/// Construct.
-	Character(AnimatedModel* model, AnimationController* animationController, KinematicCharacterController* kcc);
+	Character(AnimatedModel* model, AnimationController* animationController, KinematicCharacterController* kcc, Camera& camera);
 
 	
 	/// Handle physics world update. Called by LogicComponent base class.
@@ -85,4 +86,6 @@ public:
 	MovingData movingData_[2];
 	AnimatedModel* model_;
 	CharacterTriggerCallback m_characterTriggerResult;
+
+	Camera& camera;
 };

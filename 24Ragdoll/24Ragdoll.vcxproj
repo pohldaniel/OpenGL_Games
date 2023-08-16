@@ -319,6 +319,7 @@
     <ClCompile Include="turso3d\Scene\Scene.cpp" />
     <ClCompile Include="turso3d\Scene\SpatialNode.cpp" />
     <ClCompile Include="turso3d\Scene\SplinePath.cpp" />
+    <ClCompile Include="turso3d\Spline.cpp" />
     <ClCompile Include="turso3d\Thread\ThreadUtils.cpp" />
     <ClCompile Include="turso3d\Thread\WorkQueue.cpp" />
     <ClCompile Include="turso3d\Time\Profiler.cpp" />
@@ -507,6 +508,7 @@
     <ClInclude Include="turso3d\Scene\Scene.h" />
     <ClInclude Include="turso3d\Scene\SpatialNode.h" />
     <ClInclude Include="turso3d\Scene\SplinePath.h" />
+    <ClInclude Include="turso3d\Spline.h" />
     <ClInclude Include="turso3d\Thread\ThreadUtils.h" />
     <ClInclude Include="turso3d\Thread\WorkQueue.h" />
     <ClInclude Include="turso3d\Time\Profiler.h" />

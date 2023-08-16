@@ -101,8 +101,10 @@ void OctreeInterface::fixedUpdate() {
 
 	m_movingPlatform->FixedUpdate(m_fdt);
 	m_character->FixedUpdate(m_fdt);
-	
+	m_splinePlatform->FixedUpdate(m_fdt);
+
 	m_character->HandleCollision(m_platform1->getRigidBody());
+	m_character->HandleCollision(m_platform2->getRigidBody());
 
 	Globals::physics->stepSimulation(m_fdt);
 	m_character->FixedPostUpdate(m_fdt);
@@ -172,8 +174,9 @@ void OctreeInterface::update() {
 
 	if (move || dx != 0.0f || dy != 0.0f) {
 		if (dx || dy) {
-			m_camera.rotate(dx, dy, Vector3f(pos.x, pos.y, pos.z));
 			beta->Rotate(QuaternionTu(-dx  * m_rotationSpeed, Vector3::UP));
+			m_camera.rotate(dx, dy, Vector3f(pos.x, pos.y, pos.z));
+			
 		}
 
 		/*if (move) {
@@ -181,6 +184,7 @@ void OctreeInterface::update() {
 			m_camera.move(directrion  * m_dt * moveSpeed);
 		}*/
 	}
+
 	m_trackball.idle();
 	m_transform.fromMatrix(m_trackball.getTransform());
 
@@ -514,10 +518,11 @@ void OctreeInterface::CreateScene(Scene* scene, CameraTu* camera, int preset) {
 
 			m_movingPlatform = new MovingPlatform();
 			m_movingPlatform->Initialize(disk1, m_platform1->getRigidBody(), disk1->WorldPosition() + Vector3(0.0f, 0.0f, 20.0f), true);
-			m_platform1->setUserPointer(m_movingPlatform);
+			m_platform1->setUserPointer(disk1);
 
 
-			StaticModel* disk2 = new StaticModel();
+			disk2 = new StaticModel();
+			disk2->SetOctree(m_octree);
 			m_octree->QueueUpdate(disk2->GetDrawable());
 			disk2->SetStatic(true);
 			disk2->SetPosition(Vector3(4.14317f, 7.00645f, 35.1134f));
@@ -534,9 +539,190 @@ void OctreeInterface::CreateScene(Scene* scene, CameraTu* camera, int preset) {
 			cylinder->SetMaterial(cache->LoadResource<MaterialTu>("Models/Models.json"));
 
 			kinematicCharacter = new KinematicCharacterController();
-			m_character = new Character(beta, animController, kinematicCharacter);
+			m_character = new Character(beta, animController, kinematicCharacter, m_camera);
 
+			m_splinePath = new SplinePath();
 
+			Vector3 offset = Vector3(4.14317f, 0.5f, 35.1134f);
+			
+
+			SpatialNode* object = scene->CreateChild<SpatialNode>();
+			object->SetPosition(Vector3(-1.85441f, 7.34028f, 7.73154f) + offset);
+			m_splinePath->AddControlPoint(object, 0);
+
+			object = scene->CreateChild<SpatialNode>();
+			object->SetPosition(Vector3(12.3533f, 7.34028f, -1.41246f) + offset);
+			m_splinePath->AddControlPoint(object, 1);
+
+			object = scene->CreateChild<SpatialNode>();
+			object->SetPosition(Vector3(6.71511f, 7.34028f, -7.44203f) + offset);
+			m_splinePath->AddControlPoint(object, 2);
+
+			object = scene->CreateChild<SpatialNode>();
+			object->SetPosition(Vector3(-7.30396f, 7.34028f, -7.44203f) + offset);
+			m_splinePath->AddControlPoint(object, 3);
+
+			object = scene->CreateChild<SpatialNode>();
+			object->SetPosition(Vector3(-22.6731f, 7.34028f, -11.7417f) + offset);
+			m_splinePath->AddControlPoint(object, 4);
+
+			object = scene->CreateChild<SpatialNode>();
+			object->SetPosition(Vector3(-31.6409f, 7.34028f, -21.8727f) + offset);
+			m_splinePath->AddControlPoint(object, 5);
+
+			object = scene->CreateChild<SpatialNode>();
+			object->SetPosition(Vector3(-35.8832f, 4.98511f, -47.866f) + offset);
+			m_splinePath->AddControlPoint(object, 6);
+
+			object = scene->CreateChild<SpatialNode>();
+			object->SetPosition(Vector3(-45.9073f, 5.92764f, -52.7658f) + offset);
+			m_splinePath->AddControlPoint(object, 7);
+
+			object = scene->CreateChild<SpatialNode>();
+			object->SetPosition(Vector3(-50.1447f, 6.74262f, -41.1805f) + offset);
+			m_splinePath->AddControlPoint(object, 8);
+
+			object = scene->CreateChild<SpatialNode>();
+			object->SetPosition(Vector3(-50.1447f, 7.34028f, -21.4852f) + offset);
+			m_splinePath->AddControlPoint(object, 9);
+
+			object = scene->CreateChild<SpatialNode>();
+			object->SetPosition(Vector3(-48.1308f, 7.34028f, 1.13441f) + offset);
+			m_splinePath->AddControlPoint(object, 10);
+
+			object = scene->CreateChild<SpatialNode>();
+			object->SetPosition(Vector3(-23.4324f, 7.34028f, 11.1794f) + offset);
+			m_splinePath->AddControlPoint(object, 11);
+
+			object = scene->CreateChild<SpatialNode>();
+			object->SetPosition(Vector3(-1.85441f, 7.34028f, 7.73154f) + offset);
+			m_splinePath->AddControlPoint(object, 12);
+
+/*			StaticModel* object = scene->CreateChild<StaticModel>();
+			object = scene->CreateChild<StaticModel>();
+			m_octree->QueueUpdate(object->GetDrawable());
+			object->SetPosition(Vector3(-1.85441f, 7.34028f, 7.73154f) + offset);
+			object->SetStatic(true);
+			object->SetScale(Vector3(0.01f, 0.01f, 0.01f));
+			object->SetModel(cache->LoadResource<Model>("Models/disk.mdl"));
+			object->SetMaterial(cache->LoadResource<MaterialTu>("Models/Models.json"));
+			m_splinePath->AddControlPoint(object, 0);
+
+			object = scene->CreateChild<StaticModel>();
+			m_octree->QueueUpdate(object->GetDrawable());
+			object->SetPosition(Vector3(12.3533f, 7.34028f, -1.41246f) + offset);
+			object->SetStatic(true);
+			object->SetScale(Vector3(0.01f, 0.01f, 0.01f));
+			object->SetModel(cache->LoadResource<Model>("Models/disk.mdl"));
+			object->SetMaterial(cache->LoadResource<MaterialTu>("Models/Models.json"));
+			m_splinePath->AddControlPoint(object, 1);
+
+			object = scene->CreateChild<StaticModel>();
+			m_octree->QueueUpdate(object->GetDrawable());
+			object->SetPosition(Vector3(6.71511f, 7.34028f, -7.44203f) + offset);
+			object->SetStatic(true);
+			object->SetScale(Vector3(0.01f, 0.01f, 0.01f));
+			object->SetModel(cache->LoadResource<Model>("Models/disk.mdl"));
+			object->SetMaterial(cache->LoadResource<MaterialTu>("Models/Models.json"));
+			m_splinePath->AddControlPoint(object, 2);
+
+			object = scene->CreateChild<StaticModel>();
+			m_octree->QueueUpdate(object->GetDrawable());
+			object->SetPosition(Vector3(-7.30396f, 7.34028f, -7.44203f) + offset);
+			object->SetStatic(true);
+			object->SetScale(Vector3(0.01f, 0.01f, 0.01f));
+			object->SetModel(cache->LoadResource<Model>("Models/disk.mdl"));
+			object->SetMaterial(cache->LoadResource<MaterialTu>("Models/Models.json"));
+			m_splinePath->AddControlPoint(object, 3);
+
+			object = scene->CreateChild<StaticModel>();
+			m_octree->QueueUpdate(object->GetDrawable());
+			object->SetPosition(Vector3(-22.6731f, 7.34028f, -11.7417f) + offset);
+			object->SetStatic(true);
+			object->SetScale(Vector3(0.01f, 0.01f, 0.01f));
+			object->SetModel(cache->LoadResource<Model>("Models/disk.mdl"));
+			object->SetMaterial(cache->LoadResource<MaterialTu>("Models/Models.json"));
+			m_splinePath->AddControlPoint(object, 4);
+
+			object = scene->CreateChild<StaticModel>();
+			m_octree->QueueUpdate(object->GetDrawable());
+			object->SetPosition(Vector3(-31.6409f, 7.34028f, -21.8727f) + offset);
+			object->SetStatic(true);
+			object->SetScale(Vector3(0.01f, 0.01f, 0.01f));
+			object->SetModel(cache->LoadResource<Model>("Models/disk.mdl"));
+			object->SetMaterial(cache->LoadResource<MaterialTu>("Models/Models.json"));
+			m_splinePath->AddControlPoint(object, 5);
+
+			object = scene->CreateChild<StaticModel>();
+			m_octree->QueueUpdate(object->GetDrawable());
+			object->SetPosition(Vector3(-35.8832f, 4.98511f, -47.866f) + offset);
+			object->SetStatic(true);
+			object->SetScale(Vector3(0.01f, 0.01f, 0.01f));
+			object->SetModel(cache->LoadResource<Model>("Models/disk.mdl"));
+			object->SetMaterial(cache->LoadResource<MaterialTu>("Models/Models.json"));
+			m_splinePath->AddControlPoint(object, 6);
+
+			object = scene->CreateChild<StaticModel>();
+			m_octree->QueueUpdate(object->GetDrawable());
+			object->SetPosition(Vector3(-45.9073f, 5.92764f, -52.7658f) + offset);
+			object->SetStatic(true);
+			object->SetScale(Vector3(0.01f, 0.01f, 0.01f));
+			object->SetModel(cache->LoadResource<Model>("Models/disk.mdl"));
+			object->SetMaterial(cache->LoadResource<MaterialTu>("Models/Models.json"));
+			m_splinePath->AddControlPoint(object, 7);
+
+			object = scene->CreateChild<StaticModel>();
+			m_octree->QueueUpdate(object->GetDrawable());
+			object->SetPosition(Vector3(-50.1447f, 6.74262f, -41.1805f) + offset);
+			object->SetStatic(true);
+			object->SetScale(Vector3(0.01f, 0.01f, 0.01f));
+			object->SetModel(cache->LoadResource<Model>("Models/disk.mdl"));
+			object->SetMaterial(cache->LoadResource<MaterialTu>("Models/Models.json"));
+			m_splinePath->AddControlPoint(object, 8);
+
+			object = scene->CreateChild<StaticModel>();
+			m_octree->QueueUpdate(object->GetDrawable());
+			object->SetPosition(Vector3(-50.1447f, 7.34028f, -21.4852f) + offset);
+			object->SetStatic(true);
+			object->SetScale(Vector3(0.01f, 0.01f, 0.01f));
+			object->SetModel(cache->LoadResource<Model>("Models/disk.mdl"));
+			object->SetMaterial(cache->LoadResource<MaterialTu>("Models/Models.json"));
+			m_splinePath->AddControlPoint(object, 9);
+
+			object = scene->CreateChild<StaticModel>();
+			m_octree->QueueUpdate(object->GetDrawable());
+			object->SetPosition(Vector3(-48.1308f, 7.34028f, 1.13441f) + offset);
+			object->SetStatic(true);
+			object->SetScale(Vector3(0.01f, 0.01f, 0.01f));
+			object->SetModel(cache->LoadResource<Model>("Models/disk.mdl"));
+			object->SetMaterial(cache->LoadResource<MaterialTu>("Models/Models.json"));
+			m_splinePath->AddControlPoint(object, 10);
+
+			object = scene->CreateChild<StaticModel>();
+			m_octree->QueueUpdate(object->GetDrawable());
+			object->SetPosition(Vector3(-23.4324f, 7.34028f, 11.1794f) + offset);
+			object->SetStatic(true);
+			object->SetScale(Vector3(0.01f, 0.01f, 0.01f));
+			object->SetModel(cache->LoadResource<Model>("Models/disk.mdl"));
+			object->SetMaterial(cache->LoadResource<MaterialTu>("Models/Models.json"));
+			m_splinePath->AddControlPoint(object, 11);
+
+			object = scene->CreateChild<StaticModel>();
+			m_octree->QueueUpdate(object->GetDrawable());
+			object->SetPosition(Vector3(-1.85441f, 7.34028f, 7.73154f) + offset);
+			object->SetStatic(true);
+			object->SetScale(Vector3(0.01f, 0.01f, 0.01f));
+			object->SetModel(cache->LoadResource<Model>("Models/disk.mdl"));
+			object->SetMaterial(cache->LoadResource<MaterialTu>("Models/Models.json"));
+			m_splinePath->AddControlPoint(object, 12);*/
+
+			m_splinePath->SetControlledNode(disk2);
+			m_splinePath->SetInterpolationMode(CATMULL_ROM_FULL_CURVE);
+			m_splinePath->SetSpeed(6.0f);
+
+			m_splinePlatform = new SplinePlatform();
+			m_splinePlatform->Initialize(m_splinePath, m_platform2->getRigidBody());
+			m_platform2->setUserPointer(disk2);
 		}
 	}
 	// Preset 1: high number of animating cubes
@@ -1039,10 +1225,11 @@ void OctreeInterface::createPhysics() {
 	//diskBody->forceActivationState(DISABLE_DEACTIVATION);
 
 	//Globals::physics->addStaticModel(Physics::CreateCollisionShapes(&m_disk, 1.0f), Physics::BtTransform(btVector3(26.1357f, 7.00645f, -34.7563f)), false, btVector3(1.0f, 1.0f, 1.0f), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::RAY);
-	Globals::physics->addStaticModel(Physics::CreateCollisionShapes(&m_disk, 1.0f), Physics::BtTransform(btVector3(4.14317f, 7.00645f, 35.1134f)), false, btVector3(1.0f, 1.0f, 1.0f), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::RAY);
+	//Globals::physics->addStaticModel(Physics::CreateCollisionShapes(&m_disk, 1.0f), Physics::BtTransform(btVector3(4.14317f, 7.00645f, 35.1134f)), false, btVector3(1.0f, 1.0f, 1.0f), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::RAY);
 
+	m_platform2 = new KinematicTrigger();
+	m_platform2->create(Physics::CreateCollisionShape(&m_disk, btVector3(1.0f, 1.0f, 1.0f)), Physics::BtTransform(btVector3(-0.294956f, 2.48167f, 28.3161f)), Physics::GetDynamicsWorld(), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::RAY);
 
-	
 	Globals::physics->addStaticModel(Physics::CreateCollisionShapes(&m_cylinder, 1.0f), Physics::BtTransform(btVector3(-0.294956f, 2.48167f, 28.3161f)), false, btVector3(1.0f, 1.0f, 1.0f), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::RAY);
 
 	//Physics::GetDynamicsWorld()->setInternalTickCallback(OctreeInterface::PreTickCallback, static_cast<void*>(this), true);

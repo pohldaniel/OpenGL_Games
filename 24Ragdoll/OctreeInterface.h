@@ -9,6 +9,7 @@
 #include "KinematicCharacterContoller.h"
 #include "Character.h"
 #include "MovingPlatform.h"
+#include "SplinePlatform.h"
 #include "ShapeDrawer.h"
 #include "KinematicTrigger.h"
 #include "SolidIO.h"
@@ -41,6 +42,7 @@
 #include "Resource/ResourceCache.h"
 #include "Renderer/StaticModel.h"
 #include "Scene/Scene.h"
+#include "Scene/SplinePath.h"
 #include "Time/TimerTu.h"
 #include "Time/Profiler.h"
 #include "Thread/ThreadUtils.h"
@@ -198,12 +200,17 @@ private:
 	Utils::MdlIO mdlConverter;
 	Character* m_character;
 	MovingPlatform* m_movingPlatform;
-	StaticModel* disk1;
+	SplinePlatform* m_splinePlatform;
 
+	StaticModel* disk1;
+	StaticModel* disk2;
 
 	static void PreTickCallback(btDynamicsWorld* world, btScalar timeStep);
 	static void PostTickCallback(btDynamicsWorld* world, btScalar timeStep);
 
 	KinematicTrigger* m_platform1;
+	KinematicTrigger* m_platform2;
+
+	SplinePath* m_splinePath;
 };
 

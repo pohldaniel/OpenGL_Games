@@ -5,14 +5,16 @@
 #include "turso3d/Renderer/AnimatedModel.h"
 #include "MovingPlatform.h"
 
-Character::Character(AnimatedModel* model, AnimationController* animationController, KinematicCharacterController* kcc) 
+Character::Character(AnimatedModel* model, AnimationController* animationController, KinematicCharacterController* kcc, Camera& camera)
 	: model_(model), 
 	animController_(animationController), 
 	kinematicController_(kcc),
 	onGround_(false),
 	okToJump_(true),
 	inAirTimer_(0.0f),
-	jumpStarted_(false){
+	jumpStarted_(false),
+	camera(camera)
+	{
 
 	kinematicController_->setUserPointer(this);
 }
@@ -128,18 +130,23 @@ void Character::FixedPostUpdate(float timeStep) {
 
 		Matrix3x4 delta = movingData_[0].transform_ * movingData_[1].transform_.Inverse();
 
+
 		// add delta
 		Vector3 kPos;
 		QuaternionTu kRot;
 		kinematicController_->GetTransform(kPos, kRot);
+
+
+
 		Matrix3x4 matKC(kPos, kRot, Vector3::ONE);
 
 		// update
 		matKC = delta * matKC;
 		kinematicController_->SetTransform(matKC.Translation(), matKC.Rotation());
 
-		// update yaw control (directly rotates char)
-		//controls_.yaw_ += delta.Rotation().YawAngle();
+		model_->Rotate(QuaternionTu(delta.Rotation().YawAngle(), Vector3::UP));
+		camera.rotate(-delta.Rotation().YawAngle() * 10.0f, 0.0f, Vector3f(kPos.x, kPos.y, kPos.z));
+
 	}
 
 	// update node position
@@ -164,8 +171,8 @@ void Character::HandleCollision(btCollisionObject* collisionObject) {
 btScalar CharacterTriggerCallback::addSingleResult(btManifoldPoint& cp, const btCollisionObjectWrapper* colObj0Wrap, int partId0, int index0, const btCollisionObjectWrapper* colObj1Wrap, int partId1, int index1) {
 	
 	Character* character = reinterpret_cast<Character*>(colObj0Wrap->getCollisionObject()->getUserPointer());
-	MovingPlatform* platform = reinterpret_cast<MovingPlatform*>(colObj1Wrap->getCollisionObject()->getUserPointer());
-	character->NodeOnMovingPlatform(platform->getModel());
+	StaticModel* model = reinterpret_cast<StaticModel*>(colObj1Wrap->getCollisionObject()->getUserPointer());
+	character->NodeOnMovingPlatform(model);
 
 	return 0;
 }
