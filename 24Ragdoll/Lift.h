@@ -18,12 +18,14 @@ public:
 	void SetLiftSpeed(float speed) { maxLiftSpeed_ = speed; }
 	StaticModel* getModel();
 
-protected:
+
 
 	void SetTransitionCompleted(int toState);
 	void ButtonPressAnimate(bool pressed);
-	//void HandleButtonStartCollision(StringHash eventType, VariantMap& eventData);
-	//void HandleButtonEndCollision(StringHash eventType, VariantMap& eventData);
+	void HandleButtonStartCollision();
+	void HandleButtonEndCollision();
+
+protected:
 
 	WeakPtr<StaticModel> model_;
 	WeakPtr<SpatialNode> liftButtonNode_;

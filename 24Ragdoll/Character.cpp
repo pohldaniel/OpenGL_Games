@@ -4,6 +4,7 @@
 #include "KinematicCharacterContoller.h"
 #include "turso3d/Renderer/AnimatedModel.h"
 #include "MovingPlatform.h"
+#include "Lift.h"
 
 Character::Character(AnimatedModel* model, AnimationController* animationController, KinematicCharacterController* kcc, Camera& camera)
 	: model_(model), 
@@ -167,6 +168,9 @@ void Character::HandleCollision(btCollisionObject* collisionObject) {
 	Physics::GetDynamicsWorld()->contactPairTest(kinematicController_.Get()->pairCachingGhostObject_.get(), collisionObject, m_characterTriggerResult);
 }
 
+void Character::HandleCollisionButton(btCollisionObject* collisionObject) {
+	Physics::GetDynamicsWorld()->contactPairTest(kinematicController_.Get()->pairCachingGhostObject_.get(), collisionObject, m_characterTriggerResult);
+}
 
 btScalar CharacterTriggerCallback::addSingleResult(btManifoldPoint& cp, const btCollisionObjectWrapper* colObj0Wrap, int partId0, int index0, const btCollisionObjectWrapper* colObj1Wrap, int partId1, int index1) {
 	
@@ -174,5 +178,14 @@ btScalar CharacterTriggerCallback::addSingleResult(btManifoldPoint& cp, const bt
 	StaticModel* model = reinterpret_cast<StaticModel*>(colObj1Wrap->getCollisionObject()->getUserPointer());
 	character->NodeOnMovingPlatform(model);
 
+	return 0;
+}
+
+btScalar CharacterTriggerCallbackButton::addSingleResult(btManifoldPoint& cp, const btCollisionObjectWrapper* colObj0Wrap, int partId0, int index0, const btCollisionObjectWrapper* colObj1Wrap, int partId1, int index1) {
+
+	Character* character = reinterpret_cast<Character*>(colObj0Wrap->getCollisionObject()->getUserPointer());
+	Lift* lift = reinterpret_cast<Lift*>(colObj1Wrap->getCollisionObject()->getUserPointer());
+
+	lift->HandleButtonStartCollision();
 	return 0;
 }

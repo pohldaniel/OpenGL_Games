@@ -128,3 +128,53 @@ void Lift::ButtonPressAnimate(bool pressed)
 		buttonPressed_ = false;
 	}
 }
+
+void Lift::HandleButtonStartCollision()
+{
+	
+
+	standingOnButton_ = true;
+
+	if (liftButtonState_ == LIFT_BUTTON_UP)
+	{
+		if (liftState_ == LIFT_STATE_START)
+		{
+			liftState_ = LIFT_STATE_MOVETO_FINISH;
+			liftButtonState_ = LIFT_BUTTON_DOWN;
+			curLiftSpeed_ = maxLiftSpeed_;
+
+			// adjust button
+			ButtonPressAnimate(true);
+
+			//SetUpdateEventMask(USE_FIXEDUPDATE);
+		}
+		else if (liftState_ == LIFT_STATE_FINISH)
+		{
+			liftState_ = LIFT_STATE_MOVETO_START;
+			liftButtonState_ = LIFT_BUTTON_DOWN;
+			curLiftSpeed_ = maxLiftSpeed_;
+
+			// adjust button
+			ButtonPressAnimate(true);
+
+			//SetUpdateEventMask(USE_FIXEDUPDATE);
+		}
+
+		// play sound and animation
+	}
+}
+
+void Lift::HandleButtonEndCollision()
+{
+	standingOnButton_ = false;
+
+	if (liftButtonState_ == LIFT_BUTTON_DOWN)
+	{
+		// button animation
+		if (liftState_ == LIFT_STATE_START || liftState_ == LIFT_STATE_FINISH)
+		{
+			liftButtonState_ = LIFT_BUTTON_UP;
+			ButtonPressAnimate(false);
+		}
+	}
+}

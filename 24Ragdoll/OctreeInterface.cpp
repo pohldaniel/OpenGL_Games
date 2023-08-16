@@ -102,9 +102,11 @@ void OctreeInterface::fixedUpdate() {
 	m_movingPlatform->FixedUpdate(m_fdt);
 	m_character->FixedUpdate(m_fdt);
 	m_splinePlatform->FixedUpdate(m_fdt);
+	m_lift->FixedUpdate(m_fdt);
 
 	m_character->HandleCollision(m_platform1Trigger->getRigidBody());
 	m_character->HandleCollision(m_platform2Trigger->getRigidBody());
+	m_character->HandleCollisionButton(m_liftButtonTrigger->getCollisionObject());
 
 	Globals::physics->stepSimulation(m_fdt);
 	m_character->FixedPostUpdate(m_fdt);
@@ -506,6 +508,10 @@ void OctreeInterface::CreateScene(Scene* scene, CameraTu* camera, int preset) {
 			liftButton->SetScale(Vector3(0.01f, 0.01f, 0.01f));
 			liftButton->SetModel(cache->LoadResource<Model>("Models/LiftButton.mdl"));
 			liftButton->SetMaterial(cache->LoadResource<MaterialTu>("Models/Models.json"));
+			
+			m_lift = new Lift();
+			m_lift->Initialize(lift, m_liftTrigger->getRigidBody(), lift->WorldPosition() + Vector3(0, 6.8f, 0), liftButton);
+			m_liftButtonTrigger->setUserPointer(m_lift);
 
 			m_disk = new StaticModel();
 			m_disk->SetOctree(m_octree);
@@ -865,7 +871,7 @@ void OctreeInterface::CollectOctants(Octant* octant, ThreadOctantResult& result,
 		}
 	}
 
-	octant->SetVisibility(VIS_VISIBLE, false);
+	octant->SetVisibility(VIS_VISIBLE_UNKNOWN, false);
 
 	const std::vector<Drawable*>& drawables = octant->Drawables();
 
@@ -1071,10 +1077,6 @@ void OctreeInterface::createPhysics() {
 	m_liftExteriorShape.fromBuffer(vertexBuffer, indexBuffer, 8);
 	vertexBuffer.clear(); vertexBuffer.shrink_to_fit(); indexBuffer.clear(); indexBuffer.shrink_to_fit();
 
-	mdlConverter.mdlToBuffer("res/Models/LiftButton.mdl", 0.01f, vertexBuffer, indexBuffer);
-	m_liftButtonShape.fromBuffer(vertexBuffer, indexBuffer, 8);
-	vertexBuffer.clear(); vertexBuffer.shrink_to_fit(); indexBuffer.clear(); indexBuffer.shrink_to_fit();
-
 	mdlConverter.mdlToBuffer("res/Models/disk.mdl", 0.01f, vertexBuffer, indexBuffer);
 	m_diskShape.fromBuffer(vertexBuffer, indexBuffer, 8);
 	vertexBuffer.clear(); vertexBuffer.shrink_to_fit(); indexBuffer.clear(); indexBuffer.shrink_to_fit();
@@ -1094,8 +1096,10 @@ void OctreeInterface::createPhysics() {
 	m_liftTrigger = new KinematicTrigger();
 	m_liftTrigger->create(Physics::CreateCollisionShape(&m_liftShape, btVector3(1.0f, 1.0f, 1.0f)), Physics::BtTransform(btVector3(35.5938f, 0.350185f, 10.4836f)), Physics::GetDynamicsWorld(), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::RAY);
 	Globals::physics->addStaticModel(Physics::CreateCollisionShapes(&m_liftExteriorShape, 1.0f), Physics::BtTransform(btVector3(35.6211f, 7.66765f, 10.4388f)), false, btVector3(1.0f, 1.0f, 1.0f), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::RAY);
-	Physics::AddRigidBody(0.0f, Physics::BtTransform(btVector3(35.5938f, 0.412104f + 0.15f, 10.4836f)), new btCylinderShape(btVector3(80.0f, 15.0f, 1.0f) * 0.01f), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::RAY, btCollisionObject::CF_STATIC_OBJECT);
-
+	
+	m_liftButtonTrigger = new StaticTrigger();
+	m_liftButtonTrigger->create(new btCylinderShape(btVector3(80.0f, 15.0f, 1.0f) * 0.01f), Physics::BtTransform(btVector3(35.5938f, 0.412104f, 10.4836)), Physics::GetDynamicsWorld(), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::RAY);
+	
 	m_platform1Trigger = new KinematicTrigger();
 	m_platform1Trigger->create(Physics::CreateCollisionShape(&m_diskShape, btVector3(1.0f, 1.0f, 1.0f)), Physics::BtTransform(btVector3(26.1357f, 7.00645f, -34.7563f)), Physics::GetDynamicsWorld(), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::RAY);
 	

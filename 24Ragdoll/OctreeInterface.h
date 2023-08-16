@@ -12,7 +12,9 @@
 #include "SplinePlatform.h"
 #include "ShapeDrawer.h"
 #include "KinematicTrigger.h"
+#include "StaticTrigger.h"
 #include "SolidIO.h"
+#include "Lift.h"
 
 #include "Graphics/FrameBufferTu.h"
 #include "Graphics/Graphics.h"
@@ -125,7 +127,7 @@ private:
 	bool m_drawUi = true;
 	bool m_drawDebug = false;
 	bool m_debugPhysic = false;
-	bool m_useCulling = false;
+	bool m_useCulling = true;
 
 	Octree* m_octree;
 	AutoPtr<WorkQueue> workQueue;
@@ -187,9 +189,9 @@ private:
 
 	std::vector<float> vertexBuffer;
 	std::vector<unsigned int> indexBuffer;
+	
 	Shape m_diskShape;
 	Shape m_liftShape;
-	Shape m_liftButtonShape;
 	Shape m_baseShape;
 	Shape m_liftExteriorShape;
 	Shape m_upperFloorShape;
@@ -202,6 +204,7 @@ private:
 	Character* m_character;
 	MovingPlatform* m_movingPlatform;
 	SplinePlatform* m_splinePlatform;
+	Lift* m_lift;
 
 	StaticModel* m_disk;
 	StaticModel* m_cylinder;
@@ -209,6 +212,7 @@ private:
 	KinematicTrigger* m_platform1Trigger;
 	KinematicTrigger* m_platform2Trigger;
 	KinematicTrigger* m_liftTrigger;
+	StaticTrigger* m_liftButtonTrigger;
 
 	SplinePath* m_splinePath;
 

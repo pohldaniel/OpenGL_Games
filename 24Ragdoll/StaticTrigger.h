@@ -10,8 +10,9 @@ public:
 	StaticTrigger();
 	~StaticTrigger();
 
-	virtual void create(btCollisionShape* shape, const btTransform& transform, btDynamicsWorld* physicsWorld, int collisionFilterGroup = 1, int collisionFilterMask = -1, void* rigidBodyUserPointer = NULL);
+	virtual void create(btCollisionShape* shape, const btTransform& transform, btDynamicsWorld* physicsWorld, int collisionFilterGroup = 1, int collisionFilterMask = -1, void* userPointer = NULL);
 	btCollisionObject* getCollisionObject();
+	void setUserPointer(void* userPointer);
 
 protected:
 

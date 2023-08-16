@@ -44,11 +44,13 @@ struct MovingData
 };
 
 struct CharacterTriggerCallback : public btCollisionWorld::ContactResultCallback {
-
 	CharacterTriggerCallback() {}
-
-
 	btScalar CharacterTriggerCallback::addSingleResult(btManifoldPoint& cp, const btCollisionObjectWrapper* colObj0Wrap, int partId0, int index0, const btCollisionObjectWrapper* colObj1Wrap, int partId1, int index1) override;
+};
+
+struct CharacterTriggerCallbackButton : public btCollisionWorld::ContactResultCallback {
+	CharacterTriggerCallbackButton() {}
+	btScalar CharacterTriggerCallbackButton::addSingleResult(btManifoldPoint& cp, const btCollisionObjectWrapper* colObj0Wrap, int partId0, int index0, const btCollisionObjectWrapper* colObj1Wrap, int partId1, int index1) override;
 };
 
 class Character {
@@ -62,6 +64,7 @@ public:
 	void FixedUpdate(float timeStep);
 	void FixedPostUpdate(float timeStep);
 	void HandleCollision(btCollisionObject* collisionObject);
+	void HandleCollisionButton(btCollisionObject* collisionObject);
 
 	void SetOnMovingPlatform(btRigidBody* platformBody){
 		//onMovingPlatform_ = (platformBody != NULL);
@@ -86,6 +89,7 @@ public:
 	MovingData movingData_[2];
 	AnimatedModel* model_;
 	CharacterTriggerCallback m_characterTriggerResult;
+	CharacterTriggerCallbackButton m_characterTriggerResultButton;
 
 	Camera& camera;
 };
