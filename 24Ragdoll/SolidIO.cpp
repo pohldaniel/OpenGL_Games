@@ -369,6 +369,10 @@ void Utils::MdlIO::mdlToObj(const char* filename, const char* outFileObj, const 
 }
 
 void Utils::MdlIO::mdlToBuffer(const char* filename, float scale, std::vector<float>& vertexBufferOut, std::vector<unsigned int>& indexBufferOut) {
+	mdlToBuffer(filename, { scale, scale, scale }, vertexBufferOut, indexBufferOut);
+}
+
+void Utils::MdlIO::mdlToBuffer(const char* filename, std::array<float,3> scale, std::vector<float>& vertexBufferOut, std::vector<unsigned int>& indexBufferOut) {
 	std::ifstream file(filename, std::ios::binary);
 
 	std::string ret;
@@ -408,7 +412,7 @@ void Utils::MdlIO::mdlToBuffer(const char* filename, float scale, std::vector<fl
 			value[0].c[0] = buffer[i + 0]; value[0].c[1] = buffer[i + 1]; value[0].c[2] = buffer[i + 2]; value[0].c[3] = buffer[i + 3];
 			value[1].c[0] = buffer[i + 4]; value[1].c[1] = buffer[i + 5]; value[1].c[2] = buffer[i + 6]; value[1].c[3] = buffer[i + 7];
 			value[2].c[0] = buffer[i + 8]; value[2].c[1] = buffer[i + 9]; value[2].c[2] = buffer[i + 10]; value[2].c[3] = buffer[i + 11];
-			vertexBufferOut.push_back(value[0].flt * scale); vertexBufferOut.push_back(value[1].flt * scale); vertexBufferOut.push_back(value[2].flt * scale);
+			vertexBufferOut.push_back(value[0].flt * scale[0]); vertexBufferOut.push_back(value[1].flt * scale[1]); vertexBufferOut.push_back(value[2].flt * scale[2]);
 
 			value[0].c[0] = buffer[i + 24]; value[0].c[1] = buffer[i + 25]; value[0].c[2] = buffer[i + 26]; value[0].c[3] = buffer[i + 27];
 			value[1].c[0] = buffer[i + 28]; value[1].c[1] = buffer[i + 29]; value[1].c[2] = buffer[i + 30]; value[1].c[3] = buffer[i + 31];
@@ -513,7 +517,7 @@ void Utils::MdlIO::mdlToBuffer(const char* filename, float scale, std::vector<fl
 			value[0].c[0] = buffer[i + 0]; value[0].c[1] = buffer[i + 1]; value[0].c[2] = buffer[i + 2]; value[0].c[3] = buffer[i + 3];
 			value[1].c[0] = buffer[i + 4]; value[1].c[1] = buffer[i + 5]; value[1].c[2] = buffer[i + 6]; value[1].c[3] = buffer[i + 7];
 			value[2].c[0] = buffer[i + 8]; value[2].c[1] = buffer[i + 9]; value[2].c[2] = buffer[i + 10]; value[2].c[3] = buffer[i + 11];
-			vertexBufferOut.push_back(value[0].flt * scale); vertexBufferOut.push_back(value[1].flt * scale); vertexBufferOut.push_back(value[2].flt * scale);
+			vertexBufferOut.push_back(value[0].flt * scale[0]); vertexBufferOut.push_back(value[1].flt * scale[1]); vertexBufferOut.push_back(value[2].flt * scale[2]);
 
 			if (elementMask & 4) {
 				value[0].c[0] = buffer[i + 28]; value[0].c[1] = buffer[i + 29]; value[0].c[2] = buffer[i + 30]; value[0].c[3] = buffer[i + 31];

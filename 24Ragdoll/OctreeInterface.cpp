@@ -103,8 +103,8 @@ void OctreeInterface::fixedUpdate() {
 	m_character->FixedUpdate(m_fdt);
 	m_splinePlatform->FixedUpdate(m_fdt);
 
-	m_character->HandleCollision(m_platform1->getRigidBody());
-	m_character->HandleCollision(m_platform2->getRigidBody());
+	m_character->HandleCollision(m_platform1Trigger->getRigidBody());
+	m_character->HandleCollision(m_platform2Trigger->getRigidBody());
 
 	Globals::physics->stepSimulation(m_fdt);
 	m_character->FixedPostUpdate(m_fdt);
@@ -507,36 +507,29 @@ void OctreeInterface::CreateScene(Scene* scene, CameraTu* camera, int preset) {
 			liftButton->SetModel(cache->LoadResource<Model>("Models/LiftButton.mdl"));
 			liftButton->SetMaterial(cache->LoadResource<MaterialTu>("Models/Models.json"));
 
-			disk1 = new StaticModel();
-			disk1->SetOctree(m_octree);
-			m_octree->QueueUpdate(disk1->GetDrawable());
-			disk1->SetStatic(true);
-			disk1->SetPosition(Vector3(26.1357f, 7.00645f, -34.7563f));
-			disk1->SetScale(Vector3(0.01f, 0.01f, 0.01f));
-			disk1->SetModel(cache->LoadResource<Model>("Models/disk.mdl"));
-			disk1->SetMaterial(cache->LoadResource<MaterialTu>("Models/Models.json"));
+			m_disk = new StaticModel();
+			m_disk->SetOctree(m_octree);
+			m_octree->QueueUpdate(m_disk->GetDrawable());
+			m_disk->SetStatic(true);
+			m_disk->SetPosition(Vector3(26.1357f, 7.00645f, -34.7563f));
+			m_disk->SetScale(Vector3(0.01f, 0.01f, 0.01f));
+			m_disk->SetModel(cache->LoadResource<Model>("Models/disk.mdl"));
+			m_disk->SetMaterial(cache->LoadResource<MaterialTu>("Models/Models.json"));
 
 			m_movingPlatform = new MovingPlatform();
-			m_movingPlatform->Initialize(disk1, m_platform1->getRigidBody(), disk1->WorldPosition() + Vector3(0.0f, 0.0f, 20.0f), true);
-			m_platform1->setUserPointer(disk1);
+			m_movingPlatform->Initialize(m_disk, m_platform1Trigger->getRigidBody(), m_disk->WorldPosition() + Vector3(0.0f, 0.0f, 20.0f), true);
+			m_platform1Trigger->setUserPointer(m_disk);
 
 
-			disk2 = new StaticModel();
-			disk2->SetOctree(m_octree);
-			m_octree->QueueUpdate(disk2->GetDrawable());
-			disk2->SetStatic(true);
-			disk2->SetPosition(Vector3(4.14317f, 7.00645f, 35.1134f));
-			disk2->SetScale(Vector3(0.01f, 0.01f, 0.01f));
-			disk2->SetModel(cache->LoadResource<Model>("Models/disk.mdl"));
-			disk2->SetMaterial(cache->LoadResource<MaterialTu>("Models/Models.json"));
+			m_cylinder = new StaticModel();
+			m_cylinder->SetOctree(m_octree);
+			m_octree->QueueUpdate(m_cylinder->GetDrawable());
+			m_cylinder->SetStatic(true);
+			m_cylinder->SetPosition(Vector3(-0.294956f, 2.48167f, 28.3161f));
+			m_cylinder->SetScale(Vector3(6.0f, 0.7f, 6.0f));
+			m_cylinder->SetModel(cache->LoadResource<Model>("Models/Cylinder.mdl"));
+			m_cylinder->SetMaterial(cache->LoadResource<MaterialTu>("Models/Models.json"));
 
-			StaticModel* cylinder = new StaticModel();
-			m_octree->QueueUpdate(cylinder->GetDrawable());
-			cylinder->SetStatic(true);
-			cylinder->SetPosition(Vector3(-0.294956f, 2.48167f, 28.3161f));
-			cylinder->SetScale(Vector3(6.0f, 6.0f, 6.0f));
-			cylinder->SetModel(cache->LoadResource<Model>("Models/Cylinder.mdl"));
-			cylinder->SetMaterial(cache->LoadResource<MaterialTu>("Models/Models.json"));
 
 			kinematicCharacter = new KinematicCharacterController();
 			m_character = new Character(beta, animController, kinematicCharacter, m_camera);
@@ -598,131 +591,14 @@ void OctreeInterface::CreateScene(Scene* scene, CameraTu* camera, int preset) {
 			object->SetPosition(Vector3(-1.85441f, 7.34028f, 7.73154f) + offset);
 			m_splinePath->AddControlPoint(object, 12);
 
-/*			StaticModel* object = scene->CreateChild<StaticModel>();
-			object = scene->CreateChild<StaticModel>();
-			m_octree->QueueUpdate(object->GetDrawable());
-			object->SetPosition(Vector3(-1.85441f, 7.34028f, 7.73154f) + offset);
-			object->SetStatic(true);
-			object->SetScale(Vector3(0.01f, 0.01f, 0.01f));
-			object->SetModel(cache->LoadResource<Model>("Models/disk.mdl"));
-			object->SetMaterial(cache->LoadResource<MaterialTu>("Models/Models.json"));
-			m_splinePath->AddControlPoint(object, 0);
 
-			object = scene->CreateChild<StaticModel>();
-			m_octree->QueueUpdate(object->GetDrawable());
-			object->SetPosition(Vector3(12.3533f, 7.34028f, -1.41246f) + offset);
-			object->SetStatic(true);
-			object->SetScale(Vector3(0.01f, 0.01f, 0.01f));
-			object->SetModel(cache->LoadResource<Model>("Models/disk.mdl"));
-			object->SetMaterial(cache->LoadResource<MaterialTu>("Models/Models.json"));
-			m_splinePath->AddControlPoint(object, 1);
-
-			object = scene->CreateChild<StaticModel>();
-			m_octree->QueueUpdate(object->GetDrawable());
-			object->SetPosition(Vector3(6.71511f, 7.34028f, -7.44203f) + offset);
-			object->SetStatic(true);
-			object->SetScale(Vector3(0.01f, 0.01f, 0.01f));
-			object->SetModel(cache->LoadResource<Model>("Models/disk.mdl"));
-			object->SetMaterial(cache->LoadResource<MaterialTu>("Models/Models.json"));
-			m_splinePath->AddControlPoint(object, 2);
-
-			object = scene->CreateChild<StaticModel>();
-			m_octree->QueueUpdate(object->GetDrawable());
-			object->SetPosition(Vector3(-7.30396f, 7.34028f, -7.44203f) + offset);
-			object->SetStatic(true);
-			object->SetScale(Vector3(0.01f, 0.01f, 0.01f));
-			object->SetModel(cache->LoadResource<Model>("Models/disk.mdl"));
-			object->SetMaterial(cache->LoadResource<MaterialTu>("Models/Models.json"));
-			m_splinePath->AddControlPoint(object, 3);
-
-			object = scene->CreateChild<StaticModel>();
-			m_octree->QueueUpdate(object->GetDrawable());
-			object->SetPosition(Vector3(-22.6731f, 7.34028f, -11.7417f) + offset);
-			object->SetStatic(true);
-			object->SetScale(Vector3(0.01f, 0.01f, 0.01f));
-			object->SetModel(cache->LoadResource<Model>("Models/disk.mdl"));
-			object->SetMaterial(cache->LoadResource<MaterialTu>("Models/Models.json"));
-			m_splinePath->AddControlPoint(object, 4);
-
-			object = scene->CreateChild<StaticModel>();
-			m_octree->QueueUpdate(object->GetDrawable());
-			object->SetPosition(Vector3(-31.6409f, 7.34028f, -21.8727f) + offset);
-			object->SetStatic(true);
-			object->SetScale(Vector3(0.01f, 0.01f, 0.01f));
-			object->SetModel(cache->LoadResource<Model>("Models/disk.mdl"));
-			object->SetMaterial(cache->LoadResource<MaterialTu>("Models/Models.json"));
-			m_splinePath->AddControlPoint(object, 5);
-
-			object = scene->CreateChild<StaticModel>();
-			m_octree->QueueUpdate(object->GetDrawable());
-			object->SetPosition(Vector3(-35.8832f, 4.98511f, -47.866f) + offset);
-			object->SetStatic(true);
-			object->SetScale(Vector3(0.01f, 0.01f, 0.01f));
-			object->SetModel(cache->LoadResource<Model>("Models/disk.mdl"));
-			object->SetMaterial(cache->LoadResource<MaterialTu>("Models/Models.json"));
-			m_splinePath->AddControlPoint(object, 6);
-
-			object = scene->CreateChild<StaticModel>();
-			m_octree->QueueUpdate(object->GetDrawable());
-			object->SetPosition(Vector3(-45.9073f, 5.92764f, -52.7658f) + offset);
-			object->SetStatic(true);
-			object->SetScale(Vector3(0.01f, 0.01f, 0.01f));
-			object->SetModel(cache->LoadResource<Model>("Models/disk.mdl"));
-			object->SetMaterial(cache->LoadResource<MaterialTu>("Models/Models.json"));
-			m_splinePath->AddControlPoint(object, 7);
-
-			object = scene->CreateChild<StaticModel>();
-			m_octree->QueueUpdate(object->GetDrawable());
-			object->SetPosition(Vector3(-50.1447f, 6.74262f, -41.1805f) + offset);
-			object->SetStatic(true);
-			object->SetScale(Vector3(0.01f, 0.01f, 0.01f));
-			object->SetModel(cache->LoadResource<Model>("Models/disk.mdl"));
-			object->SetMaterial(cache->LoadResource<MaterialTu>("Models/Models.json"));
-			m_splinePath->AddControlPoint(object, 8);
-
-			object = scene->CreateChild<StaticModel>();
-			m_octree->QueueUpdate(object->GetDrawable());
-			object->SetPosition(Vector3(-50.1447f, 7.34028f, -21.4852f) + offset);
-			object->SetStatic(true);
-			object->SetScale(Vector3(0.01f, 0.01f, 0.01f));
-			object->SetModel(cache->LoadResource<Model>("Models/disk.mdl"));
-			object->SetMaterial(cache->LoadResource<MaterialTu>("Models/Models.json"));
-			m_splinePath->AddControlPoint(object, 9);
-
-			object = scene->CreateChild<StaticModel>();
-			m_octree->QueueUpdate(object->GetDrawable());
-			object->SetPosition(Vector3(-48.1308f, 7.34028f, 1.13441f) + offset);
-			object->SetStatic(true);
-			object->SetScale(Vector3(0.01f, 0.01f, 0.01f));
-			object->SetModel(cache->LoadResource<Model>("Models/disk.mdl"));
-			object->SetMaterial(cache->LoadResource<MaterialTu>("Models/Models.json"));
-			m_splinePath->AddControlPoint(object, 10);
-
-			object = scene->CreateChild<StaticModel>();
-			m_octree->QueueUpdate(object->GetDrawable());
-			object->SetPosition(Vector3(-23.4324f, 7.34028f, 11.1794f) + offset);
-			object->SetStatic(true);
-			object->SetScale(Vector3(0.01f, 0.01f, 0.01f));
-			object->SetModel(cache->LoadResource<Model>("Models/disk.mdl"));
-			object->SetMaterial(cache->LoadResource<MaterialTu>("Models/Models.json"));
-			m_splinePath->AddControlPoint(object, 11);
-
-			object = scene->CreateChild<StaticModel>();
-			m_octree->QueueUpdate(object->GetDrawable());
-			object->SetPosition(Vector3(-1.85441f, 7.34028f, 7.73154f) + offset);
-			object->SetStatic(true);
-			object->SetScale(Vector3(0.01f, 0.01f, 0.01f));
-			object->SetModel(cache->LoadResource<Model>("Models/disk.mdl"));
-			object->SetMaterial(cache->LoadResource<MaterialTu>("Models/Models.json"));
-			m_splinePath->AddControlPoint(object, 12);*/
-
-			m_splinePath->SetControlledNode(disk2);
+			m_splinePath->SetControlledNode(m_cylinder);
 			m_splinePath->SetInterpolationMode(CATMULL_ROM_FULL_CURVE);
 			m_splinePath->SetSpeed(6.0f);
 
 			m_splinePlatform = new SplinePlatform();
-			m_splinePlatform->Initialize(m_splinePath, m_platform2->getRigidBody());
-			m_platform2->setUserPointer(disk2);
+			m_splinePlatform->Initialize(m_splinePath, m_platform2Trigger->getRigidBody());
+			m_platform2Trigger->setUserPointer(m_cylinder);
 		}
 	}
 	// Preset 1: high number of animating cubes
@@ -1168,69 +1044,64 @@ void OctreeInterface::createPhysics() {
 	
 
 	mdlConverter.mdlToBuffer("res/Models/base.mdl", 0.01f, vertexBuffer, indexBuffer);
-	m_base.fromBuffer(vertexBuffer, indexBuffer, 8);
+	m_baseShape.fromBuffer(vertexBuffer, indexBuffer, 8);
 	vertexBuffer.clear(); vertexBuffer.shrink_to_fit(); indexBuffer.clear(); indexBuffer.shrink_to_fit();
 
 	mdlConverter.mdlToBuffer("res/Models/upperFloor.mdl", 0.01f, vertexBuffer, indexBuffer);
-	m_upperFloor.fromBuffer(vertexBuffer, indexBuffer, 8);
+	m_upperFloorShape.fromBuffer(vertexBuffer, indexBuffer, 8);
 	vertexBuffer.clear(); vertexBuffer.shrink_to_fit(); indexBuffer.clear(); indexBuffer.shrink_to_fit();
 
 	mdlConverter.mdlToBuffer("res/Models/ramp.mdl", 0.01f, vertexBuffer, indexBuffer);
-	m_ramp.fromBuffer(vertexBuffer, indexBuffer, 8);
+	m_rampShape.fromBuffer(vertexBuffer, indexBuffer, 8);
 	vertexBuffer.clear(); vertexBuffer.shrink_to_fit(); indexBuffer.clear(); indexBuffer.shrink_to_fit();
 
 	mdlConverter.mdlToBuffer("res/Models/ramp2.mdl", 0.01f, vertexBuffer, indexBuffer);
-	m_ramp2.fromBuffer(vertexBuffer, indexBuffer, 8);
+	m_ramp2Shape.fromBuffer(vertexBuffer, indexBuffer, 8);
 	vertexBuffer.clear(); vertexBuffer.shrink_to_fit(); indexBuffer.clear(); indexBuffer.shrink_to_fit();
 
 	mdlConverter.mdlToBuffer("res/Models/ramp3.mdl", 0.01f, vertexBuffer, indexBuffer);
-	m_ramp3.fromBuffer(vertexBuffer, indexBuffer, 8);
+	m_ramp3Shape.fromBuffer(vertexBuffer, indexBuffer, 8);
 	vertexBuffer.clear(); vertexBuffer.shrink_to_fit(); indexBuffer.clear(); indexBuffer.shrink_to_fit();
 
 	mdlConverter.mdlToBuffer("res/Models/Lift.mdl", 0.01f, vertexBuffer, indexBuffer);
-	m_lift.fromBuffer(vertexBuffer, indexBuffer, 8);
+	m_liftShape.fromBuffer(vertexBuffer, indexBuffer, 8);
 	vertexBuffer.clear(); vertexBuffer.shrink_to_fit(); indexBuffer.clear(); indexBuffer.shrink_to_fit();
 
 	mdlConverter.mdlToBuffer("res/Models/liftExterior.mdl", 0.01f, vertexBuffer, indexBuffer);
-	m_liftExterior.fromBuffer(vertexBuffer, indexBuffer, 8);
+	m_liftExteriorShape.fromBuffer(vertexBuffer, indexBuffer, 8);
 	vertexBuffer.clear(); vertexBuffer.shrink_to_fit(); indexBuffer.clear(); indexBuffer.shrink_to_fit();
 
 	mdlConverter.mdlToBuffer("res/Models/LiftButton.mdl", 0.01f, vertexBuffer, indexBuffer);
-	m_liftButton.fromBuffer(vertexBuffer, indexBuffer, 8);
+	m_liftButtonShape.fromBuffer(vertexBuffer, indexBuffer, 8);
 	vertexBuffer.clear(); vertexBuffer.shrink_to_fit(); indexBuffer.clear(); indexBuffer.shrink_to_fit();
 
 	mdlConverter.mdlToBuffer("res/Models/disk.mdl", 0.01f, vertexBuffer, indexBuffer);
-	m_disk.fromBuffer(vertexBuffer, indexBuffer, 8);
+	m_diskShape.fromBuffer(vertexBuffer, indexBuffer, 8);
 	vertexBuffer.clear(); vertexBuffer.shrink_to_fit(); indexBuffer.clear(); indexBuffer.shrink_to_fit();
 
-	mdlConverter.mdlToBuffer("res/Models/Cylinder.mdl", 6.0f, vertexBuffer, indexBuffer);
-	m_cylinder.fromBuffer(vertexBuffer, indexBuffer, 8);
+	mdlConverter.mdlToBuffer("res/Models/Cylinder.mdl", { 6.0f, 0.7f, 6.0f }, vertexBuffer, indexBuffer);
+	m_cylinderShape.fromBuffer(vertexBuffer, indexBuffer, 8);
 	vertexBuffer.clear(); vertexBuffer.shrink_to_fit(); indexBuffer.clear(); indexBuffer.shrink_to_fit();
 
 
-	Physics::AddRigidBody(0.0f, Physics::BtTransform(btVector3(0.0f, -0.05f, 0.0f)), new btConvexHullShape((btScalar*)(&m_base.getPositions()[0]), m_base.getPositions().size(), 3 * sizeof(btScalar)), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::RAY, btCollisionObject::CF_STATIC_OBJECT);
-	Globals::physics->addStaticModel(Physics::CreateCollisionShapes(&m_upperFloor, 1.0f), Physics::BtTransform(btVector3(30.16f, 6.98797f, 10.0099f)), false, btVector3(1.0f, 1.0f, 1.0f), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::RAY);
+	Physics::AddRigidBody(0.0f, Physics::BtTransform(btVector3(0.0f, -0.05f, 0.0f)), new btConvexHullShape((btScalar*)(&m_baseShape.getPositions()[0]), m_baseShape.getPositions().size(), 3 * sizeof(btScalar)), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::RAY, btCollisionObject::CF_STATIC_OBJECT);
+	Globals::physics->addStaticModel(Physics::CreateCollisionShapes(&m_upperFloorShape, 1.0f), Physics::BtTransform(btVector3(30.16f, 6.98797f, 10.0099f)), false, btVector3(1.0f, 1.0f, 1.0f), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::RAY);
 
-	Globals::physics->addStaticModel(Physics::CreateCollisionShapes(&m_ramp, 1.0f), Physics::BtTransform(btVector3(13.5771f, 6.23965f, 10.9272f)), false, btVector3(1.0f, 1.0f, 1.0f), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::RAY);
-	Physics::AddRigidBody(0.0f, Physics::BtTransform(btVector3(-22.8933f, 2.63165f, -23.6786f)), new btConvexHullShape((btScalar*)(&m_ramp2.getPositions()[0]), m_ramp2.getPositions().size(), 3 * sizeof(btScalar)), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::RAY, btCollisionObject::CF_STATIC_OBJECT);
-	Physics::AddRigidBody(0.0f, Physics::BtTransform(btVector3(-15.2665f, 1.9782f, -43.135f)), new btConvexHullShape((btScalar*)(&m_ramp3.getPositions()[0]), m_ramp3.getPositions().size(), 3 * sizeof(btScalar)), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::RAY, btCollisionObject::CF_STATIC_OBJECT);
+	Globals::physics->addStaticModel(Physics::CreateCollisionShapes(&m_rampShape, 1.0f), Physics::BtTransform(btVector3(13.5771f, 6.23965f, 10.9272f)), false, btVector3(1.0f, 1.0f, 1.0f), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::RAY);
+	Physics::AddRigidBody(0.0f, Physics::BtTransform(btVector3(-22.8933f, 2.63165f, -23.6786f)), new btConvexHullShape((btScalar*)(&m_ramp2Shape.getPositions()[0]), m_ramp2Shape.getPositions().size(), 3 * sizeof(btScalar)), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::RAY, btCollisionObject::CF_STATIC_OBJECT);
+	Physics::AddRigidBody(0.0f, Physics::BtTransform(btVector3(-15.2665f, 1.9782f, -43.135f)), new btConvexHullShape((btScalar*)(&m_ramp3Shape.getPositions()[0]), m_ramp3Shape.getPositions().size(), 3 * sizeof(btScalar)), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::RAY, btCollisionObject::CF_STATIC_OBJECT);
 
-	Globals::physics->addStaticModel(Physics::CreateCollisionShapes(&m_lift, 1.0f), Physics::BtTransform(btVector3(35.5938f, 0.350185f, 10.4836f)), false, btVector3(1.0f, 1.0f, 1.0f), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::RAY);
-	Globals::physics->addStaticModel(Physics::CreateCollisionShapes(&m_liftExterior, 1.0f), Physics::BtTransform(btVector3(35.6211f, 7.66765f, 10.4388f)), false, btVector3(1.0f, 1.0f, 1.0f), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::RAY);
+	m_liftTrigger = new KinematicTrigger();
+	m_liftTrigger->create(Physics::CreateCollisionShape(&m_liftShape, btVector3(1.0f, 1.0f, 1.0f)), Physics::BtTransform(btVector3(35.5938f, 0.350185f, 10.4836f)), Physics::GetDynamicsWorld(), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::RAY);
+	Globals::physics->addStaticModel(Physics::CreateCollisionShapes(&m_liftExteriorShape, 1.0f), Physics::BtTransform(btVector3(35.6211f, 7.66765f, 10.4388f)), false, btVector3(1.0f, 1.0f, 1.0f), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::RAY);
 	Physics::AddRigidBody(0.0f, Physics::BtTransform(btVector3(35.5938f, 0.412104f + 0.15f, 10.4836f)), new btCylinderShape(btVector3(80.0f, 15.0f, 1.0f) * 0.01f), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::RAY, btCollisionObject::CF_STATIC_OBJECT);
 
-	m_platform1 = new KinematicTrigger();
-	m_platform1->create(Physics::CreateCollisionShape(&m_disk, btVector3(1.0f, 1.0f, 1.0f)), Physics::BtTransform(btVector3(26.1357f, 7.00645f, -34.7563f)), Physics::GetDynamicsWorld(), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::RAY);
-	//diskBody = Physics::AddRigidBody(0.0f, Physics::BtTransform(btVector3(26.1357f, 7.00645f, -34.7563f)), Physics::CreateCollisionShape(&m_disk, btVector3(1.0f, 1.0f, 1.0f)), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::RAY, btCollisionObject::CF_KINEMATIC_OBJECT);
-	//diskBody->forceActivationState(DISABLE_DEACTIVATION);
+	m_platform1Trigger = new KinematicTrigger();
+	m_platform1Trigger->create(Physics::CreateCollisionShape(&m_diskShape, btVector3(1.0f, 1.0f, 1.0f)), Physics::BtTransform(btVector3(26.1357f, 7.00645f, -34.7563f)), Physics::GetDynamicsWorld(), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::RAY);
+	
+	m_platform2Trigger = new KinematicTrigger();
+	m_platform2Trigger->create(Physics::CreateCollisionShape(&m_cylinderShape, btVector3(1.0f, 1.0f, 1.0f)), Physics::BtTransform(btVector3(-0.294956f, 3.46579f, 28.3161f)), Physics::GetDynamicsWorld(), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::RAY);
 
-	//Globals::physics->addStaticModel(Physics::CreateCollisionShapes(&m_disk, 1.0f), Physics::BtTransform(btVector3(26.1357f, 7.00645f, -34.7563f)), false, btVector3(1.0f, 1.0f, 1.0f), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::RAY);
-	//Globals::physics->addStaticModel(Physics::CreateCollisionShapes(&m_disk, 1.0f), Physics::BtTransform(btVector3(4.14317f, 7.00645f, 35.1134f)), false, btVector3(1.0f, 1.0f, 1.0f), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::RAY);
-
-	m_platform2 = new KinematicTrigger();
-	m_platform2->create(Physics::CreateCollisionShape(&m_disk, btVector3(1.0f, 1.0f, 1.0f)), Physics::BtTransform(btVector3(-0.294956f, 2.48167f, 28.3161f)), Physics::GetDynamicsWorld(), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::RAY);
-
-	Globals::physics->addStaticModel(Physics::CreateCollisionShapes(&m_cylinder, 1.0f), Physics::BtTransform(btVector3(-0.294956f, 2.48167f, 28.3161f)), false, btVector3(1.0f, 1.0f, 1.0f), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::RAY);
 
 	//Physics::GetDynamicsWorld()->setInternalTickCallback(OctreeInterface::PreTickCallback, static_cast<void*>(this), true);
 	//Physics::GetDynamicsWorld()->setInternalTickCallback(OctreeInterface::PostTickCallback, static_cast<void*>(this), false);

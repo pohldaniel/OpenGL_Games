@@ -59,6 +59,7 @@ namespace Utils {
 
 		void mdlToObj(const char* filename, const char* outFileObj, const char* outFileMtl, const char* texturePath);
 		void mdlToBuffer(const char* filename, float scale, std::vector<float>& vertexBufferOut, std::vector<unsigned int>& indexBufferOut);
+		void mdlToBuffer(const char* filename, std::array<float,3> scale, std::vector<float>& vertexBufferOut, std::vector<unsigned int>& indexBufferOut);
 	};
 
 }

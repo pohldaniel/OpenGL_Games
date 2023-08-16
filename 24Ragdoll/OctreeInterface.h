@@ -187,30 +187,32 @@ private:
 
 	std::vector<float> vertexBuffer;
 	std::vector<unsigned int> indexBuffer;
-	Shape m_disk;
-	Shape m_lift;
-	Shape m_liftButton;
-	Shape m_base;
-	Shape m_liftExterior;
-	Shape m_upperFloor;
-	Shape m_ramp;
-	Shape m_ramp2;
-	Shape m_ramp3;
-	Shape m_cylinder;
+	Shape m_diskShape;
+	Shape m_liftShape;
+	Shape m_liftButtonShape;
+	Shape m_baseShape;
+	Shape m_liftExteriorShape;
+	Shape m_upperFloorShape;
+	Shape m_rampShape;
+	Shape m_ramp2Shape;
+	Shape m_ramp3Shape;
+	Shape m_cylinderShape;
+
 	Utils::MdlIO mdlConverter;
 	Character* m_character;
 	MovingPlatform* m_movingPlatform;
 	SplinePlatform* m_splinePlatform;
 
-	StaticModel* disk1;
-	StaticModel* disk2;
+	StaticModel* m_disk;
+	StaticModel* m_cylinder;
+
+	KinematicTrigger* m_platform1Trigger;
+	KinematicTrigger* m_platform2Trigger;
+	KinematicTrigger* m_liftTrigger;
+
+	SplinePath* m_splinePath;
 
 	static void PreTickCallback(btDynamicsWorld* world, btScalar timeStep);
 	static void PostTickCallback(btDynamicsWorld* world, btScalar timeStep);
-
-	KinematicTrigger* m_platform1;
-	KinematicTrigger* m_platform2;
-
-	SplinePath* m_splinePath;
 };
 
