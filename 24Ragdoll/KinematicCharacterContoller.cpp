@@ -4,9 +4,9 @@
 //=============================================================================
 //=============================================================================
 const float STEP_HEIGHT = 0.6f;
-const float JUMP_HEIGHT = 2.0f;
+const float JUMP_HEIGHT = 4.0f;
 const float FALL_SPEED = 55.0f;
-const float JUMP_SPEED = 9.0f;
+const float JUMP_SPEED = 12.0f;
 const float MAX_SLOPE = 45.0f;
 const float DEFAULT_DAMPING = 0.2f;
 const Vector3 KINEMATIC_GRAVITY(0.0f, -14.0f, 0.0f);

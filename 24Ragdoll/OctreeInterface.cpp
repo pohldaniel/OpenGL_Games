@@ -102,8 +102,7 @@ void OctreeInterface::fixedUpdate() {
 	m_character->ProcessCollision();
 
 	m_character->FixedUpdate(m_fdt);
-	m_movingPlatform->FixedUpdate(m_fdt);
-	
+	m_movingPlatform->FixedUpdate(m_fdt);	
 	m_splinePlatform->FixedUpdate(m_fdt);
 	m_lift->FixedUpdate(m_fdt);
 
@@ -115,9 +114,6 @@ void OctreeInterface::fixedUpdate() {
 	m_character->HandleCollisionButton(m_liftButtonTrigger->getCollisionObject());
 	m_character->BeginCollision();
 	m_character->EndCollision();
-
-	
-
 
 	m_character->FixedPostUpdate(m_fdt);
 
@@ -361,7 +357,7 @@ void OctreeInterface::renderUi() {
 	// render widgets
 	ImGui::Begin("Settings", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
 	ImGui::Checkbox("Draw Wirframe", &StateMachine::GetEnableWireframe());
-	ImGui::Checkbox("Draw Debug", &m_drawDebug);
+	ImGui::Checkbox("Debug Octree", &m_drawDebug);
 	ImGui::Checkbox("Debug Physic", &m_debugPhysic);
 	ImGui::Checkbox("Use Culling", &m_useCulling);
 	ImGui::End();
