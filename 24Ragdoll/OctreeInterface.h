@@ -11,8 +11,9 @@
 #include "MovingPlatform.h"
 #include "SplinePlatform.h"
 #include "ShapeDrawer.h"
-#include "KinematicTrigger.h"
+#include "KinematicObject.h"
 #include "StaticTrigger.h"
+#include "KinematicTrigger.h"
 #include "SolidIO.h"
 #include "Lift.h"
 
@@ -140,6 +141,7 @@ private:
 	SharedPtr<CameraTu> camera;
 
 	float angle = 0.0f;
+	float m_prevFraction = 1.0f;
 	bool animate = true;
 	float m_offsetDistance = 10.0f;
 	float m_rotationSpeed = 0.1f;
@@ -209,10 +211,10 @@ private:
 	StaticModel* m_disk;
 	StaticModel* m_cylinder;
 
-	KinematicTrigger* m_platform1Trigger;
-	KinematicTrigger* m_platform2Trigger;
-	KinematicTrigger* m_liftTrigger;
-	StaticTrigger* m_liftButtonTrigger;
+	KinematicObject* m_kinematicPlatform1;
+	KinematicObject* m_kinematicPlatform2;
+	KinematicObject* m_kinematicLift;
+	KinematicTrigger* m_liftButtonTrigger;
 
 	SplinePath* m_splinePath;
 

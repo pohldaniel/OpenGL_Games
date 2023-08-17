@@ -9,24 +9,22 @@ KinematicTrigger::~KinematicTrigger() {
 }
 
 void KinematicTrigger::create(btCollisionShape* shape, const btTransform& transform, btDynamicsWorld* physicsWorld, int collisionFilterGroup, int collisionFilterMask, void* userPointer) {
-	
-	btVector3 localInertia(0.0f, 0.0f, 0.0f);
+	m_collisionObject = new btCollisionObject();
 
+	m_collisionObject->setCollisionShape(shape);
+	m_collisionObject->setWorldTransform(transform);
 
-	btDefaultMotionState* motionState = new btDefaultMotionState(transform);
-	btRigidBody::btRigidBodyConstructionInfo cInfo(0.0f, motionState, shape, localInertia);
-	m_rigidBody = new btRigidBody(cInfo);
-	m_rigidBody->setUserPointer(userPointer);
-	m_rigidBody->forceActivationState(DISABLE_DEACTIVATION);
-	m_rigidBody->setCollisionFlags(btCollisionObject::CF_KINEMATIC_OBJECT);
+	m_collisionObject->setCollisionFlags(btCollisionObject::CF_KINEMATIC_OBJECT | btCollisionObject::CF_NO_CONTACT_RESPONSE);
+	m_collisionObject->forceActivationState(DISABLE_DEACTIVATION);
+	m_collisionObject->setUserPointer(userPointer);
 
-	physicsWorld->addCollisionObject(m_rigidBody, collisionFilterGroup, collisionFilterMask);
+	physicsWorld->addCollisionObject(m_collisionObject, collisionFilterGroup, collisionFilterMask);
 }
 
-btRigidBody* KinematicTrigger::getRigidBody() {
-	return m_rigidBody;
+btCollisionObject* KinematicTrigger::getCollisionObject() {
+	return m_collisionObject;
 }
 
 void KinematicTrigger::setUserPointer(void* userPointer) {
-	m_rigidBody->setUserPointer(userPointer);
+	m_collisionObject->setUserPointer(userPointer);
 }

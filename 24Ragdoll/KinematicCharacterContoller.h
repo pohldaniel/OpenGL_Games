@@ -27,6 +27,7 @@ public:
 	const Vector3& GetPosition();
 	const QuaternionTu& GetRotation();
 	void SetTransform(const Vector3& position, const QuaternionTu& rotation);
+	btTransform& GetTransform();
 	void GetTransform(Vector3& position, QuaternionTu& rotation);
 	void moveAlongY(float step);
 	void setUserPointer(void* userPointer);

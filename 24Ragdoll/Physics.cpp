@@ -425,3 +425,23 @@ void* btFilteredVehicleRaycaster::castRay(const btVector3& from, const btVector3
 	}
 	return 0;
 }
+
+void Physics::HandleCollisions() {
+	int numManifolds = m_dispatcher->getNumManifolds();
+
+	if (numManifolds) {
+	
+		for (int i = 0; i < numManifolds; ++i){
+
+			btPersistentManifold* contactManifold = m_dispatcher->getManifoldByIndexInternal(i);
+			// First check that there are actual contacts, as the manifold exists also when objects are close but not touching
+			if (!contactManifold->getNumContacts())
+				continue;
+
+			const btCollisionObject* objectA = contactManifold->getBody0();
+			const btCollisionObject* objectB = contactManifold->getBody1();
+
+		}
+	
+	}
+}

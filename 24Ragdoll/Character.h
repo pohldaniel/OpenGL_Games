@@ -1,10 +1,12 @@
 #pragma once
+
+#include <unordered_map>
 #include "engine/input/Keyboard.h"
 #include "engine/Camera.h"
 #include "Physics.h"
 #include "turso3d/Scene/SpatialNode.h"
 #include "turso3d/Renderer/AnimationController.h"
-
+#include "Lift.h"
 class KinematicCharacterController;
 
 //=============================================================================
@@ -46,18 +48,22 @@ struct MovingData
 struct CharacterTriggerCallback : public btCollisionWorld::ContactResultCallback {
 	CharacterTriggerCallback() {}
 	btScalar CharacterTriggerCallback::addSingleResult(btManifoldPoint& cp, const btCollisionObjectWrapper* colObj0Wrap, int partId0, int index0, const btCollisionObjectWrapper* colObj1Wrap, int partId1, int index1) override;
+	SpatialNode* button_;
 };
 
 struct CharacterTriggerCallbackButton : public btCollisionWorld::ContactResultCallback {
 	CharacterTriggerCallbackButton() {}
 	btScalar CharacterTriggerCallbackButton::addSingleResult(btManifoldPoint& cp, const btCollisionObjectWrapper* colObj0Wrap, int partId0, int index0, const btCollisionObjectWrapper* colObj1Wrap, int partId1, int index1) override;
+
+	std::pair<const btCollisionObject*, const btCollisionObject*> currentCollision;
+	std::pair<const btCollisionObject*, const btCollisionObject*> prevCollision;
 };
 
 class Character {
 
 public:
 	/// Construct.
-	Character(AnimatedModel* model, AnimationController* animationController, KinematicCharacterController* kcc, Camera& camera);
+	Character(AnimatedModel* model, AnimationController* animationController, KinematicCharacterController* kcc, Camera& camera, SpatialNode* button, Lift* lift);
 
 	
 	/// Handle physics world update. Called by LogicComponent base class.
@@ -65,6 +71,9 @@ public:
 	void FixedPostUpdate(float timeStep);
 	void HandleCollision(btCollisionObject* collisionObject);
 	void HandleCollisionButton(btCollisionObject* collisionObject);
+	void ProcessCollision();
+	void BeginCollision();
+	void EndCollision();
 
 	void SetOnMovingPlatform(btRigidBody* platformBody){
 		//onMovingPlatform_ = (platformBody != NULL);
@@ -90,6 +99,7 @@ public:
 	AnimatedModel* model_;
 	CharacterTriggerCallback m_characterTriggerResult;
 	CharacterTriggerCallbackButton m_characterTriggerResultButton;
-
+	SpatialNode* button_;
 	Camera& camera;
+	Lift* lift_;
 };

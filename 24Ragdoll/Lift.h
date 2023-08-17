@@ -5,7 +5,7 @@
 #include "turso3d/Scene/SpatialNode.h"
 #include "turso3d/Renderer/StaticModel.h"
 
-class Lift {
+class Lift  {
 
 public:
 
@@ -14,10 +14,10 @@ public:
 
 	void FixedUpdate(float timeStep);
 
-	void Initialize(StaticModel* model, btRigidBody* rigidBody, const Vector3 &finishPosition, SpatialNode* liftButton);
+	void Initialize(StaticModel* model, btRigidBody* rigidBody, const Vector3 &finishPosition, StaticModel* liftButton, btCollisionObject* collisionObject);
 	void SetLiftSpeed(float speed) { maxLiftSpeed_ = speed; }
 	StaticModel* getModel();
-
+	btRigidBody* getRigidBody();
 
 
 	void SetTransitionCompleted(int toState);
@@ -28,8 +28,9 @@ public:
 protected:
 
 	WeakPtr<StaticModel> model_;
-	WeakPtr<SpatialNode> liftButtonNode_;
+	WeakPtr<StaticModel> liftButtonNode_;
 	btRigidBody* rigidBody_;
+	btCollisionObject* collisionObjectButton_;
 
 	Vector3 initialPosition_;
 	Vector3 finishPosition_;

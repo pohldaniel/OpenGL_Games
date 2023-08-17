@@ -1,5 +1,7 @@
 #pragma once
+
 #include <vector>
+#include <unordered_map>
 #include <btBulletDynamicsCommon.h>
 #include <BulletCollision/CollisionShapes/btBox2dShape.h>
 #include <BulletCollision/CollisionShapes/btCollisionShape.h>
@@ -89,6 +91,7 @@ public:
 	void postStep(btScalar timeStep);
 	void debugDrawWorld();
 	btBroadphaseInterface* getBroadphase();
+	void HandleCollisions();
 
 	btRigidBody* addStaticModel(std::vector<btCollisionShape*>& collisionShapes, const btTransform& trans, bool debugDraw = true, const btVector3& scale = btVector3(1.0f, 1.0f, 1.0f), int collisionFilterGroup = 1, int collisionFilterMask = -1);
 	//btRigidBody* addStaticModel(btCollisionShape* collisionShapes, const btTransform& trans, bool debugDraw = true, const btVector3& scale = btVector3(1.0f, 1.0f, 1.0f), int collisionFilterGroup = 1, int collisionFilterMask = -1);

@@ -1,3 +1,4 @@
+#include <iostream>
 #include "Lift.h"
 
 Lift::Lift()
@@ -7,7 +8,7 @@ Lift::Lift()
 	minLiftSpeed_(1.5f),
 	curLiftSpeed_(0.0f),
 	buttonPressed_(false),
-	buttonPressedHeight_(15.0f),
+	buttonPressedHeight_(0.15f),
 	standingOnButton_(false)
 {
 
@@ -17,33 +18,33 @@ Lift::~Lift()
 {
 }
 
-void Lift::Initialize(StaticModel* model, btRigidBody* rigidBody, const Vector3 &finishPosition, SpatialNode* liftButton)
+void Lift::Initialize(StaticModel* model, btRigidBody* rigidBody, const Vector3 &finishPosition, StaticModel* liftButton, btCollisionObject* collisionObject)
 {
 	// get other lift components
 	model_ = model;
 	liftButtonNode_ = liftButton;
 	rigidBody_ = rigidBody;
-	
+	collisionObjectButton_ = collisionObject;
 	// positions
 	initialPosition_ = model_->WorldPosition();
 	finishPosition_ = finishPosition;
 	directionToFinish_ = (finishPosition_ - initialPosition_).Normalized();
 	totalDistance_ = (finishPosition_ - initialPosition_).Length();
-
-	// events
-	//SubscribeToEvent(liftButtonNode_, E_NODECOLLISIONSTART, URHO3D_HANDLER(Lift, HandleButtonStartCollision));
-	//SubscribeToEvent(liftButtonNode_, E_NODECOLLISIONEND, URHO3D_HANDLER(Lift, HandleButtonEndCollision));
 }
 
 StaticModel* Lift::getModel() {
 	return model_;
 }
 
+btRigidBody* Lift::getRigidBody() {
+	return rigidBody_;
+}
+
 void Lift::FixedUpdate(float timeStep)
 {
 	Vector3 liftPos = model_->Position();
 	Vector3 newPos = liftPos;
-
+	Vector3 oldPos = liftPos;
 	// move lift
 	if (liftState_ == LIFT_STATE_MOVETO_FINISH)
 	{
@@ -68,6 +69,11 @@ void Lift::FixedUpdate(float timeStep)
 			SetTransitionCompleted(LIFT_STATE_FINISH);
 		}
 		model_->SetPosition(newPos);
+		rigidBody_->getMotionState()->setWorldTransform(Physics::BtTransform(btVector3(newPos.x, newPos.y, newPos.z)));
+		
+		Vector3 buttonPos = (newPos - oldPos) + liftButtonNode_->Position();;
+		liftButtonNode_->SetPosition(buttonPos);
+		collisionObjectButton_->setWorldTransform(Physics::BtTransform(btVector3(buttonPos.x, buttonPos.y, buttonPos.z)));
 	}
 	else if (liftState_ == LIFT_STATE_MOVETO_START)
 	{
@@ -91,7 +97,13 @@ void Lift::FixedUpdate(float timeStep)
 			newPos = initialPosition_;
 			SetTransitionCompleted(LIFT_STATE_START);
 		}
+
 		model_->SetPosition(newPos);
+		rigidBody_->getMotionState()->setWorldTransform(Physics::BtTransform(btVector3(newPos.x, newPos.y, newPos.z)));
+
+		Vector3 buttonPos = (newPos - oldPos) + liftButtonNode_->Position();;
+		liftButtonNode_->SetPosition(buttonPos);
+		collisionObjectButton_->setWorldTransform(Physics::BtTransform(btVector3(buttonPos.x, buttonPos.y, buttonPos.z)));
 	}
 
 	// reenable button
@@ -102,6 +114,8 @@ void Lift::FixedUpdate(float timeStep)
 		liftButtonState_ = LIFT_BUTTON_UP;
 		ButtonPressAnimate(false);
 	}
+
+	
 }
 
 void Lift::SetTransitionCompleted(int toState)
@@ -118,7 +132,7 @@ void Lift::SetTransitionCompleted(int toState)
 void Lift::ButtonPressAnimate(bool pressed)
 {
 	if (pressed)
-	{
+	{	
 		liftButtonNode_->SetPosition(liftButtonNode_->Position() + Vector3(0, -buttonPressedHeight_, 0));
 		buttonPressed_ = true;
 	}
@@ -132,7 +146,6 @@ void Lift::ButtonPressAnimate(bool pressed)
 void Lift::HandleButtonStartCollision()
 {
 	
-
 	standingOnButton_ = true;
 
 	if (liftButtonState_ == LIFT_BUTTON_UP)

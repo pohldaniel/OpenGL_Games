@@ -1,20 +1,20 @@
 #pragma once
+#pragma once
 
 #include <btBulletDynamicsCommon.h>
-#include "engine/Vector.h"
 
-class KinematicTrigger {
+class KinematicObject {
 
 public:
 
-	KinematicTrigger();
-	~KinematicTrigger();
+	KinematicObject();
+	~KinematicObject();
 
 	virtual void create(btCollisionShape* shape, const btTransform& transform, btDynamicsWorld* physicsWorld, int collisionFilterGroup = 1, int collisionFilterMask = -1, void* userPointer = NULL);
-	btCollisionObject* getCollisionObject();
+	btRigidBody* getRigidBody();
 	void setUserPointer(void* userPointer);
 
 protected:
 
-	btCollisionObject* m_collisionObject;
+	btRigidBody* m_rigidBody;
 };

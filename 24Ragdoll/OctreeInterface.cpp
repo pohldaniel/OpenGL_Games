@@ -99,17 +99,30 @@ void OctreeInterface::preStep(btScalar timeStep) {
 
 void OctreeInterface::fixedUpdate() {
 
-	m_movingPlatform->FixedUpdate(m_fdt);
+	m_character->ProcessCollision();
+
 	m_character->FixedUpdate(m_fdt);
+	m_movingPlatform->FixedUpdate(m_fdt);
+	
 	m_splinePlatform->FixedUpdate(m_fdt);
 	m_lift->FixedUpdate(m_fdt);
 
-	m_character->HandleCollision(m_platform1Trigger->getRigidBody());
-	m_character->HandleCollision(m_platform2Trigger->getRigidBody());
+
+	m_character->HandleCollision(m_kinematicPlatform1->getRigidBody());
+	m_character->HandleCollision(m_kinematicPlatform2->getRigidBody());
+	m_character->HandleCollision(m_kinematicLift->getRigidBody());
+	
 	m_character->HandleCollisionButton(m_liftButtonTrigger->getCollisionObject());
+	m_character->BeginCollision();
+	m_character->EndCollision();
+
+	
+
+
+	m_character->FixedPostUpdate(m_fdt);
 
 	Globals::physics->stepSimulation(m_fdt);
-	m_character->FixedPostUpdate(m_fdt);
+	
 }
 
 void OctreeInterface::postStep(btScalar timeStep) {
@@ -177,53 +190,27 @@ void OctreeInterface::update() {
 	if (move || dx != 0.0f || dy != 0.0f) {
 		if (dx || dy) {
 			beta->Rotate(QuaternionTu(-dx  * m_rotationSpeed, Vector3::UP));
-			m_camera.rotate(dx, dy, Vector3f(pos.x, pos.y, pos.z));
-			
+			m_camera.rotate(dx, dy, Vector3f(pos.x, pos.y, pos.z));			
 		}
-
-		/*if (move) {
-			float moveSpeed = (keyboard.keyDown(Keyboard::KEY_LSHIFT) || keyboard.keyDown(Keyboard::KEY_RSHIFT)) ? 50.0f : 5.0f;
-			m_camera.move(directrion  * m_dt * moveSpeed);
-		}*/
 	}
+
+	btTransform& t = kinematicCharacter->GetTransform();
+	btVector3 cameraPosition = Physics::VectorFrom(m_camera.getPosition());
+
+	float fraction = Physics::SweepSphere(t.getOrigin(), cameraPosition, 0.2f, Physics::collisiontypes::CAMERA, Physics::collisiontypes::FLOOR);
+	if (m_prevFraction < fraction) {
+		m_prevFraction += 0.85f * m_dt;
+		if (m_prevFraction > fraction) m_prevFraction = fraction;
+	}else {
+		m_prevFraction = fraction;
+	}
+
+	cameraPosition.setInterpolate3(t.getOrigin(), cameraPosition, m_prevFraction);
+	m_camera.setPosition(Physics::VectorFrom(cameraPosition));
 
 	m_trackball.idle();
 	m_transform.fromMatrix(m_trackball.getTransform());
 
-	// Scene animation
-	if (animate) {
-		if (rotatingObjects.size()) {
-			angle += 100.0f * m_dt;
-			QuaternionTu rotQuat(angle, Vector3::ONE);
-			for (auto it = rotatingObjects.begin(); it != rotatingObjects.end(); ++it)
-				(*it)->SetRotation(rotQuat);
-
-		}else if (animatingObjects.size()) {
-			for (auto it = animatingObjects.begin(); it != animatingObjects.end(); ++it) {
-				AnimatedModel* object = *it;
-				AnimationState* state = object->AnimationStates()[0];
-				state->AddTime(m_dt);
-				object->Translate(Vector3::FORWARD * 2.0f * m_dt);
-
-				// Rotate to avoid going outside the plane
-				Vector3 pos = object->Position();
-				if (pos.x < -45.0f || pos.x > 45.0f || pos.z < -45.0f || pos.z > 45.0f)
-					object->Yaw(45.0f * m_dt);
-			}
-		}
-		
-		//if (disk1) {
-		//	angle += 100.0f * m_dt;
-		//	QuaternionTu rotQuat(angle, Vector3::ONE);
-		//	disk1->SetRotation(rotQuat);
-		//}
-
-		//if (beta) {
-		//	AnimationState* state = beta->AnimationStates()[0];
-		//	state->AddTime(m_dt);
-		//}
-	}
-	//
 	++frameNumber;
 	if (!frameNumber)
 		++frameNumber;
@@ -486,6 +473,7 @@ void OctreeInterface::CreateScene(Scene* scene, CameraTu* camera, int preset) {
 			ramp3->SetMaterial(cache->LoadResource<MaterialTu>("Models/Models.json"));
 
 			StaticModel* lift = new StaticModel();
+			lift->SetOctree(m_octree);
 			m_octree->QueueUpdate(lift->GetDrawable());
 			lift->SetStatic(true);
 			lift->SetPosition(Vector3(35.5938f, 0.350185f, 10.4836f));
@@ -502,15 +490,17 @@ void OctreeInterface::CreateScene(Scene* scene, CameraTu* camera, int preset) {
 			liftExterior->SetMaterial(cache->LoadResource<MaterialTu>("Models/Models.json"));
 
 			StaticModel* liftButton = new StaticModel();
+			liftButton->SetOctree(m_octree);
 			m_octree->QueueUpdate(liftButton->GetDrawable());
 			liftButton->SetStatic(true);
-			liftButton->SetPosition(Vector3(35.5938f, 0.412104f, 10.4836f));
+			liftButton->SetPosition(lift->Position() + Vector3(0.0f, 0.0619186f, 0.0f));
 			liftButton->SetScale(Vector3(0.01f, 0.01f, 0.01f));
 			liftButton->SetModel(cache->LoadResource<Model>("Models/LiftButton.mdl"));
 			liftButton->SetMaterial(cache->LoadResource<MaterialTu>("Models/Models.json"));
 			
 			m_lift = new Lift();
-			m_lift->Initialize(lift, m_liftTrigger->getRigidBody(), lift->WorldPosition() + Vector3(0, 6.8f, 0), liftButton);
+			m_lift->Initialize(lift, m_kinematicLift->getRigidBody(), lift->WorldPosition() + Vector3(0, 6.8f, 0), liftButton, m_liftButtonTrigger->getCollisionObject());
+			m_kinematicLift->setUserPointer(lift);
 			m_liftButtonTrigger->setUserPointer(m_lift);
 
 			m_disk = new StaticModel();
@@ -523,8 +513,8 @@ void OctreeInterface::CreateScene(Scene* scene, CameraTu* camera, int preset) {
 			m_disk->SetMaterial(cache->LoadResource<MaterialTu>("Models/Models.json"));
 
 			m_movingPlatform = new MovingPlatform();
-			m_movingPlatform->Initialize(m_disk, m_platform1Trigger->getRigidBody(), m_disk->WorldPosition() + Vector3(0.0f, 0.0f, 20.0f), true);
-			m_platform1Trigger->setUserPointer(m_disk);
+			m_movingPlatform->Initialize(m_disk, m_kinematicPlatform1->getRigidBody(), m_disk->WorldPosition() + Vector3(0.0f, 0.0f, 20.0f), true);
+			m_kinematicPlatform1->setUserPointer(m_disk);
 
 
 			m_cylinder = new StaticModel();
@@ -538,7 +528,7 @@ void OctreeInterface::CreateScene(Scene* scene, CameraTu* camera, int preset) {
 
 
 			kinematicCharacter = new KinematicCharacterController();
-			m_character = new Character(beta, animController, kinematicCharacter, m_camera);
+			m_character = new Character(beta, animController, kinematicCharacter, m_camera, liftButton, m_lift);
 
 			m_splinePath = new SplinePath();
 
@@ -603,8 +593,8 @@ void OctreeInterface::CreateScene(Scene* scene, CameraTu* camera, int preset) {
 			m_splinePath->SetSpeed(6.0f);
 
 			m_splinePlatform = new SplinePlatform();
-			m_splinePlatform->Initialize(m_splinePath, m_platform2Trigger->getRigidBody());
-			m_platform2Trigger->setUserPointer(m_cylinder);
+			m_splinePlatform->Initialize(m_splinePath, m_kinematicPlatform2->getRigidBody());
+			m_kinematicPlatform2->setUserPointer(m_cylinder);
 		}
 	}
 	// Preset 1: high number of animating cubes
@@ -1086,25 +1076,25 @@ void OctreeInterface::createPhysics() {
 	vertexBuffer.clear(); vertexBuffer.shrink_to_fit(); indexBuffer.clear(); indexBuffer.shrink_to_fit();
 
 
-	Physics::AddRigidBody(0.0f, Physics::BtTransform(btVector3(0.0f, -0.05f, 0.0f)), new btConvexHullShape((btScalar*)(&m_baseShape.getPositions()[0]), m_baseShape.getPositions().size(), 3 * sizeof(btScalar)), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::RAY, btCollisionObject::CF_STATIC_OBJECT);
-	Globals::physics->addStaticModel(Physics::CreateCollisionShapes(&m_upperFloorShape, 1.0f), Physics::BtTransform(btVector3(30.16f, 6.98797f, 10.0099f)), false, btVector3(1.0f, 1.0f, 1.0f), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::RAY);
+	Physics::AddRigidBody(0.0f, Physics::BtTransform(btVector3(0.0f, -0.05f, 0.0f)), new btConvexHullShape((btScalar*)(&m_baseShape.getPositions()[0]), m_baseShape.getPositions().size(), 3 * sizeof(btScalar)), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::RAY | Physics::collisiontypes::CAMERA, btCollisionObject::CF_STATIC_OBJECT);
+	Globals::physics->addStaticModel(Physics::CreateCollisionShapes(&m_upperFloorShape, 1.0f), Physics::BtTransform(btVector3(30.16f, 6.98797f, 10.0099f)), false, btVector3(1.0f, 1.0f, 1.0f), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::RAY | Physics::collisiontypes::CAMERA);
 
-	Globals::physics->addStaticModel(Physics::CreateCollisionShapes(&m_rampShape, 1.0f), Physics::BtTransform(btVector3(13.5771f, 6.23965f, 10.9272f)), false, btVector3(1.0f, 1.0f, 1.0f), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::RAY);
-	Physics::AddRigidBody(0.0f, Physics::BtTransform(btVector3(-22.8933f, 2.63165f, -23.6786f)), new btConvexHullShape((btScalar*)(&m_ramp2Shape.getPositions()[0]), m_ramp2Shape.getPositions().size(), 3 * sizeof(btScalar)), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::RAY, btCollisionObject::CF_STATIC_OBJECT);
-	Physics::AddRigidBody(0.0f, Physics::BtTransform(btVector3(-15.2665f, 1.9782f, -43.135f)), new btConvexHullShape((btScalar*)(&m_ramp3Shape.getPositions()[0]), m_ramp3Shape.getPositions().size(), 3 * sizeof(btScalar)), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::RAY, btCollisionObject::CF_STATIC_OBJECT);
+	Globals::physics->addStaticModel(Physics::CreateCollisionShapes(&m_rampShape, 1.0f), Physics::BtTransform(btVector3(13.5771f, 6.23965f, 10.9272f)), false, btVector3(1.0f, 1.0f, 1.0f), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::RAY | Physics::collisiontypes::CAMERA);
+	Physics::AddRigidBody(0.0f, Physics::BtTransform(btVector3(-22.8933f, 2.63165f, -23.6786f)), new btConvexHullShape((btScalar*)(&m_ramp2Shape.getPositions()[0]), m_ramp2Shape.getPositions().size(), 3 * sizeof(btScalar)), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::RAY | Physics::collisiontypes::CAMERA, btCollisionObject::CF_STATIC_OBJECT);
+	Physics::AddRigidBody(0.0f, Physics::BtTransform(btVector3(-15.2665f, 1.9782f, -43.135f)), new btConvexHullShape((btScalar*)(&m_ramp3Shape.getPositions()[0]), m_ramp3Shape.getPositions().size(), 3 * sizeof(btScalar)), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::RAY | Physics::collisiontypes::CAMERA, btCollisionObject::CF_STATIC_OBJECT);
 
-	m_liftTrigger = new KinematicTrigger();
-	m_liftTrigger->create(Physics::CreateCollisionShape(&m_liftShape, btVector3(1.0f, 1.0f, 1.0f)), Physics::BtTransform(btVector3(35.5938f, 0.350185f, 10.4836f)), Physics::GetDynamicsWorld(), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::RAY);
-	Globals::physics->addStaticModel(Physics::CreateCollisionShapes(&m_liftExteriorShape, 1.0f), Physics::BtTransform(btVector3(35.6211f, 7.66765f, 10.4388f)), false, btVector3(1.0f, 1.0f, 1.0f), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::RAY);
+	m_kinematicLift = new KinematicObject();
+	m_kinematicLift->create(Physics::CreateCollisionShape(&m_liftShape, btVector3(1.0f, 1.0f, 1.0f)), Physics::BtTransform(btVector3(35.5938f, 0.350185f, 10.4836f)), Physics::GetDynamicsWorld(), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::RAY | Physics::collisiontypes::CAMERA);
+	Globals::physics->addStaticModel(Physics::CreateCollisionShapes(&m_liftExteriorShape, 1.0f), Physics::BtTransform(btVector3(35.6211f, 7.66765f, 10.4388f)), false, btVector3(1.0f, 1.0f, 1.0f), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::RAY | Physics::collisiontypes::CAMERA);
 	
-	m_liftButtonTrigger = new StaticTrigger();
-	m_liftButtonTrigger->create(new btCylinderShape(btVector3(80.0f, 15.0f, 1.0f) * 0.01f), Physics::BtTransform(btVector3(35.5938f, 0.412104f, 10.4836)), Physics::GetDynamicsWorld(), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::RAY);
+	m_liftButtonTrigger = new KinematicTrigger();
+	m_liftButtonTrigger->create(new btCylinderShape(btVector3(50.0f, 50.0f, 40.0f) * 0.01f), Physics::BtTransform(btVector3(35.5938f, 0.412104f, 10.4836)), Physics::GetDynamicsWorld(), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::RAY | Physics::collisiontypes::CAMERA);
+
+	m_kinematicPlatform1 = new KinematicObject();
+	m_kinematicPlatform1->create(Physics::CreateCollisionShape(&m_diskShape, btVector3(1.0f, 1.0f, 1.0f)), Physics::BtTransform(btVector3(26.1357f, 7.00645f, -34.7563f)), Physics::GetDynamicsWorld(), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::RAY | Physics::collisiontypes::CAMERA);
 	
-	m_platform1Trigger = new KinematicTrigger();
-	m_platform1Trigger->create(Physics::CreateCollisionShape(&m_diskShape, btVector3(1.0f, 1.0f, 1.0f)), Physics::BtTransform(btVector3(26.1357f, 7.00645f, -34.7563f)), Physics::GetDynamicsWorld(), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::RAY);
-	
-	m_platform2Trigger = new KinematicTrigger();
-	m_platform2Trigger->create(Physics::CreateCollisionShape(&m_cylinderShape, btVector3(1.0f, 1.0f, 1.0f)), Physics::BtTransform(btVector3(-0.294956f, 3.46579f, 28.3161f)), Physics::GetDynamicsWorld(), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::RAY);
+	m_kinematicPlatform2 = new KinematicObject();
+	m_kinematicPlatform2->create(Physics::CreateCollisionShape(&m_cylinderShape, btVector3(1.0f, 1.0f, 1.0f)), Physics::BtTransform(btVector3(-0.294956f, 3.46579f, 28.3161f)), Physics::GetDynamicsWorld(), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CHARACTER | Physics::collisiontypes::RAY | Physics::collisiontypes::CAMERA);
 
 
 	//Physics::GetDynamicsWorld()->setInternalTickCallback(OctreeInterface::PreTickCallback, static_cast<void*>(this), true);

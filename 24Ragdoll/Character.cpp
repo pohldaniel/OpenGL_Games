@@ -4,9 +4,9 @@
 #include "KinematicCharacterContoller.h"
 #include "turso3d/Renderer/AnimatedModel.h"
 #include "MovingPlatform.h"
-#include "Lift.h"
 
-Character::Character(AnimatedModel* model, AnimationController* animationController, KinematicCharacterController* kcc, Camera& camera)
+
+Character::Character(AnimatedModel* model, AnimationController* animationController, KinematicCharacterController* kcc, Camera& camera, SpatialNode* button, Lift* lift)
 	: model_(model), 
 	animController_(animationController), 
 	kinematicController_(kcc),
@@ -14,10 +14,13 @@ Character::Character(AnimatedModel* model, AnimationController* animationControl
 	okToJump_(true),
 	inAirTimer_(0.0f),
 	jumpStarted_(false),
-	camera(camera)
+	camera(camera),
+	button_(button)
 	{
 
 	kinematicController_->setUserPointer(this);
+	m_characterTriggerResult.button_ = button;
+	lift_ = lift;
 }
 
 
@@ -164,28 +167,46 @@ void Character::NodeOnMovingPlatform(SpatialNode *node) {
 	movingData_[0].transform_ = node->WorldTransform();
 }
 
+void Character::ProcessCollision() {
+
+	m_characterTriggerResultButton.prevCollision.first = m_characterTriggerResultButton.currentCollision.first;
+	m_characterTriggerResultButton.prevCollision.second = m_characterTriggerResultButton.currentCollision.second;
+	
+}
+
 void Character::HandleCollision(btCollisionObject* collisionObject) {
 	Physics::GetDynamicsWorld()->contactPairTest(kinematicController_.Get()->pairCachingGhostObject_.get(), collisionObject, m_characterTriggerResult);
 }
 
 void Character::HandleCollisionButton(btCollisionObject* collisionObject) {
-	Physics::GetDynamicsWorld()->contactPairTest(kinematicController_.Get()->pairCachingGhostObject_.get(), collisionObject, m_characterTriggerResult);
+	m_characterTriggerResultButton.currentCollision = std::make_pair(nullptr, nullptr);
+	Physics::GetDynamicsWorld()->contactPairTest(kinematicController_.Get()->pairCachingGhostObject_.get(), collisionObject, m_characterTriggerResultButton);
 }
 
-btScalar CharacterTriggerCallback::addSingleResult(btManifoldPoint& cp, const btCollisionObjectWrapper* colObj0Wrap, int partId0, int index0, const btCollisionObjectWrapper* colObj1Wrap, int partId1, int index1) {
-	
-	Character* character = reinterpret_cast<Character*>(colObj0Wrap->getCollisionObject()->getUserPointer());
-	StaticModel* model = reinterpret_cast<StaticModel*>(colObj1Wrap->getCollisionObject()->getUserPointer());
-	character->NodeOnMovingPlatform(model);
 
+void Character::BeginCollision() {
+	if (m_characterTriggerResultButton.currentCollision.first && m_characterTriggerResultButton.prevCollision.second == nullptr) {
+		Lift* lift = reinterpret_cast<Lift*>(m_characterTriggerResultButton.currentCollision.second->getUserPointer());
+		lift->HandleButtonStartCollision();
+	}
+}
+
+void Character::EndCollision() {
+	if (m_characterTriggerResultButton.currentCollision.first == nullptr && m_characterTriggerResultButton.prevCollision.second) {
+		Lift* lift = reinterpret_cast<Lift*>(m_characterTriggerResultButton.prevCollision.second->getUserPointer());
+		lift->HandleButtonEndCollision();
+	}
+}
+
+btScalar CharacterTriggerCallback::addSingleResult(btManifoldPoint& cp, const btCollisionObjectWrapper* colObj0Wrap, int partId0, int index0, const btCollisionObjectWrapper* colObj1Wrap, int partId1, int index1) {	
+	Character* character = reinterpret_cast<Character*>(colObj0Wrap->getCollisionObject()->getUserPointer());
+	SpatialNode* model = reinterpret_cast<SpatialNode*>(colObj1Wrap->getCollisionObject()->getUserPointer());
+	character->NodeOnMovingPlatform(model);
 	return 0;
 }
 
-btScalar CharacterTriggerCallbackButton::addSingleResult(btManifoldPoint& cp, const btCollisionObjectWrapper* colObj0Wrap, int partId0, int index0, const btCollisionObjectWrapper* colObj1Wrap, int partId1, int index1) {
-
-	Character* character = reinterpret_cast<Character*>(colObj0Wrap->getCollisionObject()->getUserPointer());
-	Lift* lift = reinterpret_cast<Lift*>(colObj1Wrap->getCollisionObject()->getUserPointer());
-
-	lift->HandleButtonStartCollision();
+btScalar CharacterTriggerCallbackButton::addSingleResult(btManifoldPoint& cp, const btCollisionObjectWrapper* colObj0Wrap, int partId0, int index0, const btCollisionObjectWrapper* colObj1Wrap, int partId1, int index1) {	
+	currentCollision.first = colObj0Wrap->getCollisionObject();
+	currentCollision.second = colObj1Wrap->getCollisionObject();
 	return 0;
 }

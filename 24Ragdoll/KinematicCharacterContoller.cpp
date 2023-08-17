@@ -167,6 +167,10 @@ const QuaternionTu& KinematicCharacterController::GetRotation() {
 	return rotation_;
 }
 
+btTransform& KinematicCharacterController::GetTransform() {
+	return pairCachingGhostObject_->getWorldTransform();
+}
+
 void KinematicCharacterController::GetTransform(Vector3& position, QuaternionTu& rotation) {
 	btTransform worldTrans = pairCachingGhostObject_->getWorldTransform();
 	rotation = ToQuaternion(worldTrans.getRotation());

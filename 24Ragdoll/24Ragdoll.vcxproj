@@ -213,6 +213,7 @@
     <ClCompile Include="HeightField.cpp" />
     <ClCompile Include="heightfield128x128.cpp" />
     <ClCompile Include="KinematicCharacterContoller.cpp" />
+    <ClCompile Include="KinematicObject.cpp" />
     <ClCompile Include="KinematicTrigger.cpp" />
     <ClCompile Include="Lift.cpp" />
     <ClCompile Include="LiftButton.cpp" />
@@ -402,6 +403,7 @@
     <ClInclude Include="engine\VolumeBuffer.h" />
     <ClInclude Include="HeightField.h" />
     <ClInclude Include="KinematicCharacterContoller.h" />
+    <ClInclude Include="KinematicObject.h" />
     <ClInclude Include="KinematicTrigger.h" />
     <ClInclude Include="Lift.h" />
     <ClInclude Include="LiftButton.h" />
