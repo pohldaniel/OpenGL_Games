@@ -103,8 +103,7 @@ void Character::FixedUpdate(float timeStep) {
 
 			//float slopeDot = result.normal_.DotProduct(Vector3(0.0f, 1.0f, 0.0f));
 
-			if (result.body_ && result.distance_ > 0.7f)
-			{
+			if (result.distance_ > 0.7f){
 				animController_->PlayExclusive("Beta/Beta_JumpLoop1.ani", 0, true, 0.2f);
 			}
 			//else if (result.body_ == NULL)
