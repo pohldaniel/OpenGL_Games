@@ -25,7 +25,7 @@
 
 
 class ObjModel;
-struct BoundingBox {
+struct BoundingBoxS {
 
 	void createBuffer();
 	void drawRaw();
@@ -97,7 +97,7 @@ class ObjMesh;
 class ObjModel {
 
 	friend ObjMesh;
-	friend BoundingBox;
+	friend BoundingBoxS;
 	friend BoundingSphere;
 	friend ConvexHull;
 
@@ -138,7 +138,7 @@ public:
 
 	std::string getMltPath();
 	std::string getModelDirectory();
-	BoundingBox& getAABB();
+	BoundingBoxS& getAABB();
 	BoundingSphere& getBoundingSphere();
 	ConvexHull& getConvexHull();
 	Transform& getTransform();
@@ -169,7 +169,7 @@ private:
 
 	Vector3f m_center;
 	
-	BoundingBox aabb;
+	BoundingBoxS aabb;
 	BoundingSphere boundingSphere;
 	ConvexHull convexHull;
 

@@ -54,7 +54,7 @@ public:
 	bool loadModel(const char* filename, bool isStacked = false, bool generateTangents = false);
 
 	std::string getModelDirectory();
-	BoundingBox& getAABB();
+	BoundingBoxS& getAABB();
 	Transform& getTransform();
 	std::vector<AssimpMesh*> getMeshes();
 	const AssimpMesh* getMesh(unsigned short index = 0) const;
@@ -79,7 +79,7 @@ private:
 	std::string m_modelDirectory;
 
 	Vector3f m_center;
-	BoundingBox aabb;
+	BoundingBoxS aabb;
 
 	std::unordered_map<int, Shader*> m_shader;
 	AssetManager<Shader> m_shaderManager;

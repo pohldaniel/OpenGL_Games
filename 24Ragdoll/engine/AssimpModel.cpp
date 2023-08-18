@@ -88,7 +88,7 @@ const AssimpMesh* AssimpModel::getMesh(unsigned short index) const {
 	return m_meshes[index];
 }
 
-BoundingBox& AssimpModel::getAABB() {
+BoundingBoxS& AssimpModel::getAABB() {
 	return aabb;
 }
 

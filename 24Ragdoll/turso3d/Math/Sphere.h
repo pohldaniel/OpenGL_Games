@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "BoundingBox.h"
+#include "BoundingBoxTu.h"
 
 class Polyhedron;
 class FrustumTu;
@@ -44,7 +44,7 @@ public:
     }
     
     /// Construct from a bounding box.
-    Sphere(const BoundingBox& box)
+    Sphere(const BoundingBoxTu& box)
     {
         Define(box);
     }
@@ -91,7 +91,7 @@ public:
     /// Define from an array of vertices.
     void Define(const Vector3* vertices, size_t count);
     /// Define from a bounding box.
-    void Define(const BoundingBox& box);
+    void Define(const BoundingBoxTu& box);
     /// Define from a frustum.
     void Define(const FrustumTu& frustum);
     /// Define from a polyhedron.
@@ -128,7 +128,7 @@ public:
     /// Merge an array of vertices.
     void Merge(const Vector3* vertices, size_t count);
     /// Merge a bounding box.
-    void Merge(const BoundingBox& box);
+    void Merge(const BoundingBoxTu& box);
     /// Merge a frustum.
     void Merge(const FrustumTu& frustum);
     /// Merge a polyhedron.
@@ -174,7 +174,7 @@ public:
     }
     
     /// Test if a bounding box is inside, outside or intersects.
-    Intersection IsInside(const BoundingBox& box) const
+    Intersection IsInside(const BoundingBoxTu& box) const
     {
         float radiusSquared = radius * radius;
         
@@ -200,7 +200,7 @@ public:
     }
 
     /// Test if a bounding box is (partially) inside or outside.
-    Intersection IsInsideFast(const BoundingBox& box) const
+    Intersection IsInsideFast(const BoundingBoxTu& box) const
     {
         float radiusSquared = radius * radius;
 

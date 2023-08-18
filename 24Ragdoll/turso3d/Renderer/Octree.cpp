@@ -74,12 +74,12 @@ Octant::~Octant()
     }
 }
 
-void Octant::Initialize(Octant* parent_, const BoundingBox& boundingBox, unsigned char level_, unsigned char childIndex_)
+void Octant::Initialize(Octant* parent_, const BoundingBoxTu& boundingBox, unsigned char level_, unsigned char childIndex_)
 {
-    BoundingBox worldBoundingBox = boundingBox;
+	BoundingBoxTu worldBoundingBox = boundingBox;
     center = worldBoundingBox.Center();
     halfSize = worldBoundingBox.HalfSize();
-    fittingBox = BoundingBox(worldBoundingBox.min - halfSize, worldBoundingBox.max + halfSize);
+    fittingBox = BoundingBoxTu(worldBoundingBox.min - halfSize, worldBoundingBox.max + halfSize);
 
     parent = parent_;
     level = level_;
@@ -140,7 +140,7 @@ void Octant::OnOcclusionQueryResult(bool visible)
     }
 }
 
-const BoundingBox& Octant::CullingBox() const
+const BoundingBoxTu& Octant::CullingBox() const
 {
     if (TestFlag(OF_CULLING_BOX_DIRTY))
     {
@@ -149,7 +149,7 @@ const BoundingBox& Octant::CullingBox() const
         else
         {
             // Use a temporary bounding box for calculations in case many threads call this simultaneously
-            BoundingBox tempBox;
+			BoundingBoxTu tempBox;
 
             for (auto it = drawables.begin(); it != drawables.end(); ++it)
                 tempBox.Merge((*it)->WorldBoundingBox());
@@ -179,7 +179,7 @@ Octree::Octree() :
 {
     assert(workQueue);
 
-    root.Initialize(nullptr, BoundingBox(-DEFAULT_OCTREE_SIZE, DEFAULT_OCTREE_SIZE), DEFAULT_OCTREE_LEVELS, 0);
+    root.Initialize(nullptr, BoundingBoxTu(-DEFAULT_OCTREE_SIZE, DEFAULT_OCTREE_SIZE), DEFAULT_OCTREE_LEVELS, 0);
 
     // Have at least 1 task for reinsert processing
     reinsertTasks.push_back(new ReinsertDrawablesTask(this, &Octree::CheckReinsertWork));
@@ -275,7 +275,7 @@ void Octree::FinishUpdate()
     sortDirtyOctants.clear();
 }
 
-void Octree::Resize(const BoundingBox& boundingBox, int numLevels)
+void Octree::Resize(const BoundingBoxTu& boundingBox, int numLevels)
 {
     ZoneScoped;
 
@@ -369,7 +369,7 @@ void Octree::QueueUpdate(Drawable* drawable)
         drawable->lastUpdateFrameNumber = frameNumber;
 
         // Do nothing if still fits the current octant
-        const BoundingBox& box = drawable->WorldBoundingBox();
+        const BoundingBoxTu& box = drawable->WorldBoundingBox();
         Octant* oldOctant = drawable->GetOctant();
         if (!oldOctant || oldOctant->fittingBox.IsInside(box) != INSIDE)
         {
@@ -399,12 +399,12 @@ void Octree::RemoveDrawable(Drawable* drawable)
     drawable->octant = nullptr;
 }
 
-void Octree::SetBoundingBoxAttr(const BoundingBox& value)
+void Octree::SetBoundingBoxAttr(const BoundingBoxTu& value)
 {
     worldBoundingBox = value;
 }
 
-const BoundingBox& Octree::BoundingBoxAttr() const
+const BoundingBoxTu& Octree::BoundingBoxAttr() const
 {
     return worldBoundingBox;
 }
@@ -426,7 +426,7 @@ void Octree::ReinsertDrawables(std::vector<Drawable*>& drawables)
     {
         Drawable* drawable = *it;
 
-        const BoundingBox& box = drawable->WorldBoundingBox();
+        const BoundingBoxTu& box = drawable->WorldBoundingBox();
         Octant* oldOctant = drawable->GetOctant();
         Octant* newOctant = &root;
         Vector3 boxSize = box.Size();
@@ -497,7 +497,7 @@ Octant* Octree::CreateChildOctant(Octant* octant, unsigned char index)
         newMax.z = oldCenter.z;
 
     Octant* child = allocator.Allocate();
-    child->Initialize(octant, BoundingBox(newMin, newMax), octant->level - 1, index);
+    child->Initialize(octant, BoundingBoxTu(newMin, newMax), octant->level - 1, index);
     octant->children[index] = child;
     ++octant->numChildren;
 
@@ -649,7 +649,7 @@ void Octree::CheckReinsertWork(Task* task_, unsigned threadIndex_)
         drawable->lastUpdateFrameNumber = frameNumber;
 
         // Do nothing if still fits the current octant
-        const BoundingBox& box = drawable->WorldBoundingBox();
+        const BoundingBoxTu& box = drawable->WorldBoundingBox();
         Octant* oldOctant = drawable->GetOctant();
         if (!oldOctant || oldOctant->fittingBox.IsInside(box) != INSIDE)
             reinsertQueue.push_back(drawable);

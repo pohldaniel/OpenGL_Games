@@ -1,6 +1,6 @@
 // For conditions of distribution and use, see copyright notice in License.txt
 
-#include "BoundingBox.h"
+#include "BoundingBoxTu.h"
 #include "FrustumTu.h"
 #include "Plane.h"
 #include "Ray.h"
@@ -42,7 +42,7 @@ float Ray::HitDistance(const Plane& plane) const
         return M_INFINITY;
 }
 
-float Ray::HitDistance(const BoundingBox& box) const
+float Ray::HitDistance(const BoundingBoxTu& box) const
 {
     // Check for ray origin being inside the box
     if (box.IsInside(origin))

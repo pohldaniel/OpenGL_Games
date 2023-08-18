@@ -299,14 +299,14 @@ bool Model::BeginLoad(Stream& source)
 			}
 			if (boneCollisionType & 2)
 			{
-				bone.boundingBox = source.Read<BoundingBox>();
+				bone.boundingBox = source.Read<BoundingBoxTu>();
 				if (bone.boundingBox.Size().Length() < BONE_SIZE_THRESHOLD)
 					bone.active = false;
 			}
 		}
 
 		// Read bounding box
-		boundingBox = source.Read<BoundingBox>();
+		boundingBox = source.Read<BoundingBoxTu>();
 
 		return true;
 	}else if (fileID.compare("UMD2") == 0){
@@ -429,14 +429,14 @@ bool Model::BeginLoad(Stream& source)
 			}
 			if (boneCollisionType & 2)
 			{
-				bone.boundingBox = source.Read<BoundingBox>();
+				bone.boundingBox = source.Read<BoundingBoxTu>();
 				if (bone.boundingBox.Size().Length() < BONE_SIZE_THRESHOLD)
 					bone.active = false;
 			}
 		}
 
 		// Read bounding box
-		boundingBox = source.Read<BoundingBox>();
+		boundingBox = source.Read<BoundingBoxTu>();
 
 		return true;
 	}else {
@@ -688,7 +688,7 @@ void Model::SetNumLodLevels(size_t index, size_t num)
     }
 }
 
-void Model::SetLocalBoundingBox(const BoundingBox& box)
+void Model::SetLocalBoundingBox(const BoundingBoxTu& box)
 {
     boundingBox = box;
 }

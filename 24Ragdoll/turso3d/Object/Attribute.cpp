@@ -4,7 +4,7 @@
 #include "../IO/ObjectRef.h"
 #include "../IO/ResourceRef.h"
 #include "../IO/StringUtils.h"
-#include "../Math/BoundingBox.h"
+#include "../Math/BoundingBoxTu.h"
 #include "../Math/Color.h"
 #include "../Math/IntRect.h"
 #include "../Math/IntBox.h"
@@ -57,7 +57,7 @@ const size_t Attribute::byteSizes[] =
     sizeof(QuaternionTu),
     sizeof(Color),
     sizeof(Rect),
-    sizeof(BoundingBox),
+    sizeof(BoundingBoxTu),
     sizeof(Matrix3),
     sizeof(Matrix3x4),
     sizeof(Matrix4),
@@ -200,7 +200,7 @@ void Attribute::FromJSON(AttributeType type, void* dest, const JSONValue& source
         break;
 
     case ATTR_BOUNDINGBOX:
-        reinterpret_cast<BoundingBox*>(dest)->FromString(source.GetString());
+        reinterpret_cast<BoundingBoxTu*>(dest)->FromString(source.GetString());
         break;
 
     case ATTR_MATRIX3:
@@ -305,7 +305,7 @@ void Attribute::ToJSON(AttributeType type, JSONValue& dest, const void* source)
         break;
 
     case ATTR_BOUNDINGBOX:
-        dest = reinterpret_cast<const BoundingBox*>(source)->ToString();
+        dest = reinterpret_cast<const BoundingBoxTu*>(source)->ToString();
         break;
 
     case ATTR_MATRIX3:
@@ -430,7 +430,7 @@ template<> AttributeType AttributeImpl<Color>::Type() const
     return ATTR_COLOR;
 }
 
-template<> AttributeType AttributeImpl<BoundingBox>::Type() const
+template<> AttributeType AttributeImpl<BoundingBoxTu>::Type() const
 {
     return ATTR_BOUNDINGBOX;
 }

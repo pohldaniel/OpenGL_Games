@@ -1,6 +1,6 @@
  // For conditions of distribution and use, see copyright notice in License.txt
 
-#include "BoundingBox.h"
+#include "BoundingBoxTu.h"
 #include "FrustumTu.h"
 #include "Polyhedron.h"
 #include "Sphere.h"
@@ -11,7 +11,7 @@ void Sphere::Define(const Vector3* vertices, size_t count)
     Merge(vertices, count);
 }
 
-void Sphere::Define(const BoundingBox& box)
+void Sphere::Define(const BoundingBoxTu& box)
 {
     const Vector3& min = box.min;
     const Vector3& max = box.max;
@@ -44,7 +44,7 @@ void Sphere::Merge(const Vector3* vertices, size_t count)
         Merge(*vertices++);
 }
 
-void Sphere::Merge(const BoundingBox& box)
+void Sphere::Merge(const BoundingBoxTu& box)
 {
     const Vector3& min = box.min;
     const Vector3& max = box.max;

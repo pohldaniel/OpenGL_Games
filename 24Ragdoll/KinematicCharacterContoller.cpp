@@ -3,7 +3,7 @@
 
 //=============================================================================
 //=============================================================================
-const float STEP_HEIGHT = 0.6f;
+const float STEP_HEIGHT = 0.65f;
 const float JUMP_HEIGHT = 4.0f;
 const float FALL_SPEED = 55.0f;
 const float JUMP_SPEED = 12.0f;

@@ -85,7 +85,7 @@ struct ThreadBatchResult
 	/// Maximum geometry Z value.
 	float maxZ;
 	/// Combined bounding box of the visible geometries.
-	BoundingBox geometryBounds;
+	BoundingBoxTu geometryBounds;
 	/// Initial opaque batches.
 	std::vector<Batch> opaqueBatches;
 	/// Initial alpha batches.
@@ -181,7 +181,7 @@ struct ClusterCullData
 	/// Cluster frustum.
 	FrustumTu frustum;
 	/// Cluster bounding box.
-	BoundingBox boundingBox;
+	BoundingBoxTu boundingBox;
 	/// Number of lights already in cluster.
 	unsigned char numLights;
 };
@@ -306,7 +306,7 @@ private:
 	/// Maximum Z value for all geometries in frustum.
 	float maxZ;
 	/// Combined bounding box of the visible geometries.
-	BoundingBox geometryBounds;
+	BoundingBoxTu geometryBounds;
 	/// Brightest directional light in frustum.
 	LightDrawable* dirLight;
 	/// Accepted point and spot lights in frustum.

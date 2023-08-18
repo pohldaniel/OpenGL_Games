@@ -1,6 +1,6 @@
 // For conditions of distribution and use, see copyright notice in License.txt
 
-#include "BoundingBox.h"
+#include "BoundingBoxTu.h"
 #include "FrustumTu.h"
 #include "Polyhedron.h"
 #include "../IO/StringUtils.h"
@@ -8,24 +8,24 @@
 #include <utility>
 #include <cstdlib>
 
-void BoundingBox::Define(const Vector3* vertices, size_t count)
+void BoundingBoxTu::Define(const Vector3* vertices, size_t count)
 {
     Undefine();
     Merge(vertices, count);
 }
 
-void BoundingBox::Define(const FrustumTu& frustum)
+void BoundingBoxTu::Define(const FrustumTu& frustum)
 {
     Define(frustum.vertices, NUM_FRUSTUM_VERTICES);
 }
 
-void BoundingBox::Define(const Polyhedron& poly)
+void BoundingBoxTu::Define(const Polyhedron& poly)
 {
     Undefine();
     Merge(poly);
 }
 
-void BoundingBox::Define(const Sphere& sphere)
+void BoundingBoxTu::Define(const Sphere& sphere)
 {
     const Vector3& center = sphere.center;
     float radius = sphere.radius;
@@ -34,18 +34,18 @@ void BoundingBox::Define(const Sphere& sphere)
     max = center + Vector3(radius, radius, radius);
 }
 
-void BoundingBox::Merge(const Vector3* vertices, size_t count)
+void BoundingBoxTu::Merge(const Vector3* vertices, size_t count)
 {
     while (count--)
         Merge(*vertices++);
 }
 
-void BoundingBox::Merge(const FrustumTu& frustum)
+void BoundingBoxTu::Merge(const FrustumTu& frustum)
 {
     Merge(frustum.vertices, NUM_FRUSTUM_VERTICES);
 }
 
-void BoundingBox::Merge(const Polyhedron& poly)
+void BoundingBoxTu::Merge(const Polyhedron& poly)
 {
     for (size_t i = 0; i < poly.faces.size(); ++i)
     {
@@ -55,7 +55,7 @@ void BoundingBox::Merge(const Polyhedron& poly)
     }
 }
 
-void BoundingBox::Merge(const Sphere& sphere)
+void BoundingBoxTu::Merge(const Sphere& sphere)
 {
     const Vector3& center = sphere.center;
     float radius = sphere.radius;
@@ -64,7 +64,7 @@ void BoundingBox::Merge(const Sphere& sphere)
     Merge(center + Vector3(-radius, -radius, -radius));
 }
 
-void BoundingBox::Clip(const BoundingBox& box)
+void BoundingBoxTu::Clip(const BoundingBoxTu& box)
 {
     if (box.min.x > min.x)
         min.x = box.min.x;
@@ -87,17 +87,17 @@ void BoundingBox::Clip(const BoundingBox& box)
         std::swap(min.z, max.z);
 }
 
-void BoundingBox::Transform(const Matrix3& transform)
+void BoundingBoxTu::Transform(const Matrix3& transform)
 {
     *this = Transformed(Matrix3x4(transform));
 }
 
-void BoundingBox::Transform(const Matrix3x4& transform)
+void BoundingBoxTu::Transform(const Matrix3x4& transform)
 {
     *this = Transformed(transform);
 }
 
-bool BoundingBox::FromString(const char* string)
+bool BoundingBoxTu::FromString(const char* string)
 {
     size_t elements = CountElements(string);
     if (elements < 6)
@@ -114,12 +114,12 @@ bool BoundingBox::FromString(const char* string)
     return true;
 }
 
-BoundingBox BoundingBox::Transformed(const Matrix3& transform) const
+BoundingBoxTu BoundingBoxTu::Transformed(const Matrix3& transform) const
 {
     return Transformed(Matrix3x4(transform));
 }
 
-BoundingBox BoundingBox::Transformed(const Matrix3x4& transform) const
+BoundingBoxTu BoundingBoxTu::Transformed(const Matrix3x4& transform) const
 {
     Vector3 oldCenter = Center();
     Vector3 oldEdge = max - oldCenter;
@@ -130,10 +130,10 @@ BoundingBox BoundingBox::Transformed(const Matrix3x4& transform) const
         Abs(transform.m20) * oldEdge.x + Abs(transform.m21) * oldEdge.y + Abs(transform.m22) * oldEdge.z
     );
     
-    return BoundingBox(newCenter - newEdge, newCenter + newEdge);
+    return BoundingBoxTu(newCenter - newEdge, newCenter + newEdge);
 }
 
-Rect BoundingBox::Projected(const Matrix4& projection) const
+Rect BoundingBoxTu::Projected(const Matrix4& projection) const
 {
     Vector3 projMin = min;
     Vector3 projMax = max;
@@ -162,7 +162,7 @@ Rect BoundingBox::Projected(const Matrix4& projection) const
     return rect;
 }
 
-Intersection BoundingBox::IsInside(const Sphere& sphere) const
+Intersection BoundingBoxTu::IsInside(const Sphere& sphere) const
 {
     float distSquared = 0;
     float temp;
@@ -209,7 +209,7 @@ Intersection BoundingBox::IsInside(const Sphere& sphere) const
         return INSIDE;
 }
 
-Intersection BoundingBox::IsInsideFast(const Sphere& sphere) const
+Intersection BoundingBoxTu::IsInsideFast(const Sphere& sphere) const
 {
     float distSquared = 0;
     float temp;
@@ -254,7 +254,7 @@ Intersection BoundingBox::IsInsideFast(const Sphere& sphere) const
 }
 
 
-std::string BoundingBox::ToString() const
+std::string BoundingBoxTu::ToString() const
 {
     return min.ToString() + " " + max.ToString();
 }

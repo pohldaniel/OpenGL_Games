@@ -193,6 +193,7 @@
     <ClCompile Include="engine\MeshObject\MeshTorus.cpp" />
     <ClCompile Include="engine\MeshObject\Shape.cpp" />
     <ClCompile Include="engine\ObjModel.cpp" />
+    <ClCompile Include="engine\OctreeNew.cpp" />
     <ClCompile Include="engine\PerlinNoise.cpp" />
     <ClCompile Include="engine\Quad.cpp" />
     <ClCompile Include="engine\Random.cpp" />
@@ -235,6 +236,7 @@
     <ClCompile Include="Menu.cpp" />
     <ClCompile Include="MousePicker.cpp" />
     <ClCompile Include="MovingPlatform.cpp" />
+    <ClCompile Include="KCCInterface.cpp" />
     <ClCompile Include="OctreeInterface.cpp" />
     <ClCompile Include="PhysicsCar.cpp" />
     <ClCompile Include="Player.cpp" />
@@ -269,7 +271,7 @@
     <ClCompile Include="turso3d\IO\StringUtils.cpp" />
     <ClCompile Include="turso3d\IO\VectorBuffer.cpp" />
     <ClCompile Include="turso3d\Math\AreaAllocator.cpp" />
-    <ClCompile Include="turso3d\Math\BoundingBox.cpp" />
+    <ClCompile Include="turso3d\Math\BoundingBoxTu.cpp" />
     <ClCompile Include="turso3d\Math\Color.cpp" />
     <ClCompile Include="turso3d\Math\FrustumTu.cpp" />
     <ClCompile Include="turso3d\Math\IntBox.cpp" />
@@ -352,6 +354,7 @@
     <ClInclude Include="engine\ArrayBuffer.h" />
     <ClInclude Include="engine\CubeBuffer.h" />
     <ClInclude Include="engine\input\Mouse.h" />
+    <ClInclude Include="engine\OctreeNew.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="Globals.h" />
     <ClInclude Include="convhull\convhull_3d.h" />
@@ -424,6 +427,7 @@
     <ClInclude Include="Menu.h" />
     <ClInclude Include="MousePicker.h" />
     <ClInclude Include="MovingPlatform.h" />
+    <ClInclude Include="KCCInterface.h" />
     <ClInclude Include="OctreeInterface.h" />
     <ClInclude Include="PhysicsCar.h" />
     <ClInclude Include="Player.h" />
@@ -458,7 +462,7 @@
     <ClInclude Include="turso3d\IO\StringUtils.h" />
     <ClInclude Include="turso3d\IO\VectorBuffer.h" />
     <ClInclude Include="turso3d\Math\AreaAllocator.h" />
-    <ClInclude Include="turso3d\Math\BoundingBox.h" />
+    <ClInclude Include="turso3d\Math\BoundingBoxTu.h" />
     <ClInclude Include="turso3d\Math\Color.h" />
     <ClInclude Include="turso3d\Math\FrustumTu.h" />
     <ClInclude Include="turso3d\Math\IntBox.h" />

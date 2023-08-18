@@ -146,7 +146,7 @@ public:
 
 protected:
     /// Combined bounding box of the bones in model space, used for quick updates when only the node moves without animation
-    mutable BoundingBox boneBoundingBox;
+    mutable BoundingBoxTu boneBoundingBox;
     /// Internal dirty status flags.
     mutable unsigned char animatedModelFlags;
     /// Number of bones.

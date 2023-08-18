@@ -533,7 +533,7 @@ TextureTu* Renderer::ShadowMapTexture(size_t index) const
 
 void Renderer::CollectOctantsAndLights(Octant* octant, ThreadOctantResult& result, unsigned char planeMask)
 {
-	const BoundingBox& octantBox = octant->CullingBox();
+	const BoundingBoxTu& octantBox = octant->CullingBox();
 
 	if (planeMask)
 	{
@@ -603,7 +603,7 @@ void Renderer::CollectOctantsAndLights(Octant* octant, ThreadOctantResult& resul
 
 		if (drawable->TestFlag(DF_LIGHT))
 		{
-			const BoundingBox& lightBox = drawable->WorldBoundingBox();
+			const BoundingBoxTu& lightBox = drawable->WorldBoundingBox();
 			if ((drawable->LayerMask() & viewMask) && (!planeMask || frustum.IsInsideMaskedFast(lightBox, planeMask)) && drawable->OnPrepareRender(frameNumber, camera))
 				result.lights.push_back(static_cast<LightDrawable*>(drawable));
 		}
@@ -960,8 +960,8 @@ void Renderer::RenderOcclusionQueries()
 		{
 			Octant* octant = *it;
 
-			const BoundingBox& octantBox = octant->CullingBox();
-			BoundingBox box(octantBox.min - enlargement, octantBox.max + enlargement);
+			const BoundingBoxTu& octantBox = octant->CullingBox();
+			BoundingBoxTu box(octantBox.min - enlargement, octantBox.max + enlargement);
 
 			// If bounding box could be clipped by near plane, assume visible without performing query
 			if (box.Distance(cameraPosition) < 2.0f * nearClip)
@@ -1109,7 +1109,7 @@ void Renderer::DefineClusterFrustums()
 				for (size_t x = 0; x < NUM_CLUSTER_X; ++x)
 				{
 					FrustumTu& clusterFrustum = clusterCullData[idx].frustum;
-					BoundingBox& clusterBox = clusterCullData[idx].boundingBox;
+					BoundingBoxTu& clusterBox = clusterCullData[idx].boundingBox;
 
 					clusterFrustum.vertices[0] = cameraProjInverse * Vector3(-1.0f + xStep * (x + 1), 1.0f - yStep * y, near);
 					clusterFrustum.vertices[1] = cameraProjInverse * Vector3(-1.0f + xStep * (x + 1), 1.0f - yStep * (y + 1), near);
@@ -1337,7 +1337,7 @@ void Renderer::CollectBatchesWork(Task* task_, unsigned threadIndex)
 
 			if (drawable->TestFlag(DF_GEOMETRY) && (drawable->LayerMask() & viewMask))
 			{
-				const BoundingBox& geometryBox = drawable->WorldBoundingBox();
+				const BoundingBoxTu& geometryBox = drawable->WorldBoundingBox();
 
 				// Note: to strike a balance between performance and occlusion accuracy, per-geometry occlusion tests are skipped for now,
 				// as octants are already tested with combined actual drawable bounds
@@ -1429,7 +1429,7 @@ void Renderer::CollectShadowCastersWork(Task* task, unsigned)
 			light->SetupShadowView(i, camera);
 			ShadowView& view = shadowViews[i];
 
-			if (!frustum.IsInsideFast(BoundingBox(view.shadowFrustum)))
+			if (!frustum.IsInsideFast(BoundingBoxTu(view.shadowFrustum)))
 			{
 				view.renderMode = RENDER_STATIC_LIGHT_CACHED;
 				view.viewport = IntRect::ZERO;
@@ -1571,7 +1571,7 @@ void Renderer::CollectShadowBatchesWork(Task* task_, unsigned)
 			size_t staticShadowCasters = 0;
 
 			FrustumTu lightViewFrustum = camera->WorldSplitFrustum(splitMinZ, splitMaxZ).Transformed(lightView);
-			BoundingBox lightViewFrustumBox(lightViewFrustum);
+			BoundingBoxTu lightViewFrustumBox(lightViewFrustum);
 
 			BatchQueue* destStatic = !dynamicOrDirLight ? &shadowMap.shadowBatches[view.staticQueueIdx] : nullptr;
 			BatchQueue* destDynamic = &shadowMap.shadowBatches[view.dynamicQueueIdx];
@@ -1579,7 +1579,7 @@ void Renderer::CollectShadowBatchesWork(Task* task_, unsigned)
 			for (auto it = initialShadowCasters.begin(); it != initialShadowCasters.end(); ++it)
 			{
 				Drawable* drawable = *it;
-				const BoundingBox& geometryBox = drawable->WorldBoundingBox();
+				const BoundingBoxTu& geometryBox = drawable->WorldBoundingBox();
 
 				bool inView = drawable->InView(frameNumber);
 				bool staticNode = drawable->IsStatic();
@@ -1592,7 +1592,7 @@ void Renderer::CollectShadowBatchesWork(Task* task_, unsigned)
 				// This is done only for dynamic objects or dynamic lights' shadows; cached static shadowmap needs to render everything
 				if ((!staticNode || dynamicOrDirLight) && !inView)
 				{
-					BoundingBox lightViewBox = geometryBox.Transformed(lightView);
+					BoundingBoxTu lightViewBox = geometryBox.Transformed(lightView);
 
 					if (lightType == LIGHT_DIRECTIONAL)
 					{
@@ -1616,7 +1616,7 @@ void Renderer::CollectShadowBatchesWork(Task* task_, unsigned)
 						// than necessary, so the test will be conservative
 						Vector3 newCenter = extrusionDistance * extrusionRay.direction;
 						Vector3 newHalfSize = lightViewBox.Size() * sizeFactor * 0.5f;
-						BoundingBox extrudedBox(newCenter - newHalfSize, newCenter + newHalfSize);
+						BoundingBoxTu extrudedBox(newCenter - newHalfSize, newCenter + newHalfSize);
 						lightViewBox.Merge(extrudedBox);
 
 						if (!lightViewFrustum.IsInsideFast(lightViewBox))
@@ -1783,7 +1783,7 @@ void Renderer::CullLightsToFrustumWork(Task* task, unsigned)
 		else if (lightType == LIGHT_SPOT)
 		{
 			FrustumTu bounds(light->WorldFrustum().Transformed(cameraView));
-			BoundingBox boundsBox(bounds);
+			BoundingBoxTu boundsBox(bounds);
 			float minViewZ = boundsBox.min.z;
 			float maxViewZ = boundsBox.max.z;
 

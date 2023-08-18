@@ -60,7 +60,7 @@ void DebugRenderer::AddLine(const Vector3& start, const Vector3& end, unsigned c
     dest.push_back(startVertex + 1);
 }
 
-void DebugRenderer::AddBoundingBox(const BoundingBox& box, const Color& color, bool depthTest)
+void DebugRenderer::AddBoundingBox(const BoundingBoxTu& box, const Color& color, bool depthTest)
 {
     unsigned startVertex = (unsigned)vertices.size();
     unsigned uintColor = color.ToUInt();
@@ -116,7 +116,7 @@ void DebugRenderer::AddBoundingBox(const BoundingBox& box, const Color& color, b
     dest.push_back(startVertex + 6);
 }
 
-void DebugRenderer::AddBoundingBox(const BoundingBox& box, const Matrix3x4& transform, const Color& color, bool depthTest)
+void DebugRenderer::AddBoundingBox(const BoundingBoxTu& box, const Matrix3x4& transform, const Color& color, bool depthTest)
 {
     unsigned startVertex = (unsigned)vertices.size();
     unsigned uintColor = color.ToUInt();

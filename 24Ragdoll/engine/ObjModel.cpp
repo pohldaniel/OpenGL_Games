@@ -602,7 +602,7 @@ void ObjModel::createConvexHull(const char* filename, Vector3f &rotate, float de
 	convexHull.createBuffer(filename, rotate, degree, translate, scale, useConvhull, *this);
 }
 
-BoundingBox& ObjModel::getAABB() {
+BoundingBoxS& ObjModel::getAABB() {
 	return aabb;
 }
 
@@ -1901,7 +1901,7 @@ int IndexBufferCreator::addVertex(int hash, const float *pVertex, int stride) {
 	return index;
 }
 
-void BoundingBox::createBuffer() {
+void BoundingBoxS::createBuffer() {
 	m_vertexBuffer.push_back(position[0]); m_vertexBuffer.push_back(position[1]); m_vertexBuffer.push_back(position[2]);
 	m_vertexBuffer.push_back(position[0] + size[0]); m_vertexBuffer.push_back(position[1]); m_vertexBuffer.push_back(position[2]);
 	m_vertexBuffer.push_back(position[0] + size[0]); m_vertexBuffer.push_back(position[1] + size[1]); m_vertexBuffer.push_back(position[2]);
@@ -1951,7 +1951,7 @@ void BoundingBox::createBuffer() {
 	glBindVertexArray(0);
 }
 
-void BoundingBox::drawRaw() {
+void BoundingBoxS::drawRaw() {
 	glBindVertexArray(m_vao);
 	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);

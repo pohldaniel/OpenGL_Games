@@ -6,7 +6,7 @@
 
 #include <vector>
 
-class BoundingBox;
+class BoundingBoxTu;
 class FrustumTu;
 class Matrix3;
 class Matrix3x4;
@@ -26,14 +26,14 @@ public:
     /// Construct from a list of faces.
     Polyhedron(const std::vector<std::vector<Vector3> >& faces);
     /// Construct from a bounding box.
-    Polyhedron(const BoundingBox& box);
+    Polyhedron(const BoundingBoxTu& box);
     /// Construct from a frustum.
     Polyhedron(const FrustumTu& frustum);
     /// Destruct.
     ~Polyhedron();
     
     /// Define from a bounding box.
-    void Define(const BoundingBox& box);
+    void Define(const BoundingBoxTu& box);
     /// Define from a frustum.
     void Define(const FrustumTu& frustum);
     /// Add a triangle face.
@@ -47,7 +47,7 @@ public:
     /// Clip with a plane.
     void Clip(const Plane& plane);
     /// Clip with a bounding box.
-    void Clip(const BoundingBox& box);
+    void Clip(const BoundingBoxTu& box);
     /// Clip with a frustum.
     void Clip(const FrustumTu& box);
     /// Clear all faces.

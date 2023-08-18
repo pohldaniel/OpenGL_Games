@@ -157,7 +157,7 @@ void FrustumTu::Define(const Vector3& near, const Vector3& far, const Matrix4& t
 	UpdatePlanes();
 }
 
-void FrustumTu::Define(const BoundingBox& box, const Matrix3x4& transform)
+void FrustumTu::Define(const BoundingBoxTu& box, const Matrix3x4& transform)
 {
     vertices[0] = transform * Vector3(box.max.x, box.max.y, box.min.z);
     vertices[1] = transform * Vector3(box.max.x, box.min.y, box.min.z);

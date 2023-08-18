@@ -8,7 +8,7 @@
 #include "../Object/ObjectTu.h"
 #include "engine/Vector.h"
 
-class BoundingBox;
+class BoundingBoxTu;
 class CameraTu;
 class IndexBuffer;
 class Polyhedron;
@@ -52,9 +52,9 @@ public:
     /// Add a line with color already converted to unsigned.
     void AddLine(const Vector3& start, const Vector3& end, unsigned color, bool depthTest = true);
     /// Add a bounding box.
-    void AddBoundingBox(const BoundingBox& box, const Color& color, bool depthTest = true);
+    void AddBoundingBox(const BoundingBoxTu& box, const Color& color, bool depthTest = true);
     /// Add a bounding box with transform.
-    void AddBoundingBox(const BoundingBox& box, const Matrix3x4& transform, const Color& color, bool depthTest = true);
+    void AddBoundingBox(const BoundingBoxTu& box, const Matrix3x4& transform, const Color& color, bool depthTest = true);
     /// Add a frustum.
     void AddFrustum(const FrustumTu& frustum, const Color& color, bool depthTest = true);
     /// Add a polyhedron.
@@ -67,7 +67,7 @@ public:
     void Render();
 
     /// Check whether a bounding box is inside the view frustum.
-    bool IsInside(const BoundingBox& box) const { return frustum.IsInsideFast(box) == INSIDE; }
+    bool IsInside(const BoundingBoxTu& box) const { return frustum.IsInsideFast(box) == INSIDE; }
 
 private:
     /// Debug geometry vertices.

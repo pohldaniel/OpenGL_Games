@@ -54,7 +54,7 @@ public:
     ~Octant();
 
     /// Initialize parent and bounds.
-    void Initialize(Octant* parent, const BoundingBox& boundingBox, unsigned char level, unsigned char childIndex);
+    void Initialize(Octant* parent, const BoundingBoxTu& boundingBox, unsigned char level, unsigned char childIndex);
     /// Add debug geometry to be rendered.
     void OnRenderDebug(DebugRenderer* debug);
     /// React to occlusion query being rendered for the octant. Store the query ID to know not to re-test until have the result.
@@ -63,7 +63,7 @@ public:
     void OnOcclusionQueryResult(bool visible);
 
     /// Return the culling box. Update as necessary.
-    const BoundingBox& CullingBox() const;
+    const BoundingBoxTu& CullingBox() const;
     /// Return drawables in this octant.
     const std::vector<Drawable*>& Drawables() const { return drawables; }
     /// Return whether has child octants.
@@ -84,7 +84,7 @@ public:
     bool TestFlag(unsigned char bit) const { return (flags & bit) != 0; }
 
     /// Test if a drawable should be inserted in this octant or if a smaller child octant should be created.
-    bool FitBoundingBox(const BoundingBox& box, const Vector3& boxSize) const
+    bool FitBoundingBox(const BoundingBoxTu& box, const Vector3& boxSize) const
     {
         // If max split level, size always OK, otherwise check that box is at least half size of octant
         if (level <= 1 || boxSize.x >= halfSize.x || boxSize.y >= halfSize.y || boxSize.z >= halfSize.z)
@@ -160,11 +160,11 @@ public:
 
 private:
     /// Combined drawable and child octant bounding box. Used for culling tests.
-    mutable BoundingBox cullingBox;
+    mutable BoundingBoxTu cullingBox;
     /// Drawables contained in the octant.
     std::vector<Drawable*> drawables;
     /// Expanded (loose) bounding box used for fitting drawables within the octant.
-    BoundingBox fittingBox;
+	BoundingBoxTu fittingBox;
     /// Bounding box center.
     Vector3 center;
     /// Bounding box half size.
@@ -208,7 +208,7 @@ public:
     /// Finish the octree update.
     void FinishUpdate();
     /// Resize the octree.
-    void Resize(const BoundingBox& boundingBox, int numLevels);
+    void Resize(const BoundingBoxTu& boundingBox, int numLevels);
     /// Enable or disable threaded update mode. In threaded mode reinsertions go to per-thread queues, which are processed in FinishUpdate().
     void SetThreadedUpdate(bool enable) { threadedUpdate = enable; }
     /// Queue octree reinsertion for a drawable.
@@ -233,9 +233,9 @@ public:
 
 private:
     /// Set bounding box. Used in serialization.
-    void SetBoundingBoxAttr(const BoundingBox& value);
+    void SetBoundingBoxAttr(const BoundingBoxTu& value);
     /// Return bounding box. Used in serialization.
-    const BoundingBox& BoundingBoxAttr() const;
+    const BoundingBoxTu& BoundingBoxAttr() const;
     /// Set number of levels. Used in serialization.
     void SetNumLevelsAttr(int numLevels);
     /// Return number of levels. Used in serialization.
@@ -374,7 +374,7 @@ private:
     /// Octants which need to have their drawables sorted.
     std::vector<Octant*> sortDirtyOctants;
     /// Extents of the octree root level box.
-    BoundingBox worldBoundingBox;
+	BoundingBoxTu worldBoundingBox;
     /// Root octant.
     Octant root;
     /// Allocator for child octants.

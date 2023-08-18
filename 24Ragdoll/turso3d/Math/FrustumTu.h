@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "BoundingBox.h"
+#include "BoundingBoxTu.h"
 #include "Matrix3x4.h"
 #include "Plane.h"
 #include "Sphere.h"
@@ -60,7 +60,7 @@ public:
 	/// Define with near and far dimension vectors and a transform matrix.
 	void Define(const Vector3& near, const Vector3& far, const Matrix4& transform = Matrix4::IDENTITY);
 	/// Define with a bounding box and a transform matrix.
-    void Define(const BoundingBox& box, const Matrix3x4& transform = Matrix3x4::IDENTITY);
+    void Define(const BoundingBoxTu& box, const Matrix3x4& transform = Matrix3x4::IDENTITY);
     /// Define with orthographic projection parameters and a transform matrix.
     void DefineOrtho(float orthoSize, float aspectRatio, float zoom, float nearZ, float farZ, const Matrix3x4& transform = Matrix3x4::IDENTITY);
     /// Transform by a 3x3 matrix.
@@ -110,7 +110,7 @@ public:
     }
     
     /// Test if a bounding box is inside, outside or intersects.
-    Intersection IsInside(const BoundingBox& box) const
+    Intersection IsInside(const BoundingBoxTu& box) const
     {
         Vector3 center = box.Center();
         Vector3 edge = center - box.min;
@@ -132,7 +132,7 @@ public:
     }
 
     /// Test if a bounding box is inside, outside or intersects. Updates a bitmask for speeding up further tests of hierarchies. Returns updated plane mask: 0xff if outside, 0x00 if completely inside, otherwise intersecting.
-    unsigned char IsInsideMasked(const BoundingBox& box, unsigned char planeMask = 0x3f) const
+    unsigned char IsInsideMasked(const BoundingBoxTu& box, unsigned char planeMask = 0x3f) const
     {
         Vector3 center = box.Center();
         Vector3 edge = center - box.min;
@@ -158,7 +158,7 @@ public:
     }
 
     /// Test if a bounding box is inside, using a mask to skip unnecessary planes.
-    Intersection IsInsideMaskedFast(const BoundingBox& box, unsigned char planeMask = 0x3f) const
+    Intersection IsInsideMaskedFast(const BoundingBoxTu& box, unsigned char planeMask = 0x3f) const
     {
         Vector3 center = box.Center();
         Vector3 edge = center - box.min;
@@ -182,7 +182,7 @@ public:
     }
     
     /// Test if a bounding box is (partially) inside or outside.
-    Intersection IsInsideFast(const BoundingBox& box) const
+    Intersection IsInsideFast(const BoundingBoxTu& box) const
     {
         Vector3 center = box.Center();
         Vector3 edge = center - box.min;
@@ -201,7 +201,7 @@ public:
     }
 
     /// Test if a bounding box is (partially) inside or outside using SAT. Is slower but correct. The SAT helper data needs to be calculated beforehand to speed up.
-    Intersection IsInsideSAT(const BoundingBox& box, const SATData& data) const
+    Intersection IsInsideSAT(const BoundingBoxTu& box, const SATData& data) const
     {
         for (size_t i = 0; i < NUM_SAT_AXES; ++i)
         {

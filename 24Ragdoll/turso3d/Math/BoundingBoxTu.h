@@ -15,7 +15,7 @@ class Matrix3x4;
 class Sphere;
 
 /// Three-dimensional axis-aligned bounding box.
-class BoundingBox
+class BoundingBoxTu
 {
 public:
     /// Minimum vector.
@@ -24,78 +24,78 @@ public:
     Vector3 max;
     
     /// Construct as undefined (negative size.)
-    BoundingBox() :
+	BoundingBoxTu() :
         min(Vector3(M_INFINITY, M_INFINITY, M_INFINITY)),
         max(Vector3(-M_INFINITY, -M_INFINITY, -M_INFINITY))
     {
     }
     
     /// Copy-construct.
-    BoundingBox(const BoundingBox& box) :
+	BoundingBoxTu(const BoundingBoxTu& box) :
         min(box.min),
         max(box.max)
     {
     }
     
     /// Construct from a rect, with the Z dimension left zero.
-    BoundingBox(const Rect& rect) :
+	BoundingBoxTu(const Rect& rect) :
         min(Vector3(rect.min)),
         max(Vector3(rect.max))
     {
     }
     
     /// Construct from minimum and maximum vectors.
-    BoundingBox(const Vector3& min_, const Vector3& max_) :
+	BoundingBoxTu(const Vector3& min_, const Vector3& max_) :
         min(min_),
         max(max_)
     {
     }
     
     /// Construct from minimum and maximum floats (all dimensions same.)
-    BoundingBox(float min_, float max_) :
+	BoundingBoxTu(float min_, float max_) :
         min(Vector3(min_, min_, min_)),
         max(Vector3(max_, max_, max_))
     {
     }
     
     /// Construct from an array of vertices.
-    BoundingBox(const Vector3* vertices, size_t count)
+	BoundingBoxTu(const Vector3* vertices, size_t count)
     {
         Define(vertices, count);
     }
     
     /// Construct from a frustum.
-    BoundingBox(const FrustumTu& frustum)
+	BoundingBoxTu(const FrustumTu& frustum)
     {
         Define(frustum);
     }
     
     /// Construct from a polyhedron.
-    BoundingBox(const Polyhedron& poly)
+	BoundingBoxTu(const Polyhedron& poly)
     {
         Define(poly);
     }
     
     /// Construct from a sphere.
-    BoundingBox(const Sphere& sphere)
+	BoundingBoxTu(const Sphere& sphere)
     {
         Define(sphere);
     }
     
     /// Construct by parsing a string.
-    BoundingBox(const std::string& str)
+	BoundingBoxTu(const std::string& str)
     {
         FromString(str.c_str());
     }
     
     /// Construct by parsing a C string.
-    BoundingBox(const char* str)
+	BoundingBoxTu(const char* str)
     {
         FromString(str);
     }
     
     /// Assign from another bounding box.
-    BoundingBox& operator = (const BoundingBox& rhs)
+	BoundingBoxTu& operator = (const BoundingBoxTu& rhs)
     {
         min = rhs.min;
         max = rhs.max;
@@ -103,7 +103,7 @@ public:
     }
     
     /// Assign from a Rect, with the Z dimension left zero.
-    BoundingBox& operator = (const Rect& rhs)
+	BoundingBoxTu& operator = (const Rect& rhs)
     {
         min = Vector3(rhs.min);
         max = Vector3(rhs.max);
@@ -111,12 +111,12 @@ public:
     }
     
     /// Test for equality with another bounding box without epsilon.
-    bool operator == (const BoundingBox& rhs) const { return min == rhs.min && max == rhs.max; }
+    bool operator == (const BoundingBoxTu& rhs) const { return min == rhs.min && max == rhs.max; }
     /// Test for inequality with another bounding box without epsilon.
-    bool operator != (const BoundingBox& rhs) const { return !(*this == rhs); }
+    bool operator != (const BoundingBoxTu& rhs) const { return !(*this == rhs); }
     
     /// Define from another bounding box.
-    void Define(const BoundingBox& box)
+    void Define(const BoundingBoxTu& box)
     {
         min = box.min;
         max = box.max;
@@ -174,7 +174,7 @@ public:
     }
     
     /// Merge another bounding box.
-    void Merge(const BoundingBox& box)
+    void Merge(const BoundingBoxTu& box)
     {
         if (min.x > max.x)
         {
@@ -221,7 +221,7 @@ public:
     /// Merge a sphere.
     void Merge(const Sphere& sphere);
     /// Clip with another bounding box.
-    void Clip(const BoundingBox& box);
+    void Clip(const BoundingBoxTu& box);
     /// Transform with a 3x3 matrix.
     void Transform(const Matrix3& transform);
     /// Transform with a 3x4 matrix.
@@ -240,7 +240,7 @@ public:
     /// Return half-size.
     Vector3 HalfSize() const { return (max - min) * 0.5f; }
     /// Test for equality with another bounding box with epsilon.
-    bool Equals(const BoundingBox& box) const { return min.Equals(box.min) && max.Equals(box.max); }
+    bool Equals(const BoundingBoxTu& box) const { return min.Equals(box.min) && max.Equals(box.max); }
     
     /// Test if a point is inside.
     Intersection IsInside(const Vector3& point) const
@@ -253,7 +253,7 @@ public:
     }
     
     /// Test if another bounding box is inside, outside or intersects.
-    Intersection IsInside(const BoundingBox& box) const
+    Intersection IsInside(const BoundingBoxTu& box) const
     {
         if (box.max.x < min.x || box.min.x > max.x || box.max.y < min.y || box.min.y > max.y ||
             box.max.z < min.z || box.min.z > max.z)
@@ -266,7 +266,7 @@ public:
     }
     
     /// Test if another bounding box is (partially) inside or outside.
-    Intersection IsInsideFast(const BoundingBox& box) const
+    Intersection IsInsideFast(const BoundingBoxTu& box) const
     {
         if (box.max.x < min.x || box.min.x > max.x || box.max.y < min.y || box.min.y > max.y ||
             box.max.z < min.z || box.min.z > max.z)
@@ -293,9 +293,9 @@ public:
     }
     
     /// Return transformed by a 3x3 matrix.
-    BoundingBox Transformed(const Matrix3 & transform) const;
+	BoundingBoxTu Transformed(const Matrix3 & transform) const;
     /// Return transformed by a 3x4 matrix.
-    BoundingBox Transformed(const Matrix3x4 & transform) const;
+	BoundingBoxTu Transformed(const Matrix3x4 & transform) const;
     /// Return projected by a 4x4 projection matrix.
     Rect Projected(const Matrix4 & projection) const;
 

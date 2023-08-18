@@ -256,7 +256,7 @@ void LightDrawable::InitShadowViews()
     shadowParameters = Vector4(0.5f / (float)shadowMap->Width(), 0.5f / (float)shadowMap->Height(), ShadowStrength(), 0.0f);
 }
 
-bool LightDrawable::SetupShadowView(size_t viewIndex, CameraTu* mainCamera, const BoundingBox* geometryBounds)
+bool LightDrawable::SetupShadowView(size_t viewIndex, CameraTu* mainCamera, const BoundingBoxTu* geometryBounds)
 {
     ZoneScoped;
 
@@ -283,7 +283,7 @@ bool LightDrawable::SetupShadowView(size_t viewIndex, CameraTu* mainCamera, cons
 
         // Calculate main camera shadowed frustum in light's view space. Then convert to polyhedron and clip with visible geometry, and transform to shadow camera's space
         FrustumTu splitFrustum = mainCamera->WorldSplitFrustum(view.splitMinZ, view.splitMaxZ);
-        BoundingBox shadowBox;
+		BoundingBoxTu shadowBox;
 
         if (geometryBounds)
         {

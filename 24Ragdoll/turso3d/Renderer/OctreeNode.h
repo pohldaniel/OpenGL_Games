@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "../Math/BoundingBox.h"
+#include "../Math/BoundingBoxTu.h"
 #include "../Scene/SpatialNode.h"
 
 class CameraTu;
@@ -106,7 +106,7 @@ public:
     Vector3 WorldScale() const { return WorldTransform().Scale(); }
 
     /// Return world space bounding box. Update if necessary.
-    const BoundingBox& WorldBoundingBox() const
+    const BoundingBoxTu& WorldBoundingBox() const
     {
         if (TestFlag(DF_BOUNDING_BOX_DIRTY))
         {
@@ -145,7 +145,7 @@ public:
 
 protected:
     /// World space bounding box.
-    mutable BoundingBox worldBoundingBox;
+    mutable BoundingBoxTu worldBoundingBox;
     /// Owner scene node's world transform matrix.
     Matrix3x4* worldTransform;
     /// Current octree octant.
@@ -185,7 +185,7 @@ public:
     void SetMaxDistance(float distance);
     
     /// Return drawable's world space bounding box. Update if necessary. 
-    const BoundingBox& WorldBoundingBox() const { return drawable->WorldBoundingBox(); }
+    const BoundingBoxTu& WorldBoundingBox() const { return drawable->WorldBoundingBox(); }
     /// Return whether is static.
     bool IsStatic() const { return drawable->TestFlag(DF_STATIC); }
     /// Return whether casts shadows.

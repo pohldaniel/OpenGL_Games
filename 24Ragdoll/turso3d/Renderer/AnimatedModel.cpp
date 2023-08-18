@@ -91,7 +91,7 @@ void AnimatedModelDrawable::OnWorldBoundingBoxUpdate() const
             const std::vector<ModelBone>& modelBones = model->Bones();
 
             // Use a temporary bounding box for calculations in case many threads call this simultaneously
-            BoundingBox tempBox;
+			BoundingBoxTu tempBox;
 
             for (size_t i = 0; i < numBones; ++i)
             {

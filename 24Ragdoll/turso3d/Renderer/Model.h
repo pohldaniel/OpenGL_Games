@@ -3,7 +3,7 @@
 #pragma once
 
 #include "../Graphics/GraphicsDefs.h"
-#include "../Math/BoundingBox.h"
+#include "../Math/BoundingBoxTu.h"
 #include "../Resource/Resource.h"
 
 class VertexBuffer;
@@ -74,7 +74,7 @@ struct ModelBone
     /// Collision radius.
     float radius;
     /// Collision bounding box.
-    BoundingBox boundingBox;
+	BoundingBoxTu boundingBox;
     /// Parent bone index. If points to self, is the root bone.
     size_t parentIndex;
     /// Whether contributes to bounding boxes.
@@ -143,7 +143,7 @@ public:
     /// Set number of LOD levels in a geometry.
     void SetNumLodLevels(size_t index, size_t num);
     /// Set local space bounding box.
-    void SetLocalBoundingBox(const BoundingBox& box);
+    void SetLocalBoundingBox(const BoundingBoxTu& box);
     /// Set bone descriptions.
     void SetBones(const std::vector<ModelBone>& bones);
 
@@ -156,7 +156,7 @@ public:
     /// Return the LOD geometries at batch index.
     const std::vector<SharedPtr<Geometry> >& LodGeometries(size_t index) const { return geometries[index]; }
     /// Return the local space bounding box.
-    const BoundingBox& LocalBoundingBox() const { return boundingBox; }
+    const BoundingBoxTu& LocalBoundingBox() const { return boundingBox; }
     /// Return the model's bone descriptions.
     const std::vector<ModelBone>& Bones() const { return bones; }
 
@@ -165,7 +165,7 @@ private:
     void ApplyBoneMappings(const GeometryDesc& geomDesc, const std::vector<unsigned>& boneMappings, std::set<std::pair<unsigned, unsigned> >& processedVertices);
 
     /// Local space bounding box.
-    BoundingBox boundingBox;
+	BoundingBoxTu boundingBox;
     /// %Model's bone descriptions.
     std::vector<ModelBone> bones;
     /// Geometry LOD levels.

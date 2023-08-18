@@ -19,7 +19,7 @@ Polyhedron::Polyhedron(const std::vector<std::vector<Vector3> >& faces) :
 {
 }
 
-Polyhedron::Polyhedron(const BoundingBox& box)
+Polyhedron::Polyhedron(const BoundingBoxTu& box)
 {
     Define(box);
 }
@@ -33,7 +33,7 @@ Polyhedron::~Polyhedron()
 {
 }
 
-void Polyhedron::Define(const BoundingBox& box)
+void Polyhedron::Define(const BoundingBoxTu& box)
 {
     Vector3 vertices[8];
     vertices[0] = box.min;
@@ -227,7 +227,7 @@ void Polyhedron::Clip(const FrustumTu& frustum)
     }
 }
 
-void Polyhedron::Clip(const BoundingBox& box)
+void Polyhedron::Clip(const BoundingBoxTu& box)
 {
     ZoneScoped;
 
