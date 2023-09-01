@@ -103,7 +103,7 @@ namespace DawnInterface{
 		if (zoneNameNoPrefix.find_last_of('/') != std::string::npos) {
 			zoneNameNoPrefix = zoneNameNoPrefix.substr(zoneNameNoPrefix.find_last_of('/') + 1);
 		}
-		oss << "if (" << zoneNameNoPrefix << ".onEnterMap ~= nil)\nthen\n    " << zoneNameNoPrefix << ".onEnterMap(" << Player::Get().getXPos() << "," << Player::Get().getYPos() << ");\nelse    print \"" << zoneNameNoPrefix << ".onEnterMap was not defined\";\nend";
+		oss << "if (" << "Zones." << zoneNameNoPrefix << ".onEnterMap ~= nil)\nthen\n    " << "Zones." << zoneNameNoPrefix << ".onEnterMap(" << Player::Get().getXPos() << "," << Player::Get().getYPos() << ");\nelse    print \"" << "Zones." << zoneNameNoPrefix << ".onEnterMap was not defined\";\nend";
 		std::string onEnterCall = oss.str();
 		LuaFunctions::executeLuaScript(onEnterCall);
 	}
