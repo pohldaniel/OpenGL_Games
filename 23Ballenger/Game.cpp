@@ -129,9 +129,11 @@ void Game::update() {
 	m_raySet.update(m_dt);
 	m_respawnPointSet.update(m_dt);
 
-	m_light.update(m_camera.getPosition());
-	m_sky.update();
-	m_cloudsModel.update();
+	if (!Globals::useSkybox) {
+		m_light.update(m_camera.getPosition());
+		m_sky.update();
+		m_cloudsModel.update();
+	}
 
 	Keyboard &keyboard = Keyboard::instance();
 	if (keyboard.keyPressed(Keyboard::KEY_F1)) {
@@ -143,7 +145,7 @@ void Game::update() {
 }
 
 void Game::render() {
-	if (!m_useSkybox) {
+	if (!Globals::useSkybox) {
 		m_sky.draw(m_camera);
 		m_cloudsModel.draw(m_camera, m_sky);
 	}
@@ -153,7 +155,7 @@ void Game::render() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	auto quad = Globals::shaderManager.getAssetPointer("quad_back");
-	if (!m_useSkybox) {
+	if (!Globals::useSkybox) {
 		quad->use();
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, m_cloudsModel.getPostTexture());
@@ -360,7 +362,7 @@ void Game::renderUi() {
 	if (ImGui::SliderFloat("Camera Offset", &m_offsetDistance, 0.0f, 150.0f)) {
 		m_camera.setOffsetDistance(m_offsetDistance);
 	}
-	toggleButton("Use Skybox", &m_useSkybox);
+	toggleButton("Use Skybox", &Globals::useSkybox);
 	ImGui::End();
 
 	ImGui::Render();

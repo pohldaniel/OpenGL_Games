@@ -16,6 +16,7 @@ extern AssetManager<MusicBuffer> Globals::musicManager = AssetManager<MusicBuffe
 
 extern float Globals::soundVolume = 0.2f;
 extern float Globals::musicVolume = 0.1f;
+extern bool Globals::useSkybox = true;
 
 extern Physics* Globals::physics = NULL;
 

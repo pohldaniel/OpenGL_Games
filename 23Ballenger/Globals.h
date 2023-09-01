@@ -31,6 +31,7 @@ namespace Globals {
 
 	extern float soundVolume;
 	extern float musicVolume;
+	extern bool useSkybox;
 
 	extern unsigned int colorUbo;
 	extern const unsigned int colorBinding;

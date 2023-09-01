@@ -31,7 +31,7 @@ CloudInterface::CloudInterface(StateMachine& machine) : State(machine, CurrentSt
 	Globals::shaderManager.loadShader("ray_march", "res/clouds/clouds.vert", "res/clouds/clouds.frag");
 	Globals::shaderManager.loadShader("worley", "res/clouds/worley.vert", "res/clouds/worley.frag");
 	Globals::shaderManager.loadShader("perlinworley", "res/clouds/perlinworley.vert", "res/clouds/perlinworley.frag");
-	Globals::shaderManager.loadShader("debug", "res/cloudsdebug.vert", "res/clouds/debug.frag");
+	Globals::shaderManager.loadShader("debug", "res/clouds/debug.vert", "res/clouds/debug.frag");
 	Globals::shaderManager.loadShader("texture_array", "res/clouds/textureArray.vert", "res/clouds/textureArray.frag");
 	Globals::shaderManager.loadShader("post", "res/clouds/screen_new.vert", "res/clouds/post_processing.frag");
 	Globals::shaderManager.loadShader("culling", "res/clouds/terrain.vert", "res/clouds/terrain.frag");

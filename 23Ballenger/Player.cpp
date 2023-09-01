@@ -122,7 +122,7 @@ void Player::update(const float dt) {
 	}
 
 	if (mouse.buttonDown(Mouse::BUTTON_RIGHT)) {
-		m_useGravity ? m_characterController->setLinearVelocityXZ(Physics::VectorFrom(direction * Vector3f(15.0f, 15.0f, 15.0f))) : m_characterController->setLinearVelocity(Physics::VectorFrom(direction * Vector3f(15.0f, 15.0f, 15.0f)));
+		m_useGravity ? m_characterController->setLinearVelocityXZ(Physics::VectorFrom(direction * Vector3f(0.0f, 0.0f, 0.0f))) : m_characterController->setLinearVelocity(Physics::VectorFrom(direction * Vector3f(15.0f, 15.0f, 15.0f)));
 		m_characterController->setAngularVelocity(btVector3(0.0f, 0.0f, 0.0f));
 
 	}else if (m_move) {

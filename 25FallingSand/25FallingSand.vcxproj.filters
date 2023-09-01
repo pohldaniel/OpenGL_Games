@@ -273,6 +273,9 @@
     <ClCompile Include="src\Utils\Utils.cpp">
       <Filter>Source Files\Utils</Filter>
     </ClCompile>
+    <ClCompile Include="src\UI\CheckBox.cpp">
+      <Filter>Source Files\UI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="convhull\convhull_3d.h">
@@ -517,6 +520,9 @@
     </ClInclude>
     <ClInclude Include="src\Utils\Utils.h">
       <Filter>Source Files\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\UI\CheckBox.h">
+      <Filter>Source Files\UI</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

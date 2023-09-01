@@ -7,6 +7,7 @@
 #include "StateMachine.h"
 #include "Button.h"
 #include "SeekerBar.h"
+#include "CheckBox.h"
 
 class Settings : public State, public MouseEventListener, public KeyboardEventListener {
 
@@ -28,4 +29,5 @@ private:
 	Button m_button;
 	TextField m_headline;
 	std::unordered_map<std::string, SeekerBar> m_seekerBars;
+	CheckBox m_checkBox;
 };

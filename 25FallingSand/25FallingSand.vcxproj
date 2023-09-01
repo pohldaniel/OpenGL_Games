@@ -226,6 +226,7 @@
     <ClCompile Include="src\States\StateMachine.cpp" />
     <ClCompile Include="src\States\VehicleInterface.cpp" />
     <ClCompile Include="src\UI\Button.cpp" />
+    <ClCompile Include="src\UI\CheckBox.cpp" />
     <ClCompile Include="src\UI\SeekerBar.cpp" />
     <ClCompile Include="src\UI\TextField.cpp" />
     <ClCompile Include="src\UI\Widget.cpp" />
@@ -309,6 +310,7 @@
     <ClInclude Include="src\States\StateMachine.h" />
     <ClInclude Include="src\States\VehicleInterface.h" />
     <ClInclude Include="src\UI\Button.h" />
+    <ClInclude Include="src\UI\CheckBox.h" />
     <ClInclude Include="src\UI\SeekerBar.h" />
     <ClInclude Include="src\UI\TextField.h" />
     <ClInclude Include="src\UI\Widget.h" />

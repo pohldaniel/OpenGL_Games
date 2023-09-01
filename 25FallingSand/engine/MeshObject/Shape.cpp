@@ -628,6 +628,7 @@ void Shape::removeInstance(unsigned int index) {
 
 void Shape::insertInstance(const Matrix4f& value, unsigned int index) {
 	m_instances.insert(m_instances.begin() + index, value);
+	m_instanceCount = m_instances.size();
 
 	glBindBuffer(GL_ARRAY_BUFFER, m_vboInstances);
 	glBufferData(GL_ARRAY_BUFFER, m_instances.size() * sizeof(float) * 4 * 4, m_instances[0][0], GL_STATIC_DRAW);

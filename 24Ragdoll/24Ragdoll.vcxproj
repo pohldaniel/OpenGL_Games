@@ -163,6 +163,7 @@
     <ClCompile Include="Character.cpp" />
     <ClCompile Include="CharacterController.cpp" />
     <ClCompile Include="CharacterInterface.cpp" />
+    <ClCompile Include="CheckBox.cpp" />
     <ClCompile Include="DebugDrawer.cpp" />
     <ClCompile Include="engine\ArrayBuffer.cpp" />
     <ClCompile Include="engine\AssimpModel.cpp" />
@@ -350,6 +351,7 @@
     <ClInclude Include="Character.h" />
     <ClInclude Include="CharacterController.h" />
     <ClInclude Include="CharacterInterface.h" />
+    <ClInclude Include="CheckBox.h" />
     <ClInclude Include="DebugDrawer.h" />
     <ClInclude Include="engine\ArrayBuffer.h" />
     <ClInclude Include="engine\CubeBuffer.h" />

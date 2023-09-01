@@ -81,7 +81,7 @@ private:
 	float m_offsetDistance = 10.0f;
 	bool m_initUi = true;
 	bool m_drawUi = false;
-	bool m_useSkybox = false;
+
 	QuadTree m_quadTree;
 	Terrain m_terrain;
 

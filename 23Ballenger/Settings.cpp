@@ -81,7 +81,15 @@ Settings::Settings(StateMachine& machine) : State(machine, CurrentState::SETTING
 		Globals::soundManager.get("menu").playChannel(0u);
 		Globals::musicManager.get("background").setVolume(Globals::musicVolume);
 	});
-	
+
+	m_checkBox.setPosition(Vector2f(static_cast<float>(Application::Width / 2 - 465), static_cast<float>(Application::Height - 800)));
+	m_checkBox.setSize(52.0f, 52.0f);
+	m_checkBox.setOutlineThickness(5.0f);
+	m_checkBox.setShader(Globals::shaderManager.getAssetPointer("quad_color_uniform"));
+	m_checkBox.setIsChecked(Globals::useSkybox);
+	m_checkBox.setFunction([&]() {
+		Globals::useSkybox = !Globals::useSkybox;
+	});
 }
 
 Settings::~Settings() {
@@ -98,6 +106,7 @@ void Settings::render() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	m_headline.draw();
+	m_checkBox.draw();
 	m_button.draw();
 
 	for (auto& b : m_seekerBars)
@@ -107,20 +116,21 @@ void Settings::render() {
 	Globals::fontManager.get("upheaval_50").bind(0);
 	Fontrenderer::Get().addText(Globals::fontManager.get("upheaval_50"), static_cast<float>(Application::Width / 2 - 465), static_cast<float>(Application::Height - 300), "Sound Volume", Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
 	Fontrenderer::Get().addText(Globals::fontManager.get("upheaval_50"), static_cast<float>(Application::Width / 2 - 465), static_cast<float>(Application::Height - 500), "Music Volume", Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+	Fontrenderer::Get().addText(Globals::fontManager.get("upheaval_50"), static_cast<float>(Application::Width / 2 - 465), static_cast<float>(Application::Height - 700), m_checkBox.isChecked() ? "Use Skybox" : "Use procedural Clouds", Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
 	Fontrenderer::Get().drawBuffer();
 	glDisable(GL_BLEND);
 }
 
 void Settings::OnMouseMotion(Event::MouseMoveEvent& event) {
 	m_button.processInput(event.x, Application::Height - event.y);
-
+	m_checkBox.processInput(event.x, Application::Height - event.y);
 	for (auto& b : m_seekerBars)
 		b.second.processInput(event.x, Application::Height - event.y);
 }
 
 void Settings::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 	m_button.processInput(event.x, Application::Height - event.y, event.button);
-
+	m_checkBox.processInput(event.x, Application::Height - event.y, event.button);
 	for (auto& b : m_seekerBars)
 		b.second.processInput(event.x, Application::Height - event.y, event.button);
 }
@@ -137,4 +147,5 @@ void Settings::resize(int deltaW, int deltaH) {
 	m_button.setPosition(static_cast<float>(Application::Width - 350), 100.0f);
 	m_seekerBars.at("effect").setPosition(static_cast<float>(Application::Width / 2 - 400), static_cast<float>(Application::Height - 400));
 	m_seekerBars.at("music").setPosition(static_cast<float>(Application::Width / 2 - 400), static_cast<float>(Application::Height - 600));
+	m_checkBox.setPosition(Vector2f(static_cast<float>(Application::Width / 2 - 450), static_cast<float>(Application::Height - 800)));
 }
