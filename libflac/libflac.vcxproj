@@ -132,7 +132,7 @@
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
-    <Import Project="..\..\..\cmake-3.16.2-win32-x86\share\cmake-3.16\Templates\MSBuild\nasm.props" />
+    <Import Project="..\flac\BuildCustomizations\nasm.props" />
   </ImportGroup>
   <ImportGroup Label="Shared">
   </ImportGroup>
@@ -229,6 +229,6 @@
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
-    <Import Project="..\..\..\cmake-3.16.2-win32-x86\share\cmake-3.16\Templates\MSBuild\nasm.targets" />
+    <Import Project="..\flac\BuildCustomizations\nasm.targets" />
   </ImportGroup>
 </Project>
