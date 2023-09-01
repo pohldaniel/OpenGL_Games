@@ -3,15 +3,16 @@
 #include <imgui_impl_opengl3.h>
 #include <imgui_internal.h>
 
-#include "VehicleInterface.h"
+#include "CharacterInterface.h"
 #include "Application.h"
 #include "Globals.h"
 #include "Menu.h"
 
-extern char heightfield[];
+#include "BspLoader.h"
+#include "BspConverter.h"
+#include "BspToBulletConverter.h"
 
-VehicleInterface::VehicleInterface(StateMachine& machine) : State(machine, CurrentState::RAGDOLLINTERFACE),
-															m_pickConstraint(0) {
+CharacterInterface::CharacterInterface(StateMachine& machine) : State(machine, CurrentState::CHARACTERINTERFACE), m_pickConstraint(0) {
 
 	Application::SetCursorIcon(IDC_ARROW);
 	EventDispatcher::AddKeyboardListener(this);
@@ -19,37 +20,110 @@ VehicleInterface::VehicleInterface(StateMachine& machine) : State(machine, Curre
 
 	m_camera = Camera();
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
-	m_camera.lookAt(Vector3f(0.0f, 2.0f, 10.0f), Vector3f(0.0f, 2.0f, 10.0f) + Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
+	m_camera.lookAt(Vector3f(0.0f, -2.0f, 10.0f), Vector3f(10.210001f, -2.0306311f, 16.576973f), Vector3f(0.0f, 1.0f, 0.0f));
 	m_camera.setRotationSpeed(0.1f);
 
-	ShapeDrawer::Get().init(32768);
+	//ShapeDrawer::Get().init(32768);
+	ShapeDrawer::Get().init(128);
 	ShapeDrawer::Get().setCamera(m_camera);
-	glClearColor(0.7f, 0.7f, 0.7f, 0.0f);
 
-	for (int i = 0; i < 128 * 128; i++) {
-		heightfield[i] = heightfield[i] * 1.1f;
+	const char* filename = "res/BspDemo.bsp";
+
+	FILE* file = fopen(filename, "r");
+	void* memoryBuffer = 0;
+
+	BspLoader bspLoader;
+	int size = 0;
+	if (fseek(file, 0, SEEK_END) || (size = ftell(file)) == EOF || fseek(file, 0, SEEK_SET)) {
+		printf("Error: cannot get filesize from %s\n", filename);
+	}else {
+		memoryBuffer = malloc(size + 1);
+		fread(memoryBuffer, 1, size, file);
+		bspLoader.loadBSPFile(memoryBuffer);
+
+		BspToBulletConverter bsp2bullet;
+		float bspScaling = 0.1f;
+		bsp2bullet.convertBsp(bspLoader, bspScaling);
+
 	}
 
-	m_heightField.create(heightfield, 128, 128, Physics::BtTransform(btVector3(0.0f, 49.4f, 0.0f)), btVector3(1.0f, 1.0f, 1.0f), Physics::collisiontypes::FLOOR | Physics::PICKABLE_OBJECT, Physics::collisiontypes::CAR | Physics::MOUSEPICKER);
-	m_heightField.processAllTriangles();
+	glClearColor(0.7f, 0.7f, 0.7f, 0.0f);
 
-	m_physicsCar = new PhysicsCar();
-	m_physicsCar->create(Physics::BtTransform(Vector3f(0.0f, 1.0f, 0.0f)), Physics::collisiontypes::CAR | Physics::PICKABLE_OBJECT, Physics::collisiontypes::FLOOR | Physics::MOUSEPICKER);
+	m_ghostObject = new btPairCachingGhostObject();
+	
+	Physics::GetDynamicsWorld()->getBroadphase()->getOverlappingPairCache()->setInternalGhostPairCallback(new btGhostPairCallback());
+	
+	btScalar characterHeight = 1.75;
+	btScalar characterWidth = 1.75;
+	btConvexShape* capsule = new btCapsuleShape(characterWidth, characterHeight);
+
+	m_ghostObject->setCollisionShape(capsule);
+	m_ghostObject->setCollisionFlags(btCollisionObject::CF_CHARACTER_OBJECT);
+
+	btScalar stepHeight = btScalar(0.35);
+	m_character = new btKinematicCharacterController(m_ghostObject, capsule, stepHeight, btVector3(0.0f, 1.0f, 0.0f));
+
+	btTransform startTransform;
+	startTransform.setIdentity();
+	startTransform.setOrigin(btVector3(10.210001f, -2.0306311f, 16.576973f));
+	m_ghostObject->setWorldTransform(startTransform);
+
+
+	Physics::GetDynamicsWorld()->addCollisionObject(m_ghostObject, btBroadphaseProxy::CharacterFilter, btBroadphaseProxy::StaticFilter | btBroadphaseProxy::DefaultFilter);
+	Physics::GetDynamicsWorld()->addAction(m_character);
+	clientResetScene();
 }
 
-VehicleInterface::~VehicleInterface() {
+CharacterInterface::~CharacterInterface() {
 	Globals::physics->removeAllCollisionObjects();
 	EventDispatcher::RemoveKeyboardListener(this);
 	EventDispatcher::RemoveMouseListener(this);
 }
 
-void VehicleInterface::fixedUpdate() {
-	m_physicsCar->fixedUpdate();
+void CharacterInterface::fixedUpdate() {
+
+	///set walkDirection for our character
+	btTransform xform;
+	xform = m_ghostObject->getWorldTransform();
+
+	btVector3 forwardDir = xform.getBasis()[2];
+	btVector3 upDir = xform.getBasis()[1];
+	btVector3 strafeDir = xform.getBasis()[0];
+	forwardDir.normalize();
+	upDir.normalize();
+	strafeDir.normalize();
+
+	btVector3 walkDirection = btVector3(0.0f, 0.0f, 0.0f);
+	btScalar walkVelocity = 1.1f * 4.0f;
+	btScalar walkSpeed = walkVelocity * m_fdt;
+
+	if (gJump && m_character->canJump()) 
+		m_character->jump(btVector3(0.0f, 6.0f, 0.0f));
+	
+	if (gLeft) {
+		btMatrix3x3 orn = m_ghostObject->getWorldTransform().getBasis();
+		orn *= btMatrix3x3(btQuaternion(btVector3(0.0f, 1.0f, 0.0f), 0.01f));
+		m_ghostObject->getWorldTransform().setBasis(orn);
+	}
+
+	if (gRight) {
+		btMatrix3x3 orn = m_ghostObject->getWorldTransform().getBasis();
+		orn *= btMatrix3x3(btQuaternion(btVector3(0.0f, 1.0f, 0.0f), -0.01f));
+		m_ghostObject->getWorldTransform().setBasis(orn);
+	}
+
+	if (gForward)
+		walkDirection += forwardDir;
+
+	if (gBackward)
+		walkDirection -= forwardDir;
+
+	m_character->setWalkDirection(walkDirection*walkSpeed);
+	
 	Globals::physics->stepSimulation(m_fdt);
 }
 
-void VehicleInterface::update() {
-
+void CharacterInterface::update() {
 	Keyboard &keyboard = Keyboard::instance();
 	Vector3f directrion = Vector3f();
 
@@ -106,44 +180,44 @@ void VehicleInterface::update() {
 	m_trackball.idle();
 	m_transform.fromMatrix(m_trackball.getTransform());
 
-	m_physicsCar->update();
+	gForward = 0;
+	gBackward = 0;
+	gLeft = 0;
+	gRight = 0;
+	gJump = 0;
+
+	if (keyboard.keyDown(Keyboard::KEY_UP)) {
+		gForward = 1;
+	}
+
+	if (keyboard.keyDown(Keyboard::KEY_DOWN)) {
+		gBackward = 1;
+	}
+
+	if (keyboard.keyDown(Keyboard::KEY_LEFT)) {
+		gLeft = 1;
+	}
+
+	if (keyboard.keyDown(Keyboard::KEY_RIGHT)) {
+		gRight = 1;
+	}
+
+	if (keyboard.keyDown(Keyboard::KEY_LALT)) {
+		gJump = 1;
+	}
 }
 
-void VehicleInterface::render() {
-
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	glLoadMatrixf(&m_camera.getPerspectiveMatrix()[0][0]);
-
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-	glLoadMatrixf(&m_camera.getViewMatrix()[0][0]);
-
-	btScalar m[16];
-	btTransform trans;
+void CharacterInterface::render() {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	if (m_follow) {
-		m_camera.follow(Physics::MatrixFrom(m_physicsCar->getWorldTransform()), Physics::VectorFrom(m_physicsCar->getLinearVelocity()), m_dt);
-	}
-
 	ShapeDrawer::Get().drawDynmicsWorld(Physics::GetDynamicsWorld());
-
-	for (int i = 0; i < m_physicsCar->getVehicle()->getNumWheels(); i++){
-		m_physicsCar->getVehicle()->updateWheelTransform(i, true);
-		m_physicsCar->getVehicle()->getWheelInfo(i).m_worldTransform.getOpenGLMatrix(m);
-		ShapeDrawer::Get().drawShape(m, m_physicsCar->getWheelShape());
-	}
-	
 	m_mousePicker.drawPicker(m_camera);
 
 	if (m_drawUi)
 		renderUi();
-
 }
 
-void VehicleInterface::OnMouseMotion(Event::MouseMoveEvent& event) {
+void CharacterInterface::OnMouseMotion(Event::MouseMoveEvent& event) {
 	m_mousePicker.updatePosition(event.x, event.y, m_camera);
 
 	if (m_pickConstraint) {
@@ -160,11 +234,11 @@ void VehicleInterface::OnMouseMotion(Event::MouseMoveEvent& event) {
 				btVector3 dir = newRayTo - rayFrom;
 				dir.normalize();
 				dir *= m_mousePicker.getPickingDistance();
-				
+
 				pickCon->getFrameOffsetA().setOrigin(rayFrom + dir);
 			}
 
-		} else {
+		}else {
 
 			btPoint2PointConstraint* pickCon = static_cast<btPoint2PointConstraint*>(m_pickConstraint);
 			if (pickCon) {
@@ -184,17 +258,17 @@ void VehicleInterface::OnMouseMotion(Event::MouseMoveEvent& event) {
 	}
 }
 
-void VehicleInterface::OnMouseWheel(Event::MouseWheelEvent& event) {
+void CharacterInterface::OnMouseWheel(Event::MouseWheelEvent& event) {
 
 }
 
-void VehicleInterface::OnMouseButtonDown(Event::MouseButtonEvent& event) {
+void CharacterInterface::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 	m_mousePicker.updatePosition(event.x, event.y, m_camera);
 
 	if (event.button == 2u) {
 		Mouse::instance().attach(Application::GetWindow());
-
-	}else if (event.button == 1u) {
+	}
+	else if (event.button == 1u) {
 
 		if (m_mousePicker.click(event.x, event.y, m_camera)) {
 			m_mousePicker.setHasPicked(true);
@@ -204,22 +278,24 @@ void VehicleInterface::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 	}
 }
 
-void VehicleInterface::OnMouseButtonUp(Event::MouseButtonEvent& event) {
+void CharacterInterface::OnMouseButtonUp(Event::MouseButtonEvent& event) {
 	if (event.button == 2u) {
 		Mouse::instance().detach();
-
-	}else if (event.button == 1u) {
+	}
+	else if (event.button == 1u) {
 		m_mousePicker.setHasPicked(false);
 		removePickingConstraint();
 	}
 }
 
-void VehicleInterface::OnKeyDown(Event::KeyboardEvent& event) {
-	if (event.keyCode == VK_LMENU) {
-		m_drawUi = true;
-		Mouse::instance().detach();
-		Keyboard::instance().disable();
-	}
+void CharacterInterface::OnKeyDown(Event::KeyboardEvent& event) {
+#if DEVBUILD
+	//if (event.keyCode == VK_LMENU) {
+	//	m_drawUi = true;
+	//	Mouse::instance().detach();
+	//	Keyboard::instance().disable();
+	//}
+#endif
 
 	if (event.keyCode == VK_ESCAPE) {
 		ImGui::GetIO().WantCaptureMouse = false;
@@ -229,13 +305,14 @@ void VehicleInterface::OnKeyDown(Event::KeyboardEvent& event) {
 	}
 }
 
-void VehicleInterface::resize(int deltaW, int deltaH) {
+void CharacterInterface::resize(int deltaW, int deltaH) {
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
 
 }
 
-void VehicleInterface::renderUi() {
+
+void CharacterInterface::renderUi() {
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
@@ -269,7 +346,7 @@ void VehicleInterface::renderUi() {
 	// render widgets
 	ImGui::Begin("Settings", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
 	ImGui::Checkbox("Draw Wirframe", &StateMachine::GetEnableWireframe());
-	ImGui::Checkbox("Follow", &m_follow);
+
 
 	ImGui::End();
 
@@ -277,8 +354,7 @@ void VehicleInterface::renderUi() {
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
-
-void VehicleInterface::pickObject(const btVector3& pickPos, const btCollisionObject* hitObj) {
+void CharacterInterface::pickObject(const btVector3& pickPos, const btCollisionObject* hitObj) {
 	Keyboard &keyboard = Keyboard::instance();
 
 	btRigidBody* body = (btRigidBody*)btRigidBody::upcast(hitObj);
@@ -288,9 +364,11 @@ void VehicleInterface::pickObject(const btVector3& pickPos, const btCollisionObj
 			pickedBody = body;
 			pickedBody->setActivationState(DISABLE_DEACTIVATION);
 			btVector3 localPivot = body->getCenterOfMassTransform().inverse() * pickPos;
-			if(keyboard.keyDown(Keyboard::KEY_RSHIFT) || keyboard.keyDown(Keyboard::KEY_LSHIFT)) {
-			
-				btGeneric6DofConstraint* dof6 = new btGeneric6DofConstraint(*body, Physics::BtTransform(localPivot), false);
+			if (keyboard.keyDown(Keyboard::KEY_RSHIFT) || keyboard.keyDown(Keyboard::KEY_LSHIFT)) {
+				btTransform tr;
+				tr.setIdentity();
+				tr.setOrigin(localPivot);
+				btGeneric6DofConstraint* dof6 = new btGeneric6DofConstraint(*body, tr, false);
 				dof6->setLinearLowerLimit(btVector3(0.0f, 0.0f, 0.0f));
 				dof6->setLinearUpperLimit(btVector3(0.0f, 0.0f, 0.0f));
 				dof6->setAngularLowerLimit(btVector3(0.0f, 0.0f, 0.0f));
@@ -312,7 +390,6 @@ void VehicleInterface::pickObject(const btVector3& pickPos, const btCollisionObj
 				dof6->setParam(BT_CONSTRAINT_STOP_ERP, 0.1f, 3);
 				dof6->setParam(BT_CONSTRAINT_STOP_ERP, 0.1f, 4);
 				dof6->setParam(BT_CONSTRAINT_STOP_ERP, 0.1f, 5);
-
 			}else {
 				btPoint2PointConstraint* p2p = new btPoint2PointConstraint(*body, localPivot);
 				Physics::GetDynamicsWorld()->addConstraint(p2p, true);
@@ -325,14 +402,20 @@ void VehicleInterface::pickObject(const btVector3& pickPos, const btCollisionObj
 
 }
 
-void VehicleInterface::removePickingConstraint() {
+void CharacterInterface::removePickingConstraint() {
 	if (m_pickConstraint && Physics::GetDynamicsWorld()) {
 		Physics::GetDynamicsWorld()->removeConstraint(m_pickConstraint);
 		delete m_pickConstraint;
 
 		m_pickConstraint = 0;
 		pickedBody->forceActivationState(ACTIVE_TAG);
-		pickedBody->setDeactivationTime(0.f);
+		pickedBody->setDeactivationTime(0.0f);
 		pickedBody = 0;
 	}
+}
+
+void CharacterInterface::clientResetScene() {
+	Physics::GetDynamicsWorld()->getBroadphase()->getOverlappingPairCache()->cleanProxyFromPairs(m_ghostObject->getBroadphaseHandle(), Physics::GetDynamicsWorld()->getDispatcher());
+	m_character->reset(Physics::GetDynamicsWorld());
+	m_character->warp(btVector3(10.210001f, -2.0306311f, 16.576973f));
 }

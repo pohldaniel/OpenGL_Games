@@ -3,15 +3,13 @@
 #include <imgui_impl_opengl3.h>
 #include <imgui_internal.h>
 
-#include "VehicleInterface.h"
+#include "RagdollInterface.h"
 #include "Application.h"
 #include "Globals.h"
 #include "Menu.h"
 
-extern char heightfield[];
-
-VehicleInterface::VehicleInterface(StateMachine& machine) : State(machine, CurrentState::RAGDOLLINTERFACE),
-															m_pickConstraint(0) {
+RagdollInterface::RagdollInterface(StateMachine& machine) : State(machine, CurrentState::RAGDOLLINTERFACE),
+m_pickConstraint(0) {
 
 	Application::SetCursorIcon(IDC_ARROW);
 	EventDispatcher::AddKeyboardListener(this);
@@ -22,34 +20,42 @@ VehicleInterface::VehicleInterface(StateMachine& machine) : State(machine, Curre
 	m_camera.lookAt(Vector3f(0.0f, 2.0f, 10.0f), Vector3f(0.0f, 2.0f, 10.0f) + Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
 	m_camera.setRotationSpeed(0.1f);
 
+	btCollisionShape* groundShape = new btBoxShape(btVector3(200.0f, 10.0f, 200.0f));
+	btTransform groundTransform;
+	groundTransform.setIdentity();
+	groundTransform.setOrigin(btVector3(0.0f, -10.0f, 0.0f));
+
+	btCollisionObject* fixedGround = new btCollisionObject();
+	fixedGround->setCollisionShape(groundShape);
+	fixedGround->setWorldTransform(groundTransform);
+	Physics::GetDynamicsWorld()->addCollisionObject(fixedGround, Physics::FLOOR | Physics::PICKABLE_OBJECT, Physics::MOUSEPICKER | Physics::PICKABLE_OBJECT);
+
+	// Spawn one ragdoll
+	btVector3 startOffset(1.0f, 0.5f, 0.0f);
+	spawnRagdoll(startOffset);
+	startOffset.setValue(-1.0f, 0.5f, 0.0f);
+	spawnRagdoll(startOffset);
+
+	//std::vector<btCollisionShape*> platformShape = Physics::CreateStaticCollisionShapes(&Globals::shapeManager.get("platform"), 1.0f);
+	//btRigidBody* body = Globals::physics->addStaticModel(platformShape, Physics::BtTransform(), false, btVector3(1.0f, 1.0f, 1.0f), Physics::FLOOR, Physics::PICKABLE_OBJECT);
+
 	ShapeDrawer::Get().init(32768);
 	ShapeDrawer::Get().setCamera(m_camera);
+
 	glClearColor(0.7f, 0.7f, 0.7f, 0.0f);
-
-	for (int i = 0; i < 128 * 128; i++) {
-		heightfield[i] = heightfield[i] * 1.1f;
-	}
-
-	m_heightField.create(heightfield, 128, 128, Physics::BtTransform(btVector3(0.0f, 49.4f, 0.0f)), btVector3(1.0f, 1.0f, 1.0f), Physics::collisiontypes::FLOOR | Physics::PICKABLE_OBJECT, Physics::collisiontypes::CAR | Physics::MOUSEPICKER);
-	m_heightField.processAllTriangles();
-
-	m_physicsCar = new PhysicsCar();
-	m_physicsCar->create(Physics::BtTransform(Vector3f(0.0f, 1.0f, 0.0f)), Physics::collisiontypes::CAR | Physics::PICKABLE_OBJECT, Physics::collisiontypes::FLOOR | Physics::MOUSEPICKER);
 }
 
-VehicleInterface::~VehicleInterface() {
+RagdollInterface::~RagdollInterface() {
 	Globals::physics->removeAllCollisionObjects();
 	EventDispatcher::RemoveKeyboardListener(this);
 	EventDispatcher::RemoveMouseListener(this);
 }
 
-void VehicleInterface::fixedUpdate() {
-	m_physicsCar->fixedUpdate();
+void RagdollInterface::fixedUpdate() {
 	Globals::physics->stepSimulation(m_fdt);
 }
 
-void VehicleInterface::update() {
-
+void RagdollInterface::update() {
 	Keyboard &keyboard = Keyboard::instance();
 	Vector3f directrion = Vector3f();
 
@@ -105,45 +111,19 @@ void VehicleInterface::update() {
 	}
 	m_trackball.idle();
 	m_transform.fromMatrix(m_trackball.getTransform());
-
-	m_physicsCar->update();
 }
 
-void VehicleInterface::render() {
-
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	glLoadMatrixf(&m_camera.getPerspectiveMatrix()[0][0]);
-
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-	glLoadMatrixf(&m_camera.getViewMatrix()[0][0]);
-
-	btScalar m[16];
-	btTransform trans;
+void RagdollInterface::render() {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	if (m_follow) {
-		m_camera.follow(Physics::MatrixFrom(m_physicsCar->getWorldTransform()), Physics::VectorFrom(m_physicsCar->getLinearVelocity()), m_dt);
-	}
-
 	ShapeDrawer::Get().drawDynmicsWorld(Physics::GetDynamicsWorld());
-
-	for (int i = 0; i < m_physicsCar->getVehicle()->getNumWheels(); i++){
-		m_physicsCar->getVehicle()->updateWheelTransform(i, true);
-		m_physicsCar->getVehicle()->getWheelInfo(i).m_worldTransform.getOpenGLMatrix(m);
-		ShapeDrawer::Get().drawShape(m, m_physicsCar->getWheelShape());
-	}
-	
 	m_mousePicker.drawPicker(m_camera);
 
 	if (m_drawUi)
 		renderUi();
-
 }
 
-void VehicleInterface::OnMouseMotion(Event::MouseMoveEvent& event) {
+void RagdollInterface::OnMouseMotion(Event::MouseMoveEvent& event) {
 	m_mousePicker.updatePosition(event.x, event.y, m_camera);
 
 	if (m_pickConstraint) {
@@ -160,11 +140,11 @@ void VehicleInterface::OnMouseMotion(Event::MouseMoveEvent& event) {
 				btVector3 dir = newRayTo - rayFrom;
 				dir.normalize();
 				dir *= m_mousePicker.getPickingDistance();
-				
+
 				pickCon->getFrameOffsetA().setOrigin(rayFrom + dir);
 			}
 
-		} else {
+		}else {
 
 			btPoint2PointConstraint* pickCon = static_cast<btPoint2PointConstraint*>(m_pickConstraint);
 			if (pickCon) {
@@ -184,17 +164,17 @@ void VehicleInterface::OnMouseMotion(Event::MouseMoveEvent& event) {
 	}
 }
 
-void VehicleInterface::OnMouseWheel(Event::MouseWheelEvent& event) {
+void RagdollInterface::OnMouseWheel(Event::MouseWheelEvent& event) {
 
 }
 
-void VehicleInterface::OnMouseButtonDown(Event::MouseButtonEvent& event) {
+void RagdollInterface::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 	m_mousePicker.updatePosition(event.x, event.y, m_camera);
 
 	if (event.button == 2u) {
 		Mouse::instance().attach(Application::GetWindow());
-
-	}else if (event.button == 1u) {
+	}
+	else if (event.button == 1u) {
 
 		if (m_mousePicker.click(event.x, event.y, m_camera)) {
 			m_mousePicker.setHasPicked(true);
@@ -204,17 +184,16 @@ void VehicleInterface::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 	}
 }
 
-void VehicleInterface::OnMouseButtonUp(Event::MouseButtonEvent& event) {
+void RagdollInterface::OnMouseButtonUp(Event::MouseButtonEvent& event) {
 	if (event.button == 2u) {
 		Mouse::instance().detach();
-
 	}else if (event.button == 1u) {
 		m_mousePicker.setHasPicked(false);
 		removePickingConstraint();
 	}
 }
 
-void VehicleInterface::OnKeyDown(Event::KeyboardEvent& event) {
+void RagdollInterface::OnKeyDown(Event::KeyboardEvent& event) {
 	if (event.keyCode == VK_LMENU) {
 		m_drawUi = true;
 		Mouse::instance().detach();
@@ -229,13 +208,14 @@ void VehicleInterface::OnKeyDown(Event::KeyboardEvent& event) {
 	}
 }
 
-void VehicleInterface::resize(int deltaW, int deltaH) {
+void RagdollInterface::resize(int deltaW, int deltaH) {
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
 
 }
 
-void VehicleInterface::renderUi() {
+
+void RagdollInterface::renderUi() {
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
@@ -269,7 +249,7 @@ void VehicleInterface::renderUi() {
 	// render widgets
 	ImGui::Begin("Settings", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
 	ImGui::Checkbox("Draw Wirframe", &StateMachine::GetEnableWireframe());
-	ImGui::Checkbox("Follow", &m_follow);
+
 
 	ImGui::End();
 
@@ -277,8 +257,12 @@ void VehicleInterface::renderUi() {
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
+void RagdollInterface::spawnRagdoll(const btVector3& startOffset) {
+	RagDoll* ragDoll = new RagDoll(Physics::GetDynamicsWorld(), startOffset);
+	m_ragdolls.push_back(ragDoll);
+}
 
-void VehicleInterface::pickObject(const btVector3& pickPos, const btCollisionObject* hitObj) {
+void RagdollInterface::pickObject(const btVector3& pickPos, const btCollisionObject* hitObj) {
 	Keyboard &keyboard = Keyboard::instance();
 
 	btRigidBody* body = (btRigidBody*)btRigidBody::upcast(hitObj);
@@ -288,9 +272,11 @@ void VehicleInterface::pickObject(const btVector3& pickPos, const btCollisionObj
 			pickedBody = body;
 			pickedBody->setActivationState(DISABLE_DEACTIVATION);
 			btVector3 localPivot = body->getCenterOfMassTransform().inverse() * pickPos;
-			if(keyboard.keyDown(Keyboard::KEY_RSHIFT) || keyboard.keyDown(Keyboard::KEY_LSHIFT)) {
-			
-				btGeneric6DofConstraint* dof6 = new btGeneric6DofConstraint(*body, Physics::BtTransform(localPivot), false);
+			if (keyboard.keyDown(Keyboard::KEY_RSHIFT) || keyboard.keyDown(Keyboard::KEY_LSHIFT)) {
+				btTransform tr;
+				tr.setIdentity();
+				tr.setOrigin(localPivot);
+				btGeneric6DofConstraint* dof6 = new btGeneric6DofConstraint(*body, tr, false);
 				dof6->setLinearLowerLimit(btVector3(0.0f, 0.0f, 0.0f));
 				dof6->setLinearUpperLimit(btVector3(0.0f, 0.0f, 0.0f));
 				dof6->setAngularLowerLimit(btVector3(0.0f, 0.0f, 0.0f));
@@ -312,8 +298,8 @@ void VehicleInterface::pickObject(const btVector3& pickPos, const btCollisionObj
 				dof6->setParam(BT_CONSTRAINT_STOP_ERP, 0.1f, 3);
 				dof6->setParam(BT_CONSTRAINT_STOP_ERP, 0.1f, 4);
 				dof6->setParam(BT_CONSTRAINT_STOP_ERP, 0.1f, 5);
-
-			}else {
+			}
+			else {
 				btPoint2PointConstraint* p2p = new btPoint2PointConstraint(*body, localPivot);
 				Physics::GetDynamicsWorld()->addConstraint(p2p, true);
 				m_pickConstraint = p2p;
@@ -325,14 +311,14 @@ void VehicleInterface::pickObject(const btVector3& pickPos, const btCollisionObj
 
 }
 
-void VehicleInterface::removePickingConstraint() {
+void RagdollInterface::removePickingConstraint() {
 	if (m_pickConstraint && Physics::GetDynamicsWorld()) {
 		Physics::GetDynamicsWorld()->removeConstraint(m_pickConstraint);
 		delete m_pickConstraint;
 
 		m_pickConstraint = 0;
 		pickedBody->forceActivationState(ACTIVE_TAG);
-		pickedBody->setDeactivationTime(0.f);
+		pickedBody->setDeactivationTime(0.0f);
 		pickedBody = 0;
 	}
 }

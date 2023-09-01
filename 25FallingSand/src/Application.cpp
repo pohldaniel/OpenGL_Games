@@ -6,22 +6,17 @@
 #include <imgui_impl_win32.h>
 #include <imgui_impl_opengl3.h>
 
-#include "engine/Framebuffer.h"
-#include "engine/Fontrenderer.h"
-#include "Application.h"
-#include "Globals.h"
+#include <engine/Framebuffer.h>
+#include <engine/Fontrenderer.h>
+#include <Application.h>
+#include <Globals.h>
 
-#include "RagdollInterface.h"
-#include "VehicleInterface.h"
-#include "CharacterInterface.h"
-#include "Game.h"
-#include "Turso.h"
-#include "KCCInterface.h"
-#include "OctreeInterface.h"
-#include "Menu.h"
-#include "Widget.h"
+#include <States/RagdollInterface.h>
+#include <States/VehicleInterface.h>
+#include <States/CharacterInterface.h>
+#include <States/Menu.h>
+#include <UI/Widget.h>
 
-#include "Graphics/Graphics.h"
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -385,12 +380,8 @@ void Application::initStates() {
 	
 	Machine = new StateMachine(m_dt, m_fdt);
 	//Machine->addStateAtTop(new VehicleInterface(*Machine));
-	//Machine->addStateAtTop(new RagdollInterface(*Machine));
+	Machine->addStateAtTop(new RagdollInterface(*Machine));
 	//Machine->addStateAtTop(new CharacterInterface(*Machine));
-	//Machine->addStateAtTop(new Game(*Machine));
-	//Machine->addStateAtTop(new TursoInterface(*Machine));
-	Machine->addStateAtTop(new KCCInterface(*Machine));
-	//Machine->addStateAtTop(new OctreeInterface(*Machine));
 	//Machine->addStateAtTop(new Menu(*Machine));
 }
 
