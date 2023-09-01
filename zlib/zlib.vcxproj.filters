@@ -15,89 +15,89 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\crc32.h">
+    <ClInclude Include="..\libzlib\include\crc32.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\deflate.h">
+    <ClInclude Include="..\libzlib\include\deflate.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\gzguts.h">
+    <ClInclude Include="..\libzlib\include\gzguts.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\inflate.h">
+    <ClInclude Include="..\libzlib\include\inffast.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\inftrees.h">
+    <ClInclude Include="..\libzlib\include\inffixed.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\trees.h">
+    <ClInclude Include="..\libzlib\include\inflate.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\zconf.h">
+    <ClInclude Include="..\libzlib\include\inftrees.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\zlib.h">
+    <ClInclude Include="..\libzlib\include\trees.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\zutil.h">
+    <ClInclude Include="..\libzlib\include\zconf.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\inffast.h">
+    <ClInclude Include="..\libzlib\include\zlib.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\inffixed.h">
+    <ClInclude Include="..\libzlib\include\zutil.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\adler32.c">
+    <ClCompile Include="..\libzlib\src\adler32.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\compress.c">
+    <ClCompile Include="..\libzlib\src\compress.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\crc32.c">
+    <ClCompile Include="..\libzlib\src\crc32.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\deflate.c">
+    <ClCompile Include="..\libzlib\src\deflate.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\gzclose.c">
+    <ClCompile Include="..\libzlib\src\gzclose.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\gzlib.c">
+    <ClCompile Include="..\libzlib\src\gzlib.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\gzread.c">
+    <ClCompile Include="..\libzlib\src\gzread.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\gzwrite.c">
+    <ClCompile Include="..\libzlib\src\gzwrite.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\infback.c">
+    <ClCompile Include="..\libzlib\src\infback.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\inffast.c">
+    <ClCompile Include="..\libzlib\src\inffast.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\inflate.c">
+    <ClCompile Include="..\libzlib\src\inflate.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\inftrees.c">
+    <ClCompile Include="..\libzlib\src\inftrees.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\trees.c">
+    <ClCompile Include="..\libzlib\src\trees.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\uncompr.c">
+    <ClCompile Include="..\libzlib\src\uncompr.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\zutil.c">
+    <ClCompile Include="..\libzlib\src\zutil.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="zlib1.rc">
+    <ResourceCompile Include="..\libzlib\zlib1.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
   </ItemGroup>
