@@ -314,11 +314,12 @@ void Application::initOpenGL(int msaaSamples) {
 
 	glCullFace(GL_BACK);
 	glFrontFace(GL_CCW);
-	//glEnable(GL_CULL_FACE);
-	glDisable(GL_CULL_FACE);
+	glEnable(GL_CULL_FACE);
+	//glDisable(GL_CULL_FACE);
 
 	glEnable(GL_DEPTH_TEST);
-	//glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+	glDepthFunc(GL_LEQUAL);
+
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
@@ -618,9 +619,15 @@ void Application::SetCursorIcon(LPCSTR resource) {
 }
 
 void Application::loadAssets() {
-	Globals::shaderManager.loadShader("texture", "res/shader/texture.vert", "res/shader/texture.frag");	
-	Globals::shaderManager.loadShader("font", "res/shader/batch.vert", "res/shader/font.frag");
-	Globals::shaderManager.loadShader("mdl", "res/shader/mdl.vert", "res/shader/mdl.frag");
 
-	
+	Globals::shaderManager.loadShader("font", "res/shader/batch.vert", "res/shader/font.frag");
+	Globals::shaderManager.loadShader("texture", "res/shader/texture.vert", "res/shader/texture.frag");		
+	Globals::shaderManager.loadShader("quad_back", "res/shader/quad_back.vert", "res/shader/quad.frag");
+
+	Globals::textureManager.loadTexture("bg_layer_2", "res/backgrounds/TestOverworld/layer2.png", true);
+	Globals::textureManager.loadTexture("bg_layer_3", "res/backgrounds/TestOverworld/layer3.png", true);
+	Globals::textureManager.loadTexture("bg_layer_4", "res/backgrounds/TestOverworld/layer4.png", true);
+	Globals::textureManager.loadTexture("bg_layer_5", "res/backgrounds/TestOverworld/layer5.png", true);
+
+	Globals::shapeManager.buildQuadXY("quad", Vector3f(-1.0f, -1.0f, 0.0f), Vector2f(2.0f, 2.0f), 1, 1, true, true, true);
 }

@@ -20,9 +20,10 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
 	m_camera.lookAt(Vector3f(0.0f, 2.0f, 10.0f), Vector3f(0.0f, 2.0f, 10.0f) + Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
 	m_camera.setRotationSpeed(0.1f);
-
 	
-	glClearColor(0.7f, 0.7f, 0.7f, 0.0f);
+	
+	glClearColor(0.494f, 0.686f, 0.796f, 1.0f);
+	glClearDepth(1.0f);
 
 	MainMenuUI::Setup();
 }
@@ -99,11 +100,30 @@ void Game::render() {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+	glEnable(GL_BLEND);
+	auto quad = Globals::shaderManager.getAssetPointer("quad_back");
+	quad->use();
+	quad->loadInt("u_texture", 0);
+
+	Globals::textureManager.get("bg_layer_2").bind(0);
+	Globals::shapeManager.get("quad").drawRaw();
+
+	Globals::textureManager.get("bg_layer_3").bind(0);
+	Globals::shapeManager.get("quad").drawRaw();
+
+	Globals::textureManager.get("bg_layer_4").bind(0);
+	Globals::shapeManager.get("quad").drawRaw();
+
+	Globals::textureManager.get("bg_layer_5").bind(0);
+	Globals::shapeManager.get("quad").drawRaw();
+
+	quad->unuse();
+	glDisable(GL_BLEND);
+
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
 	MainMenuUI::Draw(this);
-
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
