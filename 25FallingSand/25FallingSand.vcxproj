@@ -88,7 +88,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;GLEW_STATIC;TRACY_ENABLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;src;Physics;..\libglew;..\libimgui;..\libassimp;..\libassimp\include;..\openal\include;..\sndfile\include;..\libfreetype\include;..\libbullet;..\libsoil2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;src;Physics;..\libglew;..\libimgui;..\libassimp;..\libassimp\include;..\openal\include;..\sndfile\include;..\libfreetype\include;..\libbullet;..\libsoil2;..\rapidjson\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -104,7 +104,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;GLEW_STATIC;TRACY_ENABLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;src;Physics;..\libglew;..\libimgui;..\libassimp;..\libassimp\include;..\openal\include;..\sndfile\include;..\libfreetype\include;..\libbullet;..\libsoil2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;src;Physics;..\libglew;..\libimgui;..\libassimp;..\libassimp\include;..\openal\include;..\sndfile\include;..\libfreetype\include;..\libbullet;..\libsoil2;..\rapidjson\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -122,7 +122,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;GLEW_STATIC;TRACY_ENABLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;src;Physics;..\libglew;..\libimgui;..\libassimp;..\libassimp\include;..\openal\include;..\sndfile\include;..\libfreetype\include;..\libbullet;..\libsoil2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;src;Physics;..\libglew;..\libimgui;..\libassimp;..\libassimp\include;..\openal\include;..\sndfile\include;..\libfreetype\include;..\libbullet;..\libsoil2;..\rapidjson\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <WholeProgramOptimization>false</WholeProgramOptimization>
     </ClCompile>
     <Link>
@@ -143,7 +143,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;_WINDOWS;_CRT_SECURE_NO_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;GLEW_STATIC;TRACY_ENABLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;src;Physics;..\libglew;..\libimgui;..\libassimp;..\libassimp\include;..\openal\include;..\sndfile\include;..\libfreetype\include;..\libbullet;..\libsoil2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;src;Physics;..\libglew;..\libimgui;..\libassimp;..\libassimp\include;..\openal\include;..\sndfile\include;..\libfreetype\include;..\libbullet;..\libsoil2;..\rapidjson\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <WholeProgramOptimization>false</WholeProgramOptimization>
     </ClCompile>
     <Link>
@@ -156,6 +156,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="CreateWorldUI.cpp" />
     <ClCompile Include="engine\ArrayBuffer.cpp" />
     <ClCompile Include="engine\AssimpModel.cpp" />
     <ClCompile Include="engine\Batchrenderer.cpp" />
@@ -202,6 +203,9 @@
     <ClCompile Include="engine\Transform.cpp" />
     <ClCompile Include="engine\Vector.cpp" />
     <ClCompile Include="engine\VolumeBuffer.cpp" />
+    <ClCompile Include="InGameUI.cpp" />
+    <ClCompile Include="MainMenuUI.cpp" />
+    <ClCompile Include="OptionsUI.cpp" />
     <ClCompile Include="Physics\BspConverter.cpp" />
     <ClCompile Include="Physics\BspLoader.cpp" />
     <ClCompile Include="Physics\DebugDrawer.cpp" />
@@ -215,12 +219,14 @@
     <ClCompile Include="Physics\Ragdoll.cpp" />
     <ClCompile Include="Physics\ShapeDrawer.cpp" />
     <ClCompile Include="Physics\StaticTrigger.cpp" />
+    <ClCompile Include="Settings.cpp" />
     <ClCompile Include="src\Application.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\Objects\Object.cpp" />
     <ClCompile Include="src\Objects\RenderableObject.cpp" />
     <ClCompile Include="src\RandomColor.cpp" />
     <ClCompile Include="src\States\CharacterInterface.cpp" />
+    <ClCompile Include="src\States\Game.cpp" />
     <ClCompile Include="src\States\Menu.cpp" />
     <ClCompile Include="src\States\RagdollInterface.cpp" />
     <ClCompile Include="src\States\StateMachine.cpp" />
@@ -232,8 +238,10 @@
     <ClCompile Include="src\UI\Widget.cpp" />
     <ClCompile Include="src\Utils\SolidIO.cpp" />
     <ClCompile Include="src\Utils\Utils.cpp" />
+    <ClCompile Include="UTime.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CreateWorld.UI.h" />
     <ClInclude Include="engine\ArrayBuffer.h" />
     <ClInclude Include="engine\CubeBuffer.h" />
     <ClInclude Include="engine\input\Mouse.h" />
@@ -286,6 +294,9 @@
     <ClInclude Include="engine\Vector.h" />
     <ClInclude Include="engine\VolumeBuffer.h" />
     <ClInclude Include="Globals.h" />
+    <ClInclude Include="InGameUI.h" />
+    <ClInclude Include="MainMenuUI.h" />
+    <ClInclude Include="OptionsUI.h" />
     <ClInclude Include="Physics\BspConverter.h" />
     <ClInclude Include="Physics\BspLoader.h" />
     <ClInclude Include="Physics\BspToBulletConverter.h" />
@@ -299,12 +310,14 @@
     <ClInclude Include="Physics\Ragdoll.h" />
     <ClInclude Include="Physics\ShapeDrawer.h" />
     <ClInclude Include="Physics\StaticTrigger.h" />
+    <ClInclude Include="Settings.h" />
     <ClInclude Include="src\Application.h" />
     <ClInclude Include="src\Objects\Object.h" />
     <ClInclude Include="src\Objects\RenderableObject.h" />
     <ClInclude Include="src\RandomColor.h" />
     <ClInclude Include="Miniball\Miniball.h" />
     <ClInclude Include="src\States\CharacterInterface.h" />
+    <ClInclude Include="src\States\Game.h" />
     <ClInclude Include="src\States\Menu.h" />
     <ClInclude Include="src\States\RagdollInterface.h" />
     <ClInclude Include="src\States\StateMachine.h" />
@@ -316,6 +329,7 @@
     <ClInclude Include="src\UI\Widget.h" />
     <ClInclude Include="src\Utils\SolidIO.h" />
     <ClInclude Include="src\Utils\Utils.h" />
+    <ClInclude Include="UTime.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
