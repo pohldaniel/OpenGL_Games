@@ -25,16 +25,16 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	glClearDepth(1.0f);
 	
 	m_background1.setLayer(std::vector<BackgroundLayer>{{&Globals::textureManager.get("bg_layer_2"), 2, 1.0f, 0.5f, Vector2f(0.333f, 0.666f)},
-                                                        {&Globals::textureManager.get("bg_layer_3"), 2, 2.0f, -0.0666f, Vector2f(0.37f, 0.37f + 0.333f)},
+                                                        {&Globals::textureManager.get("bg_layer_3"), 2, 0.0f, -0.0666f, Vector2f(0.37f, 0.37f + 0.333f)},
                                                         {&Globals::textureManager.get("bg_layer_4"), 2, 3.0f, -0.01f, Vector2f(0.333f, 0.666f)},
-                                                        {&Globals::textureManager.get("bg_layer_5"), 2, 4.0f, 0.01333f, Vector2f(0.333f, 0.666f)} });
+                                                        {&Globals::textureManager.get("bg_layer_5"), 2, 0.0f, 0.01333f, Vector2f(0.333f, 0.666f)} });
 	m_background1.setSpeed(0.005f);
 
-	m_background2.setLayer(std::vector<BackgroundLayer>{ {&Globals::textureManager.get("forest_1"), 1, 1.0f},
-														 {&Globals::textureManager.get("forest_2"), 1, 2.0f},
-														 {&Globals::textureManager.get("forest_3"), 1, 3.0f},
-														 {&Globals::textureManager.get("forest_4"), 1, 4.0f},
-														 {&Globals::textureManager.get("forest_5"), 1, 5.0f}});
+	m_background2.setLayer(std::vector<BackgroundLayer>{{&Globals::textureManager.get("forest_1"), 1, 1.0f},
+														{&Globals::textureManager.get("forest_2"), 1, 2.0f},
+														{&Globals::textureManager.get("forest_3"), 1, 3.0f},
+														{&Globals::textureManager.get("forest_4"), 1, 4.0f},
+														{&Globals::textureManager.get("forest_5"), 1, 5.0f}});
 	m_background2.setSpeed(0.005f);
 
 	MainMenuUI::Setup();
@@ -70,6 +70,8 @@ void Game::update() {
 		directrion += Vector3f(-1.0f, 0.0f, 0.0f);
 		m_background1.addOffset(-0.001f);		
 		m_background2.addOffset(-0.001f);
+		m_background1.setSpeed(-0.005f);
+		m_background2.setSpeed(-0.005f);
 		move |= true;
 	}
 
@@ -77,6 +79,8 @@ void Game::update() {
 		directrion += Vector3f(1.0f, 0.0f, 0.0f);
 		m_background1.addOffset(0.001f);
 		m_background2.addOffset(0.001f);
+		m_background1.setSpeed(0.005f);
+		m_background2.setSpeed(0.005f);
 		move |= true;
 	}
 
