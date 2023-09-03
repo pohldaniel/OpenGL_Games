@@ -24,7 +24,9 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	
 	glClearColor(0.494f, 0.686f, 0.796f, 1.0f);
 	glClearDepth(1.0f);
-	m_background.init(&Globals::textureManager.get("bg_layer_2"), 5, 1, 0.0f, 0.333f);
+	m_layer1.init(&Globals::textureManager.get("bg_layer_2"), 2, 0.5f, Vector2f(0.333f, 0.666f));
+	m_layer2.init(&Globals::textureManager.get("bg_layer_3"), 2, -0.066f, Vector2f(0.37f, 0.37f + 0.333f));
+
 	MainMenuUI::Setup();
 }
 
@@ -57,15 +59,15 @@ void Game::update() {
 
 	if (keyboard.keyDown(Keyboard::KEY_A)) {
 		directrion += Vector3f(-1.0f, 0.0f, 0.0f);
-		m_offset = m_offset + 10.0f;
-		m_background.setOffset(m_offset);
+		m_layer1.addOffset(0.001f);
+		m_layer2.addOffset(0.001f);
 		move |= true;
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_D)) {
 		directrion += Vector3f(1.0f, 0.0f, 0.0f);
-		m_offset = m_offset - 10.0f;
-		m_background.setOffset(m_offset);
+		m_layer1.addOffset(-0.001f);
+		m_layer2.addOffset(-0.001f);
 		move |= true;
 	}
 
@@ -104,7 +106,10 @@ void Game::render() {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	m_background.draw();
+	glEnable(GL_BLEND);
+	m_layer1.draw();
+	m_layer2.draw();
+	glDisable(GL_BLEND);
 
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplWin32_NewFrame();
@@ -149,7 +154,7 @@ void Game::OnKeyDown(Event::KeyboardEvent& event) {
 		ImGui::GetIO().WantCaptureMouse = false;
 		Mouse::instance().detach();
 		m_isRunning = false;
-		m_machine.addStateAtBottom(new Menu(m_machine));
+		//m_machine.addStateAtBottom(new Menu(m_machine));
 	}
 }
 

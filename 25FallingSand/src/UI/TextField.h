@@ -18,7 +18,7 @@
 							out vec4 color;											\n \
 																					\n \
 							void main() {											\n \
-								 gl_Position = u_transform * vec4(i_position, 1.0);	\n \
+								gl_Position = u_transform * vec4(i_position, 1.0);	\n \
 								color  = u_color;									\n \
 							}"
 

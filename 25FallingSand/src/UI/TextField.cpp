@@ -64,7 +64,6 @@ TextField::~TextField() { }
 
 void TextField::draw() {
 	glEnable(GL_STENCIL_TEST);
-
 	glStencilFunc(GL_ALWAYS, 1, 0xFF);
 	glStencilMask(0xFF);
 

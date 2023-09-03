@@ -3,16 +3,21 @@
 #include <engine/Texture.h>
 #include <engine/Vector.h>
 
-class Background {
-public:
+struct BackgroundLayer {
 
-	Background(){}
-	~Background(){}
-	void init(Texture* texture, unsigned int zoomX, unsigned int zoomY, float offsetX, float offsetY);
-	void setOffset(float offset);
+	void init(Texture* texture, unsigned int zoomX, float offset = 0.0f, Vector2f textureOffset = Vector2f(0.0f, 1.0f));
+	void addOffset(float offset);
 	void draw();
 
+
+private:
+
+	float clampOffset(float input);
+
 	unsigned int m_zoomX;
+	float m_imageWidth;
+	Texture* m_texture;
 	std::vector<Vector4f> m_textureRects;
-	float m_offset = 0.0f;
+	float m_offset;
+	float m_store;
 };

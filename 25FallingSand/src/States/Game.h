@@ -38,6 +38,7 @@ private:
 	
 	bool m_initUi = true;
 	bool m_drawUi = true;
-	float m_offset = 0.0f;
-	Background m_background;
+
+	BackgroundLayer m_layer1;
+	BackgroundLayer m_layer2;
 };
