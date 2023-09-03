@@ -38,7 +38,8 @@ private:
 	
 	bool m_initUi = true;
 	bool m_drawUi = true;
+	bool m_switch = false;
 
-	BackgroundLayer m_layer1;
-	BackgroundLayer m_layer2;
+	Background m_background1;
+	Background m_background2;
 };

@@ -21,17 +21,26 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	m_camera.lookAt(Vector3f(0.0f, 2.0f, 10.0f), Vector3f(0.0f, 2.0f, 10.0f) + Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
 	m_camera.setRotationSpeed(0.1f);
 	
-	
 	glClearColor(0.494f, 0.686f, 0.796f, 1.0f);
 	glClearDepth(1.0f);
-	m_layer1.init(&Globals::textureManager.get("bg_layer_2"), 2, 0.5f, Vector2f(0.333f, 0.666f));
-	m_layer2.init(&Globals::textureManager.get("bg_layer_3"), 2, -0.066f, Vector2f(0.37f, 0.37f + 0.333f));
+	
+	m_background1.setLayer(std::vector<BackgroundLayer>{{&Globals::textureManager.get("bg_layer_2"), 2, 1.0f, 0.5f, Vector2f(0.333f, 0.666f)},
+                                                        {&Globals::textureManager.get("bg_layer_3"), 2, 2.0f, -0.0666f, Vector2f(0.37f, 0.37f + 0.333f)},
+                                                        {&Globals::textureManager.get("bg_layer_4"), 2, 3.0f, -0.01f, Vector2f(0.333f, 0.666f)},
+                                                        {&Globals::textureManager.get("bg_layer_5"), 2, 4.0f, 0.01333f, Vector2f(0.333f, 0.666f)} });
+	m_background1.setSpeed(0.005f);
+
+	m_background2.setLayer(std::vector<BackgroundLayer>{ {&Globals::textureManager.get("forest_1"), 1, 1.0f},
+														 {&Globals::textureManager.get("forest_2"), 1, 2.0f},
+														 {&Globals::textureManager.get("forest_3"), 1, 3.0f},
+														 {&Globals::textureManager.get("forest_4"), 1, 4.0f},
+														 {&Globals::textureManager.get("forest_5"), 1, 5.0f}});
+	m_background2.setSpeed(0.005f);
 
 	MainMenuUI::Setup();
 }
 
 Game::~Game() {
-	
 	EventDispatcher::RemoveKeyboardListener(this);
 	EventDispatcher::RemoveMouseListener(this);
 }
@@ -59,15 +68,15 @@ void Game::update() {
 
 	if (keyboard.keyDown(Keyboard::KEY_A)) {
 		directrion += Vector3f(-1.0f, 0.0f, 0.0f);
-		m_layer1.addOffset(0.001f);
-		m_layer2.addOffset(0.001f);
+		m_background1.addOffset(-0.001f);		
+		m_background2.addOffset(-0.001f);
 		move |= true;
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_D)) {
 		directrion += Vector3f(1.0f, 0.0f, 0.0f);
-		m_layer1.addOffset(-0.001f);
-		m_layer2.addOffset(-0.001f);
+		m_background1.addOffset(0.001f);
+		m_background2.addOffset(0.001f);
 		move |= true;
 	}
 
@@ -78,6 +87,11 @@ void Game::update() {
 
 	if (keyboard.keyDown(Keyboard::KEY_E)) {
 		directrion += Vector3f(0.0f, 1.0f, 0.0f);
+		move |= true;
+	}
+
+	if (keyboard.keyPressed(Keyboard::KEY_T)) {
+		m_switch = !m_switch;
 		move |= true;
 	}
 
@@ -100,16 +114,16 @@ void Game::update() {
 	}
 	m_trackball.idle();
 	m_transform.fromMatrix(m_trackball.getTransform());
+
+	m_background1.update(m_dt);
+	m_background2.update(m_dt);
 }
 
 void Game::render() {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	m_switch ? m_background1.draw() : m_background2.draw();
 
-	glEnable(GL_BLEND);
-	m_layer1.draw();
-	m_layer2.draw();
-	glDisable(GL_BLEND);
 
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplWin32_NewFrame();

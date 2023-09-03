@@ -631,6 +631,12 @@ void Application::loadAssets() {
 	Globals::textureManager.loadTexture("bg_layer_3", "res/backgrounds/TestOverworld/layer3.png", true);
 	Globals::textureManager.loadTexture("bg_layer_4", "res/backgrounds/TestOverworld/layer4.png", true);
 	Globals::textureManager.loadTexture("bg_layer_5", "res/backgrounds/TestOverworld/layer5.png", true);
+	
+	Globals::textureManager.loadTexture("forest_1", "res/backgrounds/Forest/plx-1.png", true);
+	Globals::textureManager.loadTexture("forest_2", "res/backgrounds/Forest/plx-2.png", true);
+	Globals::textureManager.loadTexture("forest_3", "res/backgrounds/Forest/plx-3.png", true);
+	Globals::textureManager.loadTexture("forest_4", "res/backgrounds/Forest/plx-4.png", true);
+	Globals::textureManager.loadTexture("forest_5", "res/backgrounds/Forest/plx-5.png", true);
 
 	Globals::fontManager.loadCharacterSet("upheaval_200", "res/fonts/upheavtt.ttf", 200, 0, 30, 128, 0, true, 0u);
 	Globals::fontManager.loadCharacterSet("upheaval_50", "res/fonts/upheavtt.ttf", 50, 0, 3, 0, 0, true, 0u);

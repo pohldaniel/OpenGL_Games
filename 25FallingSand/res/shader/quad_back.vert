@@ -14,7 +14,7 @@ void main(void){
 	gl_Position = u_transform * vec4(i_position, 1.0);
 	gl_Position.z = gl_Position.w;
 	
-	texCoord.x = i_texCoord.x* (u_texRect.z - u_texRect.x) + u_texRect.x;  
+	texCoord.x = i_texCoord.x * (u_texRect.z - u_texRect.x) + u_texRect.x;  
 	texCoord.y = i_texCoord.y * (u_texRect.w - u_texRect.y) + u_texRect.y;
 	vertColor = u_color;
 }

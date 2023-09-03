@@ -200,13 +200,16 @@ void Texture::loadFromFile(std::string fileName, const bool _flipVertical, unsig
 	
 	int width, height, numCompontents;
 	unsigned char* imageData = SOIL_load_image(fileName.c_str(), &width, &height, &numCompontents, SOIL_FLAG);
+
+	
+
 	if (numCompontents == 1 && (_format == GL_RGB || _format == GL_RGBA /*|| SOIL_FLAG == 1u*/)) {
 		SOIL_free_image_data(imageData);
 		SOIL_FLAG = _format == GL_RGB ? 3u : 4u;
 		imageData = SOIL_load_image(fileName.c_str(), &width, &height, 0, SOIL_FLAG);
 		numCompontents = 3;
 	}
-
+	
 	m_internalFormat = _internalFormat == 0 && numCompontents == 1 ? GL_R8 : _internalFormat == 0 && numCompontents == 3 ? GL_RGB8 : _internalFormat == 0 ? GL_RGBA8 : _internalFormat;
 	m_format = _format == 0 && numCompontents == 1 ? GL_R : _format == 0 && numCompontents == 3 ? GL_RGB : _format == 0 ? GL_RGBA : _format;
 	m_type = GL_UNSIGNED_BYTE;
