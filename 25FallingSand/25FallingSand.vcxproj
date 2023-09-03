@@ -156,6 +156,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Background.cpp" />
     <ClCompile Include="CreateWorldUI.cpp" />
     <ClCompile Include="engine\ArrayBuffer.cpp" />
     <ClCompile Include="engine\AssimpModel.cpp" />
@@ -241,6 +242,7 @@
     <ClCompile Include="UTime.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Background.h" />
     <ClInclude Include="CreateWorld.UI.h" />
     <ClInclude Include="engine\ArrayBuffer.h" />
     <ClInclude Include="engine\CubeBuffer.h" />

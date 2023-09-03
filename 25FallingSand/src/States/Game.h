@@ -9,6 +9,7 @@
 #include "Ragdoll.h"
 #include "MousePicker.h"
 #include "ShapeDrawer.h"
+#include "Background.h"
 
 class Game : public State, public MouseEventListener, public KeyboardEventListener {
 
@@ -37,4 +38,6 @@ private:
 	
 	bool m_initUi = true;
 	bool m_drawUi = true;
+	float m_offset = 0.0f;
+	Background m_background;
 };

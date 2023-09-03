@@ -24,7 +24,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	
 	glClearColor(0.494f, 0.686f, 0.796f, 1.0f);
 	glClearDepth(1.0f);
-
+	m_background.init(&Globals::textureManager.get("bg_layer_2"), 5, 1, 0.0f, 0.333f);
 	MainMenuUI::Setup();
 }
 
@@ -57,11 +57,15 @@ void Game::update() {
 
 	if (keyboard.keyDown(Keyboard::KEY_A)) {
 		directrion += Vector3f(-1.0f, 0.0f, 0.0f);
+		m_offset = m_offset + 10.0f;
+		m_background.setOffset(m_offset);
 		move |= true;
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_D)) {
 		directrion += Vector3f(1.0f, 0.0f, 0.0f);
+		m_offset = m_offset - 10.0f;
+		m_background.setOffset(m_offset);
 		move |= true;
 	}
 
@@ -100,25 +104,7 @@ void Game::render() {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	glEnable(GL_BLEND);
-	auto quad = Globals::shaderManager.getAssetPointer("quad_back");
-	quad->use();
-	quad->loadInt("u_texture", 0);
-
-	Globals::textureManager.get("bg_layer_2").bind(0);
-	Globals::shapeManager.get("quad").drawRaw();
-
-	Globals::textureManager.get("bg_layer_3").bind(0);
-	Globals::shapeManager.get("quad").drawRaw();
-
-	Globals::textureManager.get("bg_layer_4").bind(0);
-	Globals::shapeManager.get("quad").drawRaw();
-
-	Globals::textureManager.get("bg_layer_5").bind(0);
-	Globals::shapeManager.get("quad").drawRaw();
-
-	quad->unuse();
-	glDisable(GL_BLEND);
+	m_background.draw();
 
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplWin32_NewFrame();
