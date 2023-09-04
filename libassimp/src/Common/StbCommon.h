@@ -48,7 +48,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma GCC diagnostic ignored "-Wunused-function"
 #endif
 
-#include "stb/stb_image.h"
+#include <SOIL2/stb_image.h>
 
 #if _MSC_VER
 #pragma warning(pop)

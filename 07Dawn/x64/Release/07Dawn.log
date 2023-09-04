@@ -1,9 +1,0 @@
-﻿  Luainterface.cpp
-     Creating library C:\OpenGL_Games\x64\Release\07Dawn.lib and object C:\OpenGL_Games\x64\Release\07Dawn.exp
-  Generating code
-  839 of 18831 functions ( 4.5%) were compiled, the rest were copied from previous compilation.
-    0 functions were new in current compilation
-    287 functions had inline decision re-evaluated but remain unchanged
-  Finished generating code
-  07Dawn.vcxproj -> C:\OpenGL_Games\x64\Release\07Dawn.exe
-  07Dawn.vcxproj -> C:\OpenGL_Games\x64\Release\07Dawn.pdb (Full PDB)

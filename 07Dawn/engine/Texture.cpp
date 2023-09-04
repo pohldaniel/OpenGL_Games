@@ -1,8 +1,8 @@
-#include "Texture.h"
-
-#include "Extension.h"
-#include "../soil2/SOIL2.h"
+#include <soil2\SOIL2.h>
 #include <iostream>
+
+#include "Texture.h"
+#include "Extension.h"
 
 Texture::Texture(std::string fileName, const bool _flipVertical, unsigned int _format) {
 	

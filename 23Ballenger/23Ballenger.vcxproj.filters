@@ -22,9 +22,6 @@
     <Filter Include="convhull">
       <UniqueIdentifier>{16b0aa13-3ea7-4211-bef6-e7a1047efd87}</UniqueIdentifier>
     </Filter>
-    <Filter Include="soil2">
-      <UniqueIdentifier>{9859f6ce-9385-4e0b-b1d4-0acc68b10eb7}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\Objects">
       <UniqueIdentifier>{1689bc2d-d82d-43f4-9860-bd96a42fc04e}</UniqueIdentifier>
     </Filter>
@@ -65,18 +62,6 @@
     </ClCompile>
     <ClCompile Include="RenderableObject.cpp">
       <Filter>Source Files\Objects</Filter>
-    </ClCompile>
-    <ClCompile Include="soil2\image_DXT.c">
-      <Filter>soil2</Filter>
-    </ClCompile>
-    <ClCompile Include="soil2\image_helper.c">
-      <Filter>soil2</Filter>
-    </ClCompile>
-    <ClCompile Include="soil2\SOIL2.c">
-      <Filter>soil2</Filter>
-    </ClCompile>
-    <ClCompile Include="soil2\wfETC.c">
-      <Filter>soil2</Filter>
     </ClCompile>
     <ClCompile Include="ShapeInterface.cpp">
       <Filter>Source Files\States</Filter>

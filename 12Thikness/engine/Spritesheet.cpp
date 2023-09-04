@@ -1,9 +1,9 @@
+#include <soil2\SOIL2.h>
 #include <iostream>
+
 #include "Extension.h"
 #include "Spritesheet.h"
 #include "Texture.h"
-
-#include "..\soil2\SOIL2.h"
 
 Spritesheet::Spritesheet(std::string fileName, unsigned short tileWidth, unsigned short tileHeight, unsigned short spacing, bool reverse, bool _flipVertical, int row, int minColumn, int maxColumn, unsigned int _format) {
 

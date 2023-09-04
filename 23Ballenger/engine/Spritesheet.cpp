@@ -1,9 +1,9 @@
 #include <iostream>
 #include <GL/glew.h>
+#include <soil2/SOIL2.h>
+
 #include "Spritesheet.h"
 #include "Texture.h"
-
-#include "../soil2/SOIL2.h"
 
 Spritesheet::Spritesheet(unsigned int& textureAtlas) {
 	m_texture = textureAtlas;

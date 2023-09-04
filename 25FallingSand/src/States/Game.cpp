@@ -128,6 +128,83 @@ void Game::render() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	m_switch ? m_background1.draw() : m_background2.draw();
 
+	/*for (size_t i = 0; i < world->rigidBodies.size(); i++) {
+		RigidBody* cur = world->rigidBodies[i];
+		if (cur == nullptr) continue;
+		if (cur->surface == nullptr) continue;
+		if (!cur->body->IsEnabled()) continue;
+
+		float x = cur->body->GetPosition().x;
+		float y = cur->body->GetPosition().y;
+
+		// draw
+		GPU_Target* tgt = cur->back ? textureObjectsBack->target : textureObjects->target;
+		GPU_Target* tgtLQ = cur->back ? textureObjectsBack->target : textureObjectsLQ->target;
+		int scaleObjTex = Settings::hd_objects ? Settings::hd_objects_size : 1;
+
+		GPU_Rect r = { x * scaleObjTex, y * scaleObjTex, (float)cur->surface->w * scaleObjTex, (float)cur->surface->h * scaleObjTex };
+
+		if (cur->texNeedsUpdate) {
+			if (cur->texture != nullptr) {
+				GPU_FreeImage(cur->texture);
+			}
+			cur->texture = GPU_CopyImageFromSurface(cur->surface);
+			GPU_SetImageFilter(cur->texture, GPU_FILTER_NEAREST);
+			cur->texNeedsUpdate = false;
+		}
+
+		GPU_BlitRectX(cur->texture, NULL, tgt, &r, cur->body->GetAngle() * 180 / (float)W_PI, 0, 0, GPU_FLIP_NONE);
+
+
+
+		float s = sin(cur->body->GetAngle());
+		float c = cos(cur->body->GetAngle());
+
+		std::vector<std::pair<int, int>> checkDirs = { { 0, 0 },{ 1, 0 },{ -1, 0 },{ 0, 1 },{ 0, -1 } };
+
+		for (int tx = 0; tx < cur->matWidth; tx++) {
+			for (int ty = 0; ty < cur->matHeight; ty++) {
+				MaterialInstance rmat = cur->tiles[tx + ty * cur->matWidth];
+				if (rmat.mat->id == Materials::GENERIC_AIR.id) continue;
+
+				// rotate point
+				int wx = (int)(tx * c - (ty + 1) * s + x);
+				int wy = (int)(tx * s + (ty + 1) * c + y);
+
+				for (auto& dir : checkDirs) {
+					int wxd = wx + dir.first;
+					int wyd = wy + dir.second;
+
+					if (wxd < 0 || wyd < 0 || wxd >= world->width || wyd >= world->height) continue;
+					if (world->tiles[wxd + wyd * world->width].mat->physicsType == PhysicsType::AIR) {
+						world->tiles[wxd + wyd * world->width] = rmat;
+						world->dirty[wxd + wyd * world->width] = true;
+						//objectDelete[wxd + wyd * world->width] = true;
+						break;
+					}
+					else if (world->tiles[wxd + wyd * world->width].mat->physicsType == PhysicsType::SAND) {
+						world->addParticle(new Particle(world->tiles[wxd + wyd * world->width], (float)wxd, (float)(wyd - 3), (float)((rand() % 10 - 5) / 10.0f), (float)(-(rand() % 5 + 5) / 10.0f), 0, (float)0.1));
+						world->tiles[wxd + wyd * world->width] = rmat;
+						//objectDelete[wxd + wyd * world->width] = true;
+						world->dirty[wxd + wyd * world->width] = true;
+						cur->body->SetLinearVelocity({ cur->body->GetLinearVelocity().x * (float)0.99, cur->body->GetLinearVelocity().y * (float)0.99 });
+						cur->body->SetAngularVelocity(cur->body->GetAngularVelocity() * (float)0.98);
+						break;
+					}
+					else if (world->tiles[wxd + wyd * world->width].mat->physicsType == PhysicsType::SOUP) {
+						world->addParticle(new Particle(world->tiles[wxd + wyd * world->width], (float)wxd, (float)(wyd - 3), (float)((rand() % 10 - 5) / 10.0f), (float)(-(rand() % 5 + 5) / 10.0f), 0, (float)0.1));
+						world->tiles[wxd + wyd * world->width] = rmat;
+						//objectDelete[wxd + wyd * world->width] = true;
+						world->dirty[wxd + wyd * world->width] = true;
+						cur->body->SetLinearVelocity({ cur->body->GetLinearVelocity().x * (float)0.998, cur->body->GetLinearVelocity().y * (float)0.998 });
+						cur->body->SetAngularVelocity(cur->body->GetAngularVelocity() * (float)0.99);
+						break;
+					}
+				}
+			}
+		}
+	}*/
+
 
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplWin32_NewFrame();

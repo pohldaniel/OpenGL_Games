@@ -1,9 +1,8 @@
 #include <GL/glew.h>
+#include <SOIL2/SOIL2.h>
 #include <iostream>
 
 #include "Texture.h"
-#include "../soil2/SOIL2.h"
-#include "../soil2/stb_image.h"
 
 #define DEFAULT_MIN_FILTER	GL_NEAREST
 #define DEFAULT_MAG_FILTER	GL_NEAREST
@@ -244,7 +243,7 @@ void Texture::loadFromFile(std::string fileName, const bool _flipVertical, unsig
 
 void Texture::loadHDRIFromFile(std::string fileName, const bool _flipVertical, unsigned int internalFormat, unsigned int format, int paddingLeft, int paddingRight, int paddingTop, int paddingBottom) {
 	int width, height, numCompontents;
-	unsigned char* imageData = reinterpret_cast<unsigned char *>(stbi_loadf(fileName.c_str(), &width, &height, &numCompontents, 0));
+	unsigned char* imageData = reinterpret_cast<unsigned char *>(SOIL_load_image_f(fileName.c_str(), &width, &height, &numCompontents, 0));
 
 	m_internalFormat = internalFormat == 0 && numCompontents == 3 ? GL_RGB32F : internalFormat == 0 ? GL_RGBA32F : internalFormat;
 	m_format = format == 0 && numCompontents == 3 ? GL_RGB : format == 0 ? GL_RGBA : format;
@@ -268,7 +267,7 @@ void Texture::loadHDRIFromFile(std::string fileName, const bool _flipVertical, u
 	m_height = height;
 	m_channels = numCompontents;
 
-	stbi_image_free(imageData);
+	SOIL_free_image_data(imageData);
 }
 
 void Texture::loadCrossDDSFromFile(std::string fileName) {
@@ -436,7 +435,7 @@ void Texture::loadCrossCubeFromFile(std::string fileName, const bool _flipVertic
 
 void Texture::loadCrossHDRIFromFile(std::string fileName, const bool _flipVertical, unsigned int internalFormat, unsigned int format, int paddingLeft, int paddingRight, int paddingTop, int paddingBottom) {
 	int width, height, numCompontents;
-	unsigned char* imageData = reinterpret_cast<unsigned char *>(stbi_loadf(fileName.c_str(), &width, &height, &numCompontents, 0));
+	unsigned char* imageData = reinterpret_cast<unsigned char *>(SOIL_load_image_f(fileName.c_str(), &width, &height, &numCompontents, 0));
 	
 	m_internalFormat = GL_RGB16F;
 	m_format = GL_RGB;
@@ -547,7 +546,7 @@ void Texture::loadCrossHDRIFromFile(std::string fileName, const bool _flipVertic
 		free(facData[i]);
 	}
 
-	stbi_image_free(imageData);
+	SOIL_free_image_data(imageData);
 }
 
 void Texture::loadFromFile(std::string fileName, unsigned short tileWidth, unsigned short tileHeight, unsigned short spacing, unsigned int _posY, unsigned int _posX, const bool _flipVertical, unsigned int _internalFormat, unsigned int _format) {
@@ -1159,7 +1158,7 @@ unsigned char* Texture::LoadFromFile(std::string fileName, int& width, int& heig
 
 unsigned char* Texture::LoadHDRIFromFile(std::string fileName, int& width, int& height, const bool flipVertical, unsigned int internalFormat, unsigned int format, int paddingLeft, int paddingRight, int paddingTop, int paddingBottom) {
 	int numCompontents;
-	unsigned char* imageData = reinterpret_cast<unsigned char *>(stbi_loadf(fileName.c_str(), &width, &height, &numCompontents, 0));
+	unsigned char* imageData = reinterpret_cast<unsigned char *>(SOIL_load_image_f(fileName.c_str(), &width, &height, &numCompontents, 0));
 
 	if (flipVertical)
 		FlipVertical(imageData, numCompontents * sizeof(float) * width, height);

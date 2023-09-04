@@ -31,9 +31,6 @@
     <Filter Include="convhull">
       <UniqueIdentifier>{16b0aa13-3ea7-4211-bef6-e7a1047efd87}</UniqueIdentifier>
     </Filter>
-    <Filter Include="soil2">
-      <UniqueIdentifier>{9859f6ce-9385-4e0b-b1d4-0acc68b10eb7}</UniqueIdentifier>
-    </Filter>
     <Filter Include="tinyxml">
       <UniqueIdentifier>{68395205-e16f-4b50-8cd9-3e3f05660ee7}</UniqueIdentifier>
     </Filter>
@@ -194,18 +191,6 @@
     </ClCompile>
     <ClCompile Include="tinyxml\tinyxmlparser.cpp">
       <Filter>tinyxml</Filter>
-    </ClCompile>
-    <ClCompile Include="soil2\wfETC.c">
-      <Filter>soil2</Filter>
-    </ClCompile>
-    <ClCompile Include="soil2\SOIL2.c">
-      <Filter>soil2</Filter>
-    </ClCompile>
-    <ClCompile Include="soil2\image_helper.c">
-      <Filter>soil2</Filter>
-    </ClCompile>
-    <ClCompile Include="soil2\image_DXT.c">
-      <Filter>soil2</Filter>
     </ClCompile>
     <ClCompile Include="Graphic\TextureLu.cpp">
       <Filter>Source Files</Filter>

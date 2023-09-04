@@ -398,6 +398,14 @@ unsigned char*
 		int force_channels
 	);
 
+float*
+SOIL_load_image_f
+(
+	const char *filename,
+	int *width, int *height, int *channels,
+	int force_channels
+);
+
 /**
 	Loads an image from memory into an array of unsigned chars.
 	Note that *channels return the original channel count of the

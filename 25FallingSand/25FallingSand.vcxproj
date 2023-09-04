@@ -88,7 +88,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;GLEW_STATIC;TRACY_ENABLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;src;Physics;..\libglew;..\libimgui;..\libassimp;..\libassimp\include;..\openal\include;..\sndfile\include;..\libfreetype\include;..\libbullet;..\libsoil2;..\rapidjson\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;src;Physics;Polypartition;..\libglew;..\libimgui;..\libassimp;..\libassimp\include;..\openal\include;..\sndfile\include;..\libfreetype\include;..\libbullet;..\libsoil2;..\rapidjson\include;..\libbox2d\include;..\liblz4;..\libenet\include;..\SDL2\include;..\SDL2_image\include;..\SDL_gpu\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -104,7 +104,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;GLEW_STATIC;TRACY_ENABLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;src;Physics;..\libglew;..\libimgui;..\libassimp;..\libassimp\include;..\openal\include;..\sndfile\include;..\libfreetype\include;..\libbullet;..\libsoil2;..\rapidjson\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;src;Physics;Polypartition;..\libglew;..\libimgui;..\libassimp;..\libassimp\include;..\openal\include;..\sndfile\include;..\libfreetype\include;..\libbullet;..\libsoil2;..\rapidjson\include;..\libbox2d\include;..\liblz4;..\libenet\include;..\SDL2\include;..\SDL2_image\include;..\SDL_gpu\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -122,7 +122,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;GLEW_STATIC;TRACY_ENABLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;src;Physics;..\libglew;..\libimgui;..\libassimp;..\libassimp\include;..\openal\include;..\sndfile\include;..\libfreetype\include;..\libbullet;..\libsoil2;..\rapidjson\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;src;Physics;Polypartition;..\libglew;..\libimgui;..\libassimp;..\libassimp\include;..\openal\include;..\sndfile\include;..\libfreetype\include;..\libbullet;..\libsoil2;..\rapidjson\include;..\libbox2d\include;..\liblz4;..\libenet\include;..\SDL2\include;..\SDL2_image\include;..\SDL_gpu\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <WholeProgramOptimization>false</WholeProgramOptimization>
     </ClCompile>
     <Link>
@@ -143,7 +143,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;_WINDOWS;_CRT_SECURE_NO_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;GLEW_STATIC;TRACY_ENABLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;src;Physics;..\libglew;..\libimgui;..\libassimp;..\libassimp\include;..\openal\include;..\sndfile\include;..\libfreetype\include;..\libbullet;..\libsoil2;..\rapidjson\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;src;Physics;Polypartition;..\libglew;..\libimgui;..\libassimp;..\libassimp\include;..\openal\include;..\sndfile\include;..\libfreetype\include;..\libbullet;..\libsoil2;..\rapidjson\include;..\libbox2d\include;..\liblz4;..\libenet\include;..\SDL2\include;..\SDL2_image\include;..\SDL_gpu\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <WholeProgramOptimization>false</WholeProgramOptimization>
     </ClCompile>
     <Link>
@@ -152,11 +152,13 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>..\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>OpenGl32.lib;libglew.lib;libimgui.lib;libassimp.lib;libzlib.lib;libfreetype.lib;libopenal.lib;libflac.lib;libmpg.lib;liblame.lib;libsndfile.lib;winmm.lib;shlwapi.lib;version.lib;setupapi.lib;libbullet.lib;libsoil2.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>OpenGl32.lib;libglew.lib;libimgui.lib;libassimp.lib;libzlib.lib;libfreetype.lib;libopenal.lib;libflac.lib;libmpg.lib;liblame.lib;libsndfile.lib;winmm.lib;shlwapi.lib;version.lib;setupapi.lib;libbullet.lib;libsoil2.lib;liblz4.lib;SDL2.lib;SDL2_image.lib;SDL_gpu.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Background.cpp" />
+    <ClCompile Include="Biome.cpp" />
+    <ClCompile Include="Chunk.cpp" />
     <ClCompile Include="CreateWorldUI.cpp" />
     <ClCompile Include="engine\ArrayBuffer.cpp" />
     <ClCompile Include="engine\AssimpModel.cpp" />
@@ -206,7 +208,14 @@
     <ClCompile Include="engine\VolumeBuffer.cpp" />
     <ClCompile Include="InGameUI.cpp" />
     <ClCompile Include="MainMenuUI.cpp" />
+    <ClCompile Include="Polypartition\polypartition.cpp" />
+    <ClCompile Include="RigidBody.cpp" />
+    <ClCompile Include="Textures.cpp" />
+    <ClCompile Include="_Material.cpp" />
+    <ClCompile Include="MaterialInstance.cpp" />
+    <ClCompile Include="Materials.cpp" />
     <ClCompile Include="OptionsUI.cpp" />
+    <ClCompile Include="Particle.cpp" />
     <ClCompile Include="Physics\BspConverter.cpp" />
     <ClCompile Include="Physics\BspLoader.cpp" />
     <ClCompile Include="Physics\DebugDrawer.cpp" />
@@ -239,10 +248,13 @@
     <ClCompile Include="src\UI\Widget.cpp" />
     <ClCompile Include="src\Utils\SolidIO.cpp" />
     <ClCompile Include="src\Utils\Utils.cpp" />
+    <ClCompile Include="Tiles.cpp" />
     <ClCompile Include="UTime.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Background.h" />
+    <ClInclude Include="Biome.hpp" />
+    <ClInclude Include="Chunk.hpp" />
     <ClInclude Include="CreateWorld.UI.h" />
     <ClInclude Include="engine\ArrayBuffer.h" />
     <ClInclude Include="engine\CubeBuffer.h" />
@@ -297,8 +309,14 @@
     <ClInclude Include="engine\VolumeBuffer.h" />
     <ClInclude Include="Globals.h" />
     <ClInclude Include="InGameUI.h" />
+    <ClInclude Include="Macros.hpp" />
     <ClInclude Include="MainMenuUI.h" />
+    <ClInclude Include="Material.hpp" />
+    <ClInclude Include="MaterialInstance.hpp" />
+    <ClInclude Include="Materials.hpp" />
     <ClInclude Include="OptionsUI.h" />
+    <ClInclude Include="Particle.hpp" />
+    <ClInclude Include="PhysicsType.hpp" />
     <ClInclude Include="Physics\BspConverter.h" />
     <ClInclude Include="Physics\BspLoader.h" />
     <ClInclude Include="Physics\BspToBulletConverter.h" />
@@ -312,6 +330,8 @@
     <ClInclude Include="Physics\Ragdoll.h" />
     <ClInclude Include="Physics\ShapeDrawer.h" />
     <ClInclude Include="Physics\StaticTrigger.h" />
+    <ClInclude Include="Polypartition\polypartition.h" />
+    <ClInclude Include="RigidBody.hpp" />
     <ClInclude Include="Settings.h" />
     <ClInclude Include="src\Application.h" />
     <ClInclude Include="src\Objects\Object.h" />
@@ -331,6 +351,8 @@
     <ClInclude Include="src\UI\Widget.h" />
     <ClInclude Include="src\Utils\SolidIO.h" />
     <ClInclude Include="src\Utils\Utils.h" />
+    <ClInclude Include="Textures.hpp" />
+    <ClInclude Include="Tiles.hpp" />
     <ClInclude Include="UTime.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

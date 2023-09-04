@@ -22,9 +22,6 @@
     <Filter Include="Source Files\States">
       <UniqueIdentifier>{ac791a0f-f1ac-4fa7-9b54-33d3e7983f6a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="soil2">
-      <UniqueIdentifier>{e400f14a-e809-4ff7-ba25-ba27a250f275}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\Entities">
       <UniqueIdentifier>{3f360783-808b-49bc-a891-9d407484998a}</UniqueIdentifier>
     </Filter>
@@ -262,18 +259,6 @@
     </ClCompile>
     <ClCompile Include="engine\Texture.cpp">
       <Filter>engine</Filter>
-    </ClCompile>
-    <ClCompile Include="soil2\image_DXT.c">
-      <Filter>soil2</Filter>
-    </ClCompile>
-    <ClCompile Include="soil2\image_helper.c">
-      <Filter>soil2</Filter>
-    </ClCompile>
-    <ClCompile Include="soil2\SOIL2.c">
-      <Filter>soil2</Filter>
-    </ClCompile>
-    <ClCompile Include="soil2\wfETC.c">
-      <Filter>soil2</Filter>
     </ClCompile>
     <ClCompile Include="Object.cpp">
       <Filter>Source Files\Objects</Filter>

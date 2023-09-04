@@ -88,13 +88,13 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;FREEGLUT_STATIC;GLEW_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;dirent\include;..\libpng\include;..\libjpeg\include;..\openal\include;..\vorbis\include;..\vorbisfile\include;..\ogg\include;..\libjsoncpp\include;..\libfreeglut\include;..\libglew;..\libimgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;dirent\include;..\libpng\include;..\libjpeg\include;..\openal\include;..\vorbis\include;..\vorbisfile\include;..\ogg\include;..\libjsoncpp\include;..\libfreeglut\include;..\libglew;..\libimgui;..\libsoil2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>..\libd\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>OpenGl32.lib;libfreeglut.lib;libjpeg.lib;libjsoncpp.lib;libogg.lib;libopenal.lib;libvorbis.lib;libvorbisfile.lib;libpng.lib;libzlib.lib;libglew.lib;libimgui.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>OpenGl32.lib;libfreeglut.lib;libjpeg.lib;libjsoncpp.lib;libogg.lib;libopenal.lib;libvorbis.lib;libvorbisfile.lib;libpng.lib;libzlib.lib;libglew.lib;libimgui.lib;winmm.lib;libsoil2.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -104,13 +104,13 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;FREEGLUT_STATIC;GLEW_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;dirent\include;..\libpng\include;..\libjpeg\include;..\openal\include;..\vorbis\include;..\vorbisfile\include;..\ogg\include;..\libjsoncpp\include;..\libfreeglut\include;..\libglew;..\libimgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;dirent\include;..\libpng\include;..\libjpeg\include;..\openal\include;..\vorbis\include;..\vorbisfile\include;..\ogg\include;..\libjsoncpp\include;..\libfreeglut\include;..\libglew;..\libimgui;..\libsoil2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>..\libd\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>OpenGl32.lib;libfreeglut.lib;libjpeg.lib;libjsoncpp.lib;libogg.lib;libopenal.lib;libvorbis.lib;libvorbisfile.lib;libpng.lib;libzlib.lib;libglew.lib;libimgui.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>OpenGl32.lib;libfreeglut.lib;libjpeg.lib;libjsoncpp.lib;libogg.lib;libopenal.lib;libvorbis.lib;libvorbisfile.lib;libpng.lib;libzlib.lib;libglew.lib;libimgui.lib;winmm.lib;libsoil2.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -122,7 +122,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;FREEGLUT_STATIC;GLEW_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;dirent\include;..\libpng\include;..\libjpeg\include;..\openal\include;..\vorbis\include;..\vorbisfile\include;..\ogg\include;..\libjsoncpp\include;..\libfreeglut\include;..\libglew;..\libimgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;dirent\include;..\libpng\include;..\libjpeg\include;..\openal\include;..\vorbis\include;..\vorbisfile\include;..\ogg\include;..\libjsoncpp\include;..\libfreeglut\include;..\libglew;..\libimgui;..\libsoil2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -130,7 +130,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>..\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>OpenGl32.lib;libfreeglut.lib;libjpeg.lib;libjsoncpp.lib;libogg.lib;libopenal.lib;libvorbis.lib;libvorbisfile.lib;libpng.lib;libzlib.lib;libglew.lib;libimgui.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>OpenGl32.lib;libfreeglut.lib;libjpeg.lib;libjsoncpp.lib;libogg.lib;libopenal.lib;libvorbis.lib;libvorbisfile.lib;libpng.lib;libzlib.lib;libglew.lib;libimgui.lib;winmm.lib;libsoil2.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -142,7 +142,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;FREEGLUT_STATIC;GLEW_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;dirent\include;..\libpng\include;..\libjpeg\include;..\openal\include;..\vorbis\include;..\vorbisfile\include;..\ogg\include;..\libjsoncpp\include;..\libfreeglut\include;..\libglew;..\libimgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;dirent\include;..\libpng\include;..\libjpeg\include;..\openal\include;..\vorbis\include;..\vorbisfile\include;..\ogg\include;..\libjsoncpp\include;..\libfreeglut\include;..\libglew;..\libimgui;..\libsoil2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -150,7 +150,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>..\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>OpenGl32.lib;libfreeglut.lib;libjpeg.lib;libjsoncpp.lib;libogg.lib;libopenal.lib;libvorbis.lib;libvorbisfile.lib;libpng.lib;libzlib.lib;libglew.lib;libimgui.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>OpenGl32.lib;libfreeglut.lib;libjpeg.lib;libjsoncpp.lib;libogg.lib;libopenal.lib;libvorbis.lib;libvorbisfile.lib;libpng.lib;libzlib.lib;libglew.lib;libimgui.lib;winmm.lib;libsoil2.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -217,10 +217,6 @@
     <ClCompile Include="Objects\Weapons.cpp" />
     <ClCompile Include="Platform\PlatformUnix.cpp" />
     <ClCompile Include="Platform\PlatformWindows.cpp" />
-    <ClCompile Include="soil2\image_DXT.c" />
-    <ClCompile Include="soil2\image_helper.c" />
-    <ClCompile Include="soil2\SOIL2.c" />
-    <ClCompile Include="soil2\wfETC.c" />
     <ClCompile Include="StateMachine.cpp" />
     <ClCompile Include="tinyxml\tinystr.cpp" />
     <ClCompile Include="tinyxml\tinyxml.cpp" />

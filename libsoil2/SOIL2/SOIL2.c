@@ -1915,6 +1915,27 @@ unsigned char*
 	return result;
 }
 
+float*
+SOIL_load_image_f
+(
+	const char *filename,
+	int *width, int *height, int *channels,
+	int force_channels
+)
+{
+	float *result = stbi_loadf(filename,
+		width, height, channels, force_channels);
+	if (result == NULL)
+	{
+		result_string_pointer = stbi_failure_reason();
+	}
+	else
+	{
+		result_string_pointer = "Image loaded";
+	}
+	return result;
+}
+
 unsigned char*
 	SOIL_load_image_from_memory
 	(

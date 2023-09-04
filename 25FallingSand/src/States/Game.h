@@ -42,4 +42,6 @@ private:
 
 	Background m_background1;
 	Background m_background2;
+
+	//World* world = nullptr;
 };

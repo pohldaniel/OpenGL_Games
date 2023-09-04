@@ -19,9 +19,6 @@
     <Filter Include="engine\input">
       <UniqueIdentifier>{d04eea7a-06d2-488c-93b9-a887a58bef8d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="soil2">
-      <UniqueIdentifier>{d244e862-100c-4ca6-8370-712e17aac29d}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\States">
       <UniqueIdentifier>{68b36858-24c1-4c72-9ce5-c89c294a4761}</UniqueIdentifier>
     </Filter>
@@ -92,18 +89,6 @@
     </ClCompile>
     <ClCompile Include="engine\Vector.cpp">
       <Filter>engine</Filter>
-    </ClCompile>
-    <ClCompile Include="soil2\image_DXT.c">
-      <Filter>soil2</Filter>
-    </ClCompile>
-    <ClCompile Include="soil2\image_helper.c">
-      <Filter>soil2</Filter>
-    </ClCompile>
-    <ClCompile Include="soil2\SOIL2.c">
-      <Filter>soil2</Filter>
-    </ClCompile>
-    <ClCompile Include="soil2\wfETC.c">
-      <Filter>soil2</Filter>
     </ClCompile>
     <ClCompile Include="engine\PerlinNoise.cpp">
       <Filter>engine</Filter>

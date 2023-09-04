@@ -8,9 +8,8 @@
 #include <cstdlib>
 #include <cstring>
 #include <tracy/Tracy.hpp>
-#include <SOIL2/stb_image.h>
+#include <SOIL2/SOIL2.h>
 #include <SOIL2/stb_image_write.h>
-
 #ifndef MAKEFOURCC
 #define MAKEFOURCC(ch0, ch1, ch2, ch3) ((unsigned)(ch0) | ((unsigned)(ch1) << 8) | ((unsigned)(ch2) << 16) | ((unsigned)(ch3) << 24))
 #endif
@@ -485,7 +484,7 @@ bool Image::BeginLoad(Stream& source)
         unsigned char* pixelData = DecodePixelData(source, imageWidth, imageHeight, imageDepth, imageComponents);
         if (!pixelData)
         {
-            LOGERROR("Could not load image " + source.Name() + ": " + std::string(stbi_failure_reason()));
+            //LOGERROR("Could not load image " + source.Name() + ": " + std::string(stbi_failure_reason()));
             return false;
         }
         
@@ -588,7 +587,7 @@ unsigned char* Image::DecodePixelData(Stream& source, int& width, int& height, i
     AutoArrayPtr<unsigned char> buffer(new unsigned char[dataSize]);
     source.Read(buffer, dataSize);
     depth = 1;
-    return stbi_load_from_memory(buffer, (int)dataSize, &width, &height, (int *)&pixelByteSize, 0);
+    return SOIL_load_image_from_memory(buffer, (int)dataSize, &width, &height, (int *)&pixelByteSize, 0);
 }
 
 void Image::FreePixelData(unsigned char* pixelData)
@@ -596,7 +595,7 @@ void Image::FreePixelData(unsigned char* pixelData)
     if (!pixelData)
         return;
 
-    stbi_image_free(pixelData);
+	SOIL_free_image_data(pixelData);
 }
 
 bool Image::GenerateMipImage(Image& dest) const
