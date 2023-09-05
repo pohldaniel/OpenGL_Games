@@ -69,7 +69,7 @@ Structure Structures::makeTree(World world, int x, int y) {
 
 Structure Structures::makeTree1(World world, int x, int y) {
     char buff[30];
-    snprintf(buff, sizeof(buff), "assets/objects/tree%d.png", rand() % 8 + 1);
+    snprintf(buff, sizeof(buff), "res/objects/tree%d.png", rand() % 8 + 1);
     std::string buffAsStdStr = buff;
     return Structure(Textures::loadTexture(buffAsStdStr.c_str()), Materials::GENERIC_PASSABLE);
 }

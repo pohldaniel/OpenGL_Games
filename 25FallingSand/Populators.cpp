@@ -325,8 +325,8 @@ public:
                 }*/
 
                 char buff[40];
-                snprintf(buff, sizeof(buff), "assets/objects/tree%d.png", rand() % 8 + 1);
-                //snprintf(buff, sizeof(buff), "assets/objects/testTree.png");
+                snprintf(buff, sizeof(buff), "res/objects/tree%d.png", rand() % 8 + 1);
+                //snprintf(buff, sizeof(buff), "res/objects/testTree.png");
                 std::string buffAsStdStr = buff;
                 SDL_Surface* tex = Textures::loadTexture(buffAsStdStr.c_str());
 
