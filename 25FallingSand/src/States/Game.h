@@ -11,6 +11,11 @@
 #include "ShapeDrawer.h"
 #include "Background.h"
 
+#include "Particle.hpp"
+#include "RigidBody.hpp"
+#include "Settings.h"
+#include "Networking.hpp"
+
 class Game : public State, public MouseEventListener, public KeyboardEventListener {
 
 public:

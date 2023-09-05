@@ -9,18 +9,9 @@
 #include <engine/Texture.h>
 
 #include "Utime.h"
+#include "World.h"
 
 class Game;
-
-class WorldMeta {
-public:
-	std::string worldName;
-	std::string lastOpenedVersion;
-	int64_t lastOpenedTime = 0;
-
-	static WorldMeta loadWorldMeta(std::string worldFileName);
-	bool save(std::string worldFileName);
-};
 
 class MainMenuUI {
 public:

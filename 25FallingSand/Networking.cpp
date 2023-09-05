@@ -3,7 +3,7 @@
 
 bool Networking::init() {
     if(enet_initialize() != 0) {
-        logError("An error occurred while initializing ENet.");
+        //logError("An error occurred while initializing ENet.");
         return false;
     }
     atexit(enet_deinitialize);
@@ -24,13 +24,13 @@ Server* Server::start(enet_uint16 port) {
         0); // unlimited outgoing bandwidth
 
     if(server->server == NULL) {
-        logError("An error occurred while trying to create an ENet server host.");
+		//logError("An error occurred while trying to create an ENet server host.");
         delete server;
         return NULL;
     } else {
         char ch[20];
         enet_address_get_host_ip(&server->server->address, ch, 20);
-        logInfo("[SERVER] Started on {}:{0:d}.", ch, server->server->address.port);
+		//logInfo("[SERVER] Started on {}:{0:d}.", ch, server->server->address.port);
     }
 
 
@@ -43,9 +43,9 @@ void Server::tick() {
     while(enet_host_service(server, &event, 0) > 0) {
         switch(event.type) {
         case ENET_EVENT_TYPE_CONNECT:
-            logInfo("[SERVER] A new client connected from {0:x}:{0:d}.",
-                event.peer->address.host,
-                event.peer->address.port);
+			//logInfo("[SERVER] A new client connected from {0:x}:{0:d}.",
+			//    event.peer->address.host,
+			//    event.peer->address.port);
 
             // arbitrary client data
             event.peer->data = (void*)"Client data";
@@ -53,18 +53,18 @@ void Server::tick() {
 
             break;
         case ENET_EVENT_TYPE_RECEIVE:
-            logDebug("[SERVER] A packet of length {0:d} containing {} was received from {} on channel {0:d}.",
-                event.packet->dataLength,
-                event.packet->data,
-                event.peer->data,
-                event.channelID);
+			//logDebug("[SERVER] A packet of length {0:d} containing {} was received from {} on channel {0:d}.",
+			//    event.packet->dataLength,
+			//    event.packet->data,
+			//    event.peer->data,
+			//    event.channelID);
 
             // done using packet
             enet_packet_destroy(event.packet);
 
             break;
         case ENET_EVENT_TYPE_DISCONNECT:
-            logDebug("[SERVER] {} disconnected.", event.peer->data);
+			//logDebug("[SERVER] {} disconnected.", event.peer->data);
 
             // clear arbitrary data
             event.peer->data = NULL;
@@ -88,7 +88,7 @@ Client* Client::start() {
         0); // unlimited outgoing bandwidth
 
     if(client->client == NULL) {
-        logError("An error occurred while trying to create an ENet client host.");
+		//logError("An error occurred while trying to create an ENet client host.");
         delete client;
         return NULL;
     }
@@ -105,7 +105,7 @@ bool Client::connect(const char* ip, enet_uint16 port) {
 
     peer = enet_host_connect(client, &address, 2, 0);
     if(peer == NULL) {
-        logError("[CLIENT] No available peers for initiating an ENet connection.");
+		//logError("[CLIENT] No available peers for initiating an ENet connection.");
 
         return false;
     }
@@ -115,7 +115,7 @@ bool Client::connect(const char* ip, enet_uint16 port) {
         event.type == ENET_EVENT_TYPE_CONNECT) {
         char ch[20];
         enet_address_get_host_ip(&peer->address, ch, 20);
-        logInfo("[CLIENT] Connection to {}:{0:d} succeeded.", ch, peer->address.port);
+		//logInfo("[CLIENT] Connection to {}:{0:d} succeeded.", ch, peer->address.port);
 
         return true;
     } else {
@@ -125,7 +125,7 @@ bool Client::connect(const char* ip, enet_uint16 port) {
         enet_peer_reset(peer);
         char ch[20];
         enet_address_get_host_ip(&address, ch, 20);
-        logError("[CLIENT] Connection to {}:{0:d} failed.", ch, address.port);
+		//logError("[CLIENT] Connection to {}:{0:d} failed.", ch, address.port);
     }
 
     return false;
@@ -142,27 +142,27 @@ void Client::tick() {
     while(enet_host_service(client, &event, 0) > 0) {
         switch(event.type) {
         case ENET_EVENT_TYPE_CONNECT:
-            logInfo("[CLIENT] Connected to server at {0:x}:{0:d}.",
-                event.peer->address.host,
-                event.peer->address.port);
+			//logInfo("[CLIENT] Connected to server at {0:x}:{0:d}.",
+			//    event.peer->address.host,
+			//    event.peer->address.port);
 
             // arbitrary client data
             event.peer->data = (void*)"Client information";
 
             break;
         case ENET_EVENT_TYPE_RECEIVE:
-            logDebug("[CLIENT] A packet of length {0:d} containing {} was received from {} on channel {0:d}.",
-                event.packet->dataLength,
-                event.packet->data,
-                event.peer->data,
-                event.channelID);
+			//logDebug("[CLIENT] A packet of length {0:d} containing {} was received from {} on channel {0:d}.",
+			//    event.packet->dataLength,
+			//    event.packet->data,
+			//    event.peer->data,
+			//    event.channelID);
 
             // done with packet
             enet_packet_destroy(event.packet);
 
             break;
         case ENET_EVENT_TYPE_DISCONNECT:
-            logDebug("[CLIENT] {} disconnected.\n", event.peer->data);
+			//logDebug("[CLIENT] {} disconnected.\n", event.peer->data);
 
             // clear arbitrary data
             event.peer->data = NULL;

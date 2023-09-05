@@ -38,6 +38,18 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	m_background2.setSpeed(0.005f);
 
 	MainMenuUI::Setup();
+
+
+
+	/*world = new World();
+	world->noSaveLoad = true;
+	world->init(gameDir.getWorldPath("mainMenu"), (int)ceil(MAX_WIDTH / 3 / (double)CHUNK_W) * CHUNK_W + CHUNK_W * 3, (int)ceil(MAX_HEIGHT / 3 / (double)CHUNK_H) * CHUNK_H + CHUNK_H * 3, target, &audioEngine, NetworkMode::SERVER);
+
+	for (int x = -CHUNK_W * 4; x < world->width + CHUNK_W * 4; x += CHUNK_W) {
+		for (int y = -CHUNK_H * 3; y < world->height + CHUNK_H * 8; y += CHUNK_H) {
+			world->queueLoadChunk(x / CHUNK_W, y / CHUNK_H, true, true);
+		}
+	}*/
 }
 
 Game::~Game() {

@@ -1,5 +1,5 @@
 #pragma once
-
+#include <filesystem>
 
 #include "Chunk.hpp"
 
@@ -20,15 +20,15 @@
 #include "ChunkReadyToMerge.hpp"
 #include <future>
 #include <unordered_map>
-#include "lib/FastNoiseSIMD/FastNoiseSIMD.h"
-#include "lib/FastNoise/FastNoise.h"
-#include "lib/sparsehash/dense_hash_map.h"
+#include <FastNoise/FastNoiseSIMD.h>
+#include <FastNoise/FastNoise.h>
+#include <sparsehash/dense_hash_map.h>
 #ifndef INC_Player
 #include "Player.hpp"
 #endif
-#include "lib/AudioAdventure/include/AudioEngine.h"
+//#include "lib/AudioAdventure/include/AudioEngine.h"
 
-#include "lib/CTPL-ctpl_v.0.0.2/ctpl_stl.h"
+#include <CPTL/ctpl_stl.h>
 
 #include <SDL_gpu.h>
 
@@ -105,8 +105,8 @@ public:
 	std::vector<Particle *> particles;
 	uint16_t width = 0;
 	uint16_t height = 0;
-	void init(std::string worldPath, uint16_t w, uint16_t h, GPU_Target* renderer, CAudioEngine* audioEngine, int netMode, WorldGenerator* generator);
-	void init(std::string worldPath, uint16_t w, uint16_t h, GPU_Target* renderer, CAudioEngine* audioEngine, int netMode);
+	void init(std::string worldPath, uint16_t w, uint16_t h, GPU_Target* renderer, int netMode, WorldGenerator* generator);
+	void init(std::string worldPath, uint16_t w, uint16_t h, GPU_Target* renderer, int netMode);
 	MaterialInstance getTile(int x, int y);
 	void setTile(int x, int y, MaterialInstance type);
 	MaterialInstance getTileLayer2(int x, int y);
@@ -197,8 +197,6 @@ public:
 	std::vector<Entity*> entities;
 	Player* player = nullptr;
 	void tickEntities(GPU_Target* target);
-
-	CAudioEngine* audioEngine = nullptr;
 
 	void forLine(int x0, int y0, int x1, int y1, std::function<bool(int)> fn);
 	void forLineCornered(int x0, int y0, int x1, int y1, std::function<bool(int)> fn);

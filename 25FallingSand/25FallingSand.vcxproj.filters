@@ -49,6 +49,21 @@
     <Filter Include="Polypartition">
       <UniqueIdentifier>{9992079b-170d-4fff-846a-e09fb5ed72f3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="FastNoise">
+      <UniqueIdentifier>{9c003e89-cae8-4a4c-b766-dc4d658669f2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="CPTL">
+      <UniqueIdentifier>{7b04566b-476f-4573-b825-bb2ae813f94b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="PolygonSimplify">
+      <UniqueIdentifier>{f753353e-f907-4d60-aa80-1ae766f1056d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MarchingSquares">
+      <UniqueIdentifier>{d79f32c6-5c86-47d3-b479-25f4d9b1f3a7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Sparsehash">
+      <UniqueIdentifier>{9b98d5d6-1b8c-4b9f-9e83-cf0b2f034b92}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine\input\ApplicationEventListener.cpp">
@@ -332,6 +347,69 @@
     </ClCompile>
     <ClCompile Include="Polypartition\polypartition.cpp">
       <Filter>Polypartition</Filter>
+    </ClCompile>
+    <ClCompile Include="Networking.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="World.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FastNoise\FastNoise.cpp">
+      <Filter>FastNoise</Filter>
+    </ClCompile>
+    <ClCompile Include="FastNoise\FastNoiseSIMD.cpp">
+      <Filter>FastNoise</Filter>
+    </ClCompile>
+    <ClCompile Include="FastNoise\FastNoiseSIMD_avx2.cpp">
+      <Filter>FastNoise</Filter>
+    </ClCompile>
+    <ClCompile Include="FastNoise\FastNoiseSIMD_avx512.cpp">
+      <Filter>FastNoise</Filter>
+    </ClCompile>
+    <ClCompile Include="FastNoise\FastNoiseSIMD_internal.cpp">
+      <Filter>FastNoise</Filter>
+    </ClCompile>
+    <ClCompile Include="FastNoise\FastNoiseSIMD_neon.cpp">
+      <Filter>FastNoise</Filter>
+    </ClCompile>
+    <ClCompile Include="FastNoise\FastNoiseSIMD_sse2.cpp">
+      <Filter>FastNoise</Filter>
+    </ClCompile>
+    <ClCompile Include="FastNoise\FastNoiseSIMD_sse41.cpp">
+      <Filter>FastNoise</Filter>
+    </ClCompile>
+    <ClCompile Include="PlacedStructure.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Player.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PolygonSimplify\polygon-simplify.cc">
+      <Filter>PolygonSimplify</Filter>
+    </ClCompile>
+    <ClCompile Include="DefaultGenerator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MaterialTestGenerator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Populator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Populators.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Structure.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Structures.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Entity.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Item.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -640,6 +718,75 @@
     </ClInclude>
     <ClInclude Include="Polypartition\polypartition.h">
       <Filter>Polypartition</Filter>
+    </ClInclude>
+    <ClInclude Include="Networking.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="World.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FastNoise\FastNoise.h">
+      <Filter>FastNoise</Filter>
+    </ClInclude>
+    <ClInclude Include="FastNoise\FastNoiseSIMD.h">
+      <Filter>FastNoise</Filter>
+    </ClInclude>
+    <ClInclude Include="FastNoise\FastNoiseSIMD_internal.h">
+      <Filter>FastNoise</Filter>
+    </ClInclude>
+    <ClInclude Include="Sparsehash\dense_hash_map.h">
+      <Filter>Sparsehash</Filter>
+    </ClInclude>
+    <ClInclude Include="Sparsehash\sparse_hash_map.h">
+      <Filter>Sparsehash</Filter>
+    </ClInclude>
+    <ClInclude Include="CPTL\ctpl.h">
+      <Filter>CPTL</Filter>
+    </ClInclude>
+    <ClInclude Include="CPTL\ctpl_stl.h">
+      <Filter>CPTL</Filter>
+    </ClInclude>
+    <ClInclude Include="ChunkReadyToMerge.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PlacedStructure.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Player.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ProfilerConfig.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WorldGenerator.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PolygonSimplify\polygon-simplify.hh">
+      <Filter>PolygonSimplify</Filter>
+    </ClInclude>
+    <ClInclude Include="MarchingSquares\Direction.h">
+      <Filter>MarchingSquares</Filter>
+    </ClInclude>
+    <ClInclude Include="MarchingSquares\MarchingSquares.h">
+      <Filter>MarchingSquares</Filter>
+    </ClInclude>
+    <ClInclude Include="MarchingSquares\Utility.h">
+      <Filter>MarchingSquares</Filter>
+    </ClInclude>
+    <ClInclude Include="Populator.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Structure.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Structures.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Entity.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Item.hpp">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
