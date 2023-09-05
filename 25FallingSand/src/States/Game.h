@@ -15,6 +15,8 @@
 #include "RigidBody.hpp"
 #include "Settings.h"
 #include "Networking.hpp"
+#include "World.h"
+#include "GameDir.hpp"
 
 class Game : public State, public MouseEventListener, public KeyboardEventListener {
 
@@ -48,5 +50,11 @@ private:
 	Background m_background1;
 	Background m_background2;
 
-	//World* world = nullptr;
+
+	static const int MAX_WIDTH = 1920;
+	static const int MAX_HEIGHT = 1080;
+	World* world = nullptr;
+	GPU_Target* realTarget = nullptr;
+	GPU_Target* target = nullptr;
+	GameDir gameDir;
 };

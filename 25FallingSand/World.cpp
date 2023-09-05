@@ -162,7 +162,7 @@ void World::init(std::string worldPath, uint16_t w, uint16_t h, GPU_Target* targ
 
 	b2PolygonShape dynamicBox3;
 	dynamicBox3.SetAsBox(10.0f, 2.0f, { 10, -10 }, 0);
-	RigidBody* rb = makeRigidBody(b2_dynamicBody, 300, 300, 0, dynamicBox3, 1, .3, Textures::loadTexture("assets/objects/testObject3.png"));
+	RigidBody* rb = makeRigidBody(b2_dynamicBody, 300, 300, 0, dynamicBox3, 1, .3, Textures::loadTexture("res/objects/testObject3.png"));
 
 	rigidBodies.push_back(rb);
 	updateRigidBodyHitbox(rb);
@@ -919,7 +919,7 @@ found: {};
 
 #pragma endregion
 
-	SDL_Surface* texture = Textures::loadTexture("assets/objects/testObject3.png");
+	SDL_Surface* texture = Textures::loadTexture("res/objects/testObject3.png");
 
 	if (chunk->rb) {
 		delete[] chunk->rb->tiles;

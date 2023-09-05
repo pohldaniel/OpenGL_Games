@@ -411,6 +411,9 @@
     <ClCompile Include="Item.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="GameDir.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="convhull\convhull_3d.h">
@@ -786,6 +789,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Item.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GameDir.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

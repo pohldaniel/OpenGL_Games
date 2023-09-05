@@ -216,6 +216,7 @@
     <ClCompile Include="FastNoise\FastNoiseSIMD_neon.cpp" />
     <ClCompile Include="FastNoise\FastNoiseSIMD_sse2.cpp" />
     <ClCompile Include="FastNoise\FastNoiseSIMD_sse41.cpp" />
+    <ClCompile Include="GameDir.cpp" />
     <ClCompile Include="InGameUI.cpp" />
     <ClCompile Include="Item.cpp" />
     <ClCompile Include="MainMenuUI.cpp" />
@@ -335,6 +336,7 @@
     <ClInclude Include="FastNoise\FastNoise.h" />
     <ClInclude Include="FastNoise\FastNoiseSIMD.h" />
     <ClInclude Include="FastNoise\FastNoiseSIMD_internal.h" />
+    <ClInclude Include="GameDir.hpp" />
     <ClInclude Include="Globals.h" />
     <ClInclude Include="InGameUI.h" />
     <ClInclude Include="Item.hpp" />
