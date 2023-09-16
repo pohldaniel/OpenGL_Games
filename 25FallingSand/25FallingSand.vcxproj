@@ -159,7 +159,11 @@
     <ClCompile Include="Background.cpp" />
     <ClCompile Include="Biome.cpp" />
     <ClCompile Include="Chunk.cpp" />
+    <ClCompile Include="Controls.cpp" />
     <ClCompile Include="CreateWorldUI.cpp" />
+    <ClCompile Include="DebugCheatsUI.cpp" />
+    <ClCompile Include="DebugDrawUI.cpp" />
+    <ClCompile Include="DebugUI.cpp" />
     <ClCompile Include="DefaultGenerator.cpp" />
     <ClCompile Include="engine\ArrayBuffer.cpp" />
     <ClCompile Include="engine\AssimpModel.cpp" />
@@ -278,9 +282,11 @@
     <ClInclude Include="Biome.hpp" />
     <ClInclude Include="Chunk.hpp" />
     <ClInclude Include="ChunkReadyToMerge.hpp" />
+    <ClInclude Include="Controls.hpp" />
     <ClInclude Include="CPTL\ctpl.h" />
     <ClInclude Include="CPTL\ctpl_stl.h" />
     <ClInclude Include="CreateWorld.UI.h" />
+    <ClInclude Include="DebugUI.h" />
     <ClInclude Include="engine\ArrayBuffer.h" />
     <ClInclude Include="engine\CubeBuffer.h" />
     <ClInclude Include="engine\input\Mouse.h" />
@@ -373,6 +379,7 @@
     <ClInclude Include="ProfilerConfig.hpp" />
     <ClInclude Include="RigidBody.hpp" />
     <ClInclude Include="Settings.h" />
+    <ClInclude Include="Shaders.hpp" />
     <ClInclude Include="Sparsehash\dense_hash_map.h" />
     <ClInclude Include="Sparsehash\sparse_hash_map.h" />
     <ClInclude Include="src\Application.h" />

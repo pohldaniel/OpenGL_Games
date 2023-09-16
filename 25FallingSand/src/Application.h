@@ -8,6 +8,10 @@
 #include <engine/sound/SoundDevice.h>
 
 #include <States/StateMachine.h>
+#include <SDL.h>
+#include <SDL_syswm.h>
+#include <SDL_image.h>
+#include <SDL_gpu.h>
 
 class Application {
 
@@ -29,7 +33,7 @@ public:
 	static unsigned int Width;
 	static unsigned int Height;
 
-private:
+//private:
 
 	static LRESULT CALLBACK StaticWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 	LRESULT DisplayWndProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lParam);
@@ -65,4 +69,9 @@ private:
 	static HANDLE Icon;
 	static bool VerticalSync;
 	static bool Fullscreen;
+
+	static SDL_Window* SWindow;
+	static SDL_GLContext SContext;
+	static GPU_Target* realTarget;
+	static GPU_Target* target;
 };

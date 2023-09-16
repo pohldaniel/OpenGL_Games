@@ -36,15 +36,61 @@ HCURSOR Application::Cursor = LoadCursor(nullptr, IDC_ARROW);
 HANDLE Application::Icon = LoadImage(NULL, "res/icon.ico", IMAGE_ICON, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
 bool Application::VerticalSync = true;
 
+SDL_Window* Application::SWindow = nullptr;
+SDL_GLContext Application::SContext;
+
+GPU_Target* Application::realTarget = nullptr;
+GPU_Target* Application::target = nullptr;
+
 Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fdt) {
 	Width = WIDTH;
 	Height = HEIGHT;
 	Framebuffer::SetDefaultSize(Width, Height);
 	Widget::Resize(Width, Height);
 
-	createWindow();
-	initOpenGL();
-	showWindow();
+	//createWindow();
+	//initOpenGL();
+	//showWindow();
+
+	SWindow = SDL_CreateWindow("Falling Sand Survival", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, Width, Height, SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_OPENGL);
+	//SWindow = SDL_CreateWindowFrom(Window);
+
+	SDL_SysWMinfo wmInfo;
+	SDL_VERSION(&wmInfo.version);
+	SDL_GetWindowWMInfo(SWindow, &wmInfo);
+	Window = wmInfo.info.win.window;
+
+	GPU_SetDebugLevel(GPU_DEBUG_LEVEL_MAX);
+	GPU_SetPreInitFlags(GPU_INIT_DISABLE_VSYNC);
+	GPU_SetInitWindow(SDL_GetWindowID(SWindow));
+	
+	target = GPU_Init(WIDTH, HEIGHT, SDL_WINDOW_ALLOW_HIGHDPI);
+
+
+	if (target == NULL) {
+		std::cout << "SDL Context creation failed: " << SDL_GetError() << std::endl;
+	}
+	realTarget = target;
+
+	SDL_GLContext& gl_context = target->context->context;
+	SDL_GL_MakeCurrent(SWindow, gl_context);
+	glewInit();
+
+	ToggleVerticalSync();
+
+	glCullFace(GL_BACK);
+	glFrontFace(GL_CCW);
+	glEnable(GL_CULL_FACE);
+	//glDisable(GL_CULL_FACE);
+
+	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LEQUAL);
+
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+
+
 	initImGUI();
 	initOpenAL();
 	loadAssets();
@@ -310,6 +356,7 @@ void Application::initOpenGL(int msaaSamples) {
 		}
 
 	}
+
 	ToggleVerticalSync();
 
 	glCullFace(GL_BACK);
