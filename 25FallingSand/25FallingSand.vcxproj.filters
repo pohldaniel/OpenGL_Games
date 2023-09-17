@@ -426,6 +426,12 @@
     <ClCompile Include="DebugDrawUI.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="b2DebugDraw_impl.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Drawing.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="convhull\convhull_3d.h">
@@ -813,6 +819,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Shaders.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="b2DebugDraw_impl.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Drawing.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

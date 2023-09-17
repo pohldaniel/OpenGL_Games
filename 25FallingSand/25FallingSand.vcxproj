@@ -88,13 +88,13 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;GLEW_STATIC;HAVE_M_PI;_WINSOCKAPI_;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;src;Physics;Polypartition;..\libglew;..\libimgui;..\libassimp;..\libassimp\include;..\openal\include;..\sndfile\include;..\libfreetype\include;..\libbullet;..\libsoil2;..\rapidjson\include;..\libbox2d\include;..\liblz4;..\libenet\include;..\SDL2\include;..\SDL2_image\include;..\SDL_gpu\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;src;Physics;Polypartition;..\libglew;..\libimgui;..\libassimp;..\libassimp\include;..\openal\include;..\sndfile\include;..\libfreetype\include;..\libbullet;..\libsoil2;..\rapidjson\include;..\libbox2d\include;..\liblz4;..\libenet\include;..\SDL2\include;..\SDL2_image\include;..\SDL2_ttf\include;..\SDL_gpu\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>..\libd\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>OpenGl32.lib;libglew.lib;libimgui.lib;libassimp.lib;libzlib.lib;libfreetype.lib;libopenal.lib;libflac.lib;libmpg.lib;liblame.lib;libsndfile.lib;winmm.lib;shlwapi.lib;version.lib;setupapi.lib;libbullet.lib;libsoil2.lib;liblz4.lib;SDL2.lib;SDL2_image.lib;SDL_gpu.lib;libbox2d.lib;libenet.lib;ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>OpenGl32.lib;libglew.lib;libimgui.lib;libassimp.lib;libzlib.lib;libfreetype.lib;libopenal.lib;libflac.lib;libmpg.lib;liblame.lib;libsndfile.lib;winmm.lib;shlwapi.lib;version.lib;setupapi.lib;libbullet.lib;libsoil2.lib;liblz4.lib;SDL2.lib;SDL2_image.lib;SDL2_ttf.lib;SDL_gpu.lib;libbox2d.lib;libenet.lib;ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -104,13 +104,13 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;GLEW_STATIC;HAVE_M_PI;_WINSOCKAPI_;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;src;Physics;Polypartition;..\libglew;..\libimgui;..\libassimp;..\libassimp\include;..\openal\include;..\sndfile\include;..\libfreetype\include;..\libbullet;..\libsoil2;..\rapidjson\include;..\libbox2d\include;..\liblz4;..\libenet\include;..\SDL2\include;..\SDL2_image\include;..\SDL_gpu\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;src;Physics;Polypartition;..\libglew;..\libimgui;..\libassimp;..\libassimp\include;..\openal\include;..\sndfile\include;..\libfreetype\include;..\libbullet;..\libsoil2;..\rapidjson\include;..\libbox2d\include;..\liblz4;..\libenet\include;..\SDL2\include;..\SDL2_image\include;..\SDL2_ttf\include;..\SDL_gpu\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>..\libd\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>OpenGl32.lib;libglew.lib;libimgui.lib;libassimp.lib;libzlib.lib;libfreetype.lib;libopenal.lib;libflac.lib;libmpg.lib;liblame.lib;libsndfile.lib;winmm.lib;shlwapi.lib;version.lib;setupapi.lib;libbullet.lib;libsoil2.lib;liblz4.lib;SDL2.lib;SDL2_image.lib;SDL_gpu.lib;libbox2d.lib;libenet.lib;ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>OpenGl32.lib;libglew.lib;libimgui.lib;libassimp.lib;libzlib.lib;libfreetype.lib;libopenal.lib;libflac.lib;libmpg.lib;liblame.lib;libsndfile.lib;winmm.lib;shlwapi.lib;version.lib;setupapi.lib;libbullet.lib;libsoil2.lib;liblz4.lib;SDL2.lib;SDL2_image.lib;SDL2_ttf.lib;SDL_gpu.lib;libbox2d.lib;libenet.lib;ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -122,7 +122,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;GLEW_STATIC;HAVE_M_PI;_WINSOCKAPI_;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;src;Physics;Polypartition;..\libglew;..\libimgui;..\libassimp;..\libassimp\include;..\openal\include;..\sndfile\include;..\libfreetype\include;..\libbullet;..\libsoil2;..\rapidjson\include;..\libbox2d\include;..\liblz4;..\libenet\include;..\SDL2\include;..\SDL2_image\include;..\SDL_gpu\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;src;Physics;Polypartition;..\libglew;..\libimgui;..\libassimp;..\libassimp\include;..\openal\include;..\sndfile\include;..\libfreetype\include;..\libbullet;..\libsoil2;..\rapidjson\include;..\libbox2d\include;..\liblz4;..\libenet\include;..\SDL2\include;..\SDL2_image\include;..\SDL2_ttf\include;..\SDL_gpu\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <WholeProgramOptimization>false</WholeProgramOptimization>
     </ClCompile>
     <Link>
@@ -131,7 +131,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>..\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>OpenGl32.lib;libglew.lib;libimgui.lib;libassimp.lib;libzlib.lib;libfreetype.lib;libopenal.lib;libflac.lib;libmpg.lib;liblame.lib;libsndfile.lib;winmm.lib;shlwapi.lib;version.lib;setupapi.lib;libbullet.lib;libsoil2.lib;liblz4.lib;SDL2.lib;SDL2_image.lib;SDL_gpu.lib;libbox2d.lib;libenet.lib;ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>OpenGl32.lib;libglew.lib;libimgui.lib;libassimp.lib;libzlib.lib;libfreetype.lib;libopenal.lib;libflac.lib;libmpg.lib;liblame.lib;libsndfile.lib;winmm.lib;shlwapi.lib;version.lib;setupapi.lib;libbullet.lib;libsoil2.lib;liblz4.lib;SDL2.lib;SDL2_image.lib;SDL2_ttf.lib;SDL_gpu.lib;libbox2d.lib;libenet.lib;ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -143,7 +143,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;_WINDOWS;_CRT_SECURE_NO_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;GLEW_STATIC;HAVE_M_PI;_WINSOCKAPI_;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;src;Physics;Polypartition;..\libglew;..\libimgui;..\libassimp;..\libassimp\include;..\openal\include;..\sndfile\include;..\libfreetype\include;..\libbullet;..\libsoil2;..\rapidjson\include;..\libbox2d\include;..\liblz4;..\libenet\include;..\SDL2\include;..\SDL2_image\include;..\SDL_gpu\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;src;Physics;Polypartition;..\libglew;..\libimgui;..\libassimp;..\libassimp\include;..\openal\include;..\sndfile\include;..\libfreetype\include;..\libbullet;..\libsoil2;..\rapidjson\include;..\libbox2d\include;..\liblz4;..\libenet\include;..\SDL2\include;..\SDL2_image\include;..\SDL2_ttf\include;..\SDL_gpu\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <WholeProgramOptimization>false</WholeProgramOptimization>
     </ClCompile>
     <Link>
@@ -152,10 +152,11 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>..\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>OpenGl32.lib;libglew.lib;libimgui.lib;libassimp.lib;libzlib.lib;libfreetype.lib;libopenal.lib;libflac.lib;libmpg.lib;liblame.lib;libsndfile.lib;winmm.lib;shlwapi.lib;version.lib;setupapi.lib;libbullet.lib;libsoil2.lib;liblz4.lib;SDL2.lib;SDL2_image.lib;SDL_gpu.lib;libbox2d.lib;libenet.lib;ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>OpenGl32.lib;libglew.lib;libimgui.lib;libassimp.lib;libzlib.lib;libfreetype.lib;libopenal.lib;libflac.lib;libmpg.lib;liblame.lib;libsndfile.lib;winmm.lib;shlwapi.lib;version.lib;setupapi.lib;libbullet.lib;libsoil2.lib;liblz4.lib;SDL2.lib;SDL2_image.lib;SDL2_ttf.lib;SDL_gpu.lib;libbox2d.lib;libenet.lib;ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="b2DebugDraw_impl.cpp" />
     <ClCompile Include="Background.cpp" />
     <ClCompile Include="Biome.cpp" />
     <ClCompile Include="Chunk.cpp" />
@@ -165,6 +166,7 @@
     <ClCompile Include="DebugDrawUI.cpp" />
     <ClCompile Include="DebugUI.cpp" />
     <ClCompile Include="DefaultGenerator.cpp" />
+    <ClCompile Include="Drawing.cpp" />
     <ClCompile Include="engine\ArrayBuffer.cpp" />
     <ClCompile Include="engine\AssimpModel.cpp" />
     <ClCompile Include="engine\Batchrenderer.cpp" />
@@ -278,6 +280,7 @@
     <ClCompile Include="UTime.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="b2DebugDraw_impl.hpp" />
     <ClInclude Include="Background.h" />
     <ClInclude Include="Biome.hpp" />
     <ClInclude Include="Chunk.hpp" />
@@ -287,6 +290,7 @@
     <ClInclude Include="CPTL\ctpl_stl.h" />
     <ClInclude Include="CreateWorld.UI.h" />
     <ClInclude Include="DebugUI.h" />
+    <ClInclude Include="Drawing.hpp" />
     <ClInclude Include="engine\ArrayBuffer.h" />
     <ClInclude Include="engine\CubeBuffer.h" />
     <ClInclude Include="engine\input\Mouse.h" />

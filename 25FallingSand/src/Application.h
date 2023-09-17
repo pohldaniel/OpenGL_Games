@@ -30,8 +30,8 @@ public:
 	static void SetCursorIcon(LPCSTR resource);
 	static HWND GetWindow();
 
-	static unsigned int Width;
-	static unsigned int Height;
+	static int Width;
+	static int Height;
 
 //private:
 

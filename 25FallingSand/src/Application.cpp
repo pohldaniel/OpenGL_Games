@@ -24,8 +24,8 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 EventDispatcher& Application::EventDispatcher = EventDispatcher::Get();
 StateMachine* Application::Machine = nullptr;
 HWND Application::Window;
-unsigned int Application::Width;
-unsigned int Application::Height;
+int Application::Width;
+int Application::Height;
 bool Application::InitWindow = false;
 bool Application::Fullscreen = false;
 bool Application::Init = false;
@@ -51,9 +51,9 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 	//createWindow();
 	//initOpenGL();
 	//showWindow();
+	//SWindow = SDL_CreateWindowFrom(Window);
 
 	SWindow = SDL_CreateWindow("Falling Sand Survival", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, Width, Height, SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_OPENGL);
-	//SWindow = SDL_CreateWindowFrom(Window);
 
 	SDL_SysWMinfo wmInfo;
 	SDL_VERSION(&wmInfo.version);
@@ -63,14 +63,8 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 	GPU_SetDebugLevel(GPU_DEBUG_LEVEL_MAX);
 	GPU_SetPreInitFlags(GPU_INIT_DISABLE_VSYNC);
 	GPU_SetInitWindow(SDL_GetWindowID(SWindow));
-	
-	target = GPU_Init(WIDTH, HEIGHT, SDL_WINDOW_ALLOW_HIGHDPI);
 
-
-	if (target == NULL) {
-		std::cout << "SDL Context creation failed: " << SDL_GetError() << std::endl;
-	}
-	realTarget = target;
+	target = GPU_Init(Width, Height, SDL_WINDOW_ALLOW_HIGHDPI);
 
 	SDL_GLContext& gl_context = target->context->context;
 	SDL_GL_MakeCurrent(SWindow, gl_context);
@@ -78,26 +72,13 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 
 	ToggleVerticalSync();
 
-	glCullFace(GL_BACK);
-	glFrontFace(GL_CCW);
-	glEnable(GL_CULL_FACE);
-	//glDisable(GL_CULL_FACE);
-
-	glEnable(GL_DEPTH_TEST);
-	glDepthFunc(GL_LEQUAL);
-
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
-
-
 	initImGUI();
 	initOpenAL();
 	loadAssets();
-	
+
 	EventDispatcher.setProcessOSEvents([&]() {
 		while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
-			if (msg.message == WM_QUIT) return false;		
+			if (msg.message == WM_QUIT) return false;
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 		}
