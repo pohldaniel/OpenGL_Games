@@ -68,7 +68,6 @@ private:
 	void updateFrameEarly();
 	void tick();
 	void tickChunkLoading();
-	void tickPlayer();
 	void updateFrameLate();
 	void renderLate();
 	void renderTemperatureMap(World* world);
