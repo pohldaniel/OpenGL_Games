@@ -40,6 +40,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	int frames = 0;
 	float framesTime = 0;
 #endif
+
 	Globals::physics = new Physics(PHYSICS_STEP);
 	Physics::GetDynamicsWorld()->setDebugDrawer(&debugDrawer);
 
@@ -83,7 +84,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 			framesTime = 0;
 			deltaClock.restart();
 		}
-
 #endif
 
 		hdc = GetDC(hwnd);

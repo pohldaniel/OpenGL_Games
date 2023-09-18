@@ -26,25 +26,25 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
 	m_camera.lookAt(Vector3f(0.0f, 2.0f, 10.0f), Vector3f(0.0f, 2.0f, 10.0f) + Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
 	m_camera.setRotationSpeed(0.1f);
-	
+
 	glClearColor(0.494f, 0.686f, 0.796f, 1.0f);
 	glClearDepth(1.0f);
-	
-	m_background1.setLayer(std::vector<BackgroundLayer>{{&Globals::textureManager.get("bg_layer_2"), 2, 1.0f, 0.5f, Vector2f(0.333f, 0.666f)},
-                                                        {&Globals::textureManager.get("bg_layer_3"), 2, 0.0f, -0.0666f, Vector2f(0.37f, 0.37f + 0.333f)},
-                                                        {&Globals::textureManager.get("bg_layer_4"), 2, 3.0f, -0.01f, Vector2f(0.333f, 0.666f)},
-                                                        {&Globals::textureManager.get("bg_layer_5"), 2, 0.0f, 0.01333f, Vector2f(0.333f, 0.666f)} });
+
+	m_background1.setLayer(std::vector<BackgroundLayer>{ {&Globals::textureManager.get("bg_layer_2"), 2, 1.0f, 0.5f, Vector2f(0.333f, 0.666f)},
+	{ &Globals::textureManager.get("bg_layer_3"), 2, 0.0f, -0.0666f, Vector2f(0.37f, 0.37f + 0.333f) },
+	{ &Globals::textureManager.get("bg_layer_4"), 2, 3.0f, -0.01f, Vector2f(0.333f, 0.666f) },
+	{ &Globals::textureManager.get("bg_layer_5"), 2, 0.0f, 0.01333f, Vector2f(0.333f, 0.666f) } });
 	m_background1.setSpeed(0.005f);
 
-	m_background2.setLayer(std::vector<BackgroundLayer>{{&Globals::textureManager.get("forest_1"), 1, 1.0f},
-														{&Globals::textureManager.get("forest_2"), 1, 2.0f},
-														{&Globals::textureManager.get("forest_3"), 1, 3.0f},
-														{&Globals::textureManager.get("forest_4"), 1, 4.0f},
-														{&Globals::textureManager.get("forest_5"), 1, 5.0f}});
+	m_background2.setLayer(std::vector<BackgroundLayer>{ {&Globals::textureManager.get("forest_1"), 1, 1.0f},
+	{ &Globals::textureManager.get("forest_2"), 1, 2.0f },
+	{ &Globals::textureManager.get("forest_3"), 1, 3.0f },
+	{ &Globals::textureManager.get("forest_4"), 1, 4.0f },
+	{ &Globals::textureManager.get("forest_5"), 1, 5.0f }});
 	m_background2.setSpeed(0.005f);
 
 	init();
-
+	m_timer.reset();
 }
 
 Game::~Game() {
@@ -75,7 +75,7 @@ void Game::update() {
 
 	if (keyboard.keyDown(Keyboard::KEY_A)) {
 		directrion += Vector3f(-1.0f, 0.0f, 0.0f);
-		m_background1.addOffset(-0.001f);		
+		m_background1.addOffset(-0.001f);
 		m_background2.addOffset(-0.001f);
 		m_background1.setSpeed(-0.005f);
 		m_background2.setSpeed(-0.005f);
@@ -148,7 +148,7 @@ void Game::render() {
 }
 
 void Game::OnMouseMotion(Event::MouseMoveEvent& event) {
-	
+
 }
 
 void Game::OnMouseWheel(Event::MouseWheelEvent& event) {
@@ -156,7 +156,7 @@ void Game::OnMouseWheel(Event::MouseWheelEvent& event) {
 }
 
 void Game::OnMouseButtonDown(Event::MouseButtonEvent& event) {
-	
+
 	if (event.button == 2u) {
 		Mouse::instance().attach(Application::GetWindow());
 	}
@@ -231,7 +231,7 @@ void Game::renderUi() {
 }
 
 void Game::init() {
-	
+
 	bool openDebugUIs = false;
 	DebugUI::visible = openDebugUIs;
 	DebugCheatsUI::visible = openDebugUIs;
@@ -309,7 +309,7 @@ void Game::init() {
 	ofsX = (ofsX - Application::Width / 2) / 2 * 3 + Application::Width / 2;
 	ofsY = (ofsY - Application::Height / 2) / 2 * 3 + Application::Height / 2;
 
-	
+
 	objectDelete = new bool[world->width * world->height];
 }
 
@@ -364,58 +364,58 @@ void Game::handleWindowSizeChange(int newWidth, int newHeight) {
 	loadingOnColor = 0xFFFFFFFF;
 	loadingOffColor = 0x000000FF;
 
-	loadingTexture = GPU_CreateImage(loadingScreenW = (Application::Width / 20), loadingScreenH = (Application::Width / 20),GPU_FormatEnum::GPU_FORMAT_RGBA);
+	loadingTexture = GPU_CreateImage(loadingScreenW = (Application::Width / 20), loadingScreenH = (Application::Width / 20), GPU_FormatEnum::GPU_FORMAT_RGBA);
 
 	GPU_SetImageFilter(loadingTexture, GPU_FILTER_NEAREST);
-	texture = GPU_CreateImage(world->width, world->height,GPU_FormatEnum::GPU_FORMAT_RGBA);
+	texture = GPU_CreateImage(world->width, world->height, GPU_FormatEnum::GPU_FORMAT_RGBA);
 
 	GPU_SetImageFilter(texture, GPU_FILTER_NEAREST);
-	worldTexture = GPU_CreateImage(world->width * Settings::hd_objects_size, world->height * Settings::hd_objects_size,GPU_FormatEnum::GPU_FORMAT_RGBA);
+	worldTexture = GPU_CreateImage(world->width * Settings::hd_objects_size, world->height * Settings::hd_objects_size, GPU_FormatEnum::GPU_FORMAT_RGBA);
 
 	GPU_SetImageFilter(worldTexture, GPU_FILTER_NEAREST);
 	GPU_LoadTarget(worldTexture);
 
-	lightingTexture = GPU_CreateImage(world->width, world->height,GPU_FormatEnum::GPU_FORMAT_RGBA);
+	lightingTexture = GPU_CreateImage(world->width, world->height, GPU_FormatEnum::GPU_FORMAT_RGBA);
 
 	GPU_SetImageFilter(lightingTexture, GPU_FILTER_NEAREST);
 
 	GPU_LoadTarget(lightingTexture);
 
-	emissionTexture = GPU_CreateImage(world->width, world->height,GPU_FormatEnum::GPU_FORMAT_RGBA);
+	emissionTexture = GPU_CreateImage(world->width, world->height, GPU_FormatEnum::GPU_FORMAT_RGBA);
 
 	GPU_SetImageFilter(emissionTexture, GPU_FILTER_NEAREST);
 
-	textureFlow = GPU_CreateImage(world->width, world->height,GPU_FormatEnum::GPU_FORMAT_RGBA);
+	textureFlow = GPU_CreateImage(world->width, world->height, GPU_FormatEnum::GPU_FORMAT_RGBA);
 
 	GPU_SetImageFilter(textureFlow, GPU_FILTER_NEAREST);
 
-	textureFire = GPU_CreateImage(world->width, world->height,GPU_FormatEnum::GPU_FORMAT_RGBA);
+	textureFire = GPU_CreateImage(world->width, world->height, GPU_FormatEnum::GPU_FORMAT_RGBA);
 
 	GPU_SetImageFilter(textureFire, GPU_FILTER_NEAREST);
 
-	texture2Fire = GPU_CreateImage(world->width, world->height,GPU_FormatEnum::GPU_FORMAT_RGBA);
+	texture2Fire = GPU_CreateImage(world->width, world->height, GPU_FormatEnum::GPU_FORMAT_RGBA);
 
 	GPU_SetImageFilter(texture2Fire, GPU_FILTER_NEAREST);
 
 	GPU_LoadTarget(texture2Fire);
 
-	textureLayer2 = GPU_CreateImage(world->width, world->height,GPU_FormatEnum::GPU_FORMAT_RGBA);
+	textureLayer2 = GPU_CreateImage(world->width, world->height, GPU_FormatEnum::GPU_FORMAT_RGBA);
 
 	GPU_SetImageFilter(textureLayer2, GPU_FILTER_NEAREST);
 
-	textureBackground = GPU_CreateImage(world->width, world->height,GPU_FormatEnum::GPU_FORMAT_RGBA);
+	textureBackground = GPU_CreateImage(world->width, world->height, GPU_FormatEnum::GPU_FORMAT_RGBA);
 
 	GPU_SetImageFilter(textureBackground, GPU_FILTER_NEAREST);
 
-	textureObjects = GPU_CreateImage(world->width * (Settings::hd_objects ? Settings::hd_objects_size : 1), world->height * (Settings::hd_objects ? Settings::hd_objects_size : 1),GPU_FormatEnum::GPU_FORMAT_RGBA);
+	textureObjects = GPU_CreateImage(world->width * (Settings::hd_objects ? Settings::hd_objects_size : 1), world->height * (Settings::hd_objects ? Settings::hd_objects_size : 1), GPU_FormatEnum::GPU_FORMAT_RGBA);
 
 	GPU_SetImageFilter(textureObjects, GPU_FILTER_NEAREST);
 
-	textureObjectsLQ = GPU_CreateImage(world->width, world->height,GPU_FormatEnum::GPU_FORMAT_RGBA);
+	textureObjectsLQ = GPU_CreateImage(world->width, world->height, GPU_FormatEnum::GPU_FORMAT_RGBA);
 
 	GPU_SetImageFilter(textureObjectsLQ, GPU_FILTER_NEAREST);
 
-	textureObjectsBack = GPU_CreateImage(world->width * (Settings::hd_objects ? Settings::hd_objects_size : 1), world->height * (Settings::hd_objects ? Settings::hd_objects_size : 1),GPU_FormatEnum::GPU_FORMAT_RGBA);
+	textureObjectsBack = GPU_CreateImage(world->width * (Settings::hd_objects ? Settings::hd_objects_size : 1), world->height * (Settings::hd_objects ? Settings::hd_objects_size : 1), GPU_FormatEnum::GPU_FORMAT_RGBA);
 
 	GPU_SetImageFilter(textureObjectsBack, GPU_FILTER_NEAREST);
 
@@ -425,27 +425,27 @@ void Game::handleWindowSizeChange(int newWidth, int newHeight) {
 
 	GPU_LoadTarget(textureObjectsBack);
 
-	textureParticles = GPU_CreateImage(world->width, world->height,GPU_FormatEnum::GPU_FORMAT_RGBA);
+	textureParticles = GPU_CreateImage(world->width, world->height, GPU_FormatEnum::GPU_FORMAT_RGBA);
 
 	GPU_SetImageFilter(textureParticles, GPU_FILTER_NEAREST);
 
-	textureEntities = GPU_CreateImage(world->width * (Settings::hd_objects ? Settings::hd_objects_size : 1), world->height * (Settings::hd_objects ? Settings::hd_objects_size : 1),GPU_FormatEnum::GPU_FORMAT_RGBA);
+	textureEntities = GPU_CreateImage(world->width * (Settings::hd_objects ? Settings::hd_objects_size : 1), world->height * (Settings::hd_objects ? Settings::hd_objects_size : 1), GPU_FormatEnum::GPU_FORMAT_RGBA);
 
 	GPU_LoadTarget(textureEntities);
 
 	GPU_SetImageFilter(textureEntities, GPU_FILTER_NEAREST);
 
-	textureEntitiesLQ = GPU_CreateImage(world->width, world->height,GPU_FormatEnum::GPU_FORMAT_RGBA);
+	textureEntitiesLQ = GPU_CreateImage(world->width, world->height, GPU_FormatEnum::GPU_FORMAT_RGBA);
 
 	GPU_LoadTarget(textureEntitiesLQ);
 
 	GPU_SetImageFilter(textureEntitiesLQ, GPU_FILTER_NEAREST);
 
-	temperatureMap = GPU_CreateImage(world->width, world->height,GPU_FormatEnum::GPU_FORMAT_RGBA);
+	temperatureMap = GPU_CreateImage(world->width, world->height, GPU_FormatEnum::GPU_FORMAT_RGBA);
 
 	GPU_SetImageFilter(temperatureMap, GPU_FILTER_NEAREST);
 
-	backgroundImage = GPU_CreateImage(Application::Width, Application::Height,GPU_FormatEnum::GPU_FORMAT_RGBA);
+	backgroundImage = GPU_CreateImage(Application::Width, Application::Height, GPU_FormatEnum::GPU_FORMAT_RGBA);
 
 	GPU_SetImageFilter(backgroundImage, GPU_FILTER_NEAREST);
 
@@ -779,7 +779,7 @@ void Game::updateFrameEarly() {
 		int y = (int)((my - ofsY - camY) / scale);
 
 		bool swapped = false;
-		float hoverDelta = 10.0 * deltaTime / 1000.0;
+		float hoverDelta = 10.0 * m_dt;
 
 		// this copies the vector
 		std::vector<RigidBody*> rbs = world->rigidBodies;
@@ -844,27 +844,6 @@ void Game::updateFrameEarly() {
 void Game::tick() {
 
 
-	//logDebug("{0:d} {0:d}", accLoadX, accLoadY);
-	if (state == LOADING) {
-		if (world) {
-			// tick chunkloading
-			world->frame();
-			if (world->readyToMerge.size() == 0 && fadeOutStart == 0) {
-				fadeOutStart = now;
-				fadeOutLength = 250;
-				fadeOutCallback = [&]() {
-					fadeInStart = now;
-					fadeInLength = 500;
-					fadeInWaitFrames = 4;
-					state = stateAfterLoad;
-				};
-
-
-
-			}
-		}
-	}
-	else {
 
 		int lastReadyToMergeSize = (int)world->readyToMerge.size();
 
@@ -1000,7 +979,7 @@ void Game::tick() {
 
 #pragma endregion
 
-		// entity fluid displacement & make solid
+												 // entity fluid displacement & make solid
 #pragma region
 		for (size_t i = 0; i < world->entities.size(); i++) {
 			Entity cur = *world->entities[i];
@@ -1413,9 +1392,6 @@ void Game::tick() {
 
 
 		if (Settings::tick_box2d && tickTime % 4 == 0) world->updateWorldMesh();
-
-
-	}
 }
 
 void Game::tickChunkLoading() {
@@ -1880,185 +1856,114 @@ void Game::tickPlayer() {
 
 void Game::updateFrameLate() {
 
-	if (state == LOADING) {
+	int nofsX;
+	int nofsY;
 
-	}
-	else {
+	plPosX = (float)(plPosX + (freeCamX - plPosX) / 50.0f);
+	plPosY = (float)(plPosY + (freeCamY - plPosY) / 50.0f);
 
-		// update camera
-#pragma region
-		int nofsX;
-		int nofsY;
+	nofsX = (int)(-(plPosX + 0 + world->loadZone.x) * scale + Application::Width / 2.0f);
+	nofsY = (int)(-(plPosY + 0 + world->loadZone.y) * scale + Application::Height / 2.0f);
 
-		if (world->player) {
+	accLoadX += (nofsX - ofsX) / (float)scale;
+	accLoadY += (nofsY - ofsY) / (float)scale;
+	ofsX += (nofsX - ofsX);
+	ofsY += (nofsY - ofsY);
 
-			if (now - lastTick <= mspt) {
-				float thruTick = (float)((now - lastTick) / (double)mspt);
-
-				plPosX = world->player->x + (int)(world->player->vx * thruTick);
-				plPosY = world->player->y + (int)(world->player->vy * thruTick);
-			}
-			else {
-				//plPosX = world->player->x;
-				//plPosY = world->player->y;
-			}
-
-			//plPosX = (float)(plPosX + (world->player->x - plPosX) / 25.0);
-			//plPosY = (float)(plPosY + (world->player->y - plPosY) / 25.0);
-
-			nofsX = (int)(-((int)plPosX + world->player->hw / 2 + world->loadZone.x) * scale + Application::Width / 2);
-			nofsY = (int)(-((int)plPosY + world->player->hh / 2 + world->loadZone.y) * scale + Application::Height / 2);
-		}
-		else {
-			plPosX = (float)(plPosX + (freeCamX - plPosX) / 50.0f);
-			plPosY = (float)(plPosY + (freeCamY - plPosY) / 50.0f);
-
-			nofsX = (int)(-(plPosX + 0 + world->loadZone.x) * scale + Application::Width / 2.0f);
-			nofsY = (int)(-(plPosY + 0 + world->loadZone.y) * scale + Application::Height / 2.0f);
-		}
-
-		accLoadX += (nofsX - ofsX) / (float)scale;
-		accLoadY += (nofsY - ofsY) / (float)scale;
-		//logDebug("{0:f} {0:f}", plPosX, plPosY);
-		//logDebug("a {0:d} {0:d}", nofsX, nofsY);
-		//logDebug("{0:d} {0:d}", nofsX - ofsX, nofsY - ofsY);
-		ofsX += (nofsX - ofsX);
-		ofsY += (nofsY - ofsY);
-#pragma endregion
-
-		camX = (float)(camX + (desCamX - camX) * (now - lastTime) / 250.0f);
-		camY = (float)(camY + (desCamY - camY) * (now - lastTime) / 250.0f);
-	}
+	camX = (float)(camX + (desCamX - camX) * m_dt * 4.0f);
+	camY = (float)(camY + (desCamY - camY) * m_dt * 4.0f);
 }
 
 
 
 void Game::renderLate() {
 
-
 	target = backgroundImage->target;
 	GPU_Clear(target);
 
-	if (state == LOADING) {
+	GPU_SetShapeBlendMode(GPU_BLEND_NORMAL);
 
+	GPU_Rect r1 = GPU_Rect{ (float)(ofsX + camX), (float)(ofsY + camY), (float)(world->width * scale), (float)(world->height * scale) };
+
+	target = realTarget;
+
+	GPU_BlitRect(backgroundImage, NULL, target, NULL);
+	GPU_SetBlendMode(texture, GPU_BLEND_NORMAL);
+
+	int lmsx = (int)((mx - ofsX - camX) / scale);
+	int lmsy = (int)((my - ofsY - camY) / scale);
+
+	GPU_Clear(worldTexture->target);
+	GPU_BlitRect(texture, NULL, worldTexture->target, NULL);
+
+	if (Settings::draw_shaders) newLightingShader->activate();
+
+	// I use this to only rerender the lighting when a parameter changes or N times per second anyway
+	// Doing this massively reduces the GPU load of the shader
+	bool needToRerenderLighting = false;
+
+	unsigned int elapsedSinceLast = m_timer.getElapsedTimeMilli();
+	if (elapsedSinceLast > 100u) {
+		needToRerenderLighting = true;
+		m_timer.reset();
 	}
-	else {
 
+	if (Settings::draw_shaders && world) {
+		float lightTx;
+		float lightTy;
 
-		//Background bg = Backgrounds::TEST_OVERWORLD;
-		//GPU_ClearColor(target, { (bg.solid >> 16) & 0xff, (bg.solid >> 8) & 0xff, (bg.solid >> 0) & 0xff, 0xff });
-		GPU_SetShapeBlendMode(GPU_BLEND_NORMAL);
+		if (world->player) {
+			lightTx = (world->loadZone.x + world->player->x + world->player->hw / 2.0f) / (float)world->width;
+			lightTy = (world->loadZone.y + world->player->y + world->player->hh / 2.0f) / (float)world->height;
+		}
+		else {
+			lightTx = lmsx / (float)world->width;
+			lightTy = lmsy / (float)world->height;
+		}
 
-
-		GPU_Rect r1 = GPU_Rect{ (float)(ofsX + camX), (float)(ofsY + camY), (float)(world->width * scale), (float)(world->height * scale) };
-
-
-		target = realTarget;
-
-		GPU_BlitRect(backgroundImage, NULL, target, NULL);
-
-		GPU_SetBlendMode(texture, GPU_BLEND_NORMAL);
-		//GPU_ActivateShaderProgram(0, NULL);
-		//EASY_END_BLOCK; //water shader
-
-		// done shader
-
-
-		int lmsx = (int)((mx - ofsX - camX) / scale);
-		int lmsy = (int)((my - ofsY - camY) / scale);
-
-		GPU_Clear(worldTexture->target);
-
-		GPU_BlitRect(texture, NULL, worldTexture->target, NULL);
-
-		//GPU_SetBlendMode(textureObjects, GPU_BLEND_NORMAL);
-		//GPU_BlitRect(textureObjects, NULL, worldTexture->target, NULL);
-		//GPU_SetBlendMode(textureObjectsLQ, GPU_BLEND_NORMAL);
-		//GPU_BlitRect(textureObjectsLQ, NULL, worldTexture->target, NULL);
-
-		//GPU_SetBlendMode(textureParticles, GPU_BLEND_NORMAL);
-		//GPU_BlitRect(textureParticles, NULL, worldTexture->target, NULL);
-
-		//GPU_SetBlendMode(textureEntitiesLQ, GPU_BLEND_NORMAL);
-		//GPU_BlitRect(textureEntitiesLQ, NULL, worldTexture->target, NULL);
-		//GPU_SetBlendMode(textureEntities, GPU_BLEND_NORMAL);
-		//GPU_BlitRect(textureEntities, NULL, worldTexture->target, NULL);
-
-
-		if (Settings::draw_shaders) newLightingShader->activate();
-
-		// I use this to only rerender the lighting when a parameter changes or N times per second anyway
-		// Doing this massively reduces the GPU load of the shader
-		bool needToRerenderLighting = false;
-
-		static long long lastLightingForceRefresh = 0;
-		long long now = Time::millis();
-		if (now - lastLightingForceRefresh > 100) {
-			lastLightingForceRefresh = now;
+		if (newLightingShader->lastLx != lightTx || newLightingShader->lastLy != lightTy) needToRerenderLighting = true;
+		newLightingShader->update(worldTexture, emissionTexture, lightTx, lightTy);
+		if (newLightingShader->lastQuality != Settings::lightingQuality) {
 			needToRerenderLighting = true;
 		}
+		newLightingShader->setQuality(Settings::lightingQuality);
 
-		if (Settings::draw_shaders && world) {
-			float lightTx;
-			float lightTy;
-
-			if (world->player) {
-				lightTx = (world->loadZone.x + world->player->x + world->player->hw / 2.0f) / (float)world->width;
-				lightTy = (world->loadZone.y + world->player->y + world->player->hh / 2.0f) / (float)world->height;
-			}
-			else {
-				lightTx = lmsx / (float)world->width;
-				lightTy = lmsy / (float)world->height;
-			}
-
-			if (newLightingShader->lastLx != lightTx || newLightingShader->lastLy != lightTy) needToRerenderLighting = true;
-			newLightingShader->update(worldTexture, emissionTexture, lightTx, lightTy);
-			if (newLightingShader->lastQuality != Settings::lightingQuality) {
-				needToRerenderLighting = true;
-			}
-			newLightingShader->setQuality(Settings::lightingQuality);
-
-			int nBg = 0;
-			int range = 64;
-			for (int xx = std::max(0, (int)(lightTx * world->width) - range); xx <= std::min((int)(lightTx * world->width) + range, world->width - 1); xx++) {
-				for (int yy = std::max(0, (int)(lightTy * world->height) - range); yy <= std::min((int)(lightTy * world->height) + range, world->height - 1); yy++) {
-					if (world->background[xx + yy * world->width] != 0x00) {
-						nBg++;
-					}
+		int nBg = 0;
+		int range = 64;
+		for (int xx = std::max(0, (int)(lightTx * world->width) - range); xx <= std::min((int)(lightTx * world->width) + range, world->width - 1); xx++) {
+			for (int yy = std::max(0, (int)(lightTy * world->height) - range); yy <= std::min((int)(lightTy * world->height) + range, world->height - 1); yy++) {
+				if (world->background[xx + yy * world->width] != 0x00) {
+					nBg++;
 				}
 			}
-
-			newLightingShader_insideDes = std::min(std::max(0.0f, (float)nBg / ((range * 2) * (range * 2))), 1.0f);
-			newLightingShader_insideCur += (newLightingShader_insideDes - newLightingShader_insideCur) / 2.0f * (deltaTime / 1000.0f);
-
-			float ins = newLightingShader_insideCur < 0.05 ? 0.0 : newLightingShader_insideCur;
-			if (newLightingShader->lastInside != ins) needToRerenderLighting = true;
-			newLightingShader->setInside(ins);
-			newLightingShader->setBounds(world->tickZone.x * Settings::hd_objects_size, world->tickZone.y * Settings::hd_objects_size, (world->tickZone.x + world->tickZone.w) * Settings::hd_objects_size, (world->tickZone.y + world->tickZone.h) * Settings::hd_objects_size);
-
-			if (newLightingShader->lastSimpleMode != Settings::simpleLighting) needToRerenderLighting = true;
-			newLightingShader->setSimpleMode(Settings::simpleLighting);
-
-			if (newLightingShader->lastEmissionEnabled != Settings::lightingEmission) needToRerenderLighting = true;
-			newLightingShader->setEmissionEnabled(Settings::lightingEmission);
-
-			if (newLightingShader->lastDitheringEnabled != Settings::lightingDithering) needToRerenderLighting = true;
-			newLightingShader->setDitheringEnabled(Settings::lightingDithering);
 		}
 
-		if (Settings::draw_shaders && needToRerenderLighting) {
-			GPU_Clear(lightingTexture->target);
-			GPU_BlitRect(worldTexture, NULL, lightingTexture->target, NULL);
-		}
-		if (Settings::draw_shaders) GPU_ActivateShaderProgram(0, NULL);
+		newLightingShader_insideDes = std::min(std::max(0.0f, (float)nBg / ((range * 2) * (range * 2))), 1.0f);
+		newLightingShader_insideCur += (newLightingShader_insideDes - newLightingShader_insideCur) / 2.0f * m_dt;
 
+		float ins = newLightingShader_insideCur < 0.05 ? 0.0 : newLightingShader_insideCur;
+		if (newLightingShader->lastInside != ins) needToRerenderLighting = true;
+		newLightingShader->setInside(ins);
+		newLightingShader->setBounds(world->tickZone.x * Settings::hd_objects_size, world->tickZone.y * Settings::hd_objects_size, (world->tickZone.x + world->tickZone.w) * Settings::hd_objects_size, (world->tickZone.y + world->tickZone.h) * Settings::hd_objects_size);
 
+		if (newLightingShader->lastSimpleMode != Settings::simpleLighting) needToRerenderLighting = true;
+		newLightingShader->setSimpleMode(Settings::simpleLighting);
 
-		GPU_BlitRect(worldTexture, NULL, target, &r1);
+		if (newLightingShader->lastEmissionEnabled != Settings::lightingEmission) needToRerenderLighting = true;
+		newLightingShader->setEmissionEnabled(Settings::lightingEmission);
 
-
-
+		if (newLightingShader->lastDitheringEnabled != Settings::lightingDithering) needToRerenderLighting = true;
+		newLightingShader->setDitheringEnabled(Settings::lightingDithering);
 	}
+
+	if (Settings::draw_shaders && needToRerenderLighting) {
+		GPU_Clear(lightingTexture->target);
+		GPU_BlitRect(worldTexture, NULL, lightingTexture->target, NULL);
+	}
+
+	if (Settings::draw_shaders) GPU_ActivateShaderProgram(0, NULL);
+
+	GPU_BlitRect(worldTexture, NULL, target, &r1);
 }
 
 void Game::renderTemperatureMap(World* world) {
@@ -2106,111 +2011,6 @@ int Game::getAimSurface(int dist) {
 	});
 
 	return startInd;
-}
-
-void Game::quitToMainMenu() {
-
-
-	/*if (state == LOADING) return;
-
-	std::string pref = "Saved in: ";
-
-	std::string worldName = "mainMenu";
-	char* wn = (char*)worldName.c_str();
-
-
-	MainMenuUI::visible = false;
-	state = LOADING;
-	stateAfterLoad = MAIN_MENU;
-
-
-	delete world;
-	world = nullptr;
-
-
-	WorldGenerator* generator = new MaterialTestGenerator();
-
-	std::string wpStr = gameDir.getWorldPath(wn);
-
-
-	world = new World();
-	world->noSaveLoad = true;
-	world->init(wpStr, (int)ceil(Game::MAX_WIDTH / 3 / (double)CHUNK_W) * CHUNK_W + CHUNK_W * 3, (int)ceil(Game::MAX_HEIGHT / 3 / (double)CHUNK_H) * CHUNK_H + CHUNK_H * 3, target, networkMode, generator);
-
-
-	for (int x = -CHUNK_W * 4; x < world->width + CHUNK_W * 4; x += CHUNK_W) {
-		for (int y = -CHUNK_H * 3; y < world->height + CHUNK_H * 8; y += CHUNK_H) {
-			world->queueLoadChunk(x / CHUNK_W, y / CHUNK_H, true, true);
-		}
-	}
-
-
-	std::fill(pixels.begin(), pixels.end(), 0);
-	std::fill(pixelsBackground.begin(), pixelsBackground.end(), 0);
-	std::fill(pixelsLayer2.begin(), pixelsLayer2.end(), 0);
-	std::fill(pixelsFire.begin(), pixelsFire.end(), 0);
-	std::fill(pixelsFlow.begin(), pixelsFlow.end(), 0);
-	std::fill(pixelsEmission.begin(), pixelsEmission.end(), 0);
-	std::fill(pixelsParticles.begin(), pixelsParticles.end(), 0);
-
-	GPU_UpdateImageBytes(
-		texture,
-		NULL,
-		&pixels[0],
-		world->width * 4
-	);
-
-	GPU_UpdateImageBytes(
-		textureBackground,
-		NULL,
-		&pixelsBackground[0],
-		world->width * 4
-	);
-
-	GPU_UpdateImageBytes(
-		textureLayer2,
-		NULL,
-		&pixelsLayer2[0],
-		world->width * 4
-	);
-
-	GPU_UpdateImageBytes(
-		textureFire,
-		NULL,
-		&pixelsFire[0],
-		world->width * 4
-	);
-
-	GPU_UpdateImageBytes(
-		textureFlow,
-		NULL,
-		&pixelsFlow[0],
-		world->width * 4
-	);
-
-	GPU_UpdateImageBytes(
-		emissionTexture,
-		NULL,
-		&pixelsEmission[0],
-		world->width * 4
-	);
-
-	GPU_UpdateImageBytes(
-		textureParticles,
-		NULL,
-		&pixelsParticles[0],
-		world->width * 4
-	);
-
-
-
-	MainMenuUI::visible = true;
-
-#if BUILD_WITH_DISCORD
-	DiscordIntegration::setStart(0);
-	DiscordIntegration::setActivityState("On Main Menu");
-	DiscordIntegration::flushActivity();
-#endif*/
 }
 
 int Game::getAimSolidSurface(int dist) {

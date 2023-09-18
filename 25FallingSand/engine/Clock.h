@@ -29,10 +29,10 @@ public:
 
 	inline unsigned int resetMilli() {
 		end = std::chrono::high_resolution_clock::now();
-		unsigned int elapsed_microsecs = static_cast<unsigned int>(std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count());
+		unsigned int elapsed_millisecs = static_cast<unsigned int>(std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count());
 		begin = end;
 
-		return elapsed_microsecs;
+		return elapsed_millisecs;
 	}
 
 	inline unsigned int resetMicro() {

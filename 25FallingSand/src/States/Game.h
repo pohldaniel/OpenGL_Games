@@ -10,6 +10,8 @@
 #include "engine/input/KeyboardEventListener.h"
 #include "engine/Camera.h"
 #include "engine/TrackBall.h"
+#include "engine/Clock.h"
+
 #include "StateMachine.h"
 #include "Physics.h"
 #include "Ragdoll.h"
@@ -23,8 +25,6 @@
 #include "GameDir.hpp"
 #include "Settings.h"
 #include "Enums.h"
-
-#define VERSION "0.1.0"
 
 class WaterShader;
 class WaterFlowPassShader;
@@ -56,7 +56,7 @@ private:
 	Camera m_camera;
 	TrackBall m_trackball;
 	Transform m_transform;
-	
+
 	bool m_initUi = true;
 	bool m_drawUi = true;
 	bool m_switch = false;
@@ -64,16 +64,25 @@ private:
 	Background m_background1;
 	Background m_background2;
 
+	void init();
+	void updateFrameEarly();
+	void tick();
+	void tickChunkLoading();
+	void tickPlayer();
+	void updateFrameLate();
+	void renderLate();
+	void renderTemperatureMap(World* world);
+
+	int getAimSolidSurface(int dist);
+	int getAimSurface(int dist);
+	void loadShaders();
+	void handleWindowSizeChange(int newWidth, int newHeight);
+
 	static const int MAX_WIDTH = 1920;
 	static const int MAX_HEIGHT = 1080;
 
-
-
 	GameState state = INGAME;
 	GameState stateAfterLoad = MAIN_MENU;
-
-
-	void handleWindowSizeChange(int newWidth, int newHeight);
 
 	int scale = 4;
 
@@ -91,9 +100,6 @@ private:
 
 	float freeCamX = 0;
 	float freeCamY = 0;
-
-#define frameTimeNum 100
-	uint16_t* frameTime = new uint16_t[frameTimeNum];
 
 	GPU_Target* realTarget = nullptr;
 	GPU_Target* target = nullptr;
@@ -137,7 +143,6 @@ private:
 	std::vector< unsigned char > pixelsFire;
 	unsigned char* pixelsFire_ar = nullptr;
 
-	//GPU_Image* textureFlowSpead = nullptr;
 	GPU_Image* textureFlow = nullptr;
 	std::vector< unsigned char > pixelsFlow;
 	unsigned char* pixelsFlow_ar = nullptr;
@@ -154,12 +159,6 @@ private:
 	ctpl::thread_pool* rotateVectorsPool = nullptr;
 
 	uint16_t* movingTiles;
-
-
-	int tickTime = 0;
-
-	bool running = true;
-
 	World* world = nullptr;
 
 	float accLoadX = 0;
@@ -171,6 +170,7 @@ private:
 	int lastDrawMY = 0;
 	int lastEraseMX = 0;
 	int lastEraseMY = 0;
+	int tickTime = 0;
 
 	bool* objectDelete = nullptr;
 
@@ -181,59 +181,10 @@ private:
 	float newLightingShader_insideCur = 0.0f;
 	FireShader* fireShader = nullptr;
 	Fire2Shader* fire2Shader = nullptr;
-	void loadShaders();
-
-	int fps = 0;
-	int feelsLikeFps = 0;
-	long long lastTime = 0;
-	long long lastTick = 0;
-	long long lastLoadingTick = 0;
-	long long now = 0;
-	long long startTime = 0;
-	long long deltaTime;
-	long mspt = 0;
+	
 	uint32 loadingOnColor = 0;
 	uint32 loadingOffColor = 0;
 
-	DrawTextParams dt_versionInfo1;
-	DrawTextParams dt_versionInfo2;
-	DrawTextParams dt_versionInfo3;
-
-	DrawTextParams dt_fps;
-	DrawTextParams dt_feelsLikeFps;
-
-	DrawTextParams dt_frameGraph[5];
-	DrawTextParams dt_loading;
-
-	long long fadeInStart = 0;
-	long long fadeInLength = 0;
-	int fadeInWaitFrames = 0;
-
-	long long fadeOutStart = 0;
-	long long fadeOutLength = 0;
-	int fadeOutWaitFrames = 0;
-	std::function<void()> fadeOutCallback = []() {};
-
 	GameDir gameDir;
-
-	void init();
-
-	void updateFrameEarly();
-	void tick();
-	void tickChunkLoading();
-	void tickPlayer();
-	void updateFrameLate();
-
-
-	void renderLate();
-
-	void renderTemperatureMap(World* world);
-
-	int getAimSolidSurface(int dist);
-	int getAimSurface(int dist);
-
-	void quitToMainMenu();
-
-	long long lastFPS;
-	int frames;
+	Clock m_timer;
 };
