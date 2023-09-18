@@ -343,6 +343,7 @@
     <ClInclude Include="engine\Vector.h" />
     <ClInclude Include="engine\VolumeBuffer.h" />
     <ClInclude Include="Entity.hpp" />
+    <ClInclude Include="Enums.h" />
     <ClInclude Include="FastNoise\FastNoise.h" />
     <ClInclude Include="FastNoise\FastNoiseSIMD.h" />
     <ClInclude Include="FastNoise\FastNoiseSIMD_internal.h" />

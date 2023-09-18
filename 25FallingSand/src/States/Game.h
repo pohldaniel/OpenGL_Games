@@ -1,7 +1,6 @@
 #pragma once
 
 #include <SDL.h>
-#include <SDL_ttf.h>
 #include <box2d/box2d.h>
 #include <fcntl.h>
 #include <io.h>
@@ -70,13 +69,9 @@ private:
 
 
 
-	GameState state = LOADING;
+	GameState state = INGAME;
 	GameState stateAfterLoad = MAIN_MENU;
-	int networkMode = -1;
-	Client* client = nullptr;
-	Server* server = nullptr;
 
-	//CAudioEngine audioEngine;
 
 	void handleWindowSizeChange(int newWidth, int newHeight);
 
@@ -100,20 +95,11 @@ private:
 #define frameTimeNum 100
 	uint16_t* frameTime = new uint16_t[frameTimeNum];
 
-	TTF_Font* font64 = nullptr;
-	TTF_Font* font16 = nullptr;
-	TTF_Font* font14 = nullptr;
-
 	GPU_Target* realTarget = nullptr;
 	GPU_Target* target = nullptr;
-
-	void setDisplayMode(DisplayMode mode);
-	void setVSync(bool vsync);
-	void setMinimizeOnLostFocus(bool minimize);
-
 	GPU_Image* backgroundImage = nullptr;
-
 	GPU_Image* loadingTexture = nullptr;
+
 	std::vector< unsigned char > pixelsLoading;
 	unsigned char* pixelsLoading_ar = nullptr;
 	int loadingScreenW = 0;
@@ -168,7 +154,7 @@ private:
 	ctpl::thread_pool* rotateVectorsPool = nullptr;
 
 	uint16_t* movingTiles;
-	void updateMaterialSounds();
+
 
 	int tickTime = 0;
 
@@ -232,16 +218,13 @@ private:
 
 	void init();
 
-	void run();
-
 	void updateFrameEarly();
 	void tick();
 	void tickChunkLoading();
 	void tickPlayer();
 	void updateFrameLate();
-	void renderOverlays();
 
-	void renderEarly();
+
 	void renderLate();
 
 	void renderTemperatureMap(World* world);
@@ -250,4 +233,7 @@ private:
 	int getAimSurface(int dist);
 
 	void quitToMainMenu();
+
+	long long lastFPS;
+	int frames;
 };

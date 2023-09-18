@@ -40,11 +40,11 @@ bool is_ready(std::future<R> const& f) {
 	return f.wait_for(std::chrono::seconds(0)) == std::future_status::ready;
 }
 
-void World::init(std::string worldPath, uint16_t w, uint16_t h, GPU_Target* target, int netMode) {
-	init(worldPath, w, h, target, netMode, new MaterialTestGenerator());
+void World::init(std::string worldPath, uint16_t w, uint16_t h, GPU_Target* target) {
+	init(worldPath, w, h, target, new MaterialTestGenerator());
 }
 
-void World::init(std::string worldPath, uint16_t w, uint16_t h, GPU_Target* target, int netMode, WorldGenerator* generator) {
+void World::init(std::string worldPath, uint16_t w, uint16_t h, GPU_Target* target, WorldGenerator* generator) {
 	this->worldName = worldPath;
 	std::experimental::filesystem::create_directories(worldPath);
 	if (!noSaveLoad) std::experimental::filesystem::create_directories(worldPath + "/chunks");
