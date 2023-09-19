@@ -235,6 +235,7 @@
     <ClCompile Include="Populator.cpp" />
     <ClCompile Include="Populators.cpp" />
     <ClCompile Include="RigidBody.cpp" />
+    <ClCompile Include="src\States\PBOInterface.cpp" />
     <ClCompile Include="Structure.cpp" />
     <ClCompile Include="Structures.cpp" />
     <ClCompile Include="Textures.cpp" />
@@ -395,6 +396,7 @@
     <ClInclude Include="src\States\CharacterInterface.h" />
     <ClInclude Include="src\States\Game.h" />
     <ClInclude Include="src\States\Menu.h" />
+    <ClInclude Include="src\States\PBOInterface.h" />
     <ClInclude Include="src\States\RagdollInterface.h" />
     <ClInclude Include="src\States\StateMachine.h" />
     <ClInclude Include="src\States\VehicleInterface.h" />

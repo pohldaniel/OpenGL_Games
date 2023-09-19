@@ -44,7 +44,27 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	m_background2.setSpeed(0.005f);
 
 	init();
-	m_timer.reset();
+	
+	const int    DATA_SIZE = world->width * world->height * 4;
+
+	imageData = new GLubyte[DATA_SIZE];
+	memset(imageData, 128, DATA_SIZE);
+
+	glGenTextures(1, &textureId);
+	glBindTexture(GL_TEXTURE_2D, textureId);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, world->width, world->height, 0, GL_BGRA, GL_UNSIGNED_BYTE, (GLvoid*)imageData);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	glGenBuffers(2, pboIds);
+	glBindBuffer(GL_PIXEL_UNPACK_BUFFER, pboIds[0]);
+	glBufferData(GL_PIXEL_UNPACK_BUFFER, DATA_SIZE, 0, GL_STREAM_DRAW);
+	glBindBuffer(GL_PIXEL_UNPACK_BUFFER, pboIds[1]);
+	glBufferData(GL_PIXEL_UNPACK_BUFFER, DATA_SIZE, 0, GL_STREAM_DRAW);
+	glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
 }
 
 Game::~Game() {
@@ -131,27 +151,29 @@ void Game::update() {
 }
 
 void Game::render() {
-	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	//m_switch ? m_background1.draw() : m_background2.draw();
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	m_switch ? m_background1.draw() : m_background2.draw();
 	updateFrameEarly();
 	tick();
 	updateFrameLate();
 
-	target = realTarget;
-	GPU_Clear(target);
+	glEnable(GL_BLEND);
+	auto shader = Globals::shaderManager.getAssetPointer("quad");
+	shader->use();
+	shader->loadVector("u_texRect", Vector4f(zoomX + offsetX, zoomY - offsetY, (1.0f - zoomX) + offsetX, (1.0f - zoomY) - offsetY));
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, textureId);
 
-	renderLate();
-	target = realTarget;
+	Globals::shapeManager.get("quad").drawRaw();
+	shader->unuse();
+	glDisable(GL_BLEND);
 
-	GPU_ActivateShaderProgram(0, NULL);
-	GPU_FlushBlitBuffer();
-
-	//ImGui_ImplOpenGL3_NewFrame();
-	//ImGui_ImplWin32_NewFrame();
-	//ImGui::NewFrame();
-	//MainMenuUI::Draw(this);
-	//ImGui::Render();
-	//ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+	ImGui_ImplOpenGL3_NewFrame();
+	ImGui_ImplWin32_NewFrame();
+	ImGui::NewFrame();
+	MainMenuUI::Draw(this);
+	ImGui::Render();
+	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
 void Game::OnMouseMotion(Event::MouseMoveEvent& event) {
@@ -259,13 +281,10 @@ void Game::init() {
 	ctpl::thread_pool* worldInitThreadPool = new ctpl::thread_pool(1);
 	std::future<void> worldInitThread;
 
-	target = Application::target;
-	realTarget = target;
-
 	worldInitThread = worldInitThreadPool->push([&](int id) {
 		world = new World();
 		world->noSaveLoad = true;
-		world->init(gameDir.getWorldPath("mainMenu"), (int)ceil(MAX_WIDTH / 3 / (double)CHUNK_W) * CHUNK_W + CHUNK_W * 3, (int)ceil(MAX_HEIGHT / 3 / (double)CHUNK_H) * CHUNK_H + CHUNK_H * 3, target);
+		world->init(gameDir.getWorldPath("mainMenu"), (int)ceil(MAX_WIDTH / 3 / (double)CHUNK_W) * CHUNK_W + CHUNK_W * 3, (int)ceil(MAX_HEIGHT / 3 / (double)CHUNK_H) * CHUNK_H + CHUNK_H * 3);
 
 	});
 
@@ -276,20 +295,14 @@ void Game::init() {
 
 	movingTiles = new uint16_t[Materials::nMaterials];
 
-	b2DebugDraw = new b2DebugDraw_impl(target);
+	b2DebugDraw = new b2DebugDraw_impl();
 	worldInitThread.get();
 
-	int w;
-	int h;
-	SDL_GetWindowSize(Application::SWindow, &w, &h);
-
-	GPU_SetWindowResolution(w, h);
-	GPU_ResetProjection(realTarget);
+	int w = Application::Width;
+	int h = Application::Height;
 
 	handleWindowSizeChange(w, h);
 	updateDirtyPool = new ctpl::thread_pool(6);
-
-	loadShaders();
 
 	for (int x = -CHUNK_W * 4; x < world->width + CHUNK_W * 4; x += CHUNK_W) {
 		for (int y = -CHUNK_H * 3; y < world->height + CHUNK_H * 8; y += CHUNK_H) {
@@ -319,22 +332,6 @@ void Game::init() {
 	objectDelete = new bool[world->width * world->height];
 }
 
-void Game::loadShaders() {
-
-
-	if (waterShader) delete waterShader;
-	if (waterFlowPassShader) delete waterFlowPassShader;
-	if (newLightingShader) delete newLightingShader;
-	if (fireShader) delete fireShader;
-	if (fire2Shader) delete fire2Shader;
-
-	waterShader = new WaterShader();
-	waterFlowPassShader = new WaterFlowPassShader();
-	newLightingShader = new NewLightingShader();
-	fireShader = new FireShader();
-	fire2Shader = new Fire2Shader();
-}
-
 void Game::handleWindowSizeChange(int newWidth, int newHeight) {
 
 	int prevWidth = Application::Width;
@@ -342,117 +339,6 @@ void Game::handleWindowSizeChange(int newWidth, int newHeight) {
 
 	Application::Width = newWidth;
 	Application::Height = newHeight;
-
-	if (loadingTexture) {
-		GPU_FreeImage(loadingTexture);
-		GPU_FreeImage(texture);
-		GPU_FreeImage(worldTexture);
-		GPU_FreeImage(lightingTexture);
-		GPU_FreeImage(emissionTexture);
-		GPU_FreeImage(textureFire);
-		GPU_FreeImage(textureFlow);
-		GPU_FreeImage(texture2Fire);
-		GPU_FreeImage(textureLayer2);
-		GPU_FreeImage(textureBackground);
-		GPU_FreeImage(textureObjects);
-		GPU_FreeImage(textureObjectsLQ);
-		GPU_FreeImage(textureObjectsBack);
-		GPU_FreeImage(textureParticles);
-		GPU_FreeImage(textureEntities);
-		GPU_FreeImage(textureEntitiesLQ);
-		GPU_FreeImage(temperatureMap);
-		GPU_FreeImage(backgroundImage);
-	}
-
-	loadingOnColor = 0xFFFFFFFF;
-	loadingOffColor = 0x000000FF;
-
-	loadingTexture = GPU_CreateImage(loadingScreenW = (Application::Width / 20), loadingScreenH = (Application::Width / 20), GPU_FormatEnum::GPU_FORMAT_RGBA);
-
-	GPU_SetImageFilter(loadingTexture, GPU_FILTER_NEAREST);
-	texture = GPU_CreateImage(world->width, world->height, GPU_FormatEnum::GPU_FORMAT_RGBA);
-
-	GPU_SetImageFilter(texture, GPU_FILTER_NEAREST);
-	worldTexture = GPU_CreateImage(world->width * Settings::hd_objects_size, world->height * Settings::hd_objects_size, GPU_FormatEnum::GPU_FORMAT_RGBA);
-
-	GPU_SetImageFilter(worldTexture, GPU_FILTER_NEAREST);
-	GPU_LoadTarget(worldTexture);
-
-	lightingTexture = GPU_CreateImage(world->width, world->height, GPU_FormatEnum::GPU_FORMAT_RGBA);
-
-	GPU_SetImageFilter(lightingTexture, GPU_FILTER_NEAREST);
-
-	GPU_LoadTarget(lightingTexture);
-
-	emissionTexture = GPU_CreateImage(world->width, world->height, GPU_FormatEnum::GPU_FORMAT_RGBA);
-
-	GPU_SetImageFilter(emissionTexture, GPU_FILTER_NEAREST);
-
-	textureFlow = GPU_CreateImage(world->width, world->height, GPU_FormatEnum::GPU_FORMAT_RGBA);
-
-	GPU_SetImageFilter(textureFlow, GPU_FILTER_NEAREST);
-
-	textureFire = GPU_CreateImage(world->width, world->height, GPU_FormatEnum::GPU_FORMAT_RGBA);
-
-	GPU_SetImageFilter(textureFire, GPU_FILTER_NEAREST);
-
-	texture2Fire = GPU_CreateImage(world->width, world->height, GPU_FormatEnum::GPU_FORMAT_RGBA);
-
-	GPU_SetImageFilter(texture2Fire, GPU_FILTER_NEAREST);
-
-	GPU_LoadTarget(texture2Fire);
-
-	textureLayer2 = GPU_CreateImage(world->width, world->height, GPU_FormatEnum::GPU_FORMAT_RGBA);
-
-	GPU_SetImageFilter(textureLayer2, GPU_FILTER_NEAREST);
-
-	textureBackground = GPU_CreateImage(world->width, world->height, GPU_FormatEnum::GPU_FORMAT_RGBA);
-
-	GPU_SetImageFilter(textureBackground, GPU_FILTER_NEAREST);
-
-	textureObjects = GPU_CreateImage(world->width * (Settings::hd_objects ? Settings::hd_objects_size : 1), world->height * (Settings::hd_objects ? Settings::hd_objects_size : 1), GPU_FormatEnum::GPU_FORMAT_RGBA);
-
-	GPU_SetImageFilter(textureObjects, GPU_FILTER_NEAREST);
-
-	textureObjectsLQ = GPU_CreateImage(world->width, world->height, GPU_FormatEnum::GPU_FORMAT_RGBA);
-
-	GPU_SetImageFilter(textureObjectsLQ, GPU_FILTER_NEAREST);
-
-	textureObjectsBack = GPU_CreateImage(world->width * (Settings::hd_objects ? Settings::hd_objects_size : 1), world->height * (Settings::hd_objects ? Settings::hd_objects_size : 1), GPU_FormatEnum::GPU_FORMAT_RGBA);
-
-	GPU_SetImageFilter(textureObjectsBack, GPU_FILTER_NEAREST);
-
-	GPU_LoadTarget(textureObjects);
-
-	GPU_LoadTarget(textureObjectsLQ);
-
-	GPU_LoadTarget(textureObjectsBack);
-
-	textureParticles = GPU_CreateImage(world->width, world->height, GPU_FormatEnum::GPU_FORMAT_RGBA);
-
-	GPU_SetImageFilter(textureParticles, GPU_FILTER_NEAREST);
-
-	textureEntities = GPU_CreateImage(world->width * (Settings::hd_objects ? Settings::hd_objects_size : 1), world->height * (Settings::hd_objects ? Settings::hd_objects_size : 1), GPU_FormatEnum::GPU_FORMAT_RGBA);
-
-	GPU_LoadTarget(textureEntities);
-
-	GPU_SetImageFilter(textureEntities, GPU_FILTER_NEAREST);
-
-	textureEntitiesLQ = GPU_CreateImage(world->width, world->height, GPU_FormatEnum::GPU_FORMAT_RGBA);
-
-	GPU_LoadTarget(textureEntitiesLQ);
-
-	GPU_SetImageFilter(textureEntitiesLQ, GPU_FILTER_NEAREST);
-
-	temperatureMap = GPU_CreateImage(world->width, world->height, GPU_FormatEnum::GPU_FORMAT_RGBA);
-
-	GPU_SetImageFilter(temperatureMap, GPU_FILTER_NEAREST);
-
-	backgroundImage = GPU_CreateImage(Application::Width, Application::Height, GPU_FormatEnum::GPU_FORMAT_RGBA);
-
-	GPU_SetImageFilter(backgroundImage, GPU_FILTER_NEAREST);
-
-	GPU_LoadTarget(backgroundImage);
 
 	pixels = std::vector<unsigned char>(world->width * world->height * 4, 0);
 	pixels_ar = &pixels[0];
@@ -466,8 +352,6 @@ void Game::handleWindowSizeChange(int newWidth, int newHeight) {
 	pixelsTemp_ar = &pixelsTemp[0];
 	pixelsParticles = std::vector<unsigned char>(world->width * world->height * 4, SDL_ALPHA_TRANSPARENT);
 	pixelsParticles_ar = &pixelsParticles[0];
-	pixelsLoading = std::vector<unsigned char>(loadingTexture->w * loadingTexture->h * 4, SDL_ALPHA_TRANSPARENT);
-	pixelsLoading_ar = &pixelsLoading[0];
 	pixelsFire = std::vector<unsigned char>(world->width * world->height * 4, 0);
 	pixelsFire_ar = &pixelsFire[0];
 	pixelsFlow = std::vector<unsigned char>(world->width * world->height * 4, 0);
@@ -510,26 +394,12 @@ void Game::tick() {
 
 	if (world->needToTickGeneration) world->tickChunkGeneration();
 
-	// clear objects
-	GPU_SetShapeBlendMode(GPU_BLEND_NORMAL);
-	GPU_Clear(textureObjects->target);
-
-	GPU_SetShapeBlendMode(GPU_BLEND_NORMAL);
-	GPU_Clear(textureObjectsLQ->target);
-
-	GPU_SetShapeBlendMode(GPU_BLEND_NORMAL);
-	GPU_Clear(textureObjectsBack->target);
-
 	if (Settings::tick_world && world->readyToMerge.size() == 0) {
 		world->tickChunks();
 	}
 
 	// render objects
 	memset(objectDelete, false, (size_t)world->width * world->height * sizeof(bool));
-
-	GPU_SetBlendMode(textureObjects, GPU_BLEND_NORMAL);
-	GPU_SetBlendMode(textureObjectsLQ, GPU_BLEND_NORMAL);
-	GPU_SetBlendMode(textureObjectsBack, GPU_BLEND_NORMAL);
 
 	for (size_t i = 0; i < world->rigidBodies.size(); i++) {
 		RigidBody* cur = world->rigidBodies[i];
@@ -539,24 +409,6 @@ void Game::tick() {
 
 		float x = cur->body->GetPosition().x;
 		float y = cur->body->GetPosition().y;
-
-		// draw
-		GPU_Target* tgt = cur->back ? textureObjectsBack->target : textureObjects->target;
-		GPU_Target* tgtLQ = cur->back ? textureObjectsBack->target : textureObjectsLQ->target;
-		int scaleObjTex = Settings::hd_objects ? Settings::hd_objects_size : 1;
-
-		GPU_Rect r = { x * scaleObjTex, y * scaleObjTex, (float)cur->surface->w * scaleObjTex, (float)cur->surface->h * scaleObjTex };
-
-		if (cur->texNeedsUpdate) {
-			if (cur->texture != nullptr) {
-				GPU_FreeImage(cur->texture);
-			}
-			cur->texture = GPU_CopyImageFromSurface(cur->surface);
-			GPU_SetImageFilter(cur->texture, GPU_FILTER_NEAREST);
-			cur->texNeedsUpdate = false;
-		}
-
-		GPU_BlitRectX(cur->texture, NULL, tgt, &r, cur->body->GetAngle() * 180 / PI, 0, 0, GPU_FLIP_NONE);
 
 		// displace fluids
 		float s = sin(cur->body->GetAngle());
@@ -582,63 +434,17 @@ void Game::tick() {
 						world->tiles[wxd + wyd * world->width] = rmat;
 						world->dirty[wxd + wyd * world->width] = true;
 						break;
-					}
-					else if (world->tiles[wxd + wyd * world->width].mat->physicsType == PhysicsType::SAND) {
+					}else if (world->tiles[wxd + wyd * world->width].mat->physicsType == PhysicsType::SAND) {
 						world->addParticle(new Particle(world->tiles[wxd + wyd * world->width], (float)wxd, (float)(wyd - 3), (float)((rand() % 10 - 5) / 10.0f), (float)(-(rand() % 5 + 5) / 10.0f), 0, (float)0.1));
 						world->tiles[wxd + wyd * world->width] = rmat;
 						world->dirty[wxd + wyd * world->width] = true;
-						cur->body->SetLinearVelocity({ cur->body->GetLinearVelocity().x * (float)0.99, cur->body->GetLinearVelocity().y * (float)0.99 });
-						cur->body->SetAngularVelocity(cur->body->GetAngularVelocity() * (float)0.98);
 						break;
-					}
-					else if (world->tiles[wxd + wyd * world->width].mat->physicsType == PhysicsType::SOUP) {
+					}else if (world->tiles[wxd + wyd * world->width].mat->physicsType == PhysicsType::SOUP) {
 						world->addParticle(new Particle(world->tiles[wxd + wyd * world->width], (float)wxd, (float)(wyd - 3), (float)((rand() % 10 - 5) / 10.0f), (float)(-(rand() % 5 + 5) / 10.0f), 0, (float)0.1));
 						world->tiles[wxd + wyd * world->width] = rmat;
 						world->dirty[wxd + wyd * world->width] = true;
-						cur->body->SetLinearVelocity({ cur->body->GetLinearVelocity().x * (float)0.998, cur->body->GetLinearVelocity().y * (float)0.998 });
-						cur->body->SetAngularVelocity(cur->body->GetAngularVelocity() * (float)0.99);
 						break;
 					}
-				}
-			}
-		}
-	}
-
-	// render entities
-	if (lastReadyToMergeSize == 0) {
-		world->tickEntities(textureEntities->target);
-
-		if (world->player) {
-			if (world->player->holdHammer) {
-				int x = (int)((mx - ofsX - camX) / scale);
-				int y = (int)((my - ofsY - camY) / scale);
-				GPU_Line(textureEntitiesLQ->target, x, y, world->player->hammerX, world->player->hammerY, { 0xff, 0xff, 0x00, 0xff });
-			}
-		}
-	}
-	GPU_SetShapeBlendMode(GPU_BLEND_NORMAL); // SDL_BLENDMODE_NONE
-
-
-
-	// entity fluid displacement & make solid
-	for (size_t i = 0; i < world->entities.size(); i++) {
-		Entity cur = *world->entities[i];
-
-		for (int tx = 0; tx < cur.hw; tx++) {
-			for (int ty = 0; ty < cur.hh; ty++) {
-
-				int wx = (int)(tx + cur.x + world->loadZone.x);
-				int wy = (int)(ty + cur.y + world->loadZone.y);
-				if (wx < 0 || wy < 0 || wx >= world->width || wy >= world->height) continue;
-				if (world->tiles[wx + wy * world->width].mat->physicsType == PhysicsType::AIR) {
-					world->tiles[wx + wy * world->width] = Tiles::OBJECT;
-					objectDelete[wx + wy * world->width] = true;
-				}
-				else if (world->tiles[wx + wy * world->width].mat->physicsType == PhysicsType::SAND || world->tiles[wx + wy * world->width].mat->physicsType == PhysicsType::SOUP) {
-					world->addParticle(new Particle(world->tiles[wx + wy * world->width], (float)(wx + rand() % 3 - 1 - cur.vx), (float)(wy - abs(cur.vy)), (float)(-cur.vx / 4 + (rand() % 10 - 5) / 5.0f), (float)(-cur.vy / 4 + -(rand() % 5 + 5) / 5.0f), 0, (float)0.1));
-					world->tiles[wx + wy * world->width] = Tiles::OBJECT;
-					objectDelete[wx + wy * world->width] = true;
-					world->dirty[wx + wy * world->width] = true;
 				}
 			}
 		}
@@ -733,22 +539,6 @@ void Game::tick() {
 			}
 		}
 
-		for (int tx = 0; tx < cur->surface->w; tx++) {
-			for (int ty = 0; ty < cur->surface->h; ty++) {
-				MaterialInstance mat = cur->tiles[tx + ty * cur->surface->w];
-				if (mat.mat->id == Materials::GENERIC_AIR.id) {
-					PIXEL(cur->surface, tx, ty) = 0x00000000;
-				}
-				else {
-					PIXEL(cur->surface, tx, ty) = (mat.mat->alpha << 24) + (mat.color & 0x00ffffff);
-				}
-			}
-		}
-
-		GPU_FreeImage(cur->texture);
-		cur->texture = GPU_CopyImageFromSurface(cur->surface);
-		GPU_SetImageFilter(cur->texture, GPU_FILTER_NEAREST);
-
 		cur->needsUpdate = true;
 	}
 
@@ -770,177 +560,61 @@ void Game::tick() {
 				hadDirty = true;
 				movingTiles[world->tiles[i].mat->id]++;
 				if (world->tiles[i].mat->physicsType == PhysicsType::AIR) {
-					dpixels_ar[offset + 0] = 0;        // b
-					dpixels_ar[offset + 1] = 0;        // g
-					dpixels_ar[offset + 2] = 0;        // r
-					dpixels_ar[offset + 3] = SDL_ALPHA_TRANSPARENT;    // a		
+					dpixels_ar[offset + 0] = 0;  // b
+					dpixels_ar[offset + 1] = 0;  // g
+					dpixels_ar[offset + 2] = 0;  // r
+					dpixels_ar[offset + 3] = 0;  // a		
 
-					dpixelsFire_ar[offset + 0] = 0;        // b
-					dpixelsFire_ar[offset + 1] = 0;        // g
-					dpixelsFire_ar[offset + 2] = 0;        // r
-					dpixelsFire_ar[offset + 3] = SDL_ALPHA_TRANSPARENT;    // a
+					dpixelsFire_ar[offset + 0] = 0;  // b
+					dpixelsFire_ar[offset + 1] = 0;  // g
+					dpixelsFire_ar[offset + 2] = 0;  // r
+					dpixelsFire_ar[offset + 3] = 0;  // a
 
-					dpixelsEmission_ar[offset + 0] = 0;        // b
-					dpixelsEmission_ar[offset + 1] = 0;        // g
-					dpixelsEmission_ar[offset + 2] = 0;        // r
-					dpixelsEmission_ar[offset + 3] = SDL_ALPHA_TRANSPARENT;    // a
+					dpixelsEmission_ar[offset + 0] = 0;  // b
+					dpixelsEmission_ar[offset + 1] = 0;  // g
+					dpixelsEmission_ar[offset + 2] = 0;  // r
+					dpixelsEmission_ar[offset + 3] = 0;  // a
 
 					world->flowY[i] = 0;
 					world->flowX[i] = 0;
-				}
-				else {
+				}else {
+
 					Uint32 color = world->tiles[i].color;
 					Uint32 emit = world->tiles[i].mat->emitColor;
-					//float br = world->light[i];
-					dpixels_ar[offset + 2] = ((color >> 0) & 0xff);        // b
-					dpixels_ar[offset + 1] = ((color >> 8) & 0xff);        // g
-					dpixels_ar[offset + 0] = ((color >> 16) & 0xff);        // r
-					dpixels_ar[offset + 3] = world->tiles[i].mat->alpha;    // a
 
-					dpixelsEmission_ar[offset + 2] = ((emit >> 0) & 0xff);        // b
-					dpixelsEmission_ar[offset + 1] = ((emit >> 8) & 0xff);        // g
-					dpixelsEmission_ar[offset + 0] = ((emit >> 16) & 0xff);        // r
-					dpixelsEmission_ar[offset + 3] = ((emit >> 24) & 0xff);    // a
-
-					if (world->tiles[i].mat->id == Materials::FIRE.id) {
-						dpixelsFire_ar[offset + 2] = ((color >> 0) & 0xff);        // b
-						dpixelsFire_ar[offset + 1] = ((color >> 8) & 0xff);        // g
-						dpixelsFire_ar[offset + 0] = ((color >> 16) & 0xff);        // r
-						dpixelsFire_ar[offset + 3] = world->tiles[i].mat->alpha;    // a
-						hadFire = true;
-					}
-					if (world->tiles[i].mat->physicsType == PhysicsType::SOUP) {
-
-						float newFlowX = world->prevFlowX[i] + (world->flowX[i] - world->prevFlowX[i]) * 0.25;
-						float newFlowY = world->prevFlowY[i] + (world->flowY[i] - world->prevFlowY[i]) * 0.25;
-						if (newFlowY < 0) newFlowY *= 0.5;
-
-						dpixelsFlow_ar[offset + 2] = 0; // b
-						dpixelsFlow_ar[offset + 1] = std::min(std::max(newFlowY * (3.0 / world->tiles[i].mat->iterations + 0.5) / 4.0 + 0.5, 0.0), 1.0) * 255; // g
-						dpixelsFlow_ar[offset + 0] = std::min(std::max(newFlowX * (3.0 / world->tiles[i].mat->iterations + 0.5) / 4.0 + 0.5, 0.0), 1.0) * 255; // r
-						dpixelsFlow_ar[offset + 3] = 0xff; // a
-						hadFlow = true;
-						world->prevFlowX[i] = newFlowX;
-						world->prevFlowY[i] = newFlowY;
-						world->flowY[i] = 0;
-						world->flowX[i] = 0;
-					}
-					else {
-						world->flowY[i] = 0;
-						world->flowX[i] = 0;
-					}
+					dpixels_ar[offset + 2] = ((color >> 0) & 0xff);       // b
+					dpixels_ar[offset + 1] = ((color >> 8) & 0xff);       // g
+					dpixels_ar[offset + 0] = ((color >> 16) & 0xff);      // r
+					dpixels_ar[offset + 3] = world->tiles[i].mat->alpha;  // a	
+					
 				}
 			}
 		}
 
 	}));
-
-
-	unsigned char* dpixelsLayer2_ar = pixelsLayer2_ar;
-	results.push_back(updateDirtyPool->push([&](int id) {
-
-		for (int i = 0; i < world->width * world->height; i++) {
-			const unsigned int offset = i * 4;
-			if (world->layer2Dirty[i]) {
-				hadLayer2Dirty = true;
-				if (world->layer2[i].mat->physicsType == PhysicsType::AIR) {
-					if (Settings::draw_background_grid) {
-						Uint32 color = ((i) % 2) == 0 ? 0x888888 : 0x444444;
-						dpixelsLayer2_ar[offset + 2] = (color >> 0) & 0xff;        // b
-						dpixelsLayer2_ar[offset + 1] = (color >> 8) & 0xff;        // g
-						dpixelsLayer2_ar[offset + 0] = (color >> 16) & 0xff;       // r
-						dpixelsLayer2_ar[offset + 3] = SDL_ALPHA_OPAQUE;			 // a
-						continue;
-					}
-					else {
-						dpixelsLayer2_ar[offset + 0] = 0;        // b
-						dpixelsLayer2_ar[offset + 1] = 0;        // g
-						dpixelsLayer2_ar[offset + 2] = 0;        // r
-						dpixelsLayer2_ar[offset + 3] = SDL_ALPHA_TRANSPARENT;    // a
-						continue;
-					}
-				}
-				Uint32 color = world->layer2[i].color;
-				dpixelsLayer2_ar[offset + 2] = (color >> 0) & 0xff;        // b
-				dpixelsLayer2_ar[offset + 1] = (color >> 8) & 0xff;        // g
-				dpixelsLayer2_ar[offset + 0] = (color >> 16) & 0xff;        // r
-				dpixelsLayer2_ar[offset + 3] = world->layer2[i].mat->alpha;    // a
-			}
-		}
-
-	}));
-
-
-	unsigned char* dpixelsBackground_ar = pixelsBackground_ar;
-	results.push_back(updateDirtyPool->push([&](int id) {
-
-		for (int i = 0; i < world->width * world->height; i++) {
-			const unsigned int offset = i * 4;
-
-			if (world->backgroundDirty[i]) {
-				hadBackgroundDirty = true;
-				Uint32 color = world->background[i];
-				dpixelsBackground_ar[offset + 2] = (color >> 0) & 0xff;        // b
-				dpixelsBackground_ar[offset + 1] = (color >> 8) & 0xff;        // g
-				dpixelsBackground_ar[offset + 0] = (color >> 16) & 0xff;       // r
-				dpixelsBackground_ar[offset + 3] = (color >> 24) & 0xff;       // a
-			}
-
-		}
-
-	}));
-
-
-	for (int i = 0; i < world->width * world->height; i++) {
-		const unsigned int offset = i * 4;
-
-		if (objectDelete[i]) {
-			world->tiles[i] = Tiles::NOTHING;
-		}
-	}
 
 	for (int i = 0; i < results.size(); i++) {
 		results[i].get();
 	}
 
-	GPU_UpdateImageBytes(textureParticles,NULL,&pixelsParticles_ar[0],world->width * 4);
-
-	if (hadDirty)		   memset(world->dirty, false, (size_t)world->width * world->height);
-	if (hadLayer2Dirty)	   memset(world->layer2Dirty, false, (size_t)world->width * world->height);
-	if (hadBackgroundDirty) memset(world->backgroundDirty, false, (size_t)world->width * world->height);
-
-	if (Settings::tick_temperature && tickTime % 4 == 2) {
-		world->tickTemperature();
-	}
-	if (Settings::draw_temperature_map && tickTime % 4 == 0) {
-		renderTemperatureMap(world);
-	}
-
+	if (hadDirty) memset(world->dirty, false, (size_t)world->width * world->height);
+	
 
 	if (hadDirty) {
-		GPU_UpdateImageBytes(texture, NULL, &pixels[0], world->width * 4);
-		GPU_UpdateImageBytes(emissionTexture,NULL,&pixelsEmission[0],world->width * 4);
-	}
 
-	if (hadLayer2Dirty) {
-		GPU_UpdateImageBytes(textureLayer2,NULL,&pixelsLayer2[0],world->width * 4);
-	}
+		glBindTexture(GL_TEXTURE_2D, textureId);
+		glBindBuffer(GL_PIXEL_UNPACK_BUFFER, pboIds[0]);
 
-	if (hadBackgroundDirty) {
-		GPU_UpdateImageBytes(textureBackground,NULL,&pixelsBackground[0],world->width * 4);
-	}
+		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, world->width, world->height, GL_BGRA, GL_UNSIGNED_BYTE, 0);
+		glBindBuffer(GL_PIXEL_UNPACK_BUFFER, pboIds[0]);
+		glBufferData(GL_PIXEL_UNPACK_BUFFER, world->width * world->height * 4, 0, GL_STREAM_DRAW);
+		GLubyte* ptr = (GLubyte*)glMapBuffer(GL_PIXEL_UNPACK_BUFFER, GL_WRITE_ONLY);
+		if (ptr){			
+			memcpy(ptr, dpixels_ar, world->width * world->height * 4);
+			glUnmapBuffer(GL_PIXEL_UNPACK_BUFFER);
+		}
 
-	if (hadFlow) {
-		GPU_UpdateImageBytes(textureFlow,NULL,&pixelsFlow[0],world->width * 4);
-		waterFlowPassShader->dirty = true;
-	}
-
-	if (hadFire) {
-		GPU_UpdateImageBytes(textureFire,NULL,&pixelsFire[0],world->width * 4);
-	}
-
-	if (Settings::draw_temperature_map) {
-		GPU_UpdateImageBytes(temperatureMap,NULL,&pixelsTemp[0],world->width * 4);
+		glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
 	}
 
 	if (Settings::tick_box2d && tickTime % 4 == 0) world->updateWorldMesh();
@@ -969,45 +643,23 @@ void Game::tickChunkLoading() {
 
 			if (world->dirty[i]) {
 				if (world->tiles[i].mat->physicsType == PhysicsType::AIR) {
-					UCH_SET_PIXEL(pixels_ar, offset, 0, 0, 0, SDL_ALPHA_TRANSPARENT);
+					UCH_SET_PIXEL(pixels_ar, offset, 128, 0, 0, 0);
 				}
 				else {
 					Uint32 color = world->tiles[i].color;
-					Uint32 emit = world->tiles[i].mat->emitColor;
 					UCH_SET_PIXEL(pixels_ar, offset, (color >> 0) & 0xff, (color >> 8) & 0xff, (color >> 16) & 0xff, world->tiles[i].mat->alpha);
-					UCH_SET_PIXEL(pixelsEmission_ar, offset, (emit >> 0) & 0xff, (emit >> 8) & 0xff, (emit >> 16) & 0xff, (emit >> 24) & 0xff);
+					
 				}
 			}
 
-			if (world->layer2Dirty[i]) {
-				if (world->layer2[i].mat->physicsType == PhysicsType::AIR) {
-					if (Settings::draw_background_grid) {
-						Uint32 color = ((i) % 2) == 0 ? 0x888888 : 0x444444;
-						UCH_SET_PIXEL(pixelsLayer2_ar, offset, (color >> 0) & 0xff, (color >> 8) & 0xff, (color >> 16) & 0xff, SDL_ALPHA_OPAQUE);
-					}
-					else {
-						UCH_SET_PIXEL(pixelsLayer2_ar, offset, 0, 0, 0, SDL_ALPHA_TRANSPARENT);
-					}
-					continue;
-				}
-				Uint32 color = world->layer2[i].color;
-				UCH_SET_PIXEL(pixelsLayer2_ar, offset, (color >> 0) & 0xff, (color >> 8) & 0xff, (color >> 16) & 0xff, world->layer2[i].mat->alpha);
-			}
-
-			if (world->backgroundDirty[i]) {
-				Uint32 color = world->background[i];
-				UCH_SET_PIXEL(pixelsBackground_ar, offset, (color >> 0) & 0xff, (color >> 8) & 0xff, (color >> 16) & 0xff, (color >> 24) & 0xff);
-			}
+			
 #undef UCH_SET_PIXEL
 		}
 
 #pragma endregion
 
-
 		memset(world->dirty, false, (size_t)world->width * world->height);
-		memset(world->layer2Dirty, false, (size_t)world->width * world->height);
-		memset(world->backgroundDirty, false, (size_t)world->width * world->height);
-
+	
 		while ((abs(accLoadX) > CHUNK_W / 2 || abs(accLoadY) > CHUNK_H / 2)) {
 			int subX = std::fmax(std::fmin(accLoadX, CHUNK_W / 2), -CHUNK_W / 2);
 			if (abs(subX) < CHUNK_W / 2) subX = 0;
@@ -1018,103 +670,6 @@ void Game::tickChunkLoading() {
 			world->loadZone.y += subY;
 
 			int delta = 4 * (subX + subY * world->width);
-
-			std::vector<std::future<void>> results = {};
-			if (delta > 0) {
-				results.push_back(updateDirtyPool->push([&](int id) {
-					std::rotate(&(pixels_ar[0]), &(pixels_ar[world->width * world->height * 4]) - delta, &(pixels_ar[world->width * world->height * 4]));
-					//rotate(pixels.begin(), pixels.end() - delta, pixels.end());
-				}));
-				results.push_back(updateDirtyPool->push([&](int id) {
-					std::rotate(&(pixelsLayer2_ar[0]), &(pixelsLayer2_ar[world->width * world->height * 4]) - delta, &(pixelsLayer2_ar[world->width * world->height * 4]));
-					//rotate(pixelsLayer2.begin(), pixelsLayer2.end() - delta, pixelsLayer2.end());
-				}));
-				results.push_back(updateDirtyPool->push([&](int id) {
-					std::rotate(&(pixelsBackground_ar[0]), &(pixelsBackground_ar[world->width * world->height * 4]) - delta, &(pixelsBackground_ar[world->width * world->height * 4]));
-					//rotate(pixelsBackground.begin(), pixelsBackground.end() - delta, pixelsBackground.end());
-				}));
-				results.push_back(updateDirtyPool->push([&](int id) {
-					std::rotate(&(pixelsFire_ar[0]), &(pixelsFire_ar[world->width * world->height * 4]) - delta, &(pixelsFire_ar[world->width * world->height * 4]));
-					//rotate(pixelsFire_ar.begin(), pixelsFire_ar.end() - delta, pixelsFire_ar.end());
-				}));
-				results.push_back(updateDirtyPool->push([&](int id) {
-					std::rotate(&(pixelsFlow_ar[0]), &(pixelsFlow_ar[world->width * world->height * 4]) - delta, &(pixelsFlow_ar[world->width * world->height * 4]));
-					//rotate(pixelsFlow_ar.begin(), pixelsFlow_ar.end() - delta, pixelsFlow_ar.end());
-				}));
-				results.push_back(updateDirtyPool->push([&](int id) {
-					std::rotate(&(pixelsEmission_ar[0]), &(pixelsEmission_ar[world->width * world->height * 4]) - delta, &(pixelsEmission_ar[world->width * world->height * 4]));
-					//rotate(pixelsEmission_ar.begin(), pixelsEmission_ar.end() - delta, pixelsEmission_ar.end());
-				}));
-			}
-			else if (delta < 0) {
-				results.push_back(updateDirtyPool->push([&](int id) {
-					std::rotate(&(pixels_ar[0]), &(pixels_ar[0]) - delta, &(pixels_ar[world->width * world->height * 4]));
-					//rotate(pixels.begin(), pixels.begin() - delta, pixels.end());
-				}));
-				results.push_back(updateDirtyPool->push([&](int id) {
-					std::rotate(&(pixelsLayer2_ar[0]), &(pixelsLayer2_ar[0]) - delta, &(pixelsLayer2_ar[world->width * world->height * 4]));
-					//rotate(pixelsLayer2.begin(), pixelsLayer2.begin() - delta, pixelsLayer2.end());
-				}));
-				results.push_back(updateDirtyPool->push([&](int id) {
-					std::rotate(&(pixelsBackground_ar[0]), &(pixelsBackground_ar[0]) - delta, &(pixelsBackground_ar[world->width * world->height * 4]));
-					//rotate(pixelsBackground.begin(), pixelsBackground.begin() - delta, pixelsBackground.end());
-				}));
-				results.push_back(updateDirtyPool->push([&](int id) {
-					std::rotate(&(pixelsFire_ar[0]), &(pixelsFire_ar[0]) - delta, &(pixelsFire_ar[world->width * world->height * 4]));
-					//rotate(pixelsFire_ar.begin(), pixelsFire_ar.begin() - delta, pixelsFire_ar.end());
-				}));
-				results.push_back(updateDirtyPool->push([&](int id) {
-					std::rotate(&(pixelsFlow_ar[0]), &(pixelsFlow_ar[0]) - delta, &(pixelsFlow_ar[world->width * world->height * 4]));
-					//rotate(pixelsFlow_ar.begin(), pixelsFlow_ar.begin() - delta, pixelsFlow_ar.end());
-				}));
-				results.push_back(updateDirtyPool->push([&](int id) {
-					std::rotate(&(pixelsEmission_ar[0]), &(pixelsEmission_ar[0]) - delta, &(pixelsEmission_ar[world->width * world->height * 4]));
-					//rotate(pixelsEmission_ar.begin(), pixelsEmission_ar.begin() - delta, pixelsEmission_ar.end());
-				}));
-			}
-
-			for (auto& v : results) {
-				v.get();
-			}
-
-
-#define CLEARPIXEL(pixels, ofs) \
-pixels[ofs + 0] = pixels[ofs + 1] = pixels[ofs + 2] = 0xff; \
-pixels[ofs + 3] = SDL_ALPHA_TRANSPARENT;
-
-
-			for (int x = 0; x < abs(subX); x++) {
-				for (int y = 0; y < world->height; y++) {
-					const unsigned int offset = (world->width * 4 * y) + x * 4;
-					if (offset < world->width * world->height * 4) {
-						CLEARPIXEL(pixels_ar, offset);
-						CLEARPIXEL(pixelsLayer2_ar, offset);
-						CLEARPIXEL(pixelsObjects_ar, offset);
-						CLEARPIXEL(pixelsBackground_ar, offset);
-						CLEARPIXEL(pixelsFire_ar, offset);
-						CLEARPIXEL(pixelsFlow_ar, offset);
-						CLEARPIXEL(pixelsEmission_ar, offset);
-					}
-				}
-			}
-
-			for (int y = 0; y < abs(subY); y++) {
-				for (int x = 0; x < world->width; x++) {
-					const unsigned int offset = (world->width * 4 * y) + x * 4;
-					if (offset < world->width * world->height * 4) {
-						CLEARPIXEL(pixels_ar, offset);
-						CLEARPIXEL(pixelsLayer2_ar, offset);
-						CLEARPIXEL(pixelsObjects_ar, offset);
-						CLEARPIXEL(pixelsBackground_ar, offset);
-						CLEARPIXEL(pixelsFire_ar, offset);
-						CLEARPIXEL(pixelsFlow_ar, offset);
-						CLEARPIXEL(pixelsEmission_ar, offset);
-					}
-				}
-			}
-
-
-#undef CLEARPIXEL
 
 			accLoadX -= subX;
 			accLoadY -= subY;
@@ -1153,98 +708,6 @@ void Game::updateFrameLate() {
 
 	camX = (float)(camX + (desCamX - camX) * m_dt * 4.0f);
 	camY = (float)(camY + (desCamY - camY) * m_dt * 4.0f);
-}
-
-
-
-void Game::renderLate() {
-
-	target = backgroundImage->target;
-	GPU_Clear(target);
-
-	GPU_SetShapeBlendMode(GPU_BLEND_NORMAL);
-
-	GPU_Rect r1 = GPU_Rect{ (float)(ofsX + camX), (float)(ofsY + camY), (float)(world->width * scale), (float)(world->height * scale) };
-
-	target = realTarget;
-
-	GPU_BlitRect(backgroundImage, NULL, target, NULL);
-	GPU_SetBlendMode(texture, GPU_BLEND_NORMAL);
-
-	int lmsx = (int)((mx - ofsX - camX) / scale);
-	int lmsy = (int)((my - ofsY - camY) / scale);
-
-	GPU_Clear(worldTexture->target);
-	GPU_BlitRect(texture, NULL, worldTexture->target, NULL);
-
-	if (Settings::draw_shaders) newLightingShader->activate();
-
-	// I use this to only rerender the lighting when a parameter changes or N times per second anyway
-	// Doing this massively reduces the GPU load of the shader
-	bool needToRerenderLighting = false;
-
-	unsigned int elapsedSinceLast = m_timer.getElapsedTimeMilli();
-	if (elapsedSinceLast > 100u) {
-		needToRerenderLighting = true;
-		m_timer.reset();
-	}
-
-	if (Settings::draw_shaders && world) {
-		float lightTx;
-		float lightTy;
-
-		if (world->player) {
-			lightTx = (world->loadZone.x + world->player->x + world->player->hw / 2.0f) / (float)world->width;
-			lightTy = (world->loadZone.y + world->player->y + world->player->hh / 2.0f) / (float)world->height;
-		}
-		else {
-			lightTx = lmsx / (float)world->width;
-			lightTy = lmsy / (float)world->height;
-		}
-
-		if (newLightingShader->lastLx != lightTx || newLightingShader->lastLy != lightTy) needToRerenderLighting = true;
-		newLightingShader->update(worldTexture, emissionTexture, lightTx, lightTy);
-		if (newLightingShader->lastQuality != Settings::lightingQuality) {
-			needToRerenderLighting = true;
-		}
-		newLightingShader->setQuality(Settings::lightingQuality);
-
-		int nBg = 0;
-		int range = 64;
-		for (int xx = std::max(0, (int)(lightTx * world->width) - range); xx <= std::min((int)(lightTx * world->width) + range, world->width - 1); xx++) {
-			for (int yy = std::max(0, (int)(lightTy * world->height) - range); yy <= std::min((int)(lightTy * world->height) + range, world->height - 1); yy++) {
-				if (world->background[xx + yy * world->width] != 0x00) {
-					nBg++;
-				}
-			}
-		}
-
-		newLightingShader_insideDes = std::min(std::max(0.0f, (float)nBg / ((range * 2) * (range * 2))), 1.0f);
-		newLightingShader_insideCur += (newLightingShader_insideDes - newLightingShader_insideCur) / 2.0f * m_dt;
-
-		float ins = newLightingShader_insideCur < 0.05 ? 0.0 : newLightingShader_insideCur;
-		if (newLightingShader->lastInside != ins) needToRerenderLighting = true;
-		newLightingShader->setInside(ins);
-		newLightingShader->setBounds(world->tickZone.x * Settings::hd_objects_size, world->tickZone.y * Settings::hd_objects_size, (world->tickZone.x + world->tickZone.w) * Settings::hd_objects_size, (world->tickZone.y + world->tickZone.h) * Settings::hd_objects_size);
-
-		if (newLightingShader->lastSimpleMode != Settings::simpleLighting) needToRerenderLighting = true;
-		newLightingShader->setSimpleMode(Settings::simpleLighting);
-
-		if (newLightingShader->lastEmissionEnabled != Settings::lightingEmission) needToRerenderLighting = true;
-		newLightingShader->setEmissionEnabled(Settings::lightingEmission);
-
-		if (newLightingShader->lastDitheringEnabled != Settings::lightingDithering) needToRerenderLighting = true;
-		newLightingShader->setDitheringEnabled(Settings::lightingDithering);
-	}
-
-	if (Settings::draw_shaders && needToRerenderLighting) {
-		GPU_Clear(lightingTexture->target);
-		GPU_BlitRect(worldTexture, NULL, lightingTexture->target, NULL);
-	}
-
-	if (Settings::draw_shaders) GPU_ActivateShaderProgram(0, NULL);
-
-	GPU_BlitRect(worldTexture, NULL, target, &r1);
 }
 
 void Game::renderTemperatureMap(World* world) {

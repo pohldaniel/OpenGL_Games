@@ -5,12 +5,12 @@
 
 class b2DebugDraw_impl : public b2Draw {
 public:
-    GPU_Target* target;
+
     float xOfs = 0;
     float yOfs = 0;
     float scale = 1;
 
-    b2DebugDraw_impl(GPU_Target* target);
+    b2DebugDraw_impl();
     ~b2DebugDraw_impl();
 
     void Create();

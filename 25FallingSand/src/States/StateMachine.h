@@ -14,7 +14,8 @@ enum CurrentState {
 	TURSOINTERFACE,
 	OCTREEINTERFACE,
 	KCCINTERFACE,
-	MENU
+	MENU,
+	PBOINTERFACE,
 };
 
 class State;

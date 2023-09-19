@@ -16,6 +16,7 @@
 #include <States/CharacterInterface.h>
 #include <States/Menu.h>
 #include <States/Game.h>
+#include <States/PBOInterface.h>
 #include <UI/Widget.h>
 
 
@@ -36,42 +37,15 @@ HCURSOR Application::Cursor = LoadCursor(nullptr, IDC_ARROW);
 HANDLE Application::Icon = LoadImage(NULL, "res/icon.ico", IMAGE_ICON, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
 bool Application::VerticalSync = true;
 
-SDL_Window* Application::SWindow = nullptr;
-SDL_GLContext Application::SContext;
-
-GPU_Target* Application::realTarget = nullptr;
-GPU_Target* Application::target = nullptr;
-
 Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fdt) {
 	Width = WIDTH;
 	Height = HEIGHT;
 	Framebuffer::SetDefaultSize(Width, Height);
 	Widget::Resize(Width, Height);
 
-	//createWindow();
-	//initOpenGL();
-	//showWindow();
-	//SWindow = SDL_CreateWindowFrom(Window);
-
-	SWindow = SDL_CreateWindow("Falling Sand Survival", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, Width, Height, SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_OPENGL);
-
-	SDL_SysWMinfo wmInfo;
-	SDL_VERSION(&wmInfo.version);
-	SDL_GetWindowWMInfo(SWindow, &wmInfo);
-	Window = wmInfo.info.win.window;
-
-	GPU_SetDebugLevel(GPU_DEBUG_LEVEL_MAX);
-	GPU_SetPreInitFlags(GPU_INIT_DISABLE_VSYNC);
-	GPU_SetInitWindow(SDL_GetWindowID(SWindow));
-
-	target = GPU_Init(Width, Height, SDL_WINDOW_ALLOW_HIGHDPI);
-
-	SDL_GLContext& gl_context = target->context->context;
-	SDL_GL_MakeCurrent(SWindow, gl_context);
-	glewInit();
-
-	ToggleVerticalSync();
-
+	createWindow();
+	initOpenGL();
+	showWindow();
 	initImGUI();
 	initOpenAL();
 	loadAssets();
@@ -472,6 +446,8 @@ void Application::initStates() {
 	//Machine->addStateAtTop(new CharacterInterface(*Machine));
 	//Machine->addStateAtTop(new Menu(*Machine));
 	Machine->addStateAtTop(new Game(*Machine));
+	//Machine->addStateAtTop(new PBOInterface(*Machine));
+	
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
@@ -654,6 +630,7 @@ void Application::loadAssets() {
 	Globals::shaderManager.loadShader("font", "res/shader/batch.vert", "res/shader/font.frag");
 	Globals::shaderManager.loadShader("texture", "res/shader/texture.vert", "res/shader/texture.frag");		
 	Globals::shaderManager.loadShader("quad_back", "res/shader/quad_back.vert", "res/shader/quad.frag");
+	Globals::shaderManager.loadShader("quad", "res/shader/quad.vert", "res/shader/quad.frag");
 
 	Globals::textureManager.loadTexture("bg_layer_2", "res/backgrounds/TestOverworld/layer2.png", true);
 	Globals::textureManager.loadTexture("bg_layer_3", "res/backgrounds/TestOverworld/layer3.png", true);

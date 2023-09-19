@@ -1,6 +1,5 @@
 #pragma once
 
-#include <SDL.h>
 #include <box2d/box2d.h>
 #include <fcntl.h>
 #include <io.h>
@@ -59,22 +58,26 @@ private:
 
 	bool m_initUi = true;
 	bool m_drawUi = true;
-	bool m_switch = false;
+	bool m_switch = true;
 
 	Background m_background1;
 	Background m_background2;
+
+	float zoomX = 0.25f;
+	float offsetX = 0.1f;
+
+	float zoomY = 0.3f;
+	float offsetY = 0.05f;
 
 	void init();
 	void updateFrameEarly();
 	void tick();
 	void tickChunkLoading();
 	void updateFrameLate();
-	void renderLate();
 	void renderTemperatureMap(World* world);
 
 	int getAimSolidSurface(int dist);
 	int getAimSurface(int dist);
-	void loadShaders();
 	void handleWindowSizeChange(int newWidth, int newHeight);
 
 	static const int MAX_WIDTH = 1920;
@@ -100,53 +103,34 @@ private:
 	float freeCamX = 0;
 	float freeCamY = 0;
 
-	GPU_Target* realTarget = nullptr;
-	GPU_Target* target = nullptr;
-	GPU_Image* backgroundImage = nullptr;
-	GPU_Image* loadingTexture = nullptr;
-
-	std::vector< unsigned char > pixelsLoading;
-	unsigned char* pixelsLoading_ar = nullptr;
 	int loadingScreenW = 0;
 	int loadingScreenH = 0;
 
-	GPU_Image* worldTexture = nullptr;
-	GPU_Image* lightingTexture = nullptr;
-
-	GPU_Image* emissionTexture = nullptr;
 	std::vector< unsigned char > pixelsEmission;
 	unsigned char* pixelsEmission_ar = nullptr;
 
-	GPU_Image* texture = nullptr;
+
 	std::vector< unsigned char > pixels;
 	unsigned char* pixels_ar = nullptr;
-	GPU_Image* textureLayer2 = nullptr;
+
 	std::vector< unsigned char > pixelsLayer2;
 	unsigned char* pixelsLayer2_ar = nullptr;
-	GPU_Image* textureBackground = nullptr;
+
 	std::vector< unsigned char > pixelsBackground;
 	unsigned char* pixelsBackground_ar = nullptr;
-	GPU_Image* textureObjects = nullptr;
-	GPU_Image* textureObjectsLQ = nullptr;
+
 	std::vector< unsigned char > pixelsObjects;
 	unsigned char* pixelsObjects_ar = nullptr;
-	GPU_Image* textureObjectsBack = nullptr;
-	GPU_Image* textureParticles = nullptr;
+
 	std::vector< unsigned char > pixelsParticles;
 	unsigned char* pixelsParticles_ar = nullptr;
-	GPU_Image* textureEntities = nullptr;
-	GPU_Image* textureEntitiesLQ = nullptr;
 
-	GPU_Image* textureFire = nullptr;
-	GPU_Image* texture2Fire = nullptr;
 	std::vector< unsigned char > pixelsFire;
 	unsigned char* pixelsFire_ar = nullptr;
 
-	GPU_Image* textureFlow = nullptr;
 	std::vector< unsigned char > pixelsFlow;
 	unsigned char* pixelsFlow_ar = nullptr;
 
-	GPU_Image* temperatureMap = nullptr;
 	std::vector< unsigned char > pixelsTemp;
 	unsigned char* pixelsTemp_ar = nullptr;
 
@@ -173,17 +157,9 @@ private:
 
 	bool* objectDelete = nullptr;
 
-	WaterShader* waterShader = nullptr;
-	WaterFlowPassShader* waterFlowPassShader = nullptr;
-	NewLightingShader* newLightingShader = nullptr;
-	float newLightingShader_insideDes = 0.0f;
-	float newLightingShader_insideCur = 0.0f;
-	FireShader* fireShader = nullptr;
-	Fire2Shader* fire2Shader = nullptr;
-	
-	uint32 loadingOnColor = 0;
-	uint32 loadingOffColor = 0;
-
 	GameDir gameDir;
-	Clock m_timer;
+
+	GLuint pboIds[2];
+	GLuint textureId;
+	GLubyte* imageData = 0;
 };
