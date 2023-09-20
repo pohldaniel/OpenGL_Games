@@ -10,6 +10,7 @@
 #include "engine/Camera.h"
 #include "engine/TrackBall.h"
 #include "engine/Clock.h"
+#include "engine/Pixelbuffer.h"
 
 #include "StateMachine.h"
 #include "Physics.h"
@@ -62,6 +63,8 @@ private:
 
 	Background m_background1;
 	Background m_background2;
+	Pixelbuffer m_pixelbuffer;
+	Texture m_texture;
 
 	float zoomX = 0.25f;
 	float offsetX = 0.1f;
@@ -158,8 +161,4 @@ private:
 	bool* objectDelete = nullptr;
 
 	GameDir gameDir;
-
-	GLuint pboIds[2];
-	GLuint textureId;
-	GLubyte* imageData = 0;
 };

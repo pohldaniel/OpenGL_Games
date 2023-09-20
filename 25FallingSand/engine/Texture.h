@@ -6,22 +6,25 @@
 #include "PerlinNoise.h"
 
 class Texture{
+
 	friend class Mesh;
 	friend bool operator== (const Texture& t1, const Texture& t2);
+
 public:
+
 	Texture() = default;
 	Texture(std::string pictureFile, const bool flipVertical = false, unsigned int internalFormat = 0, unsigned int format = 0);
 	Texture(Texture const& rhs);
 	~Texture();
 	
 	const unsigned int& getTexture() const;
-	unsigned int getWidth();
-	unsigned int getHeight();
-	unsigned int getChannels();
-	unsigned int getInternalFormat();
-	unsigned int getFormat();
-	unsigned int getType();
-	unsigned int getTarget();
+	unsigned int getWidth() const;
+	unsigned int getHeight() const;
+	unsigned int getChannels() const;
+	unsigned int getInternalFormat() const;
+	unsigned int getFormat() const;
+	unsigned int getType() const;
+	unsigned int getTarget() const;
 
 	void bind(unsigned int unit = 0u) const;
 	void unbind(unsigned int unit = 0u) const;
@@ -82,10 +85,10 @@ public:
 	static void SetWrapMode(const unsigned int& textureRef, unsigned int mode, unsigned int target = 3553u);
 	static void ArrayTo3D(const unsigned int& textureRef1, unsigned int& textureRef2);
 
-private:
-
 	void flipVertical(unsigned char* data, unsigned int padWidth, unsigned int height);
 	void flipHorizontal(unsigned char* data, unsigned int width, unsigned int height, int numCompontents);
+
+private:
 
 	unsigned int m_texture = 0;
 	unsigned int m_width = 0;

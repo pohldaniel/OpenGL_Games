@@ -44,27 +44,11 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	m_background2.setSpeed(0.005f);
 
 	init();
-	
-	const int    DATA_SIZE = world->width * world->height * 4;
-
-	imageData = new GLubyte[DATA_SIZE];
-	memset(imageData, 128, DATA_SIZE);
-
-	glGenTextures(1, &textureId);
-	glBindTexture(GL_TEXTURE_2D, textureId);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, world->width, world->height, 0, GL_BGRA, GL_UNSIGNED_BYTE, (GLvoid*)imageData);
-	glBindTexture(GL_TEXTURE_2D, 0);
-
-	glGenBuffers(2, pboIds);
-	glBindBuffer(GL_PIXEL_UNPACK_BUFFER, pboIds[0]);
-	glBufferData(GL_PIXEL_UNPACK_BUFFER, DATA_SIZE, 0, GL_STREAM_DRAW);
-	glBindBuffer(GL_PIXEL_UNPACK_BUFFER, pboIds[1]);
-	glBufferData(GL_PIXEL_UNPACK_BUFFER, DATA_SIZE, 0, GL_STREAM_DRAW);
-	glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
+		
+	m_texture.createEmptyTexture(world->width, world->height, GL_RGBA8, GL_BGRA);
+	m_texture.setWrapMode(GL_CLAMP);
+	m_texture.setFilter(GL_NEAREST);
+	m_pixelbuffer.create(world->height * world->width * 4);
 }
 
 Game::~Game() {
@@ -161,9 +145,7 @@ void Game::render() {
 	auto shader = Globals::shaderManager.getAssetPointer("quad");
 	shader->use();
 	shader->loadVector("u_texRect", Vector4f(zoomX + offsetX, zoomY - offsetY, (1.0f - zoomX) + offsetX, (1.0f - zoomY) - offsetY));
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, textureId);
-
+	m_texture.bind();
 	Globals::shapeManager.get("quad").drawRaw();
 	shader->unuse();
 	glDisable(GL_BLEND);
@@ -601,20 +583,7 @@ void Game::tick() {
 	
 
 	if (hadDirty) {
-
-		glBindTexture(GL_TEXTURE_2D, textureId);
-		glBindBuffer(GL_PIXEL_UNPACK_BUFFER, pboIds[0]);
-
-		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, world->width, world->height, GL_BGRA, GL_UNSIGNED_BYTE, 0);
-		glBindBuffer(GL_PIXEL_UNPACK_BUFFER, pboIds[0]);
-		glBufferData(GL_PIXEL_UNPACK_BUFFER, world->width * world->height * 4, 0, GL_STREAM_DRAW);
-		GLubyte* ptr = (GLubyte*)glMapBuffer(GL_PIXEL_UNPACK_BUFFER, GL_WRITE_ONLY);
-		if (ptr){			
-			memcpy(ptr, pixels.data(), world->width * world->height * 4);
-			glUnmapBuffer(GL_PIXEL_UNPACK_BUFFER);
-		}
-
-		glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
+		m_pixelbuffer.mapData(m_texture, pixels.data());
 	}
 
 	if (Settings::tick_box2d && tickTime % 4 == 0) world->updateWorldMesh();

@@ -2,9 +2,6 @@
 #define __pixelbufferH__
 
 #include "Texture.h"
-#include "Spritesheet.h"
-#include "Framebuffer.h"
-#include "Shader.h"
 
 class Pixelbuffer {
 
@@ -13,13 +10,17 @@ public:
 	Pixelbuffer();
 	~Pixelbuffer();
 
-	void create();
-	void create(unsigned int width, unsigned int height);
+	void create(unsigned int size, bool doubleBuffer = true);
+	void mapData(const Texture& texture, unsigned char* data);
 	void cleanup();
 
 private:
 
-	unsigned int m_pbo = 0;
+	unsigned int m_pbo[2] = { 0 };
+
+	bool read = true;
+	bool write = false;
+	bool m_doubleBuffer = true;
 };
 
 #endif 

@@ -198,6 +198,7 @@
     <ClCompile Include="engine\ObjModel.cpp" />
     <ClCompile Include="engine\OctreeNew.cpp" />
     <ClCompile Include="engine\PerlinNoise.cpp" />
+    <ClCompile Include="engine\Pixelbuffer.cpp" />
     <ClCompile Include="engine\Quad.cpp" />
     <ClCompile Include="engine\Random.cpp" />
     <ClCompile Include="engine\Shader.cpp" />
@@ -327,6 +328,7 @@
     <ClInclude Include="engine\MeshObject\Shape.h" />
     <ClInclude Include="engine\ObjModel.h" />
     <ClInclude Include="engine\PerlinNoise.h" />
+    <ClInclude Include="engine\Pixelbuffer.h" />
     <ClInclude Include="engine\Quad.h" />
     <ClInclude Include="engine\Random.h" />
     <ClInclude Include="engine\Shader.h" />

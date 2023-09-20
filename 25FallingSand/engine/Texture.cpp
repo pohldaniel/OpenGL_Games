@@ -768,6 +768,7 @@ void Texture::createEmptyTexture(unsigned int width, unsigned int height, unsign
 
 	m_width = width;
 	m_height = height;
+	m_channels = _internalFormat == GL_RGBA8 ? 4 : _internalFormat == GL_RGB8 ? 3 : _internalFormat == GL_RG8 ? 2 : _internalFormat == GL_R8 ? 1 : 4;
 }
 
 void Texture::createNullCubemap(unsigned int width, unsigned int height, unsigned int color) {
@@ -1293,35 +1294,35 @@ void Texture::Resize(const unsigned int& textureRef, unsigned int width, unsigne
 	}
 }
 
-const unsigned int& Texture::getTexture() const{
+const unsigned int& Texture::getTexture() const {
 	return m_texture;
 }
 
-unsigned int Texture::getWidth(){
+unsigned int Texture::getWidth() const {
 	return m_width;
 }
 
-unsigned int Texture::getHeight() {
+unsigned int Texture::getHeight() const {
 	return m_height;
 }
 
-unsigned int Texture::getChannels() {
+unsigned int Texture::getChannels() const {
 	return m_channels;
 }
 
-unsigned int Texture::getInternalFormat() {
+unsigned int Texture::getInternalFormat() const {
 	return m_internalFormat;
 }
 
-unsigned int Texture::getFormat() {
+unsigned int Texture::getFormat() const {
 	return m_format;
 }
 
-unsigned int Texture::getType() {
+unsigned int Texture::getType() const {
 	return m_type;
 }
 
-unsigned int Texture::getTarget() {
+unsigned int Texture::getTarget() const {
 	return m_target;
 }
 
