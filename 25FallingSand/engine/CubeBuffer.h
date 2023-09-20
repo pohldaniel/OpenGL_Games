@@ -1,9 +1,9 @@
 #pragma once
 
-#include "engine/Texture.h"
-#include "engine/Spritesheet.h"
-#include "engine/Framebuffer.h"
-#include "engine/Shader.h"
+#include "Texture.h"
+#include "Spritesheet.h"
+#include "Framebuffer.h"
+#include "Shader.h"
 
 class CubeBuffer {
 

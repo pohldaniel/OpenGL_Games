@@ -1,5 +1,5 @@
-#include "Batchrenderer.h"
 #include <algorithm>
+#include "Batchrenderer.h"
 
 Batchrenderer Batchrenderer::s_instance;
 unsigned int Batchrenderer::s_drawCallCount = 0;

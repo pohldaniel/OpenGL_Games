@@ -610,7 +610,7 @@ void Game::tick() {
 		glBufferData(GL_PIXEL_UNPACK_BUFFER, world->width * world->height * 4, 0, GL_STREAM_DRAW);
 		GLubyte* ptr = (GLubyte*)glMapBuffer(GL_PIXEL_UNPACK_BUFFER, GL_WRITE_ONLY);
 		if (ptr){			
-			memcpy(ptr, dpixels_ar, world->width * world->height * 4);
+			memcpy(ptr, pixels.data(), world->width * world->height * 4);
 			glUnmapBuffer(GL_PIXEL_UNPACK_BUFFER);
 		}
 

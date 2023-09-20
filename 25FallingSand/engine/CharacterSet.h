@@ -7,7 +7,7 @@
 #include <unordered_map>
 #include <algorithm>
 #include <ft2build.h>
-#include FT_FREETYPE_H
+#include <freetype/freetype.h>
 
 #define MAXWIDTH 1024
 

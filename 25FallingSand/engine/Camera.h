@@ -4,7 +4,7 @@
 #include <vector>
 #include "Vector.h"
 
-class Camera{
+class Camera {
 
 public:
 

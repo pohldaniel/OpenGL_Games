@@ -1,9 +1,9 @@
 #pragma once
 
-#include "engine/Texture.h"
-#include "engine/Framebuffer.h"
-#include "engine/Shader.h"
-#include "engine/SlicedCube.h"
+#include "Texture.h"
+#include "Framebuffer.h"
+#include "Shader.h"
+#include "SlicedCube.h"
 
 class VolumeBuffer {
 

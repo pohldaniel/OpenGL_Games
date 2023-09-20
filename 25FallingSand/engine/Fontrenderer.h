@@ -1,4 +1,5 @@
 #pragma once
+
 #include "CharacterSet.h"
 #include "Batchrenderer.h"
 

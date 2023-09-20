@@ -1,5 +1,4 @@
 #include "Framebuffer.h"
-#include <iostream>
 
 unsigned int Framebuffer::Width = 1600;
 unsigned int Framebuffer::Height = 800;

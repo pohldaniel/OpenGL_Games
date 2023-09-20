@@ -1,4 +1,3 @@
-#pragma once
 #ifndef __tetraedronH__
 #define __tetraedronH__
 
@@ -35,4 +34,4 @@ private:
 	Vector3f m_size;
 
 };
-#endif // __cubeH__
+#endif

@@ -1,5 +1,5 @@
-#include "vector.h"
 #include <iostream>
+#include "vector.h"
 
 Matrix4f::Matrix4f() {
 	identity();

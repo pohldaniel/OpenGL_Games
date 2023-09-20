@@ -1,7 +1,9 @@
 #pragma once
 #include <chrono>
 #include <iostream>
+
 class Clock {
+
 public:
 
 	inline void restart() {

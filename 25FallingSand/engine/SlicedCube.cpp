@@ -1,6 +1,5 @@
 #include <GL/glew.h>
 #include "SlicedCube.h"
-#include <iostream>
 
 SlicedCube::SlicedCube() {
 
