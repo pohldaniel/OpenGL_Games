@@ -15,6 +15,7 @@
 #include "Shaders.hpp"
 #include "OptionsUI.h"
 #include "InGameUI.h"
+#include "Macros.hpp"
 
 Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 
@@ -598,17 +599,8 @@ void Game::tickChunkLoading() {
 			world->frame();
 		}
 
-		//iterate
-#pragma region
-
 		for (int i = 0; i < world->width * world->height; i++) {
 			const unsigned int offset = i * 4;
-
-#define UCH_SET_PIXEL(pix_ar, ofs, c_r, c_g, c_b, c_a) \
-				pix_ar[ofs + 0] = c_b;\
-				pix_ar[ofs + 1] = c_g;\
-				pix_ar[ofs + 2] = c_r;\
-				pix_ar[ofs + 3] = c_a;
 
 			if (world->dirty[i]) {
 				if (world->tiles[i].mat->physicsType == PhysicsType::AIR) {
@@ -620,12 +612,7 @@ void Game::tickChunkLoading() {
 					
 				}
 			}
-
-			
-#undef UCH_SET_PIXEL
 		}
-
-#pragma endregion
 
 		memset(world->dirty, false, (size_t)world->width * world->height);
 	

@@ -1,4 +1,5 @@
 #include "Materials.hpp"
+#include "Macros.hpp"
 
 int Materials::nMaterials = 0;
 Material Materials::GENERIC_AIR        = Material(nMaterials++, "_AIR", PhysicsType::AIR, 0, 255, 0, 0, 16, 0);
@@ -67,7 +68,7 @@ void Materials::init() {
     Materials::GOLD_MOLTEN.conductionSelf = 1.0;
     Materials::GOLD_MOLTEN.conductionOther = 1.0;
 
-    #define REGISTER(material) MATERIALS.insert(MATERIALS.begin() + material.id, &material);
+
     REGISTER(GENERIC_AIR);
     REGISTER(GENERIC_SOLID);
     REGISTER(GENERIC_SAND);
@@ -193,7 +194,4 @@ void Materials::init() {
     MATERIALS[GOLD_MOLTEN.id]->reactions.push_back({REACT_TEMPERATURE_BELOW, 128, GOLD_SOLID.id});
 
     MATERIALS_ARRAY = MATERIALS.data();
-
-    #undef REGISTER
-
 }

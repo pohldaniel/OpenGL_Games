@@ -2,9 +2,6 @@
 #include "Tiles.hpp"
 #include "Textures.hpp"
 
-#undef min
-#undef max
-
 Structure Structures::makeTree(World world, int x, int y) {
     int w = 50 + rand() % 10;
     int h = 80 + rand() % 20;
