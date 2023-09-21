@@ -1,3 +1,4 @@
+#include <iostream>
 #include "Materials.hpp"
 #include "Macros.hpp"
 
@@ -107,11 +108,13 @@ void Materials::init() {
         snprintf(buff, sizeof(buff), "Mat_%d", i);
         std::string buffAsStdStr = buff;
 
+		
+
 		uint32_t rgb = rand() % 255;
         rgb = (rgb << 8) + rand() % 255;
         rgb = (rgb << 8) + rand() % 255;
 
-        int type = rand() % 2 == 0 ? (rand() % 2 == 0 ? PhysicsType::SAND : PhysicsType::GAS) : PhysicsType::SOUP;
+		int type = rand() % 2 == 0 ? (rand() % 2 == 0 ? PhysicsType::SAND : PhysicsType::GAS) : PhysicsType::SOUP;
         float dens = 0;
         if(type == PhysicsType::SAND) {
             dens = 5 + (rand() % 1000) / 1000.0;
@@ -120,6 +123,7 @@ void Materials::init() {
         } else if(type == PhysicsType::GAS) {
             dens = 3 + (rand() % 1000) / 1000.0;
         }
+
         randMats[i] = Material(nMaterials++, buff, type, 10, type == PhysicsType::SAND ? 255 : (rand() % 192 + 63), dens, rand() % 4 + 1, 0, 0, rgb);
         REGISTER(randMats[i]);
     }

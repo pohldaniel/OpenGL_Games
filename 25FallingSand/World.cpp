@@ -132,20 +132,20 @@ void World::init(std::string worldPath, uint16_t w, uint16_t h, WorldGenerator* 
 
 	b2PolygonShape nothingShape;
 	nothingShape.SetAsBox(0, 0);
-	this->staticBody = makeRigidBody(b2_staticBody, 0, 0, 0, nothingShape, 0, 0, Textures::cloud);
+	this->staticBody = makeRigidBody(b2_staticBody, 0, 0, 0, nothingShape, 0, 0, Textures::cloud, "cloud");
 
 	updateWorldMesh();
 
 	b2PolygonShape dynamicBox3;
 	dynamicBox3.SetAsBox(10.0f, 2.0f, { 10, -10 }, 0);
-	RigidBody* rb = makeRigidBody(b2_dynamicBody, 300, 300, 0, dynamicBox3, 1, .3, Textures::loadTexture("res/objects/testObject3.png"));
+	RigidBody* rb = makeRigidBody(b2_dynamicBody, 300, 300, 0, dynamicBox3, 1, .3, Textures::loadTexture("res/objects/testObject3.png"), "object");
 
 	rigidBodies.push_back(rb);
 	updateRigidBodyHitbox(rb);
 
 }
 
-RigidBody* World::makeRigidBody(b2BodyType type, float x, float y, float angle, b2PolygonShape shape, float density, float friction, SDL_Surface* texture) {
+RigidBody* World::makeRigidBody(b2BodyType type, float x, float y, float angle, b2PolygonShape shape, float density, float friction, SDL_Surface* texture, std::string name) {
 
 	b2BodyDef bodyDef;
 	bodyDef.type = type;
@@ -162,10 +162,13 @@ RigidBody* World::makeRigidBody(b2BodyType type, float x, float y, float angle, 
 
 	RigidBody* rb = new RigidBody(body);
 	rb->surface = texture;
+
+
 	if (texture != NULL) {
 		rb->matWidth = rb->surface->w;
 		rb->matHeight = rb->surface->h;
 		rb->tiles = new MaterialInstance[rb->matWidth * rb->matHeight];
+		bool isTransparent = true;
 		for (int xx = 0; xx < rb->matWidth; xx++) {
 			for (int yy = 0; yy < rb->matHeight; yy++) {
 				uint32 pixel = PIXEL(rb->surface, xx, yy);
@@ -173,6 +176,7 @@ RigidBody* World::makeRigidBody(b2BodyType type, float x, float y, float angle, 
 					MaterialInstance inst = Tiles::create(rand() % 250 == -1 ? &Materials::FIRE : &Materials::OBSIDIAN, xx + (int)x, yy + (int)y);
 					inst.color = pixel;
 					rb->tiles[xx + yy * rb->matWidth] = inst;
+					isTransparent = false;
 				}
 				else {
 					MaterialInstance inst = Tiles::create(&Materials::GENERIC_AIR, xx + (int)x, yy + (int)y);
@@ -180,17 +184,6 @@ RigidBody* World::makeRigidBody(b2BodyType type, float x, float y, float angle, 
 				}
 			}
 		}
-
-		/*for (int x = 0; x < rb->surface->w; x++) {
-		for (int y = 0; y < rb->surface->h; y++) {
-		MaterialInstance mat = rb->tiles[x + y * rb->surface->w];
-		if (mat.mat->id == Materials::GENERIC_AIR.id) {
-		PIXEL(rb->surface, x, y) = 0x00000000;
-		} else {
-		PIXEL(rb->surface, x, y) = (mat.mat->alpha << 24) + mat.color;
-		}
-		}
-		}*/
 
 		rb->texture = GPU_CopyImageFromSurface(rb->surface);
 		GPU_SetImageFilter(rb->texture, GPU_FILTER_NEAREST);
@@ -263,7 +256,9 @@ void World::updateRigidBodyHitbox(RigidBody* rb) {
 		for (int y = 0; y < texture->h; y++) {
 			MaterialInstance mat = rb->tiles[x + y * texture->w];
 			if (mat.mat->id == Materials::GENERIC_AIR.id) {
+
 				PIXEL(texture, x, y) = 0x00000000;
+				//PIXEL(texture, x, y) = (mat.mat->alpha << 24);
 			}
 			else {
 				PIXEL(texture, x, y) = (mat.mat->alpha << 24) + (mat.color & 0x00ffffff);
@@ -275,6 +270,8 @@ void World::updateRigidBodyHitbox(RigidBody* rb) {
 	int maxX = 0;
 	int minY = texture->h;
 	int maxY = 0;
+	bool isTransparent = true;
+
 	for (int x = 0; x < texture->w; x++) {
 		for (int y = 0; y < texture->h; y++) {
 			if (((PIXEL(texture, x, y) >> 24) & 0xff) != 0x00) {
@@ -282,12 +279,31 @@ void World::updateRigidBodyHitbox(RigidBody* rb) {
 				if (x > maxX) maxX = x;
 				if (y < minY) minY = y;
 				if (y > maxY) maxY = y;
+				isTransparent = false;
+				
 			}
 		}
 	}
-	maxX++;
-	maxY++;
+
+	if (isTransparent) {
+		std::cout << "----------" << std::endl;
+		//minX = 0;
+		//maxX = texture->w;
+		//minY = 0;
+		//maxY = texture->h;
+
+		b2world->DestroyBody(rb->body);
+		rigidBodies.erase(std::remove(rigidBodies.begin(), rigidBodies.end(), rb), rigidBodies.end());
+		return;
+
+	}else {
+		maxX++;
+		maxY++;
+	}
+
 	SDL_Surface* sf = SDL_CreateRGBSurfaceWithFormat(texture->flags, maxX - minX, maxY - minY, texture->format->BitsPerPixel, texture->format->format);
+
+	
 	SDL_Rect src = { minX, minY, maxX - minX, maxY - minY };
 	SDL_SetSurfaceBlendMode(texture, SDL_BlendMode::SDL_BLENDMODE_NONE);
 	SDL_BlitSurface(texture, &src, sf, NULL);
@@ -297,11 +313,11 @@ void World::updateRigidBodyHitbox(RigidBody* rb) {
 	rb->surface = sf;
 	texture = rb->surface;
 
-	if (rb->surface->w <= 0 || rb->surface->h <= 0) {
-		b2world->DestroyBody(rb->body);
-		rigidBodies.erase(std::remove(rigidBodies.begin(), rigidBodies.end(), rb), rigidBodies.end());
-		return;
-	}
+	//if (isTransparent) {
+	//	b2world->DestroyBody(rb->body);
+	//	rigidBodies.erase(std::remove(rigidBodies.begin(), rigidBodies.end(), rb), rigidBodies.end());
+	//	return;
+	//}
 
 	float s = sin(rb->body->GetAngle());
 	float c = cos(rb->body->GetAngle());
@@ -3379,30 +3395,24 @@ RigidBody* World::physicsCheck(int x, int y) {
 	int maxY = 0;
 
 	physicsCheck_flood(x, y, visited, &count, cols, &minX, &maxX, &minY, &maxY);
-
-
 	if (count > 0 && count <= 1000) {
-		if (count > 10) {
 
-			SDL_Surface* tex = SDL_CreateRGBSurfaceWithFormat(0, maxX - minX + 1, maxY - minY + 1, 32, SDL_PIXELFORMAT_ARGB8888);
+		if (count > 10) {
+			/*SDL_Surface* tex = SDL_CreateRGBSurfaceWithFormat(0, maxX - minX + 1, maxY - minY + 1, 32, SDL_PIXELFORMAT_ARGB8888);
 			for (int yy = minY; yy <= maxY; yy++) {
 				for (int xx = minX; xx <= maxX; xx++) {
 					if (visited[xx + yy * width]) {
-						PIXEL(tex, (unsigned long long)(xx) - minX, yy - minY) = cols[xx + yy * width];
+						PIXEL(tex, (unsigned long long)(xx) - minX, yy - minY) = 0x00000000;
 						tiles[xx + yy * width] = Tiles::NOTHING;
 						dirty[xx + yy * width] = true;
 					}
 				}
 			}
 
-
-			/*delete visited;
-			delete cols;*/
-
 			//audioEngine.PlayEvent("event:/Player/Impact");
 			b2PolygonShape s;
 			s.SetAsBox(1, 1);
-			RigidBody* rb = makeRigidBody(b2_dynamicBody, (float)minX, (float)minY, 0, s, 1, (float)0.3, tex);
+			RigidBody* rb = makeRigidBody(b2_dynamicBody, (float)minX, (float)minY, 0, s, 1, (float)0.3, tex, "rand");
 
 			b2Filter bf = {};
 			bf.categoryBits = 0x0001;
@@ -3417,7 +3427,8 @@ RigidBody* World::physicsCheck(int x, int y) {
 			lastMeshLoadZone.x--;
 			updateWorldMesh();
 
-			return rb;
+			return rb;*/
+			return nullptr;
 		}
 		else {
 			/*EASY_BLOCK("iterate small");

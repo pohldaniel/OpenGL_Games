@@ -148,7 +148,7 @@ public:
 	std::vector<RigidBody*> rigidBodies;
 	RigidBody* staticBody = nullptr;
 
-	RigidBody* makeRigidBody(b2BodyType type, float x, float y, float angle, b2PolygonShape shape, float density, float friction, SDL_Surface* texture);
+	RigidBody* makeRigidBody(b2BodyType type, float x, float y, float angle, b2PolygonShape shape, float density, float friction, SDL_Surface* texture, std::string name);
 	RigidBody* makeRigidBodyMulti(b2BodyType type, float x, float y, float angle, std::vector<b2PolygonShape> shape, float density, float friction, SDL_Surface* texture);
 	void updateRigidBodyHitbox(RigidBody* rb);
 

@@ -306,7 +306,7 @@ std::vector<PlacedStructure> TreePopulator::apply(MaterialInstance* chunk, Mater
 
 			b2PolygonShape s;
 			s.SetAsBox(1, 1);
-			RigidBody* rb = world->makeRigidBody(b2_dynamicBody, px, py, 0, s, 1, 0.3, tex);
+			RigidBody* rb = world->makeRigidBody(b2_dynamicBody, px, py, 0, s, 1, 0.3, tex, "tree");
 			for (int texX = 0; texX < tex->w; texX++) {
 				b2Filter bf = {};
 				bf.categoryBits = 0x0002;
