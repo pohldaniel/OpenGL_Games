@@ -11,10 +11,10 @@
 #include "MainMenuUI.h"
 #include "DebugUI.h"
 #include "Textures.hpp"
+#include "Tiles.hpp"
 #include "Shaders.hpp"
 #include "OptionsUI.h"
 #include "InGameUI.h"
-#include "Controls.hpp"
 
 Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 
@@ -45,7 +45,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 
 	init();
 		
-	m_texture.createEmptyTexture(world->width, world->height, GL_RGBA8, GL_BGRA);
+	m_texture.createEmptyTexture(world->width, world->height, GL_RGBA8, GL_RGBA);
 	m_texture.setWrapMode(GL_CLAMP);
 	m_texture.setFilter(GL_NEAREST);
 	m_pixelbuffer.create(world->height * world->width * 4);
@@ -436,9 +436,9 @@ void Game::tick() {
 		world->tick();
 	}
 
-	if (Controls::DEBUG_TICK->get()) {
-		world->tick();
-	}
+	//if (Controls::DEBUG_TICK->get()) {
+	//	world->tick();
+	//}
 
 	// update particles, tickObjects, update dirty
 	// TODO: this is not entirely thread safe since tickParticles changes World::tiles and World::dirty

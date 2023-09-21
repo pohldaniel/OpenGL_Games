@@ -7,7 +7,6 @@
 
 class Texture{
 
-	friend class Mesh;
 	friend bool operator== (const Texture& t1, const Texture& t2);
 
 public:

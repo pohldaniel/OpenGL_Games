@@ -1,7 +1,6 @@
 #pragma once
 
 #include "DebugUI.h"
-#include "ProfilerConfig.hpp"
 #include "Material.hpp"
 #include "Materials.hpp"
 

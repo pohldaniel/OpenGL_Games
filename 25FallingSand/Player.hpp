@@ -1,14 +1,7 @@
+#pragma once
 
-#define INC_Player
-
-#ifndef INC_Entity
 #include "Entity.hpp"
-#endif
 #include "Item.hpp"
-
-#ifndef INC_World
-#include "world.h"
-#endif
 
 class World;
 

@@ -1,15 +1,12 @@
-
-#ifndef INC_Item
 #include "Item.hpp"
-#endif // !INC_Item
-
+#include "RigidBody.hpp"
+#include "Particle.hpp"
 #include "Macros.hpp"
 
 Item::Item() {}
 
 Item::~Item() {
-    GPU_FreeImage(texture);
-    SDL_FreeSurface(surface);
+
 }
 
 Item* Item::makeItem(uint8_t flags, RigidBody* rb) {
@@ -17,19 +14,17 @@ Item* Item::makeItem(uint8_t flags, RigidBody* rb) {
 
     if(rb->item != NULL) {
         i = rb->item;
-        i->surface = rb->surface;
-        i->texture = rb->texture;
+        //i->surface = rb->surface;
     } else {
         i = new Item();
         i->flags = flags;
-        i->surface = rb->surface;
-        i->texture = rb->texture;
+        //i->surface = rb->surface;
     }
 
     return i;
 }
 
-void Item::loadFillTexture(SDL_Surface* tex) {
+/*void Item::loadFillTexture(SDL_Surface* tex) {
     fill.resize(capacity);
     uint32_t maxN = 0;
     for(uint16_t x = 0; x < tex->w; x++) {
@@ -43,4 +38,4 @@ void Item::loadFillTexture(SDL_Surface* tex) {
         }
     }
     fill.resize(maxN);
-}
+}*/

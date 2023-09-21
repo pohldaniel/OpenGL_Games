@@ -1,7 +1,5 @@
 #pragma once
 
-
-#define INC_RigidBody
 #include <box2d/b2_math.h>
 #include <box2d/b2_world.h>
 #include <box2d/b2_body.h>

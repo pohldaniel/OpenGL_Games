@@ -1,13 +1,10 @@
-
-#ifndef INC_MaterialInstance
-#include "MaterialInstance.hpp"
-#endif // !INC_MaterialInstance
+#pragma once
 
 #include <iostream>
-
-#define INC_Tiles
+#include "MaterialInstance.hpp"
 
 class Tiles {
+
 public:
     static const MaterialInstance NOTHING;
     static const MaterialInstance TEST_SOLID;

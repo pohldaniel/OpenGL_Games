@@ -1,12 +1,11 @@
-#define INC_Entity
+#pragma once
 
-
-#ifndef INC_RigidBody
-#include "RigidBody.hpp"
-#endif
 #include <SDL_gpu.h>
 
+class RigidBody;
+
 class Entity {
+
 public:
     float x = 0;
     float y = 0;

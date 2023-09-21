@@ -1,47 +1,42 @@
 #pragma once
+
 #include <filesystem>
-
-#include "Chunk.hpp"
-
-#define INC_World
-
-#include "Macros.hpp"
-
-#include "Networking.hpp"
-#include <vector>
-#include <deque>
-#include "Particle.hpp"
-#include <box2d/b2_math.h>
-#include <box2d/b2_world.h>
-#ifndef INC_RigidBody
-#include "RigidBody.hpp"
-#endif
-#include "PlacedStructure.hpp"
-#include "ChunkReadyToMerge.hpp"
 #include <future>
 #include <unordered_map>
+#include <vector>
+#include <deque>
+#include <iostream>
+#include <algorithm>
+#include <iterator>
+#include <thread>
+
+#include <SDL_gpu.h>
+#include <box2d/box2d.h>
+
 #include <FastNoise/FastNoiseSIMD.h>
 #include <FastNoise/FastNoise.h>
 #include <sparsehash/dense_hash_map.h>
-#ifndef INC_Player
-#include "Player.hpp"
-#endif
-//#include "lib/AudioAdventure/include/AudioEngine.h"
-
 #include <CPTL/ctpl_stl.h>
 
-#include <SDL_gpu.h>
+#include <rapidjson/document.h>
+#include <rapidjson/prettywriter.h>
+#include <rapidjson/filereadstream.h>
+#include <rapidjson/stringbuffer.h>
 
-#ifndef INC_Biome
+#include <PolygonSimplify/polygon-simplify.hh>
+#include <Polypartition/polypartition.h>
+
+#include <engine/Vector.h>
+
 #include "Biome.hpp"
-#endif // !INC_Biome
-
-
-#ifndef INC_WorldGenerator
+#include "Player.hpp"
+#include "RigidBody.hpp"
+#include "PlacedStructure.hpp"
+#include "ChunkReadyToMerge.hpp"
+#include "Chunk.hpp"
+#include "Macros.hpp"
 #include "WorldGenerator.hpp"
-#endif
-
-#include "ProfilerConfig.hpp"
+#include "Particle.hpp"
 
 #define CHUNK_UNLOAD_DIST 16
 

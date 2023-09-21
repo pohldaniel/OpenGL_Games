@@ -1,4 +1,3 @@
-
 #include "PlacedStructure.hpp"
 
 PlacedStructure::PlacedStructure(Structure base, int x, int y) {

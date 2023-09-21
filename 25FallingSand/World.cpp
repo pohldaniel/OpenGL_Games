@@ -1,34 +1,10 @@
-
-#ifndef INC_World
-#include "world.h"
-#endif
-#include <iostream>
-#include <algorithm>
-#include <iterator>
-#include <box2d/b2_body.h>
-#include <box2d/b2_shape.h>
-#include <box2d/b2_polygon_shape.h>
-#include <box2d/b2_fixture.h>
-#include <box2d/b2_weld_joint.h>
-#include "Textures.hpp"
-#include <PolygonSimplify/polygon-simplify.hh>
 #include <MarchingSquares/MarchingSquares.h>
-#include <Polypartition/polypartition.h>
+
+#include "world.h"
+#include "Textures.hpp"
+#include "Tiles.hpp"
 #include "UTime.h"
-#include <thread>
-#include "Populators.cpp"
-#include "DefaultGenerator.cpp"
-#include "MaterialTestGenerator.cpp"
-
-#undef min
-#undef max
-
-#include "rapidjson/document.h"
-#include "rapidjson/prettywriter.h"
-#include "rapidjson/filereadstream.h"
-#include "rapidjson/stringbuffer.h"
-
-#define W_PI 3.14159265358979323846
+#include "Populator.hpp"
 
 ctpl::thread_pool* World::tickPool = nullptr;
 ctpl::thread_pool* World::tickVisitedPool = nullptr;
@@ -174,7 +150,7 @@ RigidBody* World::makeRigidBody(b2BodyType type, float x, float y, float angle, 
 	b2BodyDef bodyDef;
 	bodyDef.type = type;
 	bodyDef.position.Set(x, y);
-	bodyDef.angle = angle * W_PI / 180;
+	bodyDef.angle = angle * M_PI / 180;
 	b2Body* body = b2world->CreateBody(&bodyDef);
 
 	b2FixtureDef fixtureDef;
@@ -228,7 +204,7 @@ RigidBody* World::makeRigidBodyMulti(b2BodyType type, float x, float y, float an
 	b2BodyDef bodyDef;
 	bodyDef.type = type;
 	bodyDef.position.Set(x, y);
-	bodyDef.angle = angle * W_PI / 180;
+	bodyDef.angle = angle * M_PI / 180;
 	b2Body* body = b2world->CreateBody(&bodyDef);
 
 	for (int i = 0; i < shape.size(); i++) {

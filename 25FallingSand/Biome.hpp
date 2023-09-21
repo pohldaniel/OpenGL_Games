@@ -1,5 +1,4 @@
-
-#define INC_Biome
+#pragma once
 
 class Biome {
 public:

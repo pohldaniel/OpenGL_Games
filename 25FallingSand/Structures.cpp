@@ -1,10 +1,6 @@
-
 #include "Structures.hpp"
-#include <algorithm>
-
-#ifndef INC_Textures
+#include "Tiles.hpp"
 #include "Textures.hpp"
-#endif
 
 #undef min
 #undef max

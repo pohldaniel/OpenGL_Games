@@ -6,7 +6,6 @@
 #include "DebugUI.h"
 #include "Settings.h"
 
-#include "ProfilerConfig.hpp"
 #include "Application.h"
 
 bool DebugUI::visible = true;

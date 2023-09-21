@@ -1,9 +1,9 @@
-#include <SDL.h>
-#ifndef INC_Tiles
-#include "Tiles.hpp"
-#endif // !INC_Tiles
+#pragma once
 
-#define INC_Structure
+#include <SDL.h>
+#include "Material.hpp"
+
+class MaterialInstance;
 
 class Structure {
 public:

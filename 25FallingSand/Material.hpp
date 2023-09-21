@@ -1,14 +1,10 @@
+#pragma once
 
 #include <stdint.h>
-#ifndef INC_PhysicsType
-#include "PhysicsType.hpp"
-#endif // !INC_PhysicsType
-
+#include <string>
 #include <unordered_map>
 
-#include <string>
-
-#define INC_Material
+#include "PhysicsType.hpp"
 
 #define INTERACT_NONE 0
 #define INTERACT_TRANSFORM_MATERIAL 1 // id, radius

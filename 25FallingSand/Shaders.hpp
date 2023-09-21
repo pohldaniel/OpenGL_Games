@@ -4,7 +4,6 @@
 #include "SDL_gpu.h"
 #include <stdlib.h>
 #include <string.h>
-#include <math.h>
 
 // Based on https://github.com/grimfang4/sdl-gpu/blob/master/demos/simple-shader/main.c (MIT License)
 

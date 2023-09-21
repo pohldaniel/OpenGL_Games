@@ -1,11 +1,7 @@
+#pragma once
 
-#ifndef INC_Structure
-#include "Structure.hpp"
-#endif
-
-#ifndef INC_World
+#include <algorithm>
 #include "world.h"
-#endif
 
 class Structures {
 public:

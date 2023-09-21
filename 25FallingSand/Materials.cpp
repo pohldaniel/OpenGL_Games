@@ -1,4 +1,3 @@
-
 #include "Materials.hpp"
 
 int Materials::nMaterials = 0;

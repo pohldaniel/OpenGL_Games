@@ -1,28 +1,18 @@
 #pragma once
 
-
-
-#ifndef INC_Tiles
-#include "Tiles.hpp"
-#endif // !INC_Tiles
-
-#ifndef INC_MaterialInstance
-#include "MaterialInstance.hpp"
-#endif // !INC_MaterialInstance
-
+#include <string>
+#include <vector>
+#include <sstream>
 #include <iostream>
 #include <fstream>
-
-#define INC_Chunk
+#include <box2d/box2d.h>
 
 #define CHUNK_W 128
 #define CHUNK_H 128
 
-#ifndef INC_Biome
-#include "Biome.hpp"
-#endif // !INC_Biome
-
-#include "RigidBody.hpp"
+class RigidBody;
+class Biome;
+class MaterialInstance;
 
 typedef struct {
 	uint16_t index;

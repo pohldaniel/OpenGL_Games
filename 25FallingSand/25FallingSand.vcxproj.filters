@@ -348,9 +348,6 @@
     <ClCompile Include="Polypartition\polypartition.cpp">
       <Filter>Polypartition</Filter>
     </ClCompile>
-    <ClCompile Include="Networking.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="World.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -393,12 +390,6 @@
     <ClCompile Include="MaterialTestGenerator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Populator.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Populators.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Structure.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -408,13 +399,7 @@
     <ClCompile Include="Entity.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Item.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="GameDir.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Controls.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="DebugUI.cpp">
@@ -437,6 +422,12 @@
     </ClCompile>
     <ClCompile Include="engine\Pixelbuffer.cpp">
       <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="Item.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Populator.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -746,9 +737,6 @@
     <ClInclude Include="Polypartition\polypartition.h">
       <Filter>Polypartition</Filter>
     </ClInclude>
-    <ClInclude Include="Networking.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="World.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -782,9 +770,6 @@
     <ClInclude Include="Player.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ProfilerConfig.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="WorldGenerator.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -812,13 +797,7 @@
     <ClInclude Include="Entity.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Item.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="GameDir.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Controls.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="DebugUI.h">
@@ -841,6 +820,9 @@
     </ClInclude>
     <ClInclude Include="engine\Pixelbuffer.h">
       <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Item.hpp">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

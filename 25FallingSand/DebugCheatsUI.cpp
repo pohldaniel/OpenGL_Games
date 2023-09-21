@@ -2,11 +2,7 @@
 #include <imgui_internal.h>
 
 #include "DebugUI.h"
-
 #include "Textures.hpp"
-
-
-#include "ProfilerConfig.hpp"
 
 bool DebugCheatsUI::visible = true;
 std::vector<Texture*> DebugCheatsUI::images = {};

@@ -1,10 +1,6 @@
+#pragma once
 
-#ifndef INC_Structure
 #include "Structure.hpp"
-#endif // !INC_Structure
-
-
-#include <iostream>
 
 class PlacedStructure {
 public:

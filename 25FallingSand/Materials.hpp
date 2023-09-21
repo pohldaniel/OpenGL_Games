@@ -1,12 +1,9 @@
-
-
-#ifndef INC_Material
-#include "Material.hpp"
-#endif // !INC_Material
+#pragma once
 
 #include <vector>
 
-#define INC_Materials
+#include "Material.hpp"
+
 
 class Materials {
 public:

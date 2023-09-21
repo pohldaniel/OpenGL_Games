@@ -1,15 +1,10 @@
-#define INC_Item
+#pragma once
 
-
-#ifndef INC_RigidBody
-#include "RigidBody.hpp"
-#endif
-
-#ifndef INC_MaterialInstance
+#include <engine/Texture.h>
 #include "MaterialInstance.hpp"
-#endif
 
-#include "Particle.hpp"
+class RigidBody;
+class Particle;
 
 class ItemFlags {
 public:
@@ -38,8 +33,7 @@ public:
         return flags & f;
     }
 
-    SDL_Surface* surface = nullptr;
-    GPU_Image* texture = nullptr;
+    Texture* texture = nullptr;
     int pivotX = 0;
     int pivotY = 0;
     float breakSize = 16;
@@ -53,5 +47,5 @@ public:
     ~Item();
 
     static Item* makeItem(uint8_t flags, RigidBody* rb);
-    void loadFillTexture(SDL_Surface* tex);
+    //void loadFillTexture(SDL_Surface* tex);
 };

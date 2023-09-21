@@ -1,11 +1,6 @@
 #pragma once
 
-#ifndef INC_Materials
 #include "Materials.hpp"
-#endif // !INC_Materials
-
-
-#define INC_MaterialInstance
 
 class MaterialInstance {
 public:

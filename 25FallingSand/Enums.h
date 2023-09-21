@@ -1,4 +1,5 @@
 #pragma once
+
 enum GameState {
 	MAIN_MENU,
 	LOADING,

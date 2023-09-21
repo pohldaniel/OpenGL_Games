@@ -1,8 +1,6 @@
+#pragma once
 
-
-#ifndef INC_Chunk
-#include "Chunk.h"
-#endif
+class MaterialInstance;
 
 class ChunkReadyToMerge {
 public:

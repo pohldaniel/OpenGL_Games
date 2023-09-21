@@ -1,9 +1,5 @@
-
-#ifndef INC_Entity
 #include "Entity.hpp"
-#endif
-
-#include "Settings.h"
+#include "RigidBody.hpp"
 
 void Entity::renderLQ(GPU_Target* target, int ofsX, int ofsY) {
     GPU_Rectangle(target, x + ofsX, y + ofsY, x + ofsX + hw, y + ofsY + hh, {0xff, 0, 0, 0xff});

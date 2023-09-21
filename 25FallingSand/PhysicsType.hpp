@@ -1,7 +1,7 @@
-
-#define INC_PhysicsType
+#pragma once
 
 class PhysicsType {
+
 public:
     static const int AIR = 0;
     static const int SOLID = 1;

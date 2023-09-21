@@ -1,9 +1,8 @@
 #pragma once
+
 #include <SDL.h>
 #include <iostream>
 #include <SDL_image.h>
-
-#define INC_Textures
 
 class Textures {
 

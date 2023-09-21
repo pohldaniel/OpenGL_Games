@@ -1,13 +1,10 @@
 #pragma once
 
-
-#ifndef INC_Tiles
-#include "Tiles.hpp"
-#endif // !INC_Tiles
-
 #include <functional>
+#include "MaterialInstance.hpp"
 
 class Particle {
+
 public:
     MaterialInstance tile {};
     float x = 0;

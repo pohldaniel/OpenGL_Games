@@ -1,14 +1,12 @@
 #pragma once
 
-#ifndef INC_WorldGenerator
 #include "WorldGenerator.hpp"
-#endif
+#include "Populator.hpp"
+#include "Chunk.hpp"
 
-#ifndef INC_Textures
 #include "Textures.hpp"
-#endif
-
-#include "Populators.cpp"
+#include "World.h"
+#include "Tiles.hpp"
 
 class DefaultGenerator : public WorldGenerator {
 

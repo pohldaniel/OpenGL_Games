@@ -1,5 +1,7 @@
 #include "Structure.hpp"
 
+#include "MaterialInstance.hpp"
+#include "Tiles.hpp"
 #include "Macros.hpp"
 
 Structure::Structure(int w, int h, MaterialInstance* tiles) {

@@ -1,4 +1,3 @@
-
 #include "Textures.hpp"
 
 SDL_Surface* Textures::testTexture = Textures::loadTexture("res/textures/test.png");
