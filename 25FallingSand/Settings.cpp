@@ -1,4 +1,3 @@
-
 #include "Settings.h"
 
 bool Settings::draw_frame_graph     = true;

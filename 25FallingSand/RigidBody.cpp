@@ -1,4 +1,3 @@
-
 #include "RigidBody.hpp"
 #include <iostream>
 

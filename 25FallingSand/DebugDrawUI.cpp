@@ -1,9 +1,6 @@
-#pragma once
-
 #include "DebugUI.h"
 #include "Material.hpp"
 #include "Materials.hpp"
-
 
 bool DebugDrawUI::visible = true;
 int DebugDrawUI::selIndex = -1;

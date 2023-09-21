@@ -1,5 +1,3 @@
-#pragma once
-
 #include "WorldGenerator.hpp"
 #include "Populator.hpp"
 #include "Chunk.hpp"

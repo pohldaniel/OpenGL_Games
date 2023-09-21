@@ -1,4 +1,3 @@
-
 #include "Material.hpp"
 
 Material::Material(int id, std::string name, int physicsType, int slipperyness, uint8_t alpha, float density, int iterations, int emit, uint32_t emitColor, uint32_t color) {

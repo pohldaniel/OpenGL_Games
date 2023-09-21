@@ -1,6 +1,5 @@
 #include "Drawing.hpp"
 
-
 b2Vec2 Drawing::rotate_point(float cx, float cy, float angle, b2Vec2 p) {
 
     float s = sin(angle);

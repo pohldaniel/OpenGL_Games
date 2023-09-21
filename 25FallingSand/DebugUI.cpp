@@ -1,11 +1,8 @@
-#pragma once
-
 #include <imgui.h>
 #include <imgui_internal.h>
 
 #include "DebugUI.h"
 #include "Settings.h"
-
 #include "Application.h"
 
 bool DebugUI::visible = true;

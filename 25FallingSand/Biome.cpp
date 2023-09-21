@@ -1,4 +1,3 @@
-
 #include "Biome.hpp"
 
 Biome::Biome(int id) {
