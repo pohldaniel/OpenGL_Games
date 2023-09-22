@@ -2,6 +2,7 @@
 #include <SOIL2/SOIL2.h>
 #include "Spritesheet.h"
 #include "Texture.h"
+#include <iostream>
 
 Spritesheet::Spritesheet(unsigned int& textureAtlas) {
 	m_texture = textureAtlas;
@@ -265,6 +266,56 @@ void Spritesheet::createSpritesheetFromTexture(unsigned int texture, unsigned in
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
 }
 
+void Spritesheet::createSpritesheet(std::string fileName, unsigned int _format, unsigned int _internalFormat,  bool _flipVertical, int _unpackAlignment) {
+	int width, height, numCompontents;
+	unsigned char* imageData = SOIL_load_image(fileName.c_str(), &width, &height, &numCompontents, SOIL_LOAD_AUTO);
+
+	unsigned internalFormat = _internalFormat == 0 && numCompontents == 3 ? GL_RGB8 : _internalFormat == 0 ? GL_RGBA8 : _internalFormat;
+	unsigned format = _format == 0 && numCompontents == 3 ? GL_RGB : _format == 0 && numCompontents == 4 ? GL_RGBA : _format;
+	m_totalFrames++;
+
+	if (_flipVertical)
+		Texture::FlipVertical(imageData, numCompontents * width, height);
+
+	glPixelStorei(GL_UNPACK_ALIGNMENT, _unpackAlignment);
+
+	glGenTextures(1, &m_texture);
+	glBindTexture(GL_TEXTURE_2D_ARRAY, m_texture);
+	glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, internalFormat, width, height, m_totalFrames, 0, format, GL_UNSIGNED_BYTE, imageData);
+	//glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, m_totalFrames, width, height, 1, format, GL_UNSIGNED_BYTE, imageData);
+	
+	glTexParameterf(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameterf(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
+
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+
+	SOIL_free_image_data(imageData);
+}
+
+void Spritesheet::addToSpritesheet(std::string fileName, unsigned int _format, unsigned int _internalFormat, bool _flipVertical, int _unpackAlignment) {
+	int width, height, numCompontents;
+	unsigned char* imageData = SOIL_load_image(fileName.c_str(), &width, &height, &numCompontents, SOIL_LOAD_AUTO);
+
+	unsigned internalFormat = _internalFormat == 0 && numCompontents == 3 ? GL_RGB8 : _internalFormat == 0 ? GL_RGBA8 : _internalFormat;
+	unsigned format = _format == 0 && numCompontents == 3 ? GL_RGB : _format == 0 && numCompontents == 4 ? GL_RGBA : _format;
+	m_totalFrames++;
+
+	if (_flipVertical)
+		Texture::FlipVertical(imageData, numCompontents * width, height);
+
+	glPixelStorei(GL_UNPACK_ALIGNMENT, _unpackAlignment);
+	//glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, internalFormat, width, height, m_totalFrames, 0, format, GL_UNSIGNED_BYTE, imageData);
+	glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, m_totalFrames, width, height, 1, format, GL_UNSIGNED_BYTE, imageData);
+	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
+
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+
+	SOIL_free_image_data(imageData);
+}
+
 void Spritesheet::addToSpritesheet(unsigned int texture, unsigned int _format, unsigned int _internalFormat, int _unpackAlignment) {
 	//It seems setLinear() isn't working when using glTexStorage3D so I go for glTexImage3D. 
 	//Of curse you can increase the mipmaplevel (level) but it decreases the performance.
@@ -309,7 +360,7 @@ void Spritesheet::addToSpritesheet(unsigned int texture, unsigned int _format, u
 	unsigned int texture_new;
 	glGenTextures(1, &texture_new);
 	glBindTexture(GL_TEXTURE_2D_ARRAY, texture_new);
-	glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, internalFormat, width, height, m_totalFrames, 0, internalFormat == GL_RGBA8 ? GL_RGBA : GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, internalFormat, width, height, m_totalFrames, 0, format, GL_UNSIGNED_BYTE, NULL);
 
 	for (unsigned short layer = 0; layer < m_totalFrames - 1; ++layer) {
 		glFramebufferTextureLayer(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, m_texture, 0, layer);
@@ -324,7 +375,6 @@ void Spritesheet::addToSpritesheet(unsigned int texture, unsigned int _format, u
 
 	glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
 	glDeleteFramebuffers(1, &fbo);
-
 
 	//OpenGL 4.5
 	/*unsigned int texture_new;

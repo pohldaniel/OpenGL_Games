@@ -17,6 +17,8 @@
 #include "InGameUI.h"
 #include "Macros.hpp"
 
+#include <engine/Batchrenderer.h>
+
 Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 
 	Application::SetCursorIcon(IDC_ARROW);
@@ -271,8 +273,7 @@ void Game::init() {
 
 	});
 
-	unsigned int seed = (unsigned int)Time::millis();
-	srand(seed);
+	srand((unsigned int)Time::millis());
 
 	Materials::init();
 
@@ -392,7 +393,16 @@ void Game::tick() {
 
 		float x = cur->body->GetPosition().x;
 		float y = cur->body->GetPosition().y;
+		int scaleObjTex = Settings::hd_objects ? Settings::hd_objects_size : 4;
 
+		std::cout << "Width: " << x << "Height: " << y << std::endl;
+
+		glEnable(GL_BLEND);
+		Batchrenderer::Get().addQuadAA(Vector4f(x, Application::Height - y, static_cast<float>(cur->surface->w) * scaleObjTex, static_cast<float>(cur->surface->h) * scaleObjTex), Vector4f(0.0f, 0.0f, 1.0f, 1.0f), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 0);
+		Globals::spritesheetManager.getAssetPointer("objects")->bind(0);
+		Batchrenderer::Get().drawBuffer();
+		Spritesheet::Unbind();
+		glDisable(GL_BLEND);
 		// displace fluids
 		float s = sin(cur->body->GetAngle());
 		float c = cos(cur->body->GetAngle());

@@ -65,7 +65,15 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 	Fontrenderer::Get().init();
 	Fontrenderer::Get().setShader(Globals::shaderManager.getAssetPointer("font"));
 
+	Batchrenderer::Get().init(1200, true);
+	Batchrenderer::Get().setShader(Globals::shaderManager.getAssetPointer("batch"));
+
 	auto shader = Globals::shaderManager.getAssetPointer("font");
+	shader->use();
+	shader->loadMatrix("u_transform", Matrix4f::Orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f));
+	shader->unuse();
+
+	shader = Globals::shaderManager.getAssetPointer("batch");
 	shader->use();
 	shader->loadMatrix("u_transform", Matrix4f::Orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f));
 	shader->unuse();
@@ -569,6 +577,11 @@ void Application::Resize(int deltaW, int deltaH) {
 		shader->use();
 		shader->loadMatrix("u_transform", Matrix4f::Orthographic(0.0f, static_cast<float>(Width), 0.0f, static_cast<float>(Height), -1.0f, 1.0f));
 		shader->unuse();
+
+		shader = Globals::shaderManager.getAssetPointer("batch");
+		shader->use();
+		shader->loadMatrix("u_transform", Matrix4f::Orthographic(0.0f, static_cast<float>(Width), 0.0f, static_cast<float>(Height), -1.0f, 1.0f));
+		shader->unuse();
 	}	
 }
 
@@ -628,6 +641,8 @@ void Application::SetCursorIcon(LPCSTR resource) {
 void Application::loadAssets() {
 
 	Globals::shaderManager.loadShader("font", "res/shader/batch.vert", "res/shader/font.frag");
+	Globals::shaderManager.loadShader("batch", "res/shader/batch.vert", "res/shader/batch.frag");
+
 	Globals::shaderManager.loadShader("texture", "res/shader/texture.vert", "res/shader/texture.frag");		
 	Globals::shaderManager.loadShader("quad_back", "res/shader/quad_back.vert", "res/shader/quad.frag");
 	Globals::shaderManager.loadShader("quad", "res/shader/quad.vert", "res/shader/quad.frag");
@@ -647,4 +662,8 @@ void Application::loadAssets() {
 	Globals::fontManager.loadCharacterSet("upheaval_50", "res/fonts/upheavtt.ttf", 50, 0, 3, 0, 0, true, 0u);
 
 	Globals::shapeManager.buildQuadXY("quad", Vector3f(-1.0f, -1.0f, 0.0f), Vector2f(2.0f, 2.0f), 1, 1, true, true, true);
+
+	Globals::spritesheetManager.createSpritesheet("objects" , "res/objects/testObject3.png");
+	Globals::spritesheetManager.getAssetPointer("objects")->addToSpritesheet("res/objects/testObject4.png");
+	//Globals::spritesheetManager.getAssetPointer("objects")->safe("objects");
 }
