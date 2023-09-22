@@ -34,7 +34,8 @@ public:
 	void setLinear();
 	void setLinearMipMap();
 
-	void bind(unsigned int unit = 0);
+	void bind(unsigned int unit = 0u) const;
+	void unbind(unsigned int unit = 0u) const;
 	void safe(std::string name);
 
 	static void Unbind();

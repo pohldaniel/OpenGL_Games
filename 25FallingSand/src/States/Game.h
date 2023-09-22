@@ -11,6 +11,7 @@
 #include "engine/TrackBall.h"
 #include "engine/Clock.h"
 #include "engine/Pixelbuffer.h"
+#include "engine/Framebuffer.h"
 
 #include "StateMachine.h"
 #include "Physics.h"
@@ -65,6 +66,7 @@ private:
 	Background m_background2;
 	Pixelbuffer m_pixelbuffer;
 	Texture m_texture;
+	Framebuffer m_framebuffer;
 
 	float zoomX = 0.25f;
 	float offsetX = 0.1f;

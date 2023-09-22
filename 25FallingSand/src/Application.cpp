@@ -663,7 +663,7 @@ void Application::loadAssets() {
 
 	Globals::shapeManager.buildQuadXY("quad", Vector3f(-1.0f, -1.0f, 0.0f), Vector2f(2.0f, 2.0f), 1, 1, true, true, true);
 
-	Globals::spritesheetManager.createSpritesheet("objects" , "res/objects/testObject3.png");
-	Globals::spritesheetManager.getAssetPointer("objects")->addToSpritesheet("res/objects/testObject4.png");
+	Globals::spritesheetManager.createSpritesheet("objects" , "res/objects/testObject3.png", GL_RGBA, GL_RGBA8, false);
+	Globals::spritesheetManager.getAssetPointer("objects")->addToSpritesheet("res/objects/testObject4.png", GL_RGBA, GL_RGBA8, false);
 	//Globals::spritesheetManager.getAssetPointer("objects")->safe("objects");
 }

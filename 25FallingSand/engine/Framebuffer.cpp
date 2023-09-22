@@ -848,10 +848,6 @@ const unsigned int& Framebuffer::getColorTexture(unsigned short attachment) cons
 	return m_colorTextures[attachment];
 }
 
-const unsigned int& Framebuffer::getColorTexture() const {
-	return  m_colorTextures[0];
-}
-
 const unsigned int& Framebuffer::getDepthTexture() const {
 	return m_depthTexture;
 }
@@ -868,7 +864,7 @@ const unsigned int& Framebuffer::getFramebuffer() const {
 	return  m_fbo;
 }
 
-void Framebuffer::bindColorTexture(unsigned int unit, unsigned int attachment) const {
+void Framebuffer::bindColorTexture(unsigned int unit, unsigned short attachment) const {
 	glActiveTexture(GL_TEXTURE0 + unit);
 	glBindTexture(GL_TEXTURE_2D, m_colorTextures[attachment]);
 }

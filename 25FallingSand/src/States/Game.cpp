@@ -33,17 +33,19 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	glClearColor(0.494f, 0.686f, 0.796f, 1.0f);
 	glClearDepth(1.0f);
 
-	m_background1.setLayer(std::vector<BackgroundLayer>{ {&Globals::textureManager.get("bg_layer_2"), 2, 1.0f, 0.5f, Vector2f(0.333f, 0.666f)},
-	{ &Globals::textureManager.get("bg_layer_3"), 2, 0.0f, -0.0666f, Vector2f(0.37f, 0.37f + 0.333f) },
-	{ &Globals::textureManager.get("bg_layer_4"), 2, 3.0f, -0.01f, Vector2f(0.333f, 0.666f) },
-	{ &Globals::textureManager.get("bg_layer_5"), 2, 0.0f, 0.01333f, Vector2f(0.333f, 0.666f) } });
+	m_background1.setLayer(std::vector<BackgroundLayer>{ 
+		{ &Globals::textureManager.get("bg_layer_2"), 2, 1.0f, 0.5f, Vector2f(0.333f, 0.666f) },
+		{ &Globals::textureManager.get("bg_layer_3"), 2, 0.0f, -0.0666f, Vector2f(0.37f, 0.37f + 0.333f) },
+		{ &Globals::textureManager.get("bg_layer_4"), 2, 3.0f, -0.01f, Vector2f(0.333f, 0.666f) },
+		{ &Globals::textureManager.get("bg_layer_5"), 2, 0.0f, 0.01333f, Vector2f(0.333f, 0.666f) } });
 	m_background1.setSpeed(0.005f);
 
-	m_background2.setLayer(std::vector<BackgroundLayer>{ {&Globals::textureManager.get("forest_1"), 1, 1.0f},
-	{ &Globals::textureManager.get("forest_2"), 1, 2.0f },
-	{ &Globals::textureManager.get("forest_3"), 1, 3.0f },
-	{ &Globals::textureManager.get("forest_4"), 1, 4.0f },
-	{ &Globals::textureManager.get("forest_5"), 1, 5.0f }});
+	m_background2.setLayer(std::vector<BackgroundLayer>{ 
+		{ &Globals::textureManager.get("forest_1"), 1, 1.0f },
+		{ &Globals::textureManager.get("forest_2"), 1, 2.0f },
+		{ &Globals::textureManager.get("forest_3"), 1, 3.0f },
+		{ &Globals::textureManager.get("forest_4"), 1, 4.0f },
+		{ &Globals::textureManager.get("forest_5"), 1, 5.0f }});
 	m_background2.setSpeed(0.005f);
 
 	init();
@@ -52,6 +54,11 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	m_texture.setWrapMode(GL_CLAMP);
 	m_texture.setFilter(GL_NEAREST);
 	m_pixelbuffer.create(world->height * world->width * 4);
+
+
+	m_framebuffer.create(Application::Width, Application::Height);
+	m_framebuffer.attachTexture2D(AttachmentTex::RGBA);
+	m_framebuffer.attachRenderbuffer(AttachmentRB::DEPTH24);
 }
 
 Game::~Game() {
@@ -138,20 +145,36 @@ void Game::update() {
 }
 
 void Game::render() {
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	m_switch ? m_background1.draw() : m_background2.draw();
+	
 	updateFrameEarly();
 	tick();
 	updateFrameLate();
+
+	m_framebuffer.bindWrite();
+	glClearBufferfv(GL_COLOR, 0, std::vector<float>{0.0f, 0.0f, 0.0f, 0.0f}.data());
+	glClearBufferfv(GL_DEPTH, 0, &std::vector<float>{1.0f}[0]);
+	Globals::spritesheetManager.getAssetPointer("objects")->bind(0);
+	Batchrenderer::Get().drawBuffer();
+	Globals::spritesheetManager.getAssetPointer("objects")->unbind(0);
+	m_framebuffer.unbindWrite();
+
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	m_switch ? m_background1.draw() : m_background2.draw();
 
 	glEnable(GL_BLEND);
 	auto shader = Globals::shaderManager.getAssetPointer("quad");
 	shader->use();
 	shader->loadVector("u_texRect", Vector4f(zoomX + offsetX, zoomY - offsetY, (1.0f - zoomX) + offsetX, (1.0f - zoomY) - offsetY));
+	//shader->loadVector("u_texRect", Vector4f(0.0f, 0.0f, 1.0f, 1.0f));
+	m_framebuffer.bindColorTexture();
+	Globals::shapeManager.get("quad").drawRaw();
+
 	m_texture.bind();
 	Globals::shapeManager.get("quad").drawRaw();
+
 	shader->unuse();
 	glDisable(GL_BLEND);
+
 
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplWin32_NewFrame();
@@ -385,6 +408,9 @@ void Game::tick() {
 	// render objects
 	memset(objectDelete, false, (size_t)world->width * world->height * sizeof(bool));
 
+
+	
+
 	for (size_t i = 0; i < world->rigidBodies.size(); i++) {
 		RigidBody* cur = world->rigidBodies[i];
 		if (cur == nullptr) continue;
@@ -393,16 +419,9 @@ void Game::tick() {
 
 		float x = cur->body->GetPosition().x;
 		float y = cur->body->GetPosition().y;
-		int scaleObjTex = Settings::hd_objects ? Settings::hd_objects_size : 4;
+		float scaleObjTex = Settings::hd_objects ? Settings::hd_objects_size : 1.5f;
 
-		std::cout << "Width: " << x << "Height: " << y << std::endl;
-
-		glEnable(GL_BLEND);
-		Batchrenderer::Get().addQuadAA(Vector4f(x, Application::Height - y, static_cast<float>(cur->surface->w) * scaleObjTex, static_cast<float>(cur->surface->h) * scaleObjTex), Vector4f(0.0f, 0.0f, 1.0f, 1.0f), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 0);
-		Globals::spritesheetManager.getAssetPointer("objects")->bind(0);
-		Batchrenderer::Get().drawBuffer();
-		Spritesheet::Unbind();
-		glDisable(GL_BLEND);
+		Batchrenderer::Get().addQuadAA(Vector4f(x + 280.0f, y + 60.0f, static_cast<float>(cur->surface->w) * scaleObjTex, static_cast<float>(cur->surface->h) * scaleObjTex), Vector4f(0.0f, 0.0f, 1.0f, 1.0f), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 0);
 		// displace fluids
 		float s = sin(cur->body->GetAngle());
 		float c = cos(cur->body->GetAngle());
@@ -442,6 +461,7 @@ void Game::tick() {
 			}
 		}
 	}
+
 
 	if (Settings::tick_world && world->readyToMerge.size() == 0) {
 		world->tick();

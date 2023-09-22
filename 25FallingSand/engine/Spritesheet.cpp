@@ -590,9 +590,14 @@ Spritesheet::~Spritesheet() {
 	}
 }
 
-void Spritesheet::bind(unsigned int unit) {
+void Spritesheet::bind(unsigned int unit) const {
 	glActiveTexture(GL_TEXTURE0 + unit);
 	glBindTexture(GL_TEXTURE_2D_ARRAY, m_texture);
+}
+
+void Spritesheet::unbind(unsigned int unit) const {
+	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
+	glActiveTexture(GL_TEXTURE0 + unit);
 }
 
 void Spritesheet::Unbind() {
