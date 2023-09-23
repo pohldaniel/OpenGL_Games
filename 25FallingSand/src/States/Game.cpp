@@ -176,12 +176,13 @@ void Game::render() {
 	//shader->loadBool("u_flip", true);
 	shader->loadVector("u_texRect", Vector4f(zoomX + offsetX, zoomY - offsetY, (1.0f - zoomX) + offsetX, (1.0f - zoomY) - offsetY));
 	//shader->loadVector("u_texRect", Vector4f(0.0f, 0.0f, 1.0f, 1.0f));
-	m_framebuffer.bindColorTexture();
-	Globals::shapeManager.get("quad").drawRaw();
-
+	
 	m_texture.bind();
 	Globals::shapeManager.get("quad").drawRaw();
-
+	
+	m_framebuffer.bindColorTexture();
+	Globals::shapeManager.get("quad").drawRaw();
+	
 	shader->unuse();
 	glDisable(GL_BLEND);
 
@@ -238,9 +239,9 @@ void Game::OnMouseButtonUp(Event::MouseButtonEvent& event) {
 
 void Game::OnKeyDown(Event::KeyboardEvent& event) {
 	if (event.keyCode == VK_LMENU) {
-		m_drawUi = true;
-		Mouse::instance().detach();
-		Keyboard::instance().disable();
+		m_drawUi = !m_drawUi;
+		//Mouse::instance().detach();
+		//Keyboard::instance().disable();
 	}
 
 	if (event.keyCode == VK_ESCAPE) {
@@ -453,10 +454,10 @@ void Game::tick() {
 		float y = cur->body->GetPosition().y;
 		float angle = cur->body->GetAngle() * _180_ON_PI;
 		float scaleObjTex = Settings::hd_objects ? Settings::hd_objects_size : 1.0f;
+		float border = 0.2f;
 
-		Batchrenderer::Get().addRotatedQuadLH(Vector4f(x, (static_cast<float>(world->height) - y) - static_cast<float>(cur->surface->h), static_cast<float>(cur->surface->w) * scaleObjTex, static_cast<float>(cur->surface->h) * scaleObjTex), angle, 0.0f, static_cast<float>(cur->surface->h), Vector4f(0.0f, 0.0f, 1.0f, 1.0f), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 0);
-		//Batchrenderer::Get().addRotatedQuadLH(Vector4f(x, (static_cast<float>(world->height) - y) - static_cast<float>(cur->surface->h), static_cast<float>(cur->surface->w) * scaleObjTex, static_cast<float>(cur->surface->h) * scaleObjTex), angle, 0.0f, static_cast<float>(cur->surface->h), Vector4f(1.0f / 64.0f, 3.0f / 64.0f, 56.0f / 64.0f, 53 /64.0f), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 0);
-
+		Batchrenderer::Get().addRotatedQuadLH(Vector4f(x - border, (static_cast<float>(world->height) - y) - (static_cast<float>(cur->surface->h) + border), static_cast<float>(cur->surface->w) * scaleObjTex + 2.0f * border, static_cast<float>(cur->surface->h) * scaleObjTex + 2.0f * border), angle, border, static_cast<float>(cur->surface->h) + border, Vector4f(0.0f, 0.0f, 1.0f, 1.0f), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 0);
+		//Batchrenderer::Get().addRotatedQuadLH(Vector4f(x - border, (static_cast<float>(world->height) - y) - (static_cast<float>(cur->surface->h) + border), static_cast<float>(cur->surface->w) * scaleObjTex + 2.0f * border, static_cast<float>(cur->surface->h) * scaleObjTex + 2.0f * border), angle, border, static_cast<float>(cur->surface->h) + border, Vector4f(1.0f / 64.0f, 3.0f / 64.0f, 56.0f / 64.0f, 53.0f / 64.0f), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 0);
 
 		// displace fluids
 		float s = sin(cur->body->GetAngle());

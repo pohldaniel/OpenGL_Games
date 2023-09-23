@@ -59,9 +59,9 @@ private:
 	Transform m_transform;
 
 	bool m_initUi = true;
-	bool m_drawUi = true;
+	bool m_drawUi = false;
 	bool m_switch = true;
-	bool m_debugPhysic = true;
+	bool m_debugPhysic = false;
 	int m_cx = 1, m_cy = 1;
 
 	Background m_background1;

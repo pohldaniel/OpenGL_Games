@@ -957,8 +957,8 @@ void World::updateWorldMesh() {
 
 	if (meshZone.w == 0 || meshZone.h == 0) return;
 
-	for (int cx = 1; cx <= 4; cx++) {
-		for (int cy = 1; cy <= 4; cy++) {
+	for (int cx = minChX; cx <= maxChX; cx++) {
+		for (int cy = minChY; cy <= maxChY; cy++) {
 			updateChunkMesh(getChunk(cx, cy));
 		}
 	}
@@ -3677,8 +3677,13 @@ void World::debug() {
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 
-	for (int cx = 1; cx <= 4; cx++) {
-		for (int cy = 1; cy <= 4; cy++) {
+	int minChX = (int)floor((meshZone.x - loadZone.x) / CHUNK_W);
+	int minChY = (int)floor((meshZone.y - loadZone.y) / CHUNK_H);
+	int maxChX = (int)ceil((meshZone.x + meshZone.w - loadZone.x) / CHUNK_W);
+	int maxChY = (int)ceil((meshZone.y + meshZone.h - loadZone.y) / CHUNK_H);
+
+	for (int cx = minChX; cx <= maxChX; cx++) {
+		for (int cy = minChY; cy <= maxChY; cy++) {
 			debugChunk(cx, cy);
 		}
 	}
