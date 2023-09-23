@@ -61,12 +61,15 @@ private:
 	bool m_initUi = true;
 	bool m_drawUi = true;
 	bool m_switch = true;
+	bool m_debugPhysic = true;
+	int m_cx = 1, m_cy = 1;
 
 	Background m_background1;
 	Background m_background2;
 	Pixelbuffer m_pixelbuffer;
 	Texture m_texture;
 	Framebuffer m_framebuffer;
+	Framebuffer m_debugLayer;
 
 	float zoomX = 0.25f;
 	float offsetX = 0.1f;

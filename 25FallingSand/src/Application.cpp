@@ -73,10 +73,10 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 	shader->loadMatrix("u_transform", Matrix4f::Orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f));
 	shader->unuse();
 
-	shader = Globals::shaderManager.getAssetPointer("batch");
+	/*shader = Globals::shaderManager.getAssetPointer("batch");
 	shader->use();
 	shader->loadMatrix("u_transform", Matrix4f::Orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f));
-	shader->unuse();
+	shader->unuse();*/
 
 	initStates();
 }
@@ -324,8 +324,8 @@ void Application::initOpenGL(int msaaSamples) {
 
 	glCullFace(GL_BACK);
 	glFrontFace(GL_CCW);
-	glEnable(GL_CULL_FACE);
-	//glDisable(GL_CULL_FACE);
+	//glEnable(GL_CULL_FACE);
+	glDisable(GL_CULL_FACE);
 
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LEQUAL);
@@ -578,10 +578,10 @@ void Application::Resize(int deltaW, int deltaH) {
 		shader->loadMatrix("u_transform", Matrix4f::Orthographic(0.0f, static_cast<float>(Width), 0.0f, static_cast<float>(Height), -1.0f, 1.0f));
 		shader->unuse();
 
-		shader = Globals::shaderManager.getAssetPointer("batch");
+		/*shader = Globals::shaderManager.getAssetPointer("batch");
 		shader->use();
 		shader->loadMatrix("u_transform", Matrix4f::Orthographic(0.0f, static_cast<float>(Width), 0.0f, static_cast<float>(Height), -1.0f, 1.0f));
-		shader->unuse();
+		shader->unuse();*/
 	}	
 }
 
@@ -663,7 +663,8 @@ void Application::loadAssets() {
 
 	Globals::shapeManager.buildQuadXY("quad", Vector3f(-1.0f, -1.0f, 0.0f), Vector2f(2.0f, 2.0f), 1, 1, true, true, true);
 
-	Globals::spritesheetManager.createSpritesheet("objects" , "res/objects/testObject3.png", GL_RGBA, GL_RGBA8, false);
-	Globals::spritesheetManager.getAssetPointer("objects")->addToSpritesheet("res/objects/testObject4.png", GL_RGBA, GL_RGBA8, false);
+	//Globals::spritesheetManager.createSpritesheet("objects" , "res/objects/testObject3.png");
+	Globals::spritesheetManager.createSpritesheet("objects", "res/objects/testObject_3.png");
+	Globals::spritesheetManager.getAssetPointer("objects")->addToSpritesheet("res/objects/testObject4.png");
 	//Globals::spritesheetManager.getAssetPointer("objects")->safe("objects");
 }

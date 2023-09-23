@@ -13,6 +13,9 @@
 #define WIDTH 1600
 #define HEIGHT 900
 
+//#define WIDTH 1024
+//#define HEIGHT 768
+
 #define DEBUG 1
 #define DEVBUILD 1
 #define DEBUGCOLLISION 0

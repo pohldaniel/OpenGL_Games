@@ -42,6 +42,7 @@ public:
 	static void Safe(std::string name, unsigned int textureAtlas);
 	static unsigned int Merge(const unsigned int& atlas1, const unsigned int& atlas2, bool deleteAtlas1 = true, bool deleteAtlas2 = true);
 	static unsigned int CreateSpritesheet(unsigned char* bytes, unsigned int width, unsigned int height, unsigned int layer, unsigned int format = 0);
+
 private:
 
 	unsigned int m_texture;

@@ -55,10 +55,19 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	m_texture.setFilter(GL_NEAREST);
 	m_pixelbuffer.create(world->height * world->width * 4);
 
-
+	std::cout << world->height << "  " << world->width << std::endl;
 	m_framebuffer.create(Application::Width, Application::Height);
 	m_framebuffer.attachTexture2D(AttachmentTex::RGBA);
 	m_framebuffer.attachRenderbuffer(AttachmentRB::DEPTH24);
+
+	m_debugLayer.create(Application::Width, Application::Height);
+	m_debugLayer.attachTexture2D(AttachmentTex::RGBA);
+	m_debugLayer.attachRenderbuffer(AttachmentRB::DEPTH24);
+
+	auto shader = Globals::shaderManager.getAssetPointer("batch");
+	shader->use();
+	shader->loadMatrix("u_transform", Matrix4f::Orthographic(0.0f, static_cast<float>(world->width), static_cast<float>(world->height), 0.0f, -1.0f, 1.0f));
+	shader->unuse();
 }
 
 Game::~Game() {
@@ -164,6 +173,7 @@ void Game::render() {
 	glEnable(GL_BLEND);
 	auto shader = Globals::shaderManager.getAssetPointer("quad");
 	shader->use();
+	//shader->loadBool("u_flip", true);
 	shader->loadVector("u_texRect", Vector4f(zoomX + offsetX, zoomY - offsetY, (1.0f - zoomX) + offsetX, (1.0f - zoomY) - offsetY));
 	//shader->loadVector("u_texRect", Vector4f(0.0f, 0.0f, 1.0f, 1.0f));
 	m_framebuffer.bindColorTexture();
@@ -175,13 +185,34 @@ void Game::render() {
 	shader->unuse();
 	glDisable(GL_BLEND);
 
+	if (m_debugPhysic) {
+		m_debugLayer.bindWrite();
+		glClearBufferfv(GL_COLOR, 0, std::vector<float>{0.0f, 0.0f, 0.0f, 0.0f}.data());
+		glClearBufferfv(GL_DEPTH, 0, &std::vector<float>{1.0f}[0]);
+		world->debug();
+		world->debugBodies();
+		m_debugLayer.unbindWrite();
 
-	ImGui_ImplOpenGL3_NewFrame();
+		glEnable(GL_BLEND);
+		shader->use();
+		//shader->loadBool("u_flip", false);
+		shader->loadVector("u_texRect", Vector4f(zoomX + offsetX, zoomY - offsetY, (1.0f - zoomX) + offsetX, (1.0f - zoomY) - offsetY));
+		//shader->loadVector("u_texRect", Vector4f(0.0f, 0.0f, 1.0f, 1.0f));
+		m_debugLayer.bindColorTexture();
+		Globals::shapeManager.get("quad").drawRaw();
+
+		glDisable(GL_BLEND);
+	}
+
+	if (m_drawUi)
+		renderUi();
+
+	/*ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
 	MainMenuUI::Draw(this);
 	ImGui::Render();
-	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());*/
 }
 
 void Game::OnMouseMotion(Event::MouseMoveEvent& event) {
@@ -258,7 +289,11 @@ void Game::renderUi() {
 	// render widgets
 	ImGui::Begin("Settings", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
 	ImGui::Checkbox("Draw Wirframe", &StateMachine::GetEnableWireframe());
+	ImGui::Checkbox("Debug Physic", &m_debugPhysic);
 
+	//ImGui::SliderInt("CX", &m_cx, 0, 5);
+	//ImGui::SliderInt("CY", &m_cy, 0, 5);
+	
 
 	ImGui::End();
 
@@ -408,9 +443,6 @@ void Game::tick() {
 	// render objects
 	memset(objectDelete, false, (size_t)world->width * world->height * sizeof(bool));
 
-
-	
-
 	for (size_t i = 0; i < world->rigidBodies.size(); i++) {
 		RigidBody* cur = world->rigidBodies[i];
 		if (cur == nullptr) continue;
@@ -419,9 +451,13 @@ void Game::tick() {
 
 		float x = cur->body->GetPosition().x;
 		float y = cur->body->GetPosition().y;
-		float scaleObjTex = Settings::hd_objects ? Settings::hd_objects_size : 1.5f;
+		float angle = cur->body->GetAngle() * _180_ON_PI;
+		float scaleObjTex = Settings::hd_objects ? Settings::hd_objects_size : 1.0f;
 
-		Batchrenderer::Get().addQuadAA(Vector4f(x + 280.0f, y + 60.0f, static_cast<float>(cur->surface->w) * scaleObjTex, static_cast<float>(cur->surface->h) * scaleObjTex), Vector4f(0.0f, 0.0f, 1.0f, 1.0f), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 0);
+		Batchrenderer::Get().addRotatedQuadLH(Vector4f(x, (static_cast<float>(world->height) - y) - static_cast<float>(cur->surface->h), static_cast<float>(cur->surface->w) * scaleObjTex, static_cast<float>(cur->surface->h) * scaleObjTex), angle, 0.0f, static_cast<float>(cur->surface->h), Vector4f(0.0f, 0.0f, 1.0f, 1.0f), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 0);
+		//Batchrenderer::Get().addRotatedQuadLH(Vector4f(x, (static_cast<float>(world->height) - y) - static_cast<float>(cur->surface->h), static_cast<float>(cur->surface->w) * scaleObjTex, static_cast<float>(cur->surface->h) * scaleObjTex), angle, 0.0f, static_cast<float>(cur->surface->h), Vector4f(1.0f / 64.0f, 3.0f / 64.0f, 56.0f / 64.0f, 53 /64.0f), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 0);
+
+
 		// displace fluids
 		float s = sin(cur->body->GetAngle());
 		float c = cos(cur->body->GetAngle());

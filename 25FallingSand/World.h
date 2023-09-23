@@ -201,5 +201,11 @@ public:
 
 	~World();
 
+
+	void debugChunk(int cx, int cy);
+	void debug();
+	void debugBodies();
+
+	Matrix4f ortho;
 };
 

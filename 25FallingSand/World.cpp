@@ -1,4 +1,6 @@
+#include <GL/glew.h>
 #include <MarchingSquares/MarchingSquares.h>
+#include "Application.h"
 
 #include "world.h"
 #include "Textures.hpp"
@@ -142,7 +144,7 @@ void World::init(std::string worldPath, uint16_t w, uint16_t h, WorldGenerator* 
 
 	rigidBodies.push_back(rb);
 	updateRigidBodyHitbox(rb);
-
+	ortho.orthographic(0.0f, static_cast<float>(width), 0.0f, static_cast<float>(height), -1.0f, 1.0f);
 }
 
 RigidBody* World::makeRigidBody(b2BodyType type, float x, float y, float angle, b2PolygonShape shape, float density, float friction, SDL_Surface* texture, std::string name) {
@@ -286,7 +288,7 @@ void World::updateRigidBodyHitbox(RigidBody* rb) {
 	}
 
 	if (isTransparent) {
-		std::cout << "----------" << std::endl;
+		std::cout << "Is Transparent" << std::endl;
 		//minX = 0;
 		//maxX = texture->w;
 		//minY = 0;
@@ -714,7 +716,7 @@ found: {};
 
 
 	if (!foundAnything) {
-		return;
+		//return;
 	}
 
 
@@ -955,8 +957,8 @@ void World::updateWorldMesh() {
 
 	if (meshZone.w == 0 || meshZone.h == 0) return;
 
-	for (int cx = minChX; cx <= maxChX; cx++) {
-		for (int cy = minChY; cy <= maxChY; cy++) {
+	for (int cx = 1; cx <= 4; cx++) {
+		for (int cy = 1; cy <= 4; cy++) {
 			updateChunkMesh(getChunk(cx, cy));
 		}
 	}
@@ -3634,4 +3636,95 @@ World::~World() {
 	entities.clear();
 	//delete player;
 
+}
+
+void World::debugChunk(int cx, int cy) {
+	
+	
+	Chunk* chunk = getChunk(cx, cy);
+
+	if (chunk->rb == nullptr) return;
+
+	b2Body* body = chunk->rb->body;
+	b2Vec2 position = body->GetPosition();
+
+	for (b2Fixture* f = body->GetFixtureList(); f; f = f->GetNext()) {
+		b2PolygonShape *triangleShape = static_cast<b2PolygonShape*>(f->GetShape());
+
+		b2Vec2 v1 = triangleShape->m_vertices[1] + position;
+		b2Vec2 v2 = triangleShape->m_vertices[0] + position;
+		b2Vec2 v3 = triangleShape->m_vertices[2] + position;
+
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		glBegin(GL_TRIANGLES);
+		glColor3f(1, 0, 0);
+
+		glVertex3f(v1.x, v1.y, 0.0f);
+		glVertex3f(v2.x, v2.y, 0.0f);
+		glVertex3f(v3.x, v3.y, 0.0f);
+
+
+		glEnd();
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	}
+}
+
+void World::debug() {
+
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	glLoadMatrixf(&ortho[0][0]);
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+
+	for (int cx = 1; cx <= 4; cx++) {
+		for (int cy = 1; cy <= 4; cy++) {
+			debugChunk(cx, cy);
+		}
+	}
+}
+
+void World::debugBodies() {
+
+	if (rigidBodies.size() == 0) return;
+
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	glLoadMatrixf(&ortho[0][0]);
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+
+	//cur->body->GetAngle() * 180 / (float)W_PI
+
+	for (auto rb : rigidBodies) {
+
+		float angle = rb->body->GetAngle() * _180_ON_PI;
+		b2Vec2 position = rb->body->GetPosition();
+
+		glPushMatrix();
+		glTranslatef(position.x, position.y, 0.0f);
+		glRotatef(angle, 0.0f, 0.0f, 1.0f);
+
+		for (b2Fixture* f = rb->body->GetFixtureList(); f; f = f->GetNext()) {
+			b2PolygonShape *triangleShape = static_cast<b2PolygonShape*>(f->GetShape());
+
+			b2Vec2 v1 = triangleShape->m_vertices[1];
+			b2Vec2 v2 = triangleShape->m_vertices[0] ;
+			b2Vec2 v3 = triangleShape->m_vertices[2];
+
+			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+			glBegin(GL_TRIANGLES);
+			glColor3f(1, 0, 0);
+
+			glVertex3f(v1.x, v1.y, 0.0f);
+			glVertex3f(v2.x, v2.y, 0.0f);
+			glVertex3f(v3.x, v3.y, 0.0f);
+
+
+			glEnd();
+			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+		}
+		glPopMatrix();
+	}
 }

@@ -21,7 +21,10 @@ public:
 	void init(size_t size = 400, bool drawSingle = false);
 	void shutdown();
 	void drawBuffer();
-	void addQuadAA(Vector4f posSize, Vector4f texPosSize, Vector4f color = Vector4f(1.0f, 1.0f, 1.0f, 1.0f), unsigned int frame = 0u);
+	void addQuadAA(Vector4f posSize, Vector4f texPosSize = Vector4f(0.0f, 0.0f, 1.0f, 1.0f), Vector4f color = Vector4f(1.0f, 1.0f, 1.0f, 1.0f), unsigned int frame = 0u);
+	void addRotatedQuadRH(Vector4f posSize, float angle, float rotX, float rotY, Vector4f texPosSize = Vector4f(0.0f, 0.0f, 1.0f, 1.0f), Vector4f color = Vector4f(1.0f, 1.0f, 1.0f, 1.0f), unsigned int frame = 0u);
+	void addRotatedQuadLH(Vector4f posSize, float angle, float rotX, float rotY, Vector4f texPosSize = Vector4f(0.0f, 0.0f, 1.0f, 1.0f), Vector4f color = Vector4f(1.0f, 1.0f, 1.0f, 1.0f), unsigned int frame = 0u);
+
 	void drawSingleQuadAA(Vector4f posSize, Vector4f texPosSize, Vector4f color = Vector4f(1.0f, 1.0f, 1.0f, 1.0f), unsigned int frame = 0u);
 	void processQuad();
 	void processSingleQuad();
