@@ -42,10 +42,6 @@ void Fontrenderer::resetRenderer() {
 	batchrenderer = nullptr;
 }
 
-void Fontrenderer::setCamera(const Camera& camera) {
-	m_batchrenderer->setCamera(camera);
-}
-
 void Fontrenderer::drawText(const CharacterSet& characterSet, float posX, float posY, std::string text, Vector4f color) {
 	glBindTexture(GL_TEXTURE_2D_ARRAY, characterSet.spriteSheet);
 	std::string::const_iterator c;

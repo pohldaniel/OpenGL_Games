@@ -14,11 +14,35 @@
 
 #include "StateMachine.h"
 #include "Background.h"
+#include "Tile.h"
+#include "Map.h"
+#include "Hex.h"
 
-struct Tile {
-	Vector2f position;
-	Vector2f size;
-	unsigned int gid;
+/*auto hexhash = [](const Hex& h) {
+	//return (size_t)(pt.x*100 + pt.y);
+	//hash<int> int_hash;
+	size_t hq = h.get_q();
+	size_t hr = h.get_r();
+	return hq ^ (hr + 0x9e3779b9 + (hq << 6) + (hq >> 2));
+};
+
+auto hexequal = [](const Hex& hex1, const Hex& hex2) {
+	return ((hex1.get_q() == hex2.get_q()) && (hex1.get_r() == hex2.get_r()));
+};*/
+
+struct hex_hash {
+
+	std::size_t operator () (const Hex& h) const {
+		size_t hq = h.get_q();
+		size_t hr = h.get_r();
+		return hq ^ (hr + 0x9e3779b9 + (hq << 6) + (hq >> 2));
+	}
+};
+
+struct hex_equal {
+	bool operator() (Hex const& hex1, Hex const& hex2) const{
+		return ((hex1.get_q() == hex2.get_q()) && (hex1.get_r() == hex2.get_r()));
+	}
 };
 
 class Game : public State, public MouseEventListener, public KeyboardEventListener {
@@ -43,20 +67,15 @@ private:
 
 	void applyTransformation(TrackBall& arc);
 	void renderUi();
-	void createBuffer();
-	void addTile(const Tile tile, std::vector<float>& vertices, std::vector<unsigned int>& indices, std::vector<unsigned int>& mapIndices);
-	void update2(float delta);
+	void updateCamera(float delta);
 	void setLimits(int l, int r, int t, int b);
 	void CenterCameraOverCell(int row, int col);
 	void CenterCameraToPoint(int x, int y);
 	void CenterToPoint(int x, int y);
 	Vector2f GetCellPosition(unsigned int r, unsigned int c) const;
 	Vector2f GetCellPosition(unsigned int index) const;
-	void setOrigin(const float x, const float y);
-	void setOrigin(const Vector2f &origin);
-	void updateTilePositions();
+	void createBoard(int nr);
 
-	Vector2f m_origin;
 	Camera m_camera;
 	TrackBall m_trackball;
 	Transform m_transform;
@@ -67,11 +86,8 @@ private:
 	
 	Background m_background;
 
-	std::vector<Quad*> m_quads;
-	std::vector<Quad*> m_quads2;
-
-	Spritesheet* m_spriteSheet;
-	Spritesheet* m_spriteSheet2;
+	Spritesheet* m_spriteSheetIso;
+	Spritesheet* m_spriteSheetHex;
 
 	Shader* m_shader;
 	Shader* m_shaderArray;
@@ -81,15 +97,18 @@ private:
 	float scale = 0.65f;
 	Matrix4f m_projection = Matrix4f::IDENTITY;
 
-	std::vector<Tile> tiles;
-	std::vector<float> m_vertices;
-	std::vector<unsigned int> m_indexBuffer;
-	std::vector<unsigned int> m_indexMap;
+	std::vector<Tile> isoTiles;
+	std::vector<Tile> hexTiles;
+	std::list<Hex> hexlist;
 
-	unsigned int m_vao = 0;
-	unsigned int m_vbo = 0;
-	unsigned int m_vboMap = 0;
-	unsigned int m_ibo = 0;
+	//std::unordered_map<Hex, int>::size_type n = 10;
+	//std::unordered_map<Hex, int, std::function<size_t(const Hex&)>,std::function<bool(Hex const&, Hex const&)>> heights(n, hex_hash, hex_equal);
+
+	std::unordered_map<Hex, int, hex_hash, hex_equal> heights;
+
+	// HexTile to Value
+	//using HexMap = std::unordered_map<Hex, int, decltype(hexhash), decltype(hexequal)>;
+	//HexMap heights{ HexMap(10,hexhash,hexequal) };
 
 	float mSpeed = 400.0f;
 
@@ -107,4 +126,18 @@ private:
 
 	int m_cols;
 	int m_rows;
+
+	const int ISO_WIDTH;
+	const int ISO_HEIGHT;
+
+	const int HEX_WIDTH;
+	const int HEX_HEIGHT;
+
+	const int HEX_OFFSET_X; //out of gimp
+	const int HEX_OFFSET_Y; //out of gimp
+
+	Map m_isoMap;
+	Map m_hexMap;
+
+	unsigned int** m_tileId;
 };

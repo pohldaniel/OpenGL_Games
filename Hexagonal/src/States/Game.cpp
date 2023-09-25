@@ -2,6 +2,7 @@
 #include <imgui_impl_win32.h>
 #include <imgui_impl_opengl3.h>
 #include <imgui_internal.h>
+#include <engine/Batchrenderer.h>
 
 #include "Game.h"
 #include "Application.h"
@@ -15,7 +16,30 @@ constexpr int SCROLL_U = 1;
 constexpr int SCROLL_D = -1;
 constexpr int NO_SCROLL = 0;
 
-Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
+
+
+auto hexcomp = [](const Hex& hex1, const Hex& hex2) {
+	//return !((hex1.get_r() > hex2.get_r()) && (hex1.get_q() > hex2.get_q()) && (hex1.get_s() > hex2.get_s())); 
+	int dist1 = (std::abs(hex1.get_q()) + std::abs(hex1.get_q() + hex1.get_r()) + std::abs(hex1.get_r())) / 2;
+	int dist2 = (std::abs(hex2.get_q()) + std::abs(hex2.get_q() + hex2.get_r()) + std::abs(hex2.get_r())) / 2;
+
+
+	//return ((hex1.get_r() > hex2.get_r()) && (dist1 < dist2) && (hex1.get_q() > hex2.get_q()));
+	return !((hex1.get_r() > hex2.get_r()));
+
+};
+
+auto hexcomp_r = [](const Hex& hex1, const Hex& hex2) {
+	return ((hex1.get_r() < hex2.get_r()));
+
+};
+
+auto hexcomp_q = [](const Hex& hex1, const Hex& hex2) {
+	return !((hex1.get_q() > hex2.get_q()));
+
+};
+
+Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), ISO_WIDTH(96), ISO_HEIGHT(48), HEX_WIDTH(72), HEX_HEIGHT(46), HEX_OFFSET_X(54), HEX_OFFSET_Y(30) {
 
 	Application::SetCursorIcon(IDC_ARROW);
 	EventDispatcher::AddKeyboardListener(this);
@@ -29,7 +53,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	glClearColor(0.494f, 0.686f, 0.796f, 1.0f);
 	glClearDepth(1.0f);
 
-	m_background.setLayer(std::vector<BackgroundLayer>{ 
+	m_background.setLayer(std::vector<BackgroundLayer>{
 		{ &Globals::textureManager.get("forest_1"), 1, 1.0f },
 		{ &Globals::textureManager.get("forest_2"), 1, 2.0f },
 		{ &Globals::textureManager.get("forest_3"), 1, 3.0f },
@@ -37,38 +61,16 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 		{ &Globals::textureManager.get("forest_5"), 1, 5.0f }});
 	m_background.setSpeed(0.005f);
 
-	float pointX;
-	float pointY;
-
-	float pointXTrans;
-	float pointYTrans;
-
-	for (int i = 4; i >= 0; i--) {
-		for (int j = 4; j >= 0; j--) {
-			pointX = j * 0.5f;
-			pointY = i * 0.5f;
-
-			pointXTrans = pointX - pointY;
-			pointYTrans = (pointX + pointY) * ((float)TILE_WIDTH / TILE_HEIGHT) * 0.5f;
-
-			m_quads.push_back(new Quad(false, pointXTrans, pointXTrans + 1.0f, pointYTrans, pointYTrans + 1.0f, TILE_WIDTH, TILE_HEIGHT, 0.0f, 0.0f, 1.0f, 1.0f, 0, 0));
-		}
-	}
-
-	for (int i = 4; i >= 0; i--) {
-		for (int j = 4; j >= 0; j--) {
-			pointX = -j;
-			pointY = i;
-			m_quads2.push_back(new Quad(false, pointX, pointX + 1.0f, pointY, pointY + 1.0f, TILE_WIDTH * scale + dist, TILE_WIDTH * scale + dist, 0.0f, 0.0f, 1.0f, 1.0f, 0, 0));
-		}
-	}
 
 	m_shader = Globals::shaderManager.getAssetPointer("quad");
 	m_shaderArray = Globals::shaderManager.getAssetPointer("quad_array");
-	m_spriteSheet = Globals::spritesheetManager.getAssetPointer("tiles");
-	m_spriteSheet2 = Globals::spritesheetManager.getAssetPointer("tiles2");
+
+	m_spriteSheetIso = Globals::spritesheetManager.getAssetPointer("isoTiles");
+	m_spriteSheetHex = Globals::spritesheetManager.getAssetPointer("hexTiles");
 
 	m_projection = Matrix4f::Orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
+
+
 
 	std::fstream fs("res/maps/40x40-01.map");
 	if (!fs.is_open())
@@ -88,49 +90,93 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	m_cols = cols;
 	m_rows = rows;
 
-	const int mapSize = rows * cols;
-	tiles.reserve(mapSize);
-	tiles.assign(mapSize, { Vector2f(),Vector2f(), 0 });
+	m_tileId = new unsigned int*[m_rows];
+	for (int i = 0; i < m_rows; ++i)
+		m_tileId[i] = new unsigned int[m_cols];
 
-	// READ BASE MAP
 	for (int r = 0; r < rows; ++r) {
+
 		std::getline(fs, line);
 		ss.clear();
 		ss.str(line);
-
-		const unsigned int row = r;
-		const unsigned int ind0 = row * cols;
-
 		for (int c = 0; c < cols; ++c) {
-			unsigned int type;
-
-			ss >> type;
-
-			const unsigned int index = ind0 + c;
-			pointX = c * (float)(TILE_WIDTH) * 0.5f;
-			pointY = row * (float)(TILE_WIDTH) * 0.5f;
-			pointXTrans = (pointX - pointY);
-			pointYTrans = (pointX + pointY) * 0.5f;
-
-			tiles[index] = { Vector2f(pointXTrans, -pointYTrans),Vector2f(TILE_WIDTH, TILE_HEIGHT), type };
+			ss >> m_tileId[r][c];
+		
 		}
 	}
 	fs.close();
 
-	m_vertices.clear();
-	m_indexBuffer.clear();
-	m_indexMap.clear();
+	for (int r = 0; r < m_rows; ++r) {		
+		for (int c = 0; c < m_cols; ++c) {
 
-	for (int i = 0; i < tiles.size(); i++) {
-		addTile(tiles[i], m_vertices, m_indexBuffer, m_indexMap);
+			float pointX = c * (float)(ISO_WIDTH) * 0.5f;
+			float pointY = r * (float)(ISO_WIDTH) * 0.5f;
+			float pointXTrans = (pointX - pointY);
+			float pointYTrans = (pointX + pointY) * 0.5f;
+			isoTiles.push_back({ Vector2f(pointXTrans, -pointYTrans) + Vector2f(Application::Width * 0.5f - (float)(ISO_WIDTH / 2), Application::Height *  0.5f - (float)(ISO_HEIGHT / 0.5f)),Vector2f(ISO_WIDTH, ISO_HEIGHT), m_tileId[r][c] });
+		}
 	}
-	setOrigin(Application::Width * 0.5f - (float)(TILE_WIDTH / 2), Application::Height *  0.5f - (float)(TILE_HEIGHT / 0.5f));
-	createBuffer();
+
+	createBoard(2);
+
+	m_isoMap.createBuffer(isoTiles);
+
+	float h = HEX_WIDTH * 0.25f ;
+	float s = HEX_WIDTH * 0.5f;
+	float r = HEX_HEIGHT * 0.5f;
+
+	/*for (int cx = 0; cx < 20; ++cx) {
+		for (int cy = 0; cy < 20; ++cy) {
+			
+				int renderX = cx * (h + s);
+				int renderY = cy * HEX_HEIGHT;
+
+				if (cx % 2 == 0)
+					renderY -= r;
+
+				hexTiles.push_back({ Vector2f(renderX, -renderY) + Vector2f(Application::Width * 0.5f - (float)(HEX_WIDTH / 2), Application::Height *  0.5f - (float)(HEX_HEIGHT / 0.5f)),Vector2f(HEX_WIDTH_2, HEX_HEIGHT_2), 0 });
+
+
+			
+		}
+	}*/
+
+	/*for (int cx = 0; cx < 20; ++cx) {
+		for (int cy = 0; cy < 20; ++cy) {
+
+			int renderX = cx * HEX_WIDTH_2;
+			int renderY = cy * (h + s);
+
+			if (cy % 2 == 0)
+				renderX += ( s);
+
+			hexTiles.push_back({ Vector2f(renderX, -renderY) + Vector2f(Application::Width * 0.5f - (float)(HEX_WIDTH / 2), Application::Height *  0.5f - (float)(HEX_HEIGHT / 0.5f)),Vector2f(HEX_WIDTH_2, HEX_HEIGHT_2), 0 });
+
+
+
+		}
+	}*/
+
+	for (int cx = 0; cx < 20; ++cx) {
+		for (int cy = 0; cy < 20; ++cy) {
+
+			int renderX = cx ;
+			int renderY = cy;
+
+			float pointXTrans = (renderX - renderY) * HEX_OFFSET_X;
+			float pointYTrans = (renderX + renderY) * 0.5f * HEX_OFFSET_Y;
+
+			hexTiles.push_back({ Vector2f(pointXTrans, -pointYTrans) + Vector2f(Application::Width * 0.5f - (float)(HEX_WIDTH / 2), Application::Height *  0.5f - (float)(HEX_HEIGHT / 0.5f)),Vector2f(HEX_WIDTH, HEX_HEIGHT), 1 });
+
+		}
+	}
+
+	m_hexMap.createBuffer(hexTiles);
 
 	m_shaderLevel = Globals::shaderManager.getAssetPointer("level");
 
 	setLimits(-1216, 1216, -1642, -430);
-	CenterCameraOverCell(0, 39);
+	CenterCameraOverCell(19, 19);
 }
 
 Game::~Game() {
@@ -183,6 +229,29 @@ void Game::update() {
 		move |= true;
 	}
 
+	if (keyboard.keyDown(Keyboard::KEY_A) || keyboard.keyDown(Keyboard::KEY_LEFT)) {
+		if (!mMouseScrollX) {
+			mDirX = SCROLL_R;
+			mKeyScrollX = true;
+		}
+	} else if (keyboard.keyDown(Keyboard::KEY_D) || keyboard.keyDown(Keyboard::KEY_RIGHT)) {
+		if (!mMouseScrollX) {
+			mDirX = SCROLL_L;
+			mKeyScrollX = true;
+		}
+	} else if (keyboard.keyDown(Keyboard::KEY_W) || keyboard.keyDown(Keyboard::KEY_UP)) {
+
+		if (!mMouseScrollY) {
+			mDirY = SCROLL_U;
+			mKeyScrollY = true;
+		}
+	} else if (keyboard.keyDown(Keyboard::KEY_S) || keyboard.keyDown(Keyboard::KEY_DOWN)) {
+		if (!mMouseScrollY) {
+			mDirY = SCROLL_D;
+			mKeyScrollY = true;
+		}
+	}
+
 	Mouse &mouse = Mouse::instance();
 
 	if (mouse.buttonDown(Mouse::MouseButton::BUTTON_RIGHT)) {
@@ -204,7 +273,8 @@ void Game::update() {
 	m_transform.fromMatrix(m_trackball.getTransform());
 
 	m_background.update(m_dt);
-	update2(m_dt);
+	updateCamera(m_dt);
+
 }
 
 void Game::render() {
@@ -212,30 +282,51 @@ void Game::render() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	//m_background.draw();
 
+	glEnable(GL_BLEND);
+	auto shader = Globals::shaderManager.getAssetPointer("batch");
+	shader->use();
+	shader->loadMatrix("u_transform", m_projection * m_camera.getViewMatrix());
+	Globals::spritesheetManager.getAssetPointer("isoTiles")->bind(0);
+
+	for (int r = 0; r < 40; ++r) {
+		for (int c = 0; c < 40; ++c) {
+
+			float pointX = c * (float)(ISO_WIDTH) * 0.5f;
+			float pointY = r * (float)(ISO_WIDTH) * 0.5f;
+			float pointXTrans = (pointX - pointY) + Application::Width * 0.5f - (float)(ISO_WIDTH / 2);
+			float pointYTrans = (pointX + pointY) * 0.5f - (Application::Height *  0.5f - (float)(ISO_HEIGHT / 0.5f));
+
+			Batchrenderer::Get().addQuadAA(Vector4f(pointXTrans, -pointYTrans, ISO_WIDTH, ISO_HEIGHT), Vector4f(0.0f, 0.0f, 1.0f, 1.0f), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), m_tileId[r][c]);
+		}
+	}	
+	Batchrenderer::Get().drawBufferRaw();
+	Globals::spritesheetManager.getAssetPointer("isoTiles")->unbind(0);
+	shader->unuse();
+	glDisable(GL_BLEND);
+
+	
+
+		/*glEnable(GL_BLEND);
+	glUseProgram(m_shaderLevel->m_program);
+	m_shaderLevel->loadMatrix("u_transform", m_projection * m_camera.getViewMatrix());
+	Globals::spritesheetManager.getAssetPointer("isoTiles")->bind();
+	m_isoMap.drawRaw();
+	Globals::spritesheetManager.getAssetPointer("isoTiles")->unbind();
+	glUseProgram(0);
+	glDisable(GL_BLEND);*/
+
 	/*glEnable(GL_BLEND);
-	glUseProgram(m_shaderArray->m_program);
-	m_shaderArray->loadInt("u_layer", 1);
-	m_shaderArray->loadMatrix("u_transform", m_projection);
-	for (int i = 0; i < m_quads.size(); i++) {
-		m_quads[i]->draw(m_spriteSheet2->getAtlas(), true);
-	}
+	glUseProgram(m_shaderLevel->m_program);
+	m_shaderLevel->loadMatrix("u_transform", m_projection * m_camera.getViewMatrix());
+	Globals::spritesheetManager.getAssetPointer("hexTiles")->bind();
+	m_hexMap.drawRaw();
+	Globals::spritesheetManager.getAssetPointer("hexTiles")->unbind();
 	glUseProgram(0);
 	glDisable(GL_BLEND);
 
 	if (m_drawUi)
 		renderUi();*/
 
-	glEnable(GL_BLEND);
-	glUseProgram(m_shaderLevel->m_program);
-	m_shaderLevel->loadMatrix("u_transform", m_projection * m_camera.getViewMatrix());
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D_ARRAY, m_spriteSheet2->getAtlas());
-	glBindVertexArray(m_vao);
-	glDrawElements(GL_TRIANGLES, m_indexBuffer.size(), GL_UNSIGNED_INT, 0);
-	glBindVertexArray(0);
-	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
-	glUseProgram(0);
-	glDisable(GL_BLEND);
 }
 
 void Game::OnMouseMotion(Event::MouseMoveEvent& event) {
@@ -276,31 +367,6 @@ void Game::OnKeyDown(Event::KeyboardEvent& event) {
 		ImGui::GetIO().WantCaptureMouse = false;
 		Mouse::instance().detach();
 		m_isRunning = false;
-	}
-
-	Keyboard &keyboard = Keyboard::instance();
-
-	if (keyboard.keyDown(Keyboard::KEY_A) || keyboard.keyDown(Keyboard::KEY_LEFT)) {
-		if (!mMouseScrollX) {
-			mDirX = SCROLL_R;
-			mKeyScrollX = true;
-		}
-	}else if (keyboard.keyDown(Keyboard::KEY_D) || keyboard.keyDown(Keyboard::KEY_RIGHT)) {
-		if (!mMouseScrollX) {
-			mDirX = SCROLL_L;
-			mKeyScrollX = true;
-		}
-	}else if (keyboard.keyDown(Keyboard::KEY_W) || keyboard.keyDown(Keyboard::KEY_UP)) {
-
-		if (!mMouseScrollY) {
-			mDirY = SCROLL_U;
-			mKeyScrollY = true;
-		}
-	}else if (keyboard.keyDown(Keyboard::KEY_S) || keyboard.keyDown(Keyboard::KEY_DOWN)) {
-		if (!mMouseScrollY) {
-			mDirY = SCROLL_D;
-			mKeyScrollY = true;
-		}
 	}
 }
 
@@ -361,64 +427,7 @@ void Game::renderUi() {
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
-void Game::addTile(const Tile tile, std::vector<float>& vertices, std::vector<unsigned int>& indices, std::vector<unsigned int>& mapIndices) {
-	Vector2f pos = tile.position;
-	float w = tile.size[0];
-	float h = tile.size[1];
-
-	vertices.push_back(pos[0]); vertices.push_back(pos[1]); vertices.push_back(0.0f); vertices.push_back(0.0f); vertices.push_back(0.0f);
-	vertices.push_back(pos[0]); vertices.push_back(pos[1] + h); vertices.push_back(0.0f); vertices.push_back(0.0f); vertices.push_back(1.0f);
-	vertices.push_back(pos[0] + w); vertices.push_back(pos[1] + h); vertices.push_back(0.0f); vertices.push_back(1.0f); vertices.push_back(1.0f);
-	vertices.push_back(pos[0] + w); vertices.push_back(pos[1]); vertices.push_back(0.0f); vertices.push_back(1.0f); vertices.push_back(0.0f);
-
-	mapIndices.push_back(tile.gid); mapIndices.push_back(tile.gid); mapIndices.push_back(tile.gid); mapIndices.push_back(tile.gid);
-
-	unsigned int currentOffset = (vertices.size() / 5) - 4;
-
-	indices.push_back(currentOffset + 0);
-	indices.push_back(currentOffset + 1);
-	indices.push_back(currentOffset + 2);
-
-	indices.push_back(currentOffset + 0);
-	indices.push_back(currentOffset + 2);
-	indices.push_back(currentOffset + 3);
-}
-
-void Game::createBuffer() {
-	short stride = 5, offset = 3;
-
-	glGenBuffers(1, &m_ibo);
-	glGenBuffers(1, &m_vbo);
-	glGenBuffers(1, &m_vboMap);
-
-	glGenVertexArrays(1, &m_vao);
-	glBindVertexArray(m_vao);
-	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-	glBufferData(GL_ARRAY_BUFFER, m_vertices.size() * sizeof(float), &m_vertices[0], GL_STATIC_DRAW);
-
-	//positions
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)0);
-
-	//texcoords
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)(offset * sizeof(float)));
-
-	//map indices
-	glBindBuffer(GL_ARRAY_BUFFER, m_vboMap);
-	glBufferData(GL_ARRAY_BUFFER, m_indexMap.size() * sizeof(m_indexMap[0]), &m_indexMap[0], GL_STATIC_DRAW);
-	glEnableVertexAttribArray(2);
-	glVertexAttribIPointer(2, 1, GL_UNSIGNED_INT, 1 * sizeof(unsigned int), 0);
-
-	//indices
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ibo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_indexBuffer.size() * sizeof(unsigned int), &m_indexBuffer[0], GL_STATIC_DRAW);
-
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
-}
-
-void Game::update2(float delta) {
+void Game::updateCamera(float delta) {
 
 	const float movX = mDirX * mSpeed * delta;
 
@@ -473,8 +482,8 @@ void Game::setLimits(int l, int r, int t, int b) {
 
 void Game::CenterCameraOverCell(int row, int col) {
 	const Vector2f pos = GetCellPosition(row, col);
-	const int cX = pos[0] + TILE_WIDTH * 0.5f;
-	const int cY = pos[1] + TILE_HEIGHT * 0.5f;
+	const int cX = pos[0] + ISO_WIDTH * 0.5f;
+	const int cY = pos[1] + ISO_HEIGHT * 0.5f;
 	CenterCameraToPoint(cX, cY);
 }
 
@@ -516,35 +525,162 @@ Vector2f Game::GetCellPosition(unsigned int r, unsigned int c) const {
 
 Vector2f Game::GetCellPosition(unsigned int index) const {
 
-	if (index < tiles.size()) {
-		return tiles[index].position;
+	if (index < isoTiles.size()) {
+		return isoTiles[index].position;
 	}else {
 		const Vector2f p(-1, -1);
 		return p;
 	}
 }
 
-void Game::setOrigin(const float x, const float y) {
-	m_origin[0] = x;
-	m_origin[1] = y;
-	updateTilePositions();
-}
+void Game::createBoard(int nr){
+	//clear the list and the map
+	hexlist.clear();
+	heights.clear();
 
-void Game::setOrigin(const Vector2f &origin) {
-	m_origin = origin;
-	m_origin[0] = origin[0];
-	updateTilePositions();
-}
+	int dist = 4;
 
-void Game::updateTilePositions() {
+	switch (nr)
+	{
+	case 0: //Rectangle 1
+		//sBoardName = "Rectangle 1";
+		for (int q = -3; q <= 3; q++)
+		{ // flat top
+			int q_offset = floor((q - 1) / 2.0); // or q>>1
+			for (int r = -5 - q_offset; r <= 4 - q_offset; r++)
+			{
+				if (Hex::hex_distance(Hex(q, r, -q - r), Hex(0, 0, 0)) != 1)
+				{
+					hexlist.push_back(Hex(q, r, -q - r));
+					heights[Hex(q, r, -q - r)] = std::abs(r) % 9 + 1;
+				}
+			}
+		}
 
-	m_vertices.clear();
-	m_indexBuffer.clear();
-	m_indexMap.clear();
+		break;
 
-	for (int i = 0; i < tiles.size(); i++) {
-		tiles[i].position[0] += m_origin[0];
-		tiles[i].position[1] += m_origin[1];
-		addTile(tiles[i], m_vertices, m_indexBuffer, m_indexMap);
+	case 1: //Rectangle 2
+			//sBoardName = "Rectangle 2";
+		for (int q = -3; q <= 3; q++)
+		{ // flat top
+			int q_offset = floor((q + 1) / 2.0);
+			for (int r = -4 - q_offset; r <= 4 - q_offset; r++)
+			{
+				if (Hex::hex_distance(Hex(q, r, -q - r), Hex(0, 0, 0)) != 1)
+				{
+					hexlist.push_back(Hex(q, r, -q - r));
+					heights[Hex(q, r, -q - r)] = std::abs(r) % 9 + 1;
+				}
+			}
+		}
+		for (int q = -3; q <= 3; q += 2)
+		{ // flat top
+			int r = 4 - floor((q) / 2.0);
+			hexlist.push_back(Hex(q, r, -q - r));
+			heights[Hex(q, r, -q - r)] = std::abs(r) % 9 + 1;
+			//for (int r = -4 - q_offset; r <= 4 - q_offset; r+=2)
+		}
+
+		break;
+
+	case 2: //Hexagon
+			//sBoardName = "Hexagon";
+		dist = 4;
+		for (int q = -dist; q <= dist; q++)
+		{
+			int r1 = std::max(-dist, -q - dist);
+			int r2 = std::min(dist, -q + dist);
+			for (int r = r1; r <= r2; r++)
+			{
+				hexlist.push_back(Hex(q, r, -q - r));
+				heights[Hex(q, r, -q - r)] = (Hex::hex_distance(Hex(q, r, -q - r), Hex(0, 0, 0)) + 4) % 9 + 1;
+			}
+		}
+		break;
+
+	case 3: //Parallelograms 1
+			//sBoardName = "Parallelogram 1";
+		dist = 3;
+		for (int q = -dist; q <= dist; q++)
+		{
+			for (int r = -3; r <= 3; r++)
+			{
+				if (!((r == 0) && (q == 0)))
+				{
+					hexlist.push_back(Hex(q, r, -q - r));
+					heights[Hex(q, r, -q - r)] = (std::abs(r)) % 9 + 1;
+				}
+			}
+		}
+		break;
+
+	case 4: //Parallelograms 2
+			//sBoardName = "Parallelogram 2";
+		dist = 2;
+		for (int r = -dist; r <= dist; r++)
+		{
+			for (int s = -2; s <= 2; s++)
+			{
+				if (!((r == 0) && (s == 0)))
+				{
+					hexlist.push_back(Hex(-r - s, r, s));
+					heights[Hex(-r - s, r, s)] = (std::abs(r)) % 9 + 1;
+				}
+			}
+		}
+		break;
+
+	case 5: // Parallelograms 3
+			//sBoardName = "Parallelogram 3";
+		dist = 2;
+		for (int s = -dist; s <= dist; s++)
+		{
+			for (int q = -3; q <= 3; q++)
+			{
+				if (!((s == 0) && (q == 0)))
+				{
+					hexlist.push_back(Hex(q, -q - s, s));
+					heights[Hex(q, -q - s, s)] = (std::abs(q)) % 9 + 1;
+				}
+			}
+		}
+		break;
+
+	case 6: // Triangle 1
+			//sBoardName = "Triangle 1";
+		dist = 6;
+		for (int q = 0; q <= dist; q++)
+		{
+			for (int r = dist - q; r <= dist; r++)
+			{
+				hexlist.push_back(Hex(q - 2, r - dist + 1, -q + 2 - r + dist - 1));
+				heights[Hex(q - 2, r - dist + 1, -q + 2 - r + dist - 1)] = (std::abs(q)) % 9 + 1;
+			}
+		}
+		break;
+
+	case 7: // Triangle 2
+			//sBoardName = "Triangle 2";
+		dist = 6;
+		for (int q = 0; q <= dist; q++)
+		{
+			for (int r = 0; r <= dist - q; r++)
+			{
+				hexlist.push_back(Hex(q - 2, (r - dist / 2 + 1), -(q - 2) + (-r + dist / 2 - 1)));
+				heights[Hex(q - 2, (r - dist / 2 + 1), -(q - 2) + (-r + dist / 2 - 1))] = (std::abs(q)) % 9 + 1;
+			}
+		}
+		break;
+
+	default: break;
 	}
+
+	// center tile 0,0 to screen center
+	//vOriginScreen.x = Application::Width / 2 - HEX_WIDTH / 2;
+	//vOriginScreen.y = Application::Height / 2 - HEX_HEIGHT / 2;
+
+	// sort the list to draw from top to bottom
+	hexlist.sort(hexcomp_q);
+	hexlist.sort(hexcomp_r);
+
 }

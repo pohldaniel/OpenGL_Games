@@ -20,9 +20,6 @@
 #define PHYSICS_STEP 0.0166666666666667f
 //#define PHYSICS_STEP 0.0083333333333333f
 
-#define TILE_WIDTH 96
-#define TILE_HEIGHT 48
-
 namespace Globals {
 	extern AssetManager<Shader> shaderManager;
 	extern AssetManager<Texture> textureManager;

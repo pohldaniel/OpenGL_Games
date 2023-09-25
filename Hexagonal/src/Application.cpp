@@ -61,7 +61,7 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 	Fontrenderer::Get().init();
 	Fontrenderer::Get().setShader(Globals::shaderManager.getAssetPointer("font"));
 
-	Batchrenderer::Get().init(1200, true);
+	Batchrenderer::Get().init(1200, false, true);
 	Batchrenderer::Get().setShader(Globals::shaderManager.getAssetPointer("batch"));
 
 	auto shader = Globals::shaderManager.getAssetPointer("font");
@@ -389,6 +389,7 @@ void Application::fixedUpdate() {
 void Application::initStates() {	
 	Machine = new StateMachine(m_dt, m_fdt);
 	Machine->addStateAtTop(new Game(*Machine));
+	//Machine->addStateAtTop(new Menu(*Machine));
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
@@ -436,10 +437,7 @@ void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 		} case WM_WINDOWPOSCHANGING: {			
 			break;
 		}case WM_KEYDOWN: {
-			Event event;
-			event.type = Event::KEYDOWN;
-			EventDispatcher.pushEvent(event);
-			/*switch (wParam) {
+			switch (wParam) {
 
 				case VK_ESCAPE: {
 					Event event;
@@ -471,7 +469,7 @@ void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 					break;
 				}
 #endif
-			}*/
+			}
 			break;
 		}case WM_KEYUP: {
 			Event event;
@@ -602,6 +600,8 @@ void Application::loadAssets() {
 
 	Globals::shapeManager.buildQuadXY("quad", Vector3f(-1.0f, -1.0f, 0.0f), Vector2f(2.0f, 2.0f), 1, 1, true, true, true);
 
-	Globals::spritesheetManager.loadSpritesheet("tiles", "res/textures/isotiles.png", 64, 80, 0, 0, 0, -1);
-	Globals::spritesheetManager.loadSpritesheet("tiles2", "res/textures/tiles.png", 96, 48, 0, 0, 0, -1);
+	Globals::spritesheetManager.loadSpritesheet("isoTiles", "res/textures/isoTiles.png", 96, 48, 0, 0, 0, -1);
+	Globals::spritesheetManager.loadSpritesheet("hexTiles", "res/textures/hextiles.png", 72, 46, 0, 0, 0, -1);
+	Globals::spritesheetManager.createSpritesheet("hex", "res/textures/hex.png");
+	Globals::spritesheetManager.createSpritesheet("hex_flip", "res/textures/hex_flip.png");
 }

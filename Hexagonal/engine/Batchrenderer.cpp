@@ -5,10 +5,6 @@ Batchrenderer Batchrenderer::s_instance;
 unsigned int Batchrenderer::s_drawCallCount = 0;
 unsigned int Batchrenderer::s_quadCount = 0;
 
-void Batchrenderer::setCamera(const Camera& camera) {
-	m_camera = &camera;
-}
-
 void Batchrenderer::setShader(const Shader* shader) {
 	m_shader = shader;
 }
@@ -38,8 +34,9 @@ Batchrenderer::~Batchrenderer() {
 	buffer = nullptr;	
 }
 
-void Batchrenderer::init(size_t size, bool drawSingle) {
+void Batchrenderer::init(size_t size, bool drawSingle, bool drawRaw) {
 
+	m_drawRaw = drawRaw;
 	m_maxQuad = size;
 	m_maxVert = m_maxQuad * 4;
 	m_maxIndex = m_maxQuad * 6;
@@ -143,7 +140,7 @@ void Batchrenderer::shutdown() {
 void Batchrenderer::addQuadAA(Vector4f posSize, Vector4f texPosSize, Vector4f color, unsigned int frame) {
 
 	if (indexCount >= m_maxIndex) {
-		drawBuffer();
+		m_drawRaw ? drawBufferRaw() : drawBuffer();
 	}
 
 	bufferPtr->posTex = { posSize[0], posSize[1],  texPosSize[0],  texPosSize[1] };
@@ -173,7 +170,7 @@ void Batchrenderer::addQuadAA(Vector4f posSize, Vector4f texPosSize, Vector4f co
 void Batchrenderer::addRotatedQuadRH(Vector4f posSize, float angle, float rotX, float rotY, Vector4f texPosSize, Vector4f color, unsigned int frame) {
 	
 	if (indexCount >= m_maxIndex) {
-		drawBuffer();
+		m_drawRaw ? drawBufferRaw() : drawBuffer();
 	}
 
 	angle *= PI_ON_180;
@@ -219,7 +216,7 @@ void Batchrenderer::addRotatedQuadRH(Vector4f posSize, float angle, float rotX, 
 
 void Batchrenderer::addRotatedQuadLH(Vector4f posSize, float angle, float rotX, float rotY, Vector4f texPosSize, Vector4f color, unsigned int frame) {
 	if (indexCount >= m_maxIndex) {
-		drawBuffer();
+		m_drawRaw ? drawBufferRaw() : drawBuffer();
 	}
 
 	angle *= PI_ON_180;
@@ -280,6 +277,21 @@ void Batchrenderer::drawBuffer() {
 	bufferPtr = buffer;
 }
 
+void Batchrenderer::drawBufferRaw() {
+	//s_drawCallCount++;
+	GLsizeiptr size = (uint8_t*)bufferPtr - (uint8_t*)buffer;
+	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, size, buffer);
+	glBindVertexArray(m_vao);
+	glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, nullptr);
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+
+	indexCount = 0;
+	bufferPtr = buffer;
+}
+
 void Batchrenderer::drawSingleQuadAA(Vector4f posSize, Vector4f texPosSize, Vector4f color, unsigned int frame) {
 
 	glBindBuffer(GL_ARRAY_BUFFER, m_vboSingle);
@@ -306,7 +318,7 @@ void Batchrenderer::drawSingleQuadAA(Vector4f posSize, Vector4f texPosSize, Vect
 void Batchrenderer::processQuad() {
 
 	if (indexCount >= m_maxIndex) {
-		drawBuffer();
+		m_drawRaw ? drawBufferRaw() : drawBuffer();
 	}
 
 	bufferPtr->posTex = { quadPos[0], quadPos[1], texPos[0], texPos[1] };
