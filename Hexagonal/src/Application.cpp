@@ -584,10 +584,8 @@ void Application::loadAssets() {
 	Globals::shaderManager.loadShader("texture", "res/shader/texture.vert", "res/shader/texture.frag");		
 	Globals::shaderManager.loadShader("quad_back", "res/shader/quad_back.vert", "res/shader/quad.frag");
 	Globals::shaderManager.loadShader("quad", "res/shader/quad.vert", "res/shader/quad.frag");
-	
-	Globals::shaderManager.loadShader("quad_2", "res/shader/quad2.vs", "res/shader/quad2.fs");
-	Globals::shaderManager.loadShader("quad_array", "res/shader/quad_array.vs", "res/shader/quad_array.fs");
-	Globals::shaderManager.loadShader("level", "res/shader/level.vs", "res/shader/level.fs");
+
+	Globals::shaderManager.loadShader("quad_array", "res/shader/quad_array.vert", "res/shader/quad_array.frag");
 
 	Globals::textureManager.loadTexture("forest_1", "res/backgrounds/Forest/plx-1.png", true);
 	Globals::textureManager.loadTexture("forest_2", "res/backgrounds/Forest/plx-2.png", true);
@@ -599,9 +597,14 @@ void Application::loadAssets() {
 	Globals::fontManager.loadCharacterSet("upheaval_50", "res/fonts/upheavtt.ttf", 50, 0, 3, 0, 0, true, 0u);
 
 	Globals::shapeManager.buildQuadXY("quad", Vector3f(-1.0f, -1.0f, 0.0f), Vector2f(2.0f, 2.0f), 1, 1, true, true, true);
+	Globals::shapeManager.buildQuadXZ("quad_XZ", Vector3f(-1.0f, 0.0f, -1.0f), Vector2f(2.0f, 2.0f), 1, 1, true, true, true);
+	Globals::shapeManager.buildDiamondXZ("diamond_XZ", Vector3f(-1.0f, 0.0f, -1.0f), Vector2f(2.0f, 2.0f), 1, 1, true, true, true);
+
 
 	Globals::spritesheetManager.loadSpritesheet("isoTiles", "res/textures/isoTiles.png", 96, 48, 0, 0, 0, -1);
 	Globals::spritesheetManager.loadSpritesheet("hexTiles", "res/textures/hextiles.png", 72, 46, 0, 0, 0, -1);
 	Globals::spritesheetManager.createSpritesheet("hex", "res/textures/hex.png");
 	Globals::spritesheetManager.createSpritesheet("hex_flip", "res/textures/hex_flip.png");
+	Globals::spritesheetManager.createSpritesheet("tile", "res/textures/tile.png");
+	Globals::spritesheetManager.getAssetPointer("tile")->addToSpritesheet("res/textures/tile_trans.png");
 }

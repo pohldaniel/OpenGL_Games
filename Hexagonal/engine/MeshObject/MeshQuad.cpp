@@ -199,6 +199,73 @@ void MeshQuad::BuildMeshXZ(const Vector3f& _position, const Vector2f& size, int 
 	}
 }
 
+void MeshQuad::BuildMesh(const Vector3f& _position, const Vector2f& size, int uResolution, int vResolution, bool generateTexels, bool generateNormals, bool generateTangents, std::vector<Vector3f>& positions, std::vector<Vector2f>& texels, std::vector<Vector3f>& normals, std::vector<unsigned int>& indexBuffer, std::vector<Vector3f>& tangents, std::vector<Vector3f>& bitangents) {
+	Matrix4f rot;
+	rot.rotate(Vector3f(0.0f, 1.0f, 0.0f), 45.0f);
+
+	Matrix4f scale;
+	scale.scale( M_SQRT1_2, M_SQRT1_2, M_SQRT1_2);
+
+	float border = 0.75f;
+	Matrix4f scale2;
+	scale2.scale(48.0f + border, 1.0f, 23.0f + border);
+
+	Matrix4f tmp = scale * rot;
+	
+	
+	float vStep = (1.0f / vResolution) * size[1];
+	float uStep = (1.0f / uResolution) * size[0];
+
+	for (unsigned int i = 0; i <= vResolution; i++) {
+		for (unsigned int j = 0; j <= uResolution; j++) {
+
+			// Calculate vertex position on the surface of a quad
+			float x = j * uStep;
+			float y = 0.0f;
+			float z = i * vStep;
+
+			Vector3f pos = Vector3f(x, y, z) + _position;
+			Vector3f position = scale2 * (tmp * (Vector3f(x, y, z) + _position));
+
+			positions.push_back(Vector3f(position[0], position[2], position[1]));
+
+			if (generateTexels) {
+				// Calculate texels on the surface of a quad
+				float u = (float)j / uResolution;
+				float v = (float)i / vResolution;
+				texels.push_back(Vector2f(u, v));
+			}
+
+			if (generateNormals) {
+				normals.push_back(Vector3f(0.0f, 1.0f, 0.0f));
+			}
+
+			if (generateTangents) {
+				tangents.push_back(Vector3f(1.0f, 0.0f, 0.0f));
+				bitangents.push_back(Vector3f(0.0f, 0.0f, 1.0f));
+			}
+		}
+	}
+
+	//calculate the indices
+	for (int z = 0; z < vResolution; z++) {
+		for (int x = 0; x < uResolution; x++) {
+			// 0 *- 1		0
+			//	\	*		|  *
+			//	 *	|		*	\
+									//      4		3 -* 4
+			indexBuffer.push_back(z * (uResolution + 1) + x);
+			indexBuffer.push_back((z + 1) * (uResolution + 1) + x + 1);
+			indexBuffer.push_back(z * (uResolution + 1) + x + 1);
+
+			indexBuffer.push_back(z * (uResolution + 1) + x);
+			indexBuffer.push_back((z + 1) * (uResolution + 1) + x);
+			indexBuffer.push_back((z + 1) * (uResolution + 1) + x + 1);
+
+		}
+	}
+}
+
 
 void MeshQuad::createBuffer() {
 	m_drawCount = m_indexBuffer.size();

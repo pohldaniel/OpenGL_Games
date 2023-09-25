@@ -303,17 +303,46 @@ void Spritesheet::addToSpritesheet(std::string fileName, unsigned int _format, u
 	unsigned format = _format == 0 && numCompontents == 3 ? GL_RGB : _format == 0 && numCompontents == 4 ? GL_RGBA : _format;
 	m_totalFrames++;
 
+	unsigned int fbo = 0;
+	glGenFramebuffers(1, &fbo);
+	glBindFramebuffer(GL_READ_FRAMEBUFFER, fbo);
+
+	unsigned int texture_new;
+	glGenTextures(1, &texture_new);
+
+	glBindTexture(GL_TEXTURE_2D_ARRAY, texture_new);
+	glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_RGBA8, width, height, m_totalFrames, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+
+	for (unsigned short layer = 0; layer < m_totalFrames - 1; ++layer) {
+		glFramebufferTextureLayer(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, m_texture, 0, layer);
+		glReadBuffer(GL_COLOR_ATTACHMENT0);
+		glCopyTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, layer, 0, 0, width, height);
+	}
+
+	glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+	glDeleteFramebuffers(1, &fbo);
+
 	if (_flipVertical)
 		Texture::FlipVertical(imageData, numCompontents * width, height);
 
 	glPixelStorei(GL_UNPACK_ALIGNMENT, _unpackAlignment);
-	//glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, internalFormat, width, height, m_totalFrames, 0, format, GL_UNSIGNED_BYTE, imageData);
-	glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, m_totalFrames, width, height, 1, format, GL_UNSIGNED_BYTE, imageData);
+
+	glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, m_totalFrames - 1, width, height, 1, GL_RGBA, GL_UNSIGNED_BYTE, imageData);
 	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
 
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
 
 	SOIL_free_image_data(imageData);
+
+	glBindTexture(GL_TEXTURE_2D_ARRAY, texture_new);
+	glTexParameterf(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameterf(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
+
+	glDeleteTextures(1, &m_texture);
+	m_texture = texture_new;
 }
 
 void Spritesheet::addToSpritesheet(unsigned int texture, unsigned int _format, unsigned int _internalFormat, int _unpackAlignment) {

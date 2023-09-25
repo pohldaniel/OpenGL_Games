@@ -17,6 +17,7 @@
 #define invPI  0.3183098861837906715f
 #define	invTWO_PI  0.1591549430918953358f
 #define	EPSILON  1e-6f
+#define M_SQRT1_2 0.707106781186547524401f
 
 namespace Math {
 

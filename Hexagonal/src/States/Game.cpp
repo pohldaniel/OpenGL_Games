@@ -19,6 +19,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), ISO_WIDT
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
 	m_camera.lookAt(Vector3f(0.0f, -800.0f, 0.0f), Vector3f(0.0f, -800.0f, 0.0f) + Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
+
 	m_camera.setRotationSpeed(0.1f);
 	m_camera.setMovingSpeed(400.0f);
 
@@ -146,101 +147,107 @@ void Game::update() {
 void Game::render() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	//m_background.draw();
+	if (renderMode != RenderMode::CPUTILE) {
+		glEnable(GL_BLEND);
+		auto shader = Globals::shaderManager.getAssetPointer("batch");
+		shader->use();
+		shader->loadMatrix("u_transform", m_camera.getOrthographicMatrix() * m_camera.getViewMatrix());
 
-	glEnable(GL_BLEND);
-	auto shader = Globals::shaderManager.getAssetPointer("batch");
-	shader->use();
-	shader->loadMatrix("u_transform", m_camera.getOrthographicMatrix() * m_camera.getViewMatrix());
-	
 
-	for (int cx = 0; cx < 40; ++cx) {
-		for (int cy = 0; cy < 40; ++cy) {
-			float posX, posY;
-			unsigned int id;
-			int width, height;
+		for (int cx = 0; cx < 40; ++cx) {
+			for (int cy = 0; cy < 40; ++cy) {
+				float posX, posY;
+				unsigned int id;
+				int width, height;
 
-			if (renderMode == RenderMode::ISOTILE) {
-				Globals::spritesheetManager.getAssetPointer("isoTiles")->bind(0);
-				id = m_tileId[cx][cy];
-				width = ISO_WIDTH;
-				height = ISO_HEIGHT;
+				if (renderMode == RenderMode::ISOTILE) {
+					Globals::spritesheetManager.getAssetPointer("isoTiles")->bind(0);
+					id = m_tileId[cx][cy];
+					width = ISO_WIDTH;
+					height = ISO_HEIGHT;
+
+					float pointX = cy * (float)(ISO_WIDTH) * 0.5f;
+					float pointY = cx * (float)(ISO_WIDTH) * 0.5f;
+					posX = (pointX - pointY) + Application::Width * 0.5f - (float)(ISO_WIDTH / 2);
+					posY = (pointX + pointY) * 0.5f - (Application::Height *  0.5f - (float)(ISO_HEIGHT / 0.5f));
+
+				}
+				else if (renderMode == RenderMode::ISOHEX) {
+					Globals::spritesheetManager.getAssetPointer("hexTiles")->bind(0);
+					id = 1;
+					width = HEX_WIDTH;
+					height = HEX_HEIGHT;
+
+					posX = (cx - cy) * HEX_OFFSET_X + Application::Width * 0.5f - (float)(ISO_WIDTH / 2);
+					posY = (cx + cy) * 0.5f * HEX_OFFSET_Y - (Application::Height *  0.25f - (float)(ISO_HEIGHT / 0.5f));
+
+				}
+				else if (renderMode == RenderMode::HEX) {
+					Globals::spritesheetManager.getAssetPointer("hex")->bind(0);
+					id = 0;
+					width = HEX_WIDTH;
+					height = HEX_WIDTH;
+
+					float h = HEX_WIDTH * 0.25f;
+					float s = HEX_WIDTH * 0.5f;
+					float r = HEX_WIDTH * 0.5f;
+
+					posX = cx * (h + s);
+					posY = cy * HEX_WIDTH;
+
+					if (cx % 2 == 0)
+						posY -= r;
+
+				}
+				else if (renderMode == RenderMode::HEXFLIP) {
+					Globals::spritesheetManager.getAssetPointer("hex_flip")->bind(0);
+					id = 0;
+					width = HEX_WIDTH;
+					height = HEX_WIDTH;
+
+					float h = HEX_WIDTH * 0.25f;
+					float s = HEX_WIDTH * 0.5f;
+					float r = HEX_WIDTH * 0.5f;
+
+					posX = cx * HEX_WIDTH;
+					posY = cy * (h + s);
+
+					if (cy % 2 == 0)
+						posX += s;
+
+				}
+				Batchrenderer::Get().addQuadAA(Vector4f(posX, -posY, width, height), Vector4f(0.0f, 0.0f, 1.0f, 1.0f), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), id);
+			}
+		}
+		Batchrenderer::Get().drawBufferRaw();
+		Globals::spritesheetManager.getAssetPointer("isoTiles")->unbind(0);
+		shader->unuse();
+		glDisable(GL_BLEND);
+
+	}else {
+
+		glEnable(GL_BLEND);
+		auto shader = Globals::shaderManager.getAssetPointer("quad_array");
+		shader->use();
+		shader->loadInt("u_layer", m_transparentTile ? 1 : 0);
+		Globals::spritesheetManager.getAssetPointer("tile")->bind(0);
+		for (int cx = 0; cx < 40; ++cx) {
+			for (int cy = 0; cy < 40; ++cy) {
+				float posX, posY;
 
 				float pointX = cy * (float)(ISO_WIDTH) * 0.5f;
 				float pointY = cx * (float)(ISO_WIDTH) * 0.5f;
-				posX = (pointX - pointY) + Application::Width * 0.5f - (float)(ISO_WIDTH / 2);
-				posY = (pointX + pointY) * 0.5f - (Application::Height *  0.5f - (float)(ISO_HEIGHT / 0.5f));
+				posX = (pointX - pointY) + Application::Width * 0.5f;
+				posY = (pointX + pointY) * 0.5f - (Application::Height *  1.6f );
 
-			}else if (renderMode == RenderMode::ISOHEX) {
-				Globals::spritesheetManager.getAssetPointer("hexTiles")->bind(0);
-				id = 1;
-				width = HEX_WIDTH;
-				height = HEX_HEIGHT;
-
-				posX = (cx - cy) * HEX_OFFSET_X + Application::Width * 0.5f - (float)(ISO_WIDTH / 2);
-				posY = (cx + cy) * 0.5f * HEX_OFFSET_Y - (Application::Height *  0.25f - (float)(ISO_HEIGHT / 0.5f));
-
-			}else if (renderMode == RenderMode::HEX) {
-				Globals::spritesheetManager.getAssetPointer("hex")->bind(0);
-				id = 0;
-				width = HEX_WIDTH;
-				height = HEX_WIDTH;
-
-				float h = HEX_WIDTH * 0.25f;
-				float s = HEX_WIDTH * 0.5f;
-				float r = HEX_WIDTH * 0.5f;
-
-				posX = cx * (h + s);
-				posY = cy * HEX_WIDTH;
-
-				if (cx % 2 == 0)
-					posY -= r;
-
-			}else if (renderMode == RenderMode::HEXFLIP) {
-				Globals::spritesheetManager.getAssetPointer("hex_flip")->bind(0);
-				id = 0;
-				width = HEX_WIDTH;
-				height = HEX_WIDTH;
-
-				float h = HEX_WIDTH * 0.25f;
-				float s = HEX_WIDTH * 0.5f;
-				float r = HEX_WIDTH * 0.5f;
-
-				posX = cx * HEX_WIDTH;
-				posY = cy * (h + s);
-
-				if (cy % 2 == 0)
-					posX += s;
-
+				shader->loadMatrix("u_transform", m_camera.getOrthographicMatrix() * m_camera.getViewMatrix() * Matrix4f::Translate(posX, posY, 0.0f) * Matrix4f::Scale(m_scale, m_scale, m_scale));
+				Globals::shapeManager.get("diamond_XZ").drawRaw();
 			}
-			Batchrenderer::Get().addQuadAA(Vector4f(posX, -posY, width, height), Vector4f(0.0f, 0.0f, 1.0f, 1.0f), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), id);
 		}
-	}	
-	Batchrenderer::Get().drawBufferRaw();
-	Globals::spritesheetManager.getAssetPointer("isoTiles")->unbind(0);
-	shader->unuse();
-	glDisable(GL_BLEND);
-
-
-	/*glEnable(GL_BLEND);
-	auto shader = Globals::shaderManager.getAssetPointer("batch");
-	shader->use();
-	shader->loadMatrix("u_transform", m_camera.getOrthographicMatrix() * m_camera.getViewMatrix());
-	Globals::spritesheetManager.getAssetPointer("hexTiles")->bind(0);
-
-	for (int r = 0; r < 40; ++r) {
-		for (int c = 0; c < 40; ++c) {
-
-			float pointXTrans = (r - c) * HEX_OFFSET_X + Application::Width * 0.5f - (float)(ISO_WIDTH / 2);
-			float pointYTrans = (r + c) * 0.5f * HEX_OFFSET_Y - (Application::Height *  0.25f - (float)(ISO_HEIGHT / 0.5f));
-
-			
-			Batchrenderer::Get().addQuadAA(Vector4f(pointXTrans, -pointYTrans, HEX_WIDTH, HEX_HEIGHT), Vector4f(0.0f, 0.0f, 1.0f, 1.0f), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), 1);
-		}
+		shader->unuse();
+		glDisable(GL_BLEND);
+		Globals::spritesheetManager.getAssetPointer("tile")->bind(0);
 	}
-	Batchrenderer::Get().drawBufferRaw();
-	Globals::spritesheetManager.getAssetPointer("hexTiles")->unbind(0);
-	shader->unuse();
-	glDisable(GL_BLEND);*/
 
 	if (m_drawUi)
 		renderUi();
@@ -335,10 +342,15 @@ void Game::renderUi() {
 	// render widgets
 	ImGui::Begin("Settings", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
 	ImGui::Checkbox("Draw Wirframe", &StateMachine::GetEnableWireframe());
-
+	
 	int currentRenderMode = renderMode;
-	if (ImGui::Combo("Mode", &currentRenderMode, "Iso Tile\0Iso Hex\0Hex\0Hex Flip\0\0")) {
+	if (ImGui::Combo("Mode", &currentRenderMode, "Iso Tile\0Iso Hex\0Hex\0Hex Flip\0CPU Tile\0\0")) {
 		renderMode = static_cast<RenderMode>(currentRenderMode);
+	}
+
+	if (renderMode == RenderMode::CPUTILE) {	
+		ImGui::SliderFloat("Scale", &m_scale, -5.0f, 5.0f);
+		ImGui::Checkbox("Transparent Tile", &m_transparentTile);
 	}
 
 	ImGui::End();

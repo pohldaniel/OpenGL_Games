@@ -19,7 +19,8 @@ enum RenderMode {
 	ISOTILE,
 	ISOHEX,
 	HEX,
-	HEXFLIP
+	HEXFLIP,
+	CPUTILE
 };
 
 class Game : public State, public MouseEventListener, public KeyboardEventListener {
@@ -52,7 +53,9 @@ private:
 
 	bool m_initUi = true;
 	bool m_drawUi = true;
-	
+	bool m_transparentTile = false;
+	float m_scale = 1.0f;
+
 	Background m_background;
 	RenderMode renderMode = RenderMode::ISOTILE;
 
@@ -69,4 +72,5 @@ private:
 	const int HEX_OFFSET_Y;
 
 	unsigned int** m_tileId;
+
 };

@@ -260,6 +260,50 @@ void Camera::lookAt(const Vector3f &eye, const Vector3f &target, const Vector3f 
 	m_invViewMatrix[3][3] = 1.0f;
 }
 
+void Camera::lookAt(const Vector3f &pos, float pitch, float yaw) {
+	m_eye = pos;
+	m_accumPitchDegrees = pitch;
+
+	pitch = pitch * PI_ON_180;
+	yaw = yaw * PI_ON_180;
+
+	float cosY = cosf(yaw);
+	float cosP = cosf(pitch);
+
+	float sinY = sinf(yaw);
+	float sinP = sinf(pitch);
+
+	m_xAxis[0] = cosY; m_xAxis[1] = 0.0f; m_xAxis[2] = -sinY;
+	m_yAxis[0] = sinY * sinP; m_yAxis[1] = cosP; m_yAxis[2] = cosY * sinP;
+	m_zAxis[0] = sinY * cosP; m_zAxis[1] = -sinP; m_zAxis[2] = cosP * cosY;
+
+	m_viewDir = -m_zAxis;
+
+	Matrix4f view;
+
+	view[0][0] = m_xAxis[0];
+	view[0][1] = m_yAxis[0];
+	view[0][2] = m_zAxis[0];
+	view[0][3] = 0.0f;
+
+	view[1][0] = m_xAxis[1];
+	view[1][1] = m_yAxis[1];
+	view[1][2] = m_zAxis[1];
+	view[1][3] = 0.0f;
+
+	view[2][0] = m_xAxis[2];
+	view[2][1] = m_yAxis[2];
+	view[2][2] = m_zAxis[2];
+	view[2][3] = 0.0f;
+
+	view[3][0] = -Vector3f::Dot(m_xAxis, m_eye);
+	view[3][1] = -Vector3f::Dot(m_yAxis, m_eye);
+	view[3][2] = -Vector3f::Dot(m_zAxis, m_eye);
+	view[3][3] = 1.0f;
+
+	view.print();
+}
+
 void Camera::pitchReflection(const float distance) {
 	m_viewMatrix[1][1] = -m_viewMatrix[1][1];
 	m_viewMatrix[3][1] = 2 * distance + m_viewMatrix[3][1];
