@@ -204,8 +204,6 @@
     <ClCompile Include="engine\Transform.cpp" />
     <ClCompile Include="engine\Vector.cpp" />
     <ClCompile Include="engine\VolumeBuffer.cpp" />
-    <ClCompile Include="Hex.cpp" />
-    <ClCompile Include="Map.cpp" />
     <ClCompile Include="Physics\BspConverter.cpp" />
     <ClCompile Include="Physics\BspLoader.cpp" />
     <ClCompile Include="Physics\DebugDrawer.cpp" />
@@ -286,8 +284,6 @@
     <ClInclude Include="engine\Transform.h" />
     <ClInclude Include="engine\Vector.h" />
     <ClInclude Include="engine\VolumeBuffer.h" />
-    <ClInclude Include="Hex.h" />
-    <ClInclude Include="Map.h" />
     <ClInclude Include="Physics\BspConverter.h" />
     <ClInclude Include="Physics\BspLoader.h" />
     <ClInclude Include="Physics\BspToBulletConverter.h" />
@@ -318,7 +314,6 @@
     <ClInclude Include="src\UI\Widget.h" />
     <ClInclude Include="src\Utils\SolidIO.h" />
     <ClInclude Include="src\Utils\Utils.h" />
-    <ClInclude Include="Tile.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
