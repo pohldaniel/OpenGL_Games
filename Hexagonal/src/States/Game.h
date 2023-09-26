@@ -20,7 +20,8 @@ enum RenderMode {
 	ISOHEX,
 	HEX,
 	HEXFLIP,
-	CPUTILE
+	CPUTILE,
+	ISOCUBE
 };
 
 class Game : public State, public MouseEventListener, public KeyboardEventListener {
@@ -57,13 +58,16 @@ private:
 	float m_scale = 1.0f;
 
 	Background m_background;
-	RenderMode renderMode = RenderMode::ISOTILE;
+	RenderMode renderMode = RenderMode::ISOCUBE;
 
 	int m_cols;
 	int m_rows;
 
-	const int ISO_WIDTH;
-	const int ISO_HEIGHT;
+	const int ISO_TILE_WIDTH;
+	const int ISO_TILE_HEIGHT;
+
+	const int ISO_CUBE_WIDTH;
+	const int ISO_CUBE_HEIGHT;
 
 	const int HEX_WIDTH;
 	const int HEX_HEIGHT;
@@ -72,5 +76,5 @@ private:
 	const int HEX_OFFSET_Y;
 
 	unsigned int** m_tileId;
-
+	float m_angle = 0.0f;
 };

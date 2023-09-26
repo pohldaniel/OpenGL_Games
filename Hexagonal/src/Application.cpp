@@ -598,13 +598,16 @@ void Application::loadAssets() {
 
 	Globals::shapeManager.buildQuadXY("quad", Vector3f(-1.0f, -1.0f, 0.0f), Vector2f(2.0f, 2.0f), 1, 1, true, true, true);
 	Globals::shapeManager.buildQuadXZ("quad_XZ", Vector3f(-1.0f, 0.0f, -1.0f), Vector2f(2.0f, 2.0f), 1, 1, true, true, true);
-	Globals::shapeManager.buildDiamondXZ("diamond_XZ", Vector3f(-1.0f, 0.0f, -1.0f), Vector2f(2.0f, 2.0f), 1, 1, true, true, true);
+	Globals::shapeManager.buildDiamondXY("diamond_XY", Vector2f(96.0f, 48.0f), 0.75f, 1, 1, true, true, true);
 
 
 	Globals::spritesheetManager.loadSpritesheet("isoTiles", "res/textures/isoTiles.png", 96, 48, 0, 0, 0, -1);
 	Globals::spritesheetManager.loadSpritesheet("hexTiles", "res/textures/hextiles.png", 72, 46, 0, 0, 0, -1);
 	Globals::spritesheetManager.createSpritesheet("hex", "res/textures/hex.png");
 	Globals::spritesheetManager.createSpritesheet("hex_flip", "res/textures/hex_flip.png");
+
+	Globals::spritesheetManager.loadSpritesheet("isoCubes", "res/textures/isoCubes.png", 64, 80, 0, 0, 0, -1);
+
 	Globals::spritesheetManager.createSpritesheet("tile", "res/textures/tile.png");
 	Globals::spritesheetManager.getAssetPointer("tile")->addToSpritesheet("res/textures/tile_trans.png");
 }

@@ -46,8 +46,8 @@ void Shape::buildQuadXZ(const Vector3f& position, const Vector2f& size, int uRes
 	createBuffer();
 }
 
-void Shape::buildDiamondXZ(const Vector3f& position, const Vector2f& size, int uResolution, int vResolution, bool generateTexels, bool generateNormals, bool generateTangents) {
-	MeshQuad::BuildMesh(position, size, uResolution, vResolution, generateTexels, generateNormals, generateTangents, m_positions, m_texels, m_normals, m_indexBuffer, m_tangents, m_bitangents);
+void Shape::buildDiamondXY(const Vector2f& size, float border, int uResolution, int vResolution, bool generateTexels, bool generateNormals, bool generateTangents) {
+	MeshQuad::BuildDiamondXY(size, border, uResolution, vResolution, generateTexels, generateNormals, generateTangents, m_positions, m_texels, m_normals, m_indexBuffer, m_tangents, m_bitangents);
 	createBuffer();
 }
 

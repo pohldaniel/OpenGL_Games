@@ -167,6 +167,35 @@ void Batchrenderer::addQuadAA(Vector4f posSize, Vector4f texPosSize, Vector4f co
 	//s_quadCount++;
 }
 
+void Batchrenderer::addDiamondAA(Vector4f posSize, Vector4f texPosSize, Vector4f color, unsigned int frame) {
+	if (indexCount >= m_maxIndex) {
+		m_drawRaw ? drawBufferRaw() : drawBuffer();
+	}
+
+	bufferPtr->posTex = { posSize[0] - posSize[2] * 0.5f, posSize[1], texPosSize[0],  texPosSize[1] };
+	bufferPtr->color = { color[0], color[1], color[2], color[3] };
+	bufferPtr->frame = frame;
+	bufferPtr++;
+
+	bufferPtr->posTex = { posSize[0], posSize[1] -posSize[3] * 0.5f,   texPosSize[0] + texPosSize[2],  texPosSize[1] };
+	bufferPtr->color = { color[0], color[1], color[2], color[3] };
+	bufferPtr->frame = frame;
+	bufferPtr++;
+
+	bufferPtr->posTex = { posSize[0] + posSize[2] * 0.5f, posSize[1],  texPosSize[0] + texPosSize[2],  texPosSize[1] + texPosSize[3] };
+	bufferPtr->color = { color[0], color[1], color[2], color[3] };
+	bufferPtr->frame = frame;
+	bufferPtr++;
+
+	bufferPtr->posTex = { posSize[0], posSize[1] + posSize[3] * 0.5f,   texPosSize[0],  texPosSize[1] + texPosSize[3] };
+	bufferPtr->color = { color[0], color[1], color[2], color[3] };
+	bufferPtr->frame = frame;
+	bufferPtr++;
+
+	indexCount += 6;
+}
+
+
 void Batchrenderer::addRotatedQuadRH(Vector4f posSize, float angle, float rotX, float rotY, Vector4f texPosSize, Vector4f color, unsigned int frame) {
 	
 	if (indexCount >= m_maxIndex) {
@@ -179,34 +208,22 @@ void Batchrenderer::addRotatedQuadRH(Vector4f posSize, float angle, float rotX, 
 	float _x = posSize[0];
 	float _y = posSize[1];
 
-	quadPos[0] = (1.0f - c) * rotX + rotY * s + _x;
-	quadPos[1] = (1.0f - c) * rotY - rotX * s + _y;
-
-	quadPos[2] = (posSize[2] - rotX) * c + rotY * s + rotX + _x;
-	quadPos[3] = (posSize[2] - rotX) * s + (1.0f - c) * rotY + _y;
-
-	quadPos[4] = (posSize[2] - rotX) * c - (posSize[3] - rotY) * s + rotX + _x;
-	quadPos[5] = (posSize[2] - rotX) * s + (posSize[3] - rotY) * c + rotY + _y;
-
-	quadPos[6] = -rotX * c - (posSize[3] - rotY) * s + rotX + _x;
-	quadPos[7] = -rotX * s + (posSize[3] - rotY) * c + rotY + _y;
-
-	bufferPtr->posTex = { quadPos[0], quadPos[1], texPosSize[0], texPosSize[1] };
+	bufferPtr->posTex = { (1.0f - c) * rotX + rotY * s + _x, (1.0f - c) * rotY - rotX * s + _y, texPosSize[0], texPosSize[1] };
 	bufferPtr->color = { color[0], color[1], color[2], color[3] };
 	bufferPtr->frame = frame;
 	bufferPtr++;
 
-	bufferPtr->posTex = { quadPos[2], quadPos[3], texPosSize[0] + texPosSize[2], texPosSize[1] };
+	bufferPtr->posTex = { (posSize[2] - rotX) * c + rotY * s + rotX + _x, (posSize[2] - rotX) * s + (1.0f - c) * rotY + _y, texPosSize[0] + texPosSize[2], texPosSize[1] };
 	bufferPtr->color = { color[0], color[1], color[2], color[3] };
 	bufferPtr->frame = frame;
 	bufferPtr++;
 
-	bufferPtr->posTex = { quadPos[4], quadPos[5], texPosSize[0] + texPosSize[2], texPosSize[1] + texPosSize[3] };
+	bufferPtr->posTex = { (posSize[2] - rotX) * c - (posSize[3] - rotY) * s + rotX + _x, (posSize[2] - rotX) * s + (posSize[3] - rotY) * c + rotY + _y, texPosSize[0] + texPosSize[2], texPosSize[1] + texPosSize[3] };
 	bufferPtr->color = { color[0], color[1], color[2], color[3] };
 	bufferPtr->frame = frame;
 	bufferPtr++;
 
-	bufferPtr->posTex = { quadPos[6], quadPos[7], texPosSize[0], texPosSize[1] + texPosSize[3] };
+	bufferPtr->posTex = { -rotX * c - (posSize[3] - rotY) * s + rotX + _x, -rotX * s + (posSize[3] - rotY) * c + rotY + _y, texPosSize[0], texPosSize[1] + texPosSize[3] };
 	bufferPtr->color = { color[0], color[1], color[2], color[3] };
 	bufferPtr->frame = frame;
 	bufferPtr++;
@@ -225,34 +242,22 @@ void Batchrenderer::addRotatedQuadLH(Vector4f posSize, float angle, float rotX, 
 	float _x = posSize[0];
 	float _y = posSize[1];
 
-	quadPos[0] = (1.0f - c) * rotX - rotY * s + _x;
-	quadPos[1] = (1.0f - c) * rotY + rotX * s + _y;
-
-	quadPos[2] = (posSize[2] - rotX) * c - rotY * s + rotX + _x;
-	quadPos[3] = (rotX - posSize[2]) * s + (1.0f - c) * rotY + _y;
-
-	quadPos[4] = (posSize[2] - rotX) * c + (posSize[3] - rotY) * s + rotX + _x;
-	quadPos[5] = (rotX - posSize[2]) * s + (posSize[3] - rotY) * c + rotY + _y;
-
-	quadPos[6] = -rotX * c + (posSize[3] - rotY) * s + rotX + _x;
-	quadPos[7] = rotX * s + (posSize[3] - rotY) * c + rotY + _y;
-
-	bufferPtr->posTex = { quadPos[0], quadPos[1], texPosSize[0], texPosSize[1] };
+	bufferPtr->posTex = { (1.0f - c) * rotX - rotY * s + _x, (1.0f - c) * rotY + rotX * s + _y, texPosSize[0], texPosSize[1] };
 	bufferPtr->color = { color[0], color[1], color[2], color[3] };
 	bufferPtr->frame = frame;
 	bufferPtr++;
 
-	bufferPtr->posTex = { quadPos[2], quadPos[3], texPosSize[0] + texPosSize[2], texPosSize[1] };
+	bufferPtr->posTex = { (posSize[2] - rotX) * c - rotY * s + rotX + _x, (rotX - posSize[2]) * s + (1.0f - c) * rotY + _y, texPosSize[0] + texPosSize[2], texPosSize[1] };
 	bufferPtr->color = { color[0], color[1], color[2], color[3] };
 	bufferPtr->frame = frame;
 	bufferPtr++;
 
-	bufferPtr->posTex = { quadPos[4], quadPos[5], texPosSize[0] + texPosSize[2], texPosSize[1] + texPosSize[3] };
+	bufferPtr->posTex = { (posSize[2] - rotX) * c + (posSize[3] - rotY) * s + rotX + _x, (rotX - posSize[2]) * s + (posSize[3] - rotY) * c + rotY + _y, texPosSize[0] + texPosSize[2], texPosSize[1] + texPosSize[3] };
 	bufferPtr->color = { color[0], color[1], color[2], color[3] };
 	bufferPtr->frame = frame;
 	bufferPtr++;
 
-	bufferPtr->posTex = { quadPos[6], quadPos[7], texPosSize[0], texPosSize[1] + texPosSize[3] };
+	bufferPtr->posTex = { -rotX * c + (posSize[3] - rotY) * s + rotX + _x, rotX * s + (posSize[3] - rotY) * c + rotY + _y, texPosSize[0], texPosSize[1] + texPosSize[3] };
 	bufferPtr->color = { color[0], color[1], color[2], color[3] };
 	bufferPtr->frame = frame;
 	bufferPtr++;

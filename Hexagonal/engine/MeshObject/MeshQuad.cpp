@@ -199,35 +199,30 @@ void MeshQuad::BuildMeshXZ(const Vector3f& _position, const Vector2f& size, int 
 	}
 }
 
-void MeshQuad::BuildMesh(const Vector3f& _position, const Vector2f& size, int uResolution, int vResolution, bool generateTexels, bool generateNormals, bool generateTangents, std::vector<Vector3f>& positions, std::vector<Vector2f>& texels, std::vector<Vector3f>& normals, std::vector<unsigned int>& indexBuffer, std::vector<Vector3f>& tangents, std::vector<Vector3f>& bitangents) {
+void MeshQuad::BuildDiamondXY(const Vector2f& size, float border, int uResolution, int vResolution, bool generateTexels, bool generateNormals, bool generateTangents, std::vector<Vector3f>& positions, std::vector<Vector2f>& texels, std::vector<Vector3f>& normals, std::vector<unsigned int>& indexBuffer, std::vector<Vector3f>& tangents, std::vector<Vector3f>& bitangents) {
 	Matrix4f rot;
-	rot.rotate(Vector3f(0.0f, 1.0f, 0.0f), 45.0f);
+	rot.rotate(Vector3f(0.0f, 0.0f, 1.0f), 45.0f);
 
-	Matrix4f scale;
-	scale.scale( M_SQRT1_2, M_SQRT1_2, M_SQRT1_2);
+	Matrix4f uniformScale;
+	uniformScale.scale( M_SQRT1_2, M_SQRT1_2, M_SQRT1_2);
 
-	float border = 0.75f;
-	Matrix4f scale2;
-	scale2.scale(48.0f + border, 1.0f, 23.0f + border);
+	Matrix4f sizeScale;
+	sizeScale.scale(size[0] + border, size[1] + border, 1.0f);
 
-	Matrix4f tmp = scale * rot;
-	
-	
-	float vStep = (1.0f / vResolution) * size[1];
-	float uStep = (1.0f / uResolution) * size[0];
+	Matrix4f transform = uniformScale * rot;
+		
+	float vStep = (1.0f / vResolution);
+	float uStep = (1.0f / uResolution);
 
 	for (unsigned int i = 0; i <= vResolution; i++) {
 		for (unsigned int j = 0; j <= uResolution; j++) {
 
 			// Calculate vertex position on the surface of a quad
 			float x = j * uStep;
-			float y = 0.0f;
-			float z = i * vStep;
+			float y = i * vStep;
+			float z = 0.0f;
 
-			Vector3f pos = Vector3f(x, y, z) + _position;
-			Vector3f position = scale2 * (tmp * (Vector3f(x, y, z) + _position));
-
-			positions.push_back(Vector3f(position[0], position[2], position[1]));
+			positions.push_back(sizeScale * (transform * (Vector3f(x, y, z) + Vector3f(-0.5f, -0.5f, 0.0f))));
 
 			if (generateTexels) {
 				// Calculate texels on the surface of a quad
@@ -237,12 +232,12 @@ void MeshQuad::BuildMesh(const Vector3f& _position, const Vector2f& size, int uR
 			}
 
 			if (generateNormals) {
-				normals.push_back(Vector3f(0.0f, 1.0f, 0.0f));
+				normals.push_back(Vector3f(0.0f, 0.0f, 1.0f));
 			}
 
 			if (generateTangents) {
 				tangents.push_back(Vector3f(1.0f, 0.0f, 0.0f));
-				bitangents.push_back(Vector3f(0.0f, 0.0f, 1.0f));
+				bitangents.push_back(Vector3f(0.0f, 1.0f, 0.0f));
 			}
 		}
 	}
@@ -253,14 +248,14 @@ void MeshQuad::BuildMesh(const Vector3f& _position, const Vector2f& size, int uR
 			// 0 *- 1		0
 			//	\	*		|  *
 			//	 *	|		*	\
-									//      4		3 -* 4
+						//      4		3 -* 4
 			indexBuffer.push_back(z * (uResolution + 1) + x);
-			indexBuffer.push_back((z + 1) * (uResolution + 1) + x + 1);
 			indexBuffer.push_back(z * (uResolution + 1) + x + 1);
+			indexBuffer.push_back((z + 1) * (uResolution + 1) + x + 1);
 
 			indexBuffer.push_back(z * (uResolution + 1) + x);
-			indexBuffer.push_back((z + 1) * (uResolution + 1) + x);
 			indexBuffer.push_back((z + 1) * (uResolution + 1) + x + 1);
+			indexBuffer.push_back((z + 1) * (uResolution + 1) + x);
 
 		}
 	}
