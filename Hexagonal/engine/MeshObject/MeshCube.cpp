@@ -453,7 +453,7 @@ void MeshCube::BuildMesh4Q(const Vector3f& _position, const Vector3f& size, int 
 			float x = j * uStep;
 			float y = size[1];
 			float z = i * vStep;
-
+			
 			Vector3f position = Vector3f(x, y, z) + _position;
 			positions.push_back(position);
 
@@ -574,9 +574,6 @@ void MeshCube::BuildMesh4Q(const Vector3f& _position, const Vector3f& size, int 
 			}
 		}
 	}
-
-	vStep = (1.0f / vResolution) * size[1];
-	uStep = (1.0f / uResolution) * size[0];
 
 	//calculate the indices
 	for (short face = 0; face < 6; face++) {

@@ -21,7 +21,8 @@ enum RenderMode {
 	HEX,
 	HEXFLIP,
 	CPUTILE,
-	ISOCUBE
+	ISOCUBE,
+	CPUCUBE
 };
 
 class Game : public State, public MouseEventListener, public KeyboardEventListener {
@@ -41,7 +42,7 @@ public:
 	void OnMouseButtonUp(Event::MouseButtonEvent& event) override;
 	void OnKeyDown(Event::KeyboardEvent& event) override;
 	void OnKeyUp(Event::KeyboardEvent& event) override;
-
+	void createBuffer(float width, float height);
 private:
 
 	void applyTransformation(TrackBall& arc);
@@ -58,7 +59,7 @@ private:
 	float m_scale = 1.0f;
 
 	Background m_background;
-	RenderMode renderMode = RenderMode::ISOCUBE;
+	RenderMode renderMode = RenderMode::CPUCUBE;
 
 	int m_cols;
 	int m_rows;
@@ -77,4 +78,13 @@ private:
 
 	unsigned int** m_tileId;
 	float m_angle = 0.0f;
+
+	short m_numBuffers = 5;
+	unsigned int m_vao;
+	unsigned int m_vbo[5];
+	unsigned int m_drawCount;
+
+	std::vector<unsigned int> m_indexBuffer;
+	std::vector<Vector3f> m_positions;
+	std::vector<Vector2f> m_texels;
 };

@@ -600,6 +600,7 @@ void Application::loadAssets() {
 	Globals::shapeManager.buildQuadXZ("quad_XZ", Vector3f(-1.0f, 0.0f, -1.0f), Vector2f(2.0f, 2.0f), 1, 1, true, true, true);
 	Globals::shapeManager.buildDiamondXY("diamond_XY", Vector2f(96.0f, 48.0f), 0.75f, 1, 1, true, true, true);
 
+	Globals::shapeManager.buildCube("cube", Vector3f(-1.0f, -5.0f, -1.0f), Vector3f(2.0f, 10.0f, 2.0f), 1, 1, true, true, true);
 
 	Globals::spritesheetManager.loadSpritesheet("isoTiles", "res/textures/isoTiles.png", 96, 48, 0, 0, 0, -1);
 	Globals::spritesheetManager.loadSpritesheet("hexTiles", "res/textures/hextiles.png", 72, 46, 0, 0, 0, -1);
