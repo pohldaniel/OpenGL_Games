@@ -9,6 +9,25 @@
 #include "Globals.h"
 #include "Menu.h"
 
+unsigned int worldTest[16][16] = {
+	{ 1,1,2,2,2,2,2,2,1,1,2,2,2,2,2,1 },
+	{ 1,1,1,1,2,1,1,2,1,1,2,2,2,2,2,1 },
+	{ 2,1,1,1,2,2,2,2,1,1,2,2,2,2,2,1 },
+	{ 2,1,1,2,2,1,1,2,1,1,2,2,2,2,2,1 },
+	{ 2,1,1,4,4,4,1,2,1,1,2,2,2,2,4,1 },
+	{ 2,1,1,4,4,4,1,2,1,1,2,2,2,2,2,1 },
+	{ 2,1,1,4,4,4,1,2,1,1,2,2,4,2,2,1 },
+	{ 2,2,2,4,4,4,2,1,2,3,3,3,4,2,2,1 },
+	{ 1,1,2,2,2,2,2,3,4,3,3,3,4,2,2,2 },
+	{ 1,1,1,1,2,1,1,2,1,3,3,3,2,2,2,3 },
+	{ 2,1,1,1,2,2,2,2,1,1,2,2,2,2,2,1 },
+	{ 2,1,1,2,2,1,1,2,1,1,3,2,2,2,4,4 },
+	{ 2,1,1,4,2,1,1,2,1,1,3,2,2,2,2,4 },
+	{ 2,1,1,1,2,1,1,2,1,1,3,3,3,3,3,4 },
+	{ 2,1,1,1,1,1,1,2,1,1,2,2,2,2,4,4 },
+	{ 2,2,2,2,2,2,2,2,1,1,2,2,2,2,2,1 }
+};
+
 Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), ISO_TILE_WIDTH(96), ISO_TILE_HEIGHT(48), ISO_CUBE_WIDTH(64), ISO_CUBE_HEIGHT(80), HEX_WIDTH(72), HEX_HEIGHT(46), HEX_OFFSET_X(54)/*out of gimp*/, HEX_OFFSET_Y(30)/*out of gimp*/ {
 
 	Application::SetCursorIcon(IDC_ARROW);
@@ -153,8 +172,11 @@ void Game::render() {
 	shader->use();
 	shader->loadMatrix("u_transform", m_camera.getOrthographicMatrix() * m_camera.getViewMatrix());
 
-	for (int cx = 0; cx < 40; ++cx) {
-			for (int cy = 0; cy < 40; ++cy) {
+	int maxX = renderMode == RenderMode::ISOCUBE ? 16 : 40;
+	int maxY = renderMode == RenderMode::ISOCUBE ? 16 : 40;
+
+	for (int cx = 0; cx < maxX; ++cx) {
+			for (int cy = 0; cy < maxY; ++cy) {
 				float posX, posY;
 				unsigned int id;
 				int width, height;
@@ -222,25 +244,29 @@ void Game::render() {
 				}else if (renderMode == RenderMode::CPUTILE) {
 					Globals::spritesheetManager.getAssetPointer("tile")->bind(0);
 					id = m_transparentTile ? 1u : 0u;
-					width = ISO_TILE_WIDTH;
-					height = ISO_TILE_HEIGHT;
 
-					float pointX = cy * (float)(ISO_TILE_WIDTH) * 0.5f;
-					float pointY = cx * (float)(ISO_TILE_WIDTH) * 0.5f;
+					//width = ISO_TILE_WIDTH;
+					//height = ISO_TILE_HEIGHT;
+
+					width = 128;
+					height = 64;
+
+					float pointX = cy * (float)(width) * 0.5f;
+					float pointY = cx * (float)(width) * 0.5f;
 					posX = (pointX - pointY) + Application::Width * 0.5f;
 					posY = (pointX + pointY) * 0.5f - (Application::Height *  0.5f - 80.0f);
 
-					Batchrenderer::Get().addDiamondAA(Vector4f(posX, -posY, 96.0f, 48.0f), Vector4f(0.0f, 0.0f, 1.0f, 1.0f), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), id);
+					Batchrenderer::Get().addDiamondAA(Vector4f(posX, -posY, width, height), Vector4f(0.0f, 0.0f, 1.0f, 1.0f), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), id);
 				}else if (renderMode == RenderMode::ISOCUBE) {
 					Globals::spritesheetManager.getAssetPointer("isoCubes")->bind(0);
-					id = 2;
+					id = worldTest[cx][cy];
 					width = ISO_CUBE_WIDTH;
 					height = ISO_CUBE_HEIGHT;
 
 					float pointX = cy * (float)(width) * 0.5f;
 					float pointY = cx * (float)(width) * 0.5f;
-					posX = (pointX - pointY) + Application::Width * 0.5f - (float)(width / 2);
-					posY = (pointX + pointY) * 0.5f - (Application::Height *  0.5f - (float)(height / 0.5f));
+					posX = (pointX - pointY) + Application::Width * 0.5f;
+					posY = (pointX + pointY) * 0.5f;
 
 					Batchrenderer::Get().addQuadAA(Vector4f(posX, -posY, width, height), Vector4f(0.0f, 0.0f, 1.0f, 1.0f), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), id);
 				}
