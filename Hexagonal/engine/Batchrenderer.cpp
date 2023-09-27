@@ -195,6 +195,101 @@ void Batchrenderer::addDiamondAA(Vector4f posSize, Vector4f texPosSize, Vector4f
 	indexCount += 6;
 }
 
+void Batchrenderer::addHexagon(Vector4f posSize, Vector4f color, unsigned int frame) {
+
+	if (indexCount >= m_maxIndex) {
+		m_drawRaw ? drawBufferRaw() : drawBuffer();
+	}
+
+	bufferPtr->posTex = { posSize[0] - 0.25f * posSize[2], posSize[1] + posSize[3] * 0.5f, 0.25f, 1.0f };
+	bufferPtr->color = { color[0], color[1], color[2], color[3] };
+	bufferPtr->frame = frame;
+	bufferPtr++;
+
+	bufferPtr->posTex = { posSize[0] - 0.5f  * posSize[2], posSize[1],   0.0f, 0.5f };
+	bufferPtr->color = { color[0], color[1], color[2], color[3] };
+	bufferPtr->frame = frame;
+	bufferPtr++;
+
+	bufferPtr->posTex = { posSize[0] - 0.25f * posSize[2], posSize[1] - posSize[3] * 0.5f,  0.25f, 0.0f };
+	bufferPtr->color = { color[0], color[1], color[2], color[3] };
+	bufferPtr->frame = frame;
+	bufferPtr++;
+
+	bufferPtr->posTex = { posSize[0] + 0.25f * posSize[2], posSize[1] + posSize[3] * 0.5f,   0.75f, 1.0f };
+	bufferPtr->color = { color[0], color[1], color[2], color[3] };
+	bufferPtr->frame = frame;
+	bufferPtr++;
+
+	bufferPtr->posTex = { posSize[0] + 0.25f * posSize[2], posSize[1] + posSize[3] * 0.5f, 0.75f, 1.0f };
+	bufferPtr->color = { color[0], color[1], color[2], color[3] };
+	bufferPtr->frame = frame;
+	bufferPtr++;
+
+	bufferPtr->posTex = { posSize[0] - 0.25f * posSize[2], posSize[1] - posSize[3] * 0.5f,   0.25f, 0.0f };
+	bufferPtr->color = { color[0], color[1], color[2], color[3] };
+	bufferPtr->frame = frame;
+	bufferPtr++;
+
+	bufferPtr->posTex = { posSize[0] + 0.25f * posSize[2], posSize[1] - posSize[3] * 0.5f,  0.75f, 0.0f };
+	bufferPtr->color = { color[0], color[1], color[2], color[3] };
+	bufferPtr->frame = frame;
+	bufferPtr++;
+
+	bufferPtr->posTex = { posSize[0] + 0.5f  * posSize[2], posSize[1],   1.0f, 0.5f };
+	bufferPtr->color = { color[0], color[1], color[2], color[3] };
+	bufferPtr->frame = frame;
+	bufferPtr++;
+
+	indexCount += 12;
+}
+
+void Batchrenderer::addHexagonFlip(Vector4f posSize, Vector4f color, unsigned int frame) {
+	if (indexCount >= m_maxIndex) {
+		m_drawRaw ? drawBufferRaw() : drawBuffer();
+	}
+
+	bufferPtr->posTex = { posSize[0] - posSize[2] * 0.5f, posSize[1] - 0.25f * posSize[3], 0.0f, 0.25f };
+	bufferPtr->color = { color[0], color[1], color[2], color[3] };
+	bufferPtr->frame = frame;
+	bufferPtr++;
+
+	bufferPtr->posTex = { posSize[0],                     posSize[1] - 0.5f  * posSize[3],   0.5f, 0.0f };
+	bufferPtr->color = { color[0], color[1], color[2], color[3] };
+	bufferPtr->frame = frame;
+	bufferPtr++;
+
+	bufferPtr->posTex = { posSize[0] + posSize[2] * 0.5f, posSize[1] - 0.25f * posSize[3],  1.0f, 0.25f };
+	bufferPtr->color = { color[0], color[1], color[2], color[3] };
+	bufferPtr->frame = frame;
+	bufferPtr++;
+
+	bufferPtr->posTex = { posSize[0] + posSize[2] * 0.5f, posSize[1] + 0.25f  * posSize[3],   1.0f, 0.75f };
+	bufferPtr->color = { color[0], color[1], color[2], color[3] };
+	bufferPtr->frame = frame;
+	bufferPtr++;
+
+	bufferPtr->posTex = { posSize[0] - posSize[2] * 0.5f, posSize[1] - 0.25f * posSize[3], 0.0f, 0.25f };
+	bufferPtr->color = { color[0], color[1], color[2], color[3] };
+	bufferPtr->frame = frame;
+	bufferPtr++;
+
+	bufferPtr->posTex = { posSize[0] + posSize[2] * 0.5f, posSize[1] + 0.25f * posSize[3],   1.0f, 0.75f };
+	bufferPtr->color = { color[0], color[1], color[2], color[3] };
+	bufferPtr->frame = frame;
+	bufferPtr++;
+
+	bufferPtr->posTex = { posSize[0],                     posSize[1] + 0.5f  * posSize[3],  0.5f, 1.0f };
+	bufferPtr->color = { color[0], color[1], color[2], color[3] };
+	bufferPtr->frame = frame;
+	bufferPtr++;
+
+	bufferPtr->posTex = { posSize[0] - posSize[2] * 0.5f, posSize[1] + 0.25f * posSize[3],   0.0f, 0.75f };
+	bufferPtr->color = { color[0], color[1], color[2], color[3] };
+	bufferPtr->frame = frame;
+	bufferPtr++;
+	indexCount += 12;
+}
 
 void Batchrenderer::addRotatedQuadRH(Vector4f posSize, float angle, float rotX, float rotY, Vector4f texPosSize, Vector4f color, unsigned int frame) {
 	
