@@ -22,7 +22,8 @@ enum RenderMode {
 	HEXFLIP,
 	CPUTILE,
 	ISOCUBE,
-	CPUCUBE
+	CPUCUBE,
+	CPUHEXFLIP
 };
 
 class Game : public State, public MouseEventListener, public KeyboardEventListener {
@@ -43,6 +44,8 @@ public:
 	void OnKeyDown(Event::KeyboardEvent& event) override;
 	void OnKeyUp(Event::KeyboardEvent& event) override;
 	void createBuffer(float width, float height);
+	void createBufferHexFlip(float width, float height);
+
 private:
 
 	void applyTransformation(TrackBall& arc);
@@ -80,6 +83,7 @@ private:
 	float m_angle = 0.0f;
 
 	short m_numBuffers = 5;
+
 	unsigned int m_vao;
 	unsigned int m_vbo[5];
 	unsigned int m_drawCount;
@@ -87,4 +91,13 @@ private:
 	std::vector<unsigned int> m_indexBuffer;
 	std::vector<Vector3f> m_positions;
 	std::vector<Vector2f> m_texels;
+
+
+	unsigned int m_vaoHexFlip;
+	unsigned int m_vboHexFlip[5];
+	unsigned int m_drawCountHexFlip;
+
+	std::vector<unsigned int> m_indexBufferHexFlip;
+	std::vector<Vector3f> m_positionsHexFlip;
+	std::vector<Vector2f> m_texelsHexFlip;
 };

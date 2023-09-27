@@ -36,13 +36,12 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), ISO_TILE
 
 	m_camera = Camera();
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
-	//m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
+	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1000.0f, 1000.0f);
 
-	m_camera.orthographic(-static_cast<float>(Application::Width / 2), static_cast<float>(Application::Width / 2), -static_cast<float>(Application::Height / 2), static_cast<float>(Application::Height / 2), -1000.0f, 1000.0f);
+	//m_camera.orthographic(-static_cast<float>(Application::Width / 2), static_cast<float>(Application::Width / 2), -static_cast<float>(Application::Height / 2), static_cast<float>(Application::Height / 2), -1000.0f, 1000.0f);
+	//m_camera.lookAt(Vector3f(0.0f, 0.0f, 10.0f), Vector3f(0.0f, 0.0f, 10.0f) + Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
 
-	m_camera.lookAt(Vector3f(0.0f, 0.0f, 10.0f), Vector3f(0.0f, 0.0f, 10.0f) + Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
-
-	//m_camera.lookAt(Vector3f(0.0f, -800.0f, 0.0f), Vector3f(0.0f, -800.0f, 0.0f) + Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
+	m_camera.lookAt(Vector3f(0.0f, -800.0f, 0.0f), Vector3f(0.0f, -800.0f, 0.0f) + Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
 
 	m_camera.setRotationSpeed(0.1f);
 	m_camera.setMovingSpeed(400.0f);
@@ -93,6 +92,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), ISO_TILE
 	fs.close();
 
 	createBuffer(ISO_CUBE_WIDTH + 15, ISO_CUBE_HEIGHT);
+	createBufferHexFlip(HEX_WIDTH  , HEX_WIDTH);
 }
 
 Game::~Game() {
@@ -173,7 +173,7 @@ void Game::update() {
 void Game::render() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	//m_background.draw();
-	if (renderMode != RenderMode::CPUCUBE) {
+	if (renderMode != RenderMode::CPUCUBE && renderMode != RenderMode::CPUHEXFLIP) {
 		glEnable(GL_BLEND);
 		auto shader = Globals::shaderManager.getAssetPointer("batch");
 		shader->use();
@@ -201,8 +201,7 @@ void Game::render() {
 
 					Batchrenderer::Get().addQuadAA(Vector4f(posX, -posY, width, height), Vector4f(0.0f, 0.0f, 1.0f, 1.0f), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), id);
 
-				}
-				else if (renderMode == RenderMode::ISOHEX) {
+				}else if (renderMode == RenderMode::ISOHEX) {
 					Globals::spritesheetManager.getAssetPointer("hexTiles")->bind(0);
 					id = 1;
 					width = HEX_WIDTH;
@@ -213,8 +212,7 @@ void Game::render() {
 
 					Batchrenderer::Get().addQuadAA(Vector4f(posX, -posY, width, height), Vector4f(0.0f, 0.0f, 1.0f, 1.0f), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), id);
 
-				}
-				else if (renderMode == RenderMode::HEX) {
+				}else if (renderMode == RenderMode::HEX) {
 					Globals::spritesheetManager.getAssetPointer("hex")->bind(0);
 					id = 0;
 					width = HEX_WIDTH;
@@ -232,8 +230,7 @@ void Game::render() {
 
 					Batchrenderer::Get().addQuadAA(Vector4f(posX, -posY, width, height), Vector4f(0.0f, 0.0f, 1.0f, 1.0f), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), id);
 
-				}
-				else if (renderMode == RenderMode::HEXFLIP) {
+				}else if (renderMode == RenderMode::HEXFLIP) {
 					Globals::spritesheetManager.getAssetPointer("hex_flip")->bind(0);
 					id = 0;
 					width = HEX_WIDTH;
@@ -251,8 +248,7 @@ void Game::render() {
 
 					Batchrenderer::Get().addQuadAA(Vector4f(posX, -posY, width, height), Vector4f(0.0f, 0.0f, 1.0f, 1.0f), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), id);
 
-				}
-				else if (renderMode == RenderMode::CPUTILE) {
+				}else if (renderMode == RenderMode::CPUTILE) {
 					Globals::spritesheetManager.getAssetPointer("tile")->bind(0);
 					id = m_transparentTile ? 1u : 0u;
 
@@ -268,8 +264,7 @@ void Game::render() {
 					posY = (pointX + pointY) * 0.5f - (Application::Height *  0.5f - 80.0f);
 
 					Batchrenderer::Get().addDiamondAA(Vector4f(posX, -posY, width, height), Vector4f(0.0f, 0.0f, 1.0f, 1.0f), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), id);
-				}
-				else if (renderMode == RenderMode::ISOCUBE) {
+				}else if (renderMode == RenderMode::ISOCUBE) {
 					Globals::spritesheetManager.getAssetPointer("isoCubes")->bind(0);
 					id = worldTest[cx][cy];
 					width = ISO_CUBE_WIDTH;
@@ -289,7 +284,7 @@ void Game::render() {
 		Spritesheet::Unbind();
 		shader->unuse();
 		glDisable(GL_BLEND);
-	}else {
+	}else if (renderMode == RenderMode::CPUCUBE) {
 		glDisable(GL_DEPTH_TEST);
 		auto shader = Globals::shaderManager.getAssetPointer("texture");
 		shader->use();
@@ -316,6 +311,41 @@ void Game::render() {
 		}
 		shader->unuse();
 		glEnable(GL_DEPTH_TEST);
+	}else if (renderMode == RenderMode::CPUHEXFLIP) {
+
+		glEnable(GL_BLEND);
+		auto shader = Globals::shaderManager.getAssetPointer("quad_array");
+		shader->use();
+
+		Globals::spritesheetManager.getAssetPointer("hex_flip")->bind(0);
+		for (int cx = 0; cx < 40; ++cx) {
+			for (int cy = 0; cy < 40; ++cy) {
+
+				int width = HEX_WIDTH;
+				int height = HEX_WIDTH;
+
+				float h = HEX_WIDTH * 0.25f;
+				float s = HEX_WIDTH * 0.5f;
+				float r = HEX_WIDTH * 0.5f;
+
+				float posX = cx * HEX_WIDTH;
+				float posY = cy * (h + s);
+
+				if (cy % 2 == 0)
+					posX += s;
+
+				shader->loadMatrix("u_transform", m_camera.getOrthographicMatrix() * m_camera.getViewMatrix() * Matrix4f::Translate(posX, -posY, 0.0f));
+				shader->loadInt("u_layer", 0);
+
+
+
+				glBindVertexArray(m_vaoHexFlip);
+				glDrawElements(GL_TRIANGLES, m_drawCountHexFlip, GL_UNSIGNED_INT, 0);
+				glBindVertexArray(0);
+			}
+		}
+		shader->unuse();
+		glDisable(GL_BLEND);
 	}
 	if (m_drawUi)
 		renderUi();
@@ -412,7 +442,7 @@ void Game::renderUi() {
 	ImGui::Checkbox("Draw Wirframe", &StateMachine::GetEnableWireframe());
 	
 	int currentRenderMode = renderMode;
-	if (ImGui::Combo("Mode", &currentRenderMode, "Iso Tile\0Iso Hex\0Hex\0Hex Flip\0CPU Tile\0Iso Cube\0CPU Cube\0\0")) {
+	if (ImGui::Combo("Mode", &currentRenderMode, "Iso Tile\0Iso Hex\0Hex\0Hex Flip\0CPU Tile\0Iso Cube\0CPU Cube\0CPU Hex Flip\0\0")) {
 		renderMode = static_cast<RenderMode>(currentRenderMode);
 	}
 
@@ -553,6 +583,70 @@ void Game::createBuffer(float width, float height) {
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_indexBuffer.size() * sizeof(m_indexBuffer[0]), &m_indexBuffer[0], GL_STATIC_DRAW);
+
+	glBindVertexArray(0);
+
+	glDeleteBuffers(1, &ibo);
+}
+
+void Game::createBufferHexFlip(float width, float height) {
+	const float hexagon_r = 0.5f;
+	const float hexagon_dx = hexagon_r*cosf(30.0f * PI_ON_180);
+	const float hexagon_dy = hexagon_r*sinf(30.0f * PI_ON_180);
+	const float hexagon_gx = 2.0*hexagon_dx;
+	const float hexagon_gy = 2.0*hexagon_dx*sinf(60.0f * PI_ON_180);
+
+	m_indexBufferHexFlip.push_back(0); m_indexBufferHexFlip.push_back(1); m_indexBufferHexFlip.push_back(2);
+	m_indexBufferHexFlip.push_back(2); m_indexBufferHexFlip.push_back(3); m_indexBufferHexFlip.push_back(0);
+
+	m_indexBufferHexFlip.push_back(4); m_indexBufferHexFlip.push_back(5); m_indexBufferHexFlip.push_back(6);
+	m_indexBufferHexFlip.push_back(6); m_indexBufferHexFlip.push_back(7); m_indexBufferHexFlip.push_back(4);
+
+	m_drawCountHexFlip = m_indexBufferHexFlip.size();
+	
+	m_positionsHexFlip.push_back(Vector3f(-hexagon_dx * width * TWO_SQRT1_3, -hexagon_dy * height, 0.0f));
+	m_positionsHexFlip.push_back(Vector3f( 0.0f,               -hexagon_r  * height, 0.0f));
+	m_positionsHexFlip.push_back(Vector3f( hexagon_dx * width * TWO_SQRT1_3, -hexagon_dy * height, 0.0f));
+	m_positionsHexFlip.push_back(Vector3f( hexagon_dx * width * TWO_SQRT1_3,  hexagon_dy * height, 0.0f));
+
+
+	m_positionsHexFlip.push_back(Vector3f( hexagon_dx * width * TWO_SQRT1_3,  hexagon_dy * height, 0.0f));
+	m_positionsHexFlip.push_back(Vector3f(-hexagon_dx * width * TWO_SQRT1_3, -hexagon_dy * height, 0.0f));
+	m_positionsHexFlip.push_back(Vector3f(-hexagon_dx * width * TWO_SQRT1_3,  hexagon_dy * height, 0.0f));
+	m_positionsHexFlip.push_back(Vector3f( 0.0f,                hexagon_r  * height, 0.0f));
+
+	m_texelsHexFlip.push_back(Vector2f(0.0f, 0.25f));
+	m_texelsHexFlip.push_back(Vector2f(0.5f, 0.0f));
+	m_texelsHexFlip.push_back(Vector2f(1.0f, 0.25f));
+	m_texelsHexFlip.push_back(Vector2f(1.0f, 0.75f));
+
+	m_texelsHexFlip.push_back(Vector2f(1.0f, 0.75f));
+	m_texelsHexFlip.push_back(Vector2f(0.0f, 0.25f));
+	m_texelsHexFlip.push_back(Vector2f(0.0f, 0.75f));
+	m_texelsHexFlip.push_back(Vector2f(0.5f, 1.0f));
+
+	unsigned int ibo;
+	glGenBuffers(1, &ibo);
+	glGenBuffers(m_numBuffers, m_vboHexFlip);
+
+	glGenVertexArrays(1, &m_vaoHexFlip);
+	glBindVertexArray(m_vaoHexFlip);
+
+	//Position
+	glBindBuffer(GL_ARRAY_BUFFER, m_vboHexFlip[0]);
+	glBufferData(GL_ARRAY_BUFFER, m_positionsHexFlip.size() * sizeof(m_positionsHexFlip[0]), &m_positionsHexFlip[0], GL_STATIC_DRAW);
+
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+	glBindBuffer(GL_ARRAY_BUFFER, m_vboHexFlip[1]);
+	glBufferData(GL_ARRAY_BUFFER, m_texelsHexFlip.size() * sizeof(m_texelsHexFlip[0]), &m_texelsHexFlip[0], GL_STATIC_DRAW);
+
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, 0);
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_indexBufferHexFlip.size() * sizeof(m_indexBufferHexFlip[0]), &m_indexBufferHexFlip[0], GL_STATIC_DRAW);
 
 	glBindVertexArray(0);
 
