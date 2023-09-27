@@ -92,7 +92,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME), ISO_TILE
 	fs.close();
 
 	createBuffer(ISO_CUBE_WIDTH + 15, ISO_CUBE_HEIGHT);
-	createBufferHexFlip(HEX_WIDTH  , HEX_WIDTH);
+	createBufferHexFlip(HEX_WIDTH, HEX_WIDTH);
 }
 
 Game::~Game() {
@@ -286,10 +286,40 @@ void Game::render() {
 		glDisable(GL_BLEND);
 	}else if (renderMode == RenderMode::CPUCUBE) {
 		glDisable(GL_DEPTH_TEST);
-		auto shader = Globals::shaderManager.getAssetPointer("texture");
+		glEnable(GL_BLEND);
+		auto shader = Globals::shaderManager.getAssetPointer("quad_array");
 		shader->use();
-		for (int cx = 0; cx < 40; ++cx) {
-			for (int cy = 0; cy < 40; ++cy) {
+		for (int cx = 0; cx < 20; ++cx) {
+			for (int cy = 0; cy < 20; ++cy) {
+
+				int width = ISO_CUBE_WIDTH;
+				int height = ISO_CUBE_HEIGHT;
+
+				float pointX = cy * (float)(width) * 0.5f;
+				float pointY = cx * (float)(width) * 0.5f;
+				float posX = (pointX - pointY) + Application::Width * 0.5f;
+				float posY = (pointX + pointY) * 2.0f * 0.5f;
+
+				shader->loadMatrix("u_transform", m_camera.getOrthographicMatrix() * m_camera.getViewMatrix() * Matrix4f::Translate(posX, -posY, 0.0f));
+				shader->loadInt("u_layer", m_transparentTile ? 1u : 0u);
+				Globals::spritesheetManager.getAssetPointer("tile")->bind(0);
+
+				glBindVertexArray(m_vao);
+				glDrawElements(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0);
+				glBindVertexArray(0);
+			}
+		}
+		shader->unuse();
+		glDisable(GL_BLEND);
+		glEnable(GL_DEPTH_TEST);
+	}else if (renderMode == RenderMode::CPUHEXFLIP) {
+
+		glEnable(GL_BLEND);
+		auto shader = Globals::shaderManager.getAssetPointer("quad_array");
+		shader->use();
+		/*for (int cx = 0; cx < 16; ++cx) {
+			for (int cy = 0; cy < 16; ++cy) {
+				Globals::spritesheetManager.getAssetPointer("isoCubes")->bind(0);
 
 				int width = ISO_CUBE_WIDTH;
 				int height = ISO_CUBE_HEIGHT;
@@ -299,23 +329,17 @@ void Game::render() {
 				float posX = (pointX - pointY) + Application::Width * 0.5f;
 				float posY = (pointX + pointY) * 0.5f;
 
-				shader->loadMatrix("u_projection", m_camera.getOrthographicMatrix());
-				shader->loadMatrix("u_view", m_camera.getViewMatrix() * Matrix4f::Translate(posX, -posY, 0.0f));
+				shader->loadMatrix("u_transform", m_camera.getOrthographicMatrix() * m_camera.getViewMatrix() * Matrix4f::Translate(posX, -posY, 0.0f));
+				shader->loadInt("u_layer", 1);
 
-				Globals::spritesheetManager.getAssetPointer("tile")->bind(0);
 
-				glBindVertexArray(m_vao);
-				glDrawElements(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0);
+
+				glBindVertexArray(m_vaoHexFlip);
+				glDrawElements(GL_TRIANGLES, m_drawCountHexFlip, GL_UNSIGNED_INT, 0);
 				glBindVertexArray(0);
-			}
-		}
-		shader->unuse();
-		glEnable(GL_DEPTH_TEST);
-	}else if (renderMode == RenderMode::CPUHEXFLIP) {
 
-		glEnable(GL_BLEND);
-		auto shader = Globals::shaderManager.getAssetPointer("quad_array");
-		shader->use();
+			}
+		}*/
 
 		Globals::spritesheetManager.getAssetPointer("hex_flip")->bind(0);
 		for (int cx = 0; cx < 40; ++cx) {
@@ -446,8 +470,9 @@ void Game::renderUi() {
 		renderMode = static_cast<RenderMode>(currentRenderMode);
 	}
 
-	if (renderMode == RenderMode::CPUTILE) {	
-		ImGui::SliderFloat("Scale", &m_scale, -10.0f, 10.0f);
+	if (renderMode == RenderMode::CPUTILE || renderMode == RenderMode::CPUCUBE) {
+
+		//ImGui::SliderFloat("Scale", &m_scale, -10.0f, 10.0f);	
 		ImGui::Checkbox("Transparent Tile", &m_transparentTile);
 	}
 

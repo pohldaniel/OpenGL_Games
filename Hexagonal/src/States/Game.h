@@ -62,7 +62,7 @@ private:
 	float m_scale = 1.0f;
 
 	Background m_background;
-	RenderMode renderMode = RenderMode::CPUCUBE;
+	RenderMode renderMode = RenderMode::ISOTILE;
 
 	int m_cols;
 	int m_rows;
