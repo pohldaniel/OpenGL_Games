@@ -23,6 +23,7 @@ enum RenderMode {
 	CPUTILE,
 	ISOCUBE,
 	CPUCUBE,
+	CPUHEX,
 	CPUHEXFLIP
 };
 
@@ -45,6 +46,7 @@ public:
 	void OnKeyUp(Event::KeyboardEvent& event) override;
 	void createBuffer(float width, float height);
 	void createBufferHexFlip(float width, float height);
+	void createBufferHex(float width, float height);
 
 private:
 
@@ -62,7 +64,7 @@ private:
 	float m_scale = 1.0f;
 
 	Background m_background;
-	RenderMode renderMode = RenderMode::ISOTILE;
+	RenderMode renderMode = RenderMode::CPUCUBE;
 
 	int m_cols;
 	int m_rows;
@@ -100,4 +102,12 @@ private:
 	std::vector<unsigned int> m_indexBufferHexFlip;
 	std::vector<Vector3f> m_positionsHexFlip;
 	std::vector<Vector2f> m_texelsHexFlip;
+
+	unsigned int m_vaoHex;
+	unsigned int m_vboHex[5];
+	unsigned int m_drawCountHex;
+
+	std::vector<unsigned int> m_indexBufferHex;
+	std::vector<Vector3f> m_positionsHex;
+	std::vector<Vector2f> m_texelsHex;
 };

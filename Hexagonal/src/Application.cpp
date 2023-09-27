@@ -320,8 +320,8 @@ void Application::initOpenGL(int msaaSamples) {
 
 	glCullFace(GL_BACK);
 	glFrontFace(GL_CCW);
-	//glEnable(GL_CULL_FACE);
-	glDisable(GL_CULL_FACE);
+	glEnable(GL_CULL_FACE);
+	//glDisable(GL_CULL_FACE);
 
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LEQUAL);
@@ -605,7 +605,8 @@ void Application::loadAssets() {
 	Globals::spritesheetManager.loadSpritesheet("isoTiles", "res/textures/isoTiles.png", 96, 48, 0, 0, 0, -1);
 	Globals::spritesheetManager.loadSpritesheet("hexTiles", "res/textures/hextiles.png", 72, 46, 0, 0, 0, -1);
 	Globals::spritesheetManager.createSpritesheet("hex", "res/textures/hex.png");
-	Globals::spritesheetManager.createSpritesheet("hex_flip", "res/textures/hex_flip.png");
+	Globals::spritesheetManager.getAssetPointer("hex")->addToSpritesheet("res/textures/hex_flip.png");
+
 
 	Globals::spritesheetManager.loadSpritesheet("isoCubes", "res/textures/isoCubes.png", 64, 80, 0, 0, 0, -1);
 
