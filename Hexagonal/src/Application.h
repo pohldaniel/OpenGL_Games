@@ -9,6 +9,9 @@
 
 #include <States/StateMachine.h>
 
+#include <SDL.h>
+#include <SDL_syswm.h>
+
 class Application {
 
 public:
@@ -28,8 +31,6 @@ public:
 
 	static int Width;
 	static int Height;
-
-private:
 
 	static LRESULT CALLBACK StaticWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 	LRESULT DisplayWndProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lParam);
@@ -65,4 +66,6 @@ private:
 	static HANDLE Icon;
 	static bool VerticalSync;
 	static bool Fullscreen;
+
+	static SDL_Window* SWindow;
 };

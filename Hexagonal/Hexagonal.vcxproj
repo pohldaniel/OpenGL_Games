@@ -88,14 +88,14 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;GLEW_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;src;..\libglew;..\libsoil2;..\libimgui;..\libfreetype\include;..\libbullet;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;src;..\libglew;..\libsoil2;..\libimgui;..\libfreetype\include;..\libbullet;..\SDL2\include;..\SDL2_image\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4005;</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>..\libd\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>OpenGl32.lib;libglew.lib;libsoil2.lib;libimgui.lib;libfreetype.lib;libbullet.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>OpenGl32.lib;libglew.lib;libsoil2.lib;libimgui.lib;libfreetype.lib;libbullet.lib;SDL2.lib;SDL2_image.lib;libpng.lib;libzlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -105,14 +105,14 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;GLEW_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;src;..\libglew;..\libsoil2;..\libimgui;..\libfreetype\include;..\libbullet;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;src;..\libglew;..\libsoil2;..\libimgui;..\libfreetype\include;..\libbullet;..\SDL2\include;..\SDL2_image\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4005;</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>..\libd\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>OpenGl32.lib;libglew.lib;libsoil2.lib;libimgui.lib;libfreetype.lib;libbullet.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>OpenGl32.lib;libglew.lib;libsoil2.lib;libimgui.lib;libfreetype.lib;libbullet.lib;SDL2.lib;SDL2_image.lib;libpng.lib;libzlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -124,7 +124,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;GLEW_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;src;..\libglew;..\libsoil2;..\libimgui;..\libfreetype\include;..\libbullet;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;src;..\libglew;..\libsoil2;..\libimgui;..\libfreetype\include;..\libbullet;..\SDL2\include;..\SDL2_image\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <WholeProgramOptimization>false</WholeProgramOptimization>
       <DisableSpecificWarnings>4005;</DisableSpecificWarnings>
     </ClCompile>
@@ -134,7 +134,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>..\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>OpenGl32.lib;libglew.lib;libsoil2.lib;libimgui.lib;libfreetype.lib;libbullet.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>OpenGl32.lib;libglew.lib;libsoil2.lib;libimgui.lib;libfreetype.lib;libbullet.lib;SDL2.lib;SDL2_image.lib;libpng.lib;libzlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -146,7 +146,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;_WINDOWS;_CRT_SECURE_NO_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;GLEW_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;src;..\libglew;..\libsoil2;..\libimgui;..\libfreetype\include;..\libbullet;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;src;..\libglew;..\libsoil2;..\libimgui;..\libfreetype\include;..\libbullet;..\SDL2\include;..\SDL2_image\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <WholeProgramOptimization>false</WholeProgramOptimization>
       <DisableSpecificWarnings>4005;</DisableSpecificWarnings>
     </ClCompile>
@@ -156,10 +156,29 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>..\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>OpenGl32.lib;libglew.lib;libsoil2.lib;libimgui.lib;libfreetype.lib;libbullet.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>OpenGl32.lib;libglew.lib;libsoil2.lib;libimgui.lib;libfreetype.lib;libbullet.lib;SDL2.lib;SDL2_image.lib;libpng.lib;libzlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AnimationController.cpp" />
+    <ClCompile Include="AnimationControllerManager.cpp" />
+    <ClCompile Include="AnimationManager.cpp" />
+    <ClCompile Include="AnimationState.cpp" />
+    <ClCompile Include="BlendState.cpp" />
+    <ClCompile Include="Bounds.cpp" />
+    <ClCompile Include="Bounds3D.cpp" />
+    <ClCompile Include="Box.cpp" />
+    <ClCompile Include="CreateEntityPrefabStrategies.cpp" />
+    <ClCompile Include="Dictionary.cpp" />
+    <ClCompile Include="Entity.cpp" />
+    <ClCompile Include="EntityPrefabManager.cpp" />
+    <ClCompile Include="ErrorLogger.cpp" />
+    <ClCompile Include="ImageManager.cpp" />
+    <ClCompile Include="Renderer.cpp" />
+    <ClCompile Include="RenderTarget.cpp" />
+    <ClCompile Include="sHero.cpp" />
+    <ClCompile Include="_Collision.cpp" />
+    <ClCompile Include="CollisionModel.cpp" />
     <ClCompile Include="engine\ArrayBuffer.cpp" />
     <ClCompile Include="engine\Batchrenderer.cpp" />
     <ClCompile Include="engine\BuiltInShader.cpp" />
@@ -204,6 +223,11 @@
     <ClCompile Include="engine\Transform.cpp" />
     <ClCompile Include="engine\Vector.cpp" />
     <ClCompile Include="engine\VolumeBuffer.cpp" />
+    <ClCompile Include="GameObject.cpp" />
+    <ClCompile Include="GridCell.cpp" />
+    <ClCompile Include="HashIndex.cpp" />
+    <ClCompile Include="Map.cpp" />
+    <ClCompile Include="Movement.cpp" />
     <ClCompile Include="Physics\BspConverter.cpp" />
     <ClCompile Include="Physics\BspLoader.cpp" />
     <ClCompile Include="Physics\DebugDrawer.cpp" />
@@ -217,6 +241,7 @@
     <ClCompile Include="Physics\Ragdoll.cpp" />
     <ClCompile Include="Physics\ShapeDrawer.cpp" />
     <ClCompile Include="Physics\StaticTrigger.cpp" />
+    <ClCompile Include="RenderImage.cpp" />
     <ClCompile Include="src\Application.cpp" />
     <ClCompile Include="src\Background.cpp" />
     <ClCompile Include="src\main.cpp" />
@@ -226,6 +251,7 @@
     <ClCompile Include="src\States\Game.cpp" />
     <ClCompile Include="src\States\Menu.cpp" />
     <ClCompile Include="src\States\StateMachine.cpp" />
+    <ClCompile Include="src\States\TilePlacing.cpp" />
     <ClCompile Include="src\UI\Button.cpp" />
     <ClCompile Include="src\UI\CheckBox.cpp" />
     <ClCompile Include="src\UI\SeekerBar.cpp" />
@@ -233,8 +259,32 @@
     <ClCompile Include="src\UI\Widget.cpp" />
     <ClCompile Include="src\Utils\SolidIO.cpp" />
     <ClCompile Include="src\Utils\Utils.cpp" />
+    <ClCompile Include="StateNode.cpp" />
+    <ClCompile Include="Tile.cpp" />
+    <ClCompile Include="_Camera.cpp" />
+    <ClCompile Include="_Game.cpp" />
+    <ClCompile Include="_Vector.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Animation.h" />
+    <ClInclude Include="AnimationController.h" />
+    <ClInclude Include="AnimationControllerManager.h" />
+    <ClInclude Include="AnimationManager.h" />
+    <ClInclude Include="AnimationState.h" />
+    <ClInclude Include="BlendState.h" />
+    <ClInclude Include="Bounds.h" />
+    <ClInclude Include="Bounds3D.h" />
+    <ClInclude Include="Box.h" />
+    <ClInclude Include="Camera.h" />
+    <ClInclude Include="Class.h" />
+    <ClInclude Include="ClassTypes.h" />
+    <ClInclude Include="Collision.h" />
+    <ClInclude Include="CollisionModel.h" />
+    <ClInclude Include="Component.h" />
+    <ClInclude Include="CreatePrefabStrategies.h" />
+    <ClInclude Include="Definitions.h" />
+    <ClInclude Include="Deque.h" />
+    <ClInclude Include="Dictionary.h" />
     <ClInclude Include="engine\ArrayBuffer.h" />
     <ClInclude Include="engine\collision\Collider.h" />
     <ClInclude Include="engine\collision\Collision.h" />
@@ -284,6 +334,18 @@
     <ClInclude Include="engine\Transform.h" />
     <ClInclude Include="engine\Vector.h" />
     <ClInclude Include="engine\VolumeBuffer.h" />
+    <ClInclude Include="Entity.h" />
+    <ClInclude Include="EntityPrefabManager.h" />
+    <ClInclude Include="ErrorLogger.h" />
+    <ClInclude Include="sHero.h" />
+    <ClInclude Include="_Game.h" />
+    <ClInclude Include="GameObject.h" />
+    <ClInclude Include="GridCell.h" />
+    <ClInclude Include="HashIndex.h" />
+    <ClInclude Include="Image.h" />
+    <ClInclude Include="ImageManager.h" />
+    <ClInclude Include="Map.h" />
+    <ClInclude Include="Movement.h" />
     <ClInclude Include="Physics\BspConverter.h" />
     <ClInclude Include="Physics\BspLoader.h" />
     <ClInclude Include="Physics\BspToBulletConverter.h" />
@@ -297,6 +359,13 @@
     <ClInclude Include="Physics\Ragdoll.h" />
     <ClInclude Include="Physics\ShapeDrawer.h" />
     <ClInclude Include="Physics\StaticTrigger.h" />
+    <ClInclude Include="Renderer.h" />
+    <ClInclude Include="RenderImage.h" />
+    <ClInclude Include="RenderTarget.h" />
+    <ClInclude Include="Resource.h" />
+    <ClInclude Include="ResourceManager.h" />
+    <ClInclude Include="Sort.h" />
+    <ClInclude Include="SpatialIndexGrid.h" />
     <ClInclude Include="src\Application.h" />
     <ClInclude Include="src\Background.h" />
     <ClInclude Include="src\Globals.h" />
@@ -307,6 +376,7 @@
     <ClInclude Include="src\States\Game.h" />
     <ClInclude Include="src\States\Menu.h" />
     <ClInclude Include="src\States\StateMachine.h" />
+    <ClInclude Include="src\States\TilePlacing.h" />
     <ClInclude Include="src\UI\Button.h" />
     <ClInclude Include="src\UI\CheckBox.h" />
     <ClInclude Include="src\UI\SeekerBar.h" />
@@ -314,6 +384,11 @@
     <ClInclude Include="src\UI\Widget.h" />
     <ClInclude Include="src\Utils\SolidIO.h" />
     <ClInclude Include="src\Utils\Utils.h" />
+    <ClInclude Include="StateNode.h" />
+    <ClInclude Include="StateTransition.h" />
+    <ClInclude Include="Tile.h" />
+    <ClInclude Include="Vector.h" />
+    <ClInclude Include="_Math.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

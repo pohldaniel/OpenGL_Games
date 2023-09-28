@@ -3,19 +3,10 @@
 #include <GL/glew.h>
 #include <stack>
 
-#include "engine/Shader.h"
-#include "engine/Quad.h"
-
 enum CurrentState {
-	RAGDOLLINTERFACE,
-	VEHICLEINTERFACE,
-	CHARACTERINTERFACE,
-	GAME,
-	TURSOINTERFACE,
-	OCTREEINTERFACE,
-	KCCINTERFACE,
 	MENU,
-	PBOINTERFACE,
+	TILEPLACING,	
+	GAME
 };
 
 class State;
@@ -51,8 +42,6 @@ private:
 	void clearStates();
 
 	std::stack<State*> m_states;
-	Quad *m_quad;
-	Shader *m_shader;
 
 	unsigned int m_frameTexture;
 	unsigned int m_frameBuffer;

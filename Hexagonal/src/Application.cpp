@@ -12,6 +12,7 @@
 #include <Globals.h>
 
 #include <States/Menu.h>
+#include <States/TilePlacing.h>
 #include <States/Game.h>
 #include <UI/Widget.h>
 
@@ -33,15 +34,41 @@ HCURSOR Application::Cursor = LoadCursor(nullptr, IDC_ARROW);
 HANDLE Application::Icon = LoadImage(NULL, "res/icon.ico", IMAGE_ICON, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
 bool Application::VerticalSync = true;
 
+SDL_Window* Application::SWindow = nullptr;
+
 Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fdt) {
 	Width = WIDTH;
 	Height = HEIGHT;
 	Framebuffer::SetDefaultSize(Width, Height);
 	Widget::Resize(Width, Height);
 
-	createWindow();
-	initOpenGL();
-	showWindow();
+	//createWindow();
+	//initOpenGL();
+	//showWindow();
+	SDL_Init(SDL_INIT_EVERYTHING);
+	SWindow = SDL_CreateWindow("Hexagonal", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, Width, Height, SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_OPENGL);
+
+	SDL_SysWMinfo wmInfo;
+	SDL_VERSION(&wmInfo.version);
+	SDL_GetWindowWMInfo(SWindow, &wmInfo);
+	Window = wmInfo.info.win.window;
+
+
+	SDL_GL_MakeCurrent(SWindow, SDL_GL_CreateContext(SWindow));
+	glewInit();
+	ToggleVerticalSync();
+	glCullFace(GL_BACK);
+	glFrontFace(GL_CCW);
+	glEnable(GL_CULL_FACE);
+	//glDisable(GL_CULL_FACE);
+
+	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LEQUAL);
+
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	//glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+
 	initImGUI();
 	initOpenAL();
 	loadAssets();
@@ -387,9 +414,10 @@ void Application::fixedUpdate() {
 }
 
 void Application::initStates() {	
-	Machine = new StateMachine(m_dt, m_fdt);
-	Machine->addStateAtTop(new Game(*Machine));
+	Machine = new StateMachine(m_dt, m_fdt);	
 	//Machine->addStateAtTop(new Menu(*Machine));
+	//Machine->addStateAtTop(new TilePlacing(*Machine));
+	Machine->addStateAtTop(new Game(*Machine));
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {

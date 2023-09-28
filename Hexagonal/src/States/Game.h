@@ -2,6 +2,7 @@
 
 #include <fstream>
 #include <sstream>
+#include <memory>
 
 #include <engine/input/MouseEventListener.h>
 #include <engine/input/KeyboardEventListener.h>
@@ -15,19 +16,8 @@
 #include "StateMachine.h"
 #include "Background.h"
 
-enum RenderMode {
-	ISOTILE,
-	ISOHEX,
-	HEX,
-	HEXFLIP,
-	CPUTILE,
-	ISOCUBE,
-	CPUCUBE,
-	CPUHEX,
-	CPUHEXFLIP,
-	CPUISOHEX,
-	CPUISOHEXFLIP
-};
+#include "Camera.h"
+#include "Map.h"
 
 class Game : public State, public MouseEventListener, public KeyboardEventListener {
 
@@ -46,7 +36,6 @@ public:
 	void OnMouseButtonUp(Event::MouseButtonEvent& event) override;
 	void OnKeyDown(Event::KeyboardEvent& event) override;
 	void OnKeyUp(Event::KeyboardEvent& event) override;
-	void createBuffer(float width, float height);
 
 private:
 
@@ -60,38 +49,14 @@ private:
 
 	bool m_initUi = true;
 	bool m_drawUi = true;
-	bool m_transparentTile = false;
-	float m_scale = 1.0f;
 
 	Background m_background;
-	RenderMode renderMode = RenderMode::ISOTILE;
+	Pixelbuffer m_pixelbuffer;
+	Texture m_texture;
 
-	int m_cols;
-	int m_rows;
+	eMap map;
+	eCamera camera;
+	//ePlayer player;
 
-	const int ISO_TILE_WIDTH;
-	const int ISO_TILE_HEIGHT;
-
-	const int ISO_CUBE_WIDTH;
-	const int ISO_CUBE_HEIGHT;
-
-	const int HEX_WIDTH;
-	const int HEX_HEIGHT;
-
-	const int HEX_OFFSET_X;
-	const int HEX_OFFSET_Y;
-
-	unsigned int** m_tileId;
-	float m_angle = 0.0f;
-
-	short m_numBuffers = 5;
-
-	unsigned int m_vao;
-	unsigned int m_vbo[5];
-	unsigned int m_drawCount;
-
-	std::vector<unsigned int> m_indexBuffer;
-	std::vector<Vector3f> m_positions;
-	std::vector<Vector2f> m_texels;
-
+	unsigned char* data;
 };
