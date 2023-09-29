@@ -131,7 +131,7 @@ void eRenderImage::Update() {
 // and clear this->areas gridcell pointers
 //************
 void eRenderImage::ClearAreas() {
-	for (auto && cell : areas) {
+	/*for (auto && cell : areas) {
 		auto & contents = cell->RenderContents();
 		if (contents.empty())	// FIXME: necessary to prevent a shutdown crash using std::unordered_map::find (insead of std::find) because of index reference
 			continue;
@@ -140,7 +140,7 @@ void eRenderImage::ClearAreas() {
 		if (index != contents.end())
 			contents.erase(index);
 	}
-	areas.clear();
+	areas.clear();*/
 }
 
 //***************
@@ -179,7 +179,7 @@ void eRenderImage::UpdateAreasWorldClipCorners() {
 // also this fn relies on the expensive eCollision::OBBOBBTest instead of essentially-no collision test (like eRenderImage::UpdateAreasWorldClipCorners)
 //***************
 void eRenderImage::UpdateAreasWorldClipArea() {
-	ClearAreas();
+	/*ClearAreas();
 
 	eVec2 corner = worldClip[0];
 	eVec2 xAxis(worldClip[1].x, worldClip[0].y);
@@ -191,7 +191,7 @@ void eRenderImage::UpdateAreasWorldClipArea() {
 	const eBox worldClipArea(obbPoints.data());
 	eCollision::GetAreaCells(owner->map, worldClipArea, areas);
 	for (auto && cell : areas)
-		cell->RenderContents()[this] = this;
+		cell->RenderContents()[this] = this;*/
 }
 
 //*************

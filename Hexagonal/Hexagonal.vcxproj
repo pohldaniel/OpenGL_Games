@@ -177,6 +177,7 @@
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="RenderTarget.cpp" />
     <ClCompile Include="sHero.cpp" />
+    <ClCompile Include="TileSet.cpp" />
     <ClCompile Include="_Collision.cpp" />
     <ClCompile Include="CollisionModel.cpp" />
     <ClCompile Include="engine\ArrayBuffer.cpp" />
@@ -324,6 +325,7 @@
     <ClInclude Include="engine\Pixelbuffer.h" />
     <ClInclude Include="engine\Quad.h" />
     <ClInclude Include="engine\Random.h" />
+    <ClInclude Include="engine\Rect.h" />
     <ClInclude Include="engine\Shader.h" />
     <ClInclude Include="engine\SlicedCube.h" />
     <ClInclude Include="engine\Spritesheet.h" />
@@ -338,6 +340,7 @@
     <ClInclude Include="EntityPrefabManager.h" />
     <ClInclude Include="ErrorLogger.h" />
     <ClInclude Include="sHero.h" />
+    <ClInclude Include="TileSet.h" />
     <ClInclude Include="_Game.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="GridCell.h" />

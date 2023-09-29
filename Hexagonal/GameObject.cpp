@@ -29,6 +29,7 @@ If you have questions concerning this license, you may contact Thomas Freehill a
 #include "_Game.h"
 #include "Map.h"
 #include "AnimationControllerManager.h"
+#include <iostream>
 
 //**************
 // eGameObject::eGameObject

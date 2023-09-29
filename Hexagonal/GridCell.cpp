@@ -27,12 +27,13 @@ If you have questions concerning this license, you may contact Thomas Freehill a
 #include "GridCell.h"
 #include "Renderer.h"
 #include "_Game.h"
-
+#include <iostream>
 //************
 // eGridCell::Draw
 //************
 void eGridCell::Draw(eCamera * viewCamera) {
 	auto & renderer = game->GetRenderer();
+
 	for (auto & contentPair : renderContents)
 		renderer.AddToCameraRenderPool(viewCamera, contentPair.second);
 }

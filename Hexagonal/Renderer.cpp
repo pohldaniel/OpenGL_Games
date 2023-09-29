@@ -497,9 +497,9 @@ void eRenderer::FlushCameraPool(eCamera * registeredCamera) {
 	SetRenderTarget(&registeredCamera->renderTarget);
 
 	// draw to the scalableTarget
-	for (auto && renderImage : cameraPool)
+	for (auto && renderImage : cameraPool) {
 		DrawImage(renderImage);
-
+	}
 	cameraPool.clear();
 	cameraPoolInserts.clear();
 }

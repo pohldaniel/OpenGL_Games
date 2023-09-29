@@ -15,9 +15,11 @@
 
 #include "StateMachine.h"
 #include "Background.h"
+#include "TileSet.h"
 
 #include "Camera.h"
 #include "Map.h"
+#include "Tile.h"
 
 class Game : public State, public MouseEventListener, public KeyboardEventListener {
 
@@ -53,10 +55,16 @@ private:
 	Background m_background;
 	Pixelbuffer m_pixelbuffer;
 	Texture m_texture;
+	
 
 	eMap map;
 	eCamera camera;
 	//ePlayer player;
 
 	unsigned char* data;
+
+	std::vector<TextureRect> m_textureRects;
+	unsigned int m_atlas;
+
+	void loadTileSet(std::string name);
 };

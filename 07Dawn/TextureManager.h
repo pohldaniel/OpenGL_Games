@@ -43,7 +43,7 @@ public:
 		return s_instance;
 	}
 
-	void init(std::string _name, int _width = 1024u, unsigned int _height = 1024u) {
+	void init(std::string _name, unsigned int _width = 1024u, unsigned int _height = 1024u) {
 		name = _name;
 		width = _width;
 		height = _height;

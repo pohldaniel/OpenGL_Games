@@ -26,6 +26,7 @@ If you have questions concerning this license, you may contact Thomas Freehill a
 */
 #include "_Game.h"
 #include "ErrorLogger.h"
+#include <iostream>
 
 //***************************
 // eImageManager::Init
@@ -252,6 +253,7 @@ bool eImageManager::LoadAndGet(const char * resourceFilename, std::shared_ptr<eI
 	}
 
 	result = std::make_shared<eImage>(texture, resourceFilename, resourceList.size());
+
 	if (!LoadSubframes(read, result)) {											// load subframes
 		result = resourceList[0];	// default error image, and destroy recently allocated result
 		return false;

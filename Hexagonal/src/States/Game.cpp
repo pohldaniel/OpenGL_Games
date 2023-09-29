@@ -20,10 +20,10 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 
 	m_camera = Camera();
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
-	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1000.0f, 1000.0f);
+	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
 	//m_camera.orthographic(-static_cast<float>(Application::Width / 2), static_cast<float>(Application::Width / 2), -static_cast<float>(Application::Height / 2), static_cast<float>(Application::Height / 2), -1000.0f, 1000.0f);
 	
-	m_camera.lookAt(Vector3f(0.0f, -800.0f, 0.0f), Vector3f(0.0f, -800.0f, 0.0f) + Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
+	//m_camera.lookAt(Vector3f(0.0f, -800.0f, 0.0f), Vector3f(0.0f, -800.0f, 0.0f) + Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
 	//m_camera.lookAt(Vector3f(0.0f, 0.0f, 10.0f), Vector3f(0.0f, 0.0f, 10.0f) + Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));	
 
 	m_camera.setRotationSpeed(0.1f);
@@ -58,6 +58,12 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 
 
 	data = (unsigned char*)malloc(Application::Width * Application::Height * 4);
+
+	TileSet::Get().init("set_1", 1024u, 1024u);
+	loadTileSet("res/tilesetFrames2.bimg");
+
+	m_atlas = TileSet::Get().getAtlas();
+	//Spritesheet::Safe("test", m_atlas);
 }
 
 Game::~Game() {
@@ -140,7 +146,7 @@ void Game::render() {
 
 	//m_background.draw();
 
-	map.Draw();
+	/*map.Draw();
 	game->GetRenderer().Flush();
 
 	game->GetRenderer().ReadPixels(data);
@@ -155,10 +161,24 @@ void Game::render() {
 
 	Globals::shapeManager.get("quad").drawRaw();
 
-	m_texture.unbind();
+	m_texture.unbind();*/
+
+	auto shader = Globals::shaderManager.getAssetPointer("quad_array");
+	shader->use();
+	
+	const TextureRect& rect = TileSet::Get().getTextureRects().back();
+	shader->loadMatrix("u_transform", m_camera.getOrthographicMatrix() * Matrix4f::Translate(800.0f, 450.0f, 0.0f) * Matrix4f::Scale(rect.width, rect.height, 0.0f));
+	shader->loadVector("u_texRect", Vector4f(rect.textureOffsetX, rect.textureOffsetY,  rect.textureWidth,  rect.textureHeight));
+	shader->loadInt("u_layer", rect.frame);
+	Spritesheet::Bind(m_atlas);
+
+	Globals::shapeManager.get("quad").drawRaw();
+
+	Spritesheet::Unbind();
 
 	//if (m_drawUi)
 		//renderUi();	
+
 }
 
 void Game::OnMouseMotion(Event::MouseMoveEvent& event) {
@@ -255,4 +275,60 @@ void Game::renderUi() {
 
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+}
+
+void Game::loadTileSet(std::string name) {
+	std::ifstream readTileSet(name);
+
+	char resourceFilename[MAX_ESTRING_LENGTH];
+	while (!readTileSet.eof()) {
+		readTileSet >> resourceFilename;
+
+		std::ifstream readImageDef(resourceFilename);
+		char textureFilepath[MAX_ESTRING_LENGTH];
+		memset(textureFilepath, 0, sizeof(textureFilepath));
+		readImageDef.getline(textureFilepath, sizeof(textureFilepath), '\n');
+
+		int imageWidth, imageHeight;
+		unsigned char* bytes = Texture::LoadFromFile(textureFilepath, imageWidth, imageHeight);
+
+		int accessInt = 0, numFrames = 0;
+		readImageDef >> accessInt >> numFrames;
+
+		unsigned int posX = 0, posY = 0, width = 0, height = 0;
+
+		if (numFrames == 0) {
+			posX = posY = 0;
+			width = imageWidth;
+			height = imageHeight;
+
+			m_textureRects.push_back({ static_cast<float>(posX) / static_cast<float>(imageWidth),
+                                       static_cast<float>(posY) / static_cast<float>(imageHeight),
+                                       static_cast<float>(width) / static_cast<float>(imageWidth),
+                                       static_cast<float>(height) / static_cast<float>(imageHeight),
+                                       width,
+                                       height,
+                                       0u });
+		}else {
+
+			while (!readImageDef.eof()) {
+				readImageDef >> posX >> posY >> width >> height;
+
+				m_textureRects.push_back({ static_cast<float>(posX) / static_cast<float>(imageWidth),
+                                           static_cast<float>(posY) / static_cast<float>(imageHeight),
+                                           static_cast<float>(width) / static_cast<float>(imageWidth),
+                                           static_cast<float>(height) / static_cast<float>(imageHeight),
+                                           width,
+                                           height,
+                                           0u });
+
+				readImageDef.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+			}
+		}
+		readImageDef.close();
+
+		TileSet::Get().addTexture(bytes, imageWidth, imageHeight, m_textureRects);
+		free(bytes);
+	}
+	readTileSet.close();
 }

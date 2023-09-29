@@ -28,6 +28,7 @@ If you have questions concerning this license, you may contact Thomas Freehill a
 #include "Tile.h"
 #include "Map.h"
 #include "ErrorLogger.h"
+#include <iostream>
 
 std::vector<std::pair<int, int>> eTileImpl::tileSet;		// first == index within eImageManager::resourceList; second == eImage subframe index;
 std::array<eTileImpl, eTileImpl::maxTileTypes> eTileImpl::tileTypes;

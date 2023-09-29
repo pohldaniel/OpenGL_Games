@@ -1,5 +1,6 @@
 #ifndef _SHARED_H
 #define _SHARED_H
+
 struct TextureRect {
 	float textureOffsetX;
 	float textureOffsetY;

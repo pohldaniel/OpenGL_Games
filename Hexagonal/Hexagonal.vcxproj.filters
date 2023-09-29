@@ -366,6 +366,9 @@
     <ClCompile Include="sHero.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="TileSet.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="convhull\convhull_3d.h">
@@ -736,6 +739,12 @@
     </ClInclude>
     <ClInclude Include="sHero.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TileSet.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\Rect.h">
+      <Filter>engine</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

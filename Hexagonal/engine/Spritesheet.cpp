@@ -629,9 +629,14 @@ void Spritesheet::unbind(unsigned int unit) const {
 	glActiveTexture(GL_TEXTURE0 + unit);
 }
 
-void Spritesheet::Unbind() {
+void Spritesheet::Bind(unsigned int& textureRef, unsigned int unit) {
+	glActiveTexture(GL_TEXTURE0 + unit);
+	glBindTexture(GL_TEXTURE_2D_ARRAY, textureRef);
+}
+
+void Spritesheet::Unbind(unsigned int unit) {
 	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
-	glActiveTexture(GL_TEXTURE0);
+	glActiveTexture(GL_TEXTURE0 + unit);
 }
 
 void Spritesheet::setRepeat() {
