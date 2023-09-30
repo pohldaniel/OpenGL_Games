@@ -10,14 +10,9 @@ class TileSet {
 
 public:
 
-	TileSet();
-
-
-	//void loadTileset(const char * tilesetFilename);
-
-	void addTexture(unsigned char *texture, unsigned int w, unsigned int h, unsigned int _maxWidth = 0u, unsigned int _maxHeight = 0u);
-	void addTexture(unsigned char *texture, unsigned int w, unsigned int h, std::vector<TextureRect>& prepacked, unsigned int _maxWidth = 0u, unsigned int _maxHeight = 0u);
-	void init(std::string _name, unsigned int _width = 1024u, unsigned int _height = 1024u);
+	void addTexture(unsigned char *texture, unsigned int w, unsigned int h, bool flipTextureRect = false, unsigned int _maxWidth = 0u, unsigned int _maxHeight = 0u);
+	void addTexture(unsigned char *texture, unsigned int w, unsigned int h, std::vector<TextureRect>& prepacked, bool flipTextureRect = false, unsigned int _maxWidth = 0u, unsigned int _maxHeight = 0u);
+	void init(unsigned int _width = 1024u, unsigned int _height = 1024u);
 	void resetLine();
 	void addFrame();
 	unsigned int getAtlas();
@@ -26,6 +21,8 @@ public:
 	static TileSet& Get();
 
 private:
+
+	TileSet() = default;
 
 	unsigned char* buffer;
 	unsigned char* bufferPtr;
@@ -39,7 +36,6 @@ private:
 	unsigned int maxY;
 	unsigned int fillSpace;
 	unsigned short frame;
-	std::string name;
 
 	std::vector<TextureRect> m_textureRects;
 

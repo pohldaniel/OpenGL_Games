@@ -27,7 +27,7 @@ If you have questions concerning this license, you may contact Thomas Freehill a
 #include "RenderImage.h"
 #include "_Game.h"
 #include "Map.h"
-
+#include <iostream>
 
 //*************
 // eRenderImage::~eRenderImage
@@ -107,9 +107,12 @@ void eRenderImage::SetRenderBlockSize(const eVec3 & newSize) {
 // DEBUG: if owner->IsStatic this only calls UpdateAreas during loadtime initialization, not each frame
 //************
 void eRenderImage::Update() {
+	//
+
 	oldOrigin = origin;
 	auto & ownerOrigin = owner->GetOrigin();
 	eVec2 newOrigin = ownerOrigin;
+
 	eMath::CartesianToIsometric(newOrigin.x, newOrigin.y);
 	newOrigin += orthoOriginOffset;
 	origin = newOrigin;

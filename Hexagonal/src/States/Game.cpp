@@ -21,10 +21,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	m_camera = Camera();
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
-	//m_camera.orthographic(-static_cast<float>(Application::Width / 2), static_cast<float>(Application::Width / 2), -static_cast<float>(Application::Height / 2), static_cast<float>(Application::Height / 2), -1000.0f, 1000.0f);
-	
-	//m_camera.lookAt(Vector3f(0.0f, -800.0f, 0.0f), Vector3f(0.0f, -800.0f, 0.0f) + Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
-	//m_camera.lookAt(Vector3f(0.0f, 0.0f, 10.0f), Vector3f(0.0f, 0.0f, 10.0f) + Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));	
+	m_camera.lookAt(Vector3f(-713.0f,  -2155.0f, 0.0f), Vector3f(-713.0f, -2155.0f, 0.0f) + Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
 
 	m_camera.setRotationSpeed(0.1f);
 	m_camera.setMovingSpeed(400.0f);
@@ -45,22 +42,9 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	m_texture.setWrapMode(GL_CLAMP);
 	m_texture.setFilter(GL_NEAREST);
 
-	game->InitSystem();
-
-	auto windowSize = game->GetRenderer().ViewArea();
-	camera.Init(eVec2((float)windowSize.w, (float)windowSize.h), vec2_zero);
-	game->GetRenderer().RegisterCamera(&camera);
-	game->GetEntityPrefabManager().SetCreatePrefabStrategy(std::make_shared<eCreateEntityPrefabUser>());
-
-	map.SetViewCamera(&camera);
-	//player.SetMap(&map);
-	map.Init();
-
-
-	data = (unsigned char*)malloc(Application::Width * Application::Height * 4);
-
-	TileSet::Get().init("set_1", 1024u, 1024u);
+	TileSet::Get().init(1024u, 1024u);
 	loadTileSet("res/tilesetFrames2.bimg");
+	loadMap("res/EvilTown2.emap");
 
 	m_atlas = TileSet::Get().getAtlas();
 	//Spritesheet::Safe("test", m_atlas);
@@ -69,7 +53,6 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 Game::~Game() {
 	EventDispatcher::RemoveKeyboardListener(this);
 	EventDispatcher::RemoveMouseListener(this);
-	free(data);
 }
 
 void Game::fixedUpdate() {
@@ -85,12 +68,12 @@ void Game::update() {
 	bool move = false;
 
 	if (keyboard.keyDown(Keyboard::KEY_W)) {
-		directrion += Vector3f(0.0f, 0.0f, 1.0f);
+		directrion += Vector3f(0.0f, 1.0f, 0.0f);
 		move |= true;
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_S)) {
-		directrion += Vector3f(0.0f, 0.0f, -1.0f);
+		directrion += Vector3f(0.0f, -1.0f, 0.0f);
 		move |= true;
 	}
 
@@ -146,39 +129,40 @@ void Game::render() {
 
 	//m_background.draw();
 
-	/*map.Draw();
-	game->GetRenderer().Flush();
-
-	game->GetRenderer().ReadPixels(data);
-	m_pixelbuffer.mapData(m_texture, data);
-
-	auto shader = Globals::shaderManager.getAssetPointer("texture");
-	shader->use();
-	shader->loadMatrix("u_projection", Matrix4f::IDENTITY);
-	shader->loadMatrix("u_view", Matrix4f::IDENTITY);
-	shader->loadInt("u_texture", 0);
-	m_texture.bind();
-
-	Globals::shapeManager.get("quad").drawRaw();
-
-	m_texture.unbind();*/
-
+	/*glEnable(GL_BLEND);
 	auto shader = Globals::shaderManager.getAssetPointer("quad_array");
 	shader->use();
 	
-	const TextureRect& rect = TileSet::Get().getTextureRects().back();
-	shader->loadMatrix("u_transform", m_camera.getOrthographicMatrix() * Matrix4f::Translate(800.0f, 450.0f, 0.0f) * Matrix4f::Scale(rect.width, rect.height, 0.0f));
-	shader->loadVector("u_texRect", Vector4f(rect.textureOffsetX, rect.textureOffsetY,  rect.textureWidth,  rect.textureHeight));
+	const TextureRect& rect = TileSet::Get().getTextureRects()[11];
+	shader->loadMatrix("u_transform", m_camera.getOrthographicMatrix() * Matrix4f::Scale(rect.width, rect.height, 0.0f));
+	shader->loadVector("u_texRect", Vector4f(rect.textureOffsetX, rect.textureOffsetY, rect.textureOffsetX + rect.textureWidth, rect.textureOffsetY + rect.textureHeight));
 	shader->loadInt("u_layer", rect.frame);
 	Spritesheet::Bind(m_atlas);
 
 	Globals::shapeManager.get("quad").drawRaw();
 
 	Spritesheet::Unbind();
+	shader->unuse();
+	glDisable(GL_BLEND);*/
 
-	//if (m_drawUi)
-		//renderUi();	
+	glEnable(GL_BLEND);
+	auto shader = Globals::shaderManager.getAssetPointer("batch");
+	shader->use();
+	shader->loadMatrix("u_transform", m_camera.getOrthographicMatrix() * m_camera.getViewMatrix());
 
+	Spritesheet::Bind(m_atlas);
+
+	for (auto cell : m_cells) {
+		Batchrenderer::Get().addQuadAA(Vector4f(cell.posX, cell.posY, cell.rect.width, cell.rect.height), Vector4f(cell.rect.textureOffsetX, cell.rect.textureOffsetY, cell.rect.textureWidth, cell.rect.textureHeight), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), cell.rect.frame);	
+	}
+
+	Batchrenderer::Get().drawBufferRaw();
+	Spritesheet::Unbind();
+	shader->unuse();
+	glDisable(GL_BLEND);
+
+	if (m_drawUi)
+		renderUi();
 }
 
 void Game::OnMouseMotion(Event::MouseMoveEvent& event) {
@@ -290,7 +274,7 @@ void Game::loadTileSet(std::string name) {
 		readImageDef.getline(textureFilepath, sizeof(textureFilepath), '\n');
 
 		int imageWidth, imageHeight;
-		unsigned char* bytes = Texture::LoadFromFile(textureFilepath, imageWidth, imageHeight);
+		unsigned char* bytes = Texture::LoadFromFile(textureFilepath, imageWidth, imageHeight, false);
 
 		int accessInt = 0, numFrames = 0;
 		readImageDef >> accessInt >> numFrames;
@@ -327,8 +311,103 @@ void Game::loadTileSet(std::string name) {
 		}
 		readImageDef.close();
 
-		TileSet::Get().addTexture(bytes, imageWidth, imageHeight, m_textureRects);
+		TileSet::Get().addTexture(bytes, imageWidth, imageHeight, m_textureRects, true);
 		free(bytes);
+		m_textureRects.clear();
+		m_textureRects.shrink_to_fit();
 	}
 	readTileSet.close();
+}
+
+void Game::SkipFileKey(std::ifstream & read) {
+	read.ignore(std::numeric_limits<std::streamsize>::max(), ':');
+	while (read.peek() == ' ' || read.peek() == '\t')
+		read.ignore();
+}
+
+
+void Game::loadMap(std::string name) {
+	std::ifstream read(name);
+	char buffer[MAX_ESTRING_LENGTH];
+	memset(buffer, 0, sizeof(buffer));
+
+	numColumns = 0;
+	numRows = 0;
+	cellWidth = 0;
+	cellHeight = 0;
+	numLayers = 0;
+	int row = 0;
+	int column = 0;
+
+	while (read.peek() == '#')
+		read.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
+	for (int i = 0; i < 6; ++i) {
+		SkipFileKey(read);
+		switch (i) {
+		case 0: read >> numColumns; break;
+		case 1: read >> numRows;	break;
+		case 2: read >> cellWidth;	break;
+		case 3: read >> cellHeight; break;
+		case 4: read >> numLayers;	break;
+		case 5: read.getline(buffer, sizeof(buffer), '\n'); break;		// tileSet filename
+		}
+
+		read.ignore(std::numeric_limits<std::streamsize>::max(), '\n');		// skip the rest of the line (BUGFIX: and the # begin layer def comment line)
+	}
+
+	m_layer.resize(numLayers);
+
+	Uint32 layer = 0;
+	read.ignore(std::numeric_limits<std::streamsize>::max(), '{');			// ignore up past "Layers {"
+	read.ignore(1, '\n');													// ignore the '\n' past '{'
+
+	while (read.peek() != '}') {
+		row = 0;
+		column = 0;
+		size_t tallestRenderBlock = 0;
+		read.ignore(std::numeric_limits<std::streamsize>::max(), '{');			// ignore up past "layer_# {"
+		read.ignore(1, '\n');													// ignore the '\n' past '{'
+		m_layer[layer] = new unsigned int*[numColumns];
+		for (int i = 0; i < numColumns; ++i)
+			m_layer[layer][i] = new unsigned int[numRows];
+																				// read one layer
+		while (read.peek() != '}') {
+			int tileType = INVALID_ID;
+			read >> m_layer[layer][column][row];
+
+			m_layer[layer][column][row]--;
+
+			if (m_layer[layer][column][row] != -1) {
+
+				const TextureRect& rect = TileSet::Get().getTextureRects()[m_layer[layer][column][row]];
+				eVec2 cellMins = eVec2((float)(row * cellWidth), (float)(column * cellHeight));
+				eBounds bounds = eBounds(cellMins, cellMins + eVec2((float)cellWidth, (float)cellHeight));
+				eVec2& origin = bounds[0];
+
+				eMath::CartesianToIsometric(origin.x, origin.y);
+				m_cells.push_back({ rect, origin.x, -origin.y });
+
+			}
+
+			if (read.peek() == '\n') {
+				read.ignore(1, '\n');
+				row = 0;
+				column++;
+			}else if (read.peek() == ',') {
+				read.ignore(1, ',');
+				row++;
+				if (row >= numRows) {
+					row = 0;
+					column++;
+				}
+			}
+			
+			
+		}
+		read.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+		++layer;
+		
+	}
+	read.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 }

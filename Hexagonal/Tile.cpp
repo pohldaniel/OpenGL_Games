@@ -204,12 +204,15 @@ bool eTileImpl::LoadTileset(const char * tilesetFilename, bool appendNew) {
 //************
 eTile::eTile(eGridCell * cellOwner, const eVec2 & origin, const int type, const Uint32 layer) 
 	: cellOwner(cellOwner) {
+
 	map = cellOwner->GetMap();
 	SetWorldLayer(layer);
 	renderImage = std::make_unique<eRenderImage>(this);		// all tiles currently have a renderimage by default
 	SetType(type);
 	SetOrigin(origin);
 	UpdateComponents();
+
+	
 }
 
 //************

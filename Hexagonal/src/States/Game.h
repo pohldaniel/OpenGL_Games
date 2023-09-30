@@ -21,6 +21,18 @@
 #include "Map.h"
 #include "Tile.h"
 
+struct Cell {
+
+	//Cell()
+
+	const TextureRect& rect;
+	//float boundX;
+	//float boundY;
+	float posX;
+	float posY;
+
+};
+
 class Game : public State, public MouseEventListener, public KeyboardEventListener {
 
 public:
@@ -55,16 +67,21 @@ private:
 	Background m_background;
 	Pixelbuffer m_pixelbuffer;
 	Texture m_texture;
-	
-
-	eMap map;
-	eCamera camera;
-	//ePlayer player;
-
-	unsigned char* data;
 
 	std::vector<TextureRect> m_textureRects;
 	unsigned int m_atlas;
 
 	void loadTileSet(std::string name);
+	void loadMap(std::string name);
+	void SkipFileKey(std::ifstream & read);
+
+	std::vector<unsigned int**> m_layer;
+
+	int numColumns = 0;
+	int numRows = 0;
+	int cellWidth = 0;
+	int cellHeight = 0;
+	int numLayers = 0;
+
+	std::vector<Cell> m_cells;
 };

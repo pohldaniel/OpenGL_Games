@@ -4,12 +4,7 @@
 
 TileSet TileSet::s_instance;
 
-TileSet::TileSet() {
-
-}
-
-void TileSet::init(std::string _name, unsigned int _width, unsigned int _height) {
-	name = _name;
+void TileSet::init(unsigned int _width, unsigned int _height) {
 	width = _width;
 	height = _height;
 	curX = 0;
@@ -25,7 +20,7 @@ void TileSet::init(std::string _name, unsigned int _width, unsigned int _height)
 	spritesheet = nullptr;
 }
 
-void TileSet::addTexture(unsigned char *texture, unsigned int w, unsigned int h, unsigned int _maxWidth, unsigned int _maxHeight) {
+void TileSet::addTexture(unsigned char *texture, unsigned int w, unsigned int h, bool flipTextureRect, unsigned int _maxWidth, unsigned int _maxHeight) {
 
 	unsigned int maxWidth = _maxWidth > 0 ? _maxWidth : width;
 	unsigned int maxHeight = _maxHeight > 0 ? _maxHeight : height;
@@ -49,9 +44,9 @@ void TileSet::addTexture(unsigned char *texture, unsigned int w, unsigned int h,
 	}
 
 	m_textureRects.push_back({ static_cast<float>(curX) / static_cast<float>(width), 
-                               static_cast<float>(curY) / static_cast<float>(height) , 
+                               flipTextureRect ? static_cast<float>(curY + h) / static_cast<float>(height) : static_cast<float>(curY) / static_cast<float>(height),
                                static_cast<float>(w) / static_cast<float>(width), 
-                               static_cast<float>(h) / static_cast<float>(height), 
+                               flipTextureRect ? -static_cast<float>(h) / static_cast<float>(height) : static_cast<float>(h) / static_cast<float>(height),
                                w, 
                                h,
                                frame });
@@ -62,7 +57,7 @@ void TileSet::addTexture(unsigned char *texture, unsigned int w, unsigned int h,
 	maxY = (std::max)(maxY, curY + h);
 }
 
-void TileSet::addTexture(unsigned char *texture, unsigned int w, unsigned int h, std::vector<TextureRect>& prepacked, unsigned int _maxWidth, unsigned int _maxHeight) {
+void TileSet::addTexture(unsigned char *texture, unsigned int w, unsigned int h, std::vector<TextureRect>& prepacked, bool flipTextureRect, unsigned int _maxWidth, unsigned int _maxHeight) {
 	unsigned int maxWidth = _maxWidth > 0 ? _maxWidth : width;
 	unsigned int maxHeight = _maxHeight > 0 ? _maxHeight : height;
 
@@ -84,18 +79,14 @@ void TileSet::addTexture(unsigned char *texture, unsigned int w, unsigned int h,
 		memcpy(bufferPtr + (((curY + row) * width + curX) * 4), texture + (w * row * 4), 4 * w);
 	}
 
-	float offsetX = static_cast<float>(curX) / static_cast<float>(width);
-	float offsetY = static_cast<float>(curY) / static_cast<float>(height);
-
 	for (auto rect : prepacked) {
-
-		m_textureRects.push_back({ (curX + rect.textureOffsetX * w) / static_cast<float>(width),
-                                   (curY + rect.textureOffsetY * h) / static_cast<float>(height),
-								   (curX + (rect.textureOffsetX  + rect.textureWidth) * w) / static_cast<float>(width),
-                                   (curY + (rect.textureOffsetY + rect.textureHeight) * h) / static_cast<float>(height),
-                                   rect.width,
-                                   rect.height,
-                                   frame });
+		m_textureRects.push_back({ (static_cast<float>(curX) + rect.textureOffsetX * static_cast<float>(w)) / static_cast<float>(width),
+                                    flipTextureRect ? (static_cast<float>(curY) + (rect.textureOffsetY + rect.textureHeight) * static_cast<float>(h)) / static_cast<float>(height) : (static_cast<float>(curY) + rect.textureOffsetY * static_cast<float>(h)) / static_cast<float>(height),
+								    ((rect.textureWidth)  * static_cast<float>(w)) / static_cast<float>(width),
+                                    flipTextureRect ? -((rect.textureHeight) * static_cast<float>(h)) / static_cast<float>(height) : ((rect.textureHeight) * static_cast<float>(h)) / static_cast<float>(height),
+                                    rect.width,
+                                    rect.height,
+                                    frame });
 	}
 
 	

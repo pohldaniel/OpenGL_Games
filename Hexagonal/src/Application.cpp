@@ -42,10 +42,10 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 	Framebuffer::SetDefaultSize(Width, Height);
 	Widget::Resize(Width, Height);
 
-	//createWindow();
-	//initOpenGL();
-	//showWindow();
-	SDL_Init(SDL_INIT_EVERYTHING);
+	createWindow();
+	initOpenGL();
+	showWindow();
+	/*SDL_Init(SDL_INIT_EVERYTHING);
 	SWindow = SDL_CreateWindow("Hexagonal", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, Width, Height, SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_OPENGL);
 
 	SDL_SysWMinfo wmInfo;
@@ -67,7 +67,7 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	//glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+	//glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);*/
 
 	initImGUI();
 	initOpenAL();
@@ -624,9 +624,9 @@ void Application::loadAssets() {
 	Globals::fontManager.loadCharacterSet("upheaval_200", "res/fonts/upheavtt.ttf", 200, 0, 30, 128, 0, true, 0u);
 	Globals::fontManager.loadCharacterSet("upheaval_50", "res/fonts/upheavtt.ttf", 50, 0, 3, 0, 0, true, 0u);
 
-	Globals::shapeManager.buildQuadXY("quad", Vector3f(0.0f, 0.0f, 0.0f), Vector2f(1.0f, 1.0f), 1, 1, true, true, true);
-	Globals::shapeManager.buildQuadXZ("quad_XZ", Vector3f(-1.0f, 0.0f, -1.0f), Vector2f(2.0f, 2.0f), 1, 1, true, true, true);
-	Globals::shapeManager.buildDiamondXY("diamond_XY", Vector2f(96.0f, 48.0f), 0.75f, 1, 1, true, true, true);
+	Globals::shapeManager.buildQuadXY("quad", Vector3f(-1.0f, -1.0f, 0.0f), Vector2f(2.0f, 2.0f), 1, 1, true, false, false);
+	Globals::shapeManager.buildQuadXZ("quad_XZ", Vector3f(-1.0f, 0.0f, -1.0f), Vector2f(2.0f, 2.0f), 1, 1, true, false, false);
+	Globals::shapeManager.buildDiamondXY("diamond_XY", Vector2f(96.0f, 48.0f), 0.75f, 1, 1, true, false, false);
 
 	Globals::shapeManager.buildCube("cube", Vector3f(-1.0f, -5.0f, -1.0f), Vector3f(2.0f, 10.0f, 2.0f), 1, 1, true, true, true);
 
